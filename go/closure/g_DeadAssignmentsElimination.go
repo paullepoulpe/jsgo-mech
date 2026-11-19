@@ -30,8 +30,12 @@ func new_DeadAssignmentsElimination(compiler *AbstractCompiler) *DeadAssignments
 }
 
 func (this *DeadAssignmentsElimination) process_2(externs Node, root Node) {
-	Preconditions_checkNotNull_T(externs)
-	Preconditions_checkNotNull_T(root)
+	if externs == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	if root == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	if !this.compiler_.getLifeCycleStage().isNormalized() {
 		panic(new_IllegalStateException_0())
 	}
@@ -273,7 +277,7 @@ func (this *DeadAssignmentsElimination) isVariableReadBeforeKill(n Node, variabl
 	if n.isName() && (variable == n.getString()) {
 		if NodeUtil_isNameDeclOrSimpleAssignLhs(n, n.getParent()) {
 			if ok_, a1_ := n.getParent().isAssign(), n.getParent(); !ok_ {
-				Preconditions_checkState_boolean_Object_H(false, a1_)
+				stateFail_(objstr_(a1_.box_()))
 			}
 			var rhs Node = n.getNext()
 			var state DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(rhs, variable)

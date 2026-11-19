@@ -51,7 +51,9 @@ func (this *NamedType) finit_NamedType() {
 func (this *NamedType) init_NamedType(builder *NamedType_Builder) {
 	this.ProxyObjectType.init_ProxyObjectType_JSTypeRegistry_JSType(builder.registry, builder.referencedType)
 	this.finit_NamedType()
-	Preconditions_checkNotNull_T(builder.resolutionKind)
+	if builder.resolutionKind == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	if builder.templateTypes.asList() == nil {
 		panic(new_NullPointerException_0())
 	}

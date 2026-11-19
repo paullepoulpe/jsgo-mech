@@ -24,7 +24,9 @@ func new_ColorRegistry(builder *ColorRegistry_Builder) *ColorRegistry {
 }
 
 func (this *ColorRegistry) get(id *ColorId) *Color {
-	Preconditions_checkNotNull_T(id)
+	if id == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	return Preconditions_checkNotNull_Object_String_Object_T(this.nativeColors.Get(id), "Missing Color for %s", id)
 }
 

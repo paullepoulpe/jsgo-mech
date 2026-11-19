@@ -147,7 +147,9 @@ func (this *TypeInference) inferParameters(entryFlowScope FlowScope) FlowScope {
 func (this *TypeInference) updateDestructuringParameter(pattern Node, inferredType *JSType, entryFlowScope FlowScope) FlowScope {
 	entryFlowScope = this.traverseDestructuringPatternHelper(pattern, entryFlowScope, inferredType, func(scope FlowScope, lvalue Node, type_ *JSType) FlowScope {
 		var var_ *TypedVar = cast_[*TypedVar](this.containerScope.getVar(lvalue.getString()).self())
-		Preconditions_checkNotNull_T(var_)
+		if var_ == nil {
+			panic(new_NullPointerException_0().self())
+		}
 		if var_.isTypeInferred() {
 			var_.setType(type_)
 			lvalue.setJSType(type_)
@@ -219,7 +221,7 @@ func (this *TypeInference) updateModuleScope(module *Module, syntacticBlockScope
 			rootNode.setJSType(exportsType)
 		} else {
 			if !rootNode.isBlock() {
-				Preconditions_checkState_boolean_Object_H(false, rootNode)
+				stateFail_(objstr_(rootNode.box_()))
 			}
 			var paramList Node = NodeUtil_getFunctionParameters(rootNode.getParent())
 			paramList.getOnlyChild().setJSType(exportsType)
@@ -477,7 +479,7 @@ func (this *TypeInference) traverseAssignUnsignedRightShift(n Node, scope FlowSc
 
 func (this *TypeInference) traverseCall(callNode Node, originalScope FlowScope) FlowScope {
 	if !(callNode.isCall() || callNode.isOptChainCall()) {
-		Preconditions_checkArgument_boolean_Object_H(false, callNode)
+		argFail_(objstr_(callNode.box_()))
 	}
 	var scopeAfterChildren FlowScope = this.traverseChildren(callNode, originalScope)
 	var scopeAfterExecution FlowScope = this.setCallNodeTypeAfterChildrenTraversed(callNode, scopeAfterChildren)
@@ -486,7 +488,7 @@ func (this *TypeInference) traverseCall(callNode Node, originalScope FlowScope) 
 
 func (this *TypeInference) traverseTaggedTemplateLit(tagTempLitNode Node, originalScope FlowScope) FlowScope {
 	if !tagTempLitNode.isTaggedTemplateLit() {
-		Preconditions_checkArgument_boolean_Object_H(false, tagTempLitNode)
+		argFail_(objstr_(tagTempLitNode.box_()))
 	}
 	var scopeAfterChildren FlowScope = this.traverseChildren(tagTempLitNode, originalScope)
 	var scopeAfterExecution FlowScope = this.setCallNodeTypeAfterChildrenTraversed(tagTempLitNode, scopeAfterChildren)
@@ -588,7 +590,7 @@ func (this *TypeInference) traverseCatch(catchNode Node, scope FlowScope) FlowSc
 		return this.traverseDestructuringPattern(pattern, scope, this.unknownType.up_JSType(), TypeInference_AssignmentType_DECLARATION)
 	} else {
 		if !catchTarget.isEmpty() {
-			Preconditions_checkState_boolean_Object_H(false, catchTarget)
+			stateFail_(objstr_(catchTarget.box_()))
 		}
 		return scope
 	}
@@ -649,7 +651,9 @@ func (this *TypeInference) updateScopeForAssignment(scope FlowScope, target Node
 }
 
 func (this *TypeInference) updateScopeForAssignment_5(scope FlowScope, target Node, resultType *JSType, updateNode Node, type_ TypeInference_AssignmentType) FlowScope {
-	Preconditions_checkNotNull_T(resultType)
+	if resultType == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	if updateNode != 0 && updateNode != target {
 		panic(new_IllegalStateException_0())
 	}
@@ -801,7 +805,7 @@ func (this *TypeInference) traverseDeclarationChild(n Node, scope FlowScope) Flo
 		return this.traverseName(n, scope)
 	}
 	if !n.isDestructuringLhs() {
-		Preconditions_checkState_boolean_Object_H(false, n)
+		stateFail_(objstr_(n.box_()))
 	}
 	scope = this.traverse(n.getSecondChild(), scope)
 	return this.traverseDestructuringPattern(n.getFirstChild(), scope, this.getJSType(n.getSecondChild()), TypeInference_AssignmentType_DECLARATION)
@@ -821,9 +825,11 @@ func (this *TypeInference) traverseDestructuringPattern(pattern Node, scope Flow
 
 func (this *TypeInference) traverseDestructuringPatternHelper(pattern Node, scope FlowScope, patternType *JSType, declarer func(FlowScope, Node, *JSType) FlowScope) FlowScope {
 	if !pattern.isDestructuringPattern() {
-		Preconditions_checkArgument_boolean_Object_H(false, pattern)
+		argFail_(objstr_(pattern.box_()))
 	}
-	Preconditions_checkNotNull_T(patternType)
+	if patternType == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	for target := range DestructuredTarget_createAllNonEmptyTargetsInPattern(this.registry, patternType, pattern).All() {
 		if target.hasComputedProperty() {
 			scope = this.traverse(target.getComputedProperty().getFirstChild(), scope)
@@ -1054,7 +1060,9 @@ func (this *TypeInference) traverseArrayLiteral(n Node, scope FlowScope) FlowSco
 
 func (this *TypeInference) traverseObjectLiteral(n Node, scope FlowScope) FlowScope {
 	var type_ *JSType = n.getJSType()
-	Preconditions_checkNotNull_T(type_)
+	if type_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var spreadOperatorSeen bool = false
 	{
 		var name Node = n.getFirstChild()
@@ -1345,7 +1353,7 @@ func (this *TypeInference) updateBind(n Node) {
 
 func (this *TypeInference) updateTypeOfArguments(n Node, fnType *FunctionType) {
 	if !NodeUtil_isInvocation(n) {
-		Preconditions_checkState_boolean_Object_H(false, n)
+		stateFail_(objstr_(n.box_()))
 	}
 	var parameters IteratorOf[*FunctionType_Parameter] = fnType.getParameters().iterator()
 	if n.isTaggedTemplateLit() {
@@ -1462,7 +1470,9 @@ func (this *TypeInference) inferTemplatedTypesForCall(n Node, fnType *FunctionTy
 	var replacer *TemplateTypeReplacer = TemplateTypeReplacer_forInference(this.registry, inferred)
 	var callTarget Node = n.getFirstChild()
 	var replacementFnType *FunctionType = fnType.visit(TemplateTypeReplacer_as_Visitor(replacer)).(JSType_as).as_JSType().toMaybeFunctionType()
-	Preconditions_checkNotNull_T(replacementFnType)
+	if replacementFnType == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	callTarget.setJSType(replacementFnType.up_JSType())
 	n.setJSType(replacementFnType.getReturnType())
 	return replacer.hasMadeReplacement()
@@ -1898,7 +1908,7 @@ func (this *TypeInference) newBooleanOutcomePair(jsType *JSType, flowScope FlowS
 
 func (this *TypeInference) redeclareSimpleVar(scope FlowScope, nameNode Node, varType *JSType) FlowScope {
 	if !nameNode.isName() {
-		Preconditions_checkState_boolean_Object_H(false, nameNode)
+		stateFail_(objstr_(nameNode.box_()))
 	}
 	var varName string = nameNode.getString()
 	if varType == nil {

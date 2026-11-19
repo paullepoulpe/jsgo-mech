@@ -153,7 +153,7 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 			var val Node = ref.getAssignedValue()
 			if val != 0 {
 				if !val.isObjectLit() {
-					Preconditions_checkState_boolean_Object_H(false, val)
+					stateFail_(objstr_(val.box_()))
 				}
 				{
 					var child Node = val.getFirstChild()
@@ -175,7 +175,7 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 		} else {
 			var getprop Node = ref.getParent()
 			if !NodeUtil_isNormalOrOptChainGetProp(getprop) {
-				Preconditions_checkState_boolean_Object_H(false, getprop)
+				stateFail_(objstr_(getprop.box_()))
 			}
 			var varname string = getprop.getString()
 			if varmap.Has(varname) {
@@ -191,7 +191,7 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 func (this *InlineObjectLiterals_InliningBehavior) fillInitialValues(init_ *Reference, initvals map[string]Node) {
 	var object Node = init_.getAssignedValue()
 	if !object.isObjectLit() {
-		Preconditions_checkState_boolean_Object_H(false, object)
+		stateFail_(objstr_(object.box_()))
 	}
 	{
 		var key Node = object.getFirstChild()
@@ -206,7 +206,7 @@ func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v
 	var val Node = ref.getAssignedValue()
 	this.recordStaleVarReferencesInTree(val, cast_[*Scope](v.getScope()))
 	if !val.isObjectLit() {
-		Preconditions_checkState_boolean_Object_H(false, val)
+		stateFail_(objstr_(val.box_()))
 	}
 	var all *TSet[string] = tsetFrom_(tc_string, Collection(varmap.asMap().keySet()), false)
 	{
@@ -272,7 +272,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 		vnode = v.getScope().(*Scope).getClosestHoistScope().self().(*Scope).getRootNode().getFirstChild()
 	}
 	if !NodeUtil_isStatement(vnode) {
-		Preconditions_checkState_boolean_Object_H(false, vnode)
+		stateFail_(objstr_(vnode.box_()))
 	}
 	if isBlockScoped && !varmap.IsEmpty() {
 		var script Node = NodeUtil_getEnclosingScript(vnode)
@@ -317,7 +317,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 		} else {
 			var getprop Node = ref.getParent()
 			if !NodeUtil_isNormalOrOptChainGetProp(getprop) {
-				Preconditions_checkState_boolean_Object_H(false, getprop)
+				stateFail_(objstr_(getprop.box_()))
 			}
 			var var_ string = getprop.getString()
 			if !varmap.Has(var_) {

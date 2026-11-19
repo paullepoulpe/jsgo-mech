@@ -16,7 +16,9 @@ func (this *ColorGraphNode) finit_ColorGraphNode() {
 
 func (this *ColorGraphNode) init_ColorGraphNode(single *Color, index int32) {
 	this.finit_ColorGraphNode()
-	Preconditions_checkNotNull_T(single)
+	if single == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	this.index_ = index
 	this.color_ = single
 }

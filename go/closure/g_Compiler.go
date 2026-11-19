@@ -810,7 +810,9 @@ func (this *Compiler) createPassConfigInternal() *PassConfig {
 }
 
 func (this *Compiler) setPassConfig(passes *PassConfig) {
-	Preconditions_checkNotNull_T(passes)
+	if passes == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	if this.passes != nil {
 		panic(new_IllegalStateException_String(objstr_("setPassConfig was already called")))
 	}
@@ -1044,8 +1046,12 @@ func (this *Compiler) getCurrentJsSource() string {
 		return this.toSource()
 	}
 	if !fileNameRegexList.isEmpty() {
-		Preconditions_checkNotNull_T(this.externsRoot)
-		Preconditions_checkNotNull_T(this.jsRoot)
+		if this.externsRoot == 0 {
+			panic(new_NullPointerException_0().self())
+		}
+		if this.jsRoot == 0 {
+			panic(new_NullPointerException_0().self())
+		}
 		for _, el := range immElems_(ImmutableList_of_Object_Object(this.externsRoot.box_(), this.jsRoot.box_())) {
 			r := Node_of_(el)
 			{
@@ -1108,7 +1114,9 @@ func (this *Compiler) getCurrentJsSource() string {
 		builder.append("//\n")
 		for statement := range sliceAll_(statements) {
 			if !NodeUtil_has(statement, (&Predicate_base_tfn_Node{func(n Node) bool {
-				Preconditions_checkNotNull_T(n)
+				if n == 0 {
+					panic(new_NullPointerException_0().self())
+				}
 				if !n.isQualifiedName() {
 					return false
 				}
@@ -2250,7 +2258,9 @@ func (this *Compiler) report_2(ignoredLevel CheckLevel, error_ *JSError) {
 }
 
 func (this *Compiler) getErrorLevel_impl(error_ *JSError) CheckLevel {
-	Preconditions_checkNotNull_T(this.options_)
+	if this.options_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	return this.warningsGuard.level(error_)
 }
 
@@ -2290,7 +2300,9 @@ func (this *Compiler) getSourceFileContentByName(sourceName string) string {
 	if file.isStubSourceFileForAlreadyProvidedInput() {
 		return nullstr_
 	}
-	Preconditions_checkNotNull_T(file)
+	if file == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var codeRes *Outcome_base[string] = file.readCode()
 	if codeRes.isErr() {
 		return nullstr_
@@ -3197,7 +3209,7 @@ func (this *Compiler) resetAndIntitializeSourceMap() {
 
 func Compiler_checkNotModule(script Node, msg string, args []any) Node {
 	if !script.isScript() {
-		Preconditions_checkArgument_boolean_Object_H(false, script)
+		argFail_(objstr_(script.box_()))
 	}
 	if !script.hasOneChild() {
 		return script

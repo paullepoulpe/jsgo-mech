@@ -80,7 +80,7 @@ func OptimizeCalls_isAllowedReference(n Node) bool {
 			return false
 		} else {
 			if !n.isSecondChildOf(parent) {
-				Preconditions_checkState_boolean_Object_H(false, parent)
+				stateFail_(objstr_(parent.box_()))
 			}
 			if NodeUtil_getEs6ClassConstructorMemberFunctionDef(parent) == 0 {
 				return false
@@ -144,7 +144,9 @@ func (this *OptimizeCalls_Builder) addPass(pass OptimizeCalls_CallGraphCompilerP
 }
 
 func (this *OptimizeCalls_Builder) build() *OptimizeCalls {
-	Preconditions_checkNotNull_T(this.compiler_)
+	if this.compiler_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	if this.considerExterns == nil {
 		panic(new_NullPointerException_0())
 	}
@@ -231,7 +233,7 @@ func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) 
 			fns.add(definitionSite.getLastChild())
 		} else {
 			if !definitionSite.isMemberFieldDef() {
-				Preconditions_checkArgument_boolean_Object_H(false, definitionSite)
+				argFail_(objstr_(definitionSite.box_()))
 			}
 			var value Node = definitionSite.getFirstChild()
 			if value != 0 {
@@ -240,7 +242,7 @@ func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) 
 		}
 	case tokOrd1_OBJECTLIT:
 		if !(definitionSite.isStringKey() || definitionSite.isMemberFunctionDef()) {
-			Preconditions_checkArgument_boolean_Object_H(false, definitionSite)
+			argFail_(objstr_(definitionSite.box_()))
 		}
 		OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns, definitionSite.getLastChild())
 	case tokOrd1_ASSIGN:
@@ -319,10 +321,10 @@ func OptimizeCalls_ReferenceMap_getCallOrNewNodeForTarget(n Node) Node {
 		var child Node = maybeCall
 		maybeCall = child.getParent()
 		if !NodeUtil_isNormalOrOptChainGetProp(child) {
-			Preconditions_checkState_boolean_Object_H(false, child)
+			stateFail_(objstr_(child.box_()))
 		}
 		if !NodeUtil_isNormalOrOptChainCall(maybeCall) {
-			Preconditions_checkState_boolean_Object_H(false, maybeCall)
+			stateFail_(objstr_(maybeCall.box_()))
 		}
 		if !child.isFirstChildOf(maybeCall) {
 			panic(new_IllegalStateException_String(Strings_lenientFormat("%s\n\n%s", []any{maybeCall.box_(), child.box_()})))

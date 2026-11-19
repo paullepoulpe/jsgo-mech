@@ -16,7 +16,9 @@ func new_ParsingUtil() *ParsingUtil {
 }
 
 func ParsingUtil_getParamOrPatternNames(n Node, cb func(any)) {
-	Preconditions_checkNotNull_T(n)
+	if n == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	switch n.ns_().token {
 	case tokOrd1_EMPTY, tokOrd1_GETELEM, tokOrd1_GETPROP:
 	case tokOrd1_NAME:

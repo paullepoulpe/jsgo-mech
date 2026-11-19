@@ -414,7 +414,7 @@ func (this *Es6NormalizeClasses) findPrivateMember(name string) *Es6NormalizeCla
 
 func (this *Es6NormalizeClasses) rewritePrivateIn(t *NodeTraversal, inNode Node) {
 	if !inNode.isIn() {
-		Preconditions_checkArgument_boolean_Object_H(false, inNode)
+		argFail_(objstr_(inNode.box_()))
 	}
 	var left Node = inNode.getFirstChild()
 	var name string = left.getString()
@@ -706,7 +706,7 @@ func (this *Es6NormalizeClasses) rewriteSideEffectedComputedProps(t *NodeTravers
 
 func (this *Es6NormalizeClasses) extractExpressionFromCompField(t *NodeTraversal, record *Es6NormalizeClasses_ClassRecord, memberField Node, insertionPoint Node) {
 	if !(memberField.isComputedFieldDef() || memberField.isComputedProp()) {
-		Preconditions_checkArgument_boolean_Object_H(false, memberField)
+		argFail_(objstr_(memberField.box_()))
 	}
 	var compExpression Node = memberField.removeFirstChild()
 	var compFieldVar Node = this.astFactory_.createSingleVarNameDeclaration_2(this.generateUniqueCompFieldVarName(t), compExpression).srcrefTreeIfMissing(record.classNode)
@@ -757,7 +757,7 @@ func (this *Es6NormalizeClasses) rewriteInstanceMembers(t *NodeTraversal, record
 	for !instanceMembers.isEmpty() {
 		var instanceMember Node = instanceMembers.pop()
 		if !(instanceMember.isMemberFieldDef() || instanceMember.isComputedFieldDef()) {
-			Preconditions_checkState_boolean_Object_H(false, instanceMember)
+			stateFail_(objstr_(instanceMember.box_()))
 		}
 		if instanceMember.isPrivateIdentifier() {
 			if this.transpilePrivateClassFields {
@@ -826,7 +826,7 @@ func (this *Es6NormalizeClasses) moveConstructorParamDefaultsAfterFields(t *Node
 					lhs.setJSDocInfo(jsDoc)
 				} else {
 					if !lhs.isDestructuringPattern() {
-						Preconditions_checkState_boolean_Object_H(false, lhs)
+						stateFail_(objstr_(lhs.box_()))
 					}
 					var tempParam Node = this.astFactory_.createName(this.generateUniqueTmpVarName(t), AstFactory_type_Node(lhs))
 					var rhs Node = this.createDefaultValueHook(tempParam, defaultValue)
@@ -923,7 +923,7 @@ func (this *Es6NormalizeClasses) convNonCompFieldToGetProp(receiver Node, noncom
 		panic(new_IllegalArgumentException_0())
 	}
 	if !(receiver.getParent() == 0) {
-		Preconditions_checkArgument_boolean_Object_H(false, receiver)
+		argFail_(objstr_(receiver.box_()))
 	}
 	var fieldValue Node = 0
 	if isStatic || this.transpileClassFields {
@@ -940,10 +940,10 @@ func (this *Es6NormalizeClasses) convNonCompFieldToGetProp(receiver Node, noncom
 
 func (this *Es6NormalizeClasses) convCompFieldToGetElem(receiver Node, computedField Node, isStatic bool) Node {
 	if !computedField.isComputedFieldDef() {
-		Preconditions_checkArgument_boolean_Object_H(false, computedField)
+		argFail_(objstr_(computedField.box_()))
 	}
 	if !(receiver.getParent() == 0) {
-		Preconditions_checkArgument_boolean_Object_H(false, receiver)
+		argFail_(objstr_(receiver.box_()))
 	}
 	var fieldValue Node = 0
 	if (computedField.getChildCount() == 2) && (isStatic || this.transpileClassFields) {
@@ -1697,7 +1697,7 @@ type Es6NormalizeClasses_NormalizedNames struct {
 
 func (this *Es6NormalizeClasses_NormalizedNames) init_Es6NormalizeClasses_NormalizedNames(classNameNode Node, superClassNode Optional[Node], shouldExtractClass bool, shouldExtractExtends bool) {
 	if !classNameNode.isQualifiedName() {
-		Preconditions_checkArgument_boolean_Object_H(false, classNameNode)
+		argFail_(objstr_(classNameNode.box_()))
 	}
 	if !superClassNode.isEmpty() && !superClassNode.get().isQualifiedName() {
 		panic(new_IllegalArgumentException_String(objstr_(superClassNode.box_())))

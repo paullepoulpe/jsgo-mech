@@ -53,8 +53,12 @@ func new_CoalesceVariableNames(compiler *AbstractCompiler, usePseudoNames bool) 
 }
 
 func (this *CoalesceVariableNames) process_2(externs Node, root Node) {
-	Preconditions_checkNotNull_T(externs)
-	Preconditions_checkNotNull_T(root)
+	if externs == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	if root == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(NodeTraversal_Callback(this)).setScopeCreator(MemoizedScopeCreator_as_ScopeCreator(this.scopeCreator)).traverse(root)
 	this.compiler_.setLifeCycleStage(AbstractCompiler_LifeCycleStage_RAW)
 }
@@ -272,7 +276,7 @@ func (this *CoalesceVariableNames) removeVarDeclaration(name Node, originalVar *
 		var_.replaceWith(name.detach())
 	} else {
 		if !(var_.hasOneChild() && (var_.getFirstChild() == name)) {
-			Preconditions_checkState_boolean_Object_H(false, var_)
+			stateFail_(objstr_(var_.box_()))
 		}
 		if name.hasChildren() {
 			var value Node = name.removeFirstChild()
@@ -310,7 +314,7 @@ func (this *CoalesceVariableNames) makeDeclarationVar(coalescedName *Var) {
 
 func CoalesceVariableNames_isUninitializedLetNameInLoopBody(nameNode Node) bool {
 	if !nameNode.isName() {
-		Preconditions_checkState_boolean_Object_H(false, nameNode)
+		stateFail_(objstr_(nameNode.box_()))
 	}
 	var letNode Node = nameNode.getParent()
 	if !letNode.isLet() {

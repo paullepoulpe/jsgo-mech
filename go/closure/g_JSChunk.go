@@ -91,7 +91,9 @@ func (this *JSChunk) addCompilerInput(input *CompilerInput) {
 }
 
 func (this *JSChunk) addDependency(dep *JSChunk) {
-	Preconditions_checkNotNull_T(dep)
+	if dep == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	if dep == this {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot add dependency on self (%s)", []any{this})))
 	}

@@ -564,7 +564,9 @@ func (this *FunctionType) defineProperty_impl(name Property_Key, type_ *JSType, 
 }
 
 func (this *FunctionType) supAndInfHelper(that *FunctionType, leastSuper bool) *FunctionType {
-	Preconditions_checkNotNull_T(that)
+	if that == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	if this.equals_JSType(that.up_JSType()) {
 		return this
 	}

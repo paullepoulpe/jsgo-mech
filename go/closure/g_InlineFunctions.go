@@ -276,7 +276,9 @@ func (this *InlineFunctions) resolveInlineConflicts() {
 }
 
 func InlineFunctions_hasNonInlinableParam(node Node) bool {
-	Preconditions_checkNotNull_T(node)
+	if node == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	var pred func(any) bool = (&Predicate_base_tfn_Node{func(input Node) bool {
 		return (input.isDefaultValue() || input.isDestructuringPattern())
 	}}).apply
@@ -469,7 +471,7 @@ func (this *InlineFunctions_FindCandidateFunctions) findNamedFunctions(t *NodeTr
 	switch n.ns_().token {
 	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		if !n.hasOneChild() {
-			Preconditions_checkState_boolean_Object_H(false, n)
+			stateFail_(objstr_(n.box_()))
 		}
 		var nameNode Node = n.getFirstChild()
 		if (nameNode.isName() && nameNode.hasChildren()) && nameNode.getFirstChild().isFunction() {
@@ -669,7 +671,7 @@ func (this *InlineFunctions_FindCandidatesReferences) maybeAddReferenceUsingMode
 
 func (this *InlineFunctions_FindCandidatesReferences) checkNameUsage(n Node, parent Node) {
 	if !n.isName() {
-		Preconditions_checkState_boolean_Object_H(false, n)
+		stateFail_(objstr_(n.box_()))
 	}
 	if InlineFunctions_isCandidateUsage(n) {
 		return

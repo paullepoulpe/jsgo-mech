@@ -53,7 +53,7 @@ func (this *PotentialDeclaration) init_PotentialDeclaration(fullyQualifiedName s
 
 func PotentialDeclaration_fromName(nameNode Node) *PotentialDeclaration {
 	if !nameNode.isQualifiedName() {
-		Preconditions_checkArgument_boolean_Object_H(false, nameNode)
+		argFail_(objstr_(nameNode.box_()))
 	}
 	var rhs Node = NodeUtil_getRValueOfLValue(nameNode)
 	if ClassUtil_isThisPropInsideClassWithName(nameNode) {
@@ -106,7 +106,7 @@ func PotentialDeclaration_fromDefine(callNode Node) *PotentialDeclaration {
 
 func PotentialDeclaration_fromAlias(nameNode Node) *PotentialDeclaration {
 	if !nameNode.isQualifiedName() {
-		Preconditions_checkArgument_boolean_Object_H(false, nameNode)
+		argFail_(objstr_(nameNode.box_()))
 	}
 	return new_PotentialDeclaration_AliasDeclaration(nameNode.getQualifiedName(), nameNode).up_PotentialDeclaration()
 }

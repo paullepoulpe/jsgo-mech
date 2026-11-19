@@ -17,7 +17,9 @@ func (this *TypedCodeGenerator) up_CodeGenerator() *CodeGenerator {
 
 func (this *TypedCodeGenerator) init_TypedCodeGenerator(consumer *CodeConsumer, options *CompilerOptions, registry *JSTypeRegistry) {
 	this.CodeGenerator.init_CodeGenerator_CodeConsumer_CompilerOptions(consumer, options)
-	Preconditions_checkNotNull_T(registry)
+	if registry == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	this.registry = registry
 	this.jsDocInfoPrinterField = new_JSDocInfoPrinter_boolean(options.getUseOriginalNamesInOutput())
 }
@@ -134,7 +136,7 @@ func (this *TypedCodeGenerator) getFunctionAnnotation(fnNode Node) string {
 
 func (this *TypedCodeGenerator) getMemberFunctionAnnotation(fnNode Node) string {
 	if !(fnNode.isFunction() && fnNode.getParent().isMemberFunctionDef()) {
-		Preconditions_checkState_boolean_Object_H(false, fnNode)
+		stateFail_(objstr_(fnNode.box_()))
 	}
 	var type_ *JSType = fnNode.getJSType()
 	if (type_ == nil) || type_.isUnknownType() {
@@ -217,7 +219,7 @@ func (this *TypedCodeGenerator) getParameterJSDocName(paramNode Node, paramIndex
 	var nameNode Node = 0
 	if paramNode != 0 {
 		if !paramNode.getParent().isParamList() {
-			Preconditions_checkArgument_boolean_Object_H(false, paramNode)
+			argFail_(objstr_(paramNode.box_()))
 		}
 		if paramNode.isRest() {
 			paramNode = paramNode.getOnlyChild()
@@ -228,7 +230,7 @@ func (this *TypedCodeGenerator) getParameterJSDocName(paramNode Node, paramIndex
 			nameNode = paramNode
 		} else {
 			if !(paramNode.isObjectPattern() || paramNode.isArrayPattern()) {
-				Preconditions_checkState_boolean_Object_H(false, paramNode)
+				stateFail_(objstr_(paramNode.box_()))
 			}
 			nameNode = 0
 		}
@@ -237,7 +239,7 @@ func (this *TypedCodeGenerator) getParameterJSDocName(paramNode Node, paramIndex
 		return ("p" + istr_(int64(paramIndex)))
 	} else {
 		if !nameNode.isName() {
-			Preconditions_checkState_boolean_Object_H(false, nameNode)
+			stateFail_(objstr_(nameNode.box_()))
 		}
 		return nameNode.getString()
 	}

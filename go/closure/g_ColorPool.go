@@ -276,7 +276,9 @@ func (this *ColorPool_Builder) lookupOrReconcileColor(id *ColorId) (ret_1 *Color
 	}
 	var viewToProto MapOf[*ColorPool_ShardView, *TypeProto] = this.idToProto.row(obj_(id))
 	var sample *TypeProto = cast_[*TypeProto](Iterables_getFirst(Iterable(viewToProto.values()), nil))
-	Preconditions_checkNotNull_Object_Object_T(sample, id)
+	if sample == nil {
+		nullFail_(objstr_(canon_(id)))
+	}
 	var result *Color = func() *Color {
 		switch sample.getKindCase() {
 		case TypeProto_KindCase_OBJECT:

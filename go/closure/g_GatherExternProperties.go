@@ -80,7 +80,7 @@ func (this *GatherExternProperties) gatherPropertiesFromJsTypeExpressionNode(jsT
 
 func (this *GatherExternProperties) gatherPropertiesFromJsDocRecordType(jsDocRecordNode Node) {
 	if !(jsDocRecordNode.ns_().token == tokOrd1_LB) {
-		Preconditions_checkState_boolean_Object_H(false, jsDocRecordNode)
+		stateFail_(objstr_(jsDocRecordNode.box_()))
 	}
 	{
 		var fieldNode Node = jsDocRecordNode.getFirstChild()
@@ -95,7 +95,7 @@ func (this *GatherExternProperties) gatherPropertiesFromJsDocRecordType(jsDocRec
 				fieldTypeNode = 0
 			}
 			if !fieldNameNode.isStringKey() {
-				Preconditions_checkState_boolean_Object_H(false, fieldNameNode)
+				stateFail_(objstr_(fieldNameNode.box_()))
 			}
 			var fieldName string = fieldNameNode.getString()
 			fieldNameU16 := utf16Of_(fieldName)

@@ -28,7 +28,9 @@ func new_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_Preproce
 }
 
 func (this *Es6RewriteModules) init_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_PreprocessorSymbolTable_TypedScope_ChunkOutputType(compiler *AbstractCompiler, moduleMetadataMap *ModuleMetadataMap, moduleMap *ModuleMap, preprocessorSymbolTable *PreprocessorSymbolTable, globalTypedScope *TypedScope, chunkOutputType CompilerOptions_ChunkOutputType) {
-	Preconditions_checkNotNull_T(moduleMetadataMap)
+	if moduleMetadataMap == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
 	this.moduleMetadataMap = moduleMetadataMap
@@ -47,7 +49,7 @@ func new_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_Preproce
 
 func Es6RewriteModules_isEs6ModuleRoot(scriptNode Node) bool {
 	if !scriptNode.isScript() {
-		Preconditions_checkArgument_boolean_Object_H(false, scriptNode)
+		argFail_(objstr_(scriptNode.box_()))
 	}
 	if scriptNode.getBooleanProp(Node_GOOG_MODULE) {
 		return false
@@ -57,10 +59,10 @@ func Es6RewriteModules_isEs6ModuleRoot(scriptNode Node) bool {
 
 func (this *Es6RewriteModules) process_2(externs Node, root Node) {
 	if !externs.isRoot() {
-		Preconditions_checkArgument_boolean_Object_H(false, externs)
+		argFail_(objstr_(externs.box_()))
 	}
 	if !root.isRoot() {
-		Preconditions_checkArgument_boolean_Object_H(false, root)
+		argFail_(objstr_(root.box_()))
 	}
 	NodeTraversal_traverseRoots(this.compiler_, NodeTraversal_Callback(this), externs, root)
 	NodeUtil_removeFeatureFromAllScripts(root, FeatureSet_Feature_MODULES, this.compiler_)
@@ -116,7 +118,7 @@ func (this *Es6RewriteModules) maybeWarnExternModule(t *NodeTraversal, n Node, p
 
 func (this *Es6RewriteModules) visitImport(t *NodeTraversal, importDecl Node, parent Node) {
 	if !parent.isModuleBody() {
-		Preconditions_checkArgument_boolean_Object_H(false, parent)
+		argFail_(objstr_(parent.box_()))
 	}
 	var importName string = importDecl.getLastChild().getString()
 	var isNamespaceImport bool = strings.HasPrefix(importName, "goog:")
@@ -163,7 +165,7 @@ func (this *Es6RewriteModules) visitImport(t *NodeTraversal, importDecl Node, pa
 
 func (this *Es6RewriteModules) visitExport(t *NodeTraversal, export Node, parent Node) {
 	if !parent.isModuleBody() {
-		Preconditions_checkArgument_boolean_Object_H(false, parent)
+		argFail_(objstr_(parent.box_()))
 	}
 	if export.getBooleanProp(Node_EXPORT_DEFAULT) {
 		var child Node = export.getFirstChild()
@@ -404,7 +406,7 @@ func (this *Es6RewriteModules) visitRequireOrGet(t *NodeTraversal, requireCall N
 					var child Node = parent.getFirstFirstChild()
 					for ; child != 0; child = child.getNext() {
 						if !(child.isStringKey() && child.getFirstChild().isName()) {
-							Preconditions_checkState_boolean_Object_H(false, child)
+							stateFail_(objstr_(child.box_()))
 						}
 						var rep *ModuleRenaming_GlobalizedModuleName = this.getGlobalNameAndType(m, Optional_of[string](namespace), isFromFallbackMetadata).getprop(child.getString())
 						this.namesToInlineByAlias[child.getFirstChild().getString()] = rep
@@ -477,7 +479,9 @@ func (this *Es6RewriteModules) declareGlobalVariable(n Node, t *NodeTraversal) {
 	if !this.astFactory_.isAddingTypes() {
 		return
 	}
-	Preconditions_checkNotNull_T(this.globalTypedScope)
+	if this.globalTypedScope == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var name string = n.getString()
 	if this.globalTypedScope.hasOwnSlot(name) {
 		t.report(t.getCurrentScript(), ClosureRewriteModule_ILLEGAL_MODULE_RENAMING_CONFLICT, []string{name})

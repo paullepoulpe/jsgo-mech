@@ -203,7 +203,9 @@ func PolymerPassStaticUtils_extractProperties(descriptor Node, defType PolymerCl
 }
 
 func PolymerPassStaticUtils_collectConstructorPropertyJsDoc(node Node, map_ map[string]*JSDocInfo) {
-	Preconditions_checkNotNull_T(node)
+	if node == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	{
 		var child Node = node.getFirstChild()
 		for ; child != 0; child = child.getNext() {

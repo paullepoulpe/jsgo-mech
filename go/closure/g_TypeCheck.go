@@ -71,8 +71,12 @@ func (this *TypeCheck) reportUnknownTypes(report bool) *TypeCheck {
 }
 
 func (this *TypeCheck) process_2(externsRoot Node, jsRoot Node) {
-	Preconditions_checkNotNull_T(this.scopeCreator)
-	Preconditions_checkNotNull_T(this.topScope)
+	if this.scopeCreator == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	if this.topScope == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var externsAndJs Node = jsRoot.getParent()
 	if externsAndJs == 0 {
 		panic(new_IllegalStateException_0())
@@ -97,13 +101,13 @@ func (this *TypeCheck) processForTesting(externsRoot Node, jsRoot Node) *TypedSc
 		panic(new_IllegalStateException_0())
 	}
 	if !((externsRoot == 0) || externsRoot.isRoot()) {
-		Preconditions_checkArgument_boolean_Object_H(false, externsRoot)
+		argFail_(objstr_(externsRoot.box_()))
 	}
 	if !jsRoot.isRoot() {
-		Preconditions_checkArgument_boolean_Object_H(false, jsRoot)
+		argFail_(objstr_(jsRoot.box_()))
 	}
 	if ok_, a1_ := (jsRoot.hasParent() && jsRoot.getParent().isRoot()), jsRoot.getParent(); !ok_ {
-		Preconditions_checkState_boolean_Object_H(false, a1_)
+		stateFail_(objstr_(a1_.box_()))
 	}
 	if externsRoot != 0 && externsRoot.getNext() != jsRoot {
 		panic(new_IllegalStateException_String(objstr_("externs root must be the preceding sibling of the js root")))
@@ -117,7 +121,9 @@ func (this *TypeCheck) processForTesting(externsRoot Node, jsRoot Node) *TypedSc
 }
 
 func (this *TypeCheck) check(node Node, externs bool) {
-	Preconditions_checkNotNull_T(node)
+	if node == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	this.inExterns_ = externs
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(NodeTraversal_Callback(this)).setScopeCreator(TypedScopeCreator_as_ScopeCreator(this.scopeCreator)).traverseWithScope(node, this.topScope.up_AbstractScope())
 	if externs {
@@ -549,7 +555,7 @@ func (this *TypeCheck) checkDestructuringAssignment(t *NodeTraversal, nodeToWarn
 
 func (this *TypeCheck) checkCanAssignToNameGetpropOrGetelem(t *NodeTraversal, nodeToWarn Node, lvalue Node, rightType *JSType, info *JSDocInfo, msg string) {
 	if !(((lvalue.isName() || lvalue.isGetProp()) || lvalue.isGetElem()) || lvalue.isCast()) {
-		Preconditions_checkArgument_boolean_Object_H(false, lvalue)
+		argFail_(objstr_(lvalue.box_()))
 	}
 	this.checkNotReadonlyPropertyAssignment(lvalue)
 	if lvalue.isGetProp() {
@@ -1016,7 +1022,7 @@ func (this *TypeCheck) visitOptChainGetProp(optChainGetProp Node) {
 
 func (this *TypeCheck) checkPropertyAccessForGetProp(getProp Node) {
 	if !(getProp.isGetProp() || getProp.isOptChainGetProp()) {
-		Preconditions_checkArgument_boolean_Object_H(false, getProp)
+		argFail_(objstr_(getProp.box_()))
 	}
 	var objNode Node = getProp.getFirstChild()
 	var objType *JSType = this.getJSType(objNode)
@@ -1027,10 +1033,10 @@ func (this *TypeCheck) checkPropertyAccessForGetProp(getProp Node) {
 
 func (this *TypeCheck) checkPropertyAccessForDestructuring(pattern Node, objectType *JSType, stringKey Node, inferredPropType *JSType) {
 	if !pattern.isDestructuringPattern() {
-		Preconditions_checkArgument_boolean_Object_H(false, pattern)
+		argFail_(objstr_(pattern.box_()))
 	}
 	if !stringKey.isStringKey() {
-		Preconditions_checkArgument_boolean_Object_H(false, stringKey)
+		argFail_(objstr_(stringKey.box_()))
 	}
 	var objNode Node = 0
 	var patternParent Node = pattern.getParent()
@@ -1211,7 +1217,7 @@ func (this *TypeCheck) visitVar(t *NodeTraversal, n Node) {
 				}
 			} else {
 				if !child.isDestructuringLhs() {
-					Preconditions_checkState_boolean_Object_H(false, child)
+					stateFail_(objstr_(child.box_()))
 				}
 				var name Node = child.getFirstChild()
 				var value Node = child.getSecondChild()

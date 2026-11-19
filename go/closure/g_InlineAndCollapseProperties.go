@@ -94,7 +94,7 @@ func InlineAndCollapseProperties_maybeGetInnerNameNode(maybeFunctionOrClassNode 
 	if NodeUtil_isFunctionExpression(maybeFunctionOrClassNode) {
 		var nameNode Node = maybeFunctionOrClassNode.getFirstChild()
 		if !nameNode.isName() {
-			Preconditions_checkState_boolean_Object_H(false, nameNode)
+			stateFail_(objstr_(nameNode.box_()))
 		}
 		return func() Node {
 			if nameNode.getString() == "" {
@@ -211,7 +211,7 @@ func InlineAndCollapseProperties_isUnsafelyReassigned(name *GlobalNamespace_Name
 func InlineAndCollapseProperties_getSubclassForEs6Superclass(superclass Node) Node {
 	var classNode Node = superclass.getParent()
 	if !classNode.isClass() {
-		Preconditions_checkArgument_boolean_Object_H(false, classNode)
+		argFail_(objstr_(classNode.box_()))
 	}
 	if NodeUtil_isNameDeclaration(classNode.getGrandparent()) {
 		return classNode.getParent()
@@ -580,7 +580,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) replaceAliasing
 	var assignment Node = aliasLhsNode.getParent()
 	if !NodeUtil_isNameDeclaration(assignment) && NodeUtil_isExpressionResultUsed(assignment) {
 		if !assignment.isAssign() {
-			Preconditions_checkState_boolean_Object_H(false, assignment)
+			stateFail_(objstr_(assignment.box_()))
 		}
 		var assignmentParent Node = assignment.getParent()
 		var rhs Node = alias.getNode().detach()
@@ -600,7 +600,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) replaceAliasRef
 	var originalRefNode Node = alias.getNode()
 	var nodeToReplace Node = aliasRef.getNode()
 	if !nodeToReplace.isQualifiedName() {
-		Preconditions_checkState_boolean_Object_H(false, nodeToReplace)
+		stateFail_(objstr_(nodeToReplace.box_()))
 	}
 	var newNode Node = func() Node {
 		if originalRefNode.isName() {
@@ -647,7 +647,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineGlobalAli
 			var aliasInitialization *GlobalNamespace_Ref = aliasingName.getInitialization()
 			if aliasInitialization.isTwin() {
 				if !aliasParent.isAssign() {
-					Preconditions_checkState_boolean_Object_H(false, aliasParent)
+					stateFail_(objstr_(aliasParent.box_()))
 				}
 				var aliasGrandparent Node = aliasParent.getParent()
 				aliasParent.replaceWith(alias.getNode().detach())
@@ -1411,7 +1411,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) updateGlobalNameDecl
 	var declaration *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](n.getDeclaration())
 	var classNode Node = declaration.getNode().getGrandparent()
 	if !classNode.isClass() {
-		Preconditions_checkState_boolean_Object_H(false, classNode)
+		stateFail_(objstr_(classNode.box_()))
 	}
 	var enclosingStatement Node = NodeUtil_getEnclosingStatement(classNode)
 	if canCollapseChildNames {
@@ -1508,9 +1508,11 @@ func (this *InlineAndCollapseProperties_CollapseProperties) addStubsForUndeclare
 		panic(new_IllegalStateException_String(objstr_(n)))
 	}
 	if !NodeUtil_isStatementBlock(parent) {
-		Preconditions_checkArgument_boolean_Object_H(false, parent)
+		argFail_(objstr_(parent.box_()))
 	}
-	Preconditions_checkNotNull_T(addAfter)
+	if addAfter == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	if n.props == nil {
 		return
 	}

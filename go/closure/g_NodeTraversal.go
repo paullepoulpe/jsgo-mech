@@ -125,7 +125,9 @@ func (this *NodeTraversal) traverseRoots(externs Node, root Node) {
 		}
 	}()
 	var scopeRoot Node = externs.getParent()
-	Preconditions_checkNotNull_T(scopeRoot)
+	if scopeRoot == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	this.initTraversal(scopeRoot)
 	this.currentNode = scopeRoot
 	this.pushScope(scopeRoot)
@@ -377,7 +379,7 @@ func (this *NodeTraversal) handleDestructuringOrDefaultValue(n Node, parent Node
 		var second Node = first.getNext()
 		if second != 0 {
 			if !(second.getNext() == 0) {
-				Preconditions_checkState_boolean_Object_H(false, second)
+				stateFail_(objstr_(second.box_()))
 			}
 			this.traverseBranch(second, n)
 		}
@@ -584,8 +586,12 @@ func (this *NodeTraversal) getEnclosingFunction() Node {
 }
 
 func (this *NodeTraversal) pushScope(node Node) {
-	Preconditions_checkNotNull_T(this.currentNode)
-	Preconditions_checkNotNull_T(node)
+	if this.currentNode == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	if node == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	*this.scopes = append(*this.scopes, node.box_())
 	if this.scopeCallback != nil {
 		this.scopeCallback.enterScope(this)
@@ -597,7 +603,9 @@ func (this *NodeTraversal) pushScopeAbstractScope(s *AbstractScope) {
 }
 
 func (this *NodeTraversal) pushScope_2(s *AbstractScope, quietly bool) {
-	Preconditions_checkNotNull_T(this.currentNode)
+	if this.currentNode == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	*this.scopes = append(*this.scopes, s.self())
 	if !quietly && (this.scopeCallback != nil) {
 		this.scopeCallback.enterScope(this)
@@ -804,9 +812,11 @@ func (this *NodeTraversal) report_4(start Node, end Node, diagnosticType *Diagno
 
 func (this *NodeTraversal) reportCodeChange() {
 	var changeScope Node = this.currentChangeScope
-	Preconditions_checkNotNull_T(changeScope)
+	if changeScope == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	if !ChangeTracker_isChangeScopeRoot(changeScope) {
-		Preconditions_checkState_boolean_Object_H(false, changeScope)
+		stateFail_(objstr_(changeScope.box_()))
 	}
 	this.compiler_.reportChangeToChangeScope(changeScope)
 }
@@ -1322,7 +1332,9 @@ func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse(t *NodeTraversa
 	switch n.ns_().token {
 	case tokOrd1_SCRIPT:
 		this.currentModule = this.moduleMetadataMap.getModulesByPath().Get(t.getInput().getPath().toString())
-		Preconditions_checkNotNull_T(this.currentModule)
+		if this.currentModule == nil {
+			panic(new_NullPointerException_0().self())
+		}
 		this.scopeRoot = func() Node {
 			if n.hasChildren() && n.getFirstChild().isModuleBody() {
 				return n.getFirstChild()
@@ -1338,7 +1350,9 @@ func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse(t *NodeTraversa
 	case tokOrd1_CALL:
 		if this.inLoadModule && NodeTraversal_AbstractModuleCallback_GOOG_MODULE.matches(n.getFirstChild()) {
 			var newModule *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMap.getModulesByGoogNamespace().get(n.getLastChild().getString())
-			Preconditions_checkNotNull_T(newModule)
+			if newModule == nil {
+				panic(new_NullPointerException_0().self())
+			}
 			if !JSCompObjects_identical(obj_(newModule), obj_(this.currentModule)) {
 				this.currentModule = newModule
 				this.enterModule(this.currentModule, this.scopeRoot)
@@ -1356,18 +1370,24 @@ func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse_4_impl(t *NodeT
 func (this *NodeTraversal_AbstractModuleCallback) visit(t *NodeTraversal, n Node, parent Node) {
 	switch n.ns_().token {
 	case tokOrd1_SCRIPT:
-		Preconditions_checkNotNull_T(this.currentModule)
+		if this.currentModule == nil {
+			panic(new_NullPointerException_0().self())
+		}
 		this.exitModule(this.currentModule, this.scopeRoot)
 		this.currentModule = nil
 		this.scopeRoot = 0
 	case tokOrd1_BLOCK:
 		if NodeUtil_isBundledGoogModuleScopeRoot(n) {
-			Preconditions_checkNotNull_T(this.currentModule)
+			if this.currentModule == nil {
+				panic(new_NullPointerException_0().self())
+			}
 			this.exitModule(this.currentModule, this.scopeRoot)
 			this.scopeRoot = n.getGrandparent().getGrandparent()
 			this.inLoadModule = false
 			this.currentModule = this.moduleMetadataMap.getModulesByPath().Get(t.getInput().getPath().toString())
-			Preconditions_checkNotNull_T(this.currentModule)
+			if this.currentModule == nil {
+				panic(new_NullPointerException_0().self())
+			}
 		}
 	default:
 	}

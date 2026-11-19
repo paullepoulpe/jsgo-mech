@@ -1543,7 +1543,7 @@ func (this *AstValidator) validateAssignmentOpTarget(lhs Node, contextType Token
 
 func (this *AstValidator) validateGetElem(n Node) {
 	if !n.isGetElem() {
-		Preconditions_checkArgument_boolean_Object_H(false, n)
+		argFail_(objstr_(n.box_()))
 	}
 	this.validateProperties(n)
 	this.validateChildCount_2(n, 2)
@@ -1554,7 +1554,7 @@ func (this *AstValidator) validateGetElem(n Node) {
 func (this *AstValidator) validateOptChainGetElem(node Node) {
 	this.validateFeature(FeatureSet_Feature_OPTIONAL_CHAINING, node)
 	if !node.isOptChainGetElem() {
-		Preconditions_checkArgument_boolean_Object_H(false, node)
+		argFail_(objstr_(node.box_()))
 	}
 	this.validateProperties(node)
 	this.validateChildCount_2(node, 2)

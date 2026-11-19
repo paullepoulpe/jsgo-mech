@@ -165,7 +165,9 @@ func (this *AngularPass) addNode(n Node) {
 }
 
 func AngularPass_getDeclarationRValue(n Node) Node {
-	Preconditions_checkNotNull_T(n)
+	if n == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	if !NodeUtil_isNameDeclaration(n) {
 		panic(new_IllegalArgumentException_0())
 	}

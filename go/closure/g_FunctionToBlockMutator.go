@@ -241,7 +241,9 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 }
 
 func FunctionToBlockMutator_replaceReturns(block Node, resultName Optional[string], labelName string, resultMustBeSet bool) Node {
-	Preconditions_checkNotNull_T(block)
+	if block == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	var root Node = block
 	var hasReturnAtExit bool = false
 	var returnCount int32 = NodeUtil_getNodeTypeReferenceCount(block, Token_rhino_RETURN, new_NodeUtil_MatchShallowStatement())

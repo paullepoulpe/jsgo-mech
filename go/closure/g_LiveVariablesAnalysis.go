@@ -131,7 +131,7 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 					}
 				} else {
 					if !c.isDestructuringLhs() {
-						Preconditions_checkState_boolean_Object_H(false, c)
+						stateFail_(objstr_(c.box_()))
 					}
 					if !conditional {
 						NodeUtil_visitLhsNodesInNode(c, (&Consumer_tfn_Node{func(lhsNode Node) {
@@ -203,7 +203,7 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 
 func (this *LiveVariablesAnalysis) addToSetIfLocal(node Node, set *BitSet) {
 	if !node.isName() {
-		Preconditions_checkState_boolean_Object_H(false, node)
+		stateFail_(objstr_(node.box_()))
 	}
 	var name string = node.getString()
 	var var_ *Var = this.allVarsInFn.Get(name)
@@ -291,7 +291,9 @@ func new_LiveVariablesAnalysis_LiveVariableLattice(liveSet *BitSet) *LiveVariabl
 }
 
 func LiveVariablesAnalysis_LiveVariableLattice_createFromLattice(other *LiveVariablesAnalysis_LiveVariableLattice) *LiveVariablesAnalysis_LiveVariableLattice {
-	Preconditions_checkNotNull_T(other)
+	if other == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	return new_LiveVariablesAnalysis_LiveVariableLattice(cast_[*BitSet](Object_clone(obj_(other.liveSet))))
 }
 

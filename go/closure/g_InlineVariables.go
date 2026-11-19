@@ -381,7 +381,9 @@ func (this *InlineVariables_InliningBehavior) inline(decl *Reference, init_ *Ref
 	var isFunctionDeclaration bool = NodeUtil_isFunctionDeclaration(value)
 	if isFunctionDeclaration {
 		var funcName Node = value.getFirstChild()
-		Preconditions_checkNotNull_T(funcName)
+		if funcName == 0 {
+			panic(new_NullPointerException_0().self())
+		}
 		if !funcName.isName() {
 			panic(new_IllegalStateException_0())
 		}
@@ -419,7 +421,7 @@ func (this *InlineVariables_InliningBehavior) inlineWellDefinedVariable(v *Var, 
 func (this *InlineVariables_InliningBehavior) removeDeclaration(decl *Reference) {
 	var varNode Node = decl.getParent()
 	if !NodeUtil_isNameDeclaration(varNode) {
-		Preconditions_checkState_boolean_Object_H(false, varNode)
+		stateFail_(objstr_(varNode.box_()))
 	}
 	var grandparent Node = decl.getGrandparent()
 	this.outer_.compiler_.reportChangeToEnclosingScope(decl.getNode())

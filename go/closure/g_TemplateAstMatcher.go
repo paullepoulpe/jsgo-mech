@@ -108,7 +108,9 @@ func (this *TemplateAstMatcher) prepTemplatePlaceholders(fn Node) {
 			var expression *JSTypeExpression = info.getParameterType(Optional_of[string](name))
 			Preconditions_checkNotNull_Object_String_Object_Object_T(expression, "Missing JSDoc for parameter %s of template function %s", name, fnName)
 			var type_ *JSType = this.typeRegistry.evaluateTypeExpression(expression, icast_StaticTypedScope(obj_(this.topScope)))
-			Preconditions_checkNotNull_T(type_)
+			if type_ == nil {
+				panic(new_NullPointerException_0().self())
+			}
 			*params = append(*params, name)
 			paramTypes[name] = type_
 		}
@@ -156,7 +158,9 @@ func (this *TemplateAstMatcher) createTemplateParameterNode(index int32, type_ *
 	if index < 0 {
 		panic(new_IllegalStateException_0())
 	}
-	Preconditions_checkNotNull_T(type_)
+	if type_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var n Node = Node_newNumber(float64(index))
 	if isStringLiteral {
 		n.setToken(TemplateAstMatcher_TEMPLATE_STRING_LITERAL)

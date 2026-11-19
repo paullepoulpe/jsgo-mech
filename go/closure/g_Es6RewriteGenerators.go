@@ -19,7 +19,9 @@ type Es6RewriteGenerators struct {
 }
 
 func (this *Es6RewriteGenerators) init_Es6RewriteGenerators(compiler *AbstractCompiler) {
-	Preconditions_checkNotNull_T(compiler)
+	if compiler == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
 	this.namespace_ = compiler.getTranspilationNamespace()
@@ -191,14 +193,14 @@ func new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler(outer_ *Es6Rewri
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) hoistVarNode(node Node) {
 	if !node.isVar() {
-		Preconditions_checkState_boolean_Object_H(false, node)
+		stateFail_(objstr_(node.box_()))
 	}
 	node.insertBefore(this.newGeneratorHoistBlock.getLastChild())
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) hoistFunctionDeclarationNode(node Node) {
 	if !node.isFunction() {
-		Preconditions_checkState_boolean_Object_H(false, node)
+		stateFail_(objstr_(node.box_()))
 	}
 	this.newGeneratorHoistBlock.addChildToFront(node)
 }
@@ -232,15 +234,15 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpile() 
 	if this.isTranspiledAsyncFunction(generatorFunction) {
 		var callTarget Node = generatorFunction.getPrevious()
 		if !(callTarget.isGetProp() || callTarget.isName()) {
-			Preconditions_checkState_boolean_Object_H(false, callTarget)
+			stateFail_(objstr_(callTarget.box_()))
 		}
 		this.newGeneratorHoistBlock = generatorFunction.getGrandparent().getParent()
 		if !this.newGeneratorHoistBlock.isBlock() {
-			Preconditions_checkState_boolean_Object_H(false, this.newGeneratorHoistBlock)
+			stateFail_(objstr_(this.newGeneratorHoistBlock.box_()))
 		}
 		changeScopeNode = NodeUtil_getEnclosingFunction(this.newGeneratorHoistBlock)
 		if !changeScopeNode.isFunction() {
-			Preconditions_checkState_boolean_Object_H(false, changeScopeNode)
+			stateFail_(objstr_(changeScopeNode.box_()))
 		}
 		callTarget.replaceWith(this.outer_.astFactory_.createQName(this.outer_.namespace_, this.outer_.jscompAsyncExecuteProgram).srcrefTree(callTarget))
 		program = this.originalGeneratorBody.getParent()
@@ -799,7 +801,9 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_YieldFinder) 
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_YieldFinder) getYieldNode() Node {
-	Preconditions_checkNotNull_T(this.yieldNode)
+	if this.yieldNode == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	return this.yieldNode
 }
 
@@ -1532,7 +1536,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_UnmarkedNodeTranspiler) visitForInLoopVar(varDeclaration Node) {
 	var varName Node = varDeclaration.getOnlyChild()
 	if varName.hasChildren() {
-		Preconditions_checkState_boolean_Object_H(false, varName)
+		stateFail_(objstr_(varName.box_()))
 	}
 	var clonedVarName Node = varName.cloneNode().setJSDocInfo(nil)
 	varDeclaration.replaceWith(clonedVarName)

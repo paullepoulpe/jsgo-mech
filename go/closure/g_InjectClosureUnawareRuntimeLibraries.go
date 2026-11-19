@@ -86,10 +86,10 @@ type InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite struct {
 
 func (this *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite) init_InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite(callNode Node, closureUnawareFunction Node) {
 	if !callNode.isCall() {
-		Preconditions_checkArgument_boolean_Object_H(false, callNode)
+		argFail_(objstr_(callNode.box_()))
 	}
 	if !closureUnawareFunction.isFunction() {
-		Preconditions_checkArgument_boolean_Object_H(false, closureUnawareFunction)
+		argFail_(objstr_(closureUnawareFunction.box_()))
 	}
 	this.callNode_ = callNode
 	this.closureUnawareFunction_ = closureUnawareFunction

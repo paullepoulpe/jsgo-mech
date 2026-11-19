@@ -195,14 +195,16 @@ func GlobalNamespace_getTopVarName(name string) string {
 }
 
 func (this *GlobalNamespace) getNameFromModule(moduleMetadata *ModuleMetadataMap_ModuleMetadata, name string) *GlobalNamespace_Name {
-	Preconditions_checkNotNull_T(moduleMetadata)
+	if moduleMetadata == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	this.ensureGenerated()
 	return this.nameMapByModule.get(obj_(moduleMetadata), strobj_(name))
 }
 
 func (this *GlobalNamespace) declarationHasFollowingObjectSpreadSibling(declaration Node) bool {
 	if !declaration.getParent().isObjectLit() {
-		Preconditions_checkState_boolean_Object_H(false, declaration)
+		stateFail_(objstr_(declaration.box_()))
 	}
 	var cached any = this.spreadSiblingCache[declaration]
 	if cached != nil {
@@ -228,7 +230,7 @@ func (this *GlobalNamespace) createNameForTesting(name string) *GlobalNamespace_
 func (this *GlobalNamespace) getOutermostObjectLit(objLitKey Node) Node {
 	var outermostObjectLit Node = objLitKey.getParent()
 	if !outermostObjectLit.isObjectLit() {
-		Preconditions_checkState_boolean_Object_H(false, outermostObjectLit)
+		stateFail_(objstr_(outermostObjectLit.box_()))
 	}
 	for {
 		var objLitGrandparent Node = outermostObjectLit.getGrandparent()
@@ -647,14 +649,14 @@ func (this *GlobalNamespace_BuildGlobalNamespace) createObjLitStringKeyAnalysis(
 	} else {
 		var objLitNode Node = stringKeyNode.getParent()
 		if !objLitNode.isObjectLit() {
-			Preconditions_checkArgument_boolean_Object_H(false, objLitNode)
+			argFail_(objstr_(objLitNode.box_()))
 		}
 		var objLitParentNode Node = objLitNode.getParent()
 		if NodeUtil_isObjectDefinePropertiesDefinition(objLitParentNode) {
 			var receiverNode Node = objLitParentNode.getSecondChild()
 			if receiverNode.isQualifiedName() {
 				if !(objLitNode == receiverNode.getNext()) {
-					Preconditions_checkState_boolean_Object_H(false, objLitParentNode)
+					stateFail_(objstr_(objLitParentNode.box_()))
 				}
 				nameString = Optional_of[string]((sstr_(receiverNode.getQualifiedName()) + "." + sstr_(stringKeyNode.getString())))
 				return GlobalNamespace_ObjLitStringKeyAnalysis_forObjectDefineProperty(nameString.orElseThrow())
@@ -892,7 +894,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) isClassDefiningCall(callNode N
 
 func (this *GlobalNamespace_BuildGlobalNamespace) isObjectHasOwnPropertyCall(callNode Node) bool {
 	if !(callNode.isCall() || callNode.isOptChainCall()) {
-		Preconditions_checkArgument_boolean_Object_H(false, callNode)
+		argFail_(objstr_(callNode.box_()))
 	}
 	if !callNode.hasTwoChildren() {
 		return false
@@ -1501,7 +1503,9 @@ func (this *GlobalNamespace_Name) getRefs() CollectionOf[*GlobalNamespace_Ref] {
 }
 
 func (this *GlobalNamespace_Name) getRefForNode(node Node) *GlobalNamespace_Ref {
-	Preconditions_checkNotNull_T(node)
+	if node == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	if this.refsForNode == nil {
 		return nil
 	}
@@ -1805,7 +1809,9 @@ func (this *GlobalNamespace_Name) canCollapseOrInlineChildNames() GlobalNamespac
 		}}).get)
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	}
-	Preconditions_checkNotNull_T(this.declaration_)
+	if this.declaration_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	if this.declaration_.isTwin() {
 		this.logChildNamesDecision(GlobalNamespace_Inlinability_DO_NOT_INLINE, "twinned declaration")
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE

@@ -83,7 +83,7 @@ func (this *ClosureRewriteModule) process_2(externs Node, root Node) {
 			var script Node = parent.getFirstChild()
 			for ; script != 0; script = script.getNext() {
 				if !script.isScript() {
-					Preconditions_checkState_boolean_Object_H(false, script)
+					stateFail_(objstr_(script.box_()))
 				}
 				NodeTraversal_traverse(this.compiler_, script, NodeTraversal_Callback(new_ClosureRewriteModule_UnwrapGoogLoadModule(this)))
 				this.pushScript(new_ClosureRewriteModule_ScriptDescription())
@@ -383,7 +383,7 @@ func (this *ClosureRewriteModule) updateGoogRequire(t *NodeTraversal, call Node)
 				var importSpec Node = lhs.getFirstFirstChild()
 				for ; importSpec != 0; importSpec = importSpec.getNext() {
 					if !importSpec.hasChildren() {
-						Preconditions_checkState_boolean_Object_H(false, importSpec)
+						stateFail_(objstr_(importSpec.box_()))
 					}
 					var importedProperty string = importSpec.getString()
 					var aliasNode Node = importSpec.getFirstChild()
@@ -424,7 +424,7 @@ func (this *ClosureRewriteModule) updateGoogRequire(t *NodeTraversal, call Node)
 
 func (this *ClosureRewriteModule) maybeWarnForInvalidDestructuring(t *NodeTraversal, importNode Node, importedNamespace string) {
 	if !importNode.getFirstChild().isDestructuringLhs() {
-		Preconditions_checkArgument_boolean_Object_H(false, importNode)
+		argFail_(objstr_(importNode.box_()))
 	}
 	var importedModule *ClosureRewriteModule_ScriptDescription = this.rewriteState.scriptDescriptionsByGoogModuleNamespace[importedNamespace]
 	if importedModule == nil {
@@ -487,7 +487,7 @@ func (this *ClosureRewriteModule) updateGoogRequireDynamicCallInThen(call Node) 
 	namespaceIdNode.replaceWith(argNode)
 	var calleeNode Node = call.getFirstChild()
 	if !calleeNode.matchesQualifiedName(ClosureRewriteModule_GOOG_REQUIREDYNAMIC_NAME) {
-		Preconditions_checkState_boolean_Object_H(false, calleeNode)
+		stateFail_(objstr_(calleeNode.box_()))
 	}
 	calleeNode.setString(ClosureRewriteModule_IMPORT_HANDLER_NAME)
 	var exportedNamespaceNameNode Node = this.astFactory_.createNameStaticScope(TypedScope_as_StaticScope(this.globalTypedScope), exportedNamespace.get()).srcrefTree(call)
@@ -558,7 +558,7 @@ func (this *ClosureRewriteModule) updateGoogRequireDynamicCallInAwait(call Node)
 	namespaceIdNode.replaceWith(argNode)
 	var calleeNode Node = call.getFirstChild()
 	if !calleeNode.matchesQualifiedName(ClosureRewriteModule_GOOG_REQUIREDYNAMIC_NAME) {
-		Preconditions_checkState_boolean_Object_H(false, calleeNode)
+		stateFail_(objstr_(calleeNode.box_()))
 	}
 	calleeNode.setString(ClosureRewriteModule_IMPORT_HANDLER_NAME)
 	existingAwait.replaceWith(exportedNamespaceNameNode)
@@ -604,11 +604,11 @@ func (this *ClosureRewriteModule) recordExportsPropertyAssignment(t *NodeTravers
 	}
 	var parent Node = getpropNode.getParent()
 	if !(parent.isAssign() || parent.isExprResult()) {
-		Preconditions_checkState_boolean_Object_H(false, parent)
+		stateFail_(objstr_(parent.box_()))
 	}
 	var exportsNameNode Node = getpropNode.getFirstChild()
 	if !(exportsNameNode.getString() == "exports") {
-		Preconditions_checkState_boolean_Object_H(false, exportsNameNode)
+		stateFail_(objstr_(exportsNameNode.box_()))
 	}
 	if t.inModuleScope() {
 		var exportName string = getpropNode.getString()
@@ -628,7 +628,7 @@ func (this *ClosureRewriteModule) updateExportsPropertyAssignment(getpropNode No
 	}
 	var parent Node = getpropNode.getParent()
 	if !(parent.isAssign() || parent.isExprResult()) {
-		Preconditions_checkState_boolean_Object_H(false, parent)
+		stateFail_(objstr_(parent.box_()))
 	}
 	var exportsNameNode Node = getpropNode.getFirstChild()
 	if exportsNameNode.getString() != "exports" {
@@ -791,7 +791,7 @@ func (this *ClosureRewriteModule) maybeUpdateExportNameRef(t *NodeTraversal, n N
 
 func (this *ClosureRewriteModule) updateModuleBody(moduleBody Node) {
 	if !(moduleBody.isModuleBody() && moduleBody.getParent().getBooleanProp(Node_GOOG_MODULE)) {
-		Preconditions_checkArgument_boolean_Object_H(false, moduleBody)
+		argFail_(objstr_(moduleBody.box_()))
 	}
 	moduleBody.setToken(Token_rhino_BLOCK)
 	NodeUtil_tryMergeBlock(moduleBody, true)
@@ -846,7 +846,7 @@ func (this *ClosureRewriteModule) exportTheEmptyBinaryNamespaceAt(atNode Node, a
 
 func ClosureRewriteModule_checkAndSetStrictModeDirective(t *NodeTraversal, n Node) {
 	if !n.isScript() {
-		Preconditions_checkState_boolean_Object_H(false, n)
+		stateFail_(objstr_(n.box_()))
 	}
 	if n.isUseStrict() {
 		t.report(n, ClosureRewriteModule_USELESS_USE_STRICT_DIRECTIVE, []string{})

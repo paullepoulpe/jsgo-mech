@@ -151,8 +151,12 @@ func (this *ChangeVerifier) path(ancestor Node, child Node) string {
 }
 
 func ChangeVerifier_getInequivalenceReasonExcludingFunctions(thisNode Node, thatNode Node) *ChangeVerifier_EqualsResult {
-	Preconditions_checkNotNull_T(thisNode)
-	Preconditions_checkNotNull_T(thatNode)
+	if thisNode == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	if thatNode == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	if thisNode.getChildCount() != thatNode.getChildCount() {
 		return ChangeVerifier_EqualsResult_notEqual(thisNode, "differing child count", strobj_((tostrH_(thisNode) + ": " + istr_(int64(thisNode.getChildCount())))), strobj_((tostrH_(thatNode) + ": " + istr_(int64(thatNode.getChildCount())))))
 	}

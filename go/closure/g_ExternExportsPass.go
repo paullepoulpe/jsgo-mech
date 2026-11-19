@@ -381,7 +381,7 @@ func (this *ExternExportsPass_Export) getOriginalNameForParam(paramNode Node) st
 		}()
 	} else {
 		if !nameOrPatternNode.isDestructuringPattern() {
-			Preconditions_checkState_boolean_Object_H(false, nameOrPatternNode)
+			stateFail_(objstr_(nameOrPatternNode.box_()))
 		}
 		return ""
 	}

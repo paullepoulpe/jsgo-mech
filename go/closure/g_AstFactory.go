@@ -212,7 +212,7 @@ func (this *AstFactory) createNewTarget(newTargetType AstFactory_Type) Node {
 
 func (this *AstFactory) createThisForEs6Class(functionNode Node) Node {
 	if !functionNode.isClass() {
-		Preconditions_checkState_boolean_Object_H(false, functionNode)
+		stateFail_(objstr_(functionNode.box_()))
 	}
 	var result Node = IR_thisNode()
 	this.setJSTypeOrColor(this.getTypeOfThisForEs6Class(functionNode), result)
@@ -248,7 +248,7 @@ func (this *AstFactory) getTypeOfThisForFunctionNode(functionNode Node) *JSType 
 
 func (this *AstFactory) getTypeOfThisForEs6Class(functionNode Node) AstFactory_Type {
 	if !functionNode.isClass() {
-		Preconditions_checkArgument_boolean_Object_H(false, functionNode)
+		argFail_(objstr_(functionNode.box_()))
 	}
 	return func() AstFactory_Type {
 		switch this.typeMode {
@@ -935,7 +935,7 @@ func (this *AstFactory) createZeroArgArrowFunctionForExpression(expression Node)
 
 func (this *AstFactory) createMemberFunctionDef(name string, function Node) Node {
 	if function.getFirstChild().getString() != "" {
-		Preconditions_checkArgument_boolean_Object_H(false, function)
+		argFail_(objstr_(function.box_()))
 	}
 	var result Node = IR_memberFunctionDef(name, function)
 	this.setJSTypeOrColor(AstFactory_type_Node(function), result)
