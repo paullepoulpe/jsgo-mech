@@ -279,9 +279,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	if info.isLegacyNamedTsExport() {
 		parts.add("@legacyNamedTsExport")
 	}
-	it_17 := info.getTsTypes().each()
-	for it_17.next() {
-		var tsType string = it_17.v
+	for tsType := range info.getTsTypes().All() {
 		parts.add(("@tsType " + sstr_(tsType)))
 	}
 	if this.printDesc && info.getBlockDescription().isPresent() {

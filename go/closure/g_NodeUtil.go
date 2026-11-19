@@ -4325,9 +4325,7 @@ func NodeUtil_addFeaturesToScript(scriptNode Node, features *FeatureSet, compile
 	if !scriptNode.isScript() {
 		Preconditions_checkState_boolean_Object_H(false, scriptNode)
 	}
-	it_1 := features.getFeatures().each()
-	for it_1.next() {
-		var feature FeatureSet_Feature = it_1.v
+	for feature := range features.getFeatures().All() {
 		NodeUtil_addFeatureToScript(scriptNode, feature, compiler)
 	}
 }

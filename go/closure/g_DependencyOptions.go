@@ -114,9 +114,7 @@ func DependencyOptions_fromFlags(dependencyModeFlag DependencyOptions_Dependency
 	for entryPoint := range elemsBy_(entryPointFlag, str_) {
 		entryPointsBuilder.add(ModuleIdentifier_forFlagValue(entryPoint))
 	}
-	it_3 := closureEntryPointFlag.each()
-	for it_3.next() {
-		var closureEntryPoint string = it_3.v
+	for closureEntryPoint := range closureEntryPointFlag.All() {
 		entryPointsBuilder.add(ModuleIdentifier_forClosure(closureEntryPoint))
 	}
 	var result *DependencyOptions = func() *DependencyOptions {

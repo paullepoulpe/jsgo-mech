@@ -912,9 +912,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) process_2(externs No
 	this.nameMap = Preconditions_checkNotNull_Object_Object_T(this.outer_.namespace_, "namespace was not initialized").getNameIndex()
 	var globalNames *TList[*GlobalNamespace_Name] = this.outer_.namespace_.getNameForest()
 	var escaped *TSet[*GlobalNamespace_Name] = this.checkNamespaces()
-	it_1 := globalNames.each()
-	for it_1.next() {
-		var name *GlobalNamespace_Name = it_1.v
+	for name := range globalNames.All() {
 		this.flattenReferencesToCollapsibleDescendantNames(name, name.getBaseName(), escaped)
 		this.collapseDeclarationOfNameAndDescendants(name, name.getBaseName(), escaped)
 	}
@@ -967,9 +965,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) checkNamespaces() *T
 	var escaped *ImmutableSet_Builder[*GlobalNamespace_Name] = immutableSetBuilder_(tc_p_GlobalNamespace_Name)
 	var dynamicallyImportedModuleRefs *TSet[string] = tsetCopyT_(tc_string, this.dynamicallyImportedModules)
 	if !this.dynamicallyImportedModules.IsEmpty() {
-		it_1 := this.nameMap.each()
-		for it_1.next() {
-			var name *GlobalNamespace_Name = it_1.v
+		for name := range this.nameMap.Values() {
 			if this.dynamicallyImportedModules.Has(name.getFullName()) {
 				this.logDecisionForName(name, "escapes - dynamically imported module namespace")
 				escaped.add(name)
@@ -992,9 +988,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) checkNamespaces() *T
 			}
 		}
 	}
-	it_5 := this.nameMap.each()
-	for it_5.next() {
-		var name *GlobalNamespace_Name = it_5.v
+	for name := range this.nameMap.Values() {
 		if !dynamicallyImportedModuleRefs.IsEmpty() && dynamicallyImportedModuleRefs.Has(name.getFullName()) {
 			escaped.add(name)
 		}

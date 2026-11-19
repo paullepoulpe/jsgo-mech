@@ -85,9 +85,7 @@ func (this *RewriteJsonToModule) visitScript(t *NodeTraversal, n Node) {
 	var inputPath string = t.getInput().getSourceFile().getName()
 	if strings.HasSuffix(inputPath, "/package.json") && jsonObject.isObjectLit() {
 		var possibleMainEntries *TList[string] = this.compiler_.getOptions().getPackageJsonEntryNames()
-		it_1 := possibleMainEntries.each()
-		for it_1.next() {
-			var entryName string = it_1.v
+		for entryName := range possibleMainEntries.All() {
 			var entry Node = NodeUtil_getFirstPropMatchingKey(jsonObject, entryName)
 			if (entry != 0) && (entry.isStringLit() || entry.isObjectLit()) {
 				var dirName string = inputPath[:len(inputPath)-len("package.json")]

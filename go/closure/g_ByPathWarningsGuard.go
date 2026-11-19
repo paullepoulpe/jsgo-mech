@@ -56,9 +56,7 @@ func (this *ByPathWarningsGuard) level_impl(error_ *JSError) CheckLevel {
 	var defaultLevel CheckLevel = error_.defaultLevel()
 	if (defaultLevel != CheckLevel_ERROR) && errorPath.isPresent() {
 		var inPath bool = false
-		it_1 := this.paths.each()
-		for it_1.next() {
-			var path string = it_1.v
+		for path := range this.paths.All() {
 			inPath = bor_(inPath, JString_contains_s(errorPath.get(), path))
 		}
 		if inPath == this.include {

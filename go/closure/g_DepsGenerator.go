@@ -61,9 +61,7 @@ func (this *DepsGenerator) computeDependencyCalls() *Outcome_base[string] {
 
 func (this *DepsGenerator) cleanUpDuplicatedFiles(depsFiles MapOf[string, DependencyInfo_], jsFiles *TMap[string, DependencyInfo_]) {
 	var depsPathsCopy *TSet[string] = tsetFrom_(tc_string, Collection(depsFiles.keySet()), false)
-	it_1 := depsPathsCopy.each()
-	for it_1.next() {
-		var path string = it_1.v
+	for path := range depsPathsCopy.All() {
 		if this.mergeStrategy != DepsGenerator_InclusionStrategy_WHEN_IN_SRCS {
 			jsFiles.Delete(path)
 		}
@@ -97,9 +95,7 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 		if dependencyInfo.isEs6Module() {
 			var mungedProvide string = this.loader.resolve(dependencyInfo.getName()).toModuleName()
 			var builder *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
-			it_5 := provides.each()
-			for it_5.next() {
-				var provide string = it_5.v
+			for provide := range provides.All() {
 				if !(provide == mungedProvide) && !(provide == dependencyInfo.getPathRelativeToClosureBase()) {
 					builder.add(provide)
 				}

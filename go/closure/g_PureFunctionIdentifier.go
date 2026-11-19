@@ -60,9 +60,7 @@ func (this *PureFunctionIdentifier) validateArtificialPurity() {
 	if !this.validateArtificialPurityField {
 		return
 	}
-	it_1 := this.artificiallyPureLiteralsForDebugging.each()
-	for it_1.next() {
-		var function Node = it_1.v
+	for function := range this.artificiallyPureLiteralsForDebugging.All() {
 		for summary := range elemsAs_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](this.summariesForAllNamesOfFunctionByNode.get(function.box_())) {
 			if summary.hasNoFlagsSet() {
 				continue
@@ -191,9 +189,7 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) *TLis
 		panic(new_IllegalStateException_String(objstr_("Unexpected empty callees for valid result")))
 	}
 	var results *ImmutableList_Builder[*PureFunctionIdentifier_AmbiguatedFunctionSummary] = immutableListBuilder_(tc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary)
-	it_1 := callees.each()
-	for it_1.next() {
-		var callee Node = it_1.v
+	for callee := range callees.All() {
 		if callee.isFunction() {
 			if !callee.isFunction() {
 				Preconditions_checkState_boolean_Object_H(false, callee)
@@ -256,9 +252,7 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 					break
 				}
 				if this.validateArtificialPurityField && !reference.isFromExterns() {
-					it_3 := callables.each()
-					for it_3.next() {
-						var callable Node = it_3.v
+					for callable := range callables.All() {
 						var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(callable)
 						var isArtificiallyPure bool = ((jsdoc != nil) && jsdoc.isNoSideEffects())
 						if isArtificiallyPure {
@@ -309,9 +303,7 @@ func (this *PureFunctionIdentifier) markPureFunctionCalls() {
 			flags.setAllFlags()
 		} else {
 			flags.clearAllFlags()
-			it_3 := calleeSummaries.each()
-			for it_3.next() {
-				var calleeSummary *PureFunctionIdentifier_AmbiguatedFunctionSummary = it_3.v
+			for calleeSummary := range calleeSummaries.All() {
 				Preconditions_checkNotNull_T(calleeSummary)
 				if calleeSummary.mutatesGlobalState() {
 					flags.setMutatesGlobalState()
@@ -734,9 +726,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitCall(callerInfo *P
 	}
 	var enclosingFunction *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry = cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque())))
 	var propagatesThrows bool = (enclosingFunction.catchDepth == 0)
-	it_1 := calleeSummaries.each()
-	for it_1.next() {
-		var calleeInfo *PureFunctionIdentifier_AmbiguatedFunctionSummary = it_1.v
+	for calleeInfo := range calleeSummaries.All() {
 		var edge *PureFunctionIdentifier_SideEffectPropagation = PureFunctionIdentifier_SideEffectPropagation_forInvocation(invocation, scope, enclosingFunction, this.argumentsMatchParameters(invocation), propagatesThrows)
 		this.outer_.reverseCallGraph.connectDiGraphNode(calleeInfo.graphNode, edge, callerInfo.graphNode)
 	}

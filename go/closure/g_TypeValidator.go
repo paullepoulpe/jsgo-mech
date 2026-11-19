@@ -450,23 +450,17 @@ func (this *TypeValidator) expectAllInterfaceProperties(n Node, type_ *FunctionT
 	for implemented := range elemsBy_(type_.getAllImplementedInterfaces(), to_ObjectType) {
 		this.expectInterfaceProperties(n, instance, implemented)
 	}
-	it_3 := type_.getExtendedInterfaces().each()
-	for it_3.next() {
-		var extended *ObjectType = it_3.v
+	for extended := range type_.getExtendedInterfaces().All() {
 		this.expectInterfaceProperties(n, instance, extended)
 	}
 }
 
 func (this *TypeValidator) expectInterfaceProperties(n Node, instance *ObjectType, ancestorInterface *ObjectType) {
-	it_1 := ancestorInterface.getOwnPropertyKeys().each()
-	for it_1.next() {
-		var prop Property_Key = it_1.v
+	for prop := range ancestorInterface.getOwnPropertyKeys().All() {
 		this.expectInterfaceProperty(n, instance, ancestorInterface, prop)
 	}
 	if ancestorInterface.getImplicitPrototype() != nil {
-		it_3 := ancestorInterface.getImplicitPrototype().getOwnPropertyKeys().each()
-		for it_3.next() {
-			var prop Property_Key = it_3.v
+		for prop := range ancestorInterface.getImplicitPrototype().getOwnPropertyKeys().All() {
 			this.expectInterfaceProperty(n, instance, ancestorInterface, prop)
 		}
 	}
@@ -533,9 +527,7 @@ func (this *TypeValidator) expectAbstractMethodsImplemented(n Node, ctorType *Fu
 	}
 	for (currSuperCtor != nil) && currSuperCtor.isAbstract() {
 		var superType *ObjectType = currSuperCtor.getInstanceType()
-		it_2 := currSuperCtor.getPrototype().getOwnPropertyKeys().each()
-		for it_2.next() {
-			var prop Property_Key = it_2.v
+		for prop := range currSuperCtor.getPrototype().getOwnPropertyKeys().All() {
 			var maybeAbstractMethod *FunctionType = superType.findPropertyTypeKey(prop).toMaybeFunctionType()
 			if ((maybeAbstractMethod != nil) && maybeAbstractMethod.isAbstract()) && !abstractMethodSuperTypeMap.Has(prop) {
 				abstractMethodSuperTypeMap.Put(prop, superType)

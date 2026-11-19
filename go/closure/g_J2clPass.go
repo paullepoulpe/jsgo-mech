@@ -108,9 +108,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner) init_J2clPass_ClassStaticFunct
 	this.injector = new_FunctionInjector_Builder(this.outer_.compiler_).safeNameIdSupplier(this.outer_.safeNameIdSupplier_).assumeStrictThis(true).build()
 	var fnNamesToInlineBuilder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	for _, b := range *inlineSpecs {
-		it_3 := b.fnNamesToInline_.each()
-		for it_3.next() {
-			var fnName string = it_3.v
+		for fnName := range b.fnNamesToInline_.All() {
 			fnNamesToInlineBuilder.add(fnName)
 		}
 	}
@@ -224,9 +222,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) visit(t 
 	default:
 		return
 	}
-	it_2 := this.currFileInlineSpecs.each()
-	for it_2.next() {
-		var inlineSpec *J2clPass_InlineSpec = it_2.v
+	for inlineSpec := range this.currFileInlineSpecs.All() {
 		if !inlineSpec.fnNamesToInline_.Has(fnName) {
 			continue
 		}

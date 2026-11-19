@@ -40,9 +40,7 @@ func (this *DiagnosticToSuppressionMapper) createSuppressionMap() ImmutableSorte
 			continue
 		}
 		var group *DiagnosticGroup = entry.getValue()
-		it_3 := group.getTypes().each()
-		for it_3.next() {
-			var diagnosticType *DiagnosticType = it_3.v
+		for diagnosticType := range group.getTypes().All() {
 			Map_merge_f(diagnosticToSuppression.asMap(), obj_(diagnosticType), strobj_(suppression), func(p0 any, p1 any) any {
 				return strobj_((func(p0 string, p1 string) string { return this.preferMoreTargetedGroup(p0, p1) })(str_(p0), str_(p1)))
 			})

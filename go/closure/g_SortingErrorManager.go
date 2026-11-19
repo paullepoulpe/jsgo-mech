@@ -121,9 +121,7 @@ func (this *SortingErrorManager) filterToListOf(level CheckLevel) *TList[*JSErro
 }
 
 func (this *SortingErrorManager) generateReport_impl() {
-	it_1 := this.errorReportGenerators.each()
-	for it_1.next() {
-		var generator SortingErrorManager_ErrorReportGenerator = it_1.v
+	for generator := range this.errorReportGenerators.All() {
 		generator.generateReport(this)
 	}
 }

@@ -60,9 +60,7 @@ func ColorId_union(ids *TSet[*ColorId]) *ColorId {
 	}
 	var index int32 = 0
 	var sorted []int64 = make([]int64, ids.Len())
-	it_1 := ids.each()
-	for it_1.next() {
-		var id *ColorId = it_1.v
+	for id := range ids.All() {
 		sorted[index] = id.rightAligned
 		index++
 	}

@@ -439,9 +439,7 @@ func (this *RewriteAsyncIteration) prependTempVarDeclarations(ctx *RewriteAsyncI
 	if thisSuperArgsCtx.usedArguments {
 		prefixBlock.addChildToBack(this.astFactory_.createSingleConstNameDeclaration(RewriteAsyncIteration_ARGUMENTS_VAR_NAME, this.astFactory_.createArgumentsReference()).srcrefTree(block))
 	}
-	it_1 := thisSuperArgsCtx.usedSuperProperties.each()
-	for it_1.next() {
-		var replacedMethodReference Node = it_1.v
+	for replacedMethodReference := range thisSuperArgsCtx.usedSuperProperties.All() {
 		prefixBlock.addChildToBack(this.createSuperMethodReferenceGetter(replacedMethodReference, t))
 	}
 	prefixBlock.srcrefTreeIfMissing(block)

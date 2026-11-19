@@ -68,9 +68,7 @@ func CaseCanonicalize_expandToAllMatched(ranges *CharRanges) *CharRanges {
 		return ranges
 	}
 	var expanded *CharRanges = CharRanges_EMPTY
-	it_1 := CaseCanonicalize_DELTA_SETS.each()
-	for it_1.next() {
-		var ds *CaseCanonicalize_DeltaSet = it_1.v
+	for ds := range CaseCanonicalize_DELTA_SETS.All() {
 		expanded = expanded.union(caseSensitive.intersection(ds.codeUnits).shift((-ds.delta)))
 	}
 	return ranges.union(expanded)
@@ -82,9 +80,7 @@ func CaseCanonicalize_reduceToMinimum(ranges *CharRanges) *CharRanges {
 		return ranges
 	}
 	var expanded *CharRanges = CharRanges_EMPTY
-	it_1 := CaseCanonicalize_CANON_DELTA_SETS.each()
-	for it_1.next() {
-		var ds *CaseCanonicalize_DeltaSet = it_1.v
+	for ds := range CaseCanonicalize_CANON_DELTA_SETS.All() {
 		expanded = expanded.union(caseSensitive.intersection(ds.codeUnits).shift((-ds.delta)))
 	}
 	expanded = expanded.difference(CaseCanonicalize_UCASE_ASCII_LETTERS).union(expanded.intersection(CaseCanonicalize_UCASE_ASCII_LETTERS).shift(32))

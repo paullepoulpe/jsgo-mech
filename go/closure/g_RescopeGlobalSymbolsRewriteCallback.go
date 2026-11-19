@@ -380,9 +380,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappers(
 	var defaultRootChunk *JSChunk = cast_[*JSChunk](first_(chunks))
 	var wrapperAssignmentChunks map[string]*JSChunk = map[string]*JSChunk{}
 	if this.optimizeLocalAccess.shouldWrapReassignableSymbols() && !this.symbolInfo.wrappedCrossChunkNames().IsEmpty() {
-		it_1 := this.symbolInfo.wrappedCrossChunkNames().each()
-		for it_1.next() {
-			var name string = it_1.v
+		for name := range this.symbolInfo.wrappedCrossChunkNames().All() {
 			var chunksRequiringWrapper SetOf[*JSChunk] = mapGetOr_(this.chunksRequiringWrapperInitialization, name, ImmutableSet_as_Set(ImmutableSet_of()))
 			var wrapperAssignmentChunk *JSChunk = func() *JSChunk {
 				if chunksRequiringWrapper.isEmpty() {
@@ -452,9 +450,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappersF
 	var wrappedReassignableLocalAliases *TSet[string] = tsetEmptyImm_(tc_string)
 	if this.optimizeLocalAccess.shouldWrapReassignableSymbols() {
 		wrappedReassignableLocalAliases = newTSet_(tc_string)
-		it_1 := this.symbolInfo.wrappedCrossChunkNames().each()
-		for it_1.next() {
-			var name string = it_1.v
+		for name := range this.symbolInfo.wrappedCrossChunkNames().All() {
 			var assignmentChunk *JSChunk = wrapperAssignmentChunks[name]
 			var usingChunks SetOf[*JSChunk] = this.chunksUsingWrappedReassignableSymbols[name]
 			if equalsId_(chunk, assignmentChunk) {
@@ -497,14 +493,10 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappersF
 				usedCleanupHelper = true
 			}
 		} else {
-			it_7 := aliasesToKeep.each()
-			for it_7.next() {
-				var name string = it_7.v
+			for name := range aliasesToKeep.All() {
 				RescopeGlobalSymbolsRewriteCallback_addDeclaration(script, insertionPoint, IR_var_Node_Node(IR_name(name), IR_getprop_Node_String(IR_name(this.symbolInfo.globalSymbolNamespace()), name)))
 			}
-			it_9 := aliasesToDelete.each()
-			for it_9.next() {
-				var name string = it_9.v
+			for name := range aliasesToDelete.All() {
 				RescopeGlobalSymbolsRewriteCallback_addDeclaration(script, insertionPoint, IR_var_Node_Node(IR_name(name), IR_getprop_Node_String(IR_name(this.symbolInfo.globalSymbolNamespace()), name)))
 				RescopeGlobalSymbolsRewriteCallback_addDeclaration(script, insertionPoint, IR_exprResult(IR_delprop(IR_getprop_Node_String(IR_name(this.symbolInfo.globalSymbolNamespace()), name))))
 			}

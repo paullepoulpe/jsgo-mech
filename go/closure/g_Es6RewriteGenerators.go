@@ -857,9 +857,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	if ok_, a1_ := !this.allCases.isEmpty(), this.allCases.asList(); !ok_ {
 		panic(new_IllegalStateException_String(objstr_(a1_)))
 	}
-	it_1 := this.allCases.each()
-	for it_1.next() {
-		var currentCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = it_1.v
+	for currentCase := range this.allCases.All() {
 		if currentCase.jumpToField != nil {
 			for currentCase.jumpToField.jumpToField != nil {
 				currentCase.jumpToField = currentCase.jumpToField.jumpToField
@@ -958,9 +956,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	var switchNode Node = IR_switchNode(this.callContextMethod(generatorBody, "getNextAddressJsc", AstFactory_type_JSTypeNative_Color(JSTypeNative_NUMBER_TYPE, StandardColors_NUMBER), []Node{}), []Node{}).srcref(generatorBody)
 	generatorBody.addChildToBack(switchNode)
 	var switchBody Node = switchNode.getSecondChild().srcref(generatorBody)
-	it_1 := this.allCases.each()
-	for it_1.next() {
-		var currentCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = it_1.v
+	for currentCase := range this.allCases.All() {
 		switchBody.addChildToBack(currentCase.createCaseNode())
 	}
 	this.allCases.clear()
