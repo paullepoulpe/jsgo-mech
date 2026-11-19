@@ -54,9 +54,9 @@ func (this *CmdLineParser) checkOptionNotDefined(name string) {
 
 func (this *CmdLineParser) sortedOptions() *[]*CmdLineParser_Option {
 	if !this.optionsSorted {
-		Collections_sort_List_Comparator(sliceViewP_(tc_p_CmdLineParser_Option, this.options_), &Comparator_tfn_CmdLineParser_Option_CmdLineParser_Option{func(o1 *CmdLineParser_Option, o2 *CmdLineParser_Option) int32 {
+		sortSlicePF_(this.options_, func(o1 *CmdLineParser_Option, o2 *CmdLineParser_Option) int32 {
 			return utf16Compare_(o1.toString(), o2.toString())
-		}})
+		})
 		this.optionsSorted = true
 	}
 	return this.options_
