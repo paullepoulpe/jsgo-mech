@@ -27,6 +27,8 @@ type jtconv_[T any] struct {
 	// post: this conversion for the post-flip typed collections (t_), made on first use or
 	// set to the package's conversion of the same type (post-flip tool jfam -kind convs).
 	post *tconv_[T]
+	// postEq: the same without hash and eq, for keys whose equals is == (tEq_, rt_jbridge.go).
+	postEq *tconv_[T]
 }
 
 // t_ is the conversion as the post-flip typed collections take it (rt_tlist.go): the same box,
