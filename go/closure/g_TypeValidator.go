@@ -579,7 +579,8 @@ func (this *TypeValidator) mismatchJSType(n Node, msg string, found *JSType, req
 			var requiredObject *ObjectType = structuralType.toMaybeObjectType()
 			var foundObject *ObjectType = found.toMaybeObjectType()
 			if (requiredObject != nil) && (foundObject != nil) {
-				for property := range elemsBy_(obj_(requiredObject.getPropertyNames()), str_) {
+				for _, el := range immElems_(requiredObject.getPropertyNames()) {
+					property := str_(el)
 					var propRequired *JSType = requiredObject.getPropertyType(property)
 					var hasProperty bool = foundObject.hasProperty(property)
 					if !propRequired.isExplicitlyVoidable() || hasProperty {

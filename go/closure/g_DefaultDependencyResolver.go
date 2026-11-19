@@ -51,7 +51,8 @@ func (this *DefaultDependencyResolver) addDependency(symbol string, seen *JTSet[
 		}
 	} else if !seen.asSet().containsAll(ImmutableList_as_Collection(dependency.getProvides())) {
 		seen.asSet().addAll(ImmutableList_as_Collection(dependency.getProvides()))
-		for require := range elemsBy_(obj_(dependency.getRequiredSymbols()), str_) {
+		for _, el := range immElems_(dependency.getRequiredSymbols()) {
+			require := str_(el)
 			this.addDependency(require, seen, list)
 		}
 		list.add(dependency.getPathRelativeToClosureBase())
