@@ -8,8 +8,10 @@
 // null (Optional.of), then the content of o compared with s, false when o is null or empty
 // (optEqualsOf_: a NullPointerException when o is null, as o.equals does). String.equals of
 // the boxed contents is ==, and an Optional never holds a null String. Java computes
-// Optional.of(s) (which throws for a null s) before o, the helper computes both first: a call is
-// rewritten only when s is a constant or o is a variable or a field of one.
+// Optional.of(s) (which throws for a null s) before o, the helper computes both first: when s is
+// not a constant and o not a variable or a field of one, s is checked first, by
+// optOfEquals_(strNonNull_(s), o): Go evaluates the calls of an argument list from left to right,
+// so strNonNull_ throws before a call in o runs, as Optional.of does.
 //
 // usage: optof [-n] <dir of package closure>
 package main
@@ -28,7 +30,7 @@ import (
 func main() {
 	report := len(os.Args) > 2 && os.Args[1] == "-n"
 	rw.Load(os.Args[len(os.Args)-1])
-	done := 0
+	done, checked := 0, 0
 	why := map[string]int{}
 	isString := func(e ast.Expr) bool {
 		b, ok := types.Unalias(rw.Info.Types[e].Type).(*types.Basic)
@@ -73,12 +75,14 @@ func main() {
 				return true
 			}
 			if s, o := of(c.Args[0]), erased(c.Args[1]); s != nil && o != nil {
-				if !constant(s) && !readPath(o) {
-					// Java's Optional.of(s) throws for a null s before o is computed.
-					why["o is computed after Optional.of(s), which throws first for a null s"]++
-					return true
-				}
 				done++
+				if !constant(s) && !readPath(o) {
+					// Java's Optional.of(s) throws for a null s before o is computed: so does
+					// strNonNull_(s), the first call of the argument list.
+					checked++
+					rw.Rewrite[c] = func() string { return "optOfEquals_(strNonNull_(" + rw.Render(s) + "), " + rw.Render(o) + ")" }
+					return false
+				}
 				rw.Rewrite[c] = func() string { return "optOfEquals_(" + rw.Render(s) + ", " + rw.Render(o) + ")" }
 				return false
 			}
@@ -102,10 +106,10 @@ func main() {
 		fmt.Fprintf(os.Stderr, "  left: %4d %s\n", why[k], k)
 	}
 	if report {
-		fmt.Fprintf(os.Stderr, "optof: %d Optional.of(s).equals(o) rewritten\n", done)
+		fmt.Fprintf(os.Stderr, "optof: %d Optional.of(s).equals(o) rewritten (%d with s checked by strNonNull_ before o is computed)\n", done, checked)
 		return
 	}
-	fmt.Fprintf(os.Stderr, "optof: %d Optional.of(s).equals(o) rewritten; files changed: %d\n", done, rw.SaveChecked())
+	fmt.Fprintf(os.Stderr, "optof: %d Optional.of(s).equals(o) rewritten (%d with s checked by strNonNull_ before o is computed); files changed: %d\n", done, checked, rw.SaveChecked())
 }
 
 func constant(e ast.Expr) bool {
