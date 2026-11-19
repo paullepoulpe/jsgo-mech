@@ -4,7 +4,7 @@
 . /mnt/data/ubuntu/jm/env.sh
 R=$B/wt/flip4; W=$B/wt/replay4; O=$R/tools/postflip/reflip/patches; cd $R
 for i in $(seq 1 200); do
-  tools/postflip/replay-all.sh -base b007f31f -noverify -steps tools/postflip/reflip/steps.txt -overlay $O -toolfix tools/postflip/reflip/toolfix.sh -check "$B/bin/tc go/closure" -w $W > $B/logs/replay4.log 2>&1 && { echo "REPLAY DONE"; exit 0; }
+  tools/postflip/replay-all.sh -base dfdb5197 -noverify -steps tools/postflip/reflip/steps.txt -overlay $O -toolfix tools/postflip/reflip/toolfix.sh -check "$B/bin/tc go/closure" -w $W > $B/logs/replay4.log 2>&1 && { echo "REPLAY DONE"; exit 0; }
   line=$(grep "^FAILED at .*: patch " $B/logs/replay4.log | tail -1)
   if [ -z "$line" ]; then
     # a commit whose manual patch applied but no longer type-checks (it builds on a dropped manual patch): dropped too

@@ -1,0 +1,29 @@
+diff --git a/go/closure/g_Output.go b/go/closure/g_Output.go
+index 9c9d853d..a3358d44 100644
+--- a/go/closure/g_Output.go
++++ b/go/closure/g_Output.go
+@@ -84,6 +84,12 @@ func (this *Output) append_CharSequence(s any) Appendable {
+ 	return Appendable(this)
+ }
+ 
++// append_CharSequence_s is append_CharSequence for a String that is not boxed (post-flip manual step).
++func (this *Output) append_CharSequence_s(s string) Appendable {
++	this.print(sstr_(s))
++	return icast_Appendable(any(this))
++}
++
+ func (this *Output) append_CharSequence_int_int(s any, start int32, end int32) Appendable {
+ 	this.print(String_substring(String_valueOf_Object(s), start, end))
+ 	return Appendable(this)
+diff --git a/go/closure/g_zstubs.go b/go/closure/g_zstubs.go
+index 6f50cbff..f7b612e1 100644
+--- a/go/closure/g_zstubs.go
++++ b/go/closure/g_zstubs.go
+@@ -195,6 +195,7 @@ type AnnotatedElement interface {
+ 
+ type Appendable interface {
+ 	append_CharSequence(any) Appendable
++	append_CharSequence_s(string) Appendable
+ 	append_CharSequence_int_int(any, int32, int32) Appendable
+ 	append_char(uint16) Appendable
+ }
