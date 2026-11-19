@@ -37,11 +37,11 @@ func (this *JsMessageExtractor) extractMessages(inputs []*SourceFile_jscomp) Col
 func (this *JsMessageExtractor) extractMessagesIterable(inputs IterableOf[*SourceFile_jscomp]) CollectionOf[*JsMessage] {
 	var compiler *Compiler = new_Compiler_0()
 	compiler.init(ImmutableList_as_List(ImmutableList_of()), ImmutableList_as_List(ImmutableList_copyOf_Iterable(inputs)), this.options_)
-	compiler.runInCompilerThread(&Callable_fn{func() any {
+	compiler.runInCompilerThread(func() any {
 		compiler.parseInputs()
 		return nil
 		panic("unreachable")
-	}})
+	})
 	var extractCompilerPass *JsMessageExtractor_ExtractMessagesVisitor = new_JsMessageExtractor_ExtractMessagesVisitor(this, compiler.up_AbstractCompiler())
 	if compiler.getErrors().isEmpty() {
 		extractCompilerPass.process_2(0, compiler.getRoot())
