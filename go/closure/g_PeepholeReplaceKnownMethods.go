@@ -1221,7 +1221,10 @@ func (this *PeepholeReplaceKnownMethods_ConcatFunctionCall) as_PeepholeReplaceKn
 }
 
 func to_PeepholeReplaceKnownMethods_ConcatFunctionCall(v any) *PeepholeReplaceKnownMethods_ConcatFunctionCall {
-	if v == nil {
+	switch p := v.(type) {
+	case *PeepholeReplaceKnownMethods_1:
+		return p.as_PeepholeReplaceKnownMethods_ConcatFunctionCall()
+	case nil:
 		return nil
 	}
 	return v.(interface {
