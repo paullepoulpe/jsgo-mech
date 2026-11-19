@@ -274,6 +274,31 @@ that of another typed builder declaration, and every use is `add`, `addAll`, `pu
 place that is a typed builder declaration: a builder has no erased view.
 `J2GO_COLLS_NOIMM=1` and `J2GO_COLLS_NOBUILDERS=1` are the rules without them.
 
+A builder that is used where it is made, a *builder chain*
+(`ImmutableMap.<String, Annotation>builder().put("a", A).put("b", B).buildOrThrow()`,
+`new ImmutableSet.Builder<Var>().addAll(xs).addAll(ys).build()`), is a declaration without a
+name (`Colls.chains`; `J2GO_COLLS_NOCHAINS=1` is the translation without the rule). Its type
+arguments are the ones javac gives the expression that makes the builder, its uses are the
+calls of the chain. It is a typed builder (`newTMapBuilder_(tc_string,
+tc_p_Annotation).put("a", A).put("b", B).buildOrThrow()`, the keys and values as they are) when
+every call of the chain is a typed method of the builder and the chain ends in a typed
+declaration: the collection it builds enters a typed declaration of that kind and type
+arguments (an initializer, an assignment, a returned value, an argument; also through `? :`),
+or the builder itself enters a typed builder declaration
+(`ImmutableList.Builder<X> b = ImmutableList.<X>builder().add(x)`, which was erased before:
+only a new builder could enter a typed builder declaration). Without the rule such a chain
+boxed every element into the erased builder, and `tmapImm_` then made the typed collection
+from the erased one. A chain stays erased when its collection goes to an erased place (an
+argument for a `Collection` parameter of a method group, the receiver of a call, a field of a
+handle class): that place needs the boxed collection, and a typed builder would only add a
+second one. It also stays erased when javac's types are not ones a typed collection holds
+(`ImmutableMap.builder()` without type arguments in a chain is a `Builder<Object, Object>`; a
+method's type variable) and when a call is not a typed builder method (`add(E...)`).
+The same holds for `ImmutableList.of(a, b)` as an expression: where a typed declaration is the
+target it is the typed factory already; the ones left are consumed by a place that takes
+any collection (a `Collection` or `Iterable` parameter, a for-each loop, the copy constructor
+of another collection).
+
 Sorted collections are the same Go types in a sorted mode (`rt_tsorted.go`). A declaration
 of type `TreeSet<X>` / `SortedSet<X>` / `NavigableSet<X>` is one of the set kind, one of type
 `TreeMap<K, V>` / `SortedMap<K, V>` / `NavigableMap<K, V>` one of the map kind, and

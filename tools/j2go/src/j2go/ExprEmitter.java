@@ -247,7 +247,8 @@ abstract class ExprEmitter extends Base {
   String newTyped(ExpressionTree t, TypeMirror target) {
     if (t instanceof MethodInvocationTree mi) return immutableOf(mi, target);
     if (!(t instanceof NewClassTree n) || n.getClassBody() != null) return null;
-    TypeElement made = Ctx.typeElement(cx.erase(typeOf(t)));
+    // the class of the constructor: the expression's own type is the typed builder's for the new builder of a chain
+    TypeElement made = elemOf(n) instanceof ExecutableElement ce ? cx.ownerOf(ce) : Ctx.typeElement(cx.erase(typeOf(t)));
     String fn = made == null ? null : cx.typedColl(target).made.get(made.getQualifiedName().toString());
     if (fn == null) return null;
     String tc = cx.tconvsOf(target);
@@ -264,6 +265,17 @@ abstract class ExprEmitter extends Base {
     }
     if (cx.isTypedColl(at) && cx.goType(at).equals(cx.goType(target))) return lower + "Copy_(" + tc + ", " + expr(a) + ")";
     return lower + "From_(" + tc + ", " + exprAs(a, cx.elems.getTypeElement(cx.typedColl(target).fromType).asType()) + ")";
+  }
+
+  /**
+   * The new builder of a typed builder chain (rule "typed builder chains", Colls.chains: the
+   * expression `ImmutableList.<X>builder()` or `new ImmutableList.Builder<X>()` has the type of a
+   * typed builder): the runtime's typed builder; null for any other expression.
+   */
+  String chainBuilder(ExpressionTree t) {
+    TypeMirror rt = cx.refinedTrees.get(t);
+    Ctx.CollKind ck = rt == null ? null : cx.typedColl(rt);
+    return ck == null || ck.builds == null ? null : newTyped(t, rt);
   }
 
   /**
@@ -355,11 +367,15 @@ abstract class ExprEmitter extends Base {
         return memberSelect((MemberSelectTree) t);
       case METHOD_INVOCATION: {
         MethodInvocationTree mi = (MethodInvocationTree) t;
+        String chain = chainBuilder(t);
+        if (chain != null) return chain;
         CallResult r = invocation(mi);
         return cx.coerce(r.code, r.type, typeOf(t));
       }
-      case NEW_CLASS:
-        return newClass((NewClassTree) t);
+      case NEW_CLASS: {
+        String chain = chainBuilder(t);
+        return chain != null ? chain : newClass((NewClassTree) t);
+      }
       case NEW_ARRAY:
         return newArray((NewArrayTree) t, (ArrayType) cx.erase(typeOf(t)));
       case ARRAY_ACCESS: {

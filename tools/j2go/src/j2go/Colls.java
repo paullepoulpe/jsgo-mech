@@ -59,10 +59,30 @@ final class Colls {
     boolean made;  // a list enters it (a new ArrayList, or the value of another candidate)
     final List<Tree> uses = new ArrayList<>();
     final List<Slot> taints = new ArrayList<>();  // erased if this one is
+    boolean ended;  // of a builder chain: its collection or its builder enters a declaration
     List<Element> all;  // of a group of overriding methods: the declaration of each method (v is the first)
   }
 
   final Map<Element, Slot> slots = new LinkedHashMap<>();
+
+  /**
+   * Rule "typed builder chains": a new builder that is used where it is made, without a
+   * declaration (`ImmutableMap.<K, V>builder().put(a, b).put(c, d).buildOrThrow()`,
+   * `new ImmutableSet.Builder<X>().add(x).addAll(xs).build()`), is a declaration without a name:
+   * a Slot whose v is null, by the expression that makes the builder. Its type arguments are
+   * those javac gives that expression; its uses are the calls of the chain. It is typed when
+   * every call of the chain is a typed method of the builder (as for a declared builder) and the
+   * chain ends in a typed declaration: the collection it builds enters a typed declaration of
+   * that kind and type arguments (the chain is erased if that declaration is), or the builder
+   * itself enters a typed builder declaration (`b = ImmutableList.<X>builder().add(x)`). A chain
+   * whose collection goes to an erased place (an argument for a Collection parameter, the
+   * receiver of a method) stays erased: that place needs the boxed collection, and the typed
+   * builder would only make a second one. J2GO_COLLS_NOCHAINS=1 is the translation without the
+   * rule.
+   */
+  final Map<Tree, Slot> chains = new LinkedHashMap<>();
+
+  static final boolean CHAINS = !"1".equals(System.getenv("J2GO_COLLS_NOCHAINS"));
   /** Methods whose parameters and result can be candidates: nothing overrides them, they override nothing. */
   final Set<ExecutableElement> closed = new HashSet<>();
 
@@ -420,6 +440,112 @@ final class Colls {
         return e instanceof VariableElement ? slots.get(e) : null;
       }
 
+      /** The kind of builder that expression x at path p makes (ImmutableList.builder(), new ImmutableList.Builder<>()), or null. */
+      Ctx.CollKind builderMade(ExpressionTree x, TreePath p) {
+        if (x instanceof MethodInvocationTree mi) {
+          Element m = elemOf(new TreePath(p, mi.getMethodSelect()));
+          for (Ctx.CollKind k : cx.collKinds) if (k.builds != null && k.factory(m) != null) return k;
+        } else if (x instanceof NewClassTree n && n.getClassBody() == null && n.getArguments().isEmpty()) {
+          TypeMirror made = null;
+          try {
+            made = trees.getTypeMirror(p);
+          } catch (RuntimeException ex) {
+            // no type: not a builder
+          }
+          TypeElement me = made == null || made.getKind() != TypeKind.DECLARED ? null : Ctx.typeElement(made);
+          if (me != null) for (Ctx.CollKind k : cx.collKinds) if (k.builds != null && k.made.containsKey(me.getQualifiedName().toString())) return k;
+        }
+        return null;
+      }
+
+      /** The declaration without a name that the new builder `root` at path p is (rule "typed builder chains"), or null. */
+      Slot chainSlot(ExpressionTree root, TreePath p) {
+        if (!CHAINS) return null;
+        if (chains.containsKey(root)) return chains.get(root);
+        Ctx.CollKind k = builderMade(root, p);
+        Slot s = null;
+        if (k != null) {
+          TypeMirror t = null;
+          try {
+            t = trees.getTypeMirror(p);
+          } catch (RuntimeException ex) {
+            // no type: no typed builder
+          }
+          List<TypeMirror> args = t == null ? null : cx.typedArgs(k, t);
+          if (args != null) {
+            s = new Slot();
+            s.kind = k;
+            s.args = args;
+            s.made = true;
+            for (TypeMirror a : args) s.open |= cx.open(a);
+          } else if (t != null && "2".equals(System.getenv("J2GO_COLLS"))) {
+            System.err.println("colls: no typed builder chain for " + t + ": " + whyNot(k, t));
+          }
+        }
+        chains.put(root, s);
+        return s;
+      }
+
+      /**
+       * The chain that call x (a child of parent) continues, where x returns the chain's builder
+       * (`ImmutableList.<X>builder().add(a).add(b)`: every call from the new builder to x has the
+       * builder's class as its static type); else null.
+       */
+      Slot chainOf(ExpressionTree x, TreePath parent) {
+        TreePath p = parent;
+        ExpressionTree cur = x;
+        int calls = 0;
+        while (true) {
+          while (cur instanceof ParenthesizedTree pt) {
+            p = new TreePath(p, cur);
+            cur = pt.getExpression();
+          }
+          p = new TreePath(p, cur);
+          Ctx.CollKind made = builderMade(cur, p);
+          if (made != null) return calls == 0 ? null : chainSlot(cur, p);
+          if (!(cur instanceof MethodInvocationTree mi) || !(mi.getMethodSelect() instanceof MemberSelectTree ms)) return null;
+          TypeMirror t = null;
+          try {
+            t = trees.getTypeMirror(p);
+          } catch (RuntimeException ex) {
+            return null;
+          }
+          Ctx.CollKind k = cx.collKindOf(t);
+          if (k == null || k.builds == null) return null;
+          calls++;
+          p = new TreePath(p, ms);
+          cur = ms.getExpression();
+        }
+      }
+
+      /**
+       * The collection that the builder chain s builds, the value of the call at path, must
+       * enter a typed declaration of its kind and type arguments: the chain is erased if that
+       * declaration is, or if the collection goes anywhere else.
+       */
+      void built(Slot s, TreePath path) {
+        Tree child = path.getLeaf();
+        TreePath pp = path.getParentPath();
+        while (pp.getLeaf() instanceof ParenthesizedTree || pp.getLeaf() instanceof ConditionalExpressionTree c && c.getCondition() != child) {
+          child = pp.getLeaf();
+          pp = pp.getParentPath();
+        }
+        Tree parent = pp.getLeaf();
+        Slot t = null;
+        if (parent instanceof VariableTree vt && vt.getInitializer() == child) t = slots.get(elemOf(pp));
+        else if (parent instanceof AssignmentTree a && a.getExpression() == child) t = slotOf(a.getVariable(), pp);
+        else if (parent instanceof ReturnTree) {
+          ExecutableElement ex = enclosingMethod(pp);
+          t = ex == null ? null : slots.get(ex);
+        } else t = argSlot(parent, child, pp);
+        if (t != null && t.kind == s.kind.builds && sameArgs(t.args, s.args)) {
+          t.taints.add(s);
+          s.ended = true;
+        } else {
+          poison(s, "its collection enters no typed declaration (" + (t != null ? "another type" : parent.getKind().toString()) + ")");
+        }
+      }
+
       /** The method (not a lambda) whose body the current tree is in, or null. */
       ExecutableElement enclosingMethod(TreePath p) {
         for (TreePath q = p; q != null; q = q.getParentPath()) {
@@ -491,6 +617,7 @@ final class Colls {
           }
           case METHOD_INVOCATION: {
             Slot from = slotOf(x, parent);
+            if (from == null) from = chainOf(x, parent);  // a builder chain: `ImmutableList.<X>builder().add(x)`
             if (from != null && same(from, s)) {
               from.taints.add(s);
               s.made = true;
@@ -526,6 +653,7 @@ final class Colls {
         if (te != null && s.kind.viewTypes.contains(te.getQualifiedName().toString())) return;
         if (ts != null && same(ts, s)) {
           ts.taints.add(s);  // an ArrayList variable: it takes the typed list or s stays erased
+          s.ended = true;
           return;
         }
         poison(s, "reaches a place of type " + (te == null ? String.valueOf(target) : te.getSimpleName().toString()));
@@ -615,6 +743,7 @@ final class Colls {
             ExecutableElement tm = cx.typedMethod(cx.typedOf(s.kind, s.args), me, null);
             if (tm == null) poison(s, "method " + cx.ownerOf(me).getSimpleName() + "." + me.getSimpleName());
             else if (cx.typedColl(tm.getReturnType()) == s.kind) use(s, pp.getParentPath());
+            else if (s.v == null) built(s, pp.getParentPath());
             return;
           }
           TypeElement ro = cx.ownerOf(cx.root(me));
@@ -684,6 +813,19 @@ final class Colls {
         poison(s, "used in " + parent.getKind());
       }
 
+      /** A new builder (the current tree) that is the receiver of a call: the first use of its chain. */
+      void chainRoot(ExpressionTree t) {
+        TreePath pp = getCurrentPath().getParentPath();
+        Tree child = t;
+        while (pp.getLeaf() instanceof ParenthesizedTree) {
+          child = pp.getLeaf();
+          pp = pp.getParentPath();
+        }
+        if (!(pp.getLeaf() instanceof MemberSelectTree ms) || ms.getExpression() != child) return;
+        Slot s = chainSlot(t, getCurrentPath());
+        if (s != null) use(s);
+      }
+
       @Override
       public Void visitVariable(VariableTree t, Void v) {
         Slot s = slots.get(elemOf(getCurrentPath()));
@@ -740,6 +882,7 @@ final class Colls {
         call(c, t.getArguments());
         Slot rs = c instanceof ExecutableElement ? slots.get(c) : null;
         if (rs != null) use(rs);
+        chainRoot(t);
         return super.visitMethodInvocation(t, v);
       }
 
@@ -761,6 +904,7 @@ final class Colls {
           }
         } else {
           call(c, t.getArguments());
+          chainRoot(t);
         }
         return super.visitNewClass(t, v);
       }
@@ -810,12 +954,15 @@ final class Colls {
     for (Slot s : slots.values()) {
       if (s.why == null && !s.made && (s.kind == cx.entryKind || "1".equals(System.getenv("J2GO_COLLS_NOUNMADE")))) s.why = "no collection enters it";
     }
+    // a builder chain that ends nowhere (its last call is a statement, an argument of an erased method) stays erased
+    for (Slot s : chains.values()) if (s != null && s.why == null && !s.ended) s.why = "it ends in no declaration";
     for (Slot s : slots.values()) if (s.why != null) work.add(s);
+    for (Slot s : chains.values()) if (s != null && s.why != null) work.add(s);
     while (!work.isEmpty()) {
       Slot s = work.poll();
       for (Slot t : s.taints) {
         if (t.why == null) {
-          t.why = "exchanges values with " + s.v.getEnclosingElement().getSimpleName() + "." + s.v.getSimpleName() + ", which is erased";
+          t.why = "exchanges values with " + (s.v == null ? "a builder chain" : s.v.getEnclosingElement().getSimpleName() + "." + s.v.getSimpleName()) + ", which is erased";
           work.add(t);
         }
       }
@@ -841,6 +988,19 @@ final class Colls {
       }
       for (Tree u : s.uses) cx.refinedTrees.put(u, t);
     }
+    int nChains = 0, typedChains = 0;
+    for (Slot s : chains.values()) {
+      if (s == null) continue;
+      nChains++;
+      if (s.why != null) {
+        whys.merge("builder chain: " + s.why.replaceAll("exchanges values with .*", "exchanges values with an erased declaration"), 1, Integer::sum);
+        continue;
+      }
+      typedChains++;
+      TypeMirror t = cx.typedOf(s.kind, s.args);
+      for (Tree u : s.uses) cx.refinedTrees.put(u, t);
+    }
+    System.err.println("typed collections: " + typedChains + " of " + nChains + " builder chains without a declaration are typed");
     for (var e : counts.entrySet()) {
       int[] n = e.getValue();
       System.err.println("typed collections: " + n[1] + " of " + n[0] + " " + e.getKey() + " declarations are typed (" + n[2] + " fields, " + n[3] + " locals, "

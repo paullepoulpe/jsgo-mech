@@ -24,6 +24,8 @@ import java.util.Set;
  * that erased code made enters a typed declaration as the typed collection of that object.
  * Order, null checks and their messages, duplicate keys, the empty collections, identity on
  * both sides, copyOf of an immutable collection, the UnsupportedOperationException of changes.
+ * Builder chains without a declaration (rule "typed builder chains"): typed where they end in a
+ * typed declaration, with Guava's checks.
  */
 public class Imm {
   static final StringBuilder out = new StringBuilder();
@@ -401,6 +403,75 @@ public class Imm {
     p(fk + " " + (erased(fk) == ek2) + " " + (fresh.keySet() == fk) + " " + none.keySet() + " " + sizeOf(none.keySet()));
   }
 
+  // ---- builder chains without a declaration (rule "typed builder chains")
+
+  static final ImmutableMap<String, Base> BY_NAME =
+      ImmutableMap.<String, Base>builder().put("one", new Base(1)).put("two", new Base(2)).put("three", new Base(3)).buildOrThrow();
+  static final ImmutableMap<Key, String> BY_KEY = new ImmutableMap.Builder<Key, String>().put(new Key(1, "a"), "first").put(new Key(5, "b"), "second").build();
+  static final ImmutableSet<String> WORDS = ImmutableSet.<String>builder().add("w1").add("w2").add("w1").build();
+  final ImmutableList<Base> chained = ImmutableList.<Base>builder().add(new Base(4)).addAll(bases).add(new Base(5)).build();
+
+  static ImmutableList<String> twice(List<String> l) {
+    return ImmutableList.<String>builder().addAll(l).addAll(l).build();
+  }
+
+  static int total(ImmutableMap<String, Integer> m) {
+    int n = 0;
+    for (Map.Entry<String, Integer> e : m.entrySet()) n += e.getKey().length() * e.getValue();
+    return n;
+  }
+
+  static ImmutableSet<Key> keysOf(boolean more) {
+    ImmutableSet<Key> ks = more
+        ? new ImmutableSet.Builder<Key>().add(new Key(1, "p")).add(new Key(2, "q")).add(new Key(4, "r")).build()
+        : ImmutableSet.of(new Key(9, "s"));
+    return ks;
+  }
+
+  void chains() {
+    p(BY_NAME + " " + BY_NAME.get("two") + " " + BY_NAME.containsKey("four") + " " + BY_KEY + " " + BY_KEY.get(new Key(5, "")) + " " + WORDS + " " + WORDS.size());
+    p(chained + " " + chained.get(1).id + " " + chained.size());
+    List<String> two = new ArrayList<>();
+    two.add("x");
+    two.add("y");
+    ImmutableList<String> four = twice(two);
+    p(four + " " + four.get(3).length() + " " + fails(() -> four.add("z")));
+    p(total(ImmutableMap.<String, Integer>builder().put("ab", 3).put("c", 4).buildOrThrow()) + " " + keysOf(true) + keysOf(false));
+    // the builder of a chain enters a declaration
+    ImmutableList.Builder<Base> b = ImmutableList.<Base>builder().add(new Base(6)).add(new Base(7));
+    b.add(new Base(8));
+    ImmutableList<Base> built = b.build();
+    ImmutableMap.Builder<String, Base> mb = new ImmutableMap.Builder<String, Base>().put("six", built.get(0));
+    ImmutableMap<String, Base> m = mb.put("seven", built.get(1)).buildOrThrow();
+    p(built + " " + m + " " + m.get("seven").id);
+    // Guava's checks, made by the typed builder
+    String nul = two.size() > 100 ? "never" : null;
+    p(failsMsg(() -> {
+      ImmutableMap<String, String> dup = ImmutableMap.<String, String>builder().put("k", "v1").put("j", "v2").put("k", "v3").buildOrThrow();
+      p(dup);
+    }));
+    p(fails(() -> {
+      ImmutableList<String> l = ImmutableList.<String>builder().add("a").add(nul).build();
+      p(l);
+    }) + " " + fails(() -> {
+      ImmutableMap<String, String> l = ImmutableMap.<String, String>builder().put("a", nul).build();
+      p(l);
+    }));
+    ImmutableMap<String, String> last = ImmutableMap.<String, String>builder().put("k", "v1").put("j", "v2").put("k", "v3").buildKeepingLast();
+    ImmutableMap<String, String> all = new ImmutableMap.Builder<String, String>().putAll(last).put("z", "v4").build();
+    p(last + " " + all + " " + erased(all).equals(new LinkedHashMap<>(all)));
+    // chains that stay erased: the collection goes to an erased place, or the types are Object
+    Object o = ImmutableList.<String>builder().add("e1").add("e2").build();
+    int n = ImmutableSet.<String>builder().add("s1").add("s1").add("s2").build().size() + count(ImmutableList.<Base>builder().add(new Base(1)).build());
+    ImmutableMap<Object, Object> objs = ImmutableMap.builder().put("o", 1).put(2, "p").build();
+    p(o + " " + n + " " + objs + " " + (o instanceof ImmutableList));
+    // identity of what a typed chain builds, as erased code sees it
+    Object e1 = erased(BY_NAME);
+    @SuppressWarnings("unchecked")
+    ImmutableMap<String, Base> back = (ImmutableMap<String, Base>) e1;
+    p((back == BY_NAME) + " " + (erased(BY_NAME) == e1) + " " + (ImmutableMap.copyOf(BY_NAME) == BY_NAME) + " " + e1.equals(new LinkedHashMap<>(BY_NAME)));
+  }
+
   // ---- a list that a library method makes for its caller (Splitter.splitToList)
 
   static final Splitter DOTS = Splitter.on('.');
@@ -431,6 +502,7 @@ public class Imm {
     new Imm().builders();
     new Imm().records();
     new Imm().split();
+    new Imm().chains();
     return out.toString();
   }
 
