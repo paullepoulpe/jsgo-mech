@@ -478,7 +478,7 @@ func (this *SubtypeChecker) meetVarianceConstraint(variance SubtypeChecker_Varia
 		case SubtypeChecker_Variance_INVARIANT:
 			return (this.meetVarianceConstraint(SubtypeChecker_Variance_COVARIANT, reference, override) && this.meetVarianceConstraint(SubtypeChecker_Variance_CONTRAVARIANT, reference, override))
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
