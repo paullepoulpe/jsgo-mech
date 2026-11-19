@@ -275,7 +275,7 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 		if colon == -1 {
 			return immutableSetOf_(tc_string)
 		}
-		return tsetFrom_(tc_string, ImmutableSet_copyOf_ObjectArr(arrmap_(ReplaceStrings_COMMA_PATTERN.split(function[colon+int32(len(ReplaceStrings_EXCLUSION_PREFIX)):]), func(v_ string) any { return strobj_(v_) })), true)
+		return tsetFrom_(tc_string, ImmutableSet_copyOf_ObjectArr(arrmap_(ReplaceStrings_COMMA_PATTERN.split(function[colon+int32(len(ReplaceStrings_EXCLUSION_PREFIX)):]), strobj_)), true)
 	}())
 }
 

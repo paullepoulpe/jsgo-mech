@@ -4,49 +4,35 @@ package closure
 
 // Element conversions of the ImmutableLists that are slices.
 
-var tc_CheckConformance_Rule = &tconv_[CheckConformance_Rule]{box: func(v CheckConformance_Rule) any { return v }, unbox: func(v any) CheckConformance_Rule { return icast_CheckConformance_Rule(v) }}
-var tc_ImmutableMapOf_p_ColorPool_ShardView__p_TypeProto_ = &tconv_[ImmutableMapOf[*ColorPool_ShardView, *TypeProto]]{box: func(v ImmutableMapOf[*ColorPool_ShardView, *TypeProto]) any { return obj_(v) }, unbox: func(v any) ImmutableMapOf[*ColorPool_ShardView, *TypeProto] { return cast_[*ErasedImmutableMap](v) }}
-var tc_ImmutableMapOf_string__string_ = &tconv_[ImmutableMapOf[string, string]]{box: func(v ImmutableMapOf[string, string]) any { return obj_(v) }, unbox: func(v any) ImmutableMapOf[string, string] { return cast_[*ErasedImmutableMap](v) }}
-var tc_OptimizeCalls_CallGraphCompilerPass = &tconv_[OptimizeCalls_CallGraphCompilerPass]{box: func(v OptimizeCalls_CallGraphCompilerPass) any { return v }, unbox: func(v any) OptimizeCalls_CallGraphCompilerPass { return icast_OptimizeCalls_CallGraphCompilerPass(v) }}
-var tc_RuntimeJsLibManager_ExternedField = &tconv_[RuntimeJsLibManager_ExternedField]{box: func(v RuntimeJsLibManager_ExternedField) any { return v }, unbox: func(v any) RuntimeJsLibManager_ExternedField { return icast_RuntimeJsLibManager_ExternedField(v) }}
-var tc_p_CheckConformance_Category = &tconv_[*CheckConformance_Category]{box: func(v *CheckConformance_Category) any { return obj_(v) }, unbox: func(v any) *CheckConformance_Category { return cast_[*CheckConformance_Category](v) }}
-var tc_p_ClosureRequireProcessor_Require = &tconv_[*ClosureRequireProcessor_Require]{box: func(v *ClosureRequireProcessor_Require) any { return obj_(v) }, unbox: func(v any) *ClosureRequireProcessor_Require { return cast_[*ClosureRequireProcessor_Require](v) }}
-var tc_p_ColorId = &tconv_[*ColorId]{box: func(v *ColorId) any { return obj_(v) }, unbox: func(v any) *ColorId { return cast_[*ColorId](v) }}
-var tc_p_ColorPool_ShardView = &tconv_[*ColorPool_ShardView]{box: func(v *ColorPool_ShardView) any { return obj_(v) }, unbox: func(v any) *ColorPool_ShardView { return cast_[*ColorPool_ShardView](v) }}
-var tc_p_ConformanceRules_AllowList = &tconv_[*ConformanceRules_AllowList]{box: func(v *ConformanceRules_AllowList) any { return obj_(v) }, unbox: func(v any) *ConformanceRules_AllowList { return cast_[*ConformanceRules_AllowList](v) }}
-var tc_p_ConformanceRules_BanSettingAttributes_AttributeSettingRestriction = &tconv_[*ConformanceRules_BanSettingAttributes_AttributeSettingRestriction]{box: func(v *ConformanceRules_BanSettingAttributes_AttributeSettingRestriction) any { return obj_(v) }, unbox: func(v any) *ConformanceRules_BanSettingAttributes_AttributeSettingRestriction {
-	return cast_[*ConformanceRules_BanSettingAttributes_AttributeSettingRestriction](v)
-}}
-var tc_p_ConformanceRules_RestrictedMethodCall_Restriction = &tconv_[*ConformanceRules_RestrictedMethodCall_Restriction]{box: func(v *ConformanceRules_RestrictedMethodCall_Restriction) any { return obj_(v) }, unbox: func(v any) *ConformanceRules_RestrictedMethodCall_Restriction {
-	return cast_[*ConformanceRules_RestrictedMethodCall_Restriction](v)
-}}
-var tc_p_ConformanceRules_RestrictedNameCall_Restriction = &tconv_[*ConformanceRules_RestrictedNameCall_Restriction]{box: func(v *ConformanceRules_RestrictedNameCall_Restriction) any { return obj_(v) }, unbox: func(v any) *ConformanceRules_RestrictedNameCall_Restriction {
-	return cast_[*ConformanceRules_RestrictedNameCall_Restriction](v)
-}}
-var tc_p_ConformanceRules_RestrictedPropertyWrite_Restriction = &tconv_[*ConformanceRules_RestrictedPropertyWrite_Restriction]{box: func(v *ConformanceRules_RestrictedPropertyWrite_Restriction) any { return obj_(v) }, unbox: func(v any) *ConformanceRules_RestrictedPropertyWrite_Restriction {
-	return cast_[*ConformanceRules_RestrictedPropertyWrite_Restriction](v)
-}}
-var tc_p_DestructuredTarget = &tconv_[*DestructuredTarget]{box: func(v *DestructuredTarget) any { return obj_(v) }, unbox: func(v any) *DestructuredTarget { return cast_[*DestructuredTarget](v) }}
-var tc_p_Export = &tconv_[*Export]{box: func(v *Export) any { return obj_(v) }, unbox: func(v any) *Export { return cast_[*Export](v) }}
-var tc_p_ImplicitNullabilityCheck_Result = &tconv_[*ImplicitNullabilityCheck_Result]{box: func(v *ImplicitNullabilityCheck_Result) any { return obj_(v) }, unbox: func(v any) *ImplicitNullabilityCheck_Result { return cast_[*ImplicitNullabilityCheck_Result](v) }}
-var tc_p_J2clPass_InlineSpec = &tconv_[*J2clPass_InlineSpec]{box: func(v *J2clPass_InlineSpec) any { return obj_(v) }, unbox: func(v any) *J2clPass_InlineSpec { return cast_[*J2clPass_InlineSpec](v) }}
-var tc_p_JSChunk = &tconv_[*JSChunk]{box: func(v *JSChunk) any { return obj_(v) }, unbox: func(v any) *JSChunk { return cast_[*JSChunk](v) }}
-var tc_p_JSError = &tconv_[*JSError]{box: func(v *JSError) any { return obj_(v) }, unbox: func(v any) *JSError { return cast_[*JSError](v) }}
-var tc_p_JsMessage_GrammaticalGenderCase = &tconv_[JsMessage_GrammaticalGenderCase]{box: func(v JsMessage_GrammaticalGenderCase) any { return obj_(v) }, unbox: func(v any) JsMessage_GrammaticalGenderCase { return cast_[JsMessage_GrammaticalGenderCase](v) }}
-var tc_p_MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo = &tconv_[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo]{box: func(v *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo) any { return obj_(v) }, unbox: func(v any) *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo {
-	return cast_[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo](v)
-}}
-var tc_p_ObjectType = &tconv_[*ObjectType]{box: func(v *ObjectType) any { return v.self() }, unbox: func(v any) *ObjectType { return to_ObjectType(v) }}
-var tc_p_ParseTree = &tconv_[*ParseTree]{box: func(v *ParseTree) any { return v.self() }, unbox: func(v any) *ParseTree { return to_ParseTree(v) }}
-var tc_p_PolyfillUsageFinder_Polyfill = &tconv_[*PolyfillUsageFinder_Polyfill]{box: func(v *PolyfillUsageFinder_Polyfill) any { return obj_(v) }, unbox: func(v any) *PolyfillUsageFinder_Polyfill { return cast_[*PolyfillUsageFinder_Polyfill](v) }}
-var tc_p_PolymerBehaviorExtractor_BehaviorDefinition = &tconv_[*PolymerBehaviorExtractor_BehaviorDefinition]{box: func(v *PolymerBehaviorExtractor_BehaviorDefinition) any { return obj_(v) }, unbox: func(v any) *PolymerBehaviorExtractor_BehaviorDefinition {
-	return cast_[*PolymerBehaviorExtractor_BehaviorDefinition](v)
-}}
-var tc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary = &tconv_[*PureFunctionIdentifier_AmbiguatedFunctionSummary]{box: func(v *PureFunctionIdentifier_AmbiguatedFunctionSummary) any { return obj_(v) }, unbox: func(v any) *PureFunctionIdentifier_AmbiguatedFunctionSummary {
-	return cast_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](v)
-}}
-var tc_p_SourceFile_jscomp = &tconv_[*SourceFile_jscomp]{box: func(v *SourceFile_jscomp) any { return obj_(v) }, unbox: func(v any) *SourceFile_jscomp { return cast_[*SourceFile_jscomp](v) }}
-var tc_p_SourceRange = &tconv_[*SourceRange]{box: func(v *SourceRange) any { return obj_(v) }, unbox: func(v any) *SourceRange { return cast_[*SourceRange](v) }}
-var tc_p_SymbolTable_Reference = &tconv_[*SymbolTable_Reference]{box: func(v *SymbolTable_Reference) any { return obj_(v) }, unbox: func(v any) *SymbolTable_Reference { return cast_[*SymbolTable_Reference](v) }}
-var tc_p_TemplateAstMatcher = &tconv_[*TemplateAstMatcher]{box: func(v *TemplateAstMatcher) any { return obj_(v) }, unbox: func(v any) *TemplateAstMatcher { return cast_[*TemplateAstMatcher](v) }}
-var tc_p_VariableDeclarationTree = &tconv_[*VariableDeclarationTree]{box: func(v *VariableDeclarationTree) any { return obj_(v) }, unbox: func(v any) *VariableDeclarationTree { return cast_[*VariableDeclarationTree](v) }}
+var tc_CheckConformance_Rule = &tconv_[CheckConformance_Rule]{box: func(v CheckConformance_Rule) any { return v }, unbox: icast_CheckConformance_Rule}
+var tc_ImmutableMapOf_p_ColorPool_ShardView__p_TypeProto_ = &tconv_[ImmutableMapOf[*ColorPool_ShardView, *TypeProto]]{box: obj_[ImmutableMapOf[*ColorPool_ShardView, *TypeProto]], unbox: cast_[*ErasedImmutableMap]}
+var tc_ImmutableMapOf_string__string_ = &tconv_[ImmutableMapOf[string, string]]{box: obj_[ImmutableMapOf[string, string]], unbox: cast_[*ErasedImmutableMap]}
+var tc_OptimizeCalls_CallGraphCompilerPass = &tconv_[OptimizeCalls_CallGraphCompilerPass]{box: func(v OptimizeCalls_CallGraphCompilerPass) any { return v }, unbox: icast_OptimizeCalls_CallGraphCompilerPass}
+var tc_RuntimeJsLibManager_ExternedField = &tconv_[RuntimeJsLibManager_ExternedField]{box: func(v RuntimeJsLibManager_ExternedField) any { return v }, unbox: icast_RuntimeJsLibManager_ExternedField}
+var tc_p_CheckConformance_Category = &tconv_[*CheckConformance_Category]{box: obj_[*CheckConformance_Category], unbox: cast_[*CheckConformance_Category]}
+var tc_p_ClosureRequireProcessor_Require = &tconv_[*ClosureRequireProcessor_Require]{box: obj_[*ClosureRequireProcessor_Require], unbox: cast_[*ClosureRequireProcessor_Require]}
+var tc_p_ColorId = &tconv_[*ColorId]{box: obj_[*ColorId], unbox: cast_[*ColorId]}
+var tc_p_ColorPool_ShardView = &tconv_[*ColorPool_ShardView]{box: obj_[*ColorPool_ShardView], unbox: cast_[*ColorPool_ShardView]}
+var tc_p_ConformanceRules_AllowList = &tconv_[*ConformanceRules_AllowList]{box: obj_[*ConformanceRules_AllowList], unbox: cast_[*ConformanceRules_AllowList]}
+var tc_p_ConformanceRules_BanSettingAttributes_AttributeSettingRestriction = &tconv_[*ConformanceRules_BanSettingAttributes_AttributeSettingRestriction]{box: obj_[*ConformanceRules_BanSettingAttributes_AttributeSettingRestriction], unbox: cast_[*ConformanceRules_BanSettingAttributes_AttributeSettingRestriction]}
+var tc_p_ConformanceRules_RestrictedMethodCall_Restriction = &tconv_[*ConformanceRules_RestrictedMethodCall_Restriction]{box: obj_[*ConformanceRules_RestrictedMethodCall_Restriction], unbox: cast_[*ConformanceRules_RestrictedMethodCall_Restriction]}
+var tc_p_ConformanceRules_RestrictedNameCall_Restriction = &tconv_[*ConformanceRules_RestrictedNameCall_Restriction]{box: obj_[*ConformanceRules_RestrictedNameCall_Restriction], unbox: cast_[*ConformanceRules_RestrictedNameCall_Restriction]}
+var tc_p_ConformanceRules_RestrictedPropertyWrite_Restriction = &tconv_[*ConformanceRules_RestrictedPropertyWrite_Restriction]{box: obj_[*ConformanceRules_RestrictedPropertyWrite_Restriction], unbox: cast_[*ConformanceRules_RestrictedPropertyWrite_Restriction]}
+var tc_p_DestructuredTarget = &tconv_[*DestructuredTarget]{box: obj_[*DestructuredTarget], unbox: cast_[*DestructuredTarget]}
+var tc_p_Export = &tconv_[*Export]{box: obj_[*Export], unbox: cast_[*Export]}
+var tc_p_ImplicitNullabilityCheck_Result = &tconv_[*ImplicitNullabilityCheck_Result]{box: obj_[*ImplicitNullabilityCheck_Result], unbox: cast_[*ImplicitNullabilityCheck_Result]}
+var tc_p_J2clPass_InlineSpec = &tconv_[*J2clPass_InlineSpec]{box: obj_[*J2clPass_InlineSpec], unbox: cast_[*J2clPass_InlineSpec]}
+var tc_p_JSChunk = &tconv_[*JSChunk]{box: obj_[*JSChunk], unbox: cast_[*JSChunk]}
+var tc_p_JSError = &tconv_[*JSError]{box: obj_[*JSError], unbox: cast_[*JSError]}
+var tc_p_JsMessage_GrammaticalGenderCase = &tconv_[JsMessage_GrammaticalGenderCase]{box: obj_[JsMessage_GrammaticalGenderCase], unbox: cast_[JsMessage_GrammaticalGenderCase]}
+var tc_p_MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo = &tconv_[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo]{box: obj_[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo], unbox: cast_[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo]}
+var tc_p_ObjectType = &tconv_[*ObjectType]{box: (*ObjectType).self, unbox: to_ObjectType}
+var tc_p_ParseTree = &tconv_[*ParseTree]{box: (*ParseTree).self, unbox: to_ParseTree}
+var tc_p_PolyfillUsageFinder_Polyfill = &tconv_[*PolyfillUsageFinder_Polyfill]{box: obj_[*PolyfillUsageFinder_Polyfill], unbox: cast_[*PolyfillUsageFinder_Polyfill]}
+var tc_p_PolymerBehaviorExtractor_BehaviorDefinition = &tconv_[*PolymerBehaviorExtractor_BehaviorDefinition]{box: obj_[*PolymerBehaviorExtractor_BehaviorDefinition], unbox: cast_[*PolymerBehaviorExtractor_BehaviorDefinition]}
+var tc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary = &tconv_[*PureFunctionIdentifier_AmbiguatedFunctionSummary]{box: obj_[*PureFunctionIdentifier_AmbiguatedFunctionSummary], unbox: cast_[*PureFunctionIdentifier_AmbiguatedFunctionSummary]}
+var tc_p_SourceFile_jscomp = &tconv_[*SourceFile_jscomp]{box: obj_[*SourceFile_jscomp], unbox: cast_[*SourceFile_jscomp]}
+var tc_p_SourceRange = &tconv_[*SourceRange]{box: obj_[*SourceRange], unbox: cast_[*SourceRange]}
+var tc_p_SymbolTable_Reference = &tconv_[*SymbolTable_Reference]{box: obj_[*SymbolTable_Reference], unbox: cast_[*SymbolTable_Reference]}
+var tc_p_TemplateAstMatcher = &tconv_[*TemplateAstMatcher]{box: obj_[*TemplateAstMatcher], unbox: cast_[*TemplateAstMatcher]}
+var tc_p_VariableDeclarationTree = &tconv_[*VariableDeclarationTree]{box: obj_[*VariableDeclarationTree], unbox: cast_[*VariableDeclarationTree]}

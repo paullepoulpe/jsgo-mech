@@ -4,5 +4,5 @@ package closure
 
 // Element conversions of the typed immsetbs.
 
-var tc_Property_Key = &tconv_[Property_Key]{box: func(v Property_Key) any { return any(v) }, unbox: func(v any) Property_Key { return icast_Property_Key(v) }}
-var tc_p_DiagnosticType = &tconv_[*DiagnosticType]{box: func(v *DiagnosticType) any { return obj_(v) }, unbox: func(v any) *DiagnosticType { return cast_[*DiagnosticType](v) }}
+var tc_Property_Key = &tconv_[Property_Key]{box: func(v Property_Key) any { return any(v) }, unbox: icast_Property_Key}
+var tc_p_DiagnosticType = &tconv_[*DiagnosticType]{box: obj_[*DiagnosticType], unbox: cast_[*DiagnosticType]}

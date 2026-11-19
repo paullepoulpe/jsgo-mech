@@ -82,7 +82,7 @@ func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 	}
 	func() {
 		arr_2 := nodeNames
-		tmp_3 := arrmap_(arr_2, func(v_ string) any { return strobj_(v_) })
+		tmp_3 := arrmap_(arr_2, strobj_)
 		Arrays_sort(tmp_3)
 		for i_ := range tmp_3 {
 			arr_2[i_] = str_(tmp_3[i_])
@@ -94,7 +94,7 @@ func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 		builder.append(";\n")
 	}
 	var edges ListOf[GraphvizGraph_GraphvizEdge] = graph.getGraphvizEdges()
-	List_sort(edges, Comparator_thenComparing(Comparator_comparing(&Function_tfn_GraphvizGraph_GraphvizEdge_string{func(p0 GraphvizGraph_GraphvizEdge) string { return p0.getNode1Id() }}), &Function_tfn_GraphvizGraph_GraphvizEdge_string{func(p0 GraphvizGraph_GraphvizEdge) string { return p0.getNode2Id() }}))
+	List_sort(edges, Comparator_thenComparing(Comparator_comparing(&Function_tfn_GraphvizGraph_GraphvizEdge_string{(GraphvizGraph_GraphvizEdge).getNode1Id}), &Function_tfn_GraphvizGraph_GraphvizEdge_string{(GraphvizGraph_GraphvizEdge).getNode2Id}))
 	for edge := range elemsBy_(edges, icast_GraphvizGraph_GraphvizEdge) {
 		builder.append(DotFormatter_INDENT)
 		builder.append(edge.getNode1Id())
@@ -147,7 +147,7 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 		}
 		func() {
 			arr_3 := edgeList
-			tmp_4 := arrmap_(arr_3, func(v_ string) any { return strobj_(v_) })
+			tmp_4 := arrmap_(arr_3, strobj_)
 			Arrays_sort(tmp_4)
 			for i_ := range tmp_4 {
 				arr_3[i_] = str_(tmp_4[i_])

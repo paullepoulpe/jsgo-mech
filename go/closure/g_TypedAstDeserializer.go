@@ -161,7 +161,7 @@ func (this *TypedAstDeserializer) initLazyAstDeserializer(lazyAst *LazyAst, file
 		return
 	}
 	if file.isWeak() {
-		Map_computeIfAbsent(Map(this.typedAstFilesystem), obj_(file), &Function_tfn_SourceFile_jscomp_Supplier{func(p0 *SourceFile_jscomp) Supplier { return TypedAstDeserializer_createStubWeakScriptNode(p0) }})
+		Map_computeIfAbsent(Map(this.typedAstFilesystem), obj_(file), &Function_tfn_SourceFile_jscomp_Supplier{TypedAstDeserializer_createStubWeakScriptNode})
 		return
 	}
 	var deserializer *ScriptNodeDeserializer = new_ScriptNodeDeserializer(lazyAst, stringShard, colorShard, fileShard)

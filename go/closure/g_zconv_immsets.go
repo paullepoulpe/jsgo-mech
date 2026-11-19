@@ -4,29 +4,25 @@ package closure
 
 // Element conversions of the typed immsets.
 
-var tc_Token_rhino = &tconv_[Token_rhino]{box: func(v Token_rhino) any { return v.self() }, unbox: func(v any) Token_rhino { return cast_[Token_rhino](v) }}
-var tc_p_ColorGraphNode = &tconv_[*ColorGraphNode]{box: func(v *ColorGraphNode) any { return obj_(v) }, unbox: func(v any) *ColorGraphNode { return cast_[*ColorGraphNode](v) }}
-var tc_p_JSTypeReconserializer_SeenTypeRecord = &tconv_[*JSTypeReconserializer_SeenTypeRecord]{box: func(v *JSTypeReconserializer_SeenTypeRecord) any { return obj_(v) }, unbox: func(v any) *JSTypeReconserializer_SeenTypeRecord {
-	return cast_[*JSTypeReconserializer_SeenTypeRecord](v)
-}}
-var tc_uint16 = &tconv_[uint16]{box: func(v uint16) any { return any(v) }, unbox: func(v any) uint16 { return unbox_[uint16](v) }}
-var tch_Property_Key = &tconv_[Property_Key]{box: func(v Property_Key) any { return any(v) }, unbox: func(v any) Property_Key { return icast_Property_Key(v) },
+var tc_Token_rhino = &tconv_[Token_rhino]{box: (Token_rhino).self, unbox: cast_[Token_rhino]}
+var tc_p_ColorGraphNode = &tconv_[*ColorGraphNode]{box: obj_[*ColorGraphNode], unbox: cast_[*ColorGraphNode]}
+var tc_p_JSTypeReconserializer_SeenTypeRecord = &tconv_[*JSTypeReconserializer_SeenTypeRecord]{box: obj_[*JSTypeReconserializer_SeenTypeRecord], unbox: cast_[*JSTypeReconserializer_SeenTypeRecord]}
+var tc_uint16 = &tconv_[uint16]{box: func(v uint16) any { return any(v) }, unbox: unbox_[uint16]}
+var tch_Property_Key = &tconv_[Property_Key]{box: func(v Property_Key) any { return any(v) }, unbox: icast_Property_Key,
 	hash: func(v Property_Key) int32 { return objhash_(any(v)) }, eq: func(a, b Property_Key) bool { return objequals_(any(a), any(b)) }}
-var tch_p_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement = &tconv_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement]{box: func(v *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) any { return obj_(v) }, unbox: func(v any) *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement {
-	return cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](v)
-},
+var tch_p_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement = &tconv_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement]{box: obj_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement], unbox: cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement],
 	hash: func(v *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) int32 {
 		return objhash_(obj_(v))
 	}, eq: func(a, b *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) bool {
 		return objequals_(obj_(a), obj_(b))
 	}}
-var tch_p_Color = &tconv_[*Color]{box: func(v *Color) any { return obj_(v) }, unbox: func(v any) *Color { return cast_[*Color](v) },
+var tch_p_Color = &tconv_[*Color]{box: obj_[*Color], unbox: cast_[*Color],
 	hash: func(v *Color) int32 { return objhash_(obj_(v)) }, eq: func(a, b *Color) bool { return objequals_(obj_(a), obj_(b)) }}
-var tch_p_ColorId = &tconv_[*ColorId]{box: func(v *ColorId) any { return obj_(v) }, unbox: func(v any) *ColorId { return cast_[*ColorId](v) },
+var tch_p_ColorId = &tconv_[*ColorId]{box: obj_[*ColorId], unbox: cast_[*ColorId],
 	hash: func(v *ColorId) int32 { return objhash_(obj_(v)) }, eq: func(a, b *ColorId) bool { return objequals_(obj_(a), obj_(b)) }}
-var tch_p_DiagnosticType = &tconv_[*DiagnosticType]{box: func(v *DiagnosticType) any { return obj_(v) }, unbox: func(v any) *DiagnosticType { return cast_[*DiagnosticType](v) },
+var tch_p_DiagnosticType = &tconv_[*DiagnosticType]{box: obj_[*DiagnosticType], unbox: cast_[*DiagnosticType],
 	hash: func(v *DiagnosticType) int32 { return objhash_(obj_(v)) }, eq: func(a, b *DiagnosticType) bool { return objequals_(obj_(a), obj_(b)) }}
-var tch_p_ModuleMetadataMap_ModuleMetadata = &tconv_[*ModuleMetadataMap_ModuleMetadata]{box: func(v *ModuleMetadataMap_ModuleMetadata) any { return obj_(v) }, unbox: func(v any) *ModuleMetadataMap_ModuleMetadata { return cast_[*ModuleMetadataMap_ModuleMetadata](v) },
+var tch_p_ModuleMetadataMap_ModuleMetadata = &tconv_[*ModuleMetadataMap_ModuleMetadata]{box: obj_[*ModuleMetadataMap_ModuleMetadata], unbox: cast_[*ModuleMetadataMap_ModuleMetadata],
 	hash: func(v *ModuleMetadataMap_ModuleMetadata) int32 { return objhash_(obj_(v)) }, eq: func(a, b *ModuleMetadataMap_ModuleMetadata) bool { return objequals_(obj_(a), obj_(b)) }}
-var tch_p_Var = &tconv_[*Var]{box: func(v *Var) any { return obj_(v) }, unbox: func(v any) *Var { return cast_[*Var](v) },
+var tch_p_Var = &tconv_[*Var]{box: obj_[*Var], unbox: cast_[*Var],
 	hash: func(v *Var) int32 { return objhash_(obj_(v)) }, eq: func(a, b *Var) bool { return objequals_(obj_(a), obj_(b)) }}

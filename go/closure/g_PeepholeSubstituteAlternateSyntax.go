@@ -467,7 +467,7 @@ func (this *PeepholeSubstituteAlternateSyntax) tryMinimizeStringArrayLiteral(n N
 	}
 	var delimiter Optional[string] = PeepholeSubstituteAlternateSyntax_pickDelimiter(strings)
 	if delimiter.isPresent() {
-		var template string = Joiner_on(delimiter.get()).join_ObjectArr(arrmap_(strings, func(v_ string) any { return strobj_(v_) }))
+		var template string = Joiner_on(delimiter.get()).join_ObjectArr(arrmap_(strings, strobj_))
 		var call Node = IR_call(IR_getprop_Node_String(IR_string(template), "split"), []Node{IR_string(("" + sstr_(delimiter.get())))})
 		call.srcrefTreeIfMissing(n)
 		n.replaceWith(call)

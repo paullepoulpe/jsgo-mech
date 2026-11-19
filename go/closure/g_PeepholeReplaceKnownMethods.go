@@ -1150,7 +1150,7 @@ func (this *PeepholeReplaceKnownMethods) jsSplit(stringValue string, separator O
 			}
 		}
 	}
-	return arrmap_(sliceView_(tc_string, splitStrings).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
+	return arrmap_(sliceView_(tc_string, splitStrings).toArray(arrmap_(newstrarr_(0), strobj_)), str_)
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringSplit(n Node, stringNode Node, arg1 Node) Node {

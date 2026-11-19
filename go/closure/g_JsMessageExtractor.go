@@ -31,7 +31,7 @@ func new_JsMessageExtractor_IdGenerator_CompilerOptions_boolean(idGenerator JsMe
 }
 
 func (this *JsMessageExtractor) extractMessages(inputs []*SourceFile_jscomp) CollectionOf[*JsMessage] {
-	return this.extractMessagesIterable(ImmutableList_copyOf_ObjectArr(arrmap_(inputs, func(v_ *SourceFile_jscomp) any { return obj_(v_) })))
+	return this.extractMessagesIterable(ImmutableList_copyOf_ObjectArr(arrmap_(inputs, obj_[*SourceFile_jscomp])))
 }
 
 func (this *JsMessageExtractor) extractMessagesIterable(inputs IterableOf[*SourceFile_jscomp]) CollectionOf[*JsMessage] {

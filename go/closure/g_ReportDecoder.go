@@ -179,7 +179,7 @@ func ReportDecoder_createReportProfile(instrumentationPoints *TList[*Instrumenta
 		var entry *TEntry[string, List] = it_3.entry()
 		fileProfiles.add(cast_[*FileProfile](FileProfile_newBuilder().setFileName(entry.getKey()).addAllInstrumentationPointsStats(Iterable(entry.getValue())).build()))
 	}
-	List_sort(fileProfiles.asList(), Comparator_comparing(&Function_tfn_FileProfile_string{func(p0 *FileProfile) string { return p0.getFileName() }}))
+	List_sort(fileProfiles.asList(), Comparator_comparing(&Function_tfn_FileProfile_string{(*FileProfile).getFileName}))
 	return cast_[*ReportProfile](ReportProfile_newBuilder().addAllFileProfile(Iterable(fileProfiles.asList())).build())
 }
 

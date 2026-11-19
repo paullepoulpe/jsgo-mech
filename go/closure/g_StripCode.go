@@ -49,26 +49,26 @@ func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes *Im
 		}
 	}
 	var stripTypesAdjusted *ImmutableSet[string] = stripTypesAdjustedBuilder.build()
-	this.stripTypesList = arrmap_(stripTypesAdjusted.asImm().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
+	this.stripTypesList = arrmap_(stripTypesAdjusted.asImm().toArray(arrmap_(newstrarr_(0), strobj_)), str_)
 	var stripTypePrefixes []string = []string{}
 	for _, el3 := range stripTypesAdjusted.keys {
 		s := el3
 		stripTypePrefixes = append(stripTypePrefixes, (sstr_(s) + "."))
 		stripTypePrefixes = append(stripTypePrefixes, (sstr_(s) + "$"))
 	}
-	this.stripTypePrefixesList = arrmap_(sliceView_(tc_string, stripTypePrefixes).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
+	this.stripTypePrefixesList = arrmap_(sliceView_(tc_string, stripTypePrefixes).toArray(arrmap_(newstrarr_(0), strobj_)), str_)
 	var stripNamePrefixesLowerCase []string = []string{}
 	for _, el4 := range this.stripNamePrefixes.keys {
 		s := el4
 		stripNamePrefixesLowerCase = append(stripNamePrefixesLowerCase, strings.ToLower(s))
 	}
-	this.stripNamePrefixesLowerCaseList = arrmap_(sliceView_(tc_string, stripNamePrefixesLowerCase).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
+	this.stripNamePrefixesLowerCaseList = arrmap_(sliceView_(tc_string, stripNamePrefixesLowerCase).toArray(arrmap_(newstrarr_(0), strobj_)), str_)
 	var stripNameSuffixesLowerCase []string = []string{}
 	for _, el5 := range this.stripNameSuffixes.keys {
 		s := el5
 		stripNameSuffixesLowerCase = append(stripNameSuffixesLowerCase, strings.ToLower(s))
 	}
-	this.stripNameSuffixesLowerCaseList = arrmap_(sliceView_(tc_string, stripNameSuffixesLowerCase).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
+	this.stripNameSuffixesLowerCaseList = arrmap_(sliceView_(tc_string, stripNameSuffixesLowerCase).toArray(arrmap_(newstrarr_(0), strobj_)), str_)
 }
 
 func new_StripCode(compiler *AbstractCompiler, stripTypes *ImmutableSet[string], stripNameSuffixes *ImmutableSet[string], stripNamePrefixes *ImmutableSet[string], enableTweakStripping bool) *StripCode {

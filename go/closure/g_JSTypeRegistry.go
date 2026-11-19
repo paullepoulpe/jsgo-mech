@@ -1106,7 +1106,7 @@ func (this *JSTypeRegistry) createOptionalNullableType(type_ *JSType) *JSType {
 }
 
 func (this *JSTypeRegistry) createUnionType(variants []*JSType) *JSType {
-	return this.createUnionTypeList(sliceImm_(tc_p_JSType, ImmutableList_copyOf_ObjectArr(arrmap_(variants, func(v_ *JSType) any { return v_.self() }))))
+	return this.createUnionTypeList(sliceImm_(tc_p_JSType, ImmutableList_copyOf_ObjectArr(arrmap_(variants, (*JSType).self))))
 }
 
 func (this *JSTypeRegistry) createUnionTypeList(variants []*JSType) *JSType {
@@ -1138,7 +1138,7 @@ func (this *JSTypeRegistry) createNativeFunctionTypeWithVarArgs(returnType *JSTy
 }
 
 func (this *JSTypeRegistry) createFunctionTypeWithInstanceType(instanceType *ObjectType, returnType *JSType, parameterTypes []*JSType) *JSType {
-	var paramsNode *ImmutableList[*FunctionType_Parameter] = this.createParameters(arrmap_(sliceView_(tc_p_JSType, parameterTypes).toArray(arrmap_(make([]*JSType, 0), func(v_ *JSType) any { return v_.self() })), func(v_ any) *JSType { return to_JSType(v_) }))
+	var paramsNode *ImmutableList[*FunctionType_Parameter] = this.createParameters(arrmap_(sliceView_(tc_p_JSType, parameterTypes).toArray(arrmap_(make([]*JSType, 0), (*JSType).self)), to_JSType))
 	return FunctionType_builder(this).withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, paramsNode.asImm())).withReturnType(returnType).withTypeOfThis(instanceType.up_JSType()).build().up_JSType()
 }
 
@@ -1261,7 +1261,7 @@ func (this *JSTypeRegistry) createTemplatizedTypeMap(baseType *ObjectType, templ
 }
 
 func (this *JSTypeRegistry) createTemplatizedType(baseType *ObjectType, templatizedTypes []*JSType) *TemplatizedType {
-	return this.createTemplatizedTypeImmutableList(baseType, tlistImm_(tc_p_JSType, ImmutableList_copyOf_ObjectArr(arrmap_(templatizedTypes, func(v_ *JSType) any { return v_.self() }))))
+	return this.createTemplatizedTypeImmutableList(baseType, tlistImm_(tc_p_JSType, ImmutableList_copyOf_ObjectArr(arrmap_(templatizedTypes, (*JSType).self))))
 }
 
 func (this *JSTypeRegistry) createNamedType(scope StaticTypedScope, reference string, sourceName Optional[string], lineno int32, charno int32) *NamedType {

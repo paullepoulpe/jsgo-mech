@@ -75,12 +75,12 @@ func PathUtil_makeRelative(basePath string, targetPath string) string {
 		if (i == int32(len(baseFragments))) && (i == int32(len(targetFragments))) {
 			return "."
 		} else if i == int32(len(baseFragments)) {
-			return Joiner_on("/").join(Lists_newArrayList(Iterator(Arrays_asList(arrmap_(targetFragments, func(v_ string) any { return strobj_(v_) })).listIterator(i))).self().(Iterable))
+			return Joiner_on("/").join(Lists_newArrayList(Iterator(Arrays_asList(arrmap_(targetFragments, strobj_)).listIterator(i))).self().(Iterable))
 		} else if i == int32(len(targetFragments)) {
 			return (sstr_(String_repeat("../", ((int32(len(baseFragments))-i)-1))) + "..")
 		}
 	}
-	return (sstr_(String_repeat("../", (int32(len(baseFragments))-i))) + sstr_(Joiner_on("/").join(Lists_newArrayList(Iterator(Arrays_asList(arrmap_(targetFragments, func(v_ string) any { return strobj_(v_) })).listIterator(i))).self().(Iterable))))
+	return (sstr_(String_repeat("../", (int32(len(baseFragments))-i))) + sstr_(Joiner_on("/").join(Lists_newArrayList(Iterator(Arrays_asList(arrmap_(targetFragments, strobj_)).listIterator(i))).self().(Iterable))))
 }
 
 var PathUtil_SLASH_PATTERN *Pattern

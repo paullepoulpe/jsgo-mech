@@ -4,27 +4,25 @@ package closure
 
 // Element conversions of the typed maps.
 
-var tc_ClassOf_any_ = &tconv_[ClassOf[any]]{box: func(v ClassOf[any]) any { return obj_(v) }, unbox: func(v any) ClassOf[any] { return cast_[*Class](v) }}
-var tc_IndexProvider = &tconv_[IndexProvider]{box: func(v IndexProvider) any { return v }, unbox: func(v any) IndexProvider { return icast_IndexProvider(v) }}
-var tc_RenamingMap = &tconv_[RenamingMap]{box: func(v RenamingMap) any { return v }, unbox: func(v any) RenamingMap { return icast_RenamingMap(v) }}
+var tc_ClassOf_any_ = &tconv_[ClassOf[any]]{box: obj_[ClassOf[any]], unbox: cast_[*Class]}
+var tc_IndexProvider = &tconv_[IndexProvider]{box: func(v IndexProvider) any { return v }, unbox: icast_IndexProvider}
+var tc_RenamingMap = &tconv_[RenamingMap]{box: func(v RenamingMap) any { return v }, unbox: icast_RenamingMap}
 var tc_any = &tconv_[any]{box: func(v any) any { return v }, unbox: func(v any) any { return v }}
-var tc_p_AccessorSummary_PropertyAccessKind = &tconv_[AccessorSummary_PropertyAccessKind]{box: func(v AccessorSummary_PropertyAccessKind) any { return obj_(v) }, unbox: func(v any) AccessorSummary_PropertyAccessKind { return cast_[AccessorSummary_PropertyAccessKind](v) }}
-var tc_p_Binding = &tconv_[*Binding]{box: func(v *Binding) any { return obj_(v) }, unbox: func(v any) *Binding { return cast_[*Binding](v) }}
-var tc_p_DiagnosticGroup = &tconv_[*DiagnosticGroup]{box: func(v *DiagnosticGroup) any { return obj_(v) }, unbox: func(v any) *DiagnosticGroup { return cast_[*DiagnosticGroup](v) }}
-var tc_p_RecordTypeBuilder_RecordProperty = &tconv_[*RecordTypeBuilder_RecordProperty]{box: func(v *RecordTypeBuilder_RecordProperty) any { return obj_(v) }, unbox: func(v any) *RecordTypeBuilder_RecordProperty { return cast_[*RecordTypeBuilder_RecordProperty](v) }}
-var tc_p_SimpleBiMap = &tconv_[*SimpleBiMap[string, string]]{box: func(v *SimpleBiMap[string, string]) any { return obj_(v) }, unbox: func(v any) *SimpleBiMap[string, string] { return cast_[*SimpleBiMap[string, string]](v) }}
-var tc_p_TypedScope = &tconv_[*TypedScope]{box: func(v *TypedScope) any { return obj_(v) }, unbox: func(v any) *TypedScope { return cast_[*TypedScope](v) }}
-var tc_p_UnresolvedModule = &tconv_[*UnresolvedModule]{box: func(v *UnresolvedModule) any { return v.self() }, unbox: func(v any) *UnresolvedModule { return to_UnresolvedModule(v) }}
-var tc_p_AbstractVar = &tconv_[*AbstractVar]{box: func(v *AbstractVar) any { return v.self() }, unbox: func(v any) *AbstractVar { return to_AbstractVar(v) }}
-var tc_p_ProfilingReport_InstrumentationPointMetrics = &tconv_[*ProfilingReport_InstrumentationPointMetrics]{box: func(v *ProfilingReport_InstrumentationPointMetrics) any { return obj_(v) }, unbox: func(v any) *ProfilingReport_InstrumentationPointMetrics {
-	return cast_[*ProfilingReport_InstrumentationPointMetrics](v)
-}}
-var tc_p_Property = &tconv_[*Property]{box: func(v *Property) any { return obj_(v) }, unbox: func(v any) *Property { return cast_[*Property](v) }}
-var tch_p_InstrumentationPoint = &tconv_[*InstrumentationPoint]{box: func(v *InstrumentationPoint) any { return obj_(v) }, unbox: func(v any) *InstrumentationPoint { return cast_[*InstrumentationPoint](v) },
-	hash: func(v *InstrumentationPoint) int32 { return objhashVia_(v) }, eq: func(a, b *InstrumentationPoint) bool { return objequalsVia_(a, obj_(b)) }}
-var tch_p_KnownSymbolType = &tconv_[*KnownSymbolType]{box: func(v *KnownSymbolType) any { return obj_(v) }, unbox: func(v any) *KnownSymbolType { return cast_[*KnownSymbolType](v) },
-	hash: func(v *KnownSymbolType) int32 { return objhashVia_(v) }, eq: func(a, b *KnownSymbolType) bool { return objequalsVia_(a, obj_(b)) }}
-var tch_p_TemplateType = &tconv_[*TemplateType]{box: func(v *TemplateType) any { return obj_(v) }, unbox: func(v any) *TemplateType { return cast_[*TemplateType](v) },
-	hash: func(v *TemplateType) int32 { return objhashVia_(v) }, eq: func(a, b *TemplateType) bool { return objequalsVia_(a, obj_(b)) }}
+var tc_p_AccessorSummary_PropertyAccessKind = &tconv_[AccessorSummary_PropertyAccessKind]{box: obj_[AccessorSummary_PropertyAccessKind], unbox: cast_[AccessorSummary_PropertyAccessKind]}
+var tc_p_Binding = &tconv_[*Binding]{box: obj_[*Binding], unbox: cast_[*Binding]}
+var tc_p_DiagnosticGroup = &tconv_[*DiagnosticGroup]{box: obj_[*DiagnosticGroup], unbox: cast_[*DiagnosticGroup]}
+var tc_p_RecordTypeBuilder_RecordProperty = &tconv_[*RecordTypeBuilder_RecordProperty]{box: obj_[*RecordTypeBuilder_RecordProperty], unbox: cast_[*RecordTypeBuilder_RecordProperty]}
+var tc_p_SimpleBiMap = &tconv_[*SimpleBiMap[string, string]]{box: obj_[*SimpleBiMap[string, string]], unbox: cast_[*SimpleBiMap[string, string]]}
+var tc_p_TypedScope = &tconv_[*TypedScope]{box: obj_[*TypedScope], unbox: cast_[*TypedScope]}
+var tc_p_UnresolvedModule = &tconv_[*UnresolvedModule]{box: (*UnresolvedModule).self, unbox: to_UnresolvedModule}
+var tc_p_AbstractVar = &tconv_[*AbstractVar]{box: (*AbstractVar).self, unbox: to_AbstractVar}
+var tc_p_ProfilingReport_InstrumentationPointMetrics = &tconv_[*ProfilingReport_InstrumentationPointMetrics]{box: obj_[*ProfilingReport_InstrumentationPointMetrics], unbox: cast_[*ProfilingReport_InstrumentationPointMetrics]}
+var tc_p_Property = &tconv_[*Property]{box: obj_[*Property], unbox: cast_[*Property]}
+var tch_p_InstrumentationPoint = &tconv_[*InstrumentationPoint]{box: obj_[*InstrumentationPoint], unbox: cast_[*InstrumentationPoint],
+	hash: objhashVia_[*InstrumentationPoint], eq: func(a, b *InstrumentationPoint) bool { return objequalsVia_(a, obj_(b)) }}
+var tch_p_KnownSymbolType = &tconv_[*KnownSymbolType]{box: obj_[*KnownSymbolType], unbox: cast_[*KnownSymbolType],
+	hash: objhashVia_[*KnownSymbolType], eq: func(a, b *KnownSymbolType) bool { return objequalsVia_(a, obj_(b)) }}
+var tch_p_TemplateType = &tconv_[*TemplateType]{box: obj_[*TemplateType], unbox: cast_[*TemplateType],
+	hash: objhashVia_[*TemplateType], eq: func(a, b *TemplateType) bool { return objequalsVia_(a, obj_(b)) }}
 var tcv_p_TMap_string__any_ = tmapConv_[string, any]()
 var tcv_p_TMap_string__string_ = tmapConv_[string, string]()

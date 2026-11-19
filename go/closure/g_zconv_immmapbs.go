@@ -4,9 +4,9 @@ package closure
 
 // Element conversions of the typed immmapbs.
 
-var tc_Keywords = &tconv_[Keywords]{box: func(v Keywords) any { return v.self() }, unbox: func(v any) Keywords { return cast_[Keywords](v) }}
-var tc_p_CharRanges = &tconv_[*CharRanges]{box: func(v *CharRanges) any { return obj_(v) }, unbox: func(v any) *CharRanges { return cast_[*CharRanges](v) }}
-var tc_p_Function_tfn_Node_any = &tconv_[*Function_tfn_Node_any]{box: func(v *Function_tfn_Node_any) any { return obj_(v) }, unbox: func(v any) *Function_tfn_Node_any { return cast_[*Function_tfn_Node_any](v) }}
-var tc_p_InstrumentationPoint = &tconv_[*InstrumentationPoint]{box: func(v *InstrumentationPoint) any { return obj_(v) }, unbox: func(v any) *InstrumentationPoint { return cast_[*InstrumentationPoint](v) }}
-var tc_p_Node_Prop = &tconv_[*Node_Prop]{box: func(v *Node_Prop) any { return obj_(v) }, unbox: func(v any) *Node_Prop { return cast_[*Node_Prop](v) }}
-var tc_p_Pattern = &tconv_[*Pattern]{box: func(v *Pattern) any { return obj_(v) }, unbox: func(v any) *Pattern { return cast_[*Pattern](v) }}
+var tc_Keywords = &tconv_[Keywords]{box: (Keywords).self, unbox: cast_[Keywords]}
+var tc_p_CharRanges = &tconv_[*CharRanges]{box: obj_[*CharRanges], unbox: cast_[*CharRanges]}
+var tc_p_Function_tfn_Node_any = &tconv_[*Function_tfn_Node_any]{box: obj_[*Function_tfn_Node_any], unbox: cast_[*Function_tfn_Node_any]}
+var tc_p_InstrumentationPoint = &tconv_[*InstrumentationPoint]{box: obj_[*InstrumentationPoint], unbox: cast_[*InstrumentationPoint]}
+var tc_p_Node_Prop = &tconv_[*Node_Prop]{box: obj_[*Node_Prop], unbox: cast_[*Node_Prop]}
+var tc_p_Pattern = &tconv_[*Pattern]{box: obj_[*Pattern], unbox: cast_[*Pattern]}

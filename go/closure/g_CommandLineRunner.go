@@ -167,7 +167,7 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 		*tokens = append(*tokens, builder.toString())
 	}
 	this.flags.flagFiles = new_ArrayList_0()
-	tokens = CommandLineRunner_processArgs(arrmap_(sliceViewP_(tc_string, tokens).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }))
+	tokens = CommandLineRunner_processArgs(arrmap_(sliceViewP_(tc_string, tokens).toArray(arrmap_(newstrarr_(0), strobj_)), str_))
 	var previousGuardLevels *[]*AbstractCommandLineRunner_FlagEntry[any] = sliceRef_(sliceFrom_(tc_p_AbstractCommandLineRunner_FlagEntry, Collection(sliceViewP_(tc_p_AbstractCommandLineRunner_FlagEntry, this.flags.guardLevels))))
 	var previousMixedJsSources *[]*AbstractCommandLineRunner_FlagEntry[any] = sliceRef_(sliceFrom_(tc_p_AbstractCommandLineRunner_FlagEntry, Collection(sliceViewP_(tc_p_AbstractCommandLineRunner_FlagEntry, this.flags.mixedJsSources))))
 	sliceClear_(this.flags.guardLevels)

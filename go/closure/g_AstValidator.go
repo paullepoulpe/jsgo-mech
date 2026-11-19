@@ -308,7 +308,7 @@ func (this *AstValidator) validateExpression(n Node) {
 }
 
 func (this *AstValidator) validatePseudoExpression(n Node, allowedPseudoexpressions []Token_rhino) {
-	var allowedTokensSet *ImmutableSet[Token_rhino] = tsetFrom_(tc_Token_rhino, ImmutableSet_copyOf_ObjectArr(arrmap_(allowedPseudoexpressions, func(v_ Token_rhino) any { return obj_(v_) })), true)
+	var allowedTokensSet *ImmutableSet[Token_rhino] = tsetFrom_(tc_Token_rhino, ImmutableSet_copyOf_ObjectArr(arrmap_(allowedPseudoexpressions, obj_[Token_rhino])), true)
 	switch n.ns_().token {
 	case tokOrd1_EMPTY:
 		if !allowedTokensSet.Has(Token_rhino_EMPTY) {

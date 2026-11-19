@@ -787,7 +787,7 @@ func NodeUtil_findClosureUnawareScriptRoot(script Node) Node {
 	if !script.isScript() || !script.getIsInClosureUnawareSubtree() {
 		panic(new_IllegalArgumentException_String(tostr_(script)))
 	}
-	return NodeUtil_findPreorder(script, func(p0 Node) bool { return p0.isBlock() }, &Predicate_base_tfn_Node{func(c Node) bool {
+	return NodeUtil_findPreorder(script, (Node).isBlock, &Predicate_base_tfn_Node{func(c Node) bool {
 		return true
 	}})
 }
@@ -1384,39 +1384,39 @@ func NodeUtil_getEnclosingType(n Node, type_ Token_rhino) Node {
 }
 
 func NodeUtil_getEnclosingNonArrowFunction(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, func(p0 Node) bool { return NodeUtil_isNonArrowFunction(p0) })
+	return NodeUtil_getEnclosingNode(n, NodeUtil_isNonArrowFunction)
 }
 
 func NodeUtil_getEnclosingClass(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, func(p0 Node) bool { return p0.isClass() })
+	return NodeUtil_getEnclosingNode(n, (Node).isClass)
 }
 
 func NodeUtil_getEnclosingModuleIfPresent(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, func(p0 Node) bool { return p0.isModuleBody() })
+	return NodeUtil_getEnclosingNode(n, (Node).isModuleBody)
 }
 
 func NodeUtil_getEnclosingFunction(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, func(p0 Node) bool { return p0.isFunction() })
+	return NodeUtil_getEnclosingNode(n, (Node).isFunction)
 }
 
 func NodeUtil_getEnclosingScript(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, func(p0 Node) bool { return p0.isScript() })
+	return NodeUtil_getEnclosingNode(n, (Node).isScript)
 }
 
 func NodeUtil_getEnclosingBlock(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, func(p0 Node) bool { return p0.isBlock() })
+	return NodeUtil_getEnclosingNode(n, (Node).isBlock)
 }
 
 func NodeUtil_getEnclosingBlockScopeRoot(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, func(p0 Node) bool { return NodeUtil_createsBlockScope(p0) })
+	return NodeUtil_getEnclosingNode(n, NodeUtil_createsBlockScope)
 }
 
 func NodeUtil_getEnclosingScopeRoot(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, func(p0 Node) bool { return NodeUtil_createsScope(p0) })
+	return NodeUtil_getEnclosingNode(n, NodeUtil_createsScope)
 }
 
 func NodeUtil_getEnclosingHoistScopeRoot(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, func(p0 Node) bool { return NodeUtil_isHoistScopeRoot(p0) })
+	return NodeUtil_getEnclosingNode(n, NodeUtil_isHoistScopeRoot)
 }
 
 func NodeUtil_isHoistScopeRoot(n Node) bool {
@@ -1428,7 +1428,7 @@ func NodeUtil_isInFunction(n Node) bool {
 }
 
 func NodeUtil_getEnclosingStatement(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, func(p0 Node) bool { return NodeUtil_isStatement(p0) })
+	return NodeUtil_getEnclosingNode(n, NodeUtil_isStatement)
 }
 
 func NodeUtil_getEnclosingNode(n Node, pred func(Node) bool) Node {
@@ -1490,7 +1490,7 @@ func NodeUtil_referencesEnclosingReceiver(n Node) bool {
 func NodeUtil_referencesSuper(n Node) bool {
 	var curr Node = n.getFirstChild()
 	for curr != 0 {
-		if NodeUtil_has(curr, func(p0 Node) bool { return p0.isSuper() }, &Predicate_base_tfn_Node{func(node Node) bool {
+		if NodeUtil_has(curr, (Node).isSuper, &Predicate_base_tfn_Node{func(node Node) bool {
 			return !node.isClass()
 		}}) {
 			return true

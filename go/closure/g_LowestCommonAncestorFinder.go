@@ -163,8 +163,8 @@ func LowestCommonAncestorFinder_Color_clinit() {
 	{
 		func() {
 			arr_1 := LowestCommonAncestorFinder_Color_COMMON_COLOR_CACHE
-			tmp_2 := arrmap_(arr_1, func(v_ *LowestCommonAncestorFinder_Color) any { return obj_(v_) })
-			Arrays_setAll(tmp_2, &IntFunction_tfn_LowestCommonAncestorFinder_Color{func(p0 int32) *LowestCommonAncestorFinder_Color { return new_LowestCommonAncestorFinder_Color(p0) }})
+			tmp_2 := arrmap_(arr_1, obj_[*LowestCommonAncestorFinder_Color])
+			Arrays_setAll(tmp_2, &IntFunction_tfn_LowestCommonAncestorFinder_Color{new_LowestCommonAncestorFinder_Color})
 			for i_ := range tmp_2 {
 				arr_1[i_] = cast_[*LowestCommonAncestorFinder_Color](tmp_2[i_])
 			}

@@ -1375,7 +1375,7 @@ func (this *FunctionType_Builder) withTemplateKeysImmutableList(templateKeys *Im
 }
 
 func (this *FunctionType_Builder) withTemplateKeys(templateKeys []*TemplateType) *FunctionType_Builder {
-	return this.withTemplateKeysImmutableList(tlistImm_(tc_p_TemplateType, ImmutableList_copyOf_ObjectArr(arrmap_(templateKeys, func(v_ *TemplateType) any { return obj_(v_) }))))
+	return this.withTemplateKeysImmutableList(tlistImm_(tc_p_TemplateType, ImmutableList_copyOf_ObjectArr(arrmap_(templateKeys, obj_[*TemplateType]))))
 }
 
 func (this *FunctionType_Builder) withConstructorTemplateKeys(constructorOnlyKeys IterableOf[*TemplateType]) *FunctionType_Builder {

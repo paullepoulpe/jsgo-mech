@@ -4,12 +4,10 @@ package closure
 
 // Element conversions of the typed sets.
 
-var tc_p_FeatureSet_Feature = &tconv_[FeatureSet_Feature]{box: func(v FeatureSet_Feature) any { return obj_(v) }, unbox: func(v any) FeatureSet_Feature { return cast_[FeatureSet_Feature](v) }}
-var tc_p_GlobalNamespace_Name = &tconv_[*GlobalNamespace_Name]{box: func(v *GlobalNamespace_Name) any { return obj_(v) }, unbox: func(v any) *GlobalNamespace_Name { return cast_[*GlobalNamespace_Name](v) }}
-var tc_SortingErrorManager_ErrorReportGenerator = &tconv_[SortingErrorManager_ErrorReportGenerator]{box: func(v SortingErrorManager_ErrorReportGenerator) any { return v }, unbox: func(v any) SortingErrorManager_ErrorReportGenerator {
-	return icast_SortingErrorManager_ErrorReportGenerator(v)
-}}
-var tch_p_ExportTrace = &tconv_[*ExportTrace]{box: func(v *ExportTrace) any { return obj_(v) }, unbox: func(v any) *ExportTrace { return cast_[*ExportTrace](v) },
-	hash: func(v *ExportTrace) int32 { return objhashVia_(v) }, eq: func(a, b *ExportTrace) bool { return objequalsVia_(a, obj_(b)) }}
-var tch_p_SimpleSetMultimap_Entry = &tconv_[*SimpleSetMultimap_Entry[any, any]]{box: func(v *SimpleSetMultimap_Entry[any, any]) any { return obj_(v) }, unbox: func(v any) *SimpleSetMultimap_Entry[any, any] { return cast_[*SimpleSetMultimap_Entry[any, any]](v) },
-	hash: func(v *SimpleSetMultimap_Entry[any, any]) int32 { return objhashVia_(v) }, eq: func(a, b *SimpleSetMultimap_Entry[any, any]) bool { return objequalsVia_(a, obj_(b)) }}
+var tc_p_FeatureSet_Feature = &tconv_[FeatureSet_Feature]{box: obj_[FeatureSet_Feature], unbox: cast_[FeatureSet_Feature]}
+var tc_p_GlobalNamespace_Name = &tconv_[*GlobalNamespace_Name]{box: obj_[*GlobalNamespace_Name], unbox: cast_[*GlobalNamespace_Name]}
+var tc_SortingErrorManager_ErrorReportGenerator = &tconv_[SortingErrorManager_ErrorReportGenerator]{box: func(v SortingErrorManager_ErrorReportGenerator) any { return v }, unbox: icast_SortingErrorManager_ErrorReportGenerator}
+var tch_p_ExportTrace = &tconv_[*ExportTrace]{box: obj_[*ExportTrace], unbox: cast_[*ExportTrace],
+	hash: objhashVia_[*ExportTrace], eq: func(a, b *ExportTrace) bool { return objequalsVia_(a, obj_(b)) }}
+var tch_p_SimpleSetMultimap_Entry = &tconv_[*SimpleSetMultimap_Entry[any, any]]{box: obj_[*SimpleSetMultimap_Entry[any, any]], unbox: cast_[*SimpleSetMultimap_Entry[any, any]],
+	hash: objhashVia_[*SimpleSetMultimap_Entry[any, any]], eq: func(a, b *SimpleSetMultimap_Entry[any, any]) bool { return objequalsVia_(a, obj_(b)) }}

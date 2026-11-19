@@ -147,7 +147,7 @@ func (this *ReplaceCssNames) processStringNode(n Node) {
 					}
 					replaced[i] = part.get()
 				}
-				replacement = Optional_of[string](Joiner_on("-").join_ObjectArr(arrmap_(replaced, func(v_ string) any { return strobj_(v_) })))
+				replacement = Optional_of[string](Joiner_on("-").join_ObjectArr(arrmap_(replaced, strobj_)))
 			}
 		}
 		n.setString(replacement.get())

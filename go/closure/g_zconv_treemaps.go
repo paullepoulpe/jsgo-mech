@@ -4,7 +4,5 @@ package closure
 
 // Element conversions of the typed treemaps.
 
-var tc_p_AliasStrings_StringInfo = &tconv_[*AliasStrings_StringInfo]{box: func(v *AliasStrings_StringInfo) any { return obj_(v) }, unbox: func(v any) *AliasStrings_StringInfo { return cast_[*AliasStrings_StringInfo](v) }}
-var tc_p_Es6RewriteModulesToCommonJsModules_LocalQName = &tconv_[*Es6RewriteModulesToCommonJsModules_LocalQName]{box: func(v *Es6RewriteModulesToCommonJsModules_LocalQName) any { return obj_(v) }, unbox: func(v any) *Es6RewriteModulesToCommonJsModules_LocalQName {
-	return cast_[*Es6RewriteModulesToCommonJsModules_LocalQName](v)
-}}
+var tc_p_AliasStrings_StringInfo = &tconv_[*AliasStrings_StringInfo]{box: obj_[*AliasStrings_StringInfo], unbox: cast_[*AliasStrings_StringInfo]}
+var tc_p_Es6RewriteModulesToCommonJsModules_LocalQName = &tconv_[*Es6RewriteModulesToCommonJsModules_LocalQName]{box: obj_[*Es6RewriteModulesToCommonJsModules_LocalQName], unbox: cast_[*Es6RewriteModulesToCommonJsModules_LocalQName]}

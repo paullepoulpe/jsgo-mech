@@ -11,7 +11,7 @@ type PeepholeTranspilationsPass struct {
 
 func (this *PeepholeTranspilationsPass) init_PeepholeTranspilationsPass(compiler *AbstractCompiler, transpilations []*AbstractPeepholeTranspilation, featureSetToRunOn *FeatureSet, featureSetToMarkAsTranspiledAway *FeatureSet) {
 	this.compiler_ = compiler
-	this.peepholeTranspilations = arrmap_(sliceView_(tc_p_AbstractPeepholeTranspilation, transpilations).toArray(arrmap_(make([]*AbstractPeepholeTranspilation, 0), func(v_ *AbstractPeepholeTranspilation) any { return v_.self() })), func(v_ any) *AbstractPeepholeTranspilation { return to_AbstractPeepholeTranspilation(v_) })
+	this.peepholeTranspilations = arrmap_(sliceView_(tc_p_AbstractPeepholeTranspilation, transpilations).toArray(arrmap_(make([]*AbstractPeepholeTranspilation, 0), (*AbstractPeepholeTranspilation).self)), to_AbstractPeepholeTranspilation)
 	this.featureSetToRunOn = featureSetToRunOn
 	this.featureSetToMarkAsTranspiledAway = featureSetToMarkAsTranspiledAway
 }

@@ -4,4 +4,4 @@ package closure
 
 // Element conversions of the typed immlistbs.
 
-var tc_p_AbstractPeepholeOptimization = &tconv_[*AbstractPeepholeOptimization]{box: func(v *AbstractPeepholeOptimization) any { return v.self() }, unbox: func(v any) *AbstractPeepholeOptimization { return to_AbstractPeepholeOptimization(v) }}
+var tc_p_AbstractPeepholeOptimization = &tconv_[*AbstractPeepholeOptimization]{box: (*AbstractPeepholeOptimization).self, unbox: to_AbstractPeepholeOptimization}

@@ -40,7 +40,7 @@ func new_ComposeWarningsGuard(guards *[]*WarningsGuard) *ComposeWarningsGuard {
 }
 
 func ComposeWarningsGuard_createFromGuards(guards []*WarningsGuard) *ComposeWarningsGuard {
-	return new_ComposeWarningsGuard(slicePtrImm_(tc_p_WarningsGuard, ImmutableList_copyOf_ObjectArr(arrmap_(guards, func(v_ *WarningsGuard) any { return v_.self() }))))
+	return new_ComposeWarningsGuard(slicePtrImm_(tc_p_WarningsGuard, ImmutableList_copyOf_ObjectArr(arrmap_(guards, (*WarningsGuard).self))))
 }
 
 func (this *ComposeWarningsGuard) addGuard(guard *WarningsGuard) {

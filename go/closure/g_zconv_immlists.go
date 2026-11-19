@@ -4,17 +4,15 @@ package closure
 
 // Element conversions of the typed immlists.
 
-var tc_CompilerPass = &tconv_[CompilerPass]{box: func(v CompilerPass) any { return any(v) }, unbox: func(v any) CompilerPass { return icast_CompilerPass(v) }}
-var tc_JSTypeNative = &tconv_[JSTypeNative]{box: func(v JSTypeNative) any { return v.self() }, unbox: func(v any) JSTypeNative { return cast_[JSTypeNative](v) }}
-var tc_MapOf_string__BoxedOf_int64__ = &tconv_[MapOf[string, BoxedOf[int64]]]{box: func(v MapOf[string, BoxedOf[int64]]) any { return any(v) }, unbox: func(v any) MapOf[string, BoxedOf[int64]] { return icast_Map(v) }}
-var tc_NodeTraversal_Callback = &tconv_[NodeTraversal_Callback]{box: func(v NodeTraversal_Callback) any { return any(v) }, unbox: func(v any) NodeTraversal_Callback { return icast_NodeTraversal_Callback(v) }}
-var tc_p_CaseCanonicalize_DeltaSet = &tconv_[*CaseCanonicalize_DeltaSet]{box: func(v *CaseCanonicalize_DeltaSet) any { return obj_(v) }, unbox: func(v any) *CaseCanonicalize_DeltaSet { return cast_[*CaseCanonicalize_DeltaSet](v) }}
-var tc_p_CheckRequiresSorted_DestructuringBinding = &tconv_[*CheckRequiresSorted_DestructuringBinding]{box: func(v *CheckRequiresSorted_DestructuringBinding) any { return obj_(v) }, unbox: func(v any) *CheckRequiresSorted_DestructuringBinding {
-	return cast_[*CheckRequiresSorted_DestructuringBinding](v)
-}}
-var tc_p_Color = &tconv_[*Color]{box: func(v *Color) any { return obj_(v) }, unbox: func(v any) *Color { return cast_[*Color](v) }}
-var tc_p_DependencyInfo_Require = &tconv_[*DependencyInfo_Require]{box: func(v *DependencyInfo_Require) any { return obj_(v) }, unbox: func(v any) *DependencyInfo_Require { return cast_[*DependencyInfo_Require](v) }}
-var tc_p_ModuleIdentifier = &tconv_[*ModuleIdentifier]{box: func(v *ModuleIdentifier) any { return obj_(v) }, unbox: func(v any) *ModuleIdentifier { return cast_[*ModuleIdentifier](v) }}
-var tc_p_ModuleMetadataMap_ModuleMetadata = &tconv_[*ModuleMetadataMap_ModuleMetadata]{box: func(v *ModuleMetadataMap_ModuleMetadata) any { return obj_(v) }, unbox: func(v any) *ModuleMetadataMap_ModuleMetadata { return cast_[*ModuleMetadataMap_ModuleMetadata](v) }}
-var tc_p_PassFactory = &tconv_[*PassFactory]{box: func(v *PassFactory) any { return obj_(v) }, unbox: func(v any) *PassFactory { return cast_[*PassFactory](v) }}
-var tc_p_SourceFileProto = &tconv_[*SourceFileProto]{box: func(v *SourceFileProto) any { return obj_(v) }, unbox: func(v any) *SourceFileProto { return cast_[*SourceFileProto](v) }}
+var tc_CompilerPass = &tconv_[CompilerPass]{box: func(v CompilerPass) any { return any(v) }, unbox: icast_CompilerPass}
+var tc_JSTypeNative = &tconv_[JSTypeNative]{box: (JSTypeNative).self, unbox: cast_[JSTypeNative]}
+var tc_MapOf_string__BoxedOf_int64__ = &tconv_[MapOf[string, BoxedOf[int64]]]{box: func(v MapOf[string, BoxedOf[int64]]) any { return any(v) }, unbox: icast_Map}
+var tc_NodeTraversal_Callback = &tconv_[NodeTraversal_Callback]{box: func(v NodeTraversal_Callback) any { return any(v) }, unbox: icast_NodeTraversal_Callback}
+var tc_p_CaseCanonicalize_DeltaSet = &tconv_[*CaseCanonicalize_DeltaSet]{box: obj_[*CaseCanonicalize_DeltaSet], unbox: cast_[*CaseCanonicalize_DeltaSet]}
+var tc_p_CheckRequiresSorted_DestructuringBinding = &tconv_[*CheckRequiresSorted_DestructuringBinding]{box: obj_[*CheckRequiresSorted_DestructuringBinding], unbox: cast_[*CheckRequiresSorted_DestructuringBinding]}
+var tc_p_Color = &tconv_[*Color]{box: obj_[*Color], unbox: cast_[*Color]}
+var tc_p_DependencyInfo_Require = &tconv_[*DependencyInfo_Require]{box: obj_[*DependencyInfo_Require], unbox: cast_[*DependencyInfo_Require]}
+var tc_p_ModuleIdentifier = &tconv_[*ModuleIdentifier]{box: obj_[*ModuleIdentifier], unbox: cast_[*ModuleIdentifier]}
+var tc_p_ModuleMetadataMap_ModuleMetadata = &tconv_[*ModuleMetadataMap_ModuleMetadata]{box: obj_[*ModuleMetadataMap_ModuleMetadata], unbox: cast_[*ModuleMetadataMap_ModuleMetadata]}
+var tc_p_PassFactory = &tconv_[*PassFactory]{box: obj_[*PassFactory], unbox: cast_[*PassFactory]}
+var tc_p_SourceFileProto = &tconv_[*SourceFileProto]{box: obj_[*SourceFileProto], unbox: cast_[*SourceFileProto]}

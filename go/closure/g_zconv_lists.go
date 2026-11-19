@@ -4,33 +4,27 @@ package closure
 
 // Element conversions of the typed lists.
 
-var tc_JsMessage_Part = &tconv_[JsMessage_Part]{box: func(v JsMessage_Part) any { return v }, unbox: func(v any) JsMessage_Part { return icast_JsMessage_Part(v) }}
-var tc_Node = &tconv_[Node]{box: func(v Node) any { return v.box_() }, unbox: func(v any) Node { return Node_of_(v) }}
-var tc_SourceMap_LocationMapping = &tconv_[SourceMap_LocationMapping]{box: func(v SourceMap_LocationMapping) any { return v }, unbox: func(v any) SourceMap_LocationMapping { return icast_SourceMap_LocationMapping(v) }}
-var tc_p_AbstractCommandLineRunner_FlagEntry = &tconv_[*AbstractCommandLineRunner_FlagEntry[any]]{box: func(v *AbstractCommandLineRunner_FlagEntry[any]) any { return obj_(v) }, unbox: func(v any) *AbstractCommandLineRunner_FlagEntry[any] {
-	return cast_[*AbstractCommandLineRunner_FlagEntry[any]](v)
-}}
-var tc_p_CompilerInput = &tconv_[*CompilerInput]{box: func(v *CompilerInput) any { return obj_(v) }, unbox: func(v any) *CompilerInput { return cast_[*CompilerInput](v) }}
-var tc_p_ConformanceConfig = &tconv_[*ConformanceConfig]{box: func(v *ConformanceConfig) any { return obj_(v) }, unbox: func(v any) *ConformanceConfig { return cast_[*ConformanceConfig](v) }}
-var tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase = &tconv_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase]{box: func(v *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase) any { return obj_(v) }, unbox: func(v any) *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase {
-	return cast_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase](v)
-}}
-var tc_p_FunctionRewriter_Reducer = &tconv_[*FunctionRewriter_Reducer]{box: func(v *FunctionRewriter_Reducer) any { return v.self() }, unbox: func(v any) *FunctionRewriter_Reducer { return to_FunctionRewriter_Reducer(v) }}
-var tc_p_FunctionType_Parameter = &tconv_[*FunctionType_Parameter]{box: func(v *FunctionType_Parameter) any { return obj_(v) }, unbox: func(v any) *FunctionType_Parameter { return cast_[*FunctionType_Parameter](v) }}
-var tc_p_InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite = &tconv_[*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite]{box: func(v *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite) any { return obj_(v) }, unbox: func(v any) *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite {
-	return cast_[*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite](v)
-}}
-var tc_p_JSType = &tconv_[*JSType]{box: func(v *JSType) any { return v.self() }, unbox: func(v any) *JSType { return to_JSType(v) }}
-var tc_p_PolymerPass_MemberDefinition = &tconv_[*PolymerPass_MemberDefinition]{box: func(v *PolymerPass_MemberDefinition) any { return obj_(v) }, unbox: func(v any) *PolymerPass_MemberDefinition { return cast_[*PolymerPass_MemberDefinition](v) }}
-var tc_p_ProcessCommonJSModules_ExportInfo = &tconv_[*ProcessCommonJSModules_ExportInfo]{box: func(v *ProcessCommonJSModules_ExportInfo) any { return obj_(v) }, unbox: func(v any) *ProcessCommonJSModules_ExportInfo { return cast_[*ProcessCommonJSModules_ExportInfo](v) }}
-var tc_p_ReplaceStrings_Result = &tconv_[*ReplaceStrings_Result]{box: func(v *ReplaceStrings_Result) any { return obj_(v) }, unbox: func(v any) *ReplaceStrings_Result { return cast_[*ReplaceStrings_Result](v) }}
-var tc_p_SourceMapSection = &tconv_[*SourceMapSection]{box: func(v *SourceMapSection) any { return obj_(v) }, unbox: func(v any) *SourceMapSection { return cast_[*SourceMapSection](v) }}
-var tc_p_SourcePosition_util = &tconv_[*SourcePosition_util]{box: func(v *SourcePosition_util) any { return obj_(v) }, unbox: func(v any) *SourcePosition_util { return cast_[*SourcePosition_util](v) }}
-var tc_p_SuggestedFix = &tconv_[*SuggestedFix]{box: func(v *SuggestedFix) any { return obj_(v) }, unbox: func(v any) *SuggestedFix { return cast_[*SuggestedFix](v) }}
-var tc_p_SymbolTable_Symbol = &tconv_[*SymbolTable_Symbol]{box: func(v *SymbolTable_Symbol) any { return obj_(v) }, unbox: func(v any) *SymbolTable_Symbol { return cast_[*SymbolTable_Symbol](v) }}
-var tc_p_TemplateType = &tconv_[*TemplateType]{box: func(v *TemplateType) any { return obj_(v) }, unbox: func(v any) *TemplateType { return cast_[*TemplateType](v) }}
-var tc_p_WarningsGuard = &tconv_[*WarningsGuard]{box: func(v *WarningsGuard) any { return v.self() }, unbox: func(v any) *WarningsGuard { return to_WarningsGuard(v) }}
-var tc_string = &tconv_[string]{box: func(v string) any { return strobj_(v) }, unbox: func(v any) string { return str_(v) }, null: nullstr_}
-var tc_p_RegExpTree = &tconv_[*RegExpTree]{box: func(v *RegExpTree) any { return v.self() }, unbox: func(v any) *RegExpTree { return to_RegExpTree(v) }}
-var tc_p_Comment = &tconv_[*Comment]{box: func(v *Comment) any { return obj_(v) }, unbox: func(v any) *Comment { return cast_[*Comment](v) }}
+var tc_JsMessage_Part = &tconv_[JsMessage_Part]{box: func(v JsMessage_Part) any { return v }, unbox: icast_JsMessage_Part}
+var tc_Node = &tconv_[Node]{box: (Node).box_, unbox: Node_of_}
+var tc_SourceMap_LocationMapping = &tconv_[SourceMap_LocationMapping]{box: func(v SourceMap_LocationMapping) any { return v }, unbox: icast_SourceMap_LocationMapping}
+var tc_p_AbstractCommandLineRunner_FlagEntry = &tconv_[*AbstractCommandLineRunner_FlagEntry[any]]{box: obj_[*AbstractCommandLineRunner_FlagEntry[any]], unbox: cast_[*AbstractCommandLineRunner_FlagEntry[any]]}
+var tc_p_CompilerInput = &tconv_[*CompilerInput]{box: obj_[*CompilerInput], unbox: cast_[*CompilerInput]}
+var tc_p_ConformanceConfig = &tconv_[*ConformanceConfig]{box: obj_[*ConformanceConfig], unbox: cast_[*ConformanceConfig]}
+var tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase = &tconv_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase]{box: obj_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase], unbox: cast_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase]}
+var tc_p_FunctionRewriter_Reducer = &tconv_[*FunctionRewriter_Reducer]{box: (*FunctionRewriter_Reducer).self, unbox: to_FunctionRewriter_Reducer}
+var tc_p_FunctionType_Parameter = &tconv_[*FunctionType_Parameter]{box: obj_[*FunctionType_Parameter], unbox: cast_[*FunctionType_Parameter]}
+var tc_p_InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite = &tconv_[*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite]{box: obj_[*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite], unbox: cast_[*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite]}
+var tc_p_JSType = &tconv_[*JSType]{box: (*JSType).self, unbox: to_JSType}
+var tc_p_PolymerPass_MemberDefinition = &tconv_[*PolymerPass_MemberDefinition]{box: obj_[*PolymerPass_MemberDefinition], unbox: cast_[*PolymerPass_MemberDefinition]}
+var tc_p_ProcessCommonJSModules_ExportInfo = &tconv_[*ProcessCommonJSModules_ExportInfo]{box: obj_[*ProcessCommonJSModules_ExportInfo], unbox: cast_[*ProcessCommonJSModules_ExportInfo]}
+var tc_p_ReplaceStrings_Result = &tconv_[*ReplaceStrings_Result]{box: obj_[*ReplaceStrings_Result], unbox: cast_[*ReplaceStrings_Result]}
+var tc_p_SourceMapSection = &tconv_[*SourceMapSection]{box: obj_[*SourceMapSection], unbox: cast_[*SourceMapSection]}
+var tc_p_SourcePosition_util = &tconv_[*SourcePosition_util]{box: obj_[*SourcePosition_util], unbox: cast_[*SourcePosition_util]}
+var tc_p_SuggestedFix = &tconv_[*SuggestedFix]{box: obj_[*SuggestedFix], unbox: cast_[*SuggestedFix]}
+var tc_p_SymbolTable_Symbol = &tconv_[*SymbolTable_Symbol]{box: obj_[*SymbolTable_Symbol], unbox: cast_[*SymbolTable_Symbol]}
+var tc_p_TemplateType = &tconv_[*TemplateType]{box: obj_[*TemplateType], unbox: cast_[*TemplateType]}
+var tc_p_WarningsGuard = &tconv_[*WarningsGuard]{box: (*WarningsGuard).self, unbox: to_WarningsGuard}
+var tc_string = &tconv_[string]{box: strobj_, unbox: str_, null: nullstr_}
+var tc_p_RegExpTree = &tconv_[*RegExpTree]{box: (*RegExpTree).self, unbox: to_RegExpTree}
+var tc_p_Comment = &tconv_[*Comment]{box: obj_[*Comment], unbox: cast_[*Comment]}
 var tcv_p_TList_p_JSChunk_ = tlistConv_[*JSChunk]()

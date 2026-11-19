@@ -4,8 +4,6 @@ package closure
 
 // Element conversions of the typed deques.
 
-var tc_p_AbstractScope = &tconv_[*AbstractScope]{box: func(v *AbstractScope) any { return v.self() }, unbox: func(v any) *AbstractScope { return to_AbstractScope(v) }}
-var tc_p_GraphColoring_p_Var__any_ = &tconv_[*GraphColoring[*Var, any]]{box: func(v *GraphColoring[*Var, any]) any { return v.self() }, unbox: func(v any) *GraphColoring[*Var, any] { return cast_[*GraphColoring[*Var, any]](v) }}
-var tc_p_J2clClinitPrunerPass_HierarchicalSet_string_ = &tconv_[*J2clClinitPrunerPass_HierarchicalSet[string]]{box: func(v *J2clClinitPrunerPass_HierarchicalSet[string]) any { return obj_(v) }, unbox: func(v any) *J2clClinitPrunerPass_HierarchicalSet[string] {
-	return cast_[*J2clClinitPrunerPass_HierarchicalSet[string]](v)
-}}
+var tc_p_AbstractScope = &tconv_[*AbstractScope]{box: (*AbstractScope).self, unbox: to_AbstractScope}
+var tc_p_GraphColoring_p_Var__any_ = &tconv_[*GraphColoring[*Var, any]]{box: (*GraphColoring[*Var, any]).self, unbox: cast_[*GraphColoring[*Var, any]]}
+var tc_p_J2clClinitPrunerPass_HierarchicalSet_string_ = &tconv_[*J2clClinitPrunerPass_HierarchicalSet[string]]{box: obj_[*J2clClinitPrunerPass_HierarchicalSet[string]], unbox: cast_[*J2clClinitPrunerPass_HierarchicalSet[string]]}

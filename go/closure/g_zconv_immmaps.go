@@ -4,34 +4,26 @@ package closure
 
 // Element conversions of the typed immmaps.
 
-var tc_Annotation_parsing = &tconv_[Annotation_parsing]{box: func(v Annotation_parsing) any { return v.self() }, unbox: func(v any) Annotation_parsing { return cast_[Annotation_parsing](v) }}
-var tc_Binding_CreatedBy = &tconv_[Binding_CreatedBy]{box: func(v Binding_CreatedBy) any { return v.self() }, unbox: func(v any) Binding_CreatedBy { return cast_[Binding_CreatedBy](v) }}
-var tc_CheckNestedNames_DeclarationKind = &tconv_[CheckNestedNames_DeclarationKind]{box: func(v CheckNestedNames_DeclarationKind) any { return v.self() }, unbox: func(v any) CheckNestedNames_DeclarationKind { return cast_[CheckNestedNames_DeclarationKind](v) }}
-var tc_ClosurePrimitive = &tconv_[ClosurePrimitive]{box: func(v ClosurePrimitive) any { return v.self() }, unbox: func(v any) ClosurePrimitive { return cast_[ClosurePrimitive](v) }}
-var tc_CompilerOptions_BrowserFeaturesetYear = &tconv_[CompilerOptions_BrowserFeaturesetYear]{box: func(v CompilerOptions_BrowserFeaturesetYear) any { return v.self() }, unbox: func(v any) CompilerOptions_BrowserFeaturesetYear {
-	return cast_[CompilerOptions_BrowserFeaturesetYear](v)
-}}
-var tc_ConformanceRules_CustomRuleProxy_CustomRuleFactory = &tconv_[ConformanceRules_CustomRuleProxy_CustomRuleFactory]{box: func(v ConformanceRules_CustomRuleProxy_CustomRuleFactory) any { return obj_(v) }, unbox: func(v any) ConformanceRules_CustomRuleProxy_CustomRuleFactory {
-	return icast_ConformanceRules_CustomRuleProxy_CustomRuleFactory(v)
-}}
+var tc_Annotation_parsing = &tconv_[Annotation_parsing]{box: (Annotation_parsing).self, unbox: cast_[Annotation_parsing]}
+var tc_Binding_CreatedBy = &tconv_[Binding_CreatedBy]{box: (Binding_CreatedBy).self, unbox: cast_[Binding_CreatedBy]}
+var tc_CheckNestedNames_DeclarationKind = &tconv_[CheckNestedNames_DeclarationKind]{box: (CheckNestedNames_DeclarationKind).self, unbox: cast_[CheckNestedNames_DeclarationKind]}
+var tc_ClosurePrimitive = &tconv_[ClosurePrimitive]{box: (ClosurePrimitive).self, unbox: cast_[ClosurePrimitive]}
+var tc_CompilerOptions_BrowserFeaturesetYear = &tconv_[CompilerOptions_BrowserFeaturesetYear]{box: (CompilerOptions_BrowserFeaturesetYear).self, unbox: cast_[CompilerOptions_BrowserFeaturesetYear]}
+var tc_ConformanceRules_CustomRuleProxy_CustomRuleFactory = &tconv_[ConformanceRules_CustomRuleProxy_CustomRuleFactory]{box: obj_[ConformanceRules_CustomRuleProxy_CustomRuleFactory], unbox: icast_ConformanceRules_CustomRuleProxy_CustomRuleFactory}
 var tc_Function_baseOf_p_ClosureReverseAbstractInterpreter_TypeRestriction__p_JSType_ = &tconv_[Function_baseOf[*ClosureReverseAbstractInterpreter_TypeRestriction, *JSType]]{box: func(v Function_baseOf[*ClosureReverseAbstractInterpreter_TypeRestriction, *JSType]) any {
 	return any(v)
-}, unbox: func(v any) Function_baseOf[*ClosureReverseAbstractInterpreter_TypeRestriction, *JSType] {
-	return icast_Function_base(v)
-}}
-var tc_JSDocInfo_Visibility = &tconv_[JSDocInfo_Visibility]{box: func(v JSDocInfo_Visibility) any { return v.self() }, unbox: func(v any) JSDocInfo_Visibility { return cast_[JSDocInfo_Visibility](v) }}
-var tc_StaticSourceFile = &tconv_[StaticSourceFile]{box: func(v StaticSourceFile) any { return any(v) }, unbox: func(v any) StaticSourceFile { return icast_StaticSourceFile(v) }}
-var tc_SupplierOf_Node_ = &tconv_[SupplierOf[Node]]{box: func(v SupplierOf[Node]) any { return any(v) }, unbox: func(v any) SupplierOf[Node] { return icast_Supplier(v) }}
-var tc_int32 = &tconv_[int32]{box: func(v int32) any { return any(v) }, unbox: func(v any) int32 { return unbox_[int32](v) }}
-var tc_p_FunctionArgumentInjector_ParamArgPair = &tconv_[*FunctionArgumentInjector_ParamArgPair]{box: func(v *FunctionArgumentInjector_ParamArgPair) any { return obj_(v) }, unbox: func(v any) *FunctionArgumentInjector_ParamArgPair {
-	return cast_[*FunctionArgumentInjector_ParamArgPair](v)
-}}
-var tc_p_Import = &tconv_[*Import]{box: func(v *Import) any { return obj_(v) }, unbox: func(v any) *Import { return cast_[*Import](v) }}
-var tc_p_JSTypeExpression = &tconv_[*JSTypeExpression]{box: func(v *JSTypeExpression) any { return obj_(v) }, unbox: func(v any) *JSTypeExpression { return cast_[*JSTypeExpression](v) }}
-var tc_p_Module = &tconv_[*Module]{box: func(v *Module) any { return obj_(v) }, unbox: func(v any) *Module { return cast_[*Module](v) }}
-var tc_p_PerformanceTracker_Stats = &tconv_[*PerformanceTracker_Stats]{box: func(v *PerformanceTracker_Stats) any { return obj_(v) }, unbox: func(v any) *PerformanceTracker_Stats { return cast_[*PerformanceTracker_Stats](v) }}
-var tc_p_ScopedName = &tconv_[*ScopedName]{box: func(v *ScopedName) any { return v.self() }, unbox: func(v any) *ScopedName { return to_ScopedName(v) }}
-var tc_p_SourceMapInput = &tconv_[*SourceMapInput]{box: func(v *SourceMapInput) any { return obj_(v) }, unbox: func(v any) *SourceMapInput { return cast_[*SourceMapInput](v) }}
-var tc_p_Var = &tconv_[*Var]{box: func(v *Var) any { return obj_(v) }, unbox: func(v any) *Var { return cast_[*Var](v) }}
-var tch_p_ObjectType = &tconv_[*ObjectType]{box: func(v *ObjectType) any { return v.self() }, unbox: func(v any) *ObjectType { return to_ObjectType(v) },
+}, unbox: icast_Function_base}
+var tc_JSDocInfo_Visibility = &tconv_[JSDocInfo_Visibility]{box: (JSDocInfo_Visibility).self, unbox: cast_[JSDocInfo_Visibility]}
+var tc_StaticSourceFile = &tconv_[StaticSourceFile]{box: func(v StaticSourceFile) any { return any(v) }, unbox: icast_StaticSourceFile}
+var tc_SupplierOf_Node_ = &tconv_[SupplierOf[Node]]{box: func(v SupplierOf[Node]) any { return any(v) }, unbox: icast_Supplier}
+var tc_int32 = &tconv_[int32]{box: func(v int32) any { return any(v) }, unbox: unbox_[int32]}
+var tc_p_FunctionArgumentInjector_ParamArgPair = &tconv_[*FunctionArgumentInjector_ParamArgPair]{box: obj_[*FunctionArgumentInjector_ParamArgPair], unbox: cast_[*FunctionArgumentInjector_ParamArgPair]}
+var tc_p_Import = &tconv_[*Import]{box: obj_[*Import], unbox: cast_[*Import]}
+var tc_p_JSTypeExpression = &tconv_[*JSTypeExpression]{box: obj_[*JSTypeExpression], unbox: cast_[*JSTypeExpression]}
+var tc_p_Module = &tconv_[*Module]{box: obj_[*Module], unbox: cast_[*Module]}
+var tc_p_PerformanceTracker_Stats = &tconv_[*PerformanceTracker_Stats]{box: obj_[*PerformanceTracker_Stats], unbox: cast_[*PerformanceTracker_Stats]}
+var tc_p_ScopedName = &tconv_[*ScopedName]{box: (*ScopedName).self, unbox: to_ScopedName}
+var tc_p_SourceMapInput = &tconv_[*SourceMapInput]{box: obj_[*SourceMapInput], unbox: cast_[*SourceMapInput]}
+var tc_p_Var = &tconv_[*Var]{box: obj_[*Var], unbox: cast_[*Var]}
+var tch_p_ObjectType = &tconv_[*ObjectType]{box: (*ObjectType).self, unbox: to_ObjectType,
 	hash: func(v *ObjectType) int32 { return objhash_(v.self()) }, eq: func(a, b *ObjectType) bool { return objequals_(a.self(), b.self()) }}
