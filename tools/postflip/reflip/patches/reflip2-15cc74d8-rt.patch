@@ -1,0 +1,21 @@
+diff --git a/go/closure/rt_jbridge.go b/go/closure/rt_jbridge.go
+index c1b80065..abb64585 100644
+--- a/go/closure/rt_jbridge.go
++++ b/go/closure/rt_jbridge.go
+@@ -274,3 +274,16 @@ func (c *jtconv_[T]) tEq_() *tconv_[T] {
+ 	}
+ 	return c.postEq
+ }
++
++// tconvKeyed_ is conversion c with the given hash and eq functions for keys (post-flip tool
++// jfam -kind valkeys: a key type whose equals compares a few fields is hashed and compared by
++// those fields, not through hashCode and equals of a box).
++func tconvKeyed_[T any](c *tconv_[T], hash func(T) int32, eq func(a, b T) bool) *tconv_[T] {
++	return &tconv_[T]{box: c.box, unbox: c.unbox, null: c.null, hash: hash, eq: eq}
++}
++
++// varKeyHash_ and varKeyEq_ are the hash and equality of a Var as a key: what Var.equals
++// compares (vkey_: the name and the scope root), with the hash a Var computes once (keyOfVar_).
++// The typed map never calls hash for a null key; eq is called with any two keys.
++func varKeyHash_(v *Var) int32 { _, h := keyOfVar_(v); return int32(h) }
++func varKeyEq_(a, b *Var) bool { return a == b || a != nil && b != nil && vkey_(a) == vkey_(b) }

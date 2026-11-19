@@ -254,14 +254,14 @@ where a row says so; "sweep" below quotes its counted reasons.
 | unboxing from any | 607 | 582 | 604 | as boxing |
 | lambda objects &X_fn{...} | 140 | 54 | 54 | j2go (typed adapters X_tfn_Y instead: 834 before, 762 after tfn handed 72 of them to the runtime as Go functions). OPEN: 175 PassFactory lambdas (passfn assumes the first flip's erased wrapper), the adapters stored in fields (funcparams reports no work on the typed form) |
 | Optional | 78 | 1,448 | 1,448 | a spelling count: j2go writes Optional[T], a Go value type, everywhere (the first flip's steps made it a value) |
-| try/catch emulation, defer | 50, 82 | 68, 91 | 66, 90 | exceptions, tryfn (10 left: the try's completion code is read). OPEN: the executor and thread patches both trials dropped (25c89a69, 9bdc7957, 08dc9ce1) account for the difference |
+| try/catch emulation, defer | 50, 82 | 68, 91 | 62, 88 | exceptions, tryfn (10 left: the try's completion code is read); C23 removed the executor's nested try. The rest of the difference to postflip5 is not attributed yet: OPEN |
 | panic (throw) | 3,492 | 2,421 | 2,419 | the Go idiom; throws: 4 left (an exception held in a variable) |
 | equals/hashCode protocol | 52 | 169 | 169 | eqtyped: 0 of 12 classes that could have a typed equals (sweep). OPEN: eqhash's static decisions do not reach the translator's generic boxing helpers (boxT_, equalsT_); jfam -kind eqkeys gave 12 key conversions == |
 | String_* UTF-16 helpers | 122 | 118 | 118 | str* tools report no work; 37 are not operations of a UTF-16 view (format, join, valueOf ...) |
 | StringBuilder | 3 | 79 | 79 | OPEN: sbuild converts 0 classes, 41 slots left: the manual and runtime steps of round 8 for builders passed as Appendable (9aa404da dropped: icast_Appendable is gone in this flip) |
 | enums as objects | 0 | 1 | 1 | enums: Node_Prop, which the runtime (node store) uses as an object |
 | Preconditions_ checks | 3 | 1,038 | 372 | j2go rules P2 and P4 (typed variants), then tchecks (dfc0c907): 665 statement calls are inline checks. Left (tchecks, counted): 235 checkNotNull used as an expression (its result is the value), 135 with a message argument that is not a constant, a variable or a field path (the template forms), 3 whose checked value is not a variable or a field path |
-| threads / executors | 13 | 56 | 56 | OPEN: the three dropped executor patches |
+| threads / executors | 13 | 56 | 14 | C23, C24, C25: round 8's executor edit and its same-thread-check edit rewritten for this flip, and the three stub-removal patches, which apply again after them. 14 against postflip5's 13 (the CompilerExecutor class itself, in both trees); the one more is this flip's cast-table entry for CompilerExecutor |
 | reflect, unsafe | 5, 1 | 5, 2 | 5, 2 | name matches in generated code; the node store adds one unsafe use |
 | fields/params declared any | 1,877 | 1,640 | 1,715 | objslots: 5 left (receive from a slot that stays any). OPEN: the planned single-type Object flow retyping |
 
@@ -271,3 +271,29 @@ typed deques (102 mentions).
 
 So on this tree every row is either handled, at the tools' fixpoint with counted reasons, or
 marked OPEN with the rule or tool that is still to be written. The OPEN rows are not done.
+
+### After the accounting: more steps, the full-size number, and what was not kept (19 Nov)
+
+| step | counts | bundle CPU | typed-full CPU | googleapis 3,500 chunks |
+|---|---|---|---|---|
+| tchecks (new tool): the translator's typed precondition calls used as statements are inline checks | 665; left 373 by reason | 29.95s -> 30.08s | 64.44s -> 64.57s | |
+| jfam -kind valkeys + runtime: a typed set or map keyed by Var hashes and compares by the fields Var.equals compares | 7 conversions; left 87 of 22 types | 30.01s -> 28.94s | 64.40s -> 62.95s | |
+| runtime: the erased for-each cursor steps through post-flip views without an iterator object (step_) | | 29.36s -> 28.61s | 62.44s -> 61.77s | wall 119.5s/119.9s -> 119.2s/118.6s |
+
+Steps C1-C22 of steps.txt replay from reflip2-replayed (each checked with generated files
+force-added; the replayed trees build).
+
+Tried and not kept: the handle table remembering a type object's *JSType (htab_getJSType_, with
+one manual edit in Node.getJSType: the first flip's manual step for Node.jstypeOrColor) measured
+neutral on all three workloads (the subset: wall 120.4s before and after) and was reverted.
+
+Full googleapis-bench (7,526 chunks; one run, 19 Nov, the binary of 09b98838; chunks identical
+to pre-flip Java's): 719.5s (CHECKS 370.0s, OPTIMIZATIONS 289.5s, FINALIZATIONS 60.0s; peak RSS
+19.0 GB), against 568.2s and 589.3s for postflip5-r9-ga and 473.1s and 470.2s for pre-flip Java
+the day before (21.3 GB and 13.7 GB). The run meant to pair it with postflip5 in the same hour
+was stopped by the host for low memory. So this tree is the slowest of the three at full size:
+its lower memory does not make up for the steps it lacks, and the steps above, which paid on
+bundle and typed-full, do little for the type-checking stage where googleapis spends its time
+(on the 3,500-chunk subset this tree's CHECKS takes 60.7-62.0s against postflip5's 50.8-51.3s:
+more collection work, the node store's property and type reads, erased string-keyed scope
+maps, interface assertions and boxing in generic code).

@@ -1,0 +1,91 @@
+diff --git a/go/closure/rt_jbridge.go b/go/closure/rt_jbridge.go
+index abb64585..e15ee1d4 100644
+--- a/go/closure/rt_jbridge.go
++++ b/go/closure/rt_jbridge.go
+@@ -287,3 +287,29 @@ func tconvKeyed_[T any](c *tconv_[T], hash func(T) int32, eq func(a, b T) bool)
+ // The typed map never calls hash for a null key; eq is called with any two keys.
+ func varKeyHash_(v *Var) int32 { _, h := keyOfVar_(v); return int32(h) }
+ func varKeyEq_(a, b *Var) bool { return a == b || a != nil && b != nil && vkey_(a) == vkey_(b) }
++
++// step_ (stepper_, rt_coll.go): the erased for-each cursor reads the view of a post-flip typed
++// collection by position, without an iterator object, as it reads the runtime's own collections
++// and the translator's views: the element at or after position i (removed mappings skipped) and
++// the position to go on from, or a negative position at the end. The elements and their order
++// are those of the view's iterator.
++func (v *tlistView_[T]) step_(i int) (any, int) {
++	if i < len(v.l.items) {
++		return v.l.c.box(v.l.items[i]), i + 1
++	}
++	return nil, -1
++}
++
++func tmapStep_[K comparable, V any](m *TMap[K, V], i int, out func(m *TMap[K, V], i int32) any) (any, int) {
++	for ; i < len(m.keys); i++ {
++		if !m.isDead(i) {
++			return out(m, int32(i)), i + 1
++		}
++	}
++	return nil, -1
++}
++
++func (v *tsetView_[K]) step_(i int) (any, int)        { return tmapStep_(v.m, i, keyOut_[K, struct{}]) }
++func (v *tkeysView_[K, V]) step_(i int) (any, int)    { return tmapStep_(v.m, i, keyOut_[K, V]) }
++func (v *tvalsView_[K, V]) step_(i int) (any, int)    { return tmapStep_(v.m, i, valOut_[K, V]) }
++func (v *tentriesView_[K, V]) step_(i int) (any, int) { return tmapStep_(v.m, i, entryOut_[K, V]) }
+diff --git a/go/closure/rt_jbridge_test.go b/go/closure/rt_jbridge_test.go
+new file mode 100644
+index 00000000..ad182c70
+--- /dev/null
++++ b/go/closure/rt_jbridge_test.go
+@@ -0,0 +1,51 @@
++package closure
++
++import "testing"
++
++// The erased for-each cursor over the views of typed collections (step_) visits what the views'
++// iterators visit, in their order, also after removals.
++func TestJBridgeStep(t *testing.T) {
++	c := &tconv_[string]{box: func(v string) any { return strobj_(v) }, unbox: func(v any) string { return str_(v) }, null: nullstr_}
++	l := newTList_(c)
++	m := newTMap_(c, c)
++	s := newTSet_(c)
++	for _, k := range []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"} {
++		l.add(k)
++		m.Put(k, k+"v")
++		s.Add(k)
++	}
++	m.Delete("a")
++	m.Delete("e")
++	s.Delete("k")
++	for name, coll := range map[string]Iterable{"list": l.asList(), "set": s.asSet(), "keys": m.asMap().keySet(), "values": m.asMap().values()} {
++		var a, b []string
++		for it := coll.iterator(); it.hasNext(); {
++			a = append(a, str_(it.next()))
++		}
++		it := foreach_(coll)
++		if it.at == nil {
++			t.Fatalf("%s: the cursor does not step through the view", name)
++		}
++		for it.next() {
++			b = append(b, str_(it.v))
++		}
++		if len(a) == 0 || len(a) != len(b) {
++			t.Fatalf("%s: iterator %v, cursor %v", name, a, b)
++		}
++		for i := range a {
++			if a[i] != b[i] {
++				t.Fatalf("%s: iterator %v, cursor %v", name, a, b)
++			}
++		}
++	}
++	n := 0
++	for it := foreach_(m.asMap().entrySet()); it.next(); n++ {
++		e := it.v.(Map_Entry)
++		if str_(e.getValue()) != str_(e.getKey())+"v" {
++			t.Fatalf("entry %v", objstr_(e))
++		}
++	}
++	if n != 9 {
++		t.Fatalf("%d entries", n)
++	}
++}

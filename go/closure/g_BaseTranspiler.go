@@ -107,7 +107,7 @@ func (this *BaseTranspiler_CompilerSupplier) compile(path string, code string) *
 	var compiler *Compiler = this.compiler()
 	var result *Result = compiler.compileSourceFile(this.createTrivialExterns(), SourceFile_jscomp_fromCode_String_String(path, code), this.options())
 	var source string = compiler.toSource()
-	var sourceMap *StringBuilder = new_StringBuilder()
+	var sourceMap strBuilder_
 	if result.sourceMap_ != nil {
 		func() {
 			defer func() {
@@ -121,7 +121,7 @@ func (this *BaseTranspiler_CompilerSupplier) compile(path string, code string) *
 					panic(r_)
 				}
 			}()
-			result.sourceMap_.appendTo(StringBuilder_as_Appendable(sourceMap), Optional_of[string](path))
+			result.sourceMap_.appendTo(appendable_(&sourceMap), Optional_of[string](path))
 		}()
 	}
 	var transpiled bool = result.transpiledFiles

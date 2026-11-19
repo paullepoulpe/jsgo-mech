@@ -1304,8 +1304,8 @@ func (this Node) toStringTreeImpl() (ret_1 string) {
 			panic(r_)
 		}
 	}()
-	var s *StringBuilder = new_StringBuilder()
-	this.appendStringTree(StringBuilder_as_Appendable(s))
+	var s strBuilder_
+	this.appendStringTree(appendable_(&s))
 	return s.toString()
 }
 
