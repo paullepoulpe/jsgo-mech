@@ -244,7 +244,7 @@ func (this *AbstractVar) declarationType() Token_rhino {
 	{
 		var current Node = this.getNode()
 		for ; current != 0; current = current.getParent() {
-			if AbstractVar_DECLARATION_TYPES.contains(obj_(current.getToken())) {
+			if AbstractVar_DECLARATION_TYPES_has_(current.getToken()) {
 				return current.getToken()
 			}
 		}

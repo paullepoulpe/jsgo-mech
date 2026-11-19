@@ -37,7 +37,7 @@ func (this *TypedVar) init_TypedVar(inferred bool, name string, nameNode Node, t
 	this.AbstractVar.init_AbstractVar(name, nameNode, scope.up_AbstractScope(), index, input, 0)
 	this.finit_TypedVar()
 	if nameNode != 0 {
-		if ok_, a1_ := TypedVar_NAME_NODE_TYPES.contains(obj_(nameNode.getToken())), nameNode.getToken(); !ok_ {
+		if ok_, a1_ := TypedVar_NAME_NODE_TYPES_has_(nameNode.getToken()), nameNode.getToken(); !ok_ {
 			panic(new_IllegalArgumentException_String(Strings_lenientFormat("Invalid name node token %s", obj_(a1_))))
 		}
 	}

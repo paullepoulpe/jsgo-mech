@@ -40,7 +40,7 @@ func (this *VariableReferenceCheck) lookForHoistedFunction(references *TList[*Re
 }
 
 func (this *VariableReferenceCheck) checkBlocklessDeclaration(v *Var, reference *Reference, referenceNode Node) {
-	if (!reference.isVarDeclaration() && reference.getGrandparent().isAddedBlock()) && VariableReferenceCheck_BLOCKLESS_DECLARATION_FORBIDDEN_STATEMENTS.contains(obj_(reference.getGrandparent().getParent().getToken())) {
+	if (!reference.isVarDeclaration() && reference.getGrandparent().isAddedBlock()) && VariableReferenceCheck_BLOCKLESS_DECLARATION_FORBIDDEN_STATEMENTS_has_(reference.getGrandparent().getParent().getToken()) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(referenceNode, VariableReferenceCheck_DECLARATION_NOT_DIRECTLY_IN_BLOCK, []string{v.getName()}))
 	}
 }
