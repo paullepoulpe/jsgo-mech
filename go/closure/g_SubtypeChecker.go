@@ -87,8 +87,12 @@ func (this *SubtypeChecker) check() bool {
 }
 
 func (this *SubtypeChecker) isSubtypeCaching(subtype *JSType, supertype *JSType) bool {
-	Preconditions_checkNotNull_T(subtype)
-	Preconditions_checkNotNull_T(supertype)
+	if subtype == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	if supertype == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	if this.recursionDepth > SubtypeChecker_POTENTIALLY_CYCLIC_RECURSION_DEPTH {
 		if this.subtypeCache == nil {
 			this.subtypeCache = newTMap_(tce_p_SubtypeChecker_CacheKey.t_(), tc_p_JSType_MatchStatus)

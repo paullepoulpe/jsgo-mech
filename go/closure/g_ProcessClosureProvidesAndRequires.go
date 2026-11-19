@@ -435,7 +435,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) init_ProcessClosureP
 	this.astFactory_ = astFactory
 	var node Node = builder.node_
 	if !(((node == 0) || NodeUtil_isExprCall(node)) || (!builder.explicit && ((NodeUtil_isExprAssign(node) || NodeUtil_isNameDeclaration(node)) || (node.isExprResult() && node.getFirstChild().isQualifiedName())))) {
-		Preconditions_checkArgument_boolean_Object_H(false, node)
+		argFail_(objstr_(node.box_()))
 	}
 	this.namespace_ = builder.namespace_
 	this.firstNode = builder.node_
@@ -458,7 +458,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) addProvide(node Node
 			panic(new_IllegalStateException_0())
 		}
 		if !node.isExprResult() {
-			Preconditions_checkArgument_boolean_Object_H(false, node)
+			argFail_(objstr_(node.box_()))
 		}
 		this.explicitNode = node
 	}
@@ -555,10 +555,10 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) replace(preserveGoog
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) convertProvideAssignmentToVarDeclaration(assignNode Node, nameNode Node) {
 	if !assignNode.isAssign() {
-		Preconditions_checkArgument_boolean_Object_H(false, assignNode)
+		argFail_(objstr_(assignNode.box_()))
 	}
 	if !nameNode.isName() {
-		Preconditions_checkArgument_boolean_Object_H(false, nameNode)
+		argFail_(objstr_(nameNode.box_()))
 	}
 	var valueNode Node = nameNode.getNext()
 	nameNode.detach()
@@ -582,8 +582,12 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) createNamespaceIniti
 			this.compiler_.getNodeForCodeInsertion(this.minimumChunk).addChildToBack(this.replacementNode)
 		} else {
 			var parentName *ProcessClosureProvidesAndRequires_ProvidedName = providedNames.Get(namespace_U16.substring(0, indexOfDot))
-			Preconditions_checkNotNull_T(parentName)
-			Preconditions_checkNotNull_T(parentName.replacementNode)
+			if parentName == nil {
+				panic(new_NullPointerException_0().self())
+			}
+			if parentName.replacementNode == 0 {
+				panic(new_NullPointerException_0().self())
+			}
 			this.replacementNode.insertAfter(parentName.replacementNode)
 		}
 	}
@@ -592,7 +596,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) createNamespaceIniti
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) createDeclarationNode(value Node) Node {
 	if !(value.isObjectLit() || value.isCast()) {
-		Preconditions_checkArgument_boolean_Object_H(false, value)
+		argFail_(objstr_(value.box_()))
 	}
 	if !strings.Contains(this.namespace_, ".") {
 		return this.makeVarDeclNode(value)

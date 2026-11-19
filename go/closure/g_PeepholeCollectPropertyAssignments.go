@@ -210,7 +210,7 @@ func (this *PeepholeCollectPropertyAssignments) collectObjectProperty(objectLite
 	var rhs Node = lhs.getNext()
 	var obj Node = lhs.getFirstChild()
 	if !(lhs.isGetProp() || lhs.isGetElem()) {
-		Preconditions_checkState_boolean_Object_H(false, lhs)
+		stateFail_(objstr_(lhs.box_()))
 	}
 	var propertyName Optional[string]
 	if lhs.isGetElem() {

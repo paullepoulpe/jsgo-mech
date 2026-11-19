@@ -1089,7 +1089,9 @@ func (this *ProcessCommonJSModules_RewriteModule) expandObjectLitAssignment(t *N
 		panic(new_IllegalStateException_0())
 	}
 	var insertionParent Node = insertionRef.getParent()
-	Preconditions_checkNotNull_T(insertionParent)
+	if insertionParent == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	var rValue Node = NodeUtil_getRValueOfLValue(export)
 	var key Node = rValue.getFirstChild()
 	var removedNodes bool = false
@@ -1128,7 +1130,9 @@ func (this *ProcessCommonJSModules_RewriteModule) expandObjectLitAssignment(t *N
 }
 
 func (this *ProcessCommonJSModules_RewriteModule) maybeUpdateName(t *NodeTraversal, n Node, var_ *Var) {
-	Preconditions_checkNotNull_T(var_)
+	if var_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	if !n.isName() && !n.isGetProp() {
 		panic(new_IllegalStateException_0())
 	}
@@ -1175,7 +1179,9 @@ func (this *ProcessCommonJSModules_RewriteModule) maybeUpdateName(t *NodeTravers
 
 func (this *ProcessCommonJSModules_RewriteModule) updateNameReference(t *NodeTraversal, nameRef Node, originalName Optional[string], newName string, requireFunctionExpressions bool, qualifiedNameIsConst bool) {
 	var parent Node = nameRef.getParent()
-	Preconditions_checkNotNull_T(parent)
+	if parent == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	var newNameIsQualified bool = (strings.Contains(newName, "."))
 	var newNameIsModuleExport bool = Object_equals(Optional_of[string](newName).box_(), this.outer_.getBasePropertyImport(ProcessCommonJSModules_getModuleName(t.getInput())).box_())
 	var newNameDeclaration *Var = t.getScope().getVar_String_rVar(newName)

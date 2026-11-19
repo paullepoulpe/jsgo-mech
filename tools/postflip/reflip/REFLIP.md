@@ -231,3 +231,43 @@ deadAssignmentsElimination +0.5s: the data-flow analysis and graph code of the m
 both trials dropped, spread over interface assertions in generic code (itabTable.find), name
 hashing in scope lookups (utf16Hash_, htable_.findStr), boxing of type-parameter values
 (boxT_, junboxT_) and the comparator object of the work queue (Comparator_comparingInt).
+
+### Java-isms on the bridged second trial (bad8c2e4), row by row
+
+Census (tools/postflip/census.py; files in reflip/runs/) at postflip5's tip, at the replayed
+second trial (079459be) and now, and what handles each row or why it stays. A dry run (-n) of
+every post-flip tool on this tree (reflip/runs/sweep-bridged.txt) reports no work left except
+where a row says so; "sweep" below quotes its counted reasons.
+
+| row | postflip5 | replayed | now | handled by / left because |
+|---|---:|---:|---:|---|
+| erased collection constructors | 194 | 123 | 120 | j2go (typed collections), colls. Left: collections stored in Object slots or raw declarations (colls: no kind types them) |
+| typed TList/TMap/TSet constructors | 339 | 202 | 426 | the count rose because jfam made the translator's 818 own constructors this family; native then made 425 lists Go slices and 320 sets and maps Go maps. Left, by native's reasons: keys compared by equals (72 maps, 181 sets), seen as an erased Map / Set (60 / 108), results of immutable helpers it does not follow (tmapEmptyImm_ 97, a builder's build 70 + 70, copyOf 38 + 30 ...), iterated in insertion order (59 sets), eachEntry (48) |
+| Guava immutables / builders | 218 | 160 | 151 | j2go (typed immutables: slice 11), jfam (their constructors and builders are the post-flip ones). Left: erased uses (an immutable handed to Object or to an erased interface) |
+| for-each via iterator objects | 99 | 756 | 165 | jfam -kind cursors, ranges -index / -entries / -loops (387 + 84 + 68 loops). Left (sweep): 99 loops whose body returns or branches out (ranges: slower as range-over-func), 94 index loops over erased collections, 7 iterator uses |
+| explicit Iterator use | 97 | 125 | 125 | iters finds no work: 47 iterators enter something that is not an immutable collection's; the rest are the runtime interfaces' own |
+| anonymous-interface assertions | 1 | 16 | 16 | open: generic code of the translator (a value of a type parameter asserted to an interface); a j2go rule (the README's performance rule names it) |
+| interface casts | 879 | 287 | 296 | j2go (typed generics, P1 leaf-class upcasts). Left: values that come out of erased slots |
+| class casts | 1,512 | 1,592 | 1,625 | castfold reports no work (1 left: element of a []any). OPEN: the casts the planned translator rules remove (F-bounded scopes and vars about 250, visit about 76, single-implementation interfaces) are not written yet |
+| instanceof | 71 | 82 | 82 | instof: 37 left inside an expression; castfold -instof: 64 inside a larger expression. OPEN: the planned type-switch tool |
+| boxing to any | 3,072 | 2,041 | 2,042 | j2go (generics, P2-P7). OPEN: typed lookups (Map.get(Object) with a typed key), Object varargs as ...any (planned translator rules) |
+| unboxing from any | 607 | 582 | 604 | as boxing |
+| lambda objects &X_fn{...} | 140 | 54 | 54 | j2go (typed adapters X_tfn_Y instead: 834 before, 762 after tfn handed 72 of them to the runtime as Go functions). OPEN: 175 PassFactory lambdas (passfn assumes the first flip's erased wrapper), the adapters stored in fields (funcparams reports no work on the typed form) |
+| Optional | 78 | 1,448 | 1,448 | a spelling count: j2go writes Optional[T], a Go value type, everywhere (the first flip's steps made it a value) |
+| try/catch emulation, defer | 50, 82 | 68, 91 | 66, 90 | exceptions, tryfn (10 left: the try's completion code is read). OPEN: the executor and thread patches both trials dropped (25c89a69, 9bdc7957, 08dc9ce1) account for the difference |
+| panic (throw) | 3,492 | 2,421 | 2,419 | the Go idiom; throws: 4 left (an exception held in a variable) |
+| equals/hashCode protocol | 52 | 169 | 169 | eqtyped: 0 of 12 classes that could have a typed equals (sweep). OPEN: eqhash's static decisions do not reach the translator's generic boxing helpers (boxT_, equalsT_); jfam -kind eqkeys gave 12 key conversions == |
+| String_* UTF-16 helpers | 122 | 118 | 118 | str* tools report no work; 37 are not operations of a UTF-16 view (format, join, valueOf ...) |
+| StringBuilder | 3 | 79 | 79 | OPEN: sbuild converts 0 classes, 41 slots left: the manual and runtime steps of round 8 for builders passed as Appendable (9aa404da dropped: icast_Appendable is gone in this flip) |
+| enums as objects | 0 | 1 | 1 | enums: Node_Prop, which the runtime (node store) uses as an object |
+| Preconditions_ checks | 3 | 1,038 | 1,038 | j2go rules P2 and P4: all are the translator's typed variants (_T: generic checkNotNull returning its argument, 444; _H: the message argument is a node handle boxed only on failure, 594). precond and nnchecks leave them (sweep: 106 generic checkNotNull). Whether to inline them (the first flip's checks step) is open |
+| threads / executors | 13 | 56 | 56 | OPEN: the three dropped executor patches |
+| reflect, unsafe | 5, 1 | 5, 2 | 5, 2 | name matches in generated code; the node store adds one unsafe use |
+| fields/params declared any | 1,877 | 1,640 | 1,715 | objslots: 5 left (receive from a slot that stays any). OPEN: the planned single-type Object flow retyping |
+
+Not in the census: the translator's typed collections that jfam leaves (240 mentions: sorted 66,
+function values and conversions 63, function literals 55, keySetImm 51, a runtime helper 5) and
+typed deques (102 mentions).
+
+So on this tree every row is either handled, at the tools' fixpoint with counted reasons, or
+marked OPEN with the rule or tool that is still to be written. The OPEN rows are not done.

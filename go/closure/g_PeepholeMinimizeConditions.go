@@ -239,7 +239,7 @@ func (this *PeepholeMinimizeConditions) areMatchingExits(nodeThis Node, nodeThat
 
 func PeepholeMinimizeConditions_isExceptionPossible(n Node) bool {
 	if !(n.isReturn() || n.isThrow()) {
-		Preconditions_checkState_boolean_Object_H(false, n)
+		stateFail_(objstr_(n.box_()))
 	}
 	return (n.isThrow() || (n.hasChildren() && !NodeUtil_isLiteralValue(n.getLastChild(), true)))
 }
@@ -496,7 +496,7 @@ func (this *PeepholeMinimizeConditions) tryRemoveRepeatedStatements(n Node) {
 		return
 	}
 	if !n.isIf() {
-		Preconditions_checkState_boolean_Object_H(false, n)
+		stateFail_(objstr_(n.box_()))
 	}
 	var parent Node = n.getParent()
 	if !NodeUtil_isStatementBlock(parent) {
@@ -505,8 +505,12 @@ func (this *PeepholeMinimizeConditions) tryRemoveRepeatedStatements(n Node) {
 	var cond Node = n.getFirstChild()
 	var trueBranch Node = cond.getNext()
 	var falseBranch Node = trueBranch.getNext()
-	Preconditions_checkNotNull_T(trueBranch)
-	Preconditions_checkNotNull_T(falseBranch)
+	if trueBranch == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	if falseBranch == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	for {
 		var lastTrue Node = trueBranch.getLastChild()
 		var lastFalse Node = falseBranch.getLastChild()

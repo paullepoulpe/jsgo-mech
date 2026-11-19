@@ -66,7 +66,9 @@ func (this *FunctionTypeBuilder) finit_FunctionTypeBuilder() {
 
 func (this *FunctionTypeBuilder) init_FunctionTypeBuilder(fnName Optional[string], compiler *AbstractCompiler, errorRoot Node, scope *TypedScope) {
 	this.finit_FunctionTypeBuilder()
-	Preconditions_checkNotNull_T(errorRoot)
+	if errorRoot == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	this.fnName = fnName.orElse("")
 	this.codingConvention = compiler.getCodingConvention()
 	this.typeRegistry = compiler.getTypeRegistry()
@@ -602,7 +604,9 @@ func (this *FunctionTypeBuilder) provideDefaultReturnType() {
 func (this *FunctionTypeBuilder) buildAndRegister() *FunctionType {
 	if this.returnType == nil {
 		this.provideDefaultReturnType()
-		Preconditions_checkNotNull_T(this.returnType)
+		if this.returnType == nil {
+			panic(new_NullPointerException_0().self())
+		}
 	}
 	if this.parameters == nil {
 		panic(new_IllegalStateException_String("All Function types must have params and a return type"))

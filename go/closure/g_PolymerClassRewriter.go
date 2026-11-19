@@ -139,7 +139,7 @@ func (this *PolymerClassRewriter) rewritePolymerCall(cls *PolymerClassDefinition
 		return callParent.getParent()
 	}()
 	if ok_, a1_ := NodeUtil_isStatementParent(exprRoot.getParent()), exprRoot.getParent(); !ok_ {
-		Preconditions_checkState_boolean_Object_H(false, a1_)
+		stateFail_(objstr_(a1_.box_()))
 	}
 	var objLit Node = Preconditions_checkNotNull_T(cls.descriptor)
 	var objLitDoc *JSDocInfo_Builder = JSDocInfo_builder().parseDocumentation()
@@ -288,7 +288,9 @@ func PolymerClassRewriter_addReturnTypeIfMissing(cls *PolymerClassDefinition, ge
 }
 
 func (this *PolymerClassRewriter) addPropertiesConfigObjectReflection(cls *PolymerClassDefinition, propertiesLiteral Node) {
-	Preconditions_checkNotNull_T(propertiesLiteral)
+	if propertiesLiteral == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	if !propertiesLiteral.isObjectLit() {
 		panic(new_IllegalStateException_0())
 	}

@@ -74,7 +74,7 @@ func DestructuredTarget_createTargetJSType(registry *JSTypeRegistry, destructuri
 
 func DestructuredTarget_createTarget(registry *JSTypeRegistry, destructuringPatternType func() any, destructuringChild Node) *DestructuredTarget {
 	if !destructuringChild.getParent().isDestructuringPattern() {
-		Preconditions_checkArgument_boolean_Object_H(false, destructuringChild)
+		argFail_(objstr_(destructuringChild.box_()))
 	}
 	var builder *DestructuredTarget_Builder = new_DestructuredTarget_Builder(registry, destructuringChild.getParent(), destructuringPatternType)
 	var value Node
@@ -119,7 +119,7 @@ func DestructuredTarget_createAllNonEmptyTargetsInPattern(registry *JSTypeRegist
 
 func DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(registry *JSTypeRegistry, patternType func() any, pattern Node) *TList[*DestructuredTarget] {
 	if !pattern.isDestructuringPattern() {
-		Preconditions_checkArgument_boolean_Object_H(false, pattern)
+		argFail_(objstr_(pattern.box_()))
 	}
 	var builder *ImmutableList_Builder[*DestructuredTarget] = immutableListBuilder_(tc_p_DestructuredTarget)
 	{

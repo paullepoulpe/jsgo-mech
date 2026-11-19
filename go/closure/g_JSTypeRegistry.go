@@ -115,7 +115,9 @@ func (this *JSTypeRegistry) getObjectElementKey() *TemplateType {
 }
 
 func (this *JSTypeRegistry) getObjectIndexKey() *TemplateType {
-	Preconditions_checkNotNull_T(this.iObjectIndexTemplateKey)
+	if this.iObjectIndexTemplateKey == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	return this.iObjectIndexTemplateKey
 }
 
@@ -912,7 +914,7 @@ func JSTypeRegistry_getSimpleReadableJSTypeName(type_ *JSType) Optional[string] 
 		var source Node = type_.toObjectType().getConstructor().getSource()
 		if source != 0 {
 			if !(source.isFunction() || source.isClass()) {
-				Preconditions_checkState_boolean_Object_H(false, source)
+				stateFail_(objstr_(source.box_()))
 			}
 			var readable string = source.getFirstChild().getOriginalName()
 			if readable != "" {
@@ -1224,7 +1226,9 @@ func (this *JSTypeRegistry) getEmptyTemplateTypeMap() *TemplateTypeMap {
 }
 
 func (this *JSTypeRegistry) createTemplatizedTypeImmutableList(baseType *ObjectType, templatizedTypes *TList[*JSType]) *TemplatizedType {
-	Preconditions_checkNotNull_T(baseType)
+	if baseType == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	return new_TemplatizedType(this, baseType, templatizedTypes)
 }
 
@@ -1413,9 +1417,11 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 
 func (this *JSTypeRegistry) addNullabilityBasedOnParseContext(n Node, type_ *JSType, scope StaticScope) *JSType {
 	if !(n.isName() || n.isStringLit()) {
-		Preconditions_checkState_boolean_Object_H(false, n)
+		stateFail_(objstr_(n.box_()))
 	}
-	Preconditions_checkNotNull_T(type_)
+	if type_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	if this.isNonNullableName(scope, n.getString()) {
 		return type_
 	} else if type_.isTemplateType() {

@@ -183,7 +183,7 @@ func (this *TranspileAndOptimizeClosureUnaware_CollectShadowAsts) visit(t *NodeT
 		return n.getGrandparent()
 	}()
 	if !callNode.isCall() {
-		Preconditions_checkState_boolean_Object_H(false, callNode)
+		stateFail_(objstr_(callNode.box_()))
 	}
 	this.shadowAsts.put(t.getInput().getSourceFile(), new_TranspileAndOptimizeClosureUnaware_ShadowAst(shadow, callNode, shadow.getOnlyChild()))
 }

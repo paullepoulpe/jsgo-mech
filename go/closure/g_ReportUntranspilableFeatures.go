@@ -18,8 +18,12 @@ func (this *ReportUntranspilableFeatures) up_AbstractPeepholeTranspilation() *Ab
 
 func (this *ReportUntranspilableFeatures) init_ReportUntranspilableFeatures(compiler *AbstractCompiler, browserFeatureSetYear CompilerOptions_BrowserFeaturesetYear, outputFeatures *FeatureSet) {
 	this.AbstractPeepholeTranspilation.init_AbstractPeepholeTranspilation()
-	Preconditions_checkNotNull_T(compiler)
-	Preconditions_checkNotNull_T(outputFeatures)
+	if compiler == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	if outputFeatures == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	this.compiler_ = compiler
 	this.browserFeatureSetYear = browserFeatureSetYear
 	this.untranspilableFeaturesToRemove = ReportUntranspilableFeatures_ALL_UNTRANSPILABLE_FEATURES.without(outputFeatures)

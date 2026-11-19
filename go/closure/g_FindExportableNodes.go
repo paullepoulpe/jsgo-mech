@@ -132,7 +132,9 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 	}
 	if export.isPresent() {
 		if mode == FindExportableNodes_Mode_EXPORT {
-			Preconditions_checkNotNull_T(context)
+			if context == 0 {
+				panic(new_NullPointerException_0().self())
+			}
 			this.exports.Put(export.get(), context)
 		} else {
 			if context != 0 {

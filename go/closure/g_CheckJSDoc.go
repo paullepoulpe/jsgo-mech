@@ -360,7 +360,7 @@ func (this *CheckJSDoc) validateTypeAnnotations(n Node, info *JSDocInfo) {
 
 func CheckJSDoc_isTypeAnnotationAllowedForName(n Node) bool {
 	if !n.isName() {
-		Preconditions_checkState_boolean_Object_H(false, n)
+		stateFail_(objstr_(n.box_()))
 	}
 	if !NodeUtil_isLValue(n) {
 		return false

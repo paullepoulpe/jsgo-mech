@@ -107,7 +107,7 @@ func (this *CheckSuper) visit(t *NodeTraversal, n Node, parent Node) {
 
 func (this *CheckSuper) isSuperConstructorCall(superNode Node) bool {
 	if !superNode.isSuper() {
-		Preconditions_checkState_boolean_Object_H(false, superNode)
+		stateFail_(objstr_(superNode.box_()))
 	}
 	var parent Node = superNode.getParent()
 	return (parent.isCall() && superNode.isFirstChildOf(parent))
@@ -115,7 +115,7 @@ func (this *CheckSuper) isSuperConstructorCall(superNode Node) bool {
 
 func (this *CheckSuper) isSuperPropertyAccess(superNode Node) bool {
 	if !superNode.isSuper() {
-		Preconditions_checkState_boolean_Object_H(false, superNode)
+		stateFail_(objstr_(superNode.box_()))
 	}
 	var parent Node = superNode.getParent()
 	return (NodeUtil_isNormalGet(parent) && superNode.isFirstChildOf(parent))
@@ -325,14 +325,14 @@ func (this *CheckSuper_MethodContext) up_CheckSuper_Context() *CheckSuper_Contex
 func (this *CheckSuper_MethodContext) init_CheckSuper_MethodContext(functionNode Node) {
 	this.CheckSuper_Context.init_CheckSuper_Context(functionNode)
 	if !(functionNode.isFunction() && NodeUtil_isMethodDeclaration(functionNode)) {
-		Preconditions_checkArgument_boolean_Object_H(false, functionNode)
+		argFail_(objstr_(functionNode.box_()))
 	}
 	var objLitOrClassMembers Node = Preconditions_checkNotNull_T(functionNode.getGrandparent())
 	if objLitOrClassMembers.isObjectLit() {
 		this.isClassMethod = false
 	} else {
 		if !objLitOrClassMembers.isClassMembers() {
-			Preconditions_checkState_boolean_Object_H(false, objLitOrClassMembers)
+			stateFail_(objstr_(objLitOrClassMembers.box_()))
 		}
 		this.isClassMethod = true
 	}
@@ -409,7 +409,7 @@ func (this *CheckSuper_ConstructorContext) init_CheckSuper_ConstructorContext(co
 	this.CheckSuper_Context.init_CheckSuper_Context(contextNode)
 	this.finit_CheckSuper_ConstructorContext()
 	if !NodeUtil_isEs6Constructor(contextNode) {
-		Preconditions_checkArgument_boolean_Object_H(false, contextNode)
+		argFail_(objstr_(contextNode.box_()))
 	}
 	var classNode Node = NodeUtil_getEnclosingClass(contextNode)
 	this.hasParentClass = !classNode.getSecondChild().isEmpty()

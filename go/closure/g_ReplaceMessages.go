@@ -438,7 +438,7 @@ func (this *ReplaceMessages_MsgProtectionPass) performMessageProtection(msgProte
 	var placeholdersNode Node = msgProtectionData.placeholderValuesNode()
 	var msgOptions *ReplaceMessages_MsgOptions = msgProtectionData.messageOptions()
 	if !callNode.isCall() {
-		Preconditions_checkState_boolean_Object_H(false, callNode)
+		stateFail_(objstr_(callNode.box_()))
 	}
 	var googGetMsg Node = callNode.getFirstChild()
 	var protectionFunctionName string = ReplaceMessagesConstants_DEFINE_MSG_CALLEE
@@ -448,13 +448,13 @@ func (this *ReplaceMessages_MsgProtectionPass) performMessageProtection(msgProte
 	newCallNode.setSideEffectFlagsInt(Node_SideEffectFlags_NO_SIDE_EFFECTS)
 	if placeholdersNode != 0 {
 		if !placeholdersNode.isObjectLit() {
-			Preconditions_checkState_boolean_Object_H(false, placeholdersNode)
+			stateFail_(objstr_(placeholdersNode.box_()))
 		}
 		{
 			var strKey Node = placeholdersNode.getFirstChild()
 			for ; strKey != 0; strKey = strKey.getNext() {
 				if !strKey.isStringKey() {
-					Preconditions_checkState_boolean_Object_H(false, strKey)
+					stateFail_(objstr_(strKey.box_()))
 				}
 				strKey.setQuotedStringKey()
 			}
@@ -873,7 +873,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 	var isIcuTemplate bool = false
 	var jsMessageBuilder *JsMessage_Builder = new_JsMessage_Builder()
 	if !propertiesNode.isObjectLit() {
-		Preconditions_checkState_boolean_Object_H(false, propertiesNode)
+		stateFail_(objstr_(propertiesNode.box_()))
 	}
 	var msgKey Optional[string] = Optional_empty[string]()
 	var meaning Optional[string] = Optional_empty[string]()
@@ -884,7 +884,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 		var strKey Node = propertiesNode.getFirstChild()
 		for ; strKey != 0; strKey = strKey.getNext() {
 			if !strKey.isStringKey() {
-				Preconditions_checkState_boolean_Object_H(false, strKey)
+				stateFail_(objstr_(strKey.box_()))
 			}
 			var key string = strKey.getString()
 			var valueNode Node = strKey.getOnlyChild()
@@ -898,7 +898,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 				continue
 			}
 			if !valueNode.isStringLit() {
-				Preconditions_checkState_boolean_Object_H(false, valueNode)
+				stateFail_(objstr_(valueNode.box_()))
 			}
 			var value string = valueNode.getString()
 			switch key {

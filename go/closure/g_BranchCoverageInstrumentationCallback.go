@@ -186,7 +186,9 @@ func (this *BranchCoverageInstrumentationCallback) newHeaderNode(traversal *Node
 		}
 		return nil
 	}()
-	Preconditions_checkNotNull_T(data)
+	if data == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var objName string = CoverageInstrumentationPass_JS_INSTRUMENTATION_OBJECT_NAME
 	var nodes []Node = []Node{}
 	nodes = append(nodes, this.newArrayDeclarationNode(traversal))

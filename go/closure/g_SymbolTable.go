@@ -466,7 +466,9 @@ func (this *SymbolTable) copySymbolTo(sym StaticSlot, scope *SymbolTable_SymbolS
 }
 
 func (this *SymbolTable) copySymbolTo_3(sym StaticSlot, declNode Node, scope *SymbolTable_SymbolScope) *SymbolTable_Symbol {
-	Preconditions_checkNotNull_T(declNode)
+	if declNode == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	return this.declareSymbol(sym.getName(), this.getType(sym), this.isTypeInferred(sym), scope, declNode, sym.getJSDocInfo())
 }
 
@@ -962,7 +964,9 @@ func (this *SymbolTable) getLexicalScopeDepth(scope *SymbolTable_SymbolScope) in
 			panic(new_IllegalStateException_0())
 		}
 		var sym *SymbolTable_Symbol = scope.getSymbolForScope()
-		Preconditions_checkNotNull_T(sym)
+		if sym == nil {
+			panic(new_NullPointerException_0().self())
+		}
 		return (this.getLexicalScopeDepth(this.getScope(sym)) + 1)
 	}
 }

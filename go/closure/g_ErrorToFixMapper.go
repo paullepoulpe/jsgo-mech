@@ -83,7 +83,7 @@ func (this *ErrorToFixMapper) getFixForJsError(error_ *JSError) *SuggestedFix {
 func (this *ErrorToFixMapper) getFixForRedeclaration(error_ *JSError) *SuggestedFix {
 	var name Node = error_.node()
 	if !name.isName() {
-		Preconditions_checkState_boolean_Object_H(false, name)
+		stateFail_(objstr_(name.box_()))
 	}
 	var parent Node = name.getParent()
 	if !NodeUtil_isNameDeclaration(parent) {
@@ -266,7 +266,7 @@ func (this *ErrorToFixMapper) getFixForExtraRequire(error_ *JSError) *SuggestedF
 			fix.delete(node)
 		} else {
 			if ok_, a1_ := node.getParent().isStringKey(), node.getParent(); !ok_ {
-				Preconditions_checkState_boolean_Object_H(false, a1_)
+				stateFail_(objstr_(a1_.box_()))
 			}
 			fix.delete(node.getParent())
 		}
@@ -311,7 +311,7 @@ func (this *ErrorToFixMapper) getFixForConstantCaseErrors(error_ *JSError) *Sugg
 		return new_SuggestedFix_Builder().setDescription("Make explicitly constant").attachMatchedNodeInfo(parent, this.compiler_).replaceText(parent, 3, "const").build()
 	}
 	if !parent.isVar() {
-		Preconditions_checkState_boolean_Object_H(false, parent)
+		stateFail_(objstr_(parent.box_()))
 	}
 	var info *JSDocInfo = parent.getJSDocInfo()
 	if info == nil {

@@ -230,7 +230,7 @@ func (this *CheckJSDocStyle) checkParam(t *NodeTraversal, param Node, name Optio
 		nameOptional = strings.HasPrefix(param.getString(), "opt_")
 	} else {
 		if !(param.isDestructuringPattern() || param.isRest()) {
-			Preconditions_checkState_boolean_Object_H(false, param)
+			stateFail_(objstr_(param.box_()))
 		}
 		nameOptional = false
 	}

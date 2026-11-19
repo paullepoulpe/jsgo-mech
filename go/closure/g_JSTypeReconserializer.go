@@ -91,7 +91,9 @@ func (this *JSTypeReconserializer) recordType(type_ *JSType) *JSTypeReconseriali
 }
 
 func (this *JSTypeReconserializer) recordUnionType(type_ *UnionType) *JSTypeReconserializer_SeenTypeRecord {
-	Preconditions_checkNotNull_T(type_)
+	if type_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var altRecords *TSet[*JSTypeReconserializer_SeenTypeRecord] = newTSet_(tc_p_JSTypeReconserializer_SeenTypeRecord)
 	for altType := range type_.getAlternates().All() {
 		var alt *JSTypeReconserializer_SeenTypeRecord = this.recordType(altType)
@@ -129,7 +131,9 @@ func JSTypeReconserializer_colorIdsOf(records CollectionOf[*JSTypeReconserialize
 }
 
 func (this *JSTypeReconserializer) recordObjectType(type_ *ObjectType) *JSTypeReconserializer_SeenTypeRecord {
-	Preconditions_checkNotNull_T(type_)
+	if type_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var id *ColorId = this.hasher.hashObjectType(type_)
 	var record *JSTypeReconserializer_SeenTypeRecord = this.getOrCreateRecord(id, type_.up_JSType())
 	this.addSupertypeEdges(type_, any(int32(record.pointer)))
@@ -152,7 +156,9 @@ func (this *JSTypeReconserializer) addSupertypeEdges(subtype *ObjectType, serial
 }
 
 func (this *JSTypeReconserializer) getOrCreateRecord(id *ColorId, jstype *JSType) *JSTypeReconserializer_SeenTypeRecord {
-	Preconditions_checkNotNull_T(jstype)
+	if jstype == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	if JSTypeReconserializer_State_COLLECTING_TYPES != this.state && JSTypeReconserializer_State_GENERATING_POOL != this.state {
 		panic(new_IllegalStateException_0())
 	}

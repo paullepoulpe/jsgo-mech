@@ -289,7 +289,9 @@ type Property_SymbolKey struct {
 }
 
 func (this *Property_SymbolKey) init_Property_SymbolKey(symbol *KnownSymbolType) {
-	Preconditions_checkNotNull_T(symbol)
+	if symbol == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	this.symbol_ = symbol
 }
 

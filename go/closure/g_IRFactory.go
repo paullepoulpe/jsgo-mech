@@ -1936,7 +1936,7 @@ func (this *IRFactory_TransformDispatcher) processFunctionCall(callNode *CallExp
 
 func (this *IRFactory_TransformDispatcher) annotateCalls(n Node) {
 	if !((n.isCall() || n.isOptChainCall()) || n.isTaggedTemplateLit()) {
-		Preconditions_checkState_boolean_Object_H(false, n)
+		stateFail_(objstr_(n.box_()))
 	}
 	var callee Node = n.getFirstChild()
 	for callee.isCast() {

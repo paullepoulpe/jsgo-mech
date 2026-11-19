@@ -25,7 +25,7 @@ func (this *FunctionArgumentInjector) inject_5(compiler *AbstractCompiler, node 
 		var replacementTemplate Node = replacements[node.getString()]
 		if replacementTemplate != 0 {
 			if (parent.isFunction() || parent.isVar()) || parent.isCatch() {
-				Preconditions_checkState_boolean_Object_H(false, parent)
+				stateFail_(objstr_(parent.box_()))
 			}
 			var replacement Node = replacementTemplate.cloneTree()
 			node.replaceWith(replacement)
@@ -33,7 +33,9 @@ func (this *FunctionArgumentInjector) inject_5(compiler *AbstractCompiler, node 
 		}
 	} else if replaceThis && node.isThis() {
 		var replacementTemplate Node = replacements[FunctionArgumentInjector_THIS_MARKER]
-		Preconditions_checkNotNull_T(replacementTemplate)
+		if replacementTemplate == 0 {
+			panic(new_NullPointerException_0().self())
+		}
 		if !replacementTemplate.isThis() {
 			var replacement Node = replacementTemplate.cloneTree()
 			node.replaceWith(replacement)
@@ -66,7 +68,9 @@ func (this *FunctionArgumentInjector) inject_5(compiler *AbstractCompiler, node 
 }
 
 func (this *FunctionArgumentInjector) getFunctionCallParameterMap(fnNode Node, callNode Node, safeNameIdSupplier SupplierOf[string]) *JTMap[string, *FunctionArgumentInjector_ParamArgPair] {
-	Preconditions_checkNotNull_T(fnNode)
+	if fnNode == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	var argMap *TMapBuilder[string, *FunctionArgumentInjector_ParamArgPair] = newTMapBuilder_(jtc_string, jtc_p_FunctionArgumentInjector_ParamArgPair)
 	var cArg Node = callNode.getSecondChild()
 	if (cArg != 0) && NodeUtil_isFunctionObjectCall(callNode) {
@@ -78,7 +82,7 @@ func (this *FunctionArgumentInjector) getFunctionCallParameterMap(fnNode Node, c
 		cArg = cArg.getNext()
 	} else {
 		if NodeUtil_isFunctionObjectApply(callNode) {
-			Preconditions_checkState_boolean_Object_H(false, callNode)
+			stateFail_(objstr_(callNode.box_()))
 		}
 		argMap.put(FunctionArgumentInjector_THIS_MARKER, new_FunctionArgumentInjector_ParamArgPair(FunctionArgumentInjector_THIS_MARKER_NODE, NodeUtil_newUndefinedNode(callNode)))
 	}
@@ -88,7 +92,7 @@ func (this *FunctionArgumentInjector) getFunctionCallParameterMap(fnNode Node, c
 			if cArg != 0 {
 				if fnParam.isRest() {
 					if ok_, a1_ := fnParam.getOnlyChild().isName(), fnParam.getOnlyChild(); !ok_ {
-						Preconditions_checkState_boolean_Object_H(false, a1_)
+						stateFail_(objstr_(a1_.box_()))
 					}
 					var array Node = IR_arraylit([]Node{})
 					array.srcrefTreeIfMissing(cArg)
@@ -99,7 +103,7 @@ func (this *FunctionArgumentInjector) getFunctionCallParameterMap(fnNode Node, c
 					return argMap.put(fnParam.getOnlyChild().getString(), new_FunctionArgumentInjector_ParamArgPair(fnParam.getOnlyChild(), array)).buildOrThrow()
 				} else {
 					if !fnParam.isName() {
-						Preconditions_checkState_boolean_Object_H(false, fnParam)
+						stateFail_(objstr_(fnParam.box_()))
 					}
 					argMap.put(fnParam.getString(), new_FunctionArgumentInjector_ParamArgPair(fnParam, cArg))
 				}
@@ -107,13 +111,13 @@ func (this *FunctionArgumentInjector) getFunctionCallParameterMap(fnNode Node, c
 			} else {
 				if fnParam.isRest() {
 					if !fnParam.getOnlyChild().isName() {
-						Preconditions_checkState_boolean_Object_H(false, fnParam)
+						stateFail_(objstr_(fnParam.box_()))
 					}
 					var array Node = IR_arraylit([]Node{}).srcref(fnParam)
 					argMap.put(fnParam.getOnlyChild().getString(), new_FunctionArgumentInjector_ParamArgPair(fnParam.getOnlyChild(), array))
 				} else {
 					if !fnParam.isName() {
-						Preconditions_checkState_boolean_Object_H(false, fnParam)
+						stateFail_(objstr_(fnParam.box_()))
 					}
 					var srcLocation Node = callNode
 					argMap.put(fnParam.getString(), new_FunctionArgumentInjector_ParamArgPair(fnParam, NodeUtil_newUndefinedNode(srcLocation)))
@@ -170,7 +174,7 @@ func FunctionArgumentInjector_canNameValueChange(n Node) bool {
 
 func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *AbstractCompiler, fnNode Node, argMap *JTMap[string, *FunctionArgumentInjector_ParamArgPair], modifiedParameters *TSet[string], convention CodingConvention) *TSet[string] {
 	if !fnNode.isFunction() {
-		Preconditions_checkArgument_boolean_Object_H(false, fnNode)
+		argFail_(objstr_(fnNode.box_()))
 	}
 	if argMap.isEmpty() {
 		return modifiedParameters
@@ -495,8 +499,12 @@ type FunctionArgumentInjector_ParamArgPair struct {
 }
 
 func (this *FunctionArgumentInjector_ParamArgPair) init_FunctionArgumentInjector_ParamArgPair(paramNode Node, arg Node) {
-	Preconditions_checkNotNull_T(paramNode)
-	Preconditions_checkNotNull_T(arg)
+	if paramNode == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	if arg == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	this.paramNode_ = paramNode
 	this.arg_ = arg
 }

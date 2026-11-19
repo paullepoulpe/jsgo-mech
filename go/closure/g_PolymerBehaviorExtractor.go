@@ -225,7 +225,9 @@ func (this *PolymerBehaviorExtractor) getNameIfModuleImport(name string, metadat
 		}
 		return this.moduleMap.getModule(metadata.path())
 	}()
-	Preconditions_checkNotNull_Object_Object_T(module, metadata)
+	if module == nil {
+		nullFail_(objstr_(canon_(metadata)))
+	}
 	var dot int32 = int32(strings.IndexByte(name, '.'))
 	var root string = func() string {
 		if dot == -1 {

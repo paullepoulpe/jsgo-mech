@@ -54,12 +54,16 @@ func (this *AbstractPeepholeOptimization) report(diagnostic *DiagnosticType, n N
 }
 
 func (this *AbstractPeepholeOptimization) areNodesEqualForInlining(n1 Node, n2 Node) bool {
-	Preconditions_checkNotNull_T(this.compiler_)
+	if this.compiler_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	return this.compiler_.areNodesEqualForInlining(n1, n2)
 }
 
 func (this *AbstractPeepholeOptimization) isASTNormalized() bool {
-	Preconditions_checkNotNull_T(this.compiler_)
+	if this.compiler_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	return this.compiler_.getLifeCycleStage().isNormalized()
 }
 
@@ -141,17 +145,23 @@ func (this *AbstractPeepholeOptimization) reportChangeToEnclosingScope(n Node) {
 }
 
 func (this *AbstractPeepholeOptimization) deleteNode(property Node) {
-	Preconditions_checkNotNull_T(this.compiler_)
+	if this.compiler_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	NodeUtil_deleteNode(property, this.compiler_)
 }
 
 func (this *AbstractPeepholeOptimization) markFunctionsDeleted(function Node) {
-	Preconditions_checkNotNull_T(this.compiler_)
+	if this.compiler_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	NodeUtil_markFunctionsDeleted(function, this.compiler_)
 }
 
 func (this *AbstractPeepholeOptimization) markNewScopesChanged(n Node) {
-	Preconditions_checkNotNull_T(this.compiler_)
+	if this.compiler_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	NodeUtil_markNewScopesChanged(n, this.compiler_)
 }
 

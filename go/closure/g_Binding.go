@@ -44,7 +44,9 @@ func Binding_from_ModuleMetadata_Optional_Node(metadataOfBoundModule *ModuleMeta
 }
 
 func (this *Binding) copy(sourceNode Node, createdBy Binding_CreatedBy) *Binding {
-	Preconditions_checkNotNull_T(sourceNode)
+	if sourceNode == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	return new_Binding(this.metadata(), sourceNode, this.originatingExport(), this.isModuleNamespace(), this.closureNamespace(), createdBy)
 }
 

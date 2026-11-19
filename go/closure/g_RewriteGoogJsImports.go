@@ -18,7 +18,9 @@ func (this *RewriteGoogJsImports) finit_RewriteGoogJsImports() {
 
 func (this *RewriteGoogJsImports) init_RewriteGoogJsImports(compiler *AbstractCompiler, mode RewriteGoogJsImports_Mode, moduleMap *ModuleMap) {
 	this.finit_RewriteGoogJsImports()
-	Preconditions_checkNotNull_T(moduleMap)
+	if moduleMap == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	this.compiler_ = compiler
 	this.mode_ = mode
 	this.moduleMap = moduleMap
@@ -87,7 +89,9 @@ func (this *RewriteGoogJsImports) rewriteImports(scriptRoot Node) {
 		var googImportNode Node = this.findGoogImportNode(scriptRoot)
 		NodeTraversal_traverse(this.compiler_, scriptRoot, NodeTraversal_Callback(new_RewriteGoogJsImports_FindReexports((googImportNode != 0))))
 		var module *Module = this.moduleMap.getModule(this.compiler_.getInput(scriptRoot.getInputId()).getPath())
-		Preconditions_checkNotNull_T(module)
+		if module == nil {
+			panic(new_NullPointerException_0().self())
+		}
 		if (googImportNode != 0) && (this.mode_ == RewriteGoogJsImports_Mode_LINT_AND_REWRITE) {
 			var unused *RewriteGoogJsImports_ReferenceReplacer = new_RewriteGoogJsImports_ReferenceReplacer(this, scriptRoot, googImportNode, module, (this.googModule == nil))
 			_ = unused
@@ -147,7 +151,9 @@ func (this *RewriteGoogJsImports) process_2(externs Node, root Node) {
 		if googJsScriptNode != 0 {
 			var googJsPath *ModuleLoader_ModulePath = this.compiler_.getInput(googJsScriptNode.getInputId()).getPath()
 			this.googModule = this.moduleMap.getModule(googJsPath)
-			Preconditions_checkNotNull_T(this.googModule)
+			if this.googModule == nil {
+				panic(new_NullPointerException_0().self())
+			}
 			if !RewriteGoogJsImports_allFromGoog(this.googModule.boundNames().asImm().values(), googJsPath) {
 				panic(new_IllegalStateException_String(objstr_("goog.js should never import anything")))
 			}

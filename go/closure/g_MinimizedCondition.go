@@ -300,12 +300,16 @@ func MinimizedCondition_MeasuredNode_forNode(n Node) *MinimizedCondition_Measure
 }
 
 func (this *MinimizedCondition_MeasuredNode) willChange(original Node) bool {
-	Preconditions_checkNotNull_T(original)
+	if original == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	return ((original != this.node_) || this.isChanged())
 }
 
 func (this *MinimizedCondition_MeasuredNode) applyTo(original Node) Node {
-	Preconditions_checkNotNull_T(original)
+	if original == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	if !this.willChange(original) {
 		panic(new_IllegalStateException_0())
 	}

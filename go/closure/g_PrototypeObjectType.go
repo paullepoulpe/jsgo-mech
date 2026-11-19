@@ -74,7 +74,9 @@ func (this *PrototypeObjectType) init_PrototypeObjectType(builder *PrototypeObje
 			panic(new_IllegalStateException_0())
 		}
 	}
-	Preconditions_checkNotNull_T(this.templateTypeMap)
+	if this.templateTypeMap == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	if this.templateTypeMap.size() < this.templateParamCount {
 		panic(new_IllegalStateException_0())
 	}

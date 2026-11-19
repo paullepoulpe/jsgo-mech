@@ -38,7 +38,9 @@ func (this *HamtPMap[K, V]) checkInvariants() {
 		panic(new_IllegalStateException_0())
 	}
 	for _, child := range this.children_ {
-		Preconditions_checkNotNull_T(child)
+		if child == nil {
+			panic(new_NullPointerException_0().self())
+		}
 	}
 }
 

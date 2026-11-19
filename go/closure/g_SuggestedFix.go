@@ -293,7 +293,7 @@ func (this *SuggestedFix_Builder) rename_3(n Node, name string, replaceNameSubtr
 		}()
 	case tokOrd1_STRINGLIT:
 		if !n.getParent().isGetProp() {
-			Preconditions_checkState_boolean_Object_H(false, n)
+			stateFail_(objstr_(n.box_()))
 		}
 		range_ = n
 	case tokOrd1_STRING_KEY, tokOrd1_NAME:

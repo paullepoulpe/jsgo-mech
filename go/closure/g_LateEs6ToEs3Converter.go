@@ -56,7 +56,7 @@ func (this *LateEs6ToEs3Converter) visit(t *NodeTraversal, n Node, parent Node) 
 			if qName.matches(lhs) {
 				Preconditions_checkNotNull_Object_Object_T(n.getParent(), n.box_())
 				if !n.getParent().isExprResult() {
-					Preconditions_checkState_boolean_Object_H(false, n)
+					stateFail_(objstr_(n.box_()))
 				}
 				this.templateLitInsertionPoint = n.getParent().getNext()
 			}

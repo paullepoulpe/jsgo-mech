@@ -260,7 +260,7 @@ func (this *Es6RewriteClass) visitNonMethodMember(member Node, metadata *Es6Rewr
 		return
 	}
 	if member.isComputedProp() {
-		Preconditions_checkState_boolean_Object_H(false, member)
+		stateFail_(objstr_(member.box_()))
 	}
 	var membersToDeclare *TMap[string, *Es6RewriteClass_ClassProperty] = metadata.classMembersToDeclare()
 	var builder *Es6RewriteClass_ClassProperty_Builder = Es6RewriteClass_ClassProperty_builder()

@@ -176,7 +176,9 @@ func (this ProcessTweaks_TweakFunction) isValidNodeType(type_ Token_rhino) bool 
 }
 
 func (this ProcessTweaks_TweakFunction) isCorrectRegisterFunction(registerFunction ProcessTweaks_TweakFunction) bool {
-	Preconditions_checkNotNull_T(registerFunction)
+	if registerFunction == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	return (ProcessTweaks_TweakFunction_registerFunction_[this-1] == registerFunction)
 }
 

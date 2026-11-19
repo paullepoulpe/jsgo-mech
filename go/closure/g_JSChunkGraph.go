@@ -302,7 +302,9 @@ func (this *JSChunkGraph) getTransitiveDeps(m *JSChunk) SetOf[*JSChunk] {
 }
 
 func JSChunkGraph_moveMarkedWeakSources(weakChunk *JSChunk, inputs IterableOf[*CompilerInput]) {
-	Preconditions_checkNotNull_T(weakChunk)
+	if weakChunk == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var allInputs *TList[*CompilerInput] = immutableListCopyOf_(tc_p_CompilerInput, inputs)
 	for i := range allInputs.All() {
 		if i.getSourceFile().isWeak() {
@@ -363,7 +365,9 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 	var entryPointInputsPerChunk *SimpleListMultimap[*JSChunk, *CompilerInput] = SimpleListMultimap_create[*JSChunk, *CompilerInput]()
 	for input := range elemsAs_[*CompilerInput](entryPointInputs.asSet()) {
 		var chunk *JSChunk = input.getChunk()
-		Preconditions_checkNotNull_T(chunk)
+		if chunk == nil {
+			panic(new_NullPointerException_0().self())
+		}
 		entryPointInputsPerChunk.put(chunk, input)
 	}
 	for chunk := range elemsAs_[*JSChunk](this.getAllChunks()) {
@@ -404,7 +408,9 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		orderedInputs = absoluteOrder
 	}
 	var weakChunk *JSChunk = this.getChunkByName(JSChunk_WEAK_CHUNK_NAME)
-	Preconditions_checkNotNull_T(weakChunk)
+	if weakChunk == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	if dependencyOptions.shouldPrune() {
 		var weakInputs []*CompilerInput = sliceImm_(tc_p_CompilerInput, sorter.getSortedWeakDependenciesOf(orderedInputs.asList()))
 		for _, i := range weakInputs {

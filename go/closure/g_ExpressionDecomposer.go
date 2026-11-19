@@ -29,7 +29,9 @@ func (this *ExpressionDecomposer) finit_ExpressionDecomposer() {
 
 func (this *ExpressionDecomposer) init_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string], constFunctionNames *TSet[string], scope *Scope, enabledWorkarounds EnumSetOf[ExpressionDecomposer_Workaround]) {
 	this.finit_ExpressionDecomposer()
-	Preconditions_checkNotNull_T(compiler)
+	if compiler == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	if safeNameIdSupplier == nil {
 		panic(new_NullPointerException_0())
 	}
@@ -74,9 +76,11 @@ func (this *ExpressionDecomposer) maybeExposeExpression(expression Node) {
 func (this *ExpressionDecomposer) exposeExpression(expression Node) bool {
 	this.rewriteAllContainingOptionalChains(expression)
 	var expressionRoot Node = ExpressionDecomposer_findExpressionRoot(expression)
-	Preconditions_checkNotNull_T(expressionRoot)
+	if expressionRoot == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	if !NodeUtil_isStatement(expressionRoot) {
-		Preconditions_checkState_boolean_Object_H(false, expressionRoot)
+		stateFail_(objstr_(expressionRoot.box_()))
 	}
 	return this.exposeExpression_2(expressionRoot, expression)
 }
@@ -94,7 +98,7 @@ func (this *ExpressionDecomposer) exposeExpression_2(expressionRoot Node, subExp
 	var expressionParent Node = expressionToExpose.getParent()
 	for expressionParent != expressionRoot {
 		if !(!ExpressionDecomposer_isConditionalOp(expressionParent) || expressionToExpose.isFirstChildOf(expressionParent)) {
-			Preconditions_checkState_boolean_Object_H(false, expressionParent)
+			stateFail_(objstr_(expressionParent.box_()))
 		}
 		if expressionParent.isAssign() {
 			if this.isSafeAssign(expressionParent, state.sideEffects) {
@@ -161,9 +165,13 @@ func (this *ExpressionDecomposer) rewriteAllContainingOptionalChains(subExpressi
 func (this *ExpressionDecomposer) moveExpression(expression Node) {
 	var resultName string = this.getResultValueName()
 	var injectionPoint Node = ExpressionDecomposer_findInjectionPoint(expression)
-	Preconditions_checkNotNull_T(injectionPoint)
+	if injectionPoint == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	var injectionPointParent Node = injectionPoint.getParent()
-	Preconditions_checkNotNull_T(injectionPointParent)
+	if injectionPointParent == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	if !NodeUtil_isStatementBlock(injectionPointParent) {
 		panic(new_IllegalStateException_0())
 	}
@@ -293,7 +301,7 @@ func (this *ExpressionDecomposer) isConstantNameNode(n Node) bool {
 
 func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint Node) Node {
 	if NodeUtil_isLogicalAssignmentOp(expr) {
-		Preconditions_checkState_boolean_Object_H(false, expr)
+		stateFail_(objstr_(expr.box_()))
 	}
 	var parent Node = expr.getParent()
 	var isLhsOfAssignOp bool = ((NodeUtil_isAssignmentOp(parent) && !parent.isAssign()) && expr.isFirstChildOf(parent))
@@ -318,7 +326,7 @@ func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint No
 	var tempNameValue Node
 	if isLhsOfAssignOp {
 		if !(expr.isName() || NodeUtil_isNormalGet(expr)) {
-			Preconditions_checkState_boolean_Object_H(false, expr)
+			stateFail_(objstr_(expr.box_()))
 		}
 		var opNode Node = new_Node_Token(NodeUtil_getOpFromAssignmentOp(parent)).copyTypeFrom(parent).srcrefIfMissing(parent)
 		var rightOperand Node = parent.getLastChild()
@@ -362,11 +370,11 @@ func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint No
 
 func (this *ExpressionDecomposer) rewriteCallExpression(call Node, state *ExpressionDecomposer_DecompositionState) {
 	if !call.isCall() {
-		Preconditions_checkArgument_boolean_Object_H(false, call)
+		argFail_(objstr_(call.box_()))
 	}
 	var first Node = call.getFirstChild()
 	if !NodeUtil_isNormalGet(first) {
-		Preconditions_checkArgument_boolean_Object_H(false, first)
+		argFail_(objstr_(first.box_()))
 	}
 	var fnCallType *JSType = nil
 	if this.astFactory_.isAddingTypes() {
@@ -387,7 +395,7 @@ func (this *ExpressionDecomposer) rewriteCallExpression(call Node, state *Expres
 	}
 	var getExprNode Node = getVarNode.getFirstFirstChild()
 	if !NodeUtil_isNormalGet(getExprNode) {
-		Preconditions_checkArgument_boolean_Object_H(false, getExprNode)
+		argFail_(objstr_(getExprNode.box_()))
 	}
 	var origThisValue Node = getExprNode.getFirstChild()
 	var receiverNode Node
@@ -432,7 +440,9 @@ func (this *ExpressionDecomposer) isTempConstantValueName(name Node) bool {
 
 func ExpressionDecomposer_findInjectionPoint(subExpression Node) Node {
 	var expressionRoot Node = ExpressionDecomposer_findExpressionRoot(subExpression)
-	Preconditions_checkNotNull_T(expressionRoot)
+	if expressionRoot == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	var injectionPoint Node = expressionRoot
 	var parent Node = injectionPoint.getParent()
 	for parent.isLabel() {
@@ -440,7 +450,7 @@ func ExpressionDecomposer_findInjectionPoint(subExpression Node) Node {
 		parent = injectionPoint.getParent()
 	}
 	if !NodeUtil_isStatementBlock(parent) {
-		Preconditions_checkState_boolean_Object_H(false, parent)
+		stateFail_(objstr_(parent.box_()))
 	}
 	return injectionPoint
 }

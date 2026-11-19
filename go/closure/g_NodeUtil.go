@@ -28,7 +28,7 @@ func NodeUtil_getBooleanValue(n Node) Tri {
 			if n.hasOneChild() {
 				var templateLitString Node = n.getOnlyChild()
 				if !templateLitString.isTemplateLitString() {
-					Preconditions_checkState_boolean_Object_H(false, templateLitString)
+					stateFail_(objstr_(templateLitString.box_()))
 				}
 				var cookedString Optional[string] = templateLitString.getCookedString()
 				return Tri_forBoolean((cookedString.isPresent() && cookedString.get() != ""))
@@ -517,7 +517,7 @@ func NodeUtil_getName(n Node) string {
 
 func NodeUtil_getNameNode(n Node) Node {
 	if !(n.isFunction() || n.isClass()) {
-		Preconditions_checkState_boolean_Object_H(false, n)
+		stateFail_(objstr_(n.box_()))
 	}
 	var parent Node = n.getParent()
 	return func() Node {
@@ -588,7 +588,7 @@ func NodeUtil_getClassMembers(n Node) Node {
 
 func NodeUtil_getEs6ClassConstructorMemberFunctionDef(classNode Node) Node {
 	if !classNode.isClass() {
-		Preconditions_checkArgument_boolean_Object_H(false, classNode)
+		argFail_(objstr_(classNode.box_()))
 	}
 	var classMembers Node = Preconditions_checkNotNull_Object_Object_T(classNode.getLastChild(), classNode.box_())
 	{
@@ -653,7 +653,7 @@ func NodeUtil_isNumericLiteral(n Node) bool {
 
 func NodeUtil_getNumericLiteralValue(n Node) float64 {
 	if !NodeUtil_isNumericLiteral(n) {
-		Preconditions_checkArgument_boolean_Object_H(false, n)
+		argFail_(objstr_(n.box_()))
 	}
 	return func() float64 {
 		switch n.ns_().token {
@@ -782,7 +782,7 @@ func NodeUtil_isLiteralValue(n Node, includeFunctions bool) bool {
 
 func NodeUtil_findClosureUnawareScriptRoot(script Node) Node {
 	if !(script.isScript() && script.getIsInClosureUnawareSubtree()) {
-		Preconditions_checkArgument_boolean_Object_H(false, script)
+		argFail_(objstr_(script.box_()))
 	}
 	return NodeUtil_findPreorder(script, (&Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isBlock() }}).apply, &Predicate_base_tfn_Node{func(c Node) bool {
 		return true
@@ -805,7 +805,7 @@ func NodeUtil_isSomeCompileTimeConstStringValue(node Node) bool {
 		return true
 	} else if node.isAdd() {
 		if !node.hasTwoChildren() {
-			Preconditions_checkState_boolean_Object_H(false, node)
+			stateFail_(objstr_(node.box_()))
 		}
 		var left Node = node.getFirstChild()
 		var right Node = node.getLastChild()
@@ -935,7 +935,7 @@ func NodeUtil_isNamespaceDecl(n Node) bool {
 
 func NodeUtil_isFromTypeSummary(n Node) bool {
 	if !n.isScript() {
-		Preconditions_checkArgument_boolean_Object_H(false, n)
+		argFail_(objstr_(n.box_()))
 	}
 	var info *JSDocInfo = n.getJSDocInfo()
 	return ((info != nil) && info.isTypeSummary())
@@ -988,7 +988,7 @@ func NodeUtil_isPureIterable(node Node) bool {
 
 func NodeUtil_newHasLocalResult(n Node) bool {
 	if !n.isNew() {
-		Preconditions_checkState_boolean_Object_H(false, n)
+		stateFail_(objstr_(n.box_()))
 	}
 	return n.isOnlyModifiesThisCall()
 }
@@ -1021,7 +1021,7 @@ func NodeUtil_canBeSideEffected_Node_Set_Scope(n Node, knownConstants *TSet[stri
 		return true
 	case tokOrd1_FUNCTION:
 		if NodeUtil_isFunctionDeclaration(n) {
-			Preconditions_checkState_boolean_Object_H(false, n)
+			stateFail_(objstr_(n.box_()))
 		}
 		return false
 	default:
@@ -1455,7 +1455,7 @@ func NodeUtil_getFirstPropMatchingKey(n Node, keyName string) Node {
 
 func NodeUtil_getFirstGetterMatchingKey(n Node, keyName string) Node {
 	if !(n.isClassMembers() || n.isObjectLit()) {
-		Preconditions_checkState_boolean_Object_H(false, n)
+		stateFail_(objstr_(n.box_()))
 	}
 	{
 		var keyNode Node = n.getFirstChild()
@@ -1523,7 +1523,7 @@ func NodeUtil_isOptChainNode(n Node) bool {
 
 func NodeUtil_getStartOfOptChainSegment(n Node) Node {
 	if !NodeUtil_isOptChainNode(n) {
-		Preconditions_checkState_boolean_Object_H(false, n)
+		stateFail_(objstr_(n.box_()))
 	}
 	if n.isOptionalChainStart() {
 		return n
@@ -1533,7 +1533,7 @@ func NodeUtil_getStartOfOptChainSegment(n Node) Node {
 
 func NodeUtil_getEndOfOptChainSegment(n Node) Node {
 	if !NodeUtil_isOptChainNode(n) {
-		Preconditions_checkState_boolean_Object_H(false, n)
+		stateFail_(objstr_(n.box_()))
 	}
 	if NodeUtil_isEndOfOptChainSegment(n) {
 		return n
@@ -1571,7 +1571,7 @@ func NodeUtil_convertToNonOptionalChainSegment(endOfOptChainSegment Node) {
 
 func NodeUtil_convertToNonOptionalChainSegmentDownTo(endOfOptChainSegment Node, stopNode Node) {
 	if !NodeUtil_isEndOfOptChainSegment(endOfOptChainSegment) {
-		Preconditions_checkArgument_boolean_Object_H(false, endOfOptChainSegment)
+		argFail_(objstr_(endOfOptChainSegment.box_()))
 	}
 	var segmentNodes *TDeque[Node] = newTDeque_(jtc_Node)
 	var segmentNode Node = endOfOptChainSegment
@@ -1639,7 +1639,7 @@ func NodeUtil_isDestructuringDeclaration(n Node) bool {
 
 func NodeUtil_getAssignedValue(n Node) Node {
 	if !(n.isName() || n.isGetProp()) {
-		Preconditions_checkState_boolean_Object_H(false, n)
+		stateFail_(objstr_(n.box_()))
 	}
 	var parent Node = n.getParent()
 	if NodeUtil_isNameDeclaration(parent) {
@@ -1735,7 +1735,7 @@ func NodeUtil_isControlStructureCodeBlock(parent Node, n Node) bool {
 			return true
 		default:
 			if !NodeUtil_isControlStructure(parent) {
-				Preconditions_checkState_boolean_Object_H(false, parent)
+				stateFail_(objstr_(parent.box_()))
 			}
 			return false
 		}
@@ -1817,7 +1817,7 @@ func NodeUtil_isReferenceName(n Node) bool {
 
 func NodeUtil_isNonlocalModuleExportName(n Node) bool {
 	if !n.isName() {
-		Preconditions_checkArgument_boolean_Object_H(false, n)
+		argFail_(objstr_(n.box_()))
 	}
 	var parent Node = n.getParent()
 	if parent.isImportSpec() && n.isFirstChildOf(parent) {
@@ -2030,7 +2030,7 @@ func NodeUtil_isCallOrNew(node Node) bool {
 
 func NodeUtil_getFunctionBody(fn Node) Node {
 	if !fn.isFunction() {
-		Preconditions_checkArgument_boolean_Object_H(false, fn)
+		argFail_(objstr_(fn.box_()))
 	}
 	return fn.getLastChild()
 }
@@ -2115,7 +2115,7 @@ func NodeUtil_isBlockScopedFunctionDeclaration(n Node) bool {
 			return false
 		default:
 			if !current.isLabel() {
-				Preconditions_checkState_boolean_Object_H(false, current)
+				stateFail_(objstr_(current.box_()))
 			}
 			current = current.getParent()
 		}
@@ -2310,28 +2310,28 @@ func NodeUtil_getDeclaringParent(targetNode Node) Node {
 	if parent.isRest() || parent.isDefaultValue() {
 		parent = parent.getParent()
 		if !parent.isParamList() {
-			Preconditions_checkState_boolean_Object_H(false, parent)
+			stateFail_(objstr_(parent.box_()))
 		}
 	} else if parent.isDestructuringLhs() {
 		parent = parent.getParent()
 		if !NodeUtil_isNameDeclaration(parent) {
-			Preconditions_checkState_boolean_Object_H(false, parent)
+			stateFail_(objstr_(parent.box_()))
 		}
 	} else if parent.isClass() || parent.isFunction() {
 		if !(targetNode == parent.getFirstChild()) {
-			Preconditions_checkState_boolean_Object_H(false, targetNode)
+			stateFail_(objstr_(targetNode.box_()))
 		}
 	} else if parent.isImportSpec() {
 		if !(targetNode == parent.getSecondChild()) {
-			Preconditions_checkState_boolean_Object_H(false, targetNode)
+			stateFail_(objstr_(targetNode.box_()))
 		}
 		parent = parent.getGrandparent()
 		if !parent.isImport() {
-			Preconditions_checkState_boolean_Object_H(false, parent)
+			stateFail_(objstr_(parent.box_()))
 		}
 	} else {
 		if !(((parent.isParamList() || NodeUtil_isNameDeclaration(parent)) || parent.isImport()) || parent.isCatch()) {
-			Preconditions_checkState_boolean_Object_H(false, parent)
+			stateFail_(objstr_(parent.box_()))
 		}
 	}
 	return parent
@@ -2350,13 +2350,13 @@ func NodeUtil_getRootTarget(targetNode Node) Node {
 
 func NodeUtil_getEnclosingTarget(targetNode Node) Node {
 	if !Preconditions_checkNotNull_T(targetNode).isValidAssignmentTarget() {
-		Preconditions_checkState_boolean_Object_H(false, targetNode)
+		stateFail_(objstr_(targetNode.box_()))
 	}
 	var parent Node = Preconditions_checkNotNull_Object_Object_T(targetNode.getParent(), targetNode.box_())
 	var targetIsFirstChild bool = (parent.getFirstChild() == targetNode)
 	if parent.isDefaultValue() || parent.isRest() {
 		if !targetIsFirstChild {
-			Preconditions_checkState_boolean_Object_H(false, parent)
+			stateFail_(objstr_(parent.box_()))
 		}
 		targetNode = parent
 		parent = Preconditions_checkNotNull_T(targetNode.getParent())
@@ -2370,48 +2370,48 @@ func NodeUtil_getEnclosingTarget(targetNode Node) Node {
 			return parent
 		case tokOrd1_COMPUTED_PROP:
 			if targetIsFirstChild {
-				Preconditions_checkState_boolean_Object_H(false, parent)
+				stateFail_(objstr_(parent.box_()))
 			}
 			var grandparent Node = Preconditions_checkNotNull_Object_Object_T(parent.getParent(), parent.box_())
 			if !grandparent.isObjectPattern() {
-				Preconditions_checkState_boolean_Object_H(false, grandparent)
+				stateFail_(objstr_(grandparent.box_()))
 			}
 			return grandparent
 		case tokOrd1_STRING_KEY:
 			var grandparent Node = Preconditions_checkNotNull_Object_Object_T(parent.getParent(), parent.box_())
 			if !grandparent.isObjectPattern() {
-				Preconditions_checkState_boolean_Object_H(false, grandparent)
+				stateFail_(objstr_(grandparent.box_()))
 			}
 			return grandparent
 		case tokOrd1_PARAM_LIST, tokOrd1_LET, tokOrd1_CONST, tokOrd1_VAR:
 			return 0
 		case tokOrd1_FUNCTION, tokOrd1_CLASS:
 			if !targetIsFirstChild {
-				Preconditions_checkState_boolean_Object_H(false, targetNode)
+				stateFail_(objstr_(targetNode.box_()))
 			}
 			return 0
 		case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 			if !targetIsFirstChild {
-				Preconditions_checkState_boolean_Object_H(false, targetNode)
+				stateFail_(objstr_(targetNode.box_()))
 			}
 			return 0
 		case tokOrd1_DESTRUCTURING_LHS:
 			if !targetIsFirstChild {
-				Preconditions_checkState_boolean_Object_H(false, targetNode)
+				stateFail_(objstr_(targetNode.box_()))
 			}
 			return 0
 		case tokOrd1_IMPORT:
 			return 0
 		case tokOrd1_IMPORT_SPEC:
 			if targetIsFirstChild {
-				Preconditions_checkState_boolean_Object_H(false, parent)
+				stateFail_(objstr_(parent.box_()))
 			}
 			return 0
 		case tokOrd1_CATCH:
 			return 0
 		default:
 			if !(NodeUtil_isAssignmentOp(parent) && targetIsFirstChild) {
-				Preconditions_checkState_boolean_Object_H(false, parent)
+				stateFail_(objstr_(parent.box_()))
 			}
 			return 0
 		}
@@ -2912,7 +2912,7 @@ func NodeUtil_getLhsNodesHelper(n Node, consumer func(any)) {
 
 func NodeUtil_visitLhsNodesInNode(assigningParent Node, consumer func(any)) {
 	if !(((((((NodeUtil_isNameDeclaration(assigningParent) || assigningParent.isParamList()) || NodeUtil_isAssignmentOp(assigningParent)) || assigningParent.isCatch()) || assigningParent.isDestructuringLhs()) || assigningParent.isDefaultValue()) || assigningParent.isImport()) || NodeUtil_isEnhancedFor(assigningParent)) {
-		Preconditions_checkArgument_boolean_Object_H(false, assigningParent)
+		argFail_(objstr_(assigningParent.box_()))
 	}
 	NodeUtil_getLhsNodesHelper(assigningParent, consumer)
 }
@@ -3104,7 +3104,9 @@ func NodeUtil_newVarNode(name string, value Node) Node {
 
 func NodeUtil_newVarNodeNode(lhs Node, value Node) Node {
 	if lhs.isDestructuringPattern() {
-		Preconditions_checkNotNull_T(value)
+		if value == 0 {
+			panic(new_NullPointerException_0().self())
+		}
 		return IR_var_Node(new_Node_Token_Node_Node(Token_rhino_DESTRUCTURING_LHS, lhs, value).srcref(lhs)).srcref(lhs)
 	} else {
 		if !lhs.isName() || lhs.hasChildren() {
@@ -3354,7 +3356,7 @@ func NodeUtil_isConstantDeclaration(info *JSDocInfo, node Node) bool {
 		return ((info != nil) && info.isConstant())
 	}
 	if !node.isName() {
-		Preconditions_checkArgument_boolean_Object_H(false, node)
+		argFail_(objstr_(node.box_()))
 	}
 	var declaringParent Node = NodeUtil_getDeclaringParent(node)
 	if declaringParent.isConst() {
@@ -3689,12 +3691,12 @@ func NodeUtil_getRValueOfLValue(n Node) Node {
 		return n.getLastChild()
 	case tokOrd1_OBJECTLIT:
 		if !((((n.isStringKey() || n.isComputedProp()) || n.isMemberFunctionDef()) || n.isGetterDef()) || n.isSetterDef()) {
-			Preconditions_checkState_boolean_Object_H(false, n)
+			stateFail_(objstr_(n.box_()))
 		}
 		return n.getLastChild()
 	case tokOrd1_CLASS_MEMBERS:
 		if !((((n.isMemberFunctionDef() || n.isMemberFieldDef()) || n.isComputedFieldDef()) || n.isGetterDef()) || n.isSetterDef()) {
-			Preconditions_checkState_boolean_Object_H(false, n)
+			stateFail_(objstr_(n.box_()))
 		}
 		return n.getLastChild()
 	case tokOrd1_FUNCTION, tokOrd1_CLASS:
@@ -4173,7 +4175,7 @@ func NodeUtil_getInvocationArgsAsIterable(invocation Node) IterableOf[Node] {
 		return Iterable(new_NodeUtil_TemplateArgsIterable(invocation.getLastChild()))
 	}
 	if !NodeUtil_isCallOrNew(invocation) {
-		Preconditions_checkState_boolean_Object_H(false, invocation)
+		stateFail_(objstr_(invocation.box_()))
 	}
 	if invocation.hasOneChild() {
 		return ImmutableList_as_Iterable(ImmutableList_of())
@@ -4232,14 +4234,14 @@ func NodeUtil_isBlocklessArrowFunctionResult(n Node) bool {
 
 func NodeUtil_getFeatureSetOfScript(scriptNode Node) *FeatureSet {
 	if !scriptNode.isScript() {
-		Preconditions_checkState_boolean_Object_H(false, scriptNode)
+		stateFail_(objstr_(scriptNode.box_()))
 	}
 	return cast_[*FeatureSet](scriptNode.getFeatureSet())
 }
 
 func NodeUtil_addFeatureToScript(scriptNode Node, feature FeatureSet_Feature, compiler *AbstractCompiler) {
 	if !scriptNode.isScript() {
-		Preconditions_checkState_boolean_Object_H(false, scriptNode)
+		stateFail_(objstr_(scriptNode.box_()))
 	}
 	var currentFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(scriptNode)
 	var newFeatures *FeatureSet = func() *FeatureSet {
@@ -4276,7 +4278,7 @@ func NodeUtil_removeFeaturesFromScript(scriptNode Node, featureSet *FeatureSet) 
 
 func NodeUtil_removeFeatureFromAllScripts(root Node, feature FeatureSet_Feature, compiler *AbstractCompiler) {
 	if !root.isRoot() {
-		Preconditions_checkArgument_boolean_Object_H(false, root)
+		argFail_(objstr_(root.box_()))
 	}
 	{
 		var childNode Node = root.getFirstChild()
@@ -4292,7 +4294,7 @@ func NodeUtil_removeFeatureFromAllScripts(root Node, feature FeatureSet_Feature,
 
 func NodeUtil_removeFeaturesFromAllScripts(root Node, featureSet *FeatureSet, compiler *AbstractCompiler) {
 	if !root.isRoot() {
-		Preconditions_checkArgument_boolean_Object_H(false, root)
+		argFail_(objstr_(root.box_()))
 	}
 	{
 		var childNode Node = root.getFirstChild()
@@ -4308,7 +4310,7 @@ func NodeUtil_removeFeaturesFromAllScripts(root Node, featureSet *FeatureSet, co
 
 func NodeUtil_addFeatureToAllScripts(root Node, feature FeatureSet_Feature, compiler *AbstractCompiler) {
 	if !root.isRoot() {
-		Preconditions_checkArgument_boolean_Object_H(false, root)
+		argFail_(objstr_(root.box_()))
 	}
 	{
 		var childNode Node = root.getFirstChild()
@@ -4323,7 +4325,7 @@ func NodeUtil_addFeatureToAllScripts(root Node, feature FeatureSet_Feature, comp
 
 func NodeUtil_addFeaturesToScript(scriptNode Node, features *FeatureSet, compiler *AbstractCompiler) {
 	if !scriptNode.isScript() {
-		Preconditions_checkState_boolean_Object_H(false, scriptNode)
+		stateFail_(objstr_(scriptNode.box_()))
 	}
 	for feature := range features.getFeatures().All() {
 		NodeUtil_addFeatureToScript(scriptNode, feature, compiler)
@@ -4343,7 +4345,9 @@ func NodeUtil_getGoogRequireInfo_String_Scope(name string, scope *Scope) *NodeUt
 }
 
 func NodeUtil_getGoogRequireInfo_Var(var_ *Var) *NodeUtil_GoogRequire {
-	Preconditions_checkNotNull_T(var_)
+	if var_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	if !var_.getScopeRoot().isModuleBody() || (var_.getNameNode() == 0) {
 		return nil
 	}
@@ -4706,7 +4710,9 @@ func (this *NodeUtil_PreOrderIterator) up_AbstractIterator() *AbstractIterator {
 
 func (this *NodeUtil_PreOrderIterator) init_NodeUtil_PreOrderIterator(root Node, traverseNodePredicate Predicate_baseOf[Node]) {
 	this.AbstractIterator.init_AbstractIterator()
-	Preconditions_checkNotNull_T(root)
+	if root == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	this.traverseNodePredicate = traverseNodePredicate
 	this.current_ = root
 }
@@ -4728,7 +4734,9 @@ func (this *NodeUtil_PreOrderIterator) computeNext() any {
 }
 
 func (this *NodeUtil_PreOrderIterator) calculateNextNode(currentNode Node) Node {
-	Preconditions_checkNotNull_T(currentNode)
+	if currentNode == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	if this.traverseNodePredicate.apply(currentNode.box_()) {
 		if currentNode.hasChildren() {
 			return currentNode.getFirstChild()

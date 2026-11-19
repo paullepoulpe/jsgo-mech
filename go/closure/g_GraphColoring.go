@@ -57,8 +57,12 @@ func (this *GraphColoring[N, E]) haveSameColor(first N, second N) bool {
 	}
 	var colorFirst *GraphColoring_Color = cast_[*GraphColoring_Color](Annotatable_getAnnotation(Annotatable(this.graph.getNode_Object(first))))
 	var colorSecond *GraphColoring_Color = cast_[*GraphColoring_Color](Annotatable_getAnnotation(Annotatable(this.graph.getNode_Object(second))))
-	Preconditions_checkNotNull_T(colorFirst)
-	Preconditions_checkNotNull_T(colorSecond)
+	if colorFirst == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	if colorSecond == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	return colorFirst.equals_GraphColoring_Color(colorSecond)
 }
 

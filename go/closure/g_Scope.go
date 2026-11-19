@@ -290,9 +290,11 @@ func (this *Scope) getClosestContainerScope_rScope() *Scope {
 }
 
 func (this *Scope) checkChildScope(parent *Scope) {
-	Preconditions_checkNotNull_T(parent)
+	if parent == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	if !NodeUtil_createsScope(this.rootNode_) {
-		Preconditions_checkArgument_boolean_Object_H(false, this.rootNode_)
+		argFail_(objstr_(this.rootNode_.box_()))
 	}
 	if !(this.rootNode_ != parent.getRootNode()) {
 		Preconditions_checkArgument_boolean_String_Object_H(false, "rootNode should not be the parent's root node: %s", this.rootNode_)

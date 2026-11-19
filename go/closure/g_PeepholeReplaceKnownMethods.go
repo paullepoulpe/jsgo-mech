@@ -44,13 +44,13 @@ func (this *PeepholeReplaceKnownMethods) optimizeSubtree_impl(subtree Node) Node
 
 func (this *PeepholeReplaceKnownMethods) tryFoldKnownMethods(subtree Node) Node {
 	if !subtree.isCall() {
-		Preconditions_checkArgument_boolean_Object_H(false, subtree)
+		argFail_(objstr_(subtree.box_()))
 	}
 	subtree = this.tryFoldArrayJoin(subtree)
 	if subtree.isCall() {
 		subtree = this.tryToFoldArrayConcat(subtree)
 		if !subtree.isCall() {
-			Preconditions_checkState_boolean_Object_H(false, subtree)
+			stateFail_(objstr_(subtree.box_()))
 		}
 		var callTarget Node = Preconditions_checkNotNull_T(subtree.getFirstChild())
 		if callTarget.isGetProp() {
@@ -779,7 +779,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringAt(n Node, stringNode Node
 
 func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 	if !n.isCall() {
-		Preconditions_checkState_boolean_Object_H(false, n)
+		stateFail_(objstr_(n.box_()))
 	}
 	var callTarget Node = n.getFirstChild()
 	if (callTarget == 0) || !callTarget.isGetProp() {
@@ -824,7 +824,9 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 			sb.append(elementStr.get())
 		} else {
 			if sb != nil {
-				Preconditions_checkNotNull_T(prev)
+				if prev == 0 {
+					panic(new_NullPointerException_0().self())
+				}
 				foldedSize += (sb.length() + 2)
 				arrayFoldedChildren = append(arrayFoldedChildren, IR_string(sb.toString()).srcrefIfMissing(prev))
 				sb = nil
@@ -836,7 +838,9 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 		elem = elem.getNext()
 	}
 	if sb != nil {
-		Preconditions_checkNotNull_T(prev)
+		if prev == 0 {
+			panic(new_NullPointerException_0().self())
+		}
 		foldedSize += (sb.length() + 2)
 		arrayFoldedChildren = append(arrayFoldedChildren, IR_string(sb.toString()).srcrefIfMissing(prev))
 	}
@@ -1188,7 +1192,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringSplit(n Node, stringNode N
 
 func (this *PeepholeReplaceKnownMethods) tryToFoldArrayConcat(n Node) Node {
 	if !n.isCall() {
-		Preconditions_checkArgument_boolean_Object_H(false, n)
+		argFail_(objstr_(n.box_()))
 	}
 	if !this.isASTNormalized() || !this.useTypes {
 		return n
@@ -1198,12 +1202,16 @@ func (this *PeepholeReplaceKnownMethods) tryToFoldArrayConcat(n Node) Node {
 		return n
 	}
 	concatFunctionCall = this.tryToRemoveArrayLiteralFromFrontOfConcat(concatFunctionCall)
-	Preconditions_checkNotNull_T(concatFunctionCall)
+	if concatFunctionCall == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	return this.tryToFoldConcatChaining(concatFunctionCall)
 }
 
 func (this *PeepholeReplaceKnownMethods) tryToRemoveArrayLiteralFromFrontOfConcat(concatFunctionCall *PeepholeReplaceKnownMethods_ConcatFunctionCall) *PeepholeReplaceKnownMethods_ConcatFunctionCall {
-	Preconditions_checkNotNull_T(concatFunctionCall)
+	if concatFunctionCall == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var callNode Node = concatFunctionCall.callNode_
 	var arrayLiteralToRemove Node = concatFunctionCall.calleeNode
 	if !arrayLiteralToRemove.isArrayLit() || arrayLiteralToRemove.hasChildren() {
@@ -1220,7 +1228,9 @@ func (this *PeepholeReplaceKnownMethods) tryToRemoveArrayLiteralFromFrontOfConca
 }
 
 func (this *PeepholeReplaceKnownMethods) tryToFoldConcatChaining(concatFunctionCall *PeepholeReplaceKnownMethods_ConcatFunctionCall) Node {
-	Preconditions_checkNotNull_T(concatFunctionCall)
+	if concatFunctionCall == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var concatCallNode Node = concatFunctionCall.callNode_
 	var maybeFunctionCall Node = concatFunctionCall.calleeNode
 	if !maybeFunctionCall.isCall() {
@@ -1252,7 +1262,7 @@ func (this *PeepholeReplaceKnownMethods) tryToFoldConcatChaining(concatFunctionC
 
 func PeepholeReplaceKnownMethods_createConcatFunctionCallForNode(n Node) *PeepholeReplaceKnownMethods_ConcatFunctionCall {
 	if !n.isCall() {
-		Preconditions_checkArgument_boolean_Object_H(false, n)
+		argFail_(objstr_(n.box_()))
 	}
 	var callTarget Node = Preconditions_checkNotNull_T(n.getFirstChild())
 	if !callTarget.isGetProp() || !(callTarget.getString() == "concat") {

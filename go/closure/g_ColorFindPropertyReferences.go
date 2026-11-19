@@ -95,7 +95,7 @@ func (this *ColorFindPropertyReferences) handleClass(t *NodeTraversal, classNode
 			}()
 		} else {
 			if !((m.isMemberFunctionDef() || m.isGetterDef()) || m.isSetterDef()) {
-				Preconditions_checkState_boolean_Object_H(false, m)
+				stateFail_(objstr_(m.box_()))
 			}
 			var classPrototypeType *TSet[*Color] = classType.getPrototypes()
 			return func() *Color {
