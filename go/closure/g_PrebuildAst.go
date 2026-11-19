@@ -18,33 +18,26 @@ func new_PrebuildAst(compiler *AbstractCompiler, numParalleThreads int32) *Prebu
 	return this
 }
 
+// prebuild parses each of the inputs one after the other on the calling goroutine (post-flip,
+// manual edit). Java does it on a pool of numParallelThreads threads and waits for all of
+// them; the runtime's executor ran each task at once on the calling goroutine already, so the
+// pool, its threads and the futures only wrapped direct calls. As before, an input that throws
+// does not stop the others, and the first one's exception is thrown after all of them, as
+// Futures.allAsList(...).get() reports it: an ExecutionException of it, in a RuntimeException.
 func (this *PrebuildAst) prebuild(allInputs IterableOf[*CompilerInput]) {
-	var threadFactory ThreadFactory = lambda_PrebuildAst_prebuild_1_
-	var poolExecutor *ThreadPoolExecutor = new_ThreadPoolExecutor_int_int_long_TimeUnit_BlockingQueue_ThreadFactory(this.numParallelThreads, this.numParallelThreads, int64(int32(2147483647)), TimeUnit_SECONDS, BlockingQueue(new_LinkedBlockingQueue()), threadFactory)
-	var executorService ListeningExecutorService = MoreExecutors_listeningDecorator(poolExecutor)
-	var futureList *TList[ListenableFuture] = newTListN_(tc_ListenableFuture, Iterables_size(allInputs))
+	var failed *Throwable
 	for input := range elemsAs_[*CompilerInput](allInputs) {
-		futureList.add(executorService.submit(&Callable_tfn_Node{func() Node {
-			return input.getAstRoot(this.compiler_)
-		}}))
+		func() {
+			defer func() {
+				if r_ := recover(); r_ != nil && failed == nil {
+					failed = to_Throwable(caught_(r_))
+				}
+			}()
+			input.getAstRoot(this.compiler_)
+		}()
 	}
-	poolExecutor.shutdown()
-	defer func() {
-		if r_ := recover(); r_ != nil {
-			ex_ := catch_(r_)
-			if is_InterruptedException(ex_) || is_ExecutionException(ex_) {
-				var e *Exception = to_Exception(ex_)
-				panic(new_RuntimeException_Throwable(e.up_Throwable()))
-			}
-			panic(r_)
-		}
-	}()
-	Futures_allAsList(Iterable(futureList.asList())).get()
+	if failed != nil {
+		var e *Exception = to_Exception(new_ExecutionException_Throwable(failed))
+		panic(new_RuntimeException_Throwable(e.up_Throwable()))
+	}
 }
-
-// lambda_PrebuildAst_prebuild_1_ is a lambda of PrebuildAst_prebuild that captures nothing (post-flip step lambdas).
-var lambda_PrebuildAst_prebuild_1_ = &ThreadFactory_fn{func(r Runnable) *Thread {
-	var t *Thread = new_Thread_ThreadGroup_Runnable_String_long(nil, r, "jscompiler-PrebuildAst", CompilerExecutor_COMPILER_STACK_SIZE)
-	t.setDaemon(true)
-	return t
-}}

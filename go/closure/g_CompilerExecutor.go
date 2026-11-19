@@ -26,14 +26,6 @@ func new_CompilerExecutor() *CompilerExecutor {
 	return this
 }
 
-func (this *CompilerExecutor) getExecutorService() ExecutorService {
-	return CompilerExecutor_getDefaultExecutorService()
-}
-
-func CompilerExecutor_getDefaultExecutorService() ExecutorService {
-	return Executors_newSingleThreadExecutor(ThreadFactory(new_CompilerExecutor_1()))
-}
-
 func (this *CompilerExecutor) disableThreads() {
 	this.useThreads = false
 }
@@ -46,67 +38,46 @@ func (this *CompilerExecutor) setDebugMessage(debugMessage string) {
 	this.debugMessage = Optional_of[string](debugMessage)
 }
 
+// runInCompilerThread runs the callable on the calling goroutine (post-flip, manual edit).
+// Java hands it to a single-thread executor whose thread has a large stack, and waits for it;
+// the runtime's executors ran every task at once on the calling goroutine already (a goroutine
+// stack grows as needed), so the thread, the executor and the future only wrapped a direct
+// call. What the compiler thread did around the callable is kept as it was: the check that
+// the Compiler is not shared across threads; compilerThread set while the callable runs, so
+// that a nested call runs it directly; the thread trace when dumpTraceReport; and the
+// exceptions: any Throwable the callable throws is caught and thrown after it, with the debug
+// message, as it is when unchecked, else wrapped in a RuntimeException. The timeout cannot
+// expire: the callable has returned before the result is asked for.
 func (this *CompilerExecutor) runInCompilerThread(callable func() any, dumpTraceReport bool) any {
-	var executor ExecutorService = this.getExecutorService()
 	var result any = nil
-	var exception []*Throwable = make([]*Throwable, 1)
+	var exception *Throwable
 	if this.compilerThread != nil && this.compilerThread != Thread_currentThread() {
 		panic(new_IllegalStateException_String(objstr_("Please do not share the Compiler across threads")))
 	}
 	if this.useThreads && (this.compilerThread == nil) {
 		func() {
 			defer func() {
-				executor.shutdown()
+				this.compilerThread = nil
+				if dumpTraceReport {
+					Tracer_logCurrentThreadTrace()
+				}
+				Tracer_clearCurrentThreadTrace()
 			}()
 			defer func() {
 				if r_ := recover(); r_ != nil {
 					ex_ := catch_(r_)
-					if is_InterruptedException(ex_) || is_TimeoutException(ex_) || is_ExecutionException(ex_) {
-						var e *Exception = to_Exception(ex_)
-						panic(new_RuntimeException_Throwable(e.up_Throwable()))
+					if p, ok := ex_.(Throwable_as); ok {
+						exception = p.as_Throwable()
+						return
 					}
 					panic(r_)
 				}
 			}()
-			var bootCompilerThread CallableOf[any] = &Callable_fn{func() any {
-				var ret_2 any
-				code_2 := func() (code_ int) {
-					defer func() {
-						this.compilerThread = nil
-						if dumpTraceReport {
-							Tracer_logCurrentThreadTrace()
-						}
-						Tracer_clearCurrentThreadTrace()
-					}()
-					defer func() {
-						if r_ := recover(); r_ != nil {
-							ex_ := catch_(r_)
-							if p, ok := ex_.(Throwable_as); ok {
-								var e *Throwable = p.as_Throwable()
-								exception[0] = e
-								return
-							}
-							panic(r_)
-						}
-					}()
-					this.compilerThread = Thread_currentThread()
-					if dumpTraceReport {
-						Tracer_initCurrentThreadTrace_0()
-					}
-					ret_2 = callable()
-					return 1
-				}()
-				if code_2 == 1 {
-					return ret_2
-				}
-				return nil
-			}}
-			var future FutureOf[any] = executor.submit(bootCompilerThread)
-			if this.timeout > 0 {
-				result = future.get_long_TimeUnit(int64(this.timeout), TimeUnit_SECONDS)
-			} else {
-				result = future.get()
+			this.compilerThread = Thread_currentThread()
+			if dumpTraceReport {
+				Tracer_initCurrentThreadTrace_0()
 			}
+			result = callable()
 		}()
 	} else {
 		func() {
@@ -114,8 +85,7 @@ func (this *CompilerExecutor) runInCompilerThread(callable func() any, dumpTrace
 				if r_ := recover(); r_ != nil {
 					ex_ := catch_(r_)
 					if p2, ok2 := ex_.(Exception_as); ok2 {
-						var e *Exception = p2.as_Exception()
-						exception[0] = e.up_Throwable()
+						exception = p2.as_Exception().up_Throwable()
 						return
 					}
 					panic(r_)
@@ -124,33 +94,14 @@ func (this *CompilerExecutor) runInCompilerThread(callable func() any, dumpTrace
 			result = callable()
 		}()
 	}
-	if exception[0] != nil {
+	if exception != nil {
 		if this.debugMessage.isPresent() {
-			panic(new_RuntimeException_String_Throwable(("Exception during compilation: " + sstr_(this.debugMessage.get())), exception[0]))
+			panic(new_RuntimeException_String_Throwable(("Exception during compilation: " + sstr_(this.debugMessage.get())), exception))
 		}
-		Throwables_throwIfUnchecked(exception[0])
-		panic(new_RuntimeException_Throwable(exception[0]))
+		Throwables_throwIfUnchecked(exception)
+		panic(new_RuntimeException_Throwable(exception))
 	}
 	return result
 }
 
 const CompilerExecutor_COMPILER_STACK_SIZE int64 = 67108864
-
-type CompilerExecutor_1 struct {
-}
-
-func (this *CompilerExecutor_1) init_CompilerExecutor_1() {
-
-}
-
-func new_CompilerExecutor_1() *CompilerExecutor_1 {
-	this := &CompilerExecutor_1{}
-	this.init_CompilerExecutor_1()
-	return this
-}
-
-func (this *CompilerExecutor_1) newThread(r Runnable) *Thread {
-	var t *Thread = new_Thread_ThreadGroup_Runnable_String_long(nil, r, "jscompiler", CompilerExecutor_COMPILER_STACK_SIZE)
-	t.setDaemon(true)
-	return t
-}
