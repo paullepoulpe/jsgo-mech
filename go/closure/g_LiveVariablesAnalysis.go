@@ -22,7 +22,7 @@ func (this *LiveVariablesAnalysis) up_DataFlowAnalysis() *DataFlowAnalysis[Node,
 func (this *LiveVariablesAnalysis) init_LiveVariablesAnalysis(cfg *ControlFlowGraph[Node], jsScope *Scope, jsScopeChild *Scope, compiler *AbstractCompiler, scopeCreator ScopeCreator, allVarsDeclaredInFunction *NodeUtil_AllVarsDeclaredInFunction) {
 	this.DataFlowAnalysis.init_DataFlowAnalysis(cfg)
 	if !jsScope.isFunctionScope() {
-		Preconditions_checkState_boolean_Object(false, jsScope)
+		panic(new_IllegalStateException_String(objstr_(jsScope)).self())
 	}
 	this.jsScope = jsScope
 	this.jsScopeChild = jsScopeChild
@@ -232,7 +232,9 @@ func (this *LiveVariablesAnalysis) addToSetIfLocal(node Node, set *BitSet) {
 }
 
 func LiveVariablesAnalysis_isDeclaredInFunctionBlockOrParameter(scope *Scope, name string) bool {
-	Preconditions_checkState(scope.isFunctionBlockScope())
+	if !scope.isFunctionBlockScope() {
+		panic(new_IllegalStateException_0().self())
+	}
 	return (scope.hasOwnSlot(name) || scope.getParent_rScope().hasOwnSlot(name))
 }
 
@@ -298,7 +300,9 @@ func LiveVariablesAnalysis_LiveVariableLattice_createFromLattice(other *LiveVari
 }
 
 func (this *LiveVariablesAnalysis_LiveVariableLattice) equals(other any) bool {
-	Preconditions_checkNotNull(other)
+	if other == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var liveVariableLattice *LiveVariablesAnalysis_LiveVariableLattice
 	_ = liveVariableLattice
 	return (func() bool {

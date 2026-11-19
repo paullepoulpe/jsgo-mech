@@ -50,7 +50,9 @@ func (this *ColorGraphBuilder) connectUnionWithAncestors(unionNode *LinkedDirect
 	if !flatUnion.getColor().isUnion() {
 		return
 	}
-	Preconditions_checkState(!unionNode.getOutEdges().isEmpty())
+	if unionNode.getOutEdges().isEmpty() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var graphNodesBuilder *TSetBuilder[*ColorGraphNode] = newTSetBuilder_(jtc_p_ColorGraphNode)
 	it_1 := flatUnion.getColor().getUnionElements().each()
 	for it_1.next() {

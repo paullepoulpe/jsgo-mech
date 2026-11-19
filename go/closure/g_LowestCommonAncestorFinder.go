@@ -27,8 +27,12 @@ func new_LowestCommonAncestorFinder[N comparable, E comparable](graph *DiGraph[N
 }
 
 func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetOf[N]) ImmutableSetOf[N] {
-	Preconditions_checkArgument_boolean_Object((roots.size() <= 31), "Too many roots.")
-	Preconditions_checkState(this.searchColoring.isEmpty())
+	if roots.size() > 31 {
+		panic(new_IllegalArgumentException_String(objstr_("Too many roots.")).self())
+	}
+	if !this.searchColoring.isEmpty() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var allColor *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(((int32(1) << (uint32(roots.size()) & 31)) - 1))
 	var bitForRoot int32 = 1
 	it_1 := foreach_(any(roots))
@@ -60,7 +64,9 @@ func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetOf[N]) ImmutableS
 }
 
 func (this *LowestCommonAncestorFinder[N, E]) paintAncestors(root DiGraph_DiGraphNode[N], color *LowestCommonAncestorFinder_Color) {
-	Preconditions_checkState(this.searchQueue.isEmpty())
+	if !this.searchQueue.isEmpty() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.searchQueue.add(root)
 	for !this.searchQueue.isEmpty() {
 		var curr DiGraph_DiGraphNode[N] = this.searchQueue.pop()
@@ -109,7 +115,9 @@ func new_LowestCommonAncestorFinder_Color(bitset int32) *LowestCommonAncestorFin
 
 func LowestCommonAncestorFinder_Color_create(bitset int32) *LowestCommonAncestorFinder_Color {
 	if bitset < 0 {
-		Preconditions_checkArgument((bitset == -1))
+		if bitset != -1 {
+			panic(new_IllegalArgumentException_0().self())
+		}
 		return LowestCommonAncestorFinder_Color_NOT_LOWEST
 	} else if bitset < int32(len(LowestCommonAncestorFinder_Color_COMMON_COLOR_CACHE)) {
 		return LowestCommonAncestorFinder_Color_COMMON_COLOR_CACHE[bitset]

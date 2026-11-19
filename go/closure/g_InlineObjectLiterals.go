@@ -83,7 +83,9 @@ func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *JTLis
 		var parent Node = ref.getParent()
 		var grandparent Node = ref.getGrandparent()
 		if NodeUtil_isNormalOrOptChainGetProp(parent) {
-			Preconditions_checkState((parent.getFirstChild() == name))
+			if parent.getFirstChild() != name {
+				panic(new_IllegalStateException_0().self())
+			}
 			if NodeUtil_isInvocationTarget(parent) {
 				return false
 			}
@@ -328,7 +330,9 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 				Preconditions_checkState_boolean_Object_H(false, getprop)
 			}
 			var var_ string = getprop.getString()
-			Preconditions_checkState(varmap.containsKey(var_))
+			if !varmap.containsKey(var_) {
+				panic(new_IllegalStateException_0().self())
+			}
 			var replacement Node = IR_name(varmap.get(var_))
 			replacement.srcrefIfMissing(getprop)
 			ref.getParent().replaceWith(replacement)

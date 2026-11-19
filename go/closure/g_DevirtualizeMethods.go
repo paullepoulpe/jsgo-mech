@@ -18,7 +18,9 @@ func new_DevirtualizeMethods(compiler *AbstractCompiler) *DevirtualizeMethods {
 }
 
 func (this *DevirtualizeMethods) process_3(externs Node, root Node, refMap *OptimizeCalls_ReferenceMap) {
-	Preconditions_checkState_boolean_Object((this.refMap == nil), "`process` should only be called once.")
+	if this.refMap != nil {
+		panic(new_IllegalStateException_String(objstr_("`process` should only be called once.")).self())
+	}
 	this.refMap = refMap
 	it_1 := foreach_(any(refMap.getPropReferences()))
 	for it_1.next() {

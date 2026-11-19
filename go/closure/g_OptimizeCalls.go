@@ -25,7 +25,9 @@ func OptimizeCalls_builder() *OptimizeCalls_Builder {
 }
 
 func (this *OptimizeCalls) process_2(externs Node, root Node) {
-	Preconditions_checkState(this.compiler_.getLifeCycleStage().isNormalized())
+	if !this.compiler_.getLifeCycleStage().isNormalized() {
+		panic(new_IllegalStateException_0().self())
+	}
 	if this.passes.isEmpty() {
 		return
 	}
@@ -145,7 +147,9 @@ func (this *OptimizeCalls_Builder) addPass(pass OptimizeCalls_CallGraphCompilerP
 
 func (this *OptimizeCalls_Builder) build() *OptimizeCalls {
 	Preconditions_checkNotNull_T(this.compiler_)
-	Preconditions_checkNotNull(this.considerExterns)
+	if this.considerExterns == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	return new_OptimizeCalls(this.compiler_, this.passes.build(), unbox_[bool](this.considerExterns))
 }
 
@@ -311,7 +315,7 @@ func OptimizeCalls_ReferenceMap_isNewTarget(n Node) bool {
 func OptimizeCalls_ReferenceMap_getCallOrNewNodeForTarget(n Node) Node {
 	var maybeCall Node = n.getParent()
 	if !n.isFirstChildOf(maybeCall) {
-		Preconditions_checkState_boolean_String_Object_Object(false, "%s\n\n%s", maybeCall.box_(), n.box_())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("%s\n\n%s", []any{maybeCall.box_(), n.box_()})).self())
 	}
 	if NodeUtil_isCallOrNew(maybeCall) {
 		return maybeCall
@@ -325,7 +329,7 @@ func OptimizeCalls_ReferenceMap_getCallOrNewNodeForTarget(n Node) Node {
 			Preconditions_checkState_boolean_Object_H(false, maybeCall)
 		}
 		if !child.isFirstChildOf(maybeCall) {
-			Preconditions_checkState_boolean_String_Object_Object(false, "%s\n\n%s", maybeCall.box_(), child.box_())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("%s\n\n%s", []any{maybeCall.box_(), child.box_()})).self())
 		}
 		return maybeCall
 	}
@@ -402,7 +406,9 @@ func (this *OptimizeCalls_ReferenceMapBuildingCallback) visitSuper(superNode Nod
 	if parent.isCall() && superNode.isFirstChildOf(parent) {
 		var enclosingClass Node = Preconditions_checkNotNull_T(NodeUtil_getEnclosingClass(parent))
 		var extendsNode Node = enclosingClass.getSecondChild()
-		Preconditions_checkState_boolean_Object(!extendsNode.isEmpty(), "super call appears in class without extends clause")
+		if extendsNode.isEmpty() {
+			panic(new_IllegalStateException_String(objstr_("super call appears in class without extends clause")).self())
+		}
 		if extendsNode.isName() {
 			this.maybeAddNameReference(extendsNode.getString(), superNode)
 		} else if extendsNode.isGetProp() {

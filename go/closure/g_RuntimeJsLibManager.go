@@ -65,14 +65,14 @@ func (this *RuntimeJsLibManager) getExternedFields() *JTList[RuntimeJsLibManager
 
 func (this *RuntimeJsLibManager) createField(fieldName string) *RuntimeJsLibManager_InternalField {
 	if String_isEmpty(fieldName) {
-		Preconditions_checkArgument_boolean_Object(false, fieldName)
+		panic(new_IllegalArgumentException_String(objstr_(fieldName)).self())
 	}
 	var parts *JTList[string] = splitToListT_(jtc_string, Splitter_on('.'), strobj_(fieldName))
-	if !(parts.size() >= 2) {
-		Preconditions_checkArgument_boolean_String_Object(false, "Field name must start with $jscomp., found %s", fieldName)
+	if parts.size() < 2 {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Field name must start with $jscomp., found %s", []any{fieldName})).self())
 	}
-	if !(parts.get(0) == "$jscomp") {
-		Preconditions_checkArgument_boolean_String_Object(false, "Field name must start with $jscomp, found %s", fieldName)
+	if parts.get(0) != "$jscomp" {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Field name must start with $jscomp, found %s", []any{fieldName})).self())
 	}
 	var propName string = parts.get(1)
 	var resource Optional[string] = Optional_ofNullable[string](RuntimeJsLibManager_FieldsTable_INSTANCE.get(propName))
@@ -300,7 +300,7 @@ func RuntimeJsLibManager_FieldsTable_loadFields() *JTMap[string, string] {
 		var line string = str_(it_1.v)
 		var tokens *JTList[string] = splitToListT_(jtc_string, Splitter_on(',').limit(2), strobj_(line))
 		if ok_, a1_ := (tokens.size() == 2), tokens.asList(); !ok_ {
-			Preconditions_checkState_boolean_Object(false, any(a1_))
+			panic(new_IllegalStateException_String(objstr_(any(a1_))).self())
 		}
 		var fieldName string = tokens.get(0)
 		var resourcePath string = tokens.get(1)
@@ -368,7 +368,7 @@ func (this *RuntimeJsLibManager_InternalField) assertInjected_rInternalField() *
 	case RuntimeJsLibManager_RuntimeLibraryMode_NO_OP, RuntimeJsLibManager_RuntimeLibraryMode_RECORD_ONLY:
 	case RuntimeJsLibManager_RuntimeLibraryMode_RECORD_AND_VALIDATE_FIELDS, RuntimeJsLibManager_RuntimeLibraryMode_INJECT, RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES:
 		if !this.injected {
-			Preconditions_checkState_boolean_String_Object(false, "Field %s is not injected", this.uncompiledNameField)
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Field %s is not injected", []any{this.uncompiledNameField})).self())
 		}
 	}
 	return this

@@ -25,7 +25,9 @@ func (this *AmbiguateProperties) finit_AmbiguateProperties() {
 
 func (this *AmbiguateProperties) init_AmbiguateProperties(compiler *AbstractCompiler, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any], externProperties *JTSet[string]) {
 	this.finit_AmbiguateProperties()
-	Preconditions_checkState(compiler.getLifeCycleStage().isNormalized())
+	if !compiler.getLifeCycleStage().isNormalized() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.compiler_ = compiler
 	this.reservedFirstCharacters = reservedFirstCharacters
 	this.reservedNonFirstCharacters = reservedNonFirstCharacters
@@ -46,7 +48,9 @@ func AmbiguateProperties_makePassForTesting(compiler *AbstractCompiler, reserved
 }
 
 func (this *AmbiguateProperties) getRenamingMap() *JTMap[string, string] {
-	Preconditions_checkNotNull(any(this.renamingMap.asMap()))
+	if this.renamingMap.asMap() == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	return this.renamingMap
 }
 
@@ -131,7 +135,9 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		var oldName string = n.getString()
 		var p *AmbiguateProperties_Property = this.propertyMap.get(oldName)
 		if (p != nil) && p.newName.isPresent() {
-			Preconditions_checkState((oldName == p.oldName))
+			if oldName != p.oldName {
+				panic(new_IllegalStateException_0().self())
+			}
 			if !(p.newName.get() == oldName) {
 				n.setString(p.newName.get())
 				this.compiler_.reportChangeToEnclosingScope(n)
@@ -452,7 +458,9 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processClass(c
 					return Color_createUnion(possibleInstances)
 				}()
 			} else {
-				Preconditions_checkState(((member.isMemberFunctionDef() || member.isGetterDef()) || member.isSetterDef()))
+				if !((member.isMemberFunctionDef() || member.isGetterDef()) || member.isSetterDef()) {
+					panic(new_IllegalStateException_0().self())
+				}
 				memberOwnerColor = classPrototype
 			}
 			this.maybeMarkCandidate(member, memberOwnerColor)

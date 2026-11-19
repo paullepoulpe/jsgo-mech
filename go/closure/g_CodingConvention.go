@@ -428,7 +428,9 @@ func (this *CodingConvention_AssertionFunctionSpec_Builder) autoBuild() *CodingC
 
 func (this *CodingConvention_AssertionFunctionSpec_Builder) build() *CodingConvention_AssertionFunctionSpec {
 	var spec *CodingConvention_AssertionFunctionSpec = this.autoBuild()
-	Preconditions_checkState_boolean_Object((spec.getFunctionName().isPresent() || (spec.getClosurePrimitive() != 0)), "Must provide a function name or ClosurePrimitive for each spec")
+	if !spec.getFunctionName().isPresent() && spec.getClosurePrimitive() == 0 {
+		panic(new_IllegalStateException_String(objstr_("Must provide a function name or ClosurePrimitive for each spec")).self())
+	}
 	return spec
 }
 

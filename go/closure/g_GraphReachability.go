@@ -43,7 +43,9 @@ func (this *GraphReachability[N, E]) compute(entry N) {
 
 func (this *GraphReachability[N, E]) recompute(reachableNode N) {
 	var newReachable GraphNode[N] = cast_[GraphNode[N]](this.graph.getNode_Object_rDiGraphNode(reachableNode))
-	Preconditions_checkState((Annotatable_getAnnotation(Annotatable(newReachable)) != GraphReachability_REACHABLE))
+	if Annotatable_getAnnotation(Annotatable(newReachable)) == GraphReachability_REACHABLE {
+		panic(new_IllegalStateException_0().self())
+	}
 	newReachable.setAnnotation(GraphReachability_REACHABLE)
 	FixedPointGraphTraversal_newTraversal[N, E](func() FixedPointGraphTraversal_EdgeCallback[N, E] {
 		if v := this; v != nil {

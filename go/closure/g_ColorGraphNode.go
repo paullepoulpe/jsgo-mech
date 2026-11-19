@@ -28,17 +28,23 @@ func new_ColorGraphNode(single *Color, index int32) *ColorGraphNode {
 }
 
 func ColorGraphNode_create(single *Color, index int32) *ColorGraphNode {
-	Preconditions_checkArgument((index >= 0))
+	if index < 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	return new_ColorGraphNode(single, index)
 }
 
 func ColorGraphNode_createForTesting_int(index int32) *ColorGraphNode {
-	Preconditions_checkArgument((index < 0))
+	if index >= 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	return new_ColorGraphNode(StandardColors_UNKNOWN, index)
 }
 
 func ColorGraphNode_createForTesting_Color_int(single *Color, index int32) *ColorGraphNode {
-	Preconditions_checkArgument((index < 0))
+	if index >= 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	return new_ColorGraphNode(single, index)
 }
 

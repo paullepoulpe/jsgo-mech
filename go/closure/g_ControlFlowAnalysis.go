@@ -18,7 +18,11 @@ type ControlFlowAnalysis struct {
 
 func (this *ControlFlowAnalysis) finit_ControlFlowAnalysis() {
 	this.priorityComparator = Comparator_comparingInt(&ToIntFunction_tfn_DiGraph_DiGraphNode_Node_{func(digraphNode DiGraph_DiGraphNode[Node]) int32 {
-		return unbox_[int32](Preconditions_checkNotNull_Object_Object(this.astPosition.get(digraphNode.getValue()), digraphNode.getValue().box_()))
+		nn_, nn1_ := this.astPosition.get(digraphNode.getValue()), digraphNode.getValue()
+		if nn_ == nil {
+			panic(new_NullPointerException_String(objstr_(nn1_.box_())).self())
+		}
+		return unbox_[int32](nn_)
 	}})
 	this.exceptionHandler = newTDeque_(jtc_Node)
 	this.finallyMap = SimpleSetMultimap_createInsertionOrdered()
@@ -140,7 +144,9 @@ func (this *ControlFlowAnalysis) shouldTraverseIntoChildren(n Node, parent Node)
 			return false
 		case tokOrd1_TRY:
 			if (!NodeUtil_hasFinally(parent) && (n == NodeUtil_getCatchBlock(parent))) || NodeUtil_isTryFinallyNode(parent, n) {
-				Preconditions_checkState((this.exceptionHandler.peek() == parent))
+				if this.exceptionHandler.peek() != parent {
+					panic(new_IllegalStateException_0().self())
+				}
 				this.exceptionHandler.pop()
 			}
 		default:
@@ -277,7 +283,9 @@ func (this *ControlFlowAnalysis) handleCase(caseNode Node) {
 	this.createEdge(caseNode, ControlFlowGraph_Branch_ON_TRUE, caseNode.getSecondChild())
 	var next Node = ControlFlowAnalysis_getNextSiblingOfType(caseNode.getNext(), []Token_rhino{Token_rhino_CASE})
 	if next != 0 {
-		Preconditions_checkState(next.isCase())
+		if !next.isCase() {
+			panic(new_IllegalStateException_0().self())
+		}
 		this.createEdge(caseNode, ControlFlowGraph_Branch_ON_FALSE, next)
 	} else {
 		var switchBody Node = caseNode.getParent()
@@ -330,10 +338,16 @@ func (this *ControlFlowAnalysis) handleStmtList(node Node) {
 }
 
 func (this *ControlFlowAnalysis) handleFunction(node Node) {
-	Preconditions_checkState(node.isFunction())
-	Preconditions_checkState(node.hasXChildren(3))
+	if !node.isFunction() {
+		panic(new_IllegalStateException_0().self())
+	}
+	if !node.hasXChildren(3) {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.createEdge(node, ControlFlowGraph_Branch_UNCOND, ControlFlowAnalysis_computeFallThrough(node.getLastChild()))
-	Preconditions_checkState((this.exceptionHandler.peek() == node))
+	if this.exceptionHandler.peek() != node {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.exceptionHandler.pop()
 }
 
@@ -420,7 +434,9 @@ func (this *ControlFlowAnalysis) handleContinue(node Node) {
 				}
 				lastJump = cur
 			}
-			Preconditions_checkState_boolean_Object(cur.hasParent(), "Cannot find continue target.")
+			if !cur.hasParent() {
+				panic(new_IllegalStateException_String(objstr_("Cannot find continue target.")).self())
+			}
 			previous = cur
 		}
 	}
@@ -576,7 +592,9 @@ func (this *ControlFlowAnalysis) connectToPossibleExceptionHandlerUnconditionall
 		if handler.isFunction() {
 			return
 		}
-		Preconditions_checkState(handler.isTry())
+		if !handler.isTry() {
+			panic(new_IllegalStateException_0().self())
+		}
 		var catchBlock Node = NodeUtil_getCatchBlock(handler)
 		var lastJumpInCatchBlock bool = false
 		it_3 := foreach_(obj_(lastJump.getAncestors()))

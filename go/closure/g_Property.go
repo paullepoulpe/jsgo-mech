@@ -16,7 +16,10 @@ func (this *Property) finit_Property() {
 
 func (this *Property) init_Property(name any, type_ *JSType, inferred bool, propertyNode Node) {
 	this.finit_Property()
-	this.name_ = Preconditions_checkNotNull(name)
+	if name == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.name_ = name
 	this.type__ = Preconditions_checkNotNull_Object_String_Object_T(type_, "Null type specified for %s", name)
 	this.inferred = inferred
 	this.propertyNode = propertyNode
@@ -29,7 +32,9 @@ func new_Property(name any, type_ *JSType, inferred bool, propertyNode Node) *Pr
 }
 
 func Property_createFromKey(name Property_Key, type_ *JSType, inferred bool, propertyNode Node) *Property {
-	Preconditions_checkNotNull_T(name)
+	if name == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var nameObject any = func() any {
 		switch name.kind() {
 		case Property_KeyKind_STRING:

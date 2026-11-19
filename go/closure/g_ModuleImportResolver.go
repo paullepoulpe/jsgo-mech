@@ -74,7 +74,7 @@ func (this *ModuleImportResolver) getScopedNameForClosureNamespace(moduleId stri
 
 func (this *ModuleImportResolver) getGoogModuleScopeRoot(module *Module) Node {
 	if ok_, a1_ := module.metadata().isGoogModule(), module.metadata(); !ok_ {
-		Preconditions_checkArgument_boolean_Object(false, a1_)
+		panic(new_IllegalArgumentException_String(objstr_(a1_)).self())
 	}
 	var scriptNode Node = module.metadata().rootNode()
 	if (scriptNode.isScript() && scriptNode.hasOneChild()) && scriptNode.getOnlyChild().isModuleBody() {
@@ -88,10 +88,10 @@ func (this *ModuleImportResolver) getGoogModuleScopeRoot(module *Module) Node {
 
 func (this *ModuleImportResolver) declareEsModuleImports(module *Module, scope *TypedScope, moduleInput *CompilerInput) *JTMap[Node, *ScopedName] {
 	if !module.metadata().isEs6Module() {
-		Preconditions_checkArgument_boolean_Object(false, module)
+		panic(new_IllegalArgumentException_String(objstr_(module)).self())
 	}
 	if !scope.isModuleScope() {
-		Preconditions_checkArgument_boolean_Object(false, scope)
+		panic(new_IllegalArgumentException_String(objstr_(scope)).self())
 	}
 	var missingNames *TMapBuilder[Node, *ScopedName] = newTMapBuilder_(jtc_Node, jtc_p_ScopedName)
 	it_1 := module.boundNames().eachEntry()
@@ -127,10 +127,10 @@ func (this *ModuleImportResolver) declareEsModuleImports(module *Module, scope *
 
 func (this *ModuleImportResolver) updateEsModuleNamespaceType(namespace *ObjectType, module *Module, scope *TypedScope) {
 	if !module.metadata().isEs6Module() {
-		Preconditions_checkArgument_boolean_Object(false, module)
+		panic(new_IllegalArgumentException_String(objstr_(module)).self())
 	}
 	if !scope.isModuleScope() {
-		Preconditions_checkArgument_boolean_Object(false, scope)
+		panic(new_IllegalArgumentException_String(objstr_(scope)).self())
 	}
 	it_1 := module.namespace().eachEntry()
 	for it_1.next() {
@@ -228,7 +228,9 @@ func ModuleImportResolver_getModuleFromScopeRoot(moduleMap *ModuleMap, inputProv
 		var scriptNode Node = moduleBody.getParent()
 		var input *CompilerInput = Preconditions_checkNotNull_T(inputProvider.getInput(scriptNode.getInputId()))
 		var module *Module = moduleMap.getModule(input.getPath())
-		Preconditions_checkState_boolean_Object(module.metadata().isEs6Module(), "Typechecking of non-goog- and non-es-modules not supported")
+		if !module.metadata().isEs6Module() {
+			panic(new_IllegalStateException_String(objstr_("Typechecking of non-goog- and non-es-modules not supported")).self())
+		}
 		return module
 	}
 	return nil

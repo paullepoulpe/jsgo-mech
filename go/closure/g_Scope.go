@@ -73,17 +73,23 @@ func (this *Scope) getParent_rScope() *Scope {
 }
 
 func (this *Scope) declare(name string, nameNode Node, input *CompilerInput) *Var {
-	Preconditions_checkArgument(!String_isEmpty(name))
-	Preconditions_checkState((this.getOwnSlot_String_rAbstractVar_rVar(name) == nil))
+	if String_isEmpty(name) {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if this.getOwnSlot_String_rAbstractVar_rVar(name) != nil {
+		panic(new_IllegalStateException_0().self())
+	}
 	var var_ *Var = new_Var(name, nameNode, this, this.getVarCount(), input, 0)
 	this.declareInternal(name, var_)
 	return var_
 }
 
 func (this *Scope) declareImplicitGoogNamespaceIfAbsent(name string, definition Node) *Var {
-	Preconditions_checkArgument(!String_isEmpty(name))
+	if String_isEmpty(name) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if !this.isGlobal() {
-		Preconditions_checkState_boolean_String_Object(false, "Cannot declare implicit goog namespace in local scope %s", this)
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot declare implicit goog namespace in local scope %s", []any{this})).self())
 	}
 	var var_ *Var = this.getOwnSlot_String_rAbstractVar_rVar(name)
 	if var_ == nil {
@@ -123,8 +129,12 @@ func (this *Scope) getParentScope_rAbstractScope_rScope() *Scope {
 }
 
 func (this *Scope) undeclare(var_ *Var) {
-	Preconditions_checkState((var_.getScope_rAbstractScope_rScope() == this))
-	Preconditions_checkState(cast_[*Var](Map_get_s(this.vars, var_.getName())).equals(obj_(var_)))
+	if var_.getScope_rAbstractScope_rScope() != this {
+		panic(new_IllegalStateException_0().self())
+	}
+	if !cast_[*Var](Map_get_s(this.vars, var_.getName())).equals(obj_(var_)) {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.undeclareInteral(var_)
 }
 
@@ -273,7 +283,7 @@ func (this *Scope) getClosestContainerScope_rScope() *Scope {
 	if scope.isFunctionBlockScope() {
 		scope = scope.getParent_rScope()
 		if scope.isBlockScope() {
-			Preconditions_checkState_boolean_Object(false, scope)
+			panic(new_IllegalStateException_String(objstr_(scope)).self())
 		}
 	}
 	return scope
@@ -302,7 +312,9 @@ func (this *Scope) getCommonParent(other *Scope) *Scope {
 			right = right.getParent_rScope()
 		}
 	}
-	Preconditions_checkState(((left != nil) && (left == right)))
+	if left == nil || left != right {
+		panic(new_IllegalStateException_0().self())
+	}
 	return left
 }
 

@@ -434,7 +434,9 @@ func (this *ProcessTweaks_TweakInfo) isRegistered() bool {
 }
 
 func (this *ProcessTweaks_TweakInfo) getDefaultValueNode() Node {
-	Preconditions_checkState(this.isRegistered())
+	if !this.isRegistered() {
+		panic(new_IllegalStateException_0().self())
+	}
 	if this.defaultValueNode != 0 {
 		return this.defaultValueNode
 	}

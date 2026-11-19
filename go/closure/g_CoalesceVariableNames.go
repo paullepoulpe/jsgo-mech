@@ -32,7 +32,9 @@ func (this *CoalesceVariableNames) finit_CoalesceVariableNames() {
 func (this *CoalesceVariableNames) init_CoalesceVariableNames(compiler *AbstractCompiler, usePseudoNames bool) {
 	this.NodeTraversal_AbstractCfgCallback.init_NodeTraversal_AbstractCfgCallback()
 	this.finit_CoalesceVariableNames()
-	Preconditions_checkState(compiler.getLifeCycleStage().isNormalized())
+	if !compiler.getLifeCycleStage().isNormalized() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.compiler_ = compiler
 	this.colorings = newTDeque_(tc_p_GraphColoring_p_Var__any_)
 	this.liveAnalyses = newTDeque_(jtc_p_LiveVariablesAnalysis)
@@ -74,7 +76,7 @@ func (this *CoalesceVariableNames) enterScopeWithCfg_impl(t *NodeTraversal) {
 	this.shouldOptimizeScopeStack.push(any(bool(true)))
 	var scope *Scope = t.getScope()
 	if !scope.isFunctionScope() {
-		Preconditions_checkState_boolean_Object(false, scope)
+		panic(new_IllegalStateException_String(objstr_(scope)).self())
 	}
 	var cfg *ControlFlowGraph[Node] = this.getControlFlowGraph(this.compiler_)
 	this.liveness = new_LiveVariablesAnalysis(cfg, scope, nil, this.compiler_, MemoizedScopeCreator_as_ScopeCreator(this.scopeCreator), allVarsDeclaredInFunction)
@@ -144,7 +146,9 @@ func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent N
 }
 
 func (this *CoalesceVariableNames) updateDeclarationsPostCoalescing(n Node, coalescedVar *Var, originalVar *Var, parent Node) {
-	Preconditions_checkState_boolean_Object(n.isName(), "trying to update the declaration of a non-name node")
+	if !n.isName() {
+		panic(new_IllegalStateException_String(objstr_("trying to update the declaration of a non-name node")).self())
+	}
 	if NodeUtil_isNameDeclaration(parent) || (((NodeUtil_getEnclosingType(n, Token_rhino_DESTRUCTURING_LHS) != 0) && NodeUtil_isLhsByDestructuring(n)) && !this.isNameInsideDestructuringAssignment(n)) {
 		this.makeDeclarationVar(coalescedVar)
 		this.removeVarDeclaration(n, originalVar)
@@ -327,7 +331,9 @@ func (this *CoalesceVariableNames) isUninitializedLetNameInLoopBodyAndLive(nameN
 	if !CoalesceVariableNames_isUninitializedLetNameInLoopBody(nameNode) {
 		return false
 	}
-	Preconditions_checkState((this.liveness != nil))
+	if this.liveness == nil {
+		panic(new_IllegalStateException_0().self())
+	}
 	var letNode Node = nameNode.getParent()
 	var cfg *ControlFlowGraph[Node] = this.liveness.getCfg()
 	var cfgNode DiGraph_DiGraphNode[Node] = cast_[DiGraph_DiGraphNode[Node]](Preconditions_checkNotNull_T(cfg.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(letNode)).self())

@@ -72,7 +72,9 @@ func (this *PeepholeReplaceKnownMethods) tryFoldKnownMethods(subtree Node) Node 
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldKnownArrayMethods(subtree Node, callTarget Node) Node {
-	Preconditions_checkArgument((subtree.isCall() && callTarget.isGetProp()))
+	if !subtree.isCall() || !callTarget.isGetProp() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var methodName string = callTarget.getString()
 	return func() Node {
 		switch methodName {
@@ -93,7 +95,9 @@ func (this *PeepholeReplaceKnownMethods) tryFoldKnownArrayMethods(subtree Node, 
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldArrayIsArray(subtree Node, callTarget Node) Node {
-	Preconditions_checkArgument((subtree.isCall() && callTarget.isGetProp()))
+	if !subtree.isCall() || !callTarget.isGetProp() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var firstArg Node = callTarget.getNext()
 	if firstArg == 0 {
 		var newNode Node = NodeUtil_booleanNode(false).srcref(subtree)
@@ -123,7 +127,9 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayIsArray(subtree Node, callT
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldKnownNumberMethods(subtree Node, callTarget Node) Node {
-	Preconditions_checkArgument((subtree.isCall() && callTarget.isGetProp()))
+	if !subtree.isCall() || !callTarget.isGetProp() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var methodName string = callTarget.getString()
 	switch methodName {
 	case "parseInt", "parseFloat":
@@ -166,7 +172,9 @@ func (this *PeepholeReplaceKnownMethods) tryFoldKnownNumberMethods(subtree Node,
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldKnownMathMethods(subtree Node, callTarget Node) Node {
-	Preconditions_checkArgument((subtree.isCall() && callTarget.isGetProp()))
+	if !subtree.isCall() || !callTarget.isGetProp() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var args *JTList[any] = jtlistEmptyImm_(tc_Double)
 	{
 		var arg Node = callTarget.getNext()
@@ -265,7 +273,9 @@ func (this *PeepholeReplaceKnownMethods) tryFoldKnownMathMethods(subtree Node, c
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldKnownStringMethods(subtree Node, callTarget Node) Node {
-	Preconditions_checkArgument((subtree.isCall() && callTarget.isGetProp()))
+	if !subtree.isCall() || !callTarget.isGetProp() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var stringNode Node = callTarget.getFirstChild()
 	var isStringLiteral bool = stringNode.isStringLit()
 	var functionNameString string = callTarget.getString()
@@ -343,7 +353,9 @@ func (this *PeepholeReplaceKnownMethods) tryFoldKnownStringMethods(subtree Node,
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldKnownNumericMethods(subtree Node, callTarget Node) Node {
-	Preconditions_checkArgument(subtree.isCall())
+	if !subtree.isCall() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if this.isASTNormalized() {
 		var functionNameString string = callTarget.getString()
 		var firstArgument Node = callTarget.getNext()
@@ -417,7 +429,9 @@ func PeepholeReplaceKnownMethods_normalizeNumericString(input string) string {
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldParseNumber(n Node, functionName string, firstArg Node) Node {
-	Preconditions_checkArgument(n.isCall())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var isParseInt bool = (functionName == "parseInt")
 	var secondArg Node = firstArg.getNext()
 	var radix int32 = 0
@@ -562,8 +576,12 @@ func PeepholeReplaceKnownMethods_getRadixDigit(c uint16, radix int32) int32 {
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringIndexOf(n Node, functionName string, lstringNode Node, firstArg Node) Node {
-	Preconditions_checkArgument(n.isCall())
-	Preconditions_checkArgument(lstringNode.isStringLit())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if !lstringNode.isStringLit() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var lstring string = lstringNode.getString()
 	var isIndexOf bool = (functionName == "indexOf")
 	var secondArg Node = firstArg.getNext()
@@ -597,8 +615,12 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringIndexOf(n Node, functionNa
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringIncludes(n Node, lstringNode Node, firstArg Node) Node {
-	Preconditions_checkArgument(n.isCall())
-	Preconditions_checkArgument(lstringNode.isStringLit())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if !lstringNode.isStringLit() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if firstArg.isRegExp() {
 		return n
 	}
@@ -628,8 +650,12 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringIncludes(n Node, lstringNo
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringStartsWith(n Node, lstringNode Node, firstArg Node) Node {
-	Preconditions_checkArgument(n.isCall())
-	Preconditions_checkArgument(lstringNode.isStringLit())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if !lstringNode.isStringLit() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if firstArg.isRegExp() {
 		return n
 	}
@@ -659,8 +685,12 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringStartsWith(n Node, lstring
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringEndsWith(n Node, lstringNode Node, firstArg Node) Node {
-	Preconditions_checkArgument(n.isCall())
-	Preconditions_checkArgument(lstringNode.isStringLit())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if !lstringNode.isStringLit() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if firstArg.isRegExp() {
 		return n
 	}
@@ -696,8 +726,12 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringEndsWith(n Node, lstringNo
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringAt(n Node, stringNode Node, firstArg Node) Node {
-	Preconditions_checkArgument(n.isCall())
-	Preconditions_checkArgument(stringNode.isStringLit())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if !stringNode.isStringLit() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var posVal float64
 	if firstArg == 0 {
 		posVal = 0.0
@@ -851,9 +885,15 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringSubstr(n Node, stringNode Node, arg1 Node) Node {
-	Preconditions_checkArgument(n.isCall())
-	Preconditions_checkArgument(stringNode.isStringLit())
-	Preconditions_checkArgument((arg1 != 0))
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if !stringNode.isStringLit() {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if arg1 == 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var start int32
 	var length int32
 	var stringAsString string = stringNode.getString()
@@ -889,9 +929,15 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringSubstr(n Node, stringNode 
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringSubstringOrSlice(n Node, stringNode Node, arg1 Node) Node {
-	Preconditions_checkArgument(n.isCall())
-	Preconditions_checkArgument(stringNode.isStringLit())
-	Preconditions_checkArgument((arg1 != 0))
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if !stringNode.isStringLit() {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if arg1 == 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var start int32
 	var end int32
 	var stringAsString string = stringNode.getString()
@@ -934,8 +980,12 @@ func (this *PeepholeReplaceKnownMethods) replaceWithCharAt(n Node, callTarget No
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringCharAt(n Node, stringNode Node, arg1 Node) Node {
-	Preconditions_checkArgument(n.isCall())
-	Preconditions_checkArgument(stringNode.isStringLit())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if !stringNode.isStringLit() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var index int32
 	var stringAsString string = stringNode.getString()
 	if ((arg1 != 0) && arg1.isNumber()) && (arg1.getNext() == 0) {
@@ -954,8 +1004,12 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringCharAt(n Node, stringNode 
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringReplace(n Node, stringNode Node, arg1 Node) Node {
-	Preconditions_checkArgument(n.isCall())
-	Preconditions_checkArgument(stringNode.isStringLit())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if !stringNode.isStringLit() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var arg2 Node = arg1.getNext()
 	if (arg2 == 0) || (arg2.getNext() != 0) {
 		return n
@@ -982,8 +1036,12 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringReplace(n Node, stringNode
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringReplaceAll(n Node, stringNode Node, arg1 Node) Node {
-	Preconditions_checkArgument(n.isCall())
-	Preconditions_checkArgument(stringNode.isStringLit())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if !stringNode.isStringLit() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var arg2 Node = arg1.getNext()
 	if (arg2 == 0) || (arg2.getNext() != 0) {
 		return n
@@ -1005,8 +1063,12 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringReplaceAll(n Node, stringN
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringCharCodeAt(n Node, stringNode Node, arg1 Node) Node {
-	Preconditions_checkArgument(n.isCall())
-	Preconditions_checkArgument(stringNode.isStringLit())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if !stringNode.isStringLit() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var index int32
 	var stringAsString string = stringNode.getString()
 	if ((arg1 != 0) && arg1.isNumber()) && (arg1.getNext() == 0) {
@@ -1036,7 +1098,9 @@ func PeepholeReplaceKnownMethods_jsSplitMatch(stringValue string, startIndex int
 }
 
 func (this *PeepholeReplaceKnownMethods) jsSplit(stringValue string, separator Optional[string], limit int32) []string {
-	Preconditions_checkArgument((limit >= 0))
+	if limit < 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if limit == 0 {
 		return newstrarr_(0)
 	}
@@ -1074,8 +1138,12 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringSplit(n Node, stringNode N
 	if this.late {
 		return n
 	}
-	Preconditions_checkArgument(n.isCall())
-	Preconditions_checkArgument(stringNode.isStringLit())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if !stringNode.isStringLit() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var separator Optional[string] = Optional_empty[string]()
 	var stringValue string = stringNode.getString()
 	var limit int32 = (String_length(stringValue) + 1)

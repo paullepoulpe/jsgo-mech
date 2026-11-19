@@ -134,7 +134,7 @@ func (this *GenerateExports) addExportForEs6Method(memberFunction Node, ownerNam
 		Preconditions_checkArgument_boolean_Object_H(false, memberFunction)
 	}
 	if String_isEmpty(ownerName) {
-		Preconditions_checkArgument_boolean_Object(false, ownerName)
+		panic(new_IllegalArgumentException_String(objstr_(ownerName)).self())
 	}
 	var fullExport string = (sstr_(ownerName) + "." + sstr_(memberFunction.getString()))
 	this.addExportPropertyCall(ownerName, memberFunction, fullExport, memberFunction.getString())

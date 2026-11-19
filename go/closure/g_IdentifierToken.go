@@ -46,7 +46,9 @@ func (this *IdentifierToken) valueEquals(str string) bool {
 }
 
 func (this *IdentifierToken) getValue() string {
-	Preconditions_checkState(!this.privateIdentifier)
+	if this.privateIdentifier {
+		panic(new_IllegalStateException_0().self())
+	}
 	return this.value_
 }
 

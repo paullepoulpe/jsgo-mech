@@ -28,8 +28,12 @@ func (this *ExpressionDecomposer) finit_ExpressionDecomposer() {
 func (this *ExpressionDecomposer) init_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string], constFunctionNames *JTSet[string], scope *Scope, enabledWorkarounds EnumSetOf[ExpressionDecomposer_Workaround]) {
 	this.finit_ExpressionDecomposer()
 	Preconditions_checkNotNull_T(compiler)
-	Preconditions_checkNotNull_T(safeNameIdSupplier)
-	Preconditions_checkNotNull(any(constFunctionNames.asSet()))
+	if safeNameIdSupplier == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	if constFunctionNames.asSet() == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	this.compiler_ = compiler
 	this.astAnalyzer = compiler.getAstAnalyzer()
 	this.astFactory_ = compiler.createAstFactory()
@@ -158,7 +162,9 @@ func (this *ExpressionDecomposer) moveExpression(expression Node) {
 	Preconditions_checkNotNull_T(injectionPoint)
 	var injectionPointParent Node = injectionPoint.getParent()
 	Preconditions_checkNotNull_T(injectionPointParent)
-	Preconditions_checkState(NodeUtil_isStatementBlock(injectionPointParent))
+	if !NodeUtil_isStatementBlock(injectionPointParent) {
+		panic(new_IllegalStateException_0().self())
+	}
 	expression.replaceWith(IR_name(resultName).copyTypeFrom(expression))
 	var newExpressionRoot Node = NodeUtil_newVarNode(resultName, expression)
 	newExpressionRoot.getFirstChild().copyTypeFrom(expression)
@@ -263,7 +269,9 @@ func (this *ExpressionDecomposer) extractConditional(expr Node, injectionPoint N
 		var replacementValueNode Node = IR_name(tempName).copyTypeFrom(expr)
 		expr.replaceWith(replacementValueNode)
 	} else {
-		Preconditions_checkArgument(parent.isExprResult())
+		if !parent.isExprResult() {
+			panic(new_IllegalArgumentException_0().self())
+		}
 		parent.replaceWith(ifNode)
 	}
 	return ifNode
@@ -346,7 +354,9 @@ func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint No
 	if firstExtractedNode == 0 {
 		firstExtractedNode = tempVarNode
 	}
-	Preconditions_checkState(firstExtractedNode.isVar())
+	if !firstExtractedNode.isVar() {
+		panic(new_IllegalStateException_0().self())
+	}
 	return firstExtractedNode
 }
 
@@ -455,7 +465,9 @@ func ExpressionDecomposer_findExpressionRoot(subExpression Node) Node {
 		var parent Node = current.getParent()
 		switch current.ns_().token {
 		case tokOrd1_EXPR_RESULT, tokOrd1_IF, tokOrd1_SWITCH, tokOrd1_RETURN, tokOrd1_THROW:
-			Preconditions_checkState(child.isFirstChildOf(current))
+			if !child.isFirstChildOf(current) {
+				panic(new_IllegalStateException_0().self())
+			}
 			return current
 		case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 			if NodeUtil_isAnyFor(parent) {

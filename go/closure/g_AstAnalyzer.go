@@ -12,7 +12,9 @@ type AstAnalyzer struct {
 }
 
 func (this *AstAnalyzer) init_AstAnalyzer(options *AstAnalyzer_Options, typeRegistry *JSTypeRegistry, accessorSummary *AccessorSummary) {
-	Preconditions_checkArgument_boolean_Object((options.assumeGettersArePure_ || (accessorSummary != nil)), "accessorSummary must be provided if assumeGettersArePure is false")
+	if !options.assumeGettersArePure_ && accessorSummary == nil {
+		panic(new_IllegalArgumentException_String(objstr_("accessorSummary must be provided if assumeGettersArePure is false")).self())
+	}
 	this.typeRegistry = typeRegistry
 	this.accessorSummary = accessorSummary
 	this.useTypesForLocalOptimization_ = options.useTypesForLocalOptimization_
@@ -225,7 +227,7 @@ func (this *AstAnalyzer) checkAssignmentForChangeState(assignOp Node, checkForNe
 
 func (this *AstAnalyzer) constructorCallHasSideEffects(newNode Node) bool {
 	if ok_, a1_ := newNode.isNew(), newNode.getToken(); !ok_ {
-		Preconditions_checkArgument_boolean_String_Object(false, "Expected NEW node, got %s", a1_)
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected NEW node, got %s", []any{a1_})).self())
 	}
 	if newNode.isNoSideEffectsCall() {
 		return false

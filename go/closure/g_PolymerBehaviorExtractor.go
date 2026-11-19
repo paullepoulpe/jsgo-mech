@@ -209,7 +209,7 @@ func (this *PolymerBehaviorExtractor) resolveGoogModuleGet(moduleNamespace strin
 		return this.resolveBehaviorName(Optional_of[string](moduleNamespace), nil)
 	}
 	if !closureModule.isGoogModule() {
-		Preconditions_checkState_boolean_Object(false, closureModule)
+		panic(new_IllegalStateException_String(objstr_(closureModule)).self())
 	}
 	return this.resolveBehaviorName(Optional_of[string](PolymerBehaviorExtractor_GOOG_MODULE_EXPORTS), closureModule)
 }
@@ -253,7 +253,7 @@ func (this *PolymerBehaviorExtractor) getNameIfModuleImport(name string, metadat
 		originatingName = (sstr_(PolymerBehaviorExtractor_GOOG_MODULE_EXPORTS) + "." + sstr_(b.originatingExport().exportName().orElse("null")) + sstr_(rest))
 	} else {
 		if !importMetadata.isGoogProvide() {
-			Preconditions_checkState_boolean_Object(false, importMetadata)
+			panic(new_IllegalStateException_String(objstr_(importMetadata)).self())
 		}
 		originatingName = (sstr_(b.closureNamespace().orElse("null")) + "." + sstr_(b.originatingExport().exportName().orElse("null")) + sstr_(rest))
 	}
@@ -266,7 +266,9 @@ func (this *PolymerBehaviorExtractor) resolveModuleNamespaceBinding(b *Binding, 
 	} else if b.metadata().isGoogProvide() {
 		return this.resolveBehaviorName(Optional_of[string]((sstr_(b.closureNamespace().orElse("null")) + sstr_(rest))), b.metadata())
 	}
-	Preconditions_checkState(b.metadata().isEs6Module())
+	if !b.metadata().isEs6Module() {
+		panic(new_IllegalStateException_0().self())
+	}
 	if String_isEmpty(rest) {
 		return PolymerBehaviorExtractor_FAILED_RESOLVE_RESULT
 	}
@@ -292,7 +294,9 @@ func (this *PolymerBehaviorExtractor) resolveModuleNamespaceBinding(b *Binding, 
 }
 
 func PolymerBehaviorExtractor_getBehaviorFunctionsToCopy(behaviorObjLit Node) *JTList[*PolymerPass_MemberDefinition] {
-	Preconditions_checkState(behaviorObjLit.isObjectLit())
+	if !behaviorObjLit.isObjectLit() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var functionsToCopy *TListBuilder[*PolymerPass_MemberDefinition] = newTListBuilder_(jtc_p_PolymerPass_MemberDefinition)
 	var enclosingModule Node = NodeUtil_getEnclosingModuleIfPresent(behaviorObjLit)
 	{
@@ -330,7 +334,9 @@ func PolymerBehaviorExtractor_getQualifiedNameThroughCast(node Node) Optional[st
 }
 
 func PolymerBehaviorExtractor_getNonPropertyMembersToCopy(behaviorObjLit Node) *JTList[*PolymerPass_MemberDefinition] {
-	Preconditions_checkState(behaviorObjLit.isObjectLit())
+	if !behaviorObjLit.isObjectLit() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var membersToCopy *TListBuilder[*PolymerPass_MemberDefinition] = newTListBuilder_(jtc_p_PolymerPass_MemberDefinition)
 	var enclosingModule Node = NodeUtil_getEnclosingModuleIfPresent(behaviorObjLit)
 	{

@@ -86,7 +86,9 @@ func ProcessCommonJSModules_getModuleNameModulePath(input *ModuleLoader_ModulePa
 }
 
 func (this *ProcessCommonJSModules) getBasePropertyImport_2(moduleName string, requireCall Node) Optional[string] {
-	Preconditions_checkArgument(requireCall.isCall())
+	if !requireCall.isCall() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if (this.compiler_.getOptions().getModuleResolutionMode() == ModuleLoader_ResolutionMode_WEBPACK) && requireCall.getFirstChild().matchesQualifiedName(ProcessCommonJSModules_WEBPACK_REQUIRE_NAMESPACE) {
 		return Optional_of[string](moduleName)
 	}
@@ -183,7 +185,9 @@ func ProcessCommonJSModules_isCommonJsDynamicImportCallback(n Node, resolutionMo
 }
 
 func ProcessCommonJSModules_isWebpackRequireEnsureCallback(fnc Node) bool {
-	Preconditions_checkArgument(fnc.isFunction())
+	if !fnc.isFunction() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if fnc.getParent() == 0 {
 		return false
 	}
@@ -222,7 +226,9 @@ func (this *ProcessCommonJSModules) getBaseQualifiedNameNode(n Node) Node {
 }
 
 func (this *ProcessCommonJSModules) removeIIFEWrapper(root Node) bool {
-	Preconditions_checkState(root.isScript())
+	if !root.isScript() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var n Node = root.getFirstChild()
 	for (n != 0) && n.isEmpty() {
 		n = n.getNext()
@@ -267,7 +273,9 @@ func (this *ProcessCommonJSModules) removeIIFEWrapper(root Node) bool {
 }
 
 func (this *ProcessCommonJSModules) removeWebpackModuleShim(root Node) {
-	Preconditions_checkState(root.isScript())
+	if !root.isScript() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var n Node = root.getFirstChild()
 	for (n != 0) && n.isEmpty() {
 		n = n.getNext()
@@ -469,7 +477,9 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) getExports() *JTList[*
 
 func (this *ProcessCommonJSModules_FindImportsAndExports) shouldTraverse(nodeTraversal *NodeTraversal, n Node, parent Node) bool {
 	if n.isScript() {
-		Preconditions_checkState((this.script_ == 0))
+		if this.script_ != 0 {
+			panic(new_IllegalStateException_0().self())
+		}
 		this.script_ = n
 	}
 	return true
@@ -1091,9 +1101,13 @@ func (this *ProcessCommonJSModules_RewriteModule) visitExport(t *NodeTraversal, 
 }
 
 func (this *ProcessCommonJSModules_RewriteModule) expandObjectLitAssignment(t *NodeTraversal, export Node, scope *Scope) bool {
-	Preconditions_checkState(export.getParent().isAssign())
+	if !export.getParent().isAssign() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var insertionRef Node = export.getGrandparent()
-	Preconditions_checkState(insertionRef.isExprResult())
+	if !insertionRef.isExprResult() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var insertionParent Node = insertionRef.getParent()
 	Preconditions_checkNotNull_T(insertionParent)
 	var rValue Node = NodeUtil_getRValueOfLValue(export)
@@ -1135,8 +1149,12 @@ func (this *ProcessCommonJSModules_RewriteModule) expandObjectLitAssignment(t *N
 
 func (this *ProcessCommonJSModules_RewriteModule) maybeUpdateName(t *NodeTraversal, n Node, var_ *Var) {
 	Preconditions_checkNotNull_T(var_)
-	Preconditions_checkState((n.isName() || n.isGetProp()))
-	Preconditions_checkState(n.hasParent())
+	if !n.isName() && !n.isGetProp() {
+		panic(new_IllegalStateException_0().self())
+	}
+	if !n.hasParent() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var importedModuleName Optional[string] = this.getModuleImportName(t, var_.getNode())
 	var name string = n.getQualifiedName()
 	if importedModuleName.isPresent() && (n != var_.getNode()) {
@@ -1540,7 +1558,9 @@ func (this *ProcessCommonJSModules_RewriteModule) fixTypeNode(t *NodeTraversal, 
 }
 
 func (this *ProcessCommonJSModules_RewriteModule) splitMultipleDeclarations(var_ Node) *JTList[Node] {
-	Preconditions_checkState(NodeUtil_isNameDeclaration(var_))
+	if !NodeUtil_isNameDeclaration(var_) {
+		panic(new_IllegalStateException_0().self())
+	}
 	var vars *JTList[Node] = jnewTList_(jtc_Node)
 	var info *JSDocInfo = var_.getJSDocInfo()
 	for var_.getSecondChild() != 0 {

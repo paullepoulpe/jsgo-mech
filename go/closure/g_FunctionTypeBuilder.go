@@ -364,7 +364,9 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 			if paramLhs.isName() {
 				paramName = Optional_of[string](paramLhs.getString())
 			} else {
-				Preconditions_checkState(paramLhs.isDestructuringPattern())
+				if !paramLhs.isDestructuringPattern() {
+					panic(new_IllegalStateException_0().self())
+				}
 				if info != nil {
 					paramName = info.getParameterNameAt(paramIndex)
 				}
@@ -714,7 +716,9 @@ func FunctionTypeBuilder_isFunctionTypeDeclaration(info *JSDocInfo) bool {
 }
 
 func FunctionTypeBuilder_hasMoreTagsToResolve(objectType *ObjectType) bool {
-	Preconditions_checkArgument(objectType.isUnknownType())
+	if !objectType.isUnknownType() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var ctor *FunctionType = objectType.getConstructor()
 	if ctor != nil {
 		it_1 := ctor.getExtendedInterfaces().each()

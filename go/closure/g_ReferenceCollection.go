@@ -37,7 +37,9 @@ func (this *ReferenceCollection) isWellDefined() bool {
 	if init_ == nil {
 		return false
 	}
-	Preconditions_checkState(this.references.get(0).isDeclaration())
+	if !this.references.get(0).isDeclaration() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var initBlock *BasicBlock = init_.getBasicBlock()
 	for i := int32(1); i < size; i++ {
 		if !initBlock.provablyExecutesBefore(this.references.get(i).getBasicBlock()) {
@@ -109,7 +111,9 @@ func (this *ReferenceCollection) isInitializingAssignmentAt(index int32) bool {
 	if (index < this.references.size()) && (index > 0) {
 		var maybeDecl *Reference = this.references.get((index - 1))
 		if maybeDecl.isVarDeclaration() || maybeDecl.isLetDeclaration() {
-			Preconditions_checkState(!maybeDecl.isInitializingDeclaration())
+			if maybeDecl.isInitializingDeclaration() {
+				panic(new_IllegalStateException_0().self())
+			}
 			var maybeInit *Reference = this.references.get(index)
 			if maybeInit.isSimpleAssignmentToName() {
 				return true

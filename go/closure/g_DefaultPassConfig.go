@@ -678,7 +678,9 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.renameProperties = PassFactory_builder().setName("renameProperties").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		Preconditions_checkState((this.options_.getPropertyRenaming() == PropertyRenamingPolicy_ALL_UNQUOTED))
+		if this.options_.getPropertyRenaming() != PropertyRenamingPolicy_ALL_UNQUOTED {
+			panic(new_IllegalStateException_0().self())
+		}
 		var prevPropertyMap *VariableMap = this.options_.getInputPropertyMap()
 		return CompilerPass(new_DefaultPassConfig_11(this, compiler, prevPropertyMap))
 		panic("unreachable")
@@ -902,7 +904,9 @@ func (this *DefaultPassConfig) addModuleRewritingPasses(checks *PassListBuilder,
 
 func (this *DefaultPassConfig) getChecks_impl() *PassListBuilder {
 	var checks *PassListBuilder = new_PassListBuilder(this.options_)
-	Preconditions_checkState_boolean_Object(!this.options_.getSkipNonTranspilationPasses(), "options.getSkipNonTranspilationPasses() cannot be mixed with PassConfig::getChecks. Call PassConfig::getTranspileOnlyPasses instead.")
+	if this.options_.getSkipNonTranspilationPasses() {
+		panic(new_IllegalStateException_String(objstr_("options.getSkipNonTranspilationPasses() cannot be mixed with PassConfig::getChecks. Call PassConfig::getTranspileOnlyPasses instead.")).self())
+	}
 	if this.options_.isPropertyRenamingOnlyCompilationMode() {
 		checks.maybeAdd(this.addSyntheticScript)
 		checks.maybeAdd(this.gatherGettersAndSetters)
@@ -1460,7 +1464,9 @@ func (this *DefaultPassConfig) assertValidOrderForChecks(checks *PassListBuilder
 	checks.assertPassOrder(this.closureRewriteModule, TranspilationPasses_getEs6RewriteDestructuring(Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_ALL_OBJECT_PATTERNS), "RewriteCallerCodeLocation must happen before Es6RewriteDestructuring, because we need ReWriteCallerCodeLocation to run before default parameters get rewritten.")
 	checks.assertPassOrder(this.closureRewriteModule, TranspilationPasses_getEs6RewriteDestructuring(Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST), "RewriteCallerCodeLocation must happen before Es6RewriteDestructuring, because we need ReWriteCallerCodeLocation to run before default parameters get rewritten.")
 	if checks.contains(this.closureGoogScopeAliases) {
-		Preconditions_checkState_boolean_Object(checks.contains(this.checkVariableReferences), "goog.scope processing requires variable checking")
+		if !checks.contains(this.checkVariableReferences) {
+			panic(new_IllegalStateException_String(objstr_("goog.scope processing requires variable checking")).self())
+		}
 	}
 	checks.assertPassOrder(this.gatherModuleMetadataPass, this.closureCheckModule, "Need to gather module metadata before checking closure modules.")
 	checks.assertPassOrder(this.gatherModuleMetadataPass, this.createModuleMapPass, "Need to gather module metadata before scanning modules.")
@@ -1506,7 +1512,7 @@ func (this *DefaultPassConfig) getReplaceProtectedMessagesPass() *PassFactory {
 
 func DefaultPassConfig_createPeepholeOptimizationsPass(compiler *AbstractCompiler, passName string, expectAstIsNormalized bool) CompilerPass {
 	if ok_, a1_ := (expectAstIsNormalized == compiler.getLifeCycleStage().isNormalized()), compiler.getLifeCycleStage(); !ok_ {
-		Preconditions_checkArgument_boolean_Object(false, a1_)
+		panic(new_IllegalArgumentException_String(objstr_(a1_)).self())
 	}
 	var late bool = false
 	var useTypesForOptimization bool = compiler.getOptions().shouldUseTypesForLocalOptimization()
@@ -1529,7 +1535,9 @@ func DefaultPassConfig_createPeepholeOptimizationsPass(compiler *AbstractCompile
 }
 
 func DefaultPassConfig_combineChecks(compiler *AbstractCompiler, callbacks *JTList[NodeTraversal_Callback]) CompilerPass {
-	Preconditions_checkArgument(!callbacks.isEmpty())
+	if callbacks.isEmpty() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	return CompilerPass(new_CombinedCompilerPass(compiler, callbacks))
 }
 
