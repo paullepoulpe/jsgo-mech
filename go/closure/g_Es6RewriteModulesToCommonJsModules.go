@@ -86,41 +86,26 @@ func (this *Es6RewriteModulesToCommonJsModules_ModuleRequest) init_Es6RewriteMod
 	this.varName_ = varName
 }
 
-func new_Es6RewriteModulesToCommonJsModules_ModuleRequest(specifier string, varName string) *Es6RewriteModulesToCommonJsModules_ModuleRequest {
-	this := &Es6RewriteModulesToCommonJsModules_ModuleRequest{}
+func new_Es6RewriteModulesToCommonJsModules_ModuleRequest(specifier string, varName string) Es6RewriteModulesToCommonJsModules_ModuleRequest {
+	this := Es6RewriteModulesToCommonJsModules_ModuleRequest{}
 	this.zero_Es6RewriteModulesToCommonJsModules_ModuleRequest()
 	this.init_Es6RewriteModulesToCommonJsModules_ModuleRequest(specifier, varName)
 	return this
 }
 
-func Es6RewriteModulesToCommonJsModules_ModuleRequest_create(specifier string, varName string) *Es6RewriteModulesToCommonJsModules_ModuleRequest {
+func Es6RewriteModulesToCommonJsModules_ModuleRequest_create(specifier string, varName string) Es6RewriteModulesToCommonJsModules_ModuleRequest {
 	return new_Es6RewriteModulesToCommonJsModules_ModuleRequest(specifier, varName)
 }
 
-func (this *Es6RewriteModulesToCommonJsModules_ModuleRequest) specifier() string {
+func (this Es6RewriteModulesToCommonJsModules_ModuleRequest) specifier() string {
 	return this.specifier_
 }
 
-func (this *Es6RewriteModulesToCommonJsModules_ModuleRequest) varName() string {
+func (this Es6RewriteModulesToCommonJsModules_ModuleRequest) varName() string {
 	return this.varName_
 }
 
-func (this *Es6RewriteModulesToCommonJsModules_ModuleRequest) equals(p0 any) bool {
-	o, ok := p0.(*Es6RewriteModulesToCommonJsModules_ModuleRequest)
-	if !ok || o == nil {
-		return false
-	}
-	return true && this.specifier_ == o.specifier_ && this.varName_ == o.varName_
-}
-
-func (this *Es6RewriteModulesToCommonJsModules_ModuleRequest) hashCode() int32 {
-	var h int32
-	h = h*31 + objhashStr_(this.specifier_)
-	h = h*31 + objhashStr_(this.varName_)
-	return h
-}
-
-func (this *Es6RewriteModulesToCommonJsModules_ModuleRequest) toString() string {
+func (this Es6RewriteModulesToCommonJsModules_ModuleRequest) toString() string {
 	return "ModuleRequest[" + "specifier=" + sstr_(this.specifier_) + ", varName=" + sstr_(this.varName_) + "]"
 }
 
@@ -130,7 +115,7 @@ type Es6RewriteModulesToCommonJsModules_Rewriter struct {
 	script_                  Node
 	exportedNameToLocalQName *TTreeMap[string, *Es6RewriteModulesToCommonJsModules_LocalQName]
 	imports                  *TSet[Node]
-	importRequests           *TSet[*Es6RewriteModulesToCommonJsModules_ModuleRequest]
+	importRequests           *TSet[Es6RewriteModulesToCommonJsModules_ModuleRequest]
 	compiler_                *AbstractCompiler
 	modulePath_              *ModuleLoader_ModulePath
 }
@@ -148,7 +133,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) init_Es6RewriteModulesT
 	this.script_ = script
 	this.requireInsertSpot = 0
 	this.exportedNameToLocalQName = newTTreeMap_(tc_string, tc_p_Es6RewriteModulesToCommonJsModules_LocalQName)
-	this.importRequests = newTSet_(tch_p_Es6RewriteModulesToCommonJsModules_ModuleRequest)
+	this.importRequests = newTSet_(tc_Es6RewriteModulesToCommonJsModules_ModuleRequest)
 	this.imports = newTSet_(tc_Node)
 	this.modulePath_ = compiler.getInput(script.getInputId()).getPath()
 }
