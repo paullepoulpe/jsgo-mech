@@ -1947,10 +1947,10 @@ func (this Node) appendGetPropNames_(b *strings.Builder) {
 	b.WriteString(this.getString())
 }
 
-func (this Node) getQualifiedNameForGetProp(reserve int32) *StringBuilder {
+func (this Node) getQualifiedNameForGetProp(reserve int32) *strBuilder_ {
 	var propName string = this.getString()
 	reserve += (1 + String_length(propName))
-	var builder *StringBuilder
+	var builder *strBuilder_
 	if this.ns_().first.isGetProp() {
 		builder = this.ns_().first.getQualifiedNameForGetProp(reserve)
 		if builder == nil {
@@ -1961,10 +1961,10 @@ func (this Node) getQualifiedNameForGetProp(reserve int32) *StringBuilder {
 		if left == "" {
 			return nil
 		}
-		builder = new_StringBuilder_int((String_length(left) + reserve))
+		builder = strBuilderCap_((String_length(left) + reserve))
 		builder.append(left)
 	}
-	cast_[*StringBuilder](builder.append_char('.')).append(propName)
+	builder.append_char('.').append(propName)
 	return builder
 }
 
