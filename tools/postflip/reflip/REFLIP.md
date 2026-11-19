@@ -1866,8 +1866,9 @@ with nullstr_ instead of "".
 **Measurements.** 490 against 488 (4 rounds, then 5 with 491): typed-full cpu +2.3% (+0.9..+4.3)
 in the first run, -0.1% (-3.8..+1.0) in the second, wall +2.1% / +0.7%; bundle cpu -0.5%
 (-3.0..-0.0) / -0.1% (-2.9..+2.0), wall -1.4% / -0.3%. Allocations went up: typed-full 181.09M ->
-181.85M objects, bundle 85.67M -> 87.38M. The allocation profile put the whole difference (+1.81M of
-1.81M) in Optional.box_ under optstrBox_: getReplacementName's default `Optional_empty[string]().box_()`
+181.85M objects, bundle 85.67M -> 87.38M. The allocation profile (bundle, sampled) put the difference, +1.72M
+objects, in Optional.box_ under optstrBox_ (1.81M there at 490, 0.09M at 488; ca2a6157's message
+gives the profile's +1.72M, j2mem's count is +1.71M): getReplacementName's default `Optional_empty[string]().box_()`
 had been a constant the compiler boxed statically, `optstrBox_(nullstr_)` boxed it on every lookup.
 491 boxes the empty one once: typed-full 180.90M objects / 11.197 GB, bundle 85.64M / 5.840 GB (488:
 181.09M / 11.214 GB, 85.67M / 5.843 GB). 491 against 490 (5 rounds): typed-full cpu +0.4%
