@@ -224,7 +224,7 @@ func (this *StandardUnionFind_1[E]) apply(b any) bool {
 }
 
 func (this *StandardUnionFind_1[E]) test(p0 any) bool {
-	return Predicate_base_test(icast_Predicate_base(any(this)), p0)
+	return Predicate_base_test(this, p0)
 }
 
 type StandardUnionFind_2[E comparable] struct {

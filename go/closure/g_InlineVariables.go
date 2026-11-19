@@ -19,7 +19,7 @@ func new_InlineVariables(compiler *AbstractCompiler, mode InlineVariables_Mode) 
 }
 
 func (this *InlineVariables) process_2(externs Node, root Node) {
-	var callback *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate(this.compiler_, ReferenceCollector_Behavior(new_InlineVariables_InliningBehavior(this)), icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))), InlineVariables_Mode_varPredicate_[this.mode_-1])
+	var callback *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate(this.compiler_, ReferenceCollector_Behavior(new_InlineVariables_InliningBehavior(this)), new_SyntacticScopeCreator_AbstractCompiler(this.compiler_), InlineVariables_Mode_varPredicate_[this.mode_-1])
 	callback.process_2(externs, root)
 }
 

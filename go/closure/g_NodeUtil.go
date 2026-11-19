@@ -4089,7 +4089,7 @@ func NodeUtil_isCallToNode(n Node, targetMethod Node) bool {
 }
 
 func NodeUtil_collectExternVariableNames(compiler *AbstractCompiler, externs Node) *JTSet[string] {
-	var externsRefs *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(compiler, ReferenceCollector_DO_NOTHING_BEHAVIOR, icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(compiler))))
+	var externsRefs *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(compiler, ReferenceCollector_DO_NOTHING_BEHAVIOR, new_SyntacticScopeCreator_AbstractCompiler(compiler))
 	externsRefs.process(externs)
 	var externsNames *TSetBuilder[string] = newTSetBuilder_(jtc_string)
 	it_1 := foreach_(any(externsRefs.getAllSymbols()))
@@ -4600,7 +4600,7 @@ func (this *NodeUtil_MatchNameNode) apply(n_ any) bool {
 }
 
 func (this *NodeUtil_MatchNameNode) test(p0 any) bool {
-	return Predicate_base_test(icast_Predicate_base(any(this)), p0)
+	return Predicate_base_test(this, p0)
 }
 
 type NodeUtil_MatchNodeType struct {
@@ -4624,7 +4624,7 @@ func (this *NodeUtil_MatchNodeType) apply(n_ any) bool {
 }
 
 func (this *NodeUtil_MatchNodeType) test(p0 any) bool {
-	return Predicate_base_test(icast_Predicate_base(any(this)), p0)
+	return Predicate_base_test(this, p0)
 }
 
 type NodeUtil_MatchDeclaration struct {
@@ -4647,7 +4647,7 @@ func (this *NodeUtil_MatchDeclaration) apply(n_ any) bool {
 }
 
 func (this *NodeUtil_MatchDeclaration) test(p0 any) bool {
-	return Predicate_base_test(icast_Predicate_base(any(this)), p0)
+	return Predicate_base_test(this, p0)
 }
 
 type NodeUtil_MatchShallowStatement struct {
@@ -4671,7 +4671,7 @@ func (this *NodeUtil_MatchShallowStatement) apply(n_ any) bool {
 }
 
 func (this *NodeUtil_MatchShallowStatement) test(p0 any) bool {
-	return Predicate_base_test(icast_Predicate_base(any(this)), p0)
+	return Predicate_base_test(this, p0)
 }
 
 type NodeUtil_Visitor interface {

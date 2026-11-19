@@ -120,7 +120,7 @@ func (this *GlobalNamespace) getReferences_StaticSlot(slot *GlobalNamespace_Name
 }
 
 func (this *GlobalNamespace) getScope_StaticSlot(slot *GlobalNamespace_Name) StaticScope {
-	return icast_StaticScope(any(this))
+	return this
 }
 
 func (this *GlobalNamespace) getAllSymbols_rCollection() CollectionOf[*GlobalNamespace_Name] {
@@ -246,7 +246,7 @@ func GlobalNamespace_isQnameDeclarationWithoutAssignment(node Node) bool {
 }
 
 func (this *GlobalNamespace) getTopmostScopeOfEventualDeclaration(p0 string) StaticScope {
-	return StaticScope_getTopmostScopeOfEventualDeclaration_default(icast_StaticScope(any(this)), p0)
+	return StaticScope_getTopmostScopeOfEventualDeclaration_default(this, p0)
 }
 
 func (this *GlobalNamespace) getSlot_String(p0 string) StaticSlot {

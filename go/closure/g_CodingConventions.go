@@ -16,7 +16,7 @@ func new_CodingConventions() *CodingConventions {
 }
 
 func CodingConventions_getDefault() CodingConvention {
-	return icast_CodingConvention(obj_(new_CodingConventions_DefaultCodingConvention()))
+	return new_CodingConventions_DefaultCodingConvention()
 }
 
 func CodingConventions_defaultIsFunctionCallThatAlwaysThrows(n Node, alwaysThrowsFunctionName string) bool {
@@ -400,7 +400,7 @@ func (this *CodingConventions_DefaultCodingConvention) isExported_2(name string,
 }
 
 func (this *CodingConventions_DefaultCodingConvention) isExported(name string) bool {
-	return CodingConvention_isExported_default(icast_CodingConvention(any(this)), name)
+	return CodingConvention_isExported_default(this, name)
 }
 
 func (this *CodingConventions_DefaultCodingConvention) getClassesDefinedByCall(callNode Node) *CodingConvention_SubclassRelationship {
@@ -538,7 +538,7 @@ func CodingConventions_DefaultCodingConvention_safeNext(n Node) Node {
 }
 
 func (this *CodingConventions_DefaultCodingConvention) blockRenamingForProperty(p0 string) bool {
-	return CodingConvention_blockRenamingForProperty_default(icast_CodingConvention(any(this)), p0)
+	return CodingConvention_blockRenamingForProperty_default(this, p0)
 }
 
 func (this *CodingConventions_DefaultCodingConvention) getAssertionFunctions() Collection {

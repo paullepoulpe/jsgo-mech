@@ -80,8 +80,8 @@ func (this *DeadAssignmentsElimination) eliminateDeadAssignments(t *NodeTraversa
 	}
 	var cfg *ControlFlowGraph[Node] = this.getControlFlowGraph(this.compiler_)
 	var scopeCreator *SyntacticScopeCreator = new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)
-	var allVarsDeclaredInFunction *NodeUtil_AllVarsDeclaredInFunction = NodeUtil_getAllVarsDeclaredInFunction(this.compiler_, icast_ScopeCreator(obj_(scopeCreator)), functionScope)
-	this.liveness = new_LiveVariablesAnalysis(cfg, functionScope, blockScope, this.compiler_, icast_ScopeCreator(obj_(scopeCreator)), allVarsDeclaredInFunction)
+	var allVarsDeclaredInFunction *NodeUtil_AllVarsDeclaredInFunction = NodeUtil_getAllVarsDeclaredInFunction(this.compiler_, scopeCreator, functionScope)
+	this.liveness = new_LiveVariablesAnalysis(cfg, functionScope, blockScope, this.compiler_, scopeCreator, allVarsDeclaredInFunction)
 	this.liveness.analyze()
 	var allVarsInFn *JTMap[string, *Var] = this.liveness.getAllVariables()
 	this.tryRemoveDeadAssignments(t, cfg, allVarsInFn)

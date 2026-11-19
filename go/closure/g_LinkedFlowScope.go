@@ -174,9 +174,9 @@ func (this *LinkedFlowScope) withSyntacticScope(scope StaticTypedScope) FlowScop
 	var typedScope *TypedScope = cast_[*TypedScope](scope)
 	return func() FlowScope {
 		if any(scope) != obj_(this.syntacticScope) {
-			return icast_FlowScope(obj_(new_LinkedFlowScope(this.inputProvider, this.trimScopes(typedScope), typedScope, this.functionScope)))
+			return new_LinkedFlowScope(this.inputProvider, this.trimScopes(typedScope), typedScope, this.functionScope)
 		}
-		return icast_FlowScope(any(this))
+		return this
 	}()
 }
 

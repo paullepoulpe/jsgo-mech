@@ -19,12 +19,12 @@ func new_PrebuildDependencyInfo(numParalleThreads int32) *PrebuildDependencyInfo
 func (this *PrebuildDependencyInfo) prebuild(allInputs IterableOf[*CompilerInput]) {
 	var threadFactory ThreadFactory = ThreadFactory(new_PrebuildDependencyInfo_1(this))
 	var poolExecutor *ThreadPoolExecutor = new_ThreadPoolExecutor_int_int_long_TimeUnit_BlockingQueue_ThreadFactory(this.numParallelThreads, this.numParallelThreads, int64(int32(2147483647)), TimeUnit_SECONDS, BlockingQueue(new_LinkedBlockingQueue()), threadFactory)
-	var executorService ListeningExecutorService = MoreExecutors_listeningDecorator(icast_ExecutorService(poolExecutor.self()))
+	var executorService ListeningExecutorService = MoreExecutors_listeningDecorator(poolExecutor)
 	var futureList *JTList[ListenableFuture] = jnewTListN_(tc_ListenableFuture, Iterables_size(allInputs))
 	it_1 := foreach_(any(allInputs))
 	for it_1.next() {
 		var input *CompilerInput = cast_[*CompilerInput](it_1.v)
-		futureList.add(icast_ListenableFuture(executorService.submit(&Callable_tfn_DependencyInfo_{func() DependencyInfo_ { return input.getDependencyInfo() }})))
+		futureList.add(executorService.submit(&Callable_tfn_DependencyInfo_{func() DependencyInfo_ { return input.getDependencyInfo() }}))
 	}
 	poolExecutor.shutdown()
 	_ = func() (code_ int) {

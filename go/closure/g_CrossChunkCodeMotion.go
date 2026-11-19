@@ -37,7 +37,7 @@ func (this *CrossChunkCodeMotion) process_2(externs Node, root Node) {
 		this.cccmLog = logFile
 		this.cccmLog.logString("doing cccm")
 		if this.graph.getChunkCount() > 1 {
-			var referenceCollector *CrossChunkReferenceCollector = new_CrossChunkReferenceCollector(this.compiler_, icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))))
+			var referenceCollector *CrossChunkReferenceCollector = new_CrossChunkReferenceCollector(this.compiler_, new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))
 			referenceCollector.process(root)
 			var globalSymbols CollectionOf[*CrossChunkCodeMotion_GlobalSymbol] = new_CrossChunkCodeMotion_GlobalSymbolCollector(this).collectGlobalSymbols(referenceCollector)
 			this.moveGlobalSymbols(globalSymbols)

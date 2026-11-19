@@ -566,7 +566,7 @@ func CmdLineParser_Option_enumMetaVariable(values []*Enum) string {
 func CmdLineParser_Option_addValue(get SupplierOf[ListOf[any]], set ConsumerOf[ListOf[any]], value any) {
 	var list ListOf[any] = icast_List(get.get())
 	if list == nil {
-		list = icast_List(new_ArrayList_0().self())
+		list = new_ArrayList_0()
 		set.accept(any(list))
 	}
 	list.add(value)

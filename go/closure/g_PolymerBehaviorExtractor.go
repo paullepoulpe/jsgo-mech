@@ -418,5 +418,5 @@ func (this *PolymerBehaviorExtractor_BehaviorDefinition) getModuleLocalNames(com
 func (this *PolymerBehaviorExtractor_BehaviorDefinition) accumulateModuleLocalVars(compiler *AbstractCompiler) *JTSet[string] {
 	var scopeCreator *SyntacticScopeCreator = new_SyntacticScopeCreator_AbstractCompiler(compiler)
 	var globalScope *Scope = Scope_createGlobalScope(this.behaviorModule.getParent())
-	return NodeUtil_getAllVarNamesDeclaredInModule(this.behaviorModule, compiler, icast_ScopeCreator(obj_(scopeCreator)), globalScope)
+	return NodeUtil_getAllVarNamesDeclaredInModule(this.behaviorModule, compiler, scopeCreator, globalScope)
 }

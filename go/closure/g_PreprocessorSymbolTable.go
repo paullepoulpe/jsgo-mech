@@ -53,7 +53,7 @@ func (this *PreprocessorSymbolTable) getAllSymbols() IterableOf[*SimpleSlot] {
 }
 
 func (this *PreprocessorSymbolTable) getScope_StaticSlot_rStaticTypedScope(slot *SimpleSlot) StaticTypedScope {
-	return icast_StaticTypedScope(any(this))
+	return this
 }
 
 func (this *PreprocessorSymbolTable) addReference(node Node) {
@@ -79,11 +79,11 @@ func (this *PreprocessorSymbolTable) getQualifiedName(n Node) Optional[string] {
 }
 
 func (this *PreprocessorSymbolTable) lookupQualifiedName(p0 *QualifiedName) *JSType {
-	return StaticTypedScope_lookupQualifiedName_default(icast_StaticTypedScope(any(this)), p0)
+	return StaticTypedScope_lookupQualifiedName_default(this, p0)
 }
 
 func (this *PreprocessorSymbolTable) getTopmostScopeOfEventualDeclaration(p0 string) StaticScope {
-	return StaticScope_getTopmostScopeOfEventualDeclaration_default(icast_StaticScope(any(this)), p0)
+	return StaticScope_getTopmostScopeOfEventualDeclaration_default(this, p0)
 }
 
 func (this *PreprocessorSymbolTable) getSlot_String(p0 string) StaticSlot {

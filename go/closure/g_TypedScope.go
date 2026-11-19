@@ -244,7 +244,7 @@ func (this *TypedScope) getTypeThroughNamespace(moduleId string) *JSType {
 
 func (this *TypedScope) getTopmostScopeOfEventualDeclaration_impl(name string) StaticScope {
 	if (this.getOwnSlot_String_rAbstractVar_rTypedVar(name) != nil) || this.reservedNames.contains(name) {
-		return icast_StaticScope(obj_(this))
+		return this
 	} else if this.getParent_rTypedScope() == nil {
 		return nil
 	} else {
@@ -473,7 +473,7 @@ func (this *TypedScope) getScopeOfThis_rTypedScope() *TypedScope {
 }
 
 func (this *TypedScope) lookupQualifiedName(p0 *QualifiedName) *JSType {
-	return StaticTypedScope_lookupQualifiedName_default(icast_StaticTypedScope(obj_(this)), p0)
+	return StaticTypedScope_lookupQualifiedName_default(this, p0)
 }
 
 func (this *TypedScope) getParent_impl() *AbstractScope {

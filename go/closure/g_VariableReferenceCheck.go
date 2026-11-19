@@ -25,7 +25,7 @@ func new_VariableReferenceCheck(compiler *AbstractCompiler) *VariableReferenceCh
 }
 
 func (this *VariableReferenceCheck) process_2(externs Node, root Node) {
-	new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, ReferenceCollector_Behavior(new_VariableReferenceCheck_ReferenceCheckingBehavior(this)), icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)))).process_2(externs, root)
+	new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, ReferenceCollector_Behavior(new_VariableReferenceCheck_ReferenceCheckingBehavior(this)), new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)).process_2(externs, root)
 }
 
 func (this *VariableReferenceCheck) lookForHoistedFunction(references *JTList[*Reference]) *Reference {

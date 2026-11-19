@@ -19,7 +19,7 @@ func new_InlineObjectLiterals(compiler *AbstractCompiler, safeNameIdSupplier Sup
 }
 
 func (this *InlineObjectLiterals) process_2(externs Node, root Node) {
-	var callback *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, ReferenceCollector_Behavior(new_InlineObjectLiterals_InliningBehavior(this)), icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))))
+	var callback *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, ReferenceCollector_Behavior(new_InlineObjectLiterals_InliningBehavior(this)), new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))
 	callback.process_2(externs, root)
 }
 
@@ -206,7 +206,7 @@ func (this *InlineObjectLiterals_InliningBehavior) fillInitialValues(init_ *Refe
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v *Var, ref *Reference, varmap *JTMap[string, string]) {
-	var nodes ListOf[Node] = icast_List(new_ArrayList_0().self())
+	var nodes ListOf[Node] = new_ArrayList_0()
 	var val Node = ref.getAssignedValue()
 	this.recordStaleVarReferencesInTree(val, v.getScope_rAbstractScope_rScope())
 	if !val.isObjectLit() {

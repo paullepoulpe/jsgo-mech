@@ -21,7 +21,7 @@ func new_Denormalize(compiler *AbstractCompiler, outputFeatureSet *FeatureSet) *
 func (this *Denormalize) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(this))
 	if this.compiler_.getOptions().getSyntheticBlockStartMarker().isEmpty() {
-		new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, ReferenceCollector_Behavior(this), icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)))).process(root)
+		new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, ReferenceCollector_Behavior(this), new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)).process(root)
 	}
 }
 

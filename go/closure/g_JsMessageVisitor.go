@@ -425,7 +425,7 @@ func (this *JsMessageVisitor) extractJsMessageDefinition(msgNode Node, jsDocInfo
 	if unknownPlaceholdersChecked.isErr() {
 		return Outcome_base_err[JsMessageDefinition](unknownPlaceholdersChecked.error())
 	}
-	var jsExtractedMessage *JsMessage = this.buildJsMessage(icast_JsMessageVisitor_InputForBuildJsMsg(obj_(new_JsMessageVisitor_1(this, messageKeyFromLhs, sourceName, googGetMsgParsedText, jsMessageOptions, description, meaning, alternateMessageId))))
+	var jsExtractedMessage *JsMessage = this.buildJsMessage(new_JsMessageVisitor_1(this, messageKeyFromLhs, sourceName, googGetMsgParsedText, jsMessageOptions, description, meaning, alternateMessageId))
 	var result JsMessageDefinition = JsMessageDefinition(new_JsMessageVisitor_2(this, jsExtractedMessage, msgNode, msgTextNode, valuesObjLit, placeholderValuesMap, jsMessageOptions))
 	return Outcome_base_ok_Object[JsMessageDefinition](result)
 }
@@ -469,7 +469,7 @@ func (this *JsMessageVisitor) extractIcuTemplateDefinition(msgNode Node, jsDocIn
 	if unexpectedArgument != 0 {
 		return Outcome_base_err[IcuTemplateDefinition](new_JsMessageVisitor_MalformedException("too many arguments", unexpectedArgument).up_Throwable())
 	}
-	var extractedMessage *JsMessage = this.buildJsMessage(icast_JsMessageVisitor_InputForBuildJsMsg(obj_(new_JsMessageVisitor_3(this, messageKeyFromLhs, sourceName, icuMessageTemplateString, extractedIcuTemplateParts, icuTemplateOptions))))
+	var extractedMessage *JsMessage = this.buildJsMessage(new_JsMessageVisitor_3(this, messageKeyFromLhs, sourceName, icuMessageTemplateString, extractedIcuTemplateParts, icuTemplateOptions))
 	var result IcuTemplateDefinition = IcuTemplateDefinition(new_JsMessageVisitor_4(this, extractedMessage, msgNode, stringLiteralExpression))
 	return Outcome_base_ok_Object[IcuTemplateDefinition](result)
 }

@@ -232,7 +232,7 @@ func (this *FlowSensitiveInlineVariables_SideEffectPredicate) apply(n_ any) bool
 }
 
 func (this *FlowSensitiveInlineVariables_SideEffectPredicate) test(p0 any) bool {
-	return Predicate_base_test(icast_Predicate_base(any(this)), p0)
+	return Predicate_base_test(this, p0)
 }
 
 type FlowSensitiveInlineVariables_GatherCandidatesCfgNodeCallback struct {

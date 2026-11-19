@@ -165,7 +165,7 @@ func (this *MakeDeclaredNamesUnique_Builder) withAssertOnChange(assertOnChange b
 
 func (this *MakeDeclaredNamesUnique_Builder) build() *MakeDeclaredNamesUnique {
 	if this.renamer == nil {
-		this.renamer = icast_MakeDeclaredNamesUnique_Renamer(new_MakeDeclaredNamesUnique_ContextualRenamer_0().self())
+		this.renamer = new_MakeDeclaredNamesUnique_ContextualRenamer_0()
 	}
 	return new_MakeDeclaredNamesUnique(this.renamer, this.markChanges, this.assertOnChange_)
 }
@@ -659,7 +659,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) toString() string {
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) createForChildScope_impl(scopeRoot Node, hoistingTargetScope bool) MakeDeclaredNamesUnique_Renamer {
-	return icast_MakeDeclaredNamesUnique_Renamer(new_MakeDeclaredNamesUnique_ContextualRenamer_Node_SimpleMultiset_boolean_Renamer(scopeRoot, this.nameUsage, hoistingTargetScope, icast_MakeDeclaredNamesUnique_Renamer(this.self())).self())
+	return new_MakeDeclaredNamesUnique_ContextualRenamer_Node_SimpleMultiset_boolean_Renamer(scopeRoot, this.nameUsage, hoistingTargetScope, icast_MakeDeclaredNamesUnique_Renamer(this.self()))
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) addDeclaredName(name string, hoisted bool) {

@@ -46,7 +46,7 @@ func (this *NodeTraversal) init_NodeTraversal(builder *NodeTraversal_Builder) {
 	}()
 	this.scopeCreator = func() ScopeCreator {
 		if builder.scopeCreator == nil {
-			return icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)))
+			return new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)
 		}
 		return builder.scopeCreator
 	}()

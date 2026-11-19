@@ -45,7 +45,7 @@ func (this *TypeInference) init_TypeInference(compiler *AbstractCompiler, cfg *C
 	this.assertionFunctionLookup = Preconditions_checkNotNull_T(assertionFunctionLookup)
 	this.unknownType = this.registry.getNativeObjectType(JSTypeNative_UNKNOWN_TYPE)
 	this.numberAdditionSupertype = this.registry.getNativeType(JSTypeNative_NUMBER_ADDITION_SUPERTYPE)
-	this.bottomScope = icast_FlowScope(obj_(LinkedFlowScope_createEntryLattice(icast_CompilerInputProvider(compiler.self()), TypedScope_createLatticeBottom(syntacticScope.getRootNode()))))
+	this.bottomScope = LinkedFlowScope_createEntryLattice(icast_CompilerInputProvider(compiler.self()), TypedScope_createLatticeBottom(syntacticScope.getRootNode()))
 }
 
 func new_TypeInference(compiler *AbstractCompiler, cfg *ControlFlowGraph[Node], reverseInterpreter ReverseAbstractInterpreter, syntacticScope *TypedScope, scopeCreator *TypedScopeCreator, assertionFunctionLookup *CodingConvention_AssertionFunctionLookup) *TypeInference {
@@ -177,7 +177,7 @@ func (this *TypeInference) createInitialEstimateLattice_impl() FlowScope {
 }
 
 func (this *TypeInference) createEntryLattice_impl() FlowScope {
-	var entryScope FlowScope = this.inferDeclarativelyUnboundVarsWithoutTypes(icast_FlowScope(obj_(LinkedFlowScope_createEntryLattice(icast_CompilerInputProvider(this.compiler_.self()), this.containerScope))))
+	var entryScope FlowScope = this.inferDeclarativelyUnboundVarsWithoutTypes(LinkedFlowScope_createEntryLattice(icast_CompilerInputProvider(this.compiler_.self()), this.containerScope))
 	return this.inferParameters(entryScope)
 }
 

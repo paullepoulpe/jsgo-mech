@@ -21,7 +21,7 @@ func (this *ComposeWarningsGuard) up_WarningsGuard() *WarningsGuard {
 func (this *ComposeWarningsGuard) finit_ComposeWarningsGuard() {
 	this.orderOfAddition = jnewTMap_(jtc_p_WarningsGuard, tc_Integer)
 	this.numberOfAdds = 0
-	this.guardComparator = icast_Comparator(obj_(new_ComposeWarningsGuard_GuardComparator(this.orderOfAddition)))
+	this.guardComparator = new_ComposeWarningsGuard_GuardComparator(this.orderOfAddition)
 	this.demoteErrors = false
 	this.guards = newTSortedSetC_(jtc_p_WarningsGuard, this.guardComparator)
 }

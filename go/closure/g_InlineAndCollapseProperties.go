@@ -403,7 +403,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) maybeInlineInne
 	var syntacticScopeCreator *SyntacticScopeCreator = new_SyntacticScopeCreator_AbstractCompiler(this.outer_.compiler_)
 	var innerScope *Scope = syntacticScopeCreator.createScope(valueNode, globalNameDeclaration.scope_)
 	var innerNameVar *Var = Preconditions_checkNotNull_T(innerScope.getVar_String_rVar(innerName))
-	var collector *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate(this.outer_.compiler_, ReferenceCollector_DO_NOTHING_BEHAVIOR, icast_ScopeCreator(obj_(syntacticScopeCreator)), Predicates_equalTo(obj_(innerNameVar)))
+	var collector *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate(this.outer_.compiler_, ReferenceCollector_DO_NOTHING_BEHAVIOR, syntacticScopeCreator, Predicates_equalTo(obj_(innerNameVar)))
 	collector.processScope(innerScope)
 	var innerNameRefs *ReferenceCollection = collector.getReferences_Var(innerNameVar)
 	var newNodes *JTSet[GlobalNamespace_AstChange] = jnewTSet_(tce_GlobalNamespace_AstChange)
@@ -509,7 +509,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineAliasIfPo
 		if !(aliasVar != nil) {
 			Preconditions_checkState_boolean_String_Object(false, "Expected variable to be defined in scope (%s)", aliasVarName)
 		}
-		var collector *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate(this.outer_.compiler_, ReferenceCollector_DO_NOTHING_BEHAVIOR, icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.outer_.compiler_))), Predicates_equalTo(obj_(aliasVar)))
+		var collector *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate(this.outer_.compiler_, ReferenceCollector_DO_NOTHING_BEHAVIOR, new_SyntacticScopeCreator_AbstractCompiler(this.outer_.compiler_), Predicates_equalTo(obj_(aliasVar)))
 		var aliasScope *Scope = aliasVar.getScope_rAbstractScope_rScope()
 		collector.processScope(aliasScope)
 		var aliasRefs *ReferenceCollection = collector.getReferences_Var(aliasVar)

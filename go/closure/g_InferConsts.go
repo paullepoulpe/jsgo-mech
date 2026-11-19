@@ -17,7 +17,7 @@ func new_InferConsts(compiler *AbstractCompiler) *InferConsts {
 }
 
 func (this *InferConsts) process_2(externs Node, js Node) {
-	var collector *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, ReferenceCollector_DO_NOTHING_BEHAVIOR, icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))))
+	var collector *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, ReferenceCollector_DO_NOTHING_BEHAVIOR, new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))
 	collector.process(js)
 	it_1 := foreach_(any(collector.getAllSymbols()))
 	for it_1.next() {
