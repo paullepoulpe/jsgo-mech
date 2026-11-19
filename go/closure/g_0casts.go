@@ -212,13 +212,6 @@ func icast_List(v any) List {
 	return v.(List)
 }
 
-func icast_ListenableFuture(v any) ListenableFuture {
-	if v == nil {
-		return nil
-	}
-	return v.(ListenableFuture)
-}
-
 func icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(v any) MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo {
 	if v == nil {
 		return nil
@@ -1822,11 +1815,6 @@ var jtc_JsMessage_Part = &jtconv_[JsMessage_Part]{
 var jtc_List = &jtconv_[List]{
 	box:   func(v List) any { return v },
 	unbox: func(v any) List { return icast_List(v) },
-}
-
-var jtc_ListenableFuture = &jtconv_[ListenableFuture]{
-	box:   func(v ListenableFuture) any { return v },
-	unbox: func(v any) ListenableFuture { return icast_ListenableFuture(v) },
 }
 
 var jtc_Long = &jtconv_[any]{
