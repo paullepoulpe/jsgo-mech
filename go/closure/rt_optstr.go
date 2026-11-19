@@ -17,9 +17,16 @@ func optstrOf_(s string) string {
 // optstrGet_ is o.get() and o.orElseThrow(): NoSuchElementException on the empty Optional.
 func optstrGet_(o string) string {
 	if o == nullstr_ {
-		panic(new_NoSuchElementException_String("No value present").self())
+		optstrNoValue_()
 	}
 	return o
+}
+
+// optstrNoValue_ throws get()'s exception (a call of its own, so that optstrGet_ inlines).
+//
+//go:noinline
+func optstrNoValue_() {
+	panic(new_NoSuchElementException_String("No value present").self())
 }
 
 // optstrOr_ is o.orElse(other).
