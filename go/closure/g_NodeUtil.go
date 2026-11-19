@@ -543,7 +543,7 @@ func NodeUtil_getNameNode(n Node) Node {
 
 func NodeUtil_removeName(n Node) {
 	if !n.isFunction() && !n.isClass() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var originalName Node = n.getFirstChild()
 	var emptyName Node = func() Node {
@@ -578,7 +578,7 @@ func NodeUtil_getNearestFunctionName(n Node) Optional[string] {
 
 func NodeUtil_getClassMembers(n Node) Node {
 	if !n.isClass() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	return n.getLastChild()
 }
@@ -634,7 +634,7 @@ func NodeUtil_isImmutableValue(n Node) bool {
 			}
 			return true
 		case tokOrd1_TEMPLATELIT_STRING:
-			panic(new_IllegalArgumentException_String(("Invalid argument " + tostrH_(n))).self())
+			panic(new_IllegalArgumentException_String(("Invalid argument " + tostrH_(n))))
 		default:
 			return false
 		}
@@ -661,7 +661,7 @@ func NodeUtil_getNumericLiteralValue(n Node) float64 {
 		case tokOrd1_NEG:
 			return (-n.getFirstChild().getDouble())
 		default:
-			panic(new_AssertionError_Object(strobj_(("Unreachable: " + tostrH_(n)))).self())
+			panic(new_AssertionError_Object(strobj_(("Unreachable: " + tostrH_(n)))))
 		}
 	}()
 }
@@ -700,7 +700,7 @@ func NodeUtil_getInverseOperator(type_ Token_rhino) Token_rhino {
 		case Token_rhino_LE:
 			return Token_rhino_GE
 		default:
-			panic(new_IllegalArgumentException_String(("Unexpected token: " + jtostr_(type_))).self())
+			panic(new_IllegalArgumentException_String(("Unexpected token: " + jtostr_(type_))))
 		}
 	}()
 }
@@ -752,7 +752,7 @@ func NodeUtil_isLiteralValue(n Node, includeFunctions bool) bool {
 							return false
 						}
 					default:
-						panic(new_IllegalArgumentException_String(("Unexpected child of OBJECTLIT: " + sstr_(child.toStringTree()))).self())
+						panic(new_IllegalArgumentException_String(("Unexpected child of OBJECTLIT: " + sstr_(child.toStringTree()))))
 					}
 				}
 			}
@@ -788,7 +788,7 @@ func NodeUtil_findClosureUnawareScriptRoot(script Node) Node {
 
 func NodeUtil_getInsertionPointAfterAllInnerFunctionDeclarations(block Node) Node {
 	if !block.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var current Node = block.getFirstChild()
 	for (current != 0) && NodeUtil_isFunctionDeclaration(current) {
@@ -963,11 +963,11 @@ func NodeUtil_iteratesImpureIterable(node Node) bool {
 			case tokOrd1_ARRAY_PATTERN:
 				return true
 			default:
-				panic(new_IllegalStateException_String(("Unexpected parent of ITRE_REST: " + sstr_(parent.toStringTree()))).self())
+				panic(new_IllegalStateException_String(("Unexpected parent of ITRE_REST: " + sstr_(parent.toStringTree()))))
 			}
 		}()
 	default:
-		panic(new_IllegalStateException_String(("Expected a kind of node that may trigger iteration: " + sstr_(node.toStringTree()))).self())
+		panic(new_IllegalStateException_String(("Expected a kind of node that may trigger iteration: " + sstr_(node.toStringTree()))))
 	}
 	return !NodeUtil_isPureIterable(iterable)
 }
@@ -1085,9 +1085,9 @@ func NodeUtil_precedence(type_ Token_rhino) int32 {
 			return 22
 		default:
 			if type_ == Token_rhino_TEMPLATELIT_STRING {
-				panic(new_IllegalArgumentException_0().self())
+				panic(new_IllegalArgumentException_0())
 			}
-			panic(new_IllegalStateException_String(("Unknown precedence for " + jtostr_(type_))).self())
+			panic(new_IllegalStateException_String(("Unknown precedence for " + jtostr_(type_))))
 		}
 	}()
 }
@@ -1195,7 +1195,7 @@ func NodeUtil_getKnownValueType(n Node) NodeUtil_ValueType {
 		return NodeUtil_ValueType_OBJECT
 	default:
 		if n.isTemplateLitString() {
-			panic(new_IllegalArgumentException_0().self())
+			panic(new_IllegalArgumentException_0())
 		}
 		return NodeUtil_ValueType_UNDETERMINED
 	}
@@ -1366,7 +1366,7 @@ func NodeUtil_getOpFromAssignmentOp(n Node) Token_rhino {
 		case tokOrd1_ASSIGN_COALESCE:
 			return Token_rhino_COALESCE
 		default:
-			panic(new_IllegalArgumentException_String(("Not an assignment op:" + tostrH_(n))).self())
+			panic(new_IllegalArgumentException_String(("Not an assignment op:" + tostrH_(n))))
 		}
 	}()
 }
@@ -1435,7 +1435,7 @@ func NodeUtil_getEnclosingNode(n Node, pred func(any) bool) Node {
 
 func NodeUtil_getFirstPropMatchingKey(n Node, keyName string) Node {
 	if !n.isObjectLit() && !n.isClassMembers() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	{
 		var keyNode Node = n.getFirstChild()
@@ -1467,7 +1467,7 @@ func NodeUtil_getFirstGetterMatchingKey(n Node, keyName string) Node {
 
 func NodeUtil_referencesOwnReceiver(fn Node) bool {
 	if !fn.isFunction() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if fn.isArrowFunction() {
 		return false
@@ -1596,7 +1596,7 @@ func NodeUtil_getNonOptChainToken(optChainToken Token_rhino) Token_rhino {
 		case Token_rhino_OPTCHAIN_GETPROP:
 			return Token_rhino_GETPROP
 		default:
-			panic(new_IllegalStateException_String(("Should be an OPTCHAIN token: " + jtostr_(optChainToken))).self())
+			panic(new_IllegalStateException_String(("Should be an OPTCHAIN token: " + jtostr_(optChainToken))))
 		}
 	}()
 }
@@ -1751,7 +1751,7 @@ func NodeUtil_getConditionExpression(n Node) Node {
 		case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_CASE:
 			return 0
 		default:
-			panic(new_IllegalArgumentException_String((tostrH_(n) + " does not have a condition.")).self())
+			panic(new_IllegalArgumentException_String((tostrH_(n) + " does not have a condition.")))
 		}
 	}()
 }
@@ -1852,7 +1852,7 @@ func NodeUtil_deleteNode(n Node, compiler *AbstractCompiler) {
 
 func NodeUtil_deleteFunctionCall(n Node, compiler *AbstractCompiler) {
 	if !n.isCall() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var parent Node = n.getParent()
 	if parent.isExprResult() {
@@ -1882,13 +1882,13 @@ func NodeUtil_removeChild(parent Node, node Node) {
 	} else if node.isCatch() {
 		var tryNode Node = node.getGrandparent()
 		if !NodeUtil_hasFinally(tryNode) {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		node.detach()
 	} else if NodeUtil_isTryCatchNodeContainer(node) {
 		var tryNode Node = node.getParent()
 		if !NodeUtil_hasFinally(tryNode) {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		node.detachChildren()
 	} else if node.isBlock() {
@@ -1928,19 +1928,19 @@ func NodeUtil_removeChild(parent Node, node Node) {
 		if node == parent.getFirstChild() {
 			node.replaceWith(IR_empty())
 		} else {
-			panic(new_IllegalStateException_String(("Invalid attempt to remove: " + tostrH_(node) + " from " + tostrH_(parent))).self())
+			panic(new_IllegalStateException_String(("Invalid attempt to remove: " + tostrH_(node) + " from " + tostrH_(parent))))
 		}
 	} else {
-		panic(new_IllegalStateException_String(("Invalid attempt to remove node: " + tostrH_(node) + " of " + tostrH_(parent))).self())
+		panic(new_IllegalStateException_String(("Invalid attempt to remove node: " + tostrH_(node) + " of " + tostrH_(parent))))
 	}
 }
 
 func NodeUtil_replaceDeclarationChild(declChild Node, newStatement Node) {
 	if !NodeUtil_isNameDeclaration(declChild.getParent()) {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if newStatement.getParent() != 0 {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var decl Node = declChild.getParent()
 	if decl.hasOneChild() {
@@ -1953,7 +1953,7 @@ func NodeUtil_replaceDeclarationChild(declChild Node, newStatement Node) {
 		newStatement.insertBefore(decl)
 	} else {
 		if !decl.hasMoreThanOneChild() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		var newDecl Node = new_Node_Token(decl.getToken()).srcref(decl)
 		{
@@ -1972,7 +1972,7 @@ func NodeUtil_replaceDeclarationChild(declChild Node, newStatement Node) {
 
 func NodeUtil_maybeAddFinally(tryNode Node) {
 	if !tryNode.isTry() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !NodeUtil_hasFinally(tryNode) {
 		tryNode.addChildToBack(IR_block_0().srcref(tryNode))
@@ -1981,7 +1981,7 @@ func NodeUtil_maybeAddFinally(tryNode Node) {
 
 func NodeUtil_tryMergeBlock(block Node, ignoreBlockScopedDeclarations bool) bool {
 	if !block.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var parent Node = block.getParent()
 	var canMerge bool = (ignoreBlockScopedDeclarations || NodeUtil_canMergeBlock(block))
@@ -2178,7 +2178,7 @@ func NodeUtil_isEmptyFunctionExpression(node Node) bool {
 
 func NodeUtil_doesFunctionReferenceOwnArgumentsObject(fn Node) bool {
 	if !fn.isFunction() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if fn.isArrowFunction() {
 		return false
@@ -2465,7 +2465,7 @@ func NodeUtil_getObjectOrClassLitKeyName(key Node) Optional[string] {
 	if keyNode != 0 {
 		return Optional_of[string](keyNode.getString())
 	}
-	panic(new_IllegalStateException_String(("Unexpected node type: " + tostrH_(key))).self())
+	panic(new_IllegalStateException_String(("Unexpected node type: " + tostrH_(key))))
 }
 
 func NodeUtil_getObjectOrClassLitKeyNode(key Node) Node {
@@ -2481,7 +2481,7 @@ func NodeUtil_getObjectOrClassLitKeyNode(key Node) Node {
 		}()
 	default:
 	}
-	panic(new_IllegalStateException_String(("Unexpected node type: " + tostrH_(key))).self())
+	panic(new_IllegalStateException_String(("Unexpected node type: " + tostrH_(key))))
 }
 
 func NodeUtil_isGetOrSetKey(node Node) bool {
@@ -2599,7 +2599,7 @@ func NodeUtil_opToStr(operator Token_rhino) Optional[string] {
 func NodeUtil_opToStrNoFail(operator Token_rhino) string {
 	var res Optional[string] = NodeUtil_opToStr(operator)
 	if res.isEmpty() {
-		panic(new_Error_String(("Unknown op " + jtostr_(operator))).self())
+		panic(new_Error_String(("Unknown op " + jtostr_(operator))))
 	}
 	return res.get()
 }
@@ -2661,10 +2661,10 @@ crawl_ancestors_:
 		}
 	}
 	if !((addingRoot.isBlock() || addingRoot.isModuleBody()) || addingRoot.isScript()) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if addingRoot.hasChildren() && addingRoot.getFirstChild().isScript() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return addingRoot
 }
@@ -2769,7 +2769,7 @@ func NodeUtil_newQNameDeclarationAbstractCompiler(compiler *AbstractCompiler, na
 
 func NodeUtil_newQNameDeclaration_CodingConvention_String_Node_JSDocInfo_Token(convention CodingConvention, name string, value Node, info *JSDocInfo, type_ Token_rhino) Node {
 	if !(((type_ == Token_rhino_VAR) || (type_ == Token_rhino_LET)) || (type_ == Token_rhino_CONST)) {
-		panic(new_IllegalStateException_String(objstr_(type_)).self())
+		panic(new_IllegalStateException_String(objstr_(type_)))
 	}
 	var nameNode Node = NodeUtil_newQNameCodingConvention_CodingConvention_String(convention, name)
 	return NodeUtil_getDeclarationFromName(nameNode, value, type_, info)
@@ -2902,7 +2902,7 @@ func NodeUtil_getLhsNodesHelper(n Node, consumer func(any)) {
 		if NodeUtil_isAssignmentOp(n) {
 			NodeUtil_getLhsNodesHelper(n.getFirstChild(), consumer)
 		} else {
-			panic(new_IllegalStateException_String(("Invalid node in lhs: " + tostrH_(n))).self())
+			panic(new_IllegalStateException_String(("Invalid node in lhs: " + tostrH_(n))))
 		}
 	}
 }
@@ -2916,7 +2916,7 @@ func NodeUtil_visitLhsNodesInNode(assigningParent Node, consumer func(any)) {
 
 func NodeUtil_visitLhsNodesInDestructuringPattern(destructuringPattern Node, consumer func(any)) {
 	if !destructuringPattern.isDestructuringPattern() {
-		panic(new_IllegalArgumentException_String(objstr_("Must be a destructuring pattern node.")).self())
+		panic(new_IllegalArgumentException_String(objstr_("Must be a destructuring pattern node.")))
 	}
 	NodeUtil_getLhsNodesHelper(destructuringPattern, consumer)
 }
@@ -2966,7 +2966,7 @@ func NodeUtil_isObjectDefinePropertyDefinition(n Node) bool {
 
 func NodeUtil_getObjectDefinedPropertiesKeys(definePropertiesCall Node) IterableOf[Node] {
 	if !NodeUtil_isObjectDefinePropertiesDefinition(definePropertiesCall) {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var properties *JTList[Node] = jnewTList_(jtc_Node)
 	var objectLiteral Node = definePropertiesCall.getLastChild()
@@ -3104,7 +3104,7 @@ func NodeUtil_newVarNodeNode(lhs Node, value Node) Node {
 		return IR_var_Node(new_Node_Token_Node_Node(Token_rhino_DESTRUCTURING_LHS, lhs, value).srcref(lhs)).srcref(lhs)
 	} else {
 		if !lhs.isName() || lhs.hasChildren() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		if value != 0 {
 			lhs.addChildToBack(value)
@@ -3236,42 +3236,42 @@ func NodeUtil_preOrderIterable_Node(root Node) IterableOf[Node] {
 
 func NodeUtil_isExportFrom(n Node) bool {
 	if !n.isExport() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	return n.hasTwoChildren()
 }
 
 func NodeUtil_hasFinally(n Node) bool {
 	if !n.isTry() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	return n.hasXChildren(3)
 }
 
 func NodeUtil_getCatchBlock(n Node) Node {
 	if !n.isTry() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	return n.getSecondChild()
 }
 
 func NodeUtil_hasCatchHandler(n Node) bool {
 	if !n.isBlock() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	return (n.hasChildren() && n.getFirstChild().isCatch())
 }
 
 func NodeUtil_getFunctionParameters(fnNode Node) Node {
 	if !fnNode.isFunction() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	return fnNode.getSecondChild()
 }
 
 func NodeUtil_hasNonSimpleParameters(fnNode Node) bool {
 	if !fnNode.isFunction() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var paramList Node = NodeUtil_getFunctionParameters(fnNode)
 	{
@@ -3287,7 +3287,7 @@ func NodeUtil_hasNonSimpleParameters(fnNode Node) bool {
 
 func NodeUtil_functionParametersMayHaveSideEffects(fnNode Node, astAnalyzer *AstAnalyzer) bool {
 	if !fnNode.isFunction() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var paramList Node = NodeUtil_getFunctionParameters(fnNode)
 	{
@@ -3458,7 +3458,7 @@ func NodeUtil_evaluatesToLocalValue(value Node) bool {
 			if (NodeUtil_isAssignmentOp(value) || NodeUtil_isSimpleOperator(value)) || NodeUtil_isImmutableValue(value) {
 				return true
 			}
-			panic(new_IllegalStateException_String(("Unexpected expression node: " + tostrH_(value) + "\n parent:" + tostrH_(value.getParent()))).self())
+			panic(new_IllegalStateException_String(("Unexpected expression node: " + tostrH_(value) + "\n parent:" + tostrH_(value.getParent()))))
 		}
 	}()
 }
@@ -3491,7 +3491,7 @@ func NodeUtil_isDefinedValue(value Node) bool {
 			if NodeUtil_isAssignmentOp(value) || NodeUtil_isSimpleOperator(value) {
 				return true
 			}
-			panic(new_IllegalStateException_String(("Unexpected expression node: " + tostrH_(value) + "\n parent:" + tostrH_(value.getParent()))).self())
+			panic(new_IllegalStateException_String(("Unexpected expression node: " + tostrH_(value) + "\n parent:" + tostrH_(value.getParent()))))
 		}
 	}()
 }
@@ -3507,14 +3507,14 @@ func NodeUtil_getNthSibling(first Node, index int32) Node {
 
 func NodeUtil_getArgumentForFunction(function Node, index int32) Node {
 	if !function.isFunction() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return NodeUtil_getNthSibling(function.getSecondChild().getFirstChild(), index)
 }
 
 func NodeUtil_getArgumentForCallOrNew(call Node, index int32) Node {
 	if !NodeUtil_isCallOrNew(call) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return NodeUtil_getNthSibling(call.getSecondChild(), index)
 }
@@ -3552,7 +3552,7 @@ func NodeUtil_isToStringMethodCall(call Node) bool {
 
 func NodeUtil_getDeclaredTypeExpression(declaration Node) *JSTypeExpression {
 	if !declaration.isName() && !declaration.isStringKey() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var nameJsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(declaration)
 	if nameJsdoc != nil {
@@ -3614,7 +3614,7 @@ func NodeUtil_getBestJsDocInfoNodeStrict(n Node) Node {
 	if isExport {
 		return NodeUtil_getBestJsDocInfoNodeInternal(n)
 	}
-	panic(new_IllegalStateException_String(("Not allowed to get JSDocInfo node for node: " + tostrH_(n))).self())
+	panic(new_IllegalStateException_String(("Not allowed to get JSDocInfo node for node: " + tostrH_(n))))
 }
 
 func NodeUtil_isRhsClass(n Node) bool {
@@ -4197,10 +4197,10 @@ func NodeUtil_getInvocationArgsCount(invocation Node) int32 {
 
 func NodeUtil_getAllVarNamesDeclaredInModule(moduleNode Node, compiler *AbstractCompiler, scopeCreator ScopeCreator, globalScope *Scope) *JTSet[string] {
 	if !moduleNode.isModuleBody() {
-		panic(new_IllegalStateException_String(objstr_("getAllVarsDeclaredInModule expects a module body node")).self())
+		panic(new_IllegalStateException_String(objstr_("getAllVarsDeclaredInModule expects a module body node")))
 	}
 	if !globalScope.isGlobal() {
-		panic(new_IllegalStateException_String(objstr_(globalScope)).self())
+		panic(new_IllegalStateException_String(objstr_(globalScope)))
 	}
 	var nameVars *JTSet[string] = jnewTSet_(jtc_string)
 	var finder NodeTraversal_ScopedCallback = NodeTraversal_ScopedCallback(new_NodeUtil_1(nameVars))
@@ -4210,7 +4210,7 @@ func NodeUtil_getAllVarNamesDeclaredInModule(moduleNode Node, compiler *Abstract
 
 func NodeUtil_getAllVarsDeclaredInFunction(compiler *AbstractCompiler, scopeCreator ScopeCreator, scope *Scope) *NodeUtil_AllVarsDeclaredInFunction {
 	if !scope.isFunctionScope() {
-		panic(new_IllegalStateException_String(objstr_(scope)).self())
+		panic(new_IllegalStateException_String(objstr_(scope)))
 	}
 	var nameVarMap *JTMap[string, *Var] = jnewTMap_(jtc_string, jtc_p_Var)
 	var orderedVars *JTList[*Var] = jnewTList_(jtc_p_Var)
@@ -4249,7 +4249,7 @@ func NodeUtil_addFeatureToScript(scriptNode Node, feature FeatureSet_Feature, co
 	scriptNode.setFeatureSet(newFeatures)
 	if feature != FeatureSet_Feature_MODULES {
 		if !compiler.getAllowableFeatures().contains(feature) {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot add feature: %s. It is not supported in the output language, and either 1) its corresponding transpilation pass has already run or 2) transpilation of this feature is unsupported entirely", []any{feature})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot add feature: %s. It is not supported in the output language, and either 1) its corresponding transpilation pass has already run or 2) transpilation of this feature is unsupported entirely", []any{feature})))
 		}
 	} else {
 		compiler.setAllowableFeatures(compiler.getAllowableFeatures().with(feature))
@@ -4280,7 +4280,7 @@ func NodeUtil_removeFeatureFromAllScripts(root Node, feature FeatureSet_Feature,
 		var childNode Node = root.getFirstChild()
 		for ; childNode != 0; childNode = childNode.getNext() {
 			if !childNode.isScript() {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			NodeUtil_removeFeatureFromScript(childNode, feature)
 		}
@@ -4296,7 +4296,7 @@ func NodeUtil_removeFeaturesFromAllScripts(root Node, featureSet *FeatureSet, co
 		var childNode Node = root.getFirstChild()
 		for ; childNode != 0; childNode = childNode.getNext() {
 			if !childNode.isScript() {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			NodeUtil_removeFeaturesFromScript(childNode, featureSet)
 		}
@@ -4312,7 +4312,7 @@ func NodeUtil_addFeatureToAllScripts(root Node, feature FeatureSet_Feature, comp
 		var childNode Node = root.getFirstChild()
 		for ; childNode != 0; childNode = childNode.getNext() {
 			if !childNode.isScript() {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			NodeUtil_addFeatureToScript(childNode, feature, compiler)
 		}
@@ -4386,7 +4386,7 @@ func NodeUtil_getGoogRequireInfoNode(nameNode Node) *NodeUtil_GoogRequire {
 
 func NodeUtil_estimateNumLines(scriptNode Node) int32 {
 	if !scriptNode.isScript() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var current Node = scriptNode
 	for current.hasChildren() {
@@ -4750,7 +4750,7 @@ type NodeUtil_TemplateArgsIterable struct {
 
 func (this *NodeUtil_TemplateArgsIterable) init_NodeUtil_TemplateArgsIterable(templateLit Node) {
 	if !templateLit.isTemplateLit() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.templateLit = templateLit
 }
@@ -4772,7 +4772,7 @@ type NodeUtil_AllVarsDeclaredInFunction struct {
 
 func (this *NodeUtil_AllVarsDeclaredInFunction) init_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn *JTMap[string, *Var], orderedVars *JTList[*Var]) {
 	if allVarsInFn.isEmpty() != orderedVars.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.allVarsInFn = allVarsInFn
 	this.orderedVars = orderedVars

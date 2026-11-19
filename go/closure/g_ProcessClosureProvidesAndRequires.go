@@ -56,7 +56,7 @@ func (this *ProcessClosureProvidesAndRequires) collectProvidedNames(externs Node
 
 func (this *ProcessClosureProvidesAndRequires) rewriteProvidesAndRequires(externs Node, root Node) {
 	if this.hasRewritingOccurred {
-		panic(new_IllegalStateException_String(objstr_("Cannot call rewriteProvidesAndRequires twice per instance")).self())
+		panic(new_IllegalStateException_String(objstr_("Cannot call rewriteProvidesAndRequires twice per instance")))
 	}
 	this.hasRewritingOccurred = true
 	this.collectProvidedNames(externs, root)
@@ -130,7 +130,7 @@ func (this *ProcessClosureProvidesAndRequires) processLegacyModuleCall(namespace
 
 func (this *ProcessClosureProvidesAndRequires) processProvideCall(t *NodeTraversal, call Node, parent Node) {
 	if !call.isCall() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !this.verifyOnlyArgumentIsString(call) {
 		return
@@ -461,7 +461,7 @@ func new_ProcessClosureProvidesAndRequires_ProvidedName(builder *ProcessClosureP
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) addProvide(node Node, chunk *JSChunk, explicit bool, chunkGraph *JSChunkGraph) {
 	if explicit {
 		if this.explicitNode != 0 {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		if !node.isExprResult() {
 			Preconditions_checkArgument_boolean_Object_H(false, node)
@@ -501,10 +501,10 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) getNamespace() strin
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) addDefinition(node Node, chunk *JSChunk, chunkGraph *JSChunkGraph) {
 	if !((node.isExprResult() || node.isFunction()) || NodeUtil_isNameDeclaration(node)) {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if this.explicitNode == node {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if (this.candidateDefinition == 0) || !node.isExprResult() {
 		this.candidateDefinition = node
@@ -519,7 +519,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) updateMinimumChunk(n
 		this.minimumChunk = chunkGraph.getDeepestCommonDependencyInclusive_2(this.minimumChunk, newChunk)
 	} else {
 		if newChunk != this.minimumChunk {
-			panic(new_IllegalStateException_String(objstr_("Missing chunk graph")).self())
+			panic(new_IllegalStateException_String(objstr_("Missing chunk graph")))
 		}
 	}
 }
@@ -618,7 +618,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) makeVarDeclNode(valu
 		decl.setJSDocInfo(NodeUtil_createConstantJsDoc())
 	}
 	if !ProcessClosureProvidesAndRequires_isNamespacePlaceholder(decl) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.setSourceInfo(decl)
 	return decl
@@ -632,7 +632,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) makeAssignmentExprNo
 		decl.getFirstChild().setJSDocInfo(NodeUtil_createConstantJsDoc())
 	}
 	if !ProcessClosureProvidesAndRequires_isNamespacePlaceholder(decl) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.setSourceInfo(decl)
 	lhs.getFirstChild().makeNonIndexableRecursive()

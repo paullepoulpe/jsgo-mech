@@ -101,7 +101,7 @@ func (this *LateEs6ToEs3Converter) visitObject(t *NodeTraversal, obj Node) {
 
 func (this *LateEs6ToEs3Converter) visitObjectWithComputedProperty(t *NodeTraversal, obj Node) {
 	if !obj.isObjectLit() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var props ListOf[Node] = new_ArrayList_0()
 	var currElement Node = obj.getFirstChild()

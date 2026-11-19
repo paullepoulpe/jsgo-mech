@@ -162,7 +162,7 @@ func (this *ModuleMetadataMap_ModuleMetadata) init_ModuleMetadataMap_ModuleMetad
 	Objects_requireNonNull_T(weaklyRequiredGoogNamespaces, "weaklyRequiredGoogNamespaces")
 	Objects_requireNonNull_T(es6ImportSpecifiers, "es6ImportSpecifiers")
 	if nestedModules.asList() == nil {
-		panic(new_NullPointerException_String("nestedModules").self())
+		panic(new_NullPointerException_String("nestedModules"))
 	}
 	Objects_requireNonNull_T(readToggles, "readToggles")
 	this.moduleType_ = moduleType
@@ -385,7 +385,7 @@ func (this *ModuleMetadataMap_ModuleMetadata_Builder) build() *ModuleMetadataMap
 		if (int32(this.set0) & 2) == 0 {
 			missing.append(" isTestOnly")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))))
 	}
 	return new_ModuleMetadataMap_ModuleMetadata(this.moduleTypeField, this.rootNodeField, this.usesClosureField, this.isTestOnlyField, this.googNamespaces_, this.stronglyRequiredGoogNamespaces_, this.dynamicallyRequiredGoogNamespaces_, this.maybeRequiredGoogNamespaces_, this.weaklyRequiredGoogNamespaces_, this.es6ImportSpecifiers_, this.nestedModules_, this.readToggles_, this.pathField)
 }
@@ -470,14 +470,14 @@ func (this *ModuleMetadataMap_ModuleMetadata_Builder) isTestOnly(value bool) *Mo
 
 func (this *ModuleMetadataMap_ModuleMetadata_Builder) moduleType() ModuleMetadataMap_ModuleType {
 	if this.moduleTypeField == 0 {
-		panic(new_IllegalStateException_String("Property \"moduleType\" has not been set").self())
+		panic(new_IllegalStateException_String("Property \"moduleType\" has not been set"))
 	}
 	return this.moduleTypeField
 }
 
 func (this *ModuleMetadataMap_ModuleMetadata_Builder) moduleType_1(value ModuleMetadataMap_ModuleType) *ModuleMetadataMap_ModuleMetadata_Builder {
 	if value == 0 {
-		panic(new_NullPointerException_String("Null moduleType").self())
+		panic(new_NullPointerException_String("Null moduleType"))
 	}
 	this.moduleTypeField = value
 	return this

@@ -191,7 +191,7 @@ func (this *RewriteDynamicImports) addChainedThen(t *NodeTraversal, dynamicImpor
 
 func (this *RewriteDynamicImports) aliasDynamicImport(t *NodeTraversal, dynamicImport Node) {
 	if !this.alias_.isPresent() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var aliasNode Node = this.astFactory_.createQNameWithUnknownType(this.alias_.get())
 	aliasNode.setOriginalName("import")
@@ -263,7 +263,7 @@ func new_RewriteDynamicImports_AliasInjectingTraversal(outer_ *RewriteDynamicImp
 
 func (this *RewriteDynamicImports_AliasInjectingTraversal) shouldTraverse_impl(t *NodeTraversal, n Node, parent Node) bool {
 	if !this.outer_.aliasIsValid() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if NodeUtil_isValidSimpleName(this.outer_.alias_.get()) && (t.getScope().getVar_String_rVar(this.outer_.alias_.get()) != nil) {
 		return false

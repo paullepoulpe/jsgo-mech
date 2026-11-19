@@ -34,14 +34,14 @@ func (this *CrossChunkReferenceCollector) shouldCollectVar(v *Var) bool {
 
 func (this *CrossChunkReferenceCollector) process_2(externs Node, root Node) {
 	if !this.topLevelStatements.isEmpty() {
-		panic(new_IllegalStateException_String(objstr_("process() called more than once")).self())
+		panic(new_IllegalStateException_String(objstr_("process() called more than once")))
 	}
 	this.referenceCollector.process_2(externs, root)
 }
 
 func (this *CrossChunkReferenceCollector) process(root Node) {
 	if !this.topLevelStatements.isEmpty() {
-		panic(new_IllegalStateException_String(objstr_("process() called more than once")).self())
+		panic(new_IllegalStateException_String(objstr_("process() called more than once")))
 	}
 	this.referenceCollector.process(root)
 }
@@ -208,7 +208,7 @@ func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode N
 						return false
 					}
 				default:
-					panic(new_IllegalStateException_String(("Unexpected child of OBJECTLIT: " + sstr_(child.toStringTree()))).self())
+					panic(new_IllegalStateException_String(("Unexpected child of OBJECTLIT: " + sstr_(child.toStringTree()))))
 				}
 			}
 		}

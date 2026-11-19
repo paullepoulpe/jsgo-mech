@@ -116,11 +116,11 @@ func (this *NestedCompilerRunner) delegateDiagnosticsToOriginal() {
 
 func (this *NestedCompilerRunner) checkInvariants() {
 	if ok_, a1_ := (this.baseChunk.getInputs().size() == 1), this.baseChunk.getInputs(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected exactly 1 base chunk input, got %s", []any{a1_})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected exactly 1 base chunk input, got %s", []any{a1_})))
 	}
 	var baseInputNode Node = cast_[*CompilerInput](this.baseChunk.getInputs().get(0)).getAstRoot(this.shadowCompiler.up_AbstractCompiler())
 	if ok_, a1_ := !baseInputNode.hasChildren(), baseInputNode.toStringTree(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected synthetic base input chunk to have zero children, but found %s", []any{a1_})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected synthetic base input chunk to have zero children, but found %s", []any{a1_})))
 	}
 }
 

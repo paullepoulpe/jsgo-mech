@@ -57,7 +57,7 @@ func new_JsFileRegexParser(errorManager ErrorManager) *JsFileRegexParser {
 
 func (this *JsFileRegexParser) setIncludeGoogBase(include bool) *JsFileRegexParser {
 	if !JsFileRegexParser_isSupported() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.includeGoogBase = include
 	return this

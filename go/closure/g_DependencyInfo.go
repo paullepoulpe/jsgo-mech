@@ -251,7 +251,7 @@ func new_DependencyInfo_Require_Builder_Require(source *DependencyInfo_Require) 
 
 func (this *DependencyInfo_Require_Builder) setType(value DependencyInfo_Require_Type) *DependencyInfo_Require_Builder {
 	if value == 0 {
-		panic(new_NullPointerException_String("Null type").self())
+		panic(new_NullPointerException_String("Null type"))
 	}
 	this.type__ = value
 	return this
@@ -279,7 +279,7 @@ func (this *DependencyInfo_Require_Builder) build() *DependencyInfo_Require {
 		if this.type__ == 0 {
 			missing.append(" type")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))))
 	}
 	return new_DependencyInfo_Require(this.symbol_.get(), this.rawText.get(), this.type__)
 }

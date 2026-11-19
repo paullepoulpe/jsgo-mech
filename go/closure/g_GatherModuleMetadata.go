@@ -498,6 +498,6 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 			return
 		case ModuleMetadataMap_ModuleType_COMMON_JS, ModuleMetadataMap_ModuleType_SCRIPT:
 		}
-		panic(new_IllegalStateException_String(("Unexpected module type: " + jtostr_(existingType))).self())
+		panic(new_IllegalStateException_String(("Unexpected module type: " + jtostr_(existingType))))
 	}
 }

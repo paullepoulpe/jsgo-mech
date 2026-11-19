@@ -31,10 +31,10 @@ func (this *ExpressionDecomposer) init_ExpressionDecomposer(compiler *AbstractCo
 	this.finit_ExpressionDecomposer()
 	Preconditions_checkNotNull_T(compiler)
 	if safeNameIdSupplier == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if constFunctionNames.asSet() == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.compiler_ = compiler
 	this.astAnalyzer = compiler.getAstAnalyzer()
@@ -62,11 +62,11 @@ func (this *ExpressionDecomposer) maybeExposeExpression(expression Node) {
 	var i int32 = 0
 	for ExpressionDecomposer_DecompositionType_DECOMPOSABLE == this.canExposeExpression(expression) {
 		if !this.exposeExpression(expression) {
-			panic(new_IllegalStateException_String(("exposeExpression exposed nothing for:\n" + sstr_(expression.toStringTree()))).self())
+			panic(new_IllegalStateException_String(("exposeExpression exposed nothing for:\n" + sstr_(expression.toStringTree()))))
 		}
 		i++
 		if i > ExpressionDecomposer_MAX_ITERATIONS {
-			panic(new_IllegalStateException_String(("exposeExpression depth exceeded on:\n" + sstr_(expression.toStringTree()))).self())
+			panic(new_IllegalStateException_String(("exposeExpression depth exceeded on:\n" + sstr_(expression.toStringTree()))))
 		}
 	}
 }
@@ -105,7 +105,7 @@ func (this *ExpressionDecomposer) exposeExpression_2(expressionRoot Node, subExp
 				case tokOrd1_GETELEM, tokOrd1_GETPROP:
 					exposedSomething = (this.decomposeSubExpressions(left.getFirstChild(), 0, state) || exposedSomething)
 				default:
-					panic(new_IllegalStateException_String(("Expected a property access or destructuring pattern: " + sstr_(left.toStringTree()))).self())
+					panic(new_IllegalStateException_String(("Expected a property access or destructuring pattern: " + sstr_(left.toStringTree()))))
 				}
 			}
 		} else if expressionParent.isCall() && NodeUtil_isNormalGet(expressionParent.getFirstChild()) {
@@ -165,7 +165,7 @@ func (this *ExpressionDecomposer) moveExpression(expression Node) {
 	var injectionPointParent Node = injectionPoint.getParent()
 	Preconditions_checkNotNull_T(injectionPointParent)
 	if !NodeUtil_isStatementBlock(injectionPointParent) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	expression.replaceWith(IR_name(resultName).copyTypeFrom(expression))
 	var newExpressionRoot Node = NodeUtil_newVarNode(resultName, expression)
@@ -255,7 +255,7 @@ func (this *ExpressionDecomposer) extractConditional(expr Node, injectionPoint N
 		trueExpr.addChildToFront(this.astFactory_.exprResult(ExpressionDecomposer_buildResultExpression(this.astFactory_.createName(tempNameAssign, AstFactory_type_Node(first)).srcref(expr), needResult, tempName)))
 		falseExpr.addChildToFront(this.astFactory_.exprResult(ExpressionDecomposer_buildResultExpression(last, needResult, tempName)))
 	default:
-		panic(new_IllegalStateException_String(("Unexpected expression: " + tostrH_(expr))).self())
+		panic(new_IllegalStateException_String(("Unexpected expression: " + tostrH_(expr))))
 	}
 	var ifNode Node
 	if falseExpr.hasChildren() {
@@ -272,7 +272,7 @@ func (this *ExpressionDecomposer) extractConditional(expr Node, injectionPoint N
 		expr.replaceWith(replacementValueNode)
 	} else {
 		if !parent.isExprResult() {
-			panic(new_IllegalArgumentException_0().self())
+			panic(new_IllegalArgumentException_0())
 		}
 		parent.replaceWith(ifNode)
 	}
@@ -338,7 +338,7 @@ func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint No
 			case tokOrd1_OBJECTLIT:
 				return this.astFactory_.createObjectLit([]Node{expr}).srcref(expr.getOnlyChild())
 			default:
-				panic(new_IllegalStateException_String(("Unexpected parent of SPREAD:" + sstr_(parent.toStringTree()))).self())
+				panic(new_IllegalStateException_String(("Unexpected parent of SPREAD:" + sstr_(parent.toStringTree()))))
 			}
 		}()
 	} else {
@@ -355,7 +355,7 @@ func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint No
 		firstExtractedNode = tempVarNode
 	}
 	if !firstExtractedNode.isVar() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return firstExtractedNode
 }
@@ -465,7 +465,7 @@ func ExpressionDecomposer_findExpressionRoot(subExpression Node) Node {
 		switch current.ns_().token {
 		case tokOrd1_EXPR_RESULT, tokOrd1_IF, tokOrd1_SWITCH, tokOrd1_RETURN, tokOrd1_THROW:
 			if !child.isFirstChildOf(current) {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			return current
 		case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
@@ -484,7 +484,7 @@ func ExpressionDecomposer_findExpressionRoot(subExpression Node) Node {
 		}
 		child = current
 	}
-	panic(new_IllegalStateException_String("Unexpected AST structure.").self())
+	panic(new_IllegalStateException_String("Unexpected AST structure."))
 }
 
 func (this *ExpressionDecomposer) canExposeExpression(subExpression Node) ExpressionDecomposer_DecompositionType {
@@ -547,7 +547,7 @@ func (this *ExpressionDecomposer) isSubexpressionMovable(expressionRoot Node, su
 		}
 		child = parent
 	}
-	panic(new_IllegalStateException_String("Unexpected.").self())
+	panic(new_IllegalStateException_String("Unexpected."))
 }
 
 func ExpressionDecomposer_getEvaluationDirection(node Node) ExpressionDecomposer_EvaluationDirection {

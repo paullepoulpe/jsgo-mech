@@ -29,7 +29,7 @@ func (this *MemoizedScopeCreator) createScopeAbstractScope_Node_AbstractScope(n 
 		this.scopesByScopeRoot.put(n, scope)
 	} else {
 		if parent != scope.getParent() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	}
 	return scope

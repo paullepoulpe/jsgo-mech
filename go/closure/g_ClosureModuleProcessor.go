@@ -41,7 +41,7 @@ func (this *ClosureModuleProcessor) process(metadata *ModuleMetadataMap_ModuleMe
 		Preconditions_checkArgument_boolean_String_Object_H(false, "Unexpected module root %s", script)
 	}
 	if !script.isCall() && path == nil {
-		panic(new_IllegalArgumentException_String(objstr_("Non goog.loadModules must have a path")).self())
+		panic(new_IllegalArgumentException_String(objstr_("Non goog.loadModules must have a path")))
 	}
 	var moduleProcessingCallback *ClosureModuleProcessor_ModuleProcessingCallback = new_ClosureModuleProcessor_ModuleProcessingCallback(metadata)
 	NodeTraversal_traverse(this.compiler_, script, ClosureModuleProcessor_ModuleProcessingCallback_as_NodeTraversal_Callback(moduleProcessingCallback))
@@ -159,11 +159,11 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) metadata_impl() *Module
 }
 
 func (this *ClosureModuleProcessor_UnresolvedGoogModule) getExportedNames_impl(moduleRequestResolver ModuleRequestResolver) *JTSet[string] {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *ClosureModuleProcessor_UnresolvedGoogModule) getExportedNames_2_impl(moduleRequestResolver ModuleRequestResolver, visited *JTSet[*UnresolvedModule]) *JTSet[string] {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *ClosureModuleProcessor_UnresolvedGoogModule) reset_impl() {

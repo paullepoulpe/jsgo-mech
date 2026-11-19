@@ -48,7 +48,7 @@ func new_Es6RewriteGenerators(compiler *AbstractCompiler) *Es6RewriteGenerators 
 
 func (this *Es6RewriteGenerators) process_2(externs Node, root Node) {
 	if !this.compiler_.getLifeCycleStage().isNormalized() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	TranspilationPasses_processTranspile(this.compiler_, root, Es6RewriteGenerators_transpiledFeatures, []NodeTraversal_Callback{NodeTraversal_Callback(new_Es6RewriteGenerators_GeneratorFunctionsTranspiler(this))})
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, Es6RewriteGenerators_transpiledFeatures)
@@ -206,10 +206,10 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) isTranspiled
 		var callTarget Node = generatorFunction.getParent().getFirstChild()
 		if ((generatorFunction.getPrevious() == callTarget) && (generatorFunction.getNext() == 0)) && this.outer_.jscompAsyncExecuteFunction.matches(callTarget) {
 			if !generatorFunction.getGrandparent().isReturn() {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			if generatorFunction.getGrandparent().getNext() != 0 {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			return true
 		}
@@ -220,7 +220,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) isTranspiled
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpile() {
 	var generatorFunction Node = this.originalGeneratorBody.getParent()
 	if !generatorFunction.isGeneratorFunction() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	generatorFunction.putBooleanProp(Node_GENERATOR_FN, false)
 	var program Node
@@ -248,7 +248,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpile() 
 		changeScopeNode = generatorFunction
 		var genFuncName Node = generatorFunction.getFirstChild()
 		if !genFuncName.isName() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		if genFuncName.getString() == "" {
 			genFuncName.setString(this.context.getScopedName(Es6RewriteGenerators_GENERATOR_FUNCTION))
@@ -285,10 +285,10 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpileSta
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpileStatement_3(statement Node, breakCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, continueCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case) {
 	if !IR_mayBeStatement(statement) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if statement.getParent() != 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !statement.isGeneratorMarker() {
 		this.transpileUnmarkedNode(statement)
@@ -320,18 +320,18 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpileSta
 	case tokOrd1_SWITCH:
 		this.transpileSwitch(statement, breakCase)
 	default:
-		panic(new_IllegalStateException_String(("Unsupported token: " + jtostr_(statement.getToken()))).self())
+		panic(new_IllegalStateException_String(("Unsupported token: " + jtostr_(statement.getToken()))))
 	}
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpileUnmarkedNode(n Node) {
 	if n.isGeneratorMarker() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if n.isFunction() {
 		var functionName string = n.getFirstChild().getString()
 		if functionName == "" || strings.HasPrefix(functionName, Es6RewriteGenerators_GENERATOR_FUNCTION) {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		this.hoistFunctionDeclarationNode(n)
 		return
@@ -399,7 +399,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpileVar
 		}
 		if var_ != 0 {
 			if !var_.isGeneratorMarker() {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			var_.addChildToFront(this.maybeDecomposeExpression(var_.removeFirstChild()))
 			var_.setGeneratorMarker(false)
@@ -425,7 +425,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpileThr
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) exposeYieldAndTranspileRest(n Node) Node {
 	if !n.isGeneratorMarker() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if n.isYield() {
 		return n
@@ -468,7 +468,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) prepareNodeF
 	}()
 	NodeTraversal_traverse(this.outer_.compiler_, wrapper, NodeTraversal_Callback(new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_UnmarkedNodeTranspiler(this.context)))
 	if !wrapper.hasOneChild() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return wrapper.removeFirstChild()
 }
@@ -595,11 +595,11 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpileFor
 	var init_ Node
 	if target.detach().isVar() {
 		if target.isGeneratorMarker() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		init_ = target
 		if init_.getFirstChild().hasChildren() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		target = init_.getFirstChild().cloneNode()
 	} else {
@@ -662,14 +662,14 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpileTry
 	}
 	if catchBlock.hasChildren() {
 		if !catchBlock.getFirstChild().isCatch() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		this.context.switchCaseTo(catchCase)
 		var exceptionName Node = catchBlock.getFirstFirstChild().detach()
 		this.context.enterCatchBlock(finallyCase, exceptionName)
 		var catchBody Node = catchBlock.getFirstFirstChild().detach()
 		if !catchBody.isBlock() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		this.transpileStatement(catchBody)
 		this.context.leaveCatchBlock(finallyCase, catchBody)
@@ -742,7 +742,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) findYield(n 
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) isEndOfBlockUnreachable(block Node) bool {
 	if !block.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !block.hasChildren() {
 		return false
@@ -788,7 +788,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_YieldFinder) 
 	}
 	if n.isYield() {
 		if this.yieldNode != 0 {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		this.yieldNode = n
 		return false
@@ -835,11 +835,11 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	this.finit_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext()
 	this.programEndCase = new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case(this)
 	if this.programEndCase.id != 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.currentCase = new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case(this)
 	if this.currentCase.id != 1 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.allCases.add(this.currentCase)
 }
@@ -853,7 +853,7 @@ func new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationCon
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) optimizeCaseIds() {
 	if ok_, a1_ := !this.allCases.isEmpty(), this.allCases.asList(); !ok_ {
-		panic(new_IllegalStateException_String(objstr_(a1_)).self())
+		panic(new_IllegalStateException_String(objstr_(a1_)))
 	}
 	it_1 := this.allCases.each()
 	for it_1.next() {
@@ -878,13 +878,13 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	var it IteratorOf[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case] = this.allCases.iterator()
 	var prevCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = cast_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case](it.next())
 	if prevCase.id != 1 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	for it.hasNext() {
 		var currentCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = cast_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case](it.next())
 		if currentCase.references.isEmpty() {
 			if currentCase.embedInto != 0 {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			if prevCase.mayFallThrough {
 				prevCase.caseBlock.addChildrenToBack(currentCase.caseBlock.removeChildren())
@@ -895,7 +895,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 		}
 		if currentCase.embedInto != 0 {
 			if currentCase.jumpToField != nil {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			if (currentCase.references.size() == 1) && !currentCase.mayFallThrough {
 				currentCase.embedInto.replaceWith(currentCase.caseBlock)
@@ -905,13 +905,13 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 		}
 		if prevCase.jumpToField == currentCase {
 			if !prevCase.mayFallThrough {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			if prevCase.caseBlock.hasChildren() {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			if currentCase.jumpToField != nil {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			prevCase.caseBlock.addChildrenToBack(currentCase.caseBlock.removeChildren())
 			prevCase.mayFallThrough = currentCase.mayFallThrough
@@ -935,10 +935,10 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 		var breakNode Node = it_1.v
 		var prevStatement Node = breakNode.getPrevious()
 		if prevStatement == 0 {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		if !prevStatement.isExprResult() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		prevStatement.replaceWith(IR_returnNode_Node(prevStatement.removeFirstChild()))
 		breakNode.detach()
@@ -972,25 +972,25 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) checkStateIsEmpty() {
 	if !this.namedLabels.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !this.breakCases.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !this.continueCases.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !this.catchCases.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !this.finallyCases.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if this.nestedFinallyBlockCount != 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !this.allCases.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 }
 
@@ -1065,7 +1065,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) createJumpToBlock(section *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, allowEmbedding bool, sourceNode Node) Node {
 	if section.embedInto != 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var jumpBlock Node = this.outer_.outer_.astFactory_.createBlock([]Node{this.callContextMethodResult(sourceNode, "jumpTo", AstFactory_typeColor(StandardColors_NULL_OR_VOID), []Node{section.getNumber(sourceNode)}), this.createBreakNodeFor(sourceNode)}).srcref(sourceNode)
 	if allowEmbedding {
@@ -1082,7 +1082,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 		jumpMethod = "jumpTo"
 	} else {
 		if cast_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case](SequencedCollection_getFirst(SequencedCollection(this.finallyCases.asDeque()))).id == section.id {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		jumpMethod = "jumpThroughFinallyBlocks"
 	}
@@ -1160,10 +1160,10 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	if catchCase != nil {
 		var lastCatch *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase = this.catchCases.pop()
 		if lastCatch.finallyBlocks != 0 {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		if lastCatch.catchCase != catchCase {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	}
 	if finallyCase != nil {
@@ -1172,12 +1172,12 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 			firstCatch.finallyBlocks--
 			var finallyBlocks int32 = firstCatch.finallyBlocks
 			if finallyBlocks < 0 {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 		}
 		var lastFinally *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = this.finallyCases.pop()
 		if lastFinally != finallyCase {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	}
 }
@@ -1212,7 +1212,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) enterCatchBlock(finallyCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, exceptionName Node) {
 	if !exceptionName.isName() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.addCatchFinallyCases(nil, finallyCase)
 	var nextCatchCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = this.getNextCatchCase()
@@ -1292,7 +1292,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	for it_1.next() {
 		var labelName Node = it_1.v
 		if !labelName.isLabelName() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		this.namedLabels.put(labelName.getString(), new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases(breakCase, continueCase))
 	}
@@ -1303,7 +1303,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	for it_1.next() {
 		var labelName Node = it_1.v
 		if !labelName.isLabelName() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		this.namedLabels.remove(labelName.getString())
 	}
@@ -1371,10 +1371,10 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case) jumpTo(other *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, jumpBlock Node) {
 	if !jumpBlock.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if this.jumpToField != nil {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.willFollowBy(other)
 	this.caseBlock.addChildrenToBack(jumpBlock.removeChildren())
@@ -1384,7 +1384,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case) willFollowBy(other *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case) {
 	if (this.jumpToField == nil) && !this.caseBlock.hasChildren() {
 		if other.jumpToField != nil {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		this.jumpToField = other
 	}
@@ -1392,10 +1392,10 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case) addNode(n Node) {
 	if this.jumpToField != nil {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !IR_mayBeStatement(n) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.caseBlock.addChildToBack(n)
 }
@@ -1423,10 +1423,10 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 		return false
 	}
 	if n.isGeneratorMarker() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if n.isSuper() {
-		panic(new_IllegalStateException_String(objstr_("Reference to SUPER is not supported")).self())
+		panic(new_IllegalStateException_String(objstr_("Reference to SUPER is not supported")))
 	}
 	if NodeUtil_isLoopStructure(n) {
 		this.continueSuppressors++
@@ -1474,7 +1474,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_UnmarkedNodeTranspiler) visitNamedBreakContinue(n Node) {
 	if !n.getFirstChild().isLabelName() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var cases *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases = this.outer_.namedLabels.get(n.getFirstChild().getString())
 	if cases != nil {

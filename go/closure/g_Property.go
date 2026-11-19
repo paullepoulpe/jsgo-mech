@@ -17,7 +17,7 @@ func (this *Property) finit_Property() {
 func (this *Property) init_Property(name any, type_ *JSType, inferred bool, propertyNode Node) {
 	this.finit_Property()
 	if name == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.name_ = name
 	this.type__ = Preconditions_checkNotNull_Object_String_Object_T(type_, "Null type specified for %s", name)
@@ -33,7 +33,7 @@ func new_Property(name any, type_ *JSType, inferred bool, propertyNode Node) *Pr
 
 func Property_createFromKey(name Property_Key, type_ *JSType, inferred bool, propertyNode Node) *Property {
 	if name == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var nameObject any = func() any {
 		switch name.kind() {
@@ -61,7 +61,7 @@ func (this *Property) getName() string {
 				var s *KnownSymbolType = cast_[*KnownSymbolType](sel_)
 				return s.getDisplayName().orElseThrow()
 			default:
-				panic(new_AssertionError_0().self())
+				panic(new_AssertionError_0())
 			}
 		}
 	}()
@@ -131,7 +131,7 @@ func (this *Property) toString() string {
 }
 
 func (this *Property) getScope() StaticScope {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *Property) hashCode() int32 {
@@ -247,7 +247,7 @@ func new_Property_StringKey(string_ string) *Property_StringKey {
 }
 
 func (this *Property_StringKey) symbol() *KnownSymbolType {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *Property_StringKey) kind() Property_KeyKind {
@@ -300,7 +300,7 @@ func new_Property_SymbolKey(symbol *KnownSymbolType) *Property_SymbolKey {
 }
 
 func (this *Property_SymbolKey) string() string {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *Property_SymbolKey) kind() Property_KeyKind {

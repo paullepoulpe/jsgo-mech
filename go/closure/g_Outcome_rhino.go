@@ -57,7 +57,7 @@ func (this Outcome_rhino) isTruthy() bool {
 	case Outcome_rhino_FALSE, Outcome_rhino_FALSE_NOT_NULL, Outcome_rhino_NULLISH:
 		return false
 	default:
-		panic(new_NullPointerException_0().self()) // a call on null
+		panic(new_NullPointerException_0()) // a call on null
 	}
 }
 
@@ -70,7 +70,7 @@ func (this Outcome_rhino) isNullish() Tri {
 	case Outcome_rhino_NULLISH:
 		return Tri_TRUE
 	default:
-		panic(new_NullPointerException_0().self()) // a call on null
+		panic(new_NullPointerException_0()) // a call on null
 	}
 }
 
@@ -81,7 +81,7 @@ func (this Outcome_rhino) not() Outcome_rhino {
 	case Outcome_rhino_FALSE, Outcome_rhino_FALSE_NOT_NULL, Outcome_rhino_NULLISH:
 		return Outcome_rhino_TRUE
 	default:
-		panic(new_NullPointerException_0().self()) // a call on null
+		panic(new_NullPointerException_0()) // a call on null
 	}
 }
 

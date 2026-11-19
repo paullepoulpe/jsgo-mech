@@ -114,7 +114,7 @@ func (this *LinkedFlowScope) getRootNode() Node {
 }
 
 func (this *LinkedFlowScope) getParentScope() StaticScope {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *LinkedFlowScope) getSlot_String(name string) StaticSlot {
@@ -169,7 +169,7 @@ func (this *LinkedFlowScope) getOverlayScopeForScope(scope *TypedScope, create b
 }
 
 func (this *LinkedFlowScope) getOwnSlot_String(name string) StaticSlot {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *LinkedFlowScope) withSyntacticScope(scope StaticTypedScope) FlowScope {
@@ -228,7 +228,7 @@ func LinkedFlowScope_equalSlots(slotA StaticTypedSlot, slotB StaticTypedSlot) bo
 }
 
 func (this *LinkedFlowScope) hashCode() int32 {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func LinkedFlowScope_join(linkedA *LinkedFlowScope, linkedB *LinkedFlowScope, commonParent *TypedScope) PMap[*TypedScope, *LinkedFlowScope_OverlayScope] {
@@ -515,5 +515,5 @@ func (this *LinkedFlowScope_OverlaySlot) getJSDocInfo() *JSDocInfo {
 }
 
 func (this *LinkedFlowScope_OverlaySlot) getScope() StaticScope {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }

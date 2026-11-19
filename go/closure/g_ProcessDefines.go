@@ -770,10 +770,10 @@ func (this *ProcessDefines_Define) zero_ProcessDefines_Define() {
 
 func (this *ProcessDefines_Define) init_ProcessDefines_Define(defineName string, name *GlobalNamespace_Name, declaration *GlobalNamespace_Ref, valueParent Node, value Node) {
 	if !(((valueParent == 0) || (value == 0)) || (value.getParent() == valueParent)) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !declaration.isSet() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.defineName_ = defineName
 	this.name_ = name

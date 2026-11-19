@@ -17,7 +17,7 @@ func (this *JSDocInfo) init_JSDocInfo(bits int64, props TreeMapOf[*JSDocInfo_Pro
 		if !prop.isDefault(value) {
 			keys |= prop.mask
 			if is_[[]any](value) || value == nil {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			values.add(value)
 		}
@@ -771,7 +771,7 @@ func (this *JSDocInfo) getLogTypeInCompiler() bool {
 
 func (this *JSDocInfo) getPropertyValueByIndex(index int32) any {
 	if this.propertyValues == nil {
-		panic(new_IllegalArgumentException_String("no property value").self())
+		panic(new_IllegalArgumentException_String("no property value"))
 	}
 	var array []any
 	_ = array
@@ -954,7 +954,7 @@ func (this *JSDocInfo_Property) init_JSDocInfo_Property(name string) {
 	JSDocInfo_Property_bitCounter++
 	this.mask = (int64(1) << (uint32(this.bit) & 63))
 	if this.bit > 63 {
-		panic(new_AssertionError_Object("Too many Properties").self())
+		panic(new_AssertionError_Object("Too many Properties"))
 	}
 	JSDocInfo_Property_values[this.bit] = this
 }
@@ -1415,7 +1415,7 @@ func (this JSDocInfo_Bit) zero_JSDocInfo_Bit() {
 
 func (this JSDocInfo_Bit) init_JSDocInfo_Bit() {
 	if this.ordinal() > 63 {
-		panic(new_AssertionError_Object("Too many Bits").self())
+		panic(new_AssertionError_Object("Too many Bits"))
 	}
 	JSDocInfo_Bit_nameField_[this-1] = CaseFormat_UPPER_UNDERSCORE.to(CaseFormat_LOWER_CAMEL, this.name())
 	JSDocInfo_Bit_mask_[this-1] = (int64(1) << (uint32(this.ordinal()) & 63))
@@ -1952,7 +1952,7 @@ func (this *JSDocInfo_TrimmedStringPosition) setItem_impl(item_ any) {
 	var item string = str_(item_)
 	_ = item
 	if String_charAt(item, 0) == ' ' || String_charAt(item, (String_length(item)-1)) == ' ' {
-		panic(new_IllegalArgumentException_String(objstr_("String has leading or trailing whitespace")).self())
+		panic(new_IllegalArgumentException_String(objstr_("String has leading or trailing whitespace")))
 	}
 	this.JSDocInfo_StringPosition.setItem_impl(strobj_(item))
 }

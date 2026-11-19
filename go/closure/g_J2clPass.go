@@ -244,12 +244,12 @@ func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) visit(t 
 			case tokOrd1_MEMBER_FUNCTION_DEF:
 				return NodeUtil_getBestLValueName(n)
 			default:
-				panic(new_AssertionError_0().self())
+				panic(new_AssertionError_0())
 			}
 		}()
 		var previousValue *J2clPass_ClassStaticFunctionsInliner_InlinableFunction = this.outer_.fnsToInlineByQualifiedName.put(qualifiedFnName.orElse(nullstr_), inlinableFunction)
 		if previousValue != nil {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("expected each function to match at most one InliningSpec, but found:\n%s\n%s", []any{previousValue, inlinableFunction})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("expected each function to match at most one InliningSpec, but found:\n%s\n%s", []any{previousValue, inlinableFunction})))
 		}
 	}
 }
@@ -295,7 +295,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner_StaticCallInliner) visit_impl(t
 	var fnImpl Node = fn.impl()
 	var inliningMode FunctionInjector_InliningMode = fn.inliningMode()
 	if (inliningMode == FunctionInjector_InliningMode_DIRECT) && !NodeUtil_getFunctionBody(fnImpl).getFirstChild().isReturn() {
-		panic(new_IllegalStateException_String(("Attempted to direct inline function " + sstr_(qualifiedFnName) + ", but function is not a simple return.")).self())
+		panic(new_IllegalStateException_String(("Attempted to direct inline function " + sstr_(qualifiedFnName) + ", but function is not a simple return.")))
 	}
 	var inlinedCall Node = this.outer_.injector.unsafeInline(new_FunctionInjector_Reference(n, t.getScope(), t.getChunk(), inliningMode), fnName, fnImpl)
 	inlinedCall.srcrefTree(n)

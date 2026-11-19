@@ -20,7 +20,7 @@ func (this *ControlFlowAnalysis) finit_ControlFlowAnalysis() {
 	this.priorityComparator = Comparator_comparingInt(&ToIntFunction_tfn_DiGraph_DiGraphNode_Node_{func(digraphNode DiGraph_DiGraphNode[Node]) int32 {
 		nn_, nn1_ := this.astPosition.get(digraphNode.getValue()), digraphNode.getValue()
 		if nn_ == nil {
-			panic(new_NullPointerException_String(tostr_(nn1_)).self())
+			panic(new_NullPointerException_String(tostr_(nn1_)))
 		}
 		return unbox_[int32](nn_)
 	}})
@@ -141,7 +141,7 @@ func (this *ControlFlowAnalysis) shouldTraverseIntoChildren(n Node, parent Node)
 		case tokOrd1_TRY:
 			if (!NodeUtil_hasFinally(parent) && (n == NodeUtil_getCatchBlock(parent))) || NodeUtil_isTryFinallyNode(parent, n) {
 				if this.exceptionHandler.peek() != parent {
-					panic(new_IllegalStateException_0().self())
+					panic(new_IllegalStateException_0())
 				}
 				this.exceptionHandler.pop()
 			}
@@ -280,7 +280,7 @@ func (this *ControlFlowAnalysis) handleCase(caseNode Node) {
 	var next Node = ControlFlowAnalysis_getNextSiblingOfType(caseNode.getNext(), []Token_rhino{Token_rhino_CASE})
 	if next != 0 {
 		if !next.isCase() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		this.createEdge(caseNode, ControlFlowGraph_Branch_ON_FALSE, next)
 	} else {
@@ -335,14 +335,14 @@ func (this *ControlFlowAnalysis) handleStmtList(node Node) {
 
 func (this *ControlFlowAnalysis) handleFunction(node Node) {
 	if !node.isFunction() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !node.hasXChildren(3) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.createEdge(node, ControlFlowGraph_Branch_UNCOND, ControlFlowAnalysis_computeFallThrough(node.getLastChild()))
 	if this.exceptionHandler.peek() != node {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.exceptionHandler.pop()
 }
@@ -397,7 +397,7 @@ func (this *ControlFlowAnalysis) handleBreak(node Node) {
 				if this.compiler_.getOptions().canContinueAfterErrors() {
 					return
 				} else {
-					panic(new_IllegalStateException_String("Cannot find break target.").self())
+					panic(new_IllegalStateException_String("Cannot find break target."))
 				}
 			}
 			previous = cur
@@ -431,7 +431,7 @@ func (this *ControlFlowAnalysis) handleContinue(node Node) {
 				lastJump = cur
 			}
 			if !cur.hasParent() {
-				panic(new_IllegalStateException_String(objstr_("Cannot find continue target.")).self())
+				panic(new_IllegalStateException_String(objstr_("Cannot find continue target.")))
 			}
 			previous = cur
 		}
@@ -502,7 +502,7 @@ func ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNod
 			} else if parent.getNext().isDefaultCase() {
 				return parent.getNext().getFirstChild()
 			} else {
-				panic(new_IllegalStateException_String("Not reachable").self())
+				panic(new_IllegalStateException_String("Not reachable"))
 			}
 		} else {
 			return ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNode, parent, cfa)
@@ -532,7 +532,7 @@ func ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNod
 			}
 			return ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNode, parent, cfa)
 		}
-		panic(new_IllegalStateException_String(("Unexpected TRY child " + tostrH_(node))).self())
+		panic(new_IllegalStateException_String(("Unexpected TRY child " + tostrH_(node))))
 	default:
 	}
 	var nextSibling Node = node.getNext()
@@ -585,7 +585,7 @@ func (this *ControlFlowAnalysis) connectToPossibleExceptionHandlerUnconditionall
 			return
 		}
 		if !handler.isTry() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		var catchBlock Node = NodeUtil_getCatchBlock(handler)
 		var lastJumpInCatchBlock bool = false

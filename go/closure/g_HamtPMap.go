@@ -35,7 +35,7 @@ func new_HamtPMap[K comparable, V comparable](key K, hash int32, value V, mask i
 
 func (this *HamtPMap[K, V]) checkInvariants() {
 	if Integer_bitCount(this.mask) != int32(len(this.children_)) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	for _, child := range this.children_ {
 		Preconditions_checkNotNull_T(child)
@@ -119,7 +119,7 @@ func (this *HamtPMap[K, V]) get_2(key K, hash int32) V {
 
 func (this *HamtPMap[K, V]) plus_Object_Object_rHamtPMap(key K, value V) *HamtPMap[K, V] {
 	if boxT_(value) == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	return func() *HamtPMap[K, V] {
 		if !this.isEmpty() {
@@ -229,7 +229,7 @@ func (this *HamtPMap[K, V]) reconcile_PMap_Reconciler_rHamtPMap(that PMap[K, V],
 	}(), &PMap_Reconciler_fn[K, V]{func(k K, v1 V, v2 V) V {
 		nn_ := boxT_(joiner.merge(k, v1, v2))
 		if nn_ == nil {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		return junboxT_[V](nn_)
 	}})
@@ -535,7 +535,7 @@ func (this *HamtPMap[K, V]) assertCorrectStructure() *HamtPMap[K, V] {
 	for i := int32(0); i < int32(len(this.children_)); i++ {
 		var childHash int32 = HamtPMap_hash(boxT_(this.children_[i].key_))
 		if HamtPMap_compareUnsigned(childHash, hash) < 0 {
-			panic(new_AssertionError_Object(strobj_(("Invalid map has decreasing hash " + objstr_(boxT_(this.children_[i].key_)) + "(" + sstr_(Integer_toHexString(childHash)) + ") beneath " + objstr_(boxT_(this.key_)) + "(" + sstr_(Integer_toHexString(hash)) + ": " + jtostr_(this)))).self())
+			panic(new_AssertionError_Object(strobj_(("Invalid map has decreasing hash " + objstr_(boxT_(this.children_[i].key_)) + "(" + sstr_(Integer_toHexString(childHash)) + ") beneath " + objstr_(boxT_(this.key_)) + "(" + sstr_(Integer_toHexString(hash)) + ": " + jtostr_(this)))))
 		}
 		this.children_[i].assertCorrectStructure()
 	}
@@ -613,5 +613,5 @@ func (this *HamtPMap_Iter[K, V, O]) next() any {
 }
 
 func (this *HamtPMap_Iter[K, V, O]) remove() {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }

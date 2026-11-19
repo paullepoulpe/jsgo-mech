@@ -206,7 +206,7 @@ func (this *AstValidator) validateStatement_2(n Node, isAmbient bool) {
 	default:
 		if n.isModuleBody() && this.compiler_.getOptions().getSkipNonTranspilationPasses() {
 			if this.compiler_.getOptions().shouldWrapGoogModulesForWhitespaceOnly() {
-				panic(new_IllegalStateException_String(objstr_("Modules can exist in transpiler only if setWrapGoogModulesForWhitespaceOnly is false")).self())
+				panic(new_IllegalStateException_String(objstr_("Modules can exist in transpiler only if setWrapGoogModulesForWhitespaceOnly is false")))
 			}
 			this.validateModuleContents(n)
 			return
@@ -368,7 +368,7 @@ func (this *AstValidator) validateCallType(callNode Node) {
 		var callee Node = callNode.getFirstChild()
 		Preconditions_checkNotNull_Object_String_Object_T(callee.getColor(), "Callee of\n\n%s\nhas no color.", callNode.toStringTree())
 	case AstValidator_TypeInfoValidation_NONE:
-		panic(new_AssertionError_0().self())
+		panic(new_AssertionError_0())
 	}
 }
 
@@ -383,7 +383,7 @@ func (this *AstValidator) expectSomeTypeInformation(n Node) {
 			this.violation(("Color information missing\n" + sstr_(this.compiler_.toSource_1(NodeUtil_getEnclosingStatement(n)))), n)
 		}
 	case AstValidator_TypeInfoValidation_NONE:
-		panic(new_AssertionError_0().self())
+		panic(new_AssertionError_0())
 	}
 }
 
@@ -1234,7 +1234,7 @@ func (this *AstValidator) validateGetPropGetElemInLHS(contextType Token_rhino, n
 	case tokOrd1_GETELEM:
 		this.validateGetElem(n)
 	default:
-		panic(new_IllegalStateException_String(("Expected GETPROP or GETELEM but instead got node " + jtostr_(n.getToken()))).self())
+		panic(new_IllegalStateException_String(("Expected GETPROP or GETELEM but instead got node " + jtostr_(n.getToken()))))
 	}
 }
 
@@ -2120,5 +2120,5 @@ func (this *AstValidator_1) handleViolation(message string, n Node) {
 			return n.getParent().toStringTree()
 		}
 		return " no parent "
-	}()))).self())
+	}()))))
 }
