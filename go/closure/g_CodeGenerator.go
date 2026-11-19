@@ -3,7 +3,7 @@
 package closure
 
 type CodeGenerator struct {
-	self_                   any
+	self_                   CodeGenerator_I
 	cc                      *CodeConsumer
 	outputCharsetEncoder    *OutputCharsetEncoder
 	preferSingleQuotes      bool
@@ -15,6 +15,12 @@ type CodeGenerator struct {
 	useOriginalName         bool
 	outputFeatureSet        *FeatureSet
 	jsDocInfoPrinter        *JSDocInfoPrinter
+}
+
+// CodeGenerator_I holds the methods the dispatchers of CodeGenerator's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type CodeGenerator_I interface {
+	add_2_impl(Node, *CodeGenerator_Context)
 }
 
 func (this *CodeGenerator) as_CodeGenerator() *CodeGenerator { return this }
@@ -1865,9 +1871,7 @@ func (this *CodeGenerator) processEnd(n Node, context *CodeGenerator_Context) {
 }
 
 func (this *CodeGenerator) add_2(p0 Node, p1 *CodeGenerator_Context) {
-	this.self_.(interface {
-		add_2_impl(Node, *CodeGenerator_Context)
-	}).add_2_impl(p0, p1)
+	this.self_.add_2_impl(p0, p1)
 }
 
 const CodeGenerator_LT_ESCAPED string = "\\x3c"
