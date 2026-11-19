@@ -340,7 +340,7 @@ func DepsGenerator_createSourceFilesFromZipPaths(paths CollectionOf[string]) *Ou
 		if zipFiles.isErr() {
 			return Outcome_base_err[*TList[*SourceFile_jscomp]](zipFiles.error())
 		}
-		zipSourceFiles.asList().addAll(Collection(zipFiles.get().asList()))
+		zipSourceFiles.addAllT(zipFiles.get())
 	}
 	return Outcome_base_ok_Object[*TList[*SourceFile_jscomp]](zipSourceFiles)
 }

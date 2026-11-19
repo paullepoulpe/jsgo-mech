@@ -674,7 +674,7 @@ func new_ProcessDefines_Builder(compiler *AbstractCompiler) *ProcessDefines_Buil
 }
 
 func (this *ProcessDefines_Builder) putReplacements(replacementValues *TMap[string, Node]) *ProcessDefines_Builder {
-	this.replacementValues.asMap().putAll(replacementValues.asMap())
+	this.replacementValues.putAllT(replacementValues)
 	return this
 }
 

@@ -459,7 +459,7 @@ func (this *AbstractCommandLineRunner) createInputs_4(files *TList[*AbstractComm
 						this.rootRelativePathsMap[zipEntryName] = zipmap
 					}
 				}
-				inputs.asList().addAll(Collection(newFiles.asList()))
+				inputs.addAllT(newFiles)
 				if jsChunkSpec != nil {
 					jsChunkSpec.numJsFiles += (newFiles.size() - 1)
 				}
@@ -2328,7 +2328,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setExterns(externs List
 
 func (this *AbstractCommandLineRunner_CommandLineConfig) setMixedJsSources(mixedJsSources *TList[*AbstractCommandLineRunner_FlagEntry[any]]) *AbstractCommandLineRunner_CommandLineConfig {
 	this.mixedJsSources.clear()
-	this.mixedJsSources.asList().addAll(Collection(mixedJsSources.asList()))
+	this.mixedJsSources.addAllT(mixedJsSources)
 	return this
 }
 

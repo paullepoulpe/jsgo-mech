@@ -26,7 +26,7 @@ func ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_Str
 		effectiveAnnotationNames = ParserRunner_annotationNames
 	} else {
 		effectiveAnnotationNames = tsetCopyT_(tc_string, ParserRunner_annotationNames)
-		effectiveAnnotationNames.asSet().addAll(Collection(extraAnnotationNames.asSet()))
+		effectiveAnnotationNames.AddAll(extraAnnotationNames)
 	}
 	return Config_builder().setExtraAnnotationNames(Iterable(effectiveAnnotationNames.asSet())).setJsDocParsingMode(jsdocParsingMode).setRunMode(runMode).setSuppressionNames(Iterable(ParserRunner_suppressionNames.asSet())).setClosurePrimitiveNames(Iterable(ParserRunner_closurePrimitiveNames.asSet())).setLanguageMode(languageMode).setParseInlineSourceMaps(parseInlineSourceMaps).setStrictMode(strictMode).build()
 }

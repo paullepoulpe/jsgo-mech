@@ -27,7 +27,7 @@ func (this *PassListBuilder) build() *TList[*PassFactory] {
 }
 
 func (this *PassListBuilder) addAll(other *PassListBuilder) {
-	this.passes.asList().addAll(Collection(other.build().asList()))
+	this.passes.addAllT(other.build())
 }
 
 func (this *PassListBuilder) maybeAdd(factory *PassFactory) {

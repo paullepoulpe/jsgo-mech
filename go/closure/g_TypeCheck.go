@@ -1398,7 +1398,7 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 			var interfaceType *ObjectType = it_3.v
 			currentProperties.Clear()
 			this.checkInterfaceConflictProperties(n, this.getBestFunctionName(n), properties, currentProperties, interfaceType)
-			properties.asMap().putAll(currentProperties.asMap())
+			properties.putAllT(currentProperties)
 		}
 	}
 	var loopPath *[]*FunctionType = functionType.checkExtendsLoop()

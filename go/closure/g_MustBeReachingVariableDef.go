@@ -373,7 +373,7 @@ func new_MustBeReachingVariableDef_MustDef_Collection(vars CollectionOf[*Var]) *
 
 func MustBeReachingVariableDef_MustDef_createFromMustDef(other *MustBeReachingVariableDef_MustDef) *MustBeReachingVariableDef_MustDef {
 	var copy_ *MustBeReachingVariableDef_MustDef = new_MustBeReachingVariableDef_MustDef_0()
-	copy_.reachingDef.asMap().putAll(other.reachingDef.asMap())
+	copy_.reachingDef.putAllT(other.reachingDef)
 	return copy_
 }
 

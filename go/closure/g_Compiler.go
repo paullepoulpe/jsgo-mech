@@ -2512,7 +2512,7 @@ func (this *Compiler) getInstrumentationMapping() *VariableMap {
 }
 
 func (this *Compiler) addExportedNames_impl(exportedNames *TSet[string]) {
-	this.exportedNames.asSet().addAll(Collection(exportedNames.asSet()))
+	this.exportedNames.AddAll(exportedNames)
 }
 
 func (this *Compiler) getExportedNames_impl() *TSet[string] {
@@ -3560,7 +3560,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 
 func (this *Compiler_ChunkGraphAwareLicenseTracker) emitLicenses() *TSet[string] {
 	var licensesNewInFile *TSet[string] = immutableSetCopyOfTP_(tc_string, this.licensesNewInCurrentFile)
-	this.licensesNewInCurrentChunk.asSet().addAll(Collection(licensesNewInFile.asSet()))
+	this.licensesNewInCurrentChunk.AddAll(licensesNewInFile)
 	this.licensesNewInCurrentFile.Clear()
 	return licensesNewInFile
 }

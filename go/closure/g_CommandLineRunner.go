@@ -176,8 +176,8 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 	if parsed.isErr() {
 		return Outcome_base_err[any](parsed.error())
 	}
-	this.flags.guardLevels.asList().addAll(Collection(previousGuardLevels.asList()))
-	this.flags.mixedJsSources.asList().addAll(Collection(previousMixedJsSources.asList()))
+	this.flags.guardLevels.addAllT(previousGuardLevels)
+	this.flags.mixedJsSources.addAllT(previousMixedJsSources)
 	if !this.flags.flagFiles.isEmpty() {
 		this.reportError("ERROR - Arguments in the file cannot contain --flagfile option.")
 	}
