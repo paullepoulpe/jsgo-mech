@@ -254,14 +254,14 @@ where a row says so; "sweep" below quotes its counted reasons.
 | unboxing from any | 607 | 582 | 604 | as boxing |
 | lambda objects &X_fn{...} | 140 | 54 | 54 | j2go (typed adapters X_tfn_Y instead: 834 before, 762 after tfn handed 72 of them to the runtime as Go functions). OPEN: 175 PassFactory lambdas (passfn assumes the first flip's erased wrapper), the adapters stored in fields (funcparams reports no work on the typed form) |
 | Optional | 78 | 1,448 | 1,448 | a spelling count: j2go writes Optional[T], a Go value type, everywhere (the first flip's steps made it a value) |
-| try/catch emulation, defer | 50, 82 | 68, 91 | 66, 90 | exceptions, tryfn (10 left: the try's completion code is read). OPEN: the executor and thread patches both trials dropped (25c89a69, 9bdc7957, 08dc9ce1) account for the difference |
+| try/catch emulation, defer | 50, 82 | 68, 91 | 62, 88 | exceptions, tryfn (10 left: the try's completion code is read); C23 removed the executor's nested try. The rest of the difference to postflip5 is not attributed yet: OPEN |
 | panic (throw) | 3,492 | 2,421 | 2,419 | the Go idiom; throws: 4 left (an exception held in a variable) |
 | equals/hashCode protocol | 52 | 169 | 169 | eqtyped: 0 of 12 classes that could have a typed equals (sweep). OPEN: eqhash's static decisions do not reach the translator's generic boxing helpers (boxT_, equalsT_); jfam -kind eqkeys gave 12 key conversions == |
 | String_* UTF-16 helpers | 122 | 118 | 118 | str* tools report no work; 37 are not operations of a UTF-16 view (format, join, valueOf ...) |
 | StringBuilder | 3 | 79 | 79 | OPEN: sbuild converts 0 classes, 41 slots left: the manual and runtime steps of round 8 for builders passed as Appendable (9aa404da dropped: icast_Appendable is gone in this flip) |
 | enums as objects | 0 | 1 | 1 | enums: Node_Prop, which the runtime (node store) uses as an object |
 | Preconditions_ checks | 3 | 1,038 | 372 | j2go rules P2 and P4 (typed variants), then tchecks (dfc0c907): 665 statement calls are inline checks. Left (tchecks, counted): 235 checkNotNull used as an expression (its result is the value), 135 with a message argument that is not a constant, a variable or a field path (the template forms), 3 whose checked value is not a variable or a field path |
-| threads / executors | 13 | 56 | 56 | OPEN: the three dropped executor patches |
+| threads / executors | 13 | 56 | 18 | C23 and C24: round 8's executor edit rewritten for this flip (bde90b78) and the three stub-removal patches, which apply again after it. 18 left against postflip5's 13: the 5 are synchronized/lock mentions in code postflip5 changed by later hand edits not replayed here |
 | reflect, unsafe | 5, 1 | 5, 2 | 5, 2 | name matches in generated code; the node store adds one unsafe use |
 | fields/params declared any | 1,877 | 1,640 | 1,715 | objslots: 5 left (receive from a slot that stays any). OPEN: the planned single-type Object flow retyping |
 

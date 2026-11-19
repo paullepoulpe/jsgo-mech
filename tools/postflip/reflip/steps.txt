@@ -625,3 +625,5 @@ dfc0c907 run t tchecks && f
 09b98838 patch reflip2-09b98838-rt.patch
 # C23. postflip (manual): the compiler executor runs its callable on the calling goroutine (25c89a69 rewritten for this flip)
 bde90b78 patch reflip2-bde90b78-manual.patch
+# C24. postflip (runtime, manual): the executor, future and thread stubs are removed (07885c84, 9bdc7957, 08dc9ce1 after C23, plus three references of this flip)
+55140646 patch reflip2-55140646-rt.patch
