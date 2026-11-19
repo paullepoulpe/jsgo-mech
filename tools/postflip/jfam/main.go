@@ -51,10 +51,18 @@
 // cannot be changed and is no ImmutableList: TList.unmod). After -kind convs every named
 // conversion jtc_X has its post-flip one, tc_X.
 //
+// -kind cursors: a for-each loop over the keys or the values of a post-flip typed map through
+// the bridge's cursors (it := m.eachKey() / m.eachValue(), it.next(), it.v) uses the map's own
+// cursor, which the tools that follow know: it := m.each(), with it.k for a key and it.v for a
+// value. The same positions in the same order (both skip removed mappings, read the mapping
+// when it is reached and see mappings added during the loop). Only where every use of the
+// cursor variable is it.next() or it.v; the rest is counted. Loops over entries (eachEntry: an
+// entry object that reads and writes its mapping) are not this kind's.
+//
 // Not converted by -kind list, and counted: typed sets and maps (JTSet, JTMap), which compare
 // keys through byEquals where the post-flip ones have hash and eq functions.
 //
-// usage: jfam [-n] -kind list|convs|keyed <dir of package closure>
+// usage: jfam [-n] -kind list|convs|keyed|cursors <dir of package closure>
 package main
 
 import (
@@ -102,8 +110,8 @@ func main() {
 	dry := flag.Bool("n", false, "report only")
 	kind := flag.String("kind", "", "list")
 	flag.Parse()
-	if *kind != "list" && *kind != "convs" && *kind != "keyed" || flag.NArg() != 1 {
-		fmt.Fprintln(os.Stderr, "usage: jfam [-n] -kind list|convs|keyed <dir of package closure>")
+	if *kind != "list" && *kind != "convs" && *kind != "keyed" && *kind != "cursors" || flag.NArg() != 1 {
+		fmt.Fprintln(os.Stderr, "usage: jfam [-n] -kind list|convs|keyed|cursors <dir of package closure>")
 		os.Exit(2)
 	}
 	rw.Load(flag.Arg(0))
@@ -113,6 +121,10 @@ func main() {
 	}
 	if *kind == "keyed" {
 		keyed(*dry)
+		return
+	}
+	if *kind == "cursors" {
+		cursors(*dry)
 		return
 	}
 	jlist := lookup("JTList")
@@ -886,4 +898,73 @@ func keysOf(m map[string]int) []string {
 		keys = append(keys, k)
 	}
 	return keys
+}
+
+// cursors makes the bridge's key and value cursors of post-flip typed maps the map's own cursor.
+func cursors(dry bool) {
+	tmap := must("TMap")
+	done, left := map[string]int{}, map[string]int{}
+	for _, f := range rw.Files {
+		if !generated(f.Pos()) {
+			continue
+		}
+		ast.Inspect(f, func(n ast.Node) bool {
+			as, ok := n.(*ast.AssignStmt)
+			if !ok || as.Tok != token.DEFINE || len(as.Lhs) != 1 || len(as.Rhs) != 1 {
+				return true
+			}
+			call, ok := as.Rhs[0].(*ast.CallExpr)
+			if !ok || len(call.Args) != 0 {
+				return true
+			}
+			sel, ok := call.Fun.(*ast.SelectorExpr)
+			if !ok || sel.Sel.Name != "eachKey" && sel.Sel.Name != "eachValue" {
+				return true
+			}
+			p, ok := rw.Info.TypeOf(sel.X).(*types.Pointer)
+			if !ok {
+				return true
+			}
+			if nt, ok := p.Elem().(*types.Named); !ok || nt.Origin().Obj() != tmap {
+				return true
+			}
+			id, ok := as.Lhs[0].(*ast.Ident)
+			if !ok {
+				return true
+			}
+			v := rw.Info.Defs[id]
+			var fields []*ast.Ident
+			good := true
+			for _, u := range rw.UsesOf[v] {
+				se, ok := rw.Up(u).(*ast.SelectorExpr)
+				if !ok || se.X != ast.Expr(u) || se.Sel.Name != "v" && se.Sel.Name != "next" {
+					good = false
+					break
+				}
+				if se.Sel.Name == "v" {
+					fields = append(fields, se.Sel)
+				}
+			}
+			if !good {
+				left[sel.Sel.Name+": the cursor is used other than by next() and v"]++
+				return true
+			}
+			done[sel.Sel.Name]++
+			name := sel.Sel
+			rw.Rewrite[name] = func() string { return "each" }
+			if sel.Sel.Name == "eachKey" {
+				for _, fsel := range fields {
+					rw.Rewrite[fsel] = func() string { return "k" }
+				}
+			}
+			return true
+		})
+	}
+	fmt.Fprintf(os.Stderr, "jfam -kind cursors: %d loops over the keys and %d over the values of a typed map use the map's cursor\n", done["eachKey"], done["eachValue"])
+	for _, k := range sortStrings(keysOf(left)) {
+		fmt.Fprintf(os.Stderr, "left: %d %s\n", left[k], k)
+	}
+	if !dry {
+		fmt.Fprintf(os.Stderr, "files changed: %d\n", rw.SaveChecked())
+	}
 }
