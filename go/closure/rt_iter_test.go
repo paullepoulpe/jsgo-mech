@@ -294,3 +294,59 @@ func TestBoxedKVMatchesEntrySet(t *testing.T) {
 		}
 	}
 }
+
+// TestTypedCursorsMatchViewIterators: TList.cursor and TSet.cursor, read with nextT/nextKey,
+// against asList().iterator() and asSet().iterator(), removing every third element through
+// the iterator; both walks see the same elements and leave the same collection.
+func TestTypedCursorsMatchViewIterators(t *testing.T) {
+	kc := &tconv_[int32]{box: func(v int32) any { return v }, unbox: func(v any) int32 { return v.(int32) }}
+	l1, l2 := newTList_(kc), newTList_(kc)
+	s1, s2 := newTSet_(kc), newTSet_(kc)
+	for i := int32(0); i < 30; i++ {
+		l1.add(i % 7)
+		l2.add(i % 7)
+		s1.add(i * 3 % 41)
+		s2.add(i * 3 % 41)
+	}
+	var a, b []any
+	for it, n := l1.asList().iterator(), 0; it.hasNext(); n++ {
+		a = append(a, it.next())
+		if n%3 == 0 {
+			Iterator_remove(it)
+		}
+	}
+	for it, n := l2.cursor(), 0; it.hasNext(); n++ {
+		b = append(b, it.nextT())
+		if n%3 == 0 {
+			it.remove()
+		}
+	}
+	for it, n := s1.asSet().iterator(), 0; it.hasNext(); n++ {
+		a = append(a, it.next())
+		if n%3 == 0 {
+			Iterator_remove(it)
+		}
+	}
+	for it, n := s2.cursor(), 0; it.hasNext(); n++ {
+		b = append(b, it.nextKey())
+		if n%3 == 0 {
+			it.remove()
+		}
+	}
+	var r1, r2 []any
+	for _, x := range l1.items {
+		r1 = append(r1, x)
+	}
+	for _, x := range l2.items {
+		r2 = append(r2, x)
+	}
+	for k := range s1.Keys() {
+		r1 = append(r1, k)
+	}
+	for k := range s2.Keys() {
+		r2 = append(r2, k)
+	}
+	if !sameSlice_(a, b) || !sameSlice_(r1, r2) {
+		t.Fatalf("walks %v / %v, left %v / %v", a, b, r1, r2)
+	}
+}
