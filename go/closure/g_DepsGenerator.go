@@ -78,7 +78,7 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 	var providesMap map[string]DependencyInfo_ = map[string]DependencyInfo_{}
 	this.addToProvideMap(Iterable(depFiles.values()), providesMap, true)
 	this.addToProvideMap(Iterable(jsFiles.asMap().values()), providesMap, false)
-	for dependencyInfo := range elemsBy_(jsFiles.asMap().values(), icast_DependencyInfo_) {
+	for dependencyInfo := range jsFiles.Values() {
 		var newRequires *TList[*DependencyInfo_Require] = newTList_(tc_p_DependencyInfo_Require)
 		for _, el := range immElems_(dependencyInfo.getRequires()) {
 			require := cast_[*DependencyInfo_Require](el)

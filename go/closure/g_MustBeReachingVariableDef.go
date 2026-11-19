@@ -278,9 +278,12 @@ func (this *MustBeReachingVariableDef) dependsOnOuterScopeVars(def *MustBeReachi
 	if def.unknownDependencies {
 		return true
 	}
-	it_1 := def.depends.each()
-	for it_1.next() {
-		var s *Var = it_1.v
+	l_1 := def.depends
+	for i_1 := l_1.first(); i_1 < len(l_1.keys); i_1++ {
+		if l_1.isDead(i_1) {
+			continue
+		}
+		var s *Var = l_1.keys[i_1]
 		if s.getScope_rAbstractScope_rScope().isCatchScope() {
 			return true
 		}

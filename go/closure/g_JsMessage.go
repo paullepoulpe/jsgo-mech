@@ -150,9 +150,9 @@ func (this *JsMessage) asIcuMessageString_1(genderCase JsMessage_GrammaticalGend
 
 func (this *JsMessage) isEmpty() bool {
 	if this.getGenderedMessagesMap().IsEmpty() {
-		it_1 := this.getParts().each()
-		for it_1.next() {
-			var part JsMessage_Part = it_1.v
+		l_1 := this.getParts()
+		for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+			var part JsMessage_Part = l_1.items[i_1]
 			if part.isPlaceholder() || (len(part.getString()) != 0) {
 				return false
 			}

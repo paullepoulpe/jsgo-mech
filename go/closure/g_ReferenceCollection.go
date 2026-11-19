@@ -51,9 +51,9 @@ func (this *ReferenceCollection) isWellDefined() bool {
 
 func (this *ReferenceCollection) isEscaped() bool {
 	var closureScope *Scope = nil
-	it_1 := this.references.each()
-	for it_1.next() {
-		var ref *Reference = it_1.v
+	l_1 := this.references
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var ref *Reference = l_1.items[i_1]
 		var refClosureScope *Scope = ReferenceCollection_getEnclosingClosureScope(ref.getScope())
 		if closureScope == nil {
 			closureScope = refClosureScope
@@ -78,9 +78,9 @@ func ReferenceCollection_getEnclosingClosureScope(scope *Scope) *Scope {
 
 func (this *ReferenceCollection) isThisRebound() bool {
 	var hoistScope *Scope = nil
-	it_1 := this.references.each()
-	for it_1.next() {
-		var ref *Reference = it_1.v
+	l_1 := this.references
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var ref *Reference = l_1.items[i_1]
 		var refHoistScope *Scope = ref.getScope().getClosestHoistScope_rScope()
 		if hoistScope == nil {
 			hoistScope = refHoistScope
@@ -172,9 +172,9 @@ func (this *ReferenceCollection) isAssignedOnceInLifetime() bool {
 }
 
 func (this *ReferenceCollection) isReferencedWeakly() bool {
-	it_1 := this.references.each()
-	for it_1.next() {
-		var ref *Reference = it_1.v
+	l_1 := this.references
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var ref *Reference = l_1.items[i_1]
 		if NodeUtil_isGoogWeakUsageCall(ref.getParent()) {
 			return true
 		}

@@ -62,9 +62,9 @@ func JSChunkGraph_initChunksByDepth(chunks []*JSChunk) *Outcome_base[*TList[*TLi
 			panic(new_IllegalStateException_String(Strings_lenientFormat("Chunk depth already set: %s", []any{chunk})))
 		}
 		var depth int32 = 0
-		it_2 := chunk.getDependencies().each()
-		for it_2.next() {
-			var dep *JSChunk = it_2.v
+		l_2 := chunk.getDependencies()
+		for i_2 := 0; i_2 < len(l_2.items); i_2++ {
+			var dep *JSChunk = l_2.items[i_2]
 			var depDepth int32 = dep.getDepth()
 			if depDepth < 0 {
 				return Outcome_base_err[*TList[*TList[*JSChunk]]](new_JSChunkGraph_ChunkDependenceException(("Chunks not in dependency order: " + sstr_(chunk.getName()) + " preceded " + sstr_(dep.getName())), chunk, dep).up_Throwable())
@@ -482,9 +482,9 @@ func (this *JSChunkGraph) createEntryPointInputs(compiler *AbstractCompiler, dep
 				}
 			}
 		}
-		it_3 := dependencyOptions.entryPoints().each()
-		for it_3.next() {
-			var entryPoint *ModuleIdentifier = it_3.v
+		l_3 := dependencyOptions.entryPoints()
+		for i_3 := 0; i_3 < len(l_3.items); i_3++ {
+			var entryPoint *ModuleIdentifier = l_3.items[i_3]
 			var entryPointInput *CompilerInput = nil
 			if entryPoint.closureNamespace() == entryPoint.moduleName() {
 				entryPointInput = sorter.maybeGetInputProviding(entryPoint.closureNamespace())

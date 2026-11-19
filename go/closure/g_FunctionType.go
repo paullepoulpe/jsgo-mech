@@ -929,9 +929,8 @@ func (this *FunctionType) checkExtendsLoop() *[]*FunctionType {
 func (this *FunctionType) checkExtendsLoop_2(cache *TSet[*FunctionType], path *[]*FunctionType) *[]*FunctionType {
 	var iterable *TList[*ObjectType] = this.getExtendedInterfaces()
 	if iterable != nil {
-		it_1 := iterable.each()
-		for it_1.next() {
-			var interfaceType *ObjectType = it_1.v
+		for i_1 := 0; i_1 < len(iterable.items); i_1++ {
+			var interfaceType *ObjectType = iterable.items[i_1]
 			var superConstructor *FunctionType = interfaceType.getConstructor()
 			if superConstructor == nil {
 				continue

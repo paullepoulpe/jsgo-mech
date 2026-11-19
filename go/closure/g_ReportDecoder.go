@@ -84,9 +84,9 @@ func ReportDecoder_parseJsonStringList(json string) *Outcome_base[*TList[string]
 		return Outcome_base_err[*TList[string]](new_SimpleJsonException("Malformed mapping: expected a JSON array").up_Throwable())
 	}
 	var list *TList[string] = newTList_(tc_string)
-	it_1 := parsed.get().elements().each()
-	for it_1.next() {
-		var element *SimpleJsonValue = it_1.v
+	l_1 := parsed.get().elements()
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var element *SimpleJsonValue = l_1.items[i_1]
 		if element.kind() == SimpleJsonValue_Kind_NULL {
 			list.add(nullstr_)
 			continue
@@ -102,8 +102,8 @@ func ReportDecoder_parseJsonStringList(json string) *Outcome_base[*TList[string]
 
 func ReportDecoder_decodeReport(mapping *TMap[string, *InstrumentationPoint], frequencies MapOf[string, BoxedOf[int64]]) *ReportProfile {
 	var instrumentationPoints *TList[*InstrumentationPointStats] = newTList_(tc_p_InstrumentationPointStats)
-	for entry := range elemsBy_(mapping.asMap().entrySet(), icast_Map_Entry) {
-		instrumentationPoints.add(cast_[*InstrumentationPointStats](InstrumentationPointStats_newBuilder().setPoint(cast_[*InstrumentationPoint](entry.getValue())).setTimesExecuted(unbox_[int64](Map_getOrDefault_s(frequencies, str_(entry.getKey()), any(int64(0))))).build()))
+	for entryKey, entryValue := range mapping.All() {
+		instrumentationPoints.add(cast_[*InstrumentationPointStats](InstrumentationPointStats_newBuilder().setPoint(entryValue).setTimesExecuted(unbox_[int64](Map_getOrDefault_s(frequencies, entryKey, any(int64(0))))).build()))
 	}
 	return ReportDecoder_createReportProfile(instrumentationPoints)
 }

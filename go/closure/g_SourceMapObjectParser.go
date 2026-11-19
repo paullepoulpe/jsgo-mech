@@ -216,9 +216,9 @@ func SourceMapObjectParser_buildSections(sections *SimpleJsonValue) *Outcome_bas
 		return Outcome_base_err[*ErasedImmutableList](SourceMapObjectParser_invalidMember("sections").up_Throwable())
 	}
 	var listBuilder *ImmutableList_Builder[*SourceMapSection] = immutableListBuilder_(tc_p_SourceMapSection)
-	it_1 := sections.elements().each()
-	for it_1.next() {
-		var each *SimpleJsonValue = it_1.v
+	l_1 := sections.elements()
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var each *SimpleJsonValue = l_1.items[i_1]
 		var section *Outcome_base[*SourceMapSection] = SourceMapObjectParser_buildSection(each)
 		if section.isErr() {
 			return Outcome_base_err[*ErasedImmutableList](section.error())

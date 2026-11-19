@@ -1210,9 +1210,9 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 }
 
 func (this *RegExpTree_Alternation) isCaseSensitive_impl() bool {
-	it_1 := this.alternatives.each()
-	for it_1.next() {
-		var alternative *RegExpTree = it_1.v
+	l_1 := this.alternatives
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var alternative *RegExpTree = l_1.items[i_1]
 		if alternative.isCaseSensitive() {
 			return true
 		}
@@ -1221,9 +1221,9 @@ func (this *RegExpTree_Alternation) isCaseSensitive_impl() bool {
 }
 
 func (this *RegExpTree_Alternation) containsAnchor_impl() bool {
-	it_1 := this.alternatives.each()
-	for it_1.next() {
-		var alternative *RegExpTree = it_1.v
+	l_1 := this.alternatives
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var alternative *RegExpTree = l_1.items[i_1]
 		if alternative.containsAnchor() {
 			return true
 		}
@@ -2137,9 +2137,9 @@ func (this *RegExpTree_Concatenation) simplify_impl(flags string) *RegExpTree {
 }
 
 func (this *RegExpTree_Concatenation) isCaseSensitive_impl() bool {
-	it_1 := this.elements_.each()
-	for it_1.next() {
-		var element *RegExpTree = it_1.v
+	l_1 := this.elements_
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var element *RegExpTree = l_1.items[i_1]
 		if element.isCaseSensitive() {
 			return true
 		}
@@ -2148,9 +2148,9 @@ func (this *RegExpTree_Concatenation) isCaseSensitive_impl() bool {
 }
 
 func (this *RegExpTree_Concatenation) containsAnchor_impl() bool {
-	it_1 := this.elements_.each()
-	for it_1.next() {
-		var element *RegExpTree = it_1.v
+	l_1 := this.elements_
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var element *RegExpTree = l_1.items[i_1]
 		if element.containsAnchor() {
 			return true
 		}

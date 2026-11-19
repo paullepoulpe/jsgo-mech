@@ -104,10 +104,13 @@ func (this *ComposeWarningsGuard) mustRunChecks_impl(group *DiagnosticGroup) Tri
 }
 
 func (this *ComposeWarningsGuard) disables(group *DiagnosticGroup) bool {
-	it_1 := group.getTypes().each()
+	l_1 := group.getTypes()
 nextSingleton_:
-	for it_1.next() {
-		var type_ *DiagnosticType = it_1.v
+	for i_1 := l_1.first(); i_1 < len(l_1.keys); i_1++ {
+		if l_1.isDead(i_1) {
+			continue
+		}
+		var type_ *DiagnosticType = l_1.keys[i_1]
 		var singleton *DiagnosticGroup = DiagnosticGroup_forType(type_)
 		it_2 := this.guards.each()
 		for it_2.next() {
