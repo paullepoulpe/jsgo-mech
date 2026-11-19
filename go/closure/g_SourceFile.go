@@ -4,7 +4,7 @@ package closure
 
 type SourceFile_jscomp struct {
 	fileName                                     string
-	kind_                                        *StaticSourceFile_SourceKind
+	kind_                                        StaticSourceFile_SourceKind
 	loader                                       *SourceFile_CodeLoader
 	isStubSourceFileForAlreadyProvidedInputField bool
 	lineOffsets                                  []int32
@@ -27,7 +27,7 @@ func (this *SourceFile_jscomp) finit_SourceFile_jscomp() {
 	this.isClosureUnawareCodeField = false
 }
 
-func (this *SourceFile_jscomp) init_SourceFile_jscomp(loader *SourceFile_CodeLoader, fileName string, kind *StaticSourceFile_SourceKind) {
+func (this *SourceFile_jscomp) init_SourceFile_jscomp(loader *SourceFile_CodeLoader, fileName string, kind StaticSourceFile_SourceKind) {
 	this.finit_SourceFile_jscomp()
 	if Strings_isNullOrEmpty(fileName) {
 		panic(new_IllegalArgumentException_String("a source must have a name").self())
@@ -40,7 +40,7 @@ func (this *SourceFile_jscomp) init_SourceFile_jscomp(loader *SourceFile_CodeLoa
 	this.kind_ = kind
 }
 
-func new_SourceFile_jscomp(loader *SourceFile_CodeLoader, fileName string, kind *StaticSourceFile_SourceKind) *SourceFile_jscomp {
+func new_SourceFile_jscomp(loader *SourceFile_CodeLoader, fileName string, kind StaticSourceFile_SourceKind) *SourceFile_jscomp {
 	this := &SourceFile_jscomp{}
 	this.zero_SourceFile_jscomp()
 	this.init_SourceFile_jscomp(loader, fileName, kind)
@@ -200,11 +200,11 @@ func (this *SourceFile_jscomp) getName() string {
 	return this.fileName
 }
 
-func (this *SourceFile_jscomp) getKind() *StaticSourceFile_SourceKind {
+func (this *SourceFile_jscomp) getKind() StaticSourceFile_SourceKind {
 	return this.kind_
 }
 
-func (this *SourceFile_jscomp) setKind(kind *StaticSourceFile_SourceKind) {
+func (this *SourceFile_jscomp) setKind(kind StaticSourceFile_SourceKind) {
 	this.kind_ = kind
 }
 
@@ -400,7 +400,7 @@ func SourceFile_jscomp_fromFile_String(fileName string) *SourceFile_jscomp {
 	return SourceFile_jscomp_builder().withPath(fileName).build()
 }
 
-func SourceFile_jscomp_fromCode_String_String_SourceKind(fileName string, code string, kind *StaticSourceFile_SourceKind) *SourceFile_jscomp {
+func SourceFile_jscomp_fromCode_String_String_SourceKind(fileName string, code string, kind StaticSourceFile_SourceKind) *SourceFile_jscomp {
 	return SourceFile_jscomp_builder().withPath(fileName).withKind(kind).withContent(code).build()
 }
 
@@ -408,7 +408,7 @@ func SourceFile_jscomp_fromCode_String_String(fileName string, code string) *Sou
 	return SourceFile_jscomp_builder().withPath(fileName).withContent(code).build()
 }
 
-func SourceFile_jscomp_stubSourceFile(fileName string, kind *StaticSourceFile_SourceKind) *SourceFile_jscomp {
+func SourceFile_jscomp_stubSourceFile(fileName string, kind StaticSourceFile_SourceKind) *SourceFile_jscomp {
 	return SourceFile_jscomp_builder().withPath(fileName).withKind(kind).setIsStubSourceFileForAlreadyProvidedInput().build()
 }
 
@@ -480,7 +480,7 @@ func (this *SourceFile_jscomp) restoreCachedStateFrom(protoSourceFile *SourceFil
 }
 
 func SourceFile_jscomp_fromProto_SourceFileProto(protoSourceFile *SourceFileProto) *SourceFile_jscomp {
-	var sourceKind *StaticSourceFile_SourceKind = SourceFile_jscomp_getSourceKindFromProto(protoSourceFile)
+	var sourceKind StaticSourceFile_SourceKind = SourceFile_jscomp_getSourceKindFromProto(protoSourceFile)
 	var sourceFile *SourceFile_jscomp = SourceFile_jscomp_fromProto_SourceFileProto_SourceKind(protoSourceFile, sourceKind)
 	var protoNumLines int32 = (protoSourceFile.getNumLinesPlusOne() - 1)
 	var protoNumBytes int32 = (protoSourceFile.getNumBytesPlusOne() - 1)
@@ -498,7 +498,7 @@ func SourceFile_jscomp_fromProto_SourceFileProto(protoSourceFile *SourceFileProt
 	return sourceFile
 }
 
-func SourceFile_jscomp_fromProto_SourceFileProto_SourceKind(protoSourceFile *SourceFileProto, sourceKind *StaticSourceFile_SourceKind) *SourceFile_jscomp {
+func SourceFile_jscomp_fromProto_SourceFileProto_SourceKind(protoSourceFile *SourceFileProto, sourceKind StaticSourceFile_SourceKind) *SourceFile_jscomp {
 	switch protoSourceFile.getLoaderCase() {
 	case SourceFileProto_LoaderCase_PRELOADED_CONTENTS:
 		return SourceFile_jscomp_fromCode_String_String_SourceKind(protoSourceFile.getFilename(), protoSourceFile.getPreloadedContents(), sourceKind)
@@ -520,8 +520,8 @@ func SourceFile_jscomp_fromProto_SourceFileProto_SourceKind(protoSourceFile *Sou
 	panic(new_AssertionError_0().self())
 }
 
-func SourceFile_jscomp_getSourceKindFromProto(protoSourceFile *SourceFileProto) *StaticSourceFile_SourceKind {
-	return func() *StaticSourceFile_SourceKind {
+func SourceFile_jscomp_getSourceKindFromProto(protoSourceFile *SourceFileProto) StaticSourceFile_SourceKind {
+	return func() StaticSourceFile_SourceKind {
 		switch protoSourceFile.getSourceKind() {
 		case SourceFileProto_SourceKind_EXTERN:
 			return StaticSourceFile_SourceKind_EXTERN
@@ -549,7 +549,7 @@ func (this *SourceFile_jscomp) getProto() *SourceFileProto {
 	return cast_[*SourceFileProto](this.loader.toProtoLocationBuilder(this.getName()).setFilename(this.getName()).setSourceKind(SourceFile_jscomp_sourceKindToProto(this.getKind())).setIsClosureUnawareCode(this.isClosureUnawareCodeField).setNumLinesPlusOne((this.numLines + 1)).setNumBytesPlusOne((this.numBytes + 1)).build())
 }
 
-func SourceFile_jscomp_sourceKindToProto(sourceKind *StaticSourceFile_SourceKind) *SourceFileProto_SourceKind {
+func SourceFile_jscomp_sourceKindToProto(sourceKind StaticSourceFile_SourceKind) *SourceFileProto_SourceKind {
 	return func() *SourceFileProto_SourceKind {
 		switch sourceKind {
 		case StaticSourceFile_SourceKind_EXTERN:
@@ -601,7 +601,7 @@ func SourceFile_jscomp_clinit() {
 }
 
 type SourceFile_Builder struct {
-	kind_                                    *StaticSourceFile_SourceKind
+	kind_                                    StaticSourceFile_SourceKind
 	charset                                  string
 	originalPath                             Optional[string]
 	isStubSourceFileForAlreadyProvidedInput_ bool
@@ -635,7 +635,7 @@ func new_SourceFile_Builder() *SourceFile_Builder {
 	return this
 }
 
-func (this *SourceFile_Builder) withKind(kind *StaticSourceFile_SourceKind) *SourceFile_Builder {
+func (this *SourceFile_Builder) withKind(kind StaticSourceFile_SourceKind) *SourceFile_Builder {
 	this.kind_ = kind
 	return this
 }

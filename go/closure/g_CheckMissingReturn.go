@@ -28,14 +28,14 @@ func new_CheckMissingReturn(compiler *AbstractCompiler) *CheckMissingReturn {
 	return this
 }
 
-func CheckMissingReturn_goesThroughTrueCondition(input DiGraph_DiGraphEdge[Node, *ControlFlowGraph_Branch]) bool {
-	var branch *ControlFlowGraph_Branch = input.getValue()
+func CheckMissingReturn_goesThroughTrueCondition(input DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch]) bool {
+	var branch ControlFlowGraph_Branch = input.getValue()
 	if branch == ControlFlowGraph_Branch_ON_EX {
 		return false
 	} else if branch.isConditional() {
 		var condition Node = NodeUtil_getConditionExpression(input.getSource().getValue())
 		if condition != 0 {
-			var val *Tri = NodeUtil_getBooleanValue(condition)
+			var val Tri = NodeUtil_getBooleanValue(condition)
 			if val != Tri_UNKNOWN {
 				return (val.toBoolean(true) == (branch == ControlFlowGraph_Branch_ON_TRUE))
 			}
@@ -60,9 +60,9 @@ func (this *CheckMissingReturn) enterScopeWithCfg_impl(t *NodeTraversal) {
 	if this.fastAllPathsReturnCheck(cfg) {
 		return
 	}
-	var test *CheckPathsBetweenNodes[Node, *ControlFlowGraph_Branch] = new_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate[Node, *ControlFlowGraph_Branch](cfg.up_DiGraph(), cfg.getEntry(), cfg.getImplicitReturn(), &Predicate_base_tfn_Node{func(input Node) bool {
+	var test *CheckPathsBetweenNodes[Node, ControlFlowGraph_Branch] = new_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate[Node, ControlFlowGraph_Branch](cfg.up_DiGraph(), cfg.getEntry(), cfg.getImplicitReturn(), &Predicate_base_tfn_Node{func(input Node) bool {
 		return ((input != 0) && input.isReturn())
-	}}, &Predicate_base_tfn_DiGraph_DiGraphEdge_Node_ControlFlowGraph_Branch_{func(p0 DiGraph_DiGraphEdge[Node, *ControlFlowGraph_Branch]) bool {
+	}}, &Predicate_base_tfn_DiGraph_DiGraphEdge_Node_ControlFlowGraph_Branch_{func(p0 DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch]) bool {
 		return CheckMissingReturn_goesThroughTrueCondition(p0)
 	}})
 	if !test.allPathsSatisfyPredicate() {
@@ -73,7 +73,7 @@ func (this *CheckMissingReturn) enterScopeWithCfg_impl(t *NodeTraversal) {
 func (this *CheckMissingReturn) fastAllPathsReturnCheck(cfg *ControlFlowGraph[Node]) bool {
 	it_1 := foreach_(cfg.getImplicitReturn().getInEdges())
 	for it_1.next() {
-		var s DiGraph_DiGraphEdge[Node, *ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphEdge[Node, *ControlFlowGraph_Branch]](it_1.v)
+		var s DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch]](it_1.v)
 		var n Node = s.getSource().getValue()
 		if !n.isReturn() && !this.convention.isFunctionCallThatAlwaysThrows(n) {
 			return false

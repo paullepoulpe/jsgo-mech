@@ -29,7 +29,7 @@ func (this *PrintStreamErrorReportGenerator) generateReport(manager *SortingErro
 	this.printSummary(icast_ErrorManager(manager.self()))
 }
 
-func (this *PrintStreamErrorReportGenerator) println(level *CheckLevel, error_ *JSError) {
+func (this *PrintStreamErrorReportGenerator) println(level CheckLevel, error_ *JSError) {
 	this.stream.println(error_.format(level, this.formatter).get())
 }
 

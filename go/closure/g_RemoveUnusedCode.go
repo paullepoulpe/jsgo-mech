@@ -124,7 +124,7 @@ func (this *RemoveUnusedCode) removeIndependentlyRemovableProperties() {
 
 func (this *RemoveUnusedCode) traverseNode(n Node, scope *Scope) {
 	var parent Node = n.getParent()
-	var type_ *Token_rhino = n.getToken()
+	var type_ Token_rhino = n.getToken()
 	switch type_ {
 	case Token_rhino_CATCH:
 		this.traverseCatch(n, scope)
@@ -943,12 +943,12 @@ func (this *RemoveUnusedCode) considerForIndependentRemoval(removable *RemoveUnu
 	}
 }
 
-func (this *RemoveUnusedCode) considerForAccessorSideEffects(getprop Node, usage *AccessorSummary_PropertyAccessKind) bool {
+func (this *RemoveUnusedCode) considerForAccessorSideEffects(getprop Node, usage AccessorSummary_PropertyAccessKind) bool {
 	if !NodeUtil_isNormalOrOptChainGetProp(getprop) {
 		Preconditions_checkState_boolean_Object_H(false, getprop)
 	}
 	var propName string = getprop.getString()
-	var recorded *AccessorSummary_PropertyAccessKind = this.compiler_.getAccessorSummary().getKind(propName)
+	var recorded AccessorSummary_PropertyAccessKind = this.compiler_.getAccessorSummary().getKind(propName)
 	if ((recorded.hasGetter() && usage.hasGetter()) && !this.assumeGettersArePure_) || (recorded.hasSetter() && usage.hasSetter()) {
 		this.markPropertyNameAsPinned(propName)
 		return true
@@ -2403,45 +2403,59 @@ func (this *RemoveUnusedCode_NameDeclarationStatement) toString() string {
 	return ("NameDeclStmt:" + tostrH_(this.declarationStatement))
 }
 
-type RemoveUnusedCode_Kind struct {
-	Enum
+type RemoveUnusedCode_Kind uint8
+
+// RemoveUnusedCode_Kind_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var RemoveUnusedCode_Kind_enum_ = [3]Enum{
+	{self_: RemoveUnusedCode_Kind_VARIABLE, name_: "VARIABLE", ordinal_: 0},
+	{self_: RemoveUnusedCode_Kind_NAMED_PROPERTY, name_: "NAMED_PROPERTY", ordinal_: 1},
+	{self_: RemoveUnusedCode_Kind_COMPUTED_PROPERTY, name_: "COMPUTED_PROPERTY", ordinal_: 2},
 }
 
-func (this *RemoveUnusedCode_Kind) up_Enum() *Enum {
-	if this == nil {
+func (this RemoveUnusedCode_Kind) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &RemoveUnusedCode_Kind_enum_[this-1]
 }
 
-func (this *RemoveUnusedCode_Kind) init_RemoveUnusedCode_Kind(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this RemoveUnusedCode_Kind) name() string { return RemoveUnusedCode_Kind_enum_[this-1].name_ }
+
+func (this RemoveUnusedCode_Kind) ordinal() int32 {
+	return RemoveUnusedCode_Kind_enum_[this-1].ordinal_
 }
 
-func new_RemoveUnusedCode_Kind(name_ string, ordinal_ int32) *RemoveUnusedCode_Kind {
-	this := &RemoveUnusedCode_Kind{}
-	this.self_ = this
-	this.init_RemoveUnusedCode_Kind(name_, ordinal_)
+func (this RemoveUnusedCode_Kind) toString() string { return RemoveUnusedCode_Kind_enum_[this-1].name_ }
+
+func (this RemoveUnusedCode_Kind) compareTo(o any) int32 {
+	return RemoveUnusedCode_Kind_enum_[this-1].compareTo(o)
+}
+
+func (this RemoveUnusedCode_Kind) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func RemoveUnusedCode_Kind_values() []*RemoveUnusedCode_Kind {
-	return append([]*RemoveUnusedCode_Kind(nil), RemoveUnusedCode_Kind_values_...)
+func RemoveUnusedCode_Kind_values() []RemoveUnusedCode_Kind {
+	return append([]RemoveUnusedCode_Kind(nil), RemoveUnusedCode_Kind_values_...)
 }
 
-func RemoveUnusedCode_Kind_valueOf(name string) *RemoveUnusedCode_Kind {
+func RemoveUnusedCode_Kind_valueOf(name string) RemoveUnusedCode_Kind {
 	for _, v := range RemoveUnusedCode_Kind_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Kind", name))
 }
 
-var RemoveUnusedCode_Kind_VARIABLE *RemoveUnusedCode_Kind
-var RemoveUnusedCode_Kind_NAMED_PROPERTY *RemoveUnusedCode_Kind
-var RemoveUnusedCode_Kind_COMPUTED_PROPERTY *RemoveUnusedCode_Kind
-var RemoveUnusedCode_Kind_values_ []*RemoveUnusedCode_Kind
+const RemoveUnusedCode_Kind_VARIABLE RemoveUnusedCode_Kind = 1
+const RemoveUnusedCode_Kind_NAMED_PROPERTY RemoveUnusedCode_Kind = 2
+const RemoveUnusedCode_Kind_COMPUTED_PROPERTY RemoveUnusedCode_Kind = 3
+
+var RemoveUnusedCode_Kind_values_ []RemoveUnusedCode_Kind
 
 var RemoveUnusedCode_Kind_clinit_done bool
 
@@ -2450,10 +2464,7 @@ func RemoveUnusedCode_Kind_clinit() {
 		return
 	}
 	RemoveUnusedCode_Kind_clinit_done = true
-	RemoveUnusedCode_Kind_VARIABLE = new_RemoveUnusedCode_Kind("VARIABLE", 0)
-	RemoveUnusedCode_Kind_NAMED_PROPERTY = new_RemoveUnusedCode_Kind("NAMED_PROPERTY", 1)
-	RemoveUnusedCode_Kind_COMPUTED_PROPERTY = new_RemoveUnusedCode_Kind("COMPUTED_PROPERTY", 2)
-	RemoveUnusedCode_Kind_values_ = []*RemoveUnusedCode_Kind{RemoveUnusedCode_Kind_VARIABLE, RemoveUnusedCode_Kind_NAMED_PROPERTY, RemoveUnusedCode_Kind_COMPUTED_PROPERTY}
+	RemoveUnusedCode_Kind_values_ = []RemoveUnusedCode_Kind{RemoveUnusedCode_Kind_VARIABLE, RemoveUnusedCode_Kind_NAMED_PROPERTY, RemoveUnusedCode_Kind_COMPUTED_PROPERTY}
 	registerEnum_("com.google.javascript.jscomp.RemoveUnusedCode.Kind", enumValues_(RemoveUnusedCode_Kind_values_))
 
 }
@@ -2462,7 +2473,7 @@ type RemoveUnusedCode_Assign struct {
 	RemoveUnusedCode_Removable
 	outer_     *RemoveUnusedCode
 	assignNode Node
-	kind_      *RemoveUnusedCode_Kind
+	kind_      RemoveUnusedCode_Kind
 	varInfo    RemoveUnusedCode_VarInfo
 }
 
@@ -2473,7 +2484,7 @@ func (this *RemoveUnusedCode_Assign) up_RemoveUnusedCode_Removable() *RemoveUnus
 	return &this.RemoveUnusedCode_Removable
 }
 
-func (this *RemoveUnusedCode_Assign) init_RemoveUnusedCode_Assign(builder *RemoveUnusedCode_RemovableBuilder, assignNode Node, kind *RemoveUnusedCode_Kind, propertyNode Node, varInfo RemoveUnusedCode_VarInfo) {
+func (this *RemoveUnusedCode_Assign) init_RemoveUnusedCode_Assign(builder *RemoveUnusedCode_RemovableBuilder, assignNode Node, kind RemoveUnusedCode_Kind, propertyNode Node, varInfo RemoveUnusedCode_VarInfo) {
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(assignNode.getFirstChild(), builder)
 	if !NodeUtil_isAssignmentOp(assignNode) {
@@ -2499,7 +2510,7 @@ func (this *RemoveUnusedCode_Assign) init_RemoveUnusedCode_Assign(builder *Remov
 	this.varInfo = varInfo
 }
 
-func new_RemoveUnusedCode_Assign(outer_ *RemoveUnusedCode, builder *RemoveUnusedCode_RemovableBuilder, assignNode Node, kind *RemoveUnusedCode_Kind, propertyNode Node, varInfo RemoveUnusedCode_VarInfo) *RemoveUnusedCode_Assign {
+func new_RemoveUnusedCode_Assign(outer_ *RemoveUnusedCode, builder *RemoveUnusedCode_RemovableBuilder, assignNode Node, kind RemoveUnusedCode_Kind, propertyNode Node, varInfo RemoveUnusedCode_VarInfo) *RemoveUnusedCode_Assign {
 	this := &RemoveUnusedCode_Assign{}
 	this.self_ = this
 	this.outer_ = outer_

@@ -15,7 +15,7 @@ func new_CodePrinter() *CodePrinter {
 	return this
 }
 
-func CodePrinter_toSource(root Node, outputFormat *CodePrinter_Format, options *CompilerOptions, licenseTracker CodePrinter_LicenseTracker, tagAsTypeSummary bool, tagAsStrict bool, lineBreak bool, codeGeneratorFactory CodePrinter_Builder_CodeGeneratorFactory) *CodePrinter_SourceAndMappings {
+func CodePrinter_toSource(root Node, outputFormat CodePrinter_Format, options *CompilerOptions, licenseTracker CodePrinter_LicenseTracker, tagAsTypeSummary bool, tagAsStrict bool, lineBreak bool, codeGeneratorFactory CodePrinter_Builder_CodeGeneratorFactory) *CodePrinter_SourceAndMappings {
 	Preconditions_checkState((options.getSourceMapDetailLevel() != nil))
 	var mcp *CodePrinter_MappedCodePrinter = func() *CodePrinter_MappedCodePrinter {
 		if outputFormat == CodePrinter_Format_COMPACT {
@@ -433,7 +433,7 @@ func (this *CodePrinter_PrettyCodePrinter) breakAfterBlockFor_impl(n Node, isSta
 		Preconditions_checkState_boolean_Object_H(false, n)
 	}
 	var parent Node = n.getParent()
-	var type_ *Token_rhino = parent.getToken()
+	var type_ Token_rhino = parent.getToken()
 	return func() bool {
 		switch type_ {
 		case Token_rhino_DO:
@@ -683,40 +683,51 @@ func (this *CodePrinter_Builder) buildWithSourceMappings() *CodePrinter_SourceAn
 }
 
 type CodePrinter_Builder_CodeGeneratorFactory interface {
-	getCodeGenerator(*CodePrinter_Format, *CodeConsumer) *CodeGenerator
+	getCodeGenerator(CodePrinter_Format, *CodeConsumer) *CodeGenerator
 }
 
 type CodePrinter_Builder_CodeGeneratorFactory_fn struct {
-	f func(*CodePrinter_Format, *CodeConsumer) *CodeGenerator
+	f func(CodePrinter_Format, *CodeConsumer) *CodeGenerator
 }
 
-func (this *CodePrinter_Builder_CodeGeneratorFactory_fn) getCodeGenerator(p0 *CodePrinter_Format, p1 *CodeConsumer) *CodeGenerator {
+func (this *CodePrinter_Builder_CodeGeneratorFactory_fn) getCodeGenerator(p0 CodePrinter_Format, p1 *CodeConsumer) *CodeGenerator {
 	return this.f(p0, p1)
 }
 
-type CodePrinter_Format struct {
-	Enum
+type CodePrinter_Format uint8
+
+// CodePrinter_Format_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CodePrinter_Format_enum_ = [3]Enum{
+	{self_: CodePrinter_Format_COMPACT, name_: "COMPACT", ordinal_: 0},
+	{self_: CodePrinter_Format_PRETTY, name_: "PRETTY", ordinal_: 1},
+	{self_: CodePrinter_Format_TYPED, name_: "TYPED", ordinal_: 2},
 }
 
-func (this *CodePrinter_Format) up_Enum() *Enum {
-	if this == nil {
+func (this CodePrinter_Format) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CodePrinter_Format_enum_[this-1]
 }
 
-func (this *CodePrinter_Format) init_CodePrinter_Format(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CodePrinter_Format) name() string { return CodePrinter_Format_enum_[this-1].name_ }
+
+func (this CodePrinter_Format) ordinal() int32 { return CodePrinter_Format_enum_[this-1].ordinal_ }
+
+func (this CodePrinter_Format) toString() string { return CodePrinter_Format_enum_[this-1].name_ }
+
+func (this CodePrinter_Format) compareTo(o any) int32 {
+	return CodePrinter_Format_enum_[this-1].compareTo(o)
 }
 
-func new_CodePrinter_Format(name_ string, ordinal_ int32) *CodePrinter_Format {
-	this := &CodePrinter_Format{}
-	this.self_ = this
-	this.init_CodePrinter_Format(name_, ordinal_)
+func (this CodePrinter_Format) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CodePrinter_Format_fromOptions(options *CompilerOptions, outputTypes bool, prettyPrint bool) *CodePrinter_Format {
+func CodePrinter_Format_fromOptions(options *CompilerOptions, outputTypes bool, prettyPrint bool) CodePrinter_Format {
 	if outputTypes {
 		return CodePrinter_Format_TYPED
 	}
@@ -726,23 +737,24 @@ func CodePrinter_Format_fromOptions(options *CompilerOptions, outputTypes bool, 
 	return CodePrinter_Format_COMPACT
 }
 
-func CodePrinter_Format_values() []*CodePrinter_Format {
-	return append([]*CodePrinter_Format(nil), CodePrinter_Format_values_...)
+func CodePrinter_Format_values() []CodePrinter_Format {
+	return append([]CodePrinter_Format(nil), CodePrinter_Format_values_...)
 }
 
-func CodePrinter_Format_valueOf(name string) *CodePrinter_Format {
+func CodePrinter_Format_valueOf(name string) CodePrinter_Format {
 	for _, v := range CodePrinter_Format_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Format", name))
 }
 
-var CodePrinter_Format_COMPACT *CodePrinter_Format
-var CodePrinter_Format_PRETTY *CodePrinter_Format
-var CodePrinter_Format_TYPED *CodePrinter_Format
-var CodePrinter_Format_values_ []*CodePrinter_Format
+const CodePrinter_Format_COMPACT CodePrinter_Format = 1
+const CodePrinter_Format_PRETTY CodePrinter_Format = 2
+const CodePrinter_Format_TYPED CodePrinter_Format = 3
+
+var CodePrinter_Format_values_ []CodePrinter_Format
 
 var CodePrinter_Format_clinit_done bool
 
@@ -751,10 +763,7 @@ func CodePrinter_Format_clinit() {
 		return
 	}
 	CodePrinter_Format_clinit_done = true
-	CodePrinter_Format_COMPACT = new_CodePrinter_Format("COMPACT", 0)
-	CodePrinter_Format_PRETTY = new_CodePrinter_Format("PRETTY", 1)
-	CodePrinter_Format_TYPED = new_CodePrinter_Format("TYPED", 2)
-	CodePrinter_Format_values_ = []*CodePrinter_Format{CodePrinter_Format_COMPACT, CodePrinter_Format_PRETTY, CodePrinter_Format_TYPED}
+	CodePrinter_Format_values_ = []CodePrinter_Format{CodePrinter_Format_COMPACT, CodePrinter_Format_PRETTY, CodePrinter_Format_TYPED}
 	registerEnum_("com.google.javascript.jscomp.CodePrinter.Format", enumValues_(CodePrinter_Format_values_))
 
 }
@@ -794,7 +803,7 @@ func new_CodePrinter_Builder_1(outer_ *CodePrinter_Builder) *CodePrinter_Builder
 	return this
 }
 
-func (this *CodePrinter_Builder_1) getCodeGenerator(outputFormat *CodePrinter_Format, cc *CodeConsumer) *CodeGenerator {
+func (this *CodePrinter_Builder_1) getCodeGenerator(outputFormat CodePrinter_Format, cc *CodeConsumer) *CodeGenerator {
 	return func() *CodeGenerator {
 		if outputFormat == CodePrinter_Format_TYPED {
 			return new_TypedCodeGenerator(cc, this.outer_.options_, this.outer_.registry).up_CodeGenerator()

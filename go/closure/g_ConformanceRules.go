@@ -119,7 +119,7 @@ func ConformanceRules_clinit() {
 }
 
 type ConformanceRules_ConformanceResult struct {
-	level_ *ConformanceRules_ConformanceLevel
+	level_ ConformanceRules_ConformanceLevel
 	note   string
 }
 
@@ -127,23 +127,23 @@ func (this *ConformanceRules_ConformanceResult) zero_ConformanceRules_Conformanc
 	this.note = nullstr_
 }
 
-func (this *ConformanceRules_ConformanceResult) init_ConformanceRules_ConformanceResult_ConformanceLevel(level *ConformanceRules_ConformanceLevel) {
+func (this *ConformanceRules_ConformanceResult) init_ConformanceRules_ConformanceResult_ConformanceLevel(level ConformanceRules_ConformanceLevel) {
 	this.init_ConformanceRules_ConformanceResult_ConformanceLevel_String(level, "")
 }
 
-func new_ConformanceRules_ConformanceResult_ConformanceLevel(level *ConformanceRules_ConformanceLevel) *ConformanceRules_ConformanceResult {
+func new_ConformanceRules_ConformanceResult_ConformanceLevel(level ConformanceRules_ConformanceLevel) *ConformanceRules_ConformanceResult {
 	this := &ConformanceRules_ConformanceResult{}
 	this.zero_ConformanceRules_ConformanceResult()
 	this.init_ConformanceRules_ConformanceResult_ConformanceLevel(level)
 	return this
 }
 
-func (this *ConformanceRules_ConformanceResult) init_ConformanceRules_ConformanceResult_ConformanceLevel_String(level *ConformanceRules_ConformanceLevel, note string) {
+func (this *ConformanceRules_ConformanceResult) init_ConformanceRules_ConformanceResult_ConformanceLevel_String(level ConformanceRules_ConformanceLevel, note string) {
 	this.level_ = level
 	this.note = note
 }
 
-func new_ConformanceRules_ConformanceResult_ConformanceLevel_String(level *ConformanceRules_ConformanceLevel, note string) *ConformanceRules_ConformanceResult {
+func new_ConformanceRules_ConformanceResult_ConformanceLevel_String(level ConformanceRules_ConformanceLevel, note string) *ConformanceRules_ConformanceResult {
 	this := &ConformanceRules_ConformanceResult{}
 	this.zero_ConformanceRules_ConformanceResult()
 	this.init_ConformanceRules_ConformanceResult_ConformanceLevel_String(level, note)
@@ -169,45 +169,63 @@ func ConformanceRules_ConformanceResult_clinit() {
 
 }
 
-type ConformanceRules_ConformanceLevel struct {
-	Enum
+type ConformanceRules_ConformanceLevel uint8
+
+// ConformanceRules_ConformanceLevel_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ConformanceRules_ConformanceLevel_enum_ = [3]Enum{
+	{self_: ConformanceRules_ConformanceLevel_CONFORMANCE, name_: "CONFORMANCE", ordinal_: 0},
+	{self_: ConformanceRules_ConformanceLevel_POSSIBLE_VIOLATION, name_: "POSSIBLE_VIOLATION", ordinal_: 1},
+	{self_: ConformanceRules_ConformanceLevel_VIOLATION, name_: "VIOLATION", ordinal_: 2},
 }
 
-func (this *ConformanceRules_ConformanceLevel) up_Enum() *Enum {
-	if this == nil {
+func (this ConformanceRules_ConformanceLevel) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ConformanceRules_ConformanceLevel_enum_[this-1]
 }
 
-func (this *ConformanceRules_ConformanceLevel) init_ConformanceRules_ConformanceLevel(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ConformanceRules_ConformanceLevel) name() string {
+	return ConformanceRules_ConformanceLevel_enum_[this-1].name_
 }
 
-func new_ConformanceRules_ConformanceLevel(name_ string, ordinal_ int32) *ConformanceRules_ConformanceLevel {
-	this := &ConformanceRules_ConformanceLevel{}
-	this.self_ = this
-	this.init_ConformanceRules_ConformanceLevel(name_, ordinal_)
+func (this ConformanceRules_ConformanceLevel) ordinal() int32 {
+	return ConformanceRules_ConformanceLevel_enum_[this-1].ordinal_
+}
+
+func (this ConformanceRules_ConformanceLevel) toString() string {
+	return ConformanceRules_ConformanceLevel_enum_[this-1].name_
+}
+
+func (this ConformanceRules_ConformanceLevel) compareTo(o any) int32 {
+	return ConformanceRules_ConformanceLevel_enum_[this-1].compareTo(o)
+}
+
+func (this ConformanceRules_ConformanceLevel) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ConformanceRules_ConformanceLevel_values() []*ConformanceRules_ConformanceLevel {
-	return append([]*ConformanceRules_ConformanceLevel(nil), ConformanceRules_ConformanceLevel_values_...)
+func ConformanceRules_ConformanceLevel_values() []ConformanceRules_ConformanceLevel {
+	return append([]ConformanceRules_ConformanceLevel(nil), ConformanceRules_ConformanceLevel_values_...)
 }
 
-func ConformanceRules_ConformanceLevel_valueOf(name string) *ConformanceRules_ConformanceLevel {
+func ConformanceRules_ConformanceLevel_valueOf(name string) ConformanceRules_ConformanceLevel {
 	for _, v := range ConformanceRules_ConformanceLevel_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ConformanceLevel", name))
 }
 
-var ConformanceRules_ConformanceLevel_CONFORMANCE *ConformanceRules_ConformanceLevel
-var ConformanceRules_ConformanceLevel_POSSIBLE_VIOLATION *ConformanceRules_ConformanceLevel
-var ConformanceRules_ConformanceLevel_VIOLATION *ConformanceRules_ConformanceLevel
-var ConformanceRules_ConformanceLevel_values_ []*ConformanceRules_ConformanceLevel
+const ConformanceRules_ConformanceLevel_CONFORMANCE ConformanceRules_ConformanceLevel = 1
+const ConformanceRules_ConformanceLevel_POSSIBLE_VIOLATION ConformanceRules_ConformanceLevel = 2
+const ConformanceRules_ConformanceLevel_VIOLATION ConformanceRules_ConformanceLevel = 3
+
+var ConformanceRules_ConformanceLevel_values_ []ConformanceRules_ConformanceLevel
 
 var ConformanceRules_ConformanceLevel_clinit_done bool
 
@@ -216,10 +234,7 @@ func ConformanceRules_ConformanceLevel_clinit() {
 		return
 	}
 	ConformanceRules_ConformanceLevel_clinit_done = true
-	ConformanceRules_ConformanceLevel_CONFORMANCE = new_ConformanceRules_ConformanceLevel("CONFORMANCE", 0)
-	ConformanceRules_ConformanceLevel_POSSIBLE_VIOLATION = new_ConformanceRules_ConformanceLevel("POSSIBLE_VIOLATION", 1)
-	ConformanceRules_ConformanceLevel_VIOLATION = new_ConformanceRules_ConformanceLevel("VIOLATION", 2)
-	ConformanceRules_ConformanceLevel_values_ = []*ConformanceRules_ConformanceLevel{ConformanceRules_ConformanceLevel_CONFORMANCE, ConformanceRules_ConformanceLevel_POSSIBLE_VIOLATION, ConformanceRules_ConformanceLevel_VIOLATION}
+	ConformanceRules_ConformanceLevel_values_ = []ConformanceRules_ConformanceLevel{ConformanceRules_ConformanceLevel_CONFORMANCE, ConformanceRules_ConformanceLevel_POSSIBLE_VIOLATION, ConformanceRules_ConformanceLevel_VIOLATION}
 	registerEnum_("com.google.javascript.jscomp.ConformanceRules.ConformanceLevel", enumValues_(ConformanceRules_ConformanceLevel_values_))
 
 }
@@ -292,7 +307,7 @@ type ConformanceRules_AbstractRule struct {
 	allowlists                *JTList[*ConformanceRules_AllowList]
 	onlyApplyTo               *ConformanceRules_AllowList
 	reportLooseTypeViolations bool
-	typeMatchingStrategy      *TypeMatchingStrategy
+	typeMatchingStrategy      TypeMatchingStrategy
 	requirement_              *Requirement
 }
 
@@ -410,8 +425,8 @@ func (this *ConformanceRules_AbstractRule) tsIsAllowlisted_impl() bool {
 	return false
 }
 
-func ConformanceRules_AbstractRule_getTypeMatchingStrategy(requirement *Requirement) *TypeMatchingStrategy {
-	return func() *TypeMatchingStrategy {
+func ConformanceRules_AbstractRule_getTypeMatchingStrategy(requirement *Requirement) TypeMatchingStrategy {
+	return func() TypeMatchingStrategy {
 		switch requirement.getTypeMatchingStrategy() {
 		case Requirement_TypeMatchingStrategy_LOOSE:
 			return TypeMatchingStrategy_LOOSE
