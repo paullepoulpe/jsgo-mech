@@ -43,7 +43,7 @@ func (this *CheckEnums) visit_impl(t *NodeTraversal, n Node, parent Node) {
 
 func CheckEnums_checkEnumTypeAndInitializerValues(t *NodeTraversal, n Node, jsDocInfo *JSDocInfo) {
 	if !n.isObjectLit() {
-		argFail_(objstr_(n.box_()))
+		argFail_(tostr_(n))
 	}
 	var enumTypeExpr *JSTypeExpression = jsDocInfo.getEnumParameterType()
 	var enumType Node = enumTypeExpr.getRoot()
@@ -59,7 +59,7 @@ func CheckEnums_checkEnumTypeAndInitializerValues(t *NodeTraversal, n Node, jsDo
 
 func CheckEnums_checkStringEnumInitializerValues(t *NodeTraversal, enumNode Node) {
 	if !enumNode.isObjectLit() {
-		argFail_(objstr_(enumNode.box_()))
+		argFail_(tostr_(enumNode))
 	}
 	{
 		var prop Node = enumNode.getFirstChild()

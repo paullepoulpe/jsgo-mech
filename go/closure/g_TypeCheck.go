@@ -101,13 +101,13 @@ func (this *TypeCheck) processForTesting(externsRoot Node, jsRoot Node) *TypedSc
 		panic(new_IllegalStateException_0())
 	}
 	if !((externsRoot == 0) || externsRoot.isRoot()) {
-		argFail_(objstr_(externsRoot.box_()))
+		argFail_(tostr_(externsRoot))
 	}
 	if !jsRoot.isRoot() {
-		argFail_(objstr_(jsRoot.box_()))
+		argFail_(tostr_(jsRoot))
 	}
 	if ok_, a1_ := (jsRoot.hasParent() && jsRoot.getParent().isRoot()), jsRoot.getParent(); !ok_ {
-		stateFail_(objstr_(a1_.box_()))
+		stateFail_(tostr_(a1_))
 	}
 	if externsRoot != 0 && externsRoot.getNext() != jsRoot {
 		panic(new_IllegalStateException_String(objstr_("externs root must be the preceding sibling of the js root")))
@@ -555,7 +555,7 @@ func (this *TypeCheck) checkDestructuringAssignment(t *NodeTraversal, nodeToWarn
 
 func (this *TypeCheck) checkCanAssignToNameGetpropOrGetelem(t *NodeTraversal, nodeToWarn Node, lvalue Node, rightType *JSType, info *JSDocInfo, msg string) {
 	if !(((lvalue.isName() || lvalue.isGetProp()) || lvalue.isGetElem()) || lvalue.isCast()) {
-		argFail_(objstr_(lvalue.box_()))
+		argFail_(tostr_(lvalue))
 	}
 	this.checkNotReadonlyPropertyAssignment(lvalue)
 	if lvalue.isGetProp() {
@@ -1022,7 +1022,7 @@ func (this *TypeCheck) visitOptChainGetProp(optChainGetProp Node) {
 
 func (this *TypeCheck) checkPropertyAccessForGetProp(getProp Node) {
 	if !(getProp.isGetProp() || getProp.isOptChainGetProp()) {
-		argFail_(objstr_(getProp.box_()))
+		argFail_(tostr_(getProp))
 	}
 	var objNode Node = getProp.getFirstChild()
 	var objType *JSType = this.getJSType(objNode)
@@ -1033,10 +1033,10 @@ func (this *TypeCheck) checkPropertyAccessForGetProp(getProp Node) {
 
 func (this *TypeCheck) checkPropertyAccessForDestructuring(pattern Node, objectType *JSType, stringKey Node, inferredPropType *JSType) {
 	if !pattern.isDestructuringPattern() {
-		argFail_(objstr_(pattern.box_()))
+		argFail_(tostr_(pattern))
 	}
 	if !stringKey.isStringKey() {
-		argFail_(objstr_(stringKey.box_()))
+		argFail_(tostr_(stringKey))
 	}
 	var objNode Node = 0
 	var patternParent Node = pattern.getParent()
@@ -1217,7 +1217,7 @@ func (this *TypeCheck) visitVar(t *NodeTraversal, n Node) {
 				}
 			} else {
 				if !child.isDestructuringLhs() {
-					stateFail_(objstr_(child.box_()))
+					stateFail_(tostr_(child))
 				}
 				var name Node = child.getFirstChild()
 				var value Node = child.getSecondChild()

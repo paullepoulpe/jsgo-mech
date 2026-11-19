@@ -173,7 +173,7 @@ func (this *PureFunctionIdentifier) getGoogCacheCallableExpression(cacheCall *Co
 
 func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) *TList[*PureFunctionIdentifier_AmbiguatedFunctionSummary] {
 	if !NodeUtil_isInvocation(invocation) {
-		argFail_(objstr_(invocation.box_()))
+		argFail_(tostr_(invocation))
 	}
 	var cacheCall *CodingConvention_Cache = this.compiler_.getCodingConvention().describeCachingCall(invocation)
 	var callees *TList[Node]
@@ -194,7 +194,7 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) *TLis
 	for callee := range callees.All() {
 		if callee.isFunction() {
 			if !callee.isFunction() {
-				stateFail_(objstr_(callee.box_()))
+				stateFail_(tostr_(callee))
 			}
 			var summariesForFunction CollectionOf[*PureFunctionIdentifier_AmbiguatedFunctionSummary] = Collection(this.summariesForAllNamesOfFunctionByNode.get(callee.box_()))
 			if summariesForFunction.isEmpty() {
@@ -356,7 +356,7 @@ func PureFunctionIdentifier_getParamIndex(param *Var) int32 {
 		return param.getNameNode()
 	}()
 	if !node.getParent().isParamList() {
-		stateFail_(objstr_(node.box_()))
+		stateFail_(tostr_(node))
 	}
 	return node.getParent().getIndexOfChild(node)
 }
@@ -632,7 +632,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) enterScope(t *NodeTrave
 	}
 	var function Node = t.getScopeRoot()
 	if !function.isFunction() {
-		stateFail_(objstr_(function.box_()))
+		stateFail_(tostr_(function))
 	}
 	var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(function)
 	var isArtificiallyPure bool = ((jsdoc != nil) && jsdoc.isNoSideEffects())
@@ -650,7 +650,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) exitScope(t *NodeTraver
 	}
 	var functionEntry *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry = cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque())))
 	if ok_, a1_ := equalsId_(functionScope.getRootNode(), functionEntry.root), functionScope.getRootNode(); !ok_ {
-		stateFail_(objstr_(a1_.box_()))
+		stateFail_(tostr_(a1_))
 	}
 	if equalsId_(t.getScopeRoot(), functionEntry.root) {
 		SequencedCollection_removeLast(SequencedCollection(this.functionScopeStack.asDeque()))
@@ -703,7 +703,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitLhsNode(encloserSu
 		}
 	} else {
 		if !lhs.isName() {
-			stateFail_(objstr_(lhs.box_()))
+			stateFail_(tostr_(lhs))
 		}
 		var var_ *Var = cast_[*Var](scope.getVar(lhs.getString()).self())
 		if PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(var_, scope) {
@@ -794,7 +794,7 @@ type PureFunctionIdentifier_SideEffectPropagation struct {
 
 func (this *PureFunctionIdentifier_SideEffectPropagation) init_PureFunctionIdentifier_SideEffectPropagation(callerIsAlias bool, calleeThisEqualsCallerThis bool, propagateThrows bool, invocation Node, callScope *Scope, callerEntry *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry, argumentsMatchParameters bool) {
 	if !((invocation == 0) || NodeUtil_isInvocation(invocation)) {
-		argFail_(objstr_(invocation.box_()))
+		argFail_(tostr_(invocation))
 	}
 	this.callerIsAlias = callerIsAlias
 	this.calleeThisEqualsCallerThis = calleeThisEqualsCallerThis
@@ -817,7 +817,7 @@ func PureFunctionIdentifier_SideEffectPropagation_forAlias() *PureFunctionIdenti
 
 func PureFunctionIdentifier_SideEffectPropagation_forInvocation(invocation Node, callScope *Scope, callerEntry *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry, argumentsMatchParameters bool, propagateThrows bool) *PureFunctionIdentifier_SideEffectPropagation {
 	if !NodeUtil_isInvocation(invocation) {
-		argFail_(objstr_(invocation.box_()))
+		argFail_(tostr_(invocation))
 	}
 	return new_PureFunctionIdentifier_SideEffectPropagation(false, (PureFunctionIdentifier_SideEffectPropagation_calleeAndCallerShareThis(invocation) && !callerEntry.root.isArrowFunction()), propagateThrows, invocation, callScope, callerEntry, argumentsMatchParameters)
 }

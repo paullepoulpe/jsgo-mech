@@ -28,7 +28,7 @@ func NodeUtil_getBooleanValue(n Node) Tri {
 			if n.hasOneChild() {
 				var templateLitString Node = n.getOnlyChild()
 				if !templateLitString.isTemplateLitString() {
-					stateFail_(objstr_(templateLitString.box_()))
+					stateFail_(tostr_(templateLitString))
 				}
 				var cookedString Optional[string] = templateLitString.getCookedString()
 				return Tri_forBoolean((cookedString.isPresent() && cookedString.get() != ""))
@@ -517,7 +517,7 @@ func NodeUtil_getName(n Node) string {
 
 func NodeUtil_getNameNode(n Node) Node {
 	if !(n.isFunction() || n.isClass()) {
-		stateFail_(objstr_(n.box_()))
+		stateFail_(tostr_(n))
 	}
 	var parent Node = n.getParent()
 	return func() Node {
@@ -588,7 +588,7 @@ func NodeUtil_getClassMembers(n Node) Node {
 
 func NodeUtil_getEs6ClassConstructorMemberFunctionDef(classNode Node) Node {
 	if !classNode.isClass() {
-		argFail_(objstr_(classNode.box_()))
+		argFail_(tostr_(classNode))
 	}
 	var classMembers Node = Preconditions_checkNotNull_Object_Object_T(classNode.getLastChild(), classNode.box_())
 	{
@@ -653,7 +653,7 @@ func NodeUtil_isNumericLiteral(n Node) bool {
 
 func NodeUtil_getNumericLiteralValue(n Node) float64 {
 	if !NodeUtil_isNumericLiteral(n) {
-		argFail_(objstr_(n.box_()))
+		argFail_(tostr_(n))
 	}
 	return func() float64 {
 		switch n.ns_().token {
@@ -782,7 +782,7 @@ func NodeUtil_isLiteralValue(n Node, includeFunctions bool) bool {
 
 func NodeUtil_findClosureUnawareScriptRoot(script Node) Node {
 	if !(script.isScript() && script.getIsInClosureUnawareSubtree()) {
-		argFail_(objstr_(script.box_()))
+		argFail_(tostr_(script))
 	}
 	return NodeUtil_findPreorder(script, (&Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isBlock() }}).apply, &Predicate_base_tfn_Node{func(c Node) bool {
 		return true
@@ -805,7 +805,7 @@ func NodeUtil_isSomeCompileTimeConstStringValue(node Node) bool {
 		return true
 	} else if node.isAdd() {
 		if !node.hasTwoChildren() {
-			stateFail_(objstr_(node.box_()))
+			stateFail_(tostr_(node))
 		}
 		var left Node = node.getFirstChild()
 		var right Node = node.getLastChild()
@@ -935,7 +935,7 @@ func NodeUtil_isNamespaceDecl(n Node) bool {
 
 func NodeUtil_isFromTypeSummary(n Node) bool {
 	if !n.isScript() {
-		argFail_(objstr_(n.box_()))
+		argFail_(tostr_(n))
 	}
 	var info *JSDocInfo = n.getJSDocInfo()
 	return ((info != nil) && info.isTypeSummary())
@@ -988,7 +988,7 @@ func NodeUtil_isPureIterable(node Node) bool {
 
 func NodeUtil_newHasLocalResult(n Node) bool {
 	if !n.isNew() {
-		stateFail_(objstr_(n.box_()))
+		stateFail_(tostr_(n))
 	}
 	return n.isOnlyModifiesThisCall()
 }
@@ -1021,7 +1021,7 @@ func NodeUtil_canBeSideEffected_Node_Set_Scope(n Node, knownConstants *TSet[stri
 		return true
 	case tokOrd1_FUNCTION:
 		if NodeUtil_isFunctionDeclaration(n) {
-			stateFail_(objstr_(n.box_()))
+			stateFail_(tostr_(n))
 		}
 		return false
 	default:
@@ -1455,7 +1455,7 @@ func NodeUtil_getFirstPropMatchingKey(n Node, keyName string) Node {
 
 func NodeUtil_getFirstGetterMatchingKey(n Node, keyName string) Node {
 	if !(n.isClassMembers() || n.isObjectLit()) {
-		stateFail_(objstr_(n.box_()))
+		stateFail_(tostr_(n))
 	}
 	{
 		var keyNode Node = n.getFirstChild()
@@ -1523,7 +1523,7 @@ func NodeUtil_isOptChainNode(n Node) bool {
 
 func NodeUtil_getStartOfOptChainSegment(n Node) Node {
 	if !NodeUtil_isOptChainNode(n) {
-		stateFail_(objstr_(n.box_()))
+		stateFail_(tostr_(n))
 	}
 	if n.isOptionalChainStart() {
 		return n
@@ -1533,7 +1533,7 @@ func NodeUtil_getStartOfOptChainSegment(n Node) Node {
 
 func NodeUtil_getEndOfOptChainSegment(n Node) Node {
 	if !NodeUtil_isOptChainNode(n) {
-		stateFail_(objstr_(n.box_()))
+		stateFail_(tostr_(n))
 	}
 	if NodeUtil_isEndOfOptChainSegment(n) {
 		return n
@@ -1571,7 +1571,7 @@ func NodeUtil_convertToNonOptionalChainSegment(endOfOptChainSegment Node) {
 
 func NodeUtil_convertToNonOptionalChainSegmentDownTo(endOfOptChainSegment Node, stopNode Node) {
 	if !NodeUtil_isEndOfOptChainSegment(endOfOptChainSegment) {
-		argFail_(objstr_(endOfOptChainSegment.box_()))
+		argFail_(tostr_(endOfOptChainSegment))
 	}
 	var segmentNodes *TDeque[Node] = newTDeque_(jtc_Node)
 	var segmentNode Node = endOfOptChainSegment
@@ -1639,7 +1639,7 @@ func NodeUtil_isDestructuringDeclaration(n Node) bool {
 
 func NodeUtil_getAssignedValue(n Node) Node {
 	if !(n.isName() || n.isGetProp()) {
-		stateFail_(objstr_(n.box_()))
+		stateFail_(tostr_(n))
 	}
 	var parent Node = n.getParent()
 	if NodeUtil_isNameDeclaration(parent) {
@@ -1735,7 +1735,7 @@ func NodeUtil_isControlStructureCodeBlock(parent Node, n Node) bool {
 			return true
 		default:
 			if !NodeUtil_isControlStructure(parent) {
-				stateFail_(objstr_(parent.box_()))
+				stateFail_(tostr_(parent))
 			}
 			return false
 		}
@@ -1817,7 +1817,7 @@ func NodeUtil_isReferenceName(n Node) bool {
 
 func NodeUtil_isNonlocalModuleExportName(n Node) bool {
 	if !n.isName() {
-		argFail_(objstr_(n.box_()))
+		argFail_(tostr_(n))
 	}
 	var parent Node = n.getParent()
 	if parent.isImportSpec() && n.isFirstChildOf(parent) {
@@ -2030,7 +2030,7 @@ func NodeUtil_isCallOrNew(node Node) bool {
 
 func NodeUtil_getFunctionBody(fn Node) Node {
 	if !fn.isFunction() {
-		argFail_(objstr_(fn.box_()))
+		argFail_(tostr_(fn))
 	}
 	return fn.getLastChild()
 }
@@ -2115,7 +2115,7 @@ func NodeUtil_isBlockScopedFunctionDeclaration(n Node) bool {
 			return false
 		default:
 			if !current.isLabel() {
-				stateFail_(objstr_(current.box_()))
+				stateFail_(tostr_(current))
 			}
 			current = current.getParent()
 		}
@@ -2310,28 +2310,28 @@ func NodeUtil_getDeclaringParent(targetNode Node) Node {
 	if parent.isRest() || parent.isDefaultValue() {
 		parent = parent.getParent()
 		if !parent.isParamList() {
-			stateFail_(objstr_(parent.box_()))
+			stateFail_(tostr_(parent))
 		}
 	} else if parent.isDestructuringLhs() {
 		parent = parent.getParent()
 		if !NodeUtil_isNameDeclaration(parent) {
-			stateFail_(objstr_(parent.box_()))
+			stateFail_(tostr_(parent))
 		}
 	} else if parent.isClass() || parent.isFunction() {
 		if !(targetNode == parent.getFirstChild()) {
-			stateFail_(objstr_(targetNode.box_()))
+			stateFail_(tostr_(targetNode))
 		}
 	} else if parent.isImportSpec() {
 		if !(targetNode == parent.getSecondChild()) {
-			stateFail_(objstr_(targetNode.box_()))
+			stateFail_(tostr_(targetNode))
 		}
 		parent = parent.getGrandparent()
 		if !parent.isImport() {
-			stateFail_(objstr_(parent.box_()))
+			stateFail_(tostr_(parent))
 		}
 	} else {
 		if !(((parent.isParamList() || NodeUtil_isNameDeclaration(parent)) || parent.isImport()) || parent.isCatch()) {
-			stateFail_(objstr_(parent.box_()))
+			stateFail_(tostr_(parent))
 		}
 	}
 	return parent
@@ -2350,13 +2350,13 @@ func NodeUtil_getRootTarget(targetNode Node) Node {
 
 func NodeUtil_getEnclosingTarget(targetNode Node) Node {
 	if !Preconditions_checkNotNull_T(targetNode).isValidAssignmentTarget() {
-		stateFail_(objstr_(targetNode.box_()))
+		stateFail_(tostr_(targetNode))
 	}
 	var parent Node = Preconditions_checkNotNull_Object_Object_T(targetNode.getParent(), targetNode.box_())
 	var targetIsFirstChild bool = (parent.getFirstChild() == targetNode)
 	if parent.isDefaultValue() || parent.isRest() {
 		if !targetIsFirstChild {
-			stateFail_(objstr_(parent.box_()))
+			stateFail_(tostr_(parent))
 		}
 		targetNode = parent
 		parent = Preconditions_checkNotNull_T(targetNode.getParent())
@@ -2370,48 +2370,48 @@ func NodeUtil_getEnclosingTarget(targetNode Node) Node {
 			return parent
 		case tokOrd1_COMPUTED_PROP:
 			if targetIsFirstChild {
-				stateFail_(objstr_(parent.box_()))
+				stateFail_(tostr_(parent))
 			}
 			var grandparent Node = Preconditions_checkNotNull_Object_Object_T(parent.getParent(), parent.box_())
 			if !grandparent.isObjectPattern() {
-				stateFail_(objstr_(grandparent.box_()))
+				stateFail_(tostr_(grandparent))
 			}
 			return grandparent
 		case tokOrd1_STRING_KEY:
 			var grandparent Node = Preconditions_checkNotNull_Object_Object_T(parent.getParent(), parent.box_())
 			if !grandparent.isObjectPattern() {
-				stateFail_(objstr_(grandparent.box_()))
+				stateFail_(tostr_(grandparent))
 			}
 			return grandparent
 		case tokOrd1_PARAM_LIST, tokOrd1_LET, tokOrd1_CONST, tokOrd1_VAR:
 			return 0
 		case tokOrd1_FUNCTION, tokOrd1_CLASS:
 			if !targetIsFirstChild {
-				stateFail_(objstr_(targetNode.box_()))
+				stateFail_(tostr_(targetNode))
 			}
 			return 0
 		case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 			if !targetIsFirstChild {
-				stateFail_(objstr_(targetNode.box_()))
+				stateFail_(tostr_(targetNode))
 			}
 			return 0
 		case tokOrd1_DESTRUCTURING_LHS:
 			if !targetIsFirstChild {
-				stateFail_(objstr_(targetNode.box_()))
+				stateFail_(tostr_(targetNode))
 			}
 			return 0
 		case tokOrd1_IMPORT:
 			return 0
 		case tokOrd1_IMPORT_SPEC:
 			if targetIsFirstChild {
-				stateFail_(objstr_(parent.box_()))
+				stateFail_(tostr_(parent))
 			}
 			return 0
 		case tokOrd1_CATCH:
 			return 0
 		default:
 			if !(NodeUtil_isAssignmentOp(parent) && targetIsFirstChild) {
-				stateFail_(objstr_(parent.box_()))
+				stateFail_(tostr_(parent))
 			}
 			return 0
 		}
@@ -2912,7 +2912,7 @@ func NodeUtil_getLhsNodesHelper(n Node, consumer func(any)) {
 
 func NodeUtil_visitLhsNodesInNode(assigningParent Node, consumer func(any)) {
 	if !(((((((NodeUtil_isNameDeclaration(assigningParent) || assigningParent.isParamList()) || NodeUtil_isAssignmentOp(assigningParent)) || assigningParent.isCatch()) || assigningParent.isDestructuringLhs()) || assigningParent.isDefaultValue()) || assigningParent.isImport()) || NodeUtil_isEnhancedFor(assigningParent)) {
-		argFail_(objstr_(assigningParent.box_()))
+		argFail_(tostr_(assigningParent))
 	}
 	NodeUtil_getLhsNodesHelper(assigningParent, consumer)
 }
@@ -3356,7 +3356,7 @@ func NodeUtil_isConstantDeclaration(info *JSDocInfo, node Node) bool {
 		return ((info != nil) && info.isConstant())
 	}
 	if !node.isName() {
-		argFail_(objstr_(node.box_()))
+		argFail_(tostr_(node))
 	}
 	var declaringParent Node = NodeUtil_getDeclaringParent(node)
 	if declaringParent.isConst() {
@@ -3691,12 +3691,12 @@ func NodeUtil_getRValueOfLValue(n Node) Node {
 		return n.getLastChild()
 	case tokOrd1_OBJECTLIT:
 		if !((((n.isStringKey() || n.isComputedProp()) || n.isMemberFunctionDef()) || n.isGetterDef()) || n.isSetterDef()) {
-			stateFail_(objstr_(n.box_()))
+			stateFail_(tostr_(n))
 		}
 		return n.getLastChild()
 	case tokOrd1_CLASS_MEMBERS:
 		if !((((n.isMemberFunctionDef() || n.isMemberFieldDef()) || n.isComputedFieldDef()) || n.isGetterDef()) || n.isSetterDef()) {
-			stateFail_(objstr_(n.box_()))
+			stateFail_(tostr_(n))
 		}
 		return n.getLastChild()
 	case tokOrd1_FUNCTION, tokOrd1_CLASS:
@@ -4175,7 +4175,7 @@ func NodeUtil_getInvocationArgsAsIterable(invocation Node) IterableOf[Node] {
 		return Iterable(new_NodeUtil_TemplateArgsIterable(invocation.getLastChild()))
 	}
 	if !NodeUtil_isCallOrNew(invocation) {
-		stateFail_(objstr_(invocation.box_()))
+		stateFail_(tostr_(invocation))
 	}
 	if invocation.hasOneChild() {
 		return ImmutableList_as_Iterable(ImmutableList_of())
@@ -4234,14 +4234,14 @@ func NodeUtil_isBlocklessArrowFunctionResult(n Node) bool {
 
 func NodeUtil_getFeatureSetOfScript(scriptNode Node) *FeatureSet {
 	if !scriptNode.isScript() {
-		stateFail_(objstr_(scriptNode.box_()))
+		stateFail_(tostr_(scriptNode))
 	}
 	return cast_[*FeatureSet](scriptNode.getFeatureSet())
 }
 
 func NodeUtil_addFeatureToScript(scriptNode Node, feature FeatureSet_Feature, compiler *AbstractCompiler) {
 	if !scriptNode.isScript() {
-		stateFail_(objstr_(scriptNode.box_()))
+		stateFail_(tostr_(scriptNode))
 	}
 	var currentFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(scriptNode)
 	var newFeatures *FeatureSet = func() *FeatureSet {
@@ -4278,7 +4278,7 @@ func NodeUtil_removeFeaturesFromScript(scriptNode Node, featureSet *FeatureSet) 
 
 func NodeUtil_removeFeatureFromAllScripts(root Node, feature FeatureSet_Feature, compiler *AbstractCompiler) {
 	if !root.isRoot() {
-		argFail_(objstr_(root.box_()))
+		argFail_(tostr_(root))
 	}
 	{
 		var childNode Node = root.getFirstChild()
@@ -4294,7 +4294,7 @@ func NodeUtil_removeFeatureFromAllScripts(root Node, feature FeatureSet_Feature,
 
 func NodeUtil_removeFeaturesFromAllScripts(root Node, featureSet *FeatureSet, compiler *AbstractCompiler) {
 	if !root.isRoot() {
-		argFail_(objstr_(root.box_()))
+		argFail_(tostr_(root))
 	}
 	{
 		var childNode Node = root.getFirstChild()
@@ -4310,7 +4310,7 @@ func NodeUtil_removeFeaturesFromAllScripts(root Node, featureSet *FeatureSet, co
 
 func NodeUtil_addFeatureToAllScripts(root Node, feature FeatureSet_Feature, compiler *AbstractCompiler) {
 	if !root.isRoot() {
-		argFail_(objstr_(root.box_()))
+		argFail_(tostr_(root))
 	}
 	{
 		var childNode Node = root.getFirstChild()
@@ -4325,7 +4325,7 @@ func NodeUtil_addFeatureToAllScripts(root Node, feature FeatureSet_Feature, comp
 
 func NodeUtil_addFeaturesToScript(scriptNode Node, features *FeatureSet, compiler *AbstractCompiler) {
 	if !scriptNode.isScript() {
-		stateFail_(objstr_(scriptNode.box_()))
+		stateFail_(tostr_(scriptNode))
 	}
 	for feature := range features.getFeatures().All() {
 		NodeUtil_addFeatureToScript(scriptNode, feature, compiler)

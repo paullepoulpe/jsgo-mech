@@ -185,7 +185,7 @@ func (this *Es6RewriteDestructuring) replacePatternParamWithTempVar(function Nod
 
 func (this *Es6RewriteDestructuring) rewriteVarDestructuringDeclaration(destructuringLhs Node) Node {
 	if !destructuringLhs.isDestructuringLhs() {
-		stateFail_(objstr_(destructuringLhs.box_()))
+		stateFail_(tostr_(destructuringLhs))
 	}
 	if destructuringLhs.getGrandparent().isExport() {
 		panic(new_IllegalStateException_String(objstr_("Export destructuring declarations not expected inside a function body.")))
@@ -258,7 +258,7 @@ func (this *Es6RewriteDestructuring) visitPattern(t *NodeTraversal, pattern Node
 
 func (this *Es6RewriteDestructuring) replacePattern(t *NodeTraversal, pattern Node, rhs Node, parent Node, nodeToDetach Node) {
 	if !NodeUtil_isStatement(nodeToDetach) {
-		argFail_(objstr_(nodeToDetach.box_()))
+		argFail_(tostr_(nodeToDetach))
 	}
 	switch pattern.ns_().token {
 	case tokOrd1_ARRAY_PATTERN:
@@ -369,7 +369,7 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 				var restName Node = child.getOnlyChild()
 				if strings.HasPrefix(restName.getString(), Es6RewriteDestructuring_DESTRUCTURING_TEMP_VAR) {
 					if !restName.isName() {
-						stateFail_(objstr_(restName.box_()))
+						stateFail_(tostr_(restName))
 					}
 					newLHS = this.createTempVarNameNode(restName.getString(), AstFactory_type_Node(restName))
 				} else {

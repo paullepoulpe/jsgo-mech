@@ -121,7 +121,7 @@ func (this *CheckUnusedPrivateProperties) isCheckablePrivatePropDecl(n Node) boo
 
 func (this *CheckUnusedPrivateProperties) isCandidatePropertyDefinition(n Node) bool {
 	if !n.isGetProp() {
-		stateFail_(objstr_(n.box_()))
+		stateFail_(tostr_(n))
 	}
 	var target Node = n.getFirstChild()
 	return ((target.isThis() || has_(this.constructorsAndInterfaces, target.getQualifiedName())) || (target.isGetProp() && (target.getString() == "prototype")))

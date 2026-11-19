@@ -44,13 +44,13 @@ func (this *PeepholeReplaceKnownMethods) optimizeSubtree_impl(subtree Node) Node
 
 func (this *PeepholeReplaceKnownMethods) tryFoldKnownMethods(subtree Node) Node {
 	if !subtree.isCall() {
-		argFail_(objstr_(subtree.box_()))
+		argFail_(tostr_(subtree))
 	}
 	subtree = this.tryFoldArrayJoin(subtree)
 	if subtree.isCall() {
 		subtree = this.tryToFoldArrayConcat(subtree)
 		if !subtree.isCall() {
-			stateFail_(objstr_(subtree.box_()))
+			stateFail_(tostr_(subtree))
 		}
 		var callTarget Node = Preconditions_checkNotNull_T(subtree.getFirstChild())
 		if callTarget.isGetProp() {
@@ -779,7 +779,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringAt(n Node, stringNode Node
 
 func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 	if !n.isCall() {
-		stateFail_(objstr_(n.box_()))
+		stateFail_(tostr_(n))
 	}
 	var callTarget Node = n.getFirstChild()
 	if (callTarget == 0) || !callTarget.isGetProp() {
@@ -1192,7 +1192,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringSplit(n Node, stringNode N
 
 func (this *PeepholeReplaceKnownMethods) tryToFoldArrayConcat(n Node) Node {
 	if !n.isCall() {
-		argFail_(objstr_(n.box_()))
+		argFail_(tostr_(n))
 	}
 	if !this.isASTNormalized() || !this.useTypes {
 		return n
@@ -1262,7 +1262,7 @@ func (this *PeepholeReplaceKnownMethods) tryToFoldConcatChaining(concatFunctionC
 
 func PeepholeReplaceKnownMethods_createConcatFunctionCallForNode(n Node) *PeepholeReplaceKnownMethods_ConcatFunctionCall {
 	if !n.isCall() {
-		argFail_(objstr_(n.box_()))
+		argFail_(tostr_(n))
 	}
 	var callTarget Node = Preconditions_checkNotNull_T(n.getFirstChild())
 	if !callTarget.isGetProp() || !(callTarget.getString() == "concat") {

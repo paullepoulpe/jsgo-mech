@@ -111,10 +111,10 @@ func ScopedAliases_getAliasedNamespace(rhs Node) string {
 			return rhs.getString()
 		case tokOrd1_CALL:
 			if !NodeUtil_isCallToQualifiedName(rhs, ScopedAliases_GOOG_MODULE_GET) {
-				stateFail_(objstr_(rhs.box_()))
+				stateFail_(tostr_(rhs))
 			}
 			if !rhs.hasTwoChildren() {
-				stateFail_(objstr_(rhs.box_()))
+				stateFail_(tostr_(rhs))
 			}
 			return rhs.getLastChild().getString()
 		default:
@@ -680,7 +680,7 @@ func (this *ScopedAliases_Traversal) findNamespaceShadows(t *NodeTraversal) {
 
 func (this *ScopedAliases_Traversal) renameNamespaceShadows(t *NodeTraversal) {
 	if ok_, a1_ := NodeUtil_isFunctionBlock(t.getScopeRoot()), t.getScopeRoot(); !ok_ {
-		stateFail_(objstr_(a1_.box_()))
+		stateFail_(tostr_(a1_))
 	}
 	if this.hasNamespaceShadows {
 		var renamer MakeDeclaredNamesUnique_Renamer = MakeDeclaredNamesUnique_Renamer(new_MakeDeclaredNamesUnique_TargettedRenamer(new_MakeDeclaredNamesUnique_ContextualRenamer_0(), this.forbiddenLocals))

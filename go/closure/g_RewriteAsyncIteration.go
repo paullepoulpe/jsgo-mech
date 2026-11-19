@@ -78,7 +78,7 @@ func (this *RewriteAsyncIteration) visit(t *NodeTraversal, n Node, parent Node) 
 	switch n.ns_().token {
 	case tokOrd1_PARAM_LIST:
 		if !equalsId_(n, ctx.contextRoot) {
-			stateFail_(objstr_(n.box_()))
+			stateFail_(tostr_(n))
 		}
 		this.contextStack.pop()
 	case tokOrd1_FUNCTION:
@@ -250,7 +250,7 @@ func (this *RewriteAsyncIteration) replaceForAwaitOf(ctx *RewriteAsyncIteration_
 	var replacementPoint Node
 	if forAwaitOfParent.isLabel() {
 		if !forAwaitOf.isSecondChildOf(forAwaitOfParent) {
-			stateFail_(objstr_(forAwaitOfParent.box_()))
+			stateFail_(tostr_(forAwaitOfParent))
 		}
 		replacementPoint = forAwaitOfParent
 	} else {
@@ -274,7 +274,7 @@ func (this *RewriteAsyncIteration) replaceForAwaitOf(ctx *RewriteAsyncIteration_
 			declarationTarget.addChildToBack(this.astFactory_.createGetProp(this.astFactory_.createName(resultTempName, iterableResultType), "value", resultType))
 		} else {
 			if !declarationTarget.isDestructuringLhs() {
-				stateFail_(objstr_(declarationTarget.box_()))
+				stateFail_(tostr_(declarationTarget))
 			}
 			var destructuringPattern Node = declarationTarget.getOnlyChild()
 			resultType = AstFactory_type_Node(destructuringPattern)
@@ -539,13 +539,13 @@ func (this *RewriteAsyncIteration_LexicalContext) init_RewriteAsyncIteration_Lex
 		panic(new_NullPointerException_0().self())
 	}
 	if !((contextRoot == function) || contextRoot.isParamList()) {
-		argFail_(objstr_(contextRoot.box_()))
+		argFail_(tostr_(contextRoot))
 	}
 	if function == 0 {
 		panic(new_NullPointerException_0().self())
 	}
 	if !function.isFunction() {
-		argFail_(objstr_(function.box_()))
+		argFail_(tostr_(function))
 	}
 	this.contextRoot = contextRoot
 	this.function = function

@@ -226,10 +226,10 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyE
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5) init_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5(getKey Node, setKey Node) {
 	this.J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty.init_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty(getKey, setKey)
 	if !(getKey.isStringKey() && (getKey.getString() == "get")) {
-		argFail_(objstr_(getKey.box_()))
+		argFail_(tostr_(getKey))
 	}
 	if !((setKey == 0) || (setKey.isStringKey() && (setKey.getString() == "set"))) {
-		argFail_(objstr_(setKey.box_()))
+		argFail_(tostr_(setKey))
 	}
 }
 
@@ -245,7 +245,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyE
 	var nodeToDetach Node = this.getKey_.getGrandparent()
 	var objectLit Node = nodeToDetach.getParent()
 	if !objectLit.isObjectLit() {
-		stateFail_(objstr_(objectLit.box_()))
+		stateFail_(tostr_(objectLit))
 	}
 	nodeToDetach.detach()
 	NodeUtil_markFunctionsDeleted(nodeToDetach, this.outer_.outer_.compiler_)
@@ -270,10 +270,10 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyE
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6) init_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6(getKey Node, setKey Node) {
 	this.J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty.init_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty(getKey, setKey)
 	if !getKey.isGetterDef() {
-		argFail_(objstr_(getKey.box_()))
+		argFail_(tostr_(getKey))
 	}
 	if !((setKey == 0) || setKey.isSetterDef()) {
-		argFail_(objstr_(setKey.box_()))
+		argFail_(tostr_(setKey))
 	}
 }
 
@@ -288,7 +288,7 @@ func new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6(
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6) remove_impl() {
 	var classMembers Node = this.getKey_.getParent()
 	if !classMembers.isClassMembers() {
-		stateFail_(objstr_(classMembers.box_()))
+		stateFail_(tostr_(classMembers))
 	}
 	this.getKey_.detach()
 	NodeUtil_markFunctionsDeleted(this.getKey_, this.outer_.outer_.compiler_)

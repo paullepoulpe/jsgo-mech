@@ -49,10 +49,10 @@ func (this *RewriteDynamicImports) aliasIsValid() bool {
 func (this *RewriteDynamicImports) process_2(externs Node, root Node) {
 	this.dynamicImportsRemoved = false
 	if !externs.isRoot() {
-		argFail_(objstr_(externs.box_()))
+		argFail_(tostr_(externs))
 	}
 	if !root.isRoot() {
-		argFail_(objstr_(root.box_()))
+		argFail_(tostr_(root))
 	}
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(this))
 	if this.wrappedDynamicImportCallback {

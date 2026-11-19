@@ -50,7 +50,7 @@ func (this *ExportTestFunctions) exportTestFunctionAsSymbol(testFunctionName str
 
 func (this *ExportTestFunctions) exportTestFunctionAsProperty(fullyQualifiedFunctionName Node, node Node) {
 	if !fullyQualifiedFunctionName.isGetProp() {
-		stateFail_(objstr_(fullyQualifiedFunctionName.box_()))
+		stateFail_(tostr_(fullyQualifiedFunctionName))
 	}
 	var testFunctionName string = NodeUtil_getPrototypePropertyName(node.getFirstChild())
 	if strings.HasPrefix(node.getFirstChild().getQualifiedName(), "window.") {

@@ -193,14 +193,14 @@ func new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler(outer_ *Es6Rewri
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) hoistVarNode(node Node) {
 	if !node.isVar() {
-		stateFail_(objstr_(node.box_()))
+		stateFail_(tostr_(node))
 	}
 	node.insertBefore(this.newGeneratorHoistBlock.getLastChild())
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) hoistFunctionDeclarationNode(node Node) {
 	if !node.isFunction() {
-		stateFail_(objstr_(node.box_()))
+		stateFail_(tostr_(node))
 	}
 	this.newGeneratorHoistBlock.addChildToFront(node)
 }
@@ -234,15 +234,15 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpile() 
 	if this.isTranspiledAsyncFunction(generatorFunction) {
 		var callTarget Node = generatorFunction.getPrevious()
 		if !(callTarget.isGetProp() || callTarget.isName()) {
-			stateFail_(objstr_(callTarget.box_()))
+			stateFail_(tostr_(callTarget))
 		}
 		this.newGeneratorHoistBlock = generatorFunction.getGrandparent().getParent()
 		if !this.newGeneratorHoistBlock.isBlock() {
-			stateFail_(objstr_(this.newGeneratorHoistBlock.box_()))
+			stateFail_(tostr_(this.newGeneratorHoistBlock))
 		}
 		changeScopeNode = NodeUtil_getEnclosingFunction(this.newGeneratorHoistBlock)
 		if !changeScopeNode.isFunction() {
-			stateFail_(objstr_(changeScopeNode.box_()))
+			stateFail_(tostr_(changeScopeNode))
 		}
 		callTarget.replaceWith(this.outer_.astFactory_.createQName(this.outer_.namespace_, this.outer_.jscompAsyncExecuteProgram).srcrefTree(callTarget))
 		program = this.originalGeneratorBody.getParent()
@@ -1536,7 +1536,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_UnmarkedNodeTranspiler) visitForInLoopVar(varDeclaration Node) {
 	var varName Node = varDeclaration.getOnlyChild()
 	if varName.hasChildren() {
-		stateFail_(objstr_(varName.box_()))
+		stateFail_(tostr_(varName))
 	}
 	var clonedVarName Node = varName.cloneNode().setJSDocInfo(nil)
 	varDeclaration.replaceWith(clonedVarName)

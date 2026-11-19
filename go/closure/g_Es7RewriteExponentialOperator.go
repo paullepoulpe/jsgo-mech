@@ -72,7 +72,7 @@ func (this *Es7RewriteExponentialOperator) visitExponentiationAssignmentOperator
 		replacement = this.handleLHSName(operator, left)
 	} else {
 		if !(left.isGetProp() || left.isGetElem()) {
-			stateFail_(objstr_(left.box_()))
+			stateFail_(tostr_(left))
 		}
 		replacement = this.handleLHSPropertyReference(t, operator, left, enclosingStatement)
 	}
@@ -104,7 +104,7 @@ func (this *Es7RewriteExponentialOperator) handleLHSPropertyReference(t *NodeTra
 		newLHS = this.astFactory_.createGetProp(assignTemp, propertyName, AstFactory_type_Node(left)).srcref(left)
 	} else {
 		if !left.isGetElem() {
-			stateFail_(objstr_(left.box_()))
+			stateFail_(tostr_(left))
 		}
 		var tempIndexVarName string = (sstr_(Es7RewriteExponentialOperator_TEMP_INDEX_VAR_NAME_PREFIX) + sstr_(uniqueId))
 		var indexExprNode Node = left.getLastChild().detach()
@@ -128,7 +128,7 @@ func (this *Es7RewriteExponentialOperator) createMathPowCall() Node {
 
 func (this *Es7RewriteExponentialOperator) checkOperatorType(operator Node) bool {
 	if !(operator.isExponent() || operator.isAssignExponent()) {
-		argFail_(objstr_(operator.box_()))
+		argFail_(tostr_(operator))
 	}
 	if this.compiler_.hasTypeCheckingRun() {
 		if operator.getColor().equals_Color(StandardColors_BIGINT) {

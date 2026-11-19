@@ -204,7 +204,7 @@ func (this *GlobalNamespace) getNameFromModule(moduleMetadata *ModuleMetadataMap
 
 func (this *GlobalNamespace) declarationHasFollowingObjectSpreadSibling(declaration Node) bool {
 	if !declaration.getParent().isObjectLit() {
-		stateFail_(objstr_(declaration.box_()))
+		stateFail_(tostr_(declaration))
 	}
 	var cached any = this.spreadSiblingCache[declaration]
 	if cached != nil {
@@ -230,7 +230,7 @@ func (this *GlobalNamespace) createNameForTesting(name string) *GlobalNamespace_
 func (this *GlobalNamespace) getOutermostObjectLit(objLitKey Node) Node {
 	var outermostObjectLit Node = objLitKey.getParent()
 	if !outermostObjectLit.isObjectLit() {
-		stateFail_(objstr_(outermostObjectLit.box_()))
+		stateFail_(tostr_(outermostObjectLit))
 	}
 	for {
 		var objLitGrandparent Node = outermostObjectLit.getGrandparent()
@@ -649,14 +649,14 @@ func (this *GlobalNamespace_BuildGlobalNamespace) createObjLitStringKeyAnalysis(
 	} else {
 		var objLitNode Node = stringKeyNode.getParent()
 		if !objLitNode.isObjectLit() {
-			argFail_(objstr_(objLitNode.box_()))
+			argFail_(tostr_(objLitNode))
 		}
 		var objLitParentNode Node = objLitNode.getParent()
 		if NodeUtil_isObjectDefinePropertiesDefinition(objLitParentNode) {
 			var receiverNode Node = objLitParentNode.getSecondChild()
 			if receiverNode.isQualifiedName() {
 				if !(objLitNode == receiverNode.getNext()) {
-					stateFail_(objstr_(objLitParentNode.box_()))
+					stateFail_(tostr_(objLitParentNode))
 				}
 				nameString = Optional_of[string]((sstr_(receiverNode.getQualifiedName()) + "." + sstr_(stringKeyNode.getString())))
 				return GlobalNamespace_ObjLitStringKeyAnalysis_forObjectDefineProperty(nameString.orElseThrow())
@@ -894,7 +894,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) isClassDefiningCall(callNode N
 
 func (this *GlobalNamespace_BuildGlobalNamespace) isObjectHasOwnPropertyCall(callNode Node) bool {
 	if !(callNode.isCall() || callNode.isOptChainCall()) {
-		argFail_(objstr_(callNode.box_()))
+		argFail_(tostr_(callNode))
 	}
 	if !callNode.hasTwoChildren() {
 		return false

@@ -80,7 +80,7 @@ func OptimizeCalls_isAllowedReference(n Node) bool {
 			return false
 		} else {
 			if !n.isSecondChildOf(parent) {
-				stateFail_(objstr_(parent.box_()))
+				stateFail_(tostr_(parent))
 			}
 			if NodeUtil_getEs6ClassConstructorMemberFunctionDef(parent) == 0 {
 				return false
@@ -233,7 +233,7 @@ func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) 
 			fns.add(definitionSite.getLastChild())
 		} else {
 			if !definitionSite.isMemberFieldDef() {
-				argFail_(objstr_(definitionSite.box_()))
+				argFail_(tostr_(definitionSite))
 			}
 			var value Node = definitionSite.getFirstChild()
 			if value != 0 {
@@ -242,7 +242,7 @@ func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) 
 		}
 	case tokOrd1_OBJECTLIT:
 		if !(definitionSite.isStringKey() || definitionSite.isMemberFunctionDef()) {
-			argFail_(objstr_(definitionSite.box_()))
+			argFail_(tostr_(definitionSite))
 		}
 		OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns, definitionSite.getLastChild())
 	case tokOrd1_ASSIGN:
@@ -321,10 +321,10 @@ func OptimizeCalls_ReferenceMap_getCallOrNewNodeForTarget(n Node) Node {
 		var child Node = maybeCall
 		maybeCall = child.getParent()
 		if !NodeUtil_isNormalOrOptChainGetProp(child) {
-			stateFail_(objstr_(child.box_()))
+			stateFail_(tostr_(child))
 		}
 		if !NodeUtil_isNormalOrOptChainCall(maybeCall) {
-			stateFail_(objstr_(maybeCall.box_()))
+			stateFail_(tostr_(maybeCall))
 		}
 		if !child.isFirstChildOf(maybeCall) {
 			panic(new_IllegalStateException_String(Strings_lenientFormat("%s\n\n%s", []any{maybeCall.box_(), child.box_()})))

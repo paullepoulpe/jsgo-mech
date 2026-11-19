@@ -15,7 +15,7 @@ type OptionalChainRewriter struct {
 
 func (this *OptionalChainRewriter) init_OptionalChainRewriter(builder *OptionalChainRewriter_Builder, wholeChain Node) {
 	if !NodeUtil_isEndOfFullOptChain(wholeChain) {
-		argFail_(objstr_(wholeChain.box_()))
+		argFail_(tostr_(wholeChain))
 	}
 	this.compiler_ = builder.compiler_
 	this.astFactory_ = builder.astFactory_
@@ -76,7 +76,7 @@ func (this *OptionalChainRewriter) rewrite() {
 		for !this.deletesToDelete.isEmpty() {
 			var delete_ Node = this.deletesToDelete.pop()
 			if !delete_.getFirstChild().isHook() {
-				stateFail_(objstr_(delete_.box_()))
+				stateFail_(tostr_(delete_))
 			}
 			var hook Node = delete_.getFirstChild()
 			hook.detach()
@@ -96,7 +96,7 @@ func (this *OptionalChainRewriter) rewriteInitialSegment(fullChainStart Node, fu
 		this.deletesToDelete.add(fullChainEnd.getParent())
 	}
 	if NodeUtil_isOptChainNode(receiverNode) {
-		argFail_(objstr_(receiverNode.box_()))
+		argFail_(tostr_(receiverNode))
 	}
 	NodeUtil_convertToNonOptionalChainSegment(initialChainEnd)
 	var placeholder Node = IR_empty()

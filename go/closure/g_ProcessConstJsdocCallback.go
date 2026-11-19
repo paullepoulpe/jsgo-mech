@@ -69,7 +69,7 @@ func (this *ProcessConstJsdocCallback) visit_impl(t *NodeTraversal, n Node, pare
 		}
 	case Token_rhino_VAR, Token_rhino_CONST, Token_rhino_LET:
 		if !n.hasOneChild() {
-			stateFail_(objstr_(n.box_()))
+			stateFail_(tostr_(n))
 		}
 		this.recordDeclaration(t, n.getFirstChild(), n.getFirstChild().getLastChild())
 	case Token_rhino_STRING_KEY:
@@ -111,10 +111,10 @@ func (this *ProcessConstJsdocCallback) recordNameDeclaration(lhs Node, rhs Node)
 
 func (this *ProcessConstJsdocCallback) processDeclarationWithRhs(t *NodeTraversal, lhs Node) {
 	if !((lhs.isQualifiedName() || lhs.isStringKey()) || lhs.isMemberFieldDef()) {
-		argFail_(objstr_(lhs.box_()))
+		argFail_(tostr_(lhs))
 	}
 	if !(NodeUtil_getRValueOfLValue(lhs) != 0) {
-		stateFail_(objstr_(lhs.box_()))
+		stateFail_(tostr_(lhs))
 	}
 	if PotentialDeclaration_isConstToBeInferred(lhs) {
 		this.processConstWithRhs(t, lhs)

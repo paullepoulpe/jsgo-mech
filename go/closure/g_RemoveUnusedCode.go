@@ -201,7 +201,7 @@ func (this *RemoveUnusedCode) traverseNode(n Node, scope *Scope) {
 
 func (this *RemoveUnusedCode) traverseInstanceof(instanceofNode Node, scope *Scope) {
 	if !instanceofNode.isInstanceOf() {
-		argFail_(objstr_(instanceofNode.box_()))
+		argFail_(tostr_(instanceofNode))
 	}
 	var lhs Node = instanceofNode.getFirstChild()
 	var rhs Node = lhs.getNext()
@@ -217,7 +217,7 @@ func (this *RemoveUnusedCode) traverseInstanceof(instanceofNode Node, scope *Sco
 
 func (this *RemoveUnusedCode) traverseNormalOrOptChainGetProp(getProp Node, scope *Scope) {
 	if !NodeUtil_isNormalOrOptChainGetProp(getProp) {
-		stateFail_(objstr_(getProp.box_()))
+		stateFail_(tostr_(getProp))
 	}
 	var objectNode Node = getProp.getFirstChild()
 	var propertyName string = getProp.getString()
@@ -256,7 +256,7 @@ func (this *RemoveUnusedCode) traverseNormalOrOptChainGetProp(getProp Node, scop
 
 func (this *RemoveUnusedCode) traverseIncrementOrDecrementOp(incOrDecOp Node, scope *Scope) {
 	if !(incOrDecOp.isInc() || incOrDecOp.isDec()) {
-		argFail_(objstr_(incOrDecOp.box_()))
+		argFail_(tostr_(incOrDecOp))
 	}
 	var arg Node = incOrDecOp.getOnlyChild()
 	if NodeUtil_isExpressionResultUsed(incOrDecOp) {
@@ -451,7 +451,7 @@ func (this *RemoveUnusedCode) getVarForNameNode(nameNode Node, scope *Scope) *Va
 
 func (this *RemoveUnusedCode) traverseObjectLiteral(objectLiteral Node, scope *Scope) {
 	if !objectLiteral.isObjectLit() {
-		argFail_(objstr_(objectLiteral.box_()))
+		argFail_(tostr_(objectLiteral))
 	}
 	if this.isAssignmentToPrototype(objectLiteral.getParent()) {
 		this.traversePrototypeLiteral(objectLiteral, scope)
@@ -713,7 +713,7 @@ func (this *RemoveUnusedCode) isNameDotPrototype(n Node) bool {
 
 func (this *RemoveUnusedCode) traverseObjectPattern(pattern Node, scope *Scope) {
 	if !pattern.isObjectPattern() {
-		stateFail_(objstr_(pattern.box_()))
+		stateFail_(tostr_(pattern))
 	}
 	{
 		var elem Node = pattern.getFirstChild()
@@ -737,7 +737,7 @@ func (this *RemoveUnusedCode) traverseObjectPattern(pattern Node, scope *Scope) 
 
 func (this *RemoveUnusedCode) traverseIndirectAssignmentList(list Node, scope *Scope) {
 	if !(list.isArrayPattern() || list.isParamList()) {
-		stateFail_(objstr_(list.box_()))
+		stateFail_(tostr_(list))
 	}
 	{
 		var elem Node = list.getFirstChild()
@@ -758,7 +758,7 @@ func (this *RemoveUnusedCode) traverseIndirectAssignmentList(list Node, scope *S
 func (this *RemoveUnusedCode) traverseIndirectAssignment(root Node, target Node, scope *Scope) {
 	var rootParent Node = root.getParent()
 	if !(rootParent.isDestructuringPattern() || rootParent.isParamList()) {
-		argFail_(objstr_(rootParent.box_()))
+		argFail_(tostr_(rootParent))
 	}
 	if target.isDefaultValue() {
 		target = target.getFirstChild()
@@ -851,7 +851,7 @@ func (this *RemoveUnusedCode) traverseClassExpression(classNode Node, scope *Sco
 
 func (this *RemoveUnusedCode) traverseClassMembers(node Node, scope *Scope) {
 	if !node.isClassMembers() {
-		argFail_(objstr_(node.box_()))
+		argFail_(tostr_(node))
 	}
 	if !this.removeUnusedPrototypeProperties_ {
 		this.traverseChildren(node, scope)
@@ -883,15 +883,15 @@ func (this *RemoveUnusedCode) traverseClassMembers(node Node, scope *Scope) {
 
 func (this *RemoveUnusedCode) traverseFunction(function Node, parentScope *Scope) {
 	if !function.hasXChildren(3) {
-		stateFail_(objstr_(function.box_()))
+		stateFail_(tostr_(function))
 	}
 	if !function.isFunction() {
-		stateFail_(objstr_(function.box_()))
+		stateFail_(tostr_(function))
 	}
 	var paramlist Node = NodeUtil_getFunctionParameters(function)
 	var body Node = function.getLastChild()
 	if !((body.getNext() == 0) && body.isBlock()) {
-		stateFail_(objstr_(body.box_()))
+		stateFail_(tostr_(body))
 	}
 	var fparamScope *Scope = this.scopeCreator.createScope(function, parentScope)
 	var fbodyScope *Scope = this.scopeCreator.createScope(body, fparamScope)
@@ -957,7 +957,7 @@ func (this *RemoveUnusedCode) considerForIndependentRemoval(removable *RemoveUnu
 
 func (this *RemoveUnusedCode) considerForAccessorSideEffects(getprop Node, usage AccessorSummary_PropertyAccessKind) bool {
 	if !NodeUtil_isNormalOrOptChainGetProp(getprop) {
-		stateFail_(objstr_(getprop.box_()))
+		stateFail_(tostr_(getprop))
 	}
 	var propName string = getprop.getString()
 	var recorded AccessorSummary_PropertyAccessKind = this.compiler_.getAccessorSummary().getKind(propName)
@@ -984,7 +984,7 @@ func (this *RemoveUnusedCode) isIndependentlyRemovable(removable *RemoveUnusedCo
 
 func (this *RemoveUnusedCode) markUnusedParameters(paramList Node, fparamScope *Scope) {
 	if !paramList.isParamList() {
-		argFail_(objstr_(paramList.box_()))
+		argFail_(tostr_(paramList))
 	}
 	{
 		var param Node = paramList.getFirstChild()
@@ -1008,7 +1008,7 @@ func (this *RemoveUnusedCode) markUnusedParameters(paramList Node, fparamScope *
 
 func (this *RemoveUnusedCode) maybeRemoveUnusedTrailingParameters(argList Node, fparamScope *Scope) {
 	if !argList.isParamList() {
-		argFail_(objstr_(argList.box_()))
+		argFail_(tostr_(argList))
 	}
 	var lastArg Node
 	for {
@@ -1232,7 +1232,7 @@ func (this *RemoveUnusedCode) createPolyfillInfo(call Node, scope *Scope, name s
 
 func (this *RemoveUnusedCode) removeExpressionCompletely(expression Node) {
 	if NodeUtil_isExpressionResultUsed(expression) {
-		stateFail_(objstr_(expression.box_()))
+		stateFail_(tostr_(expression))
 	}
 	var parent Node = expression.getParent()
 	if parent.isExprResult() {
@@ -1713,7 +1713,7 @@ func (this *RemoveUnusedCode_RemovableBuilder) buildNamedClassExpression(classNo
 
 func (this *RemoveUnusedCode_RemovableBuilder) buildClassOrPrototypeNamedProperty(propertyNode Node) *RemoveUnusedCode_ClassOrPrototypeNamedProperty {
 	if !(((propertyNode.isMemberFunctionDef() || propertyNode.isMemberFieldDef()) || NodeUtil_isGetOrSetKey(propertyNode)) || (propertyNode.isStringKey() && !propertyNode.isQuotedStringKey())) {
-		argFail_(objstr_(propertyNode.box_()))
+		argFail_(tostr_(propertyNode))
 	}
 	this.propertyName_ = Optional_of[string](propertyNode.getString())
 	return new_RemoveUnusedCode_ClassOrPrototypeNamedProperty(this.outer_, this, propertyNode)
@@ -1801,7 +1801,7 @@ func (this *RemoveUnusedCode_UnusedReadReference) init_RemoveUnusedCode_UnusedRe
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(0, builder)
 	if !(RemoveUnusedCode_isThisDotProperty(referenceNode) || RemoveUnusedCode_isDotPrototypeDotProperty(referenceNode)) {
-		stateFail_(objstr_(referenceNode.box_()))
+		stateFail_(tostr_(referenceNode))
 	}
 	this.referenceNode = referenceNode
 }
@@ -1820,7 +1820,7 @@ func (this *RemoveUnusedCode_UnusedReadReference) removeInternal_impl(compiler *
 			this.outer_.removeExpressionCompletely(this.referenceNode)
 		} else {
 			if !RemoveUnusedCode_isDotPrototypeDotProperty(this.referenceNode) {
-				stateFail_(objstr_(this.referenceNode.box_()))
+				stateFail_(tostr_(this.referenceNode))
 			}
 			var objExpression Node = this.referenceNode.getFirstFirstChild()
 			if this.outer_.mayHaveSideEffects(objExpression) {
@@ -1853,7 +1853,7 @@ func (this *RemoveUnusedCode_InstanceofName) init_RemoveUnusedCode_InstanceofNam
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(0, builder)
 	if !instanceofNode.isInstanceOf() {
-		argFail_(objstr_(instanceofNode.box_()))
+		argFail_(tostr_(instanceofNode))
 	}
 	this.instanceofNode = instanceofNode
 }
@@ -1903,7 +1903,7 @@ func (this *RemoveUnusedCode_WeakUsageCall) init_RemoveUnusedCode_WeakUsageCall(
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(0, builder)
 	if !weakCallNode.isCall() {
-		argFail_(objstr_(weakCallNode.box_()))
+		argFail_(tostr_(weakCallNode))
 	}
 	this.weakCallNode = weakCallNode
 }
@@ -1945,11 +1945,11 @@ func (this *RemoveUnusedCode_IncOrDecOp) init_RemoveUnusedCode_IncOrDecOp(builde
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(incOrDecNode.getOnlyChild(), builder)
 	if !(incOrDecNode.isInc() || incOrDecNode.isDec()) {
-		argFail_(objstr_(incOrDecNode.box_()))
+		argFail_(tostr_(incOrDecNode))
 	}
 	var arg Node = incOrDecNode.getOnlyChild()
 	if !(RemoveUnusedCode_isThisDotProperty(arg) || RemoveUnusedCode_isDotPrototypeDotProperty(arg)) {
-		stateFail_(objstr_(arg.box_()))
+		stateFail_(tostr_(arg))
 	}
 	this.incOrDecNode = incOrDecNode
 	this.toPreserve = toPreserve
@@ -1969,7 +1969,7 @@ func (this *RemoveUnusedCode_IncOrDecOp) removeInternal_impl(compiler *AbstractC
 	}
 	var arg Node = this.incOrDecNode.getOnlyChild()
 	if !arg.isGetProp() {
-		stateFail_(objstr_(arg.box_()))
+		stateFail_(tostr_(arg))
 	}
 	if this.toPreserve == 0 {
 		this.outer_.removeExpressionCompletely(this.incOrDecNode)
@@ -2000,10 +2000,10 @@ func (this *RemoveUnusedCode_IndirectAssign) init_RemoveUnusedCode_IndirectAssig
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(targetNode, builder)
 	var rootParent Node = root.getParent()
 	if !(rootParent.isDestructuringPattern() || rootParent.isParamList()) {
-		stateFail_(objstr_(rootParent.box_()))
+		stateFail_(tostr_(rootParent))
 	}
 	if !(targetNode.isName() || targetNode.isGetProp()) {
-		stateFail_(objstr_(targetNode.box_()))
+		stateFail_(tostr_(targetNode))
 	}
 	this.root = root
 }
@@ -2043,7 +2043,7 @@ func (this *RemoveUnusedCode_IndirectAssign) isNamedPropertyAssignment_impl() bo
 
 func (this *RemoveUnusedCode_IndirectAssign) getPropertyName_impl() string {
 	if !this.targetNode.isGetProp() {
-		stateFail_(objstr_(this.targetNode.box_()))
+		stateFail_(tostr_(this.targetNode))
 	}
 	return this.targetNode.getString()
 }
@@ -2360,7 +2360,7 @@ func (this *RemoveUnusedCode_NameDeclarationStatement) init_RemoveUnusedCode_Nam
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(declarationStatement.getOnlyChild(), builder)
 	if !NodeUtil_isNameDeclaration(declarationStatement) {
-		argFail_(objstr_(declarationStatement.box_()))
+		argFail_(tostr_(declarationStatement))
 	}
 	this.declarationStatement = declarationStatement
 }
@@ -2506,7 +2506,7 @@ func (this *RemoveUnusedCode_Assign) init_RemoveUnusedCode_Assign(builder *Remov
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(assignNode.getFirstChild(), builder)
 	if !NodeUtil_isAssignmentOp(assignNode) {
-		argFail_(objstr_(assignNode.box_()))
+		argFail_(tostr_(assignNode))
 	}
 	if kind == RemoveUnusedCode_Kind_VARIABLE {
 		if !(propertyNode == 0) {
@@ -2625,7 +2625,7 @@ func (this *RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign) init_RemoveU
 		panic(new_IllegalStateException_0())
 	}
 	if !assignNode.isAssign() {
-		argFail_(objstr_(assignNode.box_()))
+		argFail_(tostr_(assignNode))
 	}
 	this.assignNode = assignNode
 }
@@ -2647,15 +2647,15 @@ func (this *RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign) removeIntern
 	var lhs Node = this.assignNode.getFirstChild()
 	var rhs Node = this.assignNode.getLastChild()
 	if !lhs.isGetProp() {
-		stateFail_(objstr_(lhs.box_()))
+		stateFail_(tostr_(lhs))
 	}
 	var objDotPrototype Node = lhs.getFirstChild()
 	if !objDotPrototype.isGetProp() {
-		stateFail_(objstr_(objDotPrototype.box_()))
+		stateFail_(tostr_(objDotPrototype))
 	}
 	var objExpression Node = objDotPrototype.getFirstChild()
 	if !(objDotPrototype.getString() == "prototype") {
-		stateFail_(objstr_(objDotPrototype.box_()))
+		stateFail_(tostr_(objDotPrototype))
 	}
 	var mustPreserveRhs bool = (this.outer_.mayHaveSideEffects(rhs) || NodeUtil_isExpressionResultUsed(this.assignNode))
 	var mustPreserveObjExpression bool = this.outer_.mayHaveSideEffects(objExpression)

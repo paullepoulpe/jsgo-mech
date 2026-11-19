@@ -286,7 +286,7 @@ func (this *Normalize_NormalizeStatements) addNameNodeToExportSpecs(exportSpecs 
 
 func (this *Normalize_NormalizeStatements) normalizeBlocklessFunction(n Node) {
 	if !n.isFunction() {
-		stateFail_(objstr_(n.box_()))
+		stateFail_(tostr_(n))
 	}
 	if !NodeUtil_getFunctionBody(n).isBlock() {
 		var returnValue Node = NodeUtil_getFunctionBody(n)
@@ -581,7 +581,7 @@ func (this *Normalize_DuplicateDeclarationHandler) replaceVarWithAssignment(n No
 		this.outer_.reportCodeChange("Duplicate VAR declaration", statement)
 	} else {
 		if !NodeUtil_isStatementBlock(grandparent) {
-			stateFail_(objstr_(grandparent.box_()))
+			stateFail_(tostr_(grandparent))
 		}
 		parent.detach()
 		this.outer_.reportCodeChange("Duplicate VAR declaration", grandparent)

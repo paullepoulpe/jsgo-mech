@@ -120,7 +120,7 @@ func (this *MakeDeclaredNamesUnique) getReplacementName(oldName string) Optional
 
 func (this *MakeDeclaredNamesUnique) findDeclaredNames(t *NodeTraversal, n Node) {
 	if !(NodeUtil_createsScope(n) || n.isScript()) {
-		stateFail_(objstr_(n.box_()))
+		stateFail_(tostr_(n))
 	}
 	for v := range elemsAs_[*Var](t.getScope().getVarIterable()) {
 		this.renamerStack.peek().addDeclaredName(v.getName(), false)
@@ -609,11 +609,11 @@ func new_MakeDeclaredNamesUnique_ContextualRenamer_0() *MakeDeclaredNamesUnique_
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) init_MakeDeclaredNamesUnique_ContextualRenamer_Node_SimpleMultiset_boolean_Renamer(scopeRoot Node, nameUsage *SimpleMultiset[any], hoistingTargetScope bool, parent MakeDeclaredNamesUnique_Renamer) {
 	this.finit_MakeDeclaredNamesUnique_ContextualRenamer()
 	if !NodeUtil_createsScope(scopeRoot) {
-		stateFail_(objstr_(scopeRoot.box_()))
+		stateFail_(tostr_(scopeRoot))
 	}
 	if scopeRoot.isFunction() {
 		if hoistingTargetScope {
-			stateFail_(objstr_(scopeRoot.box_()))
+			stateFail_(tostr_(scopeRoot))
 		}
 	}
 	this.scopeRoot = scopeRoot
@@ -621,12 +621,12 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) init_MakeDeclaredNamesUni
 	this.nameUsage = nameUsage
 	if hoistingTargetScope {
 		if NodeUtil_createsBlockScope(scopeRoot) {
-			stateFail_(objstr_(scopeRoot.box_()))
+			stateFail_(tostr_(scopeRoot))
 		}
 		this.hoistRenamer = this.self().(MakeDeclaredNamesUnique_Renamer)
 	} else {
 		if !(NodeUtil_createsBlockScope(scopeRoot) || scopeRoot.isFunction()) {
-			stateFail_(objstr_(scopeRoot.box_()))
+			stateFail_(tostr_(scopeRoot))
 		}
 		this.hoistRenamer = parent.getHoistRenamer()
 	}
