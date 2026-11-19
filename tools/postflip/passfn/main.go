@@ -366,7 +366,9 @@ func isFnLit(e ast.Expr) bool {
 		return false
 	}
 	cl, ok := u.X.(*ast.CompositeLit)
-	if !ok || rw.Text(cl.Type) != "Function_fn" || len(cl.Elts) != 1 {
+	// Function_fn is the erased lambda object; Function_tfn_A_B are the typed translator's
+	// adapters (second flip): the same object around a func whose parameter or result is typed.
+	if !ok || (rw.Text(cl.Type) != "Function_fn" && !strings.HasPrefix(rw.Text(cl.Type), "Function_tfn_")) || len(cl.Elts) != 1 {
 		return false
 	}
 	_, ok = cl.Elts[0].(*ast.FuncLit)
@@ -411,6 +413,13 @@ func use(e ast.Expr, k *kind) {
 	case *ast.CallExpr:
 		name, _ := rw.CallName(x)
 		if name == "objhashId_" || name == "objstr_" {
+			return
+		}
+		// The typed translator's generic forms of the same identity uses: equals_, hash_ and
+		// jtostr_ box their argument (obj_) and call Object_equals / hashCode / toString, which
+		// for an object without those methods are the identity ones; Objects_requireNonNull_T
+		// returns its argument. They are generic over any comparable type, a *funcObj_[F] too.
+		if name == "equals_" || name == "hash_" || name == "jtostr_" || name == "Objects_requireNonNull_T" {
 			return
 		}
 		// An argument passed to a slot parameter.
@@ -551,7 +560,15 @@ func typed(lit *ast.CompositeLit, k *kind) (func() string, string) {
 	if len(dels) == 0 {
 		name = pname.Name
 	}
+	// A typed adapter's parameter may be of type A already, and its result of type B: those
+	// stay as they are.
+	sig, _ := rw.Info.Types[fl].Type.(*types.Signature)
+	paramTyped := sig != nil && sig.Params().Len() == 1 && types.Identical(sig.Params().At(0).Type(), k.a)
+	resultTyped := sig != nil && sig.Results().Len() == 1 && !k.boxed && types.Identical(sig.Results().At(0).Type(), k.b)
 	for _, id := range rw.UsesOf[pobj] {
+		if paramTyped {
+			break
+		}
 		if len(dels) > 0 && id.Pos() >= dels[0].Pos() && id.End() <= dels[0].End() {
 			continue
 		}
@@ -584,6 +601,9 @@ func typed(lit *ast.CompositeLit, k *kind) (func() string, string) {
 			continue
 		}
 		res := rw.Unparen(r.Results[0])
+		if resultTyped {
+			continue
+		}
 		txt, ok := result(res, k)
 		if !ok {
 			why = "a result not of B: " + rw.Text(res)
