@@ -607,7 +607,7 @@ func (this *CmdLineParser_Option) getNameAndMeta() string {
 func (this *CmdLineParser_Option) printDefaultValue() Optional[string] {
 	var values ListOf[any] = icast_List(this.defaultValues.get())
 	if (values != nil) && !values.isEmpty() {
-		var buf *StringBuilder = new_StringBuilder()
+		var buf strBuilder_
 		if values.size() > 1 {
 			it_1 := foreach_(any(values))
 			for it_1.next() {
@@ -624,7 +624,7 @@ func (this *CmdLineParser_Option) printDefaultValue() Optional[string] {
 		} else {
 			buf.append(String_valueOf_Object(values.get(0)))
 		}
-		return Optional_of[string](Object_toString(obj_(buf)))
+		return Optional_of[string](buf.toString())
 	}
 	return Optional_empty[string]()
 }

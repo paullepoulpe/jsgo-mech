@@ -2557,7 +2557,7 @@ func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
 		var negated bool = (ch == 'P')
 		this.pos++
 		if (this.pos < this.limit) && (String_charAt(this.cap_pattern, this.pos) == '{') {
-			var lhs *StringBuilder = new_StringBuilder()
+			var lhs strBuilder_
 			for {
 				this.pos++
 				if this.pos >= this.limit {
@@ -2571,9 +2571,9 @@ func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
 			}
 			if (this.pos < this.limit) && (ch == '}') {
 				this.pos++
-				return new_RegExpTree_UnicodePropertyEscape(Optional_empty[string](), Object_toString(obj_(lhs)), negated).up_RegExpTree()
+				return new_RegExpTree_UnicodePropertyEscape(Optional_empty[string](), lhs.toString(), negated).up_RegExpTree()
 			} else if (this.pos < this.limit) && (ch == '=') {
-				var rhs *StringBuilder = new_StringBuilder()
+				var rhs strBuilder_
 				for {
 					this.pos++
 					if this.pos >= this.limit {
@@ -2587,7 +2587,7 @@ func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
 				}
 				if (this.pos < this.limit) && (ch == '}') {
 					this.pos++
-					return new_RegExpTree_UnicodePropertyEscape(Optional_of[string](Object_toString(obj_(lhs))), Object_toString(obj_(rhs)), negated).up_RegExpTree()
+					return new_RegExpTree_UnicodePropertyEscape(Optional_of[string](lhs.toString()), rhs.toString(), negated).up_RegExpTree()
 				} else {
 					panic(new_IllegalArgumentException_String(("Malformed Unicode Property Escape: expected '}' after " + sstr_(String_substring(this.cap_pattern, start, this.pos)))).self())
 				}

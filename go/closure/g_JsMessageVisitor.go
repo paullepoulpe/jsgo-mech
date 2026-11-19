@@ -336,7 +336,7 @@ func JsMessageVisitor_extractStringFromStringExprNode(node Node) *Outcome_base[s
 			return Outcome_base_err[string](new_JsMessageVisitor_MalformedException("Template literals with substitutions are not allowed.", node).up_Throwable())
 		}
 	case tokOrd1_ADD:
-		var sb *StringBuilder = new_StringBuilder()
+		var sb strBuilder_
 		{
 			var child Node = node.getFirstChild()
 			for ; child != 0; child = child.getNext() {
@@ -347,7 +347,7 @@ func JsMessageVisitor_extractStringFromStringExprNode(node Node) *Outcome_base[s
 				sb.append(childString.get())
 			}
 		}
-		return Outcome_base_ok_Object[string](Object_toString(obj_(sb)))
+		return Outcome_base_ok_Object[string](sb.toString())
 	default:
 		return Outcome_base_err[string](new_JsMessageVisitor_MalformedException("literal string or concatenation expected", node).up_Throwable())
 	}
