@@ -44,7 +44,7 @@ import org.jspecify.annotations.Nullable;
  * <p>{@link #elementSet} and {@link #entrySet} are live, unmodifiable views; the entries map each
  * element to its count.
  */
-public final class SimpleMultiset<E> implements Iterable<E>, Serializable {
+public final class SimpleMultiset<E> implements Iterable<E>, SimpleCollection, Serializable {
 
   private final Map<E, Integer> counts;
   private int totalCount = 0;
@@ -167,6 +167,11 @@ public final class SimpleMultiset<E> implements Iterable<E>, Serializable {
     return Collections.unmodifiableMap(counts).entrySet();
   }
 
+  @Override
+  public Map<?, ?> untypedMap() {
+    return Collections.unmodifiableMap(counts);
+  }
+
   /** Returns the number of occurrences of all elements. */
   public int size() {
     return totalCount;
@@ -195,7 +200,7 @@ public final class SimpleMultiset<E> implements Iterable<E>, Serializable {
 
   @Override
   public boolean equals(@Nullable Object o) {
-    return o instanceof SimpleMultiset<?> that && counts.equals(that.counts);
+    return o instanceof SimpleMultiset && counts.equals(((SimpleCollection) o).untypedMap());
   }
 
   @Override

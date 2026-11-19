@@ -47,7 +47,7 @@ import org.jspecify.annotations.Nullable;
  * the call: it does not follow a key that is removed and added again, and is a constant empty list
  * for a key that is absent.
  */
-public final class SimpleListMultimap<K, V> implements Serializable {
+public final class SimpleListMultimap<K, V> implements SimpleCollection, Serializable {
 
   private final LinkedHashMap<K, List<V>> map = new LinkedHashMap<>();
   private boolean frozen = false;
@@ -155,6 +155,11 @@ public final class SimpleListMultimap<K, V> implements Serializable {
     return Collections.unmodifiableMap(map);
   }
 
+  @Override
+  public Map<?, ?> untypedMap() {
+    return asMap();
+  }
+
   /** Returns the number of key-value pairs. */
   public int size() {
     int size = 0;
@@ -170,7 +175,7 @@ public final class SimpleListMultimap<K, V> implements Serializable {
 
   @Override
   public boolean equals(@Nullable Object o) {
-    return o instanceof SimpleListMultimap<?, ?> that && map.equals(that.map);
+    return o instanceof SimpleListMultimap && map.equals(((SimpleCollection) o).untypedMap());
   }
 
   @Override

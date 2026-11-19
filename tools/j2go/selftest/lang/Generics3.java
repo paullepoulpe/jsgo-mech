@@ -1,7 +1,11 @@
 package lang;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -11,7 +15,9 @@ import java.util.Optional;
  * is one object per instantiation, the shared empty array, a new array of C<?, ?> under a cast,
  * and a final class converted to a typed interface it implements (null stays null); and
  * java.util.Optional as a value (rule "Optional is a value"): null, empty, content, equals between
- * instantiations, an Optional as an Object and back.
+ * instantiations, an Optional as an Object and back. A typed generic class seen without its type
+ * arguments through an interface without type parameters (what Java prep steps 19 and 20 make of
+ * the compiler's Simple* collections).
  */
 public class Generics3 {
   static final StringBuilder out = new StringBuilder();
@@ -218,6 +224,96 @@ public class Generics3 {
     return sb.toString();
   }
 
+  // ---- a typed generic class that code without its type arguments sees through an interface
+  // without type parameters (prep 19: equals between two instantiations, a writer of any
+  // instantiation), with a local class in place of an inner class and typed lookups (prep 20)
+  interface Untyped {
+    Map<?, ?> untypedMap();
+  }
+
+  static final class Multi<K, V> implements Untyped {
+    private final LinkedHashMap<K, List<V>> map = new LinkedHashMap<>();
+
+    Multi<K, V> put(K key, V value) {
+      List<V> values = map.get(key);
+      if (values == null) {
+        values = new ArrayList<>();
+        map.put(key, values);
+      }
+      values.add(value);
+      return this;
+    }
+
+    List<V> get(K key) {
+      List<V> values = map.get(key);
+      return values == null ? new ArrayList<>() : values;
+    }
+
+    boolean containsKey(K key) {
+      return map.containsKey(key);
+    }
+
+    Iterator<V> values() {
+      final class Values implements Iterator<V> {
+        private final Iterator<List<V>> lists = map.values().iterator();
+        private Iterator<V> current = null;
+
+        @Override
+        public boolean hasNext() {
+          while ((current == null || !current.hasNext()) && lists.hasNext()) {
+            current = lists.next().iterator();
+          }
+          return current != null && current.hasNext();
+        }
+
+        @Override
+        public V next() {
+          return current.next();
+        }
+      }
+      return new Values();
+    }
+
+    @Override
+    public Map<?, ?> untypedMap() {
+      return Collections.unmodifiableMap(map);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      return o instanceof Multi && map.equals(((Untyped) o).untypedMap());
+    }
+
+    @Override
+    public int hashCode() {
+      return map.hashCode();
+    }
+  }
+
+  static String write(Object value) {
+    if (value instanceof Multi) {
+      return "multi" + ((Untyped) value).untypedMap();
+    }
+    return String.valueOf(value);
+  }
+
+  static String multis() {
+    Multi<String, Integer> a = new Multi<String, Integer>().put("x", 1).put("y", 2).put("x", 3);
+    Multi<String, Integer> b = new Multi<String, Integer>().put("x", 1).put("x", 3).put("y", 2);
+    Multi<Integer, String> c = new Multi<Integer, String>().put(7, "seven");
+    Multi<Integer, String> none = new Multi<>();
+    Object emptyOther = new Multi<String, Trie<String, String>>();
+    StringBuilder sb = new StringBuilder();
+    sb.append(a.equals(b)).append(' ').append(a.equals(c)).append(' ').append(none.equals(emptyOther)).append(' ').append(emptyOther.equals(none)).append(' ');
+    sb.append(a.equals("x")).append(' ').append(a.equals(null)).append(' ').append(a.hashCode() == b.hashCode()).append(' ');
+    sb.append(a.get("x")).append(a.get("z")).append(c.get(7)).append(' ').append(a.containsKey("y")).append(c.containsKey(8)).append(' ');
+    for (Iterator<Integer> it = a.values(); it.hasNext(); ) {
+      sb.append(it.next() + 1);
+    }
+    sb.append(' ').append(write(a)).append(write(c)).append(write(none)).append(write("s"));
+    return sb.toString();
+  }
+
   public static String run() {
     Seq<String, Integer> s = Trie.empty();
     p(s.size() + " " + s.get("a"));
@@ -235,6 +331,7 @@ public class Generics3 {
     names.add("y");
     p(firsts(names));
     p(optionals());
+    p(multis());
     String r = out.toString();
     out.setLength(0);
     return r;

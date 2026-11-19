@@ -34,7 +34,7 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>{@link #keySet}, {@link #asMap} and {@link #inverse} are live, unmodifiable views.
  */
-public final class SimpleBiMap<K, V> implements Serializable {
+public final class SimpleBiMap<K, V> implements SimpleCollection, Serializable {
 
   private final LinkedHashMap<K, V> forward = new LinkedHashMap<>();
   private final LinkedHashMap<V, K> backward = new LinkedHashMap<>();
@@ -99,6 +99,11 @@ public final class SimpleBiMap<K, V> implements Serializable {
   /** Returns this bimap as a map from each key to its value. */
   public Map<K, V> asMap() {
     return Collections.unmodifiableMap(forward);
+  }
+
+  @Override
+  public Map<?, ?> untypedMap() {
+    return asMap();
   }
 
   /** Returns the map from each value to its key. */
