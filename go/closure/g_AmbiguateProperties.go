@@ -148,8 +148,8 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 }
 
 func (this *AmbiguateProperties) getProperty(name string) *AmbiguateProperties_Property {
-	return this.propertyMap.computeIfAbsent_f(name, func(p0 any) any {
-		return obj_((func(p0 string) *AmbiguateProperties_Property { return new_AmbiguateProperties_Property(this, p0) })(str_(p0)))
+	return this.propertyMap.ComputeIfAbsent(name, func(p0 string) *AmbiguateProperties_Property {
+		return (func(p0 string) *AmbiguateProperties_Property { return new_AmbiguateProperties_Property(this, p0) })(p0)
 	})
 }
 

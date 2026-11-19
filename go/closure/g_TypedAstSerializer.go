@@ -158,10 +158,10 @@ func (this *TypedAstSerializer) getSourceFilePointer(n Node) int32 {
 		return 0
 	}
 	this.subtreeSourceFiles.add(sourceFile)
-	return unbox_[int32](this.sourceFilePointers.computeIfAbsent_f(sourceFile, func(p0 any) any {
+	return unbox_[int32](this.sourceFilePointers.ComputeIfAbsent(sourceFile, func(p0 *SourceFile_jscomp) any {
 		return (func(f *SourceFile_jscomp) any {
 			return any(int32((1 + this.sourceFilePointers.Len())))
-		})(cast_[*SourceFile_jscomp](p0))
+		})(p0)
 	}))
 }
 

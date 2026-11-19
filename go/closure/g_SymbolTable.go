@@ -1117,10 +1117,10 @@ func (this *SymbolTable_Symbol) getFunctionType() *FunctionType {
 }
 
 func (this *SymbolTable_Symbol) defineReferenceAt(n Node) *SymbolTable_Reference {
-	return this.references.computeIfAbsent_f(n, func(p0 any) any {
-		return obj_((func(k Node) *SymbolTable_Reference {
+	return this.references.ComputeIfAbsent(n, func(p0 Node) *SymbolTable_Reference {
+		return (func(k Node) *SymbolTable_Reference {
 			return new_SymbolTable_Reference(this, k)
-		})(Node_of_(p0)))
+		})(p0)
 	})
 }
 

@@ -256,10 +256,10 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) visit_impl(
 			var instance *ExtractPrototypeMemberDeclarations_ExtractionInstance = new_ExtractPrototypeMemberDeclarations_ExtractionInstance(this.outer_, prototypeMember, n)
 			cur = Iterables_getLast(Iterable(sliceViewP_(tc_p_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration, instance.declarations))).(*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration).node_
 			if instance.isFavorable() {
-				this.instancesByChunk.computeIfAbsent_f(t.getChunk(), func(p0 any) any {
-					return obj_((func(k *JSChunk) *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo {
+				this.instancesByChunk.ComputeIfAbsent(t.getChunk(), func(p0 *JSChunk) *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo {
+					return (func(k *JSChunk) *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo {
 						return new_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo()
-					})(cast_[*JSChunk](p0)))
+					})(p0)
 				})
 				var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = this.instancesByChunk.Get(t.getChunk())
 				*instanceInfo.instances = append(*instanceInfo.instances, instance)

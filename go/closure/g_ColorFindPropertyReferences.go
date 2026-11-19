@@ -182,8 +182,8 @@ func (this *ColorFindPropertyReferences) traverseObjectlitLike(t *NodeTraversal,
 }
 
 func (this *ColorFindPropertyReferences) registerPropertyUse(t *NodeTraversal, site Node, owner *Color) {
-	var prop *PropertyClustering = this.propIndex.computeIfAbsent_f(site.getString(), func(p0 any) any {
-		return obj_((func(p0 string) *PropertyClustering { return new_PropertyClustering(p0) })(str_(p0)))
+	var prop *PropertyClustering = this.propIndex.ComputeIfAbsent(site.getString(), func(p0 string) *PropertyClustering {
+		return (func(p0 string) *PropertyClustering { return new_PropertyClustering(p0) })(p0)
 	})
 	var flatOwner *ColorGraphNode = this.colorGraphNodeFactory.createNode(owner)
 	flatOwner.getAssociatedProps().Put(prop, ColorGraphNode_PropAssociation_AST)

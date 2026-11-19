@@ -251,16 +251,16 @@ func (this *ConvertChunksToESModules) visitName(t *NodeTraversal, nameNode Node,
 		if NodeUtil_isLhsOfAssign(nameNode) {
 			t.report(nameNode, ConvertChunksToESModules_ASSIGNMENT_TO_IMPORT, []string{nameNode.getString(), ConvertChunksToESModules_getChunkName(referencingChunk), ConvertChunksToESModules_getChunkName(definingChunk)})
 		}
-		var namesToExport SetOf[string] = this.crossChunkExports.computeIfAbsent_f(definingChunk, func(p0 any) any {
-			return (func(k *JSChunk) Set {
+		var namesToExport SetOf[string] = this.crossChunkExports.ComputeIfAbsent(definingChunk, func(p0 *JSChunk) Set {
+			return icast_Set((func(k *JSChunk) Set {
 				return Set(new_LinkedHashSet())
-			})(cast_[*JSChunk](p0))
+			})(p0))
 		})
 		Collection_add_s(namesToExport, name)
-		var namesToImportByChunk MapOf[*JSChunk, SetOf[string]] = this.crossChunkImports.computeIfAbsent_f(referencingChunk, func(p0 any) any {
-			return (func(k *JSChunk) Map {
+		var namesToImportByChunk MapOf[*JSChunk, SetOf[string]] = this.crossChunkImports.ComputeIfAbsent(referencingChunk, func(p0 *JSChunk) Map {
+			return icast_Map((func(k *JSChunk) Map {
 				return Map(new_LinkedHashMap())
-			})(cast_[*JSChunk](p0))
+			})(p0))
 		})
 		if importType == ConvertChunksToESModules_ImportType_STATIC {
 			var importsForChunk SetOf[string] = icast_Set(Map_computeIfAbsent_f(namesToImportByChunk, obj_(definingChunk), func(p0 any) any {
@@ -409,10 +409,10 @@ func (this *ConvertChunksToESModules_FindCrossChunkReferences) visitScript(t *No
 	var chunkDependencies *TList[*JSChunk] = chunk.getDependencies()
 	this.outer_.crossChunkExports.PutIfAbsent(chunk, Set(new_LinkedHashSet()))
 	if !chunkDependencies.isEmpty() {
-		var namesToImportByChunk MapOf[*JSChunk, SetOf[string]] = this.outer_.crossChunkImports.computeIfAbsent_f(chunk, func(p0 any) any {
-			return (func(k *JSChunk) Map {
+		var namesToImportByChunk MapOf[*JSChunk, SetOf[string]] = this.outer_.crossChunkImports.ComputeIfAbsent(chunk, func(p0 *JSChunk) Map {
+			return icast_Map((func(k *JSChunk) Map {
 				return Map(new_LinkedHashMap())
-			})(cast_[*JSChunk](p0))
+			})(p0))
 		})
 		for dependency := range chunkDependencies.All() {
 			Map_computeIfAbsent_f(namesToImportByChunk, obj_(dependency), func(p0 any) any {

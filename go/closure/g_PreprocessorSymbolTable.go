@@ -61,10 +61,10 @@ func (this *PreprocessorSymbolTable) addReference(node Node) {
 }
 
 func (this *PreprocessorSymbolTable) addReference_2(node Node, name string) {
-	this.symbols.computeIfAbsent_f(name, func(p0 any) any {
-		return (func(k string) any {
+	this.symbols.ComputeIfAbsent(name, func(p0 string) *SimpleSlot {
+		return to_SimpleSlot((func(k string) any {
 			return new_SimpleSlot(k, nil, true).self()
-		})(str_(p0))
+		})(p0))
 	})
 	this.refs.put_s(name, new_PreprocessorSymbolTable_Reference(this.symbols.Get(name), node))
 }

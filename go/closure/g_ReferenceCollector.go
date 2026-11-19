@@ -151,10 +151,10 @@ func (this *ReferenceCollector) addReference(v *Var, n Node, t *NodeTraversal) *
 	if !this.varFilter.apply(obj_(v)) {
 		return nil
 	}
-	var collection *ReferenceCollection = this.referenceMap.computeIfAbsent_f(v, func(p0 any) any {
-		return obj_((func(k *Var) *ReferenceCollection {
+	var collection *ReferenceCollection = this.referenceMap.ComputeIfAbsent(v, func(p0 *Var) *ReferenceCollection {
+		return (func(k *Var) *ReferenceCollection {
 			return new_ReferenceCollection()
-		})(cast_[*Var](p0)))
+		})(p0)
 	})
 	var reference *Reference = new_Reference_Node_NodeTraversal_BasicBlock(n, t, cast_[*BasicBlock](SequencedCollection_getLast(SequencedCollection(this.blockStack.asDeque()))))
 	collection.add(reference)

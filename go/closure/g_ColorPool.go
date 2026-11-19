@@ -228,10 +228,10 @@ func (this *ColorPool_Builder) build() *ColorPool {
 		this.lookupOrReconcileColor(id)
 	}
 	for colorId := range ColorRegistry_REQUIRED_IDS.All() {
-		this.registry.setNativeColor(this.idToColor.computeIfAbsent_f(colorId, func(p0 any) any {
-			return obj_((func(unused *ColorId) *Color {
+		this.registry.setNativeColor(this.idToColor.ComputeIfAbsent(colorId, func(p0 *ColorId) *Color {
+			return (func(unused *ColorId) *Color {
 				return Color_singleBuilder().setId(colorId).build()
-			})(cast_[*ColorId](p0)))
+			})(p0)
 		}))
 	}
 	this.forEachShard(func(p0 any) {
