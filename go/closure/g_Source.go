@@ -7,8 +7,8 @@ type Source struct {
 	sourceMap_            string
 	sourceUrl_            string
 	sourceMappingUrl_     string
-	runtimes_             *JTSet[string]
-	loadFlags_            *JTMap[string, string]
+	runtimes_             *TSet[string]
+	loadFlags_            *TMap[string, string]
 	estimatedSize_        int32
 	codeSupplier_         *Source_Lazy
 	originalCodeSupplier_ *Source_Lazy
@@ -21,7 +21,7 @@ func (this *Source) zero_Source() {
 	this.sourceMappingUrl_ = nullstr_
 }
 
-func (this *Source) init_Source(path string, sourceMap string, sourceUrl string, sourceMappingUrl string, runtimes *JTSet[string], loadFlags *JTMap[string, string], estimatedSize int32, codeSupplier *Source_Lazy, originalCodeSupplier *Source_Lazy) {
+func (this *Source) init_Source(path string, sourceMap string, sourceUrl string, sourceMappingUrl string, runtimes *TSet[string], loadFlags *TMap[string, string], estimatedSize int32, codeSupplier *Source_Lazy, originalCodeSupplier *Source_Lazy) {
 	if runtimes.asSet() == nil {
 		panic(new_NullPointerException_String("runtimes"))
 	}
@@ -40,7 +40,7 @@ func (this *Source) init_Source(path string, sourceMap string, sourceUrl string,
 	this.originalCodeSupplier_ = originalCodeSupplier
 }
 
-func new_Source(path string, sourceMap string, sourceUrl string, sourceMappingUrl string, runtimes *JTSet[string], loadFlags *JTMap[string, string], estimatedSize int32, codeSupplier *Source_Lazy, originalCodeSupplier *Source_Lazy) *Source {
+func new_Source(path string, sourceMap string, sourceUrl string, sourceMappingUrl string, runtimes *TSet[string], loadFlags *TMap[string, string], estimatedSize int32, codeSupplier *Source_Lazy, originalCodeSupplier *Source_Lazy) *Source {
 	this := &Source{}
 	this.zero_Source()
 	this.init_Source(path, sourceMap, sourceUrl, sourceMappingUrl, runtimes, loadFlags, estimatedSize, codeSupplier, originalCodeSupplier)
@@ -64,7 +64,7 @@ func (this *Source) toBuilder() *Source_Builder {
 }
 
 func Source_builder() *Source_Builder {
-	return new_Source_Builder_0().setPath(Source_DEV_NULL).setCode("").setOriginalCodeSupplier(nil).setSourceMap("").setSourceUrl("").setSourceMappingUrl("").setRuntimes(jtsetEmptyImm_(jtc_string)).setLoadFlags(jtmapEmptyImm_(jtc_string, jtc_string)).setEstimatedSize(0)
+	return new_Source_Builder_0().setPath(Source_DEV_NULL).setCode("").setOriginalCodeSupplier(nil).setSourceMap("").setSourceUrl("").setSourceMappingUrl("").setRuntimes(tsetEmptyImm_(tc_string)).setLoadFlags(tmapEmptyImm_(tc_string, tc_string)).setEstimatedSize(0)
 }
 
 func (this *Source) path() string {
@@ -83,11 +83,11 @@ func (this *Source) sourceMappingUrl() string {
 	return this.sourceMappingUrl_
 }
 
-func (this *Source) runtimes() *JTSet[string] {
+func (this *Source) runtimes() *TSet[string] {
 	return this.runtimes_
 }
 
-func (this *Source) loadFlags() *JTMap[string, string] {
+func (this *Source) loadFlags() *TMap[string, string] {
 	return this.loadFlags_
 }
 
@@ -132,8 +132,8 @@ type Source_Builder struct {
 	sourceMap_                Optional[string]
 	sourceUrl_                Optional[string]
 	sourceMappingUrl_         Optional[string]
-	runtimesField             *JTSet[string]
-	loadFlags_                *JTMap[string, string]
+	runtimesField             *TSet[string]
+	loadFlags_                *TMap[string, string]
 	estimatedSize_            int32
 	codeSupplierField         *Source_Lazy
 	originalCodeSupplierField *Source_Lazy
@@ -197,7 +197,7 @@ func (this *Source_Builder) setSourceMappingUrl(sourceMappingUrl string) *Source
 	return this
 }
 
-func (this *Source_Builder) setRuntimes(runtimes *JTSet[string]) *Source_Builder {
+func (this *Source_Builder) setRuntimes(runtimes *TSet[string]) *Source_Builder {
 	if runtimes == nil {
 		panic(new_NullPointerException_String("Null runtimes"))
 	}
@@ -205,7 +205,7 @@ func (this *Source_Builder) setRuntimes(runtimes *JTSet[string]) *Source_Builder
 	return this
 }
 
-func (this *Source_Builder) setLoadFlags(flags *JTMap[string, string]) *Source_Builder {
+func (this *Source_Builder) setLoadFlags(flags *TMap[string, string]) *Source_Builder {
 	if flags == nil {
 		panic(new_NullPointerException_String("Null loadFlags"))
 	}
@@ -232,11 +232,11 @@ func (this *Source_Builder) setOriginalCode(code string) *Source_Builder {
 }
 
 func (this *Source_Builder) addRuntime(runtimes []string) *Source_Builder {
-	return this.setRuntimes(tsetImm_(jtc_string, ImmutableSet_builder().addAll(Iterable(this.runtimes().asSet())).add_ObjectArr(arrmap_(runtimes, func(v_ string) any { return strobj_(v_) })).build()))
+	return this.setRuntimes(tsetFrom_(tc_string, ImmutableSet_builder().addAll(Iterable(this.runtimes().asSet())).add_ObjectArr(arrmap_(runtimes, func(v_ string) any { return strobj_(v_) })).build(), true))
 }
 
 func (this *Source_Builder) setDependencyInfo(info DependencyInfo_) *Source_Builder {
-	return this.setLoadFlags(tmapImm_(jtc_string, jtc_string, info.getLoadFlags()))
+	return this.setLoadFlags(tmapFrom_(tc_string, tc_string, info.getLoadFlags(), true))
 }
 
 func (this *Source_Builder) build() *Source {
@@ -259,7 +259,7 @@ func (this *Source_Builder) setOriginalCodeSupplier(code *Source_Lazy) *Source_B
 	return this
 }
 
-func (this *Source_Builder) runtimes() *JTSet[string] {
+func (this *Source_Builder) runtimes() *TSet[string] {
 	if this.runtimesField == nil {
 		panic(new_IllegalStateException_String("Property \"runtimes\" has not been set"))
 	}

@@ -5,7 +5,7 @@ package closure
 type ReplaceToggles struct {
 	compiler_      *AbstractCompiler
 	astFactory_    *AstFactory
-	ordinalMapping *JTMap[string, any]
+	ordinalMapping *TMap[string, any]
 }
 
 func (this *ReplaceToggles) finit_ReplaceToggles() {
@@ -86,8 +86,8 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceToggles_INVALID_ORDINAL_MAPPING, []string{"multiple initialized copies"}))
 			return
 		}
-		var mapping *JTMap[string, any] = jnewTMap_(jtc_string, jtc_Integer)
-		var ordinals *JTSet[any] = jnewTSet_(jtc_Integer)
+		var mapping *TMap[string, any] = newTMap_(tc_string, tc_Integer)
+		var ordinals *TSet[any] = newTSet_(tc_Integer)
 		{
 			var c Node = rhs.getFirstChild()
 			for ; c != 0; c = c.getNext() {
@@ -96,7 +96,7 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 					return
 				}
 				var key string = c.getString()
-				if mapping.containsKey(key) {
+				if mapping.Has(key) {
 					this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(c, ReplaceToggles_INVALID_ORDINAL_MAPPING, []string{("duplicate key: " + sstr_(key))}))
 					return
 				}
@@ -118,15 +118,15 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 				} else if (!child.isNumber() || (intValue < 0)) || (float64(intValue) != unbox_[float64](doubleValue)) {
 					this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(c, ReplaceToggles_INVALID_ORDINAL_MAPPING, []string{"value not a boolean or whole number literal"}))
 					return
-				} else if ordinals.contains(any(int32(intValue))) {
+				} else if ordinals.Has(any(int32(intValue))) {
 					this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(c, ReplaceToggles_INVALID_ORDINAL_MAPPING, []string{("duplicate ordinal: " + istr_(int64(intValue)))}))
 					return
 				}
-				mapping.put(key, any(int32(intValue)))
-				ordinals.add(any(int32(intValue)))
+				mapping.Put(key, any(int32(intValue)))
+				ordinals.Add(any(int32(intValue)))
 			}
 		}
-		this.outer_.ordinalMapping = immutableMapCopyOfT_(jtc_string, jtc_Integer, mapping)
+		this.outer_.ordinalMapping = immutableMapCopyOfTP_(tc_string, tc_Integer, mapping)
 		return
 	}
 	if !n.isCall() {
@@ -143,7 +143,7 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 	}
 	var ordinal any = func() any {
 		if this.outer_.ordinalMapping != nil {
-			return this.outer_.ordinalMapping.get(arg.getString())
+			return this.outer_.ordinalMapping.Get(arg.getString())
 		}
 		return nil
 	}()

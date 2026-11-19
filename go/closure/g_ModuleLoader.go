@@ -26,7 +26,7 @@ func (this *ModuleLoader) init_ModuleLoader(builder *ModuleLoader_Builder) {
 	if builder.inputs == nil {
 		panic(new_NullPointerException_0())
 	}
-	var modulePaths *JTSet[string] = this.resolvePaths(builder.inputs)
+	var modulePaths *TSet[string] = this.resolvePaths(builder.inputs)
 	this.moduleResolver = builder.factory.create(modulePaths.asImm(), this.moduleRootPaths.asImm(), this.errorHandler, this.pathEscaper)
 }
 
@@ -40,7 +40,7 @@ func ModuleLoader_builder() *ModuleLoader_Builder {
 	return new_ModuleLoader_Builder()
 }
 
-func (this *ModuleLoader) getPackageJsonMainEntries() *JTMap[string, string] {
+func (this *ModuleLoader) getPackageJsonMainEntries() *TMap[string, string] {
 	return this.moduleResolver.getPackageJsonMainEntries()
 }
 
@@ -78,7 +78,7 @@ func (this *ModuleLoader) createRootPaths(roots IterableOf[string]) *TList[strin
 	return tlistImm_(tc_string, result.build().asList())
 }
 
-func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo_]) *JTSet[string] {
+func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo_]) *TSet[string] {
 	var sortedModulePaths *[]string = &[]string{}
 	for input := range elemsBy_(inputs, icast_DependencyInfo_) {
 		var p string = this.pathEscaper.escape(str_(this.pathResolver.apply(strobj_(input.getName()))))
@@ -95,7 +95,7 @@ func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo_]) *JTSe
 	if dupeModulePaths.size() != dupeModulePaths.elementSet().size() {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Duplicate module paths after resolving: %s", []any{dupeModulePaths})))
 	}
-	return jimmutableSetCopyOf_(jtc_string, Collection(dupeModulePaths.elementSet()))
+	return immutableSetCopyOf_(tc_string, Collection(dupeModulePaths.elementSet()))
 }
 
 func ModuleLoader_normalize(path string, moduleRootPaths IterableOf[string]) string {

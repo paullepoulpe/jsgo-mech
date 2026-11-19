@@ -159,7 +159,7 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base[any] {
 		return Outcome_base_err[any](expandedArgs.error())
 	}
 	var cmdLine *CmdLineParser_CmdLineImpl = new_CmdLineParser_CmdLineImpl(this, expandedArgs.get())
-	var present *JTSet[*CmdLineParser_Option] = jnewTSet_(jtc_p_CmdLineParser_Option)
+	var present *TSet[*CmdLineParser_Option] = newTSet_(tc_p_CmdLineParser_Option)
 	for cmdLine.hasMore() {
 		var arg string = cmdLine.getCurrentToken()
 		if strings.HasPrefix(arg, "-") {
@@ -189,10 +189,10 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base[any] {
 			return Outcome_base_err[any](diff.error())
 		}
 		cmdLine.proceed(unbox_[int32](diff.get()))
-		present.add(this.currentOption)
+		present.Add(this.currentOption)
 	}
 	for option := range sliceAll_(this.sortedOptions()) {
-		if option.requiredField && !present.contains(option) {
+		if option.requiredField && !present.Has(option) {
 			return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String(this, ("Option \"" + jtostr_(option) + "\" is required")).up_Throwable())
 		}
 	}
@@ -247,8 +247,8 @@ func (this *CmdLineParser) findOptionByName(name string) *CmdLineParser_Option {
 }
 
 var CmdLineParser_NEWLINE_PATTERN *Pattern
-var CmdLineParser_TRUES *JTSet[string]
-var CmdLineParser_FALSES *JTSet[string]
+var CmdLineParser_TRUES *TSet[string]
+var CmdLineParser_FALSES *TSet[string]
 
 var CmdLineParser_clinit_done bool
 
@@ -258,8 +258,8 @@ func CmdLineParser_clinit() {
 	}
 	CmdLineParser_clinit_done = true
 	CmdLineParser_NEWLINE_PATTERN = Pattern_compile("\\n")
-	CmdLineParser_TRUES = jimmutableSetOf_[string](jtc_string, "true", "on", "yes", "1")
-	CmdLineParser_FALSES = jimmutableSetOf_[string](jtc_string, "false", "off", "no", "0")
+	CmdLineParser_TRUES = immutableSetOf_[string](tc_string, "true", "on", "yes", "1")
+	CmdLineParser_FALSES = immutableSetOf_[string](tc_string, "false", "off", "no", "0")
 
 }
 
@@ -434,9 +434,9 @@ func (this *CmdLineParser_Option) bool(get func() any, set func(any)) {
 			return Outcome_base_ok_Object[any](any(int32(0)))
 		} else {
 			var lowerParam string = Ascii_toLowerCase(param.get())
-			if CmdLineParser_TRUES.contains(lowerParam) {
+			if CmdLineParser_TRUES.Has(lowerParam) {
 				set(any(bool(true)))
-			} else if CmdLineParser_FALSES.contains(lowerParam) {
+			} else if CmdLineParser_FALSES.Has(lowerParam) {
 				set(any(bool(false)))
 			} else {
 				set(any(bool(true)))

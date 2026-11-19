@@ -15,8 +15,8 @@ func new_ConformanceAllowlister() *ConformanceAllowlister {
 	return this
 }
 
-func ConformanceAllowlister_getViolatingPaths(compiler *Compiler, externs Node, ast Node, requirement *Requirement) *JTSet[string] {
-	var result *TSetBuilder[string] = newTSetBuilder_(jtc_string)
+func ConformanceAllowlister_getViolatingPaths(compiler *Compiler, externs Node, ast Node, requirement *Requirement) *TSet[string] {
+	var result *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	it_1 := ConformanceAllowlister_getConformanceErrors(compiler, externs, ast, requirement).each()
 	for it_1.next() {
 		var error_ *JSError = it_1.v
@@ -25,8 +25,8 @@ func ConformanceAllowlister_getViolatingPaths(compiler *Compiler, externs Node, 
 	return result.build()
 }
 
-func ConformanceAllowlister_getViolatingNodes(compiler *Compiler, externs Node, ast Node, requirement *Requirement) *JTSet[Node] {
-	var result *TSetBuilder[Node] = newTSetBuilder_(jtc_Node)
+func ConformanceAllowlister_getViolatingNodes(compiler *Compiler, externs Node, ast Node, requirement *Requirement) *TSet[Node] {
+	var result *ImmutableSet_Builder[Node] = immutableSetBuilder_(tc_Node)
 	it_1 := ConformanceAllowlister_getConformanceErrors(compiler, externs, ast, requirement).each()
 	for it_1.next() {
 		var error_ *JSError = it_1.v

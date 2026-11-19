@@ -7,13 +7,13 @@ import "strings"
 type RewriteCallerCodeLocation struct {
 	compiler_                   *AbstractCompiler
 	astFactory_                 *AstFactory
-	callerLocationFunctionNames *JTMap[string, *RewriteCallerCodeLocation_FunctionVarAndParamPosition]
+	callerLocationFunctionNames *TMap[string, *RewriteCallerCodeLocation_FunctionVarAndParamPosition]
 }
 
 func (this *RewriteCallerCodeLocation) init_RewriteCallerCodeLocation(compiler *AbstractCompiler) {
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
-	this.callerLocationFunctionNames = jnewTMap_(jtc_string, jtc_p_RewriteCallerCodeLocation_FunctionVarAndParamPosition)
+	this.callerLocationFunctionNames = newTMap_(tc_string, tc_p_RewriteCallerCodeLocation_FunctionVarAndParamPosition)
 }
 
 func new_RewriteCallerCodeLocation(compiler *AbstractCompiler) *RewriteCallerCodeLocation {
@@ -24,7 +24,7 @@ func new_RewriteCallerCodeLocation(compiler *AbstractCompiler) *RewriteCallerCod
 
 func (this *RewriteCallerCodeLocation) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, this.compiler_.getRoot(), NodeTraversal_Callback(new_RewriteCallerCodeLocation_FindCallerLocationFunctions(this)))
-	if !this.callerLocationFunctionNames.isEmpty() {
+	if !this.callerLocationFunctionNames.IsEmpty() {
 		NodeTraversal_traverse(this.compiler_, this.compiler_.getRoot(), NodeTraversal_Callback(new_RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls(this)))
 	}
 }
@@ -129,7 +129,7 @@ func (this *RewriteCallerCodeLocation_FindCallerLocationFunctions) visitParamLis
 					return
 				}
 				var functionVarAndPosition *RewriteCallerCodeLocation_FunctionVarAndParamPosition = new_RewriteCallerCodeLocation_FunctionVarAndParamPosition(cast_[*Var](t.getScope().getVar(functionName).self()), paramPosition)
-				this.outer_.callerLocationFunctionNames.put(functionName, functionVarAndPosition)
+				this.outer_.callerLocationFunctionNames.Put(functionName, functionVarAndPosition)
 			}
 		}
 	}
@@ -172,10 +172,10 @@ func (this *RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls) visitC
 	}
 	var name string = firstChild.getQualifiedName()
 	var moduleContentsName string = JString_replace_s(strings.ReplaceAll(name, ".", "_"), "module$exports$", "module$contents$")
-	if !this.outer_.callerLocationFunctionNames.containsKey(moduleContentsName) {
+	if !this.outer_.callerLocationFunctionNames.Has(moduleContentsName) {
 		return
 	}
-	var functionVarAndPosition *RewriteCallerCodeLocation_FunctionVarAndParamPosition = this.outer_.callerLocationFunctionNames.get(moduleContentsName)
+	var functionVarAndPosition *RewriteCallerCodeLocation_FunctionVarAndParamPosition = this.outer_.callerLocationFunctionNames.Get(moduleContentsName)
 	var callerLocationFunction *Var = functionVarAndPosition.getFunctionVar()
 	var calleeFunction *Var = cast_[*Var](t.getScope().getVar(moduleContentsName).self())
 	if ((callerLocationFunction == nil) || (calleeFunction == nil)) || callerLocationFunction.getNameNode() != calleeFunction.getNameNode() {

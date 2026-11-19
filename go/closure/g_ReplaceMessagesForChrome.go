@@ -62,12 +62,12 @@ func (this *ReplaceMessagesForChrome) processJsMessageDefinition_impl(definition
 func (this *ReplaceMessagesForChrome) getNewValueNode(message *JsMessage, definition JsMessageDefinition) Node {
 	var newValueNode Node = this.getChromeI18nGetMessageNode(message.getId())
 	var isHtml bool = definition.shouldEscapeLessThan()
-	if !message.jsPlaceholderNames().isEmpty() || isHtml {
+	if !message.jsPlaceholderNames().IsEmpty() || isHtml {
 		var placeholderNames ListOf[string] = Ordering_natural().sortedCopy(Iterable(message.jsPlaceholderNames().asSet()))
 		var placeholderValueArray Node = this.astFactory_.createArraylit([]Node{})
-		var placeholderValueMap *JTMap[string, Node] = definition.getPlaceholderValueMap()
+		var placeholderValueMap *TMap[string, Node] = definition.getPlaceholderValueMap()
 		for name := range elemsBy_(placeholderNames, str_) {
-			var value Node = Preconditions_checkNotNull_T(placeholderValueMap.get(name)).cloneTree()
+			var value Node = Preconditions_checkNotNull_T(placeholderValueMap.Get(name)).cloneTree()
 			placeholderValueArray.addChildToBack(value)
 		}
 		if isHtml {

@@ -99,7 +99,7 @@ func ConvertToTypedInterface_shouldPreserveAssignment(expr Node, t *NodeTraversa
 var ConvertToTypedInterface_CONSTANT_WITH_SUGGESTED_TYPE *DiagnosticType
 var ConvertToTypedInterface_CONSTANT_WITHOUT_EXPLICIT_TYPE *DiagnosticType
 var ConvertToTypedInterface_GOOG_SCOPE_HIDDEN_TYPE *DiagnosticType
-var ConvertToTypedInterface_CALLS_TO_PRESERVE *JTSet[string]
+var ConvertToTypedInterface_CALLS_TO_PRESERVE *TSet[string]
 
 var ConvertToTypedInterface_clinit_done bool
 
@@ -111,7 +111,7 @@ func ConvertToTypedInterface_clinit() {
 	ConvertToTypedInterface_CONSTANT_WITH_SUGGESTED_TYPE = DiagnosticType_warning("JSC_CONSTANT_WITH_SUGGESTED_TYPE", "Constants in top-level should have types explicitly specified.\nYou may want specify this type as:\t@const '{'{0}'}'")
 	ConvertToTypedInterface_CONSTANT_WITHOUT_EXPLICIT_TYPE = DiagnosticType_warning("JSC_CONSTANT_WITHOUT_EXPLICIT_TYPE", "Constants in top-level should have types explicitly specified.")
 	ConvertToTypedInterface_GOOG_SCOPE_HIDDEN_TYPE = DiagnosticType_warning("JSC_GOOG_SCOPE_HIDDEN_TYPE", "Found a goog.scope local type declaration.\nIf you can't yet migrate this file to goog.module, use a /** @private */ declaration within the goog.provide namespace.")
-	ConvertToTypedInterface_CALLS_TO_PRESERVE = jimmutableSetOf_[string](jtc_string, "Polymer", "goog.addSingletonGetter", "goog.define", "goog.forwardDeclare", "goog.module", "goog.module.declareLegacyNamespace", "goog.declareModuleId", "goog.provide", "goog.require", "goog.requireType")
+	ConvertToTypedInterface_CALLS_TO_PRESERVE = immutableSetOf_[string](tc_string, "Polymer", "goog.addSingletonGetter", "goog.define", "goog.forwardDeclare", "goog.module", "goog.module.declareLegacyNamespace", "goog.declareModuleId", "goog.provide", "goog.require", "goog.requireType")
 
 }
 
@@ -154,7 +154,7 @@ func (this *ConvertToTypedInterface_RemoveNonDeclarations) shouldTraverse(t *Nod
 			if ConvertToTypedInterface_RemoveNonDeclarations_GOOG_SCOPE.matches(callee) {
 				panic(new_IllegalStateException_0())
 			}
-			if ConvertToTypedInterface_CALLS_TO_PRESERVE.contains(callee.getQualifiedName()) {
+			if ConvertToTypedInterface_CALLS_TO_PRESERVE.Has(callee.getQualifiedName()) {
 				return true
 			}
 			NodeUtil_deleteNode(n, t.getCompiler())

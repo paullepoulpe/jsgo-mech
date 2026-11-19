@@ -56,7 +56,7 @@ func (this *NestedCompilerRunner) compile() {
 }
 
 func (this *NestedCompilerRunner) initializeCompiler() {
-	var externNames *JTSet[string] = NodeUtil_collectExternVariableNames(this.original_, this.original_.getRoot().getFirstChild())
+	var externNames *TSet[string] = NodeUtil_collectExternVariableNames(this.original_, this.original_.getRoot().getFirstChild())
 	this.shadowCompiler.addExportedNames(externNames)
 	this.shadowCompiler.setExternProperties(this.original_.getExternProperties())
 	this.shadowCompiler.setDebugMessage("<shadow AST compilation>")

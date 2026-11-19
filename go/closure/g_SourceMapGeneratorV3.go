@@ -9,28 +9,28 @@ import (
 
 type SourceMapGeneratorV3 struct {
 	mappings             *[]*SourceMapGeneratorV3_Mapping
-	sourceFileMap        *JTMap[string, any]
-	sourceFileContentMap *JTMap[string, string]
-	originalNameMap      *JTMap[string, any]
+	sourceFileMap        *TMap[string, any]
+	sourceFileContentMap *TMap[string, string]
+	originalNameMap      *TMap[string, any]
 	lastSourceFile       Optional[string]
 	lastSourceFileIndex  int32
 	lastMapping          *SourceMapGeneratorV3_Mapping
 	offsetPosition       *FilePosition
 	prefixPosition       *FilePosition
-	extensions           *JTMap[string, any]
+	extensions           *TMap[string, any]
 	sourceRootPath       Optional[string]
 }
 
 func (this *SourceMapGeneratorV3) finit_SourceMapGeneratorV3() {
 	this.mappings = &[]*SourceMapGeneratorV3_Mapping{}
-	this.sourceFileMap = jnewTMap_(jtc_string, jtc_Integer)
-	this.sourceFileContentMap = jnewTMap_(jtc_string, jtc_string)
-	this.originalNameMap = jnewTMap_(jtc_string, jtc_Integer)
+	this.sourceFileMap = newTMap_(tc_string, tc_Integer)
+	this.sourceFileContentMap = newTMap_(tc_string, tc_string)
+	this.originalNameMap = newTMap_(tc_string, tc_Integer)
 	this.lastSourceFile = Optional_empty[string]()
 	this.lastSourceFileIndex = -1
 	this.offsetPosition = new_FilePosition(0, 0)
 	this.prefixPosition = new_FilePosition(0, 0)
-	this.extensions = jnewTMap_(jtc_string, jtc_Object)
+	this.extensions = newTMap_(tc_string, tc_Object)
 	this.sourceRootPath = Optional_empty[string]()
 }
 
@@ -47,8 +47,8 @@ func new_SourceMapGeneratorV3() *SourceMapGeneratorV3 {
 func (this *SourceMapGeneratorV3) reset() {
 	sliceClear_(this.mappings)
 	this.lastMapping = nil
-	this.sourceFileMap.clear()
-	this.originalNameMap.clear()
+	this.sourceFileMap.Clear()
+	this.originalNameMap.Clear()
 	this.lastSourceFile = Optional_empty[string]()
 	this.lastSourceFileIndex = -1
 	this.offsetPosition = new_FilePosition(0, 0)
@@ -122,7 +122,7 @@ func (this *SourceMapGeneratorV3) addMapping(sourceName string, symbolName strin
 }
 
 func (this *SourceMapGeneratorV3) addSourcesContent(source string, content string) {
-	this.sourceFileContentMap.put(source, content)
+	this.sourceFileContentMap.Put(source, content)
 }
 
 func (this *SourceMapGeneratorV3) mergeMapSection(line int32, column int32, mapSectionContents string) *Outcome_base[any] {
@@ -146,12 +146,12 @@ func (this *SourceMapGeneratorV3) mergeMapSection_4(line int32, column int32, ma
 	section.visitMappings(SourceMapConsumerV3_EntryVisitor(new_SourceMapGeneratorV3_ConsumerEntryVisitor(this)))
 	it_1 := section.getExtensions().eachEntry()
 	for it_1.next() {
-		var entry *TEntry[string, any] = it_1.entry()
+		var entry *TEntryP[string, any] = it_1.entry()
 		var extensionKey string = entry.getKey()
-		if this.extensions.containsKey(extensionKey) {
-			this.extensions.put(extensionKey, mergeAction(extensionKey, this.extensions.get(extensionKey), entry.getValue()))
+		if this.extensions.Has(extensionKey) {
+			this.extensions.Put(extensionKey, mergeAction(extensionKey, this.extensions.Get(extensionKey), entry.getValue()))
 		} else {
-			this.extensions.put(extensionKey, entry.getValue())
+			this.extensions.Put(extensionKey, entry.getValue())
 		}
 	}
 	return Outcome_base_ok_0()
@@ -185,7 +185,7 @@ func (this *SourceMapGeneratorV3) appendTo(out Appendable, name Optional[string]
 	it_1 := this.extensions.eachKey()
 	for it_1.next() {
 		var key string = it_1.v
-		var objValue any = this.extensions.get(key)
+		var objValue any = this.extensions.Get(key)
 		var value string
 		var string_ string
 		_ = string_
@@ -214,22 +214,22 @@ func (this *SourceMapGeneratorV3) addExtension(name string, object any) *Outcome
 	if !strings.HasPrefix(name, "x_") {
 		return Outcome_base_err[any](new_SourceMapParseException(("Extension '" + sstr_(name) + "' must start with 'x_'")).up_Throwable())
 	}
-	this.extensions.put(name, object)
+	this.extensions.Put(name, object)
 	return Outcome_base_ok_0()
 }
 
 func (this *SourceMapGeneratorV3) removeExtension(name string) {
-	if this.extensions.containsKey(name) {
-		this.extensions.remove(name)
+	if this.extensions.Has(name) {
+		this.extensions.Delete(name)
 	}
 }
 
 func (this *SourceMapGeneratorV3) hasExtension(name string) bool {
-	return this.extensions.containsKey(name)
+	return this.extensions.Has(name)
 }
 
 func (this *SourceMapGeneratorV3) getExtension(name string) any {
-	return this.extensions.get(name)
+	return this.extensions.Get(name)
 }
 
 func (this *SourceMapGeneratorV3) addSourceNameMap(out Appendable) {
@@ -238,17 +238,17 @@ func (this *SourceMapGeneratorV3) addSourceNameMap(out Appendable) {
 
 func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
 	var found bool = false
-	var size int32 = this.sourceFileMap.size()
+	var size int32 = this.sourceFileMap.Len()
 	var contents []string = make([]string, 0, size)
 	sliceAddAll_(tc_string, &contents, Collection(Collections_nCopies(size, "")))
 	it_1 := this.sourceFileMap.eachEntry()
 	for it_1.next() {
-		var entry *TEntry[string, any] = it_1.entry()
+		var entry *TEntryP[string, any] = it_1.entry()
 		var index any = entry.getValue()
 		if unbox_[int32](index) >= size {
 			panic(new_IllegalStateException_0())
 		}
-		var content Optional[string] = Optional_ofNullable[string](this.sourceFileContentMap.get(entry.getKey()))
+		var content Optional[string] = Optional_ofNullable[string](this.sourceFileContentMap.Get(entry.getKey()))
 		if content.isPresent() {
 			contents[unbox_[int32](index)] = content.get()
 			found = true
@@ -274,11 +274,11 @@ func (this *SourceMapGeneratorV3) addSymbolNameMap(out Appendable) {
 	SourceMapGeneratorV3_addNameMap(out, this.originalNameMap)
 }
 
-func SourceMapGeneratorV3_addNameMap(out Appendable, map_ *JTMap[string, any]) {
+func SourceMapGeneratorV3_addNameMap(out Appendable, map_ *TMap[string, any]) {
 	var i int32 = 0
 	it_1 := map_.eachEntry()
 	for it_1.next() {
-		var entry *TEntry[string, any] = it_1.entry()
+		var entry *TEntryP[string, any] = it_1.entry()
 		var key string = entry.getKey()
 		if i != 0 {
 			Appendable_append_s(out, ",")
@@ -375,12 +375,12 @@ func SourceMapGeneratorV3_appendOffsetValue(out Appendable, line int32, column i
 func (this *SourceMapGeneratorV3) getSourceId(sourceName string) int32 {
 	if !(this.lastSourceFile.isPresent() && (this.lastSourceFile.get() == sourceName)) {
 		this.lastSourceFile = Optional_of[string](sourceName)
-		var index any = this.sourceFileMap.get(sourceName)
+		var index any = this.sourceFileMap.Get(sourceName)
 		if index != nil {
 			this.lastSourceFileIndex = unbox_[int32](index)
 		} else {
-			this.lastSourceFileIndex = this.sourceFileMap.size()
-			this.sourceFileMap.put(sourceName, any(int32(this.lastSourceFileIndex)))
+			this.lastSourceFileIndex = this.sourceFileMap.Len()
+			this.sourceFileMap.Put(sourceName, any(int32(this.lastSourceFileIndex)))
 		}
 	}
 	return this.lastSourceFileIndex
@@ -388,12 +388,12 @@ func (this *SourceMapGeneratorV3) getSourceId(sourceName string) int32 {
 
 func (this *SourceMapGeneratorV3) getNameId(symbolName string) int32 {
 	var originalNameIndex int32
-	var index any = this.originalNameMap.get(symbolName)
+	var index any = this.originalNameMap.Get(symbolName)
 	if index != nil {
 		originalNameIndex = unbox_[int32](index)
 	} else {
-		originalNameIndex = this.originalNameMap.size()
-		this.originalNameMap.put(symbolName, any(int32(originalNameIndex)))
+		originalNameIndex = this.originalNameMap.Len()
+		this.originalNameMap.Put(symbolName, any(int32(originalNameIndex)))
 	}
 	return originalNameIndex
 }

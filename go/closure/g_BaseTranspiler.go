@@ -66,7 +66,7 @@ func BaseTranspiler_clinit() {
 type BaseTranspiler_CompilerSupplier struct {
 	moduleResolution   ModuleLoader_ResolutionMode
 	moduleRoots        *TList[string]
-	prefixReplacements *JTMap[string, string]
+	prefixReplacements *TMap[string, string]
 	outputFeatureSet   *FeatureSet
 }
 
@@ -81,7 +81,7 @@ func new_BaseTranspiler_CompilerSupplier_0() *BaseTranspiler_CompilerSupplier {
 }
 
 func (this *BaseTranspiler_CompilerSupplier) init_BaseTranspiler_CompilerSupplier_FeatureSet(outputFeatureSet *FeatureSet) {
-	this.init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet, new_CompilerOptions().getModuleResolutionMode(), tlistEmptyImm_(tc_string), jtmapEmptyImm_(jtc_string, jtc_string))
+	this.init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet, new_CompilerOptions().getModuleResolutionMode(), tlistEmptyImm_(tc_string), tmapEmptyImm_(tc_string, tc_string))
 }
 
 func new_BaseTranspiler_CompilerSupplier_FeatureSet(outputFeatureSet *FeatureSet) *BaseTranspiler_CompilerSupplier {
@@ -90,14 +90,14 @@ func new_BaseTranspiler_CompilerSupplier_FeatureSet(outputFeatureSet *FeatureSet
 	return this
 }
 
-func (this *BaseTranspiler_CompilerSupplier) init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet *FeatureSet, moduleResolution ModuleLoader_ResolutionMode, moduleRoots *TList[string], prefixReplacements *JTMap[string, string]) {
+func (this *BaseTranspiler_CompilerSupplier) init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet *FeatureSet, moduleResolution ModuleLoader_ResolutionMode, moduleRoots *TList[string], prefixReplacements *TMap[string, string]) {
 	this.outputFeatureSet = outputFeatureSet
 	this.moduleResolution = moduleResolution
 	this.moduleRoots = moduleRoots
 	this.prefixReplacements = prefixReplacements
 }
 
-func new_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet *FeatureSet, moduleResolution ModuleLoader_ResolutionMode, moduleRoots *TList[string], prefixReplacements *JTMap[string, string]) *BaseTranspiler_CompilerSupplier {
+func new_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet *FeatureSet, moduleResolution ModuleLoader_ResolutionMode, moduleRoots *TList[string], prefixReplacements *TMap[string, string]) *BaseTranspiler_CompilerSupplier {
 	this := &BaseTranspiler_CompilerSupplier{}
 	this.init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet, moduleResolution, moduleRoots, prefixReplacements)
 	return this

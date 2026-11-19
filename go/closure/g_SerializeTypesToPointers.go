@@ -236,7 +236,7 @@ func SerializeTypesToPointers_TypeMismatchJson_typePointerToId(poolOffset int32,
 	var typeProto *TypeProto = cast_[*TypeProto](typePool.getTypeList().get(TypePointers_trimOffset(poolOffset)))
 	switch typeProto.getKindCase() {
 	case TypeProto_KindCase_UNION:
-		var memberIds *TSetBuilder[*ColorId] = newTSetBuilder_(tce_p_ColorId)
+		var memberIds *ImmutableSet_Builder[*ColorId] = immutableSetBuilder_(tce_p_ColorId.t_())
 		for pointer := range elems_(typeProto.getUnion().getUnionMemberList()) {
 			memberIds.add(SerializeTypesToPointers_TypeMismatchJson_typePointerToId(unbox_[int32](pointer), typePool))
 		}

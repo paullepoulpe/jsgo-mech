@@ -9,14 +9,14 @@ type TypedAstSerializer struct {
 	previousLine       int32
 	previousColumn     int32
 	subtreeSourceFiles *TDeque[*SourceFile_jscomp]
-	sourceFilePointers *JTMap[*SourceFile_jscomp, any]
+	sourceFilePointers *TMap[*SourceFile_jscomp, any]
 	typeSerializer     TypedAstSerializer_TypeSerializer
 }
 
 func (this *TypedAstSerializer) finit_TypedAstSerializer() {
 	this.stringPool = StringPool_builder()
 	this.subtreeSourceFiles = newTDeque_(jtc_p_SourceFile_jscomp)
-	this.sourceFilePointers = jnewTMap_(jtc_p_SourceFile_jscomp, jtc_Integer)
+	this.sourceFilePointers = newTMap_(tc_p_SourceFile_jscomp, tc_Integer)
 	this.typeSerializer = nil
 }
 
@@ -161,7 +161,7 @@ func (this *TypedAstSerializer) getSourceFilePointer(n Node) int32 {
 	}
 	this.subtreeSourceFiles.add(sourceFile)
 	return unbox_[int32](this.sourceFilePointers.computeIfAbsent(sourceFile, &Function_tfn_SourceFile_jscomp_any{func(f *SourceFile_jscomp) any {
-		return any(int32((1 + this.sourceFilePointers.size())))
+		return any(int32((1 + this.sourceFilePointers.Len())))
 	}}))
 }
 
@@ -516,8 +516,8 @@ func (this *TypedAstSerializer) createColorTypeSerializer(compiler *AbstractComp
 	return new_TypedAstSerializer_ColorTypeSerializer(colorSerializer, compiler.getColorRegistry())
 }
 
-func TypedAstSerializer_collectUsedPropertyNames(compiler *AbstractCompiler) *JTSet[string] {
-	var propertyNamesBuilder *TSetBuilder[string] = newTSetBuilder_(jtc_string)
+func TypedAstSerializer_collectUsedPropertyNames(compiler *AbstractCompiler) *TSet[string] {
+	var propertyNamesBuilder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	NodeTraversal_traverse(compiler, compiler.getRoot(), NodeTraversal_Callback(new_TypedAstSerializer_1(propertyNamesBuilder)))
 	return propertyNamesBuilder.build()
 }
@@ -610,14 +610,14 @@ func (this *TypedAstSerializer_ColorTypeSerializer) generateTypePool() *TypePool
 }
 
 type TypedAstSerializer_1 struct {
-	cap_propertyNamesBuilder *TSetBuilder[string]
+	cap_propertyNamesBuilder *ImmutableSet_Builder[string]
 }
 
 func (this *TypedAstSerializer_1) init_TypedAstSerializer_1() {
 
 }
 
-func new_TypedAstSerializer_1(cap_propertyNamesBuilder *TSetBuilder[string]) *TypedAstSerializer_1 {
+func new_TypedAstSerializer_1(cap_propertyNamesBuilder *ImmutableSet_Builder[string]) *TypedAstSerializer_1 {
 	this := &TypedAstSerializer_1{}
 	this.cap_propertyNamesBuilder = cap_propertyNamesBuilder
 	this.init_TypedAstSerializer_1()

@@ -116,7 +116,7 @@ func (this *AbstractScope) declareInternal(name string, var_ *AbstractVar) {
 	if ok_, a1_ := (this.hasOwnSlot(name) || this.canDeclare(name)), var_.getNode(); !ok_ {
 		Preconditions_checkState_boolean_String_Object_H(false, "Illegal shadow: %s", a1_)
 	}
-	var emptySentinel *JTMap[string, *AbstractVar] = jtmapEmptyImm_(jtc_string, jtc_p_AbstractVar)
+	var emptySentinel *TMap[string, *AbstractVar] = tmapEmptyImm_(tc_string, tc_p_AbstractVar)
 	if this.vars == emptySentinel.asMap() {
 		this.vars = LinkedHashMap_as_Map(Maps_newLinkedHashMapWithExpectedSize(1))
 	}
@@ -153,7 +153,7 @@ func (this *AbstractScope) getOwnImplicitSlot(name AbstractScope_ImplicitVar) *A
 	if !this.hasOwnImplicitSlot(name) {
 		return nil
 	}
-	var emptySentinel *JTMap[AbstractScope_ImplicitVar, *AbstractVar] = jtmapEmptyImm_(jtc_p_AbstractScope_ImplicitVar, jtc_p_AbstractVar)
+	var emptySentinel *TMap[AbstractScope_ImplicitVar, *AbstractVar] = tmapEmptyImm_(tc_p_AbstractScope_ImplicitVar, tc_p_AbstractVar)
 	if this.implicitVars == emptySentinel.asMap() {
 		this.implicitVars = Map(new_EnumMap(classOf_("com.google.javascript.jscomp.AbstractScope.ImplicitVar")))
 	}
@@ -212,11 +212,11 @@ func (this *AbstractScope) getVarIterable() IterableOf[any] {
 }
 
 func (this *AbstractScope) getAllAccessibleVariables() IterableOf[any] {
-	var accessibleVars *JTMap[string, *AbstractVar] = jnewTMap_(jtc_string, jtc_p_AbstractVar)
+	var accessibleVars *TMap[string, *AbstractVar] = newTMap_(tc_string, tc_p_AbstractVar)
 	var s *AbstractScope = this.thisScope()
 	for s != nil {
 		for v := range elemsBy_(s.getVarIterable(), to_AbstractVar) {
-			accessibleVars.putIfAbsent(v.getName(), v)
+			accessibleVars.PutIfAbsent(v.getName(), v)
 		}
 		s = s.getParent()
 	}

@@ -6,11 +6,11 @@ type VariableMap struct {
 	map__ *SimpleBiMap[any, string]
 }
 
-func (this *VariableMap) init_VariableMap(map_ *JTMap[string, string]) {
+func (this *VariableMap) init_VariableMap(map_ *TMap[string, string]) {
 	this.map__ = SimpleBiMap_copyOf[any, string](map_.asMap())
 }
 
-func new_VariableMap(map_ *JTMap[string, string]) *VariableMap {
+func new_VariableMap(map_ *TMap[string, string]) *VariableMap {
 	this := &VariableMap{}
 	this.init_VariableMap(map_)
 	return this
@@ -28,8 +28,8 @@ func (this *VariableMap) getOriginalNameToNewNameMap() *ImmutableMap[string, str
 	return tmapFrom_(tc_string, tc_string, ImmutableSortedMap_copyOf(this.map__.asMap()).up_ImmutableMap(), true)
 }
 
-func (this *VariableMap) getNewNameToOriginalNameMap() *JTMap[string, string] {
-	return jimmutableMapCopyOf_(jtc_string, jtc_string, this.map__.inverse())
+func (this *VariableMap) getNewNameToOriginalNameMap() *TMap[string, string] {
+	return immutableMapCopyOf_(tc_string, tc_string, this.map__.inverse())
 }
 
 func (this *VariableMap) save(filename string) *Outcome_base[any] {
@@ -65,7 +65,7 @@ func VariableMap_fromBytes(bytes []int8) *Outcome_base[*VariableMap] {
 }
 
 func VariableMap_fromStreamBytes(bytes []int8) *Outcome_base[*VariableMap] {
-	var map_ *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
+	var map_ *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	for line := range sliceAll_(TextFiles_splitLines(Io_utf8String(bytes))) {
 		if line == "" {
 			continue
@@ -86,7 +86,7 @@ func VariableMap_fromStreamBytes(bytes []int8) *Outcome_base[*VariableMap] {
 }
 
 func VariableMap_fromLines(string_ string) *Outcome_base[*VariableMap] {
-	var map_ *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
+	var map_ *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	var startOfLine int32 = 0
 	string_U16 := utf16Of_(string_)
 	for startOfLine < string_U16.length() {
@@ -161,12 +161,12 @@ func VariableMap_unescape(value string) string {
 	return sb.toString()
 }
 
-func VariableMap_fromMap(map_ *JTMap[string, string]) *VariableMap {
+func VariableMap_fromMap(map_ *TMap[string, string]) *VariableMap {
 	return new_VariableMap(map_)
 }
 
-func (this *VariableMap) toMap() *JTMap[string, string] {
-	return jimmutableMapCopyOf_(jtc_string, jtc_string, this.map__.asMap())
+func (this *VariableMap) toMap() *TMap[string, string] {
+	return immutableMapCopyOf_(tc_string, tc_string, this.map__.asMap())
 }
 
 const VariableMap_SEPARATOR uint16 = ':'

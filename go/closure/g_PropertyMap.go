@@ -5,9 +5,9 @@ package closure
 type PropertyMap struct {
 	parentSource             *ObjectType
 	properties               *JTMap[string, *Property]
-	knownSymbols             *JTMap[*KnownSymbolType, *Property]
+	knownSymbols             *TMap[*KnownSymbolType, *Property]
 	cachedKeySet             ImmutableSortedSetOf[string]
-	cachedKnownSymbolsKeySet *JTSet[*KnownSymbolType]
+	cachedKnownSymbolsKeySet *TSet[*KnownSymbolType]
 	cachedKeySetCounter      int32
 }
 
@@ -28,13 +28,13 @@ func new_PropertyMap_0() *PropertyMap {
 	return this
 }
 
-func (this *PropertyMap) init_PropertyMap_Map_Map(underlyingMap *JTMap[string, *Property], underlyingknownSymbols *JTMap[*KnownSymbolType, *Property]) {
+func (this *PropertyMap) init_PropertyMap_Map_Map(underlyingMap *JTMap[string, *Property], underlyingknownSymbols *TMap[*KnownSymbolType, *Property]) {
 	this.finit_PropertyMap()
 	this.properties = underlyingMap
 	this.knownSymbols = underlyingknownSymbols
 }
 
-func new_PropertyMap_Map_Map(underlyingMap *JTMap[string, *Property], underlyingknownSymbols *JTMap[*KnownSymbolType, *Property]) *PropertyMap {
+func new_PropertyMap_Map_Map(underlyingMap *JTMap[string, *Property], underlyingknownSymbols *TMap[*KnownSymbolType, *Property]) *PropertyMap {
 	this := &PropertyMap{}
 	this.init_PropertyMap_Map_Map(underlyingMap, underlyingknownSymbols)
 	return this
@@ -125,7 +125,7 @@ func (this *PropertyMap) getOwnProperty(propertyName Property_Key) *Property {
 		case Property_KeyKind_SYMBOL:
 			return func() *Property {
 				if this.knownSymbols != nil {
-					return this.knownSymbols.get(propertyName.symbol())
+					return this.knownSymbols.Get(propertyName.symbol())
 				}
 				return nil
 			}()
@@ -156,7 +156,7 @@ func (this *PropertyMap) getOwnKnownSymbols() SetOf[*KnownSymbolType] {
 }
 
 func (this *PropertyMap) getAllKeys() *PropertyMap_AllKeys {
-	var ancestors *JTSet[*PropertyMap] = jnewTSet_(tce_p_PropertyMap)
+	var ancestors *TSet[*PropertyMap] = newTSet_(tce_p_PropertyMap.t_())
 	this.collectAllAncestors(ancestors)
 	var maxAncestorCounter int32 = 0
 	it_1 := ancestors.each()
@@ -168,7 +168,7 @@ func (this *PropertyMap) getAllKeys() *PropertyMap_AllKeys {
 	}
 	if (maxAncestorCounter != this.cachedKeySetCounter) || (this.cachedKeySet == nil) {
 		var keys *JTSet[string] = newTSortedSet_(jtc_string)
-		var knownSymbolsKeys *JTSet[*KnownSymbolType] = jnewTSet_(tce_p_KnownSymbolType)
+		var knownSymbolsKeys *TSet[*KnownSymbolType] = newTSet_(tce_p_KnownSymbolType.t_())
 		it_3 := ancestors.each()
 		for it_3.next() {
 			var ancestor *PropertyMap = it_3.v
@@ -179,13 +179,13 @@ func (this *PropertyMap) getAllKeys() *PropertyMap_AllKeys {
 			knownSymbolsKeys.asSet().addAll(Collection(ancestor.getOwnKnownSymbols()))
 		}
 		this.cachedKeySet = ImmutableSortedSet_copyOfSorted(keys.asSorted())
-		this.cachedKnownSymbolsKeySet = immutableSetCopyOfT_(tce_p_KnownSymbolType, knownSymbolsKeys)
+		this.cachedKnownSymbolsKeySet = immutableSetCopyOfTP_(tce_p_KnownSymbolType.t_(), knownSymbolsKeys)
 	}
 	return new_PropertyMap_AllKeys(this.cachedKeySet, this.cachedKnownSymbolsKeySet)
 }
 
-func (this *PropertyMap) collectAllAncestors(ancestors *JTSet[*PropertyMap]) {
-	if !ancestors.add(this) {
+func (this *PropertyMap) collectAllAncestors(ancestors *TSet[*PropertyMap]) {
+	if !ancestors.Add(this) {
 		return
 	}
 	var primaryParent *PropertyMap = this.getPrimaryParent()
@@ -213,7 +213,7 @@ func (this *PropertyMap) putPropertyString(name string, newProp *Property) {
 func (this *PropertyMap) putPropertyKnownSymbolType(symbol *KnownSymbolType, newProp *Property) {
 	var oldProp *Property = func() *Property {
 		if this.knownSymbols != nil {
-			return this.knownSymbols.get(symbol)
+			return this.knownSymbols.Get(symbol)
 		}
 		return nil
 	}()
@@ -221,9 +221,9 @@ func (this *PropertyMap) putPropertyKnownSymbolType(symbol *KnownSymbolType, new
 		this.incrementCachedKeySetCounter()
 	}
 	if this.knownSymbols == nil {
-		this.knownSymbols = jnewTMap_(tce_p_KnownSymbolType, jtc_p_Property)
+		this.knownSymbols = newTMap_(tce_p_KnownSymbolType.t_(), tc_p_Property)
 	}
-	this.knownSymbols.put(symbol, newProp)
+	this.knownSymbols.Put(symbol, newProp)
 }
 
 func (this *PropertyMap) putProperty(name Property_Key, newProp *Property) {
@@ -265,21 +265,21 @@ func PropertyMap_clinit() {
 		return
 	}
 	PropertyMap_clinit_done = true
-	PropertyMap_EMPTY_MAP = new_PropertyMap_Map_Map(jtmapEmptyImm_(jtc_string, jtc_p_Property), jtmapEmptyImm_(tce_p_KnownSymbolType, jtc_p_Property))
+	PropertyMap_EMPTY_MAP = new_PropertyMap_Map_Map(jtmapEmptyImm_(jtc_string, jtc_p_Property), tmapEmptyImm_(tce_p_KnownSymbolType.t_(), tc_p_Property))
 
 }
 
 type PropertyMap_AllKeys struct {
 	stringKeys_      ImmutableSortedSetOf[string]
-	knownSymbolKeys_ *JTSet[*KnownSymbolType]
+	knownSymbolKeys_ *TSet[*KnownSymbolType]
 }
 
-func (this *PropertyMap_AllKeys) init_PropertyMap_AllKeys(stringKeys ImmutableSortedSetOf[string], knownSymbolKeys *JTSet[*KnownSymbolType]) {
+func (this *PropertyMap_AllKeys) init_PropertyMap_AllKeys(stringKeys ImmutableSortedSetOf[string], knownSymbolKeys *TSet[*KnownSymbolType]) {
 	this.stringKeys_ = stringKeys
 	this.knownSymbolKeys_ = knownSymbolKeys
 }
 
-func new_PropertyMap_AllKeys(stringKeys ImmutableSortedSetOf[string], knownSymbolKeys *JTSet[*KnownSymbolType]) *PropertyMap_AllKeys {
+func new_PropertyMap_AllKeys(stringKeys ImmutableSortedSetOf[string], knownSymbolKeys *TSet[*KnownSymbolType]) *PropertyMap_AllKeys {
 	this := &PropertyMap_AllKeys{}
 	this.init_PropertyMap_AllKeys(stringKeys, knownSymbolKeys)
 	return this
@@ -289,7 +289,7 @@ func (this *PropertyMap_AllKeys) stringKeys() *ImmutableSortedSet {
 	return this.stringKeys_
 }
 
-func (this *PropertyMap_AllKeys) knownSymbolKeys() *JTSet[*KnownSymbolType] {
+func (this *PropertyMap_AllKeys) knownSymbolKeys() *TSet[*KnownSymbolType] {
 	return this.knownSymbolKeys_
 }
 

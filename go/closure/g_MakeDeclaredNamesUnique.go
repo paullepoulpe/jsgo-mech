@@ -297,7 +297,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) createUndeclaredVa
 type MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo struct {
 	outer_                   *MakeDeclaredNamesUnique_ContextualRenameInverter
 	referenceNodes           *[]Node
-	potentialShadowVariables *JTSet[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]
+	potentialShadowVariables *TSet[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]
 	currentName              string
 	preferredName            string
 }
@@ -309,7 +309,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) zero_
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) finit_MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo() {
 	this.referenceNodes = &[]Node{}
-	this.potentialShadowVariables = jnewTSet_(tce_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo)
+	this.potentialShadowVariables = newTSet_(tce_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo.t_())
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) init_MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo(currentName string, preferredName string) {
@@ -327,23 +327,23 @@ func new_MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo(outer_ *M
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) addPotentialShadowVariable(variableInfo MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo) {
-	this.potentialShadowVariables.add(variableInfo)
+	this.potentialShadowVariables.Add(variableInfo)
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) attemptRename() string {
-	var disallowedNames *JTSet[string] = jnewTSet_(jtc_string)
-	disallowedNames.add(MakeDeclaredNamesUnique_ARGUMENTS)
+	var disallowedNames *TSet[string] = newTSet_(tc_string)
+	disallowedNames.Add(MakeDeclaredNamesUnique_ARGUMENTS)
 	it_1 := this.potentialShadowVariables.each()
 	for it_1.next() {
 		var potentialShadowVariable MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = it_1.v
 		var potentialShadowName string = potentialShadowVariable.getName()
-		disallowedNames.add(potentialShadowName)
+		disallowedNames.Add(potentialShadowName)
 	}
 	var newName string = this.preferredName
-	if disallowedNames.contains(this.preferredName) {
+	if disallowedNames.Has(this.preferredName) {
 		var baseName string = (sstr_(this.preferredName) + sstr_(MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR))
 		var i int32 = 0
-		for do_4 := true; do_4; do_4 = disallowedNames.contains(newName) {
+		for do_4 := true; do_4; do_4 = disallowedNames.Has(newName) {
 			newName = (sstr_(baseName) + istr_(int64(i)))
 			i++
 		}
@@ -416,11 +416,11 @@ type MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext struct {
 	parent                *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext
 	scope_                *Scope
 	declaredVariableInfos *TList[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo]
-	referencedVariables   *JTSet[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]
+	referencedVariables   *TSet[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) finit_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext() {
-	this.referencedVariables = jnewTSet_(tce_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo)
+	this.referencedVariables = newTSet_(tce_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo.t_())
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) init_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope *Scope, declaredVariableInfos *TList[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo], parent *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) {
@@ -437,7 +437,7 @@ func new_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope *Sc
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) addReferencedVariableInfo(variableInfo MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo) {
-	this.referencedVariables.add(variableInfo)
+	this.referencedVariables.Add(variableInfo)
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) recordPotentialConflicts(referencedVariable MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo) {
@@ -458,11 +458,11 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) recor
 
 type MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap struct {
 	outer_      *MakeDeclaredNamesUnique_ContextualRenameInverter
-	mapOfStacks *JTMap[string, Deque]
+	mapOfStacks *TMap[string, Deque]
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) finit_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap() {
-	this.mapOfStacks = jnewTMap_(jtc_string, jtc_Deque)
+	this.mapOfStacks = newTMap_(tc_string, tc_Deque)
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) init_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap() {
@@ -501,17 +501,17 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMa
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) popVariableInfo(name string) MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo {
-	var variableInfos DequeOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo] = this.mapOfStacks.get(name)
+	var variableInfos DequeOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo] = this.mapOfStacks.Get(name)
 	Preconditions_checkNotNull_Object_String_Object_T(variableInfos, "Nonexistent variable info requested: '%s'", name)
 	var info MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(variableInfos.pop())
 	if variableInfos.isEmpty() {
-		this.mapOfStacks.remove(name)
+		this.mapOfStacks.Delete(name)
 	}
 	return info
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) clear() {
-	this.mapOfStacks.clear()
+	this.mapOfStacks.Clear()
 }
 
 type MakeDeclaredNamesUnique_ContextualRenameInverter_UndeclaredVariableInfo struct {
@@ -710,7 +710,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) createForChildScope(p0 No
 const MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR string = "$jscomp$"
 
 type MakeDeclaredNamesUnique_InlineRenamer struct {
-	declarations     *JTMap[string, string]
+	declarations     *TMap[string, string]
 	uniqueIdSupplier SupplierOf[string]
 	idPrefix         string
 	removeConstness  bool
@@ -723,7 +723,7 @@ func (this *MakeDeclaredNamesUnique_InlineRenamer) zero_MakeDeclaredNamesUnique_
 }
 
 func (this *MakeDeclaredNamesUnique_InlineRenamer) finit_MakeDeclaredNamesUnique_InlineRenamer() {
-	this.declarations = jnewTMap_(jtc_string, jtc_string)
+	this.declarations = newTMap_(tc_string, tc_string)
 }
 
 func (this *MakeDeclaredNamesUnique_InlineRenamer) init_MakeDeclaredNamesUnique_InlineRenamer(convention CodingConvention, uniqueIdSupplier SupplierOf[string], idPrefix string, removeConstness bool, hoistingTargetScope bool, parent MakeDeclaredNamesUnique_Renamer) {
@@ -774,7 +774,7 @@ func (this *MakeDeclaredNamesUnique_InlineRenamer) getUniqueName(name string) st
 }
 
 func (this *MakeDeclaredNamesUnique_InlineRenamer) getReplacementName(oldName string) Optional[string] {
-	return Optional_ofNullable[string](this.declarations.get(oldName))
+	return Optional_ofNullable[string](this.declarations.Get(oldName))
 }
 
 func (this *MakeDeclaredNamesUnique_InlineRenamer) createForChildScope(scopeRoot Node, hoistingTargetScope bool) MakeDeclaredNamesUnique_Renamer {
@@ -828,29 +828,29 @@ func (this *MakeDeclaredNamesUnique_BoilerplateRenamer) createForChildScope_impl
 
 type MakeDeclaredNamesUnique_TargettedRenamer struct {
 	delegate MakeDeclaredNamesUnique_Renamer
-	targets  *JTSet[string]
+	targets  *TSet[string]
 }
 
-func (this *MakeDeclaredNamesUnique_TargettedRenamer) init_MakeDeclaredNamesUnique_TargettedRenamer(delegate MakeDeclaredNamesUnique_Renamer, targets *JTSet[string]) {
+func (this *MakeDeclaredNamesUnique_TargettedRenamer) init_MakeDeclaredNamesUnique_TargettedRenamer(delegate MakeDeclaredNamesUnique_Renamer, targets *TSet[string]) {
 	this.delegate = delegate
 	this.targets = targets
 }
 
-func new_MakeDeclaredNamesUnique_TargettedRenamer(delegate MakeDeclaredNamesUnique_Renamer, targets *JTSet[string]) *MakeDeclaredNamesUnique_TargettedRenamer {
+func new_MakeDeclaredNamesUnique_TargettedRenamer(delegate MakeDeclaredNamesUnique_Renamer, targets *TSet[string]) *MakeDeclaredNamesUnique_TargettedRenamer {
 	this := &MakeDeclaredNamesUnique_TargettedRenamer{}
 	this.init_MakeDeclaredNamesUnique_TargettedRenamer(delegate, targets)
 	return this
 }
 
 func (this *MakeDeclaredNamesUnique_TargettedRenamer) addDeclaredName(name string, hoisted bool) {
-	if this.targets.contains(name) {
+	if this.targets.Has(name) {
 		this.delegate.addDeclaredName(name, hoisted)
 	}
 }
 
 func (this *MakeDeclaredNamesUnique_TargettedRenamer) getReplacementName(oldName string) Optional[string] {
 	return func() Optional[string] {
-		if this.targets.contains(oldName) {
+		if this.targets.Has(oldName) {
 			return this.delegate.getReplacementName(oldName)
 		}
 		return Optional_empty[string]()

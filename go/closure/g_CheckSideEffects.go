@@ -8,7 +8,7 @@ type CheckSideEffects struct {
 	NodeTraversal_AbstractPostOrderCallback
 	report_                   bool
 	problemNodes              *[]Node
-	noSideEffectExterns       *JTSet[string]
+	noSideEffectExterns       *TSet[string]
 	compiler_                 *AbstractCompiler
 	protectSideEffectFreeCode bool
 	preserveFunctionInjected  bool
@@ -23,7 +23,7 @@ func (this *CheckSideEffects) up_NodeTraversal_AbstractPostOrderCallback() *Node
 
 func (this *CheckSideEffects) finit_CheckSideEffects() {
 	this.problemNodes = &[]Node{}
-	this.noSideEffectExterns = jnewTSet_(jtc_string)
+	this.noSideEffectExterns = newTSet_(tc_string)
 	this.preserveFunctionInjected = false
 }
 
@@ -93,7 +93,7 @@ func (this *CheckSideEffects) visit_impl(t *NodeTraversal, n Node, parent Node) 
 					isDefinedInSrc = (cast_[*Var](t.getScope().getVar(qname).self()) != nil)
 				}
 			}
-			if (qname != "" && this.noSideEffectExterns.contains(qname)) && !isDefinedInSrc {
+			if (qname != "" && this.noSideEffectExterns.Has(qname)) && !isDefinedInSrc {
 				*this.problemNodes = append(*this.problemNodes, n)
 				if this.report_ {
 					var msg string = ("The result of the extern function call '" + sstr_(qname) + "' is not being used.")
@@ -222,7 +222,7 @@ func (this *CheckSideEffects_GetNoSideEffectExterns) visit_impl(t *NodeTraversal
 		var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
 		if (jsDoc != nil) && jsDoc.isNoSideEffects() {
 			var name string = NodeUtil_getName(n)
-			this.outer_.noSideEffectExterns.add(name)
+			this.outer_.noSideEffectExterns.Add(name)
 		}
 	}
 	if n.isName() && (CheckSideEffects_PROTECTOR_FN == n.getString()) {

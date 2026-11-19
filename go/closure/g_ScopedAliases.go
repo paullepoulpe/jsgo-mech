@@ -335,7 +335,7 @@ func (this *ScopedAliases_AliasUsage) init_ScopedAliases_AliasUsage(aliasVar *Va
 	this.aliasReference = aliasReference
 }
 
-func (this *ScopedAliases_AliasUsage) referencesOtherAlias(deletedAliasVars *JTSet[*Var]) bool {
+func (this *ScopedAliases_AliasUsage) referencesOtherAlias(deletedAliasVars *TSet[*Var]) bool {
 	var aliasDefinition Node = this.aliasVar.getInitialValue()
 	var qname string = ScopedAliases_getAliasedNamespace(aliasDefinition)
 	var dotIndex int32 = int32(strings.IndexByte(qname, '.'))
@@ -346,7 +346,7 @@ func (this *ScopedAliases_AliasUsage) referencesOtherAlias(deletedAliasVars *JTS
 		return qname[:dotIndex]
 	}()
 	var otherAliasVar *Var = cast_[*Var](this.aliasVar.getScope().(*Scope).getOwnSlot(rootName))
-	return ((otherAliasVar != nil) && !deletedAliasVars.contains(otherAliasVar))
+	return ((otherAliasVar != nil) && !deletedAliasVars.Has(otherAliasVar))
 }
 
 func (this *ScopedAliases_AliasUsage) applyAlias(p0 *AbstractCompiler) {
@@ -429,10 +429,10 @@ type ScopedAliases_Traversal struct {
 	aliasDefinitionsToDelete *TList[Node]
 	scopeCalls               *[]Node
 	aliasUsages              *TList[*ScopedAliases_AliasUsage]
-	aliases_                 *JTMap[string, *Var]
-	injectedDecls            *JTSet[Node]
-	deletedAliasVars         *JTSet[*Var]
-	forbiddenLocals          *JTSet[string]
+	aliases_                 *TMap[string, *Var]
+	injectedDecls            *TSet[Node]
+	deletedAliasVars         *TSet[*Var]
+	forbiddenLocals          *TSet[string]
 	hasNamespaceShadows      bool
 	hasErrorsField           bool
 	scopeFunctionBody        Node
@@ -449,10 +449,10 @@ func (this *ScopedAliases_Traversal) finit_ScopedAliases_Traversal() {
 	this.aliasDefinitionsToDelete = newTList_(tc_Node)
 	this.scopeCalls = &[]Node{}
 	this.aliasUsages = newTList_(tc_p_ScopedAliases_AliasUsage)
-	this.aliases_ = jnewTMap_(jtc_string, jtc_p_Var)
-	this.injectedDecls = jnewTSet_(jtc_Node)
-	this.deletedAliasVars = jnewTSet_(tce_p_Var)
-	this.forbiddenLocals = jtsetFrom_(jtc_string, ImmutableSet_as_Collection(ImmutableSet_of_Object("$jscomp")))
+	this.aliases_ = newTMap_(tc_string, tc_p_Var)
+	this.injectedDecls = newTSet_(tc_Node)
+	this.deletedAliasVars = newTSet_(tce_p_Var.t_())
+	this.forbiddenLocals = tsetFrom_(tc_string, ImmutableSet_as_Collection(ImmutableSet_of_Object("$jscomp")), false)
 	this.hasNamespaceShadows = false
 	this.hasErrorsField = false
 	this.scopeFunctionBody = 0
@@ -522,9 +522,9 @@ func (this *ScopedAliases_Traversal) exitScope(t *NodeTraversal) {
 	if this.isGoogScopeFunctionBody(t.getScopeRoot()) {
 		this.scopeFunctionBody = 0
 		this.renameNamespaceShadows(t)
-		this.injectedDecls.clear()
-		this.aliases_.clear()
-		this.forbiddenLocals.clear()
+		this.injectedDecls.Clear()
+		this.aliases_.Clear()
+		this.forbiddenLocals.Clear()
 		this.hasNamespaceShadows = false
 	} else if this.inGoogScopeBody() {
 		this.findNamespaceShadows(t)
@@ -609,7 +609,7 @@ func (this *ScopedAliases_Traversal) findAliases(scope *Scope) {
 			if value != 0 {
 				this.outer_.compiler_.reportChangeToEnclosingScope(newDecl)
 			}
-			this.injectedDecls.add(newDecl)
+			this.injectedDecls.Add(newDecl)
 			v.getNameNode().addChildToFront(NodeUtil_newName_AbstractCompiler_String_Node_Optional(this.outer_.compiler_, globalName, n, Optional_of[string](name)))
 			this.recordAlias(v)
 		} else {
@@ -624,7 +624,7 @@ func (this *ScopedAliases_Traversal) recordAlias(aliasVar *Var) {
 	if this.outer_.invalidModuleGetHandling.shouldGiveUniqueName() && this.containsInvalidGoogModuleGet(initialValue) {
 		var name string = aliasVar.getName()
 		var fileName string = initialValue.getSourceFileName()
-		var metadata *ModuleMetadataMap_ModuleMetadata = this.outer_.moduleMetadataMap.getModulesByPath().get(fileName)
+		var metadata *ModuleMetadataMap_ModuleMetadata = this.outer_.moduleMetadataMap.getModulesByPath().Get(fileName)
 		var suffix string = func() string {
 			if metadata != nil {
 				return metadata.path().toModuleName()
@@ -633,18 +633,18 @@ func (this *ScopedAliases_Traversal) recordAlias(aliasVar *Var) {
 		}()
 		var newName string = (sstr_(name) + sstr_(ScopedAliases_MISSING_ALIASES_PREFIX) + sstr_(suffix))
 		initialValue.replaceWith(IR_name(newName))
-		this.deletedAliasVars.add(aliasVar)
-		this.aliases_.put(name, aliasVar)
+		this.deletedAliasVars.Add(aliasVar)
+		this.aliases_.Put(name, aliasVar)
 		return
 	}
 	var name string = aliasVar.getName()
-	this.aliases_.put(name, aliasVar)
+	this.aliases_.Put(name, aliasVar)
 	var qualifiedName string = ScopedAliases_getAliasedNamespace(initialValue)
 	var rootIndex int32 = int32(strings.IndexByte(qualifiedName, '.'))
 	if rootIndex != -1 {
 		var qNameRoot string = qualifiedName[:rootIndex]
-		if !this.aliases_.containsKey(qNameRoot) {
-			this.forbiddenLocals.add(qNameRoot)
+		if !this.aliases_.Has(qNameRoot) {
+			this.forbiddenLocals.Add(qNameRoot)
 		}
 	}
 }
@@ -673,7 +673,7 @@ func (this *ScopedAliases_Traversal) findNamespaceShadows(t *NodeTraversal) {
 	it_1 := foreach_(scope.getVarIterable())
 	for it_1.next() {
 		var v *Var = cast_[*Var](it_1.v)
-		if this.forbiddenLocals.contains(v.getName()) {
+		if this.forbiddenLocals.Has(v.getName()) {
 			this.hasNamespaceShadows = true
 			return
 		}
@@ -739,7 +739,7 @@ func (this *ScopedAliases_Traversal) visit_impl(t *NodeTraversal, n Node, parent
 	if type_ == Token_rhino_NAME {
 		var name string = n.getString()
 		var lexicalVar *Var = cast_[*Var](t.getScope().getVar(name).self())
-		if (lexicalVar != nil) && lexicalVar.equals_ScopedName(this.aliases_.get(name).up_ScopedName()) {
+		if (lexicalVar != nil) && lexicalVar.equals_ScopedName(this.aliases_.Get(name).up_ScopedName()) {
 			aliasVar = lexicalVar
 			if this.outer_.compiler_.getOptions().preservesDetailedSourceInfo() && n.isName() {
 				n.setOriginalName(name)
@@ -771,7 +771,7 @@ func (this *ScopedAliases_Traversal) visit_impl(t *NodeTraversal, n Node, parent
 		this.aliasUsages.add(new_ScopedAliases_AliasedNode(aliasVar, n).up_ScopedAliases_AliasUsage())
 	}
 	var info *JSDocInfo = n.getJSDocInfo()
-	if (info != nil) && !this.injectedDecls.contains(n) {
+	if (info != nil) && !this.injectedDecls.Has(n) {
 		for node := range elemsBy_(info.getTypeNodes(), Node_of_) {
 			this.fixTypeNode(node)
 		}
@@ -786,7 +786,7 @@ func (this *ScopedAliases_Traversal) fixTypeNode(typeNode Node) {
 			endIndex = int32(len(name))
 		}
 		var baseName string = name[:endIndex]
-		var aliasVar *Var = this.aliases_.get(baseName)
+		var aliasVar *Var = this.aliases_.Get(baseName)
 		if aliasVar != nil {
 			this.aliasUsages.add(new_ScopedAliases_AliasedTypeNode(aliasVar, typeNode).up_ScopedAliases_AliasUsage())
 		}

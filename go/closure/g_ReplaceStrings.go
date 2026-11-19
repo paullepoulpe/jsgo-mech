@@ -8,9 +8,9 @@ type ReplaceStrings struct {
 	NodeTraversal_AbstractPostOrderCallback
 	placeholderToken string
 	compiler_        *AbstractCompiler
-	functions        *JTMap[string, *ReplaceStrings_Config]
+	functions        *TMap[string, *ReplaceStrings_Config]
 	nameGenerator    *DefaultNameGenerator
-	results          *JTMap[string, *ReplaceStrings_Result]
+	results          *TMap[string, *ReplaceStrings_Result]
 }
 
 func (this *ReplaceStrings) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -25,8 +25,8 @@ func (this *ReplaceStrings) zero_ReplaceStrings() {
 }
 
 func (this *ReplaceStrings) finit_ReplaceStrings() {
-	this.functions = jnewTMap_(jtc_string, jtc_p_ReplaceStrings_Config)
-	this.results = jnewTMap_(jtc_string, jtc_p_ReplaceStrings_Result)
+	this.functions = newTMap_(tc_string, tc_p_ReplaceStrings_Config)
+	this.results = newTMap_(tc_string, tc_p_ReplaceStrings_Result)
 }
 
 func (this *ReplaceStrings) init_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, functionsToInspect *TList[string]) {
@@ -56,7 +56,7 @@ func (this *ReplaceStrings) getResult() *TList[*ReplaceStrings_Result] {
 }
 
 func (this *ReplaceStrings) getStringMap() *VariableMap {
-	var map_ *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
+	var map_ *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	for result := range elemsAs_[*ReplaceStrings_Result](Iterables_filter_f(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS)) {
 		map_.put(result.replacement_, result.original_)
 	}
@@ -84,10 +84,10 @@ func (this *ReplaceStrings) visit_impl(t *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *ReplaceStrings) findMatching(name string, callsiteSourceFileName string) *ReplaceStrings_Config {
-	var config *ReplaceStrings_Config = this.functions.get(name)
+	var config *ReplaceStrings_Config = this.functions.Get(name)
 	if config == nil {
 		name = strings.ReplaceAll(name, "$", ".")
-		config = this.functions.get(name)
+		config = this.functions.Get(name)
 	}
 	if config != nil {
 		it_1 := config.excludedFilenameSuffixes.each()
@@ -161,18 +161,18 @@ func (this *ReplaceStrings) replaceExpression(t *NodeTraversal, expr Node) Node 
 }
 
 func (this *ReplaceStrings) getReplacement(key string) string {
-	var result *ReplaceStrings_Result = this.results.get(key)
+	var result *ReplaceStrings_Result = this.results.Get(key)
 	if result != nil {
 		return result.replacement_
 	}
 	var replacement string = this.nameGenerator.generateNextName()
 	result = new_ReplaceStrings_Result(key, replacement)
-	this.results.put(key, result)
+	this.results.Put(key, result)
 	return replacement
 }
 
 func (this *ReplaceStrings) recordReplacement(key string) {
-	var result *ReplaceStrings_Result = this.results.get(key)
+	var result *ReplaceStrings_Result = this.results.Get(key)
 	if result == nil {
 		panic(new_IllegalStateException_0())
 	}
@@ -232,7 +232,7 @@ func (this *ReplaceStrings) parseConfigurationList(functionsToInspect *TList[str
 		var function string = it_1.v
 		var config *ReplaceStrings_Config = this.parseConfiguration(function)
 		if config != nil {
-			this.functions.put(config.name_, config)
+			this.functions.Put(config.name_, config)
 		}
 	}
 }
@@ -286,7 +286,7 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 
 func ReplaceStrings_createNameGenerator() *DefaultNameGenerator {
 	var namePrefix string = ""
-	var reservedChars *JTSet[any] = jtsetEmptyImm_(jtc_Character)
+	var reservedChars *TSet[any] = tsetEmptyImm_(tc_Character)
 	return new_DefaultNameGenerator_Set_String_Set(ImmutableSet_as_Set(ImmutableSet_of()), namePrefix, reservedChars)
 }
 

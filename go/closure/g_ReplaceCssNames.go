@@ -11,23 +11,23 @@ type ReplaceCssNames struct {
 	compiler_                    *AbstractCompiler
 	astFactory_                  *AstFactory
 	cssNameCollector             func(string)
-	cssNamesBySymbol             *JTMap[string, string]
-	classesObjectsQualifiedNames *JTSet[string]
+	cssNamesBySymbol             *TMap[string, string]
+	classesObjectsQualifiedNames *TSet[string]
 	symbolMap                    CssRenamingMap
-	skiplist                     *JTSet[string]
+	skiplist                     *TSet[string]
 }
 
-func (this *ReplaceCssNames) init_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector func(string), skiplist *JTSet[string]) {
+func (this *ReplaceCssNames) init_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector func(string), skiplist *TSet[string]) {
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
 	this.symbolMap = symbolMap
 	this.cssNameCollector = cssNameCollector
 	this.skiplist = skiplist
-	this.cssNamesBySymbol = jnewTMap_(jtc_string, jtc_string)
-	this.classesObjectsQualifiedNames = jnewTSet_(jtc_string)
+	this.cssNamesBySymbol = newTMap_(tc_string, tc_string)
+	this.classesObjectsQualifiedNames = newTSet_(tc_string)
 }
 
-func new_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector func(string), skiplist *JTSet[string]) *ReplaceCssNames {
+func new_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector func(string), skiplist *TSet[string]) *ReplaceCssNames {
 	this := &ReplaceCssNames{}
 	this.init_ReplaceCssNames(compiler, symbolMap, cssNameCollector, skiplist)
 	return this
@@ -39,8 +39,8 @@ func (this *ReplaceCssNames) process_2(externs Node, root Node) {
 	for getCssNameInstance := range sliceAll_(getCssNameInstances) {
 		var cssClassName Optional[string] = getCssNameInstance.getCssClassName()
 		if getCssNameInstance.isCssClosureFileClassesMember() {
-			this.cssNamesBySymbol.put(getCssNameInstance.getCssClosureClassesMemberName().orElse(nullstr_), cssClassName.orElse(nullstr_))
-			this.classesObjectsQualifiedNames.add(getCssNameInstance.getCssClosureClassesQualifiedName().orElseThrow())
+			this.cssNamesBySymbol.Put(getCssNameInstance.getCssClosureClassesMemberName().orElse(nullstr_), cssClassName.orElse(nullstr_))
+			this.classesObjectsQualifiedNames.Add(getCssNameInstance.getCssClosureClassesQualifiedName().orElseThrow())
 		} else {
 			this.cssNameCollector(cssClassName.orElse(nullstr_))
 		}
@@ -108,7 +108,7 @@ func (this *ReplaceCssNames) validateTwoArgGetCssNameCall(callNode Node) *JSErro
 
 func (this *ReplaceCssNames) processStringNode(n Node) {
 	var name string = n.getString()
-	if (this.skiplist != nil) && this.skiplist.contains(name) {
+	if (this.skiplist != nil) && this.skiplist.Has(name) {
 		return
 	}
 	var parts []string = ReplaceCssNames_DASH_PATTERN.split(name)
@@ -481,7 +481,7 @@ func (this *ReplaceCssNames_CountCssNamesBySymbol) shouldTraverse(t *NodeTravers
 
 func (this *ReplaceCssNames_CountCssNamesBySymbol) visit(t *NodeTraversal, n Node, parent Node) {
 	var classesObjectQualifiedName string = n.getQualifiedName()
-	if classesObjectQualifiedName == "" || !this.outer_.classesObjectsQualifiedNames.contains(classesObjectQualifiedName) {
+	if classesObjectQualifiedName == "" || !this.outer_.classesObjectsQualifiedNames.Has(classesObjectQualifiedName) {
 		return
 	}
 	var classNameNode Node = n.getParent()
@@ -490,11 +490,11 @@ func (this *ReplaceCssNames_CountCssNamesBySymbol) visit(t *NodeTraversal, n Nod
 		return
 	}
 	var classQualifiedName string = classNameNode.getQualifiedName()
-	if classQualifiedName == "" || !this.outer_.cssNamesBySymbol.containsKey(classQualifiedName) {
+	if classQualifiedName == "" || !this.outer_.cssNamesBySymbol.Has(classQualifiedName) {
 		this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceCssNames_UNKNOWN_SYMBOL_ERROR, []string{classNameNode.getString()}))
 		return
 	}
-	var className string = this.outer_.cssNamesBySymbol.get(classQualifiedName)
+	var className string = this.outer_.cssNamesBySymbol.Get(classQualifiedName)
 	this.outer_.cssNameCollector(className)
 }
 

@@ -302,19 +302,19 @@ func DependencyInfo_Util_writeAddDependency(out Appendable, info DependencyInfo_
 	DependencyInfo_Util_writeJsArray(out, ImmutableList_as_Collection(info.getProvides()))
 	Appendable_append_s(out, ", ")
 	DependencyInfo_Util_writeJsArray(out, Collection(DependencyInfo_Require_asSymbolList(ImmutableList_as_Iterable(info.getRequires())).asList()))
-	var loadFlags *JTMap[string, string] = tmapImm_(jtc_string, jtc_string, info.getLoadFlags())
-	if !loadFlags.isEmpty() {
+	var loadFlags *TMap[string, string] = tmapFrom_(tc_string, tc_string, info.getLoadFlags(), true)
+	if !loadFlags.IsEmpty() {
 		Appendable_append_s(out, ", ")
 		DependencyInfo_Util_writeJsObject(out, loadFlags)
 	}
 	Appendable_append_s(out, ");\n")
 }
 
-func DependencyInfo_Util_writeJsObject(out Appendable, map_ *JTMap[string, string]) {
+func DependencyInfo_Util_writeJsObject(out Appendable, map_ *TMap[string, string]) {
 	var entries []string = []string{}
 	it_1 := map_.eachEntry()
 	for it_1.next() {
-		var entry *TEntry[string, string] = it_1.entry()
+		var entry *TEntryP[string, string] = it_1.entry()
 		var key string = JString_replace_s(entry.getKey(), "'", "\\'")
 		var value string = JString_replace_s(entry.getValue(), "'", "\\'")
 		entries = append(entries, ("'" + sstr_(key) + "': '" + sstr_(value) + "'"))

@@ -24,7 +24,7 @@ func (this *Es6RewriteGenerators) init_Es6RewriteGenerators(compiler *AbstractCo
 	this.astFactory_ = compiler.createAstFactory()
 	this.namespace_ = compiler.getTranspilationNamespace()
 	if compiler.hasOptimizationColors() {
-		this.nullableStringType = Color_createUnion(jimmutableSetOf_[*Color](tce_p_Color, StandardColors_NULL_OR_VOID, StandardColors_STRING))
+		this.nullableStringType = Color_createUnion(immutableSetOf_[*Color](tce_p_Color.t_(), StandardColors_NULL_OR_VOID, StandardColors_STRING))
 	} else {
 		this.nullableStringType = nil
 	}
@@ -803,12 +803,12 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_YieldFinder) 
 
 type Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext struct {
 	outer_                  *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler
-	namedLabels             *JTMap[string, *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases]
+	namedLabels             *TMap[string, *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases]
 	breakCases              *TDeque[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]
 	continueCases           *TDeque[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]
 	catchCases              *TDeque[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase]
 	finallyCases            *TDeque[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]
-	catchNames              *JTSet[string]
+	catchNames              *TSet[string]
 	allCases                *TList[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]
 	switchBreaks            *[]Node
 	programEndCase          *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case
@@ -820,12 +820,12 @@ type Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) finit_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext() {
-	this.namedLabels = jnewTMap_(jtc_string, jtc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases)
+	this.namedLabels = newTMap_(tc_string, tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases)
 	this.breakCases = newTDeque_(jtc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case)
 	this.continueCases = newTDeque_(jtc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case)
 	this.catchCases = newTDeque_(jtc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase)
 	this.finallyCases = newTDeque_(jtc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case)
-	this.catchNames = jnewTSet_(jtc_string)
+	this.catchNames = newTSet_(tc_string)
 	this.allCases = newTList_(tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case)
 	this.switchBreaks = &[]Node{}
 	this.nestedFinallyBlockCount = 0
@@ -965,7 +965,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) checkStateIsEmpty() {
-	if !this.namedLabels.isEmpty() {
+	if !this.namedLabels.IsEmpty() {
 		panic(new_IllegalStateException_0())
 	}
 	if !this.breakCases.isEmpty() {
@@ -1210,7 +1210,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	}
 	this.addCatchFinallyCases(nil, finallyCase)
 	var nextCatchCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = this.getNextCatchCase()
-	if this.catchNames.add(exceptionName.getString()) {
+	if this.catchNames.Add(exceptionName.getString()) {
 		this.outer_.hoistVarNode(IR_var_Node(exceptionName.cloneNode()).srcref(exceptionName))
 	}
 	var args []Node = []Node{}
@@ -1286,7 +1286,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 		if !labelName.isLabelName() {
 			panic(new_IllegalStateException_0())
 		}
-		this.namedLabels.put(labelName.getString(), new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases(breakCase, continueCase))
+		this.namedLabels.Put(labelName.getString(), new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases(breakCase, continueCase))
 	}
 }
 
@@ -1295,7 +1295,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 		if !labelName.isLabelName() {
 			panic(new_IllegalStateException_0())
 		}
-		this.namedLabels.remove(labelName.getString())
+		this.namedLabels.Delete(labelName.getString())
 	}
 }
 
@@ -1466,7 +1466,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	if !n.getFirstChild().isLabelName() {
 		panic(new_IllegalStateException_0())
 	}
-	var cases *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases = this.outer_.namedLabels.get(n.getFirstChild().getString())
+	var cases *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases = this.outer_.namedLabels.Get(n.getFirstChild().getString())
 	if cases != nil {
 		var caseSection *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = func() *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case {
 			if n.isBreak() {

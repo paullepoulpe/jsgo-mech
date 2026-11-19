@@ -23,14 +23,14 @@ func (this *DefaultDependencyResolver) getDependencies(code string) Collection {
 }
 
 func (this *DefaultDependencyResolver) getDependenciesCollection(symbols CollectionOf[string]) Collection {
-	return this.getDependencies_2(symbols, jnewTSet_(jtc_string))
+	return this.getDependencies_2(symbols, newTSet_(tc_string))
 }
 
-func (this *DefaultDependencyResolver) getDependencies_3(code string, seen *JTSet[string], addClosureBaseFile bool) Collection {
+func (this *DefaultDependencyResolver) getDependencies_3(code string, seen *TSet[string], addClosureBaseFile bool) Collection {
 	return this.getDependencies_2(DefaultDependencyResolver_parseRequires(code, addClosureBaseFile), seen)
 }
 
-func (this *DefaultDependencyResolver) getDependencies_2(symbols CollectionOf[string], seen *JTSet[string]) Collection {
+func (this *DefaultDependencyResolver) getDependencies_2(symbols CollectionOf[string], seen *TSet[string]) Collection {
 	var list *TList[string] = newTList_(tc_string)
 	for _, depsFile := range *this.depsFiles {
 		depsFile.ensureUpToDate()
@@ -41,7 +41,7 @@ func (this *DefaultDependencyResolver) getDependencies_2(symbols CollectionOf[st
 	return Collection(list.asList())
 }
 
-func (this *DefaultDependencyResolver) addDependency(symbol string, seen *JTSet[string], list *TList[string]) {
+func (this *DefaultDependencyResolver) addDependency(symbol string, seen *TSet[string], list *TList[string]) {
 	var dependency DependencyInfo_ = this.getDependencyInfo(symbol)
 	if dependency == nil {
 		if this.strictRequires {

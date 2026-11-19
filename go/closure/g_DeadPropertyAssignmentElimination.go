@@ -98,7 +98,7 @@ func (this *DeadPropertyAssignmentElimination_FunctionVisitor) enterChangedScope
 type DeadPropertyAssignmentElimination_Property struct {
 	name_     string
 	writes    *TDeque[*DeadPropertyAssignmentElimination_PropertyWrite]
-	children_ *JTSet[*DeadPropertyAssignmentElimination_Property]
+	children_ *TSet[*DeadPropertyAssignmentElimination_Property]
 }
 
 func (this *DeadPropertyAssignmentElimination_Property) zero_DeadPropertyAssignmentElimination_Property() {
@@ -107,7 +107,7 @@ func (this *DeadPropertyAssignmentElimination_Property) zero_DeadPropertyAssignm
 
 func (this *DeadPropertyAssignmentElimination_Property) finit_DeadPropertyAssignmentElimination_Property() {
 	this.writes = newTDeque_(jtc_p_DeadPropertyAssignmentElimination_PropertyWrite)
-	this.children_ = jnewTSet_(jtc_p_DeadPropertyAssignmentElimination_Property)
+	this.children_ = newTSet_(tc_p_DeadPropertyAssignmentElimination_Property)
 }
 
 func (this *DeadPropertyAssignmentElimination_Property) init_DeadPropertyAssignmentElimination_Property(name string) {
@@ -129,16 +129,16 @@ func (this *DeadPropertyAssignmentElimination_Property) markLastWriteRead() {
 }
 
 func (this *DeadPropertyAssignmentElimination_Property) markChildrenRead() {
-	var propertiesSet *JTSet[*DeadPropertyAssignmentElimination_Property] = tsetCopy_(jtc_p_DeadPropertyAssignmentElimination_Property, this.children_)
+	var propertiesSet *TSet[*DeadPropertyAssignmentElimination_Property] = tsetCopyT_(tc_p_DeadPropertyAssignmentElimination_Property, this.children_)
 	var propertyQueue *TDeque[*DeadPropertyAssignmentElimination_Property] = tdequeFrom_(jtc_p_DeadPropertyAssignmentElimination_Property, Collection(propertiesSet.asSet()))
-	propertiesSet.add(this)
+	propertiesSet.Add(this)
 	for !propertyQueue.isEmpty() {
 		var childProperty *DeadPropertyAssignmentElimination_Property = propertyQueue.pop()
 		childProperty.markLastWriteRead()
 		it_2 := childProperty.children_.each()
 		for it_2.next() {
 			var grandchildProperty *DeadPropertyAssignmentElimination_Property = it_2.v
-			if propertiesSet.add(grandchildProperty) {
+			if propertiesSet.Add(grandchildProperty) {
 				propertyQueue.add(grandchildProperty)
 			}
 		}
@@ -192,12 +192,12 @@ func (this *DeadPropertyAssignmentElimination_PropertyWrite) markRead() {
 }
 
 type DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal struct {
-	propertyMap         *JTMap[string, *DeadPropertyAssignmentElimination_Property]
+	propertyMap         *TMap[string, *DeadPropertyAssignmentElimination_Property]
 	skiplistedPropNames SetOf[string]
 }
 
 func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) finit_DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal() {
-	this.propertyMap = jnewTMap_(jtc_string, jtc_p_DeadPropertyAssignmentElimination_Property)
+	this.propertyMap = newTMap_(tc_string, tc_p_DeadPropertyAssignmentElimination_Property)
 }
 
 func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) init_DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal(skiplistedPropNames SetOf[string]) {
@@ -229,7 +229,7 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 	if propNode.isGetProp() {
 		var parentProperty *DeadPropertyAssignmentElimination_Property = this.getOrCreateProperty(propNode.getFirstChild())
 		if parentProperty != nil {
-			parentProperty.children_.add(property)
+			parentProperty.children_.Add(property)
 		}
 	}
 	return property
@@ -333,7 +333,7 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 				for ; child != 0; child = child.getNext() {
 					if child.isStringKey() {
 						var propName string = child.getString()
-						var property *DeadPropertyAssignmentElimination_Property = this.propertyMap.get(propName)
+						var property *DeadPropertyAssignmentElimination_Property = this.propertyMap.Get(propName)
 						if property != nil {
 							property.markLastWriteRead()
 							property.markChildrenRead()

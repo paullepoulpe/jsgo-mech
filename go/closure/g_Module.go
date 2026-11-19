@@ -5,13 +5,13 @@ package closure
 type Module struct {
 	metadata_               *ModuleMetadataMap_ModuleMetadata
 	path_                   *ModuleLoader_ModulePath
-	namespace_              *JTMap[string, *Binding]
-	boundNames_             *JTMap[string, *Binding]
-	localNameToLocalExport_ *JTMap[string, *Export]
+	namespace_              *TMap[string, *Binding]
+	boundNames_             *TMap[string, *Binding]
+	localNameToLocalExport_ *TMap[string, *Export]
 	closureNamespace_       Optional[string]
 }
 
-func (this *Module) init_Module(metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, namespace *JTMap[string, *Binding], boundNames *JTMap[string, *Binding], localNameToLocalExport *JTMap[string, *Export], closureNamespace Optional[string]) {
+func (this *Module) init_Module(metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, namespace *TMap[string, *Binding], boundNames *TMap[string, *Binding], localNameToLocalExport *TMap[string, *Export], closureNamespace Optional[string]) {
 	Objects_requireNonNull_T(metadata, "metadata")
 	if namespace.asMap() == nil {
 		panic(new_NullPointerException_String("namespace"))
@@ -30,7 +30,7 @@ func (this *Module) init_Module(metadata *ModuleMetadataMap_ModuleMetadata, path
 	this.closureNamespace_ = closureNamespace
 }
 
-func new_Module(metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, namespace *JTMap[string, *Binding], boundNames *JTMap[string, *Binding], localNameToLocalExport *JTMap[string, *Export], closureNamespace Optional[string]) *Module {
+func new_Module(metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, namespace *TMap[string, *Binding], boundNames *TMap[string, *Binding], localNameToLocalExport *TMap[string, *Export], closureNamespace Optional[string]) *Module {
 	this := &Module{}
 	this.init_Module(metadata, path, namespace, boundNames, localNameToLocalExport, closureNamespace)
 	return this
@@ -52,15 +52,15 @@ func (this *Module) path() *ModuleLoader_ModulePath {
 	return this.path_
 }
 
-func (this *Module) namespace() *JTMap[string, *Binding] {
+func (this *Module) namespace() *TMap[string, *Binding] {
 	return this.namespace_
 }
 
-func (this *Module) boundNames() *JTMap[string, *Binding] {
+func (this *Module) boundNames() *TMap[string, *Binding] {
 	return this.boundNames_
 }
 
-func (this *Module) localNameToLocalExport() *JTMap[string, *Export] {
+func (this *Module) localNameToLocalExport() *TMap[string, *Export] {
 	return this.localNameToLocalExport_
 }
 
@@ -94,9 +94,9 @@ func (this *Module) toString() string {
 type Module_Builder struct {
 	metadataField               *ModuleMetadataMap_ModuleMetadata
 	pathField                   *ModuleLoader_ModulePath
-	namespaceField              *JTMap[string, *Binding]
-	boundNamesField             *JTMap[string, *Binding]
-	localNameToLocalExportField *JTMap[string, *Export]
+	namespaceField              *TMap[string, *Binding]
+	boundNamesField             *TMap[string, *Binding]
+	localNameToLocalExportField *TMap[string, *Export]
 	closureNamespaceField       Optional[string]
 }
 
@@ -143,7 +143,7 @@ func (this *Module_Builder) path(value *ModuleLoader_ModulePath) *Module_Builder
 	return this
 }
 
-func (this *Module_Builder) namespace(value *JTMap[string, *Binding]) *Module_Builder {
+func (this *Module_Builder) namespace(value *TMap[string, *Binding]) *Module_Builder {
 	if value == nil {
 		panic(new_NullPointerException_String("Null namespace"))
 	}
@@ -151,7 +151,7 @@ func (this *Module_Builder) namespace(value *JTMap[string, *Binding]) *Module_Bu
 	return this
 }
 
-func (this *Module_Builder) boundNames(value *JTMap[string, *Binding]) *Module_Builder {
+func (this *Module_Builder) boundNames(value *TMap[string, *Binding]) *Module_Builder {
 	if value == nil {
 		panic(new_NullPointerException_String("Null boundNames"))
 	}
@@ -159,7 +159,7 @@ func (this *Module_Builder) boundNames(value *JTMap[string, *Binding]) *Module_B
 	return this
 }
 
-func (this *Module_Builder) localNameToLocalExport(value *JTMap[string, *Export]) *Module_Builder {
+func (this *Module_Builder) localNameToLocalExport(value *TMap[string, *Export]) *Module_Builder {
 	if value == nil {
 		panic(new_NullPointerException_String("Null localNameToLocalExport"))
 	}

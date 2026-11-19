@@ -159,7 +159,7 @@ func TranspilationPasses_postTranspileCheckUnsupportedFeaturesRemoved(compiler *
 	if compiler.getOptions().getChunkOutputType() == CompilerOptions_ChunkOutputType_ES_MODULES {
 		currentFeatures = currentFeatures.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{}).without_2(FeatureSet_Feature_IMPORT_META, []FeatureSet_Feature{}).without_2(FeatureSet_Feature_DYNAMIC_IMPORT, []FeatureSet_Feature{})
 	}
-	if outputFeatures.getFeatures().isEmpty() {
+	if outputFeatures.getFeatures().IsEmpty() {
 		return
 	}
 	if !outputFeatures.containsFeatureSet(currentFeatures) {

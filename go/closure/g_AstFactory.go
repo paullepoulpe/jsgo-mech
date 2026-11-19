@@ -534,9 +534,9 @@ func (this *AstFactory) createPrototypeAccess(receiver Node) Node {
 		result.setJSType(this.getJsTypeForProperty(receiver, "prototype"))
 	case AstFactory_TypeMode_COLOR:
 		Preconditions_checkNotNull_Object_String_Object_T(receiver.getColor(), "Missing color on %s", receiver.box_())
-		var possiblePrototypes *JTSet[*Color] = receiver.getColor().getPrototypes()
+		var possiblePrototypes *TSet[*Color] = receiver.getColor().getPrototypes()
 		result.setColor(func() *Color {
-			if possiblePrototypes.isEmpty() {
+			if possiblePrototypes.IsEmpty() {
 				return StandardColors_UNKNOWN
 			}
 			return Color_createUnion(possiblePrototypes)
@@ -691,7 +691,7 @@ func (this *AstFactory) createAnd(left Node, right Node) Node {
 	case AstFactory_TypeMode_COLOR:
 		var leftColor *Color = Preconditions_checkNotNull_Object_Object_T(left.getColor(), left.box_())
 		var rightColor *Color = Preconditions_checkNotNull_Object_Object_T(right.getColor(), right.box_())
-		result.setColor(Color_createUnion(jimmutableSetOf_[*Color](tce_p_Color, leftColor, rightColor)))
+		result.setColor(Color_createUnion(immutableSetOf_[*Color](tce_p_Color.t_(), leftColor, rightColor)))
 	case AstFactory_TypeMode_NONE:
 	}
 	return result
@@ -707,7 +707,7 @@ func (this *AstFactory) createOr(left Node, right Node) Node {
 	case AstFactory_TypeMode_COLOR:
 		var leftColor *Color = Preconditions_checkNotNull_Object_Object_T(left.getColor(), left.box_())
 		var rightColor *Color = Preconditions_checkNotNull_Object_Object_T(right.getColor(), right.box_())
-		result.setColor(Color_createUnion(jimmutableSetOf_[*Color](tce_p_Color, leftColor, rightColor)))
+		result.setColor(Color_createUnion(immutableSetOf_[*Color](tce_p_Color.t_(), leftColor, rightColor)))
 	case AstFactory_TypeMode_NONE:
 	}
 	return result
@@ -804,9 +804,9 @@ func (this *AstFactory) createNewNode(target Node, args []Node) Node {
 }
 
 func (this *AstFactory) getInstanceOfColor(color *Color) *Color {
-	var possibleInstanceColors *JTSet[*Color] = color.getInstanceColors()
+	var possibleInstanceColors *TSet[*Color] = color.getInstanceColors()
 	return func() *Color {
-		if possibleInstanceColors.isEmpty() {
+		if possibleInstanceColors.IsEmpty() {
 			return StandardColors_UNKNOWN
 		}
 		return Color_createUnion(possibleInstanceColors)
@@ -966,7 +966,7 @@ func (this *AstFactory) createHook(condition Node, expr1 Node, expr2 Node) Node 
 	case AstFactory_TypeMode_JSTYPE:
 		result.setJSType(this.registry.createUnionType([]*JSType{expr1.getJSType(), expr2.getJSType()}))
 	case AstFactory_TypeMode_COLOR:
-		result.setColor(Color_createUnion(jimmutableSetOf_[*Color](tce_p_Color, expr1.getColor(), expr2.getColor())))
+		result.setColor(Color_createUnion(immutableSetOf_[*Color](tce_p_Color.t_(), expr1.getColor(), expr2.getColor())))
 	case AstFactory_TypeMode_NONE:
 	}
 	return result
@@ -1210,7 +1210,7 @@ func AstFactory_clinit() {
 	AstFactory_clinit_done = true
 	AstFactory_DOT_SPLITTER = Splitter_on_String(".")
 	AstFactory_bigintNumberStringColor = Supplier(Suppliers_memoize(&Supplier_base_tfn_Color{func() *Color {
-		return Color_createUnion(jimmutableSetOf_[*Color](tce_p_Color, StandardColors_BIGINT, StandardColors_STRING, StandardColors_NUMBER))
+		return Color_createUnion(immutableSetOf_[*Color](tce_p_Color.t_(), StandardColors_BIGINT, StandardColors_STRING, StandardColors_NUMBER))
 	}}))
 
 }

@@ -1363,7 +1363,7 @@ func (this *Es6NormalizeClasses_ResolvedPrivateMember) toString() string {
 
 type Es6NormalizeClasses_ClassRecord struct {
 	privateMembers                       *[]*Es6NormalizeClasses_ClassRecord_PrivateMember
-	privateMembersByName                 *JTMap[string, *Es6NormalizeClasses_ClassRecord_PrivateMember]
+	privateMembersByName                 *TMap[string, *Es6NormalizeClasses_ClassRecord_PrivateMember]
 	privateMapVarName                    Optional[string]
 	staticPrivateMapVarName              Optional[string]
 	hasInstancePrivateMembers            bool
@@ -1380,13 +1380,13 @@ type Es6NormalizeClasses_ClassRecord struct {
 	instanceMembers                      *TDeque[Node]
 	staticMembers                        *TDeque[Node]
 	computedPropsWithSideEffects         *TDeque[Node]
-	constructorVars                      *JTSet[*Var]
+	constructorVars                      *TSet[*Var]
 	superCalls                           *[]Node
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) finit_Es6NormalizeClasses_ClassRecord() {
 	this.privateMembers = &[]*Es6NormalizeClasses_ClassRecord_PrivateMember{}
-	this.privateMembersByName = jnewTMap_(jtc_string, jtc_p_Es6NormalizeClasses_ClassRecord_PrivateMember)
+	this.privateMembersByName = newTMap_(tc_string, tc_p_Es6NormalizeClasses_ClassRecord_PrivateMember)
 	this.privateMapVarName = Optional_empty[string]()
 	this.staticPrivateMapVarName = Optional_empty[string]()
 	this.hasInstancePrivateMembers = false
@@ -1400,7 +1400,7 @@ func (this *Es6NormalizeClasses_ClassRecord) finit_Es6NormalizeClasses_ClassReco
 	this.instanceMembers = newTDeque_(jtc_Node)
 	this.staticMembers = newTDeque_(jtc_Node)
 	this.computedPropsWithSideEffects = newTDeque_(jtc_Node)
-	this.constructorVars = jtsetEmptyImm_(tce_p_Var)
+	this.constructorVars = tsetEmptyImm_(tce_p_Var.t_())
 	this.superCalls = &[]Node{}
 }
 
@@ -1437,8 +1437,8 @@ func (this *Es6NormalizeClasses_ClassRecord) recordPrivateMember(n Node) {
 		panic(new_IllegalStateException_String(("Unexpected node for private member: " + tostrH_(n))))
 	}
 	var pm *Es6NormalizeClasses_ClassRecord_PrivateMember
-	if this.privateMembersByName.containsKey(name) {
-		pm = this.privateMembersByName.get(name)
+	if this.privateMembersByName.Has(name) {
+		pm = this.privateMembersByName.Get(name)
 		*pm.declarationNodes = append(*pm.declarationNodes, n)
 		if n.isGetterDef() {
 			pm.getterNode = n
@@ -1448,7 +1448,7 @@ func (this *Es6NormalizeClasses_ClassRecord) recordPrivateMember(n Node) {
 	} else {
 		pm = new_Es6NormalizeClasses_ClassRecord_PrivateMember(name, kind, isStatic, n)
 		*this.privateMembers = append(*this.privateMembers, pm)
-		this.privateMembersByName.put(name, pm)
+		this.privateMembersByName.Put(name, pm)
 	}
 	if ((kind == Es6NormalizeClasses_ClassRecord_PrivateMemberKind_METHOD) || (kind == Es6NormalizeClasses_ClassRecord_PrivateMemberKind_ACCESSOR)) && !isStatic {
 		this.hasInstancePrivateMethodsOrAccessors = true
@@ -1461,11 +1461,11 @@ func (this *Es6NormalizeClasses_ClassRecord) recordPrivateMember(n Node) {
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) hasPrivateMember(name string) bool {
-	return this.privateMembersByName.containsKey(name)
+	return this.privateMembersByName.Has(name)
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) getPrivateMember(name string) *Es6NormalizeClasses_ClassRecord_PrivateMember {
-	return this.privateMembersByName.get(name)
+	return this.privateMembersByName.Get(name)
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) getPrivateMapVarName(compiler *AbstractCompiler, t *NodeTraversal) Optional[string] {
@@ -1534,11 +1534,11 @@ func (this *Es6NormalizeClasses_ClassRecord) recordConstructorScope(s *Scope) {
 	if !s.isFunctionBlockScope() {
 		panic(new_IllegalArgumentException_String(objstr_(s)))
 	}
-	if ok_, a1_ := this.constructorVars.isEmpty(), this.constructorVars.asSet(); !ok_ {
+	if ok_, a1_ := this.constructorVars.IsEmpty(), this.constructorVars.asSet(); !ok_ {
 		panic(new_IllegalStateException_String(objstr_(a1_)))
 	}
 	var argsScope *Scope = cast_[*Scope](s.getParent().self())
-	this.constructorVars = tsetImm_(tce_p_Var, ImmutableSet_builder().addAll(s.getAllSymbols()).addAll(argsScope.getAllSymbols()).build())
+	this.constructorVars = tsetFrom_(tce_p_Var.t_(), ImmutableSet_builder().addAll(s.getAllSymbols()).addAll(argsScope.getAllSymbols()).build(), true)
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) createNewNameReferenceNode() Node {

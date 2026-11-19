@@ -256,7 +256,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.injectRuntimeLibraries = PassFactory_builder().setName("InjectRuntimeLibraries").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		return CompilerPass(new_InjectRuntimeLibraries(compiler, jimmutableSetCopyOf_(jtc_string, Collection(compiler.getOptions().getForceLibraryInjectionList().asList()))))
+		return CompilerPass(new_InjectRuntimeLibraries(compiler, immutableSetCopyOf_(tc_string, Collection(compiler.getOptions().getForceLibraryInjectionList().asList()))))
 	}}).build()
 	this.removeWeakSources = PassFactory_builder().setName("removeWeakSources").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass { return CompilerPass(new_RemoveWeakSources(to_AbstractCompiler(p0))) }}).build()
 	this.declaredGlobalExternsOnWindow = PassFactory_builder().setName(PassNames_DECLARED_GLOBAL_EXTERNS_ON_WINDOW).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
@@ -1312,7 +1312,7 @@ func (this *DefaultPassConfig) getEarlyOptimizationPasses() *PassListBuilder {
 	}
 	passes.maybeAdd(this.replaceToggles)
 	passes.maybeAdd(this.inlineAndCollapseProperties)
-	if ((this.options_.getTweakProcessing().shouldStrip() || !this.options_.getStripTypes().isEmpty()) || !this.options_.getStripNameSuffixes().isEmpty()) || !this.options_.getStripNamePrefixes().isEmpty() {
+	if ((this.options_.getTweakProcessing().shouldStrip() || !this.options_.getStripTypes().IsEmpty()) || !this.options_.getStripNameSuffixes().IsEmpty()) || !this.options_.getStripNamePrefixes().IsEmpty() {
 		passes.maybeAdd(this.stripCode)
 	}
 	if this.options_.shouldReplaceIdGenerators() {
@@ -1523,10 +1523,10 @@ func (this *DefaultPassConfig) createProcessDefines(mode ProcessDefines_Mode) *P
 }
 
 func (this *DefaultPassConfig) runVariableRenaming(compiler *AbstractCompiler, prevVariableMap *VariableMap, externs Node, root Node) *VariableMap {
-	var reservedChars *JTSet[any] = jtsetEmptyImm_(jtc_Character)
-	var reservedNames *JTSet[string] = jnewTSet_(jtc_string)
+	var reservedChars *TSet[any] = tsetEmptyImm_(tc_Character)
+	var reservedNames *TSet[string] = newTSet_(tc_string)
 	if this.options_.getRenamePrefixNamespace().isPresent() {
-		reservedNames.add(this.options_.getRenamePrefixNamespace().get())
+		reservedNames.Add(this.options_.getRenamePrefixNamespace().get())
 	}
 	reservedNames.asSet().addAll(Collection(compiler.getExportedNames().asSet()))
 	reservedNames.asSet().addAll(Collection(ParserRunner_getReservedVars().asSet()))
@@ -1555,13 +1555,13 @@ func DefaultPassConfig_runInSerial(passes CollectionOf[CompilerPass]) CompilerPa
 	return CompilerPass(new_DefaultPassConfig_13(passes))
 }
 
-func DefaultPassConfig_getAdditionalReplacements(options *CompilerOptions) *JTMap[string, Node] {
-	var additionalReplacements *JTMap[string, Node] = jnewTMap_(jtc_string, jtc_Node)
+func DefaultPassConfig_getAdditionalReplacements(options *CompilerOptions) *TMap[string, Node] {
+	var additionalReplacements *TMap[string, Node] = newTMap_(tc_string, tc_Node)
 	if options.shouldMarkAsCompiled() || options.getClosurePass() {
-		additionalReplacements.put(DefaultPassConfig_COMPILED_CONSTANT_NAME, IR_trueNode())
+		additionalReplacements.Put(DefaultPassConfig_COMPILED_CONSTANT_NAME, IR_trueNode())
 	}
 	if (options.getClosurePass() && options.getLocale().isPresent()) && !options.doLateLocalization() {
-		additionalReplacements.put(DefaultPassConfig_CLOSURE_LOCALE_CONSTANT_NAME, IR_string(options.getLocale().get()))
+		additionalReplacements.Put(DefaultPassConfig_CLOSURE_LOCALE_CONSTANT_NAME, IR_string(options.getLocale().get()))
 	}
 	return additionalReplacements
 }

@@ -244,7 +244,7 @@ func (this *AbstractVar) declarationType() Token_rhino {
 	{
 		var current Node = this.getNode()
 		for ; current != 0; current = current.getParent() {
-			if AbstractVar_DECLARATION_TYPES.contains(current.getToken()) {
+			if AbstractVar_DECLARATION_TYPES.Has(current.getToken()) {
 				return current.getToken()
 			}
 		}
@@ -294,7 +294,7 @@ func AbstractVar_strongerOf(left StaticSourceFile_SourceKind, right StaticSource
 	return StaticSourceFile_SourceKind_WEAK
 }
 
-var AbstractVar_DECLARATION_TYPES *JTSet[Token_rhino]
+var AbstractVar_DECLARATION_TYPES *TSet[Token_rhino]
 
 var AbstractVar_clinit_done bool
 
@@ -303,7 +303,7 @@ func AbstractVar_clinit() {
 		return
 	}
 	AbstractVar_clinit_done = true
-	AbstractVar_DECLARATION_TYPES = tsetImm_(jtc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_VAR.enum_(), []*Enum{Token_rhino_LET.enum_(), Token_rhino_CONST.enum_(), Token_rhino_FUNCTION.enum_(), Token_rhino_CLASS.enum_(), Token_rhino_CATCH.enum_(), Token_rhino_IMPORT.enum_(), Token_rhino_PARAM_LIST.enum_()}))
+	AbstractVar_DECLARATION_TYPES = tsetFrom_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_VAR.enum_(), []*Enum{Token_rhino_LET.enum_(), Token_rhino_CONST.enum_(), Token_rhino_FUNCTION.enum_(), Token_rhino_CLASS.enum_(), Token_rhino_CATCH.enum_(), Token_rhino_IMPORT.enum_(), Token_rhino_PARAM_LIST.enum_()}), true)
 
 }
 

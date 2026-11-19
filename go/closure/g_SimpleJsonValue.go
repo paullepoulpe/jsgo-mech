@@ -6,7 +6,7 @@ type SimpleJsonValue struct {
 	tag   SimpleJsonValue_Kind
 	text  string
 	items *TList[*SimpleJsonValue]
-	named *JTMap[string, *SimpleJsonValue]
+	named *TMap[string, *SimpleJsonValue]
 }
 
 func (this *SimpleJsonValue) zero_SimpleJsonValue() {
@@ -15,7 +15,7 @@ func (this *SimpleJsonValue) zero_SimpleJsonValue() {
 
 func (this *SimpleJsonValue) finit_SimpleJsonValue() {
 	this.items = newTList_(tc_p_SimpleJsonValue)
-	this.named = jnewTMap_(jtc_string, jtc_p_SimpleJsonValue)
+	this.named = newTMap_(tc_string, tc_p_SimpleJsonValue)
 }
 
 func (this *SimpleJsonValue) init_SimpleJsonValue(tag SimpleJsonValue_Kind, text string) {
@@ -64,7 +64,7 @@ func (this *SimpleJsonValue) kind() SimpleJsonValue_Kind {
 	return this.tag
 }
 
-func (this *SimpleJsonValue) members() *JTMap[string, *SimpleJsonValue] {
+func (this *SimpleJsonValue) members() *TMap[string, *SimpleJsonValue] {
 	return this.named
 }
 
@@ -73,7 +73,7 @@ func (this *SimpleJsonValue) elements() *TList[*SimpleJsonValue] {
 }
 
 func (this *SimpleJsonValue) get(name string) *SimpleJsonValue {
-	return this.named.get(name)
+	return this.named.Get(name)
 }
 
 func (this *SimpleJsonValue) asString() *Outcome_base[string] {
@@ -168,7 +168,7 @@ func (this *SimpleJsonValue) writeTo(writer *SimpleJsonWriter) {
 		writer.beginObject()
 		it_2 := this.named.eachEntry()
 		for it_2.next() {
-			var member *TEntry[string, *SimpleJsonValue] = it_2.entry()
+			var member *TEntryP[string, *SimpleJsonValue] = it_2.entry()
 			writer.name(member.getKey())
 			member.getValue().writeTo(writer)
 		}

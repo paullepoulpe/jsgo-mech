@@ -11,9 +11,9 @@ type IRFactory struct {
 	config                     *Config
 	errorReporter              ErrorReporter_rhino
 	transformDispatcher        *IRFactory_TransformDispatcher
-	reservedKeywords           *JTSet[string]
-	parsedComments             *JTSet[*Comment]
-	licenseBuilder             *JTSet[string]
+	reservedKeywords           *TSet[string]
+	parsedComments             *TSet[*Comment]
+	licenseBuilder             *TSet[string]
 	firstFileoverview          *JSDocInfo
 	templateNode               Node
 	defaultTemplateNode        Node
@@ -28,8 +28,8 @@ type IRFactory struct {
 }
 
 func (this *IRFactory) finit_IRFactory() {
-	this.parsedComments = jnewTSet_(jtc_p_Comment)
-	this.licenseBuilder = jnewTSet_(jtc_string)
+	this.parsedComments = newTSet_(tc_p_Comment)
+	this.licenseBuilder = newTSet_(tc_string)
 	this.firstFileoverview = nil
 	this.currentFileIsExterns = false
 	this.features_ = FeatureSet_BARE_MINIMUM
@@ -100,7 +100,7 @@ func IRFactory_transformTree(tree *ProgramTree, sourceFile StaticSourceFile, con
 		it_1 := tree.sourceComments.each()
 		for it_1.next() {
 			var comment *Comment = it_1.v
-			if ((comment.type__ == Comment_Type_JSDOC) || (comment.type__ == Comment_Type_IMPORTANT)) && !irFactory.parsedComments.contains(comment) {
+			if ((comment.type__ == Comment_Type_JSDOC) || (comment.type__ == Comment_Type_IMPORTANT)) && !irFactory.parsedComments.Has(comment) {
 				var useLicensesOnlyConfig bool = irFactory.withinClosureUnawareCodeRange(comment.location_.start_.line_, comment.location_.start_.column_)
 				irFactory.handlePossibleFileOverviewJsDoc_2(comment, useLicensesOnlyConfig)
 			}
@@ -372,13 +372,13 @@ func (this *IRFactory) validateParameters(n Node) {
 	if !n.isParamList() {
 		return
 	}
-	var seenNames *JTSet[string] = jnewTSet_(jtc_string)
+	var seenNames *TSet[string] = newTSet_(tc_string)
 	{
 		var c Node = n.getFirstChild()
 		for ; c != 0; c = c.getNext() {
 			ParsingUtil_getParamOrPatternNames(c, (&Consumer_tfn_Node{func(param Node) {
 				var paramName string = param.getString()
-				if !seenNames.add(paramName) {
+				if !seenNames.Add(paramName) {
 					this.errorReporter.warning(("Duplicate parameter name \"" + sstr_(paramName) + "\""), this.sourceName_, param.getLineno(), param.getCharno())
 				}
 			}}).accept)
@@ -399,7 +399,7 @@ func (this *IRFactory) setFileOverviewJsDoc(irNode Node) {
 		}
 		return this.firstFileoverview.toBuilder()
 	}()
-	if !this.licenseBuilder.isEmpty() {
+	if !this.licenseBuilder.IsEmpty() {
 		fileoverview.recordLicense(JString_join_s("", Iterable(this.licenseBuilder.asSet())))
 	}
 	irNode.setJSDocInfo(fileoverview.build_1(false))
@@ -423,7 +423,7 @@ func (this *IRFactory) transformBlock(node *ParseTree) Node {
 
 func (this *IRFactory) handlePossibleFileOverviewJsDoc(jsDocParser *JsDocInfoParser) bool {
 	if jsDocParser.getLicenseText().isPresent() {
-		this.licenseBuilder.add(jsDocParser.getLicenseText().get())
+		this.licenseBuilder.Add(jsDocParser.getLicenseText().get())
 	}
 	var newFileoverview *JSDocInfo = jsDocParser.getFileOverviewJSDocInfo()
 	if JSCompObjects_identical(obj_(newFileoverview), obj_(this.firstFileoverview)) {
@@ -454,7 +454,7 @@ func (this *IRFactory) handlePossibleFileOverviewJsDoc(jsDocParser *JsDocInfoPar
 
 func (this *IRFactory) handlePossibleFileOverviewJsDoc_2(comment *Comment, useLicensesOnlyConfig bool) {
 	var jsDocParser *JsDocInfoParser = this.createJsDocInfoParser_2(comment, useLicensesOnlyConfig)
-	this.parsedComments.add(comment)
+	this.parsedComments.Add(comment)
 	this.handlePossibleFileOverviewJsDoc(jsDocParser)
 }
 
@@ -476,7 +476,7 @@ func (this *IRFactory) parseJSDocInfoFrom(comment *Comment) *JSDocInfo {
 		return nil
 	}
 	var jsDocParser *JsDocInfoParser = this.createJsDocInfoParser(comment)
-	this.parsedComments.add(comment)
+	this.parsedComments.Add(comment)
 	if this.handlePossibleFileOverviewJsDoc(jsDocParser) {
 		return nil
 	}
@@ -551,7 +551,7 @@ func (this *IRFactory) parseNonJSDocCommentAt(pos *SourcePosition_util, isInline
 		result.append(currentComment.value_)
 		lastComment = currentComment
 		if commentFromJsdocTracker {
-			this.parsedComments.add(currentComment)
+			this.parsedComments.Add(currentComment)
 			this.jsdocTracker.advance()
 		} else {
 			this.nonJsdocTracker.advance()
@@ -1432,8 +1432,8 @@ const IRFactory_UNEXPECTED_NEW_DOT_TARGET string = "new.target must be inside a 
 const IRFactory_NEW_DOT_TARGET_IN_CLASS_FIELD_OR_STATIC_BLOCK string = "new.target is not supported in class field initializers or static blocks"
 const IRFactory_UNDEFINED_LABEL string = "undefined label \"%s\""
 
-var IRFactory_ES5_RESERVED_KEYWORDS *JTSet[string]
-var IRFactory_ES5_STRICT_RESERVED_KEYWORDS *JTSet[string]
+var IRFactory_ES5_RESERVED_KEYWORDS *TSet[string]
+var IRFactory_ES5_STRICT_RESERVED_KEYWORDS *TSet[string]
 var IRFactory_COMMENT_START_POSITION_COMPARATOR Comparator
 
 const IRFactory_JSCOMP_CLOSURE_UNAWARE_CODE_SHADOW_HOST_NAME string = "$jscomp_wrap_closure_unaware_code"
@@ -1449,8 +1449,8 @@ func IRFactory_clinit() {
 	}
 	IRFactory_clinit_done = true
 	IRFactory_CR_OR_CRLF_PATTERN = Pattern_compile("\r\n?")
-	IRFactory_ES5_RESERVED_KEYWORDS = jimmutableSetOf_[string](jtc_string, "class", "const", "enum", "export", "extends", "import", "super")
-	IRFactory_ES5_STRICT_RESERVED_KEYWORDS = jimmutableSetOf_[string](jtc_string, "class", "const", "enum", "export", "extends", "import", "super", "implements", "interface", "let", "package", "private", "protected", "public", "static", "yield")
+	IRFactory_ES5_RESERVED_KEYWORDS = immutableSetOf_[string](tc_string, "class", "const", "enum", "export", "extends", "import", "super")
+	IRFactory_ES5_STRICT_RESERVED_KEYWORDS = immutableSetOf_[string](tc_string, "class", "const", "enum", "export", "extends", "import", "super", "implements", "interface", "let", "package", "private", "protected", "public", "static", "yield")
 	IRFactory_COMMENT_START_POSITION_COMPARATOR = Comparator_thenComparingInt(Comparator_comparingInt(&ToIntFunction_tfn_Comment{func(x *Comment) int32 {
 		return x.location_.start_.line_
 	}}), &ToIntFunction_tfn_Comment{func(x *Comment) int32 {
@@ -2400,7 +2400,7 @@ func (this *IRFactory_TransformDispatcher) maybeWarnReservedKeyword(token *Ident
 		this.outer_.features_ = this.outer_.features_.with(FeatureSet_Feature_ES3_KEYWORDS_AS_IDENTIFIERS)
 		isIdentifier = (this.outer_.config.languageMode() == Config_LanguageMode_ECMASCRIPT3)
 	}
-	if (this.outer_.reservedKeywords != nil) && this.outer_.reservedKeywords.contains(identifier) {
+	if (this.outer_.reservedKeywords != nil) && this.outer_.reservedKeywords.Has(identifier) {
 		this.outer_.features_ = this.outer_.features_.with(FeatureSet_Feature_KEYWORDS_AS_PROPERTIES)
 		isIdentifier = (this.outer_.config.languageMode() == Config_LanguageMode_ECMASCRIPT3)
 	}

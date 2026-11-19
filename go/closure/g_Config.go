@@ -8,12 +8,12 @@ type Config struct {
 	jsDocParsingMode_      Config_JsDocParsing
 	runMode_               Config_RunMode
 	annotations_           *JTMap[string, Annotation_parsing]
-	suppressionNames_      *JTSet[string]
-	closurePrimitiveNames_ *JTSet[string]
+	suppressionNames_      *TSet[string]
+	closurePrimitiveNames_ *TSet[string]
 	parseInlineSourceMaps_ bool
 }
 
-func (this *Config) init_Config(languageMode Config_LanguageMode, strictMode Config_StrictMode, jsDocParsingMode Config_JsDocParsing, runMode Config_RunMode, annotations *JTMap[string, Annotation_parsing], suppressionNames *JTSet[string], closurePrimitiveNames *JTSet[string], parseInlineSourceMaps bool) {
+func (this *Config) init_Config(languageMode Config_LanguageMode, strictMode Config_StrictMode, jsDocParsingMode Config_JsDocParsing, runMode Config_RunMode, annotations *JTMap[string, Annotation_parsing], suppressionNames *TSet[string], closurePrimitiveNames *TSet[string], parseInlineSourceMaps bool) {
 	Objects_requireNonNull_T(languageMode, "languageMode")
 	Objects_requireNonNull_T(strictMode, "strictMode")
 	Objects_requireNonNull_T(jsDocParsingMode, "jsDocParsingMode")
@@ -37,7 +37,7 @@ func (this *Config) init_Config(languageMode Config_LanguageMode, strictMode Con
 	this.parseInlineSourceMaps_ = parseInlineSourceMaps
 }
 
-func new_Config(languageMode Config_LanguageMode, strictMode Config_StrictMode, jsDocParsingMode Config_JsDocParsing, runMode Config_RunMode, annotations *JTMap[string, Annotation_parsing], suppressionNames *JTSet[string], closurePrimitiveNames *JTSet[string], parseInlineSourceMaps bool) *Config {
+func new_Config(languageMode Config_LanguageMode, strictMode Config_StrictMode, jsDocParsingMode Config_JsDocParsing, runMode Config_RunMode, annotations *JTMap[string, Annotation_parsing], suppressionNames *TSet[string], closurePrimitiveNames *TSet[string], parseInlineSourceMaps bool) *Config {
 	this := &Config{}
 	this.init_Config(languageMode, strictMode, jsDocParsingMode, runMode, annotations, suppressionNames, closurePrimitiveNames, parseInlineSourceMaps)
 	return this
@@ -63,7 +63,7 @@ func Config_buildAnnotations(allowlist IterableOf[string]) *JTMap[string, Annota
 	var annotationsBuilder *TMapBuilder[string, Annotation_parsing] = newTMapBuilder_(jtc_string, jtc_p_Annotation_parsing)
 	annotationsBuilder.putAll(Annotation_parsing_recognizedAnnotations.asMap())
 	for unrecognizedAnnotation := range elemsBy_(allowlist, str_) {
-		if unrecognizedAnnotation != "" && !Annotation_parsing_recognizedAnnotations.containsKey(unrecognizedAnnotation) {
+		if unrecognizedAnnotation != "" && !Annotation_parsing_recognizedAnnotations.Has(unrecognizedAnnotation) {
 			annotationsBuilder.put(unrecognizedAnnotation, Annotation_parsing_NOT_IMPLEMENTED)
 		}
 	}
@@ -90,11 +90,11 @@ func (this *Config) annotations() *JTMap[string, Annotation_parsing] {
 	return this.annotations_
 }
 
-func (this *Config) suppressionNames() *JTSet[string] {
+func (this *Config) suppressionNames() *TSet[string] {
 	return this.suppressionNames_
 }
 
-func (this *Config) closurePrimitiveNames() *JTSet[string] {
+func (this *Config) closurePrimitiveNames() *TSet[string] {
 	return this.closurePrimitiveNames_
 }
 
@@ -476,8 +476,8 @@ type Config_Builder struct {
 	jsDocParsingMode_      Config_JsDocParsing
 	runMode_               Config_RunMode
 	annotations_           *JTMap[string, Annotation_parsing]
-	suppressionNames_      *JTSet[string]
-	closurePrimitiveNames_ *JTSet[string]
+	suppressionNames_      *TSet[string]
+	closurePrimitiveNames_ *TSet[string]
 	parseInlineSourceMaps_ bool
 	set0                   int8
 }
@@ -549,12 +549,12 @@ func (this *Config_Builder) setParseInlineSourceMaps(parseInlineSourceMaps bool)
 }
 
 func (this *Config_Builder) setSuppressionNames(names IterableOf[string]) *Config_Builder {
-	this.suppressionNames_ = jimmutableSetCopyOf_(jtc_string, names)
+	this.suppressionNames_ = immutableSetCopyOf_(tc_string, names)
 	return this
 }
 
 func (this *Config_Builder) setClosurePrimitiveNames(names IterableOf[string]) *Config_Builder {
-	this.closurePrimitiveNames_ = jimmutableSetCopyOf_(jtc_string, names)
+	this.closurePrimitiveNames_ = immutableSetCopyOf_(tc_string, names)
 	return this
 }
 

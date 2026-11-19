@@ -8,7 +8,7 @@ type SimpleDependencyInfo struct {
 	getProvides_                  *TList[string]
 	getRequires_                  *TList[*DependencyInfo_Require]
 	getTypeRequires_              *TList[string]
-	getLoadFlags_                 *JTMap[string, string]
+	getLoadFlags_                 *TMap[string, string]
 	getHasExternsAnnotation_      bool
 	getHasNoCompileAnnotation_    bool
 }
@@ -18,7 +18,7 @@ func (this *SimpleDependencyInfo) zero_SimpleDependencyInfo() {
 	this.getPathRelativeToClosureBase_ = nullstr_
 }
 
-func (this *SimpleDependencyInfo) init_SimpleDependencyInfo(getName string, getPathRelativeToClosureBase string, getProvides *TList[string], getRequires *TList[*DependencyInfo_Require], getTypeRequires *TList[string], getLoadFlags *JTMap[string, string], getHasExternsAnnotation bool, getHasNoCompileAnnotation bool) {
+func (this *SimpleDependencyInfo) init_SimpleDependencyInfo(getName string, getPathRelativeToClosureBase string, getProvides *TList[string], getRequires *TList[*DependencyInfo_Require], getTypeRequires *TList[string], getLoadFlags *TMap[string, string], getHasExternsAnnotation bool, getHasNoCompileAnnotation bool) {
 	if getProvides.asList() == nil {
 		panic(new_NullPointerException_String("getProvides"))
 	}
@@ -41,7 +41,7 @@ func (this *SimpleDependencyInfo) init_SimpleDependencyInfo(getName string, getP
 	this.getHasNoCompileAnnotation_ = getHasNoCompileAnnotation
 }
 
-func new_SimpleDependencyInfo(getName string, getPathRelativeToClosureBase string, getProvides *TList[string], getRequires *TList[*DependencyInfo_Require], getTypeRequires *TList[string], getLoadFlags *JTMap[string, string], getHasExternsAnnotation bool, getHasNoCompileAnnotation bool) *SimpleDependencyInfo {
+func new_SimpleDependencyInfo(getName string, getPathRelativeToClosureBase string, getProvides *TList[string], getRequires *TList[*DependencyInfo_Require], getTypeRequires *TList[string], getLoadFlags *TMap[string, string], getHasExternsAnnotation bool, getHasNoCompileAnnotation bool) *SimpleDependencyInfo {
 	this := &SimpleDependencyInfo{}
 	this.zero_SimpleDependencyInfo()
 	this.init_SimpleDependencyInfo(getName, getPathRelativeToClosureBase, getProvides, getRequires, getTypeRequires, getLoadFlags, getHasExternsAnnotation, getHasNoCompileAnnotation)
@@ -140,7 +140,7 @@ type SimpleDependencyInfo_Builder struct {
 	provides                  *TList[string]
 	requires                  *TList[*DependencyInfo_Require]
 	typeRequires              *TList[string]
-	loadFlags_                *JTMap[string, string]
+	loadFlags_                *TMap[string, string]
 	hasExternsAnnotation      bool
 	hasNoCompileAnnotation    bool
 	set0                      int8
@@ -206,7 +206,7 @@ func (this *SimpleDependencyInfo_Builder) setTypeRequiresStringVarargs(typeRequi
 }
 
 func (this *SimpleDependencyInfo_Builder) setLoadFlags(loadFlags MapOf[string, string]) *SimpleDependencyInfo_Builder {
-	this.loadFlags_ = jimmutableMapCopyOf_(jtc_string, jtc_string, loadFlags)
+	this.loadFlags_ = immutableMapCopyOf_(tc_string, tc_string, loadFlags)
 	return this
 }
 
@@ -263,7 +263,7 @@ func (this *SimpleDependencyInfo_Builder) build() *SimpleDependencyInfo {
 	return new_SimpleDependencyInfo(this.name_.get(), this.pathRelativeToClosureBase.get(), this.provides, this.requires, this.typeRequires, this.loadFlags_, this.hasExternsAnnotation, this.hasNoCompileAnnotation)
 }
 
-var SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS *JTMap[string, string]
+var SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS *TMap[string, string]
 
 var SimpleDependencyInfo_Builder_clinit_done bool
 
@@ -272,6 +272,6 @@ func SimpleDependencyInfo_Builder_clinit() {
 		return
 	}
 	SimpleDependencyInfo_Builder_clinit_done = true
-	SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS = immutableMapOf1_[string, string](jtc_string, jtc_string, "module", "goog")
+	SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS = immutableMapOf1P_[string, string](tc_string, tc_string, "module", "goog")
 
 }

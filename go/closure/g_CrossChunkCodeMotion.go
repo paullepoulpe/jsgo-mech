@@ -6,12 +6,12 @@ type CrossChunkCodeMotion struct {
 	cccmLog                                    *LogFile
 	compiler_                                  *AbstractCompiler
 	graph                                      *JSChunkGraph
-	chunkInsertionPointMap                     *JTMap[*JSChunk, Node]
+	chunkInsertionPointMap                     *TMap[*JSChunk, Node]
 	parentChunkCanSeeSymbolsDeclaredInChildren bool
 }
 
 func (this *CrossChunkCodeMotion) finit_CrossChunkCodeMotion() {
-	this.chunkInsertionPointMap = jnewTMap_(jtc_p_JSChunk, jtc_Node)
+	this.chunkInsertionPointMap = newTMap_(tc_p_JSChunk, tc_Node)
 }
 
 func (this *CrossChunkCodeMotion) init_CrossChunkCodeMotion(compiler *AbstractCompiler, graph *JSChunkGraph, parentChunkCanSeeSymbolsDeclaredInChildren bool) {
@@ -132,12 +132,12 @@ func (this *CrossChunkCodeMotion) isInstanceofFor(expression Node, reference Nod
 
 type CrossChunkCodeMotion_GlobalSymbolCollector struct {
 	outer_             *CrossChunkCodeMotion
-	globalSymbolforVar *JTMap[*Var, *CrossChunkCodeMotion_GlobalSymbol]
+	globalSymbolforVar *TMap[*Var, *CrossChunkCodeMotion_GlobalSymbol]
 	symbolStack        *TDeque[*CrossChunkCodeMotion_GlobalSymbol]
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) finit_CrossChunkCodeMotion_GlobalSymbolCollector() {
-	this.globalSymbolforVar = jnewTMap_(tce_p_Var, jtc_p_CrossChunkCodeMotion_GlobalSymbol)
+	this.globalSymbolforVar = newTMap_(tce_p_Var.t_(), tc_p_CrossChunkCodeMotion_GlobalSymbol)
 	this.symbolStack = newTDeque_(jtc_p_CrossChunkCodeMotion_GlobalSymbol)
 }
 
@@ -212,10 +212,10 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCollector) processDeclarationStatem
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) getGlobalSymbol(var_ *Var) *CrossChunkCodeMotion_GlobalSymbol {
-	var globalSymbol *CrossChunkCodeMotion_GlobalSymbol = this.globalSymbolforVar.get(var_)
+	var globalSymbol *CrossChunkCodeMotion_GlobalSymbol = this.globalSymbolforVar.Get(var_)
 	if globalSymbol == nil {
 		globalSymbol = new_CrossChunkCodeMotion_GlobalSymbol(this.outer_, var_)
-		this.globalSymbolforVar.put(var_, globalSymbol)
+		this.globalSymbolforVar.Put(var_, globalSymbol)
 		this.symbolStack.push(globalSymbol)
 	}
 	return globalSymbol
@@ -226,7 +226,7 @@ type CrossChunkCodeMotion_GlobalSymbol struct {
 	var_                                         *Var
 	dsgStack                                     *TDeque[*CrossChunkCodeMotion_DeclarationStatementGroup]
 	chunksWithImmovableReferences                *BitSet
-	referencingGlobalSymbols                     *JTSet[*CrossChunkCodeMotion_GlobalSymbol]
+	referencingGlobalSymbols                     *TSet[*CrossChunkCodeMotion_GlobalSymbol]
 	instanceofReferencesToGuard                  *TDeque[CrossChunkCodeMotion_InstanceofReference]
 	preorderNumber                               int32
 	hasBeenAssignedToAStronglyConnectedComponent bool
@@ -236,7 +236,7 @@ type CrossChunkCodeMotion_GlobalSymbol struct {
 func (this *CrossChunkCodeMotion_GlobalSymbol) finit_CrossChunkCodeMotion_GlobalSymbol() {
 	this.dsgStack = newTDeque_(jtc_p_CrossChunkCodeMotion_DeclarationStatementGroup)
 	this.chunksWithImmovableReferences = new_BitSet_int(this.outer_.graph.getChunkCount())
-	this.referencingGlobalSymbols = jnewTSet_(jtc_p_CrossChunkCodeMotion_GlobalSymbol)
+	this.referencingGlobalSymbols = newTSet_(tc_p_CrossChunkCodeMotion_GlobalSymbol)
 	this.instanceofReferencesToGuard = newTDeque_(jtc_CrossChunkCodeMotion_InstanceofReference)
 	this.preorderNumber = -1
 	this.hasBeenAssignedToAStronglyConnectedComponent = false
@@ -282,7 +282,7 @@ func (this *CrossChunkCodeMotion_GlobalSymbol) addDeclarationStatement(statement
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbol) addReferringGlobalSymbol(declaredSymbol *CrossChunkCodeMotion_GlobalSymbol) {
-	this.referencingGlobalSymbols.add(declaredSymbol)
+	this.referencingGlobalSymbols.Add(declaredSymbol)
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbol) declarationsCoverChunk(chunk *JSChunk) bool {
@@ -398,13 +398,13 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCycle) getDsgsLatestFirst() *TDeque
 
 type CrossChunkCodeMotion_DeclarationStatementGroup struct {
 	declaredGlobalSymbol    *CrossChunkCodeMotion_GlobalSymbol
-	referencedGlobalSymbols *JTSet[*CrossChunkCodeMotion_GlobalSymbol]
+	referencedGlobalSymbols *TSet[*CrossChunkCodeMotion_GlobalSymbol]
 	currentChunk            *JSChunk
 	statementStack          *TDeque[*CrossChunkReferenceCollector_TopLevelStatement]
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroup) finit_CrossChunkCodeMotion_DeclarationStatementGroup() {
-	this.referencedGlobalSymbols = jnewTSet_(jtc_p_CrossChunkCodeMotion_GlobalSymbol)
+	this.referencedGlobalSymbols = newTSet_(tc_p_CrossChunkCodeMotion_GlobalSymbol)
 	this.statementStack = newTDeque_(jtc_p_CrossChunkReferenceCollector_TopLevelStatement)
 }
 
@@ -432,7 +432,7 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroup) allStatementsCanMove
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroup) addReferenceToGlobalSymbol(refSymbol *CrossChunkCodeMotion_GlobalSymbol) {
-	this.referencedGlobalSymbols.add(refSymbol)
+	this.referencedGlobalSymbols.Add(refSymbol)
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroup) makeReferencesImmovable() {

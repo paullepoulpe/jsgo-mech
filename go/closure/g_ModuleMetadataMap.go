@@ -3,24 +3,24 @@
 package closure
 
 type ModuleMetadataMap struct {
-	modulesByPath          *JTMap[string, *ModuleMetadataMap_ModuleMetadata]
+	modulesByPath          *TMap[string, *ModuleMetadataMap_ModuleMetadata]
 	modulesByGoogNamespace *JTMap[string, *ModuleMetadataMap_ModuleMetadata]
-	moduleMetadata_        *JTSet[*ModuleMetadataMap_ModuleMetadata]
+	moduleMetadata_        *TSet[*ModuleMetadataMap_ModuleMetadata]
 }
 
-func (this *ModuleMetadataMap) init_ModuleMetadataMap(modulesByPath *JTMap[string, *ModuleMetadataMap_ModuleMetadata], modulesByGoogNamespace *JTMap[string, *ModuleMetadataMap_ModuleMetadata]) {
-	this.modulesByPath = immutableMapCopyOfT_(jtc_string, jtc_p_ModuleMetadataMap_ModuleMetadata, modulesByPath)
+func (this *ModuleMetadataMap) init_ModuleMetadataMap(modulesByPath *TMap[string, *ModuleMetadataMap_ModuleMetadata], modulesByGoogNamespace *JTMap[string, *ModuleMetadataMap_ModuleMetadata]) {
+	this.modulesByPath = immutableMapCopyOfTP_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata, modulesByPath)
 	this.modulesByGoogNamespace = immutableMapCopyOfT_(jtc_string, jtc_p_ModuleMetadataMap_ModuleMetadata, modulesByGoogNamespace)
-	this.moduleMetadata_ = tsetImm_(tce_p_ModuleMetadataMap_ModuleMetadata, ImmutableSet_builder().addAll(Iterable(modulesByPath.asMap().values())).addAll(Iterable(modulesByGoogNamespace.asMap().values())).build())
+	this.moduleMetadata_ = tsetFrom_(tce_p_ModuleMetadataMap_ModuleMetadata.t_(), ImmutableSet_builder().addAll(Iterable(modulesByPath.asMap().values())).addAll(Iterable(modulesByGoogNamespace.asMap().values())).build(), true)
 }
 
-func new_ModuleMetadataMap(modulesByPath *JTMap[string, *ModuleMetadataMap_ModuleMetadata], modulesByGoogNamespace *JTMap[string, *ModuleMetadataMap_ModuleMetadata]) *ModuleMetadataMap {
+func new_ModuleMetadataMap(modulesByPath *TMap[string, *ModuleMetadataMap_ModuleMetadata], modulesByGoogNamespace *JTMap[string, *ModuleMetadataMap_ModuleMetadata]) *ModuleMetadataMap {
 	this := &ModuleMetadataMap{}
 	this.init_ModuleMetadataMap(modulesByPath, modulesByGoogNamespace)
 	return this
 }
 
-func (this *ModuleMetadataMap) getModulesByPath() *JTMap[string, *ModuleMetadataMap_ModuleMetadata] {
+func (this *ModuleMetadataMap) getModulesByPath() *TMap[string, *ModuleMetadataMap_ModuleMetadata] {
 	return this.modulesByPath
 }
 
@@ -28,12 +28,12 @@ func (this *ModuleMetadataMap) getModulesByGoogNamespace() *JTMap[string, *Modul
 	return this.modulesByGoogNamespace
 }
 
-func (this *ModuleMetadataMap) getAllModuleMetadata() *JTSet[*ModuleMetadataMap_ModuleMetadata] {
+func (this *ModuleMetadataMap) getAllModuleMetadata() *TSet[*ModuleMetadataMap_ModuleMetadata] {
 	return this.moduleMetadata_
 }
 
 func ModuleMetadataMap_emptyForTesting() *ModuleMetadataMap {
-	return new_ModuleMetadataMap(jtmapEmptyImm_(jtc_string, jtc_p_ModuleMetadataMap_ModuleMetadata), jtmapEmptyImm_(jtc_string, jtc_p_ModuleMetadataMap_ModuleMetadata))
+	return new_ModuleMetadataMap(tmapEmptyImm_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata), jtmapEmptyImm_(jtc_string, jtc_p_ModuleMetadataMap_ModuleMetadata))
 }
 
 type ModuleMetadataMap_ModuleType uint8

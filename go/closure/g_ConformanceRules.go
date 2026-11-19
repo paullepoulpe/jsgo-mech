@@ -847,7 +847,7 @@ type ConformanceRules_BannedName struct {
 	ConformanceRules_AbstractRule
 	requirementType Requirement_Type
 	qualifiedNames  *TList[Node]
-	shortNames      *JTSet[string]
+	shortNames      *TSet[string]
 }
 
 func (this *ConformanceRules_BannedName) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -892,7 +892,7 @@ func (this *ConformanceRules_BannedName) initBannedName(compiler *AbstractCompil
 	}
 	this.requirementType = requirement.getType()
 	var qualifiedBuilder *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
-	var shortBuilder *TSetBuilder[string] = newTSetBuilder_(jtc_string)
+	var shortBuilder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	for name := range elemsBy_(ProtocolStringList(requirement.getValueList()), str_) {
 		var qualifiedName Node = NodeUtil_newQName_AbstractCompiler_String(compiler, name)
 		qualifiedBuilder.add(qualifiedName)
@@ -911,7 +911,7 @@ func (this *ConformanceRules_BannedName) checkConformance_impl(t *NodeTraversal,
 	if (this.requirementType == Requirement_Type_BANNED_NAME_CALL) && !ConformanceRules_ConformanceUtil_isCallTarget(n) {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	if !this.shortNames.contains(n.getString()) {
+	if !this.shortNames.Has(n.getString()) {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	if NodeUtil_isInSyntheticScript(n) || !ConformanceRules_BannedName_isRootOfQualifiedNameGlobal(t, n) {
@@ -2068,16 +2068,16 @@ func (this *ConformanceRules_CustomRuleProxy) check(t *NodeTraversal, n Node, be
 }
 
 func (this *ConformanceRules_CustomRuleProxy) createRule(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[CheckConformance_Rule] {
-	var factory ConformanceRules_CustomRuleProxy_CustomRuleFactory = ConformanceRules_CustomRuleProxy_CUSTOM_RULE_REGISTRY.get(requirement.getJavaClass())
+	var factory ConformanceRules_CustomRuleProxy_CustomRuleFactory = ConformanceRules_CustomRuleProxy_CUSTOM_RULE_REGISTRY.Get(requirement.getJavaClass())
 	if factory == nil {
 		return Outcome_base_err[CheckConformance_Rule](new_CheckConformance_InvalidRequirementSpec_String(("Unknown conformance rule: " + sstr_(requirement.getJavaClass()))).up_Throwable())
 	}
 	return factory.call(compiler, requirement)
 }
 
-func ConformanceRules_CustomRuleProxy_createCustomRuleRegistry() *JTMap[string, ConformanceRules_CustomRuleProxy_CustomRuleFactory] {
+func ConformanceRules_CustomRuleProxy_createCustomRuleRegistry() *TMap[string, ConformanceRules_CustomRuleProxy_CustomRuleFactory] {
 	var builder ImmutableMap_BuilderOf[string, ConformanceRules_CustomRuleProxy_CustomRuleFactory] = ImmutableMap_builder().put("com.google.javascript.jscomp.ConformanceRules$NoOp", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_1_)).put("com.google.javascript.jscomp.ConformanceRules$InferredConstCheck", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_2_)).put("com.google.javascript.jscomp.ConformanceRules$BannedDependency", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_3_)).put("com.google.javascript.jscomp.ConformanceRules$BannedDependencyRegex", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_4_)).put("com.google.javascript.jscomp.ConformanceRules$BannedName", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_5_)).put("com.google.javascript.jscomp.ConformanceRules$BannedProperty", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_6_)).put("com.google.javascript.jscomp.ConformanceRules$BannedStringRegex", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_7_)).put("com.google.javascript.jscomp.ConformanceRules$RestrictedNameCall", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_8_)).put("com.google.javascript.jscomp.ConformanceRules$RestrictedMethodCall", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_9_)).put("com.google.javascript.jscomp.ConformanceRules$RestrictedPropertyWrite", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_10_)).put("com.google.javascript.jscomp.ConformanceRules$BannedCodePattern", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_11_)).put("com.google.javascript.jscomp.ConformanceRules$BanForOf", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_12_)).put("com.google.javascript.jscomp.ConformanceRules$RequireUseStrict", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_13_)).put("com.google.javascript.jscomp.ConformanceRules$BanThrowOfNonErrorTypes", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_14_)).put("com.google.javascript.jscomp.ConformanceRules$BanNullDeref", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_15_)).put("com.google.javascript.jscomp.ConformanceRules$BanUnknownThis", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_16_)).put("com.google.javascript.jscomp.ConformanceRules$BanUnknownDirectThisPropsReferences", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_17_)).put("com.google.javascript.jscomp.ConformanceRules$BanUnknownTypedClassPropsReferences", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_18_)).put("com.google.javascript.jscomp.ConformanceRules$BanUnresolvedType", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_19_)).put("com.google.javascript.jscomp.ConformanceRules$StrictBanUnresolvedType", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_20_)).put("com.google.javascript.jscomp.ConformanceRules$BanGlobalVars", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_21_)).put("com.google.javascript.jscomp.ConformanceRules$BannedEnhance", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_22_)).put("com.google.javascript.jscomp.ConformanceRules$BannedModsRegex", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_23_)).put("com.google.javascript.jscomp.ConformanceRules$BanCreateElement", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_24_)).put("com.google.javascript.jscomp.ConformanceRules$BanCreateDom", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_25_)).put("com.google.javascript.jscomp.ConformanceRules$BanElementSetAttribute", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_26_)).put("com.google.javascript.jscomp.ConformanceRules$BanSettingAttributes", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_27_)).put("com.google.javascript.jscomp.ConformanceRules$BanExecCommand", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_28_)).put("com.google.javascript.jscomp.ConformanceRules$BanStaticThis", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_29_))
-	return tmapImm_(jtc_string, jtc_ConformanceRules_CustomRuleProxy_CustomRuleFactory, builder.buildOrThrow())
+	return tmapFrom_(tc_string, tc_ConformanceRules_CustomRuleProxy_CustomRuleFactory, builder.buildOrThrow(), true)
 }
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_1_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
@@ -2225,7 +2225,7 @@ var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_29_ = newFu
 	return ConformanceRules_BanStaticThis_create(p0, p1)
 })
 
-var ConformanceRules_CustomRuleProxy_CUSTOM_RULE_REGISTRY *JTMap[string, ConformanceRules_CustomRuleProxy_CustomRuleFactory]
+var ConformanceRules_CustomRuleProxy_CUSTOM_RULE_REGISTRY *TMap[string, ConformanceRules_CustomRuleProxy_CustomRuleFactory]
 
 var ConformanceRules_CustomRuleProxy_clinit_done bool
 
@@ -2893,7 +2893,7 @@ func (this *ConformanceRules_StrictBanUnresolvedType) checkConformance_impl(t *N
 
 type ConformanceRules_BanGlobalVars struct {
 	ConformanceRules_AbstractRule
-	allowlistedNames *JTSet[string]
+	allowlistedNames *TSet[string]
 }
 
 func (this *ConformanceRules_BanGlobalVars) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -2933,7 +2933,7 @@ func (this *ConformanceRules_BanGlobalVars) initBanGlobalVars(compiler *Abstract
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	this.allowlistedNames = jimmutableSetCopyOf_(jtc_string, Collection(requirement.getValueList()))
+	this.allowlistedNames = immutableSetCopyOf_(tc_string, Collection(requirement.getValueList()))
 	return Outcome_base_ok_0()
 }
 
@@ -2968,7 +2968,7 @@ func (this *ConformanceRules_BanGlobalVars) isAllowlisted(n Node) bool {
 }
 
 func (this *ConformanceRules_BanGlobalVars) isAllowlistedName(name string) bool {
-	if this.allowlistedNames.contains(name) {
+	if this.allowlistedNames.Has(name) {
 		return true
 	}
 	return (((((name == "$jscomp") || strings.HasPrefix(name, "$jscomp$compprop")) || ClosureRewriteModule_isModuleContent(name)) || ClosureRewriteModule_isModuleExport(name)) || ScopedAliases_isScopedAliases(name))
@@ -2976,7 +2976,7 @@ func (this *ConformanceRules_BanGlobalVars) isAllowlistedName(name string) bool 
 
 type ConformanceRules_BannedEnhance struct {
 	ConformanceRules_AbstractRule
-	bannedEnhancedNamespaces *JTSet[string]
+	bannedEnhancedNamespaces *TSet[string]
 }
 
 func (this *ConformanceRules_BannedEnhance) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -3019,7 +3019,7 @@ func (this *ConformanceRules_BannedEnhance) initBannedEnhance(compiler *Abstract
 	if requirement.getValueCount() == 0 {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
-	this.bannedEnhancedNamespaces = jimmutableSetCopyOf_(jtc_string, Collection(requirement.getValueList()))
+	this.bannedEnhancedNamespaces = immutableSetCopyOf_(tc_string, Collection(requirement.getValueList()))
 	return Outcome_base_ok_0()
 }
 
@@ -3119,7 +3119,7 @@ var lambda_ConformanceRules_BannedModsRegex_getPrecondition_impl_1_ = &CheckConf
 
 type ConformanceRules_BanCreateElement struct {
 	ConformanceRules_AbstractRule
-	bannedTags    *JTSet[string]
+	bannedTags    *TSet[string]
 	domHelperType *JSType
 	documentType  *JSType
 }
@@ -3161,11 +3161,11 @@ func (this *ConformanceRules_BanCreateElement) initBanCreateElement(compiler *Ab
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	this.bannedTags = jnewTSet_(jtc_string)
+	this.bannedTags = newTSet_(tc_string)
 	for value := range elemsBy_(ProtocolStringList(requirement.getValueList()), str_) {
-		this.bannedTags.add(Ascii_toLowerCase(value))
+		this.bannedTags.Add(Ascii_toLowerCase(value))
 	}
-	if this.bannedTags.isEmpty() {
+	if this.bannedTags.IsEmpty() {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("Specify one or more values.").up_Throwable())
 	}
 	this.domHelperType = compiler.getTypeRegistry().getGlobalType("goog.dom.DomHelper")
@@ -3176,7 +3176,7 @@ func (this *ConformanceRules_BanCreateElement) initBanCreateElement(compiler *Ab
 func (this *ConformanceRules_BanCreateElement) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	if n.isCall() {
 		var tag Node = n.getSecondChild()
-		if ((tag != 0) && tag.isStringLit()) && this.bannedTags.contains(Ascii_toLowerCase(tag.getString())) {
+		if ((tag != 0) && tag.isStringLit()) && this.bannedTags.Has(Ascii_toLowerCase(tag.getString())) {
 			return this.checkCreateElement(n)
 		}
 	}
@@ -3403,7 +3403,7 @@ func ConformanceRules_BanCreateDom_clinit() {
 }
 
 type ConformanceRules_SecuritySensitiveAttributes struct {
-	bannedAtrrs             *JTSet[string]
+	bannedAtrrs             *TSet[string]
 	globalNamespaceSupplier func() any
 }
 
@@ -3430,7 +3430,7 @@ func new_ConformanceRules_SecuritySensitiveAttributes_Supplier(globalNamespaceSu
 }
 
 func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs CollectionOf[string], globalNamespaceSupplier func() any) {
-	var bannedAtrrsBuilder *TSetBuilder[string] = newTSetBuilder_(jtc_string)
+	var bannedAtrrsBuilder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	for s := range elemsBy_(bannedAtrrs, str_) {
 		bannedAtrrsBuilder.add(strings.ToLower(s))
 	}
@@ -3451,7 +3451,7 @@ func ConformanceRules_SecuritySensitiveAttributes_createFromBannedAttrs(bannedAt
 }
 
 func (this *ConformanceRules_SecuritySensitiveAttributes) contains(attributeName string) bool {
-	return this.bannedAtrrs.contains(attributeName)
+	return this.bannedAtrrs.Has(attributeName)
 }
 
 func (this *ConformanceRules_SecuritySensitiveAttributes) checkConformanceForAttributeName(traversal *NodeTraversal, attrName Node) *ConformanceRules_ConformanceResult {
@@ -3465,7 +3465,7 @@ func (this *ConformanceRules_SecuritySensitiveAttributes) checkConformanceForAtt
 		}()
 	}
 	literalName = Optional_of[string](strings.ToLower(literalName.get()))
-	if this.bannedAtrrs.contains(literalName.get()) || ConformanceRules_ConformanceUtil_isEventHandlerAttrName(literalName.get()) {
+	if this.bannedAtrrs.Has(literalName.get()) || ConformanceRules_ConformanceUtil_isEventHandlerAttrName(literalName.get()) {
 		return ConformanceRules_ConformanceResult_VIOLATION
 	}
 	return ConformanceRules_ConformanceResult_CONFORMANCE
@@ -3615,7 +3615,7 @@ func (this *ConformanceRules_BanElementSetAttribute) getBannedPropertyName(callN
 		return Optional_base_absent()
 	}
 	var propertyName string = target.getString()
-	if !ConformanceRules_BanElementSetAttribute_BANNED_PROPERTIES.contains(propertyName) {
+	if !ConformanceRules_BanElementSetAttribute_BANNED_PROPERTIES.Has(propertyName) {
 		return Optional_base_absent()
 	}
 	var type_ *JSType = target.getFirstChild().getJSType()
@@ -3680,7 +3680,7 @@ const ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NS string = "setAttr
 const ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NODE string = "setAttributeNode"
 const ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NODE_NS string = "setAttributeNodeNS"
 
-var ConformanceRules_BanElementSetAttribute_BANNED_PROPERTIES *JTSet[string]
+var ConformanceRules_BanElementSetAttribute_BANNED_PROPERTIES *TSet[string]
 
 const ConformanceRules_BanElementSetAttribute_GLOBAL_NAMESPACE_ANALYSIS_LIMIT int32 = 10000
 
@@ -3691,7 +3691,7 @@ func ConformanceRules_BanElementSetAttribute_clinit() {
 		return
 	}
 	ConformanceRules_BanElementSetAttribute_clinit_done = true
-	ConformanceRules_BanElementSetAttribute_BANNED_PROPERTIES = jimmutableSetOf_[string](jtc_string, ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE, ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NS, ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NODE, ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NODE_NS)
+	ConformanceRules_BanElementSetAttribute_BANNED_PROPERTIES = immutableSetOf_[string](tc_string, ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE, ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NS, ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NODE, ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NODE_NS)
 
 }
 

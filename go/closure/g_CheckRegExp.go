@@ -53,7 +53,7 @@ func (this *CheckRegExp) visit_impl(t *NodeTraversal, n Node, parent Node) {
 		if (name == "RegExp") && (cast_[*Var](t.getScope().getVar(name).self()) == nil) {
 			var parentType Token_rhino = parent.getToken()
 			var first bool = (n == parent.getFirstChild())
-			if !((((((((((parentType == Token_rhino_NEW) && first) || ((parentType == Token_rhino_CALL) && first)) || ((parentType == Token_rhino_INSTANCEOF) && !first)) || (parentType == Token_rhino_EQ)) || (parentType == Token_rhino_NE)) || (parentType == Token_rhino_SHEQ)) || (parentType == Token_rhino_SHNE)) || (parentType == Token_rhino_CASE)) || (((parentType == Token_rhino_GETPROP) && first) && !CheckRegExp_REGEXP_PROPERTY_SKIPLIST.contains(parent.getString()))) {
+			if !((((((((((parentType == Token_rhino_NEW) && first) || ((parentType == Token_rhino_CALL) && first)) || ((parentType == Token_rhino_INSTANCEOF) && !first)) || (parentType == Token_rhino_EQ)) || (parentType == Token_rhino_NE)) || (parentType == Token_rhino_SHEQ)) || (parentType == Token_rhino_SHNE)) || (parentType == Token_rhino_CASE)) || (((parentType == Token_rhino_GETPROP) && first) && !CheckRegExp_REGEXP_PROPERTY_SKIPLIST.Has(parent.getString()))) {
 				if this.reportErrors {
 					t.report(n, CheckRegExp_REGEXP_REFERENCE, []string{})
 				}
@@ -87,7 +87,7 @@ func (this *CheckRegExp) visit_impl(t *NodeTraversal, n Node, parent Node) {
 
 var CheckRegExp_REGEXP_REFERENCE *DiagnosticType
 var CheckRegExp_MALFORMED_REGEXP *DiagnosticType
-var CheckRegExp_REGEXP_PROPERTY_SKIPLIST *JTSet[string]
+var CheckRegExp_REGEXP_PROPERTY_SKIPLIST *TSet[string]
 
 var CheckRegExp_clinit_done bool
 
@@ -98,7 +98,7 @@ func CheckRegExp_clinit() {
 	CheckRegExp_clinit_done = true
 	CheckRegExp_REGEXP_REFERENCE = DiagnosticType_warning("JSC_REGEXP_REFERENCE", "References to the global RegExp object prevents optimization of regular expressions.")
 	CheckRegExp_MALFORMED_REGEXP = DiagnosticType_warning("JSC_MALFORMED_REGEXP", "Malformed Regular Expression: {0}")
-	CheckRegExp_REGEXP_PROPERTY_SKIPLIST = jimmutableSetOf_[string](jtc_string, "$1", "$2", "$3", "$4", "$5", "$6", "$7", "$8", "$9", "$_", "$input", "input", "lastMatch", "lastParen", "leftContext", "rightContext", "global", "ignoreCase", "lastIndex", "multiline", "source")
+	CheckRegExp_REGEXP_PROPERTY_SKIPLIST = immutableSetOf_[string](tc_string, "$1", "$2", "$3", "$4", "$5", "$6", "$7", "$8", "$9", "$_", "$input", "input", "lastMatch", "lastParen", "leftContext", "rightContext", "global", "ignoreCase", "lastIndex", "multiline", "source")
 
 }
 

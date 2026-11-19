@@ -51,7 +51,7 @@ func (this *NonEsModuleProcessor_NonEsModule) resolveExport_impl(moduleRequestRe
 	panic(new_UnsupportedOperationException_0())
 }
 
-func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier Optional[string], exportName Optional[string], resolveSet *JTSet[*ExportTrace], exportStarSet *JTSet[*UnresolvedModule]) *ResolveExportResult {
+func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier Optional[string], exportName Optional[string], resolveSet *TSet[*ExportTrace], exportStarSet *TSet[*UnresolvedModule]) *ResolveExportResult {
 	var namespace Optional[string] = Optional_empty[string]()
 	if moduleSpecifier.isPresent() && GoogEsImports_isGoogImportSpecifier(moduleSpecifier.get()) {
 		namespace = Optional_of[string](GoogEsImports_getClosureIdFromGoogImportSpecifier(moduleSpecifier.get()))
@@ -75,7 +75,7 @@ func (this *NonEsModuleProcessor_NonEsModule) resolve_2_impl(moduleRequestResolv
 	if moduleSpecifier.isPresent() && GoogEsImports_isGoogImportSpecifier(moduleSpecifier.get()) {
 		namespace = Optional_of[string](GoogEsImports_getClosureIdFromGoogImportSpecifier(moduleSpecifier.get()))
 	}
-	return Module_builder().path(this.path_).metadata(this.metadataField).namespace(jtmapEmptyImm_(jtc_string, jtc_p_Binding)).boundNames(jtmapEmptyImm_(jtc_string, jtc_p_Binding)).localNameToLocalExport(jtmapEmptyImm_(jtc_string, jtc_p_Export)).closureNamespace(namespace).build()
+	return Module_builder().path(this.path_).metadata(this.metadataField).namespace(tmapEmptyImm_(tc_string, tc_p_Binding)).boundNames(tmapEmptyImm_(tc_string, tc_p_Binding)).localNameToLocalExport(tmapEmptyImm_(tc_string, tc_p_Export)).closureNamespace(namespace).build()
 }
 
 func (this *NonEsModuleProcessor_NonEsModule) metadata_impl() *ModuleMetadataMap_ModuleMetadata {
@@ -86,7 +86,7 @@ func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_impl(moduleReques
 	panic(new_UnsupportedOperationException_0())
 }
 
-func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_2_impl(moduleRequestResolver ModuleRequestResolver, visited *JTSet[*UnresolvedModule]) *JTSet[string] {
+func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_2_impl(moduleRequestResolver ModuleRequestResolver, visited *TSet[*UnresolvedModule]) *JTSet[string] {
 	panic(new_UnsupportedOperationException_0())
 }
 
@@ -99,7 +99,7 @@ func (this *NonEsModuleProcessor_NonEsModule) resolveExport(p0 ModuleRequestReso
 }
 
 // resolveExport_5: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its resolveExport_5_impl directly (post-flip); others dispatch.
-func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5(p0 ModuleRequestResolver, p1 Optional[string], p2 Optional[string], p3 *JTSet[*ExportTrace], p4 *JTSet[*UnresolvedModule]) *ResolveExportResult {
+func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5(p0 ModuleRequestResolver, p1 Optional[string], p2 Optional[string], p3 *TSet[*ExportTrace], p4 *TSet[*UnresolvedModule]) *ResolveExportResult {
 	if p, _ := this.self_.(*NonEsModuleProcessor_NonEsModule); p == this {
 		return this.resolveExport_5_impl(p0, p1, p2, p3, p4)
 	}
@@ -140,7 +140,7 @@ func (this *NonEsModuleProcessor_NonEsModule) getExportedNames(p0 ModuleRequestR
 }
 
 // getExportedNames_2: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its getExportedNames_2_impl directly (post-flip); others dispatch.
-func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_2(p0 ModuleRequestResolver, p1 *JTSet[*UnresolvedModule]) *JTSet[string] {
+func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_2(p0 ModuleRequestResolver, p1 *TSet[*UnresolvedModule]) *JTSet[string] {
 	if p, _ := this.self_.(*NonEsModuleProcessor_NonEsModule); p == this {
 		return this.getExportedNames_2_impl(p0, p1)
 	}
