@@ -611,3 +611,7 @@ e13ca66a run t jfam -kind eqkeys
 # A replay compares each of those commits' go/ without that file, and the end with 80f88eea's go/.
 # C16. postflip step: tfn, typed lambda adapters handed to the runtime are Go functions
 49a0faa9 run t tfn && f
+# C17. postflip step: ranges -loops on the bridged tree
+2b6685fc run t ranges -loops && f
+# C18. postflip step: tostr, anyconv -all and exceptions re-run on the bridged tree
+bad8c2e4 run t tostr && t anyconv -all && t exceptions && f
