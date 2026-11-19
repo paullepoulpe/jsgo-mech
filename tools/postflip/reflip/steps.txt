@@ -606,3 +606,6 @@ d6e0d286 patch reflip2-d6e0d286-rt.patch
 0b26bb56 patch reflip2-0b26bb56-rt.patch
 # C15. postflip step: jfam -kind eqkeys
 e13ca66a run t jfam -kind eqkeys
+# Note (80f88eea): C2 (jfam -kind convs) writes go/closure/g_zconv_jfam.go, which .gitignore kept
+# out of the commits c6beb2db..c3ed6f40; it is committed at 80f88eea, unchanged by the later steps.
+# A replay compares each of those commits' go/ without that file, and the end with 80f88eea's go/.
