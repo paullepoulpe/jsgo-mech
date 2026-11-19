@@ -129,8 +129,8 @@ func (this *LinkedDirectedGraph[N, E]) disconnectInDirection_impl(srcValue N, de
 	it_1 := foreach_(any(this.getEdgesInDirection(srcValue, destValue)))
 	for it_1.next() {
 		var edge DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_1.v)
-		src.getOutEdges().remove_Object(any(edge))
-		dest.getInEdges().remove_Object(any(edge))
+		src.getOutEdges().remove_Object(edge)
+		dest.getInEdges().remove_Object(edge)
 	}
 }
 
@@ -189,14 +189,14 @@ func (this *LinkedDirectedGraph[N, E]) getFirstEdge_impl(n1 N, n2 N) Graph_Graph
 	it_1 := foreach_(any(dNode1.getOutEdges()))
 	for it_1.next() {
 		var outEdge DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_1.v)
-		if any(outEdge.getDestination()) == dNode2.self() {
+		if outEdge.getDestination() == dNode2.self() {
 			return cast_[Graph_GraphEdge[N]](outEdge)
 		}
 	}
 	it_3 := foreach_(any(dNode2.getOutEdges()))
 	for it_3.next() {
 		var outEdge DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_3.v)
-		if any(outEdge.getDestination()) == dNode1.self() {
+		if outEdge.getDestination() == dNode1.self() {
 			return cast_[Graph_GraphEdge[N]](outEdge)
 		}
 	}
@@ -236,7 +236,7 @@ func (this *LinkedDirectedGraph[N, E]) isConnectedInDirectionLinkedDiGraphNode(s
 		it_1 := foreach_(any(outEdges))
 		for it_1.next() {
 			var outEdge DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_1.v)
-			if (any(outEdge.getDestination()) == dest.self()) && edgeFilter.apply(outEdge.getValue()) {
+			if (outEdge.getDestination() == dest.self()) && edgeFilter.apply(outEdge.getValue()) {
 				return true
 			}
 		}
@@ -244,7 +244,7 @@ func (this *LinkedDirectedGraph[N, E]) isConnectedInDirectionLinkedDiGraphNode(s
 		it_3 := foreach_(any(inEdges))
 		for it_3.next() {
 			var inEdge DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_3.v)
-			if (any(inEdge.getSource()) == source.self()) && edgeFilter.apply(inEdge.getValue()) {
+			if (inEdge.getSource() == source.self()) && edgeFilter.apply(inEdge.getValue()) {
 				return true
 			}
 		}

@@ -159,7 +159,7 @@ func (this *DependencyOptions) hashCode() int32 {
 }
 
 func (this *DependencyOptions) toString() string {
-	return "DependencyOptions[" + "mode=" + jtostr_(this.mode_) + ", entryPoints=" + objstr_(any(this.entryPoints_.asList())) + "]"
+	return "DependencyOptions[" + "mode=" + jtostr_(this.mode_) + ", entryPoints=" + objstr_(this.entryPoints_.asList()) + "]"
 }
 
 type DependencyOptions_DependencyMode uint8

@@ -267,7 +267,7 @@ func (this *Compiler) initOptions(options *CompilerOptions) {
 
 func (this *Compiler) printConfig() {
 	if this.isDebugLoggingEnabled() {
-		this.logToFile("externs.log", &Supplier_tfn_string{func() string { return Object_toString(any(this.externs.asList())) }})
+		this.logToFile("externs.log", &Supplier_tfn_string{func() string { return Object_toString(this.externs.asList()) }})
 		this.logToFile("inputs.json", func() *Supplier_tfn_string {
 			recv_1 := Compiler_toPrettyJson(this.chunkGraph.toJson())
 			return &Supplier_tfn_string{func() string { return String_toString(recv_1) }}
@@ -281,7 +281,7 @@ func (this *Compiler) printConfig() {
 	} else {
 		var err *Output = Output_stderr()
 		err.println("==== Externs ====")
-		err.println(String_valueOf_Object(any(this.externs.asList())))
+		err.println(String_valueOf_Object(this.externs.asList()))
 		err.println("==== Inputs ====")
 		err.println(Compiler_toPrettyJson(this.chunkGraph.toJson()))
 		err.println("==== CompilerOptions ====")
@@ -1088,7 +1088,7 @@ func (this *Compiler) getCurrentJsSource() string {
 			}
 		}
 		if builder.length() == 0 {
-			builder.append("// No files matched any of: ").append_Object(any(fileNameRegexList.asList()))
+			builder.append("// No files matched any of: ").append_Object(fileNameRegexList.asList())
 		}
 	}
 	if !chunkNameRegexList.isEmpty() {
@@ -2792,7 +2792,7 @@ func (this *Compiler) addComments_impl(filename string, comments *JTList[*Commen
 	if !this.getOptions().preservesDetailedSourceInfo() {
 		panic(new_UnsupportedOperationException_String("addComments may only be called in IDE mode.").self())
 	}
-	Map_put_s(this.commentsPerFile, filename, any(comments.asList()))
+	Map_put_s(this.commentsPerFile, filename, comments.asList())
 }
 
 func (this *Compiler) getComments_impl(filename Optional[string]) ListOf[*Comment] {
@@ -3322,7 +3322,7 @@ func (this *Compiler) maybeLogPruningAnalysis(result *JSChunkGraph_DependencyMan
 	}
 	var analysis *PruningAnalysis = PruningAnalysis_create(result.sorter(), Collection(result.entryPointInputs().asSet()))
 	var pruningResult *PruningAnalysis_Result = analysis.analyze()
-	this.tracker.setPruningAnalysisSummary(("\nTransitive dependency count per entry point:\n" + objstr_(any(pruningResult.entryPointDependencyCount().asMap())) + "\n\nTop bottleneck dependencies:\n" + objstr_(any(pruningResult.bottleneckBlame().asMap()))))
+	this.tracker.setPruningAnalysisSummary(("\nTransitive dependency count per entry point:\n" + objstr_(pruningResult.entryPointDependencyCount().asMap()) + "\n\nTop bottleneck dependencies:\n" + objstr_(pruningResult.bottleneckBlame().asMap())))
 }
 
 func (this *Compiler) getUniqueNameIdSupplier_impl() Supplier {

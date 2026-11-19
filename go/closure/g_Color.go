@@ -36,7 +36,7 @@ func new_Color(id *ColorId, prototypes *JTSet[*Color], instanceColors *JTSet[*Co
 }
 
 func (this *Color) toString() string {
-	return ("Color{id=" + jtostr_(this.id) + ", prototypes=" + objstr_(any(this.prototypes.asSet())) + ", instanceColors=" + objstr_(any(this.instanceColors.asSet())) + ", invalidating=" + boolstr_(this.invalidating) + ", propertiesKeepOriginalName=" + boolstr_(this.propertiesKeepOriginalName) + ", constructor=" + boolstr_(this.constructor_) + ", ownProperties=" + objstr_(any(this.ownProperties.asSet())) + ", boxId=" + jtostr_(this.boxId) + ", closureAssert=" + boolstr_(this.closureAssert) + ", unionElements=" + objstr_(any(this.unionElements.asSet())) + "}")
+	return ("Color{id=" + jtostr_(this.id) + ", prototypes=" + objstr_(this.prototypes.asSet()) + ", instanceColors=" + objstr_(this.instanceColors.asSet()) + ", invalidating=" + boolstr_(this.invalidating) + ", propertiesKeepOriginalName=" + boolstr_(this.propertiesKeepOriginalName) + ", constructor=" + boolstr_(this.constructor_) + ", ownProperties=" + objstr_(this.ownProperties.asSet()) + ", boxId=" + jtostr_(this.boxId) + ", closureAssert=" + boolstr_(this.closureAssert) + ", unionElements=" + objstr_(this.unionElements.asSet()) + "}")
 }
 
 func (this *Color) equals(o any) bool {
@@ -44,12 +44,12 @@ func (this *Color) equals(o any) bool {
 		return true
 	}
 	if that, ok := o.(*Color); ok {
-		return (((((((((this.id.equals(obj_(that.getId())) && equalsBy_(this.prototypes.asImm(), any(that.getPrototypes().asSet()), (*ImmutableCollection).equals)) && equalsBy_(this.instanceColors.asImm(), any(that.getInstanceColors().asSet()), (*ImmutableCollection).equals)) && (this.invalidating == that.isInvalidating())) && (this.propertiesKeepOriginalName == that.getPropertiesKeepOriginalName())) && (this.constructor_ == that.isConstructor())) && equalsBy_(this.ownProperties.asImm(), any(that.getOwnProperties().asSet()), (*ImmutableCollection).equals)) && func() bool {
+		return (((((((((this.id.equals(obj_(that.getId())) && equalsBy_(this.prototypes.asImm(), that.getPrototypes().asSet(), (*ImmutableCollection).equals)) && equalsBy_(this.instanceColors.asImm(), that.getInstanceColors().asSet(), (*ImmutableCollection).equals)) && (this.invalidating == that.isInvalidating())) && (this.propertiesKeepOriginalName == that.getPropertiesKeepOriginalName())) && (this.constructor_ == that.isConstructor())) && equalsBy_(this.ownProperties.asImm(), that.getOwnProperties().asSet(), (*ImmutableCollection).equals)) && func() bool {
 			if this.boxId == nil {
 				return (that.getBoxId() == nil)
 			}
 			return this.boxId.equals(obj_(that.getBoxId()))
-		}()) && (this.closureAssert == that.isClosureAssert())) && equalsBy_(this.unionElements.asImm(), any(that.getUnionElements().asSet()), (*ImmutableCollection).equals))
+		}()) && (this.closureAssert == that.isClosureAssert())) && equalsBy_(this.unionElements.asImm(), that.getUnionElements().asSet(), (*ImmutableCollection).equals))
 	}
 	return false
 }

@@ -170,7 +170,7 @@ func (this *FeatureSet) equals(other any) bool {
 		}
 		featureSet = p
 		return true
-	}() && equalsBy_(featureSet.features_.asImm(), any(this.features_.asSet()), (*ImmutableCollection).equals))
+	}() && equalsBy_(featureSet.features_.asImm(), this.features_.asSet(), (*ImmutableCollection).equals))
 }
 
 func (this *FeatureSet) hashCode() int32 {
@@ -178,7 +178,7 @@ func (this *FeatureSet) hashCode() int32 {
 }
 
 func (this *FeatureSet) toString() string {
-	return Object_toString(any(this.features_.asSet()))
+	return Object_toString(this.features_.asSet())
 }
 
 func FeatureSet_valueOf(name string) *FeatureSet {

@@ -429,7 +429,7 @@ func (this *DisambiguateProperties_TypeNodeJson) toLogsGson() any {
 	json.put("colorId", strobj_(this.colorId))
 	json.put("edges", obj_(this.edges))
 	json.put("props", obj_(this.props))
-	return any(json.asMap())
+	return json.asMap()
 }
 
 type DisambiguateProperties_TypeEdgeJson struct {
@@ -459,7 +459,7 @@ func (this *DisambiguateProperties_TypeEdgeJson) toLogsGson() any {
 	var json *JTMap[string, any] = jnewTMap_(jtc_string, tc_Object)
 	json.put("dest", any(int32(this.dest)))
 	json.put("value", this.value_)
-	return any(json.asMap())
+	return json.asMap()
 }
 
 type DisambiguateProperties_1 struct {

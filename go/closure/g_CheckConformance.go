@@ -78,7 +78,7 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs *JTL
 		var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED
 		var rule CheckConformance_Rule = CheckConformance_initRule(compiler, requirement)
 		if rule != nil {
-			builder.put(any(rule.getPrecondition()), any(rule))
+			builder.put(rule.getPrecondition(), rule)
 			if isLibraryLevelReportingMode && this.mergedBehaviors.containsKey(requirement) {
 				behavior = this.mergedBehaviors.get(requirement)
 				Preconditions_checkNotNull_Object_Object_T(behavior, "The mergeBehaviors method inserted a null behavior in the mergedBehaviors map")
@@ -239,7 +239,7 @@ func CheckConformance_validateExtendingRequirement(compiler *AbstractCompiler, e
 	for it_1.next() {
 		var field *Descriptors_FieldDescriptor = cast_[*Descriptors_FieldDescriptor](it_1.v)
 		if !CheckConformance_EXTENDABLE_FIELDS.contains(field.getName()) {
-			CheckConformance_reportInvalidRequirement(compiler, extendingRequirement, ("extending rules allow only " + objstr_(any(CheckConformance_EXTENDABLE_FIELDS.asSet()))))
+			CheckConformance_reportInvalidRequirement(compiler, extendingRequirement, ("extending rules allow only " + objstr_(CheckConformance_EXTENDABLE_FIELDS.asSet())))
 		}
 	}
 	if (extendingRequirement.getValueCount() > 0) && !extendableRequirement.getAllowExtendingValue() {

@@ -31,7 +31,7 @@ func (this *ChangeTracker) addChangeHandler(handler CodeChangeHandler) {
 }
 
 func (this *ChangeTracker) removeChangeHandler(handler CodeChangeHandler) {
-	this.codeChangeHandlers.asList().remove_Object(any(handler))
+	this.codeChangeHandlers.asList().remove_Object(handler)
 }
 
 func (this *ChangeTracker) getRecentChange() *RecentChange {

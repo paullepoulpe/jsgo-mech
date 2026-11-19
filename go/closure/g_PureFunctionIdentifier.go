@@ -1058,7 +1058,7 @@ func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) sideEffectsToStrin
 	if this.functionThrows() {
 		status.add("throw")
 	}
-	return Object_toString(any(status.asList()))
+	return Object_toString(status.asList())
 }
 
 const PureFunctionIdentifier_AmbiguatedFunctionSummary_THROWS int32 = 1

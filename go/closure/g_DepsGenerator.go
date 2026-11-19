@@ -318,7 +318,7 @@ func (this *DepsGenerator) writeDepsContent(depsFiles MapOf[string, DependencyIn
 		it_1 := foreach_(any(depsFiles.values()))
 		for it_1.next() {
 			var info DependencyInfo_ = icast_DependencyInfo_(it_1.v)
-			infosIndex.put_s(info.getName(), any(info))
+			infosIndex.put_s(info.getName(), info)
 		}
 		it_3 := foreach_(any(infosIndex.keySet()))
 		for it_3.next() {

@@ -41,7 +41,7 @@ func new_SimpleDependencyInfo(getName string, getPathRelativeToClosureBase strin
 }
 
 func (this *SimpleDependencyInfo) toString() string {
-	return ("SimpleDependencyInfo{name=" + sstr_(this.getName_) + ", pathRelativeToClosureBase=" + sstr_(this.getPathRelativeToClosureBase_) + ", provides=" + objstr_(any(this.getProvides_.asList())) + ", requires=" + objstr_(any(this.getRequires_.asList())) + ", typeRequires=" + objstr_(any(this.getTypeRequires_.asList())) + ", loadFlags=" + objstr_(any(this.getLoadFlags_.asMap())) + ", hasExternsAnnotation=" + boolstr_(this.getHasExternsAnnotation_) + ", hasNoCompileAnnotation=" + boolstr_(this.getHasNoCompileAnnotation_) + "}")
+	return ("SimpleDependencyInfo{name=" + sstr_(this.getName_) + ", pathRelativeToClosureBase=" + sstr_(this.getPathRelativeToClosureBase_) + ", provides=" + objstr_(this.getProvides_.asList()) + ", requires=" + objstr_(this.getRequires_.asList()) + ", typeRequires=" + objstr_(this.getTypeRequires_.asList()) + ", loadFlags=" + objstr_(this.getLoadFlags_.asMap()) + ", hasExternsAnnotation=" + boolstr_(this.getHasExternsAnnotation_) + ", hasNoCompileAnnotation=" + boolstr_(this.getHasNoCompileAnnotation_) + "}")
 }
 
 func SimpleDependencyInfo_builder(srcPathRelativeToClosure string, pathOfDefiningFile Optional[string]) *SimpleDependencyInfo_Builder {

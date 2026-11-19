@@ -37,7 +37,7 @@ func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetOf[N]) ImmutableS
 		var rootNode DiGraph_DiGraphNode[N] = this.graph.getNode_Object_rDiGraphNode(root)
 		Preconditions_checkNotNull_Object_String_Object_T(rootNode, "Root not present in graph: %s", boxT_(root))
 		var color *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(bitForRoot)
-		Map_merge(this.searchColoring.asMap(), any(rootNode), obj_(color), &BiFunction_tfn_LowestCommonAncestorFinder_Color_LowestCommonAncestorFinder_Color_LowestCommonAncestorFinder_Color{func(p0 *LowestCommonAncestorFinder_Color, p1 *LowestCommonAncestorFinder_Color) *LowestCommonAncestorFinder_Color {
+		Map_merge(this.searchColoring.asMap(), rootNode, obj_(color), &BiFunction_tfn_LowestCommonAncestorFinder_Color_LowestCommonAncestorFinder_Color_LowestCommonAncestorFinder_Color{func(p0 *LowestCommonAncestorFinder_Color, p1 *LowestCommonAncestorFinder_Color) *LowestCommonAncestorFinder_Color {
 			return p0.mix(p1)
 		}})
 		this.paintAncestors(rootNode, color)

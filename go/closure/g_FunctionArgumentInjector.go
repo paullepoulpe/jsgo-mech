@@ -371,7 +371,7 @@ func (this *FunctionArgumentInjector_SetContainer) hashCode() int32 {
 }
 
 func (this *FunctionArgumentInjector_SetContainer) toString() string {
-	return "SetContainer[" + "parametersReferencedAfterSideEffect=" + objstr_(any(this.parametersReferencedAfterSideEffect_.asSet())) + ", parametersWithNamesReferencedBeforeParameter=" + objstr_(any(this.parametersWithNamesReferencedBeforeParameter_.asSet())) + "]"
+	return "SetContainer[" + "parametersReferencedAfterSideEffect=" + objstr_(this.parametersReferencedAfterSideEffect_.asSet()) + ", parametersWithNamesReferencedBeforeParameter=" + objstr_(this.parametersWithNamesReferencedBeforeParameter_.asSet()) + "]"
 }
 
 type FunctionArgumentInjector_ReferencedAfterSideEffect struct {

@@ -111,7 +111,7 @@ func (this *AstValidator) validateScriptFeatureSet(scriptNode Node) {
 	if !allowableFeatures.containsFeatureSet(scriptFeatures) {
 		if !scriptNode.isFromExterns() {
 			var differentFeatures *FeatureSet = scriptFeatures.without(allowableFeatures)
-			this.violation(("SCRIPT node contains these unallowable features:" + objstr_(any(differentFeatures.getFeatures().asSet()))), this.currentScript)
+			this.violation(("SCRIPT node contains these unallowable features:" + objstr_(differentFeatures.getFeatures().asSet())), this.currentScript)
 		}
 	}
 }

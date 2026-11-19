@@ -147,5 +147,5 @@ func (this *PruningAnalysis_Result) hashCode() int32 {
 }
 
 func (this *PruningAnalysis_Result) toString() string {
-	return "Result[" + "entryPointDependencyCount=" + objstr_(any(this.entryPointDependencyCount_.asMap())) + ", bottleneckBlame=" + objstr_(any(this.bottleneckBlame_.asMap())) + "]"
+	return "Result[" + "entryPointDependencyCount=" + objstr_(this.entryPointDependencyCount_.asMap()) + ", bottleneckBlame=" + objstr_(this.bottleneckBlame_.asMap()) + "]"
 }

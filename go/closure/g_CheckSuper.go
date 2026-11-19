@@ -24,7 +24,7 @@ func new_CheckSuper(compiler *AbstractCompiler) *CheckSuper {
 
 func (this *CheckSuper) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(this))
-	if ok_, a1_ := this.contextStack.isEmpty(), ImmutableList_of_Object(any(this.contextStack.asDeque())); !ok_ {
+	if ok_, a1_ := this.contextStack.isEmpty(), ImmutableList_of_Object(this.contextStack.asDeque()); !ok_ {
 		Preconditions_checkState_boolean_Object(false, a1_)
 	}
 }

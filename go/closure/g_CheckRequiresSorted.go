@@ -628,5 +628,5 @@ func (this *CheckRequiresSorted_ImportStatement) hashCode() int32 {
 }
 
 func (this *CheckRequiresSorted_ImportStatement) toString() string {
-	return "ImportStatement[" + "nodes=" + objstr_(any(this.nodes_.asList())) + ", primitive=" + jtostr_(this.primitive_) + ", namespace=" + sstr_(this.namespace_) + ", alias=" + objstr_(this.alias_.box_()) + ", destructures=" + objstr_(any(this.destructures_.asList())) + "]"
+	return "ImportStatement[" + "nodes=" + objstr_(this.nodes_.asList()) + ", primitive=" + jtostr_(this.primitive_) + ", namespace=" + sstr_(this.namespace_) + ", alias=" + objstr_(this.alias_.box_()) + ", destructures=" + objstr_(this.destructures_.asList()) + "]"
 }
