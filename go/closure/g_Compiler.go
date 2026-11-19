@@ -3694,7 +3694,7 @@ func (this *Compiler_CodeBuilder) getColumnIndex() int32 {
 }
 
 func (this *Compiler_CodeBuilder) endsWith(suffix string) bool {
-	return ((this.sb.length() > String_length(suffix)) && (suffix == this.sb.substring_int((this.sb.length() - String_length(suffix)))))
+	return ((this.sb.length() > int32(len(suffix))) && (suffix == this.sb.substring_int((this.sb.length() - int32(len(suffix))))))
 }
 
 type Compiler_1 struct {
