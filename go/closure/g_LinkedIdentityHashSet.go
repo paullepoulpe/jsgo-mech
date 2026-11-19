@@ -2,7 +2,7 @@
 
 package closure
 
-type LinkedIdentityHashSet[E any] struct {
+type LinkedIdentityHashSet[E comparable] struct {
 	innerMap *LinkedIdentityHashMap[E, *LinkedIdentityHashSet_Sentinel]
 }
 
@@ -16,7 +16,7 @@ func (this *LinkedIdentityHashSet[E]) init_LinkedIdentityHashSet() {
 	this.finit_LinkedIdentityHashSet()
 }
 
-func new_LinkedIdentityHashSet[E any]() *LinkedIdentityHashSet[E] {
+func new_LinkedIdentityHashSet[E comparable]() *LinkedIdentityHashSet[E] {
 	this := &LinkedIdentityHashSet[E]{}
 	this.init_LinkedIdentityHashSet()
 	return this

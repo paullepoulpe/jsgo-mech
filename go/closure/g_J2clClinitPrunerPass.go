@@ -395,15 +395,15 @@ func (this *J2clClinitPrunerPass_EmptyClinitPruner) isAssignToEmptyFn(node Node,
 	return (NodeUtil_isEmptyFunctionExpression(rhs) && optEquals_(NodeUtil_getBestLValueName(lhs), Optional_of[string](enclosingFnName)))
 }
 
-type J2clClinitPrunerPass_HierarchicalSet[T any] struct {
-	currentSet SetOf[T]
+type J2clClinitPrunerPass_HierarchicalSet[T comparable] struct {
+	currentSet *TSet[T]
 	parent     *J2clClinitPrunerPass_HierarchicalSet[T]
 }
 
 func (this *J2clClinitPrunerPass_HierarchicalSet[T]) isa_J2clClinitPrunerPass_HierarchicalSet_() {}
 
 func (this *J2clClinitPrunerPass_HierarchicalSet[T]) finit_J2clClinitPrunerPass_HierarchicalSet() {
-	this.currentSet = new_LinkedHashSet()
+	this.currentSet = newTSet_(tconvT_[T]())
 }
 
 func (this *J2clClinitPrunerPass_HierarchicalSet[T]) init_J2clClinitPrunerPass_HierarchicalSet(parent *J2clClinitPrunerPass_HierarchicalSet[T]) {
@@ -411,18 +411,18 @@ func (this *J2clClinitPrunerPass_HierarchicalSet[T]) init_J2clClinitPrunerPass_H
 	this.parent = parent
 }
 
-func new_J2clClinitPrunerPass_HierarchicalSet[T any](parent *J2clClinitPrunerPass_HierarchicalSet[T]) *J2clClinitPrunerPass_HierarchicalSet[T] {
+func new_J2clClinitPrunerPass_HierarchicalSet[T comparable](parent *J2clClinitPrunerPass_HierarchicalSet[T]) *J2clClinitPrunerPass_HierarchicalSet[T] {
 	this := &J2clClinitPrunerPass_HierarchicalSet[T]{}
 	this.init_J2clClinitPrunerPass_HierarchicalSet(parent)
 	return this
 }
 
 func (this *J2clClinitPrunerPass_HierarchicalSet[T]) add(o T) bool {
-	return (!this.parentsContains(o) && this.currentSet.add(boxT_(o)))
+	return (!this.parentsContains(o) && this.currentSet.Add(o))
 }
 
 func (this *J2clClinitPrunerPass_HierarchicalSet[T]) parentsContains(o T) bool {
-	return ((this.parent != nil) && (this.parent.currentSet.contains(boxT_(o)) || this.parent.parentsContains(o)))
+	return ((this.parent != nil) && (this.parent.currentSet.Has(o) || this.parent.parentsContains(o)))
 }
 
 type J2clClinitPrunerPass_1 struct {

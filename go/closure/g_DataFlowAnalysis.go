@@ -2,7 +2,7 @@
 
 package closure
 
-type DataFlowAnalysis[N any, L interface {
+type DataFlowAnalysis[N comparable, L interface {
 	comparable
 	LatticeElement
 }] struct {
@@ -31,7 +31,7 @@ func (this *DataFlowAnalysis[N, L]) as_DataFlowAnalysis() *DataFlowAnalysis[N, L
 
 func (this *DataFlowAnalysis[N, L]) as_DataFlowAnalysis_() any { return this }
 
-func to_DataFlowAnalysis[N any, L interface {
+func to_DataFlowAnalysis[N comparable, L interface {
 	comparable
 	LatticeElement
 }](v any) *DataFlowAnalysis[N, L] {
@@ -341,20 +341,20 @@ func (this *DataFlowAnalysis_LinearFlowState[L]) toString() string {
 	return String_format("IN: %s OUT: %s", boxNull_(this.in), boxNull_(this.out))
 }
 
-type DataFlowAnalysis_UniqueQueue[T any] struct {
+type DataFlowAnalysis_UniqueQueue[T comparable] struct {
 	// membership only, never iterated. A graph node that is in this queue names it in its
 	// queuedIn_ field (queueMarked_), so a lookup reads that field (post-flip manual steps).
 	// A node added while another queue holds it, and an element of any other class, is kept in
 	// seenSet instead; seenSet and the marked nodes are disjoint, and together are the
 	// queue's elements.
-	seenSet LinkedHashSetOf[T]
+	seenSet *TSet[T]
 	queue   QueueOf[T]
 }
 
 func (this *DataFlowAnalysis_UniqueQueue[T]) isa_DataFlowAnalysis_UniqueQueue_() {}
 
 func (this *DataFlowAnalysis_UniqueQueue[T]) finit_DataFlowAnalysis_UniqueQueue() {
-	this.seenSet = new_LinkedHashSet()
+	this.seenSet = newTSet_(tconvT_[T]())
 }
 
 func (this *DataFlowAnalysis_UniqueQueue[T]) init_DataFlowAnalysis_UniqueQueue(priority ComparatorOf[T]) {
@@ -367,7 +367,7 @@ func (this *DataFlowAnalysis_UniqueQueue[T]) init_DataFlowAnalysis_UniqueQueue(p
 	}()
 }
 
-func new_DataFlowAnalysis_UniqueQueue[T any](priority ComparatorOf[T]) *DataFlowAnalysis_UniqueQueue[T] {
+func new_DataFlowAnalysis_UniqueQueue[T comparable](priority ComparatorOf[T]) *DataFlowAnalysis_UniqueQueue[T] {
 	this := &DataFlowAnalysis_UniqueQueue[T]{}
 	this.init_DataFlowAnalysis_UniqueQueue(priority)
 	return this
@@ -385,7 +385,7 @@ func (this *DataFlowAnalysis_UniqueQueue[T]) removeFirst() T {
 			return t
 		}
 	}
-	this.seenSet.remove_Object(boxT_(t))
+	this.seenSet.Delete(t)
 	return t
 }
 
@@ -398,18 +398,18 @@ func (this *DataFlowAnalysis_UniqueQueue[T]) add(t T) {
 		if *q == any(this) {
 			return
 		}
-		if !this.seenSet.isEmpty() && this.seenSet.contains(boxT_(t)) {
+		if !this.seenSet.IsEmpty() && this.seenSet.Has(t) {
 			return
 		}
 		if *q == nil {
 			*q = any(this)
 		} else {
-			this.seenSet.add(boxT_(t))
+			this.seenSet.Add(t)
 		}
 		this.queue.add(boxT_(t))
 		return
 	}
-	if this.seenSet.add(boxT_(t)) {
+	if this.seenSet.Add(t) {
 		this.queue.add(boxT_(t))
 	}
 }
@@ -418,7 +418,7 @@ func (this *DataFlowAnalysis_UniqueQueue[T]) clear() {
 	for !this.queue.isEmpty() {
 		this.removeFirst() // takes the mark off each node
 	}
-	this.seenSet.clear()
+	this.seenSet.Clear()
 	this.queue.clear()
 }
 

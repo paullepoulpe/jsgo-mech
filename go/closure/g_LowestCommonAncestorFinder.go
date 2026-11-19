@@ -4,14 +4,14 @@ package closure
 
 type LowestCommonAncestorFinder[N any, E any] struct {
 	graph          *DiGraph[N]
-	searchColoring LinkedHashMapOf[DiGraph_DiGraphNode[N], *LowestCommonAncestorFinder_Color]
+	searchColoring *TMap[DiGraph_DiGraphNode[N], *LowestCommonAncestorFinder_Color]
 	searchQueue    ArrayDequeOf[DiGraph_DiGraphNode[N]]
 }
 
 func (this *LowestCommonAncestorFinder[N, E]) isa_LowestCommonAncestorFinder_() {}
 
 func (this *LowestCommonAncestorFinder[N, E]) finit_LowestCommonAncestorFinder() {
-	this.searchColoring = new_LinkedHashMap()
+	this.searchColoring = newTMap_(tconvT_[DiGraph_DiGraphNode[N]](), tconvT_[*LowestCommonAncestorFinder_Color]())
 	this.searchQueue = new_ArrayDeque()
 }
 
@@ -30,7 +30,7 @@ func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetOf[N]) ImmutableS
 	if roots.size() > 31 {
 		panic(new_IllegalArgumentException_String("Too many roots."))
 	}
-	if !this.searchColoring.isEmpty() {
+	if !this.searchColoring.IsEmpty() {
 		panic(new_IllegalStateException_0())
 	}
 	var allColor *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(((int32(1) << (uint32(roots.size()) & 31)) - 1))
@@ -42,24 +42,24 @@ func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetOf[N]) ImmutableS
 			panic(new_NullPointerException_String(Strings_lenientFormat("Root not present in graph: %s", a1_)))
 		}
 		var color *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(bitForRoot)
-		Map_merge(icast_Map(obj_(this.searchColoring)), rootNode, obj_(color), &BiFunction_tfn_LowestCommonAncestorFinder_Color_LowestCommonAncestorFinder_Color_LowestCommonAncestorFinder_Color{func(p0 *LowestCommonAncestorFinder_Color, p1 *LowestCommonAncestorFinder_Color) *LowestCommonAncestorFinder_Color {
+		Map_merge(this.searchColoring.asMap(), rootNode, obj_(color), &BiFunction_tfn_LowestCommonAncestorFinder_Color_LowestCommonAncestorFinder_Color_LowestCommonAncestorFinder_Color{func(p0 *LowestCommonAncestorFinder_Color, p1 *LowestCommonAncestorFinder_Color) *LowestCommonAncestorFinder_Color {
 			return p0.mix(p1)
 		}})
 		this.paintAncestors(rootNode, color)
 		bitForRoot = (bitForRoot << 1)
 	}
-	Map_forEach(icast_Map(obj_(this.searchColoring)), &BiConsumer_tfn[DiGraph_DiGraphNode[N], *LowestCommonAncestorFinder_Color]{func(node DiGraph_DiGraphNode[N], color *LowestCommonAncestorFinder_Color) {
+	Map_forEach(this.searchColoring.asMap(), &BiConsumer_tfn[DiGraph_DiGraphNode[N], *LowestCommonAncestorFinder_Color]{func(node DiGraph_DiGraphNode[N], color *LowestCommonAncestorFinder_Color) {
 		if color.equals_LowestCommonAncestorFinder_Color(allColor) {
 			this.paintAncestors(node, LowestCommonAncestorFinder_Color_NOT_LOWEST)
 		}
 	}})
 	var results ImmutableSet_BuilderOf[N] = ImmutableSet_builder()
-	Map_forEach(icast_Map(obj_(this.searchColoring)), &BiConsumer_tfn[DiGraph_DiGraphNode[N], *LowestCommonAncestorFinder_Color]{func(node DiGraph_DiGraphNode[N], color *LowestCommonAncestorFinder_Color) {
+	Map_forEach(this.searchColoring.asMap(), &BiConsumer_tfn[DiGraph_DiGraphNode[N], *LowestCommonAncestorFinder_Color]{func(node DiGraph_DiGraphNode[N], color *LowestCommonAncestorFinder_Color) {
 		if color.equals_LowestCommonAncestorFinder_Color(allColor) {
 			results.add(boxT_(node.getValue()))
 		}
 	}})
-	this.searchColoring.clear()
+	this.searchColoring.Clear()
 	this.searchQueue.clear()
 	return results.build()
 }
@@ -77,10 +77,10 @@ func (this *LowestCommonAncestorFinder[N, E]) paintAncestors(root DiGraph_DiGrap
 			if equalsId_(parent, root) {
 				continue
 			}
-			var oldColor *LowestCommonAncestorFinder_Color = cast_[*LowestCommonAncestorFinder_Color](Map_getOrDefault(icast_Map(obj_(this.searchColoring)), parent, obj_(LowestCommonAncestorFinder_Color_BLANK)))
+			var oldColor *LowestCommonAncestorFinder_Color = cast_[*LowestCommonAncestorFinder_Color](Map_getOrDefault(this.searchColoring.asMap(), parent, obj_(LowestCommonAncestorFinder_Color_BLANK)))
 			if !oldColor.contains(color) {
 				SequencedCollection_addLast(icast_SequencedCollection(obj_(this.searchQueue)), parent)
-				this.searchColoring.put(parent, obj_(oldColor.mix(color)))
+				this.searchColoring.Put(parent, oldColor.mix(color))
 			}
 		}
 	}

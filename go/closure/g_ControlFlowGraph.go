@@ -2,7 +2,7 @@
 
 package closure
 
-type ControlFlowGraph[N any] struct {
+type ControlFlowGraph[N comparable] struct {
 	LinkedDirectedGraph[N, ControlFlowGraph_Branch]
 	vt_ControlFlowGraph_ ControlFlowGraph_vt_[N]
 	implicitReturn       DiGraph_DiGraphNode[N]
@@ -19,7 +19,7 @@ func (this *ControlFlowGraph[N]) as_ControlFlowGraph() *ControlFlowGraph[N] { re
 
 func (this *ControlFlowGraph[N]) as_ControlFlowGraph_() any { return this }
 
-func to_ControlFlowGraph[N any](v any) *ControlFlowGraph[N] {
+func to_ControlFlowGraph[N comparable](v any) *ControlFlowGraph[N] {
 	if v == nil {
 		return nil
 	}
@@ -60,7 +60,7 @@ func (this *ControlFlowGraph[N]) init_ControlFlowGraph(entry N, nodeAnnotations 
 	this.entry = cast_[DiGraph_DiGraphNode[N]](this.createNode(entry))
 }
 
-func new_ControlFlowGraph[N any](entry N, nodeAnnotations bool, edgeAnnotations bool) *ControlFlowGraph[N] {
+func new_ControlFlowGraph[N comparable](entry N, nodeAnnotations bool, edgeAnnotations bool) *ControlFlowGraph[N] {
 	this := &ControlFlowGraph[N]{}
 	this.self_ = this
 	this.vt_ControlFlowGraph_ = this

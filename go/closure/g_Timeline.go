@@ -2,17 +2,17 @@
 
 package closure
 
-type Timeline[T any] struct {
-	eventsByTime  MapOf[*Timeline_Time, *Timeline_Event[any]]
-	eventsByValue MapOf[T, *Timeline_Event[any]]
+type Timeline[T comparable] struct {
+	eventsByTime  *TMap[*Timeline_Time, *Timeline_Event[any]]
+	eventsByValue *TMap[T, *Timeline_Event[any]]
 	headEvent     *Timeline_Event[any]
 }
 
 func (this *Timeline[T]) isa_Timeline_() {}
 
 func (this *Timeline[T]) finit_Timeline() {
-	this.eventsByTime = new_LinkedHashMap()
-	this.eventsByValue = new_LinkedHashMap()
+	this.eventsByTime = newTMap_(tconvT_[*Timeline_Time](), tconvT_[*Timeline_Event[any]]())
+	this.eventsByValue = newTMap_(tconvT_[T](), tconvT_[*Timeline_Event[any]]())
 	this.headEvent = new_Timeline_Event(obj_(new_Timeline_Time("-beginning-")))
 }
 
@@ -20,18 +20,18 @@ func (this *Timeline[T]) init_Timeline() {
 	this.finit_Timeline()
 }
 
-func new_Timeline[T any]() *Timeline[T] {
+func new_Timeline[T comparable]() *Timeline[T] {
 	this := &Timeline[T]{}
 	this.init_Timeline()
 	return this
 }
 
 func (this *Timeline[T]) add(value T) {
-	this.addEvent(boxT_(value), this.eventsByValue)
+	this.addEvent(boxT_(value), this.eventsByValue.asMap())
 }
 
 func (this *Timeline[T]) remove(value T) {
-	var event *Timeline_Event[any] = cast_[*Timeline_Event[any]](this.eventsByValue.remove(boxT_(value)))
+	var event *Timeline_Event[any] = this.eventsByValue.Delete(value)
 	if event != nil {
 		if event.nextEvent != nil {
 			event.nextEvent.previousEvent = event.previousEvent
@@ -45,12 +45,12 @@ func (this *Timeline[T]) remove(value T) {
 }
 
 func (this *Timeline[T]) mark(timeName string) {
-	this.addEvent(obj_(new_Timeline_Time(timeName)), this.eventsByTime)
+	this.addEvent(obj_(new_Timeline_Time(timeName)), this.eventsByTime.asMap())
 }
 
 func (this *Timeline[T]) getSince(timeName string) ListOf[T] {
 	var values ListOf[T] = new_ArrayList_0()
-	var firstEvent *Timeline_Event[any] = cast_[*Timeline_Event[any]](this.eventsByTime.get(obj_(new_Timeline_Time(timeName))))
+	var firstEvent *Timeline_Event[any] = this.eventsByTime.Get(new_Timeline_Time(timeName))
 	if firstEvent == nil {
 		return nil
 	}

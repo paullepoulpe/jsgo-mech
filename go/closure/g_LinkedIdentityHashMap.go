@@ -2,15 +2,15 @@
 
 package closure
 
-type LinkedIdentityHashMap[K any, V any] struct {
-	innerMap       IdentityHashMapOf[K, *LinkedIdentityHashMap_Entry[K, V]]
+type LinkedIdentityHashMap[K comparable, V any] struct {
+	innerMap       *TMap[K, *LinkedIdentityHashMap_Entry[K, V]]
 	iterationOrder ArrayListOf[*LinkedIdentityHashMap_Entry[K, V]]
 }
 
 func (this *LinkedIdentityHashMap[K, V]) isa_LinkedIdentityHashMap_() {}
 
 func (this *LinkedIdentityHashMap[K, V]) finit_LinkedIdentityHashMap() {
-	this.innerMap = new_IdentityHashMap()
+	this.innerMap = newTMap_(tconvIdT_[K](), tconvT_[*LinkedIdentityHashMap_Entry[K, V]]())
 	this.iterationOrder = new_ArrayList_0()
 }
 
@@ -18,14 +18,14 @@ func (this *LinkedIdentityHashMap[K, V]) init_LinkedIdentityHashMap() {
 	this.finit_LinkedIdentityHashMap()
 }
 
-func new_LinkedIdentityHashMap[K any, V any]() *LinkedIdentityHashMap[K, V] {
+func new_LinkedIdentityHashMap[K comparable, V any]() *LinkedIdentityHashMap[K, V] {
 	this := &LinkedIdentityHashMap[K, V]{}
 	this.init_LinkedIdentityHashMap()
 	return this
 }
 
 func (this *LinkedIdentityHashMap[K, V]) get(key K) V {
-	var entry *LinkedIdentityHashMap_Entry[K, V] = cast_[*LinkedIdentityHashMap_Entry[K, V]](this.innerMap.get(boxT_(key)))
+	var entry *LinkedIdentityHashMap_Entry[K, V] = this.innerMap.Get(key)
 	return func() V {
 		if entry == nil {
 			return jnull_[V]()
@@ -35,10 +35,10 @@ func (this *LinkedIdentityHashMap[K, V]) get(key K) V {
 }
 
 func (this *LinkedIdentityHashMap[K, V]) put(key K, value V) V {
-	var entry *LinkedIdentityHashMap_Entry[K, V] = cast_[*LinkedIdentityHashMap_Entry[K, V]](this.innerMap.get(boxT_(key)))
+	var entry *LinkedIdentityHashMap_Entry[K, V] = this.innerMap.Get(key)
 	if entry == nil {
 		entry = new_LinkedIdentityHashMap_Entry[K, V](key, value)
-		this.innerMap.put(boxT_(key), obj_(entry))
+		this.innerMap.Put(key, entry)
 		this.iterationOrder.add(obj_(entry))
 		return jnull_[V]()
 	} else {

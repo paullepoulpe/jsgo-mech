@@ -8,8 +8,8 @@ type SortedDependencies[InputT DependencyInfo] struct {
 	userOrderedInputs             ListOf[InputT]
 	importOrderedInputs           ListOf[InputT]
 	completedInputs               SetOf[InputT]
-	nonExportingInputs            MapOf[string, InputT]
-	exportingInputBySymbolName    MapOf[string, InputT]
+	nonExportingInputs            *TMap[string, InputT]
+	exportingInputBySymbolName    *TMap[string, InputT]
 	importedInputByImportingInput *SimpleSetMultimap[any, any]
 }
 
@@ -19,8 +19,8 @@ func (this *SortedDependencies[InputT]) finit_SortedDependencies() {
 	this.userOrderedInputs = new_ArrayList_0()
 	this.importOrderedInputs = new_ArrayList_0()
 	this.completedInputs = new_LinkedHashSet()
-	this.nonExportingInputs = new_LinkedHashMap()
-	this.exportingInputBySymbolName = new_LinkedHashMap()
+	this.nonExportingInputs = newTMap_(tconvT_[string](), tconvT_[InputT]())
+	this.exportingInputBySymbolName = newTMap_(tconvT_[string](), tconvT_[InputT]())
 	this.importedInputByImportingInput = SimpleSetMultimap_createInsertionOrdered[any, any]()
 }
 
@@ -44,7 +44,7 @@ func (this *SortedDependencies[InputT]) getStrongDependenciesOf(rootInputs ListO
 		if includedInputs.add(boxT_(input)) {
 			for _, el := range input.getRequiredSymbols().items {
 				symbolName := el
-				var importedSymbolName InputT = junboxT_[InputT](Map_get_s(this.exportingInputBySymbolName, symbolName))
+				var importedSymbolName InputT = junboxT_[InputT](Map_get_s(this.exportingInputBySymbolName.asMap(), symbolName))
 				if !jisnull_(importedSymbolName) {
 					worklist.add(boxT_(importedSymbolName))
 				}
@@ -75,7 +75,7 @@ func (this *SortedDependencies[InputT]) getInputProviding(symbolName string) *Ou
 }
 
 func (this *SortedDependencies[InputT]) getInputsWithoutProvides() ImmutableListOf[InputT] {
-	return ImmutableList_copyOf(this.nonExportingInputs.values())
+	return ImmutableList_copyOf(this.nonExportingInputs.asMap().values())
 }
 
 func (this *SortedDependencies[InputT]) getSortedStrongDependenciesOf(roots ListOf[InputT]) ImmutableListOf[InputT] {
@@ -99,7 +99,7 @@ func (this *SortedDependencies[InputT]) getSortedWeakDependenciesOf(rootInputs L
 			continue
 		}
 		for symbolName := range elemsBy_(edges, str_) {
-			var importedSymbolName InputT = junboxT_[InputT](Map_get_s(this.exportingInputBySymbolName, symbolName))
+			var importedSymbolName InputT = junboxT_[InputT](Map_get_s(this.exportingInputBySymbolName.asMap(), symbolName))
 			if (!jisnull_(importedSymbolName) && !strongInputs.contains(boxT_(importedSymbolName))) && !weakInputs.contains(boxT_(importedSymbolName)) {
 				worklist.add(boxT_(importedSymbolName))
 			}
@@ -120,10 +120,10 @@ func (this *SortedDependencies[InputT]) getSortedList() ListOf[InputT] {
 }
 
 func (this *SortedDependencies[InputT]) maybeGetInputProviding(symbol string) InputT {
-	if Map_containsKey_s(this.exportingInputBySymbolName, symbol) {
-		return junboxT_[InputT](Map_get_s(this.exportingInputBySymbolName, symbol))
+	if Map_containsKey_s(this.exportingInputBySymbolName.asMap(), symbol) {
+		return junboxT_[InputT](Map_get_s(this.exportingInputBySymbolName.asMap(), symbol))
 	}
-	return junboxT_[InputT](Map_get_s(this.nonExportingInputs, ModuleNames_fileToModuleName(symbol)))
+	return junboxT_[InputT](Map_get_s(this.nonExportingInputs.asMap(), ModuleNames_fileToModuleName(symbol)))
 }
 
 func (this *SortedDependencies[InputT]) orderInput(input InputT) {
@@ -144,18 +144,18 @@ func (this *SortedDependencies[InputT]) processInputs() {
 		var provides *ImmutableList[string] = userOrderedInput.getProvides()
 		var firstProvide Optional[string] = Optional_ofNullable[string](str_(Iterables_getFirst(icast_Iterable(obj_(provides.asImm())), nil)))
 		if firstProvide.isEmpty() || (((provides.size() == 1) && strings.HasPrefix(firstProvide.get(), "module$")) && !userOrderedInput.isEs6Module()) {
-			Map_put_s(this.nonExportingInputs, ModuleNames_fileToModuleName(userOrderedInput.getName()), boxT_(userOrderedInput))
+			Map_put_s(this.nonExportingInputs.asMap(), ModuleNames_fileToModuleName(userOrderedInput.getName()), boxT_(userOrderedInput))
 		}
 		for _, el := range userOrderedInput.getProvides().items {
 			providedSymbolName := el
-			Map_put_s(this.exportingInputBySymbolName, providedSymbolName, boxT_(userOrderedInput))
+			Map_put_s(this.exportingInputBySymbolName.asMap(), providedSymbolName, boxT_(userOrderedInput))
 		}
 	}
 	for el_5 := range elems_(this.userOrderedInputs) {
 		var userOrderedInput InputT = junboxT_[InputT](el_5)
 		for _, el2 := range userOrderedInput.getRequiredSymbols().items {
 			symbolName := el2
-			var importedInput InputT = junboxT_[InputT](Map_get_s(this.exportingInputBySymbolName, symbolName))
+			var importedInput InputT = junboxT_[InputT](Map_get_s(this.exportingInputBySymbolName.asMap(), symbolName))
 			if !jisnull_(importedInput) {
 				this.importedInputByImportingInput.put(boxT_(userOrderedInput), boxT_(importedInput))
 			}
