@@ -164,3 +164,14 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 	n.replaceWith(this.outer_.astFactory_.createNot(this.outer_.astFactory_.createNot(bitAnd)).srcrefTreeIfMissing(n))
 	t.reportCodeChange()
 }
+
+// visit: an object that is exactly a ReplaceToggles_Traversal calls its visit_impl directly (post-flip); others dispatch.
+func (this *ReplaceToggles_Traversal) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

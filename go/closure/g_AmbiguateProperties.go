@@ -520,3 +520,14 @@ func (this *AmbiguateProperties_Property) addRelatedColor(color *Color) {
 	var newColorGraphNode *ColorGraphNode = this.outer_.graphNodeFactory.createNode(color)
 	this.relatedColorsSeeds.put(newColorGraphNode, any(int32(0)))
 }
+
+// visit: an object that is exactly a AmbiguateProperties_ProcessPropertiesAndConstructors calls its visit_impl directly (post-flip); others dispatch.
+func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

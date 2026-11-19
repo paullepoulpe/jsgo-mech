@@ -236,3 +236,19 @@ func (this *TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig) ge
 	passes.addAfter(this.injectRuntimeLibs, PassNames_MARK_UNNORMALIZED)
 	return passes
 }
+
+// getTranspileOnlyPasses: an object that is exactly a TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig calls its getTranspileOnlyPasses_impl directly (post-flip); others dispatch.
+func (this *TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig) getTranspileOnlyPasses() *PassListBuilder {
+	if this.self_ == any(this) {
+		return this.getTranspileOnlyPasses_impl()
+	}
+	return this.self_.(interface{ getTranspileOnlyPasses_impl() *PassListBuilder }).getTranspileOnlyPasses_impl()
+}
+
+// getFinalizations: an object that is exactly a TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig calls its getFinalizations_impl directly (post-flip); others dispatch.
+func (this *TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig) getFinalizations() *PassListBuilder {
+	if this.self_ == any(this) {
+		return this.getFinalizations_impl()
+	}
+	return this.self_.(interface{ getFinalizations_impl() *PassListBuilder }).getFinalizations_impl()
+}

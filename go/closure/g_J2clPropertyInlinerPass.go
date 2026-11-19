@@ -502,3 +502,54 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_InlinePropert
 		}
 	}
 }
+
+// remove: an object that is exactly a J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5 calls its remove_impl directly (post-flip); others dispatch.
+func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5) remove() {
+	if this.self_ == any(this) {
+		this.remove_impl()
+		return
+	}
+	this.self_.(interface{ remove_impl() }).remove_impl()
+}
+
+// remove: an object that is exactly a J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6 calls its remove_impl directly (post-flip); others dispatch.
+func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6) remove() {
+	if this.self_ == any(this) {
+		this.remove_impl()
+		return
+	}
+	this.self_.(interface{ remove_impl() }).remove_impl()
+}
+
+// visit: an object that is exactly a J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLClassGetterSetters calls its visit_impl directly (post-flip); others dispatch.
+func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLClassGetterSetters) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_DetermineInlinableProperties calls its visit_impl directly (post-flip); others dispatch.
+func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_DetermineInlinableProperties) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_InlinePropertiesPass calls its visit_impl directly (post-flip); others dispatch.
+func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_InlinePropertiesPass) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

@@ -1727,3 +1727,47 @@ func (this *InlineAndCollapseProperties_InlineAliases_AliasesInliner) resolveAli
 	}
 	return name
 }
+
+// visit: an object that is exactly a InlineAndCollapseProperties_RewriteSimpleDestructuringAliases calls its visit_impl directly (post-flip); others dispatch.
+func (this *InlineAndCollapseProperties_RewriteSimpleDestructuringAliases) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImportedModules calls its visit_impl directly (post-flip); others dispatch.
+func (this *InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImportedModules) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a InlineAndCollapseProperties_InlineAliases_AliasesCollector calls its visit_impl directly (post-flip); others dispatch.
+func (this *InlineAndCollapseProperties_InlineAliases_AliasesCollector) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a InlineAndCollapseProperties_InlineAliases_AliasesInliner calls its visit_impl directly (post-flip); others dispatch.
+func (this *InlineAndCollapseProperties_InlineAliases_AliasesInliner) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

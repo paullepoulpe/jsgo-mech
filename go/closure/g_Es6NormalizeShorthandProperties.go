@@ -34,3 +34,19 @@ func (this *Es6NormalizeShorthandProperties) transpileSubtree_impl(subtree Node)
 func (this *Es6NormalizeShorthandProperties) getTranspiledAwayFeatures_impl() *FeatureSet {
 	return FeatureSet_BARE_MINIMUM.with(FeatureSet_Feature_SHORTHAND_OBJECT_PROPERTIES)
 }
+
+// transpileSubtree: an object that is exactly a Es6NormalizeShorthandProperties calls its transpileSubtree_impl directly (post-flip); others dispatch.
+func (this *Es6NormalizeShorthandProperties) transpileSubtree(p0 Node) Node {
+	if this.self_ == any(this) {
+		return this.transpileSubtree_impl(p0)
+	}
+	return this.self_.(interface{ transpileSubtree_impl(Node) Node }).transpileSubtree_impl(p0)
+}
+
+// getTranspiledAwayFeatures: an object that is exactly a Es6NormalizeShorthandProperties calls its getTranspiledAwayFeatures_impl directly (post-flip); others dispatch.
+func (this *Es6NormalizeShorthandProperties) getTranspiledAwayFeatures() *FeatureSet {
+	if this.self_ == any(this) {
+		return this.getTranspiledAwayFeatures_impl()
+	}
+	return this.self_.(interface{ getTranspiledAwayFeatures_impl() *FeatureSet }).getTranspiledAwayFeatures_impl()
+}

@@ -791,3 +791,252 @@ func (this *CodePrinter_Builder_1) getCodeGenerator(outputFormat *CodePrinter_Fo
 		return new_CodeGenerator_CodeConsumer_CompilerOptions(cc, this.outer_.options_)
 	}()
 }
+
+// append: an object that is exactly a CodePrinter_MappedCodePrinter calls its append_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_MappedCodePrinter) append(p0 string) {
+	if this.self_ == any(this) {
+		this.append_impl(p0)
+		return
+	}
+	this.self_.(interface{ append_impl(string) }).append_impl(p0)
+}
+
+// trackLicenses: an object that is exactly a CodePrinter_MappedCodePrinter calls its trackLicenses_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_MappedCodePrinter) trackLicenses(p0 Node) {
+	if this.self_ == any(this) {
+		this.trackLicenses_impl(p0)
+		return
+	}
+	this.self_.(interface{ trackLicenses_impl(Node) }).trackLicenses_impl(p0)
+}
+
+// startSourceMapping: an object that is exactly a CodePrinter_MappedCodePrinter calls its startSourceMapping_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_MappedCodePrinter) startSourceMapping(p0 Node) {
+	if this.self_ == any(this) {
+		this.startSourceMapping_impl(p0)
+		return
+	}
+	this.self_.(interface{ startSourceMapping_impl(Node) }).startSourceMapping_impl(p0)
+}
+
+// endSourceMapping: an object that is exactly a CodePrinter_MappedCodePrinter calls its endSourceMapping_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_MappedCodePrinter) endSourceMapping(p0 Node) {
+	if this.self_ == any(this) {
+		this.endSourceMapping_impl(p0)
+		return
+	}
+	this.self_.(interface{ endSourceMapping_impl(Node) }).endSourceMapping_impl(p0)
+}
+
+// getLastChar: an object that is exactly a CodePrinter_MappedCodePrinter calls its getLastChar_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_MappedCodePrinter) getLastChar() uint16 {
+	if this.self_ == any(this) {
+		return this.getLastChar_impl()
+	}
+	return this.self_.(interface{ getLastChar_impl() uint16 }).getLastChar_impl()
+}
+
+// append: an object that is exactly a CodePrinter_PrettyCodePrinter calls its append_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) append(p0 string) {
+	if this.self_ == any(this) {
+		this.append_impl(p0)
+		return
+	}
+	this.self_.(interface{ append_impl(string) }).append_impl(p0)
+}
+
+// addNumber: an object that is exactly a CodePrinter_PrettyCodePrinter calls its addNumber_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) addNumber(p0 float64, p1 Node) {
+	if this.self_ == any(this) {
+		this.addNumber_impl(p0, p1)
+		return
+	}
+	this.self_.(interface{ addNumber_impl(float64, Node) }).addNumber_impl(p0, p1)
+}
+
+// startNewLine: an object that is exactly a CodePrinter_PrettyCodePrinter calls its startNewLine_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) startNewLine() {
+	if this.self_ == any(this) {
+		this.startNewLine_impl()
+		return
+	}
+	this.self_.(interface{ startNewLine_impl() }).startNewLine_impl()
+}
+
+// maybeLineBreak: an object that is exactly a CodePrinter_PrettyCodePrinter calls its maybeLineBreak_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) maybeLineBreak() {
+	if this.self_ == any(this) {
+		this.maybeLineBreak_impl()
+		return
+	}
+	this.self_.(interface{ maybeLineBreak_impl() }).maybeLineBreak_impl()
+}
+
+// maybeCutLine: an object that is exactly a CodePrinter_PrettyCodePrinter calls its maybeCutLine_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) maybeCutLine() {
+	if this.self_ == any(this) {
+		this.maybeCutLine_impl()
+		return
+	}
+	this.self_.(interface{ maybeCutLine_impl() }).maybeCutLine_impl()
+}
+
+// endLine: an object that is exactly a CodePrinter_PrettyCodePrinter calls its endLine_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) endLine() {
+	if this.self_ == any(this) {
+		this.endLine_impl()
+		return
+	}
+	this.self_.(interface{ endLine_impl() }).endLine_impl()
+}
+
+// appendBlockStart: an object that is exactly a CodePrinter_PrettyCodePrinter calls its appendBlockStart_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) appendBlockStart() {
+	if this.self_ == any(this) {
+		this.appendBlockStart_impl()
+		return
+	}
+	this.self_.(interface{ appendBlockStart_impl() }).appendBlockStart_impl()
+}
+
+// appendBlockEnd: an object that is exactly a CodePrinter_PrettyCodePrinter calls its appendBlockEnd_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) appendBlockEnd() {
+	if this.self_ == any(this) {
+		this.appendBlockEnd_impl()
+		return
+	}
+	this.self_.(interface{ appendBlockEnd_impl() }).appendBlockEnd_impl()
+}
+
+// listSeparator: an object that is exactly a CodePrinter_PrettyCodePrinter calls its listSeparator_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) listSeparator() {
+	if this.self_ == any(this) {
+		this.listSeparator_impl()
+		return
+	}
+	this.self_.(interface{ listSeparator_impl() }).listSeparator_impl()
+}
+
+// optionalListSeparator: an object that is exactly a CodePrinter_PrettyCodePrinter calls its optionalListSeparator_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) optionalListSeparator() {
+	if this.self_ == any(this) {
+		this.optionalListSeparator_impl()
+		return
+	}
+	this.self_.(interface{ optionalListSeparator_impl() }).optionalListSeparator_impl()
+}
+
+// endFunction: an object that is exactly a CodePrinter_PrettyCodePrinter calls its endFunction_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) endFunction(p0 bool) {
+	if this.self_ == any(this) {
+		this.endFunction_impl(p0)
+		return
+	}
+	this.self_.(interface{ endFunction_impl(bool) }).endFunction_impl(p0)
+}
+
+// beginCaseBody: an object that is exactly a CodePrinter_PrettyCodePrinter calls its beginCaseBody_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) beginCaseBody() {
+	if this.self_ == any(this) {
+		this.beginCaseBody_impl()
+		return
+	}
+	this.self_.(interface{ beginCaseBody_impl() }).beginCaseBody_impl()
+}
+
+// endCaseBody: an object that is exactly a CodePrinter_PrettyCodePrinter calls its endCaseBody_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) endCaseBody() {
+	if this.self_ == any(this) {
+		this.endCaseBody_impl()
+		return
+	}
+	this.self_.(interface{ endCaseBody_impl() }).endCaseBody_impl()
+}
+
+// appendOp: an object that is exactly a CodePrinter_PrettyCodePrinter calls its appendOp_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) appendOp(p0 string, p1 bool) {
+	if this.self_ == any(this) {
+		this.appendOp_impl(p0, p1)
+		return
+	}
+	this.self_.(interface{ appendOp_impl(string, bool) }).appendOp_impl(p0, p1)
+}
+
+// shouldPreserveExtras: an object that is exactly a CodePrinter_PrettyCodePrinter calls its shouldPreserveExtras_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) shouldPreserveExtras(p0 Node) bool {
+	if this.self_ == any(this) {
+		return this.shouldPreserveExtras_impl(p0)
+	}
+	return this.self_.(interface{ shouldPreserveExtras_impl(Node) bool }).shouldPreserveExtras_impl(p0)
+}
+
+// maybeInsertSpace: an object that is exactly a CodePrinter_PrettyCodePrinter calls its maybeInsertSpace_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) maybeInsertSpace() {
+	if this.self_ == any(this) {
+		this.maybeInsertSpace_impl()
+		return
+	}
+	this.self_.(interface{ maybeInsertSpace_impl() }).maybeInsertSpace_impl()
+}
+
+// breakAfterBlockFor: an object that is exactly a CodePrinter_PrettyCodePrinter calls its breakAfterBlockFor_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) breakAfterBlockFor(p0 Node, p1 bool) bool {
+	if this.self_ == any(this) {
+		return this.breakAfterBlockFor_impl(p0, p1)
+	}
+	return this.self_.(interface{ breakAfterBlockFor_impl(Node, bool) bool }).breakAfterBlockFor_impl(p0, p1)
+}
+
+// endStatement_2: an object that is exactly a CodePrinter_PrettyCodePrinter calls its endStatement_2_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) endStatement_2(p0 bool, p1 bool) {
+	if this.self_ == any(this) {
+		this.endStatement_2_impl(p0, p1)
+		return
+	}
+	this.self_.(interface{ endStatement_2_impl(bool, bool) }).endStatement_2_impl(p0, p1)
+}
+
+// endFile: an object that is exactly a CodePrinter_PrettyCodePrinter calls its endFile_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) endFile() {
+	if this.self_ == any(this) {
+		this.endFile_impl()
+		return
+	}
+	this.self_.(interface{ endFile_impl() }).endFile_impl()
+}
+
+// startNewLine: an object that is exactly a CodePrinter_CompactCodePrinter calls its startNewLine_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_CompactCodePrinter) startNewLine() {
+	if this.self_ == any(this) {
+		this.startNewLine_impl()
+		return
+	}
+	this.self_.(interface{ startNewLine_impl() }).startNewLine_impl()
+}
+
+// maybeLineBreak: an object that is exactly a CodePrinter_CompactCodePrinter calls its maybeLineBreak_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_CompactCodePrinter) maybeLineBreak() {
+	if this.self_ == any(this) {
+		this.maybeLineBreak_impl()
+		return
+	}
+	this.self_.(interface{ maybeLineBreak_impl() }).maybeLineBreak_impl()
+}
+
+// maybeCutLine: an object that is exactly a CodePrinter_CompactCodePrinter calls its maybeCutLine_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_CompactCodePrinter) maybeCutLine() {
+	if this.self_ == any(this) {
+		this.maybeCutLine_impl()
+		return
+	}
+	this.self_.(interface{ maybeCutLine_impl() }).maybeCutLine_impl()
+}
+
+// notePreferredLineBreak: an object that is exactly a CodePrinter_CompactCodePrinter calls its notePreferredLineBreak_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_CompactCodePrinter) notePreferredLineBreak() {
+	if this.self_ == any(this) {
+		this.notePreferredLineBreak_impl()
+		return
+	}
+	this.self_.(interface{ notePreferredLineBreak_impl() }).notePreferredLineBreak_impl()
+}
