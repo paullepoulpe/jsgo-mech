@@ -395,8 +395,13 @@ tree before C1, each step's patch or command with the tools of that step's commi
 carried forward, each intermediate go/ compared with the step's commit byte for byte
 (g_zconv_jfam*.go left out against the commits .gitignore kept it from, see steps.txt). Run on
 64826ba8: `CHAIN OK 34 steps, last tree builds`. Its first run stopped at C34 on a patch file
-left under an old hash; fixed in 64826ba8. This is the bridge only: the 191 replayed commits
-before C1 (reflip2-replayed) were checked by replay2.sh on 18 Nov and have not been re-run.
+left under an old hash; fixed in 64826ba8. The steps before C1 were re-run clean the same day: from main-r9-reflip2 (ecd91f11),
+`replay-all.sh -base 9e761336 -noverify -steps reflip/steps.txt -overlay reflip/patches -toolfix
+reflip/toolfix.sh -check "tc go/closure" -w <fresh worktree>` replayed 191 commits in 36 minutes
+and its end go/ is 079459be's (reflip2-replayed), byte for byte. So the second trial reproduces
+from its flip commit: 191 replayed commits, then C1 to C34 as a chain, C35 and C36 each checked
+on its parent. Lambda adapters after C36: 290 typed literals and 51 erased lambda objects in
+g_*.go.
 
 ### C35, C36 and the standing after them (19 Nov)
 
