@@ -181,6 +181,11 @@ func collect() {
 				}
 				sig := fn.Type().(*types.Signature)
 				results[x] = sig
+				if x.Recv == nil && x.Name.Name == asAppendable {
+					// The typed translator's upcast helper: its parameter is no slot; a builder
+					// passed to it is a builder passed as an Appendable (context).
+					return true
+				}
 				fieldList(x.Type.Params, func(i int) *types.Var { return sig.Params().At(i) }, g, "")
 				fieldList(x.Type.Results, func(i int) *types.Var { return sig.Results().At(i) }, g, "")
 			case *ast.FuncLit:
@@ -476,6 +481,14 @@ type appArg struct {
 	local bool
 	v     *types.Var
 }
+
+// asAppendable is the typed translator's upcast of a *StringBuilder to Appendable (g_0casts.go:
+// nil stays nil). The first flip wrote the builder itself where an Appendable was wanted; here
+// StringBuilder_as_Appendable(sb) is that use: a converted builder goes as appendable_(sb),
+// which keeps nil as nil too, and the helper call around it is dropped (upcasts).
+const asAppendable = "StringBuilder_as_Appendable"
+
+var upcasts = map[key][]*ast.CallExpr{}
 
 func appendArg(k key, e ast.Expr, local bool, v *types.Var) {
 	appendArgs[k] = append(appendArgs[k], appArg{e, local, v})
@@ -784,12 +797,19 @@ func context(k key, e ast.Expr) {
 			if fn := callee(x); fn != nil {
 				// tostr_/tostrNN_ (the tostr step's String.valueOf / toString) are generic over
 				// any comparable type with toString(): a *strBuilder_ passes unchanged, and a local builder
+				// (jtostr_ is the typed translator's String.valueOf, generic over any comparable type:
+				// it boxes its argument and calls toString(), "null" for nil, as tostr_ does.)
 				// (a strBuilder_ value, which cannot be null) calls its toString() as Java did.
-				if (fn.Name() == "tostr_" || fn.Name() == "tostrNN_") && len(x.Args) == 1 && rw.Unparen(x.Args[0]) == e {
+				if (fn.Name() == "tostr_" || fn.Name() == "tostrNN_" || fn.Name() == "jtostr_") && len(x.Args) == 1 && rw.Unparen(x.Args[0]) == e {
 					if local { // a local builder is a strBuilder_ value, never null: Java's own toString()
 						call, arg := x, e
 						rw.Rewrite[call] = func() string { return rw.Render(arg) + ".toString()" }
 					}
+					return
+				}
+				if fn.Name() == asAppendable && len(x.Args) == 1 && rw.Unparen(x.Args[0]) == e {
+					appendArg(k, e, local, v)
+					upcasts[k] = append(upcasts[k], x)
 					return
 				}
 				for i, a := range x.Args {
@@ -1457,6 +1477,15 @@ func convert(report bool) {
 				return "appendable_(" + inner + ")"
 			}
 			nApp++
+		}
+	}
+	for k, cs := range upcasts {
+		if !conv[k] {
+			continue
+		}
+		for _, c := range cs {
+			c := c
+			rw.Rewrite[c] = func() string { return rw.Render(c.Args[0]) }
 		}
 	}
 	if nApp > 0 {
