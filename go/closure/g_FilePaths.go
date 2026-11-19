@@ -18,7 +18,8 @@ func new_FilePaths() *FilePaths {
 }
 
 func FilePaths_clean(path string) string {
-	var plain *StringBuilder = new_StringBuilder_int(String_length(path))
+	var plain strBuilder_
+	plain.grow(String_length(path))
 	for _, c := range stringUnits_(path) {
 		if ((c != '/') || (plain.length() == 0)) || (plain.charAt((plain.length() - 1)) != '/') {
 			plain.append_char(c)
@@ -27,7 +28,7 @@ func FilePaths_clean(path string) string {
 	if (plain.length() > 1) && (plain.charAt((plain.length() - 1)) == '/') {
 		plain.setLength((plain.length() - 1))
 	}
-	return tostrNN_(plain)
+	return plain.toString()
 }
 
 func FilePaths_join(first string, more []string) string {
@@ -176,7 +177,7 @@ func FilePaths_relativize(path string, other string) Optional[string] {
 	for ((common < from.size()) && (common < to.size())) && (from.get(common) == to.get(common)) {
 		common++
 	}
-	var result *StringBuilder = new_StringBuilder()
+	var result strBuilder_
 	for i := int32(common); i < from.size(); i++ {
 		if from.get(i) == ".." {
 			return Optional_empty[string]()

@@ -803,14 +803,14 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 		return NodeUtil_getStringValue(right)
 	}()
 	var arrayFoldedChildren *JTList[Node] = jnewTList_(jtc_Node)
-	var sb *StringBuilder = nil
+	var sb *strBuilder_ = nil
 	var foldedSize int32 = 0
 	var prev Node = 0
 	var elem Node = arrayNode.getFirstChild()
 	for elem != 0 {
 		if NodeUtil_isImmutableValue(elem) || elem.isEmpty() {
 			if sb == nil {
-				sb = new_StringBuilder()
+				sb = &strBuilder_{}
 			} else {
 				sb.append(joinString.orElse("null"))
 			}
@@ -823,7 +823,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 			if sb != nil {
 				Preconditions_checkNotNull_T(prev)
 				foldedSize += (sb.length() + 2)
-				arrayFoldedChildren.add(IR_string(tostrNN_(sb)).srcrefIfMissing(prev))
+				arrayFoldedChildren.add(IR_string(sb.toString()).srcrefIfMissing(prev))
 				sb = nil
 			}
 			foldedSize += InlineCostEstimator_getCost_Node(elem)
@@ -835,7 +835,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 	if sb != nil {
 		Preconditions_checkNotNull_T(prev)
 		foldedSize += (sb.length() + 2)
-		arrayFoldedChildren.add(IR_string(tostrNN_(sb)).srcrefIfMissing(prev))
+		arrayFoldedChildren.add(IR_string(sb.toString()).srcrefIfMissing(prev))
 	}
 	foldedSize += (arrayFoldedChildren.size() - 1)
 	var originalSize int32 = InlineCostEstimator_getCost_Node(n)

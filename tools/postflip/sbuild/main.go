@@ -760,8 +760,13 @@ func context(k key, e ast.Expr) {
 			}
 			if fn := callee(x); fn != nil {
 				// tostr_/tostrNN_ (the tostr step's String.valueOf / toString) are generic over
-				// any comparable type with toString(): a *strBuilder_ passes unchanged.
+				// any comparable type with toString(): a *strBuilder_ passes unchanged, and a local builder
+				// (a strBuilder_ value, which cannot be null) calls its toString() as Java did.
 				if (fn.Name() == "tostr_" || fn.Name() == "tostrNN_") && len(x.Args) == 1 && rw.Unparen(x.Args[0]) == e {
+					if local { // a local builder is a strBuilder_ value, never null: Java's own toString()
+						call, arg := x, e
+						rw.Rewrite[call] = func() string { return rw.Render(arg) + ".toString()" }
+					}
 					return
 				}
 				for i, a := range x.Args {

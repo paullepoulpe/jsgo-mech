@@ -116,7 +116,7 @@ func (this *SourceMapConsumerV3) parseMetaMap(sourceMapObject *SourceMapObject, 
 		}
 		var sb *StringBuilder = new_StringBuilder()
 		generator.appendTo(StringBuilder_as_Appendable(sb), sourceMapObject.getFile())
-		ret_1 = this.parse(tostrNN_(sb))
+		ret_1 = this.parse(sb.toString())
 		return 1
 	}()
 	if code_1 == 1 {
