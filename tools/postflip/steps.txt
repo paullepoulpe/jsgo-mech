@@ -495,3 +495,5 @@ b1129850 patch 346-b1129850-rt.patch
 b0699ec8 patch 348-b0699ec8-rt.patch
 # 352. postflip (runtime): a protobuf builder's build() gives the message the builder's storage
 2df6c21b patch 352-2df6c21b-rt.patch
+# 353. postflip (runtime): protobuf fields are stored typed, in one struct per message written by tools/protogen, instead of boxed in a []any
+ac9e759b patch 353-ac9e759b-rt.patch
