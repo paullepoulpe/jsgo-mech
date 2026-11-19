@@ -606,7 +606,11 @@ func (p *param) analyseFn(fn *types.Func, idx int) {
 		p.why = "no body"
 	case !generated(fd):
 		p.why = "runtime"
-	case sig.TypeParams() != nil || sig.RecvTypeParams() != nil:
+	// A function with its own type parameters stays. A method of a generic type (second flip:
+	// the typed translator keeps LinkedIdentityHashMap[K, V], HamtPMap[K, V] generic) is
+	// converted like any other: its uses are found through the origin method, and the package is
+	// type-checked after the rewrite.
+	case sig.TypeParams() != nil:
 		p.why = "generic"
 	case sig.Variadic() && idx >= sig.Params().Len()-1:
 		p.why = "variadic"
