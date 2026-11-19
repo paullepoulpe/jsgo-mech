@@ -134,14 +134,14 @@ func (this Config_StrictMode) enum_() *Enum {
 	return &Config_StrictMode_enum_[this-1]
 }
 
-func (this Config_StrictMode) name() string { return Config_StrictMode_enum_[this-1].name_ }
+func (this Config_StrictMode) name() string { return this.enum_().name_ }
 
-func (this Config_StrictMode) ordinal() int32 { return Config_StrictMode_enum_[this-1].ordinal_ }
+func (this Config_StrictMode) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this Config_StrictMode) toString() string { return Config_StrictMode_enum_[this-1].name_ }
+func (this Config_StrictMode) toString() string { return this.enum_().name_ }
 
 func (this Config_StrictMode) compareTo(o any) int32 {
-	return Config_StrictMode_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this Config_StrictMode) self() any {
@@ -213,14 +213,14 @@ func (this Config_LanguageMode) enum_() *Enum {
 	return &Config_LanguageMode_enum_[this-1]
 }
 
-func (this Config_LanguageMode) name() string { return Config_LanguageMode_enum_[this-1].name_ }
+func (this Config_LanguageMode) name() string { return this.enum_().name_ }
 
-func (this Config_LanguageMode) ordinal() int32 { return Config_LanguageMode_enum_[this-1].ordinal_ }
+func (this Config_LanguageMode) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this Config_LanguageMode) toString() string { return Config_LanguageMode_enum_[this-1].name_ }
+func (this Config_LanguageMode) toString() string { return this.enum_().name_ }
 
 func (this Config_LanguageMode) compareTo(o any) int32 {
-	return Config_LanguageMode_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this Config_LanguageMode) self() any {
@@ -328,14 +328,14 @@ func (this Config_JsDocParsing) enum_() *Enum {
 	return &Config_JsDocParsing_enum_[this-1]
 }
 
-func (this Config_JsDocParsing) name() string { return Config_JsDocParsing_enum_[this-1].name_ }
+func (this Config_JsDocParsing) name() string { return this.enum_().name_ }
 
-func (this Config_JsDocParsing) ordinal() int32 { return Config_JsDocParsing_enum_[this-1].ordinal_ }
+func (this Config_JsDocParsing) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this Config_JsDocParsing) toString() string { return Config_JsDocParsing_enum_[this-1].name_ }
+func (this Config_JsDocParsing) toString() string { return this.enum_().name_ }
 
 func (this Config_JsDocParsing) compareTo(o any) int32 {
-	return Config_JsDocParsing_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this Config_JsDocParsing) self() any {
@@ -401,13 +401,13 @@ func (this Config_RunMode) enum_() *Enum {
 	return &Config_RunMode_enum_[this-1]
 }
 
-func (this Config_RunMode) name() string { return Config_RunMode_enum_[this-1].name_ }
+func (this Config_RunMode) name() string { return this.enum_().name_ }
 
-func (this Config_RunMode) ordinal() int32 { return Config_RunMode_enum_[this-1].ordinal_ }
+func (this Config_RunMode) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this Config_RunMode) toString() string { return Config_RunMode_enum_[this-1].name_ }
+func (this Config_RunMode) toString() string { return this.enum_().name_ }
 
-func (this Config_RunMode) compareTo(o any) int32 { return Config_RunMode_enum_[this-1].compareTo(o) }
+func (this Config_RunMode) compareTo(o any) int32 { return this.enum_().compareTo(o) }
 
 func (this Config_RunMode) self() any {
 	if this == 0 {

@@ -67,19 +67,19 @@ func (this TemplateLiteralToken_ErrorLevel) enum_() *Enum {
 }
 
 func (this TemplateLiteralToken_ErrorLevel) name() string {
-	return TemplateLiteralToken_ErrorLevel_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this TemplateLiteralToken_ErrorLevel) ordinal() int32 {
-	return TemplateLiteralToken_ErrorLevel_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this TemplateLiteralToken_ErrorLevel) toString() string {
-	return TemplateLiteralToken_ErrorLevel_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this TemplateLiteralToken_ErrorLevel) compareTo(o any) int32 {
-	return TemplateLiteralToken_ErrorLevel_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this TemplateLiteralToken_ErrorLevel) self() any {

@@ -250,19 +250,19 @@ func (this FeatureCollector_FeatureContext) enum_() *Enum {
 }
 
 func (this FeatureCollector_FeatureContext) name() string {
-	return FeatureCollector_FeatureContext_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this FeatureCollector_FeatureContext) ordinal() int32 {
-	return FeatureCollector_FeatureContext_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this FeatureCollector_FeatureContext) toString() string {
-	return FeatureCollector_FeatureContext_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this FeatureCollector_FeatureContext) compareTo(o any) int32 {
-	return FeatureCollector_FeatureContext_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this FeatureCollector_FeatureContext) self() any {

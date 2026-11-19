@@ -556,19 +556,19 @@ func (this AbstractCompiler_ConfigContext) enum_() *Enum {
 }
 
 func (this AbstractCompiler_ConfigContext) name() string {
-	return AbstractCompiler_ConfigContext_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this AbstractCompiler_ConfigContext) ordinal() int32 {
-	return AbstractCompiler_ConfigContext_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this AbstractCompiler_ConfigContext) toString() string {
-	return AbstractCompiler_ConfigContext_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this AbstractCompiler_ConfigContext) compareTo(o any) int32 {
-	return AbstractCompiler_ConfigContext_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this AbstractCompiler_ConfigContext) self() any {
@@ -626,19 +626,19 @@ func (this AbstractCompiler_LifeCycleStage) enum_() *Enum {
 }
 
 func (this AbstractCompiler_LifeCycleStage) name() string {
-	return AbstractCompiler_LifeCycleStage_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this AbstractCompiler_LifeCycleStage) ordinal() int32 {
-	return AbstractCompiler_LifeCycleStage_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this AbstractCompiler_LifeCycleStage) toString() string {
-	return AbstractCompiler_LifeCycleStage_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this AbstractCompiler_LifeCycleStage) compareTo(o any) int32 {
-	return AbstractCompiler_LifeCycleStage_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this AbstractCompiler_LifeCycleStage) self() any {

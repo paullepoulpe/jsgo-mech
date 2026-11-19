@@ -375,19 +375,19 @@ func (this DeadAssignmentsElimination_VariableLiveness) enum_() *Enum {
 }
 
 func (this DeadAssignmentsElimination_VariableLiveness) name() string {
-	return DeadAssignmentsElimination_VariableLiveness_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this DeadAssignmentsElimination_VariableLiveness) ordinal() int32 {
-	return DeadAssignmentsElimination_VariableLiveness_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this DeadAssignmentsElimination_VariableLiveness) toString() string {
-	return DeadAssignmentsElimination_VariableLiveness_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this DeadAssignmentsElimination_VariableLiveness) compareTo(o any) int32 {
-	return DeadAssignmentsElimination_VariableLiveness_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this DeadAssignmentsElimination_VariableLiveness) self() any {

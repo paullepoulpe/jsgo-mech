@@ -2033,16 +2033,16 @@ func (this CodeGenerator_Context) enum_() *Enum {
 	return &CodeGenerator_Context_enum_[this-1]
 }
 
-func (this CodeGenerator_Context) name() string { return CodeGenerator_Context_enum_[this-1].name_ }
+func (this CodeGenerator_Context) name() string { return this.enum_().name_ }
 
 func (this CodeGenerator_Context) ordinal() int32 {
-	return CodeGenerator_Context_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
-func (this CodeGenerator_Context) toString() string { return CodeGenerator_Context_enum_[this-1].name_ }
+func (this CodeGenerator_Context) toString() string { return this.enum_().name_ }
 
 func (this CodeGenerator_Context) compareTo(o any) int32 {
-	return CodeGenerator_Context_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CodeGenerator_Context) self() any {

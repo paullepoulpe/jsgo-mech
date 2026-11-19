@@ -489,19 +489,19 @@ func (this AnalyzePrototypeProperties_SymbolType) enum_() *Enum {
 }
 
 func (this AnalyzePrototypeProperties_SymbolType) name() string {
-	return AnalyzePrototypeProperties_SymbolType_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this AnalyzePrototypeProperties_SymbolType) ordinal() int32 {
-	return AnalyzePrototypeProperties_SymbolType_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this AnalyzePrototypeProperties_SymbolType) toString() string {
-	return AnalyzePrototypeProperties_SymbolType_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this AnalyzePrototypeProperties_SymbolType) compareTo(o any) int32 {
-	return AnalyzePrototypeProperties_SymbolType_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this AnalyzePrototypeProperties_SymbolType) self() any {

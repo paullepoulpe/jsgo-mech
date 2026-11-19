@@ -159,14 +159,14 @@ func (this Property_KeyKind) enum_() *Enum {
 	return &Property_KeyKind_enum_[this-1]
 }
 
-func (this Property_KeyKind) name() string { return Property_KeyKind_enum_[this-1].name_ }
+func (this Property_KeyKind) name() string { return this.enum_().name_ }
 
-func (this Property_KeyKind) ordinal() int32 { return Property_KeyKind_enum_[this-1].ordinal_ }
+func (this Property_KeyKind) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this Property_KeyKind) toString() string { return Property_KeyKind_enum_[this-1].name_ }
+func (this Property_KeyKind) toString() string { return this.enum_().name_ }
 
 func (this Property_KeyKind) compareTo(o any) int32 {
-	return Property_KeyKind_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this Property_KeyKind) self() any {
