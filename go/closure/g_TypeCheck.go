@@ -811,9 +811,7 @@ func (this *TypeCheck) checkDeclaredPropertyAgainstNominalInheritance(n Node, ct
 			}
 		}
 	}
-	it_1 := foreach_(ctorType.getAllImplementedInterfaces())
-	for it_1.next() {
-		var implementedInterface *ObjectType = to_ObjectType(it_1.v)
+	for implementedInterface := range elemsBy_(ctorType.getAllImplementedInterfaces(), to_ObjectType) {
 		if implementedInterface.isUnknownType() || implementedInterface.isEmptyType() {
 			continue
 		}
@@ -842,9 +840,7 @@ func TypeCheck_isDeclaredLocally(ctorType *FunctionType, propertyName Property_K
 func (this *TypeCheck) checkDeclaredPropertyAgainstPrototypalInheritance(n Node, receiverType *ObjectType, propertyName Property_Key, info *JSDocInfo, propertyType *JSType) {
 	var declaredOverride bool = TypeCheck_declaresOverride(info)
 	var supertypeWithProperty *ObjectType = nil
-	it_1 := foreach_(receiverType.getImplicitPrototypeChain())
-	for it_1.next() {
-		var type_ *ObjectType = to_ObjectType(it_1.v)
+	for type_ := range elemsBy_(receiverType.getImplicitPrototypeChain(), to_ObjectType) {
 		if type_.hasOwnPropertyKey(propertyName) {
 			supertypeWithProperty = type_
 			break
@@ -1283,9 +1279,7 @@ func (this *TypeCheck) checkInterfaceConflictProperties(n Node, functionName str
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_INCOMPATIBLE_EXTENDED_PROPERTY_TYPE, []string{functionName, name.humanReadableName(), oType.toString(), interfaceType.toString()}))
 		}
 	}
-	it_3 := foreach_(interfaceType.getCtorExtendedInterfaces())
-	for it_3.next() {
-		var iType *ObjectType = to_ObjectType(it_3.v)
+	for iType := range elemsBy_(interfaceType.getCtorExtendedInterfaces(), to_ObjectType) {
 		this.checkInterfaceConflictProperties(n, functionName, properties, currentProperties, iType)
 	}
 }

@@ -34,13 +34,9 @@ func (this *TranspileAndOptimizeClosureUnaware) process_2(externs Node, root Nod
 }
 
 func (this *TranspileAndOptimizeClosureUnaware) initShadowInputs(shadowCompiler *NestedCompilerRunner, perFileInputs *SimpleSetMultimap) {
-	it_1 := foreach_(perFileInputs.keySet())
-	for it_1.next() {
-		var sourceFile *SourceFile_jscomp = cast_[*SourceFile_jscomp](it_1.v)
+	for sourceFile := range elemsAs_[*SourceFile_jscomp](perFileInputs.keySet()) {
 		var indexInFile int32 = 0
-		it_3 := foreach_(perFileInputs.get(obj_(sourceFile)))
-		for it_3.next() {
-			var shadowAst *TranspileAndOptimizeClosureUnaware_ShadowAst = cast_[*TranspileAndOptimizeClosureUnaware_ShadowAst](it_3.v)
+		for shadowAst := range elemsAs_[*TranspileAndOptimizeClosureUnaware_ShadowAst](perFileInputs.get(obj_(sourceFile))) {
 			var uniqueName string = (sstr_(sourceFile.getName()) + ".shadow" + istr_(int64(indexInFile)))
 			indexInFile++
 			shadowCompiler.addScript(shadowAst.script().detach(), uniqueName)
@@ -49,9 +45,7 @@ func (this *TranspileAndOptimizeClosureUnaware) initShadowInputs(shadowCompiler 
 }
 
 func (this *TranspileAndOptimizeClosureUnaware) reattachShadowNodes(inputs *SimpleSetMultimap) {
-	it_1 := foreach_(inputs.values())
-	for it_1.next() {
-		var shadowAst *TranspileAndOptimizeClosureUnaware_ShadowAst = cast_[*TranspileAndOptimizeClosureUnaware_ShadowAst](it_1.v)
+	for shadowAst := range elemsAs_[*TranspileAndOptimizeClosureUnaware_ShadowAst](inputs.values()) {
 		var script Node = shadowAst.script()
 		if ok_, a1_ := script.hasOneChild(), script.toStringTree(); !ok_ {
 			panic(new_IllegalStateException_String(objstr_(a1_)).self())
@@ -63,9 +57,7 @@ func (this *TranspileAndOptimizeClosureUnaware) reattachShadowNodes(inputs *Simp
 }
 
 func (this *TranspileAndOptimizeClosureUnaware) setScriptFeaturesets(inputs CollectionOf[*TranspileAndOptimizeClosureUnaware_ShadowAst]) {
-	it_1 := foreach_(inputs)
-	for it_1.next() {
-		var shadowAst *TranspileAndOptimizeClosureUnaware_ShadowAst = cast_[*TranspileAndOptimizeClosureUnaware_ShadowAst](it_1.v)
+	for shadowAst := range elemsAs_[*TranspileAndOptimizeClosureUnaware_ShadowAst](inputs) {
 		var shadowScript Node = shadowAst.script()
 		var collector *FeatureCollector = new_FeatureCollector()
 		collector.visitScript(shadowScript)
@@ -75,9 +67,7 @@ func (this *TranspileAndOptimizeClosureUnaware) setScriptFeaturesets(inputs Coll
 
 func (this *TranspileAndOptimizeClosureUnaware) createInjectRuntimeLibrariesPass(shadowAsts CollectionOf[*TranspileAndOptimizeClosureUnaware_ShadowAst]) *PassFactory {
 	var callSites *TListBuilder[*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite] = newTListBuilder_(jtc_p_InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite)
-	it_1 := foreach_(shadowAsts)
-	for it_1.next() {
-		var shadowAst *TranspileAndOptimizeClosureUnaware_ShadowAst = cast_[*TranspileAndOptimizeClosureUnaware_ShadowAst](it_1.v)
+	for shadowAst := range elemsAs_[*TranspileAndOptimizeClosureUnaware_ShadowAst](shadowAsts) {
 		var closureUnawareFunction Node = NodeUtil_findPreorder(shadowAst.script(), (&Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isFunction() }}).apply, &Predicate_base_tfn_Node{func(childToVisit Node) bool {
 			return true
 		}})

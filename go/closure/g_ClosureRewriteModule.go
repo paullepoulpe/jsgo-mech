@@ -57,9 +57,7 @@ func ClosureRewriteModule_getBinaryModuleNamespace(namespaceId string) string {
 
 func (this *ClosureRewriteModule) rewriteJsdoc(info *JSDocInfo, scope *Scope) {
 	var replacer *ClosureRewriteModule_ReplaceJsDocRefs = new_ClosureRewriteModule_ReplaceJsDocRefs(this, scope)
-	it_1 := foreach_(info.getTypeNodes())
-	for it_1.next() {
-		var typeNode Node = Node_of_(it_1.v)
+	for typeNode := range elemsBy_(info.getTypeNodes(), Node_of_) {
 		NodeUtil_visitPreOrder_Node_Visitor(typeNode, ClosureRewriteModule_ReplaceJsDocRefs_as_NodeUtil_Visitor(replacer))
 	}
 }
@@ -79,9 +77,7 @@ func (this *ClosureRewriteModule) isUnrequiredWeakNamespace(call Node, namespace
 
 func (this *ClosureRewriteModule) process_2(externs Node, root Node) {
 	var scriptDescriptions *TDeque[*ClosureRewriteModule_ScriptDescription] = newTDeque_(jtc_p_ClosureRewriteModule_ScriptDescription)
-	it_1 := foreach_(obj_(ImmutableList_of_Object_Object(externs.box_(), root.box_())))
-	for it_1.next() {
-		var parent Node = Node_of_(it_1.v)
+	for parent := range elemsBy_(obj_(ImmutableList_of_Object_Object(externs.box_(), root.box_())), Node_of_) {
 		{
 			var script Node = parent.getFirstChild()
 			for ; script != 0; script = script.getNext() {

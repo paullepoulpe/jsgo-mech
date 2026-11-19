@@ -60,9 +60,7 @@ func (this *ColorGraphBuilder) connectUnionWithAncestors(unionNode *LinkedDirect
 		graphNodesBuilder.add(this.nodeFactory.createNode(element))
 	}
 	var graphNodes *JTSet[*ColorGraphNode] = graphNodesBuilder.build()
-	it_3 := foreach_(obj_(this.lcaFinder.findAll(graphNodes.asSet())))
-	for it_3.next() {
-		var lca *ColorGraphNode = cast_[*ColorGraphNode](it_3.v)
+	for lca := range elemsAs_[*ColorGraphNode](obj_(this.lcaFinder.findAll(graphNodes.asSet()))) {
 		this.connectSourceToDest(Preconditions_checkNotNull_T(this.colorHoldsInstanceGraph.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(lca)), ColorGraphBuilder_EdgeReason_ALGEBRAIC, unionNode)
 	}
 }
@@ -90,9 +88,7 @@ func (this *ColorGraphBuilder) addInternalColorGraphNode(node *ColorGraphNode) *
 	if supertypes.isEmpty() {
 		this.connectSourceToDest(this.topNode, ColorGraphBuilder_EdgeReason_ALGEBRAIC, flatNode)
 	} else {
-		it_3 := foreach_(supertypes)
-		for it_3.next() {
-			var supertype *Color = cast_[*Color](it_3.v)
+		for supertype := range elemsAs_[*Color](supertypes) {
 			this.connectSourceToDest(this.addInternal(supertype), ColorGraphBuilder_EdgeReason_CAN_HOLD, flatNode)
 		}
 	}

@@ -263,9 +263,7 @@ func (this *GatherModuleMetadata_Finder) leaveModule() {
 	if module.path() != nil {
 		this.outer_.modulesByPath.put(module.path().toString(), module)
 	}
-	it_1 := foreach_(obj_(module.googNamespaces()))
-	for it_1.next() {
-		var namespace string = str_(it_1.v)
+	for namespace := range elemsBy_(obj_(module.googNamespaces()), str_) {
 		this.outer_.modulesByGoogNamespace.put(namespace, module)
 	}
 	if this.outer_.parentModule != nil {
@@ -397,9 +395,7 @@ func (this *GatherModuleMetadata_Finder) visitGoogCall(t *NodeTraversal, n Node)
 				var callParent Node = n.getParent()
 				var lhs Node = callParent.getFirstChild()
 				if callParent.isDestructuringLhs() {
-					it_2 := foreach_(lhs.children())
-					for it_2.next() {
-						var key Node = Node_of_(it_2.v)
+					for key := range elemsBy_(lhs.children(), Node_of_) {
 						if key.isStringKey() {
 							this.addToggle(t, n, key.getString())
 						} else {

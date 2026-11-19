@@ -94,9 +94,7 @@ func (this *SimpleMultiset) add_2_s(element string, occurrences int32) int32 {
 }
 
 func (this *SimpleMultiset) addAll(elements IterableOf[any]) {
-	it_1 := foreach_(elements)
-	for it_1.next() {
-		var element any = it_1.v
+	for element := range elems_(elements) {
 		this.add_2(element, 1)
 	}
 }
@@ -146,9 +144,7 @@ func (this *SimpleMultiset) remove(element any) bool {
 
 func (this *SimpleMultiset) removeAll(elements IterableOf[any]) bool {
 	var changed bool = false
-	it_1 := foreach_(elements)
-	for it_1.next() {
-		var element any = it_1.v
+	for element := range elems_(elements) {
 		var oldCount int32 = this.count(element)
 		if oldCount > 0 {
 			this.setCount(element, oldCount, 0)
@@ -202,9 +198,7 @@ func (this *SimpleMultiset) isEmpty() bool {
 
 func (this *SimpleMultiset) asList() *JTList[any] {
 	var list *TListBuilder[any] = newTListBuilder_(tc_Object)
-	it_1 := foreach_(this.counts.entrySet())
-	for it_1.next() {
-		var e Map_Entry = icast_Map_Entry(it_1.v)
+	for e := range elemsBy_(this.counts.entrySet(), icast_Map_Entry) {
 		for i := int32(0); i < unbox_[int32](e.getValue()); i++ {
 			list.add(e.getKey())
 		}
@@ -236,9 +230,7 @@ func (this *SimpleMultiset) hashCode() int32 {
 
 func (this *SimpleMultiset) toString() string {
 	var parts *JTList[string] = jnewTList_(jtc_string)
-	it_1 := foreach_(this.counts.entrySet())
-	for it_1.next() {
-		var e Map_Entry = icast_Map_Entry(it_1.v)
+	for e := range elemsBy_(this.counts.entrySet(), icast_Map_Entry) {
 		var element string = objstr_(e.getKey())
 		parts.add(func() string {
 			if unbox_[int32](e.getValue()) == 1 {

@@ -32,9 +32,7 @@ func (this *J2clConstantHoisterPass) process_2(externs Node, root Node) {
 			hoistableFunctions.add(node)
 		}
 	}).traverse(root)
-	it_1 := foreach_(fieldAssignments.asMap().values())
-	for it_1.next() {
-		var assignments Collection = icast_Collection(it_1.v)
+	for assignments := range elemsBy_(fieldAssignments.asMap().values(), icast_Collection) {
 		this.maybeHoistClassField(assignments, Collection(hoistableFunctions.asSet()))
 	}
 }

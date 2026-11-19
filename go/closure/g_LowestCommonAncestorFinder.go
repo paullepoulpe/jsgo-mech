@@ -35,9 +35,8 @@ func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetOf[N]) ImmutableS
 	}
 	var allColor *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(((int32(1) << (uint32(roots.size()) & 31)) - 1))
 	var bitForRoot int32 = 1
-	it_1 := foreach_(roots)
-	for it_1.next() {
-		var root N = junboxT_[N](it_1.v)
+	for el_1 := range elems_(roots) {
+		var root N = junboxT_[N](el_1)
 		var rootNode DiGraph_DiGraphNode[N] = this.graph.getNode_Object_rDiGraphNode(root)
 		Preconditions_checkNotNull_Object_String_Object_T(rootNode, "Root not present in graph: %s", boxT_(root))
 		var color *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(bitForRoot)
@@ -71,9 +70,7 @@ func (this *LowestCommonAncestorFinder[N, E]) paintAncestors(root DiGraph_DiGrap
 	for !this.searchQueue.isEmpty() {
 		var curr DiGraph_DiGraphNode[N] = this.searchQueue.pop()
 		var parentEdges ListOf[DiGraph_DiGraphEdge[N]] = curr.getInEdges()
-		it_2 := foreach_(parentEdges)
-		for it_2.next() {
-			var parentEdge DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_2.v)
+		for parentEdge := range elemsAs_[DiGraph_DiGraphEdge[N]](parentEdges) {
 			var parent DiGraph_DiGraphNode[N] = parentEdge.getSource()
 			if equalsId_(parent, root) {
 				continue

@@ -914,9 +914,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 				if !valueNode.isArrayLit() {
 					panic(new_IllegalStateException_String(objstr_("icu_placeholder_names must be an array")).self())
 				}
-				it_2 := foreach_(valueNode.children())
-				for it_2.next() {
-					var valueNodeChild Node = Node_of_(it_2.v)
+				for valueNodeChild := range elemsBy_(valueNode.children(), Node_of_) {
 					icuPlaceholderNames.add(valueNodeChild.getString())
 				}
 				continue

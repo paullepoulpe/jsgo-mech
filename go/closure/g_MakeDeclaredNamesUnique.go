@@ -120,9 +120,7 @@ func (this *MakeDeclaredNamesUnique) findDeclaredNames(t *NodeTraversal, n Node)
 	if !(NodeUtil_createsScope(n) || n.isScript()) {
 		Preconditions_checkState_boolean_Object_H(false, n)
 	}
-	it_1 := foreach_(t.getScope().getVarIterable())
-	for it_1.next() {
-		var v *Var = cast_[*Var](it_1.v)
+	for v := range elemsAs_[*Var](t.getScope().getVarIterable()) {
 		this.renamerStack.peek().addDeclaredName(v.getName(), false)
 	}
 }
@@ -226,9 +224,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) enterScope(t *Node
 	}
 	var scope *Scope = t.getScope()
 	var declaredVariablesBuilder *TListBuilder[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo] = newTListBuilder_(jtc_p_MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo)
-	it_1 := foreach_(scope.getVarIterable())
-	for it_1.next() {
-		var var_ *Var = cast_[*Var](it_1.v)
+	for var_ := range elemsAs_[*Var](scope.getVarIterable()) {
 		var variableInfo *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo = this.createDeclaredVariableInfo(var_)
 		declaredVariablesBuilder.add(variableInfo)
 		this.variablesStackedByName.pushVariableInfo(MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo_as_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(variableInfo))
