@@ -232,7 +232,7 @@ func (this *RewriteCallerCodeLocation_FunctionVarAndParamPosition) getParamPosit
 
 // visit: an object that is exactly a RewriteCallerCodeLocation_FindCallerLocationFunctions calls its visit_impl directly (post-flip); others dispatch.
 func (this *RewriteCallerCodeLocation_FindCallerLocationFunctions) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RewriteCallerCodeLocation_FindCallerLocationFunctions); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -241,7 +241,7 @@ func (this *RewriteCallerCodeLocation_FindCallerLocationFunctions) visit(p0 *Nod
 
 // visit: an object that is exactly a RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls calls its visit_impl directly (post-flip); others dispatch.
 func (this *RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

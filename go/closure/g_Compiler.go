@@ -3819,7 +3819,7 @@ func (this *Compiler_2) shouldTraverse_impl(t *NodeTraversal, n Node, parent Nod
 
 // getTypedAstDeserializer: an object that is exactly a Compiler calls its getTypedAstDeserializer_impl directly (post-flip); others dispatch.
 func (this *Compiler) getTypedAstDeserializer(p0 *SourceFile_jscomp) Supplier {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getTypedAstDeserializer_impl(p0)
 	}
 	return this.self_.(*Compiler).getTypedAstDeserializer_impl(p0)
@@ -3827,7 +3827,7 @@ func (this *Compiler) getTypedAstDeserializer(p0 *SourceFile_jscomp) Supplier {
 
 // initRuntimeLibraryTypedAsts: an object that is exactly a Compiler calls its initRuntimeLibraryTypedAsts_impl directly (post-flip); others dispatch.
 func (this *Compiler) initRuntimeLibraryTypedAsts(p0 *Optional_base) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.initRuntimeLibraryTypedAsts_impl(p0)
 		return
 	}
@@ -3836,7 +3836,7 @@ func (this *Compiler) initRuntimeLibraryTypedAsts(p0 *Optional_base) {
 
 // getRuntimeJsLibManager: an object that is exactly a Compiler calls its getRuntimeJsLibManager_impl directly (post-flip); others dispatch.
 func (this *Compiler) getRuntimeJsLibManager() *RuntimeJsLibManager {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getRuntimeJsLibManager_impl()
 	}
 	return this.self_.(*Compiler).getRuntimeJsLibManager_impl()
@@ -3844,7 +3844,7 @@ func (this *Compiler) getRuntimeJsLibManager() *RuntimeJsLibManager {
 
 // setExternExports: an object that is exactly a Compiler calls its setExternExports_impl directly (post-flip); others dispatch.
 func (this *Compiler) setExternExports(p0 string) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.setExternExports_impl(p0)
 		return
 	}
@@ -3853,7 +3853,7 @@ func (this *Compiler) setExternExports(p0 string) {
 
 // process: an object that is exactly a Compiler calls its process_impl directly (post-flip); others dispatch.
 func (this *Compiler) process(p0 CompilerPass) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.process_impl(p0)
 		return
 	}
@@ -3862,7 +3862,7 @@ func (this *Compiler) process(p0 CompilerPass) {
 
 // beforePass: an object that is exactly a Compiler calls its beforePass_impl directly (post-flip); others dispatch.
 func (this *Compiler) beforePass(p0 string) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.beforePass_impl(p0)
 		return
 	}
@@ -3871,7 +3871,7 @@ func (this *Compiler) beforePass(p0 string) {
 
 // afterPass: an object that is exactly a Compiler calls its afterPass_impl directly (post-flip); others dispatch.
 func (this *Compiler) afterPass(p0 string) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.afterPass_impl(p0)
 		return
 	}
@@ -3880,7 +3880,7 @@ func (this *Compiler) afterPass(p0 string) {
 
 // getLifeCycleStage: an object that is exactly a Compiler calls its getLifeCycleStage_impl directly (post-flip); others dispatch.
 func (this *Compiler) getLifeCycleStage() AbstractCompiler_LifeCycleStage {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getLifeCycleStage_impl()
 	}
 	return this.self_.(*Compiler).getLifeCycleStage_impl()
@@ -3888,7 +3888,7 @@ func (this *Compiler) getLifeCycleStage() AbstractCompiler_LifeCycleStage {
 
 // setLifeCycleStage: an object that is exactly a Compiler calls its setLifeCycleStage_impl directly (post-flip); others dispatch.
 func (this *Compiler) setLifeCycleStage(p0 AbstractCompiler_LifeCycleStage) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.setLifeCycleStage_impl(p0)
 		return
 	}
@@ -3897,7 +3897,7 @@ func (this *Compiler) setLifeCycleStage(p0 AbstractCompiler_LifeCycleStage) {
 
 // createAstFactory: an object that is exactly a Compiler calls its createAstFactory_impl directly (post-flip); others dispatch.
 func (this *Compiler) createAstFactory() *AstFactory {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.createAstFactory_impl()
 	}
 	return this.self_.(*Compiler).createAstFactory_impl()
@@ -3905,7 +3905,7 @@ func (this *Compiler) createAstFactory() *AstFactory {
 
 // createAstFactoryWithoutTypes: an object that is exactly a Compiler calls its createAstFactoryWithoutTypes_impl directly (post-flip); others dispatch.
 func (this *Compiler) createAstFactoryWithoutTypes() *AstFactory {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.createAstFactoryWithoutTypes_impl()
 	}
 	return this.self_.(*Compiler).createAstFactoryWithoutTypes_impl()
@@ -3913,7 +3913,7 @@ func (this *Compiler) createAstFactoryWithoutTypes() *AstFactory {
 
 // getAstAnalyzer: an object that is exactly a Compiler calls its getAstAnalyzer_impl directly (post-flip); others dispatch.
 func (this *Compiler) getAstAnalyzer() *AstAnalyzer {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getAstAnalyzer_impl()
 	}
 	return this.self_.(*Compiler).getAstAnalyzer_impl()
@@ -3921,7 +3921,7 @@ func (this *Compiler) getAstAnalyzer() *AstAnalyzer {
 
 // createDefaultExpressionDecomposer: an object that is exactly a Compiler calls its createDefaultExpressionDecomposer_impl directly (post-flip); others dispatch.
 func (this *Compiler) createDefaultExpressionDecomposer() *ExpressionDecomposer {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.createDefaultExpressionDecomposer_impl()
 	}
 	return this.self_.(*Compiler).createDefaultExpressionDecomposer_impl()
@@ -3929,7 +3929,7 @@ func (this *Compiler) createDefaultExpressionDecomposer() *ExpressionDecomposer 
 
 // createExpressionDecomposer: an object that is exactly a Compiler calls its createExpressionDecomposer_impl directly (post-flip); others dispatch.
 func (this *Compiler) createExpressionDecomposer(p0 Supplier, p1 *JTSet[string], p2 *Scope) *ExpressionDecomposer {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.createExpressionDecomposer_impl(p0, p1, p2)
 	}
 	return this.self_.(*Compiler).createExpressionDecomposer_impl(p0, p1, p2)
@@ -3937,7 +3937,7 @@ func (this *Compiler) createExpressionDecomposer(p0 Supplier, p1 *JTSet[string],
 
 // isDebugLoggingEnabled: an object that is exactly a Compiler calls its isDebugLoggingEnabled_impl directly (post-flip); others dispatch.
 func (this *Compiler) isDebugLoggingEnabled() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.isDebugLoggingEnabled_impl()
 	}
 	return this.self_.(*Compiler).isDebugLoggingEnabled_impl()
@@ -3945,7 +3945,7 @@ func (this *Compiler) isDebugLoggingEnabled() bool {
 
 // getDebugLogFilterList: an object that is exactly a Compiler calls its getDebugLogFilterList_impl directly (post-flip); others dispatch.
 func (this *Compiler) getDebugLogFilterList() *JTList[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getDebugLogFilterList_impl()
 	}
 	return this.self_.(*Compiler).getDebugLogFilterList_impl()
@@ -3953,7 +3953,7 @@ func (this *Compiler) getDebugLogFilterList() *JTList[string] {
 
 // createOrReopenLog: an object that is exactly a Compiler calls its createOrReopenLog_impl directly (post-flip); others dispatch.
 func (this *Compiler) createOrReopenLog(p0 *Class, p1 string, p2 []string) *LogFile {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.createOrReopenLog_impl(p0, p1, p2)
 	}
 	return this.self_.(*Compiler).createOrReopenLog_impl(p0, p1, p2)
@@ -3961,7 +3961,7 @@ func (this *Compiler) createOrReopenLog(p0 *Class, p1 string, p2 []string) *LogF
 
 // createOrReopenIndexedLog: an object that is exactly a Compiler calls its createOrReopenIndexedLog_impl directly (post-flip); others dispatch.
 func (this *Compiler) createOrReopenIndexedLog(p0 *Class, p1 string, p2 []string) *LogFile {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.createOrReopenIndexedLog_impl(p0, p1, p2)
 	}
 	return this.self_.(*Compiler).createOrReopenIndexedLog_impl(p0, p1, p2)
@@ -3969,7 +3969,7 @@ func (this *Compiler) createOrReopenIndexedLog(p0 *Class, p1 string, p2 []string
 
 // getScriptNode: an object that is exactly a Compiler calls its getScriptNode_impl directly (post-flip); others dispatch.
 func (this *Compiler) getScriptNode(p0 string) Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getScriptNode_impl(p0)
 	}
 	return this.self_.(*Compiler).getScriptNode_impl(p0)
@@ -3977,7 +3977,7 @@ func (this *Compiler) getScriptNode(p0 string) Node {
 
 // getRoot: an object that is exactly a Compiler calls its getRoot_impl directly (post-flip); others dispatch.
 func (this *Compiler) getRoot() Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getRoot_impl()
 	}
 	return this.self_.(*Compiler).getRoot_impl()
@@ -3985,7 +3985,7 @@ func (this *Compiler) getRoot() Node {
 
 // getAllowableFeatures: an object that is exactly a Compiler calls its getAllowableFeatures_impl directly (post-flip); others dispatch.
 func (this *Compiler) getAllowableFeatures() *FeatureSet {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getAllowableFeatures_impl()
 	}
 	return this.self_.(*Compiler).getAllowableFeatures_impl()
@@ -3993,7 +3993,7 @@ func (this *Compiler) getAllowableFeatures() *FeatureSet {
 
 // setAllowableFeatures: an object that is exactly a Compiler calls its setAllowableFeatures_impl directly (post-flip); others dispatch.
 func (this *Compiler) setAllowableFeatures(p0 *FeatureSet) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.setAllowableFeatures_impl(p0)
 		return
 	}
@@ -4002,7 +4002,7 @@ func (this *Compiler) setAllowableFeatures(p0 *FeatureSet) {
 
 // markFeatureNotAllowed: an object that is exactly a Compiler calls its markFeatureNotAllowed_impl directly (post-flip); others dispatch.
 func (this *Compiler) markFeatureNotAllowed(p0 FeatureSet_Feature) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.markFeatureNotAllowed_impl(p0)
 		return
 	}
@@ -4011,7 +4011,7 @@ func (this *Compiler) markFeatureNotAllowed(p0 FeatureSet_Feature) {
 
 // markFeatureSetNotAllowed: an object that is exactly a Compiler calls its markFeatureSetNotAllowed_impl directly (post-flip); others dispatch.
 func (this *Compiler) markFeatureSetNotAllowed(p0 *FeatureSet) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.markFeatureSetNotAllowed_impl(p0)
 		return
 	}
@@ -4020,7 +4020,7 @@ func (this *Compiler) markFeatureSetNotAllowed(p0 *FeatureSet) {
 
 // getUniqueIdSupplier: an object that is exactly a Compiler calls its getUniqueIdSupplier_impl directly (post-flip); others dispatch.
 func (this *Compiler) getUniqueIdSupplier() *UniqueIdSupplier {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getUniqueIdSupplier_impl()
 	}
 	return this.self_.(*Compiler).getUniqueIdSupplier_impl()
@@ -4028,7 +4028,7 @@ func (this *Compiler) getUniqueIdSupplier() *UniqueIdSupplier {
 
 // areNodesEqualForInlining: an object that is exactly a Compiler calls its areNodesEqualForInlining_impl directly (post-flip); others dispatch.
 func (this *Compiler) areNodesEqualForInlining(p0 Node, p1 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.areNodesEqualForInlining_impl(p0, p1)
 	}
 	return this.self_.(*Compiler).areNodesEqualForInlining_impl(p0, p1)
@@ -4036,7 +4036,7 @@ func (this *Compiler) areNodesEqualForInlining(p0 Node, p1 Node) bool {
 
 // getInput: an object that is exactly a Compiler calls its getInput_impl directly (post-flip); others dispatch.
 func (this *Compiler) getInput(p0 *InputId) *CompilerInput {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getInput_impl(p0)
 	}
 	return this.self_.(*Compiler).getInput_impl(p0)
@@ -4044,7 +4044,7 @@ func (this *Compiler) getInput(p0 *InputId) *CompilerInput {
 
 // getChunkGraph: an object that is exactly a Compiler calls its getChunkGraph_impl directly (post-flip); others dispatch.
 func (this *Compiler) getChunkGraph() *JSChunkGraph {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getChunkGraph_impl()
 	}
 	return this.self_.(*Compiler).getChunkGraph_impl()
@@ -4052,7 +4052,7 @@ func (this *Compiler) getChunkGraph() *JSChunkGraph {
 
 // clearJSTypeRegistry: an object that is exactly a Compiler calls its clearJSTypeRegistry_impl directly (post-flip); others dispatch.
 func (this *Compiler) clearJSTypeRegistry() {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.clearJSTypeRegistry_impl()
 		return
 	}
@@ -4061,7 +4061,7 @@ func (this *Compiler) clearJSTypeRegistry() {
 
 // isTypeRegistryCleared: an object that is exactly a Compiler calls its isTypeRegistryCleared_impl directly (post-flip); others dispatch.
 func (this *Compiler) isTypeRegistryCleared() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.isTypeRegistryCleared_impl()
 	}
 	return this.self_.(*Compiler).isTypeRegistryCleared_impl()
@@ -4069,7 +4069,7 @@ func (this *Compiler) isTypeRegistryCleared() bool {
 
 // getTypeRegistry: an object that is exactly a Compiler calls its getTypeRegistry_impl directly (post-flip); others dispatch.
 func (this *Compiler) getTypeRegistry() *JSTypeRegistry {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getTypeRegistry_impl()
 	}
 	return this.self_.(*Compiler).getTypeRegistry_impl()
@@ -4077,7 +4077,7 @@ func (this *Compiler) getTypeRegistry() *JSTypeRegistry {
 
 // getColorRegistry: an object that is exactly a Compiler calls its getColorRegistry_impl directly (post-flip); others dispatch.
 func (this *Compiler) getColorRegistry() *ColorRegistry {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getColorRegistry_impl()
 	}
 	return this.self_.(*Compiler).getColorRegistry_impl()
@@ -4085,7 +4085,7 @@ func (this *Compiler) getColorRegistry() *ColorRegistry {
 
 // setColorRegistry: an object that is exactly a Compiler calls its setColorRegistry_impl directly (post-flip); others dispatch.
 func (this *Compiler) setColorRegistry(p0 *ColorRegistry) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.setColorRegistry_impl(p0)
 		return
 	}
@@ -4094,7 +4094,7 @@ func (this *Compiler) setColorRegistry(p0 *ColorRegistry) {
 
 // forwardDeclareType: an object that is exactly a Compiler calls its forwardDeclareType_impl directly (post-flip); others dispatch.
 func (this *Compiler) forwardDeclareType(p0 string) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.forwardDeclareType_impl(p0)
 		return
 	}
@@ -4103,7 +4103,7 @@ func (this *Compiler) forwardDeclareType(p0 string) {
 
 // setTypeCheckingHasRun: an object that is exactly a Compiler calls its setTypeCheckingHasRun_impl directly (post-flip); others dispatch.
 func (this *Compiler) setTypeCheckingHasRun(p0 bool) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.setTypeCheckingHasRun_impl(p0)
 		return
 	}
@@ -4112,7 +4112,7 @@ func (this *Compiler) setTypeCheckingHasRun(p0 bool) {
 
 // hasTypeCheckingRun: an object that is exactly a Compiler calls its hasTypeCheckingRun_impl directly (post-flip); others dispatch.
 func (this *Compiler) hasTypeCheckingRun() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.hasTypeCheckingRun_impl()
 	}
 	return this.self_.(*Compiler).hasTypeCheckingRun_impl()
@@ -4120,7 +4120,7 @@ func (this *Compiler) hasTypeCheckingRun() bool {
 
 // hasOptimizationColors: an object that is exactly a Compiler calls its hasOptimizationColors_impl directly (post-flip); others dispatch.
 func (this *Compiler) hasOptimizationColors() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.hasOptimizationColors_impl()
 	}
 	return this.self_.(*Compiler).hasOptimizationColors_impl()
@@ -4128,7 +4128,7 @@ func (this *Compiler) hasOptimizationColors() bool {
 
 // getTypedScopeCreator: an object that is exactly a Compiler calls its getTypedScopeCreator_impl directly (post-flip); others dispatch.
 func (this *Compiler) getTypedScopeCreator() ScopeCreator {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getTypedScopeCreator_impl()
 	}
 	return this.self_.(*Compiler).getTypedScopeCreator_impl()
@@ -4136,7 +4136,7 @@ func (this *Compiler) getTypedScopeCreator() ScopeCreator {
 
 // clearTypedScopeCreator: an object that is exactly a Compiler calls its clearTypedScopeCreator_impl directly (post-flip); others dispatch.
 func (this *Compiler) clearTypedScopeCreator() {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.clearTypedScopeCreator_impl()
 		return
 	}
@@ -4145,7 +4145,7 @@ func (this *Compiler) clearTypedScopeCreator() {
 
 // getTopScope: an object that is exactly a Compiler calls its getTopScope_impl directly (post-flip); others dispatch.
 func (this *Compiler) getTopScope() *TypedScope {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getTopScope_impl()
 	}
 	return this.self_.(*Compiler).getTopScope_impl()
@@ -4153,7 +4153,7 @@ func (this *Compiler) getTopScope() *TypedScope {
 
 // setTopScope: an object that is exactly a Compiler calls its setTopScope_impl directly (post-flip); others dispatch.
 func (this *Compiler) setTopScope(p0 *TypedScope) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.setTopScope_impl(p0)
 		return
 	}
@@ -4162,7 +4162,7 @@ func (this *Compiler) setTopScope(p0 *TypedScope) {
 
 // getReverseAbstractInterpreter: an object that is exactly a Compiler calls its getReverseAbstractInterpreter_impl directly (post-flip); others dispatch.
 func (this *Compiler) getReverseAbstractInterpreter() ReverseAbstractInterpreter {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getReverseAbstractInterpreter_impl()
 	}
 	return this.self_.(*Compiler).getReverseAbstractInterpreter_impl()
@@ -4170,7 +4170,7 @@ func (this *Compiler) getReverseAbstractInterpreter() ReverseAbstractInterpreter
 
 // getTypeValidator: an object that is exactly a Compiler calls its getTypeValidator_impl directly (post-flip); others dispatch.
 func (this *Compiler) getTypeValidator() *TypeValidator {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getTypeValidator_impl()
 	}
 	return this.self_.(*Compiler).getTypeValidator_impl()
@@ -4178,7 +4178,7 @@ func (this *Compiler) getTypeValidator() *TypeValidator {
 
 // getTypeMismatches: an object that is exactly a Compiler calls its getTypeMismatches_impl directly (post-flip); others dispatch.
 func (this *Compiler) getTypeMismatches() Iterable {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getTypeMismatches_impl()
 	}
 	return this.self_.(*Compiler).getTypeMismatches_impl()
@@ -4186,7 +4186,7 @@ func (this *Compiler) getTypeMismatches() Iterable {
 
 // getTranspilationNamespace: an object that is exactly a Compiler calls its getTranspilationNamespace_impl directly (post-flip); others dispatch.
 func (this *Compiler) getTranspilationNamespace() StaticScope {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getTranspilationNamespace_impl()
 	}
 	return this.self_.(*Compiler).getTranspilationNamespace_impl()
@@ -4194,7 +4194,7 @@ func (this *Compiler) getTranspilationNamespace() StaticScope {
 
 // preferRegexParser: an object that is exactly a Compiler calls its preferRegexParser_impl directly (post-flip); others dispatch.
 func (this *Compiler) preferRegexParser() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.preferRegexParser_impl()
 	}
 	return this.self_.(*Compiler).preferRegexParser_impl()
@@ -4202,7 +4202,7 @@ func (this *Compiler) preferRegexParser() bool {
 
 // parseSyntheticCode: an object that is exactly a Compiler calls its parseSyntheticCode_impl directly (post-flip); others dispatch.
 func (this *Compiler) parseSyntheticCode(p0 string, p1 string) Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.parseSyntheticCode_impl(p0, p1)
 	}
 	return this.self_.(*Compiler).parseSyntheticCode_impl(p0, p1)
@@ -4210,7 +4210,7 @@ func (this *Compiler) parseSyntheticCode(p0 string, p1 string) Node {
 
 // parseTestCode: an object that is exactly a Compiler calls its parseTestCode_impl directly (post-flip); others dispatch.
 func (this *Compiler) parseTestCode(p0 string) Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.parseTestCode_impl(p0)
 	}
 	return this.self_.(*Compiler).parseTestCode_impl(p0)
@@ -4218,7 +4218,7 @@ func (this *Compiler) parseTestCode(p0 string) Node {
 
 // parseTestCodeImmutableList: an object that is exactly a Compiler calls its parseTestCodeImmutableList_impl directly (post-flip); others dispatch.
 func (this *Compiler) parseTestCodeImmutableList(p0 *JTList[string]) Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.parseTestCodeImmutableList_impl(p0)
 	}
 	return this.self_.(*Compiler).parseTestCodeImmutableList_impl(p0)
@@ -4226,7 +4226,7 @@ func (this *Compiler) parseTestCodeImmutableList(p0 *JTList[string]) Node {
 
 // getDefaultErrorReporter: an object that is exactly a Compiler calls its getDefaultErrorReporter_impl directly (post-flip); others dispatch.
 func (this *Compiler) getDefaultErrorReporter() ErrorReporter_rhino {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getDefaultErrorReporter_impl()
 	}
 	return this.self_.(*Compiler).getDefaultErrorReporter_impl()
@@ -4234,7 +4234,7 @@ func (this *Compiler) getDefaultErrorReporter() ErrorReporter_rhino {
 
 // toSource: an object that is exactly a Compiler calls its toSource_impl directly (post-flip); others dispatch.
 func (this *Compiler) toSource() string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.toSource_impl()
 	}
 	return this.self_.(*Compiler).toSource_impl()
@@ -4242,7 +4242,7 @@ func (this *Compiler) toSource() string {
 
 // toSource_1: an object that is exactly a Compiler calls its toSource_1_impl directly (post-flip); others dispatch.
 func (this *Compiler) toSource_1(p0 Node) string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.toSource_1_impl(p0)
 	}
 	return this.self_.(*Compiler).toSource_1_impl(p0)
@@ -4250,7 +4250,7 @@ func (this *Compiler) toSource_1(p0 Node) string {
 
 // getChangeTracker: an object that is exactly a Compiler calls its getChangeTracker_impl directly (post-flip); others dispatch.
 func (this *Compiler) getChangeTracker() *ChangeTracker {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getChangeTracker_impl()
 	}
 	return this.self_.(*Compiler).getChangeTracker_impl()
@@ -4258,7 +4258,7 @@ func (this *Compiler) getChangeTracker() *ChangeTracker {
 
 // addIndexProvider: an object that is exactly a Compiler calls its addIndexProvider_impl directly (post-flip); others dispatch.
 func (this *Compiler) addIndexProvider(p0 IndexProvider) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.addIndexProvider_impl(p0)
 		return
 	}
@@ -4267,7 +4267,7 @@ func (this *Compiler) addIndexProvider(p0 IndexProvider) {
 
 // getIndexUntyped: an object that is exactly a Compiler calls its getIndexUntyped_impl directly (post-flip); others dispatch.
 func (this *Compiler) getIndexUntyped(p0 *Class) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getIndexUntyped_impl(p0)
 	}
 	return this.self_.(*Compiler).getIndexUntyped_impl(p0)
@@ -4275,7 +4275,7 @@ func (this *Compiler) getIndexUntyped(p0 *Class) any {
 
 // getJsRoot: an object that is exactly a Compiler calls its getJsRoot_impl directly (post-flip); others dispatch.
 func (this *Compiler) getJsRoot() Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getJsRoot_impl()
 	}
 	return this.self_.(*Compiler).getJsRoot_impl()
@@ -4283,7 +4283,7 @@ func (this *Compiler) getJsRoot() Node {
 
 // hasScopeChanged: an object that is exactly a Compiler calls its hasScopeChanged_impl directly (post-flip); others dispatch.
 func (this *Compiler) hasScopeChanged(p0 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.hasScopeChanged_impl(p0)
 	}
 	return this.self_.(*Compiler).hasScopeChanged_impl(p0)
@@ -4291,7 +4291,7 @@ func (this *Compiler) hasScopeChanged(p0 Node) bool {
 
 // reportChangeToChangeScope: an object that is exactly a Compiler calls its reportChangeToChangeScope_impl directly (post-flip); others dispatch.
 func (this *Compiler) reportChangeToChangeScope(p0 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.reportChangeToChangeScope_impl(p0)
 		return
 	}
@@ -4300,7 +4300,7 @@ func (this *Compiler) reportChangeToChangeScope(p0 Node) {
 
 // reportFunctionDeleted: an object that is exactly a Compiler calls its reportFunctionDeleted_impl directly (post-flip); others dispatch.
 func (this *Compiler) reportFunctionDeleted(p0 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.reportFunctionDeleted_impl(p0)
 		return
 	}
@@ -4309,7 +4309,7 @@ func (this *Compiler) reportFunctionDeleted(p0 Node) {
 
 // reportDisambiguatePropertiesSummary: an object that is exactly a Compiler calls its reportDisambiguatePropertiesSummary_impl directly (post-flip); others dispatch.
 func (this *Compiler) reportDisambiguatePropertiesSummary(p0 func() any) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.reportDisambiguatePropertiesSummary_impl(p0)
 		return
 	}
@@ -4318,7 +4318,7 @@ func (this *Compiler) reportDisambiguatePropertiesSummary(p0 func() any) {
 
 // reportAmbiguatePropertiesSummary: an object that is exactly a Compiler calls its reportAmbiguatePropertiesSummary_impl directly (post-flip); others dispatch.
 func (this *Compiler) reportAmbiguatePropertiesSummary(p0 Supplier) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.reportAmbiguatePropertiesSummary_impl(p0)
 		return
 	}
@@ -4327,7 +4327,7 @@ func (this *Compiler) reportAmbiguatePropertiesSummary(p0 Supplier) {
 
 // reportChangeToEnclosingScope: an object that is exactly a Compiler calls its reportChangeToEnclosingScope_impl directly (post-flip); others dispatch.
 func (this *Compiler) reportChangeToEnclosingScope(p0 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.reportChangeToEnclosingScope_impl(p0)
 		return
 	}
@@ -4336,7 +4336,7 @@ func (this *Compiler) reportChangeToEnclosingScope(p0 Node) {
 
 // getCodingConvention: an object that is exactly a Compiler calls its getCodingConvention_impl directly (post-flip); others dispatch.
 func (this *Compiler) getCodingConvention() CodingConvention {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getCodingConvention_impl()
 	}
 	return this.self_.(*Compiler).getCodingConvention_impl()
@@ -4344,7 +4344,7 @@ func (this *Compiler) getCodingConvention() CodingConvention {
 
 // getParserConfig: an object that is exactly a Compiler calls its getParserConfig_impl directly (post-flip); others dispatch.
 func (this *Compiler) getParserConfig(p0 AbstractCompiler_ConfigContext) *Config {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getParserConfig_impl(p0)
 	}
 	return this.self_.(*Compiler).getParserConfig_impl(p0)
@@ -4352,7 +4352,7 @@ func (this *Compiler) getParserConfig(p0 AbstractCompiler_ConfigContext) *Config
 
 // report: an object that is exactly a Compiler calls its report_impl directly (post-flip); others dispatch.
 func (this *Compiler) report(p0 *JSError) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.report_impl(p0)
 		return
 	}
@@ -4361,7 +4361,7 @@ func (this *Compiler) report(p0 *JSError) {
 
 // getErrorLevel: an object that is exactly a Compiler calls its getErrorLevel_impl directly (post-flip); others dispatch.
 func (this *Compiler) getErrorLevel(p0 *JSError) CheckLevel {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getErrorLevel_impl(p0)
 	}
 	return this.self_.(*Compiler).getErrorLevel_impl(p0)
@@ -4369,7 +4369,7 @@ func (this *Compiler) getErrorLevel(p0 *JSError) CheckLevel {
 
 // throwInternalError: an object that is exactly a Compiler calls its throwInternalError_impl directly (post-flip); others dispatch.
 func (this *Compiler) throwInternalError(p0 string, p1 *Throwable) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.throwInternalError_impl(p0, p1)
 		return
 	}
@@ -4378,7 +4378,7 @@ func (this *Compiler) throwInternalError(p0 string, p1 *Throwable) {
 
 // hasHaltingErrors: an object that is exactly a Compiler calls its hasHaltingErrors_impl directly (post-flip); others dispatch.
 func (this *Compiler) hasHaltingErrors() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.hasHaltingErrors_impl()
 	}
 	return this.self_.(*Compiler).hasHaltingErrors_impl()
@@ -4386,7 +4386,7 @@ func (this *Compiler) hasHaltingErrors() bool {
 
 // getSourceFileByName: an object that is exactly a Compiler calls its getSourceFileByName_impl directly (post-flip); others dispatch.
 func (this *Compiler) getSourceFileByName(p0 Optional[string]) *SourceFile_jscomp {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getSourceFileByName_impl(p0)
 	}
 	return this.self_.(*Compiler).getSourceFileByName_impl(p0)
@@ -4394,7 +4394,7 @@ func (this *Compiler) getSourceFileByName(p0 Optional[string]) *SourceFile_jscom
 
 // addInputSourceMap: an object that is exactly a Compiler calls its addInputSourceMap_impl directly (post-flip); others dispatch.
 func (this *Compiler) addInputSourceMap(p0 string, p1 *SourceMapInput) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.addInputSourceMap_impl(p0, p1)
 		return
 	}
@@ -4403,7 +4403,7 @@ func (this *Compiler) addInputSourceMap(p0 string, p1 *SourceMapInput) {
 
 // getBase64SourceMapContents: an object that is exactly a Compiler calls its getBase64SourceMapContents_impl directly (post-flip); others dispatch.
 func (this *Compiler) getBase64SourceMapContents(p0 Optional[string]) Optional[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getBase64SourceMapContents_impl(p0)
 	}
 	return this.self_.(*Compiler).getBase64SourceMapContents_impl(p0)
@@ -4411,7 +4411,7 @@ func (this *Compiler) getBase64SourceMapContents(p0 Optional[string]) Optional[s
 
 // getSourceMapping_Optional_int_int: an object that is exactly a Compiler calls its getSourceMapping_Optional_int_int_impl directly (post-flip); others dispatch.
 func (this *Compiler) getSourceMapping_Optional_int_int(p0 Optional[string], p1 int32, p2 int32) *Mapping_OriginalMapping {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getSourceMapping_Optional_int_int_impl(p0, p1, p2)
 	}
 	return this.self_.(*Compiler).getSourceMapping_Optional_int_int_impl(p0, p1, p2)
@@ -4419,7 +4419,7 @@ func (this *Compiler) getSourceMapping_Optional_int_int(p0 Optional[string], p1 
 
 // getSourceLine: an object that is exactly a Compiler calls its getSourceLine_impl directly (post-flip); others dispatch.
 func (this *Compiler) getSourceLine(p0 Optional[string], p1 int32) Optional[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getSourceLine_impl(p0, p1)
 	}
 	return this.self_.(*Compiler).getSourceLine_impl(p0, p1)
@@ -4427,7 +4427,7 @@ func (this *Compiler) getSourceLine(p0 Optional[string], p1 int32) Optional[stri
 
 // getSourceLines: an object that is exactly a Compiler calls its getSourceLines_impl directly (post-flip); others dispatch.
 func (this *Compiler) getSourceLines(p0 Optional[string], p1 int32, p2 int32) Region {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getSourceLines_impl(p0, p1, p2)
 	}
 	return this.self_.(*Compiler).getSourceLines_impl(p0, p1, p2)
@@ -4435,7 +4435,7 @@ func (this *Compiler) getSourceLines(p0 Optional[string], p1 int32, p2 int32) Re
 
 // getSourceRegion: an object that is exactly a Compiler calls its getSourceRegion_impl directly (post-flip); others dispatch.
 func (this *Compiler) getSourceRegion(p0 Optional[string], p1 int32) Region {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getSourceRegion_impl(p0, p1)
 	}
 	return this.self_.(*Compiler).getSourceRegion_impl(p0, p1)
@@ -4443,7 +4443,7 @@ func (this *Compiler) getSourceRegion(p0 Optional[string], p1 int32) Region {
 
 // getNodeForCodeInsertion: an object that is exactly a Compiler calls its getNodeForCodeInsertion_impl directly (post-flip); others dispatch.
 func (this *Compiler) getNodeForCodeInsertion(p0 *JSChunk) Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getNodeForCodeInsertion_impl(p0)
 	}
 	return this.self_.(*Compiler).getNodeForCodeInsertion_impl(p0)
@@ -4451,7 +4451,7 @@ func (this *Compiler) getNodeForCodeInsertion(p0 *JSChunk) Node {
 
 // setVariableMap: an object that is exactly a Compiler calls its setVariableMap_impl directly (post-flip); others dispatch.
 func (this *Compiler) setVariableMap(p0 *VariableMap) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.setVariableMap_impl(p0)
 		return
 	}
@@ -4460,7 +4460,7 @@ func (this *Compiler) setVariableMap(p0 *VariableMap) {
 
 // setPropertyMap: an object that is exactly a Compiler calls its setPropertyMap_impl directly (post-flip); others dispatch.
 func (this *Compiler) setPropertyMap(p0 *VariableMap) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.setPropertyMap_impl(p0)
 		return
 	}
@@ -4469,7 +4469,7 @@ func (this *Compiler) setPropertyMap(p0 *VariableMap) {
 
 // setStringMap: an object that is exactly a Compiler calls its setStringMap_impl directly (post-flip); others dispatch.
 func (this *Compiler) setStringMap(p0 *VariableMap) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.setStringMap_impl(p0)
 		return
 	}
@@ -4478,7 +4478,7 @@ func (this *Compiler) setStringMap(p0 *VariableMap) {
 
 // setCssNames: an object that is exactly a Compiler calls its setCssNames_impl directly (post-flip); others dispatch.
 func (this *Compiler) setCssNames(p0 *JTSet[string]) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.setCssNames_impl(p0)
 		return
 	}
@@ -4487,7 +4487,7 @@ func (this *Compiler) setCssNames(p0 *JTSet[string]) {
 
 // setIdGeneratorMap: an object that is exactly a Compiler calls its setIdGeneratorMap_impl directly (post-flip); others dispatch.
 func (this *Compiler) setIdGeneratorMap(p0 string) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.setIdGeneratorMap_impl(p0)
 		return
 	}
@@ -4496,7 +4496,7 @@ func (this *Compiler) setIdGeneratorMap(p0 string) {
 
 // getTranspiledFiles: an object that is exactly a Compiler calls its getTranspiledFiles_impl directly (post-flip); others dispatch.
 func (this *Compiler) getTranspiledFiles() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getTranspiledFiles_impl()
 	}
 	return this.self_.(*Compiler).getTranspiledFiles_impl()
@@ -4504,7 +4504,7 @@ func (this *Compiler) getTranspiledFiles() bool {
 
 // getCrossChunkIdGenerator: an object that is exactly a Compiler calls its getCrossChunkIdGenerator_impl directly (post-flip); others dispatch.
 func (this *Compiler) getCrossChunkIdGenerator() *IdGenerator {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getCrossChunkIdGenerator_impl()
 	}
 	return this.self_.(*Compiler).getCrossChunkIdGenerator_impl()
@@ -4512,7 +4512,7 @@ func (this *Compiler) getCrossChunkIdGenerator() *IdGenerator {
 
 // setAnonymousFunctionNameMap: an object that is exactly a Compiler calls its setAnonymousFunctionNameMap_impl directly (post-flip); others dispatch.
 func (this *Compiler) setAnonymousFunctionNameMap(p0 *VariableMap) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.setAnonymousFunctionNameMap_impl(p0)
 		return
 	}
@@ -4521,7 +4521,7 @@ func (this *Compiler) setAnonymousFunctionNameMap(p0 *VariableMap) {
 
 // setInstrumentationMapping: an object that is exactly a Compiler calls its setInstrumentationMapping_impl directly (post-flip); others dispatch.
 func (this *Compiler) setInstrumentationMapping(p0 *VariableMap) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.setInstrumentationMapping_impl(p0)
 		return
 	}
@@ -4530,7 +4530,7 @@ func (this *Compiler) setInstrumentationMapping(p0 *VariableMap) {
 
 // addExportedNames: an object that is exactly a Compiler calls its addExportedNames_impl directly (post-flip); others dispatch.
 func (this *Compiler) addExportedNames(p0 *JTSet[string]) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.addExportedNames_impl(p0)
 		return
 	}
@@ -4539,7 +4539,7 @@ func (this *Compiler) addExportedNames(p0 *JTSet[string]) {
 
 // getExportedNames: an object that is exactly a Compiler calls its getExportedNames_impl directly (post-flip); others dispatch.
 func (this *Compiler) getExportedNames() *JTSet[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getExportedNames_impl()
 	}
 	return this.self_.(*Compiler).getExportedNames_impl()
@@ -4547,7 +4547,7 @@ func (this *Compiler) getExportedNames() *JTSet[string] {
 
 // setDefineNames: an object that is exactly a Compiler calls its setDefineNames_impl directly (post-flip); others dispatch.
 func (this *Compiler) setDefineNames(p0 Collection) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.setDefineNames_impl(p0)
 		return
 	}
@@ -4556,7 +4556,7 @@ func (this *Compiler) setDefineNames(p0 Collection) {
 
 // getDefineNames: an object that is exactly a Compiler calls its getDefineNames_impl directly (post-flip); others dispatch.
 func (this *Compiler) getDefineNames() *JTSet[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getDefineNames_impl()
 	}
 	return this.self_.(*Compiler).getDefineNames_impl()
@@ -4564,7 +4564,7 @@ func (this *Compiler) getDefineNames() *JTSet[string] {
 
 // getOptions: an object that is exactly a Compiler calls its getOptions_impl directly (post-flip); others dispatch.
 func (this *Compiler) getOptions() *CompilerOptions {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getOptions_impl()
 	}
 	return this.self_.(*Compiler).getOptions_impl()
@@ -4572,7 +4572,7 @@ func (this *Compiler) getOptions() *CompilerOptions {
 
 // getErrorManager: an object that is exactly a Compiler calls its getErrorManager_impl directly (post-flip); others dispatch.
 func (this *Compiler) getErrorManager() ErrorManager {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getErrorManager_impl()
 	}
 	return this.self_.(*Compiler).getErrorManager_impl()
@@ -4580,7 +4580,7 @@ func (this *Compiler) getErrorManager() ErrorManager {
 
 // getInputsInOrder: an object that is exactly a Compiler calls its getInputsInOrder_impl directly (post-flip); others dispatch.
 func (this *Compiler) getInputsInOrder() Iterable {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getInputsInOrder_impl()
 	}
 	return this.self_.(*Compiler).getInputsInOrder_impl()
@@ -4588,7 +4588,7 @@ func (this *Compiler) getInputsInOrder() Iterable {
 
 // getNumberOfInputs: an object that is exactly a Compiler calls its getNumberOfInputs_impl directly (post-flip); others dispatch.
 func (this *Compiler) getNumberOfInputs() int32 {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getNumberOfInputs_impl()
 	}
 	return this.self_.(*Compiler).getNumberOfInputs_impl()
@@ -4596,7 +4596,7 @@ func (this *Compiler) getNumberOfInputs() int32 {
 
 // hasRegExpGlobalReferences: an object that is exactly a Compiler calls its hasRegExpGlobalReferences_impl directly (post-flip); others dispatch.
 func (this *Compiler) hasRegExpGlobalReferences() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.hasRegExpGlobalReferences_impl()
 	}
 	return this.self_.(*Compiler).hasRegExpGlobalReferences_impl()
@@ -4604,7 +4604,7 @@ func (this *Compiler) hasRegExpGlobalReferences() bool {
 
 // setHasRegExpGlobalReferences: an object that is exactly a Compiler calls its setHasRegExpGlobalReferences_impl directly (post-flip); others dispatch.
 func (this *Compiler) setHasRegExpGlobalReferences(p0 bool) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.setHasRegExpGlobalReferences_impl(p0)
 		return
 	}
@@ -4613,7 +4613,7 @@ func (this *Compiler) setHasRegExpGlobalReferences(p0 bool) {
 
 // setRunJ2clPasses: an object that is exactly a Compiler calls its setRunJ2clPasses_impl directly (post-flip); others dispatch.
 func (this *Compiler) setRunJ2clPasses(p0 bool) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.setRunJ2clPasses_impl(p0)
 		return
 	}
@@ -4622,7 +4622,7 @@ func (this *Compiler) setRunJ2clPasses(p0 bool) {
 
 // runJ2clPasses: an object that is exactly a Compiler calls its runJ2clPasses_impl directly (post-flip); others dispatch.
 func (this *Compiler) runJ2clPasses() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.runJ2clPasses_impl()
 	}
 	return this.self_.(*Compiler).runJ2clPasses_impl()
@@ -4630,7 +4630,7 @@ func (this *Compiler) runJ2clPasses() bool {
 
 // getSynthesizedExternsInput: an object that is exactly a Compiler calls its getSynthesizedExternsInput_impl directly (post-flip); others dispatch.
 func (this *Compiler) getSynthesizedExternsInput() *CompilerInput {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getSynthesizedExternsInput_impl()
 	}
 	return this.self_.(*Compiler).getSynthesizedExternsInput_impl()
@@ -4638,7 +4638,7 @@ func (this *Compiler) getSynthesizedExternsInput() *CompilerInput {
 
 // getSynthesizedTypeSummaryInput: an object that is exactly a Compiler calls its getSynthesizedTypeSummaryInput_impl directly (post-flip); others dispatch.
 func (this *Compiler) getSynthesizedTypeSummaryInput() *CompilerInput {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getSynthesizedTypeSummaryInput_impl()
 	}
 	return this.self_.(*Compiler).getSynthesizedTypeSummaryInput_impl()
@@ -4646,7 +4646,7 @@ func (this *Compiler) getSynthesizedTypeSummaryInput() *CompilerInput {
 
 // getSyntheticCodeInputId: an object that is exactly a Compiler calls its getSyntheticCodeInputId_impl directly (post-flip); others dispatch.
 func (this *Compiler) getSyntheticCodeInputId() *InputId {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getSyntheticCodeInputId_impl()
 	}
 	return this.self_.(*Compiler).getSyntheticCodeInputId_impl()
@@ -4654,7 +4654,7 @@ func (this *Compiler) getSyntheticCodeInputId() *InputId {
 
 // initializeSyntheticCodeInput: an object that is exactly a Compiler calls its initializeSyntheticCodeInput_impl directly (post-flip); others dispatch.
 func (this *Compiler) initializeSyntheticCodeInput() {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.initializeSyntheticCodeInput_impl()
 		return
 	}
@@ -4663,7 +4663,7 @@ func (this *Compiler) initializeSyntheticCodeInput() {
 
 // removeSyntheticCodeInput: an object that is exactly a Compiler calls its removeSyntheticCodeInput_impl directly (post-flip); others dispatch.
 func (this *Compiler) removeSyntheticCodeInput() {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.removeSyntheticCodeInput_impl()
 		return
 	}
@@ -4672,7 +4672,7 @@ func (this *Compiler) removeSyntheticCodeInput() {
 
 // mergeSyntheticCodeInput: an object that is exactly a Compiler calls its mergeSyntheticCodeInput_impl directly (post-flip); others dispatch.
 func (this *Compiler) mergeSyntheticCodeInput() {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.mergeSyntheticCodeInput_impl()
 		return
 	}
@@ -4681,7 +4681,7 @@ func (this *Compiler) mergeSyntheticCodeInput() {
 
 // getLastPassName: an object that is exactly a Compiler calls its getLastPassName_impl directly (post-flip); others dispatch.
 func (this *Compiler) getLastPassName() string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getLastPassName_impl()
 	}
 	return this.self_.(*Compiler).getLastPassName_impl()
@@ -4689,7 +4689,7 @@ func (this *Compiler) getLastPassName() string {
 
 // setExternProperties: an object that is exactly a Compiler calls its setExternProperties_impl directly (post-flip); others dispatch.
 func (this *Compiler) setExternProperties(p0 *JTSet[string]) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.setExternProperties_impl(p0)
 		return
 	}
@@ -4698,7 +4698,7 @@ func (this *Compiler) setExternProperties(p0 *JTSet[string]) {
 
 // getExternProperties: an object that is exactly a Compiler calls its getExternProperties_impl directly (post-flip); others dispatch.
 func (this *Compiler) getExternProperties() *JTSet[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getExternProperties_impl()
 	}
 	return this.self_.(*Compiler).getExternProperties_impl()
@@ -4706,7 +4706,7 @@ func (this *Compiler) getExternProperties() *JTSet[string] {
 
 // getAccessorSummary: an object that is exactly a Compiler calls its getAccessorSummary_impl directly (post-flip); others dispatch.
 func (this *Compiler) getAccessorSummary() *AccessorSummary {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getAccessorSummary_impl()
 	}
 	return this.self_.(*Compiler).getAccessorSummary_impl()
@@ -4714,7 +4714,7 @@ func (this *Compiler) getAccessorSummary() *AccessorSummary {
 
 // setAccessorSummary: an object that is exactly a Compiler calls its setAccessorSummary_impl directly (post-flip); others dispatch.
 func (this *Compiler) setAccessorSummary(p0 *AccessorSummary) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.setAccessorSummary_impl(p0)
 		return
 	}
@@ -4723,7 +4723,7 @@ func (this *Compiler) setAccessorSummary(p0 *AccessorSummary) {
 
 // addComments: an object that is exactly a Compiler calls its addComments_impl directly (post-flip); others dispatch.
 func (this *Compiler) addComments(p0 string, p1 *JTList[*Comment]) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.addComments_impl(p0, p1)
 		return
 	}
@@ -4732,7 +4732,7 @@ func (this *Compiler) addComments(p0 string, p1 *JTList[*Comment]) {
 
 // getComments: an object that is exactly a Compiler calls its getComments_impl directly (post-flip); others dispatch.
 func (this *Compiler) getComments(p0 Optional[string]) List {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getComments_impl(p0)
 	}
 	return this.self_.(*Compiler).getComments_impl(p0)
@@ -4740,7 +4740,7 @@ func (this *Compiler) getComments(p0 Optional[string]) List {
 
 // getModuleLoader: an object that is exactly a Compiler calls its getModuleLoader_impl directly (post-flip); others dispatch.
 func (this *Compiler) getModuleLoader() *ModuleLoader {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getModuleLoader_impl()
 	}
 	return this.self_.(*Compiler).getModuleLoader_impl()
@@ -4748,7 +4748,7 @@ func (this *Compiler) getModuleLoader() *ModuleLoader {
 
 // getModuleTypeByName: an object that is exactly a Compiler calls its getModuleTypeByName_impl directly (post-flip); others dispatch.
 func (this *Compiler) getModuleTypeByName(p0 Optional[string]) CompilerInput_ModuleType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getModuleTypeByName_impl(p0)
 	}
 	return this.self_.(*Compiler).getModuleTypeByName_impl(p0)
@@ -4756,7 +4756,7 @@ func (this *Compiler) getModuleTypeByName(p0 Optional[string]) CompilerInput_Mod
 
 // getModuleMetadataMap: an object that is exactly a Compiler calls its getModuleMetadataMap_impl directly (post-flip); others dispatch.
 func (this *Compiler) getModuleMetadataMap() *ModuleMetadataMap {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getModuleMetadataMap_impl()
 	}
 	return this.self_.(*Compiler).getModuleMetadataMap_impl()
@@ -4764,7 +4764,7 @@ func (this *Compiler) getModuleMetadataMap() *ModuleMetadataMap {
 
 // setModuleMetadataMap: an object that is exactly a Compiler calls its setModuleMetadataMap_impl directly (post-flip); others dispatch.
 func (this *Compiler) setModuleMetadataMap(p0 *ModuleMetadataMap) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.setModuleMetadataMap_impl(p0)
 		return
 	}
@@ -4773,7 +4773,7 @@ func (this *Compiler) setModuleMetadataMap(p0 *ModuleMetadataMap) {
 
 // getModuleMap: an object that is exactly a Compiler calls its getModuleMap_impl directly (post-flip); others dispatch.
 func (this *Compiler) getModuleMap() *ModuleMap {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getModuleMap_impl()
 	}
 	return this.self_.(*Compiler).getModuleMap_impl()
@@ -4781,7 +4781,7 @@ func (this *Compiler) getModuleMap() *ModuleMap {
 
 // setModuleMap: an object that is exactly a Compiler calls its setModuleMap_impl directly (post-flip); others dispatch.
 func (this *Compiler) setModuleMap(p0 *ModuleMap) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		this.setModuleMap_impl(p0)
 		return
 	}
@@ -4790,7 +4790,7 @@ func (this *Compiler) setModuleMap(p0 *ModuleMap) {
 
 // getUniqueNameIdSupplier: an object that is exactly a Compiler calls its getUniqueNameIdSupplier_impl directly (post-flip); others dispatch.
 func (this *Compiler) getUniqueNameIdSupplier() Supplier {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getUniqueNameIdSupplier_impl()
 	}
 	return this.self_.(*Compiler).getUniqueNameIdSupplier_impl()
@@ -4798,7 +4798,7 @@ func (this *Compiler) getUniqueNameIdSupplier() Supplier {
 
 // shouldUseLicenseInfo: an object that is exactly a Compiler_ScriptNodeLicensesOnlyTracker calls its shouldUseLicenseInfo_impl directly (post-flip); others dispatch.
 func (this *Compiler_ScriptNodeLicensesOnlyTracker) shouldUseLicenseInfo(p0 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler_ScriptNodeLicensesOnlyTracker); p == this {
 		return this.shouldUseLicenseInfo_impl(p0)
 	}
 	return this.self_.shouldUseLicenseInfo_impl(p0)
@@ -4806,7 +4806,7 @@ func (this *Compiler_ScriptNodeLicensesOnlyTracker) shouldUseLicenseInfo(p0 Node
 
 // shouldUseLicenseInfo: an object that is exactly a Compiler_SingleBinaryLicenseTracker calls its shouldUseLicenseInfo_impl directly (post-flip); others dispatch.
 func (this *Compiler_SingleBinaryLicenseTracker) shouldUseLicenseInfo(p0 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler_SingleBinaryLicenseTracker); p == this {
 		return this.shouldUseLicenseInfo_impl(p0)
 	}
 	return this.self_.shouldUseLicenseInfo_impl(p0)
@@ -4814,7 +4814,7 @@ func (this *Compiler_SingleBinaryLicenseTracker) shouldUseLicenseInfo(p0 Node) b
 
 // shouldTraverse: an object that is exactly a Compiler_2 calls its shouldTraverse_impl directly (post-flip); others dispatch.
 func (this *Compiler_2) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Compiler_2); p == this {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
 	return this.self_.shouldTraverse_impl(p0, p1, p2)

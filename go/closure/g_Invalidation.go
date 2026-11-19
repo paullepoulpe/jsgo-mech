@@ -187,7 +187,7 @@ func (this *Invalidation_WithReceiverType) toLogsGson_impl() any {
 
 // toLogsGson: an object that is exactly a Invalidation_WithReceiverType calls its toLogsGson_impl directly (post-flip); others dispatch.
 func (this *Invalidation_WithReceiverType) toLogsGson() any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Invalidation_WithReceiverType); p == this {
 		return this.toLogsGson_impl()
 	}
 	return this.self_.toLogsGson_impl()

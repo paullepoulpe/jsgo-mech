@@ -65,7 +65,7 @@ var lambda_BrowserModuleResolver_clinit_1_ = &ModuleLoader_ModuleResolverFactory
 
 // resolveJsModule: an object that is exactly a BrowserModuleResolver calls its resolveJsModule_impl directly (post-flip); others dispatch.
 func (this *BrowserModuleResolver) resolveJsModule(p0 string, p1 string, p2 Optional[string], p3 int32, p4 int32) Optional[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BrowserModuleResolver); p == this {
 		return this.resolveJsModule_impl(p0, p1, p2, p3, p4)
 	}
 	return this.self_.resolveJsModule_impl(p0, p1, p2, p3, p4)
@@ -73,7 +73,7 @@ func (this *BrowserModuleResolver) resolveJsModule(p0 string, p1 string, p2 Opti
 
 // resolveJsModuleSilently: an object that is exactly a BrowserModuleResolver calls its resolveJsModuleSilently_impl directly (post-flip); others dispatch.
 func (this *BrowserModuleResolver) resolveJsModuleSilently(p0 string, p1 string) Optional[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BrowserModuleResolver); p == this {
 		return this.resolveJsModuleSilently_impl(p0, p1)
 	}
 	return this.self_.resolveJsModuleSilently_impl(p0, p1)

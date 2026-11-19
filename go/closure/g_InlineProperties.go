@@ -308,7 +308,7 @@ func (this *InlineProperties_ReplaceCandidates) hasInSupertypesList(subCtor *Col
 
 // visit: an object that is exactly a InlineProperties_GatherCandidates calls its visit_impl directly (post-flip); others dispatch.
 func (this *InlineProperties_GatherCandidates) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*InlineProperties_GatherCandidates); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -317,7 +317,7 @@ func (this *InlineProperties_GatherCandidates) visit(p0 *NodeTraversal, p1 Node,
 
 // visit: an object that is exactly a InlineProperties_ReplaceCandidates calls its visit_impl directly (post-flip); others dispatch.
 func (this *InlineProperties_ReplaceCandidates) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*InlineProperties_ReplaceCandidates); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

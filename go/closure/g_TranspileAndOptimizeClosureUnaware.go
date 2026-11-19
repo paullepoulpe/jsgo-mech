@@ -243,7 +243,7 @@ func (this *TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig) ge
 
 // getTranspileOnlyPasses: an object that is exactly a TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig calls its getTranspileOnlyPasses_impl directly (post-flip); others dispatch.
 func (this *TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig) getTranspileOnlyPasses() *PassListBuilder {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig); p == this {
 		return this.getTranspileOnlyPasses_impl()
 	}
 	return this.self_.getTranspileOnlyPasses_impl()
@@ -251,7 +251,7 @@ func (this *TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig) ge
 
 // getFinalizations: an object that is exactly a TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig calls its getFinalizations_impl directly (post-flip); others dispatch.
 func (this *TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig) getFinalizations() *PassListBuilder {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig); p == this {
 		return this.getFinalizations_impl()
 	}
 	return this.self_.getFinalizations_impl()

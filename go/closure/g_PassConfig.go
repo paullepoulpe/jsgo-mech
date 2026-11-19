@@ -192,7 +192,7 @@ func (this *PassConfig_PassConfigDelegate) getTranspileOnlyPasses_impl() *PassLi
 
 // getWhitespaceOnlyPasses: an object that is exactly a PassConfig_PassConfigDelegate calls its getWhitespaceOnlyPasses_impl directly (post-flip); others dispatch.
 func (this *PassConfig_PassConfigDelegate) getWhitespaceOnlyPasses() *PassListBuilder {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*PassConfig_PassConfigDelegate); p == this {
 		return this.getWhitespaceOnlyPasses_impl()
 	}
 	return this.self_.getWhitespaceOnlyPasses_impl()
@@ -200,7 +200,7 @@ func (this *PassConfig_PassConfigDelegate) getWhitespaceOnlyPasses() *PassListBu
 
 // getChecks: an object that is exactly a PassConfig_PassConfigDelegate calls its getChecks_impl directly (post-flip); others dispatch.
 func (this *PassConfig_PassConfigDelegate) getChecks() *PassListBuilder {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*PassConfig_PassConfigDelegate); p == this {
 		return this.getChecks_impl()
 	}
 	return this.self_.getChecks_impl()
@@ -208,7 +208,7 @@ func (this *PassConfig_PassConfigDelegate) getChecks() *PassListBuilder {
 
 // getOptimizations: an object that is exactly a PassConfig_PassConfigDelegate calls its getOptimizations_impl directly (post-flip); others dispatch.
 func (this *PassConfig_PassConfigDelegate) getOptimizations() *PassListBuilder {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*PassConfig_PassConfigDelegate); p == this {
 		return this.getOptimizations_impl()
 	}
 	return this.self_.getOptimizations_impl()
@@ -216,7 +216,7 @@ func (this *PassConfig_PassConfigDelegate) getOptimizations() *PassListBuilder {
 
 // getFinalizations: an object that is exactly a PassConfig_PassConfigDelegate calls its getFinalizations_impl directly (post-flip); others dispatch.
 func (this *PassConfig_PassConfigDelegate) getFinalizations() *PassListBuilder {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*PassConfig_PassConfigDelegate); p == this {
 		return this.getFinalizations_impl()
 	}
 	return this.self_.getFinalizations_impl()
@@ -224,7 +224,7 @@ func (this *PassConfig_PassConfigDelegate) getFinalizations() *PassListBuilder {
 
 // getTranspileOnlyPasses: an object that is exactly a PassConfig_PassConfigDelegate calls its getTranspileOnlyPasses_impl directly (post-flip); others dispatch.
 func (this *PassConfig_PassConfigDelegate) getTranspileOnlyPasses() *PassListBuilder {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*PassConfig_PassConfigDelegate); p == this {
 		return this.getTranspileOnlyPasses_impl()
 	}
 	return this.self_.getTranspileOnlyPasses_impl()

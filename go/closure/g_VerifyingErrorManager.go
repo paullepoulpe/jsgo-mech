@@ -82,7 +82,7 @@ func (this *VerifyingErrorManager) formatErrorForMatching(level CheckLevel, erro
 
 // report_2: an object that is exactly a VerifyingErrorManager calls its report_2_impl directly (post-flip); others dispatch.
 func (this *VerifyingErrorManager) report_2(p0 CheckLevel, p1 *JSError) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*VerifyingErrorManager); p == this {
 		this.report_2_impl(p0, p1)
 		return
 	}
@@ -91,7 +91,7 @@ func (this *VerifyingErrorManager) report_2(p0 CheckLevel, p1 *JSError) {
 
 // generateReport: an object that is exactly a VerifyingErrorManager calls its generateReport_impl directly (post-flip); others dispatch.
 func (this *VerifyingErrorManager) generateReport() {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*VerifyingErrorManager); p == this {
 		this.generateReport_impl()
 		return
 	}

@@ -51,7 +51,7 @@ func (this *DiagnosticGroupPathSuppressingWarningsGuard) toString() string {
 
 // level: an object that is exactly a DiagnosticGroupPathSuppressingWarningsGuard calls its level_impl directly (post-flip); others dispatch.
 func (this *DiagnosticGroupPathSuppressingWarningsGuard) level(p0 *JSError) CheckLevel {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*DiagnosticGroupPathSuppressingWarningsGuard); p == this {
 		return this.level_impl(p0)
 	}
 	return this.self_.level_impl(p0)

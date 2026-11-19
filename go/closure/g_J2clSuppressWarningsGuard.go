@@ -58,7 +58,7 @@ func J2clSuppressWarningsGuard_clinit() {
 
 // level: an object that is exactly a J2clSuppressWarningsGuard calls its level_impl directly (post-flip); others dispatch.
 func (this *J2clSuppressWarningsGuard) level(p0 *JSError) CheckLevel {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*J2clSuppressWarningsGuard); p == this {
 		return this.level_impl(p0)
 	}
 	return this.self_.level_impl(p0)
@@ -66,7 +66,7 @@ func (this *J2clSuppressWarningsGuard) level(p0 *JSError) CheckLevel {
 
 // getPriority: an object that is exactly a J2clSuppressWarningsGuard calls its getPriority_impl directly (post-flip); others dispatch.
 func (this *J2clSuppressWarningsGuard) getPriority() int32 {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*J2clSuppressWarningsGuard); p == this {
 		return this.getPriority_impl()
 	}
 	return this.self_.getPriority_impl()

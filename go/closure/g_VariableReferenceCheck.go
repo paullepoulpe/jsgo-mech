@@ -386,7 +386,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior_1) visit_impl(t *No
 
 // visit: an object that is exactly a VariableReferenceCheck_ReferenceCheckingBehavior_1 calls its visit_impl directly (post-flip); others dispatch.
 func (this *VariableReferenceCheck_ReferenceCheckingBehavior_1) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*VariableReferenceCheck_ReferenceCheckingBehavior_1); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

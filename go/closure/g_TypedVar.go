@@ -203,7 +203,7 @@ func TypedVar_clinit() {
 
 // getScopeRoot: an object that is exactly a TypedVar calls its getScopeRoot_impl directly (post-flip); others dispatch.
 func (this *TypedVar) getScopeRoot() Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedVar); p == this {
 		return this.getScopeRoot_impl()
 	}
 	return this.self_.getScopeRoot_impl()
@@ -211,7 +211,7 @@ func (this *TypedVar) getScopeRoot() Node {
 
 // getSourceFile: an object that is exactly a TypedVar calls its getSourceFile_impl directly (post-flip); others dispatch.
 func (this *TypedVar) getSourceFile() StaticSourceFile {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedVar); p == this {
 		return this.getSourceFile_impl()
 	}
 	return this.self_.getSourceFile_impl()
@@ -219,7 +219,7 @@ func (this *TypedVar) getSourceFile() StaticSourceFile {
 
 // isGlobal: an object that is exactly a TypedVar calls its isGlobal_impl directly (post-flip); others dispatch.
 func (this *TypedVar) isGlobal() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedVar); p == this {
 		return this.isGlobal_impl()
 	}
 	return this.self_.isGlobal_impl()
@@ -227,7 +227,7 @@ func (this *TypedVar) isGlobal() bool {
 
 // isLocal: an object that is exactly a TypedVar calls its isLocal_impl directly (post-flip); others dispatch.
 func (this *TypedVar) isLocal() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedVar); p == this {
 		return this.isLocal_impl()
 	}
 	return this.self_.isLocal_impl()
@@ -235,7 +235,7 @@ func (this *TypedVar) isLocal() bool {
 
 // isArguments: an object that is exactly a TypedVar calls its isArguments_impl directly (post-flip); others dispatch.
 func (this *TypedVar) isArguments() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedVar); p == this {
 		return this.isArguments_impl()
 	}
 	return this.self_.isArguments_impl()
@@ -243,7 +243,7 @@ func (this *TypedVar) isArguments() bool {
 
 // isGoogModuleExports: an object that is exactly a TypedVar calls its isGoogModuleExports_impl directly (post-flip); others dispatch.
 func (this *TypedVar) isGoogModuleExports() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedVar); p == this {
 		return this.isGoogModuleExports_impl()
 	}
 	return this.self_.isGoogModuleExports_impl()
@@ -251,7 +251,7 @@ func (this *TypedVar) isGoogModuleExports() bool {
 
 // isThis: an object that is exactly a TypedVar calls its isThis_impl directly (post-flip); others dispatch.
 func (this *TypedVar) isThis() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedVar); p == this {
 		return this.isThis_impl()
 	}
 	return this.self_.isThis_impl()
@@ -259,7 +259,7 @@ func (this *TypedVar) isThis() bool {
 
 // declarationType: an object that is exactly a TypedVar calls its declarationType_impl directly (post-flip); others dispatch.
 func (this *TypedVar) declarationType() Token_rhino {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedVar); p == this {
 		return this.declarationType_impl()
 	}
 	return this.self_.declarationType_impl()
@@ -267,7 +267,7 @@ func (this *TypedVar) declarationType() Token_rhino {
 
 // getSymbol_rAbstractVar: an object that is exactly a TypedVar calls its getSymbol_rAbstractVar_impl directly (post-flip); others dispatch.
 func (this *TypedVar) getSymbol_rAbstractVar() *AbstractVar {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedVar); p == this {
 		return this.getSymbol_rAbstractVar_impl()
 	}
 	return this.self_.getSymbol_rAbstractVar_impl()
@@ -275,7 +275,7 @@ func (this *TypedVar) getSymbol_rAbstractVar() *AbstractVar {
 
 // getDeclaration_rAbstractVar: an object that is exactly a TypedVar calls its getDeclaration_rAbstractVar_impl directly (post-flip); others dispatch.
 func (this *TypedVar) getDeclaration_rAbstractVar() *AbstractVar {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedVar); p == this {
 		return this.getDeclaration_rAbstractVar_impl()
 	}
 	return this.self_.getDeclaration_rAbstractVar_impl()
@@ -283,7 +283,7 @@ func (this *TypedVar) getDeclaration_rAbstractVar() *AbstractVar {
 
 // getScope_rAbstractScope: an object that is exactly a TypedVar calls its getScope_rAbstractScope_impl directly (post-flip); others dispatch.
 func (this *TypedVar) getScope_rAbstractScope() *AbstractScope {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedVar); p == this {
 		return this.getScope_rAbstractScope_impl()
 	}
 	return this.self_.getScope_rAbstractScope_impl()

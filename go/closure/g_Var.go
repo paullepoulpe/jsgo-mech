@@ -146,7 +146,7 @@ const Var_EXPORTS string = "exports"
 
 // getScopeRoot: an object that is exactly a Var calls its getScopeRoot_impl directly (post-flip); others dispatch.
 func (this *Var) getScopeRoot() Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Var); p == this {
 		return this.getScopeRoot_impl()
 	}
 	return this.self_.getScopeRoot_impl()
@@ -154,7 +154,7 @@ func (this *Var) getScopeRoot() Node {
 
 // getSourceFile: an object that is exactly a Var calls its getSourceFile_impl directly (post-flip); others dispatch.
 func (this *Var) getSourceFile() StaticSourceFile {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Var); p == this {
 		return this.getSourceFile_impl()
 	}
 	return this.self_.getSourceFile_impl()
@@ -162,7 +162,7 @@ func (this *Var) getSourceFile() StaticSourceFile {
 
 // isGlobal: an object that is exactly a Var calls its isGlobal_impl directly (post-flip); others dispatch.
 func (this *Var) isGlobal() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Var); p == this {
 		return this.isGlobal_impl()
 	}
 	return this.self_.isGlobal_impl()
@@ -170,7 +170,7 @@ func (this *Var) isGlobal() bool {
 
 // isLocal: an object that is exactly a Var calls its isLocal_impl directly (post-flip); others dispatch.
 func (this *Var) isLocal() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Var); p == this {
 		return this.isLocal_impl()
 	}
 	return this.self_.isLocal_impl()
@@ -178,7 +178,7 @@ func (this *Var) isLocal() bool {
 
 // isArguments: an object that is exactly a Var calls its isArguments_impl directly (post-flip); others dispatch.
 func (this *Var) isArguments() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Var); p == this {
 		return this.isArguments_impl()
 	}
 	return this.self_.isArguments_impl()
@@ -186,7 +186,7 @@ func (this *Var) isArguments() bool {
 
 // isGoogModuleExports: an object that is exactly a Var calls its isGoogModuleExports_impl directly (post-flip); others dispatch.
 func (this *Var) isGoogModuleExports() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Var); p == this {
 		return this.isGoogModuleExports_impl()
 	}
 	return this.self_.isGoogModuleExports_impl()
@@ -194,7 +194,7 @@ func (this *Var) isGoogModuleExports() bool {
 
 // isThis: an object that is exactly a Var calls its isThis_impl directly (post-flip); others dispatch.
 func (this *Var) isThis() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Var); p == this {
 		return this.isThis_impl()
 	}
 	return this.self_.isThis_impl()
@@ -202,7 +202,7 @@ func (this *Var) isThis() bool {
 
 // declarationType: an object that is exactly a Var calls its declarationType_impl directly (post-flip); others dispatch.
 func (this *Var) declarationType() Token_rhino {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Var); p == this {
 		return this.declarationType_impl()
 	}
 	return this.self_.declarationType_impl()
@@ -210,7 +210,7 @@ func (this *Var) declarationType() Token_rhino {
 
 // getSymbol_rAbstractVar: an object that is exactly a Var calls its getSymbol_rAbstractVar_impl directly (post-flip); others dispatch.
 func (this *Var) getSymbol_rAbstractVar() *AbstractVar {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Var); p == this {
 		return this.getSymbol_rAbstractVar_impl()
 	}
 	return this.self_.getSymbol_rAbstractVar_impl()
@@ -218,7 +218,7 @@ func (this *Var) getSymbol_rAbstractVar() *AbstractVar {
 
 // getDeclaration_rAbstractVar: an object that is exactly a Var calls its getDeclaration_rAbstractVar_impl directly (post-flip); others dispatch.
 func (this *Var) getDeclaration_rAbstractVar() *AbstractVar {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Var); p == this {
 		return this.getDeclaration_rAbstractVar_impl()
 	}
 	return this.self_.getDeclaration_rAbstractVar_impl()
@@ -226,7 +226,7 @@ func (this *Var) getDeclaration_rAbstractVar() *AbstractVar {
 
 // getScope_rAbstractScope: an object that is exactly a Var calls its getScope_rAbstractScope_impl directly (post-flip); others dispatch.
 func (this *Var) getScope_rAbstractScope() *AbstractScope {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Var); p == this {
 		return this.getScope_rAbstractScope_impl()
 	}
 	return this.self_.getScope_rAbstractScope_impl()
