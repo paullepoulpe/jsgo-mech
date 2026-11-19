@@ -327,6 +327,12 @@ the planned translator rules are for. Scope creation (29s) is hash-table and nod
 The second trial flip (current typed translator and the node store, bridged: REFLIP.md on
 reflip2-bridge) took 719.5s at full size in one run: slower than this branch.
 
+Two runtime steps on the staged path were measured on the first 3,500 chunks (3 rounds, outputs
+identical to pre-flip Java's). Kept: build() gives the message the builder's storage (2df6c21b:
+wall 102.6s/100.8s/100.7s -> 101.5s/99.9s/99.5s, CHECKS allocation 16.02 GB -> 14.70 GB). Tried
+and not kept: repeated fields starting with room for four elements (wall within noise, signs
+differ; objects -0.6%, bytes +1%).
+
 ## Correction: PGO (13-17 Nov)
 
 `go/cmd/mech/default.pgo` was in the tree from 1fef152c (13 Nov) to c4aefc67 (17 Nov), and
