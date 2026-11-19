@@ -117,6 +117,7 @@ b50a6f15 patch 035-b50a6f15-manual.patch
 441f58b2 patch 041-441f58b2-rt.patch
 # 42. postflip (runtime + manual): varMap_ is indexed by slots holding the key's hash; a Var hashes its key once
 20896bb9 patch 042-20896bb9-rt.patch
+#=3 20896bb9 adapted (third flip): the manual patch (one field of AbstractVar) rewritten against this flip's struct, in the overlay
 20896bb9 patch 042-20896bb9-manual.patch
 # 43. postflip (manual): LinkedDirectedGraph.createNode gets or creates a node without a function object
 #= a3cb96f9 dropped: manual patch no longer applies (1 files; conflicts in g_LinkedDirectedGraph.go)
@@ -636,7 +637,8 @@ d907dada run t sbuild && f
 # C28. postflip step: passfn on the bridged tree (tool fix d6099d5f: typed adapter lambdas, generic identity helpers)
 d8b0f30c run t passfn && f
 # C29. postflip (manual): AbstractScope.vars is a scopeVars_ table; a variable lookup hashes the name once (a3f0161d and 6c2c7d00 rewritten for this flip)
-2283a089 patch reflip2-2283a089-manual.patch
+#=2 2283a089 dropped (third flip): manual patch no longer applies to this flip's text
+#- 2283a089 patch reflip2-2283a089-manual.patch
 # C30. postflip step: exceptions re-run on the bridged tree (tool fix 9cddf058: panic(frozen_{}) is UnsupportedOperationException)
 d3a98058 run t exceptions && f
 # C31. postflip step: tostr re-run on the bridged tree

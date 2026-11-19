@@ -1,0 +1,2 @@
+20896bb9 042-20896bb9-manual.patch rewritten by hand against this flip's AbstractVar struct (one field)
+2283a089 reflip2-2283a089-manual.patch DROPPED (manual patch no longer applies)
