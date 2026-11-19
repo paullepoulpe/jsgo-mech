@@ -271,3 +271,29 @@ typed deques (102 mentions).
 
 So on this tree every row is either handled, at the tools' fixpoint with counted reasons, or
 marked OPEN with the rule or tool that is still to be written. The OPEN rows are not done.
+
+### After the accounting: more steps, the full-size number, and what was not kept (19 Nov)
+
+| step | counts | bundle CPU | typed-full CPU | googleapis 3,500 chunks |
+|---|---|---|---|---|
+| tchecks (new tool): the translator's typed precondition calls used as statements are inline checks | 665; left 373 by reason | 29.95s -> 30.08s | 64.44s -> 64.57s | |
+| jfam -kind valkeys + runtime: a typed set or map keyed by Var hashes and compares by the fields Var.equals compares | 7 conversions; left 87 of 22 types | 30.01s -> 28.94s | 64.40s -> 62.95s | |
+| runtime: the erased for-each cursor steps through post-flip views without an iterator object (step_) | | 29.36s -> 28.61s | 62.44s -> 61.77s | wall 119.5s/119.9s -> 119.2s/118.6s |
+
+Steps C1-C22 of steps.txt replay from reflip2-replayed (each checked with generated files
+force-added; the replayed trees build).
+
+Tried and not kept: the handle table remembering a type object's *JSType (htab_getJSType_, with
+one manual edit in Node.getJSType: the first flip's manual step for Node.jstypeOrColor) measured
+neutral on all three workloads (the subset: wall 120.4s before and after) and was reverted.
+
+Full googleapis-bench (7,526 chunks; one run, 19 Nov, the binary of 09b98838; chunks identical
+to pre-flip Java's): 719.5s (CHECKS 370.0s, OPTIMIZATIONS 289.5s, FINALIZATIONS 60.0s; peak RSS
+19.0 GB), against 568.2s and 589.3s for postflip5-r9-ga and 473.1s and 470.2s for pre-flip Java
+the day before (21.3 GB and 13.7 GB). The run meant to pair it with postflip5 in the same hour
+was stopped by the host for low memory. So this tree is the slowest of the three at full size:
+its lower memory does not make up for the steps it lacks, and the steps above, which paid on
+bundle and typed-full, do little for the type-checking stage where googleapis spends its time
+(on the 3,500-chunk subset this tree's CHECKS takes 60.7-62.0s against postflip5's 50.8-51.3s:
+more collection work, the node store's property and type reads, erased string-keyed scope
+maps, interface assertions and boxing in generic code).
