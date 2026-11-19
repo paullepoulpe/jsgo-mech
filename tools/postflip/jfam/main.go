@@ -59,10 +59,19 @@
 // cursor variable is it.next() or it.v; the rest is counted. Loops over entries (eachEntry: an
 // entry object that reads and writes its mapping) are not this kind's.
 //
+// -kind eqkeys: the translator compares the keys of a typed set or map by equals and hashCode
+// whenever their type is an interface or a class that may have its own equals (a conversion
+// tce_X, byEquals), and the bridge gave the post-flip collection hash and eq functions for it
+// (tce_X.t_()). Where the post-flip tools' own analysis (rw.KeyMode: every class that can be a
+// value of the type inherits Object's equals and hashCode) says Go's == is Java's equals for X,
+// the collection takes the conversion without them: tc_X where the package has it for the same
+// type, else tce_X.tEq_(). Then lookups compare with == and the tools that follow treat the
+// collection as they treat any other with such keys. Counted by element type; the rest stays.
+//
 // Not converted by -kind list, and counted: typed sets and maps (JTSet, JTMap), which compare
 // keys through byEquals where the post-flip ones have hash and eq functions.
 //
-// usage: jfam [-n] -kind list|convs|keyed|cursors <dir of package closure>
+// usage: jfam [-n] -kind list|convs|keyed|cursors|eqkeys <dir of package closure>
 package main
 
 import (
@@ -110,8 +119,8 @@ func main() {
 	dry := flag.Bool("n", false, "report only")
 	kind := flag.String("kind", "", "list")
 	flag.Parse()
-	if *kind != "list" && *kind != "convs" && *kind != "keyed" && *kind != "cursors" || flag.NArg() != 1 {
-		fmt.Fprintln(os.Stderr, "usage: jfam [-n] -kind list|convs|keyed|cursors <dir of package closure>")
+	if *kind != "list" && *kind != "convs" && *kind != "keyed" && *kind != "cursors" && *kind != "eqkeys" || flag.NArg() != 1 {
+		fmt.Fprintln(os.Stderr, "usage: jfam [-n] -kind list|convs|keyed|cursors|eqkeys <dir of package closure>")
 		os.Exit(2)
 	}
 	rw.Load(flag.Arg(0))
@@ -125,6 +134,10 @@ func main() {
 	}
 	if *kind == "cursors" {
 		cursors(*dry)
+		return
+	}
+	if *kind == "eqkeys" {
+		eqkeys(*dry)
 		return
 	}
 	jlist := lookup("JTList")
@@ -964,6 +977,70 @@ func cursors(dry bool) {
 	for _, k := range sortStrings(keysOf(left)) {
 		fmt.Fprintf(os.Stderr, "left: %d %s\n", left[k], k)
 	}
+	if !dry {
+		fmt.Fprintf(os.Stderr, "files changed: %d\n", rw.SaveChecked())
+	}
+}
+
+// eqkeys gives collections whose keys compare by == the conversion without hash and eq.
+func eqkeys(dry bool) {
+	jt, _ := must("jtconv_").(*types.TypeName)
+	done, left := map[string]int{}, map[string]int{}
+	for _, f := range rw.Files {
+		if !generated(f.Pos()) {
+			continue
+		}
+		ast.Inspect(f, func(n ast.Node) bool {
+			call, ok := n.(*ast.CallExpr)
+			if !ok || len(call.Args) != 0 {
+				return true
+			}
+			sel, ok := call.Fun.(*ast.SelectorExpr)
+			if !ok || sel.Sel.Name != "t_" {
+				return true
+			}
+			id, ok := rw.Unparen(sel.X).(*ast.Ident)
+			if !ok || !strings.HasPrefix(id.Name, "tce_") {
+				return true
+			}
+			v, ok := rw.Info.Uses[id].(*types.Var)
+			if !ok {
+				return true
+			}
+			p, ok := v.Type().(*types.Pointer)
+			if !ok {
+				return true
+			}
+			nt, ok := p.Elem().(*types.Named)
+			if !ok || nt.Origin().Obj() != jt {
+				return true
+			}
+			x := nt.TypeArgs().At(0)
+			if rw.KeyMode(x) != rw.KeyEq {
+				left[id.Name+": Java's equals of the type is not ==, or not known to be"]++
+				return true
+			}
+			done[id.Name]++
+			name := "tc_" + id.Name[len("tce_"):]
+			if tv, ok := lookup(name).(*types.Var); ok && elem(tv.Type()) != nil && types.Identical(elem(tv.Type()), x) && !strings.Contains(tv.Type().String(), "jtconv_") {
+				rw.Rewrite[call] = func() string { return name }
+			} else {
+				rw.Rewrite[sel.Sel] = func() string { return "tEq_" }
+			}
+			return false
+		})
+	}
+	total := 0
+	for _, k := range sortStrings(keysOf(done)) {
+		total += done[k]
+		fmt.Fprintf(os.Stderr, "  %d %s\n", done[k], k)
+	}
+	fmt.Fprintf(os.Stderr, "jfam -kind eqkeys: %d key conversions of %d element types compare by ==\n", total, len(done))
+	nleft := 0
+	for _, n := range left {
+		nleft += n
+	}
+	fmt.Fprintf(os.Stderr, "left: %d key conversions of %d element types: Java's equals of the type is not ==, or not known to be\n", nleft, len(left))
 	if !dry {
 		fmt.Fprintf(os.Stderr, "files changed: %d\n", rw.SaveChecked())
 	}
