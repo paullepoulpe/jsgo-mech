@@ -55,13 +55,13 @@ func (this Comment_Type) enum_() *Enum {
 	return &Comment_Type_enum_[this-1]
 }
 
-func (this Comment_Type) name() string { return Comment_Type_enum_[this-1].name_ }
+func (this Comment_Type) name() string { return this.enum_().name_ }
 
-func (this Comment_Type) ordinal() int32 { return Comment_Type_enum_[this-1].ordinal_ }
+func (this Comment_Type) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this Comment_Type) toString() string { return Comment_Type_enum_[this-1].name_ }
+func (this Comment_Type) toString() string { return this.enum_().name_ }
 
-func (this Comment_Type) compareTo(o any) int32 { return Comment_Type_enum_[this-1].compareTo(o) }
+func (this Comment_Type) compareTo(o any) int32 { return this.enum_().compareTo(o) }
 
 func (this Comment_Type) self() any {
 	if this == 0 {

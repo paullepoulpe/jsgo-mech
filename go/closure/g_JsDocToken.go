@@ -36,13 +36,13 @@ func (this JsDocToken) enum_() *Enum {
 	return &JsDocToken_enum_[this-1]
 }
 
-func (this JsDocToken) name() string { return JsDocToken_enum_[this-1].name_ }
+func (this JsDocToken) name() string { return this.enum_().name_ }
 
-func (this JsDocToken) ordinal() int32 { return JsDocToken_enum_[this-1].ordinal_ }
+func (this JsDocToken) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this JsDocToken) toString() string { return JsDocToken_enum_[this-1].name_ }
+func (this JsDocToken) toString() string { return this.enum_().name_ }
 
-func (this JsDocToken) compareTo(o any) int32 { return JsDocToken_enum_[this-1].compareTo(o) }
+func (this JsDocToken) compareTo(o any) int32 { return this.enum_().compareTo(o) }
 
 func (this JsDocToken) self() any {
 	if this == 0 {
