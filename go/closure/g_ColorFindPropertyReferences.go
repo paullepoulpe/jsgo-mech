@@ -94,7 +94,9 @@ func (this *ColorFindPropertyReferences) handleClass(t *NodeTraversal, classNode
 				return Color_createUnion(classInstanceType)
 			}()
 		} else {
-			Preconditions_checkState_boolean_Object_H(((m.isMemberFunctionDef() || m.isGetterDef()) || m.isSetterDef()), m)
+			if !((m.isMemberFunctionDef() || m.isGetterDef()) || m.isSetterDef()) {
+				Preconditions_checkState_boolean_Object_H(false, m)
+			}
 			var classPrototypeType *JTSet[*Color] = classType.getPrototypes()
 			return func() *Color {
 				if classPrototypeType.isEmpty() {

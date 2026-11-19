@@ -184,12 +184,16 @@ func new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler(outer_ *Es6Rewri
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) hoistVarNode(node Node) {
-	Preconditions_checkState_boolean_Object_H(node.isVar(), node)
+	if !node.isVar() {
+		Preconditions_checkState_boolean_Object_H(false, node)
+	}
 	node.insertBefore(this.newGeneratorHoistBlock.getLastChild())
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) hoistFunctionDeclarationNode(node Node) {
-	Preconditions_checkState_boolean_Object_H(node.isFunction(), node)
+	if !node.isFunction() {
+		Preconditions_checkState_boolean_Object_H(false, node)
+	}
 	this.newGeneratorHoistBlock.addChildToFront(node)
 }
 
@@ -215,11 +219,17 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpile() 
 	var changeScopeNode Node
 	if this.isTranspiledAsyncFunction(generatorFunction) {
 		var callTarget Node = generatorFunction.getPrevious()
-		Preconditions_checkState_boolean_Object_H((callTarget.isGetProp() || callTarget.isName()), callTarget)
+		if !(callTarget.isGetProp() || callTarget.isName()) {
+			Preconditions_checkState_boolean_Object_H(false, callTarget)
+		}
 		this.newGeneratorHoistBlock = generatorFunction.getGrandparent().getParent()
-		Preconditions_checkState_boolean_Object_H(this.newGeneratorHoistBlock.isBlock(), this.newGeneratorHoistBlock)
+		if !this.newGeneratorHoistBlock.isBlock() {
+			Preconditions_checkState_boolean_Object_H(false, this.newGeneratorHoistBlock)
+		}
 		changeScopeNode = NodeUtil_getEnclosingFunction(this.newGeneratorHoistBlock)
-		Preconditions_checkState_boolean_Object_H(changeScopeNode.isFunction(), changeScopeNode)
+		if !changeScopeNode.isFunction() {
+			Preconditions_checkState_boolean_Object_H(false, changeScopeNode)
+		}
 		callTarget.replaceWith(this.outer_.astFactory_.createQName(this.outer_.namespace_, this.outer_.jscompAsyncExecuteProgram).srcrefTree(callTarget))
 		program = this.originalGeneratorBody.getParent()
 		this.originalGeneratorBody.getPrevious().addChildToBack(this.context.getJsContextNameNode(this.originalGeneratorBody))
@@ -801,7 +811,9 @@ func new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationCon
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) optimizeCaseIds() {
-	Preconditions_checkState_boolean_Object(!this.allCases.isEmpty(), this.allCases.asList())
+	if ok_, a1_ := !this.allCases.isEmpty(), this.allCases.asList(); !ok_ {
+		Preconditions_checkState_boolean_Object(false, a1_)
+	}
 	it_1 := this.allCases.each()
 	for it_1.next() {
 		var currentCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = it_1.v
@@ -1426,7 +1438,9 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_UnmarkedNodeTranspiler) visitForInLoopVar(varDeclaration Node) {
 	var varName Node = varDeclaration.getOnlyChild()
-	Preconditions_checkState_boolean_Object_H(!varName.hasChildren(), varName)
+	if varName.hasChildren() {
+		Preconditions_checkState_boolean_Object_H(false, varName)
+	}
 	var clonedVarName Node = varName.cloneNode().setJSDocInfo(nil)
 	varDeclaration.replaceWith(clonedVarName)
 	this.outer_.outer_.hoistVarNode(varDeclaration)
