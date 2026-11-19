@@ -114,7 +114,7 @@ type CompilerOptions struct {
 	stripTypes                                   *JTSet[string]
 	stripNameSuffixes                            *JTSet[string]
 	stripNamePrefixes                            *JTSet[string]
-	customPasses                                 *SimpleSetMultimap
+	customPasses                                 *SimpleSetMultimap[any, any]
 	defineReplacements                           *JTMap[string, any]
 	tweakProcessing                              CompilerOptions_TweakProcessing
 	rewriteGlobalDeclarationsForTryCatchWrapping bool
@@ -1913,7 +1913,7 @@ func (this *CompilerOptions) getStripNamePrefixes() *JTSet[string] {
 
 func (this *CompilerOptions) addCustomPass(time CustomPassExecutionTime, customPass CompilerPass) {
 	if this.customPasses == nil {
-		this.customPasses = SimpleSetMultimap_createInsertionOrdered()
+		this.customPasses = SimpleSetMultimap_createInsertionOrdered[any, any]()
 	}
 	this.customPasses.put(obj_(time), customPass)
 }

@@ -13,7 +13,7 @@ type ControlFlowAnalysis struct {
 	edgeAnnotations         bool
 	root                    Node
 	exceptionHandler        *TDeque[Node]
-	finallyMap              *SimpleSetMultimap
+	finallyMap              *SimpleSetMultimap[Node, Node]
 }
 
 func (this *ControlFlowAnalysis) finit_ControlFlowAnalysis() {
@@ -25,7 +25,7 @@ func (this *ControlFlowAnalysis) finit_ControlFlowAnalysis() {
 		return unbox_[int32](nn_)
 	}})
 	this.exceptionHandler = newTDeque_(jtc_Node)
-	this.finallyMap = SimpleSetMultimap_createInsertionOrdered()
+	this.finallyMap = SimpleSetMultimap_createInsertionOrdered[Node, Node]()
 }
 
 func (this *ControlFlowAnalysis) init_ControlFlowAnalysis(compiler *AbstractCompiler, shouldTraverseFunctions bool, edgeAnnotations bool) {
@@ -389,7 +389,7 @@ func (this *ControlFlowAnalysis) handleBreak(node Node) {
 				if lastJump == node {
 					this.createEdge(lastJump, ControlFlowGraph_Branch_UNCOND, ControlFlowAnalysis_computeFallThrough(cur.getLastChild()))
 				} else {
-					this.finallyMap.put(lastJump.box_(), ControlFlowAnalysis_computeFallThrough(cur.getLastChild()).box_())
+					this.finallyMap.put(lastJump, ControlFlowAnalysis_computeFallThrough(cur.getLastChild()))
 				}
 				lastJump = cur
 			}
@@ -406,7 +406,7 @@ func (this *ControlFlowAnalysis) handleBreak(node Node) {
 	if lastJump == node {
 		this.createEdge(lastJump, ControlFlowGraph_Branch_UNCOND, ControlFlowAnalysis_computeFollowNode_Node_ControlFlowAnalysis(cur, this))
 	} else {
-		this.finallyMap.put(lastJump.box_(), ControlFlowAnalysis_computeFollowNode_Node_ControlFlowAnalysis(cur, this).box_())
+		this.finallyMap.put(lastJump, ControlFlowAnalysis_computeFollowNode_Node_ControlFlowAnalysis(cur, this))
 	}
 }
 
@@ -426,7 +426,7 @@ func (this *ControlFlowAnalysis) handleContinue(node Node) {
 				if lastJump == node {
 					this.createEdge(lastJump, ControlFlowGraph_Branch_UNCOND, cur.getLastChild())
 				} else {
-					this.finallyMap.put(lastJump.box_(), ControlFlowAnalysis_computeFallThrough(cur.getLastChild()).box_())
+					this.finallyMap.put(lastJump, ControlFlowAnalysis_computeFallThrough(cur.getLastChild()))
 				}
 				lastJump = cur
 			}
@@ -443,7 +443,7 @@ func (this *ControlFlowAnalysis) handleContinue(node Node) {
 	if lastJump == node {
 		this.createEdge(node, ControlFlowGraph_Branch_UNCOND, iter)
 	} else {
-		this.finallyMap.put(lastJump.box_(), iter.box_())
+		this.finallyMap.put(lastJump, iter)
 	}
 }
 
@@ -459,7 +459,7 @@ func (this *ControlFlowAnalysis) handleReturn(node Node) {
 			if lastJump == 0 {
 				this.createEdge(node, ControlFlowGraph_Branch_UNCOND, curHandler.getLastChild())
 			} else {
-				this.finallyMap.put(lastJump.box_(), ControlFlowAnalysis_computeFallThrough(curHandler.getLastChild()).box_())
+				this.finallyMap.put(lastJump, ControlFlowAnalysis_computeFallThrough(curHandler.getLastChild()))
 			}
 			lastJump = curHandler
 		}
@@ -470,7 +470,7 @@ func (this *ControlFlowAnalysis) handleReturn(node Node) {
 	if lastJump == 0 {
 		this.createEdge(node, ControlFlowGraph_Branch_UNCOND, 0)
 	} else {
-		this.finallyMap.put(lastJump.box_(), nil)
+		this.finallyMap.put(lastJump, null_[Node]())
 	}
 }
 
@@ -601,14 +601,14 @@ func (this *ControlFlowAnalysis) connectToPossibleExceptionHandlerUnconditionall
 			if lastJump == cfgNode {
 				this.createEdge(cfgNode, ControlFlowGraph_Branch_ON_EX, handler.getLastChild())
 			} else {
-				this.finallyMap.put(lastJump.box_(), handler.getLastChild().box_())
+				this.finallyMap.put(lastJump, handler.getLastChild())
 			}
 		} else {
 			if lastJump == cfgNode {
 				this.createEdge(cfgNode, ControlFlowGraph_Branch_ON_EX, catchBlock)
 				return
 			} else {
-				this.finallyMap.put(lastJump.box_(), catchBlock.box_())
+				this.finallyMap.put(lastJump, catchBlock)
 			}
 		}
 		lastJump = handler

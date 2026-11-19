@@ -9,7 +9,7 @@ type TypeInferencePass struct {
 	topScope                *TypedScope
 	scopeCreator            *TypedScopeCreator
 	assertionFunctionLookup *CodingConvention_AssertionFunctionLookup
-	stepCountHistogram      *JTMap[any, *SimpleMultiset]
+	stepCountHistogram      *JTMap[any, *SimpleMultiset[any]]
 }
 
 func (this *TypeInferencePass) init_TypeInferencePass(compiler *AbstractCompiler, reverseInterpreter ReverseAbstractInterpreter, scopeCreator *TypedScopeCreator) {
@@ -18,7 +18,7 @@ func (this *TypeInferencePass) init_TypeInferencePass(compiler *AbstractCompiler
 	this.reverseInterpreter = reverseInterpreter
 	this.scopeCreator = scopeCreator
 	this.assertionFunctionLookup = CodingConvention_AssertionFunctionLookup_of(compiler.getCodingConvention().getAssertionFunctions())
-	this.stepCountHistogram = func() *JTMap[any, *SimpleMultiset] {
+	this.stepCountHistogram = func() *JTMap[any, *SimpleMultiset[any]] {
 		if compiler.isDebugLoggingEnabled() {
 			return jnewTMap_(tc_Integer, tc_p_SimpleMultiset)
 		}
@@ -95,9 +95,9 @@ func (this *TypeInferencePass) inferScope(n Node, scope *TypedScope) {
 			if node == cfg.getImplicitReturn() {
 				continue
 			}
-			var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(node)))
-			this.stepCountHistogram.computeIfAbsent(any(int32(state.getStepCount())), &Function_tfn_any_SimpleMultiset{func(k any) *SimpleMultiset {
-				return SimpleMultiset_create()
+			var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(node)))
+			this.stepCountHistogram.computeIfAbsent(any(int32(state.getStepCount())), &Function_tfn_any_SimpleMultiset{func(k any) *SimpleMultiset[any] {
+				return SimpleMultiset_create[any]()
 			}}).add(obj_(node.getValue().getToken()))
 		}
 	}

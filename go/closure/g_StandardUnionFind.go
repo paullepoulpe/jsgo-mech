@@ -87,11 +87,11 @@ func (this *StandardUnionFind[E]) elements() SetOf[E] {
 }
 
 func (this *StandardUnionFind[E]) allEquivalenceClasses() *JTList[*ImmutableSet] {
-	var groupsTmp *SimpleSetMultimap = SimpleSetMultimap_create()
+	var groupsTmp *SimpleSetMultimap[*StandardUnionFind_Node[E], any] = SimpleSetMultimap_create[*StandardUnionFind_Node[E], any]()
 	it_1 := this.elmap.eachValue()
 	for it_1.next() {
 		var elem *StandardUnionFind_Node[E] = it_1.v
-		groupsTmp.put(obj_(this.findRoot(elem)), boxT_(elem.element))
+		groupsTmp.put(this.findRoot(elem), boxT_(elem.element))
 	}
 	var result *TListBuilder[*ImmutableSet] = newTListBuilder_(tc_p_ImmutableSet)
 	for group := range elemsBy_(groupsTmp.asMap().values(), icast_Set) {

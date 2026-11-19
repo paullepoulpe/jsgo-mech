@@ -3644,7 +3644,7 @@ func (this *Function_tfn_any_ConvertToTypedInterface_SimplifyDeclarations_Typing
 }
 
 type Function_tfn_any_SimpleMultiset struct {
-	f func(any) *SimpleMultiset
+	f func(any) *SimpleMultiset[any]
 }
 
 func (this *Function_tfn_any_SimpleMultiset) apply(p0 any) any {

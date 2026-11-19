@@ -2,32 +2,32 @@
 
 package closure
 
-type SimpleListMultimap struct {
+type SimpleListMultimap[K, V comparable] struct {
 	map__  LinkedHashMapOf[any, ListOf[any]]
 	frozen bool
 }
 
-func (this *SimpleListMultimap) finit_SimpleListMultimap() {
+func (this *SimpleListMultimap[K, V]) finit_SimpleListMultimap() {
 	this.map__ = new_LinkedHashMap()
 	this.frozen = false
 }
 
-func (this *SimpleListMultimap) init_SimpleListMultimap() {
+func (this *SimpleListMultimap[K, V]) init_SimpleListMultimap() {
 	this.finit_SimpleListMultimap()
 }
 
-func new_SimpleListMultimap() *SimpleListMultimap {
-	this := &SimpleListMultimap{}
+func new_SimpleListMultimap[K, V comparable]() *SimpleListMultimap[K, V] {
+	this := &SimpleListMultimap[K, V]{}
 	this.init_SimpleListMultimap()
 	return this
 }
 
-func SimpleListMultimap_create() *SimpleListMultimap {
-	return new_SimpleListMultimap()
+func SimpleListMultimap_create[K, V comparable]() *SimpleListMultimap[K, V] {
+	return new_SimpleListMultimap[K, V]()
 }
 
-func (this *SimpleListMultimap) immutableCopy() *SimpleListMultimap {
-	var copy_ *SimpleListMultimap = new_SimpleListMultimap()
+func (this *SimpleListMultimap[K, V]) immutableCopy() *SimpleListMultimap[K, V] {
+	var copy_ *SimpleListMultimap[K, V] = new_SimpleListMultimap[K, V]()
 	for e := range elemsBy_(this.map__.entrySet(), icast_Map_Entry) {
 		copy_.map__.put(e.getKey(), new_ArrayList_Collection(icast_Collection(e.getValue())).self())
 	}
@@ -35,21 +35,22 @@ func (this *SimpleListMultimap) immutableCopy() *SimpleListMultimap {
 	return copy_
 }
 
-func (this *SimpleListMultimap) put(key any, value any) *SimpleListMultimap {
+func (this *SimpleListMultimap[K, V]) put(key K, value V) *SimpleListMultimap[K, V] {
+	keyBox_ := boxNull_(key)
 	if this.frozen {
 		panic(new_IllegalStateException_String(objstr_("immutable")).self())
 	}
-	var values ListOf[any] = icast_List(this.map__.get(key))
+	var values ListOf[any] = icast_List(this.map__.get(keyBox_))
 	if values == nil {
 		values = new_ArrayList_0()
-		this.map__.put(key, values)
+		this.map__.put(keyBox_, values)
 	}
-	values.add(value)
+	values.add(boxNull_(value))
 	return this
 }
 
 // put_s is put for a string key that is not boxed (post-flip manual step).
-func (this *SimpleListMultimap) put_s(key string, value any) *SimpleListMultimap {
+func (this *SimpleListMultimap[K, V]) put_s(key string, value V) *SimpleListMultimap[K, V] {
 	if this.frozen {
 		panic(new_IllegalStateException_String("immutable").self())
 	}
@@ -58,39 +59,40 @@ func (this *SimpleListMultimap) put_s(key string, value any) *SimpleListMultimap
 		values = new_ArrayList_0()
 		Map_put_s(this.map__, key, values)
 	}
-	values.add(value)
+	values.add(boxNull_(value))
 	return this
 }
 
-func (this *SimpleListMultimap) putAll(key any, values IterableOf[any]) *SimpleListMultimap {
+func (this *SimpleListMultimap[K, V]) putAll(key K, values IterableOf[any]) *SimpleListMultimap[K, V] {
 	for value := range elems_(values) {
-		this.put(key, value)
+		this.put(key, unboxT_[V](value))
 	}
 	return this
 }
 
 // putAll_s is putAll for a string key that is not boxed (post-flip manual step).
-func (this *SimpleListMultimap) putAll_s(key string, values IterableOf[any]) *SimpleListMultimap {
+func (this *SimpleListMultimap[K, V]) putAll_s(key string, values IterableOf[any]) *SimpleListMultimap[K, V] {
 	for value := range elems_(values) {
-		this.put_s(key, value)
+		this.put_s(key, unboxT_[V](value))
 	}
 	return this
 }
 
-func (this *SimpleListMultimap) replaceValues(key any, values IterableOf[any]) {
+func (this *SimpleListMultimap[K, V]) replaceValues(key K, values IterableOf[any]) {
+	keyBox_ := boxNull_(key)
 	if this.frozen {
 		panic(new_IllegalStateException_String(objstr_("immutable")).self())
 	}
 	var newValues *JTList[any] = jnewTList_(tc_Object)
 	Iterables_addAll(Collection(newValues.asList()), values)
 	if newValues.isEmpty() {
-		this.map__.remove(key)
+		this.map__.remove(keyBox_)
 	} else {
-		this.map__.put(key, newValues.asList())
+		this.map__.put(keyBox_, newValues.asList())
 	}
 }
 
-func (this *SimpleListMultimap) get(key any) ListOf[any] {
+func (this *SimpleListMultimap[K, V]) get(key any) ListOf[any] {
 	var values ListOf[any] = icast_List(this.map__.get(key))
 	return func() List {
 		if values == nil {
@@ -101,7 +103,7 @@ func (this *SimpleListMultimap) get(key any) ListOf[any] {
 }
 
 // get_s is get for a string key that is not boxed (post-flip manual step).
-func (this *SimpleListMultimap) get_s(key string) ListOf[any] {
+func (this *SimpleListMultimap[K, V]) get_s(key string) ListOf[any] {
 	var values ListOf[any] = icast_List(Map_get_s(this.map__, key))
 	if values == nil {
 		return ImmutableList_of()
@@ -109,16 +111,16 @@ func (this *SimpleListMultimap) get_s(key string) ListOf[any] {
 	return Collections_unmodifiableList(values)
 }
 
-func (this *SimpleListMultimap) containsKey(key any) bool {
+func (this *SimpleListMultimap[K, V]) containsKey(key any) bool {
 	return this.map__.containsKey(key)
 }
 
 // containsKey_s is containsKey for a string key that is not boxed (post-flip manual step).
-func (this *SimpleListMultimap) containsKey_s(key string) bool {
+func (this *SimpleListMultimap[K, V]) containsKey_s(key string) bool {
 	return Map_containsKey_s(this.map__, key)
 }
 
-func (this *SimpleListMultimap) remove(key any, value any) bool {
+func (this *SimpleListMultimap[K, V]) remove(key any, value any) bool {
 	if this.frozen {
 		panic(new_IllegalStateException_String(objstr_("immutable")).self())
 	}
@@ -132,7 +134,7 @@ func (this *SimpleListMultimap) remove(key any, value any) bool {
 	return true
 }
 
-func (this *SimpleListMultimap) removeAll(key any) ListOf[any] {
+func (this *SimpleListMultimap[K, V]) removeAll(key any) ListOf[any] {
 	if this.frozen {
 		panic(new_IllegalStateException_String(objstr_("immutable")).self())
 	}
@@ -145,19 +147,19 @@ func (this *SimpleListMultimap) removeAll(key any) ListOf[any] {
 	}()
 }
 
-func (this *SimpleListMultimap) keySet() SetOf[any] {
+func (this *SimpleListMultimap[K, V]) keySet() SetOf[any] {
 	return Collections_unmodifiableSet(this.map__.keySet())
 }
 
-func (this *SimpleListMultimap) values() CollectionOf[any] {
+func (this *SimpleListMultimap[K, V]) values() CollectionOf[any] {
 	return new_SimpleListMultimap_1(this)
 }
 
-func (this *SimpleListMultimap) asMap() MapOf[any, ListOf[any]] {
+func (this *SimpleListMultimap[K, V]) asMap() MapOf[any, ListOf[any]] {
 	return Collections_unmodifiableMap(LinkedHashMap_as_Map(this.map__))
 }
 
-func (this *SimpleListMultimap) size() int32 {
+func (this *SimpleListMultimap[K, V]) size() int32 {
 	var size int32 = 0
 	for values := range elemsBy_(this.map__.values(), icast_List) {
 		size += values.size()
@@ -165,16 +167,16 @@ func (this *SimpleListMultimap) size() int32 {
 	return size
 }
 
-func (this *SimpleListMultimap) isEmpty() bool {
+func (this *SimpleListMultimap[K, V]) isEmpty() bool {
 	return this.map__.isEmpty()
 }
 
-func (this *SimpleListMultimap) equals(o any) bool {
-	var that *SimpleListMultimap
+func (this *SimpleListMultimap[K, V]) equals(o any) bool {
+	var that *SimpleListMultimap[any, any]
 	_ = that
 	return (func() bool {
 		v_ := o
-		p, ok := v_.(*SimpleListMultimap)
+		p, ok := v_.(*SimpleListMultimap[any, any])
 		if !ok {
 			return false
 		}
@@ -183,42 +185,42 @@ func (this *SimpleListMultimap) equals(o any) bool {
 	}() && equalsBy_(this.map__, obj_(that.map__), (LinkedHashMapOf[any, ListOf[any]]).equals))
 }
 
-func (this *SimpleListMultimap) hashCode() int32 {
+func (this *SimpleListMultimap[K, V]) hashCode() int32 {
 	return hashBy_(this.map__, (LinkedHashMapOf[any, ListOf[any]]).hashCode)
 }
 
-func (this *SimpleListMultimap) toString() string {
+func (this *SimpleListMultimap[K, V]) toString() string {
 	return tostrNN_(this.map__)
 }
 
-type SimpleListMultimap_1 struct {
+type SimpleListMultimap_1[K, V comparable] struct {
 	AbstractCollection
-	outer_ *SimpleListMultimap
+	outer_ *SimpleListMultimap[K, V]
 }
 
-func (this *SimpleListMultimap_1) up_AbstractCollection() *AbstractCollection {
+func (this *SimpleListMultimap_1[K, V]) up_AbstractCollection() *AbstractCollection {
 	if this == nil {
 		return nil
 	}
 	return &this.AbstractCollection
 }
 
-func (this *SimpleListMultimap_1) init_SimpleListMultimap_1() {
+func (this *SimpleListMultimap_1[K, V]) init_SimpleListMultimap_1() {
 	this.AbstractCollection.init_AbstractCollection()
 }
 
-func new_SimpleListMultimap_1(outer_ *SimpleListMultimap) *SimpleListMultimap_1 {
-	this := &SimpleListMultimap_1{}
+func new_SimpleListMultimap_1[K, V comparable](outer_ *SimpleListMultimap[K, V]) *SimpleListMultimap_1[K, V] {
+	this := &SimpleListMultimap_1[K, V]{}
 	this.self_ = this
 	this.outer_ = outer_
 	this.init_SimpleListMultimap_1()
 	return this
 }
 
-func (this *SimpleListMultimap_1) iterator() IteratorOf[any] {
+func (this *SimpleListMultimap_1[K, V]) iterator() IteratorOf[any] {
 	return Iterables_unmodifiableIterable(Iterables_concat_Iterable(Iterable(this.outer_.map__.values()))).iterator()
 }
 
-func (this *SimpleListMultimap_1) size() int32 {
+func (this *SimpleListMultimap_1[K, V]) size() int32 {
 	return this.outer_.size()
 }

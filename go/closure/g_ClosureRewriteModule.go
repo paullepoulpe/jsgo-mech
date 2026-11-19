@@ -169,7 +169,7 @@ func (this *ClosureRewriteModule) recordGoogModule(t *NodeTraversal, call Node) 
 	this.currentScript.contentsPrefix = ClosureRewriteModule_toModuleContentsPrefix(namespaceId)
 	var scriptNode Node = NodeUtil_getEnclosingScript(this.currentScript.rootNode_)
 	this.rewriteState.scriptDescriptionsByGoogModuleNamespace.put(namespaceId, this.currentScript)
-	this.rewriteState.namespaceIdsByScriptNode.put(scriptNode.box_(), strobj_(namespaceId))
+	this.rewriteState.namespaceIdsByScriptNode.put(scriptNode, namespaceId)
 }
 
 func (this *ClosureRewriteModule) recordGoogDeclareLegacyNamespace() {
@@ -197,7 +197,7 @@ func (this *ClosureRewriteModule) recordGoogProvide(t *NodeTraversal, call Node)
 	}
 	var scriptNode Node = NodeUtil_getEnclosingScript(call)
 	this.rewriteState.providedNamespaces.add(namespaceId)
-	this.rewriteState.namespaceIdsByScriptNode.put(scriptNode.box_(), strobj_(namespaceId))
+	this.rewriteState.namespaceIdsByScriptNode.put(scriptNode, namespaceId)
 	this.updateLegacyScriptNamespacesAndPrefixes(namespaceId)
 }
 
@@ -1802,13 +1802,13 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) rewriteIfClosureNamespaceRef(
 
 type ClosureRewriteModule_GlobalRewriteState struct {
 	scriptDescriptionsByGoogModuleNamespace *JTMap[string, *ClosureRewriteModule_ScriptDescription]
-	namespaceIdsByScriptNode                *SimpleSetMultimap
+	namespaceIdsByScriptNode                *SimpleSetMultimap[Node, string]
 	providedNamespaces                      *JTSet[string]
 }
 
 func (this *ClosureRewriteModule_GlobalRewriteState) finit_ClosureRewriteModule_GlobalRewriteState() {
 	this.scriptDescriptionsByGoogModuleNamespace = jnewTMap_(jtc_string, jtc_p_ClosureRewriteModule_ScriptDescription)
-	this.namespaceIdsByScriptNode = SimpleSetMultimap_createInsertionOrdered()
+	this.namespaceIdsByScriptNode = SimpleSetMultimap_createInsertionOrdered[Node, string]()
 	this.providedNamespaces = jnewTSet_(jtc_string)
 }
 

@@ -126,11 +126,11 @@ type GatherModuleMetadata_ModuleMetadataBuilder struct {
 	declaredModuleId        Node
 	declaresLegacyNamespace Node
 	metadataBuilder         *ModuleMetadataMap_ModuleMetadata_Builder
-	googNamespaces_         *SimpleMultiset
+	googNamespaces_         *SimpleMultiset[any]
 }
 
 func (this *GatherModuleMetadata_ModuleMetadataBuilder) finit_GatherModuleMetadata_ModuleMetadataBuilder() {
-	this.googNamespaces_ = SimpleMultiset_create()
+	this.googNamespaces_ = SimpleMultiset_create[any]()
 }
 
 func (this *GatherModuleMetadata_ModuleMetadataBuilder) init_GatherModuleMetadata_ModuleMetadataBuilder(rootNode Node, path *ModuleLoader_ModulePath) {

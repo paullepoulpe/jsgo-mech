@@ -13,7 +13,7 @@ type SortedDependencies[InputT interface {
 	completedInputs               *JTSet[InputT]
 	nonExportingInputs            *JTMap[string, InputT]
 	exportingInputBySymbolName    *JTMap[string, InputT]
-	importedInputByImportingInput *SimpleSetMultimap
+	importedInputByImportingInput *SimpleSetMultimap[any, any]
 }
 
 func (this *SortedDependencies[InputT]) isa_SortedDependencies_() {}
@@ -24,7 +24,7 @@ func (this *SortedDependencies[InputT]) finit_SortedDependencies() {
 	this.completedInputs = jnewTSet_(tceT_[InputT]())
 	this.nonExportingInputs = jnewTMap_(jtc_string, tcT_[InputT]())
 	this.exportingInputBySymbolName = jnewTMap_(jtc_string, tcT_[InputT]())
-	this.importedInputByImportingInput = SimpleSetMultimap_createInsertionOrdered()
+	this.importedInputByImportingInput = SimpleSetMultimap_createInsertionOrdered[any, any]()
 }
 
 func (this *SortedDependencies[InputT]) init_SortedDependencies(userOrderedInputs ListOf[InputT]) {

@@ -67,7 +67,7 @@ func DominatorTree_compute[N comparable](graph *DiGraph[N], entry N) *DominatorT
 		}
 	}
 	var idomsMap *JTMap[N, N] = jnewTMap_(tceT_[N](), tcT_[N]())
-	var children *SimpleListMultimap = SimpleListMultimap_create()
+	var children *SimpleListMultimap[any, any] = SimpleListMultimap_create[any, any]()
 	for i := int32(0); i < numNodes; i++ {
 		var node N = postOrder.get(i)
 		var idomIdx int32 = idomIndexes[i]
@@ -107,7 +107,7 @@ func DominatorTree_buildPostOrder[N comparable](graph *DiGraph[N], node N, postO
 	postOrder.add(boxT_(node))
 }
 
-func DominatorTree_computeSubtreeSizes[N comparable](node N, children *SimpleListMultimap, sizes MapOf[N, BoxedOf[int32]]) int32 {
+func DominatorTree_computeSubtreeSizes[N comparable](node N, children *SimpleListMultimap[any, any], sizes MapOf[N, BoxedOf[int32]]) int32 {
 	var size int32 = 1
 	var nodeChildren ListOf[N] = children.get(boxT_(node))
 	if nodeChildren != nil {

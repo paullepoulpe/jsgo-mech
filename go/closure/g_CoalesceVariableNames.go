@@ -200,7 +200,7 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
 		if cfg.isImplicitReturn(cfgNode) {
 			continue
 		}
-		var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(cfgNode)))
+		var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(cfgNode)))
 		var livein *LiveVariablesAnalysis_LiveVariableLattice = cast_[*LiveVariablesAnalysis_LiveVariableLattice](state.getIn())
 		for i := int32(livein.nextSetBit(0)); i >= 0; i = livein.nextSetBit((i + 1)) {
 			for j := int32(livein.nextSetBit(i)); j >= 0; j = livein.nextSetBit((j + 1)) {
@@ -334,14 +334,14 @@ func (this *CoalesceVariableNames) isUninitializedLetNameInLoopBodyAndLive(nameN
 	var letNode Node = nameNode.getParent()
 	var cfg *ControlFlowGraph[Node] = this.liveness.getCfg()
 	var cfgNode DiGraph_DiGraphNode[Node] = cast_[DiGraph_DiGraphNode[Node]](Preconditions_checkNotNull_T(cfg.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(letNode)).self())
-	var state *DataFlowAnalysis_LinearFlowState = Preconditions_checkNotNull_T(cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(cfgNode))))
+	var state *DataFlowAnalysis_LinearFlowState[any] = Preconditions_checkNotNull_T(cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(cfgNode))))
 	var varIndex int32 = this.liveness.getVarIndex(originalVar.getName())
 	return ((varIndex >= 0) && cast_[*LiveVariablesAnalysis_LiveVariableLattice](state.getOut()).isLive(varIndex))
 }
 
 type CoalesceVariableNames_LiveRangeChecker struct {
 	root             Node
-	state            *DataFlowAnalysis_LinearFlowState
+	state            *DataFlowAnalysis_LinearFlowState[any]
 	orderedVariables []*Var
 	isAssignToList   *JTList[any]
 	isReadFromList   *JTList[any]
@@ -352,14 +352,14 @@ func (this *CoalesceVariableNames_LiveRangeChecker) finit_CoalesceVariableNames_
 	this.isReadFromList = jnewTList_(tc_Integer)
 }
 
-func (this *CoalesceVariableNames_LiveRangeChecker) init_CoalesceVariableNames_LiveRangeChecker(root Node, orderedVariables []*Var, state *DataFlowAnalysis_LinearFlowState) {
+func (this *CoalesceVariableNames_LiveRangeChecker) init_CoalesceVariableNames_LiveRangeChecker(root Node, orderedVariables []*Var, state *DataFlowAnalysis_LinearFlowState[any]) {
 	this.finit_CoalesceVariableNames_LiveRangeChecker()
 	this.root = root
 	this.orderedVariables = orderedVariables
 	this.state = state
 }
 
-func new_CoalesceVariableNames_LiveRangeChecker(root Node, orderedVariables []*Var, state *DataFlowAnalysis_LinearFlowState) *CoalesceVariableNames_LiveRangeChecker {
+func new_CoalesceVariableNames_LiveRangeChecker(root Node, orderedVariables []*Var, state *DataFlowAnalysis_LinearFlowState[any]) *CoalesceVariableNames_LiveRangeChecker {
 	this := &CoalesceVariableNames_LiveRangeChecker{}
 	this.init_CoalesceVariableNames_LiveRangeChecker(root, orderedVariables, state)
 	return this

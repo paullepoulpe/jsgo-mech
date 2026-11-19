@@ -4,13 +4,13 @@ package closure
 
 type PreprocessorSymbolTable struct {
 	symbols *JTMap[string, *SimpleSlot]
-	refs    *SimpleListMultimap
+	refs    *SimpleListMultimap[any, *PreprocessorSymbolTable_Reference]
 	root    Node
 }
 
 func (this *PreprocessorSymbolTable) finit_PreprocessorSymbolTable() {
 	this.symbols = jnewTMap_(jtc_string, jtc_p_SimpleSlot)
-	this.refs = SimpleListMultimap_create()
+	this.refs = SimpleListMultimap_create[any, *PreprocessorSymbolTable_Reference]()
 }
 
 func (this *PreprocessorSymbolTable) init_PreprocessorSymbolTable(root Node) {

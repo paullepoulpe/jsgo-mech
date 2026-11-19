@@ -3,11 +3,11 @@
 package closure
 
 type UniqueIdSupplier struct {
-	counter *SimpleMultiset
+	counter *SimpleMultiset[any]
 }
 
 func (this *UniqueIdSupplier) init_UniqueIdSupplier() {
-	this.counter = SimpleMultiset_create()
+	this.counter = SimpleMultiset_create[any]()
 }
 
 func new_UniqueIdSupplier() *UniqueIdSupplier {
