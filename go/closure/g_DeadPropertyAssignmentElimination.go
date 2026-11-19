@@ -221,10 +221,10 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 			return s != ""
 		}})
 	}()
-	var property *DeadPropertyAssignmentElimination_Property = this.propertyMap.computeIfAbsent_f(propName.orElse(nullstr_), func(p0 any) any {
-		return obj_((func(p0 string) *DeadPropertyAssignmentElimination_Property {
+	var property *DeadPropertyAssignmentElimination_Property = this.propertyMap.ComputeIfAbsent(propName.orElse(nullstr_), func(p0 string) *DeadPropertyAssignmentElimination_Property {
+		return (func(p0 string) *DeadPropertyAssignmentElimination_Property {
 			return new_DeadPropertyAssignmentElimination_Property(p0)
-		})(str_(p0)))
+		})(p0)
 	})
 	if propNode.isGetProp() {
 		var parentProperty *DeadPropertyAssignmentElimination_Property = this.getOrCreateProperty(propNode.getFirstChild())

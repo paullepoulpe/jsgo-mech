@@ -643,3 +643,7 @@ d3a98058 run t exceptions && f
 88e1c2ac run t tostr && f
 # C32. postflip step: tfn re-run on the bridged tree (tool extension 5aace8c8: method values of adapter literals)
 8f0af918 run t tfn && f
+# C33. postflip step: tfn re-run on the bridged tree (tool extension 66f3254e: runtime methods with an _f variant, the generic adapter)
+6b442df4 run t tfn && f
+# C34. postflip (runtime): the four googleapis runtime steps of the postflip5 line (ef603915, b1129850, b0699ec8, 2df6c21b)
+dd7c9fa2 patch reflip2-dd7c9fa2-rt.patch

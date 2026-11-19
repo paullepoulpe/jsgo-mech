@@ -1,0 +1,16 @@
+  flags3500/CHECKS g1prev wall=60.09 cpu=78.11 round=0 load=2.12 rss=3447M exit=0
+  flags3500/OPTIMIZATIONS g1prev wall=46.63 cpu=53.27 round=0 load=1.64 rss=2097M exit=0
+  flags3500/FINALIZATIONS g1prev wall=10.80 cpu=12.87 round=0 load=1.62 rss=558M exit=0
+  flags3500 g1prev wall=117.52 cpu=144.25 round=0 load=1.62 sha=72b57cd286c9
+  flags3500/CHECKS g1this wall=59.28 cpu=75.69 round=0 load=1.29 rss=3349M exit=0
+  flags3500/OPTIMIZATIONS g1this wall=46.48 cpu=52.71 round=0 load=1.14 rss=2085M exit=0
+  flags3500/FINALIZATIONS g1this wall=10.77 cpu=13.01 round=0 load=1.26 rss=553M exit=0
+  flags3500 g1this wall=116.53 cpu=141.41 round=0 load=1.26 sha=72b57cd286c9
+  flags3500/CHECKS g1this wall=59.00 cpu=74.74 round=1 load=1.13 rss=3368M exit=0
+  flags3500/OPTIMIZATIONS g1this wall=46.51 cpu=53.16 round=1 load=1.10 rss=2097M exit=0
+  flags3500/FINALIZATIONS g1this wall=10.69 cpu=12.88 round=1 load=1.24 rss=547M exit=0
+  flags3500 g1this wall=116.20 cpu=140.78 round=1 load=1.24 sha=72b57cd286c9
+  flags3500/CHECKS g1prev wall=60.67 cpu=78.83 round=1 load=1.12 rss=3469M exit=0
+  flags3500/OPTIMIZATIONS g1prev wall=46.54 cpu=52.96 round=1 load=1.05 rss=2094M exit=0
+  flags3500/FINALIZATIONS g1prev wall=10.83 cpu=12.96 round=1 load=1.20 rss=558M exit=0
+  flags3500 g1prev wall=118.03 cpu=144.75 round=1 load=1.20 sha=72b57cd286c9

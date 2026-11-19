@@ -46,10 +46,10 @@ func new_InlineFunctions(compiler *AbstractCompiler, safeNameIdSupplier Supplier
 }
 
 func (this *InlineFunctions) getOrCreateFunctionState(fnName string) *InlineFunctions_FunctionState {
-	return this.fns.computeIfAbsent_f(fnName, func(p0 any) any {
-		return obj_((func(k string) *InlineFunctions_FunctionState {
+	return this.fns.ComputeIfAbsent(fnName, func(p0 string) *InlineFunctions_FunctionState {
+		return (func(k string) *InlineFunctions_FunctionState {
 			return new_InlineFunctions_FunctionState()
-		})(str_(p0)))
+		})(p0)
 	})
 }
 

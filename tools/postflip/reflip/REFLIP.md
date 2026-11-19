@@ -334,3 +334,66 @@ first: scope variable lookup through the erased map (1.5s of 28s; C29), lookups 
 and maps keyed by an interface (1.2s, the largest in MakeDeclaredNamesUnique's conflict sets,
 which postflip5 made native maps by hand in step 18), the node store's id table (0.6s),
 interface casts of graph nodes through cast_ (0.4s), casts to AbstractVar (0.2s).
+
+## Steps C30 to C33 and where the second trial's extra time is (19 Nov)
+
+| step | kind | what | bundle CPU | typed-full CPU |
+|---|---|---|---|---|
+| C30 d3a98058 | tool | exceptions, after a tool fix (panic(frozen_{}) is UnsupportedOperationException): 6 catches deleted | 28.02s -> 28.01s (2 rounds) | not measured |
+| C31 88e1c2ac | tool | tostr: 501 String.valueOf of a typed value unboxed (all on failure paths) | 28.47s -> 28.22s | 61.82s -> 62.01s (2 rounds) |
+| C32 8f0af918 | tool | tfn extended to method values of an adapter literal: 266 | 28.31s -> 28.04s | 61.27s -> 61.03s |
+| C33 6b442df4 | tool | tfn extended to runtime methods with an _f variant and the generic adapter: 34 (32 computeIfAbsent) | 28.37s -> 27.89s | 61.60s -> 60.63s |
+
+C33 is a measured gain (bundle wall ranges do not overlap); the others are within noise.
+
+CPU by category on the googleapis subset (flat samples of the profiles of 19 Nov, runs/gs17_prof;
+proto/cats.py; second trial as of C18):
+
+| CHECKS stage | postflip5 | second trial |
+|---|---|---|
+| total | 65.3s | 80.3s |
+| translated compiler code | 23.2s | 26.0s |
+| GC mark and sweep (background workers) | 14.2s | 18.2s |
+| node store accessors | 9.6s | 9.4s |
+| allocation | 4.9s | 6.4s |
+| Go maps and hashing | 3.2s | 4.9s |
+| runtime collections | 2.6s | 5.3s |
+| protobuf runtime | 2.1s | 2.0s |
+| interface assertions and casts | 1.2s | 2.5s |
+
+The trial's extra 15s is mostly allocation and what follows from it (GC 4.0s, allocation 1.5s),
+collections and maps (4.4s), and translated code (2.8s); casts are 1.3s. Exact CHECKS allocation
+on the subset: postflip5 260.4M objects, 14.72 GB; second trial 382.5M, 18.42 GB before C33 and
+350.1M, 17.96 GB after. The largest sites the trial has above postflip5 (sampled objects, before
+C33): the two edge lists of each graph node (newTListN_, 22M; postflip5: one-element arrays
+inside the node, by hand), graph node creation (14.4M; C33 takes the adapter and closure),
+StringPool_Builder.put (9.8M) and the type search of SerializeTypesToPointers (9.8M), strobj_
+(7M), a Predicates_equalTo object per isConnectedInDirection (6.3M), LinkedIdentityHashMap
+entries (3.9M). These, not casts, are what the next tools on this tree should take.
+
+### C34 (dd7c9fa2): the postflip5 line's four googleapis runtime steps were missing here
+
+The second trial branched before postflip5-r9-ga's ef603915 (tmapIter_.remove in constant time),
+b1129850 (its test), b0699ec8 (subList boxes its range) and 2df6c21b (build() hands the
+builder's storage to the message). They apply without conflict. On the subset (2 rounds,
+runs/c34_gs3500.runs): total CPU -2.3%, wall 117.5s/118.0s -> 116.5s/116.2s. The first two are
+the fixes whose cost grows with input size, so the full-size run of this tree recorded above
+(719.5s) was made without them and is not a fair figure for the translation; a full-size run
+with them is owed.
+
+After C34 the allocation sites this tree still has above postflip5 in the subset's CHECKS stage
+(sampled objects, binary of C33): the two edge lists of each graph node (22M: an ArrayList of
+capacity 1 each, as in Java; postflip5 has one-element arrays inside the node by hand), the
+type search of SerializeTypesToPointers (9.7M), strobj_ (7M), a Predicates_equalTo object per
+isConnectedInDirection (6.3M, as in Java; by hand in postflip5), LinkedIdentityHashMap entries
+(3.8M). The two largest are allocations Java makes too.
+
+### Chain replay of the bridge steps (19 Nov)
+
+`tools/postflip/reflip/replay-bridge.sh <scratch dir>` replays C1 to C34 as one chain: from the
+tree before C1, each step's patch or command with the tools of that step's commit, the tree
+carried forward, each intermediate go/ compared with the step's commit byte for byte
+(g_zconv_jfam*.go left out against the commits .gitignore kept it from, see steps.txt). Run on
+64826ba8: `CHAIN OK 34 steps, last tree builds`. Its first run stopped at C34 on a patch file
+left under an old hash; fixed in 64826ba8. This is the bridge only: the 191 replayed commits
+before C1 (reflip2-replayed) were checked by replay2.sh on 18 Nov and have not been re-run.
