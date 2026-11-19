@@ -48,13 +48,9 @@ func (this *ErrorReporter_util) hadError() bool {
 }
 
 func (this *ErrorReporter_util) reportError(p0 *SourcePosition_util, p1 string) {
-	this.self_.(interface {
-		reportError_impl(*SourcePosition_util, string)
-	}).reportError_impl(p0, p1)
+	this.self_.(*ParserRunner_Es6ErrorReporter).reportError_impl(p0, p1)
 }
 
 func (this *ErrorReporter_util) reportWarning(p0 *SourcePosition_util, p1 string) {
-	this.self_.(interface {
-		reportWarning_impl(*SourcePosition_util, string)
-	}).reportWarning_impl(p0, p1)
+	this.self_.(*ParserRunner_Es6ErrorReporter).reportWarning_impl(p0, p1)
 }
