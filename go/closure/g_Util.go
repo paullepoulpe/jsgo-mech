@@ -78,7 +78,6 @@ func Util_appendHexJavaScriptRepresentation(sb *StringBuilder, c uint16) {
 				if p, ok := ex_.(IOException_as); ok {
 					var ex *IOException = p.as_IOException()
 					panic(new_RuntimeException_Throwable(ex.up_Throwable()).self())
-					return
 				}
 				panic(r_)
 			}

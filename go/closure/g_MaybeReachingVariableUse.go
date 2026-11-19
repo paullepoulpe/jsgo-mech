@@ -267,7 +267,6 @@ func (this *MaybeReachingVariableUse_ReachingUses) join(other *MaybeReachingVari
 		return thisVal.reconcile_PMap_Reconciler(thatVal, &PMap_Reconciler_fn[Node, Node]{func(node Node, unused1 Node, unused2 Node) Node {
 			return node
 		}})
-		panic("unreachable")
 	}})
 }
 

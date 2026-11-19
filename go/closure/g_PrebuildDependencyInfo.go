@@ -34,7 +34,6 @@ func (this *PrebuildDependencyInfo) prebuild(allInputs IterableOf[*CompilerInput
 				if is_InterruptedException(ex_) || is_ExecutionException(ex_) {
 					var e *Exception = to_Exception(ex_)
 					panic(new_RuntimeException_Throwable(e.up_Throwable()).self())
-					return
 				}
 				panic(r_)
 			}

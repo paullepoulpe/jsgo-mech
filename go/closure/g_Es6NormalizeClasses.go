@@ -600,7 +600,6 @@ func (this *Es6NormalizeClasses) createCallCallee(methodGetProp Node, isOptional
 	} else {
 		return this.astFactory_.createGetPropWithUnknownType(methodGetProp, "call")
 	}
-	panic("unreachable")
 }
 
 func (this *Es6NormalizeClasses) rewriteThisToThisDotSelf(fn Node) bool {
@@ -974,7 +973,6 @@ func (this *Es6NormalizeClasses) createFieldDefineProperty(field Node, fieldValu
 		var descriptor Node = this.astFactory_.createObjectLit([]Node{this.astFactory_.createStringKey("configurable", this.astFactory_.createBoolean(true)), this.astFactory_.createStringKey("enumerable", this.astFactory_.createBoolean(true)), this.astFactory_.createStringKey("writable", this.astFactory_.createBoolean(true)), this.astFactory_.createStringKey("value", val)})
 		var definePropertyCall Node = this.astFactory_.createCallWithUnknownType(this.createObjectDotDefineProperty(), []Node{receiver, keyNode, descriptor})
 		return this.astFactory_.exprResult(definePropertyCall)
-		panic("unreachable")
 	}}).apply)
 }
 
@@ -1080,7 +1078,6 @@ func (this *Es6NormalizeClasses) rewriteStaticMembers(t *NodeTraversal, record *
 				default:
 					panic(new_IllegalStateException_String(tostr_(staticMember)).self())
 				}
-				panic("unreachable")
 			}()
 			if transpiledNode != 0 {
 				staticInitTempParent.addChildToBack(transpiledNode)
@@ -1263,7 +1260,6 @@ func Es6NormalizeClasses_isInStaticInitializationContext(rootNode Node) bool {
 		default:
 			panic(new_IllegalArgumentException_String(("invalid root " + tostrH_(rootNode))).self())
 		}
-		panic("unreachable")
 	}()
 }
 

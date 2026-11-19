@@ -68,7 +68,6 @@ func J2clUndefinedChecksRewriterPass_maybeOptimizeIsUndefinedCall(node Node) Nod
 	} else {
 		return 0
 	}
-	panic("unreachable")
 }
 
 func J2clUndefinedChecksRewriterPass_maybeOptimizeCoerceToNullCall(node Node) Node {

@@ -248,7 +248,6 @@ func (this *JsDocInfoParser) parseHelperLoop(token JsDocToken, extendedTypes *JT
 			}
 		}
 	}
-	panic("unreachable")
 }
 
 func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *JTList[*JsDocInfoParser_ExtendedTypeInfo]) JsDocToken {
@@ -1069,7 +1068,6 @@ func (this *JsDocInfoParser) parseSuppressTag(token JsDocToken) JsDocToken {
 		}
 		return token
 	}
-	panic("unreachable")
 }
 
 func (this *JsDocInfoParser) parseModsTag(token JsDocToken) JsDocToken {
@@ -1268,7 +1266,6 @@ func (this *JsDocInfoParser) toString(token JsDocToken) string {
 		default:
 			panic(new_IllegalStateException_String(tostrNN_(token)).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1446,7 +1443,6 @@ func (this *JsDocInfoParser) parseTypeExpressionAnnotation(token JsDocToken) Nod
 		this.reportTypeSyntaxWarning(Msg_JSDOC_MISSING_BRACES)
 		return this.parseTypeExpression(token)
 	}
-	panic("unreachable")
 }
 
 func (this *JsDocInfoParser) parseParamTypeExpression(token JsDocToken) Node {
@@ -1505,7 +1501,6 @@ func (this *JsDocInfoParser) parseTypeNameAnnotation(token JsDocToken) Node {
 	} else {
 		return this.parseTypeName(token)
 	}
-	panic("unreachable")
 }
 
 func (this *JsDocInfoParser) parseTopLevelTypeExpression(token JsDocToken) Node {
@@ -1574,7 +1569,6 @@ func (this *JsDocInfoParser) parseTypeExpression(token JsDocToken) Node {
 			}
 			return basicTypeExpr
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1584,7 +1578,6 @@ func (this *JsDocInfoParser) parseContextTypeExpression(token JsDocToken) Node {
 	} else {
 		return this.parseBasicTypeExpression(token)
 	}
-	panic("unreachable")
 }
 
 func (this *JsDocInfoParser) parseBasicTypeExpression(token JsDocToken) Node {
@@ -1611,7 +1604,6 @@ func (this *JsDocInfoParser) parseBasicTypeExpression(token JsDocToken) Node {
 			default:
 				return this.parseTypeName(token)
 			}
-			panic("unreachable")
 		}()
 	}
 	this.restoreLookAhead(token)
@@ -1798,7 +1790,6 @@ func (this *JsDocInfoParser) parseResultType() Node {
 	} else {
 		return this.parseTypeExpression(this.next())
 	}
-	panic("unreachable")
 }
 
 func (this *JsDocInfoParser) parseUnionType(token JsDocToken) Node {
@@ -2013,7 +2004,6 @@ func (this *JsDocInfoParser) next() JsDocToken {
 	} else {
 		return this.current()
 	}
-	panic("unreachable")
 }
 
 func (this *JsDocInfoParser) current() JsDocToken {
@@ -2096,7 +2086,6 @@ func (this *JsDocInfoParser) parseClosureUnawareCode() JsDocToken {
 				this.addParserWarning_2(Msg_JSDOC_CLOSURE_UNAWARE_CONFIG_INVALID_VALUE, value)
 				return JSDocInfo_PerFileClosureUnawareMode_SIMPLE
 			}
-			panic("unreachable")
 		}()
 		if !this.jsdocBuilder.recordClosureUnawareCode_1(mode) {
 			this.addParserWarning(Msg_JSDOC_CLOSURE_UNAWARE_CODE_EXTRA)

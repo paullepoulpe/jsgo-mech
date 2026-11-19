@@ -315,7 +315,6 @@ func CodeConsumer_formatNumber(x float64) string {
 	} else {
 		return decValueString
 	}
-	panic("unreachable")
 }
 
 func (this *CodeConsumer) addBigInt(bi *BigInteger) {

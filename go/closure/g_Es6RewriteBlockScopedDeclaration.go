@@ -133,17 +133,6 @@ func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationListInFor
 	var loopNode Node = parent
 	if lhs.isDestructuringLhs() {
 		panic(new_IllegalStateException_String(objstr_("Destructuring syntax is unsupported in ES6RewriteBlockScopedDeclarations pass")).self())
-		NodeUtil_visitLhsNodesInNode(lhs, (&Consumer_tfn_Node{func(name Node) {
-			if !name.isName() {
-				Preconditions_checkState_boolean_String_Object_H(false, "lhs in destructuring declaration should be a simple name. (%s)", name)
-			}
-			var newName Node = IR_name(name.getString()).srcref(name)
-			var newVar Node = IR_var_Node(newName).srcref(name)
-			Es6RewriteBlockScopedDeclaration_extractInlineJSDoc(declarationList, name, newVar)
-			this.addNodeBeforeLoop(newVar, loopNode)
-		}}).accept)
-		var destructuringPattern Node = lhs.removeFirstChild()
-		first.replaceWith(destructuringPattern)
 	} else {
 		var newStatement Node = first.cloneTree()
 		var name Node = newStatement.getFirstChild().cloneNode()

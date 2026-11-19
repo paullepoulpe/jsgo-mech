@@ -909,7 +909,6 @@ func (this *SymbolTable) fillGoogProvideModuleRequires(externs Node, root Node) 
 			return false
 		}
 		return true
-		panic("unreachable")
 	}}).test
 	var collectModuleScopes NodeTraversal_Callback = NodeTraversal_Callback(new_SymbolTable_3(this, looksLikeGoogCall, declaredNamespaces, moduleScopes))
 	var processRequireStatements NodeTraversal_Callback = NodeTraversal_Callback(new_SymbolTable_4(this, looksLikeGoogCall, moduleScopes, declaredNamespaces))
@@ -1019,7 +1018,6 @@ func (this *SymbolTable) getLexicalScopeDepth(scope *SymbolTable_SymbolScope) in
 		Preconditions_checkNotNull_T(sym)
 		return (this.getLexicalScopeDepth(this.getScope(sym)) + 1)
 	}
-	panic("unreachable")
 }
 
 func (this *SymbolTable) getType(sym StaticSlot) *JSType {
@@ -1433,7 +1431,6 @@ func (this *SymbolTable_SymbolScope) toString() string {
 	} else {
 		return ("PropertyScope@" + jtostr_(this.getSymbolForScope()))
 	}
-	panic("unreachable")
 }
 
 type SymbolTable_PropertyRefCollector struct {
@@ -1746,7 +1743,6 @@ func (this *SymbolTable_JSDocInfoCollector) isNativeSourcelessType(name string) 
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 

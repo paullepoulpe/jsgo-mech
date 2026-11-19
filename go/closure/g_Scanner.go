@@ -146,7 +146,6 @@ func (this *Scanner_parser) skipRegularExpressionChar() bool {
 			this.nextChar()
 			return true
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -201,7 +200,6 @@ func Scanner_parser_isRegularExpressionChar(ch uint16) bool {
 		default:
 			return !Scanner_parser_isLineTerminator(ch)
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -246,7 +244,6 @@ func Scanner_parser_isWhitespace(ch uint16) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -258,7 +255,6 @@ func Scanner_parser_isLineTerminator(ch uint16) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -270,7 +266,6 @@ func Scanner_parser_isStringLineTerminator(ch uint16) bool {
 		default:
 			return Scanner_parser_isLineTerminator(ch)
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -454,7 +449,6 @@ func (this *Scanner_parser) scanToken() *Token_parser {
 			default:
 				return this.createToken(TokenType_RIGHT_SHIFT, beginToken)
 			}
-			fallthrough
 		case '=':
 			this.nextChar()
 			return this.createToken(TokenType_GREATER_EQUAL, beginToken)
@@ -587,7 +581,6 @@ func (this *Scanner_parser) scanToken() *Token_parser {
 	default:
 		return this.scanIdentifierOrKeyword(beginToken, ch)
 	}
-	panic("unreachable")
 }
 
 func (this *Scanner_parser) scanNumberPostPeriod(beginToken int32) *Token_parser {
@@ -679,7 +672,6 @@ func (this *Scanner_parser) scanPostZero(beginToken int32) *Token_parser {
 		default:
 			return new_LiteralToken(TokenType_NUMBER, this.getTokenString(beginToken), this.getTokenRange(beginToken)).up_Token_parser()
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -756,7 +748,6 @@ func Scanner_parser_processUnicodeEscapes(value Optional[string]) Optional[strin
 						_ = e
 						ret_2 = Optional_empty[string]()
 						code_ = 1
-						return
 						return
 					}
 					panic(r_)
@@ -852,7 +843,6 @@ func (this *Scanner_parser) nextTemplateLiteralTokenShared(endType TokenType, mi
 		default:
 			return new_TemplateLiteralToken(endType, value, skipTemplateCharactersResult.getErrorMessage().orElse(""), skipTemplateCharactersResult.getErrorLevel(), skipTemplateCharactersResult.getPosition(), this.getTokenRangeSourcePosition(startingPosition))
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -951,7 +941,6 @@ func (this *Scanner_parser) skipTemplateLiteralEscapeSequence() *Scanner_SkipTem
 	default:
 		return this.createSkipTemplateCharactersResult(Optional_of[string](Strings_lenientFormat("Unnecessary escape: '\\%s' is equivalent to just '%s'", []any{any(uint16(next)), any(uint16(next))})), TemplateLiteralToken_ErrorLevel_WARNING)
 	}
-	panic("unreachable")
 }
 
 func (this *Scanner_parser) skipStringLiteralEscapeSequence() bool {
@@ -1077,7 +1066,6 @@ func Scanner_parser_isDecimalDigit(ch uint16) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1131,7 +1119,6 @@ func Scanner_parser_valueOfOctalDigit(ch uint16) int32 {
 		default:
 			return -1
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1164,7 +1151,6 @@ func Scanner_parser_valueOfBinaryDigit(ch uint16) int32 {
 		default:
 			return -1
 		}
-		panic("unreachable")
 	}()
 }
 

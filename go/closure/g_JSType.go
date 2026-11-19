@@ -984,7 +984,6 @@ func (this *JSType) getRestrictedTypeGivenOutcome_impl(outcome Outcome_rhino) *J
 	} else {
 		return this.getNativeType(JSTypeNative_NO_TYPE)
 	}
-	panic("unreachable")
 }
 
 func (this *JSType) getTypesUnderEquality_impl(that *JSType) *JSType_TypePair {

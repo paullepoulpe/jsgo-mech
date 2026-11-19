@@ -334,7 +334,6 @@ func IRFactory_isBreakTarget(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -346,7 +345,6 @@ func IRFactory_isContinueTarget(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -629,7 +627,6 @@ L_1:
 			return tree
 		}
 	}
-	panic("unreachable")
 }
 
 func (this *IRFactory) transform(tree *ParseTree) Node {
@@ -741,7 +738,6 @@ func IRFactory_languageFeatureWarningMessage(feature FeatureSet_Feature) string 
 	} else {
 		return ("This language feature is only supported for " + jtostr_(Config_LanguageMode_minimumRequiredFor(feature)) + " mode or better: " + jtostr_(feature))
 	}
-	panic("unreachable")
 }
 
 func (this *IRFactory) maybeWarnForFeature(node *ParseTree, feature FeatureSet_Feature) {
@@ -1100,12 +1096,10 @@ func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 			default:
 				panic(new_IllegalStateException_String(("Unexpected character in number literal: " + chrstr_(String_charAt(value, 1)))).self())
 			}
-			panic("unreachable")
 		}()
 	} else {
 		return Double_parseDouble(value)
 	}
-	panic("unreachable")
 }
 
 func (this *IRFactory) normalizeBigInt(token *LiteralToken) *BigInteger {
@@ -1137,12 +1131,10 @@ func (this *IRFactory) normalizeBigInt(token *LiteralToken) *BigInteger {
 			default:
 				panic(new_IllegalStateException_String(("Unexpected character in bigint literal: " + chrstr_(String_charAt(value, 1)))).self())
 			}
-			panic("unreachable")
 		}()
 	} else {
 		return new_BigInteger_String(value)
 	}
-	panic("unreachable")
 }
 
 func (this *IRFactory) removeNumericSeparators(value string, token *LiteralToken) string {
@@ -1215,7 +1207,6 @@ func IRFactory_hexdigit(c uint16) int32 {
 		default:
 			panic(new_IllegalStateException_String(("unexpected: " + chrstr_(c))).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1229,7 +1220,6 @@ func IRFactory_transformBooleanTokenType(token TokenType) Token_rhino {
 		default:
 			panic(new_IllegalStateException_String(tostr_(token)).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1243,7 +1233,6 @@ func IRFactory_transformUpdateTokenType(token TokenType) Token_rhino {
 		default:
 			panic(new_IllegalStateException_String(tostr_(token)).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1267,7 +1256,6 @@ func IRFactory_transformUnaryTokenType(token TokenType) Token_rhino {
 		default:
 			panic(new_IllegalStateException_String(tostr_(token)).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1361,7 +1349,6 @@ func IRFactory_transformBinaryTokenType(token TokenType) Token_rhino {
 		default:
 			panic(new_IllegalStateException_String(tostr_(token)).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1635,7 +1622,6 @@ func (this *IRFactory_TransformDispatcher) processObjectLitKey(input *Token_pars
 		default:
 			return this.outer_.newStringNode_2(output, this.outer_.normalizeString(literal, false))
 		}
-		panic("unreachable")
 	}()
 	if jsDocInfo != nil {
 		node.setJSDocInfo(jsDocInfo)
@@ -1712,7 +1698,6 @@ func (this *IRFactory_TransformDispatcher) processObjectPatternElement(child *Pa
 		default:
 			panic(new_IllegalStateException_String(("Unexpected object pattern element: " + objstr_(child.self()))).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2258,7 +2243,6 @@ func (this *IRFactory_TransformDispatcher) processBinaryExpression(exprNode *Bin
 	} else {
 		return this.processBinaryExpressionHelper(exprNode)
 	}
-	panic("unreachable")
 }
 
 func (this *IRFactory_TransformDispatcher) processBinaryExpressionHelper(exprTree *BinaryOperatorTree) Node {
@@ -2305,7 +2289,6 @@ func (this *IRFactory_TransformDispatcher) transformLhsOfBinaryTree(exprTree *Bi
 		defer closeResource_(ignored)
 		ret_1 = this.outer_.transform(exprTree.left)
 		return 1
-		return 0
 	}()
 	if code_1 == 1 {
 		return ret_1
@@ -3304,7 +3287,6 @@ func (this *IRFactory_TransformDispatcher) transformListOrEmpty(type_ Token_rhin
 	} else {
 		return this.transformList(type_, list)
 	}
-	panic("unreachable")
 }
 
 func (this *IRFactory_TransformDispatcher) processLiteralExpression(expr *LiteralExpressionTree) Node {
@@ -3325,7 +3307,6 @@ func (this *IRFactory_TransformDispatcher) processLiteralExpression(expr *Litera
 		default:
 			panic(new_IllegalStateException_String(("Unexpected literal type: " + jtostr_(Object_getClass(expr.literalToken.self())) + " type: " + jtostr_(expr.literalToken.type__))).self())
 		}
-		panic("unreachable")
 	}()
 }
 

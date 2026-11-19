@@ -317,7 +317,6 @@ func (this *J2clClinitPrunerPass_LookAheadRedundantClinitPruner) getCallOrNewNod
 		default:
 			return 0
 		}
-		panic("unreachable")
 	}()
 }
 

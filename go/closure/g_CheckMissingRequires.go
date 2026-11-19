@@ -67,7 +67,6 @@ func (this *CheckMissingRequires) isInGlobalControlFlowScope(n Node) bool {
 		default:
 			panic(new_AssertionError_Object(strobj_(("Unexpected control flow root: " + tostrH_(n)))).self())
 		}
-		panic("unreachable")
 	}()
 }
 

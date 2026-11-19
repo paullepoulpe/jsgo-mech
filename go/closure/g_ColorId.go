@@ -134,7 +134,6 @@ func ColorId_clinit() {
 			panic(new_IllegalStateException_String(objstr_(any(int32(c)))).self())
 		}
 		return int8(c)
-		panic("unreachable")
 	}}
 
 }
