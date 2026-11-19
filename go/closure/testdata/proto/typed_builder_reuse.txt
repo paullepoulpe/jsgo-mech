@@ -1,0 +1,32 @@
+m1: 0a010132030a013132030a013232030a013338018201016182010162 | {allowable_features: FEATURE_REGEXP_SYNTAX; chunks {;   name: "1"; }; chunks {;   name: "2"; }; chunks {;   name: "3"; }; unique_name_id: 1; externs: "a"; externs: "b"} | hash 1384253779 | size 28
+m2: 0a010132030a013132030a013232030a01333802820101618201016282010163 | {allowable_features: FEATURE_REGEXP_SYNTAX; chunks {;   name: "1"; }; chunks {;   name: "2"; }; chunks {;   name: "3"; }; unique_name_id: 2; externs: "a"; externs: "b"; externs: "c"} | hash 1384377819 | size 32
+m3: 0a010232030a013232030a013332030a01343802820101418201016282010163 | {allowable_features: FEATURE_ES3_KEYWORDS_AS_IDENTIFIERS; chunks {;   name: "2"; }; chunks {;   name: "3"; }; chunks {;   name: "4"; }; unique_name_id: 2; externs: "A"; externs: "b"; externs: "c"} | hash -140885787 | size 32
+m4: 0a010232030a013032030a013232030a013332030a0134380282010164 | {allowable_features: FEATURE_ES3_KEYWORDS_AS_IDENTIFIERS; chunks {;   name: "0"; }; chunks {;   name: "2"; }; chunks {;   name: "3"; }; chunks {;   name: "4"; }; unique_name_id: 2; externs: "d"} | hash 1060359576 | size 29
+m5: 0a010232030a013032050a0374776f32030a013332030a0134380282010164 | {allowable_features: FEATURE_ES3_KEYWORDS_AS_IDENTIFIERS; chunks {;   name: "0"; }; chunks {;   name: "two"; }; chunks {;   name: "3"; }; chunks {;   name: "4"; }; unique_name_id: 2; externs: "d"} | hash -525563438 | size 31
+m6: 0a010232030a013032050a0354574f32030a013332030a0134380282010164 | {allowable_features: FEATURE_ES3_KEYWORDS_AS_IDENTIFIERS; chunks {;   name: "0"; }; chunks {;   name: "TWO"; }; chunks {;   name: "3"; }; chunks {;   name: "4"; }; unique_name_id: 2; externs: "d"} | hash -1484282958 | size 31
+cleared: builder {}
+cleared:  | {} | hash 355893856 | size 0
+after clear: builder {externs: "again"}
+after clear: 820105616761696e | {externs: "again"} | hash -2079070161 | size 8
+m6 still: 0a010232030a013032050a0354574f32030a013332030a0134380282010164 | {allowable_features: FEATURE_ES3_KEYWORDS_AS_IDENTIFIERS; chunks {;   name: "0"; }; chunks {;   name: "TWO"; }; chunks {;   name: "3"; }; chunks {;   name: "4"; }; unique_name_id: 2; externs: "d"} | hash -1484282958 | size 31
+base message: 82010178820101798201015a | {externs: "x"; externs: "y"; externs: "Z"} | hash 2123299464 | size 12
+base builder: builder {externs: "x"; externs: "y"; externs: "Z"; externs: "base"}
+base builder: 82010178820101798201015a82010462617365 | {externs: "x"; externs: "y"; externs: "Z"; externs: "base"} | hash 2130784425 | size 19
+b1 first build: 82010178820101798201015a8201036f6e65 | {externs: "x"; externs: "y"; externs: "Z"; externs: "one"} | hash 2127878206 | size 18
+b1: builder {externs: "x"; externs: "y"; externs: "Z"; externs: "one"; externs: "one more"}
+b1: 82010178820101798201015a8201036f6e658201086f6e65206d6f7265 | {externs: "x"; externs: "y"; externs: "Z"; externs: "one"; externs: "one more"} | hash -81227855 | size 29
+b2: builder {externs: "X2"; externs: "y"; externs: "Z"; externs: "two"}
+b2: 8201025832820101798201015a82010374776f | {externs: "X2"; externs: "y"; externs: "Z"; externs: "two"} | hash -2087899518 | size 19
+parsed: 82010178820101798201015a | {externs: "x"; externs: "y"; externs: "Z"} | hash 2123299464 | size 12
+parsed builder: builder {externs: "x"; externs: "y"; externs: "Z"; externs: "p"}
+parsed builder: 82010178820101798201015a82010170 | {externs: "x"; externs: "y"; externs: "Z"; externs: "p"} | hash 2127768136 | size 16
+parsed builder 2: builder {externs: "x"; externs: "y"; externs: "Z"; externs: "q"}
+parsed builder 2: 82010178820101798201015a82010171 | {externs: "x"; externs: "y"; externs: "Z"; externs: "q"} | hash 2127768137 | size 16
+t1: 0a0522030a01011a00 | {type {;   union {;     union_member: 1;   }; }; debug_info {; }} | hash -1019725912 | size 9
+t2: 0a0622040a0201021a050a030a0172 | {type {;   union {;     union_member: 1;     union_member: 2;   }; }; debug_info {;   mismatch {;     source_ref: "r";   }; }} | hash 784898957 | size 15
+t3: 0a0622040a0209020a001a050a030a0172 | {type {;   union {;     union_member: 9;     union_member: 2;   }; }; type {; }; debug_info {;   mismatch {;     source_ref: "r";   }; }} | hash 1512742710 | size 17
+built twice: equal=true same=false
+builder getters: type(0)={union {;   union_member: 9;   union_member: 2; }} debug={mismatch {;   source_ref: "r"; }} list=[{union {;   union_member: 9;   union_member: 2; }}, {}]
+copy changed: builder {type {;   union {;     union_member: 9;     union_member: 2;     union_member: 77;   }; }; type {; }; debug_info {;   mismatch {;     source_ref: "changed";   }; }}
+copy changed: 0a0722050a0309024d0a001a0b0a090a076368616e676564 | {type {;   union {;     union_member: 9;     union_member: 2;     union_member: 77;   }; }; type {; }; debug_info {;   mismatch {;     source_ref: "changed";   }; }} | hash 226472535 | size 24
+t3 still: 0a0622040a0209020a001a050a030a0172 | {type {;   union {;     union_member: 9;     union_member: 2;   }; }; type {; }; debug_info {;   mismatch {;     source_ref: "r";   }; }} | hash 1512742710 | size 17
