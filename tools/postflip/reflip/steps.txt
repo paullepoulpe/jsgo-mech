@@ -631,3 +631,5 @@ fec23265 run t tfnargs && f
 bccfa30b run t varargs && fa
 # 441. postflip step (re-flip): instanceof tests of a local variable inside && / || are comma-ok assertions before the condition (7a93c38f of reflip-javaisms, re-run; tool d65cc397)
 e19b8f97 run t instof && f
+# 442. postflip step (re-flip): casts to an interface that mentions a type parameter try the classes of the code's type parameters first (icasts' 63 left; tool d4c32151)
+34f27fc5 run t gcasts && f

@@ -489,17 +489,126 @@ about 1%, inside what six rounds resolve.
    (strids took the comparisons and scope lookups; the hashing callers ReferenceCollector.visit
    and ScopeScanner.declareVar remain), the generic classes outside the collection steps.
 2. **icasts' 63 left** are in generic code (LinkedUndirectedGraph, Graph, GraphColoring):
-   the class's own code working on the class, as 422 did for the directed graph.
+   the class's own code working on the class, as 422 did for the directed graph. (Done in the
+   fifth session as a tool, gcasts, step 442: 54 converted, 9 left.)
 3. **tfnargs' left** (12 parameters used otherwise, 48 adapters converting in a way the rule
    does not know, mostly PassFactory lambdas run once per pass; 66 flag suppliers): little CPU.
 4. **426 needs a decision**: kept as runtime tuning it is about 1% of typed-full; if it counts
    as tuning to be excluded, the numbers without it are in every table above.
 5. reflip-javaisms and this branch both number their new steps from 429: whichever merges
    second renumbers (the patch files carry the commit hash, so only the `# N.` lines and the
-   patch names' numbers change).
+   patch names' numbers change). (Done in the fifth session: its tools re-run here as steps
+   438-441.)
 
 Binaries: $S/proto/m_rg5 (tip fec23265), m_rg5x (the same without 426), m_rfj0 (7b082bc9),
 m_m8final (round 8). Logs: $S/rf/meas.log (per step, labels p9*), milestone6.log (bundle),
 milestone7.log (typed-full), pj.log (javaisms profiles). Scripts: pairs.py (medians and per-round
 ratios of fb.py lines), vstep.sh (a run line against its commit), ident.sh (outputs against
 Java's), bld.sh / unpatch426.py (a binary and its copy without 426).
+
+## Fifth session: reflip-javaisms brought over, gcasts (2026-11-19)
+
+Steps 438-442 of steps.txt, all tool runs. reflip-javaisms (1f0b2534, forked at 7b082bc9) had
+four tool steps numbered 429-432. Its four tool commits were cherry-picked unchanged (each
+message says from which commit) and each tool was run on this branch's tip, as replay-all.sh
+does, instead of carrying its generated `go/` diffs over; the step commits are new and
+steps.txt names them, after 437. reflip-javaisms' own REFLIP.md section (the tools, the
+anyflow model, what is left with reasons) is not repeated here: its counts hold line for line
+(below), and its text is on that branch.
+
+| step | tool commit (from) | step commit | command | counts |
+|---|---|---|---|---|
+| 438 | 186fce84 (cc9fc951) | 6dcd650f | `t deadeq && f` | 30 equals + 30 hashCode deleted (501 lines, 26 files); 82 + 84 left, the same 47 reason lines as 86dbb30a |
+| 439 | 12b3337c (7039ea65) | 96bc7cac | `t patinst && f` | 89 of 104 patterns (7 T_as, 53 in the if, 29 before the statement); left 4 T_as not the whole condition, 11 not the first operand |
+| 440 | 28ef509d (7c16350f) | bccfa30b | `t varargs && fa` | 20 functions and method names, 21 declarations, 453 calls in 137 files (355 bare, 74 none, 19 spread, 5 `[]any{}...`); `[]any{` in g_*.go 427 -> 15; left 41 calls passing an existing slice |
+| 441 | d65cc397 (6f69883c) | e19b8f97 | `t instof && f` | 4 tests in 2 files; left 21 catch clauses, 31 inside expressions, 2 two tests in an else-if |
+| 442 | d4c32151 (new) | 34f27fc5 | `t gcasts && f` | 54 of icasts' 63 casts in generic code, 6 functions; left 9 |
+
+For 438-441 the lines each step removes and adds are those of the reflip-javaisms commit, line
+for line (the code they touch did not change between 7b082bc9 and fec23265), and every count
+and left reason is the same. 438 was also run with `deadeq -trap` (each dead method panics
+instead of going) and that tree passed the gate: nothing calls them on this tree either.
+
+**gcasts** (tools/postflip/gcasts, the open icasts item). In generic code `cast_[I[N]](x)`
+asserts to an interface whose type comes from the dictionary: runtime.assertE2I2 -> getitab at
+every call, no per-site cache. The rule: a generic function `gcast_I[params](v any) I` per
+interface type, whose type switch tries the generated classes C with the code's own type
+parameters (the same names, in order) for which `*C[params]` implements I and returns p (a
+comparison of type words; the interface table of a class comes from the dictionary); every
+other value, nil included, goes to `cast_[I](v)` as before. So the result is the one v.(I)
+gives, and failures throw the same ClassCastException: Java's behaviour is kept for every
+value, the classes only pick which values take the short path. `elemsAs_[I](c)` becomes
+`elemsBy_(c, gcast_I[params])`. 54 converted: LinkedUndirectedGraph 24, LinkedDirectedGraph
+18, FixedPointGraphTraversal 4, CheckPathsBetweenNodes 3, LowestCommonAncestorFinder 3, Graph
+1, GraphColoring 1 (34f27fc5's message has 22 for LinkedUndirectedGraph and 17 for
+LinkedDirectedGraph; these are the counts of its diff). 40 casts and 14 elemsAs_, 2 or 4
+classes tried. Left 9, one reason: no class shares the code's type parameters, because the
+code works on a graph of another class (ControlFlowGraph[N].init 2: the graph is
+LinkedDirectedGraph[N, Branch]; DataFlowAnalysis[N, L].initialize 2; DominatorTree_compute
+and buildPostOrder[N] 3; Graph[N].clearNodeAnnotations / clearEdgeAnnotations 2). All nine
+run once per graph or per pass. Naming the classes there needs the type arguments of the
+graph the code is given (E = Branch for a control-flow graph), which nothing in the code at
+those sites says. Rerun: nothing.
+
+What 422 did beyond casts (a node holding itself as its interface, the graph's own lookups
+returning its node class, the flow states typed by their lattice) is not in this rule: those
+were changes of what the code works on, by hand; gcasts only changes how a cast is done.
+
+Census (census.py), fec23265 -> 34f27fc5, the rows that move:
+
+```
+1616 -> 1588  class casts to_X( / cast_[T](       (gcasts; 438-441 leave it at 1616)
+  75 ->   71  instanceof is_X(                    (patinst, instof)
+2951 -> 2934  boxing to any                       (deadeq, patinst)
+ 165 ->  159  Java equals/hashCode protocol       (deadeq)
+1731 -> 1713  fields/params declared any (approx) (1701 after 441; gcasts' 6 functions take v any)
+```
+
+Gate after every step: runtime tests ok (50 Test functions each time, as at fec23265),
+checks/bundle/downlevel/advanced MATCH.
+
+Replay: replay-all.sh with a worktree at 75671bd0 whose last commit says "Replays: fec23265",
+`-steps tools/postflip/reflip/steps.txt -overlay tools/postflip/reflip/patches -toolfix
+tools/postflip/reflip/toolfix.sh`, comparison on: steps 438-442 each give their commit's go/
+byte for byte, ending at the tip's go/ (599afe02). `-list`: 240 commits, 115 with tool runs,
+98 runtime patches, 37 manual patches (the "51 manual" of the fourth session's text and of
+ae716ea0's message is the replay table's count, which includes the dropped ones; -list prints
+37).
+
+**Measurements** (fb.py, ABBA, under gate.lock, no PGO; medians of the per-round ratios; outputs
+byte-identical: the gate). Two runs: (1) all five binaries fec23265 (m_rg5), 438, 439, 440,
+441, 4 rounds, load 0.9-1.6; (2) fec23265, 440, 441, 442, 6 rounds, load 1.0-1.5. Allocations
+by j2mem.py (JSGO_MEMSTATS), one run each.
+
+| step | typed-full cpu | wall | bundle cpu | wall | allocations typed-full; bundle |
+|---|---:|---:|---:|---:|---|
+| 438 deadeq (run 1) | +0.0% | +0.4% | +0.2% | -0.4% | 180.82M -> 180.83M, 11.48 GB; 86.11M, 6.02 GB |
+| 439 patinst (run 1) | +0.6% | +0.4% | +0.9% | -0.0% | unchanged |
+| 440 varargs (run 1 / run 2 vs fec23265) | +1.5% / +2.3% | +1.7% / +2.8% | +1.1% / +1.2% | +1.1% / +0.5% | unchanged |
+| 441 instof (run 1 / run 2) | -0.8% / -1.6% | -1.2% / -1.6% | -2.2% / -0.1% | -1.3% / -0.3% | unchanged |
+| 442 gcasts (run 2) | -1.2% | -1.1% | +0.1% | -0.3% | unchanged (180.82M, 11.48 GB; 86.11M, 6.02 GB) |
+| **438-441 vs fec23265** (run 1 / run 2) | +1.4% / +1.3% | +0.8% / +1.1% | -0.1% / +0.7% | -0.4% / +0.0% | unchanged |
+| **tip 442 vs fec23265** (run 2) | **-0.9%** (60.62 -> 59.66 s) | **-1.1%** (51.45 -> 50.82 s) | +1.3% (26.21 -> 26.45 s) | +0.6% (24.61 -> 24.55 s) | unchanged |
+
+Per-round ranges are 4-8 points wide (run 2: tip vs fec23265 typed-full cpu -4.7..+1.2,
+bundle -3.1..+1.9). instof changes six lines in two files that typed-full and bundle hardly
+run, and moves -0.8 to -2.2%; varargs moves the other way by about as much: that is the size of
+the code-layout effect between two builds, and none of 438-441 is resolved from it.
+reflip-javaisms measured the same four steps at -2.5% typed-full and +1.0% bundle on its base;
+here they come out at +1.4% and -0.1% to +0.7%. One CPU profile each of typed-full for 441 and
+442: runtime.getitab 0.40 -> 0.24 s of 60 s, so gcasts' own share is about 0.3%; the 0.24 s
+left is spread over many callers.
+
+Binaries: $S/proto/m_r9a..m_r9e (438..442). Logs: $S/rf/m9.log (run 1), m9b.log (run 2),
+m9mem.log (allocations), gate_r9_*.log, cpu_r9d.prof / cpu_r9e.prof.
+
+## Handover after the fifth session
+
+1. typed-full wall against round 8 is unchanged in kind: the items of the fourth session's
+   handover 1, 3 and 4 stand.
+2. gcasts' 9 left need the graph's type arguments at code that is given the graph as an
+   interface (a translator rule that instantiates ControlFlowGraph's nodes as
+   LinkedDiGraphNode[N, Branch] where the code is ControlFlowGraph's own), little CPU.
+3. The 438-441 left reasons are reflip-javaisms' (its REFLIP.md section): equals/hashCode
+   82 + 84, instanceof 71 + 15 patterns, casts, Object slots, varargs 41.
+4. reflip-javaisms is superseded by 438-441 here; it was not changed.
