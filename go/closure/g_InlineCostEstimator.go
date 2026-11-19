@@ -92,8 +92,9 @@ func (this *InlineCostEstimator_CompiledSizeEstimator) getLastChar_impl() uint16
 }
 
 func (this *InlineCostEstimator_CompiledSizeEstimator) append_impl(str string) {
-	this.last = String_charAt(str, (String_length(str) - 1))
-	this.cost += String_length(str)
+	strU16 := utf16Of_(str)
+	this.last = strU16.charAt((strU16.length() - 1))
+	this.cost += strU16.length()
 	if this.maxCost <= this.cost {
 		this.continueProcessingField = false
 	}

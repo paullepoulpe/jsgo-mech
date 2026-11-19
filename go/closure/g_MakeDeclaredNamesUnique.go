@@ -208,11 +208,12 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) process_2(externs 
 
 func MakeDeclaredNamesUnique_ContextualRenameInverter_getOriginalName(name string) string {
 	var index int32 = MakeDeclaredNamesUnique_ContextualRenameInverter_indexOfSeparator(name)
+	nameU16 := utf16Of_(name)
 	return func() string {
 		if index <= 0 {
 			return name
 		}
-		return String_substring(name, 0, index)
+		return nameU16.substring(0, index)
 	}()
 }
 

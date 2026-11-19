@@ -2875,7 +2875,7 @@ func (this *RemoveUnusedCode_RealVarInfo) isRemovable() bool {
 func (this *RemoveUnusedCode_RealVarInfo) setIsExplicitlyNotRemovable(reasonSupplier func() any) {
 	if this.isEntirelyRemovable {
 		this.isEntirelyRemovable = false
-		this.outer_.unremovableLog.logString(String_format("%s: %s", []any{strobj_(this.varName_), reasonSupplier()}))
+		this.outer_.unremovableLog.logString((sstr_(this.varName_) + ": " + objstr_(reasonSupplier())))
 		it_1 := this.removables.each()
 		for it_1.next() {
 			var r *RemoveUnusedCode_Removable = it_1.v

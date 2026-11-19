@@ -7,6 +7,7 @@ type Scanner_parser struct {
 	source             *SourceFile_parser
 	lineNumberScanner  *LineNumberScanner
 	contents           string
+	contentsU16        utf16_
 	contentsLength     int32
 	currentTokens      *JTList[*Token_parser]
 	index_             int32
@@ -16,6 +17,7 @@ type Scanner_parser struct {
 
 func (this *Scanner_parser) zero_Scanner_parser() {
 	this.contents = nullstr_
+	this.contentsU16 = utf16Of_(this.contents)
 }
 
 func (this *Scanner_parser) finit_Scanner_parser() {
@@ -29,7 +31,8 @@ func (this *Scanner_parser) init_Scanner_parser(errorReporter *ErrorReporter_uti
 	this.source = file
 	this.lineNumberScanner = new_LineNumberScanner(this.source)
 	this.contents = file.contents
-	this.contentsLength = String_length(file.contents)
+	this.contentsU16 = utf16Of_(this.contents)
+	this.contentsLength = file.contentsU16.length()
 	this.index_ = offset
 	this.typeParameterLevel = 0
 }
@@ -325,7 +328,7 @@ func (this *Scanner_parser) skipSingleLineComment_1(type_ Comment_Type) {
 		this.nextChar()
 	}
 	var range_ *SourceRange = this.lineNumberScanner.getSourceRange(startOffset, this.index_)
-	var value string = String_substring(this.contents, startOffset, this.index_)
+	var value string = this.contentsU16.substring(startOffset, this.index_)
 	this.recordComment(type_, range_, value)
 }
 
@@ -345,14 +348,14 @@ func (this *Scanner_parser) skipMultiLineComment() {
 		this.nextChar()
 		var type_ Comment_Type = Comment_Type_BLOCK
 		if (this.index_ - startOffset) > 4 {
-			if String_charAt(this.contents, (startOffset+2)) == '*' {
+			if this.contentsU16.charAt((startOffset + 2)) == '*' {
 				type_ = Comment_Type_JSDOC
-			} else if String_charAt(this.contents, (startOffset+2)) == '!' {
+			} else if this.contentsU16.charAt((startOffset + 2)) == '!' {
 				type_ = Comment_Type_IMPORTANT
 			}
 		}
 		var range_ *SourceRange = this.lineNumberScanner.getSourceRange(startOffset, this.index_)
-		var value string = String_substring(this.contents, startOffset, this.index_)
+		var value string = this.contentsU16.substring(startOffset, this.index_)
 		this.recordComment(type_, range_, value)
 	} else {
 		this.reportError("unterminated comment", []any{})
@@ -708,7 +711,7 @@ func (this *Scanner_parser) scanIdentifierOrKeyword(beginToken int32, ch uint16)
 		this.nextChar()
 		ch = this.peekChar()
 	}
-	var value Optional[string] = Optional_of[string](String_substring(this.contents, valueStartIndex, this.index_))
+	var value Optional[string] = Optional_of[string](this.contentsU16.substring(valueStartIndex, this.index_))
 	if isPrivateIdentifier && (value.get() == "#") {
 		this.reportError_3(this.getPosition_1(beginToken), "Invalid usage of #", []any{})
 		return this.createToken(TokenType_ERROR, beginToken)
@@ -720,9 +723,10 @@ func (this *Scanner_parser) scanIdentifierOrKeyword(beginToken int32, ch uint16)
 			return this.createToken(TokenType_ERROR, beginToken)
 		}
 	}
-	var start uint16 = String_charAt(value.get(), 0)
+	var valueU16 utf16_
+	var start uint16 = valueU16.of(value.get()).charAt(0)
 	if isPrivateIdentifier {
-		start = String_charAt(value.get(), 1)
+		start = valueU16.of(value.get()).charAt(1)
 	}
 	if !Identifiers_isIdentifierStart(start) {
 		this.reportError_3(this.getPosition_1(beginToken), "Character '%c' (U+%04X) is not a valid identifier start char", []any{uint16(start), int32(int32(start))})
@@ -736,8 +740,9 @@ func (this *Scanner_parser) scanIdentifierOrKeyword(beginToken int32, ch uint16)
 }
 
 func Scanner_parser_processUnicodeEscapes(value Optional[string]) Optional[string] {
+	var valueU16 utf16_
 	for JString_contains_s(value.get(), "\\") {
-		var escapeStart int32 = String_indexOf(value.get(), 92)
+		var escapeStart int32 = valueU16.of(value.get()).indexOf(92)
 		var ret_2 Optional[string]
 		code_2 := func() (code_ int) {
 			defer func() {
@@ -753,29 +758,29 @@ func Scanner_parser_processUnicodeEscapes(value Optional[string]) Optional[strin
 					panic(r_)
 				}
 			}()
-			if String_charAt(value.get(), (escapeStart+1)) != 'u' {
+			if valueU16.of(value.get()).charAt((escapeStart + 1)) != 'u' {
 				ret_2 = Optional_empty[string]()
 				return 1
 			}
 			var hexDigits string
 			var escapeEnd int32
-			if String_charAt(value.get(), (escapeStart+2)) != '{' {
+			if valueU16.of(value.get()).charAt((escapeStart + 2)) != '{' {
 				escapeEnd = (escapeStart + 6)
-				if escapeEnd > String_length(value.get()) {
+				if escapeEnd > valueU16.of(value.get()).length() {
 					ret_2 = Optional_empty[string]()
 					return 1
 				}
-				hexDigits = String_substring(value.get(), (escapeStart + 2), escapeEnd)
+				hexDigits = valueU16.of(value.get()).substring((escapeStart + 2), escapeEnd)
 			} else {
 				escapeEnd = (escapeStart + 3)
-				for Scanner_parser_isHexDigit(String_charAt(value.get(), escapeEnd)) {
+				for Scanner_parser_isHexDigit(valueU16.of(value.get()).charAt(escapeEnd)) {
 					escapeEnd++
 				}
-				if String_charAt(value.get(), escapeEnd) != '}' {
+				if valueU16.of(value.get()).charAt(escapeEnd) != '}' {
 					ret_2 = Optional_empty[string]()
 					return 1
 				}
-				hexDigits = String_substring(value.get(), (escapeStart + 3), escapeEnd)
+				hexDigits = valueU16.of(value.get()).substring((escapeStart + 3), escapeEnd)
 				escapeEnd++
 			}
 			var codePoint int32 = Integer_parseInt(hexDigits, 16)
@@ -788,7 +793,7 @@ func Scanner_parser_processUnicodeEscapes(value Optional[string]) Optional[strin
 				ret_2 = Optional_empty[string]()
 				return 1
 			}
-			value = Optional_of[string]((sstr_(String_substring(value.get(), 0, escapeStart)) + chrstr_(ch) + sstr_(String_substring_int(value.get(), escapeEnd))))
+			value = Optional_of[string]((sstr_(valueU16.of(value.get()).substring(0, escapeStart)) + chrstr_(ch) + sstr_(valueU16.of(value.get()).substring_int(escapeEnd))))
 			return 0
 		}()
 		if code_2 == 1 {
@@ -847,7 +852,7 @@ func (this *Scanner_parser) nextTemplateLiteralTokenShared(endType TokenType, mi
 }
 
 func (this *Scanner_parser) getTokenString(beginIndex int32) string {
-	return String_substring(this.contents, beginIndex, this.index_)
+	return this.contentsU16.substring(beginIndex, this.index_)
 }
 
 func (this *Scanner_parser) peekStringLiteralChar(terminator uint16) bool {
@@ -1160,7 +1165,7 @@ func (this *Scanner_parser) nextChar() uint16 {
 	}
 	var charIndex int32 = this.index_
 	this.index_++
-	return String_charAt(this.contents, charIndex)
+	return this.contentsU16.charAt(charIndex)
 }
 
 func (this *Scanner_parser) peek(ch uint16) bool {
@@ -1176,7 +1181,7 @@ func (this *Scanner_parser) peekChar_1(offset int32) uint16 {
 		if !this.isValidIndex((this.index_ + offset)) {
 			return 0x0000
 		}
-		return String_charAt(this.contents, (this.index_ + offset))
+		return this.contentsU16.charAt((this.index_ + offset))
 	}()
 }
 

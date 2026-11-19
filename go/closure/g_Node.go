@@ -2001,7 +2001,8 @@ func (this Node) matchesQualifiedName_2(qname string, endIndex int32) bool {
 		return (((start == 0) && (endIndex == 5)) && strings.HasPrefix(qname, "super"))
 	case tokOrd1_GETPROP:
 		var prop string = this.getString()
-		return ((((start > 1) && (String_length(prop) == (endIndex - start))) && String_regionMatches_int_String_int_int(prop, 0, qname, start, (endIndex-start))) && this.getFirstChild().matchesQualifiedName_2(qname, (start-1)))
+		propU16 := utf16Of_(prop)
+		return ((((start > 1) && (propU16.length() == (endIndex - start))) && propU16.regionMatches_int_String_int_int(0, qname, start, (endIndex-start))) && this.getFirstChild().matchesQualifiedName_2(qname, (start-1)))
 	default:
 		return false
 	}

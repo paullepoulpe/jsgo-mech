@@ -1394,12 +1394,13 @@ func (this *CodeGenerator) unrollBinaryOperator(n Node, op Token_rhino, opStr st
 }
 
 func CodeGenerator_isSimpleNumber(s string) bool {
-	var len_ int32 = String_length(s)
+	sU16 := utf16Of_(s)
+	var len_ int32 = sU16.length()
 	if len_ == 0 {
 		return false
 	}
 	for index := int32(0); index < len_; index++ {
-		var c uint16 = String_charAt(s, index)
+		var c uint16 = sU16.charAt(index)
 		if (int32(c) < 48) || (int32(c) > 57) {
 			return false
 		}
@@ -1813,7 +1814,8 @@ func (this *CodeGenerator) appendEscapedGt(sb *StringBuilder, s string, index in
 		sb.append(CodeGenerator_GT_ESCAPED)
 		return
 	}
-	if (index >= 2) && (((String_charAt(s, (index-1)) == '-') && (String_charAt(s, (index-2)) == '-')) || ((String_charAt(s, (index-1)) == ']') && (String_charAt(s, (index-2)) == ']'))) {
+	sU16 := utf16Of_(s)
+	if (index >= 2) && (((sU16.charAt((index - 1)) == '-') && (sU16.charAt((index - 2)) == '-')) || ((sU16.charAt((index - 1)) == ']') && (sU16.charAt((index - 2)) == ']'))) {
 		sb.append(CodeGenerator_GT_ESCAPED)
 	} else {
 		sb.append_char('>')
@@ -1828,7 +1830,8 @@ func (this *CodeGenerator) appendEscapedLt(sb *StringBuilder, s string, index in
 	var endScript string = "/script"
 	var endStyle string = "/style"
 	var startComment string = "!--"
-	if (String_regionMatches(s, true, (index+1), endScript, 0, int32(len(endScript))) || String_regionMatches(s, true, (index+1), endStyle, 0, int32(len(endStyle)))) || String_regionMatches(s, false, (index+1), startComment, 0, int32(len(startComment))) {
+	sU16 := utf16Of_(s)
+	if (sU16.regionMatches(true, (index+1), endScript, 0, int32(len(endScript))) || sU16.regionMatches(true, (index+1), endStyle, 0, int32(len(endStyle)))) || sU16.regionMatches(false, (index+1), startComment, 0, int32(len(startComment))) {
 		sb.append(CodeGenerator_LT_ESCAPED)
 	} else {
 		sb.append_char('<')
