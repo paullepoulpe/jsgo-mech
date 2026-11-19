@@ -573,3 +573,32 @@ f7492025 run bash tools/postflip/colls/run.sh
 #B 11fa83da run t jfam -kind keyed
 # B7. postflip step: the collection pipeline re-run after jfam -kind keyed
 #B ec208429 run bash tools/postflip/colls/run.sh
+
+# ---- second trial, after the replay (branch reflip2-bridge, from reflip2-replayed 079459be): the
+# bridge and the steps it makes possible. The tools of each step are tools/postflip of its commit.
+# C1. postflip (runtime): the list bridge
+32218c6b patch reflip2-32218c6b-rt.patch
+# C2. postflip step: jfam -kind convs and -kind list
+c6beb2db run t jfam -kind convs && t jfam -kind list
+# C3. postflip step: the collection pipeline after jfam -kind list
+5d795482 run bash tools/postflip/colls/run.sh
+# C4. postflip (runtime): the erased view of a typed list is part of the list
+f164f9ee patch reflip2-f164f9ee-rt.patch
+# C5. postflip (runtime): the bridge for typed sets and maps
+b3374ecd patch reflip2-b3374ecd-rt.patch
+# C6. postflip step: jfam -kind keyed
+97f64e66 run t jfam -kind keyed
+# C7. postflip step: the collection pipeline after jfam -kind keyed
+9045d09c run bash tools/postflip/colls/run.sh
+# C8. postflip (runtime): TSet.AddAll and TMap.putAllT of an immutable receiver throw first
+d6e0d286 patch reflip2-d6e0d286-rt.patch
+# C9. postflip step: bulkops, bulk operations between typed collections
+1a24cfba run t bulkops
+# C10. postflip step: ranges -index and -entries
+16dc8807 run t ranges -index && t ranges -entries && f
+# C11. postflip (runtime): forEachT of a typed map and a typed list
+7dd07050 patch reflip2-7dd07050-rt.patch
+# C12. postflip step: bulkops, forEach with a typed lambda
+47348697 run t bulkops
+# C13. postflip step: jfam -kind cursors
+6e5c5802 run t jfam -kind cursors
