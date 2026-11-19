@@ -89,22 +89,8 @@ func (this *DefaultNameGenerator) reset_4(reservedNames SetOf[string], prefix st
 	this.nameCount = 0
 	this.firstChars = this.reserveCharacters(DefaultNameGenerator_FIRST_CHAR, reservedFirstCharacters)
 	this.nonFirstChars = this.reserveCharacters(DefaultNameGenerator_NONFIRST_CHAR, reservedNonFirstCharacters)
-	func() {
-		arr_1 := this.firstChars
-		tmp_2 := arrmap_(arr_1, obj_[*DefaultNameGenerator_CharPriority])
-		Arrays_sort(tmp_2)
-		for i_ := range tmp_2 {
-			arr_1[i_] = cast_[*DefaultNameGenerator_CharPriority](tmp_2[i_])
-		}
-	}()
-	func() {
-		arr_3 := this.nonFirstChars
-		tmp_4 := arrmap_(arr_3, obj_[*DefaultNameGenerator_CharPriority])
-		Arrays_sort(tmp_4)
-		for i_ := range tmp_4 {
-			arr_3[i_] = cast_[*DefaultNameGenerator_CharPriority](tmp_4[i_])
-		}
-	}()
+	sortArrF_(this.firstChars, (*DefaultNameGenerator_CharPriority).compareToT_)
+	sortArrF_(this.nonFirstChars, (*DefaultNameGenerator_CharPriority).compareToT_)
 	this.checkPrefix(prefix)
 }
 

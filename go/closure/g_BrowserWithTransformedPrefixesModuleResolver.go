@@ -37,7 +37,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransf
 		replacement := el2
 		sortedPrefixes.add(replacement.prefix())
 	}
-	Collections_sort(sortedPrefixes.asList())
+	sortTListF_(sortedPrefixes, compareStrNat_)
 	this.expectedPrefixes = String_join_s(", ", Iterable(sortedPrefixes.asList()))
 }
 

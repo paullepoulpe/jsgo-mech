@@ -88,7 +88,7 @@ func CheckProvidesSorted_formatProvide(namespace string) string {
 
 func (this *CheckProvidesSorted) checkCanonical(t *NodeTraversal) {
 	var sortedProvides *TList[string] = tlistCopy_(tc_string, this.originalProvides)
-	Collections_sort(sortedProvides.asList())
+	sortTListF_(sortedProvides, compareStrNat_)
 	var canonicalProvides *ImmutableList[string] = immutableListCopyOf_(tc_string, new_LinkedHashSet_Collection(Collection(sortedProvides.asList())))
 	if !equalsVia_(this.originalProvides.asList(), obj_(canonicalProvides.asImm())) {
 		this.needsFixField = true

@@ -4683,15 +4683,6 @@ func (this *NodeUtil_MatchDeclaration) applyT_(n Node) bool {
 	return NodeUtil_isDeclaration(n)
 }
 
-// apply is the bridge of the interface's erased signature (javac's): it casts its arguments and calls applyT_.
-func (this *NodeUtil_MatchDeclaration) apply(n_ any) bool {
-	return this.applyT_(Node_of_(n_))
-}
-
-func (this *NodeUtil_MatchDeclaration) test(p0 any) bool {
-	return Predicate_base_test(this, p0)
-}
-
 type NodeUtil_MatchShallowStatement struct {
 }
 
