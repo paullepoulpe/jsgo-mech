@@ -112,10 +112,11 @@ func (this *ProxyObjectType) setReferencedType(referencedType *JSType) {
 	_ = objectType
 	if func() bool {
 		v_ := referencedType.self()
-		if !is_ObjectType(v_) {
+		p, ok := v_.(ObjectType_as)
+		if !ok {
 			return false
 		}
-		objectType = to_ObjectType(v_)
+		objectType = p.as_ObjectType()
 		return true
 	}() {
 		this.referencedObjType = objectType

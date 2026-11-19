@@ -172,10 +172,11 @@ func (this *SimpleListMultimap) equals(o any) bool {
 	_ = that
 	return (func() bool {
 		v_ := o
-		if !is_[*SimpleListMultimap](v_) {
+		p, ok := v_.(*SimpleListMultimap)
+		if !ok {
 			return false
 		}
-		that = cast_[*SimpleListMultimap](v_)
+		that = p
 		return true
 	}() && equalsBy_(this.map__, obj_(that.map__), (LinkedHashMapOf[any, ListOf[any]]).equals))
 }

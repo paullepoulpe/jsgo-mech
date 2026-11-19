@@ -743,8 +743,8 @@ func (this *Compiler) performPostCompilationTasksInternal() {
 				defer func() {
 					if r_ := recover(); r_ != nil {
 						ex_ := catch_(r_)
-						if is_Exception(ex_) {
-							var e *Exception = to_Exception(ex_)
+						if p, ok := ex_.(Exception_as); ok {
+							var e *Exception = p.as_Exception()
 							panic(new_RuntimeException_Throwable(e.up_Throwable()).self())
 							return
 						}
@@ -1614,7 +1614,7 @@ func (this *Compiler) orderInputs() {
 	if this.options_.getDependencyOptions().needsManagement() {
 		var resultRes *Outcome_base[*JSChunkGraph_DependencyManagementResult] = this.chunkGraph.manageDependencies(this.up_AbstractCompiler(), this.options_.getDependencyOptions())
 		if resultRes.isErr() {
-			if is_[*SortedDependencies_MissingProvideException](resultRes.error().self()) {
+			if _, ok := resultRes.error().self().(*SortedDependencies_MissingProvideException); ok {
 				this.report(JSError_make_DiagnosticType_StringArr(Compiler_MISSING_ENTRY_ERROR, []string{resultRes.errorMessage().orElse("null")}))
 			} else {
 				this.report(JSError_make_DiagnosticType_StringArr(Compiler_MISSING_CHUNK_ERROR, []string{resultRes.errorMessage().orElse("null")}))
