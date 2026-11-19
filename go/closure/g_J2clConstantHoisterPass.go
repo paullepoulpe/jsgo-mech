@@ -83,7 +83,7 @@ func (this *J2clConstantHoisterPass) hoistConstantLikeField(clinitAssignment Nod
 	if declarationAssignedValue == 0 {
 		declarationInClass.addChildToFront(clinitAssignedValue)
 		this.compiler_.reportChangeToEnclosingScope(topLevelDeclaration)
-	} else if !Object_equals(declarationAssignedValue.box_(), clinitAssignedValue.box_()) {
+	} else if !equalsId_(declarationAssignedValue, clinitAssignedValue) {
 		Preconditions_checkState(NodeUtil_isLiteralValue(declarationAssignedValue, false))
 		declarationAssignedValue.replaceWith(clinitAssignedValue)
 		this.compiler_.reportChangeToEnclosingScope(topLevelDeclaration)

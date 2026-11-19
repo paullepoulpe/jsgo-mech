@@ -723,7 +723,7 @@ func (this *InlineFunctions_Inline) inlineFunction(t *NodeTraversal, ref *Inline
 	var fnName string = fn.getName()
 	var fnNode Node = functionState.getSafeFnNode()
 	var newExpr Node = this.injector.inline(ref.up_FunctionInjector_Reference(), Optional_of[string](fnName), fnNode)
-	if !Object_equals(newExpr.box_(), ref.callNode_.box_()) {
+	if !equalsId_(newExpr, ref.callNode_) {
 		t.getCompiler().reportChangeToEnclosingScope(newExpr)
 	}
 }

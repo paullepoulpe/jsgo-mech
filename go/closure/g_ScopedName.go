@@ -119,7 +119,7 @@ func (this *ScopedName) equals(other any) bool {
 	}()) {
 		return false
 	}
-	return ((this.getName() == scopedName.getName()) && Object_equals(this.getScopeRoot().box_(), scopedName.getScopeRoot().box_()))
+	return ((this.getName() == scopedName.getName()) && equalsId_(this.getScopeRoot(), scopedName.getScopeRoot()))
 }
 
 func (this *ScopedName) hashCode() int32 {

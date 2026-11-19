@@ -62,7 +62,7 @@ func UseSiteRenamer_createAllClusterNames(prop *PropertyClustering) *JTMap[*Colo
 }
 
 func UseSiteRenamer_createClusterName(prop *PropertyClustering, rep *ColorGraphNode) string {
-	if Objects_equals(obj_(prop.getOriginalNameClusterRep()), obj_(rep)) {
+	if prop.getOriginalNameClusterRep() == rep {
 		return prop.getName()
 	}
 	return ("JSC$" + istr_(int64(rep.getIndex())) + "_" + sstr_(prop.getName()))

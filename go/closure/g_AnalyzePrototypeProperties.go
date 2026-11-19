@@ -291,7 +291,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) addSymbolUse(name stri
 			break
 		}
 	}
-	if !Object_equals(obj_(def), obj_(info)) {
+	if !equalsId_(def, info) {
 		this.outer_.symbolGraph.connect(def, obj_(chunk), info)
 	}
 }

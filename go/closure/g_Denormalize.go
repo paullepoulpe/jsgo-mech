@@ -44,7 +44,7 @@ func (this *Denormalize) afterExitScope(t *NodeTraversal, referenceMap Reference
 				var r *Reference = cast_[*Reference](it_3.v)
 				if (r.isVarDeclaration() && NodeUtil_isStatement(r.getNode().getParent())) && !r.isInitializingDeclaration() {
 					declaration = r
-				} else if ((assign == nil) && r.isSimpleAssignmentToName()) && Object_equals(obj_(r.getScope().getClosestHoistScope_rScope()), obj_(t.getScope())) {
+				} else if ((assign == nil) && r.isSimpleAssignmentToName()) && equalsId_(r.getScope().getClosestHoistScope_rScope(), t.getScope()) {
 					assign = r
 				}
 			}

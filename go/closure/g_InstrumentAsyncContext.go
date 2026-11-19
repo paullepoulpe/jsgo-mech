@@ -66,7 +66,7 @@ func (this *InstrumentAsyncContext) visit(t *NodeTraversal, n Node, parent Node)
 		this.hasSuper.add(t.getEnclosingFunction())
 	} else if this.isReentrance(n) {
 		this.instrumentReentrance(t, n, parent)
-	} else if Object_equals(n.box_(), this.tryFunctionStack.peek().box_()) {
+	} else if equalsId_(n, this.tryFunctionStack.peek()) {
 		this.tryFunctionStack.pop()
 		if this.alreadyInstrumented.contains(n) {
 			return

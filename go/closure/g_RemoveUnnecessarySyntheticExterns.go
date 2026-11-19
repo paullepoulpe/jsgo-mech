@@ -57,7 +57,7 @@ func (this *RemoveUnnecessarySyntheticExterns_RedeclarationCheckHandler) onRedec
 	if !s.isGlobal() {
 		Preconditions_checkArgument_boolean_String_Object_Object(false, "Unexpected non-global redeclaration %s in scope %s", n.box_(), s)
 	}
-	var isSynthetic bool = Object_equals(obj_(input), obj_(this.outer_.compiler_.getSynthesizedExternsInput()))
+	var isSynthetic bool = equalsId_(input, this.outer_.compiler_.getSynthesizedExternsInput())
 	var origVar *Var = s.getVar_String_rVar(name)
 	var origNode Node = origVar.getNode()
 	if isSynthetic {

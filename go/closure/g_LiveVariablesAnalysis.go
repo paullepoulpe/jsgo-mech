@@ -308,7 +308,7 @@ func (this *LiveVariablesAnalysis_LiveVariableLattice) equals(other any) bool {
 		}
 		liveVariableLattice = cast_[*LiveVariablesAnalysis_LiveVariableLattice](v_)
 		return true
-	}() && Object_equals(obj_(this.liveSet), obj_(liveVariableLattice.liveSet)))
+	}() && equalsBy_(this.liveSet, obj_(liveVariableLattice.liveSet), (*BitSet).equals))
 }
 
 func (this *LiveVariablesAnalysis_LiveVariableLattice) isLive(index int32) bool {

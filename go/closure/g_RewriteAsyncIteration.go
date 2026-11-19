@@ -68,12 +68,12 @@ func (this *RewriteAsyncIteration) visit(t *NodeTraversal, n Node, parent Node) 
 	var ctx *RewriteAsyncIteration_LexicalContext = cast_[*RewriteAsyncIteration_LexicalContext](SequencedCollection_getFirst(SequencedCollection(this.contextStack.asDeque())))
 	switch n.ns_().token {
 	case tokOrd1_PARAM_LIST:
-		if !Object_equals(n.box_(), ctx.contextRoot.box_()) {
+		if !equalsId_(n, ctx.contextRoot) {
 			Preconditions_checkState_boolean_Object_H(false, n)
 		}
 		this.contextStack.pop()
 	case tokOrd1_FUNCTION:
-		Preconditions_checkState(Object_equals(n.box_(), ctx.contextRoot.box_()))
+		Preconditions_checkState(equalsId_(n, ctx.contextRoot))
 		if n.isAsyncGeneratorFunction() {
 			this.convertAsyncGenerator(n)
 			this.prependTempVarDeclarations(ctx, t)

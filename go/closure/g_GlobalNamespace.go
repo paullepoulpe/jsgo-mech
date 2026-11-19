@@ -1599,7 +1599,7 @@ L_2:
 		var ref *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_1.v)
 		switch ref.type__ {
 		case GlobalNamespace_Ref_Type_SET_FROM_GLOBAL, GlobalNamespace_Ref_Type_GET_AND_SET_FROM_GLOBAL:
-			if !(ref.isUninitializedDeclaration() || Object_equals(obj_(ref.getChunk()), obj_(initialChunk))) {
+			if !(ref.isUninitializedDeclaration() || equalsId_(ref.getChunk(), initialChunk)) {
 				Preconditions_checkState_boolean_Object(false, ref)
 			}
 			continue L_2

@@ -133,7 +133,7 @@ func JSDocSerializer_serializeJsdoc(jsdoc *JSDocInfo, stringPool *StringPool_Bui
 		builder.setClosureUnawareModePointer(stringPool.put(jsdoc.getPerFileClosureUnawareMode().name()))
 	}
 	var result *OptimizationJsdoc = cast_[*OptimizationJsdoc](builder.build())
-	if Object_equals(obj_(OptimizationJsdoc_getDefaultInstance()), obj_(result)) {
+	if equalsBy_(OptimizationJsdoc_getDefaultInstance(), obj_(result), (*OptimizationJsdoc).equals) {
 		return nil
 	}
 	return Preconditions_checkNotNull_T(result)
