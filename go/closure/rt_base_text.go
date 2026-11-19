@@ -206,8 +206,19 @@ func (this *Splitter) trimResults() *Splitter {
 
 func wsRune_(r rune) bool { return r < 0x10000 && guavaWhitespace_(uint16(r)) }
 
+// splitAll_ is the parts of s, boxed (for an erased list).
 func (this *Splitter) splitAll_(s string) []any {
-	var out []any
+	parts := this.splitStrs_(s)
+	out := make([]any, len(parts))
+	for i, p := range parts {
+		out[i] = p
+	}
+	return out
+}
+
+// splitStrs_ is the parts of s.
+func (this *Splitter) splitStrs_(s string) []string {
+	var out []string
 	limit := this.limit_
 	offset := 0
 	for offset != -1 {
@@ -256,15 +267,21 @@ func (this *Splitter) splitAll_(s string) []any {
 		}
 		out = append(out, s[start:end])
 	}
-	if out == nil {
-		out = []any{}
-	}
 	return out
 }
 
 func (this *Splitter) split(seq any) Iterable { return listOf_(this.splitAll_(csString_(seq))) }
 
 func (this *Splitter) splitToList(seq any) List { return listOf_(this.splitAll_(csString_(seq))) }
+
+// splitToListT_ is splitToList for a typed declaration (j2go rule "typed collections"): the
+// parts as they are, in a list that cannot be changed, as Guava's
+// (Collections.unmodifiableList of a list that nothing else has).
+func splitToListT_(c *tconv_[string], sp *Splitter, seq any) *TList[string] {
+	l := &TList[string]{c: c, items: sp.splitStrs_(csString_(seq)), twin: unmodMark_}
+	l.view.l = l
+	return l
+}
 
 // ---- Joiner
 

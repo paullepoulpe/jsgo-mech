@@ -1,5 +1,6 @@
 package lang;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -400,6 +401,28 @@ public class Imm {
     p(fk + " " + (erased(fk) == ek2) + " " + (fresh.keySet() == fk) + " " + none.keySet() + " " + sizeOf(none.keySet()));
   }
 
+  // ---- a list that a library method makes for its caller (Splitter.splitToList)
+
+  static final Splitter DOTS = Splitter.on('.');
+
+  static int longest(List<String> parts) {
+    int n = 0;
+    for (String p : parts) n = Math.max(n, p.length());
+    return n;
+  }
+
+  void split() {
+    List<String> parts = DOTS.splitToList("goog.string.Const.from");
+    List<String> csv = Splitter.on(',').trimResults().omitEmptyStrings().splitToList(" a, b ,,c ");
+    Object o = parts;
+    p(parts + " " + parts.size() + " " + parts.get(2) + " " + longest(parts) + " " + csv + " " + longest(csv) + " " + parts.contains("string") + " " + parts.indexOf("from") + " " + o.equals(Arrays.asList("goog", "string", "Const", "from")) + " " + (o == parts));
+    p(fails(() -> parts.add("x")) + " " + fails(() -> parts.set(0, "x")) + " " + fails(() -> parts.remove(0)) + " " + fails(() -> parts.clear()) + " " + fails(() -> ((List<Object>) o).add("y")) + " " + fails(() -> p((ImmutableList<String>) parts)) + " " + parts);
+    List<String> copy = new ArrayList<>(parts);
+    copy.add("more");
+    ImmutableList<String> imm = ImmutableList.copyOf(parts);
+    p(copy + " " + imm + " " + DOTS.splitToList("") + " " + DOTS.splitToList("x").size());
+  }
+
   public static String run() {
     out.setLength(0);
     new Imm().lists();
@@ -407,6 +430,7 @@ public class Imm {
     new Imm().maps();
     new Imm().builders();
     new Imm().records();
+    new Imm().split();
     return out.toString();
   }
 

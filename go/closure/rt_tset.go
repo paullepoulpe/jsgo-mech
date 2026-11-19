@@ -16,8 +16,9 @@ type TSet[K comparable] struct {
 	c    *tconv_[K]
 	eq   *teq_        // of elements compared by equals and hashCode (c.byEquals); else nil
 	view tsetView_[K] // the set as erased code sees it (asSet): part of the set
-	// twin: nil for a set that can change; an immutable set (Guava's ImmutableSet, rt_timm.go)
-	// has here the ImmutableSet that erased code sees it as, or immPending_ (see TList.twin).
+	// twin: nil for a hash set that can change. An immutable set (Guava's ImmutableSet,
+	// rt_timm.go) has here the ImmutableSet that erased code sees it as, or immPending_ (see
+	// TList.twin); a sorted set that can change (a TreeSet, rt_tsorted.go) has sortedMark_.
 	twin *ImmutableCollection
 }
 
@@ -55,7 +56,14 @@ func (s *TSet[K]) dead(i int) bool { return s.gone != nil && s.gone[i] }
 
 // find returns the position of k, or -1.
 func (s *TSet[K]) find(k K) int32 {
-	if s.c.byEquals {
+	if s.eq != nil {
+		// compared by equals and hashCode, or sorted
+		if s.eq.sorted {
+			if i, ok := tsortSearch_(s.eq, s.c, s.keys, k); ok && !s.dead(i) {
+				return int32(i)
+			}
+			return -1
+		}
 		return teqFind_(s.eq, s.keys, s.gone, s.c, k, objhash_(s.c.box(k)))
 	}
 	if s.idx != nil {
@@ -79,7 +87,7 @@ func (s *TSet[K]) isEmpty() bool { return s.live == 0 }
 func (s *TSet[K]) has(k K) bool { return s.find(k) >= 0 }
 
 func (s *TSet[K]) add(k K) bool {
-	if s.twin != nil {
+	if s.twin != nil && s.twin != sortedMark_ {
 		panic(frozen_{})
 	}
 	return s.add0(k)
@@ -87,6 +95,9 @@ func (s *TSet[K]) add(k K) bool {
 
 // add0 is add for a set that can change, or that is being made.
 func (s *TSet[K]) add0(k K) bool {
+	if s.eq != nil && s.eq.sorted {
+		return s.addSorted(k)
+	}
 	var h int32
 	if s.c.byEquals {
 		h = objhash_(s.c.box(k))
@@ -149,7 +160,7 @@ func (s *TSet[K]) compact() {
 
 // del is remove(Object).
 func (s *TSet[K]) del(k K) bool {
-	if s.twin != nil {
+	if s.twin != nil && s.twin != sortedMark_ {
 		panic(frozen_{})
 	}
 	i := s.find(k)
@@ -168,26 +179,31 @@ func (s *TSet[K]) delAt(i int) {
 		s.gone = make([]bool, len(s.keys), cap(s.keys))
 	}
 	s.gone[i] = true
-	var z K
-	s.keys[i] = z
+	if s.eq == nil || !s.eq.sorted {
+		// (a sorted set keeps the element at a dead position: the order of the positions)
+		var z K
+		s.keys[i] = z
+	}
 	s.live--
 }
 
 func (s *TSet[K]) clear() {
-	if s.twin != nil {
+	if s.twin != nil && s.twin != sortedMark_ {
 		panic(frozen_{})
 	}
 	clear(s.keys)
 	s.keys = s.keys[:0]
 	s.gone = nil
 	s.idx = nil
-	s.eq = nil
+	if s.eq != nil && !s.eq.sorted {
+		s.eq = nil
+	}
 	s.live = 0
 }
 
 // addAllT is addAll of another typed set of the same element type.
 func (s *TSet[K]) addAllT(o *TSet[K]) bool {
-	if s.twin != nil {
+	if s.twin != nil && s.twin != sortedMark_ {
 		panic(frozen_{})
 	}
 	changed := false
@@ -239,7 +255,7 @@ func (s *TSet[K]) iterator() Iterator {
 // code, a field of the set (as TList.asList).
 func (s *TSet[K]) asSet() Set {
 	if s == nil || s.twin != nil {
-		return s.asImmSet()
+		return s.asOtherSet()
 	}
 	return &s.view
 }
@@ -427,6 +443,11 @@ type teq_ struct {
 	hs    []int32
 	first map[int32]int32 // hash code -> 1 + the last position added with it
 	next  []int32         // beside hs: 1 + the previous position with the same hash code, or 0
+	// sorted: the set or map is a sorted one (a TreeSet, a TreeMap: rt_tsorted.go), its keys
+	// in the order of cmp (nil: their natural ordering); hs, first and next are not used.
+	sorted bool
+	cmp    Comparator
+	view   any // the sorted collection as erased code sees it, once that is needed
 }
 
 // teqFind_ returns the position of key k with hash code h among keys, or -1.
