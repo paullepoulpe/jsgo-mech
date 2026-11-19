@@ -19,6 +19,7 @@ func (this *CacheLoader) init_CacheLoader() {}
 type functionCacheLoader_ struct {
 	CacheLoader
 	f_ Function_base
+	fn func(any) any // the function of CacheLoader_from_f
 }
 
 type CacheBuilder struct {
@@ -135,6 +136,14 @@ func (this *localCache_) size() int64 { return int64(this.map_.size()) }
 
 func (this *localCache_) cleanUp() {}
 
+// CacheLoader_from_f is CacheLoader_from of a lambda, as a Go func value (post-flip step
+// funcparams).
+func CacheLoader_from_f(f func(any) any) *CacheLoader {
+	l := &functionCacheLoader_{fn: f}
+	l.self_ = l
+	return &l.CacheLoader
+}
+
 func CacheLoader_from(f Function_base) *CacheLoader {
 	if f == nil {
 		panic(new_NullPointerException_0().self())
@@ -187,6 +196,9 @@ func CacheBuilder_from(spec string) *CacheBuilder {
 func (this *functionCacheLoader_) load(key any) any {
 	if key == nil {
 		panic(new_NullPointerException_0().self())
+	}
+	if this.fn != nil {
+		return this.fn(key)
 	}
 	return this.f_.apply(key)
 }
