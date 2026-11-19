@@ -211,3 +211,25 @@ func TestStringUnits(t *testing.T) {
 		}()
 	}
 }
+
+// A type assertion of a nil interface is the dereference of a null cast (castfold -assert):
+// NullPointerException; of a value of another type, ClassCastException.
+func TestCatchAssertion(t *testing.T) {
+	caught := func(f func()) (ex any) {
+		defer func() { ex = catch_(recover()) }()
+		f()
+		return nil
+	}
+	var v any
+	if ex := caught(func() { _ = v.(*Scope).depth }); !is_NullPointerException(ex) {
+		t.Errorf("assertion of nil: %T, want NullPointerException", ex)
+	}
+	var s StaticScope
+	if ex := caught(func() { _ = s.(*Scope).depth }); !is_NullPointerException(ex) {
+		t.Errorf("assertion of a nil interface: %T, want NullPointerException", ex)
+	}
+	v = "x"
+	if ex := caught(func() { _ = v.(*Scope).depth }); !is_[*ClassCastException](ex) {
+		t.Errorf("assertion of another type: %T, want ClassCastException", ex)
+	}
+}
