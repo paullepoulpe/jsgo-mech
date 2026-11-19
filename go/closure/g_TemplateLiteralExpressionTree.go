@@ -15,13 +15,13 @@ func (this *TemplateLiteralExpressionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *TemplateLiteralExpressionTree) init_TemplateLiteralExpressionTree(location *SourceRange, operand *ParseTree, elements []*ParseTree) {
+func (this *TemplateLiteralExpressionTree) init_TemplateLiteralExpressionTree(location SourceRange, operand *ParseTree, elements []*ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_TEMPLATE_LITERAL_EXPRESSION, location)
 	this.operand = operand
 	this.elements_ = elements
 }
 
-func new_TemplateLiteralExpressionTree(location *SourceRange, operand *ParseTree, elements []*ParseTree) *TemplateLiteralExpressionTree {
+func new_TemplateLiteralExpressionTree(location SourceRange, operand *ParseTree, elements []*ParseTree) *TemplateLiteralExpressionTree {
 	this := &TemplateLiteralExpressionTree{}
 	this.self_ = this
 	this.init_TemplateLiteralExpressionTree(location, operand, elements)

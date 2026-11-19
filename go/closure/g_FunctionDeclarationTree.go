@@ -136,7 +136,7 @@ type FunctionDeclarationTree_Builder struct {
 	isGenerator         bool
 	isOptional_         bool
 	isAsync             bool
-	location_           *SourceRange
+	location_           SourceRange
 }
 
 func (this *FunctionDeclarationTree_Builder) finit_FunctionDeclarationTree_Builder() {
@@ -201,7 +201,7 @@ func (this *FunctionDeclarationTree_Builder) setAsync(isAsync bool) *FunctionDec
 	return this
 }
 
-func (this *FunctionDeclarationTree_Builder) build(location *SourceRange) *FunctionDeclarationTree {
+func (this *FunctionDeclarationTree_Builder) build(location SourceRange) *FunctionDeclarationTree {
 	this.location_ = location
 	return new_FunctionDeclarationTree(this)
 }

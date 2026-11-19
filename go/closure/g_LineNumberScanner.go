@@ -35,7 +35,7 @@ func new_LineNumberScanner(sourceFile *SourceFile_parser) *LineNumberScanner {
 	return this
 }
 
-func (this *LineNumberScanner) getSourcePosition(offset int32) *SourcePosition_util {
+func (this *LineNumberScanner) getSourcePosition(offset int32) SourcePosition_util {
 	if offset < this.lastLineStart {
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Must call rewindTo before calling getSourcePosition for an earlier line (%s < %s)", offset, this.lastLineStart)))
 	}
@@ -45,11 +45,11 @@ func (this *LineNumberScanner) getSourcePosition(offset int32) *SourcePosition_u
 	return new_SourcePosition_util(this.sourceFile, offset, this.lastLine, (offset - this.lastLineStart))
 }
 
-func (this *LineNumberScanner) getSourceRange(startOffset int32, endOffset int32) *SourceRange {
+func (this *LineNumberScanner) getSourceRange(startOffset int32, endOffset int32) SourceRange {
 	return new_SourceRange(this.getSourcePosition(startOffset), this.getSourcePosition(endOffset))
 }
 
-func (this *LineNumberScanner) rewindTo(position *SourcePosition_util) {
+func (this *LineNumberScanner) rewindTo(position SourcePosition_util) {
 	if position.source != this.sourceFile {
 		panic(new_IllegalArgumentException_0())
 	}

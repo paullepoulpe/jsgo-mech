@@ -6,7 +6,7 @@ type ArgumentListTree struct {
 	ParseTree
 	arguments         *ImmutableList[*ParseTree]
 	hasTrailingComma_ bool
-	commaPositions    *ImmutableList[*SourcePosition_util]
+	commaPositions    *ImmutableList[SourcePosition_util]
 }
 
 func (this *ArgumentListTree) up_ParseTree() *ParseTree {
@@ -16,14 +16,14 @@ func (this *ArgumentListTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ArgumentListTree) init_ArgumentListTree(location *SourceRange, arguments *ImmutableList[*ParseTree], hasTrailingComma bool, commaPositions *ImmutableList[*SourcePosition_util]) {
+func (this *ArgumentListTree) init_ArgumentListTree(location SourceRange, arguments *ImmutableList[*ParseTree], hasTrailingComma bool, commaPositions *ImmutableList[SourcePosition_util]) {
 	this.ParseTree.init_ParseTree(ParseTreeType_ARGUMENT_LIST, location)
 	this.arguments = arguments
 	this.hasTrailingComma_ = hasTrailingComma
 	this.commaPositions = commaPositions
 }
 
-func new_ArgumentListTree(location *SourceRange, arguments *ImmutableList[*ParseTree], hasTrailingComma bool, commaPositions *ImmutableList[*SourcePosition_util]) *ArgumentListTree {
+func new_ArgumentListTree(location SourceRange, arguments *ImmutableList[*ParseTree], hasTrailingComma bool, commaPositions *ImmutableList[SourcePosition_util]) *ArgumentListTree {
 	this := &ArgumentListTree{}
 	this.self_ = this
 	this.init_ArgumentListTree(location, arguments, hasTrailingComma, commaPositions)

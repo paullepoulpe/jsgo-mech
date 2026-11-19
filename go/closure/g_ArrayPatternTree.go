@@ -14,12 +14,12 @@ func (this *ArrayPatternTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ArrayPatternTree) init_ArrayPatternTree(location *SourceRange, elements []*ParseTree) {
+func (this *ArrayPatternTree) init_ArrayPatternTree(location SourceRange, elements []*ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_ARRAY_PATTERN, location)
 	this.elements_ = elements
 }
 
-func new_ArrayPatternTree(location *SourceRange, elements []*ParseTree) *ArrayPatternTree {
+func new_ArrayPatternTree(location SourceRange, elements []*ParseTree) *ArrayPatternTree {
 	this := &ArrayPatternTree{}
 	this.self_ = this
 	this.init_ArrayPatternTree(location, elements)

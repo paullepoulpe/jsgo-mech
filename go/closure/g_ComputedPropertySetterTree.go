@@ -17,7 +17,7 @@ func (this *ComputedPropertySetterTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ComputedPropertySetterTree) init_ComputedPropertySetterTree(location *SourceRange, property *ParseTree, isStatic bool, parameter *FormalParameterListTree, body *BlockTree) {
+func (this *ComputedPropertySetterTree) init_ComputedPropertySetterTree(location SourceRange, property *ParseTree, isStatic bool, parameter *FormalParameterListTree, body *BlockTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_COMPUTED_PROPERTY_SETTER, location)
 	this.property_ = property
 	this.isStatic = isStatic
@@ -25,7 +25,7 @@ func (this *ComputedPropertySetterTree) init_ComputedPropertySetterTree(location
 	this.body = body
 }
 
-func new_ComputedPropertySetterTree(location *SourceRange, property *ParseTree, isStatic bool, parameter *FormalParameterListTree, body *BlockTree) *ComputedPropertySetterTree {
+func new_ComputedPropertySetterTree(location SourceRange, property *ParseTree, isStatic bool, parameter *FormalParameterListTree, body *BlockTree) *ComputedPropertySetterTree {
 	this := &ComputedPropertySetterTree{}
 	this.self_ = this
 	this.init_ComputedPropertySetterTree(location, property, isStatic, parameter, body)
