@@ -609,3 +609,5 @@ e13ca66a run t jfam -kind eqkeys
 # Note (80f88eea): C2 (jfam -kind convs) writes go/closure/g_zconv_jfam.go, which .gitignore kept
 # out of the commits c6beb2db..c3ed6f40; it is committed at 80f88eea, unchanged by the later steps.
 # A replay compares each of those commits' go/ without that file, and the end with 80f88eea's go/.
+# C16. postflip step: tfn, typed lambda adapters handed to the runtime are Go functions
+49a0faa9 run t tfn && f
