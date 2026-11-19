@@ -37,7 +37,7 @@ func (this *InjectClosureUnawareRuntimeLibraries) injectLibrariesIntoMainAst() {
 func (this *InjectClosureUnawareRuntimeLibraries) injectFieldsIntoCallSites() {
 	var fieldsByNameBuilder *ImmutableMap_Builder[string, RuntimeJsLibManager_ExternedField] = immutableMapBuilder_(tc_string, tc_RuntimeJsLibManager_ExternedField)
 	for _, field := range this.shadowCompiler.getRuntimeJsLibManager().getExternedFields() {
-		fieldsByNameBuilder.put(field.qualifiedName(), icast_RuntimeJsLibManager_ExternedField(field))
+		fieldsByNameBuilder.put(field.qualifiedName(), field)
 	}
 	var fieldsByName *ImmutableMap[string, RuntimeJsLibManager_ExternedField] = fieldsByNameBuilder.buildOrThrow()
 	for _, callSite := range this.closureUnawareCalls {

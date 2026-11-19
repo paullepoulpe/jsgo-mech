@@ -41,7 +41,7 @@ func (this *CollectFileOverviewVisibility) visit(scriptNode Node) {
 	if v == 0 {
 		return
 	}
-	this.builder.put(icast_StaticSourceFile(scriptNode.getStaticSourceFile()), v)
+	this.builder.put(scriptNode.getStaticSourceFile(), v)
 }
 
 func (this *CollectFileOverviewVisibility) getFileOverviewVisibilityMap() *ImmutableMap[StaticSourceFile, JSDocInfo_Visibility] {

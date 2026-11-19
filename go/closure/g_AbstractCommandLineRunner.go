@@ -276,7 +276,7 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 	}
 	if this.config.errorFormat == AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_JSON {
 		var errorGenerator *JsonErrorReportGenerator = new_JsonErrorReportGenerator(this.getErrorPrintStream(), icast_SourceExcerptProvider(obj_(this.compiler_)))
-		this.compiler_.setErrorManager(new_SortingErrorManager(immutableSetOf_[SortingErrorManager_ErrorReportGenerator](tc_SortingErrorManager_ErrorReportGenerator, icast_SortingErrorManager_ErrorReportGenerator(obj_(errorGenerator)))))
+		this.compiler_.setErrorManager(new_SortingErrorManager(immutableSetOf_[SortingErrorManager_ErrorReportGenerator](tc_SortingErrorManager_ErrorReportGenerator, SortingErrorManager_ErrorReportGenerator(errorGenerator))))
 	}
 	if this.config.printTree || this.config.printTreeJson {
 		options.setParseJsDocDocumentation(Config_JsDocParsing_INCLUDE_ALL_COMMENTS)

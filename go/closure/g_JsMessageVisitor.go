@@ -651,11 +651,11 @@ func JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText string) *Outco
 	for {
 		var phBegin int32 = int32(strings.Index(msgText, JsMessage_PH_JS_PREFIX))
 		if phBegin < 0 {
-			partsBuilder.add(icast_JsMessage_Part(obj_(JsMessage_StringPart_create(msgText))))
+			partsBuilder.add(JsMessage_StringPart_create(msgText))
 			break
 		} else {
 			if phBegin > 0 {
-				partsBuilder.add(icast_JsMessage_Part(obj_(JsMessage_StringPart_create(msgText[:phBegin]))))
+				partsBuilder.add(JsMessage_StringPart_create(msgText[:phBegin]))
 			}
 			var phEnd int32 = indexFrom_(msgText, JsMessage_PH_JS_SUFFIX, phBegin)
 			if phEnd < 0 {
@@ -666,7 +666,7 @@ func JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText string) *Outco
 				return Outcome_base_err[JsMessageVisitor_GoogGetMsgParsedText](new_JsMessage_PlaceholderFormatException(("Placeholder name not in lowerCamelCase: " + sstr_(phName))).up_Throwable())
 			}
 			placeholderNamesBuilder.add(phName)
-			partsBuilder.add(icast_JsMessage_Part(obj_(JsMessage_PlaceholderReference_createForJsName(phName))))
+			partsBuilder.add(JsMessage_PlaceholderReference_createForJsName(phName))
 			var nextPos int32 = (phEnd + int32(len(JsMessage_PH_JS_SUFFIX)))
 			if nextPos < int32(len(msgText)) {
 				msgText = msgText[nextPos:]
@@ -861,13 +861,13 @@ func (this *JsMessageVisitor_IcuMessageTemplateString) extractParts(placholderNa
 			extractedPlaceholderNames.add(placeholderName)
 			var nonPlaceholderPrefix string = templateU16.substring(remainingTemplateStartIndex, matcher.start())
 			remainingTemplateStartIndex = matcher.end()
-			partsBuilder.add(icast_JsMessage_Part(obj_(JsMessage_StringPart_create(nonPlaceholderPrefix))))
-			partsBuilder.add(icast_JsMessage_Part(obj_(JsMessage_PlaceholderReference_createForCanonicalName(placeholderName))))
+			partsBuilder.add(JsMessage_StringPart_create(nonPlaceholderPrefix))
+			partsBuilder.add(JsMessage_PlaceholderReference_createForCanonicalName(placeholderName))
 		}
 	}
 	if remainingTemplateStartIndex < templateU16.length() {
 		var remainingTemplate string = templateU16.substring_int(remainingTemplateStartIndex)
-		partsBuilder.add(icast_JsMessage_Part(obj_(JsMessage_StringPart_create(remainingTemplate))))
+		partsBuilder.add(JsMessage_StringPart_create(remainingTemplate))
 	}
 	return new_JsMessageVisitor_ExtractedIcuTemplateParts(extractedPlaceholderNames.build(), partsBuilder.build())
 }

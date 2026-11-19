@@ -24,7 +24,7 @@ func (this *ClosureReverseAbstractInterpreter) finit_ClosureReverseAbstractInter
 func (this *ClosureReverseAbstractInterpreter) init_ClosureReverseAbstractInterpreter(typeRegistry *JSTypeRegistry) {
 	this.ChainableReverseAbstractInterpreter.init_ChainableReverseAbstractInterpreter(typeRegistry)
 	this.finit_ClosureReverseAbstractInterpreter()
-	this.restricters = immutableMapOf_(tc_string, tc_Function_baseOf_p_ClosureReverseAbstractInterpreter_TypeRestriction__p_JSType_, []string{"isObject"}, []Function_baseOf[*ClosureReverseAbstractInterpreter_TypeRestriction, *JSType]{icast_Function_base(any(&Function_base_tfn_ClosureReverseAbstractInterpreter_TypeRestriction_any{func(p *ClosureReverseAbstractInterpreter_TypeRestriction) any {
+	this.restricters = immutableMapOf_(tc_string, tc_Function_baseOf_p_ClosureReverseAbstractInterpreter_TypeRestriction__p_JSType_, []string{"isObject"}, []Function_baseOf[*ClosureReverseAbstractInterpreter_TypeRestriction, *JSType]{Function_base((&Function_base_tfn_ClosureReverseAbstractInterpreter_TypeRestriction_any{func(p *ClosureReverseAbstractInterpreter_TypeRestriction) any {
 		if p.type__ == nil {
 			return func() any {
 				if p.outcome {

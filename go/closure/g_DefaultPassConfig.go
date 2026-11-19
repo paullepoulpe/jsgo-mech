@@ -611,10 +611,10 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		_ = compiler
 		var optimizations *ImmutableList_Builder[*AbstractPeepholeOptimization] = immutableListBuilder_(tc_p_AbstractPeepholeOptimization)
 		if this.options_.shouldCollapseVariableDeclarations() {
-			optimizations.add(to_AbstractPeepholeOptimization(obj_(new_ExploitAssigns())))
+			optimizations.add(new_ExploitAssigns().as_AbstractPeepholeOptimization())
 		}
 		if this.options_.shouldOptimizeLetAndConst() {
-			optimizations.add(to_AbstractPeepholeOptimization(obj_(new_OptimizeLetAndConstPeephole(this.options_.shouldTreatGlobalScopeAsIsolated()))))
+			optimizations.add(new_OptimizeLetAndConstPeephole(this.options_.shouldTreatGlobalScopeAsIsolated()).as_AbstractPeepholeOptimization())
 		}
 		return new_PeepholeOptimizationsPass(compiler, PassNames_POST_NORMALIZE_PEEPHOLE, icast_List(obj_(optimizations.buildErased())))
 	}}).build()

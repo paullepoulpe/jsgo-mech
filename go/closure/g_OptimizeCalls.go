@@ -139,7 +139,7 @@ func (this *OptimizeCalls_Builder) setConsiderExterns(b bool) *OptimizeCalls_Bui
 }
 
 func (this *OptimizeCalls_Builder) addPass(pass OptimizeCalls_CallGraphCompilerPass) *OptimizeCalls_Builder {
-	this.passes.add(icast_OptimizeCalls_CallGraphCompilerPass(pass))
+	this.passes.add(pass)
 	return this
 }
 
