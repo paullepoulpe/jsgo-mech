@@ -760,3 +760,6 @@ d00b98f3 patch 489-d00b98f3-rt.patch
 ca2a6157 patch 491-ca2a6157-rt.patch
 # 492. postflip (runtime, re-flip): optstrGet_ inlines, its failure is a call of its own
 ad8c897b patch 492-ad8c897b-rt.patch
+# 493. postflip step (re-flip): valobj, SourcePosition and SourceRange are Go values: 392 type spellings (tool 71a7e048)
+72b5b892 run t valobj && f
+#: valobj: the classes of valobj/classes.txt, each checked (shape, immutability, identity-freedom, no nil of the type; 12 fields argued in classes.txt as assigned before any read, 1 nullable field kept a pointer to a copy): SourcePosition_util 24 bytes, 189 type spellings, 2 obj_ -> any, 1 ptr_ for the nullable field; SourceRange 48 bytes, 203 type spellings, 1 tostr_ -> toString; 2 element conversions box the value; f realigns 40 lines of g_0names.go; flags3500 CHECKS 280.3M -> 243.4M objects
