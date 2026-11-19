@@ -74,8 +74,8 @@ func (this *TemplateTypeMap) copyFilledWithValues(values *TList[*JSType]) *Templ
 		return this
 	}
 	var extendedValues *TList[*JSType] = newTList_(tc_p_JSType)
-	extendedValues.asList().addAll(Collection(this.templateValues.asList()))
-	extendedValues.asList().addAll(Collection(values.asList()))
+	extendedValues.addAllT(this.templateValues)
+	extendedValues.addAllT(values)
 	this.padToSameLength(this.templateKeys, extendedValues)
 	return new_TemplateTypeMap(this.registry, this.templateKeys, immutableListCopyOfTP_(tc_p_JSType, extendedValues), this.subMapStarts)
 }
@@ -103,9 +103,9 @@ func (this *TemplateTypeMap) copyWithExtension_3(keys *TList[*TemplateType], val
 	}
 	var extendedKeys *TList[*TemplateType] = immutableListBuilder_(tc_p_TemplateType).addAllT(this.templateKeys).addAllT(keys).build()
 	var extendedValues *TList[*JSType] = newTList_(tc_p_JSType)
-	extendedValues.asList().addAll(Collection(this.templateValues.asList()))
+	extendedValues.addAllT(this.templateValues)
 	this.padToSameLength(this.templateKeys, extendedValues)
-	extendedValues.asList().addAll(Collection(values.asList()))
+	extendedValues.addAllT(values)
 	var extendedsubMapStarts *BitSet = new_BitSet_int((keys.size() + this.templateKeys.size()))
 	extendedsubMapStarts.or(this.subMapStarts)
 	for i := int32(0); i < keys.size(); i++ {

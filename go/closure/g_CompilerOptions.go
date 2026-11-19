@@ -1929,7 +1929,7 @@ func (this *CompilerOptions) getCustomPassesAt(executionTime CustomPassExecution
 
 func (this *CompilerOptions) setDefineReplacements(defineReplacements *TMap[string, any]) {
 	this.defineReplacements.Clear()
-	this.defineReplacements.asMap().putAll(defineReplacements.asMap())
+	this.defineReplacements.putAllT(defineReplacements)
 }
 
 func (this *CompilerOptions) getEnableZonesDefineName() Optional[string] {

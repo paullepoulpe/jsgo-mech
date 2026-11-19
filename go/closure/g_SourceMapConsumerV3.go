@@ -65,7 +65,7 @@ func (this *SourceMapConsumerV3) parse_2(sourceMapObject *SourceMapObject, secti
 	if sourceMapObject.getMappings().isPresent() {
 		estimatedEntries = Math_max(estimatedEntries, (String_length(sourceMapObject.getMappings().get()) / 6))
 	}
-	this.extensions.asMap().putAll(sourceMapObject.getExtensions().asMap())
+	this.extensions.putAllT(sourceMapObject.getExtensions())
 	var built *Outcome_base[*SourceMapConsumerV3_Mappings] = new_SourceMapConsumerV3_MappingBuilder(this, sourceMapObject.getMappings().get(), this.lineCount, useCompactMappings, estimatedEntries).build()
 	if built.isErr() {
 		return Outcome_base_err[any](built.error())
