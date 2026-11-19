@@ -1472,7 +1472,7 @@ func ConformanceRules_ConformanceUtil_isAnnotatedAsConst(jsdoc *JSDocInfo) bool 
 }
 
 func ConformanceRules_ConformanceUtil_getValueFromGlobalName(scope *Scope, gns *GlobalNamespace, qualifiedName string) Optional[string] {
-	var gn *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](gns.getOwnSlot(qualifiedName))
+	var gn *GlobalNamespace_Name = gns.getOwnSlotT_(qualifiedName)
 	if (((gn == nil) || (gn.getGlobalSets() != 1)) || (gn.getTotalSets() != 1)) || !ConformanceRules_ConformanceUtil_isAnnotatedAsConst(gn.getJSDocInfo()) {
 		return Optional_empty[string]()
 	}

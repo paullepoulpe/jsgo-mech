@@ -300,7 +300,7 @@ func (this *ChromePass_RenameInternalsToExternalsCallback) visit_impl(t *NodeTra
 					exprResult = IR_exprResult(IR_assign(this.buildQualifiedName(n), varContent).srcref(parent)).srcref(parent)
 				}
 				if parent.getJSDocInfo() != nil {
-					exprResult.getFirstChild().setJSDocInfo(cast_[*JSDocInfo](parent.getJSDocInfo().clone()))
+					exprResult.getFirstChild().setJSDocInfo(parent.getJSDocInfo().cloneT_())
 				}
 				parent.replaceWith(exprResult)
 				this.outer_.compiler_.reportChangeToEnclosingScope(exprResult)
@@ -308,7 +308,7 @@ func (this *ChromePass_RenameInternalsToExternalsCallback) visit_impl(t *NodeTra
 		} else {
 			var newNode Node = this.buildQualifiedName(n)
 			if n.getJSDocInfo() != nil {
-				newNode.setJSDocInfo(cast_[*JSDocInfo](n.getJSDocInfo().clone()))
+				newNode.setJSDocInfo(n.getJSDocInfo().cloneT_())
 			}
 			if parent.isCall() {
 				parent.putBooleanProp(Node_FREE_CALL, false)

@@ -175,7 +175,7 @@ func InlineAndCollapseProperties_referencesCollapsibleProperty(aliasRefs *Refere
 		if NodeUtil_isNormalOrOptChainGetProp(parent) {
 			var propertyName string = parent.getString()
 			var originalPropertyName string = (sstr_(aliasedName.getName()) + "." + sstr_(propertyName))
-			var originalProperty *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](namespace.getOwnSlot(originalPropertyName))
+			var originalProperty *GlobalNamespace_Name = namespace.getOwnSlotT_(originalPropertyName)
 			if (originalProperty == nil) || !originalProperty.canCollapse() {
 				continue
 			}
@@ -384,7 +384,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineAliasesFo
 }
 
 func (this *InlineAndCollapseProperties_AggressiveInlineAliases) maybeInlineInnerName(globalName *GlobalNamespace_Name) {
-	var globalNameDeclaration *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](globalName.getDeclaration())
+	var globalNameDeclaration *GlobalNamespace_Ref = globalName.getDeclarationT_()
 	if globalNameDeclaration == nil {
 		panic(new_NullPointerException_String(tostr_(globalName)))
 	}
@@ -430,11 +430,11 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteAllSubcl
 	}
 	var subclassName string = subclass.getQualifiedName()
 	var subclassQualifiedPropName string = (sstr_(subclassName) + "." + sstr_(prop.getBaseName()))
-	var subclassPropNameObj *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](namespace.getOwnSlot(subclassQualifiedPropName))
+	var subclassPropNameObj *GlobalNamespace_Name = namespace.getOwnSlotT_(subclassQualifiedPropName)
 	if (subclassPropNameObj != nil) && ((subclassPropNameObj.getLocalSets() > 0) || (subclassPropNameObj.getGlobalSets() > 0)) {
 		return false
 	}
-	var subclassNameObj *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](namespace.getOwnSlot(subclassName))
+	var subclassNameObj *GlobalNamespace_Name = namespace.getOwnSlotT_(subclassName)
 	if (subclassNameObj != nil) && (subclassNameObj.subclassingGetCount() > 0) {
 		for ref := range elemsAs_[*GlobalNamespace_Ref](subclassNameObj.getRefs()) {
 			if ref.isSubclassingGet() {
@@ -985,7 +985,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) checkNamespaces() *I
 					continue
 				}
 				for prop := range sliceAll_(name.props) {
-					var propDeclaration *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](prop.getDeclaration())
+					var propDeclaration *GlobalNamespace_Ref = prop.getDeclarationT_()
 					if propDeclaration == nil {
 						continue
 					}
@@ -1010,13 +1010,13 @@ func (this *InlineAndCollapseProperties_CollapseProperties) checkNamespaces() *I
 		if ((name.getAliasingGets() == 0) && ((name.getLocalSets() + name.getGlobalSets()) <= 1)) && (name.getDeleteProps() == 0) {
 			continue
 		}
-		var initialized bool = (cast_[*GlobalNamespace_Ref](name.getDeclaration()) != nil)
+		var initialized bool = (name.getDeclarationT_() != nil)
 		for ref := range elemsAs_[*GlobalNamespace_Ref](name.getRefs()) {
 			if ref.isDeleteProp() {
 				if initialized {
 					this.warnAboutNamespaceRedefinition(name, ref)
 				}
-			} else if ref.isSet() && (ref != cast_[*GlobalNamespace_Ref](name.getDeclaration())) {
+			} else if ref.isSet() && (ref != name.getDeclarationT_()) {
 				if initialized && !InlineAndCollapseProperties_isSafeNamespaceReinit(ref) {
 					this.warnAboutNamespaceRedefinition(name, ref)
 				}
@@ -1129,13 +1129,13 @@ func (this *InlineAndCollapseProperties_CollapseProperties) shouldAddConstantNam
 func (this *InlineAndCollapseProperties_CollapseProperties) flattenReferencesTo(n *GlobalNamespace_Name, alias string) {
 	var originalName string = n.getFullName()
 	var isConstantName bool = this.shouldAddConstantName(func() Node {
-		if cast_[*GlobalNamespace_Ref](n.getDeclaration()) != nil {
+		if n.getDeclarationT_() != nil {
 			return n.getDeclaration().(*GlobalNamespace_Ref).getNode()
 		}
 		return 0
 	}(), alias)
 	for r := range elemsAs_[*GlobalNamespace_Ref](n.getRefs()) {
-		if r == cast_[*GlobalNamespace_Ref](n.getDeclaration()) {
+		if r == n.getDeclarationT_() {
 			continue
 		}
 		var rParent Node = r.getNode().getParent()
@@ -1155,7 +1155,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) flattenReferencesTo(
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) flattenPrefixes(alias string, originalName string, n *GlobalNamespace_Name, depth int32, isConstantName bool) {
-	var decl *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](n.getDeclaration())
+	var decl *GlobalNamespace_Ref = n.getDeclarationT_()
 	if ((decl != nil) && (decl.getNode() != 0)) && decl.getNode().isGetProp() {
 		this.flattenNameRefAtDepth(alias, decl.getNode(), depth, originalName, isConstantName)
 	}
@@ -1266,7 +1266,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) updateTwinnedDeclara
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) updateGlobalNameDeclaration(n *GlobalNamespace_Name, alias string, canCollapseChildNames bool) {
-	var decl *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](n.getDeclaration())
+	var decl *GlobalNamespace_Ref = n.getDeclarationT_()
 	if decl == nil {
 		this.logDecisionForName(n, "no global declaration found")
 		return
@@ -1326,7 +1326,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) moveDeclarationIntoH
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) updateGlobalNameDeclarationAtAssignNode(n *GlobalNamespace_Name, alias string, canCollapseChildNames bool) {
-	var ref *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](n.getDeclaration())
+	var ref *GlobalNamespace_Ref = n.getDeclarationT_()
 	var rvalue Node = ref.getNode().getNext()
 	if ref.isTwin() {
 		this.updateTwinnedDeclaration(alias, n, ref)
@@ -1396,7 +1396,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) updateGlobalNameDecl
 		this.logDecisionForName(n, "cannot collapse child names: skipping")
 		return
 	}
-	var ref *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](n.getDeclaration())
+	var ref *GlobalNamespace_Ref = n.getDeclarationT_()
 	var name string = ref.getNode().getString()
 	var rvalue Node = ref.getNode().getFirstChild()
 	var variableNode Node = ref.getNode().getParent()
@@ -1420,7 +1420,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) updateGlobalNameDecl
 	if !canCollapseChildNames || !this.canCollapse(n) {
 		return
 	}
-	var ref *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](n.getDeclaration())
+	var ref *GlobalNamespace_Ref = n.getDeclarationT_()
 	var fnName string = ref.getNode().getString()
 	this.addStubsForUndeclaredProperties(n, fnName, ref.getNode().getAncestor(2), ref.getNode().getParent())
 }
@@ -1429,13 +1429,13 @@ func (this *InlineAndCollapseProperties_CollapseProperties) updateGlobalNameDecl
 	if !canCollapseChildNames || !this.canCollapse(n) {
 		return
 	}
-	var ref *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](n.getDeclaration())
+	var ref *GlobalNamespace_Ref = n.getDeclarationT_()
 	var className string = ref.getNode().getString()
 	this.addStubsForUndeclaredProperties(n, className, ref.getNode().getAncestor(2), ref.getNode().getParent())
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) updateGlobalNameDeclarationAtStaticMemberNode(n *GlobalNamespace_Name, alias string, canCollapseChildNames bool) {
-	var declaration *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](n.getDeclaration())
+	var declaration *GlobalNamespace_Ref = n.getDeclarationT_()
 	var classNode Node = declaration.getNode().getGrandparent()
 	if !classNode.isClass() {
 		panic(new_IllegalStateException_String(tostr_(classNode)))
@@ -1521,7 +1521,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) declareVariablesForO
 				if !discardKeys {
 					p.addAliasingGetClonedFromDeclaration(refNode)
 				}
-				p.updateRefNode(cast_[*GlobalNamespace_Ref](p.getDeclaration()), nameNode)
+				p.updateRefNode(p.getDeclarationT_(), nameNode)
 				if value.isFunction() {
 					this.checkForReceiverAffectedByCollapse(value, key.getJSDocInfo(), p)
 				}
@@ -1687,8 +1687,8 @@ func (this *InlineAndCollapseProperties_InlineAliases_AliasesCollector) visitAli
 	if (this.isDeclaredConst(lhs, info) && ((info == nil) || !info.hasTypeInformation())) && lhs.isQualifiedName() {
 		var rhs Node = NodeUtil_getRValueOfLValue(lhs)
 		if (rhs != 0) && rhs.isQualifiedName() {
-			var lhsName *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](this.outer_.namespace_.getOwnSlot(lhs.getQualifiedName()))
-			var rhsName *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](this.outer_.namespace_.getOwnSlot(rhs.getQualifiedName()))
+			var lhsName *GlobalNamespace_Name = this.outer_.namespace_.getOwnSlotT_(lhs.getQualifiedName())
+			var rhsName *GlobalNamespace_Name = this.outer_.namespace_.getOwnSlotT_(rhs.getQualifiedName())
 			if (((lhsName != nil) && lhsName.calculateInlinability().shouldInlineUsages()) && (rhsName != nil)) && rhsName.calculateInlinability().shouldInlineUsages() {
 				this.outer_.aliases_[lhs.getQualifiedName()] = rhs.getQualifiedName()
 			}

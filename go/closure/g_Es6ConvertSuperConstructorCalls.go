@@ -224,7 +224,7 @@ func (this *Es6ConvertSuperConstructorCalls) isKnownToReturnOnlyUndefined(functi
 	if globalName == nil {
 		return false
 	}
-	var declarationRef *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](globalName.getDeclaration())
+	var declarationRef *GlobalNamespace_Ref = globalName.getDeclarationT_()
 	if declarationRef == nil {
 		for ref := range elemsAs_[*GlobalNamespace_Ref](globalName.getRefs()) {
 			if ref.isSet() {

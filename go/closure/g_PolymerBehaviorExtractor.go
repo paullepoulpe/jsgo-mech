@@ -134,7 +134,7 @@ func (this *PolymerBehaviorExtractor) resolveBehaviorNameInternal(name string, m
 		return PolymerBehaviorExtractor_FAILED_RESOLVE_RESULT
 	}
 	var isGlobalDeclaration bool = (moduleLevelName == nil)
-	var declarationRef *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](globalName.getDeclaration())
+	var declarationRef *GlobalNamespace_Ref = globalName.getDeclarationT_()
 	if declarationRef == nil {
 		for ref := range elemsAs_[*GlobalNamespace_Ref](globalName.getRefs()) {
 			if ref.isSet() {

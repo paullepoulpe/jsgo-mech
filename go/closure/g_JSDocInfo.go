@@ -71,8 +71,13 @@ func (this *JSDocInfo) toBuilder_1(transform func(*JSTypeExpression) *JSTypeExpr
 	return builder
 }
 
+func (this *JSDocInfo) cloneT_() *JSDocInfo {
+	return this.clone_1(false)
+}
+
+// clone is cloneT_ with the result of the interface's type (javac's bridge; covret).
 func (this *JSDocInfo) clone() any {
-	return obj_(this.clone_1(false))
+	return obj_(this.cloneT_())
 }
 
 func (this *JSDocInfo) cloneAndReplaceTypeNames(names map[string]struct{}) *JSDocInfo {

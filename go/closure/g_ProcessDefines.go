@@ -352,7 +352,7 @@ func (this *ProcessDefines) hasValidValue(define *ProcessDefines_Define) bool {
 }
 
 func ProcessDefines_isGlobalConst(name *GlobalNamespace_Name) bool {
-	return (((name.getTotalSets() == 1) && (cast_[*GlobalNamespace_Ref](name.getDeclaration()) != nil)) && name.getDeclaration().(*GlobalNamespace_Ref).isSetFromGlobal())
+	return (((name.getTotalSets() == 1) && (name.getDeclarationT_() != nil)) && name.getDeclaration().(*GlobalNamespace_Ref).isSetFromGlobal())
 }
 
 func (this *ProcessDefines) isValidDefineValue(val Node) Tri {

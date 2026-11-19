@@ -1552,7 +1552,7 @@ func (this *ProcessCommonJSModules_RewriteModule) splitMultipleDeclarations(var_
 	for var_.getSecondChild() != 0 {
 		var newVar Node = new_Node_Token_Node(var_.getToken(), var_.removeFirstChild())
 		if info != nil {
-			newVar.setJSDocInfo(cast_[*JSDocInfo](info.clone()))
+			newVar.setJSDocInfo(info.cloneT_())
 		}
 		newVar.srcref(var_)
 		newVar.insertBefore(var_)

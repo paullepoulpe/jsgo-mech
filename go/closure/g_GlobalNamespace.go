@@ -111,9 +111,14 @@ func (this *GlobalNamespace) getSlot(name string) StaticSlot {
 	return this.getOwnSlot(name)
 }
 
-func (this *GlobalNamespace) getOwnSlot(name string) StaticSlot {
+func (this *GlobalNamespace) getOwnSlotT_(name string) *GlobalNamespace_Name {
 	this.ensureGenerated()
-	return iup_StaticSlot(this.nameMap.Get(name))
+	return this.nameMap.Get(name)
+}
+
+// getOwnSlot is getOwnSlotT_ with the result of the interface's type (javac's bridge; covret).
+func (this *GlobalNamespace) getOwnSlot(name string) StaticSlot {
+	return iup_StaticSlot(this.getOwnSlotT_(name))
 }
 
 func (this *GlobalNamespace) getReferences_StaticSlot(slot *GlobalNamespace_Name) IterableOf[*GlobalNamespace_Ref] {
@@ -1168,8 +1173,13 @@ func (this *GlobalNamespace_Name) usesHasOwnProperty() bool {
 	return this.getBooleanProperty(GlobalNamespace_NameProp_IS_USED_HAS_OWN_PROPERTY)
 }
 
+func (this *GlobalNamespace_Name) getDeclarationT_() *GlobalNamespace_Ref {
+	return this.declaration_
+}
+
+// getDeclaration is getDeclarationT_ with the result of the interface's type (javac's bridge; covret).
 func (this *GlobalNamespace_Name) getDeclaration() StaticRef {
-	return iup_StaticRef(this.declaration_)
+	return iup_StaticRef(this.getDeclarationT_())
 }
 
 func (this *GlobalNamespace_Name) getInitialization() *GlobalNamespace_Ref {
@@ -1620,7 +1630,7 @@ func (this *GlobalNamespace_Name) canCollapseOrInline() GlobalNamespace_Inlinabi
 		this.logDecision(GlobalNamespace_Inlinability_DO_NOT_INLINE, "delete operator is used on this property")
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	}
-	if cast_[*GlobalNamespace_Ref](this.getDeclaration()) != nil {
+	if this.getDeclarationT_() != nil {
 		var declaration Node = this.getDeclaration().(*GlobalNamespace_Ref).getNode()
 		if declaration.getParent().isObjectLit() {
 			if this.outer_.declarationHasFollowingObjectSpreadSibling(declaration) {
@@ -1704,7 +1714,7 @@ func (this *GlobalNamespace_Name) getUnsafeInlinabilityBasedOnDeclaredType() Glo
 }
 
 func (this *GlobalNamespace_Name) referencesSuperOrInnerClassName() bool {
-	var ref *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](this.getDeclaration())
+	var ref *GlobalNamespace_Ref = this.getDeclarationT_()
 	if ref == nil {
 		return false
 	}
@@ -1730,7 +1740,7 @@ func (this *GlobalNamespace_Name) referencesSuperOrInnerClassName() bool {
 }
 
 func (this *GlobalNamespace_Name) isSetInLoop() bool {
-	var ref *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](this.getDeclaration())
+	var ref *GlobalNamespace_Ref = this.getDeclarationT_()
 	if ref != nil {
 		var n Node = ref.getNode()
 		if n != 0 {
