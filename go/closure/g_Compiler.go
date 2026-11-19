@@ -470,7 +470,7 @@ func (this *Compiler) initChunks(externs ListOf[*SourceFile_jscomp], chunks List
 	func() {
 		var chunkGraphLog *LogFile = this.createOrReopenLog(Object_getClass(obj_(this)), "chunk_graph.dot", []string{})
 		defer closeResource_(chunkGraphLog.self())
-		chunkGraphLog.logString(DotFormatter_toDot_GraphvizGraph(icast_GraphvizGraph(this.chunkGraph.toGraphvizGraph().self())))
+		chunkGraphLog.logString(DotFormatter_toDot_GraphvizGraph(iup_GraphvizGraph(this.chunkGraph.toGraphvizGraph())))
 	}()
 	this.runtimeJsLibManager = RuntimeJsLibManager_create(options.getRuntimeLibraryMode(), func(p0 string, p1 string) Node { return this.loadResourceContents(p0, p1) }, this.changeTracker, func() Supplier {
 		if options.getRuntimeLibraryMode() == RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES {

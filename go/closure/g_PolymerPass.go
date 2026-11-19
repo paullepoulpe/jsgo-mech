@@ -71,11 +71,11 @@ func (this *PolymerPass) visit_impl(traversal *NodeTraversal, node Node, parent 
 func (this *PolymerPass) getModuleMetadata(traversal *NodeTraversal) *ModuleMetadataMap_ModuleMetadata {
 	var script Node = traversal.getCurrentScript()
 	if (script != 0) && script.getFirstChild().isModuleBody() {
-		return ModuleImportResolver_getModuleFromScopeRoot(this.compiler_.getModuleMap(), icast_CompilerInputProvider(this.compiler_.self()), script.getFirstChild()).metadata()
+		return ModuleImportResolver_getModuleFromScopeRoot(this.compiler_.getModuleMap(), iup_CompilerInputProvider(this.compiler_), script.getFirstChild()).metadata()
 	}
 	var scopeRoot Node = traversal.getScopeRoot()
 	if NodeUtil_isBundledGoogModuleScopeRoot(scopeRoot) {
-		return ModuleImportResolver_getModuleFromScopeRoot(this.compiler_.getModuleMap(), icast_CompilerInputProvider(this.compiler_.self()), scopeRoot).metadata()
+		return ModuleImportResolver_getModuleFromScopeRoot(this.compiler_.getModuleMap(), iup_CompilerInputProvider(this.compiler_), scopeRoot).metadata()
 	}
 	return nil
 }

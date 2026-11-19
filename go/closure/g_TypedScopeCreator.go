@@ -135,7 +135,7 @@ func (this *TypedScopeCreator) createScopeInternal(root Node, typedParent *Typed
 	}
 	var newScope *TypedScope = nil
 	var scopeBuilder *TypedScopeCreator_AbstractScopeBuilder = nil
-	var module *Module = ModuleImportResolver_getModuleFromScopeRoot(this.moduleMap, icast_CompilerInputProvider(this.compiler_.self()), root)
+	var module *Module = ModuleImportResolver_getModuleFromScopeRoot(this.moduleMap, iup_CompilerInputProvider(this.compiler_), root)
 	if typedParent == nil {
 		if !root.isRoot() {
 			panic(new_IllegalStateException_String(tostr_(root)))

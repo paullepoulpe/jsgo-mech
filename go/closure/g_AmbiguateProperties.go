@@ -65,7 +65,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	func() {
 		var chunkGraphLog *LogFile = this.compiler_.createOrReopenLog(Object_getClass(any(this)), "color_graph.dot", []string{})
 		defer closeResource_(chunkGraphLog.self())
-		chunkGraphLog.logString(DotFormatter_toDot_GraphvizGraph(icast_GraphvizGraph(colorGraph.self())))
+		chunkGraphLog.logString(DotFormatter_toDot_GraphvizGraph(iup_GraphvizGraph(colorGraph)))
 	}()
 	for _, el := range this.graphNodeFactory.getAllKnownTypes().keys {
 		node := el
