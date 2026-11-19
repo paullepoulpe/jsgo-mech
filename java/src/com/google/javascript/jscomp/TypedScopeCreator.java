@@ -355,7 +355,7 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
    * the type registry.
    */
   @Override
-  public TypedScope createScopeAbstractScope(Node root, AbstractScope<?, ?> parent) {
+  public TypedScope createScopeAbstractScope(Node root, AbstractScope parent) {
     checkArgument(parent == null || parent instanceof TypedScope);
     TypedScope typedParent = (TypedScope) parent;
 

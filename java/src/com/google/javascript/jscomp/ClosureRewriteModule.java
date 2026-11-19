@@ -1606,7 +1606,7 @@ public final class ClosureRewriteModule implements CompilerPass {
       Scope currentScope = t.getScope();
       Var v = t.getScope().getVar(value.getString());
       if (v != null) {
-        AbstractScope<?, ?> varScope = v.getScope();
+        AbstractScope varScope = v.getScope();
         if (varScope.getDepth() == currentScope.getDepth()) {
           JSDocInfo info = v.getJSDocInfo();
           if (info != null && info.hasTypedefType()) {

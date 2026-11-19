@@ -65,7 +65,7 @@ public final class SyntacticScopeCreator implements ScopeCreator {
   }
 
   @Override
-  public Scope createScopeAbstractScope(Node n, AbstractScope<?, ?> parent) {
+  public Scope createScopeAbstractScope(Node n, AbstractScope parent) {
     return this.createScope(n, (Scope) parent);
   }
 

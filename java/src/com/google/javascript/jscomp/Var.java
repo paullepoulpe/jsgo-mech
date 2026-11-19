@@ -17,15 +17,19 @@
 package com.google.javascript.jscomp;
 
 
+import static com.google.common.base.Preconditions.checkState;
+
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.StaticRef;
 import com.google.javascript.rhino.StaticSlot;
+import com.google.javascript.rhino.StaticSourceFile;
+import com.google.javascript.rhino.Token;
 import org.jspecify.annotations.Nullable;
 
 /**
  * Used by {@code Scope} to store information about variables.
  */
-public class Var extends AbstractVar<Scope, Var> implements StaticSlot, StaticRef {
+public class Var extends AbstractVar implements StaticSlot, StaticRef {
 
   static final String ARGUMENTS = "arguments";
   static final String EXPORTS = "exports";
@@ -37,7 +41,8 @@ public class Var extends AbstractVar<Scope, Var> implements StaticSlot, StaticRe
       int index,
       @Nullable CompilerInput input,
       @Nullable Node implicitGoogNamespaceDefinition) {
-    super(name, nameNode, scope, index, input, implicitGoogNamespaceDefinition);
+    super(name, nameNode, index, input, implicitGoogNamespaceDefinition);
+    this.scope = scope;
     if (nameNode != null) {
       switch (nameNode.getToken()) {
         case MODULE_BODY, NAME, IMPORT_STAR -> {}
@@ -53,5 +58,83 @@ public class Var extends AbstractVar<Scope, Var> implements StaticSlot, StaticRe
   @Override
   public String toString() {
     return "Var " + getName() + " @ " + getNameNode();
+  }
+
+  // Members pushed down from AbstractVar (prep 17), with its type parameters replaced.
+
+  private final Scope scope;
+
+  @Override
+  public final Node getScopeRoot() {
+    return scope.getRootNode();
+  }
+
+  @Override
+  public final StaticSourceFile getSourceFile() {
+    return (this.getNode() != null ? this.getNode() : scope.getRootNode()).getStaticSourceFile();
+  }
+
+  @Override
+  public final Var getSymbol() {
+    return this;
+  }
+
+  @Override
+  public final Var getDeclaration() {
+    return this.getNode() == null ? null : this;
+  }
+
+  @Override
+  public final Scope getScope() {
+    return scope;
+  }
+
+  @Override
+  public final boolean isGlobal() {
+    return scope.isGlobal();
+  }
+
+  @Override
+  public final boolean isLocal() {
+    return scope.isLocal();
+  }
+
+  @Override
+  public final boolean isArguments() {
+    return Var.ARGUMENTS.equals(name) && scope.isFunctionScope();
+  }
+
+  @Override
+  final boolean isGoogModuleExports() {
+    return scope.isModuleScope() && "exports".equals(name) && isImplicit();
+  }
+
+  @Override
+  public final boolean isThis() {
+    return "this".equals(name) && scope.isFunctionScope();
+  }
+
+  private boolean isImplicit() {
+    if (isImplicitGoogNamespace()) {
+      return true;
+    }
+    AbstractScope.ImplicitVar var = AbstractScope.ImplicitVar.of(name);
+    return var != null && var.isMadeByScope(scope);
+  }
+
+  @Override
+  final @Nullable Token declarationType() {
+    if (isImplicitGoogNamespace()) {
+      return null;
+    }
+    for (Node current = this.getNode(); current != null; current = current.getParent()) {
+      if (DECLARATION_TYPES.contains(current.getToken())) {
+        return current.getToken();
+      }
+    }
+    checkState(
+        isImplicit(),
+        "The nameNode for %s must be a descendant of one of: %s", this, DECLARATION_TYPES);
+    return null;
   }
 }

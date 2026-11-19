@@ -469,7 +469,7 @@ public class NodeTraversal {
       this.build().traverse(root);
     }
 
-    void traverseAtScope(AbstractScope<?, ?> scope) {
+    void traverseAtScope(AbstractScope scope) {
       this.build().traverseAtScope(scope);
     }
 
@@ -477,7 +477,7 @@ public class NodeTraversal {
       this.build().traverseRoots(externs, root);
     }
 
-    void traverseWithScope(Node root, AbstractScope<?, ?> s) {
+    void traverseWithScope(Node root, AbstractScope s) {
       this.build().traverseWithScope(root, s);
     }
   }
@@ -588,7 +588,7 @@ public class NodeTraversal {
    * Traverses a parse tree recursively with a scope, starting with the given root. This should only
    * be used in the global scope or module scopes. Otherwise, use {@link #traverseAtScope}.
    */
-  private void traverseWithScope(Node root, AbstractScope<?, ?> s) {
+  private void traverseWithScope(Node root, AbstractScope s) {
     checkState(s.isGlobal() || s.isModuleScope(), s);
     try {
       initTraversal(root);
@@ -606,12 +606,12 @@ public class NodeTraversal {
    * of the scope root that are traversed in the outer scope (specifically, non-bleeding function
    * and class name nodes, class extends clauses, and computed property keys).
    */
-  private void traverseAtScope(AbstractScope<?, ?> s) {
+  private void traverseAtScope(AbstractScope s) {
     Node n = s.getRootNode();
     initTraversal(n);
     currentNode = n;
-    Deque<AbstractScope<?, ?>> parentScopes = new ArrayDeque<>();
-    AbstractScope<?, ?> temp = s.getParent();
+    Deque<AbstractScope> parentScopes = new ArrayDeque<>();
+    AbstractScope temp = s.getParent();
     while (temp != null) {
       parentScopes.push(temp);
       temp = temp.getParent();
@@ -714,7 +714,7 @@ public class NodeTraversal {
   }
 
   /** Traverses the given scope. */
-  static void traverseAtScope(AbstractCompiler compiler, Callback cb, AbstractScope<?, ?> scope) {
+  static void traverseAtScope(AbstractCompiler compiler, Callback cb, AbstractScope scope) {
     NodeTraversal.builder().setCompiler(compiler).setCallback(cb).traverseAtScope(scope);
   }
 
@@ -1162,7 +1162,7 @@ public class NodeTraversal {
   }
 
   /** Creates a new scope (e.g. when entering a function). */
-  private void pushScopeAbstractScope(AbstractScope<?, ?> s) {
+  private void pushScopeAbstractScope(AbstractScope s) {
     pushScope(s, false);
   }
 
@@ -1171,7 +1171,7 @@ public class NodeTraversal {
    *
    * @param quietly Don't fire an enterScope callback.
    */
-  private void pushScope(AbstractScope<?, ?> s, boolean quietly) {
+  private void pushScope(AbstractScope s, boolean quietly) {
     checkNotNull(currentNode);
     scopes.add(s);
     if (!quietly && scopeCallback != null) {
@@ -1228,7 +1228,7 @@ public class NodeTraversal {
   }
 
   /** Gets the current scope. */
-  public AbstractScope<?, ?> getAbstractScope() {
+  public AbstractScope getAbstractScope() {
     return getAbstractScope(scopes.size() - 1);
   }
 
@@ -1236,17 +1236,17 @@ public class NodeTraversal {
    * Recusively visit uninstanciated scopes and instanciate and store any necessary scopes to return
    * the requested scope.
    */
-  private AbstractScope<?, ?> getAbstractScope(int rootDepth) {
+  private AbstractScope getAbstractScope(int rootDepth) {
 
     Object o = scopes.get(rootDepth);
     if (o instanceof Node node) {
       // The root scope has a null parent.
-      AbstractScope<?, ?> parentScope = (rootDepth > 0) ? getAbstractScope(rootDepth - 1) : null;
-      AbstractScope<?, ?> scope = scopeCreator.createScopeAbstractScope(node, parentScope);
+      AbstractScope parentScope = (rootDepth > 0) ? getAbstractScope(rootDepth - 1) : null;
+      AbstractScope scope = scopeCreator.createScopeAbstractScope(node, parentScope);
       scopes.set(rootDepth, scope);
       return scope;
     } else {
-      return (AbstractScope<?, ?>) o;
+      return (AbstractScope) o;
     }
   }
 
@@ -1265,7 +1265,7 @@ public class NodeTraversal {
     return null;
   }
 
-  public @Nullable AbstractScope<?, ?> getClosestContainerScope() {
+  public @Nullable AbstractScope getClosestContainerScope() {
     for (int i = scopes.size() - 1; i >= 0; i--) {
       Node rootNode = getNodeRootFromScopeObj(scopes.get(i));
       if (!NodeUtil.createsBlockScope(rootNode)) {
@@ -1275,7 +1275,7 @@ public class NodeTraversal {
     return null;
   }
 
-  public @Nullable AbstractScope<?, ?> getClosestHoistScope() {
+  public @Nullable AbstractScope getClosestHoistScope() {
     for (int i = scopes.size() - 1; i >= 0; i--) {
       Node rootNode = getNodeRootFromScopeObj(scopes.get(i));
       if (isHoistScopeRootNode(rootNode)) {
@@ -1398,7 +1398,7 @@ public class NodeTraversal {
    *     operation, or if called while visiting a ROOT node during a global traversal. Only
    *     traversals that begin at a ROOT node (which includes most usages of NodeTraversal) will
    *     support this operation. For example, {@link
-   *     NodeTraversal.Builder#traverseAtScope(AbstractScope<?, ?>)} is unsupported because it can
+   *     NodeTraversal.Builder#traverseAtScope(AbstractScope)} is unsupported because it can
    *     begin at any arbitrary scope root like a FUNCTION.
    */
   public @Nullable Node getCurrentScript() {

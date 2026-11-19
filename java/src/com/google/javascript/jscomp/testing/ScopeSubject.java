@@ -50,21 +50,21 @@ import org.jspecify.annotations.Nullable;
  */
 public final class ScopeSubject extends Subject {
   @CheckReturnValue
-  public static ScopeSubject assertScope(AbstractScope<?, ?> scope) {
+  public static ScopeSubject assertScope(AbstractScope scope) {
     // NB: Eclipse's Java compiler bails on just passing ScopeSubject::new below, so wrap it in a
     // Closure.
     return assertAbout(ScopeSubject::new).that(scope);
   }
 
-  private final AbstractScope<?, ?> actual;
+  private final AbstractScope actual;
 
-  private ScopeSubject(FailureMetadata failureMetadata, AbstractScope<?, ?> scope) {
+  private ScopeSubject(FailureMetadata failureMetadata, AbstractScope scope) {
     super(failureMetadata, scope);
     this.actual = scope;
   }
 
   public void doesNotDeclare(String name) {
-    AbstractVar<?, ?> var = getVar(name);
+    AbstractVar var = getVar(name);
     if (var != null) {
       failWithoutActual(
           fact("expected not to declare", name),
@@ -74,9 +74,9 @@ public final class ScopeSubject extends Subject {
   }
 
   public DeclarationSubject declares(String name) {
-    AbstractVar<?, ?> var = getVar(name);
+    AbstractVar var = getVar(name);
     if (var == null) {
-      ImmutableList<AbstractVar<?, ?>> declared =
+      ImmutableList<AbstractVar> declared =
           ImmutableList.copyOf(actual.getAllAccessibleVariables());
       ImmutableList<String> names =
           declared.stream().map(AbstractVar::getName).collect(toImmutableList());
@@ -97,15 +97,15 @@ public final class ScopeSubject extends Subject {
     return new DeclarationSubject(var);
   }
 
-  private AbstractVar<?, ?> getVar(String name) {
+  private AbstractVar getVar(String name) {
     return actual.hasSlot(name) ? checkNotNull(actual.getVar(name)) : null;
   }
 
   /** A subject for an {@link AbstractVar} declared by this particular scope. */
   public final class DeclarationSubject {
-    private final AbstractVar<?, ?> var;
+    private final AbstractVar var;
 
-    private DeclarationSubject(AbstractVar<?, ?> var) {
+    private DeclarationSubject(AbstractVar var) {
       this.var = checkNotNull(var);
     }
 
@@ -115,7 +115,7 @@ public final class ScopeSubject extends Subject {
      * expected} object is displayed in brackets, in parallel to the actual scope that the variable
      * is defined on.
      */
-    private void expectScope(String preposition, Object expected, AbstractScope<?, ?> scope) {
+    private void expectScope(String preposition, Object expected, AbstractScope scope) {
       if (var.getScope() != scope) {
         failWithoutActual(
             fact("for var", var.getName()),
@@ -135,7 +135,7 @@ public final class ScopeSubject extends Subject {
 
     /** Expects the declared variable to be declared on the given scope. */
     @CanIgnoreReturnValue
-    public DeclarationSubject on(AbstractScope<?, ?> scope) {
+    public DeclarationSubject on(AbstractScope scope) {
       checkState(
           scope != actual,
           "It doesn't make sense to pass the scope already being asserted about. Use .directly()");
