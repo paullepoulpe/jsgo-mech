@@ -81,8 +81,13 @@ final class Conv {
   /** Whether code is one call of a constructor function (new_C(...)): never nil. */
   static boolean newCall(String code) {
     if (!code.startsWith("new_")) return false;
-    int i = code.indexOf('('), d = 0;
-    if (i < 0 || !code.substring(0, i).matches("\\w+")) return false;
+    int i = code.indexOf('(');
+    return i >= 0 && code.substring(0, i).matches("\\w+") && closesAtEnd(code, i);
+  }
+
+  /** Whether the parenthesis opened at index i of code (Go source) is closed by its last character. */
+  static boolean closesAtEnd(String code, int i) {
+    int d = 0;
     boolean str = false;
     char q = 0;
     for (int k = i; k < code.length(); k++) {
@@ -356,6 +361,54 @@ final class Conv {
    * erased translation converted each to Object first.
    */
   static final boolean OBJCALL = !off("OBJCALL");
+
+  // ------------------------------------------------------------------ implicit conversions
+
+  static final boolean IMPLICIT = !off("IMPLICIT");
+
+  /** The generic functions of the runtime (`func name[...]` in rt_*.go), by name. */
+  final Set<String> rtGenerics = new HashSet<>();
+
+  /** Reads the names of the generic functions of the runtime (rt_*.go in the output directory). */
+  void loadGenerics(Path out) throws IOException {
+    if (!IMPLICIT || !Files.isDirectory(out)) return;
+    Pattern decl = Pattern.compile("^func (\\w+)\\[.*");
+    try (var fs = Files.list(out)) {
+      for (Path f : (Iterable<Path>) fs.sorted()::iterator) {
+        String fn = f.getFileName().toString();
+        if (!fn.startsWith("rt_") || !fn.endsWith(".go") || fn.endsWith("_test.go")) continue;
+        for (String l : Files.readAllLines(f)) {
+          Matcher m = decl.matcher(l);
+          if (m.matches()) rtGenerics.add(m.group(1));
+        }
+      }
+    }
+  }
+
+  /**
+   * Rule "implicit conversions": a value passed where Go declares `any` (a parameter of that
+   * type, an element of a []any) is written as it is, where the erased translation wrote the
+   * conversion any(x) of a primitive, an interface value or an array. Go converts the value to
+   * the parameter's type as the explicit conversion did; nothing changes at run time. (obj_,
+   * strobj_ and box_() are not such conversions: they make null of a nil pointer, the null
+   * string and handle 0.)
+   *
+   * @param r code for a place whose Go type is `any`
+   */
+  static String implicit(String r) {
+    return IMPLICIT && r.startsWith("any(") && closesAtEnd(r, 3) ? r.substring(4, r.length() - 1) : r;
+  }
+
+  /**
+   * Whether the Object parameters of library function or constructor `name` are declared `any`
+   * in Go, so that an argument needs no conversion. A generic function of the runtime could
+   * declare a type parameter there, which Go would infer from the argument: its arguments keep
+   * their conversions. (The variants _T and _H of the checks are generic in a parameter that the
+   * translator passes typed; their other parameters are `any`.)
+   */
+  boolean anyParams(String name) {
+    return !rtGenerics.contains(name);
+  }
 
   // ------------------------------------------------------------------ String for CharSequence
 

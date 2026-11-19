@@ -326,6 +326,12 @@ abstract class ExprEmitter extends Base {
     return sb.append(")").toString();
   }
 
+  /** The value that a function with result type ret returns: a result declared `any` needs no conversion any(x) (Conv.implicit). */
+  String resultAs(ExpressionTree t, TypeMirror ret) {
+    String r = exprAs(t, ret);
+    return cx.goType(ret).equals("any") ? Conv.implicit(r) : r;
+  }
+
   String cond(ExpressionTree t) {
     return exprAs(t, prim(TypeKind.BOOLEAN));
   }
@@ -704,7 +710,7 @@ abstract class ExprEmitter extends Base {
       default: {
         // an object at its static type (Conv.typedStr), else through Object
         String typed = cx.conv.typedStr("", ty) == null || !declaredAs(t, ty) ? null : cx.conv.typedStr(expr(t), ty);
-        return typed != null ? typed : "objstr_(" + asAny(t) + ")";
+        return typed != null ? typed : "objstr_(" + Conv.implicit(asAny(t)) + ")";
       }
     }
   }
@@ -1080,14 +1086,20 @@ abstract class ExprEmitter extends Base {
       }
     }
     int fixed = pack ? n - 1 : n;
-    for (int i = 0; i < fixed && i < args.size(); i++) out.add(argAs(e, i, args.get(i), params.get(i)));
+    // rule "implicit conversions": no any(x) where the Go parameter is `any` (Conv.implicit)
+    boolean anyParams = cx.isSource(cx.ownerOf(e)) || cx.conv.anyParams(e.getKind() == ElementKind.CONSTRUCTOR ? cx.ctorName(e, "new_") : cx.staticMethodName(e));
+    for (int i = 0; i < fixed && i < args.size(); i++) {
+      String a = argAs(e, i, args.get(i), params.get(i));
+      out.add(anyParams && cx.goType(params.get(i)).equals("any") ? Conv.implicit(a) : a);
+    }
     if (pack) {
       TypeMirror arr = params.get(n - 1);
       TypeMirror comp = ((ArrayType) arr).getComponentType();
       StringBuilder sb = new StringBuilder(cx.goType(arr) + "{");
       for (int i = fixed; i < args.size(); i++) {
         if (i > fixed) sb.append(", ");
-        sb.append(argAs(e, i, args.get(i), comp));
+        String a = argAs(e, i, args.get(i), comp);
+        sb.append(cx.goType(comp).equals("any") ? Conv.implicit(a) : a);
       }
       out.add(sb.append("}").toString());
     }
@@ -1238,7 +1250,11 @@ abstract class ExprEmitter extends Base {
         StringBuilder sb = new StringBuilder(sk).append("(")
             .append(rk == Ctx.K.CLS || rk == Ctx.K.IFACE ? recv.code : cx.coerce(recv.code, recv.type, ro.asType()))
             .append(", ").append(args.get(0).as(stringType()));
-        for (int i = 1; i < args.size(); i++) sb.append(", ").append(args.get(i).as(cx.erase(re.getParameters().get(i).asType())));
+        for (int i = 1; i < args.size(); i++) {
+          TypeMirror pt = cx.erase(re.getParameters().get(i).asType());
+          String a = args.get(i).as(pt);
+          sb.append(", ").append(cx.goType(pt).equals("any") ? Conv.implicit(a) : a);
+        }
         return new CallResult(sb.append(")").toString(), cx.erase(re.getReturnType()));
       }
     }
@@ -1274,6 +1290,7 @@ abstract class ExprEmitter extends Base {
       TypeMirror ret = cx.erase(e.getReturnType());
       String name = cx.staticMethodName(e);
       String r = cx.coerce(recv.code, recv.type, owner.asType());
+      if (ok == Ctx.K.ANY && cx.conv.anyParams(name)) r = Conv.implicit(r);
       List<TypeMirror> sp = new ArrayList<>(params);
       String sv = cx.conv.strSeq(name, e, sp, argTypes(args));
       if (sv != null) return new CallResult(sv + "(" + r + ", " + argList(e, sp, args) + ")", ret);
@@ -1366,7 +1383,7 @@ abstract class ExprEmitter extends Base {
       String fn = h.isEmpty() && cx.kind(rt) == Ctx.K.CLS && cx.conv.identityEquals(Ctx.typeElement(rt)) ? "eqR_" : "equalsRR" + h + "_";
       return new CallResult(fn + "(" + recv.code + ", " + a.as(rt) + ")", prim(TypeKind.BOOLEAN));
     }
-    return new CallResult("equalsR" + h + "_(" + recv.code + ", " + argAs(e, 0, a, objectType()) + ")", prim(TypeKind.BOOLEAN));
+    return new CallResult("equalsR" + h + "_(" + recv.code + ", " + Conv.implicit(argAs(e, 0, a, objectType())) + ")", prim(TypeKind.BOOLEAN));
   }
 
   /**
@@ -1736,7 +1753,7 @@ abstract class ExprEmitter extends Base {
     StringBuilder body = new StringBuilder(entry);
     if (t.getBodyKind() == LambdaExpressionTree.BodyKind.EXPRESSION) {
       ExpressionTree be = (ExpressionTree) t.getBody();
-      String code = inner.isVoid ? stmtExpr(be) : "return " + exprAs(be, ret);
+      String code = inner.isVoid ? stmtExpr(be) : "return " + resultAs(be, ret);
       for (String p : mc.pre) body.append(p).append("\n");
       mc.pre.clear();
       body.append(code).append("\n");

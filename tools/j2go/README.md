@@ -392,6 +392,25 @@ arguments by callee, parameter and kind (`boxes: arg 81 String.format [varargs] 
   `Object`: a receiver or value of a class with subclasses (`v.self()`), a typed collection
   (its view), a value type (`Optional`: `box_()`), and `Objects.hash(...)`.
 
+- *Implicit conversions* (`Conv.implicit`, `J2GO_NOIMPLICIT`). A primitive, an interface value
+  or an array that becomes an `Object` is `any(int32(n))`, `any(scope)`, `any(arr)` in the
+  erased translation: a Go conversion, with no test and no call. Where Go declares the place
+  `any` it is not written, since Go makes the same conversion there: an argument for a
+  parameter of type `any` (`map.put(name, int32(n))`, `Objects_requireNonNull(nodes.asList(),
+  "nodes")`), an element of a `[]any` built for `Object...`
+  (`String_format("%d of %s", []any{int32(i), strobj_(s)})`), the collection of a for-each
+  loop (`foreach_(scope.getVarIterable())`), an operand of a string concatenation
+  (`objstr_(list.asList())`), and the value that a function with result `any` returns. This
+  is notation only: the compiled program is the same. A parameter is known to be `any` for a
+  method or function of the program (its signature is the translator's; type arguments are
+  written at every call), for a method of a library type (a Go method has no type parameters
+  of its own) and for a library function that is not generic in the runtime (the translator
+  reads the names of the generic functions of `rt_*.go`; for such a function Go would infer a
+  type argument from the argument, so its arguments keep their conversions). What keeps
+  `any(x)`: `v := any(x)`, comparisons (`any(a) == b`), assignments, the argument of a cast
+  (`icast_I(any(this))`), and the conversions that are not Go's: `obj_`, `strobj_`, `box_()`
+  (null for a nil pointer, the null string, handle 0), `boxT_`.
+
 - *String for CharSequence* (`Conv.strSeq`, `J2GO_NOSTRSEQ`; `J2GO_STRSEQ=1` reports the calls
   left). `CharSequence` is `any` in Go, so a `String` passed for one is boxed, and a string in
   an interface is an allocation. A call of a library method with a `String` for each of its

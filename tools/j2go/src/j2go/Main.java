@@ -288,6 +288,7 @@ public final class Main {
       colls.decide();
     }
     cx.conv.loadAliases(out);
+    cx.conv.loadGenerics(out);
     cx.assignClassNames();
     cx.analyzeMethods();
     Files.createDirectories(out);

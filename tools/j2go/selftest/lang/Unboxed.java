@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
 
@@ -397,6 +398,74 @@ public class Unboxed {
     return eq + " | " + hashes + " | " + strings + " | " + statics + " | " + nulls + " | " + evals;
   }
 
+  // ---- implicit conversions: a primitive, an interface value or an array where Go declares `any`
+  static String kindOf(Object o) {
+    return o == null ? "null" : o instanceof Integer ? "int" : o instanceof Long ? "long" : o instanceof Character ? "char" : o instanceof Double ? "double" : o instanceof Boolean ? "bool"
+        : o instanceof Short ? "short" : o instanceof Byte ? "byte" : o instanceof Float ? "float" : o instanceof Shape ? "shape" : o instanceof int[] ? "ints" : o instanceof List ? "list" : o instanceof String ? "str" : "?";
+  }
+
+  static String kindsOf(Object first, Object... rest) {
+    StringBuilder sb = new StringBuilder(kindOf(first));
+    for (Object o : rest) sb.append(',').append(kindOf(o));
+    return sb.toString();
+  }
+
+  static <T> String generic(T a, Object b) {
+    return kindOf(a) + "/" + kindOf(b);
+  }
+
+  static Object asObject(int kind, Shape s, int[] arr) {
+    switch (kind) {
+      case 0:
+        return 7;
+      case 1:
+        return s;
+      case 2:
+        return arr;
+      case 3:
+        return 'c';
+      default:
+        return kind > 4 ? 2.5 : (Object) 5L;
+    }
+  }
+
+  static String implicitAny() {
+    int i = 3;
+    long l = 4L;
+    char c = 'x';
+    short sh = 2;
+    byte by = 1;
+    float f = 1.5f;
+    double d = 0.25;
+    boolean b = true;
+    int[] arr = {1, 2};
+    Shape shape = new Dot(), noShape = null;
+    Iterable<String> words = built("u", "v");
+    List<Object> objs = new java.util.LinkedList<>();
+    objs.add(i);
+    objs.add(l);
+    objs.add(c);
+    objs.add(shape);
+    objs.add(noShape);
+    objs.add(arr);
+    objs.add(d);
+    java.util.Map<String, Object> m = new java.util.TreeMap<>();
+    m.put("i", i + 1);
+    m.put("s", shape);
+    m.put("b", !b);
+    StringBuilder each = new StringBuilder();
+    for (Object o : objs) each.append(kindOf(o)).append(';');
+    for (String w : words) each.append(w);
+    Supplier<Object> sup = () -> i * 2;
+    java.util.function.Function<Shape, Object> fn = x -> x;
+    StringBuilder ret = new StringBuilder();
+    for (int k = 0; k < 6; k++) ret.append(kindOf(asObject(k, shape, arr))).append(k == 1 ? asObject(k, noShape, arr) == null : "").append(' ');
+    return kindOf(i) + kindOf(l) + kindOf(c) + kindOf(sh) + kindOf(by) + kindOf(f) + kindOf(d) + kindOf(b) + kindOf(arr) + kindOf(shape) + kindOf(noShape) + kindOf(words) + kindOf(i + l) + kindOf(c + 1) + kindOf(1 << 20) + kindOf('q')
+        + " " + kindsOf(i, l, shape, noShape, arr, 5, 'z', 1.0, b, "s") + " " + kindsOf(shape) + " " + generic(i, shape) + generic(shape, c) + Unboxed.<Object>generic(l, arr)
+        + " " + each + " " + kindOf(m.get("i")) + kindOf(m.get("s")) + kindOf(m.get("b")) + m.get("i") + " " + String.format("%d %s %c %s", i, l, c, b) + " " + Objects.hash(i, c, b)
+        + " " + sup.get() + kindOf(sup.get()) + kindOf(fn.apply(shape)) + (fn.apply(noShape) == null) + " " + ret + (i + "" + shape.equals(shape) + objs.contains(l) + objs.contains(4) + objs.indexOf(c));
+  }
+
   // ---- a String for a CharSequence parameter
   static final class Shout implements Appendable {
     final StringBuilder sb = new StringBuilder();
@@ -463,6 +532,7 @@ public class Unboxed {
     p(strSeqs());
     p(typedObjects());
     p(objectCalls());
+    p(implicitAny());
     p(nonNull());
     p(bare());
     p(messages());
