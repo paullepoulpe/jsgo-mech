@@ -540,7 +540,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject) 
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject) finit_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject() {
-	this.vars = newTSet_(tce_p_Var.t_())
+	this.vars = newTSet_(tck_p_Var)
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject) init_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject(name string) {

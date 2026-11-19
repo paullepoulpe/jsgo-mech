@@ -1400,7 +1400,7 @@ func (this *Es6NormalizeClasses_ClassRecord) finit_Es6NormalizeClasses_ClassReco
 	this.instanceMembers = newTDeque_(jtc_Node)
 	this.staticMembers = newTDeque_(jtc_Node)
 	this.computedPropsWithSideEffects = newTDeque_(jtc_Node)
-	this.constructorVars = tsetEmptyImm_(tce_p_Var.t_())
+	this.constructorVars = tsetEmptyImm_(tck_p_Var)
 	this.superCalls = &[]Node{}
 }
 
