@@ -2,40 +2,11 @@
 
 package closure
 
-func to_AbstractCollection(v any) *AbstractCollection {
-	switch p := v.(type) {
-	case *SimpleListMultimap_1:
-		return p.as_AbstractCollection()
-	case *SimpleSetMultimap_1:
-		return p.as_AbstractCollection()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_AbstractCollection() *AbstractCollection }).as_AbstractCollection()
-}
-
-func is_AbstractCollection(v any) bool {
-	_, ok := v.(interface{ as_AbstractCollection() *AbstractCollection })
-	return ok
-}
-
 func (this *AbstractCollection) self() any {
 	if this == nil {
 		return nil
 	}
 	return this.self_
-}
-
-func to_AbstractIterator(v any) *AbstractIterator {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_AbstractIterator() *AbstractIterator }).as_AbstractIterator()
-}
-
-func is_AbstractIterator(v any) bool {
-	_, ok := v.(interface{ as_AbstractIterator() *AbstractIterator })
-	return ok
 }
 
 func (this *AbstractIterator) self() any {
@@ -50,18 +21,6 @@ type AbstractList struct {
 }
 
 func (this *AbstractList) as_AbstractList() *AbstractList { return this }
-
-func to_AbstractList(v any) *AbstractList {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_AbstractList() *AbstractList }).as_AbstractList()
-}
-
-func is_AbstractList(v any) bool {
-	_, ok := v.(interface{ as_AbstractList() *AbstractList })
-	return ok
-}
 
 func (this *AbstractList) self() any {
 	if this == nil {
@@ -110,21 +69,6 @@ type AbstractMap struct {
 }
 
 func (this *AbstractMap) as_AbstractMap() *AbstractMap { return this }
-
-func to_AbstractMap(v any) *AbstractMap {
-	switch p := v.(type) {
-	case *AbstractMap:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_AbstractMap() *AbstractMap }).as_AbstractMap()
-}
-
-func is_AbstractMap(v any) bool {
-	_, ok := v.(*AbstractMap)
-	return ok
-}
 
 func (this *AbstractMap) self() any {
 	if this == nil {
@@ -190,21 +134,6 @@ type AbstractQueue struct {
 
 func (this *AbstractQueue) as_AbstractQueue() *AbstractQueue { return this }
 
-func to_AbstractQueue(v any) *AbstractQueue {
-	switch p := v.(type) {
-	case *AbstractQueue:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_AbstractQueue() *AbstractQueue }).as_AbstractQueue()
-}
-
-func is_AbstractQueue(v any) bool {
-	_, ok := v.(*AbstractQueue)
-	return ok
-}
-
 func (this *AbstractQueue) self() any {
 	if this == nil {
 		return nil
@@ -242,23 +171,6 @@ func (this *AbstractSequentialList) up_AbstractList() *AbstractList {
 	return &this.AbstractList
 }
 
-func to_AbstractSet(v any) *AbstractSet {
-	switch p := v.(type) {
-	case *Compiler_1:
-		return p.as_AbstractSet()
-	case *Sets_SetView:
-		return p.as_AbstractSet()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_AbstractSet() *AbstractSet }).as_AbstractSet()
-}
-
-func is_AbstractSet(v any) bool {
-	_, ok := v.(interface{ as_AbstractSet() *AbstractSet })
-	return ok
-}
-
 func (this *AbstractSet) self() any {
 	if this == nil {
 		return nil
@@ -291,6 +203,12 @@ type ArithmeticException struct {
 	RuntimeException
 }
 
+// ArithmeticException_as is implemented by ArithmeticException and the classes that extend it: a cast to ArithmeticException asserts to it
+// (post-flip).
+type ArithmeticException_as interface {
+	as_ArithmeticException() *ArithmeticException
+}
+
 func (this *ArithmeticException) as_ArithmeticException() *ArithmeticException { return this }
 
 func to_ArithmeticException(v any) *ArithmeticException {
@@ -300,7 +218,7 @@ func to_ArithmeticException(v any) *ArithmeticException {
 	case nil:
 		return nil
 	}
-	return v.(interface{ as_ArithmeticException() *ArithmeticException }).as_ArithmeticException()
+	return v.(ArithmeticException_as).as_ArithmeticException()
 }
 
 func is_ArithmeticException(v any) bool {
@@ -352,23 +270,6 @@ func (this *ArrayIndexOutOfBoundsException) as_ArrayIndexOutOfBoundsException() 
 	return this
 }
 
-func to_ArrayIndexOutOfBoundsException(v any) *ArrayIndexOutOfBoundsException {
-	switch p := v.(type) {
-	case *ArrayIndexOutOfBoundsException:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_ArrayIndexOutOfBoundsException() *ArrayIndexOutOfBoundsException
-	}).as_ArrayIndexOutOfBoundsException()
-}
-
-func is_ArrayIndexOutOfBoundsException(v any) bool {
-	_, ok := v.(*ArrayIndexOutOfBoundsException)
-	return ok
-}
-
 func (this *ArrayIndexOutOfBoundsException) self() any {
 	if this == nil {
 		return nil
@@ -405,11 +306,6 @@ func new_ArrayIndexOutOfBoundsException_String(p0 string) *ArrayIndexOutOfBounds
 	return this
 }
 
-func is_ArrayList(v any) bool {
-	_, ok := v.(interface{ as_ArrayList() *ArrayList })
-	return ok
-}
-
 type Arrays struct {
 }
 
@@ -418,21 +314,6 @@ type AssertionError struct {
 }
 
 func (this *AssertionError) as_AssertionError() *AssertionError { return this }
-
-func to_AssertionError(v any) *AssertionError {
-	switch p := v.(type) {
-	case *AssertionError:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_AssertionError() *AssertionError }).as_AssertionError()
-}
-
-func is_AssertionError(v any) bool {
-	_, ok := v.(*AssertionError)
-	return ok
-}
 
 func (this *AssertionError) self() any {
 	if this == nil {
@@ -532,23 +413,6 @@ type ByteOutput struct {
 type Cache interface {
 }
 
-func to_CacheLoader(v any) *CacheLoader {
-	switch p := v.(type) {
-	case *CachingTranspiler_1:
-		return p.as_CacheLoader()
-	case *functionCacheLoader_:
-		return p.as_CacheLoader()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_CacheLoader() *CacheLoader }).as_CacheLoader()
-}
-
-func is_CacheLoader(v any) bool {
-	_, ok := v.(interface{ as_CacheLoader() *CacheLoader })
-	return ok
-}
-
 func (this *CacheLoader) self() any {
 	if this == nil {
 		return nil
@@ -572,21 +436,6 @@ type ClassCastException struct {
 }
 
 func (this *ClassCastException) as_ClassCastException() *ClassCastException { return this }
-
-func to_ClassCastException(v any) *ClassCastException {
-	switch p := v.(type) {
-	case *ClassCastException:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_ClassCastException() *ClassCastException }).as_ClassCastException()
-}
-
-func is_ClassCastException(v any) bool {
-	_, ok := v.(*ClassCastException)
-	return ok
-}
 
 func (this *ClassCastException) self() any {
 	if this == nil {
@@ -630,23 +479,6 @@ type CloneNotSupportedException struct {
 
 func (this *CloneNotSupportedException) as_CloneNotSupportedException() *CloneNotSupportedException {
 	return this
-}
-
-func to_CloneNotSupportedException(v any) *CloneNotSupportedException {
-	switch p := v.(type) {
-	case *CloneNotSupportedException:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_CloneNotSupportedException() *CloneNotSupportedException
-	}).as_CloneNotSupportedException()
-}
-
-func is_CloneNotSupportedException(v any) bool {
-	_, ok := v.(*CloneNotSupportedException)
-	return ok
 }
 
 func (this *CloneNotSupportedException) self() any {
@@ -727,23 +559,6 @@ type ConcurrentModificationException struct {
 
 func (this *ConcurrentModificationException) as_ConcurrentModificationException() *ConcurrentModificationException {
 	return this
-}
-
-func to_ConcurrentModificationException(v any) *ConcurrentModificationException {
-	switch p := v.(type) {
-	case *ConcurrentModificationException:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_ConcurrentModificationException() *ConcurrentModificationException
-	}).as_ConcurrentModificationException()
-}
-
-func is_ConcurrentModificationException(v any) bool {
-	_, ok := v.(*ConcurrentModificationException)
-	return ok
 }
 
 func (this *ConcurrentModificationException) self() any {
@@ -867,6 +682,12 @@ type Error struct {
 	Throwable
 }
 
+// Error_as is implemented by Error and the classes that extend it: a cast to Error asserts to it
+// (post-flip).
+type Error_as interface {
+	as_Error() *Error
+}
+
 func (this *Error) as_Error() *Error { return this }
 
 func to_Error(v any) *Error {
@@ -878,11 +699,11 @@ func to_Error(v any) *Error {
 	case nil:
 		return nil
 	}
-	return v.(interface{ as_Error() *Error }).as_Error()
+	return v.(Error_as).as_Error()
 }
 
 func is_Error(v any) bool {
-	_, ok := v.(interface{ as_Error() *Error })
+	_, ok := v.(Error_as)
 	return ok
 }
 
@@ -944,23 +765,6 @@ func new_Error_Throwable(p0 *Throwable) *Error {
 	return this
 }
 
-func to_Escaper(v any) *Escaper {
-	switch p := v.(type) {
-	case *PercentEscaper:
-		return p.as_Escaper()
-	case *SourceCodeEscapers_JavaScriptEscaper:
-		return p.as_Escaper()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_Escaper() *Escaper }).as_Escaper()
-}
-
-func is_Escaper(v any) bool {
-	_, ok := v.(interface{ as_Escaper() *Escaper })
-	return ok
-}
-
 func (this *Escaper) self() any {
 	if this == nil {
 		return nil
@@ -972,17 +776,23 @@ type Exception struct {
 	Throwable
 }
 
+// Exception_as is implemented by Exception and the classes that extend it: a cast to Exception asserts to it
+// (post-flip).
+type Exception_as interface {
+	as_Exception() *Exception
+}
+
 func (this *Exception) as_Exception() *Exception { return this }
 
 func to_Exception(v any) *Exception {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_Exception() *Exception }).as_Exception()
+	return v.(Exception_as).as_Exception()
 }
 
 func is_Exception(v any) bool {
-	_, ok := v.(interface{ as_Exception() *Exception })
+	_, ok := v.(Exception_as)
 	return ok
 }
 
@@ -1044,16 +854,6 @@ func new_Exception_Throwable(p0 *Throwable) *Exception {
 	return this
 }
 
-func to_ExecutionException(v any) *ExecutionException {
-	switch p := v.(type) {
-	case *ExecutionException:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_ExecutionException() *ExecutionException }).as_ExecutionException()
-}
-
 func (this *ExecutionException) init_ExecutionException_0() {
 	this.Exception.init_Exception_0()
 }
@@ -1110,21 +910,6 @@ type FileNotFoundException struct {
 }
 
 func (this *FileNotFoundException) as_FileNotFoundException() *FileNotFoundException { return this }
-
-func to_FileNotFoundException(v any) *FileNotFoundException {
-	switch p := v.(type) {
-	case *FileNotFoundException:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_FileNotFoundException() *FileNotFoundException }).as_FileNotFoundException()
-}
-
-func is_FileNotFoundException(v any) bool {
-	_, ok := v.(*FileNotFoundException)
-	return ok
-}
 
 func (this *FileNotFoundException) self() any {
 	if this == nil {
@@ -1211,17 +996,23 @@ type IOException struct {
 	Exception
 }
 
+// IOException_as is implemented by IOException and the classes that extend it: a cast to IOException asserts to it
+// (post-flip).
+type IOException_as interface {
+	as_IOException() *IOException
+}
+
 func (this *IOException) as_IOException() *IOException { return this }
 
 func to_IOException(v any) *IOException {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_IOException() *IOException }).as_IOException()
+	return v.(IOException_as).as_IOException()
 }
 
 func is_IOException(v any) bool {
-	_, ok := v.(interface{ as_IOException() *IOException })
+	_, ok := v.(IOException_as)
 	return ok
 }
 
@@ -1287,30 +1078,18 @@ type IllegalArgumentException struct {
 	RuntimeException
 }
 
+// IllegalArgumentException_as is implemented by IllegalArgumentException and the classes that extend it: a cast to IllegalArgumentException asserts to it
+// (post-flip).
+type IllegalArgumentException_as interface {
+	as_IllegalArgumentException() *IllegalArgumentException
+}
+
 func (this *IllegalArgumentException) as_IllegalArgumentException() *IllegalArgumentException {
 	return this
 }
 
-func to_IllegalArgumentException(v any) *IllegalArgumentException {
-	switch p := v.(type) {
-	case *IllegalArgumentException:
-		return p
-	case *JSChunkGraph_ChunkDependenceException:
-		return p.as_IllegalArgumentException()
-	case *NumberFormatException:
-		return p.as_IllegalArgumentException()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_IllegalArgumentException() *IllegalArgumentException
-	}).as_IllegalArgumentException()
-}
-
 func is_IllegalArgumentException(v any) bool {
-	_, ok := v.(interface {
-		as_IllegalArgumentException() *IllegalArgumentException
-	})
+	_, ok := v.(IllegalArgumentException_as)
 	return ok
 }
 
@@ -1376,6 +1155,12 @@ type IllegalStateException struct {
 	RuntimeException
 }
 
+// IllegalStateException_as is implemented by IllegalStateException and the classes that extend it: a cast to IllegalStateException asserts to it
+// (post-flip).
+type IllegalStateException_as interface {
+	as_IllegalStateException() *IllegalStateException
+}
+
 func (this *IllegalStateException) as_IllegalStateException() *IllegalStateException { return this }
 
 func to_IllegalStateException(v any) *IllegalStateException {
@@ -1385,7 +1170,7 @@ func to_IllegalStateException(v any) *IllegalStateException {
 	case nil:
 		return nil
 	}
-	return v.(interface{ as_IllegalStateException() *IllegalStateException }).as_IllegalStateException()
+	return v.(IllegalStateException_as).as_IllegalStateException()
 }
 
 func is_IllegalStateException(v any) bool {
@@ -1455,30 +1240,18 @@ type IndexOutOfBoundsException struct {
 	RuntimeException
 }
 
+// IndexOutOfBoundsException_as is implemented by IndexOutOfBoundsException and the classes that extend it: a cast to IndexOutOfBoundsException asserts to it
+// (post-flip).
+type IndexOutOfBoundsException_as interface {
+	as_IndexOutOfBoundsException() *IndexOutOfBoundsException
+}
+
 func (this *IndexOutOfBoundsException) as_IndexOutOfBoundsException() *IndexOutOfBoundsException {
 	return this
 }
 
-func to_IndexOutOfBoundsException(v any) *IndexOutOfBoundsException {
-	switch p := v.(type) {
-	case *IndexOutOfBoundsException:
-		return p
-	case *ArrayIndexOutOfBoundsException:
-		return p.as_IndexOutOfBoundsException()
-	case *StringIndexOutOfBoundsException:
-		return p.as_IndexOutOfBoundsException()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_IndexOutOfBoundsException() *IndexOutOfBoundsException
-	}).as_IndexOutOfBoundsException()
-}
-
 func is_IndexOutOfBoundsException(v any) bool {
-	_, ok := v.(interface {
-		as_IndexOutOfBoundsException() *IndexOutOfBoundsException
-	})
+	_, ok := v.(IndexOutOfBoundsException_as)
 	return ok
 }
 
@@ -1519,23 +1292,6 @@ func new_IndexOutOfBoundsException_String(p0 string) *IndexOutOfBoundsException 
 }
 
 func (this *InputStream) as_InputStream() *InputStream { return this }
-
-func to_InputStream(v any) *InputStream {
-	switch p := v.(type) {
-	case *InputStream:
-		return p
-	case *ByteArrayInputStream:
-		return p.as_InputStream()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_InputStream() *InputStream }).as_InputStream()
-}
-
-func is_InputStream(v any) bool {
-	_, ok := v.(interface{ as_InputStream() *InputStream })
-	return ok
-}
 
 func (this *InputStream) self() any {
 	if this == nil {
@@ -1580,16 +1336,6 @@ type InterruptedException struct {
 }
 
 func (this *InterruptedException) as_InterruptedException() *InterruptedException { return this }
-
-func to_InterruptedException(v any) *InterruptedException {
-	switch p := v.(type) {
-	case *InterruptedException:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_InterruptedException() *InterruptedException }).as_InterruptedException()
-}
 
 func is_InterruptedException(v any) bool {
 	_, ok := v.(*InterruptedException)
@@ -1644,23 +1390,6 @@ type InvalidProtocolBufferException struct {
 
 func (this *InvalidProtocolBufferException) as_InvalidProtocolBufferException() *InvalidProtocolBufferException {
 	return this
-}
-
-func to_InvalidProtocolBufferException(v any) *InvalidProtocolBufferException {
-	switch p := v.(type) {
-	case *InvalidProtocolBufferException:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_InvalidProtocolBufferException() *InvalidProtocolBufferException
-	}).as_InvalidProtocolBufferException()
-}
-
-func is_InvalidProtocolBufferException(v any) bool {
-	_, ok := v.(*InvalidProtocolBufferException)
-	return ok
 }
 
 func (this *InvalidProtocolBufferException) self() any {
@@ -1874,23 +1603,6 @@ func (this *NegativeArraySizeException) as_NegativeArraySizeException() *Negativ
 	return this
 }
 
-func to_NegativeArraySizeException(v any) *NegativeArraySizeException {
-	switch p := v.(type) {
-	case *NegativeArraySizeException:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_NegativeArraySizeException() *NegativeArraySizeException
-	}).as_NegativeArraySizeException()
-}
-
-func is_NegativeArraySizeException(v any) bool {
-	_, ok := v.(*NegativeArraySizeException)
-	return ok
-}
-
 func (this *NegativeArraySizeException) self() any {
 	if this == nil {
 		return nil
@@ -1932,18 +1644,6 @@ type NoSuchElementException struct {
 }
 
 func (this *NoSuchElementException) as_NoSuchElementException() *NoSuchElementException { return this }
-
-func to_NoSuchElementException(v any) *NoSuchElementException {
-	switch p := v.(type) {
-	case *NoSuchElementException:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_NoSuchElementException() *NoSuchElementException
-	}).as_NoSuchElementException()
-}
 
 func is_NoSuchElementException(v any) bool {
 	_, ok := v.(*NoSuchElementException)
@@ -2014,16 +1714,6 @@ type NullPointerException struct {
 
 func (this *NullPointerException) as_NullPointerException() *NullPointerException { return this }
 
-func to_NullPointerException(v any) *NullPointerException {
-	switch p := v.(type) {
-	case *NullPointerException:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_NullPointerException() *NullPointerException }).as_NullPointerException()
-}
-
 func is_NullPointerException(v any) bool {
 	_, ok := v.(*NullPointerException)
 	return ok
@@ -2070,16 +1760,6 @@ type NumberFormatException struct {
 }
 
 func (this *NumberFormatException) as_NumberFormatException() *NumberFormatException { return this }
-
-func to_NumberFormatException(v any) *NumberFormatException {
-	switch p := v.(type) {
-	case *NumberFormatException:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_NumberFormatException() *NumberFormatException }).as_NumberFormatException()
-}
 
 func is_NumberFormatException(v any) bool {
 	_, ok := v.(*NumberFormatException)
@@ -2154,34 +1834,25 @@ type OptimizationJsdocOrBuilder interface {
 	getMeaningPointer() int32
 }
 
+// Ordering_as is implemented by Ordering and the classes that extend it: a cast to Ordering asserts to it
+// (post-flip).
+type Ordering_as interface {
+	as_Ordering() *Ordering
+}
+
 func to_Ordering(v any) *Ordering {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_Ordering() *Ordering }).as_Ordering()
+	return v.(Ordering_as).as_Ordering()
 }
 
 func is_Ordering(v any) bool {
-	_, ok := v.(interface{ as_Ordering() *Ordering })
+	_, ok := v.(Ordering_as)
 	return ok
 }
 
 func (this *OutputStream) as_OutputStream() *OutputStream { return this }
-
-func to_OutputStream(v any) *OutputStream {
-	switch p := v.(type) {
-	case *ByteString_Output:
-		return p.as_OutputStream()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_OutputStream() *OutputStream }).as_OutputStream()
-}
-
-func is_OutputStream(v any) bool {
-	_, ok := v.(interface{ as_OutputStream() *OutputStream })
-	return ok
-}
 
 func (this *OutputStream) self() any {
 	if this == nil {
@@ -2195,21 +1866,6 @@ type ParseException struct {
 }
 
 func (this *ParseException) as_ParseException() *ParseException { return this }
-
-func to_ParseException(v any) *ParseException {
-	switch p := v.(type) {
-	case *ParseException:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_ParseException() *ParseException }).as_ParseException()
-}
-
-func is_ParseException(v any) bool {
-	_, ok := v.(*ParseException)
-	return ok
-}
 
 func (this *ParseException) self() any {
 	if this == nil {
@@ -2227,18 +1883,6 @@ func (this *ParseException) up_Exception() *Exception {
 
 func (this *ParserConfigurationException) as_ParserConfigurationException() *ParserConfigurationException {
 	return this
-}
-
-func to_ParserConfigurationException(v any) *ParserConfigurationException {
-	switch p := v.(type) {
-	case *ParserConfigurationException:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_ParserConfigurationException() *ParserConfigurationException
-	}).as_ParserConfigurationException()
 }
 
 func (this *ParserConfigurationException) self() any {
@@ -2274,6 +1918,12 @@ type PatternSyntaxException struct {
 	RuntimeException
 }
 
+// PatternSyntaxException_as is implemented by PatternSyntaxException and the classes that extend it: a cast to PatternSyntaxException asserts to it
+// (post-flip).
+type PatternSyntaxException_as interface {
+	as_PatternSyntaxException() *PatternSyntaxException
+}
+
 func (this *PatternSyntaxException) as_PatternSyntaxException() *PatternSyntaxException { return this }
 
 func to_PatternSyntaxException(v any) *PatternSyntaxException {
@@ -2283,9 +1933,7 @@ func to_PatternSyntaxException(v any) *PatternSyntaxException {
 	case nil:
 		return nil
 	}
-	return v.(interface {
-		as_PatternSyntaxException() *PatternSyntaxException
-	}).as_PatternSyntaxException()
+	return v.(PatternSyntaxException_as).as_PatternSyntaxException()
 }
 
 func is_PatternSyntaxException(v any) bool {
@@ -2377,21 +2025,6 @@ type Readable interface {
 
 func (this *Reader) as_Reader() *Reader { return this }
 
-func to_Reader(v any) *Reader {
-	switch p := v.(type) {
-	case *StringReader:
-		return p.as_Reader()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_Reader() *Reader }).as_Reader()
-}
-
-func is_Reader(v any) bool {
-	_, ok := v.(interface{ as_Reader() *Reader })
-	return ok
-}
-
 func (this *Reader) self() any {
 	if this == nil {
 		return nil
@@ -2453,17 +2086,23 @@ type RuntimeException struct {
 	Exception
 }
 
+// RuntimeException_as is implemented by RuntimeException and the classes that extend it: a cast to RuntimeException asserts to it
+// (post-flip).
+type RuntimeException_as interface {
+	as_RuntimeException() *RuntimeException
+}
+
 func (this *RuntimeException) as_RuntimeException() *RuntimeException { return this }
 
 func to_RuntimeException(v any) *RuntimeException {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_RuntimeException() *RuntimeException }).as_RuntimeException()
+	return v.(RuntimeException_as).as_RuntimeException()
 }
 
 func is_RuntimeException(v any) bool {
-	_, ok := v.(interface{ as_RuntimeException() *RuntimeException })
+	_, ok := v.(RuntimeException_as)
 	return ok
 }
 
@@ -2523,16 +2162,6 @@ func new_RuntimeException_Throwable(p0 *Throwable) *RuntimeException {
 	this.self_ = this
 	this.init_RuntimeException_Throwable(p0)
 	return this
-}
-
-func to_SAXException(v any) *SAXException {
-	switch p := v.(type) {
-	case *SAXParseException:
-		return p.as_SAXException()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_SAXException() *SAXException }).as_SAXException()
 }
 
 func (this *SAXException) init_SAXException_0() {
@@ -2620,21 +2249,6 @@ type StackOverflowError struct {
 
 func (this *StackOverflowError) as_StackOverflowError() *StackOverflowError { return this }
 
-func to_StackOverflowError(v any) *StackOverflowError {
-	switch p := v.(type) {
-	case *StackOverflowError:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_StackOverflowError() *StackOverflowError }).as_StackOverflowError()
-}
-
-func is_StackOverflowError(v any) bool {
-	_, ok := v.(*StackOverflowError)
-	return ok
-}
-
 func (this *StackOverflowError) self() any {
 	if this == nil {
 		return nil
@@ -2677,18 +2291,6 @@ type StringIndexOutOfBoundsException struct {
 
 func (this *StringIndexOutOfBoundsException) as_StringIndexOutOfBoundsException() *StringIndexOutOfBoundsException {
 	return this
-}
-
-func to_StringIndexOutOfBoundsException(v any) *StringIndexOutOfBoundsException {
-	switch p := v.(type) {
-	case *StringIndexOutOfBoundsException:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_StringIndexOutOfBoundsException() *StringIndexOutOfBoundsException
-	}).as_StringIndexOutOfBoundsException()
 }
 
 func is_StringIndexOutOfBoundsException(v any) bool {
@@ -2761,21 +2363,6 @@ type TemplateStringValueOrBuilder interface {
 	getRawStringPointer() int32
 }
 
-func to_Thread(v any) *Thread {
-	switch p := v.(type) {
-	case *Thread:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_Thread() *Thread }).as_Thread()
-}
-
-func is_Thread(v any) bool {
-	_, ok := v.(*Thread)
-	return ok
-}
-
 func (this *Thread) self() any {
 	if this == nil {
 		return nil
@@ -2787,22 +2374,13 @@ type ThreadFactory interface {
 	newThread(Runnable) *Thread
 }
 
-func to_ThreadPoolExecutor(v any) *ThreadPoolExecutor {
-	switch p := v.(type) {
-	case *ThreadPoolExecutor:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_ThreadPoolExecutor() *ThreadPoolExecutor }).as_ThreadPoolExecutor()
-}
-
-func is_ThreadPoolExecutor(v any) bool {
-	_, ok := v.(*ThreadPoolExecutor)
-	return ok
-}
-
 type Thread_UncaughtExceptionHandler interface {
+}
+
+// Throwable_as is implemented by Throwable and the classes that extend it: a cast to Throwable asserts to it
+// (post-flip).
+type Throwable_as interface {
+	as_Throwable() *Throwable
 }
 
 func (this *Throwable) as_Throwable() *Throwable { return this }
@@ -2811,11 +2389,11 @@ func to_Throwable(v any) *Throwable {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_Throwable() *Throwable }).as_Throwable()
+	return v.(Throwable_as).as_Throwable()
 }
 
 func is_Throwable(v any) bool {
-	_, ok := v.(interface{ as_Throwable() *Throwable })
+	_, ok := v.(Throwable_as)
 	return ok
 }
 
@@ -2827,16 +2405,6 @@ func (this *Throwable) self() any {
 }
 
 func (this *TimeoutException) as_TimeoutException() *TimeoutException { return this }
-
-func to_TimeoutException(v any) *TimeoutException {
-	switch p := v.(type) {
-	case *TimeoutException:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_TimeoutException() *TimeoutException }).as_TimeoutException()
-}
 
 func (this *TimeoutException) self() any {
 	if this == nil {
@@ -2930,6 +2498,12 @@ type TypedAst_ListOrBuilder interface {
 	MessageOrBuilder
 }
 
+// UncheckedExecutionException_as is implemented by UncheckedExecutionException and the classes that extend it: a cast to UncheckedExecutionException asserts to it
+// (post-flip).
+type UncheckedExecutionException_as interface {
+	as_UncheckedExecutionException() *UncheckedExecutionException
+}
+
 func to_UncheckedExecutionException(v any) *UncheckedExecutionException {
 	switch p := v.(type) {
 	case *UncheckedExecutionException:
@@ -2937,9 +2511,7 @@ func to_UncheckedExecutionException(v any) *UncheckedExecutionException {
 	case nil:
 		return nil
 	}
-	return v.(interface {
-		as_UncheckedExecutionException() *UncheckedExecutionException
-	}).as_UncheckedExecutionException()
+	return v.(UncheckedExecutionException_as).as_UncheckedExecutionException()
 }
 
 func is_UncheckedExecutionException(v any) bool {
@@ -2986,21 +2558,6 @@ type UncheckedIOException struct {
 
 func (this *UncheckedIOException) as_UncheckedIOException() *UncheckedIOException { return this }
 
-func to_UncheckedIOException(v any) *UncheckedIOException {
-	switch p := v.(type) {
-	case *UncheckedIOException:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_UncheckedIOException() *UncheckedIOException }).as_UncheckedIOException()
-}
-
-func is_UncheckedIOException(v any) bool {
-	_, ok := v.(*UncheckedIOException)
-	return ok
-}
-
 func (this *UncheckedIOException) self() any {
 	if this == nil {
 		return nil
@@ -3033,23 +2590,6 @@ type UnsupportedOperationException struct {
 
 func (this *UnsupportedOperationException) as_UnsupportedOperationException() *UnsupportedOperationException {
 	return this
-}
-
-func to_UnsupportedOperationException(v any) *UnsupportedOperationException {
-	switch p := v.(type) {
-	case *UnsupportedOperationException:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_UnsupportedOperationException() *UnsupportedOperationException
-	}).as_UnsupportedOperationException()
-}
-
-func is_UnsupportedOperationException(v any) bool {
-	_, ok := v.(*UnsupportedOperationException)
-	return ok
 }
 
 func (this *UnsupportedOperationException) self() any {
@@ -3121,18 +2661,6 @@ type VirtualMachineError struct {
 }
 
 func (this *VirtualMachineError) as_VirtualMachineError() *VirtualMachineError { return this }
-
-func to_VirtualMachineError(v any) *VirtualMachineError {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_VirtualMachineError() *VirtualMachineError }).as_VirtualMachineError()
-}
-
-func is_VirtualMachineError(v any) bool {
-	_, ok := v.(interface{ as_VirtualMachineError() *VirtualMachineError })
-	return ok
-}
 
 func (this *VirtualMachineError) self() any {
 	if this == nil {

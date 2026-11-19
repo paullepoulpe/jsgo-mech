@@ -70,6 +70,12 @@ func (this *ScopedName) isThis_impl() bool {
 	panic("isThis_impl called on a " + goTypeName_(this.self_))
 }
 
+// ScopedName_as is implemented by ScopedName and the classes that extend it: a cast to ScopedName asserts to it
+// (post-flip).
+type ScopedName_as interface {
+	as_ScopedName() *ScopedName
+}
+
 func (this *ScopedName) as_ScopedName() *ScopedName { return this }
 
 func to_ScopedName(v any) *ScopedName {
@@ -83,11 +89,11 @@ func to_ScopedName(v any) *ScopedName {
 	case nil:
 		return nil
 	}
-	return v.(interface{ as_ScopedName() *ScopedName }).as_ScopedName()
+	return v.(ScopedName_as).as_ScopedName()
 }
 
 func is_ScopedName(v any) bool {
-	_, ok := v.(interface{ as_ScopedName() *ScopedName })
+	_, ok := v.(ScopedName_as)
 	return ok
 }
 

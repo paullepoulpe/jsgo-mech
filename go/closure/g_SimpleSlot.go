@@ -16,6 +16,12 @@ type SimpleSlot_I interface {
 	getJSDocInfo_impl() *JSDocInfo
 }
 
+// SimpleSlot_as is implemented by SimpleSlot and the classes that extend it: a cast to SimpleSlot asserts to it
+// (post-flip).
+type SimpleSlot_as interface {
+	as_SimpleSlot() *SimpleSlot
+}
+
 func (this *SimpleSlot) as_SimpleSlot() *SimpleSlot { return this }
 
 func to_SimpleSlot(v any) *SimpleSlot {
@@ -27,12 +33,7 @@ func to_SimpleSlot(v any) *SimpleSlot {
 	case nil:
 		return nil
 	}
-	return v.(interface{ as_SimpleSlot() *SimpleSlot }).as_SimpleSlot()
-}
-
-func is_SimpleSlot(v any) bool {
-	_, ok := v.(interface{ as_SimpleSlot() *SimpleSlot })
-	return ok
+	return v.(SimpleSlot_as).as_SimpleSlot()
 }
 
 func (this *SimpleSlot) self() any {

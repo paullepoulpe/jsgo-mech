@@ -9,11 +9,6 @@ type DominatorTree[N comparable] struct {
 
 func (this *DominatorTree[N]) isa_DominatorTree_() {}
 
-func is_DominatorTree(v any) bool {
-	_, ok := v.(interface{ isa_DominatorTree_() })
-	return ok
-}
-
 func (this *DominatorTree[N]) init_DominatorTree(idoms MapOf[N, N], subtreeSizes MapOf[N, BoxedOf[int32]]) {
 	this.idoms = jimmutableMapCopyOf_(tceT_[N](), tcT_[N](), idoms)
 	this.subtreeSizes = jimmutableMapCopyOf_(tceT_[N](), tc_Integer, subtreeSizes)

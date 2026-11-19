@@ -11,25 +11,6 @@ func (this *ProcessConstJsdocCallback) as_ProcessConstJsdocCallback() *ProcessCo
 	return this
 }
 
-func to_ProcessConstJsdocCallback(v any) *ProcessConstJsdocCallback {
-	switch p := v.(type) {
-	case *ConvertToTypedInterface_PropagateConstJsdoc:
-		return p.as_ProcessConstJsdocCallback()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_ProcessConstJsdocCallback() *ProcessConstJsdocCallback
-	}).as_ProcessConstJsdocCallback()
-}
-
-func is_ProcessConstJsdocCallback(v any) bool {
-	_, ok := v.(interface {
-		as_ProcessConstJsdocCallback() *ProcessConstJsdocCallback
-	})
-	return ok
-}
-
 func (this *ProcessConstJsdocCallback) self() any {
 	if this == nil {
 		return nil

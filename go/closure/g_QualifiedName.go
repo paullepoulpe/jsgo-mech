@@ -21,25 +21,6 @@ type QualifiedName_I interface {
 
 func (this *QualifiedName) as_QualifiedName() *QualifiedName { return this }
 
-func to_QualifiedName(v any) *QualifiedName {
-	switch p := v.(type) {
-	case *QualifiedName_GetpropQname:
-		return p.as_QualifiedName()
-	case *QualifiedName_NodeQname:
-		return p.as_QualifiedName()
-	case *QualifiedName_StringListQname:
-		return p.as_QualifiedName()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_QualifiedName() *QualifiedName }).as_QualifiedName()
-}
-
-func is_QualifiedName(v any) bool {
-	_, ok := v.(interface{ as_QualifiedName() *QualifiedName })
-	return ok
-}
-
 func (this *QualifiedName) self() any {
 	if this == nil {
 		return nil

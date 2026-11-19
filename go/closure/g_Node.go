@@ -3278,23 +3278,6 @@ type Node_PropListItem_I interface {
 
 func (this *Node_PropListItem) as_Node_PropListItem() *Node_PropListItem { return this }
 
-func to_Node_PropListItem(v any) *Node_PropListItem {
-	switch p := v.(type) {
-	case *Node_IntPropListItem:
-		return p.as_Node_PropListItem()
-	case *Node_ObjectPropListItem:
-		return p.as_Node_PropListItem()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_Node_PropListItem() *Node_PropListItem }).as_Node_PropListItem()
-}
-
-func is_Node_PropListItem(v any) bool {
-	_, ok := v.(interface{ as_Node_PropListItem() *Node_PropListItem })
-	return ok
-}
-
 func (this *Node_PropListItem) self() any {
 	if this == nil {
 		return nil

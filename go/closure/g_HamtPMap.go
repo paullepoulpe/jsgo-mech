@@ -12,11 +12,6 @@ type HamtPMap[K comparable, V comparable] struct {
 
 func (this *HamtPMap[K, V]) isa_HamtPMap_() {}
 
-func is_HamtPMap(v any) bool {
-	_, ok := v.(interface{ isa_HamtPMap_() })
-	return ok
-}
-
 func (this *HamtPMap[K, V]) zero_HamtPMap() {
 	this.key_ = jnull_[K]()
 	this.value_ = jnull_[V]()
@@ -581,11 +576,6 @@ type HamtPMap_Iter[K comparable, V comparable, O comparable] struct {
 }
 
 func (this *HamtPMap_Iter[K, V, O]) isa_HamtPMap_Iter_() {}
-
-func is_HamtPMap_Iter(v any) bool {
-	_, ok := v.(interface{ isa_HamtPMap_Iter_() })
-	return ok
-}
 
 func (this *HamtPMap_Iter[K, V, O]) finit_HamtPMap_Iter() {
 	this.queue = newTDeque_(tc_p_HamtPMap_K__V_[K, V]())

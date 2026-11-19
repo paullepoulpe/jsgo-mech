@@ -142,13 +142,6 @@ func icast_ErrorManager(v any) ErrorManager {
 	return v.(ErrorManager)
 }
 
-func icast_ExecutorService(v any) ExecutorService {
-	if v == nil {
-		return nil
-	}
-	return v.(ExecutorService)
-}
-
 func icast_FlowScope(v any) FlowScope {
 	if v == nil {
 		return nil
@@ -233,13 +226,6 @@ func icast_JSType_WithSourceRef(v any) JSType_WithSourceRef {
 	return v.(JSType_WithSourceRef)
 }
 
-func icast_JsMessageVisitor_InputForBuildJsMsg(v any) JsMessageVisitor_InputForBuildJsMsg {
-	if v == nil {
-		return nil
-	}
-	return v.(JsMessageVisitor_InputForBuildJsMsg)
-}
-
 func icast_JsMessage_Part(v any) JsMessage_Part {
 	if v == nil {
 		return nil
@@ -303,13 +289,6 @@ func icast_MemoryPoolMXBean(v any) MemoryPoolMXBean {
 	return v.(MemoryPoolMXBean)
 }
 
-func icast_MessageBundle(v any) MessageBundle {
-	if v == nil {
-		return nil
-	}
-	return v.(MessageBundle)
-}
-
 func icast_NodeTraversal_Callback(v any) NodeTraversal_Callback {
 	if v == nil {
 		return nil
@@ -350,13 +329,6 @@ func icast_Property_Key(v any) Property_Key {
 		return nil
 	}
 	return v.(Property_Key)
-}
-
-func icast_ProtocolStringList(v any) ProtocolStringList {
-	if v == nil {
-		return nil
-	}
-	return v.(ProtocolStringList)
 }
 
 func icast_RemoveUnusedCode_VarInfo(v any) RemoveUnusedCode_VarInfo {
@@ -441,13 +413,6 @@ func icast_SortingErrorManager_ErrorReportGenerator(v any) SortingErrorManager_E
 		return nil
 	}
 	return v.(SortingErrorManager_ErrorReportGenerator)
-}
-
-func icast_SourceFileMapping(v any) SourceFileMapping {
-	if v == nil {
-		return nil
-	}
-	return v.(SourceFileMapping)
 }
 
 func icast_SourceMap_LocationMapping(v any) SourceMap_LocationMapping {

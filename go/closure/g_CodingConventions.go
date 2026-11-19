@@ -74,29 +74,6 @@ func (this *CodingConventions_Proxy) as_CodingConventions_Proxy() *CodingConvent
 	return this
 }
 
-func to_CodingConventions_Proxy(v any) *CodingConventions_Proxy {
-	switch p := v.(type) {
-	case *ChromeCodingConvention:
-		return p.as_CodingConventions_Proxy()
-	case *ClosureCodingConvention:
-		return p.as_CodingConventions_Proxy()
-	case *GoogleCodingConvention:
-		return p.as_CodingConventions_Proxy()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_CodingConventions_Proxy() *CodingConventions_Proxy
-	}).as_CodingConventions_Proxy()
-}
-
-func is_CodingConventions_Proxy(v any) bool {
-	_, ok := v.(interface {
-		as_CodingConventions_Proxy() *CodingConventions_Proxy
-	})
-	return ok
-}
-
 func (this *CodingConventions_Proxy) self() any {
 	if this == nil {
 		return nil

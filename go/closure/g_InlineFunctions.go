@@ -518,27 +518,6 @@ func (this *InlineFunctions_CallVisitor) as_InlineFunctions_CallVisitor() *Inlin
 	return this
 }
 
-func to_InlineFunctions_CallVisitor(v any) *InlineFunctions_CallVisitor {
-	switch p := v.(type) {
-	case *InlineFunctions_CallVisitor:
-		return p
-	case *InlineFunctions_FindCandidatesReferences:
-		return p.as_InlineFunctions_CallVisitor()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_InlineFunctions_CallVisitor() *InlineFunctions_CallVisitor
-	}).as_InlineFunctions_CallVisitor()
-}
-
-func is_InlineFunctions_CallVisitor(v any) bool {
-	_, ok := v.(interface {
-		as_InlineFunctions_CallVisitor() *InlineFunctions_CallVisitor
-	})
-	return ok
-}
-
 func (this *InlineFunctions_CallVisitor) self() any {
 	if this == nil {
 		return nil

@@ -11,11 +11,6 @@ type LinkedUndirectedGraph[N comparable, E comparable] struct {
 
 func (this *LinkedUndirectedGraph[N, E]) isa_LinkedUndirectedGraph_() {}
 
-func is_LinkedUndirectedGraph(v any) bool {
-	_, ok := v.(interface{ isa_LinkedUndirectedGraph_() })
-	return ok
-}
-
 func (this *LinkedUndirectedGraph[N, E]) up_UndiGraph() *UndiGraph[N, E] {
 	if this == nil {
 		return nil
@@ -270,11 +265,6 @@ type LinkedUndirectedGraph_LinkedUndirectedGraphNode_vt_[N comparable, E compara
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) isa_LinkedUndirectedGraph_LinkedUndirectedGraphNode_() {
 }
 
-func is_LinkedUndirectedGraph_LinkedUndirectedGraphNode(v any) bool {
-	_, ok := v.(interface{ isa_LinkedUndirectedGraph_LinkedUndirectedGraphNode_() })
-	return ok
-}
-
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) as_LinkedUndirectedGraph_LinkedUndirectedGraphNode() *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E] {
 	return this
 }
@@ -381,11 +371,6 @@ type LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode[N comparable, E co
 func (this *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode[N, E]) isa_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode_() {
 }
 
-func is_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode(v any) bool {
-	_, ok := v.(interface{ isa_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode_() })
-	return ok
-}
-
 func (this *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode[N, E]) up_LinkedUndirectedGraph_LinkedUndirectedGraphNode() *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E] {
 	if this == nil {
 		return nil
@@ -432,11 +417,6 @@ type LinkedUndirectedGraph_LinkedUndirectedGraphEdge_vt_[N comparable, E compara
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E]) isa_LinkedUndirectedGraph_LinkedUndirectedGraphEdge_() {
-}
-
-func is_LinkedUndirectedGraph_LinkedUndirectedGraphEdge(v any) bool {
-	_, ok := v.(interface{ isa_LinkedUndirectedGraph_LinkedUndirectedGraphEdge_() })
-	return ok
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E]) as_LinkedUndirectedGraph_LinkedUndirectedGraphEdge() *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E] {
@@ -534,11 +514,6 @@ type LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge[N comparable, E co
 }
 
 func (this *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge[N, E]) isa_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge_() {
-}
-
-func is_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge(v any) bool {
-	_, ok := v.(interface{ isa_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge_() })
-	return ok
 }
 
 func (this *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge[N, E]) up_LinkedUndirectedGraph_LinkedUndirectedGraphEdge() *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E] {

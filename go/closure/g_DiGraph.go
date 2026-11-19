@@ -24,11 +24,6 @@ type DiGraph_vt_[N comparable] interface {
 
 func (this *DiGraph[N]) isa_DiGraph_() {}
 
-func is_DiGraph(v any) bool {
-	_, ok := v.(interface{ isa_DiGraph_() })
-	return ok
-}
-
 func (this *DiGraph[N]) as_DiGraph() *DiGraph[N] { return this }
 
 func (this *DiGraph[N]) as_DiGraph_() any { return this }
