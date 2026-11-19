@@ -316,6 +316,17 @@ Three runtime steps came from its profiles (ef603915, b1129850, b0699ec8: iterat
 constant time, its test, subList boxing its range): total wall 628.8s (cac00d61, one run)
 -> 577.8s (one run, the same hour).
 
+What the full-size profile says about inferTypes (19 Nov): its ratio to pre-flip Java grows with
+the input (typed-full 1.14, the first 3,500 chunks 1.51, all chunks 1.66), and no single
+function explains it. Two costs that did grow with size were runtime defects and are fixed
+(ef603915, b0699ec8). What is left is the translated type-system code itself: under
+SubtypeChecker.isSubtypeCaching (20.5s of the stage's CPU) and HamtPMap.reconcile (12.5s) the
+time is in JSType.equals and EqualityChecker (10s and 4s), JSType.self, toMaybeUnionType,
+toObjectType (an interface assertion on the most derived object each), the casts and dispatch
+the planned translator rules are for. Scope creation (29s) is hash-table and node reads.
+The second trial flip (current typed translator and the node store, bridged: REFLIP.md on
+reflip2-bridge) took 719.5s at full size in one run: slower than this branch.
+
 ## Correction: PGO (13-17 Nov)
 
 `go/cmd/mech/default.pgo` was in the tree from 1fef152c (13 Nov) to c4aefc67 (17 Nov), and
