@@ -286,10 +286,10 @@ abstract class StmtEmitter extends ExprEmitter {
         ReturnTree t = (ReturnTree) s;
         if (t.getExpression() == null) return returnCode(null);
         if (mc.isVoid) return stmtExpr(t.getExpression()) + "\n" + returnCode(null);
-        return returnCode(exprAs(t.getExpression(), mc.ret));
+        return returnCode(resultAs(t.getExpression(), mc.ret));
       }
       case YIELD:
-        return returnCode(exprAs(((YieldTree) s).getValue(), mc.ret));
+        return returnCode(resultAs(((YieldTree) s).getValue(), mc.ret));
       case BREAK: {
         BreakTree t = (BreakTree) s;
         return breakOrContinue(true, t.getLabel() == null ? null : Ctx.safe(t.getLabel().toString()) + "_");
@@ -483,7 +483,7 @@ abstract class StmtEmitter extends ExprEmitter {
       // Performance rule: the loop runs on a cursor that is a local struct (foreach_ in
       // rt_coll.go). It reads the runtime's slice-backed collections in place and holds an
       // Iterator only for other Iterables, so the common loop allocates nothing.
-      String src = cx.coerce(expr(ex), et, objectType());
+      String src = Conv.implicit(cx.coerce(expr(ex), et, objectType()));
       TypeElement itE = Ctx.typeElement(iterable), iterE = cx.elems.getTypeElement("java.util.Iterator");
       cx.noteMethodOn(itE, "iterator", List.of(), iterE.asType());
       cx.noteMethodOn(iterE, "hasNext", List.of(), prim(TypeKind.BOOLEAN));
@@ -605,7 +605,7 @@ abstract class StmtEmitter extends ExprEmitter {
       if (arrow) {
         Tree rb = c.getBody();
         if (rb instanceof ExpressionTree re) {
-          if (isExpr) b.append(withPre(returnCode(exprAs(re, mc.ret)))).append("\n");
+          if (isExpr) b.append(withPre(returnCode(resultAs(re, mc.ret)))).append("\n");
           else b.append(withPre(stmtExpr(re))).append("\n");
         } else if (rb instanceof BlockTree bt) {
           b.append(blockCode(bt));

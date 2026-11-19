@@ -23,6 +23,54 @@ final class Conv {
     return "1".equals(System.getenv("J2GO_NO" + rule));
   }
 
+  // ------------------------------------------------------------------ report: conversions to Object
+
+  /** J2GO_BOXES=1 reports where values are converted to Object (Go `any`): by kind of value, and by callee for arguments. */
+  static final boolean BOXES = System.getenv("J2GO_BOXES") != null;
+
+  final TreeMap<String, Integer> boxKinds = new TreeMap<>(), boxSites = new TreeMap<>();
+
+  /** What a value of (erased) type t is when it is converted to Object. */
+  String boxKind(TypeMirror t) {
+    if (cx.isTypedColl(t)) return "typed collection";
+    switch (cx.kind(t)) {
+      case PRIM: return "primitive";
+      case STR: return "String";
+      case IFACE: return "interface";
+      case ARR: return "array";
+      case TVAR: return "type parameter";
+      case CLS: {
+        TypeElement te = Ctx.typeElement(t);
+        if (cx.isHandle(te)) return "handle";
+        if (cx.isValueLib(te)) return "value type";
+        if (te != null && te.getKind() == ElementKind.ENUM) return "enum";
+        if (!cx.isSource(te)) return "library class";
+        return cx.hasSelf(te) && !cx.isLeaf(te) ? "class with subclasses" : "class";
+      }
+      default: return "other";
+    }
+  }
+
+  void noteBox(TypeMirror from) {
+    if (BOXES) boxKinds.merge(boxKind(from), 1, Integer::sum);
+  }
+
+  /** An argument of static type arg passed for an Object parameter of e (or an element of its Object...). */
+  void noteBoxArg(ExecutableElement e, int i, TypeMirror arg, TypeMirror target, String code) {
+    if (!BOXES || arg == null || cx.kind(cx.erase(target)) != Ctx.K.ANY) return;
+    TypeMirror at = cx.erase(arg);
+    if (cx.kind(at) == Ctx.K.ANY || cx.kind(at) == Ctx.K.NULL) return;
+    boolean va = e.isVarArgs() && i >= e.getParameters().size() - 1;
+    String how = code.startsWith("strobj_(") || code.startsWith("obj_(") || code.startsWith("any(") || code.startsWith("boxT_(") || code.endsWith(".box_()") || code.endsWith(".self()") ? "" : " (no helper)";
+    boxSites.merge((cx.isSource(cx.ownerOf(e)) ? "program " : "") + cx.ownerOf(e).getSimpleName() + "." + e.getSimpleName() + (va ? " [varargs]" : " #" + i) + " <- " + boxKind(at) + how, 1, Integer::sum);
+  }
+
+  void boxReport() {
+    if (!BOXES) return;
+    for (var en : boxKinds.entrySet()) System.err.println("boxes: kind " + en.getValue() + " " + en.getKey());
+    for (var en : boxSites.entrySet()) System.err.println("boxes: arg " + en.getValue() + " " + en.getKey());
+  }
+
   // ------------------------------------------------------------------ static upcast
 
   static final boolean UPCAST = !off("UPCAST");
@@ -33,8 +81,13 @@ final class Conv {
   /** Whether code is one call of a constructor function (new_C(...)): never nil. */
   static boolean newCall(String code) {
     if (!code.startsWith("new_")) return false;
-    int i = code.indexOf('('), d = 0;
-    if (i < 0 || !code.substring(0, i).matches("\\w+")) return false;
+    int i = code.indexOf('(');
+    return i >= 0 && code.substring(0, i).matches("\\w+") && closesAtEnd(code, i);
+  }
+
+  /** Whether the parenthesis opened at index i of code (Go source) is closed by its last character. */
+  static boolean closesAtEnd(String code, int i) {
+    int d = 0;
     boolean str = false;
     char q = 0;
     for (int k = i; k < code.length(); k++) {
@@ -296,6 +349,65 @@ final class Conv {
   String typedStr(String v, TypeMirror t) {
     String h = objHelper(t);
     return h == null ? null : "tostr" + h + "_(" + v + ")";
+  }
+
+  // ------------------------------------------------------------------ typed Object calls
+
+  /**
+   * Rule "typed Object calls" (ExprEmitter.typedObjCall, typedObjStatic): a call that the program
+   * writes of Object's equals / hashCode / toString on a receiver whose class does not declare
+   * the method, and of Objects.equals / Objects.hashCode / String.valueOf(Object), passes the
+   * values at their static types to runtime functions generic in them (rt_conv.go), where the
+   * erased translation converted each to Object first.
+   */
+  static final boolean OBJCALL = !off("OBJCALL");
+
+  // ------------------------------------------------------------------ implicit conversions
+
+  static final boolean IMPLICIT = !off("IMPLICIT");
+
+  /** The generic functions of the runtime (`func name[...]` in rt_*.go), by name. */
+  final Set<String> rtGenerics = new HashSet<>();
+
+  /** Reads the names of the generic functions of the runtime (rt_*.go in the output directory). */
+  void loadGenerics(Path out) throws IOException {
+    if (!IMPLICIT || !Files.isDirectory(out)) return;
+    Pattern decl = Pattern.compile("^func (\\w+)\\[.*");
+    try (var fs = Files.list(out)) {
+      for (Path f : (Iterable<Path>) fs.sorted()::iterator) {
+        String fn = f.getFileName().toString();
+        if (!fn.startsWith("rt_") || !fn.endsWith(".go") || fn.endsWith("_test.go")) continue;
+        for (String l : Files.readAllLines(f)) {
+          Matcher m = decl.matcher(l);
+          if (m.matches()) rtGenerics.add(m.group(1));
+        }
+      }
+    }
+  }
+
+  /**
+   * Rule "implicit conversions": a value passed where Go declares `any` (a parameter of that
+   * type, an element of a []any) is written as it is, where the erased translation wrote the
+   * conversion any(x) of a primitive, an interface value or an array. Go converts the value to
+   * the parameter's type as the explicit conversion did; nothing changes at run time. (obj_,
+   * strobj_ and box_() are not such conversions: they make null of a nil pointer, the null
+   * string and handle 0.)
+   *
+   * @param r code for a place whose Go type is `any`
+   */
+  static String implicit(String r) {
+    return IMPLICIT && r.startsWith("any(") && closesAtEnd(r, 3) ? r.substring(4, r.length() - 1) : r;
+  }
+
+  /**
+   * Whether the Object parameters of library function or constructor `name` are declared `any`
+   * in Go, so that an argument needs no conversion. A generic function of the runtime could
+   * declare a type parameter there, which Go would infer from the argument: its arguments keep
+   * their conversions. (The variants _T and _H of the checks are generic in a parameter that the
+   * translator passes typed; their other parameters are `any`.)
+   */
+  boolean anyParams(String name) {
+    return !rtGenerics.contains(name);
   }
 
   // ------------------------------------------------------------------ String for CharSequence

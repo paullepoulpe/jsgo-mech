@@ -175,6 +175,37 @@ func hashH_[T handle_](v T) int32 { return objhash_(v.box_()) }
 
 func tostrH_[T handle_](v T) string { return objstr_(v.box_()) }
 
+// Rule "typed Object calls": x.equals(y), x.hashCode() and x.toString() where the method is
+// Object's, on a receiver held at its static type (a pointer to a class without subclasses or
+// an interface; suffix H: a handle). The receiver becomes the object that the erased code
+// passed (obj_, box_()), so a null receiver throws NullPointerException as it did.
+
+func equalsR_[T comparable](a T, b any) bool { return Object_equals(obj_(a), b) }
+
+func equalsRR_[T comparable](a, b T) bool { return Object_equals(obj_(a), obj_(b)) }
+
+func hashR_[T comparable](v T) int32 { return Object_hashCode(obj_(v)) }
+
+func tostrR_[T comparable](v T) string { return Object_toString(obj_(v)) }
+
+func equalsRH_[T handle_](a T, b any) bool { return Object_equals(a.box_(), b) }
+
+func equalsRRH_[T handle_](a, b T) bool { return Object_equals(a.box_(), b.box_()) }
+
+func hashRH_[T handle_](v T) int32 { return Object_hashCode(v.box_()) }
+
+func tostrRH_[T handle_](v T) string { return Object_toString(v.box_()) }
+
+// eqR_ is a.equals(b) of two values of a type whose equals is identity (an enum, a class
+// without subclasses that has only Object's equals): null receiver throws, else a == b.
+func eqR_[T comparable](a, b T) bool {
+	var zero T
+	if a == zero {
+		panic(new_NullPointerException_0().self())
+	}
+	return a == b
+}
+
 // strhash_ is Objects.hashCode of a String: 0 for null.
 func strhash_(s string) int32 {
 	if s == nullstr_ {

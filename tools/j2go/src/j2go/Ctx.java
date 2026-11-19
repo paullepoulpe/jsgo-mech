@@ -1695,10 +1695,12 @@ final class Ctx {
       return fn + "Of_" + ta + "(" + coerce(code, from, object) + ")";
     }
     // A value of a type parameter meets another type through its box, as in the erased code.
+    if (kf == K.TVAR && kt == K.ANY) conv.noteBox(from);
     if (kf == K.TVAR) return kt == K.ANY ? "boxT_(" + code + ")" : coerce("boxT_(" + code + ")", object, to);
     if (kt == K.TVAR) return "unboxT_[" + gt + "](" + coerce(code, from, object) + ")";
     switch (kt) {
       case ANY:
+        conv.noteBox(from);
         switch (kf) {
           case PRIM: return "any(" + gf + "(" + code + "))";
           case STR: return "strobj_(" + code + ")";

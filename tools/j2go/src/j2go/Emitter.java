@@ -960,7 +960,7 @@ final class Emitter extends StmtEmitter {
         String typed = cx.conv.typedEquals("this." + fn, "o." + fn, cx.vtype(f));
         if (k == Ctx.K.PRIM || k == Ctx.K.STR) b.append(" && this.").append(fn).append(" == o.").append(fn);
         else if (typed != null) b.append(" && ").append(typed);
-        else b.append(" && Objects_equals(").append(cx.coerce("this." + fn, cx.vtype(f), objectType())).append(", ").append(cx.coerce("o." + fn, cx.vtype(f), objectType())).append(")");
+        else b.append(" && Objects_equals(").append(Conv.implicit(cx.coerce("this." + fn, cx.vtype(f), objectType()))).append(", ").append(Conv.implicit(cx.coerce("o." + fn, cx.vtype(f), objectType()))).append(")");
       }
       file.append("func (this *").append(n).append(") equals(p0 any) bool {\n").append(b).append("\n}\n\n");
     }
@@ -969,7 +969,7 @@ final class Emitter extends StmtEmitter {
       for (VariableElement f : fields) {
         String typed = cx.conv.typedHash("this." + cx.fieldName(f), cx.vtype(f));
         if (typed != null) b.append("\th = h*31 + ").append(typed).append("\n");
-        else b.append("\th = h*31 + Objects_hashCode(").append(cx.coerce("this." + cx.fieldName(f), cx.vtype(f), objectType())).append(")\n");
+        else b.append("\th = h*31 + Objects_hashCode(").append(Conv.implicit(cx.coerce("this." + cx.fieldName(f), cx.vtype(f), objectType()))).append(")\n");
       }
       file.append("func (this *").append(n).append(") hashCode() int32 {\n").append(b).append("\treturn h\n}\n\n");
     }
@@ -999,7 +999,7 @@ final class Emitter extends StmtEmitter {
         }
       default: {
         String typed = cx.conv.typedStr(v, t);
-        return typed != null ? typed : "objstr_(" + cx.coerce(v, t, objectType()) + ")";
+        return typed != null ? typed : "objstr_(" + Conv.implicit(cx.coerce(v, t, objectType())) + ")";
       }
     }
   }

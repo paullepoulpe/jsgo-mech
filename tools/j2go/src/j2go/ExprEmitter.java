@@ -326,6 +326,12 @@ abstract class ExprEmitter extends Base {
     return sb.append(")").toString();
   }
 
+  /** The value that a function with result type ret returns: a result declared `any` needs no conversion any(x) (Conv.implicit). */
+  String resultAs(ExpressionTree t, TypeMirror ret) {
+    String r = exprAs(t, ret);
+    return cx.goType(ret).equals("any") ? Conv.implicit(r) : r;
+  }
+
   String cond(ExpressionTree t) {
     return exprAs(t, prim(TypeKind.BOOLEAN));
   }
@@ -704,7 +710,7 @@ abstract class ExprEmitter extends Base {
       default: {
         // an object at its static type (Conv.typedStr), else through Object
         String typed = cx.conv.typedStr("", ty) == null || !declaredAs(t, ty) ? null : cx.conv.typedStr(expr(t), ty);
-        return typed != null ? typed : "objstr_(" + asAny(t) + ")";
+        return typed != null ? typed : "objstr_(" + Conv.implicit(asAny(t)) + ")";
       }
     }
   }
@@ -1080,14 +1086,20 @@ abstract class ExprEmitter extends Base {
       }
     }
     int fixed = pack ? n - 1 : n;
-    for (int i = 0; i < fixed && i < args.size(); i++) out.add(argAs(e, i, args.get(i), params.get(i)));
+    // rule "implicit conversions": no any(x) where the Go parameter is `any` (Conv.implicit)
+    boolean anyParams = cx.isSource(cx.ownerOf(e)) || cx.conv.anyParams(e.getKind() == ElementKind.CONSTRUCTOR ? cx.ctorName(e, "new_") : cx.staticMethodName(e));
+    for (int i = 0; i < fixed && i < args.size(); i++) {
+      String a = argAs(e, i, args.get(i), params.get(i));
+      out.add(anyParams && cx.goType(params.get(i)).equals("any") ? Conv.implicit(a) : a);
+    }
     if (pack) {
       TypeMirror arr = params.get(n - 1);
       TypeMirror comp = ((ArrayType) arr).getComponentType();
       StringBuilder sb = new StringBuilder(cx.goType(arr) + "{");
       for (int i = fixed; i < args.size(); i++) {
         if (i > fixed) sb.append(", ");
-        sb.append(argAs(e, i, args.get(i), comp));
+        String a = argAs(e, i, args.get(i), comp);
+        sb.append(cx.goType(comp).equals("any") ? Conv.implicit(a) : a);
       }
       out.add(sb.append("}").toString());
     }
@@ -1098,7 +1110,9 @@ abstract class ExprEmitter extends Base {
   String argAs(ExecutableElement e, int i, Arg a, TypeMirror target) {
     TypeMirror own = cx.conv.msgArg(e, i, a.type, target);
     if (own != null) return a.as(own);
-    return cx.conv.bare(a.as(target), target);
+    String r = cx.conv.bare(a.as(target), target);
+    cx.conv.noteBoxArg(e, i, a.type, target, r);
+    return r;
   }
 
   List<TypeMirror> argTypes(List<Arg> args) {
@@ -1141,6 +1155,10 @@ abstract class ExprEmitter extends Base {
         List<TypeMirror> sp = new ArrayList<>(params);
         String sv = cx.conv.strSeq(name, e, sp, argTypes(args));
         if (sv != null) return new CallResult(sv + "(" + argList(e, sp, args) + ")", ret);
+      }
+      if (!src) {
+        CallResult tr = typedObjStatic(e, args);
+        if (tr != null) return tr;
       }
       TypeMirror hm = src || args.isEmpty() ? null : cx.conv.handleMsg(e, name, params.size(), args.size(), args.get(args.size() - 1).type);
       if (hm != null) {
@@ -1232,7 +1250,11 @@ abstract class ExprEmitter extends Base {
         StringBuilder sb = new StringBuilder(sk).append("(")
             .append(rk == Ctx.K.CLS || rk == Ctx.K.IFACE ? recv.code : cx.coerce(recv.code, recv.type, ro.asType()))
             .append(", ").append(args.get(0).as(stringType()));
-        for (int i = 1; i < args.size(); i++) sb.append(", ").append(args.get(i).as(cx.erase(re.getParameters().get(i).asType())));
+        for (int i = 1; i < args.size(); i++) {
+          TypeMirror pt = cx.erase(re.getParameters().get(i).asType());
+          String a = args.get(i).as(pt);
+          sb.append(", ").append(cx.goType(pt).equals("any") ? Conv.implicit(a) : a);
+        }
         return new CallResult(sb.append(")").toString(), cx.erase(re.getReturnType()));
       }
     }
@@ -1258,12 +1280,17 @@ abstract class ExprEmitter extends Base {
         return new CallResult("equalsT_(" + recv.code + ", " + a.as(objectType()) + ")", prim(TypeKind.BOOLEAN));
       }
     }
+    if (!src && !superCall && owner.getQualifiedName().contentEquals("java.lang.Object")) {
+      CallResult tr = typedObjCall(e, recv, args);
+      if (tr != null) return tr;
+    }
     if (!src && (ok == Ctx.K.STR || ok == Ctx.K.ANY || owner.getKind().isInterface() && e.isDefault())) {
       // Static-style helper taking the receiver first.
       List<TypeMirror> params = ownParams(e);
       TypeMirror ret = cx.erase(e.getReturnType());
       String name = cx.staticMethodName(e);
       String r = cx.coerce(recv.code, recv.type, owner.asType());
+      if (ok == Ctx.K.ANY && cx.conv.anyParams(name)) r = Conv.implicit(r);
       List<TypeMirror> sp = new ArrayList<>(params);
       String sv = cx.conv.strSeq(name, e, sp, argTypes(args));
       if (sv != null) return new CallResult(sv + "(" + r + ", " + argList(e, sp, args) + ")", ret);
@@ -1319,6 +1346,80 @@ abstract class ExprEmitter extends Base {
       }
     }
     return new CallResult(target + "(" + argList(e, params, args) + ")", ret);
+  }
+
+  /** Whether argument a is, by its declaration, a value of the Go type of t (declaredAs): its code at type t is the code that was boxed. */
+  boolean argDeclaredAs(Arg a, TypeMirror t) {
+    if (a.tree == null || a.type == null) return false;
+    TypeMirror at = cx.erase(a.type);
+    return cx.kind(at) == cx.kind(t) && !cx.isTypedColl(at) && cx.goType(at).equals(cx.goType(t)) && declaredAs(a.tree, a.type);
+  }
+
+  /**
+   * Rule "typed Object calls" (Conv.OBJCALL), instance methods: x.equals(y), x.hashCode() and
+   * x.toString() where the method javac finds is Object's (the receiver's class, a library class
+   * or a class of the program, has no Go method for it), on a receiver that is a pointer to a
+   * class without subclasses, an interface or a handle. The receiver stays at its static type:
+   * the runtime function (equalsR_, hashR_, tostrR_; suffix H for a handle) makes it the object
+   * that the erased translation passed and calls Object's method, so a null receiver throws as
+   * before. An argument of equals that has the receiver's type by its declaration stays typed
+   * too (equalsRR_); where equals of that type is identity (an enum, a class of the program
+   * without subclasses that has only Object's equals) the call is eqR_: a test of the receiver
+   * for null and `==`.
+   *
+   * @return the call, or null when the rule does not apply
+   */
+  CallResult typedObjCall(ExecutableElement e, Recv recv, List<Arg> args) {
+    if (!Conv.OBJCALL || recv == null || recv.type == null) return null;
+    String h = cx.conv.objHelper(recv.type);
+    if (h == null) return null;
+    String n = e.getSimpleName().toString();
+    if (n.equals("toString") && args.isEmpty()) return new CallResult("tostrR" + h + "_(" + recv.code + ")", stringType());
+    if (n.equals("hashCode") && args.isEmpty()) return new CallResult("hashR" + h + "_(" + recv.code + ")", prim(TypeKind.INT));
+    if (!n.equals("equals") || args.size() != 1) return null;
+    TypeMirror rt = cx.erase(recv.type);
+    Arg a = args.get(0);
+    if (argDeclaredAs(a, rt)) {
+      String fn = h.isEmpty() && cx.kind(rt) == Ctx.K.CLS && cx.conv.identityEquals(Ctx.typeElement(rt)) ? "eqR_" : "equalsRR" + h + "_";
+      return new CallResult(fn + "(" + recv.code + ", " + a.as(rt) + ")", prim(TypeKind.BOOLEAN));
+    }
+    return new CallResult("equalsR" + h + "_(" + recv.code + ", " + Conv.implicit(argAs(e, 0, a, objectType())) + ")", prim(TypeKind.BOOLEAN));
+  }
+
+  /**
+   * Rule "typed Object calls", static methods: Objects.equals(a, b) of two values that have one
+   * type by their declarations (two Strings are compared with ==, as String.equals is; other
+   * types as Conv.typedEquals compares the components of a record), Objects.hashCode(v)
+   * (Conv.typedHash) and String.valueOf(Object) (Conv.typedStr) of a value that has its type by
+   * its declaration.
+   *
+   * @return the call, or null when the rule does not apply
+   */
+  CallResult typedObjStatic(ExecutableElement e, List<Arg> args) {
+    if (!Conv.OBJCALL || e.isVarArgs() || args.size() != e.getParameters().size()) return null;
+    for (VariableElement p : e.getParameters()) if (!cx.types.isSameType(p.asType(), objectType())) return null;
+    String qn = cx.ownerOf(e).getQualifiedName() + "#" + e.getSimpleName();
+    switch (qn) {
+      case "java.util.Objects#equals", "com.google.common.base.Objects#equal": {
+        if (args.size() != 2 || args.get(0).type == null) return null;
+        TypeMirror t = cx.erase(args.get(0).type);
+        if (!argDeclaredAs(args.get(0), t) || !argDeclaredAs(args.get(1), t)) return null;
+        if (cx.kind(t) != Ctx.K.STR && cx.conv.typedEquals("", "", t) == null) return null;
+        String a = args.get(0).as(t), b = args.get(1).as(t);
+        return new CallResult(cx.kind(t) == Ctx.K.STR ? "(" + a + " == " + b + ")" : "(" + cx.conv.typedEquals(a, b, t) + ")", prim(TypeKind.BOOLEAN));
+      }
+      case "java.util.Objects#hashCode", "java.lang.String#valueOf": {
+        if (args.size() != 1 || args.get(0).type == null) return null;
+        boolean hash = qn.endsWith("hashCode");
+        TypeMirror t = cx.erase(args.get(0).type);
+        Ctx.K k = cx.kind(t);
+        if (!argDeclaredAs(args.get(0), t) || (hash ? k != Ctx.K.STR && k != Ctx.K.CLS && k != Ctx.K.IFACE || cx.conv.typedHash("", t) == null : cx.conv.typedStr("", t) == null)) return null;
+        String v = args.get(0).as(t);
+        return hash ? new CallResult(cx.conv.typedHash(v, t), prim(TypeKind.INT)) : new CallResult(cx.conv.typedStr(v, t), stringType());
+      }
+      default:
+        return null;
+    }
   }
 
   /** A call of generic instance method e (Ctx.genFns): Owner_m[class args, method args](recv, args). */
@@ -1652,7 +1753,7 @@ abstract class ExprEmitter extends Base {
     StringBuilder body = new StringBuilder(entry);
     if (t.getBodyKind() == LambdaExpressionTree.BodyKind.EXPRESSION) {
       ExpressionTree be = (ExpressionTree) t.getBody();
-      String code = inner.isVoid ? stmtExpr(be) : "return " + exprAs(be, ret);
+      String code = inner.isVoid ? stmtExpr(be) : "return " + resultAs(be, ret);
       for (String p : mc.pre) body.append(p).append("\n");
       mc.pre.clear();
       body.append(code).append("\n");

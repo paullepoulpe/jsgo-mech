@@ -288,6 +288,7 @@ public final class Main {
       colls.decide();
     }
     cx.conv.loadAliases(out);
+    cx.conv.loadGenerics(out);
     cx.assignClassNames();
     cx.analyzeMethods();
     Files.createDirectories(out);
@@ -346,6 +347,7 @@ public final class Main {
     }
     for (String d : cx.conv.upcasts.values()) cb.append("\n").append(d);
     cx.conv.strSeqReport();
+    cx.conv.boxReport();
     for (String d : cx.tconvs.values()) cb.append("\n").append(d);
     if (!cx.collKinds.isEmpty() && !"1".equals(System.getenv("J2GO_NOCOMPARABLE"))) {
       // The classes whose Go == is Java's equals (Ctx.goEquals): a typed set or map whose element
