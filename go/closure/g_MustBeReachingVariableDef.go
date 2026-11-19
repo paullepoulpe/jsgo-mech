@@ -222,7 +222,7 @@ func (this *MustBeReachingVariableDef) addToDefIfLocal(name string, node Node, r
 }
 
 func (this *MustBeReachingVariableDef) escapeParameters(output *MustBeReachingVariableDef_MustDef) {
-	it_1 := this.allVarsInFn.eachValue()
+	it_1 := this.allVarsInFn.each()
 	for it_1.next() {
 		var v *Var = it_1.v
 		if MustBeReachingVariableDef_isParameter(v) {

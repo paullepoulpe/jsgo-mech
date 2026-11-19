@@ -65,7 +65,7 @@ func (this *DeadPropertyAssignmentElimination_FunctionVisitor) enterChangedScope
 	}
 	var traversal *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal = new_DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal(this.skiplistedPropNames)
 	NodeTraversal_traverse(compiler, body, DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal_as_NodeTraversal_Callback(traversal))
-	it_1 := traversal.propertyMap.eachValue()
+	it_1 := traversal.propertyMap.each()
 	for it_1.next() {
 		var property *DeadPropertyAssignmentElimination_Property = it_1.v
 		if property.writes.size() <= 1 {
@@ -359,7 +359,7 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 }
 
 func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) markAllPropsRead() {
-	it_1 := this.propertyMap.eachValue()
+	it_1 := this.propertyMap.each()
 	for it_1.next() {
 		var property *DeadPropertyAssignmentElimination_Property = it_1.v
 		if property.writes.isEmpty() {

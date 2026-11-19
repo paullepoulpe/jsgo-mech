@@ -26,7 +26,7 @@ func (this *ProcessTweaks) process_2(externs Node, root Node) {
 }
 
 func (this *ProcessTweaks) stripAllCalls(tweakInfos *TMap[string, *ProcessTweaks_TweakInfo]) {
-	it_1 := tweakInfos.eachValue()
+	it_1 := tweakInfos.each()
 	for it_1.next() {
 		var tweakInfo *ProcessTweaks_TweakInfo = it_1.v
 		var isRegistered bool = tweakInfo.isRegistered()
@@ -56,7 +56,7 @@ func (this *ProcessTweaks) collectTweaks(root Node) *ProcessTweaks_CollectTweaks
 	var pass *ProcessTweaks_CollectTweaks = new_ProcessTweaks_CollectTweaks(this)
 	NodeTraversal_traverse(this.compiler_, root, ProcessTweaks_CollectTweaks_as_NodeTraversal_Callback(pass))
 	var tweakInfos *TMap[string, *ProcessTweaks_TweakInfo] = pass.allTweaks
-	it_1 := tweakInfos.eachValue()
+	it_1 := tweakInfos.each()
 	for it_1.next() {
 		var tweakInfo *ProcessTweaks_TweakInfo = it_1.v
 		tweakInfo.emitAllWarnings()

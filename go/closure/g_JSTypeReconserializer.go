@@ -262,7 +262,7 @@ func (this *JSTypeReconserializer) checkValidLinearTime() {
 		return
 	}
 	var totalTypeCount int32 = this.seenTypeRecords.Len()
-	it_1 := this.seenTypeRecords.eachValue()
+	it_1 := this.seenTypeRecords.each()
 	for it_1.next() {
 		var seen *JSTypeReconserializer_SeenTypeRecord = it_1.v
 		var offset int32 = seen.pointer
@@ -288,7 +288,7 @@ func (this *JSTypeReconserializer) generateTypePool() *TypePool {
 		}})
 	}
 	this.state = JSTypeReconserializer_State_GENERATING_POOL
-	it_1 := this.seenTypeRecords.eachValue()
+	it_1 := this.seenTypeRecords.each()
 	for it_1.next() {
 		var seen *JSTypeReconserializer_SeenTypeRecord = it_1.v
 		if StandardColors_AXIOMATIC_COLORS.Has(seen.colorId) {

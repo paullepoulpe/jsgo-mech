@@ -115,9 +115,9 @@ func (this *ReplaceMessages) createNodeForGenderedMsgString(message *JsMessage, 
 	var type_ AstFactory_Type = AstFactory_type_Node(nodeToReplace)
 	var uniqueId string = this.compiler_.getUniqueIdSupplier().getUniqueId(this.compiler_.getInput(NodeUtil_getInputId(nodeToReplace)))
 	var placeholderMapIds map[string]string = map[string]string{}
-	it_1 := placeholderMap.eachKey()
+	it_1 := placeholderMap.each()
 	for it_1.next() {
-		var placeholderName string = it_1.v
+		var placeholderName string = it_1.k
 		var placeholderId string = (sstr_(placeholderName) + sstr_(uniqueId))
 		paramList.addChildToBack(this.astFactory_.createName(placeholderId, type_))
 		placeholderMapIds[placeholderName] = placeholderId
@@ -134,7 +134,7 @@ func (this *ReplaceMessages) createNodeForGenderedMsgString(message *JsMessage, 
 	function.setColor(nodeToReplace.getColor())
 	this.compiler_.reportChangeToChangeScope(function)
 	var callNode Node = this.astFactory_.createCall(function, type_, []Node{})
-	it_3 := placeholderMap.eachValue()
+	it_3 := placeholderMap.each()
 	for it_3.next() {
 		var node Node = it_3.v
 		callNode.addChildToBack(node.cloneTree())

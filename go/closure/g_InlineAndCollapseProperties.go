@@ -967,7 +967,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) checkNamespaces() *T
 	var escaped *ImmutableSet_Builder[*GlobalNamespace_Name] = immutableSetBuilder_(tc_p_GlobalNamespace_Name)
 	var dynamicallyImportedModuleRefs *TSet[string] = tsetCopyT_(tc_string, this.dynamicallyImportedModules)
 	if !this.dynamicallyImportedModules.IsEmpty() {
-		it_1 := this.nameMap.eachValue()
+		it_1 := this.nameMap.each()
 		for it_1.next() {
 			var name *GlobalNamespace_Name = it_1.v
 			if this.dynamicallyImportedModules.Has(name.getFullName()) {
@@ -992,7 +992,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) checkNamespaces() *T
 			}
 		}
 	}
-	it_5 := this.nameMap.eachValue()
+	it_5 := this.nameMap.each()
 	for it_5.next() {
 		var name *GlobalNamespace_Name = it_5.v
 		if !dynamicallyImportedModuleRefs.IsEmpty() && dynamicallyImportedModuleRefs.Has(name.getFullName()) {

@@ -1496,7 +1496,7 @@ func (this *Compiler) parseInputs() (ret_1 Node) {
 				}
 			}
 		}
-		it_10 := inputsToRewrite.eachValue()
+		it_10 := inputsToRewrite.each()
 		for it_10.next() {
 			var input *CompilerInput = it_10.v
 			input.setJsModuleType(CompilerInput_ModuleType_IMPORTED_SCRIPT)

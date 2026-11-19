@@ -81,15 +81,15 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		supertype.getSubtypeIndices().or(subtype.getSubtypeIndices())
 		return (supertype.getSubtypeIndices().cardinality() > startSize)
 	}}).computeFixedPoint(colorGraph.up_DiGraph())
-	it_4 := this.propertyMap.eachValue()
+	it_4 := this.propertyMap.each()
 	for it_4.next() {
 		var prop *AmbiguateProperties_Property = it_4.v
 		if prop.relatedColorsSeeds == nil {
 			continue
 		}
-		it_6 := prop.relatedColorsSeeds.eachKey()
+		it_6 := prop.relatedColorsSeeds.each()
 		for it_6.next() {
-			var color *ColorGraphNode = it_6.v
+			var color *ColorGraphNode = it_6.k
 			prop.relatedColors.or(color.getSubtypeIndices())
 		}
 		prop.relatedColorsSeeds = nil
@@ -98,7 +98,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	var numRenamedPropertyNames int32 = 0
 	var numSkippedPropertyNames int32 = 0
 	var nodes *TList[*AmbiguateProperties_PropertyGraphNode] = newTListN_(tc_p_AmbiguateProperties_PropertyGraphNode, this.propertyMap.Len())
-	it_8 := this.propertyMap.eachValue()
+	it_8 := this.propertyMap.each()
 	for it_8.next() {
 		var prop *AmbiguateProperties_Property = it_8.v
 		if prop.skipAmbiguating {

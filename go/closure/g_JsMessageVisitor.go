@@ -988,9 +988,9 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsStringToStringMap() 
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForUnexpectedKeys(expectedKeys *TSet[string], createErrorMessage func(any) any) *Outcome_base[any] {
-	it_1 := this.stringToStringKeyMap.eachKey()
+	it_1 := this.stringToStringKeyMap.each()
 	for it_1.next() {
-		var key string = it_1.v
+		var key string = it_1.k
 		if !expectedKeys.Has(key) {
 			return Outcome_base_err[any](new_JsMessageVisitor_MalformedException(str_(createErrorMessage(strobj_(key))), this.stringToStringKeyMap.Get(key)).up_Throwable())
 		}

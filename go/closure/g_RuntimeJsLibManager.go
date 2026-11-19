@@ -55,7 +55,7 @@ func (this *RuntimeJsLibManager) getExternedFields() *TList[RuntimeJsLibManager_
 		return tlistEmptyImm_(tc_RuntimeJsLibManager_ExternedField)
 	}
 	var result *ImmutableList_Builder[RuntimeJsLibManager_ExternedField] = immutableListBuilder_(tc_RuntimeJsLibManager_ExternedField)
-	it_1 := this.internedFields.eachValue()
+	it_1 := this.internedFields.each()
 	for it_1.next() {
 		var field *RuntimeJsLibManager_InternalField = it_1.v
 		if field.isInjected() {

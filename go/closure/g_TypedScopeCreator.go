@@ -211,7 +211,7 @@ func (this *TypedScopeCreator) gatherAllProvides(root Node) {
 	var externs Node = root.getFirstChild()
 	var js Node = root.getSecondChild()
 	var providedNames *TMap[string, *ProcessClosureProvidesAndRequires_ProvidedName] = new_ProcessClosureProvidesAndRequires(this.compiler_, true).collectProvidedNames(externs, js)
-	it_1 := providedNames.eachValue()
+	it_1 := providedNames.each()
 	for it_1.next() {
 		var name *ProcessClosureProvidesAndRequires_ProvidedName = it_1.v
 		if name.hasImplicitInitialization() {

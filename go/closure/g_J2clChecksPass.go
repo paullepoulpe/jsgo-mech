@@ -29,9 +29,9 @@ func new_J2clChecksPass(compiler *AbstractCompiler) *J2clChecksPass {
 }
 
 func (this *J2clChecksPass) visit_impl(unused *NodeTraversal, n Node, parent Node) {
-	it_1 := J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS.eachKey()
+	it_1 := J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS.each()
 	for it_1.next() {
-		var typeName string = it_1.v
+		var typeName string = it_1.k
 		this.checkReferenceEquality(n, typeName, J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS.Get(typeName))
 	}
 }

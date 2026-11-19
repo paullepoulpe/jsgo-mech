@@ -270,7 +270,7 @@ func (this *InlineFunctions) inliningLowersCost(functionState *InlineFunctions_F
 }
 
 func (this *InlineFunctions) resolveInlineConflicts() {
-	it_1 := this.fns.eachValue()
+	it_1 := this.fns.each()
 	for it_1.next() {
 		var functionState *InlineFunctions_FunctionState = it_1.v
 		this.resolveInlineConflictsForFunction(functionState)
@@ -329,7 +329,7 @@ func InlineFunctions_findCalledFunctions(node Node, changed *TSet[string]) {
 }
 
 func (this *InlineFunctions) decomposeExpressions() {
-	it_1 := this.fns.eachValue()
+	it_1 := this.fns.each()
 	for it_1.next() {
 		var functionState *InlineFunctions_FunctionState = it_1.v
 		if functionState.canInline() {
@@ -809,7 +809,7 @@ func (this *InlineFunctions_FunctionState) removeBlockInliningReferences() {
 }
 
 func (this *InlineFunctions_FunctionState) hasBlockInliningReferences() bool {
-	it_1 := this.getReferencesInternal().eachValue()
+	it_1 := this.getReferencesInternal().each()
 	for it_1.next() {
 		var r *InlineFunctions_Reference = it_1.v
 		if r.mode_ == FunctionInjector_InliningMode_BLOCK {

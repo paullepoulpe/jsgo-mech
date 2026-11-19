@@ -70,9 +70,9 @@ func (this *FixingErrorManager) report_2_impl(level CheckLevel, error_ *JSError)
 }
 
 func (this *FixingErrorManager) containsFixableShorthandModuleWarning() bool {
-	it_1 := this.sureFixes.eachKey()
+	it_1 := this.sureFixes.each()
 	for it_1.next() {
-		var error_ *JSError = it_1.v
+		var error_ *JSError = it_1.k
 		if error_.type_().equals_DiagnosticType(ClosureCheckModule_REFERENCE_TO_SHORT_IMPORT_BY_LONG_NAME_INCLUDING_SHORT_NAME) {
 			return true
 		}

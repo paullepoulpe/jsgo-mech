@@ -303,7 +303,7 @@ func (this *PerformanceTracker) calcTotalStats() {
 	}
 	this.endTime = System_currentTimeMillis()
 	this.populatePassSummary()
-	it_1 := this.passSummary.eachValue()
+	it_1 := this.passSummary.each()
 	for it_1.next() {
 		var stats *PerformanceTracker_Stats = it_1.v
 		this.passesRuntime = int32((int64(this.passesRuntime) + stats.runtime_))
