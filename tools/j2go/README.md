@@ -651,6 +651,38 @@ the translated program.
   anything else. The cursor must be declared before the `for`, not in its init clause, where
   Go would copy it at every iteration.
 
+- **Field layout.** The fields of a class's struct are written in the order of their Go
+  alignment, widest first, and in Java's order among fields of one alignment
+  (`Ctx.layoutRank`, `Emitter.structDecl`): 8 bytes (pointers, interfaces, strings, slices,
+  `int64`, `float64`), then the fields of a Go type parameter and the runtime's value types
+  holding one (`Optional[T]`: 8 bytes for a pointer, 4 for a handle, so this place leaves no
+  hole either way), then 4 bytes (`int32`, `float32`, handles), 2, 1. Go lays a struct out as
+  it is written and pads each field to its alignment, so a `boolean` between two references
+  costs 8 bytes; in this order a struct has no padding but at its end. The embedded superclass
+  struct stays first, then `self_`, the dispatch table, the enclosing instance and the captured
+  variables with the declared fields, each by its alignment. Only the declaration changes:
+  every use names the field (the translation writes no positional composite literal of a class
+  struct, compares no struct value and converts none; the runtime finds `self_` and an embedded
+  superclass by name or by type, `Object_clone` and `embeddedPtr_`), and field initializers
+  and constructors run in Java's order. The records and columns of a handle class have their
+  own layout (above). `J2GO_NOLAYOUT=1` writes Java's order. Padding over the 2,172 generated
+  structs 3,639 -> 2,415 bytes (what is left is at the end of a struct); 115 structs are
+  smaller, 77 of them by an allocation size class (`Var` 72 -> 64 bytes, so 80 -> 64 allocated;
+  `HamtPMap` 56 -> 48, so 64 -> 48).
+  Packing the `boolean` fields of a class into one flag word was measured on top of this and
+  not done: with the booleans next to each other at the end of the struct, bits instead of
+  bytes change the size of 17 of the 144 structs with two or more booleans and the allocation
+  size class of 4 (`CompilerOptions`, `Compiler`, `InlineFunctions.FunctionState`,
+  `RemoveUnusedCode.Builder`), about 0.26 MB of the 2,250 MB the bundle workload allocates.
+- **Report: value candidates** (`J2GO_VALUES=1`, `ValueScan`; no rule uses it). Lists the
+  classes that could be Go values instead of heap objects, a class or record without
+  superclass or subclasses, not inner, with only final fields and none of its own type (428),
+  with the size of its struct, whether it has its own `equals`, and counts of what a rule
+  would have to exclude or handle: `==` between two of them, comparisons with `null`, `null`
+  given where the class is expected, places where one becomes an `Object` or an interface (a
+  box in Go), mentions as a type argument, `instanceof` and casts, `synchronized`, identity
+  collections, `this` escaping the constructor, fields and arrays that start as `null`.
+
 What the runtime does for the same reason (entries of hash tables stored by value, small
 tables searched linearly, no per-entry or per-view objects) is described in `RUNTIME.md`.
 

@@ -290,6 +290,12 @@ public final class Main {
     cx.conv.loadAliases(out);
     cx.conv.loadGenerics(out);
     cx.assignClassNames();
+    // Report only: the classes that could be Go values, and what speaks against it.
+    if (System.getenv("J2GO_VALUES") != null) {
+      ValueScan.prepare(cx);
+      for (CompilationUnitTree cu : units) ValueScan.scan(cx, trees, cu);
+      ValueScan.report(cx);
+    }
     cx.analyzeMethods();
     Files.createDirectories(out);
     try (var old = Files.list(out)) {
