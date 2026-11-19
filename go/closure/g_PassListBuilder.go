@@ -31,7 +31,7 @@ func (this *PassListBuilder) addAll(other *PassListBuilder) {
 }
 
 func (this *PassListBuilder) maybeAdd(factory *PassFactory) {
-	if unbox_[bool](factory.getCondition().apply(obj_(this.options_))) {
+	if factory.getCondition().call(this.options_) {
 		this.passes.add(factory)
 	}
 }

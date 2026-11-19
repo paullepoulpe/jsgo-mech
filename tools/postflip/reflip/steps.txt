@@ -629,3 +629,7 @@ bde90b78 patch reflip2-bde90b78-manual.patch
 55140646 patch reflip2-55140646-rt.patch
 # C25. postflip (manual): the compiler executor and Tracer keep no thread (5c53206a rewritten for this flip)
 77a8e1aa patch reflip2-77a8e1aa-manual.patch
+# C26. postflip step: sbuild on the bridged tree (tool fix e8c5ab2d: jtostr_ and StringBuilder_as_Appendable)
+d907dada run t sbuild && f
+# C27. postflip (manual): the two new StringBuilders stored into Appendable slots are strBuilder_ (3e235bb3 applied to this flip); the unused upcast helper is removed
+8f212ee2 patch reflip2-8f212ee2-manual.patch

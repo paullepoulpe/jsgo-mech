@@ -25,22 +25,16 @@ func (this *LintPassConfig) up_PassConfig() *PassConfig {
 }
 
 func (this *LintPassConfig) finit_LintPassConfig() {
-	this.gatherModuleMetadataPass = PassFactory_builder().setName(PassNames_GATHER_MODULE_METADATA).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.gatherModuleMetadataPass = PassFactory_builder().setName(PassNames_GATHER_MODULE_METADATA).setInternalFactory(newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
 		return CompilerPass(new_GatherModuleMetadata(compiler, compiler.getOptions().getProcessCommonJSModules(), compiler.getOptions().getModuleResolutionMode()))
-	}}).build()
-	this.earlyLintChecks = PassFactory_builder().setName("earlyLintChecks").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	})).build()
+	this.earlyLintChecks = PassFactory_builder().setName("earlyLintChecks").setInternalFactory(newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
 		return CompilerPass(new_CombinedCompilerPass(compiler, immutableListOf_[NodeTraversal_Callback](tc_NodeTraversal_Callback, NodeTraversal_Callback(new_CheckConstPrivateProperties(compiler)), NodeTraversal_Callback(new_CheckConstantCaseNames(compiler)), NodeTraversal_Callback(new_CheckDuplicateCase(compiler)), NodeTraversal_Callback(new_CheckEmptyStatements(compiler)), NodeTraversal_Callback(new_CheckEnums(compiler)), NodeTraversal_Callback(new_CheckExtraRequires(compiler, this.options_.getUnusedImportsToRemove())), NodeTraversal_Callback(new_CheckGoogModuleTypeScriptName(compiler)), NodeTraversal_Callback(new_CheckJSDocStyle(compiler)), NodeTraversal_Callback(new_CheckJSDoc(compiler)), NodeTraversal_Callback(new_CheckMissingSemicolon(compiler)), NodeTraversal_Callback(new_CheckSuper(compiler)), NodeTraversal_Callback(new_CheckPrimitiveAsObject(compiler)), NodeTraversal_Callback(new_ClosureCheckModule(compiler, compiler.getModuleMetadataMap())), NodeTraversal_Callback(new_CheckNullabilityModifiers(compiler)), NodeTraversal_Callback(new_CheckProvidesSorted(CheckProvidesSorted_Mode_COLLECT_AND_REPORT)), NodeTraversal_Callback(new_CheckRequiresSorted(CheckRequiresSorted_Mode_COLLECT_AND_REPORT)), NodeTraversal_Callback(new_CheckSideEffects(compiler, true, false)), NodeTraversal_Callback(new_CheckTypeImportCodeReferences(compiler)), NodeTraversal_Callback(new_CheckUnusedLabels(compiler)), NodeTraversal_Callback(new_CheckUnusedPrivateProperties(compiler)), NodeTraversal_Callback(new_CheckUselessBlocks(compiler)), NodeTraversal_Callback(new_CheckVar(compiler)))))
-	}}).build()
-	this.variableReferenceCheck = PassFactory_builder().setName("variableReferenceCheck").setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass { return CompilerPass(new_VariableReferenceCheck(to_AbstractCompiler(p0))) }}).build()
-	this.lateLintChecks = PassFactory_builder().setName("lateLintChecks").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	})).build()
+	this.variableReferenceCheck = PassFactory_builder().setName("variableReferenceCheck").setRunInFixedPointLoop(true).setInternalFactory(newFuncObj_(func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_VariableReferenceCheck(p0)) })).build()
+	this.lateLintChecks = PassFactory_builder().setName("lateLintChecks").setInternalFactory(newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
 		return CompilerPass(new_CombinedCompilerPass(compiler, immutableListOf_[NodeTraversal_Callback](tc_NodeTraversal_Callback, NodeTraversal_Callback(new_CheckInterfaces(compiler)), NodeTraversal_Callback(new_CheckPrototypeProperties(compiler)))))
-	}}).build()
+	})).build()
 }
 
 func (this *LintPassConfig) init_LintPassConfig(options *CompilerOptions) {
