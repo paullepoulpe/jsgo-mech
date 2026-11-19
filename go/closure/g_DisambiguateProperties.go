@@ -161,47 +161,34 @@ func (this *DisambiguateProperties) invalidateNonDeclaredPropertyAccesses(colorG
 	}
 }
 
-func (this *DisambiguateProperties) mayHaveProperty(color *Color, propertyName string) bool {
-	var ret_1 bool
-	code_1 := func() (code_ int) {
-		defer func() {
-			this.mayHavePropertySeenSet.remove(color)
-		}()
-		if !this.mayHavePropertySeenSet.add(color) {
-			ret_1 = false
-			return 1
-		}
-		if color.isUnion() {
-			it_2 := color.getUnionElements().each()
-			for it_2.next() {
-				var element *Color = it_2.v
-				if this.mayHaveProperty(element, propertyName) {
-					ret_1 = true
-					return 1
-				}
-			}
-			ret_1 = false
-			return 1
-		}
-		if color.getOwnProperties().contains(propertyName) {
-			ret_1 = true
-			return 1
-		}
-		it_4 := foreach_(this.registry.getDisambiguationSupertypes(color))
-		for it_4.next() {
-			var element *Color = cast_[*Color](it_4.v)
-			if this.mayHaveProperty(element, propertyName) {
-				ret_1 = true
-				return 1
-			}
-		}
-		ret_1 = false
-		return 1
+func (this *DisambiguateProperties) mayHaveProperty(color *Color, propertyName string) (ret_1 bool) {
+	defer func() {
+		this.mayHavePropertySeenSet.remove(color)
 	}()
-	if code_1 == 1 {
-		return ret_1
+	if !this.mayHavePropertySeenSet.add(color) {
+		return false
 	}
-	panic("unreachable")
+	if color.isUnion() {
+		it_2 := color.getUnionElements().each()
+		for it_2.next() {
+			var element *Color = it_2.v
+			if this.mayHaveProperty(element, propertyName) {
+				return true
+			}
+		}
+		return false
+	}
+	if color.getOwnProperties().contains(propertyName) {
+		return true
+	}
+	it_4 := foreach_(this.registry.getDisambiguationSupertypes(color))
+	for it_4.next() {
+		var element *Color = cast_[*Color](it_4.v)
+		if this.mayHaveProperty(element, propertyName) {
+			return true
+		}
+	}
+	return false
 }
 
 func (this *DisambiguateProperties) registerOwnDeclaredProperties(colorGraphNode *ColorGraphNode, propIndex *JTMap[string, *PropertyClustering]) {
@@ -223,21 +210,15 @@ func (this *DisambiguateProperties) registerOwnDeclaredProperties(colorGraphNode
 }
 
 func (this *DisambiguateProperties) logForDiagnostics(name string, data Supplier_baseOf[any]) {
-	_ = func() (code_ int) {
-		var log *LogFile = this.compiler_.createOrReopenLog(Object_getClass(any(this)), (sstr_(name) + ".log"), []string{})
-		defer closeResource_(log.self())
-		log.logJsonSupplier(Supplier(data))
-		return 0
-	}()
+	var log *LogFile = this.compiler_.createOrReopenLog(Object_getClass(any(this)), (sstr_(name) + ".log"), []string{})
+	defer closeResource_(log.self())
+	log.logJsonSupplier(Supplier(data))
 }
 
 func (this *DisambiguateProperties) logForDiagnosticsStreamedJsonProducer(name string, data LogFile_StreamedJsonProducer) {
-	_ = func() (code_ int) {
-		var log *LogFile = this.compiler_.createOrReopenLog(Object_getClass(any(this)), (sstr_(name) + ".log"), []string{})
-		defer closeResource_(log.self())
-		log.logJson(data)
-		return 0
-	}()
+	var log *LogFile = this.compiler_.createOrReopenLog(Object_getClass(any(this)), (sstr_(name) + ".log"), []string{})
+	defer closeResource_(log.self())
+	log.logJson(data)
 }
 
 var DisambiguateProperties_PROPERTY_INVALIDATION *DiagnosticType

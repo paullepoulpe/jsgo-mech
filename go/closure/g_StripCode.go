@@ -107,14 +107,11 @@ func (this *StripCode) process_2(externs Node, root Node) {
 	if !this.compiler_.getLifeCycleStage().isNormalized() {
 		panic(new_IllegalStateException_0())
 	}
-	_ = func() (code_ int) {
-		var decisionsLog *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(any(this)), "decisions.log", []string{})
-		defer closeResource_(decisionsLog.self())
-		decisionsLog.log(Supplier(new_StripCode_StripCodeConfigRecord(this)))
-		decisionsLog.logString("\n=== decisions ===\n")
-		NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_StripCode_Strip(this, decisionsLog)))
-		return 0
-	}()
+	var decisionsLog *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(any(this)), "decisions.log", []string{})
+	defer closeResource_(decisionsLog.self())
+	decisionsLog.log(Supplier(new_StripCode_StripCodeConfigRecord(this)))
+	decisionsLog.logString("\n=== decisions ===\n")
+	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_StripCode_Strip(this, decisionsLog)))
 }
 
 var StripCode_STRIP_TYPE_INHERIT_ERROR *DiagnosticType

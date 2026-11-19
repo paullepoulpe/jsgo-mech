@@ -73,20 +73,17 @@ func (this *RemoveUnusedCode) process_2(externs Node, root Node) {
 		panic(new_IllegalStateException_0())
 	}
 	this.pinnedPropertyNames.asSet().addAll(Collection(this.compiler_.getExternProperties().asSet()))
-	_ = func() (code_ int) {
-		defer func() {
-			this.removalLog = nil
-			this.unremovableLog = nil
-		}()
-		var removalLogFile *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(any(this)), "removals.log", []string{})
-		defer closeResource_(removalLogFile.self())
-		var keepLogFile *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(any(this)), "unremovable.log", []string{})
-		defer closeResource_(keepLogFile.self())
-		this.removalLog = removalLogFile
-		this.unremovableLog = keepLogFile
-		this.traverseAndRemoveUnusedReferences(root)
-		return 0
+	defer func() {
+		this.removalLog = nil
+		this.unremovableLog = nil
 	}()
+	var removalLogFile *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(any(this)), "removals.log", []string{})
+	defer closeResource_(removalLogFile.self())
+	var keepLogFile *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(any(this)), "unremovable.log", []string{})
+	defer closeResource_(keepLogFile.self())
+	this.removalLog = removalLogFile
+	this.unremovableLog = keepLogFile
+	this.traverseAndRemoveUnusedReferences(root)
 }
 
 func (this *RemoveUnusedCode) traverseAndRemoveUnusedReferences(root Node) {

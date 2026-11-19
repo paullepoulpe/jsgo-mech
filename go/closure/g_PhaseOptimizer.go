@@ -109,21 +109,18 @@ func (this *PhaseOptimizer) maybeRunValidityCheck(passName string, externs Node,
 	if this.validityCheck == nil {
 		return
 	}
-	_ = func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if p, ok := ex_.(RuntimeException_as); ok {
-					var e *RuntimeException = p.as_RuntimeException()
-					panic(new_IllegalStateException_String_Throwable(("Validity checks failed for pass: " + sstr_(passName)), e.up_Throwable()))
-				}
-				panic(r_)
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if p, ok := ex_.(RuntimeException_as); ok {
+				var e *RuntimeException = p.as_RuntimeException()
+				panic(new_IllegalStateException_String_Throwable(("Validity checks failed for pass: " + sstr_(passName)), e.up_Throwable()))
 			}
-		}()
-		this.validityCheck.create(this.compiler_).process_2(externs, root)
-		this.changeVerifier.checkRecordedChanges_2(passName, this.jsRoot)
-		return 0
+			panic(r_)
+		}
 	}()
+	this.validityCheck.create(this.compiler_).process_2(externs, root)
+	this.changeVerifier.checkRecordedChanges_2(passName, this.jsRoot)
 }
 
 func (this *PhaseOptimizer) hasHaltingErrors() bool {
@@ -263,24 +260,21 @@ func (this *PhaseOptimizer_NamedPass) process_2(externs Node, root Node) {
 	this.outer_.compiler_.beforePass(this.name_)
 	this.factory.create(this.outer_.compiler_).process_2(externs, root)
 	this.outer_.compiler_.afterPass(this.name_)
-	_ = func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if e, ok := ex_.(*IllegalStateException); ok {
-					panic(new_RuntimeException_String_Throwable(("Validity check failed for " + sstr_(this.name_)), e.up_Throwable()))
-				}
-				panic(r_)
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if e, ok := ex_.(*IllegalStateException); ok {
+				panic(new_RuntimeException_String_Throwable(("Validity check failed for " + sstr_(this.name_)), e.up_Throwable()))
 			}
-		}()
-		var traceRuntime int64 = this.tracer.stop()
-		if this.outer_.tracker != nil {
-			this.outer_.tracker.recordPassStop(this.name_, traceRuntime)
+			panic(r_)
 		}
-		this.outer_.maybePrintAstHashcodes(this.name_, root)
-		this.outer_.maybeRunValidityCheck(this.name_, externs, root)
-		return 0
 	}()
+	var traceRuntime int64 = this.tracer.stop()
+	if this.outer_.tracker != nil {
+		this.outer_.tracker.recordPassStop(this.name_, traceRuntime)
+	}
+	this.outer_.maybePrintAstHashcodes(this.name_, root)
+	this.outer_.maybeRunValidityCheck(this.name_, externs, root)
 }
 
 func (this *PhaseOptimizer_NamedPass) toString() string {
@@ -372,63 +366,58 @@ func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
 	var count int32 = 1
 	var astSize int32 = NodeUtil_countAstSize(root)
 	var previousAstSize int32 = astSize
-	code_3 := func() (code_ int) {
-		defer func() {
-			this.outer_.inLoop_ = false
-			this.outer_.changeTracker.removeChangeHandler(PhaseOptimizer_ScopedChangeHandler_as_CodeChangeHandler(this.scopeHandler))
-		}()
-		for {
-			if (count > this.outer_.optimizationLoopMaxIterations) && this.isCodeRemovalLoopField {
-				return 1
-			}
-			if count > PhaseOptimizer_MAX_LOOPS {
-				this.outer_.compiler_.throwInternalError(PhaseOptimizer_OPTIMIZE_LOOP_ERROR, nil)
-			}
-			count++
-			lastIterMadeChanges = false
-			it_5 := this.myPasses.each()
-			for it_5.next() {
-				var pass *PhaseOptimizer_NamedPass = it_5.v
-				if (((state == PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER) && !runInPrevIter.contains(pass)) && !didNotMakeChanges.contains(pass)) || ((state == PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER) && madeChanges.contains(pass)) {
-					this.outer_.changeTracker.incrementChangeStamp()
-					this.outer_.currentPass = pass
-					pass.process_2(externs, root)
-					runInPrevIter.add(pass)
-					this.outer_.lastRuns.put(pass, any(int32(this.outer_.changeTracker.getChangeStamp())))
-					if this.outer_.hasHaltingErrors() {
-						return 1
-					} else if this.scopeHandler.hasCodeChangedSinceLastCall() {
-						madeChanges.add(pass)
-						didNotMakeChanges.clear()
-						lastIterMadeChanges = true
-					} else {
-						madeChanges.remove(pass)
-						didNotMakeChanges.add(pass)
-					}
+	defer func() {
+		this.outer_.inLoop_ = false
+		this.outer_.changeTracker.removeChangeHandler(PhaseOptimizer_ScopedChangeHandler_as_CodeChangeHandler(this.scopeHandler))
+	}()
+	for {
+		if (count > this.outer_.optimizationLoopMaxIterations) && this.isCodeRemovalLoopField {
+			return
+		}
+		if count > PhaseOptimizer_MAX_LOOPS {
+			this.outer_.compiler_.throwInternalError(PhaseOptimizer_OPTIMIZE_LOOP_ERROR, nil)
+		}
+		count++
+		lastIterMadeChanges = false
+		it_5 := this.myPasses.each()
+		for it_5.next() {
+			var pass *PhaseOptimizer_NamedPass = it_5.v
+			if (((state == PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER) && !runInPrevIter.contains(pass)) && !didNotMakeChanges.contains(pass)) || ((state == PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER) && madeChanges.contains(pass)) {
+				this.outer_.changeTracker.incrementChangeStamp()
+				this.outer_.currentPass = pass
+				pass.process_2(externs, root)
+				runInPrevIter.add(pass)
+				this.outer_.lastRuns.put(pass, any(int32(this.outer_.changeTracker.getChangeStamp())))
+				if this.outer_.hasHaltingErrors() {
+					return
+				} else if this.scopeHandler.hasCodeChangedSinceLastCall() {
+					madeChanges.add(pass)
+					didNotMakeChanges.clear()
+					lastIterMadeChanges = true
 				} else {
-					runInPrevIter.remove(pass)
-				}
-			}
-			previousAstSize = astSize
-			astSize = NodeUtil_countAstSize(root)
-			if state == PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER {
-				if lastIterMadeChanges && this.isAstSufficientlyChanging(previousAstSize, astSize) {
-					state = PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER
-				} else {
-					return 1
+					madeChanges.remove(pass)
+					didNotMakeChanges.add(pass)
 				}
 			} else {
-				if state != PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER {
-					panic(new_IllegalStateException_0())
-				}
-				if !lastIterMadeChanges || !this.isAstSufficientlyChanging(previousAstSize, astSize) {
-					state = PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER
-				}
+				runInPrevIter.remove(pass)
 			}
 		}
-	}()
-	if code_3 == 1 {
-		return
+		previousAstSize = astSize
+		astSize = NodeUtil_countAstSize(root)
+		if state == PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER {
+			if lastIterMadeChanges && this.isAstSufficientlyChanging(previousAstSize, astSize) {
+				state = PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER
+			} else {
+				return
+			}
+		} else {
+			if state != PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER {
+				panic(new_IllegalStateException_0())
+			}
+			if !lastIterMadeChanges || !this.isAstSufficientlyChanging(previousAstSize, astSize) {
+				state = PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER
+			}
+		}
 	}
 }
 
