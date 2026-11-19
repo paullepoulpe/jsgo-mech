@@ -57,12 +57,12 @@ func (this *StrictModeCheck) checkWith(n Node) {
 
 func StrictModeCheck_isDeclaration(n Node) bool {
 	return func() bool {
-		switch n.getParent().getToken() {
-		case Token_rhino_LET, Token_rhino_CONST, Token_rhino_VAR, Token_rhino_CATCH:
+		switch n.getParent().ns_().token {
+		case tokOrd1_LET, tokOrd1_CONST, tokOrd1_VAR, tokOrd1_CATCH:
 			return true
-		case Token_rhino_FUNCTION:
+		case tokOrd1_FUNCTION:
 			return (n == n.getParent().getFirstChild())
-		case Token_rhino_PARAM_LIST:
+		case tokOrd1_PARAM_LIST:
 			return n.getGrandparent().isFunction()
 		default:
 			return false

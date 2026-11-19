@@ -985,10 +985,10 @@ func ConformanceRules_BannedName_clinit() {
 	ConformanceRules_BannedName_clinit_done = true
 	ConformanceRules_BannedName_IS_CANDIDATE_NODE = &CheckConformance_Precondition_fn{func(n Node) bool {
 		return func() bool {
-			switch n.getToken() {
-			case Token_rhino_GETPROP:
+			switch n.ns_().token {
+			case tokOrd1_GETPROP:
 				return n.getFirstChild().isQualifiedName()
-			case Token_rhino_NAME:
+			case tokOrd1_NAME:
 				return !String_isEmpty(n.getString())
 			default:
 				return false
@@ -1163,10 +1163,10 @@ func (this *ConformanceRules_BannedProperty) extractType(n Node) *JSType {
 		case Token_rhino_STRING_KEY, Token_rhino_COMPUTED_PROP:
 			var parent Node = n.getParent()
 			return func() *JSType {
-				switch parent.getToken() {
-				case Token_rhino_OBJECT_PATTERN, Token_rhino_OBJECTLIT:
+				switch parent.ns_().token {
+				case tokOrd1_OBJECT_PATTERN, tokOrd1_OBJECTLIT:
 					return parent.getJSType()
-				case Token_rhino_CLASS_MEMBERS:
+				case tokOrd1_CLASS_MEMBERS:
 					return nil
 				default:
 					panic(new_AssertionError_0().self())
@@ -1182,10 +1182,10 @@ func (this *ConformanceRules_BannedProperty) extractType(n Node) *JSType {
 
 func (this *ConformanceRules_BannedProperty) extractName(n Node) Optional[string] {
 	return func() Optional[string] {
-		switch n.getToken() {
-		case Token_rhino_GETPROP, Token_rhino_STRING_KEY:
+		switch n.ns_().token {
+		case tokOrd1_GETPROP, tokOrd1_STRING_KEY:
 			return Optional_of[string](n.getString())
-		case Token_rhino_GETELEM:
+		case tokOrd1_GETELEM:
 			var string_ Node = n.getSecondChild()
 			return func() Optional[string] {
 				if string_.isStringLit() {
@@ -1193,7 +1193,7 @@ func (this *ConformanceRules_BannedProperty) extractName(n Node) Optional[string
 				}
 				return Optional_empty[string]()
 			}()
-		case Token_rhino_COMPUTED_PROP:
+		case tokOrd1_COMPUTED_PROP:
 			var string_ Node = n.getFirstChild()
 			return func() Optional[string] {
 				if string_.isStringLit() {
@@ -1506,10 +1506,10 @@ func ConformanceRules_ConformanceUtil_inferStringValue(scope *Scope, node Node, 
 	if node == 0 {
 		return Optional_empty[string]()
 	}
-	switch node.getToken() {
-	case Token_rhino_STRING_KEY, Token_rhino_STRINGLIT, Token_rhino_TEMPLATELIT, Token_rhino_TEMPLATELIT_STRING:
+	switch node.ns_().token {
+	case tokOrd1_STRING_KEY, tokOrd1_STRINGLIT, tokOrd1_TEMPLATELIT, tokOrd1_TEMPLATELIT_STRING:
 		return NodeUtil_getStringValue(node)
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		if scope == nil {
 			return Optional_empty[string]()
 		}
@@ -1523,7 +1523,7 @@ func ConformanceRules_ConformanceUtil_inferStringValue(scope *Scope, node Node, 
 		}
 		var initialValue Node = var_.getInitialValue()
 		return ConformanceRules_ConformanceUtil_inferStringValue(var_.getScope_rAbstractScope_rScope(), initialValue, globalNamespaceSupplier)
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		var type_ *JSType = node.getJSType()
 		if type_ == nil {
 			return Optional_empty[string]()
@@ -2390,10 +2390,10 @@ func (this *ConformanceRules_BanNullDeref) initBanNullDeref(compiler *AbstractCo
 
 func (this *ConformanceRules_BanNullDeref) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	var violation bool = func() bool {
-		switch n.getToken() {
-		case Token_rhino_GETPROP, Token_rhino_GETELEM, Token_rhino_NEW, Token_rhino_CALL:
+		switch n.ns_().token {
+		case tokOrd1_GETPROP, tokOrd1_GETELEM, tokOrd1_NEW, tokOrd1_CALL:
 			return this.report(n.getFirstChild())
-		case Token_rhino_IN:
+		case tokOrd1_IN:
 			return this.report(n.getLastChild())
 		default:
 			return false
@@ -2659,13 +2659,13 @@ func (this *ConformanceRules_BanUnknownTypedClassPropsReferences) isDeclaredUnkn
 	}
 	var expr *JSTypeExpression = info.getType()
 	var typeExprNode Node = expr.getRoot()
-	if (typeExprNode.getToken() == Token_rhino_QMARK) && !typeExprNode.hasChildren() {
+	if (typeExprNode.ns_().token == tokOrd1_QMARK) && !typeExprNode.hasChildren() {
 		return true
-	} else if typeExprNode.getToken() == Token_rhino_PIPE {
+	} else if typeExprNode.ns_().token == tokOrd1_PIPE {
 		{
 			var child Node = typeExprNode.getFirstChild()
 			for ; child != 0; child = child.getNext() {
-				if child.getToken() == Token_rhino_QMARK {
+				if child.ns_().token == tokOrd1_QMARK {
 					return true
 				}
 			}
@@ -3954,8 +3954,8 @@ func new_ConformanceRules_BannedProperty_RequirementPrecondition_1(name_ string,
 
 func (this *ConformanceRules_BannedProperty_RequirementPrecondition_1) shouldCheck_impl(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_STRING_KEY, Token_rhino_GETPROP, Token_rhino_GETELEM, Token_rhino_COMPUTED_PROP:
+		switch n.ns_().token {
+		case tokOrd1_STRING_KEY, tokOrd1_GETPROP, tokOrd1_GETELEM, tokOrd1_COMPUTED_PROP:
 			return true
 		default:
 			return false

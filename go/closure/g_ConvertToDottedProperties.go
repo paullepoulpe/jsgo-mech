@@ -32,8 +32,8 @@ func (this *ConvertToDottedProperties) process_2(externs Node, root Node) {
 }
 
 func (this *ConvertToDottedProperties) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_COMPUTED_PROP, Token_rhino_COMPUTED_FIELD_DEF:
+	switch n.ns_().token {
+	case tokOrd1_COMPUTED_PROP, tokOrd1_COMPUTED_FIELD_DEF:
 		var leftElem Node = n.getFirstChild()
 		var rightElem Node = leftElem.getNext()
 		if ((leftElem.isStringLit() && NodeUtil_isValidPropertyName(FeatureSet_ES3, leftElem.getString())) && !(leftElem.getString() == "constructor")) && !(parent.isObjectLit() && (leftElem.getString() == "__proto__")) {
@@ -68,14 +68,14 @@ func (this *ConvertToDottedProperties) visit_impl(t *NodeTraversal, n Node, pare
 			n.replaceWith(temp)
 			this.compiler_.reportChangeToEnclosingScope(temp)
 		}
-	case Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_STRING_KEY:
+	case tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_STRING_KEY:
 		if NodeUtil_isValidPropertyName(FeatureSet_ES3, n.getString()) {
 			if n.getBooleanProp(Node_QUOTED_PROP) {
 				n.putBooleanProp(Node_QUOTED_PROP, false)
 				this.compiler_.reportChangeToEnclosingScope(n)
 			}
 		}
-	case Token_rhino_OPTCHAIN_GETELEM, Token_rhino_GETELEM:
+	case tokOrd1_OPTCHAIN_GETELEM, tokOrd1_GETELEM:
 		var left Node = n.getFirstChild()
 		var right Node = left.getNext()
 		if right.isStringLit() && NodeUtil_isValidPropertyName(FeatureSet_ES3, right.getString()) {

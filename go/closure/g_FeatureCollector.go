@@ -50,8 +50,8 @@ func (this *FeatureCollector) visitSingleNode(contextStack *JTList[*FeatureColle
 
 func (this *FeatureCollector) recordScriptFeatures(contextStack *JTList[*FeatureCollector_FeatureContext], node Node) {
 	var parentContext *FeatureCollector_FeatureContext = cast_[*FeatureCollector_FeatureContext](SequencedCollection_getLast(SequencedCollection(contextStack.asList())))
-	switch node.getToken() {
-	case Token_rhino_FUNCTION:
+	switch node.ns_().token {
+	case tokOrd1_FUNCTION:
 		if node.isAsyncGeneratorFunction() {
 			this.addScriptFeature(FeatureSet_Feature_ASYNC_GENERATORS)
 		}
@@ -67,16 +67,16 @@ func (this *FeatureCollector) recordScriptFeatures(contextStack *JTList[*Feature
 		if Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_BLOCK_SCOPE)) {
 			this.scriptFeatures = this.scriptFeatures.with(FeatureSet_Feature_BLOCK_SCOPED_FUNCTION_DECLARATION)
 		}
-	case Token_rhino_PARAM_LIST, Token_rhino_CALL, Token_rhino_NEW:
-	case Token_rhino_STRING_KEY:
+	case tokOrd1_PARAM_LIST, tokOrd1_CALL, tokOrd1_NEW:
+	case tokOrd1_STRING_KEY:
 		if node.isShorthandProperty() && Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_OBJECT_LITERAL)) {
 			this.addScriptFeature(FeatureSet_Feature_SHORTHAND_OBJECT_PROPERTIES)
 		}
-	case Token_rhino_DEFAULT_VALUE:
+	case tokOrd1_DEFAULT_VALUE:
 		if Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_PARAM_LIST)) {
 			this.addScriptFeature(FeatureSet_Feature_DEFAULT_PARAMETERS)
 		}
-	case Token_rhino_GETTER_DEF:
+	case tokOrd1_GETTER_DEF:
 		this.addScriptFeature(FeatureSet_Feature_GETTER)
 		if Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_CLASS_MEMBERS)) {
 			this.addScriptFeature(FeatureSet_Feature_CLASS_GETTER_SETTER)
@@ -84,9 +84,9 @@ func (this *FeatureCollector) recordScriptFeatures(contextStack *JTList[*Feature
 		if node.isPrivateIdentifier() {
 			this.addScriptFeature(FeatureSet_Feature_PRIVATE_ELEMENTS)
 		}
-	case Token_rhino_REGEXP:
+	case tokOrd1_REGEXP:
 		this.addScriptFeature(FeatureSet_Feature_REGEXP_SYNTAX)
-	case Token_rhino_SETTER_DEF:
+	case tokOrd1_SETTER_DEF:
 		this.addScriptFeature(FeatureSet_Feature_SETTER)
 		if Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_CLASS_MEMBERS)) {
 			this.addScriptFeature(FeatureSet_Feature_CLASS_GETTER_SETTER)
@@ -94,35 +94,35 @@ func (this *FeatureCollector) recordScriptFeatures(contextStack *JTList[*Feature
 		if node.isPrivateIdentifier() {
 			this.addScriptFeature(FeatureSet_Feature_PRIVATE_ELEMENTS)
 		}
-	case Token_rhino_BLOCK:
+	case tokOrd1_BLOCK:
 		if Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_CLASS_MEMBERS)) {
 			this.addScriptFeature(FeatureSet_Feature_CLASS_STATIC_BLOCK)
 		}
-	case Token_rhino_EMPTY:
+	case tokOrd1_EMPTY:
 		if Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_CATCH)) {
 			this.addScriptFeature(FeatureSet_Feature_OPTIONAL_CATCH_BINDING)
 		}
-	case Token_rhino_ITER_REST:
+	case tokOrd1_ITER_REST:
 		if Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_PARAM_LIST)) {
 			this.addScriptFeature(FeatureSet_Feature_REST_PARAMETERS)
 		} else {
 			this.addScriptFeature(FeatureSet_Feature_ARRAY_PATTERN_REST)
 		}
-	case Token_rhino_ITER_SPREAD:
+	case tokOrd1_ITER_SPREAD:
 		this.addScriptFeature(FeatureSet_Feature_SPREAD_EXPRESSIONS)
-	case Token_rhino_OBJECT_REST:
+	case tokOrd1_OBJECT_REST:
 		this.addScriptFeature(FeatureSet_Feature_OBJECT_PATTERN_REST)
-	case Token_rhino_OBJECT_SPREAD:
+	case tokOrd1_OBJECT_SPREAD:
 		this.addScriptFeature(FeatureSet_Feature_OBJECT_LITERALS_WITH_SPREAD)
-	case Token_rhino_BIGINT:
+	case tokOrd1_BIGINT:
 		this.addScriptFeature(FeatureSet_Feature_BIGINT)
-	case Token_rhino_EXPONENT, Token_rhino_ASSIGN_EXPONENT:
+	case tokOrd1_EXPONENT, tokOrd1_ASSIGN_EXPONENT:
 		this.addScriptFeature(FeatureSet_Feature_EXPONENT_OP)
-	case Token_rhino_TAGGED_TEMPLATELIT, Token_rhino_TEMPLATELIT:
+	case tokOrd1_TAGGED_TEMPLATELIT, tokOrd1_TEMPLATELIT:
 		this.addScriptFeature(FeatureSet_Feature_TEMPLATE_LITERALS)
-	case Token_rhino_NEW_TARGET:
+	case tokOrd1_NEW_TARGET:
 		this.addScriptFeature(FeatureSet_Feature_NEW_TARGET)
-	case Token_rhino_COMPUTED_PROP:
+	case tokOrd1_COMPUTED_PROP:
 		this.addScriptFeature(FeatureSet_Feature_COMPUTED_PROPERTIES)
 		var isGetter bool = node.getBooleanProp(Node_COMPUTED_PROP_GETTER)
 		var isSetter bool = node.getBooleanProp(Node_COMPUTED_PROP_SETTER)
@@ -135,54 +135,54 @@ func (this *FeatureCollector) recordScriptFeatures(contextStack *JTList[*Feature
 		if (isGetter || isSetter) && isClassMember {
 			this.addScriptFeature(FeatureSet_Feature_CLASS_GETTER_SETTER)
 		}
-	case Token_rhino_OPTCHAIN_GETPROP, Token_rhino_OPTCHAIN_CALL, Token_rhino_OPTCHAIN_GETELEM:
+	case tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OPTCHAIN_CALL, tokOrd1_OPTCHAIN_GETELEM:
 		this.addScriptFeature(FeatureSet_Feature_OPTIONAL_CHAINING)
-	case Token_rhino_COALESCE:
+	case tokOrd1_COALESCE:
 		this.addScriptFeature(FeatureSet_Feature_NULL_COALESCE_OP)
-	case Token_rhino_DYNAMIC_IMPORT:
+	case tokOrd1_DYNAMIC_IMPORT:
 		this.addScriptFeature(FeatureSet_Feature_DYNAMIC_IMPORT)
-	case Token_rhino_ASSIGN_OR, Token_rhino_ASSIGN_AND:
+	case tokOrd1_ASSIGN_OR, tokOrd1_ASSIGN_AND:
 		this.addScriptFeature(FeatureSet_Feature_LOGICAL_ASSIGNMENT)
-	case Token_rhino_ASSIGN_COALESCE:
+	case tokOrd1_ASSIGN_COALESCE:
 		this.addScriptFeature(FeatureSet_Feature_NULL_COALESCE_OP)
 		this.addScriptFeature(FeatureSet_Feature_LOGICAL_ASSIGNMENT)
-	case Token_rhino_FOR_OF:
+	case tokOrd1_FOR_OF:
 		this.addScriptFeature(FeatureSet_Feature_FOR_OF)
-	case Token_rhino_FOR_AWAIT_OF:
+	case tokOrd1_FOR_AWAIT_OF:
 		this.addScriptFeature(FeatureSet_Feature_FOR_AWAIT_OF)
 		this.maybeAddTopLevelAwait(contextStack)
-	case Token_rhino_IMPORT, Token_rhino_EXPORT:
+	case tokOrd1_IMPORT, tokOrd1_EXPORT:
 		this.addScriptFeature(FeatureSet_Feature_MODULES)
-	case Token_rhino_CONST:
+	case tokOrd1_CONST:
 		this.addScriptFeature(FeatureSet_Feature_CONST_DECLARATIONS)
-	case Token_rhino_LET:
+	case tokOrd1_LET:
 		this.addScriptFeature(FeatureSet_Feature_LET_DECLARATIONS)
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		this.addScriptFeature(FeatureSet_Feature_CLASSES)
-	case Token_rhino_MEMBER_FUNCTION_DEF:
+	case tokOrd1_MEMBER_FUNCTION_DEF:
 		this.addScriptFeature(FeatureSet_Feature_MEMBER_DECLARATIONS)
 		if node.isPrivateIdentifier() {
 			this.addScriptFeature(FeatureSet_Feature_PRIVATE_ELEMENTS)
 		}
-	case Token_rhino_MEMBER_FIELD_DEF:
+	case tokOrd1_MEMBER_FIELD_DEF:
 		if node.isPrivateIdentifier() {
 			this.addScriptFeature(FeatureSet_Feature_PRIVATE_ELEMENTS)
 		} else {
 			this.addScriptFeature(FeatureSet_Feature_PUBLIC_CLASS_FIELDS)
 		}
-	case Token_rhino_IN:
+	case tokOrd1_IN:
 		if (node.getFirstChild() != 0) && node.getFirstChild().isPrivateIdentifier() {
 			this.addScriptFeature(FeatureSet_Feature_PRIVATE_ELEMENTS)
 		}
-	case Token_rhino_COMPUTED_FIELD_DEF:
+	case tokOrd1_COMPUTED_FIELD_DEF:
 		this.addScriptFeature(FeatureSet_Feature_PUBLIC_CLASS_FIELDS)
-	case Token_rhino_SUPER:
+	case tokOrd1_SUPER:
 		this.addScriptFeature(FeatureSet_Feature_SUPER)
-	case Token_rhino_ARRAY_PATTERN:
+	case tokOrd1_ARRAY_PATTERN:
 		this.addScriptFeature(FeatureSet_Feature_ARRAY_DESTRUCTURING)
-	case Token_rhino_OBJECT_PATTERN:
+	case tokOrd1_OBJECT_PATTERN:
 		this.addScriptFeature(FeatureSet_Feature_OBJECT_DESTRUCTURING)
-	case Token_rhino_AWAIT:
+	case tokOrd1_AWAIT:
 		this.addScriptFeature(FeatureSet_Feature_ASYNC_FUNCTIONS)
 		this.maybeAddTopLevelAwait(contextStack)
 	default:
@@ -201,25 +201,25 @@ func (this *FeatureCollector) addScriptFeature(x *FeatureSet_Feature) {
 
 func FeatureCollector_contextFor(contextStack *JTList[*FeatureCollector_FeatureContext], node Node) *FeatureCollector_FeatureContext {
 	return func() *FeatureCollector_FeatureContext {
-		switch node.getToken() {
-		case Token_rhino_PARAM_LIST:
+		switch node.ns_().token {
+		case tokOrd1_PARAM_LIST:
 			return FeatureCollector_FeatureContext_PARAM_LIST
-		case Token_rhino_CLASS_MEMBERS:
+		case tokOrd1_CLASS_MEMBERS:
 			return FeatureCollector_FeatureContext_CLASS_MEMBERS
-		case Token_rhino_CLASS:
+		case tokOrd1_CLASS:
 			return FeatureCollector_FeatureContext_CLASS
-		case Token_rhino_CATCH:
+		case tokOrd1_CATCH:
 			return FeatureCollector_FeatureContext_CATCH
-		case Token_rhino_BLOCK:
+		case tokOrd1_BLOCK:
 			return func() *FeatureCollector_FeatureContext {
 				if Object_equals(obj_(cast_[*FeatureCollector_FeatureContext](SequencedCollection_getLast(SequencedCollection(contextStack.asList())))), obj_(FeatureCollector_FeatureContext_FUNCTION)) {
 					return FeatureCollector_FeatureContext_NONE
 				}
 				return FeatureCollector_FeatureContext_BLOCK_SCOPE
 			}()
-		case Token_rhino_FUNCTION:
+		case tokOrd1_FUNCTION:
 			return FeatureCollector_FeatureContext_FUNCTION
-		case Token_rhino_OBJECTLIT:
+		case tokOrd1_OBJECTLIT:
 			return FeatureCollector_FeatureContext_OBJECT_LITERAL
 		default:
 			return FeatureCollector_FeatureContext_NONE

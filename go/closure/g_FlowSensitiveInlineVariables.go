@@ -465,8 +465,8 @@ func (this *FlowSensitiveInlineVariables_Candidate) getNumUseInUseCfgNode(cfgNod
 
 func (this *FlowSensitiveInlineVariables_Candidate) isRhsSafeToInline(usageScope *Scope) bool {
 	if NodeUtil_has(this.def.getLastChild(), &Predicate_base_tfn_Node{func(input Node) bool {
-		switch input.getToken() {
-		case Token_rhino_GETELEM, Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_CLASS, Token_rhino_ARRAYLIT, Token_rhino_OBJECTLIT, Token_rhino_REGEXP, Token_rhino_NEW:
+		switch input.ns_().token {
+		case tokOrd1_GETELEM, tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_CLASS, tokOrd1_ARRAYLIT, tokOrd1_OBJECTLIT, tokOrd1_REGEXP, tokOrd1_NEW:
 			return true
 		default:
 		}
@@ -517,13 +517,13 @@ func new_FlowSensitiveInlineVariables_Candidate_1(outer_ *FlowSensitiveInlineVar
 }
 
 func (this *FlowSensitiveInlineVariables_Candidate_1) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_NAME:
+	switch n.ns_().token {
+	case tokOrd1_NAME:
 		if (n.getString() == this.outer_.varName_) && n.hasChildren() {
 			this.outer_.def = n
 		}
 		return
-	case Token_rhino_ASSIGN:
+	case tokOrd1_ASSIGN:
 		var lhs Node = n.getFirstChild()
 		if lhs.isName() && (lhs.getString() == this.outer_.varName_) {
 			this.outer_.def = n

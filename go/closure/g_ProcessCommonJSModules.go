@@ -902,8 +902,8 @@ func new_ProcessCommonJSModules_RewriteModule(outer_ *ProcessCommonJSModules, al
 }
 
 func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_SCRIPT:
+	switch n.ns_().token {
+	case tokOrd1_SCRIPT:
 		it_2 := this.rewrittenClassExpressions.each()
 		for it_2.next() {
 			var clazz Node = it_2.v
@@ -945,11 +945,11 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 			var require Node = it_8.v
 			this.visitRequireCall(t, require)
 		}
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		if this.outer_.isCommonJsImport(n) {
 			this.imports.add(n)
 		}
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		if (n.hasMoreThanOneChild() && !NodeUtil_isAnyFor(parent)) && !parent.isExport() {
 			var vars *JTList[Node] = this.splitMultipleDeclarations(n)
 			t.reportCodeChange()
@@ -964,7 +964,7 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 			t.reportCodeChange()
 			return
 		}
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		if (NodeUtil_isNameDeclaration(n.getParent()) && n.getParent().hasMoreThanOneChild()) && !NodeUtil_isAnyFor(n.getGrandparent()) {
 			break
 		}
@@ -989,7 +989,7 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 			n.replaceWith(objectLit)
 			t.reportCodeChange_1(objectLit)
 		}
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		if n.matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + ".id")) || n.matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + ".filename")) {
 			var v *Var = t.getScope().getVar_String_rVar(ProcessCommonJSModules_MODULE)
 			if (v == nil) || v.isExtern() {
@@ -1001,7 +1001,7 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 				n.getFirstChild().replaceWith(IR_objectlit([]Node{}).srcref(n.getFirstChild()))
 			}
 		}
-	case Token_rhino_TYPEOF:
+	case tokOrd1_TYPEOF:
 		if (this.allowFullRewrite && n.getFirstChild().isName()) && ((n.getFirstChild().getString() == ProcessCommonJSModules_MODULE) || (n.getFirstChild().getString() == ProcessCommonJSModules_EXPORTS)) {
 			var v *Var = t.getScope().getVar_String_rVar(n.getFirstChild().getString())
 			if (v == nil) || v.isExtern() {
@@ -1181,8 +1181,8 @@ func (this *ProcessCommonJSModules_RewriteModule) updateNameReference(t *NodeTra
 	var newNameIsQualified bool = (String_indexOf(newName, 46) >= 0)
 	var newNameIsModuleExport bool = Object_equals(Optional_of[string](newName).box_(), this.outer_.getBasePropertyImport(ProcessCommonJSModules_getModuleName(t.getInput())).box_())
 	var newNameDeclaration *Var = t.getScope().getVar_String_rVar(newName)
-	switch parent.getToken() {
-	case Token_rhino_CLASS:
+	switch parent.ns_().token {
+	case tokOrd1_CLASS:
 		if (parent.getIndexOfChild(nameRef) == 0) && (newNameIsQualified || requireFunctionExpressions) {
 			this.rewrittenClassExpressions.add(parent)
 			var newNameRef Node = NodeUtil_newQName_AbstractCompiler_String_Node_String(this.outer_.compiler_, newName, nameRef, originalName.get())
@@ -1218,7 +1218,7 @@ func (this *ProcessCommonJSModules_RewriteModule) updateNameReference(t *NodeTra
 			nameRef.setString(newName)
 			nameRef.setOriginalName(originalName.orElse(""))
 		}
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		if newNameIsQualified || requireFunctionExpressions {
 			if NodeUtil_isFunctionExpression(parent) {
 				return
@@ -1252,7 +1252,7 @@ func (this *ProcessCommonJSModules_RewriteModule) updateNameReference(t *NodeTra
 			nameRef.setString(newName)
 			nameRef.setOriginalName(originalName.orElse(""))
 		}
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		if parent.hasMoreThanOneChild() && !NodeUtil_isAnyFor(parent.getParent()) {
 			this.splitMultipleDeclarations(parent)
 			parent = nameRef.getParent()
@@ -1616,18 +1616,18 @@ func new_ProcessCommonJSModules_FindImportsAndExports_1(outer_ *ProcessCommonJSM
 }
 
 func (this *ProcessCommonJSModules_FindImportsAndExports_1) visit(node Node) {
-	switch node.getToken() {
-	case Token_rhino_NAME:
+	switch node.ns_().token {
+	case tokOrd1_NAME:
 		if (node.getString() == ProcessCommonJSModules_MODULE) || (node.getString() == "define") {
 			break
 		}
 		return
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		if ProcessCommonJSModules_WINDOW_DEFINE.matches(node) {
 			break
 		}
 		return
-	case Token_rhino_STRINGLIT:
+	case tokOrd1_STRINGLIT:
 		if node.getParent().isIn() && (node.getString() == "amd") {
 			break
 		}

@@ -546,15 +546,15 @@ func new_TypedScopeCreator_IdentifyEnumsAndTypedefsAsNonNullable(registry *JSTyp
 }
 
 func (this *TypedScopeCreator_IdentifyEnumsAndTypedefsAsNonNullable) visit_impl(t *NodeTraversal, node Node, parent Node) {
-	switch node.getToken() {
-	case Token_rhino_LET, Token_rhino_CONST, Token_rhino_VAR:
+	switch node.ns_().token {
+	case tokOrd1_LET, tokOrd1_CONST, tokOrd1_VAR:
 		{
 			var child Node = node.getFirstChild()
 			for ; child != 0; child = child.getNext() {
 				this.identifyEnumOrTypedefDeclaration(t, child, child.getFirstChild(), NodeUtil_getBestJSDocInfo(child))
 			}
 		}
-	case Token_rhino_EXPR_RESULT:
+	case tokOrd1_EXPR_RESULT:
 		var firstChild Node = node.getFirstChild()
 		if firstChild.isAssign() {
 			var assign Node = firstChild
@@ -757,22 +757,22 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) visitPostorder_impl(t *NodeT
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) attachLiteralTypes(n Node) {
-	switch n.getToken() {
-	case Token_rhino_NULL:
+	switch n.ns_().token {
+	case tokOrd1_NULL:
 		n.setJSType(this.outer_.getNativeType(JSTypeNative_NULL_TYPE))
-	case Token_rhino_VOID:
+	case tokOrd1_VOID:
 		n.setJSType(this.outer_.getNativeType(JSTypeNative_VOID_TYPE))
-	case Token_rhino_STRINGLIT, Token_rhino_TEMPLATELIT_STRING:
+	case tokOrd1_STRINGLIT, tokOrd1_TEMPLATELIT_STRING:
 		n.setJSType(this.outer_.getNativeType(JSTypeNative_STRING_TYPE))
-	case Token_rhino_NUMBER:
+	case tokOrd1_NUMBER:
 		n.setJSType(this.outer_.getNativeType(JSTypeNative_NUMBER_TYPE))
-	case Token_rhino_BIGINT:
+	case tokOrd1_BIGINT:
 		n.setJSType(this.outer_.getNativeType(JSTypeNative_BIGINT_TYPE))
-	case Token_rhino_TRUE, Token_rhino_FALSE:
+	case tokOrd1_TRUE, tokOrd1_FALSE:
 		n.setJSType(this.outer_.getNativeType(JSTypeNative_BOOLEAN_TYPE))
-	case Token_rhino_REGEXP:
+	case tokOrd1_REGEXP:
 		n.setJSType(this.outer_.getNativeType(JSTypeNative_REGEXP_TYPE))
-	case Token_rhino_OBJECTLIT:
+	case tokOrd1_OBJECTLIT:
 		var info *JSDocInfo = n.getJSDocInfo()
 		if (info != nil) && info.hasLendsName() {
 			this.deferredActions.put(NodeUtil_getEnclosingStatement(n).box_(), any(&Runnable_fn{func() {
@@ -781,9 +781,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) attachLiteralTypes(n Node) {
 		} else {
 			this.defineObjectLiteral(n)
 		}
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		this.defineClassLiteral(n)
-	case Token_rhino_ARRAYLIT:
+	case tokOrd1_ARRAYLIT:
 		n.setJSType(this.outer_.getNativeType(JSTypeNative_ARRAY_TYPE))
 	default:
 	}
@@ -1501,12 +1501,12 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getLValueRootScope(n Node) *
 	if root != 0 {
 		if root.isName() {
 			var nameParent Node = root.getParent()
-			switch nameParent.getToken() {
-			case Token_rhino_VAR:
+			switch nameParent.ns_().token {
+			case tokOrd1_VAR:
 				return this.currentHoistScope
-			case Token_rhino_LET, Token_rhino_CONST, Token_rhino_CLASS, Token_rhino_FUNCTION, Token_rhino_PARAM_LIST, Token_rhino_CATCH:
+			case tokOrd1_LET, tokOrd1_CONST, tokOrd1_CLASS, tokOrd1_FUNCTION, tokOrd1_PARAM_LIST, tokOrd1_CATCH:
 				return this.currentScope
-			case Token_rhino_ITER_REST, Token_rhino_OBJECT_REST:
+			case tokOrd1_ITER_REST, tokOrd1_OBJECT_REST:
 				Preconditions_checkState_boolean_Object_H(nameParent.getParent().isParamList(), nameParent)
 				return this.currentScope
 			default:
@@ -2141,10 +2141,10 @@ func (this *TypedScopeCreator_NormalScopeBuilder) visitPreorder_impl(t *NodeTrav
 }
 
 func (this *TypedScopeCreator_NormalScopeBuilder) visitPostorder_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_CALL:
+	switch n.ns_().token {
+	case tokOrd1_CALL:
 		this.checkForClassDefiningCalls(n)
-	case Token_rhino_ASSIGN:
+	case tokOrd1_ASSIGN:
 		var firstChild Node = n.getFirstChild()
 		if firstChild.isGetProp() && firstChild.isQualifiedName() {
 			this.maybeDeclareQualifiedName(t, n.getJSDocInfo(), firstChild, n, firstChild.getNext())
@@ -2153,21 +2153,21 @@ func (this *TypedScopeCreator_NormalScopeBuilder) visitPostorder_impl(t *NodeTra
 		} else if this.outer_.undeclaredNamesForClosure.contains(firstChild) {
 			this.defineAssignAsIfVarDeclaration(n)
 		}
-	case Token_rhino_CATCH:
+	case tokOrd1_CATCH:
 		this.defineCatch(n)
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		this.defineVars(n)
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		if parent.isExprResult() && n.isQualifiedName() {
 			this.maybeDeclareQualifiedName(t, n.getJSDocInfo(), n, parent, 0)
 		}
-	case Token_rhino_GETELEM:
+	case tokOrd1_GETELEM:
 		if parent.isExprResult() && n.getFirstChild().isQualifiedName() {
 			this.maybeDeclareGetElem(n.getJSDocInfo(), n, 0)
 		}
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		this.outer_.createScopeAbstractScope_Node_AbstractScope_rTypedScope(n, this.currentScope.up_AbstractScope())
-	case Token_rhino_EXPR_RESULT:
+	case tokOrd1_EXPR_RESULT:
 		var names CollectionOf[*ProcessClosureProvidesAndRequires_ProvidedName] = Collection(this.outer_.providedNamesFromCall.get(n.box_()))
 		if names != nil {
 			it_2 := foreach_(any(names))
@@ -2176,7 +2176,7 @@ func (this *TypedScopeCreator_NormalScopeBuilder) visitPostorder_impl(t *NodeTra
 				this.declareProvidedNs(n, name)
 			}
 		}
-	case Token_rhino_EXPORT:
+	case tokOrd1_EXPORT:
 		if n.getBooleanProp(Node_EXPORT_DEFAULT) {
 			var declaredType *JSType = this.getDeclaredType(nil, n, n.getOnlyChild(), nil)
 			new_TypedScopeCreator_AbstractScopeBuilder_SlotDefiner(this.up_TypedScopeCreator_AbstractScopeBuilder()).inScope(this.currentScope).forDeclarationNode(n).withType(declaredType).forVariableName(Optional_of[string](Export_DEFAULT_EXPORT_NAME)).allowLaterTypeInference((declaredType == nil)).defineSlot()
@@ -2327,10 +2327,10 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareNamesInPositionalPara
 	if paramType == nil {
 		paramType = this.outer_.unknownType.up_JSType()
 	}
-	switch astParameter.getToken() {
-	case Token_rhino_NAME:
+	switch astParameter.ns_().token {
+	case tokOrd1_NAME:
 		this.declareSingleParameterName(isInferred, astParameter, paramType)
-	case Token_rhino_ITER_REST:
+	case tokOrd1_ITER_REST:
 		var param Node = astParameter.getFirstChild()
 		var arrayType *ObjectType = this.outer_.typeRegistry.getNativeObjectType(JSTypeNative_ARRAY_TYPE)
 		var restParamType *JSType = this.outer_.typeRegistry.createTemplatizedType(arrayType, []*JSType{paramType}).up_JSType()
@@ -2339,14 +2339,14 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareNamesInPositionalPara
 		} else {
 			this.declareDestructuringParameter(isInferred, param, restParamType)
 		}
-	case Token_rhino_DEFAULT_VALUE:
+	case tokOrd1_DEFAULT_VALUE:
 		var actualParam Node = astParameter.getFirstChild()
 		if actualParam.isName() {
 			this.declareSingleParameterName(isInferred, actualParam, paramType)
 		} else {
 			this.declareDestructuringParameter(isInferred, actualParam, paramType)
 		}
-	case Token_rhino_ARRAY_PATTERN, Token_rhino_OBJECT_PATTERN:
+	case tokOrd1_ARRAY_PATTERN, tokOrd1_OBJECT_PATTERN:
 		this.declareDestructuringParameter(isInferred, astParameter, paramType)
 	default:
 		panic(new_IllegalStateException_String(("Unexpected function parameter node " + tostrH_(astParameter))).self())
@@ -2495,15 +2495,15 @@ func (this *TypedScopeCreator_ClassScopeBuilder) defineGetterSetter(n Node) {
 	var name string = n.getString()
 	var methodType *FunctionType = n.getLastChild().getJSType().toMaybeFunctionType()
 	var propertyType *JSType = func() *JSType {
-		switch n.getToken() {
-		case Token_rhino_GETTER_DEF:
+		switch n.ns_().token {
+		case tokOrd1_GETTER_DEF:
 			return func() *JSType {
 				if methodType.isReturnTypeInferred() {
 					return this.outer_.unknownType.up_JSType()
 				}
 				return methodType.getReturnType()
 			}()
-		case Token_rhino_SETTER_DEF:
+		case tokOrd1_SETTER_DEF:
 			return func() *JSType {
 				if methodType.getParameters().isEmpty() {
 					return this.outer_.unknownType.up_JSType()

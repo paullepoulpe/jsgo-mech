@@ -54,13 +54,13 @@ func (this *MustBeReachingVariableDef) flowThrough_impl(n Node, input *MustBeRea
 }
 
 func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, output *MustBeReachingVariableDef_MustDef, conditional bool) {
-	switch n.getToken() {
-	case Token_rhino_BLOCK, Token_rhino_ROOT, Token_rhino_FUNCTION:
+	switch n.ns_().token {
+	case tokOrd1_BLOCK, tokOrd1_ROOT, tokOrd1_FUNCTION:
 		return
-	case Token_rhino_WHILE, Token_rhino_DO, Token_rhino_IF, Token_rhino_FOR:
+	case tokOrd1_WHILE, tokOrd1_DO, tokOrd1_IF, tokOrd1_FOR:
 		this.computeMustDef(NodeUtil_getConditionExpression(n), cfgNode, output, conditional)
 		return
-	case Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
+	case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 		var lhs Node = n.getFirstChild()
 		var rhs Node = lhs.getNext()
 		if NodeUtil_isNameDeclaration(lhs) {
@@ -75,14 +75,14 @@ func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, outp
 			this.computeMustDef(lhs, cfgNode, output, true)
 		}
 		return
-	case Token_rhino_OPTCHAIN_GETPROP:
+	case tokOrd1_OPTCHAIN_GETPROP:
 		this.computeMustDef(n.getFirstChild(), cfgNode, output, conditional)
 		return
-	case Token_rhino_AND, Token_rhino_OR, Token_rhino_COALESCE, Token_rhino_OPTCHAIN_GETELEM:
+	case tokOrd1_AND, tokOrd1_OR, tokOrd1_COALESCE, tokOrd1_OPTCHAIN_GETELEM:
 		this.computeMustDef(n.getFirstChild(), cfgNode, output, conditional)
 		this.computeMustDef(n.getLastChild(), cfgNode, output, true)
 		return
-	case Token_rhino_OPTCHAIN_CALL:
+	case tokOrd1_OPTCHAIN_CALL:
 		this.computeMustDef(n.getFirstChild(), cfgNode, output, conditional)
 		{
 			var c Node = n.getSecondChild()
@@ -91,12 +91,12 @@ func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, outp
 			}
 		}
 		return
-	case Token_rhino_HOOK:
+	case tokOrd1_HOOK:
 		this.computeMustDef(n.getFirstChild(), cfgNode, output, conditional)
 		this.computeMustDef(n.getSecondChild(), cfgNode, output, true)
 		this.computeMustDef(n.getLastChild(), cfgNode, output, true)
 		return
-	case Token_rhino_LET, Token_rhino_CONST, Token_rhino_VAR:
+	case tokOrd1_LET, tokOrd1_CONST, tokOrd1_VAR:
 		{
 			var c Node = n.getFirstChild()
 			for ; c != 0; c = c.getNext() {
@@ -118,7 +118,7 @@ func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, outp
 			}
 		}
 		return
-	case Token_rhino_DEFAULT_VALUE:
+	case tokOrd1_DEFAULT_VALUE:
 		if n.getFirstChild().isDestructuringPattern() {
 			this.computeMustDef(n.getSecondChild(), cfgNode, output, true)
 			this.computeMustDef(n.getFirstChild(), cfgNode, output, conditional)
@@ -134,7 +134,7 @@ func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, outp
 			this.computeMustDef(n.getFirstChild(), cfgNode, output, conditional)
 			this.computeMustDef(n.getSecondChild(), cfgNode, output, true)
 		}
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		if NodeUtil_isLhsByDestructuring(n) {
 			this.addToDefIfLocal(n.getString(), func() Node {
 				if conditional {

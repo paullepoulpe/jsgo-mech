@@ -26,22 +26,22 @@ func new_MinimizeExitPoints() *MinimizeExitPoints {
 
 func (this *MinimizeExitPoints) optimizeSubtree_impl(n Node) Node {
 	Preconditions_checkState_boolean_Object(this.isASTNormalized(), "MinimizeExitPoints requires the AST to be normalized")
-	switch n.getToken() {
-	case Token_rhino_LABEL:
+	switch n.ns_().token {
+	case tokOrd1_LABEL:
 		this.tryMinimizeExits(n.getLastChild(), Token_rhino_BREAK, Optional_of[string](n.getFirstChild().getString()))
-	case Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_WHILE:
+	case tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_WHILE:
 		this.tryMinimizeExits(NodeUtil_getLoopCodeBlock(n), Token_rhino_CONTINUE, Optional_empty[string]())
-	case Token_rhino_DO:
+	case tokOrd1_DO:
 		this.tryMinimizeExits(NodeUtil_getLoopCodeBlock(n), Token_rhino_CONTINUE, Optional_empty[string]())
 		var cond Node = NodeUtil_getConditionExpression(n)
 		if this.getSideEffectFreeBooleanValue(cond) == Tri_FALSE {
 			this.tryMinimizeExits(n.getFirstChild(), Token_rhino_BREAK, Optional_empty[string]())
 		}
-	case Token_rhino_BLOCK:
+	case tokOrd1_BLOCK:
 		if n.hasParent() && n.getParent().isFunction() {
 			this.tryMinimizeExits(n, Token_rhino_RETURN, Optional_empty[string]())
 		}
-	case Token_rhino_SWITCH:
+	case tokOrd1_SWITCH:
 		this.tryMinimizeSwitchExits(n, Token_rhino_BREAK, Optional_empty[string]())
 	default:
 	}

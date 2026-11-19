@@ -190,8 +190,8 @@ func (this *Normalize_NormalizeStatements) visit(t *NodeTraversal, n Node, paren
 	if this.makeDeclaredNamesUnique != nil {
 		this.makeDeclaredNamesUnique.visit(t, n, parent)
 	}
-	switch n.getToken() {
-	case Token_rhino_WHILE:
+	switch n.ns_().token {
+	case tokOrd1_WHILE:
 		var expr Node = n.getFirstChild()
 		n.setToken(Token_rhino_FOR)
 		var empty Node = IR_empty()
@@ -199,14 +199,14 @@ func (this *Normalize_NormalizeStatements) visit(t *NodeTraversal, n Node, paren
 		empty.insertBefore(expr)
 		empty.cloneNode().insertAfter(expr)
 		this.reportCodeChange("WHILE node", n)
-	case Token_rhino_ARRAYLIT, Token_rhino_CALL, Token_rhino_PARAM_LIST, Token_rhino_NEW, Token_rhino_OBJECTLIT, Token_rhino_OPTCHAIN_CALL:
+	case tokOrd1_ARRAYLIT, tokOrd1_CALL, tokOrd1_PARAM_LIST, tokOrd1_NEW, tokOrd1_OBJECTLIT, tokOrd1_OPTCHAIN_CALL:
 		n.setTrailingComma(false)
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		this.annotateConstantsByConvention(n)
 		this.annotateFunctionExpressionNameAsConstant(n)
-	case Token_rhino_DESTRUCTURING_LHS:
+	case tokOrd1_DESTRUCTURING_LHS:
 		this.normalizeDestructuringLhs(n)
-	case Token_rhino_ASSIGN_OR, Token_rhino_ASSIGN_AND, Token_rhino_ASSIGN_COALESCE:
+	case tokOrd1_ASSIGN_OR, tokOrd1_ASSIGN_AND, tokOrd1_ASSIGN_COALESCE:
 		this.rewriteLogicalAssignmentOperatorsHelper.visitLogicalAssignmentOperator(t, n)
 	default:
 	}
@@ -351,8 +351,8 @@ func (this *Normalize_NormalizeStatements) rewriteVarDestructuringDeclaration(de
 func (this *Normalize_NormalizeStatements) normalizeLabels(n Node) {
 	Preconditions_checkArgument(n.isLabel())
 	var last Node = n.getLastChild()
-	switch last.getToken() {
-	case Token_rhino_LABEL, Token_rhino_BLOCK, Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_WHILE, Token_rhino_DO:
+	switch last.ns_().token {
+	case tokOrd1_LABEL, tokOrd1_BLOCK, tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_WHILE, tokOrd1_DO:
 		return
 	default:
 		var block Node = IR_block_0()
@@ -383,10 +383,10 @@ func (this *Normalize_NormalizeStatements) extractForInitializer(n Node, before 
 				}
 				return beforeParent
 			}()
-			switch c.getToken() {
-			case Token_rhino_LABEL:
+			switch c.ns_().token {
+			case tokOrd1_LABEL:
 				this.extractForInitializer(c, insertBefore, insertBeforeParent)
-			case Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
+			case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 				var first Node = c.getFirstChild()
 				if first.isVar() {
 					var lhs Node = first.getFirstChild()
@@ -407,7 +407,7 @@ func (this *Normalize_NormalizeStatements) extractForInitializer(n Node, before 
 					}
 					this.reportCodeChange("FOR-IN var declaration", n)
 				}
-			case Token_rhino_FOR:
+			case tokOrd1_FOR:
 				if !c.getFirstChild().isEmpty() {
 					var init_ Node = c.getFirstChild()
 					if ((init_.isLet() || init_.isConst()) || init_.isClass()) || init_.isFunction() {

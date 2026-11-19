@@ -184,8 +184,8 @@ func new_ConcretizeStaticInheritanceForInlining_FindStaticMembers(outer_ *Concre
 }
 
 func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_CALL:
+	switch n.ns_().token {
+	case tokOrd1_CALL:
 		if this.outer_.inherits.matches(n.getFirstChild()) {
 			this.inheritsCalls.add(n)
 			this.nodeOrder.put(n, any(int32(this.nodeOrder.size())))
@@ -193,11 +193,11 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visit_impl
 		if NodeUtil_isObjectDefinePropertiesDefinition(n) {
 			this.visitDefinedPropertiesCall(t, n)
 		}
-	case Token_rhino_CONST, Token_rhino_LET, Token_rhino_VAR:
+	case tokOrd1_CONST, tokOrd1_LET, tokOrd1_VAR:
 		this.visitVariableDeclaration(n)
-	case Token_rhino_ASSIGN:
+	case tokOrd1_ASSIGN:
 		this.visitAssign(t, n)
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		this.visitFunctionClassDef(n)
 	default:
 	}

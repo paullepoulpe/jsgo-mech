@@ -191,8 +191,8 @@ func (this *NodeTraversal) traverseAtScope(s *AbstractScope) {
 	for !parentScopes.isEmpty() {
 		this.pushScope_2(parentScopes.pop(), true)
 	}
-	switch n.getToken() {
-	case Token_rhino_FUNCTION:
+	switch n.ns_().token {
+	case tokOrd1_FUNCTION:
 		if this.callback.shouldTraverse(this, n, 0) {
 			this.pushScopeAbstractScope(s)
 			var fnName Node = n.getFirstChild()
@@ -206,7 +206,7 @@ func (this *NodeTraversal) traverseAtScope(s *AbstractScope) {
 			this.popScope()
 			this.callback.visit(this, n, 0)
 		}
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		if this.callback.shouldTraverse(this, n, 0) {
 			this.pushScopeAbstractScope(s)
 			var className Node = n.getFirstChild()
@@ -218,28 +218,28 @@ func (this *NodeTraversal) traverseAtScope(s *AbstractScope) {
 			this.popScope()
 			this.callback.visit(this, n, 0)
 		}
-	case Token_rhino_BLOCK, Token_rhino_SWITCH_BODY:
+	case tokOrd1_BLOCK, tokOrd1_SWITCH_BODY:
 		if this.callback.shouldTraverse(this, n, 0) {
 			this.pushScopeAbstractScope(s)
 			this.traverseChildren(n)
 			this.popScope()
 			this.callback.visit(this, n, 0)
 		}
-	case Token_rhino_MEMBER_FIELD_DEF:
+	case tokOrd1_MEMBER_FIELD_DEF:
 		this.pushScopeAbstractScope(s)
 		if this.callback.shouldTraverse(this, n, 0) {
 			this.traverseChildren(n)
 			this.callback.visit(this, n, 0)
 		}
 		this.popScope()
-	case Token_rhino_COMPUTED_FIELD_DEF:
+	case tokOrd1_COMPUTED_FIELD_DEF:
 		this.pushScopeAbstractScope(s)
 		if this.callback.shouldTraverse(this, n, 0) {
 			this.traverseBranch(n.getLastChild(), n)
 			this.callback.visit(this, n, 0)
 		}
 		this.popScope()
-	case Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_FOR:
+	case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_FOR:
 		if this.callback.shouldTraverse(this, n, 0) {
 			this.pushScopeAbstractScope(s)
 			var forAssignmentParam Node = n.getFirstChild()
@@ -391,14 +391,14 @@ func (this *NodeTraversal) handleDestructuringOrDefaultValue(n Node, parent Node
 
 func (this *NodeTraversal) createsBlockScope(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_BLOCK:
+		switch n.ns_().token {
+		case tokOrd1_BLOCK:
 			if this.mayContainSyntheticBlocks && n.isSyntheticBlock() {
 				return false
 			}
 			var parent Node = n.getParent()
 			return (((parent != 0) && !NodeUtil_isSwitchCase(parent)) && !parent.isCatch())
-		case Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_SWITCH_BODY, Token_rhino_CLASS:
+		case tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_SWITCH_BODY, tokOrd1_CLASS:
 			return true
 		default:
 			return false
@@ -408,23 +408,23 @@ func (this *NodeTraversal) createsBlockScope(n Node) bool {
 }
 
 func (this *NodeTraversal) traverseBranch(n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_SCRIPT:
+	switch n.ns_().token {
+	case tokOrd1_SCRIPT:
 		this.handleScript(n, parent)
 		return
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		this.handleFunction(n, parent)
 		return
-	case Token_rhino_MODULE_BODY:
+	case tokOrd1_MODULE_BODY:
 		this.handleModule(n, parent)
 		return
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		this.handleClass(n, parent)
 		return
-	case Token_rhino_CLASS_MEMBERS:
+	case tokOrd1_CLASS_MEMBERS:
 		this.handleClassMembers(n, parent)
 		return
-	case Token_rhino_DEFAULT_VALUE, Token_rhino_DESTRUCTURING_LHS:
+	case tokOrd1_DEFAULT_VALUE, tokOrd1_DESTRUCTURING_LHS:
 		if this.obeyDestructuringAndDefaultValueExecutionOrder {
 			this.handleDestructuringOrDefaultValue(n, parent)
 			return
@@ -526,15 +526,15 @@ func (this *NodeTraversal) handleClassMembers(n Node, parent Node) {
 		var child Node = n.getFirstChild()
 		for child != 0 {
 			var next Node = child.getNext()
-			switch child.getToken() {
-			case Token_rhino_COMPUTED_PROP:
+			switch child.ns_().token {
+			case tokOrd1_COMPUTED_PROP:
 				this.currentNode = n
 				if this.callback.shouldTraverse(this, child, n) {
 					this.traverseBranch(child.getLastChild(), child)
 					this.currentNode = n
 					this.callback.visit(this, child, n)
 				}
-			case Token_rhino_COMPUTED_FIELD_DEF:
+			case tokOrd1_COMPUTED_FIELD_DEF:
 				this.currentNode = n
 				var previousHoistScopeRoot Node = this.currentHoistScopeRoot
 				this.currentHoistScopeRoot = n
@@ -548,9 +548,9 @@ func (this *NodeTraversal) handleClassMembers(n Node, parent Node) {
 				}
 				this.popScope()
 				this.currentHoistScopeRoot = previousHoistScopeRoot
-			case Token_rhino_MEMBER_FIELD_DEF:
+			case tokOrd1_MEMBER_FIELD_DEF:
 				this.handleMemberFieldDef(n, child)
-			case Token_rhino_BLOCK, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_VARIABLE_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
+			case tokOrd1_BLOCK, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_VARIABLE_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 				this.traverseBranch(child, n)
 			default:
 				panic(new_IllegalStateException_String(("Invalid class member: " + jtostr_(child.getToken()))).self())
@@ -727,8 +727,8 @@ func (this *NodeTraversal) getClosestHoistScope() *AbstractScope {
 
 func NodeTraversal_isHoistScopeRootNode(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_FUNCTION, Token_rhino_MODULE_BODY, Token_rhino_ROOT, Token_rhino_SCRIPT:
+		switch n.ns_().token {
+		case tokOrd1_FUNCTION, tokOrd1_MODULE_BODY, tokOrd1_ROOT, tokOrd1_SCRIPT:
 			return true
 		default:
 			return NodeUtil_isFunctionBlock(n)
@@ -741,15 +741,15 @@ func (this *NodeTraversal) getClosestScopeRootNodeBindingThisOrSuper() Node {
 L_1:
 	for i := int32((this.scopes.size() - 1)); i >= 0; i-- {
 		var rootNode Node = this.getNodeRootFromScopeObj(this.scopes.get(i))
-		switch rootNode.getToken() {
-		case Token_rhino_FUNCTION:
+		switch rootNode.ns_().token {
+		case tokOrd1_FUNCTION:
 			if rootNode.isArrowFunction() {
 				continue L_1
 			}
 			return rootNode
-		case Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_FIELD_DEF, Token_rhino_CLASS, Token_rhino_MODULE_BODY, Token_rhino_ROOT:
+		case tokOrd1_MEMBER_FIELD_DEF, tokOrd1_COMPUTED_FIELD_DEF, tokOrd1_CLASS, tokOrd1_MODULE_BODY, tokOrd1_ROOT:
 			return rootNode
-		case Token_rhino_BLOCK:
+		case tokOrd1_BLOCK:
 			if NodeUtil_isClassStaticBlock(rootNode) {
 				return rootNode
 			}
@@ -1386,8 +1386,8 @@ func (this *NodeTraversal_AbstractModuleCallback) exitModule_impl(oldModule *Mod
 }
 
 func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	switch n.getToken() {
-	case Token_rhino_SCRIPT:
+	switch n.ns_().token {
+	case tokOrd1_SCRIPT:
 		this.currentModule = this.moduleMetadataMap.getModulesByPath().get(t.getInput().getPath().toString())
 		Preconditions_checkNotNull_T(this.currentModule)
 		this.scopeRoot = func() Node {
@@ -1397,12 +1397,12 @@ func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse(t *NodeTraversa
 			return n
 		}()
 		this.enterModule(this.currentModule, this.scopeRoot)
-	case Token_rhino_BLOCK:
+	case tokOrd1_BLOCK:
 		if NodeUtil_isBundledGoogModuleScopeRoot(n) {
 			this.scopeRoot = n
 			this.inLoadModule = true
 		}
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		if this.inLoadModule && NodeTraversal_AbstractModuleCallback_GOOG_MODULE.matches(n.getFirstChild()) {
 			var newModule *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMap.getModulesByGoogNamespace().get(n.getLastChild().getString())
 			Preconditions_checkNotNull_T(newModule)
@@ -1421,13 +1421,13 @@ func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse_4_impl(t *NodeT
 }
 
 func (this *NodeTraversal_AbstractModuleCallback) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_SCRIPT:
+	switch n.ns_().token {
+	case tokOrd1_SCRIPT:
 		Preconditions_checkNotNull_T(this.currentModule)
 		this.exitModule(this.currentModule, this.scopeRoot)
 		this.currentModule = nil
 		this.scopeRoot = 0
-	case Token_rhino_BLOCK:
+	case tokOrd1_BLOCK:
 		if NodeUtil_isBundledGoogModuleScopeRoot(n) {
 			Preconditions_checkNotNull_T(this.currentModule)
 			this.exitModule(this.currentModule, this.scopeRoot)

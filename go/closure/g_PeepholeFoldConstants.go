@@ -30,25 +30,25 @@ func new_PeepholeFoldConstants(late bool, shouldUseTypes bool) *PeepholeFoldCons
 
 func (this *PeepholeFoldConstants) optimizeSubtree_impl(subtree Node) Node {
 	return func() Node {
-		switch subtree.getToken() {
-		case Token_rhino_OPTCHAIN_CALL, Token_rhino_CALL:
+		switch subtree.ns_().token {
+		case tokOrd1_OPTCHAIN_CALL, tokOrd1_CALL:
 			return this.tryFoldUselessObjectDotDefinePropertiesCall(subtree)
-		case Token_rhino_NEW:
+		case tokOrd1_NEW:
 			return this.tryFoldCtorCall(subtree)
-		case Token_rhino_TYPEOF:
+		case tokOrd1_TYPEOF:
 			return this.tryFoldTypeof(subtree)
-		case Token_rhino_ITER_SPREAD:
+		case tokOrd1_ITER_SPREAD:
 			return this.tryFoldSpread(subtree)
-		case Token_rhino_ARRAYLIT, Token_rhino_OBJECTLIT:
+		case tokOrd1_ARRAYLIT, tokOrd1_OBJECTLIT:
 			return this.tryFlattenArrayOrObjectLit(subtree)
-		case Token_rhino_NOT, Token_rhino_POS, Token_rhino_NEG, Token_rhino_BITNOT:
+		case tokOrd1_NOT, tokOrd1_POS, tokOrd1_NEG, tokOrd1_BITNOT:
 			this.tryReduceOperandsForOp(subtree)
 			return this.tryFoldUnaryOperator(subtree)
-		case Token_rhino_VOID:
+		case tokOrd1_VOID:
 			return this.tryReduceVoid(subtree)
-		case Token_rhino_OPTCHAIN_GETPROP, Token_rhino_GETPROP:
+		case tokOrd1_OPTCHAIN_GETPROP, tokOrd1_GETPROP:
 			return this.tryFoldGetProp(subtree)
-		case Token_rhino_TEMPLATELIT:
+		case tokOrd1_TEMPLATELIT:
 			return this.tryFoldTemplateLiteralSubstitutions(subtree)
 		default:
 			this.tryReduceOperandsForOp(subtree)
@@ -68,32 +68,32 @@ func (this *PeepholeFoldConstants) tryFoldBinaryOperator(subtree Node) Node {
 		return subtree
 	}
 	return func() Node {
-		switch subtree.getToken() {
-		case Token_rhino_GETELEM, Token_rhino_OPTCHAIN_GETELEM:
+		switch subtree.ns_().token {
+		case tokOrd1_GETELEM, tokOrd1_OPTCHAIN_GETELEM:
 			return this.tryFoldGetElem(subtree, left, right)
-		case Token_rhino_INSTANCEOF:
+		case tokOrd1_INSTANCEOF:
 			return this.tryFoldInstanceof(subtree, left, right)
-		case Token_rhino_AND, Token_rhino_OR:
+		case tokOrd1_AND, tokOrd1_OR:
 			return this.tryFoldAndOr(subtree, left, right)
-		case Token_rhino_COALESCE:
+		case tokOrd1_COALESCE:
 			return this.tryFoldCoalesce(subtree, left, right)
-		case Token_rhino_LSH, Token_rhino_RSH, Token_rhino_URSH:
+		case tokOrd1_LSH, tokOrd1_RSH, tokOrd1_URSH:
 			return this.tryFoldShift(subtree, left, right)
-		case Token_rhino_ASSIGN:
+		case tokOrd1_ASSIGN:
 			return this.tryFoldAssign(subtree, left, right)
-		case Token_rhino_ASSIGN_BITOR, Token_rhino_ASSIGN_BITXOR, Token_rhino_ASSIGN_BITAND, Token_rhino_ASSIGN_LSH, Token_rhino_ASSIGN_RSH, Token_rhino_ASSIGN_URSH, Token_rhino_ASSIGN_ADD, Token_rhino_ASSIGN_SUB, Token_rhino_ASSIGN_MUL, Token_rhino_ASSIGN_DIV, Token_rhino_ASSIGN_MOD, Token_rhino_ASSIGN_EXPONENT:
+		case tokOrd1_ASSIGN_BITOR, tokOrd1_ASSIGN_BITXOR, tokOrd1_ASSIGN_BITAND, tokOrd1_ASSIGN_LSH, tokOrd1_ASSIGN_RSH, tokOrd1_ASSIGN_URSH, tokOrd1_ASSIGN_ADD, tokOrd1_ASSIGN_SUB, tokOrd1_ASSIGN_MUL, tokOrd1_ASSIGN_DIV, tokOrd1_ASSIGN_MOD, tokOrd1_ASSIGN_EXPONENT:
 			return this.tryUnfoldAssignOp(subtree, left, right)
-		case Token_rhino_ADD:
+		case tokOrd1_ADD:
 			return this.tryFoldAdd(subtree, left, right)
-		case Token_rhino_SUB, Token_rhino_DIV, Token_rhino_MOD, Token_rhino_MUL, Token_rhino_EXPONENT:
+		case tokOrd1_SUB, tokOrd1_DIV, tokOrd1_MOD, tokOrd1_MUL, tokOrd1_EXPONENT:
 			return this.tryFoldArithmeticOp(subtree, left, right)
-		case Token_rhino_BITAND, Token_rhino_BITOR, Token_rhino_BITXOR:
+		case tokOrd1_BITAND, tokOrd1_BITOR, tokOrd1_BITXOR:
 			var result Node = this.tryFoldArithmeticOp(subtree, left, right)
 			if result != subtree {
 				return result
 			}
 			return this.tryFoldLeftChildOp(subtree, left, right)
-		case Token_rhino_LT, Token_rhino_GT, Token_rhino_LE, Token_rhino_GE, Token_rhino_EQ, Token_rhino_NE, Token_rhino_SHEQ, Token_rhino_SHNE:
+		case tokOrd1_LT, tokOrd1_GT, tokOrd1_LE, tokOrd1_GE, tokOrd1_EQ, tokOrd1_NE, tokOrd1_SHEQ, tokOrd1_SHNE:
 			return this.tryFoldComparison(subtree, left, right)
 		default:
 			return subtree
@@ -112,16 +112,16 @@ func (this *PeepholeFoldConstants) tryReduceVoid(n Node) Node {
 }
 
 func (this *PeepholeFoldConstants) tryReduceOperandsForOp(n Node) {
-	switch n.getToken() {
-	case Token_rhino_ADD:
+	switch n.ns_().token {
+	case tokOrd1_ADD:
 		var left Node = n.getFirstChild()
 		var right Node = n.getLastChild()
 		if !NodeUtil_mayBeString_Node_boolean(left, this.shouldUseTypes) && !NodeUtil_mayBeString_Node_boolean(right, this.shouldUseTypes) {
 			this.tryConvertOperandsToNumber(n)
 		}
-	case Token_rhino_ASSIGN_BITOR, Token_rhino_ASSIGN_BITXOR, Token_rhino_ASSIGN_BITAND, Token_rhino_ASSIGN_LSH, Token_rhino_ASSIGN_RSH, Token_rhino_ASSIGN_URSH, Token_rhino_ASSIGN_SUB, Token_rhino_ASSIGN_MUL, Token_rhino_ASSIGN_MOD, Token_rhino_ASSIGN_DIV:
+	case tokOrd1_ASSIGN_BITOR, tokOrd1_ASSIGN_BITXOR, tokOrd1_ASSIGN_BITAND, tokOrd1_ASSIGN_LSH, tokOrd1_ASSIGN_RSH, tokOrd1_ASSIGN_URSH, tokOrd1_ASSIGN_SUB, tokOrd1_ASSIGN_MUL, tokOrd1_ASSIGN_MOD, tokOrd1_ASSIGN_DIV:
 		this.tryConvertToNumber(n.getLastChild())
-	case Token_rhino_BITNOT, Token_rhino_BITOR, Token_rhino_BITXOR, Token_rhino_BITAND, Token_rhino_LSH, Token_rhino_RSH, Token_rhino_URSH, Token_rhino_SUB, Token_rhino_MUL, Token_rhino_MOD, Token_rhino_DIV, Token_rhino_POS, Token_rhino_NEG, Token_rhino_EXPONENT:
+	case tokOrd1_BITNOT, tokOrd1_BITOR, tokOrd1_BITXOR, tokOrd1_BITAND, tokOrd1_LSH, tokOrd1_RSH, tokOrd1_URSH, tokOrd1_SUB, tokOrd1_MUL, tokOrd1_MOD, tokOrd1_DIV, tokOrd1_POS, tokOrd1_NEG, tokOrd1_EXPONENT:
 		this.tryConvertOperandsToNumber(n)
 	default:
 	}
@@ -139,17 +139,17 @@ func (this *PeepholeFoldConstants) tryConvertOperandsToNumber(n Node) {
 }
 
 func (this *PeepholeFoldConstants) tryConvertToNumber(n Node) {
-	switch n.getToken() {
-	case Token_rhino_NUMBER:
+	switch n.ns_().token {
+	case tokOrd1_NUMBER:
 		return
-	case Token_rhino_AND, Token_rhino_OR, Token_rhino_COMMA, Token_rhino_COALESCE:
+	case tokOrd1_AND, tokOrd1_OR, tokOrd1_COMMA, tokOrd1_COALESCE:
 		this.tryConvertToNumber(n.getLastChild())
 		return
-	case Token_rhino_HOOK:
+	case tokOrd1_HOOK:
 		this.tryConvertToNumber(n.getSecondChild())
 		this.tryConvertToNumber(n.getLastChild())
 		return
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		if !NodeUtil_isUndefined(n) {
 			return
 		}
@@ -175,20 +175,20 @@ func (this *PeepholeFoldConstants) tryFoldTypeof(originalTypeofNode Node) Node {
 		return originalTypeofNode
 	}
 	var typeNameString Optional[string] = Optional_empty[string]()
-	switch argumentNode.getToken() {
-	case Token_rhino_FUNCTION:
+	switch argumentNode.ns_().token {
+	case tokOrd1_FUNCTION:
 		typeNameString = Optional_of[string]("function")
-	case Token_rhino_STRINGLIT:
+	case tokOrd1_STRINGLIT:
 		typeNameString = Optional_of[string]("string")
-	case Token_rhino_NUMBER:
+	case tokOrd1_NUMBER:
 		typeNameString = Optional_of[string]("number")
-	case Token_rhino_TRUE, Token_rhino_FALSE:
+	case tokOrd1_TRUE, tokOrd1_FALSE:
 		typeNameString = Optional_of[string]("boolean")
-	case Token_rhino_NULL, Token_rhino_OBJECTLIT, Token_rhino_ARRAYLIT:
+	case tokOrd1_NULL, tokOrd1_OBJECTLIT, tokOrd1_ARRAYLIT:
 		typeNameString = Optional_of[string]("object")
-	case Token_rhino_VOID:
+	case tokOrd1_VOID:
 		typeNameString = Optional_of[string]("undefined")
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		if argumentNode.getString() == "undefined" {
 			typeNameString = Optional_of[string]("undefined")
 		}
@@ -216,8 +216,8 @@ func (this *PeepholeFoldConstants) tryFoldUnaryOperator(n Node) Node {
 		return n
 	}
 	return func() Node {
-		switch n.getToken() {
-		case Token_rhino_NOT:
+		switch n.ns_().token {
+		case tokOrd1_NOT:
 			if this.late && left.isNumber() {
 				var numValue float64 = left.getDouble()
 				if (numValue == 0) || (numValue == 1) {
@@ -228,14 +228,14 @@ func (this *PeepholeFoldConstants) tryFoldUnaryOperator(n Node) Node {
 			n.replaceWith(replacementNode)
 			this.reportChangeToEnclosingScope(parent)
 			return replacementNode
-		case Token_rhino_POS:
+		case tokOrd1_POS:
 			if NodeUtil_isNumericResult(left) {
 				n.replaceWith(left.detach())
 				this.reportChangeToEnclosingScope(parent)
 				return left
 			}
 			return n
-		case Token_rhino_NEG:
+		case tokOrd1_NEG:
 			var result Node = 0
 			if left.isName() && (left.getString() == "NaN") {
 				result = left.detach()
@@ -251,7 +251,7 @@ func (this *PeepholeFoldConstants) tryFoldUnaryOperator(n Node) Node {
 				return result
 			}
 			return n
-		case Token_rhino_BITNOT:
+		case tokOrd1_BITNOT:
 			var doubleVal any = this.getSideEffectFreeNumberValue(left)
 			if doubleVal != nil {
 				if JSCompDoubles_isMathematicalInteger(unbox_[float64](doubleVal)) {
@@ -531,8 +531,8 @@ func (this *PeepholeFoldConstants) performArithmeticOp(n Node, left Node, right 
 	if (((lValObj == nil) && (rValObj == nil)) || !this.isNumeric(left)) || !this.isNumeric(right) {
 		return 0
 	}
-	switch n.getToken() {
-	case Token_rhino_ADD:
+	switch n.ns_().token {
+	case tokOrd1_ADD:
 		if (lValObj != nil) && (rValObj != nil) {
 			return this.maybeReplaceBinaryOpWithNumericResult((unbox_[float64](lValObj) + unbox_[float64](rValObj)), unbox_[float64](lValObj), unbox_[float64](rValObj))
 		}
@@ -542,7 +542,7 @@ func (this *PeepholeFoldConstants) performArithmeticOp(n Node, left Node, right 
 			return left.cloneTree_1(true)
 		}
 		return 0
-	case Token_rhino_SUB:
+	case tokOrd1_SUB:
 		if (lValObj != nil) && (rValObj != nil) {
 			return this.maybeReplaceBinaryOpWithNumericResult((unbox_[float64](lValObj) - unbox_[float64](rValObj)), unbox_[float64](lValObj), unbox_[float64](rValObj))
 		}
@@ -552,7 +552,7 @@ func (this *PeepholeFoldConstants) performArithmeticOp(n Node, left Node, right 
 			return left.cloneTree_1(true)
 		}
 		return 0
-	case Token_rhino_MUL:
+	case tokOrd1_MUL:
 		if (lValObj != nil) && (rValObj != nil) {
 			return this.maybeReplaceBinaryOpWithNumericResult((unbox_[float64](lValObj) * unbox_[float64](rValObj)), unbox_[float64](lValObj), unbox_[float64](rValObj))
 		}
@@ -566,7 +566,7 @@ func (this *PeepholeFoldConstants) performArithmeticOp(n Node, left Node, right 
 			}
 		}
 		return 0
-	case Token_rhino_DIV:
+	case tokOrd1_DIV:
 		if (lValObj != nil) && (rValObj != nil) {
 			if unbox_[float64](rValObj) == 0 {
 				return 0
@@ -579,7 +579,7 @@ func (this *PeepholeFoldConstants) performArithmeticOp(n Node, left Node, right 
 			}
 		}
 		return 0
-	case Token_rhino_EXPONENT:
+	case tokOrd1_EXPONENT:
 		if (lValObj != nil) && (rValObj != nil) {
 			return this.maybeReplaceBinaryOpWithNumericResult(Math_pow(unbox_[float64](lValObj), unbox_[float64](rValObj)), unbox_[float64](lValObj), unbox_[float64](rValObj))
 		}
@@ -591,14 +591,14 @@ func (this *PeepholeFoldConstants) performArithmeticOp(n Node, left Node, right 
 	}
 	var lval float64 = unbox_[float64](lValObj)
 	var rval float64 = unbox_[float64](rValObj)
-	switch n.getToken() {
-	case Token_rhino_BITAND:
+	switch n.ns_().token {
+	case tokOrd1_BITAND:
 		result = float64((JSCompDoubles_ecmascriptToInt32(lval) & JSCompDoubles_ecmascriptToInt32(rval)))
-	case Token_rhino_BITOR:
+	case tokOrd1_BITOR:
 		result = float64((JSCompDoubles_ecmascriptToInt32(lval) | JSCompDoubles_ecmascriptToInt32(rval)))
-	case Token_rhino_BITXOR:
+	case tokOrd1_BITXOR:
 		result = float64((JSCompDoubles_ecmascriptToInt32(lval) ^ JSCompDoubles_ecmascriptToInt32(rval)))
-	case Token_rhino_MOD:
+	case tokOrd1_MOD:
 		if rval == 0 {
 			return 0
 		}
@@ -613,20 +613,20 @@ func (this *PeepholeFoldConstants) performBigIntArithmeticOp(n Node, left Node, 
 	var lVal *BigInteger = this.getSideEffectFreeBigIntValue(left)
 	var rVal *BigInteger = this.getSideEffectFreeBigIntValue(right)
 	if (lVal != nil) && (rVal != nil) {
-		switch n.getToken() {
-		case Token_rhino_ADD:
+		switch n.ns_().token {
+		case tokOrd1_ADD:
 			return PeepholeFoldConstants_bigintNode(lVal.add(rVal), n)
-		case Token_rhino_SUB:
+		case tokOrd1_SUB:
 			return PeepholeFoldConstants_bigintNode(lVal.subtract(rVal), n)
-		case Token_rhino_MUL:
+		case tokOrd1_MUL:
 			return PeepholeFoldConstants_bigintNode(lVal.multiply(rVal), n)
-		case Token_rhino_DIV:
+		case tokOrd1_DIV:
 			if !Object_equals(obj_(rVal), obj_(BigInteger_ZERO)) {
 				return PeepholeFoldConstants_bigintNode(lVal.divide(rVal), n)
 			} else {
 				return 0
 			}
-		case Token_rhino_EXPONENT:
+		case tokOrd1_EXPONENT:
 			var ret_2 Node
 			code_2 := func() (code_ int) {
 				defer func() {
@@ -650,46 +650,46 @@ func (this *PeepholeFoldConstants) performBigIntArithmeticOp(n Node, left Node, 
 			if code_2 == 1 {
 				return ret_2
 			}
-		case Token_rhino_MOD:
+		case tokOrd1_MOD:
 			if !Object_equals(obj_(rVal), obj_(BigInteger_ZERO)) {
 				return PeepholeFoldConstants_bigintNode(lVal.remainder(rVal), n)
 			} else {
 				return 0
 			}
-		case Token_rhino_BITAND:
+		case tokOrd1_BITAND:
 			return PeepholeFoldConstants_bigintNode(lVal.and(rVal), n)
-		case Token_rhino_BITOR:
+		case tokOrd1_BITOR:
 			return PeepholeFoldConstants_bigintNode(lVal.or(rVal), n)
-		case Token_rhino_BITXOR:
+		case tokOrd1_BITXOR:
 			return PeepholeFoldConstants_bigintNode(lVal.xor(rVal), n)
 		default:
 			return 0
 		}
 	}
 	return func() Node {
-		switch n.getToken() {
-		case Token_rhino_ADD:
+		switch n.ns_().token {
+		case tokOrd1_ADD:
 			if (lVal != nil) && Object_equals(obj_(lVal), obj_(BigInteger_ZERO)) {
 				return right.cloneTree_1(true)
 			} else if (rVal != nil) && Object_equals(obj_(rVal), obj_(BigInteger_ZERO)) {
 				return left.cloneTree_1(true)
 			}
 			return 0
-		case Token_rhino_SUB:
+		case tokOrd1_SUB:
 			if (lVal != nil) && Object_equals(obj_(lVal), obj_(BigInteger_ZERO)) {
 				return IR_neg(right.cloneTree_1(true))
 			} else if (rVal != nil) && Object_equals(obj_(rVal), obj_(BigInteger_ZERO)) {
 				return left.cloneTree_1(true)
 			}
 			return 0
-		case Token_rhino_MUL:
+		case tokOrd1_MUL:
 			if (lVal != nil) && Object_equals(obj_(lVal), obj_(BigInteger_ONE)) {
 				return right.cloneTree_1(true)
 			} else if (rVal != nil) && Object_equals(obj_(rVal), obj_(BigInteger_ONE)) {
 				return left.cloneTree_1(true)
 			}
 			return 0
-		case Token_rhino_DIV:
+		case tokOrd1_DIV:
 			if (rVal != nil) && Object_equals(obj_(rVal), obj_(BigInteger_ONE)) {
 				return left.cloneTree_1(true)
 			}
@@ -969,12 +969,12 @@ func (this *PeepholeFoldConstants) tryFoldShift(n Node, left Node, right Node) N
 	var rvalInt int32 = Double_intValue(rightVal)
 	var bits int32 = JSCompDoubles_ecmascriptToInt32(unbox_[float64](leftVal))
 	var result float64 = func() float64 {
-		switch n.getToken() {
-		case Token_rhino_LSH:
+		switch n.ns_().token {
+		case tokOrd1_LSH:
 			return float64((bits << (uint32(rvalInt) & 31)))
-		case Token_rhino_RSH:
+		case tokOrd1_RSH:
 			return float64((bits >> (uint32(rvalInt) & 31)))
-		case Token_rhino_URSH:
+		case tokOrd1_URSH:
 			return float64((4294967295 & int64(int32(uint32(bits)>>(uint32(rvalInt)&31)))))
 		default:
 			panic(new_AssertionError_Object(strobj_(("Unknown shift operator: " + jtostr_(n.getToken())))).self())
@@ -1352,8 +1352,8 @@ func (this *PeepholeFoldConstants) tryFoldGetProp(n Node) Node {
 			return n
 		}
 		var knownLength int32 = -1
-		switch left.getToken() {
-		case Token_rhino_ARRAYLIT:
+		switch left.ns_().token {
+		case tokOrd1_ARRAYLIT:
 			if this.mayHaveSideEffects(left) {
 				return n
 			}
@@ -1366,7 +1366,7 @@ func (this *PeepholeFoldConstants) tryFoldGetProp(n Node) Node {
 				}
 			}
 			knownLength = left.getChildCount()
-		case Token_rhino_STRINGLIT:
+		case tokOrd1_STRINGLIT:
 			knownLength = String_length(left.getString())
 		default:
 			return n
@@ -1520,18 +1520,18 @@ func (this *PeepholeFoldConstants) tryFoldObjectPropAccess(n Node, left Node, na
 	{
 		var c Node = left.getFirstChild()
 		for ; c != 0; c = c.getNext() {
-			switch c.getToken() {
-			case Token_rhino_SETTER_DEF:
+			switch c.ns_().token {
+			case tokOrd1_SETTER_DEF:
 				if c.getString() == name {
 					if (key != 0) && !PeepholeFoldConstants_isGetterProp(key) {
 						key = c
 						value = NodeUtil_newUndefinedNode(c)
 					}
 				}
-			case Token_rhino_OBJECT_SPREAD:
+			case tokOrd1_OBJECT_SPREAD:
 				key = 0
 				value = 0
-			case Token_rhino_COMPUTED_PROP:
+			case tokOrd1_COMPUTED_PROP:
 				var prop Node = c.getFirstChild()
 				if !prop.isStringLit() {
 					return n
@@ -1547,7 +1547,7 @@ func (this *PeepholeFoldConstants) tryFoldObjectPropAccess(n Node, left Node, na
 						value = c.getSecondChild()
 					}
 				}
-			case Token_rhino_GETTER_DEF, Token_rhino_STRING_KEY, Token_rhino_MEMBER_FUNCTION_DEF:
+			case tokOrd1_GETTER_DEF, tokOrd1_STRING_KEY, tokOrd1_MEMBER_FUNCTION_DEF:
 				if c.getString() == name {
 					key = c
 					value = key.getFirstChild()

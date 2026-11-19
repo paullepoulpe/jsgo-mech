@@ -259,20 +259,20 @@ func (this *SuggestedFix_Builder) rename(n Node, name string) *SuggestedFix_Buil
 
 func (this *SuggestedFix_Builder) rename_3(n Node, name string, replaceNameSubtree bool) *SuggestedFix_Builder {
 	var range_ Node
-	switch n.getToken() {
-	case Token_rhino_CALL, Token_rhino_TAGGED_TEMPLATELIT:
+	switch n.ns_().token {
+	case tokOrd1_CALL, tokOrd1_TAGGED_TEMPLATELIT:
 		return this.rename_3(n.getFirstChild(), name, replaceNameSubtree)
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		range_ = func() Node {
 			if replaceNameSubtree {
 				return SuggestedFix_Builder_subtreeRangeOfIdentifier(n)
 			}
 			return n
 		}()
-	case Token_rhino_STRINGLIT:
+	case tokOrd1_STRINGLIT:
 		Preconditions_checkState_boolean_Object_H(n.getParent().isGetProp(), n)
 		range_ = n
-	case Token_rhino_STRING_KEY, Token_rhino_NAME:
+	case tokOrd1_STRING_KEY, tokOrd1_NAME:
 		range_ = n
 	default:
 		panic(new_UnsupportedOperationException_String(("Rename is not implemented for this node type: " + tostrH_(n))).self())

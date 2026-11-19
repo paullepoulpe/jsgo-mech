@@ -99,8 +99,8 @@ func (this *AngularPass) addNode(n Node) {
 	var injectAfter Node = 0
 	var fn Node = 0
 	var name Optional[string] = Optional_empty[string]()
-	switch n.getToken() {
-	case Token_rhino_ASSIGN:
+	switch n.ns_().token {
+	case tokOrd1_ASSIGN:
 		if !n.getFirstChild().isQualifiedName() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, AngularPass_INJECTED_FUNCTION_ON_NON_QNAME, []string{}))
 			return
@@ -113,7 +113,7 @@ func (this *AngularPass) addNode(n Node) {
 			fn = fn.getLastChild()
 		}
 		injectAfter = n.getParent()
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		name = Optional_of[string](NodeUtil_getName(n)).filter(&Predicate_tfn_string{func(s string) bool {
 			return !String_isEmpty(s)
 		}})
@@ -122,11 +122,11 @@ func (this *AngularPass) addNode(n Node) {
 		if n.getParent().isAssign() && n.getParent().getJSDocInfo().isNgInject() {
 			return
 		}
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		name = Optional_of[string](n.getFirstChild().getString())
 		fn = AngularPass_getDeclarationRValue(n)
 		injectAfter = n
-	case Token_rhino_MEMBER_FUNCTION_DEF:
+	case tokOrd1_MEMBER_FUNCTION_DEF:
 		var parent Node = n.getParent()
 		if parent.isClassMembers() {
 			var classNode Node = parent.getParent()

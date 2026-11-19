@@ -227,12 +227,12 @@ func new_ClosureModuleProcessor_ModuleProcessingCallback(metadata *ModuleMetadat
 
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) shouldTraverse_impl(t *NodeTraversal, n Node, parent Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_MODULE_BODY, Token_rhino_SCRIPT, Token_rhino_CALL, Token_rhino_BLOCK:
+		switch n.ns_().token {
+		case tokOrd1_MODULE_BODY, tokOrd1_SCRIPT, tokOrd1_CALL, tokOrd1_BLOCK:
 			return true
-		case Token_rhino_FUNCTION:
+		case tokOrd1_FUNCTION:
 			return (parent.isCall() && (parent == this.metadata_.rootNode()))
-		case Token_rhino_EXPR_RESULT:
+		case tokOrd1_EXPR_RESULT:
 			var expr Node = n.getFirstChild()
 			if expr.isAssign() {
 				this.maybeInitializeExports(expr)
@@ -240,7 +240,7 @@ func (this *ClosureModuleProcessor_ModuleProcessingCallback) shouldTraverse_impl
 				this.maybeInitializeExportsStub(expr)
 			}
 			return false
-		case Token_rhino_CONST, Token_rhino_VAR, Token_rhino_LET:
+		case tokOrd1_CONST, tokOrd1_VAR, tokOrd1_LET:
 			this.maybeInitializeRequire(n)
 			return false
 		default:

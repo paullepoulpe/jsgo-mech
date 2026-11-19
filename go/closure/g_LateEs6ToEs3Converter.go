@@ -47,8 +47,8 @@ func LateEs6ToEs3Converter_findTemplateLitInsertionPoint(script Node) Node {
 }
 
 func (this *LateEs6ToEs3Converter) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_ASSIGN:
+	switch n.ns_().token {
+	case tokOrd1_ASSIGN:
 		var lhs Node = n.getFirstChild()
 		var rhs Node = n.getSecondChild()
 		if (lhs.isGetProp() && rhs.isFunction()) && lhs.getFirstChild().isName() {
@@ -59,15 +59,15 @@ func (this *LateEs6ToEs3Converter) visit(t *NodeTraversal, n Node, parent Node) 
 				this.templateLitInsertionPoint = n.getParent().getNext()
 			}
 		}
-	case Token_rhino_OBJECTLIT:
+	case tokOrd1_OBJECTLIT:
 		this.visitObject(t, n)
-	case Token_rhino_MEMBER_FUNCTION_DEF:
+	case tokOrd1_MEMBER_FUNCTION_DEF:
 		if parent.isObjectLit() {
 			this.visitMemberFunctionDefInObjectLit(n)
 		}
-	case Token_rhino_TAGGED_TEMPLATELIT:
+	case tokOrd1_TAGGED_TEMPLATELIT:
 		this.templateLiteralConverter.visitTaggedTemplateLiteral(t, n, this.templateLitInsertionPoint)
-	case Token_rhino_TEMPLATELIT:
+	case tokOrd1_TEMPLATELIT:
 		if !parent.isTaggedTemplateLit() {
 			this.templateLiteralConverter.visitTemplateLiteral(t, n)
 		}

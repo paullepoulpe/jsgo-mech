@@ -64,7 +64,7 @@ func (this *RewriteDynamicImports) process_2(externs Node, root Node) {
 }
 
 func (this *RewriteDynamicImports) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if n.getToken() != Token_rhino_DYNAMIC_IMPORT {
+	if n.ns_().token != tokOrd1_DYNAMIC_IMPORT {
 		return
 	}
 	var moduleMap *ModuleMap = this.compiler_.getModuleMap()

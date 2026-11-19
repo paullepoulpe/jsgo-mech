@@ -54,10 +54,10 @@ func (this *CheckConstPrivateProperties) reportMissingConst(t *NodeTraversal) {
 }
 
 func (this *CheckConstPrivateProperties) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_SCRIPT:
+	switch n.ns_().token {
+	case tokOrd1_SCRIPT:
 		this.reportMissingConst(t)
-	case Token_rhino_GETELEM, Token_rhino_GETPROP:
+	case tokOrd1_GETELEM, tokOrd1_GETPROP:
 		var propNode Node
 		if n.isGetProp() {
 			propNode = n
@@ -71,12 +71,12 @@ func (this *CheckConstPrivateProperties) visit_impl(t *NodeTraversal, n Node, pa
 		} else if this.isModificationOp(n) {
 			this.modified.add(propNode.getString())
 		}
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		var info *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
 		if (info != nil) && (info.isConstructor() || info.isInterface()) {
 			this.recordConstructorOrInterface(n)
 		}
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		this.recordConstructorOrInterface(n)
 	default:
 	}
