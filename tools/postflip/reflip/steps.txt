@@ -615,3 +615,5 @@ e13ca66a run t jfam -kind eqkeys
 2b6685fc run t ranges -loops && f
 # C18. postflip step: tostr, anyconv -all and exceptions re-run on the bridged tree
 bad8c2e4 run t tostr && t anyconv -all && t exceptions && f
+# C19. postflip step: tchecks, typed precondition calls are inline checks
+dfc0c907 run t tchecks && f

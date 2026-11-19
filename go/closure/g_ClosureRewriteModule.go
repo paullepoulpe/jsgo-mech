@@ -1480,7 +1480,7 @@ func (this *ClosureRewriteModule_ScriptDescription) finit_ClosureRewriteModule_S
 	this.namesToInlineByAlias = map[string]*ClosureRewriteModule_AliasName{}
 	this.defaultExportLocalName = Optional_empty[string]()
 	this.namedExports = map[string]struct{}{}
-	this.exportsToInline = newTMap_(tce_p_Var.t_(), tc_p_ClosureRewriteModule_ExportDefinition)
+	this.exportsToInline = newTMap_(tck_p_Var, tc_p_ClosureRewriteModule_ExportDefinition)
 }
 
 func (this *ClosureRewriteModule_ScriptDescription) init_ClosureRewriteModule_ScriptDescription() {

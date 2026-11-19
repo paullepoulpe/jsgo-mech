@@ -303,7 +303,7 @@ type MustBeReachingVariableDef_Definition struct {
 }
 
 func (this *MustBeReachingVariableDef_Definition) finit_MustBeReachingVariableDef_Definition() {
-	this.depends = newTSet_(tce_p_Var.t_())
+	this.depends = newTSet_(tck_p_Var)
 	this.unknownDependencies = false
 }
 
@@ -344,7 +344,7 @@ type MustBeReachingVariableDef_MustDef struct {
 }
 
 func (this *MustBeReachingVariableDef_MustDef) finit_MustBeReachingVariableDef_MustDef() {
-	this.reachingDef = newTMap_(tce_p_Var.t_(), tc_p_MustBeReachingVariableDef_Definition)
+	this.reachingDef = newTMap_(tck_p_Var, tc_p_MustBeReachingVariableDef_Definition)
 }
 
 func (this *MustBeReachingVariableDef_MustDef) init_MustBeReachingVariableDef_MustDef_0() {
