@@ -124,22 +124,22 @@ func ModuleLoader_normalize(path string, moduleRootPaths IterableOf[string]) str
 
 func ModuleLoader_relativePathFrom(fromUriPath string, toUriPath string) *Outcome_base[string] {
 	var toPath string = FilePaths_clean(toUriPath)
-	var fromFolder Optional[string] = FilePaths_parent(fromUriPath)
-	if fromFolder.isEmpty() && FilePaths_parent(toUriPath).isEmpty() {
+	var fromFolder string = FilePaths_parent(fromUriPath)
+	if fromFolder == nullstr_ && FilePaths_parent(toUriPath) == nullstr_ {
 		return Outcome_base_ok_Object[string](("./" + sstr_(toUriPath)))
-	} else if fromFolder.isEmpty() && ((strings.HasPrefix(toUriPath, ".") || strings.HasPrefix(toPath, "/")) || strings.HasPrefix(toPath, "\\")) {
+	} else if fromFolder == nullstr_ && ((strings.HasPrefix(toUriPath, ".") || strings.HasPrefix(toPath, "/")) || strings.HasPrefix(toPath, "\\")) {
 		return Outcome_base_ok_Object[string](toUriPath)
-	} else if fromFolder.isEmpty() {
+	} else if fromFolder == nullstr_ {
 		return Outcome_base_err[string](new_IllegalArgumentException_String("Relative path between URIs cannot be calculated").up_Throwable())
 	}
-	var calculatedPath Optional[string] = FilePaths_relativize(fromFolder.get(), toUriPath)
-	if calculatedPath.isEmpty() {
+	var calculatedPath string = FilePaths_relativize(optstrGet_(fromFolder), toUriPath)
+	if calculatedPath == nullstr_ {
 		return Outcome_base_err[string](new_IllegalArgumentException_String("Relative path between URIs cannot be calculated").up_Throwable())
 	}
-	if strings.HasPrefix(calculatedPath.get(), ".") || strings.HasPrefix(calculatedPath.get(), "/") {
-		return Outcome_base_ok_Object[string](calculatedPath.get())
+	if strings.HasPrefix(optstrGet_(calculatedPath), ".") || strings.HasPrefix(optstrGet_(calculatedPath), "/") {
+		return Outcome_base_ok_Object[string](optstrGet_(calculatedPath))
 	}
-	return Outcome_base_ok_Object[string](("./" + sstr_(calculatedPath.get())))
+	return Outcome_base_ok_Object[string](("./" + sstr_(optstrGet_(calculatedPath))))
 }
 
 func (this *ModuleLoader) setErrorHandler(errorHandler ErrorHandler) {
@@ -281,18 +281,18 @@ func (this *ModuleLoader_ModulePath) toModuleName() string {
 	return ModuleNames_toModuleName(this.path_)
 }
 
-func (this *ModuleLoader_ModulePath) resolveJsModule(moduleAddress string, sourcename Optional[string], lineno int32, colno int32) *ModuleLoader_ModulePath {
-	var loadAddress Optional[string] = this.outer_.moduleResolver.resolveJsModule(this.path_, moduleAddress, sourcename, lineno, colno)
-	if loadAddress.isPresent() {
-		return new_ModuleLoader_ModulePath(this.outer_, loadAddress.get())
+func (this *ModuleLoader_ModulePath) resolveJsModule(moduleAddress string, sourcename string, lineno int32, colno int32) *ModuleLoader_ModulePath {
+	var loadAddress string = this.outer_.moduleResolver.resolveJsModule(this.path_, moduleAddress, sourcename, lineno, colno)
+	if loadAddress != nullstr_ {
+		return new_ModuleLoader_ModulePath(this.outer_, optstrGet_(loadAddress))
 	}
 	return nil
 }
 
 func (this *ModuleLoader_ModulePath) resolveJsModuleSilently(moduleAddress string) *ModuleLoader_ModulePath {
-	var loadAddress Optional[string] = this.outer_.moduleResolver.resolveJsModuleSilently(this.path_, moduleAddress)
-	if loadAddress.isPresent() {
-		return new_ModuleLoader_ModulePath(this.outer_, loadAddress.get())
+	var loadAddress string = this.outer_.moduleResolver.resolveJsModuleSilently(this.path_, moduleAddress)
+	if loadAddress != nullstr_ {
+		return new_ModuleLoader_ModulePath(this.outer_, optstrGet_(loadAddress))
 	}
 	return nil
 }

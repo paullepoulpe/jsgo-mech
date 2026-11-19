@@ -195,36 +195,36 @@ func (this *ProcessClosureProvidesAndRequires) handleCandidateProvideDefinition(
 	if !t.inGlobalHoistScope() {
 		return
 	}
-	var name Optional[string] = func() Optional[string] {
+	var name string = func() string {
 		switch n.getParent().ns_().token {
 		case tokOrd1_LET, tokOrd1_CONST:
-			return func() Optional[string] {
+			return func() string {
 				if t.inGlobalScope() {
-					return Optional_of[string](n.getString())
+					return optstrOf_(n.getString())
 				}
-				return Optional_empty[string]()
+				return nullstr_
 			}()
 		case tokOrd1_VAR:
-			return Optional_of[string](n.getString())
+			return optstrOf_(n.getString())
 		case tokOrd1_EXPR_RESULT:
-			return func() Optional[string] {
+			return func() string {
 				if n.isAssign() {
-					return Optional_of[string](n.getFirstChild().getQualifiedName()).filterFn_(func(s string) bool {
+					return optstrFilter_(optstrOf_(n.getFirstChild().getQualifiedName()), func(s string) bool {
 						return s != ""
 					})
 				}
-				return Optional_empty[string]()
+				return nullstr_
 			}()
 		case tokOrd1_CLASS, tokOrd1_FUNCTION:
-			return Optional_empty[string]()
+			return nullstr_
 		default:
-			return Optional_empty[string]()
+			return nullstr_
 		}
 	}()
-	if name.isEmpty() {
+	if name == nullstr_ {
 		return
 	}
-	var pn *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.Get(name.get())
+	var pn *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.Get(optstrGet_(name))
 	if pn != nil {
 		pn.addDefinition(parent, t.getChunk(), this.chunkGraph)
 	}

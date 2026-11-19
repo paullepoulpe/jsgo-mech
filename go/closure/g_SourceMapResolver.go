@@ -19,9 +19,9 @@ func new_SourceMapResolver() *SourceMapResolver {
 
 func SourceMapResolver_extractSourceMap(jsFile *SourceFile_jscomp, sourceMapURL string, parseInlineSourceMaps bool) *SourceFile_jscomp {
 	if parseInlineSourceMaps && strings.HasPrefix(sourceMapURL, SourceMapResolver_BASE64_URL_PREFIX) {
-		var extractedString Optional[string] = SourceMapResolver_extractBase64String(sourceMapURL)
-		if extractedString.isPresent() {
-			return SourceFile_jscomp_fromCode_String_String_SourceKind((sstr_(jsFile.getName()) + ".inline.map"), extractedString.get(), StaticSourceFile_SourceKind_NON_CODE)
+		var extractedString string = SourceMapResolver_extractBase64String(sourceMapURL)
+		if extractedString != nullstr_ {
+			return SourceFile_jscomp_fromCode_String_String_SourceKind((sstr_(jsFile.getName()) + ".inline.map"), optstrGet_(extractedString), StaticSourceFile_SourceKind_NON_CODE)
 		}
 		return nil
 	}
@@ -31,17 +31,17 @@ func SourceMapResolver_extractSourceMap(jsFile *SourceFile_jscomp, sourceMapURL 
 	return SourceMapResolver_getRelativePath(jsFile.getName(), sourceMapURL)
 }
 
-func SourceMapResolver_extractBase64String(url string) Optional[string] {
+func SourceMapResolver_extractBase64String(url string) string {
 	if strings.HasPrefix(url, SourceMapResolver_BASE64_URL_PREFIX) && strings.Contains(url, SourceMapResolver_BASE64_START) {
 		urlU16 := utf16Of_(url)
 		var base64StartIndex int32 = urlU16.indexOf_String(SourceMapResolver_BASE64_START)
 		var mediaType string = urlU16.substring(int32(len(SourceMapResolver_BASE64_URL_PREFIX)), base64StartIndex)
 		if SourceMapResolver_ACCEPTED_MEDIA_TYPES.Has(mediaType) {
 			var data []int8 = Io_base64Decode(urlU16.substring_int((base64StartIndex + int32(len(SourceMapResolver_BASE64_START)))))
-			return Optional_of[string](Io_utf8String(data))
+			return optstrOf_(Io_utf8String(data))
 		}
 	}
-	return Optional_empty[string]()
+	return nullstr_
 }
 
 func SourceMapResolver_isAbsolute(url string) bool {
@@ -56,12 +56,12 @@ func SourceMapResolver_getRelativePath(baseFilePath string, relativePath string)
 }
 
 func SourceMapResolver_resolveSibling(baseFilePath string, path string) string {
-	var directory Optional[string] = FilePaths_parent(baseFilePath)
+	var directory string = FilePaths_parent(baseFilePath)
 	return func() string {
-		if directory.isEmpty() {
+		if directory == nullstr_ {
 			return FilePaths_clean(path)
 		}
-		return FilePaths_resolve(directory.get(), path)
+		return FilePaths_resolve(optstrGet_(directory), path)
 	}()
 }
 

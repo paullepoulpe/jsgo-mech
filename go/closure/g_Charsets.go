@@ -15,26 +15,26 @@ func new_Charsets() *Charsets {
 	return this
 }
 
-func Charsets_canonicalName(name string) Optional[string] {
+func Charsets_canonicalName(name string) string {
 	var lower string = Ascii_toLowerCase(name)
 	for i := int32(0); i < int32(len(Charsets_NAMES)); i += 2 {
 		if Charsets_NAMES[i] == lower {
-			return Optional_of[string](Charsets_NAMES[(i + 1)])
+			return optstrOf_(Charsets_NAMES[(i + 1)])
 		}
 	}
-	return Optional_empty[string]()
+	return nullstr_
 }
 
 func Charsets_isSupported(name string) bool {
-	return Charsets_canonicalName(name).isPresent()
+	return Charsets_canonicalName(name) != nullstr_
 }
 
 func Charsets_name(name string) string {
-	var canonical Optional[string] = Charsets_canonicalName(name)
-	if canonical.isEmpty() {
+	var canonical string = Charsets_canonicalName(name)
+	if canonical == nullstr_ {
 		panic(new_IllegalArgumentException_String(("Unsupported charset: " + sstr_(name))))
 	}
-	return canonical.get()
+	return optstrGet_(canonical)
 }
 
 func Charsets_decode(bytes []int8, charset string) string {
@@ -42,18 +42,18 @@ func Charsets_decode(bytes []int8, charset string) string {
 	if canonical == Charsets_UTF_8 {
 		return Io_utf8String(bytes)
 	}
-	return Charsets_decodeOther(bytes, canonical, false).orElseThrow()
+	return optstrGet_(Charsets_decodeOther(bytes, canonical, false))
 }
 
-func Charsets_decodeStrict(bytes []int8, charset string) Optional[string] {
+func Charsets_decodeStrict(bytes []int8, charset string) string {
 	var canonical string = Charsets_name(charset)
 	if canonical == Charsets_UTF_8 {
-		return Io_utf8StringStrict(bytes)
+		return optstr_(Io_utf8StringStrict(bytes))
 	}
 	return Charsets_decodeOther(bytes, canonical, true)
 }
 
-func Charsets_decodeOther(bytes []int8, canonical string, strict bool) Optional[string] {
+func Charsets_decodeOther(bytes []int8, canonical string, strict bool) string {
 	if ((canonical == Charsets_UTF_16) || (canonical == Charsets_UTF_16BE)) || (canonical == Charsets_UTF_16LE) {
 		return Charsets_decodeUtf16(bytes, canonical, strict)
 	}
@@ -70,14 +70,14 @@ func Charsets_decodeOther(bytes []int8, canonical string, strict bool) Optional[
 			c = Charsets_WINDOWS_1252_HIGHU16.charAt((b - 128))
 		}
 		if (c == Charsets_REPLACEMENT) && strict {
-			return Optional_empty[string]()
+			return nullstr_
 		}
 		text.append_char(c)
 	}
-	return Optional_of[string](text.toString())
+	return optstrOf_(text.toString())
 }
 
-func Charsets_decodeUtf16(bytes []int8, canonical string, strict bool) Optional[string] {
+func Charsets_decodeUtf16(bytes []int8, canonical string, strict bool) string {
 	var little bool = (canonical == Charsets_UTF_16LE)
 	var start int32 = 0
 	if (canonical == Charsets_UTF_16) && (int32(len(bytes)) >= 2) {
@@ -118,9 +118,9 @@ func Charsets_decodeUtf16(bytes []int8, canonical string, strict bool) Optional[
 		}
 	}
 	if strict && !valid {
-		return Optional_empty[string]()
+		return nullstr_
 	}
-	return Optional_of[string](text.toString())
+	return optstrOf_(text.toString())
 }
 
 func Charsets_encode(text string, charset string) []int8 {

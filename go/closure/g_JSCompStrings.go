@@ -23,24 +23,24 @@ func JSCompStrings_linesIterable(lines IterableOf[string]) string {
 	return String_join_s("\n", lines)
 }
 
-func JSCompStrings_parseIntOrNull(s Optional[string]) any {
-	if s.isEmpty() || s.get() == "" {
+func JSCompStrings_parseIntOrNull(s string) any {
+	if s == nullstr_ || optstrGet_(s) == "" {
 		return nil
 	}
-	var negative bool = (byteAt_(s.get(), 0) == '-')
+	var negative bool = (byteAt_(optstrGet_(s), 0) == '-')
 	var start int32 = func() int32 {
-		if negative || (byteAt_(s.get(), 0) == '+') {
+		if negative || (byteAt_(optstrGet_(s), 0) == '+') {
 			return 1
 		}
 		return 0
 	}()
 	var sU16 utf16_
-	if start == sU16.of(s.get()).length() {
+	if start == sU16.of(optstrGet_(s)).length() {
 		return nil
 	}
 	var value int64 = 0
-	for i := int32(start); i < sU16.of(s.get()).length(); i++ {
-		var digit int32 = Character_digit(sU16.of(s.get()).charAt(i), 10)
+	for i := int32(start); i < sU16.of(optstrGet_(s)).length(); i++ {
+		var digit int32 = Character_digit(sU16.of(optstrGet_(s)).charAt(i), 10)
 		if digit < 0 {
 			return nil
 		}

@@ -106,7 +106,7 @@ var ProcessTweaks_TweakFunction_enum_ = [6]Enum{
 
 var ProcessTweaks_TweakFunction_nameField_ [6]string
 
-var ProcessTweaks_TweakFunction_expectedTypeName_ [6]Optional[string]
+var ProcessTweaks_TweakFunction_expectedTypeName_ [6]string
 
 var ProcessTweaks_TweakFunction_validNodeTypeA_ [6]Token_rhino
 
@@ -148,18 +148,18 @@ func (this ProcessTweaks_TweakFunction) zero_ProcessTweaks_TweakFunction() {
 }
 
 func (this ProcessTweaks_TweakFunction) init_ProcessTweaks_TweakFunction_String_String_Token(name string, expectedTypeName string, validNodeTypeA Token_rhino) {
-	this.init_ProcessTweaks_TweakFunction_String_Optional_Token_Token_TweakFunction(name, Optional_of[string](expectedTypeName), validNodeTypeA, Token_rhino_EMPTY, 0)
+	this.init_ProcessTweaks_TweakFunction_String_Optional_Token_Token_TweakFunction(name, optstrOf_(expectedTypeName), validNodeTypeA, Token_rhino_EMPTY, 0)
 }
 
 func (this ProcessTweaks_TweakFunction) init_ProcessTweaks_TweakFunction_String_String_Token_Token(name string, expectedTypeName string, validNodeTypeA Token_rhino, validNodeTypeB Token_rhino) {
-	this.init_ProcessTweaks_TweakFunction_String_Optional_Token_Token_TweakFunction(name, Optional_of[string](expectedTypeName), validNodeTypeA, validNodeTypeB, 0)
+	this.init_ProcessTweaks_TweakFunction_String_Optional_Token_Token_TweakFunction(name, optstrOf_(expectedTypeName), validNodeTypeA, validNodeTypeB, 0)
 }
 
 func (this ProcessTweaks_TweakFunction) init_ProcessTweaks_TweakFunction_String_TweakFunction(name string, registerFunction ProcessTweaks_TweakFunction) {
-	this.init_ProcessTweaks_TweakFunction_String_Optional_Token_Token_TweakFunction(name, Optional_empty[string](), Token_rhino_EMPTY, Token_rhino_EMPTY, registerFunction)
+	this.init_ProcessTweaks_TweakFunction_String_Optional_Token_Token_TweakFunction(name, nullstr_, Token_rhino_EMPTY, Token_rhino_EMPTY, registerFunction)
 }
 
-func (this ProcessTweaks_TweakFunction) init_ProcessTweaks_TweakFunction_String_Optional_Token_Token_TweakFunction(name string, expectedTypeName Optional[string], validNodeTypeA Token_rhino, validNodeTypeB Token_rhino, registerFunction ProcessTweaks_TweakFunction) {
+func (this ProcessTweaks_TweakFunction) init_ProcessTweaks_TweakFunction_String_Optional_Token_Token_TweakFunction(name string, expectedTypeName string, validNodeTypeA Token_rhino, validNodeTypeB Token_rhino, registerFunction ProcessTweaks_TweakFunction) {
 	ProcessTweaks_TweakFunction_nameField_[this-1] = name
 	ProcessTweaks_TweakFunction_expectedTypeName_[this-1] = expectedTypeName
 	ProcessTweaks_TweakFunction_validNodeTypeA_[this-1] = validNodeTypeA
@@ -186,7 +186,7 @@ func (this ProcessTweaks_TweakFunction) getName() string {
 	return ProcessTweaks_TweakFunction_nameField_[this-1]
 }
 
-func (this ProcessTweaks_TweakFunction) getExpectedTypeName() Optional[string] {
+func (this ProcessTweaks_TweakFunction) getExpectedTypeName() string {
 	return ProcessTweaks_TweakFunction_expectedTypeName_[this-1]
 }
 
@@ -397,7 +397,7 @@ func (this *ProcessTweaks_TweakInfo) emitAllTypeWarnings() {
 		var registerFunc ProcessTweaks_TweakFunction = this.registerCall.tweakFunc
 		if valueNode != 0 {
 			if !registerFunc.isValidNodeType(valueNode.getToken()) {
-				this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(valueNode, ProcessTweaks_INVALID_TWEAK_DEFAULT_VALUE_WARNING, []string{this.tweakId, registerFunc.getName(), registerFunc.getExpectedTypeName().orElse("null")}))
+				this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(valueNode, ProcessTweaks_INVALID_TWEAK_DEFAULT_VALUE_WARNING, []string{this.tweakId, registerFunc.getName(), optstrOr_(registerFunc.getExpectedTypeName(), "null")}))
 			}
 		} else if tweakFunc.isGetterFunction() {
 			if !tweakFunc.isCorrectRegisterFunction(registerFunc) {

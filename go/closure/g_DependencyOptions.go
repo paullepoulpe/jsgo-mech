@@ -71,8 +71,8 @@ func DependencyOptions_pruneForEntryPoints(entryPoints IterableOf[*ModuleIdentif
 	return new_DependencyOptions(DependencyOptions_DependencyMode_PRUNE, immutableListCopyOf_(tc_p_ModuleIdentifier, entryPoints))
 }
 
-func DependencyOptions_fromFlags(dependencyModeFlag DependencyOptions_DependencyMode, entryPointFlag ListOf[string], closureEntryPointFlag []string, commonJsEntryModuleFlag Optional[string], manageClosureDependenciesFlag bool, onlyClosureDependenciesFlag bool) *Outcome_base[*DependencyOptions] {
-	var hasEntryPoint bool = ((commonJsEntryModuleFlag.isPresent() || !entryPointFlag.isEmpty()) || len(closureEntryPointFlag) != 0)
+func DependencyOptions_fromFlags(dependencyModeFlag DependencyOptions_DependencyMode, entryPointFlag ListOf[string], closureEntryPointFlag []string, commonJsEntryModuleFlag string, manageClosureDependenciesFlag bool, onlyClosureDependenciesFlag bool) *Outcome_base[*DependencyOptions] {
+	var hasEntryPoint bool = ((commonJsEntryModuleFlag != nullstr_ || !entryPointFlag.isEmpty()) || len(closureEntryPointFlag) != 0)
 	if !hasEntryPoint && onlyClosureDependenciesFlag {
 		return Outcome_base_err[*DependencyOptions](new_FlagUsageException("--only_closure_dependencies requires --entry_point.").up_Throwable())
 	}
@@ -85,7 +85,7 @@ func DependencyOptions_fromFlags(dependencyModeFlag DependencyOptions_Dependency
 	if !entryPointFlag.isEmpty() && len(closureEntryPointFlag) != 0 {
 		return Outcome_base_err[*DependencyOptions](new_FlagUsageException("--closure_entry_point cannot be used with --entry_point.").up_Throwable())
 	}
-	if commonJsEntryModuleFlag.isPresent() && (!entryPointFlag.isEmpty() || len(closureEntryPointFlag) != 0) {
+	if commonJsEntryModuleFlag != nullstr_ && (!entryPointFlag.isEmpty() || len(closureEntryPointFlag) != 0) {
 		return Outcome_base_err[*DependencyOptions](new_FlagUsageException("--common_js_entry_module cannot be used with either --entry_point or --closure_entry_point.").up_Throwable())
 	}
 	if manageClosureDependenciesFlag && onlyClosureDependenciesFlag {
@@ -110,8 +110,8 @@ func DependencyOptions_fromFlags(dependencyModeFlag DependencyOptions_Dependency
 		return Outcome_base_ok_Object[*DependencyOptions](nil)
 	}
 	var entryPointsBuilder *ImmutableList_Builder[*ModuleIdentifier] = immutableListBuilder_(tc_p_ModuleIdentifier)
-	if commonJsEntryModuleFlag.isPresent() {
-		entryPointsBuilder.add(ModuleIdentifier_forFile(commonJsEntryModuleFlag.get()))
+	if commonJsEntryModuleFlag != nullstr_ {
+		entryPointsBuilder.add(ModuleIdentifier_forFile(optstrGet_(commonJsEntryModuleFlag)))
 	}
 	for entryPoint := range elemsBy_(entryPointFlag, str_) {
 		entryPointsBuilder.add(ModuleIdentifier_forFlagValue(entryPoint))

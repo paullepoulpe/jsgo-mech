@@ -35,8 +35,8 @@ func Transpiler_bundle_compilerSupplier() *CompilerBasedTransformer_CompilerSupp
 	return new_CompilerBasedTransformer_CompilerSupplier()
 }
 
-func (this *Transpiler_bundle) getRuntime_impl() Optional[string] {
-	return Optional_of[string](this.runtimeLibraryName)
+func (this *Transpiler_bundle) getRuntime_impl() string {
+	return optstrOf_(this.runtimeLibraryName)
 }
 
 func (this *Transpiler_bundle) getTranformationName_impl() string {
@@ -63,7 +63,7 @@ func Transpiler_bundle_clinit() {
 }
 
 // getRuntime: an object that is exactly a Transpiler_bundle calls its getRuntime_impl directly (post-flip); others dispatch.
-func (this *Transpiler_bundle) getRuntime() Optional[string] {
+func (this *Transpiler_bundle) getRuntime() string {
 	if p, _ := this.self_.(*Transpiler_bundle); p == this {
 		return this.getRuntime_impl()
 	}

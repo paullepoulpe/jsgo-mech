@@ -216,9 +216,9 @@ func (this *InstrumentAsyncContext) instrumentGeneratorMethod(t *NodeTraversal, 
 	var argumentsReference Node = 0
 	var renamer *InstrumentAsyncContext_ArgumentsRenamer = new_InstrumentAsyncContext_ArgumentsRenamer(this)
 	NodeTraversal_traverse(this.compiler_, generatorBody, renamer)
-	if renamer.argumentsName.isPresent() {
+	if renamer.argumentsName != nullstr_ {
 		argumentsReference = this.astFactory_.createArgumentsReference()
-		argumentsParam = this.astFactory_.createName(renamer.argumentsName.get(), AstFactory_type_Node(argumentsReference))
+		argumentsParam = this.astFactory_.createName(optstrGet_(renamer.argumentsName), AstFactory_type_Node(argumentsReference))
 		argumentsParam.insertAfter(innerFactoryName)
 	}
 	var outerBody Node = IR_block_0()
@@ -365,11 +365,11 @@ func new_InstrumentAsyncContext_ArgParamPair(argument Node, parameter Node) *Ins
 
 type InstrumentAsyncContext_ArgumentsRenamer struct {
 	outer_        *InstrumentAsyncContext
-	argumentsName Optional[string]
+	argumentsName string
 }
 
 func (this *InstrumentAsyncContext_ArgumentsRenamer) finit_InstrumentAsyncContext_ArgumentsRenamer() {
-	this.argumentsName = Optional_empty[string]()
+	this.argumentsName = nullstr_
 }
 
 func (this *InstrumentAsyncContext_ArgumentsRenamer) init_InstrumentAsyncContext_ArgumentsRenamer() {
@@ -389,10 +389,10 @@ func (this *InstrumentAsyncContext_ArgumentsRenamer) shouldTraverse(t *NodeTrave
 
 func (this *InstrumentAsyncContext_ArgumentsRenamer) visit(t *NodeTraversal, n Node, parent Node) {
 	if n.isName() && (n.getStringIs_(sid_arguments)) {
-		if this.argumentsName.isEmpty() {
-			this.argumentsName = Optional_of[string](("$jscomp$arguments$" + sstr_(this.outer_.uniqueIdSupplier.getUniqueId(t.getInput()))))
+		if this.argumentsName == nullstr_ {
+			this.argumentsName = optstrOf_(("$jscomp$arguments$" + sstr_(this.outer_.uniqueIdSupplier.getUniqueId(t.getInput()))))
 		}
-		n.setString(this.argumentsName.get())
+		n.setString(optstrGet_(this.argumentsName))
 		if this.outer_.compiler_.getOptions().preservesDetailedSourceInfo() {
 			n.setOriginalName("arguments")
 		}

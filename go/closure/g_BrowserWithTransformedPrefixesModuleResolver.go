@@ -49,40 +49,40 @@ func new_BrowserWithTransformedPrefixesModuleResolver(modulePaths ImmutableSetOf
 	return this
 }
 
-func (this *BrowserWithTransformedPrefixesModuleResolver) replacePathPrefixes(moduleAddress Optional[string]) Optional[string] {
-	if moduleAddress.isEmpty() {
-		return Optional_empty[string]()
+func (this *BrowserWithTransformedPrefixesModuleResolver) replacePathPrefixes(moduleAddress string) string {
+	if moduleAddress == nullstr_ {
+		return nullstr_
 	}
-	var transformedAddress string = moduleAddress.get()
+	var transformedAddress string = optstrGet_(moduleAddress)
 	var moduleAddressU16 utf16_
 	var prefixU16 utf16_
 	for _, el := range this.prefixReplacements.keys {
 		prefixReplacement := el
-		if strings.HasPrefix(moduleAddress.get(), prefixReplacement.prefix()) {
-			transformedAddress = (sstr_(prefixReplacement.replacement()) + sstr_(moduleAddressU16.of(moduleAddress.get()).substring_int(prefixU16.of(prefixReplacement.prefix()).length())))
+		if strings.HasPrefix(optstrGet_(moduleAddress), prefixReplacement.prefix()) {
+			transformedAddress = (sstr_(prefixReplacement.replacement()) + sstr_(moduleAddressU16.of(optstrGet_(moduleAddress)).substring_int(prefixU16.of(prefixReplacement.prefix()).length())))
 			break
 		}
 	}
-	return Optional_of[string](transformedAddress)
+	return optstrOf_(transformedAddress)
 }
 
-func (this *BrowserWithTransformedPrefixesModuleResolver) resolveJsModule_impl(scriptAddress string, moduleAddress string, sourcename Optional[string], lineno int32, colno int32) Optional[string] {
-	var transformedAddress Optional[string] = this.replacePathPrefixes(Optional_of[string](moduleAddress))
-	var replaced bool = (transformedAddress.isPresent() && !(transformedAddress.get() == moduleAddress))
-	if !replaced && ModuleLoader_isAmbiguousIdentifier(transformedAddress.get()) {
-		this.errorHandler.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(sourcename, lineno, colno, BrowserWithTransformedPrefixesModuleResolver_INVALID_AMBIGUOUS_PATH, []string{transformedAddress.orElse("null"), this.expectedPrefixes}))
-		return Optional_empty[string]()
+func (this *BrowserWithTransformedPrefixesModuleResolver) resolveJsModule_impl(scriptAddress string, moduleAddress string, sourcename string, lineno int32, colno int32) string {
+	var transformedAddress string = this.replacePathPrefixes(optstrOf_(moduleAddress))
+	var replaced bool = (transformedAddress != nullstr_ && !(optstrGet_(transformedAddress) == moduleAddress))
+	if !replaced && ModuleLoader_isAmbiguousIdentifier(optstrGet_(transformedAddress)) {
+		this.errorHandler.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(sourcename, lineno, colno, BrowserWithTransformedPrefixesModuleResolver_INVALID_AMBIGUOUS_PATH, []string{optstrOr_(transformedAddress, "null"), this.expectedPrefixes}))
+		return nullstr_
 	}
-	return this.locate(scriptAddress, transformedAddress.get())
+	return this.locate(scriptAddress, optstrGet_(transformedAddress))
 }
 
-func (this *BrowserWithTransformedPrefixesModuleResolver) resolveJsModuleSilently_impl(scriptAddress string, moduleAddress string) Optional[string] {
-	var transformedAddress Optional[string] = this.replacePathPrefixes(Optional_of[string](moduleAddress))
-	var replaced bool = (transformedAddress.isPresent() && !(transformedAddress.get() == moduleAddress))
-	if !replaced && ModuleLoader_isAmbiguousIdentifier(transformedAddress.get()) {
-		return Optional_empty[string]()
+func (this *BrowserWithTransformedPrefixesModuleResolver) resolveJsModuleSilently_impl(scriptAddress string, moduleAddress string) string {
+	var transformedAddress string = this.replacePathPrefixes(optstrOf_(moduleAddress))
+	var replaced bool = (transformedAddress != nullstr_ && !(optstrGet_(transformedAddress) == moduleAddress))
+	if !replaced && ModuleLoader_isAmbiguousIdentifier(optstrGet_(transformedAddress)) {
+		return nullstr_
 	}
-	return this.locate(scriptAddress, transformedAddress.get())
+	return this.locate(scriptAddress, optstrGet_(transformedAddress))
 }
 
 func (this *BrowserWithTransformedPrefixesModuleResolver) resolveModuleAsPath_impl(scriptAddress string, moduleAddress string) string {
@@ -187,7 +187,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) toSt
 }
 
 // resolveJsModule: an object that is exactly a BrowserWithTransformedPrefixesModuleResolver calls its resolveJsModule_impl directly (post-flip); others dispatch.
-func (this *BrowserWithTransformedPrefixesModuleResolver) resolveJsModule(p0 string, p1 string, p2 Optional[string], p3 int32, p4 int32) Optional[string] {
+func (this *BrowserWithTransformedPrefixesModuleResolver) resolveJsModule(p0 string, p1 string, p2 string, p3 int32, p4 int32) string {
 	if p, _ := this.self_.(*BrowserWithTransformedPrefixesModuleResolver); p == this {
 		return this.resolveJsModule_impl(p0, p1, p2, p3, p4)
 	}
@@ -195,7 +195,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) resolveJsModule(p0 str
 }
 
 // resolveJsModuleSilently: an object that is exactly a BrowserWithTransformedPrefixesModuleResolver calls its resolveJsModuleSilently_impl directly (post-flip); others dispatch.
-func (this *BrowserWithTransformedPrefixesModuleResolver) resolveJsModuleSilently(p0 string, p1 string) Optional[string] {
+func (this *BrowserWithTransformedPrefixesModuleResolver) resolveJsModuleSilently(p0 string, p1 string) string {
 	if p, _ := this.self_.(*BrowserWithTransformedPrefixesModuleResolver); p == this {
 		return this.resolveJsModuleSilently_impl(p0, p1)
 	}

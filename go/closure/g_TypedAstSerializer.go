@@ -94,12 +94,12 @@ func (this *TypedAstSerializer) serializeScriptNode(script Node) *LazyAst {
 	var sourceFile int32 = this.getSourceFilePointer(script)
 	var scriptProto *AstNode = this.visit(script)
 	sliceClear_(this.subtreeSourceFiles)
-	var encodedSourceMap Optional[string] = this.compiler_.getBase64SourceMapContents(Optional_of[string](script.getSourceFileName()).filterFn_(func(s string) bool {
+	var encodedSourceMap string = this.compiler_.getBase64SourceMapContents(optstrFilter_(optstrOf_(script.getSourceFileName()), func(s string) bool {
 		return s != ""
 	}))
 	var lazyAstBuilder *LazyAst_Builder = LazyAst_newBuilder().setScript(scriptProto.toByteString()).setSourceFile(sourceFile)
-	if encodedSourceMap.isPresent() {
-		lazyAstBuilder.setSourceMappingUrl(encodedSourceMap.get())
+	if encodedSourceMap != nullstr_ {
+		lazyAstBuilder.setSourceMappingUrl(optstrGet_(encodedSourceMap))
 	}
 	return lazyAstBuilder.buildT_()
 }
@@ -173,10 +173,10 @@ func (this *TypedAstSerializer) valueTranslator(builder *AstNode_Builder, n Node
 		return
 	case tokOrd1_TEMPLATELIT_STRING:
 		builder.setTemplateStringValue(TemplateStringValue_newBuilder().setRawStringPointer(this.stringPool.put(n.getRawString())).setCookedStringPointer(func() int32 {
-			if n.getCookedString().isEmpty() {
+			if n.getCookedString() == nullstr_ {
 				return -1
 			}
-			return this.stringPool.put(n.getCookedString().get())
+			return this.stringPool.put(optstrGet_(n.getCookedString()))
 		}()).buildT_())
 		return
 	case tokOrd1_NUMBER:

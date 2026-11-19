@@ -15,7 +15,7 @@ type QualifiedName_I interface {
 	getComponent_impl() string
 	getOwner_impl() *QualifiedName
 	isSimple_impl() bool
-	join_impl() Optional[string]
+	join_impl() string
 	matches_impl(Node) bool
 }
 
@@ -73,8 +73,8 @@ func (this *QualifiedName) buildComponents(builder *ImmutableList_Builder[string
 	builder.add(this.getComponent())
 }
 
-func (this *QualifiedName) join_impl() Optional[string] {
-	return Optional_of[string](this.join_1(any(uint16('.'))))
+func (this *QualifiedName) join_impl() string {
+	return optstrOf_(this.join_1(any(uint16('.'))))
 }
 
 func (this *QualifiedName) join_1(separator any) string {
@@ -115,7 +115,7 @@ func (this *QualifiedName) matches(p0 Node) bool {
 	return this.self_.matches_impl(p0)
 }
 
-func (this *QualifiedName) join() Optional[string] {
+func (this *QualifiedName) join() string {
 	return this.self_.join_impl()
 }
 
@@ -337,8 +337,8 @@ func (this *QualifiedName_NodeQname) appendTo_impl(sb *strBuilder_, separator an
 	}
 }
 
-func (this *QualifiedName_NodeQname) join_impl() Optional[string] {
-	return Optional_of[string](this.node_.getQualifiedName()).filterFn_(func(s string) bool {
+func (this *QualifiedName_NodeQname) join_impl() string {
+	return optstrFilter_(optstrOf_(this.node_.getQualifiedName()), func(s string) bool {
 		return s != ""
 	})
 }
@@ -497,7 +497,7 @@ func (this *QualifiedName_NodeQname) appendTo(p0 *strBuilder_, p1 any) {
 }
 
 // join: an object that is exactly a QualifiedName_NodeQname calls its join_impl directly (post-flip); others dispatch.
-func (this *QualifiedName_NodeQname) join() Optional[string] {
+func (this *QualifiedName_NodeQname) join() string {
 	if p, _ := this.self_.(*QualifiedName_NodeQname); p == this {
 		return this.join_impl()
 	}

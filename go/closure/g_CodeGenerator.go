@@ -88,14 +88,14 @@ func (this *CodeGenerator) tagAsStrict() {
 }
 
 func (this *CodeGenerator) printJsDocComment(node Node, jsDocInfo *JSDocInfo) {
-	var jsdocAsString Optional[string]
+	var jsdocAsString string
 	if this.gentsMode {
 		jsdocAsString = jsDocInfo.getOriginalCommentString()
 	} else {
-		jsdocAsString = Optional_of[string](this.jsDocInfoPrinter.print(jsDocInfo))
+		jsdocAsString = optstrOf_(this.jsDocInfoPrinter.print(jsDocInfo))
 	}
-	if jsdocAsString.isPresent() && !(jsdocAsString.get() == "/** */ ") {
-		this.add(jsdocAsString.get())
+	if jsdocAsString != nullstr_ && !(optstrGet_(jsdocAsString) == "/** */ ") {
+		this.add(optstrGet_(jsdocAsString))
 		if !node.isCast() {
 			this.cc.endLine()
 		}
@@ -185,12 +185,12 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 	}
 	this.cc.trackLicenses(node)
 	var type_ Token_rhino = node.getToken()
-	var opstr Optional[string] = NodeUtil_opToStr(type_)
+	var opstr string = NodeUtil_opToStr(type_)
 	var childCount int32 = node.getChildCount()
 	var first Node = node.getFirstChild()
 	var last Node = node.getLastChild()
-	if opstr.isPresent() && (first != last) {
-		if ok_, a1_, a2_ := (childCount == 2), opstr.get(), childCount; !ok_ {
+	if opstr != nullstr_ && (first != last) {
+		if ok_, a1_, a2_ := (childCount == 2), optstrGet_(opstr), childCount; !ok_ {
 			panic(new_IllegalStateException_String(Strings_lenientFormat("Bad binary operator \"%s\": expected 2 arguments but got %s", strobj_(a1_), a2_)))
 		}
 		var p int32 = this.precedence(node)
@@ -201,10 +201,10 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		}
 		if NodeUtil_isAssignmentOp(node) || (type_ == Token_rhino_EXPONENT) {
 			this.addExpr(first, (p + 1), context)
-			this.cc.addOp(opstr.get(), true)
+			this.cc.addOp(optstrGet_(opstr), true)
 			this.addExpr(last, p, rhsContext)
 		} else {
-			this.unrollBinaryOperator(node, type_, opstr.get(), context, rhsContext, p, (p + 1))
+			this.unrollBinaryOperator(node, type_, optstrGet_(opstr), context, rhsContext, p, (p + 1))
 		}
 		if node.isAssign() && needsParens {
 			this.add(")")

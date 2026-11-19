@@ -52,7 +52,7 @@ func (this *SimpleDependencyInfo) toString() string {
 	return ("SimpleDependencyInfo{name=" + sstr_(this.getName_) + ", pathRelativeToClosureBase=" + sstr_(this.getPathRelativeToClosureBase_) + ", provides=" + tostr_(this.getProvides_.asImm()) + ", requires=" + tostr_(this.getRequires_.asImm()) + ", typeRequires=" + tostr_(this.getTypeRequires_.asImm()) + ", loadFlags=" + tostr_(this.getLoadFlags_.asImm()) + ", hasExternsAnnotation=" + boolstr_(this.getHasExternsAnnotation_) + ", hasNoCompileAnnotation=" + boolstr_(this.getHasNoCompileAnnotation_) + "}")
 }
 
-func SimpleDependencyInfo_builder(srcPathRelativeToClosure string, pathOfDefiningFile Optional[string]) *SimpleDependencyInfo_Builder {
+func SimpleDependencyInfo_builder(srcPathRelativeToClosure string, pathOfDefiningFile string) *SimpleDependencyInfo_Builder {
 	return new_SimpleDependencyInfo_Builder().setName(pathOfDefiningFile).setPathRelativeToClosureBase(srcPathRelativeToClosure).setProvides(ImmutableList_of()).setRequires(ImmutableList_of()).setTypeRequires(ImmutableList_of()).setLoadFlags(ImmutableMap_of()).setHasExternsAnnotation(false).setHasNoCompileAnnotation(false)
 }
 
@@ -130,13 +130,13 @@ func SimpleDependencyInfo_clinit() {
 		return
 	}
 	SimpleDependencyInfo_clinit_done = true
-	SimpleDependencyInfo_EMPTY = SimpleDependencyInfo_builder("", Optional_of[string]("")).build()
+	SimpleDependencyInfo_EMPTY = SimpleDependencyInfo_builder("", "").build()
 
 }
 
 type SimpleDependencyInfo_Builder struct {
-	name_                     Optional[string]
-	pathRelativeToClosureBase Optional[string]
+	name_                     string
+	pathRelativeToClosureBase string
 	provides                  *ImmutableList[string]
 	requires                  *ImmutableList[*DependencyInfo_Require]
 	typeRequires              *ImmutableList[string]
@@ -147,8 +147,8 @@ type SimpleDependencyInfo_Builder struct {
 }
 
 func (this *SimpleDependencyInfo_Builder) finit_SimpleDependencyInfo_Builder() {
-	this.name_ = Optional_empty[string]()
-	this.pathRelativeToClosureBase = Optional_empty[string]()
+	this.name_ = nullstr_
+	this.pathRelativeToClosureBase = nullstr_
 }
 
 func (this *SimpleDependencyInfo_Builder) init_SimpleDependencyInfo_Builder() {
@@ -162,11 +162,11 @@ func new_SimpleDependencyInfo_Builder() *SimpleDependencyInfo_Builder {
 }
 
 func SimpleDependencyInfo_Builder_from(copy_ DependencyInfo) *SimpleDependencyInfo_Builder {
-	return new_SimpleDependencyInfo_Builder().setName(Optional_of[string](copy_.getName())).setPathRelativeToClosureBase(copy_.getPathRelativeToClosureBase()).setProvides(iup_Collection(copy_.getProvides().asImm())).setRequires(iup_Collection(copy_.getRequires().asImm())).setTypeRequires(iup_Collection(copy_.getTypeRequires().asImm())).setLoadFlags(iup_Map(copy_.getLoadFlags().asImm())).setHasExternsAnnotation(copy_.getHasExternsAnnotation()).setHasNoCompileAnnotation(copy_.getHasNoCompileAnnotation())
+	return new_SimpleDependencyInfo_Builder().setName(optstrOf_(copy_.getName())).setPathRelativeToClosureBase(copy_.getPathRelativeToClosureBase()).setProvides(iup_Collection(copy_.getProvides().asImm())).setRequires(iup_Collection(copy_.getRequires().asImm())).setTypeRequires(iup_Collection(copy_.getTypeRequires().asImm())).setLoadFlags(iup_Map(copy_.getLoadFlags().asImm())).setHasExternsAnnotation(copy_.getHasExternsAnnotation()).setHasNoCompileAnnotation(copy_.getHasNoCompileAnnotation())
 }
 
-func (this *SimpleDependencyInfo_Builder) setName(name Optional[string]) *SimpleDependencyInfo_Builder {
-	if name.isEmpty() {
+func (this *SimpleDependencyInfo_Builder) setName(name string) *SimpleDependencyInfo_Builder {
+	if name == nullstr_ {
 		panic(new_NullPointerException_String("Null name"))
 	}
 	this.name_ = name
@@ -174,7 +174,7 @@ func (this *SimpleDependencyInfo_Builder) setName(name Optional[string]) *Simple
 }
 
 func (this *SimpleDependencyInfo_Builder) setPathRelativeToClosureBase(srcPathRelativeToClosure string) *SimpleDependencyInfo_Builder {
-	this.pathRelativeToClosureBase = Optional_of[string](srcPathRelativeToClosure)
+	this.pathRelativeToClosureBase = optstrOf_(srcPathRelativeToClosure)
 	return this
 }
 
@@ -232,12 +232,12 @@ func (this *SimpleDependencyInfo_Builder) setGoogModule(isModule bool) *SimpleDe
 }
 
 func (this *SimpleDependencyInfo_Builder) build() *SimpleDependencyInfo {
-	if ((((((int32(this.set0) != 3) || this.name_.isEmpty()) || this.pathRelativeToClosureBase.isEmpty()) || (this.provides == nil)) || (this.requires == nil)) || (this.typeRequires == nil)) || (this.loadFlags_ == nil) {
+	if ((((((int32(this.set0) != 3) || this.name_ == nullstr_) || this.pathRelativeToClosureBase == nullstr_) || (this.provides == nil)) || (this.requires == nil)) || (this.typeRequires == nil)) || (this.loadFlags_ == nil) {
 		var missing strBuilder_
-		if this.name_.isEmpty() {
+		if this.name_ == nullstr_ {
 			missing.append(" name")
 		}
-		if this.pathRelativeToClosureBase.isEmpty() {
+		if this.pathRelativeToClosureBase == nullstr_ {
 			missing.append(" pathRelativeToClosureBase")
 		}
 		if this.provides == nil {
@@ -260,7 +260,7 @@ func (this *SimpleDependencyInfo_Builder) build() *SimpleDependencyInfo {
 		}
 		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())))
 	}
-	return new_SimpleDependencyInfo(this.name_.get(), this.pathRelativeToClosureBase.get(), this.provides, this.requires, this.typeRequires, this.loadFlags_, this.hasExternsAnnotation, this.hasNoCompileAnnotation)
+	return new_SimpleDependencyInfo(optstrGet_(this.name_), optstrGet_(this.pathRelativeToClosureBase), this.provides, this.requires, this.typeRequires, this.loadFlags_, this.hasExternsAnnotation, this.hasNoCompileAnnotation)
 }
 
 var SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS *ImmutableMap[string, string]

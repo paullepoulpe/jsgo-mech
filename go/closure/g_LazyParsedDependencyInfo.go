@@ -45,9 +45,9 @@ func (this *LazyParsedDependencyInfo) getLoadFlags() *ImmutableMap[string, strin
 		loadFlagsBuilder.asMap().putAll(iup_Map(this.delegate.getLoadFlags().asImm()))
 		var features *FeatureSet = this.ast.getFeatures(this.compiler_)
 		if features.has(FeatureSet_Feature_MODULES) {
-			var previousModule Optional[string] = Optional_ofNullable[string](loadFlagsBuilder.get("module"))
-			if previousModule.isPresent() && !(previousModule.get() == "es6") {
-				this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](this.getName()), -1, -1, ModuleLoader_MODULE_CONFLICT, []string{this.getName()}))
+			var previousModule string = loadFlagsBuilder.get("module")
+			if previousModule != nullstr_ && !(optstrGet_(previousModule) == "es6") {
+				this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(optstrOf_(this.getName()), -1, -1, ModuleLoader_MODULE_CONFLICT, []string{this.getName()}))
 			}
 			loadFlagsBuilder.put("module", "es6")
 		}

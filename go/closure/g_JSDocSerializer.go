@@ -28,8 +28,8 @@ func JSDocSerializer_serializeJsdoc(jsdoc *JSDocInfo, stringPool *StringPool_Bui
 	if jsdoc.hasFileOverview() {
 		builder.addKind(JsdocTag_JSDOC_FILEOVERVIEW)
 	}
-	if jsdoc.getLicense().isPresent() {
-		builder.setLicenseTextPointer(stringPool.put(jsdoc.getLicense().get()))
+	if jsdoc.getLicense() != nullstr_ {
+		builder.setLicenseTextPointer(stringPool.put(optstrGet_(jsdoc.getLicense())))
 	}
 	if jsdoc.isSassGeneratedCssTs() {
 		builder.addKind(JsdocTag_JSDOC_SASS_GENERATED_CSS_TS)
@@ -109,14 +109,14 @@ func JSDocSerializer_serializeJsdoc(jsdoc *JSDocInfo, stringPool *StringPool_Bui
 	if jsdoc.isAbstract() {
 		builder.addKind(JsdocTag_JSDOC_ABSTRACT)
 	}
-	if jsdoc.getDescription().isPresent() {
-		builder.setDescriptionPointer(stringPool.put(jsdoc.getDescription().get()))
+	if jsdoc.getDescription() != nullstr_ {
+		builder.setDescriptionPointer(stringPool.put(optstrGet_(jsdoc.getDescription())))
 	}
-	if jsdoc.getAlternateMessageId().isPresent() {
-		builder.setAlternateMessageIdPointer(stringPool.put(jsdoc.getAlternateMessageId().get()))
+	if jsdoc.getAlternateMessageId() != nullstr_ {
+		builder.setAlternateMessageIdPointer(stringPool.put(optstrGet_(jsdoc.getAlternateMessageId())))
 	}
-	if jsdoc.getMeaning().isPresent() {
-		builder.setMeaningPointer(stringPool.put(jsdoc.getMeaning().get()))
+	if jsdoc.getMeaning() != nullstr_ {
+		builder.setMeaningPointer(stringPool.put(optstrGet_(jsdoc.getMeaning())))
 	}
 	if Collection_contains_s(jsdoc.getSuppressions(), "messageConventions") {
 		builder.addKind(JsdocTag_JSDOC_SUPPRESS_MESSAGE_CONVENTION)

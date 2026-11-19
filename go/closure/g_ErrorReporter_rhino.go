@@ -3,8 +3,8 @@
 package closure
 
 type ErrorReporter_rhino interface {
-	warning(string, Optional[string], int32, int32)
-	error(string, Optional[string], int32, int32)
+	warning(string, string, int32, int32)
+	error(string, string, int32, int32)
 }
 
 var ErrorReporter_rhino_NULL_INSTANCE ErrorReporter_rhino
@@ -35,11 +35,11 @@ func new_ErrorReporter_1() *ErrorReporter_1 {
 	return this
 }
 
-func (this *ErrorReporter_1) warning(message string, sourceName Optional[string], line int32, lineOffset int32) {
+func (this *ErrorReporter_1) warning(message string, sourceName string, line int32, lineOffset int32) {
 
 }
 
-func (this *ErrorReporter_1) error(message string, sourceName Optional[string], line int32, lineOffset int32) {
+func (this *ErrorReporter_1) error(message string, sourceName string, line int32, lineOffset int32) {
 
 }
 
@@ -56,10 +56,10 @@ func new_ErrorReporter_2() *ErrorReporter_2 {
 	return this
 }
 
-func (this *ErrorReporter_2) warning(message string, sourceName Optional[string], line int32, lineOffset int32) {
+func (this *ErrorReporter_2) warning(message string, sourceName string, line int32, lineOffset int32) {
 	panic(new_IllegalStateException_String(message))
 }
 
-func (this *ErrorReporter_2) error(message string, sourceName Optional[string], line int32, lineOffset int32) {
+func (this *ErrorReporter_2) error(message string, sourceName string, line int32, lineOffset int32) {
 	panic(new_IllegalStateException_String(message))
 }

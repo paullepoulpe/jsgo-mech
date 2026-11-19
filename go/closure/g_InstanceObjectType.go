@@ -52,7 +52,7 @@ func (this *InstanceObjectType) getTypeClass_impl() JSTypeClass {
 	return InstanceObjectType_TYPE_CLASS_FIELD
 }
 
-func (this *InstanceObjectType) getReferenceName_impl() Optional[string] {
+func (this *InstanceObjectType) getReferenceName_impl() string {
 	return this.getConstructor().getReferenceName()
 }
 
@@ -77,11 +77,11 @@ func (this *InstanceObjectType) appendTo_impl(sb *TypeStringBuilder) {
 		this.PrototypeObjectType.appendTo_impl(sb)
 		return
 	} else if sb.isForAnnotations() {
-		sb.append(this.constructor_.getNormalizedReferenceName().orElseThrow())
+		sb.append(optstrGet_(this.constructor_.getNormalizedReferenceName()))
 		return
 	}
-	var name Optional[string] = this.constructor_.getReferenceName()
-	if name.get() == "" {
+	var name string = this.constructor_.getReferenceName()
+	if optstrGet_(name) == "" {
 		var n Node = this.constructor_.getSource()
 		sb.append("<anonymous@").append(func() string {
 			if n != 0 {
@@ -95,11 +95,11 @@ func (this *InstanceObjectType) appendTo_impl(sb *TypeStringBuilder) {
 			return 0
 		}())).append(">")
 	}
-	sb.append(name.orElse(nullstr_))
+	sb.append(name)
 }
 
 func (this *InstanceObjectType) isTheObjectType_impl() bool {
-	return (this.getConstructor().isNativeObjectType() && ("Object" == this.getReferenceName().orElse("")))
+	return (this.getConstructor().isNativeObjectType() && ("Object" == optstrOr_(this.getReferenceName(), "")))
 }
 
 func (this *InstanceObjectType) isInstanceType_impl() bool {
@@ -107,39 +107,39 @@ func (this *InstanceObjectType) isInstanceType_impl() bool {
 }
 
 func (this *InstanceObjectType) isArrayType_impl() bool {
-	return (this.getConstructor().isNativeObjectType() && ("Array" == this.getReferenceName().orElse("")))
+	return (this.getConstructor().isNativeObjectType() && ("Array" == optstrOr_(this.getReferenceName(), "")))
 }
 
 func (this *InstanceObjectType) isReadonlyArrayType_impl() bool {
-	return (this.getConstructor().isNativeObjectType() && ("ReadonlyArray" == this.getReferenceName().orElse("")))
+	return (this.getConstructor().isNativeObjectType() && ("ReadonlyArray" == optstrOr_(this.getReferenceName(), "")))
 }
 
 func (this *InstanceObjectType) isBigIntObjectType_impl() bool {
-	return (this.getConstructor().isNativeObjectType() && ("BigInt" == this.getReferenceName().orElse("")))
+	return (this.getConstructor().isNativeObjectType() && ("BigInt" == optstrOr_(this.getReferenceName(), "")))
 }
 
 func (this *InstanceObjectType) isStringObjectType_impl() bool {
-	return (this.getConstructor().isNativeObjectType() && ("String" == this.getReferenceName().orElse("")))
+	return (this.getConstructor().isNativeObjectType() && ("String" == optstrOr_(this.getReferenceName(), "")))
 }
 
 func (this *InstanceObjectType) isSymbolObjectType_impl() bool {
-	return (this.getConstructor().isNativeObjectType() && ("Symbol" == this.getReferenceName().orElse("")))
+	return (this.getConstructor().isNativeObjectType() && ("Symbol" == optstrOr_(this.getReferenceName(), "")))
 }
 
 func (this *InstanceObjectType) isBooleanObjectType_impl() bool {
-	return (this.getConstructor().isNativeObjectType() && ("Boolean" == this.getReferenceName().orElse("")))
+	return (this.getConstructor().isNativeObjectType() && ("Boolean" == optstrOr_(this.getReferenceName(), "")))
 }
 
 func (this *InstanceObjectType) isNumberObjectType_impl() bool {
-	return (this.getConstructor().isNativeObjectType() && ("Number" == this.getReferenceName().orElse("")))
+	return (this.getConstructor().isNativeObjectType() && ("Number" == optstrOr_(this.getReferenceName(), "")))
 }
 
 func (this *InstanceObjectType) isDateType_impl() bool {
-	return (this.getConstructor().isNativeObjectType() && ("Date" == this.getReferenceName().orElse("")))
+	return (this.getConstructor().isNativeObjectType() && ("Date" == optstrOr_(this.getReferenceName(), "")))
 }
 
 func (this *InstanceObjectType) isRegexpType_impl() bool {
-	return (this.getConstructor().isNativeObjectType() && ("RegExp" == this.getReferenceName().orElse("")))
+	return (this.getConstructor().isNativeObjectType() && ("RegExp" == optstrOr_(this.getReferenceName(), "")))
 }
 
 func (this *InstanceObjectType) isNominalType_impl() bool {
@@ -200,7 +200,7 @@ func (this *InstanceObjectType_Builder) setImplicitPrototypeT_(p0 *ObjectType) *
 }
 
 // setNameT_ is setName for a InstanceObjectType_Builder receiver: setName returns its receiver (Java's self type T = InstanceObjectType_Builder), so the result is this (selftype).
-func (this *InstanceObjectType_Builder) setNameT_(p0 Optional[string]) *InstanceObjectType_Builder {
+func (this *InstanceObjectType_Builder) setNameT_(p0 string) *InstanceObjectType_Builder {
 	this.setName(p0)
 	return this
 }
@@ -259,7 +259,7 @@ func (this *InstanceObjectType) getTypeClass() JSTypeClass {
 }
 
 // getReferenceName: an object that is exactly a InstanceObjectType calls its getReferenceName_impl directly (post-flip); others dispatch.
-func (this *InstanceObjectType) getReferenceName() Optional[string] {
+func (this *InstanceObjectType) getReferenceName() string {
 	if p, _ := this.self_.(*InstanceObjectType); p == this {
 		return this.getReferenceName_impl()
 	}

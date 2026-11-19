@@ -4,22 +4,22 @@ package closure
 
 type DiagnosticGroup struct {
 	types *ImmutableSet[*DiagnosticType]
-	name_ Optional[string]
+	name_ string
 }
 
-func (this *DiagnosticGroup) init_DiagnosticGroup_Optional_DiagnosticTypeArr(name Optional[string], types []*DiagnosticType) {
+func (this *DiagnosticGroup) init_DiagnosticGroup_Optional_DiagnosticTypeArr(name string, types []*DiagnosticType) {
 	this.name_ = name
 	this.types = immutableSetCopyOf_(tch_p_DiagnosticType, Collection(Arrays_asList(arrmap_(types, obj_[*DiagnosticType]))))
 }
 
-func new_DiagnosticGroup_Optional_DiagnosticTypeArr(name Optional[string], types []*DiagnosticType) *DiagnosticGroup {
+func new_DiagnosticGroup_Optional_DiagnosticTypeArr(name string, types []*DiagnosticType) *DiagnosticGroup {
 	this := &DiagnosticGroup{}
 	this.init_DiagnosticGroup_Optional_DiagnosticTypeArr(name, types)
 	return this
 }
 
 func (this *DiagnosticGroup) init_DiagnosticGroup_DiagnosticTypeArr(types []*DiagnosticType) {
-	this.init_DiagnosticGroup_Optional_DiagnosticTypeArr(Optional_empty[string](), types)
+	this.init_DiagnosticGroup_Optional_DiagnosticTypeArr(nullstr_, types)
 }
 
 func new_DiagnosticGroup_DiagnosticTypeArr(types []*DiagnosticType) *DiagnosticGroup {
@@ -29,14 +29,14 @@ func new_DiagnosticGroup_DiagnosticTypeArr(types []*DiagnosticType) *DiagnosticG
 }
 
 func DiagnosticGroup_createFromType(type_ *DiagnosticType) *DiagnosticGroup {
-	return new_DiagnosticGroup_Optional_DiagnosticTypeArr(Optional_empty[string](), []*DiagnosticType{type_})
+	return new_DiagnosticGroup_Optional_DiagnosticTypeArr(nullstr_, []*DiagnosticType{type_})
 }
 
 func DiagnosticGroup_createFromGroups_DiagnosticGroupArr(groups []*DiagnosticGroup) *DiagnosticGroup {
-	return DiagnosticGroup_createFromGroups_Optional_DiagnosticGroupArr(Optional_empty[string](), groups)
+	return DiagnosticGroup_createFromGroups_Optional_DiagnosticGroupArr(nullstr_, groups)
 }
 
-func DiagnosticGroup_createFromGroups_Optional_DiagnosticGroupArr(name Optional[string], groups []*DiagnosticGroup) *DiagnosticGroup {
+func DiagnosticGroup_createFromGroups_Optional_DiagnosticGroupArr(name string, groups []*DiagnosticGroup) *DiagnosticGroup {
 	var set *ImmutableSet_Builder[*DiagnosticType] = immutableSetBuilder_(tc_p_DiagnosticType)
 	for _, group := range groups {
 		set.addAll(iup_Iterable(group.types.asImm()))
@@ -61,16 +61,16 @@ func (this *DiagnosticGroup) getTypes() *ImmutableSet[*DiagnosticType] {
 	return this.types
 }
 
-func (this *DiagnosticGroup) getName() Optional[string] {
+func (this *DiagnosticGroup) getName() string {
 	return this.name_
 }
 
 func (this *DiagnosticGroup) toString() string {
 	return func() string {
-		if this.name_.isEmpty() {
+		if this.name_ == nullstr_ {
 			return defaultToString_(any(this))
 		}
-		return ("DiagnosticGroup<" + sstr_(this.name_.get()) + ">")
+		return ("DiagnosticGroup<" + sstr_(optstrGet_(this.name_)) + ">")
 	}()
 }
 

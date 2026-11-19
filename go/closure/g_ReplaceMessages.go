@@ -45,13 +45,13 @@ func (this *ReplaceMessages) createMsgPropertiesNode(message *JsMessage, msgOpti
 		}
 		msgPropsBuilder.addNode("icu_placeholder_names", namesArrayLit)
 	}
-	var altId Optional[string] = message.getAlternateId()
-	if altId.isPresent() {
-		msgPropsBuilder.addString("alt_id", altId.get())
+	var altId string = message.getAlternateId()
+	if altId != nullstr_ {
+		msgPropsBuilder.addString("alt_id", optstrGet_(altId))
 	}
-	var meaning Optional[string] = message.getMeaning()
-	if meaning.isPresent() {
-		msgPropsBuilder.addString("meaning", meaning.get())
+	var meaning string = message.getMeaning()
+	if meaning != nullstr_ {
+		msgPropsBuilder.addString("meaning", optstrGet_(meaning))
 	}
 	if msgOptions.isIcuTemplate() {
 		msgPropsBuilder.addString("msg_text", message.asIcuMessageString())
@@ -85,11 +85,11 @@ func (this *ReplaceMessages) lookupMessage(callNode Node, bundle MessageBundle, 
 	if translatedMessage != nil {
 		return translatedMessage
 	}
-	var alternateId Optional[string] = message.getAlternateId()
-	if alternateId.isEmpty() {
+	var alternateId string = message.getAlternateId()
+	if alternateId == nullstr_ {
 		return nil
 	}
-	var alternateMessage *JsMessage = bundle.getMessage(alternateId.get())
+	var alternateMessage *JsMessage = bundle.getMessage(optstrGet_(alternateId))
 	if alternateMessage != nil {
 		var jsCodePlaceholderNames *ImmutableSet[string] = message.jsPlaceholderNames()
 		var alternateMsgPlaceholderNames *ImmutableSet[string] = alternateMessage.jsPlaceholderNames()
@@ -97,7 +97,7 @@ func (this *ReplaceMessages) lookupMessage(callNode Node, bundle MessageBundle, 
 			if jsCodePlaceholderNames.IsEmpty() && ReplaceMessages_isStartOfIcuMessage(message.asIcuMessageString()) {
 				return alternateMessage
 			} else {
-				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceMessages_INVALID_ALTERNATE_MESSAGE_PLACEHOLDERS, []string{alternateId.get(), tostr_(alternateMsgPlaceholderNames.asImm()), message.getKey(), tostr_(jsCodePlaceholderNames.asImm())}))
+				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceMessages_INVALID_ALTERNATE_MESSAGE_PLACEHOLDERS, []string{optstrGet_(alternateId), tostr_(alternateMsgPlaceholderNames.asImm()), message.getKey(), tostr_(jsCodePlaceholderNames.asImm())}))
 				return nil
 			}
 		}
@@ -166,10 +166,10 @@ func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory
 	hookHead.setColor(nodeToReplace.getColor())
 	var placeholderHook Node = hookHead
 	var placeholderNodeProvider func(string) Node = func(placeholderName string) Node {
-		var placeholderId Optional[string] = Optional_ofNullable[string](mapStr_(placeholderMapIds, placeholderName))
+		var placeholderId string = mapStr_(placeholderMapIds, placeholderName)
 		return func() Node {
-			if placeholderId.isPresent() {
-				return this.astFactory_.createName(placeholderId.get(), AstFactory_type_Node(nodeToReplace))
+			if placeholderId != nullstr_ {
+				return this.astFactory_.createName(optstrGet_(placeholderId), AstFactory_type_Node(nodeToReplace))
 			}
 			return 0
 		}()
@@ -840,10 +840,10 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 	if !propertiesNode.isObjectLit() {
 		panic(new_IllegalStateException_String(tostr_(propertiesNode)))
 	}
-	var msgKey Optional[string] = Optional_empty[string]()
-	var meaning Optional[string] = Optional_empty[string]()
+	var msgKey string = nullstr_
+	var meaning string = nullstr_
 	var icuPlaceholderNames map[string]struct{} = map[string]struct{}{}
-	var messageText Optional[string] = Optional_empty[string]()
+	var messageText string = nullstr_
 	var messageTextNode Node = 0
 	{
 		var strKey Node = propertiesNode.getFirstChild()
@@ -869,14 +869,14 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 			switch key {
 			case "key":
 				jsMessageBuilder.setKey(value)
-				msgKey = Optional_of[string](value)
+				msgKey = optstrOf_(value)
 			case "meaning":
-				jsMessageBuilder.setMeaning(Optional_of[string](value))
-				meaning = Optional_of[string](value)
+				jsMessageBuilder.setMeaning(optstrOf_(value))
+				meaning = optstrOf_(value)
 			case "alt_id":
-				jsMessageBuilder.setAlternateId(Optional_of[string](value))
+				jsMessageBuilder.setAlternateId(optstrOf_(value))
 			case "msg_text":
-				messageText = Optional_of[string](value)
+				messageText = optstrOf_(value)
 				messageTextNode = valueNode
 			case "isIcuTemplate":
 				isIcuTemplate = true
@@ -893,30 +893,30 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 		if !isIcuTemplate {
 			panic(new_IllegalStateException_String("Found icu_placeholder_names for a message that is not an ICU template."))
 		}
-		var icuMessageTemplateString *JsMessageVisitor_IcuMessageTemplateString = new_JsMessageVisitor_IcuMessageTemplateString(messageText.orElse(nullstr_))
+		var icuMessageTemplateString *JsMessageVisitor_IcuMessageTemplateString = new_JsMessageVisitor_IcuMessageTemplateString(messageText)
 		var extractedIcuTemplateParts *JsMessageVisitor_ExtractedIcuTemplateParts = icuMessageTemplateString.extractParts(icuPlaceholderNames)
 		jsMessageBuilder.appendParts(immItems_(extractedIcuTemplateParts.extractedParts))
 	} else {
-		var partsRes *Outcome_base[*ErasedImmutableList] = JsMessageVisitor_parseJsMessageTextIntoParts(messageText.orElse(nullstr_))
+		var partsRes *Outcome_base[*ErasedImmutableList] = JsMessageVisitor_parseJsMessageTextIntoParts(messageText)
 		if partsRes.isErr() {
-			panic(new_IllegalStateException_String((sstr_(messageTextNode.getLocation()) + ": Placeholder incorrectly formatted: >" + sstr_(messageText.orElse("null")) + "<")))
+			panic(new_IllegalStateException_String((sstr_(messageTextNode.getLocation()) + ": Placeholder incorrectly formatted: >" + sstr_(optstrOr_(messageText, "null")) + "<")))
 		}
 		jsMessageBuilder.appendParts(sliceImm_(tc_JsMessage_Part, partsRes.get()))
 	}
-	var externalMessageId Optional[string] = JsMessageVisitor_getExternalMessageId(msgKey.get())
-	if externalMessageId.isPresent() {
+	var externalMessageId string = JsMessageVisitor_getExternalMessageId(optstrGet_(msgKey))
+	if externalMessageId != nullstr_ {
 		jsMessageBuilder.setIsExternalMsg(true).setId(externalMessageId)
 	} else {
 		var meaningForIdGeneration string = func() string {
-			if meaning.isPresent() {
-				return meaning.get()
+			if meaning != nullstr_ {
+				return optstrGet_(meaning)
 			}
-			return JsMessageVisitor_removeScopedAliasesPrefix(msgKey.get())
+			return JsMessageVisitor_removeScopedAliasesPrefix(optstrGet_(msgKey))
 		}()
 		if idGenerator != nil {
-			jsMessageBuilder.setId(Optional_of[string](idGenerator.generateId(Optional_of[string](meaningForIdGeneration), jsMessageBuilder.getParts())))
+			jsMessageBuilder.setId(optstrOf_(idGenerator.generateId(optstrOf_(meaningForIdGeneration), jsMessageBuilder.getParts())))
 		} else {
-			jsMessageBuilder.setId(Optional_of[string](meaningForIdGeneration))
+			jsMessageBuilder.setId(optstrOf_(meaningForIdGeneration))
 		}
 	}
 	return new_ReplaceMessages_ProtectedJsMessage(jsMessageBuilder.build(), node, substitutionsNode, isIcuTemplate, escapeLessThanOption, unescapeHtmlEntitiesOption)

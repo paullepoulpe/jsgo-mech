@@ -41,11 +41,11 @@ func RhinoErrorReporter_forOldRhino(internalReporter func(CheckLevel, *JSError))
 	return new_RhinoErrorReporter_OldRhinoErrorReporter(internalReporter)
 }
 
-func (this *RhinoErrorReporter) warningAtLine(message string, sourceName Optional[string], line int32, lineOffset int32) {
+func (this *RhinoErrorReporter) warningAtLine(message string, sourceName string, line int32, lineOffset int32) {
 	this.internalReporter(0, RhinoErrorReporter_makeError(message, sourceName, line, lineOffset, CheckLevel_WARNING))
 }
 
-func (this *RhinoErrorReporter) errorAtLine(message string, sourceName Optional[string], line int32, lineOffset int32) {
+func (this *RhinoErrorReporter) errorAtLine(message string, sourceName string, line int32, lineOffset int32) {
 	this.internalReporter(0, RhinoErrorReporter_makeError(message, sourceName, line, lineOffset, CheckLevel_ERROR))
 }
 
@@ -59,7 +59,7 @@ func RhinoErrorReporter_mapError(message string) *DiagnosticType {
 	return nil
 }
 
-func RhinoErrorReporter_makeError(message string, sourceName Optional[string], line int32, lineOffset int32, defaultLevel CheckLevel) *JSError {
+func RhinoErrorReporter_makeError(message string, sourceName string, line int32, lineOffset int32, defaultLevel CheckLevel) *JSError {
 	var type_ *DiagnosticType = RhinoErrorReporter_mapError(message)
 	var builder *JSError_Builder = JSError_builder(func() *DiagnosticType {
 		if type_ != nil {
@@ -158,10 +158,10 @@ func new_RhinoErrorReporter_OldRhinoErrorReporter(internalReporter func(CheckLev
 	return this
 }
 
-func (this *RhinoErrorReporter_OldRhinoErrorReporter) error(message string, sourceName Optional[string], line int32, lineOffset int32) {
+func (this *RhinoErrorReporter_OldRhinoErrorReporter) error(message string, sourceName string, line int32, lineOffset int32) {
 	this.RhinoErrorReporter.errorAtLine(message, sourceName, line, lineOffset)
 }
 
-func (this *RhinoErrorReporter_OldRhinoErrorReporter) warning(message string, sourceName Optional[string], line int32, lineOffset int32) {
+func (this *RhinoErrorReporter_OldRhinoErrorReporter) warning(message string, sourceName string, line int32, lineOffset int32) {
 	this.RhinoErrorReporter.warningAtLine(message, sourceName, line, lineOffset)
 }

@@ -176,9 +176,9 @@ func (this *ModuleImportResolver) updateAstForExport(bindingSourceNode Node, exp
 }
 
 func (this *ModuleImportResolver) getScopedNameFromEsBinding(binding *Binding) *ScopedName {
-	var name Optional[string] = func() Optional[string] {
+	var name string = func() string {
 		if binding.isModuleNamespace() {
-			return Optional_of[string](Export_NAMESPACE)
+			return optstrOf_(Export_NAMESPACE)
 		}
 		return binding.boundName()
 	}()
@@ -195,23 +195,23 @@ func (this *ModuleImportResolver) getScopedNameFromEsBinding(binding *Binding) *
 			if scriptNode != 0 && !scriptNode.isScript() {
 				panic(new_IllegalStateException_String(tostr_(scriptNode)))
 			}
-			return ScopedName_of(name.orElse(nullstr_), func() Node {
+			return ScopedName_of(name, func() Node {
 				if scriptNode != 0 {
 					return scriptNode.getOnlyChild()
 				}
 				return 0
 			}())
 		case ModuleMetadataMap_ModuleType_GOOG_MODULE, ModuleMetadataMap_ModuleType_GOOG_PROVIDE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE:
-			var closureModuleObject *ScopedName = this.getScopedNameForClosureNamespace(binding.closureNamespace().orElse(nullstr_))
+			var closureModuleObject *ScopedName = this.getScopedNameForClosureNamespace(binding.closureNamespace())
 			if closureModuleObject == nil {
-				return ScopedName_of(binding.closureNamespace().orElse(nullstr_), 0)
+				return ScopedName_of(binding.closureNamespace(), 0)
 			}
 			if binding.isModuleNamespace() {
 				return closureModuleObject
 			}
-			return ScopedName_of((sstr_(closureModuleObject.getName()) + "." + sstr_(binding.originatingExport().exportName().orElse("null"))), closureModuleObject.getScopeRoot())
+			return ScopedName_of((sstr_(closureModuleObject.getName()) + "." + sstr_(optstrOr_(binding.originatingExport().exportName(), "null"))), closureModuleObject.getScopeRoot())
 		case ModuleMetadataMap_ModuleType_SCRIPT:
-			return ScopedName_of(name.orElse(""), 0)
+			return ScopedName_of(optstrOr_(name, ""), 0)
 		case ModuleMetadataMap_ModuleType_COMMON_JS:
 			panic(new_IllegalStateException_String("Typechecking CommonJS modules is not supported"))
 		}

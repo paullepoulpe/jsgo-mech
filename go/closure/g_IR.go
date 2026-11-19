@@ -812,7 +812,7 @@ func IR_templateLiteral() Node {
 	return new_Node_Token(Token_rhino_TEMPLATELIT)
 }
 
-func IR_templateLiteralString(cooked Optional[string], raw string) Node {
+func IR_templateLiteralString(cooked string, raw string) Node {
 	return Node_newTemplateLitString_Optional_String(cooked, raw)
 }
 

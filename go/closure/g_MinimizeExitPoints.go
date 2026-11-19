@@ -30,27 +30,27 @@ func (this *MinimizeExitPoints) optimizeSubtree_impl(n Node) Node {
 	}
 	switch n.ns_().token {
 	case tokOrd1_LABEL:
-		this.tryMinimizeExits(n.getLastChild(), Token_rhino_BREAK, Optional_of[string](n.getFirstChild().getString()))
+		this.tryMinimizeExits(n.getLastChild(), Token_rhino_BREAK, optstrOf_(n.getFirstChild().getString()))
 	case tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_WHILE:
-		this.tryMinimizeExits(NodeUtil_getLoopCodeBlock(n), Token_rhino_CONTINUE, Optional_empty[string]())
+		this.tryMinimizeExits(NodeUtil_getLoopCodeBlock(n), Token_rhino_CONTINUE, nullstr_)
 	case tokOrd1_DO:
-		this.tryMinimizeExits(NodeUtil_getLoopCodeBlock(n), Token_rhino_CONTINUE, Optional_empty[string]())
+		this.tryMinimizeExits(NodeUtil_getLoopCodeBlock(n), Token_rhino_CONTINUE, nullstr_)
 		var cond Node = NodeUtil_getConditionExpression(n)
 		if this.getSideEffectFreeBooleanValue(cond) == Tri_FALSE {
-			this.tryMinimizeExits(n.getFirstChild(), Token_rhino_BREAK, Optional_empty[string]())
+			this.tryMinimizeExits(n.getFirstChild(), Token_rhino_BREAK, nullstr_)
 		}
 	case tokOrd1_BLOCK:
 		if n.hasParent() && n.getParent().isFunction() {
-			this.tryMinimizeExits(n, Token_rhino_RETURN, Optional_empty[string]())
+			this.tryMinimizeExits(n, Token_rhino_RETURN, nullstr_)
 		}
 	case tokOrd1_SWITCH:
-		this.tryMinimizeSwitchExits(n, Token_rhino_BREAK, Optional_empty[string]())
+		this.tryMinimizeSwitchExits(n, Token_rhino_BREAK, nullstr_)
 	default:
 	}
 	return n
 }
 
-func (this *MinimizeExitPoints) tryMinimizeExits(n Node, exitType Token_rhino, labelName Optional[string]) {
+func (this *MinimizeExitPoints) tryMinimizeExits(n Node, exitType Token_rhino, labelName string) {
 	if MinimizeExitPoints_matchingExitNode(n, exitType, labelName) {
 		this.reportChangeToEnclosingScope(n)
 		NodeUtil_removeChild(n.getParent(), n)
@@ -82,7 +82,7 @@ func (this *MinimizeExitPoints) tryMinimizeExits(n Node, exitType Token_rhino, l
 		var labelBlock Node = n.getLastChild()
 		this.tryMinimizeExits(labelBlock, exitType, labelName)
 	}
-	if n.isSwitch() && ((exitType != Token_rhino_BREAK) || labelName.isPresent()) {
+	if n.isSwitch() && ((exitType != Token_rhino_BREAK) || labelName != nullstr_) {
 		this.tryMinimizeSwitchExits(n, exitType, labelName)
 		return
 	}
@@ -119,7 +119,7 @@ func (this *MinimizeExitPoints) tryMinimizeExits(n Node, exitType Token_rhino, l
 	}
 }
 
-func (this *MinimizeExitPoints) tryMinimizeSwitchExits(n Node, exitType Token_rhino, labelName Optional[string]) {
+func (this *MinimizeExitPoints) tryMinimizeSwitchExits(n Node, exitType Token_rhino, labelName string) {
 	if !n.isSwitch() {
 		panic(new_IllegalStateException_0())
 	}
@@ -136,7 +136,7 @@ func (this *MinimizeExitPoints) tryMinimizeSwitchExits(n Node, exitType Token_rh
 	}
 }
 
-func (this *MinimizeExitPoints) tryMinimizeSwitchCaseExits(n Node, exitType Token_rhino, labelName Optional[string]) {
+func (this *MinimizeExitPoints) tryMinimizeSwitchCaseExits(n Node, exitType Token_rhino, labelName string) {
 	if !NodeUtil_isSwitchCase(n) {
 		panic(new_IllegalStateException_0())
 	}
@@ -159,7 +159,7 @@ func (this *MinimizeExitPoints) tryMinimizeSwitchCaseExits(n Node, exitType Toke
 	}
 }
 
-func (this *MinimizeExitPoints) tryMinimizeIfBlockExits(srcBlock Node, destBlock Node, ifNode Node, exitType Token_rhino, labelName Optional[string]) {
+func (this *MinimizeExitPoints) tryMinimizeIfBlockExits(srcBlock Node, destBlock Node, ifNode Node, exitType Token_rhino, labelName string) {
 	var exitNodeParent Node = 0
 	var exitNode Node = 0
 	if srcBlock.isBlock() {
@@ -195,15 +195,15 @@ func (this *MinimizeExitPoints) tryMinimizeIfBlockExits(srcBlock Node, destBlock
 	}
 }
 
-func MinimizeExitPoints_matchingExitNode(n Node, type_ Token_rhino, labelName Optional[string]) bool {
+func MinimizeExitPoints_matchingExitNode(n Node, type_ Token_rhino, labelName string) bool {
 	if n.getToken() == type_ {
 		if type_ == Token_rhino_RETURN {
 			return !n.hasChildren()
 		} else {
-			if labelName.isEmpty() {
+			if labelName == nullstr_ {
 				return !n.hasChildren()
 			} else {
-				return (n.hasChildren() && (labelName.get() == n.getFirstChild().getString()))
+				return (n.hasChildren() && (optstrGet_(labelName) == n.getFirstChild().getString()))
 			}
 		}
 	}

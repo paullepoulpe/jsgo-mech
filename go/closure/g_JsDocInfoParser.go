@@ -17,18 +17,18 @@ type JsDocInfoParser struct {
 	closurePrimitiveNames_ *ImmutableSet[string]
 	preserveWhitespace     bool
 	onlyParseLicenseJsDoc  bool
-	licenseText            Optional[string]
+	licenseText            string
 	recordTsType_          bool
 	unreadToken            JsDocToken
 }
 
 func (this *JsDocInfoParser) finit_JsDocInfoParser() {
 	this.fileOverviewJSDocInfo = nil
-	this.licenseText = Optional_empty[string]()
+	this.licenseText = nullstr_
 	this.unreadToken = JsDocInfoParser_NO_UNREAD_TOKEN
 }
 
-func (this *JsDocInfoParser) init_JsDocInfoParser(stream *JsDocTokenStream, comment Optional[string], commentPosition int32, templateNode Node, config *Config, jsDocSourceKind JsDocInfoParser_JsDocSourceKind, errorReporter ErrorReporter_rhino) {
+func (this *JsDocInfoParser) init_JsDocInfoParser(stream *JsDocTokenStream, comment string, commentPosition int32, templateNode Node, config *Config, jsDocSourceKind JsDocInfoParser_JsDocSourceKind, errorReporter ErrorReporter_rhino) {
 	this.finit_JsDocInfoParser()
 	this.stream = stream
 	var parseDocumentation bool = config.jsDocParsingMode().shouldParseDescriptions()
@@ -36,8 +36,8 @@ func (this *JsDocInfoParser) init_JsDocInfoParser(stream *JsDocTokenStream, comm
 	if parseDocumentation {
 		this.jsdocBuilder.parseDocumentation()
 	}
-	if comment.isPresent() {
-		this.jsdocBuilder.recordOriginalCommentString(comment.get())
+	if comment != nullstr_ {
+		this.jsdocBuilder.recordOriginalCommentString(optstrGet_(comment))
 		this.jsdocBuilder.recordOriginalCommentPosition(commentPosition)
 	}
 	this.recordTsType_ = config.jsDocParsingMode().shouldParseDescriptions()
@@ -56,18 +56,18 @@ func (this *JsDocInfoParser) init_JsDocInfoParser(stream *JsDocTokenStream, comm
 	}()
 }
 
-func new_JsDocInfoParser(stream *JsDocTokenStream, comment Optional[string], commentPosition int32, templateNode Node, config *Config, jsDocSourceKind JsDocInfoParser_JsDocSourceKind, errorReporter ErrorReporter_rhino) *JsDocInfoParser {
+func new_JsDocInfoParser(stream *JsDocTokenStream, comment string, commentPosition int32, templateNode Node, config *Config, jsDocSourceKind JsDocInfoParser_JsDocSourceKind, errorReporter ErrorReporter_rhino) *JsDocInfoParser {
 	this := &JsDocInfoParser{}
 	this.init_JsDocInfoParser(stream, comment, commentPosition, templateNode, config, jsDocSourceKind, errorReporter)
 	return this
 }
 
 func (this *JsDocInfoParser) addParserWarning_2(msg Msg, messageArg string) {
-	this.addParserWarning_4(msg, Optional_of[string](messageArg), this.stream.getLineno(), this.stream.getCharno())
+	this.addParserWarning_4(msg, optstrOf_(messageArg), this.stream.getLineno(), this.stream.getCharno())
 }
 
-func (this *JsDocInfoParser) addParserWarning_4(msg Msg, messageArg Optional[string], lineno int32, charno int32) {
-	this.errorReporter.warning(msg.format_1(strobj_(messageArg.orElse(nullstr_))), this.getSourceName(), lineno, charno)
+func (this *JsDocInfoParser) addParserWarning_4(msg Msg, messageArg string, lineno int32, charno int32) {
+	this.errorReporter.warning(msg.format_1(strobj_(messageArg)), this.getSourceName(), lineno, charno)
 }
 
 func (this *JsDocInfoParser) addParserWarning(msg Msg) {
@@ -79,11 +79,11 @@ func (this *JsDocInfoParser) addParserWarning_3(msg Msg, lineno int32, charno in
 }
 
 func (this *JsDocInfoParser) addTypeWarning_2(msg Msg, messageArg string) {
-	this.addTypeWarning_4(msg, Optional_of[string](messageArg), this.stream.getLineno(), this.stream.getCharno())
+	this.addTypeWarning_4(msg, optstrOf_(messageArg), this.stream.getLineno(), this.stream.getCharno())
 }
 
-func (this *JsDocInfoParser) addTypeWarning_4(msg Msg, messageArg Optional[string], lineno int32, charno int32) {
-	this.errorReporter.warning(("Bad type annotation. " + sstr_(msg.format_1(strobj_(messageArg.orElse(nullstr_)))) + sstr_(JsDocInfoParser_BAD_TYPE_WIKI_LINK)), this.getSourceName(), lineno, charno)
+func (this *JsDocInfoParser) addTypeWarning_4(msg Msg, messageArg string, lineno int32, charno int32) {
+	this.errorReporter.warning(("Bad type annotation. " + sstr_(msg.format_1(strobj_(messageArg))) + sstr_(JsDocInfoParser_BAD_TYPE_WIKI_LINK)), this.getSourceName(), lineno, charno)
 }
 
 func (this *JsDocInfoParser) addTypeWarning(msg Msg) {
@@ -99,13 +99,13 @@ func (this *JsDocInfoParser) addMissingTypeWarning(lineno int32, charno int32) {
 }
 
 func (this *JsDocInfoParser) setLicenseTextMonotonic(x string) {
-	if !this.licenseText.isEmpty() {
+	if this.licenseText != nullstr_ {
 		panic(new_IllegalStateException_0())
 	}
-	this.licenseText = Optional_of[string](x)
+	this.licenseText = optstrOf_(x)
 }
 
-func (this *JsDocInfoParser) getLicenseText() Optional[string] {
+func (this *JsDocInfoParser) getLicenseText() string {
 	return this.licenseText
 }
 
@@ -117,13 +117,13 @@ func (this *JsDocInfoParser) getSourceFile() StaticSourceFile {
 	return this.templateNode.getStaticSourceFile()
 }
 
-func (this *JsDocInfoParser) getSourceName() Optional[string] {
+func (this *JsDocInfoParser) getSourceName() string {
 	var sourceFile StaticSourceFile = this.getSourceFile()
-	return func() Optional[string] {
+	return func() string {
 		if sourceFile == nil {
-			return Optional_empty[string]()
+			return nullstr_
 		}
-		return Optional_of[string](sourceFile.getName())
+		return optstrOf_(sourceFile.getName())
 	}()
 }
 
@@ -170,7 +170,7 @@ func JsDocInfoParser_parseFileOverviewJsdoc(toParse string) *JSDocInfo {
 
 func JsDocInfoParser_getParser(toParse string) *JsDocInfoParser {
 	var config *Config = Config_builder().setLanguageMode(Config_LanguageMode_ECMASCRIPT3).setStrictMode(Config_StrictMode_SLOPPY).setClosurePrimitiveNames(ImmutableSet_of_Object(strobj_("testPrimitive"))).build()
-	return new_JsDocInfoParser(new_JsDocTokenStream_String(toParse), Optional_of[string](toParse), 0, 0, config, JsDocInfoParser_JsDocSourceKind_NORMAL, ErrorReporter_rhino_NULL_INSTANCE)
+	return new_JsDocInfoParser(new_JsDocTokenStream_String(toParse), optstrOf_(toParse), 0, 0, config, JsDocInfoParser_JsDocSourceKind_NORMAL, ErrorReporter_rhino_NULL_INSTANCE)
 }
 
 func (this *JsDocInfoParser) parse() bool {
@@ -673,7 +673,7 @@ func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *[]
 				charno = this.stream.getCharno()
 				hasParamType = true
 			}
-			var name Optional[string] = Optional_empty[string]()
+			var name string = nullstr_
 			var isBracketedParam bool = (JsDocToken_LEFT_SQUARE == token)
 			if isBracketedParam {
 				token = this.next()
@@ -684,7 +684,7 @@ func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *[]
 				if !hasParamType {
 					this.addMissingTypeWarning(this.stream.getLineno(), this.stream.getCharno())
 				}
-				name = Optional_of[string](this.stream.getString())
+				name = optstrOf_(this.stream.getString())
 				if isBracketedParam {
 					token = this.next()
 					if JsDocToken_EQUALS == token {
@@ -699,10 +699,10 @@ func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *[]
 						type_ = JSTypeExpression_makeOptionalArg(type_)
 					}
 				}
-				if !TokenStream_isJSIdentifier(name.get()) {
+				if !TokenStream_isJSIdentifier(optstrGet_(name)) {
 					this.addParserWarning_4(Msg_INVALID_VARIABLE_NAME, name, lineno, charno)
-					name = Optional_empty[string]()
-				} else if !this.jsdocBuilder.recordParameter(name.get(), type_) {
+					name = nullstr_
+				} else if !this.jsdocBuilder.recordParameter(optstrGet_(name), type_) {
 					if this.jsdocBuilder.hasParameter(name) {
 						this.addTypeWarning_4(Msg_DUP_VARIABLE_NAME, name, lineno, charno)
 					} else {
@@ -710,16 +710,16 @@ func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *[]
 					}
 				}
 			}
-			if name.isEmpty() {
+			if name == nullstr_ {
 				token = this.eatUntilEOLIfNotAnnotation_1(token)
 				return token
 			}
-			this.jsdocBuilder.markName(name.get(), this.templateNode, lineno, charno)
+			this.jsdocBuilder.markName(optstrGet_(name), this.templateNode, lineno, charno)
 			if this.jsdocBuilder.shouldParseDocumentation() && (token != JsDocToken_ANNOTATION) {
 				var paramDescriptionInfo *JsDocInfoParser_ExtractionInfo = this.extractMultilineTextualBlock(token)
 				var paramDescription string = paramDescriptionInfo.string_
 				if len(paramDescription) != 0 {
-					this.jsdocBuilder.recordParameterDescription(name.get(), paramDescription)
+					this.jsdocBuilder.recordParameterDescription(optstrGet_(name), paramDescription)
 				}
 				token = paramDescriptionInfo.token
 			} else if (token != JsDocToken_EOC) && (token != JsDocToken_EOF) {
@@ -773,14 +773,14 @@ func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *[]
 			if !this.match(JsDocToken_COLON) {
 				for do_3 := true; do_3; do_3 = this.eatIfMatch(JsDocToken_COMMA) {
 					var nameNode Node = this.parseNameExpression(this.next())
-					var templateName Optional[string] = func() Optional[string] {
+					var templateName string = func() string {
 						if nameNode == 0 {
-							return Optional_empty[string]()
+							return nullstr_
 						}
-						return Optional_of[string](nameNode.getString())
+						return optstrOf_(nameNode.getString())
 					}()
 					if JsDocInfoParser_validTemplateTypeName(templateName) {
-						templateNames = append(templateNames, templateName.orElseThrow())
+						templateNames = append(templateNames, optstrGet_(templateName))
 					}
 				}
 			}
@@ -983,8 +983,8 @@ func (this *JsDocInfoParser) parseTtlAst(ttlExtraction *JsDocInfoParser_Extracti
 	return ttlParser.getTypeTransformationAst()
 }
 
-func JsDocInfoParser_validTemplateTypeName(name Optional[string]) bool {
-	return ((name.isPresent() && name.get() != "") && JsDocInfoParser_TEMPLATE_NAME_MATCHER.matchesAllOf_s(name.get()))
+func JsDocInfoParser_validTemplateTypeName(name string) bool {
+	return ((name != nullstr_ && optstrGet_(name) != "") && JsDocInfoParser_TEMPLATE_NAME_MATCHER.matchesAllOf_s(optstrGet_(name)))
 }
 
 func (this *JsDocInfoParser) recordDescription(token JsDocToken) JsDocToken {
@@ -1116,7 +1116,7 @@ func (this *JsDocInfoParser) parseModifiesTag(token JsDocToken) JsDocToken {
 		for {
 			if this.match(JsDocToken_STRING) {
 				var name string = this.stream.getString()
-				if !JsDocInfoParser_modifiesAnnotationKeywords.Has(name) && !this.jsdocBuilder.hasParameter(Optional_of[string](name)) {
+				if !JsDocInfoParser_modifiesAnnotationKeywords.Has(name) && !this.jsdocBuilder.hasParameter(optstrOf_(name)) {
 					this.addParserWarning_2(Msg_JSDOC_MODIFIES_UNKNOWN, name)
 				}
 				modifies.Add(this.stream.getString())
@@ -1150,7 +1150,7 @@ func (this *JsDocInfoParser) parseIdGeneratorTag(token JsDocToken) JsDocToken {
 	if token == JsDocToken_LEFT_CURLY {
 		if this.match(JsDocToken_STRING) {
 			var name string = this.stream.getString()
-			if !JsDocInfoParser_idGeneratorAnnotationKeywords.Has(name) && !this.jsdocBuilder.hasParameter(Optional_of[string](name)) {
+			if !JsDocInfoParser_idGeneratorAnnotationKeywords.Has(name) && !this.jsdocBuilder.hasParameter(optstrOf_(name)) {
 				this.addParserWarning_2(Msg_JSDOC_IDGEN_UNKNOWN, name)
 			}
 			idgenKind = name
@@ -1270,7 +1270,7 @@ func (this *JsDocInfoParser) createJSTypeExpression(n Node) *JSTypeExpression {
 		if n == 0 {
 			return nil
 		}
-		return new_JSTypeExpression(n, this.getSourceName().orElse(""))
+		return new_JSTypeExpression(n, optstrOr_(this.getSourceName(), ""))
 	}()
 }
 

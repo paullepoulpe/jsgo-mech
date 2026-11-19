@@ -6,7 +6,7 @@ type RewriteDynamicImports struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_                        *AbstractCompiler
 	astFactory_                      *AstFactory
-	alias_                           Optional[string]
+	alias_                           string
 	requiresAliasing                 bool
 	shouldWrapDynamicImportCallbacks bool
 	dynamicImportsRemoved            bool
@@ -25,7 +25,7 @@ func (this *RewriteDynamicImports) finit_RewriteDynamicImports() {
 	this.wrappedDynamicImportCallback = false
 }
 
-func (this *RewriteDynamicImports) init_RewriteDynamicImports(compiler *AbstractCompiler, alias Optional[string], chunkOutputType CompilerOptions_ChunkOutputType) {
+func (this *RewriteDynamicImports) init_RewriteDynamicImports(compiler *AbstractCompiler, alias string, chunkOutputType CompilerOptions_ChunkOutputType) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.finit_RewriteDynamicImports()
 	this.compiler_ = compiler
@@ -35,7 +35,7 @@ func (this *RewriteDynamicImports) init_RewriteDynamicImports(compiler *Abstract
 	this.shouldWrapDynamicImportCallbacks = (chunkOutputType == CompilerOptions_ChunkOutputType_ES_MODULES)
 }
 
-func new_RewriteDynamicImports(compiler *AbstractCompiler, alias Optional[string], chunkOutputType CompilerOptions_ChunkOutputType) *RewriteDynamicImports {
+func new_RewriteDynamicImports(compiler *AbstractCompiler, alias string, chunkOutputType CompilerOptions_ChunkOutputType) *RewriteDynamicImports {
 	this := &RewriteDynamicImports{}
 	this.self_ = this
 	this.init_RewriteDynamicImports(compiler, alias, chunkOutputType)
@@ -43,7 +43,7 @@ func new_RewriteDynamicImports(compiler *AbstractCompiler, alias Optional[string
 }
 
 func (this *RewriteDynamicImports) aliasIsValid() bool {
-	return (this.alias_.isPresent() && ((this.alias_.get() == "import") || NodeUtil_isValidQualifiedName(this.compiler_.getAllowableFeatures(), this.alias_.get())))
+	return (this.alias_ != nullstr_ && ((optstrGet_(this.alias_) == "import") || NodeUtil_isValidQualifiedName(this.compiler_.getAllowableFeatures(), optstrGet_(this.alias_))))
 }
 
 func (this *RewriteDynamicImports) process_2(externs Node, root Node) {
@@ -74,7 +74,7 @@ func (this *RewriteDynamicImports) visit_impl(t *NodeTraversal, n Node, parent N
 	var moduleMap *ModuleMap = this.compiler_.getModuleMap()
 	var importSpecifier Node = n.getFirstChild()
 	if importSpecifier.isStringLit() && (moduleMap != nil) {
-		var targetPath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importSpecifier.getString(), Optional_of[string](n.getSourceFileName()).filterFn_(func(s string) bool {
+		var targetPath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importSpecifier.getString(), optstrFilter_(optstrOf_(n.getSourceFileName()), func(s string) bool {
 			return s != ""
 		}), n.getLineno(), n.getCharno())
 		var module *Module = func() *Module {
@@ -83,17 +83,17 @@ func (this *RewriteDynamicImports) visit_impl(t *NodeTraversal, n Node, parent N
 			}
 			return this.compiler_.getModuleMap().getModule(targetPath)
 		}()
-		var targetModuleVarName Optional[string] = func() Optional[string] {
+		var targetModuleVarName string = func() string {
 			if module == nil {
-				return Optional_empty[string]()
+				return nullstr_
 			}
-			return ModuleRenaming_GlobalizedModuleName_create_ModuleMetadata_Optional_TypedScope(module.metadata(), Optional_empty[string](), nil).aliasName().join()
+			return ModuleRenaming_GlobalizedModuleName_create_ModuleMetadata_Optional_TypedScope(module.metadata(), nullstr_, nil).aliasName().join()
 		}()
 		var targetModuleNS *Var = func() *Var {
-			if targetModuleVarName.isEmpty() {
+			if targetModuleVarName == nullstr_ {
 				return nil
 			}
-			return t.getScope().getVar(targetModuleVarName.get())
+			return t.getScope().getVar(optstrGet_(targetModuleVarName))
 		}()
 		if targetModuleNS != nil {
 			var targetChunk *JSChunk = targetModuleNS.getInput().getChunk()
@@ -110,7 +110,7 @@ func (this *RewriteDynamicImports) visit_impl(t *NodeTraversal, n Node, parent N
 	}
 	if this.aliasIsValid() {
 		this.aliasDynamicImport(t, n)
-	} else if this.alias_.isPresent() {
+	} else if this.alias_ != nullstr_ {
 		t.report(n, RewriteDynamicImports_DYNAMIC_IMPORT_INVALID_ALIAS, []string{})
 	} else if this.requiresAliasing {
 		t.report(n, RewriteDynamicImports_DYNAMIC_IMPORT_ALIASING_REQUIRED, []string{})
@@ -190,10 +190,10 @@ func (this *RewriteDynamicImports) addChainedThen(t *NodeTraversal, dynamicImpor
 }
 
 func (this *RewriteDynamicImports) aliasDynamicImport(t *NodeTraversal, dynamicImport Node) {
-	if !this.alias_.isPresent() {
+	if this.alias_ == nullstr_ {
 		panic(new_IllegalStateException_0())
 	}
-	var aliasNode Node = this.astFactory_.createQNameWithUnknownType(this.alias_.get())
+	var aliasNode Node = this.astFactory_.createQNameWithUnknownType(optstrGet_(this.alias_))
 	aliasNode.setOriginalName("import")
 	var moduleSpecifier Node = dynamicImport.removeFirstChild()
 	var importAliasCall Node = this.astFactory_.createCall(aliasNode, AstFactory_type_Node(dynamicImport), []Node{moduleSpecifier}).srcrefTreeIfMissing(dynamicImport)
@@ -265,7 +265,7 @@ func (this *RewriteDynamicImports_AliasInjectingTraversal) shouldTraverse_impl(t
 	if !this.outer_.aliasIsValid() {
 		panic(new_IllegalStateException_0())
 	}
-	if NodeUtil_isValidSimpleName(this.outer_.alias_.get()) && (t.getScope().getVar(this.outer_.alias_.get()) != nil) {
+	if NodeUtil_isValidSimpleName(optstrGet_(this.outer_.alias_)) && (t.getScope().getVar(optstrGet_(this.outer_.alias_)) != nil) {
 		return false
 	}
 	var registry *JSTypeRegistry = this.outer_.compiler_.getTypeRegistry()
@@ -274,12 +274,12 @@ func (this *RewriteDynamicImports_AliasInjectingTraversal) shouldTraverse_impl(t
 	var promiseTemplatizedType *TemplatizedType = registry.createTemplatizedTypeImmutableList(promiseType.toObjectType(), immutableListOf_(tc_p_JSType, unknownType))
 	var stringType *JSType = registry.getNativeType(JSTypeNative_STRING_TYPE)
 	var externsRoot Node = this.outer_.compiler_.getSynthesizedExternsInput().getAstRoot(this.outer_.compiler_)
-	if (this.outer_.alias_.get() == "import") || NodeUtil_isValidSimpleName(this.outer_.alias_.get()) {
-		var aliasNode Node = this.outer_.astFactory_.createFunction(this.outer_.alias_.get(), this.outer_.astFactory_.createParamList([]string{"specifier"}), this.outer_.astFactory_.createBlock([]Node{}), AstFactory_typeJSType_JSType(registry.createFunctionType(promiseTemplatizedType.up_JSType(), []*JSType{stringType}).up_JSType()))
+	if (optstrGet_(this.outer_.alias_) == "import") || NodeUtil_isValidSimpleName(optstrGet_(this.outer_.alias_)) {
+		var aliasNode Node = this.outer_.astFactory_.createFunction(optstrGet_(this.outer_.alias_), this.outer_.astFactory_.createParamList([]string{"specifier"}), this.outer_.astFactory_.createBlock([]Node{}), AstFactory_typeJSType_JSType(registry.createFunctionType(promiseTemplatizedType.up_JSType(), []*JSType{stringType}).up_JSType()))
 		aliasNode.srcrefTree(externsRoot)
 		externsRoot.addChildToBack(aliasNode)
 	} else {
-		var aliasRootName string = NodeUtil_getRootOfQualifiedNameString(this.outer_.alias_.get())
+		var aliasRootName string = NodeUtil_getRootOfQualifiedNameString(optstrGet_(this.outer_.alias_))
 		var aliasVar *Var = t.getScope().getVar(aliasRootName)
 		if aliasVar != nil {
 			return false
@@ -287,7 +287,7 @@ func (this *RewriteDynamicImports_AliasInjectingTraversal) shouldTraverse_impl(t
 		var aliasRootNode Node = this.outer_.astFactory_.createSingleVarNameDeclaration_2(aliasRootName, this.outer_.astFactory_.createObjectLit([]Node{}))
 		aliasRootNode.srcrefTree(externsRoot)
 		externsRoot.addChildToBack(aliasRootNode)
-		var aliasNameParts IteratorOf[string] = Splitter_on_String(".").split_s(this.outer_.alias_.get()).iterator()
+		var aliasNameParts IteratorOf[string] = Splitter_on_String(".").split_s(optstrGet_(this.outer_.alias_)).iterator()
 		var qName Node = aliasRootNode.getFirstChild().cloneNode()
 		aliasNameParts.next()
 		for aliasNameParts.hasNext() {

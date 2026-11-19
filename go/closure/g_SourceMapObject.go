@@ -5,9 +5,9 @@ package closure
 type SourceMapObject struct {
 	version_       int32
 	lineCount      int32
-	sourceRoot     Optional[string]
-	file           Optional[string]
-	mappings       Optional[string]
+	sourceRoot     string
+	file           string
+	mappings       string
 	sources        []string
 	sourcesContent []string
 	names_         []string
@@ -15,7 +15,7 @@ type SourceMapObject struct {
 	extensions     *TMap[string, any]
 }
 
-func (this *SourceMapObject) init_SourceMapObject(version int32, lineCount int32, sourceRoot Optional[string], file Optional[string], mappings Optional[string], sources []string, sourcesContent []string, names []string, sections []*SourceMapSection, extensions *TMap[string, any]) {
+func (this *SourceMapObject) init_SourceMapObject(version int32, lineCount int32, sourceRoot string, file string, mappings string, sources []string, sourcesContent []string, names []string, sections []*SourceMapSection, extensions *TMap[string, any]) {
 	this.version_ = version
 	this.lineCount = lineCount
 	this.sourceRoot = sourceRoot
@@ -28,7 +28,7 @@ func (this *SourceMapObject) init_SourceMapObject(version int32, lineCount int32
 	this.extensions = extensions
 }
 
-func new_SourceMapObject(version int32, lineCount int32, sourceRoot Optional[string], file Optional[string], mappings Optional[string], sources []string, sourcesContent []string, names []string, sections []*SourceMapSection, extensions *TMap[string, any]) *SourceMapObject {
+func new_SourceMapObject(version int32, lineCount int32, sourceRoot string, file string, mappings string, sources []string, sourcesContent []string, names []string, sections []*SourceMapSection, extensions *TMap[string, any]) *SourceMapObject {
 	this := &SourceMapObject{}
 	this.init_SourceMapObject(version, lineCount, sourceRoot, file, mappings, sources, sourcesContent, names, sections, extensions)
 	return this
@@ -42,15 +42,15 @@ func (this *SourceMapObject) getLineCount() int32 {
 	return this.lineCount
 }
 
-func (this *SourceMapObject) getSourceRoot() Optional[string] {
+func (this *SourceMapObject) getSourceRoot() string {
 	return this.sourceRoot
 }
 
-func (this *SourceMapObject) getFile() Optional[string] {
+func (this *SourceMapObject) getFile() string {
 	return this.file
 }
 
-func (this *SourceMapObject) getMappings() Optional[string] {
+func (this *SourceMapObject) getMappings() string {
 	return this.mappings
 }
 
@@ -81,9 +81,9 @@ func SourceMapObject_builder() *SourceMapObject_Builder {
 type SourceMapObject_Builder struct {
 	version_       int32
 	lineCount      int32
-	sourceRoot     Optional[string]
-	file           Optional[string]
-	mappings       Optional[string]
+	sourceRoot     string
+	file           string
+	mappings       string
 	sources        []string
 	sourcesContent []string
 	names_         []string
@@ -92,9 +92,9 @@ type SourceMapObject_Builder struct {
 }
 
 func (this *SourceMapObject_Builder) finit_SourceMapObject_Builder() {
-	this.sourceRoot = Optional_empty[string]()
-	this.file = Optional_empty[string]()
-	this.mappings = Optional_empty[string]()
+	this.sourceRoot = nullstr_
+	this.file = nullstr_
+	this.mappings = nullstr_
 }
 
 func (this *SourceMapObject_Builder) init_SourceMapObject_Builder() {
@@ -117,17 +117,17 @@ func (this *SourceMapObject_Builder) setLineCount(lineCount int32) *SourceMapObj
 	return this
 }
 
-func (this *SourceMapObject_Builder) setSourceRoot(sourceRoot Optional[string]) *SourceMapObject_Builder {
+func (this *SourceMapObject_Builder) setSourceRoot(sourceRoot string) *SourceMapObject_Builder {
 	this.sourceRoot = sourceRoot
 	return this
 }
 
-func (this *SourceMapObject_Builder) setFile(file Optional[string]) *SourceMapObject_Builder {
+func (this *SourceMapObject_Builder) setFile(file string) *SourceMapObject_Builder {
 	this.file = file
 	return this
 }
 
-func (this *SourceMapObject_Builder) setMappings(mappings Optional[string]) *SourceMapObject_Builder {
+func (this *SourceMapObject_Builder) setMappings(mappings string) *SourceMapObject_Builder {
 	this.mappings = mappings
 	return this
 }

@@ -8,10 +8,10 @@ type Module struct {
 	namespace_              *ImmutableMap[string, *Binding]
 	boundNames_             *ImmutableMap[string, *Binding]
 	localNameToLocalExport_ *ImmutableMap[string, *Export]
-	closureNamespace_       Optional[string]
+	closureNamespace_       string
 }
 
-func (this *Module) init_Module(metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, namespace *ImmutableMap[string, *Binding], boundNames *ImmutableMap[string, *Binding], localNameToLocalExport *ImmutableMap[string, *Export], closureNamespace Optional[string]) {
+func (this *Module) init_Module(metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, namespace *ImmutableMap[string, *Binding], boundNames *ImmutableMap[string, *Binding], localNameToLocalExport *ImmutableMap[string, *Export], closureNamespace string) {
 	if metadata == nil {
 		panic(new_NullPointerException_String("metadata"))
 	}
@@ -32,7 +32,7 @@ func (this *Module) init_Module(metadata *ModuleMetadataMap_ModuleMetadata, path
 	this.closureNamespace_ = closureNamespace
 }
 
-func new_Module(metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, namespace *ImmutableMap[string, *Binding], boundNames *ImmutableMap[string, *Binding], localNameToLocalExport *ImmutableMap[string, *Export], closureNamespace Optional[string]) *Module {
+func new_Module(metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, namespace *ImmutableMap[string, *Binding], boundNames *ImmutableMap[string, *Binding], localNameToLocalExport *ImmutableMap[string, *Export], closureNamespace string) *Module {
 	this := &Module{}
 	this.init_Module(metadata, path, namespace, boundNames, localNameToLocalExport, closureNamespace)
 	return this
@@ -66,7 +66,7 @@ func (this *Module) localNameToLocalExport() *ImmutableMap[string, *Export] {
 	return this.localNameToLocalExport_
 }
 
-func (this *Module) closureNamespace() Optional[string] {
+func (this *Module) closureNamespace() string {
 	return this.closureNamespace_
 }
 
@@ -75,7 +75,7 @@ func (this *Module) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && objequalsBy_(this.metadata_, obj_(o.metadata_), (*ModuleMetadataMap_ModuleMetadata).equals) && this.path_ == o.path_ && tmapEq_(this.namespace_, o.namespace_, true) && tmapEq_(this.boundNames_, o.boundNames_, true) && tmapEq_(this.localNameToLocalExport_, o.localNameToLocalExport_, true) && optEqualsNull_(this.closureNamespace_, o.closureNamespace_)
+	return true && objequalsBy_(this.metadata_, obj_(o.metadata_), (*ModuleMetadataMap_ModuleMetadata).equals) && this.path_ == o.path_ && tmapEq_(this.namespace_, o.namespace_, true) && tmapEq_(this.boundNames_, o.boundNames_, true) && tmapEq_(this.localNameToLocalExport_, o.localNameToLocalExport_, true) && this.closureNamespace_ == o.closureNamespace_
 }
 
 func (this *Module) hashCode() int32 {
@@ -85,12 +85,12 @@ func (this *Module) hashCode() int32 {
 	h = h*31 + tmapHash_(this.namespace_, true)
 	h = h*31 + tmapHash_(this.boundNames_, true)
 	h = h*31 + tmapHash_(this.localNameToLocalExport_, true)
-	h = h*31 + optHash_(this.closureNamespace_)
+	h = h*31 + optstrHash_(this.closureNamespace_)
 	return h
 }
 
 func (this *Module) toString() string {
-	return "Module[" + "metadata=" + tostr_(this.metadata_) + ", path=" + tostr_(this.path_) + ", namespace=" + tostr_(this.namespace_.asImm()) + ", boundNames=" + tostr_(this.boundNames_.asImm()) + ", localNameToLocalExport=" + tostr_(this.localNameToLocalExport_.asImm()) + ", closureNamespace=" + objstr_(this.closureNamespace_.box_()) + "]"
+	return "Module[" + "metadata=" + tostr_(this.metadata_) + ", path=" + tostr_(this.path_) + ", namespace=" + tostr_(this.namespace_.asImm()) + ", boundNames=" + tostr_(this.boundNames_.asImm()) + ", localNameToLocalExport=" + tostr_(this.localNameToLocalExport_.asImm()) + ", closureNamespace=" + objstr_(optstrBox_(this.closureNamespace_)) + "]"
 }
 
 type Module_Builder struct {
@@ -99,11 +99,11 @@ type Module_Builder struct {
 	namespaceField              *ImmutableMap[string, *Binding]
 	boundNamesField             *ImmutableMap[string, *Binding]
 	localNameToLocalExportField *ImmutableMap[string, *Export]
-	closureNamespaceField       Optional[string]
+	closureNamespaceField       string
 }
 
 func (this *Module_Builder) finit_Module_Builder() {
-	this.closureNamespaceField = Optional_empty[string]()
+	this.closureNamespaceField = nullstr_
 }
 
 func (this *Module_Builder) init_Module_Builder_0() {
@@ -169,7 +169,7 @@ func (this *Module_Builder) localNameToLocalExport(value *ImmutableMap[string, *
 	return this
 }
 
-func (this *Module_Builder) closureNamespace(value Optional[string]) *Module_Builder {
+func (this *Module_Builder) closureNamespace(value string) *Module_Builder {
 	this.closureNamespaceField = value
 	return this
 }

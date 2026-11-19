@@ -500,14 +500,14 @@ func Es6RewriteClass_ClassProperty_PropertyKind_clinit() {
 }
 
 type Es6RewriteClass_ClassProperty_Builder struct {
-	propertyKeyField  Optional[string]
+	propertyKeyField  string
 	kindField         Es6RewriteClass_ClassProperty_PropertyKind
 	jsDocInfoField    *JSDocInfo
 	propertyTypeField *Color
 }
 
 func (this *Es6RewriteClass_ClassProperty_Builder) finit_Es6RewriteClass_ClassProperty_Builder() {
-	this.propertyKeyField = Optional_empty[string]()
+	this.propertyKeyField = nullstr_
 }
 
 func (this *Es6RewriteClass_ClassProperty_Builder) init_Es6RewriteClass_ClassProperty_Builder() {
@@ -521,7 +521,7 @@ func new_Es6RewriteClass_ClassProperty_Builder() *Es6RewriteClass_ClassProperty_
 }
 
 func (this *Es6RewriteClass_ClassProperty_Builder) propertyKey(value string) *Es6RewriteClass_ClassProperty_Builder {
-	this.propertyKeyField = Optional_of[string](value)
+	this.propertyKeyField = optstrOf_(value)
 	return this
 }
 
@@ -547,9 +547,9 @@ func (this *Es6RewriteClass_ClassProperty_Builder) propertyType(type_ *Color) *E
 }
 
 func (this *Es6RewriteClass_ClassProperty_Builder) build() *Es6RewriteClass_ClassProperty {
-	if (this.propertyKeyField.isEmpty() || (this.kindField == 0)) || (this.jsDocInfoField == nil) {
+	if (this.propertyKeyField == nullstr_ || (this.kindField == 0)) || (this.jsDocInfoField == nil) {
 		var missing strBuilder_
-		if this.propertyKeyField.isEmpty() {
+		if this.propertyKeyField == nullstr_ {
 			missing.append(" propertyKey")
 		}
 		if this.kindField == 0 {
@@ -560,7 +560,7 @@ func (this *Es6RewriteClass_ClassProperty_Builder) build() *Es6RewriteClass_Clas
 		}
 		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())))
 	}
-	return new_Es6RewriteClass_ClassProperty(this.propertyKeyField.get(), this.kindField, this.jsDocInfoField, this.propertyTypeField)
+	return new_Es6RewriteClass_ClassProperty(optstrGet_(this.propertyKeyField), this.kindField, this.jsDocInfoField, this.propertyTypeField)
 }
 
 type Es6RewriteClass_ClassDeclarationMetadata struct {

@@ -54,13 +54,13 @@ func FilePaths_fileName(path string) string {
 	return plain[strings.LastIndexByte(plain, '/')+1:]
 }
 
-func FilePaths_parent(path string) Optional[string] {
+func FilePaths_parent(path string) string {
 	var plain string = FilePaths_clean(path)
 	var slash int32 = int32(strings.LastIndexByte(plain, '/'))
 	if (slash < 0) || (plain == "/") {
-		return Optional_empty[string]()
+		return nullstr_
 	}
-	return Optional_of[string](func() string {
+	return optstrOf_(func() string {
 		if slash == 0 {
 			return "/"
 		}
@@ -142,26 +142,26 @@ func FilePaths_resolve(path string, other string) string {
 	}()
 }
 
-func FilePaths_relativize(path string, other string) Optional[string] {
+func FilePaths_relativize(path string, other string) string {
 	var base string = FilePaths_clean(path)
 	var target string = FilePaths_clean(other)
 	if FilePaths_isAbsolute(base) != FilePaths_isAbsolute(target) {
-		return Optional_empty[string]()
+		return nullstr_
 	}
 	if base == target {
-		return Optional_of[string]("")
+		return ""
 	}
 	if base == "" {
-		return Optional_of[string](target)
+		return optstrOf_(target)
 	}
 	if FilePaths_hasDots(base) || FilePaths_hasDots(target) {
 		base = FilePaths_normalize(base)
 		target = FilePaths_normalize(target)
 		if base == target {
-			return Optional_of[string]("")
+			return ""
 		}
 		if base == "" {
-			return Optional_of[string](target)
+			return optstrOf_(target)
 		}
 	}
 	var from []string = FilePaths_names(base)
@@ -178,7 +178,7 @@ func FilePaths_relativize(path string, other string) Optional[string] {
 	var result strBuilder_
 	for i := int32(common); i < int32(len(from)); i++ {
 		if sliceAt_(from, i) == ".." {
-			return Optional_empty[string]()
+			return nullstr_
 		}
 		result.append(func() string {
 			if result.length() > 0 {
@@ -191,7 +191,7 @@ func FilePaths_relativize(path string, other string) Optional[string] {
 	if (result.length() > 0) && rest != "" {
 		result.append_char('/')
 	}
-	return Optional_of[string](tostrNN_(result.append(rest)))
+	return optstrOf_(tostrNN_(result.append(rest)))
 }
 
 func FilePaths_hasDots(plain string) bool {

@@ -12,7 +12,7 @@ type StaticTypedScope interface {
 }
 
 func StaticTypedScope_lookupQualifiedName_default(this StaticTypedScope, qname *QualifiedName) *JSType {
-	var slot StaticTypedSlot = icast_StaticTypedSlot(this.getSlot(qname.join().get()))
+	var slot StaticTypedSlot = icast_StaticTypedSlot(this.getSlot(optstrGet_(qname.join())))
 	if (slot != nil) && !slot.isTypeInferred() {
 		return slot.getType()
 	} else if !qname.isSimple() {

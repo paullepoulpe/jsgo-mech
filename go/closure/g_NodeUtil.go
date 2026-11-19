@@ -30,8 +30,8 @@ func NodeUtil_getBooleanValue(n Node) Tri {
 				if !templateLitString.isTemplateLitString() {
 					panic(new_IllegalStateException_String(tostr_(templateLitString)))
 				}
-				var cookedString Optional[string] = templateLitString.getCookedString()
-				return Tri_forBoolean((cookedString.isPresent() && cookedString.get() != ""))
+				var cookedString string = templateLitString.getCookedString()
+				return Tri_forBoolean((cookedString != nullstr_ && optstrGet_(cookedString) != ""))
 			} else {
 				return Tri_UNKNOWN
 			}
@@ -98,11 +98,11 @@ func NodeUtil_getBooleanValue(n Node) Tri {
 	}()
 }
 
-func NodeUtil_getStringValue(n Node) Optional[string] {
-	return func() Optional[string] {
+func NodeUtil_getStringValue(n Node) string {
+	return func() string {
 		switch n.ns_().token {
 		case tokOrd1_STRINGLIT, tokOrd1_STRING_KEY:
-			return Optional_of[string](n.getString())
+			return optstrOf_(n.getString())
 		case tokOrd1_TEMPLATELIT:
 			var string_ strBuilder_
 			{
@@ -112,90 +112,90 @@ func NodeUtil_getStringValue(n Node) Optional[string] {
 					if child.isTemplateLitSub() {
 						expression = child.getFirstChild()
 					}
-					var expressionString Optional[string] = NodeUtil_getStringValue(expression)
-					if expressionString.isEmpty() {
-						return Optional_empty[string]()
+					var expressionString string = NodeUtil_getStringValue(expression)
+					if expressionString == nullstr_ {
+						return nullstr_
 					}
-					string_.append(expressionString.orElse("null"))
+					string_.append(optstrOr_(expressionString, "null"))
 				}
 			}
-			return Optional_of[string](string_.toString())
+			return optstrOf_(string_.toString())
 		case tokOrd1_TEMPLATELIT_STRING:
 			return n.getCookedString()
 		case tokOrd1_NAME:
 			var name string = n.getString()
 			if (("undefined" == name) || ("Infinity" == name)) || ("NaN" == name) {
-				return Optional_of[string](name)
+				return optstrOf_(name)
 			}
-			return Optional_empty[string]()
+			return nullstr_
 		case tokOrd1_NEG, tokOrd1_NUMBER:
 			var value any = NodeUtil_getNumberValue(n)
 			if value != nil {
-				return Optional_of[string](DToA_numberToString(Double_doubleValue(value)))
+				return optstrOf_(DToA_numberToString(Double_doubleValue(value)))
 			}
-			return Optional_empty[string]()
+			return nullstr_
 		case tokOrd1_BIGINT:
-			return Optional_ofNullable[string](tostrNN_(n.getBigInt()))
+			return tostrNN_(n.getBigInt())
 		case tokOrd1_FALSE:
-			return Optional_of[string]("false")
+			return "false"
 		case tokOrd1_TRUE:
-			return Optional_of[string]("true")
+			return "true"
 		case tokOrd1_NULL:
-			return Optional_of[string]("null")
+			return "null"
 		case tokOrd1_VOID:
-			return Optional_of[string]("undefined")
+			return "undefined"
 		case tokOrd1_NOT:
 			var child Tri = NodeUtil_getBooleanValue(n.getFirstChild())
 			if child != Tri_UNKNOWN {
-				return func() Optional[string] {
+				return func() string {
 					if child.toBoolean(true) {
-						return Optional_of[string]("false")
+						return "false"
 					}
-					return Optional_of[string]("true")
+					return "true"
 				}()
 			}
-			return Optional_empty[string]()
+			return nullstr_
 		case tokOrd1_ARRAYLIT:
 			return NodeUtil_arrayToString(n)
 		case tokOrd1_OBJECTLIT:
-			return func() Optional[string] {
+			return func() string {
 				if n.hasChildren() {
-					return Optional_empty[string]()
+					return nullstr_
 				}
-				return Optional_of[string]("[object Object]")
+				return "[object Object]"
 			}()
 		default:
-			return Optional_empty[string]()
+			return nullstr_
 		}
 	}()
 }
 
-func NodeUtil_getArrayElementStringValue(n Node) Optional[string] {
-	return func() Optional[string] {
+func NodeUtil_getArrayElementStringValue(n Node) string {
+	return func() string {
 		if NodeUtil_isNullOrUndefined(n) || n.isEmpty() {
-			return Optional_of[string]("")
+			return ""
 		}
 		return NodeUtil_getStringValue(n)
 	}()
 }
 
-func NodeUtil_arrayToString(literal Node) Optional[string] {
+func NodeUtil_arrayToString(literal Node) string {
 	var first Node = literal.getFirstChild()
 	var result strBuilder_
 	{
 		var n Node = first
 		for ; n != 0; n = n.getNext() {
-			var childValue Optional[string] = NodeUtil_getArrayElementStringValue(n)
-			if childValue.isEmpty() {
-				return Optional_empty[string]()
+			var childValue string = NodeUtil_getArrayElementStringValue(n)
+			if childValue == nullstr_ {
+				return nullstr_
 			}
 			if n != first {
 				result.append_char(',')
 			}
-			result.append(childValue.get())
+			result.append(optstrGet_(childValue))
 		}
 	}
-	return Optional_of[string](result.toString())
+	return optstrOf_(result.toString())
 }
 
 func NodeUtil_getNumberValue(n Node) any {
@@ -272,11 +272,11 @@ func NodeUtil_doGetNumberValue(n Node, numberConversions bool) any {
 		if !numberConversions {
 			return nil
 		}
-		var string_ Optional[string] = NodeUtil_getStringValue(n)
-		if string_.isEmpty() {
+		var string_ string = NodeUtil_getStringValue(n)
+		if string_ == nullstr_ {
 			return nil
 		}
-		return NodeUtil_getStringNumberValue(string_.get())
+		return NodeUtil_getStringNumberValue(optstrGet_(string_))
 	case Token_rhino_STRINGLIT:
 		if !numberConversions {
 			return nil
@@ -286,10 +286,10 @@ func NodeUtil_doGetNumberValue(n Node, numberConversions bool) any {
 		if !numberConversions {
 			return nil
 		}
-		var value Optional[string] = NodeUtil_getStringValue(n)
+		var value string = NodeUtil_getStringValue(n)
 		return func() any {
-			if value.isPresent() {
-				return NodeUtil_getStringNumberValue(value.get())
+			if value != nullstr_ {
+				return NodeUtil_getStringNumberValue(optstrGet_(value))
 			}
 			return nil
 		}()
@@ -400,11 +400,11 @@ func NodeUtil_getBigIntValue(n Node) *BigInteger {
 				panic(new_NullPointerException_0())
 			}()
 		case Token_rhino_TEMPLATELIT:
-			var string_ Optional[string] = NodeUtil_getStringValue(n)
-			if string_.isEmpty() {
+			var string_ string = NodeUtil_getStringValue(n)
+			if string_ == nullstr_ {
 				return nil
 			}
-			return NodeUtil_getStringBigIntValue(string_.get())
+			return NodeUtil_getStringBigIntValue(optstrGet_(string_))
 		case Token_rhino_STRINGLIT:
 			return NodeUtil_getStringBigIntValue(n.getString())
 		case Token_rhino_NEG:
@@ -424,10 +424,10 @@ func NodeUtil_getBigIntValue(n Node) *BigInteger {
 				return result.not()
 			}()
 		case Token_rhino_ARRAYLIT, Token_rhino_OBJECTLIT:
-			var value Optional[string] = NodeUtil_getStringValue(n)
+			var value string = NodeUtil_getStringValue(n)
 			return func() *BigInteger {
-				if value.isPresent() {
-					return NodeUtil_getStringBigIntValue(value.get())
+				if value != nullstr_ {
+					return NodeUtil_getStringBigIntValue(optstrGet_(value))
 				}
 				return nil
 			}()
@@ -558,23 +558,23 @@ func NodeUtil_removeName(n Node) {
 	originalName.replaceWith(emptyName.srcref(originalName))
 }
 
-func NodeUtil_getNearestFunctionName(n Node) Optional[string] {
+func NodeUtil_getNearestFunctionName(n Node) string {
 	if !n.isFunction() {
-		return Optional_empty[string]()
+		return nullstr_
 	}
 	var name string = NodeUtil_getName(n)
 	if name != "" {
-		return Optional_of[string](name)
+		return optstrOf_(name)
 	}
 	var parent Node = n.getParent()
-	return func() Optional[string] {
+	return func() string {
 		switch parent.ns_().token {
 		case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_SETTER_DEF, tokOrd1_GETTER_DEF, tokOrd1_STRING_KEY:
-			return Optional_of[string](parent.getString())
+			return optstrOf_(parent.getString())
 		case tokOrd1_NUMBER:
 			return NodeUtil_getStringValue(parent)
 		default:
-			return Optional_empty[string]()
+			return nullstr_
 		}
 	}()
 }
@@ -2481,10 +2481,10 @@ func NodeUtil_isObjectLitKey(node Node) bool {
 	return (node.getParent().isObjectLit() && NodeUtil_mayBeObjectLitKey(node))
 }
 
-func NodeUtil_getObjectOrClassLitKeyName(key Node) Optional[string] {
+func NodeUtil_getObjectOrClassLitKeyName(key Node) string {
 	var keyNode Node = NodeUtil_getObjectOrClassLitKeyNode(key)
 	if keyNode != 0 {
-		return Optional_of[string](keyNode.getString())
+		return optstrOf_(keyNode.getString())
 	}
 	panic(new_IllegalStateException_String(("Unexpected node type: " + tostr_(key))))
 }
@@ -2518,111 +2518,111 @@ func NodeUtil_isGetOrSetKey(node Node) bool {
 	}()
 }
 
-func NodeUtil_opToStr(operator Token_rhino) Optional[string] {
-	return func() Optional[string] {
+func NodeUtil_opToStr(operator Token_rhino) string {
+	return func() string {
 		switch operator {
 		case Token_rhino_COALESCE:
-			return Optional_of[string]("??")
+			return "??"
 		case Token_rhino_BITOR:
-			return Optional_of[string]("|")
+			return "|"
 		case Token_rhino_OR:
-			return Optional_of[string]("||")
+			return "||"
 		case Token_rhino_BITXOR:
-			return Optional_of[string]("^")
+			return "^"
 		case Token_rhino_AND:
-			return Optional_of[string]("&&")
+			return "&&"
 		case Token_rhino_BITAND:
-			return Optional_of[string]("&")
+			return "&"
 		case Token_rhino_SHEQ:
-			return Optional_of[string]("===")
+			return "==="
 		case Token_rhino_EQ:
-			return Optional_of[string]("==")
+			return "=="
 		case Token_rhino_NOT:
-			return Optional_of[string]("!")
+			return "!"
 		case Token_rhino_NE:
-			return Optional_of[string]("!=")
+			return "!="
 		case Token_rhino_SHNE:
-			return Optional_of[string]("!==")
+			return "!=="
 		case Token_rhino_LSH:
-			return Optional_of[string]("<<")
+			return "<<"
 		case Token_rhino_IN:
-			return Optional_of[string]("in")
+			return "in"
 		case Token_rhino_LE:
-			return Optional_of[string]("<=")
+			return "<="
 		case Token_rhino_LT:
-			return Optional_of[string]("<")
+			return "<"
 		case Token_rhino_URSH:
-			return Optional_of[string](">>>")
+			return ">>>"
 		case Token_rhino_RSH:
-			return Optional_of[string](">>")
+			return ">>"
 		case Token_rhino_GE:
-			return Optional_of[string](">=")
+			return ">="
 		case Token_rhino_GT:
-			return Optional_of[string](">")
+			return ">"
 		case Token_rhino_MUL:
-			return Optional_of[string]("*")
+			return "*"
 		case Token_rhino_DIV:
-			return Optional_of[string]("/")
+			return "/"
 		case Token_rhino_MOD:
-			return Optional_of[string]("%")
+			return "%"
 		case Token_rhino_EXPONENT:
-			return Optional_of[string]("**")
+			return "**"
 		case Token_rhino_BITNOT:
-			return Optional_of[string]("~")
+			return "~"
 		case Token_rhino_ADD, Token_rhino_POS:
-			return Optional_of[string]("+")
+			return "+"
 		case Token_rhino_SUB, Token_rhino_NEG:
-			return Optional_of[string]("-")
+			return "-"
 		case Token_rhino_ASSIGN:
-			return Optional_of[string]("=")
+			return "="
 		case Token_rhino_ASSIGN_BITOR:
-			return Optional_of[string]("|=")
+			return "|="
 		case Token_rhino_ASSIGN_BITXOR:
-			return Optional_of[string]("^=")
+			return "^="
 		case Token_rhino_ASSIGN_BITAND:
-			return Optional_of[string]("&=")
+			return "&="
 		case Token_rhino_ASSIGN_LSH:
-			return Optional_of[string]("<<=")
+			return "<<="
 		case Token_rhino_ASSIGN_RSH:
-			return Optional_of[string](">>=")
+			return ">>="
 		case Token_rhino_ASSIGN_URSH:
-			return Optional_of[string](">>>=")
+			return ">>>="
 		case Token_rhino_ASSIGN_ADD:
-			return Optional_of[string]("+=")
+			return "+="
 		case Token_rhino_ASSIGN_SUB:
-			return Optional_of[string]("-=")
+			return "-="
 		case Token_rhino_ASSIGN_MUL:
-			return Optional_of[string]("*=")
+			return "*="
 		case Token_rhino_ASSIGN_EXPONENT:
-			return Optional_of[string]("**=")
+			return "**="
 		case Token_rhino_ASSIGN_DIV:
-			return Optional_of[string]("/=")
+			return "/="
 		case Token_rhino_ASSIGN_MOD:
-			return Optional_of[string]("%=")
+			return "%="
 		case Token_rhino_ASSIGN_OR:
-			return Optional_of[string]("||=")
+			return "||="
 		case Token_rhino_ASSIGN_AND:
-			return Optional_of[string]("&&=")
+			return "&&="
 		case Token_rhino_ASSIGN_COALESCE:
-			return Optional_of[string]("??=")
+			return "??="
 		case Token_rhino_VOID:
-			return Optional_of[string]("void")
+			return "void"
 		case Token_rhino_TYPEOF:
-			return Optional_of[string]("typeof")
+			return "typeof"
 		case Token_rhino_INSTANCEOF:
-			return Optional_of[string]("instanceof")
+			return "instanceof"
 		default:
-			return Optional_empty[string]()
+			return nullstr_
 		}
 	}()
 }
 
 func NodeUtil_opToStrNoFail(operator Token_rhino) string {
-	var res Optional[string] = NodeUtil_opToStr(operator)
-	if res.isEmpty() {
+	var res string = NodeUtil_opToStr(operator)
+	if res == nullstr_ {
 		panic(new_Error_String(("Unknown op " + tostr_(operator))))
 	}
-	return res.get()
+	return optstrGet_(res)
 }
 
 func NodeUtil_redeclareVarsInsideBranch(branch Node) {
@@ -2837,8 +2837,8 @@ func NodeUtil_newNameCodingConvention_CodingConvention_String_Node(convention Co
 	return NodeUtil_newName_CodingConvention_String(convention, name).srcref(srcref)
 }
 
-func NodeUtil_newName_AbstractCompiler_String_Node_Optional(compiler *AbstractCompiler, name string, basisNode Node, originalName Optional[string]) Node {
-	return NodeUtil_newNameCodingConvention_CodingConvention_String_Node_String(compiler.getCodingConvention(), name, basisNode, originalName.orElse(""))
+func NodeUtil_newName_AbstractCompiler_String_Node_Optional(compiler *AbstractCompiler, name string, basisNode Node, originalName string) Node {
+	return NodeUtil_newNameCodingConvention_CodingConvention_String_Node_String(compiler.getCodingConvention(), name, basisNode, optstrOr_(originalName, ""))
 }
 
 func NodeUtil_newNameCodingConvention_CodingConvention_String_Node_String(convention CodingConvention, name string, basisNode Node, originalName string) Node {
@@ -3513,7 +3513,7 @@ func NodeUtil_isDefinedValue(value Node) bool {
 		case tokOrd1_DELPROP, tokOrd1_INC, tokOrd1_DEC, tokOrd1_CLASS, tokOrd1_FUNCTION, tokOrd1_REGEXP, tokOrd1_EMPTY, tokOrd1_ARRAYLIT, tokOrd1_OBJECTLIT, tokOrd1_TEMPLATELIT, tokOrd1_STRINGLIT, tokOrd1_NUMBER, tokOrd1_BIGINT, tokOrd1_NULL, tokOrd1_TRUE, tokOrd1_FALSE, tokOrd1_NEW:
 			return true
 		case tokOrd1_TEMPLATELIT_STRING:
-			return value.getCookedString().isPresent()
+			return value.getCookedString() != nullstr_
 		case tokOrd1_NAME:
 			var name string = value.getString()
 			return (("Infinity" == name) || ("NaN" == name))
@@ -3595,7 +3595,7 @@ func NodeUtil_getDeclaredTypeExpression(declaration Node) *JSTypeExpression {
 	if parent.isParamList() {
 		var functionJsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(parent.getParent())
 		if functionJsdoc != nil {
-			return functionJsdoc.getParameterType(Optional_of[string](declaration.getString()))
+			return functionJsdoc.getParameterType(optstrOf_(declaration.getString()))
 		}
 	}
 	return nil
@@ -3742,14 +3742,14 @@ func NodeUtil_getBestLValueOwner(lValue Node) Node {
 	return 0
 }
 
-func NodeUtil_getBestLValueName(lValue Node) Optional[string] {
+func NodeUtil_getBestLValueName(lValue Node) string {
 	if (lValue == 0) || (lValue.getParent() == 0) {
-		return Optional_empty[string]()
+		return nullstr_
 	}
 	if lValue.getParent().isClassMembers() && !lValue.isComputedProp() {
 		var className string = NodeUtil_getName(lValue.getGrandparent())
 		if className == "" {
-			return Optional_empty[string]()
+			return nullstr_
 		}
 		var methodName string = lValue.getString()
 		var maybePrototype string = func() string {
@@ -3758,25 +3758,25 @@ func NodeUtil_getBestLValueName(lValue Node) Optional[string] {
 			}
 			return ".prototype."
 		}()
-		return Optional_of[string]((sstr_(className) + sstr_(maybePrototype) + sstr_(methodName)))
+		return optstrOf_((sstr_(className) + sstr_(maybePrototype) + sstr_(methodName)))
 	}
 	if NodeUtil_mayBeObjectLitKey(lValue) {
 		var owner Node = NodeUtil_getBestLValue(lValue.getParent())
 		if owner != 0 {
-			var ownerName Optional[string] = NodeUtil_getBestLValueName(owner)
-			if ownerName.isPresent() {
-				var key Optional[string] = NodeUtil_getObjectOrClassLitKeyName(lValue)
-				return func() Optional[string] {
-					if TokenStream_isJSIdentifier(key.get()) {
-						return Optional_of[string]((sstr_(ownerName.get()) + "." + sstr_(key.orElse("null"))))
+			var ownerName string = NodeUtil_getBestLValueName(owner)
+			if ownerName != nullstr_ {
+				var key string = NodeUtil_getObjectOrClassLitKeyName(lValue)
+				return func() string {
+					if TokenStream_isJSIdentifier(optstrGet_(key)) {
+						return optstrOf_((sstr_(optstrGet_(ownerName)) + "." + sstr_(optstrOr_(key, "null"))))
 					}
-					return Optional_empty[string]()
+					return nullstr_
 				}()
 			}
 		}
-		return Optional_empty[string]()
+		return nullstr_
 	}
-	return Optional_of[string](lValue.getQualifiedName()).filterFn_(func(s string) bool {
+	return optstrFilter_(optstrOf_(lValue.getQualifiedName()), func(s string) bool {
 		return s != ""
 	})
 }
@@ -4812,7 +4812,7 @@ func (this *NodeUtil_AllVarsDeclaredInFunction) getAllVariablesInOrder() *[]*Var
 
 type NodeUtil_GoogRequire struct {
 	namespace_       string
-	property_        Optional[string]
+	property_        string
 	isStrongRequire_ bool
 }
 
@@ -4820,13 +4820,13 @@ func (this *NodeUtil_GoogRequire) zero_NodeUtil_GoogRequire() {
 	this.namespace_ = nullstr_
 }
 
-func (this *NodeUtil_GoogRequire) init_NodeUtil_GoogRequire(namespace string, property Optional[string], isStrongRequire bool) {
+func (this *NodeUtil_GoogRequire) init_NodeUtil_GoogRequire(namespace string, property string, isStrongRequire bool) {
 	this.namespace_ = namespace
 	this.property_ = property
 	this.isStrongRequire_ = isStrongRequire
 }
 
-func new_NodeUtil_GoogRequire(namespace string, property Optional[string], isStrongRequire bool) *NodeUtil_GoogRequire {
+func new_NodeUtil_GoogRequire(namespace string, property string, isStrongRequire bool) *NodeUtil_GoogRequire {
 	this := &NodeUtil_GoogRequire{}
 	this.zero_NodeUtil_GoogRequire()
 	this.init_NodeUtil_GoogRequire(namespace, property, isStrongRequire)
@@ -4834,18 +4834,18 @@ func new_NodeUtil_GoogRequire(namespace string, property Optional[string], isStr
 }
 
 func NodeUtil_GoogRequire_fromNamespace(namespace string, isStrongRequire bool) *NodeUtil_GoogRequire {
-	return new_NodeUtil_GoogRequire(namespace, Optional_empty[string](), isStrongRequire)
+	return new_NodeUtil_GoogRequire(namespace, nullstr_, isStrongRequire)
 }
 
 func NodeUtil_GoogRequire_fromNamespaceAndProperty(namespace string, property string, isStrongRequire bool) *NodeUtil_GoogRequire {
-	return new_NodeUtil_GoogRequire(namespace, Optional_of[string](property), isStrongRequire)
+	return new_NodeUtil_GoogRequire(namespace, optstrOf_(property), isStrongRequire)
 }
 
 func (this *NodeUtil_GoogRequire) namespace() string {
 	return this.namespace_
 }
 
-func (this *NodeUtil_GoogRequire) property() Optional[string] {
+func (this *NodeUtil_GoogRequire) property() string {
 	return this.property_
 }
 
@@ -4854,7 +4854,7 @@ func (this *NodeUtil_GoogRequire) isStrongRequire() bool {
 }
 
 func (this *NodeUtil_GoogRequire) toString() string {
-	return "GoogRequire[" + "namespace=" + sstr_(this.namespace_) + ", property=" + objstr_(this.property_.box_()) + ", isStrongRequire=" + boolstr_(bool(this.isStrongRequire_)) + "]"
+	return "GoogRequire[" + "namespace=" + sstr_(this.namespace_) + ", property=" + objstr_(optstrBox_(this.property_)) + ", isStrongRequire=" + boolstr_(bool(this.isStrongRequire_)) + "]"
 }
 
 type NodeUtil_1 struct {

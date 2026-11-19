@@ -34,7 +34,7 @@ func new_ProductionInstrumentationReporter() *ProductionInstrumentationReporter 
 func ProductionInstrumentationReporter_main(args []string) {
 	var done *Outcome_base[any] = new_ProductionInstrumentationReporter().doMain(args)
 	if done.isErr() {
-		Output_stderr().println(done.errorMessage().get())
+		Output_stderr().println(optstrGet_(done.errorMessage()))
 	}
 }
 

@@ -18,7 +18,7 @@ func new_ConformanceAllowlister() *ConformanceAllowlister {
 func ConformanceAllowlister_getViolatingPaths(compiler *Compiler, externs Node, ast Node, requirement *Requirement) *ImmutableSet[string] {
 	var result *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	for _, error_ := range ConformanceAllowlister_getConformanceErrors(compiler, externs, ast, requirement) {
-		result.add(error_.sourceName().get())
+		result.add(optstrGet_(error_.sourceName()))
 	}
 	return result.build()
 }

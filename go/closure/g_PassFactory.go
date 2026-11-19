@@ -57,7 +57,7 @@ func PassFactory_builder() *PassFactory_Builder {
 func (this *PassFactory) validatePreconditions(options *CompilerOptions) {
 	var canRun *PassFactory_PreconditionResult = cast_[*PassFactory_PreconditionResult](this.getPreconditionCheck().apply(obj_(options)))
 	if !canRun.success_ {
-		panic(new_IllegalArgumentException_String(("Precondition for pass " + sstr_(this.getName()) + " failed: " + sstr_(canRun.message().orElse("null")))))
+		panic(new_IllegalArgumentException_String(("Precondition for pass " + sstr_(this.getName()) + " failed: " + sstr_(optstrOr_(canRun.message(), "null")))))
 	}
 }
 
@@ -115,15 +115,15 @@ func (this *PassFactory) hashCode() int32 {
 
 type PassFactory_PreconditionResult struct {
 	success_ bool
-	message_ Optional[string]
+	message_ string
 }
 
-func (this *PassFactory_PreconditionResult) init_PassFactory_PreconditionResult(success bool, message Optional[string]) {
+func (this *PassFactory_PreconditionResult) init_PassFactory_PreconditionResult(success bool, message string) {
 	this.success_ = success
 	this.message_ = message
 }
 
-func new_PassFactory_PreconditionResult(success bool, message Optional[string]) *PassFactory_PreconditionResult {
+func new_PassFactory_PreconditionResult(success bool, message string) *PassFactory_PreconditionResult {
 	this := &PassFactory_PreconditionResult{}
 	this.init_PassFactory_PreconditionResult(success, message)
 	return this
@@ -133,7 +133,7 @@ func (this *PassFactory_PreconditionResult) success() bool {
 	return this.success_
 }
 
-func (this *PassFactory_PreconditionResult) message() Optional[string] {
+func (this *PassFactory_PreconditionResult) message() string {
 	return this.message_
 }
 
@@ -142,18 +142,18 @@ func (this *PassFactory_PreconditionResult) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.success_ == o.success_ && optEqualsNull_(this.message_, o.message_)
+	return true && this.success_ == o.success_ && this.message_ == o.message_
 }
 
 func (this *PassFactory_PreconditionResult) hashCode() int32 {
 	var h int32
 	h = h*31 + Boolean_hashCode(bool(this.success_))
-	h = h*31 + optHash_(this.message_)
+	h = h*31 + optstrHash_(this.message_)
 	return h
 }
 
 func (this *PassFactory_PreconditionResult) toString() string {
-	return "PreconditionResult[" + "success=" + boolstr_(bool(this.success_)) + ", message=" + objstr_(this.message_.box_()) + "]"
+	return "PreconditionResult[" + "success=" + boolstr_(bool(this.success_)) + ", message=" + objstr_(optstrBox_(this.message_)) + "]"
 }
 
 var PassFactory_PreconditionResult_SUCCESS *PassFactory_PreconditionResult
@@ -165,12 +165,12 @@ func PassFactory_PreconditionResult_clinit() {
 		return
 	}
 	PassFactory_PreconditionResult_clinit_done = true
-	PassFactory_PreconditionResult_SUCCESS = new_PassFactory_PreconditionResult(true, Optional_empty[string]())
+	PassFactory_PreconditionResult_SUCCESS = new_PassFactory_PreconditionResult(true, nullstr_)
 
 }
 
 type PassFactory_Builder struct {
-	name_               Optional[string]
+	name_               string
 	condition           FunctionOf[*CompilerOptions, BoxedOf[bool]]
 	preconditionCheck   FunctionOf[*CompilerOptions, *PassFactory_PreconditionResult]
 	runInFixedPointLoop bool
@@ -179,7 +179,7 @@ type PassFactory_Builder struct {
 }
 
 func (this *PassFactory_Builder) finit_PassFactory_Builder() {
-	this.name_ = Optional_empty[string]()
+	this.name_ = nullstr_
 }
 
 func (this *PassFactory_Builder) init_PassFactory_Builder_0() {
@@ -194,7 +194,7 @@ func new_PassFactory_Builder_0() *PassFactory_Builder {
 
 func (this *PassFactory_Builder) init_PassFactory_Builder_PassFactory(source *PassFactory) {
 	this.finit_PassFactory_Builder()
-	this.name_ = Optional_of[string](source.getName())
+	this.name_ = optstrOf_(source.getName())
 	this.condition = source.getCondition()
 	this.preconditionCheck = source.getPreconditionCheck()
 	this.runInFixedPointLoop = source.isRunInFixedPointLoop()
@@ -209,7 +209,7 @@ func new_PassFactory_Builder_PassFactory(source *PassFactory) *PassFactory_Build
 }
 
 func (this *PassFactory_Builder) setName(x string) *PassFactory_Builder {
-	this.name_ = Optional_of[string](x)
+	this.name_ = optstrOf_(x)
 	return this
 }
 
@@ -244,9 +244,9 @@ func (this *PassFactory_Builder) setInternalFactory(x FunctionOf[*AbstractCompil
 }
 
 func (this *PassFactory_Builder) autoBuild() *PassFactory {
-	if ((((int32(this.set0) != 1) || this.name_.isEmpty()) || (this.condition == nil)) || (this.preconditionCheck == nil)) || (this.internalFactory == nil) {
+	if ((((int32(this.set0) != 1) || this.name_ == nullstr_) || (this.condition == nil)) || (this.preconditionCheck == nil)) || (this.internalFactory == nil) {
 		var missing strBuilder_
-		if this.name_.isEmpty() {
+		if this.name_ == nullstr_ {
 			missing.append(" name")
 		}
 		if this.condition == nil {
@@ -263,7 +263,7 @@ func (this *PassFactory_Builder) autoBuild() *PassFactory {
 		}
 		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())))
 	}
-	return new_PassFactory(this.name_.get(), this.condition, this.preconditionCheck, this.runInFixedPointLoop, this.internalFactory)
+	return new_PassFactory(optstrGet_(this.name_), this.condition, this.preconditionCheck, this.runInFixedPointLoop, this.internalFactory)
 }
 
 func (this *PassFactory_Builder) build() *PassFactory {

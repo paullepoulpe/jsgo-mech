@@ -196,10 +196,10 @@ func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) visit(t 
 			continue
 		}
 		var inlinableFunction *J2clPass_ClassStaticFunctionsInliner_InlinableFunction = new_J2clPass_ClassStaticFunctionsInliner_InlinableFunction(n.getLastChild(), inlineSpec.inliningMode_)
-		var qualifiedFnName Optional[string] = func() Optional[string] {
+		var qualifiedFnName string = func() string {
 			switch n.ns_().token {
 			case tokOrd1_ASSIGN:
-				return Optional_of[string](n.getFirstChild().getQualifiedName()).filterFn_(func(s string) bool {
+				return optstrFilter_(optstrOf_(n.getFirstChild().getQualifiedName()), func(s string) bool {
 					return s != ""
 				})
 			case tokOrd1_MEMBER_FUNCTION_DEF:
@@ -208,7 +208,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) visit(t 
 				panic(new_AssertionError_0())
 			}
 		}()
-		var previousValue *J2clPass_ClassStaticFunctionsInliner_InlinableFunction = mapPut_(tc_p_J2clPass_ClassStaticFunctionsInliner_InlinableFunction, this.outer_.fnsToInlineByQualifiedName, qualifiedFnName.orElse(nullstr_), inlinableFunction)
+		var previousValue *J2clPass_ClassStaticFunctionsInliner_InlinableFunction = mapPut_(tc_p_J2clPass_ClassStaticFunctionsInliner_InlinableFunction, this.outer_.fnsToInlineByQualifiedName, qualifiedFnName, inlinableFunction)
 		if previousValue != nil {
 			panic(new_IllegalStateException_String(Strings_lenientFormat("expected each function to match at most one InliningSpec, but found:\n%s\n%s", obj_(previousValue), obj_(inlinableFunction))))
 		}

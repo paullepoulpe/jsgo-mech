@@ -129,14 +129,14 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 		for i := int32(0); i < int32(len(edgeList)); i++ {
 			var edge DiGraph_DiGraphEdge[Node] = icast_DiGraph_DiGraphEdge_Node(outEdges.get(i))
 			var succ DiGraph_DiGraphNode[Node] = edge.getDestination()
-			var toNode Optional[string] = Optional_empty[string]()
+			var toNode string = nullstr_
 			if succ == this.cfg.getImplicitReturn() {
-				toNode = Optional_of[string]("RETURN")
+				toNode = "RETURN"
 			} else {
 				var keySucc int32 = this.key(succ.getValue())
-				toNode = Optional_of[string](DotFormatter_formatNodeName(any(int32(keySucc))))
+				toNode = optstrOf_(DotFormatter_formatNodeName(any(int32(keySucc))))
 			}
-			edgeList[i] = (sstr_(DotFormatter_formatNodeName(any(int32(keyParent)))) + sstr_(DotFormatter_ARROW) + sstr_(toNode.orElse("null")) + " [label=\"" + objstr_(edge.getValue()) + "\", fontcolor=\"red\", weight=0.01, color=\"red\"];\n")
+			edgeList[i] = (sstr_(DotFormatter_formatNodeName(any(int32(keyParent)))) + sstr_(DotFormatter_ARROW) + sstr_(optstrOr_(toNode, "null")) + " [label=\"" + objstr_(edge.getValue()) + "\", fontcolor=\"red\", weight=0.01, color=\"red\"];\n")
 		}
 		sortArrF_(edgeList, compareStrNat_)
 		for _, element := range edgeList {

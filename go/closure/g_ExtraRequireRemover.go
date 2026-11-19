@@ -31,23 +31,23 @@ func (this *ExtraRequireRemover) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
-func (this *ExtraRequireRemover) extractNamespace(call Node, primitiveNames []*QualifiedName) Optional[string] {
+func (this *ExtraRequireRemover) extractNamespace(call Node, primitiveNames []*QualifiedName) string {
 	var callee Node = call.getFirstChild()
 	if !callee.isGetProp() {
-		return Optional_empty[string]()
+		return nullstr_
 	}
 	for _, primitiveName := range primitiveNames {
 		if primitiveName.matches(callee) {
 			var target Node = callee.getNext()
 			if (target != 0) && target.isStringLit() {
-				return Optional_of[string](target.getString())
+				return optstrOf_(target.getString())
 			}
 		}
 	}
-	return Optional_empty[string]()
+	return nullstr_
 }
 
-func (this *ExtraRequireRemover) extractNamespaceIfRequire(call Node) Optional[string] {
+func (this *ExtraRequireRemover) extractNamespaceIfRequire(call Node) string {
 	return this.extractNamespace(call, []*QualifiedName{ExtraRequireRemover_GOOG_REQUIRE, ExtraRequireRemover_GOOG_REQUIRE_TYPE, ExtraRequireRemover_GOOG_FORWARD_DECLARE})
 }
 
@@ -102,7 +102,7 @@ func (this *ExtraRequireRemover) removeExtraRequire(call Node, require string) {
 		return
 	}
 	if call.getParent().isExprResult() {
-		if !call.getGrandparent().isModuleBody() || J2clSourceUtils_isJ2clHeaderSource(Optional_of[string](call.getSourceFileName()).filterFn_(func(s string) bool {
+		if !call.getGrandparent().isModuleBody() || J2clSourceUtils_isJ2clHeaderSource(optstrFilter_(optstrOf_(call.getSourceFileName()), func(s string) bool {
 			return s != ""
 		})) {
 			this.compiler_.reportChangeToEnclosingScope(call.getParent())
@@ -164,9 +164,9 @@ func (this *ExtraRequireRemover) visitGoogRequire(namespace string, googRequireC
 }
 
 func (this *ExtraRequireRemover) visitCallNode(call Node, parent Node) {
-	var required Optional[string] = this.extractNamespaceIfRequire(call)
-	if required.isPresent() {
-		this.visitGoogRequire(required.get(), call, parent)
+	var required string = this.extractNamespaceIfRequire(call)
+	if required != nullstr_ {
+		this.visitGoogRequire(optstrGet_(required), call, parent)
 		return
 	}
 	var callee Node = call.getFirstChild()
@@ -176,10 +176,10 @@ func (this *ExtraRequireRemover) visitCallNode(call Node, parent Node) {
 }
 
 func (this *ExtraRequireRemover) addUsagesOfAllPrefixes(qualifiedName *QualifiedName) {
-	this.usages[qualifiedName.join().orElse(nullstr_)] = struct{}{}
+	this.usages[qualifiedName.join()] = struct{}{}
 	for !qualifiedName.isSimple() {
 		qualifiedName = qualifiedName.getOwner()
-		this.usages[qualifiedName.join().orElse(nullstr_)] = struct{}{}
+		this.usages[qualifiedName.join()] = struct{}{}
 	}
 }
 

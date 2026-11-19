@@ -103,7 +103,7 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles *TMap[string, Dependency
 			}
 			provides = builder.build()
 		}
-		newJsFiles.Put(dependencyInfo.getPathRelativeToClosureBase(), iup_DependencyInfo(SimpleDependencyInfo_builder(dependencyInfo.getPathRelativeToClosureBase(), Optional_of[string](dependencyInfo.getName())).setProvides(iup_Collection(provides.asImm())).setRequires(Collection(newRequires.asList())).setLoadFlags(iup_Map(dependencyInfo.getLoadFlags().asImm())).build()))
+		newJsFiles.Put(dependencyInfo.getPathRelativeToClosureBase(), iup_DependencyInfo(SimpleDependencyInfo_builder(dependencyInfo.getPathRelativeToClosureBase(), optstrOf_(dependencyInfo.getName())).setProvides(iup_Collection(provides.asImm())).setRequires(Collection(newRequires.asList())).setLoadFlags(iup_Map(dependencyInfo.getLoadFlags().asImm())).build()))
 	}
 	return newJsFiles
 }
@@ -138,33 +138,33 @@ func (this *DepsGenerator) validateDependencies(preparsedFileDependencies Iterab
 }
 
 func (this *DepsGenerator) reportMissingFile(depInfo DependencyInfo, path string) {
-	this.errorManager.report_2(CheckLevel_ERROR, JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](depInfo.getName()), -1, -1, DepsGenerator_UNKNOWN_PATH_IMPORT, []string{path}))
+	this.errorManager.report_2(CheckLevel_ERROR, JSError_make_Optional_int_int_DiagnosticType_StringArr(optstrOf_(depInfo.getName()), -1, -1, DepsGenerator_UNKNOWN_PATH_IMPORT, []string{path}))
 }
 
 func (this *DepsGenerator) reportEs6ImportForNonEs6Module(provider DependencyInfo, depInfo DependencyInfo) {
-	this.errorManager.report_2(CheckLevel_ERROR, JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](depInfo.getName()), -1, -1, DepsGenerator_ES6_IMPORT_FOR_NON_ES6_MODULE, []string{provider.getName()}))
+	this.errorManager.report_2(CheckLevel_ERROR, JSError_make_Optional_int_int_DiagnosticType_StringArr(optstrOf_(depInfo.getName()), -1, -1, DepsGenerator_ES6_IMPORT_FOR_NON_ES6_MODULE, []string{provider.getName()}))
 }
 
 func (this *DepsGenerator) reportSameFile(namespace string, depInfo DependencyInfo) {
-	this.errorManager.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](depInfo.getName()), -1, -1, DepsGenerator_SAME_FILE_WARNING, []string{namespace}))
+	this.errorManager.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(optstrOf_(depInfo.getName()), -1, -1, DepsGenerator_SAME_FILE_WARNING, []string{namespace}))
 }
 
 func (this *DepsGenerator) reportUndefinedNamespace(namespace string, depInfo DependencyInfo) {
-	this.errorManager.report_2(CheckLevel_ERROR, JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](depInfo.getName()), -1, -1, DepsGenerator_NEVER_PROVIDED_ERROR, []string{namespace}))
+	this.errorManager.report_2(CheckLevel_ERROR, JSError_make_Optional_int_int_DiagnosticType_StringArr(optstrOf_(depInfo.getName()), -1, -1, DepsGenerator_NEVER_PROVIDED_ERROR, []string{namespace}))
 }
 
 func (this *DepsGenerator) reportDuplicateProvide(namespace string, firstDep DependencyInfo, secondDep DependencyInfo) {
 	if firstDep == secondDep {
 		if !(firstDep.getPathRelativeToClosureBase() == namespace) {
-			this.errorManager.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](firstDep.getName()), -1, -1, DepsGenerator_DUPE_PROVIDES_WARNING, []string{namespace}))
+			this.errorManager.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(optstrOf_(firstDep.getName()), -1, -1, DepsGenerator_DUPE_PROVIDES_WARNING, []string{namespace}))
 		}
 	} else {
-		this.errorManager.report_2(CheckLevel_ERROR, JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](secondDep.getName()), -1, -1, DepsGenerator_MULTIPLE_PROVIDES_ERROR, []string{namespace, firstDep.getName()}))
+		this.errorManager.report_2(CheckLevel_ERROR, JSError_make_Optional_int_int_DiagnosticType_StringArr(optstrOf_(secondDep.getName()), -1, -1, DepsGenerator_MULTIPLE_PROVIDES_ERROR, []string{namespace, firstDep.getName()}))
 	}
 }
 
 func (this *DepsGenerator) reportNoDepsInDepsFile(filePath string) {
-	this.errorManager.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](filePath), -1, -1, DepsGenerator_NO_DEPS_WARNING, []string{}))
+	this.errorManager.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(optstrOf_(filePath), -1, -1, DepsGenerator_NO_DEPS_WARNING, []string{}))
 }
 
 func (this *DepsGenerator) addToProvideMap(depInfos IterableOf[DependencyInfo], providesMap map[string]DependencyInfo, isFromDepsFile bool) {

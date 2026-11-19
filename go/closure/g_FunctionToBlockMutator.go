@@ -23,15 +23,15 @@ func new_FunctionToBlockMutator(compiler *AbstractCompiler, safeNameIdSupplier S
 	return this
 }
 
-func (this *FunctionToBlockMutator) mutate(fnName string, fnNode Node, callNode Node, resultName Optional[string], needsDefaultResult bool, isCallInLoop bool) Node {
+func (this *FunctionToBlockMutator) mutate(fnName string, fnNode Node, callNode Node, resultName string, needsDefaultResult bool, isCallInLoop bool) Node {
 	return this.mutateInternal(fnName, fnNode, callNode, resultName, needsDefaultResult, isCallInLoop, true)
 }
 
-func (this *FunctionToBlockMutator) mutateWithoutRenaming(fnName string, fnNode Node, callNode Node, resultName Optional[string], needsDefaultResult bool, isCallInLoop bool) Node {
+func (this *FunctionToBlockMutator) mutateWithoutRenaming(fnName string, fnNode Node, callNode Node, resultName string, needsDefaultResult bool, isCallInLoop bool) Node {
 	return this.mutateInternal(fnName, fnNode, callNode, resultName, needsDefaultResult, isCallInLoop, false)
 }
 
-func (this *FunctionToBlockMutator) mutateInternal(fnName string, fnNode Node, callNode Node, resultName Optional[string], needsDefaultResult bool, isCallInLoop bool, renameLocals bool) Node {
+func (this *FunctionToBlockMutator) mutateInternal(fnName string, fnNode Node, callNode Node, resultName string, needsDefaultResult bool, isCallInLoop bool, renameLocals bool) Node {
 	var newFnNode Node = fnNode.cloneTree()
 	IR_root([]Node{IR_script_NodeArr([]Node{newFnNode})})
 	if renameLocals {
@@ -241,7 +241,7 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 	}
 }
 
-func FunctionToBlockMutator_replaceReturns(block Node, resultName Optional[string], labelName string, resultMustBeSet bool) Node {
+func FunctionToBlockMutator_replaceReturns(block Node, resultName string, labelName string, resultMustBeSet bool) Node {
 	if block == 0 {
 		panic(new_NullPointerException_0())
 	}
@@ -263,8 +263,8 @@ func FunctionToBlockMutator_replaceReturns(block Node, resultName Optional[strin
 			root = newRoot
 		}
 	}
-	if (resultMustBeSet && !hasReturnAtExit) && resultName.isPresent() {
-		FunctionToBlockMutator_addDummyAssignment(block, resultName.get())
+	if (resultMustBeSet && !hasReturnAtExit) && resultName != nullstr_ {
+		FunctionToBlockMutator_addDummyAssignment(block, optstrGet_(resultName))
 	}
 	return root
 }
@@ -280,7 +280,7 @@ func FunctionToBlockMutator_addDummyAssignment(node Node, resultName string) {
 	node.addChildToBack(resultNode)
 }
 
-func FunctionToBlockMutator_convertLastReturnToStatement(block Node, resultName Optional[string]) {
+func FunctionToBlockMutator_convertLastReturnToStatement(block Node, resultName string) {
 	var ret Node = block.getLastChild()
 	if !ret.isReturn() {
 		panic(new_IllegalArgumentException_0())
@@ -300,13 +300,13 @@ func FunctionToBlockMutator_createAssignStatementNode(name string, expression No
 	return NodeUtil_newExpr(assign)
 }
 
-func FunctionToBlockMutator_getReplacementReturnStatement(node Node, resultName Optional[string]) Node {
+func FunctionToBlockMutator_getReplacementReturnStatement(node Node, resultName string) Node {
 	var resultNode Node = 0
 	var retVal Node = 0
 	if node.hasChildren() {
 		retVal = node.getFirstChild().cloneTree()
 	}
-	if resultName.isEmpty() {
+	if resultName == nullstr_ {
 		if retVal != 0 {
 			resultNode = NodeUtil_newExpr(retVal)
 		}
@@ -315,7 +315,7 @@ func FunctionToBlockMutator_getReplacementReturnStatement(node Node, resultName 
 			var srcLocation Node = node
 			retVal = NodeUtil_newUndefinedNode(srcLocation)
 		}
-		resultNode = FunctionToBlockMutator_createAssignStatementNode(resultName.get(), retVal)
+		resultNode = FunctionToBlockMutator_createAssignStatementNode(optstrGet_(resultName), retVal)
 	}
 	return resultNode
 }
@@ -324,7 +324,7 @@ func FunctionToBlockMutator_hasReturnAtExit(block Node) bool {
 	return block.getLastChild().isReturn()
 }
 
-func FunctionToBlockMutator_replaceReturnWithBreak(current Node, parent Node, resultName Optional[string], labelName string) Node {
+func FunctionToBlockMutator_replaceReturnWithBreak(current Node, parent Node, resultName string, labelName string) Node {
 	if current.isFunction() || current.isExprResult() {
 		return current
 	}

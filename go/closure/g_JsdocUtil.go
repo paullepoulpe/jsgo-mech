@@ -85,7 +85,7 @@ func JsdocUtil_replaceAnnotatedTypesWithUnusableType(jsdoc *JSDocInfo) *JSDocInf
 		builder.recordReturnType(JsdocUtil_replaceWithUnusableType(jsdoc.getReturnType()))
 	}
 	for i := int32(0); i < jsdoc.getParameterCount(); i++ {
-		var name Optional[string] = jsdoc.getParameterNameAt(i)
+		var name string = jsdoc.getParameterNameAt(i)
 		var original *JSTypeExpression = jsdoc.getParameterType(name)
 		if original == nil {
 			continue
@@ -96,7 +96,7 @@ func JsdocUtil_replaceAnnotatedTypesWithUnusableType(jsdoc *JSDocInfo) *JSDocInf
 		} else if original.isVarArgs() {
 			newType = JSTypeExpression_makeVarArgs(newType)
 		}
-		builder.recordParameter(name.get(), newType)
+		builder.recordParameter(optstrGet_(name), newType)
 	}
 	if jsdoc.hasThisType() {
 		builder.recordThisType(JsdocUtil_replaceWithUnusableType(jsdoc.getThisType()))
@@ -136,7 +136,7 @@ func JsdocUtil_getJSDocForRhs(rhs Node, oldJSDoc *JSDocInfo) *JSDocInfo {
 			return JsdocUtil_getConstJSDocNode(oldJSDoc, new_Node_Token_Node(Token_rhino_BANG, IR_string("RegExp")))
 		}
 	case NodeUtil_ValueType_UNDETERMINED:
-		if (oldJSDoc != nil) && oldJSDoc.getDescription().isPresent() {
+		if (oldJSDoc != nil) && oldJSDoc.getDescription() != nullstr_ {
 			return JsdocUtil_getConstJSDoc(oldJSDoc, "string")
 		}
 	}

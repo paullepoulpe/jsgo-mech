@@ -28,19 +28,19 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 		out.nullValue()
 	} else {
 		if able, ok := value.(LogsGson_Able); ok {
-			out.rawValue(Optional_of[string](LogsGson_toJson(able.toLogsGson())))
+			out.rawValue(optstrOf_(LogsGson_toJson(able.toLogsGson())))
 		} else {
 			if multimap, ok2 := value.(*SimpleListMultimap[any, any]); ok2 {
-				out.rawValue(Optional_of[string](LogsGson_toJson(multimap.asMap())))
+				out.rawValue(optstrOf_(LogsGson_toJson(multimap.asMap())))
 			} else {
 				if multimap_1, ok3 := value.(*SimpleSetMultimap[any, any]); ok3 {
-					out.rawValue(Optional_of[string](LogsGson_toJson(multimap_1.asMap())))
+					out.rawValue(optstrOf_(LogsGson_toJson(multimap_1.asMap())))
 				} else {
 					if bimap, ok4 := value.(*SimpleBiMap[string, string]); ok4 {
-						out.rawValue(Optional_of[string](LogsGson_toJson(bimap.asMap())))
+						out.rawValue(optstrOf_(LogsGson_toJson(bimap.asMap())))
 					} else {
 						if multiset, ok5 := value.(*SimpleMultiset[any]); ok5 {
-							out.rawValue(Optional_of[string](LogsGson_toJson(obj_(multiset.asList()))))
+							out.rawValue(optstrOf_(LogsGson_toJson(obj_(multiset.asList()))))
 						} else {
 							if map_, ok6 := value.(Map); ok6 {
 								out.beginObject()
@@ -67,7 +67,7 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 										string_ = str_(v_)
 										return true
 									}() {
-										out.stringValue(Optional_of[string](string_))
+										out.stringValue(optstrOf_(string_))
 									} else {
 										var bool_ any
 										_ = bool_
@@ -93,7 +93,7 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 												enumValue = to_Enum(v_)
 												return true
 											}() {
-												out.stringValue(Optional_of[string](enumValue.name()))
+												out.stringValue(optstrOf_(enumValue.name()))
 											} else {
 												panic(new_IllegalArgumentException_String(("Cannot log a " + sstr_(Object_getClass(value).getName()) + "; it must implement LogsGson.Able")))
 											}

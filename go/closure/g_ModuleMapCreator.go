@@ -139,7 +139,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolveImport(i *Import)
 }
 
 func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolve(e *Export) *UnresolvedModule {
-	return this.resolve_3(e.moduleRequest().get(), e.modulePath(), e.exportNode())
+	return this.resolve_3(optstrGet_(e.moduleRequest()), e.modulePath(), e.exportNode())
 }
 
 func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolveForClosure(namespace string) *UnresolvedModule {
@@ -151,7 +151,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolve_3(moduleRequest 
 		var namespace string = GoogEsImports_getClosureIdFromGoogImportSpecifier(moduleRequest)
 		return this.resolveForClosure(namespace)
 	}
-	var requestedPath *ModuleLoader_ModulePath = modulePath.resolveJsModule(moduleRequest, Optional_of[string](forLineInfo.getSourceFileName()).filterFn_(func(s string) bool {
+	var requestedPath *ModuleLoader_ModulePath = modulePath.resolveJsModule(moduleRequest, optstrFilter_(optstrOf_(forLineInfo.getSourceFileName()), func(s string) bool {
 		return s != ""
 	}), forLineInfo.getLineno(), forLineInfo.getCharno())
 	if requestedPath == nil {
@@ -209,7 +209,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) reset_impl() {
 
 }
 
-func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolve_2_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier Optional[string]) *Module {
+func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolve_2_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier string) *Module {
 	return Module_builder().boundNames(immutableMapOf_(tc_string, tc_p_Binding, []string{}, []*Binding{})).namespace(immutableMapOf_(tc_string, tc_p_Binding, []string{}, []*Binding{})).localNameToLocalExport(immutableMapOf_(tc_string, tc_p_Export, []string{}, []*Export{})).path(this.cap_path).metadata(this.cap_metadata).build()
 }
 
@@ -225,8 +225,8 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames_2_imp
 	return immutableSetOf_(tc_string)
 }
 
-func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier Optional[string], exportName Optional[string], resolveSet map[exportTraceKey_]struct{}, exportStarSet map[*UnresolvedModule]struct{}) *ResolveExportResult {
-	return ResolveExportResult_of(Binding_from_Export_Node(Export_builder().localName(exportName).moduleMetadata(this.cap_metadata).modulePath(this.cap_path).closureNamespace(Optional_empty[string]()).build(), 0))
+func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier string, exportName string, resolveSet map[exportTraceKey_]struct{}, exportStarSet map[*UnresolvedModule]struct{}) *ResolveExportResult {
+	return ResolveExportResult_of(Binding_from_Export_Node(Export_builder().localName(exportName).moduleMetadata(this.cap_metadata).modulePath(this.cap_path).closureNamespace(nullstr_).build(), 0))
 }
 
 // reset: an object that is exactly a ModuleMapCreator_ModuleRequestResolverImpl_1 calls its reset_impl directly (post-flip); others dispatch.
@@ -239,7 +239,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) reset() {
 }
 
 // resolve_2: an object that is exactly a ModuleMapCreator_ModuleRequestResolverImpl_1 calls its resolve_2_impl directly (post-flip); others dispatch.
-func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolve_2(p0 ModuleRequestResolver, p1 Optional[string]) *Module {
+func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolve_2(p0 ModuleRequestResolver, p1 string) *Module {
 	if p, _ := this.self_.(*ModuleMapCreator_ModuleRequestResolverImpl_1); p == this {
 		return this.resolve_2_impl(p0, p1)
 	}
@@ -271,7 +271,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames_2(p0 
 }
 
 // resolveExport_5: an object that is exactly a ModuleMapCreator_ModuleRequestResolverImpl_1 calls its resolveExport_5_impl directly (post-flip); others dispatch.
-func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolveExport_5(p0 ModuleRequestResolver, p1 Optional[string], p2 Optional[string], p3 map[exportTraceKey_]struct{}, p4 map[*UnresolvedModule]struct{}) *ResolveExportResult {
+func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolveExport_5(p0 ModuleRequestResolver, p1 string, p2 string, p3 map[exportTraceKey_]struct{}, p4 map[*UnresolvedModule]struct{}) *ResolveExportResult {
 	if p, _ := this.self_.(*ModuleMapCreator_ModuleRequestResolverImpl_1); p == this {
 		return this.resolveExport_5_impl(p0, p1, p2, p3, p4)
 	}

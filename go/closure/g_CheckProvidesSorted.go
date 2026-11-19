@@ -8,7 +8,7 @@ type CheckProvidesSorted struct {
 	firstNode        Node
 	lastNode         Node
 	finished         bool
-	replacement_     Optional[string]
+	replacement_     string
 	needsFixField    bool
 }
 
@@ -17,7 +17,7 @@ func (this *CheckProvidesSorted) finit_CheckProvidesSorted() {
 	this.firstNode = 0
 	this.lastNode = 0
 	this.finished = false
-	this.replacement_ = Optional_empty[string]()
+	this.replacement_ = nullstr_
 	this.needsFixField = false
 }
 
@@ -40,7 +40,7 @@ func (this *CheckProvidesSorted) getLastNode() Node {
 	return this.lastNode
 }
 
-func (this *CheckProvidesSorted) getReplacement() Optional[string] {
+func (this *CheckProvidesSorted) getReplacement() string {
 	return this.replacement_
 }
 
@@ -92,9 +92,9 @@ func (this *CheckProvidesSorted) checkCanonical(t *NodeTraversal) {
 	var canonicalProvides *ImmutableList[string] = immutableListCopyOf_(tc_string, new_LinkedHashSet_Collection(Collection(sortedProvides.asList())))
 	if !equalsVia_(this.originalProvides.asList(), obj_(canonicalProvides.asImm())) {
 		this.needsFixField = true
-		this.replacement_ = Optional_of[string](String_join_s("\n", Iterables_transform(iup_Iterable(canonicalProvides.asImm()), &Function_base_tfn_string_string{CheckProvidesSorted_formatProvide})))
+		this.replacement_ = optstrOf_(String_join_s("\n", Iterables_transform(iup_Iterable(canonicalProvides.asImm()), &Function_base_tfn_string_string{CheckProvidesSorted_formatProvide})))
 		if this.mode_ == CheckProvidesSorted_Mode_COLLECT_AND_REPORT {
-			t.report(this.firstNode, CheckProvidesSorted_PROVIDES_NOT_SORTED, []string{this.replacement_.orElse("null")})
+			t.report(this.firstNode, CheckProvidesSorted_PROVIDES_NOT_SORTED, []string{optstrOr_(this.replacement_, "null")})
 		}
 	}
 }

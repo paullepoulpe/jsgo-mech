@@ -334,11 +334,11 @@ func (this *FunctionType) getPrototypeProperty() *ObjectType {
 
 func (this *FunctionType) getPrototype() *ObjectType {
 	if this.prototypeSlot == nil {
-		var refName Optional[string] = this.getReferenceName()
-		if refName.isEmpty() {
+		var refName string = this.getReferenceName()
+		if refName == nullstr_ {
 			this.setPrototypeNoCheck(this.registry.getNativeObjectType(JSTypeNative_UNKNOWN_TYPE), 0)
 		} else {
-			this.setPrototype(PrototypeObjectType_builder(this.registry).setName(Optional_of[string]((sstr_(this.getReferenceName().orElse("null")) + ".prototype"))).setImplicitPrototype(this.registry.getNativeObjectType(JSTypeNative_OBJECT_TYPE)).setNative(this.isNativeObjectType()).build().up_ObjectType(), 0)
+			this.setPrototype(PrototypeObjectType_builder(this.registry).setName(optstrOf_((sstr_(optstrOr_(this.getReferenceName(), "null")) + ".prototype"))).setImplicitPrototype(this.registry.getNativeObjectType(JSTypeNative_OBJECT_TYPE)).setNative(this.isNativeObjectType()).build().up_ObjectType(), 0)
 		}
 	}
 	return to_ObjectType(this.prototypeSlot.getType().self())
@@ -363,7 +363,7 @@ func (this *FunctionType) setPrototypeBasedOn_2(baseType *ObjectType, propertyNo
 		if ((this.prototypeSlot != nil) && this.hasInstanceType()) && baseType.equals_JSType(this.getInstanceType().up_JSType()) {
 			return
 		}
-		baseType = PrototypeObjectType_builder(this.registry).setName(Optional_of[string]((sstr_(this.getReferenceName().orElse("null")) + ".prototype"))).setImplicitPrototype(baseType).build().up_ObjectType()
+		baseType = PrototypeObjectType_builder(this.registry).setName(optstrOf_((sstr_(optstrOr_(this.getReferenceName(), "null")) + ".prototype"))).setImplicitPrototype(baseType).build().up_ObjectType()
 	}
 	this.setPrototype(baseType, propertyNode)
 }
@@ -837,7 +837,7 @@ func (this *FunctionType) resolveTypeListHelper(list *ImmutableList[*ObjectType]
 		type_ := el
 		var rt *JSType = type_.resolve(reporter)
 		if !rt.isObjectType() {
-			reporter.warning(("not an object type: " + objstr_(rt.self()) + " (at " + sstr_(this.toString()) + ")"), Optional_of[string](this.source.getSourceFileName()).filterFn_(func(s string) bool {
+			reporter.warning(("not an object type: " + objstr_(rt.self()) + " (at " + sstr_(this.toString()) + ")"), optstrFilter_(optstrOf_(this.source.getSourceFileName()), func(s string) bool {
 				return s != ""
 			}), this.source.getLineno(), this.source.getCharno())
 			continue
@@ -1012,7 +1012,7 @@ func (this *FunctionType) calculateConstructorAmbiguity() FunctionType_Construct
 }
 
 func (this *FunctionType) isDelegateProxy() bool {
-	return (this.hasReferenceName() && strings.HasSuffix(this.getReferenceName().get(), FunctionType_DELEGATE_SUFFIX))
+	return (this.hasReferenceName() && strings.HasSuffix(optstrGet_(this.getReferenceName()), FunctionType_DELEGATE_SUFFIX))
 }
 
 func (this *FunctionType) getClosurePrimitive() ClosurePrimitive {
@@ -1274,7 +1274,7 @@ type FunctionType_Builder struct {
 }
 
 // setNameT_ is setName for a FunctionType_Builder receiver: setName returns its receiver (Java's self type T = FunctionType_Builder), so the result is this (selftype).
-func (this *FunctionType_Builder) setNameT_(p0 Optional[string]) *FunctionType_Builder {
+func (this *FunctionType_Builder) setNameT_(p0 string) *FunctionType_Builder {
 	this.setName(p0)
 	return this
 }
@@ -1340,7 +1340,7 @@ func new_FunctionType_Builder(registry *JSTypeRegistry) *FunctionType_Builder {
 	return this
 }
 
-func (this *FunctionType_Builder) withName(name Optional[string]) *FunctionType_Builder {
+func (this *FunctionType_Builder) withName(name string) *FunctionType_Builder {
 	return this.setNameT_(name)
 }
 

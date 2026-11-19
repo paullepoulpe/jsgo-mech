@@ -191,15 +191,15 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) getNameOfImportedValue(
 	}
 }
 
-func (this *Es6RewriteModulesToCommonJsModules_Rewriter) maybeGetNameOfImportedValue(s *Scope, nameNode Node) Optional[string] {
+func (this *Es6RewriteModulesToCommonJsModules_Rewriter) maybeGetNameOfImportedValue(s *Scope, nameNode Node) string {
 	if !nameNode.isName() {
 		panic(new_IllegalStateException_0())
 	}
 	var var_ *Var = s.getVarById_(nameNode.getStringId_())
 	if (((var_ != nil) && (var_.getNameNode() != 0)) && NodeUtil_isImportedName(var_.getNameNode())) && (nameNode != var_.getNameNode()) {
-		return Optional_of[string](this.getNameOfImportedValue(var_.getNameNode()))
+		return optstrOf_(this.getNameOfImportedValue(var_.getNameNode()))
 	}
-	return Optional_empty[string]()
+	return nullstr_
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) maybeRenameImportedValue(t *NodeTraversal, n Node) {
@@ -210,9 +210,9 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) maybeRenameImportedValu
 	if ((parent.isExport() || parent.isExportSpec()) || parent.isImport()) || parent.isImportSpec() {
 		return
 	}
-	var qName Optional[string] = this.maybeGetNameOfImportedValue(t.getScope(), n)
-	if qName.isPresent() {
-		n.replaceWith(NodeUtil_newQName_AbstractCompiler_String(this.compiler_, qName.get()))
+	var qName string = this.maybeGetNameOfImportedValue(t.getScope(), n)
+	if qName != nullstr_ {
+		n.replaceWith(NodeUtil_newQName_AbstractCompiler_String(this.compiler_, optstrGet_(qName)))
 		t.reportCodeChange()
 	}
 }
@@ -300,22 +300,22 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitImport(path *Modul
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportDefault(t *NodeTraversal, export Node) {
 	var child Node = export.getFirstChild()
-	var name Optional[string] = Optional_empty[string]()
+	var name string = nullstr_
 	if child.isFunction() || child.isClass() {
-		name = Optional_of[string](NodeUtil_getName(child)).filterFn_(func(s string) bool {
+		name = optstrFilter_(optstrOf_(NodeUtil_getName(child)), func(s string) bool {
 			return s != ""
 		})
 	}
-	if name.isPresent() {
+	if name != nullstr_ {
 		var decl Node = child.detach()
 		export.replaceWith(decl)
 	} else {
-		name = Optional_of[string](Es6RewriteModulesToCommonJsModules_JSCOMP_DEFAULT_EXPORT)
-		var var_ Node = IR_constNode(IR_name(name.get()), export.removeFirstChild())
+		name = optstrOf_(Es6RewriteModulesToCommonJsModules_JSCOMP_DEFAULT_EXPORT)
+		var var_ Node = IR_constNode(IR_name(optstrGet_(name)), export.removeFirstChild())
 		export.replaceWith(var_.srcrefTreeIfMissing(export))
 		NodeUtil_addFeatureToScript(t.getCurrentScript(), FeatureSet_Feature_CONST_DECLARATIONS, this.compiler_)
 	}
-	this.exportedNameToLocalQName.put("default", new_Es6RewriteModulesToCommonJsModules_LocalQName(name.orElse(nullstr_), export))
+	this.exportedNameToLocalQName.put("default", new_Es6RewriteModulesToCommonJsModules_LocalQName(name, export))
 	t.reportCodeChange()
 }
 
@@ -340,15 +340,15 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportSpecs(t *Nod
 	{
 		var exportSpec Node = export.getFirstFirstChild()
 		for ; exportSpec != 0; exportSpec = exportSpec.getNext() {
-			var localName Optional[string] = Optional_of[string](exportSpec.getFirstChild().getString())
-			var var_ *Var = t.getScope().getVar(localName.get())
+			var localName string = optstrOf_(exportSpec.getFirstChild().getString())
+			var var_ *Var = t.getScope().getVar(optstrGet_(localName))
 			if (var_ != nil) && NodeUtil_isImportedName(var_.getNameNode()) {
 				localName = this.maybeGetNameOfImportedValue(t.getScope(), exportSpec.getFirstChild())
-				if !localName.isPresent() {
+				if localName == nullstr_ {
 					panic(new_IllegalStateException_0())
 				}
 			}
-			this.exportedNameToLocalQName.put(exportSpec.getLastChild().getString(), new_Es6RewriteModulesToCommonJsModules_LocalQName(localName.orElse(nullstr_), exportSpec))
+			this.exportedNameToLocalQName.put(exportSpec.getLastChild().getString(), new_Es6RewriteModulesToCommonJsModules_LocalQName(localName, exportSpec))
 		}
 	}
 	export.detach()

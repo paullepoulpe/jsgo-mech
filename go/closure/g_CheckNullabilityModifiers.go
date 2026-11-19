@@ -51,8 +51,8 @@ func (this *CheckNullabilityModifiers) visit_impl(t *NodeTraversal, n Node, pare
 			this.handleHasType(info.getType(), n)
 		}
 		for param := range info.getParameterNames().All() {
-			if info.hasParameterType(Optional_of[string](param)) {
-				this.visitTypeExpression(info.getParameterType(Optional_of[string](param)), false)
+			if info.hasParameterType(optstrOf_(param)) {
+				this.visitTypeExpression(info.getParameterType(optstrOf_(param)), false)
 			}
 		}
 		if info.hasReturnType() {

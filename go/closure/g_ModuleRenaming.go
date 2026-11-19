@@ -17,26 +17,26 @@ func new_ModuleRenaming() *ModuleRenaming {
 	return this
 }
 
-func ModuleRenaming_getGlobalNameOfEsModuleLocalVariable(moduleMetadata *ModuleMetadataMap_ModuleMetadata, variableName Optional[string]) *QualifiedName {
-	return QualifiedName_of((sstr_(variableName.orElse("null")) + "$$" + sstr_(ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_empty[string]()).join().orElse("null"))))
+func ModuleRenaming_getGlobalNameOfEsModuleLocalVariable(moduleMetadata *ModuleMetadataMap_ModuleMetadata, variableName string) *QualifiedName {
+	return QualifiedName_of((sstr_(optstrOr_(variableName, "null")) + "$$" + sstr_(optstrOr_(ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, nullstr_).join(), "null"))))
 }
 
 func ModuleRenaming_getGlobalNameOfAnonymousDefaultExport(moduleMetadata *ModuleMetadataMap_ModuleMetadata) *QualifiedName {
-	return ModuleRenaming_getGlobalNameOfEsModuleLocalVariable(moduleMetadata, Optional_of[string](ModuleRenaming_DEFAULT_EXPORT_VAR_PREFIX))
+	return ModuleRenaming_getGlobalNameOfEsModuleLocalVariable(moduleMetadata, optstrOf_(ModuleRenaming_DEFAULT_EXPORT_VAR_PREFIX))
 }
 
-func ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata *ModuleMetadataMap_ModuleMetadata, googNamespace Optional[string]) *QualifiedName {
+func ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata *ModuleMetadataMap_ModuleMetadata, googNamespace string) *QualifiedName {
 	return ModuleRenaming_GlobalizedModuleName_create_ModuleMetadata_Optional_TypedScope(moduleMetadata, googNamespace, nil).aliasName()
 }
 
 func ModuleRenaming_getGlobalNameExport(export *Export) *QualifiedName {
 	if export.moduleMetadata().isEs6Module() {
-		if export.localName().get() == Export_DEFAULT_EXPORT_NAME {
+		if optstrGet_(export.localName()) == Export_DEFAULT_EXPORT_NAME {
 			return ModuleRenaming_getGlobalNameOfAnonymousDefaultExport(export.moduleMetadata())
 		}
 		return ModuleRenaming_getGlobalNameOfEsModuleLocalVariable(export.moduleMetadata(), export.localName())
 	}
-	return ModuleRenaming_getGlobalName_ModuleMetadata_Optional(export.moduleMetadata(), export.closureNamespace()).getprop(export.exportName().get())
+	return ModuleRenaming_getGlobalName_ModuleMetadata_Optional(export.moduleMetadata(), export.closureNamespace()).getprop(optstrGet_(export.exportName()))
 }
 
 func ModuleRenaming_getGlobalName_Binding(binding *Binding) *QualifiedName {
@@ -58,7 +58,7 @@ func ModuleRenaming_getNameRootType(qname string, globalTypedScope *TypedScope) 
 	return nn_.getType()
 }
 
-func ModuleRenaming_getGlobalNameForJsDoc(moduleMap *ModuleMap, binding *Binding, propertyChain ListOf[string]) Optional[string] {
+func ModuleRenaming_getGlobalNameForJsDoc(moduleMap *ModuleMap, binding *Binding, propertyChain ListOf[string]) string {
 	var prop int32 = 0
 	for (binding.isModuleNamespace() && binding.metadata().isEs6Module()) && (prop < propertyChain.size()) {
 		var propertyName string = str_(propertyChain.get(prop))
@@ -118,16 +118,16 @@ func ModuleRenaming_GlobalizedModuleName_create_QualifiedName_JSType(aliasName *
 	return new_ModuleRenaming_GlobalizedModuleName(aliasName, rootNameType)
 }
 
-func ModuleRenaming_GlobalizedModuleName_create_ModuleMetadata_Optional_TypedScope(moduleMetadata *ModuleMetadataMap_ModuleMetadata, googNamespace Optional[string], globalTypedScope *TypedScope) *ModuleRenaming_GlobalizedModuleName {
-	if !googNamespace.isEmpty() && !moduleMetadata.googNamespaces().contains_s(googNamespace.get()) {
+func ModuleRenaming_GlobalizedModuleName_create_ModuleMetadata_Optional_TypedScope(moduleMetadata *ModuleMetadataMap_ModuleMetadata, googNamespace string, globalTypedScope *TypedScope) *ModuleRenaming_GlobalizedModuleName {
+	if googNamespace != nullstr_ && !moduleMetadata.googNamespaces().contains_s(optstrGet_(googNamespace)) {
 		panic(new_IllegalStateException_0())
 	}
 	switch moduleMetadata.moduleType() {
 	case ModuleMetadataMap_ModuleType_GOOG_MODULE:
 		var moduleBody Node = moduleMetadata.rootNode().getFirstChild()
-		return new_ModuleRenaming_GlobalizedModuleName(QualifiedName_of(ClosureRewriteModule_getBinaryModuleNamespace(googNamespace.get())), moduleBody.getJSType())
+		return new_ModuleRenaming_GlobalizedModuleName(QualifiedName_of(ClosureRewriteModule_getBinaryModuleNamespace(optstrGet_(googNamespace))), moduleBody.getJSType())
 	case ModuleMetadataMap_ModuleType_GOOG_PROVIDE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE:
-		return new_ModuleRenaming_GlobalizedModuleName(QualifiedName_of(googNamespace.get()), ModuleRenaming_getNameRootType(googNamespace.get(), globalTypedScope))
+		return new_ModuleRenaming_GlobalizedModuleName(QualifiedName_of(optstrGet_(googNamespace)), ModuleRenaming_getNameRootType(optstrGet_(googNamespace), globalTypedScope))
 	case ModuleMetadataMap_ModuleType_ES6_MODULE, ModuleMetadataMap_ModuleType_COMMON_JS:
 		return new_ModuleRenaming_GlobalizedModuleName(QualifiedName_of(moduleMetadata.path().toModuleName()), ModuleRenaming_getNameRootType(moduleMetadata.path().toModuleName(), globalTypedScope))
 	case ModuleMetadataMap_ModuleType_SCRIPT:

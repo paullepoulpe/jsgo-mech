@@ -41,27 +41,27 @@ func (this *CheckExtraRequires) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
-func (this *CheckExtraRequires) extractNamespace(call Node, primitiveNames []string) Optional[string] {
+func (this *CheckExtraRequires) extractNamespace(call Node, primitiveNames []string) string {
 	var callee Node = call.getFirstChild()
 	if !callee.isGetProp() {
-		return Optional_empty[string]()
+		return nullstr_
 	}
 	for _, primitiveName := range primitiveNames {
 		if callee.matchesQualifiedName(primitiveName) {
 			var target Node = callee.getNext()
 			if (target != 0) && target.isStringLit() {
-				return Optional_of[string](target.getString())
+				return optstrOf_(target.getString())
 			}
 		}
 	}
-	return Optional_empty[string]()
+	return nullstr_
 }
 
-func (this *CheckExtraRequires) extractNamespaceIfRequire(call Node) Optional[string] {
+func (this *CheckExtraRequires) extractNamespaceIfRequire(call Node) string {
 	return this.extractNamespace(call, []string{"goog.require", "goog.requireType"})
 }
 
-func (this *CheckExtraRequires) extractNamespaceIfForwardDeclare(call Node) Optional[string] {
+func (this *CheckExtraRequires) extractNamespaceIfForwardDeclare(call Node) string {
 	return this.extractNamespace(call, []string{"goog.forwardDeclare"})
 }
 
@@ -163,14 +163,14 @@ func (this *CheckExtraRequires) visitGoogRequire(namespace string, googRequireCa
 }
 
 func (this *CheckExtraRequires) visitCallNode(call Node, parent Node) {
-	var required Optional[string] = this.extractNamespaceIfRequire(call)
-	if required.isPresent() {
-		this.visitGoogRequire(required.get(), call, parent)
+	var required string = this.extractNamespaceIfRequire(call)
+	if required != nullstr_ {
+		this.visitGoogRequire(optstrGet_(required), call, parent)
 		return
 	}
-	var declare Optional[string] = this.extractNamespaceIfForwardDeclare(call)
-	if declare.isPresent() {
-		this.visitForwardDeclare(declare.get(), call, parent)
+	var declare string = this.extractNamespaceIfForwardDeclare(call)
+	if declare != nullstr_ {
+		this.visitForwardDeclare(optstrGet_(declare), call, parent)
 		return
 	}
 	var callee Node = call.getFirstChild()
@@ -180,10 +180,10 @@ func (this *CheckExtraRequires) visitCallNode(call Node, parent Node) {
 }
 
 func (this *CheckExtraRequires) addUsagesOfAllPrefixes(qualifiedName *QualifiedName) {
-	this.usages[qualifiedName.join().orElse(nullstr_)] = struct{}{}
+	this.usages[qualifiedName.join()] = struct{}{}
 	for !qualifiedName.isSimple() {
 		qualifiedName = qualifiedName.getOwner()
-		this.usages[qualifiedName.join().orElse(nullstr_)] = struct{}{}
+		this.usages[qualifiedName.join()] = struct{}{}
 	}
 }
 

@@ -465,10 +465,10 @@ func (this *PeepholeSubstituteAlternateSyntax) tryMinimizeStringArrayLiteral(n N
 			idx++
 		}
 	}
-	var delimiter Optional[string] = PeepholeSubstituteAlternateSyntax_pickDelimiter(strings)
-	if delimiter.isPresent() {
-		var template string = Joiner_on(delimiter.get()).join_ObjectArr(arrmap_(strings, strobj_))
-		var call Node = IR_call(IR_getprop_Node_String(IR_string(template), "split"), []Node{IR_string(("" + sstr_(delimiter.get())))})
+	var delimiter string = PeepholeSubstituteAlternateSyntax_pickDelimiter(strings)
+	if delimiter != nullstr_ {
+		var template string = Joiner_on(optstrGet_(delimiter)).join_ObjectArr(arrmap_(strings, strobj_))
+		var call Node = IR_call(IR_getprop_Node_String(IR_string(template), "split"), []Node{IR_string(("" + sstr_(optstrGet_(delimiter))))})
 		call.srcrefTreeIfMissing(n)
 		n.replaceWith(call)
 		this.reportChangeToEnclosingScope(call)
@@ -484,17 +484,17 @@ func (this *PeepholeSubstituteAlternateSyntax) tryTurnTemplateStringsToStrings(n
 	if n.getParent().isTaggedTemplateLit() {
 		return n
 	}
-	var string_ Optional[string] = this.getSideEffectFreeStringValue(n)
-	if string_.isEmpty() {
+	var string_ string = this.getSideEffectFreeStringValue(n)
+	if string_ == nullstr_ {
 		return n
 	}
-	var stringNode Node = IR_string(string_.get()).srcref(n)
+	var stringNode Node = IR_string(optstrGet_(string_)).srcref(n)
 	n.replaceWith(stringNode)
 	this.reportChangeToEnclosingScope(stringNode)
 	return stringNode
 }
 
-func PeepholeSubstituteAlternateSyntax_pickDelimiter(strings []string) Optional[string] {
+func PeepholeSubstituteAlternateSyntax_pickDelimiter(strings []string) string {
 	var allLength1 bool = true
 	for _, s := range strings {
 		if String_length(s) != 1 {
@@ -503,7 +503,7 @@ func PeepholeSubstituteAlternateSyntax_pickDelimiter(strings []string) Optional[
 		}
 	}
 	if allLength1 {
-		return Optional_of[string]("")
+		return ""
 	}
 	var delimiters []string = []string{" ", ";", ",", "{", "}", nullstr_}
 	var i int32 = 0
@@ -516,7 +516,7 @@ NEXT_DELIMITER_:
 		}
 		break
 	}
-	return Optional_of[string](delimiters[i])
+	return optstrOf_(delimiters[i])
 }
 
 var PeepholeSubstituteAlternateSyntax_STRING_SPLIT_OVERHEAD int32

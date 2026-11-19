@@ -246,8 +246,8 @@ func (this *PolymerClassRewriter) rewritePolymerClassDeclaration(clazz Node, tra
 	this.createExportsAndExterns(cls, readOnlyProps)
 	var jsDocInfoNode Node = NodeUtil_getBestJSDocInfoNode(clazz)
 	var classInfo *JSDocInfo_Builder = JSDocInfo_Builder_maybeCopyFrom(jsDocInfoNode.getJSDocInfo())
-	var interfaceName Optional[string] = cls.getInterfaceName(this.compiler_.getUniqueIdSupplier())
-	var interfaceType *JSTypeExpression = new_JSTypeExpression(new_Node_Token_Node(Token_rhino_BANG, IR_string(interfaceName.get())).srcrefTree(jsDocInfoNode), PolymerClassRewriter_VIRTUAL_FILE)
+	var interfaceName string = cls.getInterfaceName(this.compiler_.getUniqueIdSupplier())
+	var interfaceType *JSTypeExpression = new_JSTypeExpression(new_Node_Token_Node(Token_rhino_BANG, IR_string(optstrGet_(interfaceName))).srcrefTree(jsDocInfoNode), PolymerClassRewriter_VIRTUAL_FILE)
 	classInfo.recordImplementedInterface(interfaceType)
 	jsDocInfoNode.setJSDocInfo(classInfo.build())
 	var insertAfterReference Node = NodeUtil_getEnclosingStatement(clazz)
@@ -371,8 +371,8 @@ func (this *PolymerClassRewriter) getConstructorDoc(cls *PolymerClassDefinition)
 	constructorDoc.recordConstructor()
 	var baseType *JSTypeExpression = new_JSTypeExpression(new_Node_Token_Node(Token_rhino_BANG, IR_string(PolymerPassStaticUtils_getPolymerElementType(cls))).srcrefTree(cls.definition), PolymerClassRewriter_VIRTUAL_FILE)
 	constructorDoc.recordBaseType(baseType)
-	var interfaceName Optional[string] = cls.getInterfaceName(this.compiler_.getUniqueIdSupplier())
-	var interfaceType *JSTypeExpression = new_JSTypeExpression(new_Node_Token_Node(Token_rhino_BANG, IR_string(interfaceName.get())).srcrefTree(cls.definition), PolymerClassRewriter_VIRTUAL_FILE)
+	var interfaceName string = cls.getInterfaceName(this.compiler_.getUniqueIdSupplier())
+	var interfaceType *JSTypeExpression = new_JSTypeExpression(new_Node_Token_Node(Token_rhino_BANG, IR_string(optstrGet_(interfaceName))).srcrefTree(cls.definition), PolymerClassRewriter_VIRTUAL_FILE)
 	constructorDoc.recordImplementedInterface(interfaceType)
 	return constructorDoc
 }
@@ -479,7 +479,7 @@ func (this *PolymerClassRewriter) createVarsInExternsBlock(block Node, propertyN
 		var n Node = Node_newString_Token_String(Token_rhino_NAME, varName)
 		var var_ Node = new_Node_Token(Token_rhino_VAR)
 		var_.addChildToBack(n)
-		var newType *JSTypeExpression = PolymerClassRewriter_createNewTypeExpressionForExtern(propName, Optional_of[string](propType.getSourceName()).filterFn_(func(s string) bool {
+		var newType *JSTypeExpression = PolymerClassRewriter_createNewTypeExpressionForExtern(propName, optstrFilter_(optstrOf_(propType.getSourceName()), func(s string) bool {
 			return s != ""
 		}), prop)
 		var oldInfoBuilder *JSDocInfo_Builder = JSDocInfo_Builder_maybeCopyFrom(prop.info)
@@ -490,7 +490,7 @@ func (this *PolymerClassRewriter) createVarsInExternsBlock(block Node, propertyN
 	}
 }
 
-func PolymerClassRewriter_createNewTypeExpressionForExtern(propName string, sourceName Optional[string], prop *PolymerPass_MemberDefinition) *JSTypeExpression {
+func PolymerClassRewriter_createNewTypeExpressionForExtern(propName string, sourceName string, prop *PolymerPass_MemberDefinition) *JSTypeExpression {
 	var leftCurly Node = new_Node_Token(Token_rhino_LC)
 	var leftBracket Node = new_Node_Token(Token_rhino_LB)
 	var colon Node = new_Node_Token(Token_rhino_COLON)
@@ -502,7 +502,7 @@ func PolymerClassRewriter_createNewTypeExpressionForExtern(propName string, sour
 	leftBracket.addChildToBack(colon)
 	leftCurly.addChildToBack(leftBracket)
 	leftCurly.srcrefTreeIfMissing(prop.name_)
-	return new_JSTypeExpression(leftCurly, sourceName.orElse(""))
+	return new_JSTypeExpression(leftCurly, optstrOr_(sourceName, ""))
 }
 
 func (this *PolymerClassRewriter) removePropertyDocs(objLit Node, defType PolymerClassDefinition_DefinitionType) {
@@ -625,15 +625,15 @@ func (this *PolymerClassRewriter) makeReadOnlySetter(prop *PolymerPass_MemberDef
 
 func (this *PolymerClassRewriter) createExportsAndExterns(cls *PolymerClassDefinition, readOnlyProps []*PolymerPass_MemberDefinition) {
 	var block Node = IR_block_0()
-	var interfaceName Optional[string] = cls.getInterfaceName(this.compiler_.getUniqueIdSupplier())
+	var interfaceName string = cls.getInterfaceName(this.compiler_.getUniqueIdSupplier())
 	var fnNode Node = NodeUtil_emptyFunction()
 	this.compiler_.reportChangeToChangeScope(fnNode)
-	var varNode Node = IR_var_Node_Node(NodeUtil_newQName_AbstractCompiler_String(this.compiler_, interfaceName.get()), fnNode)
+	var varNode Node = IR_var_Node_Node(NodeUtil_newQName_AbstractCompiler_String(this.compiler_, optstrGet_(interfaceName)), fnNode)
 	var info *JSDocInfo_Builder = JSDocInfo_builder().parseDocumentation()
 	info.recordInterface()
 	varNode.setJSDocInfo(info.build())
 	block.addChildToBack(varNode)
-	var interfaceBasePath string = (sstr_(interfaceName.orElse("null")) + ".prototype.")
+	var interfaceBasePath string = (sstr_(optstrOr_(interfaceName, "null")) + ".prototype.")
 	this.appendBehaviorPropertiesToBlock(cls, block, interfaceBasePath, true)
 	this.appendPropertiesToBlock(cls.props, block, interfaceBasePath, true)
 	var uniqueMethods *TMap[string, *PolymerPass_MemberDefinition] = newTMap_(tc_string, tc_p_PolymerPass_MemberDefinition)

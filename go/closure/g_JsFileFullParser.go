@@ -15,7 +15,7 @@ func new_JsFileFullParser() *JsFileFullParser {
 	return this
 }
 
-func JsFileFullParser_parse(code string, filename string, reporter func(bool, string, Optional[string], int32, int32)) *JsFileFullParser_FileInfo {
+func JsFileFullParser_parse(code string, filename string, reporter func(bool, string, string, int32, int32)) *JsFileFullParser_FileInfo {
 	var errorReporter *JsFileFullParser_DelegatingReporter = new_JsFileFullParser_DelegatingReporter(reporter)
 	var compiler *Compiler = Compiler_createFromErrorManager(new_JsFileFullParser_1(errorReporter))
 	var source *SourceFile_jscomp = SourceFile_jscomp_fromCode_String_String(filename, code)
@@ -194,10 +194,10 @@ func JsFileFullParser_FileInfo_ModuleType_clinit() {
 
 }
 
-type JsFileFullParser_Reporter = *funcObj_[func(bool, string, Optional[string], int32, int32)]
+type JsFileFullParser_Reporter = *funcObj_[func(bool, string, string, int32, int32)]
 
 type JsFileFullParser_DelegatingReporter struct {
-	delegate  func(bool, string, Optional[string], int32, int32)
+	delegate  func(bool, string, string, int32, int32)
 	seenError bool
 }
 
@@ -205,7 +205,7 @@ func (this *JsFileFullParser_DelegatingReporter) finit_JsFileFullParser_Delegati
 	this.seenError = false
 }
 
-func (this *JsFileFullParser_DelegatingReporter) init_JsFileFullParser_DelegatingReporter(delegate func(bool, string, Optional[string], int32, int32)) {
+func (this *JsFileFullParser_DelegatingReporter) init_JsFileFullParser_DelegatingReporter(delegate func(bool, string, string, int32, int32)) {
 	this.finit_JsFileFullParser_DelegatingReporter()
 	if delegate == nil {
 		panic(new_NullPointerException_0())
@@ -213,17 +213,17 @@ func (this *JsFileFullParser_DelegatingReporter) init_JsFileFullParser_Delegatin
 	this.delegate = delegate
 }
 
-func new_JsFileFullParser_DelegatingReporter(delegate func(bool, string, Optional[string], int32, int32)) *JsFileFullParser_DelegatingReporter {
+func new_JsFileFullParser_DelegatingReporter(delegate func(bool, string, string, int32, int32)) *JsFileFullParser_DelegatingReporter {
 	this := &JsFileFullParser_DelegatingReporter{}
 	this.init_JsFileFullParser_DelegatingReporter(delegate)
 	return this
 }
 
-func (this *JsFileFullParser_DelegatingReporter) warning(message string, sourceName Optional[string], line int32, lineOffset int32) {
+func (this *JsFileFullParser_DelegatingReporter) warning(message string, sourceName string, line int32, lineOffset int32) {
 	this.delegate(false, message, sourceName, line, lineOffset)
 }
 
-func (this *JsFileFullParser_DelegatingReporter) error(message string, sourceName Optional[string], line int32, lineOffset int32) {
+func (this *JsFileFullParser_DelegatingReporter) error(message string, sourceName string, line int32, lineOffset int32) {
 	this.seenError = true
 	this.delegate(true, message, sourceName, line, lineOffset)
 }

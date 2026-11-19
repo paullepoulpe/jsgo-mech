@@ -15,7 +15,7 @@ type NodeTraversal struct {
 	currentScript                                  Node
 	currentChangeScope                             Node
 	scopes                                         []ntScope_ // the scope stack, a native slice of typed entries (post-flip manual steps)
-	sourceName_                                    Optional[string]
+	sourceName_                                    string
 	inputId                                        *InputId
 	compilerInput                                  *CompilerInput
 	// Room for the first scope-stack entries, and the scope creator made when the builder
@@ -27,7 +27,7 @@ type NodeTraversal struct {
 
 func (this *NodeTraversal) finit_NodeTraversal() {
 	this.scopes = this.scopes0_[:0]
-	this.sourceName_ = Optional_empty[string]()
+	this.sourceName_ = nullstr_
 }
 
 func (this *NodeTraversal) init_NodeTraversal(builder *NodeTraversal_Builder) {
@@ -55,7 +55,7 @@ func (this *NodeTraversal) init_NodeTraversal(builder *NodeTraversal_Builder) {
 	}()
 	this.obeyDestructuringAndDefaultValueExecutionOrder = builder.obeyDestructuringAndDefaultValueExecutionOrder
 	var options *CompilerOptions = this.compiler_.getOptions()
-	this.mayContainSyntheticBlocks = ((options == nil) || options.getSyntheticBlockStartMarker().isPresent())
+	this.mayContainSyntheticBlocks = ((options == nil) || options.getSyntheticBlockStartMarker() != nullstr_)
 }
 
 func new_NodeTraversal(builder *NodeTraversal_Builder) *NodeTraversal {
@@ -143,17 +143,17 @@ func NodeTraversal_traverseRoots(compiler *AbstractCompiler, cb NodeTraversal_Ca
 }
 
 func (this *NodeTraversal) formatNodePosition(n Node) string {
-	var sourceFileName Optional[string] = this.getBestSourceFileName(n)
-	if sourceFileName.isEmpty() {
+	var sourceFileName string = this.getBestSourceFileName(n)
+	if sourceFileName == nullstr_ {
 		return (sstr_(NodeTraversal_MISSING_SOURCE) + "\n")
 	}
 	var lineNumber int32 = n.getLineno()
 	var columnNumber int32 = n.getCharno()
-	var src Optional[string] = this.compiler_.getSourceLine(sourceFileName, lineNumber)
-	if src.isEmpty() {
-		src = Optional_of[string](NodeTraversal_MISSING_SOURCE)
+	var src string = this.compiler_.getSourceLine(sourceFileName, lineNumber)
+	if src == nullstr_ {
+		src = optstrOf_(NodeTraversal_MISSING_SOURCE)
 	}
-	return (sstr_(sourceFileName.get()) + ":" + istr_(int64(lineNumber)) + ":" + istr_(int64(columnNumber)) + "\n" + sstr_(src.orElse("null")) + "\n")
+	return (sstr_(optstrGet_(sourceFileName)) + ":" + istr_(int64(lineNumber)) + ":" + istr_(int64(columnNumber)) + "\n" + sstr_(optstrOr_(src, "null")) + "\n")
 }
 
 func (this *NodeTraversal) traverseWithScope(root Node, s *AbstractScope) {
@@ -294,15 +294,15 @@ func (this *NodeTraversal) getCompiler() *AbstractCompiler {
 	return this.compiler_
 }
 
-func (this *NodeTraversal) getSourceName() Optional[string] {
-	if this.sourceName_.isEmpty() {
-		this.sourceName_ = func() Optional[string] {
+func (this *NodeTraversal) getSourceName() string {
+	if this.sourceName_ == nullstr_ {
+		this.sourceName_ = func() string {
 			if this.currentScript != 0 {
-				return Optional_of[string](this.currentScript.getSourceFileName()).filterFn_(func(s string) bool {
+				return optstrFilter_(optstrOf_(this.currentScript.getSourceFileName()), func(s string) bool {
 					return s != ""
 				})
 			}
-			return Optional_of[string]("")
+			return ""
 		}()
 	}
 	return this.sourceName_
@@ -884,7 +884,7 @@ func (this *NodeTraversal) isScopeRoot(n Node) bool {
 
 func (this *NodeTraversal) clearScriptState() {
 	this.inputId = nil
-	this.sourceName_ = Optional_empty[string]()
+	this.sourceName_ = nullstr_
 	this.compilerInput = nil
 }
 
@@ -895,12 +895,12 @@ func (this *NodeTraversal) getInputId() *InputId {
 	return this.inputId
 }
 
-func (this *NodeTraversal) getBestSourceFileName(n Node) Optional[string] {
-	return func() Optional[string] {
+func (this *NodeTraversal) getBestSourceFileName(n Node) string {
+	return func() string {
 		if n == 0 {
 			return this.getSourceName()
 		}
-		return Optional_of[string](n.getSourceFileName()).filterFn_(func(s string) bool {
+		return optstrFilter_(optstrOf_(n.getSourceFileName()), func(s string) bool {
 			return s != ""
 		})
 	}()
