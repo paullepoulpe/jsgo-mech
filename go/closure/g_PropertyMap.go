@@ -156,7 +156,7 @@ func (this *PropertyMap) getOwnKnownSymbols() SetOf[*KnownSymbolType] {
 }
 
 func (this *PropertyMap) getAllKeys() *PropertyMap_AllKeys {
-	var ancestors *TSet[*PropertyMap] = newTSet_(tce_p_PropertyMap.t_())
+	var ancestors *TSet[*PropertyMap] = newTSet_(tce_p_PropertyMap.tEq_())
 	this.collectAllAncestors(ancestors)
 	var maxAncestorCounter int32 = 0
 	it_1 := ancestors.each()

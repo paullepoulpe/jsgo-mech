@@ -51,7 +51,7 @@ func (this *SortingErrorManager) finit_SortingErrorManager() {
 
 func (this *SortingErrorManager) init_SortingErrorManager(errorReportGenerators *TSet[SortingErrorManager_ErrorReportGenerator]) {
 	this.finit_SortingErrorManager()
-	this.errorReportGenerators = immutableSetCopyOfTP_(tce_SortingErrorManager_ErrorReportGenerator.t_(), errorReportGenerators)
+	this.errorReportGenerators = immutableSetCopyOfTP_(tc_SortingErrorManager_ErrorReportGenerator, errorReportGenerators)
 }
 
 func new_SortingErrorManager(errorReportGenerators *TSet[SortingErrorManager_ErrorReportGenerator]) *SortingErrorManager {

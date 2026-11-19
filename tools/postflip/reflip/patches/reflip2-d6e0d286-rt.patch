@@ -1,0 +1,28 @@
+diff --git a/go/closure/rt_jbridge.go b/go/closure/rt_jbridge.go
+index 47cb4f02..c2e86ed9 100644
+--- a/go/closure/rt_jbridge.go
++++ b/go/closure/rt_jbridge.go
+@@ -51,6 +51,9 @@ func (s *TSet[K]) iterator() Iterator {
+ 
+ // putAllT is putAll of another typed map of the same types.
+ func (m *TMap[K, V]) putAllT(o *TMap[K, V]) {
++	if m.imm { // ImmutableMap.putAll throws whatever its argument
++		throwUOE_()
++	}
+ 	for i, k := range o.keys {
+ 		if !o.isDead(i) {
+ 			m.Put(k, o.vals[i])
+diff --git a/go/closure/rt_tmap.go b/go/closure/rt_tmap.go
+index daeef4b0..e2a5612a 100644
+--- a/go/closure/rt_tmap.go
++++ b/go/closure/rt_tmap.go
+@@ -925,6 +925,9 @@ var (
+ 
+ // addAllT is addAll from another typed set.
+ func (s *TSet[K]) AddAll(o *TSet[K]) bool {
++	if s.imm { // ImmutableSet.addAll throws whatever its argument (post-flip tool bulkops)
++		throwUOE_()
++	}
+ 	changed := false
+ 	for i, k := range o.keys {
+ 		if !o.isDead(i) && s.Add(k) {

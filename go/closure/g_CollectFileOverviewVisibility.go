@@ -7,7 +7,7 @@ type CollectFileOverviewVisibility struct {
 }
 
 func (this *CollectFileOverviewVisibility) finit_CollectFileOverviewVisibility() {
-	this.builder = immutableMapBuilder_(tce_StaticSourceFile.t_(), tc_p_JSDocInfo_Visibility)
+	this.builder = immutableMapBuilder_(tce_StaticSourceFile.tEq_(), tc_p_JSDocInfo_Visibility)
 }
 
 func (this *CollectFileOverviewVisibility) init_CollectFileOverviewVisibility(compiler *AbstractCompiler) {
