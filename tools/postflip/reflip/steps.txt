@@ -635,3 +635,5 @@ d907dada run t sbuild && f
 8f212ee2 patch reflip2-8f212ee2-manual.patch
 # C28. postflip step: passfn on the bridged tree (tool fix d6099d5f: typed adapter lambdas, generic identity helpers)
 d8b0f30c run t passfn && f
+# C29. postflip (manual): AbstractScope.vars is a scopeVars_ table; a variable lookup hashes the name once (a3f0161d and 6c2c7d00 rewritten for this flip)
+2283a089 patch reflip2-2283a089-manual.patch
