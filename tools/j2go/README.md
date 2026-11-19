@@ -35,16 +35,42 @@ those conversions wherever the static type and the erased declaration differ,
 the way javac inserts `checkcast`. `Ctx.coerce` is the single place that knows
 how to convert between two Java types.
 
-**Covariant overrides.** Go has no covariant results. A method of a class that overrides one with
-a wider result type (both class or interface types, the overridden one not a type variable)
-starts a method group of its own, named after the overridden group and its result
-(`getScope` -> `getScope_rScope`), with its own signature; its class implements the overridden
-group with a bridge that calls it and widens the result, as javac's bridge method does
-(`Ctx.covariant`, `Emitter.covBridges`). A call that javac resolves to the override (the
-receiver's static type is its class or below) has the narrower result and no cast; a call
-through the wider type goes through the bridge. An interface that narrows a super-interface's
-method keeps one group. `J2GO_NO_COVARIANT=1` turns the rule off; `J2GO_COVARIANT=1` lists the
-overrides it applies to (70 in the tree).
+**Covariant overrides.** Go has no covariant results. A method of a class or of an interface
+that overrides one with a wider result type (both class or interface types, the overridden one
+not a type variable) starts a method group of its own, named after the overridden group and its
+result (`getScope` -> `getScope_rScope`), with its own signature (`Ctx.covariant`). A call that
+javac resolves to the override (the receiver's static type is its class or interface, or below)
+has the narrower result and no cast; a call through the wider type goes through a bridge, as
+javac's bridge method does. `J2GO_NO_COVARIANT=1` turns the rule off, `J2GO_NO_COVARIANT_IFACE=1`
+its interface part; `J2GO_COVARIANT=1` lists the overrides it applies to (106 in the tree, 6 of
+them interface methods).
+
+- *In a class*: the class implements the overridden group with a bridge that calls the method
+  and widens the result (`Ctx.covBridges`, `Emitter.covBridges`).
+- *In an interface* (`StaticTypedScope.getParentScope` narrowing `StaticScope`'s): the Go
+  interface has the narrower method and, through the interface it embeds, the wider one, so
+  everything under it needs a Go method of both groups. For each class under the interface,
+  superclasses first, the method `x` that runs for the narrowing method is looked up
+  (`Ctx.implOf`: a method of the class or of a superclass, else a default method); each of the
+  two groups that no class of the chain has yet gets a bridge to `x`'s group in that class
+  (`analyzeMethods`, "bridges of narrowing interface methods"). A subclass that overrides `x`
+  is reached through the dispatch of `x`'s group. An abstract class that leaves the method to
+  its subclasses gets the dispatching stubs of both groups, and the subclasses the bridges. A
+  class method that narrows a superclass's method and has the result of the interface's
+  method joins the interface's group (`Ctx.covLeft`) and bridges the superclass's. Where two
+  groups have one Go name and signature in a class (two interfaces narrowing one method to
+  one type), one method is both (`Ctx.covAlias`). The lambda adapter `I_fn` of a functional
+  interface under the narrowing one gets the same bridges (`Emitter.interfaceDecl`), and a
+  default method that a narrowing method overrides is not the body of its group any more
+  (`Ctx.covOverridden`). `Ctx.implementsInGo` counts the bridges.
+- *Not in an interface* (one group, as before, listed as `not covariant` by `J2GO_COVARIANT=1`)
+  when some class under it takes the method from a superclass outside the interface the wider
+  group comes from: that method's own group has the wider group's Go name with another result.
+  (Such a class does not implement the Go interface without the rule either.) An interface
+  that narrows a method of `Object` also keeps one group.
+
+`J2GO_IMPLEMENTS=1` lists every (class, program interface above it) pair, from which a file of
+`var _ I = *new(C)` lines checks the method sets with the Go compiler.
 
 **Typed generics.** The program's own generic classes, interfaces and methods keep their type
 parameters where that is sound (`GenScan`; `J2GO_GENERICS=1` reports every declaration,
