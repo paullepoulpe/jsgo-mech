@@ -9,6 +9,7 @@ type AbstractVar struct {
 	implicitGoogNamespaceStrength *StaticSourceFile_SourceKind
 	input                         *CompilerInput
 	index_                        int32
+	vkHash_                       uint32 // the hash of (name, scope root) for varMap_, made once (post-flip manual step)
 }
 
 func (this *AbstractVar) as_AbstractVar() *AbstractVar { return this }
