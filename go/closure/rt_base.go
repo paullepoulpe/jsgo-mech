@@ -569,6 +569,32 @@ func Optional_ofNullable[T any](v T) Optional[T] {
 	return Optional[T]{v, true, true}
 }
 
+// ---- post-flip step 65 (generics), kept beside j2go's Optional[T]: the helpers its tool writes
+
+// optConv_ is an Optional<S> seen as an Optional<T> (a cast or a widening in Java, where both
+// are the same object): f converts the content.
+func optConv_[S, T any](o Optional[S], f func(S) T) Optional[T] {
+	if !o.present {
+		return Optional[T]{set: o.set}
+	}
+	return Optional[T]{f(o.value), true, true}
+}
+
+// optErase_ is an Optional<T> seen as a raw Optional, its content boxed as erased code boxes it.
+func optErase_[T any](o Optional[T]) Optional[any] { return optConv_(o, boxValue_[T]) }
+
+// filterFn_ is filter with a predicate that takes the content unboxed.
+func (this Optional[T]) filterFn_(p func(T) bool) Optional[T] {
+	this.nn_()
+	if !this.present || p(this.value) {
+		return this
+	}
+	return Optional[T]{set: true}
+}
+
+// optional_ is the post-flip name of joptional_.
+type optional_ = joptional_
+
 // joptional_ is any instantiation of Optional.
 type joptional_ interface {
 	content_() any
