@@ -1721,6 +1721,20 @@ func Comparator_comparingLong(f ToLongFunction) Comparator {
 	return &longKeyCmp_{f}
 }
 
+// longKeyCmpF_ is Comparator.comparingLong(key) of a lambda, as a Go func value.
+type longKeyCmpF_ struct{ key func(any) int64 }
+
+func (k *longKeyCmpF_) compare(a, b any) int32 { return Long_compare(k.key(a), k.key(b)) }
+
+// Comparator_comparingLong_f is Comparator_comparingLong of a lambda, as a Go func value
+// (post-flip step funcparams).
+func Comparator_comparingLong_f(f func(any) int64) Comparator { return &longKeyCmpF_{f} }
+
+// Comparator_thenComparingLong_f is Comparator_thenComparingLong of a lambda, as a Go func value.
+func Comparator_thenComparingLong_f(c Comparator, f func(any) int64) Comparator {
+	return Comparator_thenComparing_Comparator(c, Comparator_comparingLong_f(f))
+}
+
 func Comparator_thenComparing_Comparator(c Comparator, d Comparator) Comparator {
 	return &thenCmp_{c, d}
 }
@@ -1731,6 +1745,12 @@ func Comparator_thenComparing(c Comparator, f Function) Comparator {
 
 func Comparator_thenComparingInt(c Comparator, f ToIntFunction) Comparator {
 	return Comparator_thenComparing_Comparator(c, Comparator_comparingInt(f))
+}
+
+// Comparator_thenComparingInt_f is Comparator_thenComparingInt of a lambda, as a Go func value
+// (post-flip step funcparams): the same int-key comparator after c.
+func Comparator_thenComparingInt_f(c Comparator, f func(any) int32) Comparator {
+	return Comparator_thenComparing_Comparator(c, Comparator_comparingInt_f(f))
 }
 
 func Map_Entry_comparingByKey() Comparator {
@@ -2072,6 +2092,14 @@ func Map_replaceAll(m Map, f BiFunction) {
 	for it := m.entrySet().iterator(); it.hasNext(); {
 		e := it.next().(Map_Entry)
 		e.setValue(f.apply(e.getKey(), e.getValue()))
+	}
+}
+
+// Map_replaceAll_f is Map_replaceAll of a lambda, as a Go func value (post-flip step funcparams).
+func Map_replaceAll_f(m Map, f func(any, any) any) {
+	for it := m.entrySet().iterator(); it.hasNext(); {
+		e := it.next().(Map_Entry)
+		e.setValue(f(e.getKey(), e.getValue()))
 	}
 }
 
