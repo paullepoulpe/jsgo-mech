@@ -252,7 +252,7 @@ where a row says so; "sweep" below quotes its counted reasons.
 | instanceof | 71 | 82 | 82 | instof: 37 left inside an expression; castfold -instof: 64 inside a larger expression. OPEN: the planned type-switch tool |
 | boxing to any | 3,072 | 2,041 | 2,042 | j2go (generics, P2-P7). OPEN: typed lookups (Map.get(Object) with a typed key), Object varargs as ...any (planned translator rules) |
 | unboxing from any | 607 | 582 | 604 | as boxing |
-| lambda objects &X_fn{...} | 140 | 54 | 54 | j2go (typed adapters X_tfn_Y instead: 834 before, 762 after tfn handed 72 of them to the runtime as Go functions). OPEN: 175 PassFactory lambdas (passfn assumes the first flip's erased wrapper), the adapters stored in fields (funcparams reports no work on the typed form) |
+| lambda objects &X_fn{...} | 140 | 54 | 52 | j2go (typed adapters X_tfn_Y instead; tfn handed 72 of them to the runtime as Go functions). C28: passfn with a tool fix for the typed adapter forms: 188 PassFactory lambdas (175 factories, 11 checks, 2 conditions) are typed Go functions with an identity; adapter literals in g_*.go 775 -> 587. OPEN: the adapters stored in fields (funcparams reports no work on the typed form) |
 | Optional | 78 | 1,448 | 1,448 | a spelling count: j2go writes Optional[T], a Go value type, everywhere (the first flip's steps made it a value) |
 | try/catch emulation, defer | 50, 82 | 68, 91 | 62, 88 | exceptions, tryfn (10 left: the try's completion code is read); C23 removed the executor's nested try. The rest of the difference to postflip5 is not attributed yet: OPEN |
 | panic (throw) | 3,492 | 2,421 | 2,419 | the Go idiom; throws: 4 left (an exception held in a variable) |
