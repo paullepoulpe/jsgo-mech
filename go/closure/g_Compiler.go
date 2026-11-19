@@ -856,9 +856,9 @@ func (this *Compiler) transpileAndDontCheck() {
 	defer func() {
 		this.stopTracer(t, "runTranspileOnlyPasses")
 	}()
-	it_2 := this.getPassConfig().getTranspileOnlyPasses().build().each()
-	for it_2.next() {
-		var pf *PassFactory = it_2.v
+	l_2 := this.getPassConfig().getTranspileOnlyPasses().build()
+	for i_2 := 0; i_2 < len(l_2.items); i_2++ {
+		var pf *PassFactory = l_2.items[i_2]
 		if this.hasErrors() {
 			return
 		}
@@ -992,9 +992,8 @@ func (this *Compiler) createOrReopenLog_impl(owner ClassOf[any], firstNamePart s
 	if filters.isEmpty() {
 		return LogFile_createOrReopen(file)
 	}
-	it_1 := filters.each()
-	for it_1.next() {
-		var filter string = it_1.v
+	for i_1 := 0; i_1 < len(filters.items); i_1++ {
+		var filter string = filters.items[i_1]
 		if JString_contains_s(file, filter) {
 			return LogFile_createOrReopen(file)
 		}
@@ -2095,9 +2094,8 @@ func (this *Compiler) getOptimizationPassesToRunInCurrentSegment(segmentOfCompil
 
 func (this *Compiler) passListUntil(passes *TList[*PassFactory], passName string) *TList[*PassFactory] {
 	var passList *TList[*PassFactory] = newTList_(tc_p_PassFactory)
-	it_1 := passes.each()
-	for it_1.next() {
-		var pass *PassFactory = it_1.v
+	for i_1 := 0; i_1 < len(passes.items); i_1++ {
+		var pass *PassFactory = passes.items[i_1]
 		if pass.getName() == passName {
 			return passList
 		}

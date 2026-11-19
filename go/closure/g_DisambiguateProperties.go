@@ -169,9 +169,12 @@ func (this *DisambiguateProperties) mayHaveProperty(color *Color, propertyName s
 		return false
 	}
 	if color.isUnion() {
-		it_2 := color.getUnionElements().each()
-		for it_2.next() {
-			var element *Color = it_2.v
+		l_2 := color.getUnionElements()
+		for i_2 := l_2.first(); i_2 < len(l_2.keys); i_2++ {
+			if l_2.isDead(i_2) {
+				continue
+			}
+			var element *Color = l_2.keys[i_2]
 			if this.mayHaveProperty(element, propertyName) {
 				return true
 			}

@@ -253,9 +253,9 @@ func new_Graph_SimpleSubGraph[N comparable, E comparable](graph *Graph[N]) *Grap
 
 func (this *Graph_SimpleSubGraph[N, E]) isIndependentOf(value N) bool {
 	var node GraphNode[N] = this.graph.getNode(value)
-	it_1 := this.nodes_.each()
-	for it_1.next() {
-		var n GraphNode[N] = it_1.v
+	l_1 := this.nodes_
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var n GraphNode[N] = l_1.items[i_1]
 		if this.graph.getNeighborNodes(n.getValue()).contains(node) {
 			return false
 		}

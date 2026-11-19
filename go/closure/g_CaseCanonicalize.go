@@ -51,9 +51,9 @@ func CaseCanonicalize_caseCanonicalize(ch uint16) uint16 {
 		}()
 	}
 	if CaseCanonicalize_CASE_SENSITIVE.contains(int32(ch)) {
-		it_1 := CaseCanonicalize_CANON_DELTA_SETS.each()
-		for it_1.next() {
-			var ds *CaseCanonicalize_DeltaSet = it_1.v
+		l_1 := CaseCanonicalize_CANON_DELTA_SETS
+		for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+			var ds *CaseCanonicalize_DeltaSet = l_1.items[i_1]
 			if ds.codeUnits.contains(int32(ch)) {
 				return uint16((int32(ch) - ds.delta))
 			}

@@ -29,9 +29,8 @@ func (this *VariableReferenceCheck) process_2(externs Node, root Node) {
 }
 
 func (this *VariableReferenceCheck) lookForHoistedFunction(references *TList[*Reference]) *Reference {
-	it_1 := references.each()
-	for it_1.next() {
-		var reference *Reference = it_1.v
+	for i_1 := 0; i_1 < len(references.items); i_1++ {
+		var reference *Reference = references.items[i_1]
 		if reference.isHoistedFunction() {
 			this.blocksWithDeclarations.Add(reference.getBasicBlock())
 			return reference
@@ -81,9 +80,12 @@ func (this *VariableReferenceCheck) checkRedeclaration(v *Var, reference *Refere
 }
 
 func (this *VariableReferenceCheck) isRedeclaration(newDeclaration *BasicBlock) bool {
-	it_1 := this.blocksWithDeclarations.each()
-	for it_1.next() {
-		var previousDeclaration *BasicBlock = it_1.v
+	l_1 := this.blocksWithDeclarations
+	for i_1 := l_1.first(); i_1 < len(l_1.keys); i_1++ {
+		if l_1.isDead(i_1) {
+			continue
+		}
+		var previousDeclaration *BasicBlock = l_1.keys[i_1]
 		if previousDeclaration.provablyExecutesBefore(newDeclaration) {
 			return true
 		}

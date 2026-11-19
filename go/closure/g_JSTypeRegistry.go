@@ -925,9 +925,9 @@ func JSTypeRegistry_getSimpleReadableJSTypeName(type_ *JSType) Optional[string] 
 	} else if _, ok4 := type_.self().(*UnionType); ok4 {
 		var unionType *UnionType = type_.toMaybeUnionType()
 		var union Optional[string] = Optional_empty[string]()
-		it_1 := unionType.getAlternates().each()
-		for it_1.next() {
-			var alternate *JSType = it_1.v
+		l_1 := unionType.getAlternates()
+		for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+			var alternate *JSType = l_1.items[i_1]
 			var name Optional[string] = JSTypeRegistry_getSimpleReadableJSTypeName(alternate)
 			if name.isEmpty() {
 				return Optional_empty[string]()

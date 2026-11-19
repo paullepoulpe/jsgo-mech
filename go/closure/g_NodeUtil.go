@@ -2853,9 +2853,8 @@ func NodeUtil_isValidQualifiedName(mode *FeatureSet, name string) bool {
 		return false
 	}
 	var parts *TList[string] = splitToListTP_(tc_string, Splitter_on('.'), strobj_(name))
-	it_1 := parts.each()
-	for it_1.next() {
-		var part string = it_1.v
+	for i_1 := 0; i_1 < len(parts.items); i_1++ {
+		var part string = parts.items[i_1]
 		if !NodeUtil_isValidPropertyName(mode, part) {
 			return false
 		}

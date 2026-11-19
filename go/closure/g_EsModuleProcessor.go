@@ -529,9 +529,9 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolveExport_4(moduleRequestR
 		this.outer_.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](this.path_.toString()), 0, 0, EsModuleProcessor_CYCLIC_EXPORT_DEFINITION, []string{exportName.orElse("null")}))
 		return ResolveExportResult_ERROR
 	}
-	it_1 := this.localExports.each()
-	for it_1.next() {
-		var e *Export = it_1.v
+	l_1 := this.localExports
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var e *Export = l_1.items[i_1]
 		if Object_equals(exportName.box_(), e.exportName().box_()) {
 			var forSourceInfo Node = func() Node {
 				if e.nameNode() != 0 {
@@ -542,9 +542,9 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolveExport_4(moduleRequestR
 			return ResolveExportResult_of(Binding_from_Export_Node(e, forSourceInfo))
 		}
 	}
-	it_3 := this.indirectExports.each()
-	for it_3.next() {
-		var e *Export = it_3.v
+	l_3 := this.indirectExports
+	for i_3 := 0; i_3 < len(l_3.items); i_3++ {
+		var e *Export = l_3.items[i_3]
 		if Object_equals(exportName.box_(), e.exportName().box_()) {
 			if e.localName().isPresent() && this.importsByLocalName.Has(e.localName().get()) {
 				return this.resolveImport_4(moduleRequestResolver, e.localName().orElse(nullstr_), resolveSet, exportStarSet).copy(e.nameNode(), Binding_CreatedBy_EXPORT)
@@ -574,9 +574,9 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolveExport_4(moduleRequestR
 	}
 	exportStarSet[this.up_UnresolvedModule()] = struct{}{}
 	var starResolution *ResolveExportResult = nil
-	it_5 := this.starExports.each()
-	for it_5.next() {
-		var e *Export = it_5.v
+	l_5 := this.starExports
+	for i_5 := 0; i_5 < len(l_5.items); i_5++ {
+		var e *Export = l_5.items[i_5]
 		var requested *UnresolvedModule = moduleRequestResolver.resolve(e)
 		if requested == nil {
 			return ResolveExportResult_ERROR

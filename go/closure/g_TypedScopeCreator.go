@@ -1941,9 +1941,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getObjectSlot(slotName strin
 func (this *TypedScopeCreator_AbstractScopeBuilder) getInheritedInterfacePropertyType(obj *ObjectType, propName string) *JSType {
 	if (obj != nil) && obj.isFunctionPrototypeType() {
 		var f *FunctionType = obj.getOwnerFunction()
-		it_1 := f.getImplementedInterfaces().each()
-		for it_1.next() {
-			var i *ObjectType = it_1.v
+		l_1 := f.getImplementedInterfaces()
+		for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+			var i *ObjectType = l_1.items[i_1]
 			if i.hasProperty(propName) {
 				return i.getPropertyType(propName)
 			}

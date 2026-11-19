@@ -1840,9 +1840,9 @@ func (this *TypeCheck) isReasonableObjectPropertyKey(type_ *JSType) bool {
 		return this.isReasonableObjectPropertyKey(namedType.getReferencedType())
 	}
 	if type_.isUnionType() {
-		it_1 := type_.toMaybeUnionType().getAlternates().each()
-		for it_1.next() {
-			var alternateType *JSType = it_1.v
+		l_1 := type_.toMaybeUnionType().getAlternates()
+		for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+			var alternateType *JSType = l_1.items[i_1]
 			if !this.isReasonableObjectPropertyKey(alternateType) {
 				return false
 			}
@@ -1883,9 +1883,9 @@ func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyC
 		return type_
 	}
 	if type_.isUnionType() {
-		it_1 := type_.toMaybeUnionType().getAlternates().each()
-		for it_1.next() {
-			var alternateType *JSType = it_1.v
+		l_1 := type_.toMaybeUnionType().getAlternates()
+		for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+			var alternateType *JSType = l_1.items[i_1]
 			var result *JSType = this.findObjectWithNonStringifiableKey(alternateType, alreadyCheckedTypes)
 			if result != nil {
 				return result
@@ -1893,9 +1893,9 @@ func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyC
 		}
 	}
 	if type_.isTemplatizedType() {
-		it_3 := type_.toMaybeTemplatizedType().getTemplateTypes().each()
-		for it_3.next() {
-			var templateType *JSType = it_3.v
+		l_3 := type_.toMaybeTemplatizedType().getTemplateTypes()
+		for i_3 := 0; i_3 < len(l_3.items); i_3++ {
+			var templateType *JSType = l_3.items[i_3]
 			var result *JSType = this.findObjectWithNonStringifiableKey(templateType, alreadyCheckedTypes)
 			if result != nil {
 				return result
@@ -1904,9 +1904,9 @@ func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyC
 	}
 	if type_.isOrdinaryFunction() {
 		var function *FunctionType = type_.toMaybeFunctionType()
-		it_5 := function.getParameters().each()
-		for it_5.next() {
-			var parameter *FunctionType_Parameter = it_5.v
+		l_5 := function.getParameters()
+		for i_5 := 0; i_5 < len(l_5.items); i_5++ {
+			var parameter *FunctionType_Parameter = l_5.items[i_5]
 			var result *JSType = this.findObjectWithNonStringifiableKey(parameter.getJSType(), alreadyCheckedTypes)
 			if result != nil {
 				return result

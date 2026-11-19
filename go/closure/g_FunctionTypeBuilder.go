@@ -719,9 +719,9 @@ func FunctionTypeBuilder_hasMoreTagsToResolve(objectType *ObjectType) bool {
 	}
 	var ctor *FunctionType = objectType.getConstructor()
 	if ctor != nil {
-		it_1 := ctor.getExtendedInterfaces().each()
-		for it_1.next() {
-			var interfaceType *ObjectType = it_1.v
+		l_1 := ctor.getExtendedInterfaces()
+		for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+			var interfaceType *ObjectType = l_1.items[i_1]
 			if !interfaceType.isResolved() {
 				return true
 			}

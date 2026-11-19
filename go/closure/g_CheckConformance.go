@@ -111,9 +111,8 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 			}
 		}
 	}
-	it_5 := configs.each()
-	for it_5.next() {
-		var config *ConformanceConfig = it_5.v
+	for i_5 := 0; i_5 < len(configs.items); i_5++ {
+		var config *ConformanceConfig = configs.items[i_5]
 		if !config.hasLibraryLevelNonAllowlistedConformanceViolationsBehavior() {
 			continue
 		}

@@ -82,9 +82,9 @@ func (this *TypeValidator) expectAnyObject(n Node, type_ *JSType, msg string) {
 
 func (this *TypeValidator) expectAutoboxesToIterable(n Node, type_ *JSType, msg string) bool {
 	if type_.isUnionType() {
-		it_1 := type_.toMaybeUnionType().getAlternates().each()
-		for it_1.next() {
-			var alt *JSType = it_1.v
+		l_1 := type_.toMaybeUnionType().getAlternates()
+		for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+			var alt *JSType = l_1.items[i_1]
 			alt = func() *JSType {
 				if alt.isBoxableScalar() {
 					return alt.autoboxesTo()
@@ -239,9 +239,9 @@ func (this *TypeValidator) expectNotNullOrUndefined(t *NodeTraversal, n Node, ty
 
 func TypeValidator_containsForwardDeclaredUnresolvedName(type_ *JSType) bool {
 	if type_.isUnionType() {
-		it_1 := type_.toMaybeUnionType().getAlternates().each()
-		for it_1.next() {
-			var alt *JSType = it_1.v
+		l_1 := type_.toMaybeUnionType().getAlternates()
+		for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+			var alt *JSType = l_1.items[i_1]
 			if TypeValidator_containsForwardDeclaredUnresolvedName(alt) {
 				return true
 			}
@@ -742,9 +742,9 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseEnumElementType
 }
 
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseFunctionType_impl(type_ *FunctionType) any {
-	it_1 := type_.getParameters().each()
-	for it_1.next() {
-		var param *FunctionType_Parameter = it_1.v
+	l_1 := type_.getParameters()
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var param *FunctionType_Parameter = l_1.items[i_1]
 		if !unbox_[bool](param.getJSType().visit(Visitor(this))) {
 			return any(bool(false))
 		}

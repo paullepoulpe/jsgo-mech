@@ -588,9 +588,11 @@ func (this *JsMessageVisitor) extractIcuTemplateOptions(optionsBag Node) *Outcom
 	}
 	var placeholderOriginalCodeMap *TMap[string, string] = tmapFrom_(tc_string, tc_string, placeholderOriginalCodeMapOutcome.get(), true)
 	var placeholderNames *TSet[string] = immutableSetBuilder_(tc_string).addAll(Iterable(placeholderExamplesMap.asImm().keySet())).addAll(Iterable(placeholderOriginalCodeMap.asImm().keySet())).build()
-	it_1 := placeholderNames.each()
-	for it_1.next() {
-		var placeholderName string = it_1.v
+	for i_1 := placeholderNames.first(); i_1 < len(placeholderNames.keys); i_1++ {
+		if placeholderNames.isDead(i_1) {
+			continue
+		}
+		var placeholderName string = placeholderNames.keys[i_1]
 		if !JsMessage_isCanonicalPlaceholderNameFormat(placeholderName) {
 			return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](new_JsMessageVisitor_MalformedException(("Placeholder not in UPPER_SNAKE_CASE: " + sstr_(placeholderName)), optionsBag).up_Throwable())
 		}
@@ -997,9 +999,11 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForUnexpectedKeys(expect
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForRequiredKeys(requiredKeys *TSet[string], createException func(any) any) *Outcome_base[any] {
-	it_1 := requiredKeys.each()
-	for it_1.next() {
-		var requiredKey string = it_1.v
+	for i_1 := requiredKeys.first(); i_1 < len(requiredKeys.keys); i_1++ {
+		if requiredKeys.isDead(i_1) {
+			continue
+		}
+		var requiredKey string = requiredKeys.keys[i_1]
 		if !this.stringToStringKeyMap.Has(requiredKey) {
 			return Outcome_base_err[any](to_Throwable(createException(strobj_(requiredKey))))
 		}
