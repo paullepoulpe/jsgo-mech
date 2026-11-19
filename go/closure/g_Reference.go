@@ -44,8 +44,13 @@ func (this *Reference) cloneWithNewScope(newScope *Scope) *Reference {
 	return new_Reference_Node_BasicBlock_Scope_InputId(this.nameNode_, this.basicBlock, newScope, this.inputId)
 }
 
+func (this *Reference) getSymbolT_() *Var {
+	return this.scope_.getVarById_(this.nameNode_.getStringId_())
+}
+
+// getSymbol is getSymbolT_ with the result of the interface's type (javac's bridge; covret).
 func (this *Reference) getSymbol() StaticSlot {
-	return iup_StaticSlot(this.scope_.getVarById_(this.nameNode_.getStringId_()))
+	return iup_StaticSlot(this.getSymbolT_())
 }
 
 func (this *Reference) getNode() Node {

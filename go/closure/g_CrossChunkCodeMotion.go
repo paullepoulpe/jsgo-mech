@@ -169,7 +169,7 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCollector) processImmovableStatemen
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) processImmovableReference(ref *Reference, chunk *JSChunk) {
-	var globalSymbol *CrossChunkCodeMotion_GlobalSymbol = this.getGlobalSymbol(cast_[*Var](ref.getSymbol()))
+	var globalSymbol *CrossChunkCodeMotion_GlobalSymbol = this.getGlobalSymbol(ref.getSymbolT_())
 	if this.outer_.parentChunkCanSeeSymbolsDeclaredInChildren {
 		var n Node = ref.getNode()
 		if this.outer_.isGuardedInstanceofReference(n) || this.outer_.isUndefinedTypeofGuardReference(n) {
@@ -184,14 +184,14 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCollector) processImmovableReferenc
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) processDeclarationStatement(statement *CrossChunkReferenceCollector_TopLevelStatement) {
-	var declaredSymbol *CrossChunkCodeMotion_GlobalSymbol = this.getGlobalSymbol(cast_[*Var](statement.getDeclaredNameReference().getSymbol()))
+	var declaredSymbol *CrossChunkCodeMotion_GlobalSymbol = this.getGlobalSymbol(statement.getDeclaredNameReference().getSymbolT_())
 	var dsg *CrossChunkCodeMotion_DeclarationStatementGroup = declaredSymbol.addDeclarationStatement(statement)
 	this.processDeclarationStatementContainedReferences(statement, declaredSymbol, dsg)
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) processDeclarationStatementContainedReferences(statement *CrossChunkReferenceCollector_TopLevelStatement, declaredSymbol *CrossChunkCodeMotion_GlobalSymbol, dsg *CrossChunkCodeMotion_DeclarationStatementGroup) {
 	for ref := range elemsAs_[*Reference](statement.getNonDeclarationReferences().asList()) {
-		var refSymbol *CrossChunkCodeMotion_GlobalSymbol = this.getGlobalSymbol(cast_[*Var](ref.getSymbol()))
+		var refSymbol *CrossChunkCodeMotion_GlobalSymbol = this.getGlobalSymbol(ref.getSymbolT_())
 		if equalsId_(refSymbol, declaredSymbol) {
 			continue
 		}
