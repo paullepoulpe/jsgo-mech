@@ -730,7 +730,7 @@ type CommandLineRunner_Flags struct {
 	chunkWrapper                       ListOf[string]
 	chunkOutputPathPrefix              string
 	createSourceMap                    string
-	sourceMapFormat                    *SourceMap_Format
+	sourceMapFormat                    SourceMap_Format
 	sourceMapLocationMapping           ListOf[string]
 	sourceMapInputs                    ListOf[string]
 	parseInlineSourceMaps_             any
@@ -1092,10 +1092,10 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}}).get, (&Consumer_tfn_string{func(v string) {
 		this.createSourceMap = v
 	}}).accept)
-	CmdLineParser_Option_enumValue[*SourceMap_Format](this.parser.option("--source_map_format").hidden_1(true).usage("The source map format to produce. Options are V3 and DEFAULT, which are equivalent."), SourceMap_Format_values(), &Supplier_fn{func() any {
+	CmdLineParser_Option_enumValue[SourceMap_Format](this.parser.option("--source_map_format").hidden_1(true).usage("The source map format to produce. Options are V3 and DEFAULT, which are equivalent."), SourceMap_Format_values(), &Supplier_fn{func() any {
 		return this.sourceMapFormat.self()
 	}}, &Consumer_fn{func(v_ any) {
-		var v *SourceMap_Format = to_SourceMap_Format(v_)
+		var v SourceMap_Format = to_SourceMap_Format(v_)
 		_ = v
 		this.sourceMapFormat = v
 	}})
