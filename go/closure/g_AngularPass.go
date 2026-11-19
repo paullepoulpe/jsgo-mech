@@ -62,7 +62,9 @@ func (this *AngularPass) process_2(externs Node, root Node) {
 }
 
 func (this *AngularPass) createDependenciesList(n Node) *JTList[Node] {
-	Preconditions_checkArgument(n.isFunction())
+	if !n.isFunction() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var params Node = NodeUtil_getFunctionParameters(n)
 	if params != 0 {
 		return this.createStringsFromParamList(params)
@@ -158,13 +160,17 @@ func (this *AngularPass) addNode(n Node) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, AngularPass_INJECT_IN_NON_GLOBAL_OR_BLOCK_ERROR, []string{}))
 		return
 	}
-	Preconditions_checkState(name.isPresent())
+	if !name.isPresent() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.injectables.add(new_AngularPass_NodeContext(name.get(), n, fn, injectAfter))
 }
 
 func AngularPass_getDeclarationRValue(n Node) Node {
 	Preconditions_checkNotNull_T(n)
-	Preconditions_checkArgument(NodeUtil_isNameDeclaration(n))
+	if !NodeUtil_isNameDeclaration(n) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	n = n.getFirstFirstChild()
 	if n == 0 {
 		return 0

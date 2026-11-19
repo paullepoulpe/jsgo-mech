@@ -405,7 +405,9 @@ func (this *CheckRequiresSorted_DestructuringBinding) zero_CheckRequiresSorted_D
 }
 
 func (this *CheckRequiresSorted_DestructuringBinding) init_CheckRequiresSorted_DestructuringBinding(exportedName string, localName string, isShorthandProperty bool) {
-	Preconditions_checkArgument((!isShorthandProperty || (exportedName == localName)))
+	if isShorthandProperty && exportedName != localName {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	this.exportedName_ = exportedName
 	this.localName_ = localName
 	this.isShorthandProperty_ = isShorthandProperty
@@ -488,7 +490,9 @@ func (this *CheckRequiresSorted_ImportStatement) zero_CheckRequiresSorted_Import
 func (this *CheckRequiresSorted_ImportStatement) init_CheckRequiresSorted_ImportStatement(nodes *JTList[Node], primitive CheckRequiresSorted_ImportPrimitive, namespace string, alias Optional[string], destructures *JTList[*CheckRequiresSorted_DestructuringBinding]) {
 	Objects_requireNonNull(nodes.asList(), "nodes")
 	Objects_requireNonNull_T(primitive, "primitive")
-	Preconditions_checkArgument_boolean_Object((alias.isEmpty() || (destructures == nil)), "Import statement cannot be simultaneously aliasing and destructuring")
+	if !alias.isEmpty() && destructures != nil {
+		panic(new_IllegalArgumentException_String(objstr_("Import statement cannot be simultaneously aliasing and destructuring")).self())
+	}
 	this.nodes_ = nodes
 	this.primitive_ = primitive
 	this.namespace_ = namespace

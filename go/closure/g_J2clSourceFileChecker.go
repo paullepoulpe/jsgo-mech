@@ -20,7 +20,9 @@ func J2clSourceFileChecker_hasJ2cl(root Node) bool {
 	{
 		var script Node = root.getFirstChild()
 		for ; script != 0; script = script.getNext() {
-			Preconditions_checkState(script.isScript())
+			if !script.isScript() {
+				panic(new_IllegalStateException_0().self())
+			}
 			if J2clSourceUtils_isJ2clSource(script) {
 				return true
 			}

@@ -110,7 +110,9 @@ func (this *ExtraRequireRemover) removeExtraRequire(call Node, require string) {
 	}
 	if call.getParent().isName() {
 		var nameDeclaration Node = call.getGrandparent()
-		Preconditions_checkState(NodeUtil_isNameDeclaration(call.getGrandparent()))
+		if !NodeUtil_isNameDeclaration(call.getGrandparent()) {
+			panic(new_IllegalStateException_0().self())
+		}
 		this.compiler_.reportChangeToEnclosingScope(nameDeclaration.getParent())
 		nameDeclaration.detach()
 		return
