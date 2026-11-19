@@ -60,10 +60,14 @@ func (this *DiagnosticType) hashCode() int32 {
 	return utf16Hash_(this.key_)
 }
 
-func (this *DiagnosticType) compareTo(diagnosticType_ any) int32 {
-	var diagnosticType *DiagnosticType = cast_[*DiagnosticType](diagnosticType_)
-	_ = diagnosticType
+// compareToT_ is compareTo with the parameter types the class declares (implsplit).
+func (this *DiagnosticType) compareToT_(diagnosticType *DiagnosticType) int32 {
 	return utf16Compare_(this.key_, diagnosticType.key_)
+}
+
+// compareTo is the bridge of the interface's erased signature (javac's): it casts its arguments and calls compareToT_.
+func (this *DiagnosticType) compareTo(diagnosticType_ any) int32 {
+	return this.compareToT_(cast_[*DiagnosticType](diagnosticType_))
 }
 
 func (this *DiagnosticType) toString() string {

@@ -201,9 +201,8 @@ func new_FlowSensitiveInlineVariables_SideEffectPredicate_Set(outer_ *FlowSensit
 	return this
 }
 
-func (this *FlowSensitiveInlineVariables_SideEffectPredicate) apply(n_ any) bool {
-	var n Node = Node_of_(n_)
-	_ = n
+// applyT_ is apply with the parameter types the class declares (implsplit).
+func (this *FlowSensitiveInlineVariables_SideEffectPredicate) applyT_(n Node) bool {
 	if n == 0 {
 		return false
 	}
@@ -226,12 +225,17 @@ func (this *FlowSensitiveInlineVariables_SideEffectPredicate) apply(n_ any) bool
 	{
 		var c Node = n.getFirstChild()
 		for ; c != 0; c = c.getNext() {
-			if !ControlFlowGraph_isEnteringNewCfgNode(c) && this.apply(c.box_()) {
+			if !ControlFlowGraph_isEnteringNewCfgNode(c) && this.applyT_(c) {
 				return true
 			}
 		}
 	}
 	return false
+}
+
+// apply is the bridge of the interface's erased signature (javac's): it casts its arguments and calls applyT_.
+func (this *FlowSensitiveInlineVariables_SideEffectPredicate) apply(n_ any) bool {
+	return this.applyT_(Node_of_(n_))
 }
 
 func (this *FlowSensitiveInlineVariables_SideEffectPredicate) test(p0 any) bool {

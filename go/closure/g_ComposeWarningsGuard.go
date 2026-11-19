@@ -153,16 +153,18 @@ func new_ComposeWarningsGuard_GuardComparator(orderOfAddition map[*WarningsGuard
 	return this
 }
 
-func (this *ComposeWarningsGuard_GuardComparator) compare(a_ any, b_ any) int32 {
-	var a *WarningsGuard = to_WarningsGuard(a_)
-	_ = a
-	var b *WarningsGuard = to_WarningsGuard(b_)
-	_ = b
+// compareT_ is compare with the parameter types the class declares (implsplit).
+func (this *ComposeWarningsGuard_GuardComparator) compareT_(a *WarningsGuard, b *WarningsGuard) int32 {
 	var priorityDiff int32 = (a.getPriority() - b.getPriority())
 	if priorityDiff != 0 {
 		return priorityDiff
 	}
 	return (Integer_intValue(this.orderOfAddition[b]) - Integer_intValue(this.orderOfAddition[a]))
+}
+
+// compare is the bridge of the interface's erased signature (javac's): it casts its arguments and calls compareT_.
+func (this *ComposeWarningsGuard_GuardComparator) compare(a_ any, b_ any) int32 {
+	return this.compareT_(to_WarningsGuard(a_), to_WarningsGuard(b_))
 }
 
 const ComposeWarningsGuard_GuardComparator_serialVersionUID int64 = 1

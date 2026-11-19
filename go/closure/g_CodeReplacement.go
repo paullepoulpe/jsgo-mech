@@ -44,10 +44,14 @@ func (this *CodeReplacement) getEndPosition() int32 {
 	return (this.getStartPosition() + this.getLength())
 }
 
-func (this *CodeReplacement) compareTo(x_ any) int32 {
-	var x *CodeReplacement = cast_[*CodeReplacement](x_)
-	_ = x
+// compareToT_ is compareTo with the parameter types the class declares (implsplit).
+func (this *CodeReplacement) compareToT_(x *CodeReplacement) int32 {
 	return CodeReplacement_APPLICATION_ORDER.compare(any(this), obj_(x))
+}
+
+// compareTo is the bridge of the interface's erased signature (javac's): it casts its arguments and calls compareToT_.
+func (this *CodeReplacement) compareTo(x_ any) int32 {
+	return this.compareToT_(cast_[*CodeReplacement](x_))
 }
 
 func (this *CodeReplacement) getStartPosition() int32 {

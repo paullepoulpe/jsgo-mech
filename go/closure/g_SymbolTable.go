@@ -1795,16 +1795,18 @@ func new_SymbolTable_5(outer_ *SymbolTable) *SymbolTable_5 {
 	return this
 }
 
-func (this *SymbolTable_5) compare(a_ any, b_ any) int32 {
-	var a Node = Node_of_(a_)
-	_ = a
-	var b Node = Node_of_(b_)
-	_ = b
+// compareT_ is compare with the parameter types the class declares (implsplit).
+func (this *SymbolTable_5) compareT_(a Node, b Node) int32 {
 	var result int32 = this.outer_.sourceNameOrdering.compare(strobj_(a.getSourceFileName()), strobj_(b.getSourceFileName()))
 	if result != 0 {
 		return result
 	}
 	return (a.getSourcePosition() - b.getSourcePosition())
+}
+
+// compare is the bridge of the interface's erased signature (javac's): it casts its arguments and calls compareT_.
+func (this *SymbolTable_5) compare(a_ any, b_ any) int32 {
+	return this.compareT_(Node_of_(a_), Node_of_(b_))
 }
 
 type SymbolTable_6 struct {
@@ -1831,11 +1833,8 @@ func new_SymbolTable_6(outer_ *SymbolTable) *SymbolTable_6 {
 	return this
 }
 
-func (this *SymbolTable_6) compare(a_ any, b_ any) int32 {
-	var a *SymbolTable_SymbolScope = cast_[*SymbolTable_SymbolScope](a_)
-	_ = a
-	var b *SymbolTable_SymbolScope = cast_[*SymbolTable_SymbolScope](b_)
-	_ = b
+// compareT_ is compare with the parameter types the class declares (implsplit).
+func (this *SymbolTable_6) compareT_(a *SymbolTable_SymbolScope, b *SymbolTable_SymbolScope) int32 {
 	if !a.isLexicalScope() || !b.isLexicalScope() {
 		panic(new_IllegalStateException_String("We can only sort lexical scopes"))
 	}
@@ -1844,6 +1843,11 @@ func (this *SymbolTable_6) compare(a_ any, b_ any) int32 {
 		return result
 	}
 	return (a.getScopeDepth() - b.getScopeDepth())
+}
+
+// compare is the bridge of the interface's erased signature (javac's): it casts its arguments and calls compareT_.
+func (this *SymbolTable_6) compare(a_ any, b_ any) int32 {
+	return this.compareT_(cast_[*SymbolTable_SymbolScope](a_), cast_[*SymbolTable_SymbolScope](b_))
 }
 
 type SymbolTable_7 struct {
@@ -1870,11 +1874,8 @@ func new_SymbolTable_7(outer_ *SymbolTable) *SymbolTable_7 {
 	return this
 }
 
-func (this *SymbolTable_7) compare(a_ any, b_ any) int32 {
-	var a *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](a_)
-	_ = a
-	var b *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](b_)
-	_ = b
+// compareT_ is compare with the parameter types the class declares (implsplit).
+func (this *SymbolTable_7) compareT_(a *SymbolTable_Symbol, b *SymbolTable_Symbol) int32 {
 	var scopeA *SymbolTable_SymbolScope = this.outer_.getScope(a)
 	var scopeB *SymbolTable_SymbolScope = this.outer_.getScope(b)
 	var result int32 = (this.outer_.getLexicalScopeDepth(scopeA) - this.outer_.getLexicalScopeDepth(scopeB))
@@ -1889,6 +1890,11 @@ func (this *SymbolTable_7) compare(a_ any, b_ any) int32 {
 		return this.outer_.lexicalScopeOrdering.compare(obj_(scopeA), obj_(scopeB))
 	}
 	return this.outer_.nodeOrdering.nullsFirst().compare(a.getDeclarationNode().box_(), b.getDeclarationNode().box_())
+}
+
+// compare is the bridge of the interface's erased signature (javac's): it casts its arguments and calls compareT_.
+func (this *SymbolTable_7) compare(a_ any, b_ any) int32 {
+	return this.compareT_(cast_[*SymbolTable_Symbol](a_), cast_[*SymbolTable_Symbol](b_))
 }
 
 type SymbolTable_1 struct {
