@@ -301,7 +301,7 @@ func (this *CrossChunkReferenceCollector_TopLevelStatementCollectingBehavior) af
 		this.outer_.topLevelStatements.add(new_CrossChunkReferenceCollector_TopLevelStatement(this.outer_, this.outer_.topLevelStatementDraft))
 		this.outer_.topLevelStatementDraft = nil
 	} else if (addedReference != nil) && n.isName() {
-		if JSCompObjects_identical(addedReference.getNode().box_(), this.outer_.topLevelStatementDraft.declaredNameNode.box_()) {
+		if addedReference.getNode() == this.outer_.topLevelStatementDraft.declaredNameNode {
 			this.outer_.topLevelStatementDraft.declaredNameReference = addedReference
 		} else {
 			this.outer_.topLevelStatementDraft.nonDeclarationReferences.add(addedReference)

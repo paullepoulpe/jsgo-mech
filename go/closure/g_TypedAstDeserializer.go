@@ -157,7 +157,7 @@ func (this *TypedAstDeserializer) toFileShard(typedAstProto *TypedAst) []*Source
 
 func (this *TypedAstDeserializer) initLazyAstDeserializer(lazyAst *LazyAst, fileShard []*SourceFile_jscomp, colorShard Optional_baseOf[*ColorPool_ShardView], stringShard *StringPool, compiler *AbstractCompiler, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) {
 	var file *SourceFile_jscomp = sliceAt_(fileShard, (lazyAst.getSourceFile() - 1))
-	if (this.requiredInputFiles.isPresent() && !cast_[*ErasedImmutableSet](this.requiredInputFiles.get()).contains(obj_(file))) && !JSCompObjects_identical(obj_(this.syntheticExterns), obj_(file)) {
+	if (this.requiredInputFiles.isPresent() && !cast_[*ErasedImmutableSet](this.requiredInputFiles.get()).contains(obj_(file))) && (this.syntheticExterns != file) {
 		return
 	}
 	if file.isWeak() {
@@ -165,7 +165,7 @@ func (this *TypedAstDeserializer) initLazyAstDeserializer(lazyAst *LazyAst, file
 		return
 	}
 	var deserializer *ScriptNodeDeserializer = new_ScriptNodeDeserializer(lazyAst, stringShard, colorShard, fileShard)
-	if JSCompObjects_identical(obj_(this.syntheticExterns), obj_(file)) {
+	if this.syntheticExterns == file {
 		*this.syntheticExternsDeserializers = append(*this.syntheticExternsDeserializers, deserializer)
 	} else {
 		Map_computeIfAbsent(Map(this.typedAstFilesystem), obj_(file), &Function_tfn_SourceFile_jscomp_Supplier{func(f *SourceFile_jscomp) Supplier {

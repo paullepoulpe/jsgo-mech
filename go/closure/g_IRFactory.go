@@ -425,7 +425,7 @@ func (this *IRFactory) handlePossibleFileOverviewJsDoc(jsDocParser *JsDocInfoPar
 		this.licenseBuilder.Add(jsDocParser.getLicenseText().get())
 	}
 	var newFileoverview *JSDocInfo = jsDocParser.getFileOverviewJSDocInfo()
-	if JSCompObjects_identical(obj_(newFileoverview), obj_(this.firstFileoverview)) {
+	if newFileoverview == this.firstFileoverview {
 		return false
 	}
 	if this.firstFileoverview == nil {

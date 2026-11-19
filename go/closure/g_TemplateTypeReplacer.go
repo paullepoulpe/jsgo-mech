@@ -272,7 +272,7 @@ func (this *TemplateTypeReplacer) caseUnionTypeUnguarded(type_ *UnionType) *JSTy
 
 func (this *TemplateTypeReplacer) caseTemplateType(type_ *TemplateType) any {
 	this.hasMadeReplacementField = true
-	if !JSCompObjects_identical(obj_(type_), obj_(this.keyType)) && !this.bindings.hasTemplateKey_2(type_, this.ownSubMapBoundary) {
+	if (type_ != this.keyType) && !this.bindings.hasTemplateKey_2(type_, this.ownSubMapBoundary) {
 		return func() any {
 			if this.useUnknownForMissingKeys {
 				return this.getNativeType(JSTypeNative_UNKNOWN_TYPE).self()

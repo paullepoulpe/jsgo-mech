@@ -164,7 +164,7 @@ func (this *TemplateTypeMap) hasTemplateKey_2(templateKey *TemplateType, nextSub
 	var start int32 = Math_max(0, nextSubMap)
 	for i := int32(start); i < keyCount; i++ {
 		var entry *TemplateType = this.templateKeys.get(i)
-		if JSCompObjects_identical(obj_(templateKey), obj_(entry)) {
+		if templateKey == entry {
 			return true
 		}
 	}
@@ -176,7 +176,7 @@ func (this *TemplateTypeMap) getTemplateKeyCountThisShouldAlwaysBeOneOrZeroButIs
 	var keyCount int32 = this.templateKeys.size()
 	for i := int32(0); i < keyCount; i++ {
 		var entry *TemplateType = this.templateKeys.get(i)
-		if JSCompObjects_identical(obj_(templateKey), obj_(entry)) {
+		if templateKey == entry {
 			matches++
 		}
 	}
@@ -215,7 +215,7 @@ func (this *TemplateTypeMap) getLastTemplateTypeKeyByName(keyName string) *Templ
 func (this *TemplateTypeMap) getTemplateTypeIndex(key *TemplateType) int32 {
 	var maxIndex int32 = Math_min(this.templateKeys.size(), int32(len(this.templateValues)))
 	for i := int32((maxIndex - 1)); i >= 0; i-- {
-		if JSCompObjects_identical(obj_(this.templateKeys.get(i)), obj_(key)) {
+		if this.templateKeys.get(i) == key {
 			return i
 		}
 	}
