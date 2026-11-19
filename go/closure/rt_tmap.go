@@ -50,10 +50,13 @@ func tmapFrom_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from Map, imm 
 	if imm && isNil_(from) {
 		return nil
 	}
-	k := immKey_{from, [2]any{kc, vc}}
+	var slot *immTyped_
 	if imm {
-		if v, ok := immCache_[k]; ok {
-			return v.(*TMap[K, V])
+		slot = immSlot_(from)
+		if slot != nil && slot.conv == any(vc) && slot.v != nil {
+			if m, ok := slot.v.(*TMap[K, V]); ok && m.kc == kc {
+				return m
+			}
 		}
 	}
 	m := newTMap_(kc, vc)
@@ -62,8 +65,8 @@ func tmapFrom_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from Map, imm 
 		m.put(kc.unbox(e.getKey()), vc.unbox(e.getValue()))
 	}
 	m.imm = imm
-	if imm {
-		immCache_[k] = m
+	if slot != nil {
+		*slot = immTyped_{vc, m}
 	}
 	return m
 }
@@ -283,10 +286,13 @@ func tsetFrom_[K comparable](kc *tconv_[K], from Collection, imm bool) *TSet[K] 
 	if imm && isNil_(from) {
 		return nil
 	}
-	k := immKey_{from, kc}
+	var slot *immTyped_
 	if imm {
-		if v, ok := immCache_[k]; ok {
-			return v.(*TSet[K])
+		slot = immSlot_(from)
+		if slot != nil && slot.conv == any(kc) {
+			if s, ok := slot.v.(*TSet[K]); ok {
+				return s
+			}
 		}
 	}
 	s := newTSet_(kc)
@@ -294,8 +300,8 @@ func tsetFrom_[K comparable](kc *tconv_[K], from Collection, imm bool) *TSet[K] 
 		s.add(kc.unbox(x))
 	}
 	s.imm = imm
-	if imm {
-		immCache_[k] = s
+	if slot != nil {
+		*slot = immTyped_{kc, s}
 	}
 	return s
 }

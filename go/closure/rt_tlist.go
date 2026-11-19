@@ -34,24 +34,35 @@ func tlistImm_[T any](c *tconv_[T], from Collection) *TList[T] {
 	if isNil_(from) {
 		return nil
 	}
-	k := immKey_{from, c}
-	if v, ok := immCache_[k]; ok {
-		return v.(*TList[T])
+	slot := immSlot_(from)
+	if slot != nil && slot.conv == any(c) {
+		return slot.v.(*TList[T])
 	}
 	l := tlistFrom_(c, from)
 	l.imm = true
-	immCache_[k] = l
+	if slot != nil {
+		*slot = immTyped_{c, l}
+	}
 	return l
 }
 
-// immCache_ holds the typed copy of each immutable collection that was converted: an
+// immTyped_ is the typed copy of an immutable collection, kept on the collection itself: an
 // ImmutableList/Set/Map never changes, so a long-lived one (a constant passed on every call)
 // is copied once, and the same object comes back each time, as the erased code shared it.
-var immCache_ = map[immKey_]any{}
+type immTyped_ struct {
+	conv any // the element conversion of the copy (its element type)
+	v    any
+}
 
-type immKey_ struct {
-	from any // the erased immutable collection
-	conv any // the element conversion (the typed copy's element type)
+// immSlot_ is where from keeps its typed copy, or nil if from is not a runtime immutable collection.
+func immSlot_(from any) *immTyped_ {
+	switch x := from.(type) {
+	case *ImmutableCollection:
+		return &x.typed_
+	case *ImmutableMap:
+		return &x.typed_
+	}
+	return nil
 }
 
 // tlistFrom_ is new ArrayList<>(from) as a typed list.
