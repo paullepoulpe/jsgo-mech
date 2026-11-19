@@ -79,7 +79,7 @@ func (this *VarCheck) checkName(t *NodeTraversal, n Node, parent Node) {
 		return
 	}
 	var scope *Scope = t.getScope()
-	var var_ *Var = cast_[*Var](scope.getVar(varName).self())
+	var var_ *Var = scope.getVar(varName)
 	if var_ == nil {
 		if (NodeUtil_isFunctionExpression(parent) || NodeUtil_isClassExpression(parent)) && n.isFirstChildOf(parent) {
 			return
@@ -88,7 +88,7 @@ func (this *VarCheck) checkName(t *NodeTraversal, n Node, parent Node) {
 			return
 		}
 		this.handleUndeclaredVariableRef(t, n)
-		cast_[*Scope](scope.getGlobalScope().self()).declare(varName, n, this.compiler_.getSynthesizedExternsInput())
+		scope.getGlobalScope().declare(varName, n, this.compiler_.getSynthesizedExternsInput())
 		return
 	}
 	if (var_.isImplicitGoogNamespace() && equalsId_(var_.getImplicitGoogNamespaceStrength(), StaticSourceFile_SourceKind_WEAK)) && equalsId_(VarCheck_strengthOf(n), StaticSourceFile_SourceKind_STRONG) {
@@ -157,7 +157,7 @@ func (this *VarCheck) exitScope(t *NodeTraversal) {
 		var scope *Scope = t.getScope()
 		for _, el := range VarCheck_REQUIRED_SYMBOLS.keys {
 			requiredSymbol := el
-			var var_ *Var = cast_[*Var](scope.getVar(requiredSymbol).self())
+			var var_ *Var = scope.getVar(requiredSymbol)
 			if var_ == nil {
 				this.undefinedNamesFromExterns.Add(requiredSymbol)
 			}
@@ -276,7 +276,7 @@ func (this *VarCheck_NameRefInExternsCheck) visit(t *NodeTraversal, n Node, pare
 		case tokOrd1_GETPROP:
 			if n == parent.getFirstChild() {
 				var scope *Scope = t.getScope()
-				var var_ *Var = cast_[*Var](scope.getVarById_(n.getStringId_()).self())
+				var var_ *Var = scope.getVarById_(n.getStringId_())
 				if var_ != nil {
 					return
 				}
@@ -303,7 +303,7 @@ func (this *VarCheck_NameRefInExternsCheck) visit(t *NodeTraversal, n Node, pare
 		}
 		t.report(n, VarCheck_NAME_REFERENCE_IN_EXTERNS_ERROR, []string{n.getString()})
 		var scope *Scope = t.getScope()
-		var var_ *Var = cast_[*Var](scope.getVarById_(n.getStringId_()).self())
+		var var_ *Var = scope.getVarById_(n.getStringId_())
 		if var_ == nil {
 			this.outer_.undefinedNamesFromExterns.Add(n.getString())
 		}
@@ -332,7 +332,7 @@ func new_VarCheck_RedeclarationCheckHandler(outer_ *VarCheck) *VarCheck_Redeclar
 
 func (this *VarCheck_RedeclarationCheckHandler) onRedeclaration(s *Scope, name string, n Node, input *CompilerInput) {
 	var parent Node = NodeUtil_getDeclaringParent(n)
-	var origVar *Var = cast_[*Var](s.getVar(name).self())
+	var origVar *Var = s.getVar(name)
 	var origNode Node = origVar.getNode()
 	var origParent Node = func() Node {
 		if origNode == 0 {

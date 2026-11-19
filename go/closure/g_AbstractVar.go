@@ -9,7 +9,6 @@ type AbstractVar struct {
 	implicitGoogNamespaceStrength StaticSourceFile_SourceKind
 	input                         *CompilerInput
 	index_                        int32
-	scope_                        *AbstractScope
 	vkHash_                       uint32 // the hash of (name, scope root) for varMap_, made once (post-flip manual step)
 }
 
@@ -51,38 +50,8 @@ func (this *AbstractVar) zero_AbstractVar() {
 	this.name_ = nullstr_
 }
 
-func (this *AbstractVar) init_AbstractVar(name string, nameNode Node, scope *AbstractScope, index int32, input *CompilerInput, implicitGoogNamespaceDefinition Node) {
-	this.ScopedName.init_ScopedName()
-	if index < -1 {
-		panic(new_IllegalArgumentException_String(istr_(int64(int32(index)))))
-	}
-	this.name_ = name
-	if implicitGoogNamespaceDefinition != 0 {
-		this.nameNode_ = 0
-		this.implicitGoogNamespaceStrength = AbstractVar_strengthOf(implicitGoogNamespaceDefinition)
-	} else {
-		this.nameNode_ = nameNode
-		this.implicitGoogNamespaceStrength = 0
-	}
-	this.scope_ = scope
-	this.index_ = index
-	this.input = input
-}
-
-func new_AbstractVar(name string, nameNode Node, scope *AbstractScope, index int32, input *CompilerInput, implicitGoogNamespaceDefinition Node) *AbstractVar {
-	this := &AbstractVar{}
-	this.self_ = this
-	this.zero_AbstractVar()
-	this.init_AbstractVar(name, nameNode, scope, index, input, implicitGoogNamespaceDefinition)
-	return this
-}
-
 func (this *AbstractVar) getName_impl() string {
 	return this.name_
-}
-
-func (this *AbstractVar) getScopeRoot_impl() Node {
-	return this.scope_.getRootNode()
 }
 
 func (this *AbstractVar) getNode() Node {
@@ -91,28 +60,6 @@ func (this *AbstractVar) getNode() Node {
 
 func (this *AbstractVar) getInput() *CompilerInput {
 	return this.input
-}
-
-func (this *AbstractVar) getSourceFile() StaticSourceFile {
-	return func() Node {
-		if this.getNode() != 0 {
-			return this.getNode()
-		}
-		return this.scope_.getRootNode()
-	}().getStaticSourceFile()
-}
-
-func (this *AbstractVar) getSymbol() StaticSlot {
-	return icast_StaticSlot(this.thisVar().self())
-}
-
-func (this *AbstractVar) getDeclaration() StaticRef {
-	return func() StaticRef {
-		if this.getNode() == 0 {
-			return nil
-		}
-		return icast_StaticRef(this.thisVar().self())
-	}()
 }
 
 func (this *AbstractVar) getParentNode() Node {
@@ -129,20 +76,8 @@ func (this *AbstractVar) isBleedingFunction() bool {
 	return ((parent != 0) && NodeUtil_isFunctionExpression(parent))
 }
 
-func (this *AbstractVar) getScope() StaticScope {
-	return icast_StaticScope(this.scope_.self())
-}
-
 func (this *AbstractVar) getIndex() int32 {
 	return this.index_
-}
-
-func (this *AbstractVar) isGlobal() bool {
-	return this.scope_.isGlobal()
-}
-
-func (this *AbstractVar) isLocal() bool {
-	return this.scope_.isLocal()
 }
 
 func (this *AbstractVar) isExtern() bool {
@@ -184,79 +119,9 @@ func (this *AbstractVar) getJSDocInfo() *JSDocInfo {
 	}()
 }
 
-func (this *AbstractVar) isVar() bool {
-	return (this.declarationType() == Token_rhino_VAR)
-}
-
-func (this *AbstractVar) isCatch() bool {
-	return (this.declarationType() == Token_rhino_CATCH)
-}
-
-func (this *AbstractVar) isLet() bool {
-	return (this.declarationType() == Token_rhino_LET)
-}
-
-func (this *AbstractVar) isConst() bool {
-	return (this.declarationType() == Token_rhino_CONST)
-}
-
-func (this *AbstractVar) isClass() bool {
-	return (this.declarationType() == Token_rhino_CLASS)
-}
-
-func (this *AbstractVar) isParam() bool {
-	return (this.declarationType() == Token_rhino_PARAM_LIST)
-}
-
 func (this *AbstractVar) isDefaultParam() bool {
 	var parent Node = this.getNode().getParent()
 	return ((parent.getParent().isParamList() && parent.isDefaultValue()) && (parent.getFirstChild() == this.nameNode_))
-}
-
-func (this *AbstractVar) isImport() bool {
-	return (this.declarationType() == Token_rhino_IMPORT)
-}
-
-func (this *AbstractVar) isArguments() bool {
-	return ((Var_ARGUMENTS == this.name_) && this.scope_.isFunctionScope())
-}
-
-func (this *AbstractVar) isGoogModuleExports() bool {
-	return ((this.scope_.isModuleScope() && ("exports" == this.name_)) && this.isImplicit())
-}
-
-func (this *AbstractVar) isThis() bool {
-	return (("this" == this.name_) && this.scope_.isFunctionScope())
-}
-
-func (this *AbstractVar) isImplicit() bool {
-	if this.isImplicitGoogNamespace() {
-		return true
-	}
-	var var_ AbstractScope_ImplicitVar = AbstractScope_ImplicitVar_of(this.name_)
-	return ((var_ != 0) && var_.isMadeByScope(this.scope_))
-}
-
-func (this *AbstractVar) declarationType() Token_rhino {
-	if this.isImplicitGoogNamespace() {
-		return 0
-	}
-	{
-		var current Node = this.getNode()
-		for ; current != 0; current = current.getParent() {
-			if AbstractVar_DECLARATION_TYPES_has_(current.getToken()) {
-				return current.getToken()
-			}
-		}
-	}
-	if !this.isImplicit() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("The nameNode for %s must be a descendant of one of: %s", this.self(), obj_(AbstractVar_DECLARATION_TYPES))))
-	}
-	return 0
-}
-
-func (this *AbstractVar) thisVar() *AbstractVar {
-	return this
 }
 
 func (this *AbstractVar) isImplicitGoogNamespace() bool {
@@ -309,16 +174,5 @@ func AbstractVar_clinit() {
 
 // getName: an object that is exactly a AbstractVar calls its getName_impl directly (post-flip); others dispatch.
 func (this *AbstractVar) getName() string {
-	if p, _ := this.self_.(*AbstractVar); p == this {
-		return this.getName_impl()
-	}
 	return this.self_.getName_impl()
-}
-
-// getScopeRoot: an object that is exactly a AbstractVar calls its getScopeRoot_impl directly (post-flip); others dispatch.
-func (this *AbstractVar) getScopeRoot() Node {
-	if p, _ := this.self_.(*AbstractVar); p == this {
-		return this.getScopeRoot_impl()
-	}
-	return this.self_.getScopeRoot_impl()
 }

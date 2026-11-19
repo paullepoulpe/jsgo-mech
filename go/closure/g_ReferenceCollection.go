@@ -69,7 +69,7 @@ func (this *ReferenceCollection) isEscaped() bool {
 func ReferenceCollection_getEnclosingClosureScope(scope *Scope) *Scope {
 	{
 		var s *Scope = scope
-		for ; s != nil; s = cast_[*Scope](s.getParent().self()) {
+		for ; s != nil; s = s.getParent() {
 			if s.isHoistScope() || ((s.isMemberFieldDefScope() || s.isComputedFieldDefRhsScope()) && !s.getRootNode().isStaticMember()) {
 				return s
 			}
@@ -83,7 +83,7 @@ func (this *ReferenceCollection) isThisRebound() bool {
 	l_1 := this.references
 	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
 		var ref *Reference = l_1.items[i_1]
-		var refHoistScope *Scope = cast_[*Scope](ref.getScope().getClosestHoistScope().self())
+		var refHoistScope *Scope = ref.getScope().getClosestHoistScope()
 		if hoistScope == nil {
 			hoistScope = refHoistScope
 		} else if hoistScope != refHoistScope {
@@ -91,7 +91,7 @@ func (this *ReferenceCollection) isThisRebound() bool {
 		}
 		{
 			var s *Scope = ref.getScope()
-			for ; (s != hoistScope) && (s != nil); s = cast_[*Scope](s.getParent().self()) {
+			for ; (s != hoistScope) && (s != nil); s = s.getParent() {
 				if AbstractScope_ImplicitVar_THIS.isMadeByScope(s.up_AbstractScope()) {
 					return true
 				}
@@ -157,12 +157,12 @@ func (this *ReferenceCollection) isAssignedOnceInLifetime() bool {
 		var block *BasicBlock = ref.getBasicBlock()
 		for ; block != nil; block = block.getParent() {
 			if block.isFunction() {
-				if cast_[*Scope](ref.getSymbol().(*Var).getScope().(*Scope).getClosestHoistScope().self()) != cast_[*Scope](ref.getScope().getClosestHoistScope().self()) {
+				if ref.getSymbol().(*Var).getScope().(*Scope).getClosestHoistScope() != ref.getScope().getClosestHoistScope() {
 					return false
 				}
 				break
 			}
-			if block.getRoot() == ref.getSymbol().(*Var).getScope().(*Scope).getRootNode() {
+			if block.getRoot() == ref.getSymbol().(*Var).getScopeT_().getRootNode() {
 				break
 			}
 			if block.isLoop() {

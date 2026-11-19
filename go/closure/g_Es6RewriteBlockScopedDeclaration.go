@@ -244,18 +244,18 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) shouldTrave
 	}
 	var name string = n.getString()
 	var referencedIn *Scope = t.getScope()
-	var var_ *Var = cast_[*Var](referencedIn.getVar(name).self())
+	var var_ *Var = referencedIn.getVar(name)
 	if var_ == nil {
 		return true
 	}
 	if !var_.isLet() && !var_.isConst() {
 		return true
 	}
-	var declaredIn *Scope = cast_[*Scope](var_.getScope())
+	var declaredIn *Scope = var_.getScopeT_()
 	var loopNode Node = 0
 	{
 		var s *Scope = declaredIn
-		for ; ; s = cast_[*Scope](s.getParent().self()) {
+		for ; ; s = s.getParent() {
 			var scopeRoot Node = s.getRootNode()
 			if NodeUtil_isLoopStructure(scopeRoot) {
 				loopNode = scopeRoot
@@ -272,7 +272,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) shouldTrave
 	var outerMostFunctionScope *Scope = nil
 	{
 		var s *Scope = referencedIn
-		for ; (s != declaredIn) && (s.getRootNode() != loopNode); s = cast_[*Scope](s.getParent().self()) {
+		for ; (s != declaredIn) && (s.getRootNode() != loopNode); s = s.getParent() {
 			if s.isFunctionScope() {
 				outerMostFunctionScope = s
 			}

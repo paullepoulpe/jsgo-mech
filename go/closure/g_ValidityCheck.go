@@ -135,7 +135,7 @@ func (this *ValidityCheck_VerifyConstants) visit_impl(t *NodeTraversal, n Node, 
 			} else {
 				expectedConst = false
 				var info *JSDocInfo = nil
-				var var_ *Var = cast_[*Var](t.getScope().getVarById_(n.getStringId_()).self())
+				var var_ *Var = t.getScope().getVarById_(n.getStringId_())
 				if var_ != nil {
 					info = var_.getJSDocInfo()
 				}

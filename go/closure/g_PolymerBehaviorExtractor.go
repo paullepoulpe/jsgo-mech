@@ -156,7 +156,7 @@ func (this *PolymerBehaviorExtractor) resolveBehaviorNameInternal(name string, m
 		return PolymerBehaviorExtractor_FAILED_RESOLVE_RESULT
 	}
 	if rValue.isQualifiedName() {
-		var declarationScope *Scope = cast_[*Scope](declarationRef.scope_.getClosestHoistScope().self())
+		var declarationScope *Scope = declarationRef.scope_.getClosestHoistScope()
 		var m *Module = ModuleImportResolver_getModuleFromScopeRoot(this.compiler_.getModuleMap(), icast_CompilerInputProvider(this.compiler_.self()), declarationScope.getRootNode())
 		return this.resolveBehaviorName(PolymerBehaviorExtractor_getQualifiedNameThroughCast(rValue), func() *ModuleMetadataMap_ModuleMetadata {
 			if m != nil {

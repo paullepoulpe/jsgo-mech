@@ -93,7 +93,7 @@ func (this *RewriteDynamicImports) visit_impl(t *NodeTraversal, n Node, parent N
 			if targetModuleVarName.isEmpty() {
 				return nil
 			}
-			return cast_[*Var](t.getScope().getVar(targetModuleVarName.get()).self())
+			return t.getScope().getVar(targetModuleVarName.get())
 		}()
 		if targetModuleNS != nil {
 			var targetChunk *JSChunk = targetModuleNS.getInput().getChunk()
@@ -265,7 +265,7 @@ func (this *RewriteDynamicImports_AliasInjectingTraversal) shouldTraverse_impl(t
 	if !this.outer_.aliasIsValid() {
 		panic(new_IllegalStateException_0())
 	}
-	if NodeUtil_isValidSimpleName(this.outer_.alias_.get()) && (cast_[*Var](t.getScope().getVar(this.outer_.alias_.get()).self()) != nil) {
+	if NodeUtil_isValidSimpleName(this.outer_.alias_.get()) && (t.getScope().getVar(this.outer_.alias_.get()) != nil) {
 		return false
 	}
 	var registry *JSTypeRegistry = this.outer_.compiler_.getTypeRegistry()
@@ -280,7 +280,7 @@ func (this *RewriteDynamicImports_AliasInjectingTraversal) shouldTraverse_impl(t
 		externsRoot.addChildToBack(aliasNode)
 	} else {
 		var aliasRootName string = NodeUtil_getRootOfQualifiedNameString(this.outer_.alias_.get())
-		var aliasVar *Var = cast_[*Var](t.getScope().getVar(aliasRootName).self())
+		var aliasVar *Var = t.getScope().getVar(aliasRootName)
 		if aliasVar != nil {
 			return false
 		}

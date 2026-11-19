@@ -435,7 +435,7 @@ func (this *AstFactory) createQNameUsingJSTypeInfo(globalTypedScope *TypedScope,
 	var receiverPart string = sliceAt_(nameParts, 0)
 	var receiver Node = IR_name(receiverPart)
 	if this.isAddingTypes() {
-		var var_ *TypedVar = cast_[*TypedVar](globalTypedScope.getVar(receiverPart).self())
+		var var_ *TypedVar = globalTypedScope.getVar(receiverPart)
 		if var_ == nil {
 			panic(new_NullPointerException_String(sstr_(receiverPart)))
 		}

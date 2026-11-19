@@ -154,7 +154,7 @@ func InlineAndCollapseProperties_mayBeGlobalAlias(alias *GlobalNamespace_Ref) bo
 		return true
 	}
 	var aliasVarName string = aliasLhsNode.getString()
-	var aliasVar *Var = cast_[*Var](alias.scope_.getVar(aliasVarName).self())
+	var aliasVar *Var = alias.scope_.getVar(aliasVarName)
 	if aliasVar != nil {
 		return aliasVar.isGlobal()
 	}
@@ -373,7 +373,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineAliasesFo
 	for _, ref := range refs {
 		if (ref.isAliasingGet() && !InlineAndCollapseProperties_mayBeGlobalAlias(ref)) && !ref.isTwin() {
 			this.inlineAliasIfPossible(name, ref, namespace)
-		} else if (ref.isAliasingGet() && ref.scope_.getClosestHoistScope().self().(*Scope).isGlobal()) && !ref.isTwin() {
+		} else if (ref.isAliasingGet() && ref.scope_.getClosestHoistScope().isGlobal()) && !ref.isTwin() {
 			this.inlineGlobalAliasIfPossible(name, ref, namespace)
 		} else if (name.isClass() && ref.isSubclassingGet()) && (name.props != nil) {
 			for prop := range sliceAll_(name.props) {
@@ -403,7 +403,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) maybeInlineInne
 	var innerName string = innerNameNode.getString()
 	var syntacticScopeCreator *SyntacticScopeCreator = new_SyntacticScopeCreator_AbstractCompiler(this.outer_.compiler_)
 	var innerScope *Scope = syntacticScopeCreator.createScope(valueNode, globalNameDeclaration.scope_)
-	var innerNameVar *Var = cast_[*Var](innerScope.getVar(innerName).self())
+	var innerNameVar *Var = innerScope.getVar(innerName)
 	if innerNameVar == nil {
 		panic(new_NullPointerException_0())
 	}
@@ -505,12 +505,12 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineAliasIfPo
 			return aliasParent.getFirstChild()
 		}()
 		var aliasVarName string = aliasLhsNode.getString()
-		var aliasVar *Var = cast_[*Var](alias.scope_.getVar(aliasVarName).self())
+		var aliasVar *Var = alias.scope_.getVar(aliasVarName)
 		if aliasVar == nil {
 			panic(new_IllegalStateException_String(Strings_lenientFormat("Expected variable to be defined in scope (%s)", strobj_(aliasVarName))))
 		}
 		var collector *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate(this.outer_.compiler_, ReferenceCollector_DO_NOTHING_BEHAVIOR, new_SyntacticScopeCreator_AbstractCompiler(this.outer_.compiler_), Predicates_equalTo(obj_(aliasVar)))
-		var aliasScope *Scope = cast_[*Scope](aliasVar.getScope())
+		var aliasScope *Scope = aliasVar.getScopeT_()
 		collector.processScope(aliasScope)
 		var aliasRefs *ReferenceCollection = collector.getReferences_Var(aliasVar)
 		var newNodes *TSet[GlobalNamespace_AstChange] = newTSet_(tch_GlobalNamespace_AstChange)
@@ -1757,7 +1757,7 @@ func (this *InlineAndCollapseProperties_InlineAliases_AliasesInliner) isLeftmost
 		panic(new_IllegalStateException_0())
 	}
 	var leftmostName string = NodeUtil_getRootOfQualifiedName(n).getString()
-	var v *Var = cast_[*Var](t.getScope().getVar(leftmostName).self())
+	var v *Var = t.getScope().getVar(leftmostName)
 	return ((v != nil) && v.isLocal())
 }
 

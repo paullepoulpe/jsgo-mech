@@ -165,8 +165,8 @@ func (this *PolymerClassRewriter) rewritePolymerCall(cls *PolymerClassDefinition
 		ctorKey.setJSDocInfo(nil)
 	}
 	if !traversal.inGlobalScope() {
-		var polymerElement *Var = cast_[*Var](traversal.getScope().getVar("PolymerElement").self())
-		if (polymerElement != nil) && !polymerElement.getScope().(*Scope).isGlobal() {
+		var polymerElement *Var = traversal.getScope().getVar("PolymerElement")
+		if (polymerElement != nil) && !polymerElement.getScopeT_().isGlobal() {
 			var nameNode Node = polymerElement.getNameNode()
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(cls.constructor_.value_, PolymerClassRewriter_POLYMER_ELEMENT_CONFLICT, []string{nameNode.getSourceFileName(), Integer_toString(nameNode.getLineno()), Integer_toString(nameNode.getCharno())}))
 		}
@@ -391,7 +391,7 @@ func (this *PolymerClassRewriter) generateDeclarationCode(exprRoot Node, cls *Po
 		var_.srcrefTreeIfMissing(exprRoot)
 		var_.setJSDocInfo(constructorDoc.build())
 		var name string = cls.target.getString()
-		var existingVar *Var = cast_[*Var](traversal.getScope().getSlot(name))
+		var existingVar *Var = traversal.getScope().getSlotT_(name)
 		if (existingVar != nil) && cls.hasGeneratedLhs {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(cls.constructor_.value_, PolymerClassRewriter_IMPLICIT_GLOBAL_CONFLICT, []string{name}))
 		}

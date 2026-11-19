@@ -103,7 +103,7 @@ func (this *ConcretizeStaticInheritanceForInlining) isReferenceToClass(t *NodeTr
 	if !n.isName() {
 		return true
 	}
-	var var_ *Var = cast_[*Var](t.getScope().getVar(className).self())
+	var var_ *Var = t.getScope().getVar(className)
 	return ((var_ == nil) || !var_.isLocal())
 }
 

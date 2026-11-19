@@ -284,7 +284,7 @@ func (this *MustBeReachingVariableDef) dependsOnOuterScopeVars(def *MustBeReachi
 			continue
 		}
 		var s *Var = l_1.keys[i_1]
-		if s.getScope().(*Scope).isCatchScope() {
+		if s.getScopeT_().isCatchScope() {
 			return true
 		}
 	}
@@ -354,7 +354,7 @@ func new_MustBeReachingVariableDef_MustDef_0() *MustBeReachingVariableDef_MustDe
 func (this *MustBeReachingVariableDef_MustDef) init_MustBeReachingVariableDef_MustDef_Collection(vars CollectionOf[*Var]) {
 	this.finit_MustBeReachingVariableDef_MustDef()
 	for var_ := range elemsAs_[*Var](vars) {
-		this.reachingDef.put(var_, new_MustBeReachingVariableDef_Definition(var_.getScope().(*Scope).getRootNode()))
+		this.reachingDef.put(var_, new_MustBeReachingVariableDef_Definition(var_.getScopeT_().getRootNode()))
 	}
 }
 

@@ -6,6 +6,8 @@ import "strings"
 
 type TypedScope struct {
 	AbstractScope
+	vars          *scopeVarsOf_[*TypedVar] // nil until the first declaration (Java: an empty ImmutableMap)
+	implicitVars  *[4]*TypedVar            // by ordinal; nil until the first (Java: an EnumMap made at the first)
 	parent        *TypedScope
 	depth         int32
 	module_       *Module
@@ -22,7 +24,7 @@ func (this *TypedScope) up_AbstractScope() *AbstractScope {
 
 func (this *TypedScope) init_TypedScope_TypedScope_Node_Set_Module(parent *TypedScope, rootNode Node, reservedNames *TSet[string], module *Module) {
 	this.AbstractScope.init_AbstractScope(rootNode)
-	this.checkChildScope(parent.up_AbstractScope())
+	this.checkChildScope(parent)
 	this.parent = parent
 	this.depth = (parent.depth + 1)
 	this.isBottomField = false
@@ -94,10 +96,6 @@ func (this *TypedScope) getDepth_impl() int32 {
 	return this.depth
 }
 
-func (this *TypedScope) getParent_impl() *AbstractScope {
-	return this.parent.up_AbstractScope()
-}
-
 func (this *TypedScope) getTypeOfThis() *JSType {
 	var root Node = this.getRootNode()
 	if this.isGlobal() {
@@ -110,16 +108,16 @@ func (this *TypedScope) getTypeOfThis() *JSType {
 			return nil
 		}
 	} else if this.isStaticBlockScope() {
-		return this.getParent().self().(*TypedScope).getRootNode().getJSType()
+		return this.getParent().getRootNode().getJSType()
 	} else if this.isMemberFieldDefScope() || this.isComputedFieldDefRhsScope() {
-		var classType *JSType = this.getParent().self().(*TypedScope).getRootNode().getJSType()
+		var classType *JSType = this.getParent().getRootNode().getJSType()
 		if root.isStaticMember() {
 			return classType
 		} else {
 			return classType.assertFunctionType().getInstanceType().up_JSType()
 		}
 	} else {
-		return this.getParent().self().(*TypedScope).getTypeOfThis()
+		return this.getParent().getTypeOfThis()
 	}
 }
 
@@ -131,17 +129,8 @@ func (this *TypedScope) declare(name string, nameNode Node, type_ *JSType, input
 		this.reservedNames.Delete(name)
 	}
 	var var_ *TypedVar = new_TypedVar(inferred, name, nameNode, type_, this, this.getVarCount(), input)
-	this.declareInternal(name, var_.up_AbstractVar())
+	this.declareInternal(name, var_)
 	return var_
-}
-
-func (this *TypedScope) makeImplicitVar_impl(var_ AbstractScope_ImplicitVar) *AbstractVar {
-	if this.isGlobal() {
-		return nil
-	} else if equalsId_(var_, AbstractScope_ImplicitVar_EXPORTS) {
-		return nil
-	}
-	return new_TypedVar(false, AbstractScope_ImplicitVar_nameField_[var_-1], 0, this.getImplicitVarType(var_), this, -1, nil).up_AbstractVar()
 }
 
 func (this *TypedScope) hasOwnImplicitSlot_impl(name AbstractScope_ImplicitVar) bool {
@@ -151,7 +140,7 @@ func (this *TypedScope) hasOwnImplicitSlot_impl(name AbstractScope_ImplicitVar) 
 func (this *TypedScope) getImplicitVarType(var_ AbstractScope_ImplicitVar) *JSType {
 	switch var_ {
 	case AbstractScope_ImplicitVar_ARGUMENTS:
-		var globalArgs *TypedVar = cast_[*TypedVar](this.getGlobalScope().self().(*TypedScope).getVar(Var_ARGUMENTS).self())
+		var globalArgs *TypedVar = this.getGlobalScope().getVar(Var_ARGUMENTS)
 		return func() *JSType {
 			if (globalArgs != nil) && globalArgs.isExtern() {
 				return globalArgs.getType()
@@ -189,36 +178,6 @@ func (this *TypedScope) isDeclarativelyUnboundVarWithoutType(var_ *TypedVar) boo
 	return ((((var_.getParentNode() != 0) && (var_.getType() == nil)) && var_.getParentNode().isVar()) && !var_.isExtern())
 }
 
-// getVarById_impl: a typed scope looks the name up as a string, as getVar does (qualified
-// names; post-flip manual step).
-func (this *TypedScope) getVarById_impl(id uint32) *AbstractVar {
-	return this.getVar_impl(strid_str_(id))
-}
-
-func (this *TypedScope) getVar_impl(name string) *AbstractVar {
-	var ownSlot *TypedVar = cast_[*TypedVar](this.getOwnSlot(name))
-	if ownSlot != nil {
-		return ownSlot.up_AbstractVar()
-	} else if cast_[*TypedScope](this.getParent().self()) == nil {
-		return nil
-	}
-	var dot int32 = int32(strings.IndexByte(name, '.'))
-	var rootName string = func() string {
-		if dot < 0 {
-			return name
-		}
-		return name[:dot]
-	}()
-	var rootVar *TypedVar = cast_[*TypedVar](this.AbstractScope.getVar_impl(rootName).self())
-	if dot < 0 {
-		return rootVar.up_AbstractVar()
-	} else if rootVar == nil {
-		return to_AbstractVar(this.getParent().self().(*TypedScope).getGlobalScope().self().(*TypedScope).getOwnSlot(name))
-	} else {
-		return to_AbstractVar(rootVar.getScope().(*TypedScope).getOwnSlot(name))
-	}
-}
-
 func (this *TypedScope) getTypeThroughNamespace(moduleId string) *JSType {
 	var split int32 = int32(strings.LastIndexByte(moduleId, '.'))
 	if split >= 0 {
@@ -230,7 +189,7 @@ func (this *TypedScope) getTypeThroughNamespace(moduleId string) *JSType {
 		}
 		return parentType.assertObjectType().getPropertyType(prop)
 	} else {
-		var var_ *TypedVar = cast_[*TypedVar](this.getSlot(moduleId))
+		var var_ *TypedVar = this.getSlotT_(moduleId)
 		return func() *JSType {
 			if var_ != nil {
 				return var_.getType()
@@ -241,12 +200,12 @@ func (this *TypedScope) getTypeThroughNamespace(moduleId string) *JSType {
 }
 
 func (this *TypedScope) getTopmostScopeOfEventualDeclaration_impl(name string) StaticScope {
-	if (cast_[*TypedVar](this.getOwnSlot(name)) != nil) || this.reservedNames.Has(name) {
+	if (this.getOwnSlotT_(name) != nil) || this.reservedNames.Has(name) {
 		return this
-	} else if cast_[*TypedScope](this.getParent().self()) == nil {
+	} else if this.getParent() == nil {
 		return nil
 	} else {
-		return this.getParent().self().(*TypedScope).getTopmostScopeOfEventualDeclaration(name)
+		return this.getParent().getTopmostScopeOfEventualDeclaration(name)
 	}
 }
 
@@ -270,22 +229,6 @@ func (this *TypedScope) getDepth() int32 {
 	return this.self_.getDepth_impl()
 }
 
-// getParent: an object that is exactly a TypedScope calls its getParent_impl directly (post-flip); others dispatch.
-func (this *TypedScope) getParent() *AbstractScope {
-	if p, _ := this.self_.(*TypedScope); p == this {
-		return this.getParent_impl()
-	}
-	return this.self_.getParent_impl()
-}
-
-// makeImplicitVar: an object that is exactly a TypedScope calls its makeImplicitVar_impl directly (post-flip); others dispatch.
-func (this *TypedScope) makeImplicitVar(p0 AbstractScope_ImplicitVar) *AbstractVar {
-	if p, _ := this.self_.(*TypedScope); p == this {
-		return this.makeImplicitVar_impl(p0)
-	}
-	return this.self_.makeImplicitVar_impl(p0)
-}
-
 // hasOwnImplicitSlot: an object that is exactly a TypedScope calls its hasOwnImplicitSlot_impl directly (post-flip); others dispatch.
 func (this *TypedScope) hasOwnImplicitSlot(p0 AbstractScope_ImplicitVar) bool {
 	if p, _ := this.self_.(*TypedScope); p == this {
@@ -294,18 +237,389 @@ func (this *TypedScope) hasOwnImplicitSlot(p0 AbstractScope_ImplicitVar) bool {
 	return this.self_.hasOwnImplicitSlot_impl(p0)
 }
 
-// getVar: an object that is exactly a TypedScope calls its getVar_impl directly (post-flip); others dispatch.
-func (this *TypedScope) getVar(p0 string) *AbstractVar {
-	if p, _ := this.self_.(*TypedScope); p == this {
-		return this.getVar_impl(p0)
-	}
-	return this.self_.getVar_impl(p0)
-}
-
 // getTopmostScopeOfEventualDeclaration: an object that is exactly a TypedScope calls its getTopmostScopeOfEventualDeclaration_impl directly (post-flip); others dispatch.
 func (this *TypedScope) getTopmostScopeOfEventualDeclaration(p0 string) StaticScope {
 	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.getTopmostScopeOfEventualDeclaration_impl(p0)
 	}
 	return this.self_.getTopmostScopeOfEventualDeclaration_impl(p0)
+}
+
+// getVarById_impl: a typed scope looks the name up as a string, as getVar does (qualified
+// names; post-flip manual step).
+// getVarById_ is TypedScope's override of AbstractScope.getVarById_, typed (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) getVarById_(id uint32) *TypedVar {
+	return this.getVar(strid_str_(id))
+}
+
+// getParent is TypedScope's override of AbstractScope.getParent, typed (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) getParent() *TypedScope {
+	return this.parent
+}
+
+// getParent_impl is getParent for the erased AbstractScope's dispatch (javac's bridge; fbound).
+func (this *TypedScope) getParent_impl() *AbstractScope {
+	return this.getParent().up_AbstractScope()
+}
+
+// makeImplicitVar is TypedScope's override of AbstractScope.makeImplicitVar, typed (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) makeImplicitVar(var_ AbstractScope_ImplicitVar) *TypedVar {
+	if this.isGlobal() {
+		return nil
+	} else if equalsId_(var_, AbstractScope_ImplicitVar_EXPORTS) {
+		return nil
+	}
+	return new_TypedVar(false, AbstractScope_ImplicitVar_nameField_[var_-1], 0, this.getImplicitVarType(var_), this, -1, nil)
+}
+
+// getVar is TypedScope's override of AbstractScope.getVar, typed (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) getVar(name string) *TypedVar {
+	var ownSlot *TypedVar = this.getOwnSlotT_(name)
+	if ownSlot != nil {
+		return ownSlot
+	} else if this.getParent() == nil {
+		return nil
+	}
+	var dot int32 = int32(strings.IndexByte(name, '.'))
+	var rootName string = func() string {
+		if dot < 0 {
+			return name
+		}
+		return name[:dot]
+	}()
+	var rootVar *TypedVar = this.getVarSuper_(rootName)
+	if dot < 0 {
+		return rootVar
+	} else if rootVar == nil {
+		return this.getParent().self().(*TypedScope).getGlobalScope().getOwnSlotT_(name)
+	} else {
+		return rootVar.getScopeT_().getOwnSlotT_(name)
+	}
+}
+
+// getVarSuper_ is AbstractScope.getVar written out for TypedScope, the method getVar's override calls as super (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) getVarSuper_(name string) *TypedVar {
+	// scope.getOwnSlot(name) at each scope, written out (post-flip manual step): the name is
+	// hashed at most once for the whole chain (Java's String caches its hash), its implicit
+	// variable is looked up once, and the variable is not converted to StaticSlot and back.
+	imp := AbstractScope_ImplicitVar_of(name)
+	var h uint32
+	{
+		var scope *TypedScope = this.thisScope()
+		for ; scope != nil; scope = scope.getParent() {
+			if var_ := scope.vars.lookup(name, &h); var_ != nil {
+				return var_
+			}
+			if imp != 0 {
+				if var_ := scope.getOwnImplicitSlot(imp); var_ != nil {
+					return var_
+				}
+			}
+		}
+	}
+	return nil
+}
+
+// contains is AbstractScope.contains written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) contains(other *TypedScope) bool {
+	if other == nil {
+		panic(new_NullPointerException_0())
+	}
+	var s *TypedScope = other
+	for s != nil {
+		if s == this {
+			return true
+		}
+		s = s.getParent()
+	}
+	return false
+}
+
+// getGlobalScope is AbstractScope.getGlobalScope written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) getGlobalScope() *TypedScope {
+	var result *TypedScope = this.thisScope()
+	for result.getParent() != nil {
+		result = result.getParent()
+	}
+	return result
+}
+
+// getParentScopeT_ is AbstractScope.getParentScope written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) getParentScopeT_() *TypedScope {
+	return this.getParent()
+}
+
+// getParentScope is getParentScopeT_ with the result of the interface's type (javac's bridge; fbound).
+func (this *TypedScope) getParentScope() StaticScope {
+	return iup_StaticScope(this.getParentScopeT_())
+}
+
+// undeclare is AbstractScope.undeclare written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) undeclare(var_ *TypedVar) {
+	if var_.getScopeT_() != this {
+		panic(new_IllegalStateException_0())
+	}
+	if !this.ownVar_(var_.getName()).equals_ScopedName(var_.up_ScopedName()) {
+		panic(new_IllegalStateException_0())
+	}
+	this.undeclareInteral(var_)
+}
+
+// undeclareInteral is AbstractScope.undeclareInteral written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) undeclareInteral(var_ *TypedVar) {
+	if this.vars != nil {
+		this.vars.remove(var_.getName())
+	}
+}
+
+// declareInternal is AbstractScope.declareInternal written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) declareInternal(name string, var_ *TypedVar) {
+	if ok_, a1_ := (this.hasOwnSlot(name) || this.canDeclare(name)), var_.getNode(); !ok_ {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Illegal shadow: %s", a1_.box_())))
+	}
+	if this.vars == nil {
+		this.vars = newScopeVarsOf_[*TypedVar]()
+	}
+	// vars.put(name, var_), with the id of the name for the lookups by id (post-flip manual
+	// step, tools/postflip/strids). A typed scope is not looked up by id (getVarById_impl) and
+	// declares qualified names, which no node holds.
+	if _, typed := this.self_.(*TypedScope); typed {
+		this.vars.put(name, var_)
+	} else {
+		this.vars.putId(name, nameId_(name, var_.getNode()), var_)
+	}
+}
+
+// clearVarsInternal is AbstractScope.clearVarsInternal written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) clearVarsInternal() {
+	if this.vars.size() != 0 {
+		this.vars.clear()
+	}
+}
+
+// hasOwnSlot is AbstractScope.hasOwnSlot written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) hasOwnSlot(name string) bool {
+	return (this.vars.containsKey(name) || this.hasOwnImplicitSlot(AbstractScope_ImplicitVar_of(name)))
+}
+
+// hasSlot is AbstractScope.hasSlot written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) hasSlot(name string) bool {
+	{
+		var scope *TypedScope = this.thisScope()
+		for ; scope != nil; scope = scope.getParent() {
+			if scope.hasOwnSlot(name) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// getOwnImplicitSlot is AbstractScope.getOwnImplicitSlot written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) getOwnImplicitSlot(name AbstractScope_ImplicitVar) *TypedVar {
+	if !this.hasOwnImplicitSlot(name) {
+		return nil
+	}
+	// implicitVars.computeIfAbsent(name, this::makeImplicitVar) on an array indexed by the
+	// enum's ordinal, Java's EnumMap (post-flip manual step): a null result is not stored.
+	if this.implicitVars == nil {
+		this.implicitVars = new([4]*TypedVar)
+	}
+	slot := &this.implicitVars[name.ordinal()]
+	if *slot == nil {
+		*slot = this.makeImplicitVar(name)
+	}
+	return *slot
+}
+
+// getOwnSlotT_ is AbstractScope.getOwnSlot written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) getOwnSlotT_(name string) *TypedVar {
+	var var_ *TypedVar = this.ownVar_(name)
+	if var_ != nil {
+		return var_
+	}
+	return this.getOwnImplicitSlot(AbstractScope_ImplicitVar_of(name))
+}
+
+// getOwnSlot is getOwnSlotT_ with the result of the interface's type (javac's bridge; fbound).
+func (this *TypedScope) getOwnSlot(name string) StaticSlot {
+	return iup_StaticSlot(this.getOwnSlotT_(name))
+}
+
+// getSlotT_ is AbstractScope.getSlot written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) getSlotT_(name string) *TypedVar {
+	return this.getVar(name)
+}
+
+// getSlot is getSlotT_ with the result of the interface's type (javac's bridge; fbound).
+func (this *TypedScope) getSlot(name string) StaticSlot {
+	return iup_StaticSlot(this.getSlotT_(name))
+}
+
+// getArgumentsVar is AbstractScope.getArgumentsVar written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) getArgumentsVar() *TypedVar {
+	{
+		var scope *TypedScope = this.thisScope()
+		for ; scope != nil; scope = scope.getParent() {
+			var arguments *TypedVar = scope.getOwnImplicitSlot(AbstractScope_ImplicitVar_ARGUMENTS)
+			if arguments != nil {
+				return arguments
+			}
+		}
+	}
+	return nil
+}
+
+// canDeclare is AbstractScope.canDeclare written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) canDeclare(name string) bool {
+	return (!this.hasOwnSlot(name) && ((!this.isFunctionBlockScope() || !this.getParent().hasOwnSlot(name)) || this.isBleedingFunctionName(name)))
+}
+
+// isBleedingFunctionName is AbstractScope.isBleedingFunctionName written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) isBleedingFunctionName(name string) bool {
+	var var_ *TypedVar = this.getVar(name)
+	return (((var_ != nil) && (var_.getNode() != 0)) && var_.getNode().getParent().isFunction())
+}
+
+// getVarIterable is AbstractScope.getVarIterable written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) getVarIterable() IterableOf[any] {
+	return Iterable(this.varValues_())
+}
+
+// getAllAccessibleVariables is AbstractScope.getAllAccessibleVariables written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) getAllAccessibleVariables() IterableOf[any] {
+	var accessibleVars *TMap[string, any] = newTMap_(tc_string, tc_any)
+	var s *TypedScope = this.thisScope()
+	for s != nil {
+		for v := range elemsBy_(s.getVarIterable(), to_AbstractVar) {
+			accessibleVars.PutIfAbsent(v.getName(), v.self())
+		}
+		s = s.getParent()
+	}
+	return Iterable(accessibleVars.asMap().values())
+}
+
+// getAllSymbols is AbstractScope.getAllSymbols written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) getAllSymbols() IterableOf[any] {
+	return Iterable(Collections_unmodifiableCollection(this.varValues_()))
+}
+
+// getVarCount is AbstractScope.getVarCount written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) getVarCount() int32 {
+	return this.vars.size()
+}
+
+// ownVar_ is vars.get(name), nil if the scope declares no such variable.
+// ownVar_ is AbstractScope.ownVar_ written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) ownVar_(name string) *TypedVar {
+	return this.vars.get(name)
+}
+
+// varValues_ is vars.values() as an erased collection, in declaration order.
+// varValues_ is AbstractScope.varValues_ written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) varValues_() Collection {
+	if this.vars == nil {
+		return Collection(emptyImmList_)
+	}
+	return this.vars.values()
+}
+
+// isGlobal is AbstractScope.isGlobal written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) isGlobal() bool {
+	return (this.getParent() == nil)
+}
+
+// isLocal is AbstractScope.isLocal written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) isLocal() bool {
+	return (this.getParent() != nil)
+}
+
+// isHoistScope is AbstractScope.isHoistScope written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) isHoistScope() bool {
+	return ((((this.isFunctionScope() || this.isFunctionBlockScope()) || this.isGlobal()) || this.isModuleScope()) || this.isStaticBlockScope())
+}
+
+// getClosestHoistScope is AbstractScope.getClosestHoistScope written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) getClosestHoistScope() *TypedScope {
+	var current *TypedScope = this.thisScope()
+	for current != nil {
+		if current.isHoistScope() {
+			return current
+		}
+		current = current.getParent()
+	}
+	return nil
+}
+
+// getClosestCfgRootScope is AbstractScope.getClosestCfgRootScope written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) getClosestCfgRootScope() *TypedScope {
+	var current *TypedScope = this.thisScope()
+	for !current.isCfgRootScope() {
+		current = current.getParent()
+	}
+	return current
+}
+
+// getClosestContainerScope is AbstractScope.getClosestContainerScope written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) getClosestContainerScope() *TypedScope {
+	var scope *TypedScope = this.getClosestHoistScope()
+	if scope.isFunctionBlockScope() {
+		scope = scope.getParent()
+		if scope.isBlockScope() {
+			panic(new_IllegalStateException_String(objstr_(scope.self())))
+		}
+	}
+	return scope
+}
+
+// thisScope is AbstractScope.thisScope written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) thisScope() *TypedScope {
+	return this
+}
+
+// checkChildScope is AbstractScope.checkChildScope written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) checkChildScope(parent *TypedScope) {
+	if parent == nil {
+		panic(new_NullPointerException_0())
+	}
+	if !NodeUtil_createsScope(this.rootNode_) {
+		panic(new_IllegalArgumentException_String(tostr_(this.rootNode_)))
+	}
+	if this.rootNode_ == parent.getRootNode() {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("rootNode should not be the parent's root node: %s", this.rootNode_.box_())))
+	}
+}
+
+// getCommonParent is AbstractScope.getCommonParent written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) getCommonParent(other *TypedScope) *TypedScope {
+	var left *TypedScope = this.thisScope()
+	var right *TypedScope = other
+	for ((left != nil) && (right != nil)) && (left != right) {
+		var leftDepth int32 = left.getDepth()
+		var rightDepth int32 = right.getDepth()
+		if leftDepth >= rightDepth {
+			left = left.getParent()
+		}
+		if leftDepth <= rightDepth {
+			right = right.getParent()
+		}
+	}
+	if left == nil || left != right {
+		panic(new_IllegalStateException_0())
+	}
+	return left
+}
+
+// hasSameContainerScope is AbstractScope.hasSameContainerScope written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) hasSameContainerScope(other *TypedScope) bool {
+	return ((this == other) || (this.getClosestContainerScope() == other.getClosestContainerScope()))
+}
+
+// getScopeOfThis is AbstractScope.getScopeOfThis written out for TypedScope (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedScope) getScopeOfThis() *TypedScope {
+	var scope *TypedScope = this.getClosestContainerScope()
+	for !scope.isGlobal() && !NodeUtil_isNonArrowFunction(scope.getRootNode()) {
+		scope = scope.getParent().getClosestContainerScope()
+	}
+	return scope
 }

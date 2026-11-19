@@ -204,7 +204,7 @@ func (this *InlineObjectLiterals_InliningBehavior) fillInitialValues(init_ *Refe
 func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v *Var, ref *Reference, varmap *TMap[string, string]) {
 	var nodes ListOf[Node] = new_ArrayList_0()
 	var val Node = ref.getAssignedValue()
-	this.recordStaleVarReferencesInTree(val, cast_[*Scope](v.getScope()))
+	this.recordStaleVarReferencesInTree(val, v.getScopeT_())
 	if !val.isObjectLit() {
 		panic(new_IllegalStateException_String(tostr_(val)))
 	}
@@ -261,7 +261,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 		vnode = init_.getParent()
 		this.fillInitialValues(init_, initvals)
 	} else if isBlockScoped {
-		var scopeRoot Node = v.getScope().(*Scope).getRootNode()
+		var scopeRoot Node = v.getScopeT_().getRootNode()
 		vnode = scopeRoot.getFirstChild()
 		if !NodeUtil_isStatement(vnode) && NodeUtil_isStatement(scopeRoot) {
 			vnode = scopeRoot
@@ -269,7 +269,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 			vnode = scopeRoot.getParent()
 		}
 	} else {
-		vnode = v.getScope().(*Scope).getClosestHoistScope().self().(*Scope).getRootNode().getFirstChild()
+		vnode = v.getScope().(*Scope).getClosestHoistScope().getRootNode().getFirstChild()
 	}
 	if !NodeUtil_isStatement(vnode) {
 		panic(new_IllegalStateException_String(tostr_(vnode)))
@@ -296,7 +296,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 			newVarNode = IR_declaration_Node_Token(lhs, declarationType).srcrefTreeIfMissing(vnode)
 		} else {
 			newVarNode = IR_declaration_Node_Node_Token(lhs, val, declarationType).srcrefTreeIfMissing(val)
-			this.recordStaleVarReferencesInTree(val, cast_[*Scope](v.getScope()))
+			this.recordStaleVarReferencesInTree(val, v.getScopeT_())
 		}
 		newVarNode.insertBefore(vnode)
 		this.outer_.compiler_.reportChangeToEnclosingScope(vnode)
@@ -357,6 +357,6 @@ func new_InlineObjectLiterals_InliningBehavior_1(outer_ *InlineObjectLiterals_In
 
 func (this *InlineObjectLiterals_InliningBehavior_1) visit(node Node) {
 	if node.isName() {
-		this.outer_.staleVars[vkey_(cast_[*Var](this.cap_scope.getVarById_(node.getStringId_()).self()))] = struct{}{}
+		this.outer_.staleVars[vkey_(this.cap_scope.getVarById_(node.getStringId_()))] = struct{}{}
 	}
 }

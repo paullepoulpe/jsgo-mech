@@ -56,7 +56,7 @@ func (this *RemoveUnnecessarySyntheticExterns_RedeclarationCheckHandler) onRedec
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected non-global redeclaration %s in scope %s", n.box_(), obj_(s))))
 	}
 	var isSynthetic bool = equalsId_(input, this.outer_.compiler_.getSynthesizedExternsInput())
-	var origVar *Var = cast_[*Var](s.getVar(name).self())
+	var origVar *Var = s.getVar(name)
 	var origNode Node = origVar.getNode()
 	if isSynthetic {
 		if n.getParent().isSynthesizedUnfulfilledNameDeclaration() {

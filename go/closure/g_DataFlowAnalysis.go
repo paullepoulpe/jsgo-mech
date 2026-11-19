@@ -226,7 +226,7 @@ func DataFlowAnalysis_computeEscaped(jsScope *Scope, escaped map[varKey_]struct{
 func DataFlowAnalysis_isReferencedInNonStaticClassField(refScope *Scope, targetScope *Scope) bool {
 	{
 		var s *Scope = refScope
-		for ; (s != nil) && (s != targetScope); s = cast_[*Scope](s.getParent().self()) {
+		for ; (s != nil) && (s != targetScope); s = s.getParent() {
 			var root Node = s.getRootNode()
 			if (root.isMemberFieldDef() || root.isComputedFieldDef()) && !root.isStaticMember() {
 				return true
@@ -453,15 +453,15 @@ func (this *DataFlowAnalysis_1) visit_impl(t *NodeTraversal, n Node, parent Node
 		return
 	}
 	var name string = n.getString()
-	var var_ *Var = cast_[*Var](t.getScope().getVar(name).self())
+	var var_ *Var = t.getScope().getVar(name)
 	if var_ == nil {
 		return
 	}
-	var variableCfgScope *Scope = cast_[*Scope](var_.getScope().(*Scope).getClosestCfgRootScope().self())
+	var variableCfgScope *Scope = var_.getScope().(*Scope).getClosestCfgRootScope()
 	if variableCfgScope != this.cap_jsScope {
 		return
 	}
-	var referenceCfgScope *Scope = cast_[*Scope](t.getScope().getClosestCfgRootScope().self())
+	var referenceCfgScope *Scope = t.getScope().getClosestCfgRootScope()
 	if (referenceCfgScope != variableCfgScope) || DataFlowAnalysis_isReferencedInNonStaticClassField(t.getScope(), variableCfgScope) {
 		this.cap_escaped[vkey_(var_)] = struct{}{}
 	}

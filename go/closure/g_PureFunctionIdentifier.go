@@ -577,7 +577,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) updateSideEffectsForNod
 			var value Node = node.getFirstChild()
 			if (value != 0) && !NodeUtil_evaluatesToLocalValue(value) {
 				var scope *Scope = traversal.getScope()
-				var var_ *Var = cast_[*Var](scope.getVarById_(node.getStringId_()).self())
+				var var_ *Var = scope.getVarById_(node.getStringId_())
 				sliceTop_(tc_p_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry, *this.functionScopeStack).skiplistedVars[vkey_(var_)] = struct{}{}
 			}
 		}
@@ -652,7 +652,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) enterScope(t *NodeTrave
 }
 
 func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) exitScope(t *NodeTraversal) {
-	var functionScope *Scope = cast_[*Scope](t.getScope().getClosestContainerScope().self())
+	var functionScope *Scope = t.getScope().getClosestContainerScope()
 	if !functionScope.isFunctionScope() {
 		return
 	}
@@ -687,7 +687,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) exitScope(t *NodeTraver
 }
 
 func PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(v *Var, scope *Scope) bool {
-	return ((v != nil) && cast_[*Scope](v.getScope()).hasSameContainerScope(scope.up_AbstractScope()))
+	return ((v != nil) && v.getScopeT_().hasSameContainerScope(scope))
 }
 
 func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitLhsNode(encloserSummary *PureFunctionIdentifier_AmbiguatedFunctionSummary, scope *Scope, lhs Node, hasLocalRhs PredicateOf[Node]) {
@@ -701,7 +701,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitLhsNode(encloserSu
 		} else {
 			var objectNode Node = lhs.getFirstChild()
 			if objectNode.isName() {
-				var var_ *Var = cast_[*Var](scope.getVarById_(objectNode.getStringId_()).self())
+				var var_ *Var = scope.getVarById_(objectNode.getStringId_())
 				if PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(var_, scope) {
 					sliceTop_(tc_p_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry, *this.functionScopeStack).taintedVars[vkey_(var_)] = struct{}{}
 				} else {
@@ -715,7 +715,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitLhsNode(encloserSu
 		if !lhs.isName() {
 			panic(new_IllegalStateException_String(tostr_(lhs)))
 		}
-		var var_ *Var = cast_[*Var](scope.getVarById_(lhs.getStringId_()).self())
+		var var_ *Var = scope.getVarById_(lhs.getStringId_())
 		if PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(var_, scope) {
 			if !hasLocalRhs.test(lhs.box_()) {
 				sliceTop_(tc_p_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry, *this.functionScopeStack).skiplistedVars[vkey_(var_)] = struct{}{}
@@ -833,7 +833,7 @@ func PureFunctionIdentifier_SideEffectPropagation_forInvocation(invocation Node,
 }
 
 func (this *PureFunctionIdentifier_SideEffectPropagation) holdsLocalValue(expr Node) bool {
-	return (NodeUtil_evaluatesToLocalValue(expr) || (expr.isName() && this.callerEntry.isLocalVar(cast_[*Var](this.callScope.getVarById_(expr.getStringId_()).self()), this.callScope)))
+	return (NodeUtil_evaluatesToLocalValue(expr) || (expr.isName() && this.callerEntry.isLocalVar(this.callScope.getVarById_(expr.getStringId_()), this.callScope)))
 }
 
 func (this *PureFunctionIdentifier_SideEffectPropagation) mutatedArgumentsAreLocal(mutatedParamMask int64) bool {

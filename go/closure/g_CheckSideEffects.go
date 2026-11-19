@@ -88,9 +88,9 @@ func (this *CheckSideEffects) visit_impl(t *NodeTraversal, n Node, parent Node) 
 			if qname != "" {
 				if n.getFirstChild().isGetProp() {
 					var rootNameNode Node = NodeUtil_getRootOfQualifiedName(n.getFirstChild())
-					isDefinedInSrc = (((rootNameNode != 0) && rootNameNode.isName()) && (cast_[*Var](t.getScope().getVarById_(rootNameNode.getStringId_()).self()) != nil))
+					isDefinedInSrc = (((rootNameNode != 0) && rootNameNode.isName()) && (t.getScope().getVarById_(rootNameNode.getStringId_()) != nil))
 				} else {
-					isDefinedInSrc = (cast_[*Var](t.getScope().getVar(qname).self()) != nil)
+					isDefinedInSrc = (t.getScope().getVar(qname) != nil)
 				}
 			}
 			if (qname != "" && has_(this.noSideEffectExterns, qname)) && !isDefinedInSrc {

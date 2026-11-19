@@ -270,7 +270,7 @@ func (this *FunctionInjector) inlineFunction(ref *FunctionInjector_Reference, fn
 }
 
 func FunctionInjector_removeConstantVarAnnotation(scope *Scope, name string) {
-	var var_ *Var = cast_[*Var](scope.getVar(name).self())
+	var var_ *Var = scope.getVar(name)
 	var nameNode Node = func() Node {
 		if var_ == nil {
 			return 0
@@ -366,8 +366,8 @@ func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *FunctionInjector_Reference, calleeFn Node, namesToAlias *ImmutableSet[string]) bool {
 	var calleeContainsVars bool = NodeUtil_has(NodeUtil_getFunctionBody(calleeFn), unboxedPred_[Node](new_NodeUtil_MatchDeclaration().apply), new_NodeUtil_MatchShallowStatement())
 	var forbidTemps bool = false
-	if !callRef.scope_.getClosestHoistScope().self().(*Scope).isGlobal() {
-		var callerFn Node = callRef.scope_.getClosestHoistScope().self().(*Scope).getRootNode().getParent()
+	if !callRef.scope_.getClosestHoistScope().isGlobal() {
+		var callerFn Node = callRef.scope_.getClosestHoistScope().getRootNode().getParent()
 		if this.referencesEval(callerFn) {
 			forbidTemps = true
 		} else {

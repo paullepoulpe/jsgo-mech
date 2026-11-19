@@ -110,7 +110,7 @@ func (this *ModuleImportResolver) declareEsModuleImports(module *Module, scope *
 			missingNames.put(binding.sourceNode(), export)
 			continue
 		}
-		var originalVar *TypedVar = cast_[*TypedVar](modScope.getVar(export.getName()).self())
+		var originalVar *TypedVar = modScope.getVar(export.getName())
 		var importType *JSType = originalVar.getType()
 		scope.declare(localName, binding.sourceNode(), importType, moduleInput, originalVar.isTypeInferred())
 		if !binding.isModuleNamespace() && (binding.sourceNode().getTypedefTypeProp() == nil) {
@@ -151,7 +151,7 @@ func (this *ModuleImportResolver) updateEsModuleNamespaceType(namespace *ObjectT
 			this.updateAstForExport(bindingSourceNode, this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE), nil)
 			continue
 		}
-		var originalName *TypedVar = cast_[*TypedVar](originalScope.getSlot(export.getName()))
+		var originalName *TypedVar = originalScope.getSlotT_(export.getName())
 		var exportType *JSType = originalName.getType()
 		if exportType == nil {
 			exportType = this.registry.getNativeType(JSTypeNative_NO_TYPE)

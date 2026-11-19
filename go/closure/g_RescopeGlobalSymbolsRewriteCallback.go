@@ -44,8 +44,8 @@ func (this *RescopeGlobalSymbolsRewriteCallback) isExternVar(varname string, t *
 	if varname == "" {
 		return false
 	}
-	var v *Var = cast_[*Var](t.getScope().getVar(varname).self())
-	return (((v == nil) || v.isExtern()) || (v.getScope().(*Scope).isGlobal() && this.symbolInfo.externNames().Has(varname)))
+	var v *Var = t.getScope().getVar(varname)
+	return (((v == nil) || v.isExtern()) || (v.getScopeT_().isGlobal() && this.symbolInfo.externNames().Has(varname)))
 }
 
 func (this *RescopeGlobalSymbolsRewriteCallback) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
@@ -68,7 +68,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitNameDeclaration(t *NodeTra
 		return
 	}
 	var hasImportantName bool = false
-	var isGlobalDeclaration bool = t.getScope().getVarById_(sliceAt_(*allLhsNodes, 0).getStringId_()).self().(*Var).isGlobal()
+	var isGlobalDeclaration bool = t.getScope().getVarById_(sliceAt_(*allLhsNodes, 0).getStringId_()).isGlobal()
 	for lhs := range sliceAll_(allLhsNodes) {
 		if !lhs.isName() {
 			panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected lhs node %s, expected NAME", lhs.box_())))
@@ -84,7 +84,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitNameDeclaration(t *NodeTra
 }
 
 func (this *RescopeGlobalSymbolsRewriteCallback) globalVarStaysLocalInDefiningChunk(name string, t *NodeTraversal) bool {
-	if !t.getScope().getVar(name).self().(*Var).isGlobal() {
+	if !t.getScope().getVar(name).isGlobal() {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected global variable: %s", strobj_(name))))
 	}
 	if this.isExternVar(name, t) {
@@ -205,7 +205,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitName(t *NodeTraversal, n N
 	if this.isExternVar(name, t) {
 		return
 	}
-	var var_ *Var = cast_[*Var](t.getScope().getVar(name).self())
+	var var_ *Var = t.getScope().getVar(name)
 	this.renameHelper.maybeDisambiguateLocalVar(n, var_)
 	if !(var_.isGlobal() && this.isCrossChunkName(name)) {
 		return

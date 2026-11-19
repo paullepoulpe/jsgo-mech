@@ -121,7 +121,7 @@ func (this *ClosureRewriteModule) declareSyntheticExterns() {
 }
 
 func (this *ClosureRewriteModule) isNameInGlobalScope(name string) bool {
-	return (has_(this.legacyScriptNamespacesAndPrefixes, name) || (cast_[*Var](this.globalScope.getVar(name).self()) != nil))
+	return (has_(this.legacyScriptNamespacesAndPrefixes, name) || (this.globalScope.getVar(name) != nil))
 }
 
 func (this *ClosureRewriteModule) preprocessExportDeclaration(t *NodeTraversal, n Node) {
@@ -262,7 +262,7 @@ func (this *ClosureRewriteModule) recordGoogModuleGet(t *NodeTraversal, call Nod
 		return
 	}
 	var aliasName string = call.getParent().getFirstChild().getString()
-	var aliasVar *Var = cast_[*Var](t.getScope().getVar(aliasName).self())
+	var aliasVar *Var = t.getScope().getVar(aliasName)
 	if aliasVar == nil {
 		return
 	}
@@ -647,8 +647,8 @@ func (this *ClosureRewriteModule) maybeUpdateTopLevelName(t *NodeTraversal, name
 	if !this.currentScript.isModule_ || !has_(this.currentScript.topLevelNames, name) {
 		return
 	}
-	var var_ *Var = cast_[*Var](t.getScope().getVar(name).self())
-	if (var_ == nil) || (var_.getScope().(*Scope).getRootNode() != this.currentScript.rootNode_) {
+	var var_ *Var = t.getScope().getVar(name)
+	if (var_ == nil) || (var_.getScopeT_().getRootNode() != this.currentScript.rootNode_) {
 		return
 	}
 	if ((var_.getNameNode() == nameNode) && nameNode.getParent().isStringKey()) && nameNode.getGrandparent().isObjectPattern() {
@@ -669,8 +669,8 @@ func (this *ClosureRewriteModule) maybeUpdateTopLevelName(t *NodeTraversal, name
 		this.safeSetMaybeQualifiedString(nameNode, namespaceToInline, isModuleNamespace)
 		if strings.Contains(namespaceToInline, ".") {
 			var firstQualifiedName string = namespaceToInline[:strings.IndexByte(namespaceToInline, '.')]
-			var shadowedVar *Var = cast_[*Var](t.getScope().getVar(firstQualifiedName).self())
-			if ((shadowedVar == nil) || shadowedVar.isGlobal()) || shadowedVar.getScope().(*Scope).isModuleScope() {
+			var shadowedVar *Var = t.getScope().getVar(firstQualifiedName)
+			if ((shadowedVar == nil) || shadowedVar.isGlobal()) || shadowedVar.getScopeT_().isModuleScope() {
 				return
 			}
 			t.report(shadowedVar.getNode(), ClosureRewriteModule_IMPORT_INLINING_SHADOWS_VAR, []string{shadowedVar.getName(), namespaceToInline})
@@ -707,9 +707,9 @@ func (this *ClosureRewriteModule) maybeUpdateExportDeclToNode(t *NodeTraversal, 
 	}
 	if value.isName() {
 		var currentScope *Scope = t.getScope()
-		var v *Var = cast_[*Var](t.getScope().getVarById_(value.getStringId_()).self())
+		var v *Var = t.getScope().getVarById_(value.getStringId_())
 		if v != nil {
-			var varScope *AbstractScope = to_AbstractScope(v.getScope())
+			var varScope *AbstractScope = v.getScopeT_().up_AbstractScope()
 			if varScope.getDepth() == currentScope.getDepth() {
 				var info *JSDocInfo = v.getJSDocInfo()
 				if (info != nil) && info.hasTypedefType() {
@@ -1053,7 +1053,7 @@ func ClosureRewriteModule_isGoogModuleExportsRef(t *NodeTraversal, target Node) 
 	if !target.isName() || !target.matchesName("exports") {
 		return false
 	}
-	var exportsVar *Var = cast_[*Var](t.getScope().getVar("exports").self())
+	var exportsVar *Var = t.getScope().getVar("exports")
 	return ((exportsVar != nil) && exportsVar.isGoogModuleExports())
 }
 
@@ -1095,7 +1095,7 @@ func (this *ClosureRewriteModule) declareGlobalVariable(n Node, t *NodeTraversal
 	}
 	var name string = n.getString()
 	if this.globalTypedScope.hasOwnSlot(name) {
-		var original Node = this.globalTypedScope.getOwnSlot(name).(*TypedVar).getNode()
+		var original Node = this.globalTypedScope.getOwnSlotT_(name).getNode()
 		t.report(t.getCurrentScript(), ClosureRewriteModule_ILLEGAL_MODULE_RENAMING_CONFLICT, []string{name, func() string {
 			if original != 0 {
 				return original.toString()
@@ -1366,7 +1366,7 @@ func ClosureRewriteModule_ExportDefinition_newNamedExport(t *NodeTraversal, name
 	newExport.exportName_ = name
 	newExport.rhs = rhs
 	if (rhs != 0) && (rhs.isName() || rhs.isStringKey()) {
-		newExport.nameDecl = cast_[*Var](t.getScope().getVarById_(rhs.getStringId_()).self())
+		newExport.nameDecl = t.getScope().getVarById_(rhs.getStringId_())
 	}
 	return newExport
 }
@@ -1651,7 +1651,7 @@ func (this *ClosureRewriteModule_ScriptUpdater) shouldTraverse(t *NodeTraversal,
 		this.outer_.pushScript(currentDescription)
 		t.getScope()
 		if this.outer_.globalScope == nil {
-			this.outer_.globalScope = cast_[*Scope](t.getScope().getGlobalScope().self())
+			this.outer_.globalScope = t.getScope().getGlobalScope()
 		}
 	case tokOrd1_MODULE_BODY:
 		if parent.getBooleanProp(Node_GOOG_MODULE) {
@@ -1733,8 +1733,8 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) visit(typeRefNode Node) {
 		}
 		return typeName[:dot]
 	}()
-	var rootVar *Var = cast_[*Var](this.scope_.getVar(rootOfType).self())
-	if ((rootVar != nil) && !rootVar.getScope().(*Scope).getClosestHoistScope().self().(*Scope).isGlobal()) && !rootVar.getScope().(*Scope).isModuleScope() {
+	var rootVar *Var = this.scope_.getVar(rootOfType)
+	if ((rootVar != nil) && !rootVar.getScope().(*Scope).getClosestHoistScope().isGlobal()) && !rootVar.getScopeT_().isModuleScope() {
 		return
 	}
 	if has_(this.outer_.currentScript.namesToInlineByAlias, rootOfType) {

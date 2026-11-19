@@ -418,7 +418,7 @@ func (this *OptimizeCalls_ReferenceMapBuildingCallback) visitSuper(superNode Nod
 }
 
 func (this *OptimizeCalls_ReferenceMapBuildingCallback) maybeAddNameReference(name string, n Node) {
-	var var_ *Var = cast_[*Var](this.globalScope.getSlot(name))
+	var var_ *Var = this.globalScope.getSlotT_(name)
 	if (var_ != nil) && (this.outer_.considerExterns || !var_.isExtern()) {
 		this.references.addNameReference(name, n)
 	}

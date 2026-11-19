@@ -265,7 +265,7 @@ func (this *JsMessageVisitor) trackNormalMessage(message *JsMessage, msgName str
 }
 
 func (this *JsMessageVisitor) trackUnnamedMessage(t *NodeTraversal, message *JsMessage, msgNameInScope string) {
-	var var_ *Var = cast_[*Var](t.getScope().getVar(msgNameInScope).self())
+	var var_ *Var = t.getScope().getVar(msgNameInScope)
 	if var_ != nil {
 		this.unnamedMessages[vkey_(var_)] = message
 	}
@@ -291,7 +291,7 @@ func JsMessageVisitor_isLegalMessageVarAlias(msgNode Node) bool {
 }
 
 func (this *JsMessageVisitor) getTrackedUnnamedMessage(t *NodeTraversal, msgNameInScope string) *JsMessage {
-	var var_ *Var = cast_[*Var](t.getScope().getVar(msgNameInScope).self())
+	var var_ *Var = t.getScope().getVar(msgNameInScope)
 	if var_ != nil {
 		return this.unnamedMessages[vkey_(var_)]
 	}

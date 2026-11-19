@@ -82,7 +82,7 @@ func (this *StrictModeCheck) checkAssignment(n Node) {
 
 func (this *StrictModeCheck) checkDelete(t *NodeTraversal, n Node) {
 	if n.getFirstChild().isName() {
-		var v *Var = cast_[*Var](t.getScope().getVarById_(n.getFirstChild().getStringId_()).self())
+		var v *Var = t.getScope().getVarById_(n.getFirstChild().getStringId_())
 		if v != nil {
 			this.report(n, StrictModeCheck_DELETE_VARIABLE, []string{})
 		}

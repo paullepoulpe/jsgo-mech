@@ -52,9 +52,9 @@ func (this *FlowSensitiveInlineVariables) enterScope(t *NodeTraversal) {
 	this.cfg = ControlFlowAnalysis_builder().setCompiler(this.compiler_).setCfgRoot(functionScopeRoot).setIncludeEdgeAnnotations(true).computeCfg()
 	var escaped map[varKey_]struct{} = map[varKey_]struct{}{}
 	var scope *Scope = t.getScope()
-	var allVarsDeclaredInFunction *NodeUtil_AllVarsDeclaredInFunction = NodeUtil_getAllVarsDeclaredInFunction(this.compiler_, iup_ScopeCreator(scopeCreator), cast_[*Scope](scope.getParent().self()))
+	var allVarsDeclaredInFunction *NodeUtil_AllVarsDeclaredInFunction = NodeUtil_getAllVarsDeclaredInFunction(this.compiler_, iup_ScopeCreator(scopeCreator), scope.getParent())
 	var allVarsInFn *TMap[string, *Var] = allVarsDeclaredInFunction.getAllVariables()
-	DataFlowAnalysis_computeEscaped(cast_[*Scope](scope.getParent().self()), escaped, this.compiler_, iup_ScopeCreator(scopeCreator), allVarsInFn)
+	DataFlowAnalysis_computeEscaped(scope.getParent(), escaped, this.compiler_, iup_ScopeCreator(scopeCreator), allVarsInFn)
 	this.reachingDef = new_MustBeReachingVariableDef(this.cfg, this.compiler_, escaped, allVarsInFn)
 	this.reachingDef.analyze()
 	this.candidates = newTSet_(tc_p_FlowSensitiveInlineVariables_Candidate)
@@ -67,7 +67,7 @@ func (this *FlowSensitiveInlineVariables) enterScope(t *NodeTraversal) {
 		if candidateVar == nil {
 			panic(new_NullPointerException_0())
 		}
-		if c.canInline(cast_[*Scope](candidateVar.getScope())) {
+		if c.canInline(candidateVar.getScopeT_()) {
 			c.inlineVariable()
 			this.candidates.Delete(c)
 			if !c.defMetadata.depends.IsEmpty() {
@@ -75,7 +75,7 @@ func (this *FlowSensitiveInlineVariables) enterScope(t *NodeTraversal) {
 					var it IteratorOf[*FlowSensitiveInlineVariables_Candidate] = this.candidates.iterator()
 					for it.hasNext() {
 						var other *FlowSensitiveInlineVariables_Candidate = cast_[*FlowSensitiveInlineVariables_Candidate](it.next())
-						if other.defMetadata.depends.Has(cast_[*Var](t.getScope().getVar(c.varName_).self())) && !other.defMetadata.depends.asSet().containsAll(Collection(c.defMetadata.depends.asSet())) {
+						if other.defMetadata.depends.Has(t.getScope().getVar(c.varName_)) && !other.defMetadata.depends.asSet().containsAll(Collection(c.defMetadata.depends.asSet())) {
 							Iterator_remove(it)
 						}
 					}

@@ -231,12 +231,12 @@ func (this *SyntacticScopeCreator_ScopeScanner) scanVars(n Node, hoistScope *Sco
 			break
 		}
 		if NodeUtil_isGoogProvideCall(n) {
-			this.declareImplicitGoogNamespaceFromCall(cast_[*Scope](hoistScope.getGlobalScope().self()), n)
+			this.declareImplicitGoogNamespaceFromCall(hoistScope.getGlobalScope(), n)
 		} else if NodeUtil_isBundledGoogModuleCall(n.getFirstChild()) && n.getFirstChild().getSecondChild().isFunction() {
 			var fn Node = n.getFirstChild().getSecondChild()
 			var moduleCall Node = NodeUtil_getFunctionBody(fn).getFirstChild()
 			if SyntacticScopeCreator_ScopeScanner_isLegacyGoogModule(moduleCall) {
-				this.declareImplicitGoogNamespaceFromCall(cast_[*Scope](hoistScope.getGlobalScope().self()), moduleCall)
+				this.declareImplicitGoogNamespaceFromCall(hoistScope.getGlobalScope(), moduleCall)
 			}
 		}
 	default:
@@ -268,12 +268,12 @@ func (this *SyntacticScopeCreator_ScopeScanner) declareVar(s *Scope, n Node) {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Invalid node for declareVar: %s", n.box_())))
 	}
 	var name string = n.getString()
-	var v *Var = cast_[*Var](s.getOwnSlot(name))
+	var v *Var = s.getOwnSlotT_(name)
 	if v != nil {
 		if v.getNode() == n {
 			return
 		} else if v.isImplicitGoogNamespace() {
-			s.undeclare(v.up_AbstractVar())
+			s.undeclare(v)
 			v = nil
 		}
 	}
@@ -296,7 +296,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) declareImplicitGoogNamespaceFrom
 		return
 	}
 	if this.treatProvidesAsRedeclarations {
-		var existing *Var = cast_[*Var](s.getOwnSlot(root))
+		var existing *Var = s.getOwnSlotT_(root)
 		if (existing != nil) && !existing.isImplicitGoogNamespace() {
 			this.redeclarationHandler.onRedeclaration(s, root, existing.getNode(), this.currentInput_())
 		}
@@ -306,7 +306,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) declareImplicitGoogNamespaceFrom
 
 func SyntacticScopeCreator_ScopeScanner_isShadowingAllowed(name string, s *Scope) bool {
 	if s.isFunctionBlockScope() {
-		var maybeParam *Var = cast_[*Var](s.getParent().self().(*Scope).getOwnSlot(name))
+		var maybeParam *Var = s.getParent().getOwnSlotT_(name)
 		return ((maybeParam == nil) || !maybeParam.isParam())
 	}
 	return true

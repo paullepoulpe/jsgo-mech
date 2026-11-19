@@ -170,7 +170,7 @@ func (this *ClosureCheckModule) checkImproperReferenceToImport(t *NodeTraversal,
 	if importLhs == 0 {
 		return true
 	}
-	if !strings.Contains(qname.get(), ".") && ClosureCheckModule_isLocalVar(cast_[*Var](t.getScope().getVar(qname.get()).self())) {
+	if !strings.Contains(qname.get(), ".") && ClosureCheckModule_isLocalVar(t.getScope().getVar(qname.get())) {
 		return true
 	}
 	if importLhs.isName() {

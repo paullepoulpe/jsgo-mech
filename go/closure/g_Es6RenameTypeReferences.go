@@ -87,7 +87,7 @@ func (this *Es6RenameTypeReferences) renameReference(t *NodeTraversal, n Node, o
 		} else if current.hasOwnSlot(oldName) {
 			return
 		} else {
-			current = cast_[*Scope](current.getParent().self())
+			current = current.getParent()
 		}
 	}
 }

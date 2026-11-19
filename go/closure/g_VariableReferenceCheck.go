@@ -52,7 +52,7 @@ func (this *VariableReferenceCheck) checkRedeclaration(v *Var, reference *Refere
 	if this.isRedeclaration(basicBlock) && !VarCheck_hasDuplicateDeclarationSuppression(this.compiler_, referenceNode, v.getNameNode()) {
 		var diagnosticType *DiagnosticType
 		var warningNode Node = referenceNode
-		var shadowParam bool = ((v.isParam() && NodeUtil_isBlockScopedDeclaration(referenceNode.getParent())) && (cast_[*Scope](v.getScope()) == cast_[*Scope](reference.getScope().getParent().self())))
+		var shadowParam bool = ((v.isParam() && NodeUtil_isBlockScopedDeclaration(referenceNode.getParent())) && (v.getScopeT_() == reference.getScope().getParent()))
 		var isFunctionDecl bool = (((v.getParentNode() != 0) && v.getParentNode().isFunction()) && (v.getParentNode().getFirstChild() == referenceNode))
 		if ((((((v.isLet() || v.isConst()) || v.isClass()) || letConstShadowsVar) || shadowCatchVar) || shadowParam) || v.isImport()) || isFunctionDecl {
 			diagnosticType = VariableReferenceCheck_REDECLARED_VARIABLE_ERROR
@@ -60,7 +60,7 @@ func (this *VariableReferenceCheck) checkRedeclaration(v *Var, reference *Refere
 			return false
 		} else {
 			diagnosticType = func() *DiagnosticType {
-				if v.getScope().(*Scope).isGlobal() {
+				if v.getScopeT_().isGlobal() {
 					return VarCheck_VAR_MULTIPLY_DECLARED_ERROR
 				}
 				return VariableReferenceCheck_REDECLARED_VARIABLE
@@ -72,7 +72,7 @@ func (this *VariableReferenceCheck) checkRedeclaration(v *Var, reference *Refere
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(warningNode, diagnosticType, []string{v.getName(), VariableReferenceCheck_locationOf(v.getNode())}))
 		return true
 	}
-	if (letConstShadowsVar || shadowCatchVar) && (cast_[*Scope](v.getScope()) == reference.getScope()) {
+	if (letConstShadowsVar || shadowCatchVar) && (v.getScopeT_() == reference.getScope()) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(referenceNode, VariableReferenceCheck_REDECLARED_VARIABLE_ERROR, []string{v.getName()}))
 		return true
 	}
@@ -119,7 +119,7 @@ func (this *VariableReferenceCheck) checkEarlyReference(v *Var, reference *Refer
 	if referenceScopeRoot.isMemberFieldDef() && !referenceScopeRoot.isStaticMember() {
 		return false
 	}
-	if reference.getScope().hasSameContainerScope(to_AbstractScope(v.getScope())) && !(v.getName() == "goog") {
+	if reference.getScope().hasSameContainerScope(v.getScopeT_()) && !(v.getName() == "goog") {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(reference.getNode(), func() *DiagnosticType {
 			if v.isGoogModuleExports() {
 				return VariableReferenceCheck_EARLY_EXPORTS_REFERENCE
@@ -145,7 +145,7 @@ func (this *VariableReferenceCheck) checkForUnusedLocalVar(v *Var, unusedAssignm
 		return
 	}
 	var inGoogScope bool = false
-	var s *Scope = cast_[*Scope](v.getScope())
+	var s *Scope = v.getScopeT_()
 	if s.isFunctionBlockScope() {
 		var function Node = s.getRootNode().getParent()
 		var callee Node = function.getPrevious()
@@ -241,7 +241,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) afterExitScope(t *
 		}
 	}
 	if scope.hasOwnImplicitSlot(AbstractScope_ImplicitVar_EXPORTS) {
-		this.checkGoogModuleExports(cast_[*Var](scope.makeImplicitVar(AbstractScope_ImplicitVar_EXPORTS).self()), referenceMap)
+		this.checkGoogModuleExports(scope.makeImplicitVar(AbstractScope_ImplicitVar_EXPORTS), referenceMap)
 	}
 }
 
@@ -250,8 +250,8 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkDefaultParam(
 }
 
 func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkShadowParam(v *Var, functionScope *Scope, references *TList[*Reference]) {
-	var maybeParam *Var = cast_[*Var](functionScope.getVar(v.getName()).self())
-	if ((maybeParam != nil) && maybeParam.isParam()) && (cast_[*Scope](maybeParam.getScope()) == functionScope) {
+	var maybeParam *Var = functionScope.getVar(v.getName())
+	if ((maybeParam != nil) && maybeParam.isParam()) && (maybeParam.getScopeT_() == functionScope) {
 		for r := range references.All() {
 			if (r.isVarDeclaration() || r.isHoistedFunction()) && (r.getNode() != v.getNameNode()) {
 				this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(r.getNode(), VariableReferenceCheck_REDECLARED_VARIABLE, []string{v.getName()}))
@@ -306,7 +306,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkVar(v *Var, r
 			if (!hasErrors && v.isConst()) && reference.isLvalue() {
 				this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(referenceNode, VariableReferenceCheck_REASSIGNED_CONSTANT, []string{v.getName()}))
 			}
-			if ((v.isLet() || v.isConst()) && (cast_[*Scope](v.getScope()) == reference.getScope())) && NodeUtil_isEnhancedFor(reference.getScope().getRootNode()) {
+			if ((v.isLet() || v.isConst()) && (v.getScopeT_() == reference.getScope())) && NodeUtil_isEnhancedFor(reference.getScope().getRootNode()) {
 				this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(referenceNode, VariableReferenceCheck_EARLY_REFERENCE_ERROR, []string{v.getName()}))
 			}
 		}

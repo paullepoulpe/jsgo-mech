@@ -919,7 +919,7 @@ func (this *ConformanceRules_BannedName) checkConformance_impl(t *NodeTraversal,
 
 func ConformanceRules_BannedName_isRootOfQualifiedNameGlobal(t *NodeTraversal, n Node) bool {
 	var rootName string = NodeUtil_getRootOfQualifiedName(n).getQualifiedName()
-	var v *Var = cast_[*Var](t.getScope().getVar(rootName).self())
+	var v *Var = t.getScope().getVar(rootName)
 	return ((v != nil) && v.isGlobal())
 }
 
@@ -1493,7 +1493,7 @@ func ConformanceRules_ConformanceUtil_inferStringValue(scope *Scope, node Node, 
 			return Optional_empty[string]()
 		}
 		var name string = node.getString()
-		var var_ *Var = cast_[*Var](scope.getVar(name).self())
+		var var_ *Var = scope.getVar(name)
 		if var_ == nil {
 			return Optional_empty[string]()
 		}
@@ -1501,7 +1501,7 @@ func ConformanceRules_ConformanceUtil_inferStringValue(scope *Scope, node Node, 
 			return Optional_empty[string]()
 		}
 		var initialValue Node = var_.getInitialValue()
-		return ConformanceRules_ConformanceUtil_inferStringValue(cast_[*Scope](var_.getScope()), initialValue, globalNamespaceSupplier)
+		return ConformanceRules_ConformanceUtil_inferStringValue(var_.getScopeT_(), initialValue, globalNamespaceSupplier)
 	case tokOrd1_GETPROP:
 		var type_ *JSType = node.getJSType()
 		if type_ == nil {

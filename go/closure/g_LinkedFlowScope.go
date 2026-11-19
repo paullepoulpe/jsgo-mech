@@ -31,18 +31,18 @@ func (this *LinkedFlowScope) trimScopes(scope *TypedScope) PMap[*TypedScope, *Li
 	var thatDepth int32 = thatScope.getDepth()
 	var result PMap[*TypedScope, *LinkedFlowScope_OverlayScope] = this.scopes
 	for thatDepth > thisDepth {
-		thatScope = cast_[*TypedScope](thatScope.getParent().self())
+		thatScope = thatScope.getParent()
 		thatDepth--
 	}
 	for thisDepth > thatDepth {
 		result = result.minus(thisScope)
-		thisScope = cast_[*TypedScope](thisScope.getParent().self())
+		thisScope = thisScope.getParent()
 		thisDepth--
 	}
 	for ((thisScope != thatScope) && (thisScope != nil)) && (thatScope != nil) {
 		result = result.minus(thisScope)
-		thisScope = cast_[*TypedScope](thisScope.getParent().self())
-		thatScope = cast_[*TypedScope](thatScope.getParent().self())
+		thisScope = thisScope.getParent()
+		thatScope = thatScope.getParent()
 	}
 	return result
 }
@@ -81,14 +81,14 @@ func (this *LinkedFlowScope) inferQualifiedSlot(node Node, symbol string, bottom
 	if this.functionScope.isGlobal() {
 		return this
 	}
-	var v *TypedVar = cast_[*TypedVar](this.syntacticScope.getVar(symbol).self())
+	var v *TypedVar = this.syntacticScope.getVar(symbol)
 	if (v == nil) && !this.functionScope.isBottom() {
-		var rootVar *TypedVar = cast_[*TypedVar](this.syntacticScope.getVar(LinkedFlowScope_getRootOfQualifiedName(symbol)).self())
+		var rootVar *TypedVar = this.syntacticScope.getVar(LinkedFlowScope_getRootOfQualifiedName(symbol))
 		var rootScope *TypedScope = func() *TypedScope {
 			if rootVar != nil {
-				return cast_[*TypedScope](rootVar.getScope())
+				return rootVar.getScopeT_()
 			}
-			return cast_[*TypedScope](this.syntacticScope.getGlobalScope().self())
+			return this.syntacticScope.getGlobalScope()
 		}()
 		v = rootScope.declare(symbol, node, bottomType, this.inputProvider.getInput(NodeUtil_getInputId(node)), !declared)
 	}
@@ -123,12 +123,12 @@ func (this *LinkedFlowScope) getParentScope() StaticScope {
 }
 
 func (this *LinkedFlowScope) getSlot(name string) StaticSlot {
-	var var_ *TypedVar = cast_[*TypedVar](this.syntacticScope.getVar(name).self())
+	var var_ *TypedVar = this.syntacticScope.getVar(name)
 	var scope *LinkedFlowScope_OverlayScope = func() *LinkedFlowScope_OverlayScope {
 		if var_ == nil {
 			return this.getOverlayScopeForName(name, false)
 		}
-		return this.getOverlayScopeForScope(cast_[*TypedScope](var_.getScope()), false)
+		return this.getOverlayScopeForScope(var_.getScopeT_(), false)
 	}()
 	return func() StaticSlot {
 		if scope != nil {
@@ -149,10 +149,10 @@ func LinkedFlowScope_getRootOfQualifiedName(name string) string {
 }
 
 func (this *LinkedFlowScope) getOverlayScopeForName(name string, create bool) *LinkedFlowScope_OverlayScope {
-	var rootVar *TypedVar = cast_[*TypedVar](this.syntacticScope.getVar(LinkedFlowScope_getRootOfQualifiedName(name)).self())
+	var rootVar *TypedVar = this.syntacticScope.getVar(LinkedFlowScope_getRootOfQualifiedName(name))
 	var scope *TypedScope = func() *TypedScope {
 		if rootVar != nil {
-			return cast_[*TypedScope](rootVar.getScope())
+			return rootVar.getScopeT_()
 		}
 		return nil
 	}()
@@ -197,7 +197,7 @@ func LinkedFlowScope_getCommonParentDeclarationScope(left *LinkedFlowScope, righ
 	} else if right.flowsFromBottom() {
 		return left.syntacticScope
 	}
-	return cast_[*TypedScope](left.syntacticScope.getCommonParent(right.syntacticScope.up_AbstractScope()).self())
+	return left.syntacticScope.getCommonParent(right.syntacticScope)
 }
 
 func (this *LinkedFlowScope) equals(other any) bool {
@@ -290,7 +290,7 @@ func LinkedFlowScope_join(linkedA *LinkedFlowScope, linkedB *LinkedFlowScope, co
 			if (slotB == nil) || (slotB.getType() == nil) {
 				var fnSlot *TypedVar = func() *TypedVar {
 					if typedScopeB != nil {
-						return cast_[*TypedVar](typedScopeB.getSlot(name))
+						return typedScopeB.getSlotT_(name)
 					}
 					return nil
 				}()
@@ -314,7 +314,7 @@ func LinkedFlowScope_join(linkedA *LinkedFlowScope, linkedB *LinkedFlowScope, co
 			} else if (slotA == nil) || (slotA.getType() == nil) {
 				var fnSlot *TypedVar = func() *TypedVar {
 					if typedScopeA != nil {
-						return cast_[*TypedVar](typedScopeA.getSlot(name))
+						return typedScopeA.getSlotT_(name)
 					}
 					return nil
 				}()
@@ -464,7 +464,7 @@ func (this *LinkedFlowScope_OverlayScope) getSlot(name string) StaticTypedSlot {
 		if slot != nil {
 			return any(slot).(StaticTypedSlot)
 		}
-		return icast_StaticTypedSlot(this.scope_.getSlot(name))
+		return iup_StaticTypedSlot(this.scope_.getSlotT_(name))
 	}()
 }
 

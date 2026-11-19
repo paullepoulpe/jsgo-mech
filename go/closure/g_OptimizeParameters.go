@@ -488,7 +488,7 @@ func OptimizeParameters_isMovableValue(n Node, globalScope *Scope) bool {
 		if n.getStringIs_(sid_arguments) {
 			return false
 		} else {
-			var v *Var = cast_[*Var](globalScope.getVarById_(n.getStringId_()).self())
+			var v *Var = globalScope.getVarById_(n.getStringId_())
 			if v == nil {
 				return false
 			}

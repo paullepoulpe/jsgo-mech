@@ -1174,7 +1174,7 @@ func (this *Es6NormalizeClasses) maybeUpdateClassSelfRef(t *NodeTraversal, nameN
 		if (bindingIdentifier.matchesNameNode(klass.normalizedNames.classNameNode_) || (nameNode == bindingIdentifier)) || !nameNode.matchesQualifiedNameNode(bindingIdentifier) {
 			continue
 		}
-		var var_ *Var = cast_[*Var](t.getScope().getVarById_(nameNode.getStringId_()).self())
+		var var_ *Var = t.getScope().getVarById_(nameNode.getStringId_())
 		if (var_ == nil) || (var_.getNameNode() != bindingIdentifier) {
 			continue
 		}
@@ -1525,7 +1525,7 @@ func (this *Es6NormalizeClasses_ClassRecord) recordConstructorScope(s *Scope) {
 	if !this.constructorVars.IsEmpty() {
 		panic(new_IllegalStateException_String(tostr_(this.constructorVars.asImm())))
 	}
-	var argsScope *Scope = cast_[*Scope](s.getParent().self())
+	var argsScope *Scope = s.getParent()
 	this.constructorVars = immutableSetBuilder_(tc_p_Var).addAll(s.getAllSymbols()).addAll(argsScope.getAllSymbols()).build()
 }
 

@@ -84,7 +84,7 @@ func (this *DeadAssignmentsElimination) eliminateDeadAssignments(t *NodeTraversa
 		return
 	}
 	var blockScope *Scope = t.getScope()
-	var functionScope *Scope = cast_[*Scope](blockScope.getParent().self())
+	var functionScope *Scope = blockScope.getParent()
 	if LiveVariablesAnalysis_MAX_VARIABLES_TO_ANALYZE < (blockScope.getVarCount() + functionScope.getVarCount()) {
 		return
 	}

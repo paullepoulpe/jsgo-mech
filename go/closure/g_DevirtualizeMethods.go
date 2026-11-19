@@ -113,7 +113,7 @@ func (this *DevirtualizeMethods) isDefinitelyCtorOrInterface(receiver Node) bool
 	if qname == "" {
 		return false
 	}
-	var var_ *Var = cast_[*Var](this.refMap.getGlobalScope().getVar(qname).self())
+	var var_ *Var = this.refMap.getGlobalScope().getVar(qname)
 	if var_ == nil {
 		return false
 	}

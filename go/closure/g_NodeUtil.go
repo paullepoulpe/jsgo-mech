@@ -3356,7 +3356,7 @@ func NodeUtil_isConstantVar(node Node, scope *Scope) bool {
 	if !node.isName() || (scope == nil) {
 		return false
 	}
-	var var_ *Var = cast_[*Var](scope.getVarById_(node.getStringId_()).self())
+	var var_ *Var = scope.getVarById_(node.getStringId_())
 	return ((var_ != nil) && (var_.isDeclaredOrInferredConst() || var_.isConst()))
 }
 
@@ -4007,7 +4007,7 @@ func NodeUtil_isGoogModuleExportsReference(scope *Scope, possibleName Node) bool
 	if !possibleName.isName() || !(possibleName.getStringIs_(sid_exports)) {
 		return false
 	}
-	var var_ *Var = cast_[*Var](scope.getVarById_(possibleName.getStringId_()).self())
+	var var_ *Var = scope.getVarById_(possibleName.getStringId_())
 	var scopeRoot Node = func() Node {
 		if var_ != nil {
 			return var_.getScopeRoot()
@@ -4362,7 +4362,7 @@ func NodeUtil_getParamOrPatternNames(n Node, cb func(any)) {
 }
 
 func NodeUtil_getGoogRequireInfo_String_Scope(name string, scope *Scope) *NodeUtil_GoogRequire {
-	var var_ *Var = cast_[*Var](scope.getVar(name).self())
+	var var_ *Var = scope.getVar(name)
 	if var_ == nil {
 		return nil
 	}

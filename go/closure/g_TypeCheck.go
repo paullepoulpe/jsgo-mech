@@ -154,8 +154,8 @@ func (this *TypeCheck) shouldTraverse(t *NodeTraversal, n Node, parent Node) boo
 		this.validator.setSubtypingMode(this.subtypingMode)
 	} else if n.isFunction() {
 		var outerScope *TypedScope = t.getTypedScope()
-		var var_ *TypedVar = cast_[*TypedVar](outerScope.getVarById_(n.getFirstChild().getStringId_()).self())
-		if (((var_ != nil) && cast_[*TypedScope](var_.getScope()).hasSameContainerScope(outerScope.up_AbstractScope())) && !is_FunctionType(var_.getType().self())) && !TypeValidator_hasDuplicateDeclarationSuppression(this.compiler_, var_.getNameNode()) {
+		var var_ *TypedVar = outerScope.getVarById_(n.getFirstChild().getStringId_())
+		if (((var_ != nil) && var_.getScopeT_().hasSameContainerScope(outerScope)) && !is_FunctionType(var_.getType().self())) && !TypeValidator_hasDuplicateDeclarationSuppression(this.compiler_, var_.getNameNode()) {
 			this.report(n, TypeCheck_FUNCTION_MASKS_VARIABLE, []string{var_.getName()})
 		}
 	}
@@ -596,12 +596,12 @@ func (this *TypeCheck) checkCanAssignToNameGetpropOrGetelem(t *NodeTraversal, no
 	}
 	var leftType *JSType = this.getJSType(lvalue)
 	if lvalue.isQualifiedName() {
-		var var_ *TypedVar = cast_[*TypedVar](t.getTypedScope().getVar(lvalue.getQualifiedName()).self())
+		var var_ *TypedVar = t.getTypedScope().getVar(lvalue.getQualifiedName())
 		if var_ != nil {
 			if var_.isTypeInferred() {
 				return
 			}
-			if NodeUtil_getRootOfQualifiedName(lvalue).isThis() && (t.getTypedScope() != cast_[*TypedScope](var_.getScope())) {
+			if NodeUtil_getRootOfQualifiedName(lvalue).isThis() && (t.getTypedScope() != var_.getScopeT_()) {
 				return
 			}
 			if var_.getType() != nil {
@@ -967,7 +967,7 @@ func (this *TypeCheck) visitName(t *NodeTraversal, n Node, parent Node) bool {
 	var type_ *JSType = n.getJSType()
 	if type_ == nil {
 		type_ = this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
-		var var_ *TypedVar = cast_[*TypedVar](t.getTypedScope().getVarById_(n.getStringId_()).self())
+		var var_ *TypedVar = t.getTypedScope().getVarById_(n.getStringId_())
 		if var_ != nil {
 			nn_1 := var_.getType()
 			if nn_1 == nil {
@@ -1704,7 +1704,7 @@ func (this *TypeCheck) visitModuleBody(t *NodeTraversal, moduleBody Node) {
 	var moduleName *QualifiedName = QualifiedName_of(associatedModule.closureNamespace().get())
 	var googModuleCall Node = moduleBody.getFirstChild()
 	if moduleName.isSimple() {
-		var globalVar *TypedVar = cast_[*TypedVar](this.topScope.getVar(moduleName.join().get()).self())
+		var globalVar *TypedVar = this.topScope.getVar(moduleName.join().get())
 		this.validator.expectCanAssignTo(googModuleCall, moduleBody.getJSType(), globalVar.getType(), "legacy goog.module export")
 	} else {
 		var parentType *JSType = this.topScope.lookupQualifiedName(moduleName.getOwner())

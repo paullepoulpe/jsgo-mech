@@ -98,9 +98,9 @@ func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
 
 func (this *CheckNoMutatedEs6Exports) visitName(t *NodeTraversal, name Node) {
 	var scope *Scope = t.getScope()
-	if NodeUtil_isLValue(name) && !scope.getClosestHoistScope().self().(*Scope).isModuleScope() {
-		var var_ *Var = cast_[*Var](scope.getVarById_(name.getStringId_()).self())
-		if (var_ != nil) && var_.getScope().(*Scope).isModuleScope() {
+	if NodeUtil_isLValue(name) && !scope.getClosestHoistScope().isModuleScope() {
+		var var_ *Var = scope.getVarById_(name.getStringId_())
+		if (var_ != nil) && var_.getScopeT_().isModuleScope() {
 			this.mutatedNames.put_s(name.getString(), name)
 		}
 	}

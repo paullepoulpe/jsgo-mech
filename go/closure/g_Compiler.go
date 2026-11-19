@@ -1407,7 +1407,7 @@ func (this *Compiler) getTopScope_impl() *TypedScope {
 }
 
 func (this *Compiler) setTopScope_impl(x *TypedScope) {
-	if x != nil && cast_[*TypedScope](x.getParent().self()) != nil {
+	if x != nil && x.getParent() != nil {
 		panic(new_IllegalStateException_String(tostr_(x)))
 	}
 	this.topScope = x

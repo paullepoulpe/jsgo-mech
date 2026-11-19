@@ -320,7 +320,7 @@ func (this *Es6RewriteModules) rewriteRequires(script Node) {
 			}
 		}
 		if n.isName() && has_(this.namesToInlineByAlias, n.getString()) {
-			var v *Var = cast_[*Var](t.getScope().getVarById_(n.getStringId_()).self())
+			var v *Var = t.getScope().getVarById_(n.getStringId_())
 			if (v == nil) || (v.getNameNode() != n) {
 				var replacementName *ModuleRenaming_GlobalizedModuleName = mapAt_(this.namesToInlineByAlias, n.getString())
 				var replacement Node = replacementName.toQname(this.astFactory_).srcrefTree(n)
@@ -334,7 +334,7 @@ func (this *Es6RewriteModules) inlineAliasedTypes(t *NodeTraversal, typeNode Nod
 	if typeNode.isStringLit() {
 		var name string = typeNode.getString()
 		var split []string = sliceImm_(tc_string, Es6RewriteModules_DOT_SPLITTER.limit(2).splitToList_s(name))
-		if cast_[*Var](t.getScope().getVar(sliceAt_(split, 0)).self()) == nil {
+		if t.getScope().getVar(sliceAt_(split, 0)) == nil {
 			var replacement *ModuleRenaming_GlobalizedModuleName = mapAt_(this.namesToInlineByAlias, sliceAt_(split, 0))
 			if replacement != nil {
 				var rest string = ""
@@ -703,7 +703,7 @@ func (this *Es6RewriteModules_RenameGlobalVars) visit_impl(t *NodeTraversal, n N
 	}
 	if n.isName() {
 		var name string = n.getString()
-		var var_ *Var = cast_[*Var](t.getScope().getVar(name).self())
+		var var_ *Var = t.getScope().getVar(name)
 		if (var_ != nil) && var_.isGlobal() {
 			var newName Optional[string] = ModuleRenaming_getGlobalNameOfEsModuleLocalVariable(this.thisModule.metadata(), Optional_of[string](name)).join()
 			n.setString(newName.get())
@@ -771,7 +771,7 @@ func (this *Es6RewriteModules_RenameGlobalVars) fixTypeNode(t *NodeTraversal, ty
 		if int32(len(splitted)) > 1 {
 			rest = String_substring_int(name, baseNameU16.length())
 		}
-		var var_ *Var = cast_[*Var](t.getScope().getVar(baseName).self())
+		var var_ *Var = t.getScope().getVar(baseName)
 		if (var_ != nil) && var_.isGlobal() {
 			this.maybeSetNewName(t, typeNode, name, (sstr_(ModuleRenaming_getGlobalNameOfEsModuleLocalVariable(thisModule.metadata(), Optional_of[string](baseName)).join().orElse("null")) + sstr_(rest)))
 		} else if (var_ == nil) && thisModule.boundNames().Has(baseName) {

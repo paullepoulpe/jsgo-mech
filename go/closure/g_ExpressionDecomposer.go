@@ -354,7 +354,7 @@ func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint No
 	var tempVarNode Node = NodeUtil_newVarNode(tempName, tempNameValue)
 	tempVarNode.getFirstChild().copyTypeFrom(tempNameValue)
 	tempVarNode.getFirstChild().setInferredConstantVar(true)
-	var containingHoistScope *Scope = cast_[*Scope](this.scope_.getClosestHoistScope().self())
+	var containingHoistScope *Scope = this.scope_.getClosestHoistScope()
 	containingHoistScope.declare(tempName, tempVarNode.getFirstChild(), nil)
 	tempVarNode.insertBefore(injectionPoint)
 	if firstExtractedNode == 0 {

@@ -410,7 +410,7 @@ func (this *Es6ConvertSuperConstructorCalls) isKnownNativeClass(t *NodeTraversal
 }
 
 func (this *Es6ConvertSuperConstructorCalls) isDefinedInSources(t *NodeTraversal, varName string) bool {
-	var objectVar *Var = cast_[*Var](t.getScope().getVar(varName).self())
+	var objectVar *Var = t.getScope().getVar(varName)
 	return ((objectVar != nil) && !objectVar.isExtern())
 }
 

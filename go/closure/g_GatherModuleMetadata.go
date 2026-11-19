@@ -310,7 +310,7 @@ func (this *GatherModuleMetadata_Finder) isFromGoogImport(goog *Var) bool {
 func (this *GatherModuleMetadata_Finder) visitName(t *NodeTraversal, n Node) {
 	var name string = n.getString()
 	if has_(this.toggleModuleNames, name) {
-		var nameVar *Var = cast_[*Var](t.getScope().getVar(name).self())
+		var nameVar *Var = t.getScope().getVar(name)
 		if has_(this.toggleModules, vkey_(nameVar)) {
 			var parent Node = n.getParent()
 			if parent.isGetProp() {
@@ -323,7 +323,7 @@ func (this *GatherModuleMetadata_Finder) visitName(t *NodeTraversal, n Node) {
 	if !("goog" == name) {
 		return
 	}
-	var root *Var = cast_[*Var](t.getScope().getVar("goog").self())
+	var root *Var = t.getScope().getVar("goog")
 	if (root != nil) && !this.isFromGoogImport(root) {
 		return
 	}
@@ -342,11 +342,11 @@ func (this *GatherModuleMetadata_Finder) visitGoogCall(t *NodeTraversal, n Node)
 	if !firstProp.isName() || !(firstProp.getStringIs_(sid_goog)) {
 		return
 	}
-	var root *Var = cast_[*Var](t.getScope().getVar("goog").self())
-	if ((root != nil) && root.isLocal()) && !root.getScope().(*Scope).isModuleScope() {
+	var root *Var = t.getScope().getVar("goog")
+	if ((root != nil) && root.isLocal()) && !root.getScopeT_().isModuleScope() {
 		return
 	}
-	if ((root != nil) && root.getScope().(*Scope).isModuleScope()) && !this.isFromGoogImport(root) {
+	if ((root != nil) && root.getScopeT_().isModuleScope()) && !this.isFromGoogImport(root) {
 		return
 	}
 	if (root == nil) || (NodeUtil_getEnclosingScript(root.getNameNode()) != NodeUtil_getEnclosingScript(n)) {
@@ -410,7 +410,7 @@ func (this *GatherModuleMetadata_Finder) visitGoogCall(t *NodeTraversal, n Node)
 					}
 				} else if callParent.isName() {
 					var name string = callParent.getString()
-					var nameVar *Var = cast_[*Var](t.getScope().getVar(name).self())
+					var nameVar *Var = t.getScope().getVar(name)
 					this.toggleModules[vkey_(nameVar)] = struct{}{}
 					this.toggleModuleNames[name] = struct{}{}
 				} else if this.outer_.currentModule.metadataBuilder.moduleType() != ModuleMetadataMap_ModuleType_GOOG_PROVIDE {

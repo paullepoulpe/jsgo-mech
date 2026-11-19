@@ -339,7 +339,7 @@ func (this *ScopedAliases_AliasUsage) referencesOtherAlias(deletedAliasVars map[
 		}
 		return qname[:dotIndex]
 	}()
-	var otherAliasVar *Var = cast_[*Var](this.aliasVar.getScope().(*Scope).getOwnSlot(rootName))
+	var otherAliasVar *Var = this.aliasVar.getScopeT_().getOwnSlotT_(rootName)
 	return ((otherAliasVar != nil) && !has_(deletedAliasVars, vkey_(otherAliasVar)))
 }
 
@@ -730,7 +730,7 @@ func (this *ScopedAliases_Traversal) visit_impl(t *NodeTraversal, n Node, parent
 	var aliasVar *Var = nil
 	if type_ == Token_rhino_NAME {
 		var name string = n.getString()
-		var lexicalVar *Var = cast_[*Var](t.getScope().getVar(name).self())
+		var lexicalVar *Var = t.getScope().getVar(name)
 		if (lexicalVar != nil) && lexicalVar.equals_ScopedName(this.aliases_[name].up_ScopedName()) {
 			aliasVar = lexicalVar
 			if this.outer_.compiler_.getOptions().preservesDetailedSourceInfo() && n.isName() {
@@ -825,7 +825,7 @@ func new_ScopedAliases_Traversal_1(outer_ *ScopedAliases_Traversal, cap_name str
 }
 
 func (this *ScopedAliases_Traversal_1) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if (n.isName() && (n.getString() == this.cap_name)) && (t.getScope().getVar(this.cap_name).self().(*Var).getNode() == this.cap_fnName) {
+	if (n.isName() && (n.getString() == this.cap_name)) && (t.getScope().getVar(this.cap_name).getNode() == this.cap_fnName) {
 		n.setString((sstr_(this.cap_name) + "$jscomp$scopedAliases$" + sstr_(this.cap_suffix)))
 		this.outer_.outer_.compiler_.reportChangeToEnclosingScope(n)
 	}

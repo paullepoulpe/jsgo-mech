@@ -92,7 +92,7 @@ func (this *PolyfillUsageFinder) maybeCreateStaticPolyfillUsageForGetPropChain(t
 }
 
 func (this *PolyfillUsageFinder) isPolyfillVisibleInScope(t *NodeTraversal, globalName string) bool {
-	return ((this.compiler_.getLifeCycleStage() == AbstractCompiler_LifeCycleStage_NORMALIZED) || (cast_[*Var](t.getScope().getVar(globalName).self()) == nil))
+	return ((this.compiler_.getLifeCycleStage() == AbstractCompiler_LifeCycleStage_NORMALIZED) || (t.getScope().getVar(globalName) == nil))
 }
 
 func PolyfillUsageFinder_findGlobalPrefix(qualifiedName string) Optional[string] {

@@ -169,7 +169,7 @@ func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) visit_impl(t *Node
 		}
 		this.renameHelperBuilder.recordExistingName(name)
 		var s *Scope = t.getScope()
-		var v *Var = cast_[*Var](s.getVar(name).self())
+		var v *Var = s.getVar(name)
 		if (v == nil) || !v.isGlobal() {
 			return
 		}
@@ -285,7 +285,7 @@ func (this *RescopeGlobalSymbols_FindNamesReferencingThis) visit_impl(t *NodeTra
 			return
 		}
 		var s *Scope = t.getScope()
-		var v *Var = cast_[*Var](s.getVar(name).self())
+		var v *Var = s.getVar(name)
 		if (v == nil) || !v.isGlobal() {
 			return
 		}

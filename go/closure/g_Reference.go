@@ -45,7 +45,7 @@ func (this *Reference) cloneWithNewScope(newScope *Scope) *Reference {
 }
 
 func (this *Reference) getSymbol() StaticSlot {
-	return icast_StaticSlot(this.scope_.getVarById_(this.nameNode_.getStringId_()).self())
+	return iup_StaticSlot(this.scope_.getVarById_(this.nameNode_.getStringId_()))
 }
 
 func (this *Reference) getNode() Node {

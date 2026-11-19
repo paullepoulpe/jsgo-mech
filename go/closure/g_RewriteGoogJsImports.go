@@ -73,7 +73,7 @@ func (this *RewriteGoogJsImports) findGoogImportNode(scriptRoot Node) Node {
 		return googImportNode
 	}
 	var moduleScope *Scope = new_SyntacticScopeCreator_AbstractCompiler(this.compiler_).createScope(scriptRoot.getFirstChild(), Scope_createGlobalScope(scriptRoot))
-	var googVar *Var = cast_[*Var](moduleScope.getVar("goog").self())
+	var googVar *Var = moduleScope.getVar("goog")
 	if (googVar != nil) && (googVar.getNameNode() != 0) {
 		this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](scriptRoot.getSourceFileName()).filterFn_(func(s string) bool {
 			return s != ""
@@ -312,7 +312,7 @@ func (this *RewriteGoogJsImports_ReferenceReplacer) maybeRewriteBadGoogJsImportR
 	if !parent.isGetProp() || !(nameNode.getStringIs_(sid_goog)) {
 		return
 	}
-	var var_ *Var = cast_[*Var](t.getScope().getVarById_(nameNode.getStringId_()).self())
+	var var_ *Var = t.getScope().getVarById_(nameNode.getStringId_())
 	if ((var_ == nil) || (var_.getNameNode() == 0)) || (var_.getNameNode().getParent() != this.googImportNode) {
 		return
 	}

@@ -156,7 +156,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) enterScope(t *NodeTrav
 				}
 				return n.getFirstChild().getString()
 			}()
-			*this.symbolStack = append(*this.symbolStack, new_AnalyzePrototypeProperties_NameContext(this.outer_.getNameInfoForName(name, AnalyzePrototypeProperties_VAR), cast_[*Scope](scope.getClosestHoistScope().self())))
+			*this.symbolStack = append(*this.symbolStack, new_AnalyzePrototypeProperties_NameContext(this.outer_.getNameInfoForName(name, AnalyzePrototypeProperties_VAR), scope.getClosestHoistScope()))
 		} else {
 			*this.symbolStack = append(*this.symbolStack, new_AnalyzePrototypeProperties_NameContext(this.outer_.anonymousNode, scope))
 		}
@@ -248,7 +248,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 		}
 	case Token_rhino_NAME:
 		var name string = n.getString()
-		var var_ *Var = cast_[*Var](t.getScope().getVar(name).self())
+		var var_ *Var = t.getScope().getVar(name)
 		if var_ != nil {
 			if var_.isGlobal() {
 				if (var_.getInitialValue() != 0) && var_.getInitialValue().isFunction() {
@@ -260,9 +260,9 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 						this.addSymbolUse(name, t.getChunk(), AnalyzePrototypeProperties_VAR)
 					}
 				}
-			} else if cast_[*Scope](var_.getScope()) != t.getScope() {
+			} else if var_.getScopeT_() != t.getScope() {
 				for context := range sliceAllRev_(this.symbolStack) {
-					if context.scope_ == cast_[*Scope](var_.getScope()) {
+					if context.scope_ == var_.getScopeT_() {
 						break
 					}
 					context.name_.readClosureVariables = true
@@ -298,7 +298,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) processNonFunctionProt
 }
 
 func (this *AnalyzePrototypeProperties_ProcessProperties) isGlobalFunctionDeclaration(t *NodeTraversal, n Node) bool {
-	if !(t.inGlobalHoistScope() || ((n.isFunction() && (t.getScopeRoot() == n)) && t.getScope().getParent().self().(*Scope).getClosestHoistScope().self().(*Scope).isGlobal())) {
+	if !(t.inGlobalHoistScope() || ((n.isFunction() && (t.getScopeRoot() == n)) && t.getScope().getParent().self().(*Scope).getClosestHoistScope().isGlobal())) {
 		return false
 	}
 	return (NodeUtil_isFunctionDeclaration(n) || (n.isFunction() && n.getParent().isName()))
@@ -385,7 +385,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) processMemberDef(t *No
 	var classNameNode Node = NodeUtil_getNameNode(n.getGrandparent())
 	var var_ *Var = func() *Var {
 		if (classNameNode != 0) && classNameNode.isName() {
-			return cast_[*Var](t.getScope().getVarById_(classNameNode.getStringId_()).self())
+			return t.getScope().getVarById_(classNameNode.getStringId_())
 		}
 		return nil
 	}()
@@ -395,7 +395,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) processMemberDef(t *No
 func (this *AnalyzePrototypeProperties_ProcessProperties) maybeGetVar(t *NodeTraversal, maybeName Node) *Var {
 	return func() *Var {
 		if maybeName.isName() {
-			return cast_[*Var](t.getScope().getVarById_(maybeName.getStringId_()).self())
+			return t.getScope().getVarById_(maybeName.getStringId_())
 		}
 		return nil
 	}()

@@ -413,8 +413,8 @@ func (this *TypeValidator) expectUndeclaredVariable(sourceName Optional[string],
 	var varType *JSType = var_.getType()
 	if (((varType != nil) && (varType != this.typeRegistry.getNativeType(JSTypeNative_UNKNOWN_TYPE))) && (newType != nil)) && (newType != this.typeRegistry.getNativeType(JSTypeNative_UNKNOWN_TYPE)) {
 		if var_.getInput() == nil {
-			var s *TypedScope = cast_[*TypedScope](var_.getScope())
-			s.undeclare(var_.up_AbstractVar())
+			var s *TypedScope = var_.getScopeT_()
+			s.undeclare(var_)
 			newVar = s.declare(variableName, n, varType, input, false)
 			n.setJSType(varType)
 			if parent.isVar() {

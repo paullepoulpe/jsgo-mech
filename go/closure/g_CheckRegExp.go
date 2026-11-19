@@ -50,7 +50,7 @@ func (this *CheckRegExp) process_2(externs Node, root Node) {
 func (this *CheckRegExp) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if NodeUtil_isReferenceName(n) {
 		var name string = n.getString()
-		if (name == "RegExp") && (cast_[*Var](t.getScope().getVar(name).self()) == nil) {
+		if (name == "RegExp") && (t.getScope().getVar(name) == nil) {
 			var parentType Token_rhino = parent.getToken()
 			var first bool = (n == parent.getFirstChild())
 			if !((((((((((parentType == Token_rhino_NEW) && first) || ((parentType == Token_rhino_CALL) && first)) || ((parentType == Token_rhino_INSTANCEOF) && !first)) || (parentType == Token_rhino_EQ)) || (parentType == Token_rhino_NE)) || (parentType == Token_rhino_SHEQ)) || (parentType == Token_rhino_SHNE)) || (parentType == Token_rhino_CASE)) || (((parentType == Token_rhino_GETPROP) && first) && !CheckRegExp_REGEXP_PROPERTY_SKIPLIST.Has(parent.getString()))) {

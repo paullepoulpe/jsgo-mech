@@ -96,7 +96,7 @@ func (this *ReferenceCollector) getReferences_Var(v *Var) *ReferenceCollection {
 
 func (this *ReferenceCollector) maybeJumpToHoistedFunction(var_ *Var, t *NodeTraversal) {
 	var fnNode Node = var_.getParentNode()
-	var varScope *Scope = cast_[*Scope](var_.getScope())
+	var varScope *Scope = var_.getScopeT_()
 	if (((fnNode == 0) || !NodeUtil_isHoistedFunctionDeclaration(fnNode)) || ((this.narrowScope_ != nil) && (this.narrowScope_.getDepth() > varScope.getDepth()))) || has_(this.collectedHoistedFunctions, fnNode) {
 		return
 	}
@@ -222,7 +222,7 @@ func (this *ReferenceCollector_CollectorCallback) exitScope(t *NodeTraversal) {
 func (this *ReferenceCollector_CollectorCallback) visit(t *NodeTraversal, n Node, parent Node) {
 	var addedReference *Reference = nil
 	if (n.isName() || n.isImportStar()) && !ReferenceCollector_isNonLocalModuleSpecifierName(n, parent) {
-		var v *Var = cast_[*Var](t.getScope().getVarById_(n.getStringId_()).self())
+		var v *Var = t.getScope().getVarById_(n.getStringId_())
 		if v != nil {
 			addedReference = this.outer_.addReference(v, n, t)
 			if this.outer_.collectHoistedFunctionsInReferenceOrder {

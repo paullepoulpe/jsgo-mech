@@ -295,7 +295,7 @@ func (this *InlineVariables_InliningBehavior) doInlinesForScope(t *NodeTraversal
 
 func (this *InlineVariables_InliningBehavior) varsInThisScopeMayBeModifiedUsingArguments(scope *Scope, referenceMap ReferenceMap) bool {
 	if scope.isFunctionScope() && !scope.getRootNode().isArrowFunction() {
-		var arguments *Var = cast_[*Var](scope.getArgumentsVar().self())
+		var arguments *Var = scope.getArgumentsVar()
 		var refs *ReferenceCollection = referenceMap.getReferences_Var(arguments)
 		if (refs != nil) && !refs.references.isEmpty() {
 			l_1 := refs.references
@@ -463,7 +463,7 @@ func (this *InlineVariables_InliningBehavior) canInline(declaration *Reference, 
 			}
 		}
 	}
-	if (initialization.getScope() != declaration.getScope()) || !initialization.getScope().contains(reference.getScope().up_AbstractScope()) {
+	if (initialization.getScope() != declaration.getScope()) || !initialization.getScope().contains(reference.getScope()) {
 		return false
 	}
 	return (this.canMoveAggressively(initValue) || this.canMoveModerately(initialization, reference))
@@ -850,7 +850,7 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert_InitialValueAnaly
 				if aliasedName == this.outer_.v.getName() {
 					return nil
 				}
-				return cast_[*Var](this.outer_.v.getScope().(*Scope).getVar(aliasedName).self())
+				return this.outer_.v.getScope().(*Scope).getVar(aliasedName)
 			}())
 		}
 		return this.aliasedVar.setKnownValueOnce(nil)

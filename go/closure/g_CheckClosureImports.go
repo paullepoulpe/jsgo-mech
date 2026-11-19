@@ -269,7 +269,7 @@ func (this *CheckClosureImports_Checker) kindOfCall(callNode Node) CheckClosureI
 }
 
 func (this *CheckClosureImports_Checker) checkValidImportCodeReference(t *NodeTraversal, nameNode Node) {
-	var var_ *Var = cast_[*Var](t.getScope().getVarById_(nameNode.getStringId_()).self())
+	var var_ *Var = t.getScope().getVarById_(nameNode.getStringId_())
 	if (var_ == nil) || (var_.getNameNode() == nameNode) {
 		return
 	}
@@ -333,7 +333,7 @@ func (this *CheckClosureImports_Checker) checkGoogModuleGet(t *NodeTraversal, ca
 	var isModule bool = (currentModule.isGoogModule() || currentModule.isEs6Module())
 	if isFillingAnAlias && isModule {
 		var aliasName string = call.getParent().getFirstChild().getString()
-		var aliasVar *Var = cast_[*Var](t.getScope().getVar(aliasName).self())
+		var aliasVar *Var = t.getScope().getVar(aliasName)
 		if aliasVar == nil {
 			t.report(call, ClosureRewriteModule_INVALID_GET_ALIAS, []string{})
 			return

@@ -1734,7 +1734,7 @@ func (this *SymbolTable_VisibilityCollector) visitName(t *NodeTraversal, n Node)
 	if symbol.getVisibility() != 0 {
 		return
 	}
-	var var_ *Var = cast_[*Var](t.getScope().getVarById_(n.getStringId_()).self())
+	var var_ *Var = t.getScope().getVarById_(n.getStringId_())
 	if var_ == nil {
 		return
 	}

@@ -128,7 +128,7 @@ func (this *RewriteCallerCodeLocation_FindCallerLocationFunctions) visitParamLis
 					this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n.getParent().getFirstChild(), RewriteCallerCodeLocation_JSC_ANONYMOUS_FUNCTION_CODE_LOCATION_ERROR, []string{}))
 					return
 				}
-				var functionVarAndPosition *RewriteCallerCodeLocation_FunctionVarAndParamPosition = new_RewriteCallerCodeLocation_FunctionVarAndParamPosition(cast_[*Var](t.getScope().getVar(functionName).self()), paramPosition)
+				var functionVarAndPosition *RewriteCallerCodeLocation_FunctionVarAndParamPosition = new_RewriteCallerCodeLocation_FunctionVarAndParamPosition(t.getScope().getVar(functionName), paramPosition)
 				this.outer_.callerLocationFunctionNames[functionName] = functionVarAndPosition
 			}
 		}
@@ -177,7 +177,7 @@ func (this *RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls) visitC
 	}
 	var functionVarAndPosition *RewriteCallerCodeLocation_FunctionVarAndParamPosition = this.outer_.callerLocationFunctionNames[moduleContentsName]
 	var callerLocationFunction *Var = functionVarAndPosition.getFunctionVar()
-	var calleeFunction *Var = cast_[*Var](t.getScope().getVar(moduleContentsName).self())
+	var calleeFunction *Var = t.getScope().getVar(moduleContentsName)
 	if ((callerLocationFunction == nil) || (calleeFunction == nil)) || callerLocationFunction.getNameNode() != calleeFunction.getNameNode() {
 		return
 	}

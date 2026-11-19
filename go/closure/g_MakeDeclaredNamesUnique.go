@@ -403,7 +403,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInf
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo) getScopeDepth() int32 {
-	return this.var_.getScope().(*Scope).getDepth()
+	return this.var_.getScopeT_().getDepth()
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo) addPotentialConflict(variableInfo MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo) {

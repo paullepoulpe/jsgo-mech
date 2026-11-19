@@ -74,10 +74,10 @@ func ExportTestFunctions_isGoogTestingTestSuite(t *NodeTraversal, qname Node) bo
 	}
 	var root Node = NodeUtil_getRootOfQualifiedName(qname)
 	var rootName string = root.getString()
-	var rootVar *Var = cast_[*Var](t.getScope().getSlot(rootName))
+	var rootVar *Var = t.getScope().getSlotT_(rootName)
 	if (rootVar == nil) || rootVar.isGlobal() {
 		return qname.matchesQualifiedName(ExportTestFunctions_GOOG_TESTING_TEST_SUITE)
-	} else if rootVar.getScope().(*Scope).isModuleScope() {
+	} else if rootVar.getScopeT_().isModuleScope() {
 		var originalValue Node = rootVar.getInitialValue()
 		return ((((originalValue != 0) && NodeUtil_isGoogRequireCall(originalValue)) && originalValue.hasTwoChildren()) && (originalValue.getSecondChild().getStringIs_(sidx_676f6f672e74657374696e672e746573745375697465)))
 	}

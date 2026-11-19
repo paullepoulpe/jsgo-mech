@@ -1102,7 +1102,7 @@ func (this *RemoveUnusedCode) traverseVar(var_ *Var) RemoveUnusedCode_VarInfo {
 		panic(new_NullPointerException_0())
 	}
 	if this.removeLocalVars_ && var_.isArguments() {
-		var functionScope *Scope = cast_[*Scope](var_.getScope().(*Scope).getClosestHoistScope().self())
+		var functionScope *Scope = var_.getScope().(*Scope).getClosestHoistScope()
 		var paramList Node = NodeUtil_getFunctionParameters(functionScope.getRootNode())
 		{
 			var param Node = paramList.getFirstChild()

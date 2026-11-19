@@ -4,6 +4,7 @@ package closure
 
 type TypedVar struct {
 	AbstractVar
+	scope_                    *TypedScope
 	type__                    *JSType
 	markedEscaped             bool
 	markedAssignedExactlyOnce bool
@@ -34,7 +35,7 @@ func (this *TypedVar) finit_TypedVar() {
 }
 
 func (this *TypedVar) init_TypedVar(inferred bool, name string, nameNode Node, type_ *JSType, scope *TypedScope, index int32, input *CompilerInput) {
-	this.AbstractVar.init_AbstractVar(name, nameNode, scope.up_AbstractScope(), index, input, 0)
+	this.init_AbstractVar(name, nameNode, scope, index, input, 0)
 	this.finit_TypedVar()
 	if nameNode != 0 {
 		if ok_, a1_ := TypedVar_NAME_NODE_TYPES_has_(nameNode.getToken()), nameNode.getToken(); !ok_ {
@@ -109,4 +110,175 @@ func TypedVar_clinit() {
 	TypedVar_clinit_done = true
 	TypedVar_NAME_NODE_TYPES = Sets_immutableEnumSet(Token_rhino_NAME.enum_(), []*Enum{Token_rhino_THIS.enum_(), Token_rhino_IMPORT_STAR.enum_(), Token_rhino_EXPR_RESULT.enum_(), Token_rhino_EXPORT.enum_(), Token_rhino_GETPROP.enum_(), Token_rhino_FUNCTION.enum_(), Token_rhino_STRING_KEY.enum_(), Token_rhino_SETTER_DEF.enum_(), Token_rhino_GETTER_DEF.enum_(), Token_rhino_MEMBER_FUNCTION_DEF.enum_(), Token_rhino_MODULE_BODY.enum_()})
 
+}
+
+// init_AbstractVar is AbstractVar.init_AbstractVar written out for TypedVar (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedVar) init_AbstractVar(name string, nameNode Node, scope *TypedScope, index int32, input *CompilerInput, implicitGoogNamespaceDefinition Node) {
+	this.ScopedName.init_ScopedName()
+	if index < -1 {
+		panic(new_IllegalArgumentException_String(istr_(int64(int32(index)))))
+	}
+	this.name_ = name
+	if implicitGoogNamespaceDefinition != 0 {
+		this.nameNode_ = 0
+		this.implicitGoogNamespaceStrength = AbstractVar_strengthOf(implicitGoogNamespaceDefinition)
+	} else {
+		this.nameNode_ = nameNode
+		this.implicitGoogNamespaceStrength = 0
+	}
+	this.scope_ = scope
+	this.index_ = index
+	this.input = input
+}
+
+// getScopeRoot_impl is AbstractVar.getScopeRoot_impl written out for TypedVar (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedVar) getScopeRoot_impl() Node {
+	return this.scope_.getRootNode()
+}
+
+// getSourceFile is AbstractVar.getSourceFile written out for TypedVar (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedVar) getSourceFile() StaticSourceFile {
+	return func() Node {
+		if this.getNode() != 0 {
+			return this.getNode()
+		}
+		return this.scope_.getRootNode()
+	}().getStaticSourceFile()
+}
+
+// getSymbolT_ is AbstractVar.getSymbol written out for TypedVar (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedVar) getSymbolT_() *TypedVar {
+	return this.thisVar()
+}
+
+// getSymbol is getSymbolT_ with the result of the interface's type (javac's bridge; fbound).
+func (this *TypedVar) getSymbol() StaticSlot {
+	return iup_StaticSlot(this.getSymbolT_())
+}
+
+// getDeclarationT_ is AbstractVar.getDeclaration written out for TypedVar (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedVar) getDeclarationT_() *TypedVar {
+	return func() *TypedVar {
+		if this.getNode() == 0 {
+			return nil
+		}
+		return this.thisVar()
+	}()
+}
+
+// getDeclaration is getDeclarationT_ with the result of the interface's type (javac's bridge; fbound).
+func (this *TypedVar) getDeclaration() StaticRef {
+	return iup_StaticRef(this.getDeclarationT_())
+}
+
+// getScopeT_ is AbstractVar.getScope written out for TypedVar (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedVar) getScopeT_() *TypedScope {
+	return this.scope_
+}
+
+// getScope is getScopeT_ with the result of the interface's type (javac's bridge; fbound).
+func (this *TypedVar) getScope() StaticScope {
+	return iup_StaticScope(this.getScopeT_())
+}
+
+// isGlobal is AbstractVar.isGlobal written out for TypedVar (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedVar) isGlobal() bool {
+	return this.scope_.isGlobal()
+}
+
+// isLocal is AbstractVar.isLocal written out for TypedVar (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedVar) isLocal() bool {
+	return this.scope_.isLocal()
+}
+
+// isVar is AbstractVar.isVar written out for TypedVar (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedVar) isVar() bool {
+	return (this.declarationType() == Token_rhino_VAR)
+}
+
+// isCatch is AbstractVar.isCatch written out for TypedVar (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedVar) isCatch() bool {
+	return (this.declarationType() == Token_rhino_CATCH)
+}
+
+// isLet is AbstractVar.isLet written out for TypedVar (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedVar) isLet() bool {
+	return (this.declarationType() == Token_rhino_LET)
+}
+
+// isConst is AbstractVar.isConst written out for TypedVar (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedVar) isConst() bool {
+	return (this.declarationType() == Token_rhino_CONST)
+}
+
+// isClass is AbstractVar.isClass written out for TypedVar (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedVar) isClass() bool {
+	return (this.declarationType() == Token_rhino_CLASS)
+}
+
+// isParam is AbstractVar.isParam written out for TypedVar (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedVar) isParam() bool {
+	return (this.declarationType() == Token_rhino_PARAM_LIST)
+}
+
+// isImport is AbstractVar.isImport written out for TypedVar (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedVar) isImport() bool {
+	return (this.declarationType() == Token_rhino_IMPORT)
+}
+
+// isArguments is AbstractVar.isArguments written out for TypedVar (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedVar) isArguments() bool {
+	return ((Var_ARGUMENTS == this.name_) && this.scope_.isFunctionScope())
+}
+
+// isGoogModuleExports is AbstractVar.isGoogModuleExports written out for TypedVar (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedVar) isGoogModuleExports() bool {
+	return ((this.scope_.isModuleScope() && ("exports" == this.name_)) && this.isImplicit())
+}
+
+// isThis is AbstractVar.isThis written out for TypedVar (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedVar) isThis() bool {
+	return (("this" == this.name_) && this.scope_.isFunctionScope())
+}
+
+// isImplicit is AbstractVar.isImplicit written out for TypedVar (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedVar) isImplicit() bool {
+	if this.isImplicitGoogNamespace() {
+		return true
+	}
+	var var_ AbstractScope_ImplicitVar = AbstractScope_ImplicitVar_of(this.name_)
+	return ((var_ != 0) && var_.isMadeByScope(this.scope_.up_AbstractScope()))
+}
+
+// declarationType is AbstractVar.declarationType written out for TypedVar (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedVar) declarationType() Token_rhino {
+	if this.isImplicitGoogNamespace() {
+		return 0
+	}
+	{
+		var current Node = this.getNode()
+		for ; current != 0; current = current.getParent() {
+			if AbstractVar_DECLARATION_TYPES_has_(current.getToken()) {
+				return current.getToken()
+			}
+		}
+	}
+	if !this.isImplicit() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("The nameNode for %s must be a descendant of one of: %s", this.self(), obj_(AbstractVar_DECLARATION_TYPES))))
+	}
+	return 0
+}
+
+// thisVar is AbstractVar.thisVar written out for TypedVar (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedVar) thisVar() *TypedVar {
+	return this
+}
+
+// getScopeRoot: an object that is exactly a AbstractVar calls its getScopeRoot_impl directly (post-flip); others dispatch.
+// getScopeRoot is AbstractVar.getScopeRoot written out for TypedVar (fbound: S = TypedScope, V = TypedVar).
+func (this *TypedVar) getScopeRoot() Node {
+	if p, _ := this.self_.(*TypedVar); p == this {
+		return this.getScopeRoot_impl()
+	}
+	return this.self_.getScopeRoot_impl()
 }

@@ -204,7 +204,7 @@ func (this *ReplaceStrings) buildReplacement(t *NodeTraversal, expr Node, prefix
 		keyBuilder.append(expr.getString())
 		return prefix
 	case Token_rhino_NAME:
-		var var_ *Var = cast_[*Var](t.getScope().getVarById_(expr.getStringId_()).self())
+		var var_ *Var = t.getScope().getVarById_(expr.getStringId_())
 		if (var_ != nil) && (var_.isDeclaredOrInferredConst() || var_.isConst()) {
 			var initialValue Node = var_.getInitialValue()
 			if initialValue != 0 {

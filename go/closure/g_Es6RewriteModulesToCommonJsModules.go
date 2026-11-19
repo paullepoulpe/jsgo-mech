@@ -195,7 +195,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) maybeGetNameOfImportedV
 	if !nameNode.isName() {
 		panic(new_IllegalStateException_0())
 	}
-	var var_ *Var = cast_[*Var](s.getVarById_(nameNode.getStringId_()).self())
+	var var_ *Var = s.getVarById_(nameNode.getStringId_())
 	if (((var_ != nil) && (var_.getNameNode() != 0)) && NodeUtil_isImportedName(var_.getNameNode())) && (nameNode != var_.getNameNode()) {
 		return Optional_of[string](this.getNameOfImportedValue(var_.getNameNode()))
 	}
@@ -341,7 +341,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportSpecs(t *Nod
 		var exportSpec Node = export.getFirstFirstChild()
 		for ; exportSpec != 0; exportSpec = exportSpec.getNext() {
 			var localName Optional[string] = Optional_of[string](exportSpec.getFirstChild().getString())
-			var var_ *Var = cast_[*Var](t.getScope().getVar(localName.get()).self())
+			var var_ *Var = t.getScope().getVar(localName.get())
 			if (var_ != nil) && NodeUtil_isImportedName(var_.getNameNode()) {
 				localName = this.maybeGetNameOfImportedValue(t.getScope(), exportSpec.getFirstChild())
 				if !localName.isPresent() {

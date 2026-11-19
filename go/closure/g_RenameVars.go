@@ -212,12 +212,12 @@ func (this *RenameVars) okToRenameVar(name string, isLocal bool) bool {
 
 func (this *RenameVars) getLocalVarIndex(v *Var) int32 {
 	var num int32 = v.getIndex()
-	var s *Scope = cast_[*Scope](v.getScope().(*Scope).getParent().self())
+	var s *Scope = v.getScopeT_().getParent()
 	if s == nil {
 		panic(new_IllegalArgumentException_String("Var is not local"))
 	}
-	var isBleedingIntoScope bool = ((cast_[*Scope](s.getParent().self()) != nil) && has_(this.localBleedingFunctions, vkey_(v)))
-	for cast_[*Scope](s.getParent().self()) != nil {
+	var isBleedingIntoScope bool = ((s.getParent() != nil) && has_(this.localBleedingFunctions, vkey_(v)))
+	for s.getParent() != nil {
 		if isBleedingIntoScope {
 			num += (this.localBleedingFunctionsPerScope.get(obj_(s)).indexOf(obj_(v)) + 1)
 			isBleedingIntoScope = false
@@ -227,7 +227,7 @@ func (this *RenameVars) getLocalVarIndex(v *Var) int32 {
 		if this.shouldTemporarilyRenameLocalsInScope(s) {
 			num += s.getVarCount()
 		}
-		s = cast_[*Scope](s.getParent().self())
+		s = s.getParent()
 	}
 	return num
 }
@@ -328,7 +328,7 @@ func (this *RenameVars_ProcessVars) enterScope(t *NodeTraversal) {
 	for current := range elemsAs_[*Var](scope.getVarIterable()) {
 		if current.isBleedingFunction() {
 			this.outer_.localBleedingFunctions[vkey_(current)] = struct{}{}
-			this.outer_.localBleedingFunctionsPerScope.put(scope.getParent(), current)
+			this.outer_.localBleedingFunctionsPerScope.put(scope.getParent().up_AbstractScope(), current)
 		}
 	}
 }
@@ -348,8 +348,8 @@ func (this *RenameVars_ProcessVars) visit_impl(t *NodeTraversal, n Node, parent 
 	if (parent.isImportSpec() && parent.hasTwoChildren()) && (parent.getFirstChild() == n) {
 		return
 	}
-	var var_ *Var = cast_[*Var](t.getScope().getVar(name).self())
-	var local bool = (((var_ != nil) && var_.isLocal()) && (var_.getScope().(*Scope).getParent().self().(*Scope).isLocal() || !var_.isBleedingFunction()))
+	var var_ *Var = t.getScope().getVar(name)
+	var local bool = (((var_ != nil) && var_.isLocal()) && (var_.getScopeT_().getParent().isLocal() || !var_.isBleedingFunction()))
 	if (var_ != nil) && var_.isArguments() {
 		this.outer_.reservedNames.Add(name)
 		return
@@ -370,7 +370,7 @@ func (this *RenameVars_ProcessVars) visit_impl(t *NodeTraversal, n Node, parent 
 	if this.outer_.pseudoNameMap != nil {
 		this.outer_.recordPseudoName(n)
 	}
-	if local && this.outer_.shouldTemporarilyRenameLocalsInScope(cast_[*Scope](var_.getScope())) {
+	if local && this.outer_.shouldTemporarilyRenameLocalsInScope(var_.getScopeT_()) {
 		var tempName string = (sstr_(RenameVars_LOCAL_VAR_PREFIX) + istr_(int64(this.outer_.getLocalVarIndex(var_))))
 		this.incCount(tempName)
 		*this.outer_.localNameNodes = append(*this.outer_.localNameNodes, n)

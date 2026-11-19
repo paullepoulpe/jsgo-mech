@@ -227,15 +227,15 @@ func (this *EsModuleProcessor_FindMutableExports) visit_impl(t *NodeTraversal, n
 		return
 	}
 	var scope *Scope = t.getScope()
-	if !NodeUtil_isLValue(n) || scope.getClosestHoistScope().self().(*Scope).isModuleScope() {
+	if !NodeUtil_isLValue(n) || scope.getClosestHoistScope().isModuleScope() {
 		return
 	}
 	var exports ListOf[*Export] = this.exportsByLocalName.get_s(n.getString())
 	if exports.isEmpty() {
 		return
 	}
-	var var_ *Var = cast_[*Var](scope.getVarById_(n.getStringId_()).self())
-	if (var_ == nil) || !var_.getScope().(*Scope).isModuleScope() {
+	var var_ *Var = scope.getVarById_(n.getStringId_())
+	if (var_ == nil) || !var_.getScopeT_().isModuleScope() {
 		return
 	}
 	for e := range elemsAs_[*Export](new_ArrayList_Collection(Collection(exports)).self()) {

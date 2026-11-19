@@ -85,7 +85,7 @@ func (this *GlobalNamespace) getRootNode() Node {
 
 func (this *GlobalNamespace) getRootNode_2(name string, s *Scope) Node {
 	name = GlobalNamespace_getTopVarName(name)
-	var v *Var = cast_[*Var](s.getVar(name).self())
+	var v *Var = s.getVar(name)
 	if v == nil {
 		var providedName *GlobalNamespace_Name = this.nameMap.Get(name)
 		return func() Node {
@@ -636,7 +636,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) collect(scope *Scope, chunk *J
 		return this.curMetadata
 	}()
 	if isSet {
-		var hoistScope *Scope = cast_[*Scope](scope.getClosestHoistScope().self())
+		var hoistScope *Scope = scope.getClosestHoistScope()
 		if hoistScope.isGlobal() || ((root != this.outer_.globalRoot) && (hoistScope.getRootNode() == this.curModuleRoot)) {
 			this.handleSetFromGlobal(chunk, scope, n, name.get(), type_, nameMetadata)
 		} else {

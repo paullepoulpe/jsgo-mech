@@ -116,7 +116,7 @@ func (this *Normalize_PropagateConstantPropertyOverVars) visit(t *NodeTraversal,
 	if !n.isName() || n.getStringIs_(sidx_) {
 		return
 	}
-	var var_ *Var = cast_[*Var](t.getScope().getVarById_(n.getStringId_()).self())
+	var var_ *Var = t.getScope().getVarById_(n.getStringId_())
 	var info *JSDocInfo = func() *JSDocInfo {
 		if var_ != nil {
 			return var_.getJSDocInfo()
@@ -546,7 +546,7 @@ func (this *Normalize_DuplicateDeclarationHandler) onRedeclaration(s *Scope, nam
 		panic(new_IllegalStateException_0())
 	}
 	var parent Node = n.getParent()
-	var v *Var = cast_[*Var](s.getVar(name).self())
+	var v *Var = s.getVar(name)
 	if s.isGlobal() {
 		if v.isExtern() && !input.isExtern() {
 			if setAdd_(this.hasOkDuplicateDeclaration, vkey_(v)) {
@@ -556,7 +556,7 @@ func (this *Normalize_DuplicateDeclarationHandler) onRedeclaration(s *Scope, nam
 	}
 	if parent.isFunction() {
 		if v.getParentNode().isVar() {
-			s.undeclare(v.up_AbstractVar())
+			s.undeclare(v)
 			s.declare(name, n, v.getInput())
 			this.replaceVarWithAssignment(v.getNameNode(), v.getParentNode(), v.getParentNode().getParent())
 		}

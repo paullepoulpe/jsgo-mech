@@ -237,7 +237,7 @@ func (this *ConvertChunksToESModules) visitName(t *NodeTraversal, nameNode Node,
 		return false
 	}
 	var s *Scope = t.getScope()
-	var v *Var = cast_[*Var](s.getVar(name).self())
+	var v *Var = s.getVar(name)
 	if (v == nil) || !v.isGlobal() {
 		return false
 	}

@@ -159,7 +159,7 @@ func (this *TypeInference) inferParameters(entryFlowScope FlowScope) FlowScope {
 
 func (this *TypeInference) updateDestructuringParameter(pattern Node, inferredType *JSType, entryFlowScope FlowScope) FlowScope {
 	entryFlowScope = this.traverseDestructuringPatternHelper(pattern, entryFlowScope, inferredType, func(scope FlowScope, lvalue Node, type_ *JSType) FlowScope {
-		var var_ *TypedVar = cast_[*TypedVar](this.containerScope.getVarById_(lvalue.getStringId_()).self())
+		var var_ *TypedVar = this.containerScope.getVarById_(lvalue.getStringId_())
 		if var_ == nil {
 			panic(new_NullPointerException_0())
 		}
@@ -176,7 +176,7 @@ func (this *TypeInference) updateDestructuringParameter(pattern Node, inferredTy
 }
 
 func (this *TypeInference) updateNamedParameter(paramName Node, hasDefaultValue bool, inferredType *JSType, entryFlowScope FlowScope) FlowScope {
-	var var_ *TypedVar = cast_[*TypedVar](this.containerScope.getVarById_(paramName.getStringId_()).self())
+	var var_ *TypedVar = this.containerScope.getVarById_(paramName.getStringId_())
 	if var_ == nil {
 		panic(new_NullPointerException_String(Strings_lenientFormat("Missing var for parameter %s", paramName.box_())))
 	}
@@ -221,7 +221,7 @@ func (this *TypeInference) updateModuleScope(module *Module, syntacticBlockScope
 	}
 	switch module.metadata().moduleType() {
 	case ModuleMetadataMap_ModuleType_ES6_MODULE:
-		this.moduleImportResolver.updateEsModuleNamespaceType(syntacticBlockScope.getVar(Export_NAMESPACE).self().(*TypedVar).getType().toObjectType(), module, syntacticBlockScope)
+		this.moduleImportResolver.updateEsModuleNamespaceType(syntacticBlockScope.getVar(Export_NAMESPACE).getType().toObjectType(), module, syntacticBlockScope)
 		return
 	case ModuleMetadataMap_ModuleType_GOOG_MODULE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE:
 		nn_, nn1_ := syntacticBlockScope.getVar("exports"), module.metadata()
@@ -249,8 +249,8 @@ func (this *TypeInference) updateModuleScope(module *Module, syntacticBlockScope
 			break
 		}
 		var moduleId Optional[string] = module.closureNamespace()
-		var globalScope *TypedScope = cast_[*TypedScope](syntacticBlockScope.getGlobalScope().self())
-		var globalVar *TypedVar = cast_[*TypedVar](globalScope.getVar(moduleId.get()).self())
+		var globalScope *TypedScope = syntacticBlockScope.getGlobalScope()
+		var globalVar *TypedVar = globalScope.getVar(moduleId.get())
 		if globalVar.isTypeInferred() {
 			globalVar.setType(exportsType)
 		}
@@ -525,7 +525,7 @@ func (this *TypeInference) traverseSuper(superNode Node, currentScope FlowScope)
 	case tokOrd1_CALL:
 		var scope *TypedScope = this.containerScope
 		for (scope != nil) && !NodeUtil_isNonArrowFunction(scope.getRootNode()) {
-			scope = cast_[*TypedScope](scope.getParent().self())
+			scope = scope.getParent()
 		}
 		if scope == nil {
 			superNode.setJSType(this.unknownType.up_JSType())
@@ -552,7 +552,7 @@ func (this *TypeInference) traverseSuper(superNode Node, currentScope FlowScope)
 func (this *TypeInference) traverseNewTarget(newTargetNode Node) {
 	var scope *TypedScope = this.containerScope
 	for (scope != nil) && !NodeUtil_isNonArrowFunction(scope.getRootNode()) {
-		scope = cast_[*TypedScope](scope.getParent().self())
+		scope = scope.getParent()
 	}
 	if scope == nil {
 		newTargetNode.setJSType(this.unknownType.up_JSType())
@@ -908,7 +908,7 @@ func (this *TypeInference) traverseName(n Node, scope FlowScope) FlowScope {
 			var unflowable bool = (isInferred && this.isUnflowable(TypeInference_getDeclaredVar(scope, varName)))
 			var maybeOuterVar *TypedVar = func() *TypedVar {
 				if isInferred && this.containerScope.isLocal() {
-					return cast_[*TypedVar](this.containerScope.getParent().self().(*TypedScope).getVar(varName).self())
+					return this.containerScope.getParent().getVar(varName)
 				}
 				return nil
 			}()
@@ -1267,7 +1267,7 @@ func (this *TypeInference) getGoogModuleDependencyCallResultType(callNode Node) 
 		var otherModuleScope *TypedScope = cast_[*TypedScope](this.scopeCreator.getNodeToScopeMapper().apply(name.getScopeRoot().box_()))
 		var otherVar *TypedVar = func() *TypedVar {
 			if otherModuleScope != nil {
-				return cast_[*TypedVar](otherModuleScope.getSlot(name.getName()))
+				return otherModuleScope.getSlotT_(name.getName())
 			}
 			return nil
 		}()
@@ -1946,7 +1946,7 @@ func (this *TypeInference) redeclareSimpleVar(scope FlowScope, nameNode Node, va
 }
 
 func (this *TypeInference) isUnflowable(v *TypedVar) bool {
-	return ((((v != nil) && v.isLocal()) && v.isMarkedEscaped()) && (cast_[*TypedScope](v.getScope().(*TypedScope).getClosestContainerScope().self()) == this.containerScope))
+	return ((((v != nil) && v.isLocal()) && v.isMarkedEscaped()) && (v.getScope().(*TypedScope).getClosestContainerScope() == this.containerScope))
 }
 
 func (this *TypeInference) getJSType(n Node) *JSType {
@@ -1963,7 +1963,7 @@ func (this *TypeInference) getNativeType(typeId JSTypeNative) *JSType {
 }
 
 func TypeInference_getDeclaredVar(scope FlowScope, name string) *TypedVar {
-	return cast_[*TypedVar](scope.getDeclarationScope().(*TypedScope).getVar(name).self())
+	return scope.getDeclarationScope().(*TypedScope).getVar(name)
 }
 
 var TypeInference_REASSIGN_CLASS_PROTOTYPE *DiagnosticType

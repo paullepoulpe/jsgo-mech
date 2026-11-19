@@ -211,7 +211,7 @@ func (this *LiveVariablesAnalysis) addToSetIfLocal(node Node, set *BitSet) {
 		return
 	}
 	var local bool
-	var localScope *Scope = cast_[*Scope](var_.getScope())
+	var localScope *Scope = var_.getScopeT_()
 	if localScope.isFunctionBlockScope() {
 		local = LiveVariablesAnalysis_isDeclaredInFunctionBlockOrParameter(localScope, name)
 	} else if (localScope == this.jsScope) && (this.jsScopeChild != nil) {
@@ -231,7 +231,7 @@ func LiveVariablesAnalysis_isDeclaredInFunctionBlockOrParameter(scope *Scope, na
 	if !scope.isFunctionBlockScope() {
 		panic(new_IllegalStateException_0())
 	}
-	return (scope.hasOwnSlot(name) || scope.getParent().self().(*Scope).hasOwnSlot(name))
+	return (scope.hasOwnSlot(name) || scope.getParent().hasOwnSlot(name))
 }
 
 func (this *LiveVariablesAnalysis) markAllParametersEscaped() {
@@ -240,7 +240,7 @@ func (this *LiveVariablesAnalysis) markAllParametersEscaped() {
 		var param Node = paramList.getFirstChild()
 		for ; param != 0; param = param.getNext() {
 			if param.isName() {
-				this.escaped[vkey_(cast_[*Var](this.jsScope.getVarById_(param.getStringId_()).self()))] = struct{}{}
+				this.escaped[vkey_(this.jsScope.getVarById_(param.getStringId_()))] = struct{}{}
 			}
 		}
 	}

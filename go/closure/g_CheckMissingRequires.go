@@ -176,15 +176,15 @@ func (this *CheckMissingRequires) visitMaybeDeclaration(t *NodeTraversal, n Node
 		panic(new_IllegalStateException_0())
 	}
 	var rootName string = n.getString()
-	var var_ *Var = cast_[*Var](t.getScope().getVar(rootName).self())
+	var var_ *Var = t.getScope().getVar(rootName)
 	if var_ == nil {
 		return
 	}
-	var declaration *Var = cast_[*Var](var_.getDeclaration())
+	var declaration *Var = var_.getDeclarationT_()
 	if (declaration == nil) || (declaration.getNode() != n) {
 		return
 	}
-	if var_.getScope().(*Scope).isLocal() {
+	if var_.getScopeT_().isLocal() {
 		var require *NodeUtil_GoogRequire = NodeUtil_getGoogRequireInfo_Var(var_)
 		if require == nil {
 			return
@@ -226,8 +226,8 @@ func (this *CheckMissingRequires) visitQualifiedName(t *NodeTraversal, n Node, c
 	if NodeUtil_isDeclarationLValue(n) {
 		return
 	}
-	var var_ *Var = cast_[*Var](t.getScope().getVar(rootName).self())
-	if (var_ != nil) && var_.getScope().(*Scope).isLocal() {
+	var var_ *Var = t.getScope().getVar(rootName)
+	if (var_ != nil) && var_.getScopeT_().isLocal() {
 		this.checkMissingRequireThroughShortName(t, n, var_, currentFile, qualifiedName, referenceStrength)
 	} else {
 		this.checkMissingRequireThroughFullyQualifiedName(t, n, currentFile, qualifiedName, referenceStrength)

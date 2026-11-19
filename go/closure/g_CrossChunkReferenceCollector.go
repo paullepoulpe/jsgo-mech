@@ -232,7 +232,7 @@ func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode N
 		}
 		return true
 	case Token_rhino_NAME:
-		var v *Var = cast_[*Var](scope.getVarById_(valueNode.getStringId_()).self())
+		var v *Var = scope.getVarById_(valueNode.getStringId_())
 		if (v != nil) && v.isGlobal() {
 			var refCollection *ReferenceCollection = this.getReferences(v)
 			if ((refCollection != nil) && refCollection.isWellDefined()) && refCollection.isAssignedOnceInLifetime() {

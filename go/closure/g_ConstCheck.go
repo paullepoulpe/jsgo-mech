@@ -37,7 +37,7 @@ func (this *ConstCheck) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	case tokOrd1_NAME:
 		if NodeUtil_isNameDeclaration(parent) {
 			var name string = n.getString()
-			var var_ *Var = cast_[*Var](t.getScope().getVar(name).self())
+			var var_ *Var = t.getScope().getVar(name)
 			if this.isConstant(var_, n) {
 				if n.isFromExterns() {
 					this.initializedConstants[vkey_(var_)] = struct{}{}
@@ -52,7 +52,7 @@ func (this *ConstCheck) visit_impl(t *NodeTraversal, n Node, parent Node) {
 		var lhs Node = n.getFirstChild()
 		if lhs.isName() {
 			var name string = lhs.getString()
-			var var_ *Var = cast_[*Var](t.getScope().getVar(name).self())
+			var var_ *Var = t.getScope().getVar(name)
 			if this.isConstant(var_, lhs) && !setAdd_(this.initializedConstants, vkey_(var_)) {
 				this.reportError(n, var_, name)
 			} else if ((var_ != nil) && var_.isGoogModuleExports()) && !setAdd_(this.initializedConstants, vkey_(var_)) {
@@ -63,7 +63,7 @@ func (this *ConstCheck) visit_impl(t *NodeTraversal, n Node, parent Node) {
 		var lhs Node = n.getFirstChild()
 		if lhs.isName() {
 			var name string = lhs.getString()
-			var var_ *Var = cast_[*Var](t.getScope().getVar(name).self())
+			var var_ *Var = t.getScope().getVar(name)
 			if this.isConstant(var_, lhs) {
 				this.reportError(n, var_, name)
 			}
