@@ -621,3 +621,5 @@ dfc0c907 run t tchecks && f
 15cc74d8 patch reflip2-15cc74d8-rt.patch
 # C21. postflip step: jfam -kind valkeys
 4e3fede0 run t jfam -kind valkeys
+# C22. postflip (runtime): step_ of the post-flip views (the erased for-each cursor without an iterator object)
+09b98838 patch reflip2-09b98838-rt.patch
