@@ -370,3 +370,20 @@ inside the node, by hand), graph node creation (14.4M; C33 takes the adapter and
 StringPool_Builder.put (9.8M) and the type search of SerializeTypesToPointers (9.8M), strobj_
 (7M), a Predicates_equalTo object per isConnectedInDirection (6.3M), LinkedIdentityHashMap
 entries (3.9M). These, not casts, are what the next tools on this tree should take.
+
+### C34 (dd7c9fa2): the postflip5 line's four googleapis runtime steps were missing here
+
+The second trial branched before postflip5-r9-ga's ef603915 (tmapIter_.remove in constant time),
+b1129850 (its test), b0699ec8 (subList boxes its range) and 2df6c21b (build() hands the
+builder's storage to the message). They apply without conflict. On the subset (2 rounds,
+runs/c34_gs3500.runs): total CPU -2.3%, wall 117.5s/118.0s -> 116.5s/116.2s. The first two are
+the fixes whose cost grows with input size, so the full-size run of this tree recorded above
+(719.5s) was made without them and is not a fair figure for the translation; a full-size run
+with them is owed.
+
+After C34 the allocation sites this tree still has above postflip5 in the subset's CHECKS stage
+(sampled objects, binary of C33): the two edge lists of each graph node (22M: an ArrayList of
+capacity 1 each, as in Java; postflip5 has one-element arrays inside the node by hand), the
+type search of SerializeTypesToPointers (9.7M), strobj_ (7M), a Predicates_equalTo object per
+isConnectedInDirection (6.3M, as in Java; by hand in postflip5), LinkedIdentityHashMap entries
+(3.8M). The two largest are allocations Java makes too.
