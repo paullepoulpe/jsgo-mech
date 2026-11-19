@@ -223,11 +223,15 @@ var Files []*ast.File
 // UsesOf maps an object to its uses, in source order.
 var UsesOf = map[types.Object][]*ast.Ident{}
 
+// WithTests makes Load include the package's test files (for a step that renames what the
+// tests use too).
+var WithTests bool
+
 // Load parses and type-checks the package in dir.
 func Load(dir string) {
 	names, _ := filepath.Glob(filepath.Join(dir, "*.go"))
 	for _, n := range names {
-		if strings.HasSuffix(n, "_test.go") {
+		if strings.HasSuffix(n, "_test.go") && !WithTests {
 			continue
 		}
 		b, err := os.ReadFile(n)
