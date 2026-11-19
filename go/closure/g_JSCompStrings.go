@@ -27,9 +27,9 @@ func JSCompStrings_parseIntOrNull(s Optional[string]) any {
 	if s.isEmpty() || s.get() == "" {
 		return nil
 	}
-	var negative bool = (String_charAt(s.get(), 0) == '-')
+	var negative bool = (byteAt_(s.get(), 0) == '-')
 	var start int32 = func() int32 {
-		if negative || (String_charAt(s.get(), 0) == '+') {
+		if negative || (byteAt_(s.get(), 0) == '+') {
 			return 1
 		}
 		return 0

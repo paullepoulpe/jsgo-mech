@@ -212,7 +212,7 @@ func (a *an) bytePos(e ast.Expr) (cpos, bool) {
 		e = x
 	}
 	ix, ok := e.(*ast.IndexExpr)
-	if !ok || identVar(ix.X) != a.s {
+	if !ok || !a.isS(ix.X) {
 		return cpos{}, false
 	}
 	if b, o, ok := a.posOf(ix.Index); ok {
@@ -297,7 +297,7 @@ func (a *an) refine(st *state, e ast.Expr, truth bool) *state {
 			}
 		}
 		// strings.HasPrefix / HasSuffix of an ASCII constant
-		if sel, ok := x.Fun.(*ast.SelectorExpr); ok && truth && len(x.Args) == 2 && identVar(x.Args[0]) == a.s {
+		if sel, ok := x.Fun.(*ast.SelectorExpr); ok && truth && len(x.Args) == 2 && a.isS(x.Args[0]) {
 			if pk, ok := sel.X.(*ast.Ident); ok && pk.Name == "strings" {
 				if _, isPkg := rw.Info.Uses[pk].(*types.PkgName); isPkg {
 					if cs, ok := constString(x.Args[1]); ok && asciiOnly(cs) && len(cs) < 32-ascBias {
