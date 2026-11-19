@@ -341,6 +341,40 @@ in 3 of 3). So the whole gap is the CHECKS stage: in its pass times (tracer, 18 
 19.5s against 12.9s, serializeTypedAst 7.3s against 3.3s, parseInputs 8.2s against 6.0s,
 checkTypes 4.4s against 2.7s.
 
+## How the gap to Java grows with input size, and jsgo's figures for the same benchmark (19 Nov)
+
+Correction to the paragraphs above: "the first 3,500 chunks" is not about half of
+googleapis-bench. The flag file lists all 44,577 input files and then the 7,526 chunks; the
+first chunks are small, so the first 3,500 chunks hold 7,886 files, 18% of the input. A second
+subset built the same way (gasub/flags5447.txt: 5,447 chunks, 23,196 files, 52%) ran once,
+Java then Go, alone on the host (runs/half_gs5447.runs; chunks identical, sha 2043969e):
+
+| input | Java wall | Go wall (2df6c21b) | Java/Go | CHECKS | OPTIMIZATIONS | FINALIZATIONS | peak RSS Java / Go |
+|---|---|---|---|---|---|---|---|
+| 18% (3,500 chunks) | 94.2-95.2s | 100.6-101.0s | 0.94 | 0.79 | 1.04 | 1.26 | 4.4-5.6 GB / 3.7 GB |
+| 52% (5,447 chunks) | 248.6s | 285.5s | 0.87 | 0.79 (117.2s / 147.8s) | 0.95 (109.3s / 114.7s) | 0.96 (22.1s / 23.0s) | 8.0 GB / 11.2 GB |
+| 100% (7,526 chunks, 18 Nov) | 473.1s, 470.2s | 568.2s, 589.3s | 0.83, 0.80 | | | | (Java -Xmx20g) / 21.3 GB |
+
+CHECKS is behind by the same fifth at both sizes. What changes with size is the other two
+stages, which go from ahead of Java to behind it, and memory: Go's peak grows in proportion to
+the input (3.7 GB, 11.2 GB, 21.3 GB) and passes Java's between the two subsets.
+
+jsgo's own record for this benchmark (migration_plan.md 7.1, on its machine; its hand-ported Go
+at the flip with every later optimization off, default GC settings as here): CHECKS 73.1s
+against Java's 97.6s at one thread, total 134.0s against 208.7s, peak RSS 6.5 GB against
+Java's 12.6 GB. So on the full input jsgo's Go held about half of Java's memory, and this
+tree holds more than Java's. The node store here takes 3.86 GB of the 8.1 GB in use at the end
+of full-size CHECKS (five columns, two of them with pointers: about 108 bytes a node); jsgo's
+store is pointer-free blocks of 576 KiB. The size of the live heap, not a pass, is the first
+candidate for why OPTIMIZATIONS and FINALIZATIONS lose their lead as the input grows; it is not
+measured yet beyond the table above.
+
+One more difference in kind: jsgo kept upstream's PrebuildAst and PrebuildDependencyInfo
+parallel (goroutines, --num_parallel_threads). Here round 8's manual steps 134 and 193 made them
+loops on the calling goroutine and removed the executors, so --num_parallel_threads has no
+effect in this tree. The benchmark's default is one thread, so the figures above are not
+affected, but it is a capability of the Java compiler that this migration dropped.
+
 ## Correction: PGO (13-17 Nov)
 
 `go/cmd/mech/default.pgo` was in the tree from 1fef152c (13 Nov) to c4aefc67 (17 Nov), and
