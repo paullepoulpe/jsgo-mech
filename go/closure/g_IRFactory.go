@@ -1451,11 +1451,15 @@ func IRFactory_clinit() {
 	IRFactory_CR_OR_CRLF_PATTERN = Pattern_compile("\r\n?")
 	IRFactory_ES5_RESERVED_KEYWORDS = immutableSetOf_[string](tc_string, "class", "const", "enum", "export", "extends", "import", "super")
 	IRFactory_ES5_STRICT_RESERVED_KEYWORDS = immutableSetOf_[string](tc_string, "class", "const", "enum", "export", "extends", "import", "super", "implements", "interface", "let", "package", "private", "protected", "public", "static", "yield")
-	IRFactory_COMMENT_START_POSITION_COMPARATOR = Comparator_thenComparingInt(Comparator_comparingInt(&ToIntFunction_tfn_Comment{func(x *Comment) int32 {
-		return x.location_.start_.line_
-	}}), &ToIntFunction_tfn_Comment{func(x *Comment) int32 {
-		return x.location_.start_.column_
-	}})
+	IRFactory_COMMENT_START_POSITION_COMPARATOR = Comparator_thenComparingInt_f(Comparator_comparingInt_f(func(p0 any) int32 {
+		return (func(x *Comment) int32 {
+			return x.location_.start_.line_
+		})(cast_[*Comment](p0))
+	}), func(p0 any) int32 {
+		return (func(x *Comment) int32 {
+			return x.location_.start_.column_
+		})(cast_[*Comment](p0))
+	})
 	IRFactory_GOOG_MODULE = QualifiedName_of("goog.module")
 
 }
@@ -1483,7 +1487,11 @@ func IRFactory_LineAndColumn_fromSourcePosition(pos *SourcePosition_util) *IRFac
 func (this *IRFactory_LineAndColumn) compareTo(o_ any) int32 {
 	var o *IRFactory_LineAndColumn = cast_[*IRFactory_LineAndColumn](o_)
 	_ = o
-	return Comparator_thenComparingInt(Comparator_comparingInt(&ToIntFunction_tfn_IRFactory_LineAndColumn{func(p0 *IRFactory_LineAndColumn) int32 { return p0.lineNo() }}), &ToIntFunction_tfn_IRFactory_LineAndColumn{func(p0 *IRFactory_LineAndColumn) int32 { return p0.column() }}).compare(any(this), obj_(o))
+	return Comparator_thenComparingInt_f(Comparator_comparingInt_f(func(p0 any) int32 {
+		return (func(p0 *IRFactory_LineAndColumn) int32 { return p0.lineNo() })(cast_[*IRFactory_LineAndColumn](p0))
+	}), func(p0 any) int32 {
+		return (func(p0 *IRFactory_LineAndColumn) int32 { return p0.column() })(cast_[*IRFactory_LineAndColumn](p0))
+	}).compare(any(this), obj_(o))
 }
 
 func (this *IRFactory_LineAndColumn) lineNo() int32 {

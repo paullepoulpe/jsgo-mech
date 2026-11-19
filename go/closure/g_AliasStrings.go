@@ -80,7 +80,9 @@ func (this *AliasStrings) visit(t *NodeTraversal, n Node, parent Node) {
 				return
 			}
 		}
-		var varParent Node = mapComputeIfAbsent_(tc_p_JSChunk, tc_Node, this.chunkVarParentMap, chunk, &Function_tfn_JSChunk_Node{func(p0 *JSChunk) Node { return this.compiler_.getNodeForCodeInsertion(p0) }})
+		var varParent Node = mapComputeIfAbsent_f(tc_p_JSChunk, tc_Node, this.chunkVarParentMap, chunk, func(p0 any) any {
+			return (func(p0 *JSChunk) Node { return this.compiler_.getNodeForCodeInsertion(p0) })(cast_[*JSChunk](p0)).box_()
+		})
 		info.chunkToContainDecl = chunk
 		info.parentForNewVarDecl = varParent
 		info.siblingToInsertVarDeclBefore = varParent.getFirstChild()

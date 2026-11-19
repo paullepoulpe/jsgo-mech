@@ -324,9 +324,11 @@ func (this *ErrorToFixMapper) getMetadataForScript(script Node) *ScriptMetadata 
 	if !script.isScript() {
 		panic(new_IllegalArgumentException_0())
 	}
-	return mapComputeIfAbsent_(tc_Node, tc_p_ScriptMetadata, this.metadataForEachScript, script, &Function_tfn_Node_ScriptMetadata{func(s Node) *ScriptMetadata {
-		return ScriptMetadata_create(s, this.compiler_)
-	}})
+	return mapComputeIfAbsent_f(tc_Node, tc_p_ScriptMetadata, this.metadataForEachScript, script, func(p0 any) any {
+		return obj_((func(s Node) *ScriptMetadata {
+			return ScriptMetadata_create(s, this.compiler_)
+		})(Node_of_(p0)))
+	})
 }
 
 var ErrorToFixMapper_DID_YOU_MEAN *Pattern

@@ -483,9 +483,11 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMa
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) getVariableInfoStack(name string) DequeOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo] {
-	return mapComputeIfAbsent_(tc_string, tc_Deque, this.mapOfStacks, name, &Function_tfn_string_Deque{func(ignoredKey string) Deque {
-		return Deque(new_ArrayDeque())
-	}})
+	return mapComputeIfAbsent_f(tc_string, tc_Deque, this.mapOfStacks, name, func(p0 any) any {
+		return (func(ignoredKey string) Deque {
+			return Deque(new_ArrayDeque())
+		})(str_(p0))
+	})
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) getOrCreateCurrentVariableInfo(name string) MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo {
@@ -756,7 +758,9 @@ func (this *MakeDeclaredNamesUnique_InlineRenamer) addDeclaredName(name string, 
 	if hoisted && (this.hoistRenamer != any(this)) {
 		this.hoistRenamer.addDeclaredName(name, hoisted)
 	} else {
-		mapComputeIfAbsent_(tc_string, tc_string, this.declarations, name, &Function_tfn_string_string{func(p0 string) string { return this.getUniqueName(p0) }})
+		mapComputeIfAbsent_f(tc_string, tc_string, this.declarations, name, func(p0 any) any {
+			return strobj_((func(p0 string) string { return this.getUniqueName(p0) })(str_(p0)))
+		})
 	}
 }
 

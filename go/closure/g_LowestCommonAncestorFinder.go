@@ -40,9 +40,11 @@ func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetOf[N]) ImmutableS
 		var rootNode DiGraph_DiGraphNode[N] = this.graph.getNode_Object_rDiGraphNode(root)
 		Preconditions_checkNotNull_Object_String_Object_T(rootNode, "Root not present in graph: %s", boxT_(root))
 		var color *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(bitForRoot)
-		Map_merge(this.searchColoring.asMap(), rootNode, obj_(color), &BiFunction_tfn_LowestCommonAncestorFinder_Color_LowestCommonAncestorFinder_Color_LowestCommonAncestorFinder_Color{func(p0 *LowestCommonAncestorFinder_Color, p1 *LowestCommonAncestorFinder_Color) *LowestCommonAncestorFinder_Color {
-			return p0.mix(p1)
-		}})
+		Map_merge_f(this.searchColoring.asMap(), rootNode, obj_(color), func(p0 any, p1 any) any {
+			return obj_((func(p0 *LowestCommonAncestorFinder_Color, p1 *LowestCommonAncestorFinder_Color) *LowestCommonAncestorFinder_Color {
+				return p0.mix(p1)
+			})(cast_[*LowestCommonAncestorFinder_Color](p0), cast_[*LowestCommonAncestorFinder_Color](p1)))
+		})
 		this.paintAncestors(rootNode, color)
 		bitForRoot = (bitForRoot << 1)
 	}
@@ -162,7 +164,9 @@ func LowestCommonAncestorFinder_Color_clinit() {
 		func() {
 			arr_1 := LowestCommonAncestorFinder_Color_COMMON_COLOR_CACHE
 			tmp_2 := arrmap_(arr_1, func(v_ *LowestCommonAncestorFinder_Color) any { return obj_(v_) })
-			Arrays_setAll(tmp_2, &IntFunction_tfn_LowestCommonAncestorFinder_Color{func(p0 int32) *LowestCommonAncestorFinder_Color { return new_LowestCommonAncestorFinder_Color(p0) }})
+			Arrays_setAll_f(tmp_2, func(p0 int32) any {
+				return obj_((func(p0 int32) *LowestCommonAncestorFinder_Color { return new_LowestCommonAncestorFinder_Color(p0) })(p0))
+			})
 			for i_ := range tmp_2 {
 				arr_1[i_] = cast_[*LowestCommonAncestorFinder_Color](tmp_2[i_])
 			}

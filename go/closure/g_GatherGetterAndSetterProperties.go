@@ -68,9 +68,11 @@ func new_GatherGetterAndSetterProperties_GatherCallback() *GatherGetterAndSetter
 }
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) record(property string, kind AccessorSummary_PropertyAccessKind) {
-	Map_merge(this.properties.asMap(), strobj_(property), obj_(kind), &BiFunction_tfn_AccessorSummary_PropertyAccessKind_AccessorSummary_PropertyAccessKind_AccessorSummary_PropertyAccessKind{func(p0 AccessorSummary_PropertyAccessKind, p1 AccessorSummary_PropertyAccessKind) AccessorSummary_PropertyAccessKind {
-		return p0.unionWith(p1)
-	}})
+	Map_merge_f(this.properties.asMap(), strobj_(property), obj_(kind), func(p0 any, p1 any) any {
+		return obj_((func(p0 AccessorSummary_PropertyAccessKind, p1 AccessorSummary_PropertyAccessKind) AccessorSummary_PropertyAccessKind {
+			return p0.unionWith(p1)
+		})(cast_[AccessorSummary_PropertyAccessKind](p0), cast_[AccessorSummary_PropertyAccessKind](p1)))
+	})
 }
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) visit_impl(t *NodeTraversal, n Node, parent Node) {

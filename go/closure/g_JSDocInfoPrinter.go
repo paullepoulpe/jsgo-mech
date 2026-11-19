@@ -170,14 +170,16 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	var templates *JTMap[string, *JSTypeExpression] = info.getTemplateTypes()
 	if !templates.isEmpty() {
 		multiline = true
-		Map_forEach(templates.asMap(), &BiConsumer_tfn_string_JSTypeExpression{func(name string, boundExpr *JSTypeExpression) {
-			var boundRoot Node = boundExpr.getRoot()
-			if (boundRoot.ns_().token == tokOrd1_QMARK) && !boundRoot.hasChildren() {
-				parts.add(("@template " + sstr_(name)))
-			} else {
-				parts.add(this.buildAnnotationWithType_3("template", boundExpr, Optional_of[string](name)))
-			}
-		}})
+		Map_forEach_f(templates.asMap(), func(p0 any, p1 any) {
+			(func(name string, boundExpr *JSTypeExpression) {
+				var boundRoot Node = boundExpr.getRoot()
+				if (boundRoot.ns_().token == tokOrd1_QMARK) && !boundRoot.hasChildren() {
+					parts.add(("@template " + sstr_(name)))
+				} else {
+					parts.add(this.buildAnnotationWithType_3("template", boundExpr, Optional_of[string](name)))
+				}
+			})(str_(p0), cast_[*JSTypeExpression](p1))
+		})
 	}
 	var typeTransformations *JTMap[string, Node] = info.getTypeTransformations()
 	if !typeTransformations.isEmpty() {

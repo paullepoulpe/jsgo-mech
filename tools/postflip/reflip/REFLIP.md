@@ -213,3 +213,21 @@ translator's collections visible to the post-flip tools (598 more are native Go 
 at no cost in time, and no gain yet: what remains is erased iteration over typed maps
 (Map.forEach with a lambda, entryOut_), the typed lambda adapters (passfn, funcparams) and the
 manual patches both trials dropped.
+
+After the table above (each gated; fb.py 3 rounds, CPU, against the binary before):
+
+| step | counts | bundle | typed-full |
+|---|---|---|---|
+| ranges -index, -entries | 84 loops | 30.78s -> 31.08s | 65.38s -> 64.71s |
+| bulkops, forEach with a typed lambda (m.forEachT) | 5 maps; left 4 + 6 (not a post-flip typed collection's view) | 30.73s -> 30.28s | 65.30s -> 64.65s |
+| jfam -kind cursors (eachKey / eachValue -> each) | 21 + 47 loops | within noise (with the pipeline re-run, which changes nothing) | |
+| jfam -kind eqkeys (keys whose equals is ==, by rw.KeyMode) | 12 conversions of 7 types; left 94 of 23 types | 31.18s -> 30.67s | 64.85s -> 64.79s |
+
+The 15 bridge steps (C1-C15 in steps.txt) replay from reflip2-replayed byte for byte.
+Against postflip5-r9-ga in the same profiles (bundle, CPU inside the passes: 17.1s there, 23.9s
+here) the passes furthest behind are flowSensitiveInlineVariables +2.1s, removeUnusedCode +0.9s,
+ReferenceCollector +0.7s, coalesceVariableNames +0.6s, the rename inverter +0.6s,
+deadAssignmentsElimination +0.5s: the data-flow analysis and graph code of the manual patches
+both trials dropped, spread over interface assertions in generic code (itabTable.find), name
+hashing in scope lookups (utf16Hash_, htable_.findStr), boxing of type-parameter values
+(boxT_, junboxT_) and the comparator object of the work queue (Comparator_comparingInt).

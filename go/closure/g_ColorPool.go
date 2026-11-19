@@ -338,19 +338,21 @@ func (this *ColorPool_Builder) reconcileObjectProtos(id *ColorId, viewToProto Ma
 
 func (this *ColorPool_Builder) reconcileUnionProtos(id *ColorId, viewToProto MapOf[*ColorPool_ShardView, *TypeProto]) *Color {
 	var union *TSet[*Color] = newTSet_(tce_p_Color.t_())
-	Map_forEach(viewToProto, &BiConsumer_tfn_ColorPool_ShardView_TypeProto{func(shard *ColorPool_ShardView, proto *TypeProto) {
-		if !proto.hasUnion() {
-			panic(new_IllegalStateException_String(objstr_(proto)))
-		}
-		var unionMemberList ListOf[BoxedOf[int32]] = proto.getUnion().getUnionMemberList()
-		for i := int32(0); i < unionMemberList.size(); i++ {
-			var memberPointer any = unionMemberList.get(i)
-			var memberId *ColorId = shard.getId(unbox_[int32](memberPointer))
-			var member *Color = this.lookupOrReconcileColor(memberId)
-			MalformedTypedAstException_checkWellFormed_boolean_String_Object(!member.isUnion(), "Reconciling union with non-union", obj_(proto))
-			union.Add(member)
-		}
-	}})
+	Map_forEach_f(viewToProto, func(p0 any, p1 any) {
+		(func(shard *ColorPool_ShardView, proto *TypeProto) {
+			if !proto.hasUnion() {
+				panic(new_IllegalStateException_String(objstr_(proto)))
+			}
+			var unionMemberList ListOf[BoxedOf[int32]] = proto.getUnion().getUnionMemberList()
+			for i := int32(0); i < unionMemberList.size(); i++ {
+				var memberPointer any = unionMemberList.get(i)
+				var memberId *ColorId = shard.getId(unbox_[int32](memberPointer))
+				var member *Color = this.lookupOrReconcileColor(memberId)
+				MalformedTypedAstException_checkWellFormed_boolean_String_Object(!member.isUnion(), "Reconciling union with non-union", obj_(proto))
+				union.Add(member)
+			}
+		})(cast_[*ColorPool_ShardView](p0), cast_[*TypeProto](p1))
+	})
 	var result *Color = Color_createUnion(union)
 	if !id.equals_ColorId(result.getId()) {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("%s == %s", []any{id, result})))

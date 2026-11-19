@@ -1209,9 +1209,11 @@ func AstFactory_clinit() {
 	}
 	AstFactory_clinit_done = true
 	AstFactory_DOT_SPLITTER = Splitter_on_String(".")
-	AstFactory_bigintNumberStringColor = Supplier(Suppliers_memoize(&Supplier_base_tfn_Color{func() *Color {
-		return Color_createUnion(immutableSetOf_[*Color](tce_p_Color.t_(), StandardColors_BIGINT, StandardColors_STRING, StandardColors_NUMBER))
-	}}))
+	AstFactory_bigintNumberStringColor = Supplier(Suppliers_memoize_f(func() any {
+		return obj_((func() *Color {
+			return Color_createUnion(immutableSetOf_[*Color](tce_p_Color.t_(), StandardColors_BIGINT, StandardColors_STRING, StandardColors_NUMBER))
+		})())
+	}))
 
 }
 

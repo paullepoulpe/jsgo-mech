@@ -92,6 +92,10 @@ func CodeReplacement_clinit() {
 		return
 	}
 	CodeReplacement_clinit_done = true
-	CodeReplacement_APPLICATION_ORDER = Comparator_thenComparing(Comparator_thenComparing(Comparator_thenComparingInt(Comparator_comparingInt(&ToIntFunction_tfn_CodeReplacement{func(p0 *CodeReplacement) int32 { return p0.getStartPosition() }}), &ToIntFunction_tfn_CodeReplacement{func(p0 *CodeReplacement) int32 { return p0.getLength() }}), &Function_tfn_CodeReplacement_string{func(p0 *CodeReplacement) string { return p0.getSortKey() }}), &Function_tfn_CodeReplacement_string{func(p0 *CodeReplacement) string { return p0.getNewContent() }})
+	CodeReplacement_APPLICATION_ORDER = Comparator_thenComparing(Comparator_thenComparing(Comparator_thenComparingInt_f(Comparator_comparingInt_f(func(p0 any) int32 {
+		return (func(p0 *CodeReplacement) int32 { return p0.getStartPosition() })(cast_[*CodeReplacement](p0))
+	}), func(p0 any) int32 {
+		return (func(p0 *CodeReplacement) int32 { return p0.getLength() })(cast_[*CodeReplacement](p0))
+	}), &Function_tfn_CodeReplacement_string{func(p0 *CodeReplacement) string { return p0.getSortKey() }}), &Function_tfn_CodeReplacement_string{func(p0 *CodeReplacement) string { return p0.getNewContent() }})
 
 }

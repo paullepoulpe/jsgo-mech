@@ -1455,16 +1455,18 @@ func (this *TypeInference) inferTemplatedTypesForCall(n Node, fnType *FunctionTy
 		var key *TemplateType = it_1.v
 		inferred.Put(key, bindings.GetOr(key, this.unknownType.up_JSType()))
 	}
-	Map_replaceAll(inferred.asMap(), &BiFunction_tfn_TemplateType_any_any{func(k *TemplateType, v_ any) any {
-		var v *JSType = to_JSType(v_)
-		_ = v
-		return func() any {
-			if v.isSubtypeOf(k.getBound()) {
-				return v.self()
-			}
-			return k.getBound().self()
-		}()
-	}})
+	Map_replaceAll_f(inferred.asMap(), func(p0 any, p1 any) any {
+		return (func(k *TemplateType, v_ any) any {
+			var v *JSType = to_JSType(v_)
+			_ = v
+			return func() any {
+				if v.isSubtypeOf(k.getBound()) {
+					return v.self()
+				}
+				return k.getBound().self()
+			}()
+		})(cast_[*TemplateType](p0), p1)
+	})
 	var typeTransformations *TMap[*TemplateType, *JSType] = this.evaluateTypeTransformations(keys, inferred, scope)
 	if typeTransformations != nil {
 		inferred.putAllT(typeTransformations)
