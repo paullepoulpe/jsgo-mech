@@ -48,12 +48,12 @@ func (this *LinkedIdentityHashMap[K, V]) put(key K, value V) V {
 	}
 }
 
-func (this *LinkedIdentityHashMap[K, V]) computeIfAbsent(key K, fn FunctionOf[any, V]) V {
+func (this *LinkedIdentityHashMap[K, V]) computeIfAbsent(key K, fn func(any) any) V {
 	var oldValue V = this.get(key)
 	if !jisnull_(oldValue) {
 		return oldValue
 	}
-	var newValue V = junboxT_[V](fn.apply(boxT_(key)))
+	var newValue V = junboxT_[V](fn(boxT_(key)))
 	this.put(key, newValue)
 	return newValue
 }
@@ -69,9 +69,9 @@ func (this *LinkedIdentityHashMap[K, V]) merge(key K, value V, fn BiFunctionOf[a
 	return mergeValue
 }
 
-func (this *LinkedIdentityHashMap[K, V]) forEach(fn BiConsumerOf[any, any]) {
+func (this *LinkedIdentityHashMap[K, V]) forEach(fn func(any, any)) {
 	for entry := range this.iterationOrder.All() {
-		fn.accept(boxT_(entry.key_), boxT_(entry.value_))
+		fn(boxT_(entry.key_), boxT_(entry.value_))
 	}
 }
 

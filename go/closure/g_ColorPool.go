@@ -257,9 +257,9 @@ func (this *ColorPool_Builder) build() *ColorPool {
 }
 
 func (this *ColorPool_Builder) forEachShard(fn func(any)) {
-	this.protoToShard.forEach(&BiConsumer_tfn_TypePool_ColorPool_ShardView{func(unused *TypePool, shard *ColorPool_ShardView) {
+	this.protoToShard.forEach((&BiConsumer_tfn_TypePool_ColorPool_ShardView{func(unused *TypePool, shard *ColorPool_ShardView) {
 		fn(obj_(shard))
-	}})
+	}}).accept)
 }
 
 func (this *ColorPool_Builder) reconcilationDebugStackProtos() *TList[*ErasedImmutableMap] {

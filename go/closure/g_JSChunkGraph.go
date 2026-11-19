@@ -298,7 +298,7 @@ func (this *JSChunkGraph) getTransitiveDepsDeepestFirst(m *JSChunk) ListOf[*JSCh
 }
 
 func (this *JSChunkGraph) getTransitiveDeps(m *JSChunk) SetOf[*JSChunk] {
-	return this.dependencyMap.computeIfAbsent(m, &Function_tfn_JSChunk_Set{func(p0 *JSChunk) Set { return p0.getAllDependencies() }})
+	return this.dependencyMap.computeIfAbsent(m, (&Function_tfn_JSChunk_Set{func(p0 *JSChunk) Set { return p0.getAllDependencies() }}).apply)
 }
 
 func JSChunkGraph_moveMarkedWeakSources(weakChunk *JSChunk, inputs IterableOf[*CompilerInput]) {

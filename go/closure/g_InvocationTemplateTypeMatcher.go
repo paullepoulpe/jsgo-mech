@@ -160,7 +160,7 @@ var lambda_InvocationTemplateTypeMatcher_recordTemplateMatch_1_ = &BiFunction_fn
 
 func (this *InvocationTemplateTypeMatcher) copyMatchedTypes() *TMap[*TemplateType, *JSType] {
 	var builder *ImmutableMap_Builder[*TemplateType, *JSType] = immutableMapBuilder_(tc_p_TemplateType, tc_p_JSType)
-	this.matchedTypes.forEach(&BiConsumer_tfn_TemplateType_any{func(p0 *TemplateType, p1 any) { builder.put(p0, to_JSType(p1)) }})
+	this.matchedTypes.forEach((&BiConsumer_tfn_TemplateType_any{func(p0 *TemplateType, p1 any) { builder.put(p0, to_JSType(p1)) }}).accept)
 	return tmapFrom_(tce_p_TemplateType.t_(), tc_p_JSType, builder.buildOrThrowErased(), true)
 }
 
