@@ -316,11 +316,11 @@ func (this *JSTypeReconserializer) generateTypePool() *TypePool {
 
 func (this *JSTypeReconserializer) getColorIdToJSTypeMapForDebugging() *SimpleListMultimap[any, any] {
 	var unordered *SimpleListMultimap[any, *JSType] = SimpleListMultimap_create[any, *JSType]()
-	this.typeToRecordCache.forEach(&BiConsumer_tfn_any_JSTypeReconserializer_SeenTypeRecord{func(jstype_ any, record *JSTypeReconserializer_SeenTypeRecord) {
+	this.typeToRecordCache.forEach((&BiConsumer_tfn_any_JSTypeReconserializer_SeenTypeRecord{func(jstype_ any, record *JSTypeReconserializer_SeenTypeRecord) {
 		var jstype *JSType = to_JSType(jstype_)
 		_ = jstype
 		unordered.put_s(record.colorId.toString(), jstype)
-	}})
+	}}).accept)
 	var colorIdToTypes *SimpleListMultimap[any, any] = SimpleListMultimap_create[any, any]()
 	for _, el := range immElems_(ImmutableList_sortedCopyOf_Iterable(Iterable(unordered.keySet()))) {
 		colorId := str_(el)

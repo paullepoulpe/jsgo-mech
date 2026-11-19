@@ -606,8 +606,17 @@ func (p *param) analyseFn(fn *types.Func, idx int) {
 		p.why = "no body"
 	case !generated(fd):
 		p.why = "runtime"
-	case sig.TypeParams() != nil || sig.RecvTypeParams() != nil:
+	// A function with its own type parameters stays. A method of a generic type (second flip:
+	// the typed translator keeps LinkedIdentityHashMap[K, V], HamtPMap[K, V] generic) is
+	// converted like any other when no interface of the package has a method of its name: its
+	// uses are found through the origin method, and the package is type-checked after the rewrite.
+	case sig.TypeParams() != nil:
 		p.why = "generic"
+	case sig.RecvTypeParams() != nil && ifaceAsksFor(fn.Name()):
+		// The interface-method groups below match methods of plain types; an instantiated
+		// generic interface (PMap[K, V] and HamtPMap[K, V].reconcile) is not matched, so such a
+		// method keeps its parameter.
+		p.why = "method of a generic type that an interface may ask for"
 	case sig.Variadic() && idx >= sig.Params().Len()-1:
 		p.why = "variadic"
 	}
@@ -1495,4 +1504,25 @@ func reflipRecv_(o ast.Expr, s string) string {
 		return "(" + s + ")"
 	}
 	return s
+}
+
+// ifaceAsksFor: some named interface type of the package declares a method called name.
+func ifaceAsksFor(name string) bool {
+	sc := rw.Pkg.Scope()
+	for _, n := range sc.Names() {
+		tn, ok := sc.Lookup(n).(*types.TypeName)
+		if !ok {
+			continue
+		}
+		it, ok := tn.Type().Underlying().(*types.Interface)
+		if !ok {
+			continue
+		}
+		for i := 0; i < it.NumMethods(); i++ {
+			if it.Method(i).Name() == name {
+				return true
+			}
+		}
+	}
+	return false
 }

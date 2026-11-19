@@ -647,3 +647,5 @@ d3a98058 run t exceptions && f
 6b442df4 run t tfn && f
 # C34. postflip (runtime): the four googleapis runtime steps of the postflip5 line (ef603915, b1129850, b0699ec8, 2df6c21b)
 dd7c9fa2 patch reflip2-dd7c9fa2-rt.patch
+# C35. postflip step: tnames re-run on the bridged tree (30 computeIfAbsent_f calls take a typed function)
+9cd99ed0 run t tnames && f
