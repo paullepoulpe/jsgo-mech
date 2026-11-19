@@ -114,7 +114,7 @@ func DisambiguateProperties_buildRenamingIndex(props *JTMap[string, *PropertyClu
 			if prop.isInvalidated() {
 				return prop.getLastInvalidation().self()
 			}
-			return obj_(ImmutableSortedSet_copyOf(Collection(newNames.get(strobj_(prop.getName())))))
+			return obj_(ImmutableSortedSet_copyOf(Collection(newNames.get_s(prop.getName()))))
 		}())
 	}
 	return result.buildOrThrow()

@@ -29,7 +29,7 @@ func (this *CheckNoMutatedEs6Exports) checkNoMutations() {
 	it_1 := foreach_(any(mutatedExports))
 	for it_1.next() {
 		var mutatedExport string = str_(it_1.v)
-		it_3 := foreach_(any(this.mutatedNames.get(strobj_(mutatedExport))))
+		it_3 := foreach_(any(this.mutatedNames.get_s(mutatedExport)))
 		for it_3.next() {
 			var mutation Node = Node_of_(it_3.v)
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(mutation, CheckNoMutatedEs6Exports_MUTATED_EXPORT, []string{mutatedExport}))
@@ -100,7 +100,7 @@ func (this *CheckNoMutatedEs6Exports) visitName(t *NodeTraversal, name Node) {
 	if NodeUtil_isLValue(name) && !scope.getClosestHoistScope_rScope().isModuleScope() {
 		var var_ *Var = scope.getVar_String_rVar(name.getString())
 		if (var_ != nil) && var_.getScope_rAbstractScope_rScope().isModuleScope() {
-			this.mutatedNames.put(strobj_(name.getString()), name.box_())
+			this.mutatedNames.put_s(name.getString(), name.box_())
 		}
 	}
 }

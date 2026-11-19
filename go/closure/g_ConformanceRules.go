@@ -1102,7 +1102,7 @@ func (this *ConformanceRules_BannedProperty) initBannedProperty(compiler *Abstra
 		if ((type_ == nil) || type_.isUnknownType()) || type_.isEmptyType() {
 			continue
 		}
-		builder.put(strobj_(property.get()), type_.self())
+		builder.put_s(property.get(), type_.self())
 	}
 	this.props = builder.immutableCopy()
 	return Outcome_base_ok_0()
@@ -1116,7 +1116,7 @@ func (this *ConformanceRules_BannedProperty) checkConformance_impl(t *NodeTraver
 	var name Optional[string] = this.extractName(n)
 	var checkTypes SetOf[*JSType] = func() Set {
 		if name.isPresent() {
-			return this.props.get(strobj_(name.get()))
+			return this.props.get_s(name.get())
 		}
 		return ImmutableSet_as_Set(ImmutableSet_of())
 	}()
@@ -3415,7 +3415,7 @@ func (this *ConformanceRules_BanCreateDom) getTagNames(tag Node) CollectionOf[st
 	var typeAsObj *ObjectType = type_.toMaybeObjectType()
 	if typeAsObj.getRawType().getDisplayName().get() == "goog.dom.TagName" {
 		var tagType *JSType = to_JSType(Iterables_getOnlyElement(Iterable(typeAsObj.getTemplateTypes().asList())))
-		return Collection(ConformanceRules_BanCreateDom_ELEMENT_TAG_NAMES.get(strobj_(tagType.getDisplayName().orElse(nullstr_))))
+		return Collection(ConformanceRules_BanCreateDom_ELEMENT_TAG_NAMES.get_s(tagType.getDisplayName().orElse(nullstr_)))
 	}
 	return nil
 }
