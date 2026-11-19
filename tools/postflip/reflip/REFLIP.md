@@ -250,7 +250,7 @@ where a row says so; "sweep" below quotes its counted reasons.
 | interface casts | 879 | 287 | 296 | j2go (typed generics, P1 leaf-class upcasts). Left: values that come out of erased slots |
 | class casts | 1,512 | 1,592 | 1,625 | castfold reports no work (1 left: element of a []any). OPEN: the casts the planned translator rules remove (F-bounded scopes and vars about 250, visit about 76, single-implementation interfaces) are not written yet |
 | instanceof | 71 | 82 | 82 | instof: 37 left inside an expression; castfold -instof: 64 inside a larger expression. OPEN: the planned type-switch tool |
-| boxing to any | 3,072 | 2,041 | 2,042 | j2go (generics, P2-P7). OPEN: typed lookups (Map.get(Object) with a typed key), Object varargs as ...any (planned translator rules) |
+| boxing to any | 3,072 | 2,041 | 2,042 | j2go (generics, P2-P7). OPEN: typed lookups (Map.get(Object) with a typed key), Object varargs as ...any (planned translator rules). C31: tostr re-run, 501 String.valueOf of a typed value unboxed (census 2540 -> 2039 on 19 Nov; the inline checks of C19 had added boxed message arguments since the count in this row) |
 | unboxing from any | 607 | 582 | 604 | as boxing |
 | lambda objects &X_fn{...} | 140 | 54 | 52 | j2go (typed adapters X_tfn_Y instead; tfn handed 72 of them to the runtime as Go functions). C28: passfn with a tool fix for the typed adapter forms: 188 PassFactory lambdas (175 factories, 11 checks, 2 conditions) are typed Go functions with an identity; adapter literals in g_*.go 775 -> 587. OPEN: the adapters stored in fields (funcparams reports no work on the typed form) |
 | Optional | 78 | 1,448 | 1,448 | a spelling count: j2go writes Optional[T], a Go value type, everywhere (the first flip's steps made it a value) |
