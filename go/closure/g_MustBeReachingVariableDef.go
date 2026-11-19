@@ -419,7 +419,7 @@ func new_MustBeReachingVariableDef_MustDefJoin() *MustBeReachingVariableDef_Must
 }
 
 func (this *MustBeReachingVariableDef_MustDefJoin) joinFlow(input *MustBeReachingVariableDef_MustDef) {
-	Map_forEach(input.reachingDef.asMap(), &BiConsumer_tfn_Var_MustBeReachingVariableDef_Definition{func(p0 *Var, p1 *MustBeReachingVariableDef_Definition) { this.mergeVarDef(p0, p1) }})
+	input.reachingDef.forEachT(func(p0 *Var, p1 *MustBeReachingVariableDef_Definition) { this.mergeVarDef(p0, p1) })
 }
 
 func (this *MustBeReachingVariableDef_MustDefJoin) mergeVarDef(var_ *Var, def *MustBeReachingVariableDef_Definition) {

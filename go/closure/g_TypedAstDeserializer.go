@@ -63,7 +63,7 @@ func TypedAstDeserializer_deserialize(compiler *AbstractCompiler, syntheticExter
 	}
 	var deserializer *TypedAstDeserializer = new_TypedAstDeserializer(syntheticExterns, colorPool, requiredInputFiles, mode, includeTypeInformation)
 	deserializer.addToFilePool(syntheticExterns.getName(), syntheticExterns)
-	Map_forEach(scriptSourceFiles.asMap(), &BiConsumer_tfn_string_SourceFile_jscomp{func(p0 string, p1 *SourceFile_jscomp) { deserializer.addToFilePool(p0, p1) }})
+	scriptSourceFiles.forEachT(func(p0 string, p1 *SourceFile_jscomp) { deserializer.addToFilePool(p0, p1) })
 	if !equalsId_(mode, TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY) {
 		compiler.initRuntimeLibraryTypedAsts(deserializer.colorPoolBuilder)
 	}
