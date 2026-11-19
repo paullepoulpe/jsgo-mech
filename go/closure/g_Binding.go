@@ -60,15 +60,15 @@ func (this *Binding) isMutated() bool {
 }
 
 func (this *Binding) isCreatedByEsImport() bool {
-	return Object_equals(obj_(this.createdBy()), obj_(Binding_CreatedBy_IMPORT))
+	return equalsId_(this.createdBy(), Binding_CreatedBy_IMPORT)
 }
 
 func (this *Binding) isCreatedByEsExport() bool {
-	return Object_equals(obj_(this.createdBy()), obj_(Binding_CreatedBy_EXPORT))
+	return equalsId_(this.createdBy(), Binding_CreatedBy_EXPORT)
 }
 
 func (this *Binding) isSomeImport() bool {
-	return !Object_equals(obj_(this.createdBy()), obj_(Binding_CreatedBy_EXPORT))
+	return !equalsId_(this.createdBy(), Binding_CreatedBy_EXPORT)
 }
 
 func (this *Binding) metadata() *ModuleMetadataMap_ModuleMetadata {
@@ -159,7 +159,7 @@ func (this Binding_CreatedBy) self() any {
 }
 
 func (this Binding_CreatedBy) isClosureImport() bool {
-	return ((Object_equals(obj_(this), obj_(Binding_CreatedBy_GOOG_REQUIRE)) || Object_equals(obj_(this), obj_(Binding_CreatedBy_GOOG_REQUIRE_TYPE))) || Object_equals(obj_(this), obj_(Binding_CreatedBy_GOOG_FORWARD_DECLARE)))
+	return ((this == Binding_CreatedBy_GOOG_REQUIRE || this == Binding_CreatedBy_GOOG_REQUIRE_TYPE) || this == Binding_CreatedBy_GOOG_FORWARD_DECLARE)
 }
 
 func Binding_CreatedBy_values() []Binding_CreatedBy {

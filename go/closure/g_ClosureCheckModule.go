@@ -265,7 +265,7 @@ func (this *ClosureCheckModule) checkRequireCall(t *NodeTraversal, callNode Node
 		this.checkShortGoogRequireCall(t, callNode, parent.getParent())
 	case tokOrd1_AWAIT:
 		var grandParentToken Token_rhino = parent.getParent().getToken()
-		if Object_equals(obj_(grandParentToken), obj_(Token_rhino_DESTRUCTURING_LHS)) || Object_equals(obj_(grandParentToken), obj_(Token_rhino_NAME)) {
+		if equalsId_(grandParentToken, Token_rhino_DESTRUCTURING_LHS) || equalsId_(grandParentToken, Token_rhino_NAME) {
 			this.checkShortGoogRequireCall(t, callNode, parent.getGrandparent())
 		}
 	default:

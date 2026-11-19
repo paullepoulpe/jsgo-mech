@@ -1201,7 +1201,7 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 		}
 	}
 	return func() *RegExpTree {
-		if Object_equals(any(alternatives), any(this.alternatives.asList())) {
+		if equalsVia_(alternatives, any(this.alternatives.asList())) {
 			return this.up_RegExpTree()
 		}
 		return new_RegExpTree_Alternation(alternatives).up_RegExpTree()
@@ -1276,7 +1276,7 @@ func (this *RegExpTree_Alternation) equals_impl(o any) bool {
 }
 
 func (this *RegExpTree_Alternation) hashCode_impl() int32 {
-	return (1370848465 ^ Object_hashCode(obj_(this.alternatives.asImm())))
+	return (1370848465 ^ hashBy_(this.alternatives.asImm(), (*ImmutableCollection).hashCode))
 }
 
 func (this *RegExpTree_Alternation) children_impl() *JTList[*RegExpTree] {
@@ -2239,7 +2239,7 @@ func (this *RegExpTree_Concatenation) equals_impl(o any) bool {
 }
 
 func (this *RegExpTree_Concatenation) hashCode_impl() int32 {
-	return (546930238 ^ Object_hashCode(obj_(this.elements_.asImm())))
+	return (546930238 ^ hashBy_(this.elements_.asImm(), (*ImmutableCollection).hashCode))
 }
 
 func (this *RegExpTree_Concatenation) children_impl() *JTList[*RegExpTree] {

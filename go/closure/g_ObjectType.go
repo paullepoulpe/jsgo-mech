@@ -218,7 +218,7 @@ func (this *ObjectType) defineDeclaredProperty(propertyName string, type_ *JSTyp
 
 func (this *ObjectType) defineDeclaredPropertyKey(propertyName Property_Key, type_ *JSType, propertyNode Node) bool {
 	var result bool = this.defineProperty(propertyName, type_, false, propertyNode)
-	if Object_equals(obj_(propertyName.kind()), obj_(Property_KeyKind_STRING)) {
+	if equalsId_(propertyName.kind(), Property_KeyKind_STRING) {
 		this.registry.registerPropertyOnType(propertyName.string(), this.up_JSType())
 	}
 	return result
@@ -229,7 +229,7 @@ func (this *ObjectType) defineSynthesizedProperty(propertyName string, type_ *JS
 }
 
 func (this *ObjectType) defineInferredPropertyKey(propertyName Property_Key, type_ *JSType, propertyNode Node) bool {
-	if !Object_equals(obj_(propertyName.kind()), obj_(Property_KeyKind_STRING)) {
+	if !equalsId_(propertyName.kind(), Property_KeyKind_STRING) {
 		panic(new_IllegalArgumentException_String(objstr_("Symbol-based property keys are not supported for inferred properties.")).self())
 	}
 	return this.defineInferredProperty(propertyName.string(), type_, propertyNode)
@@ -384,7 +384,7 @@ func (this *ObjectType) hasOwnProperty(propertyName string) bool {
 }
 
 func (this *ObjectType) hasOwnPropertyKey(propertyName Property_Key) bool {
-	return !Object_equals(obj_(this.getOwnPropertyKind(propertyName)), obj_(JSType_HasPropertyKind_ABSENT))
+	return !equalsId_(this.getOwnPropertyKind(propertyName), JSType_HasPropertyKind_ABSENT)
 }
 
 func (this *ObjectType) getOwnPropertyKnownSymbols() SetOf[*KnownSymbolType] {

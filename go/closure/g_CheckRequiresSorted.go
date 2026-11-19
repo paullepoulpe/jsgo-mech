@@ -113,7 +113,7 @@ func CheckRequiresSorted_parseImport(callNode Node) *CheckRequiresSorted_ImportS
 
 func (this *CheckRequiresSorted) checkCanonical(t *NodeTraversal) {
 	var canonicalImports *JTList[*CheckRequiresSorted_ImportStatement] = CheckRequiresSorted_canonicalizeImports(this.importsByNamespace)
-	if !Object_equals(any(this.originalImports.asList()), any(canonicalImports.asList())) {
+	if !equalsVia_(this.originalImports.asList(), any(canonicalImports.asList())) {
 		this.needsFixField = true
 		this.replacement_ = Optional_of[string](JString_join_s("\n", Iterables_transform(Iterable(canonicalImports.asList()), &Function_base_tfn_CheckRequiresSorted_ImportStatement_string{func(p0 *CheckRequiresSorted_ImportStatement) string { return p0.format() }})))
 		if this.mode_ == CheckRequiresSorted_Mode_COLLECT_AND_REPORT {
@@ -488,7 +488,9 @@ func (this *CheckRequiresSorted_ImportStatement) zero_CheckRequiresSorted_Import
 }
 
 func (this *CheckRequiresSorted_ImportStatement) init_CheckRequiresSorted_ImportStatement(nodes *JTList[Node], primitive CheckRequiresSorted_ImportPrimitive, namespace string, alias Optional[string], destructures *JTList[*CheckRequiresSorted_DestructuringBinding]) {
-	Objects_requireNonNull(any(nodes.asList()), "nodes")
+	if nodes.asList() == nil {
+		panic(new_NullPointerException_String("nodes").self())
+	}
 	Objects_requireNonNull_T(primitive, "primitive")
 	if !alias.isEmpty() && destructures != nil {
 		panic(new_IllegalArgumentException_String(objstr_("Import statement cannot be simultaneously aliasing and destructuring")).self())
@@ -618,16 +620,16 @@ func (this *CheckRequiresSorted_ImportStatement) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(any(this.nodes_.asList()), any(o.nodes_.asList())) && this.primitive_ == o.primitive_ && this.namespace_ == o.namespace_ && Objects_equals(this.alias_.box_(), o.alias_.box_()) && Objects_equals(any(this.destructures_.asList()), any(o.destructures_.asList()))
+	return true && objequalsVia_(this.nodes_.asList(), any(o.nodes_.asList())) && this.primitive_ == o.primitive_ && this.namespace_ == o.namespace_ && Objects_equals(this.alias_.box_(), o.alias_.box_()) && objequalsVia_(this.destructures_.asList(), any(o.destructures_.asList()))
 }
 
 func (this *CheckRequiresSorted_ImportStatement) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(any(this.nodes_.asList()))
+	h = h*31 + objhashVia_(this.nodes_.asList())
 	h = h*31 + hash_(this.primitive_)
 	h = h*31 + strhash_(this.namespace_)
 	h = h*31 + Objects_hashCode(this.alias_.box_())
-	h = h*31 + Objects_hashCode(any(this.destructures_.asList()))
+	h = h*31 + objhashVia_(this.destructures_.asList())
 	return h
 }
 

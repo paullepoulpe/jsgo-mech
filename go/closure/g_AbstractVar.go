@@ -178,9 +178,9 @@ func AbstractVar_strengthOf(n Node) StaticSourceFile_SourceKind {
 }
 
 func AbstractVar_strongerOf(left StaticSourceFile_SourceKind, right StaticSourceFile_SourceKind) StaticSourceFile_SourceKind {
-	if Object_equals(obj_(left), obj_(StaticSourceFile_SourceKind_STRONG)) || Object_equals(obj_(right), obj_(StaticSourceFile_SourceKind_STRONG)) {
+	if equalsId_(left, StaticSourceFile_SourceKind_STRONG) || equalsId_(right, StaticSourceFile_SourceKind_STRONG) {
 		return StaticSourceFile_SourceKind_STRONG
-	} else if Object_equals(obj_(left), obj_(StaticSourceFile_SourceKind_EXTERN)) || Object_equals(obj_(right), obj_(StaticSourceFile_SourceKind_EXTERN)) {
+	} else if equalsId_(left, StaticSourceFile_SourceKind_EXTERN) || equalsId_(right, StaticSourceFile_SourceKind_EXTERN) {
 		return StaticSourceFile_SourceKind_EXTERN
 	}
 	return StaticSourceFile_SourceKind_WEAK

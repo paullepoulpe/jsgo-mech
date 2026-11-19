@@ -59,9 +59,9 @@ func (this *Color) hashCode() int32 {
 	h *= 1000003
 	h ^= this.id.hashCode()
 	h *= 1000003
-	h ^= Object_hashCode(obj_(this.prototypes.asImm()))
+	h ^= hashBy_(this.prototypes.asImm(), (*ImmutableCollection).hashCode)
 	h *= 1000003
-	h ^= Object_hashCode(obj_(this.instanceColors.asImm()))
+	h ^= hashBy_(this.instanceColors.asImm(), (*ImmutableCollection).hashCode)
 	h *= 1000003
 	h ^= func() int32 {
 		if this.invalidating {
@@ -84,7 +84,7 @@ func (this *Color) hashCode() int32 {
 		return 1237
 	}()
 	h *= 1000003
-	h ^= Object_hashCode(obj_(this.ownProperties.asImm()))
+	h ^= hashBy_(this.ownProperties.asImm(), (*ImmutableCollection).hashCode)
 	h *= 1000003
 	h ^= func() int32 {
 		if this.boxId == nil {
@@ -100,7 +100,7 @@ func (this *Color) hashCode() int32 {
 		return 1237
 	}()
 	h *= 1000003
-	h ^= Object_hashCode(obj_(this.unionElements.asImm()))
+	h ^= hashBy_(this.unionElements.asImm(), (*ImmutableCollection).hashCode)
 	return h
 }
 

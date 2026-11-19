@@ -117,7 +117,7 @@ func (this *JSTypeReconserializer) recordUnionType(type_ *UnionType) *JSTypeReco
 	if record.unionMembers == nil {
 		record.unionMembers = immutableSetCopyOfT_(jtc_p_JSTypeReconserializer_SeenTypeRecord, altRecords)
 	} else if this.serializationMode.runValidation() {
-		if ok_, a1_, a2_, a3_ := Object_equals(any(altRecords.asSet()), any(record.unionMembers.asSet())), unionId, JSTypeReconserializer_colorIdsOf(Collection(altRecords.asSet())).asSet(), JSTypeReconserializer_colorIdsOf(Collection(record.unionMembers.asSet())).asSet(); !ok_ {
+		if ok_, a1_, a2_, a3_ := equalsDyn_(altRecords.asSet(), any(record.unionMembers.asSet())), unionId, JSTypeReconserializer_colorIdsOf(Collection(altRecords.asSet())).asSet(), JSTypeReconserializer_colorIdsOf(Collection(record.unionMembers.asSet())).asSet(); !ok_ {
 			panic(new_IllegalStateException_String(Strings_lenientFormat("Unions with same ID must have same members: %s => %s == %s", []any{a1_, any(a2_), any(a3_)})).self())
 		}
 	}

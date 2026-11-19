@@ -110,21 +110,21 @@ func (this *RescopeGlobalSymbolsInfo) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.globalSymbolNamespace_ == o.globalSymbolNamespace_ && Objects_equals(any(this.externNames_.asSet()), any(o.externNames_.asSet())) && Objects_equals(any(this.crossChunkNames_.asSet()), any(o.crossChunkNames_.asSet())) && Objects_equals(any(this.crossChunkNamesWithWriteFromOtherChunk_.asSet()), any(o.crossChunkNamesWithWriteFromOtherChunk_.asSet())) && Objects_equals(any(this.crossChunkNamesUsedInNonDependentChunk_.asSet()), any(o.crossChunkNamesUsedInNonDependentChunk_.asSet())) && Objects_equals(any(this.globalNamesWithReadInDefiningChunk_.asSet()), any(o.globalNamesWithReadInDefiningChunk_.asSet())) && Objects_equals(any(this.globalNamesWithInnerScopeWriteInDefiningChunk_.asSet()), any(o.globalNamesWithInnerScopeWriteInDefiningChunk_.asSet())) && Objects_equals(any(this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_.asSet()), any(o.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_.asSet())) && Objects_equals(any(this.maybeReferencesThis_.asSet()), any(o.maybeReferencesThis_.asSet())) && Objects_equals(any(this.wrappedCrossChunkNames_.asSet()), any(o.wrappedCrossChunkNames_.asSet()))
+	return true && this.globalSymbolNamespace_ == o.globalSymbolNamespace_ && objequalsDyn_(this.externNames_.asSet(), any(o.externNames_.asSet())) && objequalsDyn_(this.crossChunkNames_.asSet(), any(o.crossChunkNames_.asSet())) && objequalsDyn_(this.crossChunkNamesWithWriteFromOtherChunk_.asSet(), any(o.crossChunkNamesWithWriteFromOtherChunk_.asSet())) && objequalsDyn_(this.crossChunkNamesUsedInNonDependentChunk_.asSet(), any(o.crossChunkNamesUsedInNonDependentChunk_.asSet())) && objequalsDyn_(this.globalNamesWithReadInDefiningChunk_.asSet(), any(o.globalNamesWithReadInDefiningChunk_.asSet())) && objequalsDyn_(this.globalNamesWithInnerScopeWriteInDefiningChunk_.asSet(), any(o.globalNamesWithInnerScopeWriteInDefiningChunk_.asSet())) && objequalsDyn_(this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_.asSet(), any(o.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_.asSet())) && objequalsDyn_(this.maybeReferencesThis_.asSet(), any(o.maybeReferencesThis_.asSet())) && objequalsDyn_(this.wrappedCrossChunkNames_.asSet(), any(o.wrappedCrossChunkNames_.asSet()))
 }
 
 func (this *RescopeGlobalSymbolsInfo) hashCode() int32 {
 	var h int32
 	h = h*31 + strhash_(this.globalSymbolNamespace_)
-	h = h*31 + Objects_hashCode(any(this.externNames_.asSet()))
-	h = h*31 + Objects_hashCode(any(this.crossChunkNames_.asSet()))
-	h = h*31 + Objects_hashCode(any(this.crossChunkNamesWithWriteFromOtherChunk_.asSet()))
-	h = h*31 + Objects_hashCode(any(this.crossChunkNamesUsedInNonDependentChunk_.asSet()))
-	h = h*31 + Objects_hashCode(any(this.globalNamesWithReadInDefiningChunk_.asSet()))
-	h = h*31 + Objects_hashCode(any(this.globalNamesWithInnerScopeWriteInDefiningChunk_.asSet()))
-	h = h*31 + Objects_hashCode(any(this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_.asSet()))
-	h = h*31 + Objects_hashCode(any(this.maybeReferencesThis_.asSet()))
-	h = h*31 + Objects_hashCode(any(this.wrappedCrossChunkNames_.asSet()))
+	h = h*31 + objhashDyn_(this.externNames_.asSet())
+	h = h*31 + objhashDyn_(this.crossChunkNames_.asSet())
+	h = h*31 + objhashDyn_(this.crossChunkNamesWithWriteFromOtherChunk_.asSet())
+	h = h*31 + objhashDyn_(this.crossChunkNamesUsedInNonDependentChunk_.asSet())
+	h = h*31 + objhashDyn_(this.globalNamesWithReadInDefiningChunk_.asSet())
+	h = h*31 + objhashDyn_(this.globalNamesWithInnerScopeWriteInDefiningChunk_.asSet())
+	h = h*31 + objhashDyn_(this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_.asSet())
+	h = h*31 + objhashDyn_(this.maybeReferencesThis_.asSet())
+	h = h*31 + objhashDyn_(this.wrappedCrossChunkNames_.asSet())
 	return h
 }
 

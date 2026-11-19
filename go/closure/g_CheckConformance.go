@@ -67,7 +67,7 @@ func (this *CheckConformance) visit(t *NodeTraversal, n Node, parent Node) {
 
 func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs *JTList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) *JTList[*CheckConformance_Category] {
 	var builder *SimpleSetMultimap = SimpleSetMultimap_createInsertionOrdered()
-	var isLibraryLevelReportingMode bool = ((reportingMode != 0) && Object_equals(obj_(reportingMode), obj_(CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG)))
+	var isLibraryLevelReportingMode bool = ((reportingMode != 0) && equalsId_(reportingMode, CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG))
 	if isLibraryLevelReportingMode {
 		if !CheckConformance_validateBehaviorSettingOfConfigs(compiler, configs, reportingMode) {
 			return jtlistEmptyImm_(jtc_p_CheckConformance_Category)
@@ -98,7 +98,7 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs *JTL
 }
 
 func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompiler, configs *JTList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) bool {
-	if !Object_equals(obj_(reportingMode), obj_(CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG)) {
+	if !equalsId_(reportingMode, CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG) {
 		panic(new_IllegalStateException_0().self())
 	}
 	var baseRequirementBehaviors *JTMap[string, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = jnewTMap_(jtc_string, jtc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)

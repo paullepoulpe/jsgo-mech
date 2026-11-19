@@ -580,7 +580,7 @@ func (this *Es6RewriteClass_ClassDeclarationMetadata) init_Es6RewriteClass_Class
 	this.insertionPointField = Objects_requireNonNull_T(insertionPoint, "insertionPoint")
 	this.definePropertiesObjForPrototypeField = Objects_requireNonNull_T(definePropertiesObjForPrototype, "definePropertiesObjForPrototype")
 	this.definePropertiesObjForClassField = Objects_requireNonNull_T(definePropertiesObjForClass, "definePropertiesObjForClass")
-	this.classMembersToDeclareField = icast_Map(Objects_requireNonNull(any(classMembersToDeclare.asMap()), "classMembersToDeclare"))
+	this.classMembersToDeclareField = requireNonNull_(classMembersToDeclare.asMap(), "classMembersToDeclare")
 	this.fullClassNameNodeField = Objects_requireNonNull_T(fullClassNameNode, "fullClassNameNode")
 	this.classPrototypeNodeField = Objects_requireNonNull_T(classPrototypeNode, "classPrototypeNode")
 	this.classNameNodeField = Objects_requireNonNull_T(classNameNode, "classNameNode")

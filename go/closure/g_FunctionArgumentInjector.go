@@ -360,13 +360,13 @@ func (this *FunctionArgumentInjector_SetContainer) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(any(this.parametersReferencedAfterSideEffect_.asSet()), any(o.parametersReferencedAfterSideEffect_.asSet())) && Objects_equals(any(this.parametersWithNamesReferencedBeforeParameter_.asSet()), any(o.parametersWithNamesReferencedBeforeParameter_.asSet()))
+	return true && objequalsDyn_(this.parametersReferencedAfterSideEffect_.asSet(), any(o.parametersReferencedAfterSideEffect_.asSet())) && objequalsDyn_(this.parametersWithNamesReferencedBeforeParameter_.asSet(), any(o.parametersWithNamesReferencedBeforeParameter_.asSet()))
 }
 
 func (this *FunctionArgumentInjector_SetContainer) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(any(this.parametersReferencedAfterSideEffect_.asSet()))
-	h = h*31 + Objects_hashCode(any(this.parametersWithNamesReferencedBeforeParameter_.asSet()))
+	h = h*31 + objhashDyn_(this.parametersReferencedAfterSideEffect_.asSet())
+	h = h*31 + objhashDyn_(this.parametersWithNamesReferencedBeforeParameter_.asSet())
 	return h
 }
 

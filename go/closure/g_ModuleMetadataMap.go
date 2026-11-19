@@ -161,7 +161,9 @@ func (this *ModuleMetadataMap_ModuleMetadata) init_ModuleMetadataMap_ModuleMetad
 	Objects_requireNonNull_T(maybeRequiredGoogNamespaces, "maybeRequiredGoogNamespaces")
 	Objects_requireNonNull_T(weaklyRequiredGoogNamespaces, "weaklyRequiredGoogNamespaces")
 	Objects_requireNonNull_T(es6ImportSpecifiers, "es6ImportSpecifiers")
-	Objects_requireNonNull(any(nestedModules.asList()), "nestedModules")
+	if nestedModules.asList() == nil {
+		panic(new_NullPointerException_String("nestedModules").self())
+	}
 	Objects_requireNonNull_T(readToggles, "readToggles")
 	this.moduleType_ = moduleType
 	this.rootNode_ = rootNode

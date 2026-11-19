@@ -334,7 +334,7 @@ func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) getColor() st
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) getId() string {
-	return ("LDN" + istr_(int64(Object_hashCode(this.self()))))
+	return ("LDN" + istr_(int64(objhashId_(this))))
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) getLabel() string {

@@ -61,11 +61,11 @@ func AstFactory_createFactoryWithColors(lifeCycleStage AbstractCompiler_LifeCycl
 }
 
 func (this *AstFactory) isAddingTypes() bool {
-	return Object_equals(obj_(AstFactory_TypeMode_JSTYPE), obj_(this.typeMode))
+	return AstFactory_TypeMode_JSTYPE == this.typeMode
 }
 
 func (this *AstFactory) isAddingColors() bool {
-	return Object_equals(obj_(AstFactory_TypeMode_COLOR), obj_(this.typeMode))
+	return AstFactory_TypeMode_COLOR == this.typeMode
 }
 
 func (this *AstFactory) assertNotAddingColors() {
@@ -373,11 +373,11 @@ func (this *AstFactory) createNameStaticScope(scope StaticScope, name string) No
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Use createQName(RuntimeJsLibManager.Field) to reference $jscomp.* methods. Found: %s", []any{name})).self())
 	}
 	var result Node = IR_name(name)
-	if this.lifeCycleStage.isNormalized() || !Object_equals(obj_(this.typeMode), obj_(AstFactory_TypeMode_NONE)) {
+	if this.lifeCycleStage.isNormalized() || !equalsId_(this.typeMode, AstFactory_TypeMode_NONE) {
 		Preconditions_checkNotNull_Object_String_Object_Object_T(scope, "A scope is required [lifeCycleStage: %s, typeMode: %s]", this.lifeCycleStage, this.typeMode)
 		var var_ StaticSlot = scope.getSlot_String(name)
 		if var_ == nil {
-			if !Object_equals(obj_(this.typeMode), obj_(AstFactory_TypeMode_NONE)) {
+			if !equalsId_(this.typeMode, AstFactory_TypeMode_NONE) {
 				panic(new_IllegalStateException_String(Strings_lenientFormat("Missing var %s in scope %s", []any{name, any(scope)})).self())
 			}
 		} else {

@@ -126,7 +126,7 @@ func (this *TypedScopeCreator) createScopeAbstractScope_Node_AbstractScope_rType
 }
 
 func (this *TypedScopeCreator) createScopeInternal(root Node, typedParent *TypedScope) *TypedScope {
-	if !Object_equals(obj_(this.stage), obj_(TypedScopeCreator_Stage_BUILDING)) {
+	if !equalsId_(this.stage, TypedScopeCreator_Stage_BUILDING) {
 		Preconditions_checkState_boolean_String_Object_H(false, "Cannot create scope for %s after TypedScopeCreator is frozen", root)
 	}
 	var newScope *TypedScope = nil

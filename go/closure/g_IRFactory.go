@@ -3153,7 +3153,7 @@ func (this *IRFactory_TransformDispatcher) validateClassConstructorMember(member
 	if isStatic {
 		return false
 	}
-	if !Object_equals(obj_(memberName.type__), obj_(TokenType_IDENTIFIER)) || !memberName.asIdentifier().valueEquals("constructor") {
+	if !equalsId_(memberName.type__, TokenType_IDENTIFIER) || !memberName.asIdentifier().valueEquals("constructor") {
 		return false
 	}
 	if hasIllegalModifier {

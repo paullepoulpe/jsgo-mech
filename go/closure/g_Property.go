@@ -225,7 +225,7 @@ type Property_Key interface {
 }
 
 func Property_Key_matches_default(this Property_Key, stringKey string) bool {
-	return (Object_equals(obj_(this.kind()), obj_(Property_KeyKind_STRING)) && (this.string() == stringKey))
+	return (equalsId_(this.kind(), Property_KeyKind_STRING) && (this.string() == stringKey))
 }
 
 type Property_StringKey struct {

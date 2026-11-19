@@ -25,11 +25,21 @@ func (this *JsMessage) zero_JsMessage() {
 }
 
 func (this *JsMessage) init_JsMessage(getSourceName Optional[string], getKey string, isAnonymous bool, isExternal bool, getId string, getParts *JTList[JsMessage_Part], getGenderedMessagesMap *JTMap[JsMessage_GrammaticalGenderCase, *ImmutableList], getAlternateId Optional[string], getDesc Optional[string], getMeaning Optional[string], getPlaceholderNameToExampleMap *JTMap[string, string], getPlaceholderNameToOriginalCodeMap *JTMap[string, string], jsPlaceholderNames *JTSet[string], canonicalPlaceholderNames *JTSet[string]) {
-	Objects_requireNonNull(any(getParts.asList()), "getParts")
-	Objects_requireNonNull(any(getPlaceholderNameToExampleMap.asMap()), "getPlaceholderNameToExampleMap")
-	Objects_requireNonNull(any(getPlaceholderNameToOriginalCodeMap.asMap()), "getPlaceholderNameToOriginalCodeMap")
-	Objects_requireNonNull(any(jsPlaceholderNames.asSet()), "jsPlaceholderNames")
-	Objects_requireNonNull(any(canonicalPlaceholderNames.asSet()), "canonicalPlaceholderNames")
+	if getParts.asList() == nil {
+		panic(new_NullPointerException_String("getParts").self())
+	}
+	if getPlaceholderNameToExampleMap.asMap() == nil {
+		panic(new_NullPointerException_String("getPlaceholderNameToExampleMap").self())
+	}
+	if getPlaceholderNameToOriginalCodeMap.asMap() == nil {
+		panic(new_NullPointerException_String("getPlaceholderNameToOriginalCodeMap").self())
+	}
+	if jsPlaceholderNames.asSet() == nil {
+		panic(new_NullPointerException_String("jsPlaceholderNames").self())
+	}
+	if canonicalPlaceholderNames.asSet() == nil {
+		panic(new_NullPointerException_String("canonicalPlaceholderNames").self())
+	}
 	this.getSourceName_ = getSourceName
 	this.getKey_ = getKey
 	this.isAnonymous_ = isAnonymous
@@ -261,7 +271,7 @@ func (this *JsMessage) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.getSourceName_.box_(), o.getSourceName_.box_()) && this.getKey_ == o.getKey_ && this.isAnonymous_ == o.isAnonymous_ && this.isExternal_ == o.isExternal_ && this.getId_ == o.getId_ && Objects_equals(any(this.getParts_.asList()), any(o.getParts_.asList())) && Objects_equals(any(this.getGenderedMessagesMap_.asMap()), any(o.getGenderedMessagesMap_.asMap())) && Objects_equals(this.getAlternateId_.box_(), o.getAlternateId_.box_()) && Objects_equals(this.getDesc_.box_(), o.getDesc_.box_()) && Objects_equals(this.getMeaning_.box_(), o.getMeaning_.box_()) && Objects_equals(any(this.getPlaceholderNameToExampleMap_.asMap()), any(o.getPlaceholderNameToExampleMap_.asMap())) && Objects_equals(any(this.getPlaceholderNameToOriginalCodeMap_.asMap()), any(o.getPlaceholderNameToOriginalCodeMap_.asMap())) && Objects_equals(any(this.jsPlaceholderNames_.asSet()), any(o.jsPlaceholderNames_.asSet())) && Objects_equals(any(this.canonicalPlaceholderNames_.asSet()), any(o.canonicalPlaceholderNames_.asSet()))
+	return true && Objects_equals(this.getSourceName_.box_(), o.getSourceName_.box_()) && this.getKey_ == o.getKey_ && this.isAnonymous_ == o.isAnonymous_ && this.isExternal_ == o.isExternal_ && this.getId_ == o.getId_ && objequalsVia_(this.getParts_.asList(), any(o.getParts_.asList())) && objequalsDyn_(this.getGenderedMessagesMap_.asMap(), any(o.getGenderedMessagesMap_.asMap())) && Objects_equals(this.getAlternateId_.box_(), o.getAlternateId_.box_()) && Objects_equals(this.getDesc_.box_(), o.getDesc_.box_()) && Objects_equals(this.getMeaning_.box_(), o.getMeaning_.box_()) && objequalsDyn_(this.getPlaceholderNameToExampleMap_.asMap(), any(o.getPlaceholderNameToExampleMap_.asMap())) && objequalsDyn_(this.getPlaceholderNameToOriginalCodeMap_.asMap(), any(o.getPlaceholderNameToOriginalCodeMap_.asMap())) && objequalsDyn_(this.jsPlaceholderNames_.asSet(), any(o.jsPlaceholderNames_.asSet())) && objequalsDyn_(this.canonicalPlaceholderNames_.asSet(), any(o.canonicalPlaceholderNames_.asSet()))
 }
 
 func (this *JsMessage) hashCode() int32 {
@@ -271,15 +281,15 @@ func (this *JsMessage) hashCode() int32 {
 	h = h*31 + boolhash_(this.isAnonymous_)
 	h = h*31 + boolhash_(this.isExternal_)
 	h = h*31 + strhash_(this.getId_)
-	h = h*31 + Objects_hashCode(any(this.getParts_.asList()))
-	h = h*31 + Objects_hashCode(any(this.getGenderedMessagesMap_.asMap()))
+	h = h*31 + objhashVia_(this.getParts_.asList())
+	h = h*31 + objhashDyn_(this.getGenderedMessagesMap_.asMap())
 	h = h*31 + Objects_hashCode(this.getAlternateId_.box_())
 	h = h*31 + Objects_hashCode(this.getDesc_.box_())
 	h = h*31 + Objects_hashCode(this.getMeaning_.box_())
-	h = h*31 + Objects_hashCode(any(this.getPlaceholderNameToExampleMap_.asMap()))
-	h = h*31 + Objects_hashCode(any(this.getPlaceholderNameToOriginalCodeMap_.asMap()))
-	h = h*31 + Objects_hashCode(any(this.jsPlaceholderNames_.asSet()))
-	h = h*31 + Objects_hashCode(any(this.canonicalPlaceholderNames_.asSet()))
+	h = h*31 + objhashDyn_(this.getPlaceholderNameToExampleMap_.asMap())
+	h = h*31 + objhashDyn_(this.getPlaceholderNameToOriginalCodeMap_.asMap())
+	h = h*31 + objhashDyn_(this.jsPlaceholderNames_.asSet())
+	h = h*31 + objhashDyn_(this.canonicalPlaceholderNames_.asSet())
 	return h
 }
 

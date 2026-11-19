@@ -13,9 +13,15 @@ type Module struct {
 
 func (this *Module) init_Module(metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, namespace *JTMap[string, *Binding], boundNames *JTMap[string, *Binding], localNameToLocalExport *JTMap[string, *Export], closureNamespace Optional[string]) {
 	Objects_requireNonNull_T(metadata, "metadata")
-	Objects_requireNonNull(any(namespace.asMap()), "namespace")
-	Objects_requireNonNull(any(boundNames.asMap()), "boundNames")
-	Objects_requireNonNull(any(localNameToLocalExport.asMap()), "localNameToLocalExport")
+	if namespace.asMap() == nil {
+		panic(new_NullPointerException_String("namespace").self())
+	}
+	if boundNames.asMap() == nil {
+		panic(new_NullPointerException_String("boundNames").self())
+	}
+	if localNameToLocalExport.asMap() == nil {
+		panic(new_NullPointerException_String("localNameToLocalExport").self())
+	}
 	this.metadata_ = metadata
 	this.path_ = path
 	this.namespace_ = namespace
@@ -67,16 +73,16 @@ func (this *Module) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && equals_(this.metadata_, o.metadata_) && this.path_ == o.path_ && Objects_equals(any(this.namespace_.asMap()), any(o.namespace_.asMap())) && Objects_equals(any(this.boundNames_.asMap()), any(o.boundNames_.asMap())) && Objects_equals(any(this.localNameToLocalExport_.asMap()), any(o.localNameToLocalExport_.asMap())) && Objects_equals(this.closureNamespace_.box_(), o.closureNamespace_.box_())
+	return true && equals_(this.metadata_, o.metadata_) && this.path_ == o.path_ && objequalsDyn_(this.namespace_.asMap(), any(o.namespace_.asMap())) && objequalsDyn_(this.boundNames_.asMap(), any(o.boundNames_.asMap())) && objequalsDyn_(this.localNameToLocalExport_.asMap(), any(o.localNameToLocalExport_.asMap())) && Objects_equals(this.closureNamespace_.box_(), o.closureNamespace_.box_())
 }
 
 func (this *Module) hashCode() int32 {
 	var h int32
 	h = h*31 + hash_(this.metadata_)
 	h = h*31 + hash_(this.path_)
-	h = h*31 + Objects_hashCode(any(this.namespace_.asMap()))
-	h = h*31 + Objects_hashCode(any(this.boundNames_.asMap()))
-	h = h*31 + Objects_hashCode(any(this.localNameToLocalExport_.asMap()))
+	h = h*31 + objhashDyn_(this.namespace_.asMap())
+	h = h*31 + objhashDyn_(this.boundNames_.asMap())
+	h = h*31 + objhashDyn_(this.localNameToLocalExport_.asMap())
 	h = h*31 + Objects_hashCode(this.closureNamespace_.box_())
 	return h
 }

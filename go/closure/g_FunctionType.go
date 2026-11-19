@@ -643,7 +643,7 @@ func (this *FunctionType) tryMergeFunctionPiecewise(other *FunctionType, leastSu
 		return this.call.getReturnType().getGreatestSubtype(other.call.getReturnType())
 	}()
 	var newTypeOfThis *JSType = nil
-	if Objects_equals(this.typeOfThis.self(), other.typeOfThis.self()) {
+	if objequalsBy_(this.typeOfThis, other.typeOfThis.self(), (*JSType).equals) {
 		newTypeOfThis = this.typeOfThis
 	} else {
 		var maybeNewTypeOfThis *JSType = func() *JSType {
@@ -670,7 +670,7 @@ func (this *FunctionType) getSuperClassConstructor_impl() *FunctionType {
 }
 
 func (this *FunctionType) recursionUnsafeHashCode_impl() int32 {
-	var hc int32 = Object_hashCode(obj_(this.kind_))
+	var hc int32 = hashId_(this.kind_)
 	return func() int32 {
 		switch this.kind_ {
 		case FunctionType_Kind_CONSTRUCTOR, FunctionType_Kind_INTERFACE:
@@ -678,7 +678,7 @@ func (this *FunctionType) recursionUnsafeHashCode_impl() int32 {
 		case FunctionType_Kind_ORDINARY:
 			hc = ((31 * hc) + this.typeOfThis.hashCode())
 			hc = ((31 * hc) + this.call.hashCode())
-			hc = ((31 * hc) + Objects_hashCode(obj_(this.getClosurePrimitive())))
+			hc = ((31 * hc) + objhashId_(this.getClosurePrimitive()))
 			return hc
 		default:
 			panic(new_AssertionError_0().self())
@@ -1536,12 +1536,12 @@ func (this *FunctionType_Parameter) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.getJSType_.self(), o.getJSType_.self()) && this.isOptional_ == o.isOptional_ && this.isVariadic_ == o.isVariadic_
+	return true && objequalsBy_(this.getJSType_, o.getJSType_.self(), (*JSType).equals) && this.isOptional_ == o.isOptional_ && this.isVariadic_ == o.isVariadic_
 }
 
 func (this *FunctionType_Parameter) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.getJSType_.self())
+	h = h*31 + objhashBy_(this.getJSType_, (*JSType).hashCode)
 	h = h*31 + boolhash_(this.isOptional_)
 	h = h*31 + boolhash_(this.isVariadic_)
 	return h
