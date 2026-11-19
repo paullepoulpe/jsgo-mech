@@ -162,10 +162,12 @@ func (this *JSTypeReconserializer) getOrCreateRecord(id *ColorId, jstype *JSType
 	if JSTypeReconserializer_State_COLLECTING_TYPES != this.state && JSTypeReconserializer_State_GENERATING_POOL != this.state {
 		panic(new_IllegalStateException_0())
 	}
-	var record *JSTypeReconserializer_SeenTypeRecord = this.seenTypeRecords.computeIfAbsent(id, &Function_tfn_ColorId_JSTypeReconserializer_SeenTypeRecord{func(unused *ColorId) *JSTypeReconserializer_SeenTypeRecord {
-		var pointer int32 = this.seenTypeRecords.Len()
-		return new_JSTypeReconserializer_SeenTypeRecord(id, pointer)
-	}})
+	var record *JSTypeReconserializer_SeenTypeRecord = this.seenTypeRecords.computeIfAbsent_f(id, func(p0 any) any {
+		return obj_((func(unused *ColorId) *JSTypeReconserializer_SeenTypeRecord {
+			var pointer int32 = this.seenTypeRecords.Len()
+			return new_JSTypeReconserializer_SeenTypeRecord(id, pointer)
+		})(cast_[*ColorId](p0)))
+	})
 	this.typeToRecordCache.put(jstype, record)
 	*record.jstypes = append(*record.jstypes, jstype)
 	return record

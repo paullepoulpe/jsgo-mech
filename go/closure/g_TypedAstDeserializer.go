@@ -103,9 +103,11 @@ func (this *TypedAstDeserializer) deserializeTypedAst(typedAstProto *TypedAst, c
 		this.runtimeLibraries_.add(str_(runtimeLibraryList.get(i)))
 	}
 	var stringShard *StringPool = StringPool_fromProto(typedAstProto.getStringPool())
-	var colorShard Optional_baseOf[*ColorPool_ShardView] = this.colorPoolBuilder.transform(&Function_base_tfn_ColorPool_Builder_ColorPool_ShardView{func(builder *ColorPool_Builder) *ColorPool_ShardView {
-		return builder.addShard(typedAstProto.getTypePool(), stringShard)
-	}})
+	var colorShard Optional_baseOf[*ColorPool_ShardView] = this.colorPoolBuilder.transform_f(func(p0 any) any {
+		return obj_((func(builder *ColorPool_Builder) *ColorPool_ShardView {
+			return builder.addShard(typedAstProto.getTypePool(), stringShard)
+		})(cast_[*ColorPool_Builder](p0)))
+	})
 	for el_4 := range elems_(typedAstProto.getExternsSummary().getPropNamePtrList()) {
 		var x int32 = unbox_[int32](el_4)
 		this.externProperties.add(stringShard.get(x))

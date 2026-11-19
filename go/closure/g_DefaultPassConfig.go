@@ -1495,9 +1495,11 @@ func (this *DefaultPassConfig_3) process_2(externs Node, jsRoot Node) {
 		return Optional_empty[*ErasedImmutableSet_Builder]()
 	}()
 	var pass *ReplaceCssNames = new_ReplaceCssNames(this.cap_compiler, this.outer_.options_.getCssRenamingMap(), func(cssName string) {
-		cssNames.ifPresent(&Consumer_tfn_ImmutableSet_Builder{func(builder *ErasedImmutableSet_Builder) {
-			builder.add(strobj_(cssName))
-		}})
+		cssNames.ifPresent_f(func(p0 any) {
+			(func(builder *ErasedImmutableSet_Builder) {
+				builder.add(strobj_(cssName))
+			})(cast_[*ErasedImmutableSet_Builder](p0))
+		})
 	}, this.outer_.options_.getCssRenamingSkiplist())
 	pass.process_2(externs, jsRoot)
 	this.cap_compiler.setCssNames(func() *JTSet[string] {

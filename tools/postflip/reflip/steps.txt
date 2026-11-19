@@ -641,3 +641,5 @@ d8b0f30c run t passfn && f
 d3a98058 run t exceptions && f
 # C31. postflip step: tostr re-run on the bridged tree
 88e1c2ac run t tostr && f
+# C32. postflip step: tfn re-run on the bridged tree (tool extension 5aace8c8: method values of adapter literals)
+8f0af918 run t tfn && f

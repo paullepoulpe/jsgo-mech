@@ -391,7 +391,9 @@ func (this *RenameVars_ProcessVars) visit_impl(t *NodeTraversal, n Node, parent 
 }
 
 func (this *RenameVars_ProcessVars) incCount(name string) {
-	var s *RenameVars_Assignment = this.outer_.assignments.computeIfAbsent(name, &Function_tfn_string_RenameVars_Assignment{func(p0 string) *RenameVars_Assignment { return new_RenameVars_Assignment(this.outer_, p0) }})
+	var s *RenameVars_Assignment = this.outer_.assignments.computeIfAbsent_f(name, func(p0 any) any {
+		return obj_((func(p0 string) *RenameVars_Assignment { return new_RenameVars_Assignment(this.outer_, p0) })(str_(p0)))
+	})
 	s.count_++
 }
 

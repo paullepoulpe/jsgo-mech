@@ -27,7 +27,9 @@ func ColorGraphNodeFactory_createFactory(colorRegistry *ColorRegistry) *ColorGra
 
 func (this *ColorGraphNodeFactory) createNode(color *Color) *ColorGraphNode {
 	var key *Color = this.simplifyColor(color)
-	return this.typeIndex.computeIfAbsent(key, &Function_tfn_Color_ColorGraphNode{func(p0 *Color) *ColorGraphNode { return this.newColorGraphNode(p0) }})
+	return this.typeIndex.computeIfAbsent_f(key, func(p0 any) any {
+		return obj_((func(p0 *Color) *ColorGraphNode { return this.newColorGraphNode(p0) })(cast_[*Color](p0)))
+	})
 }
 
 func (this *ColorGraphNodeFactory) getAllKnownTypes() *TSet[*ColorGraphNode] {

@@ -27,6 +27,7 @@ import (
 	"go/types"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -147,6 +148,123 @@ func main() {
 			}
 			done[id.Name] += len(edits)
 			rw.Rewrite[id] = func() string { return variant }
+			return true
+		})
+	}
+	// A method of a runtime type, recv.m(a, &I_tfn_X{F}), with a variant recv.m_f taking a Go
+	// function (TMap.computeIfAbsent_f): the same rewrite as for the runtime's functions. Here
+	// the adapter may be the generic one, &Function_tfn[A, B]{F}: its method is written with
+	// the literal's type arguments in place of its type parameters, and must then have the
+	// signature of the _f parameter.
+	for _, f := range rw.Files {
+		if !generated(f.Pos()) {
+			continue
+		}
+		ast.Inspect(f, func(n ast.Node) bool {
+			c, ok := n.(*ast.CallExpr)
+			if !ok {
+				return true
+			}
+			sel, ok := c.Fun.(*ast.SelectorExpr)
+			if !ok {
+				return true
+			}
+			fn, ok := rw.Info.Uses[sel.Sel].(*types.Func)
+			if !ok || generated(fn.Pos()) || fn.Type().(*types.Signature).Recv() == nil {
+				return true
+			}
+			var adapters []int
+			for i, a := range c.Args {
+				if adapterOf(a) != nil {
+					adapters = append(adapters, i)
+				}
+			}
+			if len(adapters) != 1 {
+				return true
+			}
+			name := "method " + sel.Sel.Name
+			rt := rw.Info.Types[sel.X].Type
+			vo, _, _ := types.LookupFieldOrMethod(rt, true, rw.Pkg, sel.Sel.Name+"_f")
+			ff, ok := vo.(*types.Func)
+			if !ok || generated(ff.Pos()) {
+				left["the runtime has no _f variant of "+name]++
+				return true
+			}
+			fsig := ff.Type().(*types.Signature)
+			i := adapters[0]
+			if fsig.Params().Len() != len(c.Args) || fsig.Variadic() {
+				left[name+": the _f variant has other parameters"]++
+				return true
+			}
+			want, isFunc := fsig.Params().At(i).Type().Underlying().(*types.Signature)
+			lit := adapterOf(c.Args[i])
+			ms := methods[adapterType(lit)]
+			if len(ms) != 1 || !isFunc {
+				left[name+": the adapter has no single method, or the _f parameter is no function"]++
+				return true
+			}
+			m := ms[0]
+			// The method's signature for this literal's type (instantiated if generic).
+			mo, _, _ := types.LookupFieldOrMethod(rw.Info.Types[c.Args[i]].Type, true, rw.Pkg, m.Name.Name)
+			got, ok := mo.(*types.Func)
+			if !ok || !sameSig(got.Type().(*types.Signature), want) {
+				left[name+": the adapter method's signature is not the _f parameter's"]++
+				return true
+			}
+			body := rw.Text(m.Body)
+			if strings.Count(body, "this.f(") != 1 || strings.Count(body, "this") != 1 {
+				left[name+": the adapter method does more than convert and call"]++
+				return true
+			}
+			sigText := "func" + rw.Text(m.Type.Params)
+			if m.Type.Results != nil {
+				sigText += " " + rw.Text(m.Type.Results)
+			}
+			// Type arguments of a generic adapter, by the type parameters' names.
+			subst := map[string]ast.Expr{}
+			var targs []ast.Expr
+			switch x := lit.Type.(type) {
+			case *ast.IndexExpr:
+				targs = []ast.Expr{x.Index}
+			case *ast.IndexListExpr:
+				targs = x.Indices
+			}
+			if len(targs) > 0 {
+				tn, _ := adapterType(lit).(*types.TypeName)
+				var tps *types.TypeParamList
+				if tn != nil {
+					if nt, ok := tn.Type().(*types.Named); ok {
+						tps = nt.TypeParams()
+					}
+				}
+				if tps == nil || tps.Len() != len(targs) {
+					left[name+": the generic adapter's type arguments are not written out"]++
+					return true
+				}
+				for j := 0; j < tps.Len(); j++ {
+					subst[tps.At(j).Obj().Name()] = targs[j]
+				}
+			}
+			arg, fnExpr := c.Args[i], lit.Elts[0]
+			if kv, ok := fnExpr.(*ast.KeyValueExpr); ok {
+				fnExpr = kv.Value
+			}
+			rw.Rewrite[arg] = func() string {
+				txt := sigText + " " + body
+				if len(subst) > 0 { // all parameters at once: an argument may be named like one
+					var names []string
+					for tp := range subst {
+						names = append(names, regexp.QuoteMeta(tp))
+					}
+					txt = regexp.MustCompile(`\b(`+strings.Join(names, "|")+`)\b`).ReplaceAllStringFunc(txt, func(tp string) string {
+						return rw.Text(subst[tp])
+					})
+				}
+				return strings.Replace(txt, "this.f(", "("+rw.Render(fnExpr)+")(", 1)
+			}
+			done[name]++
+			selID := sel.Sel
+			rw.Rewrite[selID] = func() string { return selID.Name + "_f" }
 			return true
 		})
 	}
