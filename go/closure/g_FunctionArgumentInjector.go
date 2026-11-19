@@ -361,21 +361,6 @@ func (this *FunctionArgumentInjector_SetContainer) parametersWithNamesReferenced
 	return this.parametersWithNamesReferencedBeforeParameter_
 }
 
-func (this *FunctionArgumentInjector_SetContainer) equals(p0 any) bool {
-	o, ok := p0.(*FunctionArgumentInjector_SetContainer)
-	if !ok || o == nil {
-		return false
-	}
-	return true && tsetEq_(this.parametersReferencedAfterSideEffect_, o.parametersReferencedAfterSideEffect_, true) && tsetEq_(this.parametersWithNamesReferencedBeforeParameter_, o.parametersWithNamesReferencedBeforeParameter_, true)
-}
-
-func (this *FunctionArgumentInjector_SetContainer) hashCode() int32 {
-	var h int32
-	h = h*31 + tsetHash_(this.parametersReferencedAfterSideEffect_, true)
-	h = h*31 + tsetHash_(this.parametersWithNamesReferencedBeforeParameter_, true)
-	return h
-}
-
 func (this *FunctionArgumentInjector_SetContainer) toString() string {
 	return "SetContainer[" + "parametersReferencedAfterSideEffect=" + tostr_(this.parametersReferencedAfterSideEffect_.asImm()) + ", parametersWithNamesReferencedBeforeParameter=" + tostr_(this.parametersWithNamesReferencedBeforeParameter_.asImm()) + "]"
 }

@@ -584,22 +584,6 @@ func (this *JSChunkGraph_DependencyManagementResult) entryPointInputs() *Immutab
 	return this.entryPointInputs_
 }
 
-func (this *JSChunkGraph_DependencyManagementResult) equals(p0 any) bool {
-	o, ok := p0.(*JSChunkGraph_DependencyManagementResult)
-	if !ok || o == nil {
-		return false
-	}
-	return true && tlistEq_(this.orderedInputs_, o.orderedInputs_, true) && this.sorter_ == o.sorter_ && tsetEq_(this.entryPointInputs_, o.entryPointInputs_, true)
-}
-
-func (this *JSChunkGraph_DependencyManagementResult) hashCode() int32 {
-	var h int32
-	h = h*31 + tlistHash_(this.orderedInputs_, true)
-	h = h*31 + objhashId_(this.sorter_)
-	h = h*31 + tsetHash_(this.entryPointInputs_, true)
-	return h
-}
-
 func (this *JSChunkGraph_DependencyManagementResult) toString() string {
 	return "DependencyManagementResult[" + "orderedInputs=" + tostr_(this.orderedInputs_.asImm()) + ", sorter=" + objstr_(obj_(this.sorter_)) + ", entryPointInputs=" + tostr_(this.entryPointInputs_.asImm()) + "]"
 }

@@ -110,21 +110,6 @@ func (this *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite) closure
 	return this.closureUnawareFunction_
 }
 
-func (this *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite) equals(p0 any) bool {
-	o, ok := p0.(*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite)
-	if !ok || o == nil {
-		return false
-	}
-	return true && this.callNode_ == o.callNode_ && this.closureUnawareFunction_ == o.closureUnawareFunction_
-}
-
-func (this *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite) hashCode() int32 {
-	var h int32
-	h = h*31 + objhashId_(this.callNode_)
-	h = h*31 + objhashId_(this.closureUnawareFunction_)
-	return h
-}
-
 func (this *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite) toString() string {
 	return "ClosureUnawareCallSite[" + "callNode=" + tostr_(this.callNode_) + ", closureUnawareFunction=" + tostr_(this.closureUnawareFunction_) + "]"
 }

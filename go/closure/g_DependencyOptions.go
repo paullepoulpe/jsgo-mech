@@ -145,21 +145,6 @@ func (this *DependencyOptions) entryPoints() *ImmutableList[*ModuleIdentifier] {
 	return this.entryPoints_
 }
 
-func (this *DependencyOptions) equals(p0 any) bool {
-	o, ok := p0.(*DependencyOptions)
-	if !ok || o == nil {
-		return false
-	}
-	return true && this.mode_ == o.mode_ && tlistEq_(this.entryPoints_, o.entryPoints_, true)
-}
-
-func (this *DependencyOptions) hashCode() int32 {
-	var h int32
-	h = h*31 + objhashId_(this.mode_)
-	h = h*31 + tlistHash_(this.entryPoints_, true)
-	return h
-}
-
 func (this *DependencyOptions) toString() string {
 	return "DependencyOptions[" + "mode=" + tostr_(this.mode_) + ", entryPoints=" + tostr_(this.entryPoints_.asImm()) + "]"
 }
