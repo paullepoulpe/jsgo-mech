@@ -710,8 +710,8 @@ type CommandLineRunner_Flags struct {
 	jscompDevMode                      *CompilerOptions_DevMode
 	loggingLevel                       string
 	externs                            ListOf[string]
-	js                                 ListOf[string]
-	unusedJsZip                        ListOf[string]
+	js                                 *TList[string]
+	unusedJsZip                        *TList[string]
 	jsOutputFile                       string
 	chunk_                             ListOf[string]
 	filenameToSaveTo                   Optional[string]
@@ -735,9 +735,9 @@ type CommandLineRunner_Flags struct {
 	sourceMapInputs                    ListOf[string]
 	parseInlineSourceMaps_             any
 	applyInputSourceMaps               bool
-	jscompError                        ListOf[string]
-	jscompWarning                      ListOf[string]
-	jscompOff                          ListOf[string]
+	jscompError                        *TList[string]
+	jscompWarning                      *TList[string]
+	jscompOff                          *TList[string]
 	define                             ListOf[string]
 	charset                            string
 	compilationLevel                   string
@@ -845,7 +845,7 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.jscompDevMode = CompilerOptions_DevMode_OFF
 	this.loggingLevel = Level_WARNING.getName()
 	this.externs = icast_List(new_ArrayList_0().self())
-	this.js = icast_List(new_ArrayList_0().self())
+	this.js = newTList_(tc_string)
 	this.unusedJsZip = nil
 	this.jsOutputFile = ""
 	this.chunk_ = icast_List(new_ArrayList_0().self())
@@ -870,9 +870,9 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.sourceMapInputs = icast_List(new_ArrayList_0().self())
 	this.parseInlineSourceMaps_ = any(bool(true))
 	this.applyInputSourceMaps = true
-	this.jscompError = icast_List(new_ArrayList_0().self())
-	this.jscompWarning = icast_List(new_ArrayList_0().self())
-	this.jscompOff = icast_List(new_ArrayList_0().self())
+	this.jscompError = newTList_(tc_string)
+	this.jscompWarning = newTList_(tc_string)
+	this.jscompOff = newTList_(tc_string)
 	this.define = icast_List(new_ArrayList_0().self())
 	this.charset = ""
 	this.compilationLevel = "SIMPLE"
@@ -1658,15 +1658,15 @@ func (this *CommandLineRunner_Flags) getPackageJsonEntryNames() *JTList[string] 
 	return splitToListT_(jtc_string, Splitter_on(','), strobj_(this.packageJsonEntryNames.get()))
 }
 
-func CommandLineRunner_Flags_addMultiFlagValue(values ListOf[string], value Optional[string], flag any, entries ListOf[*AbstractCommandLineRunner_FlagEntry]) ListOf[string] {
+func CommandLineRunner_Flags_addMultiFlagValue(values *TList[string], value Optional[string], flag any, entries ListOf[*AbstractCommandLineRunner_FlagEntry]) *TList[string] {
 	var normalizedValue Optional[string] = value
 	if ((value.isPresent() && (String_length(value.get()) > 0)) && ((String_substring(value.get(), 0, 1) == "'") || (String_substring(value.get(), 0, 1) == "\""))) && (String_substring_int(value.get(), (String_length(value.get())-1)) == String_substring(value.get(), 0, 1)) {
 		normalizedValue = Optional_of[string](String_substring(value.get(), 1, (String_length(value.get()) - 1)))
 	}
 	if values == nil {
-		values = icast_List(new_ArrayList_0().self())
+		values = newTList_(tc_string)
 	}
-	values.add(strobj_(normalizedValue.orElse(nullstr_)))
+	values.add(normalizedValue.orElse(nullstr_))
 	entries.add(new_AbstractCommandLineRunner_FlagEntry(flag, normalizedValue.orElse(nullstr_)))
 	return values
 }
