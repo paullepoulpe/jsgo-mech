@@ -28,9 +28,9 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransf
 		entryValue := prefixReplacements.vals[i]
 		sortedReplacements.add(BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement_of(entryKey, entryValue))
 	}
-	List_sort(sortedReplacements.asList(), Comparator_thenComparing(Comparator_reversed(Comparator_comparingInt(&ToIntFunction_tfn_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement{func(r *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) int32 {
+	sortTListF_(sortedReplacements, thenComparingT_(reversedT_(comparingIntT_(func(r *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) int32 {
 		return String_length(r.prefix())
-	}})), &Function_tfn_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement_string{(*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement).prefix}))
+	})), comparingT_(tc_string, (*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement).prefix)))
 	this.prefixReplacements = immutableSetCopyOf_(tch_p_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement, Collection(sortedReplacements.asList()))
 	var sortedPrefixes *TList[string] = newTList_(tc_string)
 	for _, el2 := range this.prefixReplacements.keys {

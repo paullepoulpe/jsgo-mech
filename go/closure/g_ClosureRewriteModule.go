@@ -101,8 +101,8 @@ func (this *ClosureRewriteModule) process_2(externs Node, root Node) {
 	}
 	NodeTraversal_traverseRoots(this.compiler_, new_ClosureRewriteModule_ScriptUpdater(this, scriptDescriptions), externs, root)
 	this.declareSyntheticExterns()
-	Iterable_forEach(Iterable(this.googModuleGetCalls.asList()), &Consumer_tfn_Node{func(p0 Node) { this.updateGoogModuleGetCall(p0) }})
-	Iterable_forEach(Iterable(this.googRequireDynamicCalls.asList()), &Consumer_tfn_Node{func(p0 Node) { this.updateGoogRequireDynamicCall(p0) }})
+	this.googModuleGetCalls.forEachT_(func(p0 Node) { this.updateGoogModuleGetCall(p0) })
+	this.googRequireDynamicCalls.forEachT_(func(p0 Node) { this.updateGoogRequireDynamicCall(p0) })
 }
 
 func (this *ClosureRewriteModule) declareSyntheticExterns() {
@@ -117,7 +117,7 @@ func (this *ClosureRewriteModule) declareSyntheticExterns() {
 		return
 	}
 	var root Node = this.compiler_.getSynthesizedExternsInput().getAstRoot(this.compiler_)
-	Iterable_forEach(iup_Iterable(vars.asImm()), &Consumer_tfn_Node{func(p0 Node) { root.addChildToBack(p0) }})
+	vars.forEachT_(func(p0 Node) { root.addChildToBack(p0) })
 }
 
 func (this *ClosureRewriteModule) isNameInGlobalScope(name string) bool {

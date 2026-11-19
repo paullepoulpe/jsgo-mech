@@ -38,15 +38,15 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping *T
 		}
 	}
 	var result []Map_Entry = sliceFrom_(tc_Map_Entry, Collection(metrics.asMap().entrySet()))
-	Collections_sort_List_Comparator(sliceView_(tc_Map_Entry, result), Comparator_thenComparingInt(Comparator_thenComparingInt(Comparator_thenComparingLong(Comparator_comparing(&Function_tfn_Map_Entry_string{func(point Map_Entry) string {
+	sortSliceF_(result, thenComparingT_(thenComparingT_(thenComparingT_(comparingT_(tc_string, func(point Map_Entry) string {
 		return point.getKey().(*InstrumentationPoint).getFileName()
-	}}), &ToLongFunction_tfn_Map_Entry{func(point Map_Entry) int64 {
+	}), comparingLongT_(func(point Map_Entry) int64 {
 		return (-point.getValue().(*ProfilingReport_InstrumentationPointMetrics).totalTimesExecuted)
-	}}), &ToIntFunction_tfn_Map_Entry{func(point Map_Entry) int32 {
+	})), comparingIntT_(func(point Map_Entry) int32 {
 		return point.getKey().(*InstrumentationPoint).getLineNumber()
-	}}), &ToIntFunction_tfn_Map_Entry{func(point Map_Entry) int32 {
+	})), comparingIntT_(func(point Map_Entry) int32 {
 		return point.getKey().(*InstrumentationPoint).getType().getNumber()
-	}}))
+	})))
 	var output []List = []List{}
 	output = append(output, ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_("File"), strobj_("Function name"), strobj_("Line"), strobj_("Type"), strobj_("Total executed"), strobj_("Reports occurred")))
 	for _, entry := range result {

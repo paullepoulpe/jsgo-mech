@@ -136,9 +136,9 @@ func (this *ClosureExportTypeClassifier) visitAssign(expr Node) {
 }
 
 func (this *ClosureExportTypeClassifier) getOrCreate(name string) *ClosureExportTypeClassifier_NameInfo {
-	return mapComputeIfAbsent_(tc_string, tc_p_ClosureExportTypeClassifier_NameInfo, this.topLevelNames, name, &Function_tfn_string_ClosureExportTypeClassifier_NameInfo{func(unused string) *ClosureExportTypeClassifier_NameInfo {
+	return mapComputeIfAbsentT_(tc_p_ClosureExportTypeClassifier_NameInfo, this.topLevelNames, name, func(unused string) *ClosureExportTypeClassifier_NameInfo {
 		return new_ClosureExportTypeClassifier_NameInfo()
-	}})
+	})
 }
 
 func (this *ClosureExportTypeClassifier) kindOfName(info *ClosureExportTypeClassifier_NameInfo, depth int32) ClosureExportTypeClassifier_Kind {

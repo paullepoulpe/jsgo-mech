@@ -2757,68 +2757,12 @@ func (this *BiConsumer_tfn_TypePool_ColorPool_ShardView) accept(p0 any, p1 any) 
 	this.f(cast_[*TypePool](p0), cast_[*ColorPool_ShardView](p1))
 }
 
-type BiConsumer_tfn_string_JSTypeExpression struct {
-	f func(string, *JSTypeExpression)
-}
-
-func (this *BiConsumer_tfn_string_JSTypeExpression) accept(p0 any, p1 any) {
-	this.f(str_(p0), cast_[*JSTypeExpression](p1))
-}
-
 type BiConsumer_tfn_string_List struct {
 	f func(string, List)
 }
 
 func (this *BiConsumer_tfn_string_List) accept(p0 any, p1 any) {
 	this.f(str_(p0), icast_List(p1))
-}
-
-type BiConsumer_tfn_string_SourceFile_jscomp struct {
-	f func(string, *SourceFile_jscomp)
-}
-
-func (this *BiConsumer_tfn_string_SourceFile_jscomp) accept(p0 any, p1 any) {
-	this.f(str_(p0), cast_[*SourceFile_jscomp](p1))
-}
-
-type BiFunction_tfn_AccessorSummary_PropertyAccessKind_AccessorSummary_PropertyAccessKind_AccessorSummary_PropertyAccessKind struct {
-	f func(AccessorSummary_PropertyAccessKind, AccessorSummary_PropertyAccessKind) AccessorSummary_PropertyAccessKind
-}
-
-func (this *BiFunction_tfn_AccessorSummary_PropertyAccessKind_AccessorSummary_PropertyAccessKind_AccessorSummary_PropertyAccessKind) apply(p0 any, p1 any) any {
-	return obj_(this.f(cast_[AccessorSummary_PropertyAccessKind](p0), cast_[AccessorSummary_PropertyAccessKind](p1)))
-}
-
-type BiFunction_tfn_InstrumentationPoint_InstrumentationPointStats_Presence_InstrumentationPointStats_Presence struct {
-	f func(*InstrumentationPoint, InstrumentationPointStats_Presence) InstrumentationPointStats_Presence
-}
-
-func (this *BiFunction_tfn_InstrumentationPoint_InstrumentationPointStats_Presence_InstrumentationPointStats_Presence) apply(p0 any, p1 any) any {
-	return obj_(this.f(cast_[*InstrumentationPoint](p0), cast_[InstrumentationPointStats_Presence](p1)))
-}
-
-type BiFunction_tfn_InstrumentationPoint_any_any struct {
-	f func(*InstrumentationPoint, any) any
-}
-
-func (this *BiFunction_tfn_InstrumentationPoint_any_any) apply(p0 any, p1 any) any {
-	return this.f(cast_[*InstrumentationPoint](p0), p1)
-}
-
-type BiFunction_tfn_LowestCommonAncestorFinder_Color_LowestCommonAncestorFinder_Color_LowestCommonAncestorFinder_Color struct {
-	f func(*LowestCommonAncestorFinder_Color, *LowestCommonAncestorFinder_Color) *LowestCommonAncestorFinder_Color
-}
-
-func (this *BiFunction_tfn_LowestCommonAncestorFinder_Color_LowestCommonAncestorFinder_Color_LowestCommonAncestorFinder_Color) apply(p0 any, p1 any) any {
-	return obj_(this.f(cast_[*LowestCommonAncestorFinder_Color](p0), cast_[*LowestCommonAncestorFinder_Color](p1)))
-}
-
-type BiFunction_tfn_string_string_string struct {
-	f func(string, string) string
-}
-
-func (this *BiFunction_tfn_string_string_string) apply(p0 any, p1 any) any {
-	return strobj_(this.f(str_(p0), str_(p1)))
 }
 
 type BiPredicate_tfn_LinkedFlowScope_OverlayScope_LinkedFlowScope_OverlayScope struct {
@@ -3213,14 +3157,6 @@ func (this *Function_base_tfn_string_string) apply(p0 any) any {
 	return strobj_(this.f(str_(p0)))
 }
 
-type Function_tfn_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement_string struct {
-	f func(*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) string
-}
-
-func (this *Function_tfn_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement_string) apply(p0 any) any {
-	return strobj_(this.f(cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](p0)))
-}
-
 type Function_tfn_CodeReplacement_string struct {
 	f func(*CodeReplacement) string
 }
@@ -3261,36 +3197,12 @@ func (this *Function_tfn_CompilerOptions_any) apply(p0 any) any {
 	return this.f(cast_[*CompilerOptions](p0))
 }
 
-type Function_tfn_FileProfile_string struct {
-	f func(*FileProfile) string
-}
-
-func (this *Function_tfn_FileProfile_string) apply(p0 any) any {
-	return strobj_(this.f(cast_[*FileProfile](p0)))
-}
-
 type Function_tfn_GraphvizGraph_GraphvizEdge_string struct {
 	f func(GraphvizGraph_GraphvizEdge) string
 }
 
 func (this *Function_tfn_GraphvizGraph_GraphvizEdge_string) apply(p0 any) any {
 	return strobj_(this.f(icast_GraphvizGraph_GraphvizEdge(p0)))
-}
-
-type Function_tfn_InstrumentationPointStats_string struct {
-	f func(*InstrumentationPointStats) string
-}
-
-func (this *Function_tfn_InstrumentationPointStats_string) apply(p0 any) any {
-	return strobj_(this.f(cast_[*InstrumentationPointStats](p0)))
-}
-
-type Function_tfn_JSChunk_Node struct {
-	f func(*JSChunk) Node
-}
-
-func (this *Function_tfn_JSChunk_Node) apply(p0 any) any {
-	return this.f(cast_[*JSChunk](p0)).box_()
 }
 
 type Function_tfn_JSChunk_Set struct {
@@ -3301,27 +3213,11 @@ func (this *Function_tfn_JSChunk_Set) apply(p0 any) any {
 	return this.f(cast_[*JSChunk](p0))
 }
 
-type Function_tfn_Map_Entry_string struct {
-	f func(Map_Entry) string
-}
-
-func (this *Function_tfn_Map_Entry_string) apply(p0 any) any {
-	return strobj_(this.f(icast_Map_Entry(p0)))
-}
-
 type Function_tfn_Node_Color struct {
 	f func(Node) *Color
 }
 
 func (this *Function_tfn_Node_Color) apply(p0 any) any {
-	return obj_(this.f(Node_of_(p0)))
-}
-
-type Function_tfn_Node_InstrumentAsyncContext_FunctionContext struct {
-	f func(Node) *InstrumentAsyncContext_FunctionContext
-}
-
-func (this *Function_tfn_Node_InstrumentAsyncContext_FunctionContext) apply(p0 any) any {
 	return obj_(this.f(Node_of_(p0)))
 }
 
@@ -3331,14 +3227,6 @@ type Function_tfn_Node_Node struct {
 
 func (this *Function_tfn_Node_Node) apply(p0 any) any {
 	return this.f(Node_of_(p0)).box_()
-}
-
-type Function_tfn_Node_ScriptMetadata struct {
-	f func(Node) *ScriptMetadata
-}
-
-func (this *Function_tfn_Node_ScriptMetadata) apply(p0 any) any {
-	return obj_(this.f(Node_of_(p0)))
 }
 
 type Function_tfn_Node_TypedScope struct {
@@ -3405,52 +3293,12 @@ func (this *Function_tfn_any_SimpleMultiset) apply(p0 any) any {
 	return obj_(this.f(p0))
 }
 
-type Function_tfn_string_ClosureExportTypeClassifier_NameInfo struct {
-	f func(string) *ClosureExportTypeClassifier_NameInfo
-}
-
-func (this *Function_tfn_string_ClosureExportTypeClassifier_NameInfo) apply(p0 any) any {
-	return obj_(this.f(str_(p0)))
-}
-
-type Function_tfn_string_Deque struct {
-	f func(string) Deque
-}
-
-func (this *Function_tfn_string_Deque) apply(p0 any) any {
-	return this.f(str_(p0))
-}
-
-type Function_tfn_string_FileInstrumentationData struct {
-	f func(string) *FileInstrumentationData
-}
-
-func (this *Function_tfn_string_FileInstrumentationData) apply(p0 any) any {
-	return obj_(this.f(str_(p0)))
-}
-
 type Function_tfn_string_JsMessageVisitor_MalformedException struct {
 	f func(string) *JsMessageVisitor_MalformedException
 }
 
 func (this *Function_tfn_string_JsMessageVisitor_MalformedException) apply(p0 any) any {
 	return obj_(this.f(str_(p0)))
-}
-
-type Function_tfn_string_Map struct {
-	f func(string) Map
-}
-
-func (this *Function_tfn_string_Map) apply(p0 any) any {
-	return this.f(str_(p0))
-}
-
-type Function_tfn_string_Set struct {
-	f func(string) Set
-}
-
-func (this *Function_tfn_string_Set) apply(p0 any) any {
-	return this.f(str_(p0))
 }
 
 type Function_tfn_string_any struct {
@@ -3805,14 +3653,6 @@ func (this *Supplier_tfn_string) get() any {
 	return strobj_(this.f())
 }
 
-type ToIntFunction_tfn_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement struct {
-	f func(*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) int32
-}
-
-func (this *ToIntFunction_tfn_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) applyAsInt(p0 any) int32 {
-	return this.f(cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](p0))
-}
-
 type ToIntFunction_tfn_CodeReplacement struct {
 	f func(*CodeReplacement) int32
 }
@@ -3829,36 +3669,12 @@ func (this *ToIntFunction_tfn_Comment) applyAsInt(p0 any) int32 {
 	return this.f(cast_[*Comment](p0))
 }
 
-type ToIntFunction_tfn_DisambiguateProperties_TypeNodeJson struct {
-	f func(*DisambiguateProperties_TypeNodeJson) int32
-}
-
-func (this *ToIntFunction_tfn_DisambiguateProperties_TypeNodeJson) applyAsInt(p0 any) int32 {
-	return this.f(cast_[*DisambiguateProperties_TypeNodeJson](p0))
-}
-
 type ToIntFunction_tfn_IRFactory_LineAndColumn struct {
 	f func(*IRFactory_LineAndColumn) int32
 }
 
 func (this *ToIntFunction_tfn_IRFactory_LineAndColumn) applyAsInt(p0 any) int32 {
 	return this.f(cast_[*IRFactory_LineAndColumn](p0))
-}
-
-type ToIntFunction_tfn_InstrumentationPointStats struct {
-	f func(*InstrumentationPointStats) int32
-}
-
-func (this *ToIntFunction_tfn_InstrumentationPointStats) applyAsInt(p0 any) int32 {
-	return this.f(cast_[*InstrumentationPointStats](p0))
-}
-
-type ToIntFunction_tfn_Map_Entry struct {
-	f func(Map_Entry) int32
-}
-
-func (this *ToIntFunction_tfn_Map_Entry) applyAsInt(p0 any) int32 {
-	return this.f(icast_Map_Entry(p0))
 }
 
 type ToIntFunction_tfn_Node struct {
@@ -3893,14 +3709,6 @@ func (this *ToIntFunction_tfn_string) applyAsInt(p0 any) int32 {
 	return this.f(str_(p0))
 }
 
-type ToLongFunction_tfn_Map_Entry struct {
-	f func(Map_Entry) int64
-}
-
-func (this *ToLongFunction_tfn_Map_Entry) applyAsLong(p0 any) int64 {
-	return this.f(icast_Map_Entry(p0))
-}
-
 type Function_tfn[P0 any, R any] struct {
 	f func(P0) R
 }
@@ -3915,14 +3723,6 @@ type Comparator_tfn[P0 any, P1 any] struct {
 
 func (this *Comparator_tfn[P0, P1]) compare(p0 any, p1 any) int32 {
 	return this.f(junboxT_[P0](p0), junboxT_[P1](p1))
-}
-
-type BiConsumer_tfn[P0 any, P1 any] struct {
-	f func(P0, P1)
-}
-
-func (this *BiConsumer_tfn[P0, P1]) accept(p0 any, p1 any) {
-	this.f(junboxT_[P0](p0), junboxT_[P1](p1))
 }
 
 type Function_base_tfn[P0 any, R any] struct {
