@@ -319,7 +319,7 @@ func (this CheckRequiresSorted_ImportPrimitive) init_CheckRequiresSorted_ImportP
 
 func CheckRequiresSorted_ImportPrimitive_fromName(name Optional[string]) CheckRequiresSorted_ImportPrimitive {
 	for _, primitive := range CheckRequiresSorted_ImportPrimitive_values() {
-		if Object_equals(Optional_of[string](CheckRequiresSorted_ImportPrimitive_nameField_[primitive-1]).box_(), name.box_()) {
+		if optEquals_(Optional_of[string](CheckRequiresSorted_ImportPrimitive_nameField_[primitive-1]), name) {
 			return primitive
 		}
 	}
@@ -605,7 +605,7 @@ func (this *CheckRequiresSorted_ImportStatement) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && tlistEq_(this.nodes_, o.nodes_, true) && this.primitive_ == o.primitive_ && this.namespace_ == o.namespace_ && Objects_equals(this.alias_.box_(), o.alias_.box_()) && tlistEq_(this.destructures_, o.destructures_, true)
+	return true && tlistEq_(this.nodes_, o.nodes_, true) && this.primitive_ == o.primitive_ && this.namespace_ == o.namespace_ && optEqualsNull_(this.alias_, o.alias_) && tlistEq_(this.destructures_, o.destructures_, true)
 }
 
 func (this *CheckRequiresSorted_ImportStatement) hashCode() int32 {
@@ -613,7 +613,7 @@ func (this *CheckRequiresSorted_ImportStatement) hashCode() int32 {
 	h = h*31 + tlistHash_(this.nodes_, true)
 	h = h*31 + objhashId_(this.primitive_)
 	h = h*31 + objhashStr_(this.namespace_)
-	h = h*31 + Objects_hashCode(this.alias_.box_())
+	h = h*31 + optHash_(this.alias_)
 	h = h*31 + tlistHash_(this.destructures_, true)
 	return h
 }

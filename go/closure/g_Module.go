@@ -75,7 +75,7 @@ func (this *Module) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && objequalsBy_(this.metadata_, obj_(o.metadata_), (*ModuleMetadataMap_ModuleMetadata).equals) && this.path_ == o.path_ && tmapEq_(this.namespace_, o.namespace_, true) && tmapEq_(this.boundNames_, o.boundNames_, true) && tmapEq_(this.localNameToLocalExport_, o.localNameToLocalExport_, true) && Objects_equals(this.closureNamespace_.box_(), o.closureNamespace_.box_())
+	return true && objequalsBy_(this.metadata_, obj_(o.metadata_), (*ModuleMetadataMap_ModuleMetadata).equals) && this.path_ == o.path_ && tmapEq_(this.namespace_, o.namespace_, true) && tmapEq_(this.boundNames_, o.boundNames_, true) && tmapEq_(this.localNameToLocalExport_, o.localNameToLocalExport_, true) && optEqualsNull_(this.closureNamespace_, o.closureNamespace_)
 }
 
 func (this *Module) hashCode() int32 {
@@ -85,7 +85,7 @@ func (this *Module) hashCode() int32 {
 	h = h*31 + tmapHash_(this.namespace_, true)
 	h = h*31 + tmapHash_(this.boundNames_, true)
 	h = h*31 + tmapHash_(this.localNameToLocalExport_, true)
-	h = h*31 + Objects_hashCode(this.closureNamespace_.box_())
+	h = h*31 + optHash_(this.closureNamespace_)
 	return h
 }
 

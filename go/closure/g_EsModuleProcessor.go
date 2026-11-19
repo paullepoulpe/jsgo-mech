@@ -367,7 +367,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolve_2_impl(moduleRequestRe
 		var localNameToLocalExport *TMap[string, *Export] = newTMap_(tc_string, tc_p_Export)
 		for _, e := range this.localExports {
 			localNameToLocalExport.Put(e.localName().orElse(nullstr_), e)
-			if !Object_equals(Optional_of[string](Export_DEFAULT_EXPORT_NAME).box_(), e.localName().box_()) {
+			if !optEquals_(Optional_of[string](Export_DEFAULT_EXPORT_NAME), e.localName()) {
 				var b *ResolveExportResult = this.resolveExport(moduleRequestResolver, e.exportName())
 				if !b.resolved() {
 					panic(new_IllegalStateException_String("Cannot have invalid missing own export!"))
@@ -517,7 +517,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolveExport_4(moduleRequestR
 		return ResolveExportResult_ERROR
 	}
 	for _, e := range this.localExports {
-		if Object_equals(exportName.box_(), e.exportName().box_()) {
+		if optEquals_(exportName, e.exportName()) {
 			var forSourceInfo Node = func() Node {
 				if e.nameNode() != 0 {
 					return e.nameNode()
@@ -528,7 +528,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolveExport_4(moduleRequestR
 		}
 	}
 	for _, e := range this.indirectExports {
-		if Object_equals(exportName.box_(), e.exportName().box_()) {
+		if optEquals_(exportName, e.exportName()) {
 			if e.localName().isPresent() && this.importsByLocalName.Has(e.localName().get()) {
 				return this.resolveImport_4(moduleRequestResolver, e.localName().orElse(nullstr_), resolveSet, exportStarSet).copy(e.nameNode(), Binding_CreatedBy_EXPORT)
 			} else {
@@ -548,7 +548,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolveExport_4(moduleRequestR
 			}
 		}
 	}
-	if Object_equals(Optional_of[string](Export_DEFAULT).box_(), exportName.box_()) {
+	if optEquals_(Optional_of[string](Export_DEFAULT), exportName) {
 		panic(new_IllegalStateException_String("Default export cannot come from export *."))
 	}
 	if has_(exportStarSet, this.as_UnresolvedModule()) {

@@ -194,14 +194,14 @@ func (this *JSError) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && objequalsBy_(this.type__, obj_(o.type__), (*DiagnosticType).equals) && this.description_ == o.description_ && Objects_equals(this.sourceName_.box_(), o.sourceName_.box_()) && this.lineno_ == o.lineno_ && this.charno_ == o.charno_ && this.length_ == o.length_ && this.node_ == o.node_ && this.defaultLevel_ == o.defaultLevel_ && objequalsBy_(this.requirement_, obj_(o.requirement_), (*Requirement).equals)
+	return true && objequalsBy_(this.type__, obj_(o.type__), (*DiagnosticType).equals) && this.description_ == o.description_ && optEqualsNull_(this.sourceName_, o.sourceName_) && this.lineno_ == o.lineno_ && this.charno_ == o.charno_ && this.length_ == o.length_ && this.node_ == o.node_ && this.defaultLevel_ == o.defaultLevel_ && objequalsBy_(this.requirement_, obj_(o.requirement_), (*Requirement).equals)
 }
 
 func (this *JSError) hashCode() int32 {
 	var h int32
 	h = h*31 + objhashBy_(this.type__, (*DiagnosticType).hashCode)
 	h = h*31 + objhashStr_(this.description_)
-	h = h*31 + Objects_hashCode(this.sourceName_.box_())
+	h = h*31 + optHash_(this.sourceName_)
 	h = h*31 + int32(this.lineno_)
 	h = h*31 + int32(this.charno_)
 	h = h*31 + int32(this.length_)
@@ -267,7 +267,7 @@ func new_JSError_Builder(type_ *DiagnosticType, args []string) *JSError_Builder 
 }
 
 func (this *JSError_Builder) setNode(n Node) *JSError_Builder {
-	if !Object_equals(JSError_DEFAULT_SOURCENAME.box_(), this.sourceName_.box_()) {
+	if !optEquals_(JSError_DEFAULT_SOURCENAME, this.sourceName_) {
 		panic(new_IllegalStateException_String("Cannot provide a Node when there's already a source name"))
 	}
 	this.n = n
@@ -281,7 +281,7 @@ func (this *JSError_Builder) setNode(n Node) *JSError_Builder {
 }
 
 func (this *JSError_Builder) setNodeRange(start Node, end Node) *JSError_Builder {
-	if !Object_equals(JSError_DEFAULT_SOURCENAME.box_(), this.sourceName_.box_()) {
+	if !optEquals_(JSError_DEFAULT_SOURCENAME, this.sourceName_) {
 		panic(new_IllegalStateException_String("Cannot provide a Node when there's already a source name"))
 	}
 	this.n = start

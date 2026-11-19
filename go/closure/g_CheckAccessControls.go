@@ -269,7 +269,7 @@ func (this *CheckAccessControls) isPackageAccessAllowed(var_ *Var, name Node) bo
 	var codingConvention CodingConvention = this.compiler_.getCodingConvention()
 	var srcPackage Optional[string] = codingConvention.getPackageName(varSrc)
 	var refPackage Optional[string] = codingConvention.getPackageName(refSrc)
-	return ((srcPackage.isPresent() && refPackage.isPresent()) && Object_equals(srcPackage.box_(), refPackage.box_()))
+	return ((srcPackage.isPresent() && refPackage.isPresent()) && optEquals_(srcPackage, refPackage))
 }
 
 func (this *CheckAccessControls) checkPropertyOverrideVisibilityIsSame(overriding JSDocInfo_Visibility, overridden JSDocInfo_Visibility, fileOverview JSDocInfo_Visibility, propRef *CheckAccessControls_PropertyReference) {
@@ -509,7 +509,7 @@ func (this *CheckAccessControls) checkPackagePropertyVisibility(propRef *CheckAc
 	var codingConvention CodingConvention = this.compiler_.getCodingConvention()
 	var refPackage Optional[string] = codingConvention.getPackageName(referenceSource)
 	var defPackage Optional[string] = codingConvention.getPackageName(definingSource)
-	if (refPackage.isEmpty() || defPackage.isEmpty()) || !Object_equals(refPackage.box_(), defPackage.box_()) {
+	if (refPackage.isEmpty() || defPackage.isEmpty()) || !optEquals_(refPackage, defPackage) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(propRef.sourceNode(), CheckAccessControls_BAD_PACKAGE_PROPERTY_ACCESS, []string{propRef.name(), propRef.getReadableTypeNameOrDefault()}))
 	}
 }
