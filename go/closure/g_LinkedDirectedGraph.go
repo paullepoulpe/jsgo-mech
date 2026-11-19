@@ -151,14 +151,16 @@ func (this *LinkedDirectedGraph[N, E]) getOutEdges_impl(nodeValue N) ListOf[*Lin
 }
 
 func (this *LinkedDirectedGraph[N, E]) createNode_impl(nodeValue N) GraphNode[N] {
-	return cast_[GraphNode[N]](this.nodes_.computeIfAbsent(nodeValue, &Function_tfn[N, any]{func(k N) any {
-		return func() any {
-			if this.useNodeAnnotations {
-				return obj_(new_LinkedDirectedGraph_AnnotatedLinkedDiGraphNode[N, E](k))
-			}
-			return new_LinkedDirectedGraph_LinkedDiGraphNode[N, E](k).self()
-		}()
-	}}).self())
+	return cast_[GraphNode[N]](this.nodes_.computeIfAbsent_f(nodeValue, func(p0 any) any {
+		return boxT_((func(k N) any {
+			return func() any {
+				if this.useNodeAnnotations {
+					return obj_(new_LinkedDirectedGraph_AnnotatedLinkedDiGraphNode[N, E](k))
+				}
+				return new_LinkedDirectedGraph_LinkedDiGraphNode[N, E](k).self()
+			}()
+		})(junboxT_[N](p0)))
+	}).self())
 }
 
 func (this *LinkedDirectedGraph[N, E]) getEdges_2_impl(n1 N, n2 N) ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] {

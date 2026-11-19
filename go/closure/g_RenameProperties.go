@@ -307,7 +307,9 @@ func (this *RenameProperties_ProcessProperties) countCallCandidates(t *NodeTrave
 }
 
 func (this *RenameProperties_ProcessProperties) countPropertyOccurrence(name string) {
-	var prop *RenameProperties_Property = this.outer_.propertyMap.computeIfAbsent(name, &Function_tfn_string_RenameProperties_Property{func(p0 string) *RenameProperties_Property { return new_RenameProperties_Property(p0) }})
+	var prop *RenameProperties_Property = this.outer_.propertyMap.computeIfAbsent_f(name, func(p0 any) any {
+		return obj_((func(p0 string) *RenameProperties_Property { return new_RenameProperties_Property(p0) })(str_(p0)))
+	})
 	prop.numOccurrences++
 }
 

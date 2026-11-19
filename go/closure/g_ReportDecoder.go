@@ -177,9 +177,11 @@ func ReportDecoder_createReportProfile(instrumentationPoints *TList[*Instrumenta
 	}))
 	var pointsByFileName *TMap[string, List] = newTMap_(tc_string, tc_List)
 	for pointStats := range sortedPoints.All() {
-		pointsByFileName.computeIfAbsent(pointStats.getPoint().getFileName(), &Function_tfn_string_List{func(k string) List {
-			return new_ArrayList_0()
-		}}).add(obj_(pointStats))
+		pointsByFileName.computeIfAbsent_f(pointStats.getPoint().getFileName(), func(p0 any) any {
+			return (func(k string) List {
+				return new_ArrayList_0()
+			})(str_(p0))
+		}).add(obj_(pointStats))
 	}
 	var fileProfiles *TList[*FileProfile] = newTList_(tc_p_FileProfile)
 	it_3 := pointsByFileName.eachEntry()

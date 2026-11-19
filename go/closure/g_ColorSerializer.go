@@ -40,11 +40,13 @@ func (this *ColorSerializer) addColors(colors CollectionOf[*Color]) *TList[any] 
 }
 
 func (this *ColorSerializer) addColor(color *Color) int32 {
-	return unbox_[int32](this.colorIdToTypePointer.computeIfAbsent(color.getId(), &Function_tfn_ColorId_any{func(unusedKey *ColorId) any {
-		var index int32 = int32(len(*this.colorsInSerializedOrder))
-		*this.colorsInSerializedOrder = append(*this.colorsInSerializedOrder, color)
-		return any(int32(index))
-	}}))
+	return unbox_[int32](this.colorIdToTypePointer.computeIfAbsent_f(color.getId(), func(p0 any) any {
+		return (func(unusedKey *ColorId) any {
+			var index int32 = int32(len(*this.colorsInSerializedOrder))
+			*this.colorsInSerializedOrder = append(*this.colorsInSerializedOrder, color)
+			return any(int32(index))
+		})(cast_[*ColorId](p0))
+	}))
 }
 
 func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func(any) any, getMismatchSourceRefsFn func(any) any) *TypePool {
@@ -66,9 +68,11 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func
 		for color := range sliceAll_(this.colorsInSerializedOrder) {
 			var typePointer any = this.colorIdToTypePointer.Get(color.getId())
 			for srcRef := range elemsBy_(icast_Set(getMismatchSourceRefsFn(obj_(color))), str_) {
-				var typePointerList ArrayListOf[BoxedOf[int32]] = srcRefToTypePointerList.computeIfAbsent(srcRef, &Function_tfn_string_any{func(key string) any {
-					return new_ArrayList_0().self()
-				}})
+				var typePointerList ArrayListOf[BoxedOf[int32]] = srcRefToTypePointerList.computeIfAbsent_f(srcRef, func(p0 any) any {
+					return (func(key string) any {
+						return new_ArrayList_0().self()
+					})(str_(p0))
+				})
 				typePointerList.add(typePointer)
 			}
 		}

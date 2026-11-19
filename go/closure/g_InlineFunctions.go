@@ -46,9 +46,11 @@ func new_InlineFunctions(compiler *AbstractCompiler, safeNameIdSupplier Supplier
 }
 
 func (this *InlineFunctions) getOrCreateFunctionState(fnName string) *InlineFunctions_FunctionState {
-	return this.fns.computeIfAbsent(fnName, &Function_tfn_string_InlineFunctions_FunctionState{func(k string) *InlineFunctions_FunctionState {
-		return new_InlineFunctions_FunctionState()
-	}})
+	return this.fns.computeIfAbsent_f(fnName, func(p0 any) any {
+		return obj_((func(k string) *InlineFunctions_FunctionState {
+			return new_InlineFunctions_FunctionState()
+		})(str_(p0)))
+	})
 }
 
 func (this *InlineFunctions) process_2(externs Node, root Node) {
