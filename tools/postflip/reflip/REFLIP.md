@@ -422,4 +422,19 @@ allocation: postflip5 260.4M objects, this tree 324.7M (382.5M before C33).
 Everywhere above, "the first 3,500 chunks" holds 7,886 of the 44,577 input files (18%), not
 about half. POSTFLIP.md on postflip5-r9-ga has the comparison with Java at 18%, 52% and 100% of
 the input and jsgo's own figures: the gap grows with size in the stages after CHECKS and in
-memory. This tree has not been run at 52% yet.
+memory.
+
+This tree at 52% of the input (gasub/flags5447.txt: 5,447 chunks, 23,196 files; one run, alone
+on the host, chunks identical to Java's and postflip5's, sha 2043969e; runs/half_r2q1.runs),
+binary of C36:
+
+| | total wall | CHECKS wall / peak RSS | OPTIMIZATIONS | FINALIZATIONS |
+|---|---|---|---|---|
+| pre-flip Java | 248.6s | 117.2s / 8.0 GB | 109.3s / 7.6 GB | 22.1s / 2.8 GB |
+| postflip5-r9-ga | 285.5s | 147.8s / 11.2 GB | 114.7s / 8.5 GB | 23.0s / 1.5 GB |
+| this tree | 329.9s | 172.3s / 10.2 GB | 130.2s / 5.8 GB | 27.4s / 1.2 GB |
+
+In time this tree is 15.5% behind postflip5, as it is at 18% of the input (115.2s against
+99.9s): its distance to postflip5 does not grow with size. In memory it is below postflip5 in
+every stage, by a third in OPTIMIZATIONS (the node store's pointer-free records), though still
+above Java in CHECKS.
