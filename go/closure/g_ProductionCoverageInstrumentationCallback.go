@@ -273,20 +273,9 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncod
 			panic(new_ArithmeticException_String("Unique Identifier exceeds value of Integer.MAX_VALUE, could not encode with Base 64 VLQ").self())
 		}
 		sb = new_StringBuilder()
-		_ = func() (code_ int) {
-			defer func() {
-				if r_ := recover(); r_ != nil {
-					ex_ := catch_(r_)
-					if p2, ok2 := ex_.(IOException_as); ok2 {
-						var e *IOException = p2.as_IOException()
-						panic(new_AssertionError_Object(e.self()).self())
-					}
-					panic(r_)
-				}
-			}()
+		{
 			Base64VLQ_encode(StringBuilder_as_Appendable(sb), Math_toIntExact(uniqueIdentifier))
-			return 0
-		}()
+		}
 		this.paramValueEncodings.put(encodedParam, tostrR_(sb))
 	}
 	return this.paramValueEncodings.get(encodedParam)
