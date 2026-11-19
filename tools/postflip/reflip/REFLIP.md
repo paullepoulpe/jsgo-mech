@@ -528,3 +528,24 @@ Either is a translator change followed by a new flip and replay; it is the first
 items and is not started. A post-flip tool could only move the casts into accessor methods
 (Go has no covariant results: Var.getScope must return StaticScope for the interface), which
 would lower the count without removing a cast.
+
+### Where this tree is behind postflip5 after C37 (19 Nov, CHECKS on the 18% subset)
+
+Flat CPU by category (profiles of both binaries taken the same hour, runs/cats.py): postflip5
+63.4s, this tree 75.4s. The 12.0s are GC mark and sweep +3.6s (324.7M objects allocated against
+260.4M), runtime collections +3.0s, translated code +2.5s, Go maps +1.5s, casts and assertions
++0.8s, allocation +0.5s; node access is 1.2s lower here and protobuf level.
+
+By function, the largest items this tree has above postflip5, none above 1s:
+- lookups in typed maps keyed by a node handle (mapaccess2_fast32 under TMap.find, +0.9s):
+  the graph's node table. postflip5 does the same lookups in the handle table (htable_.find,
+  0.8s more there), so this is a shift, not a loss.
+- the node store's JSType handle: to_JSType on every getJSType (+0.5s) and the object-to-handle
+  map on setJSType (0.35s in the generic map path on a cache miss). jsgo keeps the handle in
+  the type object; here that would be a field added to JSType by a translator rule.
+- boxT_ and junboxT_ of the generic classes (+0.6s: the for-each cursor of typed list views,
+  graph node creation, HamtPMap.get), sliceAt_ (+0.5s), Optional.get (+0.3s).
+- allocation: the two capacity-1 edge lists of each graph node are a third of the objects this
+  tree allocates above postflip5 (22M of 64M).
+No single step of the size taken so far closes this; the remaining distance to postflip5 is
+many items of half a second on a 75-second stage.
