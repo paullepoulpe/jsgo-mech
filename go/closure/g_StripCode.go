@@ -556,17 +556,21 @@ func (this *StripCode_Strip) isStripName(name string) bool {
 	var lcName string = strings.ToLower(name)
 	for _, stripName := range this.outer_.stripNamePrefixesLowerCaseList {
 		if strings.HasPrefix(lcName, stripName) {
-			this.logStripNameSupplier(name, (&Supplier_tfn_string{func() string {
-				return ("matches lc prefix: " + sstr_(stripName))
-			}}).get)
+			this.logStripNameSupplier(name, func() any {
+				return strobj_((func() string {
+					return ("matches lc prefix: " + sstr_(stripName))
+				})())
+			})
 			return true
 		}
 	}
 	for _, stripName := range this.outer_.stripNameSuffixesLowerCaseList {
 		if strings.HasSuffix(lcName, stripName) {
-			this.logStripNameSupplier(name, (&Supplier_tfn_string{func() string {
-				return ("matches lc suffix: " + sstr_(stripName))
-			}}).get)
+			this.logStripNameSupplier(name, func() any {
+				return strobj_((func() string {
+					return ("matches lc suffix: " + sstr_(stripName))
+				})())
+			})
 			return true
 		}
 	}

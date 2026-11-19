@@ -25,7 +25,9 @@ func new_ClosureExportTypeClassifier() *ClosureExportTypeClassifier {
 func ClosureExportTypeClassifier_classify(moduleRoot Node, googNamespace string) ClosureExportTypeClassifier_TsExportType {
 	var classifier *ClosureExportTypeClassifier = new_ClosureExportTypeClassifier()
 	classifier.addGoogModuleExports()
-	ClosureExportTypeClassifier_forEachTopLevelStatement(moduleRoot, (&Consumer_tfn_Node{func(p0 Node) { classifier.visitStatement(p0) }}).accept)
+	ClosureExportTypeClassifier_forEachTopLevelStatement(moduleRoot, func(p0 any) {
+		(func(p0 Node) { classifier.visitStatement(p0) })(Node_of_(p0))
+	})
 	var info *ClosureExportTypeClassifier_NameInfo = classifier.topLevelNames[ClosureExportTypeClassifier_EXPORTS]
 	if has_(classifier.forcedNamedExport, googNamespace) || (classifier.kindOfName(info, 0) == ClosureExportTypeClassifier_Kind_NAMESPACE) {
 		return ClosureExportTypeClassifier_TsExportType_NAMED

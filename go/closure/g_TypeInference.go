@@ -1877,9 +1877,11 @@ func (this *TypeInference) traverseDynamicImport(dynamicImport Node, scope FlowS
 					templateType = exportNamespaceType
 				}
 			} else {
-				var moduleName Node = NodeUtil_findPreorder(scriptNode, (&Predicate_base_tfn_Node{func(node Node) bool {
-					return node.matchesQualifiedName(targetPath.toModuleName())
-				}}).apply, Predicates_alwaysTrue())
+				var moduleName Node = NodeUtil_findPreorder(scriptNode, func(p0 any) bool {
+					return (func(node Node) bool {
+						return node.matchesQualifiedName(targetPath.toModuleName())
+					})(Node_of_(p0))
+				}, Predicates_alwaysTrue())
 				if (moduleName != 0) && (moduleName.getJSType() != nil) {
 					templateType = moduleName.getJSType()
 				}

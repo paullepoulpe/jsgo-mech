@@ -30,9 +30,11 @@ func (this *RenameProperties) finit_RenameProperties() {
 }
 
 func (this *RenameProperties) init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters *TSet[any], reservedNonFirstCharacters *TSet[any], nameGenerator NameGenerator) {
-	this.init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler, generatePseudoNames, prevUsedPropertyMap, reservedFirstCharacters, reservedNonFirstCharacters, nameGenerator, (&Predicate_tfn_Node{func(n Node) bool {
-		return true
-	}}).test)
+	this.init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler, generatePseudoNames, prevUsedPropertyMap, reservedFirstCharacters, reservedNonFirstCharacters, nameGenerator, func(p0 any) bool {
+		return (func(n Node) bool {
+			return true
+		})(Node_of_(p0))
+	})
 }
 
 func new_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters *TSet[any], reservedNonFirstCharacters *TSet[any], nameGenerator NameGenerator) *RenameProperties {

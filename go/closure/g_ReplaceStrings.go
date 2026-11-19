@@ -307,9 +307,11 @@ func ReplaceStrings_clinit() {
 	ReplaceStrings_COMMA_PATTERN = Pattern_compile(",")
 	ReplaceStrings_BAD_REPLACEMENT_CONFIGURATION = DiagnosticType_error("JSC_BAD_REPLACEMENT_CONFIGURATION", "Bad replacement configuration \"{0}\": {1}")
 	ReplaceStrings_STRING_REPLACEMENT_TAGGED_TEMPLATE = DiagnosticType_warning("JSC_STRING_REPLACEMENT_TAGGED_TEMPLATE", "Cannot string-replace arguments of a template literal tag function.")
-	ReplaceStrings_USED_RESULTS = (&Predicate_base_tfn_ReplaceStrings_Result{func(result *ReplaceStrings_Result) bool {
-		return result.didReplacement
-	}}).apply
+	ReplaceStrings_USED_RESULTS = func(p0 any) bool {
+		return (func(result *ReplaceStrings_Result) bool {
+			return result.didReplacement
+		})(cast_[*ReplaceStrings_Result](p0))
+	}
 
 }
 

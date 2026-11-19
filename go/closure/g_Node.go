@@ -911,9 +911,11 @@ func (this Node) deserializeProperties(propSet int64, isInClosureUnawareSubtree 
 	if sideEffectFlags != 0 {
 		this.propListHead_set_(new_Node_IntPropListItem(int8(Node_Prop_SIDE_EFFECT_FLAGS.ordinal()), sideEffectFlags, this.propListHead_get_()).up_Node_PropListItem())
 	}
-	this.validateProperties((&Consumer_tfn_string{func(errorMessage string) {
-		panic(new_IllegalStateException_String(("deserialize error: " + sstr_(errorMessage) + ": " + tostrH_(this))))
-	}}).accept)
+	this.validateProperties(func(p0 any) {
+		(func(errorMessage string) {
+			panic(new_IllegalStateException_String(("deserialize error: " + sstr_(errorMessage) + ": " + tostrH_(this))))
+		})(str_(p0))
+	})
 }
 
 func (this Node) setDeclaredTypeExpression(typeExpression Node) {

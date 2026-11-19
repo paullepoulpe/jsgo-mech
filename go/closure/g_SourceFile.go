@@ -652,7 +652,9 @@ func (this *SourceFile_Builder) withPath(path string) *SourceFile_Builder {
 }
 
 func (this *SourceFile_Builder) withContent(x string) *SourceFile_Builder {
-	this.lazyContent = (&Supplier_tfn_string{func() string { return x }}).get
+	this.lazyContent = func() any {
+		return strobj_((func() string { return x })())
+	}
 	return this
 }
 

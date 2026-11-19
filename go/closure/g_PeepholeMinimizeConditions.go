@@ -637,9 +637,11 @@ func PeepholeMinimizeConditions_isLowerPrecedence(n Node, precedence int32) bool
 }
 
 func PeepholeMinimizeConditions_isPropertyAssignmentInExpression(n Node) bool {
-	var isPropertyAssignmentInExpressionPredicate func(any) bool = (&Predicate_base_tfn_Node{func(input Node) bool {
-		return (input.isGetProp() && input.getParent().isAssign())
-	}}).apply
+	var isPropertyAssignmentInExpressionPredicate func(any) bool = func(p0 any) bool {
+		return (func(input Node) bool {
+			return (input.isGetProp() && input.getParent().isAssign())
+		})(Node_of_(p0))
+	}
 	return NodeUtil_has(n, isPropertyAssignmentInExpressionPredicate, NodeUtil_MATCH_NOT_FUNCTION)
 }
 

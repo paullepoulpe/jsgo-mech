@@ -91,7 +91,9 @@ func (this *RemoveUnusedCode) traverseAndRemoveUnusedReferences(root Node) {
 	if !scope.hasSlot(NodeUtil_JSC_PROPERTY_NAME_FN) {
 		scope.declare(NodeUtil_JSC_PROPERTY_NAME_FN, 0, nil)
 	}
-	this.polyfillUsageFinder.traverseOnlyGuarded(root, (&Consumer_tfn_PolyfillUsageFinder_PolyfillUsage{func(p0 *PolyfillUsageFinder_PolyfillUsage) { this.storePolyfill(p0) }}).accept)
+	this.polyfillUsageFinder.traverseOnlyGuarded(root, func(p0 any) {
+		(func(p0 *PolyfillUsageFinder_PolyfillUsage) { this.storePolyfill(p0) })(cast_[*PolyfillUsageFinder_PolyfillUsage](p0))
+	})
 	this.worklist.add(new_RemoveUnusedCode_Continuation(this, root, scope))
 	for !this.worklist.isEmpty() {
 		var continuation *RemoveUnusedCode_Continuation = this.worklist.pop()
@@ -131,9 +133,11 @@ func (this *RemoveUnusedCode) traverseNode(n Node, scope *Scope) {
 				var functionDeclaration *RemoveUnusedCode_FunctionDeclaration = new_RemoveUnusedCode_RemovableBuilder(this).addContinuation(new_RemoveUnusedCode_Continuation(this, n, scope)).buildFunctionDeclaration(n)
 				varInfo.addRemovable(functionDeclaration.up_RemoveUnusedCode_Removable())
 				if parent.isExport() {
-					varInfo.setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
-						return "exported class"
-					}}).get)
+					varInfo.setIsExplicitlyNotRemovable(func() any {
+						return strobj_((func() string {
+							return "exported class"
+						})())
+					})
 				}
 			} else {
 				this.traverseFunction(n, scope)
@@ -188,9 +192,11 @@ func (this *RemoveUnusedCode) traverseNode(n Node, scope *Scope) {
 			if (parent.isFunction() || parent.isClass()) && (parent.getFirstChild() == n) {
 				panic(new_IllegalStateException_0())
 			}
-			this.traverseNameNode(n, scope).setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
-				return ("reference found: " + sstr_(n.getLocation()))
-			}}).get)
+			this.traverseNameNode(n, scope).setIsExplicitlyNotRemovable(func() any {
+				return strobj_((func() string {
+					return ("reference found: " + sstr_(n.getLocation()))
+				})())
+			})
 		}
 	case Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP:
 		this.traverseNormalOrOptChainGetProp(n, scope)
@@ -512,9 +518,11 @@ func (this *RemoveUnusedCode) traverseCatch(catchNode Node, scope *Scope) {
 	var block Node = exceptionNameNode.getNext()
 	if exceptionNameNode.isName() {
 		var exceptionVarInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(exceptionNameNode, scope)
-		exceptionVarInfo.setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
-			return "catch variable"
-		}}).get)
+		exceptionVarInfo.setIsExplicitlyNotRemovable(func() any {
+			return strobj_((func() string {
+				return "catch variable"
+			})())
+		})
 	} else {
 		this.traverseNode(exceptionNameNode, scope)
 	}
@@ -528,9 +536,11 @@ func (this *RemoveUnusedCode) traverseEnhancedFor(enhancedFor Node, scope *Scope
 	var body Node = collection.getNext()
 	if iterationTarget.isName() {
 		var varInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(iterationTarget, forScope)
-		varInfo.setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
-			return "for-of or for-in loop variable"
-		}}).get)
+		varInfo.setIsExplicitlyNotRemovable(func() any {
+			return strobj_((func() string {
+				return "for-of or for-in loop variable"
+			})())
+		})
 	} else if NodeUtil_isNameDeclaration(iterationTarget) {
 		var declNode Node = iterationTarget.getOnlyChild()
 		if declNode.isDestructuringLhs() {
@@ -543,9 +553,11 @@ func (this *RemoveUnusedCode) traverseEnhancedFor(enhancedFor Node, scope *Scope
 				panic(new_IllegalStateException_0())
 			}
 			var varInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(declNode, forScope)
-			varInfo.setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
-				return "for-of or for-in loop variable"
-			}}).get)
+			varInfo.setIsExplicitlyNotRemovable(func() any {
+				return strobj_((func() string {
+					return "for-of or for-in loop variable"
+				})())
+			})
 		}
 	} else {
 		this.traverseNode(iterationTarget, forScope)
@@ -583,9 +595,11 @@ func (this *RemoveUnusedCode) traverseVanillaForNameDeclarations(nameDeclaration
 				if valueNode == 0 {
 					varInfo.addRemovable(new_RemoveUnusedCode_RemovableBuilder(this).buildVanillaForNameDeclaration(nameNode).up_RemoveUnusedCode_Removable())
 				} else if this.mayHaveSideEffects(valueNode) {
-					varInfo.setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
-						return "for-loop variable initialization has side-effects"
-					}}).get)
+					varInfo.setIsExplicitlyNotRemovable(func() any {
+						return strobj_((func() string {
+							return "for-loop variable initialization has side-effects"
+						})())
+					})
 					this.traverseNode(valueNode, scope)
 				} else {
 					var vanillaForNameDeclaration *RemoveUnusedCode_VanillaForNameDeclaration = new_RemoveUnusedCode_RemovableBuilder(this).addContinuation(new_RemoveUnusedCode_Continuation(this, valueNode, scope)).buildVanillaForNameDeclaration(nameNode)
@@ -809,21 +823,27 @@ func (this *RemoveUnusedCode) traverseClassDeclaration(classNode Node, scope *Sc
 	var classScope *Scope = this.scopeCreator.createScope(classNode, scope)
 	var varInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(classNameNode, scope)
 	if classNode.getParent().isExport() {
-		varInfo.setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
-			return "exported class"
-		}}).get)
+		varInfo.setIsExplicitlyNotRemovable(func() any {
+			return strobj_((func() string {
+				return "exported class"
+			})())
+		})
 		this.traverseNode(baseClassExpression, scope)
 		this.traverseChildren(classBodyNode, classScope)
 	} else if this.mayHaveSideEffects(baseClassExpression) {
-		varInfo.setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
-			return "base class expression has side-effects"
-		}}).get)
+		varInfo.setIsExplicitlyNotRemovable(func() any {
+			return strobj_((func() string {
+				return "base class expression has side-effects"
+			})())
+		})
 		this.traverseNode(baseClassExpression, scope)
 		this.traverseClassMembers(classBodyNode, classScope)
 	} else if this.mayHaveSideEffects(classBodyNode) {
-		varInfo.setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
-			return "class body has side-effects"
-		}}).get)
+		varInfo.setIsExplicitlyNotRemovable(func() any {
+			return strobj_((func() string {
+				return "class body has side-effects"
+			})())
+		})
 		this.traverseNode(baseClassExpression, scope)
 		this.traverseClassMembers(classBodyNode, classScope)
 	} else {
@@ -1059,9 +1079,11 @@ func (this *RemoveUnusedCode) traverseVar(var_ *Var) RemoveUnusedCode_VarInfo {
 				if lValue == 0 {
 					continue
 				}
-				this.getVarInfo(this.getVarForNameNode(lValue, functionScope)).setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
-					return "parameter in function using arguments"
-				}}).get)
+				this.getVarInfo(this.getVarForNameNode(lValue, functionScope)).setIsExplicitlyNotRemovable(func() any {
+					return strobj_((func() string {
+						return "parameter in function using arguments"
+					})())
+				})
 			}
 		}
 		return this.canonicalUnremovableVarInfo
@@ -1112,13 +1134,17 @@ func (this *RemoveUnusedCode) getVarInfo(var_ *Var) RemoveUnusedCode_VarInfo {
 				varInfo.setHasNonLocalOrNonLiteralValue()
 			}
 			if !this.removeGlobals_ && isGlobal {
-				varInfo.setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
-					return "not removing globals"
-				}}).get)
+				varInfo.setIsExplicitlyNotRemovable(func() any {
+					return strobj_((func() string {
+						return "not removing globals"
+					})())
+				})
 			} else if !this.removeLocalVars_ && !isGlobal {
-				varInfo.setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
-					return "not removing locals"
-				}}).get)
+				varInfo.setIsExplicitlyNotRemovable(func() any {
+					return strobj_((func() string {
+						return "not removing locals"
+					})())
+				})
 			}
 			this.varInfoMap.Put(var_, varInfo)
 		}
@@ -1401,31 +1427,43 @@ func (this *RemoveUnusedCode_RemovalLogRecord) get() any {
 }
 
 func RemoveUnusedCode_RemovalLogRecord_forProperty(propName string) *RemoveUnusedCode_RemovalLogRecord {
-	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier("prop", (&Supplier_tfn_string{func() string {
-		return propName
-	}}).get)
+	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier("prop", func() any {
+		return strobj_((func() string {
+			return propName
+		})())
+	})
 }
 
 func RemoveUnusedCode_RemovalLogRecord_forVar(var_ *Var) *RemoveUnusedCode_RemovalLogRecord {
-	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier("var", (&Supplier_tfn_string{func() string { return var_.getName() }}).get)
+	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier("var", func() any {
+		return strobj_((func() string { return var_.getName() })())
+	})
 }
 
 func RemoveUnusedCode_RemovalLogRecord_forPolyfill(polyfillInfo *RemoveUnusedCode_PolyfillInfo) *RemoveUnusedCode_RemovalLogRecord {
-	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier("poly", (&Supplier_tfn_string{func() string { return polyfillInfo.getName() }}).get)
+	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier("poly", func() any {
+		return strobj_((func() string { return polyfillInfo.getName() })())
+	})
 }
 
 func RemoveUnusedCode_RemovalLogRecord_forNamedArg(nameNode Node, argList Node) *RemoveUnusedCode_RemovalLogRecord {
-	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier("arg", (&Supplier_tfn_string{func() string { return nameNode.getString() }}).get, RemoveUnusedCode_RemovalLogRecord_getLoggableFunctionNameSupplier(argList))
+	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier("arg", func() any {
+		return strobj_((func() string { return nameNode.getString() })())
+	}, RemoveUnusedCode_RemovalLogRecord_getLoggableFunctionNameSupplier(argList))
 }
 
 func RemoveUnusedCode_RemovalLogRecord_forDestructuringArg(argList Node) *RemoveUnusedCode_RemovalLogRecord {
-	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier("arg", (&Supplier_tfn_string{func() string {
-		return "<pattern>"
-	}}).get, RemoveUnusedCode_RemovalLogRecord_getLoggableFunctionNameSupplier(argList))
+	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier("arg", func() any {
+		return strobj_((func() string {
+			return "<pattern>"
+		})())
+	}, RemoveUnusedCode_RemovalLogRecord_getLoggableFunctionNameSupplier(argList))
 }
 
 func RemoveUnusedCode_RemovalLogRecord_forMarkingNamedArg(nameNode Node, argList Node) *RemoveUnusedCode_RemovalLogRecord {
-	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier("argmark", (&Supplier_tfn_string{func() string { return nameNode.getString() }}).get, RemoveUnusedCode_RemovalLogRecord_getLoggableFunctionNameSupplier(argList))
+	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier("argmark", func() any {
+		return strobj_((func() string { return nameNode.getString() })())
+	}, RemoveUnusedCode_RemovalLogRecord_getLoggableFunctionNameSupplier(argList))
 }
 
 func RemoveUnusedCode_RemovalLogRecord_getLoggableFunctionNameSupplier(argList Node) SupplierOf[string] {
@@ -2857,9 +2895,11 @@ func (this *RemoveUnusedCode_RealVarInfo) addRemovable(removable *RemoveUnusedCo
 		this.requiresLocalLiteralValueForRemoval = true
 	}
 	if this.hasNonLocalOrNonLiteralValue && this.requiresLocalLiteralValueForRemoval {
-		this.setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
-			return "hasNonLocalOrNonLiteralValue && requiresLocalLiteralValueForRemoval"
-		}}).get)
+		this.setIsExplicitlyNotRemovable(func() any {
+			return strobj_((func() string {
+				return "hasNonLocalOrNonLiteralValue && requiresLocalLiteralValueForRemoval"
+			})())
+		})
 	}
 	if this.isEntirelyRemovable {
 		*this.removables = append(*this.removables, removable)

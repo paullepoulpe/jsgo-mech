@@ -466,27 +466,31 @@ func (this *FlowSensitiveInlineVariables_Candidate) getNumUseInUseCfgNode(cfgNod
 }
 
 func (this *FlowSensitiveInlineVariables_Candidate) isRhsSafeToInline(usageScope *Scope) bool {
-	if NodeUtil_has(this.def.getLastChild(), (&Predicate_base_tfn_Node{func(input Node) bool {
-		switch input.ns_().token {
-		case tokOrd1_GETELEM, tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_CLASS, tokOrd1_ARRAYLIT, tokOrd1_OBJECTLIT, tokOrd1_REGEXP, tokOrd1_NEW:
-			return true
-		default:
-		}
-		return false
-	}}).apply, &Predicate_base_tfn_Node{func(input Node) bool {
+	if NodeUtil_has(this.def.getLastChild(), func(p0 any) bool {
+		return (func(input Node) bool {
+			switch input.ns_().token {
+			case tokOrd1_GETELEM, tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_CLASS, tokOrd1_ARRAYLIT, tokOrd1_OBJECTLIT, tokOrd1_REGEXP, tokOrd1_NEW:
+				return true
+			default:
+			}
+			return false
+		})(Node_of_(p0))
+	}, &Predicate_base_tfn_Node{func(input Node) bool {
 		return !input.isFunction()
 	}}) {
 		return false
 	}
-	if NodeUtil_has(this.def.getLastChild(), (&Predicate_base_tfn_Node{func(input Node) bool {
-		if input.isName() {
-			var name string = input.getString()
-			if name != "" && !usageScope.hasSlot(name) {
-				return true
+	if NodeUtil_has(this.def.getLastChild(), func(p0 any) bool {
+		return (func(input Node) bool {
+			if input.isName() {
+				var name string = input.getString()
+				if name != "" && !usageScope.hasSlot(name) {
+					return true
+				}
 			}
-		}
-		return false
-	}}).apply, Predicates_alwaysTrue()) {
+			return false
+		})(Node_of_(p0))
+	}, Predicates_alwaysTrue()) {
 		return false
 	}
 	return true

@@ -38,12 +38,16 @@ func (this *IRFactory) finit_IRFactory() {
 
 func (this *IRFactory) init_IRFactory(sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, comments *TList[*Comment], fileWithContent *SourceFile_parser, jsDocSourceKind JsDocInfoParser_JsDocSourceKind) {
 	this.finit_IRFactory()
-	this.jsdocTracker = new_IRFactory_CommentTracker(comments, (&Predicate_tfn_Comment{func(c *Comment) bool {
-		return (c.type__ == Comment_Type_JSDOC)
-	}}).test)
-	this.nonJsdocTracker = new_IRFactory_CommentTracker(comments, (&Predicate_tfn_Comment{func(c *Comment) bool {
-		return (c.type__ != Comment_Type_JSDOC)
-	}}).test)
+	this.jsdocTracker = new_IRFactory_CommentTracker(comments, func(p0 any) bool {
+		return (func(c *Comment) bool {
+			return (c.type__ == Comment_Type_JSDOC)
+		})(cast_[*Comment](p0))
+	})
+	this.nonJsdocTracker = new_IRFactory_CommentTracker(comments, func(p0 any) bool {
+		return (func(c *Comment) bool {
+			return (c.type__ != Comment_Type_JSDOC)
+		})(cast_[*Comment](p0))
+	})
 	this.sourceFile = sourceFile
 	this.fileWithContent = fileWithContent
 	this.defaultTemplateNode = this.createTemplateNode()
@@ -374,12 +378,14 @@ func (this *IRFactory) validateParameters(n Node) {
 	{
 		var c Node = n.getFirstChild()
 		for ; c != 0; c = c.getNext() {
-			ParsingUtil_getParamOrPatternNames(c, (&Consumer_tfn_Node{func(param Node) {
-				var paramName string = param.getString()
-				if !setAdd_(seenNames, paramName) {
-					this.errorReporter.warning(("Duplicate parameter name \"" + sstr_(paramName) + "\""), this.sourceName_, param.getLineno(), param.getCharno())
-				}
-			}}).accept)
+			ParsingUtil_getParamOrPatternNames(c, func(p0 any) {
+				(func(param Node) {
+					var paramName string = param.getString()
+					if !setAdd_(seenNames, paramName) {
+						this.errorReporter.warning(("Duplicate parameter name \"" + sstr_(paramName) + "\""), this.sourceName_, param.getLineno(), param.getCharno())
+					}
+				})(Node_of_(p0))
+			})
 		}
 	}
 }

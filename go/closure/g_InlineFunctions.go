@@ -143,7 +143,9 @@ func (this *InlineFunctions) updateFunctionStateForInlining(fn InlineFunctions_F
 			if NodeUtil_referencesEnclosingReceiver(block) {
 				functionState.setReferencesThis(true)
 			}
-			if NodeUtil_has(block, (&Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isFunctionOrNonStaticClassFieldInitializer(p0) }}).apply, Predicates_alwaysTrue()) {
+			if NodeUtil_has(block, func(p0 any) bool {
+				return (func(p0 Node) bool { return NodeUtil_isFunctionOrNonStaticClassFieldInitializer(p0) })(Node_of_(p0))
+			}, Predicates_alwaysTrue()) {
 				functionState.setHasInnerClosures(true)
 				if InlineFunctions_hasLocalNames(fnNode) {
 					functionState.disallowInlining(this.compiler_, InlineFunctions_DisallowInliningReason_HAS_LOCAL_NAMES)
@@ -152,9 +154,11 @@ func (this *InlineFunctions) updateFunctionStateForInlining(fn InlineFunctions_F
 		}
 		if fnNode.getGrandparent().isVar() {
 			var block Node = functionState.getFn().getDeclaringBlock()
-			if (block.isBlock() && !block.getParent().isFunction()) && NodeUtil_has(block, (&Predicate_base_tfn_Node{func(n Node) bool {
-				return (n.isLet() || n.isConst())
-			}}).apply, Predicates_alwaysTrue()) {
+			if (block.isBlock() && !block.getParent().isFunction()) && NodeUtil_has(block, func(p0 any) bool {
+				return (func(n Node) bool {
+					return (n.isLet() || n.isConst())
+				})(Node_of_(p0))
+			}, Predicates_alwaysTrue()) {
 				functionState.disallowInlining(this.compiler_, InlineFunctions_DisallowInliningReason_CAPTURED_VARIABLE_NOT_IN_SCOPE)
 			}
 		}
@@ -279,9 +283,11 @@ func InlineFunctions_hasNonInlinableParam(node Node) bool {
 	if node == 0 {
 		panic(new_NullPointerException_0().self())
 	}
-	var pred func(any) bool = (&Predicate_base_tfn_Node{func(input Node) bool {
-		return (input.isDefaultValue() || input.isDestructuringPattern())
-	}}).apply
+	var pred func(any) bool = func(p0 any) bool {
+		return (func(input Node) bool {
+			return (input.isDefaultValue() || input.isDestructuringPattern())
+		})(Node_of_(p0))
+	}
 	return NodeUtil_has(node, pred, Predicates_alwaysTrue())
 }
 

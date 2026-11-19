@@ -134,9 +134,11 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 						stateFail_(tostr_(c))
 					}
 					if !conditional {
-						NodeUtil_visitLhsNodesInNode(c, (&Consumer_tfn_Node{func(lhsNode Node) {
-							this.addToSetIfLocal(lhsNode, kill)
-						}}).accept)
+						NodeUtil_visitLhsNodesInNode(c, func(p0 any) {
+							(func(lhsNode Node) {
+								this.addToSetIfLocal(lhsNode, kill)
+							})(Node_of_(p0))
+						})
 					}
 					this.computeGenKill(c.getFirstChild(), gen, kill, conditional)
 					this.computeGenKill(c.getSecondChild(), gen, kill, conditional)
@@ -181,11 +183,13 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 			this.computeGenKill(lhs.getNext(), gen, kill, conditional)
 		} else if n.isAssign() && n.getFirstChild().isDestructuringPattern() {
 			if !conditional {
-				NodeUtil_visitLhsNodesInNode(n, (&Consumer_tfn_Node{func(child Node) {
-					if child.isName() {
-						this.addToSetIfLocal(child, kill)
-					}
-				}}).accept)
+				NodeUtil_visitLhsNodesInNode(n, func(p0 any) {
+					(func(child Node) {
+						if child.isName() {
+							this.addToSetIfLocal(child, kill)
+						}
+					})(Node_of_(p0))
+				})
 			}
 			this.computeGenKill(n.getFirstChild(), gen, kill, conditional)
 			this.computeGenKill(n.getSecondChild(), gen, kill, conditional)

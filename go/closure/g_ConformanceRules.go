@@ -1488,9 +1488,11 @@ func ConformanceRules_ConformanceUtil_getValueFromGlobalName(scope *Scope, gns *
 	if (((gn == nil) || (gn.getGlobalSets() != 1)) || (gn.getTotalSets() != 1)) || !ConformanceRules_ConformanceUtil_isAnnotatedAsConst(gn.getJSDocInfo()) {
 		return Optional_empty[string]()
 	}
-	return ConformanceRules_ConformanceUtil_inferStringValue(scope, NodeUtil_getRValueOfLValue(gn.getDeclaration().(*GlobalNamespace_Ref).getNode()), (&Supplier_tfn_GlobalNamespace{func() *GlobalNamespace {
-		return gns
-	}}).get)
+	return ConformanceRules_ConformanceUtil_inferStringValue(scope, NodeUtil_getRValueOfLValue(gn.getDeclaration().(*GlobalNamespace_Ref).getNode()), func() any {
+		return obj_((func() *GlobalNamespace {
+			return gns
+		})())
+	})
 }
 
 func ConformanceRules_ConformanceUtil_inferStringValue(scope *Scope, node Node, globalNamespaceSupplier func() any) Optional[string] {
@@ -2957,11 +2959,13 @@ func (this *ConformanceRules_BanGlobalVars) isAllowlisted(n Node) bool {
 	}
 	if NodeUtil_isNameDeclaration(n) {
 		var allowlisted []bool = []bool{true}
-		NodeUtil_visitLhsNodesInNode(n, (&Consumer_tfn_Node{func(name Node) {
-			if !this.isAllowlistedName(name.getString()) {
-				allowlisted[0] = false
-			}
-		}}).accept)
+		NodeUtil_visitLhsNodesInNode(n, func(p0 any) {
+			(func(name Node) {
+				if !this.isAllowlistedName(name.getString()) {
+					allowlisted[0] = false
+				}
+			})(Node_of_(p0))
+		})
 		return allowlisted[0]
 	}
 	return false
@@ -3411,9 +3415,11 @@ type ConformanceRules_SecuritySensitiveAttributes struct {
 }
 
 func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_SecuritySensitiveAttributes_0() {
-	this.init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(ImmutableSet_as_Collection(ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS), (&Supplier_tfn_GlobalNamespace{func() *GlobalNamespace {
-		return nil
-	}}).get)
+	this.init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(ImmutableSet_as_Collection(ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS), func() any {
+		return obj_((func() *GlobalNamespace {
+			return nil
+		})())
+	})
 }
 
 func new_ConformanceRules_SecuritySensitiveAttributes_0() *ConformanceRules_SecuritySensitiveAttributes {
@@ -3448,9 +3454,11 @@ func new_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(banned
 }
 
 func ConformanceRules_SecuritySensitiveAttributes_createFromBannedAttrs(bannedAtrrs CollectionOf[string]) *ConformanceRules_SecuritySensitiveAttributes {
-	return new_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs, (&Supplier_tfn_GlobalNamespace{func() *GlobalNamespace {
-		return nil
-	}}).get)
+	return new_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs, func() any {
+		return obj_((func() *GlobalNamespace {
+			return nil
+		})())
+	})
 }
 
 func (this *ConformanceRules_SecuritySensitiveAttributes) contains(attributeName string) bool {
@@ -3551,7 +3559,9 @@ func (this *ConformanceRules_BanElementSetAttribute) initBanElementSetAttribute(
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	this.securitySensitiveAttributes = new_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(Collection(requirement.getValueList()), (&Supplier_tfn_GlobalNamespace{func() *GlobalNamespace { return this.getGlobalNamespace() }}).get)
+	this.securitySensitiveAttributes = new_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(Collection(requirement.getValueList()), func() any {
+		return obj_((func() *GlobalNamespace { return this.getGlobalNamespace() })())
+	})
 	this.defaultDecisionForUncertainCases = func() *ConformanceRules_ConformanceResult {
 		if requirement.getReportLooseTypeViolations() {
 			return ConformanceRules_ConformanceResult_VIOLATION
@@ -3633,7 +3643,9 @@ func (this *ConformanceRules_BanElementSetAttribute) getBannedPropertyName(callN
 
 func (this *ConformanceRules_BanElementSetAttribute) checkConformanceOnGetElement(traversal *NodeTraversal, getElementNode Node) *ConformanceRules_ConformanceResult {
 	var key Node = getElementNode.getSecondChild()
-	var keyName Optional[string] = ConformanceRules_ConformanceUtil_inferStringValue(traversal.getScope(), key, (&Supplier_tfn_GlobalNamespace{func() *GlobalNamespace { return this.getGlobalNamespace() }}).get)
+	var keyName Optional[string] = ConformanceRules_ConformanceUtil_inferStringValue(traversal.getScope(), key, func() any {
+		return obj_((func() *GlobalNamespace { return this.getGlobalNamespace() })())
+	})
 	if keyName.isPresent() {
 		if this.securitySensitiveAttributes.contains(strings.ToLower(keyName.get())) || (this.requirement_.getReportLooseTypeViolations() && ((keyName.get() == "innerHTML") || (keyName.get() == "outerHTML"))) {
 			if this.hasElementType(getElementNode) {

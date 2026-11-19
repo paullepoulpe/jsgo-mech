@@ -63,9 +63,11 @@ func (this *ColorFindPropertyReferences) handleObjectLit(t *NodeTraversal, n Nod
 		return
 	}
 	var owner *Color = n.getColor()
-	this.traverseObjectlitLike(t, n, (&Function_tfn_Node_Color{func(m Node) *Color {
-		return owner
-	}}).apply)
+	this.traverseObjectlitLike(t, n, func(p0 any) any {
+		return obj_((func(m Node) *Color {
+			return owner
+		})(Node_of_(p0)))
+	})
 }
 
 func (this *ColorFindPropertyReferences) handleCall(t *NodeTraversal, call Node) {
@@ -82,30 +84,32 @@ func (this *ColorFindPropertyReferences) handleCall(t *NodeTraversal, call Node)
 
 func (this *ColorFindPropertyReferences) handleClass(t *NodeTraversal, classNode Node) {
 	var classType *Color = classNode.getColor()
-	this.traverseObjectlitLike(t, NodeUtil_getClassMembers(classNode), (&Function_tfn_Node_Color{func(m Node) *Color {
-		if m.isStaticMember() {
-			return classType
-		} else if m.isMemberFieldDef() {
-			var classInstanceType *TSet[*Color] = classType.getInstanceColors()
-			return func() *Color {
-				if classInstanceType.IsEmpty() {
-					return StandardColors_UNKNOWN
+	this.traverseObjectlitLike(t, NodeUtil_getClassMembers(classNode), func(p0 any) any {
+		return obj_((func(m Node) *Color {
+			if m.isStaticMember() {
+				return classType
+			} else if m.isMemberFieldDef() {
+				var classInstanceType *TSet[*Color] = classType.getInstanceColors()
+				return func() *Color {
+					if classInstanceType.IsEmpty() {
+						return StandardColors_UNKNOWN
+					}
+					return Color_createUnion(classInstanceType)
+				}()
+			} else {
+				if !((m.isMemberFunctionDef() || m.isGetterDef()) || m.isSetterDef()) {
+					stateFail_(tostr_(m))
 				}
-				return Color_createUnion(classInstanceType)
-			}()
-		} else {
-			if !((m.isMemberFunctionDef() || m.isGetterDef()) || m.isSetterDef()) {
-				stateFail_(tostr_(m))
+				var classPrototypeType *TSet[*Color] = classType.getPrototypes()
+				return func() *Color {
+					if classPrototypeType.IsEmpty() {
+						return StandardColors_UNKNOWN
+					}
+					return Color_createUnion(classPrototypeType)
+				}()
 			}
-			var classPrototypeType *TSet[*Color] = classType.getPrototypes()
-			return func() *Color {
-				if classPrototypeType.IsEmpty() {
-					return StandardColors_UNKNOWN
-				}
-				return Color_createUnion(classPrototypeType)
-			}()
-		}
-	}}).apply)
+		})(Node_of_(p0)))
+	})
 	this.colorGraphNodeFactory.createNode(classType)
 }
 
@@ -118,9 +122,11 @@ func (this *ColorFindPropertyReferences) handleFunction(fnNode Node) {
 
 func (this *ColorFindPropertyReferences) handleObjectPattern(t *NodeTraversal, pattern Node) {
 	var owner *Color = pattern.getColor()
-	this.traverseObjectlitLike(t, pattern, (&Function_tfn_Node_Color{func(m Node) *Color {
-		return owner
-	}}).apply)
+	this.traverseObjectlitLike(t, pattern, func(p0 any) any {
+		return obj_((func(m Node) *Color {
+			return owner
+		})(Node_of_(p0)))
+	})
 }
 
 func (this *ColorFindPropertyReferences) handlePropertyReflectorCall(t *NodeTraversal, call Node) {
@@ -145,9 +151,11 @@ func (this *ColorFindPropertyReferences) handleObjectDefineProperties(t *NodeTra
 		return
 	}
 	var type_ *Color = typeObj.getColor()
-	this.traverseObjectlitLike(t, objectLiteral, (&Function_tfn_Node_Color{func(m Node) *Color {
-		return type_
-	}}).apply)
+	this.traverseObjectlitLike(t, objectLiteral, func(p0 any) any {
+		return obj_((func(m Node) *Color {
+			return type_
+		})(Node_of_(p0)))
+	})
 }
 
 func (this *ColorFindPropertyReferences) traverseObjectlitLike(t *NodeTraversal, n Node, memberOwnerFn func(any) any) {

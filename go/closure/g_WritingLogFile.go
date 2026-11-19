@@ -64,9 +64,11 @@ func (this *WritingLogFile) logJsonSupplier_impl(value SupplierOf[any]) *LogFile
 
 func (this *WritingLogFile) logJson_impl(producer LogFile_StreamedJsonProducer) *LogFile {
 	var jsonWriter *SimpleJsonWriter = new_SimpleJsonWriter()
-	jsonWriter.setSink((&Consumer_tfn_string{func(text string) {
-		this.writer.print(text)
-	}}).accept)
+	jsonWriter.setSink(func(p0 any) {
+		(func(text string) {
+			this.writer.print(text)
+		})(str_(p0))
+	})
 	var closed *Outcome_base[any]
 	func() {
 		defer func() {

@@ -852,17 +852,19 @@ func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes 
 func (this *SymbolTable) fillGoogProvideModuleRequires(externs Node, root Node) {
 	var declaredNamespaces map[string]*SymbolTable_Symbol = map[string]*SymbolTable_Symbol{}
 	var moduleScopes map[string]*SymbolTable_SymbolScope = map[string]*SymbolTable_SymbolScope{}
-	var looksLikeGoogCall func(any) bool = (&Predicate_tfn_Node{func(n Node) bool {
-		if !n.isCall() {
-			return false
-		}
-		var left Node = n.getFirstChild()
-		var arg Node = n.getSecondChild()
-		if (!((left.isGetProp() && left.getFirstChild().isName()) && (left.getFirstChild().getString() == "goog")) || (arg == 0)) || !arg.isStringLit() {
-			return false
-		}
-		return true
-	}}).test
+	var looksLikeGoogCall func(any) bool = func(p0 any) bool {
+		return (func(n Node) bool {
+			if !n.isCall() {
+				return false
+			}
+			var left Node = n.getFirstChild()
+			var arg Node = n.getSecondChild()
+			if (!((left.isGetProp() && left.getFirstChild().isName()) && (left.getFirstChild().getString() == "goog")) || (arg == 0)) || !arg.isStringLit() {
+				return false
+			}
+			return true
+		})(Node_of_(p0))
+	}
 	var collectModuleScopes NodeTraversal_Callback = NodeTraversal_Callback(new_SymbolTable_3(this, looksLikeGoogCall, declaredNamespaces, moduleScopes))
 	var processRequireStatements NodeTraversal_Callback = NodeTraversal_Callback(new_SymbolTable_4(this, looksLikeGoogCall, moduleScopes, declaredNamespaces))
 	NodeTraversal_traverseRoots(this.compiler_, collectModuleScopes, externs, root)

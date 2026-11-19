@@ -72,12 +72,14 @@ func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
 	} else if export.hasOneChild() && !export.getBooleanProp(Node_EXPORT_ALL_FROM) {
 		var declaration Node = export.getFirstChild()
 		if NodeUtil_isNameDeclaration(declaration) {
-			NodeUtil_visitLhsNodesInNode(declaration, (&Consumer_tfn_Node{func(lhs Node) {
-				if !lhs.isName() {
-					panic(new_IllegalStateException_0())
-				}
-				this.exportedLocalNames.Add(lhs.getString())
-			}}).accept)
+			NodeUtil_visitLhsNodesInNode(declaration, func(p0 any) {
+				(func(lhs Node) {
+					if !lhs.isName() {
+						panic(new_IllegalStateException_0())
+					}
+					this.exportedLocalNames.Add(lhs.getString())
+				})(Node_of_(p0))
+			})
 		} else if export.getBooleanProp(Node_EXPORT_DEFAULT) {
 			if !declaration.isClass() && !declaration.isFunction() {
 				return

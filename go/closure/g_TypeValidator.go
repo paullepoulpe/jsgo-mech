@@ -292,13 +292,17 @@ func (this *TypeValidator) expectCanAssignToPropertyOf(n Node, rightType *JSType
 	var typeNameSupplier func() any
 	if n.isMemberFieldDef() {
 		var classType *FunctionType = n.getGrandparent().getJSType().assertFunctionType()
-		typeNameSupplier = (&Supplier_base_tfn_string{func() string {
-			return classType.getInstanceType().toString()
-		}}).get
+		typeNameSupplier = func() any {
+			return strobj_((func() string {
+				return classType.getInstanceType().toString()
+			})())
+		}
 	} else {
-		typeNameSupplier = (&Supplier_base_tfn_string{func() string {
-			return this.typeRegistry.getReadableTypeName(owner).orElse(nullstr_)
-		}}).get
+		typeNameSupplier = func() any {
+			return strobj_((func() string {
+				return this.typeRegistry.getReadableTypeName(owner).orElse(nullstr_)
+			})())
+		}
 	}
 	return this.expectCanAssignToPropertyOf_6(n, rightType, leftType, this.getJSType(owner), typeNameSupplier, propName)
 }

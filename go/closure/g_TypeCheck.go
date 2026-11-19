@@ -1707,9 +1707,11 @@ func (this *TypeCheck) visitModuleBody(t *NodeTraversal, moduleBody Node) {
 		if parentObjectType == nil {
 			return
 		}
-		this.validator.expectCanAssignToPropertyOf_6(googModuleCall, moduleBody.getJSType(), parentObjectType.getPropertyType(moduleName.getComponent()), parentObjectType.up_JSType(), (&Supplier_base_tfn_string{func() string {
-			return moduleName.getOwner().join().orElse(nullstr_)
-		}}).get, Optional_of[string](moduleName.getComponent()))
+		this.validator.expectCanAssignToPropertyOf_6(googModuleCall, moduleBody.getJSType(), parentObjectType.getPropertyType(moduleName.getComponent()), parentObjectType.up_JSType(), func() any {
+			return strobj_((func() string {
+				return moduleName.getOwner().join().orElse(nullstr_)
+			})())
+		}, Optional_of[string](moduleName.getComponent()))
 	}
 }
 

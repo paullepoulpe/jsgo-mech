@@ -100,13 +100,15 @@ func (this *ProcessConstJsdocCallback) recordNameDeclaration(lhs Node, rhs Node)
 	}
 	var isImport bool = PotentialDeclaration_isImportRhs(rhs)
 	var isAlias bool = PotentialDeclaration_isAliasDeclaration(lhs, rhs)
-	NodeUtil_visitLhsNodesInNode(lhs.getParent(), (&Consumer_tfn_Node{func(name Node) {
-		if isAlias || isImport {
-			this.currentFile.recordAliasDeclaration(name)
-		} else {
-			this.currentFile.recordNameDeclaration(name)
-		}
-	}}).accept)
+	NodeUtil_visitLhsNodesInNode(lhs.getParent(), func(p0 any) {
+		(func(name Node) {
+			if isAlias || isImport {
+				this.currentFile.recordAliasDeclaration(name)
+			} else {
+				this.currentFile.recordNameDeclaration(name)
+			}
+		})(Node_of_(p0))
+	})
 }
 
 func (this *ProcessConstJsdocCallback) processDeclarationWithRhs(t *NodeTraversal, lhs Node) {
