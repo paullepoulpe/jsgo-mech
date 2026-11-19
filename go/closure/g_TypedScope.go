@@ -291,7 +291,7 @@ func (this *TypedScope) getVar(name string) *TypedVar {
 	if dot < 0 {
 		return rootVar
 	} else if rootVar == nil {
-		return this.getParent().self().(*TypedScope).getGlobalScope().getOwnSlotT_(name)
+		return requireNonNull0_(this.getParent()).getGlobalScope().getOwnSlotT_(name)
 	} else {
 		return rootVar.getScopeT_().getOwnSlotT_(name)
 	}

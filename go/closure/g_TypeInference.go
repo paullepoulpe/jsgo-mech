@@ -1946,7 +1946,7 @@ func (this *TypeInference) redeclareSimpleVar(scope FlowScope, nameNode Node, va
 }
 
 func (this *TypeInference) isUnflowable(v *TypedVar) bool {
-	return ((((v != nil) && v.isLocal()) && v.isMarkedEscaped()) && (v.getScope().(*TypedScope).getClosestContainerScope() == this.containerScope))
+	return ((((v != nil) && v.isLocal()) && v.isMarkedEscaped()) && (requireNonNull0_(v.getScopeT_()).getClosestContainerScope() == this.containerScope))
 }
 
 func (this *TypeInference) getJSType(n Node) *JSType {

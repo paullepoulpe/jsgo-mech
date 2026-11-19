@@ -1476,7 +1476,7 @@ func ConformanceRules_ConformanceUtil_getValueFromGlobalName(scope *Scope, gns *
 	if (((gn == nil) || (gn.getGlobalSets() != 1)) || (gn.getTotalSets() != 1)) || !ConformanceRules_ConformanceUtil_isAnnotatedAsConst(gn.getJSDocInfo()) {
 		return Optional_empty[string]()
 	}
-	return ConformanceRules_ConformanceUtil_inferStringValue(scope, NodeUtil_getRValueOfLValue(gn.getDeclaration().(*GlobalNamespace_Ref).getNode()), (&Supplier_tfn_GlobalNamespace{func() *GlobalNamespace {
+	return ConformanceRules_ConformanceUtil_inferStringValue(scope, NodeUtil_getRValueOfLValue(gn.getDeclarationT_().getNode()), (&Supplier_tfn_GlobalNamespace{func() *GlobalNamespace {
 		return gns
 	}}).get)
 }

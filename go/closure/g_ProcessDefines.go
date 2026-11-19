@@ -260,7 +260,7 @@ func (this *ProcessDefines) collectValidDefineValueExpressions() {
 	for {
 		var namesToCheckAgain *TSet[*GlobalNamespace_Name] = newTSet_(tc_p_GlobalNamespace_Name)
 		for name := range namesToCheck.All() {
-			var declValue Node = ProcessDefines_getConstantDeclValue(name.getDeclaration().(*GlobalNamespace_Ref).getNode())
+			var declValue Node = ProcessDefines_getConstantDeclValue(name.getDeclarationT_().getNode())
 			switch this.isValidDefineValue(declValue) {
 			case Tri_TRUE:
 				for ref := range elemsAs_[*GlobalNamespace_Ref](name.getRefs()) {
@@ -352,7 +352,7 @@ func (this *ProcessDefines) hasValidValue(define *ProcessDefines_Define) bool {
 }
 
 func ProcessDefines_isGlobalConst(name *GlobalNamespace_Name) bool {
-	return (((name.getTotalSets() == 1) && (name.getDeclarationT_() != nil)) && name.getDeclaration().(*GlobalNamespace_Ref).isSetFromGlobal())
+	return (((name.getTotalSets() == 1) && (name.getDeclarationT_() != nil)) && name.getDeclarationT_().isSetFromGlobal())
 }
 
 func (this *ProcessDefines) isValidDefineValue(val Node) Tri {

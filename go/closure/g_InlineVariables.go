@@ -850,7 +850,7 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert_InitialValueAnaly
 				if aliasedName == this.outer_.v.getName() {
 					return nil
 				}
-				return this.outer_.v.getScope().(*Scope).getVar(aliasedName)
+				return requireNonNull0_(this.outer_.v.getScopeT_()).getVar(aliasedName)
 			}())
 		}
 		return this.aliasedVar.setKnownValueOnce(nil)

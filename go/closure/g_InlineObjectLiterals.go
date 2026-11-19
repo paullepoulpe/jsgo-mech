@@ -269,7 +269,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 			vnode = scopeRoot.getParent()
 		}
 	} else {
-		vnode = v.getScope().(*Scope).getClosestHoistScope().getRootNode().getFirstChild()
+		vnode = requireNonNull0_(v.getScopeT_()).getClosestHoistScope().getRootNode().getFirstChild()
 	}
 	if !NodeUtil_isStatement(vnode) {
 		panic(new_IllegalStateException_String(tostr_(vnode)))

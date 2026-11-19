@@ -1734,7 +1734,7 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) visit(typeRefNode Node) {
 		return typeName[:dot]
 	}()
 	var rootVar *Var = this.scope_.getVar(rootOfType)
-	if ((rootVar != nil) && !rootVar.getScope().(*Scope).getClosestHoistScope().isGlobal()) && !rootVar.getScopeT_().isModuleScope() {
+	if ((rootVar != nil) && !requireNonNull0_(rootVar.getScopeT_()).getClosestHoistScope().isGlobal()) && !rootVar.getScopeT_().isModuleScope() {
 		return
 	}
 	if has_(this.outer_.currentScript.namesToInlineByAlias, rootOfType) {

@@ -457,7 +457,7 @@ func (this *DataFlowAnalysis_1) visit_impl(t *NodeTraversal, n Node, parent Node
 	if var_ == nil {
 		return
 	}
-	var variableCfgScope *Scope = var_.getScope().(*Scope).getClosestCfgRootScope()
+	var variableCfgScope *Scope = requireNonNull0_(var_.getScopeT_()).getClosestCfgRootScope()
 	if variableCfgScope != this.cap_jsScope {
 		return
 	}

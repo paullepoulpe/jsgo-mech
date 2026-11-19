@@ -298,7 +298,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) processNonFunctionProt
 }
 
 func (this *AnalyzePrototypeProperties_ProcessProperties) isGlobalFunctionDeclaration(t *NodeTraversal, n Node) bool {
-	if !(t.inGlobalHoistScope() || ((n.isFunction() && (t.getScopeRoot() == n)) && t.getScope().getParent().self().(*Scope).getClosestHoistScope().isGlobal())) {
+	if !(t.inGlobalHoistScope() || ((n.isFunction() && (t.getScopeRoot() == n)) && requireNonNull0_(t.getScope().getParent()).getClosestHoistScope().isGlobal())) {
 		return false
 	}
 	return (NodeUtil_isFunctionDeclaration(n) || (n.isFunction() && n.getParent().isName()))

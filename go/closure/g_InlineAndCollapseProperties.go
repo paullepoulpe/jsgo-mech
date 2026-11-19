@@ -444,7 +444,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteAllSubcl
 	}
 	if subclassPropNameObj != nil {
 		var newNodes *TSet[GlobalNamespace_AstChange] = newTSet_(tch_GlobalNamespace_AstChange)
-		var superclassNameNode Node = superclassNameObj.getDeclaration().(*GlobalNamespace_Ref).getNode()
+		var superclassNameNode Node = superclassNameObj.getDeclarationT_().getNode()
 		if superclassNameNode.isName() {
 			superclassNameNode = superclassNameNode.cloneNode()
 		} else if superclassNameNode.isGetProp() {
@@ -682,7 +682,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteAliasRef
 		if aliasingName.getInitialization() != nil {
 			return aliasingName.getInitialization().getChunk()
 		}
-		return aliasingName.getDeclaration().(*GlobalNamespace_Ref).getChunk()
+		return aliasingName.getDeclarationT_().getChunk()
 	}()
 	for _, ref := range refs {
 		if ref.isSetFromGlobal() {
@@ -1130,7 +1130,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) flattenReferencesTo(
 	var originalName string = n.getFullName()
 	var isConstantName bool = this.shouldAddConstantName(func() Node {
 		if n.getDeclarationT_() != nil {
-			return n.getDeclaration().(*GlobalNamespace_Ref).getNode()
+			return n.getDeclarationT_().getNode()
 		}
 		return 0
 	}(), alias)

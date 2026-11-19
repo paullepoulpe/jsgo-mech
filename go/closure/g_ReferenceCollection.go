@@ -157,12 +157,12 @@ func (this *ReferenceCollection) isAssignedOnceInLifetime() bool {
 		var block *BasicBlock = ref.getBasicBlock()
 		for ; block != nil; block = block.getParent() {
 			if block.isFunction() {
-				if ref.getSymbol().(*Var).getScope().(*Scope).getClosestHoistScope() != ref.getScope().getClosestHoistScope() {
+				if requireNonNull0_(ref.getSymbolT_().getScopeT_()).getClosestHoistScope() != ref.getScope().getClosestHoistScope() {
 					return false
 				}
 				break
 			}
-			if block.getRoot() == ref.getSymbol().(*Var).getScopeT_().getRootNode() {
+			if block.getRoot() == ref.getSymbolT_().getScopeT_().getRootNode() {
 				break
 			}
 			if block.isLoop() {
