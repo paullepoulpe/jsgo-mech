@@ -983,21 +983,24 @@ func ConformanceRules_BannedName_clinit() {
 		return
 	}
 	ConformanceRules_BannedName_clinit_done = true
-	ConformanceRules_BannedName_IS_CANDIDATE_NODE = &CheckConformance_Precondition_fn{func(n Node) bool {
-		return func() bool {
-			switch n.ns_().token {
-			case tokOrd1_GETPROP:
-				return n.getFirstChild().isQualifiedName()
-			case tokOrd1_NAME:
-				return !String_isEmpty(n.getString())
-			default:
-				return false
-			}
-			panic("unreachable")
-		}()
-	}}
+	ConformanceRules_BannedName_IS_CANDIDATE_NODE = lambda_ConformanceRules_BannedName_clinit_1_
 
 }
+
+// lambda_ConformanceRules_BannedName_clinit_1_ is a lambda of ConformanceRules_BannedName_clinit that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_BannedName_clinit_1_ = &CheckConformance_Precondition_fn{func(n Node) bool {
+	return func() bool {
+		switch n.ns_().token {
+		case tokOrd1_GETPROP:
+			return n.getFirstChild().isQualifiedName()
+		case tokOrd1_NAME:
+			return !String_isEmpty(n.getString())
+		default:
+			return false
+		}
+		panic("unreachable")
+	}()
+}}
 
 type ConformanceRules_BannedProperty struct {
 	ConformanceRules_AbstractRule
@@ -2085,67 +2088,154 @@ func (this *ConformanceRules_CustomRuleProxy) createRule(compiler *AbstractCompi
 }
 
 func ConformanceRules_CustomRuleProxy_createCustomRuleRegistry() *JTMap[string, ConformanceRules_CustomRuleProxy_CustomRuleFactory] {
-	var builder ImmutableMap_BuilderOf[string, ConformanceRules_CustomRuleProxy_CustomRuleFactory] = ImmutableMap_builder().put("com.google.javascript.jscomp.ConformanceRules$NoOp", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_NoOp_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$InferredConstCheck", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_InferredConstCheck_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$BannedDependency", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BannedDependency_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$BannedDependencyRegex", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BannedDependencyRegex_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$BannedName", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BannedName_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$BannedProperty", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BannedProperty_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$BannedStringRegex", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BannedStringRegex_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$RestrictedNameCall", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_RestrictedNameCall_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$RestrictedMethodCall", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_RestrictedMethodCall_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$RestrictedPropertyWrite", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_RestrictedPropertyWrite_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$BannedCodePattern", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BannedCodePattern_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$BanForOf", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanForOf_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$RequireUseStrict", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_RequireUseStrict_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$BanThrowOfNonErrorTypes", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanThrowOfNonErrorTypes_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$BanNullDeref", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanNullDeref_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$BanUnknownThis", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanUnknownThis_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$BanUnknownDirectThisPropsReferences", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanUnknownDirectThisPropsReferences_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$BanUnknownTypedClassPropsReferences", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanUnknownTypedClassPropsReferences_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$BanUnresolvedType", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanUnresolvedType_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$StrictBanUnresolvedType", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_StrictBanUnresolvedType_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$BanGlobalVars", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanGlobalVars_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$BannedEnhance", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BannedEnhance_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$BannedModsRegex", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BannedModsRegex_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$BanCreateElement", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanCreateElement_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$BanCreateDom", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanCreateDom_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$BanElementSetAttribute", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanElementSetAttribute_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$BanSettingAttributes", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanSettingAttributes_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$BanExecCommand", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanExecCommand_create(p0, p1)
-	}})).put("com.google.javascript.jscomp.ConformanceRules$BanStaticThis", any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanStaticThis_create(p0, p1)
-	}}))
+	var builder ImmutableMap_BuilderOf[string, ConformanceRules_CustomRuleProxy_CustomRuleFactory] = ImmutableMap_builder().put("com.google.javascript.jscomp.ConformanceRules$NoOp", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_1_)).put("com.google.javascript.jscomp.ConformanceRules$InferredConstCheck", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_2_)).put("com.google.javascript.jscomp.ConformanceRules$BannedDependency", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_3_)).put("com.google.javascript.jscomp.ConformanceRules$BannedDependencyRegex", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_4_)).put("com.google.javascript.jscomp.ConformanceRules$BannedName", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_5_)).put("com.google.javascript.jscomp.ConformanceRules$BannedProperty", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_6_)).put("com.google.javascript.jscomp.ConformanceRules$BannedStringRegex", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_7_)).put("com.google.javascript.jscomp.ConformanceRules$RestrictedNameCall", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_8_)).put("com.google.javascript.jscomp.ConformanceRules$RestrictedMethodCall", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_9_)).put("com.google.javascript.jscomp.ConformanceRules$RestrictedPropertyWrite", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_10_)).put("com.google.javascript.jscomp.ConformanceRules$BannedCodePattern", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_11_)).put("com.google.javascript.jscomp.ConformanceRules$BanForOf", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_12_)).put("com.google.javascript.jscomp.ConformanceRules$RequireUseStrict", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_13_)).put("com.google.javascript.jscomp.ConformanceRules$BanThrowOfNonErrorTypes", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_14_)).put("com.google.javascript.jscomp.ConformanceRules$BanNullDeref", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_15_)).put("com.google.javascript.jscomp.ConformanceRules$BanUnknownThis", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_16_)).put("com.google.javascript.jscomp.ConformanceRules$BanUnknownDirectThisPropsReferences", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_17_)).put("com.google.javascript.jscomp.ConformanceRules$BanUnknownTypedClassPropsReferences", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_18_)).put("com.google.javascript.jscomp.ConformanceRules$BanUnresolvedType", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_19_)).put("com.google.javascript.jscomp.ConformanceRules$StrictBanUnresolvedType", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_20_)).put("com.google.javascript.jscomp.ConformanceRules$BanGlobalVars", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_21_)).put("com.google.javascript.jscomp.ConformanceRules$BannedEnhance", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_22_)).put("com.google.javascript.jscomp.ConformanceRules$BannedModsRegex", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_23_)).put("com.google.javascript.jscomp.ConformanceRules$BanCreateElement", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_24_)).put("com.google.javascript.jscomp.ConformanceRules$BanCreateDom", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_25_)).put("com.google.javascript.jscomp.ConformanceRules$BanElementSetAttribute", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_26_)).put("com.google.javascript.jscomp.ConformanceRules$BanSettingAttributes", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_27_)).put("com.google.javascript.jscomp.ConformanceRules$BanExecCommand", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_28_)).put("com.google.javascript.jscomp.ConformanceRules$BanStaticThis", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_29_))
 	return tmapImm_(jtc_string, jtc_ConformanceRules_CustomRuleProxy_CustomRuleFactory, builder.buildOrThrow())
 }
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_1_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_1_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_NoOp_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_2_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_2_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_InferredConstCheck_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_3_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_3_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BannedDependency_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_4_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_4_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BannedDependencyRegex_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_5_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_5_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BannedName_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_6_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_6_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BannedProperty_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_7_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_7_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BannedStringRegex_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_8_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_8_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_RestrictedNameCall_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_9_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_9_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_RestrictedMethodCall_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_10_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_10_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_RestrictedPropertyWrite_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_11_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_11_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BannedCodePattern_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_12_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_12_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanForOf_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_13_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_13_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_RequireUseStrict_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_14_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_14_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanThrowOfNonErrorTypes_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_15_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_15_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanNullDeref_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_16_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_16_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanUnknownThis_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_17_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_17_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanUnknownDirectThisPropsReferences_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_18_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_18_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanUnknownTypedClassPropsReferences_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_19_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_19_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanUnresolvedType_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_20_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_20_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_StrictBanUnresolvedType_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_21_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_21_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanGlobalVars_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_22_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_22_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BannedEnhance_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_23_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_23_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BannedModsRegex_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_24_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_24_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanCreateElement_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_25_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_25_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanCreateDom_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_26_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_26_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanElementSetAttribute_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_27_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_27_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanSettingAttributes_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_28_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_28_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanExecCommand_create(p0, p1)
+}}
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_29_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_29_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanStaticThis_create(p0, p1)
+}}
 
 var ConformanceRules_CustomRuleProxy_CUSTOM_RULE_REGISTRY *JTMap[string, ConformanceRules_CustomRuleProxy_CustomRuleFactory]
 
@@ -2974,8 +3064,11 @@ func (this *ConformanceRules_BannedEnhance) checkConformance_impl(t *NodeTravers
 }
 
 func (this *ConformanceRules_BannedEnhance) getPrecondition_impl() CheckConformance_Precondition {
-	return &CheckConformance_Precondition_fn{func(p0 Node) bool { return p0.isScript() }}
+	return lambda_ConformanceRules_BannedEnhance_getPrecondition_impl_1_
 }
+
+// lambda_ConformanceRules_BannedEnhance_getPrecondition_impl_1_ is a lambda of ConformanceRules_BannedEnhance_getPrecondition_impl that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_BannedEnhance_getPrecondition_impl_1_ = &CheckConformance_Precondition_fn{func(p0 Node) bool { return p0.isScript() }}
 
 type ConformanceRules_BannedModsRegex struct {
 	ConformanceRules_AbstractRule
@@ -3043,8 +3136,11 @@ func (this *ConformanceRules_BannedModsRegex) checkConformance_impl(t *NodeTrave
 }
 
 func (this *ConformanceRules_BannedModsRegex) getPrecondition_impl() CheckConformance_Precondition {
-	return &CheckConformance_Precondition_fn{func(p0 Node) bool { return p0.isScript() }}
+	return lambda_ConformanceRules_BannedModsRegex_getPrecondition_impl_1_
 }
+
+// lambda_ConformanceRules_BannedModsRegex_getPrecondition_impl_1_ is a lambda of ConformanceRules_BannedModsRegex_getPrecondition_impl that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_BannedModsRegex_getPrecondition_impl_1_ = &CheckConformance_Precondition_fn{func(p0 Node) bool { return p0.isScript() }}
 
 type ConformanceRules_BanCreateElement struct {
 	ConformanceRules_AbstractRule

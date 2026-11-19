@@ -337,10 +337,13 @@ func Source_Transformer_of(function FunctionOf[*Source, *Source]) Source_Transfo
 }
 
 func Source_Transformer_identity() Source_Transformer {
-	return &Source_Transformer_fn{func(x *Source) *Source {
-		return x
-	}}
+	return lambda_Source_Transformer_identity_1_
 }
+
+// lambda_Source_Transformer_identity_1_ is a lambda of Source_Transformer_identity that captures nothing (post-flip step lambdas).
+var lambda_Source_Transformer_identity_1_ = &Source_Transformer_fn{func(x *Source) *Source {
+	return x
+}}
 
 func Source_Transformer_asFunction_default(this Source_Transformer) FunctionOf[*Source, *Source] {
 	return &Function_tfn_Source_Source{func(p0 *Source) *Source { return this.transform(p0) }}

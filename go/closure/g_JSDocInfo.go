@@ -2600,7 +2600,7 @@ func JSDocInfo_Builder_containsEquivalent(list ArrayListOf[*JSTypeExpression], e
 }
 
 func (this *JSDocInfo_Builder) addUnique(prop *JSDocInfo_Property, elem *JSTypeExpression) bool {
-	var list ArrayListOf[*JSTypeExpression] = to_ArrayList(this.getPropWithDefault(prop, &Supplier_fn{func() any { return new_ArrayList_0().self() }}))
+	var list ArrayListOf[*JSTypeExpression] = to_ArrayList(this.getPropWithDefault(prop, lambda_JSDocInfo_Builder_addUnique_1_))
 	if JSDocInfo_Builder_containsEquivalent(list, elem) {
 		return false
 	} else {
@@ -2610,6 +2610,9 @@ func (this *JSDocInfo_Builder) addUnique(prop *JSDocInfo_Property, elem *JSTypeE
 	}
 	panic("unreachable")
 }
+
+// lambda_JSDocInfo_Builder_addUnique_1_ is a lambda of JSDocInfo_Builder_addUnique that captures nothing (post-flip step lambdas).
+var lambda_JSDocInfo_Builder_addUnique_1_ = &Supplier_fn{func() any { return new_ArrayList_0().self() }}
 
 func (this *JSDocInfo_Builder) recordLends(name *JSTypeExpression) bool {
 	return (!this.hasAnyTypeRelatedTags() && this.populateProp(JSDocInfo_LENDS_NAME.up_JSDocInfo_Property(), obj_(name)))
