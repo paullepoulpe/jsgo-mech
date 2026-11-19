@@ -570,11 +570,11 @@ func (this *ObjectType) setOwnerFunction_impl(type_ *FunctionType) {
 }
 
 func (this *ObjectType) getCtorImplementedInterfaces_impl() IterableOf[*ObjectType] {
-	return ImmutableSet_as_Iterable(ImmutableSet_of())
+	return ImmutableSet_as_Iterable(immutableSetOf_(tc_string))
 }
 
 func (this *ObjectType) getCtorExtendedInterfaces_impl() IterableOf[*ObjectType] {
-	return ImmutableSet_as_Iterable(ImmutableSet_of())
+	return ImmutableSet_as_Iterable(immutableSetOf_(tc_string))
 }
 
 func (this *ObjectType) getPropertyTypeMap_impl() *JTMap[string, *JSType] {

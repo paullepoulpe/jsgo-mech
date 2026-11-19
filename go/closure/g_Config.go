@@ -56,7 +56,7 @@ func (this *Config) toBuilder() *Config_Builder {
 }
 
 func Config_builder() *Config_Builder {
-	return new_Config_Builder_0().setLanguageMode(Config_LanguageMode_UNSUPPORTED).setStrictMode(Config_StrictMode_STRICT).setJsDocParsingMode(Config_JsDocParsing_TYPES_ONLY).setRunMode(Config_RunMode_STOP_AFTER_ERROR).setExtraAnnotationNames(ImmutableSet_as_Iterable(ImmutableSet_of())).setSuppressionNames(ImmutableSet_as_Iterable(ImmutableSet_of())).setClosurePrimitiveNames(ImmutableSet_as_Iterable(ImmutableSet_of())).setParseInlineSourceMaps(false)
+	return new_Config_Builder_0().setLanguageMode(Config_LanguageMode_UNSUPPORTED).setStrictMode(Config_StrictMode_STRICT).setJsDocParsingMode(Config_JsDocParsing_TYPES_ONLY).setRunMode(Config_RunMode_STOP_AFTER_ERROR).setExtraAnnotationNames(ImmutableSet_as_Iterable(immutableSetOf_(tc_string))).setSuppressionNames(ImmutableSet_as_Iterable(immutableSetOf_(tc_string))).setClosurePrimitiveNames(ImmutableSet_as_Iterable(immutableSetOf_(tc_string))).setParseInlineSourceMaps(false)
 }
 
 func Config_buildAnnotations(allowlist IterableOf[string]) *JTMap[string, Annotation_parsing] {
