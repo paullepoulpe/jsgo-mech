@@ -28,56 +28,53 @@ func (this *OptimizeParameters) process_2(externs Node, root Node) {
 }
 
 func (this *OptimizeParameters) process_3(externs Node, root Node, refMap *OptimizeCalls_ReferenceMap) {
-	_ = func() (code_ int) {
-		defer func() {
-			this.decisionsLog = nil
-		}()
-		var decisionsLog *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(this), "decisions.log", []string{})
-		defer closeResource_(decisionsLog.self())
-		this.decisionsLog = decisionsLog
-		this.globalScope = refMap.getGlobalScope()
-		var toOptimize *JTList[*ArrayList] = jnewTList_(tc_p_ArrayList)
-		for entry := range elemsBy_(refMap.getNameReferences(), icast_Map_Entry) {
-			var key string = str_(entry.getKey())
-			var refs ArrayListOf[Node] = to_ArrayList(entry.getValue())
-			var candidateAnalysis *OptimizeParameters_CandidateAnalysis = this.analyzeCandidateName(key, refs)
-			if candidateAnalysis.shouldConvertTaggedTemplateLiterals() {
-				candidateAnalysis.convertTaggedTemplateLiterals()
-			}
-			if candidateAnalysis.isSafeToOptimize() {
-				toOptimize.add(refs)
-			}
-		}
-		for entry := range elemsBy_(refMap.getPropReferences(), icast_Map_Entry) {
-			var key string = str_(entry.getKey())
-			var refs ArrayListOf[Node] = to_ArrayList(entry.getValue())
-			var candidateAnalysis *OptimizeParameters_CandidateAnalysis = this.analyzeCandidateProperty(key, refs)
-			if candidateAnalysis.shouldConvertTaggedTemplateLiterals() {
-				candidateAnalysis.convertTaggedTemplateLiterals()
-			}
-			if candidateAnalysis.isSafeToOptimize() {
-				toOptimize.add(refs)
-			}
-		}
-		it_6 := toOptimize.each()
-		for it_6.next() {
-			var refs *ArrayList = it_6.v
-			this.tryEliminateOptionalArgs(refs)
-		}
-		it_8 := toOptimize.each()
-		for it_8.next() {
-			var refs *ArrayList = it_8.v
-			this.tryEliminateConstantArgs(refs)
-		}
-		var optimizer *OptimizeParameters_UnusedParameterOptimizer = new_OptimizeParameters_UnusedParameterOptimizer(this)
-		it_10 := toOptimize.each()
-		for it_10.next() {
-			var refs *ArrayList = it_10.v
-			optimizer.tryEliminateUnusedArgs(refs)
-		}
-		optimizer.applyChanges()
-		return 0
+	defer func() {
+		this.decisionsLog = nil
 	}()
+	var decisionsLog *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(this), "decisions.log", []string{})
+	defer closeResource_(decisionsLog.self())
+	this.decisionsLog = decisionsLog
+	this.globalScope = refMap.getGlobalScope()
+	var toOptimize *JTList[*ArrayList] = jnewTList_(tc_p_ArrayList)
+	for entry := range elemsBy_(refMap.getNameReferences(), icast_Map_Entry) {
+		var key string = str_(entry.getKey())
+		var refs ArrayListOf[Node] = to_ArrayList(entry.getValue())
+		var candidateAnalysis *OptimizeParameters_CandidateAnalysis = this.analyzeCandidateName(key, refs)
+		if candidateAnalysis.shouldConvertTaggedTemplateLiterals() {
+			candidateAnalysis.convertTaggedTemplateLiterals()
+		}
+		if candidateAnalysis.isSafeToOptimize() {
+			toOptimize.add(refs)
+		}
+	}
+	for entry := range elemsBy_(refMap.getPropReferences(), icast_Map_Entry) {
+		var key string = str_(entry.getKey())
+		var refs ArrayListOf[Node] = to_ArrayList(entry.getValue())
+		var candidateAnalysis *OptimizeParameters_CandidateAnalysis = this.analyzeCandidateProperty(key, refs)
+		if candidateAnalysis.shouldConvertTaggedTemplateLiterals() {
+			candidateAnalysis.convertTaggedTemplateLiterals()
+		}
+		if candidateAnalysis.isSafeToOptimize() {
+			toOptimize.add(refs)
+		}
+	}
+	it_6 := toOptimize.each()
+	for it_6.next() {
+		var refs *ArrayList = it_6.v
+		this.tryEliminateOptionalArgs(refs)
+	}
+	it_8 := toOptimize.each()
+	for it_8.next() {
+		var refs *ArrayList = it_8.v
+		this.tryEliminateConstantArgs(refs)
+	}
+	var optimizer *OptimizeParameters_UnusedParameterOptimizer = new_OptimizeParameters_UnusedParameterOptimizer(this)
+	it_10 := toOptimize.each()
+	for it_10.next() {
+		var refs *ArrayList = it_10.v
+		optimizer.tryEliminateUnusedArgs(refs)
+	}
+	optimizer.applyChanges()
 }
 
 func OptimizeParameters_alreadyRemoved(n Node) bool {

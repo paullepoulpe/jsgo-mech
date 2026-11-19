@@ -10,24 +10,21 @@ type XtbMessageBundle struct {
 func (this *XtbMessageBundle) init_XtbMessageBundle(xtb []int8, projectId Optional[string]) {
 	this.messages = jnewTMap_(jtc_string, jtc_p_JsMessage)
 	this.idGeneratorField = JsMessage_IdGenerator(new_GoogleJsMessageIdGenerator(projectId))
-	_ = func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if is_ParserConfigurationException(ex_) || is_IOException(ex_) || is_SAXException(ex_) {
-					var e *Exception = to_Exception(ex_)
-					panic(new_RuntimeException_Throwable(e.up_Throwable()))
-				}
-				panic(r_)
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if is_ParserConfigurationException(ex_) || is_IOException(ex_) || is_SAXException(ex_) {
+				var e *Exception = to_Exception(ex_)
+				panic(new_RuntimeException_Throwable(e.up_Throwable()))
 			}
-		}()
-		var parser *SAXParser = XtbMessageBundle_createSAXParser()
-		var reader XMLReader = parser.getXMLReader()
-		var contentHandler *XtbMessageBundle_Handler = new_XtbMessageBundle_Handler(this)
-		reader.setContentHandler(XtbMessageBundle_Handler_as_ContentHandler(contentHandler))
-		reader.parse(new_InputSource(new_ByteArrayInputStream(xtb).up_InputStream()))
-		return 0
+			panic(r_)
+		}
 	}()
+	var parser *SAXParser = XtbMessageBundle_createSAXParser()
+	var reader XMLReader = parser.getXMLReader()
+	var contentHandler *XtbMessageBundle_Handler = new_XtbMessageBundle_Handler(this)
+	reader.setContentHandler(XtbMessageBundle_Handler_as_ContentHandler(contentHandler))
+	reader.parse(new_InputSource(new_ByteArrayInputStream(xtb).up_InputStream()))
 }
 
 func new_XtbMessageBundle(xtb []int8, projectId Optional[string]) *XtbMessageBundle {
