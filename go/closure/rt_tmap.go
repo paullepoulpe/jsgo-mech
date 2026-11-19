@@ -925,6 +925,9 @@ var (
 
 // addAllT is addAll from another typed set.
 func (s *TSet[K]) AddAll(o *TSet[K]) bool {
+	if s.imm { // ImmutableSet.addAll throws whatever its argument (post-flip tool bulkops)
+		throwUOE_()
+	}
 	changed := false
 	for i, k := range o.keys {
 		if !o.isDead(i) && s.Add(k) {

@@ -51,6 +51,9 @@ func (s *TSet[K]) iterator() Iterator {
 
 // putAllT is putAll of another typed map of the same types.
 func (m *TMap[K, V]) putAllT(o *TMap[K, V]) {
+	if m.imm { // ImmutableMap.putAll throws whatever its argument
+		throwUOE_()
+	}
 	for i, k := range o.keys {
 		if !o.isDead(i) {
 			m.Put(k, o.vals[i])
