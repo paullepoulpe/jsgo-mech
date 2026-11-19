@@ -990,7 +990,7 @@ typed-full wall -0.2%, cpu -0.9%; bundle wall +1.0%, cpu +0.5% (-1.8..+3.1).
 
 ## What stays (census rows at the tip, like for like with jsgo)
 
-Rewritten in the eleventh session after CRITIQUE2.md (78fc86ad, step 488). Counts: `census.py`
+Rewritten in the eleventh session after CRITIQUE2.md (78fc86ad, step 488); columns moved on to 488 -> 490 in the twelfth (optstr). Counts: `census.py`
 (rows per Java-ism in g_*.go), `reflip/likeforlike.py` (casts split as jsgo's regex sees them),
 `castcensus`, against `reflip/jsgocensus.py` (jsgo fa371e9, non-test files under internal/).
 Corrections applied: jsgo's 648 already includes its 78 type switches (570 assertions); our casts
@@ -1006,19 +1006,19 @@ functional APIs took, "198 Object results of the runtime" for views of typed con
 the reason for all 105 loops, "none typeable" from objslots' per-slot test, "UTF-16" for format
 and join.
 
-| row | 477 (tenth tip) | tip 488 | jsgo | what stays at the tip, counted (command), and the reason |
+| row | 488 (eleventh tip) | tip 490 | jsgo | what stays at the tip, counted (command), and the reason |
 |---|---:|---:|---:|---|
-| casts, like for like (cast calls + is_ + comma-ok + direct + switches) | 1,354 (841 + 54 + 196 + 234 + 29) | 1,161 (679 + 54 + 196 + 203 + 29) | 648 (570 + 78) | castcensus 688 calls (850 at 477): real downcasts of self() and of Object results (Throwable.error() 13, JSType/ObjectType subtypes 22, Token 4, PassConfig 2, scope creators 3, jsgo writes them too), Equals operands, JSDocInfo's bag (jsgo: 90 jsdocGet[T]), elements of erased collections (colls' groups below), Graph E (planned prep, below), Optional_base / erased Iterables (tgeneric left 17), adapters stored by program fields (tfnparams left). The comparable gap is ~500, of which the erased collections and Graph E are mechanical (handover) |
-| Object slots (`any` params/fields, census.py's split) | 598 (934 matched) | 530 (865 matched: 93 type parameters, 76 `return any(`, 166 cast-helper operands) | 271 (281 matched) | equals(Object) 119 (jsgo 67 Equals(any)), the lambda adapters' bridges of the 140 adapter types code still names (175 PassFactory literals: Java compares factories by identity, jsgo changed that), implsplit's bridges the runtime calls (deadbridge left 20 at 482, by reason), JSDocInfo's bag, func-typed parameters given other values (fntypes left 29 groups), graphs' E |
-| lambda adapter literals &X_tfn_Y{ / &X_fn{ | 634 | 585 | 0 | 175 PassFactory (identity), 146 Supplier/Consumer adapters (of string and List) given to program setters that store them (CmdLineParser options, setReadableTypeName, ...: tfnparams' "stored" groups) and 11 setPreconditionCheck, 9 runtime APIs over erased collections (tfnapi left 13) |
-| Optional / Optional-of-string | 1,451 | 1,451 | 57 + 175 OptString + 106 Some/NoString + 243 (string, bool) functions | not done (handover 1): optstr is mechanical (nullstr_ is Java's null of a String); its one real precondition is that no Optional[string] is ever its zero value (a null Optional), which the tool must prove per slot, not assume |
-| erased collections (constructors) | 175 | 175 | 22 | colls -n: generic-type results and type-parameter elements (tconv for type parameters: handover 3), function values whose element type is the functional interface's, Optional[string] elements (optstr), JSDocInfo bag values, TreeSet/TreeMap with an erased comparator |
+| casts, like for like (cast calls + is_ + comma-ok + direct + switches) | 1,161 (679 + 54 + 196 + 203 + 29) | 1,161 (679 + 54 + 196 + 203 + 29) | 648 (570 + 78) | castcensus 688 calls (850 at 477): real downcasts of self() and of Object results (Throwable.error() 13, JSType/ObjectType subtypes 22, Token 4, PassConfig 2, scope creators 3, jsgo writes them too), Equals operands, JSDocInfo's bag (jsgo: 90 jsdocGet[T]), elements of erased collections (colls' groups below), Graph E (planned prep, below), Optional_base / erased Iterables (tgeneric left 17), adapters stored by program fields (tfnparams left). The comparable gap is ~500, of which the erased collections and Graph E are mechanical (handover) |
+| Object slots (`any` params/fields, census.py's split) | 530 (865 matched: 93 type parameters, 76 `return any(`, 166 cast-helper operands) | 530 (865 matched: 93 type parameters, 76 `return any(`, 166 cast-helper operands) | 271 (281 matched) | equals(Object) 119 (jsgo 67 Equals(any)), the lambda adapters' bridges of the 140 adapter types code still names (175 PassFactory literals: Java compares factories by identity, jsgo changed that), implsplit's bridges the runtime calls (deadbridge left 20 at 482, by reason), JSDocInfo's bag, func-typed parameters given other values (fntypes left 29 groups), graphs' E |
+| lambda adapter literals &X_tfn_Y{ / &X_fn{ | 585 | 585 | 0 | 175 PassFactory (identity), 146 Supplier/Consumer adapters (of string and List) given to program setters that store them (CmdLineParser options, setReadableTypeName, ...: tfnparams' "stored" groups) and 11 setPreconditionCheck, 9 runtime APIs over erased collections (tfnapi left 13) |
+| Optional / Optional-of-string | 1,451 | 73 | 57 + 175 OptString + 106 Some/NoString + 243 (string, bool) functions | optstr (step 490): every Optional<String> is a string, nullstr_ for the empty Optional (exact: the tool proves no Optional<String> is ever null first; 1,588 optstr*_ helper calls and the == / != nullstr_ tests are the Optional-of-string forms, as jsgo's OptString / SomeString / (string, bool)). Left 73: Optional of other types 28 (Node 11, []int8 6, *ZipArchive 4, *JSType 3, Consumer 2, a builder 2: a null of the element type is a value there, so the empty Optional has no spelling of its own), Guava's Optional_base 34 calls (same), 10 words that are not the type (class names in g_0names.go, "Optional chaining" in messages), and 1 Optional[string]: MakeDeclaredNamesUnique's declarations map keeps Optional objects because its toString prints them |
+| erased collections (constructors) | 175 | 175 | 22 | colls -n: generic-type results and type-parameter elements (38 constructors in generic classes: the graph family 20, SortedDependencies 11, 7 others; #4 weighed below (twelfth session) and not taken, #7 removes none of them), function values whose element type is the functional interface's, JSDocInfo bag values, TreeSet/TreeMap with an erased comparator, MakeDeclaredNamesUnique's map of Optional objects (optstr) |
 | for-each cursor loops / explicit Iterator | 108 / 107 | 108 / 107 | 16 | 105 loops over erased collections whose body returns: measured (step 10 below) as a range over a snapshot slice: no gain (typed-full -0.4% cpu, bundle +1.0%), +1.85M objects, and the snapshot differs from Java when the body removes the second-to-last element of an ArrayList (Java's hasNext ends the loop); the cursor stays until colls types the collection |
 | Guava immutables / typed containers | 210 / 386 | 210 / 386 | 213 Immutable / 557 make(map) | not Java-isms to remove: immutability contract, insertion order, Java null for a missing key |
-| try/catch, panic, defer | 54 / 3,491 / 84 | same | 58 / 1,724 + 1,882 Check* / 304 | Java's unchecked throws and finally (excensus); jsgo the same |
+| try/catch, panic, defer | same | same | 58 / 1,724 + 1,882 Check* / 304 | Java's unchecked throws and finally (excensus); jsgo the same |
 | equals / hashCode | 94 | 94 | 351 | value classes' structural equality (valcls); jsgo the same |
 | String_* | 126 | 126 | 560 | UTF-16 charAt/substring/indexOf on non-ASCII (strunits); String_format keeps Java's format (jsgo too); 13 String_join_s over erased iterables are (b), not done |
-| threads, reflect, unsafe, StringBuilder, Preconditions_, enum objects | 52 / 5 / 1 / 3 / 6 / 1 | same | 98 / 166 / 3 / 279 / 1,882 / - | unchanged reasons (seventh session) |
+| threads, reflect, unsafe, StringBuilder, Preconditions_, enum objects | same | same | 98 / 166 / 3 / 279 / 1,882 / - | unchanged reasons (seventh session) |
 
 The seventh session's table (the rows the eighth to tenth sessions moved, with the reasons
 CRITIQUE2.md tested) is in git history at c7e2f715.
@@ -1802,3 +1802,158 @@ Binaries: $S/proto/m_r15a (479), m_r15b (481), m_r15c (482), m_r15d (484), m_r15
 (488, the tip); m_r14i (477), m_m8final (round 8). Logs: $S/r15/m1.log, mem1.log (477-484 and the
 #10 experiment), m2.log, mem2.log (484-488), milestone.log, mem_ms.log; gates $S/r15/gate_r15a..f.log;
 census $S/r15/cen_<step>.txt. Scripts: $S/r15/gate.sh, cen.sh, m1.sh, m2.sh.
+
+## Twelfth session: optstr, and #4 weighed (2026-11-19)
+
+The eleventh session's handover items 1 (optstr) and 2 (#4). Steps 489-492 of steps.txt:
+
+| step | commits | command | counts |
+|---|---|---|---|
+| 489 | d00b98f3 (runtime) | patch | rt_optstr.go: the methods of a non-null Optional<String> as functions of its string; rt_optstr_test.go (TestOptstr) against Optional[string]'s methods |
+| 490 | 20d40522 (tool), 39f1014c | `t optstr && f` | 1,378 type spellings, 3,430 calls (below); left 1 spelling |
+| 491 | ca2a6157 (runtime) | patch | optstrBox_ of the empty Optional is one object (the allocation profile of 490) |
+| 492 | ad8c897b (runtime) | patch | optstrGet_ inlines (the CPU profile of 491) |
+
+**optstr** (tools/postflip/optstr). Optional<String> is a string: nullstr_ (Java's null String,
+which j2go already writes for every other nullable String) is the empty Optional, any other string
+a present one. That is exact only if no Optional<String> is ever null, the third state of j2go's
+Optional[T] (its zero value, whose every method throws NullPointerException), so the tool proves
+that first and rewrites nothing unless it holds everywhere (`-n` prints the proof's counts). Prep 10
+turned every `null` given to an Optional into Optional.empty(), and no generic code is
+instantiated with Optional[string], so a null can only be a Go zero value read or a cast of a null
+Object. The analysis, by place a zero could be read (counts at 488):
+
+| slots | proved | how |
+|---|---:|---|
+| fields | 171 | every allocation of the class and its subclasses is `this := &C{}`, silent statements, the constructor; every constructor assigns the field (initializer, finit_, body, every branch, or a captured variable in new_) before code that could read it runs: the code before mentions `this` only to read or write fields, call the constructor chain or call methods of it whose bodies are silent |
+| | 3 | the object escapes first (JSType's constructor gives it to the resolver: EnumElementType, NoResolvedType, PrototypeObjectType), and no code the remaining statements can reach reads the field anywhere (cha.go: a class-hierarchy call graph of generated code and runtime: interface calls to the implementing types' methods, func value calls to the functions of the signature used as values, the callbacks of code outside the package) |
+| | 2 | contained escape: `this.oldErrorReporter = RhinoErrorReporter_forOldRhino(this.report_2)` (Compiler) stores a method value of the object in a new object through trivial constructors only; the field it is stored in becomes tainted (reading it is not silent) |
+| | 1 | MakeDeclaredNamesUnique.declarations, an erased map: only put with an Optional's box_, read by getOrDefault with a boxed default and by containsKey; kept holding Optional objects (its toString prints them) |
+| package variable | 1 | JSError.DEFAULT_SOURCENAME, assigned first in its clinit (Java initializes the class at first use; j2go's clinit order is the invariant its String statics rely on too) |
+| enum field arrays | 2 | TokenType.value, ProcessTweaks.TweakFunction.expectedTypeName: every constructor assigns the slot first, the clinit constructs all constants |
+| locals without a value | 17 + 1 | definitely assigned before every read (checked on the Go statements: if/else, switch with default, loops, breaks, called-in-place closures); Scanner's ret_2, j2go's try temp, assigned right before every `return 1` / `code_ = 1` and read only under `code_2 == 1` |
+| locals with a value, parameters, func-typed slots | 355, 391, 11 | given a value by their declaration, every call; a nil func is not an Optional |
+| cast of an Object | 1 | getReplacementName's optOf_ of that map's getOrDefault |
+| named results, containers, composite literals, make/new, assertions, functions that recover | 0 | none exist (each would stop the rewrite) |
+
+Every expression of the type must be made by Optional's constructors, filterFn_, a call, a read of a
+slot or the proved cast, and used as a receiver of a rewritten method, an argument or result of the
+type, or an operand of optEquals_ / optEqualsNull_ / optHash_ (no implicit conversion to an
+interface, no method value). The first version of the analysis left 15 fields: 8 captured variables of
+anonymous classes (assigned in new_ before the constructor) and 1 assignment in both branches of
+an if, which it now follows, and 6 objects that escape before the assignment (Parser, IRFactory,
+Compiler, the three JSType subclasses), which needed the call graph, the contained escape and the
+receiver's silent methods; the call graph first sent interface calls to every method of the name,
+and Compiler and IRFactory passed only once they went to the implementing types.
+
+Rewrites (490): 1,378 Optional[string] -> string; 428 empty() -> nullstr_; 99 ofNullable(x) -> x;
+913 of(x) (251 literals as is, 662 optstrOf_: NullPointerException for nullstr_); 382 isPresent and
+240 isEmpty -> != / == nullstr_; 880 get / orElseThrow -> optstrGet_ (NoSuchElementException "No
+value present"); 303 orElse (113 orElse(nullstr_) -> o, 190 optstrOr_); 102 filterFn_ ->
+optstrFilter_; 46 optEquals_ / optEqualsNull_ -> == / != (two non-null Optional<String> are equal
+when both are empty or both present with equal strings); 15 optHash_ -> optstrHash_; 20 box_ ->
+optstrBox_ (erased code gets the same Optional object: records' toString and hashCode print and hash
+Optional[...]); 1 optOf_ -> optstrUnbox_; Io_utf8StringStrict's Optional through optstr_. Left: 1
+type spelling, MapOf[string, Optional[string]] (above). A rerun changes nothing; the run on 488
+with the runtime patch gives 39f1014c's go/ byte for byte. TestOptstr checks every helper against
+the Optional[string] method on empty and present values, with exception class and message.
+
+jsgo writes a nullable String as a string with "" for null in about 950 of these places (not
+Java's behaviour where "" is a value), base.OptString in 175 spellings (106 SomeString / NoString
+calls) and (string, bool) in 243 functions. optstr is the exact form of the first: the same string,
+with nullstr_ instead of "".
+
+**Measurements.** 490 against 488 (4 rounds, then 5 with 491): typed-full cpu +2.3% (+0.9..+4.3)
+in the first run, -0.1% (-3.8..+1.0) in the second, wall +2.1% / +0.7%; bundle cpu -0.5%
+(-3.0..-0.0) / -0.1% (-2.9..+2.0), wall -1.4% / -0.3%. Allocations went up: typed-full 181.09M ->
+181.85M objects, bundle 85.67M -> 87.38M. The allocation profile put the whole difference (+1.81M of
+1.81M) in Optional.box_ under optstrBox_: getReplacementName's default `Optional_empty[string]().box_()`
+had been a constant the compiler boxed statically, `optstrBox_(nullstr_)` boxed it on every lookup.
+491 boxes the empty one once: typed-full 180.90M objects / 11.197 GB, bundle 85.64M / 5.840 GB (488:
+181.09M / 11.214 GB, 85.67M / 5.843 GB). 491 against 490 (5 rounds): typed-full cpu +0.4%
+(-1.8..+4.7), bundle cpu -2.1% (-3.0..+0.6), wall -1.5%. A CPU profile of typed-full at 491 showed
+optstrGet_ called, not inlined (the exception's constructor inlined into it); 492 moves the throw
+into a call of its own. In the milestone run (6 rounds, idle host, below): 491 against
+488 typed-full cpu -0.7% (-3.6..-0.2), wall -1.1%; bundle cpu +0.4% (-1.6..+1.8), wall +1.3%; 492
+against 491 typed-full cpu +0.1% (-0.6..+2.2), wall +0.5%; bundle cpu -1.3% (-3.4..+0.8), wall
+-1.9%. **488 -> 492**: typed-full cpu -0.3% (-4.0..+1.9), wall -0.2%; bundle cpu -1.3%
+(-2.7..+1.0), wall -1.0%; allocations typed-full 181.09M -> 180.92M objects, 11.214 -> 11.197 GB,
+bundle 85.67M -> 85.64M, 5.843 -> 5.841 GB. The step is neutral in time: an Optional<String> was
+already an unboxed value whose methods inlined; the gain is the Java-ism, not speed.
+
+**#4 (a tconv for type parameters in colls), weighed and not taken.** colls leaves 38 constructors
+of collections whose element type mentions a type parameter (COLLS_CTORS=1 COLLS_WHY=all, all
+kinds: 21 "variable of a type parameter's type", 14 "result of a method of a generic type", 3
+"argument of a method of a generic type"): the graph family 20 (LinkedDirectedGraph 6,
+LinkedUndirectedGraph 4, DominatorTree 6, FixedPointGraphTraversal 3, Graph 1), SortedDependencies
+11, StandardUnionFind 2, HamtPMap 1, LinkedIdentityHashMap 1, LowestCommonAncestorFinder 1,
+SimpleTable 1, Timeline 1. #7's prep step removes none of them: it keeps E on Graph / DiGraph /
+UndiGraph, the collections inside the graph classes are of LinkedDiGraphNode[N, E] / N already
+and stay type-parameter elements. What #4 would remove: the 38 constructors, 37 junboxT_ and part of
+88 boxT_ in those files, and 47 gcast_ in the graph files (castcensus 688). Why not now: a typed
+TList[T] in generic code needs its tconv_[T] at construction, and Go has no generic package
+variable to make it once per instantiation, so every `new_ArrayList` in a generic class becomes a
+lookup by type (LinkedDirectedGraph makes two lists per node it adds) or a tconv threaded through
+every constructor of the generic classes; the element types are pointers (boxing them is free) and
+the sets and maps keyed by a type parameter would still hash through the dynamic protocol (their
+keys' equals is per instantiation). No time to gain, a cost per graph node, for 38 constructors and
+~84 conversions. Left, counted, in the erased-collections row.
+
+**Census** (census.py; likeforlike.py, castcensus, objslots unchanged), 488 -> 490 (491, 492 change
+only the runtime):
+
+```
+ 488 ->  490    jsgo
+1451 ->   73   Optional                       jsgo 57 + 175 OptString + 106 Some/NoString + 243 (string, bool)
+1934 -> 1914   boxing to any (20 box_ of Optional<String> are optstrBox_ calls: still a box, by spelling)
+1161 -> 1161   casts like for like                                                            jsgo 648
+ 530 ->  530   Object slots                                                                   jsgo 271
+ 175 ->  175   erased collections (constructors)                                              jsgo 22
+```
+
+The Optional-of-string forms at 490: 1,588 optstr*_ calls (880 optstrGet_, 662 optstrOf_, 190
+optstrOr_, 102 optstrFilter_, 20 optstrBox_, 15 optstrHash_, 1 optstrUnbox_, 1 optstr_) and 668
+comparisons with nullstr_ or of two strings, where jsgo has 175 + 106 + 243 forms and its ""
+tests. What stays in the Optional row (73): Optional of other element types 28 (Node 11, []int8 6,
+*ZipArchive 4, *JSType 3, Consumer 2, a builder 2: there a null of the element type is itself a
+value, so the empty Optional has no spelling of its own), Guava's Optional_base 34 calls (the same),
+10 words that are not the type, and the map's Optional[string].
+
+**Milestone** at the tip ad8c897b (m_r16c), interleaved with pre-flip Java, round 8 (m_m8final), 488
+(m_r15f) and 491 (m_r16b), 6 rounds each, idle host (load 1.1-2.1, the high end during Java's
+runs), no PGO, $S/timing.busy held throughout:
+
+| | typed-full wall (cpu) | Java/Go | bundle wall (cpu) | Java/Go |
+|---|---:|---:|---:|---:|
+| pre-flip Java | 52.72 s (123.0) | | 28.70 s (68.8) | |
+| tip ad8c897b (492) | 47.77 s (56.0) | **1.095** | 23.43 s (25.2) | **1.232** |
+| 488 (78fc86ad) | 47.76 s (55.9) | 1.092 | 23.62 s (25.2) | 1.220 |
+| round 8 | 49.66 s (59.5) | 1.051 | 24.88 s (28.7) | 1.157 |
+
+(medians; Java/Go is the median of the per-round ratios.) Against round 8, per round: typed-full
+wall -4.3%, cpu -6.7% (-10.1..-4.6); bundle wall -6.7%, cpu -12.9% (-13.5..-11.2). stdout, stderr,
+out.js (and out.js.map) byte-identical with Java's for all four Go binaries. Allocations: tip
+typed-full 180.92M objects / 11.20 GB (round 8 185.08M / 11.42 GB), bundle 85.64M / 5.84 GB
+(88.90M / 6.08 GB). This host ran Java faster than at the eleventh session's milestone (54.49 s and
+28.15 s then), so the ratios of the two milestones differ by the host as well: within this run 488
+is 1.092 / 1.220 and the tip 1.095 / 1.232.
+
+## Handover after the twelfth session
+
+1. **#7** is still the prep step of the eleventh session's handover (two signatures in
+   DominatorTree.java); it removes the graphs' `[.., any]` instantiations and edge-value casts, not
+   the 38 type-parameter collections of #4.
+2. **#4** stays (above): what would make it pay is a tconv made once per instantiation that costs
+   nothing at construction (a j2go-written tconv per generic class instance, or Go generic package
+   variables), not a lookup.
+3. **Optional of other types** (28 spellings, 34 Optional_base calls): each needs a value of its
+   element type that is neither null nor present (a Node handle could use one, e.g. a reserved
+   handle); not an optstr case.
+4. The eleventh session's items 4 and 5 stand (erased collections, adapters stored by program
+   setters, sorted collections that need the bridges; step 426's MemProfileRate).
+
+Binaries: $S/proto/m_r16a (490), m_r16b (491), m_r16c (492, the tip); m_r15f (488), m_m8final (round
+8). Logs: $S/r16/m1.log (488 / 490), m2.log (488 / 490 / 491), mem1.log, milestone.log, mem_ms.log;
+the profiles bundle_m488/m490.memprof, typed-full_c488/c491.cpuprof; gates $S/r16/gate_r16a..c.log;
+census $S/r16/cen_490.txt, the tool's counts optstr_n.txt, colls' constructor reasons ctor_why.txt.
+Scripts: $S/r16/gate.sh, cen.sh, m1.sh, m2.sh, milestone.sh, ratio.py, mprof.py, cprof.py.

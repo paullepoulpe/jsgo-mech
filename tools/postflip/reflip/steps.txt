@@ -751,3 +751,12 @@ f9d61144 run t tfnapi && t tcmp && t deadtfn && f
 # 488. postflip step (re-flip): tgeneric, 25 Iterables.getOnlyElement / getFirst / getLast of typed collections and 6 runInCompilerThread calls are typed (tool 38b7e1d0, runtime 45d25830)
 78fc86ad run t tgeneric && f
 #: tgeneric: 12 getOnlyElement, 5 getFirst, 8 getLast of typed lists/sets/slice views, 6 runInCompilerThread -> typed forms; left 17 calls on erased collections, 10 runInCompilerThread with erased callables (result unused)
+# 489. postflip (runtime, re-flip): the methods of a non-null Optional<String> written as a string
+d00b98f3 patch 489-d00b98f3-rt.patch
+# 490. postflip step (re-flip): optstr, Optional<String> is a string with nullstr_ for the empty Optional: 1,378 type spellings and 3,430 calls (tool 20d40522, runtime d00b98f3)
+39f1014c run t optstr && f
+#: optstr: proved no Optional<String> is null: 177 fields (171 assigned before the object can be reached, 3 where it escapes but no code it can reach reads the field (call graph), 2 where it escapes only into a field of its own, 1 erased map kept), 1 package variable, 2 enum field arrays, 18 locals without a value (17 definitely assigned, 1 try temp), 355 locals with a value, 391 parameters, 11 func-typed slots, 1 cast of an Object; rewrote 1,378 type spellings, 428 empty, 99 ofNullable, 913 of (251 literals), 382 isPresent, 240 isEmpty, 880 get/orElseThrow, 303 orElse (113 of nullstr_), 102 filterFn_, 46 equals, 15 hashCode, 20 box_, 1 optOf_, 1 runtime Optional; left 1 type spelling (MakeDeclaredNamesUnique's declarations map keeps Optional objects: its toString prints them)
+# 491. postflip (runtime, re-flip): optstrBox_ of the empty Optional is one object
+ca2a6157 patch 491-ca2a6157-rt.patch
+# 492. postflip (runtime, re-flip): optstrGet_ inlines, its failure is a call of its own
+ad8c897b patch 492-ad8c897b-rt.patch
