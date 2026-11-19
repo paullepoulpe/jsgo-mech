@@ -469,8 +469,8 @@ func (this *CodingConventions_DefaultCodingConvention) getObjectLiteralCast(call
 	return nil
 }
 
-func (this *CodingConventions_DefaultCodingConvention) getAssertionFunctions_rImmutableSet() *JTSet[*CodingConvention_AssertionFunctionSpec] {
-	return jimmutableSetOf_[*CodingConvention_AssertionFunctionSpec](tce_p_CodingConvention_AssertionFunctionSpec, CodingConvention_AssertionFunctionSpec_forTruthy().setClosurePrimitive(ClosurePrimitive_ASSERTS_TRUTHY).build(), CodingConvention_AssertionFunctionSpec_forMatchesReturn().setClosurePrimitive(ClosurePrimitive_ASSERTS_MATCHES_RETURN).build())
+func (this *CodingConventions_DefaultCodingConvention) getAssertionFunctions_rImmutableSet() *TSet[*CodingConvention_AssertionFunctionSpec] {
+	return immutableSetOf_[*CodingConvention_AssertionFunctionSpec](tce_p_CodingConvention_AssertionFunctionSpec.t_(), CodingConvention_AssertionFunctionSpec_forTruthy().setClosurePrimitive(ClosurePrimitive_ASSERTS_TRUTHY).build(), CodingConvention_AssertionFunctionSpec_forMatchesReturn().setClosurePrimitive(ClosurePrimitive_ASSERTS_MATCHES_RETURN).build())
 }
 
 func (this *CodingConventions_DefaultCodingConvention) describeFunctionBind(n Node, checkTypes bool) *CodingConvention_Bind {

@@ -399,7 +399,7 @@ func (this *Es6ConvertSuperConstructorCalls) getTypeOfThisForConstructor(constru
 	}
 	var constructorType *Color = constructor.getColor()
 	return func() AstFactory_Type {
-		if (constructorType != nil) && !constructorType.getInstanceColors().isEmpty() {
+		if (constructorType != nil) && !constructorType.getInstanceColors().IsEmpty() {
 			return AstFactory_typeColor(Color_createUnion(constructorType.getInstanceColors()))
 		}
 		return AstFactory_typeColor(StandardColors_UNKNOWN)

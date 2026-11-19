@@ -1254,19 +1254,19 @@ func (this *TypeCheck) couldBeAConstructor(type_ *JSType) bool {
 	return ((type_.isConstructor() || type_.isEmptyType()) || type_.isUnknownType())
 }
 
-func (this *TypeCheck) checkInterfaceConflictProperties(n Node, functionName string, properties *JTMap[Property_Key, *ObjectType], currentProperties *JTMap[Property_Key, *ObjectType], interfaceType *ObjectType) {
+func (this *TypeCheck) checkInterfaceConflictProperties(n Node, functionName string, properties *TMap[Property_Key, *ObjectType], currentProperties *TMap[Property_Key, *ObjectType], interfaceType *ObjectType) {
 	var implicitProto *ObjectType = interfaceType.getImplicitPrototype()
-	var currentPropertyNames *JTSet[Property_Key]
+	var currentPropertyNames *TSet[Property_Key]
 	if implicitProto == nil {
-		currentPropertyNames = jtsetEmptyImm_(tce_Property_Key)
+		currentPropertyNames = tsetEmptyImm_(tce_Property_Key.t_())
 	} else {
 		currentPropertyNames = implicitProto.getOwnPropertyKeys()
 	}
 	it_1 := currentPropertyNames.each()
 	for it_1.next() {
 		var name Property_Key = it_1.v
-		var oType *ObjectType = properties.get(name)
-		currentProperties.put(name, interfaceType)
+		var oType *ObjectType = properties.Get(name)
+		currentProperties.Put(name, interfaceType)
 		if oType != nil {
 			var thisPropType *JSType = interfaceType.getPropertyTypeKey(name)
 			var oPropType *JSType = oType.getPropertyTypeKey(name)
@@ -1338,7 +1338,7 @@ func (this *TypeCheck) checkConstructor(n Node, functionType *FunctionType) {
 		if baseConstructor != nil {
 			this.checkStructDictSubtyping(n, functionType, baseConstructor)
 		}
-		var alreadySeenInterfaces *JTSet[*JSType] = jnewTSet_(tce_p_JSType)
+		var alreadySeenInterfaces *TSet[*JSType] = newTSet_(tce_p_JSType.t_())
 		it_1 := functionType.getOwnImplementedInterfaces().each()
 		for it_1.next() {
 			var baseInterface *JSType = it_1.v.up_JSType()
@@ -1356,7 +1356,7 @@ func (this *TypeCheck) checkConstructor(n Node, functionType *FunctionType) {
 				this.report(n, TypeCheck_BAD_IMPLEMENTED_TYPE, []string{this.getBestFunctionName(n)})
 			}
 			baseInterface = this.normalizeTemplatizedType(baseInterface)
-			if !alreadySeenInterfaces.add(baseInterface) {
+			if !alreadySeenInterfaces.Add(baseInterface) {
 				this.report(n, TypeCheck_SAME_INTERFACE_MULTIPLE_IMPLEMENTS, []string{baseInterface.toString()})
 			}
 		}
@@ -1391,12 +1391,12 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 		}
 	}
 	if functionType.getExtendedInterfacesCount() > 1 {
-		var properties *JTMap[Property_Key, *ObjectType] = jnewTMap_(tce_Property_Key, jtc_p_ObjectType)
-		var currentProperties *JTMap[Property_Key, *ObjectType] = jnewTMap_(tce_Property_Key, jtc_p_ObjectType)
+		var properties *TMap[Property_Key, *ObjectType] = newTMap_(tce_Property_Key.t_(), tc_p_ObjectType)
+		var currentProperties *TMap[Property_Key, *ObjectType] = newTMap_(tce_Property_Key.t_(), tc_p_ObjectType)
 		it_3 := functionType.getExtendedInterfaces().each()
 		for it_3.next() {
 			var interfaceType *ObjectType = it_3.v
-			currentProperties.clear()
+			currentProperties.Clear()
 			this.checkInterfaceConflictProperties(n, this.getBestFunctionName(n), properties, currentProperties, interfaceType)
 			properties.asMap().putAll(currentProperties.asMap())
 		}
@@ -1803,7 +1803,7 @@ func (this *TypeCheck) checkJsdocInfoContainsObjectWithBadKey(n Node) {
 func (this *TypeCheck) checkTypeContainsObjectWithBadKey(n Node, type_ *JSTypeExpression) {
 	if (type_ != nil) && (type_.getRoot().getJSType() != nil) {
 		var realType *JSType = type_.getRoot().getJSType()
-		var objectWithBadKey *JSType = this.findObjectWithNonStringifiableKey(realType, jnewTSet_(tce_p_JSType))
+		var objectWithBadKey *JSType = this.findObjectWithNonStringifiableKey(realType, newTSet_(tce_p_JSType.t_()))
 		if objectWithBadKey != nil {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_NON_STRINGIFIABLE_OBJECT_KEY, []string{objectWithBadKey.toString()}))
 		}
@@ -1873,11 +1873,11 @@ func (this *TypeCheck) isObjectTypeWithNonStringifiableKey(type_ *JSType) bool {
 	}
 }
 
-func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyCheckedTypes *JTSet[*JSType]) *JSType {
-	if alreadyCheckedTypes.contains(type_) {
+func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyCheckedTypes *TSet[*JSType]) *JSType {
+	if alreadyCheckedTypes.Has(type_) {
 		return nil
 	} else {
-		alreadyCheckedTypes.add(type_)
+		alreadyCheckedTypes.Add(type_)
 	}
 	if this.isObjectTypeWithNonStringifiableKey(type_) {
 		return type_

@@ -208,7 +208,7 @@ var RegExpTree_INVERSE_WORD_CHARS *CharRanges
 var RegExpTree_SPACE_CHARS *CharRanges
 var RegExpTree_IE_SPACE_CHARS *CharRanges
 var RegExpTree_IE_SPEC_ERRORS *CharRanges
-var RegExpTree_NAMED_CHAR_GROUPS *JTMap[any, *CharRanges]
+var RegExpTree_NAMED_CHAR_GROUPS *TMap[any, *CharRanges]
 var RegExpTree_DOT_CHARSET *RegExpTree_Charset
 
 var RegExpTree_clinit_done bool
@@ -228,7 +228,7 @@ func RegExpTree_clinit() {
 	RegExpTree_SPACE_CHARS = CharRanges_withMembers([]int32{9, 10, 11, 12, 13, 32, 160, 5760, 6158, 8192, 8193, 8194, 8195, 8196, 8197, 8198, 8199, 8200, 8201, 8202, 8232, 8233, 8239, 8287, 12288, 65279})
 	RegExpTree_IE_SPACE_CHARS = CharRanges_withMembers([]int32{9, 10, 11, 12, 13, 32})
 	RegExpTree_IE_SPEC_ERRORS = RegExpTree_SPACE_CHARS.difference(RegExpTree_IE_SPACE_CHARS)
-	RegExpTree_NAMED_CHAR_GROUPS = tmapImm_(jtc_Character, jtc_p_CharRanges, immutableMapBuilder_(tc_uint16, tc_p_CharRanges).put(uint16('d'), RegExpTree_DIGITS).put(uint16('D'), CharRanges_ALL_CODE_UNITS.difference(RegExpTree_DIGITS)).put(uint16('s'), RegExpTree_SPACE_CHARS).put(uint16('S'), CharRanges_ALL_CODE_UNITS.difference(RegExpTree_SPACE_CHARS)).put(uint16('w'), RegExpTree_WORD_CHARS).put(uint16('W'), RegExpTree_INVERSE_WORD_CHARS).buildOrThrowErased())
+	RegExpTree_NAMED_CHAR_GROUPS = tmapFrom_(tc_Character, tc_p_CharRanges, immutableMapBuilder_(tc_uint16, tc_p_CharRanges).put(uint16('d'), RegExpTree_DIGITS).put(uint16('D'), CharRanges_ALL_CODE_UNITS.difference(RegExpTree_DIGITS)).put(uint16('s'), RegExpTree_SPACE_CHARS).put(uint16('S'), CharRanges_ALL_CODE_UNITS.difference(RegExpTree_SPACE_CHARS)).put(uint16('w'), RegExpTree_WORD_CHARS).put(uint16('W'), RegExpTree_INVERSE_WORD_CHARS).buildOrThrowErased(), true)
 	RegExpTree_DOT_CHARSET = new_RegExpTree_Charset(CharRanges_ALL_CODE_UNITS.difference(CharRanges_withMembers([]int32{10, 13, 8232, 8233})), CharRanges_EMPTY)
 
 }
@@ -1780,18 +1780,18 @@ func (this *RegExpTree_Charset) simplify_impl(flags string) *RegExpTree {
 	}
 	var best *CharRanges = this.ranges_
 	if strings.Contains(flags, "i") {
-		var options *JTSet[*CharRanges] = jnewTSet_(tce_p_CharRanges)
-		options.add(CaseCanonicalize_expandToAllMatched(this.ranges_))
-		options.add(CaseCanonicalize_reduceToMinimum(this.ranges_))
+		var options *TSet[*CharRanges] = newTSet_(tce_p_CharRanges.t_())
+		options.Add(CaseCanonicalize_expandToAllMatched(this.ranges_))
+		options.Add(CaseCanonicalize_reduceToMinimum(this.ranges_))
 		var lcaseLetters *CharRanges = this.ranges_.intersection(RegExpTree_LCASE_LETTERS)
 		var ucaseLetters *CharRanges = this.ranges_.intersection(RegExpTree_UCASE_LETTERS)
 		var lcaseLettersToUpper *CharRanges = lcaseLetters.shift(-32)
 		var ucaseLettersToLower *CharRanges = ucaseLetters.shift(32)
-		options.add(this.ranges_.union(ucaseLettersToLower))
-		options.add(this.ranges_.union(lcaseLettersToUpper))
-		options.add(this.ranges_.union(lcaseLettersToUpper).union(ucaseLettersToLower))
-		options.add(this.ranges_.union(ucaseLettersToLower).difference(ucaseLetters))
-		options.add(this.ranges_.union(lcaseLettersToUpper).difference(lcaseLetters))
+		options.Add(this.ranges_.union(ucaseLettersToLower))
+		options.Add(this.ranges_.union(lcaseLettersToUpper))
+		options.Add(this.ranges_.union(lcaseLettersToUpper).union(ucaseLettersToLower))
+		options.Add(this.ranges_.union(ucaseLettersToLower).difference(ucaseLetters))
+		options.Add(this.ranges_.union(lcaseLettersToUpper).difference(lcaseLetters))
 		var bestComplexity int32 = RegExpTree_Charset_complexityWordFolded(this.ranges_)
 		it_1 := options.each()
 		for it_1.next() {
@@ -1826,7 +1826,7 @@ func (this *RegExpTree_Charset) decompose_2(ranges *CharRanges, inverted bool) *
 		var minComplexity int32 = RegExpTree_DecomposedCharset_complexity(ranges)
 		it_2 := RegExpTree_NAMED_CHAR_GROUPS.eachEntry()
 		for it_2.next() {
-			var namedGroup *TEntry[any, *CharRanges] = it_2.entry()
+			var namedGroup *TEntryP[any, *CharRanges] = it_2.entry()
 			var group *CharRanges = namedGroup.getValue()
 			if ranges.containsAll(group) {
 				var withoutGroup *CharRanges = ranges.difference(group).union(rangesInterIeExplicits)
@@ -2255,13 +2255,13 @@ type RegExpTree_1Parser struct {
 	cap_flags                         string
 	pos                               int32
 	numCapturingGroups_               int32
-	capturingGroupNames               *JTSet[string]
+	capturingGroupNames               *TSet[string]
 	limit                             int32
 	lookForNamedCaptureBackreferences bool
 }
 
 func (this *RegExpTree_1Parser) finit_RegExpTree_1Parser() {
-	this.capturingGroupNames = jnewTSet_(jtc_string)
+	this.capturingGroupNames = newTSet_(tc_string)
 	this.limit = this.cap_patternU16.length()
 }
 
@@ -2283,7 +2283,7 @@ func (this *RegExpTree_1Parser) parseTopLevel() *RegExpTree {
 	this.numCapturingGroups_ = 0
 	this.lookForNamedCaptureBackreferences = false
 	var out *RegExpTree = this.parse()
-	if !this.capturingGroupNames.isEmpty() {
+	if !this.capturingGroupNames.IsEmpty() {
 		this.pos = 0
 		this.numCapturingGroups_ = 0
 		this.lookForNamedCaptureBackreferences = true
@@ -2397,7 +2397,7 @@ func (this *RegExpTree_1Parser) parseParenthetical() *RegExpTree {
 				} else {
 					this.pos += 2
 					captureName = Optional_of[string](this.scanNamedGroupName())
-					this.capturingGroupNames.add(captureName.orElse(nullstr_))
+					this.capturingGroupNames.Add(captureName.orElse(nullstr_))
 					type_ = RegExpTree_ParentheticalType_NAMED_GROUPS
 				}
 			default:
@@ -2478,7 +2478,7 @@ func (this *RegExpTree_1Parser) parseCharset() *RegExpTree {
 		if ch == '\\' {
 			this.pos++
 			var possibleGroupName uint16 = this.cap_patternU16.charAt(this.pos)
-			var group *CharRanges = RegExpTree_NAMED_CHAR_GROUPS.get(any(uint16(possibleGroupName)))
+			var group *CharRanges = RegExpTree_NAMED_CHAR_GROUPS.Get(any(uint16(possibleGroupName)))
 			if group != nil {
 				this.pos++
 				ranges = ranges.union(group)
@@ -2651,15 +2651,15 @@ func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
 				return ch
 			}())).up_RegExpTree()
 		}
-	} else if (((this.lookForNamedCaptureBackreferences && (ch == 'k')) && ((this.pos + 1) < this.limit)) && (this.cap_patternU16.charAt((this.pos + 1)) == '<')) && !this.capturingGroupNames.isEmpty() {
+	} else if (((this.lookForNamedCaptureBackreferences && (ch == 'k')) && ((this.pos + 1) < this.limit)) && (this.cap_patternU16.charAt((this.pos + 1)) == '<')) && !this.capturingGroupNames.IsEmpty() {
 		this.pos += 2
 		var potentialName string = this.scanNamedGroupName()
-		if !this.capturingGroupNames.contains(potentialName) {
+		if !this.capturingGroupNames.Has(potentialName) {
 			panic(new_IllegalArgumentException_String(("Invalid named capture referenced: " + sstr_(this.cap_patternU16.substring_int(start)))))
 		}
 		return new_RegExpTree_NamedBackReference(potentialName).up_RegExpTree()
 	} else {
-		var charGroup *CharRanges = RegExpTree_NAMED_CHAR_GROUPS.get(any(uint16(ch)))
+		var charGroup *CharRanges = RegExpTree_NAMED_CHAR_GROUPS.Get(any(uint16(ch)))
 		if charGroup != nil {
 			this.pos++
 			return new_RegExpTree_Charset(charGroup, CharRanges_EMPTY).up_RegExpTree()

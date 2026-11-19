@@ -10,22 +10,22 @@ type GlobalNamespace struct {
 	root                          Node
 	externsRoot                   Node
 	globalRoot                    Node
-	spreadSiblingCache            *JTMap[Node, any]
+	spreadSiblingCache            *TMap[Node, any]
 	sourceKind                    GlobalNamespace_SourceKind
 	generated                     bool
 	decisionsLog                  *LogFile
 	globalNames                   *TList[*GlobalNamespace_Name]
-	nameMap                       *JTMap[string, *GlobalNamespace_Name]
+	nameMap                       *TMap[string, *GlobalNamespace_Name]
 	nameMapByModule               *SimpleTable[*ModuleMetadataMap_ModuleMetadata, string, *GlobalNamespace_Name]
 	shouldTraverseScript          func(any) bool
 }
 
 func (this *GlobalNamespace) finit_GlobalNamespace() {
 	this.globalRoot = IR_root([]Node{})
-	this.spreadSiblingCache = jnewTMap_(jtc_Node, jtc_Boolean)
+	this.spreadSiblingCache = newTMap_(tc_Node, tc_Boolean)
 	this.generated = false
 	this.globalNames = newTList_(tc_p_GlobalNamespace_Name)
-	this.nameMap = jnewTMap_(jtc_string, jtc_p_GlobalNamespace_Name)
+	this.nameMap = newTMap_(tc_string, tc_p_GlobalNamespace_Name)
 	this.nameMapByModule = SimpleTable_create[*ModuleMetadataMap_ModuleMetadata, string, *GlobalNamespace_Name]()
 	this.shouldTraverseScript = (&Predicate_tfn_Node{func(n Node) bool {
 		return true
@@ -87,7 +87,7 @@ func (this *GlobalNamespace) getRootNode_2(name string, s *Scope) Node {
 	name = GlobalNamespace_getTopVarName(name)
 	var v *Var = s.getVar_String_rVar(name)
 	if v == nil {
-		var providedName *GlobalNamespace_Name = this.nameMap.get(name)
+		var providedName *GlobalNamespace_Name = this.nameMap.Get(name)
 		return func() Node {
 			if (providedName != nil) && providedName.getBooleanProperty(GlobalNamespace_NameProp_IS_PROVIDED) {
 				return this.globalRoot
@@ -113,7 +113,7 @@ func (this *GlobalNamespace) getSlot_String_rName(name string) *GlobalNamespace_
 
 func (this *GlobalNamespace) getOwnSlot_String_rName(name string) *GlobalNamespace_Name {
 	this.ensureGenerated()
-	return this.nameMap.get(name)
+	return this.nameMap.Get(name)
 }
 
 func (this *GlobalNamespace) getReferences_StaticSlot(slot *GlobalNamespace_Name) IterableOf[*GlobalNamespace_Ref] {
@@ -141,12 +141,12 @@ func (this *GlobalNamespace) getNameForest() *TList[*GlobalNamespace_Name] {
 	return this.globalNames
 }
 
-func (this *GlobalNamespace) getNameIndex() *JTMap[string, *GlobalNamespace_Name] {
+func (this *GlobalNamespace) getNameIndex() *TMap[string, *GlobalNamespace_Name] {
 	this.ensureGenerated()
 	return this.nameMap
 }
 
-func (this *GlobalNamespace) scanNewNodes(newNodes *JTSet[GlobalNamespace_AstChange]) {
+func (this *GlobalNamespace) scanNewNodes(newNodes *TSet[GlobalNamespace_AstChange]) {
 	var builder *GlobalNamespace_BuildGlobalNamespace = new_GlobalNamespace_BuildGlobalNamespace(this)
 	it_1 := newNodes.each()
 	for it_1.next() {
@@ -206,7 +206,7 @@ func (this *GlobalNamespace) declarationHasFollowingObjectSpreadSibling(declarat
 	if !declaration.getParent().isObjectLit() {
 		Preconditions_checkState_boolean_Object_H(false, declaration)
 	}
-	var cached any = this.spreadSiblingCache.get(declaration)
+	var cached any = this.spreadSiblingCache.Get(declaration)
 	if cached != nil {
 		return unbox_[bool](cached)
 	}
@@ -217,10 +217,10 @@ func (this *GlobalNamespace) declarationHasFollowingObjectSpreadSibling(declarat
 			if sibling.isSpread() {
 				toCache = true
 			}
-			this.spreadSiblingCache.put(sibling, any(bool(toCache)))
+			this.spreadSiblingCache.Put(sibling, any(bool(toCache)))
 		}
 	}
-	return unbox_[bool](this.spreadSiblingCache.get(declaration))
+	return unbox_[bool](this.spreadSiblingCache.Get(declaration))
 }
 
 func (this *GlobalNamespace) createNameForTesting(name string) *GlobalNamespace_Name {
@@ -956,7 +956,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) isNestedAssign(parent Node) bo
 func (this *GlobalNamespace_BuildGlobalNamespace) getOrCreateName(name string, metadata *ModuleMetadataMap_ModuleMetadata) *GlobalNamespace_Name {
 	var node *GlobalNamespace_Name = func() *GlobalNamespace_Name {
 		if metadata == nil {
-			return this.outer_.nameMap.get(name)
+			return this.outer_.nameMap.Get(name)
 		}
 		return this.outer_.nameMapByModule.get(obj_(metadata), strobj_(name))
 	}()
@@ -967,7 +967,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) getOrCreateName(name string, m
 			var parent *GlobalNamespace_Name = this.getOrCreateName(parentName, metadata)
 			node = parent.addProperty(name[i+1:], this.outer_.sourceKind)
 			if metadata == nil {
-				this.outer_.nameMap.put(name, node)
+				this.outer_.nameMap.Put(name, node)
 			} else {
 				this.outer_.nameMapByModule.put(metadata, name, node)
 			}
@@ -975,7 +975,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) getOrCreateName(name string, m
 			node = new_GlobalNamespace_Name(this.outer_, name, nil, this.outer_.sourceKind)
 			if metadata == nil {
 				this.outer_.globalNames.add(node)
-				this.outer_.nameMap.put(name, node)
+				this.outer_.nameMap.Put(name, node)
 			} else {
 				this.outer_.nameMapByModule.put(metadata, name, node)
 			}
@@ -1308,9 +1308,9 @@ func (this *GlobalNamespace_Name) putRef(node Node, ref *GlobalNamespace_Ref) {
 		return
 	}
 	if _, ok := this.refsForNode.(*GlobalNamespace_Ref); ok {
-		var refsForNodeMap *JTMap[Node, *GlobalNamespace_Ref] = jnewTMap_(jtc_Node, jtc_p_GlobalNamespace_Ref)
+		var refsForNodeMap *TMap[Node, *GlobalNamespace_Ref] = newTMap_(tc_Node, tc_p_GlobalNamespace_Ref)
 		var existingRef *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](this.refsForNode)
-		refsForNodeMap.put(existingRef.node_, existingRef)
+		refsForNodeMap.Put(existingRef.node_, existingRef)
 		this.refsForNode = refsForNodeMap.asMap()
 	}
 	this.castRefsForNodeMap().put(node.box_(), obj_(ref))

@@ -7,20 +7,20 @@ import "strconv"
 type FunctionInjector struct {
 	compiler_                 *AbstractCompiler
 	allowDecomposition_       bool
-	knownConstantFunctions    *JTSet[string]
+	knownConstantFunctions    *TSet[string]
 	assumeStrictThis_         bool
 	safeNameIdSupplier_       SupplierOf[string]
 	throwawayNameSupplier     SupplierOf[string]
 	functionArgumentInjector_ *FunctionArgumentInjector
-	referencesEvalCache       *JTMap[Node, any]
-	innerFunctionCache        *JTMap[Node, Node]
+	referencesEvalCache       *TMap[Node, any]
+	innerFunctionCache        *TMap[Node, Node]
 }
 
 func (this *FunctionInjector) finit_FunctionInjector() {
-	this.knownConstantFunctions = jtsetEmptyImm_(jtc_string)
+	this.knownConstantFunctions = tsetEmptyImm_(tc_string)
 	this.throwawayNameSupplier = Supplier(new_FunctionInjector_1(this))
-	this.referencesEvalCache = jnewTMap_(jtc_Node, jtc_Boolean)
-	this.innerFunctionCache = jnewTMap_(jtc_Node, jtc_Node)
+	this.referencesEvalCache = newTMap_(tc_Node, tc_Boolean)
+	this.innerFunctionCache = newTMap_(tc_Node, tc_Node)
 }
 
 func (this *FunctionInjector) init_FunctionInjector(builder *FunctionInjector_Builder) {
@@ -56,7 +56,7 @@ func (this *FunctionInjector) doesFunctionMeetMinimumRequirements(fnName string,
 	return (!referencesArguments && !NodeUtil_has(block, blocksInjection, Predicates_alwaysTrue()))
 }
 
-func (this *FunctionInjector) canInlineReferenceToFunction(ref *FunctionInjector_Reference, fnNode Node, needAliases *JTSet[string], referencesThis bool, containsClosures bool) FunctionInjector_CanInlineResult {
+func (this *FunctionInjector) canInlineReferenceToFunction(ref *FunctionInjector_Reference, fnNode Node, needAliases *TSet[string], referencesThis bool, containsClosures bool) FunctionInjector_CanInlineResult {
 	var callNode Node = ref.callNode_
 	if !this.isSupportedCallType(callNode, fnNode) {
 		return FunctionInjector_CanInlineResult_NO
@@ -138,11 +138,11 @@ func (this *FunctionInjector) inlineReturnValue(ref *FunctionInjector_Reference,
 	var callNode Node = ref.callNode_
 	var block Node = fnNode.getLastChild()
 	var paramToArgMap *JTMap[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(fnNode, callNode, this.safeNameIdSupplier_)
-	var paramReplacements *JTMap[string, Node] = jnewTMap_(jtc_string, jtc_Node)
+	var paramReplacements *TMap[string, Node] = newTMap_(tc_string, tc_Node)
 	it_1 := paramToArgMap.eachEntry()
 	for it_1.next() {
 		var entry *TEntry[string, *FunctionArgumentInjector_ParamArgPair] = it_1.entry()
-		paramReplacements.put(entry.getKey(), entry.getValue().arg())
+		paramReplacements.Put(entry.getKey(), entry.getValue().arg())
 	}
 	var newExpression Node
 	if !block.hasChildren() {
@@ -292,7 +292,7 @@ func FunctionInjector_isDirectCallNodeReplacementPossible(fnNode Node) bool {
 	return false
 }
 
-func (this *FunctionInjector) canInlineReferenceAsStatementBlock(ref *FunctionInjector_Reference, fnNode Node, namesToAlias *JTSet[string]) FunctionInjector_CanInlineResult {
+func (this *FunctionInjector) canInlineReferenceAsStatementBlock(ref *FunctionInjector_Reference, fnNode Node, namesToAlias *TSet[string]) FunctionInjector_CanInlineResult {
 	var callSiteType FunctionInjector_CallSiteType = this.classifyCallSite(ref)
 	if callSiteType == FunctionInjector_CallSiteType_UNSUPPORTED {
 		return FunctionInjector_CanInlineResult_NO
@@ -314,7 +314,7 @@ func (this *FunctionInjector) referencesEval(fn Node) bool {
 	if !fn.isFunction() {
 		panic(new_IllegalStateException_0())
 	}
-	var cached any = this.referencesEvalCache.get(fn)
+	var cached any = this.referencesEvalCache.Get(fn)
 	if cached != nil {
 		return unbox_[bool](cached)
 	}
@@ -323,7 +323,7 @@ func (this *FunctionInjector) referencesEval(fn Node) bool {
 	}}).apply, &Predicate_base_tfn_Node{func(n Node) bool {
 		return (!n.isFunction() || equalsId_(n, fn))
 	}})
-	this.referencesEvalCache.put(fn, any(bool(result)))
+	this.referencesEvalCache.Put(fn, any(bool(result)))
 	return result
 }
 
@@ -331,7 +331,7 @@ func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 	if !containerFn.isFunction() {
 		panic(new_IllegalStateException_0())
 	}
-	var cached Node = this.innerFunctionCache.get(containerFn)
+	var cached Node = this.innerFunctionCache.Get(containerFn)
 	if cached != 0 {
 		return cached
 	}
@@ -354,11 +354,11 @@ func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 			return FunctionInjector_MULTIPLE_FUNCTIONS
 		}
 	}()
-	this.innerFunctionCache.put(containerFn, cached)
+	this.innerFunctionCache.Put(containerFn, cached)
 	return cached
 }
 
-func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *FunctionInjector_Reference, calleeFn Node, namesToAlias *JTSet[string]) bool {
+func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *FunctionInjector_Reference, calleeFn Node, namesToAlias *TSet[string]) bool {
 	var calleeContainsVars bool = NodeUtil_has(NodeUtil_getFunctionBody(calleeFn), new_NodeUtil_MatchDeclaration().apply, new_NodeUtil_MatchShallowStatement())
 	var forbidTemps bool = false
 	if !callRef.scope_.getClosestHoistScope_rScope().isGlobal() {
@@ -378,11 +378,11 @@ func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *Functi
 		var args *JTMap[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(calleeFn, callRef.callNode_, this.safeNameIdSupplier_)
 		var hasArgs bool = !args.isEmpty()
 		if hasArgs {
-			if !namesToAlias.isEmpty() {
+			if !namesToAlias.IsEmpty() {
 				return false
 			}
-			var allTemps *JTSet[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, calleeFn, args, namesToAlias, this.compiler_.getCodingConvention())
-			if !allTemps.isEmpty() {
+			var allTemps *TSet[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, calleeFn, args, namesToAlias, this.compiler_.getCodingConvention())
+			if !allTemps.IsEmpty() {
 				return false
 			}
 		}
@@ -390,7 +390,7 @@ func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *Functi
 	return true
 }
 
-func (this *FunctionInjector) canInlineReferenceDirectly(ref *FunctionInjector_Reference, fnNode Node, namesToAlias *JTSet[string]) FunctionInjector_CanInlineResult {
+func (this *FunctionInjector) canInlineReferenceDirectly(ref *FunctionInjector_Reference, fnNode Node, namesToAlias *TSet[string]) FunctionInjector_CanInlineResult {
 	if !FunctionInjector_isDirectCallNodeReplacementPossible(fnNode) {
 		return FunctionInjector_CanInlineResult_NO
 	}
@@ -413,18 +413,18 @@ func (this *FunctionInjector) canInlineReferenceDirectly(ref *FunctionInjector_R
 	var args *JTMap[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(fnNode, callNode, this.throwawayNameSupplier)
 	var hasArgs bool = !args.isEmpty()
 	if hasArgs {
-		if !namesToAlias.isEmpty() {
+		if !namesToAlias.IsEmpty() {
 			return FunctionInjector_CanInlineResult_NO
 		}
-		var allTemps *JTSet[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, fnNode, args, namesToAlias, this.compiler_.getCodingConvention())
-		if !allTemps.isEmpty() {
+		var allTemps *TSet[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, fnNode, args, namesToAlias, this.compiler_.getCodingConvention())
+		if !allTemps.IsEmpty() {
 			return FunctionInjector_CanInlineResult_NO
 		}
 	}
 	return FunctionInjector_CanInlineResult_YES
 }
 
-func (this *FunctionInjector) inliningLowersCost(fnChunk *JSChunk, fnNode Node, refs CollectionOf[*FunctionInjector_Reference], namesToAlias *JTSet[string], isRemovable bool, referencesThis bool) bool {
+func (this *FunctionInjector) inliningLowersCost(fnChunk *JSChunk, fnNode Node, refs CollectionOf[*FunctionInjector_Reference], namesToAlias *TSet[string], isRemovable bool, referencesThis bool) bool {
 	var referenceCount int32 = refs.size()
 	if referenceCount == 0 {
 		return true
@@ -482,7 +482,7 @@ func FunctionInjector_estimateCallCost(fnNode Node, referencesThis bool) int32 {
 	return callCost
 }
 
-func FunctionInjector_inlineCostDelta(fnNode Node, namesToAlias *JTSet[string], mode FunctionInjector_InliningMode) int32 {
+func FunctionInjector_inlineCostDelta(fnNode Node, namesToAlias *TSet[string], mode FunctionInjector_InliningMode) int32 {
 	var paramCount int32 = NodeUtil_getFunctionParameters(fnNode).getChildCount()
 	var commaCount int32 = func() int32 {
 		if paramCount > 1 {
@@ -498,7 +498,7 @@ func FunctionInjector_inlineCostDelta(fnNode Node, namesToAlias *JTSet[string], 
 	if mode == FunctionInjector_InliningMode_DIRECT {
 		return (-(costDeltaFunctionOverhead + 7))
 	} else {
-		var aliasCount int32 = namesToAlias.size()
+		var aliasCount int32 = namesToAlias.Len()
 		var inlineBlockOverhead int32 = 4
 		var perReturnOverhead int32 = 2
 		var perReturnResultOverhead int32 = 3
@@ -521,8 +521,8 @@ func FunctionInjector_inlineCostDelta(fnNode Node, namesToAlias *JTSet[string], 
 	}
 }
 
-func (this *FunctionInjector) setKnownConstantFunctions(knownConstantFunctions *JTSet[string]) {
-	if !this.knownConstantFunctions.isEmpty() {
+func (this *FunctionInjector) setKnownConstantFunctions(knownConstantFunctions *TSet[string]) {
+	if !this.knownConstantFunctions.IsEmpty() {
 		panic(new_IllegalStateException_0())
 	}
 	this.knownConstantFunctions = knownConstantFunctions

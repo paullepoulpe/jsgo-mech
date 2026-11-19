@@ -23,14 +23,14 @@ func (this *DefaultDependencyResolver) getDependencies_String_rList(code string)
 }
 
 func (this *DefaultDependencyResolver) getDependenciesCollection_Collection_rList(symbols CollectionOf[string]) *TList[string] {
-	return this.getDependencies_Collection_Set_rList(symbols, jnewTSet_(jtc_string))
+	return this.getDependencies_Collection_Set_rList(symbols, newTSet_(tc_string))
 }
 
-func (this *DefaultDependencyResolver) getDependencies_String_Set_boolean_rList(code string, seen *JTSet[string], addClosureBaseFile bool) *TList[string] {
+func (this *DefaultDependencyResolver) getDependencies_String_Set_boolean_rList(code string, seen *TSet[string], addClosureBaseFile bool) *TList[string] {
 	return this.getDependencies_Collection_Set_rList(DefaultDependencyResolver_parseRequires(code, addClosureBaseFile), seen)
 }
 
-func (this *DefaultDependencyResolver) getDependencies_Collection_Set_rList(symbols CollectionOf[string], seen *JTSet[string]) *TList[string] {
+func (this *DefaultDependencyResolver) getDependencies_Collection_Set_rList(symbols CollectionOf[string], seen *TSet[string]) *TList[string] {
 	var list *TList[string] = newTList_(tc_string)
 	for _, depsFile := range *this.depsFiles {
 		depsFile.ensureUpToDate()
@@ -41,7 +41,7 @@ func (this *DefaultDependencyResolver) getDependencies_Collection_Set_rList(symb
 	return list
 }
 
-func (this *DefaultDependencyResolver) addDependency(symbol string, seen *JTSet[string], list *TList[string]) {
+func (this *DefaultDependencyResolver) addDependency(symbol string, seen *TSet[string], list *TList[string]) {
 	var dependency DependencyInfo_ = this.getDependencyInfo(symbol)
 	if dependency == nil {
 		if this.strictRequires {
@@ -88,11 +88,11 @@ func (this *DefaultDependencyResolver) getDependenciesCollection_Collection(p0 C
 	return Collection(this.getDependenciesCollection_Collection_rList(p0).asList())
 }
 
-func (this *DefaultDependencyResolver) getDependencies_String_Set_boolean(p0 string, p1 *JTSet[string], p2 bool) Collection {
+func (this *DefaultDependencyResolver) getDependencies_String_Set_boolean(p0 string, p1 *TSet[string], p2 bool) Collection {
 	return Collection(this.getDependencies_String_Set_boolean_rList(p0, p1, p2).asList())
 }
 
-func (this *DefaultDependencyResolver) getDependencies_Collection_Set(p0 Collection, p1 *JTSet[string]) Collection {
+func (this *DefaultDependencyResolver) getDependencies_Collection_Set(p0 Collection, p1 *TSet[string]) Collection {
 	return Collection(this.getDependencies_Collection_Set_rList(p0, p1).asList())
 }
 

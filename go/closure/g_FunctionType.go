@@ -109,9 +109,9 @@ func (this *FunctionType) init_FunctionType(builder *FunctionType_Builder) {
 		switch this.kind_ {
 		case FunctionType_Kind_CONSTRUCTOR, FunctionType_Kind_INTERFACE:
 			var typeOfThisBuilder *InstanceObjectType_Builder = InstanceObjectType_builderForCtor(this)
-			var ctorKeys *JTSet[*TemplateType] = builder.constructorOnlyKeys
-			if !ctorKeys.isEmpty() {
-				cast_[*InstanceObjectType_Builder](typeOfThisBuilder.setTemplateTypeMap(this.templateTypeMap.copyWithoutKeys(ctorKeys)).self()).setTemplateParamCount((this.getTemplateParamCount() - ctorKeys.size()))
+			var ctorKeys *TSet[*TemplateType] = builder.constructorOnlyKeys
+			if !ctorKeys.IsEmpty() {
+				cast_[*InstanceObjectType_Builder](typeOfThisBuilder.setTemplateTypeMap(this.templateTypeMap.copyWithoutKeys(ctorKeys)).self()).setTemplateParamCount((this.getTemplateParamCount() - ctorKeys.Len()))
 			}
 			this.typeOfThis = typeOfThisBuilder.build_rInstanceObjectType().up_JSType()
 		case FunctionType_Kind_ORDINARY:
@@ -318,7 +318,7 @@ func (this *FunctionType) getOwnPropertyNames_impl() SetOf[string] {
 	if this.prototypeSlot == nil {
 		return this.PrototypeObjectType.getOwnPropertyNames_impl()
 	} else {
-		var names *TSetBuilder[string] = newTSetBuilder_(jtc_string)
+		var names *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 		names.add("prototype")
 		names.addAll(Iterable(this.PrototypeObjectType.getOwnPropertyNames_impl()))
 		return names.build().asSet()
@@ -400,7 +400,7 @@ func (this *FunctionType) setPrototypeNoCheck(prototype *ObjectType, propertyNod
 }
 
 func (this *FunctionType) getAllImplementedInterfaces() IterableOf[*ObjectType] {
-	var interfaces *JTSet[*ObjectType] = jnewTSet_(tce_p_ObjectType)
+	var interfaces *TSet[*ObjectType] = newTSet_(tce_p_ObjectType.t_())
 	it_1 := this.getImplementedInterfaces().each()
 	for it_1.next() {
 		var type_ *ObjectType = it_1.v
@@ -409,13 +409,13 @@ func (this *FunctionType) getAllImplementedInterfaces() IterableOf[*ObjectType] 
 	return Iterable(interfaces.asSet())
 }
 
-func (this *FunctionType) addRelatedInterfaces(instance *ObjectType, set *JTSet[*ObjectType]) {
+func (this *FunctionType) addRelatedInterfaces(instance *ObjectType, set *TSet[*ObjectType]) {
 	var constructor *FunctionType = instance.getConstructor()
 	if constructor != nil {
 		if !constructor.isInterface() {
 			return
 		}
-		if !set.add(instance) {
+		if !set.Add(instance) {
 			return
 		}
 		for interfaceType := range elemsBy_(instance.getCtorExtendedInterfaces(), to_ObjectType) {
@@ -425,7 +425,7 @@ func (this *FunctionType) addRelatedInterfaces(instance *ObjectType, set *JTSet[
 }
 
 func (this *FunctionType) getAncestorInterfaces() CollectionOf[*ObjectType] {
-	var result *JTSet[*ObjectType] = jnewTSet_(tce_p_ObjectType)
+	var result *TSet[*ObjectType] = newTSet_(tce_p_ObjectType.t_())
 	if this.isConstructor() {
 		result.asSet().addAll(Collection(this.getImplementedInterfaces().asList()))
 	} else {
@@ -886,13 +886,13 @@ func (this *FunctionType) isAbstract() bool {
 	return this.isAbstractField
 }
 
-func (this *FunctionType) getPropertyTypeMap_impl() *JTMap[string, *JSType] {
-	var propTypeMap *JTMap[string, *JSType] = jnewTMap_(jtc_string, jtc_p_JSType)
-	FunctionType_updatePropertyTypeMap(this, propTypeMap, jnewTSet_(tce_p_FunctionType))
+func (this *FunctionType) getPropertyTypeMap_impl() *TMap[string, *JSType] {
+	var propTypeMap *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
+	FunctionType_updatePropertyTypeMap(this, propTypeMap, newTSet_(tce_p_FunctionType.t_()))
 	return propTypeMap
 }
 
-func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap *JTMap[string, *JSType], cache *JTSet[*FunctionType]) {
+func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap *TMap[string, *JSType], cache *TSet[*FunctionType]) {
 	if type_ == nil {
 		return
 	}
@@ -900,9 +900,9 @@ func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap *JTMap[
 	if prototype != nil {
 		var propNames SetOf[string] = prototype.getOwnPropertyNames()
 		for name := range elemsBy_(propNames, str_) {
-			if !propTypeMap.containsKey(name) {
+			if !propTypeMap.Has(name) {
 				var propType *JSType = prototype.getPropertyType(name)
-				propTypeMap.put(name, propType)
+				propTypeMap.Put(name, propType)
 			}
 		}
 	}
@@ -912,21 +912,21 @@ func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap *JTMap[
 		for it_3.next() {
 			var interfaceType *ObjectType = it_3.v
 			var superConstructor *FunctionType = interfaceType.getConstructor()
-			if (superConstructor == nil) || cache.contains(superConstructor) {
+			if (superConstructor == nil) || cache.Has(superConstructor) {
 				continue
 			}
-			cache.add(superConstructor)
+			cache.Add(superConstructor)
 			FunctionType_updatePropertyTypeMap(superConstructor, propTypeMap, cache)
-			cache.remove(superConstructor)
+			cache.Delete(superConstructor)
 		}
 	}
 }
 
 func (this *FunctionType) checkExtendsLoop() *[]*FunctionType {
-	return this.checkExtendsLoop_2(jnewTSet_(tce_p_FunctionType), &[]*FunctionType{})
+	return this.checkExtendsLoop_2(newTSet_(tce_p_FunctionType.t_()), &[]*FunctionType{})
 }
 
-func (this *FunctionType) checkExtendsLoop_2(cache *JTSet[*FunctionType], path *[]*FunctionType) *[]*FunctionType {
+func (this *FunctionType) checkExtendsLoop_2(cache *TSet[*FunctionType], path *[]*FunctionType) *[]*FunctionType {
 	var iterable *TList[*ObjectType] = this.getExtendedInterfaces()
 	if iterable != nil {
 		it_1 := iterable.each()
@@ -936,20 +936,20 @@ func (this *FunctionType) checkExtendsLoop_2(cache *JTSet[*FunctionType], path *
 			if superConstructor == nil {
 				continue
 			}
-			if cache.contains(superConstructor) {
+			if cache.Has(superConstructor) {
 				*path = append(*path, superConstructor)
 				for !JSCompObjects_identical(sliceAt_(*path, 0).self(), superConstructor.self()) {
 					sliceRemoveAt_(path, 0)
 				}
 				return path
 			}
-			cache.add(superConstructor)
+			cache.Add(superConstructor)
 			*path = append(*path, superConstructor)
 			var result *[]*FunctionType = superConstructor.checkExtendsLoop_2(cache, path)
 			if result != nil {
 				return result
 			}
-			cache.remove(superConstructor)
+			cache.Delete(superConstructor)
 			sliceRemoveAt_(path, (int32(len(*path)) - 1))
 		}
 	}
@@ -1286,7 +1286,7 @@ type FunctionType_Builder struct {
 	returnType              *JSType
 	typeOfThis              *JSType
 	setPrototypeBasedOn_    *ObjectType
-	constructorOnlyKeys     *JTSet[*TemplateType]
+	constructorOnlyKeys     *TSet[*TemplateType]
 	kind_                   FunctionType_Kind
 	isAbstract_             bool
 	isKnownAmbiguous        bool
@@ -1314,7 +1314,7 @@ func (this *FunctionType_Builder) finit_FunctionType_Builder() {
 	this.returnType = nil
 	this.typeOfThis = nil
 	this.setPrototypeBasedOn_ = nil
-	this.constructorOnlyKeys = jtsetEmptyImm_(tce_p_TemplateType)
+	this.constructorOnlyKeys = tsetEmptyImm_(tce_p_TemplateType.t_())
 	this.kind_ = FunctionType_Kind_ORDINARY
 	this.isKnownAmbiguous = false
 	this.primitiveId = 0
@@ -1398,7 +1398,7 @@ func (this *FunctionType_Builder) withTemplateKeys(templateKeys []*TemplateType)
 }
 
 func (this *FunctionType_Builder) withConstructorTemplateKeys(constructorOnlyKeys IterableOf[*TemplateType]) *FunctionType_Builder {
-	this.constructorOnlyKeys = jimmutableSetCopyOf_(tce_p_TemplateType, constructorOnlyKeys)
+	this.constructorOnlyKeys = immutableSetCopyOf_(tce_p_TemplateType.t_(), constructorOnlyKeys)
 	return this
 }
 
@@ -1470,7 +1470,7 @@ func (this *FunctionType_Builder) build_rFunctionType() *FunctionType {
 	switch this.kind_ {
 	case FunctionType_Kind_CONSTRUCTOR, FunctionType_Kind_INTERFACE:
 	case FunctionType_Kind_NONE, FunctionType_Kind_ORDINARY:
-		if !this.constructorOnlyKeys.isEmpty() {
+		if !this.constructorOnlyKeys.IsEmpty() {
 			panic(new_IllegalStateException_0())
 		}
 	}
@@ -1727,7 +1727,7 @@ func (this *FunctionType) isStructuralInterface() bool {
 }
 
 // getPropertyTypeMap: an object that is exactly a FunctionType calls its getPropertyTypeMap_impl directly (post-flip); others dispatch.
-func (this *FunctionType) getPropertyTypeMap() *JTMap[string, *JSType] {
+func (this *FunctionType) getPropertyTypeMap() *TMap[string, *JSType] {
 	if p, _ := this.self_.(*FunctionType); p == this {
 		return this.getPropertyTypeMap_impl()
 	}

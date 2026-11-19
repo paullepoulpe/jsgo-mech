@@ -52,11 +52,11 @@ func TypeDeclarationsIR_namedTypeIterable(segments IterableOf[string]) Node {
 	return new_Node_Token_Node(Token_rhino_NAMED_TYPE, node)
 }
 
-func TypeDeclarationsIR_recordType(properties *JTMap[string, Node]) Node {
+func TypeDeclarationsIR_recordType(properties *TMap[string, Node]) Node {
 	var node Node = new_Node_Token(Token_rhino_RECORD_TYPE)
 	it_1 := properties.eachEntry()
 	for it_1.next() {
-		var prop *TEntry[string, Node] = it_1.entry()
+		var prop *TEntryP[string, Node] = it_1.entry()
 		var stringKey Node = IR_stringKey_String(prop.getKey())
 		node.addChildToBack(stringKey)
 		if prop.getValue() != 0 {
@@ -73,7 +73,7 @@ func TypeDeclarationsIR_maybeAddType(node Node, type_ Node) Node {
 	return node
 }
 
-func TypeDeclarationsIR_functionType(returnType Node, requiredParams *JTMap[string, Node], optionalParams *JTMap[string, Node], restName Optional[string], restType Node) Node {
+func TypeDeclarationsIR_functionType(returnType Node, requiredParams *TMap[string, Node], optionalParams *TMap[string, Node], restName Optional[string], restType Node) Node {
 	var node Node = new_Node_Token_Node(Token_rhino_FUNCTION_TYPE, returnType)
 	if requiredParams.asMap() == nil {
 		panic(new_NullPointerException_0())
@@ -83,13 +83,13 @@ func TypeDeclarationsIR_functionType(returnType Node, requiredParams *JTMap[stri
 	}
 	it_1 := requiredParams.eachEntry()
 	for it_1.next() {
-		var param *TEntry[string, Node] = it_1.entry()
+		var param *TEntryP[string, Node] = it_1.entry()
 		var name Node = IR_name(param.getKey())
 		node.addChildToBack(TypeDeclarationsIR_maybeAddType(name, param.getValue()))
 	}
 	it_3 := optionalParams.eachEntry()
 	for it_3.next() {
-		var param *TEntry[string, Node] = it_3.entry()
+		var param *TEntryP[string, Node] = it_3.entry()
 		var name Node = IR_name(param.getKey())
 		name.putBooleanProp(Node_OPT_ES6_TYPED, true)
 		node.addChildToBack(TypeDeclarationsIR_maybeAddType(name, param.getValue()))

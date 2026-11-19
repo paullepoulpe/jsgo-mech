@@ -523,11 +523,11 @@ func Normalize_NormalizeStatements_addToFront(parent Node, newChild Node, after 
 
 type Normalize_DuplicateDeclarationHandler struct {
 	outer_                    *Normalize
-	hasOkDuplicateDeclaration *JTSet[*Var]
+	hasOkDuplicateDeclaration *TSet[*Var]
 }
 
 func (this *Normalize_DuplicateDeclarationHandler) finit_Normalize_DuplicateDeclarationHandler() {
-	this.hasOkDuplicateDeclaration = jnewTSet_(tce_p_Var)
+	this.hasOkDuplicateDeclaration = newTSet_(tce_p_Var.t_())
 }
 
 func (this *Normalize_DuplicateDeclarationHandler) init_Normalize_DuplicateDeclarationHandler() {
@@ -549,7 +549,7 @@ func (this *Normalize_DuplicateDeclarationHandler) onRedeclaration(s *Scope, nam
 	var v *Var = s.getVar_String_rVar(name)
 	if s.isGlobal() {
 		if v.isExtern() && !input.isExtern() {
-			if this.hasOkDuplicateDeclaration.add(v) {
+			if this.hasOkDuplicateDeclaration.Add(v) {
 				return
 			}
 		}

@@ -526,7 +526,7 @@ func (this *TypeValidator) expectAbstractMethodsImplemented(n Node, ctorType *Fu
 	if !ctorType.isConstructor() {
 		panic(new_IllegalArgumentException_0())
 	}
-	var abstractMethodSuperTypeMap *JTMap[Property_Key, *ObjectType] = jnewTMap_(tce_Property_Key, jtc_p_ObjectType)
+	var abstractMethodSuperTypeMap *TMap[Property_Key, *ObjectType] = newTMap_(tce_Property_Key.t_(), tc_p_ObjectType)
 	var currSuperCtor *FunctionType = ctorType.getSuperClassConstructor()
 	if (currSuperCtor == nil) || !currSuperCtor.isAbstract() {
 		return
@@ -537,8 +537,8 @@ func (this *TypeValidator) expectAbstractMethodsImplemented(n Node, ctorType *Fu
 		for it_2.next() {
 			var prop Property_Key = it_2.v
 			var maybeAbstractMethod *FunctionType = superType.findPropertyTypeKey(prop).toMaybeFunctionType()
-			if ((maybeAbstractMethod != nil) && maybeAbstractMethod.isAbstract()) && !abstractMethodSuperTypeMap.containsKey(prop) {
-				abstractMethodSuperTypeMap.put(prop, superType)
+			if ((maybeAbstractMethod != nil) && maybeAbstractMethod.isAbstract()) && !abstractMethodSuperTypeMap.Has(prop) {
+				abstractMethodSuperTypeMap.Put(prop, superType)
 			}
 		}
 		currSuperCtor = currSuperCtor.getSuperClassConstructor()
@@ -546,7 +546,7 @@ func (this *TypeValidator) expectAbstractMethodsImplemented(n Node, ctorType *Fu
 	var instance *ObjectType = ctorType.getInstanceType()
 	it_4 := abstractMethodSuperTypeMap.eachEntry()
 	for it_4.next() {
-		var entry *TEntry[Property_Key, *ObjectType] = it_4.entry()
+		var entry *TEntryP[Property_Key, *ObjectType] = it_4.entry()
 		var method Property_Key = entry.getKey()
 		var superType *ObjectType = entry.getValue()
 		var abstractMethod *FunctionType = instance.findPropertyTypeKey(method).toMaybeFunctionType()

@@ -107,7 +107,7 @@ func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent N
 	if (this.colorings.isEmpty() || !n.isName()) || parent.isFunction() {
 		return
 	}
-	var var_ *Var = this.liveness.getAllVariables().get(n.getString())
+	var var_ *Var = this.liveness.getAllVariables().Get(n.getString())
 	var vNode GraphNode[*Var] = this.colorings.peek().getGraph().getNode_Object(var_)
 	if vNode == nil {
 		return
@@ -161,7 +161,7 @@ func (this *CoalesceVariableNames) isNameInsideDestructuringAssignment(n Node) b
 	return false
 }
 
-func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *ControlFlowGraph[Node], escaped *JTSet[*Var]) *UndiGraph[*Var, any] {
+func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *ControlFlowGraph[Node], escaped *TSet[*Var]) *UndiGraph[*Var, any] {
 	var interferenceGraph *UndiGraph[*Var, any] = LinkedUndirectedGraph_create[*Var, any]().up_UndiGraph()
 	var orderedVariables []*Var = arrmap_(sliceViewP_(tc_p_Var, this.liveness.getAllVariablesInOrder()).toArray(arrmap_(make([]*Var, 0), func(v_ *Var) any { return obj_(v_) })), func(v_ any) *Var { return cast_[*Var](v_) })
 	var interferenceGraphNodes *BitSet = new_BitSet()
@@ -179,7 +179,7 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
 	var vIndex int32 = -1
 	for _, v := range orderedVariables {
 		vIndex++
-		if escaped.contains(v) {
+		if escaped.Has(v) {
 			continue
 		}
 		if v.getParentNode().isFunction() {

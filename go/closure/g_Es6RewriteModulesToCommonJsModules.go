@@ -129,8 +129,8 @@ type Es6RewriteModulesToCommonJsModules_Rewriter struct {
 	requireInsertSpot        Node
 	script_                  Node
 	exportedNameToLocalQName *JTMap[string, *Es6RewriteModulesToCommonJsModules_LocalQName]
-	imports                  *JTSet[Node]
-	importRequests           *JTSet[*Es6RewriteModulesToCommonJsModules_ModuleRequest]
+	imports                  *TSet[Node]
+	importRequests           *TSet[*Es6RewriteModulesToCommonJsModules_ModuleRequest]
 	compiler_                *AbstractCompiler
 	modulePath_              *ModuleLoader_ModulePath
 }
@@ -148,8 +148,8 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) init_Es6RewriteModulesT
 	this.script_ = script
 	this.requireInsertSpot = 0
 	this.exportedNameToLocalQName = newTSortedMap_(jtc_string, jtc_p_Es6RewriteModulesToCommonJsModules_LocalQName)
-	this.importRequests = jnewTSet_(tce_p_Es6RewriteModulesToCommonJsModules_ModuleRequest)
-	this.imports = jnewTSet_(jtc_Node)
+	this.importRequests = newTSet_(tce_p_Es6RewriteModulesToCommonJsModules_ModuleRequest.t_())
+	this.imports = newTSet_(tc_Node)
 	this.modulePath_ = compiler.getInput(script.getInputId()).getPath()
 }
 
@@ -248,18 +248,18 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitScript(t *NodeTrav
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) addRequireCalls() {
-	if !this.importRequests.isEmpty() {
+	if !this.importRequests.IsEmpty() {
 		it_1 := this.imports.each()
 		for it_1.next() {
 			var importDecl Node = it_1.v
 			importDecl.detach()
 		}
-		var importedNames *JTSet[string] = jnewTSet_(jtc_string)
+		var importedNames *TSet[string] = newTSet_(tc_string)
 		it_3 := this.importRequests.each()
 		for it_3.next() {
 			var request *Es6RewriteModulesToCommonJsModules_ModuleRequest = it_3.v
 			var varName string = request.varName()
-			if importedNames.add(varName) {
+			if importedNames.Add(varName) {
 				var requireCall Node = IR_call(IR_name(Es6RewriteModulesToCommonJsModules_REQUIRE), []Node{IR_string(request.specifier())})
 				requireCall.putBooleanProp(Node_FREE_CALL, true)
 				var decl Node = IR_var_Node_Node(IR_name(varName), requireCall)
@@ -317,8 +317,8 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitImport(path *Modul
 	if JString_contains_s(importDecl.getLastChild().getString(), "://") {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(importDecl, TranspilationUtil_CANNOT_CONVERT, []string{"Module requests with protocols."}))
 	}
-	this.importRequests.add(Es6RewriteModulesToCommonJsModules_ModuleRequest_create(Es6RewriteModulesToCommonJsModules_normalizePath(path.resolveModuleAsPath(importDecl.getLastChild().getString()).toString()), this.getVarNameOfImportNode(importDecl)))
-	this.imports.add(importDecl)
+	this.importRequests.Add(Es6RewriteModulesToCommonJsModules_ModuleRequest_create(Es6RewriteModulesToCommonJsModules_normalizePath(path.resolveModuleAsPath(importDecl.getLastChild().getString()).toString()), this.getVarNameOfImportNode(importDecl)))
+	this.imports.Add(importDecl)
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportDefault(t *NodeTraversal, export Node) {

@@ -51,6 +51,6 @@ func new_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_
 }
 
 func Result_pruneResultForPartialCompilation(result *Result) *Result {
-	var emptyVariableMap *VariableMap = new_VariableMap(jtmapEmptyImm_(jtc_string, jtc_string))
+	var emptyVariableMap *VariableMap = new_VariableMap(tmapEmptyImm_(tc_string, tc_string))
 	return new_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_VariableMap_VariableMap_SourceMap_Optional_Set_Optional_boolean(result.errors_, result.warnings_, emptyVariableMap, emptyVariableMap, emptyVariableMap, nil, emptyVariableMap, nil, Optional_of[string](""), nil, Optional_empty[string](), false)
 }

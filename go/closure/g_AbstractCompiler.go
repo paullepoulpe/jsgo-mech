@@ -111,7 +111,7 @@ func (this *AbstractCompiler) createDefaultExpressionDecomposer() *ExpressionDec
 	return this.self_.(*Compiler).createDefaultExpressionDecomposer_impl()
 }
 
-func (this *AbstractCompiler) createExpressionDecomposer(p0 Supplier, p1 *JTSet[string], p2 *Scope) *ExpressionDecomposer {
+func (this *AbstractCompiler) createExpressionDecomposer(p0 Supplier, p1 *TSet[string], p2 *Scope) *ExpressionDecomposer {
 	return this.self_.(*Compiler).createExpressionDecomposer_impl(p0, p1, p2)
 }
 
@@ -399,11 +399,11 @@ func (this *AbstractCompiler) setInstrumentationMapping(p0 *VariableMap) {
 	this.self_.(*Compiler).setInstrumentationMapping_impl(p0)
 }
 
-func (this *AbstractCompiler) addExportedNames(p0 *JTSet[string]) {
+func (this *AbstractCompiler) addExportedNames(p0 *TSet[string]) {
 	this.self_.(*Compiler).addExportedNames_impl(p0)
 }
 
-func (this *AbstractCompiler) getExportedNames() *JTSet[string] {
+func (this *AbstractCompiler) getExportedNames() *TSet[string] {
 	return this.self_.(*Compiler).getExportedNames_impl()
 }
 
@@ -411,7 +411,7 @@ func (this *AbstractCompiler) setDefineNames(p0 Collection) {
 	this.self_.(*Compiler).setDefineNames_impl(p0)
 }
 
-func (this *AbstractCompiler) getDefineNames() *JTSet[string] {
+func (this *AbstractCompiler) getDefineNames() *TSet[string] {
 	return this.self_.(*Compiler).getDefineNames_impl()
 }
 

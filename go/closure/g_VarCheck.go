@@ -3,7 +3,7 @@
 package closure
 
 type VarCheck struct {
-	undefinedNamesFromExterns *JTSet[string]
+	undefinedNamesFromExterns *TSet[string]
 	compiler_                 *AbstractCompiler
 	validityCheck             bool
 	strictExternCheck         bool
@@ -11,7 +11,7 @@ type VarCheck struct {
 }
 
 func (this *VarCheck) finit_VarCheck() {
-	this.undefinedNamesFromExterns = jnewTSet_(jtc_string)
+	this.undefinedNamesFromExterns = newTSet_(tc_string)
 }
 
 func (this *VarCheck) init_VarCheck_AbstractCompiler(compiler *AbstractCompiler) {
@@ -145,7 +145,7 @@ func (this *VarCheck) handleUndeclaredVariableRef(t *NodeTraversal, n Node) {
 	}
 	if this.validityCheck {
 		panic(new_IllegalStateException_String(("Unexpected variable " + sstr_(varName))))
-	} else if !this.undefinedNamesFromExterns.contains(varName) {
+	} else if !this.undefinedNamesFromExterns.Has(varName) {
 		this.createSynthesizedExternVar(varName, true)
 	}
 }
@@ -162,7 +162,7 @@ func (this *VarCheck) exitScope(t *NodeTraversal) {
 			var requiredSymbol string = it_1.v
 			var var_ *Var = scope.getVar_String_rVar(requiredSymbol)
 			if var_ == nil {
-				this.undefinedNamesFromExterns.add(requiredSymbol)
+				this.undefinedNamesFromExterns.Add(requiredSymbol)
 			}
 		}
 	}
@@ -225,7 +225,7 @@ const VarCheck_ARGUMENTS string = "arguments"
 const VarCheck_JSCOMP_CLOSURE_UNAWARE_CODE_SHADOW_HOST_NAME string = "$jscomp_wrap_closure_unaware_code"
 
 var VarCheck_googForwardDeclare Node
-var VarCheck_REQUIRED_SYMBOLS *JTSet[string]
+var VarCheck_REQUIRED_SYMBOLS *TSet[string]
 
 var VarCheck_clinit_done bool
 
@@ -244,7 +244,7 @@ func VarCheck_clinit() {
 	VarCheck_BLOCK_SCOPED_DECL_MULTIPLY_DECLARED_ERROR = DiagnosticType_error("JSC_BLOCK_SCOPED_DECL_MULTIPLY_DECLARED_ERROR", "Block-scoped variable {0} declared more than once. First occurrence: {1}")
 	VarCheck_VAR_ARGUMENTS_SHADOWED_ERROR = DiagnosticType_error("JSC_VAR_ARGUMENTS_SHADOWED_ERROR", "Shadowing \"arguments\" is not allowed")
 	VarCheck_googForwardDeclare = IR_getprop_Node_String(IR_name("goog"), "forwardDeclare")
-	VarCheck_REQUIRED_SYMBOLS = jimmutableSetOf_[string](jtc_string, "AggregateError", "Array", "Error", "Float32Array", "Function", "Infinity", "Iterator", "JSCOMPILER_PRESERVE", "JSCompiler_renameProperty", "Map", "Math", "NaN", "Number", "Object", "Promise", "RangeError", "ReferenceError", "Reflect", "RegExp", "Set", "String", "SuppressedError", "Symbol", "TypeError", "WeakMap", "global", "globalThis", "isNaN", "parseFloat", "parseInt", "self", "undefined", "window")
+	VarCheck_REQUIRED_SYMBOLS = immutableSetOf_[string](tc_string, "AggregateError", "Array", "Error", "Float32Array", "Function", "Infinity", "Iterator", "JSCOMPILER_PRESERVE", "JSCompiler_renameProperty", "Map", "Math", "NaN", "Number", "Object", "Promise", "RangeError", "ReferenceError", "Reflect", "RegExp", "Set", "String", "SuppressedError", "Symbol", "TypeError", "WeakMap", "global", "globalThis", "isNaN", "parseFloat", "parseInt", "self", "undefined", "window")
 
 }
 
@@ -287,7 +287,7 @@ func (this *VarCheck_NameRefInExternsCheck) visit(t *NodeTraversal, n Node, pare
 					return
 				}
 				t.report(n, VarCheck_UNDEFINED_EXTERN_VAR_ERROR, []string{n.getString()})
-				this.outer_.undefinedNamesFromExterns.add(n.getString())
+				this.outer_.undefinedNamesFromExterns.Add(n.getString())
 			}
 			return
 		case tokOrd1_ASSIGN:
@@ -308,7 +308,7 @@ func (this *VarCheck_NameRefInExternsCheck) visit(t *NodeTraversal, n Node, pare
 		var scope *Scope = t.getScope()
 		var var_ *Var = scope.getVar_String_rVar(n.getString())
 		if var_ == nil {
-			this.outer_.undefinedNamesFromExterns.add(n.getString())
+			this.outer_.undefinedNamesFromExterns.Add(n.getString())
 		}
 	}
 }

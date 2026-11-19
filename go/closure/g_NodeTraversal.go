@@ -1321,7 +1321,7 @@ func (this *NodeTraversal_AbstractModuleCallback) exitModule_impl(oldModule *Mod
 func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	switch n.ns_().token {
 	case tokOrd1_SCRIPT:
-		this.currentModule = this.moduleMetadataMap.getModulesByPath().get(t.getInput().getPath().toString())
+		this.currentModule = this.moduleMetadataMap.getModulesByPath().Get(t.getInput().getPath().toString())
 		Preconditions_checkNotNull_T(this.currentModule)
 		this.scopeRoot = func() Node {
 			if n.hasChildren() && n.getFirstChild().isModuleBody() {
@@ -1366,7 +1366,7 @@ func (this *NodeTraversal_AbstractModuleCallback) visit(t *NodeTraversal, n Node
 			this.exitModule(this.currentModule, this.scopeRoot)
 			this.scopeRoot = n.getGrandparent().getGrandparent()
 			this.inLoadModule = false
-			this.currentModule = this.moduleMetadataMap.getModulesByPath().get(t.getInput().getPath().toString())
+			this.currentModule = this.moduleMetadataMap.getModulesByPath().Get(t.getInput().getPath().toString())
 			Preconditions_checkNotNull_T(this.currentModule)
 		}
 	default:

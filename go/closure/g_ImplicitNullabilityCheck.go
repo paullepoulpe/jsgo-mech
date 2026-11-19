@@ -59,7 +59,7 @@ func (this *ImplicitNullabilityCheck) visit_impl(t *NodeTraversal, n Node, p Nod
 
 var ImplicitNullabilityCheck_IMPLICITLY_NULLABLE_JSDOC *DiagnosticType
 var ImplicitNullabilityCheck_IMPLICITLY_NONNULL_JSDOC *DiagnosticType
-var ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES *JTSet[string]
+var ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES *TSet[string]
 
 var ImplicitNullabilityCheck_clinit_done bool
 
@@ -70,7 +70,7 @@ func ImplicitNullabilityCheck_clinit() {
 	ImplicitNullabilityCheck_clinit_done = true
 	ImplicitNullabilityCheck_IMPLICITLY_NULLABLE_JSDOC = DiagnosticType_disabled("JSC_IMPLICITLY_NULLABLE_JSDOC", "Name {0} in JSDoc is implicitly nullable, and is discouraged by the style guide.\nPlease add a '!' to make it non-nullable, or a '?' to make it explicitly nullable.")
 	ImplicitNullabilityCheck_IMPLICITLY_NONNULL_JSDOC = DiagnosticType_disabled("JSC_IMPLICITLY_NONNULL_JSDOC", "Name {0} in JSDoc is implicitly non-null, and is discouraged by the style guide.\nPlease add a '!' to make it explicit.")
-	ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES = jimmutableSetOf_[string](jtc_string, "*", "?", "bigint", "boolean", "null", "number", "string", "symbol", "undefined", "void")
+	ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES = immutableSetOf_[string](tc_string, "*", "?", "bigint", "boolean", "null", "number", "string", "symbol", "undefined", "void")
 
 }
 
@@ -223,7 +223,7 @@ func (this *ImplicitNullabilityCheck_1) visit(node Node) {
 		}
 	}
 	var typeName string = node.getString()
-	if ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES.contains(typeName) {
+	if ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES.Has(typeName) {
 		return
 	}
 	var registry *JSTypeRegistry = this.cap_t.getCompiler().getTypeRegistry()

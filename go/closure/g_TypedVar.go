@@ -39,7 +39,7 @@ func (this *TypedVar) init_TypedVar(inferred bool, name string, nameNode Node, t
 	this.finit_TypedVar()
 	this.scope_ = scope
 	if nameNode != 0 {
-		if ok_, a1_ := TypedVar_NAME_NODE_TYPES.contains(nameNode.getToken()), nameNode.getToken(); !ok_ {
+		if ok_, a1_ := TypedVar_NAME_NODE_TYPES.Has(nameNode.getToken()), nameNode.getToken(); !ok_ {
 			panic(new_IllegalArgumentException_String(Strings_lenientFormat("Invalid name node token %s", []any{a1_})))
 		}
 	}
@@ -165,7 +165,7 @@ func (this *TypedVar) declarationType_impl() Token_rhino {
 	{
 		var current Node = this.getNode()
 		for ; current != 0; current = current.getParent() {
-			if AbstractVar_DECLARATION_TYPES.contains(current.getToken()) {
+			if AbstractVar_DECLARATION_TYPES.Has(current.getToken()) {
 				return current.getToken()
 			}
 		}
@@ -188,7 +188,7 @@ func (this *TypedVar) getScope_rAbstractScope_impl() *AbstractScope {
 	return this.getScope_rAbstractScope_rTypedScope().up_AbstractScope()
 }
 
-var TypedVar_NAME_NODE_TYPES *JTSet[Token_rhino]
+var TypedVar_NAME_NODE_TYPES *TSet[Token_rhino]
 
 var TypedVar_clinit_done bool
 
@@ -197,7 +197,7 @@ func TypedVar_clinit() {
 		return
 	}
 	TypedVar_clinit_done = true
-	TypedVar_NAME_NODE_TYPES = tsetImm_(jtc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_NAME.enum_(), []*Enum{Token_rhino_THIS.enum_(), Token_rhino_IMPORT_STAR.enum_(), Token_rhino_EXPR_RESULT.enum_(), Token_rhino_EXPORT.enum_(), Token_rhino_GETPROP.enum_(), Token_rhino_FUNCTION.enum_(), Token_rhino_STRING_KEY.enum_(), Token_rhino_SETTER_DEF.enum_(), Token_rhino_GETTER_DEF.enum_(), Token_rhino_MEMBER_FUNCTION_DEF.enum_(), Token_rhino_MODULE_BODY.enum_()}))
+	TypedVar_NAME_NODE_TYPES = tsetFrom_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_NAME.enum_(), []*Enum{Token_rhino_THIS.enum_(), Token_rhino_IMPORT_STAR.enum_(), Token_rhino_EXPR_RESULT.enum_(), Token_rhino_EXPORT.enum_(), Token_rhino_GETPROP.enum_(), Token_rhino_FUNCTION.enum_(), Token_rhino_STRING_KEY.enum_(), Token_rhino_SETTER_DEF.enum_(), Token_rhino_GETTER_DEF.enum_(), Token_rhino_MEMBER_FUNCTION_DEF.enum_(), Token_rhino_MODULE_BODY.enum_()}), true)
 
 }
 

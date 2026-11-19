@@ -15,28 +15,28 @@ func new_ParserRunner() *ParserRunner {
 	return this
 }
 
-func ParserRunner_createConfig_LanguageMode_Set_StrictMode(languageMode Config_LanguageMode, extraAnnotationNames *JTSet[string], strictMode Config_StrictMode) *Config {
+func ParserRunner_createConfig_LanguageMode_Set_StrictMode(languageMode Config_LanguageMode, extraAnnotationNames *TSet[string], strictMode Config_StrictMode) *Config {
 	return ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(languageMode, Config_JsDocParsing_TYPES_ONLY, Config_RunMode_STOP_AFTER_ERROR, extraAnnotationNames, true, strictMode)
 }
 
-func ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(languageMode Config_LanguageMode, jsdocParsingMode Config_JsDocParsing, runMode Config_RunMode, extraAnnotationNames *JTSet[string], parseInlineSourceMaps bool, strictMode Config_StrictMode) *Config {
+func ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(languageMode Config_LanguageMode, jsdocParsingMode Config_JsDocParsing, runMode Config_RunMode, extraAnnotationNames *TSet[string], parseInlineSourceMaps bool, strictMode Config_StrictMode) *Config {
 	ParserRunner_initResourceConfig()
-	var effectiveAnnotationNames *JTSet[string]
+	var effectiveAnnotationNames *TSet[string]
 	if extraAnnotationNames == nil {
 		effectiveAnnotationNames = ParserRunner_annotationNames
 	} else {
-		effectiveAnnotationNames = tsetCopy_(jtc_string, ParserRunner_annotationNames)
+		effectiveAnnotationNames = tsetCopyT_(tc_string, ParserRunner_annotationNames)
 		effectiveAnnotationNames.asSet().addAll(Collection(extraAnnotationNames.asSet()))
 	}
 	return Config_builder().setExtraAnnotationNames(Iterable(effectiveAnnotationNames.asSet())).setJsDocParsingMode(jsdocParsingMode).setRunMode(runMode).setSuppressionNames(Iterable(ParserRunner_suppressionNames.asSet())).setClosurePrimitiveNames(Iterable(ParserRunner_closurePrimitiveNames.asSet())).setLanguageMode(languageMode).setParseInlineSourceMaps(parseInlineSourceMaps).setStrictMode(strictMode).build()
 }
 
-func ParserRunner_getReservedVars() *JTSet[string] {
+func ParserRunner_getReservedVars() *TSet[string] {
 	ParserRunner_initResourceConfig()
 	return ParserRunner_reservedVars
 }
 
-func ParserRunner_getSuppressionNames() *JTSet[string] {
+func ParserRunner_getSuppressionNames() *TSet[string] {
 	ParserRunner_initResourceConfig()
 	return ParserRunner_suppressionNames
 }
@@ -51,8 +51,8 @@ func ParserRunner_initResourceConfig() {
 	ParserRunner_reservedVars = ParserRunner_extractList(ParserConfiguration_getString("compiler.reserved.vars"))
 }
 
-func ParserRunner_extractList(configProp string) *JTSet[string] {
-	return jimmutableSetCopyOf_(jtc_string, Splitter_on(',').trimResults().split_s(configProp))
+func ParserRunner_extractList(configProp string) *TSet[string] {
+	return immutableSetCopyOf_(tc_string, Splitter_on(',').trimResults().split_s(configProp))
 }
 
 func ParserRunner_parse(sourceFile StaticSourceFile, sourceString string, config *Config, errorReporter ErrorReporter_rhino) (ret_1 *ParserRunner_ParseResult) {
@@ -115,10 +115,10 @@ func ParserRunner_newParserConfig(config *Config) *Parser_Config {
 	return new_Parser_Config_Mode_boolean(Preconditions_checkNotNull_T(parserConfigLanguageMode), isStrictMode)
 }
 
-var ParserRunner_annotationNames *JTSet[string]
-var ParserRunner_suppressionNames *JTSet[string]
-var ParserRunner_reservedVars *JTSet[string]
-var ParserRunner_closurePrimitiveNames *JTSet[string]
+var ParserRunner_annotationNames *TSet[string]
+var ParserRunner_suppressionNames *TSet[string]
+var ParserRunner_reservedVars *TSet[string]
+var ParserRunner_closurePrimitiveNames *TSet[string]
 
 var ParserRunner_clinit_done bool
 

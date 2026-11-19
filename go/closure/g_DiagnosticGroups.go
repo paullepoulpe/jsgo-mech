@@ -55,7 +55,7 @@ func (this *DiagnosticGroups) setWarningLevel(options *CompilerOptions, name str
 }
 
 var DiagnosticGroups_UNUSED *DiagnosticType
-var DiagnosticGroups_wildcardExcludedGroups *JTSet[string]
+var DiagnosticGroups_wildcardExcludedGroups *TSet[string]
 var DiagnosticGroups_groupsByName *JTMap[string, *DiagnosticGroup]
 
 const DiagnosticGroups_DIAGNOSTIC_GROUP_NAMES string = "accessControls, checkPrototypalTypes, checkRegExp, checkTypes, checkVars, conformanceViolations, const, constantProperty, deprecated, deprecatedAnnotations, defineWithoutGoogDefine, duplicateMessage, es5Strict, externsValidation, functionParams, globalThis, invalidCasts, lintVarDeclarations, misplacedTypeAnnotation, missingCallToSuper, missingOverride, missingPolyfill, missingProperties, missingProvide, missingRequire, missingReturn, missingSourcesWarnings, moduleLoad, moduleImport, msgDescriptions, nonStandardJsDocs, partialAlias, polymer, reportUnknownTypes, strictCheckTypes, strictMissingProperties, strictModuleDepCheck, strictPrimitiveOperators, suspiciousCode, typeInvalidation, undefinedVars, underscore, unknownDefines, unusedLocalVariables, uselessCode, untranspilableFeatures,visibility, weakModuleGet"
@@ -149,7 +149,7 @@ func DiagnosticGroups_clinit() {
 	}
 	DiagnosticGroups_clinit_done = true
 	DiagnosticGroups_UNUSED = DiagnosticType_warning("JSC_UNUSED", "{0}")
-	DiagnosticGroups_wildcardExcludedGroups = jimmutableSetOf_[string](jtc_string, "reportUnknownTypes", "analyzerChecks", "missingSourcesWarnings", "closureUnawareCodeAnnotationPresent")
+	DiagnosticGroups_wildcardExcludedGroups = immutableSetOf_[string](tc_string, "reportUnknownTypes", "analyzerChecks", "missingSourcesWarnings", "closureUnawareCodeAnnotationPresent")
 	DiagnosticGroups_groupsByName = jnewTMap_(jtc_string, jtc_p_DiagnosticGroup)
 	DiagnosticGroups_UNTRANSPILABLE_FEATURES = DiagnosticGroups_registerGroup("untranspilableFeatures", []*DiagnosticType{ReportUntranspilableFeatures_UNTRANSPILABLE_FEATURE_PRESENT})
 	DiagnosticGroups_MODULE_LOAD = DiagnosticGroups_registerGroup("moduleLoad", []*DiagnosticType{ModuleLoader_LOAD_WARNING, ProcessCommonJSModules_SUSPICIOUS_EXPORTS_ASSIGNMENT, ProcessCommonJSModules_UNKNOWN_REQUIRE_ENSURE})

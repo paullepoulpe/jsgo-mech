@@ -490,7 +490,7 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 	}
 	this.templateScope = this.typeRegistry.createScopeWithTemplates(this.templateScope, Iterable(unboundedTemplates.asList()))
 	var templates *ImmutableList_Builder[*TemplateType] = immutableListBuilder_(tc_p_TemplateType)
-	var templatesToBounds *JTMap[*TemplateType, *JSType] = jnewTMap_(tce_p_TemplateType, jtc_p_JSType)
+	var templatesToBounds *TMap[*TemplateType, *JSType] = newTMap_(tce_p_TemplateType.t_(), tc_p_JSType)
 	it_3 := infoTypeKeys.eachEntry()
 	for it_3.next() {
 		var entry *TEntry[string, *JSTypeExpression] = it_3.entry()
@@ -501,14 +501,14 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 		}
 		var template *TemplateType = this.typeRegistry.getType(StaticScope(this.templateScope), entry.getKey()).toMaybeTemplateType()
 		if template != nil {
-			templatesToBounds.put(template, typeBound)
+			templatesToBounds.Put(template, typeBound)
 		} else {
-			templatesToBounds.put(this.typeRegistry.createTemplateType_2(entry.getKey(), typeBound), typeBound)
+			templatesToBounds.Put(this.typeRegistry.createTemplateType_2(entry.getKey(), typeBound), typeBound)
 		}
 	}
 	it_5 := templatesToBounds.eachEntry()
 	for it_5.next() {
-		var entry *TEntry[*TemplateType, *JSType] = it_5.entry()
+		var entry *TEntryP[*TemplateType, *JSType] = it_5.entry()
 		var template *TemplateType = entry.getKey()
 		var bound *JSType = entry.getValue()
 		template.setBound(bound)

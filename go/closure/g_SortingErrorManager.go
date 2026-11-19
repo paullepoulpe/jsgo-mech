@@ -9,7 +9,7 @@ type SortingErrorManager struct {
 	promotedErrorCount    int32
 	warningCount          int32
 	typedPercent          float64
-	errorReportGenerators *JTSet[SortingErrorManager_ErrorReportGenerator]
+	errorReportGenerators *TSet[SortingErrorManager_ErrorReportGenerator]
 }
 
 // SortingErrorManager_I holds the methods the dispatchers of SortingErrorManager's hierarchy call on the most derived
@@ -49,12 +49,12 @@ func (this *SortingErrorManager) finit_SortingErrorManager() {
 	this.typedPercent = 0.0
 }
 
-func (this *SortingErrorManager) init_SortingErrorManager(errorReportGenerators *JTSet[SortingErrorManager_ErrorReportGenerator]) {
+func (this *SortingErrorManager) init_SortingErrorManager(errorReportGenerators *TSet[SortingErrorManager_ErrorReportGenerator]) {
 	this.finit_SortingErrorManager()
-	this.errorReportGenerators = immutableSetCopyOfT_(tce_SortingErrorManager_ErrorReportGenerator, errorReportGenerators)
+	this.errorReportGenerators = immutableSetCopyOfTP_(tce_SortingErrorManager_ErrorReportGenerator.t_(), errorReportGenerators)
 }
 
-func new_SortingErrorManager(errorReportGenerators *JTSet[SortingErrorManager_ErrorReportGenerator]) *SortingErrorManager {
+func new_SortingErrorManager(errorReportGenerators *TSet[SortingErrorManager_ErrorReportGenerator]) *SortingErrorManager {
 	this := &SortingErrorManager{}
 	this.self_ = this
 	this.init_SortingErrorManager(errorReportGenerators)

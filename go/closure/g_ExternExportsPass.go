@@ -7,13 +7,13 @@ import "strings"
 type ExternExportsPass struct {
 	NodeTraversal_AbstractPostOrderCallback
 	exports                     *[]*ExternExportsPass_Export
-	definitionMap               *JTMap[string, Node]
+	definitionMap               *TMap[string, Node]
 	compiler_                   *AbstractCompiler
 	externsRoot                 Node
-	mappedPaths                 *JTMap[string, string]
-	alreadyExportedPaths        *JTSet[string]
-	exportSymbolFunctionNames   *JTSet[string]
-	exportPropertyFunctionNames *JTSet[string]
+	mappedPaths                 *TMap[string, string]
+	alreadyExportedPaths        *TSet[string]
+	exportSymbolFunctionNames   *TSet[string]
+	exportPropertyFunctionNames *TSet[string]
 }
 
 func (this *ExternExportsPass) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -27,10 +27,10 @@ func (this *ExternExportsPass) init_ExternExportsPass(compiler *AbstractCompiler
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.exports = &[]*ExternExportsPass_Export{}
 	this.compiler_ = compiler
-	this.definitionMap = jnewTMap_(jtc_string, jtc_Node)
+	this.definitionMap = newTMap_(tc_string, tc_Node)
 	this.externsRoot = IR_script_0()
-	this.alreadyExportedPaths = jnewTSet_(jtc_string)
-	this.mappedPaths = jnewTMap_(jtc_string, jtc_string)
+	this.alreadyExportedPaths = newTSet_(tc_string)
+	this.mappedPaths = newTMap_(tc_string, tc_string)
 	this.initExportMethods()
 }
 
@@ -55,8 +55,8 @@ func ExternExportsPass_computePathPrefixes(path string) *TList[string] {
 
 func (this *ExternExportsPass) initExportMethods() {
 	var convention CodingConvention = this.compiler_.getCodingConvention()
-	this.exportSymbolFunctionNames = jimmutableSetOf_[string](jtc_string, convention.getExportSymbolFunction(), "google_exportSymbol")
-	this.exportPropertyFunctionNames = jimmutableSetOf_[string](jtc_string, convention.getExportPropertyFunction(), "google_exportProperty")
+	this.exportSymbolFunctionNames = immutableSetOf_[string](tc_string, convention.getExportSymbolFunction(), "google_exportSymbol")
+	this.exportPropertyFunctionNames = immutableSetOf_[string](tc_string, convention.getExportPropertyFunction(), "google_exportProperty")
 }
 
 func (this *ExternExportsPass) process_2(externs Node, root Node) {
@@ -86,29 +86,29 @@ func (this *ExternExportsPass) visit_impl(t *NodeTraversal, n Node, parent Node)
 func (this *ExternExportsPass) lookForQnameDefinition(n Node) {
 	if n.isClass() {
 		if NodeUtil_isClassDeclaration(n) {
-			this.definitionMap.put(n.getFirstChild().getString(), n)
+			this.definitionMap.Put(n.getFirstChild().getString(), n)
 		}
 	} else if n.isFunction() {
 		if NodeUtil_isFunctionDeclaration(n) {
-			this.definitionMap.put(n.getFirstChild().getString(), n)
+			this.definitionMap.Put(n.getFirstChild().getString(), n)
 		}
 	} else if n.isAssign() {
 		var lhs Node = n.getFirstChild()
 		if lhs.isQualifiedName() && (!lhs.hasChildren() || !lhs.getFirstChild().isThis()) {
-			this.definitionMap.put(lhs.getQualifiedName(), n.getLastChild())
+			this.definitionMap.Put(lhs.getQualifiedName(), n.getLastChild())
 		}
 	} else if n.isName() {
 		var parent Node = Preconditions_checkNotNull_Object_Object_T(n.getParent(), n.box_())
 		if NodeUtil_isNameDeclaration(parent) {
 			var value Node = n.getFirstChild()
 			if value != 0 {
-				this.definitionMap.put(n.getString(), value)
+				this.definitionMap.Put(n.getString(), value)
 			}
 		}
 	} else if n.isMemberFunctionDef() {
 		var lvalueName Optional[string] = NodeUtil_getBestLValueName(n)
 		if lvalueName.isPresent() {
-			this.definitionMap.put(lvalueName.get(), n.getOnlyChild())
+			this.definitionMap.Put(lvalueName.get(), n.getOnlyChild())
 		}
 	}
 }
@@ -149,12 +149,12 @@ func (this *ExternExportsPass) lookForPropertyExportCall(n Node) {
 	*this.exports = append(*this.exports, new_ExternExportsPass_PropertyExport(this, objectArg.getQualifiedName(), nameArg.getString(), valueArg).up_ExternExportsPass_Export())
 }
 
-func (this *ExternExportsPass) isCallToOneOf(n Node, functionQnames *JTSet[string]) bool {
+func (this *ExternExportsPass) isCallToOneOf(n Node, functionQnames *TSet[string]) bool {
 	if !n.isCall() {
 		return false
 	} else {
 		var callee Node = n.getFirstChild()
-		return (callee.isQualifiedName() && functionQnames.contains(callee.getQualifiedName()))
+		return (callee.isQualifiedName() && functionQnames.Has(callee.getQualifiedName()))
 	}
 }
 
@@ -258,7 +258,7 @@ func (this *ExternExportsPass_Export) appendExtern(path string, valueToExport No
 	for i := int32(0); i < pathPrefixes.size(); i++ {
 		var pathPrefix string = pathPrefixes.get(i)
 		var isCompletePathPrefix bool = (i == (pathPrefixes.size() - 1))
-		var skipPathPrefix bool = (strings.HasSuffix(pathPrefix, ".prototype") || (this.outer_.alreadyExportedPaths.contains(pathPrefix) && !isCompletePathPrefix))
+		var skipPathPrefix bool = (strings.HasSuffix(pathPrefix, ".prototype") || (this.outer_.alreadyExportedPaths.Has(pathPrefix) && !isCompletePathPrefix))
 		if skipPathPrefix {
 			continue
 		}
@@ -320,7 +320,7 @@ func (this *ExternExportsPass_Export) appendPathDefinition(path string, initiali
 		}
 	}
 	this.outer_.externsRoot.addChildToBack(pathDefinition)
-	this.outer_.alreadyExportedPaths.add(path)
+	this.outer_.alreadyExportedPaths.Add(path)
 }
 
 func (this *ExternExportsPass_Export) createExternFunction(exportedFunction Node) Node {
@@ -349,7 +349,7 @@ func (this *ExternExportsPass_Export) createExternsParamListFromFunctionType(fun
 
 func (this *ExternExportsPass_Export) createExternsParamListFromOriginalParamList(originalParamNames ListOf[string]) Node {
 	var paramList Node = IR_paramList([]Node{})
-	var nameGenerator NameGenerator = NameGenerator(new_DefaultNameGenerator_Set_String_Set(ImmutableSet_as_Set(ImmutableSet_copyOf(Collection(originalParamNames))), "", jtsetEmptyImm_(jtc_Character)))
+	var nameGenerator NameGenerator = NameGenerator(new_DefaultNameGenerator_Set_String_Set(ImmutableSet_as_Set(ImmutableSet_copyOf(Collection(originalParamNames))), "", tsetEmptyImm_(tc_Character)))
 	for originalParamName := range elemsBy_(originalParamNames, str_) {
 		var externParamName string = func() string {
 			if originalParamName == "" {
@@ -433,7 +433,7 @@ func (this *ExternExportsPass_Export) getValue() Node {
 	if qualifiedName == "" {
 		return 0
 	}
-	var definition Node = this.outer_.definitionMap.get(qualifiedName)
+	var definition Node = this.outer_.definitionMap.Get(qualifiedName)
 	if definition == 0 {
 		return 0
 	}
@@ -468,7 +468,7 @@ func (this *ExternExportsPass_SymbolExport) init_ExternExportsPass_SymbolExport(
 	this.ExternExportsPass_Export.init_ExternExportsPass_Export(symbolName, value)
 	var qualifiedName string = value.getQualifiedName()
 	if qualifiedName != "" {
-		this.outer_.mappedPaths.put(qualifiedName, symbolName)
+		this.outer_.mappedPaths.Put(qualifiedName, symbolName)
 	}
 }
 
@@ -526,7 +526,7 @@ func (this *ExternExportsPass_PropertyExport) getExportedPath_impl() string {
 		if len(currentPath) == 0 {
 			panic(new_IllegalStateException_0())
 		}
-		var mappedPath Optional[string] = Optional_ofNullable[string](this.outer_.mappedPaths.get(currentPath))
+		var mappedPath Optional[string] = Optional_ofNullable[string](this.outer_.mappedPaths.Get(currentPath))
 		if mappedPath.isEmpty() {
 			continue
 		}

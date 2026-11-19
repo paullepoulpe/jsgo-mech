@@ -253,7 +253,7 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base[Map] 
 	}
 	input = strings.Trim(inputU16.substring(1, (inputU16.length()-1)), javaSpace_)
 	inputU16 = utf16Of_(input)
-	var results *JTMap[string, string] = jnewTMap_(jtc_string, jtc_string)
+	var results *TMap[string, string] = newTMap_(tc_string, tc_string)
 	var done bool = input == ""
 	this.valueMatcher.reset_s(input)
 	for !done {
@@ -288,7 +288,7 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base[Map] 
 			}
 			return this.valueMatcher.group(2)
 		}()
-		results.put(key, val)
+		results.Put(key, val)
 		if this.valueMatcher.end() != inputU16.length() {
 			checked = JsFileLineParser_check((inputU16.charAt(this.valueMatcher.end()) == ','), "Missing comma in JS object literal")
 			if checked.isErr() {

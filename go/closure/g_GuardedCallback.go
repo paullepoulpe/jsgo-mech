@@ -53,7 +53,7 @@ func (this *GuardedCallback[T]) shouldTraverse(traversal *NodeTraversal, n Node,
 		this.contextStack.push(GuardedCallback_Context_EMPTY)
 	} else {
 		this.contextStack.push(this.contextStack.peek().descend(this.compiler_, parent, n))
-		if ((parent != 0) && GuardedCallback_CAN_HAVE_GUARDS.contains(parent.getToken())) && this.registeredGuards.containsKey(parent.box_()) {
+		if ((parent != 0) && GuardedCallback_CAN_HAVE_GUARDS.Has(parent.getToken())) && this.registeredGuards.containsKey(parent.box_()) {
 			for el_1 := range elems_(this.registeredGuards.removeAll(parent.box_())) {
 				var resource T = junboxT_[T](el_1)
 				this.guarded.add(boxT_(resource))
@@ -65,7 +65,7 @@ func (this *GuardedCallback[T]) shouldTraverse(traversal *NodeTraversal, n Node,
 }
 
 func (this *GuardedCallback[T]) visit(traversal *NodeTraversal, n Node, parent Node) {
-	if ((parent != 0) && GuardedCallback_CAN_HAVE_GUARDS.contains(n.getToken())) && this.installedGuards.containsKey(n.box_()) {
+	if ((parent != 0) && GuardedCallback_CAN_HAVE_GUARDS.Has(n.getToken())) && this.installedGuards.containsKey(n.box_()) {
 		this.guarded.removeAll(Iterable(this.installedGuards.removeAll(n.box_())))
 	}
 	if GuardedCallback_isAbrupt(n) {
@@ -122,7 +122,7 @@ func (this *GuardedCallback[T]) visitGuarded(p0 *NodeTraversal, p1 Node, p2 Node
 	this.vt_GuardedCallback_.visitGuarded_impl(p0, p1, p2)
 }
 
-var GuardedCallback_CAN_HAVE_GUARDS *JTSet[Token_rhino]
+var GuardedCallback_CAN_HAVE_GUARDS *TSet[Token_rhino]
 
 var GuardedCallback_clinit_done bool
 
@@ -131,7 +131,7 @@ func GuardedCallback_clinit() {
 		return
 	}
 	GuardedCallback_clinit_done = true
-	GuardedCallback_CAN_HAVE_GUARDS = tsetImm_(jtc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_AND.enum_(), []*Enum{Token_rhino_OR.enum_(), Token_rhino_COALESCE.enum_(), Token_rhino_HOOK.enum_(), Token_rhino_IF.enum_(), Token_rhino_BLOCK.enum_(), Token_rhino_SCRIPT.enum_(), Token_rhino_OPTCHAIN_CALL.enum_(), Token_rhino_OPTCHAIN_GETELEM.enum_(), Token_rhino_OPTCHAIN_GETPROP.enum_()}))
+	GuardedCallback_CAN_HAVE_GUARDS = tsetFrom_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_AND.enum_(), []*Enum{Token_rhino_OR.enum_(), Token_rhino_COALESCE.enum_(), Token_rhino_HOOK.enum_(), Token_rhino_IF.enum_(), Token_rhino_BLOCK.enum_(), Token_rhino_SCRIPT.enum_(), Token_rhino_OPTCHAIN_CALL.enum_(), Token_rhino_OPTCHAIN_GETELEM.enum_(), Token_rhino_OPTCHAIN_GETPROP.enum_()}), true)
 
 }
 

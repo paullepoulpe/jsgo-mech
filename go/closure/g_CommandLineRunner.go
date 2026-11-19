@@ -211,7 +211,7 @@ func (this *CommandLineRunner) readFlagInputs(processedArgs *[]string, flagInput
 	if sourceMapInputs.isErr() {
 		return Outcome_base_err[any](sourceMapInputs.error())
 	}
-	flagInputs.sourceMapInputs = tmapImm_(jtc_string, jtc_string, sourceMapInputs.get())
+	flagInputs.sourceMapInputs = tmapFrom_(tc_string, tc_string, sourceMapInputs.get(), true)
 	flagInputs.parseInlineSourceMaps_ = unbox_[bool](this.flags.parseInlineSourceMaps_)
 	flagInputs.applyInputSourceMaps = this.flags.applyInputSourceMaps
 	return Outcome_base_ok_0()
@@ -232,7 +232,7 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 	}
 	var mixedSources *TList[*AbstractCommandLineRunner_FlagEntry[any]] = flagInputs.mixedSources
 	var mappings *TList[SourceMap_LocationMapping] = flagInputs.mappings
-	var sourceMapInputs *JTMap[string, string] = flagInputs.sourceMapInputs
+	var sourceMapInputs *TMap[string, string] = flagInputs.sourceMapInputs
 	var parseInlineSourceMaps bool = flagInputs.parseInlineSourceMaps_
 	var applyInputSourceMaps bool = flagInputs.applyInputSourceMaps
 	if this.flags.processCommonJsModules {
@@ -431,7 +431,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base[*CompilerOptio
 	options.setEmitUseStrict(this.flags.emitUseStrict)
 	options.setSourceMapIncludeSourcesContent(this.flags.sourceMapIncludeSourcesContent)
 	options.setModuleResolutionMode(this.flags.moduleResolutionMode)
-	options.setBrowserResolverPrefixReplacements(jimmutableMapCopyOf_(jtc_string, jtc_string, this.flags.browserResolverPrefixReplacements))
+	options.setBrowserResolverPrefixReplacements(immutableMapCopyOf_(tc_string, tc_string, this.flags.browserResolverPrefixReplacements))
 	if this.flags.packageJsonEntryNames.isPresent() {
 		var packageJsonEntryNames *TList[string] = this.flags.getPackageJsonEntryNames()
 		options.setPackageJsonEntryNames(packageJsonEntryNames)
@@ -586,7 +586,7 @@ func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionOf[stri
 		}
 		return jnewTMap_(jtc_string, jtc_string)
 	}()
-	var excludes *JTSet[string] = jnewTSet_(jtc_string)
+	var excludes *TSet[string] = newTSet_(tc_string)
 	it_1 := foreach_(patterns)
 	for it_1.next() {
 		var pattern string = str_(it_1.v)
@@ -605,7 +605,7 @@ func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionOf[stri
 			} else {
 				var original string = FilePaths_clean(pattern)
 				var pathStringAbsolute string = FilePaths_toAbsolute(FilePaths_normalize(original))
-				if !excludes.contains(pathStringAbsolute) {
+				if !excludes.Has(pathStringAbsolute) {
 					allJsInputs.put(pathStringAbsolute, original)
 				}
 			}
@@ -619,7 +619,7 @@ func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionOf[stri
 	return Outcome_base_ok_Object[List](new_ArrayList_Collection(allJsInputs.asMap().values()).self().(List))
 }
 
-func CommandLineRunner_matchPaths(pattern string, allJsInputs *JTMap[string, string], excludes *JTSet[string]) *Outcome_base[any] {
+func CommandLineRunner_matchPaths(pattern string, allJsInputs *JTMap[string, string], excludes *TSet[string]) *Outcome_base[any] {
 	var remove bool = (int32(strings.IndexByte(pattern, '!')) == 0)
 	if remove {
 		pattern = String_substring_int(pattern, 1)
@@ -645,9 +645,9 @@ func CommandLineRunner_matchPaths(pattern string, allJsInputs *JTMap[string, str
 		}
 		var pathStringAbsolute string = FilePaths_toAbsolute(FilePaths_normalize(p))
 		if remove {
-			excludes.add(pathStringAbsolute)
+			excludes.Add(pathStringAbsolute)
 			allJsInputs.remove(pathStringAbsolute)
-		} else if !excludes.contains(pathStringAbsolute) {
+		} else if !excludes.Has(pathStringAbsolute) {
 			allJsInputs.put(pathStringAbsolute, p)
 		}
 	}
@@ -1570,7 +1570,7 @@ func CommandLineRunner_Flags_printShortUsageAfterErrors(ps *Output) {
 
 func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[*TList[*AbstractCommandLineRunner_FlagEntry[any]]] {
 	var mixedSources *TList[*AbstractCommandLineRunner_FlagEntry[any]] = newTList_(tc_p_AbstractCommandLineRunner_FlagEntry)
-	var excludes *JTSet[string] = jnewTSet_(jtc_string)
+	var excludes *TSet[string] = newTSet_(tc_string)
 	it_1 := this.mixedJsSources.each()
 	var getValueU16 utf16_
 	for it_1.next() {
@@ -1583,7 +1583,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[*TList[*A
 				return Outcome_base_err[*TList[*AbstractCommandLineRunner_FlagEntry[any]]](found.error())
 			}
 			for filename := range elemsBy_(found.get(), str_) {
-				excludes.add(filename)
+				excludes.Add(filename)
 				mixedSources.asList().remove_Object(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename))
 			}
 		} else {
@@ -1592,7 +1592,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[*TList[*A
 				return Outcome_base_err[*TList[*AbstractCommandLineRunner_FlagEntry[any]]](found.error())
 			}
 			for filename := range elemsBy_(found.get(), str_) {
-				if !excludes.contains(filename) {
+				if !excludes.Has(filename) {
 					mixedSources.add(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename))
 				}
 			}
@@ -1617,10 +1617,10 @@ func (this *CommandLineRunner_Flags) getSourceMapLocationMappings() *Outcome_bas
 	if splitOutcome.isErr() {
 		return Outcome_base_err[*TList[SourceMap_LocationMapping]](splitOutcome.error())
 	}
-	var split *JTMap[string, string] = tmapImm_(jtc_string, jtc_string, splitOutcome.get())
+	var split *TMap[string, string] = tmapFrom_(tc_string, tc_string, splitOutcome.get(), true)
 	it_1 := split.eachEntry()
 	for it_1.next() {
-		var mapping *TEntry[string, string] = it_1.entry()
+		var mapping *TEntryP[string, string] = it_1.entry()
 		locationMappings.add(SourceMap_LocationMapping(new_SourceMap_PrefixLocationMapping(mapping.getKey(), mapping.getValue())))
 	}
 	return Outcome_base_ok_Object[*TList[SourceMap_LocationMapping]](locationMappings.build())
@@ -1631,7 +1631,7 @@ func (this *CommandLineRunner_Flags) getSourceMapInputs() *Outcome_base[*ErasedI
 }
 
 func (this *CommandLineRunner_Flags) splitPipeParts(input IterableOf[string], flagName string) *Outcome_base[*ErasedImmutableMap] {
-	var result *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
+	var result *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	var splitter *Splitter = Splitter_on('|').limit(2)
 	it_1 := foreach_(input)
 	for it_1.next() {
@@ -1771,7 +1771,7 @@ func CommandLineRunner_FormattingOption_clinit() {
 type CommandLineRunner_FlagInputs struct {
 	mixedSources           *TList[*AbstractCommandLineRunner_FlagEntry[any]]
 	mappings               *TList[SourceMap_LocationMapping]
-	sourceMapInputs        *JTMap[string, string]
+	sourceMapInputs        *TMap[string, string]
 	parseInlineSourceMaps_ bool
 	applyInputSourceMaps   bool
 }

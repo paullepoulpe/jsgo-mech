@@ -87,7 +87,7 @@ func Reference_isDeclarationHelper(node Node) bool {
 	if parent.isArrowFunction() {
 		return (node == parent.getFirstChild())
 	}
-	return Reference_DECLARATION_PARENTS.contains(parent.getToken())
+	return Reference_DECLARATION_PARENTS.Has(parent.getToken())
 }
 
 func (this *Reference) isVarDeclaration() bool {
@@ -174,7 +174,7 @@ func (this *Reference) getSymbol() StaticSlot {
 	return icast_StaticSlot(obj_(this.getSymbol_rVar()))
 }
 
-var Reference_DECLARATION_PARENTS *JTSet[Token_rhino]
+var Reference_DECLARATION_PARENTS *TSet[Token_rhino]
 
 var Reference_clinit_done bool
 
@@ -183,6 +183,6 @@ func Reference_clinit() {
 		return
 	}
 	Reference_clinit_done = true
-	Reference_DECLARATION_PARENTS = tsetImm_(jtc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_VAR.enum_(), []*Enum{Token_rhino_LET.enum_(), Token_rhino_CONST.enum_(), Token_rhino_PARAM_LIST.enum_(), Token_rhino_FUNCTION.enum_(), Token_rhino_CLASS.enum_(), Token_rhino_CATCH.enum_()}))
+	Reference_DECLARATION_PARENTS = tsetFrom_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_VAR.enum_(), []*Enum{Token_rhino_LET.enum_(), Token_rhino_CONST.enum_(), Token_rhino_PARAM_LIST.enum_(), Token_rhino_FUNCTION.enum_(), Token_rhino_CLASS.enum_(), Token_rhino_CATCH.enum_()}), true)
 
 }

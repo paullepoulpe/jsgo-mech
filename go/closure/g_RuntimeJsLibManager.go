@@ -9,14 +9,14 @@ type RuntimeJsLibManager struct {
 	mode_                RuntimeJsLibManager_RuntimeLibraryMode
 	resourceProvider     func(string, string) Node
 	nodeForCodeInsertion SupplierOf[Node]
-	injectedLibs         *JTSet[string]
-	internedFields       *JTMap[string, *RuntimeJsLibManager_InternalField]
+	injectedLibs         *TSet[string]
+	internedFields       *TMap[string, *RuntimeJsLibManager_InternalField]
 	lastInjectedLibrary  Node
 }
 
 func (this *RuntimeJsLibManager) finit_RuntimeJsLibManager() {
-	this.injectedLibs = jnewTSet_(jtc_string)
-	this.internedFields = jnewTMap_(jtc_string, jtc_p_RuntimeJsLibManager_InternalField)
+	this.injectedLibs = newTSet_(tc_string)
+	this.internedFields = newTMap_(tc_string, tc_p_RuntimeJsLibManager_InternalField)
 	this.lastInjectedLibrary = 0
 }
 
@@ -39,11 +39,11 @@ func RuntimeJsLibManager_create(mode RuntimeJsLibManager_RuntimeLibraryMode, res
 }
 
 func (this *RuntimeJsLibManager) recordLibraryInjected(resourceName string) {
-	this.injectedLibs.add(resourceName)
+	this.injectedLibs.Add(resourceName)
 }
 
 func (this *RuntimeJsLibManager) hasInjectedLibrary(resourceName string) bool {
-	return this.injectedLibs.contains(resourceName)
+	return this.injectedLibs.Has(resourceName)
 }
 
 func (this *RuntimeJsLibManager) getInjectedLibraries() *TList[string] {
@@ -77,7 +77,7 @@ func (this *RuntimeJsLibManager) createField(fieldName string) *RuntimeJsLibMana
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Field name must start with $jscomp, found %s", []any{fieldName})))
 	}
 	var propName string = parts.get(1)
-	var resource Optional[string] = Optional_ofNullable[string](RuntimeJsLibManager_FieldsTable_INSTANCE.get(propName))
+	var resource Optional[string] = Optional_ofNullable[string](RuntimeJsLibManager_FieldsTable_INSTANCE.Get(propName))
 	if resource.isEmpty() {
 		panic(new_NullPointerException_String(("Cannot find definition of " + sstr_(fieldName))))
 	}
@@ -131,7 +131,7 @@ func (this *RuntimeJsLibManager) ensureLibraryInjected(resourceName string, forc
 		case RuntimeJsLibManager_RuntimeLibraryMode_INJECT:
 		}
 	}
-	if this.injectedLibs.contains(resourceName) {
+	if this.injectedLibs.Has(resourceName) {
 		return this.lastInjectedLibrary
 	}
 	this.recordLibraryInjected(resourceName)
@@ -284,9 +284,9 @@ func new_RuntimeJsLibManager_FieldsTable() *RuntimeJsLibManager_FieldsTable {
 	return this
 }
 
-func RuntimeJsLibManager_FieldsTable_loadFields() *JTMap[string, string] {
+func RuntimeJsLibManager_FieldsTable_loadFields() *TMap[string, string] {
 	var transpilationLibsTxt string = ResourceLoader_loadTextResource((sstr_(ResourceLoader_JSCOMP) + "js/transpilation_libs.txt"))
-	var allFields *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
+	var allFields *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	for line := range elemsBy_(Splitter_on('\n').omitEmptyStrings().split_s(transpilationLibsTxt), str_) {
 		var tokens *TList[string] = splitToListTP_(tc_string, Splitter_on(',').limit(2), strobj_(line))
 		if ok_, a1_ := (tokens.size() == 2), tokens.asList(); !ok_ {
@@ -299,7 +299,7 @@ func RuntimeJsLibManager_FieldsTable_loadFields() *JTMap[string, string] {
 	return allFields.buildOrThrow()
 }
 
-var RuntimeJsLibManager_FieldsTable_INSTANCE *JTMap[string, string]
+var RuntimeJsLibManager_FieldsTable_INSTANCE *TMap[string, string]
 
 var RuntimeJsLibManager_FieldsTable_clinit_done bool
 

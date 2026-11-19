@@ -106,7 +106,7 @@ func (this *AnalyzePrototypeProperties) getNameInfoForName(name string, type_ An
 
 var AnalyzePrototypeProperties_PROPERTY AnalyzePrototypeProperties_SymbolType
 var AnalyzePrototypeProperties_VAR AnalyzePrototypeProperties_SymbolType
-var AnalyzePrototypeProperties_IMPLICITLY_USED_PROPERTIES *JTSet[string]
+var AnalyzePrototypeProperties_IMPLICITLY_USED_PROPERTIES *TSet[string]
 
 var AnalyzePrototypeProperties_clinit_done bool
 
@@ -117,7 +117,7 @@ func AnalyzePrototypeProperties_clinit() {
 	AnalyzePrototypeProperties_clinit_done = true
 	AnalyzePrototypeProperties_PROPERTY = AnalyzePrototypeProperties_SymbolType_PROPERTY
 	AnalyzePrototypeProperties_VAR = AnalyzePrototypeProperties_SymbolType_VAR
-	AnalyzePrototypeProperties_IMPLICITLY_USED_PROPERTIES = jimmutableSetOf_[string](jtc_string, "length", "toString", "valueOf")
+	AnalyzePrototypeProperties_IMPLICITLY_USED_PROPERTIES = immutableSetOf_[string](tc_string, "length", "toString", "valueOf")
 
 }
 

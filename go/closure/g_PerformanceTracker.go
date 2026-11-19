@@ -39,7 +39,7 @@ type PerformanceTracker struct {
 	diff                           int32
 	gzDiff                         int32
 	currentPass                    *TDeque[*PerformanceTracker_Stats]
-	passSummary                    *JTMap[string, *PerformanceTracker_Stats]
+	passSummary                    *TMap[string, *PerformanceTracker_Stats]
 	astManifest                    *SimpleMultiset[Token_rhino]
 	log_                           *[]*PerformanceTracker_Stats
 	pruningAnalysisSummary         string
@@ -292,7 +292,7 @@ func (this *PerformanceTracker) getLoopRuns() int32 {
 	return this.loopRuns
 }
 
-func (this *PerformanceTracker) getStats() *JTMap[string, *PerformanceTracker_Stats] {
+func (this *PerformanceTracker) getStats() *TMap[string, *PerformanceTracker_Stats] {
 	this.calcTotalStats()
 	return this.passSummary
 }
@@ -330,7 +330,7 @@ func (this *PerformanceTracker) calcTotalStats() {
 }
 
 func (this *PerformanceTracker) populatePassSummary() {
-	var tmpPassSummary *JTMap[string, *PerformanceTracker_Stats] = jnewTMap_(jtc_string, jtc_p_PerformanceTracker_Stats)
+	var tmpPassSummary *TMap[string, *PerformanceTracker_Stats] = newTMap_(tc_string, tc_p_PerformanceTracker_Stats)
 	for logStat := range sliceAll_(this.log_) {
 		var passName string = logStat.pass
 		var entry *PerformanceTracker_Stats = tmpPassSummary.computeIfAbsent(passName, &Function_tfn_string_PerformanceTracker_Stats{func(k string) *PerformanceTracker_Stats {
@@ -344,7 +344,7 @@ func (this *PerformanceTracker) populatePassSummary() {
 		entry.diff += logStat.diff
 		entry.gzDiff += logStat.gzDiff
 	}
-	this.passSummary = immutableMapCopyOfT_(jtc_string, jtc_p_PerformanceTracker_Stats, tmpPassSummary)
+	this.passSummary = immutableMapCopyOfTP_(tc_string, tc_p_PerformanceTracker_Stats, tmpPassSummary)
 }
 
 func (this *PerformanceTracker) populateAstManifest() {

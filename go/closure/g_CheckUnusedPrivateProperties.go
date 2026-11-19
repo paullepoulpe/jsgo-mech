@@ -4,15 +4,15 @@ package closure
 
 type CheckUnusedPrivateProperties struct {
 	compiler_                 *AbstractCompiler
-	used                      *JTSet[string]
+	used                      *TSet[string]
 	candidates                *[]Node
-	constructorsAndInterfaces *JTSet[string]
+	constructorsAndInterfaces *TSet[string]
 }
 
 func (this *CheckUnusedPrivateProperties) finit_CheckUnusedPrivateProperties() {
-	this.used = jnewTSet_(jtc_string)
+	this.used = newTSet_(tc_string)
 	this.candidates = &[]Node{}
-	this.constructorsAndInterfaces = jnewTSet_(jtc_string)
+	this.constructorsAndInterfaces = newTSet_(tc_string)
 }
 
 func (this *CheckUnusedPrivateProperties) init_CheckUnusedPrivateProperties(compiler *AbstractCompiler) {
@@ -33,7 +33,7 @@ func (this *CheckUnusedPrivateProperties) process_2(externs Node, root Node) {
 func (this *CheckUnusedPrivateProperties) reportUnused(t *NodeTraversal) {
 	for n := range sliceAll_(this.candidates) {
 		var propName string = this.getPropName(n)
-		if !this.used.contains(propName) {
+		if !this.used.Has(propName) {
 			t.report(n, CheckUnusedPrivateProperties_UNUSED_PRIVATE_PROPERTY, []string{propName})
 		}
 	}
@@ -50,8 +50,8 @@ func (this *CheckUnusedPrivateProperties) getPropName(n Node) string {
 
 func (this *CheckUnusedPrivateProperties) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	if n.isScript() {
-		this.used.clear()
-		this.used.add("constructor")
+		this.used.Clear()
+		this.used.Add("constructor")
 		sliceClear_(this.candidates)
 	}
 	return true
@@ -64,7 +64,7 @@ func (this *CheckUnusedPrivateProperties) visit(t *NodeTraversal, n Node, parent
 	case tokOrd1_GETPROP:
 		var propName string = n.getString()
 		if CheckUnusedPrivateProperties_isPinningPropertyUse(n) || !this.isCandidatePropertyDefinition(n) {
-			this.used.add(propName)
+			this.used.Add(propName)
 		} else {
 			if this.isCheckablePrivatePropDecl(n) {
 				*this.candidates = append(*this.candidates, n)
@@ -79,7 +79,7 @@ func (this *CheckUnusedPrivateProperties) visit(t *NodeTraversal, n Node, parent
 			var c Node = n.getFirstChild()
 			for ; c != 0; c = c.getNext() {
 				if ((c.isStringKey() || c.isGetterDef()) || c.isSetterDef()) || c.isMemberFunctionDef() {
-					this.used.add(c.getString())
+					this.used.Add(c.getString())
 				}
 			}
 		}
@@ -88,7 +88,7 @@ func (this *CheckUnusedPrivateProperties) visit(t *NodeTraversal, n Node, parent
 		if n.hasMoreThanOneChild() && this.compiler_.getCodingConvention().isPropertyRenameFunction(target) {
 			var propName Node = target.getNext()
 			if propName.isStringLit() {
-				this.used.add(propName.getString())
+				this.used.Add(propName.getString())
 			}
 		}
 	case tokOrd1_FUNCTION:
@@ -105,7 +105,7 @@ func (this *CheckUnusedPrivateProperties) visit(t *NodeTraversal, n Node, parent
 func (this *CheckUnusedPrivateProperties) recordConstructorOrInterface(n Node) {
 	var className Optional[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
 	if className.isPresent() {
-		this.constructorsAndInterfaces.add(className.get())
+		this.constructorsAndInterfaces.Add(className.get())
 	}
 }
 
@@ -124,7 +124,7 @@ func (this *CheckUnusedPrivateProperties) isCandidatePropertyDefinition(n Node) 
 		Preconditions_checkState_boolean_Object_H(false, n)
 	}
 	var target Node = n.getFirstChild()
-	return ((target.isThis() || this.constructorsAndInterfaces.contains(target.getQualifiedName())) || (target.isGetProp() && (target.getString() == "prototype")))
+	return ((target.isThis() || this.constructorsAndInterfaces.Has(target.getQualifiedName())) || (target.isGetProp() && (target.getString() == "prototype")))
 }
 
 func CheckUnusedPrivateProperties_isPinningPropertyUse(n Node) bool {

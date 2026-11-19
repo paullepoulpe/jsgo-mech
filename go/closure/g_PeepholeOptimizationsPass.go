@@ -109,8 +109,8 @@ func (this *PeepholeOptimizationsPass_PeepCallback) exitScope_impl(t *NodeTraver
 
 func (this *PeepholeOptimizationsPass_PeepCallback) updateFeatures(t *NodeTraversal) {
 	for _, optim := range this.outer_.peepholeOptimizations {
-		var newFeatures *JTSet[FeatureSet_Feature] = optim.getNewFeatures()
-		if !newFeatures.isEmpty() {
+		var newFeatures *TSet[FeatureSet_Feature] = optim.getNewFeatures()
+		if !newFeatures.IsEmpty() {
 			NodeUtil_addFeaturesToScript(t.getCurrentScript(), FeatureSet_BARE_MINIMUM.withSet(newFeatures.asSet()), this.outer_.compiler_)
 		}
 		optim.clearNewFeatures()
