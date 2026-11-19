@@ -38,7 +38,7 @@ func (this *RecordType) init_RecordType(registry *JSTypeRegistry, properties Map
 	this.finit_RecordType()
 	this.setPrettyPrint(true)
 	this.declared = declared
-	it_1 := foreach_(any(properties.keySet()))
+	it_1 := foreach_(properties.keySet())
 	for it_1.next() {
 		var property string = str_(it_1.v)
 		var prop *RecordTypeBuilder_RecordProperty = cast_[*RecordTypeBuilder_RecordProperty](Map_get_s(properties, property))
@@ -87,7 +87,7 @@ func (this *RecordType) getGreatestSubtypeHelper(that *JSType) *JSType {
 		var builder *RecordTypeBuilder = new_RecordTypeBuilder(this.registry)
 		builder.setSynthesized(true)
 		var noType *JSType = this.registry.getNativeObjectType(JSTypeNative_NO_TYPE).up_JSType()
-		it_1 := foreach_(any(this.getOwnPropertyNames()))
+		it_1 := foreach_(this.getOwnPropertyNames())
 		for it_1.next() {
 			var property string = str_(it_1.v)
 			var thisPropertyType *JSType = this.getPropertyType(property)
@@ -103,7 +103,7 @@ func (this *RecordType) getGreatestSubtypeHelper(that *JSType) *JSType {
 			}
 			builder.addProperty(property, propType, this.getPropertyNode(property))
 		}
-		it_3 := foreach_(any(thatRecord.getOwnPropertyNames()))
+		it_3 := foreach_(thatRecord.getOwnPropertyNames())
 		for it_3.next() {
 			var property string = str_(it_3.v)
 			if !this.hasProperty(property) {
@@ -115,12 +115,12 @@ func (this *RecordType) getGreatestSubtypeHelper(that *JSType) *JSType {
 	var greatestSubtype *JSType = this.registry.getNativeType(JSTypeNative_NO_OBJECT_TYPE)
 	var thatRestrictedToObj *JSType = this.registry.getNativeType(JSTypeNative_OBJECT_TYPE).getGreatestSubtype(that)
 	if !thatRestrictedToObj.isEmptyType() {
-		it_5 := foreach_(any(this.getOwnPropertyNames()))
+		it_5 := foreach_(this.getOwnPropertyNames())
 		for it_5.next() {
 			var propName string = str_(it_5.v)
 			var propType *JSType = this.getPropertyType(propName)
 			var builder *UnionType_Builder = UnionType_builder(this.registry)
-			it_7 := foreach_(any(this.registry.getEachReferenceTypeWithProperty(propName)))
+			it_7 := foreach_(this.registry.getEachReferenceTypeWithProperty(propName))
 			for it_7.next() {
 				var alt *ObjectType = to_ObjectType(it_7.v)
 				var altPropType *JSType = alt.getPropertyType(propName)

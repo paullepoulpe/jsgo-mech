@@ -52,7 +52,7 @@ func (this *LinterMain) run(args []string) *Outcome_base[any] {
 	}})
 	parser.parseArgument(args).get()
 	var linter *Linter = Linter_builder().withModuleResolutionMode(this.resolutionMode).build()
-	it_1 := foreach_(any(this.files))
+	it_1 := foreach_(this.files)
 	for it_1.next() {
 		var filename string = str_(it_1.v)
 		if this.fix_ {

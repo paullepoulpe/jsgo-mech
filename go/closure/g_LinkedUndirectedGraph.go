@@ -76,7 +76,7 @@ func (this *LinkedUndirectedGraph[N, E]) connect_impl(srcValue N, edgeValue_ any
 func (this *LinkedUndirectedGraph[N, E]) disconnect_impl(srcValue N, destValue N) {
 	var src *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E] = to_LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E](this.getNodeOrFail(srcValue))
 	var dest *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E] = to_LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E](this.getNodeOrFail(destValue))
-	it_1 := foreach_(any(this.getUndirectedGraphEdges(srcValue, destValue)))
+	it_1 := foreach_(this.getUndirectedGraphEdges(srcValue, destValue))
 	for it_1.next() {
 		var edge UndiGraph_UndiGraphEdge[N, E] = cast_[UndiGraph_UndiGraphEdge[N, E]](it_1.v)
 		src.getNeighborEdges().remove_Object(edge)
@@ -110,7 +110,7 @@ func (this *LinkedUndirectedGraph[N, E]) getUndirectedGraphEdges_impl(n1 N, n2 N
 		return nil
 	}
 	var edges *JTList[UndiGraph_UndiGraphEdge[N, E]] = jnewTList_(tc_UndiGraph_UndiGraphEdge_N__E_[N, E]())
-	it_1 := foreach_(any(dNode1.getNeighborEdges()))
+	it_1 := foreach_(dNode1.getNeighborEdges())
 	for it_1.next() {
 		var outEdge UndiGraph_UndiGraphEdge[N, E] = cast_[UndiGraph_UndiGraphEdge[N, E]](it_1.v)
 		if (outEdge.getNodeA() == dNode2) || (outEdge.getNodeB() == dNode2) {
@@ -141,7 +141,7 @@ func (this *LinkedUndirectedGraph[N, E]) getEdges_impl() ListOf[Graph_GraphEdge[
 	it_1 := this.nodes_.eachValue()
 	for it_1.next() {
 		var node *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E] = it_1.v
-		it_3 := foreach_(any(node.getNeighborEdges()))
+		it_3 := foreach_(node.getNeighborEdges())
 		for it_3.next() {
 			var edge UndiGraph_UndiGraphEdge[N, E] = cast_[UndiGraph_UndiGraphEdge[N, E]](it_3.v)
 			if edge.getNodeA() == node.self() {
@@ -155,7 +155,7 @@ func (this *LinkedUndirectedGraph[N, E]) getEdges_impl() ListOf[Graph_GraphEdge[
 func (this *LinkedUndirectedGraph[N, E]) getFirstEdge_impl(n1 N, n2 N) Graph_GraphEdge[N] {
 	var dNode1 UndiGraph_UndiGraphNode[N, E] = cast_[UndiGraph_UndiGraphNode[N, E]](this.getNodeOrFail(n1))
 	var dNode2 UndiGraph_UndiGraphNode[N, E] = cast_[UndiGraph_UndiGraphNode[N, E]](this.getNodeOrFail(n2))
-	it_1 := foreach_(any(dNode1.getNeighborEdges()))
+	it_1 := foreach_(dNode1.getNeighborEdges())
 	for it_1.next() {
 		var outEdge UndiGraph_UndiGraphEdge[N, E] = cast_[UndiGraph_UndiGraphEdge[N, E]](it_1.v)
 		if (outEdge.getNodeA() == dNode2) || (outEdge.getNodeB() == dNode2) {
@@ -188,7 +188,7 @@ func (this *LinkedUndirectedGraph[N, E]) isConnectedPredicate(n1 N, edgePredicat
 	if dNode2 == nil {
 		return false
 	}
-	it_1 := foreach_(any(dNode1.getNeighborEdges()))
+	it_1 := foreach_(dNode1.getNeighborEdges())
 	for it_1.next() {
 		var outEdge UndiGraph_UndiGraphEdge[N, E] = cast_[UndiGraph_UndiGraphEdge[N, E]](it_1.v)
 		if ((outEdge.getNodeA() == dNode1) && (outEdge.getNodeB() == dNode2)) || ((outEdge.getNodeA() == dNode2) && (outEdge.getNodeB() == dNode1)) {
@@ -205,7 +205,7 @@ func (this *LinkedUndirectedGraph[N, E]) getGraphvizEdges() *JTList[GraphvizGrap
 	it_1 := this.nodes_.eachValue()
 	for it_1.next() {
 		var node *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E] = it_1.v
-		it_3 := foreach_(any(node.getNeighborEdges()))
+		it_3 := foreach_(node.getNeighborEdges())
 		for it_3.next() {
 			var edge UndiGraph_UndiGraphEdge[N, E] = cast_[UndiGraph_UndiGraphEdge[N, E]](it_3.v)
 			if edge.getNodeA() == node.self() {

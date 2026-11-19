@@ -37,7 +37,7 @@ func (this *OptimizeParameters) process_3(externs Node, root Node, refMap *Optim
 		this.decisionsLog = decisionsLog
 		this.globalScope = refMap.getGlobalScope()
 		var toOptimize *JTList[*ArrayList] = jnewTList_(tc_p_ArrayList)
-		it_2 := foreach_(any(refMap.getNameReferences()))
+		it_2 := foreach_(refMap.getNameReferences())
 		for it_2.next() {
 			var entry Map_Entry = icast_Map_Entry(it_2.v)
 			var key string = str_(entry.getKey())
@@ -50,7 +50,7 @@ func (this *OptimizeParameters) process_3(externs Node, root Node, refMap *Optim
 				toOptimize.add(refs)
 			}
 		}
-		it_4 := foreach_(any(refMap.getPropReferences()))
+		it_4 := foreach_(refMap.getPropReferences())
 		for it_4.next() {
 			var entry Map_Entry = icast_Map_Entry(it_4.v)
 			var key string = str_(entry.getKey())
@@ -131,7 +131,7 @@ func (this *OptimizeParameters) analyzeCandidate(refKind string, key string, ref
 	}
 	if !analysisBuilder.taggedTemplateLiterals.isEmpty() {
 		var functionNodes CollectionOf[Node] = OptimizeCalls_ReferenceMap_getFunctionNodes(definitions.asList()).values()
-		it_3 := foreach_(any(functionNodes))
+		it_3 := foreach_(functionNodes)
 		for it_3.next() {
 			var functionNode Node = Node_of_(it_3.v)
 			var firstParam Node = NodeUtil_getFunctionParameters(functionNode).getFirstChild()
@@ -253,13 +253,13 @@ func OptimizeParameters_mayReferenceParamBeforeBody(function Node) bool {
 			namesByNames.put_s(n.getString(), n.box_())
 		}
 	}})
-	it_1 := foreach_(any(namesByNames.asMap().values()))
+	it_1 := foreach_(namesByNames.asMap().values())
 	for it_1.next() {
 		var names Collection = icast_Collection(it_1.v)
 		if names.size() == 1 {
 			continue
 		}
-		it_3 := foreach_(any(names))
+		it_3 := foreach_(names)
 		for it_3.next() {
 			var name Node = Node_of_(it_3.v)
 			if NodeUtil_isLValue(name) {
@@ -295,7 +295,7 @@ func (this *OptimizeParameters) tryEliminateOptionalArgs(refs ArrayListOf[Node])
 			}
 		}
 	}
-	it_4 := foreach_(any(OptimizeCalls_ReferenceMap_getFunctionNodes(icast_List(refs.self())).values()))
+	it_4 := foreach_(OptimizeCalls_ReferenceMap_getFunctionNodes(icast_List(refs.self())).values())
 	for it_4.next() {
 		var fn Node = Node_of_(it_4.v)
 		this.eliminateParamsAfterInt(fn, maxArgs)
@@ -634,7 +634,7 @@ func (this *OptimizeParameters) addStatementsToBack(block Node, stmts *JTList[No
 }
 
 func (this *OptimizeParameters) addStatementsBefore(insertionPoint Node, stmts *JTList[Node]) {
-	it_1 := foreach_(any(Lists_reverse(stmts.asList())))
+	it_1 := foreach_(Lists_reverse(stmts.asList()))
 	for it_1.next() {
 		var item Node = Node_of_(it_1.v)
 		item.insertBefore(insertionPoint)
@@ -733,7 +733,7 @@ func (this *OptimizeParameters_UnusedParameterOptimizer) tryEliminateUnusedArgs(
 	var maxFormalsCount int32 = 0
 	var lowestUsedRest int32 = int32(2147483647)
 	var used *BitSet = new_BitSet()
-	it_1 := foreach_(any(fns.values()))
+	it_1 := foreach_(fns.values())
 	for it_1.next() {
 		var fn Node = Node_of_(it_1.v)
 		var paramList Node = NodeUtil_getFunctionParameters(fn)
@@ -805,7 +805,7 @@ func (this *OptimizeParameters_UnusedParameterOptimizer) tryEliminateUnusedArgs(
 			this.recordRemovalCallArguments(lowestUsedRest, removeAllAfterIndex, unused, unremovable, arg, 0)
 		}
 	}
-	it_9 := foreach_(any(fns.values()))
+	it_9 := foreach_(fns.values())
 	for it_9.next() {
 		var fn Node = Node_of_(it_9.v)
 		var paramList Node = NodeUtil_getFunctionParameters(fn)

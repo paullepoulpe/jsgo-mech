@@ -106,7 +106,7 @@ func TypeDeclarationsIR_parameterizedType(baseType Node, typeParameters Iterable
 		return baseType
 	}
 	var node Node = new_Node_Token_Node(Token_rhino_PARAMETERIZED_TYPE, baseType)
-	it_1 := foreach_(any(typeParameters))
+	it_1 := foreach_(typeParameters)
 	for it_1.next() {
 		var typeParameter Node = Node_of_(it_1.v)
 		node.addChildToBack(typeParameter)
@@ -123,7 +123,7 @@ func TypeDeclarationsIR_unionType(options IterableOf[Node]) Node {
 		panic(new_IllegalArgumentException_String(objstr_("union must have at least one option")).self())
 	}
 	var node Node = new_Node_Token(Token_rhino_UNION_TYPE)
-	it_1 := foreach_(any(options))
+	it_1 := foreach_(options)
 	for it_1.next() {
 		var option Node = Node_of_(it_1.v)
 		node.addChildToBack(option)

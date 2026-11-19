@@ -198,7 +198,7 @@ func (this *JSChunk) sortInputsByDeps(compiler *AbstractCompiler) {
 	}
 	var sortedList ListOf[*CompilerInput] = new_SortedDependencies[*CompilerInput](ImmutableList_as_List(this.getInputs())).getSortedList()
 	this.inputs.clear()
-	it_3 := foreach_(any(sortedList))
+	it_3 := foreach_(sortedList)
 	for it_3.next() {
 		var input *CompilerInput = cast_[*CompilerInput](it_3.v)
 		this.inputs.put(input.getName(), input)

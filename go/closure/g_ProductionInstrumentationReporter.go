@@ -44,7 +44,7 @@ func ProductionInstrumentationReporter_readFile(filePath string) *Outcome_base[s
 
 func (this *ProductionInstrumentationReporter) getAllExecutionResults(folder string) *Outcome_base[*ImmutableList] {
 	var result *TListBuilder[Map] = newTListBuilder_(tc_Map)
-	it_1 := foreach_(any(Io_listFiles(folder)))
+	it_1 := foreach_(Io_listFiles(folder))
 	for it_1.next() {
 		var fileEntry string = str_(it_1.v)
 		var executionResult *Outcome_base[string] = ProductionInstrumentationReporter_readFile(FilePaths_toAbsolute(FilePaths_resolve(folder, fileEntry)))

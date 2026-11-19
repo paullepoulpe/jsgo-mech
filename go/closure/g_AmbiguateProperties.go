@@ -123,7 +123,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	it_11 := propertyGraph.getNodes_rList().each()
 	for it_11.next() {
 		var node *AmbiguateProperties_PropertyGraphNode = it_11.v
-		node.getValue().newName = Optional_of[string](colorMap[Object_hashCode(any(Annotatable_getAnnotation(AmbiguateProperties_PropertyGraphNode_as_Annotatable(node))))])
+		node.getValue().newName = Optional_of[string](colorMap[Object_hashCode(Annotatable_getAnnotation(AmbiguateProperties_PropertyGraphNode_as_Annotatable(node)))])
 		if this.renamingMap != nil {
 			this.renamingMap.put(node.getValue().oldName, node.getValue().newName.orElse(nullstr_))
 		}

@@ -57,7 +57,7 @@ func (this *ReplaceStrings) getResult() *JTList[*ReplaceStrings_Result] {
 
 func (this *ReplaceStrings) getStringMap() *VariableMap {
 	var map_ *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
-	it_1 := foreach_(any(Iterables_filter_f(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS)))
+	it_1 := foreach_(Iterables_filter_f(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS))
 	for it_1.next() {
 		var result *ReplaceStrings_Result = cast_[*ReplaceStrings_Result](it_1.v)
 		map_.put(result.replacement_, result.original_)

@@ -22,7 +22,7 @@ func (this *DevirtualizeMethods) process_3(externs Node, root Node, refMap *Opti
 		panic(new_IllegalStateException_String(objstr_("`process` should only be called once.")).self())
 	}
 	this.refMap = refMap
-	it_1 := foreach_(any(refMap.getPropReferences()))
+	it_1 := foreach_(refMap.getPropReferences())
 	for it_1.next() {
 		var referenceGroup Map_Entry = icast_Map_Entry(it_1.v)
 		this.processReferenceList(str_(referenceGroup.getKey()), icast_List(referenceGroup.getValue()))
@@ -36,7 +36,7 @@ func (this *DevirtualizeMethods) processReferenceList(name string, sites ListOf[
 	}
 	var canonicalDefinitionSite Node = Node_of_(Iterables_get(Iterable(functionsBySite.keySet()), 0))
 	var callSitesBuilder *TListBuilder[Node] = newTListBuilder_(jtc_Node)
-	it_1 := foreach_(any(sites))
+	it_1 := foreach_(sites)
 	for it_1.next() {
 		var s Node = Node_of_(it_1.v)
 		if !functionsBySite.containsKey(s.box_()) {
@@ -135,7 +135,7 @@ func (this *DevirtualizeMethods) isDefinitelyCtorOrInterface(receiver Node) bool
 }
 
 func (this *DevirtualizeMethods) allEligibleDefinitionSites(name string, definitionSites CollectionOf[Node]) bool {
-	it_1 := foreach_(any(definitionSites))
+	it_1 := foreach_(definitionSites)
 	for it_1.next() {
 		var s Node = Node_of_(it_1.v)
 		if !this.isEligibleDefinitionSite(name, s) {
@@ -146,7 +146,7 @@ func (this *DevirtualizeMethods) allEligibleDefinitionSites(name string, definit
 }
 
 func (this *DevirtualizeMethods) allEligibleDefinitionFunctions(definitionFunctions CollectionOf[Node]) bool {
-	it_1 := foreach_(any(definitionFunctions))
+	it_1 := foreach_(definitionFunctions)
 	for it_1.next() {
 		var f Node = Node_of_(it_1.v)
 		if !this.isEligibleDefinitionFunction(f) {
@@ -157,7 +157,7 @@ func (this *DevirtualizeMethods) allEligibleDefinitionFunctions(definitionFuncti
 }
 
 func (this *DevirtualizeMethods) allEligibleCallSites(callSites CollectionOf[Node], definitionSite Node) bool {
-	it_1 := foreach_(any(callSites))
+	it_1 := foreach_(callSites)
 	for it_1.next() {
 		var c Node = Node_of_(it_1.v)
 		if !this.isEligibleCallSite(c, definitionSite) {
@@ -235,7 +235,7 @@ func (this *DevirtualizeMethods) allDefinitionsEquivalent(definitions Collection
 	if !definition.isFunction() {
 		Preconditions_checkArgument_boolean_Object_H(false, definition)
 	}
-	it_1 := foreach_(any(definitions))
+	it_1 := foreach_(definitions)
 	for it_1.next() {
 		var d Node = Node_of_(it_1.v)
 		if !this.compiler_.areNodesEqualForInlining(d, definition) {

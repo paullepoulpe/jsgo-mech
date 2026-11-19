@@ -89,7 +89,7 @@ func (this *TypedAstDeserializer) deserializeTypedAst(typedAstProto *TypedAst, c
 	var fileShard *JTList[*SourceFile_jscomp] = this.toFileShard(typedAstProto)
 	if equalsId_(this.mode_, TypedAstDeserializer_Mode_FULL_AST) {
 		var containsRequiredInput bool = false
-		it_1 := foreach_(any(Iterables_concat(Iterable(typedAstProto.getExternAstList()), Iterable(typedAstProto.getCodeAstList()))))
+		it_1 := foreach_(Iterables_concat(Iterable(typedAstProto.getExternAstList()), Iterable(typedAstProto.getCodeAstList())))
 		for it_1.next() {
 			var lazyAst *LazyAst = cast_[*LazyAst](it_1.v)
 			var file *SourceFile_jscomp = fileShard.get((lazyAst.getSourceFile() - 1))
@@ -110,12 +110,12 @@ func (this *TypedAstDeserializer) deserializeTypedAst(typedAstProto *TypedAst, c
 	var colorShard Optional_baseOf[*ColorPool_ShardView] = this.colorPoolBuilder.transform(&Function_base_tfn_ColorPool_Builder_ColorPool_ShardView{func(builder *ColorPool_Builder) *ColorPool_ShardView {
 		return builder.addShard(typedAstProto.getTypePool(), stringShard)
 	}})
-	it_4 := foreach_(any(typedAstProto.getExternsSummary().getPropNamePtrList()))
+	it_4 := foreach_(typedAstProto.getExternsSummary().getPropNamePtrList())
 	for it_4.next() {
 		var x int32 = unbox_[int32](it_4.v)
 		this.externProperties.add(stringShard.get(x))
 	}
-	it_6 := foreach_(any(Iterables_concat(Iterable(typedAstProto.getExternAstList()), Iterable(typedAstProto.getCodeAstList()))))
+	it_6 := foreach_(Iterables_concat(Iterable(typedAstProto.getExternAstList()), Iterable(typedAstProto.getCodeAstList())))
 	for it_6.next() {
 		var lazyAst *LazyAst = cast_[*LazyAst](it_6.v)
 		this.initLazyAstDeserializer(lazyAst, fileShard, colorShard, stringShard, compiler, resolveSourceMapAnnotations, parseInlineSourceMaps)
@@ -382,7 +382,7 @@ func (this *TypedAstDeserializer_DeserializedAst) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && equals_(this.getFilesystem_, o.getFilesystem_) && equals_(this.getColorRegistry_, o.getColorRegistry_) && objequalsDyn_(this.getExternProperties_.asSet(), any(o.getExternProperties_.asSet())) && objequalsDyn_(this.getRuntimeLibraries_.asSet(), any(o.getRuntimeLibraries_.asSet()))
+	return true && equals_(this.getFilesystem_, o.getFilesystem_) && equals_(this.getColorRegistry_, o.getColorRegistry_) && objequalsDyn_(this.getExternProperties_.asSet(), o.getExternProperties_.asSet()) && objequalsDyn_(this.getRuntimeLibraries_.asSet(), o.getRuntimeLibraries_.asSet())
 }
 
 func (this *TypedAstDeserializer_DeserializedAst) hashCode() int32 {

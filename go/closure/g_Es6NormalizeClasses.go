@@ -1547,7 +1547,7 @@ func (this *Es6NormalizeClasses_ClassRecord) recordConstructorScope(s *Scope) {
 		panic(new_IllegalArgumentException_String(objstr_(s)).self())
 	}
 	if ok_, a1_ := this.constructorVars.isEmpty(), this.constructorVars.asSet(); !ok_ {
-		panic(new_IllegalStateException_String(objstr_(any(a1_))).self())
+		panic(new_IllegalStateException_String(objstr_(a1_)).self())
 	}
 	var argsScope *Scope = s.getParent_rScope()
 	this.constructorVars = tsetImm_(tce_p_Var, ImmutableSet_builder().addAll(s.getAllSymbols()).addAll(argsScope.getAllSymbols()).build())

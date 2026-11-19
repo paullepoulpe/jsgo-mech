@@ -241,7 +241,7 @@ func (this *Scope) getAllAccessibleVariables_impl() IterableOf[*Var] {
 	var accessibleVars *JTMap[string, *Var] = jnewTMap_(jtc_string, jtc_p_Var)
 	var s *Scope = this
 	for s != nil {
-		it_2 := foreach_(any(s.getVarIterable()))
+		it_2 := foreach_(s.getVarIterable())
 		for it_2.next() {
 			var v *Var = cast_[*Var](it_2.v)
 			accessibleVars.putIfAbsent(v.getName(), v)

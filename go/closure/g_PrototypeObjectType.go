@@ -186,13 +186,13 @@ func (this *PrototypeObjectType) appendTo_impl(sb *TypeStringBuilder) {
 			if current.isNativeObjectType() || (properties.size() > PrototypeObjectType_MAX_PRETTY_PRINTED_PROPERTIES) {
 				break
 			}
-			it_2 := foreach_(any(current.getOwnPropertyNames()))
+			it_2 := foreach_(current.getOwnPropertyNames())
 			for it_2.next() {
 				var stringKey string = str_(it_2.v)
 				var key *Property_StringKey = new_Property_StringKey(stringKey)
 				properties.add(new_PrototypeObjectType_PropertyForPrettyPrinting(Property_StringKey_as_Property_Key(key), current.getPropertyTypeKey(Property_StringKey_as_Property_Key(key))))
 			}
-			it_4 := foreach_(any(current.getOwnPropertyKnownSymbols()))
+			it_4 := foreach_(current.getOwnPropertyKnownSymbols())
 			for it_4.next() {
 				var symbolKey *KnownSymbolType = cast_[*KnownSymbolType](it_4.v)
 				var key *Property_SymbolKey = new_Property_SymbolKey(symbolKey)
@@ -314,7 +314,7 @@ func (this *PrototypeObjectType) resolveInternal_impl(reporter ErrorReporter_rhi
 	if implicitPrototype != nil {
 		this.implicitPrototypeFallback = to_ObjectType(implicitPrototype.resolve(reporter).self())
 	}
-	it_1 := foreach_(any(this.properties.values()))
+	it_1 := foreach_(this.properties.values())
 	for it_1.next() {
 		var prop *Property = cast_[*Property](it_1.v)
 		prop.setType(JSType_safeResolve(prop.getType(), reporter))
@@ -340,7 +340,7 @@ func (this *PrototypeObjectType) matchConstraint_impl(constraint *JSType) {
 }
 
 func (this *PrototypeObjectType) matchRecordTypeConstraint(constraintObj *ObjectType) {
-	it_1 := foreach_(any(constraintObj.getOwnPropertyNames()))
+	it_1 := foreach_(constraintObj.getOwnPropertyNames())
 	for it_1.next() {
 		var prop string = str_(it_1.v)
 		var propType *JSType = constraintObj.getPropertyType(prop)

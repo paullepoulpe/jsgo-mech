@@ -168,7 +168,7 @@ func (this *PolyfillUsageFinder) hasInSupertypesList(subCtor *Color, superCtor *
 			ret_1 = true
 			return 1
 		}
-		it_2 := foreach_(any(this.registry.getDisambiguationSupertypes(subCtor)))
+		it_2 := foreach_(this.registry.getDisambiguationSupertypes(subCtor))
 		for it_2.next() {
 			var immediateSupertype *Color = cast_[*Color](it_2.v)
 			if immediateSupertype.isUnion() {
@@ -342,7 +342,7 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 	var methods *SimpleListMultimap = SimpleListMultimap_create()
 	var statics *TMapBuilder[string, *PolyfillUsageFinder_Polyfill] = newTMapBuilder_(jtc_string, jtc_p_PolyfillUsageFinder_Polyfill)
 	var byNativeVersion *SimpleListMultimap = SimpleListMultimap_create()
-	it_1 := foreach_(any(Splitter_on('\n').omitEmptyStrings().split_s(table)))
+	it_1 := foreach_(Splitter_on('\n').omitEmptyStrings().split_s(table))
 	for it_1.next() {
 		var line string = str_(it_1.v)
 		var tokens *JTList[string] = splitToListT_(jtc_string, Splitter_on(' ').omitEmptyStrings(), strobj_(String_trim(line)))
@@ -379,7 +379,7 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 func (this *PolyfillUsageFinder_Polyfills) getPolyfillsNewerThan(languageMode CompilerOptions_LanguageMode) *JTList[*PolyfillUsageFinder_Polyfill] {
 	var featureSet *FeatureSet = languageMode.toFeatureSet()
 	var result *TListBuilder[*PolyfillUsageFinder_Polyfill] = newTListBuilder_(jtc_p_PolyfillUsageFinder_Polyfill)
-	it_1 := foreach_(any(this.byNativeVersion.keySet()))
+	it_1 := foreach_(this.byNativeVersion.keySet())
 	for it_1.next() {
 		var nativeVersionStr string = str_(it_1.v)
 		var polyfillNativeFeatureSet *FeatureSet = PolyfillUsageFinder_getPolyfillSupportedFeatureSet(nativeVersionStr)
@@ -609,7 +609,7 @@ func (this *PolyfillUsageFinder_Traverser) visitGetPropChain(traversal *NodeTrav
 		var propertyName string = getPropNode.getString()
 		var methodPolyfills ListOf[*PolyfillUsageFinder_Polyfill] = this.outer_.polyfills.methods.get_s(propertyName)
 		if !methodPolyfills.isEmpty() && this.includeGuardedUsages.shouldInclude(this.isGuarded(("." + sstr_(propertyName)))) {
-			it_1 := foreach_(any(methodPolyfills))
+			it_1 := foreach_(methodPolyfills)
 			for it_1.next() {
 				var polyfill *PolyfillUsageFinder_Polyfill = cast_[*PolyfillUsageFinder_Polyfill](it_1.v)
 				var ownerName Optional[string] = PolyfillUsageFinder_getMethodOwner(polyfill.nativeSymbol)

@@ -73,7 +73,7 @@ func (this *Module) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && equals_(this.metadata_, o.metadata_) && this.path_ == o.path_ && objequalsDyn_(this.namespace_.asMap(), any(o.namespace_.asMap())) && objequalsDyn_(this.boundNames_.asMap(), any(o.boundNames_.asMap())) && objequalsDyn_(this.localNameToLocalExport_.asMap(), any(o.localNameToLocalExport_.asMap())) && Objects_equals(this.closureNamespace_.box_(), o.closureNamespace_.box_())
+	return true && equals_(this.metadata_, o.metadata_) && this.path_ == o.path_ && objequalsDyn_(this.namespace_.asMap(), o.namespace_.asMap()) && objequalsDyn_(this.boundNames_.asMap(), o.boundNames_.asMap()) && objequalsDyn_(this.localNameToLocalExport_.asMap(), o.localNameToLocalExport_.asMap()) && Objects_equals(this.closureNamespace_.box_(), o.closureNamespace_.box_())
 }
 
 func (this *Module) hashCode() int32 {

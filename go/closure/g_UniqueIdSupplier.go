@@ -31,7 +31,7 @@ func (this *UniqueIdSupplier) getUniqueId(input *CompilerInput) string {
 
 func (this *UniqueIdSupplier) toProto() *JTList[*UniqueIdProto] {
 	var result *JTList[*UniqueIdProto] = jnewTList_(jtc_p_UniqueIdProto)
-	it_1 := foreach_(any(this.counter.entrySet()))
+	it_1 := foreach_(this.counter.entrySet())
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		result.add(cast_[*UniqueIdProto](UniqueIdProto_newBuilder().setHash(unbox_[int32](entry.getKey())).setCounter(unbox_[int32](entry.getValue())).build()))
@@ -41,7 +41,7 @@ func (this *UniqueIdSupplier) toProto() *JTList[*UniqueIdProto] {
 
 func UniqueIdSupplier_fromProto(protos ListOf[*UniqueIdProto]) *UniqueIdSupplier {
 	var supplier *UniqueIdSupplier = new_UniqueIdSupplier()
-	it_1 := foreach_(any(protos))
+	it_1 := foreach_(protos)
 	for it_1.next() {
 		var p *UniqueIdProto = cast_[*UniqueIdProto](it_1.v)
 		supplier.counter.add_2(any(int32(p.getHash())), p.getCounter())

@@ -62,7 +62,7 @@ func Config_builder() *Config_Builder {
 func Config_buildAnnotations(allowlist IterableOf[string]) *JTMap[string, Annotation_parsing] {
 	var annotationsBuilder *TMapBuilder[string, Annotation_parsing] = newTMapBuilder_(jtc_string, tc_p_Annotation_parsing)
 	annotationsBuilder.putAll(Annotation_parsing_recognizedAnnotations.asMap())
-	it_1 := foreach_(any(allowlist))
+	it_1 := foreach_(allowlist)
 	for it_1.next() {
 		var unrecognizedAnnotation string = str_(it_1.v)
 		if unrecognizedAnnotation != "" && !Annotation_parsing_recognizedAnnotations.containsKey(unrecognizedAnnotation) {
@@ -109,7 +109,7 @@ func (this *Config) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.languageMode_ == o.languageMode_ && this.strictMode_ == o.strictMode_ && this.jsDocParsingMode_ == o.jsDocParsingMode_ && this.runMode_ == o.runMode_ && objequalsDyn_(this.annotations_.asMap(), any(o.annotations_.asMap())) && objequalsDyn_(this.suppressionNames_.asSet(), any(o.suppressionNames_.asSet())) && objequalsDyn_(this.closurePrimitiveNames_.asSet(), any(o.closurePrimitiveNames_.asSet())) && this.parseInlineSourceMaps_ == o.parseInlineSourceMaps_
+	return true && this.languageMode_ == o.languageMode_ && this.strictMode_ == o.strictMode_ && this.jsDocParsingMode_ == o.jsDocParsingMode_ && this.runMode_ == o.runMode_ && objequalsDyn_(this.annotations_.asMap(), o.annotations_.asMap()) && objequalsDyn_(this.suppressionNames_.asSet(), o.suppressionNames_.asSet()) && objequalsDyn_(this.closurePrimitiveNames_.asSet(), o.closurePrimitiveNames_.asSet()) && this.parseInlineSourceMaps_ == o.parseInlineSourceMaps_
 }
 
 func (this *Config) hashCode() int32 {

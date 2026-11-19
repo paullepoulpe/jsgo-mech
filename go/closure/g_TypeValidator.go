@@ -447,7 +447,7 @@ func (this *TypeValidator) expectUndeclaredVariable(sourceName Optional[string],
 
 func (this *TypeValidator) expectAllInterfaceProperties(n Node, type_ *FunctionType) {
 	var instance *ObjectType = type_.getInstanceType()
-	it_1 := foreach_(any(type_.getAllImplementedInterfaces()))
+	it_1 := foreach_(type_.getAllImplementedInterfaces())
 	for it_1.next() {
 		var implemented *ObjectType = to_ObjectType(it_1.v)
 		this.expectInterfaceProperties(n, instance, implemented)

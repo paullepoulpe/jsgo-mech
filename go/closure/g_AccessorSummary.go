@@ -74,7 +74,7 @@ func AccessorSummary_fromProto(proto *AccessorSummaryProto) *AccessorSummary {
 		return AccessorSummary_createAssumingAlwaysGetterAndSetter()
 	}
 	var builder *TMapBuilder[string, AccessorSummary_PropertyAccessKind] = newTMapBuilder_(jtc_string, jtc_p_AccessorSummary_PropertyAccessKind)
-	it_1 := foreach_(any(proto.getAccessorsList()))
+	it_1 := foreach_(proto.getAccessorsList())
 	for it_1.next() {
 		var entry *AccessorSummaryEntryProto = cast_[*AccessorSummaryEntryProto](it_1.v)
 		builder.put(entry.getName(), AccessorSummary_fromProtoPropertyAccessKindProto(entry.getKind()))

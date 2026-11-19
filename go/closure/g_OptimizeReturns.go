@@ -30,7 +30,7 @@ func (this *OptimizeReturns) process_3(externs Node, root Node, definitions *Opt
 		defer closeResource_(logFile.self())
 		this.decisionsLog = logFile
 		var toOptimize *JTList[*ArrayList] = jnewTList_(tc_p_ArrayList)
-		it_2 := foreach_(any(definitions.getNameReferences()))
+		it_2 := foreach_(definitions.getNameReferences())
 		for it_2.next() {
 			var entry Map_Entry = icast_Map_Entry(it_2.v)
 			var key string = str_(entry.getKey())
@@ -40,7 +40,7 @@ func (this *OptimizeReturns) process_3(externs Node, root Node, definitions *Opt
 				toOptimize.add(refs)
 			}
 		}
-		it_4 := foreach_(any(definitions.getPropReferences()))
+		it_4 := foreach_(definitions.getPropReferences())
 		for it_4.next() {
 			var entry Map_Entry = icast_Map_Entry(it_4.v)
 			var key string = str_(entry.getKey())
@@ -53,7 +53,7 @@ func (this *OptimizeReturns) process_3(externs Node, root Node, definitions *Opt
 		it_6 := toOptimize.each()
 		for it_6.next() {
 			var refs *ArrayList = it_6.v
-			it_8 := foreach_(any(OptimizeCalls_ReferenceMap_getFunctionNodes(icast_List(refs.self())).values()))
+			it_8 := foreach_(OptimizeCalls_ReferenceMap_getFunctionNodes(icast_List(refs.self())).values())
 			for it_8.next() {
 				var fn Node = Node_of_(it_8.v)
 				this.rewriteReturns(fn)
@@ -70,7 +70,7 @@ func (this *OptimizeReturns) isCandidate(name string, refs ListOf[Node]) bool {
 	}
 	var seenCandidateDefiniton bool = false
 	var seenUse bool = false
-	it_1 := foreach_(any(refs))
+	it_1 := foreach_(refs)
 	for it_1.next() {
 		var n Node = Node_of_(it_1.v)
 		if OptimizeCalls_ReferenceMap_isCallTarget(n) || OptimizeCalls_ReferenceMap_isOptChainCallTarget(n) {

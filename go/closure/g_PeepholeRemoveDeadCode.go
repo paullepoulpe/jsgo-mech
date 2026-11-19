@@ -253,7 +253,7 @@ func (this *PeepholeRemoveDeadCode) trySimplifyUnusedResult(expression Node) Nod
 		return 0
 	} else if sideEffectRoots.peek() == expression {
 		if ok_, a1_ := (sideEffectRoots.size() == 1), sideEffectRoots.asDeque(); !ok_ {
-			panic(new_IllegalStateException_String(objstr_(any(a1_))).self())
+			panic(new_IllegalStateException_String(objstr_(a1_)).self())
 		}
 		this.reportChangeToEnclosingScope(expression)
 		return expression

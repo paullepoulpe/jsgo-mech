@@ -274,7 +274,7 @@ func NodeTraversal_traverseAtScope(compiler *AbstractCompiler, cb NodeTraversal_
 func NodeTraversal_traverseScopeRoots(compiler *AbstractCompiler, scopeNodes ListOf[Node], cb NodeTraversal_Callback, traverseNested bool) {
 	var scb *NodeTraversal_1TraverseScopeRootsCallback = new_NodeTraversal_1TraverseScopeRootsCallback(traverseNested, cb)
 	var scopeCreator *MemoizedScopeCreator = new_MemoizedScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(compiler).createScopeAbstractScope_Node_AbstractScope)
-	it_1 := foreach_(any(scopeNodes))
+	it_1 := foreach_(scopeNodes)
 	for it_1.next() {
 		var scopeNode Node = Node_of_(it_1.v)
 		scb.scopeNode = scopeNode

@@ -86,7 +86,7 @@ func (this *TypedScope) typed_impl() *TypedScope {
 
 func (this *TypedScope) validateCompletelyBuilt() {
 	if ok_, a1_, a2_ := this.reservedNames.isEmpty(), this, this.reservedNames.asSet(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected %s to have no reserved names, found: %s. This probably indicates a bug in TypedScopeCreator where it is failing to declare a variable.", []any{a1_, any(a2_)})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected %s to have no reserved names, found: %s. This probably indicates a bug in TypedScopeCreator where it is failing to declare a variable.", []any{a1_, a2_})).self())
 	}
 	this.reservedNames = jtsetEmptyImm_(jtc_string)
 }
@@ -389,7 +389,7 @@ func (this *TypedScope) getAllAccessibleVariables_impl() IterableOf[*TypedVar] {
 	var accessibleVars *JTMap[string, *TypedVar] = jnewTMap_(jtc_string, jtc_p_TypedVar)
 	var s *TypedScope = this
 	for s != nil {
-		it_2 := foreach_(any(s.getVarIterable()))
+		it_2 := foreach_(s.getVarIterable())
 		for it_2.next() {
 			var v *TypedVar = cast_[*TypedVar](it_2.v)
 			accessibleVars.putIfAbsent(v.getName(), v)

@@ -59,12 +59,12 @@ func (this *SortedDependencies[InputT]) getStrongDependenciesOf(rootInputs ListO
 		}
 	}
 	var builder *TListBuilder[InputT] = newTListBuilder_(tcT_[InputT]())
-	it_4 := foreach_(any(func() List {
+	it_4 := foreach_(func() List {
 		if sorted {
 			return this.importOrderedInputs.asList()
 		}
 		return this.userOrderedInputs.asList()
-	}()))
+	}())
 	for it_4.next() {
 		var input InputT = junboxT_[InputT](it_4.v)
 		if includedInputs.contains(input) {
@@ -106,7 +106,7 @@ func (this *SortedDependencies[InputT]) getSortedWeakDependenciesOf(rootInputs L
 		if !isStrong && !weakInputs.add(input) {
 			continue
 		}
-		it_2 := foreach_(any(edges))
+		it_2 := foreach_(edges)
 		for it_2.next() {
 			var symbolName string = str_(it_2.v)
 			var importedSymbolName InputT = this.exportingInputBySymbolName.get(symbolName)
@@ -142,7 +142,7 @@ func (this *SortedDependencies[InputT]) orderInput(input InputT) {
 		return
 	}
 	this.completedInputs.add(input)
-	it_1 := foreach_(any(this.importedInputByImportingInput.get(boxT_(input))))
+	it_1 := foreach_(this.importedInputByImportingInput.get(boxT_(input)))
 	for it_1.next() {
 		var importedInput InputT = junboxT_[InputT](it_1.v)
 		this.orderInput(importedInput)

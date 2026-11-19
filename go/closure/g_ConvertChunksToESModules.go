@@ -28,7 +28,7 @@ func new_ConvertChunksToESModules(compiler *AbstractCompiler) *ConvertChunksToES
 
 func (this *ConvertChunksToESModules) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_ConvertChunksToESModules_FindCrossChunkReferences(this)))
-	it_1 := foreach_(any(this.compiler_.getChunkGraph().getAllChunks()))
+	it_1 := foreach_(this.compiler_.getChunkGraph().getAllChunks())
 	for it_1.next() {
 		var chunk *JSChunk = cast_[*JSChunk](it_1.v)
 		if (!this.crossChunkExports.containsKey(chunk) && !this.crossChunkImports.containsKey(chunk)) && !chunk.getInputs().isEmpty() {
@@ -43,7 +43,7 @@ func (this *ConvertChunksToESModules) process_2(externs Node, root Node) {
 }
 
 func (this *ConvertChunksToESModules) convertChunkSourcesToModules() {
-	it_1 := foreach_(any(this.compiler_.getChunkGraph().getAllChunks()))
+	it_1 := foreach_(this.compiler_.getChunkGraph().getAllChunks())
 	for it_1.next() {
 		var chunk *JSChunk = cast_[*JSChunk](it_1.v)
 		if chunk.getInputs().isEmpty() {
@@ -94,7 +94,7 @@ func (this *ConvertChunksToESModules) addExportStatements() {
 			panic(new_IllegalStateException_0().self())
 		}
 		var exportSpecs Node = new_Node_Token(Token_rhino_EXPORT_SPECS)
-		it_3 := foreach_(any(jsModuleExports.getValue()))
+		it_3 := foreach_(jsModuleExports.getValue())
 		for it_3.next() {
 			var name string = str_(it_3.v)
 			var exportSpec Node = new_Node_Token(Token_rhino_EXPORT_SPEC)
@@ -127,11 +127,11 @@ func (this *ConvertChunksToESModules) addImportStatements() {
 		if moduleBody == 0 || !moduleBody.isModuleBody() {
 			panic(new_IllegalStateException_0().self())
 		}
-		it_3 := foreach_(any(chunkImportsEntry.getValue().entrySet()))
+		it_3 := foreach_(chunkImportsEntry.getValue().entrySet())
 		for it_3.next() {
 			var importsByChunk Map_Entry = icast_Map_Entry(it_3.v)
 			var importSpecs Node = new_Node_Token(Token_rhino_IMPORT_SPECS)
-			it_5 := foreach_(any(icast_Set(importsByChunk.getValue())))
+			it_5 := foreach_(icast_Set(importsByChunk.getValue()))
 			for it_5.next() {
 				var name string = str_(it_5.v)
 				var importSpec Node = new_Node_Token(Token_rhino_IMPORT_SPEC)

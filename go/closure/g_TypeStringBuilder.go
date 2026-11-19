@@ -45,7 +45,7 @@ func (this *TypeStringBuilder) appendJSType(x *JSType) *TypeStringBuilder {
 
 func (this *TypeStringBuilder) appendAll(elements IterableOf[any], separator string) *TypeStringBuilder {
 	var separate bool = false
-	it_1 := foreach_(any(elements))
+	it_1 := foreach_(elements)
 	for it_1.next() {
 		var e any = it_1.v
 		if separate {

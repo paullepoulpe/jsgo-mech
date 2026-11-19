@@ -63,7 +63,7 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 	if node.isIf() {
 		var cfg *ControlFlowGraph[Node] = this.getControlFlowGraph(this.compiler_)
 		var hasDefaultBlock bool = false
-		it_1 := foreach_(any(cfg.getOutEdges(node)))
+		it_1 := foreach_(cfg.getOutEdges(node))
 		for it_1.next() {
 			var outEdge DiGraph_DiGraphEdge[Node] = cast_[DiGraph_DiGraphEdge[Node]](it_1.v)
 			if cast_[ControlFlowGraph_Branch](outEdge.getValue()) == ControlFlowGraph_Branch_ON_FALSE {
@@ -89,7 +89,7 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 	} else if NodeUtil_isLoopStructure(node) {
 		var blocks *JTList[Node] = this.getChildrenBlocks(node)
 		var cfg *ControlFlowGraph[Node] = this.getControlFlowGraph(this.compiler_)
-		it_3 := foreach_(any(cfg.getOutEdges(node)))
+		it_3 := foreach_(cfg.getOutEdges(node))
 		for it_3.next() {
 			var outEdge DiGraph_DiGraphEdge[Node] = cast_[DiGraph_DiGraphEdge[Node]](it_3.v)
 			if cast_[ControlFlowGraph_Branch](outEdge.getValue()) == ControlFlowGraph_Branch_ON_FALSE {

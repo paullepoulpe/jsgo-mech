@@ -74,7 +74,7 @@ func (this *J2clPass_InlineSpec) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.classFileName_ == o.classFileName_ && objequalsDyn_(this.fnNamesToInline_.asSet(), any(o.fnNamesToInline_.asSet())) && this.inliningMode_ == o.inliningMode_
+	return true && this.classFileName_ == o.classFileName_ && objequalsDyn_(this.fnNamesToInline_.asSet(), o.fnNamesToInline_.asSet()) && this.inliningMode_ == o.inliningMode_
 }
 
 func (this *J2clPass_InlineSpec) hashCode() int32 {

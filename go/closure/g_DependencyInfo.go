@@ -59,7 +59,7 @@ func (this *DependencyInfo_Require) toString() string {
 
 func DependencyInfo_Require_asSymbolList(requires IterableOf[*DependencyInfo_Require]) *JTList[string] {
 	var result *TListBuilder[string] = newTListBuilder_(jtc_string)
-	it_1 := foreach_(any(requires))
+	it_1 := foreach_(requires)
 	for it_1.next() {
 		var require *DependencyInfo_Require = cast_[*DependencyInfo_Require](it_1.v)
 		result.add(require.getSymbol())

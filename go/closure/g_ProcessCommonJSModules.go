@@ -1031,7 +1031,7 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 func (this *ProcessCommonJSModules_RewriteModule) fixTypeAnnotationsForNode(t *NodeTraversal, n Node) {
 	var info *JSDocInfo = n.getJSDocInfo()
 	if info != nil {
-		it_1 := foreach_(any(info.getTypeNodes()))
+		it_1 := foreach_(info.getTypeNodes())
 		for it_1.next() {
 			var typeNode Node = Node_of_(it_1.v)
 			this.fixTypeNode(t, typeNode)

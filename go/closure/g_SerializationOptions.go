@@ -44,7 +44,7 @@ func (this *SerializationOptions) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.includeDebugInfo_ == o.includeDebugInfo_ && this.runValidation_ == o.runValidation_ && objequalsVia_(this.runtimeLibraries_.asList(), any(o.runtimeLibraries_.asList()))
+	return true && this.includeDebugInfo_ == o.includeDebugInfo_ && this.runValidation_ == o.runValidation_ && objequalsVia_(this.runtimeLibraries_.asList(), o.runtimeLibraries_.asList())
 }
 
 func (this *SerializationOptions) hashCode() int32 {

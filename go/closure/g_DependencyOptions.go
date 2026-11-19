@@ -111,7 +111,7 @@ func DependencyOptions_fromFlags(dependencyModeFlag DependencyOptions_Dependency
 	if commonJsEntryModuleFlag.isPresent() {
 		entryPointsBuilder.add(ModuleIdentifier_forFile(commonJsEntryModuleFlag.get()))
 	}
-	it_1 := foreach_(any(entryPointFlag))
+	it_1 := foreach_(entryPointFlag)
 	for it_1.next() {
 		var entryPoint string = str_(it_1.v)
 		entryPointsBuilder.add(ModuleIdentifier_forFlagValue(entryPoint))
@@ -152,7 +152,7 @@ func (this *DependencyOptions) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.mode_ == o.mode_ && objequalsVia_(this.entryPoints_.asList(), any(o.entryPoints_.asList()))
+	return true && this.mode_ == o.mode_ && objequalsVia_(this.entryPoints_.asList(), o.entryPoints_.asList())
 }
 
 func (this *DependencyOptions) hashCode() int32 {

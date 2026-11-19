@@ -360,7 +360,7 @@ func (this *FunctionArgumentInjector_SetContainer) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && objequalsDyn_(this.parametersReferencedAfterSideEffect_.asSet(), any(o.parametersReferencedAfterSideEffect_.asSet())) && objequalsDyn_(this.parametersWithNamesReferencedBeforeParameter_.asSet(), any(o.parametersWithNamesReferencedBeforeParameter_.asSet()))
+	return true && objequalsDyn_(this.parametersReferencedAfterSideEffect_.asSet(), o.parametersReferencedAfterSideEffect_.asSet()) && objequalsDyn_(this.parametersWithNamesReferencedBeforeParameter_.asSet(), o.parametersWithNamesReferencedBeforeParameter_.asSet())
 }
 
 func (this *FunctionArgumentInjector_SetContainer) hashCode() int32 {

@@ -56,7 +56,7 @@ func (this *SourceInfoCheck) visit(unused *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *SourceInfoCheck) checkJSDoc(info *JSDocInfo) {
-	it_1 := foreach_(any(info.getTypeExpressions()))
+	it_1 := foreach_(info.getTypeExpressions())
 	for it_1.next() {
 		var expression *JSTypeExpression = cast_[*JSTypeExpression](it_1.v)
 		if expression.getSourceName() == "" {

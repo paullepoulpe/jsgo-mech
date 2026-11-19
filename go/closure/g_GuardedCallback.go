@@ -54,7 +54,7 @@ func (this *GuardedCallback[T]) shouldTraverse(traversal *NodeTraversal, n Node,
 	} else {
 		this.contextStack.push(this.contextStack.peek().descend(this.compiler_, parent, n))
 		if ((parent != 0) && GuardedCallback_CAN_HAVE_GUARDS.contains(parent.getToken())) && this.registeredGuards.containsKey(parent.box_()) {
-			it_1 := foreach_(any(this.registeredGuards.removeAll(parent.box_())))
+			it_1 := foreach_(this.registeredGuards.removeAll(parent.box_()))
 			for it_1.next() {
 				var resource T = junboxT_[T](it_1.v)
 				this.guarded.add(boxT_(resource))

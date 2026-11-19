@@ -61,7 +61,7 @@ func (this *ScopedAliases) process_2(externs Node, root Node) {
 				aliasWorkQueue = newQueue
 			}
 		}
-		it_4 := foreach_(any(traversal.getAliasDefinitionsToDelete()))
+		it_4 := foreach_(traversal.getAliasDefinitionsToDelete())
 		for it_4.next() {
 			var aliasDefinition Node = Node_of_(it_4.v)
 			this.compiler_.reportChangeToEnclosingScope(aliasDefinition)
@@ -540,7 +540,7 @@ func (this *ScopedAliases_Traversal) reportInvalidVariables(t *NodeTraversal) {
 	var scopeRoot Node = t.getScopeRoot()
 	var enclosingFunctionBody Node = t.getEnclosingFunction().getLastChild()
 	if (this.isGoogScopeFunctionBody(enclosingFunctionBody) && scopeRoot.isBlock()) && !scopeRoot.getParent().isFunction() {
-		it_1 := foreach_(any(t.getScope().getVarIterable()))
+		it_1 := foreach_(t.getScope().getVarIterable())
 		for it_1.next() {
 			var v *Var = cast_[*Var](it_1.v)
 			var parent Node = v.getNameNode().getParent()
@@ -557,7 +557,7 @@ func (this *ScopedAliases_Traversal) report(n Node, error_ *DiagnosticType, argu
 }
 
 func (this *ScopedAliases_Traversal) findAliases(scope *Scope) {
-	it_1 := foreach_(any(scope.getVarIterable()))
+	it_1 := foreach_(scope.getVarIterable())
 	for it_1.next() {
 		var v *Var = cast_[*Var](it_1.v)
 		var n Node = v.getNode()
@@ -678,7 +678,7 @@ func (this *ScopedAliases_Traversal) findNamespaceShadows(t *NodeTraversal) {
 		return
 	}
 	var scope *Scope = t.getScope()
-	it_1 := foreach_(any(scope.getVarIterable()))
+	it_1 := foreach_(scope.getVarIterable())
 	for it_1.next() {
 		var v *Var = cast_[*Var](it_1.v)
 		if this.forbiddenLocals.contains(v.getName()) {
@@ -780,7 +780,7 @@ func (this *ScopedAliases_Traversal) visit_impl(t *NodeTraversal, n Node, parent
 	}
 	var info *JSDocInfo = n.getJSDocInfo()
 	if (info != nil) && !this.injectedDecls.contains(n) {
-		it_2 := foreach_(any(info.getTypeNodes()))
+		it_2 := foreach_(info.getTypeNodes())
 		for it_2.next() {
 			var node Node = Node_of_(it_2.v)
 			this.fixTypeNode(node)

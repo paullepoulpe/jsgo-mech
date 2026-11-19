@@ -364,7 +364,7 @@ func new_MustBeReachingVariableDef_MustDef_0() *MustBeReachingVariableDef_MustDe
 
 func (this *MustBeReachingVariableDef_MustDef) init_MustBeReachingVariableDef_MustDef_Collection(vars CollectionOf[*Var]) {
 	this.finit_MustBeReachingVariableDef_MustDef()
-	it_1 := foreach_(any(vars))
+	it_1 := foreach_(vars)
 	for it_1.next() {
 		var var_ *Var = cast_[*Var](it_1.v)
 		this.reachingDef.put(var_, new_MustBeReachingVariableDef_Definition(var_.getScope_rAbstractScope_rScope().getRootNode()))
@@ -394,7 +394,7 @@ func (this *MustBeReachingVariableDef_MustDef) equals(other any) bool {
 		}
 		mustDef = p
 		return true
-	}() && equalsDyn_(mustDef.reachingDef.asMap(), any(this.reachingDef.asMap())))
+	}() && equalsDyn_(mustDef.reachingDef.asMap(), this.reachingDef.asMap()))
 }
 
 func (this *MustBeReachingVariableDef_MustDef) hashCode() int32 {

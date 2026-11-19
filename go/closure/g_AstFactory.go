@@ -375,11 +375,11 @@ func (this *AstFactory) createNameStaticScope(scope StaticScope, name string) No
 		var var_ StaticSlot = scope.getSlot_String(name)
 		if var_ == nil {
 			if !equalsId_(this.typeMode, AstFactory_TypeMode_NONE) {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Missing var %s in scope %s", []any{name, any(scope)})).self())
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Missing var %s in scope %s", []any{name, scope})).self())
 			}
 		} else {
-			var declaration StaticRef = Preconditions_checkNotNull_Object_String_Object_T(var_.getDeclaration(), "Cannot find type for var with missing declaration %s", any(var_))
-			var varDefinitionNode Node = Preconditions_checkNotNull_Object_String_Object_T(declaration.getNode(), "Missing node for declaration %s", any(declaration))
+			var declaration StaticRef = Preconditions_checkNotNull_Object_String_Object_T(var_.getDeclaration(), "Cannot find type for var with missing declaration %s", var_)
+			var varDefinitionNode Node = Preconditions_checkNotNull_Object_String_Object_T(declaration.getNode(), "Missing node for declaration %s", declaration)
 			if varDefinitionNode.getBooleanProp(Node_IS_CONSTANT_NAME) {
 				result.putBooleanProp(Node_IS_CONSTANT_NAME, true)
 			}
@@ -452,7 +452,7 @@ func (this *AstFactory) createQName_3(scope StaticScope, baseName string, proper
 func (this *AstFactory) createQName_4(scope StaticScope, baseName string, baseNameNode Node, propertyNames IterableOf[string]) Node {
 	var qname Node = baseNameNode
 	var name string = baseName
-	it_1 := foreach_(any(propertyNames))
+	it_1 := foreach_(propertyNames)
 	for it_1.next() {
 		var propertyName string = str_(it_1.v)
 		name += sstr_(("." + sstr_(propertyName)))
@@ -575,7 +575,7 @@ func (this *AstFactory) createGetProp(receiver Node, propertyName string, type_ 
 func (this *AstFactory) createGetPropsWithoutColors(receiver Node, propertyNames IterableOf[string]) Node {
 	this.assertNotAddingColors()
 	var result Node = receiver
-	it_1 := foreach_(any(propertyNames))
+	it_1 := foreach_(propertyNames)
 	for it_1.next() {
 		var propertyName string = str_(it_1.v)
 		result = this.createGetPropWithoutColor(result, propertyName)
@@ -585,7 +585,7 @@ func (this *AstFactory) createGetPropsWithoutColors(receiver Node, propertyNames
 
 func (this *AstFactory) createGetPropsWithUnknownType(receiver Node, propertyNames IterableOf[string]) Node {
 	var result Node = receiver
-	it_1 := foreach_(any(propertyNames))
+	it_1 := foreach_(propertyNames)
 	for it_1.next() {
 		var propertyName string = str_(it_1.v)
 		result = this.createGetPropWithUnknownType(result, propertyName)
@@ -877,7 +877,7 @@ func (this *AstFactory) createEmptyFunction(type_ AstFactory_Type) Node {
 	var result Node = NodeUtil_emptyFunction()
 	if this.isAddingTypes() {
 		if !type_.getJSType(this.registry).isFunctionType() {
-			panic(new_IllegalArgumentException_String(objstr_(any(type_))).self())
+			panic(new_IllegalArgumentException_String(objstr_(type_)).self())
 		}
 	}
 	this.setJSTypeOrColor(type_, result)
@@ -895,7 +895,7 @@ func (this *AstFactory) createFunction(name string, paramList Node, body Node, t
 	var result Node = IR_function(nameNode, paramList, body)
 	if this.isAddingTypes() {
 		if !type_.getJSType(this.registry).isFunctionType() {
-			panic(new_IllegalArgumentException_String(objstr_(any(type_))).self())
+			panic(new_IllegalArgumentException_String(objstr_(type_)).self())
 		}
 	}
 	this.setJSTypeOrColor(type_, result)

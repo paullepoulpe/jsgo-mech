@@ -11,7 +11,7 @@ type JSDocInfo struct {
 func (this *JSDocInfo) init_JSDocInfo(bits int64, props TreeMapOf[*JSDocInfo_Property, any]) {
 	var keys int64 = 0
 	var values *JTList[any] = jnewTList_(tc_Object)
-	it_1 := foreach_(any(props.entrySet()))
+	it_1 := foreach_(props.entrySet())
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var prop *JSDocInfo_Property = to_JSDocInfo_Property(entry.getKey())
@@ -65,7 +65,7 @@ func (this *JSDocInfo) toBuilder_1(transform func(*JSTypeExpression) *JSTypeExpr
 	builder.bits = (this.propertyBits & (^JSDocInfo_Bit_mask_[JSDocInfo_Bit_INLINE_TYPE-1]))
 	builder.props = this.asMap()
 	builder.populated = true
-	it_1 := foreach_(any(builder.props.entrySet()))
+	it_1 := foreach_(builder.props.entrySet())
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		entry.setValue(to_JSDocInfo_Property(entry.getKey()).clone(entry.getValue(), transform))
@@ -726,7 +726,7 @@ func (this *JSDocInfo) getTypeExpressions() CollectionOf[*JSTypeExpression] {
 		var prop *JSDocInfo_Property = JSDocInfo_Property_values[low]
 		var propValue any = this.getPropertyValueByIndex(index)
 		index++
-		it_2 := foreach_(any(prop.getTypeExpressions_Object(propValue)))
+		it_2 := foreach_(prop.getTypeExpressions_Object(propValue))
 		for it_2.next() {
 			var type_ *JSTypeExpression = cast_[*JSTypeExpression](it_2.v)
 			if type_ != nil {
@@ -739,7 +739,7 @@ func (this *JSDocInfo) getTypeExpressions() CollectionOf[*JSTypeExpression] {
 
 func (this *JSDocInfo) getTypeNodes() CollectionOf[Node] {
 	var nodes *JTList[Node] = jnewTList_(jtc_Node)
-	it_1 := foreach_(any(this.getTypeExpressions()))
+	it_1 := foreach_(this.getTypeExpressions())
 	for it_1.next() {
 		var type_ *JSTypeExpression = cast_[*JSTypeExpression](it_1.v)
 		nodes.add(type_.getRoot())
@@ -1241,7 +1241,7 @@ func (this *JSDocInfo_TypeMapProperty) clone_impl(arg_ any, transform func(*JSTy
 	_ = arg
 	var out LinkedHashMapOf[string, *JSTypeExpression] = new_LinkedHashMap_Map(LinkedHashMap_as_Map(arg))
 	if transform != nil {
-		it_1 := foreach_(any(out.entrySet()))
+		it_1 := foreach_(out.entrySet())
 		for it_1.next() {
 			var entry Map_Entry = icast_Map_Entry(it_1.v)
 			var elem *JSTypeExpression = cast_[*JSTypeExpression](entry.getValue())
@@ -1260,10 +1260,10 @@ func (this *JSDocInfo_TypeMapProperty) equalValues_impl(left_ any, right_ any) b
 	_ = right
 	var leftKeys SetOf[string] = left.keySet()
 	var rightKeys SetOf[string] = right.keySet()
-	if !equalsDyn_(leftKeys, any(rightKeys)) {
+	if !equalsDyn_(leftKeys, rightKeys) {
 		return false
 	}
-	it_1 := foreach_(any(leftKeys))
+	it_1 := foreach_(leftKeys)
 	for it_1.next() {
 		var key string = str_(it_1.v)
 		var leftExpr *JSTypeExpression = cast_[*JSTypeExpression](Map_get_s(left, key))
@@ -1326,7 +1326,7 @@ func (this *JSDocInfo_NodeMapProperty) equalValues_impl(left_ any, right_ any) b
 	if left.size() != right.size() {
 		return false
 	}
-	it_1 := foreach_(any(left.entrySet()))
+	it_1 := foreach_(left.entrySet())
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var rightValue Node = Node_of_(Map_get_s(right, str_(entry.getKey())))

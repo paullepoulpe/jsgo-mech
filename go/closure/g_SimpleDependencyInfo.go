@@ -105,7 +105,7 @@ func (this *SimpleDependencyInfo) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.getName_ == o.getName_ && this.getPathRelativeToClosureBase_ == o.getPathRelativeToClosureBase_ && objequalsVia_(this.getProvides_.asList(), any(o.getProvides_.asList())) && objequalsVia_(this.getRequires_.asList(), any(o.getRequires_.asList())) && objequalsVia_(this.getTypeRequires_.asList(), any(o.getTypeRequires_.asList())) && objequalsDyn_(this.getLoadFlags_.asMap(), any(o.getLoadFlags_.asMap())) && this.getHasExternsAnnotation_ == o.getHasExternsAnnotation_ && this.getHasNoCompileAnnotation_ == o.getHasNoCompileAnnotation_
+	return true && this.getName_ == o.getName_ && this.getPathRelativeToClosureBase_ == o.getPathRelativeToClosureBase_ && objequalsVia_(this.getProvides_.asList(), o.getProvides_.asList()) && objequalsVia_(this.getRequires_.asList(), o.getRequires_.asList()) && objequalsVia_(this.getTypeRequires_.asList(), o.getTypeRequires_.asList()) && objequalsDyn_(this.getLoadFlags_.asMap(), o.getLoadFlags_.asMap()) && this.getHasExternsAnnotation_ == o.getHasExternsAnnotation_ && this.getHasNoCompileAnnotation_ == o.getHasNoCompileAnnotation_
 }
 
 func (this *SimpleDependencyInfo) hashCode() int32 {

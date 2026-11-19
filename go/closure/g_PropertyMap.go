@@ -97,7 +97,7 @@ func (this *PropertyMap) findClosest(name Property_Key) *Property_OwnedProperty 
 	{
 		var map_ *PropertyMap = this
 		for ; map_ != nil; map_ = map_.getPrimaryParent() {
-			it_3 := foreach_(any(map_.getSecondaryParentObjects()))
+			it_3 := foreach_(map_.getSecondaryParentObjects())
 			for it_3.next() {
 				var o *ObjectType = to_ObjectType(it_3.v)
 				var parent *PropertyMap = o.getPropertyMap()
@@ -192,7 +192,7 @@ func (this *PropertyMap) collectAllAncestors(ancestors *JTSet[*PropertyMap]) {
 	if primaryParent != nil {
 		primaryParent.collectAllAncestors(ancestors)
 	}
-	it_1 := foreach_(any(this.getSecondaryParentObjects()))
+	it_1 := foreach_(this.getSecondaryParentObjects())
 	for it_1.next() {
 		var parentType *ObjectType = to_ObjectType(it_1.v)
 		var parentMap *PropertyMap = parentType.getPropertyMap()
@@ -300,7 +300,7 @@ func (this *PropertyMap_AllKeys) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && equals_(this.stringKeys_, o.stringKeys_) && objequalsDyn_(this.knownSymbolKeys_.asSet(), any(o.knownSymbolKeys_.asSet()))
+	return true && equals_(this.stringKeys_, o.stringKeys_) && objequalsDyn_(this.knownSymbolKeys_.asSet(), o.knownSymbolKeys_.asSet())
 }
 
 func (this *PropertyMap_AllKeys) hashCode() int32 {
