@@ -34,7 +34,7 @@ func (this *TypeInference) init_TypeInference(compiler *AbstractCompiler, cfg *C
 	this.DataFlowAnalysis.init_DataFlowAnalysis(cfg)
 	this.finit_TypeInference()
 	if ok_, a1_, a2_ := (syntacticScope.getRootNode() == cfg.getEntry().getValue()), cfg.getEntry(), syntacticScope.getRootNode(); !ok_ {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected syntactic scope to be rooted at CFG root node of %s, but instead got syntactic scope root node of %s", []any{a1_, a2_.box_()})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected syntactic scope to be rooted at CFG root node of %s, but instead got syntactic scope root node of %s", a1_, a2_.box_())))
 	}
 	if compiler == nil {
 		panic(new_NullPointerException_0())
@@ -178,7 +178,7 @@ func (this *TypeInference) updateDestructuringParameter(pattern Node, inferredTy
 func (this *TypeInference) updateNamedParameter(paramName Node, hasDefaultValue bool, inferredType *JSType, entryFlowScope FlowScope) FlowScope {
 	var var_ *TypedVar = cast_[*TypedVar](this.containerScope.getVarById_(paramName.getStringId_()).self())
 	if var_ == nil {
-		panic(new_NullPointerException_String(Strings_lenientFormat("Missing var for parameter %s", []any{paramName.box_()})))
+		panic(new_NullPointerException_String(Strings_lenientFormat("Missing var for parameter %s", paramName.box_())))
 	}
 	paramName.setJSType(inferredType)
 	if var_.isTypeInferred() {
@@ -226,7 +226,7 @@ func (this *TypeInference) updateModuleScope(module *Module, syntacticBlockScope
 	case ModuleMetadataMap_ModuleType_GOOG_MODULE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE:
 		nn_, nn1_ := syntacticBlockScope.getVar("exports"), module.metadata()
 		if nn_ == nil {
-			panic(new_NullPointerException_String(Strings_lenientFormat("Missing exports var for %s", []any{obj_(nn1_)})))
+			panic(new_NullPointerException_String(Strings_lenientFormat("Missing exports var for %s", obj_(nn1_))))
 		}
 		var exportsVar *TypedVar = nn_.self().(*TypedVar)
 		var exportsType *JSType = func() *JSType {

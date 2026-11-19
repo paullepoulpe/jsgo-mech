@@ -191,7 +191,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 	var last Node = node.getLastChild()
 	if opstr.isPresent() && (first != last) {
 		if ok_, a1_, a2_ := (childCount == 2), opstr.get(), childCount; !ok_ {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Bad binary operator \"%s\": expected 2 arguments but got %s", []any{strobj_(a1_), a2_})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Bad binary operator \"%s\": expected 2 arguments but got %s", strobj_(a1_), a2_)))
 		}
 		var p int32 = this.precedence(node)
 		var rhsContext CodeGenerator_Context = CodeGenerator_getContextForNoInOperator(context)
@@ -361,7 +361,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.addExpr(first, NodeUtil_precedence(type_), CodeGenerator_Context_OTHER)
 	case Token_rhino_HOOK:
 		if childCount != 3 {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("%s wrong number of children: %s", []any{node.box_(), childCount})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("%s wrong number of children: %s", node.box_(), childCount)))
 		}
 		var p int32 = NodeUtil_precedence(type_)
 		var rhsContext CodeGenerator_Context = CodeGenerator_getContextForNoInOperator(context)
@@ -779,7 +779,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		}
 	case Token_rhino_OPTCHAIN_GETELEM:
 		if childCount != 2 {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Bad GETELEM node: Expected 2 children but got %s. For node: %s", []any{childCount, node.box_()})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Bad GETELEM node: Expected 2 children but got %s. For node: %s", childCount, node.box_())))
 		}
 		this.addExpr(first, NodeUtil_precedence(type_), context)
 		if node.isOptionalChainStart() {
@@ -790,7 +790,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.add("]")
 	case Token_rhino_GETELEM:
 		if childCount != 2 {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Bad GETELEM node: Expected 2 children but got %s. For node: %s", []any{childCount, node.box_()})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Bad GETELEM node: Expected 2 children but got %s. For node: %s", childCount, node.box_())))
 		}
 		var needsParens bool = NodeUtil_isOptChainNode(first)
 		if needsParens {
@@ -983,7 +983,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.addStringKey(node)
 	case Token_rhino_STRINGLIT:
 		if childCount != 0 {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("String node %s may not have children", []any{node.box_()})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("String node %s may not have children", node.box_())))
 		}
 		this.addJsString(node)
 	case Token_rhino_DELPROP:

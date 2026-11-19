@@ -2778,7 +2778,7 @@ func (this *IRFactory_TransformDispatcher) createUpdateNode(type_ Token_rhino, p
 		return operand
 	}()
 	if !assignTarget.isValidAssignmentTarget() {
-		this.outer_.errorReporter.error(String_format("Invalid %s %s operand.", []any{func() any {
+		this.outer_.errorReporter.error(String_format("Invalid %s %s operand.", func() any {
 			if postfix {
 				return strobj_("postfix")
 			}
@@ -2788,7 +2788,7 @@ func (this *IRFactory_TransformDispatcher) createUpdateNode(type_ Token_rhino, p
 				return strobj_("increment")
 			}
 			return strobj_("decrement")
-		}()}), this.outer_.sourceName_, operand.getLineno(), operand.getCharno())
+		}()), this.outer_.sourceName_, operand.getLineno(), operand.getCharno())
 	}
 	var node Node = this.outer_.newNode_2(type_, operand)
 	node.putBooleanProp(Node_INCRDECR_PROP, postfix)
@@ -3005,7 +3005,7 @@ func (this *IRFactory_TransformDispatcher) getPrivatePropsAndValidateUniqueness(
 			}
 			var propName string = curNode.getString()
 			if ok_, a1_, a2_ := (((curNode.isGetterDef() || curNode.isSetterDef()) || curNode.isMemberFieldDef()) || curNode.isMemberFunctionDef()), propName, curNode.getToken(); !ok_ {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Private property '%s' has an unsupported token type: %s", []any{strobj_(a1_), obj_(a2_)})))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Private property '%s' has an unsupported token type: %s", strobj_(a1_), obj_(a2_))))
 			}
 			var isStatic bool = curNode.isStaticMember()
 			var alreadyDeclared bool = privatePropNames.contains(propName)

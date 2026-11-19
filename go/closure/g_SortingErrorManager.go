@@ -230,7 +230,7 @@ func new_SortingErrorManager_ErrorWithLevel(error_ *JSError, level CheckLevel) *
 }
 
 func (this *SortingErrorManager_ErrorWithLevel) hashCode() int32 {
-	return Objects_hash([]any{obj_(this.level_), strobj_(this.error_.description()), this.error_.sourceName().box_(), any(int32(this.error_.getLineNumber())), any(int32(this.error_.charno()))})
+	return Objects_hash(obj_(this.level_), strobj_(this.error_.description()), this.error_.sourceName().box_(), any(int32(this.error_.getLineNumber())), any(int32(this.error_.charno())))
 }
 
 func (this *SortingErrorManager_ErrorWithLevel) equals(obj any) bool {

@@ -117,7 +117,7 @@ func (this *JSTypeReconserializer) recordUnionType(type_ *UnionType) *JSTypeReco
 		record.unionMembers = immutableSetCopyOf_(tc_p_JSTypeReconserializer_SeenTypeRecord, Collection(altRecords.asSet()))
 	} else if this.serializationMode.runValidation() {
 		if ok_, a1_, a2_, a3_ := equalsDyn_(altRecords.asSet(), obj_(record.unionMembers.asImm())), unionId, JSTypeReconserializer_colorIdsOf(Collection(altRecords.asSet())).asImm(), JSTypeReconserializer_colorIdsOf(icast_Collection(obj_(record.unionMembers.asImm()))).asImm(); !ok_ {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Unions with same ID must have same members: %s => %s == %s", []any{obj_(a1_), obj_(a2_), obj_(a3_)})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Unions with same ID must have same members: %s => %s == %s", obj_(a1_), obj_(a2_), obj_(a3_))))
 		}
 	}
 	return record
@@ -273,7 +273,7 @@ func (this *JSTypeReconserializer) checkValidLinearTime() {
 			panic(new_IllegalStateException_0())
 		}
 		if offset > totalTypeCount {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Found invalid pointer %s, out of a total of %s user-defined types", []any{offset, totalTypeCount})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Found invalid pointer %s, out of a total of %s user-defined types", offset, totalTypeCount)))
 		}
 	}
 }
@@ -294,7 +294,7 @@ func (this *JSTypeReconserializer) generateTypePool() *TypePool {
 	for seen := range this.seenTypeRecords.Values() {
 		if StandardColors_AXIOMATIC_COLORS.containsKey(obj_(seen.colorId)) {
 			if !TypePointers_isAxiomatic(seen.pointer) {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Missing .type for SeenTypeRecord %s", []any{obj_(seen)})))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Missing .type for SeenTypeRecord %s", obj_(seen))))
 			}
 			continue
 		}

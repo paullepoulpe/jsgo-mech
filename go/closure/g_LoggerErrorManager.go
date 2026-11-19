@@ -64,7 +64,7 @@ func (this *LoggerErrorManager) printSummary_impl() {
 		return Level_WARNING
 	}()
 	if this.getTypedPercent() > 0.0 {
-		this.logger.log_Level_String(level, String_format("%d error(s), %d warning(s), %.1f%% typed", []any{any(int32(this.getErrorCount())), any(int32(this.getWarningCount())), any(float64(this.getTypedPercent()))}))
+		this.logger.log_Level_String(level, String_format("%d error(s), %d warning(s), %.1f%% typed", any(int32(this.getErrorCount())), any(int32(this.getWarningCount())), any(float64(this.getTypedPercent()))))
 	} else if (this.getErrorCount() + this.getWarningCount()) > 0 {
 		this.logger.log_Level_String(level, (istr_(int64(int32(this.getErrorCount()))) + " error(s), " + istr_(int64(int32(this.getWarningCount()))) + " warning(s)"))
 	}

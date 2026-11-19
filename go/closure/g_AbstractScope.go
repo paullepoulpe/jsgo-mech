@@ -121,7 +121,7 @@ func (this *AbstractScope) undeclareInteral(var_ *AbstractVar) {
 
 func (this *AbstractScope) declareInternal(name string, var_ *AbstractVar) {
 	if ok_, a1_ := (this.hasOwnSlot(name) || this.canDeclare(name)), var_.getNode(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Illegal shadow: %s", []any{a1_.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Illegal shadow: %s", a1_.box_())))
 	}
 	if this.vars == nil {
 		this.vars = newScopeVars_()
@@ -387,7 +387,7 @@ func (this *AbstractScope) checkChildScope(parent *AbstractScope) {
 		panic(new_IllegalArgumentException_String(tostr_(this.rootNode_)))
 	}
 	if this.rootNode_ == parent.getRootNode() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("rootNode should not be the parent's root node: %s", []any{this.rootNode_.box_()})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("rootNode should not be the parent's root node: %s", this.rootNode_.box_())))
 	}
 }
 

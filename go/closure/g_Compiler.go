@@ -231,7 +231,7 @@ func (this *Compiler) initOptions(options *CompilerOptions) {
 	case Tri_TRUE:
 		var sufficientOptimizations *InlineFunctions_ShouldRequireInlining = InlineFunctions_checkOptimizationLevelSupportsRequireInlining(options)
 		if ok_, a1_ := sufficientOptimizations.shouldValidate(), sufficientOptimizations.optMessage(); !ok_ {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("shouldValidateRequiredInlinings cannot be set unless CompilerOptions enables sufficient optimization, but found: %s", []any{strobj_(a1_)})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("shouldValidateRequiredInlinings cannot be set unless CompilerOptions enables sufficient optimization, but found: %s", strobj_(a1_))))
 		}
 	case Tri_FALSE:
 	case Tri_UNKNOWN:
@@ -357,7 +357,7 @@ func (this *Compiler) getTypedAstDeserializer_impl(file *SourceFile_jscomp) Supp
 	}
 	var ast SupplierOf[Node] = icast_Supplier(this.typedAstFilesystem.remove(obj_(file)))
 	if !(((ast != nil) || strings.HasPrefix(file.getName(), Compiler_SYNTHETIC_FILE_NAME_PREFIX)) || AbstractCompiler_isFillFileName(file.getName())) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("TypedAST filesystem initialized, but missing requested file: %s", []any{obj_(file)})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("TypedAST filesystem initialized, but missing requested file: %s", obj_(file))))
 	}
 	return ast
 }
@@ -637,7 +637,7 @@ func (this *Compiler) stage1Passes() {
 
 func (this *Compiler) stage2Passes(segmentOfCompilationToRun CompilerOptions_SegmentOfCompilationToRun) {
 	if !(((segmentOfCompilationToRun == CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS) || (segmentOfCompilationToRun == CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_FIRST_HALF)) || (segmentOfCompilationToRun == CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_SECOND_HALF)) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Unsupported segment of compilation to run in stage 2: %s", []any{obj_(segmentOfCompilationToRun)})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Unsupported segment of compilation to run in stage 2: %s", obj_(segmentOfCompilationToRun))))
 	}
 	if this.chunkGraph == nil {
 		panic(new_IllegalStateException_String("No inputs. Did you call init() or initChunks()?"))
@@ -671,7 +671,7 @@ func (this *Compiler) stage3Passes() {
 		panic(new_IllegalStateException_String("No inputs. Did you call init() or initChunks()?"))
 	}
 	if ok_, a1_ := !this.hasErrors(), this.getErrors().asImm(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot run stage3Passes with errors present: %s", []any{obj_(a1_)})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot run stage3Passes with errors present: %s", obj_(a1_))))
 	}
 	if this.options_.getInstrumentForCoverageOnly() {
 		panic(new_IllegalStateException_0())
@@ -2484,11 +2484,11 @@ func (this *Compiler) getNodeForCodeInsertion_impl(chunk *JSChunk) Node {
 			panic(new_IllegalStateException_String("No inputs"))
 		}
 		var firstInput *CompilerInput = cast_[*CompilerInput](Iterables_getFirst(allInputs, nil))
-		return Compiler_checkNotModule(firstInput.getAstRoot(this.up_AbstractCompiler()), "Cannot insert code into a module", []any{})
+		return Compiler_checkNotModule(firstInput.getAstRoot(this.up_AbstractCompiler()), "Cannot insert code into a module", []any{}...)
 	}
 	var chunkInputs ImmutableListOf[*CompilerInput] = chunk.getInputs()
 	if !chunkInputs.isEmpty() {
-		return Compiler_checkNotModule(cast_[*CompilerInput](chunkInputs.get(0)).getAstRoot(this.up_AbstractCompiler()), "Cannot insert code into a module", []any{})
+		return Compiler_checkNotModule(cast_[*CompilerInput](chunkInputs.get(0)).getAstRoot(this.up_AbstractCompiler()), "Cannot insert code into a module", []any{}...)
 	}
 	panic(new_IllegalStateException_String("Root chunk has no inputs"))
 }
@@ -2733,7 +2733,7 @@ func (this *Compiler) removeSyntheticCodeInput_1(mergeContentIntoFirstInput bool
 		if next == 0 {
 			panic(new_NullPointerException_String("Must provide at least one source"))
 		}
-		Compiler_checkNotModule(next, "Cannot remove synthetic code input until modules are rewritten: %s", []any{next.box_()})
+		Compiler_checkNotModule(next, "Cannot remove synthetic code input until modules are rewritten: %s", next.box_())
 		next.addChildrenToFront(astRoot.removeChildren())
 		this.reportChangeToChangeScope(next)
 	}
@@ -2775,7 +2775,7 @@ func (this *Compiler) loadResourceContents(resourceName string, path string) Nod
 		}
 		nn_, nn1_, nn2_ := any(this.runtimeLibraryTypedAsts.Get(path)), ("Missing precompiled .typedast for '%s'. If this file is newly added, " + "you may need to regenerate runtime_libs.typedast.textproto" + ""), path
 		if nn_ == nil {
-			panic(new_NullPointerException_String(Strings_lenientFormat(nn1_, []any{strobj_(nn2_)})))
+			panic(new_NullPointerException_String(Strings_lenientFormat(nn1_, strobj_(nn2_))))
 		}
 		var typedAstSupplier SupplierOf[Node] = nn_.(Supplier)
 		return Node_of_(typedAstSupplier.get())
@@ -2945,7 +2945,7 @@ func (this *Compiler) getCompilerStateProtoBuilder() *JSCompilerStateProto_Build
 		for _, dep := range chunk.getDependencies() {
 			var depIdx any = chunkNameMap[dep.getName()]
 			if ok_, a1_, a2_ := (depIdx != nil), dep.getName(), chunk.getName(); !ok_ {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Missing dependency %s for chunk %s", []any{strobj_(a1_), strobj_(a2_)})))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Missing dependency %s for chunk %s", strobj_(a1_), strobj_(a2_))))
 			}
 			chunkBuilder.addDependencies(unbox_[int32](depIdx))
 		}
@@ -3159,7 +3159,7 @@ func (this *Compiler) deserializeCompilerState(state []int8) {
 		if externFile == nil {
 			externFile = codeFiles.Get(externName)
 			if externFile == nil {
-				panic(new_NullPointerException_String(Strings_lenientFormat("Missing %s", []any{strobj_(externName)})))
+				panic(new_NullPointerException_String(Strings_lenientFormat("Missing %s", strobj_(externName))))
 			}
 		}
 		var input *CompilerInput = new_CompilerInput_SourceFile_boolean(externFile, true)
@@ -3175,7 +3175,7 @@ func (this *Compiler) deserializeCompilerState(state []int8) {
 			var src *SourceFile_jscomp = codeFiles.Get(inputId)
 			if src == nil {
 				if !AbstractCompiler_isFillFileName(inputId) {
-					panic(new_IllegalStateException_String(Strings_lenientFormat("Missing %s", []any{strobj_(inputId)})))
+					panic(new_IllegalStateException_String(Strings_lenientFormat("Missing %s", strobj_(inputId))))
 				}
 				continue
 			}
@@ -3276,7 +3276,7 @@ func (this *Compiler) resetAndIntitializeSourceMap() {
 	}
 }
 
-func Compiler_checkNotModule(script Node, msg string, args []any) Node {
+func Compiler_checkNotModule(script Node, msg string, args ...any) Node {
 	if !script.isScript() {
 		panic(new_IllegalArgumentException_String(tostr_(script)))
 	}
@@ -3284,7 +3284,7 @@ func Compiler_checkNotModule(script Node, msg string, args []any) Node {
 		return script
 	}
 	if script.getFirstChild().isModuleBody() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat(msg, args)))
+		panic(new_IllegalStateException_String(Strings_lenientFormat(msg, args...)))
 	}
 	return script
 }
@@ -3557,7 +3557,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) setLogFile(file *LogFile) {
 }
 
 func (this *Compiler_ChunkGraphAwareLicenseTracker) setCurrentChunkContext(chunk *JSChunk) {
-	this.log_.log_2("Initializing licenses from deps for chunk %s", []any{obj_(chunk)})
+	this.log_.log_2("Initializing licenses from deps for chunk %s", obj_(chunk))
 	this.currentChunk = chunk
 	clear(this.currentChunkLicencesInTDeps)
 	this.licensesNewInCurrentFile.Clear()
@@ -3584,7 +3584,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 	}
 	if !this.haveInitializedCurrentChunkLicenses {
 		for depChunk := range elemsAs_[*JSChunk](this.currentChunk.getAllDependencies()) {
-			this.log_.log_2("Chunk %s depends on chunk %s", []any{obj_(this.currentChunk), obj_(depChunk)})
+			this.log_.log_2("Chunk %s depends on chunk %s", obj_(this.currentChunk), obj_(depChunk))
 			if !has_(this.licensesFromChunks, depChunk) {
 				panic(new_IllegalStateException_String("Chunk aware license analysis error - analysis out of order."))
 			}
@@ -3606,9 +3606,9 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 	}
 	var newlyAddedLicense bool = this.licensesNewInCurrentFile.Add(license.get())
 	if !newlyAddedLicense {
-		this.log_.log_2("Chunk %s already depends on license\n==================\n%s\n==================\n\n", []any{obj_(this.currentChunk), strobj_(license.get())})
+		this.log_.log_2("Chunk %s already depends on license\n==================\n%s\n==================\n\n", obj_(this.currentChunk), strobj_(license.get()))
 	} else {
-		this.log_.log_2("Chunk %s has new license:\n==================\n%s\n==================\n\n", []any{obj_(this.currentChunk), strobj_(license.get())})
+		this.log_.log_2("Chunk %s has new license:\n==================\n%s\n==================\n\n", obj_(this.currentChunk), strobj_(license.get()))
 	}
 }
 

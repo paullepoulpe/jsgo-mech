@@ -103,35 +103,35 @@ func (this *TypeTransformation) addNewEntry(map_ *ImmutableMap[string, any], nam
 
 func (this *TypeTransformation) getFunctionParameter(n Node, i int32) string {
 	if !n.isFunction() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a function node, found %s", []any{n.box_()})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a function node, found %s", n.box_())))
 	}
 	return n.getSecondChild().getChildAtIndex(i).getString()
 }
 
 func (this *TypeTransformation) getCallName(n Node) string {
 	if !n.isCall() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a call node, found %s", []any{n.box_()})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a call node, found %s", n.box_())))
 	}
 	return n.getFirstChild().getString()
 }
 
 func (this *TypeTransformation) getCallArgument(n Node, i int32) Node {
 	if !n.isCall() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a call node, found %s", []any{n.box_()})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a call node, found %s", n.box_())))
 	}
 	return n.getChildAtIndex((i + 1))
 }
 
 func (this *TypeTransformation) getCallParamCount(n Node) int32 {
 	if !n.isCall() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a call node, found %s", []any{n.box_()})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a call node, found %s", n.box_())))
 	}
 	return (n.getChildCount() - 1)
 }
 
 func (this *TypeTransformation) getCallParams(n Node) []Node {
 	if !n.isCall() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a call node, found %s", []any{n.box_()})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a call node, found %s", n.box_())))
 	}
 	var builder []Node
 	for i := int32(0); i < this.getCallParamCount(n); i++ {
@@ -142,14 +142,14 @@ func (this *TypeTransformation) getCallParams(n Node) []Node {
 
 func (this *TypeTransformation) getComputedPropValue(n Node) Node {
 	if !n.isComputedProp() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a computed property node, found %s", []any{n.box_()})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a computed property node, found %s", n.box_())))
 	}
 	return n.getSecondChild()
 }
 
 func (this *TypeTransformation) getComputedPropName(n Node) string {
 	if !n.isComputedProp() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a computed property node, found %s", []any{n.box_()})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a computed property node, found %s", n.box_())))
 	}
 	return n.getFirstChild().getString()
 }

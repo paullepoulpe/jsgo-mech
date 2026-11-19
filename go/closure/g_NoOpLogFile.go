@@ -36,7 +36,7 @@ func (this *NoOpLogFile) log_impl(value SupplierOf[string]) *LogFile {
 	return this.up_LogFile()
 }
 
-func (this *NoOpLogFile) log_2_impl(template string, values []any) *LogFile {
+func (this *NoOpLogFile) log_2_impl(template string, values ...any) *LogFile {
 	return this.up_LogFile()
 }
 
@@ -85,11 +85,11 @@ func (this *NoOpLogFile) log(p0 Supplier) *LogFile {
 }
 
 // log_2: an object that is exactly a NoOpLogFile calls its log_2_impl directly (post-flip); others dispatch.
-func (this *NoOpLogFile) log_2(p0 string, p1 []any) *LogFile {
+func (this *NoOpLogFile) log_2(p0 string, p1 ...any) *LogFile {
 	if p, _ := this.self_.(*NoOpLogFile); p == this {
-		return this.log_2_impl(p0, p1)
+		return this.log_2_impl(p0, p1...)
 	}
-	return this.self_.log_2_impl(p0, p1)
+	return this.self_.log_2_impl(p0, p1...)
 }
 
 // logJsonObject: an object that is exactly a NoOpLogFile calls its logJsonObject_impl directly (post-flip); others dispatch.

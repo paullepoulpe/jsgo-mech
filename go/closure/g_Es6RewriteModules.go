@@ -226,7 +226,7 @@ func (this *Es6RewriteModules) visitScript(t *NodeTraversal, script Node) {
 	var thisModule *Module = this.moduleMap.getModule(t.getInput().getPath())
 	var qualifiedName *QualifiedName = ModuleRenaming_getGlobalName_ModuleMetadata_Optional(thisModule.metadata(), Optional_empty[string]())
 	if !qualifiedName.isSimple() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected qualified name %s", []any{qualifiedName.self()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected qualified name %s", qualifiedName.self())))
 	}
 	var moduleName string = qualifiedName.getRoot()
 	var moduleVar Node = this.createExportsObject(moduleName, t, script, moduleObjectType)
@@ -256,7 +256,7 @@ func (this *Es6RewriteModules) createExportsObject(moduleName string, t *NodeTra
 		var mutated bool = binding.isMutated()
 		var boundVariableQualifiedName *QualifiedName = ModuleRenaming_getGlobalName_Binding(binding)
 		if !boundVariableQualifiedName.isSimple() {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("unexpected qualified name: %s", []any{boundVariableQualifiedName.self()})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("unexpected qualified name: %s", boundVariableQualifiedName.self())))
 		}
 		var boundVariableName string = boundVariableQualifiedName.getRoot()
 		var getProp Node = this.astFactory_.createGetPropWithoutColor(this.astFactory_.createName(moduleName, moduleObjectType), exportedName)

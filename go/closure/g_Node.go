@@ -418,7 +418,7 @@ func (this Node) getClosureUnawareShadow() Node {
 
 func (this Node) setIsInClosureUnawareSubtree(value bool) {
 	if (this.propListHead_isnull_() || (int32(this.propListHead_get_().propType) != Node_Prop_SOURCE_FILE.ordinal())) || (this.propListHead_get_().next_ != nil) {
-		panic(new_IllegalArgumentException_String(String_format("Cannot set IS_IN_CLOSURE_UNAWARE_SUBTREE property on a node which proplist is not a single SOURCE_FILE prop: %s %s", []any{this.box_(), strobj_(this.getPropListDebugString())})))
+		panic(new_IllegalArgumentException_String(String_format("Cannot set IS_IN_CLOSURE_UNAWARE_SUBTREE property on a node which proplist is not a single SOURCE_FILE prop: %s %s", this.box_(), strobj_(this.getPropListDebugString()))))
 	}
 	this.putBooleanProp(Node_Prop_IS_IN_CLOSURE_UNAWARE_SUBTREE, value)
 }
@@ -474,7 +474,7 @@ func (this Node) addChildToFront(child Node) {
 
 func (this Node) addChildToBack(child Node) {
 	if ok_, a1_, a2_, a3_ := (child.ns_().parent == 0), child, child.ns_().parent, this; !ok_ {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Cannot add already-owned child node.\nChild: %s\nExisting parent: %s\nNew parent: %s", []any{a1_.box_(), a2_.box_(), a3_.box_()})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Cannot add already-owned child node.\nChild: %s\nExisting parent: %s\nNew parent: %s", a1_.box_(), a2_.box_(), a3_.box_())))
 	}
 	if child.ns_().next_ != 0 {
 		panic(new_IllegalArgumentException_0())
@@ -639,19 +639,19 @@ func (this Node) detach() Node {
 
 func (this Node) checkAttached() {
 	if this.ns_().parent == 0 {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Has no parent: %s", []any{this.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Has no parent: %s", this.box_())))
 	}
 }
 
 func (this Node) checkDetached() {
 	if this.ns_().parent != 0 {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Has parent: %s", []any{this.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Has parent: %s", this.box_())))
 	}
 	if this.ns_().next_ != 0 {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Has next: %s", []any{this.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Has next: %s", this.box_())))
 	}
 	if this.cs_().previous != 0 {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Has previous: %s", []any{this.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Has previous: %s", this.box_())))
 	}
 }
 
@@ -718,7 +718,7 @@ func (this Node) validateProperties(violationMessageConsumer func(string)) {
 		for ; propListItem != nil; propListItem = propListItem.next_ {
 			var prop *Node_Prop = Node_propValues[propListItem.propType]
 			if prop.ordinal() != int32(propListItem.propType) {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("ordinal doesn't match: %s", []any{obj_(prop)})))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("ordinal doesn't match: %s", obj_(prop))))
 			}
 			switch prop {
 			case Node_Prop_IS_PARENTHESIZED:
@@ -2157,7 +2157,7 @@ func (this Node) getJSType() *JSType {
 func (this Node) getJSTypeRequired() *JSType {
 	nn_1 := this.getJSType()
 	if nn_1 == nil {
-		nullFail_(Strings_lenientFormat("no jstypeOrColor: %s", []any{this.box_()}))
+		nullFail_(Strings_lenientFormat("no jstypeOrColor: %s", this.box_()))
 	}
 	return nn_1
 }
@@ -2258,7 +2258,7 @@ func (this Node) isSyntheticBlock() bool {
 
 func (this Node) setIsSynthesizedUnfulfilledNameDeclaration(val bool) {
 	if !(((this.ns_().token == tokOrd1_VAR) && this.hasOneChild()) && this.getFirstChild().isName()) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected all synthetic unfulfilled declarations to be `var <name>`, found %s", []any{this.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected all synthetic unfulfilled declarations to be `var <name>`, found %s", this.box_())))
 	}
 	this.putBooleanProp(Node_Prop_SYNTHESIZED_UNFULFILLED_NAME_DECLARATION, val)
 }
@@ -2370,7 +2370,7 @@ func (this Node) hasTrailingComma() bool {
 
 func (this Node) setSideEffectFlagsInt(flags int32) {
 	if !(((this.isCall() || this.isOptChainCall()) || this.isNew()) || this.isTaggedTemplateLit()) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Side-effect flags can only be set on invocation nodes; got %s", []any{this.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Side-effect flags can only be set on invocation nodes; got %s", this.box_())))
 	}
 	this.putIntProp(Node_Prop_SIDE_EFFECT_FLAGS, ((^flags) & Node_SideEffectFlags_USED_BITS_MASK))
 }
@@ -2429,28 +2429,28 @@ func (this Node) setConstantVarFlag(flag int32, value bool) {
 
 func (this Node) isDeclaredConstantVar() bool {
 	if !this.isName() && !this.isImportStar() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Should only be called on name or import * nodes. Found %s", []any{this.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Should only be called on name or import * nodes. Found %s", this.box_())))
 	}
 	return Node_anyBitSet(this.getConstantVarFlags(), Node_ConstantVarFlags_DECLARED)
 }
 
 func (this Node) setDeclaredConstantVar(value bool) {
 	if !this.isName() && !this.isImportStar() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Should only be called on name or import * nodes. Found %s", []any{this.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Should only be called on name or import * nodes. Found %s", this.box_())))
 	}
 	this.setConstantVarFlag(Node_ConstantVarFlags_DECLARED, value)
 }
 
 func (this Node) isInferredConstantVar() bool {
 	if !this.isName() && !this.isImportStar() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Should only be called on name or import * nodes. Found %s", []any{this.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Should only be called on name or import * nodes. Found %s", this.box_())))
 	}
 	return Node_anyBitSet(this.getConstantVarFlags(), Node_ConstantVarFlags_INFERRED)
 }
 
 func (this Node) setInferredConstantVar(value bool) {
 	if !this.isName() && !this.isImportStar() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Should only be called on name or import * nodes. Found %s", []any{this.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Should only be called on name or import * nodes. Found %s", this.box_())))
 	}
 	this.setConstantVarFlag(Node_ConstantVarFlags_INFERRED, value)
 }

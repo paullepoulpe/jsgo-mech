@@ -393,7 +393,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) createWrapp
 		call.putBooleanProp(Node_FREE_CALL, true)
 		var replacement Node
 		if NodeUtil_isFunctionDeclaration(functionOrObjectLit) {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("block-scoped function declarations should not exist now: %s", []any{functionOrObjectLit.box_()})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("block-scoped function declarations should not exist now: %s", functionOrObjectLit.box_())))
 		}
 		replacement = call.srcrefTreeIfMissing(functionOrObjectLit)
 		functionOrObjectLit.replaceWith(replacement)

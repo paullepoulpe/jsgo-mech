@@ -68,7 +68,7 @@ func (this *CrossChunkCodeMotion) moveGlobalSymbols(globalSymbols CollectionOf[*
 
 func (this *CrossChunkCodeMotion) addGuardToInstanceofReference(referenceNode Node) {
 	if !this.isUnguardedInstanceofReference(referenceNode) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("instanceof Reference is already guarded: %s", []any{referenceNode.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("instanceof Reference is already guarded: %s", referenceNode.box_())))
 	}
 	var instanceofNode Node = referenceNode.getParent()
 	if instanceofNode == 0 {
@@ -328,7 +328,7 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCycle) moveDeclarationStatements() 
 	for it_1.next() {
 		var symbol *CrossChunkCodeMotion_GlobalSymbol = it_1.v
 		if symbol.isMoveDeclarationStatementsDone {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("duplicate attempt to move %s", []any{obj_(symbol)})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("duplicate attempt to move %s", obj_(symbol))))
 		}
 	}
 	var chunksWithImmovableReferences *BitSet = new_BitSet_int(this.outer_.graph.getChunkCount())
@@ -442,7 +442,7 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroup) makeReferencesImmova
 	this.declaredGlobalSymbol.addImmovableReference(this.currentChunk)
 	for symbol := range this.referencedGlobalSymbols.All() {
 		if symbol.isMoveDeclarationStatementsDone {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("symbol %s moved before referring symbol %s", []any{obj_(symbol), obj_(this.declaredGlobalSymbol)})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("symbol %s moved before referring symbol %s", obj_(symbol), obj_(this.declaredGlobalSymbol))))
 		}
 		symbol.addImmovableReference(this.currentChunk)
 	}
@@ -487,7 +487,7 @@ func (this *CrossChunkCodeMotion_OrderAndCombineGlobalSymbols) orderAndCombine()
 
 func (this *CrossChunkCodeMotion_OrderAndCombineGlobalSymbols) processGlobalSymbol(symbol *CrossChunkCodeMotion_GlobalSymbol) {
 	if symbol.preorderNumber >= 0 {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("already processed: %s", []any{obj_(symbol)})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("already processed: %s", obj_(symbol))))
 	}
 	symbol.preorderNumber = this.preorderCounter
 	this.preorderCounter++
