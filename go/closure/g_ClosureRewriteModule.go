@@ -1166,7 +1166,10 @@ func (this ClosureRewriteModule_AddAt) name() string {
 }
 
 func (this ClosureRewriteModule_AddAt) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this ClosureRewriteModule_AddAt) toString() string {
@@ -1234,7 +1237,10 @@ func (this ClosureRewriteModule_ScopeType) name() string {
 }
 
 func (this ClosureRewriteModule_ScopeType) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this ClosureRewriteModule_ScopeType) toString() string {
