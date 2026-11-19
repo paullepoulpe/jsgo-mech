@@ -152,7 +152,7 @@ func (this *NoObjectType) resolveInternal_impl(reporter ErrorReporter_rhino) *JS
 
 // getTypeClass: an object that is exactly a NoObjectType calls its getTypeClass_impl directly (post-flip); others dispatch.
 func (this *NoObjectType) getTypeClass() JSTypeClass {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoObjectType); p == this {
 		return this.getTypeClass_impl()
 	}
 	return this.self_.getTypeClass_impl()
@@ -160,7 +160,7 @@ func (this *NoObjectType) getTypeClass() JSTypeClass {
 
 // toMaybeFunctionType: an object that is exactly a NoObjectType calls its toMaybeFunctionType_impl directly (post-flip); others dispatch.
 func (this *NoObjectType) toMaybeFunctionType() *FunctionType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoObjectType); p == this {
 		return this.toMaybeFunctionType_impl()
 	}
 	return this.self_.toMaybeFunctionType_impl()
@@ -168,7 +168,7 @@ func (this *NoObjectType) toMaybeFunctionType() *FunctionType {
 
 // isNoObjectType: an object that is exactly a NoObjectType calls its isNoObjectType_impl directly (post-flip); others dispatch.
 func (this *NoObjectType) isNoObjectType() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoObjectType); p == this {
 		return this.isNoObjectType_impl()
 	}
 	return this.self_.isNoObjectType_impl()
@@ -176,7 +176,7 @@ func (this *NoObjectType) isNoObjectType() bool {
 
 // getImplicitPrototype: an object that is exactly a NoObjectType calls its getImplicitPrototype_impl directly (post-flip); others dispatch.
 func (this *NoObjectType) getImplicitPrototype() *ObjectType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoObjectType); p == this {
 		return this.getImplicitPrototype_impl()
 	}
 	return this.self_.getImplicitPrototype_impl()
@@ -184,7 +184,7 @@ func (this *NoObjectType) getImplicitPrototype() *ObjectType {
 
 // getReferenceName: an object that is exactly a NoObjectType calls its getReferenceName_impl directly (post-flip); others dispatch.
 func (this *NoObjectType) getReferenceName() Optional[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoObjectType); p == this {
 		return this.getReferenceName_impl()
 	}
 	return this.self_.getReferenceName_impl()
@@ -192,7 +192,7 @@ func (this *NoObjectType) getReferenceName() Optional[string] {
 
 // matchesNumberContext: an object that is exactly a NoObjectType calls its matchesNumberContext_impl directly (post-flip); others dispatch.
 func (this *NoObjectType) matchesNumberContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoObjectType); p == this {
 		return this.matchesNumberContext_impl()
 	}
 	return this.self_.matchesNumberContext_impl()
@@ -200,7 +200,7 @@ func (this *NoObjectType) matchesNumberContext() bool {
 
 // matchesObjectContext: an object that is exactly a NoObjectType calls its matchesObjectContext_impl directly (post-flip); others dispatch.
 func (this *NoObjectType) matchesObjectContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoObjectType); p == this {
 		return this.matchesObjectContext_impl()
 	}
 	return this.self_.matchesObjectContext_impl()
@@ -208,7 +208,7 @@ func (this *NoObjectType) matchesObjectContext() bool {
 
 // matchesStringContext: an object that is exactly a NoObjectType calls its matchesStringContext_impl directly (post-flip); others dispatch.
 func (this *NoObjectType) matchesStringContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoObjectType); p == this {
 		return this.matchesStringContext_impl()
 	}
 	return this.self_.matchesStringContext_impl()
@@ -216,7 +216,7 @@ func (this *NoObjectType) matchesStringContext() bool {
 
 // matchesSymbolContext: an object that is exactly a NoObjectType calls its matchesSymbolContext_impl directly (post-flip); others dispatch.
 func (this *NoObjectType) matchesSymbolContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoObjectType); p == this {
 		return this.matchesSymbolContext_impl()
 	}
 	return this.self_.matchesSymbolContext_impl()
@@ -224,7 +224,7 @@ func (this *NoObjectType) matchesSymbolContext() bool {
 
 // recursionUnsafeHashCode: an object that is exactly a NoObjectType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
 func (this *NoObjectType) recursionUnsafeHashCode() int32 {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoObjectType); p == this {
 		return this.recursionUnsafeHashCode_impl()
 	}
 	return this.self_.recursionUnsafeHashCode_impl()
@@ -232,7 +232,7 @@ func (this *NoObjectType) recursionUnsafeHashCode() int32 {
 
 // defineProperty: an object that is exactly a NoObjectType calls its defineProperty_impl directly (post-flip); others dispatch.
 func (this *NoObjectType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p3 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoObjectType); p == this {
 		return this.defineProperty_impl(p0, p1, p2, p3)
 	}
 	return this.self_.defineProperty_impl(p0, p1, p2, p3)
@@ -240,7 +240,7 @@ func (this *NoObjectType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p
 
 // setPropertyJSDocInfoKey: an object that is exactly a NoObjectType calls its setPropertyJSDocInfoKey_impl directly (post-flip); others dispatch.
 func (this *NoObjectType) setPropertyJSDocInfoKey(p0 Property_Key, p1 *JSDocInfo) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoObjectType); p == this {
 		this.setPropertyJSDocInfoKey_impl(p0, p1)
 		return
 	}
@@ -249,7 +249,7 @@ func (this *NoObjectType) setPropertyJSDocInfoKey(p0 Property_Key, p1 *JSDocInfo
 
 // visitUntyped: an object that is exactly a NoObjectType calls its visitUntyped_impl directly (post-flip); others dispatch.
 func (this *NoObjectType) visitUntyped(p0 Visitor) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoObjectType); p == this {
 		return this.visitUntyped_impl(p0)
 	}
 	return this.self_.visitUntyped_impl(p0)
@@ -257,7 +257,7 @@ func (this *NoObjectType) visitUntyped(p0 Visitor) any {
 
 // visitUntyped_2: an object that is exactly a NoObjectType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
 func (this *NoObjectType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoObjectType); p == this {
 		return this.visitUntyped_2_impl(p0, p1)
 	}
 	return this.self_.visitUntyped_2_impl(p0, p1)
@@ -265,7 +265,7 @@ func (this *NoObjectType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any
 
 // appendTo: an object that is exactly a NoObjectType calls its appendTo_impl directly (post-flip); others dispatch.
 func (this *NoObjectType) appendTo(p0 *TypeStringBuilder) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoObjectType); p == this {
 		this.appendTo_impl(p0)
 		return
 	}
@@ -274,7 +274,7 @@ func (this *NoObjectType) appendTo(p0 *TypeStringBuilder) {
 
 // getConstructor: an object that is exactly a NoObjectType calls its getConstructor_impl directly (post-flip); others dispatch.
 func (this *NoObjectType) getConstructor() *FunctionType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoObjectType); p == this {
 		return this.getConstructor_impl()
 	}
 	return this.self_.getConstructor_impl()
@@ -282,7 +282,7 @@ func (this *NoObjectType) getConstructor() *FunctionType {
 
 // resolveInternal: an object that is exactly a NoObjectType calls its resolveInternal_impl directly (post-flip); others dispatch.
 func (this *NoObjectType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoObjectType); p == this {
 		return this.resolveInternal_impl(p0)
 	}
 	return this.self_.resolveInternal_impl(p0)

@@ -61,7 +61,7 @@ func (this *VerboseMessageFormatter) format(message *JSError) string {
 
 // formatError: an object that is exactly a VerboseMessageFormatter calls its formatError_impl directly (post-flip); others dispatch.
 func (this *VerboseMessageFormatter) formatError(p0 *JSError) string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*VerboseMessageFormatter); p == this {
 		return this.formatError_impl(p0)
 	}
 	return this.self_.formatError_impl(p0)
@@ -69,7 +69,7 @@ func (this *VerboseMessageFormatter) formatError(p0 *JSError) string {
 
 // formatWarning: an object that is exactly a VerboseMessageFormatter calls its formatWarning_impl directly (post-flip); others dispatch.
 func (this *VerboseMessageFormatter) formatWarning(p0 *JSError) string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*VerboseMessageFormatter); p == this {
 		return this.formatWarning_impl(p0)
 	}
 	return this.self_.formatWarning_impl(p0)

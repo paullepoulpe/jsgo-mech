@@ -101,7 +101,7 @@ func (this *ConvertToDottedProperties) visit_impl(t *NodeTraversal, n Node, pare
 
 // visit: an object that is exactly a ConvertToDottedProperties calls its visit_impl directly (post-flip); others dispatch.
 func (this *ConvertToDottedProperties) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConvertToDottedProperties); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

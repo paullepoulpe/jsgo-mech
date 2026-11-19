@@ -88,7 +88,7 @@ func CheckPrimitiveAsObject_clinit() {
 
 // visit: an object that is exactly a CheckPrimitiveAsObject calls its visit_impl directly (post-flip); others dispatch.
 func (this *CheckPrimitiveAsObject) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckPrimitiveAsObject); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

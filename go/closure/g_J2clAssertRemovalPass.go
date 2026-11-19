@@ -53,7 +53,7 @@ func J2clAssertRemovalPass_isAssertionMethodName(fnName Node) bool {
 
 // visit: an object that is exactly a J2clAssertRemovalPass calls its visit_impl directly (post-flip); others dispatch.
 func (this *J2clAssertRemovalPass) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*J2clAssertRemovalPass); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

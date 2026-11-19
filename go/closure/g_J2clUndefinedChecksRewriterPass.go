@@ -88,7 +88,7 @@ func J2clUndefinedChecksRewriterPass_isUtilCall(node Node, methodName string) bo
 
 // beginTraversal: an object that is exactly a J2clUndefinedChecksRewriterPass calls its beginTraversal_impl directly (post-flip); others dispatch.
 func (this *J2clUndefinedChecksRewriterPass) beginTraversal(p0 *AbstractCompiler) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*J2clUndefinedChecksRewriterPass); p == this {
 		this.beginTraversal_impl(p0)
 		return
 	}
@@ -97,7 +97,7 @@ func (this *J2clUndefinedChecksRewriterPass) beginTraversal(p0 *AbstractCompiler
 
 // optimizeSubtree: an object that is exactly a J2clUndefinedChecksRewriterPass calls its optimizeSubtree_impl directly (post-flip); others dispatch.
 func (this *J2clUndefinedChecksRewriterPass) optimizeSubtree(p0 Node) Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*J2clUndefinedChecksRewriterPass); p == this {
 		return this.optimizeSubtree_impl(p0)
 	}
 	return this.self_.optimizeSubtree_impl(p0)
