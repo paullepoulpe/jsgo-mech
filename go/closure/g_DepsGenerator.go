@@ -6,7 +6,7 @@ type DepsGenerator struct {
 	srcs           CollectionOf[*SourceFile_jscomp]
 	deps           CollectionOf[*SourceFile_jscomp]
 	closurePathAbs string
-	mergeStrategy  *DepsGenerator_InclusionStrategy
+	mergeStrategy  DepsGenerator_InclusionStrategy
 	loader         *ModuleLoader
 	errorManager   ErrorManager
 }
@@ -15,7 +15,7 @@ func (this *DepsGenerator) zero_DepsGenerator() {
 	this.closurePathAbs = nullstr_
 }
 
-func (this *DepsGenerator) init_DepsGenerator(deps CollectionOf[*SourceFile_jscomp], srcs CollectionOf[*SourceFile_jscomp], mergeStrategy *DepsGenerator_InclusionStrategy, closurePathAbs string, errorManager ErrorManager, loader *ModuleLoader) {
+func (this *DepsGenerator) init_DepsGenerator(deps CollectionOf[*SourceFile_jscomp], srcs CollectionOf[*SourceFile_jscomp], mergeStrategy DepsGenerator_InclusionStrategy, closurePathAbs string, errorManager ErrorManager, loader *ModuleLoader) {
 	this.deps = deps
 	this.srcs = srcs
 	this.mergeStrategy = mergeStrategy
@@ -24,7 +24,7 @@ func (this *DepsGenerator) init_DepsGenerator(deps CollectionOf[*SourceFile_jsco
 	this.loader = loader
 }
 
-func new_DepsGenerator(deps CollectionOf[*SourceFile_jscomp], srcs CollectionOf[*SourceFile_jscomp], mergeStrategy *DepsGenerator_InclusionStrategy, closurePathAbs string, errorManager ErrorManager, loader *ModuleLoader) *DepsGenerator {
+func new_DepsGenerator(deps CollectionOf[*SourceFile_jscomp], srcs CollectionOf[*SourceFile_jscomp], mergeStrategy DepsGenerator_InclusionStrategy, closurePathAbs string, errorManager ErrorManager, loader *ModuleLoader) *DepsGenerator {
 	this := &DepsGenerator{}
 	this.zero_DepsGenerator()
 	this.init_DepsGenerator(deps, srcs, mergeStrategy, closurePathAbs, errorManager, loader)
@@ -397,45 +397,63 @@ func DepsGenerator_clinit() {
 
 }
 
-type DepsGenerator_InclusionStrategy struct {
-	Enum
+type DepsGenerator_InclusionStrategy uint8
+
+// DepsGenerator_InclusionStrategy_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var DepsGenerator_InclusionStrategy_enum_ = [3]Enum{
+	{self_: DepsGenerator_InclusionStrategy_ALWAYS, name_: "ALWAYS", ordinal_: 0},
+	{self_: DepsGenerator_InclusionStrategy_WHEN_IN_SRCS, name_: "WHEN_IN_SRCS", ordinal_: 1},
+	{self_: DepsGenerator_InclusionStrategy_DO_NOT_DUPLICATE, name_: "DO_NOT_DUPLICATE", ordinal_: 2},
 }
 
-func (this *DepsGenerator_InclusionStrategy) up_Enum() *Enum {
-	if this == nil {
+func (this DepsGenerator_InclusionStrategy) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &DepsGenerator_InclusionStrategy_enum_[this-1]
 }
 
-func (this *DepsGenerator_InclusionStrategy) init_DepsGenerator_InclusionStrategy(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this DepsGenerator_InclusionStrategy) name() string {
+	return DepsGenerator_InclusionStrategy_enum_[this-1].name_
 }
 
-func new_DepsGenerator_InclusionStrategy(name_ string, ordinal_ int32) *DepsGenerator_InclusionStrategy {
-	this := &DepsGenerator_InclusionStrategy{}
-	this.self_ = this
-	this.init_DepsGenerator_InclusionStrategy(name_, ordinal_)
+func (this DepsGenerator_InclusionStrategy) ordinal() int32 {
+	return DepsGenerator_InclusionStrategy_enum_[this-1].ordinal_
+}
+
+func (this DepsGenerator_InclusionStrategy) toString() string {
+	return DepsGenerator_InclusionStrategy_enum_[this-1].name_
+}
+
+func (this DepsGenerator_InclusionStrategy) compareTo(o any) int32 {
+	return DepsGenerator_InclusionStrategy_enum_[this-1].compareTo(o)
+}
+
+func (this DepsGenerator_InclusionStrategy) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func DepsGenerator_InclusionStrategy_values() []*DepsGenerator_InclusionStrategy {
-	return append([]*DepsGenerator_InclusionStrategy(nil), DepsGenerator_InclusionStrategy_values_...)
+func DepsGenerator_InclusionStrategy_values() []DepsGenerator_InclusionStrategy {
+	return append([]DepsGenerator_InclusionStrategy(nil), DepsGenerator_InclusionStrategy_values_...)
 }
 
-func DepsGenerator_InclusionStrategy_valueOf(name string) *DepsGenerator_InclusionStrategy {
+func DepsGenerator_InclusionStrategy_valueOf(name string) DepsGenerator_InclusionStrategy {
 	for _, v := range DepsGenerator_InclusionStrategy_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("InclusionStrategy", name))
 }
 
-var DepsGenerator_InclusionStrategy_ALWAYS *DepsGenerator_InclusionStrategy
-var DepsGenerator_InclusionStrategy_WHEN_IN_SRCS *DepsGenerator_InclusionStrategy
-var DepsGenerator_InclusionStrategy_DO_NOT_DUPLICATE *DepsGenerator_InclusionStrategy
-var DepsGenerator_InclusionStrategy_values_ []*DepsGenerator_InclusionStrategy
+const DepsGenerator_InclusionStrategy_ALWAYS DepsGenerator_InclusionStrategy = 1
+const DepsGenerator_InclusionStrategy_WHEN_IN_SRCS DepsGenerator_InclusionStrategy = 2
+const DepsGenerator_InclusionStrategy_DO_NOT_DUPLICATE DepsGenerator_InclusionStrategy = 3
+
+var DepsGenerator_InclusionStrategy_values_ []DepsGenerator_InclusionStrategy
 
 var DepsGenerator_InclusionStrategy_clinit_done bool
 
@@ -444,10 +462,7 @@ func DepsGenerator_InclusionStrategy_clinit() {
 		return
 	}
 	DepsGenerator_InclusionStrategy_clinit_done = true
-	DepsGenerator_InclusionStrategy_ALWAYS = new_DepsGenerator_InclusionStrategy("ALWAYS", 0)
-	DepsGenerator_InclusionStrategy_WHEN_IN_SRCS = new_DepsGenerator_InclusionStrategy("WHEN_IN_SRCS", 1)
-	DepsGenerator_InclusionStrategy_DO_NOT_DUPLICATE = new_DepsGenerator_InclusionStrategy("DO_NOT_DUPLICATE", 2)
-	DepsGenerator_InclusionStrategy_values_ = []*DepsGenerator_InclusionStrategy{DepsGenerator_InclusionStrategy_ALWAYS, DepsGenerator_InclusionStrategy_WHEN_IN_SRCS, DepsGenerator_InclusionStrategy_DO_NOT_DUPLICATE}
+	DepsGenerator_InclusionStrategy_values_ = []DepsGenerator_InclusionStrategy{DepsGenerator_InclusionStrategy_ALWAYS, DepsGenerator_InclusionStrategy_WHEN_IN_SRCS, DepsGenerator_InclusionStrategy_DO_NOT_DUPLICATE}
 	registerEnum_("com.google.javascript.jscomp.deps.DepsGenerator.InclusionStrategy", enumValues_(DepsGenerator_InclusionStrategy_values_))
 
 }

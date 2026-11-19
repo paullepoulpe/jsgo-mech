@@ -76,48 +76,65 @@ func ImplicitNullabilityCheck_clinit() {
 
 }
 
-type ImplicitNullabilityCheck_Nullability struct {
-	Enum
+type ImplicitNullabilityCheck_Nullability uint8
+
+// ImplicitNullabilityCheck_Nullability_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ImplicitNullabilityCheck_Nullability_enum_ = [2]Enum{
+	{self_: ImplicitNullabilityCheck_Nullability_NONNULL, name_: "NONNULL", ordinal_: 0},
+	{self_: ImplicitNullabilityCheck_Nullability_NULLABLE, name_: "NULLABLE", ordinal_: 1},
 }
 
-func (this *ImplicitNullabilityCheck_Nullability) up_Enum() *Enum {
-	if this == nil {
+func (this ImplicitNullabilityCheck_Nullability) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ImplicitNullabilityCheck_Nullability_enum_[this-1]
 }
 
-func (this *ImplicitNullabilityCheck_Nullability) init_ImplicitNullabilityCheck_Nullability(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ImplicitNullabilityCheck_Nullability) name() string {
+	return ImplicitNullabilityCheck_Nullability_enum_[this-1].name_
 }
 
-func new_ImplicitNullabilityCheck_Nullability(name_ string, ordinal_ int32) *ImplicitNullabilityCheck_Nullability {
-	this := &ImplicitNullabilityCheck_Nullability{}
-	this.self_ = this
-	this.init_ImplicitNullabilityCheck_Nullability(name_, ordinal_)
+func (this ImplicitNullabilityCheck_Nullability) ordinal() int32 {
+	return ImplicitNullabilityCheck_Nullability_enum_[this-1].ordinal_
+}
+
+func (this ImplicitNullabilityCheck_Nullability) toString() string {
+	return ImplicitNullabilityCheck_Nullability_enum_[this-1].name_
+}
+
+func (this ImplicitNullabilityCheck_Nullability) compareTo(o any) int32 {
+	return ImplicitNullabilityCheck_Nullability_enum_[this-1].compareTo(o)
+}
+
+func (this ImplicitNullabilityCheck_Nullability) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *ImplicitNullabilityCheck_Nullability) isNullable() bool {
+func (this ImplicitNullabilityCheck_Nullability) isNullable() bool {
 	return (this == ImplicitNullabilityCheck_Nullability_NULLABLE)
 }
 
-func ImplicitNullabilityCheck_Nullability_values() []*ImplicitNullabilityCheck_Nullability {
-	return append([]*ImplicitNullabilityCheck_Nullability(nil), ImplicitNullabilityCheck_Nullability_values_...)
+func ImplicitNullabilityCheck_Nullability_values() []ImplicitNullabilityCheck_Nullability {
+	return append([]ImplicitNullabilityCheck_Nullability(nil), ImplicitNullabilityCheck_Nullability_values_...)
 }
 
-func ImplicitNullabilityCheck_Nullability_valueOf(name string) *ImplicitNullabilityCheck_Nullability {
+func ImplicitNullabilityCheck_Nullability_valueOf(name string) ImplicitNullabilityCheck_Nullability {
 	for _, v := range ImplicitNullabilityCheck_Nullability_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Nullability", name))
 }
 
-var ImplicitNullabilityCheck_Nullability_NONNULL *ImplicitNullabilityCheck_Nullability
-var ImplicitNullabilityCheck_Nullability_NULLABLE *ImplicitNullabilityCheck_Nullability
-var ImplicitNullabilityCheck_Nullability_values_ []*ImplicitNullabilityCheck_Nullability
+const ImplicitNullabilityCheck_Nullability_NONNULL ImplicitNullabilityCheck_Nullability = 1
+const ImplicitNullabilityCheck_Nullability_NULLABLE ImplicitNullabilityCheck_Nullability = 2
+
+var ImplicitNullabilityCheck_Nullability_values_ []ImplicitNullabilityCheck_Nullability
 
 var ImplicitNullabilityCheck_Nullability_clinit_done bool
 
@@ -126,35 +143,33 @@ func ImplicitNullabilityCheck_Nullability_clinit() {
 		return
 	}
 	ImplicitNullabilityCheck_Nullability_clinit_done = true
-	ImplicitNullabilityCheck_Nullability_NONNULL = new_ImplicitNullabilityCheck_Nullability("NONNULL", 0)
-	ImplicitNullabilityCheck_Nullability_NULLABLE = new_ImplicitNullabilityCheck_Nullability("NULLABLE", 1)
-	ImplicitNullabilityCheck_Nullability_values_ = []*ImplicitNullabilityCheck_Nullability{ImplicitNullabilityCheck_Nullability_NONNULL, ImplicitNullabilityCheck_Nullability_NULLABLE}
+	ImplicitNullabilityCheck_Nullability_values_ = []ImplicitNullabilityCheck_Nullability{ImplicitNullabilityCheck_Nullability_NONNULL, ImplicitNullabilityCheck_Nullability_NULLABLE}
 	registerEnum_("com.google.javascript.jscomp.ImplicitNullabilityCheck.Nullability", enumValues_(ImplicitNullabilityCheck_Nullability_values_))
 
 }
 
 type ImplicitNullabilityCheck_Result struct {
 	node_       Node
-	nullability *ImplicitNullabilityCheck_Nullability
+	nullability ImplicitNullabilityCheck_Nullability
 }
 
-func (this *ImplicitNullabilityCheck_Result) init_ImplicitNullabilityCheck_Result(node Node, nullability *ImplicitNullabilityCheck_Nullability) {
+func (this *ImplicitNullabilityCheck_Result) init_ImplicitNullabilityCheck_Result(node Node, nullability ImplicitNullabilityCheck_Nullability) {
 	Preconditions_checkArgument(node.isStringLit())
 	this.node_ = node
 	this.nullability = nullability
 }
 
-func new_ImplicitNullabilityCheck_Result(node Node, nullability *ImplicitNullabilityCheck_Nullability) *ImplicitNullabilityCheck_Result {
+func new_ImplicitNullabilityCheck_Result(node Node, nullability ImplicitNullabilityCheck_Nullability) *ImplicitNullabilityCheck_Result {
 	this := &ImplicitNullabilityCheck_Result{}
 	this.init_ImplicitNullabilityCheck_Result(node, nullability)
 	return this
 }
 
-func ImplicitNullabilityCheck_Result_create(node Node, nullability *ImplicitNullabilityCheck_Nullability) *ImplicitNullabilityCheck_Result {
+func ImplicitNullabilityCheck_Result_create(node Node, nullability ImplicitNullabilityCheck_Nullability) *ImplicitNullabilityCheck_Result {
 	return new_ImplicitNullabilityCheck_Result(node, nullability)
 }
 
-func (this *ImplicitNullabilityCheck_Result) getNullability() *ImplicitNullabilityCheck_Nullability {
+func (this *ImplicitNullabilityCheck_Result) getNullability() ImplicitNullabilityCheck_Nullability {
 	return this.nullability
 }
 
@@ -214,7 +229,7 @@ func (this *ImplicitNullabilityCheck_1) visit(node Node) {
 		return
 	}
 	var isNonNullableName bool = (registry.isNonNullableName(icast_StaticScope(obj_(this.cap_t.getScope())), typeName) && !type_.isNullable())
-	var nullability *ImplicitNullabilityCheck_Nullability = func() *ImplicitNullabilityCheck_Nullability {
+	var nullability ImplicitNullabilityCheck_Nullability = func() ImplicitNullabilityCheck_Nullability {
 		if isNonNullableName {
 			return ImplicitNullabilityCheck_Nullability_NONNULL
 		}

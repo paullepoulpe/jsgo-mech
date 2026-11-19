@@ -9,7 +9,7 @@ type Compiler struct {
 	externs                        *TList[*CompilerInput]
 	chunkGraph                     *JSChunkGraph
 	moduleLoader                   *ModuleLoader
-	moduleTypesByName              *JTMap[string, *CompilerInput_ModuleType]
+	moduleTypesByName              *JTMap[string, CompilerInput_ModuleType]
 	errorManager                   ErrorManager
 	warningsGuard                  *WarningsGuard
 	externsRoot                    Node
@@ -56,7 +56,7 @@ type Compiler struct {
 	typedAstFilesystem             ConcurrentMapOf[*SourceFile_jscomp, SupplierOf[Node]]
 	validityCheck                  *PassFactory
 	currentPassIndex               int32
-	stage                          *AbstractCompiler_LifeCycleStage
+	stage                          AbstractCompiler_LifeCycleStage
 	typedScopeCreator              *TypedScopeCreator
 	topScope                       *TypedScope
 	preferRegexParserField         bool
@@ -192,11 +192,11 @@ func (this *Compiler) initExperimentalOutputFeatureSetOptions(options *CompilerO
 		return
 	}
 	if options.getExperimentalOutputFeatureSet().isPresent() {
-		switch cast_[*CompilerOptions_ExperimentalOutputFeatureSet](options.getExperimentalOutputFeatureSet().get()) {
+		switch cast_[CompilerOptions_ExperimentalOutputFeatureSet](options.getExperimentalOutputFeatureSet().get()) {
 		case CompilerOptions_ExperimentalOutputFeatureSet_ES5_WITH_SOME_PERFORMANT_ES2015_AND_ASYNC_FUNCTIONS:
-			options.setOutputFeatureSet(FeatureSet_ES5.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_ASYNC_FUNCTIONS, FeatureSet_Feature_BLOCK_SCOPED_FUNCTION_DECLARATION, FeatureSet_Feature_CONST_DECLARATIONS, FeatureSet_Feature_GENERATORS, FeatureSet_Feature_LET_DECLARATIONS}))
+			options.setOutputFeatureSet(FeatureSet_ES5.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_ASYNC_FUNCTIONS, FeatureSet_Feature_BLOCK_SCOPED_FUNCTION_DECLARATION, FeatureSet_Feature_CONST_DECLARATIONS, FeatureSet_Feature_GENERATORS, FeatureSet_Feature_LET_DECLARATIONS}))
 		case CompilerOptions_ExperimentalOutputFeatureSet_BROWSER_2019_WITHOUT_CLASSES_AND_SPREAD:
-			options.setOutputFeatureSet(FeatureSet_BROWSER_2019.without_2(FeatureSet_Feature_CLASSES, []*FeatureSet_Feature{FeatureSet_Feature_CLASS_GETTER_SETTER, FeatureSet_Feature_NEW_TARGET, FeatureSet_Feature_SUPER, FeatureSet_Feature_SPREAD_EXPRESSIONS}))
+			options.setOutputFeatureSet(FeatureSet_BROWSER_2019.without_2(FeatureSet_Feature_CLASSES, []FeatureSet_Feature{FeatureSet_Feature_CLASS_GETTER_SETTER, FeatureSet_Feature_NEW_TARGET, FeatureSet_Feature_SUPER, FeatureSet_Feature_SPREAD_EXPRESSIONS}))
 		}
 	}
 }
@@ -650,7 +650,7 @@ func (this *Compiler) stage1Passes() {
 	}})
 }
 
-func (this *Compiler) stage2Passes(segmentOfCompilationToRun *CompilerOptions_SegmentOfCompilationToRun) {
+func (this *Compiler) stage2Passes(segmentOfCompilationToRun CompilerOptions_SegmentOfCompilationToRun) {
 	if !(((segmentOfCompilationToRun == CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS) || (segmentOfCompilationToRun == CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_FIRST_HALF)) || (segmentOfCompilationToRun == CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_SECOND_HALF)) {
 		Preconditions_checkState_boolean_String_Object(false, "Unsupported segment of compilation to run in stage 2: %s", segmentOfCompilationToRun)
 	}
@@ -775,7 +775,7 @@ func (this *Compiler) instrumentForCoverage() {
 	}})
 }
 
-func (this *Compiler) instrumentForCoverageInternal(instrumentForCoverageOption *CompilerOptions_InstrumentOption) {
+func (this *Compiler) instrumentForCoverageInternal(instrumentForCoverageOption CompilerOptions_InstrumentOption) {
 	var tracer *Tracer = this.newTracer("instrumentationPass")
 	this.process(CompilerPass(new_CoverageInstrumentationPass_AbstractCompiler_CoverageReach_InstrumentOption_String(this.up_AbstractCompiler(), CoverageInstrumentationPass_CoverageReach_ALL, instrumentForCoverageOption, this.options_.getProductionInstrumentationArrayName())))
 	this.stopTracer(tracer, "instrumentationPass")
@@ -912,7 +912,7 @@ func (this *Compiler) runValidityCheck() {
 	this.validityCheck.create(this.up_AbstractCompiler()).process_2(this.externsRoot, this.jsRoot)
 }
 
-func (this *Compiler) runCustomPasses(executionTime *CustomPassExecutionTime) {
+func (this *Compiler) runCustomPasses(executionTime CustomPassExecutionTime) {
 	var customPasses *JTList[CompilerPass] = this.options_.getCustomPassesAt(executionTime)
 	var t *Tracer = this.newTracer("runCustomPasses")
 	_ = func() (code_ int) {
@@ -936,11 +936,11 @@ func (this *Compiler) afterPass_impl(passName string) {
 	this.maybePrintSourceAfterEachPass(passName)
 }
 
-func (this *Compiler) getLifeCycleStage_impl() *AbstractCompiler_LifeCycleStage {
+func (this *Compiler) getLifeCycleStage_impl() AbstractCompiler_LifeCycleStage {
 	return this.stage
 }
 
-func (this *Compiler) setLifeCycleStage_impl(stage *AbstractCompiler_LifeCycleStage) {
+func (this *Compiler) setLifeCycleStage_impl(stage AbstractCompiler_LifeCycleStage) {
 	this.stage = stage
 }
 
@@ -973,9 +973,9 @@ func (this *Compiler) createDefaultExpressionDecomposer_impl() *ExpressionDecomp
 }
 
 func (this *Compiler) createExpressionDecomposer_impl(uniqueNameIdSupplier SupplierOf[string], knownConstantFunctions *JTSet[string], scope *Scope) *ExpressionDecomposer {
-	var enabledWorkarounds EnumSetOf[*ExpressionDecomposer_Workaround] = func() *EnumSet {
+	var enabledWorkarounds EnumSetOf[ExpressionDecomposer_Workaround] = func() *EnumSet {
 		if FeatureSet_ES5.containsFeatureSet(this.getOptions().getOutputFeatureSet()) {
-			return EnumSet_of(ExpressionDecomposer_Workaround_BROKEN_IE11_LOCATION_ASSIGN.up_Enum())
+			return EnumSet_of(ExpressionDecomposer_Workaround_BROKEN_IE11_LOCATION_ASSIGN.enum_())
 		}
 		return EnumSet_noneOf(classOf_("com.google.javascript.jscomp.ExpressionDecomposer.Workaround"))
 	}()
@@ -1233,8 +1233,8 @@ func (this *Compiler) setAllowableFeatures_impl(allowableFeatures *FeatureSet) {
 	this.allowableFeatures = allowableFeatures
 }
 
-func (this *Compiler) markFeatureNotAllowed_impl(feature *FeatureSet_Feature) {
-	this.allowableFeatures = this.allowableFeatures.without_2(feature, []*FeatureSet_Feature{})
+func (this *Compiler) markFeatureNotAllowed_impl(feature FeatureSet_Feature) {
+	this.allowableFeatures = this.allowableFeatures.without_2(feature, []FeatureSet_Feature{})
 }
 
 func (this *Compiler) markFeatureSetNotAllowed_impl(featureSet *FeatureSet) {
@@ -2086,7 +2086,7 @@ func (this *Compiler) toSourceArray(licenseTracker CodePrinter_LicenseTracker, c
 	}}))
 }
 
-func (this *Compiler) performTranspilationAndOptimizations(segmentOfCompilationToRun *CompilerOptions_SegmentOfCompilationToRun) {
+func (this *Compiler) performTranspilationAndOptimizations(segmentOfCompilationToRun CompilerOptions_SegmentOfCompilationToRun) {
 	Preconditions_checkState(this.options_.shouldOptimize())
 	var allOptimizationPassesToRun *JTList[*PassFactory] = this.getPassConfig().getOptimizations().build()
 	if allOptimizationPassesToRun.isEmpty() {
@@ -2119,7 +2119,7 @@ func (this *Compiler) computeCFG() *ControlFlowGraph[Node] {
 	return cfg
 }
 
-func (this *Compiler) getOptimizationPassesToRunInCurrentSegment(segmentOfCompilationToRun *CompilerOptions_SegmentOfCompilationToRun, allOptimizationPassesToRun ListOf[*PassFactory]) ListOf[*PassFactory] {
+func (this *Compiler) getOptimizationPassesToRunInCurrentSegment(segmentOfCompilationToRun CompilerOptions_SegmentOfCompilationToRun, allOptimizationPassesToRun ListOf[*PassFactory]) ListOf[*PassFactory] {
 	return func() List {
 		switch segmentOfCompilationToRun {
 		case CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS:
@@ -2231,8 +2231,8 @@ func (this *Compiler) getCodingConvention_impl() CodingConvention {
 	return convention
 }
 
-func (this *Compiler) getParserConfigLanguageMode(languageMode *CompilerOptions_LanguageMode) *Config_LanguageMode {
-	return func() *Config_LanguageMode {
+func (this *Compiler) getParserConfigLanguageMode(languageMode CompilerOptions_LanguageMode) Config_LanguageMode {
+	return func() Config_LanguageMode {
 		switch languageMode {
 		case CompilerOptions_LanguageMode_ECMASCRIPT3:
 			return Config_LanguageMode_ECMASCRIPT3
@@ -2265,12 +2265,12 @@ func (this *Compiler) getParserConfigLanguageMode(languageMode *CompilerOptions_
 	}()
 }
 
-func (this *Compiler) getParserConfig_impl(context *AbstractCompiler_ConfigContext) *Config {
+func (this *Compiler) getParserConfig_impl(context AbstractCompiler_ConfigContext) *Config {
 	if (this.parserConfig == nil) || (this.externsParserConfig == nil) {
 		{
 			if this.parserConfig == nil {
-				var configLanguageMode *Config_LanguageMode = this.getParserConfigLanguageMode(this.options_.getLanguageIn())
-				var strictMode *Config_StrictMode = func() *Config_StrictMode {
+				var configLanguageMode Config_LanguageMode = this.getParserConfigLanguageMode(this.options_.getLanguageIn())
+				var strictMode Config_StrictMode = func() Config_StrictMode {
 					if this.options_.expectStrictModeInput() {
 						return Config_StrictMode_STRICT
 					}
@@ -2292,8 +2292,8 @@ func (this *Compiler) getParserConfig_impl(context *AbstractCompiler_ConfigConte
 	return this.parserConfig
 }
 
-func (this *Compiler) createConfig(mode *Config_LanguageMode, strictMode *Config_StrictMode) *Config {
-	return ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(mode, this.options_.isParseJsDocDocumentation(), func() *Config_RunMode {
+func (this *Compiler) createConfig(mode Config_LanguageMode, strictMode Config_StrictMode) *Config {
+	return ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(mode, this.options_.isParseJsDocDocumentation(), func() Config_RunMode {
 		if this.options_.canContinueAfterErrors() {
 			return Config_RunMode_KEEP_GOING
 		}
@@ -2306,10 +2306,10 @@ func (this *Compiler) getDiagnosticGroups() *DiagnosticGroups {
 }
 
 func (this *Compiler) report_impl(error_ *JSError) {
-	var level *CheckLevel = error_.defaultLevel()
+	var level CheckLevel = error_.defaultLevel()
 	if this.warningsGuard != nil {
-		var newLevel *CheckLevel = this.warningsGuard.level(error_)
-		if newLevel != nil {
+		var newLevel CheckLevel = this.warningsGuard.level(error_)
+		if newLevel != 0 {
 			level = newLevel
 		}
 	}
@@ -2322,11 +2322,11 @@ func (this *Compiler) report_impl(error_ *JSError) {
 	}
 }
 
-func (this *Compiler) report_2(ignoredLevel *CheckLevel, error_ *JSError) {
+func (this *Compiler) report_2(ignoredLevel CheckLevel, error_ *JSError) {
 	this.report(error_)
 }
 
-func (this *Compiler) getErrorLevel_impl(error_ *JSError) *CheckLevel {
+func (this *Compiler) getErrorLevel_impl(error_ *JSError) CheckLevel {
 	Preconditions_checkNotNull_T(this.options_)
 	return this.warningsGuard.level(error_)
 }
@@ -2842,7 +2842,7 @@ func (this *Compiler) getCompilerExecutor() *CompilerExecutor {
 	return this.compilerExecutor
 }
 
-func Compiler_toProtoFeature(feature *FeatureSet_Feature) *FeatureProto {
+func Compiler_toProtoFeature(feature FeatureSet_Feature) *FeatureProto {
 	var name string = ("FEATURE_" + sstr_(feature.name()))
 	for _, proto := range FeatureProto_values() {
 		if proto.name() == name {
@@ -2852,7 +2852,7 @@ func Compiler_toProtoFeature(feature *FeatureSet_Feature) *FeatureProto {
 	return FeatureProto_FEATURE_UNKNOWN
 }
 
-func Compiler_toProto(stage *AbstractCompiler_LifeCycleStage) *LifeCycleStageProto {
+func Compiler_toProto(stage AbstractCompiler_LifeCycleStage) *LifeCycleStageProto {
 	return func() *LifeCycleStageProto {
 		switch stage {
 		case AbstractCompiler_LifeCycleStage_RAW:
@@ -2881,7 +2881,7 @@ func Compiler_toVariableMapEntries(map_ *VariableMap) *JTList[*VariableMapEntryP
 }
 
 func Compiler_fromProtoList(protos ListOf[*FeatureProto]) *FeatureSet {
-	var features *JTSet[*FeatureSet_Feature] = jnewTSet_(jtc_p_FeatureSet_Feature)
+	var features *JTSet[FeatureSet_Feature] = jnewTSet_(jtc_p_FeatureSet_Feature)
 	it_1 := foreach_(any(protos))
 	for it_1.next() {
 		var p *FeatureProto = cast_[*FeatureProto](it_1.v)
@@ -2898,8 +2898,8 @@ func Compiler_fromProtoList(protos ListOf[*FeatureProto]) *FeatureSet {
 	return FeatureSet_BARE_MINIMUM.withSet(features.asSet())
 }
 
-func Compiler_fromProto(stage *LifeCycleStageProto) *AbstractCompiler_LifeCycleStage {
-	return func() *AbstractCompiler_LifeCycleStage {
+func Compiler_fromProto(stage *LifeCycleStageProto) AbstractCompiler_LifeCycleStage {
+	return func() AbstractCompiler_LifeCycleStage {
 		switch stage {
 		case LifeCycleStageProto_LIFE_CYCLE_STAGE_RAW:
 			return AbstractCompiler_LifeCycleStage_RAW
@@ -2930,7 +2930,7 @@ func (this *Compiler) getCompilerStateProtoBuilder() *JSCompilerStateProto_Build
 	var builder *JSCompilerStateProto_Builder = JSCompilerStateProto_newBuilder()
 	it_1 := this.allowableFeatures.getFeatures().each()
 	for it_1.next() {
-		var feature *FeatureSet_Feature = it_1.v
+		var feature FeatureSet_Feature = it_1.v
 		builder.addAllowableFeatures(Compiler_toProtoFeature(feature))
 	}
 	builder.setTypeCheckingHasRun(this.typeCheckingHasRun).setHasRegExpGlobalReferences(this.hasRegExpGlobalReferencesField).setLifeCycleStage(Compiler_toProto(this.getLifeCycleStage())).setMergedPrecompiledLibraries(this.options_.getMergedPrecompiledLibraries())
@@ -3004,7 +3004,7 @@ func (this *Compiler) restoreFromState(compilerState *JSCompilerStateProto) {
 		var library string = str_(it_1.v)
 		this.getRuntimeJsLibManager().recordLibraryInjected(library)
 	}
-	var stage *AbstractCompiler_LifeCycleStage = func() *AbstractCompiler_LifeCycleStage {
+	var stage AbstractCompiler_LifeCycleStage = func() AbstractCompiler_LifeCycleStage {
 		if compilerState.getLifeCycleStage() == LifeCycleStageProto_LIFE_CYCLE_STAGE_RAW {
 			return AbstractCompiler_LifeCycleStage_COLORS_AND_SIMPLIFIED_JSDOC
 		}
@@ -3223,12 +3223,12 @@ func (this *Compiler) deserializeCompilerState(state []int8) {
 	}
 }
 
-func (this *Compiler) getModuleTypeByName_impl(moduleName Optional[string]) *CompilerInput_ModuleType {
-	return func() *CompilerInput_ModuleType {
+func (this *Compiler) getModuleTypeByName_impl(moduleName Optional[string]) CompilerInput_ModuleType {
+	return func() CompilerInput_ModuleType {
 		if moduleName.isPresent() {
 			return this.moduleTypesByName.get(moduleName.get())
 		}
-		return nil
+		return 0
 	}()
 }
 
@@ -3879,7 +3879,7 @@ func (this *Compiler) afterPass(p0 string) {
 }
 
 // getLifeCycleStage: an object that is exactly a Compiler calls its getLifeCycleStage_impl directly (post-flip); others dispatch.
-func (this *Compiler) getLifeCycleStage() *AbstractCompiler_LifeCycleStage {
+func (this *Compiler) getLifeCycleStage() AbstractCompiler_LifeCycleStage {
 	if this.self_ == any(this) {
 		return this.getLifeCycleStage_impl()
 	}
@@ -3887,7 +3887,7 @@ func (this *Compiler) getLifeCycleStage() *AbstractCompiler_LifeCycleStage {
 }
 
 // setLifeCycleStage: an object that is exactly a Compiler calls its setLifeCycleStage_impl directly (post-flip); others dispatch.
-func (this *Compiler) setLifeCycleStage(p0 *AbstractCompiler_LifeCycleStage) {
+func (this *Compiler) setLifeCycleStage(p0 AbstractCompiler_LifeCycleStage) {
 	if this.self_ == any(this) {
 		this.setLifeCycleStage_impl(p0)
 		return
@@ -4001,7 +4001,7 @@ func (this *Compiler) setAllowableFeatures(p0 *FeatureSet) {
 }
 
 // markFeatureNotAllowed: an object that is exactly a Compiler calls its markFeatureNotAllowed_impl directly (post-flip); others dispatch.
-func (this *Compiler) markFeatureNotAllowed(p0 *FeatureSet_Feature) {
+func (this *Compiler) markFeatureNotAllowed(p0 FeatureSet_Feature) {
 	if this.self_ == any(this) {
 		this.markFeatureNotAllowed_impl(p0)
 		return
@@ -4343,7 +4343,7 @@ func (this *Compiler) getCodingConvention() CodingConvention {
 }
 
 // getParserConfig: an object that is exactly a Compiler calls its getParserConfig_impl directly (post-flip); others dispatch.
-func (this *Compiler) getParserConfig(p0 *AbstractCompiler_ConfigContext) *Config {
+func (this *Compiler) getParserConfig(p0 AbstractCompiler_ConfigContext) *Config {
 	if this.self_ == any(this) {
 		return this.getParserConfig_impl(p0)
 	}
@@ -4360,7 +4360,7 @@ func (this *Compiler) report(p0 *JSError) {
 }
 
 // getErrorLevel: an object that is exactly a Compiler calls its getErrorLevel_impl directly (post-flip); others dispatch.
-func (this *Compiler) getErrorLevel(p0 *JSError) *CheckLevel {
+func (this *Compiler) getErrorLevel(p0 *JSError) CheckLevel {
 	if this.self_ == any(this) {
 		return this.getErrorLevel_impl(p0)
 	}
@@ -4747,7 +4747,7 @@ func (this *Compiler) getModuleLoader() *ModuleLoader {
 }
 
 // getModuleTypeByName: an object that is exactly a Compiler calls its getModuleTypeByName_impl directly (post-flip); others dispatch.
-func (this *Compiler) getModuleTypeByName(p0 Optional[string]) *CompilerInput_ModuleType {
+func (this *Compiler) getModuleTypeByName(p0 Optional[string]) CompilerInput_ModuleType {
 	if this.self_ == any(this) {
 		return this.getModuleTypeByName_impl(p0)
 	}

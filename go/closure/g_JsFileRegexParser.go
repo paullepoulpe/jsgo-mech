@@ -15,7 +15,7 @@ type JsFileRegexParser struct {
 	hasNoCompileAnnotation    bool
 	loader                    *ModuleLoader
 	file                      *ModuleLoader_ModulePath
-	moduleType_               *JsFileRegexParser_ModuleType
+	moduleType_               JsFileRegexParser_ModuleType
 	seenLoadModule            bool
 	includeGoogBase           bool
 }
@@ -101,7 +101,7 @@ func (this *JsFileRegexParser) parseReader(filePath string, closureRelativePath 
 	return dependencyInfo
 }
 
-func (this *JsFileRegexParser) setModuleType(type_ *JsFileRegexParser_ModuleType) bool {
+func (this *JsFileRegexParser) setModuleType(type_ JsFileRegexParser_ModuleType) bool {
 	var provide bool = ((type_ == JsFileRegexParser_ModuleType_GOOG_PROVIDE) || (this.moduleType_ == JsFileRegexParser_ModuleType_GOOG_PROVIDE))
 	var es6Module bool = ((type_ == JsFileRegexParser_ModuleType_ES6_MODULE) || (this.moduleType_ == JsFileRegexParser_ModuleType_ES6_MODULE))
 	var googModule bool = ((type_ == JsFileRegexParser_ModuleType_GOOG_MODULE) || (this.moduleType_ == JsFileRegexParser_ModuleType_GOOG_MODULE))
@@ -255,46 +255,65 @@ func JsFileRegexParser_clinit() {
 
 }
 
-type JsFileRegexParser_ModuleType struct {
-	Enum
+type JsFileRegexParser_ModuleType uint8
+
+// JsFileRegexParser_ModuleType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JsFileRegexParser_ModuleType_enum_ = [4]Enum{
+	{self_: JsFileRegexParser_ModuleType_NON_MODULE, name_: "NON_MODULE", ordinal_: 0},
+	{self_: JsFileRegexParser_ModuleType_GOOG_MODULE, name_: "GOOG_MODULE", ordinal_: 1},
+	{self_: JsFileRegexParser_ModuleType_GOOG_PROVIDE, name_: "GOOG_PROVIDE", ordinal_: 2},
+	{self_: JsFileRegexParser_ModuleType_ES6_MODULE, name_: "ES6_MODULE", ordinal_: 3},
 }
 
-func (this *JsFileRegexParser_ModuleType) up_Enum() *Enum {
-	if this == nil {
+func (this JsFileRegexParser_ModuleType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JsFileRegexParser_ModuleType_enum_[this-1]
 }
 
-func (this *JsFileRegexParser_ModuleType) init_JsFileRegexParser_ModuleType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this JsFileRegexParser_ModuleType) name() string {
+	return JsFileRegexParser_ModuleType_enum_[this-1].name_
 }
 
-func new_JsFileRegexParser_ModuleType(name_ string, ordinal_ int32) *JsFileRegexParser_ModuleType {
-	this := &JsFileRegexParser_ModuleType{}
-	this.self_ = this
-	this.init_JsFileRegexParser_ModuleType(name_, ordinal_)
+func (this JsFileRegexParser_ModuleType) ordinal() int32 {
+	return JsFileRegexParser_ModuleType_enum_[this-1].ordinal_
+}
+
+func (this JsFileRegexParser_ModuleType) toString() string {
+	return JsFileRegexParser_ModuleType_enum_[this-1].name_
+}
+
+func (this JsFileRegexParser_ModuleType) compareTo(o any) int32 {
+	return JsFileRegexParser_ModuleType_enum_[this-1].compareTo(o)
+}
+
+func (this JsFileRegexParser_ModuleType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func JsFileRegexParser_ModuleType_values() []*JsFileRegexParser_ModuleType {
-	return append([]*JsFileRegexParser_ModuleType(nil), JsFileRegexParser_ModuleType_values_...)
+func JsFileRegexParser_ModuleType_values() []JsFileRegexParser_ModuleType {
+	return append([]JsFileRegexParser_ModuleType(nil), JsFileRegexParser_ModuleType_values_...)
 }
 
-func JsFileRegexParser_ModuleType_valueOf(name string) *JsFileRegexParser_ModuleType {
+func JsFileRegexParser_ModuleType_valueOf(name string) JsFileRegexParser_ModuleType {
 	for _, v := range JsFileRegexParser_ModuleType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ModuleType", name))
 }
 
-var JsFileRegexParser_ModuleType_NON_MODULE *JsFileRegexParser_ModuleType
-var JsFileRegexParser_ModuleType_GOOG_MODULE *JsFileRegexParser_ModuleType
-var JsFileRegexParser_ModuleType_GOOG_PROVIDE *JsFileRegexParser_ModuleType
-var JsFileRegexParser_ModuleType_ES6_MODULE *JsFileRegexParser_ModuleType
-var JsFileRegexParser_ModuleType_values_ []*JsFileRegexParser_ModuleType
+const JsFileRegexParser_ModuleType_NON_MODULE JsFileRegexParser_ModuleType = 1
+const JsFileRegexParser_ModuleType_GOOG_MODULE JsFileRegexParser_ModuleType = 2
+const JsFileRegexParser_ModuleType_GOOG_PROVIDE JsFileRegexParser_ModuleType = 3
+const JsFileRegexParser_ModuleType_ES6_MODULE JsFileRegexParser_ModuleType = 4
+
+var JsFileRegexParser_ModuleType_values_ []JsFileRegexParser_ModuleType
 
 var JsFileRegexParser_ModuleType_clinit_done bool
 
@@ -303,11 +322,7 @@ func JsFileRegexParser_ModuleType_clinit() {
 		return
 	}
 	JsFileRegexParser_ModuleType_clinit_done = true
-	JsFileRegexParser_ModuleType_NON_MODULE = new_JsFileRegexParser_ModuleType("NON_MODULE", 0)
-	JsFileRegexParser_ModuleType_GOOG_MODULE = new_JsFileRegexParser_ModuleType("GOOG_MODULE", 1)
-	JsFileRegexParser_ModuleType_GOOG_PROVIDE = new_JsFileRegexParser_ModuleType("GOOG_PROVIDE", 2)
-	JsFileRegexParser_ModuleType_ES6_MODULE = new_JsFileRegexParser_ModuleType("ES6_MODULE", 3)
-	JsFileRegexParser_ModuleType_values_ = []*JsFileRegexParser_ModuleType{JsFileRegexParser_ModuleType_NON_MODULE, JsFileRegexParser_ModuleType_GOOG_MODULE, JsFileRegexParser_ModuleType_GOOG_PROVIDE, JsFileRegexParser_ModuleType_ES6_MODULE}
+	JsFileRegexParser_ModuleType_values_ = []JsFileRegexParser_ModuleType{JsFileRegexParser_ModuleType_NON_MODULE, JsFileRegexParser_ModuleType_GOOG_MODULE, JsFileRegexParser_ModuleType_GOOG_PROVIDE, JsFileRegexParser_ModuleType_ES6_MODULE}
 	registerEnum_("com.google.javascript.jscomp.deps.JsFileRegexParser.ModuleType", enumValues_(JsFileRegexParser_ModuleType_values_))
 
 }

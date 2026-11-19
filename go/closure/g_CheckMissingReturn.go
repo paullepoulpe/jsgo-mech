@@ -29,13 +29,13 @@ func new_CheckMissingReturn(compiler *AbstractCompiler) *CheckMissingReturn {
 }
 
 func CheckMissingReturn_goesThroughTrueCondition(input DiGraph_DiGraphEdge[Node]) bool {
-	var branch *ControlFlowGraph_Branch = cast_[*ControlFlowGraph_Branch](input.getValue())
+	var branch ControlFlowGraph_Branch = cast_[ControlFlowGraph_Branch](input.getValue())
 	if branch == ControlFlowGraph_Branch_ON_EX {
 		return false
 	} else if branch.isConditional() {
 		var condition Node = NodeUtil_getConditionExpression(input.getSource().getValue())
 		if condition != 0 {
-			var val *Tri = NodeUtil_getBooleanValue(condition)
+			var val Tri = NodeUtil_getBooleanValue(condition)
 			if val != Tri_UNKNOWN {
 				return (val.toBoolean(true) == (branch == ControlFlowGraph_Branch_ON_TRUE))
 			}
@@ -60,7 +60,7 @@ func (this *CheckMissingReturn) enterScopeWithCfg_impl(t *NodeTraversal) {
 	if this.fastAllPathsReturnCheck(cfg) {
 		return
 	}
-	var test *CheckPathsBetweenNodes[Node, *ControlFlowGraph_Branch] = new_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate[Node, *ControlFlowGraph_Branch](cfg.up_DiGraph(), cfg.getEntry(), cfg.getImplicitReturn(), &Predicate_base_tfn_Node{func(input Node) bool {
+	var test *CheckPathsBetweenNodes[Node, ControlFlowGraph_Branch] = new_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate[Node, ControlFlowGraph_Branch](cfg.up_DiGraph(), cfg.getEntry(), cfg.getImplicitReturn(), &Predicate_base_tfn_Node{func(input Node) bool {
 		return ((input != 0) && input.isReturn())
 	}}, &Predicate_base_tfn_DiGraph_DiGraphEdge_Node_{func(p0 DiGraph_DiGraphEdge[Node]) bool { return CheckMissingReturn_goesThroughTrueCondition(p0) }})
 	if !test.allPathsSatisfyPredicate() {

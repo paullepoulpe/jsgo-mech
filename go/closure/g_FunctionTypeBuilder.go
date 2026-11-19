@@ -26,7 +26,7 @@ type FunctionTypeBuilder struct {
 	isAbstract_                  bool
 	isKnownAmbiguous             bool
 	parameters                   *JTList[*FunctionType_Parameter]
-	closurePrimitiveId           *ClosurePrimitive
+	closurePrimitiveId           ClosurePrimitive
 	templateTypeNames            *JTList[*TemplateType]
 	constructorTemplateTypeNames *JTList[*TemplateType]
 	declarationScope             *TypedScope
@@ -56,7 +56,7 @@ func (this *FunctionTypeBuilder) finit_FunctionTypeBuilder() {
 	this.isAbstract_ = false
 	this.isKnownAmbiguous = false
 	this.parameters = nil
-	this.closurePrimitiveId = nil
+	this.closurePrimitiveId = 0
 	this.templateTypeNames = jtlistEmptyImm_(jtc_p_TemplateType)
 	this.constructorTemplateTypeNames = jtlistEmptyImm_(jtc_p_TemplateType)
 	this.declarationScope = nil

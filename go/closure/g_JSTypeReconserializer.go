@@ -14,7 +14,7 @@ type JSTypeReconserializer struct {
 	typeToRecordCache           *LinkedIdentityHashMap[*JSType, *JSTypeReconserializer_SeenTypeRecord]
 	seenTypeRecords             *JTMap[*ColorId, *JSTypeReconserializer_SeenTypeRecord]
 	disambiguateEdges           *SimpleSetMultimap
-	state                       *JSTypeReconserializer_State
+	state                       JSTypeReconserializer_State
 }
 
 func (this *JSTypeReconserializer) finit_JSTypeReconserializer() {
@@ -75,7 +75,7 @@ func (this *JSTypeReconserializer) recordType(type_ *JSType) *JSTypeReconseriali
 	if (type_.isUnknownType() || type_.isNoResolvedType()) || type_.isTemplateType() {
 		return this.unknownRecord
 	}
-	if (type_.isFunctionType() && !type_.toMaybeFunctionType().hasInstanceType()) && (type_.toMaybeFunctionType().getClosurePrimitive() == nil) {
+	if (type_.isFunctionType() && !type_.toMaybeFunctionType().hasInstanceType()) && (type_.toMaybeFunctionType().getClosurePrimitive() == 0) {
 		return this.topFunctionRecord
 	}
 	var jstypeRecord *JSTypeReconserializer_SeenTypeRecord = this.typeToRecordCache.get(type_)
@@ -258,7 +258,7 @@ func (this *JSTypeReconserializer) seedCachesWithAxiomaticTypes() {
 		var record *JSTypeReconserializer_SeenTypeRecord = new_JSTypeReconserializer_SeenTypeRecord(axiomatic.getId(), index)
 		this.seenTypeRecords.put(axiomatic.getId(), record)
 	}
-	Map_forEach(JSTypeReconserializer_JSTYPE_NATIVE_TO_AXIOMATIC_COLOR_MAP.asMap(), &BiConsumer_tfn_JSTypeNative_Color{func(jstypeNative *JSTypeNative, axiomatic *Color) {
+	Map_forEach(JSTypeReconserializer_JSTYPE_NATIVE_TO_AXIOMATIC_COLOR_MAP.asMap(), &BiConsumer_tfn_JSTypeNative_Color{func(jstypeNative JSTypeNative, axiomatic *Color) {
 		this.getOrCreateRecord(axiomatic.getId(), this.registry.getNativeType(jstypeNative))
 	}})
 	Preconditions_checkState((this.seenTypeRecords.size() == TypePointers_OFFSET_TO_AXIOMATIC_COLOR.size()))
@@ -337,8 +337,8 @@ func (this *JSTypeReconserializer) getColorIdToJSTypeMapForDebugging() *SimpleLi
 	return colorIdToTypes.immutableCopy()
 }
 
-func JSTypeReconserializer_isClosureAssert(primitive *ClosurePrimitive) bool {
-	if primitive == nil {
+func JSTypeReconserializer_isClosureAssert(primitive ClosurePrimitive) bool {
+	if primitive == 0 {
 		return false
 	}
 	return func() bool {
@@ -352,7 +352,7 @@ func JSTypeReconserializer_isClosureAssert(primitive *ClosurePrimitive) bool {
 	}()
 }
 
-var JSTypeReconserializer_JSTYPE_NATIVE_TO_AXIOMATIC_COLOR_MAP *JTMap[*JSTypeNative, *Color]
+var JSTypeReconserializer_JSTYPE_NATIVE_TO_AXIOMATIC_COLOR_MAP *JTMap[JSTypeNative, *Color]
 
 var JSTypeReconserializer_clinit_done bool
 
@@ -365,45 +365,63 @@ func JSTypeReconserializer_clinit() {
 
 }
 
-type JSTypeReconserializer_State struct {
-	Enum
+type JSTypeReconserializer_State uint8
+
+// JSTypeReconserializer_State_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JSTypeReconserializer_State_enum_ = [3]Enum{
+	{self_: JSTypeReconserializer_State_COLLECTING_TYPES, name_: "COLLECTING_TYPES", ordinal_: 0},
+	{self_: JSTypeReconserializer_State_GENERATING_POOL, name_: "GENERATING_POOL", ordinal_: 1},
+	{self_: JSTypeReconserializer_State_FINISHED, name_: "FINISHED", ordinal_: 2},
 }
 
-func (this *JSTypeReconserializer_State) up_Enum() *Enum {
-	if this == nil {
+func (this JSTypeReconserializer_State) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JSTypeReconserializer_State_enum_[this-1]
 }
 
-func (this *JSTypeReconserializer_State) init_JSTypeReconserializer_State(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this JSTypeReconserializer_State) name() string {
+	return JSTypeReconserializer_State_enum_[this-1].name_
 }
 
-func new_JSTypeReconserializer_State(name_ string, ordinal_ int32) *JSTypeReconserializer_State {
-	this := &JSTypeReconserializer_State{}
-	this.self_ = this
-	this.init_JSTypeReconserializer_State(name_, ordinal_)
+func (this JSTypeReconserializer_State) ordinal() int32 {
+	return JSTypeReconserializer_State_enum_[this-1].ordinal_
+}
+
+func (this JSTypeReconserializer_State) toString() string {
+	return JSTypeReconserializer_State_enum_[this-1].name_
+}
+
+func (this JSTypeReconserializer_State) compareTo(o any) int32 {
+	return JSTypeReconserializer_State_enum_[this-1].compareTo(o)
+}
+
+func (this JSTypeReconserializer_State) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func JSTypeReconserializer_State_values() []*JSTypeReconserializer_State {
-	return append([]*JSTypeReconserializer_State(nil), JSTypeReconserializer_State_values_...)
+func JSTypeReconserializer_State_values() []JSTypeReconserializer_State {
+	return append([]JSTypeReconserializer_State(nil), JSTypeReconserializer_State_values_...)
 }
 
-func JSTypeReconserializer_State_valueOf(name string) *JSTypeReconserializer_State {
+func JSTypeReconserializer_State_valueOf(name string) JSTypeReconserializer_State {
 	for _, v := range JSTypeReconserializer_State_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("State", name))
 }
 
-var JSTypeReconserializer_State_COLLECTING_TYPES *JSTypeReconserializer_State
-var JSTypeReconserializer_State_GENERATING_POOL *JSTypeReconserializer_State
-var JSTypeReconserializer_State_FINISHED *JSTypeReconserializer_State
-var JSTypeReconserializer_State_values_ []*JSTypeReconserializer_State
+const JSTypeReconserializer_State_COLLECTING_TYPES JSTypeReconserializer_State = 1
+const JSTypeReconserializer_State_GENERATING_POOL JSTypeReconserializer_State = 2
+const JSTypeReconserializer_State_FINISHED JSTypeReconserializer_State = 3
+
+var JSTypeReconserializer_State_values_ []JSTypeReconserializer_State
 
 var JSTypeReconserializer_State_clinit_done bool
 
@@ -412,10 +430,7 @@ func JSTypeReconserializer_State_clinit() {
 		return
 	}
 	JSTypeReconserializer_State_clinit_done = true
-	JSTypeReconserializer_State_COLLECTING_TYPES = new_JSTypeReconserializer_State("COLLECTING_TYPES", 0)
-	JSTypeReconserializer_State_GENERATING_POOL = new_JSTypeReconserializer_State("GENERATING_POOL", 1)
-	JSTypeReconserializer_State_FINISHED = new_JSTypeReconserializer_State("FINISHED", 2)
-	JSTypeReconserializer_State_values_ = []*JSTypeReconserializer_State{JSTypeReconserializer_State_COLLECTING_TYPES, JSTypeReconserializer_State_GENERATING_POOL, JSTypeReconserializer_State_FINISHED}
+	JSTypeReconserializer_State_values_ = []JSTypeReconserializer_State{JSTypeReconserializer_State_COLLECTING_TYPES, JSTypeReconserializer_State_GENERATING_POOL, JSTypeReconserializer_State_FINISHED}
 	registerEnum_("com.google.javascript.jscomp.serialization.JSTypeReconserializer.State", enumValues_(JSTypeReconserializer_State_values_))
 
 }

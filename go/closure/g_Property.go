@@ -144,44 +144,55 @@ func (this *Property) getDeclaration() StaticRef {
 
 const Property_serialVersionUID int64 = 1
 
-type Property_KeyKind struct {
-	Enum
+type Property_KeyKind uint8
+
+// Property_KeyKind_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Property_KeyKind_enum_ = [2]Enum{
+	{self_: Property_KeyKind_STRING, name_: "STRING", ordinal_: 0},
+	{self_: Property_KeyKind_SYMBOL, name_: "SYMBOL", ordinal_: 1},
 }
 
-func (this *Property_KeyKind) up_Enum() *Enum {
-	if this == nil {
+func (this Property_KeyKind) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Property_KeyKind_enum_[this-1]
 }
 
-func (this *Property_KeyKind) init_Property_KeyKind(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Property_KeyKind) name() string { return Property_KeyKind_enum_[this-1].name_ }
+
+func (this Property_KeyKind) ordinal() int32 { return Property_KeyKind_enum_[this-1].ordinal_ }
+
+func (this Property_KeyKind) toString() string { return Property_KeyKind_enum_[this-1].name_ }
+
+func (this Property_KeyKind) compareTo(o any) int32 {
+	return Property_KeyKind_enum_[this-1].compareTo(o)
 }
 
-func new_Property_KeyKind(name_ string, ordinal_ int32) *Property_KeyKind {
-	this := &Property_KeyKind{}
-	this.self_ = this
-	this.init_Property_KeyKind(name_, ordinal_)
+func (this Property_KeyKind) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Property_KeyKind_values() []*Property_KeyKind {
-	return append([]*Property_KeyKind(nil), Property_KeyKind_values_...)
+func Property_KeyKind_values() []Property_KeyKind {
+	return append([]Property_KeyKind(nil), Property_KeyKind_values_...)
 }
 
-func Property_KeyKind_valueOf(name string) *Property_KeyKind {
+func Property_KeyKind_valueOf(name string) Property_KeyKind {
 	for _, v := range Property_KeyKind_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("KeyKind", name))
 }
 
-var Property_KeyKind_STRING *Property_KeyKind
-var Property_KeyKind_SYMBOL *Property_KeyKind
-var Property_KeyKind_values_ []*Property_KeyKind
+const Property_KeyKind_STRING Property_KeyKind = 1
+const Property_KeyKind_SYMBOL Property_KeyKind = 2
+
+var Property_KeyKind_values_ []Property_KeyKind
 
 var Property_KeyKind_clinit_done bool
 
@@ -190,15 +201,13 @@ func Property_KeyKind_clinit() {
 		return
 	}
 	Property_KeyKind_clinit_done = true
-	Property_KeyKind_STRING = new_Property_KeyKind("STRING", 0)
-	Property_KeyKind_SYMBOL = new_Property_KeyKind("SYMBOL", 1)
-	Property_KeyKind_values_ = []*Property_KeyKind{Property_KeyKind_STRING, Property_KeyKind_SYMBOL}
+	Property_KeyKind_values_ = []Property_KeyKind{Property_KeyKind_STRING, Property_KeyKind_SYMBOL}
 	registerEnum_("com.google.javascript.rhino.jstype.Property.KeyKind", enumValues_(Property_KeyKind_values_))
 
 }
 
 type Property_Key interface {
-	kind() *Property_KeyKind
+	kind() Property_KeyKind
 	string() string
 	symbol() *KnownSymbolType
 	humanReadableName() string
@@ -232,7 +241,7 @@ func (this *Property_StringKey) symbol() *KnownSymbolType {
 	panic(new_UnsupportedOperationException_0().self())
 }
 
-func (this *Property_StringKey) kind() *Property_KeyKind {
+func (this *Property_StringKey) kind() Property_KeyKind {
 	return Property_KeyKind_STRING
 }
 
@@ -285,7 +294,7 @@ func (this *Property_SymbolKey) string() string {
 	panic(new_UnsupportedOperationException_0().self())
 }
 
-func (this *Property_SymbolKey) kind() *Property_KeyKind {
+func (this *Property_SymbolKey) kind() Property_KeyKind {
 	return Property_KeyKind_SYMBOL
 }
 

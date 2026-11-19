@@ -10,8 +10,8 @@ type WarningsGuard struct {
 // object (self_); every class of the hierarchy implements them (post-flip).
 type WarningsGuard_I interface {
 	getPriority_impl() int32
-	level_impl(*JSError) *CheckLevel
-	mustRunChecks_impl(*DiagnosticGroup) *Tri
+	level_impl(*JSError) CheckLevel
+	mustRunChecks_impl(*DiagnosticGroup) Tri
 }
 
 func (this *WarningsGuard) as_WarningsGuard() *WarningsGuard { return this }
@@ -39,15 +39,15 @@ func (this *WarningsGuard) init_WarningsGuard() {
 
 }
 
-func (this *WarningsGuard) mustRunChecks_impl(group *DiagnosticGroup) *Tri {
+func (this *WarningsGuard) mustRunChecks_impl(group *DiagnosticGroup) Tri {
 	return Tri_UNKNOWN
 }
 
 func (this *WarningsGuard) getPriority_impl() int32 {
-	return WarningsGuard_Priority_DEFAULT.value_
+	return WarningsGuard_Priority_value__[WarningsGuard_Priority_DEFAULT-1]
 }
 
-func (this *WarningsGuard) level(p0 *JSError) *CheckLevel {
+func (this *WarningsGuard) level(p0 *JSError) CheckLevel {
 	return this.self_.level_impl(p0)
 }
 
@@ -55,59 +55,83 @@ func (this *WarningsGuard) getPriority() int32 {
 	return this.self_.getPriority_impl()
 }
 
-func (this *WarningsGuard) mustRunChecks(p0 *DiagnosticGroup) *Tri {
+func (this *WarningsGuard) mustRunChecks(p0 *DiagnosticGroup) Tri {
 	return this.self_.mustRunChecks_impl(p0)
 }
 
-type WarningsGuard_Priority struct {
-	Enum
-	value_ int32
+type WarningsGuard_Priority uint8
+
+// WarningsGuard_Priority_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var WarningsGuard_Priority_enum_ = [7]Enum{
+	{self_: WarningsGuard_Priority_MAX, name_: "MAX", ordinal_: 0},
+	{self_: WarningsGuard_Priority_MIN, name_: "MIN", ordinal_: 1},
+	{self_: WarningsGuard_Priority_STRICT, name_: "STRICT", ordinal_: 2},
+	{self_: WarningsGuard_Priority_DEFAULT, name_: "DEFAULT", ordinal_: 3},
+	{self_: WarningsGuard_Priority_SUPPRESS_BY_ALLOWLIST, name_: "SUPPRESS_BY_ALLOWLIST", ordinal_: 4},
+	{self_: WarningsGuard_Priority_SUPPRESS_DOC, name_: "SUPPRESS_DOC", ordinal_: 5},
+	{self_: WarningsGuard_Priority_FILTER_BY_PATH, name_: "FILTER_BY_PATH", ordinal_: 6},
 }
 
-func (this *WarningsGuard_Priority) up_Enum() *Enum {
-	if this == nil {
+var WarningsGuard_Priority_value__ [7]int32
+
+func (this WarningsGuard_Priority) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &WarningsGuard_Priority_enum_[this-1]
 }
 
-func (this *WarningsGuard_Priority) init_WarningsGuard_Priority(name_ string, ordinal_ int32, value int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.value_ = value
+func (this WarningsGuard_Priority) name() string { return WarningsGuard_Priority_enum_[this-1].name_ }
+
+func (this WarningsGuard_Priority) ordinal() int32 {
+	return WarningsGuard_Priority_enum_[this-1].ordinal_
 }
 
-func new_WarningsGuard_Priority(name_ string, ordinal_ int32, value int32) *WarningsGuard_Priority {
-	this := &WarningsGuard_Priority{}
-	this.self_ = this
-	this.init_WarningsGuard_Priority(name_, ordinal_, value)
+func (this WarningsGuard_Priority) toString() string {
+	return WarningsGuard_Priority_enum_[this-1].name_
+}
+
+func (this WarningsGuard_Priority) compareTo(o any) int32 {
+	return WarningsGuard_Priority_enum_[this-1].compareTo(o)
+}
+
+func (this WarningsGuard_Priority) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *WarningsGuard_Priority) getValue() int32 {
-	return this.value_
+func (this WarningsGuard_Priority) init_WarningsGuard_Priority(value int32) {
+	WarningsGuard_Priority_value__[this-1] = value
 }
 
-func WarningsGuard_Priority_values() []*WarningsGuard_Priority {
-	return append([]*WarningsGuard_Priority(nil), WarningsGuard_Priority_values_...)
+func (this WarningsGuard_Priority) getValue() int32 {
+	return WarningsGuard_Priority_value__[this-1]
 }
 
-func WarningsGuard_Priority_valueOf(name string) *WarningsGuard_Priority {
+func WarningsGuard_Priority_values() []WarningsGuard_Priority {
+	return append([]WarningsGuard_Priority(nil), WarningsGuard_Priority_values_...)
+}
+
+func WarningsGuard_Priority_valueOf(name string) WarningsGuard_Priority {
 	for _, v := range WarningsGuard_Priority_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Priority", name))
 }
 
-var WarningsGuard_Priority_MAX *WarningsGuard_Priority
-var WarningsGuard_Priority_MIN *WarningsGuard_Priority
-var WarningsGuard_Priority_STRICT *WarningsGuard_Priority
-var WarningsGuard_Priority_DEFAULT *WarningsGuard_Priority
-var WarningsGuard_Priority_SUPPRESS_BY_ALLOWLIST *WarningsGuard_Priority
-var WarningsGuard_Priority_SUPPRESS_DOC *WarningsGuard_Priority
-var WarningsGuard_Priority_FILTER_BY_PATH *WarningsGuard_Priority
-var WarningsGuard_Priority_values_ []*WarningsGuard_Priority
+const WarningsGuard_Priority_MAX WarningsGuard_Priority = 1
+const WarningsGuard_Priority_MIN WarningsGuard_Priority = 2
+const WarningsGuard_Priority_STRICT WarningsGuard_Priority = 3
+const WarningsGuard_Priority_DEFAULT WarningsGuard_Priority = 4
+const WarningsGuard_Priority_SUPPRESS_BY_ALLOWLIST WarningsGuard_Priority = 5
+const WarningsGuard_Priority_SUPPRESS_DOC WarningsGuard_Priority = 6
+const WarningsGuard_Priority_FILTER_BY_PATH WarningsGuard_Priority = 7
+
+var WarningsGuard_Priority_values_ []WarningsGuard_Priority
 
 var WarningsGuard_Priority_clinit_done bool
 
@@ -116,14 +140,14 @@ func WarningsGuard_Priority_clinit() {
 		return
 	}
 	WarningsGuard_Priority_clinit_done = true
-	WarningsGuard_Priority_MAX = new_WarningsGuard_Priority("MAX", 0, 1)
-	WarningsGuard_Priority_MIN = new_WarningsGuard_Priority("MIN", 1, 100)
-	WarningsGuard_Priority_STRICT = new_WarningsGuard_Priority("STRICT", 2, 100)
-	WarningsGuard_Priority_DEFAULT = new_WarningsGuard_Priority("DEFAULT", 3, 50)
-	WarningsGuard_Priority_SUPPRESS_BY_ALLOWLIST = new_WarningsGuard_Priority("SUPPRESS_BY_ALLOWLIST", 4, 40)
-	WarningsGuard_Priority_SUPPRESS_DOC = new_WarningsGuard_Priority("SUPPRESS_DOC", 5, 20)
-	WarningsGuard_Priority_FILTER_BY_PATH = new_WarningsGuard_Priority("FILTER_BY_PATH", 6, 1)
-	WarningsGuard_Priority_values_ = []*WarningsGuard_Priority{WarningsGuard_Priority_MAX, WarningsGuard_Priority_MIN, WarningsGuard_Priority_STRICT, WarningsGuard_Priority_DEFAULT, WarningsGuard_Priority_SUPPRESS_BY_ALLOWLIST, WarningsGuard_Priority_SUPPRESS_DOC, WarningsGuard_Priority_FILTER_BY_PATH}
+	WarningsGuard_Priority_MAX.init_WarningsGuard_Priority(1)
+	WarningsGuard_Priority_MIN.init_WarningsGuard_Priority(100)
+	WarningsGuard_Priority_STRICT.init_WarningsGuard_Priority(100)
+	WarningsGuard_Priority_DEFAULT.init_WarningsGuard_Priority(50)
+	WarningsGuard_Priority_SUPPRESS_BY_ALLOWLIST.init_WarningsGuard_Priority(40)
+	WarningsGuard_Priority_SUPPRESS_DOC.init_WarningsGuard_Priority(20)
+	WarningsGuard_Priority_FILTER_BY_PATH.init_WarningsGuard_Priority(1)
+	WarningsGuard_Priority_values_ = []WarningsGuard_Priority{WarningsGuard_Priority_MAX, WarningsGuard_Priority_MIN, WarningsGuard_Priority_STRICT, WarningsGuard_Priority_DEFAULT, WarningsGuard_Priority_SUPPRESS_BY_ALLOWLIST, WarningsGuard_Priority_SUPPRESS_DOC, WarningsGuard_Priority_FILTER_BY_PATH}
 	registerEnum_("com.google.javascript.jscomp.WarningsGuard.Priority", enumValues_(WarningsGuard_Priority_values_))
 
 }

@@ -31,7 +31,7 @@ func new_VoidType(registry *JSTypeRegistry) *VoidType {
 	return this
 }
 
-func (this *VoidType) getTypeClass_impl() *JSTypeClass {
+func (this *VoidType) getTypeClass_impl() JSTypeClass {
 	return JSTypeClass_VOID
 }
 
@@ -43,7 +43,7 @@ func (this *VoidType) restrictByNotUndefined_impl() *JSType {
 	return this.registry.getNativeType(JSTypeNative_NO_TYPE)
 }
 
-func (this *VoidType) testForEquality_impl(that *JSType) *Tri {
+func (this *VoidType) testForEquality_impl(that *JSType) Tri {
 	if Object_equals(obj_(Tri_UNKNOWN), obj_(this.ValueType.testForEquality_impl(that))) {
 		return Tri_UNKNOWN
 	}
@@ -81,7 +81,7 @@ func (this *VoidType) getDisplayName_impl() Optional[string] {
 	return Optional_of[string]("undefined")
 }
 
-func (this *VoidType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
+func (this *VoidType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_FALSE
 }
 
@@ -90,7 +90,7 @@ func (this *VoidType) visitUntyped_impl(visitor Visitor) any {
 }
 
 // getTypeClass: an object that is exactly a VoidType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *VoidType) getTypeClass() *JSTypeClass {
+func (this *VoidType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
@@ -114,7 +114,7 @@ func (this *VoidType) restrictByNotUndefined() *JSType {
 }
 
 // testForEquality: an object that is exactly a VoidType calls its testForEquality_impl directly (post-flip); others dispatch.
-func (this *VoidType) testForEquality(p0 *JSType) *Tri {
+func (this *VoidType) testForEquality(p0 *JSType) Tri {
 	if this.self_ == any(this) {
 		return this.testForEquality_impl(p0)
 	}
@@ -178,7 +178,7 @@ func (this *VoidType) getDisplayName() Optional[string] {
 }
 
 // getPossibleToBooleanOutcomes: an object that is exactly a VoidType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
-func (this *VoidType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
+func (this *VoidType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 	if this.self_ == any(this) {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}

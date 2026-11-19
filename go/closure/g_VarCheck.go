@@ -123,7 +123,7 @@ func (this *VarCheck) checkName(t *NodeTraversal, n Node, parent Node) {
 	}
 }
 
-func VarCheck_strengthOf(n Node) *StaticSourceFile_SourceKind {
+func VarCheck_strengthOf(n Node) StaticSourceFile_SourceKind {
 	var source StaticSourceFile = n.getStaticSourceFile()
 	if source == nil {
 		return StaticSourceFile_SourceKind_EXTERN

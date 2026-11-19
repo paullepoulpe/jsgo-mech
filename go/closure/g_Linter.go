@@ -102,7 +102,7 @@ func new_Linter_Builder() *Linter_Builder {
 	return this
 }
 
-func (this *Linter_Builder) withModuleResolutionMode(moduleResolutionMode *ModuleLoader_ResolutionMode) *Linter_Builder {
+func (this *Linter_Builder) withModuleResolutionMode(moduleResolutionMode ModuleLoader_ResolutionMode) *Linter_Builder {
 	this.options_.setModuleResolutionMode(moduleResolutionMode)
 	return this
 }

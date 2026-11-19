@@ -3,14 +3,14 @@
 package closure
 
 type FeatureSet struct {
-	features_ *JTSet[*FeatureSet_Feature]
+	features_ *JTSet[FeatureSet_Feature]
 }
 
-func (this *FeatureSet) init_FeatureSet(features EnumSetOf[*FeatureSet_Feature]) {
+func (this *FeatureSet) init_FeatureSet(features EnumSetOf[FeatureSet_Feature]) {
 	this.features_ = jimmutableSetCopyOf_(jtc_p_FeatureSet_Feature, EnumSet_as_Collection(features))
 }
 
-func new_FeatureSet(features EnumSetOf[*FeatureSet_Feature]) *FeatureSet {
+func new_FeatureSet(features EnumSetOf[FeatureSet_Feature]) *FeatureSet {
 	this := &FeatureSet{}
 	this.init_FeatureSet(features)
 	return this
@@ -66,8 +66,8 @@ func (this *FeatureSet) versionForDebugging() string {
 	return this.version()
 }
 
-func (this *FeatureSet) without_2(featureToRemove *FeatureSet_Feature, moreFeaturesToRemove []*FeatureSet_Feature) *FeatureSet {
-	return new_FeatureSet(FeatureSet_difference(this.features_, EnumSet_as_Set(EnumSet_of_Enum_EnumArr(featureToRemove.up_Enum(), arrmap_(moreFeaturesToRemove, func(v_ *FeatureSet_Feature) *Enum { return v_.up_Enum() })))))
+func (this *FeatureSet) without_2(featureToRemove FeatureSet_Feature, moreFeaturesToRemove []FeatureSet_Feature) *FeatureSet {
+	return new_FeatureSet(FeatureSet_difference(this.features_, EnumSet_as_Set(EnumSet_of_Enum_EnumArr(featureToRemove.enum_(), arrmap_(moreFeaturesToRemove, func(v_ FeatureSet_Feature) *Enum { return v_.enum_() })))))
 }
 
 func (this *FeatureSet) without(other *FeatureSet) *FeatureSet {
@@ -85,7 +85,7 @@ func (this *FeatureSet) union(other *FeatureSet) *FeatureSet {
 func (this *FeatureSet) containsAtLeastOneOf(other *FeatureSet) bool {
 	it_1 := other.features_.each()
 	for it_1.next() {
-		var otherFeature *FeatureSet_Feature = it_1.v
+		var otherFeature FeatureSet_Feature = it_1.v
 		if this.features_.contains(otherFeature) {
 			return true
 		}
@@ -97,15 +97,15 @@ func (this *FeatureSet) containsFeatureSet(other *FeatureSet) bool {
 	return this.features_.asSet().containsAll(Collection(other.features_.asSet()))
 }
 
-func (this *FeatureSet) contains(feature *FeatureSet_Feature) bool {
-	return this.features_.asSet().containsAll(EnumSet_as_Collection(EnumSet_of(feature.up_Enum())))
+func (this *FeatureSet) contains(feature FeatureSet_Feature) bool {
+	return this.features_.asSet().containsAll(EnumSet_as_Collection(EnumSet_of(feature.enum_())))
 }
 
-func FeatureSet_emptyEnumSet() EnumSetOf[*FeatureSet_Feature] {
+func FeatureSet_emptyEnumSet() EnumSetOf[FeatureSet_Feature] {
 	return EnumSet_noneOf(classOf_("com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature"))
 }
 
-func FeatureSet_enumSetOf(set *JTSet[*FeatureSet_Feature]) EnumSetOf[*FeatureSet_Feature] {
+func FeatureSet_enumSetOf(set *JTSet[FeatureSet_Feature]) EnumSetOf[FeatureSet_Feature] {
 	return func() *EnumSet {
 		if set.isEmpty() {
 			return FeatureSet_emptyEnumSet()
@@ -114,36 +114,36 @@ func FeatureSet_enumSetOf(set *JTSet[*FeatureSet_Feature]) EnumSetOf[*FeatureSet
 	}()
 }
 
-func FeatureSet_add(features *JTSet[*FeatureSet_Feature], feature *FeatureSet_Feature) EnumSetOf[*FeatureSet_Feature] {
-	var result EnumSetOf[*FeatureSet_Feature] = FeatureSet_enumSetOf(features)
+func FeatureSet_add(features *JTSet[FeatureSet_Feature], feature FeatureSet_Feature) EnumSetOf[FeatureSet_Feature] {
+	var result EnumSetOf[FeatureSet_Feature] = FeatureSet_enumSetOf(features)
 	result.add(obj_(feature))
 	return result
 }
 
-func FeatureSet_union(features *JTSet[*FeatureSet_Feature], newFeatures SetOf[*FeatureSet_Feature]) EnumSetOf[*FeatureSet_Feature] {
-	var result EnumSetOf[*FeatureSet_Feature] = FeatureSet_enumSetOf(features)
+func FeatureSet_union(features *JTSet[FeatureSet_Feature], newFeatures SetOf[FeatureSet_Feature]) EnumSetOf[FeatureSet_Feature] {
+	var result EnumSetOf[FeatureSet_Feature] = FeatureSet_enumSetOf(features)
 	result.addAll(Collection(newFeatures))
 	return result
 }
 
-func FeatureSet_difference(features *JTSet[*FeatureSet_Feature], removedFeatures SetOf[*FeatureSet_Feature]) EnumSetOf[*FeatureSet_Feature] {
-	var result EnumSetOf[*FeatureSet_Feature] = FeatureSet_enumSetOf(features)
+func FeatureSet_difference(features *JTSet[FeatureSet_Feature], removedFeatures SetOf[FeatureSet_Feature]) EnumSetOf[FeatureSet_Feature] {
+	var result EnumSetOf[FeatureSet_Feature] = FeatureSet_enumSetOf(features)
 	result.removeAll(Collection(removedFeatures))
 	return result
 }
 
-func (this *FeatureSet) with(feature *FeatureSet_Feature) *FeatureSet {
+func (this *FeatureSet) with(feature FeatureSet_Feature) *FeatureSet {
 	if this.features_.contains(feature) {
 		return this
 	}
 	return new_FeatureSet(FeatureSet_add(this.features_, feature))
 }
 
-func (this *FeatureSet) withFeatureVarargs(newFeatures []*FeatureSet_Feature) *FeatureSet {
-	return new_FeatureSet(FeatureSet_union(this.features_, ImmutableSet_as_Set(ImmutableSet_copyOf_ObjectArr(arrmap_(newFeatures, func(v_ *FeatureSet_Feature) any { return obj_(v_) })))))
+func (this *FeatureSet) withFeatureVarargs(newFeatures []FeatureSet_Feature) *FeatureSet {
+	return new_FeatureSet(FeatureSet_union(this.features_, ImmutableSet_as_Set(ImmutableSet_copyOf_ObjectArr(arrmap_(newFeatures, func(v_ FeatureSet_Feature) any { return obj_(v_) })))))
 }
 
-func (this *FeatureSet) withSet(newFeatures SetOf[*FeatureSet_Feature]) *FeatureSet {
+func (this *FeatureSet) withSet(newFeatures SetOf[FeatureSet_Feature]) *FeatureSet {
 	return new_FeatureSet(FeatureSet_union(this.features_, newFeatures))
 }
 
@@ -151,11 +151,11 @@ func (this *FeatureSet) withFeatureSet(newFeatures *FeatureSet) *FeatureSet {
 	return new_FeatureSet(FeatureSet_union(this.features_, newFeatures.features_.asSet()))
 }
 
-func (this *FeatureSet) has(feature *FeatureSet_Feature) bool {
+func (this *FeatureSet) has(feature FeatureSet_Feature) bool {
 	return this.features_.contains(feature)
 }
 
-func (this *FeatureSet) getFeatures() *JTSet[*FeatureSet_Feature] {
+func (this *FeatureSet) getFeatures() *JTSet[FeatureSet_Feature] {
 	return this.features_
 }
 
@@ -292,29 +292,29 @@ func FeatureSet_clinit() {
 	FeatureSet_ES3 = FeatureSet_BARE_MINIMUM.withSet(EnumSet_as_Set(FeatureSet_LangVersion_ES3.features()))
 	FeatureSet_ES5 = FeatureSet_ES3.withSet(EnumSet_as_Set(FeatureSet_LangVersion_ES5.features()))
 	FeatureSet_ES2015_MODULES = FeatureSet_ES5.withSet(EnumSet_as_Set(FeatureSet_LangVersion_ES2015.features()))
-	FeatureSet_ES2015 = FeatureSet_ES2015_MODULES.without_2(FeatureSet_Feature_MODULES, []*FeatureSet_Feature{})
+	FeatureSet_ES2015 = FeatureSet_ES2015_MODULES.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
 	FeatureSet_ES2016_MODULES = FeatureSet_ES2015_MODULES.withSet(EnumSet_as_Set(FeatureSet_LangVersion_ES2016.features()))
-	FeatureSet_ES2016 = FeatureSet_ES2016_MODULES.without_2(FeatureSet_Feature_MODULES, []*FeatureSet_Feature{})
+	FeatureSet_ES2016 = FeatureSet_ES2016_MODULES.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
 	FeatureSet_ES2017_MODULES = FeatureSet_ES2016_MODULES.withSet(EnumSet_as_Set(FeatureSet_LangVersion_ES2017.features()))
-	FeatureSet_ES2017 = FeatureSet_ES2017_MODULES.without_2(FeatureSet_Feature_MODULES, []*FeatureSet_Feature{})
+	FeatureSet_ES2017 = FeatureSet_ES2017_MODULES.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
 	FeatureSet_ES2018_MODULES = FeatureSet_ES2017_MODULES.withSet(EnumSet_as_Set(FeatureSet_LangVersion_ES2018.features()))
-	FeatureSet_ES2018 = FeatureSet_ES2018_MODULES.without_2(FeatureSet_Feature_MODULES, []*FeatureSet_Feature{})
+	FeatureSet_ES2018 = FeatureSet_ES2018_MODULES.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
 	FeatureSet_ES2019_MODULES = FeatureSet_ES2018_MODULES.withSet(EnumSet_as_Set(FeatureSet_LangVersion_ES2019.features()))
-	FeatureSet_ES2019 = FeatureSet_ES2019_MODULES.without_2(FeatureSet_Feature_MODULES, []*FeatureSet_Feature{})
+	FeatureSet_ES2019 = FeatureSet_ES2019_MODULES.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
 	FeatureSet_ES2020_MODULES = FeatureSet_ES2019_MODULES.withSet(EnumSet_as_Set(FeatureSet_LangVersion_ES2020.features()))
-	FeatureSet_ES2020 = FeatureSet_ES2020_MODULES.without_2(FeatureSet_Feature_MODULES, []*FeatureSet_Feature{})
+	FeatureSet_ES2020 = FeatureSet_ES2020_MODULES.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
 	FeatureSet_ES2021_MODULES = FeatureSet_ES2020_MODULES.withSet(EnumSet_as_Set(FeatureSet_LangVersion_ES2021.features()))
-	FeatureSet_ES2021 = FeatureSet_ES2021_MODULES.without_2(FeatureSet_Feature_MODULES, []*FeatureSet_Feature{})
+	FeatureSet_ES2021 = FeatureSet_ES2021_MODULES.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
 	FeatureSet_ES2022_MODULES = FeatureSet_ES2021_MODULES.withSet(EnumSet_as_Set(FeatureSet_LangVersion_ES2022.features()))
-	FeatureSet_ES2022 = FeatureSet_ES2022_MODULES.without_2(FeatureSet_Feature_MODULES, []*FeatureSet_Feature{})
+	FeatureSet_ES2022 = FeatureSet_ES2022_MODULES.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
 	FeatureSet_ES_NEXT = FeatureSet_ES2022_MODULES.withSet(EnumSet_as_Set(FeatureSet_LangVersion_ES_NEXT.features()))
 	FeatureSet_ES_UNSTABLE = FeatureSet_ES_NEXT.withSet(EnumSet_as_Set(FeatureSet_LangVersion_ES_UNSTABLE.features()))
 	FeatureSet_ES_UNSUPPORTED = FeatureSet_ES_UNSTABLE.withSet(EnumSet_as_Set(FeatureSet_LangVersion_ES_UNSUPPORTED.features()))
-	FeatureSet_BROWSER_2019 = FeatureSet_ES2018_MODULES.without_2(FeatureSet_Feature_OBJECT_LITERALS_WITH_SPREAD, []*FeatureSet_Feature{FeatureSet_Feature_OBJECT_PATTERN_REST, FeatureSet_Feature_ASYNC_GENERATORS, FeatureSet_Feature_FOR_AWAIT_OF, FeatureSet_Feature_REGEXP_FLAG_S, FeatureSet_Feature_REGEXP_LOOKBEHIND, FeatureSet_Feature_REGEXP_NAMED_GROUPS, FeatureSet_Feature_REGEXP_UNICODE_PROPERTY_ESCAPE})
-	FeatureSet_BROWSER_2020 = FeatureSet_ES2019_MODULES.without_2(FeatureSet_Feature_REGEXP_FLAG_S, []*FeatureSet_Feature{FeatureSet_Feature_REGEXP_NAMED_GROUPS, FeatureSet_Feature_REGEXP_UNICODE_PROPERTY_ESCAPE, FeatureSet_Feature_REGEXP_LOOKBEHIND})
-	FeatureSet_BROWSER_2021 = FeatureSet_ES2020_MODULES.without_2(FeatureSet_Feature_REGEXP_LOOKBEHIND, []*FeatureSet_Feature{})
-	FeatureSet_BROWSER_2022 = FeatureSet_ES2021_MODULES.without_2(FeatureSet_Feature_REGEXP_LOOKBEHIND, []*FeatureSet_Feature{})
-	FeatureSet_BROWSER_2023 = FeatureSet_ES2022_MODULES.without_2(FeatureSet_Feature_REGEXP_LOOKBEHIND, []*FeatureSet_Feature{FeatureSet_Feature_CLASS_STATIC_BLOCK})
+	FeatureSet_BROWSER_2019 = FeatureSet_ES2018_MODULES.without_2(FeatureSet_Feature_OBJECT_LITERALS_WITH_SPREAD, []FeatureSet_Feature{FeatureSet_Feature_OBJECT_PATTERN_REST, FeatureSet_Feature_ASYNC_GENERATORS, FeatureSet_Feature_FOR_AWAIT_OF, FeatureSet_Feature_REGEXP_FLAG_S, FeatureSet_Feature_REGEXP_LOOKBEHIND, FeatureSet_Feature_REGEXP_NAMED_GROUPS, FeatureSet_Feature_REGEXP_UNICODE_PROPERTY_ESCAPE})
+	FeatureSet_BROWSER_2020 = FeatureSet_ES2019_MODULES.without_2(FeatureSet_Feature_REGEXP_FLAG_S, []FeatureSet_Feature{FeatureSet_Feature_REGEXP_NAMED_GROUPS, FeatureSet_Feature_REGEXP_UNICODE_PROPERTY_ESCAPE, FeatureSet_Feature_REGEXP_LOOKBEHIND})
+	FeatureSet_BROWSER_2021 = FeatureSet_ES2020_MODULES.without_2(FeatureSet_Feature_REGEXP_LOOKBEHIND, []FeatureSet_Feature{})
+	FeatureSet_BROWSER_2022 = FeatureSet_ES2021_MODULES.without_2(FeatureSet_Feature_REGEXP_LOOKBEHIND, []FeatureSet_Feature{})
+	FeatureSet_BROWSER_2023 = FeatureSet_ES2022_MODULES.without_2(FeatureSet_Feature_REGEXP_LOOKBEHIND, []FeatureSet_Feature{FeatureSet_Feature_CLASS_STATIC_BLOCK})
 	FeatureSet_BROWSER_2024 = FeatureSet_ES2022_MODULES
 	FeatureSet_BROWSER_2025 = FeatureSet_ES2022_MODULES
 	FeatureSet_BROWSER_2026 = FeatureSet_ES2022_MODULES
@@ -322,68 +322,95 @@ func FeatureSet_clinit() {
 
 }
 
-type FeatureSet_LangVersion struct {
-	Enum
+type FeatureSet_LangVersion uint8
+
+// FeatureSet_LangVersion_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var FeatureSet_LangVersion_enum_ = [14]Enum{
+	{self_: FeatureSet_LangVersion_ES3, name_: "ES3", ordinal_: 0},
+	{self_: FeatureSet_LangVersion_ES5, name_: "ES5", ordinal_: 1},
+	{self_: FeatureSet_LangVersion_ES2015, name_: "ES2015", ordinal_: 2},
+	{self_: FeatureSet_LangVersion_ES2016, name_: "ES2016", ordinal_: 3},
+	{self_: FeatureSet_LangVersion_ES2017, name_: "ES2017", ordinal_: 4},
+	{self_: FeatureSet_LangVersion_ES2018, name_: "ES2018", ordinal_: 5},
+	{self_: FeatureSet_LangVersion_ES2019, name_: "ES2019", ordinal_: 6},
+	{self_: FeatureSet_LangVersion_ES2020, name_: "ES2020", ordinal_: 7},
+	{self_: FeatureSet_LangVersion_ES2021, name_: "ES2021", ordinal_: 8},
+	{self_: FeatureSet_LangVersion_ES2022, name_: "ES2022", ordinal_: 9},
+	{self_: FeatureSet_LangVersion_ES_NEXT, name_: "ES_NEXT", ordinal_: 10},
+	{self_: FeatureSet_LangVersion_ES_UNSTABLE, name_: "ES_UNSTABLE", ordinal_: 11},
+	{self_: FeatureSet_LangVersion_ES_UNSUPPORTED, name_: "ES_UNSUPPORTED", ordinal_: 12},
+	{self_: FeatureSet_LangVersion_TYPESCRIPT, name_: "TYPESCRIPT", ordinal_: 13},
 }
 
-func (this *FeatureSet_LangVersion) up_Enum() *Enum {
-	if this == nil {
+func (this FeatureSet_LangVersion) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &FeatureSet_LangVersion_enum_[this-1]
 }
 
-func (this *FeatureSet_LangVersion) init_FeatureSet_LangVersion(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this FeatureSet_LangVersion) name() string { return FeatureSet_LangVersion_enum_[this-1].name_ }
+
+func (this FeatureSet_LangVersion) ordinal() int32 {
+	return FeatureSet_LangVersion_enum_[this-1].ordinal_
 }
 
-func new_FeatureSet_LangVersion(name_ string, ordinal_ int32) *FeatureSet_LangVersion {
-	this := &FeatureSet_LangVersion{}
-	this.self_ = this
-	this.init_FeatureSet_LangVersion(name_, ordinal_)
+func (this FeatureSet_LangVersion) toString() string {
+	return FeatureSet_LangVersion_enum_[this-1].name_
+}
+
+func (this FeatureSet_LangVersion) compareTo(o any) int32 {
+	return FeatureSet_LangVersion_enum_[this-1].compareTo(o)
+}
+
+func (this FeatureSet_LangVersion) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *FeatureSet_LangVersion) features() EnumSetOf[*FeatureSet_Feature] {
-	var set EnumSetOf[*FeatureSet_Feature] = EnumSet_noneOf(classOf_("com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature"))
+func (this FeatureSet_LangVersion) features() EnumSetOf[FeatureSet_Feature] {
+	var set EnumSetOf[FeatureSet_Feature] = EnumSet_noneOf(classOf_("com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature"))
 	it_1 := foreach_(obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature"))))
 	for it_1.next() {
-		var feature *FeatureSet_Feature = cast_[*FeatureSet_Feature](it_1.v)
-		if feature.version_ == this {
+		var feature FeatureSet_Feature = cast_[FeatureSet_Feature](it_1.v)
+		if FeatureSet_Feature_version__[feature-1] == this {
 			set.add(obj_(feature))
 		}
 	}
 	return set
 }
 
-func FeatureSet_LangVersion_values() []*FeatureSet_LangVersion {
-	return append([]*FeatureSet_LangVersion(nil), FeatureSet_LangVersion_values_...)
+func FeatureSet_LangVersion_values() []FeatureSet_LangVersion {
+	return append([]FeatureSet_LangVersion(nil), FeatureSet_LangVersion_values_...)
 }
 
-func FeatureSet_LangVersion_valueOf(name string) *FeatureSet_LangVersion {
+func FeatureSet_LangVersion_valueOf(name string) FeatureSet_LangVersion {
 	for _, v := range FeatureSet_LangVersion_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("LangVersion", name))
 }
 
-var FeatureSet_LangVersion_ES3 *FeatureSet_LangVersion
-var FeatureSet_LangVersion_ES5 *FeatureSet_LangVersion
-var FeatureSet_LangVersion_ES2015 *FeatureSet_LangVersion
-var FeatureSet_LangVersion_ES2016 *FeatureSet_LangVersion
-var FeatureSet_LangVersion_ES2017 *FeatureSet_LangVersion
-var FeatureSet_LangVersion_ES2018 *FeatureSet_LangVersion
-var FeatureSet_LangVersion_ES2019 *FeatureSet_LangVersion
-var FeatureSet_LangVersion_ES2020 *FeatureSet_LangVersion
-var FeatureSet_LangVersion_ES2021 *FeatureSet_LangVersion
-var FeatureSet_LangVersion_ES2022 *FeatureSet_LangVersion
-var FeatureSet_LangVersion_ES_NEXT *FeatureSet_LangVersion
-var FeatureSet_LangVersion_ES_UNSTABLE *FeatureSet_LangVersion
-var FeatureSet_LangVersion_ES_UNSUPPORTED *FeatureSet_LangVersion
-var FeatureSet_LangVersion_TYPESCRIPT *FeatureSet_LangVersion
-var FeatureSet_LangVersion_values_ []*FeatureSet_LangVersion
+const FeatureSet_LangVersion_ES3 FeatureSet_LangVersion = 1
+const FeatureSet_LangVersion_ES5 FeatureSet_LangVersion = 2
+const FeatureSet_LangVersion_ES2015 FeatureSet_LangVersion = 3
+const FeatureSet_LangVersion_ES2016 FeatureSet_LangVersion = 4
+const FeatureSet_LangVersion_ES2017 FeatureSet_LangVersion = 5
+const FeatureSet_LangVersion_ES2018 FeatureSet_LangVersion = 6
+const FeatureSet_LangVersion_ES2019 FeatureSet_LangVersion = 7
+const FeatureSet_LangVersion_ES2020 FeatureSet_LangVersion = 8
+const FeatureSet_LangVersion_ES2021 FeatureSet_LangVersion = 9
+const FeatureSet_LangVersion_ES2022 FeatureSet_LangVersion = 10
+const FeatureSet_LangVersion_ES_NEXT FeatureSet_LangVersion = 11
+const FeatureSet_LangVersion_ES_UNSTABLE FeatureSet_LangVersion = 12
+const FeatureSet_LangVersion_ES_UNSUPPORTED FeatureSet_LangVersion = 13
+const FeatureSet_LangVersion_TYPESCRIPT FeatureSet_LangVersion = 14
+
+var FeatureSet_LangVersion_values_ []FeatureSet_LangVersion
 
 var FeatureSet_LangVersion_clinit_done bool
 
@@ -392,133 +419,189 @@ func FeatureSet_LangVersion_clinit() {
 		return
 	}
 	FeatureSet_LangVersion_clinit_done = true
-	FeatureSet_LangVersion_ES3 = new_FeatureSet_LangVersion("ES3", 0)
-	FeatureSet_LangVersion_ES5 = new_FeatureSet_LangVersion("ES5", 1)
-	FeatureSet_LangVersion_ES2015 = new_FeatureSet_LangVersion("ES2015", 2)
-	FeatureSet_LangVersion_ES2016 = new_FeatureSet_LangVersion("ES2016", 3)
-	FeatureSet_LangVersion_ES2017 = new_FeatureSet_LangVersion("ES2017", 4)
-	FeatureSet_LangVersion_ES2018 = new_FeatureSet_LangVersion("ES2018", 5)
-	FeatureSet_LangVersion_ES2019 = new_FeatureSet_LangVersion("ES2019", 6)
-	FeatureSet_LangVersion_ES2020 = new_FeatureSet_LangVersion("ES2020", 7)
-	FeatureSet_LangVersion_ES2021 = new_FeatureSet_LangVersion("ES2021", 8)
-	FeatureSet_LangVersion_ES2022 = new_FeatureSet_LangVersion("ES2022", 9)
-	FeatureSet_LangVersion_ES_NEXT = new_FeatureSet_LangVersion("ES_NEXT", 10)
-	FeatureSet_LangVersion_ES_UNSTABLE = new_FeatureSet_LangVersion("ES_UNSTABLE", 11)
-	FeatureSet_LangVersion_ES_UNSUPPORTED = new_FeatureSet_LangVersion("ES_UNSUPPORTED", 12)
-	FeatureSet_LangVersion_TYPESCRIPT = new_FeatureSet_LangVersion("TYPESCRIPT", 13)
-	FeatureSet_LangVersion_values_ = []*FeatureSet_LangVersion{FeatureSet_LangVersion_ES3, FeatureSet_LangVersion_ES5, FeatureSet_LangVersion_ES2015, FeatureSet_LangVersion_ES2016, FeatureSet_LangVersion_ES2017, FeatureSet_LangVersion_ES2018, FeatureSet_LangVersion_ES2019, FeatureSet_LangVersion_ES2020, FeatureSet_LangVersion_ES2021, FeatureSet_LangVersion_ES2022, FeatureSet_LangVersion_ES_NEXT, FeatureSet_LangVersion_ES_UNSTABLE, FeatureSet_LangVersion_ES_UNSUPPORTED, FeatureSet_LangVersion_TYPESCRIPT}
+	FeatureSet_LangVersion_values_ = []FeatureSet_LangVersion{FeatureSet_LangVersion_ES3, FeatureSet_LangVersion_ES5, FeatureSet_LangVersion_ES2015, FeatureSet_LangVersion_ES2016, FeatureSet_LangVersion_ES2017, FeatureSet_LangVersion_ES2018, FeatureSet_LangVersion_ES2019, FeatureSet_LangVersion_ES2020, FeatureSet_LangVersion_ES2021, FeatureSet_LangVersion_ES2022, FeatureSet_LangVersion_ES_NEXT, FeatureSet_LangVersion_ES_UNSTABLE, FeatureSet_LangVersion_ES_UNSUPPORTED, FeatureSet_LangVersion_TYPESCRIPT}
 	registerEnum_("com.google.javascript.jscomp.parsing.parser.FeatureSet.LangVersion", enumValues_(FeatureSet_LangVersion_values_))
 
 }
 
-type FeatureSet_Feature struct {
-	Enum
-	nameField string
-	version_  *FeatureSet_LangVersion
+type FeatureSet_Feature uint8
+
+// FeatureSet_Feature_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var FeatureSet_Feature_enum_ = [59]Enum{
+	{self_: FeatureSet_Feature_REGEXP_SYNTAX, name_: "REGEXP_SYNTAX", ordinal_: 0},
+	{self_: FeatureSet_Feature_ES3_KEYWORDS_AS_IDENTIFIERS, name_: "ES3_KEYWORDS_AS_IDENTIFIERS", ordinal_: 1},
+	{self_: FeatureSet_Feature_GETTER, name_: "GETTER", ordinal_: 2},
+	{self_: FeatureSet_Feature_KEYWORDS_AS_PROPERTIES, name_: "KEYWORDS_AS_PROPERTIES", ordinal_: 3},
+	{self_: FeatureSet_Feature_SETTER, name_: "SETTER", ordinal_: 4},
+	{self_: FeatureSet_Feature_STRING_CONTINUATION, name_: "STRING_CONTINUATION", ordinal_: 5},
+	{self_: FeatureSet_Feature_TRAILING_COMMA, name_: "TRAILING_COMMA", ordinal_: 6},
+	{self_: FeatureSet_Feature_ARRAY_DESTRUCTURING, name_: "ARRAY_DESTRUCTURING", ordinal_: 7},
+	{self_: FeatureSet_Feature_ARRAY_PATTERN_REST, name_: "ARRAY_PATTERN_REST", ordinal_: 8},
+	{self_: FeatureSet_Feature_ARROW_FUNCTIONS, name_: "ARROW_FUNCTIONS", ordinal_: 9},
+	{self_: FeatureSet_Feature_BINARY_LITERALS, name_: "BINARY_LITERALS", ordinal_: 10},
+	{self_: FeatureSet_Feature_BLOCK_SCOPED_FUNCTION_DECLARATION, name_: "BLOCK_SCOPED_FUNCTION_DECLARATION", ordinal_: 11},
+	{self_: FeatureSet_Feature_CLASSES, name_: "CLASSES", ordinal_: 12},
+	{self_: FeatureSet_Feature_CLASS_GETTER_SETTER, name_: "CLASS_GETTER_SETTER", ordinal_: 13},
+	{self_: FeatureSet_Feature_COMPUTED_PROPERTIES, name_: "COMPUTED_PROPERTIES", ordinal_: 14},
+	{self_: FeatureSet_Feature_CONST_DECLARATIONS, name_: "CONST_DECLARATIONS", ordinal_: 15},
+	{self_: FeatureSet_Feature_DEFAULT_PARAMETERS, name_: "DEFAULT_PARAMETERS", ordinal_: 16},
+	{self_: FeatureSet_Feature_FOR_OF, name_: "FOR_OF", ordinal_: 17},
+	{self_: FeatureSet_Feature_GENERATORS, name_: "GENERATORS", ordinal_: 18},
+	{self_: FeatureSet_Feature_LET_DECLARATIONS, name_: "LET_DECLARATIONS", ordinal_: 19},
+	{self_: FeatureSet_Feature_MEMBER_DECLARATIONS, name_: "MEMBER_DECLARATIONS", ordinal_: 20},
+	{self_: FeatureSet_Feature_NEW_TARGET, name_: "NEW_TARGET", ordinal_: 21},
+	{self_: FeatureSet_Feature_OBJECT_DESTRUCTURING, name_: "OBJECT_DESTRUCTURING", ordinal_: 22},
+	{self_: FeatureSet_Feature_OCTAL_LITERALS, name_: "OCTAL_LITERALS", ordinal_: 23},
+	{self_: FeatureSet_Feature_REGEXP_FLAG_U, name_: "REGEXP_FLAG_U", ordinal_: 24},
+	{self_: FeatureSet_Feature_REGEXP_FLAG_Y, name_: "REGEXP_FLAG_Y", ordinal_: 25},
+	{self_: FeatureSet_Feature_REST_PARAMETERS, name_: "REST_PARAMETERS", ordinal_: 26},
+	{self_: FeatureSet_Feature_SHORTHAND_OBJECT_PROPERTIES, name_: "SHORTHAND_OBJECT_PROPERTIES", ordinal_: 27},
+	{self_: FeatureSet_Feature_SPREAD_EXPRESSIONS, name_: "SPREAD_EXPRESSIONS", ordinal_: 28},
+	{self_: FeatureSet_Feature_SUPER, name_: "SUPER", ordinal_: 29},
+	{self_: FeatureSet_Feature_TEMPLATE_LITERALS, name_: "TEMPLATE_LITERALS", ordinal_: 30},
+	{self_: FeatureSet_Feature_MODULES, name_: "MODULES", ordinal_: 31},
+	{self_: FeatureSet_Feature_EXPONENT_OP, name_: "EXPONENT_OP", ordinal_: 32},
+	{self_: FeatureSet_Feature_ASYNC_FUNCTIONS, name_: "ASYNC_FUNCTIONS", ordinal_: 33},
+	{self_: FeatureSet_Feature_OBJECT_LITERALS_WITH_SPREAD, name_: "OBJECT_LITERALS_WITH_SPREAD", ordinal_: 34},
+	{self_: FeatureSet_Feature_OBJECT_PATTERN_REST, name_: "OBJECT_PATTERN_REST", ordinal_: 35},
+	{self_: FeatureSet_Feature_ASYNC_GENERATORS, name_: "ASYNC_GENERATORS", ordinal_: 36},
+	{self_: FeatureSet_Feature_FOR_AWAIT_OF, name_: "FOR_AWAIT_OF", ordinal_: 37},
+	{self_: FeatureSet_Feature_REGEXP_FLAG_S, name_: "REGEXP_FLAG_S", ordinal_: 38},
+	{self_: FeatureSet_Feature_REGEXP_NAMED_GROUPS, name_: "REGEXP_NAMED_GROUPS", ordinal_: 39},
+	{self_: FeatureSet_Feature_REGEXP_UNICODE_PROPERTY_ESCAPE, name_: "REGEXP_UNICODE_PROPERTY_ESCAPE", ordinal_: 40},
+	{self_: FeatureSet_Feature_REGEXP_LOOKBEHIND, name_: "REGEXP_LOOKBEHIND", ordinal_: 41},
+	{self_: FeatureSet_Feature_UNESCAPED_UNICODE_LINE_OR_PARAGRAPH_SEP, name_: "UNESCAPED_UNICODE_LINE_OR_PARAGRAPH_SEP", ordinal_: 42},
+	{self_: FeatureSet_Feature_OPTIONAL_CATCH_BINDING, name_: "OPTIONAL_CATCH_BINDING", ordinal_: 43},
+	{self_: FeatureSet_Feature_DYNAMIC_IMPORT, name_: "DYNAMIC_IMPORT", ordinal_: 44},
+	{self_: FeatureSet_Feature_BIGINT, name_: "BIGINT", ordinal_: 45},
+	{self_: FeatureSet_Feature_IMPORT_META, name_: "IMPORT_META", ordinal_: 46},
+	{self_: FeatureSet_Feature_NULL_COALESCE_OP, name_: "NULL_COALESCE_OP", ordinal_: 47},
+	{self_: FeatureSet_Feature_OPTIONAL_CHAINING, name_: "OPTIONAL_CHAINING", ordinal_: 48},
+	{self_: FeatureSet_Feature_NUMERIC_SEPARATOR, name_: "NUMERIC_SEPARATOR", ordinal_: 49},
+	{self_: FeatureSet_Feature_LOGICAL_ASSIGNMENT, name_: "LOGICAL_ASSIGNMENT", ordinal_: 50},
+	{self_: FeatureSet_Feature_PUBLIC_CLASS_FIELDS, name_: "PUBLIC_CLASS_FIELDS", ordinal_: 51},
+	{self_: FeatureSet_Feature_CLASS_STATIC_BLOCK, name_: "CLASS_STATIC_BLOCK", ordinal_: 52},
+	{self_: FeatureSet_Feature_REGEXP_FLAG_D, name_: "REGEXP_FLAG_D", ordinal_: 53},
+	{self_: FeatureSet_Feature_TOP_LEVEL_AWAIT, name_: "TOP_LEVEL_AWAIT", ordinal_: 54},
+	{self_: FeatureSet_Feature_ES_NEXT_RUNTIME, name_: "ES_NEXT_RUNTIME", ordinal_: 55},
+	{self_: FeatureSet_Feature_ES_UNSTABLE_RUNTIME, name_: "ES_UNSTABLE_RUNTIME", ordinal_: 56},
+	{self_: FeatureSet_Feature_PRIVATE_ELEMENTS, name_: "PRIVATE_ELEMENTS", ordinal_: 57},
+	{self_: FeatureSet_Feature_TYPE_ANNOTATION, name_: "TYPE_ANNOTATION", ordinal_: 58},
 }
 
-func (this *FeatureSet_Feature) up_Enum() *Enum {
-	if this == nil {
+var FeatureSet_Feature_nameField_ [59]string
+
+var FeatureSet_Feature_version__ [59]FeatureSet_LangVersion
+
+func (this FeatureSet_Feature) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &FeatureSet_Feature_enum_[this-1]
 }
 
-func (this *FeatureSet_Feature) zero_FeatureSet_Feature() {
-	this.nameField = nullstr_
+func (this FeatureSet_Feature) name() string { return FeatureSet_Feature_enum_[this-1].name_ }
+
+func (this FeatureSet_Feature) ordinal() int32 { return FeatureSet_Feature_enum_[this-1].ordinal_ }
+
+func (this FeatureSet_Feature) compareTo(o any) int32 {
+	return FeatureSet_Feature_enum_[this-1].compareTo(o)
 }
 
-func (this *FeatureSet_Feature) init_FeatureSet_Feature(name_ string, ordinal_ int32, name string, version *FeatureSet_LangVersion) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.nameField = name
-	this.version_ = version
-}
-
-func new_FeatureSet_Feature(name_ string, ordinal_ int32, name string, version *FeatureSet_LangVersion) *FeatureSet_Feature {
-	this := &FeatureSet_Feature{}
-	this.self_ = this
-	this.zero_FeatureSet_Feature()
-	this.init_FeatureSet_Feature(name_, ordinal_, name, version)
+func (this FeatureSet_Feature) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *FeatureSet_Feature) toString() string {
-	return this.nameField
+func (this FeatureSet_Feature) zero_FeatureSet_Feature() {
+	FeatureSet_Feature_nameField_[this-1] = nullstr_
 }
 
-func FeatureSet_Feature_values() []*FeatureSet_Feature {
-	return append([]*FeatureSet_Feature(nil), FeatureSet_Feature_values_...)
+func (this FeatureSet_Feature) init_FeatureSet_Feature(name string, version FeatureSet_LangVersion) {
+	FeatureSet_Feature_nameField_[this-1] = name
+	FeatureSet_Feature_version__[this-1] = version
 }
 
-func FeatureSet_Feature_valueOf(name string) *FeatureSet_Feature {
+func (this FeatureSet_Feature) toString() string {
+	return FeatureSet_Feature_nameField_[this-1]
+}
+
+func FeatureSet_Feature_values() []FeatureSet_Feature {
+	return append([]FeatureSet_Feature(nil), FeatureSet_Feature_values_...)
+}
+
+func FeatureSet_Feature_valueOf(name string) FeatureSet_Feature {
 	for _, v := range FeatureSet_Feature_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Feature", name))
 }
 
-var FeatureSet_Feature_REGEXP_SYNTAX *FeatureSet_Feature
-var FeatureSet_Feature_ES3_KEYWORDS_AS_IDENTIFIERS *FeatureSet_Feature
-var FeatureSet_Feature_GETTER *FeatureSet_Feature
-var FeatureSet_Feature_KEYWORDS_AS_PROPERTIES *FeatureSet_Feature
-var FeatureSet_Feature_SETTER *FeatureSet_Feature
-var FeatureSet_Feature_STRING_CONTINUATION *FeatureSet_Feature
-var FeatureSet_Feature_TRAILING_COMMA *FeatureSet_Feature
-var FeatureSet_Feature_ARRAY_DESTRUCTURING *FeatureSet_Feature
-var FeatureSet_Feature_ARRAY_PATTERN_REST *FeatureSet_Feature
-var FeatureSet_Feature_ARROW_FUNCTIONS *FeatureSet_Feature
-var FeatureSet_Feature_BINARY_LITERALS *FeatureSet_Feature
-var FeatureSet_Feature_BLOCK_SCOPED_FUNCTION_DECLARATION *FeatureSet_Feature
-var FeatureSet_Feature_CLASSES *FeatureSet_Feature
-var FeatureSet_Feature_CLASS_GETTER_SETTER *FeatureSet_Feature
-var FeatureSet_Feature_COMPUTED_PROPERTIES *FeatureSet_Feature
-var FeatureSet_Feature_CONST_DECLARATIONS *FeatureSet_Feature
-var FeatureSet_Feature_DEFAULT_PARAMETERS *FeatureSet_Feature
-var FeatureSet_Feature_FOR_OF *FeatureSet_Feature
-var FeatureSet_Feature_GENERATORS *FeatureSet_Feature
-var FeatureSet_Feature_LET_DECLARATIONS *FeatureSet_Feature
-var FeatureSet_Feature_MEMBER_DECLARATIONS *FeatureSet_Feature
-var FeatureSet_Feature_NEW_TARGET *FeatureSet_Feature
-var FeatureSet_Feature_OBJECT_DESTRUCTURING *FeatureSet_Feature
-var FeatureSet_Feature_OCTAL_LITERALS *FeatureSet_Feature
-var FeatureSet_Feature_REGEXP_FLAG_U *FeatureSet_Feature
-var FeatureSet_Feature_REGEXP_FLAG_Y *FeatureSet_Feature
-var FeatureSet_Feature_REST_PARAMETERS *FeatureSet_Feature
-var FeatureSet_Feature_SHORTHAND_OBJECT_PROPERTIES *FeatureSet_Feature
-var FeatureSet_Feature_SPREAD_EXPRESSIONS *FeatureSet_Feature
-var FeatureSet_Feature_SUPER *FeatureSet_Feature
-var FeatureSet_Feature_TEMPLATE_LITERALS *FeatureSet_Feature
-var FeatureSet_Feature_MODULES *FeatureSet_Feature
-var FeatureSet_Feature_EXPONENT_OP *FeatureSet_Feature
-var FeatureSet_Feature_ASYNC_FUNCTIONS *FeatureSet_Feature
-var FeatureSet_Feature_OBJECT_LITERALS_WITH_SPREAD *FeatureSet_Feature
-var FeatureSet_Feature_OBJECT_PATTERN_REST *FeatureSet_Feature
-var FeatureSet_Feature_ASYNC_GENERATORS *FeatureSet_Feature
-var FeatureSet_Feature_FOR_AWAIT_OF *FeatureSet_Feature
-var FeatureSet_Feature_REGEXP_FLAG_S *FeatureSet_Feature
-var FeatureSet_Feature_REGEXP_NAMED_GROUPS *FeatureSet_Feature
-var FeatureSet_Feature_REGEXP_UNICODE_PROPERTY_ESCAPE *FeatureSet_Feature
-var FeatureSet_Feature_REGEXP_LOOKBEHIND *FeatureSet_Feature
-var FeatureSet_Feature_UNESCAPED_UNICODE_LINE_OR_PARAGRAPH_SEP *FeatureSet_Feature
-var FeatureSet_Feature_OPTIONAL_CATCH_BINDING *FeatureSet_Feature
-var FeatureSet_Feature_DYNAMIC_IMPORT *FeatureSet_Feature
-var FeatureSet_Feature_BIGINT *FeatureSet_Feature
-var FeatureSet_Feature_IMPORT_META *FeatureSet_Feature
-var FeatureSet_Feature_NULL_COALESCE_OP *FeatureSet_Feature
-var FeatureSet_Feature_OPTIONAL_CHAINING *FeatureSet_Feature
-var FeatureSet_Feature_NUMERIC_SEPARATOR *FeatureSet_Feature
-var FeatureSet_Feature_LOGICAL_ASSIGNMENT *FeatureSet_Feature
-var FeatureSet_Feature_PUBLIC_CLASS_FIELDS *FeatureSet_Feature
-var FeatureSet_Feature_CLASS_STATIC_BLOCK *FeatureSet_Feature
-var FeatureSet_Feature_REGEXP_FLAG_D *FeatureSet_Feature
-var FeatureSet_Feature_TOP_LEVEL_AWAIT *FeatureSet_Feature
-var FeatureSet_Feature_ES_NEXT_RUNTIME *FeatureSet_Feature
-var FeatureSet_Feature_ES_UNSTABLE_RUNTIME *FeatureSet_Feature
-var FeatureSet_Feature_PRIVATE_ELEMENTS *FeatureSet_Feature
-var FeatureSet_Feature_TYPE_ANNOTATION *FeatureSet_Feature
-var FeatureSet_Feature_values_ []*FeatureSet_Feature
+const FeatureSet_Feature_REGEXP_SYNTAX FeatureSet_Feature = 1
+const FeatureSet_Feature_ES3_KEYWORDS_AS_IDENTIFIERS FeatureSet_Feature = 2
+const FeatureSet_Feature_GETTER FeatureSet_Feature = 3
+const FeatureSet_Feature_KEYWORDS_AS_PROPERTIES FeatureSet_Feature = 4
+const FeatureSet_Feature_SETTER FeatureSet_Feature = 5
+const FeatureSet_Feature_STRING_CONTINUATION FeatureSet_Feature = 6
+const FeatureSet_Feature_TRAILING_COMMA FeatureSet_Feature = 7
+const FeatureSet_Feature_ARRAY_DESTRUCTURING FeatureSet_Feature = 8
+const FeatureSet_Feature_ARRAY_PATTERN_REST FeatureSet_Feature = 9
+const FeatureSet_Feature_ARROW_FUNCTIONS FeatureSet_Feature = 10
+const FeatureSet_Feature_BINARY_LITERALS FeatureSet_Feature = 11
+const FeatureSet_Feature_BLOCK_SCOPED_FUNCTION_DECLARATION FeatureSet_Feature = 12
+const FeatureSet_Feature_CLASSES FeatureSet_Feature = 13
+const FeatureSet_Feature_CLASS_GETTER_SETTER FeatureSet_Feature = 14
+const FeatureSet_Feature_COMPUTED_PROPERTIES FeatureSet_Feature = 15
+const FeatureSet_Feature_CONST_DECLARATIONS FeatureSet_Feature = 16
+const FeatureSet_Feature_DEFAULT_PARAMETERS FeatureSet_Feature = 17
+const FeatureSet_Feature_FOR_OF FeatureSet_Feature = 18
+const FeatureSet_Feature_GENERATORS FeatureSet_Feature = 19
+const FeatureSet_Feature_LET_DECLARATIONS FeatureSet_Feature = 20
+const FeatureSet_Feature_MEMBER_DECLARATIONS FeatureSet_Feature = 21
+const FeatureSet_Feature_NEW_TARGET FeatureSet_Feature = 22
+const FeatureSet_Feature_OBJECT_DESTRUCTURING FeatureSet_Feature = 23
+const FeatureSet_Feature_OCTAL_LITERALS FeatureSet_Feature = 24
+const FeatureSet_Feature_REGEXP_FLAG_U FeatureSet_Feature = 25
+const FeatureSet_Feature_REGEXP_FLAG_Y FeatureSet_Feature = 26
+const FeatureSet_Feature_REST_PARAMETERS FeatureSet_Feature = 27
+const FeatureSet_Feature_SHORTHAND_OBJECT_PROPERTIES FeatureSet_Feature = 28
+const FeatureSet_Feature_SPREAD_EXPRESSIONS FeatureSet_Feature = 29
+const FeatureSet_Feature_SUPER FeatureSet_Feature = 30
+const FeatureSet_Feature_TEMPLATE_LITERALS FeatureSet_Feature = 31
+const FeatureSet_Feature_MODULES FeatureSet_Feature = 32
+const FeatureSet_Feature_EXPONENT_OP FeatureSet_Feature = 33
+const FeatureSet_Feature_ASYNC_FUNCTIONS FeatureSet_Feature = 34
+const FeatureSet_Feature_OBJECT_LITERALS_WITH_SPREAD FeatureSet_Feature = 35
+const FeatureSet_Feature_OBJECT_PATTERN_REST FeatureSet_Feature = 36
+const FeatureSet_Feature_ASYNC_GENERATORS FeatureSet_Feature = 37
+const FeatureSet_Feature_FOR_AWAIT_OF FeatureSet_Feature = 38
+const FeatureSet_Feature_REGEXP_FLAG_S FeatureSet_Feature = 39
+const FeatureSet_Feature_REGEXP_NAMED_GROUPS FeatureSet_Feature = 40
+const FeatureSet_Feature_REGEXP_UNICODE_PROPERTY_ESCAPE FeatureSet_Feature = 41
+const FeatureSet_Feature_REGEXP_LOOKBEHIND FeatureSet_Feature = 42
+const FeatureSet_Feature_UNESCAPED_UNICODE_LINE_OR_PARAGRAPH_SEP FeatureSet_Feature = 43
+const FeatureSet_Feature_OPTIONAL_CATCH_BINDING FeatureSet_Feature = 44
+const FeatureSet_Feature_DYNAMIC_IMPORT FeatureSet_Feature = 45
+const FeatureSet_Feature_BIGINT FeatureSet_Feature = 46
+const FeatureSet_Feature_IMPORT_META FeatureSet_Feature = 47
+const FeatureSet_Feature_NULL_COALESCE_OP FeatureSet_Feature = 48
+const FeatureSet_Feature_OPTIONAL_CHAINING FeatureSet_Feature = 49
+const FeatureSet_Feature_NUMERIC_SEPARATOR FeatureSet_Feature = 50
+const FeatureSet_Feature_LOGICAL_ASSIGNMENT FeatureSet_Feature = 51
+const FeatureSet_Feature_PUBLIC_CLASS_FIELDS FeatureSet_Feature = 52
+const FeatureSet_Feature_CLASS_STATIC_BLOCK FeatureSet_Feature = 53
+const FeatureSet_Feature_REGEXP_FLAG_D FeatureSet_Feature = 54
+const FeatureSet_Feature_TOP_LEVEL_AWAIT FeatureSet_Feature = 55
+const FeatureSet_Feature_ES_NEXT_RUNTIME FeatureSet_Feature = 56
+const FeatureSet_Feature_ES_UNSTABLE_RUNTIME FeatureSet_Feature = 57
+const FeatureSet_Feature_PRIVATE_ELEMENTS FeatureSet_Feature = 58
+const FeatureSet_Feature_TYPE_ANNOTATION FeatureSet_Feature = 59
+
+var FeatureSet_Feature_values_ []FeatureSet_Feature
 
 var FeatureSet_Feature_clinit_done bool
 
@@ -527,66 +610,125 @@ func FeatureSet_Feature_clinit() {
 		return
 	}
 	FeatureSet_Feature_clinit_done = true
-	FeatureSet_Feature_REGEXP_SYNTAX = new_FeatureSet_Feature("REGEXP_SYNTAX", 0, "RegExp syntax", FeatureSet_LangVersion_ES3)
-	FeatureSet_Feature_ES3_KEYWORDS_AS_IDENTIFIERS = new_FeatureSet_Feature("ES3_KEYWORDS_AS_IDENTIFIERS", 1, "ES3 keywords as identifiers", FeatureSet_LangVersion_ES5)
-	FeatureSet_Feature_GETTER = new_FeatureSet_Feature("GETTER", 2, "getters", FeatureSet_LangVersion_ES5)
-	FeatureSet_Feature_KEYWORDS_AS_PROPERTIES = new_FeatureSet_Feature("KEYWORDS_AS_PROPERTIES", 3, "reserved words as properties", FeatureSet_LangVersion_ES5)
-	FeatureSet_Feature_SETTER = new_FeatureSet_Feature("SETTER", 4, "setters", FeatureSet_LangVersion_ES5)
-	FeatureSet_Feature_STRING_CONTINUATION = new_FeatureSet_Feature("STRING_CONTINUATION", 5, "string continuation", FeatureSet_LangVersion_ES5)
-	FeatureSet_Feature_TRAILING_COMMA = new_FeatureSet_Feature("TRAILING_COMMA", 6, "trailing comma", FeatureSet_LangVersion_ES5)
-	FeatureSet_Feature_ARRAY_DESTRUCTURING = new_FeatureSet_Feature("ARRAY_DESTRUCTURING", 7, "array destructuring", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_ARRAY_PATTERN_REST = new_FeatureSet_Feature("ARRAY_PATTERN_REST", 8, "array pattern rest", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_ARROW_FUNCTIONS = new_FeatureSet_Feature("ARROW_FUNCTIONS", 9, "arrow function", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_BINARY_LITERALS = new_FeatureSet_Feature("BINARY_LITERALS", 10, "binary literal", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_BLOCK_SCOPED_FUNCTION_DECLARATION = new_FeatureSet_Feature("BLOCK_SCOPED_FUNCTION_DECLARATION", 11, "block-scoped function declaration", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_CLASSES = new_FeatureSet_Feature("CLASSES", 12, "class", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_CLASS_GETTER_SETTER = new_FeatureSet_Feature("CLASS_GETTER_SETTER", 13, "class getters/setters", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_COMPUTED_PROPERTIES = new_FeatureSet_Feature("COMPUTED_PROPERTIES", 14, "computed property", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_CONST_DECLARATIONS = new_FeatureSet_Feature("CONST_DECLARATIONS", 15, "const declaration", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_DEFAULT_PARAMETERS = new_FeatureSet_Feature("DEFAULT_PARAMETERS", 16, "default parameter", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_FOR_OF = new_FeatureSet_Feature("FOR_OF", 17, "for-of loop", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_GENERATORS = new_FeatureSet_Feature("GENERATORS", 18, "generator", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_LET_DECLARATIONS = new_FeatureSet_Feature("LET_DECLARATIONS", 19, "let declaration", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_MEMBER_DECLARATIONS = new_FeatureSet_Feature("MEMBER_DECLARATIONS", 20, "member declaration", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_NEW_TARGET = new_FeatureSet_Feature("NEW_TARGET", 21, "new.target", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_OBJECT_DESTRUCTURING = new_FeatureSet_Feature("OBJECT_DESTRUCTURING", 22, "object destructuring", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_OCTAL_LITERALS = new_FeatureSet_Feature("OCTAL_LITERALS", 23, "octal literal", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_REGEXP_FLAG_U = new_FeatureSet_Feature("REGEXP_FLAG_U", 24, "RegExp flag 'u'", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_REGEXP_FLAG_Y = new_FeatureSet_Feature("REGEXP_FLAG_Y", 25, "RegExp flag 'y'", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_REST_PARAMETERS = new_FeatureSet_Feature("REST_PARAMETERS", 26, "rest parameter", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_SHORTHAND_OBJECT_PROPERTIES = new_FeatureSet_Feature("SHORTHAND_OBJECT_PROPERTIES", 27, "shorthand object property", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_SPREAD_EXPRESSIONS = new_FeatureSet_Feature("SPREAD_EXPRESSIONS", 28, "spread expression", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_SUPER = new_FeatureSet_Feature("SUPER", 29, "super", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_TEMPLATE_LITERALS = new_FeatureSet_Feature("TEMPLATE_LITERALS", 30, "template literal", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_MODULES = new_FeatureSet_Feature("MODULES", 31, "modules", FeatureSet_LangVersion_ES2015)
-	FeatureSet_Feature_EXPONENT_OP = new_FeatureSet_Feature("EXPONENT_OP", 32, "exponent operator (**)", FeatureSet_LangVersion_ES2016)
-	FeatureSet_Feature_ASYNC_FUNCTIONS = new_FeatureSet_Feature("ASYNC_FUNCTIONS", 33, "async function", FeatureSet_LangVersion_ES2017)
-	FeatureSet_Feature_OBJECT_LITERALS_WITH_SPREAD = new_FeatureSet_Feature("OBJECT_LITERALS_WITH_SPREAD", 34, "object literals with spread", FeatureSet_LangVersion_ES2018)
-	FeatureSet_Feature_OBJECT_PATTERN_REST = new_FeatureSet_Feature("OBJECT_PATTERN_REST", 35, "object pattern rest", FeatureSet_LangVersion_ES2018)
-	FeatureSet_Feature_ASYNC_GENERATORS = new_FeatureSet_Feature("ASYNC_GENERATORS", 36, "async generator functions", FeatureSet_LangVersion_ES2018)
-	FeatureSet_Feature_FOR_AWAIT_OF = new_FeatureSet_Feature("FOR_AWAIT_OF", 37, "for-await-of loop", FeatureSet_LangVersion_ES2018)
-	FeatureSet_Feature_REGEXP_FLAG_S = new_FeatureSet_Feature("REGEXP_FLAG_S", 38, "RegExp flag 's'", FeatureSet_LangVersion_ES2018)
-	FeatureSet_Feature_REGEXP_NAMED_GROUPS = new_FeatureSet_Feature("REGEXP_NAMED_GROUPS", 39, "RegExp named groups", FeatureSet_LangVersion_ES2018)
-	FeatureSet_Feature_REGEXP_UNICODE_PROPERTY_ESCAPE = new_FeatureSet_Feature("REGEXP_UNICODE_PROPERTY_ESCAPE", 40, "RegExp unicode property escape", FeatureSet_LangVersion_ES2018)
-	FeatureSet_Feature_REGEXP_LOOKBEHIND = new_FeatureSet_Feature("REGEXP_LOOKBEHIND", 41, "RegExp Lookbehind", FeatureSet_LangVersion_ES2018)
-	FeatureSet_Feature_UNESCAPED_UNICODE_LINE_OR_PARAGRAPH_SEP = new_FeatureSet_Feature("UNESCAPED_UNICODE_LINE_OR_PARAGRAPH_SEP", 42, "Unescaped unicode line or paragraph separator", FeatureSet_LangVersion_ES2019)
-	FeatureSet_Feature_OPTIONAL_CATCH_BINDING = new_FeatureSet_Feature("OPTIONAL_CATCH_BINDING", 43, "Optional catch binding", FeatureSet_LangVersion_ES2019)
-	FeatureSet_Feature_DYNAMIC_IMPORT = new_FeatureSet_Feature("DYNAMIC_IMPORT", 44, "Dynamic module import", FeatureSet_LangVersion_ES2020)
-	FeatureSet_Feature_BIGINT = new_FeatureSet_Feature("BIGINT", 45, "bigint", FeatureSet_LangVersion_ES2020)
-	FeatureSet_Feature_IMPORT_META = new_FeatureSet_Feature("IMPORT_META", 46, "import.meta", FeatureSet_LangVersion_ES2020)
-	FeatureSet_Feature_NULL_COALESCE_OP = new_FeatureSet_Feature("NULL_COALESCE_OP", 47, "Nullish coalescing", FeatureSet_LangVersion_ES2020)
-	FeatureSet_Feature_OPTIONAL_CHAINING = new_FeatureSet_Feature("OPTIONAL_CHAINING", 48, "Optional chaining", FeatureSet_LangVersion_ES2020)
-	FeatureSet_Feature_NUMERIC_SEPARATOR = new_FeatureSet_Feature("NUMERIC_SEPARATOR", 49, "numeric separator", FeatureSet_LangVersion_ES2021)
-	FeatureSet_Feature_LOGICAL_ASSIGNMENT = new_FeatureSet_Feature("LOGICAL_ASSIGNMENT", 50, "Logical assignments", FeatureSet_LangVersion_ES2021)
-	FeatureSet_Feature_PUBLIC_CLASS_FIELDS = new_FeatureSet_Feature("PUBLIC_CLASS_FIELDS", 51, "Public class fields", FeatureSet_LangVersion_ES2022)
-	FeatureSet_Feature_CLASS_STATIC_BLOCK = new_FeatureSet_Feature("CLASS_STATIC_BLOCK", 52, "Class static block", FeatureSet_LangVersion_ES2022)
-	FeatureSet_Feature_REGEXP_FLAG_D = new_FeatureSet_Feature("REGEXP_FLAG_D", 53, "RegExp flag 'd'", FeatureSet_LangVersion_ES2022)
-	FeatureSet_Feature_TOP_LEVEL_AWAIT = new_FeatureSet_Feature("TOP_LEVEL_AWAIT", 54, "Top-level await", FeatureSet_LangVersion_ES_UNSUPPORTED)
-	FeatureSet_Feature_ES_NEXT_RUNTIME = new_FeatureSet_Feature("ES_NEXT_RUNTIME", 55, "es_next runtime", FeatureSet_LangVersion_ES_NEXT)
-	FeatureSet_Feature_ES_UNSTABLE_RUNTIME = new_FeatureSet_Feature("ES_UNSTABLE_RUNTIME", 56, "es_unstable runtime", FeatureSet_LangVersion_ES_UNSTABLE)
-	FeatureSet_Feature_PRIVATE_ELEMENTS = new_FeatureSet_Feature("PRIVATE_ELEMENTS", 57, "Private elements", FeatureSet_LangVersion_ES_UNSUPPORTED)
-	FeatureSet_Feature_TYPE_ANNOTATION = new_FeatureSet_Feature("TYPE_ANNOTATION", 58, "type annotation", FeatureSet_LangVersion_TYPESCRIPT)
-	FeatureSet_Feature_values_ = []*FeatureSet_Feature{FeatureSet_Feature_REGEXP_SYNTAX, FeatureSet_Feature_ES3_KEYWORDS_AS_IDENTIFIERS, FeatureSet_Feature_GETTER, FeatureSet_Feature_KEYWORDS_AS_PROPERTIES, FeatureSet_Feature_SETTER, FeatureSet_Feature_STRING_CONTINUATION, FeatureSet_Feature_TRAILING_COMMA, FeatureSet_Feature_ARRAY_DESTRUCTURING, FeatureSet_Feature_ARRAY_PATTERN_REST, FeatureSet_Feature_ARROW_FUNCTIONS, FeatureSet_Feature_BINARY_LITERALS, FeatureSet_Feature_BLOCK_SCOPED_FUNCTION_DECLARATION, FeatureSet_Feature_CLASSES, FeatureSet_Feature_CLASS_GETTER_SETTER, FeatureSet_Feature_COMPUTED_PROPERTIES, FeatureSet_Feature_CONST_DECLARATIONS, FeatureSet_Feature_DEFAULT_PARAMETERS, FeatureSet_Feature_FOR_OF, FeatureSet_Feature_GENERATORS, FeatureSet_Feature_LET_DECLARATIONS, FeatureSet_Feature_MEMBER_DECLARATIONS, FeatureSet_Feature_NEW_TARGET, FeatureSet_Feature_OBJECT_DESTRUCTURING, FeatureSet_Feature_OCTAL_LITERALS, FeatureSet_Feature_REGEXP_FLAG_U, FeatureSet_Feature_REGEXP_FLAG_Y, FeatureSet_Feature_REST_PARAMETERS, FeatureSet_Feature_SHORTHAND_OBJECT_PROPERTIES, FeatureSet_Feature_SPREAD_EXPRESSIONS, FeatureSet_Feature_SUPER, FeatureSet_Feature_TEMPLATE_LITERALS, FeatureSet_Feature_MODULES, FeatureSet_Feature_EXPONENT_OP, FeatureSet_Feature_ASYNC_FUNCTIONS, FeatureSet_Feature_OBJECT_LITERALS_WITH_SPREAD, FeatureSet_Feature_OBJECT_PATTERN_REST, FeatureSet_Feature_ASYNC_GENERATORS, FeatureSet_Feature_FOR_AWAIT_OF, FeatureSet_Feature_REGEXP_FLAG_S, FeatureSet_Feature_REGEXP_NAMED_GROUPS, FeatureSet_Feature_REGEXP_UNICODE_PROPERTY_ESCAPE, FeatureSet_Feature_REGEXP_LOOKBEHIND, FeatureSet_Feature_UNESCAPED_UNICODE_LINE_OR_PARAGRAPH_SEP, FeatureSet_Feature_OPTIONAL_CATCH_BINDING, FeatureSet_Feature_DYNAMIC_IMPORT, FeatureSet_Feature_BIGINT, FeatureSet_Feature_IMPORT_META, FeatureSet_Feature_NULL_COALESCE_OP, FeatureSet_Feature_OPTIONAL_CHAINING, FeatureSet_Feature_NUMERIC_SEPARATOR, FeatureSet_Feature_LOGICAL_ASSIGNMENT, FeatureSet_Feature_PUBLIC_CLASS_FIELDS, FeatureSet_Feature_CLASS_STATIC_BLOCK, FeatureSet_Feature_REGEXP_FLAG_D, FeatureSet_Feature_TOP_LEVEL_AWAIT, FeatureSet_Feature_ES_NEXT_RUNTIME, FeatureSet_Feature_ES_UNSTABLE_RUNTIME, FeatureSet_Feature_PRIVATE_ELEMENTS, FeatureSet_Feature_TYPE_ANNOTATION}
+	FeatureSet_Feature_REGEXP_SYNTAX.zero_FeatureSet_Feature()
+	FeatureSet_Feature_REGEXP_SYNTAX.init_FeatureSet_Feature("RegExp syntax", FeatureSet_LangVersion_ES3)
+	FeatureSet_Feature_ES3_KEYWORDS_AS_IDENTIFIERS.zero_FeatureSet_Feature()
+	FeatureSet_Feature_ES3_KEYWORDS_AS_IDENTIFIERS.init_FeatureSet_Feature("ES3 keywords as identifiers", FeatureSet_LangVersion_ES5)
+	FeatureSet_Feature_GETTER.zero_FeatureSet_Feature()
+	FeatureSet_Feature_GETTER.init_FeatureSet_Feature("getters", FeatureSet_LangVersion_ES5)
+	FeatureSet_Feature_KEYWORDS_AS_PROPERTIES.zero_FeatureSet_Feature()
+	FeatureSet_Feature_KEYWORDS_AS_PROPERTIES.init_FeatureSet_Feature("reserved words as properties", FeatureSet_LangVersion_ES5)
+	FeatureSet_Feature_SETTER.zero_FeatureSet_Feature()
+	FeatureSet_Feature_SETTER.init_FeatureSet_Feature("setters", FeatureSet_LangVersion_ES5)
+	FeatureSet_Feature_STRING_CONTINUATION.zero_FeatureSet_Feature()
+	FeatureSet_Feature_STRING_CONTINUATION.init_FeatureSet_Feature("string continuation", FeatureSet_LangVersion_ES5)
+	FeatureSet_Feature_TRAILING_COMMA.zero_FeatureSet_Feature()
+	FeatureSet_Feature_TRAILING_COMMA.init_FeatureSet_Feature("trailing comma", FeatureSet_LangVersion_ES5)
+	FeatureSet_Feature_ARRAY_DESTRUCTURING.zero_FeatureSet_Feature()
+	FeatureSet_Feature_ARRAY_DESTRUCTURING.init_FeatureSet_Feature("array destructuring", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_ARRAY_PATTERN_REST.zero_FeatureSet_Feature()
+	FeatureSet_Feature_ARRAY_PATTERN_REST.init_FeatureSet_Feature("array pattern rest", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_ARROW_FUNCTIONS.zero_FeatureSet_Feature()
+	FeatureSet_Feature_ARROW_FUNCTIONS.init_FeatureSet_Feature("arrow function", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_BINARY_LITERALS.zero_FeatureSet_Feature()
+	FeatureSet_Feature_BINARY_LITERALS.init_FeatureSet_Feature("binary literal", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_BLOCK_SCOPED_FUNCTION_DECLARATION.zero_FeatureSet_Feature()
+	FeatureSet_Feature_BLOCK_SCOPED_FUNCTION_DECLARATION.init_FeatureSet_Feature("block-scoped function declaration", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_CLASSES.zero_FeatureSet_Feature()
+	FeatureSet_Feature_CLASSES.init_FeatureSet_Feature("class", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_CLASS_GETTER_SETTER.zero_FeatureSet_Feature()
+	FeatureSet_Feature_CLASS_GETTER_SETTER.init_FeatureSet_Feature("class getters/setters", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_COMPUTED_PROPERTIES.zero_FeatureSet_Feature()
+	FeatureSet_Feature_COMPUTED_PROPERTIES.init_FeatureSet_Feature("computed property", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_CONST_DECLARATIONS.zero_FeatureSet_Feature()
+	FeatureSet_Feature_CONST_DECLARATIONS.init_FeatureSet_Feature("const declaration", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_DEFAULT_PARAMETERS.zero_FeatureSet_Feature()
+	FeatureSet_Feature_DEFAULT_PARAMETERS.init_FeatureSet_Feature("default parameter", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_FOR_OF.zero_FeatureSet_Feature()
+	FeatureSet_Feature_FOR_OF.init_FeatureSet_Feature("for-of loop", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_GENERATORS.zero_FeatureSet_Feature()
+	FeatureSet_Feature_GENERATORS.init_FeatureSet_Feature("generator", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_LET_DECLARATIONS.zero_FeatureSet_Feature()
+	FeatureSet_Feature_LET_DECLARATIONS.init_FeatureSet_Feature("let declaration", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_MEMBER_DECLARATIONS.zero_FeatureSet_Feature()
+	FeatureSet_Feature_MEMBER_DECLARATIONS.init_FeatureSet_Feature("member declaration", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_NEW_TARGET.zero_FeatureSet_Feature()
+	FeatureSet_Feature_NEW_TARGET.init_FeatureSet_Feature("new.target", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_OBJECT_DESTRUCTURING.zero_FeatureSet_Feature()
+	FeatureSet_Feature_OBJECT_DESTRUCTURING.init_FeatureSet_Feature("object destructuring", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_OCTAL_LITERALS.zero_FeatureSet_Feature()
+	FeatureSet_Feature_OCTAL_LITERALS.init_FeatureSet_Feature("octal literal", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_REGEXP_FLAG_U.zero_FeatureSet_Feature()
+	FeatureSet_Feature_REGEXP_FLAG_U.init_FeatureSet_Feature("RegExp flag 'u'", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_REGEXP_FLAG_Y.zero_FeatureSet_Feature()
+	FeatureSet_Feature_REGEXP_FLAG_Y.init_FeatureSet_Feature("RegExp flag 'y'", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_REST_PARAMETERS.zero_FeatureSet_Feature()
+	FeatureSet_Feature_REST_PARAMETERS.init_FeatureSet_Feature("rest parameter", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_SHORTHAND_OBJECT_PROPERTIES.zero_FeatureSet_Feature()
+	FeatureSet_Feature_SHORTHAND_OBJECT_PROPERTIES.init_FeatureSet_Feature("shorthand object property", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_SPREAD_EXPRESSIONS.zero_FeatureSet_Feature()
+	FeatureSet_Feature_SPREAD_EXPRESSIONS.init_FeatureSet_Feature("spread expression", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_SUPER.zero_FeatureSet_Feature()
+	FeatureSet_Feature_SUPER.init_FeatureSet_Feature("super", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_TEMPLATE_LITERALS.zero_FeatureSet_Feature()
+	FeatureSet_Feature_TEMPLATE_LITERALS.init_FeatureSet_Feature("template literal", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_MODULES.zero_FeatureSet_Feature()
+	FeatureSet_Feature_MODULES.init_FeatureSet_Feature("modules", FeatureSet_LangVersion_ES2015)
+	FeatureSet_Feature_EXPONENT_OP.zero_FeatureSet_Feature()
+	FeatureSet_Feature_EXPONENT_OP.init_FeatureSet_Feature("exponent operator (**)", FeatureSet_LangVersion_ES2016)
+	FeatureSet_Feature_ASYNC_FUNCTIONS.zero_FeatureSet_Feature()
+	FeatureSet_Feature_ASYNC_FUNCTIONS.init_FeatureSet_Feature("async function", FeatureSet_LangVersion_ES2017)
+	FeatureSet_Feature_OBJECT_LITERALS_WITH_SPREAD.zero_FeatureSet_Feature()
+	FeatureSet_Feature_OBJECT_LITERALS_WITH_SPREAD.init_FeatureSet_Feature("object literals with spread", FeatureSet_LangVersion_ES2018)
+	FeatureSet_Feature_OBJECT_PATTERN_REST.zero_FeatureSet_Feature()
+	FeatureSet_Feature_OBJECT_PATTERN_REST.init_FeatureSet_Feature("object pattern rest", FeatureSet_LangVersion_ES2018)
+	FeatureSet_Feature_ASYNC_GENERATORS.zero_FeatureSet_Feature()
+	FeatureSet_Feature_ASYNC_GENERATORS.init_FeatureSet_Feature("async generator functions", FeatureSet_LangVersion_ES2018)
+	FeatureSet_Feature_FOR_AWAIT_OF.zero_FeatureSet_Feature()
+	FeatureSet_Feature_FOR_AWAIT_OF.init_FeatureSet_Feature("for-await-of loop", FeatureSet_LangVersion_ES2018)
+	FeatureSet_Feature_REGEXP_FLAG_S.zero_FeatureSet_Feature()
+	FeatureSet_Feature_REGEXP_FLAG_S.init_FeatureSet_Feature("RegExp flag 's'", FeatureSet_LangVersion_ES2018)
+	FeatureSet_Feature_REGEXP_NAMED_GROUPS.zero_FeatureSet_Feature()
+	FeatureSet_Feature_REGEXP_NAMED_GROUPS.init_FeatureSet_Feature("RegExp named groups", FeatureSet_LangVersion_ES2018)
+	FeatureSet_Feature_REGEXP_UNICODE_PROPERTY_ESCAPE.zero_FeatureSet_Feature()
+	FeatureSet_Feature_REGEXP_UNICODE_PROPERTY_ESCAPE.init_FeatureSet_Feature("RegExp unicode property escape", FeatureSet_LangVersion_ES2018)
+	FeatureSet_Feature_REGEXP_LOOKBEHIND.zero_FeatureSet_Feature()
+	FeatureSet_Feature_REGEXP_LOOKBEHIND.init_FeatureSet_Feature("RegExp Lookbehind", FeatureSet_LangVersion_ES2018)
+	FeatureSet_Feature_UNESCAPED_UNICODE_LINE_OR_PARAGRAPH_SEP.zero_FeatureSet_Feature()
+	FeatureSet_Feature_UNESCAPED_UNICODE_LINE_OR_PARAGRAPH_SEP.init_FeatureSet_Feature("Unescaped unicode line or paragraph separator", FeatureSet_LangVersion_ES2019)
+	FeatureSet_Feature_OPTIONAL_CATCH_BINDING.zero_FeatureSet_Feature()
+	FeatureSet_Feature_OPTIONAL_CATCH_BINDING.init_FeatureSet_Feature("Optional catch binding", FeatureSet_LangVersion_ES2019)
+	FeatureSet_Feature_DYNAMIC_IMPORT.zero_FeatureSet_Feature()
+	FeatureSet_Feature_DYNAMIC_IMPORT.init_FeatureSet_Feature("Dynamic module import", FeatureSet_LangVersion_ES2020)
+	FeatureSet_Feature_BIGINT.zero_FeatureSet_Feature()
+	FeatureSet_Feature_BIGINT.init_FeatureSet_Feature("bigint", FeatureSet_LangVersion_ES2020)
+	FeatureSet_Feature_IMPORT_META.zero_FeatureSet_Feature()
+	FeatureSet_Feature_IMPORT_META.init_FeatureSet_Feature("import.meta", FeatureSet_LangVersion_ES2020)
+	FeatureSet_Feature_NULL_COALESCE_OP.zero_FeatureSet_Feature()
+	FeatureSet_Feature_NULL_COALESCE_OP.init_FeatureSet_Feature("Nullish coalescing", FeatureSet_LangVersion_ES2020)
+	FeatureSet_Feature_OPTIONAL_CHAINING.zero_FeatureSet_Feature()
+	FeatureSet_Feature_OPTIONAL_CHAINING.init_FeatureSet_Feature("Optional chaining", FeatureSet_LangVersion_ES2020)
+	FeatureSet_Feature_NUMERIC_SEPARATOR.zero_FeatureSet_Feature()
+	FeatureSet_Feature_NUMERIC_SEPARATOR.init_FeatureSet_Feature("numeric separator", FeatureSet_LangVersion_ES2021)
+	FeatureSet_Feature_LOGICAL_ASSIGNMENT.zero_FeatureSet_Feature()
+	FeatureSet_Feature_LOGICAL_ASSIGNMENT.init_FeatureSet_Feature("Logical assignments", FeatureSet_LangVersion_ES2021)
+	FeatureSet_Feature_PUBLIC_CLASS_FIELDS.zero_FeatureSet_Feature()
+	FeatureSet_Feature_PUBLIC_CLASS_FIELDS.init_FeatureSet_Feature("Public class fields", FeatureSet_LangVersion_ES2022)
+	FeatureSet_Feature_CLASS_STATIC_BLOCK.zero_FeatureSet_Feature()
+	FeatureSet_Feature_CLASS_STATIC_BLOCK.init_FeatureSet_Feature("Class static block", FeatureSet_LangVersion_ES2022)
+	FeatureSet_Feature_REGEXP_FLAG_D.zero_FeatureSet_Feature()
+	FeatureSet_Feature_REGEXP_FLAG_D.init_FeatureSet_Feature("RegExp flag 'd'", FeatureSet_LangVersion_ES2022)
+	FeatureSet_Feature_TOP_LEVEL_AWAIT.zero_FeatureSet_Feature()
+	FeatureSet_Feature_TOP_LEVEL_AWAIT.init_FeatureSet_Feature("Top-level await", FeatureSet_LangVersion_ES_UNSUPPORTED)
+	FeatureSet_Feature_ES_NEXT_RUNTIME.zero_FeatureSet_Feature()
+	FeatureSet_Feature_ES_NEXT_RUNTIME.init_FeatureSet_Feature("es_next runtime", FeatureSet_LangVersion_ES_NEXT)
+	FeatureSet_Feature_ES_UNSTABLE_RUNTIME.zero_FeatureSet_Feature()
+	FeatureSet_Feature_ES_UNSTABLE_RUNTIME.init_FeatureSet_Feature("es_unstable runtime", FeatureSet_LangVersion_ES_UNSTABLE)
+	FeatureSet_Feature_PRIVATE_ELEMENTS.zero_FeatureSet_Feature()
+	FeatureSet_Feature_PRIVATE_ELEMENTS.init_FeatureSet_Feature("Private elements", FeatureSet_LangVersion_ES_UNSUPPORTED)
+	FeatureSet_Feature_TYPE_ANNOTATION.zero_FeatureSet_Feature()
+	FeatureSet_Feature_TYPE_ANNOTATION.init_FeatureSet_Feature("type annotation", FeatureSet_LangVersion_TYPESCRIPT)
+	FeatureSet_Feature_values_ = []FeatureSet_Feature{FeatureSet_Feature_REGEXP_SYNTAX, FeatureSet_Feature_ES3_KEYWORDS_AS_IDENTIFIERS, FeatureSet_Feature_GETTER, FeatureSet_Feature_KEYWORDS_AS_PROPERTIES, FeatureSet_Feature_SETTER, FeatureSet_Feature_STRING_CONTINUATION, FeatureSet_Feature_TRAILING_COMMA, FeatureSet_Feature_ARRAY_DESTRUCTURING, FeatureSet_Feature_ARRAY_PATTERN_REST, FeatureSet_Feature_ARROW_FUNCTIONS, FeatureSet_Feature_BINARY_LITERALS, FeatureSet_Feature_BLOCK_SCOPED_FUNCTION_DECLARATION, FeatureSet_Feature_CLASSES, FeatureSet_Feature_CLASS_GETTER_SETTER, FeatureSet_Feature_COMPUTED_PROPERTIES, FeatureSet_Feature_CONST_DECLARATIONS, FeatureSet_Feature_DEFAULT_PARAMETERS, FeatureSet_Feature_FOR_OF, FeatureSet_Feature_GENERATORS, FeatureSet_Feature_LET_DECLARATIONS, FeatureSet_Feature_MEMBER_DECLARATIONS, FeatureSet_Feature_NEW_TARGET, FeatureSet_Feature_OBJECT_DESTRUCTURING, FeatureSet_Feature_OCTAL_LITERALS, FeatureSet_Feature_REGEXP_FLAG_U, FeatureSet_Feature_REGEXP_FLAG_Y, FeatureSet_Feature_REST_PARAMETERS, FeatureSet_Feature_SHORTHAND_OBJECT_PROPERTIES, FeatureSet_Feature_SPREAD_EXPRESSIONS, FeatureSet_Feature_SUPER, FeatureSet_Feature_TEMPLATE_LITERALS, FeatureSet_Feature_MODULES, FeatureSet_Feature_EXPONENT_OP, FeatureSet_Feature_ASYNC_FUNCTIONS, FeatureSet_Feature_OBJECT_LITERALS_WITH_SPREAD, FeatureSet_Feature_OBJECT_PATTERN_REST, FeatureSet_Feature_ASYNC_GENERATORS, FeatureSet_Feature_FOR_AWAIT_OF, FeatureSet_Feature_REGEXP_FLAG_S, FeatureSet_Feature_REGEXP_NAMED_GROUPS, FeatureSet_Feature_REGEXP_UNICODE_PROPERTY_ESCAPE, FeatureSet_Feature_REGEXP_LOOKBEHIND, FeatureSet_Feature_UNESCAPED_UNICODE_LINE_OR_PARAGRAPH_SEP, FeatureSet_Feature_OPTIONAL_CATCH_BINDING, FeatureSet_Feature_DYNAMIC_IMPORT, FeatureSet_Feature_BIGINT, FeatureSet_Feature_IMPORT_META, FeatureSet_Feature_NULL_COALESCE_OP, FeatureSet_Feature_OPTIONAL_CHAINING, FeatureSet_Feature_NUMERIC_SEPARATOR, FeatureSet_Feature_LOGICAL_ASSIGNMENT, FeatureSet_Feature_PUBLIC_CLASS_FIELDS, FeatureSet_Feature_CLASS_STATIC_BLOCK, FeatureSet_Feature_REGEXP_FLAG_D, FeatureSet_Feature_TOP_LEVEL_AWAIT, FeatureSet_Feature_ES_NEXT_RUNTIME, FeatureSet_Feature_ES_UNSTABLE_RUNTIME, FeatureSet_Feature_PRIVATE_ELEMENTS, FeatureSet_Feature_TYPE_ANNOTATION}
 	registerEnum_("com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature", enumValues_(FeatureSet_Feature_values_))
 
 }

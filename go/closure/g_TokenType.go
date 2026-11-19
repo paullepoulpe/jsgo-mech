@@ -2,181 +2,300 @@
 
 package closure
 
-type TokenType struct {
-	Enum
-	value_ Optional[string]
+type TokenType uint8
+
+// TokenType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var TokenType_enum_ = [117]Enum{
+	{self_: TokenType_END_OF_FILE, name_: "END_OF_FILE", ordinal_: 0},
+	{self_: TokenType_ERROR, name_: "ERROR", ordinal_: 1},
+	{self_: TokenType_IDENTIFIER, name_: "IDENTIFIER", ordinal_: 2},
+	{self_: TokenType_BREAK, name_: "BREAK", ordinal_: 3},
+	{self_: TokenType_CASE, name_: "CASE", ordinal_: 4},
+	{self_: TokenType_CATCH, name_: "CATCH", ordinal_: 5},
+	{self_: TokenType_CONTINUE, name_: "CONTINUE", ordinal_: 6},
+	{self_: TokenType_DEBUGGER, name_: "DEBUGGER", ordinal_: 7},
+	{self_: TokenType_DEFAULT, name_: "DEFAULT", ordinal_: 8},
+	{self_: TokenType_DELETE, name_: "DELETE", ordinal_: 9},
+	{self_: TokenType_DO, name_: "DO", ordinal_: 10},
+	{self_: TokenType_ELSE, name_: "ELSE", ordinal_: 11},
+	{self_: TokenType_FINALLY, name_: "FINALLY", ordinal_: 12},
+	{self_: TokenType_FOR, name_: "FOR", ordinal_: 13},
+	{self_: TokenType_FUNCTION, name_: "FUNCTION", ordinal_: 14},
+	{self_: TokenType_IF, name_: "IF", ordinal_: 15},
+	{self_: TokenType_IN, name_: "IN", ordinal_: 16},
+	{self_: TokenType_INSTANCEOF, name_: "INSTANCEOF", ordinal_: 17},
+	{self_: TokenType_NEW, name_: "NEW", ordinal_: 18},
+	{self_: TokenType_RETURN, name_: "RETURN", ordinal_: 19},
+	{self_: TokenType_SWITCH, name_: "SWITCH", ordinal_: 20},
+	{self_: TokenType_THIS, name_: "THIS", ordinal_: 21},
+	{self_: TokenType_THROW, name_: "THROW", ordinal_: 22},
+	{self_: TokenType_TRY, name_: "TRY", ordinal_: 23},
+	{self_: TokenType_TYPEOF, name_: "TYPEOF", ordinal_: 24},
+	{self_: TokenType_VAR, name_: "VAR", ordinal_: 25},
+	{self_: TokenType_VOID, name_: "VOID", ordinal_: 26},
+	{self_: TokenType_WHILE, name_: "WHILE", ordinal_: 27},
+	{self_: TokenType_WITH, name_: "WITH", ordinal_: 28},
+	{self_: TokenType_CLASS, name_: "CLASS", ordinal_: 29},
+	{self_: TokenType_CONST, name_: "CONST", ordinal_: 30},
+	{self_: TokenType_ENUM, name_: "ENUM", ordinal_: 31},
+	{self_: TokenType_EXPORT, name_: "EXPORT", ordinal_: 32},
+	{self_: TokenType_EXTENDS, name_: "EXTENDS", ordinal_: 33},
+	{self_: TokenType_IMPORT, name_: "IMPORT", ordinal_: 34},
+	{self_: TokenType_SUPER, name_: "SUPER", ordinal_: 35},
+	{self_: TokenType_IMPLEMENTS, name_: "IMPLEMENTS", ordinal_: 36},
+	{self_: TokenType_INTERFACE, name_: "INTERFACE", ordinal_: 37},
+	{self_: TokenType_LET, name_: "LET", ordinal_: 38},
+	{self_: TokenType_PACKAGE, name_: "PACKAGE", ordinal_: 39},
+	{self_: TokenType_PRIVATE, name_: "PRIVATE", ordinal_: 40},
+	{self_: TokenType_PROTECTED, name_: "PROTECTED", ordinal_: 41},
+	{self_: TokenType_PUBLIC, name_: "PUBLIC", ordinal_: 42},
+	{self_: TokenType_STATIC, name_: "STATIC", ordinal_: 43},
+	{self_: TokenType_YIELD, name_: "YIELD", ordinal_: 44},
+	{self_: TokenType_OPEN_CURLY, name_: "OPEN_CURLY", ordinal_: 45},
+	{self_: TokenType_CLOSE_CURLY, name_: "CLOSE_CURLY", ordinal_: 46},
+	{self_: TokenType_OPEN_PAREN, name_: "OPEN_PAREN", ordinal_: 47},
+	{self_: TokenType_CLOSE_PAREN, name_: "CLOSE_PAREN", ordinal_: 48},
+	{self_: TokenType_OPEN_SQUARE, name_: "OPEN_SQUARE", ordinal_: 49},
+	{self_: TokenType_CLOSE_SQUARE, name_: "CLOSE_SQUARE", ordinal_: 50},
+	{self_: TokenType_PERIOD, name_: "PERIOD", ordinal_: 51},
+	{self_: TokenType_SEMI_COLON, name_: "SEMI_COLON", ordinal_: 52},
+	{self_: TokenType_COMMA, name_: "COMMA", ordinal_: 53},
+	{self_: TokenType_OPEN_ANGLE, name_: "OPEN_ANGLE", ordinal_: 54},
+	{self_: TokenType_CLOSE_ANGLE, name_: "CLOSE_ANGLE", ordinal_: 55},
+	{self_: TokenType_LESS_EQUAL, name_: "LESS_EQUAL", ordinal_: 56},
+	{self_: TokenType_GREATER_EQUAL, name_: "GREATER_EQUAL", ordinal_: 57},
+	{self_: TokenType_ARROW, name_: "ARROW", ordinal_: 58},
+	{self_: TokenType_EQUAL_EQUAL, name_: "EQUAL_EQUAL", ordinal_: 59},
+	{self_: TokenType_NOT_EQUAL, name_: "NOT_EQUAL", ordinal_: 60},
+	{self_: TokenType_EQUAL_EQUAL_EQUAL, name_: "EQUAL_EQUAL_EQUAL", ordinal_: 61},
+	{self_: TokenType_NOT_EQUAL_EQUAL, name_: "NOT_EQUAL_EQUAL", ordinal_: 62},
+	{self_: TokenType_PLUS, name_: "PLUS", ordinal_: 63},
+	{self_: TokenType_MINUS, name_: "MINUS", ordinal_: 64},
+	{self_: TokenType_STAR, name_: "STAR", ordinal_: 65},
+	{self_: TokenType_STAR_STAR, name_: "STAR_STAR", ordinal_: 66},
+	{self_: TokenType_PERCENT, name_: "PERCENT", ordinal_: 67},
+	{self_: TokenType_PLUS_PLUS, name_: "PLUS_PLUS", ordinal_: 68},
+	{self_: TokenType_MINUS_MINUS, name_: "MINUS_MINUS", ordinal_: 69},
+	{self_: TokenType_LEFT_SHIFT, name_: "LEFT_SHIFT", ordinal_: 70},
+	{self_: TokenType_RIGHT_SHIFT, name_: "RIGHT_SHIFT", ordinal_: 71},
+	{self_: TokenType_UNSIGNED_RIGHT_SHIFT, name_: "UNSIGNED_RIGHT_SHIFT", ordinal_: 72},
+	{self_: TokenType_AMPERSAND, name_: "AMPERSAND", ordinal_: 73},
+	{self_: TokenType_BAR, name_: "BAR", ordinal_: 74},
+	{self_: TokenType_CARET, name_: "CARET", ordinal_: 75},
+	{self_: TokenType_BANG, name_: "BANG", ordinal_: 76},
+	{self_: TokenType_TILDE, name_: "TILDE", ordinal_: 77},
+	{self_: TokenType_AND, name_: "AND", ordinal_: 78},
+	{self_: TokenType_OR, name_: "OR", ordinal_: 79},
+	{self_: TokenType_QUESTION, name_: "QUESTION", ordinal_: 80},
+	{self_: TokenType_QUESTION_QUESTION, name_: "QUESTION_QUESTION", ordinal_: 81},
+	{self_: TokenType_QUESTION_DOT, name_: "QUESTION_DOT", ordinal_: 82},
+	{self_: TokenType_COLON, name_: "COLON", ordinal_: 83},
+	{self_: TokenType_EQUAL, name_: "EQUAL", ordinal_: 84},
+	{self_: TokenType_PLUS_EQUAL, name_: "PLUS_EQUAL", ordinal_: 85},
+	{self_: TokenType_MINUS_EQUAL, name_: "MINUS_EQUAL", ordinal_: 86},
+	{self_: TokenType_STAR_EQUAL, name_: "STAR_EQUAL", ordinal_: 87},
+	{self_: TokenType_STAR_STAR_EQUAL, name_: "STAR_STAR_EQUAL", ordinal_: 88},
+	{self_: TokenType_PERCENT_EQUAL, name_: "PERCENT_EQUAL", ordinal_: 89},
+	{self_: TokenType_LEFT_SHIFT_EQUAL, name_: "LEFT_SHIFT_EQUAL", ordinal_: 90},
+	{self_: TokenType_RIGHT_SHIFT_EQUAL, name_: "RIGHT_SHIFT_EQUAL", ordinal_: 91},
+	{self_: TokenType_UNSIGNED_RIGHT_SHIFT_EQUAL, name_: "UNSIGNED_RIGHT_SHIFT_EQUAL", ordinal_: 92},
+	{self_: TokenType_AMPERSAND_EQUAL, name_: "AMPERSAND_EQUAL", ordinal_: 93},
+	{self_: TokenType_BAR_EQUAL, name_: "BAR_EQUAL", ordinal_: 94},
+	{self_: TokenType_CARET_EQUAL, name_: "CARET_EQUAL", ordinal_: 95},
+	{self_: TokenType_SLASH, name_: "SLASH", ordinal_: 96},
+	{self_: TokenType_SLASH_EQUAL, name_: "SLASH_EQUAL", ordinal_: 97},
+	{self_: TokenType_AND_EQUAL, name_: "AND_EQUAL", ordinal_: 98},
+	{self_: TokenType_OR_EQUAL, name_: "OR_EQUAL", ordinal_: 99},
+	{self_: TokenType_QUESTION_QUESTION_EQUAL, name_: "QUESTION_QUESTION_EQUAL", ordinal_: 100},
+	{self_: TokenType_NULL, name_: "NULL", ordinal_: 101},
+	{self_: TokenType_TRUE, name_: "TRUE", ordinal_: 102},
+	{self_: TokenType_FALSE, name_: "FALSE", ordinal_: 103},
+	{self_: TokenType_NUMBER, name_: "NUMBER", ordinal_: 104},
+	{self_: TokenType_STRING, name_: "STRING", ordinal_: 105},
+	{self_: TokenType_BIGINT, name_: "BIGINT", ordinal_: 106},
+	{self_: TokenType_REGULAR_EXPRESSION, name_: "REGULAR_EXPRESSION", ordinal_: 107},
+	{self_: TokenType_ELLIPSIS, name_: "ELLIPSIS", ordinal_: 108},
+	{self_: TokenType_TEMPLATE_HEAD, name_: "TEMPLATE_HEAD", ordinal_: 109},
+	{self_: TokenType_TEMPLATE_MIDDLE, name_: "TEMPLATE_MIDDLE", ordinal_: 110},
+	{self_: TokenType_TEMPLATE_TAIL, name_: "TEMPLATE_TAIL", ordinal_: 111},
+	{self_: TokenType_NO_SUBSTITUTION_TEMPLATE, name_: "NO_SUBSTITUTION_TEMPLATE", ordinal_: 112},
+	{self_: TokenType_TYPE, name_: "TYPE", ordinal_: 113},
+	{self_: TokenType_DECLARE, name_: "DECLARE", ordinal_: 114},
+	{self_: TokenType_MODULE, name_: "MODULE", ordinal_: 115},
+	{self_: TokenType_NAMESPACE, name_: "NAMESPACE", ordinal_: 116},
 }
 
-func (this *TokenType) up_Enum() *Enum {
-	if this == nil {
+var TokenType_value__ [117]Optional[string]
+
+func (this TokenType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &TokenType_enum_[this-1]
 }
 
-func (this *TokenType) init_TokenType_0(name_ string, ordinal_ int32) {
-	this.init_TokenType_Optional(name_, ordinal_, Optional_empty[string]())
-}
+func (this TokenType) name() string { return TokenType_enum_[this-1].name_ }
 
-func new_TokenType_0(name_ string, ordinal_ int32) *TokenType {
-	this := &TokenType{}
-	this.self_ = this
-	this.init_TokenType_0(name_, ordinal_)
+func (this TokenType) ordinal() int32 { return TokenType_enum_[this-1].ordinal_ }
+
+func (this TokenType) compareTo(o any) int32 { return TokenType_enum_[this-1].compareTo(o) }
+
+func (this TokenType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *TokenType) init_TokenType_Optional(name_ string, ordinal_ int32, value Optional[string]) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.value_ = value
+func (this TokenType) init_TokenType_0() {
+	this.init_TokenType_Optional(Optional_empty[string]())
 }
 
-func new_TokenType_Optional(name_ string, ordinal_ int32, value Optional[string]) *TokenType {
-	this := &TokenType{}
-	this.self_ = this
-	this.init_TokenType_Optional(name_, ordinal_, value)
-	return this
+func (this TokenType) init_TokenType_Optional(value Optional[string]) {
+	TokenType_value__[this-1] = value
 }
 
-func (this *TokenType) toString() string {
+func (this TokenType) toString() string {
 	return func() string {
-		if this.value_.isEmpty() {
+		if TokenType_value__[this-1].isEmpty() {
 			return Keywords_get(this).toString()
 		}
-		return this.value_.get()
+		return TokenType_value__[this-1].get()
 	}()
 }
 
-func TokenType_values() []*TokenType {
-	return append([]*TokenType(nil), TokenType_values_...)
+func TokenType_values() []TokenType {
+	return append([]TokenType(nil), TokenType_values_...)
 }
 
-func TokenType_valueOf(name string) *TokenType {
+func TokenType_valueOf(name string) TokenType {
 	for _, v := range TokenType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("TokenType", name))
 }
 
-var TokenType_END_OF_FILE *TokenType
-var TokenType_ERROR *TokenType
-var TokenType_IDENTIFIER *TokenType
-var TokenType_BREAK *TokenType
-var TokenType_CASE *TokenType
-var TokenType_CATCH *TokenType
-var TokenType_CONTINUE *TokenType
-var TokenType_DEBUGGER *TokenType
-var TokenType_DEFAULT *TokenType
-var TokenType_DELETE *TokenType
-var TokenType_DO *TokenType
-var TokenType_ELSE *TokenType
-var TokenType_FINALLY *TokenType
-var TokenType_FOR *TokenType
-var TokenType_FUNCTION *TokenType
-var TokenType_IF *TokenType
-var TokenType_IN *TokenType
-var TokenType_INSTANCEOF *TokenType
-var TokenType_NEW *TokenType
-var TokenType_RETURN *TokenType
-var TokenType_SWITCH *TokenType
-var TokenType_THIS *TokenType
-var TokenType_THROW *TokenType
-var TokenType_TRY *TokenType
-var TokenType_TYPEOF *TokenType
-var TokenType_VAR *TokenType
-var TokenType_VOID *TokenType
-var TokenType_WHILE *TokenType
-var TokenType_WITH *TokenType
-var TokenType_CLASS *TokenType
-var TokenType_CONST *TokenType
-var TokenType_ENUM *TokenType
-var TokenType_EXPORT *TokenType
-var TokenType_EXTENDS *TokenType
-var TokenType_IMPORT *TokenType
-var TokenType_SUPER *TokenType
-var TokenType_IMPLEMENTS *TokenType
-var TokenType_INTERFACE *TokenType
-var TokenType_LET *TokenType
-var TokenType_PACKAGE *TokenType
-var TokenType_PRIVATE *TokenType
-var TokenType_PROTECTED *TokenType
-var TokenType_PUBLIC *TokenType
-var TokenType_STATIC *TokenType
-var TokenType_YIELD *TokenType
-var TokenType_OPEN_CURLY *TokenType
-var TokenType_CLOSE_CURLY *TokenType
-var TokenType_OPEN_PAREN *TokenType
-var TokenType_CLOSE_PAREN *TokenType
-var TokenType_OPEN_SQUARE *TokenType
-var TokenType_CLOSE_SQUARE *TokenType
-var TokenType_PERIOD *TokenType
-var TokenType_SEMI_COLON *TokenType
-var TokenType_COMMA *TokenType
-var TokenType_OPEN_ANGLE *TokenType
-var TokenType_CLOSE_ANGLE *TokenType
-var TokenType_LESS_EQUAL *TokenType
-var TokenType_GREATER_EQUAL *TokenType
-var TokenType_ARROW *TokenType
-var TokenType_EQUAL_EQUAL *TokenType
-var TokenType_NOT_EQUAL *TokenType
-var TokenType_EQUAL_EQUAL_EQUAL *TokenType
-var TokenType_NOT_EQUAL_EQUAL *TokenType
-var TokenType_PLUS *TokenType
-var TokenType_MINUS *TokenType
-var TokenType_STAR *TokenType
-var TokenType_STAR_STAR *TokenType
-var TokenType_PERCENT *TokenType
-var TokenType_PLUS_PLUS *TokenType
-var TokenType_MINUS_MINUS *TokenType
-var TokenType_LEFT_SHIFT *TokenType
-var TokenType_RIGHT_SHIFT *TokenType
-var TokenType_UNSIGNED_RIGHT_SHIFT *TokenType
-var TokenType_AMPERSAND *TokenType
-var TokenType_BAR *TokenType
-var TokenType_CARET *TokenType
-var TokenType_BANG *TokenType
-var TokenType_TILDE *TokenType
-var TokenType_AND *TokenType
-var TokenType_OR *TokenType
-var TokenType_QUESTION *TokenType
-var TokenType_QUESTION_QUESTION *TokenType
-var TokenType_QUESTION_DOT *TokenType
-var TokenType_COLON *TokenType
-var TokenType_EQUAL *TokenType
-var TokenType_PLUS_EQUAL *TokenType
-var TokenType_MINUS_EQUAL *TokenType
-var TokenType_STAR_EQUAL *TokenType
-var TokenType_STAR_STAR_EQUAL *TokenType
-var TokenType_PERCENT_EQUAL *TokenType
-var TokenType_LEFT_SHIFT_EQUAL *TokenType
-var TokenType_RIGHT_SHIFT_EQUAL *TokenType
-var TokenType_UNSIGNED_RIGHT_SHIFT_EQUAL *TokenType
-var TokenType_AMPERSAND_EQUAL *TokenType
-var TokenType_BAR_EQUAL *TokenType
-var TokenType_CARET_EQUAL *TokenType
-var TokenType_SLASH *TokenType
-var TokenType_SLASH_EQUAL *TokenType
-var TokenType_AND_EQUAL *TokenType
-var TokenType_OR_EQUAL *TokenType
-var TokenType_QUESTION_QUESTION_EQUAL *TokenType
-var TokenType_NULL *TokenType
-var TokenType_TRUE *TokenType
-var TokenType_FALSE *TokenType
-var TokenType_NUMBER *TokenType
-var TokenType_STRING *TokenType
-var TokenType_BIGINT *TokenType
-var TokenType_REGULAR_EXPRESSION *TokenType
-var TokenType_ELLIPSIS *TokenType
-var TokenType_TEMPLATE_HEAD *TokenType
-var TokenType_TEMPLATE_MIDDLE *TokenType
-var TokenType_TEMPLATE_TAIL *TokenType
-var TokenType_NO_SUBSTITUTION_TEMPLATE *TokenType
-var TokenType_TYPE *TokenType
-var TokenType_DECLARE *TokenType
-var TokenType_MODULE *TokenType
-var TokenType_NAMESPACE *TokenType
-var TokenType_values_ []*TokenType
+const TokenType_END_OF_FILE TokenType = 1
+const TokenType_ERROR TokenType = 2
+const TokenType_IDENTIFIER TokenType = 3
+const TokenType_BREAK TokenType = 4
+const TokenType_CASE TokenType = 5
+const TokenType_CATCH TokenType = 6
+const TokenType_CONTINUE TokenType = 7
+const TokenType_DEBUGGER TokenType = 8
+const TokenType_DEFAULT TokenType = 9
+const TokenType_DELETE TokenType = 10
+const TokenType_DO TokenType = 11
+const TokenType_ELSE TokenType = 12
+const TokenType_FINALLY TokenType = 13
+const TokenType_FOR TokenType = 14
+const TokenType_FUNCTION TokenType = 15
+const TokenType_IF TokenType = 16
+const TokenType_IN TokenType = 17
+const TokenType_INSTANCEOF TokenType = 18
+const TokenType_NEW TokenType = 19
+const TokenType_RETURN TokenType = 20
+const TokenType_SWITCH TokenType = 21
+const TokenType_THIS TokenType = 22
+const TokenType_THROW TokenType = 23
+const TokenType_TRY TokenType = 24
+const TokenType_TYPEOF TokenType = 25
+const TokenType_VAR TokenType = 26
+const TokenType_VOID TokenType = 27
+const TokenType_WHILE TokenType = 28
+const TokenType_WITH TokenType = 29
+const TokenType_CLASS TokenType = 30
+const TokenType_CONST TokenType = 31
+const TokenType_ENUM TokenType = 32
+const TokenType_EXPORT TokenType = 33
+const TokenType_EXTENDS TokenType = 34
+const TokenType_IMPORT TokenType = 35
+const TokenType_SUPER TokenType = 36
+const TokenType_IMPLEMENTS TokenType = 37
+const TokenType_INTERFACE TokenType = 38
+const TokenType_LET TokenType = 39
+const TokenType_PACKAGE TokenType = 40
+const TokenType_PRIVATE TokenType = 41
+const TokenType_PROTECTED TokenType = 42
+const TokenType_PUBLIC TokenType = 43
+const TokenType_STATIC TokenType = 44
+const TokenType_YIELD TokenType = 45
+const TokenType_OPEN_CURLY TokenType = 46
+const TokenType_CLOSE_CURLY TokenType = 47
+const TokenType_OPEN_PAREN TokenType = 48
+const TokenType_CLOSE_PAREN TokenType = 49
+const TokenType_OPEN_SQUARE TokenType = 50
+const TokenType_CLOSE_SQUARE TokenType = 51
+const TokenType_PERIOD TokenType = 52
+const TokenType_SEMI_COLON TokenType = 53
+const TokenType_COMMA TokenType = 54
+const TokenType_OPEN_ANGLE TokenType = 55
+const TokenType_CLOSE_ANGLE TokenType = 56
+const TokenType_LESS_EQUAL TokenType = 57
+const TokenType_GREATER_EQUAL TokenType = 58
+const TokenType_ARROW TokenType = 59
+const TokenType_EQUAL_EQUAL TokenType = 60
+const TokenType_NOT_EQUAL TokenType = 61
+const TokenType_EQUAL_EQUAL_EQUAL TokenType = 62
+const TokenType_NOT_EQUAL_EQUAL TokenType = 63
+const TokenType_PLUS TokenType = 64
+const TokenType_MINUS TokenType = 65
+const TokenType_STAR TokenType = 66
+const TokenType_STAR_STAR TokenType = 67
+const TokenType_PERCENT TokenType = 68
+const TokenType_PLUS_PLUS TokenType = 69
+const TokenType_MINUS_MINUS TokenType = 70
+const TokenType_LEFT_SHIFT TokenType = 71
+const TokenType_RIGHT_SHIFT TokenType = 72
+const TokenType_UNSIGNED_RIGHT_SHIFT TokenType = 73
+const TokenType_AMPERSAND TokenType = 74
+const TokenType_BAR TokenType = 75
+const TokenType_CARET TokenType = 76
+const TokenType_BANG TokenType = 77
+const TokenType_TILDE TokenType = 78
+const TokenType_AND TokenType = 79
+const TokenType_OR TokenType = 80
+const TokenType_QUESTION TokenType = 81
+const TokenType_QUESTION_QUESTION TokenType = 82
+const TokenType_QUESTION_DOT TokenType = 83
+const TokenType_COLON TokenType = 84
+const TokenType_EQUAL TokenType = 85
+const TokenType_PLUS_EQUAL TokenType = 86
+const TokenType_MINUS_EQUAL TokenType = 87
+const TokenType_STAR_EQUAL TokenType = 88
+const TokenType_STAR_STAR_EQUAL TokenType = 89
+const TokenType_PERCENT_EQUAL TokenType = 90
+const TokenType_LEFT_SHIFT_EQUAL TokenType = 91
+const TokenType_RIGHT_SHIFT_EQUAL TokenType = 92
+const TokenType_UNSIGNED_RIGHT_SHIFT_EQUAL TokenType = 93
+const TokenType_AMPERSAND_EQUAL TokenType = 94
+const TokenType_BAR_EQUAL TokenType = 95
+const TokenType_CARET_EQUAL TokenType = 96
+const TokenType_SLASH TokenType = 97
+const TokenType_SLASH_EQUAL TokenType = 98
+const TokenType_AND_EQUAL TokenType = 99
+const TokenType_OR_EQUAL TokenType = 100
+const TokenType_QUESTION_QUESTION_EQUAL TokenType = 101
+const TokenType_NULL TokenType = 102
+const TokenType_TRUE TokenType = 103
+const TokenType_FALSE TokenType = 104
+const TokenType_NUMBER TokenType = 105
+const TokenType_STRING TokenType = 106
+const TokenType_BIGINT TokenType = 107
+const TokenType_REGULAR_EXPRESSION TokenType = 108
+const TokenType_ELLIPSIS TokenType = 109
+const TokenType_TEMPLATE_HEAD TokenType = 110
+const TokenType_TEMPLATE_MIDDLE TokenType = 111
+const TokenType_TEMPLATE_TAIL TokenType = 112
+const TokenType_NO_SUBSTITUTION_TEMPLATE TokenType = 113
+const TokenType_TYPE TokenType = 114
+const TokenType_DECLARE TokenType = 115
+const TokenType_MODULE TokenType = 116
+const TokenType_NAMESPACE TokenType = 117
+
+var TokenType_values_ []TokenType
 
 var TokenType_clinit_done bool
 
@@ -185,124 +304,124 @@ func TokenType_clinit() {
 		return
 	}
 	TokenType_clinit_done = true
-	TokenType_END_OF_FILE = new_TokenType_Optional("END_OF_FILE", 0, Optional_of[string]("End of File"))
-	TokenType_ERROR = new_TokenType_Optional("ERROR", 1, Optional_of[string]("error"))
-	TokenType_IDENTIFIER = new_TokenType_Optional("IDENTIFIER", 2, Optional_of[string]("identifier"))
-	TokenType_BREAK = new_TokenType_0("BREAK", 3)
-	TokenType_CASE = new_TokenType_0("CASE", 4)
-	TokenType_CATCH = new_TokenType_0("CATCH", 5)
-	TokenType_CONTINUE = new_TokenType_0("CONTINUE", 6)
-	TokenType_DEBUGGER = new_TokenType_0("DEBUGGER", 7)
-	TokenType_DEFAULT = new_TokenType_0("DEFAULT", 8)
-	TokenType_DELETE = new_TokenType_0("DELETE", 9)
-	TokenType_DO = new_TokenType_0("DO", 10)
-	TokenType_ELSE = new_TokenType_0("ELSE", 11)
-	TokenType_FINALLY = new_TokenType_0("FINALLY", 12)
-	TokenType_FOR = new_TokenType_0("FOR", 13)
-	TokenType_FUNCTION = new_TokenType_0("FUNCTION", 14)
-	TokenType_IF = new_TokenType_0("IF", 15)
-	TokenType_IN = new_TokenType_0("IN", 16)
-	TokenType_INSTANCEOF = new_TokenType_0("INSTANCEOF", 17)
-	TokenType_NEW = new_TokenType_0("NEW", 18)
-	TokenType_RETURN = new_TokenType_0("RETURN", 19)
-	TokenType_SWITCH = new_TokenType_0("SWITCH", 20)
-	TokenType_THIS = new_TokenType_0("THIS", 21)
-	TokenType_THROW = new_TokenType_0("THROW", 22)
-	TokenType_TRY = new_TokenType_0("TRY", 23)
-	TokenType_TYPEOF = new_TokenType_0("TYPEOF", 24)
-	TokenType_VAR = new_TokenType_0("VAR", 25)
-	TokenType_VOID = new_TokenType_0("VOID", 26)
-	TokenType_WHILE = new_TokenType_0("WHILE", 27)
-	TokenType_WITH = new_TokenType_0("WITH", 28)
-	TokenType_CLASS = new_TokenType_0("CLASS", 29)
-	TokenType_CONST = new_TokenType_0("CONST", 30)
-	TokenType_ENUM = new_TokenType_0("ENUM", 31)
-	TokenType_EXPORT = new_TokenType_0("EXPORT", 32)
-	TokenType_EXTENDS = new_TokenType_0("EXTENDS", 33)
-	TokenType_IMPORT = new_TokenType_0("IMPORT", 34)
-	TokenType_SUPER = new_TokenType_0("SUPER", 35)
-	TokenType_IMPLEMENTS = new_TokenType_0("IMPLEMENTS", 36)
-	TokenType_INTERFACE = new_TokenType_0("INTERFACE", 37)
-	TokenType_LET = new_TokenType_0("LET", 38)
-	TokenType_PACKAGE = new_TokenType_0("PACKAGE", 39)
-	TokenType_PRIVATE = new_TokenType_0("PRIVATE", 40)
-	TokenType_PROTECTED = new_TokenType_0("PROTECTED", 41)
-	TokenType_PUBLIC = new_TokenType_0("PUBLIC", 42)
-	TokenType_STATIC = new_TokenType_0("STATIC", 43)
-	TokenType_YIELD = new_TokenType_0("YIELD", 44)
-	TokenType_OPEN_CURLY = new_TokenType_Optional("OPEN_CURLY", 45, Optional_of[string]("{"))
-	TokenType_CLOSE_CURLY = new_TokenType_Optional("CLOSE_CURLY", 46, Optional_of[string]("}"))
-	TokenType_OPEN_PAREN = new_TokenType_Optional("OPEN_PAREN", 47, Optional_of[string]("("))
-	TokenType_CLOSE_PAREN = new_TokenType_Optional("CLOSE_PAREN", 48, Optional_of[string](")"))
-	TokenType_OPEN_SQUARE = new_TokenType_Optional("OPEN_SQUARE", 49, Optional_of[string]("["))
-	TokenType_CLOSE_SQUARE = new_TokenType_Optional("CLOSE_SQUARE", 50, Optional_of[string]("]"))
-	TokenType_PERIOD = new_TokenType_Optional("PERIOD", 51, Optional_of[string]("."))
-	TokenType_SEMI_COLON = new_TokenType_Optional("SEMI_COLON", 52, Optional_of[string](";"))
-	TokenType_COMMA = new_TokenType_Optional("COMMA", 53, Optional_of[string](","))
-	TokenType_OPEN_ANGLE = new_TokenType_Optional("OPEN_ANGLE", 54, Optional_of[string]("<"))
-	TokenType_CLOSE_ANGLE = new_TokenType_Optional("CLOSE_ANGLE", 55, Optional_of[string](">"))
-	TokenType_LESS_EQUAL = new_TokenType_Optional("LESS_EQUAL", 56, Optional_of[string]("<="))
-	TokenType_GREATER_EQUAL = new_TokenType_Optional("GREATER_EQUAL", 57, Optional_of[string](">="))
-	TokenType_ARROW = new_TokenType_Optional("ARROW", 58, Optional_of[string]("=>"))
-	TokenType_EQUAL_EQUAL = new_TokenType_Optional("EQUAL_EQUAL", 59, Optional_of[string]("=="))
-	TokenType_NOT_EQUAL = new_TokenType_Optional("NOT_EQUAL", 60, Optional_of[string]("!="))
-	TokenType_EQUAL_EQUAL_EQUAL = new_TokenType_Optional("EQUAL_EQUAL_EQUAL", 61, Optional_of[string]("==="))
-	TokenType_NOT_EQUAL_EQUAL = new_TokenType_Optional("NOT_EQUAL_EQUAL", 62, Optional_of[string]("!=="))
-	TokenType_PLUS = new_TokenType_Optional("PLUS", 63, Optional_of[string]("+"))
-	TokenType_MINUS = new_TokenType_Optional("MINUS", 64, Optional_of[string]("-"))
-	TokenType_STAR = new_TokenType_Optional("STAR", 65, Optional_of[string]("*"))
-	TokenType_STAR_STAR = new_TokenType_Optional("STAR_STAR", 66, Optional_of[string]("**"))
-	TokenType_PERCENT = new_TokenType_Optional("PERCENT", 67, Optional_of[string]("%"))
-	TokenType_PLUS_PLUS = new_TokenType_Optional("PLUS_PLUS", 68, Optional_of[string]("++"))
-	TokenType_MINUS_MINUS = new_TokenType_Optional("MINUS_MINUS", 69, Optional_of[string]("--"))
-	TokenType_LEFT_SHIFT = new_TokenType_Optional("LEFT_SHIFT", 70, Optional_of[string]("<<"))
-	TokenType_RIGHT_SHIFT = new_TokenType_Optional("RIGHT_SHIFT", 71, Optional_of[string](">>"))
-	TokenType_UNSIGNED_RIGHT_SHIFT = new_TokenType_Optional("UNSIGNED_RIGHT_SHIFT", 72, Optional_of[string](">>>"))
-	TokenType_AMPERSAND = new_TokenType_Optional("AMPERSAND", 73, Optional_of[string]("&"))
-	TokenType_BAR = new_TokenType_Optional("BAR", 74, Optional_of[string]("|"))
-	TokenType_CARET = new_TokenType_Optional("CARET", 75, Optional_of[string]("^"))
-	TokenType_BANG = new_TokenType_Optional("BANG", 76, Optional_of[string]("!"))
-	TokenType_TILDE = new_TokenType_Optional("TILDE", 77, Optional_of[string]("~"))
-	TokenType_AND = new_TokenType_Optional("AND", 78, Optional_of[string]("&&"))
-	TokenType_OR = new_TokenType_Optional("OR", 79, Optional_of[string]("||"))
-	TokenType_QUESTION = new_TokenType_Optional("QUESTION", 80, Optional_of[string]("?"))
-	TokenType_QUESTION_QUESTION = new_TokenType_Optional("QUESTION_QUESTION", 81, Optional_of[string]("??"))
-	TokenType_QUESTION_DOT = new_TokenType_Optional("QUESTION_DOT", 82, Optional_of[string]("?."))
-	TokenType_COLON = new_TokenType_Optional("COLON", 83, Optional_of[string](":"))
-	TokenType_EQUAL = new_TokenType_Optional("EQUAL", 84, Optional_of[string]("="))
-	TokenType_PLUS_EQUAL = new_TokenType_Optional("PLUS_EQUAL", 85, Optional_of[string]("+="))
-	TokenType_MINUS_EQUAL = new_TokenType_Optional("MINUS_EQUAL", 86, Optional_of[string]("-="))
-	TokenType_STAR_EQUAL = new_TokenType_Optional("STAR_EQUAL", 87, Optional_of[string]("*="))
-	TokenType_STAR_STAR_EQUAL = new_TokenType_Optional("STAR_STAR_EQUAL", 88, Optional_of[string]("**="))
-	TokenType_PERCENT_EQUAL = new_TokenType_Optional("PERCENT_EQUAL", 89, Optional_of[string]("%="))
-	TokenType_LEFT_SHIFT_EQUAL = new_TokenType_Optional("LEFT_SHIFT_EQUAL", 90, Optional_of[string]("<<="))
-	TokenType_RIGHT_SHIFT_EQUAL = new_TokenType_Optional("RIGHT_SHIFT_EQUAL", 91, Optional_of[string](">>="))
-	TokenType_UNSIGNED_RIGHT_SHIFT_EQUAL = new_TokenType_Optional("UNSIGNED_RIGHT_SHIFT_EQUAL", 92, Optional_of[string](">>>="))
-	TokenType_AMPERSAND_EQUAL = new_TokenType_Optional("AMPERSAND_EQUAL", 93, Optional_of[string]("&="))
-	TokenType_BAR_EQUAL = new_TokenType_Optional("BAR_EQUAL", 94, Optional_of[string]("|="))
-	TokenType_CARET_EQUAL = new_TokenType_Optional("CARET_EQUAL", 95, Optional_of[string]("^="))
-	TokenType_SLASH = new_TokenType_Optional("SLASH", 96, Optional_of[string]("/"))
-	TokenType_SLASH_EQUAL = new_TokenType_Optional("SLASH_EQUAL", 97, Optional_of[string]("/="))
-	TokenType_AND_EQUAL = new_TokenType_Optional("AND_EQUAL", 98, Optional_of[string]("&&="))
-	TokenType_OR_EQUAL = new_TokenType_Optional("OR_EQUAL", 99, Optional_of[string]("||="))
-	TokenType_QUESTION_QUESTION_EQUAL = new_TokenType_Optional("QUESTION_QUESTION_EQUAL", 100, Optional_of[string]("??="))
-	TokenType_NULL = new_TokenType_0("NULL", 101)
-	TokenType_TRUE = new_TokenType_0("TRUE", 102)
-	TokenType_FALSE = new_TokenType_0("FALSE", 103)
-	TokenType_NUMBER = new_TokenType_Optional("NUMBER", 104, Optional_of[string]("number literal"))
-	TokenType_STRING = new_TokenType_Optional("STRING", 105, Optional_of[string]("string literal"))
-	TokenType_BIGINT = new_TokenType_Optional("BIGINT", 106, Optional_of[string]("bigint literal"))
-	TokenType_REGULAR_EXPRESSION = new_TokenType_Optional("REGULAR_EXPRESSION", 107, Optional_of[string]("regular expression literal"))
-	TokenType_ELLIPSIS = new_TokenType_Optional("ELLIPSIS", 108, Optional_of[string]("..."))
-	TokenType_TEMPLATE_HEAD = new_TokenType_Optional("TEMPLATE_HEAD", 109, Optional_of[string]("template head"))
-	TokenType_TEMPLATE_MIDDLE = new_TokenType_Optional("TEMPLATE_MIDDLE", 110, Optional_of[string]("template middle"))
-	TokenType_TEMPLATE_TAIL = new_TokenType_Optional("TEMPLATE_TAIL", 111, Optional_of[string]("template tail"))
-	TokenType_NO_SUBSTITUTION_TEMPLATE = new_TokenType_Optional("NO_SUBSTITUTION_TEMPLATE", 112, Optional_of[string]("no substitution template"))
-	TokenType_TYPE = new_TokenType_0("TYPE", 113)
-	TokenType_DECLARE = new_TokenType_0("DECLARE", 114)
-	TokenType_MODULE = new_TokenType_0("MODULE", 115)
-	TokenType_NAMESPACE = new_TokenType_0("NAMESPACE", 116)
-	TokenType_values_ = []*TokenType{TokenType_END_OF_FILE, TokenType_ERROR, TokenType_IDENTIFIER, TokenType_BREAK, TokenType_CASE, TokenType_CATCH, TokenType_CONTINUE, TokenType_DEBUGGER, TokenType_DEFAULT, TokenType_DELETE, TokenType_DO, TokenType_ELSE, TokenType_FINALLY, TokenType_FOR, TokenType_FUNCTION, TokenType_IF, TokenType_IN, TokenType_INSTANCEOF, TokenType_NEW, TokenType_RETURN, TokenType_SWITCH, TokenType_THIS, TokenType_THROW, TokenType_TRY, TokenType_TYPEOF, TokenType_VAR, TokenType_VOID, TokenType_WHILE, TokenType_WITH, TokenType_CLASS, TokenType_CONST, TokenType_ENUM, TokenType_EXPORT, TokenType_EXTENDS, TokenType_IMPORT, TokenType_SUPER, TokenType_IMPLEMENTS, TokenType_INTERFACE, TokenType_LET, TokenType_PACKAGE, TokenType_PRIVATE, TokenType_PROTECTED, TokenType_PUBLIC, TokenType_STATIC, TokenType_YIELD, TokenType_OPEN_CURLY, TokenType_CLOSE_CURLY, TokenType_OPEN_PAREN, TokenType_CLOSE_PAREN, TokenType_OPEN_SQUARE, TokenType_CLOSE_SQUARE, TokenType_PERIOD, TokenType_SEMI_COLON, TokenType_COMMA, TokenType_OPEN_ANGLE, TokenType_CLOSE_ANGLE, TokenType_LESS_EQUAL, TokenType_GREATER_EQUAL, TokenType_ARROW, TokenType_EQUAL_EQUAL, TokenType_NOT_EQUAL, TokenType_EQUAL_EQUAL_EQUAL, TokenType_NOT_EQUAL_EQUAL, TokenType_PLUS, TokenType_MINUS, TokenType_STAR, TokenType_STAR_STAR, TokenType_PERCENT, TokenType_PLUS_PLUS, TokenType_MINUS_MINUS, TokenType_LEFT_SHIFT, TokenType_RIGHT_SHIFT, TokenType_UNSIGNED_RIGHT_SHIFT, TokenType_AMPERSAND, TokenType_BAR, TokenType_CARET, TokenType_BANG, TokenType_TILDE, TokenType_AND, TokenType_OR, TokenType_QUESTION, TokenType_QUESTION_QUESTION, TokenType_QUESTION_DOT, TokenType_COLON, TokenType_EQUAL, TokenType_PLUS_EQUAL, TokenType_MINUS_EQUAL, TokenType_STAR_EQUAL, TokenType_STAR_STAR_EQUAL, TokenType_PERCENT_EQUAL, TokenType_LEFT_SHIFT_EQUAL, TokenType_RIGHT_SHIFT_EQUAL, TokenType_UNSIGNED_RIGHT_SHIFT_EQUAL, TokenType_AMPERSAND_EQUAL, TokenType_BAR_EQUAL, TokenType_CARET_EQUAL, TokenType_SLASH, TokenType_SLASH_EQUAL, TokenType_AND_EQUAL, TokenType_OR_EQUAL, TokenType_QUESTION_QUESTION_EQUAL, TokenType_NULL, TokenType_TRUE, TokenType_FALSE, TokenType_NUMBER, TokenType_STRING, TokenType_BIGINT, TokenType_REGULAR_EXPRESSION, TokenType_ELLIPSIS, TokenType_TEMPLATE_HEAD, TokenType_TEMPLATE_MIDDLE, TokenType_TEMPLATE_TAIL, TokenType_NO_SUBSTITUTION_TEMPLATE, TokenType_TYPE, TokenType_DECLARE, TokenType_MODULE, TokenType_NAMESPACE}
+	TokenType_END_OF_FILE.init_TokenType_Optional(Optional_of[string]("End of File"))
+	TokenType_ERROR.init_TokenType_Optional(Optional_of[string]("error"))
+	TokenType_IDENTIFIER.init_TokenType_Optional(Optional_of[string]("identifier"))
+	TokenType_BREAK.init_TokenType_0()
+	TokenType_CASE.init_TokenType_0()
+	TokenType_CATCH.init_TokenType_0()
+	TokenType_CONTINUE.init_TokenType_0()
+	TokenType_DEBUGGER.init_TokenType_0()
+	TokenType_DEFAULT.init_TokenType_0()
+	TokenType_DELETE.init_TokenType_0()
+	TokenType_DO.init_TokenType_0()
+	TokenType_ELSE.init_TokenType_0()
+	TokenType_FINALLY.init_TokenType_0()
+	TokenType_FOR.init_TokenType_0()
+	TokenType_FUNCTION.init_TokenType_0()
+	TokenType_IF.init_TokenType_0()
+	TokenType_IN.init_TokenType_0()
+	TokenType_INSTANCEOF.init_TokenType_0()
+	TokenType_NEW.init_TokenType_0()
+	TokenType_RETURN.init_TokenType_0()
+	TokenType_SWITCH.init_TokenType_0()
+	TokenType_THIS.init_TokenType_0()
+	TokenType_THROW.init_TokenType_0()
+	TokenType_TRY.init_TokenType_0()
+	TokenType_TYPEOF.init_TokenType_0()
+	TokenType_VAR.init_TokenType_0()
+	TokenType_VOID.init_TokenType_0()
+	TokenType_WHILE.init_TokenType_0()
+	TokenType_WITH.init_TokenType_0()
+	TokenType_CLASS.init_TokenType_0()
+	TokenType_CONST.init_TokenType_0()
+	TokenType_ENUM.init_TokenType_0()
+	TokenType_EXPORT.init_TokenType_0()
+	TokenType_EXTENDS.init_TokenType_0()
+	TokenType_IMPORT.init_TokenType_0()
+	TokenType_SUPER.init_TokenType_0()
+	TokenType_IMPLEMENTS.init_TokenType_0()
+	TokenType_INTERFACE.init_TokenType_0()
+	TokenType_LET.init_TokenType_0()
+	TokenType_PACKAGE.init_TokenType_0()
+	TokenType_PRIVATE.init_TokenType_0()
+	TokenType_PROTECTED.init_TokenType_0()
+	TokenType_PUBLIC.init_TokenType_0()
+	TokenType_STATIC.init_TokenType_0()
+	TokenType_YIELD.init_TokenType_0()
+	TokenType_OPEN_CURLY.init_TokenType_Optional(Optional_of[string]("{"))
+	TokenType_CLOSE_CURLY.init_TokenType_Optional(Optional_of[string]("}"))
+	TokenType_OPEN_PAREN.init_TokenType_Optional(Optional_of[string]("("))
+	TokenType_CLOSE_PAREN.init_TokenType_Optional(Optional_of[string](")"))
+	TokenType_OPEN_SQUARE.init_TokenType_Optional(Optional_of[string]("["))
+	TokenType_CLOSE_SQUARE.init_TokenType_Optional(Optional_of[string]("]"))
+	TokenType_PERIOD.init_TokenType_Optional(Optional_of[string]("."))
+	TokenType_SEMI_COLON.init_TokenType_Optional(Optional_of[string](";"))
+	TokenType_COMMA.init_TokenType_Optional(Optional_of[string](","))
+	TokenType_OPEN_ANGLE.init_TokenType_Optional(Optional_of[string]("<"))
+	TokenType_CLOSE_ANGLE.init_TokenType_Optional(Optional_of[string](">"))
+	TokenType_LESS_EQUAL.init_TokenType_Optional(Optional_of[string]("<="))
+	TokenType_GREATER_EQUAL.init_TokenType_Optional(Optional_of[string](">="))
+	TokenType_ARROW.init_TokenType_Optional(Optional_of[string]("=>"))
+	TokenType_EQUAL_EQUAL.init_TokenType_Optional(Optional_of[string]("=="))
+	TokenType_NOT_EQUAL.init_TokenType_Optional(Optional_of[string]("!="))
+	TokenType_EQUAL_EQUAL_EQUAL.init_TokenType_Optional(Optional_of[string]("==="))
+	TokenType_NOT_EQUAL_EQUAL.init_TokenType_Optional(Optional_of[string]("!=="))
+	TokenType_PLUS.init_TokenType_Optional(Optional_of[string]("+"))
+	TokenType_MINUS.init_TokenType_Optional(Optional_of[string]("-"))
+	TokenType_STAR.init_TokenType_Optional(Optional_of[string]("*"))
+	TokenType_STAR_STAR.init_TokenType_Optional(Optional_of[string]("**"))
+	TokenType_PERCENT.init_TokenType_Optional(Optional_of[string]("%"))
+	TokenType_PLUS_PLUS.init_TokenType_Optional(Optional_of[string]("++"))
+	TokenType_MINUS_MINUS.init_TokenType_Optional(Optional_of[string]("--"))
+	TokenType_LEFT_SHIFT.init_TokenType_Optional(Optional_of[string]("<<"))
+	TokenType_RIGHT_SHIFT.init_TokenType_Optional(Optional_of[string](">>"))
+	TokenType_UNSIGNED_RIGHT_SHIFT.init_TokenType_Optional(Optional_of[string](">>>"))
+	TokenType_AMPERSAND.init_TokenType_Optional(Optional_of[string]("&"))
+	TokenType_BAR.init_TokenType_Optional(Optional_of[string]("|"))
+	TokenType_CARET.init_TokenType_Optional(Optional_of[string]("^"))
+	TokenType_BANG.init_TokenType_Optional(Optional_of[string]("!"))
+	TokenType_TILDE.init_TokenType_Optional(Optional_of[string]("~"))
+	TokenType_AND.init_TokenType_Optional(Optional_of[string]("&&"))
+	TokenType_OR.init_TokenType_Optional(Optional_of[string]("||"))
+	TokenType_QUESTION.init_TokenType_Optional(Optional_of[string]("?"))
+	TokenType_QUESTION_QUESTION.init_TokenType_Optional(Optional_of[string]("??"))
+	TokenType_QUESTION_DOT.init_TokenType_Optional(Optional_of[string]("?."))
+	TokenType_COLON.init_TokenType_Optional(Optional_of[string](":"))
+	TokenType_EQUAL.init_TokenType_Optional(Optional_of[string]("="))
+	TokenType_PLUS_EQUAL.init_TokenType_Optional(Optional_of[string]("+="))
+	TokenType_MINUS_EQUAL.init_TokenType_Optional(Optional_of[string]("-="))
+	TokenType_STAR_EQUAL.init_TokenType_Optional(Optional_of[string]("*="))
+	TokenType_STAR_STAR_EQUAL.init_TokenType_Optional(Optional_of[string]("**="))
+	TokenType_PERCENT_EQUAL.init_TokenType_Optional(Optional_of[string]("%="))
+	TokenType_LEFT_SHIFT_EQUAL.init_TokenType_Optional(Optional_of[string]("<<="))
+	TokenType_RIGHT_SHIFT_EQUAL.init_TokenType_Optional(Optional_of[string](">>="))
+	TokenType_UNSIGNED_RIGHT_SHIFT_EQUAL.init_TokenType_Optional(Optional_of[string](">>>="))
+	TokenType_AMPERSAND_EQUAL.init_TokenType_Optional(Optional_of[string]("&="))
+	TokenType_BAR_EQUAL.init_TokenType_Optional(Optional_of[string]("|="))
+	TokenType_CARET_EQUAL.init_TokenType_Optional(Optional_of[string]("^="))
+	TokenType_SLASH.init_TokenType_Optional(Optional_of[string]("/"))
+	TokenType_SLASH_EQUAL.init_TokenType_Optional(Optional_of[string]("/="))
+	TokenType_AND_EQUAL.init_TokenType_Optional(Optional_of[string]("&&="))
+	TokenType_OR_EQUAL.init_TokenType_Optional(Optional_of[string]("||="))
+	TokenType_QUESTION_QUESTION_EQUAL.init_TokenType_Optional(Optional_of[string]("??="))
+	TokenType_NULL.init_TokenType_0()
+	TokenType_TRUE.init_TokenType_0()
+	TokenType_FALSE.init_TokenType_0()
+	TokenType_NUMBER.init_TokenType_Optional(Optional_of[string]("number literal"))
+	TokenType_STRING.init_TokenType_Optional(Optional_of[string]("string literal"))
+	TokenType_BIGINT.init_TokenType_Optional(Optional_of[string]("bigint literal"))
+	TokenType_REGULAR_EXPRESSION.init_TokenType_Optional(Optional_of[string]("regular expression literal"))
+	TokenType_ELLIPSIS.init_TokenType_Optional(Optional_of[string]("..."))
+	TokenType_TEMPLATE_HEAD.init_TokenType_Optional(Optional_of[string]("template head"))
+	TokenType_TEMPLATE_MIDDLE.init_TokenType_Optional(Optional_of[string]("template middle"))
+	TokenType_TEMPLATE_TAIL.init_TokenType_Optional(Optional_of[string]("template tail"))
+	TokenType_NO_SUBSTITUTION_TEMPLATE.init_TokenType_Optional(Optional_of[string]("no substitution template"))
+	TokenType_TYPE.init_TokenType_0()
+	TokenType_DECLARE.init_TokenType_0()
+	TokenType_MODULE.init_TokenType_0()
+	TokenType_NAMESPACE.init_TokenType_0()
+	TokenType_values_ = []TokenType{TokenType_END_OF_FILE, TokenType_ERROR, TokenType_IDENTIFIER, TokenType_BREAK, TokenType_CASE, TokenType_CATCH, TokenType_CONTINUE, TokenType_DEBUGGER, TokenType_DEFAULT, TokenType_DELETE, TokenType_DO, TokenType_ELSE, TokenType_FINALLY, TokenType_FOR, TokenType_FUNCTION, TokenType_IF, TokenType_IN, TokenType_INSTANCEOF, TokenType_NEW, TokenType_RETURN, TokenType_SWITCH, TokenType_THIS, TokenType_THROW, TokenType_TRY, TokenType_TYPEOF, TokenType_VAR, TokenType_VOID, TokenType_WHILE, TokenType_WITH, TokenType_CLASS, TokenType_CONST, TokenType_ENUM, TokenType_EXPORT, TokenType_EXTENDS, TokenType_IMPORT, TokenType_SUPER, TokenType_IMPLEMENTS, TokenType_INTERFACE, TokenType_LET, TokenType_PACKAGE, TokenType_PRIVATE, TokenType_PROTECTED, TokenType_PUBLIC, TokenType_STATIC, TokenType_YIELD, TokenType_OPEN_CURLY, TokenType_CLOSE_CURLY, TokenType_OPEN_PAREN, TokenType_CLOSE_PAREN, TokenType_OPEN_SQUARE, TokenType_CLOSE_SQUARE, TokenType_PERIOD, TokenType_SEMI_COLON, TokenType_COMMA, TokenType_OPEN_ANGLE, TokenType_CLOSE_ANGLE, TokenType_LESS_EQUAL, TokenType_GREATER_EQUAL, TokenType_ARROW, TokenType_EQUAL_EQUAL, TokenType_NOT_EQUAL, TokenType_EQUAL_EQUAL_EQUAL, TokenType_NOT_EQUAL_EQUAL, TokenType_PLUS, TokenType_MINUS, TokenType_STAR, TokenType_STAR_STAR, TokenType_PERCENT, TokenType_PLUS_PLUS, TokenType_MINUS_MINUS, TokenType_LEFT_SHIFT, TokenType_RIGHT_SHIFT, TokenType_UNSIGNED_RIGHT_SHIFT, TokenType_AMPERSAND, TokenType_BAR, TokenType_CARET, TokenType_BANG, TokenType_TILDE, TokenType_AND, TokenType_OR, TokenType_QUESTION, TokenType_QUESTION_QUESTION, TokenType_QUESTION_DOT, TokenType_COLON, TokenType_EQUAL, TokenType_PLUS_EQUAL, TokenType_MINUS_EQUAL, TokenType_STAR_EQUAL, TokenType_STAR_STAR_EQUAL, TokenType_PERCENT_EQUAL, TokenType_LEFT_SHIFT_EQUAL, TokenType_RIGHT_SHIFT_EQUAL, TokenType_UNSIGNED_RIGHT_SHIFT_EQUAL, TokenType_AMPERSAND_EQUAL, TokenType_BAR_EQUAL, TokenType_CARET_EQUAL, TokenType_SLASH, TokenType_SLASH_EQUAL, TokenType_AND_EQUAL, TokenType_OR_EQUAL, TokenType_QUESTION_QUESTION_EQUAL, TokenType_NULL, TokenType_TRUE, TokenType_FALSE, TokenType_NUMBER, TokenType_STRING, TokenType_BIGINT, TokenType_REGULAR_EXPRESSION, TokenType_ELLIPSIS, TokenType_TEMPLATE_HEAD, TokenType_TEMPLATE_MIDDLE, TokenType_TEMPLATE_TAIL, TokenType_NO_SUBSTITUTION_TEMPLATE, TokenType_TYPE, TokenType_DECLARE, TokenType_MODULE, TokenType_NAMESPACE}
 	registerEnum_("com.google.javascript.jscomp.parsing.parser.TokenType", enumValues_(TokenType_values_))
 
 }

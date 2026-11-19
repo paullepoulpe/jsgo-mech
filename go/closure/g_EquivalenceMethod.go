@@ -2,44 +2,55 @@
 
 package closure
 
-type EquivalenceMethod struct {
-	Enum
+type EquivalenceMethod uint8
+
+// EquivalenceMethod_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var EquivalenceMethod_enum_ = [2]Enum{
+	{self_: EquivalenceMethod_IDENTITY, name_: "IDENTITY", ordinal_: 0},
+	{self_: EquivalenceMethod_DATA_FLOW, name_: "DATA_FLOW", ordinal_: 1},
 }
 
-func (this *EquivalenceMethod) up_Enum() *Enum {
-	if this == nil {
+func (this EquivalenceMethod) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &EquivalenceMethod_enum_[this-1]
 }
 
-func (this *EquivalenceMethod) init_EquivalenceMethod(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this EquivalenceMethod) name() string { return EquivalenceMethod_enum_[this-1].name_ }
+
+func (this EquivalenceMethod) ordinal() int32 { return EquivalenceMethod_enum_[this-1].ordinal_ }
+
+func (this EquivalenceMethod) toString() string { return EquivalenceMethod_enum_[this-1].name_ }
+
+func (this EquivalenceMethod) compareTo(o any) int32 {
+	return EquivalenceMethod_enum_[this-1].compareTo(o)
 }
 
-func new_EquivalenceMethod(name_ string, ordinal_ int32) *EquivalenceMethod {
-	this := &EquivalenceMethod{}
-	this.self_ = this
-	this.init_EquivalenceMethod(name_, ordinal_)
+func (this EquivalenceMethod) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func EquivalenceMethod_values() []*EquivalenceMethod {
-	return append([]*EquivalenceMethod(nil), EquivalenceMethod_values_...)
+func EquivalenceMethod_values() []EquivalenceMethod {
+	return append([]EquivalenceMethod(nil), EquivalenceMethod_values_...)
 }
 
-func EquivalenceMethod_valueOf(name string) *EquivalenceMethod {
+func EquivalenceMethod_valueOf(name string) EquivalenceMethod {
 	for _, v := range EquivalenceMethod_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("EquivalenceMethod", name))
 }
 
-var EquivalenceMethod_IDENTITY *EquivalenceMethod
-var EquivalenceMethod_DATA_FLOW *EquivalenceMethod
-var EquivalenceMethod_values_ []*EquivalenceMethod
+const EquivalenceMethod_IDENTITY EquivalenceMethod = 1
+const EquivalenceMethod_DATA_FLOW EquivalenceMethod = 2
+
+var EquivalenceMethod_values_ []EquivalenceMethod
 
 var EquivalenceMethod_clinit_done bool
 
@@ -48,9 +59,7 @@ func EquivalenceMethod_clinit() {
 		return
 	}
 	EquivalenceMethod_clinit_done = true
-	EquivalenceMethod_IDENTITY = new_EquivalenceMethod("IDENTITY", 0)
-	EquivalenceMethod_DATA_FLOW = new_EquivalenceMethod("DATA_FLOW", 1)
-	EquivalenceMethod_values_ = []*EquivalenceMethod{EquivalenceMethod_IDENTITY, EquivalenceMethod_DATA_FLOW}
+	EquivalenceMethod_values_ = []EquivalenceMethod{EquivalenceMethod_IDENTITY, EquivalenceMethod_DATA_FLOW}
 	registerEnum_("com.google.javascript.rhino.jstype.EquivalenceMethod", enumValues_(EquivalenceMethod_values_))
 
 }

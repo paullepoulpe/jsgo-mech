@@ -227,49 +227,71 @@ func RegExpTree_clinit() {
 
 }
 
-type RegExpTree_ParentheticalType struct {
-	Enum
+type RegExpTree_ParentheticalType uint8
+
+// RegExpTree_ParentheticalType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var RegExpTree_ParentheticalType_enum_ = [7]Enum{
+	{self_: RegExpTree_ParentheticalType_CAPTURING, name_: "CAPTURING", ordinal_: 0},
+	{self_: RegExpTree_ParentheticalType_NONCAPTURING, name_: "NONCAPTURING", ordinal_: 1},
+	{self_: RegExpTree_ParentheticalType_POSITIVE_LOOKAHEAD, name_: "POSITIVE_LOOKAHEAD", ordinal_: 2},
+	{self_: RegExpTree_ParentheticalType_NEGATIVE_LOOKAHEAD, name_: "NEGATIVE_LOOKAHEAD", ordinal_: 3},
+	{self_: RegExpTree_ParentheticalType_POSITIVE_LOOKBEHIND, name_: "POSITIVE_LOOKBEHIND", ordinal_: 4},
+	{self_: RegExpTree_ParentheticalType_NEGATIVE_LOOKBEHIND, name_: "NEGATIVE_LOOKBEHIND", ordinal_: 5},
+	{self_: RegExpTree_ParentheticalType_NAMED_GROUPS, name_: "NAMED_GROUPS", ordinal_: 6},
 }
 
-func (this *RegExpTree_ParentheticalType) up_Enum() *Enum {
-	if this == nil {
+func (this RegExpTree_ParentheticalType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &RegExpTree_ParentheticalType_enum_[this-1]
 }
 
-func (this *RegExpTree_ParentheticalType) init_RegExpTree_ParentheticalType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this RegExpTree_ParentheticalType) name() string {
+	return RegExpTree_ParentheticalType_enum_[this-1].name_
 }
 
-func new_RegExpTree_ParentheticalType(name_ string, ordinal_ int32) *RegExpTree_ParentheticalType {
-	this := &RegExpTree_ParentheticalType{}
-	this.self_ = this
-	this.init_RegExpTree_ParentheticalType(name_, ordinal_)
+func (this RegExpTree_ParentheticalType) ordinal() int32 {
+	return RegExpTree_ParentheticalType_enum_[this-1].ordinal_
+}
+
+func (this RegExpTree_ParentheticalType) toString() string {
+	return RegExpTree_ParentheticalType_enum_[this-1].name_
+}
+
+func (this RegExpTree_ParentheticalType) compareTo(o any) int32 {
+	return RegExpTree_ParentheticalType_enum_[this-1].compareTo(o)
+}
+
+func (this RegExpTree_ParentheticalType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func RegExpTree_ParentheticalType_values() []*RegExpTree_ParentheticalType {
-	return append([]*RegExpTree_ParentheticalType(nil), RegExpTree_ParentheticalType_values_...)
+func RegExpTree_ParentheticalType_values() []RegExpTree_ParentheticalType {
+	return append([]RegExpTree_ParentheticalType(nil), RegExpTree_ParentheticalType_values_...)
 }
 
-func RegExpTree_ParentheticalType_valueOf(name string) *RegExpTree_ParentheticalType {
+func RegExpTree_ParentheticalType_valueOf(name string) RegExpTree_ParentheticalType {
 	for _, v := range RegExpTree_ParentheticalType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ParentheticalType", name))
 }
 
-var RegExpTree_ParentheticalType_CAPTURING *RegExpTree_ParentheticalType
-var RegExpTree_ParentheticalType_NONCAPTURING *RegExpTree_ParentheticalType
-var RegExpTree_ParentheticalType_POSITIVE_LOOKAHEAD *RegExpTree_ParentheticalType
-var RegExpTree_ParentheticalType_NEGATIVE_LOOKAHEAD *RegExpTree_ParentheticalType
-var RegExpTree_ParentheticalType_POSITIVE_LOOKBEHIND *RegExpTree_ParentheticalType
-var RegExpTree_ParentheticalType_NEGATIVE_LOOKBEHIND *RegExpTree_ParentheticalType
-var RegExpTree_ParentheticalType_NAMED_GROUPS *RegExpTree_ParentheticalType
-var RegExpTree_ParentheticalType_values_ []*RegExpTree_ParentheticalType
+const RegExpTree_ParentheticalType_CAPTURING RegExpTree_ParentheticalType = 1
+const RegExpTree_ParentheticalType_NONCAPTURING RegExpTree_ParentheticalType = 2
+const RegExpTree_ParentheticalType_POSITIVE_LOOKAHEAD RegExpTree_ParentheticalType = 3
+const RegExpTree_ParentheticalType_NEGATIVE_LOOKAHEAD RegExpTree_ParentheticalType = 4
+const RegExpTree_ParentheticalType_POSITIVE_LOOKBEHIND RegExpTree_ParentheticalType = 5
+const RegExpTree_ParentheticalType_NEGATIVE_LOOKBEHIND RegExpTree_ParentheticalType = 6
+const RegExpTree_ParentheticalType_NAMED_GROUPS RegExpTree_ParentheticalType = 7
+
+var RegExpTree_ParentheticalType_values_ []RegExpTree_ParentheticalType
 
 var RegExpTree_ParentheticalType_clinit_done bool
 
@@ -278,14 +300,7 @@ func RegExpTree_ParentheticalType_clinit() {
 		return
 	}
 	RegExpTree_ParentheticalType_clinit_done = true
-	RegExpTree_ParentheticalType_CAPTURING = new_RegExpTree_ParentheticalType("CAPTURING", 0)
-	RegExpTree_ParentheticalType_NONCAPTURING = new_RegExpTree_ParentheticalType("NONCAPTURING", 1)
-	RegExpTree_ParentheticalType_POSITIVE_LOOKAHEAD = new_RegExpTree_ParentheticalType("POSITIVE_LOOKAHEAD", 2)
-	RegExpTree_ParentheticalType_NEGATIVE_LOOKAHEAD = new_RegExpTree_ParentheticalType("NEGATIVE_LOOKAHEAD", 3)
-	RegExpTree_ParentheticalType_POSITIVE_LOOKBEHIND = new_RegExpTree_ParentheticalType("POSITIVE_LOOKBEHIND", 4)
-	RegExpTree_ParentheticalType_NEGATIVE_LOOKBEHIND = new_RegExpTree_ParentheticalType("NEGATIVE_LOOKBEHIND", 5)
-	RegExpTree_ParentheticalType_NAMED_GROUPS = new_RegExpTree_ParentheticalType("NAMED_GROUPS", 6)
-	RegExpTree_ParentheticalType_values_ = []*RegExpTree_ParentheticalType{RegExpTree_ParentheticalType_CAPTURING, RegExpTree_ParentheticalType_NONCAPTURING, RegExpTree_ParentheticalType_POSITIVE_LOOKAHEAD, RegExpTree_ParentheticalType_NEGATIVE_LOOKAHEAD, RegExpTree_ParentheticalType_POSITIVE_LOOKBEHIND, RegExpTree_ParentheticalType_NEGATIVE_LOOKBEHIND, RegExpTree_ParentheticalType_NAMED_GROUPS}
+	RegExpTree_ParentheticalType_values_ = []RegExpTree_ParentheticalType{RegExpTree_ParentheticalType_CAPTURING, RegExpTree_ParentheticalType_NONCAPTURING, RegExpTree_ParentheticalType_POSITIVE_LOOKAHEAD, RegExpTree_ParentheticalType_NEGATIVE_LOOKAHEAD, RegExpTree_ParentheticalType_POSITIVE_LOOKBEHIND, RegExpTree_ParentheticalType_NEGATIVE_LOOKBEHIND, RegExpTree_ParentheticalType_NAMED_GROUPS}
 	registerEnum_("com.google.javascript.jscomp.regex.RegExpTree.ParentheticalType", enumValues_(RegExpTree_ParentheticalType_values_))
 
 }
@@ -2329,7 +2344,7 @@ func (this *RegExpTree_1Parser) parseParenthetical() *RegExpTree {
 	Preconditions_checkState((String_charAt(this.cap_pattern, this.pos) == '('))
 	var start int32 = this.pos
 	this.pos++
-	var type_ *RegExpTree_ParentheticalType
+	var type_ RegExpTree_ParentheticalType
 	var captureName Optional[string] = Optional_empty[string]()
 	if (this.pos < this.limit) && (String_charAt(this.cap_pattern, this.pos) == '?') {
 		if (this.pos + 1) < this.limit {

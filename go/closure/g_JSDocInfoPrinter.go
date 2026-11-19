@@ -40,7 +40,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	}
 	if info.isExport() {
 		parts.add("@export")
-	} else if (info.getVisibility() != nil) && (info.getVisibility() != JSDocInfo_Visibility_INHERITED) {
+	} else if (info.getVisibility() != 0) && (info.getVisibility() != JSDocInfo_Visibility_INHERITED) {
 		parts.add(("@" + sstr_(Ascii_toLowerCase(Object_toString(obj_(info.getVisibility()))))))
 	}
 	if info.getAuthors() != nil {

@@ -844,11 +844,11 @@ func to_Enum(v any) *Enum {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_Enum() *Enum }).as_Enum()
+	return v.(enumConst_).enum_()
 }
 
 func is_Enum(v any) bool {
-	_, ok := v.(interface{ as_Enum() *Enum })
+	_, ok := v.(enumConst_)
 	return ok
 }
 
@@ -3371,11 +3371,11 @@ func (this *BiConsumer_tfn_ColorPool_ShardView_TypeProto) accept(p0 any, p1 any)
 }
 
 type BiConsumer_tfn_JSTypeNative_Color struct {
-	f func(*JSTypeNative, *Color)
+	f func(JSTypeNative, *Color)
 }
 
 func (this *BiConsumer_tfn_JSTypeNative_Color) accept(p0 any, p1 any) {
-	this.f(cast_[*JSTypeNative](p0), cast_[*Color](p1))
+	this.f(cast_[JSTypeNative](p0), cast_[*Color](p1))
 }
 
 type BiConsumer_tfn_Node_Set struct {
@@ -3443,11 +3443,11 @@ func (this *BiConsumer_tfn_string_SourceFile_jscomp) accept(p0 any, p1 any) {
 }
 
 type BiFunction_tfn_AccessorSummary_PropertyAccessKind_AccessorSummary_PropertyAccessKind_AccessorSummary_PropertyAccessKind struct {
-	f func(*AccessorSummary_PropertyAccessKind, *AccessorSummary_PropertyAccessKind) *AccessorSummary_PropertyAccessKind
+	f func(AccessorSummary_PropertyAccessKind, AccessorSummary_PropertyAccessKind) AccessorSummary_PropertyAccessKind
 }
 
 func (this *BiFunction_tfn_AccessorSummary_PropertyAccessKind_AccessorSummary_PropertyAccessKind_AccessorSummary_PropertyAccessKind) apply(p0 any, p1 any) any {
-	return obj_(this.f(cast_[*AccessorSummary_PropertyAccessKind](p0), cast_[*AccessorSummary_PropertyAccessKind](p1)))
+	return obj_(this.f(cast_[AccessorSummary_PropertyAccessKind](p0), cast_[AccessorSummary_PropertyAccessKind](p1)))
 }
 
 type BiFunction_tfn_InstrumentationPoint_InstrumentationPointStats_Presence_InstrumentationPointStats_Presence struct {
@@ -3627,11 +3627,11 @@ func (this *Comparator_tfn_string_string) compare(p0 any, p1 any) int32 {
 }
 
 type Consumer_tfn_AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption struct {
-	f func(*AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption)
+	f func(AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption)
 }
 
 func (this *Consumer_tfn_AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) accept(p0 any) {
-	this.f(cast_[*AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption](p0))
+	this.f(cast_[AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption](p0))
 }
 
 type Consumer_tfn_ColorGraphNode struct {
@@ -3651,83 +3651,83 @@ func (this *Consumer_tfn_ColorPool_ShardView) accept(p0 any) {
 }
 
 type Consumer_tfn_CompilerOptions_ChunkOutputType struct {
-	f func(*CompilerOptions_ChunkOutputType)
+	f func(CompilerOptions_ChunkOutputType)
 }
 
 func (this *Consumer_tfn_CompilerOptions_ChunkOutputType) accept(p0 any) {
-	this.f(cast_[*CompilerOptions_ChunkOutputType](p0))
+	this.f(cast_[CompilerOptions_ChunkOutputType](p0))
 }
 
 type Consumer_tfn_CompilerOptions_DevMode struct {
-	f func(*CompilerOptions_DevMode)
+	f func(CompilerOptions_DevMode)
 }
 
 func (this *Consumer_tfn_CompilerOptions_DevMode) accept(p0 any) {
-	this.f(cast_[*CompilerOptions_DevMode](p0))
+	this.f(cast_[CompilerOptions_DevMode](p0))
 }
 
 type Consumer_tfn_CompilerOptions_Environment struct {
-	f func(*CompilerOptions_Environment)
+	f func(CompilerOptions_Environment)
 }
 
 func (this *Consumer_tfn_CompilerOptions_Environment) accept(p0 any) {
-	this.f(cast_[*CompilerOptions_Environment](p0))
+	this.f(cast_[CompilerOptions_Environment](p0))
 }
 
 type Consumer_tfn_CompilerOptions_IncrementalCheckMode struct {
-	f func(*CompilerOptions_IncrementalCheckMode)
+	f func(CompilerOptions_IncrementalCheckMode)
 }
 
 func (this *Consumer_tfn_CompilerOptions_IncrementalCheckMode) accept(p0 any) {
-	this.f(cast_[*CompilerOptions_IncrementalCheckMode](p0))
+	this.f(cast_[CompilerOptions_IncrementalCheckMode](p0))
 }
 
 type Consumer_tfn_CompilerOptions_IsolationMode struct {
-	f func(*CompilerOptions_IsolationMode)
+	f func(CompilerOptions_IsolationMode)
 }
 
 func (this *Consumer_tfn_CompilerOptions_IsolationMode) accept(p0 any) {
-	this.f(cast_[*CompilerOptions_IsolationMode](p0))
+	this.f(cast_[CompilerOptions_IsolationMode](p0))
 }
 
 type Consumer_tfn_CompilerOptions_JsonStreamMode struct {
-	f func(*CompilerOptions_JsonStreamMode)
+	f func(CompilerOptions_JsonStreamMode)
 }
 
 func (this *Consumer_tfn_CompilerOptions_JsonStreamMode) accept(p0 any) {
-	this.f(cast_[*CompilerOptions_JsonStreamMode](p0))
+	this.f(cast_[CompilerOptions_JsonStreamMode](p0))
 }
 
 type Consumer_tfn_CompilerOptions_SegmentOfCompilationToRun struct {
-	f func(*CompilerOptions_SegmentOfCompilationToRun)
+	f func(CompilerOptions_SegmentOfCompilationToRun)
 }
 
 func (this *Consumer_tfn_CompilerOptions_SegmentOfCompilationToRun) accept(p0 any) {
-	this.f(cast_[*CompilerOptions_SegmentOfCompilationToRun](p0))
+	this.f(cast_[CompilerOptions_SegmentOfCompilationToRun](p0))
 }
 
 type Consumer_tfn_CompilerOptions_TracerMode struct {
-	f func(*CompilerOptions_TracerMode)
+	f func(CompilerOptions_TracerMode)
 }
 
 func (this *Consumer_tfn_CompilerOptions_TracerMode) accept(p0 any) {
-	this.f(cast_[*CompilerOptions_TracerMode](p0))
+	this.f(cast_[CompilerOptions_TracerMode](p0))
 }
 
 type Consumer_tfn_DependencyOptions_DependencyMode struct {
-	f func(*DependencyOptions_DependencyMode)
+	f func(DependencyOptions_DependencyMode)
 }
 
 func (this *Consumer_tfn_DependencyOptions_DependencyMode) accept(p0 any) {
-	this.f(cast_[*DependencyOptions_DependencyMode](p0))
+	this.f(cast_[DependencyOptions_DependencyMode](p0))
 }
 
 type Consumer_tfn_DiagnosticToSuppressionMapper_OutputFormat struct {
-	f func(*DiagnosticToSuppressionMapper_OutputFormat)
+	f func(DiagnosticToSuppressionMapper_OutputFormat)
 }
 
 func (this *Consumer_tfn_DiagnosticToSuppressionMapper_OutputFormat) accept(p0 any) {
-	this.f(cast_[*DiagnosticToSuppressionMapper_OutputFormat](p0))
+	this.f(cast_[DiagnosticToSuppressionMapper_OutputFormat](p0))
 }
 
 type Consumer_tfn_ImmutableSet_Builder struct {
@@ -3755,11 +3755,11 @@ func (this *Consumer_tfn_Map) accept(p0 any) {
 }
 
 type Consumer_tfn_ModuleLoader_ResolutionMode struct {
-	f func(*ModuleLoader_ResolutionMode)
+	f func(ModuleLoader_ResolutionMode)
 }
 
 func (this *Consumer_tfn_ModuleLoader_ResolutionMode) accept(p0 any) {
-	this.f(cast_[*ModuleLoader_ResolutionMode](p0))
+	this.f(cast_[ModuleLoader_ResolutionMode](p0))
 }
 
 type Consumer_tfn_Node struct {
@@ -3795,11 +3795,11 @@ func (this *Consumer_tfn_TypedAst) accept(p0 any) {
 }
 
 type Consumer_tfn_WarningLevel struct {
-	f func(*WarningLevel)
+	f func(WarningLevel)
 }
 
 func (this *Consumer_tfn_WarningLevel) accept(p0 any) {
-	this.f(cast_[*WarningLevel](p0))
+	this.f(cast_[WarningLevel](p0))
 }
 
 type Consumer_tfn_s_int8 struct {
@@ -3891,19 +3891,19 @@ func (this *Function_base_tfn_string_string) apply(p0 any) any {
 }
 
 type Function_tfn_AbstractScope_ImplicitVar_TypedVar struct {
-	f func(*AbstractScope_ImplicitVar) *TypedVar
+	f func(AbstractScope_ImplicitVar) *TypedVar
 }
 
 func (this *Function_tfn_AbstractScope_ImplicitVar_TypedVar) apply(p0 any) any {
-	return obj_(this.f(cast_[*AbstractScope_ImplicitVar](p0)))
+	return obj_(this.f(cast_[AbstractScope_ImplicitVar](p0)))
 }
 
 type Function_tfn_AbstractScope_ImplicitVar_Var struct {
-	f func(*AbstractScope_ImplicitVar) *Var
+	f func(AbstractScope_ImplicitVar) *Var
 }
 
 func (this *Function_tfn_AbstractScope_ImplicitVar_Var) apply(p0 any) any {
-	return obj_(this.f(cast_[*AbstractScope_ImplicitVar](p0)))
+	return obj_(this.f(cast_[AbstractScope_ImplicitVar](p0)))
 }
 
 type Function_tfn_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement_string struct {
@@ -4187,7 +4187,7 @@ func (this *Function_tfn_any_CompilerPass) apply(p0 any) any {
 }
 
 type Function_tfn_any_ConvertToTypedInterface_SimplifyDeclarations_TypingLevel struct {
-	f func(any) *ConvertToTypedInterface_SimplifyDeclarations_TypingLevel
+	f func(any) ConvertToTypedInterface_SimplifyDeclarations_TypingLevel
 }
 
 func (this *Function_tfn_any_ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) apply(p0 any) any {
@@ -4403,11 +4403,11 @@ func (this *Predicate_base_tfn_DiGraph_DiGraphEdge_Node_) test(p0 any) bool {
 }
 
 type Predicate_base_tfn_GraphReachability_EdgeTuple_Node_ControlFlowGraph_Branch_ struct {
-	f func(*GraphReachability_EdgeTuple[Node, *ControlFlowGraph_Branch]) bool
+	f func(*GraphReachability_EdgeTuple[Node, ControlFlowGraph_Branch]) bool
 }
 
 func (this *Predicate_base_tfn_GraphReachability_EdgeTuple_Node_ControlFlowGraph_Branch_) apply(p0 any) bool {
-	return this.f(cast_[*GraphReachability_EdgeTuple[Node, *ControlFlowGraph_Branch]](p0))
+	return this.f(cast_[*GraphReachability_EdgeTuple[Node, ControlFlowGraph_Branch]](p0))
 }
 
 func (this *Predicate_base_tfn_GraphReachability_EdgeTuple_Node_ControlFlowGraph_Branch_) test(p0 any) bool {
@@ -4547,7 +4547,7 @@ func (this *Supplier_base_tfn_string) get() any {
 }
 
 type Supplier_tfn_AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption struct {
-	f func() *AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption
+	f func() AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption
 }
 
 func (this *Supplier_tfn_AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) get() any {
@@ -4555,7 +4555,7 @@ func (this *Supplier_tfn_AbstractCommandLineRunner_CommandLineConfig_ErrorFormat
 }
 
 type Supplier_tfn_CompilerOptions_ChunkOutputType struct {
-	f func() *CompilerOptions_ChunkOutputType
+	f func() CompilerOptions_ChunkOutputType
 }
 
 func (this *Supplier_tfn_CompilerOptions_ChunkOutputType) get() any {
@@ -4563,7 +4563,7 @@ func (this *Supplier_tfn_CompilerOptions_ChunkOutputType) get() any {
 }
 
 type Supplier_tfn_CompilerOptions_DevMode struct {
-	f func() *CompilerOptions_DevMode
+	f func() CompilerOptions_DevMode
 }
 
 func (this *Supplier_tfn_CompilerOptions_DevMode) get() any {
@@ -4571,7 +4571,7 @@ func (this *Supplier_tfn_CompilerOptions_DevMode) get() any {
 }
 
 type Supplier_tfn_CompilerOptions_Environment struct {
-	f func() *CompilerOptions_Environment
+	f func() CompilerOptions_Environment
 }
 
 func (this *Supplier_tfn_CompilerOptions_Environment) get() any {
@@ -4579,7 +4579,7 @@ func (this *Supplier_tfn_CompilerOptions_Environment) get() any {
 }
 
 type Supplier_tfn_CompilerOptions_IncrementalCheckMode struct {
-	f func() *CompilerOptions_IncrementalCheckMode
+	f func() CompilerOptions_IncrementalCheckMode
 }
 
 func (this *Supplier_tfn_CompilerOptions_IncrementalCheckMode) get() any {
@@ -4587,7 +4587,7 @@ func (this *Supplier_tfn_CompilerOptions_IncrementalCheckMode) get() any {
 }
 
 type Supplier_tfn_CompilerOptions_IsolationMode struct {
-	f func() *CompilerOptions_IsolationMode
+	f func() CompilerOptions_IsolationMode
 }
 
 func (this *Supplier_tfn_CompilerOptions_IsolationMode) get() any {
@@ -4595,7 +4595,7 @@ func (this *Supplier_tfn_CompilerOptions_IsolationMode) get() any {
 }
 
 type Supplier_tfn_CompilerOptions_JsonStreamMode struct {
-	f func() *CompilerOptions_JsonStreamMode
+	f func() CompilerOptions_JsonStreamMode
 }
 
 func (this *Supplier_tfn_CompilerOptions_JsonStreamMode) get() any {
@@ -4603,7 +4603,7 @@ func (this *Supplier_tfn_CompilerOptions_JsonStreamMode) get() any {
 }
 
 type Supplier_tfn_CompilerOptions_SegmentOfCompilationToRun struct {
-	f func() *CompilerOptions_SegmentOfCompilationToRun
+	f func() CompilerOptions_SegmentOfCompilationToRun
 }
 
 func (this *Supplier_tfn_CompilerOptions_SegmentOfCompilationToRun) get() any {
@@ -4611,7 +4611,7 @@ func (this *Supplier_tfn_CompilerOptions_SegmentOfCompilationToRun) get() any {
 }
 
 type Supplier_tfn_CompilerOptions_TracerMode struct {
-	f func() *CompilerOptions_TracerMode
+	f func() CompilerOptions_TracerMode
 }
 
 func (this *Supplier_tfn_CompilerOptions_TracerMode) get() any {
@@ -4619,7 +4619,7 @@ func (this *Supplier_tfn_CompilerOptions_TracerMode) get() any {
 }
 
 type Supplier_tfn_DependencyOptions_DependencyMode struct {
-	f func() *DependencyOptions_DependencyMode
+	f func() DependencyOptions_DependencyMode
 }
 
 func (this *Supplier_tfn_DependencyOptions_DependencyMode) get() any {
@@ -4627,7 +4627,7 @@ func (this *Supplier_tfn_DependencyOptions_DependencyMode) get() any {
 }
 
 type Supplier_tfn_DiagnosticToSuppressionMapper_OutputFormat struct {
-	f func() *DiagnosticToSuppressionMapper_OutputFormat
+	f func() DiagnosticToSuppressionMapper_OutputFormat
 }
 
 func (this *Supplier_tfn_DiagnosticToSuppressionMapper_OutputFormat) get() any {
@@ -4667,7 +4667,7 @@ func (this *Supplier_tfn_Map) get() any {
 }
 
 type Supplier_tfn_ModuleLoader_ResolutionMode struct {
-	f func() *ModuleLoader_ResolutionMode
+	f func() ModuleLoader_ResolutionMode
 }
 
 func (this *Supplier_tfn_ModuleLoader_ResolutionMode) get() any {
@@ -4683,7 +4683,7 @@ func (this *Supplier_tfn_Node) get() any {
 }
 
 type Supplier_tfn_WarningLevel struct {
-	f func() *WarningLevel
+	f func() WarningLevel
 }
 
 func (this *Supplier_tfn_WarningLevel) get() any {
