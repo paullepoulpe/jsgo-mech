@@ -518,11 +518,14 @@ anyflow model, what is left with reasons) is not repeated here: its counts hold 
 
 | step | tool commit (from) | step commit | command | counts |
 |---|---|---|---|---|
-| 438 | 186fce84 (cc9fc951) | 6dcd650f | `t deadeq && f` | 30 equals + 30 hashCode deleted (501 lines, 26 files); 82 + 84 left, the same 47 reason lines as 86dbb30a |
+| 438 | 63e6ad9d (cc9fc951) | 6dcd650f | `t deadeq && f` | 30 equals + 30 hashCode deleted (501 lines, 26 files); 82 + 84 left, the same 47 reason lines as 86dbb30a |
 | 439 | 12b3337c (7039ea65) | 96bc7cac | `t patinst && f` | 89 of 104 patterns (7 T_as, 53 in the if, 29 before the statement); left 4 T_as not the whole condition, 11 not the first operand |
 | 440 | 28ef509d (7c16350f) | bccfa30b | `t varargs && fa` | 20 functions and method names, 21 declarations, 453 calls in 137 files (355 bare, 74 none, 19 spread, 5 `[]any{}...`); `[]any{` in g_*.go 427 -> 15; left 41 calls passing an existing slice |
 | 441 | d65cc397 (6f69883c) | e19b8f97 | `t instof && f` | 4 tests in 2 files; left 21 catch clauses, 31 inside expressions, 2 two tests in an else-if |
 | 442 | d4c32151 (new) | 34f27fc5 | `t gcasts && f` | 54 of icasts' 63 casts in generic code, 6 functions; left 9 |
+
+(6dcd650f's message names the deadeq tool commit 186fce84: that was the cherry-pick before
+its message was amended; the commit on the branch is 63e6ad9d.)
 
 For 438-441 the lines each step removes and adds are those of the reflip-javaisms commit, line
 for line (the code they touch did not change between 7b082bc9 and fec23265), and every count
