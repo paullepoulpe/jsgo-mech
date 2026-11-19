@@ -121,12 +121,12 @@ func (this *JsFileLineParser) doParse(filePath string, fileContents string) {
 				}
 			}
 		}
-		if !String_isEmpty(revisedJsDocCommentLine.get()) {
+		if revisedJsDocCommentLine.get() != "" {
 			if !this.parseJsDocCommentLine(revisedJsDocCommentLine.get()) && this.shortcutMode {
 				break
 			}
 		}
-		if !String_isEmpty(revisedLine.get()) {
+		if revisedLine.get() != "" {
 			var keepGoing *Outcome_base[any] = this.parseLine(revisedLine.get())
 			if keepGoing.isErr() {
 				var e *JsFileLineParser_ParseException = cast_[*JsFileLineParser_ParseException](keepGoing.error().self())
@@ -210,7 +210,7 @@ func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base[Lis
 		return Outcome_base_err[List](new_JsFileLineParser_ParseException("Syntax error when parsing JS array", true).up_Throwable())
 	}
 	var innerValues string = String_substring(input, (indexStart + 1), indexEnd)
-	if !String_isEmpty(String_trim(innerValues)) {
+	if String_trim(innerValues) != "" {
 		this.valueMatcher.reset_s(innerValues)
 		for {
 			if !this.valueMatcher.lookingAt() {
@@ -238,13 +238,13 @@ func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base[Lis
 func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base[Map] {
 	input = CharMatcher_whitespace().trimFrom_s(input)
 	var checked *Outcome_base[any]
-	checked = JsFileLineParser_check(((!String_isEmpty(input) && (String_charAt(input, 0) == '{')) && (String_charAt(input, (String_length(input)-1)) == '}')), "Syntax error when parsing JS object")
+	checked = JsFileLineParser_check(((input != "" && (String_charAt(input, 0) == '{')) && (String_charAt(input, (String_length(input)-1)) == '}')), "Syntax error when parsing JS object")
 	if checked.isErr() {
 		return Outcome_base_err[Map](checked.error())
 	}
 	input = String_trim(String_substring(input, 1, (String_length(input) - 1)))
 	var results *JTMap[string, string] = jnewTMap_(jtc_string, jtc_string)
-	var done bool = String_isEmpty(input)
+	var done bool = input == ""
 	this.valueMatcher.reset_s(input)
 	for !done {
 		checked = JsFileLineParser_check(this.valueMatcher.lookingAt(), "Bad key in JS object literal")

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type TemplateAstMatcher struct {
 	topScope             *TypedScope
 	typeRegistry         *JSTypeRegistry
@@ -255,7 +257,7 @@ func (this *TemplateAstMatcher) matchesNode(template Node, ast Node) bool {
 		} else {
 			var originalName string = ast.getOriginalName()
 			var name string = func() string {
-				if !String_isEmpty(originalName) {
+				if originalName != "" {
 					return originalName
 				}
 				return ast.getString()
@@ -356,12 +358,12 @@ func (this *TemplateAstMatcher_1) visit(n Node) {
 	if n.isName() {
 		var parent Node = n.getParent()
 		var name string = n.getString()
-		if (!String_isEmpty(name) && parent.isVar()) && !Collection_contains_s(this.cap_locals.asList(), name) {
+		if (name != "" && parent.isVar()) && !Collection_contains_s(this.cap_locals.asList(), name) {
 			this.cap_locals.add(n.getString())
 		}
 		if Collection_contains_s(this.cap_params.asList(), name) {
 			var type_ *JSType = this.cap_paramTypes.get(name)
-			var isStringLiteral bool = (type_.isStringValueType() && String_startsWith(name, "string_literal"))
+			var isStringLiteral bool = (type_.isStringValueType() && strings.HasPrefix(name, "string_literal"))
 			this.outer_.replaceNodeInPlace(n, this.outer_.createTemplateParameterNode(this.cap_params.asList().indexOf(strobj_(name)), type_, isStringLiteral))
 		} else if Collection_contains_s(this.cap_locals.asList(), name) {
 			this.outer_.replaceNodeInPlace(n, this.outer_.createTemplateLocalNameNode(this.cap_locals.asList().indexOf(strobj_(name))))

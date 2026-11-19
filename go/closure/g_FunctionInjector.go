@@ -2,6 +2,8 @@
 
 package closure
 
+import "strconv"
+
 type FunctionInjector struct {
 	compiler_                 *AbstractCompiler
 	allowDecomposition_       bool
@@ -45,7 +47,7 @@ func (this *FunctionInjector) doesFunctionMeetMinimumRequirements(fnName string,
 	var referencesArguments bool = NodeUtil_isNameReferenced_Node_String_Predicate(block, "arguments", NodeUtil_MATCH_ANYTHING_BUT_NON_ARROW_FUNCTION)
 	var blocksInjection func(any) bool = (&Predicate_base_tfn_Node{func(n Node) bool {
 		if n.isName() {
-			return (((n.getString() == "eval") || (!String_isEmpty(fnName) && (n.getString() == fnName))) || (!String_isEmpty(fnRecursionName) && (n.getString() == fnRecursionName)))
+			return (((n.getString() == "eval") || (fnName != "" && (n.getString() == fnName))) || (fnRecursionName != "" && (n.getString() == fnRecursionName)))
 		} else if n.isSuper() || (n.ns_().token == tokOrd1_NEW_TARGET) {
 			return true
 		}
@@ -936,7 +938,7 @@ func new_FunctionInjector_1(outer_ *FunctionInjector) *FunctionInjector_1 {
 }
 
 func (this *FunctionInjector_1) get() any {
-	var result string = String_valueOf(this.nextId)
+	var result string = strconv.Itoa(int(this.nextId))
 	this.nextId++
 	return strobj_(result)
 }

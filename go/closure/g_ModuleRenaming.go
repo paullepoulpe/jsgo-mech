@@ -100,7 +100,7 @@ func (this *ModuleRenaming_GlobalizedModuleName) toQname(astFactory *AstFactory)
 }
 
 func (this *ModuleRenaming_GlobalizedModuleName) getprop(property string) *ModuleRenaming_GlobalizedModuleName {
-	if String_isEmpty(property) || JString_contains_s(property, ".") {
+	if property == "" || JString_contains_s(property, ".") {
 		panic(new_IllegalArgumentException_0().self())
 	}
 	return ModuleRenaming_GlobalizedModuleName_create_QualifiedName_JSType(this.aliasName().getprop(property), this.rootNameType())

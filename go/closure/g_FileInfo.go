@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type FileInfo struct {
 	providedNamespaces    *JTSet[string]
 	requiredLocalNames    *JTSet[string]
@@ -17,7 +19,7 @@ func (this *FileInfo) finit_FileInfo() {
 
 func (this *FileInfo) init_FileInfo(sourceFileName string) {
 	this.finit_FileInfo()
-	this.isFromTypeScriptField = String_endsWith(sourceFileName, ".closure.js")
+	this.isFromTypeScriptField = strings.HasSuffix(sourceFileName, ".closure.js")
 }
 
 func new_FileInfo(sourceFileName string) *FileInfo {
@@ -74,7 +76,7 @@ func FileInfo_containsPrefix(fullyQualifiedName string, prefixNamespaces Iterabl
 	it_1 := foreach_(prefixNamespaces)
 	for it_1.next() {
 		var prefix string = str_(it_1.v)
-		if (fullyQualifiedName == prefix) || String_startsWith(fullyQualifiedName, (sstr_(prefix)+".")) {
+		if (fullyQualifiedName == prefix) || strings.HasPrefix(fullyQualifiedName, (sstr_(prefix)+".")) {
 			return true
 		}
 	}
@@ -93,7 +95,7 @@ func (this *FileInfo) isStrictPrefixDeclared(fullyQualifiedName string) bool {
 	it_1 := foreach_(this.declarations.keySet())
 	for it_1.next() {
 		var prefix string = str_(it_1.v)
-		if String_startsWith(fullyQualifiedName, (sstr_(prefix) + ".")) {
+		if strings.HasPrefix(fullyQualifiedName, (sstr_(prefix) + ".")) {
 			return true
 		}
 	}

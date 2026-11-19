@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type NodeUtil struct {
 }
 
@@ -29,12 +31,12 @@ func NodeUtil_getBooleanValue(n Node) Tri {
 					Preconditions_checkState_boolean_Object_H(false, templateLitString)
 				}
 				var cookedString Optional[string] = templateLitString.getCookedString()
-				return Tri_forBoolean((cookedString.isPresent() && !String_isEmpty(cookedString.get())))
+				return Tri_forBoolean((cookedString.isPresent() && cookedString.get() != ""))
 			} else {
 				return Tri_UNKNOWN
 			}
 		case Token_rhino_STRINGLIT:
-			return Tri_forBoolean((String_length(n.getString()) > 0))
+			return Tri_forBoolean((len(n.getString()) != 0))
 		case Token_rhino_NUMBER:
 			return Tri_forBoolean((n.getDouble() != 0))
 		case Token_rhino_BIGINT:
@@ -305,7 +307,7 @@ func NodeUtil_getStringNumberValue(rawJsString string) any {
 		return nil
 	}
 	var s string = NodeUtil_trimJsWhiteSpace(rawJsString)
-	if String_isEmpty(s) {
+	if s == "" {
 		return float64(0.0)
 	}
 	if (String_length(s) >= 2) && (String_charAt(s, 0) == '0') {
@@ -320,7 +322,7 @@ func NodeUtil_getStringNumberValue(rawJsString string) any {
 		}
 		if radix != 0 {
 			var digits string = String_substring_int(s, 2)
-			if String_isEmpty(digits) {
+			if digits == "" {
 				return float64(nan_)
 			}
 			for _, u_ := range stringUnits_(digits) {
@@ -447,7 +449,7 @@ func NodeUtil_getStringBigIntValue(rawJsString string) *BigInteger {
 		return nil
 	}
 	var s string = NodeUtil_trimJsWhiteSpace(rawJsString)
-	if String_isEmpty(s) {
+	if s == "" {
 		return BigInteger_ZERO
 	}
 	if (String_length(s) > 2) && (String_charAt(s, 0) == '0') {
@@ -479,7 +481,7 @@ func NodeUtil_getStringBigIntValue(rawJsString string) *BigInteger {
 
 func NodeUtil_isParsableBigInteger(s string, radix int32) bool {
 	var start int32 = func() int32 {
-		if !String_isEmpty(s) && ((String_charAt(s, 0) == '-') || (String_charAt(s, 0) == '+')) {
+		if s != "" && ((String_charAt(s, 0) == '-') || (String_charAt(s, 0) == '+')) {
 			return 1
 		}
 		return 0
@@ -537,7 +539,7 @@ func NodeUtil_getNameNode(n Node) Node {
 		default:
 			var funNameNode Node = n.getFirstChild()
 			return func() Node {
-				if funNameNode.isEmpty() || String_isEmpty(funNameNode.getString()) {
+				if funNameNode.isEmpty() || funNameNode.getString() == "" {
 					return 0
 				}
 				return funNameNode
@@ -566,7 +568,7 @@ func NodeUtil_getNearestFunctionName(n Node) Optional[string] {
 		return Optional_empty[string]()
 	}
 	var name string = NodeUtil_getName(n)
-	if !String_isEmpty(name) {
+	if name != "" {
 		return Optional_of[string](name)
 	}
 	var parent Node = n.getParent()
@@ -1849,7 +1851,7 @@ func NodeUtil_isSwitchCase(n Node) bool {
 }
 
 func NodeUtil_isReferenceName(n Node) bool {
-	return (n.isName() && !String_isEmpty(n.getString()))
+	return (n.isName() && n.getString() != "")
 }
 
 func NodeUtil_isNonlocalModuleExportName(n Node) bool {
@@ -1880,7 +1882,7 @@ func NodeUtil_isTryCatchNodeContainer(n Node) bool {
 
 func NodeUtil_isInSyntheticScript(n Node) bool {
 	var sourceFileName string = n.getSourceFileName()
-	return (!String_isEmpty(sourceFileName) && (String_startsWith(sourceFileName, " [synthetic:") || String_startsWith(sourceFileName, AbstractCompiler_RUNTIME_LIB_DIR)))
+	return (sourceFileName != "" && (strings.HasPrefix(sourceFileName, " [synthetic:") || strings.HasPrefix(sourceFileName, AbstractCompiler_RUNTIME_LIB_DIR)))
 }
 
 func NodeUtil_deleteNode(n Node, compiler *AbstractCompiler) {
@@ -2188,7 +2190,7 @@ func NodeUtil_isFunctionExpression(n Node) bool {
 }
 
 func NodeUtil_isNamedFunctionExpression(n Node) bool {
-	return (NodeUtil_isFunctionExpression(n) && !String_isEmpty(n.getFirstChild().getString()))
+	return (NodeUtil_isFunctionExpression(n) && n.getFirstChild().getString() != "")
 }
 
 func NodeUtil_isClassExpression(n Node) bool {
@@ -2208,7 +2210,7 @@ func NodeUtil_isNamedClass(n Node) bool {
 }
 
 func NodeUtil_isBleedingFunctionName(n Node) bool {
-	if !n.isName() || String_isEmpty(n.getString()) {
+	if !n.isName() || n.getString() == "" {
 		return false
 	}
 	var parent Node = n.getParent()
@@ -2845,11 +2847,11 @@ func NodeUtil_getRootOfQualifiedName(qName Node) Node {
 }
 
 func NodeUtil_getRootOfQualifiedNameString(qName string) string {
-	var dot int32 = String_indexOf(qName, 46)
+	var dot int32 = int32(strings.IndexByte(qName, '.'))
 	if dot == -1 {
 		return qName
 	}
-	return String_substring(qName, 0, dot)
+	return qName[:dot]
 }
 
 func NodeUtil_newName_CodingConvention_String(convention CodingConvention, name string) Node {
@@ -2899,7 +2901,7 @@ func NodeUtil_isValidQualifiedNameLanguageMode(mode CompilerOptions_LanguageMode
 }
 
 func NodeUtil_isValidQualifiedName(mode *FeatureSet, name string) bool {
-	if String_endsWith(name, ".") || String_startsWith(name, ".") {
+	if strings.HasSuffix(name, ".") || strings.HasPrefix(name, ".") {
 		return false
 	}
 	var parts *JTList[string] = splitToListT_(jtc_string, Splitter_on('.'), strobj_(name))
@@ -3136,7 +3138,7 @@ func NodeUtil_getPrototypeClassName(qName Node) Node {
 func NodeUtil_getPrototypePropertyName(qName Node) string {
 	var qNameStr string = qName.getQualifiedName()
 	var prototypeIdx int32 = String_lastIndexOf_String(qNameStr, ".prototype.")
-	var memberIndex int32 = ((prototypeIdx + String_length(".prototype")) + 1)
+	var memberIndex int32 = ((prototypeIdx + int32(len(".prototype"))) + 1)
 	return String_substring_int(qNameStr, memberIndex)
 }
 
@@ -3439,7 +3441,7 @@ func NodeUtil_functionHasInlineJsdocs(fn Node) bool {
 
 func NodeUtil_getSourceName(n Node) string {
 	var sourceName string = ""
-	for String_isEmpty(sourceName) && (n != 0) {
+	for sourceName == "" && (n != 0) {
 		sourceName = n.getSourceFileName()
 		n = n.getParent()
 	}
@@ -3779,7 +3781,7 @@ func NodeUtil_getBestLValueName(lValue Node) Optional[string] {
 	}
 	if lValue.getParent().isClassMembers() && !lValue.isComputedProp() {
 		var className string = NodeUtil_getName(lValue.getGrandparent())
-		if String_isEmpty(className) {
+		if className == "" {
 			return Optional_empty[string]()
 		}
 		var methodName string = lValue.getString()
@@ -3808,7 +3810,7 @@ func NodeUtil_getBestLValueName(lValue Node) Optional[string] {
 		return Optional_empty[string]()
 	}
 	return Optional_of[string](lValue.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}})
 }
 
@@ -4465,12 +4467,12 @@ func NodeUtil_estimateNumLines(scriptNode Node) int32 {
 func NodeUtil_getOriginalName(name string) string {
 	name = NodeUtil_UNIQUE_NAME_SUFFIX_PATTERN.matcher_s(name).replaceAll("")
 	name = MakeDeclaredNamesUnique_ContextualRenameInverter_getOriginalName(name)
-	if String_startsWith(name, "module$exports$") {
+	if strings.HasPrefix(name, "module$exports$") {
 		var lastDollar int32 = String_lastIndexOf(name, 36)
 		if lastDollar != -1 {
 			name = String_substring_int(name, (lastDollar + 1))
 		}
-	} else if String_startsWith(name, "module$contents$") {
+	} else if strings.HasPrefix(name, "module$contents$") {
 		var lastUnderscore int32 = String_lastIndexOf(name, 95)
 		if lastUnderscore != -1 {
 			name = String_substring_int(name, (lastUnderscore + 1))

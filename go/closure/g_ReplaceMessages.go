@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ReplaceMessages struct {
 	compiler_                *AbstractCompiler
 	bundle                   MessageBundle
@@ -96,7 +98,7 @@ func (this *ReplaceMessages) lookupMessage(callNode Node, bundle MessageBundle, 
 			if jsCodePlaceholderNames.isEmpty() && ReplaceMessages_isStartOfIcuMessage(message.asIcuMessageString()) {
 				return alternateMessage
 			} else {
-				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceMessages_INVALID_ALTERNATE_MESSAGE_PLACEHOLDERS, []string{alternateId.get(), String_valueOf_Object(alternateMsgPlaceholderNames.asSet()), message.getKey(), String_valueOf_Object(jsCodePlaceholderNames.asSet())}))
+				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceMessages_INVALID_ALTERNATE_MESSAGE_PLACEHOLDERS, []string{alternateId.get(), objstr_(alternateMsgPlaceholderNames.asSet()), message.getKey(), objstr_(jsCodePlaceholderNames.asSet())}))
 				return nil
 			}
 		}
@@ -308,7 +310,7 @@ func ReplaceMessages_mergeStringParts(parts *JTList[JsMessage_Part]) *JTList[JsM
 }
 
 func ReplaceMessages_isStartOfIcuMessage(part string) bool {
-	if !String_startsWith(part, "{") {
+	if !strings.HasPrefix(part, "{") {
 		return false
 	}
 	var commaIndex int32 = String_indexOf_int_int(part, 44, 1)

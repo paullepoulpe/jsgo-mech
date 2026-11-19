@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ExternExportsPass struct {
 	NodeTraversal_AbstractPostOrderCallback
 	exports                     *JTList[*ExternExportsPass_Export]
@@ -257,7 +259,7 @@ func (this *ExternExportsPass_Export) appendExtern(path string, valueToExport No
 	for i := int32(0); i < pathPrefixes.size(); i++ {
 		var pathPrefix string = pathPrefixes.get(i)
 		var isCompletePathPrefix bool = (i == (pathPrefixes.size() - 1))
-		var skipPathPrefix bool = (String_endsWith(pathPrefix, ".prototype") || (this.outer_.alreadyExportedPaths.contains(pathPrefix) && !isCompletePathPrefix))
+		var skipPathPrefix bool = (strings.HasSuffix(pathPrefix, ".prototype") || (this.outer_.alreadyExportedPaths.contains(pathPrefix) && !isCompletePathPrefix))
 		if skipPathPrefix {
 			continue
 		}
@@ -353,7 +355,7 @@ func (this *ExternExportsPass_Export) createExternsParamListFromOriginalParamLis
 	for it_1.next() {
 		var originalParamName string = str_(it_1.v)
 		var externParamName string = func() string {
-			if String_isEmpty(originalParamName) {
+			if originalParamName == "" {
 				return nameGenerator.generateNextName()
 			}
 			return originalParamName
@@ -375,7 +377,7 @@ func (this *ExternExportsPass_Export) getOriginalNameForParam(paramNode Node) st
 	if nameOrPatternNode.isName() {
 		var originalName string = nameOrPatternNode.getOriginalName()
 		return func() string {
-			if !String_isEmpty(originalName) {
+			if originalName != "" {
 				return originalName
 			}
 			return nameOrPatternNode.getString()
@@ -433,7 +435,7 @@ func (this *ExternExportsPass_Export) createExternObjectLit(exportedObjectLit No
 
 func (this *ExternExportsPass_Export) getValue() Node {
 	var qualifiedName string = this.value_.getQualifiedName()
-	if String_isEmpty(qualifiedName) {
+	if qualifiedName == "" {
 		return 0
 	}
 	var definition Node = this.outer_.definitionMap.get(qualifiedName)
@@ -470,7 +472,7 @@ func (this *ExternExportsPass_SymbolExport) init_ExternExportsPass_SymbolExport(
 	this.ExternExportsPass_Export.outer_ = this.outer_
 	this.ExternExportsPass_Export.init_ExternExportsPass_Export(symbolName, value)
 	var qualifiedName string = value.getQualifiedName()
-	if !String_isEmpty(qualifiedName) {
+	if qualifiedName != "" {
 		this.outer_.mappedPaths.put(qualifiedName, symbolName)
 	}
 }
@@ -525,7 +527,7 @@ func (this *ExternExportsPass_PropertyExport) getExportedPath_impl() string {
 	it_1 := foreach_(Lists_reverse(ExternExportsPass_computePathPrefixes(this.exportPath).asList()))
 	for it_1.next() {
 		var currentPath string = str_(it_1.v)
-		if String_length(currentPath) <= 0 {
+		if len(currentPath) == 0 {
 			panic(new_IllegalStateException_0().self())
 		}
 		var mappedPath Optional[string] = Optional_ofNullable[string](this.outer_.mappedPaths.get(currentPath))

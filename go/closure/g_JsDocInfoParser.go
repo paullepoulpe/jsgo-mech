@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type JsDocInfoParser struct {
 	stream                 *JsDocTokenStream
 	jsdocBuilder           *JSDocInfo_Builder
@@ -178,7 +180,7 @@ func (this *JsDocInfoParser) parse() bool {
 	if this.jsdocBuilder.shouldParseDocumentation() {
 		var blockInfo *JsDocInfoParser_ExtractionInfo = this.extractBlockComment(token)
 		token = blockInfo.token
-		if !String_isEmpty(blockInfo.string_) {
+		if blockInfo.string_ != "" {
 			this.jsdocBuilder.recordBlockDescription(blockInfo.string_)
 		}
 	} else {
@@ -258,7 +260,7 @@ func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *JT
 	if this.onlyParseLicenseJsDoc && !((annotation == Annotation_parsing_LICENSE) || (annotation == Annotation_parsing_PRESERVE)) {
 		return this.next()
 	}
-	if (annotation == 0) || String_isEmpty(annotationName) {
+	if (annotation == 0) || annotationName == "" {
 		this.addParserWarning_2(Msg_BAD_JSDOC_TAG, annotationName)
 	} else {
 		this.jsdocBuilder.markAnnotation(annotationName, lineno, charno)
@@ -280,7 +282,7 @@ func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *JT
 			if this.jsdocBuilder.shouldParseDocumentation() {
 				var authorInfo *JsDocInfoParser_ExtractionInfo = this.extractSingleLineBlock()
 				var author string = authorInfo.string_
-				if String_isEmpty(author) {
+				if author == "" {
 					this.addParserWarning(Msg_JSDOC_AUTHORMISSING)
 				} else {
 					this.jsdocBuilder.recordAuthor(author)
@@ -330,7 +332,7 @@ func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *JT
 			}
 			var reasonInfo *JsDocInfoParser_ExtractionInfo = this.extractMultilineTextualBlock(token)
 			var reason string = reasonInfo.string_
-			if String_length(reason) > 0 {
+			if len(reason) != 0 {
 				this.jsdocBuilder.recordDeprecationReason(reason)
 			}
 			token = reasonInfo.token
@@ -381,7 +383,7 @@ func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *JT
 		case Annotation_parsing_LICENSE, Annotation_parsing_PRESERVE:
 			var preserveInfo *JsDocInfoParser_ExtractionInfo = this.extractMultilineTextualBlock_3(token, JsDocInfoParser_WhitespaceOption_PRESERVE, true)
 			var preserve string = preserveInfo.string_
-			if String_length(preserve) > 0 {
+			if len(preserve) != 0 {
 				this.setLicenseTextMonotonic(preserve)
 			}
 			token = preserveInfo.token
@@ -717,7 +719,7 @@ func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *JT
 			if this.jsdocBuilder.shouldParseDocumentation() && (token != JsDocToken_ANNOTATION) {
 				var paramDescriptionInfo *JsDocInfoParser_ExtractionInfo = this.extractMultilineTextualBlock(token)
 				var paramDescription string = paramDescriptionInfo.string_
-				if String_length(paramDescription) > 0 {
+				if len(paramDescription) != 0 {
 					this.jsdocBuilder.recordParameterDescription(name.get(), paramDescription)
 				}
 				token = paramDescriptionInfo.token
@@ -746,7 +748,7 @@ func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *JT
 			if this.jsdocBuilder.shouldParseDocumentation() {
 				var referenceInfo *JsDocInfoParser_ExtractionInfo = this.extractSingleLineBlock()
 				var reference string = referenceInfo.string_
-				if String_isEmpty(reference) {
+				if reference == "" {
 					this.addParserWarning(Msg_JSDOC_SEEMISSING)
 				} else {
 					this.jsdocBuilder.recordReference(reference)
@@ -935,7 +937,7 @@ func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *JT
 					if this.jsdocBuilder.shouldParseDocumentation() && !isAnnotationNext {
 						var returnDescriptionInfo *JsDocInfoParser_ExtractionInfo = this.extractMultilineTextualBlock(token)
 						var returnDescription string = returnDescriptionInfo.string_
-						if String_length(returnDescription) > 0 {
+						if len(returnDescription) != 0 {
 							this.jsdocBuilder.recordReturnDescription(returnDescription)
 						}
 						token = returnDescriptionInfo.token
@@ -962,10 +964,10 @@ func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *JT
 
 func (this *JsDocInfoParser) parseTtlAst(ttlExtraction *JsDocInfoParser_ExtractionInfo, lineno int32, charno int32) Node {
 	var ttlExpression string = ttlExtraction.string_
-	if !String_startsWith(ttlExpression, JsDocInfoParser_TTL_START_DELIMITER) {
+	if !strings.HasPrefix(ttlExpression, JsDocInfoParser_TTL_START_DELIMITER) {
 		return 0
 	}
-	ttlExpression = String_substring_int(ttlExpression, String_length(JsDocInfoParser_TTL_START_DELIMITER))
+	ttlExpression = String_substring_int(ttlExpression, int32(len(JsDocInfoParser_TTL_START_DELIMITER)))
 	var endIndex int32 = String_indexOf_String(ttlExpression, JsDocInfoParser_TTL_END_DELIMITER)
 	if endIndex >= 0 {
 		ttlExpression = String_substring(ttlExpression, 0, endIndex)
@@ -973,7 +975,7 @@ func (this *JsDocInfoParser) parseTtlAst(ttlExtraction *JsDocInfoParser_Extracti
 		this.addTypeWarning_3(Msg_JSDOC_TEMPLATE_TYPETRANSFORMATION_MISSINGDELIMIIER, lineno, charno)
 	}
 	ttlExpression = String_trim(ttlExpression)
-	if String_isEmpty(ttlExpression) {
+	if ttlExpression == "" {
 		this.addTypeWarning_3(Msg_JSDOC_TEMPLATE_TYPETRANSFORMATION_EXPRESSIONMISSING, lineno, charno)
 		return 0
 	}
@@ -985,7 +987,7 @@ func (this *JsDocInfoParser) parseTtlAst(ttlExtraction *JsDocInfoParser_Extracti
 }
 
 func JsDocInfoParser_validTemplateTypeName(name Optional[string]) bool {
-	return ((name.isPresent() && !String_isEmpty(name.get())) && JsDocInfoParser_TEMPLATE_NAME_MATCHER.matchesAllOf_s(name.get()))
+	return ((name.isPresent() && name.get() != "") && JsDocInfoParser_TEMPLATE_NAME_MATCHER.matchesAllOf_s(name.get()))
 }
 
 func (this *JsDocInfoParser) recordDescription(token JsDocToken) JsDocToken {
@@ -1284,7 +1286,7 @@ func (this *JsDocInfoParser) extractSingleLineBlock() *JsDocInfoParser_Extractio
 	var lineno int32 = this.stream.getLineno()
 	var charno int32 = (this.stream.getCharno() + 1)
 	var line string = String_trim(this.getRemainingJSDocLine())
-	if String_length(line) > 0 {
+	if len(line) != 0 {
 		this.jsdocBuilder.markText(line, lineno, charno, lineno, (charno + String_length(line)))
 	}
 	return new_JsDocInfoParser_ExtractionInfo(line, this.next())
@@ -1375,7 +1377,7 @@ L_1:
 				if option != JsDocInfoParser_WhitespaceOption_PRESERVE {
 					multilineText = String_trim(multilineText)
 				}
-				if isMarker && !String_isEmpty(multilineText) {
+				if isMarker && multilineText != "" {
 					var endLineno int32 = this.stream.getLineno()
 					var endCharno int32 = this.stream.getCharno()
 					this.jsdocBuilder.markText(multilineText, startLineno, startCharno, endLineno, endCharno)
@@ -1626,7 +1628,7 @@ func (this *JsDocInfoParser) parseNameExpression(token JsDocToken) Node {
 	var startOffset int32 = (this.stream.getCursor() - String_length(this.stream.getString()))
 	var typeName *StringBuilder = new_StringBuilder_String(this.stream.getString())
 	var endOffset int32 = this.stream.getCursor()
-	for this.match(JsDocToken_EOL) && String_endsWith(tostrR_(typeName), ".") {
+	for this.match(JsDocToken_EOL) && strings.HasSuffix(tostrR_(typeName), ".") {
 		this.skipEOLs()
 		if this.match(JsDocToken_STRING) {
 			this.next()
