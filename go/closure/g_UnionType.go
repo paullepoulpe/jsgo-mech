@@ -580,7 +580,7 @@ func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builde
 	}
 	this.isAllType_ = (this.isAllType_ || alternate.isAllType())
 	this.containsVoidType = (this.containsVoidType || alternate.isVoidType())
-	var isAlternateUnknown bool = is_[*UnknownType](alternate.self())
+	_, isAlternateUnknown := alternate.self().(*UnknownType)
 	this.isNativeUnknownType = (this.isNativeUnknownType || isAlternateUnknown)
 	if isAlternateUnknown {
 		this.areAllUnknownsChecked = (this.areAllUnknownsChecked && alternate.isCheckedUnknownType())
