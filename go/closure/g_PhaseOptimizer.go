@@ -6,7 +6,7 @@ type PhaseOptimizer struct {
 	compiler_                              *AbstractCompiler
 	changeTracker                          *ChangeTracker
 	tracker                                *PerformanceTracker
-	passes                                 *TList[CompilerPass]
+	passes                                 *[]CompilerPass
 	inLoop_                                bool
 	validityCheck                          *PassFactory
 	printAstHashcodes                      bool
@@ -29,7 +29,7 @@ func (this *PhaseOptimizer) init_PhaseOptimizer(comp *AbstractCompiler, tracker 
 	this.jsRoot = comp.getJsRoot()
 	this.tracker = tracker
 	this.changeTracker = comp.getChangeTracker()
-	this.passes = newTList_(tc_CompilerPass)
+	this.passes = &[]CompilerPass{}
 	this.inLoop_ = false
 	this.lastChange = PhaseOptimizer_START_TIME
 	this.useSizeHeuristicToStopOptimizationLoop = comp.getOptions().shouldUseSizeHeuristicToStopOptimizationLoop()
@@ -47,31 +47,31 @@ func new_PhaseOptimizer(comp *AbstractCompiler, tracker *PerformanceTracker) *Ph
 	return this
 }
 
-func (this *PhaseOptimizer) consume(factories ListOf[*PassFactory]) {
+func (this *PhaseOptimizer) consume(factories *TList[*PassFactory]) {
 	var currentLoop *PhaseOptimizer_Loop = new_PhaseOptimizer_Loop(this)
-	for factory := range elemsAs_[*PassFactory](factories) {
+	for factory := range elemsAs_[*PassFactory](factories.asList()) {
 		if factory.isRunInFixedPointLoop() {
 			currentLoop.addLoopedPass(factory)
 		} else {
 			if currentLoop.isPopulated() {
-				this.passes.add(PhaseOptimizer_Loop_as_CompilerPass(currentLoop))
+				*this.passes = append(*this.passes, PhaseOptimizer_Loop_as_CompilerPass(currentLoop))
 				currentLoop = new_PhaseOptimizer_Loop(this)
 			}
 			this.addOneTimePass(factory)
 		}
 	}
 	if currentLoop.isPopulated() {
-		this.passes.add(PhaseOptimizer_Loop_as_CompilerPass(currentLoop))
+		*this.passes = append(*this.passes, PhaseOptimizer_Loop_as_CompilerPass(currentLoop))
 	}
 }
 
 func (this *PhaseOptimizer) addOneTimePass(factory *PassFactory) {
-	this.passes.add(CompilerPass(new_PhaseOptimizer_NamedPass(this, factory)))
+	*this.passes = append(*this.passes, CompilerPass(new_PhaseOptimizer_NamedPass(this, factory)))
 }
 
 func (this *PhaseOptimizer) addFixedPointLoop() *PhaseOptimizer_Loop {
 	var loop *PhaseOptimizer_Loop = new_PhaseOptimizer_Loop(this)
-	this.passes.add(PhaseOptimizer_Loop_as_CompilerPass(loop))
+	*this.passes = append(*this.passes, PhaseOptimizer_Loop_as_CompilerPass(loop))
 	return loop
 }
 
@@ -85,9 +85,7 @@ func (this *PhaseOptimizer) setPrintAstHashcodes(printAstHashcodes bool) {
 }
 
 func (this *PhaseOptimizer) process_2(externs Node, root Node) {
-	it_1 := this.passes.each()
-	for it_1.next() {
-		var pass CompilerPass = it_1.v
+	for pass := range sliceAll_(this.passes) {
 		if Platform_isThreadInterrupted() {
 			panic(new_RuntimeException_Throwable(new_InterruptedException_0().up_Throwable()))
 		}
@@ -310,7 +308,7 @@ func (this *PhaseOptimizer_ScopedChangeHandler) hasCodeChangedSinceLastCall() bo
 
 type PhaseOptimizer_Loop struct {
 	outer_                          *PhaseOptimizer
-	myPasses                        *TList[*PhaseOptimizer_NamedPass]
+	myPasses                        *[]*PhaseOptimizer_NamedPass
 	myNames                         *JTSet[string]
 	scopeHandler                    *PhaseOptimizer_ScopedChangeHandler
 	isCodeRemovalLoopField          bool
@@ -318,7 +316,7 @@ type PhaseOptimizer_Loop struct {
 }
 
 func (this *PhaseOptimizer_Loop) finit_PhaseOptimizer_Loop() {
-	this.myPasses = newTList_(tc_p_PhaseOptimizer_NamedPass)
+	this.myPasses = &[]*PhaseOptimizer_NamedPass{}
 	this.myNames = jnewTSet_(jtc_string)
 	this.isCodeRemovalLoopField = false
 	this.howmanyIterationsUnderThreshold = 0
@@ -341,7 +339,7 @@ func (this *PhaseOptimizer_Loop) addLoopedPass(factory *PassFactory) {
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Already a pass with name '%s' in this loop", []any{name})))
 	}
 	this.myNames.add(name)
-	this.myPasses.add(new_PhaseOptimizer_NamedPass(this.outer_, factory))
+	*this.myPasses = append(*this.myPasses, new_PhaseOptimizer_NamedPass(this.outer_, factory))
 }
 
 func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
@@ -353,9 +351,7 @@ func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
 	this.scopeHandler = new_PhaseOptimizer_ScopedChangeHandler(this.outer_)
 	this.outer_.changeTracker.addChangeHandler(PhaseOptimizer_ScopedChangeHandler_as_CodeChangeHandler(this.scopeHandler))
 	this.outer_.lastRuns = jnewTMap_(jtc_p_PhaseOptimizer_NamedPass, jtc_Integer)
-	it_1 := this.myPasses.each()
-	for it_1.next() {
-		var pass *PhaseOptimizer_NamedPass = it_1.v
+	for pass := range sliceAll_(this.myPasses) {
 		this.outer_.lastRuns.put(pass, any(int32(PhaseOptimizer_START_TIME)))
 	}
 	var madeChanges *JTSet[*PhaseOptimizer_NamedPass] = jnewTSet_(jtc_p_PhaseOptimizer_NamedPass)
@@ -379,9 +375,7 @@ func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
 		}
 		count++
 		lastIterMadeChanges = false
-		it_5 := this.myPasses.each()
-		for it_5.next() {
-			var pass *PhaseOptimizer_NamedPass = it_5.v
+		for pass := range sliceAll_(this.myPasses) {
 			if (((state == PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER) && !runInPrevIter.contains(pass)) && !didNotMakeChanges.contains(pass)) || ((state == PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER) && madeChanges.contains(pass)) {
 				this.outer_.changeTracker.incrementChangeStamp()
 				this.outer_.currentPass = pass
@@ -435,13 +429,11 @@ func (this *PhaseOptimizer_Loop) isAstSufficientlyChanging(oldAstSize int32, new
 }
 
 func (this *PhaseOptimizer_Loop) isPopulated() bool {
-	return !this.myPasses.isEmpty()
+	return len(*this.myPasses) != 0
 }
 
 func (this *PhaseOptimizer_Loop) isCodeRemovalLoop() bool {
-	it_1 := this.myPasses.each()
-	for it_1.next() {
-		var pass *PhaseOptimizer_NamedPass = it_1.v
+	for pass := range sliceAll_(this.myPasses) {
 		if Collection_contains_s(PhaseOptimizer_CODE_REMOVING_PASSES.asImm(), pass.name_) {
 			return true
 		}

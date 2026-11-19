@@ -61,14 +61,14 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 		this.registerOwnDeclaredProperties(colorGraphNode, propIndex)
 	}
 	this.logForDiagnostics("graph", &Supplier_base_fn{func() any {
-		var result *TList[*DisambiguateProperties_TypeNodeJson] = newTList_(tc_p_DisambiguateProperties_TypeNodeJson)
+		var result []*DisambiguateProperties_TypeNodeJson = []*DisambiguateProperties_TypeNodeJson{}
 		for n := range elemsAs_[DiGraph_DiGraphNode[*ColorGraphNode]](graph.getNodes()) {
-			result.add(new_DisambiguateProperties_TypeNodeJson(n))
+			result = append(result, new_DisambiguateProperties_TypeNodeJson(n))
 		}
-		List_sort(result.asList(), Comparator_comparingInt(&ToIntFunction_tfn_DisambiguateProperties_TypeNodeJson{func(x *DisambiguateProperties_TypeNodeJson) int32 {
+		List_sort(sliceView_(tc_p_DisambiguateProperties_TypeNodeJson, result), Comparator_comparingInt(&ToIntFunction_tfn_DisambiguateProperties_TypeNodeJson{func(x *DisambiguateProperties_TypeNodeJson) int32 {
 			return x.index_
 		}}))
-		return obj_(ImmutableList_copyOf(Collection(result.asList())))
+		return obj_(ImmutableList_copyOf(Collection(sliceView_(tc_p_DisambiguateProperties_TypeNodeJson, result))))
 	}})
 	this.invalidateBasedOnType(flattener)
 	FixedPointGraphTraversal_newTraversal[*ColorGraphNode, any](func() FixedPointGraphTraversal_EdgeCallback[*ColorGraphNode, any] {

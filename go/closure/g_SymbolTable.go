@@ -1560,7 +1560,7 @@ func (this *SymbolTable_PropertyRefCollector) visit_impl(t *NodeTraversal, n Nod
 type SymbolTable_ThisRefCollector struct {
 	NodeTraversal_AbstractScopedCallback
 	outer_    *SymbolTable
-	thisStack *TList[*SymbolTable_Symbol]
+	thisStack *[]*SymbolTable_Symbol
 }
 
 func (this *SymbolTable_ThisRefCollector) up_NodeTraversal_AbstractScopedCallback() *NodeTraversal_AbstractScopedCallback {
@@ -1571,7 +1571,7 @@ func (this *SymbolTable_ThisRefCollector) up_NodeTraversal_AbstractScopedCallbac
 }
 
 func (this *SymbolTable_ThisRefCollector) finit_SymbolTable_ThisRefCollector() {
-	this.thisStack = newTList_(tc_p_SymbolTable_Symbol)
+	this.thisStack = &[]*SymbolTable_Symbol{}
 }
 
 func (this *SymbolTable_ThisRefCollector) init_SymbolTable_ThisRefCollector() {
@@ -1599,7 +1599,7 @@ func (this *SymbolTable_ThisRefCollector) enterScope_impl(t *NodeTraversal) {
 			symbol = this.outer_.addSymbol(SymbolTable_GLOBAL_THIS, this.outer_.registry.getNativeType(JSTypeNative_GLOBAL_THIS), false, this.outer_.globalScope, firstInputRoot)
 			symbol.setDeclaration(new_SymbolTable_Reference(symbol, firstInputRoot))
 		}
-		this.thisStack.add(symbol)
+		*this.thisStack = append(*this.thisStack, symbol)
 	} else if t.getScopeRoot().isFunction() {
 		var scopeRoot Node = t.getScopeRoot()
 		var scope *SymbolTable_SymbolScope = this.outer_.scopes.get(scopeRoot)
@@ -1630,13 +1630,13 @@ func (this *SymbolTable_ThisRefCollector) enterScope_impl(t *NodeTraversal) {
 		} else {
 			SymbolTable_logger.fine(("Skipping empty function: " + tostrH_(scopeRoot)))
 		}
-		this.thisStack.add(symbol)
+		*this.thisStack = append(*this.thisStack, symbol)
 	}
 }
 
 func (this *SymbolTable_ThisRefCollector) exitScope_impl(t *NodeTraversal) {
 	if t.inGlobalScope() || t.getScopeRoot().isFunction() {
-		this.thisStack.removeAt((this.thisStack.size() - 1))
+		sliceRemoveAt_(this.thisStack, (int32(len(*this.thisStack)) - 1))
 	}
 }
 
@@ -1644,7 +1644,7 @@ func (this *SymbolTable_ThisRefCollector) visit_impl(t *NodeTraversal, n Node, p
 	if !n.isThis() {
 		return
 	}
-	var symbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](Iterables_getLast(Iterable(this.thisStack.asList())))
+	var symbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](Iterables_getLast(Iterable(sliceViewP_(tc_p_SymbolTable_Symbol, this.thisStack))))
 	if symbol != nil {
 		var ref *SymbolTable_Reference = symbol.defineReferenceAt(n)
 		if symbol.getDeclaration_rReference() == nil {

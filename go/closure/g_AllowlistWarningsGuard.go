@@ -88,7 +88,7 @@ func AllowlistWarningsGuard_loadAllowlistedJsWarningsFile(file string) *JTSet[st
 
 func AllowlistWarningsGuard_loadAllowlistedJsWarningsText(text string) *JTSet[string] {
 	var result *JTSet[string] = jnewTSet_(jtc_string)
-	result.asSet().addAll(Collection(TextFiles_splitLines(text).asList()))
+	result.asSet().addAll(Collection(sliceViewP_(tc_string, TextFiles_splitLines(text))))
 	return result
 }
 

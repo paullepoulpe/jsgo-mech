@@ -662,9 +662,7 @@ func (this *PolymerClassRewriter) createExportsAndExterns(cls *PolymerClassDefin
 			}
 		}
 	}
-	it_5 := cls.methods.each()
-	for it_5.next() {
-		var method *PolymerPass_MemberDefinition = it_5.v
+	for method := range sliceAll_(cls.methods) {
 		uniqueMethods.put(method.name_.getString(), method)
 	}
 	it_7 := uniqueMethods.eachValue()

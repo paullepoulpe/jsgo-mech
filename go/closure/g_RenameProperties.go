@@ -6,8 +6,8 @@ type RenameProperties struct {
 	compiler_                       *AbstractCompiler
 	generatePseudoNames             bool
 	prevUsedPropertyMap             *VariableMap
-	toRemove                        *TList[Node]
-	stringNodesToRename             *TList[Node]
+	toRemove                        *[]Node
+	stringNodesToRename             *[]Node
 	callNodeToParentMap             *JTMap[Node, Node]
 	reservedFirstCharacters         *JTSet[any]
 	reservedNonFirstCharacters      *JTSet[any]
@@ -20,8 +20,8 @@ type RenameProperties struct {
 }
 
 func (this *RenameProperties) finit_RenameProperties() {
-	this.toRemove = newTList_(tc_Node)
-	this.stringNodesToRename = newTList_(tc_Node)
+	this.toRemove = &[]Node{}
+	this.stringNodesToRename = &[]Node{}
 	this.callNodeToParentMap = jnewTMap_(jtc_Node, jtc_Node)
 	this.propertyMap = jnewTMap_(jtc_string, jtc_p_RenameProperties_Property)
 	this.externedNames = jtsetFrom_(jtc_string, Collection(Arrays_asList([]any{"prototype"})))
@@ -73,9 +73,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 		this.reusePropertyNames(reservedNames, Collection(propsByFreq.asSet()))
 	}
 	this.generateNames(propsByFreq, reservedNames)
-	it_1 := this.stringNodesToRename.each()
-	for it_1.next() {
-		var n Node = it_1.v
+	for n := range sliceAll_(this.stringNodesToRename) {
 		var oldName string = n.getString()
 		if this.filteredOutNames.contains(oldName) {
 			continue
@@ -120,9 +118,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 		nodeEntry.getKey().replaceWith(IR_string(sb.toString()))
 		this.compiler_.reportChangeToEnclosingScope(parent)
 	}
-	it_7 := this.toRemove.each()
-	for it_7.next() {
-		var n Node = it_7.v
+	for n := range sliceAll_(this.toRemove) {
 		var parent Node = n.getParent()
 		this.compiler_.reportChangeToEnclosingScope(n)
 		n.detach()
@@ -264,17 +260,17 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 		if NodeUtil_isFunctionDeclaration(n) {
 			var name string = n.getFirstChild().getString()
 			if NodeUtil_JSC_PROPERTY_NAME_FN == name {
-				this.outer_.toRemove.add(n)
+				*this.outer_.toRemove = append(*this.outer_.toRemove, n)
 			}
 		} else if parent.isName() && (NodeUtil_JSC_PROPERTY_NAME_FN == parent.getString()) {
 			var varNode Node = parent.getParent()
 			if varNode.isVar() {
-				this.outer_.toRemove.add(parent)
+				*this.outer_.toRemove = append(*this.outer_.toRemove, parent)
 			}
 		} else if ((NodeUtil_isFunctionExpression(n) && parent.isAssign()) && parent.getFirstChild().isGetProp()) && this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(parent.getFirstChild()) {
 			var exprResult Node = parent.getParent()
 			if (exprResult.isExprResult() && NodeUtil_isStatementBlock(exprResult.getParent())) && exprResult.getFirstChild().isAssign() {
-				this.outer_.toRemove.add(exprResult)
+				*this.outer_.toRemove = append(*this.outer_.toRemove, exprResult)
 			}
 		}
 	default:
@@ -287,7 +283,7 @@ func (this *RenameProperties_ProcessProperties) maybeMarkCandidate(n Node) {
 		if !this.outer_.propertyRenameEligibilityFilter(n.box_()) {
 			this.outer_.filteredOutNames.add(n.getString())
 		}
-		this.outer_.stringNodesToRename.add(n)
+		*this.outer_.stringNodesToRename = append(*this.outer_.stringNodesToRename, n)
 		this.countPropertyOccurrence(name)
 	}
 }

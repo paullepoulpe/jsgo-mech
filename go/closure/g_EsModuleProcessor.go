@@ -254,7 +254,7 @@ type EsModuleProcessor_UnresolvedModuleBuilder struct {
 	path_              *ModuleLoader_ModulePath
 	root               Node
 	importsByLocalName *JTMap[string, *Import]
-	exports            *TList[*Export]
+	exports            *[]*Export
 	exportedNames      *JTSet[string]
 }
 
@@ -262,7 +262,7 @@ func (this *EsModuleProcessor_UnresolvedModuleBuilder) init_EsModuleProcessor_Un
 	this.path_ = path
 	this.root = root
 	this.importsByLocalName = jnewTMap_(jtc_string, jtc_p_Import)
-	this.exports = newTList_(tc_p_Export)
+	this.exports = &[]*Export{}
 	this.exportedNames = jnewTSet_(jtc_string)
 }
 
@@ -279,13 +279,13 @@ func (this *EsModuleProcessor_UnresolvedModuleBuilder) addImport(i *Import) {
 
 func (this *EsModuleProcessor_UnresolvedModuleBuilder) add(e *Export) bool {
 	if e.exportName().isEmpty() {
-		this.exports.add(e)
+		*this.exports = append(*this.exports, e)
 		return true
 	} else {
 		if this.exportedNames.contains(e.exportName().get()) {
 			return false
 		}
-		this.exports.add(e)
+		*this.exports = append(*this.exports, e)
 		this.exportedNames.add(e.exportName().get())
 		return true
 	}
@@ -295,9 +295,7 @@ func (this *EsModuleProcessor_UnresolvedModuleBuilder) build() *UnresolvedModule
 	var localExports *TList[*Export] = newTList_(tc_p_Export)
 	var indirectExportsBuilder *ImmutableList_Builder[*Export] = immutableListBuilder_(tc_p_Export)
 	var starExportsBuilder *ImmutableList_Builder[*Export] = immutableListBuilder_(tc_p_Export)
-	it_1 := this.exports.each()
-	for it_1.next() {
-		var ee *Export = it_1.v
+	for ee := range sliceAll_(this.exports) {
 		if ee.moduleRequest().isEmpty() {
 			if ee.localName().isPresent() && this.importsByLocalName.containsKey(ee.localName().get()) {
 				indirectExportsBuilder.add(ee)

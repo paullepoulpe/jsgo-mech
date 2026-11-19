@@ -6,8 +6,8 @@ import "strings"
 
 type RenameVars struct {
 	compiler_                      *AbstractCompiler
-	globalNameNodes                *TList[Node]
-	localNameNodes                 *TList[Node]
+	globalNameNodes                *[]Node
+	localNameNodes                 *[]Node
 	originalNameByNode             *JTMap[Node, string]
 	pseudoNameMap                  *JTMap[Node, string]
 	externNames_                   *JTSet[string]
@@ -30,8 +30,8 @@ func (this *RenameVars) zero_RenameVars() {
 }
 
 func (this *RenameVars) finit_RenameVars() {
-	this.globalNameNodes = newTList_(tc_Node)
-	this.localNameNodes = newTList_(tc_Node)
+	this.globalNameNodes = &[]Node{}
+	this.localNameNodes = &[]Node{}
 	this.originalNameByNode = jnewTMap_(jtc_Node, jtc_string)
 	this.renameMap = jnewTMap_(jtc_string, jtc_string)
 	this.assignmentCount = 0
@@ -88,14 +88,10 @@ func (this *RenameVars) process_2(externs Node, root Node) {
 		this.reusePreviouslyUsedVariableMap(varsByFrequency)
 	}
 	this.assignNames(varsByFrequency)
-	it_1 := this.globalNameNodes.each()
-	for it_1.next() {
-		var n Node = it_1.v
+	for n := range sliceAll_(this.globalNameNodes) {
 		this.setNameAndReport(n, this.getNewGlobalName(n))
 	}
-	it_3 := this.localNameNodes.each()
-	for it_3.next() {
-		var n Node = it_3.v
+	for n := range sliceAll_(this.localNameNodes) {
 		this.setNameAndReport(n, this.getNewLocalName(n))
 	}
 }
@@ -169,8 +165,8 @@ func (this *RenameVars) assignNames(varsToRename *JTSet[*RenameVars_Assignment])
 		}
 		return this.nameGenerator.clone(this.reservedNames, "", this.reservedCharacters)
 	}()
-	var pendingAssignments *TList[*RenameVars_Assignment] = newTList_(tc_p_RenameVars_Assignment)
-	var generatedNamesForAssignments *TList[string] = newTList_(tc_string)
+	var pendingAssignments []*RenameVars_Assignment = []*RenameVars_Assignment{}
+	var generatedNamesForAssignments []string = []string{}
 	it_1 := varsToRename.each()
 	for it_1.next() {
 		var a *RenameVars_Assignment = it_1.v
@@ -186,22 +182,22 @@ func (this *RenameVars) assignNames(varsToRename *JTSet[*RenameVars_Assignment])
 			this.finalizeNameAssignment(a, newName)
 		} else {
 			newName = globalNameGenerator.generateNextName()
-			pendingAssignments.add(a)
-			generatedNamesForAssignments.add(newName)
+			pendingAssignments = append(pendingAssignments, a)
+			generatedNamesForAssignments = append(generatedNamesForAssignments, newName)
 		}
 		this.reservedNames.add(newName)
 	}
-	var numPendingAssignments int32 = generatedNamesForAssignments.size()
+	var numPendingAssignments int32 = int32(len(generatedNamesForAssignments))
 	for i := int32(0); i < numPendingAssignments; {
 		var varsByOrderOfOccurrence *JTSet[*RenameVars_Assignment] = newTSortedSetC_(jtc_p_RenameVars_Assignment, RenameVars_ORDER_OF_OCCURRENCE_COMPARATOR)
-		var len_ int32 = String_length(generatedNamesForAssignments.get(i))
-		for j := int32(i); (j < numPendingAssignments) && (String_length(generatedNamesForAssignments.get(j)) == len_); j++ {
-			varsByOrderOfOccurrence.add(pendingAssignments.get(j))
+		var len_ int32 = String_length(sliceAt_(generatedNamesForAssignments, i))
+		for j := int32(i); (j < numPendingAssignments) && (String_length(sliceAt_(generatedNamesForAssignments, j)) == len_); j++ {
+			varsByOrderOfOccurrence.add(sliceAt_(pendingAssignments, j))
 		}
 		it_5 := varsByOrderOfOccurrence.each()
 		for it_5.next() {
 			var a *RenameVars_Assignment = it_5.v
-			this.finalizeNameAssignment(a, generatedNamesForAssignments.get(i))
+			this.finalizeNameAssignment(a, sliceAt_(generatedNamesForAssignments, i))
 			i++
 		}
 	}
@@ -383,12 +379,12 @@ func (this *RenameVars_ProcessVars) visit_impl(t *NodeTraversal, n Node, parent 
 	if local && this.outer_.shouldTemporarilyRenameLocalsInScope(var_.getScope_rAbstractScope_rScope()) {
 		var tempName string = (sstr_(RenameVars_LOCAL_VAR_PREFIX) + istr_(int64(this.outer_.getLocalVarIndex(var_))))
 		this.incCount(tempName)
-		this.outer_.localNameNodes.add(n)
+		*this.outer_.localNameNodes = append(*this.outer_.localNameNodes, n)
 		this.outer_.originalNameByNode.put(n, n.getString())
 		n.setString(tempName)
 	} else if var_ != nil {
 		this.incCount(name)
-		this.outer_.globalNameNodes.add(n)
+		*this.outer_.globalNameNodes = append(*this.outer_.globalNameNodes, n)
 	}
 }
 

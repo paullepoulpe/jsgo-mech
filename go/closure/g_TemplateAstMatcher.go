@@ -8,20 +8,20 @@ type TemplateAstMatcher struct {
 	topScope             *TypedScope
 	typeRegistry         *JSTypeRegistry
 	templateStart        Node
-	templateParams       *TList[string]
-	paramNodeMatches     *TList[Node]
-	templateLocals       *TList[string]
-	localVarMatches      *TList[string]
+	templateParams       *[]string
+	paramNodeMatches     *[]Node
+	templateLocals       *[]string
+	localVarMatches      *[]string
 	stringLiteralMatches *JTMap[string, Node]
 	isLooseMatchField    bool
 	typeMatchingStrategy TypeMatchingStrategy
 }
 
 func (this *TemplateAstMatcher) finit_TemplateAstMatcher() {
-	this.templateParams = newTList_(tc_string)
-	this.paramNodeMatches = newTList_(tc_Node)
-	this.templateLocals = newTList_(tc_string)
-	this.localVarMatches = newTList_(tc_string)
+	this.templateParams = &[]string{}
+	this.paramNodeMatches = &[]Node{}
+	this.templateLocals = &[]string{}
+	this.localVarMatches = &[]string{}
 	this.stringLiteralMatches = jnewTMap_(jtc_string, jtc_Node)
 	this.isLooseMatchField = false
 }
@@ -45,7 +45,7 @@ func new_TemplateAstMatcher(compiler *AbstractCompiler, templateFunctionNode Nod
 
 func (this *TemplateAstMatcher) matches(n Node) bool {
 	if this.matchesTemplateShape(this.templateStart, n) {
-		if this.paramNodeMatches.isEmpty() && this.localVarMatches.isEmpty() {
+		if len(*this.paramNodeMatches) == 0 && len(*this.localVarMatches) == 0 {
 			return true
 		}
 		this.reset()
@@ -60,13 +60,13 @@ func (this *TemplateAstMatcher) isLooseMatch() bool {
 
 func (this *TemplateAstMatcher) getTemplateNodeToMatchMap() *JTMap[string, Node] {
 	var map_ *JTMap[string, Node] = tmapCopy_(jtc_string, jtc_Node, this.stringLiteralMatches)
-	for i := int32(0); i < this.templateParams.size(); i++ {
-		var name string = this.templateParams.get(i)
-		map_.put(name, this.paramNodeMatches.get(i))
+	for i := int32(0); i < int32(len(*this.templateParams)); i++ {
+		var name string = sliceAt_(*this.templateParams, i)
+		map_.put(name, sliceAt_(*this.paramNodeMatches, i))
 	}
-	for i := int32(0); i < this.templateLocals.size(); i++ {
-		var name string = this.templateLocals.get(i)
-		map_.put(name, IR_name(this.localVarMatches.get(i)))
+	for i := int32(0); i < int32(len(*this.templateLocals)); i++ {
+		var name string = sliceAt_(*this.templateLocals, i)
+		map_.put(name, IR_name(sliceAt_(*this.localVarMatches, i)))
 	}
 	return map_
 }
@@ -81,18 +81,18 @@ func (this *TemplateAstMatcher) initTemplate(templateFunctionNode Node) Node {
 	} else {
 		startNode = body.getFirstChild()
 	}
-	for i := int32(0); i < this.templateLocals.size(); i++ {
-		this.localVarMatches.add(nullstr_)
+	for i := int32(0); i < int32(len(*this.templateLocals)); i++ {
+		*this.localVarMatches = append(*this.localVarMatches, nullstr_)
 	}
-	for i := int32(0); i < this.templateParams.size(); i++ {
-		this.paramNodeMatches.add(0)
+	for i := int32(0); i < int32(len(*this.templateParams)); i++ {
+		*this.paramNodeMatches = append(*this.paramNodeMatches, 0)
 	}
 	return startNode
 }
 
 func (this *TemplateAstMatcher) prepTemplatePlaceholders(fn Node) {
-	var locals *TList[string] = this.templateLocals
-	var params *TList[string] = this.templateParams
+	var locals *[]string = this.templateLocals
+	var params *[]string = this.templateParams
 	var paramTypes *JTMap[string, *JSType] = jnewTMap_(jtc_string, jtc_p_JSType)
 	var fnName string = fn.getFirstChild().getString()
 	fn.getFirstChild().setString("")
@@ -109,7 +109,7 @@ func (this *TemplateAstMatcher) prepTemplatePlaceholders(fn Node) {
 			Preconditions_checkNotNull_Object_String_Object_Object_T(expression, "Missing JSDoc for parameter %s of template function %s", name, fnName)
 			var type_ *JSType = this.typeRegistry.evaluateTypeExpression(expression, icast_StaticTypedScope(obj_(this.topScope)))
 			Preconditions_checkNotNull_T(type_)
-			params.add(name)
+			*params = append(*params, name)
 			paramTypes.put(name, type_)
 		}
 	}
@@ -138,9 +138,9 @@ func (this *TemplateAstMatcher) traverse(n Node, callback TemplateAstMatcher_Vis
 
 func (this *TemplateAstMatcher) reset() {
 	this.isLooseMatchField = false
-	Collections_fill(this.localVarMatches.asList(), nil)
-	for i := int32(0); i < this.paramNodeMatches.size(); i++ {
-		this.paramNodeMatches.set(i, 0)
+	Collections_fill(slicePtrView_(tc_string, this.localVarMatches), nil)
+	for i := int32(0); i < int32(len(*this.paramNodeMatches)); i++ {
+		(*this.paramNodeMatches)[i] = 0
 	}
 }
 
@@ -233,7 +233,7 @@ func (this *TemplateAstMatcher) matchesTemplate(template Node, ast Node) bool {
 func (this *TemplateAstMatcher) matchesNode(template Node, ast Node) bool {
 	if this.isTemplateParameterNode(template) {
 		var paramIndex int32 = f2i_[int32](float64(template.getDouble()))
-		var previousMatch Node = this.paramNodeMatches.get(paramIndex)
+		var previousMatch Node = sliceAt_(*this.paramNodeMatches, paramIndex)
 		if previousMatch != 0 {
 			return ast.isEquivalentTo(previousMatch)
 		}
@@ -246,14 +246,14 @@ func (this *TemplateAstMatcher) matchesNode(template Node, ast Node) bool {
 		this.isLooseMatchField = matchResult.isLooseMatch()
 		var isMatch bool = matchResult.isMatch()
 		if isMatch && (previousMatch == 0) {
-			this.paramNodeMatches.set(paramIndex, ast)
+			(*this.paramNodeMatches)[paramIndex] = ast
 		}
 		return isMatch
 	} else if this.isTemplateLocalNameNode(template) {
 		var paramIndex int32 = f2i_[int32](float64(template.getDouble()))
-		var previouslyMatched bool = (this.localVarMatches.get(paramIndex) != nullstr_)
+		var previouslyMatched bool = (sliceAt_(*this.localVarMatches, paramIndex) != nullstr_)
 		if previouslyMatched {
-			return (ast.getString() == this.localVarMatches.get(paramIndex))
+			return (ast.getString() == sliceAt_(*this.localVarMatches, paramIndex))
 		} else {
 			var originalName string = ast.getOriginalName()
 			var name string = func() string {
@@ -262,16 +262,16 @@ func (this *TemplateAstMatcher) matchesNode(template Node, ast Node) bool {
 				}
 				return ast.getString()
 			}()
-			this.localVarMatches.set(paramIndex, name)
+			(*this.localVarMatches)[paramIndex] = name
 		}
 	} else if this.isTemplateParameterStringLiteralNode(template) {
 		var paramIndex int32 = f2i_[int32](float64(template.getDouble()))
-		var previousMatch Node = this.paramNodeMatches.get(paramIndex)
+		var previousMatch Node = sliceAt_(*this.paramNodeMatches, paramIndex)
 		if previousMatch != 0 {
 			return ast.isEquivalentTo(previousMatch)
 		}
 		if NodeUtil_isSomeCompileTimeConstStringValue(ast) {
-			this.paramNodeMatches.set(paramIndex, ast)
+			(*this.paramNodeMatches)[paramIndex] = ast
 			return true
 		}
 		return false
@@ -335,8 +335,8 @@ func (this *TemplateAstMatcher_Visitor_fn) visit(p0 Node) {
 
 type TemplateAstMatcher_1 struct {
 	outer_         *TemplateAstMatcher
-	cap_locals     *TList[string]
-	cap_params     *TList[string]
+	cap_locals     *[]string
+	cap_params     *[]string
 	cap_paramTypes *JTMap[string, *JSType]
 }
 
@@ -344,7 +344,7 @@ func (this *TemplateAstMatcher_1) init_TemplateAstMatcher_1() {
 
 }
 
-func new_TemplateAstMatcher_1(outer_ *TemplateAstMatcher, cap_locals *TList[string], cap_params *TList[string], cap_paramTypes *JTMap[string, *JSType]) *TemplateAstMatcher_1 {
+func new_TemplateAstMatcher_1(outer_ *TemplateAstMatcher, cap_locals *[]string, cap_params *[]string, cap_paramTypes *JTMap[string, *JSType]) *TemplateAstMatcher_1 {
 	this := &TemplateAstMatcher_1{}
 	this.outer_ = outer_
 	this.cap_locals = cap_locals
@@ -358,15 +358,15 @@ func (this *TemplateAstMatcher_1) visit(n Node) {
 	if n.isName() {
 		var parent Node = n.getParent()
 		var name string = n.getString()
-		if (name != "" && parent.isVar()) && !Collection_contains_s(this.cap_locals.asList(), name) {
-			this.cap_locals.add(n.getString())
+		if (name != "" && parent.isVar()) && !Collection_contains_s(sliceViewP_(tc_string, this.cap_locals), name) {
+			*this.cap_locals = append(*this.cap_locals, n.getString())
 		}
-		if Collection_contains_s(this.cap_params.asList(), name) {
+		if Collection_contains_s(sliceViewP_(tc_string, this.cap_params), name) {
 			var type_ *JSType = this.cap_paramTypes.get(name)
 			var isStringLiteral bool = (type_.isStringValueType() && strings.HasPrefix(name, "string_literal"))
-			this.outer_.replaceNodeInPlace(n, this.outer_.createTemplateParameterNode(this.cap_params.asList().indexOf(strobj_(name)), type_, isStringLiteral))
-		} else if Collection_contains_s(this.cap_locals.asList(), name) {
-			this.outer_.replaceNodeInPlace(n, this.outer_.createTemplateLocalNameNode(this.cap_locals.asList().indexOf(strobj_(name))))
+			this.outer_.replaceNodeInPlace(n, this.outer_.createTemplateParameterNode(sliceViewP_(tc_string, this.cap_params).indexOf(strobj_(name)), type_, isStringLiteral))
+		} else if Collection_contains_s(sliceViewP_(tc_string, this.cap_locals), name) {
+			this.outer_.replaceNodeInPlace(n, this.outer_.createTemplateLocalNameNode(sliceViewP_(tc_string, this.cap_locals).indexOf(strobj_(name))))
 		}
 	}
 }

@@ -9,7 +9,7 @@ type PureFunctionIdentifier struct {
 	summariesByName                      *JTMap[string, *PureFunctionIdentifier_AmbiguatedFunctionSummary]
 	summariesForAllNamesOfFunctionByNode *SimpleListMultimap[Node, *PureFunctionIdentifier_AmbiguatedFunctionSummary]
 	artificiallyPureLiteralsForDebugging *JTSet[Node]
-	allFunctionCalls                     *TList[Node]
+	allFunctionCalls                     *[]Node
 	reverseCallGraph                     *LinkedDirectedGraph[*PureFunctionIdentifier_AmbiguatedFunctionSummary, *PureFunctionIdentifier_SideEffectPropagation]
 	unknownFunctionSummary               *PureFunctionIdentifier_AmbiguatedFunctionSummary
 	assumeGettersArePure_                bool
@@ -20,7 +20,7 @@ func (this *PureFunctionIdentifier) finit_PureFunctionIdentifier() {
 	this.summariesByName = jnewTMap_(jtc_string, jtc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary)
 	this.summariesForAllNamesOfFunctionByNode = SimpleListMultimap_create[Node, *PureFunctionIdentifier_AmbiguatedFunctionSummary]()
 	this.artificiallyPureLiteralsForDebugging = jnewTSet_(jtc_Node)
-	this.allFunctionCalls = newTList_(tc_Node)
+	this.allFunctionCalls = &[]Node{}
 	this.reverseCallGraph = LinkedDirectedGraph_createWithoutAnnotations[*PureFunctionIdentifier_AmbiguatedFunctionSummary, *PureFunctionIdentifier_SideEffectPropagation]()
 	this.unknownFunctionSummary = PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), "<unknown>").setMutatesGlobalStateAndAllOtherFlags(0)
 	this.hasProcessed = false
@@ -70,12 +70,10 @@ func (this *PureFunctionIdentifier) validateArtificialPurity() {
 			if summary.name_ == ".constructor" {
 				continue
 			}
-			var sortedReasons *TList[Node] = tlistFrom_(tc_Node, Collection(summary.impureFunctionReasonsForDebugging.asSet()))
-			List_sort(sortedReasons.asList(), PureFunctionIdentifier_SOURCE_LOCATION_COMPARATOR)
+			var sortedReasons []Node = sliceFrom_(tc_Node, Collection(summary.impureFunctionReasonsForDebugging.asSet()))
+			List_sort(sliceView_(tc_Node, sortedReasons), PureFunctionIdentifier_SOURCE_LOCATION_COMPARATOR)
 			var formattedReasons *TList[string] = newTList_(tc_string)
-			it_5 := sortedReasons.each()
-			for it_5.next() {
-				var reason Node = it_5.v
+			for _, reason := range sortedReasons {
 				formattedReasons.add(PureFunctionIdentifier_formatSourceLocation(reason))
 			}
 			var sideEffectfulDefinitions string = JString_join_s("\n  ", Iterable(formattedReasons.asList()))
@@ -242,7 +240,7 @@ func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(r
 func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, references ListOf[Node]) {
 	var summaryForName *PureFunctionIdentifier_AmbiguatedFunctionSummary = Preconditions_checkNotNull_T(this.summariesByName.get(name))
 	var invalid bool = false
-	var rvaluesAssignedToName *TList[*ErasedImmutableList] = newTList_(tc_p_ImmutableList)
+	var rvaluesAssignedToName []*ErasedImmutableList = []*ErasedImmutableList{}
 	for reference := range elemsBy_(references, Node_of_) {
 		if !PureFunctionIdentifier_isDefinitelyRValue(reference) {
 			var rvalue Node = NodeUtil_getRValueOfLValue(reference)
@@ -267,16 +265,14 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 						}
 					}
 				}
-				rvaluesAssignedToName.add(callables.asImm())
+				rvaluesAssignedToName = append(rvaluesAssignedToName, callables.asImm())
 			}
 		}
 	}
-	if rvaluesAssignedToName.isEmpty() || invalid {
+	if len(rvaluesAssignedToName) == 0 || invalid {
 		summaryForName.setMutatesGlobalStateAndAllOtherFlags(0)
 	} else {
-		it_5 := rvaluesAssignedToName.each()
-		for it_5.next() {
-			var callables *ErasedImmutableList = it_5.v
+		for _, callables := range rvaluesAssignedToName {
 			for _, el := range immElems_(callables) {
 				rvalue := Node_of_(el)
 				if rvalue.isFunction() {
@@ -304,9 +300,7 @@ func (this *PureFunctionIdentifier) propagateSideEffects() {
 }
 
 func (this *PureFunctionIdentifier) markPureFunctionCalls() {
-	it_1 := this.allFunctionCalls.each()
-	for it_1.next() {
-		var callNode Node = it_1.v
+	for callNode := range sliceAll_(this.allFunctionCalls) {
 		var calleeSummaries *TList[*PureFunctionIdentifier_AmbiguatedFunctionSummary] = this.getSummariesForCallee(callNode)
 		var flags *Node_SideEffectFlags = new_Node_SideEffectFlags_0()
 		if calleeSummaries.isEmpty() {
@@ -517,7 +511,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) shouldTraverse(traversa
 func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visit(traversal *NodeTraversal, node Node, parent Node) {
 	this.addToCatchDepthIfTryBlock(node, -1)
 	if NodeUtil_isInvocation(node) {
-		this.outer_.allFunctionCalls.add(node)
+		*this.outer_.allFunctionCalls = append(*this.outer_.allFunctionCalls, node)
 	}
 	var enclosingFunction *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry = cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque())))
 	var root Node = enclosingFunction.root
@@ -1036,20 +1030,20 @@ func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) toString() string 
 }
 
 func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) sideEffectsToString() string {
-	var status *TList[string] = newTList_(tc_string)
+	var status []string = []string{}
 	if this.mutatesThis() {
-		status.add("this")
+		status = append(status, "this")
 	}
 	if this.mutatesGlobalState() {
-		status.add("global")
+		status = append(status, "global")
 	}
 	if this.mutatesArguments() {
-		status.add("args")
+		status = append(status, "args")
 	}
 	if this.functionThrows() {
-		status.add("throw")
+		status = append(status, "throw")
 	}
-	return Object_toString(status.asList())
+	return Object_toString(sliceView_(tc_string, status))
 }
 
 const PureFunctionIdentifier_AmbiguatedFunctionSummary_THROWS int32 = 1
