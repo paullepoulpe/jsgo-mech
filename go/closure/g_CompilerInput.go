@@ -255,7 +255,6 @@ func (this *CompilerInput) generateDependencyInfo() DependencyInfo_ {
 		var info *JSDocInfo = root.getJSDocInfo()
 		return SimpleDependencyInfo_as_DependencyInfo_(SimpleDependencyInfo_builder("", Optional_of[string]("")).setProvides(Collection(finder.provides.asList())).setRequires(Collection(finder.requires.asList())).setTypeRequires(Collection(finder.typeRequires.asList())).setLoadFlags(finder.loadFlags_.asMap()).setHasExternsAnnotation(((info != nil) && info.isExterns())).setHasNoCompileAnnotation(((info != nil) && info.isNoCompile())).build())
 	}
-	panic("unreachable")
 }
 
 func (this *CompilerInput) readCode() *Outcome_base[string] {

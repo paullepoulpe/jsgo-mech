@@ -255,7 +255,6 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncod
 				if p, ok := ex_.(IOException_as); ok {
 					var e *IOException = p.as_IOException()
 					panic(new_AssertionError_Object(e.self()).self())
-					return
 				}
 				panic(r_)
 			}
@@ -281,7 +280,6 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncod
 					if p2, ok2 := ex_.(IOException_as); ok2 {
 						var e *IOException = p2.as_IOException()
 						panic(new_AssertionError_Object(e.self()).self())
-						return
 					}
 					panic(r_)
 				}

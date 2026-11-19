@@ -193,7 +193,6 @@ func JsMessage_toLowerCamelCaseWithNumericSuffixes(input string) string {
 	} else {
 		return (sstr_(CaseFormat_UPPER_UNDERSCORE.to(CaseFormat_LOWER_CAMEL, String_substring(input, 0, suffixStart))) + sstr_(String_substring_int(input, suffixStart)))
 	}
-	panic("unreachable")
 }
 
 func JsMessage_isCanonicalPlaceholderNameFormat(name string) bool {

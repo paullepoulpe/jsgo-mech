@@ -1044,7 +1044,6 @@ func (this *ClosureRewriteModule) isTopLevel(t *NodeTraversal, n Node, scopeType
 	} else {
 		return (n.getParent() == this.currentScript.rootNode_)
 	}
-	panic("unreachable")
 }
 
 func ClosureRewriteModule_toModuleContentsPrefix(namespaceId string) string {
@@ -1560,7 +1559,6 @@ func (this *ClosureRewriteModule_ScriptPreprocessor) shouldTraverse_impl(t *Node
 		default:
 			return !parent.isScript()
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1923,7 +1921,6 @@ func (this *ClosureRewriteModule_UnwrapGoogLoadModule) shouldTraverse_impl(t *No
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 

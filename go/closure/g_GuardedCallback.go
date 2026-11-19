@@ -234,7 +234,6 @@ func (this *GuardedCallback_Context) descend(compiler *AbstractCompiler, parent 
 			return this.propagate(false)
 		}()
 	}
-	panic("unreachable")
 }
 
 var GuardedCallback_Context_EMPTY *GuardedCallback_Context

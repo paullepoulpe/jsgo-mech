@@ -103,7 +103,6 @@ func (this *ComposeWarningsGuard) mustRunChecks_impl(group *DiagnosticGroup) Tri
 	} else {
 		return Tri_UNKNOWN
 	}
-	panic("unreachable")
 }
 
 func (this *ComposeWarningsGuard) disables(group *DiagnosticGroup) bool {

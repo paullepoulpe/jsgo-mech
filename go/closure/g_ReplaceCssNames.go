@@ -82,7 +82,6 @@ func (this *ReplaceCssNames) validateGetCssNameCall(callNode Node) *JSError {
 		default:
 			return JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceCssNames_INVALID_NUM_ARGUMENTS_ERROR, []string{strconv.Itoa(int(childCount))})
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -456,7 +455,6 @@ func (this *ReplaceCssNames_GetCssNameInstance) getCssClassName() Optional[strin
 		default:
 			panic(new_IllegalStateException_String(String_format("invalid number of children: %s for: %s", []any{int32(childCount), this.callNode_.box_()})).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -481,7 +479,6 @@ func (this *ReplaceCssNames_CountCssNamesBySymbol) shouldTraverse(t *NodeTravers
 	} else {
 		return true
 	}
-	panic("unreachable")
 }
 
 func (this *ReplaceCssNames_CountCssNamesBySymbol) visit(t *NodeTraversal, n Node, parent Node) {

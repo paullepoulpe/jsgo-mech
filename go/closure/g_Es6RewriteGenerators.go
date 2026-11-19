@@ -756,7 +756,6 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) isEndOfBlock
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 

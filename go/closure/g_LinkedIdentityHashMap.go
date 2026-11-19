@@ -46,7 +46,6 @@ func (this *LinkedIdentityHashMap[K, V]) put(key K, value V) V {
 		entry.value_ = value
 		return oldValue
 	}
-	panic("unreachable")
 }
 
 func (this *LinkedIdentityHashMap[K, V]) computeIfAbsent(key K, fn FunctionOf[any, V]) V {

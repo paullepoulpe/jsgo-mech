@@ -50,7 +50,6 @@ func NodeModuleResolver_buildNodeModulesFoldersRegistry(modulePaths IterableOf[s
 			return comparison
 		}
 		return String_compareTo(a, b)
-		panic("unreachable")
 	}})
 	it_1 := foreach_(modulePaths)
 	for it_1.next() {
