@@ -86,9 +86,9 @@ func PolymerPassStaticUtils_protectObserverAndPropertyFunctionKeys(behaviorObjLi
 	if !behaviorObjLit.isObjectLit() {
 		panic(new_IllegalStateException_0())
 	}
-	var methodsToProtect *TSet[string] = newTSet_(tc_string)
-	methodsToProtect.asSet().addAll(Collection(PolymerPassStaticUtils_addObserverMethodsToProtect(behaviorObjLit).asSet()))
-	methodsToProtect.asSet().addAll(Collection(PolymerPassStaticUtils_addPropertyMethodsToProtect(behaviorObjLit).asSet()))
+	var methodsToProtect map[string]struct{} = map[string]struct{}{}
+	setAddAllFrom_(tc_string, methodsToProtect, Collection(PolymerPassStaticUtils_addObserverMethodsToProtect(behaviorObjLit).asSet()))
+	setAddAllFrom_(tc_string, methodsToProtect, Collection(PolymerPassStaticUtils_addPropertyMethodsToProtect(behaviorObjLit).asSet()))
 	{
 		var keyNode Node = behaviorObjLit.getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
@@ -96,7 +96,7 @@ func PolymerPassStaticUtils_protectObserverAndPropertyFunctionKeys(behaviorObjLi
 				continue
 			}
 			var keyName Optional[string] = NodeUtil_getObjectOrClassLitKeyName(keyNode)
-			if !(keyName.isPresent() && methodsToProtect.Has(keyName.get())) {
+			if !(keyName.isPresent() && has_(methodsToProtect, keyName.get())) {
 				continue
 			}
 			PolymerPassStaticUtils_addExportAndNoCollapseToKey(keyNode)
@@ -176,7 +176,7 @@ func PolymerPassStaticUtils_extractProperties(descriptor Node, defType PolymerCl
 	if properties == 0 {
 		return tlistEmptyImm_(tc_p_PolymerPass_MemberDefinition)
 	}
-	var constructorPropertyJsDoc *TMap[string, *JSDocInfo] = newTMap_(tc_string, tc_p_JSDocInfo)
+	var constructorPropertyJsDoc map[string]*JSDocInfo = map[string]*JSDocInfo{}
 	if constructor != 0 {
 		PolymerPassStaticUtils_collectConstructorPropertyJsDoc(constructor, constructorPropertyJsDoc)
 	}
@@ -185,7 +185,7 @@ func PolymerPassStaticUtils_extractProperties(descriptor Node, defType PolymerCl
 	{
 		var keyNode Node = properties.getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
-			var constructorJsDoc *JSDocInfo = constructorPropertyJsDoc.Get(keyNode.getString())
+			var constructorJsDoc *JSDocInfo = constructorPropertyJsDoc[keyNode.getString()]
 			var propertiesConfigJsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(keyNode)
 			var bestJsDoc *JSDocInfo
 			if constructorJsDoc != nil {
@@ -202,13 +202,13 @@ func PolymerPassStaticUtils_extractProperties(descriptor Node, defType PolymerCl
 	return members.build()
 }
 
-func PolymerPassStaticUtils_collectConstructorPropertyJsDoc(node Node, map_ *TMap[string, *JSDocInfo]) {
+func PolymerPassStaticUtils_collectConstructorPropertyJsDoc(node Node, map_ map[string]*JSDocInfo) {
 	Preconditions_checkNotNull_T(node)
 	{
 		var child Node = node.getFirstChild()
 		for ; child != 0; child = child.getNext() {
 			if child.isGetProp() && child.getFirstChild().isThis() {
-				map_.Put(child.getString(), NodeUtil_getBestJSDocInfo(child))
+				map_[child.getString()] = NodeUtil_getBestJSDocInfo(child)
 			} else {
 				PolymerPassStaticUtils_collectConstructorPropertyJsDoc(child, map_)
 			}

@@ -11,7 +11,7 @@ type ModuleMetadataMap struct {
 func (this *ModuleMetadataMap) init_ModuleMetadataMap(modulesByPath *TMap[string, *ModuleMetadataMap_ModuleMetadata], modulesByGoogNamespace *JTMap[string, *ModuleMetadataMap_ModuleMetadata]) {
 	this.modulesByPath = immutableMapCopyOfTP_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata, modulesByPath)
 	this.modulesByGoogNamespace = immutableMapCopyOfT_(jtc_string, jtc_p_ModuleMetadataMap_ModuleMetadata, modulesByGoogNamespace)
-	this.moduleMetadata_ = tsetFrom_(tce_p_ModuleMetadataMap_ModuleMetadata.t_(), ImmutableSet_builder().addAll(Iterable(modulesByPath.asMap().values())).addAll(Iterable(modulesByGoogNamespace.asMap().values())).build(), true)
+	this.moduleMetadata_ = immutableSetBuilder_(tc_p_ModuleMetadataMap_ModuleMetadata).addAll(Iterable(modulesByPath.asMap().values())).addAll(Iterable(modulesByGoogNamespace.asMap().values())).build()
 }
 
 func new_ModuleMetadataMap(modulesByPath *TMap[string, *ModuleMetadataMap_ModuleMetadata], modulesByGoogNamespace *JTMap[string, *ModuleMetadataMap_ModuleMetadata]) *ModuleMetadataMap {

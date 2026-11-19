@@ -5,12 +5,12 @@ package closure
 type CollapseVariableDeclarations struct {
 	compiler_       *AbstractCompiler
 	collapses       *[]*CollapseVariableDeclarations_Collapse
-	nodesToCollapse *TSet[Node]
+	nodesToCollapse map[Node]struct{}
 }
 
 func (this *CollapseVariableDeclarations) finit_CollapseVariableDeclarations() {
 	this.collapses = &[]*CollapseVariableDeclarations_Collapse{}
-	this.nodesToCollapse = newTSet_(tc_Node)
+	this.nodesToCollapse = map[Node]struct{}{}
 }
 
 func (this *CollapseVariableDeclarations) init_CollapseVariableDeclarations(compiler *AbstractCompiler) {
@@ -29,7 +29,7 @@ func new_CollapseVariableDeclarations(compiler *AbstractCompiler) *CollapseVaria
 
 func (this *CollapseVariableDeclarations) process_2(externs Node, root Node) {
 	sliceClear_(this.collapses)
-	this.nodesToCollapse.Clear()
+	clear(this.nodesToCollapse)
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_CollapseVariableDeclarations_GatherCollapses(this)))
 	if len(*this.collapses) != 0 {
 		this.applyCollapses()
@@ -86,7 +86,7 @@ func new_CollapseVariableDeclarations_GatherCollapses(outer_ *CollapseVariableDe
 }
 
 func (this *CollapseVariableDeclarations_GatherCollapses) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if this.outer_.nodesToCollapse.Has(n) {
+	if has_(this.outer_.nodesToCollapse, n) {
 		return
 	}
 	if !NodeUtil_isNameDeclaration(n) {
@@ -100,12 +100,12 @@ func (this *CollapseVariableDeclarations_GatherCollapses) visit_impl(t *NodeTrav
 	n = n.getNext()
 	var hasNodesToCollapse bool = false
 	for (n != 0) && (nType == n.getToken()) {
-		this.outer_.nodesToCollapse.Add(n)
+		this.outer_.nodesToCollapse[n] = struct{}{}
 		hasNodesToCollapse = true
 		n = n.getNext()
 	}
 	if hasNodesToCollapse {
-		this.outer_.nodesToCollapse.Add(varNode)
+		this.outer_.nodesToCollapse[varNode] = struct{}{}
 		*this.outer_.collapses = append(*this.outer_.collapses, new_CollapseVariableDeclarations_Collapse(varNode))
 	}
 }

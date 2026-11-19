@@ -6,11 +6,11 @@ import "strings"
 
 type ErrorToFixMapper struct {
 	compiler_             *AbstractCompiler
-	metadataForEachScript *TMap[Node, *ScriptMetadata]
+	metadataForEachScript map[Node]*ScriptMetadata
 }
 
 func (this *ErrorToFixMapper) finit_ErrorToFixMapper() {
-	this.metadataForEachScript = newTMap_(tc_Node, tc_p_ScriptMetadata)
+	this.metadataForEachScript = map[Node]*ScriptMetadata{}
 }
 
 func (this *ErrorToFixMapper) init_ErrorToFixMapper(compiler *AbstractCompiler) {
@@ -324,7 +324,7 @@ func (this *ErrorToFixMapper) getMetadataForScript(script Node) *ScriptMetadata 
 	if !script.isScript() {
 		panic(new_IllegalArgumentException_0())
 	}
-	return this.metadataForEachScript.computeIfAbsent(script, &Function_tfn_Node_ScriptMetadata{func(s Node) *ScriptMetadata {
+	return mapComputeIfAbsent_(tc_Node, tc_p_ScriptMetadata, this.metadataForEachScript, script, &Function_tfn_Node_ScriptMetadata{func(s Node) *ScriptMetadata {
 		return ScriptMetadata_create(s, this.compiler_)
 	}})
 }

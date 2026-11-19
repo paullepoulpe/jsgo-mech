@@ -9,7 +9,7 @@ type SourceMapConsumerV3 struct {
 	file                 Optional[string]
 	lineCount            int32
 	mappings             *SourceMapConsumerV3_Mappings
-	reverseSourceMapping *TMap[string, Map]
+	reverseSourceMapping map[string]Map
 	sourceRoot           Optional[string]
 	extensions           *TMap[string, any]
 }
@@ -161,7 +161,7 @@ func (this *SourceMapConsumerV3) getReverseMapping(originalFile string, line int
 	if this.reverseSourceMapping == nil {
 		this.createReverseMapping()
 	}
-	var sourceLineToCollectionMap MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] = this.reverseSourceMapping.Get(originalFile)
+	var sourceLineToCollectionMap MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] = mapNN_(this.reverseSourceMapping)[originalFile]
 	if sourceLineToCollectionMap == nil {
 		return Collection(Collections_emptyList())
 	} else {
@@ -229,7 +229,7 @@ func (this *SourceMapConsumerV3) getOriginalMappingForEntry(index int32, precisi
 }
 
 func (this *SourceMapConsumerV3) createReverseMapping() {
-	this.reverseSourceMapping = newTMap_(tc_string, tc_Map)
+	this.reverseSourceMapping = map[string]Map{}
 	for targetLine := int32(0); targetLine < this.mappings.getParsedLineCount(); targetLine++ {
 		var start int32 = this.mappings.getLineStart(targetLine)
 		var end int32 = this.mappings.getLineStart((targetLine + 1))
@@ -238,7 +238,7 @@ func (this *SourceMapConsumerV3) createReverseMapping() {
 			var sourceLine int32 = this.mappings.getSourceLine(i)
 			if (sourceFileId != SourceMapConsumerV3_UNMAPPED) && (sourceLine != SourceMapConsumerV3_UNMAPPED) {
 				var originalFile string = this.sources[sourceFileId]
-				var lineToCollectionMap MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] = this.reverseSourceMapping.computeIfAbsent(originalFile, &Function_tfn_string_Map{func(k string) Map {
+				var lineToCollectionMap MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] = mapComputeIfAbsent_(tc_string, tc_Map, this.reverseSourceMapping, originalFile, &Function_tfn_string_Map{func(k string) Map {
 					return Map(new_LinkedHashMap())
 				}})
 				if !lineToCollectionMap.containsKey(any(int32(sourceLine))) {

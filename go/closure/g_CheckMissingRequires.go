@@ -4,7 +4,7 @@ package closure
 
 type CheckMissingRequires struct {
 	NodeTraversal_AbstractModuleCallback
-	templateParamNames    *TSet[string]
+	templateParamNames    map[string]struct{}
 	moduleByNamespace     *JTMap[string, *ModuleMetadataMap_ModuleMetadata]
 	controlFlowScopeDepth int32
 }
@@ -17,7 +17,7 @@ func (this *CheckMissingRequires) up_NodeTraversal_AbstractModuleCallback() *Nod
 }
 
 func (this *CheckMissingRequires) finit_CheckMissingRequires() {
-	this.templateParamNames = newTSet_(tc_string)
+	this.templateParamNames = map[string]struct{}{}
 	this.controlFlowScopeDepth = 0
 }
 
@@ -79,7 +79,7 @@ func (this *CheckMissingRequires) visit_4_impl(t *NodeTraversal, n Node, current
 		this.controlFlowScopeDepth--
 	}
 	if (currentModule != nil) && (n == currentModule.rootNode()) {
-		this.templateParamNames.Clear()
+		clear(this.templateParamNames)
 	}
 }
 
@@ -105,8 +105,8 @@ func (this *CheckMissingRequires) visitNode(t *NodeTraversal, n Node, currentMod
 }
 
 func (this *CheckMissingRequires) visitJsDocInfo(t *NodeTraversal, currentModule *ModuleMetadataMap_ModuleMetadata, info *JSDocInfo) {
-	this.templateParamNames.asSet().addAll(Collection(info.getTemplateTypeNames().asList()))
-	this.templateParamNames.asSet().addAll(Collection(info.getTypeTransformations().asImm().keySet()))
+	setAddAllFrom_(tc_string, this.templateParamNames, Collection(info.getTemplateTypeNames().asList()))
+	setAddAllFrom_(tc_string, this.templateParamNames, Collection(info.getTypeTransformations().asImm().keySet()))
 	if info.hasType() {
 		this.visitJsDocExpr(t, currentModule, info.getType(), CheckMissingRequires_Strength_WEAK_TYPE)
 	}
@@ -221,7 +221,7 @@ func (this *CheckMissingRequires) isTypeScriptSource(n Node) bool {
 func (this *CheckMissingRequires) visitQualifiedName(t *NodeTraversal, n Node, currentFile *ModuleMetadataMap_ModuleMetadata, qualifiedName *QualifiedName, referenceStrength CheckMissingRequires_Strength) {
 	var rootName string = qualifiedName.getRoot()
 	if qualifiedName.isSimple() {
-		if this.templateParamNames.Has(rootName) {
+		if has_(this.templateParamNames, rootName) {
 			return
 		}
 	}

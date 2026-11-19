@@ -536,7 +536,7 @@ func (this *PolymerClassRewriter) getJSDocInfoBuilderForBehavior(behavior *Polym
 
 func (this *PolymerClassRewriter) appendBehaviorMembersToBlock(cls *PolymerClassDefinition, block Node) {
 	var qualifiedPath string = (sstr_(cls.target.getQualifiedName()) + ".prototype.")
-	var nameToExprResult *TMap[string, Node] = newTMap_(tc_string, tc_Node)
+	var nameToExprResult map[string]Node = map[string]Node{}
 	it_1 := cls.behaviors.each()
 	for it_1.next() {
 		var behavior *PolymerBehaviorExtractor_BehaviorDefinition = it_1.v
@@ -547,8 +547,8 @@ func (this *PolymerClassRewriter) appendBehaviorMembersToBlock(cls *PolymerClass
 			if NodeUtil_getFirstPropMatchingKey(cls.descriptor, fnName) != 0 {
 				continue
 			}
-			if nameToExprResult.Has(fnName) {
-				nameToExprResult.Get(fnName).detach()
+			if has_(nameToExprResult, fnName) {
+				nameToExprResult[fnName].detach()
 			}
 			var fnValue Node = behaviorFunction.value_.cloneTree()
 			NodeUtil_markNewScopesChanged(fnValue, this.compiler_)
@@ -581,14 +581,14 @@ func (this *PolymerClassRewriter) appendBehaviorMembersToBlock(cls *PolymerClass
 			}
 			exprResult.getFirstChild().setJSDocInfo(info.build())
 			block.addChildToBack(exprResult)
-			nameToExprResult.Put(fnName, exprResult)
+			nameToExprResult[fnName] = exprResult
 		}
 		it_6 := behavior.nonPropertyMembersToCopy.each()
 		for it_6.next() {
 			var behaviorProp *PolymerPass_MemberDefinition = it_6.v
 			var propName string = behaviorProp.name_.getString()
-			if nameToExprResult.Has(propName) {
-				nameToExprResult.Get(propName).detach()
+			if has_(nameToExprResult, propName) {
+				nameToExprResult[propName].detach()
 			}
 			var exprResult Node = IR_exprResult(NodeUtil_newQName_AbstractCompiler_String(this.compiler_, (sstr_(qualifiedPath) + sstr_(propName))))
 			exprResult.srcrefTree(behaviorProp.name_)
@@ -604,7 +604,7 @@ func (this *PolymerClassRewriter) appendBehaviorMembersToBlock(cls *PolymerClass
 			}
 			exprResult.getFirstChild().setJSDocInfo(info.build())
 			block.addChildToBack(exprResult)
-			nameToExprResult.Put(propName, exprResult)
+			nameToExprResult[propName] = exprResult
 		}
 	}
 }

@@ -17,13 +17,13 @@ func new_ProfilingReport() *ProfilingReport {
 	return this
 }
 
-func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping MapOf[string, *InstrumentationPoint], allInstrumentationReports []Map) string {
+func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping *TMap[string, *InstrumentationPoint], allInstrumentationReports []Map) string {
 	var profiles []*ReportProfile = []*ReportProfile{}
 	for _, report := range allInstrumentationReports {
 		profiles = append(profiles, ReportDecoder_decodeReport(instrumentationMapping, report))
 	}
 	var metricsBuilder *ImmutableMap_Builder[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = immutableMapBuilder_(tce_p_InstrumentationPoint.t_(), tc_p_ProfilingReport_InstrumentationPointMetrics)
-	for point := range elemsAs_[*InstrumentationPoint](instrumentationMapping.values()) {
+	for point := range elemsAs_[*InstrumentationPoint](instrumentationMapping.asMap().values()) {
 		metricsBuilder.put(point, new_ProfilingReport_InstrumentationPointMetrics())
 	}
 	var metrics *TMap[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = metricsBuilder.buildOrThrow()

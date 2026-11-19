@@ -8,7 +8,7 @@ type ReplaceStrings struct {
 	NodeTraversal_AbstractPostOrderCallback
 	placeholderToken string
 	compiler_        *AbstractCompiler
-	functions        *TMap[string, *ReplaceStrings_Config]
+	functions        map[string]*ReplaceStrings_Config
 	nameGenerator    *DefaultNameGenerator
 	results          *TMap[string, *ReplaceStrings_Result]
 }
@@ -25,7 +25,7 @@ func (this *ReplaceStrings) zero_ReplaceStrings() {
 }
 
 func (this *ReplaceStrings) finit_ReplaceStrings() {
-	this.functions = newTMap_(tc_string, tc_p_ReplaceStrings_Config)
+	this.functions = map[string]*ReplaceStrings_Config{}
 	this.results = newTMap_(tc_string, tc_p_ReplaceStrings_Result)
 }
 
@@ -84,10 +84,10 @@ func (this *ReplaceStrings) visit_impl(t *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *ReplaceStrings) findMatching(name string, callsiteSourceFileName string) *ReplaceStrings_Config {
-	var config *ReplaceStrings_Config = this.functions.Get(name)
+	var config *ReplaceStrings_Config = this.functions[name]
 	if config == nil {
 		name = strings.ReplaceAll(name, "$", ".")
-		config = this.functions.Get(name)
+		config = this.functions[name]
 	}
 	if config != nil {
 		it_1 := config.excludedFilenameSuffixes.each()
@@ -232,7 +232,7 @@ func (this *ReplaceStrings) parseConfigurationList(functionsToInspect *TList[str
 		var function string = it_1.v
 		var config *ReplaceStrings_Config = this.parseConfiguration(function)
 		if config != nil {
-			this.functions.Put(config.name_, config)
+			this.functions[config.name_] = config
 		}
 	}
 }

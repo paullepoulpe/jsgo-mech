@@ -63,7 +63,7 @@ func new_WebpackModuleResolver_Factory(lookupMap *TMap[string, string]) *Webpack
 	return this
 }
 
-func (this *WebpackModuleResolver_Factory) create(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *ModuleResolver {
+func (this *WebpackModuleResolver_Factory) create(modulePaths *ImmutableSet[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *ModuleResolver {
 	var normalizedPathsById *TMap[string, string] = newTMap_(tc_string, tc_string)
 	it_1 := this.lookupMap.eachEntry()
 	for it_1.next() {
@@ -74,7 +74,7 @@ func (this *WebpackModuleResolver_Factory) create(modulePaths ImmutableSetOf[str
 		}
 		normalizedPathsById.Put(moduleEntry.getKey(), canonicalizedPath)
 	}
-	return new_WebpackModuleResolver(tsetFrom_(tc_string, modulePaths, true), slicePtrImm_(tc_string, moduleRootPaths), normalizedPathsById, errorHandler, pathEscaper).up_ModuleResolver()
+	return new_WebpackModuleResolver(modulePaths, slicePtrImm_(tc_string, moduleRootPaths), normalizedPathsById, errorHandler, pathEscaper).up_ModuleResolver()
 }
 
 // resolveJsModule: an object that is exactly a WebpackModuleResolver calls its resolveJsModule_impl directly (post-flip); others dispatch.

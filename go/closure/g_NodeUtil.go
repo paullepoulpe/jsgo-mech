@@ -4145,19 +4145,17 @@ func NodeUtil_markFunctionsDeletedChangeTracker(node Node, changeTracker *Change
 	}
 }
 
-func NodeUtil_getParentChangeScopeNodes(scopeNodes ListOf[Node]) *TList[Node] {
+func NodeUtil_getParentChangeScopeNodes(scopeNodes ListOf[Node]) []Node {
 	var parentScopeNodes *TSet[Node] = tsetFrom_(tc_Node, Collection(scopeNodes), false)
 	for scopeNode := range elemsBy_(scopeNodes, Node_of_) {
 		parentScopeNodes.Add(ChangeTracker_getEnclosingChangeScopeRoot(scopeNode))
 	}
-	return tlistFrom_(tc_Node, Collection(parentScopeNodes.asSet()))
+	return sliceFrom_(tc_Node, Collection(parentScopeNodes.asSet()))
 }
 
-func NodeUtil_removeNestedChangeScopeNodes(scopeNodes *TList[Node]) *TList[Node] {
-	var uniqueScopeNodes *TSet[Node] = tsetFrom_(tc_Node, Collection(scopeNodes.asList()), false)
-	it_1 := scopeNodes.each()
-	for it_1.next() {
-		var scopeNode Node = it_1.v
+func NodeUtil_removeNestedChangeScopeNodes(scopeNodes []Node) *TList[Node] {
+	var uniqueScopeNodes *TSet[Node] = tsetFrom_(tc_Node, Collection(sliceView_(tc_Node, scopeNodes)), false)
+	for _, scopeNode := range scopeNodes {
 		{
 			var ancestor Node = scopeNode.getParent()
 			for ; ancestor != 0; ancestor = ancestor.getParent() {
@@ -4200,14 +4198,14 @@ func NodeUtil_getInvocationArgsCount(invocation Node) int32 {
 	}
 }
 
-func NodeUtil_getAllVarNamesDeclaredInModule(moduleNode Node, compiler *AbstractCompiler, scopeCreator ScopeCreator, globalScope *Scope) *TSet[string] {
+func NodeUtil_getAllVarNamesDeclaredInModule(moduleNode Node, compiler *AbstractCompiler, scopeCreator ScopeCreator, globalScope *Scope) map[string]struct{} {
 	if !moduleNode.isModuleBody() {
 		panic(new_IllegalStateException_String(objstr_("getAllVarsDeclaredInModule expects a module body node")))
 	}
 	if !globalScope.isGlobal() {
 		panic(new_IllegalStateException_String(objstr_(globalScope)))
 	}
-	var nameVars *TSet[string] = newTSet_(tc_string)
+	var nameVars map[string]struct{} = map[string]struct{}{}
 	var finder NodeTraversal_ScopedCallback = NodeTraversal_ScopedCallback(new_NodeUtil_1(nameVars))
 	NodeTraversal_builder().setCompiler(compiler).setCallback(NodeTraversal_Callback(finder)).setScopeCreator(scopeCreator).traverseWithScope(moduleNode, globalScope.up_AbstractScope())
 	return nameVars
@@ -4861,14 +4859,14 @@ func (this *NodeUtil_GoogRequire) toString() string {
 }
 
 type NodeUtil_1 struct {
-	cap_nameVars *TSet[string]
+	cap_nameVars map[string]struct{}
 }
 
 func (this *NodeUtil_1) init_NodeUtil_1() {
 
 }
 
-func new_NodeUtil_1(cap_nameVars *TSet[string]) *NodeUtil_1 {
+func new_NodeUtil_1(cap_nameVars map[string]struct{}) *NodeUtil_1 {
 	this := &NodeUtil_1{}
 	this.cap_nameVars = cap_nameVars
 	this.init_NodeUtil_1()
@@ -4879,7 +4877,7 @@ func (this *NodeUtil_1) enterScope(t *NodeTraversal) {
 	var currentScope *Scope = t.getScope()
 	if currentScope.isModuleScope() {
 		for v := range elemsAs_[*Var](currentScope.getVarIterable()) {
-			this.cap_nameVars.Add(v.getName())
+			this.cap_nameVars[v.getName()] = struct{}{}
 		}
 	}
 }
