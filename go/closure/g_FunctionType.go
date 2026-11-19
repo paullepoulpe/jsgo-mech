@@ -289,7 +289,7 @@ func (this *FunctionType) getMaxArity() int32 {
 	if params.isEmpty() {
 		return 0
 	}
-	var lastParam *FunctionType_Parameter = cast_[*FunctionType_Parameter](Iterables_getLast(iup_Iterable(params.asImm())))
+	var lastParam *FunctionType_Parameter = params.getLastT_()
 	if !lastParam.isVariadic() {
 		return params.size()
 	}

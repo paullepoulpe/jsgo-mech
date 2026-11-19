@@ -393,13 +393,13 @@ func (this *Compiler) mergeAndDeserializeTypedAsts(requiredInputFiles *Immutable
 	this.maybeSetTracker()
 	this.setLifeCycleStage(AbstractCompiler_LifeCycleStage_COLORS_AND_SIMPLIFIED_JSDOC)
 	var deserializeTypes bool = options.requiresTypesForOptimization()
-	var astData *TypedAstDeserializer_DeserializedAst = cast_[*TypedAstDeserializer_DeserializedAst](this.runInCompilerThread((&Callable_tfn_TypedAstDeserializer_DeserializedAst{func() (ret_1 *TypedAstDeserializer_DeserializedAst) {
+	var astData *TypedAstDeserializer_DeserializedAst = Compiler_runInCompilerThreadT_(this, func() (ret_1 *TypedAstDeserializer_DeserializedAst) {
 		var tracer *Tracer = this.newTracer("deserializeTypedAst")
 		defer func() {
 			this.stopTracer(tracer, "deserializeTypedAst")
 		}()
 		return TypedAstDeserializer_deserializeFullAst(this.up_AbstractCompiler(), this.SYNTHETIC_EXTERNS_FILE, requiredInputFiles, typedAstListStream, deserializeTypes, options.getResolveSourceMapAnnotations(), options.getParseInlineSourceMaps())
-	}}).call))
+	})
 	this.typedAstFilesystem = astData.getFilesystem()
 	this.externProperties = astData.getExternProperties()
 	this.colorRegistry = cast_[*ColorRegistry](astData.getColorRegistry().orNull())
@@ -1880,7 +1880,7 @@ func (this *Compiler) getDefaultErrorReporter_impl() ErrorReporter_rhino {
 }
 
 func (this *Compiler) toSource_impl() string {
-	return str_(this.runInCompilerThread((&Callable_tfn_string{func() (ret_1 string) {
+	return Compiler_runInCompilerThreadT_(this, func() (ret_1 string) {
 		var tracer *Tracer = this.newTracer("toSource")
 		defer func() {
 			this.stopTracer(tracer, "toSource")
@@ -1907,7 +1907,7 @@ func (this *Compiler) toSource_impl() string {
 			}
 		}
 		return cb.toString()
-	}}).call))
+	})
 }
 
 func (this *Compiler) toSourceJSChunk(chunk *JSChunk) string {
@@ -1915,7 +1915,7 @@ func (this *Compiler) toSourceJSChunk(chunk *JSChunk) string {
 }
 
 func (this *Compiler) toSource_2(licenseTracker CodePrinter_LicenseTracker, chunk *JSChunk) string {
-	return str_(this.runInCompilerThread((&Callable_tfn_string{func() string {
+	return Compiler_runInCompilerThreadT_(this, func() string {
 		var inputs ImmutableListOf[*CompilerInput] = chunk.getInputs()
 		var chunkExterns SetOf[*CompilerInput] = func() Set {
 			if this.options_.shouldPrintExterns() {
@@ -1948,7 +1948,7 @@ func (this *Compiler) toSource_2(licenseTracker CodePrinter_LicenseTracker, chun
 			seq++
 		}
 		return cb.toString()
-	}}).call))
+	})
 }
 
 func (this *Compiler) toSource_4(cb *Compiler_CodeBuilder, licenseTracker CodePrinter_LicenseTracker, inputSeqNum int32, root Node) {
@@ -2046,7 +2046,7 @@ func Compiler_getLicenseForFile(compiler *AbstractCompiler, fileName Optional[st
 }
 
 func (this *Compiler) toSourceArray(licenseTracker CodePrinter_LicenseTracker, chunk *JSChunk) []string {
-	return cast_[[]string](this.runInCompilerThread((&Callable_tfn_s_string{func() []string {
+	return Compiler_runInCompilerThreadT_(this, func() []string {
 		var inputs ImmutableListOf[*CompilerInput] = chunk.getInputs()
 		var numInputs int32 = inputs.size()
 		if numInputs == 0 {
@@ -2064,7 +2064,7 @@ func (this *Compiler) toSourceArray(licenseTracker CodePrinter_LicenseTracker, c
 			sources[i] = cb.toString()
 		}
 		return sources
-	}}).call))
+	})
 }
 
 func (this *Compiler) performTranspilationAndOptimizations(segmentOfCompilationToRun CompilerOptions_SegmentOfCompilationToRun) {
@@ -3045,7 +3045,7 @@ func (this *Compiler) restoreFromState(compilerState *JSCompilerStateProto) {
 }
 
 func (this *Compiler) saveState() []int8 {
-	return cast_[[]int8](this.runInCompilerThread((&Callable_tfn_s_int8{func() []int8 {
+	return Compiler_runInCompilerThreadT_(this, func() []int8 {
 		var tracer *Tracer = this.newTracer("serializeCompilerState")
 		var stateProto *JSCompilerStateProto = this.getCompilerStateProtoBuilder().buildT_()
 		this.stopTracer(tracer, "serializeCompilerState")
@@ -3066,13 +3066,13 @@ func (this *Compiler) saveState() []int8 {
 			return cast_[[]int8](wrapper.apply(any(uncompressed)))
 		}
 		return Io_gzip(uncompressed)
-	}}).call))
+	})
 }
 
 func (this *Compiler) restoreState(state []int8) *Outcome_base[any] {
 	this.initWarningsGuard(this.options_.getWarningsGuard())
 	this.maybeSetTracker()
-	var restored *Outcome_base[any] = cast_[*Outcome_base[any]](this.runInCompilerThread((&Callable_tfn_Outcome_base_any_{func() (ret_1 *Outcome_base[any]) {
+	var restored *Outcome_base[any] = Compiler_runInCompilerThreadT_(this, func() (ret_1 *Outcome_base[any]) {
 		var tracer *Tracer = this.newTracer(PassNames_DESERIALIZE_COMPILER_STATE)
 		Compiler_logger.fine("Deserializing the CompilerState")
 		defer func() {
@@ -3092,7 +3092,7 @@ func (this *Compiler) restoreState(state []int8) *Outcome_base[any] {
 		}
 		this.deserializeCompilerState(uncompressed)
 		return Outcome_base_ok_0()
-	}}).call))
+	})
 	if restored.isErr() {
 		return Outcome_base_err[any](restored.error())
 	}

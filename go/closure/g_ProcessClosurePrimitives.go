@@ -431,7 +431,7 @@ func (this *ProcessClosurePrimitives) processForwardDeclare(n Node) {
 				panic(r_)
 			}
 		}()
-		typeDeclaration = Optional_ofNullable[string](str_(Iterables_getOnlyElement(Iterable(sliceView_(tc_string, convention.identifyTypeDeclarationCall(n))))))
+		typeDeclaration = Optional_ofNullable[string](sliceGetOnlyElementT_(tc_string, convention.identifyTypeDeclarationCall(n)))
 	}()
 	if typeDeclaration.isPresent() {
 		this.compiler_.forwardDeclareType(typeDeclaration.get())

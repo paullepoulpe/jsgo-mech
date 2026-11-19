@@ -142,7 +142,7 @@ func (this *SortedDependencies[InputT]) processInputs() {
 	for el_1 := range elems_(this.userOrderedInputs) {
 		var userOrderedInput InputT = junboxT_[InputT](el_1)
 		var provides *ImmutableList[string] = userOrderedInput.getProvides()
-		var firstProvide Optional[string] = Optional_ofNullable[string](str_(Iterables_getFirst(iup_Iterable(provides.asImm()), nil)))
+		var firstProvide Optional[string] = Optional_ofNullable[string](provides.getFirstT_(nil))
 		if firstProvide.isEmpty() || (((provides.size() == 1) && strings.HasPrefix(firstProvide.get(), "module$")) && !userOrderedInput.isEs6Module()) {
 			Map_put_s(this.nonExportingInputs.asMap(), ModuleNames_fileToModuleName(userOrderedInput.getName()), boxT_(userOrderedInput))
 		}

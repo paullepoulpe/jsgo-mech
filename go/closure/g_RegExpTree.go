@@ -93,7 +93,7 @@ func RegExpTree_matchesWholeInput(t *RegExpTree, flags string) bool {
 		return false
 	}
 	var first *RegExpTree = c.elements_.get(0)
-	var last *RegExpTree = to_RegExpTree(Iterables_getLast(iup_Iterable(c.elements_.asImm())))
+	var last *RegExpTree = c.elements_.getLastT_()
 	var lastAnchor *RegExpTree_Anchor
 	_ = lastAnchor
 	firstAnchor, ok2 := first.self().(*RegExpTree_Anchor)

@@ -310,7 +310,7 @@ func (this *Es6ConvertSuperConstructorCalls) createNewSuperCall(superClassQNameN
 		newSuperCall.addChildToBack(this.astFactory_.createThis(thisType).srcref(callee))
 		newSuperCall.putBooleanProp(Node_FREE_CALL, false)
 		if Es6ConvertSuperConstructorCalls_isSingleSpreadOfArguments(args) {
-			newSuperCall.addChildToBack(Node_of_(Iterables_getOnlyElement(Iterable(sliceViewP_(tc_Node, args)))).getOnlyChild().detach())
+			newSuperCall.addChildToBack(sliceGetOnlyElementT_(tc_Node, *args).getOnlyChild().detach())
 		} else {
 			newSuperCall.addChildToBack(this.astFactory_.createArraylitIterable(Iterable(slicePtrView_(tc_Node, args))).srcref(superCall))
 		}
@@ -349,7 +349,7 @@ func (this *Es6ConvertSuperConstructorCalls) createJSCompConstructorCall(superCl
 	}
 	var superArgs Node = func() Node {
 		if Es6ConvertSuperConstructorCalls_isSingleSpreadOfArguments(superCallArgList) {
-			return Node_of_(Iterables_getOnlyElement(Iterable(sliceViewP_(tc_Node, superCallArgList)))).getOnlyChild().detach()
+			return sliceGetOnlyElementT_(tc_Node, *superCallArgList).getOnlyChild().detach()
 		}
 		return this.astFactory_.createArraylitIterable(Iterable(slicePtrView_(tc_Node, superCallArgList))).srcref(superCall)
 	}()
@@ -358,7 +358,7 @@ func (this *Es6ConvertSuperConstructorCalls) createJSCompConstructorCall(superCl
 }
 
 func Es6ConvertSuperConstructorCalls_isSingleSpreadOfArguments(nodeList *[]Node) bool {
-	return ((int32(len(*nodeList)) == 1) && Es6ConvertSuperConstructorCalls_isSpreadOfArguments(Node_of_(Iterables_getOnlyElement(Iterable(sliceViewP_(tc_Node, nodeList))))))
+	return ((int32(len(*nodeList)) == 1) && Es6ConvertSuperConstructorCalls_isSpreadOfArguments(sliceGetOnlyElementT_(tc_Node, *nodeList)))
 }
 
 func Es6ConvertSuperConstructorCalls_isSpreadOfArguments(node Node) bool {

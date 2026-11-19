@@ -282,7 +282,7 @@ func ReplaceMessages_mergeStringParts(parts []JsMessage_Part) *[]JsMessage_Part 
 				if len(*result) == 0 {
 					return nil
 				}
-				return icast_JsMessage_Part(Iterables_getLast(Iterable(sliceViewP_(tc_JsMessage_Part, result))))
+				return sliceGetLastT_(tc_JsMessage_Part, *result)
 			}()
 			if (lastPart == nil) || lastPart.isPlaceholder() {
 				*result = append(*result, part)

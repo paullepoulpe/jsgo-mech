@@ -56,7 +56,7 @@ func ColorId_fromBytesAt[T any](source T, length int32, byteAt ColorId_ByteAt[T]
 
 func ColorId_union(ids *TSet[*ColorId]) *ColorId {
 	if ids.Len() <= 1 {
-		return cast_[*ColorId](Iterables_getOnlyElement(Iterable(ids.asSet())))
+		return ids.getOnlyElementT_()
 	}
 	var index int32 = 0
 	var sorted []int64 = make([]int64, ids.Len())

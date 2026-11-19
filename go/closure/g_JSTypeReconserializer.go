@@ -105,7 +105,7 @@ func (this *JSTypeReconserializer) recordUnionType(type_ *UnionType) *JSTypeReco
 		}
 	}
 	if altRecords.Len() == 1 {
-		return cast_[*JSTypeReconserializer_SeenTypeRecord](Iterables_getOnlyElement(Iterable(altRecords.asSet())))
+		return altRecords.getOnlyElementT_()
 	}
 	var alternateIds *ImmutableSet_Builder[*ColorId] = immutableSetBuilder_(tc_p_ColorId)
 	for altRecord := range altRecords.All() {
