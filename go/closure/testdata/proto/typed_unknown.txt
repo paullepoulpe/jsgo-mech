@@ -1,0 +1,23 @@
+parsed: kind=3 line=0
+parsed: 08032005830608018406890601020304050607089506010203049a06026869a0062aa00601 | {kind: 3; 4: 5; 96: {;   1: 1; }; 97: 0x0807060504030201; 98: 0x04030201; 99: {;   13: 105; }; 100: 42; 100: 1} | hash -248308224 | size 37
+equals without unknown: false false; hash equal: false
+through a builder: builder {kind: 3; 4: 5; 96: {;   1: 1; }; 97: 0x0807060504030201; 98: 0x04030201; 99: {;   13: 105; }; 100: 42; 100: 1}
+through a builder: 08032005830608018406890601020304050607089506010203049a06026869a0062aa00601 | {kind: 3; 4: 5; 96: {;   1: 1; }; 97: 0x0807060504030201; 98: 0x04030201; 99: {;   13: 105; }; 100: 42; 100: 1} | hash -248308224 | size 37
+builder's message equals: true
+builder changed: builder {kind: 4; child {;   kind: 3;   4: 5;   96: {;     1: 1;   };   97: 0x0807060504030201;   98: 0x04030201;   99: {;     13: 105;   };   100: 42;   100: 1; }; 4: 5; 96: {;   1: 1; }; 97: 0x0807060504030201; 98: 0x04030201; 99: {;   13: 105; }; 100: 42; 100: 1}
+builder changed: 0804122508032005830608018406890601020304050607089506010203049a06026869a0062aa006012005830608018406890601020304050607089506010203049a06026869a0062aa00601 | {kind: 4; child {;   kind: 3;   4: 5;   96: {;     1: 1;   };   97: 0x0807060504030201;   98: 0x04030201;   99: {;     13: 105;   };   100: 42;   100: 1; }; 4: 5; 96: {;   1: 1; }; 97: 0x0807060504030201; 98: 0x04030201; 99: {;   13: 105; }; 100: 42; 100: 1} | hash -323472510 | size 76
+merged twice: builder {kind: 3; source_file: 1; 4: 5; 4: 5; 96: {;   1: 1; }; 96: {;   1: 1; }; 97: 0x0807060504030201; 97: 0x0807060504030201; 98: 0x04030201; 98: 0x04030201; 99: {;   13: 105; }; 99: {;   13: 105; }; 100: 42; 100: 1; 100: 42; 100: 1}
+merged twice: 08038001012005200583060801840683060801840689060102030405060708890601020304050607089506010203049506010203049a060268699a06026869a0062aa00601a0062aa00601 | {kind: 3; source_file: 1; 4: 5; 4: 5; 96: {;   1: 1; }; 96: {;   1: 1; }; 97: 0x0807060504030201; 97: 0x0807060504030201; 98: 0x04030201; 98: 0x04030201; 99: {;   13: 105; }; 99: {;   13: 105; }; 100: 42; 100: 1; 100: 42; 100: 1} | hash 479657156 | size 75
+merged into known: builder {kind: 3; relative_line: -3; 4: 5; 96: {;   1: 1; }; 97: 0x0807060504030201; 98: 0x04030201; 99: {;   13: 105; }; 100: 42; 100: 1}
+merged into known: 080328052005830608018406890601020304050607089506010203049a06026869a0062aa00601 | {kind: 3; relative_line: -3; 4: 5; 96: {;   1: 1; }; 97: 0x0807060504030201; 98: 0x04030201; 99: {;   13: 105; }; 100: 42; 100: 1} | hash -681773914 | size 39
+builder cleared: builder {}
+builder cleared:  | {} | hash -126628231 | size 0
+parsed unchanged: 08032005830608018406890601020304050607089506010203049a06026869a0062aa00601 | {kind: 3; 4: 5; 96: {;   1: 1; }; 97: 0x0807060504030201; 98: 0x04030201; 99: {;   13: 105; }; 100: 42; 100: 1} | hash -248308224 | size 37
+wrong wire type: 0d010000000a01002002 | {1: 0x00000001; 1: "\000"; 4: 2} | hash -58244372 | size 10
+closed enum: type=false/1 sev=true/3
+closed enum: 0a0165600210636063 | {error_message: "e"; severity: ERROR; 2: 99; 12: 99} | hash 1884200590 | size 9
+truncated: com.google.protobuf.InvalidProtocolBufferException: While parsing a protocol message, the input ended unexpectedly in the middle of a field.  This could mean either that the input has been truncated or that an embedded message misreported its own length.
+zero tag: com.google.protobuf.InvalidProtocolBufferException: Protocol message contained an invalid tag (zero).
+end group: com.google.protobuf.InvalidProtocolBufferException: Protocol message end-group tag did not match expected tag.
+bad wire type: com.google.protobuf.InvalidProtocolBufferException: Protocol message tag had invalid wire type.
+bad utf8: com.google.protobuf.InvalidProtocolBufferException: Protocol message had invalid UTF-8.
