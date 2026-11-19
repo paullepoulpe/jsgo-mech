@@ -16,8 +16,7 @@ func new_Uris() *Uris {
 }
 
 func Uris_isValid(uri string) bool {
-	for i := int32(0); i < String_length(uri); i++ {
-		var c uint16 = String_charAt(uri, i)
+	for i, c := range stringUnits_(uri) {
 		if int32(c) >= 128 {
 			if Character_isSpaceChar(c) || Character_isISOControl(c) {
 				return false
@@ -58,8 +57,7 @@ func Uris_path(uri string) string {
 }
 
 func Uris_firstColon(uri string) int32 {
-	for i := int32(0); i < String_length(uri); i++ {
-		var c uint16 = String_charAt(uri, i)
+	for i, c := range stringUnits_(uri) {
 		if c == ':' {
 			return i
 		}
