@@ -694,3 +694,32 @@ cb1d01e7 run t jsdocprops && f
 # 467. postflip step (re-flip): implsplit, 23 methods of named classes implementing erased library interfaces are their typed method and javac's bridge (tool df2b3b2a)
 8cb67888 run t implsplit && f
 #: implsplit: 23 methods split (compareTo 10, compare 6, apply 7) into <name>T_ + the erased bridge; 3 unboxedPred_[Node](x.apply) -> x.applyT_, 1 call on the class typed; left 12 methods not starting with their parameters' casts (Guava test -> apply, FunctionTypeBuilder validators), 1 class with subclasses (JSDocInfo.Property.compareTo); the bridges stay erased (the runtime calls them through the erased interface)
+# 468. postflip step (re-flip): implsplit re-run, 5 suppliers' get is their typed getT_ and javac's bridge (tool acc9d534)
+90bf3805 run t implsplit && f
+#: implsplit: 5 methods of no parameters split into getT_ (the result type the class declares) and the bridge get() any (FunctionInjector.1, FunctionToBlockMutator.LabelNameSupplier, RemoveUnusedCode.RemovalLogRecord, RenameLabels.DefaultNameSupplier, StripCode.StripCodeConfigRecord); left 3 results not one boxing of one type (Source.Lazy<T>, generic), 12 methods not starting with their parameters' casts, 1 class with subclasses (JSDocInfo.Property.compareTo)
+# 469. postflip step (re-flip): tfnparams, LogFile.log and Compiler.logToFile take a func() string; 36 calls give it the function, the named records their typed getT_ (tool acc9d534)
+da83c1be run t tfnparams && f
+#: tfnparams: 1 group, 7 parameters (LogFile.log / log_impl / LogFile_I, the dispatchers, Compiler.logToFile) take func() string: 27 adapters, 2 adapters of immediately called literals, 7 named objects (RemovalLogRecord.forX(..).getT_ 6, StripCodeConfigRecord 1), 1 str_(p.get()) -> p(); left (groups) 153 given another value than a typed adapter, 23 never given an adapter, 5 parameter used other than by calling it, 4 listed by a Java interface, 2 listed by an interface with another signature
+# 470. postflip (runtime, re-flip): Predicates_alwaysTrueT_[T], and sortSliceF_ / sortSlicePF_, the typed sort of a slice view
+338f093c patch 470-338f093c-rt.patch
+# 471. postflip step (re-flip): tfnparams, NodeUtil's traverseChildrenPred parameters take a func(Node) bool; alwaysTrue, MATCH_NOT_FUNCTION and the named predicates are typed functions (tool f0a747ba, runtime 338f093c)
+12d555a3 run t tfnparams && f
+#: tfnparams: 2 groups, 6 parameters (NodeUtil.has / findPreorder / isNameReferenced / visitPreOrder sharing MATCH_NOT_FUNCTION and MATCH_ANYTHING_BUT_NON_ARROW_FUNCTION; getCount / getNodeTypeReferenceCount) take func(Node) bool: 10 adapters, 13 Predicates.alwaysTrue() -> Predicates_alwaysTrueT_[Node], 4 named objects (MatchShallowStatement.applyT_), 2 package variables and their 2 initializers, 4 p.apply(n.box_()) -> p(n); left (groups) 145 given another value, 23 never given an adapter, 7 parameter used other than by calling it (stored: PreOrderIterator, InlineVariables.Mode), 1 package variable used otherwise, 4 Java interface, 2 interface with another signature
+# 472. postflip step (re-flip): tcmp, the sort of CmdLineParser's options is the typed sort of the slice with the comparator's function (tool f0a747ba, runtime 338f093c)
+d2350734 run t tcmp && f
+#: tcmp: 1 sort of a typed slice view with a typed comparator -> sortSlicePF_ (CmdLineParser); left 6 comparators of the runtime's combinators, 2 package variables holding them, 7 lists that are not slice views; TreeSets made with a Comparator: colls -kind treeset (9 "made with a Comparator")
+# 473. postflip step (re-flip): selftype, 51 casts of the self-typed builders' and covariant build() results through self() are the typed calls (tool cf2529b9)
+bfbfa030 run t selftype && f
+#: selftype: 11 receiver-returning builder methods get mT_ (FunctionType.Builder 4, InstanceObjectType.Builder 6, EnumType.Builder 1), 14 casts + 2 assertions through self() are r.mT_(a); 3 covariant results split (FunctionType.Builder.build_impl 31 casts, EnumType.Builder.build_impl 1, TypedScopeCreator.createScopeAbstractScope 3), 35 casts are calls of mT_; left 9 methods neither receiver-returning nor covariant (real downcasts), 4 assertions of other results, 1 receiver of an embedded class
+# 474. postflip step (re-flip): covret re-run, Reference.getSymbol returns its *Var (StaticRef's covariant result, typed by fbound's scope); 3 casts are calls of getSymbolT_ (tool 97994470)
+3c54674c run t covret && f
+#: covret: 1 method split (Reference.getSymbol -> *Var), 3 casts are getSymbolT_(); left 62 casts whose method returns a value not boxed by iup_ or obj_
+# 475. postflip step (re-flip): selftype re-run, 9 cross-casts of self() to an interface the class implements are iup_I of the object, the value only called (tool 6f89c79d)
+80ba05c0 run t selftype && f
+#: selftype: 9 cross-casts icast_I(x.self()) of a value only called are iup_I(x) (AbstractCompiler -> CompilerInputProvider 6, LinkedDirectedGraph -> GraphvizGraph 2, SortingErrorManager -> ErrorManager 1), 3 iup_ added to g_0iup.go; left 17 cross-casts whose value is stored, compared or handed on, 11 to an interface a subclass overrides a method of without dispatching (ArrayList 9, Ordering 2), 9 real downcasts, 4 assertions of other results, 1 receiver of an embedded class
+# 476. postflip step (re-flip): nnassert, 21 assertions of bridges' results and of self() are the typed results, 9 with requireNonNull0_ where the method hands its receiver on (tool 7e31b84d)
+20561916 run t nnassert && f
+#: nnassert: 11 assertions of a bridge's result dereferenced by a field read are the typed result, 7 are requireNonNull0_ of it (fbound's kept scope assertions: getClosestHoistScope 4, getClosestCfgRootScope, getClosestContainerScope, getVar), 1 + 2 x.self().(*T) of a *T are x / requireNonNull0_(x); left 57 assertions of results of methods that are not a typed bridge (real downcasts of Object results), 10 assertions of self() to another class
+# 477. postflip step (re-flip): deadtfn, 41 lambda adapter types that no code names any more are deleted (tool cf61b99f)
+41bd143c run t deadtfn && f
+#: deadtfn: 41 lambda adapter types no code names deleted with their 41 methods (32 X_tfn_.., 9 X_fn); left 165 adapter types named by code (Comparator_fn kept: rt_cmp_test.go names it)
