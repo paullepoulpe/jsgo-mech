@@ -134,7 +134,8 @@ final class Emitter extends StmtEmitter {
         for (Element e : it.getEnclosedElements()) {
           if (!Ctx.isInstanceMethod(e) || !((ExecutableElement) e).isDefault()) continue;
           ExecutableElement dm = (ExecutableElement) e;
-          if (!seen.add(cx.root(dm)) || cx.root(dm).equals(cx.root(fm))) continue;
+          // (a default that a narrowing method of the interface overrides is bridged below)
+          if (cx.covOverridden(te, dm) || !seen.add(cx.root(dm)) || cx.root(dm).equals(cx.root(fm))) continue;
           List<TypeMirror> dps = cx.groupParams(dm, site);
           TypeMirror dret = cx.groupReturn(dm, site);
           file.append("func (this *").append(fn).append(") ").append(cx.methodName(dm)).append(paramList(dps)).append(retSuffix(dret))
@@ -144,6 +145,31 @@ final class Emitter extends StmtEmitter {
       }
     }
     if (fm != null) {
+      // Rule "covariant overrides": the adapter has a method of the group of each narrowing
+      // interface method above it and of the group that method left, as a class under te has.
+      Set<ExecutableElement> have = new HashSet<>();
+      have.add(cx.root(fm));
+      List<TypeElement> ifaces = new ArrayList<>();
+      ifaces.add(te);
+      ifaces.addAll(cx.allSupertypes(te));
+      for (TypeElement it : ifaces) {
+        if (!cx.isSource(it) || !it.getKind().isInterface()) continue;
+        for (Element e : it.getEnclosedElements()) {
+          if (Ctx.isInstanceMethod(e) && ((ExecutableElement) e).isDefault() && !cx.covOverridden(te, (ExecutableElement) e)) have.add(cx.root((ExecutableElement) e));
+        }
+      }
+      for (ExecutableElement im : cx.covIfaceMethods(te)) {
+        ExecutableElement x = cx.implOf(te, im), g = x == null ? null : cx.root(x);
+        if (g == null || !have.contains(g)) throw new IllegalStateException("covariant overrides: no method of " + n + "_fn for " + cx.ownerOf(im) + "." + im.getSimpleName());
+        for (ExecutableElement f : List.of(im, cx.root(cx.covFrom.get(im)))) {
+          if (!have.add(f)) continue;
+          if (cx.methodName(f).equals(cx.methodName(g))) {
+            if (!cx.sameGoSig(f, g, site)) throw new IllegalStateException("covariant overrides: " + n + "_fn needs two methods " + cx.methodName(f));
+            continue;
+          }
+          covBridge("func (this *" + n + "_fn" + tpu + ") " + cx.methodName(f), f, x, site);
+        }
+      }
       for (ExecutableElement dm : cx.extDefaultOverrides(te)) {
         if (cx.root(dm).equals(cx.root(fm))) continue;
         List<TypeMirror> ps = cx.groupParams(dm);
@@ -783,22 +809,26 @@ final class Emitter extends StmtEmitter {
   }
 
   /**
-   * Rule "covariant overrides": for each method m of te that overrides f with a narrower result, the
-   * method of f's group at te, which calls m (its own group) and widens the result.
+   * Rule "covariant overrides": the bridges of class te (Ctx.covBridges): the method of group f at
+   * te, which calls the method of m's group and widens the result. m is a method of te that
+   * overrides f's with a narrower result, or the method that runs in te for an interface method
+   * that narrows f's (or is narrowed again by m).
    */
   void covBridges(TypeElement te) {
-    List<ExecutableElement> ms = cx.covBridges.get(te);
+    List<ExecutableElement[]> ms = cx.covBridges.get(te);
     if (ms == null) return;
-    for (ExecutableElement m : ms) {
-      ExecutableElement f = cx.covFrom.get(m);
-      List<TypeMirror> ps = cx.groupParams(f, te.asType()), mps = cx.groupParams(m, te.asType());
-      TypeMirror ret = cx.groupReturn(f, te.asType()), mret = cx.groupReturn(m, te.asType());
-      StringBuilder args = new StringBuilder();
-      for (int i = 0; i < ps.size(); i++) args.append(i > 0 ? ", " : "").append(cx.coerce("p" + i, ps.get(i), mps.get(i)));
-      String call = "this." + cx.methodName(m) + "(" + args + ")";
-      file.append(recv(te)).append(cx.implName(f, te)).append(paramList(ps)).append(retSuffix(ret)).append(" {\n\t")
-          .append(ret.getKind() == TypeKind.VOID ? call : "return " + cx.coerce(call, mret, ret)).append("\n}\n\n");
-    }
+    for (ExecutableElement[] fm : ms) covBridge(recv(te) + cx.implName(fm[0], te), fm[0], fm[1], te.asType());
+  }
+
+  /** The method `head` of group f, as site sees it: calls the method of m's group and widens the result. */
+  void covBridge(String head, ExecutableElement f, ExecutableElement m, TypeMirror site) {
+    List<TypeMirror> ps = cx.groupParams(f, site), mps = cx.groupParams(m, site);
+    TypeMirror ret = cx.groupReturn(f, site), mret = cx.groupReturn(m, site);
+    StringBuilder args = new StringBuilder();
+    for (int i = 0; i < ps.size(); i++) args.append(i > 0 ? ", " : "").append(cx.coerce("p" + i, ps.get(i), mps.get(i)));
+    String call = "this." + cx.methodName(m) + "(" + args + ")";
+    file.append(head).append(paramList(ps)).append(retSuffix(ret)).append(" {\n\t")
+        .append(ret.getKind() == TypeKind.VOID ? call : "return " + cx.coerce(call, mret, ret)).append("\n}\n\n");
   }
 
   void bridges(TypeElement te) {

@@ -1634,12 +1634,16 @@ final class Ctx {
             break;
           }
           if (m.getSimpleName().equals(im.getSimpleName()) && elems.overrides(m, im, fe)) {
-            if (root(m) != root(im)) return false;
+            if (root(m) != root(im) && !chainHas(fe, root(im))) return false;
             found = true;
             break;
           }
         }
         if (!found) return false;
+      }
+      // The groups that iface's narrowing methods left (methods of the interfaces it extends).
+      for (ExecutableElement im : covIfaceMethods(iface)) {
+        if (!chainHas(fe, im) || !chainHas(fe, root(covFrom.get(im)))) return false;
       }
       return true;
     });
@@ -1797,45 +1801,191 @@ final class Ctx {
     if (m.getKind() == ElementKind.METHOD && !m.getModifiers().contains(Modifier.STATIC)
         && !m.getModifiers().contains(Modifier.PRIVATE)) {
       TypeElement owner = (TypeElement) m.getEnclosingElement();
-      ExecutableElement found = findOverridden(m, owner, owner, new HashSet<>());
+      ExecutableElement found = findOverridden(m, owner, owner, new HashSet<>(), null);
       if (found != null && covariant(m, found, owner)) {
         // Rule "covariant overrides": m starts a group of its own, with its own (narrower) result;
         // its class implements the overridden group with a bridge that calls it (Emitter.covBridges),
         // as javac's bridge method does. A call that javac resolves to m (the receiver's static type
         // is m's class or below) then has m's result type and needs no cast.
-        covFrom.put(m, found);
-        if (System.getenv("J2GO_COVARIANT") != null) System.err.println("covariant " + owner.getQualifiedName() + "." + m.getSimpleName() + ": " + types.erasure(found.getReturnType()) + " -> " + types.erasure(m.getReturnType()) + " (overrides " + ownerOf(found).getQualifiedName() + ")");
+        // A method of a class that also overrides an interface method with its own result, one
+        // that narrows a super-interface's method, joins that method's group instead of starting
+        // one (the class is under both: the method reached first is not the only one it overrides).
+        ExecutableElement same = owner.getKind().isInterface() ? null
+            : findOverridden(m, owner, owner, new HashSet<>(), y -> isSource(ownerOf(y)) && ownerOf(y).getKind().isInterface() && sameResult(m, y) && covFrom.containsKey(root(y)));
+        String how;
+        if (same != null) {
+          r = root(same);
+          covLeft.put(m, found);
+          how = "; in the group of " + ownerOf(r).getQualifiedName();
+        } else {
+          covFrom.put(m, found);
+          how = "";
+        }
+        if (System.getenv("J2GO_COVARIANT") != null) System.err.println("covariant " + owner.getQualifiedName() + "." + m.getSimpleName() + ": " + types.erasure(found.getReturnType()) + " -> " + types.erasure(m.getReturnType()) + " (overrides " + ownerOf(found).getQualifiedName() + how + ")");
       } else if (found != null) r = root(found);
     }
     rootCache.put(m, r);
     return r;
   }
 
-  /** Covariant override -> the method it overrides (rule "covariant overrides"). */
+  /** Covariant override that is the root of its own group -> the method it overrides (rule "covariant overrides"). */
   final Map<ExecutableElement, ExecutableElement> covFrom = new LinkedHashMap<>();
-  /** Per class: its methods that are covariant overrides, each needing a bridge for the overridden group. */
-  final Map<TypeElement, List<ExecutableElement>> covBridges = new HashMap<>();
+  /**
+   * Covariant override of a class that is in the group of a narrowing interface method -> the
+   * method with the wider result that it overrides first (its class bridges that group too).
+   */
+  final Map<ExecutableElement, ExecutableElement> covLeft = new HashMap<>();
+  /** Per class: the bridges {group f, method m}: the class's method of f's group calls m's group and widens the result. */
+  final Map<TypeElement, List<ExecutableElement[]>> covBridges = new HashMap<>();
+  /**
+   * Per class: groups that need no bridge because the class's method of another group has the
+   * same Go name and signature (two interfaces narrowing one method to one type).
+   */
+  final Map<TypeElement, Set<ExecutableElement>> covAlias = new HashMap<>();
   static final boolean NO_COVARIANT = System.getenv("J2GO_NO_COVARIANT") != null;
+  /** Debugging: the rule for the methods of classes only, as before the interface part. */
+  static final boolean NO_COVARIANT_IFACE = System.getenv("J2GO_NO_COVARIANT_IFACE") != null;
 
   /**
-   * Whether m, declared by class owner, overrides found with a narrower result type: both results
+   * Whether m, declared by owner, overrides found with a narrower result type: both results
    * are class or interface types whose erasures differ (decided on javac's types alone, so that it
-   * does not depend on when it is asked) and the overridden result is not a type variable. Only
-   * for a method of a class of the program: an
-   * interface that narrows a super-interface's method keeps one group (every implementer would
-   * need the bridge).
+   * does not depend on when it is asked) and the overridden result is not a type variable. For a
+   * method of a class or of an interface of the program. When an interface narrows a
+   * super-interface's method, every class under it has a method of both groups
+   * (analyzeMethods, "bridges of narrowing interface methods").
    */
   boolean covariant(ExecutableElement m, ExecutableElement found, TypeElement owner) {
-    if (NO_COVARIANT || !isSource(owner) || owner.getKind().isInterface()) return false;
+    if (NO_COVARIANT || !isSource(owner)) return false;
+    if (owner.getKind().isInterface() && (NO_COVARIANT_IFACE || !ownerOf(found).getKind().isInterface())) return false;
     // An implementation of a generic method (Supplier<String>.get) is not a narrowing: its group's
     // result is the type variable, which the rule "typed generics" keeps or erases.
     if (found.getReturnType().getKind() == TypeKind.TYPEVAR) return false;
     TypeMirror a = types.erasure(m.getReturnType()), b = types.erasure(found.getReturnType());
     if (a.getKind() != TypeKind.DECLARED || b.getKind() != TypeKind.DECLARED) return false;
-    return !types.isSameType(a, b);
+    if (types.isSameType(a, b)) return false;
+    if (!owner.getKind().isInterface()) return true;
+    Boolean ok = ifaceCovOk.get(m);
+    if (ok == null) {
+      ok = ifaceCovOk(m, found, owner);
+      ifaceCovOk.put(m, ok);
+    }
+    return ok;
   }
 
-  private ExecutableElement findOverridden(ExecutableElement m, TypeElement owner, TypeElement in, Set<TypeElement> seen) {
+  private final Map<ExecutableElement, Boolean> ifaceCovOk = new HashMap<>();
+
+  /**
+   * Whether everything under interface owner can have a method of both groups when owner's m
+   * narrows found. Not when the method x that runs for m in a class (or interface) under owner
+   * is declared outside the interface that found's (widest) group comes from, or overrides a method
+   * declared outside it (a superclass's, another interface's): the group of that method has the
+   * Go name of found's group (one Java name and signature) and another result, and a Go type
+   * has one method of a name. (Decided on javac's types and the groups above found alone.)
+   */
+  private boolean ifaceCovOk(ExecutableElement m, ExecutableElement found, TypeElement owner) {
+    // the interface the widest group comes from (found's group may narrow another)
+    ExecutableElement r = root(found);
+    while (covFrom.containsKey(r)) r = root(covFrom.get(r));
+    TypeMirror top = ownerOf(r).asType();
+    for (TypeElement te : source) {
+      if (!sub(te.asType(), owner.asType())) continue;
+      ExecutableElement x = implOf(te, m);
+      if (x == null) continue;
+      TypeElement out = sub(ownerOf(x).asType(), top) ? null : ownerOf(x);
+      for (TypeElement st : allSupertypes(te)) {
+        if (out != null) break;
+        if (sub(st.asType(), top)) continue;
+        for (Element e : st.getEnclosedElements()) {
+          if (e != x && isInstanceMethod(e) && e.getSimpleName().equals(x.getSimpleName()) && !e.getModifiers().contains(Modifier.PRIVATE)
+              && elems.overrides(x, (ExecutableElement) e, te)) out = st;
+        }
+      }
+      if (out != null) {
+        if (System.getenv("J2GO_COVARIANT") != null) System.err.println("not covariant " + owner.getQualifiedName() + "." + m.getSimpleName() + ": in " + te.getQualifiedName() + " it is or overrides a method of " + out.getQualifiedName());
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /** Whether m and y have one result type: a class or interface type, in y not a type variable. */
+  boolean sameResult(ExecutableElement m, ExecutableElement y) {
+    if (y.getReturnType().getKind() == TypeKind.TYPEVAR) return false;
+    TypeMirror a = types.erasure(m.getReturnType()), b = types.erasure(y.getReturnType());
+    return a.getKind() == TypeKind.DECLARED && b.getKind() == TypeKind.DECLARED && types.isSameType(a, b);
+  }
+
+  /**
+   * The member of te that is im or overrides it: the method that runs when im is called on a te
+   * (a method of a class before a default method before an abstract one); null if none.
+   */
+  ExecutableElement implOf(TypeElement te, ExecutableElement im) {
+    ExecutableElement best = null;
+    int bestRank = -1;
+    for (Element e : elems.getAllMembers(te)) {
+      if (!isInstanceMethod(e) || !e.getSimpleName().equals(im.getSimpleName())) continue;
+      ExecutableElement x = (ExecutableElement) e;
+      if (x != im && !elems.overrides(x, im, te)) continue;
+      int rank = !ownerOf(x).getKind().isInterface() ? 3 : x.isDefault() ? 2 : x != im ? 1 : 0;
+      if (rank > bestRank) {
+        best = x;
+        bestRank = rank;
+      }
+    }
+    return best;
+  }
+
+  /** Whether group g is r or comes from it through narrowing overrides. */
+  boolean descends(ExecutableElement g, ExecutableElement r) {
+    while (g != r) {
+      ExecutableElement f = covFrom.get(g);
+      if (f == null) return false;
+      g = root(f);
+    }
+    return true;
+  }
+
+  /**
+   * Whether the method that te runs for interface method dm is another one, of a group that
+   * narrows dm's: dm's group is then bridged to it, and dm's default body is not te's.
+   */
+  boolean covOverridden(TypeElement te, ExecutableElement dm) {
+    if (NO_COVARIANT) return false;
+    ExecutableElement x = implOf(te, dm);
+    return x != null && x != dm && root(x) != root(dm) && descends(root(x), root(dm));
+  }
+
+  /** Whether te or a superclass of the program has a Go method of group n (declared, bridged or under another group's name). */
+  boolean chainHas(TypeElement te, ExecutableElement n) {
+    for (TypeElement c = te; c != null && isSource(c); c = superclass(c)) {
+      if (declared.get(c).containsKey(n)) return true;
+      Set<ExecutableElement> al = covAlias.get(c);
+      if (al != null && al.contains(n)) return true;
+    }
+    return false;
+  }
+
+  /** The narrowing interface methods (roots of their groups) of te and the interfaces above it. */
+  List<ExecutableElement> covIfaceMethods(TypeElement te) {
+    List<ExecutableElement> out = new ArrayList<>();
+    List<TypeElement> all = new ArrayList<>();
+    all.add(te);
+    all.addAll(allSupertypes(te));
+    for (TypeElement st : all) {
+      if (!isSource(st) || !st.getKind().isInterface()) continue;
+      for (Element e : st.getEnclosedElements()) {
+        if (isInstanceMethod(e) && root((ExecutableElement) e) == e && covFrom.containsKey(e)) out.add((ExecutableElement) e);
+      }
+    }
+    return out;
+  }
+
+  /** Whether groups a and b have one Go signature as te sees them. */
+  boolean sameGoSig(ExecutableElement a, ExecutableElement b, TypeMirror site) {
+    return goSig(groupParams(a, site), groupReturn(a, site), true).equals(goSig(groupParams(b, site), groupReturn(b, site), true));
+  }
+
+  private ExecutableElement findOverridden(ExecutableElement m, TypeElement owner, TypeElement in, Set<TypeElement> seen, java.util.function.Predicate<ExecutableElement> only) {
     // Superclass chain first, then interfaces, so that the choice is deterministic.
     List<TypeMirror> supers = new ArrayList<>();
     if (in.getSuperclass().getKind() == TypeKind.DECLARED) supers.add(in.getSuperclass());
@@ -1853,9 +2003,9 @@ final class Ctx {
         if (e.getKind() != ElementKind.METHOD || !e.getSimpleName().equals(m.getSimpleName())) continue;
         ExecutableElement m2 = (ExecutableElement) e;
         if (m2.getModifiers().contains(Modifier.STATIC) || m2.getModifiers().contains(Modifier.PRIVATE)) continue;
-        if (elems.overrides(m, m2, owner)) return m2;
+        if (elems.overrides(m, m2, owner) && (only == null || only.test(m2))) return m2;
       }
-      ExecutableElement deeper = findOverridden(m, owner, s, seen);
+      ExecutableElement deeper = findOverridden(m, owner, s, seen, only);
       if (deeper != null) return deeper;
     }
     return null;
@@ -1983,13 +2133,15 @@ final class Ctx {
           noteExtRoot((ExecutableElement) e);
         }
       }
-      // A covariant override also implements the group it left, through a bridge.
+      // A covariant override also implements the group it left, through a bridge. (An interface
+      // has the method of that group from the interface it extends.)
       for (Element e : te.getEnclosedElements()) {
         if (!isInstanceMethod(e)) continue;
-        ExecutableElement m = (ExecutableElement) e, f = covFrom.get(m);
-        if (f != null && d.putIfAbsent(root(f), m) == null) {
-          covBridges.computeIfAbsent(te, k -> new ArrayList<>()).add(m);
-          noteExtRoot(f);
+        ExecutableElement m = (ExecutableElement) e, f = covFrom.containsKey(m) ? covFrom.get(m) : covLeft.get(m);
+        if (f == null) continue;
+        noteExtRoot(f);
+        if (!te.getKind().isInterface() && d.putIfAbsent(root(f), m) == null) {
+          covBridges.computeIfAbsent(te, k -> new ArrayList<>()).add(new ExecutableElement[] {root(f), m});
         }
       }
       declared.put(te, d);
@@ -2006,7 +2158,8 @@ final class Ctx {
           if (!isInstanceMethod(e) || !((ExecutableElement) e).isDefault()) continue;
           ExecutableElement dm = (ExecutableElement) e;
           ExecutableElement r = root(dm);
-          boolean has = false;
+          // Overridden by a method of a narrowing group: that group's bridge implements this one.
+          boolean has = covOverridden(te, dm);
           for (TypeElement c = te; c != null && !has; c = superclass(c)) {
             if (isSource(c) && declared.get(c).containsKey(r)) has = true;
           }
@@ -2072,6 +2225,53 @@ final class Ctx {
       }
     }
     instanceMethodNames.addAll(methodNames.values());
+    // Bridges of narrowing interface methods: an interface method im that narrows the result of
+    // a super-interface's method f has its own group, so a class under the interface needs a Go
+    // method of both groups. Where the class (or a superclass) has the method x that runs for im,
+    // each of the two groups that no class of the chain has yet is bridged to x's group: by the
+    // top-most such class, so superclasses first.
+    List<TypeElement> byDepth = new ArrayList<>();
+    for (TypeElement te : source) if (!te.getKind().isInterface()) byDepth.add(te);
+    Map<TypeElement, Integer> depth = new HashMap<>();
+    for (TypeElement te : byDepth) {
+      int n = 0;
+      for (TypeElement c = superclass(te); c != null; c = superclass(c)) n++;
+      depth.put(te, n);
+    }
+    byDepth.sort(Comparator.comparingInt(depth::get));
+    for (TypeElement te : byDepth) {
+      for (ExecutableElement im : covIfaceMethods(te)) {
+        ExecutableElement x = implOf(te, im);
+        if (x == null) continue;
+        ExecutableElement g = root(x);
+        // Nothing to call yet (an abstract class leaving it to its subclasses): they get the bridges.
+        if (!chainHas(te, g)) continue;
+        for (ExecutableElement n : List.of(im, root(covFrom.get(im)))) {
+          if (n == g || chainHas(te, n)) continue;
+          if (methodName(n).equals(methodName(g))) {
+            // Two narrowings of one method to one result type: one Go method is both.
+            if (!sameGoSig(n, g, te.asType())) {
+              throw new IllegalStateException("covariant overrides: " + te + " needs two methods " + methodName(n) + " (" + ownerOf(n) + ", " + ownerOf(g) + ")");
+            }
+            covAlias.computeIfAbsent(te, k -> new LinkedHashSet<>()).add(n);
+            continue;
+          }
+          covBridges.computeIfAbsent(te, k -> new ArrayList<>()).add(new ExecutableElement[] {n, x});
+          declared.get(te).put(n, x);
+        }
+      }
+    }
+    if (System.getenv("J2GO_IMPLEMENTS") != null) {
+      // Debugging: every (class, interface of the program above it), for a Go file of static
+      // assertions `var _ I = (*C)(nil)` that checks the method sets.
+      for (TypeElement te : byDepth) {
+        for (TypeElement st : allSupertypes(te)) {
+          if (isSource(st) && st.getKind().isInterface() && kind(st.asType()) == K.IFACE) {
+            System.err.println("implements " + (te.getModifiers().contains(Modifier.ABSTRACT) ? "abstract " : "concrete ") + ref(te) + " " + goType(erase(st.asType())));
+          }
+        }
+      }
+    }
     // 4. Virtual dispatch: for each class chain, a group declared concretely at two or more levels.
     for (TypeElement te : source) {
       if (te.getKind().isInterface()) continue;
@@ -2163,7 +2363,10 @@ final class Ctx {
     if (!isSource(owner)) return externalMethodName(r);
     if (covFrom.containsKey(r)) {
       // A covariant override's own group: the overridden group's name and the narrower result.
-      return methodName(covFrom.get(r)) + "_r" + typeToken(types.erasure(r.getReturnType()));
+      // (that group may be a narrowing one itself, not named yet)
+      ExecutableElement pr = root(covFrom.get(r));
+      if (!methodNames.containsKey(pr) && covFrom.containsKey(pr)) methodNames.put(pr, nameRoot(pr, null));
+      return methodName(pr) + "_r" + typeToken(types.erasure(r.getReturnType()));
     }
     if (conflict == null) return base;
     boolean arityUnique = true;
