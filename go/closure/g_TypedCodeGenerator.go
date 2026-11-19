@@ -299,7 +299,7 @@ func (this *TypedCodeGenerator) findMethodOwner(n Node) *ObjectType {
 			var type_ *JSType = this.registry.getGlobalType(target.getFirstFirstChild().getQualifiedName())
 			ctor = func() *FunctionType {
 				if type_ != nil {
-					return to_ObjectType(type_.self()).getConstructor()
+					return type_.self().(ObjectType_as).as_ObjectType().getConstructor()
 				}
 				return nil
 			}()

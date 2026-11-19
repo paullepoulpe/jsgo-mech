@@ -46,7 +46,7 @@ func ApplySuggestedFixes_applyAllSuggestedFixChoicesToCode(fixChoices IterableOf
 	if Iterables_isEmpty(fixChoices) {
 		return jimmutableListOf_[*ImmutableMap](tc_p_ImmutableMap, ImmutableMap_of())
 	}
-	var alternativeCount int32 = cast_[*SuggestedFix](Iterables_getFirst(fixChoices, nil)).getAlternatives().size()
+	var alternativeCount int32 = Iterables_getFirst(fixChoices, nil).(*SuggestedFix).getAlternatives().size()
 	if !ApplySuggestedFixes_allHaveAlternativeCount(fixChoices, alternativeCount) {
 		panic(new_IllegalArgumentException_String(objstr_("All SuggestedFixAlternatives must offer an equal number of choices for this utility to make sense")))
 	}

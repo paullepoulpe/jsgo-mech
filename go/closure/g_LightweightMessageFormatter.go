@@ -195,9 +195,9 @@ func LightweightMessageFormatter_appendPosition(b *StringBuilder, sourceName Opt
 	if sourceName.isPresent() {
 		b.append(sourceName.get())
 		if lineNumber > 0 {
-			cast_[*StringBuilder](b.append_char(':')).append_int(lineNumber)
+			b.append_char(':').(*StringBuilder).append_int(lineNumber)
 			if charno >= 0 {
-				cast_[*StringBuilder](b.append_char(':')).append_int(charno)
+				b.append_char(':').(*StringBuilder).append_int(charno)
 			}
 		}
 		b.append(": ")

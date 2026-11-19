@@ -425,7 +425,7 @@ func (this *Compiler) initRuntimeLibraryTypedAsts_impl(colorPoolBuilder Optional
 	var astData *TypedAstDeserializer_DeserializedAst = TypedAstDeserializer_deserializeRuntimeLibraries(this.up_AbstractCompiler(), this.SYNTHETIC_EXTERNS_FILE, colorPoolBuilder, typedAsts.get(), this.getOptions().getResolveSourceMapAnnotations(), this.getOptions().getParseInlineSourceMaps())
 	var runtimeLibraryTypedAsts *JTMap[string, Supplier] = jnewTMap_(jtc_string, tc_Supplier)
 	for library := range elemsBy_(astData.getFilesystem().entrySet(), icast_Map_Entry) {
-		runtimeLibraryTypedAsts.computeIfAbsent(cast_[*SourceFile_jscomp](library.getKey()).getName(), &Function_tfn_string_Supplier{func(f string) Supplier {
+		runtimeLibraryTypedAsts.computeIfAbsent(library.getKey().(*SourceFile_jscomp).getName(), &Function_tfn_string_Supplier{func(f string) Supplier {
 			return icast_Supplier(library.getValue())
 		}})
 	}
@@ -502,8 +502,8 @@ func (this *Compiler) initBasedOnOptions() {
 func (this *Compiler) checkFirstChunk(chunks ListOf[*JSChunk]) {
 	if chunks.isEmpty() {
 		this.report(JSError_make_DiagnosticType_StringArr(Compiler_EMPTY_CHUNK_LIST_ERROR, []string{}))
-	} else if cast_[*JSChunk](chunks.get(0)).getInputs().isEmpty() && (chunks.size() > 1) {
-		this.report(JSError_make_DiagnosticType_StringArr(Compiler_EMPTY_ROOT_CHUNK_ERROR, []string{cast_[*JSChunk](chunks.get(0)).getName()}))
+	} else if chunks.get(0).(*JSChunk).getInputs().isEmpty() && (chunks.size() > 1) {
+		this.report(JSError_make_DiagnosticType_StringArr(Compiler_EMPTY_ROOT_CHUNK_ERROR, []string{chunks.get(0).(*JSChunk).getName()}))
 	}
 }
 
@@ -1365,7 +1365,7 @@ func (this *Compiler) buildKnownSymbolTable() *SymbolTable {
 	}())
 	var refCollector *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.up_AbstractCompiler(), ReferenceCollector_DO_NOTHING_BEHAVIOR, ScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(this.up_AbstractCompiler())))
 	refCollector.process(this.getRoot())
-	SymbolTable_addSymbolsFrom[*Var, *Reference](symbolTable, cast_[StaticSymbolTable[*Var, *Reference]](obj_(refCollector)))
+	SymbolTable_addSymbolsFrom[*Var, *Reference](symbolTable, any(refCollector).(StaticSymbolTable[*Var, *Reference]))
 	var preprocessorSymbolTable *PreprocessorSymbolTable = this.ensureDefaultPassConfig().getPreprocessorSymbolTable()
 	if preprocessorSymbolTable != nil {
 		SymbolTable_addSymbolsFrom[*SimpleSlot, *PreprocessorSymbolTable_Reference](symbolTable, func() StaticSymbolTable[*SimpleSlot, *PreprocessorSymbolTable_Reference] {
@@ -2420,7 +2420,7 @@ func (this *Compiler) getSourceMapping_Optional_int_int_impl(sourceName Optional
 			this.resolvedSourceMap.relativePath = relativePath
 		}
 	}
-	return cast_[*Mapping_OriginalMapping](cast_[*Mapping_OriginalMapping_Builder](result.toBuilder()).setOriginalFile(relativePath).setColumnPosition((result.getColumnPosition() - 1)).build())
+	return cast_[*Mapping_OriginalMapping](result.toBuilder().(*Mapping_OriginalMapping_Builder).setOriginalFile(relativePath).setColumnPosition((result.getColumnPosition() - 1)).build())
 }
 
 func (this *Compiler) getSourceLine_impl(sourceName Optional[string], lineNumber int32) Optional[string] {

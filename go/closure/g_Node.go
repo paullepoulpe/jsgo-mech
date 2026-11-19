@@ -255,7 +255,7 @@ func (this Node) getNonJSDocCommentString() string {
 	if this.getProp(Node_Prop_NON_JSDOC_COMMENT) == nil {
 		return ""
 	}
-	return cast_[*NonJSDocComment](this.getProp(Node_Prop_NON_JSDOC_COMMENT)).getCommentString()
+	return this.getProp(Node_Prop_NON_JSDOC_COMMENT).(*NonJSDocComment).getCommentString()
 }
 
 func (this Node) getNonJSDocComment() *NonJSDocComment {
@@ -266,7 +266,7 @@ func (this Node) getTrailingNonJSDocCommentString() string {
 	if this.getProp(Node_Prop_TRAILING_NON_JSDOC_COMMENT) == nil {
 		return ""
 	}
-	return cast_[*NonJSDocComment](this.getProp(Node_Prop_TRAILING_NON_JSDOC_COMMENT)).getCommentString()
+	return this.getProp(Node_Prop_TRAILING_NON_JSDOC_COMMENT).(*NonJSDocComment).getCommentString()
 }
 
 func (this Node) getTrailingNonJSDocComment() *NonJSDocComment {
@@ -1926,7 +1926,7 @@ func (this Node) getQualifiedNameForGetProp(reserve int32) *StringBuilder {
 		builder = new_StringBuilder_int((String_length(left) + reserve))
 		builder.append(left)
 	}
-	cast_[*StringBuilder](builder.append_char('.')).append(propName)
+	builder.append_char('.').(*StringBuilder).append(propName)
 	return builder
 }
 
