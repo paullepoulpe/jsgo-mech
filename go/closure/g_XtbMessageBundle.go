@@ -13,7 +13,7 @@ func (this *XtbMessageBundle) init_XtbMessageBundle(xtb []int8, projectId Option
 	defer func() {
 		if r_ := recover(); r_ != nil {
 			ex_ := catch_(r_)
-			if is_ParserConfigurationException(ex_) || is_IOException(ex_) || is_SAXException(ex_) {
+			if is_SAXException(ex_) {
 				var e *Exception = to_Exception(ex_)
 				panic(new_RuntimeException_Throwable(e.up_Throwable()))
 			}
