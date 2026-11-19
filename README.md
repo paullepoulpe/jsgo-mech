@@ -62,6 +62,7 @@ found or rewrote the sites, and the checkers that keep each rule true, are in
 | 13a, 13b | no Gson binding, no args4j | 19 sites; a 680-line flag parser |
 | 14a-e | all I/O behind `jscomp.base.Io` (not in the plan) | 86 files; facade 600 lines |
 | 15a-b | JSON behind `jscomp.base.Json` (not in the plan) | 26 files; catches 91 -> 56 |
+| 17 | graph signatures without wildcards: `DiGraph<N, E>` with a method type variable for `DiGraph<N, ?>`, so that j2go keeps E of the graph classes (not in the plan) | 2 signatures, 1 file |
 
 Notes on individual steps:
 

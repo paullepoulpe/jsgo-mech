@@ -62,7 +62,7 @@ public final class DominatorTree<N> {
    * @param entry The entry node of the graph.
    * @return A {@link DominatorTree} instance.
    */
-  public static <N> DominatorTree<N> compute(DiGraph<N, ?> graph, N entry) {
+  public static <N, E> DominatorTree<N> compute(DiGraph<N, E> graph, N entry) {
     checkNotNull(graph.getNode(entry), "Entry node not in graph");
 
     // 1. Post-order traversal to assign indexes to nodes.
@@ -162,8 +162,8 @@ public final class DominatorTree<N> {
     return finger1;
   }
 
-  private static <N> void buildPostOrder(
-      DiGraph<N, ?> graph, N node, List<N> postOrder, Map<N, Boolean> visited) {
+  private static <N, E> void buildPostOrder(
+      DiGraph<N, E> graph, N node, List<N> postOrder, Map<N, Boolean> visited) {
     visited.put(node, true);
     for (DiGraphNode<N, ?> succ : graph.getDirectedSuccNodes(node)) {
       N succValue = succ.getValue();
