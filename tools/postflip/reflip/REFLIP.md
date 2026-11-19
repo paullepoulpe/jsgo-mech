@@ -260,7 +260,7 @@ where a row says so; "sweep" below quotes its counted reasons.
 | String_* UTF-16 helpers | 122 | 118 | 118 | str* tools report no work; 37 are not operations of a UTF-16 view (format, join, valueOf ...) |
 | StringBuilder | 3 | 79 | 79 | OPEN: sbuild converts 0 classes, 41 slots left: the manual and runtime steps of round 8 for builders passed as Appendable (9aa404da dropped: icast_Appendable is gone in this flip) |
 | enums as objects | 0 | 1 | 1 | enums: Node_Prop, which the runtime (node store) uses as an object |
-| Preconditions_ checks | 3 | 1,038 | 1,038 | j2go rules P2 and P4: all are the translator's typed variants (_T: generic checkNotNull returning its argument, 444; _H: the message argument is a node handle boxed only on failure, 594). precond and nnchecks leave them (sweep: 106 generic checkNotNull). Whether to inline them (the first flip's checks step) is open |
+| Preconditions_ checks | 3 | 1,038 | 372 | j2go rules P2 and P4 (typed variants), then tchecks (dfc0c907): 665 statement calls are inline checks. Left (tchecks, counted): 235 checkNotNull used as an expression (its result is the value), 135 with a message argument that is not a constant, a variable or a field path (the template forms), 3 whose checked value is not a variable or a field path |
 | threads / executors | 13 | 56 | 56 | OPEN: the three dropped executor patches |
 | reflect, unsafe | 5, 1 | 5, 2 | 5, 2 | name matches in generated code; the node store adds one unsafe use |
 | fields/params declared any | 1,877 | 1,640 | 1,715 | objslots: 5 left (receive from a slot that stays any). OPEN: the planned single-type Object flow retyping |
