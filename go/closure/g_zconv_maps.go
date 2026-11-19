@@ -5,5 +5,5 @@ package closure
 // Element conversions of the typed maps.
 
 var tc_ClassOf_any_ = &tconv_[ClassOf[any]]{box: func(v ClassOf[any]) any { return obj_(v) }, unbox: func(v any) ClassOf[any] { return cast_[*Class](v) }}
-var tc_IndexProvider = &tconv_[IndexProvider]{box: func(v IndexProvider) any { return any(v) }, unbox: func(v any) IndexProvider { return icast_IndexProvider(v) }}
+var tc_IndexProvider = &tconv_[IndexProvider]{box: func(v IndexProvider) any { return v }, unbox: func(v any) IndexProvider { return icast_IndexProvider(v) }}
 var tc_p_TypedScope = &tconv_[*TypedScope]{box: func(v *TypedScope) any { return obj_(v) }, unbox: func(v any) *TypedScope { return cast_[*TypedScope](v) }}

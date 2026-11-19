@@ -263,7 +263,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) exitScope(t *NodeT
 		var declaredVariableInfo *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo = it_3.v
 		var variableName string = declaredVariableInfo.getName()
 		var oldStackTop MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = this.variablesStackedByName.popVariableInfo(variableName)
-		if !(any(oldStackTop) == obj_(declaredVariableInfo)) {
+		if !(oldStackTop == obj_(declaredVariableInfo)) {
 			Preconditions_checkState_boolean_String_Object(false, "Declared variable \"%s\" was not the top of the name stack", variableName)
 		}
 		declaredVariableInfo.tryToInvertName()
@@ -395,7 +395,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInf
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo) addPotentialConflict(variableInfo MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo) {
-	if (this.renamingInfo != nil) && (any(variableInfo) != any(this)) {
+	if (this.renamingInfo != nil) && (variableInfo != any(this)) {
 		this.renamingInfo.addPotentialShadowVariable(variableInfo)
 	}
 }
@@ -655,7 +655,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) createForChildScope_impl(
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) addDeclaredName(name string, hoisted bool) {
-	if hoisted && (any(this.hoistRenamer) != this.self()) {
+	if hoisted && (this.hoistRenamer != this.self()) {
 		this.hoistRenamer.addDeclaredName(name, true)
 	} else {
 		if !(name == MakeDeclaredNamesUnique_ARGUMENTS) {
@@ -750,7 +750,7 @@ func new_MakeDeclaredNamesUnique_InlineRenamer(convention CodingConvention, uniq
 
 func (this *MakeDeclaredNamesUnique_InlineRenamer) addDeclaredName(name string, hoisted bool) {
 	Preconditions_checkState(!(name == MakeDeclaredNamesUnique_ARGUMENTS))
-	if hoisted && (any(this.hoistRenamer) != any(this)) {
+	if hoisted && (this.hoistRenamer != any(this)) {
 		this.hoistRenamer.addDeclaredName(name, hoisted)
 	} else {
 		this.declarations.computeIfAbsent(name, &Function_tfn_string_string{func(p0 string) string { return this.getUniqueName(p0) }})

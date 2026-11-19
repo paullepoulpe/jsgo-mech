@@ -112,7 +112,7 @@ func (this *SimpleSetMultimap) put_s(key string, value any) bool {
 			return new_LinkedHashSet()
 		}()
 		values.add(value)
-		Map_put_s(this.map__, key, any(values))
+		Map_put_s(this.map__, key, values)
 	} else if !values.add(value) {
 		return false
 	}
