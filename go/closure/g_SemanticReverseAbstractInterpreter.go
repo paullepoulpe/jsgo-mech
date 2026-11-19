@@ -66,7 +66,7 @@ func SemanticReverseAbstractInterpreter_ineq(p *JSType_TypePair) *JSType_TypePai
 	}())
 }
 
-func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingConditionOutcome_impl(condition Node, blindScope FlowScope, outcome *Outcome_rhino) FlowScope {
+func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingConditionOutcome_impl(condition Node, blindScope FlowScope, outcome Outcome_rhino) FlowScope {
 	var operatorToken Token_rhino = condition.getToken()
 	switch operatorToken {
 	case Token_rhino_EQ, Token_rhino_NE, Token_rhino_SHEQ, Token_rhino_SHNE, Token_rhino_CASE:
@@ -176,7 +176,7 @@ func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingCondition
 	return this.nextPreciserScopeKnowingConditionOutcome(condition, blindScope, outcome)
 }
 
-func (this *SemanticReverseAbstractInterpreter) caseIsArray(value Node, blindScope FlowScope, outcome *Outcome_rhino) FlowScope {
+func (this *SemanticReverseAbstractInterpreter) caseIsArray(value Node, blindScope FlowScope, outcome Outcome_rhino) FlowScope {
 	var type_ *JSType = this.getTypeIfRefinable(value, blindScope)
 	if type_ != nil {
 		var visitor Visitor = func() Visitor {
@@ -228,7 +228,7 @@ func (this *SemanticReverseAbstractInterpreter) caseEquality_4(left Node, right 
 	return blindScope
 }
 
-func (this *SemanticReverseAbstractInterpreter) caseAndOrNotShortCircuiting(left Node, right Node, blindScope FlowScope, outcome *Outcome_rhino) FlowScope {
+func (this *SemanticReverseAbstractInterpreter) caseAndOrNotShortCircuiting(left Node, right Node, blindScope FlowScope, outcome Outcome_rhino) FlowScope {
 	var leftType *JSType = this.getTypeIfRefinable(left, blindScope)
 	var leftIsRefineable bool
 	if leftType != nil {
@@ -279,7 +279,7 @@ func (this *SemanticReverseAbstractInterpreter) caseAndOrNotShortCircuiting(left
 	return blindScope
 }
 
-func (this *SemanticReverseAbstractInterpreter) caseAndOrMaybeShortCircuiting(left Node, right Node, blindScope FlowScope, outcome *Outcome_rhino) FlowScope {
+func (this *SemanticReverseAbstractInterpreter) caseAndOrMaybeShortCircuiting(left Node, right Node, blindScope FlowScope, outcome Outcome_rhino) FlowScope {
 	var refinements *JTSet[string] = jnewTSet_(jtc_string)
 	blindScope = FlowScope(new_SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope(blindScope, refinements))
 	var leftScope FlowScope = this.firstPreciserScopeKnowingConditionOutcome(left, blindScope, outcome.not())
@@ -331,7 +331,7 @@ func (this *SemanticReverseAbstractInterpreter) maybeRestrictTwoNames(blindScope
 	return blindScope
 }
 
-func (this *SemanticReverseAbstractInterpreter) caseNameOrGetProp(name Node, blindScope FlowScope, outcome *Outcome_rhino) FlowScope {
+func (this *SemanticReverseAbstractInterpreter) caseNameOrGetProp(name Node, blindScope FlowScope, outcome Outcome_rhino) FlowScope {
 	var type_ *JSType = this.getTypeIfRefinable(name, blindScope)
 	if type_ != nil {
 		var restrictedType *JSType = type_.getRestrictedTypeGivenOutcome(outcome)
@@ -344,7 +344,7 @@ func (this *SemanticReverseAbstractInterpreter) caseTypeOf(node Node, type_ *JST
 	return this.maybeRestrictName(blindScope, node, type_, this.getRestrictedByTypeOfResult(type_, value, resultEqualsValue))
 }
 
-func (this *SemanticReverseAbstractInterpreter) caseInstanceOf(left Node, right Node, blindScope FlowScope, outcome *Outcome_rhino) FlowScope {
+func (this *SemanticReverseAbstractInterpreter) caseInstanceOf(left Node, right Node, blindScope FlowScope, outcome Outcome_rhino) FlowScope {
 	var leftType *JSType = this.getTypeIfRefinable(left, blindScope)
 	if leftType == nil {
 		return blindScope
@@ -600,7 +600,7 @@ func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) getT
 }
 
 // getPreciserScopeKnowingConditionOutcome: an object that is exactly a SemanticReverseAbstractInterpreter calls its getPreciserScopeKnowingConditionOutcome_impl directly (post-flip); others dispatch.
-func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingConditionOutcome(p0 Node, p1 FlowScope, p2 *Outcome_rhino) FlowScope {
+func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingConditionOutcome(p0 Node, p1 FlowScope, p2 Outcome_rhino) FlowScope {
 	if p, _ := this.self_.(*SemanticReverseAbstractInterpreter); p == this {
 		return this.getPreciserScopeKnowingConditionOutcome_impl(p0, p1, p2)
 	}
