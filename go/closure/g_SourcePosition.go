@@ -9,6 +9,11 @@ type SourcePosition_util struct {
 	column_ int32
 }
 
+// ptr_SourcePosition_util is a copy of v on the heap, for a field that may be null.
+func ptr_SourcePosition_util(v SourcePosition_util) *SourcePosition_util {
+	return &v
+}
+
 func (this *SourcePosition_util) init_SourcePosition_util(source *SourceFile_parser, offset int32, line int32, column int32) {
 	this.source = source
 	this.offset = offset
@@ -16,21 +21,21 @@ func (this *SourcePosition_util) init_SourcePosition_util(source *SourceFile_par
 	this.column_ = column
 }
 
-func new_SourcePosition_util(source *SourceFile_parser, offset int32, line int32, column int32) *SourcePosition_util {
-	this := &SourcePosition_util{}
+func new_SourcePosition_util(source *SourceFile_parser, offset int32, line int32, column int32) SourcePosition_util {
+	this := SourcePosition_util{}
 	this.init_SourcePosition_util(source, offset, line, column)
 	return this
 }
 
-func (this *SourcePosition_util) getOffset() int32 {
+func (this SourcePosition_util) getOffset() int32 {
 	return this.offset
 }
 
-func (this *SourcePosition_util) toString() string {
+func (this SourcePosition_util) toString() string {
 	return (sstr_(this.shortSourceName()) + "(" + istr_(int64(int32((this.line_ + 1)))) + ", " + istr_(int64(int32((this.column_ + 1)))) + ")")
 }
 
-func (this *SourcePosition_util) shortSourceName() string {
+func (this SourcePosition_util) shortSourceName() string {
 	if this.source == nil {
 		return ""
 	}

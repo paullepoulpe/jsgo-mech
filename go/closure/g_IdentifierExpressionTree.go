@@ -14,12 +14,12 @@ func (this *IdentifierExpressionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *IdentifierExpressionTree) init_IdentifierExpressionTree(location *SourceRange, identifierToken *IdentifierToken) {
+func (this *IdentifierExpressionTree) init_IdentifierExpressionTree(location SourceRange, identifierToken *IdentifierToken) {
 	this.ParseTree.init_ParseTree(ParseTreeType_IDENTIFIER_EXPRESSION, location)
 	this.identifierToken = identifierToken
 }
 
-func new_IdentifierExpressionTree(location *SourceRange, identifierToken *IdentifierToken) *IdentifierExpressionTree {
+func new_IdentifierExpressionTree(location SourceRange, identifierToken *IdentifierToken) *IdentifierExpressionTree {
 	this := &IdentifierExpressionTree{}
 	this.self_ = this
 	this.init_IdentifierExpressionTree(location, identifierToken)

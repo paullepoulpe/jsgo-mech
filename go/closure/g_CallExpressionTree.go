@@ -15,13 +15,13 @@ func (this *CallExpressionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *CallExpressionTree) init_CallExpressionTree(location *SourceRange, operand *ParseTree, arguments *ArgumentListTree) {
+func (this *CallExpressionTree) init_CallExpressionTree(location SourceRange, operand *ParseTree, arguments *ArgumentListTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_CALL_EXPRESSION, location)
 	this.operand = operand
 	this.arguments = arguments
 }
 
-func new_CallExpressionTree(location *SourceRange, operand *ParseTree, arguments *ArgumentListTree) *CallExpressionTree {
+func new_CallExpressionTree(location SourceRange, operand *ParseTree, arguments *ArgumentListTree) *CallExpressionTree {
 	this := &CallExpressionTree{}
 	this.self_ = this
 	this.init_CallExpressionTree(location, operand, arguments)

@@ -13,11 +13,11 @@ func (this *NullTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *NullTree) init_NullTree(location *SourceRange) {
+func (this *NullTree) init_NullTree(location SourceRange) {
 	this.ParseTree.init_ParseTree(ParseTreeType_NULL, location)
 }
 
-func new_NullTree(location *SourceRange) *NullTree {
+func new_NullTree(location SourceRange) *NullTree {
 	this := &NullTree{}
 	this.self_ = this
 	this.init_NullTree(location)

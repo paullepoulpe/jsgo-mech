@@ -16,14 +16,14 @@ func (this *FieldDeclarationTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *FieldDeclarationTree) init_FieldDeclarationTree(location *SourceRange, name *IdentifierToken, isStatic bool, initializer *ParseTree) {
+func (this *FieldDeclarationTree) init_FieldDeclarationTree(location SourceRange, name *IdentifierToken, isStatic bool, initializer *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_FIELD_DECLARATION, location)
 	this.name_ = name
 	this.isStatic = isStatic
 	this.initializer = initializer
 }
 
-func new_FieldDeclarationTree(location *SourceRange, name *IdentifierToken, isStatic bool, initializer *ParseTree) *FieldDeclarationTree {
+func new_FieldDeclarationTree(location SourceRange, name *IdentifierToken, isStatic bool, initializer *ParseTree) *FieldDeclarationTree {
 	this := &FieldDeclarationTree{}
 	this.self_ = this
 	this.init_FieldDeclarationTree(location, name, isStatic, initializer)

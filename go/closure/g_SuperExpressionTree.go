@@ -13,11 +13,11 @@ func (this *SuperExpressionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *SuperExpressionTree) init_SuperExpressionTree(location *SourceRange) {
+func (this *SuperExpressionTree) init_SuperExpressionTree(location SourceRange) {
 	this.ParseTree.init_ParseTree(ParseTreeType_SUPER_EXPRESSION, location)
 }
 
-func new_SuperExpressionTree(location *SourceRange) *SuperExpressionTree {
+func new_SuperExpressionTree(location SourceRange) *SuperExpressionTree {
 	this := &SuperExpressionTree{}
 	this.self_ = this
 	this.init_SuperExpressionTree(location)

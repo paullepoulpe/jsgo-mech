@@ -15,13 +15,13 @@ func (this *MemberExpressionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *MemberExpressionTree) init_MemberExpressionTree(location *SourceRange, operand *ParseTree, memberName *IdentifierToken) {
+func (this *MemberExpressionTree) init_MemberExpressionTree(location SourceRange, operand *ParseTree, memberName *IdentifierToken) {
 	this.ParseTree.init_ParseTree(ParseTreeType_MEMBER_EXPRESSION, location)
 	this.operand = operand
 	this.memberName = memberName
 }
 
-func new_MemberExpressionTree(location *SourceRange, operand *ParseTree, memberName *IdentifierToken) *MemberExpressionTree {
+func new_MemberExpressionTree(location SourceRange, operand *ParseTree, memberName *IdentifierToken) *MemberExpressionTree {
 	this := &MemberExpressionTree{}
 	this.self_ = this
 	this.init_MemberExpressionTree(location, operand, memberName)

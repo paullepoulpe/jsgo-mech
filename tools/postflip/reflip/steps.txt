@@ -770,3 +770,6 @@ ad8c897b patch 492-ad8c897b-rt.patch
 265af42f patch 496-265af42f-rt.patch
 # 497. postflip (runtime, re-flip): protobuf fields are stored typed, in one struct per message written by tools/protogen, instead of boxed in a []any
 7be430ed patch 497-7be430ed-rt.patch
+# 498. postflip step (re-flip): valobj, SourcePosition and SourceRange are Go values: 392 type spellings (tool 71a7e048)
+72b5b892 run t valobj && f
+#: valobj: the classes of valobj/classes.txt, each checked (shape, immutability, identity-freedom, no nil of the type; 12 fields argued in classes.txt as assigned before any read, 1 nullable field kept a pointer to a copy): SourcePosition_util 24 bytes, 189 type spellings, 2 obj_ -> any, 1 ptr_ for the nullable field; SourceRange 48 bytes, 203 type spellings, 1 tostr_ -> toString; 2 element conversions box the value; f realigns 40 lines of g_0names.go; flags3500 CHECKS 280.3M -> 243.4M objects

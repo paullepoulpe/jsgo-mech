@@ -15,13 +15,13 @@ func (this *DefaultParameterTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *DefaultParameterTree) init_DefaultParameterTree(location *SourceRange, lhs *ParseTree, defaultValue *ParseTree) {
+func (this *DefaultParameterTree) init_DefaultParameterTree(location SourceRange, lhs *ParseTree, defaultValue *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_DEFAULT_PARAMETER, location)
 	this.lhs = lhs
 	this.defaultValue = defaultValue
 }
 
-func new_DefaultParameterTree(location *SourceRange, lhs *ParseTree, defaultValue *ParseTree) *DefaultParameterTree {
+func new_DefaultParameterTree(location SourceRange, lhs *ParseTree, defaultValue *ParseTree) *DefaultParameterTree {
 	this := &DefaultParameterTree{}
 	this.self_ = this
 	this.init_DefaultParameterTree(location, lhs, defaultValue)

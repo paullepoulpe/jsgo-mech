@@ -4,7 +4,7 @@ package closure
 
 type Token_parser struct {
 	self_     Token_parser_I
-	location_ *SourceRange
+	location_ SourceRange
 	type__    TokenType
 }
 
@@ -36,19 +36,19 @@ func (this *Token_parser) self() any {
 	return this.self_
 }
 
-func (this *Token_parser) init_Token_parser(type_ TokenType, location *SourceRange) {
+func (this *Token_parser) init_Token_parser(type_ TokenType, location SourceRange) {
 	this.type__ = type_
 	this.location_ = location
 }
 
-func new_Token_parser(type_ TokenType, location *SourceRange) *Token_parser {
+func new_Token_parser(type_ TokenType, location SourceRange) *Token_parser {
 	this := &Token_parser{}
 	this.self_ = this
 	this.init_Token_parser(type_, location)
 	return this
 }
 
-func (this *Token_parser) getStart() *SourcePosition_util {
+func (this *Token_parser) getStart() SourcePosition_util {
 	return this.location_.start_
 }
 

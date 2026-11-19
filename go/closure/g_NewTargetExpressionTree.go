@@ -13,11 +13,11 @@ func (this *NewTargetExpressionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *NewTargetExpressionTree) init_NewTargetExpressionTree(location *SourceRange) {
+func (this *NewTargetExpressionTree) init_NewTargetExpressionTree(location SourceRange) {
 	this.ParseTree.init_ParseTree(ParseTreeType_NEW_TARGET_EXPRESSION, location)
 }
 
-func new_NewTargetExpressionTree(location *SourceRange) *NewTargetExpressionTree {
+func new_NewTargetExpressionTree(location SourceRange) *NewTargetExpressionTree {
 	this := &NewTargetExpressionTree{}
 	this.self_ = this
 	this.init_NewTargetExpressionTree(location)

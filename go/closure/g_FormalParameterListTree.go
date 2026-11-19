@@ -6,7 +6,7 @@ type FormalParameterListTree struct {
 	ParseTree
 	parameters        *ImmutableList[*ParseTree]
 	hasTrailingComma_ bool
-	commaPositions    *ImmutableList[*SourcePosition_util]
+	commaPositions    *ImmutableList[SourcePosition_util]
 }
 
 func (this *FormalParameterListTree) up_ParseTree() *ParseTree {
@@ -16,7 +16,7 @@ func (this *FormalParameterListTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *FormalParameterListTree) init_FormalParameterListTree(location *SourceRange, parameters *ImmutableList[*ParseTree], hasTrailingComma bool, commaPositions *ImmutableList[*SourcePosition_util]) {
+func (this *FormalParameterListTree) init_FormalParameterListTree(location SourceRange, parameters *ImmutableList[*ParseTree], hasTrailingComma bool, commaPositions *ImmutableList[SourcePosition_util]) {
 	this.ParseTree.init_ParseTree(ParseTreeType_FORMAL_PARAMETER_LIST, location)
 	var numParams int32 = parameters.size()
 	var numCommas int32 = commaPositions.size()
@@ -28,7 +28,7 @@ func (this *FormalParameterListTree) init_FormalParameterListTree(location *Sour
 	this.commaPositions = commaPositions
 }
 
-func new_FormalParameterListTree(location *SourceRange, parameters *ImmutableList[*ParseTree], hasTrailingComma bool, commaPositions *ImmutableList[*SourcePosition_util]) *FormalParameterListTree {
+func new_FormalParameterListTree(location SourceRange, parameters *ImmutableList[*ParseTree], hasTrailingComma bool, commaPositions *ImmutableList[SourcePosition_util]) *FormalParameterListTree {
 	this := &FormalParameterListTree{}
 	this.self_ = this
 	this.init_FormalParameterListTree(location, parameters, hasTrailingComma, commaPositions)

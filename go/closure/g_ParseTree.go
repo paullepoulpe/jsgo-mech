@@ -5,7 +5,7 @@ package closure
 type ParseTree struct {
 	self_     any
 	type__    ParseTreeType
-	location_ *SourceRange
+	location_ SourceRange
 }
 
 // ParseTree_as is implemented by ParseTree and the classes that extend it: a cast to ParseTree asserts to it
@@ -30,23 +30,23 @@ func (this *ParseTree) self() any {
 	return this.self_
 }
 
-func (this *ParseTree) init_ParseTree(type_ ParseTreeType, location *SourceRange) {
+func (this *ParseTree) init_ParseTree(type_ ParseTreeType, location SourceRange) {
 	this.type__ = type_
 	this.location_ = location
 }
 
-func new_ParseTree(type_ ParseTreeType, location *SourceRange) *ParseTree {
+func new_ParseTree(type_ ParseTreeType, location SourceRange) *ParseTree {
 	this := &ParseTree{}
 	this.self_ = this
 	this.init_ParseTree(type_, location)
 	return this
 }
 
-func (this *ParseTree) getStart() *SourcePosition_util {
+func (this *ParseTree) getStart() SourcePosition_util {
 	return this.location_.start_
 }
 
-func (this *ParseTree) getEnd() *SourcePosition_util {
+func (this *ParseTree) getEnd() SourcePosition_util {
 	return this.location_.end_
 }
 
@@ -418,5 +418,5 @@ func (this *ParseTree) isRestParameter() bool {
 }
 
 func (this *ParseTree) toString() string {
-	return (tostr_(this.type__) + "@" + tostr_(this.location_))
+	return (tostr_(this.type__) + "@" + this.location_.toString())
 }

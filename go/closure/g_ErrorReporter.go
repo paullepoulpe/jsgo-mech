@@ -20,13 +20,13 @@ func (this *ErrorReporter_util) init_ErrorReporter_util() {
 
 }
 
-func (this *ErrorReporter_util) reportError_3(location *SourcePosition_util, format string, arguments ...any) {
+func (this *ErrorReporter_util) reportError_3(location SourcePosition_util, format string, arguments ...any) {
 	this.hadErrorField = true
 	var message string = String_format(format, arguments...)
 	this.reportError(location, message)
 }
 
-func (this *ErrorReporter_util) reportWarning_3(location *SourcePosition_util, format string, arguments ...any) {
+func (this *ErrorReporter_util) reportWarning_3(location SourcePosition_util, format string, arguments ...any) {
 	var message string = String_format(format, arguments...)
 	this.reportWarning(location, message)
 }
@@ -35,10 +35,10 @@ func (this *ErrorReporter_util) hadError() bool {
 	return this.hadErrorField
 }
 
-func (this *ErrorReporter_util) reportError(p0 *SourcePosition_util, p1 string) {
+func (this *ErrorReporter_util) reportError(p0 SourcePosition_util, p1 string) {
 	this.self_.(*ParserRunner_Es6ErrorReporter).reportError_impl(p0, p1)
 }
 
-func (this *ErrorReporter_util) reportWarning(p0 *SourcePosition_util, p1 string) {
+func (this *ErrorReporter_util) reportWarning(p0 SourcePosition_util, p1 string) {
 	this.self_.(*ParserRunner_Es6ErrorReporter).reportWarning_impl(p0, p1)
 }

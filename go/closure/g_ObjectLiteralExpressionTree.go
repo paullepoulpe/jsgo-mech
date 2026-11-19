@@ -15,13 +15,13 @@ func (this *ObjectLiteralExpressionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ObjectLiteralExpressionTree) init_ObjectLiteralExpressionTree(location *SourceRange, propertyNameAndValues []*ParseTree, hasTrailingComma bool) {
+func (this *ObjectLiteralExpressionTree) init_ObjectLiteralExpressionTree(location SourceRange, propertyNameAndValues []*ParseTree, hasTrailingComma bool) {
 	this.ParseTree.init_ParseTree(ParseTreeType_OBJECT_LITERAL_EXPRESSION, location)
 	this.propertyNameAndValues = propertyNameAndValues
 	this.hasTrailingComma_ = hasTrailingComma
 }
 
-func new_ObjectLiteralExpressionTree(location *SourceRange, propertyNameAndValues []*ParseTree, hasTrailingComma bool) *ObjectLiteralExpressionTree {
+func new_ObjectLiteralExpressionTree(location SourceRange, propertyNameAndValues []*ParseTree, hasTrailingComma bool) *ObjectLiteralExpressionTree {
 	this := &ObjectLiteralExpressionTree{}
 	this.self_ = this
 	this.init_ObjectLiteralExpressionTree(location, propertyNameAndValues, hasTrailingComma)

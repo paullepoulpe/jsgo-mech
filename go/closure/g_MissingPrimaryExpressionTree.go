@@ -13,11 +13,11 @@ func (this *MissingPrimaryExpressionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *MissingPrimaryExpressionTree) init_MissingPrimaryExpressionTree(location *SourceRange) {
+func (this *MissingPrimaryExpressionTree) init_MissingPrimaryExpressionTree(location SourceRange) {
 	this.ParseTree.init_ParseTree(ParseTreeType_MISSING_PRIMARY_EXPRESSION, location)
 }
 
-func new_MissingPrimaryExpressionTree(location *SourceRange) *MissingPrimaryExpressionTree {
+func new_MissingPrimaryExpressionTree(location SourceRange) *MissingPrimaryExpressionTree {
 	this := &MissingPrimaryExpressionTree{}
 	this.self_ = this
 	this.init_MissingPrimaryExpressionTree(location)

@@ -14,12 +14,12 @@ func (this *TemplateSubstitutionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *TemplateSubstitutionTree) init_TemplateSubstitutionTree(location *SourceRange, expression *ParseTree) {
+func (this *TemplateSubstitutionTree) init_TemplateSubstitutionTree(location SourceRange, expression *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_TEMPLATE_SUBSTITUTION, location)
 	this.expression = expression
 }
 
-func new_TemplateSubstitutionTree(location *SourceRange, expression *ParseTree) *TemplateSubstitutionTree {
+func new_TemplateSubstitutionTree(location SourceRange, expression *ParseTree) *TemplateSubstitutionTree {
 	this := &TemplateSubstitutionTree{}
 	this.self_ = this
 	this.init_TemplateSubstitutionTree(location, expression)
