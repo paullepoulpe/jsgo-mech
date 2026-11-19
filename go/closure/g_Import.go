@@ -149,7 +149,7 @@ func (this *Import_Builder) nameNode(value Node) *Import_Builder {
 
 func (this *Import_Builder) build() *Import {
 	if (((this.moduleRequestField.isEmpty() || this.importNameField.isEmpty()) || this.localNameField.isEmpty()) || (this.importNodeField == 0)) || (this.nameNodeField == 0) {
-		var missing *StringBuilder = new_StringBuilder()
+		var missing strBuilder_
 		if this.moduleRequestField.isEmpty() {
 			missing.append(" moduleRequest")
 		}
@@ -165,7 +165,7 @@ func (this *Import_Builder) build() *Import {
 		if this.nameNodeField == 0 {
 			missing.append(" nameNode")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))))
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())))
 	}
 	return new_Import(this.moduleRequestField.get(), this.importNameField.get(), this.localNameField.get(), this.modulePathField, this.importNodeField, this.nameNodeField)
 }

@@ -49,8 +49,8 @@ func DotFormatter_toDotNode(n Node) string {
 }
 
 func DotFormatter_toDot_Node_ControlFlowGraph(n Node, inCFG *ControlFlowGraph[Node]) string {
-	var builder *StringBuilder = new_StringBuilder()
-	var unused *DotFormatter = new_DotFormatter_Node_ControlFlowGraph_Appendable_boolean(n, inCFG, StringBuilder_as_Appendable(builder), false)
+	var builder strBuilder_
+	var unused *DotFormatter = new_DotFormatter_Node_ControlFlowGraph_Appendable_boolean(n, inCFG, appendable_(&builder), false)
 	_ = unused
 	return builder.toString()
 }
