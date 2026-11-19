@@ -946,41 +946,41 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	this.finit_CommandLineRunner_Flags()
 	this.parser = new_CmdLineParser()
-	this.parser.option("--browser_featureset_year").usage("shortcut for defining goog.FEATURESET_YEAR=YYYY. The minimum valid value of the browser year is 2012").integer(&Supplier_fn{func() any {
+	this.parser.option("--browser_featureset_year").usage("shortcut for defining goog.FEATURESET_YEAR=YYYY. The minimum valid value of the browser year is 2012").integer(func() any {
 		return this.browserFeaturesetYear
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.browserFeaturesetYear = v
-	}})
-	this.parser.option("--help").usage("Displays this message on stdout and exit").bool(&Supplier_fn{func() any {
+	})
+	this.parser.option("--help").usage("Displays this message on stdout and exit").bool(func() any {
 		return any(bool(this.displayHelp))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.displayHelp = unbox_[bool](v)
-	}})
-	this.parser.option("--print_tree").hidden_1(true).usage("Prints out the parse tree and exits").bool(&Supplier_fn{func() any {
+	})
+	this.parser.option("--print_tree").hidden_1(true).usage("Prints out the parse tree and exits").bool(func() any {
 		return any(bool(this.printTree))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.printTree = unbox_[bool](v)
-	}})
-	this.parser.option("--print_tree_json").hidden_1(true).usage("Prints out the parse tree as json and exits").bool(&Supplier_fn{func() any {
+	})
+	this.parser.option("--print_tree_json").hidden_1(true).usage("Prints out the parse tree as json and exits").bool(func() any {
 		return any(bool(this.printTreeJson))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.printTreeJson = unbox_[bool](v)
-	}})
-	this.parser.option("--print_ast").hidden_1(true).usage("Prints a dot file describing the internal abstract syntax tree and exits").bool(&Supplier_fn{func() any {
+	})
+	this.parser.option("--print_ast").hidden_1(true).usage("Prints a dot file describing the internal abstract syntax tree and exits").bool(func() any {
 		return any(bool(this.printAst))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.printAst = unbox_[bool](v)
-	}})
-	this.parser.option("--emit_use_strict").usage("Start output with \"'use strict';\".").bool(&Supplier_fn{func() any {
+	})
+	this.parser.option("--emit_use_strict").usage("Start output with \"'use strict';\".").bool(func() any {
 		return any(bool(this.emitUseStrict))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.emitUseStrict = unbox_[bool](v)
-	}})
-	this.parser.option("--strict_mode_input").usage("Assume input sources are to run in strict mode.").bool(&Supplier_fn{func() any {
+	})
+	this.parser.option("--strict_mode_input").usage("Assume input sources are to run in strict mode.").bool(func() any {
 		return any(bool(this.strictModeInput))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.strictModeInput = unbox_[bool](v)
-	}})
+	})
 	CmdLineParser_Option_enumValue[*CompilerOptions_DevMode](this.parser.option("--jscomp_dev_mode").aliases([]string{"--dev_mode"}).hidden_1(true), CompilerOptions_DevMode_values(), &Supplier_tfn_CompilerOptions_DevMode{func() *CompilerOptions_DevMode {
 		return this.jscompDevMode
 	}}, &Consumer_tfn_CompilerOptions_DevMode{func(v *CompilerOptions_DevMode) {
@@ -1037,31 +1037,31 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}}, &Consumer_tfn_string{func(v string) {
 		this.instrumentationMappingOutputFile = v
 	}})
-	this.parser.option("--create_renaming_reports").hidden_1(true).usage("If true, variable renaming and property renaming report files will be produced as {binary name}_vars_renaming_report.out and {binary name}_props_renaming_report.out. Note that this flag cannot be used in conjunction with either variable_renaming_report or property_renaming_report").bool(&Supplier_fn{func() any {
+	this.parser.option("--create_renaming_reports").hidden_1(true).usage("If true, variable renaming and property renaming report files will be produced as {binary name}_vars_renaming_report.out and {binary name}_props_renaming_report.out. Note that this flag cannot be used in conjunction with either variable_renaming_report or property_renaming_report").bool(func() any {
 		return any(bool(this.createNameMapFiles))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.createNameMapFiles = unbox_[bool](v)
-	}})
-	this.parser.option("--source_map_include_content").usage("Includes sources content into source map. Greatly increases the size of source maps but offers greater portability").bool(&Supplier_fn{func() any {
+	})
+	this.parser.option("--source_map_include_content").usage("Includes sources content into source map. Greatly increases the size of source maps but offers greater portability").bool(func() any {
 		return any(bool(this.sourceMapIncludeSourcesContent))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.sourceMapIncludeSourcesContent = unbox_[bool](v)
-	}})
+	})
 	this.parser.option("--property_renaming_report").usage("File where the serialized version of the property renaming map produced should be saved").string(&Supplier_tfn_string{func() string {
 		return this.propertyMapOutputFile
 	}}, &Consumer_tfn_string{func(v string) {
 		this.propertyMapOutputFile = v
 	}})
-	this.parser.option("--third_party").usage("Check source validity but do not enforce Closure style rules and conventions").bool(&Supplier_fn{func() any {
+	this.parser.option("--third_party").usage("Check source validity but do not enforce Closure style rules and conventions").bool(func() any {
 		return any(bool(this.thirdParty))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.thirdParty = unbox_[bool](v)
-	}})
-	this.parser.option("--summary_detail_level").hidden_1(true).usage("Controls how detailed the compilation summary is. Values: 0 (never print summary), 1 (print summary only if there are errors or warnings), 2 (print summary if the 'checkTypes' diagnostic  group is enabled, see --jscomp_warning), 3 (always print summary). The default level is 1").integer(&Supplier_fn{func() any {
+	})
+	this.parser.option("--summary_detail_level").hidden_1(true).usage("Controls how detailed the compilation summary is. Values: 0 (never print summary), 1 (print summary only if there are errors or warnings), 2 (print summary if the 'checkTypes' diagnostic  group is enabled, see --jscomp_warning), 3 (always print summary). The default level is 1").integer(func() any {
 		return any(int32(this.summaryDetailLevel))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.summaryDetailLevel = unbox_[int32](v)
-	}})
+	})
 	CmdLineParser_Option_enumValue[*CompilerOptions_IsolationMode](this.parser.option("--isolation_mode").usage("If set to IIFE the compiler output will follow the form:\n  (function(){%output%}).call(this);\nOptions: NONE, IIFE"), CompilerOptions_IsolationMode_values(), &Supplier_tfn_CompilerOptions_IsolationMode{func() *CompilerOptions_IsolationMode {
 		return this.isolationMode
 	}}, &Consumer_tfn_CompilerOptions_IsolationMode{func(v *CompilerOptions_IsolationMode) {
@@ -1109,16 +1109,16 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}}, &Consumer_tfn_List{func(v List) {
 		this.sourceMapInputs = v
 	}})
-	this.parser.option("--parse_inline_source_maps").usage("Parse inline source maps (//# sourceMappingURL=data:...)").bool(&Supplier_fn{func() any {
+	this.parser.option("--parse_inline_source_maps").usage("Parse inline source maps (//# sourceMappingURL=data:...)").bool(func() any {
 		return this.parseInlineSourceMaps_
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.parseInlineSourceMaps_ = v
-	}})
-	this.parser.option("--apply_input_source_maps").usage("Apply input source maps to the output source map, i.e. have the result map back to original inputs.  Input sourcemaps can be located in 2 ways:\n 1) by the//# sourceMappingURL=<url>. \n 2) using the--source_map_location_mapping flag.\nsourceMappingURL=<url> can read both paths and inline Base64 encoded sourcemaps. For inline Base64 encoded sourcemaps, see --parse_inline_source_maps.").bool(&Supplier_fn{func() any {
+	})
+	this.parser.option("--apply_input_source_maps").usage("Apply input source maps to the output source map, i.e. have the result map back to original inputs.  Input sourcemaps can be located in 2 ways:\n 1) by the//# sourceMappingURL=<url>. \n 2) using the--source_map_location_mapping flag.\nsourceMappingURL=<url> can read both paths and inline Base64 encoded sourcemaps. For inline Base64 encoded sourcemaps, see --parse_inline_source_maps.").bool(func() any {
 		return any(bool(this.applyInputSourceMaps))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.applyInputSourceMaps = unbox_[bool](v)
-	}})
+	})
 	this.parser.option("--jscomp_error").usage("Make the named class of warnings an error. Must be one of the error group items. '*' adds all supported.").stringEach(&Consumer_tfn_string{func(v string) {
 		this.jscompError = CommandLineRunner_Flags_addMultiFlagValue(this.jscompError, Optional_of[string](v), obj_(CheckLevel_ERROR), this.guardLevels.asList())
 	}})
@@ -1143,106 +1143,106 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}}, &Consumer_tfn_string{func(v string) {
 		this.compilationLevel = v
 	}})
-	this.parser.option("--num_parallel_threads").hidden_1(true).usage("Use multiple threads to parallelize parts of the compilation.").integer(&Supplier_fn{func() any {
+	this.parser.option("--num_parallel_threads").hidden_1(true).usage("Use multiple threads to parallelize parts of the compilation.").integer(func() any {
 		return any(int32(this.numParallelThreads))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.numParallelThreads = unbox_[int32](v)
-	}})
-	this.parser.option("--checks_only").aliases([]string{"--checks-only"}).usage("Don't generate output. Run checks, but no optimization passes.").bool(&Supplier_fn{func() any {
+	})
+	this.parser.option("--checks_only").aliases([]string{"--checks-only"}).usage("Don't generate output. Run checks, but no optimization passes.").bool(func() any {
 		return any(bool(this.checksOnly))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.checksOnly = unbox_[bool](v)
-	}})
+	})
 	CmdLineParser_Option_enumValue[*CompilerOptions_IncrementalCheckMode](this.parser.option("--incremental_check_mode").usage("Generate or check externs-like .i.js files representing individual libraries."), CompilerOptions_IncrementalCheckMode_values(), &Supplier_tfn_CompilerOptions_IncrementalCheckMode{func() *CompilerOptions_IncrementalCheckMode {
 		return this.incrementalCheckMode
 	}}, &Consumer_tfn_CompilerOptions_IncrementalCheckMode{func(v *CompilerOptions_IncrementalCheckMode) {
 		this.incrementalCheckMode = v
 	}})
-	this.parser.option("--continue_after_errors").usage("Continue trying to compile after an error is encountered.").bool(&Supplier_fn{func() any {
+	this.parser.option("--continue_after_errors").usage("Continue trying to compile after an error is encountered.").bool(func() any {
 		return any(bool(this.continueAfterErrors))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.continueAfterErrors = unbox_[bool](v)
-	}})
-	this.parser.option("--use_types_for_optimization").usage("Enable or disable the optimizations based on available type information. Inaccurate type annotations may result in incorrect results.").bool(&Supplier_fn{func() any {
+	})
+	this.parser.option("--use_types_for_optimization").usage("Enable or disable the optimizations based on available type information. Inaccurate type annotations may result in incorrect results.").bool(func() any {
 		return any(bool(this.useTypesForOptimization))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.useTypesForOptimization = unbox_[bool](v)
-	}})
-	this.parser.option("--assume_function_wrapper").usage("Enable additional optimizations based on the assumption that the output will be wrapped with a function wrapper.  This flag is used to indicate that \"global\" declarations will not actually be global but instead isolated to the compilation unit. This enables additional optimizations.").bool(&Supplier_fn{func() any {
+	})
+	this.parser.option("--assume_function_wrapper").usage("Enable additional optimizations based on the assumption that the output will be wrapped with a function wrapper.  This flag is used to indicate that \"global\" declarations will not actually be global but instead isolated to the compilation unit. This enables additional optimizations.").bool(func() any {
 		return any(bool(this.assumeFunctionWrapper))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.assumeFunctionWrapper = unbox_[bool](v)
-	}})
+	})
 	CmdLineParser_Option_enumValue[*WarningLevel](this.parser.option("--warning_level").aliases([]string{"-W"}).usage("Specifies the warning level to use. Options: QUIET, DEFAULT, VERBOSE"), WarningLevel_values(), &Supplier_tfn_WarningLevel{func() *WarningLevel {
 		return this.warningLevel
 	}}, &Consumer_tfn_WarningLevel{func(v *WarningLevel) {
 		this.warningLevel = v
 	}})
-	this.parser.option("--debug").usage("Enable debugging options. Property renaming uses long mangled names which can be mapped back to the original name.").bool(&Supplier_fn{func() any {
+	this.parser.option("--debug").usage("Enable debugging options. Property renaming uses long mangled names which can be mapped back to the original name.").bool(func() any {
 		return any(bool(this.debug))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.debug = unbox_[bool](v)
-	}})
+	})
 	this.parser.option("--typed_ast_output_file").hidden_1(true).usage("Sets file to output in-progress typedAST format. DO NOT USE!").string(&Supplier_tfn_string{func() string {
 		return this.typedAstOutputFile.orElse(nullstr_)
 	}}, &Consumer_tfn_string{func(v string) {
 		this.typedAstOutputFile = Optional_of[string](v)
 	}})
-	this.parser.option("--generate_exports").usage("Generates export code for those marked with @export").bool(&Supplier_fn{func() any {
+	this.parser.option("--generate_exports").usage("Generates export code for those marked with @export").bool(func() any {
 		return any(bool(this.generateExports))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.generateExports = unbox_[bool](v)
-	}})
-	this.parser.option("--export_local_property_definitions").usage("Generates export code for local properties marked with @export").bool(&Supplier_fn{func() any {
+	})
+	this.parser.option("--export_local_property_definitions").usage("Generates export code for local properties marked with @export").bool(func() any {
 		return any(bool(this.exportLocalPropertyDefinitions))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.exportLocalPropertyDefinitions = unbox_[bool](v)
-	}})
+	})
 	CmdLineParser_Option_enumList[*CommandLineRunner_FormattingOption](this.parser.option("--formatting").usage("Specifies which formatting options, if any, should be applied to the output JS. Options: PRETTY_PRINT, PRINT_INPUT_DELIMITER, SINGLE_QUOTES"), CommandLineRunner_FormattingOption_values(), &Supplier_tfn_List{func() List {
 		return this.formatting
 	}}, &Consumer_tfn_List{func(v List) {
 		this.formatting = v
 	}})
-	this.parser.option("--process_common_js_modules").usage("Process CommonJS modules to a concatenable form.").bool(&Supplier_fn{func() any {
+	this.parser.option("--process_common_js_modules").usage("Process CommonJS modules to a concatenable form.").bool(func() any {
 		return any(bool(this.processCommonJsModules))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.processCommonJsModules = unbox_[bool](v)
-	}})
+	})
 	this.parser.option("--js_module_root").usage("Path prefixes to be removed from ES6 & CommonJS modules.").stringList(&Supplier_tfn_List{func() List {
 		return this.moduleRoot
 	}}, &Consumer_tfn_List{func(v List) {
 		this.moduleRoot = v
 	}})
-	this.parser.option("--process_closure_primitives").usage("Processes built-ins from the Closure library, such as goog.require(), goog.provide(), and goog.exportSymbol(). True by default.").bool(&Supplier_fn{func() any {
+	this.parser.option("--process_closure_primitives").usage("Processes built-ins from the Closure library, such as goog.require(), goog.provide(), and goog.exportSymbol(). True by default.").bool(func() any {
 		return any(bool(this.processClosurePrimitives))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.processClosurePrimitives = unbox_[bool](v)
-	}})
-	this.parser.option("--angular_pass").usage("Generate $inject properties for AngularJS for functions annotated with @ngInject").bool(&Supplier_fn{func() any {
+	})
+	this.parser.option("--angular_pass").usage("Generate $inject properties for AngularJS for functions annotated with @ngInject").bool(func() any {
 		return any(bool(this.angularPass))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.angularPass = unbox_[bool](v)
-	}})
-	this.parser.option("--polymer_version").usage("Which version of Polymer is being used (1 or 2).").integer(&Supplier_fn{func() any {
+	})
+	this.parser.option("--polymer_version").usage("Which version of Polymer is being used (1 or 2).").integer(func() any {
 		return this.polymerVersion
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.polymerVersion = v
-	}})
-	this.parser.option("--chrome_pass").hidden_1(true).usage("Enable Chrome-specific options for handling cr.* functions.").bool(&Supplier_fn{func() any {
+	})
+	this.parser.option("--chrome_pass").hidden_1(true).usage("Enable Chrome-specific options for handling cr.* functions.").bool(func() any {
 		return any(bool(this.chromePass))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.chromePass = unbox_[bool](v)
-	}})
+	})
 	this.parser.option("--j2cl_pass").hidden_1(true).usage("Rewrite J2CL output to be compiler-friendly if enabled (ON or AUTO). Options:OFF, ON, AUTO(default)").string(&Supplier_tfn_string{func() string {
 		return this.j2clPassMode
 	}}, &Consumer_tfn_string{func(v string) {
 		this.j2clPassMode = v
 	}})
-	this.parser.option("--remove_j2cl_asserts").hidden_1(true).usage("Remove calls to J2CL assertions.").flag(&Supplier_fn{func() any {
+	this.parser.option("--remove_j2cl_asserts").hidden_1(true).usage("Remove calls to J2CL assertions.").flag(func() any {
 		return any(bool(this.removeJ2cLAsserts))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.removeJ2cLAsserts = unbox_[bool](v)
-	}})
+	})
 	this.parser.option("--output_manifest").usage("Prints out a list of all the files in the compilation. If --dependency_mode=PRUNE or PRUNE_LEGACY is specified, this will not include files that got dropped because they were not required. The %outname% placeholder expands to the JS output file. If you're using modularization, using %outname% will create a manifest for each module.").string(&Supplier_tfn_string{func() string {
 		return this.outputManifest_
 	}}, &Consumer_tfn_string{func(v string) {
@@ -1263,11 +1263,11 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}}, &Consumer_tfn_string{func(v string) {
 		this.languageOut = v
 	}})
-	this.parser.option("--version").usage("Prints the compiler version to stdout and exit.").bool(&Supplier_fn{func() any {
+	this.parser.option("--version").usage("Prints the compiler version to stdout and exit.").bool(func() any {
 		return any(bool(this.version_))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.version_ = unbox_[bool](v)
-	}})
+	})
 	this.parser.option("--translations_file").hidden_1(true).usage("Source of translated messages. Currently only supports XTB.").string(&Supplier_tfn_string{func() string {
 		return this.translationsFile
 	}}, &Consumer_tfn_string{func(v string) {
@@ -1328,16 +1328,16 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}}, &Consumer_tfn_CompilerOptions_JsonStreamMode{func(v *CompilerOptions_JsonStreamMode) {
 		this.jsonStreamMode = v
 	}})
-	this.parser.option("--preserve_type_annotations").hidden_1(true).usage("Preserves type annotations.").bool(&Supplier_fn{func() any {
+	this.parser.option("--preserve_type_annotations").hidden_1(true).usage("Preserves type annotations.").bool(func() any {
 		return any(bool(this.preserveTypeAnnotations))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.preserveTypeAnnotations = unbox_[bool](v)
-	}})
-	this.parser.option("--inject_libraries").usage("Allow injecting runtime libraries.").bool(&Supplier_fn{func() any {
+	})
+	this.parser.option("--inject_libraries").usage("Allow injecting runtime libraries.").bool(func() any {
 		return any(bool(this.injectLibraries_))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.injectLibraries_ = unbox_[bool](v)
-	}})
+	})
 	this.parser.option("--force_inject_library").usage("Force injection of named runtime libraries. The format is <name> where <name> is the name of a runtime library. Possible libraries include: base, es6_runtime").stringList(&Supplier_tfn_List{func() List {
 		return this.forceInjectLibraries
 	}}, &Consumer_tfn_List{func(v List) {
@@ -1353,21 +1353,21 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}}, &Consumer_tfn_List{func(v List) {
 		this.entryPoint = v
 	}})
-	this.parser.option("--rewrite_polyfills").usage("Injects polyfills for ES2015+ library classes and methods used in source. See also the \"Polyfills\" GitHub Wiki page.").bool(&Supplier_fn{func() any {
+	this.parser.option("--rewrite_polyfills").usage("Injects polyfills for ES2015+ library classes and methods used in source. See also the \"Polyfills\" GitHub Wiki page.").bool(func() any {
 		return any(bool(this.rewritePolyfills))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.rewritePolyfills = unbox_[bool](v)
-	}})
-	this.parser.option("--isolate_polyfills").usage("Hides injected polyfills from the global scope and any external code. See the the \"Polyfills\" GitHub Wiki page for details.").bool(&Supplier_fn{func() any {
+	})
+	this.parser.option("--isolate_polyfills").usage("Hides injected polyfills from the global scope and any external code. See the the \"Polyfills\" GitHub Wiki page for details.").bool(func() any {
 		return any(bool(this.isolatePolyfills))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.isolatePolyfills = unbox_[bool](v)
-	}})
-	this.parser.option("--print_source_after_each_pass").hidden_1(true).usage("Whether to iteratively print resulting JS source per pass.").bool(&Supplier_fn{func() any {
+	})
+	this.parser.option("--print_source_after_each_pass").hidden_1(true).usage("Whether to iteratively print resulting JS source per pass.").bool(func() any {
 		return any(bool(this.printSourceAfterEachPass))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.printSourceAfterEachPass = unbox_[bool](v)
-	}})
+	})
 	CmdLineParser_Option_enumValue[*ModuleLoader_ResolutionMode](this.parser.option("--module_resolution").usage("Specifies how the compiler locates modules. BROWSER requires all module imports to begin with a '.' or '/' and have a file extension. NODE uses the node module rules. WEBPACK looks up modules from a special lookup map."), ModuleLoader_ResolutionMode_values(), &Supplier_tfn_ModuleLoader_ResolutionMode{func() *ModuleLoader_ResolutionMode {
 		return this.moduleResolutionMode
 	}}, &Consumer_tfn_ModuleLoader_ResolutionMode{func(v *ModuleLoader_ResolutionMode) {
@@ -1388,16 +1388,16 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}}, &Consumer_tfn_AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption{func(v *AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) {
 		this.errorFormat = v
 	}})
-	this.parser.option("--renaming").usage("Disables variable renaming. Cannot be used with ADVANCED optimizations.").bool(&Supplier_fn{func() any {
+	this.parser.option("--renaming").usage("Disables variable renaming. Cannot be used with ADVANCED optimizations.").bool(func() any {
 		return any(bool(this.renaming))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.renaming = unbox_[bool](v)
-	}})
-	this.parser.option("--help_markdown").hidden_1(true).usage("Prints markdown formatted flag usage").bool(&Supplier_fn{func() any {
+	})
+	this.parser.option("--help_markdown").hidden_1(true).usage("Prints markdown formatted flag usage").bool(func() any {
 		return any(bool(this.helpMarkdown))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.helpMarkdown = unbox_[bool](v)
-	}})
+	})
 	this.parser.option("--instrument_for_coverage_option").usage("Enable code instrumentation to perform code coverage analysis. Options are:\n 1. NONE (default)\n 2. LINE - Instrument code by line.\n 3. BRANCH - Instrument code by branch.\n 4. PRODUCTION - Function Instrumentation on compiled JS code.\n").string(&Supplier_tfn_string{func() string {
 		return this.instrumentForCoverageOption
 	}}, &Consumer_tfn_string{func(v string) {
@@ -1413,26 +1413,26 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}}, &Consumer_tfn_CompilerOptions_ChunkOutputType{func(v *CompilerOptions_ChunkOutputType) {
 		this.chunkOutputType = v
 	}})
-	this.parser.option("--allow_dynamic_import").usage("Indicates that the compiler should allow dynamic import expressions. Dynamic import expressions are not yet fully supported and may lead to broken output code.").bool(&Supplier_fn{func() any {
+	this.parser.option("--allow_dynamic_import").usage("Indicates that the compiler should allow dynamic import expressions. Dynamic import expressions are not yet fully supported and may lead to broken output code.").bool(func() any {
 		return any(bool(this.allowDynamicImport))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.allowDynamicImport = unbox_[bool](v)
-	}})
+	})
 	this.parser.option("--dynamic_import_alias").usage("Instructs the compiler to replace dynamic imports expressions with a function call using the specified name. Allows dynamic import expressions to be externally polyfilled when the output language level does not natively support them. An alias of 'import' is allowed.").string(&Supplier_tfn_string{func() string {
 		return this.dynamicImportAlias.orElse(nullstr_)
 	}}, &Consumer_tfn_string{func(v string) {
 		this.dynamicImportAlias = Optional_of[string](v)
 	}})
-	this.parser.option("--assume_static_inheritance_is_not_used").usage("Assume that static (class-side) inheritance is not being used and that static methods will not be referenced via `this` or through subclasses. This enables optimizations that could break code that did those things.").bool(&Supplier_fn{func() any {
+	this.parser.option("--assume_static_inheritance_is_not_used").usage("Assume that static (class-side) inheritance is not being used and that static methods will not be referenced via `this` or through subclasses. This enables optimizations that could break code that did those things.").bool(func() any {
 		return any(bool(this.assumeStaticInheritanceIsNotUsed))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.assumeStaticInheritanceIsNotUsed = unbox_[bool](v)
-	}})
-	this.parser.option("--assume_no_prototype_method_enumeration").usage("Assume that prototype method enumeration is not being used. This allows the compiler to move a prototype method declaration into a deeper chunk without creating stub functions in a parent chunk.").bool(&Supplier_fn{func() any {
+	})
+	this.parser.option("--assume_no_prototype_method_enumeration").usage("Assume that prototype method enumeration is not being used. This allows the compiler to move a prototype method declaration into a deeper chunk without creating stub functions in a parent chunk.").bool(func() any {
 		return any(bool(this.assumeNoPrototypeMethodEnumeration))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.assumeNoPrototypeMethodEnumeration = unbox_[bool](v)
-	}})
+	})
 	this.parser.option("--variable_map_input_file").usage("File containing the serialized version of the variable renaming map produced by a previous compilation").string(&Supplier_tfn_string{func() string {
 		return this.variableMapInputFile
 	}}, &Consumer_tfn_string{func(v string) {

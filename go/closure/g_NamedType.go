@@ -166,11 +166,11 @@ func (this *NamedType) recursionUnsafeHashCode_impl() int32 {
 }
 
 func (this *NamedType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSType {
-	var resolvedTypeArgs *JTList[*JSType] = jtlistImm_(jtc_p_JSType, JSTypeIterations_mapTypesImmutableList(&Function_fn{func(t_ any) any {
+	var resolvedTypeArgs *JTList[*JSType] = jtlistImm_(jtc_p_JSType, JSTypeIterations_mapTypesImmutableList(func(t_ any) any {
 		var t *JSType = to_JSType(t_)
 		_ = t
 		return t.resolve(reporter).self()
-	}}, sliceImm_(tc_p_JSType, this.templateTypes.asImm())))
+	}, sliceImm_(tc_p_JSType, this.templateTypes.asImm())))
 	if Object_equals(obj_(this.resolutionKind), obj_(NamedType_ResolutionKind_NONE)) {
 		return this.ProxyObjectType.resolveInternal_impl(reporter)
 	}

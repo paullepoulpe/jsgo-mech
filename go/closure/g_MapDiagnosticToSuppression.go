@@ -37,11 +37,11 @@ func (this *MapDiagnosticToSuppression) printSuppressions(args []string) {
 	}}, &Consumer_tfn_DiagnosticToSuppressionMapper_OutputFormat{func(v *DiagnosticToSuppressionMapper_OutputFormat) {
 		this.output = v
 	}})
-	parser.option("--help").usage("Usage").flag(&Supplier_fn{func() any {
+	parser.option("--help").usage("Usage").flag(func() any {
 		return any(bool(this.help))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.help = unbox_[bool](v)
-	}})
+	})
 	var parsed *Outcome_base[any] = parser.parseArgument(args)
 	if parsed.isErr() {
 		var ex *CmdLineException = cast_[*CmdLineException](parsed.error().self())
