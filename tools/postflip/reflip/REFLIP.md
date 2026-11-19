@@ -438,3 +438,55 @@ In time this tree is 15.5% behind postflip5, as it is at 18% of the input (115.2
 99.9s): its distance to postflip5 does not grow with size. In memory it is below postflip5 in
 every stage, by a third in OPTIMIZATIONS (the node store's pointer-free records), though still
 above Java in CHECKS.
+
+## The open rows against jsgo's hand port (19 Nov)
+
+The goal asks that a Java-ism left in place has a counted reason that holds up against how jsgo
+handled it. The same syntactic counts on jsgo's Go (internal/, 710 non-test files, the port
+that was accepted) and on the two trees here (go/closure/g_*.go), by runs/jsgocmp.py:
+
+| count | jsgo (hand port) | postflip5 | second trial (C36) |
+|---|---:|---:|---:|
+| non-test Go lines | 402,963 | 260,187 | 263,465 |
+| type assertions x.(T), comma-ok or not | 559 | 2,340 | 2,141 |
+| cast helper calls to_X( / cast_[T]( / icast_X( (mech only) | 0 | 2,391 | 1,784 |
+| type switches | 78 | 22 | 17 |
+| instanceof helper calls is_X( (mech only) | 0 | 71 | 73 |
+| mentions of any / interface{} | 1,436 | 6,347 | 5,919 |
+| equals methods declared | 71 | 127 | 127 |
+| hashCode methods declared | 58 | 129 | 129 |
+| recover() | 58 | 26 | 26 |
+| defer statements | 295 | 82 | 82 |
+| panic( | 1,724 | 3,492 | 2,566 |
+| function-typed parameters in signatures | 204 | 186 | 134 |
+| go statements | 10 | 0 | 0 |
+| sync. uses | 89 | 0 | 0 |
+| strings.Builder / strBuilder_ | 279 | 262 | 256 |
+
+What holds up, and what does not:
+
+- try/catch and defer: this tree has fewer recover() and defer than jsgo. The row is closed and
+  the comparison supports leaving the 50 emulations.
+- StringBuilder: level with jsgo's strings.Builder count. Closed.
+- equals/hashCode: jsgo declares 71 equals and 58 hashCode methods, so the protocol itself is
+  kept there too; this tree declares 127 and 129. About half of the row has jsgo's handling as
+  its reason; the other half (classes jsgo compares with ==, and the calls through the generic
+  helpers boxT_/equalsT_) does not. OPEN.
+- class casts and instanceof: 559 assertions and 78 type switches in jsgo against 2,141
+  assertions plus 1,784 cast-helper calls and 73 instanceof helpers here. No reason holds for
+  a count four to seven times jsgo's. OPEN: the translator rules (scopes and variables per
+  subclass, visit as a generic function, single-implementation interfaces) and the type-switch
+  tool are the planned answer; measured on bundle, casts and assertions are about 0.4s of 28s
+  CPU, so this is a count to bring down, not the time gap.
+- any: 1,436 mentions in jsgo against 5,919 here (boxing, Object slots, erased collections left
+  by the bridge). No reason holds for four times jsgo's. OPEN (typed lookups, varargs, the
+  single-type Object slots, the 240 erased set/map mentions).
+- lambda objects: jsgo passes functions (its HamtPMap_Reconciler is a func type; 204
+  function-typed parameters). Here 290 typed adapters and 51 erased lambda objects remain,
+  the reconcile joiner among them. jsgo's handling is the opposite of leaving them. OPEN.
+- threads: jsgo has 10 go statements and 89 uses of sync (parallel prebuild among them); this
+  tree has none. A dropped capability, OPEN as a runtime item.
+- typed message code: jsgo uses protoc-gen-go messages (migration_plan.md 5.2); here messages
+  are a generic runtime over []any. OPEN.
+
+So of the rows left open, none has a reason that holds against jsgo; they are work to do.
