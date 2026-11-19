@@ -793,23 +793,49 @@ func Throwables_throwIfUnchecked(t *Throwable) {
 
 // ---- CaseFormat
 
-type CaseFormat struct {
-	Enum
-	sep_ string
+// CaseFormat is Guava's enum as a uint8 whose zero value is null; a constant is its ordinal + 1
+// (as the post-flip step tools/postflip/enums writes the translated enums).
+type CaseFormat uint8
+
+const (
+	CaseFormat_LOWER_HYPHEN CaseFormat = 1 + iota
+	CaseFormat_LOWER_UNDERSCORE
+	CaseFormat_LOWER_CAMEL
+	CaseFormat_UPPER_CAMEL
+	CaseFormat_UPPER_UNDERSCORE
+)
+
+// CaseFormat_enum_ is the java.lang.Enum record of each constant, by ordinal.
+var CaseFormat_enum_ = [5]Enum{
+	{self_: CaseFormat_LOWER_HYPHEN, name_: "LOWER_HYPHEN", ordinal_: 0},
+	{self_: CaseFormat_LOWER_UNDERSCORE, name_: "LOWER_UNDERSCORE", ordinal_: 1},
+	{self_: CaseFormat_LOWER_CAMEL, name_: "LOWER_CAMEL", ordinal_: 2},
+	{self_: CaseFormat_UPPER_CAMEL, name_: "UPPER_CAMEL", ordinal_: 3},
+	{self_: CaseFormat_UPPER_UNDERSCORE, name_: "UPPER_UNDERSCORE", ordinal_: 4},
 }
 
-func newCaseFormat_(name string, ordinal int32, sep string) *CaseFormat {
-	this := &CaseFormat{sep_: sep}
-	this.self_ = this
-	this.Enum.init_Enum(name, ordinal)
+// caseFormatSep_ is each format's word separator, by ordinal.
+var caseFormatSep_ = [5]string{"-", "_", "", "", "_"}
+
+func (this CaseFormat) enum_() *Enum {
+	if this == 0 {
+		return nil
+	}
+	return &CaseFormat_enum_[this-1]
+}
+
+func (this CaseFormat) name() string          { return this.enum_().name_ }
+func (this CaseFormat) ordinal() int32        { return this.enum_().ordinal_ }
+func (this CaseFormat) toString() string      { return this.enum_().name_ }
+func (this CaseFormat) compareTo(o any) int32 { return this.enum_().compareTo(o) }
+func (this CaseFormat) sep_() string          { return caseFormatSep_[this.ordinal()] }
+
+func (this CaseFormat) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
-
-var CaseFormat_LOWER_HYPHEN = newCaseFormat_("LOWER_HYPHEN", 0, "-")
-var CaseFormat_LOWER_UNDERSCORE = newCaseFormat_("LOWER_UNDERSCORE", 1, "_")
-var CaseFormat_LOWER_CAMEL = newCaseFormat_("LOWER_CAMEL", 2, "")
-var CaseFormat_UPPER_CAMEL = newCaseFormat_("UPPER_CAMEL", 3, "")
-var CaseFormat_UPPER_UNDERSCORE = newCaseFormat_("UPPER_UNDERSCORE", 4, "_")
 
 func init() {
 	registerEnum_("com.google.common.base.CaseFormat", []any{CaseFormat_LOWER_HYPHEN, CaseFormat_LOWER_UNDERSCORE, CaseFormat_LOWER_CAMEL, CaseFormat_UPPER_CAMEL, CaseFormat_UPPER_UNDERSCORE})
@@ -822,7 +848,7 @@ func firstCharOnlyToUpper_(w string) string {
 	return asciiUpper_(w[:1]) + asciiLower_(w[1:])
 }
 
-func (this *CaseFormat) normalizeWord_(w string) string {
+func (this CaseFormat) normalizeWord_(w string) string {
 	switch this {
 	case CaseFormat_LOWER_HYPHEN, CaseFormat_LOWER_UNDERSCORE:
 		return asciiLower_(w)
@@ -832,7 +858,7 @@ func (this *CaseFormat) normalizeWord_(w string) string {
 	return firstCharOnlyToUpper_(w)
 }
 
-func (this *CaseFormat) normalizeFirstWord_(w string) string {
+func (this CaseFormat) normalizeFirstWord_(w string) string {
 	if this == CaseFormat_LOWER_CAMEL {
 		return asciiLower_(w)
 	}
@@ -840,7 +866,7 @@ func (this *CaseFormat) normalizeFirstWord_(w string) string {
 }
 
 // boundary_ finds the next word boundary of this format at or after byte from.
-func (this *CaseFormat) boundary_(s string, from int) int {
+func (this CaseFormat) boundary_(s string, from int) int {
 	for i := from; i < len(s); i++ {
 		c := s[i]
 		switch this {
@@ -861,8 +887,8 @@ func (this *CaseFormat) boundary_(s string, from int) int {
 	return -1
 }
 
-func (this *CaseFormat) to(format *CaseFormat, s string) string {
-	if format == nil || s == nullstr_ {
+func (this CaseFormat) to(format CaseFormat, s string) string {
+	if format == 0 || s == nullstr_ {
 		panic(new_NullPointerException_0().self())
 	}
 	if format == this {
@@ -898,8 +924,8 @@ func (this *CaseFormat) to(format *CaseFormat, s string) string {
 		} else {
 			out.WriteString(format.normalizeWord_(s[i:j]))
 		}
-		out.WriteString(format.sep_)
-		i = j + len(this.sep_)
+		out.WriteString(format.sep_())
+		i = j + len(this.sep_())
 	}
 	if i == 0 {
 		return format.normalizeFirstWord_(s)
@@ -910,25 +936,44 @@ func (this *CaseFormat) to(format *CaseFormat, s string) string {
 
 // ---- StandardSystemProperty
 
-type StandardSystemProperty struct {
-	Enum
-	key_ string
+// StandardSystemProperty is Guava's enum as a uint8 (0 is null, a constant is its ordinal + 1);
+// the compiler uses only USER_DIR (ordinal 27), so only it is declared.
+type StandardSystemProperty uint8
+
+const StandardSystemProperty_USER_DIR StandardSystemProperty = 27 + 1
+
+var standardSystemPropertyUserDir_ = Enum{self_: StandardSystemProperty_USER_DIR, name_: "USER_DIR", ordinal_: 27}
+
+func (this StandardSystemProperty) enum_() *Enum {
+	if this == 0 {
+		return nil
+	}
+	return &standardSystemPropertyUserDir_
 }
 
-func (this *StandardSystemProperty) value() string {
-	return System_getProperty(this.key_, nullstr_)
-}
+func (this StandardSystemProperty) name() string          { return this.enum_().name_ }
+func (this StandardSystemProperty) ordinal() int32        { return this.enum_().ordinal_ }
+func (this StandardSystemProperty) compareTo(o any) int32 { return this.enum_().compareTo(o) }
 
-func (this *StandardSystemProperty) toString() string {
-	return this.key_ + "=" + sstr_(this.value())
-}
-
-var StandardSystemProperty_USER_DIR = func() *StandardSystemProperty {
-	this := &StandardSystemProperty{key_: "user.dir"}
-	this.self_ = this
-	this.Enum.init_Enum("USER_DIR", 27)
+func (this StandardSystemProperty) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
-}()
+}
+
+func (this StandardSystemProperty) key() string {
+	_ = this.enum_().name_ // null: NullPointerException
+	return "user.dir"
+}
+
+func (this StandardSystemProperty) value() string {
+	return System_getProperty(this.key(), nullstr_)
+}
+
+func (this StandardSystemProperty) toString() string {
+	return this.key() + "=" + sstr_(this.value())
+}
 
 func Functions_identity() Function_base { return identityFunction_{} }
 
