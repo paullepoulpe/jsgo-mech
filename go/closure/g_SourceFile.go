@@ -115,10 +115,11 @@ func (this *SourceFile_jscomp) findLineOffsets() {
 	}
 	var offsets []int32 = make([]int32, this.numLines)
 	var index int32 = 1
-	for i := int32(0); i < String_length(localCode.get()); i++ {
-		var ch uint16 = String_charAt(localCode.get(), i)
+	var localCodeU16 utf16_
+	for i := int32(0); i < localCodeU16.of(localCode.get()).length(); i++ {
+		var ch uint16 = localCodeU16.of(localCode.get()).charAt(i)
 		if SourceFile_jscomp_isLineTerminator(ch) {
-			if ((ch == '\r') && ((i + 1) < String_length(localCode.get()))) && (String_charAt(localCode.get(), (i+1)) == '\n') {
+			if ((ch == '\r') && ((i + 1) < localCodeU16.of(localCode.get()).length())) && (localCodeU16.of(localCode.get()).charAt((i + 1)) == '\n') {
 				i++
 			}
 			offsets[index] = (i + 1)
@@ -169,14 +170,15 @@ func (this *SourceFile_jscomp) setCodeAndDoBookkeeping(sourceCode Optional[strin
 	this.lineOffsets = nil
 	if sourceCode.isPresent() {
 		if strings.HasPrefix(sourceCode.get(), SourceFile_jscomp_UTF8_BOM) {
-			sourceCode = Optional_of[string](String_substring_int(sourceCode.get(), String_length(SourceFile_jscomp_UTF8_BOM)))
+			sourceCode = Optional_of[string](sourceCode.get()[len(SourceFile_jscomp_UTF8_BOM):])
 		}
-		this.numBytes = String_length(sourceCode.get())
+		var sourceCodeU16 utf16_
+		this.numBytes = sourceCodeU16.of(sourceCode.get()).length()
 		var numLines int32 = 1
-		for i := int32(0); i < String_length(sourceCode.get()); i++ {
-			var ch uint16 = String_charAt(sourceCode.get(), i)
+		for i := int32(0); i < sourceCodeU16.of(sourceCode.get()).length(); i++ {
+			var ch uint16 = sourceCodeU16.of(sourceCode.get()).charAt(i)
 			if SourceFile_jscomp_isLineTerminator(ch) {
-				if ((ch == '\r') && ((i + 1) < String_length(sourceCode.get()))) && (String_charAt(sourceCode.get(), (i+1)) == '\n') {
+				if ((ch == '\r') && ((i + 1) < sourceCodeU16.of(sourceCode.get()).length())) && (sourceCodeU16.of(sourceCode.get()).charAt((i + 1)) == '\n') {
 					i++
 				}
 				numLines++
@@ -252,18 +254,19 @@ func (this *SourceFile_jscomp) getLine(lineNumber int32) Optional[string] {
 		lineNumber = 1
 	}
 	var pos int32 = this.lineOffsets[(lineNumber - 1)]
+	jsU16 := utf16Of_(js)
 	if lineNumber < int32(len(this.lineOffsets)) {
 		var nextPos int32 = this.lineOffsets[lineNumber]
 		var endPos int32 = (nextPos - 1)
-		if ((String_charAt(js, endPos) == '\n') && (endPos > pos)) && (String_charAt(js, (endPos-1)) == '\r') {
+		if ((jsU16.charAt(endPos) == '\n') && (endPos > pos)) && (jsU16.charAt((endPos - 1)) == '\r') {
 			endPos--
 		}
-		return Optional_of[string](String_substring(js, pos, endPos))
+		return Optional_of[string](jsU16.substring(pos, endPos))
 	} else {
-		if pos >= String_length(js) {
+		if pos >= jsU16.length() {
 			return Optional_empty[string]()
 		} else {
-			return Optional_of[string](String_substring_int(js, pos))
+			return Optional_of[string](jsU16.substring_int(pos))
 		}
 	}
 }
@@ -285,7 +288,8 @@ func (this *SourceFile_jscomp) getLines(lineNumber int32, length int32) Region {
 		length = 1
 	}
 	var pos int32 = this.lineOffsets[(lineNumber - 1)]
-	if pos == String_length(js) {
+	jsU16 := utf16Of_(js)
+	if pos == jsU16.length() {
 		return Region(new_SimpleRegion(lineNumber, lineNumber, ""))
 	}
 	var endChar int32 = pos
@@ -295,20 +299,20 @@ func (this *SourceFile_jscomp) getLines(lineNumber int32, length int32) Region {
 			if endLine < int32(len(this.lineOffsets)) {
 				return this.lineOffsets[endLine]
 			}
-			return String_length(js)
+			return jsU16.length()
 		}()
 	}
 	if endChar > pos {
-		if String_charAt(js, (endChar-1)) == '\n' {
-			if ((endChar - 1) > pos) && (String_charAt(js, (endChar-2)) == '\r') {
-				return Region(new_SimpleRegion(lineNumber, endLine, String_substring(js, pos, (endChar-2))))
+		if jsU16.charAt((endChar - 1)) == '\n' {
+			if ((endChar - 1) > pos) && (jsU16.charAt((endChar - 2)) == '\r') {
+				return Region(new_SimpleRegion(lineNumber, endLine, jsU16.substring(pos, (endChar-2))))
 			}
-			return Region(new_SimpleRegion(lineNumber, endLine, String_substring(js, pos, (endChar-1))))
-		} else if SourceFile_jscomp_isLineTerminator(String_charAt(js, (endChar - 1))) {
-			return Region(new_SimpleRegion(lineNumber, endLine, String_substring(js, pos, (endChar-1))))
+			return Region(new_SimpleRegion(lineNumber, endLine, jsU16.substring(pos, (endChar-1))))
+		} else if SourceFile_jscomp_isLineTerminator(jsU16.charAt((endChar - 1))) {
+			return Region(new_SimpleRegion(lineNumber, endLine, jsU16.substring(pos, (endChar-1))))
 		}
 	}
-	return Region(new_SimpleRegion(lineNumber, endLine, String_substring(js, pos, endChar)))
+	return Region(new_SimpleRegion(lineNumber, endLine, jsU16.substring(pos, endChar)))
 }
 
 func (this *SourceFile_jscomp) getRegion(lineNumber int32) Region {
@@ -697,10 +701,11 @@ func (this *SourceFile_Builder) build() *SourceFile_jscomp {
 }
 
 func (this *SourceFile_Builder) withPathInternal(path string) *SourceFile_Builder {
-	var bangSlashIndex int32 = String_indexOf_String(path, SourceFile_jscomp_BANG_SLASH)
+	pathU16 := utf16Of_(path)
+	var bangSlashIndex int32 = pathU16.indexOf_String(SourceFile_jscomp_BANG_SLASH)
 	if bangSlashIndex >= 0 {
-		var zipPath string = String_substring(path, 0, bangSlashIndex)
-		var entryPath string = String_substring_int(path, (bangSlashIndex + int32(len(SourceFile_jscomp_BANG_SLASH))))
+		var zipPath string = pathU16.substring(0, bangSlashIndex)
+		var entryPath string = pathU16.substring_int((bangSlashIndex + int32(len(SourceFile_jscomp_BANG_SLASH))))
 		if strings.HasSuffix(zipPath, ".zip") && (strings.HasSuffix(entryPath, ".js") || strings.HasSuffix(entryPath, ".js.map")) {
 			return this.withZipEntryPath(zipPath, entryPath)
 		}

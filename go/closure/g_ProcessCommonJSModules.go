@@ -1415,10 +1415,11 @@ func (this *ProcessCommonJSModules_RewriteModule) getExportedName(t *NodeTravers
 				} else {
 					exportPrefix = ProcessCommonJSModules_EXPORTS
 				}
-				if String_length(exportBaseQName) == int32(len(exportPrefix)) {
+				exportBaseQNameU16 := utf16Of_(exportBaseQName)
+				if exportBaseQNameU16.length() == int32(len(exportPrefix)) {
 					return baseExportName
 				}
-				return Optional_of[string]((sstr_(baseExportName.orElse("null")) + sstr_(String_substring_int(exportBaseQName, int32(len(exportPrefix))))))
+				return Optional_of[string]((sstr_(baseExportName.orElse("null")) + sstr_(exportBaseQNameU16.substring_int(int32(len(exportPrefix))))))
 			}
 		}
 	}

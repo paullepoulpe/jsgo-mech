@@ -22,6 +22,7 @@ func PropertiesParser_parse(source string) *JTMap[string, string] {
 	var lines []string = PropertiesParser_LINE_BREAK_PATTERN.split(source)
 	for i := int32(0); i < int32(len(lines)); i++ {
 		var line string = lines[i]
+		lineU16 := utf16Of_(line)
 		if (line == "" || strings.HasPrefix(line, "#")) || strings.HasPrefix(line, "!") {
 			continue
 		}
@@ -30,8 +31,9 @@ func PropertiesParser_parse(source string) *JTMap[string, string] {
 			continue
 		}
 		var data string = ""
-		var key string = strings.Trim(String_substring(line, 0, delimeterIndex), javaSpace_)
-		line = PropertiesParser_trimLeft(String_substring_int(line, (delimeterIndex + 1)))
+		var key string = strings.Trim(lineU16.substring(0, delimeterIndex), javaSpace_)
+		line = PropertiesParser_trimLeft(lineU16.substring_int((delimeterIndex + 1)))
+		lineU16 = utf16Of_(line)
 		for {
 			if strings.HasSuffix(line, "\\") {
 				data += sstr_(line[:len(line)-1])
@@ -40,6 +42,7 @@ func PropertiesParser_parse(source string) *JTMap[string, string] {
 				}
 				i++
 				line = PropertiesParser_trimLeft(lines[i])
+				lineU16 = utf16Of_(line)
 			} else {
 				data += sstr_(line)
 				break
@@ -51,9 +54,10 @@ func PropertiesParser_parse(source string) *JTMap[string, string] {
 }
 
 func PropertiesParser_trimLeft(str string) string {
+	strU16 := utf16Of_(str)
 	for i, u_ := range stringUnits_(str) {
 		if u_ != ' ' {
-			return String_substring_int(str, i)
+			return strU16.substring_int(i)
 		}
 	}
 	return str

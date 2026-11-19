@@ -140,7 +140,7 @@ func (this *FindModuleDependencies) getEs6ModuleNameFromImportNode(t *NodeTraver
 	var importName string = n.getLastChild().getString()
 	var isNamespaceImport bool = strings.HasPrefix(importName, "goog:")
 	if isNamespaceImport {
-		return String_substring_int(importName, int32(len("goog:")))
+		return importName[len("goog:"):]
 	} else {
 		var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importName, Optional_of[string](n.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
 			return s != ""
