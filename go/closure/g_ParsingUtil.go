@@ -15,12 +15,12 @@ func new_ParsingUtil() *ParsingUtil {
 	return this
 }
 
-func ParsingUtil_getParamOrPatternNames(n Node, cb ConsumerOf[Node]) {
+func ParsingUtil_getParamOrPatternNames(n Node, cb func(any)) {
 	Preconditions_checkNotNull_T(n)
 	switch n.ns_().token {
 	case tokOrd1_EMPTY, tokOrd1_GETELEM, tokOrd1_GETPROP:
 	case tokOrd1_NAME:
-		cb.accept(n.box_())
+		cb(n.box_())
 	case tokOrd1_ITER_REST, tokOrd1_OBJECT_REST, tokOrd1_STRING_KEY, tokOrd1_DEFAULT_VALUE:
 		ParsingUtil_getParamOrPatternNames(n.getFirstChild(), cb)
 	case tokOrd1_COMPUTED_PROP:

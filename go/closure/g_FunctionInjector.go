@@ -40,7 +40,7 @@ func (this *FunctionInjector) doesFunctionMeetMinimumRequirements(fnName string,
 	var block Node = NodeUtil_getFunctionBody(fnNode)
 	var fnRecursionName string = fnNode.getFirstChild().getString()
 	var referencesArguments bool = NodeUtil_isNameReferenced_Node_String_Predicate(block, "arguments", NodeUtil_MATCH_ANYTHING_BUT_NON_ARROW_FUNCTION)
-	var blocksInjection Predicate_baseOf[Node] = &Predicate_base_tfn_Node{func(n Node) bool {
+	var blocksInjection func(any) bool = (&Predicate_base_tfn_Node{func(n Node) bool {
 		if n.isName() {
 			return (((n.getString() == "eval") || (!String_isEmpty(fnName) && (n.getString() == fnName))) || (!String_isEmpty(fnRecursionName) && (n.getString() == fnRecursionName)))
 		} else if n.isSuper() || (n.ns_().token == tokOrd1_NEW_TARGET) {
@@ -48,7 +48,7 @@ func (this *FunctionInjector) doesFunctionMeetMinimumRequirements(fnName string,
 		}
 		return false
 		panic("unreachable")
-	}}
+	}}).apply
 	return (!referencesArguments && !NodeUtil_has(block, blocksInjection, Predicates_alwaysTrue()))
 }
 
@@ -302,9 +302,9 @@ func (this *FunctionInjector) referencesEval(fn Node) bool {
 	if cached != nil {
 		return unbox_[bool](cached)
 	}
-	var result bool = NodeUtil_has(fn, &Predicate_base_tfn_Node{func(n Node) bool {
+	var result bool = NodeUtil_has(fn, (&Predicate_base_tfn_Node{func(n Node) bool {
 		return (n.isName() && (n.getString() == "eval"))
-	}}, &Predicate_base_tfn_Node{func(n Node) bool {
+	}}).apply, &Predicate_base_tfn_Node{func(n Node) bool {
 		return (!n.isFunction() || equalsId_(n, fn))
 	}})
 	this.referencesEvalCache.put(fn, any(bool(result)))
@@ -342,7 +342,7 @@ func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 }
 
 func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *FunctionInjector_Reference, calleeFn Node, namesToAlias *JTSet[string]) bool {
-	var calleeContainsVars bool = NodeUtil_has(NodeUtil_getFunctionBody(calleeFn), icast_Predicate_base(obj_(new_NodeUtil_MatchDeclaration())), icast_Predicate_base(obj_(new_NodeUtil_MatchShallowStatement())))
+	var calleeContainsVars bool = NodeUtil_has(NodeUtil_getFunctionBody(calleeFn), new_NodeUtil_MatchDeclaration().apply, icast_Predicate_base(obj_(new_NodeUtil_MatchShallowStatement())))
 	var forbidTemps bool = false
 	if !callRef.scope_.getClosestHoistScope_rScope().isGlobal() {
 		var callerFn Node = callRef.scope_.getClosestHoistScope_rScope().getRootNode().getParent()
@@ -714,7 +714,7 @@ func (this *FunctionInjector_Reference) toString() string {
 
 type FunctionInjector_CallSiteType struct {
 	Enum
-	selfI_ FunctionInjector_CallSiteType_I
+	selfI_ func(*FunctionInjector, *FunctionInjector_Reference)
 }
 
 // FunctionInjector_CallSiteType_I holds the methods the dispatchers of enum FunctionInjector_CallSiteType call on its
@@ -762,7 +762,7 @@ func (this *FunctionInjector_CallSiteType) init_FunctionInjector_CallSiteType(na
 }
 
 func (this *FunctionInjector_CallSiteType) prepare(p0 *FunctionInjector, p1 *FunctionInjector_Reference) {
-	this.selfI_.prepare_impl(p0, p1)
+	this.selfI_(p0, p1)
 }
 
 func FunctionInjector_CallSiteType_values() []*FunctionInjector_CallSiteType {
@@ -925,7 +925,7 @@ func (this *FunctionInjector_CallSiteType_1) init_FunctionInjector_CallSiteType_
 func new_FunctionInjector_CallSiteType_1(name_ string, ordinal_ int32) *FunctionInjector_CallSiteType_1 {
 	this := &FunctionInjector_CallSiteType_1{}
 	this.self_ = this
-	this.selfI_ = this
+	this.selfI_ = this.prepare_impl
 	this.init_FunctionInjector_CallSiteType_1(name_, ordinal_)
 	return this
 }
@@ -986,7 +986,7 @@ func (this *FunctionInjector_CallSiteType_2) init_FunctionInjector_CallSiteType_
 func new_FunctionInjector_CallSiteType_2(name_ string, ordinal_ int32) *FunctionInjector_CallSiteType_2 {
 	this := &FunctionInjector_CallSiteType_2{}
 	this.self_ = this
-	this.selfI_ = this
+	this.selfI_ = this.prepare_impl
 	this.init_FunctionInjector_CallSiteType_2(name_, ordinal_)
 	return this
 }
@@ -1047,7 +1047,7 @@ func (this *FunctionInjector_CallSiteType_3) init_FunctionInjector_CallSiteType_
 func new_FunctionInjector_CallSiteType_3(name_ string, ordinal_ int32) *FunctionInjector_CallSiteType_3 {
 	this := &FunctionInjector_CallSiteType_3{}
 	this.self_ = this
-	this.selfI_ = this
+	this.selfI_ = this.prepare_impl
 	this.init_FunctionInjector_CallSiteType_3(name_, ordinal_)
 	return this
 }
@@ -1108,7 +1108,7 @@ func (this *FunctionInjector_CallSiteType_4) init_FunctionInjector_CallSiteType_
 func new_FunctionInjector_CallSiteType_4(name_ string, ordinal_ int32) *FunctionInjector_CallSiteType_4 {
 	this := &FunctionInjector_CallSiteType_4{}
 	this.self_ = this
-	this.selfI_ = this
+	this.selfI_ = this.prepare_impl
 	this.init_FunctionInjector_CallSiteType_4(name_, ordinal_)
 	return this
 }
@@ -1169,7 +1169,7 @@ func (this *FunctionInjector_CallSiteType_5) init_FunctionInjector_CallSiteType_
 func new_FunctionInjector_CallSiteType_5(name_ string, ordinal_ int32) *FunctionInjector_CallSiteType_5 {
 	this := &FunctionInjector_CallSiteType_5{}
 	this.self_ = this
-	this.selfI_ = this
+	this.selfI_ = this.prepare_impl
 	this.init_FunctionInjector_CallSiteType_5(name_, ordinal_)
 	return this
 }
@@ -1234,7 +1234,7 @@ func (this *FunctionInjector_CallSiteType_6) init_FunctionInjector_CallSiteType_
 func new_FunctionInjector_CallSiteType_6(name_ string, ordinal_ int32) *FunctionInjector_CallSiteType_6 {
 	this := &FunctionInjector_CallSiteType_6{}
 	this.self_ = this
-	this.selfI_ = this
+	this.selfI_ = this.prepare_impl
 	this.init_FunctionInjector_CallSiteType_6(name_, ordinal_)
 	return this
 }
@@ -1280,7 +1280,7 @@ func (this *FunctionInjector_CallSiteType_1) prepare(p0 *FunctionInjector, p1 *F
 		this.prepare_impl(p0, p1)
 		return
 	}
-	this.selfI_.prepare_impl(p0, p1)
+	this.selfI_(p0, p1)
 }
 
 // prepare: an object that is exactly a FunctionInjector_CallSiteType_2 calls its prepare_impl directly (post-flip); others dispatch.
@@ -1289,7 +1289,7 @@ func (this *FunctionInjector_CallSiteType_2) prepare(p0 *FunctionInjector, p1 *F
 		this.prepare_impl(p0, p1)
 		return
 	}
-	this.selfI_.prepare_impl(p0, p1)
+	this.selfI_(p0, p1)
 }
 
 // prepare: an object that is exactly a FunctionInjector_CallSiteType_3 calls its prepare_impl directly (post-flip); others dispatch.
@@ -1298,7 +1298,7 @@ func (this *FunctionInjector_CallSiteType_3) prepare(p0 *FunctionInjector, p1 *F
 		this.prepare_impl(p0, p1)
 		return
 	}
-	this.selfI_.prepare_impl(p0, p1)
+	this.selfI_(p0, p1)
 }
 
 // prepare: an object that is exactly a FunctionInjector_CallSiteType_4 calls its prepare_impl directly (post-flip); others dispatch.
@@ -1307,7 +1307,7 @@ func (this *FunctionInjector_CallSiteType_4) prepare(p0 *FunctionInjector, p1 *F
 		this.prepare_impl(p0, p1)
 		return
 	}
-	this.selfI_.prepare_impl(p0, p1)
+	this.selfI_(p0, p1)
 }
 
 // prepare: an object that is exactly a FunctionInjector_CallSiteType_5 calls its prepare_impl directly (post-flip); others dispatch.
@@ -1316,7 +1316,7 @@ func (this *FunctionInjector_CallSiteType_5) prepare(p0 *FunctionInjector, p1 *F
 		this.prepare_impl(p0, p1)
 		return
 	}
-	this.selfI_.prepare_impl(p0, p1)
+	this.selfI_(p0, p1)
 }
 
 // prepare: an object that is exactly a FunctionInjector_CallSiteType_6 calls its prepare_impl directly (post-flip); others dispatch.
@@ -1325,5 +1325,5 @@ func (this *FunctionInjector_CallSiteType_6) prepare(p0 *FunctionInjector, p1 *F
 		this.prepare_impl(p0, p1)
 		return
 	}
-	this.selfI_.prepare_impl(p0, p1)
+	this.selfI_(p0, p1)
 }

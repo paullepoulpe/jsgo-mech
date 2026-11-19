@@ -50,12 +50,12 @@ func new_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, fun
 }
 
 func (this *ReplaceStrings) getResult() *JTList[*ReplaceStrings_Result] {
-	return jimmutableListCopyOf_(jtc_p_ReplaceStrings_Result, Iterables_filter(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS))
+	return jimmutableListCopyOf_(jtc_p_ReplaceStrings_Result, Iterables_filter_f(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS))
 }
 
 func (this *ReplaceStrings) getStringMap() *VariableMap {
 	var map_ *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
-	it_1 := foreach_(any(Iterables_filter(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS)))
+	it_1 := foreach_(any(Iterables_filter_f(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS)))
 	for it_1.next() {
 		var result *ReplaceStrings_Result = cast_[*ReplaceStrings_Result](it_1.v)
 		map_.put(result.replacement_, result.original_)
@@ -287,7 +287,7 @@ const ReplaceStrings_EXCLUSION_PREFIX string = ":!"
 const ReplaceStrings_REPLACE_ONE_MARKER string = "?"
 const ReplaceStrings_REPLACE_ALL_MARKER string = "*"
 
-var ReplaceStrings_USED_RESULTS Predicate_base
+var ReplaceStrings_USED_RESULTS func(any) bool
 
 var ReplaceStrings_clinit_done bool
 
@@ -299,9 +299,9 @@ func ReplaceStrings_clinit() {
 	ReplaceStrings_COMMA_PATTERN = Pattern_compile(",")
 	ReplaceStrings_BAD_REPLACEMENT_CONFIGURATION = DiagnosticType_error("JSC_BAD_REPLACEMENT_CONFIGURATION", "Bad replacement configuration \"{0}\": {1}")
 	ReplaceStrings_STRING_REPLACEMENT_TAGGED_TEMPLATE = DiagnosticType_warning("JSC_STRING_REPLACEMENT_TAGGED_TEMPLATE", "Cannot string-replace arguments of a template literal tag function.")
-	ReplaceStrings_USED_RESULTS = &Predicate_base_tfn_ReplaceStrings_Result{func(result *ReplaceStrings_Result) bool {
+	ReplaceStrings_USED_RESULTS = (&Predicate_base_tfn_ReplaceStrings_Result{func(result *ReplaceStrings_Result) bool {
 		return result.didReplacement
-	}}
+	}}).apply
 
 }
 

@@ -70,7 +70,7 @@ func (this *Es6RewriteBlockScopedDeclaration) visitBlockScopedNameDeclaration(de
 }
 
 func (this *Es6RewriteBlockScopedDeclaration) inLoop(n Node) bool {
-	var enclosingNode Node = NodeUtil_getEnclosingNode(n, &Predicate_base_tfn_Node{func(p0 Node) bool { return Es6RewriteBlockScopedDeclaration_isLoopOrFunction(p0) }})
+	var enclosingNode Node = NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return Es6RewriteBlockScopedDeclaration_isLoopOrFunction(p0) }}).apply)
 	return ((enclosingNode != 0) && !enclosingNode.isFunction())
 }
 
@@ -129,7 +129,7 @@ func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationListInFor
 	var loopNode Node = parent
 	if lhs.isDestructuringLhs() {
 		Preconditions_checkState_boolean_Object(false, "Destructuring syntax is unsupported in ES6RewriteBlockScopedDeclarations pass")
-		NodeUtil_visitLhsNodesInNode(lhs, &Consumer_tfn_Node{func(name Node) {
+		NodeUtil_visitLhsNodesInNode(lhs, (&Consumer_tfn_Node{func(name Node) {
 			if !name.isName() {
 				Preconditions_checkState_boolean_String_Object_H(false, "lhs in destructuring declaration should be a simple name. (%s)", name)
 			}
@@ -137,7 +137,7 @@ func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationListInFor
 			var newVar Node = IR_var_Node(newName).srcref(name)
 			Es6RewriteBlockScopedDeclaration_extractInlineJSDoc(declarationList, name, newVar)
 			this.addNodeBeforeLoop(newVar, loopNode)
-		}})
+		}}).accept)
 		var destructuringPattern Node = lhs.removeFirstChild()
 		first.replaceWith(destructuringPattern)
 	} else {

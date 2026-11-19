@@ -4,8 +4,8 @@ package closure
 
 type ColorSerializer struct {
 	serializationMode       *SerializationOptions
-	getStringPoolIndexFn    FunctionOf[string, BoxedOf[int32]]
-	propertyFilter          PredicateOf[string]
+	getStringPoolIndexFn    func(any) any
+	propertyFilter          func(any) bool
 	colorIdToTypePointer    *JTMap[*ColorId, any]
 	colorsInSerializedOrder *JTList[*Color]
 }
@@ -15,7 +15,7 @@ func (this *ColorSerializer) finit_ColorSerializer() {
 	this.colorsInSerializedOrder = jnewTList_(jtc_p_Color)
 }
 
-func (this *ColorSerializer) init_ColorSerializer(serializationMode *SerializationOptions, stringPoolIndexFn FunctionOf[string, BoxedOf[int32]], propertyFilter PredicateOf[string]) {
+func (this *ColorSerializer) init_ColorSerializer(serializationMode *SerializationOptions, stringPoolIndexFn func(any) any, propertyFilter func(any) bool) {
 	this.finit_ColorSerializer()
 	this.serializationMode = serializationMode
 	this.getStringPoolIndexFn = stringPoolIndexFn
@@ -27,7 +27,7 @@ func (this *ColorSerializer) init_ColorSerializer(serializationMode *Serializati
 	}
 }
 
-func new_ColorSerializer(serializationMode *SerializationOptions, stringPoolIndexFn FunctionOf[string, BoxedOf[int32]], propertyFilter PredicateOf[string]) *ColorSerializer {
+func new_ColorSerializer(serializationMode *SerializationOptions, stringPoolIndexFn func(any) any, propertyFilter func(any) bool) *ColorSerializer {
 	this := &ColorSerializer{}
 	this.init_ColorSerializer(serializationMode, stringPoolIndexFn, propertyFilter)
 	return this
@@ -52,13 +52,13 @@ func (this *ColorSerializer) addColor(color *Color) int32 {
 	}}))
 }
 
-func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn FunctionOf[*Color, SetOf[*Color]], getMismatchSourceRefsFn FunctionOf[*Color, SetOf[string]]) *TypePool {
+func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func(any) any, getMismatchSourceRefsFn FunctionOf[*Color, SetOf[string]]) *TypePool {
 	var typePoolBuilder *TypePool_Builder = TypePool_newBuilder()
 	for i := int32(TypePointers_untrimOffset(0)); i < this.colorsInSerializedOrder.size(); i++ {
 		var color *Color = this.colorsInSerializedOrder.get(i)
 		var typePointer any = this.colorIdToTypePointer.get(color.getId())
 		typePoolBuilder.addType(this.generateTypeProto(color))
-		it_2 := foreach_(any(icast_Set(getDisambiguationSupertypesFn.apply(obj_(color)))))
+		it_2 := foreach_(any(icast_Set(getDisambiguationSupertypesFn(obj_(color)))))
 		for it_2.next() {
 			var supertype *Color = cast_[*Color](it_2.v)
 			typePoolBuilder.addDisambiguationEdgesBuilder().setSubtype(unbox_[int32](typePointer)).setSupertype(this.addColor(supertype))
@@ -106,8 +106,8 @@ func (this *ColorSerializer) getOwnPropertyStringPoolOffsets(color *Color) *JTLi
 	it_1 := color.getOwnProperties().each()
 	for it_1.next() {
 		var ownProperty string = it_1.v
-		if this.propertyFilter.test(strobj_(ownProperty)) {
-			builder.add(this.getStringPoolIndexFn.apply(strobj_(ownProperty)))
+		if this.propertyFilter(strobj_(ownProperty)) {
+			builder.add(this.getStringPoolIndexFn(strobj_(ownProperty)))
 		}
 	}
 	return builder.build()

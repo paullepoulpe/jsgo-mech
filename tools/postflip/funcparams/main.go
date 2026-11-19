@@ -1155,7 +1155,12 @@ func convert(report bool) {
 		case "obj":
 			o := boxed(a)
 			m := methodValue(o, ms)
-			rw.Rewrite[a] = func() string { return reflipRecv_(o, rw.Render(o)) + "." + m }
+			rw.Rewrite[a] = func() string {
+				if o == a { // already unboxed by an earlier step: render it, not its own rewrite
+					return reflipRecv_(o, rw.RenderChildren(o)) + "." + m
+				}
+				return reflipRecv_(o, rw.Render(o)) + "." + m
+			}
 		case "iife":
 			cl := iife(a, ms)
 			fl := rw.Unparen(a).(*ast.CallExpr).Fun.(*ast.FuncLit)
@@ -1266,7 +1271,7 @@ func convert(report bool) {
 			fmt.Println(l.s)
 		}
 	} else {
-		fmt.Fprintf(os.Stderr, "files changed: %d\n", rw.Save())
+		fmt.Fprintf(os.Stderr, "files changed: %d\n", rw.SaveChecked())
 	}
 	fmt.Fprintf(os.Stderr, "parameters converted: %d, interface-method groups: %d (%d calls); local variables: %d; fields and package-level variables: %d; runtime calls to a _f variant: %d; lambda literals unwrapped: %d; package-level lambdas passed as functions: %d; objects passed as method values: %d; package-level lambdas made functions: %d\n", nparams, ngroups, nsites, nlocals, nfields, nvariant, nlit, nvar, nobj, nfuncs)
 }

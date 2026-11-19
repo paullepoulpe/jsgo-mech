@@ -791,7 +791,7 @@ func NodeUtil_findClosureUnawareScriptRoot(script Node) Node {
 	if !(script.isScript() && script.getIsInClosureUnawareSubtree()) {
 		Preconditions_checkArgument_boolean_Object_H(false, script)
 	}
-	return NodeUtil_findPreorder(script, &Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isBlock() }}, &Predicate_base_tfn_Node{func(c Node) bool {
+	return NodeUtil_findPreorder(script, (&Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isBlock() }}).apply, &Predicate_base_tfn_Node{func(c Node) bool {
 		return true
 	}})
 }
@@ -1390,45 +1390,45 @@ func NodeUtil_getOpFromAssignmentOp(n Node) Token_rhino {
 }
 
 func NodeUtil_getEnclosingType(n Node, type_ Token_rhino) Node {
-	return NodeUtil_getEnclosingNode(n, &Predicate_base_tfn_Node{func(n1 Node) bool {
+	return NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(n1 Node) bool {
 		return (n1.getToken() == type_)
-	}})
+	}}).apply)
 }
 
 func NodeUtil_getEnclosingNonArrowFunction(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, &Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isNonArrowFunction(p0) }})
+	return NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isNonArrowFunction(p0) }}).apply)
 }
 
 func NodeUtil_getEnclosingClass(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, &Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isClass() }})
+	return NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isClass() }}).apply)
 }
 
 func NodeUtil_getEnclosingModuleIfPresent(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, &Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isModuleBody() }})
+	return NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isModuleBody() }}).apply)
 }
 
 func NodeUtil_getEnclosingFunction(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, &Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isFunction() }})
+	return NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isFunction() }}).apply)
 }
 
 func NodeUtil_getEnclosingScript(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, &Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isScript() }})
+	return NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isScript() }}).apply)
 }
 
 func NodeUtil_getEnclosingBlock(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, &Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isBlock() }})
+	return NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isBlock() }}).apply)
 }
 
 func NodeUtil_getEnclosingBlockScopeRoot(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, &Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_createsBlockScope(p0) }})
+	return NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_createsBlockScope(p0) }}).apply)
 }
 
 func NodeUtil_getEnclosingScopeRoot(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, &Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_createsScope(p0) }})
+	return NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_createsScope(p0) }}).apply)
 }
 
 func NodeUtil_getEnclosingHoistScopeRoot(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, &Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isHoistScopeRoot(p0) }})
+	return NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isHoistScopeRoot(p0) }}).apply)
 }
 
 func NodeUtil_isHoistScopeRoot(n Node) bool {
@@ -1440,12 +1440,12 @@ func NodeUtil_isInFunction(n Node) bool {
 }
 
 func NodeUtil_getEnclosingStatement(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, &Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isStatement(p0) }})
+	return NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isStatement(p0) }}).apply)
 }
 
-func NodeUtil_getEnclosingNode(n Node, pred Predicate_baseOf[Node]) Node {
+func NodeUtil_getEnclosingNode(n Node, pred func(any) bool) Node {
 	var curr Node = n
-	for (curr != 0) && !pred.apply(curr.box_()) {
+	for (curr != 0) && !pred(curr.box_()) {
 		curr = curr.getParent()
 	}
 	return curr
@@ -1490,15 +1490,15 @@ func NodeUtil_referencesOwnReceiver(fn Node) bool {
 }
 
 func NodeUtil_referencesEnclosingReceiver(n Node) bool {
-	return NodeUtil_has(n, &Predicate_base_tfn_Node{func(c Node) bool {
+	return NodeUtil_has(n, (&Predicate_base_tfn_Node{func(c Node) bool {
 		return (c.isThis() || c.isSuper())
-	}}, NodeUtil_MATCH_ANYTHING_BUT_NON_ARROW_FUNCTION)
+	}}).apply, NodeUtil_MATCH_ANYTHING_BUT_NON_ARROW_FUNCTION)
 }
 
 func NodeUtil_referencesSuper(n Node) bool {
 	var curr Node = n.getFirstChild()
 	for curr != 0 {
-		if NodeUtil_has(curr, &Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isSuper() }}, &Predicate_base_tfn_Node{func(node Node) bool {
+		if NodeUtil_has(curr, (&Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isSuper() }}).apply, &Predicate_base_tfn_Node{func(node Node) bool {
 			return !node.isClass()
 		}}) {
 			return true
@@ -2893,7 +2893,7 @@ func NodeUtil_getVarsDeclaredInBranch(root Node) CollectionOf[Node] {
 	return collector.vars.asMap().values()
 }
 
-func NodeUtil_getLhsNodesHelper(n Node, consumer ConsumerOf[Node]) {
+func NodeUtil_getLhsNodesHelper(n Node, consumer func(any)) {
 	switch n.ns_().token {
 	case tokOrd1_IMPORT:
 		NodeUtil_getLhsNodesHelper(n.getFirstChild(), consumer)
@@ -2912,9 +2912,9 @@ func NodeUtil_getLhsNodesHelper(n Node, consumer ConsumerOf[Node]) {
 	case tokOrd1_IMPORT_SPEC, tokOrd1_COMPUTED_PROP, tokOrd1_STRING_KEY:
 		NodeUtil_getLhsNodesHelper(n.getLastChild(), consumer)
 	case tokOrd1_NAME, tokOrd1_IMPORT_STAR:
-		consumer.accept(n.box_())
+		consumer(n.box_())
 	case tokOrd1_GETPROP, tokOrd1_GETELEM:
-		consumer.accept(n.box_())
+		consumer(n.box_())
 	case tokOrd1_EMPTY:
 	case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 		NodeUtil_getLhsNodesHelper(n.getFirstChild(), consumer)
@@ -2927,14 +2927,14 @@ func NodeUtil_getLhsNodesHelper(n Node, consumer ConsumerOf[Node]) {
 	}
 }
 
-func NodeUtil_visitLhsNodesInNode(assigningParent Node, consumer ConsumerOf[Node]) {
+func NodeUtil_visitLhsNodesInNode(assigningParent Node, consumer func(any)) {
 	if !(((((((NodeUtil_isNameDeclaration(assigningParent) || assigningParent.isParamList()) || NodeUtil_isAssignmentOp(assigningParent)) || assigningParent.isCatch()) || assigningParent.isDestructuringLhs()) || assigningParent.isDefaultValue()) || assigningParent.isImport()) || NodeUtil_isEnhancedFor(assigningParent)) {
 		Preconditions_checkArgument_boolean_Object_H(false, assigningParent)
 	}
 	NodeUtil_getLhsNodesHelper(assigningParent, consumer)
 }
 
-func NodeUtil_visitLhsNodesInDestructuringPattern(destructuringPattern Node, consumer ConsumerOf[Node]) {
+func NodeUtil_visitLhsNodesInDestructuringPattern(destructuringPattern Node, consumer func(any)) {
 	Preconditions_checkArgument_boolean_Object(destructuringPattern.isDestructuringPattern(), "Must be a destructuring pattern node.")
 	NodeUtil_getLhsNodesHelper(destructuringPattern, consumer)
 }
@@ -3140,11 +3140,11 @@ func NodeUtil_isShallowStatementTree(n Node) bool {
 }
 
 func NodeUtil_getNodeTypeReferenceCount(node Node, type_ Token_rhino, traverseChildrenPred Predicate_baseOf[Node]) int32 {
-	return NodeUtil_getCount(node, icast_Predicate_base(obj_(new_NodeUtil_MatchNodeType(type_))), traverseChildrenPred)
+	return NodeUtil_getCount(node, new_NodeUtil_MatchNodeType(type_).apply, traverseChildrenPred)
 }
 
 func NodeUtil_isNameReferenced_Node_String_Predicate(node Node, name string, traverseChildrenPred Predicate_baseOf[Node]) bool {
-	return NodeUtil_has(node, icast_Predicate_base(obj_(new_NodeUtil_MatchNameNode(name))), traverseChildrenPred)
+	return NodeUtil_has(node, new_NodeUtil_MatchNameNode(name).apply, traverseChildrenPred)
 }
 
 func NodeUtil_isNameReferenced_Node_String(node Node, name string) bool {
@@ -3152,11 +3152,11 @@ func NodeUtil_isNameReferenced_Node_String(node Node, name string) bool {
 }
 
 func NodeUtil_getNameReferenceCount(node Node, name string) int32 {
-	return NodeUtil_getCount(node, icast_Predicate_base(obj_(new_NodeUtil_MatchNameNode(name))), Predicates_alwaysTrue())
+	return NodeUtil_getCount(node, new_NodeUtil_MatchNameNode(name).apply, Predicates_alwaysTrue())
 }
 
-func NodeUtil_has(node Node, pred Predicate_baseOf[Node], traverseChildrenPred Predicate_baseOf[Node]) bool {
-	if pred.apply(node.box_()) {
+func NodeUtil_has(node Node, pred func(any) bool, traverseChildrenPred Predicate_baseOf[Node]) bool {
+	if pred(node.box_()) {
 		return true
 	}
 	if !traverseChildrenPred.apply(node.box_()) {
@@ -3173,8 +3173,8 @@ func NodeUtil_has(node Node, pred Predicate_baseOf[Node], traverseChildrenPred P
 	return false
 }
 
-func NodeUtil_findPreorder(node Node, pred Predicate_baseOf[Node], traverseChildrenPred Predicate_baseOf[Node]) Node {
-	if pred.apply(node.box_()) {
+func NodeUtil_findPreorder(node Node, pred func(any) bool, traverseChildrenPred Predicate_baseOf[Node]) Node {
+	if pred(node.box_()) {
 		return node
 	}
 	if !traverseChildrenPred.apply(node.box_()) {
@@ -3192,9 +3192,9 @@ func NodeUtil_findPreorder(node Node, pred Predicate_baseOf[Node], traverseChild
 	return 0
 }
 
-func NodeUtil_getCount(n Node, pred Predicate_baseOf[Node], traverseChildrenPred Predicate_baseOf[Node]) int32 {
+func NodeUtil_getCount(n Node, pred func(any) bool, traverseChildrenPred Predicate_baseOf[Node]) int32 {
 	var total int32 = 0
-	if pred.apply(n.box_()) {
+	if pred(n.box_()) {
 		total++
 	}
 	if traverseChildrenPred.apply(n.box_()) {
@@ -4328,7 +4328,7 @@ func NodeUtil_addFeaturesToScript(scriptNode Node, features *FeatureSet, compile
 	}
 }
 
-func NodeUtil_getParamOrPatternNames(n Node, cb ConsumerOf[Node]) {
+func NodeUtil_getParamOrPatternNames(n Node, cb func(any)) {
 	ParsingUtil_getParamOrPatternNames(n, cb)
 }
 
@@ -4564,9 +4564,9 @@ func new_NodeUtil_VarCollector() *NodeUtil_VarCollector {
 
 func (this *NodeUtil_VarCollector) visit(n Node) {
 	if n.isVar() {
-		NodeUtil_visitLhsNodesInNode(n, &Consumer_tfn_Node{func(name Node) {
+		NodeUtil_visitLhsNodesInNode(n, (&Consumer_tfn_Node{func(name Node) {
 			this.vars.putIfAbsent(name.getString(), name)
-		}})
+		}}).accept)
 	}
 }
 

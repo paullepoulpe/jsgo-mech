@@ -231,7 +231,7 @@ func (this *TypedScopeCreator) createInitialScope(root Node) *TypedScope {
 	if !root.isRoot() {
 		Preconditions_checkArgument_boolean_Object_H(false, root)
 	}
-	var scopeCreator *MemoizedScopeCreator = new_MemoizedScopeCreator(icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))))
+	var scopeCreator *MemoizedScopeCreator = new_MemoizedScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_).createScopeAbstractScope_Node_AbstractScope)
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(NodeTraversal_Callback(new_TypedScopeCreator_FirstOrderFunctionAnalyzer(this))).setScopeCreator(MemoizedScopeCreator_as_ScopeCreator(scopeCreator)).traverseRoots(root.getFirstChild(), root.getLastChild())
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(NodeTraversal_Callback(new_TypedScopeCreator_IdentifyEnumsAndTypedefsAsNonNullable(this.typeRegistry))).setScopeCreator(MemoizedScopeCreator_as_ScopeCreator(scopeCreator)).traverse(root)
 	var s *TypedScope = TypedScope_createGlobalScope(root)
@@ -955,10 +955,10 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) assertDefinitionNode(n Node,
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) defineCatch(n Node) {
 	this.assertDefinitionNode(n, Token_rhino_CATCH)
-	NodeUtil_visitLhsNodesInNode(n, &Consumer_tfn_Node{func(catchName Node) {
+	NodeUtil_visitLhsNodesInNode(n, (&Consumer_tfn_Node{func(catchName Node) {
 		var type_ *JSType = this.getDeclaredType(catchName.getJSDocInfo(), catchName, 0, nil)
 		new_TypedScopeCreator_AbstractScopeBuilder_SlotDefiner(this).forDeclarationNode(catchName).forVariableName(Optional_of[string](catchName.getString())).inScope(this.currentScope).withType(type_).allowLaterTypeInference((type_ == nil)).defineSlot()
-	}})
+	}}).accept)
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) defineAssignAsIfVarDeclaration(assignment Node) {
@@ -1017,22 +1017,22 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineVarChild(declarationIn
 			}
 			return
 		}
-		this.defineDestructuringPatternInVarDeclaration(pattern, scope, &Supplier_base_tfn_TypedScopeCreator_RValueInfo{func() *TypedScopeCreator_RValueInfo {
+		this.defineDestructuringPatternInVarDeclaration(pattern, scope, (&Supplier_base_tfn_TypedScopeCreator_RValueInfo{func() *TypedScopeCreator_RValueInfo {
 			return func() *TypedScopeCreator_RValueInfo {
 				if value != 0 {
 					return new_TypedScopeCreator_RValueInfo(this.getDeclaredRValueType(0, value), value.getQualifiedNameObject())
 				}
 				return new_TypedScopeCreator_RValueInfo(this.outer_.unknownType.up_JSType(), nil)
 			}()
-		}})
+		}}).get)
 	}
 }
 
-func (this *TypedScopeCreator_AbstractScopeBuilder) inferTypeForDestructuredTarget(target *DestructuredTarget, patternTypeSupplier Supplier_baseOf[*TypedScopeCreator_RValueInfo]) *TypedScopeCreator_RValueInfo {
+func (this *TypedScopeCreator_AbstractScopeBuilder) inferTypeForDestructuredTarget(target *DestructuredTarget, patternTypeSupplier func() any) *TypedScopeCreator_RValueInfo {
 	if !target.hasStringKey() || target.hasDefaultValue() {
 		return TypedScopeCreator_RValueInfo_empty()
 	}
-	var rvalue *TypedScopeCreator_RValueInfo = cast_[*TypedScopeCreator_RValueInfo](patternTypeSupplier.get())
+	var rvalue *TypedScopeCreator_RValueInfo = cast_[*TypedScopeCreator_RValueInfo](patternTypeSupplier())
 	var patternType *JSType = rvalue.type__
 	var propertyName string = target.getStringKey().getString()
 	var qname *QualifiedName = func() *QualifiedName {
@@ -1051,15 +1051,15 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) inferTypeForDestructuredTarg
 	return new_TypedScopeCreator_RValueInfo(nil, qname)
 }
 
-func (this *TypedScopeCreator_AbstractScopeBuilder) defineDestructuringPatternInVarDeclaration(pattern Node, scope *TypedScope, patternTypeSupplier Supplier_baseOf[*TypedScopeCreator_RValueInfo]) {
-	it_1 := DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(this.outer_.typeRegistry, &Supplier_base_fn{func() any {
-		return cast_[*TypedScopeCreator_RValueInfo](patternTypeSupplier.get()).type__.self()
-	}}, pattern).each()
+func (this *TypedScopeCreator_AbstractScopeBuilder) defineDestructuringPatternInVarDeclaration(pattern Node, scope *TypedScope, patternTypeSupplier func() any) {
+	it_1 := DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(this.outer_.typeRegistry, func() any {
+		return cast_[*TypedScopeCreator_RValueInfo](patternTypeSupplier()).type__.self()
+	}, pattern).each()
 	for it_1.next() {
 		var target *DestructuredTarget = it_1.v
-		var typeSupplier Supplier_baseOf[*TypedScopeCreator_RValueInfo] = &Supplier_base_tfn_TypedScopeCreator_RValueInfo{func() *TypedScopeCreator_RValueInfo {
+		var typeSupplier func() any = (&Supplier_base_tfn_TypedScopeCreator_RValueInfo{func() *TypedScopeCreator_RValueInfo {
 			return this.inferTypeForDestructuredTarget(target, patternTypeSupplier)
-		}}
+		}}).get
 		if target.getNode().isDestructuringPattern() {
 			this.defineDestructuringPatternInVarDeclaration(target.getNode(), scope, typeSupplier)
 		} else {
@@ -1584,7 +1584,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getLValueRootScope(n Node) *
 	return this.currentHoistScope.getGlobalScope_rTypedScope()
 }
 
-func (this *TypedScopeCreator_AbstractScopeBuilder) getDeclaredType(info *JSDocInfo, lValue Node, rValue Node, declaredRValueTypeSupplier Supplier_baseOf[*TypedScopeCreator_RValueInfo]) *JSType {
+func (this *TypedScopeCreator_AbstractScopeBuilder) getDeclaredType(info *JSDocInfo, lValue Node, rValue Node, declaredRValueTypeSupplier func() any) *JSType {
 	if (info != nil) && info.hasType() {
 		var type_ *JSType = this.getDeclaredTypeInAnnotation(lValue, info)
 		if (((type_.isSymbol() && lValue.isFromExterns()) && lValue.isGetProp()) && lValue.getFirstChild().matchesName("Symbol")) && this.currentScope.isGlobal() {
@@ -1627,7 +1627,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getDeclaredType(info *JSDocI
 				return rValueType
 			}
 		} else if declaredRValueTypeSupplier != nil {
-			var rvalueInfo *TypedScopeCreator_RValueInfo = cast_[*TypedScopeCreator_RValueInfo](declaredRValueTypeSupplier.get())
+			var rvalueInfo *TypedScopeCreator_RValueInfo = cast_[*TypedScopeCreator_RValueInfo](declaredRValueTypeSupplier())
 			if rvalueInfo != nil {
 				this.declareAliasTypeIfRvalueIsAliasable(lValue, rvalueInfo.qualifiedName_, rvalueInfo.type__, this.currentScope)
 				if rvalueInfo.type__ != nil {

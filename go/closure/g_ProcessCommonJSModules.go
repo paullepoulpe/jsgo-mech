@@ -409,9 +409,9 @@ type ProcessCommonJSModules_ExportInfo struct {
 func (this *ProcessCommonJSModules_ExportInfo) init_ProcessCommonJSModules_ExportInfo(node Node, scope *Scope) {
 	this.node_ = node
 	this.scope_ = scope
-	var disqualifyingParent Node = NodeUtil_getEnclosingNode(node, &Predicate_base_tfn_Node{func(n Node) bool {
+	var disqualifyingParent Node = NodeUtil_getEnclosingNode(node, (&Predicate_base_tfn_Node{func(n Node) bool {
 		return (((n.isIf() || n.isHook()) || n.isFunction()) || n.isArrowFunction())
-	}})
+	}}).apply)
 	this.isInSupportedScope = (disqualifyingParent == 0)
 }
 
@@ -977,9 +977,9 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 			if NodeUtil_isLhsByDestructuring(n) {
 				this.maybeUpdateName(t, n, nameDeclaration)
 			} else if (nameDeclaration.getNode() != 0) && objequalsBy_(nameDeclaration.getNode().getInputId(), obj_(n.getInputId()), (*InputId).equals) {
-				var enclosingDeclaration Node = NodeUtil_getEnclosingNode(n, &Predicate_base_tfn_Node{func(node Node) bool {
+				var enclosingDeclaration Node = NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(node Node) bool {
 					return (node == nameDeclaration.getNameNode())
-				}})
+				}}).apply)
 				if ((enclosingDeclaration == 0) || (enclosingDeclaration == n)) || (nameDeclaration.getScope_rAbstractScope_rScope() != t.getScope()) {
 					this.maybeUpdateName(t, n, nameDeclaration)
 				}
