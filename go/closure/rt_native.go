@@ -356,3 +356,96 @@ func sliceObj_[T any](s []T) any {
 	}
 	return true
 }
+
+// sliceNext_ is next() of ArrayList's iterator over a list that became slice s, with *i its
+// cursor: the element at the cursor, which then moves on; NoSuchElementException at the end.
+func sliceNext_[T any](s []T, i *int) T {
+	if *i >= len(s) {
+		panic(new_NoSuchElementException_0().self())
+	}
+	v := s[*i]
+	*i++
+	return v
+}
+
+// Deques (colls -kind deque) whose typed list became a slice, at the end of the slice (the
+// head of a deque used only at its head, else the tail; see rt_tlist.go).
+
+// slicePop_ is pop / removeFirst (removeLast at the tail): NoSuchElementException when empty.
+func slicePop_[T any](c *tconv_[T], s *[]T) T {
+	n := len(*s)
+	if n == 0 {
+		panic(new_NoSuchElementException_0().self())
+	}
+	v := (*s)[n-1]
+	var z T
+	(*s)[n-1] = z
+	*s = (*s)[:n-1]
+	return v
+}
+
+// slicePollTop_ is poll / pollFirst: null when empty.
+func slicePollTop_[T any](c *tconv_[T], s *[]T) T {
+	if len(*s) == 0 {
+		return c.null
+	}
+	return slicePop_(c, s)
+}
+
+// slicePeekTop_ is peek / peekFirst: null when empty.
+func slicePeekTop_[T any](c *tconv_[T], s []T) T {
+	if len(s) == 0 {
+		return c.null
+	}
+	return s[len(s)-1]
+}
+
+// sliceTop_ is getFirst / element: NoSuchElementException when empty.
+func sliceTop_[T any](c *tconv_[T], s []T) T {
+	if len(s) == 0 {
+		panic(new_NoSuchElementException_0().self())
+	}
+	return s[len(s)-1]
+}
+
+// eachRevOf_ is TList.eachRev over a slice: the k-th step reads the k-th item from the end.
+func eachRevOf_[T any](s *[]T) sliceEachRev_[T] { return sliceEachRev_[T]{src: s} }
+
+// The head of a deque used at its tail as well (a queue) is index 0; the first item is dropped
+// by moving the start of the slice, as ArrayDeque does.
+
+// slicePopFirst_ is pop / removeFirst / remove(): NoSuchElementException when empty.
+func slicePopFirst_[T any](c *tconv_[T], s *[]T) T {
+	if len(*s) == 0 {
+		panic(new_NoSuchElementException_0().self())
+	}
+	v := (*s)[0]
+	var z T
+	(*s)[0] = z
+	*s = (*s)[1:]
+	return v
+}
+
+// slicePollFirst_ is poll / pollFirst: null when empty.
+func slicePollFirst_[T any](c *tconv_[T], s *[]T) T {
+	if len(*s) == 0 {
+		return c.null
+	}
+	return slicePopFirst_(c, s)
+}
+
+// slicePeekFirst_ is peek / peekFirst: null when empty.
+func slicePeekFirst_[T any](c *tconv_[T], s []T) T {
+	if len(s) == 0 {
+		return c.null
+	}
+	return s[0]
+}
+
+// sliceFirst_ is getFirst / element: NoSuchElementException when empty.
+func sliceFirst_[T any](c *tconv_[T], s []T) T {
+	if len(s) == 0 {
+		panic(new_NoSuchElementException_0().self())
+	}
+	return s[0]
+}
