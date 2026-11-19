@@ -833,12 +833,12 @@ func (this *JSTypeRegistry) getEachReferenceTypeWithProperty(propertyName string
 }
 
 func (this *JSTypeRegistry) findCommonSuperObject(a *ObjectType, b *ObjectType) *ObjectType {
-	var stackA *TList[*ObjectType] = JSTypeRegistry_getSuperStack(a)
-	var stackB *TList[*ObjectType] = JSTypeRegistry_getSuperStack(b)
+	var stackA []*ObjectType = JSTypeRegistry_getSuperStack(a)
+	var stackB []*ObjectType = JSTypeRegistry_getSuperStack(b)
 	var result *ObjectType = this.getNativeObjectType(JSTypeNative_OBJECT_TYPE)
-	for !stackA.isEmpty() && !stackB.isEmpty() {
-		var currentA *ObjectType = stackA.removeAt((stackA.size() - 1))
-		var currentB *ObjectType = stackB.removeAt((stackB.size() - 1))
+	for len(stackA) != 0 && len(stackB) != 0 {
+		var currentA *ObjectType = sliceRemoveAt_(&stackA, (int32(len(stackA)) - 1))
+		var currentB *ObjectType = sliceRemoveAt_(&stackB, (int32(len(stackB)) - 1))
 		if currentA.equals_JSType(currentB.up_JSType()) {
 			result = currentA
 		} else {
@@ -848,12 +848,12 @@ func (this *JSTypeRegistry) findCommonSuperObject(a *ObjectType, b *ObjectType) 
 	return result
 }
 
-func JSTypeRegistry_getSuperStack(a *ObjectType) *TList[*ObjectType] {
-	var stack *TList[*ObjectType] = newTListN_(tc_p_ObjectType, 5)
+func JSTypeRegistry_getSuperStack(a *ObjectType) []*ObjectType {
+	var stack []*ObjectType = make([]*ObjectType, 0, 5)
 	{
 		var current *ObjectType = a
 		for ; current != nil; current = current.getImplicitPrototype() {
-			stack.add(current)
+			stack = append(stack, current)
 		}
 	}
 	return stack
@@ -1109,8 +1109,8 @@ func (this *JSTypeRegistry) createNativeFunctionTypeWithVarArgs(returnType *JSTy
 	return this.createNativeFunctionType(returnType, this.createParametersWithVarArgs(parameterTypes))
 }
 
-func (this *JSTypeRegistry) createFunctionTypeWithInstanceType(instanceType *ObjectType, returnType *JSType, parameterTypes *TList[*JSType]) *JSType {
-	var paramsNode *TList[*FunctionType_Parameter] = this.createParameters(arrmap_(parameterTypes.asList().toArray(arrmap_(make([]*JSType, 0), func(v_ *JSType) any { return v_.self() })), func(v_ any) *JSType { return to_JSType(v_) }))
+func (this *JSTypeRegistry) createFunctionTypeWithInstanceType(instanceType *ObjectType, returnType *JSType, parameterTypes []*JSType) *JSType {
+	var paramsNode *TList[*FunctionType_Parameter] = this.createParameters(arrmap_(sliceView_(tc_p_JSType, parameterTypes).toArray(arrmap_(make([]*JSType, 0), func(v_ *JSType) any { return v_.self() })), func(v_ any) *JSType { return to_JSType(v_) }))
 	return FunctionType_builder(this).withParameters_1(paramsNode).withReturnType(returnType).withTypeOfThis(instanceType.up_JSType()).build().up_JSType()
 }
 
@@ -1232,11 +1232,11 @@ func (this *JSTypeRegistry) createTemplatizedTypeImmutableList(baseType *ObjectT
 
 func (this *JSTypeRegistry) createTemplatizedTypeMap(baseType *ObjectType, templatizedTypes *JTMap[*TemplateType, *JSType]) *TemplatizedType {
 	var unknownType *JSType = this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
-	return this.createTemplatizedTypeImmutableList(baseType, tlistImm_(tc_p_JSType, JSTypeIterations_mapTypesImmutableList(func(key_ any) any {
+	return this.createTemplatizedTypeImmutableList(baseType, tlistImm_(tc_p_JSType, sliceView_(tc_any, JSTypeIterations_mapTypesImmutableList(func(key_ any) any {
 		var key *JSType = to_JSType(key_)
 		_ = key
 		return Map_getOrDefault(templatizedTypes.asMap(), key.self(), unknownType.self())
-	}, sliceImm_(tc_p_JSType, baseType.getTypeParameters().asImm()))))
+	}, sliceImm_(tc_p_JSType, baseType.getTypeParameters().asImm())))))
 }
 
 func (this *JSTypeRegistry) createTemplatizedType(baseType *ObjectType, templatizedTypes []*JSType) *TemplatizedType {

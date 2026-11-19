@@ -802,6 +802,10 @@ func valueOf(e ast.Expr) value {
 			if !generated(f.Pos()) {
 				return value{kind: vForeign, why: "result of the runtime's " + f.Name()}
 			}
+			if rw.ReflipGeneric_(f.Type().(*types.Signature).Results().At(0).Type(), false) { // reflip10
+				poison(resultNode(groupOf(f), 0), "result of a type parameter's type")
+				return value{kind: vForeign, why: "result of a type parameter's type"}
+			}
 			if f.Origin() != f { // reflip: generic instance
 				poison(resultNode(groupOf(f.Origin()), 0), "result of a method of a generic type")
 				return value{kind: vForeign, why: "result of a method of a generic type"}
@@ -949,6 +953,9 @@ func paramFor(c *ast.CallExpr, i int) (*node, bool) {
 	if i >= sig.Params().Len() || !isList(sig.Params().At(i).Type()) || typeArgSlot(f, true, i) {
 		return nil, false
 	}
+	if rw.ReflipGeneric_(sig.Params().At(i).Type(), false) { // reflip10
+		poison(paramNode(groupOf(f), i), "parameter of a type parameter's type")
+	}
 	if f.Origin() != f { // reflip: generic instance
 		poison(paramNode(groupOf(f), i), "argument of a method of a generic type")
 		poison(paramNode(groupOf(f.Origin()), i), "argument of a method of a generic type")
@@ -1049,6 +1056,9 @@ func handle(e ast.Expr) {
 				if !isList(typeOf(top)) || g == "" || !isList(resultType(x, i)) {
 					bad("returned as another type")
 					return
+				}
+				if rw.ReflipGeneric_(resultType(x, i), false) { // reflip10
+					poison(resultNode(g, i), "result of a type parameter's type")
 				}
 				flow(resultNode(g, i), e, true)
 			}

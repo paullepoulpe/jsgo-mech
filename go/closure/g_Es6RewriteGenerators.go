@@ -345,9 +345,9 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpileUnm
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpileLabel(n Node) {
-	var labelNames *TList[Node] = newTList_(tc_Node)
+	var labelNames *[]Node = &[]Node{}
 	for n.isLabel() {
-		labelNames.add(n.removeFirstChild())
+		*labelNames = append(*labelNames, n.removeFirstChild())
 		n = n.removeFirstChild()
 	}
 	var continueCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = func() *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case {
@@ -810,7 +810,7 @@ type Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext
 	finallyCases            *TDeque[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]
 	catchNames              *JTSet[string]
 	allCases                *TList[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]
-	switchBreaks            *TList[Node]
+	switchBreaks            *[]Node
 	programEndCase          *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case
 	caseIdCounter           int32
 	currentCase             *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case
@@ -827,7 +827,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	this.finallyCases = newTDeque_(jtc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case)
 	this.catchNames = jnewTSet_(jtc_string)
 	this.allCases = newTList_(tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case)
-	this.switchBreaks = newTList_(tc_Node)
+	this.switchBreaks = &[]Node{}
 	this.nestedFinallyBlockCount = 0
 }
 
@@ -862,17 +862,15 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 			for currentCase.jumpToField.jumpToField != nil {
 				currentCase.jumpToField = currentCase.jumpToField.jumpToField
 			}
-			if (currentCase.embedInto != 0) && (currentCase.references.size() == 1) {
+			if (currentCase.embedInto != 0) && (int32(len(*currentCase.references)) == 1) {
 				currentCase.jumpToField.embedInto = currentCase.embedInto
 			}
 			currentCase.embedInto = 0
-			it_4 := currentCase.references.each()
-			for it_4.next() {
-				var reference Node = it_4.v
+			for reference := range sliceAll_(currentCase.references) {
 				reference.setDouble(float64(currentCase.jumpToField.id))
 			}
-			currentCase.jumpToField.references.asList().addAll(Collection(currentCase.references.asList()))
-			currentCase.references.clear()
+			sliceAddAll_(tc_Node, currentCase.jumpToField.references, Collection(sliceViewP_(tc_Node, currentCase.references)))
+			sliceClear_(currentCase.references)
 		}
 	}
 	var it IteratorOf[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case] = this.allCases.iterator()
@@ -882,7 +880,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	}
 	for it.hasNext() {
 		var currentCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = cast_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case](it.next())
-		if currentCase.references.isEmpty() {
+		if len(*currentCase.references) == 0 {
 			if currentCase.embedInto != 0 {
 				panic(new_IllegalStateException_0())
 			}
@@ -897,7 +895,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 			if currentCase.jumpToField != nil {
 				panic(new_IllegalStateException_0())
 			}
-			if (currentCase.references.size() == 1) && !currentCase.mayFallThrough {
+			if (int32(len(*currentCase.references)) == 1) && !currentCase.mayFallThrough {
 				currentCase.embedInto.replaceWith(currentCase.caseBlock)
 				Iterator_remove(it)
 				continue
@@ -915,13 +913,11 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 			}
 			prevCase.caseBlock.addChildrenToBack(currentCase.caseBlock.removeChildren())
 			prevCase.mayFallThrough = currentCase.mayFallThrough
-			it_7 := currentCase.references.each()
-			for it_7.next() {
-				var reference Node = it_7.v
+			for reference := range sliceAll_(currentCase.references) {
 				reference.setDouble(float64(prevCase.id))
 			}
 			prevCase.jumpToField = currentCase.jumpToField
-			prevCase.references.asList().addAll(Collection(currentCase.references.asList()))
+			sliceAddAll_(tc_Node, prevCase.references, Collection(sliceViewP_(tc_Node, currentCase.references)))
 			Iterator_remove(it)
 			continue
 		}
@@ -930,9 +926,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) eliminateSwitchBreaks() {
-	it_1 := this.switchBreaks.each()
-	for it_1.next() {
-		var breakNode Node = it_1.v
+	for breakNode := range sliceAll_(this.switchBreaks) {
 		var prevStatement Node = breakNode.getPrevious()
 		if prevStatement == 0 {
 			panic(new_IllegalStateException_0())
@@ -943,7 +937,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 		prevStatement.replaceWith(IR_returnNode_Node(prevStatement.removeFirstChild()))
 		breakNode.detach()
 	}
-	this.switchBreaks.clear()
+	sliceClear_(this.switchBreaks)
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) finalizeTransformation(generatorBody Node) {
@@ -1051,7 +1045,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) createBreakNodeFor(preBreak Node) Node {
 	var breakNode Node = IR_breakNode_0().srcref(preBreak)
-	this.switchBreaks.add(breakNode)
+	*this.switchBreaks = append(*this.switchBreaks, breakNode)
 	return breakNode
 }
 
@@ -1095,15 +1089,15 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) yieldValue(expression Node, jumpToSection *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, sourceNode Node) {
-	var args *TList[Node] = newTList_(tc_Node)
-	args.add(func() Node {
+	var args []Node = []Node{}
+	args = append(args, func() Node {
 		if expression == 0 {
 			return this.outer_.outer_.astFactory_.createUndefinedValue().srcrefTree(sourceNode)
 		}
 		return expression
 	}())
-	args.add(jumpToSection.getNumber(sourceNode))
-	this.outer_.context.writeGeneratedNode(this.returnContextMethod(sourceNode, "yield", AstFactory_typeColor(StandardColors_UNKNOWN), arrmap_(args.asList().toArray(arrmap_(make([]Node, 0), func(v_ Node) any { return v_.box_() })), func(v_ any) Node { return Node_of_(v_) })))
+	args = append(args, jumpToSection.getNumber(sourceNode))
+	this.outer_.context.writeGeneratedNode(this.returnContextMethod(sourceNode, "yield", AstFactory_typeColor(StandardColors_UNKNOWN), arrmap_(sliceView_(tc_Node, args).toArray(arrmap_(make([]Node, 0), func(v_ Node) any { return v_.box_() })), func(v_ any) Node { return Node_of_(v_) })))
 	this.outer_.context.currentCase.mayFallThrough = false
 }
 
@@ -1185,29 +1179,29 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) enterTryBlock(catchCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, finallyCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, sourceNode Node) {
 	this.addCatchFinallyCases(catchCase, finallyCase)
 	var methodName string
-	var args *TList[Node] = newTList_(tc_Node)
+	var args []Node = []Node{}
 	if catchCase == nil {
 		methodName = "setFinallyBlock"
-		args.add(finallyCase.getNumber(sourceNode))
+		args = append(args, finallyCase.getNumber(sourceNode))
 	} else {
 		methodName = "setCatchFinallyBlocks"
-		args.add(catchCase.getNumber(sourceNode))
+		args = append(args, catchCase.getNumber(sourceNode))
 		if finallyCase != nil {
-			args.add(finallyCase.getNumber(sourceNode))
+			args = append(args, finallyCase.getNumber(sourceNode))
 		}
 	}
-	this.writeGeneratedNode(this.callContextMethodResult(sourceNode, methodName, AstFactory_typeColor(StandardColors_NULL_OR_VOID), arrmap_(args.asList().toArray(arrmap_(make([]Node, 0), func(v_ Node) any { return v_.box_() })), func(v_ any) Node { return Node_of_(v_) })))
+	this.writeGeneratedNode(this.callContextMethodResult(sourceNode, methodName, AstFactory_typeColor(StandardColors_NULL_OR_VOID), arrmap_(sliceView_(tc_Node, args).toArray(arrmap_(make([]Node, 0), func(v_ Node) any { return v_.box_() })), func(v_ any) Node { return Node_of_(v_) })))
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) leaveTryBlock(catchCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, endCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, sourceNode Node) {
 	this.removeCatchFinallyCases(catchCase, nil)
-	var args *TList[Node] = newTList_(tc_Node)
-	args.add(endCase.getNumber(sourceNode))
+	var args []Node = []Node{}
+	args = append(args, endCase.getNumber(sourceNode))
 	var nextCatchCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = this.getNextCatchCase()
 	if nextCatchCase != nil {
-		args.add(nextCatchCase.getNumber(sourceNode))
+		args = append(args, nextCatchCase.getNumber(sourceNode))
 	}
-	this.writeGeneratedNodeAndBreak(this.callContextMethodResult(sourceNode, "leaveTryBlock", AstFactory_typeColor(StandardColors_NULL_OR_VOID), arrmap_(args.asList().toArray(arrmap_(make([]Node, 0), func(v_ Node) any { return v_.box_() })), func(v_ any) Node { return Node_of_(v_) })))
+	this.writeGeneratedNodeAndBreak(this.callContextMethodResult(sourceNode, "leaveTryBlock", AstFactory_typeColor(StandardColors_NULL_OR_VOID), arrmap_(sliceView_(tc_Node, args).toArray(arrmap_(make([]Node, 0), func(v_ Node) any { return v_.box_() })), func(v_ any) Node { return Node_of_(v_) })))
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) enterCatchBlock(finallyCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, exceptionName Node) {
@@ -1219,11 +1213,11 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	if this.catchNames.add(exceptionName.getString()) {
 		this.outer_.hoistVarNode(IR_var_Node(exceptionName.cloneNode()).srcref(exceptionName))
 	}
-	var args *TList[Node] = newTList_(tc_Node)
+	var args []Node = []Node{}
 	if nextCatchCase != nil {
-		args.add(nextCatchCase.getNumber(exceptionName))
+		args = append(args, nextCatchCase.getNumber(exceptionName))
 	}
-	var enterCatchBlockCall Node = this.callContextMethod(exceptionName, "enterCatchBlock", AstFactory_typeColor(StandardColors_UNKNOWN), arrmap_(args.asList().toArray(arrmap_(make([]Node, 0), func(v_ Node) any { return v_.box_() })), func(v_ any) Node { return Node_of_(v_) }))
+	var enterCatchBlockCall Node = this.callContextMethod(exceptionName, "enterCatchBlock", AstFactory_typeColor(StandardColors_UNKNOWN), arrmap_(sliceView_(tc_Node, args).toArray(arrmap_(make([]Node, 0), func(v_ Node) any { return v_.box_() })), func(v_ any) Node { return Node_of_(v_) }))
 	exceptionName.setColor(enterCatchBlockCall.getColor())
 	this.writeGeneratedNode(this.outer_.outer_.astFactory_.exprResult(this.outer_.outer_.astFactory_.createAssign(exceptionName, enterCatchBlockCall).srcref(exceptionName)).srcref(exceptionName))
 }
@@ -1239,46 +1233,46 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	this.removeCatchFinallyCases(catchCase, finallyCase)
 	var nextCatchCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = this.getNextCatchCase()
 	var nextFinallyCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = this.getNextFinallyCase()
-	var args *TList[Node] = newTList_(tc_Node)
+	var args []Node = []Node{}
 	if this.nestedFinallyBlockCount == 0 {
 		if (nextCatchCase != nil) || (nextFinallyCase != nil) {
-			args.add(func() Node {
+			args = append(args, func() Node {
 				if nextCatchCase == nil {
 					return this.outer_.outer_.astFactory_.createNumber(0).srcref(sourceNode)
 				}
 				return nextCatchCase.getNumber(sourceNode)
 			}())
 			if nextFinallyCase != nil {
-				args.add(nextFinallyCase.getNumber(sourceNode))
+				args = append(args, nextFinallyCase.getNumber(sourceNode))
 			}
 		}
 	} else {
-		args.add(func() Node {
+		args = append(args, func() Node {
 			if nextCatchCase == nil {
 				return this.outer_.outer_.astFactory_.createNumber(0).srcref(sourceNode)
 			}
 			return nextCatchCase.getNumber(sourceNode)
 		}())
-		args.add(func() Node {
+		args = append(args, func() Node {
 			if nextFinallyCase == nil {
 				return this.outer_.outer_.astFactory_.createNumber(0).srcref(sourceNode)
 			}
 			return nextFinallyCase.getNumber(sourceNode)
 		}())
-		args.add(this.outer_.outer_.astFactory_.createNumber(float64(this.nestedFinallyBlockCount)).srcref(sourceNode))
+		args = append(args, this.outer_.outer_.astFactory_.createNumber(float64(this.nestedFinallyBlockCount)).srcref(sourceNode))
 	}
-	this.writeGeneratedNode(this.callContextMethodResult(sourceNode, "enterFinallyBlock", AstFactory_typeColor(StandardColors_NULL_OR_VOID), arrmap_(args.asList().toArray(arrmap_(make([]Node, 0), func(v_ Node) any { return v_.box_() })), func(v_ any) Node { return Node_of_(v_) })))
+	this.writeGeneratedNode(this.callContextMethodResult(sourceNode, "enterFinallyBlock", AstFactory_typeColor(StandardColors_NULL_OR_VOID), arrmap_(sliceView_(tc_Node, args).toArray(arrmap_(make([]Node, 0), func(v_ Node) any { return v_.box_() })), func(v_ any) Node { return Node_of_(v_) })))
 	this.nestedFinallyBlockCount++
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) leaveFinallyBlock(endCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, sourceNode Node) {
-	var args *TList[Node] = newTList_(tc_Node)
-	args.add(endCase.getNumber(sourceNode))
+	var args []Node = []Node{}
+	args = append(args, endCase.getNumber(sourceNode))
 	this.nestedFinallyBlockCount--
 	if this.nestedFinallyBlockCount != 0 {
-		args.add(this.outer_.outer_.astFactory_.createNumber(float64(this.nestedFinallyBlockCount)).srcref(sourceNode))
+		args = append(args, this.outer_.outer_.astFactory_.createNumber(float64(this.nestedFinallyBlockCount)).srcref(sourceNode))
 	}
-	this.writeGeneratedNodeAndBreak(this.callContextMethodResult(sourceNode, "leaveFinallyBlock", AstFactory_typeColor(StandardColors_NULL_OR_VOID), arrmap_(args.asList().toArray(arrmap_(make([]Node, 0), func(v_ Node) any { return v_.box_() })), func(v_ any) Node { return Node_of_(v_) })))
+	this.writeGeneratedNodeAndBreak(this.callContextMethodResult(sourceNode, "leaveFinallyBlock", AstFactory_typeColor(StandardColors_NULL_OR_VOID), arrmap_(sliceView_(tc_Node, args).toArray(arrmap_(make([]Node, 0), func(v_ Node) any { return v_.box_() })), func(v_ any) Node { return Node_of_(v_) })))
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) switchCaseTo(caseSection *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case) {
@@ -1287,10 +1281,8 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	this.currentCase = caseSection
 }
 
-func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) pushLabels(labelNames *TList[Node], breakCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, continueCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case) {
-	it_1 := labelNames.each()
-	for it_1.next() {
-		var labelName Node = it_1.v
+func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) pushLabels(labelNames *[]Node, breakCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, continueCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case) {
+	for labelName := range sliceAll_(labelNames) {
 		if !labelName.isLabelName() {
 			panic(new_IllegalStateException_0())
 		}
@@ -1298,10 +1290,8 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	}
 }
 
-func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) popLabels(labelNames *TList[Node]) {
-	it_1 := labelNames.each()
-	for it_1.next() {
-		var labelName Node = it_1.v
+func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) popLabels(labelNames *[]Node) {
+	for labelName := range sliceAll_(labelNames) {
 		if !labelName.isLabelName() {
 			panic(new_IllegalStateException_0())
 		}
@@ -1331,14 +1321,14 @@ type Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext
 	outer_         *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext
 	id             int32
 	caseBlock      Node
-	references     *TList[Node]
+	references     *[]Node
 	jumpToField    *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case
 	embedInto      Node
 	mayFallThrough bool
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case) finit_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case() {
-	this.references = newTList_(tc_Node)
+	this.references = &[]Node{}
 	this.mayFallThrough = true
 }
 
@@ -1365,7 +1355,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 		return this.jumpToField.getNumber(sourceNode)
 	}
 	var node Node = this.outer_.outer_.outer_.astFactory_.createNumber(float64(this.id)).srcref(sourceNode)
-	this.references.add(node)
+	*this.references = append(*this.references, node)
 	return node
 }
 
@@ -1552,21 +1542,19 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_UnmarkedNodeTranspiler) extractAssignmentsToCommaExpression(varDeclaration Node) Node {
-	var assignments *TList[Node] = newTList_(tc_Node)
+	var assignments []Node = []Node{}
 	{
 		var varName Node = varDeclaration.getFirstChild()
 		for ; varName != 0; varName = varName.getNext() {
 			if varName.hasChildren() {
 				var copiedVarName Node = varName.cloneNode().setJSDocInfo(nil)
 				var assign Node = this.outer_.outer_.outer_.astFactory_.createAssign(copiedVarName, varName.removeFirstChild()).srcref(varName)
-				assignments.add(assign)
+				assignments = append(assignments, assign)
 			}
 		}
 	}
 	var commaExpression Node = 0
-	it_2 := assignments.each()
-	for it_2.next() {
-		var assignment Node = it_2.v
+	for _, assignment := range assignments {
 		commaExpression = func() Node {
 			if commaExpression == 0 {
 				return assignment

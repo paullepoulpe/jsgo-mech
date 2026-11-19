@@ -300,12 +300,12 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
 		var useTypesForOptimization bool = compiler.getOptions().shouldUseTypesForLocalOptimization()
-		var peepholeOptimizations *TList[*AbstractPeepholeOptimization] = newTList_(tc_p_AbstractPeepholeOptimization)
-		peepholeOptimizations.add(new_PeepholeRemoveDeadCode().up_AbstractPeepholeOptimization())
+		var peepholeOptimizations *[]*AbstractPeepholeOptimization = &[]*AbstractPeepholeOptimization{}
+		*peepholeOptimizations = append(*peepholeOptimizations, new_PeepholeRemoveDeadCode().up_AbstractPeepholeOptimization())
 		if compiler.getOptions().getJ2clPass().shouldAddJ2clPasses() {
-			peepholeOptimizations.add(new_J2clEqualitySameRewriterPass(useTypesForOptimization).up_AbstractPeepholeOptimization())
+			*peepholeOptimizations = append(*peepholeOptimizations, new_J2clEqualitySameRewriterPass(useTypesForOptimization).up_AbstractPeepholeOptimization())
 		}
-		return CompilerPass(new_PeepholeOptimizationsPass(compiler, "earlyPeepholeOptimizations", peepholeOptimizations.asList()))
+		return CompilerPass(new_PeepholeOptimizationsPass(compiler, "earlyPeepholeOptimizations", slicePtrView_(tc_p_AbstractPeepholeOptimization, peepholeOptimizations)))
 	}}).build()
 	this.earlyInlineVariables = PassFactory_builder().setName("earlyInlineVariables").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
@@ -1489,22 +1489,22 @@ func DefaultPassConfig_createPeepholeOptimizationsPass(compiler *AbstractCompile
 	}
 	var late bool = false
 	var useTypesForOptimization bool = compiler.getOptions().shouldUseTypesForLocalOptimization()
-	var optimizations *TList[*AbstractPeepholeOptimization] = newTList_(tc_p_AbstractPeepholeOptimization)
+	var optimizations *[]*AbstractPeepholeOptimization = &[]*AbstractPeepholeOptimization{}
 	if expectAstIsNormalized {
-		optimizations.add(new_MinimizeExitPoints().up_AbstractPeepholeOptimization())
+		*optimizations = append(*optimizations, new_MinimizeExitPoints().up_AbstractPeepholeOptimization())
 	}
-	optimizations.add(new_PeepholeMinimizeConditions(late).up_AbstractPeepholeOptimization())
-	optimizations.add(new_PeepholeSubstituteAlternateSyntax(late).up_AbstractPeepholeOptimization())
-	optimizations.add(new_PeepholeReplaceKnownMethods(late, useTypesForOptimization).up_AbstractPeepholeOptimization())
-	optimizations.add(new_PeepholeRemoveDeadCode().up_AbstractPeepholeOptimization())
+	*optimizations = append(*optimizations, new_PeepholeMinimizeConditions(late).up_AbstractPeepholeOptimization())
+	*optimizations = append(*optimizations, new_PeepholeSubstituteAlternateSyntax(late).up_AbstractPeepholeOptimization())
+	*optimizations = append(*optimizations, new_PeepholeReplaceKnownMethods(late, useTypesForOptimization).up_AbstractPeepholeOptimization())
+	*optimizations = append(*optimizations, new_PeepholeRemoveDeadCode().up_AbstractPeepholeOptimization())
 	if compiler.getOptions().getJ2clPass().shouldAddJ2clPasses() {
-		optimizations.add(new_J2clEqualitySameRewriterPass(useTypesForOptimization).up_AbstractPeepholeOptimization())
-		optimizations.add(new_J2clStringValueOfRewriterPass().up_AbstractPeepholeOptimization())
-		optimizations.add(new_J2clUndefinedChecksRewriterPass().up_AbstractPeepholeOptimization())
+		*optimizations = append(*optimizations, new_J2clEqualitySameRewriterPass(useTypesForOptimization).up_AbstractPeepholeOptimization())
+		*optimizations = append(*optimizations, new_J2clStringValueOfRewriterPass().up_AbstractPeepholeOptimization())
+		*optimizations = append(*optimizations, new_J2clUndefinedChecksRewriterPass().up_AbstractPeepholeOptimization())
 	}
-	optimizations.add(new_PeepholeFoldConstants(late, useTypesForOptimization).up_AbstractPeepholeOptimization())
-	optimizations.add(new_PeepholeCollectPropertyAssignments().up_AbstractPeepholeOptimization())
-	return CompilerPass(new_PeepholeOptimizationsPass(compiler, passName, optimizations.asList()))
+	*optimizations = append(*optimizations, new_PeepholeFoldConstants(late, useTypesForOptimization).up_AbstractPeepholeOptimization())
+	*optimizations = append(*optimizations, new_PeepholeCollectPropertyAssignments().up_AbstractPeepholeOptimization())
+	return CompilerPass(new_PeepholeOptimizationsPass(compiler, passName, slicePtrView_(tc_p_AbstractPeepholeOptimization, optimizations)))
 }
 
 func DefaultPassConfig_combineChecks(compiler *AbstractCompiler, callbacks *TList[NodeTraversal_Callback]) CompilerPass {

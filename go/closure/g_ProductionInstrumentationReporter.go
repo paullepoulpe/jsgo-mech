@@ -135,7 +135,7 @@ func (this *ProductionInstrumentationReporter) doMain(args []string) *Outcome_ba
 	if listOfExecutionResults.isErr() {
 		return Outcome_base_err[any](listOfExecutionResults.error())
 	}
-	return this.createFile(this.finalResultOutput, ProfilingReport_createTabSeparatedProfilingReport(mapping.get(), tlistImm_(tc_Map, listOfExecutionResults.get())))
+	return this.createFile(this.finalResultOutput, ProfilingReport_createTabSeparatedProfilingReport(mapping.get(), sliceImm_(tc_Map, listOfExecutionResults.get())))
 }
 
 func (this *ProductionInstrumentationReporter) parseCmdLineArguments(args []string) {

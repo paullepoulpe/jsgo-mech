@@ -368,19 +368,19 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 	}
 	var style CssRenamingMap_Style = styleOrNull
 	if style == CssRenamingMap_Style_BY_PART {
-		var errors *TList[string] = newTList_(tc_string)
+		var errors []string = []string{}
 		it_3 := cssNames.eachKey()
 		for it_3.next() {
 			var key string = it_3.v
 			if JString_contains_s(key, "-") && !strings.HasPrefix(key, "--") {
-				errors.add(key)
+				errors = append(errors, key)
 			}
 		}
-		if !errors.isEmpty() {
-			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(errors.asList())}))
+		if len(errors) != 0 {
+			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(sliceView_(tc_string, errors))}))
 		}
 	} else if style == CssRenamingMap_Style_BY_WHOLE {
-		var errors *TList[string] = newTList_(tc_string)
+		var errors []string = []string{}
 		it_5 := cssNames.eachEntry()
 		var getKeyU16 utf16_
 		for it_5.next() {
@@ -393,12 +393,12 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 				var a *TEntry[string, string] = it_7.entry()
 				var combined Optional[string] = Optional_ofNullable[string](cssNames.get((sstr_(a.getKey()) + "-" + sstr_(b.getKey()))))
 				if combined.isPresent() && !(combined.get() == (sstr_(a.getValue()) + "-" + sstr_(b.getValue()))) {
-					errors.add(("map(" + sstr_(a.getKey()) + "-" + sstr_(b.getKey()) + ") != map(" + sstr_(a.getKey()) + ")-map(" + sstr_(b.getKey()) + ")"))
+					errors = append(errors, ("map(" + sstr_(a.getKey()) + "-" + sstr_(b.getKey()) + ") != map(" + sstr_(a.getKey()) + ")-map(" + sstr_(b.getKey()) + ")"))
 				}
 			}
 		}
-		if !errors.isEmpty() {
-			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(errors.asList())}))
+		if len(errors) != 0 {
+			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(sliceView_(tc_string, errors))}))
 		}
 	}
 	return CssRenamingMap(new_ProcessClosurePrimitives_1(cssNames, style))

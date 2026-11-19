@@ -14,14 +14,14 @@ type NodeTraversal struct {
 	currentFunction                                Node
 	currentScript                                  Node
 	currentChangeScope                             Node
-	scopes                                         *TList[any]
+	scopes                                         *[]any
 	sourceName_                                    Optional[string]
 	inputId                                        *InputId
 	compilerInput                                  *CompilerInput
 }
 
 func (this *NodeTraversal) finit_NodeTraversal() {
-	this.scopes = newTList_(tc_Object)
+	this.scopes = &[]any{}
 	this.sourceName_ = Optional_empty[string]()
 }
 
@@ -586,7 +586,7 @@ func (this *NodeTraversal) getEnclosingFunction() Node {
 func (this *NodeTraversal) pushScope(node Node) {
 	Preconditions_checkNotNull_T(this.currentNode)
 	Preconditions_checkNotNull_T(node)
-	this.scopes.add(node.box_())
+	*this.scopes = append(*this.scopes, node.box_())
 	if this.scopeCallback != nil {
 		this.scopeCallback.enterScope(this)
 	}
@@ -598,7 +598,7 @@ func (this *NodeTraversal) pushScopeAbstractScope(s *AbstractScope) {
 
 func (this *NodeTraversal) pushScope_2(s *AbstractScope, quietly bool) {
 	Preconditions_checkNotNull_T(this.currentNode)
-	this.scopes.add(s.self())
+	*this.scopes = append(*this.scopes, s.self())
 	if !quietly && (this.scopeCallback != nil) {
 		this.scopeCallback.enterScope(this)
 	}
@@ -612,7 +612,7 @@ func (this *NodeTraversal) popScope_1(quietly bool) {
 	if !quietly && (this.scopeCallback != nil) {
 		this.scopeCallback.exitScope(this)
 	}
-	this.scopes.removeAt((this.scopes.size() - 1))
+	sliceRemoveAt_(this.scopes, (int32(len(*this.scopes)) - 1))
 }
 
 func (this *NodeTraversal) getNodeRootFromScopeObj(root any) Node {
@@ -634,16 +634,16 @@ func (this *NodeTraversal) getNodeRootFromScopeObj(root any) Node {
 }
 
 func (this *NodeTraversal) getScopeRoot() Node {
-	var roots int32 = this.scopes.size()
+	var roots int32 = int32(len(*this.scopes))
 	if roots > 0 {
-		return this.getNodeRootFromScopeObj(this.scopes.get((roots - 1)))
+		return this.getNodeRootFromScopeObj(sliceAt_(*this.scopes, (roots - 1)))
 	} else {
 		return 0
 	}
 }
 
 func (this *NodeTraversal) getScopeDepth() int32 {
-	var depth int32 = this.scopes.size()
+	var depth int32 = int32(len(*this.scopes))
 	if depth <= 0 {
 		panic(new_IllegalStateException_0())
 	}
@@ -659,11 +659,11 @@ func (this *NodeTraversal) getTypedScope() *TypedScope {
 }
 
 func (this *NodeTraversal) getAbstractScope() *AbstractScope {
-	return this.getAbstractScope_1((this.scopes.size() - 1))
+	return this.getAbstractScope_1((int32(len(*this.scopes)) - 1))
 }
 
 func (this *NodeTraversal) getAbstractScope_1(rootDepth int32) *AbstractScope {
-	var o any = this.scopes.get(rootDepth)
+	var o any = sliceAt_(*this.scopes, rootDepth)
 	var node Node
 	_ = node
 	if func() bool {
@@ -681,7 +681,7 @@ func (this *NodeTraversal) getAbstractScope_1(rootDepth int32) *AbstractScope {
 			return nil
 		}()
 		var scope *AbstractScope = this.scopeCreator.createScopeAbstractScope(node, parentScope)
-		this.scopes.set(rootDepth, scope.self())
+		(*this.scopes)[rootDepth] = scope.self()
 		return scope
 	} else {
 		return to_AbstractScope(o)
@@ -693,8 +693,8 @@ func (this *NodeTraversal) isHoistScope() bool {
 }
 
 func (this *NodeTraversal) getClosestHoistScopeRoot() Node {
-	for i := int32((this.scopes.size() - 1)); i >= 0; i-- {
-		var rootNode Node = this.getNodeRootFromScopeObj(this.scopes.get(i))
+	for i := int32((int32(len(*this.scopes)) - 1)); i >= 0; i-- {
+		var rootNode Node = this.getNodeRootFromScopeObj(sliceAt_(*this.scopes, i))
 		if NodeTraversal_isHoistScopeRootNode(rootNode) {
 			return rootNode
 		}
@@ -703,8 +703,8 @@ func (this *NodeTraversal) getClosestHoistScopeRoot() Node {
 }
 
 func (this *NodeTraversal) getClosestContainerScope() *AbstractScope {
-	for i := int32((this.scopes.size() - 1)); i >= 0; i-- {
-		var rootNode Node = this.getNodeRootFromScopeObj(this.scopes.get(i))
+	for i := int32((int32(len(*this.scopes)) - 1)); i >= 0; i-- {
+		var rootNode Node = this.getNodeRootFromScopeObj(sliceAt_(*this.scopes, i))
 		if !NodeUtil_createsBlockScope(rootNode) {
 			return this.getAbstractScope_1(i)
 		}
@@ -713,8 +713,8 @@ func (this *NodeTraversal) getClosestContainerScope() *AbstractScope {
 }
 
 func (this *NodeTraversal) getClosestHoistScope() *AbstractScope {
-	for i := int32((this.scopes.size() - 1)); i >= 0; i-- {
-		var rootNode Node = this.getNodeRootFromScopeObj(this.scopes.get(i))
+	for i := int32((int32(len(*this.scopes)) - 1)); i >= 0; i-- {
+		var rootNode Node = this.getNodeRootFromScopeObj(sliceAt_(*this.scopes, i))
 		if NodeTraversal_isHoistScopeRootNode(rootNode) {
 			return this.getAbstractScope_1(i)
 		}
@@ -735,8 +735,8 @@ func NodeTraversal_isHoistScopeRootNode(n Node) bool {
 
 func (this *NodeTraversal) getClosestScopeRootNodeBindingThisOrSuper() Node {
 L_1:
-	for i := int32((this.scopes.size() - 1)); i >= 0; i-- {
-		var rootNode Node = this.getNodeRootFromScopeObj(this.scopes.get(i))
+	for i := int32((int32(len(*this.scopes)) - 1)); i >= 0; i-- {
+		var rootNode Node = this.getNodeRootFromScopeObj(sliceAt_(*this.scopes, i))
 		switch rootNode.ns_().token {
 		case tokOrd1_FUNCTION:
 			if rootNode.isArrowFunction() {

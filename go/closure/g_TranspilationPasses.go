@@ -250,16 +250,16 @@ func TranspilationPasses_clinit() {
 	TranspilationPasses_peepholeTranspilationsPasses = PassFactory_builder().setName("peepholeTranspilationsPasses").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		var peepholeTranspilations *TList[*AbstractPeepholeTranspilation] = newTList_(tc_p_AbstractPeepholeTranspilation)
-		peepholeTranspilations.add(new_ReportUntranspilableFeatures(compiler, compiler.getOptions().getBrowserFeaturesetYearObject(), compiler.getOptions().getOutputFeatureSet()).up_AbstractPeepholeTranspilation())
+		var peepholeTranspilations []*AbstractPeepholeTranspilation = []*AbstractPeepholeTranspilation{}
+		peepholeTranspilations = append(peepholeTranspilations, new_ReportUntranspilableFeatures(compiler, compiler.getOptions().getBrowserFeaturesetYearObject(), compiler.getOptions().getOutputFeatureSet()).up_AbstractPeepholeTranspilation())
 		if compiler.getOptions().needsTranspilationOf(FeatureSet_Feature_OPTIONAL_CATCH_BINDING) {
-			peepholeTranspilations.add(new_RewriteCatchWithNoBinding(compiler).up_AbstractPeepholeTranspilation())
+			peepholeTranspilations = append(peepholeTranspilations, new_RewriteCatchWithNoBinding(compiler).up_AbstractPeepholeTranspilation())
 		}
 		if compiler.getOptions().needsTranspilationOf(FeatureSet_Feature_SHORTHAND_OBJECT_PROPERTIES) {
-			peepholeTranspilations.add(new_Es6NormalizeShorthandProperties(compiler).up_AbstractPeepholeTranspilation())
+			peepholeTranspilations = append(peepholeTranspilations, new_Es6NormalizeShorthandProperties(compiler).up_AbstractPeepholeTranspilation())
 		}
 		if compiler.getOptions().needsTranspilationOf(FeatureSet_Feature_NEW_TARGET) {
-			peepholeTranspilations.add(new_RewriteNewDotTarget(compiler).up_AbstractPeepholeTranspilation())
+			peepholeTranspilations = append(peepholeTranspilations, new_RewriteNewDotTarget(compiler).up_AbstractPeepholeTranspilation())
 		}
 		return PeepholeTranspilationsPass_as_CompilerPass(PeepholeTranspilationsPass_create(compiler, peepholeTranspilations))
 	}}).build()

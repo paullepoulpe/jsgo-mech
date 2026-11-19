@@ -165,7 +165,7 @@ func (this *JSTypeReconserializer) getOrCreateRecord(id *ColorId, jstype *JSType
 		return new_JSTypeReconserializer_SeenTypeRecord(id, pointer)
 	}})
 	this.typeToRecordCache.put(jstype, record)
-	record.jstypes.add(jstype)
+	*record.jstypes = append(*record.jstypes, jstype)
 	return record
 }
 
@@ -203,9 +203,7 @@ func (this *JSTypeReconserializer) reconcileObjectTypes(seen *JSTypeReconseriali
 	var isConstructor bool = false
 	var isInvalidating bool = false
 	var propertiesKeepOriginalName bool = false
-	it_1 := seen.jstypes.each()
-	for it_1.next() {
-		var type_ *JSType = it_1.v
+	for type_ := range sliceAll_(seen.jstypes) {
 		var objType *ObjectType = Preconditions_checkNotNull_Object_Object_T(type_.toMaybeObjectType(), type_)
 		if objType.isFunctionType() {
 			var fnType *FunctionType = objType.toMaybeFunctionType()
@@ -435,12 +433,12 @@ func JSTypeReconserializer_State_clinit() {
 type JSTypeReconserializer_SeenTypeRecord struct {
 	colorId      *ColorId
 	pointer      int32
-	jstypes      *TList[*JSType]
+	jstypes      *[]*JSType
 	unionMembers *JTSet[*JSTypeReconserializer_SeenTypeRecord]
 }
 
 func (this *JSTypeReconserializer_SeenTypeRecord) finit_JSTypeReconserializer_SeenTypeRecord() {
-	this.jstypes = newTList_(tc_p_JSType)
+	this.jstypes = &[]*JSType{}
 	this.unionMembers = nil
 }
 

@@ -3,16 +3,16 @@
 package closure
 
 type DefaultDependencyResolver struct {
-	depsFiles      *TList[*DependencyFile]
+	depsFiles      *[]*DependencyFile
 	strictRequires bool
 }
 
-func (this *DefaultDependencyResolver) init_DefaultDependencyResolver(depsFiles *TList[*DependencyFile], strictRequires bool) {
+func (this *DefaultDependencyResolver) init_DefaultDependencyResolver(depsFiles *[]*DependencyFile, strictRequires bool) {
 	this.depsFiles = depsFiles
 	this.strictRequires = strictRequires
 }
 
-func new_DefaultDependencyResolver(depsFiles *TList[*DependencyFile], strictRequires bool) *DefaultDependencyResolver {
+func new_DefaultDependencyResolver(depsFiles *[]*DependencyFile, strictRequires bool) *DefaultDependencyResolver {
 	this := &DefaultDependencyResolver{}
 	this.init_DefaultDependencyResolver(depsFiles, strictRequires)
 	return this
@@ -32,9 +32,7 @@ func (this *DefaultDependencyResolver) getDependencies_3(code string, seen *JTSe
 
 func (this *DefaultDependencyResolver) getDependencies_2(symbols CollectionOf[string], seen *JTSet[string]) Collection {
 	var list *TList[string] = newTList_(tc_string)
-	it_1 := this.depsFiles.each()
-	for it_1.next() {
-		var depsFile *DependencyFile = it_1.v
+	for _, depsFile := range *this.depsFiles {
 		depsFile.ensureUpToDate()
 	}
 	for symbol := range elemsBy_(symbols, str_) {
@@ -73,9 +71,7 @@ func DefaultDependencyResolver_parseRequires(code string, addClosureBase bool) C
 }
 
 func (this *DefaultDependencyResolver) getDependencyInfo(symbol string) DependencyInfo_ {
-	it_1 := this.depsFiles.each()
-	for it_1.next() {
-		var depsFile *DependencyFile = it_1.v
+	for _, depsFile := range *this.depsFiles {
 		var di DependencyInfo_ = depsFile.getDependencyInfo(symbol)
 		if di != nil {
 			return di

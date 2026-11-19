@@ -5,7 +5,7 @@ package closure
 import "strings"
 
 type CmdLineParser struct {
-	options_      *TList[*CmdLineParser_Option]
+	options_      *[]*CmdLineParser_Option
 	optionsSorted bool
 	argumentField *CmdLineParser_Option
 	usageWidth    int32
@@ -13,7 +13,7 @@ type CmdLineParser struct {
 }
 
 func (this *CmdLineParser) finit_CmdLineParser() {
-	this.options_ = newTList_(tc_p_CmdLineParser_Option)
+	this.options_ = &[]*CmdLineParser_Option{}
 	this.optionsSorted = true
 	this.argumentField = nil
 	this.usageWidth = 80
@@ -33,7 +33,7 @@ func new_CmdLineParser() *CmdLineParser {
 func (this *CmdLineParser) option(name string) *CmdLineParser_Option {
 	this.checkOptionNotDefined(name)
 	var option *CmdLineParser_Option = new_CmdLineParser_Option(this, name, false)
-	this.options_.add(option)
+	*this.options_ = append(*this.options_, option)
 	this.optionsSorted = false
 	return option
 }
@@ -52,9 +52,9 @@ func (this *CmdLineParser) checkOptionNotDefined(name string) {
 	}
 }
 
-func (this *CmdLineParser) sortedOptions() *TList[*CmdLineParser_Option] {
+func (this *CmdLineParser) sortedOptions() *[]*CmdLineParser_Option {
 	if !this.optionsSorted {
-		Collections_sort_List_Comparator(this.options_.asList(), &Comparator_tfn_CmdLineParser_Option_CmdLineParser_Option{func(o1 *CmdLineParser_Option, o2 *CmdLineParser_Option) int32 {
+		Collections_sort_List_Comparator(sliceViewP_(tc_p_CmdLineParser_Option, this.options_), &Comparator_tfn_CmdLineParser_Option_CmdLineParser_Option{func(o1 *CmdLineParser_Option, o2 *CmdLineParser_Option) int32 {
 			return utf16Compare_(o1.toString(), o2.toString())
 		}})
 		this.optionsSorted = true
@@ -72,9 +72,7 @@ func (this *CmdLineParser) setUsageWidth(usageWidth int32) {
 func (this *CmdLineParser) printUsage(out *strBuilder_, filter func(any) bool) {
 	var w *strBuilder_ = out
 	var len_ int32 = 0
-	it_1 := this.sortedOptions().each()
-	for it_1.next() {
-		var option *CmdLineParser_Option = it_1.v
+	for option := range sliceAll_(this.sortedOptions()) {
 		var curLen int32 = func() int32 {
 			if len(option.usageField) == 0 {
 				return 0
@@ -83,9 +81,7 @@ func (this *CmdLineParser) printUsage(out *strBuilder_, filter func(any) bool) {
 		}()
 		len_ = Math_max(len_, curLen)
 	}
-	it_3 := this.sortedOptions().each()
-	for it_3.next() {
-		var option *CmdLineParser_Option = it_3.v
+	for option := range sliceAll_(this.sortedOptions()) {
 		this.printOption(w, option, len_, filter)
 	}
 }
@@ -97,20 +93,20 @@ func (this *CmdLineParser) printOption(out *strBuilder_, option *CmdLineParser_O
 	var widthMetadata int32 = Math_min(len_, ((this.usageWidth - 4) / 2))
 	var widthUsage int32 = ((this.usageWidth - 4) - widthMetadata)
 	var defaultValuePart string = CmdLineParser_createDefaultValuePart(option)
-	var namesAndMetas *TList[string] = CmdLineParser_wrapLines(option.getNameAndMeta(), widthMetadata)
-	var usages *TList[string] = CmdLineParser_wrapLines((sstr_(option.usageField) + sstr_(defaultValuePart)), widthUsage)
-	for i := int32(0); i < Math_max(namesAndMetas.size(), usages.size()); i++ {
+	var namesAndMetas []string = CmdLineParser_wrapLines(option.getNameAndMeta(), widthMetadata)
+	var usages []string = CmdLineParser_wrapLines((sstr_(option.usageField) + sstr_(defaultValuePart)), widthUsage)
+	for i := int32(0); i < Math_max(int32(len(namesAndMetas)), int32(len(usages))); i++ {
 		var nameAndMeta string = func() string {
-			if i >= namesAndMetas.size() {
+			if i >= int32(len(namesAndMetas)) {
 				return ""
 			}
-			return namesAndMetas.get(i)
+			return sliceAt_(namesAndMetas, i)
 		}()
 		var usage string = func() string {
-			if i >= usages.size() {
+			if i >= int32(len(usages)) {
 				return ""
 			}
-			return usages.get(i)
+			return sliceAt_(usages, i)
 		}()
 		var separator string = func() string {
 			if (len(nameAndMeta) != 0) && (i == 0) {
@@ -132,8 +128,8 @@ func CmdLineParser_createDefaultValuePart(option *CmdLineParser_Option) string {
 	return ""
 }
 
-func CmdLineParser_wrapLines(line string, maxLength int32) *TList[string] {
-	var rv *TList[string] = newTList_(tc_string)
+func CmdLineParser_wrapLines(line string, maxLength int32) []string {
+	var rv []string = []string{}
 	var restOfLineU16 utf16_
 	for _, restOfLine := range CmdLineParser_NEWLINE_PATTERN.split(line) {
 		for restOfLineU16.of(restOfLine).length() > maxLength {
@@ -145,10 +141,10 @@ func CmdLineParser_wrapLines(line string, maxLength int32) *TList[string] {
 			} else {
 				lineLength = maxLength
 			}
-			rv.add(restOfLineU16.of(restOfLine).substring(0, lineLength))
+			rv = append(rv, restOfLineU16.of(restOfLine).substring(0, lineLength))
 			restOfLine = strings.Trim(restOfLineU16.of(restOfLine).substring_int(lineLength), javaSpace_)
 		}
-		rv.add(restOfLine)
+		rv = append(rv, restOfLine)
 	}
 	return rv
 }
@@ -195,9 +191,7 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base[any] {
 		cmdLine.proceed(unbox_[int32](diff.get()))
 		present.add(this.currentOption)
 	}
-	it_2 := this.sortedOptions().each()
-	for it_2.next() {
-		var option *CmdLineParser_Option = it_2.v
+	for option := range sliceAll_(this.sortedOptions()) {
 		if option.requiredField && !present.contains(option) {
 			return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String(this, ("Option \"" + jtostr_(option) + "\" is required")).up_Throwable())
 		}
@@ -206,7 +200,7 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base[any] {
 }
 
 func (this *CmdLineParser) expandAtFiles(args []string) *Outcome_base[[]string] {
-	var result *TList[string] = newTList_(tc_string)
+	var result []string = []string{}
 	for _, arg := range args {
 		if strings.HasPrefix(arg, "@") {
 			var file string = FilePaths_clean(arg[1:])
@@ -217,12 +211,12 @@ func (this *CmdLineParser) expandAtFiles(args []string) *Outcome_base[[]string] 
 			if text.isErr() {
 				return Outcome_base_err[[]string](new_CmdLineException_CmdLineParser_String_Throwable(this, ("Failed to parse " + sstr_(file)), text.error()).up_Throwable())
 			}
-			result.asList().addAll(Collection(TextFiles_splitLines(text.get()).asList()))
+			sliceAddAll_(tc_string, &result, Collection(sliceViewP_(tc_string, TextFiles_splitLines(text.get()))))
 		} else {
-			result.add(arg)
+			result = append(result, arg)
 		}
 	}
-	return Outcome_base_ok_Object[[]string](arrmap_(result.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }))
+	return Outcome_base_ok_Object[[]string](arrmap_(sliceView_(tc_string, result).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }))
 }
 
 func (this *CmdLineParser) findOptionOfKeyValuePair(name string) *CmdLineParser_Option {
@@ -237,9 +231,7 @@ func (this *CmdLineParser) findOptionOfKeyValuePair(name string) *CmdLineParser_
 }
 
 func (this *CmdLineParser) findOptionByName(name string) *CmdLineParser_Option {
-	it_1 := this.options_.each()
-	for it_1.next() {
-		var option *CmdLineParser_Option = it_1.v
+	for _, option := range *this.options_ {
 		if name == option.nameField {
 			return option
 		}

@@ -46,42 +46,42 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[Map] {
 	var fileNamesAsJsonArray string = fileNamesLine[(int32(strings.Index(fileNamesLine, ":")) + 1):]
 	var functionNamesAsJsonArray string = functionNamesLine[(int32(strings.Index(functionNamesLine, ":")) + 1):]
 	var typesAsJsonArray string = typesLine[(int32(strings.Index(typesLine, ":")) + 1):]
-	var localFileNamesOutcome *Outcome_base[List] = ReportDecoder_parseJsonStringList(fileNamesAsJsonArray)
+	var localFileNamesOutcome *Outcome_base[*TList[string]] = ReportDecoder_parseJsonStringList(fileNamesAsJsonArray)
 	if localFileNamesOutcome.isErr() {
 		return Outcome_base_err[Map](localFileNamesOutcome.error())
 	}
-	var localFileNames ListOf[string] = localFileNamesOutcome.get()
-	var functionNamesOutcome *Outcome_base[List] = ReportDecoder_parseJsonStringList(functionNamesAsJsonArray)
+	var localFileNames *TList[string] = localFileNamesOutcome.get()
+	var functionNamesOutcome *Outcome_base[*TList[string]] = ReportDecoder_parseJsonStringList(functionNamesAsJsonArray)
 	if functionNamesOutcome.isErr() {
 		return Outcome_base_err[Map](functionNamesOutcome.error())
 	}
-	var functionNames ListOf[string] = functionNamesOutcome.get()
-	var typesAsStringList *Outcome_base[List] = ReportDecoder_parseJsonStringList(typesAsJsonArray)
+	var functionNames *TList[string] = functionNamesOutcome.get()
+	var typesAsStringList *Outcome_base[*TList[string]] = ReportDecoder_parseJsonStringList(typesAsJsonArray)
 	if typesAsStringList.isErr() {
 		return Outcome_base_err[Map](typesAsStringList.error())
 	}
-	var types *TList[InstrumentationPoint_Type] = newTList_(tc_p_InstrumentationPoint_Type)
-	for typeAsString := range elemsBy_(typesAsStringList.get(), str_) {
-		types.add(InstrumentationPoint_Type_valueOf(typeAsString))
+	var types []InstrumentationPoint_Type = []InstrumentationPoint_Type{}
+	for typeAsString := range elemsBy_(typesAsStringList.get().asList(), str_) {
+		types = append(types, InstrumentationPoint_Type_valueOf(typeAsString))
 	}
 	for i := int32(3); i < linesOfFile.size(); i++ {
 		var lineItem string = linesOfFile.get(i)
 		var id string = cutBytes_(lineItem, 0, int32(strings.IndexByte(lineItem, ':')))
 		var encodedDetails string = lineItem[strings.IndexByte(lineItem, ':')+1:]
 		var encodedDetailsAsCharIt *ReportDecoder_StringCharIterator = new_ReportDecoder_StringCharIterator(encodedDetails)
-		var temp *InstrumentationPoint = cast_[*InstrumentationPoint](InstrumentationPoint_newBuilder().setFileName(str_(localFileNames.get(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt))))).setFunctionName(str_(functionNames.get(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt))))).setType(types.get(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt)))).setLineNumber(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt))).setColumnNumber(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt))).build())
+		var temp *InstrumentationPoint = cast_[*InstrumentationPoint](InstrumentationPoint_newBuilder().setFileName(localFileNames.get(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt)))).setFunctionName(functionNames.get(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt)))).setType(sliceAt_(types, Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt)))).setLineNumber(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt))).setColumnNumber(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt))).build())
 		mapping.putIfAbsent(id, temp)
 	}
 	return Outcome_base_ok_Object[Map](mapping.asMap())
 }
 
-func ReportDecoder_parseJsonStringList(json string) *Outcome_base[List] {
+func ReportDecoder_parseJsonStringList(json string) *Outcome_base[*TList[string]] {
 	var parsed *Outcome_base[*SimpleJsonValue] = Json_parse(json)
 	if parsed.isErr() {
-		return Outcome_base_err[List](parsed.error())
+		return Outcome_base_err[*TList[string]](parsed.error())
 	}
 	if parsed.get().kind() != SimpleJsonValue_Kind_ARRAY {
-		return Outcome_base_err[List](new_SimpleJsonException("Malformed mapping: expected a JSON array").up_Throwable())
+		return Outcome_base_err[*TList[string]](new_SimpleJsonException("Malformed mapping: expected a JSON array").up_Throwable())
 	}
 	var list *TList[string] = newTList_(tc_string)
 	it_1 := parsed.get().elements().each()
@@ -93,11 +93,11 @@ func ReportDecoder_parseJsonStringList(json string) *Outcome_base[List] {
 		}
 		var string_ *Outcome_base[string] = element.asString()
 		if string_.isErr() {
-			return Outcome_base_err[List](string_.error())
+			return Outcome_base_err[*TList[string]](string_.error())
 		}
 		list.add(string_.get())
 	}
-	return Outcome_base_ok_Object[List](list.asList())
+	return Outcome_base_ok_Object[*TList[string]](list)
 }
 
 func ReportDecoder_decodeReport(mapping MapOf[string, *InstrumentationPoint], frequencies MapOf[string, BoxedOf[int64]]) *ReportProfile {
@@ -128,12 +128,10 @@ func ReportDecoder_createProfileOfStaticallyUsedCode(mapping *JTMap[string, *Ins
 	return ReportDecoder_createReportProfile(instrumentationPoints)
 }
 
-func ReportDecoder_mergeProfiles(profiles *TList[*ReportProfile]) *ReportProfile {
+func ReportDecoder_mergeProfiles(profiles []*ReportProfile) *ReportProfile {
 	var frequencies *JTMap[*InstrumentationPoint, any] = jnewTMap_(tce_p_InstrumentationPoint, jtc_Long)
 	var presences *JTMap[*InstrumentationPoint, InstrumentationPointStats_Presence] = jnewTMap_(tce_p_InstrumentationPoint, jtc_p_InstrumentationPointStats_Presence)
-	it_1 := profiles.each()
-	for it_1.next() {
-		var profile *ReportProfile = it_1.v
+	for _, profile := range profiles {
 		for fileProfile := range elemsAs_[*FileProfile](profile.getFileProfileList()) {
 			for pointStats := range elemsAs_[*InstrumentationPointStats](fileProfile.getInstrumentationPointsStatsList()) {
 				Map_compute(frequencies.asMap(), obj_(pointStats.getPoint()), &BiFunction_tfn_InstrumentationPoint_any_any{func(p *InstrumentationPoint, existing any) any {

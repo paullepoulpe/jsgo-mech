@@ -311,16 +311,16 @@ func DependencyInfo_Util_writeAddDependency(out Appendable, info DependencyInfo_
 }
 
 func DependencyInfo_Util_writeJsObject(out Appendable, map_ *JTMap[string, string]) {
-	var entries *TList[string] = newTList_(tc_string)
+	var entries []string = []string{}
 	it_1 := map_.eachEntry()
 	for it_1.next() {
 		var entry *TEntry[string, string] = it_1.entry()
 		var key string = JString_replace_s(entry.getKey(), "'", "\\'")
 		var value string = JString_replace_s(entry.getValue(), "'", "\\'")
-		entries.add(("'" + sstr_(key) + "': '" + sstr_(value) + "'"))
+		entries = append(entries, ("'" + sstr_(key) + "': '" + sstr_(value) + "'"))
 	}
 	Appendable_append_s(out, "{")
-	Appendable_append_s(out, Joiner_on(", ").join(Iterable(entries.asList())))
+	Appendable_append_s(out, Joiner_on(", ").join(Iterable(sliceView_(tc_string, entries))))
 	Appendable_append_s(out, "}")
 }
 

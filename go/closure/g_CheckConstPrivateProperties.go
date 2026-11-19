@@ -5,7 +5,7 @@ package closure
 type CheckConstPrivateProperties struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_                 *AbstractCompiler
-	candidates                *TList[Node]
+	candidates                *[]Node
 	modified                  *JTSet[string]
 	constructorsAndInterfaces *JTSet[string]
 }
@@ -18,7 +18,7 @@ func (this *CheckConstPrivateProperties) up_NodeTraversal_AbstractPostOrderCallb
 }
 
 func (this *CheckConstPrivateProperties) finit_CheckConstPrivateProperties() {
-	this.candidates = newTList_(tc_Node)
+	this.candidates = &[]Node{}
 	this.modified = jnewTSet_(jtc_string)
 	this.constructorsAndInterfaces = jnewTSet_(jtc_string)
 }
@@ -41,15 +41,13 @@ func (this *CheckConstPrivateProperties) process_2(externs Node, root Node) {
 }
 
 func (this *CheckConstPrivateProperties) reportMissingConst(t *NodeTraversal) {
-	it_1 := this.candidates.each()
-	for it_1.next() {
-		var n Node = it_1.v
+	for n := range sliceAll_(this.candidates) {
 		var propName string = n.getString()
 		if !this.modified.contains(propName) {
 			t.report(n, CheckConstPrivateProperties_MISSING_CONST_PROPERTY, []string{propName})
 		}
 	}
-	this.candidates.clear()
+	sliceClear_(this.candidates)
 	this.modified.clear()
 }
 
@@ -67,7 +65,7 @@ func (this *CheckConstPrivateProperties) visit_impl(t *NodeTraversal, n Node, pa
 			return
 		}
 		if this.isCandidatePropertyDefinition(n) {
-			this.candidates.add(propNode)
+			*this.candidates = append(*this.candidates, propNode)
 		} else if this.isModificationOp(n) {
 			this.modified.add(propNode.getString())
 		}

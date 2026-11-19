@@ -9,7 +9,7 @@ type Scanner_parser struct {
 	contents           string
 	contentsU16        utf16_
 	contentsLength     int32
-	currentTokens      *TList[*Token_parser]
+	currentTokens      *[]*Token_parser
 	index_             int32
 	commentRecorder    Scanner_CommentRecorder
 	typeParameterLevel int32
@@ -21,7 +21,7 @@ func (this *Scanner_parser) zero_Scanner_parser() {
 }
 
 func (this *Scanner_parser) finit_Scanner_parser() {
-	this.currentTokens = newTList_(tc_p_Token_parser)
+	this.currentTokens = &[]*Token_parser{}
 }
 
 func (this *Scanner_parser) init_Scanner_parser(errorReporter *ErrorReporter_util, commentRecorder Scanner_CommentRecorder, file *SourceFile_parser, offset int32) {
@@ -50,7 +50,7 @@ func (this *Scanner_parser) getFile() *SourceFile_parser {
 
 func (this *Scanner_parser) getOffset() int32 {
 	return func() int32 {
-		if this.currentTokens.isEmpty() {
+		if len(*this.currentTokens) == 0 {
 			return this.index_
 		}
 		return this.peekToken().location_.start_.offset
@@ -59,13 +59,13 @@ func (this *Scanner_parser) getOffset() int32 {
 
 func (this *Scanner_parser) setPosition(position *SourcePosition_util) {
 	this.lineNumberScanner.rewindTo(position)
-	this.currentTokens.clear()
+	sliceClear_(this.currentTokens)
 	this.index_ = position.offset
 }
 
 func (this *Scanner_parser) getPosition() *SourcePosition_util {
 	return func() *SourcePosition_util {
-		if this.currentTokens.isEmpty() {
+		if len(*this.currentTokens) == 0 {
 			return this.getPosition_1(this.index_)
 		}
 		return this.peekToken().location_.start_
@@ -87,11 +87,11 @@ func (this *Scanner_parser) getTokenRangeSourcePosition(position *SourcePosition
 
 func (this *Scanner_parser) nextToken() *Token_parser {
 	this.peekToken()
-	return this.currentTokens.removeAt(0)
+	return sliceRemoveAt_(this.currentTokens, 0)
 }
 
 func (this *Scanner_parser) clearTokenLookahead() {
-	if !this.currentTokens.isEmpty() {
+	if len(*this.currentTokens) != 0 {
 		this.setPosition(this.peekToken().location_.start_)
 	}
 }
@@ -211,10 +211,10 @@ func (this *Scanner_parser) peekToken() *Token_parser {
 }
 
 func (this *Scanner_parser) peekToken_1(index int32) *Token_parser {
-	for this.currentTokens.size() <= index {
-		this.currentTokens.add(this.scanToken())
+	for int32(len(*this.currentTokens)) <= index {
+		*this.currentTokens = append(*this.currentTokens, this.scanToken())
 	}
-	return this.currentTokens.get(index)
+	return sliceAt_(*this.currentTokens, index)
 }
 
 func (this *Scanner_parser) isAtEnd() bool {

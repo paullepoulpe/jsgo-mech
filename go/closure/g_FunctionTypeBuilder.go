@@ -456,7 +456,7 @@ func (this *FunctionTypeBuilder) setConstructorTemplateTypeNames(templates *TLis
 			if this.templateTypeNames.isEmpty() {
 				return immutableListCopyOfTP_(tc_p_TemplateType, templates)
 			}
-			return tlistImm_(tc_p_TemplateType, ImmutableList_builder().addAll(Iterable(this.templateTypeNames.asList())).addAll(Iterable(this.constructorTemplateTypeNames.asList())).build())
+			return immutableListBuilder_(tc_p_TemplateType).addAllT(this.templateTypeNames).addAllT(this.constructorTemplateTypeNames).build()
 		}()
 		this.registerTemplates(Iterable(templates.asList()), ctor)
 	}

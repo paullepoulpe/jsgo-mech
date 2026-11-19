@@ -30,9 +30,7 @@ func (this *ProcessTweaks) stripAllCalls(tweakInfos *JTMap[string, *ProcessTweak
 	for it_1.next() {
 		var tweakInfo *ProcessTweaks_TweakInfo = it_1.v
 		var isRegistered bool = tweakInfo.isRegistered()
-		it_3 := tweakInfo.functionCalls.each()
-		for it_3.next() {
-			var functionCall *ProcessTweaks_TweakFunctionCall = it_3.v
+		for functionCall := range sliceAll_(tweakInfo.functionCalls) {
 			var callNode Node = functionCall.callNode_
 			var parent Node = callNode.getParent()
 			if functionCall.tweakFunc.isGetterFunction() {
@@ -370,7 +368,7 @@ func new_ProcessTweaks_TweakFunctionCall_TweakFunction_Node_Node(tweakFunc Proce
 type ProcessTweaks_TweakInfo struct {
 	outer_           *ProcessTweaks
 	tweakId          string
-	functionCalls    *TList[*ProcessTweaks_TweakFunctionCall]
+	functionCalls    *[]*ProcessTweaks_TweakFunctionCall
 	registerCall     *ProcessTweaks_TweakFunctionCall
 	defaultValueNode Node
 }
@@ -381,7 +379,7 @@ func (this *ProcessTweaks_TweakInfo) zero_ProcessTweaks_TweakInfo() {
 
 func (this *ProcessTweaks_TweakInfo) init_ProcessTweaks_TweakInfo(tweakId string) {
 	this.tweakId = tweakId
-	this.functionCalls = newTList_(tc_p_ProcessTweaks_TweakFunctionCall)
+	this.functionCalls = &[]*ProcessTweaks_TweakFunctionCall{}
 }
 
 func new_ProcessTweaks_TweakInfo(outer_ *ProcessTweaks, tweakId string) *ProcessTweaks_TweakInfo {
@@ -399,9 +397,7 @@ func (this *ProcessTweaks_TweakInfo) emitAllWarnings() {
 }
 
 func (this *ProcessTweaks_TweakInfo) emitAllTypeWarnings() {
-	it_1 := this.functionCalls.each()
-	for it_1.next() {
-		var call *ProcessTweaks_TweakFunctionCall = it_1.v
+	for call := range sliceAll_(this.functionCalls) {
 		var valueNode Node = call.valueNode
 		var tweakFunc ProcessTweaks_TweakFunction = call.tweakFunc
 		var registerFunc ProcessTweaks_TweakFunction = this.registerCall.tweakFunc
@@ -419,11 +415,11 @@ func (this *ProcessTweaks_TweakInfo) emitAllTypeWarnings() {
 
 func (this *ProcessTweaks_TweakInfo) addRegisterCall(tweakFunc ProcessTweaks_TweakFunction, callNode Node, defaultValueNode Node) {
 	this.registerCall = new_ProcessTweaks_TweakFunctionCall_TweakFunction_Node_Node(tweakFunc, callNode, defaultValueNode)
-	this.functionCalls.add(this.registerCall)
+	*this.functionCalls = append(*this.functionCalls, this.registerCall)
 }
 
 func (this *ProcessTweaks_TweakInfo) addGetterCall(tweakFunc ProcessTweaks_TweakFunction, callNode Node) {
-	this.functionCalls.add(new_ProcessTweaks_TweakFunctionCall_TweakFunction_Node(tweakFunc, callNode))
+	*this.functionCalls = append(*this.functionCalls, new_ProcessTweaks_TweakFunctionCall_TweakFunction_Node(tweakFunc, callNode))
 }
 
 func (this *ProcessTweaks_TweakInfo) isRegistered() bool {

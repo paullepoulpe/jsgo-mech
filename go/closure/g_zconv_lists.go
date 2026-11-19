@@ -10,3 +10,4 @@ var tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase = &t
 }}
 var tc_string = &tconv_[string]{box: func(v string) any { return strobj_(v) }, unbox: func(v any) string { return str_(v) }, null: nullstr_}
 var tc_p_CompilerInput = &tconv_[*CompilerInput]{box: func(v *CompilerInput) any { return obj_(v) }, unbox: func(v any) *CompilerInput { return cast_[*CompilerInput](v) }}
+var tcv_p_TList_p_JSChunk_ = tlistConv_[*JSChunk]()

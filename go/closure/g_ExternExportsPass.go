@@ -6,7 +6,7 @@ import "strings"
 
 type ExternExportsPass struct {
 	NodeTraversal_AbstractPostOrderCallback
-	exports                     *TList[*ExternExportsPass_Export]
+	exports                     *[]*ExternExportsPass_Export
 	definitionMap               *JTMap[string, Node]
 	compiler_                   *AbstractCompiler
 	externsRoot                 Node
@@ -25,7 +25,7 @@ func (this *ExternExportsPass) up_NodeTraversal_AbstractPostOrderCallback() *Nod
 
 func (this *ExternExportsPass) init_ExternExportsPass(compiler *AbstractCompiler) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
-	this.exports = newTList_(tc_p_ExternExportsPass_Export)
+	this.exports = &[]*ExternExportsPass_Export{}
 	this.compiler_ = compiler
 	this.definitionMap = jnewTMap_(jtc_string, jtc_Node)
 	this.externsRoot = IR_script_0()
@@ -62,7 +62,7 @@ func (this *ExternExportsPass) initExportMethods() {
 func (this *ExternExportsPass) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(this))
 	var sorted *JTSet[*ExternExportsPass_Export] = newTSortedSetC_(jtc_p_ExternExportsPass_Export, Comparator_comparing(&Function_tfn_any_string{func(p0 any) string { return to_ExternExportsPass_Export(p0).getExportedPath() }}))
-	sorted.asSet().addAll(Collection(this.exports.asList()))
+	sorted.asSet().addAll(Collection(sliceViewP_(tc_p_ExternExportsPass_Export, this.exports)))
 	it_1 := sorted.each()
 	for it_1.next() {
 		var export *ExternExportsPass_Export = it_1.v
@@ -126,7 +126,7 @@ func (this *ExternExportsPass) lookForSymbolExportCall(n Node) {
 	if !nameArg.isStringLit() {
 		return
 	}
-	this.exports.add(new_ExternExportsPass_SymbolExport(this, nameArg.getString(), valueArg).up_ExternExportsPass_Export())
+	*this.exports = append(*this.exports, new_ExternExportsPass_SymbolExport(this, nameArg.getString(), valueArg).up_ExternExportsPass_Export())
 }
 
 func (this *ExternExportsPass) lookForPropertyExportCall(n Node) {
@@ -146,7 +146,7 @@ func (this *ExternExportsPass) lookForPropertyExportCall(n Node) {
 	if !nameArg.isStringLit() {
 		return
 	}
-	this.exports.add(new_ExternExportsPass_PropertyExport(this, objectArg.getQualifiedName(), nameArg.getString(), valueArg).up_ExternExportsPass_Export())
+	*this.exports = append(*this.exports, new_ExternExportsPass_PropertyExport(this, objectArg.getQualifiedName(), nameArg.getString(), valueArg).up_ExternExportsPass_Export())
 }
 
 func (this *ExternExportsPass) isCallToOneOf(n Node, functionQnames *JTSet[string]) bool {
@@ -180,7 +180,7 @@ func (this *ExternExportsPass) lookForAtExportOnThisDotProperty(t *NodeTraversal
 	var propertyName string = thisDotPropName.getString()
 	var prototypeName string = (sstr_(className) + ".prototype")
 	var propertyNameNode Node = NodeUtil_newQName_AbstractCompiler_String(this.compiler_, ("this." + sstr_(propertyName)))
-	this.exports.add(new_ExternExportsPass_PropertyExport(this, prototypeName, propertyName, propertyNameNode).up_ExternExportsPass_Export())
+	*this.exports = append(*this.exports, new_ExternExportsPass_PropertyExport(this, prototypeName, propertyName, propertyNameNode).up_ExternExportsPass_Export())
 }
 
 var ExternExportsPass_Q_NAME_JOINER *Joiner
@@ -332,14 +332,14 @@ func (this *ExternExportsPass_Export) createExternFunction(exportedFunction Node
 
 func (this *ExternExportsPass_Export) createExternsParamListFromOriginalFunction(exportedFunction Node) Node {
 	var originalParamList Node = NodeUtil_getFunctionParameters(exportedFunction)
-	var originalParamNames *TList[string] = newTList_(tc_string)
+	var originalParamNames *[]string = &[]string{}
 	{
 		var originalParam Node = originalParamList.getFirstChild()
 		for ; originalParam != 0; originalParam = originalParam.getNext() {
-			originalParamNames.add(this.getOriginalNameForParam(originalParam))
+			*originalParamNames = append(*originalParamNames, this.getOriginalNameForParam(originalParam))
 		}
 	}
-	return this.createExternsParamListFromOriginalParamList(originalParamNames.asList())
+	return this.createExternsParamListFromOriginalParamList(slicePtrView_(tc_string, originalParamNames))
 }
 
 func (this *ExternExportsPass_Export) createExternsParamListFromFunctionType(functionType *JSType) Node {

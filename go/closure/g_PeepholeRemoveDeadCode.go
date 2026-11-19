@@ -782,18 +782,18 @@ func (this *PeepholeRemoveDeadCode) redeclareIfBlockScopedVar(decl Node, parent 
 	if !NodeUtil_isBlockScopedDeclaration(decl) {
 		return
 	}
-	var blockScopedVars *TList[Node] = newTList_(tc_Node)
+	var blockScopedVars []Node = []Node{}
 	if decl.isClass() {
-		blockScopedVars.add(decl.getFirstChild())
+		blockScopedVars = append(blockScopedVars, decl.getFirstChild())
 	} else {
 		NodeUtil_visitLhsNodesInNode(decl, (&Consumer_tfn_Node{func(n Node) {
 			if n.isName() {
-				blockScopedVars.add(n)
+				blockScopedVars = append(blockScopedVars, n)
 			}
 		}}).accept)
 	}
 	var addBefore Node = NodeUtil_getInsertionPointAfterAllInnerFunctionDeclarations(parent)
-	it_1 := blockScopedVars.each()
+	it_1 := eachOf_(&blockScopedVars)
 	for it_1.next() {
 		var nameNode Node = it_1.v
 		var var_ Node = IR_let_Node(IR_name(nameNode.getString()).srcref(nameNode)).srcref(nameNode)

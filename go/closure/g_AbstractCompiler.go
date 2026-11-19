@@ -255,7 +255,7 @@ func (this *AbstractCompiler) parseTestCode(p0 string) Node {
 	return this.self_.(*Compiler).parseTestCode_impl(p0)
 }
 
-func (this *AbstractCompiler) parseTestCodeImmutableList(p0 *TList[string]) Node {
+func (this *AbstractCompiler) parseTestCodeImmutableList(p0 []string) Node {
 	return this.self_.(*Compiler).parseTestCodeImmutableList_impl(p0)
 }
 

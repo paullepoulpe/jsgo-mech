@@ -79,19 +79,19 @@ func (this *ModuleLoader) createRootPaths(roots IterableOf[string]) *TList[strin
 }
 
 func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo_]) *JTSet[string] {
-	var sortedModulePaths *TList[string] = newTList_(tc_string)
+	var sortedModulePaths *[]string = &[]string{}
 	for input := range elemsBy_(inputs, icast_DependencyInfo_) {
 		var p string = this.pathEscaper.escape(str_(this.pathResolver.apply(strobj_(input.getName()))))
 		var n string = ModuleLoader_normalize(p, Iterable(this.moduleRootPaths.asList()))
-		sortedModulePaths.add(func() string {
+		*sortedModulePaths = append(*sortedModulePaths, func() string {
 			if ModuleLoader_isAmbiguousIdentifier(n) {
 				return (sstr_(ModuleLoader_MODULE_SLASH) + sstr_(n))
 			}
 			return n
 		}())
 	}
-	List_sort(sortedModulePaths.asList(), ModuleLoader_BEST_MATCH_PATH_ORDERING)
-	var dupeModulePaths *SimpleMultiset[any] = SimpleMultiset_copyOf[any](Iterable(sortedModulePaths.asList()))
+	List_sort(sliceViewP_(tc_string, sortedModulePaths), ModuleLoader_BEST_MATCH_PATH_ORDERING)
+	var dupeModulePaths *SimpleMultiset[any] = SimpleMultiset_copyOf[any](Iterable(slicePtrView_(tc_string, sortedModulePaths)))
 	if dupeModulePaths.size() != dupeModulePaths.elementSet().size() {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Duplicate module paths after resolving: %s", []any{dupeModulePaths})))
 	}

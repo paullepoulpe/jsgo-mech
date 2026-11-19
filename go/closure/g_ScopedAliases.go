@@ -69,9 +69,7 @@ func (this *ScopedAliases) process_2(externs Node, root Node) {
 				aliasDefinition.detach()
 			}
 		}
-		it_6 := traversal.getScopeCalls().each()
-		for it_6.next() {
-			var scopeCall Node = it_6.v
+		for scopeCall := range sliceAll_(traversal.getScopeCalls()) {
 			var expressionWithScopeCall Node = scopeCall.getParent()
 			var scopeClosureBlock Node = scopeCall.getLastChild().getLastChild()
 			scopeClosureBlock.detach()
@@ -429,7 +427,7 @@ type ScopedAliases_Traversal struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_                   *ScopedAliases
 	aliasDefinitionsToDelete *TList[Node]
-	scopeCalls               *TList[Node]
+	scopeCalls               *[]Node
 	aliasUsages              *TList[*ScopedAliases_AliasUsage]
 	aliases_                 *JTMap[string, *Var]
 	injectedDecls            *JTSet[Node]
@@ -449,7 +447,7 @@ func (this *ScopedAliases_Traversal) up_NodeTraversal_AbstractPostOrderCallback(
 
 func (this *ScopedAliases_Traversal) finit_ScopedAliases_Traversal() {
 	this.aliasDefinitionsToDelete = newTList_(tc_Node)
-	this.scopeCalls = newTList_(tc_Node)
+	this.scopeCalls = &[]Node{}
 	this.aliasUsages = newTList_(tc_p_ScopedAliases_AliasUsage)
 	this.aliases_ = jnewTMap_(jtc_string, jtc_p_Var)
 	this.injectedDecls = jnewTSet_(jtc_Node)
@@ -481,7 +479,7 @@ func (this *ScopedAliases_Traversal) getAliasUsages() *TList[*ScopedAliases_Alia
 	return this.aliasUsages
 }
 
-func (this *ScopedAliases_Traversal) getScopeCalls() *TList[Node] {
+func (this *ScopedAliases_Traversal) getScopeCalls() *[]Node {
 	return this.scopeCalls
 }
 
@@ -723,7 +721,7 @@ func (this *ScopedAliases_Traversal) validateScopeCall(t *NodeTraversal, n Node,
 		if (!anonymousFnNode.isFunction() || NodeUtil_getName(anonymousFnNode) != "") || NodeUtil_getFunctionParameters(anonymousFnNode).hasChildren() {
 			this.report(anonymousFnNode, ScopedAliases_GOOG_SCOPE_HAS_BAD_PARAMETERS, []string{})
 		} else {
-			this.scopeCalls.add(n)
+			*this.scopeCalls = append(*this.scopeCalls, n)
 		}
 	}
 }

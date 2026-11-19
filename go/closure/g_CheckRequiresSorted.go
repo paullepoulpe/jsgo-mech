@@ -5,7 +5,7 @@ package closure
 type CheckRequiresSorted struct {
 	mode_              CheckRequiresSorted_Mode
 	importsByNamespace *SimpleListMultimap[any, *CheckRequiresSorted_ImportStatement]
-	originalImports    *TList[*CheckRequiresSorted_ImportStatement]
+	originalImports    *[]*CheckRequiresSorted_ImportStatement
 	firstNode          Node
 	lastNode           Node
 	finished           bool
@@ -15,7 +15,7 @@ type CheckRequiresSorted struct {
 
 func (this *CheckRequiresSorted) finit_CheckRequiresSorted() {
 	this.importsByNamespace = SimpleListMultimap_create[any, *CheckRequiresSorted_ImportStatement]()
-	this.originalImports = newTList_(tc_p_CheckRequiresSorted_ImportStatement)
+	this.originalImports = &[]*CheckRequiresSorted_ImportStatement{}
 	this.firstNode = 0
 	this.lastNode = 0
 	this.finished = false
@@ -67,7 +67,7 @@ func (this *CheckRequiresSorted) visit(t *NodeTraversal, n Node, parent Node) {
 	}
 	if (callNode != 0) && CheckRequiresSorted_isValidImportCall(callNode) {
 		var stmt *CheckRequiresSorted_ImportStatement = CheckRequiresSorted_parseImport(callNode)
-		this.originalImports.add(stmt)
+		*this.originalImports = append(*this.originalImports, stmt)
 		this.importsByNamespace.put_s(stmt.namespace(), stmt)
 		if this.firstNode == 0 {
 			this.lastNode = n
@@ -113,7 +113,7 @@ func CheckRequiresSorted_parseImport(callNode Node) *CheckRequiresSorted_ImportS
 
 func (this *CheckRequiresSorted) checkCanonical(t *NodeTraversal) {
 	var canonicalImports *TList[*CheckRequiresSorted_ImportStatement] = CheckRequiresSorted_canonicalizeImports(this.importsByNamespace)
-	if !equalsVia_(this.originalImports.asList(), canonicalImports.asList()) {
+	if !equalsVia_(sliceViewP_(tc_p_CheckRequiresSorted_ImportStatement, this.originalImports), canonicalImports.asList()) {
 		this.needsFixField = true
 		this.replacement_ = Optional_of[string](JString_join_s("\n", Iterables_transform(Iterable(canonicalImports.asList()), &Function_base_tfn_CheckRequiresSorted_ImportStatement_string{func(p0 *CheckRequiresSorted_ImportStatement) string { return p0.format() }})))
 		if this.mode_ == CheckRequiresSorted_Mode_COLLECT_AND_REPORT {
@@ -147,18 +147,18 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 			}
 		}
 		var destructuringNodes *TList[Node] = destructuringNodesBuilder.build()
-		var sortedDestructures *TList[*CheckRequiresSorted_DestructuringBinding] = newTList_(tc_p_CheckRequiresSorted_DestructuringBinding)
+		var sortedDestructures []*CheckRequiresSorted_DestructuringBinding = []*CheckRequiresSorted_DestructuringBinding{}
 		for i := range elemsAs_[*CheckRequiresSorted_ImportStatement](allImports) {
 			if i.isDestructuring() {
 				it_13 := i.destructures().each()
 				for it_13.next() {
 					var binding *CheckRequiresSorted_DestructuringBinding = it_13.v
-					sortedDestructures.add(binding.canonicalizeShorthandProperties())
+					sortedDestructures = append(sortedDestructures, binding.canonicalizeShorthandProperties())
 				}
 			}
 		}
-		Collections_sort(sortedDestructures.asList())
-		var destructures *TList[*CheckRequiresSorted_DestructuringBinding] = immutableListCopyOf_(tc_p_CheckRequiresSorted_DestructuringBinding, Collection(new_LinkedHashSet_Collection(Collection(sortedDestructures.asList()))))
+		Collections_sort(sliceView_(tc_p_CheckRequiresSorted_DestructuringBinding, sortedDestructures))
+		var destructures *TList[*CheckRequiresSorted_DestructuringBinding] = immutableListCopyOf_(tc_p_CheckRequiresSorted_DestructuringBinding, Collection(new_LinkedHashSet_Collection(Collection(sliceView_(tc_p_CheckRequiresSorted_DestructuringBinding, sortedDestructures)))))
 		if !destructures.isEmpty() {
 			canonicalImports.add(CheckRequiresSorted_ImportStatement_of(destructuringNodes, strongestPrimitive, namespace, Optional_empty[string](), destructures))
 			hasDestructuring = true

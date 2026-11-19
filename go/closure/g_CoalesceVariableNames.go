@@ -60,7 +60,7 @@ func (this *CoalesceVariableNames) process_2(externs Node, root Node) {
 func CoalesceVariableNames_shouldOptimizeScope(t *NodeTraversal) *NodeUtil_AllVarsDeclaredInFunction {
 	if t.getScopeRoot().isFunction() {
 		var allVarsDeclaredInFunction *NodeUtil_AllVarsDeclaredInFunction = NodeUtil_getAllVarsDeclaredInFunction(t.getCompiler(), t.getScopeCreator(), t.getScope())
-		if LiveVariablesAnalysis_MAX_VARIABLES_TO_ANALYZE > allVarsDeclaredInFunction.getAllVariablesInOrder().size() {
+		if LiveVariablesAnalysis_MAX_VARIABLES_TO_ANALYZE > int32(len(*allVarsDeclaredInFunction.getAllVariablesInOrder())) {
 			return allVarsDeclaredInFunction
 		}
 	}
@@ -122,9 +122,7 @@ func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent N
 		this.updateDeclarationsPostCoalescing(n, coalescedVar, var_, parent)
 	} else {
 		var allMergedNames *JTSet[string] = newTSortedSet_(jtc_string)
-		it_1 := this.liveness.getAllVariablesInOrder().each()
-		for it_1.next() {
-			var iVar *Var = it_1.v
+		for iVar := range sliceAll_(this.liveness.getAllVariablesInOrder()) {
 			if (this.colorings.peek().getGraph().getNode(iVar) != nil) && this.colorings.peek().haveSameColor(iVar, coalescedVar) {
 				allMergedNames.add(iVar.getName())
 			}
@@ -165,7 +163,7 @@ func (this *CoalesceVariableNames) isNameInsideDestructuringAssignment(n Node) b
 
 func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *ControlFlowGraph[Node], escaped *JTSet[*Var]) *UndiGraph[*Var, any] {
 	var interferenceGraph *UndiGraph[*Var, any] = LinkedUndirectedGraph_create[*Var, any]().up_UndiGraph()
-	var orderedVariables []*Var = arrmap_(this.liveness.getAllVariablesInOrder().asList().toArray(arrmap_(make([]*Var, 0), func(v_ *Var) any { return obj_(v_) })), func(v_ any) *Var { return cast_[*Var](v_) })
+	var orderedVariables []*Var = arrmap_(sliceViewP_(tc_p_Var, this.liveness.getAllVariablesInOrder()).toArray(arrmap_(make([]*Var, 0), func(v_ *Var) any { return obj_(v_) })), func(v_ any) *Var { return cast_[*Var](v_) })
 	var interferenceGraphNodes *BitSet = new_BitSet()
 	var interferenceBitSet []*BitSet = make([]*BitSet, int32(len(orderedVariables)))
 	func() {
@@ -343,13 +341,13 @@ type CoalesceVariableNames_LiveRangeChecker struct {
 	root             Node
 	state            *DataFlowAnalysis_LinearFlowState[any]
 	orderedVariables []*Var
-	isAssignToList   *TList[any]
-	isReadFromList   *TList[any]
+	isAssignToList   *[]any
+	isReadFromList   *[]any
 }
 
 func (this *CoalesceVariableNames_LiveRangeChecker) finit_CoalesceVariableNames_LiveRangeChecker() {
-	this.isAssignToList = newTList_(tc_Integer)
-	this.isReadFromList = newTList_(tc_Integer)
+	this.isAssignToList = &[]any{}
+	this.isReadFromList = &[]any{}
 }
 
 func (this *CoalesceVariableNames_LiveRangeChecker) init_CoalesceVariableNames_LiveRangeChecker(root Node, orderedVariables []*Var, state *DataFlowAnalysis_LinearFlowState[any]) {
@@ -387,26 +385,22 @@ func (this *CoalesceVariableNames_LiveRangeChecker) check(n Node) {
 func (this *CoalesceVariableNames_LiveRangeChecker) visit(n Node, parent Node) {
 	for iVar := int32(0); iVar < int32(len(this.orderedVariables)); iVar++ {
 		if CoalesceVariableNames_LiveRangeChecker_isAssignTo(this.orderedVariables[iVar], n, parent) {
-			this.isAssignToList.add(any(int32(iVar)))
+			*this.isAssignToList = append(*this.isAssignToList, any(int32(iVar)))
 		}
 	}
-	if !this.isAssignToList.isEmpty() {
+	if len(*this.isAssignToList) != 0 {
 		for iVar := int32(0); iVar < int32(len(this.orderedVariables)); iVar++ {
 			var varOutLive bool = this.state.getOut().(*LiveVariablesAnalysis_LiveVariableLattice).isLive(iVar)
 			if varOutLive || CoalesceVariableNames_LiveRangeChecker_isReadFrom(this.orderedVariables[iVar], n) {
-				this.isReadFromList.add(any(int32(iVar)))
+				*this.isReadFromList = append(*this.isReadFromList, any(int32(iVar)))
 			}
 		}
 	}
 }
 
 func (this *CoalesceVariableNames_LiveRangeChecker) setCrossingVariables(interferenceBitSet []*BitSet) {
-	it_1 := this.isAssignToList.each()
-	for it_1.next() {
-		var iWrittenVar any = it_1.v
-		it_3 := this.isReadFromList.each()
-		for it_3.next() {
-			var iReadVar any = it_3.v
+	for iWrittenVar := range sliceAll_(this.isAssignToList) {
+		for iReadVar := range sliceAll_(this.isReadFromList) {
 			interferenceBitSet[unbox_[int32](iWrittenVar)].set(unbox_[int32](iReadVar))
 			interferenceBitSet[unbox_[int32](iReadVar)].set(unbox_[int32](iWrittenVar))
 		}

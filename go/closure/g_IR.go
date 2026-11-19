@@ -114,11 +114,9 @@ func IR_blockNodeVarargs(stmts []Node) Node {
 	return block
 }
 
-func IR_blockList(stmts *TList[Node]) Node {
+func IR_blockList(stmts []Node) Node {
 	var paramList Node = IR_block_0()
-	it_1 := stmts.each()
-	for it_1.next() {
-		var stmt Node = it_1.v
+	for _, stmt := range stmts {
 		if !IR_mayBeStatement(stmt) {
 			panic(new_IllegalStateException_0())
 		}
@@ -146,11 +144,9 @@ func IR_script_NodeArr(stmts []Node) Node {
 	return block
 }
 
-func IR_scriptList(stmts *TList[Node]) Node {
+func IR_scriptList(stmts []Node) Node {
 	var paramList Node = IR_script_0()
-	it_1 := stmts.each()
-	for it_1.next() {
-		var stmt Node = it_1.v
+	for _, stmt := range stmts {
 		if !IR_mayBeStatementNoReturn(stmt) {
 			panic(new_IllegalStateException_0())
 		}

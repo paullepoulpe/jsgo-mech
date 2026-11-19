@@ -33,9 +33,7 @@ func (this *ConcretizeStaticInheritanceForInlining) process_2(externs Node, root
 }
 
 func (this *ConcretizeStaticInheritanceForInlining) processInherits(findStaticMembers *ConcretizeStaticInheritanceForInlining_FindStaticMembers) {
-	it_1 := findStaticMembers.inheritsCalls.each()
-	for it_1.next() {
-		var inheritsCall Node = it_1.v
+	for inheritsCall := range sliceAll_(findStaticMembers.inheritsCalls) {
 		var superclassNameNode Node = inheritsCall.getLastChild()
 		var superclassQname string = superclassNameNode.getQualifiedName()
 		var subclassNameNode Node = superclassNameNode.getPrevious()
@@ -156,7 +154,7 @@ func (this *ConcretizeStaticInheritanceForInlining_JavascriptClass) addStaticMem
 type ConcretizeStaticInheritanceForInlining_FindStaticMembers struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_        *ConcretizeStaticInheritanceForInlining
-	inheritsCalls *TList[Node]
+	inheritsCalls *[]Node
 	nodeOrder     *JTMap[Node, any]
 }
 
@@ -168,7 +166,7 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) up_NodeTra
 }
 
 func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) finit_ConcretizeStaticInheritanceForInlining_FindStaticMembers() {
-	this.inheritsCalls = newTList_(tc_Node)
+	this.inheritsCalls = &[]Node{}
 	this.nodeOrder = jnewTMap_(jtc_Node, jtc_Integer)
 }
 
@@ -189,7 +187,7 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visit_impl
 	switch n.ns_().token {
 	case tokOrd1_CALL:
 		if this.outer_.inherits.matches(n.getFirstChild()) {
-			this.inheritsCalls.add(n)
+			*this.inheritsCalls = append(*this.inheritsCalls, n)
 			this.nodeOrder.put(n, any(int32(this.nodeOrder.size())))
 		}
 		if NodeUtil_isObjectDefinePropertiesDefinition(n) {
