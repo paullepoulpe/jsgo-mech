@@ -261,7 +261,7 @@ where a row says so; "sweep" below quotes its counted reasons.
 | StringBuilder | 3 | 79 | 4 | C26: sbuild with a tool fix for two forms this flip writes (jtostr_ as a read, StringBuilder_as_Appendable as an Appendable argument): 40 slots in 28 classes, 0 left. C27: round 8's step 303 by hand on the same two sites. The 4 left are no builders: the name-table entry and a comment (as in postflip5), and a message string in a catch around an append that postflip5's step 268 (exceptions re-run) removed |
 | enums as objects | 0 | 1 | 1 | enums: Node_Prop, which the runtime (node store) uses as an object |
 | Preconditions_ checks | 3 | 1,038 | 372 | j2go rules P2 and P4 (typed variants), then tchecks (dfc0c907): 665 statement calls are inline checks. Left (tchecks, counted): 235 checkNotNull used as an expression (its result is the value), 135 with a message argument that is not a constant, a variable or a field path (the template forms), 3 whose checked value is not a variable or a field path |
-| threads / executors | 13 | 56 | 14 | C23, C24, C25: round 8's executor edit and its same-thread-check edit rewritten for this flip, and the three stub-removal patches, which apply again after them. 14 against postflip5's 13 (the CompilerExecutor class itself, in both trees); the one more is this flip's cast-table entry for CompilerExecutor |
+| threads / executors | 13 | 56 | 14 | C23, C24, C25: round 8's executor edit and its same-thread-check edit rewritten for this flip, and the three stub-removal patches, which apply again after them. 14 against postflip5's 13 (the CompilerExecutor class itself, in both trees); the one more is this flip's cast-table entry for CompilerExecutor. Against jsgo: it kept upstream's PrebuildAst / PrebuildDependencyInfo parallel (goroutines under --num_parallel_threads); here, as in postflip5, they are loops and the flag has no effect. Not a difference at the benchmark's default of one thread, but a capability dropped: OPEN as a runtime item (executors on goroutines), not as a count |
 | reflect, unsafe | 5, 1 | 5, 2 | 5, 2 | name matches in generated code; the node store adds one unsafe use |
 | fields/params declared any | 1,877 | 1,640 | 1,715 | objslots: 5 left (receive from a slot that stays any). OPEN: the planned single-type Object flow retyping |
 
@@ -416,3 +416,10 @@ this tree 115.0s, 115.3s (120.9s, 119.8s before C23). By stage: CHECKS 50.09s ag
 OPTIMIZATIONS 40.59s against 45.68s, FINALIZATIONS 9.19s against 10.99s. This tree is about 15%
 behind postflip5 on the subset (it was about 20%); pre-flip Java ran it in 94.2-95.2s. CHECKS
 allocation: postflip5 260.4M objects, this tree 324.7M (382.5M before C33).
+
+### The subset is 18% of the benchmark (correction, 19 Nov)
+
+Everywhere above, "the first 3,500 chunks" holds 7,886 of the 44,577 input files (18%), not
+about half. POSTFLIP.md on postflip5-r9-ga has the comparison with Java at 18%, 52% and 100% of
+the input and jsgo's own figures: the gap grows with size in the stages after CHECKS and in
+memory. This tree has not been run at 52% yet.
