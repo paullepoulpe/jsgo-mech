@@ -1396,9 +1396,9 @@ func (this *AbstractCommandLineRunner) outputSingleBinary(options *CompilerOptio
 }
 
 func (this *AbstractCommandLineRunner) createJsonFile(options *CompilerOptions, outputMarker string, escaper Function_baseOf[string, string]) *AbstractCommandLineRunner_JsonFileSpec {
-	var jsOutput Appendable = Appendable(new_StringBuilder())
-	this.writeOutput_8(jsOutput, this.compiler_, CodePrinter_LicenseTracker(new_Compiler_SingleBinaryLicenseTracker(this.compiler_.up_AbstractCompiler())), nil, this.config.outputWrapper, outputMarker, escaper, this.config.jsOutputFile)
-	var jsonOutput *AbstractCommandLineRunner_JsonFileSpec = new_AbstractCommandLineRunner_JsonFileSpec_String_String(Object_toString(jsOutput), func() string {
+	var jsOutput strBuilder_
+	this.writeOutput_8(appendable_(&jsOutput), this.compiler_, CodePrinter_LicenseTracker(new_Compiler_SingleBinaryLicenseTracker(this.compiler_.up_AbstractCompiler())), nil, this.config.outputWrapper, outputMarker, escaper, this.config.jsOutputFile)
+	var jsonOutput *AbstractCommandLineRunner_JsonFileSpec = new_AbstractCommandLineRunner_JsonFileSpec_String_String(jsOutput.toString(), func() string {
 		if Strings_isNullOrEmpty(this.config.jsOutputFile) {
 			return "compiled.js"
 		}

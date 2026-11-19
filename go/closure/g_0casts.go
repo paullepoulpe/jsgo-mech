@@ -1556,13 +1556,6 @@ func SourceMapConsumerV3_as_SourceMapping(v *SourceMapConsumerV3) SourceMapping 
 	return v
 }
 
-func StringBuilder_as_Appendable(v *StringBuilder) Appendable {
-	if v == nil {
-		return nil
-	}
-	return v
-}
-
 func SymbolTable_Reference_as_StaticRef(v *SymbolTable_Reference) StaticRef {
 	if v == nil {
 		return nil
