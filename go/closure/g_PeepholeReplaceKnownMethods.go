@@ -326,7 +326,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldKnownStringMethods(subtree Node,
 			}
 		}
 	}
-	if (this.useTypes && (firstArg != 0)) && (isStringLiteral || StandardColors_STRING.equals(obj_(stringNode.getColor()))) {
+	if (this.useTypes && (firstArg != 0)) && (isStringLiteral || StandardColors_STRING.equals_Color(stringNode.getColor())) {
 		if subtree.hasXChildren(3) {
 			var maybeStart any = this.getSideEffectFreeNumberValue(firstArg)
 			if maybeStart != nil {

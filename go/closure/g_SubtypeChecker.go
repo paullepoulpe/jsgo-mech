@@ -149,7 +149,7 @@ func (this *SubtypeChecker) isSubtypeDispatching(subtype *JSType, supertype *JST
 
 func (this *SubtypeChecker) isWellKnownSymbolSubtype(subtype *KnownSymbolType, supertype *JSType) bool {
 	if supertype.isKnownSymbolValueType() {
-		return subtype.equals(supertype.self())
+		return subtype.equals_JSType(supertype)
 	}
 	if supertype.isSymbolValueType() {
 		return true
@@ -200,7 +200,7 @@ func (this *SubtypeChecker) isObjectSubtypeHelper(subtype *ObjectType, supertype
 		var templatizedSuperType *TemplatizedType = supertype.toMaybeTemplatizedType()
 		var superTypeReferencedType *ObjectType = templatizedSuperType.getReferencedType()
 		var subTypeReferencedType *ObjectType = templatizedSubType.getReferencedType()
-		if subTypeReferencedType.equals(superTypeReferencedType.self()) {
+		if subTypeReferencedType.equals_JSType(superTypeReferencedType.up_JSType()) {
 			subAndSuperAreSameBaseType = true
 		}
 	}
@@ -313,7 +313,7 @@ func (this *SubtypeChecker) checkPropertyPresence(propertyKey Property_Key, subt
 
 func (this *SubtypeChecker) isNativeArrayType(type_ *ObjectType) bool {
 	var unwrapped *ObjectType = SubtypeChecker_getObjectTypeIfNative(type_.up_JSType())
-	return ((unwrapped != nil) && unwrapped.equals(this.registry.getNativeType(JSTypeNative_ARRAY_TYPE).self()))
+	return ((unwrapped != nil) && unwrapped.equals_JSType(this.registry.getNativeType(JSTypeNative_ARRAY_TYPE)))
 }
 
 func (this *SubtypeChecker) isFunctionSubtype(subtype *FunctionType, nonFunctionSupertype *JSType) bool {
@@ -413,7 +413,7 @@ func (this *SubtypeChecker) isArrowTypeSubtype(subtype *ArrowType, nonArrowSuper
 }
 
 func (this *SubtypeChecker) isEnumSubtype(subtype *EnumType, supertype *JSType) bool {
-	return ((supertype.equals(this.registry.getNativeType(JSTypeNative_OBJECT_TYPE).self()) || subtype.equals(this.registry.getNativeType(JSTypeNative_OBJECT_PROTOTYPE).self())) || this.isSubtypeHelper(subtype.up_JSType(), supertype))
+	return ((supertype.equals_JSType(this.registry.getNativeType(JSTypeNative_OBJECT_TYPE)) || subtype.equals_JSType(this.registry.getNativeType(JSTypeNative_OBJECT_PROTOTYPE))) || this.isSubtypeHelper(subtype.up_JSType(), supertype))
 }
 
 func (this *SubtypeChecker) isEnumElementSubtype(subtype *EnumElementType, supertype *JSType) bool {
