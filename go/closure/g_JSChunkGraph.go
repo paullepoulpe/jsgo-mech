@@ -126,7 +126,7 @@ func JSChunkGraph_makeWeakChunk(chunksInDepOrder ListOf[*JSChunk]) ListOf[*JSChu
 		for chunk := range elemsAs_[*JSChunk](chunksInDepOrder) {
 			weakChunk.addDependency(chunk)
 		}
-		chunksInDepOrder = icast_List(new_ArrayList_Collection(Collection(chunksInDepOrder)).self())
+		chunksInDepOrder = new_ArrayList_Collection(Collection(chunksInDepOrder)).self().(List)
 		chunksInDepOrder.add(obj_(weakChunk))
 	}
 	return chunksInDepOrder

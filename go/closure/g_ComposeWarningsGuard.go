@@ -58,7 +58,7 @@ func (this *ComposeWarningsGuard) addGuard(guard *WarningsGuard) {
 		if composeGuard.demoteErrors {
 			this.demoteErrors = composeGuard.demoteErrors
 		}
-		this.addGuards(icast_Iterable(new_ArrayList_Collection(Collection(composeGuard.guards.asSorted().descendingSet())).self()))
+		this.addGuards(new_ArrayList_Collection(Collection(composeGuard.guards.asSorted().descendingSet())).self().(Iterable))
 	} else {
 		this.numberOfAdds++
 		this.orderOfAddition.put(guard, any(int32(this.numberOfAdds)))

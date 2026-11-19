@@ -514,7 +514,7 @@ func (this *TypeInference) traverseSuper(superNode Node, currentScope FlowScope)
 		}
 	case tokOrd1_GETELEM, tokOrd1_GETPROP:
 		var currentSyntacticScope StaticTypedScope = currentScope.getDeclarationScope()
-		superNodeType = ObjectType_cast(icast_StaticTypedSlot(currentSyntacticScope.getSlot_String("super")).getType())
+		superNodeType = ObjectType_cast(currentSyntacticScope.getSlot_String("super").(StaticTypedSlot).getType())
 	default:
 		panic(new_IllegalStateException_String(("Unexpected parent of SUPER: " + sstr_(superNode.getParent().toStringTree()))))
 	}
@@ -1471,7 +1471,7 @@ func (this *TypeInference) inferTemplatedTypesForCall(n Node, fnType *FunctionTy
 	}
 	var replacer *TemplateTypeReplacer = TemplateTypeReplacer_forInference(this.registry, inferred)
 	var callTarget Node = n.getFirstChild()
-	var replacementFnType *FunctionType = to_JSType(fnType.visit(TemplateTypeReplacer_as_Visitor(replacer))).toMaybeFunctionType()
+	var replacementFnType *FunctionType = fnType.visit(TemplateTypeReplacer_as_Visitor(replacer)).(JSType_as).as_JSType().toMaybeFunctionType()
 	Preconditions_checkNotNull_T(replacementFnType)
 	callTarget.setJSType(replacementFnType.up_JSType())
 	n.setJSType(replacementFnType.getReturnType())
@@ -1938,7 +1938,7 @@ func (this *TypeInference) getNativeType(typeId JSTypeNative) *JSType {
 }
 
 func TypeInference_getDeclaredVar(scope FlowScope, name string) *TypedVar {
-	return cast_[*TypedScope](scope.getDeclarationScope()).getVar_String_rTypedVar(name)
+	return scope.getDeclarationScope().(*TypedScope).getVar_String_rTypedVar(name)
 }
 
 var TypeInference_REASSIGN_CLASS_PROTOTYPE *DiagnosticType

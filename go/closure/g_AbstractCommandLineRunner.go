@@ -686,7 +686,7 @@ func AbstractCommandLineRunner_createJsChunks(specs *JTList[*AbstractCommandLine
 		numJsFilesLeft -= numJsFiles
 		chunkIndex++
 	}
-	return Outcome_base_ok_Object[List](icast_List(new_ArrayList_Collection(chunksByName.asMap().values()).self()))
+	return Outcome_base_ok_Object[List](new_ArrayList_Collection(chunksByName.asMap().values()).self().(List))
 }
 
 func (this *AbstractCommandLineRunner) checkChunkName_impl(name string) *Outcome_base[any] {

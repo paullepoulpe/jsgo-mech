@@ -84,7 +84,7 @@ func (this *UnionType) matchesNumberContext_impl() bool {
 
 // lambda_UnionType_matchesNumberContext_impl_1_ is a lambda of UnionType_matchesNumberContext_impl that captures nothing (post-flip step lambdas).
 func lambda_UnionType_matchesNumberContext_impl_1_(p0 any) bool {
-	return to_JSType(p0).matchesNumberContext()
+	return p0.(JSType_as).as_JSType().matchesNumberContext()
 }
 
 func (this *UnionType) matchesStringContext_impl() bool {
@@ -93,7 +93,7 @@ func (this *UnionType) matchesStringContext_impl() bool {
 
 // lambda_UnionType_matchesStringContext_impl_1_ is a lambda of UnionType_matchesStringContext_impl that captures nothing (post-flip step lambdas).
 func lambda_UnionType_matchesStringContext_impl_1_(p0 any) bool {
-	return to_JSType(p0).matchesStringContext()
+	return p0.(JSType_as).as_JSType().matchesStringContext()
 }
 
 func (this *UnionType) matchesSymbolContext_impl() bool {
@@ -102,7 +102,7 @@ func (this *UnionType) matchesSymbolContext_impl() bool {
 
 // lambda_UnionType_matchesSymbolContext_impl_1_ is a lambda of UnionType_matchesSymbolContext_impl that captures nothing (post-flip step lambdas).
 func lambda_UnionType_matchesSymbolContext_impl_1_(p0 any) bool {
-	return to_JSType(p0).matchesSymbolContext()
+	return p0.(JSType_as).as_JSType().matchesSymbolContext()
 }
 
 func (this *UnionType) matchesObjectContext_impl() bool {
@@ -111,7 +111,7 @@ func (this *UnionType) matchesObjectContext_impl() bool {
 
 // lambda_UnionType_matchesObjectContext_impl_1_ is a lambda of UnionType_matchesObjectContext_impl that captures nothing (post-flip step lambdas).
 func lambda_UnionType_matchesObjectContext_impl_1_(p0 any) bool {
-	return to_JSType(p0).matchesObjectContext()
+	return p0.(JSType_as).as_JSType().matchesObjectContext()
 }
 
 func (this *UnionType) findPropertyTypeWithoutConsideringTemplateTypes_impl(propertyName Property_Key) *JSType {
@@ -140,14 +140,16 @@ func (this *UnionType) canBeCalled_impl() bool {
 }
 
 // lambda_UnionType_canBeCalled_impl_1_ is a lambda of UnionType_canBeCalled_impl that captures nothing (post-flip step lambdas).
-func lambda_UnionType_canBeCalled_impl_1_(p0 any) bool { return to_JSType(p0).canBeCalled() }
+func lambda_UnionType_canBeCalled_impl_1_(p0 any) bool {
+	return p0.(JSType_as).as_JSType().canBeCalled()
+}
 
 func (this *UnionType) autobox_impl() *JSType {
 	return JSTypeIterations_mapTypes(lambda_UnionType_autobox_impl_1_, this)
 }
 
 // lambda_UnionType_autobox_impl_1_ is a lambda of UnionType_autobox_impl that captures nothing (post-flip step lambdas).
-func lambda_UnionType_autobox_impl_1_(p0 any) any { return to_JSType(p0).autobox().self() }
+func lambda_UnionType_autobox_impl_1_(p0 any) any { return p0.(JSType_as).as_JSType().autobox().self() }
 
 func (this *UnionType) restrictByNotNullOrUndefined_impl() *JSType {
 	return JSTypeIterations_mapTypes(lambda_UnionType_restrictByNotNullOrUndefined_impl_1_, this)
@@ -155,7 +157,7 @@ func (this *UnionType) restrictByNotNullOrUndefined_impl() *JSType {
 
 // lambda_UnionType_restrictByNotNullOrUndefined_impl_1_ is a lambda of UnionType_restrictByNotNullOrUndefined_impl that captures nothing (post-flip step lambdas).
 func lambda_UnionType_restrictByNotNullOrUndefined_impl_1_(p0 any) any {
-	return to_JSType(p0).restrictByNotNullOrUndefined().self()
+	return p0.(JSType_as).as_JSType().restrictByNotNullOrUndefined().self()
 }
 
 func (this *UnionType) restrictByNotUndefined_impl() *JSType {
@@ -164,7 +166,7 @@ func (this *UnionType) restrictByNotUndefined_impl() *JSType {
 
 // lambda_UnionType_restrictByNotUndefined_impl_1_ is a lambda of UnionType_restrictByNotUndefined_impl that captures nothing (post-flip step lambdas).
 func lambda_UnionType_restrictByNotUndefined_impl_1_(p0 any) any {
-	return to_JSType(p0).restrictByNotUndefined().self()
+	return p0.(JSType_as).as_JSType().restrictByNotUndefined().self()
 }
 
 func (this *UnionType) restrictByNotNull_impl() *JSType {
@@ -173,7 +175,7 @@ func (this *UnionType) restrictByNotNull_impl() *JSType {
 
 // lambda_UnionType_restrictByNotNull_impl_1_ is a lambda of UnionType_restrictByNotNull_impl that captures nothing (post-flip step lambdas).
 func lambda_UnionType_restrictByNotNull_impl_1_(p0 any) any {
-	return to_JSType(p0).restrictByNotNull().self()
+	return p0.(JSType_as).as_JSType().restrictByNotNull().self()
 }
 
 func (this *UnionType) testForEquality_impl(that *JSType) Tri {
@@ -195,14 +197,14 @@ func (this *UnionType) isNullable_impl() bool {
 }
 
 // lambda_UnionType_isNullable_impl_1_ is a lambda of UnionType_isNullable_impl that captures nothing (post-flip step lambdas).
-func lambda_UnionType_isNullable_impl_1_(p0 any) bool { return to_JSType(p0).isNullable() }
+func lambda_UnionType_isNullable_impl_1_(p0 any) bool { return p0.(JSType_as).as_JSType().isNullable() }
 
 func (this *UnionType) isVoidable_impl() bool {
 	return JSTypeIterations_anyTypeMatches(lambda_UnionType_isVoidable_impl_1_, this)
 }
 
 // lambda_UnionType_isVoidable_impl_1_ is a lambda of UnionType_isVoidable_impl that captures nothing (post-flip step lambdas).
-func lambda_UnionType_isVoidable_impl_1_(p0 any) bool { return to_JSType(p0).isVoidable() }
+func lambda_UnionType_isVoidable_impl_1_(p0 any) bool { return p0.(JSType_as).as_JSType().isVoidable() }
 
 func (this *UnionType) isExplicitlyVoidable_impl() bool {
 	return JSTypeIterations_anyTypeMatches(lambda_UnionType_isExplicitlyVoidable_impl_1_, this)
@@ -210,7 +212,7 @@ func (this *UnionType) isExplicitlyVoidable_impl() bool {
 
 // lambda_UnionType_isExplicitlyVoidable_impl_1_ is a lambda of UnionType_isExplicitlyVoidable_impl that captures nothing (post-flip step lambdas).
 func lambda_UnionType_isExplicitlyVoidable_impl_1_(p0 any) bool {
-	return to_JSType(p0).isExplicitlyVoidable()
+	return p0.(JSType_as).as_JSType().isExplicitlyVoidable()
 }
 
 func (this *UnionType) isUnknownType_impl() bool {
@@ -218,21 +220,23 @@ func (this *UnionType) isUnknownType_impl() bool {
 }
 
 // lambda_UnionType_isUnknownType_impl_1_ is a lambda of UnionType_isUnknownType_impl that captures nothing (post-flip step lambdas).
-func lambda_UnionType_isUnknownType_impl_1_(p0 any) bool { return to_JSType(p0).isUnknownType() }
+func lambda_UnionType_isUnknownType_impl_1_(p0 any) bool {
+	return p0.(JSType_as).as_JSType().isUnknownType()
+}
 
 func (this *UnionType) isStruct_impl() bool {
 	return JSTypeIterations_anyTypeMatches(lambda_UnionType_isStruct_impl_1_, this)
 }
 
 // lambda_UnionType_isStruct_impl_1_ is a lambda of UnionType_isStruct_impl that captures nothing (post-flip step lambdas).
-func lambda_UnionType_isStruct_impl_1_(p0 any) bool { return to_JSType(p0).isStruct() }
+func lambda_UnionType_isStruct_impl_1_(p0 any) bool { return p0.(JSType_as).as_JSType().isStruct() }
 
 func (this *UnionType) isDict_impl() bool {
 	return JSTypeIterations_anyTypeMatches(lambda_UnionType_isDict_impl_1_, this)
 }
 
 // lambda_UnionType_isDict_impl_1_ is a lambda of UnionType_isDict_impl that captures nothing (post-flip step lambdas).
-func lambda_UnionType_isDict_impl_1_(p0 any) bool { return to_JSType(p0).isDict() }
+func lambda_UnionType_isDict_impl_1_(p0 any) bool { return p0.(JSType_as).as_JSType().isDict() }
 
 func (this *UnionType) getLeastSupertype_impl(that *JSType) *JSType {
 	if !that.isUnknownType() && !that.isUnionType() {
@@ -327,7 +331,7 @@ func (this *UnionType) isObject_impl() bool {
 }
 
 // lambda_UnionType_isObject_impl_1_ is a lambda of UnionType_isObject_impl that captures nothing (post-flip step lambdas).
-func lambda_UnionType_isObject_impl_1_(p0 any) bool { return to_JSType(p0).isObject() }
+func lambda_UnionType_isObject_impl_1_(p0 any) bool { return p0.(JSType_as).as_JSType().isObject() }
 
 func (this *UnionType) contains(type_ *JSType) bool {
 	return JSTypeIterations_anyTypeMatches(func(p0 any) bool { return type_.equals_JSType(to_JSType(p0)) }, this)
@@ -482,7 +486,7 @@ func (this *UnionType) hasAnyTemplateTypesInternal_impl() bool {
 
 // lambda_UnionType_hasAnyTemplateTypesInternal_impl_1_ is a lambda of UnionType_hasAnyTemplateTypesInternal_impl that captures nothing (post-flip step lambdas).
 func lambda_UnionType_hasAnyTemplateTypesInternal_impl_1_(p0 any) bool {
-	return to_JSType(p0).hasAnyTemplateTypes()
+	return p0.(JSType_as).as_JSType().hasAnyTemplateTypes()
 }
 
 var UnionType_TYPE_CLASS JSTypeClass

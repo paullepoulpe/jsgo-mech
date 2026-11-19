@@ -601,7 +601,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) init_MakeDeclaredNamesUni
 	this.scopeRoot = 0
 	this.global = true
 	this.nameUsage = SimpleMultiset_create[any]()
-	this.hoistRenamer = icast_MakeDeclaredNamesUnique_Renamer(this.self())
+	this.hoistRenamer = this.self().(MakeDeclaredNamesUnique_Renamer)
 }
 
 func new_MakeDeclaredNamesUnique_ContextualRenamer_0() *MakeDeclaredNamesUnique_ContextualRenamer {
@@ -628,7 +628,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) init_MakeDeclaredNamesUni
 		if NodeUtil_createsBlockScope(scopeRoot) {
 			Preconditions_checkState_boolean_Object_H(false, scopeRoot)
 		}
-		this.hoistRenamer = icast_MakeDeclaredNamesUnique_Renamer(this.self())
+		this.hoistRenamer = this.self().(MakeDeclaredNamesUnique_Renamer)
 	} else {
 		if !(NodeUtil_createsBlockScope(scopeRoot) || scopeRoot.isFunction()) {
 			Preconditions_checkState_boolean_Object_H(false, scopeRoot)
@@ -649,7 +649,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) toString() string {
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) createForChildScope_impl(scopeRoot Node, hoistingTargetScope bool) MakeDeclaredNamesUnique_Renamer {
-	return new_MakeDeclaredNamesUnique_ContextualRenamer_Node_SimpleMultiset_boolean_Renamer(scopeRoot, this.nameUsage, hoistingTargetScope, icast_MakeDeclaredNamesUnique_Renamer(this.self()))
+	return new_MakeDeclaredNamesUnique_ContextualRenamer_Node_SimpleMultiset_boolean_Renamer(scopeRoot, this.nameUsage, hoistingTargetScope, this.self().(MakeDeclaredNamesUnique_Renamer))
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) addDeclaredName(name string, hoisted bool) {

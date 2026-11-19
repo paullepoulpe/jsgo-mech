@@ -112,7 +112,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	var finalNumRenamedPropertyNames int32 = numRenamedPropertyNames
 	var finalNumSkippedPropertyNames int32 = numSkippedPropertyNames
 	var propertyGraph *AmbiguateProperties_PropertyGraph = new_AmbiguateProperties_PropertyGraph(nodes)
-	var coloring *GraphColoring[*AmbiguateProperties_Property, any] = new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator[*AmbiguateProperties_Property, any](cast_[AdjacencyGraph[*AmbiguateProperties_Property]](obj_(propertyGraph)), AmbiguateProperties_FREQUENCY_COMPARATOR).up_GraphColoring()
+	var coloring *GraphColoring[*AmbiguateProperties_Property, any] = new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator[*AmbiguateProperties_Property, any](any(propertyGraph).(AdjacencyGraph[*AmbiguateProperties_Property]), AmbiguateProperties_FREQUENCY_COMPARATOR).up_GraphColoring()
 	var numNewPropertyNames int32 = coloring.color()
 	var nameGen NameGenerator = NameGenerator(new_DefaultNameGenerator_Set_String_Set_Set(ImmutableCollection_as_Set(reservedNames.build()), "", this.reservedFirstCharacters, this.reservedNonFirstCharacters))
 	var colorMap []string = newstrarr_(numNewPropertyNames)

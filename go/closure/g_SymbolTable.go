@@ -241,7 +241,7 @@ func (this *SymbolTable) getSymbolForTypeHelper(type_ *JSType, linkToCtor bool) 
 			return this.getSymbolDeclaredBy(type_.toMaybeFunctionType())
 		}()
 	} else if type_.isFunctionPrototypeType() {
-		var ownerFn *FunctionType = to_ObjectType(type_.self()).getOwnerFunction()
+		var ownerFn *FunctionType = type_.self().(ObjectType_as).as_ObjectType().getOwnerFunction()
 		if !ownerFn.isConstructor() && !ownerFn.isInterface() {
 			return nil
 		}
@@ -252,7 +252,7 @@ func (this *SymbolTable) getSymbolForTypeHelper(type_ *JSType, linkToCtor bool) 
 			return this.getSymbolForInstancesOf(ownerFn)
 		}()
 	} else if type_.isInstanceType() {
-		var ownerFn *FunctionType = to_ObjectType(type_.self()).getConstructor()
+		var ownerFn *FunctionType = type_.self().(ObjectType_as).as_ObjectType().getConstructor()
 		return func() *SymbolTable_Symbol {
 			if linkToCtor {
 				return this.getSymbolDeclaredBy(ownerFn)
@@ -269,7 +269,7 @@ func (this *SymbolTable) getSymbolForTypeHelper(type_ *JSType, linkToCtor bool) 
 	} else if type_.autoboxesTo() != nil {
 		return this.getSymbolForTypeHelper(type_.autoboxesTo(), linkToCtor)
 	} else if type_.isEnumType() {
-		return this.getSymbolDeclaredByEnumType(cast_[*EnumType](type_.self()))
+		return this.getSymbolDeclaredByEnumType(type_.self().(*EnumType))
 	} else if type_.isRecordType() {
 		return this.symbolThatDeclaresType.get(type_)
 	}
@@ -666,7 +666,7 @@ nextSymbol_:
 			}
 			currentName = String_substring(currentName, 0, dot)
 			var owner *SymbolTable_Symbol = s.scope_.getQualifiedSlot(currentName)
-			if ((owner != nil) && (this.getType(icast_StaticSlot(obj_(owner))) != nil)) && ((this.getType(icast_StaticSlot(obj_(owner))).isNominalConstructorOrInterface() || this.getType(icast_StaticSlot(obj_(owner))).isFunctionPrototypeType()) || this.getType(icast_StaticSlot(obj_(owner))).isEnumType()) {
+			if ((owner != nil) && (this.getType(any(owner).(StaticSlot)) != nil)) && ((this.getType(any(owner).(StaticSlot)).isNominalConstructorOrInterface() || this.getType(any(owner).(StaticSlot)).isFunctionPrototypeType()) || this.getType(any(owner).(StaticSlot)).isEnumType()) {
 				this.removeSymbol(s)
 				continue nextSymbol_
 			}
