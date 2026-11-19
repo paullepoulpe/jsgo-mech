@@ -775,17 +775,7 @@ func (this *JSDocInfo) getPropertyValueByIndex(index int32) any {
 	if this.propertyValues == nil {
 		panic(new_IllegalArgumentException_String("no property value"))
 	}
-	var array []any
-	_ = array
-	if func() bool {
-		v_ := this.propertyValues
-		p, ok := v_.([]any)
-		if !ok {
-			return false
-		}
-		array = p
-		return true
-	}() {
+	if array, ok := this.propertyValues.([]any); ok {
 		return array[index]
 	}
 	if index != 0 {
@@ -2023,17 +2013,7 @@ func (this *JSDocInfo_TypePosition) setHasBrackets(newVal bool) {
 }
 
 func (this *JSDocInfo_TypePosition) isEquivalentTo_impl(that *SourcePosition_rhino) bool {
-	var typePosition *JSDocInfo_TypePosition
-	_ = typePosition
-	if ((!(func() bool {
-		v_ := that.self()
-		p, ok := v_.(*JSDocInfo_TypePosition)
-		if !ok {
-			return false
-		}
-		typePosition = p
-		return true
-	}()) || !this.isSamePositionAs(that)) || (this.brackets != typePosition.brackets)) || ((Node_of_(this.getItem()) == 0) != (Node_of_(that.getItem()) == 0)) {
+	if typePosition, ok := that.self().(*JSDocInfo_TypePosition); ((!(ok) || !this.isSamePositionAs(that)) || (this.brackets != typePosition.brackets)) || ((Node_of_(this.getItem()) == 0) != (Node_of_(that.getItem()) == 0)) {
 		return false
 	}
 	return ((Node_of_(this.getItem()) == 0) || Node_of_(this.getItem()).isEquivalentTo(Node_of_(that.getItem())))

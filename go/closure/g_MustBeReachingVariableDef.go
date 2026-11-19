@@ -371,17 +371,8 @@ func MustBeReachingVariableDef_MustDef_createFromMustDef(other *MustBeReachingVa
 }
 
 func (this *MustBeReachingVariableDef_MustDef) equals(other any) bool {
-	var mustDef *MustBeReachingVariableDef_MustDef
-	_ = mustDef
-	return (func() bool {
-		v_ := other
-		p, ok := v_.(*MustBeReachingVariableDef_MustDef)
-		if !ok {
-			return false
-		}
-		mustDef = p
-		return true
-	}() && mustDef.reachingDef.equalsWith(&this.reachingDef, func(a, b *MustBeReachingVariableDef_Definition) bool {
+	mustDef, ok := other.(*MustBeReachingVariableDef_MustDef)
+	return (ok && mustDef.reachingDef.equalsWith(&this.reachingDef, func(a, b *MustBeReachingVariableDef_Definition) bool {
 		return objequalsBy_(a, obj_(b), (*MustBeReachingVariableDef_Definition).equals)
 	}))
 }

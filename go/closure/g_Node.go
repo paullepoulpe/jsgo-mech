@@ -1048,17 +1048,8 @@ func (this Node) setDouble(x float64) {
 }
 
 func (this Node) getBigInt() *BigInteger {
-	var bigint *BigInteger
-	_ = bigint
-	if !(func() bool {
-		v_ := this.payload_obj_()
-		p, ok := v_.(*BigInteger)
-		if !ok {
-			return false
-		}
-		bigint = p
-		return true
-	}()) {
+	bigint, ok := this.payload_obj_().(*BigInteger)
+	if !(ok) {
 		panic(this.payloadKindMismatch("bigint"))
 	}
 	return bigint
@@ -1122,34 +1113,16 @@ func (this Node) setStringFromStringPool(stringPool *RhinoStringPool_LazyInterne
 }
 
 func (this Node) getRawString() string {
-	var substring *Node_TemplateLiteralSubstring
-	_ = substring
-	if !(func() bool {
-		v_ := this.payload_obj_()
-		p, ok := v_.(*Node_TemplateLiteralSubstring)
-		if !ok {
-			return false
-		}
-		substring = p
-		return true
-	}()) {
+	substring, ok := this.payload_obj_().(*Node_TemplateLiteralSubstring)
+	if !(ok) {
 		panic(this.payloadKindMismatch("template literal string"))
 	}
 	return substring.raw
 }
 
 func (this Node) getCookedString() Optional[string] {
-	var substring *Node_TemplateLiteralSubstring
-	_ = substring
-	if !(func() bool {
-		v_ := this.payload_obj_()
-		p, ok := v_.(*Node_TemplateLiteralSubstring)
-		if !ok {
-			return false
-		}
-		substring = p
-		return true
-	}()) {
+	substring, ok := this.payload_obj_().(*Node_TemplateLiteralSubstring)
+	if !(ok) {
 		panic(this.payloadKindMismatch("template literal string"))
 	}
 	return substring.cooked
@@ -1836,30 +1809,10 @@ func (this Node) isEquivalentTo_5(node Node, recursion Node_RecursionMode, typeC
 		}() {
 			return (Double_doubleValue(number) == Double_doubleValue(node.payload_get_()))
 		} else {
-			var bigint *BigInteger
-			_ = bigint
-			if func() bool {
-				v_ := this.payload_obj_()
-				p, ok := v_.(*BigInteger)
-				if !ok {
-					return false
-				}
-				bigint = p
-				return true
-			}() {
+			if bigint, ok := this.payload_obj_().(*BigInteger); ok {
 				return equalsBy_(bigint, node.payload_get_(), (*BigInteger).equals)
 			} else {
-				var substring *Node_TemplateLiteralSubstring
-				_ = substring
-				if func() bool {
-					v_ := this.payload_obj_()
-					p2, ok2 := v_.(*Node_TemplateLiteralSubstring)
-					if !ok2 {
-						return false
-					}
-					substring = p2
-					return true
-				}() {
+				if substring, ok2 := this.payload_obj_().(*Node_TemplateLiteralSubstring); ok2 {
 					var other *Node_TemplateLiteralSubstring = cast_[*Node_TemplateLiteralSubstring](node.payload_get_())
 					return (RhinoStringPool_uncheckedEquals(substring.raw, other.raw) && Object_equals(substring.cooked.box_(), other.cooked.box_()))
 				}
@@ -2218,18 +2171,8 @@ func (this Node) setJSType(x *JSType) Node {
 }
 
 func (this Node) getColor() *Color {
-	var color *Color
-	_ = color
 	return func() *Color {
-		if func() bool {
-			v_ := this.jstypeOrColor_get_()
-			p, ok := v_.(*Color)
-			if !ok {
-				return false
-			}
-			color = p
-			return true
-		}() {
+		if color, ok := this.jstypeOrColor_get_().(*Color); ok {
 			return color
 		}
 		return nil

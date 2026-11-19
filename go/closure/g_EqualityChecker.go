@@ -119,19 +119,9 @@ func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool 
 	if left.isFunctionType() && right.isFunctionType() {
 		return this.areFunctionEqual(left.toMaybeFunctionType(), right.toMaybeFunctionType())
 	}
-	var leftArrow *ArrowType
-	_ = leftArrow
 	var rightArrow *ArrowType
 	_ = rightArrow
-	if func() bool {
-		v_ := left.self()
-		p, ok := v_.(*ArrowType)
-		if !ok {
-			return false
-		}
-		leftArrow = p
-		return true
-	}() && func() bool {
+	if leftArrow, ok := left.self().(*ArrowType); ok && func() bool {
 		v_ := right.self()
 		p2, ok2 := v_.(*ArrowType)
 		if !ok2 {
@@ -214,17 +204,8 @@ outer_:
 }
 
 func EqualityChecker_getGoogModuleId(type_ *ObjectType) string {
-	var functionType *FunctionType
-	_ = functionType
-	if func() bool {
-		v_ := type_.self()
-		p, ok := v_.(FunctionType_as)
-		if !ok {
-			return false
-		}
-		functionType = p.as_FunctionType()
-		return true
-	}() {
+	if p, ok := type_.self().(FunctionType_as); ok {
+		functionType := p.as_FunctionType()
 		return functionType.getGoogModuleId()
 	}
 	if type_.getConstructor() != nil {
