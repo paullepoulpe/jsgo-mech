@@ -15,11 +15,6 @@ type GraphColoring_vt_[N comparable, E comparable] interface {
 
 func (this *GraphColoring[N, E]) isa_GraphColoring_() {}
 
-func is_GraphColoring(v any) bool {
-	_, ok := v.(interface{ isa_GraphColoring_() })
-	return ok
-}
-
 func (this *GraphColoring[N, E]) as_GraphColoring() *GraphColoring[N, E] { return this }
 
 func (this *GraphColoring[N, E]) as_GraphColoring_() any { return this }
@@ -119,11 +114,6 @@ type GraphColoring_GreedyGraphColoring[N comparable, E comparable] struct {
 }
 
 func (this *GraphColoring_GreedyGraphColoring[N, E]) isa_GraphColoring_GreedyGraphColoring_() {}
-
-func is_GraphColoring_GreedyGraphColoring(v any) bool {
-	_, ok := v.(interface{ isa_GraphColoring_GreedyGraphColoring_() })
-	return ok
-}
 
 func (this *GraphColoring_GreedyGraphColoring[N, E]) up_GraphColoring() *GraphColoring[N, E] {
 	if this == nil {

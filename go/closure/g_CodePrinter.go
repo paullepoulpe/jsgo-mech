@@ -59,27 +59,6 @@ func (this *CodePrinter_MappedCodePrinter) as_CodePrinter_MappedCodePrinter() *C
 	return this
 }
 
-func to_CodePrinter_MappedCodePrinter(v any) *CodePrinter_MappedCodePrinter {
-	switch p := v.(type) {
-	case *CodePrinter_CompactCodePrinter:
-		return p.as_CodePrinter_MappedCodePrinter()
-	case *CodePrinter_PrettyCodePrinter:
-		return p.as_CodePrinter_MappedCodePrinter()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_CodePrinter_MappedCodePrinter() *CodePrinter_MappedCodePrinter
-	}).as_CodePrinter_MappedCodePrinter()
-}
-
-func is_CodePrinter_MappedCodePrinter(v any) bool {
-	_, ok := v.(interface {
-		as_CodePrinter_MappedCodePrinter() *CodePrinter_MappedCodePrinter
-	})
-	return ok
-}
-
 func (this *CodePrinter_MappedCodePrinter) self() any {
 	if this == nil {
 		return nil
