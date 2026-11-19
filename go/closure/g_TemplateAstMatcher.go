@@ -93,7 +93,7 @@ func (this *TemplateAstMatcher) initTemplate(templateFunctionNode Node) Node {
 func (this *TemplateAstMatcher) prepTemplatePlaceholders(fn Node) {
 	var locals *[]string = this.templateLocals
 	var params *[]string = this.templateParams
-	var paramTypes *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
+	var paramTypes map[string]*JSType = map[string]*JSType{}
 	var fnName string = fn.getFirstChild().getString()
 	fn.getFirstChild().setString("")
 	var templateParametersNode Node = fn.getSecondChild()
@@ -110,7 +110,7 @@ func (this *TemplateAstMatcher) prepTemplatePlaceholders(fn Node) {
 			var type_ *JSType = this.typeRegistry.evaluateTypeExpression(expression, icast_StaticTypedScope(obj_(this.topScope)))
 			Preconditions_checkNotNull_T(type_)
 			*params = append(*params, name)
-			paramTypes.Put(name, type_)
+			paramTypes[name] = type_
 		}
 	}
 	this.traverse(fn, TemplateAstMatcher_Visitor(new_TemplateAstMatcher_1(this, locals, params, paramTypes)))
@@ -337,14 +337,14 @@ type TemplateAstMatcher_1 struct {
 	outer_         *TemplateAstMatcher
 	cap_locals     *[]string
 	cap_params     *[]string
-	cap_paramTypes *TMap[string, *JSType]
+	cap_paramTypes map[string]*JSType
 }
 
 func (this *TemplateAstMatcher_1) init_TemplateAstMatcher_1() {
 
 }
 
-func new_TemplateAstMatcher_1(outer_ *TemplateAstMatcher, cap_locals *[]string, cap_params *[]string, cap_paramTypes *TMap[string, *JSType]) *TemplateAstMatcher_1 {
+func new_TemplateAstMatcher_1(outer_ *TemplateAstMatcher, cap_locals *[]string, cap_params *[]string, cap_paramTypes map[string]*JSType) *TemplateAstMatcher_1 {
 	this := &TemplateAstMatcher_1{}
 	this.outer_ = outer_
 	this.cap_locals = cap_locals
@@ -362,7 +362,7 @@ func (this *TemplateAstMatcher_1) visit(n Node) {
 			*this.cap_locals = append(*this.cap_locals, n.getString())
 		}
 		if Collection_contains_s(sliceViewP_(tc_string, this.cap_params), name) {
-			var type_ *JSType = this.cap_paramTypes.Get(name)
+			var type_ *JSType = this.cap_paramTypes[name]
 			var isStringLiteral bool = (type_.isStringValueType() && strings.HasPrefix(name, "string_literal"))
 			this.outer_.replaceNodeInPlace(n, this.outer_.createTemplateParameterNode(sliceViewP_(tc_string, this.cap_params).indexOf(strobj_(name)), type_, isStringLiteral))
 		} else if Collection_contains_s(sliceViewP_(tc_string, this.cap_locals), name) {

@@ -222,8 +222,8 @@ func new_NodeModuleResolver_Factory_Map(packageJsonMainEntries *TMap[string, str
 	return this
 }
 
-func (this *NodeModuleResolver_Factory) create(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *ModuleResolver {
-	return new_NodeModuleResolver(tsetFrom_(tc_string, modulePaths, true), slicePtrImm_(tc_string, moduleRootPaths), this.packageJsonMainEntries, errorHandler, pathEscaper).up_ModuleResolver()
+func (this *NodeModuleResolver_Factory) create(modulePaths *ImmutableSet[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *ModuleResolver {
+	return new_NodeModuleResolver(modulePaths, slicePtrImm_(tc_string, moduleRootPaths), this.packageJsonMainEntries, errorHandler, pathEscaper).up_ModuleResolver()
 }
 
 // getPackageJsonMainEntries: an object that is exactly a NodeModuleResolver calls its getPackageJsonMainEntries_impl directly (post-flip); others dispatch.

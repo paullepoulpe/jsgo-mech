@@ -133,8 +133,8 @@ func new_BrowserWithTransformedPrefixesModuleResolver_Factory(prefixReplacements
 	return this
 }
 
-func (this *BrowserWithTransformedPrefixesModuleResolver_Factory) create(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *ModuleResolver {
-	return new_BrowserWithTransformedPrefixesModuleResolver(tsetFrom_(tc_string, modulePaths, true), slicePtrImm_(tc_string, moduleRootPaths), errorHandler, pathEscaper, this.prefixReplacements).up_ModuleResolver()
+func (this *BrowserWithTransformedPrefixesModuleResolver_Factory) create(modulePaths *ImmutableSet[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *ModuleResolver {
+	return new_BrowserWithTransformedPrefixesModuleResolver(modulePaths, slicePtrImm_(tc_string, moduleRootPaths), errorHandler, pathEscaper, this.prefixReplacements).up_ModuleResolver()
 }
 
 type BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement struct {

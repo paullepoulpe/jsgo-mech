@@ -6,8 +6,8 @@ type LiveVariablesAnalysis struct {
 	DataFlowAnalysis[Node, *LiveVariablesAnalysis_LiveVariableLattice]
 	jsScope        *Scope
 	jsScopeChild   *Scope
-	escaped        *TSet[*Var]
-	scopeVariables *TMap[string, any]
+	escaped        map[varKey_]struct{}
+	scopeVariables map[string]any
 	orderedVars    *[]*Var
 	allVarsInFn    *TMap[string, *Var]
 }
@@ -26,8 +26,8 @@ func (this *LiveVariablesAnalysis) init_LiveVariablesAnalysis(cfg *ControlFlowGr
 	}
 	this.jsScope = jsScope
 	this.jsScopeChild = jsScopeChild
-	this.escaped = newTSet_(tce_p_Var.t_())
-	this.scopeVariables = newTMap_(tc_string, tc_Integer)
+	this.escaped = map[varKey_]struct{}{}
+	this.scopeVariables = map[string]any{}
 	this.orderedVars = allVarsDeclaredInFunction.getAllVariablesInOrder()
 	this.allVarsInFn = allVarsDeclaredInFunction.getAllVariables()
 	DataFlowAnalysis_computeEscaped(jsScope, this.escaped, compiler, scopeCreator, this.allVarsInFn)
@@ -45,12 +45,12 @@ func new_LiveVariablesAnalysis(cfg *ControlFlowGraph[Node], jsScope *Scope, jsSc
 func (this *LiveVariablesAnalysis) addScopeVariables() {
 	var num int32 = 0
 	for v := range sliceAll_(this.orderedVars) {
-		this.scopeVariables.Put(v.getName(), any(int32(num)))
+		this.scopeVariables[v.getName()] = any(int32(num))
 		num++
 	}
 }
 
-func (this *LiveVariablesAnalysis) getEscapedLocals() *TSet[*Var] {
+func (this *LiveVariablesAnalysis) getEscapedLocals() map[varKey_]struct{} {
 	return this.escaped
 }
 
@@ -63,7 +63,7 @@ func (this *LiveVariablesAnalysis) getAllVariablesInOrder() *[]*Var {
 }
 
 func (this *LiveVariablesAnalysis) getVarIndex(var_ string) int32 {
-	return unbox_[int32](this.scopeVariables.Get(var_))
+	return unbox_[int32](this.scopeVariables[var_])
 }
 
 func (this *LiveVariablesAnalysis) isForward_impl() bool {
@@ -222,7 +222,7 @@ func (this *LiveVariablesAnalysis) addToSetIfLocal(node Node, set *BitSet) {
 	if !local {
 		return
 	}
-	if !this.escaped.Has(var_) {
+	if !has_(this.escaped, vkey_(var_)) {
 		set.set(this.getVarIndex(var_.getName()))
 	}
 }
@@ -240,7 +240,7 @@ func (this *LiveVariablesAnalysis) markAllParametersEscaped() {
 		var param Node = paramList.getFirstChild()
 		for ; param != 0; param = param.getNext() {
 			if param.isName() {
-				this.escaped.Add(cast_[*Var](this.jsScope.getVar(param.getString()).self()))
+				this.escaped[vkey_(cast_[*Var](this.jsScope.getVar(param.getString()).self()))] = struct{}{}
 			}
 		}
 	}

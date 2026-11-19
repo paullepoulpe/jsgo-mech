@@ -7,7 +7,7 @@ import "strings"
 type ProcessClosurePrimitives struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_              *AbstractCompiler
-	knownClosureSubclasses *TSet[string]
+	knownClosureSubclasses map[string]struct{}
 	closureModules         *JTMap[string, *ModuleMetadataMap_ModuleMetadata]
 }
 
@@ -19,7 +19,7 @@ func (this *ProcessClosurePrimitives) up_NodeTraversal_AbstractPostOrderCallback
 }
 
 func (this *ProcessClosurePrimitives) finit_ProcessClosurePrimitives() {
-	this.knownClosureSubclasses = newTSet_(tc_string)
+	this.knownClosureSubclasses = map[string]struct{}{}
 }
 
 func (this *ProcessClosurePrimitives) init_ProcessClosurePrimitives(compiler *AbstractCompiler) {
@@ -180,7 +180,7 @@ func (this *ProcessClosurePrimitives) maybeProcessClassBaseCall(n Node) {
 	var baseContainer string = callTarget.getFirstChild().getQualifiedName()
 	var enclosingFnNameNode Node = ProcessClosurePrimitives_getEnclosingDeclNameNode(n)
 	if (enclosingFnNameNode == 0) || !enclosingFnNameNode.isUnscopedQualifiedName() {
-		if this.knownClosureSubclasses.Has(baseContainer) {
+		if has_(this.knownClosureSubclasses, baseContainer) {
 			this.reportBadBaseMethodUse(n, Optional_of[string](baseContainer).filter(&Predicate_tfn_string{func(s string) bool {
 				return s != ""
 			}}), "Could not find enclosing method.")
@@ -214,7 +214,7 @@ func (this *ProcessClosurePrimitives) maybeProcessClassBaseCall(n Node) {
 
 func (this *ProcessClosurePrimitives) rewriteBaseCallInConstructor(enclosingQname string, baseContainer Optional[string], n Node, enclosingFnNameNode Node) {
 	if !Object_equals(Optional_of[string](enclosingQname).box_(), baseContainer.box_()) {
-		if baseContainer.isPresent() && this.knownClosureSubclasses.Has(baseContainer.get()) {
+		if baseContainer.isPresent() && has_(this.knownClosureSubclasses, baseContainer.get()) {
 			this.reportBadBaseMethodUse(n, baseContainer, ("Must be used within " + sstr_(baseContainer.orElse("null")) + " methods"))
 		}
 		return
@@ -246,7 +246,7 @@ func (this *ProcessClosurePrimitives) rewriteBaseCallInConstructor(enclosingQnam
 }
 
 func (this *ProcessClosurePrimitives) rewriteBaseCallInMethod(enclosingQname Optional[string], baseContainer Optional[string], n Node, enclosingFnNameNode Node) {
-	if !(baseContainer.isPresent() && this.knownClosureSubclasses.Has(baseContainer.get())) {
+	if !(baseContainer.isPresent() && has_(this.knownClosureSubclasses, baseContainer.get())) {
 		this.reportPossibleBadBaseMethodUse(n, baseContainer, ("base used outside a known Closure subclass, in: " + sstr_(baseContainer.orElse("null")) + "\nIf " + sstr_(baseContainer.orElse("null")) + " is actually a Closure subclass, the compiler is unable to statically determine this. This can happen when calling .base off of some import or other alias of the original Closure subclass, such as from a goog.require in another file. Instead of using .base, rewrite this call as ParentClass.prototype.method.call(this)"))
 		return
 	}
@@ -298,7 +298,7 @@ func (this *ProcessClosurePrimitives) processInheritsCall(n Node) {
 		var subClass Node = n.getSecondChild()
 		var superClass Node = subClass.getNext()
 		if subClass.isUnscopedQualifiedName() && superClass.isUnscopedQualifiedName() {
-			this.knownClosureSubclasses.Add(subClass.getQualifiedName())
+			this.knownClosureSubclasses[subClass.getQualifiedName()] = struct{}{}
 		}
 	}
 }

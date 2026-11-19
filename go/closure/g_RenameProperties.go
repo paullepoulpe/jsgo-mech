@@ -16,7 +16,7 @@ type RenameProperties struct {
 	quotedNames                     *TSet[string]
 	nameGenerator                   NameGenerator
 	propertyRenameEligibilityFilter func(any) bool
-	filteredOutNames                *TSet[string]
+	filteredOutNames                map[string]struct{}
 }
 
 func (this *RenameProperties) finit_RenameProperties() {
@@ -26,7 +26,7 @@ func (this *RenameProperties) finit_RenameProperties() {
 	this.propertyMap = newTMap_(tc_string, tc_p_RenameProperties_Property)
 	this.externedNames = tsetFrom_(tc_string, Collection(Arrays_asList([]any{"prototype"})), false)
 	this.quotedNames = newTSet_(tc_string)
-	this.filteredOutNames = newTSet_(tc_string)
+	this.filteredOutNames = map[string]struct{}{}
 }
 
 func (this *RenameProperties) init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters *TSet[any], reservedNonFirstCharacters *TSet[any], nameGenerator NameGenerator) {
@@ -75,7 +75,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 	this.generateNames(propsByFreq, reservedNames)
 	for n := range sliceAll_(this.stringNodesToRename) {
 		var oldName string = n.getString()
-		if this.filteredOutNames.Has(oldName) {
+		if has_(this.filteredOutNames, oldName) {
 			continue
 		}
 		var p *RenameProperties_Property = this.propertyMap.Get(oldName)
@@ -102,7 +102,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 				if oldName != p.oldName {
 					panic(new_IllegalStateException_0())
 				}
-				if this.filteredOutNames.Has(oldName) {
+				if has_(this.filteredOutNames, oldName) {
 					replacement = oldName
 				} else {
 					replacement = p.newName.get()
@@ -237,7 +237,7 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 			var stringArgument Node = n.getSecondChild()
 			if !this.outer_.propertyRenameEligibilityFilter(n.box_()) {
 				for name := range elemsBy_(RenameProperties_DOT_SPLITTER.split_s(stringArgument.getString()), str_) {
-					this.outer_.filteredOutNames.Add(name)
+					this.outer_.filteredOutNames[name] = struct{}{}
 				}
 			}
 		}
@@ -281,7 +281,7 @@ func (this *RenameProperties_ProcessProperties) maybeMarkCandidate(n Node) {
 	var name string = n.getString()
 	if !this.outer_.externedNames.Has(name) {
 		if !this.outer_.propertyRenameEligibilityFilter(n.box_()) {
-			this.outer_.filteredOutNames.Add(n.getString())
+			this.outer_.filteredOutNames[n.getString()] = struct{}{}
 		}
 		*this.outer_.stringNodesToRename = append(*this.outer_.stringNodesToRename, n)
 		this.countPropertyOccurrence(name)

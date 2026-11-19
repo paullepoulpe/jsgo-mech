@@ -586,7 +586,7 @@ func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionOf[stri
 		}
 		return jnewTMap_(jtc_string, jtc_string)
 	}()
-	var excludes *TSet[string] = newTSet_(tc_string)
+	var excludes map[string]struct{} = map[string]struct{}{}
 	it_1 := foreach_(patterns)
 	for it_1.next() {
 		var pattern string = str_(it_1.v)
@@ -605,7 +605,7 @@ func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionOf[stri
 			} else {
 				var original string = FilePaths_clean(pattern)
 				var pathStringAbsolute string = FilePaths_toAbsolute(FilePaths_normalize(original))
-				if !excludes.Has(pathStringAbsolute) {
+				if !has_(excludes, pathStringAbsolute) {
 					allJsInputs.put(pathStringAbsolute, original)
 				}
 			}
@@ -619,7 +619,7 @@ func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionOf[stri
 	return Outcome_base_ok_Object[List](new_ArrayList_Collection(allJsInputs.asMap().values()).self().(List))
 }
 
-func CommandLineRunner_matchPaths(pattern string, allJsInputs *JTMap[string, string], excludes *TSet[string]) *Outcome_base[any] {
+func CommandLineRunner_matchPaths(pattern string, allJsInputs *JTMap[string, string], excludes map[string]struct{}) *Outcome_base[any] {
 	var remove bool = (int32(strings.IndexByte(pattern, '!')) == 0)
 	if remove {
 		pattern = String_substring_int(pattern, 1)
@@ -645,9 +645,9 @@ func CommandLineRunner_matchPaths(pattern string, allJsInputs *JTMap[string, str
 		}
 		var pathStringAbsolute string = FilePaths_toAbsolute(FilePaths_normalize(p))
 		if remove {
-			excludes.Add(pathStringAbsolute)
+			excludes[pathStringAbsolute] = struct{}{}
 			allJsInputs.remove(pathStringAbsolute)
-		} else if !excludes.Has(pathStringAbsolute) {
+		} else if !has_(excludes, pathStringAbsolute) {
 			allJsInputs.put(pathStringAbsolute, p)
 		}
 	}
@@ -1570,7 +1570,7 @@ func CommandLineRunner_Flags_printShortUsageAfterErrors(ps *Output) {
 
 func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[*TList[*AbstractCommandLineRunner_FlagEntry[any]]] {
 	var mixedSources *TList[*AbstractCommandLineRunner_FlagEntry[any]] = newTList_(tc_p_AbstractCommandLineRunner_FlagEntry)
-	var excludes *TSet[string] = newTSet_(tc_string)
+	var excludes map[string]struct{} = map[string]struct{}{}
 	it_1 := this.mixedJsSources.each()
 	var getValueU16 utf16_
 	for it_1.next() {
@@ -1583,7 +1583,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[*TList[*A
 				return Outcome_base_err[*TList[*AbstractCommandLineRunner_FlagEntry[any]]](found.error())
 			}
 			for filename := range elemsBy_(found.get(), str_) {
-				excludes.Add(filename)
+				excludes[filename] = struct{}{}
 				mixedSources.asList().remove_Object(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename))
 			}
 		} else {
@@ -1592,7 +1592,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[*TList[*A
 				return Outcome_base_err[*TList[*AbstractCommandLineRunner_FlagEntry[any]]](found.error())
 			}
 			for filename := range elemsBy_(found.get(), str_) {
-				if !excludes.Has(filename) {
+				if !has_(excludes, filename) {
 					mixedSources.add(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename))
 				}
 			}

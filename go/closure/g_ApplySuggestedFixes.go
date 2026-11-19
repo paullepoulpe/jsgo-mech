@@ -20,7 +20,7 @@ func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableOf[*SuggestedF
 	for fix := range elemsAs_[*SuggestedFix](fixes) {
 		filenames.asSet().addAll(Collection(fix.getReplacements().keySet()))
 	}
-	var filenameToCodeMap *TMap[string, string] = newTMap_(tc_string, tc_string)
+	var filenameToCodeMap map[string]string = map[string]string{}
 	it_3 := filenames.each()
 	for it_3.next() {
 		var filename string = it_3.v
@@ -28,7 +28,7 @@ func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableOf[*SuggestedF
 		if code.isErr() {
 			return Outcome_base_err[any](code.error())
 		}
-		filenameToCodeMap.Put(filename, code.get())
+		filenameToCodeMap[filename] = code.get()
 	}
 	var newCode *TMap[string, string] = ApplySuggestedFixes_applySuggestedFixesToCode(fixes, filenameToCodeMap)
 	it_5 := newCode.eachEntry()
@@ -42,7 +42,7 @@ func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableOf[*SuggestedF
 	return Outcome_base_ok_0()
 }
 
-func ApplySuggestedFixes_applyAllSuggestedFixChoicesToCode(fixChoices IterableOf[*SuggestedFix], fileNameToCodeMap *TMap[string, string]) *TList[*ErasedImmutableMap] {
+func ApplySuggestedFixes_applyAllSuggestedFixChoicesToCode(fixChoices IterableOf[*SuggestedFix], fileNameToCodeMap map[string]string) *TList[*ErasedImmutableMap] {
 	if Iterables_isEmpty(fixChoices) {
 		return immutableListOf_[*ErasedImmutableMap](tc_p_ImmutableMap, ImmutableMap_of())
 	}
@@ -68,7 +68,7 @@ func ApplySuggestedFixes_allHaveAlternativeCount(fixChoices IterableOf[*Suggeste
 	return true
 }
 
-func ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices IterableOf[*SuggestedFix], choiceIndex int32, fileNameToCodeMap *TMap[string, string]) *TMap[string, string] {
+func ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices IterableOf[*SuggestedFix], choiceIndex int32, fileNameToCodeMap map[string]string) *TMap[string, string] {
 	var chosenFixesBuilder *ImmutableList_Builder[*SuggestedFix] = immutableListBuilder_(tc_p_SuggestedFix)
 	for choices := range elemsAs_[*SuggestedFix](fixChoices) {
 		chosenFixesBuilder.add(choices.getAlternatives().get(choiceIndex))
@@ -77,7 +77,7 @@ func ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices IterableOf[*S
 	return ApplySuggestedFixes_applySuggestedFixesToCode(Iterable(chosenFixes.asList()), fileNameToCodeMap)
 }
 
-func ApplySuggestedFixes_applySuggestedFixesToCode(fixes IterableOf[*SuggestedFix], filenameToCodeMap *TMap[string, string]) *TMap[string, string] {
+func ApplySuggestedFixes_applySuggestedFixesToCode(fixes IterableOf[*SuggestedFix], filenameToCodeMap map[string]string) *TMap[string, string] {
 	var map_ *ApplySuggestedFixes_ReplacementMap = new_ApplySuggestedFixes_ReplacementMap()
 	for fix := range elemsAs_[*SuggestedFix](fixes) {
 		map_.putIfNoOverlap(fix)
@@ -85,11 +85,11 @@ func ApplySuggestedFixes_applySuggestedFixesToCode(fixes IterableOf[*SuggestedFi
 	var newCodeMap *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	for entry := range elemsBy_(map_.entrySet(), icast_Map_Entry) {
 		var filename string = str_(entry.getKey())
-		if !filenameToCodeMap.Has(filename) {
+		if !has_(filenameToCodeMap, filename) {
 			panic(new_IllegalArgumentException_String(("filenameToCodeMap missing code for file: " + sstr_(filename))))
 		}
 		var replacements SetOf[*CodeReplacement] = icast_Set(entry.getValue())
-		var newCode string = ApplySuggestedFixes_applyCodeReplacements(Collection(replacements), filenameToCodeMap.Get(filename))
+		var newCode string = ApplySuggestedFixes_applyCodeReplacements(Collection(replacements), mapStr_(filenameToCodeMap, filename))
 		newCodeMap.put(filename, newCode)
 	}
 	return newCodeMap.buildOrThrow()

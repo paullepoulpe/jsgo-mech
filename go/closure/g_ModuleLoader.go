@@ -27,7 +27,7 @@ func (this *ModuleLoader) init_ModuleLoader(builder *ModuleLoader_Builder) {
 		panic(new_NullPointerException_0())
 	}
 	var modulePaths *TSet[string] = this.resolvePaths(builder.inputs)
-	this.moduleResolver = builder.factory.create(modulePaths.asImm(), this.moduleRootPaths.asImm(), this.errorHandler, this.pathEscaper)
+	this.moduleResolver = builder.factory.create(tsetFrom_(tc_string, modulePaths.asImm(), true), this.moduleRootPaths.asImm(), this.errorHandler, this.pathEscaper)
 }
 
 func new_ModuleLoader(builder *ModuleLoader_Builder) *ModuleLoader {
@@ -460,15 +460,15 @@ func ModuleLoader_PathResolver_clinit() {
 }
 
 type ModuleLoader_ModuleResolverFactory interface {
-	create(*ErasedImmutableSet, *ErasedImmutableList, ErrorHandler, ModuleLoader_PathEscaper) *ModuleResolver
+	create(*ImmutableSet[string], *ErasedImmutableList, ErrorHandler, ModuleLoader_PathEscaper) *ModuleResolver
 }
 
 type ModuleLoader_ModuleResolverFactory_fn struct {
 	f func(*ErasedImmutableSet, *ErasedImmutableList, ErrorHandler, ModuleLoader_PathEscaper) *ModuleResolver
 }
 
-func (this *ModuleLoader_ModuleResolverFactory_fn) create(p0 *ErasedImmutableSet, p1 *ErasedImmutableList, p2 ErrorHandler, p3 ModuleLoader_PathEscaper) *ModuleResolver {
-	return this.f(p0, p1, p2, p3)
+func (this *ModuleLoader_ModuleResolverFactory_fn) create(p0 *ImmutableSet[string], p1 *ErasedImmutableList, p2 ErrorHandler, p3 ModuleLoader_PathEscaper) *ModuleResolver {
+	return this.f(p0.asImm(), p1, p2, p3)
 }
 
 type ModuleLoader_ResolutionMode uint8

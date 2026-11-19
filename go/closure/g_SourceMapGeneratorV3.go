@@ -10,7 +10,7 @@ import (
 type SourceMapGeneratorV3 struct {
 	mappings             *[]*SourceMapGeneratorV3_Mapping
 	sourceFileMap        *TMap[string, any]
-	sourceFileContentMap *TMap[string, string]
+	sourceFileContentMap map[string]string
 	originalNameMap      *TMap[string, any]
 	lastSourceFile       Optional[string]
 	lastSourceFileIndex  int32
@@ -24,7 +24,7 @@ type SourceMapGeneratorV3 struct {
 func (this *SourceMapGeneratorV3) finit_SourceMapGeneratorV3() {
 	this.mappings = &[]*SourceMapGeneratorV3_Mapping{}
 	this.sourceFileMap = newTMap_(tc_string, tc_Integer)
-	this.sourceFileContentMap = newTMap_(tc_string, tc_string)
+	this.sourceFileContentMap = map[string]string{}
 	this.originalNameMap = newTMap_(tc_string, tc_Integer)
 	this.lastSourceFile = Optional_empty[string]()
 	this.lastSourceFileIndex = -1
@@ -122,7 +122,7 @@ func (this *SourceMapGeneratorV3) addMapping(sourceName string, symbolName strin
 }
 
 func (this *SourceMapGeneratorV3) addSourcesContent(source string, content string) {
-	this.sourceFileContentMap.Put(source, content)
+	this.sourceFileContentMap[source] = content
 }
 
 func (this *SourceMapGeneratorV3) mergeMapSection(line int32, column int32, mapSectionContents string) *Outcome_base[any] {
@@ -248,7 +248,7 @@ func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
 		if unbox_[int32](index) >= size {
 			panic(new_IllegalStateException_0())
 		}
-		var content Optional[string] = Optional_ofNullable[string](this.sourceFileContentMap.Get(entry.getKey()))
+		var content Optional[string] = Optional_ofNullable[string](mapStr_(this.sourceFileContentMap, entry.getKey()))
 		if content.isPresent() {
 			contents[unbox_[int32](index)] = content.get()
 			found = true

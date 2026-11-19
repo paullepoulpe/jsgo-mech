@@ -6,12 +6,12 @@ type CrossChunkCodeMotion struct {
 	cccmLog                                    *LogFile
 	compiler_                                  *AbstractCompiler
 	graph                                      *JSChunkGraph
-	chunkInsertionPointMap                     *TMap[*JSChunk, Node]
+	chunkInsertionPointMap                     map[*JSChunk]Node
 	parentChunkCanSeeSymbolsDeclaredInChildren bool
 }
 
 func (this *CrossChunkCodeMotion) finit_CrossChunkCodeMotion() {
-	this.chunkInsertionPointMap = newTMap_(tc_p_JSChunk, tc_Node)
+	this.chunkInsertionPointMap = map[*JSChunk]Node{}
 }
 
 func (this *CrossChunkCodeMotion) init_CrossChunkCodeMotion(compiler *AbstractCompiler, graph *JSChunkGraph, parentChunkCanSeeSymbolsDeclaredInChildren bool) {
@@ -132,12 +132,12 @@ func (this *CrossChunkCodeMotion) isInstanceofFor(expression Node, reference Nod
 
 type CrossChunkCodeMotion_GlobalSymbolCollector struct {
 	outer_             *CrossChunkCodeMotion
-	globalSymbolforVar *TMap[*Var, *CrossChunkCodeMotion_GlobalSymbol]
+	globalSymbolforVar map[varKey_]*CrossChunkCodeMotion_GlobalSymbol
 	symbolStack        *TDeque[*CrossChunkCodeMotion_GlobalSymbol]
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) finit_CrossChunkCodeMotion_GlobalSymbolCollector() {
-	this.globalSymbolforVar = newTMap_(tce_p_Var.t_(), tc_p_CrossChunkCodeMotion_GlobalSymbol)
+	this.globalSymbolforVar = map[varKey_]*CrossChunkCodeMotion_GlobalSymbol{}
 	this.symbolStack = newTDeque_(jtc_p_CrossChunkCodeMotion_GlobalSymbol)
 }
 
@@ -212,10 +212,10 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCollector) processDeclarationStatem
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) getGlobalSymbol(var_ *Var) *CrossChunkCodeMotion_GlobalSymbol {
-	var globalSymbol *CrossChunkCodeMotion_GlobalSymbol = this.globalSymbolforVar.Get(var_)
+	var globalSymbol *CrossChunkCodeMotion_GlobalSymbol = this.globalSymbolforVar[vkey_(var_)]
 	if globalSymbol == nil {
 		globalSymbol = new_CrossChunkCodeMotion_GlobalSymbol(this.outer_, var_)
-		this.globalSymbolforVar.Put(var_, globalSymbol)
+		this.globalSymbolforVar[vkey_(var_)] = globalSymbol
 		this.symbolStack.push(globalSymbol)
 	}
 	return globalSymbol
@@ -570,7 +570,7 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) getGlobalSymbol
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) moveStatementsToChunk(preferredChunk *JSChunk) {
-	var destParent Node = this.outer_.chunkInsertionPointMap.computeIfAbsent(preferredChunk, &Function_tfn_JSChunk_Node{func(p0 *JSChunk) Node { return this.outer_.compiler_.getNodeForCodeInsertion(p0) }})
+	var destParent Node = mapComputeIfAbsent_(tc_p_JSChunk, tc_Node, this.outer_.chunkInsertionPointMap, preferredChunk, &Function_tfn_JSChunk_Node{func(p0 *JSChunk) Node { return this.outer_.compiler_.getNodeForCodeInsertion(p0) }})
 	var statementsLastFirst *TDeque[*CrossChunkReferenceCollector_TopLevelStatement] = this.getStatementsLastFirst()
 	it_1 := statementsLastFirst.each()
 	for it_1.next() {

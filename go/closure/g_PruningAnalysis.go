@@ -33,8 +33,8 @@ func (this *PruningAnalysis) calculateTotalBlame() *TMap[string, any] {
 	it_1 := this.entryPoints_.each()
 	for it_1.next() {
 		var provider *CompilerInput = it_1.v
-		var transitiveClosure *TSet[*CompilerInput] = tsetFrom_(tc_p_CompilerInput, ImmutableSet_builder().addAll(ImmutableList_as_Iterable(this.sorter_.getStrongDependenciesOf(ImmutableList_as_List(ImmutableList_of_Object(obj_(provider))), false))).addAll(ImmutableList_as_Iterable(this.sorter_.getSortedWeakDependenciesOf(ImmutableList_as_List(ImmutableList_of_Object(obj_(provider)))))).build(), true)
-		reachabilityPerEntryPoint.put(provider.getName(), any(int32(transitiveClosure.Len())))
+		var transitiveClosure map[*CompilerInput]struct{} = setImm_(tc_p_CompilerInput, ImmutableSet_builder().addAll(ImmutableList_as_Iterable(this.sorter_.getStrongDependenciesOf(ImmutableList_as_List(ImmutableList_of_Object(obj_(provider))), false))).addAll(ImmutableList_as_Iterable(this.sorter_.getSortedWeakDependenciesOf(ImmutableList_as_List(ImmutableList_of_Object(obj_(provider)))))).build())
+		reachabilityPerEntryPoint.put(provider.getName(), any(int32(int32(len(transitiveClosure)))))
 	}
 	return reachabilityPerEntryPoint.buildOrThrow()
 }

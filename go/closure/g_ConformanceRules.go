@@ -2068,16 +2068,16 @@ func (this *ConformanceRules_CustomRuleProxy) check(t *NodeTraversal, n Node, be
 }
 
 func (this *ConformanceRules_CustomRuleProxy) createRule(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[CheckConformance_Rule] {
-	var factory ConformanceRules_CustomRuleProxy_CustomRuleFactory = ConformanceRules_CustomRuleProxy_CUSTOM_RULE_REGISTRY.Get(requirement.getJavaClass())
+	var factory ConformanceRules_CustomRuleProxy_CustomRuleFactory = mapAt_(ConformanceRules_CustomRuleProxy_CUSTOM_RULE_REGISTRY, requirement.getJavaClass())
 	if factory == nil {
 		return Outcome_base_err[CheckConformance_Rule](new_CheckConformance_InvalidRequirementSpec_String(("Unknown conformance rule: " + sstr_(requirement.getJavaClass()))).up_Throwable())
 	}
 	return factory.call(compiler, requirement)
 }
 
-func ConformanceRules_CustomRuleProxy_createCustomRuleRegistry() *TMap[string, ConformanceRules_CustomRuleProxy_CustomRuleFactory] {
+func ConformanceRules_CustomRuleProxy_createCustomRuleRegistry() map[string]ConformanceRules_CustomRuleProxy_CustomRuleFactory {
 	var builder ImmutableMap_BuilderOf[string, ConformanceRules_CustomRuleProxy_CustomRuleFactory] = ImmutableMap_builder().put("com.google.javascript.jscomp.ConformanceRules$NoOp", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_1_)).put("com.google.javascript.jscomp.ConformanceRules$InferredConstCheck", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_2_)).put("com.google.javascript.jscomp.ConformanceRules$BannedDependency", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_3_)).put("com.google.javascript.jscomp.ConformanceRules$BannedDependencyRegex", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_4_)).put("com.google.javascript.jscomp.ConformanceRules$BannedName", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_5_)).put("com.google.javascript.jscomp.ConformanceRules$BannedProperty", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_6_)).put("com.google.javascript.jscomp.ConformanceRules$BannedStringRegex", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_7_)).put("com.google.javascript.jscomp.ConformanceRules$RestrictedNameCall", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_8_)).put("com.google.javascript.jscomp.ConformanceRules$RestrictedMethodCall", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_9_)).put("com.google.javascript.jscomp.ConformanceRules$RestrictedPropertyWrite", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_10_)).put("com.google.javascript.jscomp.ConformanceRules$BannedCodePattern", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_11_)).put("com.google.javascript.jscomp.ConformanceRules$BanForOf", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_12_)).put("com.google.javascript.jscomp.ConformanceRules$RequireUseStrict", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_13_)).put("com.google.javascript.jscomp.ConformanceRules$BanThrowOfNonErrorTypes", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_14_)).put("com.google.javascript.jscomp.ConformanceRules$BanNullDeref", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_15_)).put("com.google.javascript.jscomp.ConformanceRules$BanUnknownThis", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_16_)).put("com.google.javascript.jscomp.ConformanceRules$BanUnknownDirectThisPropsReferences", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_17_)).put("com.google.javascript.jscomp.ConformanceRules$BanUnknownTypedClassPropsReferences", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_18_)).put("com.google.javascript.jscomp.ConformanceRules$BanUnresolvedType", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_19_)).put("com.google.javascript.jscomp.ConformanceRules$StrictBanUnresolvedType", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_20_)).put("com.google.javascript.jscomp.ConformanceRules$BanGlobalVars", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_21_)).put("com.google.javascript.jscomp.ConformanceRules$BannedEnhance", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_22_)).put("com.google.javascript.jscomp.ConformanceRules$BannedModsRegex", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_23_)).put("com.google.javascript.jscomp.ConformanceRules$BanCreateElement", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_24_)).put("com.google.javascript.jscomp.ConformanceRules$BanCreateDom", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_25_)).put("com.google.javascript.jscomp.ConformanceRules$BanElementSetAttribute", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_26_)).put("com.google.javascript.jscomp.ConformanceRules$BanSettingAttributes", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_27_)).put("com.google.javascript.jscomp.ConformanceRules$BanExecCommand", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_28_)).put("com.google.javascript.jscomp.ConformanceRules$BanStaticThis", any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_29_))
-	return tmapFrom_(tc_string, tc_ConformanceRules_CustomRuleProxy_CustomRuleFactory, builder.buildOrThrow(), true)
+	return mapImm_(tc_string, tc_ConformanceRules_CustomRuleProxy_CustomRuleFactory, builder.buildOrThrow())
 }
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_1_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
@@ -2225,7 +2225,7 @@ var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_29_ = newFu
 	return ConformanceRules_BanStaticThis_create(p0, p1)
 })
 
-var ConformanceRules_CustomRuleProxy_CUSTOM_RULE_REGISTRY *TMap[string, ConformanceRules_CustomRuleProxy_CustomRuleFactory]
+var ConformanceRules_CustomRuleProxy_CUSTOM_RULE_REGISTRY map[string]ConformanceRules_CustomRuleProxy_CustomRuleFactory
 
 var ConformanceRules_CustomRuleProxy_clinit_done bool
 
@@ -3119,7 +3119,7 @@ var lambda_ConformanceRules_BannedModsRegex_getPrecondition_impl_1_ = &CheckConf
 
 type ConformanceRules_BanCreateElement struct {
 	ConformanceRules_AbstractRule
-	bannedTags    *TSet[string]
+	bannedTags    map[string]struct{}
 	domHelperType *JSType
 	documentType  *JSType
 }
@@ -3161,11 +3161,11 @@ func (this *ConformanceRules_BanCreateElement) initBanCreateElement(compiler *Ab
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	this.bannedTags = newTSet_(tc_string)
+	this.bannedTags = map[string]struct{}{}
 	for value := range elemsBy_(ProtocolStringList(requirement.getValueList()), str_) {
-		this.bannedTags.Add(Ascii_toLowerCase(value))
+		this.bannedTags[Ascii_toLowerCase(value)] = struct{}{}
 	}
-	if this.bannedTags.IsEmpty() {
+	if len(mapNN_(this.bannedTags)) == 0 {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("Specify one or more values.").up_Throwable())
 	}
 	this.domHelperType = compiler.getTypeRegistry().getGlobalType("goog.dom.DomHelper")
@@ -3176,7 +3176,7 @@ func (this *ConformanceRules_BanCreateElement) initBanCreateElement(compiler *Ab
 func (this *ConformanceRules_BanCreateElement) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	if n.isCall() {
 		var tag Node = n.getSecondChild()
-		if ((tag != 0) && tag.isStringLit()) && this.bannedTags.Has(Ascii_toLowerCase(tag.getString())) {
+		if ((tag != 0) && tag.isStringLit()) && has_(this.bannedTags, Ascii_toLowerCase(tag.getString())) {
 			return this.checkCreateElement(n)
 		}
 	}

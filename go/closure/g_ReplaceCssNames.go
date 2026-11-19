@@ -11,8 +11,8 @@ type ReplaceCssNames struct {
 	compiler_                    *AbstractCompiler
 	astFactory_                  *AstFactory
 	cssNameCollector             func(string)
-	cssNamesBySymbol             *TMap[string, string]
-	classesObjectsQualifiedNames *TSet[string]
+	cssNamesBySymbol             map[string]string
+	classesObjectsQualifiedNames map[string]struct{}
 	symbolMap                    CssRenamingMap
 	skiplist                     *TSet[string]
 }
@@ -23,8 +23,8 @@ func (this *ReplaceCssNames) init_ReplaceCssNames(compiler *AbstractCompiler, sy
 	this.symbolMap = symbolMap
 	this.cssNameCollector = cssNameCollector
 	this.skiplist = skiplist
-	this.cssNamesBySymbol = newTMap_(tc_string, tc_string)
-	this.classesObjectsQualifiedNames = newTSet_(tc_string)
+	this.cssNamesBySymbol = map[string]string{}
+	this.classesObjectsQualifiedNames = map[string]struct{}{}
 }
 
 func new_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector func(string), skiplist *TSet[string]) *ReplaceCssNames {
@@ -39,8 +39,8 @@ func (this *ReplaceCssNames) process_2(externs Node, root Node) {
 	for getCssNameInstance := range sliceAll_(getCssNameInstances) {
 		var cssClassName Optional[string] = getCssNameInstance.getCssClassName()
 		if getCssNameInstance.isCssClosureFileClassesMember() {
-			this.cssNamesBySymbol.Put(getCssNameInstance.getCssClosureClassesMemberName().orElse(nullstr_), cssClassName.orElse(nullstr_))
-			this.classesObjectsQualifiedNames.Add(getCssNameInstance.getCssClosureClassesQualifiedName().orElseThrow())
+			this.cssNamesBySymbol[getCssNameInstance.getCssClosureClassesMemberName().orElse(nullstr_)] = cssClassName.orElse(nullstr_)
+			this.classesObjectsQualifiedNames[getCssNameInstance.getCssClosureClassesQualifiedName().orElseThrow()] = struct{}{}
 		} else {
 			this.cssNameCollector(cssClassName.orElse(nullstr_))
 		}
@@ -481,7 +481,7 @@ func (this *ReplaceCssNames_CountCssNamesBySymbol) shouldTraverse(t *NodeTravers
 
 func (this *ReplaceCssNames_CountCssNamesBySymbol) visit(t *NodeTraversal, n Node, parent Node) {
 	var classesObjectQualifiedName string = n.getQualifiedName()
-	if classesObjectQualifiedName == "" || !this.outer_.classesObjectsQualifiedNames.Has(classesObjectQualifiedName) {
+	if classesObjectQualifiedName == "" || !has_(this.outer_.classesObjectsQualifiedNames, classesObjectQualifiedName) {
 		return
 	}
 	var classNameNode Node = n.getParent()
@@ -490,11 +490,11 @@ func (this *ReplaceCssNames_CountCssNamesBySymbol) visit(t *NodeTraversal, n Nod
 		return
 	}
 	var classQualifiedName string = classNameNode.getQualifiedName()
-	if classQualifiedName == "" || !this.outer_.cssNamesBySymbol.Has(classQualifiedName) {
+	if classQualifiedName == "" || !has_(this.outer_.cssNamesBySymbol, classQualifiedName) {
 		this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceCssNames_UNKNOWN_SYMBOL_ERROR, []string{classNameNode.getString()}))
 		return
 	}
-	var className string = this.outer_.cssNamesBySymbol.Get(classQualifiedName)
+	var className string = mapStr_(this.outer_.cssNamesBySymbol, classQualifiedName)
 	this.outer_.cssNameCollector(className)
 }
 

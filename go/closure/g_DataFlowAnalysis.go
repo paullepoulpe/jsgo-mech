@@ -194,7 +194,7 @@ func (this *DataFlowAnalysis[N, L]) getInputFromEdge(edge DiGraph_DiGraphEdge[N]
 	}
 }
 
-func DataFlowAnalysis_computeEscaped(jsScope *Scope, escaped *TSet[*Var], compiler *AbstractCompiler, scopeCreator ScopeCreator, allVarsInFn *TMap[string, *Var]) {
+func DataFlowAnalysis_computeEscaped(jsScope *Scope, escaped map[varKey_]struct{}, compiler *AbstractCompiler, scopeCreator ScopeCreator, allVarsInFn *TMap[string, *Var]) {
 	if !jsScope.isFunctionScope() {
 		panic(new_IllegalArgumentException_0())
 	}
@@ -204,7 +204,7 @@ func DataFlowAnalysis_computeEscaped(jsScope *Scope, escaped *TSet[*Var], compil
 	for it_1.next() {
 		var var_ *Var = it_1.v
 		if var_.getParentNode().isCatch() || compiler.getCodingConvention().isExported(var_.getName()) {
-			escaped.Add(var_)
+			escaped[vkey_(var_)] = struct{}{}
 		}
 	}
 }
@@ -378,7 +378,7 @@ func (this *DataFlowAnalysis_UniqueQueue[T]) clear() {
 type DataFlowAnalysis_1 struct {
 	NodeTraversal_AbstractPostOrderCallback
 	cap_jsScope *Scope
-	cap_escaped *TSet[*Var]
+	cap_escaped map[varKey_]struct{}
 }
 
 func (this *DataFlowAnalysis_1) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -392,7 +392,7 @@ func (this *DataFlowAnalysis_1) init_DataFlowAnalysis_1() {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 }
 
-func new_DataFlowAnalysis_1(cap_jsScope *Scope, cap_escaped *TSet[*Var]) *DataFlowAnalysis_1 {
+func new_DataFlowAnalysis_1(cap_jsScope *Scope, cap_escaped map[varKey_]struct{}) *DataFlowAnalysis_1 {
 	this := &DataFlowAnalysis_1{}
 	this.self_ = this
 	this.cap_jsScope = cap_jsScope
@@ -416,7 +416,7 @@ func (this *DataFlowAnalysis_1) visit_impl(t *NodeTraversal, n Node, parent Node
 	}
 	var referenceCfgScope *Scope = cast_[*Scope](t.getScope().getClosestCfgRootScope().self())
 	if (referenceCfgScope != variableCfgScope) || DataFlowAnalysis_isReferencedInNonStaticClassField(t.getScope(), variableCfgScope) {
-		this.cap_escaped.Add(var_)
+		this.cap_escaped[vkey_(var_)] = struct{}{}
 	}
 }
 

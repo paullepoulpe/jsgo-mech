@@ -5,9 +5,9 @@ package closure
 type PolymerPass struct {
 	NodeTraversal_ExternsSkippingCallback
 	compiler_                    *AbstractCompiler
-	tagNameMap                   *TMap[string, string]
+	tagNameMap                   map[string]string
 	polymerElementExterns        Node
-	nativeExternsAdded           *TSet[string]
+	nativeExternsAdded           map[string]struct{}
 	polymerElementProps          *TList[Node]
 	globalNames                  *GlobalNamespace
 	behaviorExtractor            *PolymerBehaviorExtractor
@@ -32,7 +32,7 @@ func (this *PolymerPass) init_PolymerPass(compiler *AbstractCompiler) {
 	this.finit_PolymerPass()
 	this.compiler_ = compiler
 	this.tagNameMap = TagNameToType_getMap()
-	this.nativeExternsAdded = newTSet_(tc_string)
+	this.nativeExternsAdded = map[string]struct{}{}
 }
 
 func new_PolymerPass(compiler *AbstractCompiler) *PolymerPass {
@@ -125,7 +125,7 @@ func (this *PolymerPass) normalizePolymerExport(nameDecl Node, export Node) {
 }
 
 func (this *PolymerPass) appendPolymerElementExterns(def *PolymerClassDefinition) {
-	if !this.nativeExternsAdded.Add(def.nativeBaseElement.orElse(nullstr_)) {
+	if !setAdd_(this.nativeExternsAdded, def.nativeBaseElement.orElse(nullstr_)) {
 		return
 	}
 	var block Node = IR_block_0()
@@ -134,7 +134,7 @@ func (this *PolymerPass) appendPolymerElementExterns(def *PolymerClassDefinition
 	baseExterns.getFirstChild().setString(polymerElementType)
 	var elementType Optional[string] = func() Optional[string] {
 		if def.nativeBaseElement.isPresent() {
-			return Optional_ofNullable[string](this.tagNameMap.Get(def.nativeBaseElement.get()))
+			return Optional_ofNullable[string](mapStr_(this.tagNameMap, def.nativeBaseElement.get()))
 		}
 		return Optional_empty[string]()
 	}()

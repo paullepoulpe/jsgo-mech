@@ -18,7 +18,7 @@ type RemoveUnusedCode struct {
 	canonicalUnremovableVarInfo                    RemoveUnusedCode_VarInfo
 	allFunctionParamScopes                         *[]*Scope
 	polyfills                                      *SimpleSetMultimap[any, *RemoveUnusedCode_PolyfillInfo]
-	guardedUsages                                  *TSet[Node]
+	guardedUsages                                  map[Node]struct{}
 	polyfillsFromTable                             *PolyfillUsageFinder_Polyfills
 	polyfillUsageFinder                            *PolyfillUsageFinder
 	scopeCreator                                   *SyntacticScopeCreator
@@ -39,7 +39,7 @@ func (this *RemoveUnusedCode) finit_RemoveUnusedCode() {
 	this.removablesForPropertyNames = SimpleSetMultimap_createInsertionOrdered[any, *RemoveUnusedCode_Removable]()
 	this.allFunctionParamScopes = &[]*Scope{}
 	this.polyfills = SimpleSetMultimap_createInsertionOrdered[any, *RemoveUnusedCode_PolyfillInfo]()
-	this.guardedUsages = newTSet_(tc_Node)
+	this.guardedUsages = map[Node]struct{}{}
 }
 
 func (this *RemoveUnusedCode) init_RemoveUnusedCode(builder *RemoveUnusedCode_Builder) {
@@ -105,7 +105,7 @@ func (this *RemoveUnusedCode) traverseAndRemoveUnusedReferences(root Node) {
 }
 
 func (this *RemoveUnusedCode) storePolyfill(polyfillUsage *PolyfillUsageFinder_PolyfillUsage) {
-	this.guardedUsages.Add(polyfillUsage.node())
+	this.guardedUsages[polyfillUsage.node()] = struct{}{}
 }
 
 func (this *RemoveUnusedCode) removeIndependentlyRemovableProperties() {
@@ -2958,7 +2958,7 @@ func (this *RemoveUnusedCode_PolyfillInfo) init_RemoveUnusedCode_PolyfillInfo(re
 }
 
 func (this *RemoveUnusedCode_PolyfillInfo) considerPossibleReference(n Node) {
-	if this.isRemovable_ && (this.removable.isPatch || !this.outer_.guardedUsages.Has(n)) {
+	if this.isRemovable_ && (this.removable.isPatch || !has_(this.outer_.guardedUsages, n)) {
 		this.considerPossibleReferenceInternal(n)
 		if !this.isRemovable_ {
 			this.removable.applyContinuations()

@@ -6,7 +6,7 @@ type PureFunctionIdentifier struct {
 	compiler_                            *AbstractCompiler
 	astAnalyzer                          *AstAnalyzer
 	validateArtificialPurityField        bool
-	summariesByName                      *TMap[string, *PureFunctionIdentifier_AmbiguatedFunctionSummary]
+	summariesByName                      map[string]*PureFunctionIdentifier_AmbiguatedFunctionSummary
 	summariesForAllNamesOfFunctionByNode *SimpleListMultimap[Node, *PureFunctionIdentifier_AmbiguatedFunctionSummary]
 	artificiallyPureLiteralsForDebugging *TSet[Node]
 	allFunctionCalls                     *[]Node
@@ -17,7 +17,7 @@ type PureFunctionIdentifier struct {
 }
 
 func (this *PureFunctionIdentifier) finit_PureFunctionIdentifier() {
-	this.summariesByName = newTMap_(tc_string, tc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary)
+	this.summariesByName = map[string]*PureFunctionIdentifier_AmbiguatedFunctionSummary{}
 	this.summariesForAllNamesOfFunctionByNode = SimpleListMultimap_create[Node, *PureFunctionIdentifier_AmbiguatedFunctionSummary]()
 	this.artificiallyPureLiteralsForDebugging = newTSet_(tc_Node)
 	this.allFunctionCalls = &[]Node{}
@@ -207,7 +207,7 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) *TLis
 			var calleeName Optional[string] = PureFunctionIdentifier_nameForReference(callee)
 			results.add(func() *PureFunctionIdentifier_AmbiguatedFunctionSummary {
 				if calleeName.isPresent() {
-					return this.summariesByName.GetOr(calleeName.get(), this.unknownFunctionSummary)
+					return mapGetOr_(this.summariesByName, calleeName.get(), this.unknownFunctionSummary)
 				}
 				return this.unknownFunctionSummary
 			}())
@@ -231,14 +231,14 @@ func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(r
 		panic(new_IllegalStateException_0())
 	}
 	for name := range elemsBy_(referencesByName.keySet(), str_) {
-		this.summariesByName.Put(name, PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), name))
+		this.summariesByName[name] = PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), name)
 	}
 	Map_forEach(referencesByName.asMap(), &BiConsumer_tfn_string_List{func(p0 string, p1 List) { this.populateFunctionDefinitions(p0, p1) }})
 	this.summariesForAllNamesOfFunctionByNode.put(PureFunctionIdentifier_IMPLICIT_PURE_FN, PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), "<implicit pure class ctor"))
 }
 
 func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, references ListOf[Node]) {
-	var summaryForName *PureFunctionIdentifier_AmbiguatedFunctionSummary = Preconditions_checkNotNull_T(this.summariesByName.Get(name))
+	var summaryForName *PureFunctionIdentifier_AmbiguatedFunctionSummary = Preconditions_checkNotNull_T(this.summariesByName[name])
 	var invalid bool = false
 	var rvaluesAssignedToName []*ErasedImmutableList = []*ErasedImmutableList{}
 	for reference := range elemsBy_(references, Node_of_) {
@@ -282,7 +282,7 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 					var rvalueName Optional[string] = PureFunctionIdentifier_nameForReference(rvalue)
 					var rvalueSummary *PureFunctionIdentifier_AmbiguatedFunctionSummary = func() *PureFunctionIdentifier_AmbiguatedFunctionSummary {
 						if rvalueName.isPresent() {
-							return this.summariesByName.GetOr(rvalueName.get(), this.unknownFunctionSummary)
+							return mapGetOr_(this.summariesByName, rvalueName.get(), this.unknownFunctionSummary)
 						}
 						return this.unknownFunctionSummary
 					}()
@@ -568,7 +568,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) updateSideEffectsForNod
 			if (value != 0) && !NodeUtil_evaluatesToLocalValue(value) {
 				var scope *Scope = traversal.getScope()
 				var var_ *Var = cast_[*Var](scope.getVar(node.getString()).self())
-				SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque())).(*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry).skiplistedVars.Add(var_)
+				SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque())).(*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry).skiplistedVars[vkey_(var_)] = struct{}{}
 			}
 		}
 	case tokOrd1_THROW:
@@ -660,12 +660,12 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) exitScope(t *NodeTraver
 		}
 		for v := range elemsAs_[*Var](t.getScope().getVarIterable()) {
 			var isFromDestructuring bool = NodeUtil_isLhsByDestructuring(v.getNameNode())
-			if ((v.isParam() && !isFromDestructuring) && !functionEntry.skiplistedVars.Has(v)) && functionEntry.taintedVars.Has(v) {
+			if ((v.isParam() && !isFromDestructuring) && !has_(functionEntry.skiplistedVars, vkey_(v))) && has_(functionEntry.taintedVars, vkey_(v)) {
 				sideEffectInfo.setMutatesArgumentAt(PureFunctionIdentifier_getParamIndex(v), v.getNode())
 				continue
 			}
 			if !functionEntry.isLocalVar(v, t.getScope()) {
-				if functionEntry.taintedVars.Has(v) {
+				if has_(functionEntry.taintedVars, vkey_(v)) {
 					sideEffectInfo.setMutatesGlobalStateAndAllOtherFlags(v.getNode())
 					break
 				}
@@ -691,7 +691,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitLhsNode(encloserSu
 			if objectNode.isName() {
 				var var_ *Var = cast_[*Var](scope.getVar(objectNode.getString()).self())
 				if PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(var_, scope) {
-					SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque())).(*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry).taintedVars.Add(var_)
+					SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque())).(*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry).taintedVars[vkey_(var_)] = struct{}{}
 				} else {
 					encloserSummary.setMutatesGlobalStateAndAllOtherFlags(lhs)
 				}
@@ -706,7 +706,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitLhsNode(encloserSu
 		var var_ *Var = cast_[*Var](scope.getVar(lhs.getString()).self())
 		if PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(var_, scope) {
 			if !hasLocalRhs.test(lhs.box_()) {
-				SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque())).(*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry).skiplistedVars.Add(var_)
+				SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque())).(*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry).skiplistedVars[vkey_(var_)] = struct{}{}
 			}
 		} else {
 			encloserSummary.setMutatesGlobalStateAndAllOtherFlags(lhs)
@@ -754,15 +754,15 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) addToCatchDepthIfTryBlo
 
 type PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry struct {
 	root               Node
-	skiplistedVars     *TSet[*Var]
-	taintedVars        *TSet[*Var]
+	skiplistedVars     map[varKey_]struct{}
+	taintedVars        map[varKey_]struct{}
 	isArtificiallyPure bool
 	catchDepth         int32
 }
 
 func (this *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry) finit_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry() {
-	this.skiplistedVars = newTSet_(tce_p_Var.t_())
-	this.taintedVars = newTSet_(tce_p_Var.t_())
+	this.skiplistedVars = map[varKey_]struct{}{}
+	this.taintedVars = map[varKey_]struct{}{}
 	this.catchDepth = 0
 }
 
@@ -779,7 +779,7 @@ func new_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry(root Nod
 }
 
 func (this *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry) isLocalVar(v *Var, scope *Scope) bool {
-	return (((PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(v, scope) && !this.skiplistedVars.Has(v)) && !v.isParam()) && !v.isCatch())
+	return (((PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(v, scope) && !has_(this.skiplistedVars, vkey_(v))) && !v.isParam()) && !v.isCatch())
 }
 
 type PureFunctionIdentifier_SideEffectPropagation struct {

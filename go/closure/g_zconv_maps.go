@@ -8,3 +8,5 @@ var tc_ClassOf_any_ = &tconv_[ClassOf[any]]{box: func(v ClassOf[any]) any { retu
 var tc_IndexProvider = &tconv_[IndexProvider]{box: func(v IndexProvider) any { return v }, unbox: func(v any) IndexProvider { return icast_IndexProvider(v) }}
 var tc_p_AbstractScope = &tconv_[*AbstractScope]{box: func(v *AbstractScope) any { return v.self() }, unbox: func(v any) *AbstractScope { return to_AbstractScope(v) }}
 var tc_p_TypedScope = &tconv_[*TypedScope]{box: func(v *TypedScope) any { return obj_(v) }, unbox: func(v any) *TypedScope { return cast_[*TypedScope](v) }}
+var tcv_p_TMap_string__any_ = tmapConv_[string, any]()
+var tcv_p_TMap_string__string_ = tmapConv_[string, string]()
