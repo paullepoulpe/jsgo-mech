@@ -22,10 +22,10 @@ type utf16_ struct {
 	n int32    // the length of s in units
 }
 
-// utf16Long_ stands for the units of a long string that is not ASCII (a source text): they
-// are not kept, the String_ helpers find them through the string's index (indexOf_), as
-// they did before there was a view. No index is inside it, so every method leaves its fast
-// path for the helper.
+// utf16Long_ stands for the units of a long string that is not ASCII (a source text) in a
+// view made by utf16Of_: they are not kept, the String_ helpers find them through the
+// string's index (indexOf_), as they did before there was a view. No index is inside it,
+// so every method leaves its fast path for the helper.
 var utf16Long_ = []uint16{}
 
 // utf16Of_ is the view of s. It reads s once; for a long string the answer is the one kept
@@ -47,6 +47,20 @@ func utf16Of_(s string) utf16_ {
 		return utf16_{s: s, n: int32(len(s))}
 	}
 	return utf16_{s: s, u: utf16Long_, n: c.n}
+}
+
+// utf16Kept_ is the view of s that an object keeps next to its string field (and a package
+// has of a constant): as utf16Of_, but with the units of a long string that is not ASCII
+// too. A scanner reads every char of its source text, so the units pay for themselves; a
+// view that a function makes for a few operations (utf16Of_) leaves such a text to the
+// helpers' index. The view is made once per assignment of the field: a field that is
+// assigned another viewed field takes its view with it.
+func utf16Kept_(s string) utf16_ {
+	v := utf16Of_(s)
+	if len(v.u) == 0 && v.u != nil {
+		v.u = String_toCharArray(s)
+	}
+	return v
 }
 
 var utf16Null_ = utf16_{s: nullstr_, u: String_toCharArray(nullstr_), n: String_length(nullstr_)}
