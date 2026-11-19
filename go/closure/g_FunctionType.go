@@ -989,7 +989,7 @@ func (this *FunctionType) getConstructorOnlyTemplateParameters() *JTList[*Templa
 	}
 	var map_ *TemplateTypeMap = this.getTemplateTypeMap()
 	var ctorOnlyKeyCount int32 = (this.getTemplateParamCount() - this.getInstanceType().getTemplateParamCount())
-	return jtlistImm_(jtc_p_TemplateType, cast_[*ImmutableList](map_.getTemplateKeys().asImm().subList((map_.size()-ctorOnlyKeyCount), map_.size())))
+	return jtlistImm_(jtc_p_TemplateType, cast_[*ErasedImmutableList](map_.getTemplateKeys().asImm().subList((map_.size()-ctorOnlyKeyCount), map_.size())))
 }
 
 func (this *FunctionType) isAmbiguousConstructor() bool {

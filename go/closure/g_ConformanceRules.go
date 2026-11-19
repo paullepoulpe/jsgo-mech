@@ -3484,7 +3484,7 @@ func (this *ConformanceRules_SecuritySensitiveAttributes) checkConformanceForAtt
 	}()
 }
 
-var ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS *ImmutableSet
+var ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS *ErasedImmutableSet
 
 var ConformanceRules_SecuritySensitiveAttributes_clinit_done bool
 

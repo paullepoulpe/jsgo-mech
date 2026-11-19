@@ -207,7 +207,7 @@ func (this *CommandLineRunner) readFlagInputs(processedArgs *JTList[string], fla
 		return Outcome_base_err[any](mappings.error())
 	}
 	flagInputs.mappings = mappings.get()
-	var sourceMapInputs *Outcome_base[*ImmutableMap] = this.flags.getSourceMapInputs()
+	var sourceMapInputs *Outcome_base[*ErasedImmutableMap] = this.flags.getSourceMapInputs()
 	if sourceMapInputs.isErr() {
 		return Outcome_base_err[any](sourceMapInputs.error())
 	}
@@ -1613,7 +1613,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[List] {
 
 func (this *CommandLineRunner_Flags) getSourceMapLocationMappings() *Outcome_base[List] {
 	var locationMappings *TListBuilder[SourceMap_LocationMapping] = newTListBuilder_(jtc_SourceMap_LocationMapping)
-	var splitOutcome *Outcome_base[*ImmutableMap] = this.splitPipeParts(Iterable(this.sourceMapLocationMapping), "--source_map_location_mapping")
+	var splitOutcome *Outcome_base[*ErasedImmutableMap] = this.splitPipeParts(Iterable(this.sourceMapLocationMapping), "--source_map_location_mapping")
 	if splitOutcome.isErr() {
 		return Outcome_base_err[List](splitOutcome.error())
 	}
@@ -1626,11 +1626,11 @@ func (this *CommandLineRunner_Flags) getSourceMapLocationMappings() *Outcome_bas
 	return Outcome_base_ok_Object[List](locationMappings.build().asList())
 }
 
-func (this *CommandLineRunner_Flags) getSourceMapInputs() *Outcome_base[*ImmutableMap] {
+func (this *CommandLineRunner_Flags) getSourceMapInputs() *Outcome_base[*ErasedImmutableMap] {
 	return this.splitPipeParts(Iterable(this.sourceMapInputs), "--source_map_input")
 }
 
-func (this *CommandLineRunner_Flags) splitPipeParts(input IterableOf[string], flagName string) *Outcome_base[*ImmutableMap] {
+func (this *CommandLineRunner_Flags) splitPipeParts(input IterableOf[string], flagName string) *Outcome_base[*ErasedImmutableMap] {
 	var result *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
 	var splitter *Splitter = Splitter_on('|').limit(2)
 	it_1 := foreach_(input)
@@ -1638,11 +1638,11 @@ func (this *CommandLineRunner_Flags) splitPipeParts(input IterableOf[string], fl
 		var inputSourceMap string = str_(it_1.v)
 		var parts *JTList[string] = splitToListT_(jtc_string, splitter, strobj_(inputSourceMap))
 		if parts.size() != 2 {
-			return Outcome_base_err[*ImmutableMap](new_CmdLineException_CmdLineParser_String(this.parser, ("Bad value for " + sstr_(flagName) + " (duplicate key): " + jtostr_(input))).up_Throwable())
+			return Outcome_base_err[*ErasedImmutableMap](new_CmdLineException_CmdLineParser_String(this.parser, ("Bad value for " + sstr_(flagName) + " (duplicate key): " + jtostr_(input))).up_Throwable())
 		}
 		result.put(parts.get(0), parts.get(1))
 	}
-	return Outcome_base_ok_Object[*ImmutableMap](result.buildOrThrow().asImm())
+	return Outcome_base_ok_Object[*ErasedImmutableMap](result.buildOrThrow().asImm())
 }
 
 func (this *CommandLineRunner_Flags) getPackageJsonEntryNames() *JTList[string] {

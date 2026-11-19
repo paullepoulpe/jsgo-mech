@@ -3170,11 +3170,11 @@ func (this *Consumer_tfn_DiagnosticToSuppressionMapper_OutputFormat) accept(p0 a
 }
 
 type Consumer_tfn_ImmutableSet_Builder struct {
-	f func(*ImmutableSet_Builder)
+	f func(*ErasedImmutableSet_Builder)
 }
 
 func (this *Consumer_tfn_ImmutableSet_Builder) accept(p0 any) {
-	this.f(cast_[*ImmutableSet_Builder](p0))
+	this.f(cast_[*ErasedImmutableSet_Builder](p0))
 }
 
 type Consumer_tfn_List struct {
@@ -3282,7 +3282,7 @@ func (this *Function_base_tfn_ColorPool_Builder_ColorPool_ShardView) apply(p0 an
 }
 
 type Function_base_tfn_JSChunk_ImmutableList struct {
-	f func(*JSChunk) *ImmutableList
+	f func(*JSChunk) *ErasedImmutableList
 }
 
 func (this *Function_base_tfn_JSChunk_ImmutableList) apply(p0 any) any {

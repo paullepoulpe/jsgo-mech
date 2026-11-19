@@ -43,7 +43,7 @@ func (this *PruningAnalysis) calculateBottlenecks() *JTMap[string, any] {
 	var graph *DiGraph[string] = this.buildGraph()
 	var dominatorTree *DominatorTree[string] = DominatorTree_compute[string](graph, PruningAnalysis_VIRTUAL_ROOT)
 	var bottleneckBlame *JTMap[string, any] = jnewTMap_(jtc_string, tc_Integer)
-	for _, el := range immElems_(cast_[*ImmutableSet](dominatorTree.getAllSubtreeSizes().entrySet())) {
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](dominatorTree.getAllSubtreeSizes().entrySet())) {
 		entry := icast_Map_Entry(el)
 		var node string = str_(entry.getKey())
 		var retainedCount int32 = unbox_[int32](entry.getValue())
