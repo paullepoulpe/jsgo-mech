@@ -69,7 +69,7 @@ func (this *TranspileAndOptimizeClosureUnaware) setScriptFeaturesets(inputs Coll
 		var shadowScript Node = shadowAst.script()
 		var collector *FeatureCollector = new_FeatureCollector()
 		collector.visitScript(shadowScript)
-		shadowScript.setFeatureSet(obj_(collector.allFeatures()))
+		shadowScript.setFeatureSet(collector.allFeatures())
 	}
 }
 
