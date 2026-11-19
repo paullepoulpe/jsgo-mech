@@ -105,7 +105,7 @@ func StripCode_toListWithCollapsedVersions(s string) *JTList[string] {
 
 func (this *StripCode) process_2(externs Node, root Node) {
 	if !this.compiler_.getLifeCycleStage().isNormalized() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	_ = func() (code_ int) {
 		var decisionsLog *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(this), "decisions.log", []string{})

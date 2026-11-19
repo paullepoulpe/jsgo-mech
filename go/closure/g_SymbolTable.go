@@ -154,7 +154,7 @@ func (this *SymbolTable) getGlobalScope() *SymbolTable_SymbolScope {
 
 func (this *SymbolTable) getSymbolDeclaredBy(fn *FunctionType) *SymbolTable_Symbol {
 	if !fn.isConstructor() && !fn.isInterface() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var instanceType *ObjectType = fn.getInstanceType()
 	return this.getSymbolForName(fn.getSource(), instanceType.getReferenceName())
@@ -174,7 +174,7 @@ func (this *SymbolTable) getSymbolForInstancesOfSymbol(sym *SymbolTable_Symbol) 
 
 func (this *SymbolTable) getSymbolForInstancesOf(fn *FunctionType) *SymbolTable_Symbol {
 	if !fn.isConstructor() && !fn.isInterface() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var pType *ObjectType = fn.getPrototype()
 	return this.getSymbolForName(fn.getSource(), pType.getReferenceName())
@@ -487,11 +487,11 @@ func (this *SymbolTable) addSymbol(name string, type_ *JSType, inferred bool, sc
 	var symbol *SymbolTable_Symbol = new_SymbolTable_Symbol(name, type_, inferred, scope)
 	var replacedSymbol *SymbolTable_Symbol = this.symbols.put(declNode, name, symbol)
 	if replacedSymbol != nil {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Found duplicate symbol %s in global index. Type %s", []any{name, type_})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Found duplicate symbol %s in global index. Type %s", []any{name, type_})))
 	}
 	replacedSymbol = scope.ownSymbols.put(name, symbol)
 	if replacedSymbol != nil {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Found duplicate symbol %s in its scope. Type %s", []any{name, type_})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Found duplicate symbol %s in its scope. Type %s", []any{name, type_})))
 	}
 	return symbol
 }
@@ -517,10 +517,10 @@ func (this *SymbolTable) mergeSymbol(from *SymbolTable_Symbol, to *SymbolTable_S
 func (this *SymbolTable) removeSymbol(s *SymbolTable_Symbol) {
 	var scope *SymbolTable_SymbolScope = this.getScope(s)
 	if !s.equals_SymbolTable_Symbol(scope.ownSymbols.remove(s.getName())) {
-		panic(new_IllegalStateException_String(("Symbol not found in scope " + jtostr_(s))).self())
+		panic(new_IllegalStateException_String(("Symbol not found in scope " + jtostr_(s))))
 	}
 	if !s.equals_SymbolTable_Symbol(this.symbols.remove(s.getDeclaration_rStaticTypedRef_rReference().getNode().box_(), strobj_(s.getName()))) {
-		panic(new_IllegalStateException_String(("Symbol not found in table " + jtostr_(s))).self())
+		panic(new_IllegalStateException_String(("Symbol not found in table " + jtostr_(s))))
 	}
 	if (s.propertyScope != nil) && s.equals_SymbolTable_Symbol(s.propertyScope.getSymbolForScope()) {
 		for _, el := range immElems_(ImmutableList_copyOf(s.propertyScope.ownSymbols.asMap().values())) {
@@ -533,7 +533,7 @@ func (this *SymbolTable) removeSymbol(s *SymbolTable_Symbol) {
 
 func (this *SymbolTable) renameSymbol(scope *SymbolTable_SymbolScope, sym *SymbolTable_Symbol, newName string) {
 	if sym.propertyScope != nil {
-		panic(new_IllegalStateException_String(objstr_("Renaming supported for simple symbols that don't have property scopes.")).self())
+		panic(new_IllegalStateException_String(objstr_("Renaming supported for simple symbols that don't have property scopes.")))
 	}
 	var existingSym *SymbolTable_Symbol = scope.getSlot(newName)
 	if existingSym == nil {
@@ -845,11 +845,11 @@ func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes 
 		}
 	} else if n.isDestructuringLhs() {
 		if !n.getFirstChild().isObjectPattern() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		for stringKey := range elemsBy_(n.getFirstChild().children(), Node_of_) {
 			if !stringKey.isStringKey() {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			var varName string = stringKey.getString()
 			var varDeclaration *SymbolTable_Symbol = nil
@@ -956,7 +956,7 @@ func (this *SymbolTable) createScopeFrom(otherScope StaticScope) *SymbolTable_Sy
 		var otherScopeParent StaticScope = otherScope.getParentScope()
 		if otherScopeParent == nil {
 			if this.globalScope != nil {
-				panic(new_IllegalStateException_String(objstr_("Global scopes found at different roots")).self())
+				panic(new_IllegalStateException_String(objstr_("Global scopes found at different roots")))
 			}
 		}
 		myScope = new_SymbolTable_SymbolScope(otherScopeRoot, func() *SymbolTable_SymbolScope {
@@ -978,7 +978,7 @@ func (this *SymbolTable) getLexicalScopeDepth(scope *SymbolTable_SymbolScope) in
 		return scope.getScopeDepth()
 	} else {
 		if !scope.isPropertyScope() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		var sym *SymbolTable_Symbol = scope.getSymbolForScope()
 		Preconditions_checkNotNull_T(sym)
@@ -1137,7 +1137,7 @@ func (this *SymbolTable_Symbol) defineReferenceAt(n Node) *SymbolTable_Reference
 
 func (this *SymbolTable_Symbol) setDeclaration(ref *SymbolTable_Reference) {
 	if this.declaration_ != nil {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.declaration_ = ref
 }
@@ -1900,7 +1900,7 @@ func (this *SymbolTable_6) compare(a_ any, b_ any) int32 {
 	var b *SymbolTable_SymbolScope = cast_[*SymbolTable_SymbolScope](b_)
 	_ = b
 	if !a.isLexicalScope() || !b.isLexicalScope() {
-		panic(new_IllegalStateException_String(objstr_("We can only sort lexical scopes")).self())
+		panic(new_IllegalStateException_String(objstr_("We can only sort lexical scopes")))
 	}
 	var result int32 = this.outer_.nodeOrdering.compare(a.getRootNode().box_(), b.getRootNode().box_())
 	if result != 0 {

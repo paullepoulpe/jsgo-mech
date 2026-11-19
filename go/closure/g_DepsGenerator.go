@@ -133,7 +133,7 @@ func (this *DepsGenerator) validateDependencies(preparsedFileDependencies Iterab
 					}
 				case DependencyInfo_Require_Type_GOOG_REQUIRE_SYMBOL, DependencyInfo_Require_Type_PARSED_FROM_DEPS:
 				case DependencyInfo_Require_Type_COMMON_JS, DependencyInfo_Require_Type_COMPILER_CHUNK:
-					panic(new_IllegalStateException_String(("Unexpected import type: " + jtostr_(require.getType()))).self())
+					panic(new_IllegalStateException_String(("Unexpected import type: " + jtostr_(require.getType()))))
 				}
 			}
 		}

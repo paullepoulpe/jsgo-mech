@@ -29,7 +29,7 @@ func (this *CheckNestedNames) shouldTraverse(nodeTraversal *NodeTraversal, n Nod
 
 func (this *CheckNestedNames) visit(t *NodeTraversal, n Node, parent Node) {
 	if !t.inGlobalOrModuleScope() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if !n.isGetProp() || !n.isQualifiedName() {
 		return

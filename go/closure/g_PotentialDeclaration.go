@@ -65,7 +65,7 @@ func PotentialDeclaration_fromName(nameNode Node) *PotentialDeclaration {
 
 func PotentialDeclaration_fromMemberFieldDef(fieldNode Node) *PotentialDeclaration {
 	if !fieldNode.isMemberFieldDef() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var rhs Node = NodeUtil_getRValueOfLValue(fieldNode)
 	var name string = ClassUtil_getFullyQualifiedNameOfMemberFieldDef(fieldNode)
@@ -74,7 +74,7 @@ func PotentialDeclaration_fromMemberFieldDef(fieldNode Node) *PotentialDeclarati
 
 func PotentialDeclaration_fromMethod(functionNode Node) *PotentialDeclaration {
 	if !ClassUtil_isClassMethod(functionNode) {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var name string = ClassUtil_getFullyQualifiedNameOfMethod(functionNode)
 	return new_PotentialDeclaration_MethodDeclaration(name, functionNode).up_PotentialDeclaration()
@@ -82,10 +82,10 @@ func PotentialDeclaration_fromMethod(functionNode Node) *PotentialDeclaration {
 
 func PotentialDeclaration_fromStringKey(stringKeyNode Node) *PotentialDeclaration {
 	if !stringKeyNode.isStringKey() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if !stringKeyNode.getParent().isObjectLit() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var name string = ("this." + sstr_(stringKeyNode.getString()))
 	if stringKeyNode.getString() == "properties" {
@@ -99,7 +99,7 @@ func PotentialDeclaration_fromStringKey(stringKeyNode Node) *PotentialDeclaratio
 
 func PotentialDeclaration_fromDefine(callNode Node) *PotentialDeclaration {
 	if !NodeUtil_isCallTo(callNode, "goog.define") {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	return PotentialDeclaration_DefineDeclaration_from(callNode).up_PotentialDeclaration()
 }
@@ -193,7 +193,7 @@ func (this *PotentialDeclaration) isDefiniteDeclaration_impl(compiler *AbstractC
 		if NodeUtil_isLhsByDestructuring(this.getLhs()) {
 			var rootTarget Node = NodeUtil_getRootTarget(this.getLhs())
 			if !rootTarget.getParent().isDestructuringLhs() {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			if NodeUtil_isNameDeclaration(rootTarget.getGrandparent()) {
 				return true
@@ -353,7 +353,7 @@ func (this *PotentialDeclaration_NameDeclaration) simplifyNamespace(compiler *Ab
 
 func (this *PotentialDeclaration_NameDeclaration) simplifySymbol(compiler *AbstractCompiler) {
 	if !NodeUtil_isCallTo(this.getRhs(), "Symbol") {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var callNode Node = this.getRhs()
 	for callNode.hasMoreThanOneChild() {
@@ -405,7 +405,7 @@ func (this *PotentialDeclaration_NameDeclaration) breakDownDestructure_impl(comp
 	}
 	var rootTarget Node = NodeUtil_getRootTarget(this.getLhs())
 	if !rootTarget.getParent().isDestructuringLhs() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !NodeUtil_isNameDeclaration(rootTarget.getGrandparent()) {
 		return false
@@ -543,7 +543,7 @@ func PotentialDeclaration_DefineDeclaration_from(callNode Node) *PotentialDeclar
 			var parent Node = callNode.getParent()
 			return new_PotentialDeclaration_DefineDeclaration(parent.getString(), parent, callNode.getLastChild())
 		default:
-			panic(new_IllegalStateException_String(("Unexpected parent: " + jtostr_(callNode.getParent().getToken()))).self())
+			panic(new_IllegalStateException_String(("Unexpected parent: " + jtostr_(callNode.getParent().getToken()))))
 		}
 	}()
 }

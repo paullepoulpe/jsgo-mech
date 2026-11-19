@@ -208,7 +208,7 @@ func (this *Export_Builder) nameNode(value Node) *Export_Builder {
 
 func (this *Export_Builder) moduleMetadata(value *ModuleMetadataMap_ModuleMetadata) *Export_Builder {
 	if value == nil {
-		panic(new_NullPointerException_String("Null moduleMetadata").self())
+		panic(new_NullPointerException_String("Null moduleMetadata"))
 	}
 	this.moduleMetadataField = value
 	return this
@@ -234,7 +234,7 @@ func (this *Export_Builder) autoBuild() *Export {
 		if (int32(this.set0) & 1) == 0 {
 			missing.append(" mutated")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))))
 	}
 	return new_Export(this.exportNameField, this.moduleRequestField, this.importNameField, this.localNameField, this.modulePathField, this.exportNodeField, this.nameNodeField, this.moduleMetadataField, this.closureNamespaceField, this.mutatedField)
 }
@@ -253,60 +253,60 @@ func (this *Export_Builder) build() *Export {
 
 func (this *Export_Builder) validateEsModule(e *Export) {
 	if !e.closureNamespace().isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !(!("*" == e.importName().orElse("")) || ((e.moduleRequest().isPresent() && e.exportName().isEmpty()) && e.localName().isEmpty())) {
-		panic(new_IllegalStateException_String(objstr_("Star exports should not have exported / local names.")).self())
+		panic(new_IllegalStateException_String(objstr_("Star exports should not have exported / local names.")))
 	}
 	if !e.localName().isEmpty() && !e.moduleRequest().isEmpty() {
-		panic(new_IllegalStateException_String(objstr_("Local exports should not have module requests.")).self())
+		panic(new_IllegalStateException_String(objstr_("Local exports should not have module requests.")))
 	}
 	if !e.moduleRequest().isEmpty() && !e.localName().isEmpty() {
-		panic(new_IllegalStateException_String(objstr_("Reexports should not have local names.")).self())
+		panic(new_IllegalStateException_String(objstr_("Reexports should not have local names.")))
 	}
 	if !e.moduleRequest().isEmpty() && !e.importName().isPresent() {
-		panic(new_IllegalStateException_String(objstr_("Reexports should have import names.")).self())
+		panic(new_IllegalStateException_String(objstr_("Reexports should have import names.")))
 	}
 	if !e.importName().isEmpty() && !e.moduleRequest().isPresent() {
-		panic(new_IllegalStateException_String(objstr_("Exports with an import name should be a reexport.")).self())
+		panic(new_IllegalStateException_String(objstr_("Exports with an import name should be a reexport.")))
 	}
 }
 
 func Export_Builder_validateGoogModule(e *Export) {
 	if !e.closureNamespace().isPresent() {
-		panic(new_IllegalStateException_String(objstr_("Exports should be associated with a namespace")).self())
+		panic(new_IllegalStateException_String(objstr_("Exports should be associated with a namespace")))
 	}
 	if !e.exportName().isPresent() {
-		panic(new_IllegalStateException_String(objstr_("Exports should be named")).self())
+		panic(new_IllegalStateException_String(objstr_("Exports should be named")))
 	}
 	if e.exportNode() == 0 {
-		panic(new_IllegalStateException_String(objstr_("Exports should have a node")).self())
+		panic(new_IllegalStateException_String(objstr_("Exports should have a node")))
 	}
 	if !e.localName().isEmpty() {
-		panic(new_IllegalStateException_String(objstr_("goog.module Exports don't set a localName")).self())
+		panic(new_IllegalStateException_String(objstr_("goog.module Exports don't set a localName")))
 	}
 	if !e.moduleRequest().isEmpty() {
-		panic(new_IllegalStateException_String(objstr_("goog modules cannot export from other modules")).self())
+		panic(new_IllegalStateException_String(objstr_("goog modules cannot export from other modules")))
 	}
 }
 
 func Export_Builder_validateOtherModule(e *Export) {
 	if !e.exportName().isPresent() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if e.exportNode() != 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !e.localName().isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !e.moduleRequest().isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !e.importName().isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if e.nameNode() != 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 }

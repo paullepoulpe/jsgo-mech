@@ -65,7 +65,7 @@ func (this *ProcessConstJsdocCallback) visit_impl(t *NodeTraversal, n Node, pare
 			this.currentFile.recordNameDeclaration(expr)
 		case tokOrd1_GETELEM:
 		default:
-			panic(new_IllegalArgumentException_String(("Unexpected declaration: " + tostrH_(expr))).self())
+			panic(new_IllegalArgumentException_String(("Unexpected declaration: " + tostrH_(expr))))
 		}
 	case Token_rhino_VAR, Token_rhino_CONST, Token_rhino_LET:
 		if !n.hasOneChild() {
@@ -96,7 +96,7 @@ func (this *ProcessConstJsdocCallback) recordDeclaration(t *NodeTraversal, lhs N
 
 func (this *ProcessConstJsdocCallback) recordNameDeclaration(lhs Node, rhs Node) {
 	if !NodeUtil_isNameDeclaration(lhs.getParent()) && !lhs.getParent().isAssign() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var isImport bool = PotentialDeclaration_isImportRhs(rhs)
 	var isAlias bool = PotentialDeclaration_isAliasDeclaration(lhs, rhs)

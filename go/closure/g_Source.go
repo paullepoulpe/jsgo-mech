@@ -195,7 +195,7 @@ func (this *Source_Builder) setSourceMappingUrl(sourceMappingUrl string) *Source
 
 func (this *Source_Builder) setRuntimes(runtimes *JTSet[string]) *Source_Builder {
 	if runtimes == nil {
-		panic(new_NullPointerException_String("Null runtimes").self())
+		panic(new_NullPointerException_String("Null runtimes"))
 	}
 	this.runtimesField = runtimes
 	return this
@@ -203,7 +203,7 @@ func (this *Source_Builder) setRuntimes(runtimes *JTSet[string]) *Source_Builder
 
 func (this *Source_Builder) setLoadFlags(flags *JTMap[string, string]) *Source_Builder {
 	if flags == nil {
-		panic(new_NullPointerException_String("Null loadFlags").self())
+		panic(new_NullPointerException_String("Null loadFlags"))
 	}
 	this.loadFlags_ = flags
 	return this
@@ -244,7 +244,7 @@ func (this *Source_Builder) build() *Source {
 
 func (this *Source_Builder) setCodeSupplier(code *Source_Lazy) *Source_Builder {
 	if code == nil {
-		panic(new_NullPointerException_String("Null codeSupplier").self())
+		panic(new_NullPointerException_String("Null codeSupplier"))
 	}
 	this.codeSupplierField = code
 	return this
@@ -257,14 +257,14 @@ func (this *Source_Builder) setOriginalCodeSupplier(code *Source_Lazy) *Source_B
 
 func (this *Source_Builder) runtimes() *JTSet[string] {
 	if this.runtimesField == nil {
-		panic(new_IllegalStateException_String("Property \"runtimes\" has not been set").self())
+		panic(new_IllegalStateException_String("Property \"runtimes\" has not been set"))
 	}
 	return this.runtimesField
 }
 
 func (this *Source_Builder) codeSupplier() *Source_Lazy {
 	if this.codeSupplierField == nil {
-		panic(new_IllegalStateException_String("Property \"codeSupplier\" has not been set").self())
+		panic(new_IllegalStateException_String("Property \"codeSupplier\" has not been set"))
 	}
 	return this.codeSupplierField
 }
@@ -296,7 +296,7 @@ func (this *Source_Builder) autoBuild() *Source {
 		if this.codeSupplierField == nil {
 			missing.append(" codeSupplier")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))))
 	}
 	return new_Source(this.path_.get(), this.sourceMap_.get(), this.sourceUrl_.get(), this.sourceMappingUrl_.get(), this.runtimesField, this.loadFlags_, this.estimatedSize_, this.codeSupplierField, this.originalCodeSupplierField)
 }

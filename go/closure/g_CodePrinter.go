@@ -19,7 +19,7 @@ func new_CodePrinter() *CodePrinter {
 
 func CodePrinter_toSource(root Node, outputFormat CodePrinter_Format, options *CompilerOptions, licenseTracker CodePrinter_LicenseTracker, tagAsTypeSummary bool, tagAsStrict bool, lineBreak bool, codeGeneratorFactory CodePrinter_Builder_CodeGeneratorFactory) *CodePrinter_SourceAndMappings {
 	if options.getSourceMapDetailLevel() == 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var mcp *CodePrinter_MappedCodePrinter = func() *CodePrinter_MappedCodePrinter {
 		if outputFormat == CodePrinter_Format_COMPACT {
@@ -88,7 +88,7 @@ func (this *CodePrinter_MappedCodePrinter) init_CodePrinter_MappedCodePrinter(li
 	this.CodeConsumer.init_CodeConsumer()
 	this.finit_CodePrinter_MappedCodePrinter()
 	if sourceMapDetailLevel == 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.lineLengthThreshold = func() int32 {
 		if lineLengthThreshold <= 0 {
@@ -132,16 +132,16 @@ func (this *CodePrinter_MappedCodePrinter) trackLicenses_impl(node Node) {
 
 func (this *CodePrinter_MappedCodePrinter) startSourceMapping_impl(node Node) {
 	if this.sourceMapDetailLevel == 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if node == 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if ((this.createSrcMap && node.getSourceFileName() != "") && (node.getLineno() > 0)) && this.sourceMapDetailLevel.apply(node.box_()) {
 		var line int32 = this.getCurrentLineIndex()
 		var index int32 = this.getCurrentCharIndex()
 		if line < 0 {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		var mapping *SourceMap_Mapping = new_SourceMap_Mapping()
 		mapping.node_ = node
@@ -157,7 +157,7 @@ func (this *CodePrinter_MappedCodePrinter) endSourceMapping_impl(node Node) {
 		var line int32 = this.getCurrentLineIndex()
 		var index int32 = this.getCurrentCharIndex()
 		if line < 0 {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		mapping.end_ = new_FilePosition(line, index)
 		this.completeMappings.add(mapping)
@@ -248,7 +248,7 @@ func CodePrinter_MappedCodePrinter_adjustEndPosition(lineLengths *JTList[any], e
 		return endPosition
 	}
 	if ok_, a1_, a2_ := (endPosition.getColumn() <= unbox_[int32](lineLengths.get(line))), endPosition, lineLengths.get(line); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("End position %s points to a column larger than line length %s", []any{a1_, a2_})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("End position %s points to a column larger than line length %s", []any{a1_, a2_})))
 	}
 	if endPosition.getColumn() == unbox_[int32](lineLengths.get(line)) {
 		return new_FilePosition((line + 1), 0)
@@ -303,7 +303,7 @@ func (this *CodePrinter_PrettyCodePrinter) append_impl(str string) {
 
 func (this *CodePrinter_PrettyCodePrinter) addNumber_impl(x float64, n Node) {
 	if !JSCompDoubles_isPositive(x) {
-		panic(new_IllegalStateException_String(objstr_(float64(x))).self())
+		panic(new_IllegalStateException_String(objstr_(float64(x))))
 	}
 	var numberFromSource Optional[string] = CodePrinter_PrettyCodePrinter_getNumberFromSource(n)
 	if numberFromSource.isEmpty() {
@@ -669,7 +669,7 @@ func (this *CodePrinter_Builder) build() string {
 
 func (this *CodePrinter_Builder) buildWithSourceMappings() *CodePrinter_SourceAndMappings {
 	if this.root == 0 {
-		panic(new_IllegalStateException_String("Cannot build without root node being specified").self())
+		panic(new_IllegalStateException_String("Cannot build without root node being specified"))
 	}
 	return CodePrinter_toSource(this.root, CodePrinter_Format_fromOptions(this.options_, this.outputTypes, this.prettyPrint), this.options_, this.licenseTracker, this.tagAsTypeSummary_, this.tagAsStrict_, this.lineBreak, this.codeGeneratorFactory)
 }

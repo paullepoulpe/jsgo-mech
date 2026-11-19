@@ -43,7 +43,7 @@ func PolymerPassStaticUtils_matches(n Node, name string) bool {
 
 func PolymerPassStaticUtils_switchDollarSignPropsToBrackets(def Node, compiler *AbstractCompiler) {
 	if !def.isObjectLit() && !def.isClassMembers() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	{
 		var keyNode Node = def.getFirstChild()
@@ -58,7 +58,7 @@ func PolymerPassStaticUtils_switchDollarSignPropsToBrackets(def Node, compiler *
 
 func PolymerPassStaticUtils_quoteListenerAndHostAttributeKeys(objLit Node, compiler *AbstractCompiler) {
 	if !objLit.isObjectLit() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	{
 		var keyNode Node = objLit.getFirstChild()
@@ -84,7 +84,7 @@ func PolymerPassStaticUtils_quoteListenerAndHostAttributeKeys(objLit Node, compi
 
 func PolymerPassStaticUtils_protectObserverAndPropertyFunctionKeys(behaviorObjLit Node) {
 	if !behaviorObjLit.isObjectLit() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var methodsToProtect *JTSet[string] = jnewTSet_(jtc_string)
 	methodsToProtect.asSet().addAll(Collection(PolymerPassStaticUtils_addObserverMethodsToProtect(behaviorObjLit).asSet()))

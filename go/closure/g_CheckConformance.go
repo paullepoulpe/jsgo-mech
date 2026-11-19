@@ -97,7 +97,7 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs *JTL
 
 func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompiler, configs *JTList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) bool {
 	if !eqR_(reportingMode, CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var baseRequirementBehaviors *JTMap[string, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = jnewTMap_(jtc_string, jtc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
 	it_1 := configs.each()
@@ -206,7 +206,7 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 
 func CheckConformance_mergeExtendingRequirementIntoExtended(extendedRequirement *Requirement_Builder, extendingRequirement *Requirement) {
 	if extendingRequirement.getExtends() != extendedRequirement.getRuleId() {
-		panic(new_IllegalStateException_String(objstr_("Attempting to merge an requirement with the wrong extended requirement")).self())
+		panic(new_IllegalStateException_String(objstr_("Attempting to merge an requirement with the wrong extended requirement")))
 	}
 	extendedRequirement.addAllWhitelist(Iterable(extendingRequirement.getWhitelistList())).addAllWhitelistRegexp(Iterable(extendingRequirement.getWhitelistRegexpList())).addAllAllowlist(Iterable(extendingRequirement.getAllowlistList())).addAllAllowlistRegexp(Iterable(extendingRequirement.getAllowlistRegexpList())).addAllOnlyApplyTo(Iterable(extendingRequirement.getOnlyApplyToList())).addAllOnlyApplyToRegexp(Iterable(extendingRequirement.getOnlyApplyToRegexpList())).addAllWhitelistEntry(Iterable(extendingRequirement.getWhitelistEntryList())).addAllAllowlistEntry(Iterable(extendingRequirement.getAllowlistEntryList())).addAllValue(Iterable(extendingRequirement.getValueList())).addAllConfigFile(Iterable(extendingRequirement.getConfigFileList()))
 	if extendingRequirement.hasErrorMessage() && extendedRequirement.hasErrorMessage() {
@@ -216,7 +216,7 @@ func CheckConformance_mergeExtendingRequirementIntoExtended(extendedRequirement 
 
 func CheckConformance_validateExtendableRequirement(compiler *AbstractCompiler, requirement *Requirement, extendable *JTMap[string, *Requirement_Builder]) bool {
 	if !requirement.hasRuleId() {
-		panic(new_IllegalStateException_String(objstr_("Extendable requirement must have a rule_id")).self())
+		panic(new_IllegalStateException_String(objstr_("Extendable requirement must have a rule_id")))
 	}
 	if requirement.getRuleId() == "" {
 		CheckConformance_reportInvalidRequirement(compiler, requirement, "empty rule_id")
@@ -231,7 +231,7 @@ func CheckConformance_validateExtendableRequirement(compiler *AbstractCompiler, 
 
 func CheckConformance_validateExtendingRequirement(compiler *AbstractCompiler, extendingRequirement *Requirement, extendableRequirement *Requirement_Builder) bool {
 	if !extendingRequirement.hasExtends() {
-		panic(new_IllegalStateException_String(objstr_("Extending requirement must have an extends")).self())
+		panic(new_IllegalStateException_String(objstr_("Extending requirement must have an extends")))
 	}
 	if extendableRequirement == nil {
 		CheckConformance_reportInvalidRequirement(compiler, extendingRequirement, ("no extendable requirement with rule_id: " + sstr_(extendingRequirement.getExtends())))

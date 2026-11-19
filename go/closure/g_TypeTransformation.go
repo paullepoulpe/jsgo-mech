@@ -184,7 +184,7 @@ func (this *TypeTransformation) evalInternal(ttlAst Node, nameResolver *TypeTran
 		case TypeTransformationParser_OperationKind_OPERATION:
 			return this.evalOperationExpression(ttlAst, nameResolver)
 		default:
-			panic(new_IllegalStateException_String("Could not evaluate the type transformation expression").self())
+			panic(new_IllegalStateException_String("Could not evaluate the type transformation expression"))
 		}
 	}()
 }
@@ -209,7 +209,7 @@ func (this *TypeTransformation) evalOperationExpression(ttlAst Node, nameResolve
 		case TypeTransformationParser_Keywords_PROPTYPE:
 			return this.evalPropType(ttlAst, nameResolver)
 		default:
-			panic(new_IllegalStateException_String("Invalid type transformation operation").self())
+			panic(new_IllegalStateException_String("Invalid type transformation operation"))
 		}
 	}()
 }
@@ -238,7 +238,7 @@ func (this *TypeTransformation) evalTypeExpression(ttlAst Node, nameResolver *Ty
 		case TypeTransformationParser_Keywords_TYPEEXPR:
 			return this.evalNativeTypeExpr(ttlAst)
 		default:
-			panic(new_IllegalStateException_String("Invalid type expression").self())
+			panic(new_IllegalStateException_String("Invalid type expression"))
 		}
 	}()
 }
@@ -346,7 +346,7 @@ func (this *TypeTransformation) evalTypePredicate(ttlAst Node, nameResolver *Typ
 		case TypeTransformationParser_Keywords_ISUNKNOWN:
 			return type_.isUnknownType()
 		default:
-			panic(new_IllegalStateException_String("Invalid type predicate in the type transformation").self())
+			panic(new_IllegalStateException_String("Invalid type predicate in the type transformation"))
 		}
 	}()
 }
@@ -365,7 +365,7 @@ func (this *TypeTransformation) evalStringPredicate(ttlAst Node, nameResolver *T
 		case TypeTransformationParser_Keywords_STREQ:
 			return (params[0] == params[1])
 		default:
-			panic(new_IllegalStateException_String("Invalid string predicate in the type transformation").self())
+			panic(new_IllegalStateException_String("Invalid string predicate in the type transformation"))
 		}
 	}()
 }
@@ -378,7 +378,7 @@ func (this *TypeTransformation) evalTypevarPredicate(ttlAst Node, nameResolver *
 		case TypeTransformationParser_Keywords_ISDEFINED:
 			return nameResolver.typeVars.containsKey(this.getCallArgument(ttlAst, 0).getString())
 		default:
-			panic(new_IllegalStateException_String("Invalid typevar predicate in the type transformation").self())
+			panic(new_IllegalStateException_String("Invalid typevar predicate in the type transformation"))
 		}
 	}()
 }
@@ -394,7 +394,7 @@ func (this *TypeTransformation) evalBooleanOperation(ttlAst Node, nameResolver *
 	if ttlAst.isOr() {
 		return (param0 || this.evalBoolean(ttlAst.getLastChild(), nameResolver))
 	}
-	panic(new_IllegalStateException_String("Invalid boolean predicate in the type transformation").self())
+	panic(new_IllegalStateException_String("Invalid boolean predicate in the type transformation"))
 }
 
 func (this *TypeTransformation) evalBoolean(ttlAst Node, nameResolver *TypeTransformation_NameResolver) bool {
@@ -412,7 +412,7 @@ func (this *TypeTransformation) evalBoolean(ttlAst Node, nameResolver *TypeTrans
 		case TypeTransformationParser_OperationKind_TYPEVAR_PREDICATE:
 			return this.evalTypevarPredicate(ttlAst, nameResolver)
 		default:
-			panic(new_IllegalStateException_String("Invalid boolean predicate in the type transformation").self())
+			panic(new_IllegalStateException_String("Invalid boolean predicate in the type transformation"))
 		}
 	}()
 }
