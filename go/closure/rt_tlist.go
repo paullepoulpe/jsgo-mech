@@ -308,7 +308,12 @@ func (v *tlistView_[T]) subList(a int32, b int32) List {
 	if a < 0 || b > v.l.size() || a > b {
 		panic(new_IndexOutOfBoundsException_String("fromIndex: " + istr_(int64(a)) + ", toIndex: " + istr_(int64(b)) + ", size: " + istr_(int64(len(v.l.items)))).self())
 	}
-	return listOf_(v.boxed()[a:b:b])
+	// Only the range is boxed (the whole list was, once per call).
+	out := make([]any, b-a)
+	for i, x := range v.l.items[a:b] {
+		out[i] = v.l.c.box(x)
+	}
+	return listOf_(out)
 }
 
 func (v *tlistView_[T]) toArray_0() []any      { return v.boxed() }
