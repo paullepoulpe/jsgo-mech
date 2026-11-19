@@ -398,10 +398,6 @@ func (this DeadAssignmentsElimination_VariableLiveness) toString() string {
 	return this.enum_().name_
 }
 
-func (this DeadAssignmentsElimination_VariableLiveness) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this DeadAssignmentsElimination_VariableLiveness) self() any {
 	if this == 0 {
 		return nil

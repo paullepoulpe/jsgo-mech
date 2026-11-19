@@ -174,10 +174,6 @@ func (this Property_KeyKind) ordinal() int32 {
 
 func (this Property_KeyKind) toString() string { return this.enum_().name_ }
 
-func (this Property_KeyKind) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this Property_KeyKind) self() any {
 	if this == 0 {
 		return nil

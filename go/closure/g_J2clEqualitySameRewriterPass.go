@@ -205,10 +205,6 @@ func (this J2clEqualitySameRewriterPass_NodeValue) toString() string {
 	return this.enum_().name_
 }
 
-func (this J2clEqualitySameRewriterPass_NodeValue) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this J2clEqualitySameRewriterPass_NodeValue) self() any {
 	if this == 0 {
 		return nil

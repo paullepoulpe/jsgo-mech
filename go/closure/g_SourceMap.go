@@ -163,8 +163,6 @@ func (this SourceMap_Format) ordinal() int32 {
 
 func (this SourceMap_Format) toString() string { return this.enum_().name_ }
 
-func (this SourceMap_Format) compareTo(o any) int32 { return this.enum_().compareTo(o) }
-
 func (this SourceMap_Format) self() any {
 	if this == 0 {
 		return nil
@@ -247,8 +245,6 @@ func (this SourceMap_DetailLevel) ordinal() int32 {
 }
 
 func (this SourceMap_DetailLevel) toString() string { return this.enum_().name_ }
-
-func (this SourceMap_DetailLevel) compareTo(o any) int32 { return this.enum_().compareTo(o) }
 
 func (this SourceMap_DetailLevel) self() any {
 	if this == 0 {

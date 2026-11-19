@@ -175,10 +175,6 @@ func (this DependencyInfo_Require_Type) toString() string {
 	return this.enum_().name_
 }
 
-func (this DependencyInfo_Require_Type) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this DependencyInfo_Require_Type) self() any {
 	if this == 0 {
 		return nil

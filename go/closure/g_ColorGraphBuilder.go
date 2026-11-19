@@ -144,10 +144,6 @@ func (this ColorGraphBuilder_EdgeReason) toString() string {
 	return this.enum_().name_
 }
 
-func (this ColorGraphBuilder_EdgeReason) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this ColorGraphBuilder_EdgeReason) self() any {
 	if this == 0 {
 		return nil

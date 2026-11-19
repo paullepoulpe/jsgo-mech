@@ -29,10 +29,6 @@ func (this ClosurePrimitive) ordinal() int32 {
 
 func (this ClosurePrimitive) toString() string { return this.enum_().name_ }
 
-func (this ClosurePrimitive) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this ClosurePrimitive) self() any {
 	if this == 0 {
 		return nil

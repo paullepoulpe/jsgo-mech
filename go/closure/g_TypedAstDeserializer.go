@@ -251,10 +251,6 @@ func (this TypedAstDeserializer_Mode) toString() string {
 	return this.enum_().name_
 }
 
-func (this TypedAstDeserializer_Mode) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this TypedAstDeserializer_Mode) self() any {
 	if this == 0 {
 		return nil

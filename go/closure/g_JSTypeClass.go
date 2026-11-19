@@ -51,8 +51,6 @@ func (this JSTypeClass) ordinal() int32 {
 
 func (this JSTypeClass) toString() string { return this.enum_().name_ }
 
-func (this JSTypeClass) compareTo(o any) int32 { return this.enum_().compareTo(o) }
-
 func (this JSTypeClass) self() any {
 	if this == 0 {
 		return nil

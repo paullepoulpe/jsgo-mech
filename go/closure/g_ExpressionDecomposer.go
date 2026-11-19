@@ -678,10 +678,6 @@ func (this ExpressionDecomposer_DecompositionType) toString() string {
 	return this.enum_().name_
 }
 
-func (this ExpressionDecomposer_DecompositionType) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this ExpressionDecomposer_DecompositionType) self() any {
 	if this == 0 {
 		return nil
@@ -747,10 +743,6 @@ func (this ExpressionDecomposer_Workaround) ordinal() int32 {
 
 func (this ExpressionDecomposer_Workaround) toString() string {
 	return this.enum_().name_
-}
-
-func (this ExpressionDecomposer_Workaround) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this ExpressionDecomposer_Workaround) self() any {
@@ -836,10 +828,6 @@ func (this ExpressionDecomposer_EvaluationDirection) ordinal() int32 {
 
 func (this ExpressionDecomposer_EvaluationDirection) toString() string {
 	return this.enum_().name_
-}
-
-func (this ExpressionDecomposer_EvaluationDirection) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this ExpressionDecomposer_EvaluationDirection) self() any {

@@ -150,10 +150,6 @@ func (this NestedCompilerRunner_Mode) toString() string {
 	return this.enum_().name_
 }
 
-func (this NestedCompilerRunner_Mode) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this NestedCompilerRunner_Mode) self() any {
 	if this == 0 {
 		return nil

@@ -140,8 +140,6 @@ func (this Msg) ordinal() int32 {
 
 func (this Msg) toString() string { return this.enum_().name_ }
 
-func (this Msg) compareTo(o any) int32 { return this.enum_().compareTo(o) }
-
 func (this Msg) self() any {
 	if this == 0 {
 		return nil

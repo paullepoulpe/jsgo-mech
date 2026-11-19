@@ -141,10 +141,6 @@ func (this ExtractPrototypeMemberDeclarations_Pattern) toString() string {
 	return this.enum_().name_
 }
 
-func (this ExtractPrototypeMemberDeclarations_Pattern) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this ExtractPrototypeMemberDeclarations_Pattern) self() any {
 	if this == 0 {
 		return nil

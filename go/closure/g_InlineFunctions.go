@@ -1145,10 +1145,6 @@ func (this InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) toString()
 	return this.enum_().name_
 }
 
-func (this InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) self() any {
 	if this == 0 {
 		return nil
@@ -1216,10 +1212,6 @@ func (this InlineFunctions_CannotRemoveReason) ordinal() int32 {
 
 func (this InlineFunctions_CannotRemoveReason) toString() string {
 	return this.enum_().name_
-}
-
-func (this InlineFunctions_CannotRemoveReason) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this InlineFunctions_CannotRemoveReason) self() any {
@@ -1298,10 +1290,6 @@ func (this InlineFunctions_DisallowInliningReason) ordinal() int32 {
 
 func (this InlineFunctions_DisallowInliningReason) toString() string {
 	return this.enum_().name_
-}
-
-func (this InlineFunctions_DisallowInliningReason) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this InlineFunctions_DisallowInliningReason) self() any {

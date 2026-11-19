@@ -499,10 +499,6 @@ func (this AnalyzePrototypeProperties_SymbolType) toString() string {
 	return this.enum_().name_
 }
 
-func (this AnalyzePrototypeProperties_SymbolType) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this AnalyzePrototypeProperties_SymbolType) self() any {
 	if this == 0 {
 		return nil

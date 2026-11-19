@@ -156,10 +156,6 @@ func (this ReplaceIdGenerators_RenameStrategy) toString() string {
 	return this.enum_().name_
 }
 
-func (this ReplaceIdGenerators_RenameStrategy) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this ReplaceIdGenerators_RenameStrategy) self() any {
 	if this == 0 {
 		return nil

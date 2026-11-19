@@ -181,10 +181,6 @@ func (this ProductionCoverageInstrumentationCallback_Type) toString() string {
 	return this.enum_().name_
 }
 
-func (this ProductionCoverageInstrumentationCallback_Type) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this ProductionCoverageInstrumentationCallback_Type) self() any {
 	if this == 0 {
 		return nil

@@ -4535,10 +4535,6 @@ func (this NodeUtil_ValueType) ordinal() int32 {
 
 func (this NodeUtil_ValueType) toString() string { return this.enum_().name_ }
 
-func (this NodeUtil_ValueType) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this NodeUtil_ValueType) self() any {
 	if this == 0 {
 		return nil

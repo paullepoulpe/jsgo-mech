@@ -125,10 +125,6 @@ func (this AbstractMessageFormatter_Color) toString() string {
 	return this.enum_().name_
 }
 
-func (this AbstractMessageFormatter_Color) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this AbstractMessageFormatter_Color) self() any {
 	if this == 0 {
 		return nil

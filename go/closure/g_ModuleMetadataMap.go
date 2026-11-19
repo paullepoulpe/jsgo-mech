@@ -72,10 +72,6 @@ func (this ModuleMetadataMap_ModuleType) toString() string {
 	return this.enum_().name_
 }
 
-func (this ModuleMetadataMap_ModuleType) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this ModuleMetadataMap_ModuleType) self() any {
 	if this == 0 {
 		return nil

@@ -1712,10 +1712,6 @@ func (this CommandLineRunner_FormattingOption) toString() string {
 	return this.enum_().name_
 }
 
-func (this CommandLineRunner_FormattingOption) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this CommandLineRunner_FormattingOption) self() any {
 	if this == 0 {
 		return nil

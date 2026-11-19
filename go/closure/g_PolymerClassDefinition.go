@@ -340,10 +340,6 @@ func (this PolymerClassDefinition_DefinitionType) toString() string {
 	return this.enum_().name_
 }
 
-func (this PolymerClassDefinition_DefinitionType) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this PolymerClassDefinition_DefinitionType) self() any {
 	if this == 0 {
 		return nil

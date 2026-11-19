@@ -361,10 +361,6 @@ func (this EqualityChecker_EqMethod) toString() string {
 	return this.enum_().name_
 }
 
-func (this EqualityChecker_EqMethod) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this EqualityChecker_EqMethod) self() any {
 	if this == 0 {
 		return nil

@@ -2064,10 +2064,6 @@ func (this AstValidator_TypeInfoValidation) toString() string {
 	return this.enum_().name_
 }
 
-func (this AstValidator_TypeInfoValidation) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this AstValidator_TypeInfoValidation) self() any {
 	if this == 0 {
 		return nil
