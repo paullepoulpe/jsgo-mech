@@ -39,8 +39,8 @@ func (this *MapDiagnosticToSuppression) printSuppressions(args []string) {
 	}})
 	parser.option("--help").usage("Usage").flag(func() any {
 		return any(bool(this.help))
-	}, func(v any) {
-		this.help = unbox_[bool](v)
+	}, func(v bool) {
+		this.help = v
 	})
 	var parsed *Outcome_base[any] = parser.parseArgument(args)
 	if parsed.isErr() {

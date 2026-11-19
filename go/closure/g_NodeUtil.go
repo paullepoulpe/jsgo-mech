@@ -3152,7 +3152,7 @@ func NodeUtil_isShallowStatementTree(n Node) bool {
 }
 
 func NodeUtil_getNodeTypeReferenceCount(node Node, type_ Token_rhino, traverseChildrenPred func(Node) bool) int32 {
-	return NodeUtil_getCount(node, new_NodeUtil_MatchNodeType(type_).apply, traverseChildrenPred)
+	return NodeUtil_getCount(node, new_NodeUtil_MatchNodeType(type_).applyT_, traverseChildrenPred)
 }
 
 func NodeUtil_isNameReferenced_Node_String_Predicate(node Node, name string, traverseChildrenPred func(Node) bool) bool {
@@ -3164,7 +3164,7 @@ func NodeUtil_isNameReferenced_Node_String(node Node, name string) bool {
 }
 
 func NodeUtil_getNameReferenceCount(node Node, name string) int32 {
-	return NodeUtil_getCount(node, new_NodeUtil_MatchNameNode(name).apply, Predicates_alwaysTrueT_[Node])
+	return NodeUtil_getCount(node, new_NodeUtil_MatchNameNode(name).applyT_, Predicates_alwaysTrueT_[Node])
 }
 
 func NodeUtil_has(node Node, pred func(Node) bool, traverseChildrenPred func(Node) bool) bool {
@@ -3204,9 +3204,9 @@ func NodeUtil_findPreorder(node Node, pred func(Node) bool, traverseChildrenPred
 	return 0
 }
 
-func NodeUtil_getCount(n Node, pred func(any) bool, traverseChildrenPred func(Node) bool) int32 {
+func NodeUtil_getCount(n Node, pred func(Node) bool, traverseChildrenPred func(Node) bool) int32 {
 	var total int32 = 0
-	if pred(n.box_()) {
+	if pred(n) {
 		total++
 	}
 	if traverseChildrenPred(n) {
@@ -4628,15 +4628,6 @@ func (this *NodeUtil_MatchNameNode) applyT_(n Node) bool {
 	return (n.isName() && (n.getString() == this.name_))
 }
 
-// apply is the bridge of the interface's erased signature (javac's): it casts its arguments and calls applyT_.
-func (this *NodeUtil_MatchNameNode) apply(n_ any) bool {
-	return this.applyT_(Node_of_(n_))
-}
-
-func (this *NodeUtil_MatchNameNode) test(p0 any) bool {
-	return Predicate_base_test(this, p0)
-}
-
 type NodeUtil_MatchNodeType struct {
 	type__ Token_rhino
 }
@@ -4654,15 +4645,6 @@ func new_NodeUtil_MatchNodeType(type_ Token_rhino) *NodeUtil_MatchNodeType {
 // applyT_ is apply with the parameter types the class declares (implsplit).
 func (this *NodeUtil_MatchNodeType) applyT_(n Node) bool {
 	return (n.getToken() == this.type__)
-}
-
-// apply is the bridge of the interface's erased signature (javac's): it casts its arguments and calls applyT_.
-func (this *NodeUtil_MatchNodeType) apply(n_ any) bool {
-	return this.applyT_(Node_of_(n_))
-}
-
-func (this *NodeUtil_MatchNodeType) test(p0 any) bool {
-	return Predicate_base_test(this, p0)
 }
 
 type NodeUtil_MatchDeclaration struct {

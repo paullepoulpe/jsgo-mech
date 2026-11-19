@@ -131,14 +131,14 @@ func (this *FlowSensitiveInlineVariables) visit(t *NodeTraversal, n Node, parent
 
 }
 
-func FlowSensitiveInlineVariables_checkPostExpressions(n Node, expressionRoot Node, predicate func(any) bool) bool {
+func FlowSensitiveInlineVariables_checkPostExpressions(n Node, expressionRoot Node, predicate func(Node) bool) bool {
 	{
 		var p Node = n
 		for ; p != expressionRoot; p = p.getParent() {
 			{
 				var cur Node = p.getNext()
 				for ; cur != 0; cur = cur.getNext() {
-					if predicate(cur.box_()) {
+					if predicate(cur) {
 						return true
 					}
 				}
@@ -148,14 +148,14 @@ func FlowSensitiveInlineVariables_checkPostExpressions(n Node, expressionRoot No
 	return false
 }
 
-func FlowSensitiveInlineVariables_checkPreExpressions(n Node, expressionRoot Node, predicate func(any) bool) bool {
+func FlowSensitiveInlineVariables_checkPreExpressions(n Node, expressionRoot Node, predicate func(Node) bool) bool {
 	{
 		var p Node = n
 		for ; p != expressionRoot; p = p.getParent() {
 			var oldestSibling Node = p.getParent().getFirstChild()
 			if oldestSibling.isDestructuringPattern() {
 				if p.isDestructuringPattern() {
-					if (p.getNext() != 0) && predicate(p.getNext().box_()) {
+					if (p.getNext() != 0) && predicate(p.getNext()) {
 						return true
 					}
 				}
@@ -164,7 +164,7 @@ func FlowSensitiveInlineVariables_checkPreExpressions(n Node, expressionRoot Nod
 			{
 				var cur Node = oldestSibling
 				for ; cur != p; cur = cur.getNext() {
-					if predicate(cur.box_()) {
+					if predicate(cur) {
 						return true
 					}
 				}
@@ -390,10 +390,10 @@ func (this *FlowSensitiveInlineVariables_Candidate) canInline(scope *Scope) bool
 		}
 	}
 	var sideEffectPredicateWithNames *FlowSensitiveInlineVariables_SideEffectPredicate = new_FlowSensitiveInlineVariables_SideEffectPredicate_Set(this.outer_, namesToCheck)
-	if FlowSensitiveInlineVariables_checkPostExpressions(this.def, this.getDefCfgNode(), sideEffectPredicateWithNames.apply) {
+	if FlowSensitiveInlineVariables_checkPostExpressions(this.def, this.getDefCfgNode(), sideEffectPredicateWithNames.applyT_) {
 		return false
 	}
-	if FlowSensitiveInlineVariables_checkPreExpressions(this.use, this.useCfgNode, sideEffectPredicateWithNames.apply) {
+	if FlowSensitiveInlineVariables_checkPreExpressions(this.use, this.useCfgNode, sideEffectPredicateWithNames.applyT_) {
 		return false
 	}
 	if this.outer_.compiler_.getAstAnalyzer().mayHaveSideEffects(this.def.getLastChild()) {

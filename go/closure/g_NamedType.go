@@ -173,9 +173,7 @@ func (this *NamedType) recursionUnsafeHashCode_impl() int32 {
 }
 
 func (this *NamedType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSType {
-	var resolvedTypeArgs *ImmutableList[*JSType] = tlistImm_(tc_p_JSType, JSTypeIterations_mapTypesImmutableList(func(t_ any) any {
-		var t *JSType = to_JSType(t_)
-		_ = t
+	var resolvedTypeArgs *ImmutableList[*JSType] = tlistImm_(tc_p_JSType, JSTypeIterations_mapTypesImmutableList(func(t *JSType) any {
 		return t.resolve(reporter).self()
 	}, this.templateTypes))
 	if equalsId_(this.resolutionKind, NamedType_ResolutionKind_NONE) {

@@ -409,13 +409,13 @@ func (this *CmdLineParser_Option) integer(get func() any, set func(any)) {
 	}
 }
 
-func (this *CmdLineParser_Option) flag(get func() any, set func(any)) {
+func (this *CmdLineParser_Option) flag(get func() any, set func(bool)) {
 	this.metaVariable = Optional_empty[string]()
 	this.defaultValues = (&Supplier_tfn_List{func() List {
 		return CmdLineParser_Option_asList(get())
 	}}).get
 	this.handler = func(params CmdLineParser_Parameters) *Outcome_base[any] {
-		set(any(bool(true)))
+		set(bool(true))
 		return Outcome_base_ok_Object[any](any(int32(0)))
 	}
 }
