@@ -5,13 +5,13 @@ package closure
 type RewriteCallerCodeLocation struct {
 	compiler_                   *AbstractCompiler
 	astFactory_                 *AstFactory
-	callerLocationFunctionNames *TMap[string, *RewriteCallerCodeLocation_FunctionVarAndParamPosition]
+	callerLocationFunctionNames *JTMap[string, *RewriteCallerCodeLocation_FunctionVarAndParamPosition]
 }
 
 func (this *RewriteCallerCodeLocation) init_RewriteCallerCodeLocation(compiler *AbstractCompiler) {
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
-	this.callerLocationFunctionNames = newTMap_(tc_string, tc_p_RewriteCallerCodeLocation_FunctionVarAndParamPosition)
+	this.callerLocationFunctionNames = jnewTMap_(jtc_string, tc_p_RewriteCallerCodeLocation_FunctionVarAndParamPosition)
 }
 
 func new_RewriteCallerCodeLocation(compiler *AbstractCompiler) *RewriteCallerCodeLocation {
@@ -167,7 +167,7 @@ func (this *RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls) visitC
 		return
 	}
 	var name string = firstChild.getQualifiedName()
-	var moduleContentsName string = String_replace_s(String_replace_char_char(name, '.', '_'), "module$exports$", "module$contents$")
+	var moduleContentsName string = JString_replace_s(String_replace_char_char(name, '.', '_'), "module$exports$", "module$contents$")
 	if !this.outer_.callerLocationFunctionNames.containsKey(moduleContentsName) {
 		return
 	}

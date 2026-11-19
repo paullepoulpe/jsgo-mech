@@ -5,13 +5,13 @@ package closure
 type CheckConstantCaseNames struct {
 	compiler_             *AbstractCompiler
 	convention            CodingConvention
-	invalidNamesPerModule *TMap[string, Node]
-	reassignedNames       *TSet[string]
+	invalidNamesPerModule *JTMap[string, Node]
+	reassignedNames       *JTSet[string]
 }
 
 func (this *CheckConstantCaseNames) finit_CheckConstantCaseNames() {
-	this.invalidNamesPerModule = newTMap_(tc_string, tc_Node)
-	this.reassignedNames = newTSet_(tc_string)
+	this.invalidNamesPerModule = jnewTMap_(jtc_string, jtc_Node)
+	this.reassignedNames = jnewTSet_(jtc_string)
 }
 
 func (this *CheckConstantCaseNames) init_CheckConstantCaseNames(compiler *AbstractCompiler) {
@@ -82,8 +82,8 @@ func (this *CheckConstantCaseNames) reportWarningsAndClear() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(nameNode, CheckConstantCaseNames_MISSING_CONST_PROPERTY, []string{name}))
 		}
 	}
-	this.invalidNamesPerModule = newTMap_(tc_string, tc_Node)
-	this.reassignedNames = newTSet_(tc_string)
+	this.invalidNamesPerModule = jnewTMap_(jtc_string, jtc_Node)
+	this.reassignedNames = jnewTSet_(jtc_string)
 }
 
 var CheckConstantCaseNames_MISSING_CONST_PROPERTY *DiagnosticType

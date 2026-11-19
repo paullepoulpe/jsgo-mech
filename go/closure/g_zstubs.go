@@ -4690,7 +4690,7 @@ type Function_tfn[P0 any, R any] struct {
 }
 
 func (this *Function_tfn[P0, R]) apply(p0 any) any {
-	return boxT_(this.f(unboxT_[P0](p0)))
+	return boxT_(this.f(junboxT_[P0](p0)))
 }
 
 type Comparator_tfn[P0 any, P1 any] struct {
@@ -4698,7 +4698,7 @@ type Comparator_tfn[P0 any, P1 any] struct {
 }
 
 func (this *Comparator_tfn[P0, P1]) compare(p0 any, p1 any) int32 {
-	return this.f(unboxT_[P0](p0), unboxT_[P1](p1))
+	return this.f(junboxT_[P0](p0), junboxT_[P1](p1))
 }
 
 type BiConsumer_tfn[P0 any, P1 any] struct {
@@ -4706,7 +4706,7 @@ type BiConsumer_tfn[P0 any, P1 any] struct {
 }
 
 func (this *BiConsumer_tfn[P0, P1]) accept(p0 any, p1 any) {
-	this.f(unboxT_[P0](p0), unboxT_[P1](p1))
+	this.f(junboxT_[P0](p0), junboxT_[P1](p1))
 }
 
 type Function_base_tfn[P0 any, R any] struct {
@@ -4714,5 +4714,5 @@ type Function_base_tfn[P0 any, R any] struct {
 }
 
 func (this *Function_base_tfn[P0, R]) apply(p0 any) any {
-	return boxT_(this.f(unboxT_[P0](p0)))
+	return boxT_(this.f(junboxT_[P0](p0)))
 }

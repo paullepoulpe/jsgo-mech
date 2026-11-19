@@ -17,10 +17,10 @@ func new_PathUtil() *PathUtil {
 
 func PathUtil_collapseDots(path string) string {
 	path = PathUtil_removeExtraneousSlashes(path)
-	if !String_contains_s(path, ".") {
+	if !JString_contains_s(path, ".") {
 		return path
 	}
-	var dstFragments *TList[string] = newTList_(tc_string)
+	var dstFragments *JTList[string] = jnewTList_(jtc_string)
 	it_1 := foreach_(Splitter_on('/').split_s(path))
 	for it_1.next() {
 		var fragment string = str_(it_1.v)

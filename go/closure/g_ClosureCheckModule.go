@@ -163,7 +163,7 @@ func (this *ClosureCheckModule) checkImproperReferenceToImport(t *NodeTraversal,
 	if importLhs == 0 {
 		return true
 	}
-	if !String_contains_s(qname.get(), ".") && ClosureCheckModule_isLocalVar(t.getScope().getVar_String_rVar(qname.get())) {
+	if !JString_contains_s(qname.get(), ".") && ClosureCheckModule_isLocalVar(t.getScope().getVar_String_rVar(qname.get())) {
 		return true
 	}
 	if importLhs.isName() {
@@ -422,9 +422,9 @@ func ClosureCheckModule_clinit() {
 
 type ClosureCheckModule_ModuleInfo struct {
 	name_                     string
-	importsByLongRequiredName *TMap[string, Node]
-	shortImportNames          *TSet[string]
-	exportNodesByName         *TMap[string, Node]
+	importsByLongRequiredName *JTMap[string, Node]
+	shortImportNames          *JTSet[string]
+	exportNodesByName         *JTMap[string, Node]
 }
 
 func (this *ClosureCheckModule_ModuleInfo) zero_ClosureCheckModule_ModuleInfo() {
@@ -432,9 +432,9 @@ func (this *ClosureCheckModule_ModuleInfo) zero_ClosureCheckModule_ModuleInfo() 
 }
 
 func (this *ClosureCheckModule_ModuleInfo) finit_ClosureCheckModule_ModuleInfo() {
-	this.importsByLongRequiredName = newTMap_(tc_string, tc_Node)
-	this.shortImportNames = newTSet_(tc_string)
-	this.exportNodesByName = newTMap_(tc_string, tc_Node)
+	this.importsByLongRequiredName = jnewTMap_(jtc_string, jtc_Node)
+	this.shortImportNames = jnewTSet_(jtc_string)
+	this.exportNodesByName = jnewTMap_(jtc_string, jtc_Node)
 }
 
 func (this *ClosureCheckModule_ModuleInfo) init_ClosureCheckModule_ModuleInfo(moduleName string) {

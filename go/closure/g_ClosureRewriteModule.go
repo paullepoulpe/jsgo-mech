@@ -7,28 +7,28 @@ type ClosureRewriteModule struct {
 	astFactory_                       *AstFactory
 	preprocessorSymbolTable           *PreprocessorSymbolTable
 	preserveSugar                     bool
-	syntheticExterns                  *TMap[string, Node]
+	syntheticExterns                  *JTMap[string, Node]
 	globalScope                       *Scope
 	scriptStack                       *TDeque[*ClosureRewriteModule_ScriptDescription]
 	currentScript                     *ClosureRewriteModule_ScriptDescription
 	rewriteState                      *ClosureRewriteModule_GlobalRewriteState
-	legacyScriptNamespacesAndPrefixes *TSet[string]
-	unrecognizedRequires              *TList[*ClosureRewriteModule_UnrecognizedRequire]
-	googModuleGetCalls                *TList[Node]
-	googRequireDynamicCalls           *TList[Node]
+	legacyScriptNamespacesAndPrefixes *JTSet[string]
+	unrecognizedRequires              *JTList[*ClosureRewriteModule_UnrecognizedRequire]
+	googModuleGetCalls                *JTList[Node]
+	googRequireDynamicCalls           *JTList[Node]
 	globalTypedScope                  *TypedScope
 }
 
 func (this *ClosureRewriteModule) finit_ClosureRewriteModule() {
-	this.syntheticExterns = newTMap_(tc_string, tc_Node)
+	this.syntheticExterns = jnewTMap_(jtc_string, jtc_Node)
 	this.globalScope = nil
-	this.scriptStack = newTDeque_(tc_p_ClosureRewriteModule_ScriptDescription)
+	this.scriptStack = newTDeque_(jtc_p_ClosureRewriteModule_ScriptDescription)
 	this.currentScript = nil
 	this.rewriteState = new_ClosureRewriteModule_GlobalRewriteState()
-	this.legacyScriptNamespacesAndPrefixes = newTSet_(tc_string)
-	this.unrecognizedRequires = newTList_(tc_p_ClosureRewriteModule_UnrecognizedRequire)
-	this.googModuleGetCalls = newTList_(tc_Node)
-	this.googRequireDynamicCalls = newTList_(tc_Node)
+	this.legacyScriptNamespacesAndPrefixes = jnewTSet_(jtc_string)
+	this.unrecognizedRequires = jnewTList_(tc_p_ClosureRewriteModule_UnrecognizedRequire)
+	this.googModuleGetCalls = jnewTList_(jtc_Node)
+	this.googRequireDynamicCalls = jnewTList_(jtc_Node)
 }
 
 func (this *ClosureRewriteModule) init_ClosureRewriteModule(compiler *AbstractCompiler, preprocessorSymbolTable *PreprocessorSymbolTable, globalTypedScope *TypedScope) {
@@ -74,7 +74,7 @@ func (this *ClosureRewriteModule) isUnrequiredWeakNamespace(call Node, namespace
 }
 
 func (this *ClosureRewriteModule) process_2(externs Node, root Node) {
-	var scriptDescriptions *TDeque[*ClosureRewriteModule_ScriptDescription] = newTDeque_(tc_p_ClosureRewriteModule_ScriptDescription)
+	var scriptDescriptions *TDeque[*ClosureRewriteModule_ScriptDescription] = newTDeque_(jtc_p_ClosureRewriteModule_ScriptDescription)
 	it_1 := foreach_(obj_(ImmutableList_of_Object_Object(externs.box_(), root.box_())))
 	for it_1.next() {
 		var parent Node = Node_of_(it_1.v)
@@ -103,7 +103,7 @@ func (this *ClosureRewriteModule) process_2(externs Node, root Node) {
 }
 
 func (this *ClosureRewriteModule) declareSyntheticExterns() {
-	var varsBuilder *TListBuilder[Node] = newTListBuilder_(tc_Node)
+	var varsBuilder *TListBuilder[Node] = newTListBuilder_(jtc_Node)
 	it_1 := this.syntheticExterns.eachValue()
 	for it_1.next() {
 		var lhs Node = it_1.v
@@ -111,7 +111,7 @@ func (this *ClosureRewriteModule) declareSyntheticExterns() {
 			varsBuilder.add(IR_var_Node(this.astFactory_.createNameWithUnknownType(lhs.getString())).srcrefTree(lhs))
 		}
 	}
-	var vars *TList[Node] = varsBuilder.build()
+	var vars *JTList[Node] = varsBuilder.build()
 	if vars.isEmpty() {
 		return
 	}
@@ -880,7 +880,7 @@ func (this *ClosureRewriteModule) safeSetString(n Node, newString string) {
 }
 
 func (this *ClosureRewriteModule) safeSetMaybeQualifiedString(nameNode Node, newString string, isModuleNamespace bool) {
-	if !String_contains_s(newString, ".") {
+	if !JString_contains_s(newString, ".") {
 		this.safeSetString(nameNode, newString)
 		var parent Node = nameNode.getParent()
 		if ((isModuleNamespace && parent.isGetProp()) && nameNode.getGrandparent().isCall()) && parent.isFirstChildOf(nameNode.getGrandparent()) {
@@ -1318,7 +1318,7 @@ func (this *ClosureRewriteModule_ExportDefinition) getLocalName() Optional[strin
 	}()
 }
 
-var ClosureRewriteModule_ExportDefinition_INLINABLE_NAME_PARENTS *TSet[*Token_rhino]
+var ClosureRewriteModule_ExportDefinition_INLINABLE_NAME_PARENTS *JTSet[*Token_rhino]
 
 var ClosureRewriteModule_ExportDefinition_clinit_done bool
 
@@ -1357,15 +1357,15 @@ type ClosureRewriteModule_ScriptDescription struct {
 	declareLegacyNamespace  bool
 	namespaceId             Optional[string]
 	contentsPrefix          string
-	topLevelNames           *TSet[string]
+	topLevelNames           *JTSet[string]
 	childScripts            *TDeque[*ClosureRewriteModule_ScriptDescription]
-	namesToInlineByAlias    *TMap[string, *ClosureRewriteModule_AliasName]
+	namesToInlineByAlias    *JTMap[string, *ClosureRewriteModule_AliasName]
 	willCreateExportsObject bool
 	hasCreatedExportObject  bool
 	defaultExport           *ClosureRewriteModule_ExportDefinition
 	defaultExportLocalName  Optional[string]
-	namedExports            *TSet[string]
-	exportsToInline         *TMap[*Var, *ClosureRewriteModule_ExportDefinition]
+	namedExports            *JTSet[string]
+	exportsToInline         *JTMap[*Var, *ClosureRewriteModule_ExportDefinition]
 	rootNode_               Node
 }
 
@@ -1375,12 +1375,12 @@ func (this *ClosureRewriteModule_ScriptDescription) zero_ClosureRewriteModule_Sc
 
 func (this *ClosureRewriteModule_ScriptDescription) finit_ClosureRewriteModule_ScriptDescription() {
 	this.namespaceId = Optional_empty[string]()
-	this.topLevelNames = newTSet_(tc_string)
-	this.childScripts = newTDeque_(tc_p_ClosureRewriteModule_ScriptDescription)
-	this.namesToInlineByAlias = newTMap_(tc_string, tc_p_ClosureRewriteModule_AliasName)
+	this.topLevelNames = jnewTSet_(jtc_string)
+	this.childScripts = newTDeque_(jtc_p_ClosureRewriteModule_ScriptDescription)
+	this.namesToInlineByAlias = jnewTMap_(jtc_string, tc_p_ClosureRewriteModule_AliasName)
 	this.defaultExportLocalName = Optional_empty[string]()
-	this.namedExports = newTSet_(tc_string)
-	this.exportsToInline = newTMap_(tce_p_Var, tc_p_ClosureRewriteModule_ExportDefinition)
+	this.namedExports = jnewTSet_(jtc_string)
+	this.exportsToInline = jnewTMap_(tce_p_Var, jtc_p_ClosureRewriteModule_ExportDefinition)
 }
 
 func (this *ClosureRewriteModule_ScriptDescription) init_ClosureRewriteModule_ScriptDescription() {
@@ -1686,7 +1686,7 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) rewriteIfClosureNamespaceRef(
 			this.outer_.safeSetString(typeRefNode, (sstr_(binaryNamespaceIfModule.get()) + sstr_(suffix)))
 			return
 		}
-		if String_contains_s(prefixTypeName, ".") {
+		if JString_contains_s(prefixTypeName, ".") {
 			prefixTypeName = String_substring(prefixTypeName, 0, String_lastIndexOf(prefixTypeName, 46))
 			suffix = String_substring_int(typeName, String_length(prefixTypeName))
 		} else {
@@ -1696,15 +1696,15 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) rewriteIfClosureNamespaceRef(
 }
 
 type ClosureRewriteModule_GlobalRewriteState struct {
-	scriptDescriptionsByGoogModuleNamespace *TMap[string, *ClosureRewriteModule_ScriptDescription]
+	scriptDescriptionsByGoogModuleNamespace *JTMap[string, *ClosureRewriteModule_ScriptDescription]
 	namespaceIdsByScriptNode                *SimpleSetMultimap
-	providedNamespaces                      *TSet[string]
+	providedNamespaces                      *JTSet[string]
 }
 
 func (this *ClosureRewriteModule_GlobalRewriteState) finit_ClosureRewriteModule_GlobalRewriteState() {
-	this.scriptDescriptionsByGoogModuleNamespace = newTMap_(tc_string, tc_p_ClosureRewriteModule_ScriptDescription)
+	this.scriptDescriptionsByGoogModuleNamespace = jnewTMap_(jtc_string, jtc_p_ClosureRewriteModule_ScriptDescription)
 	this.namespaceIdsByScriptNode = SimpleSetMultimap_createInsertionOrdered()
-	this.providedNamespaces = newTSet_(tc_string)
+	this.providedNamespaces = jnewTSet_(jtc_string)
 }
 
 func (this *ClosureRewriteModule_GlobalRewriteState) init_ClosureRewriteModule_GlobalRewriteState() {

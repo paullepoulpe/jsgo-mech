@@ -154,8 +154,8 @@ func (this *RegExpTree) numCapturingGroups() int32 {
 	return this.self_.(interface{ numCapturingGroups_impl() int32 }).numCapturingGroups_impl()
 }
 
-func (this *RegExpTree) children() *TList[*RegExpTree] {
-	return this.self_.(interface{ children_impl() *TList[*RegExpTree] }).children_impl()
+func (this *RegExpTree) children() *JTList[*RegExpTree] {
+	return this.self_.(interface{ children_impl() *JTList[*RegExpTree] }).children_impl()
 }
 
 func (this *RegExpTree) simplify(p0 string) *RegExpTree {
@@ -188,7 +188,7 @@ var RegExpTree_INVERSE_WORD_CHARS *CharRanges
 var RegExpTree_SPACE_CHARS *CharRanges
 var RegExpTree_IE_SPACE_CHARS *CharRanges
 var RegExpTree_IE_SPEC_ERRORS *CharRanges
-var RegExpTree_NAMED_CHAR_GROUPS *TMap[any, *CharRanges]
+var RegExpTree_NAMED_CHAR_GROUPS *JTMap[any, *CharRanges]
 var RegExpTree_DOT_CHARSET *RegExpTree_Charset
 
 var RegExpTree_clinit_done bool
@@ -208,7 +208,7 @@ func RegExpTree_clinit() {
 	RegExpTree_SPACE_CHARS = CharRanges_withMembers([]int32{9, 10, 11, 12, 13, 32, 160, 5760, 6158, 8192, 8193, 8194, 8195, 8196, 8197, 8198, 8199, 8200, 8201, 8202, 8232, 8233, 8239, 8287, 12288, 65279})
 	RegExpTree_IE_SPACE_CHARS = CharRanges_withMembers([]int32{9, 10, 11, 12, 13, 32})
 	RegExpTree_IE_SPEC_ERRORS = RegExpTree_SPACE_CHARS.difference(RegExpTree_IE_SPACE_CHARS)
-	RegExpTree_NAMED_CHAR_GROUPS = tmapImm_(tc_Character, tc_p_CharRanges, ImmutableMap_builder().put(uint16('d'), obj_(RegExpTree_DIGITS)).put(uint16('D'), obj_(CharRanges_ALL_CODE_UNITS.difference(RegExpTree_DIGITS))).put(uint16('s'), obj_(RegExpTree_SPACE_CHARS)).put(uint16('S'), obj_(CharRanges_ALL_CODE_UNITS.difference(RegExpTree_SPACE_CHARS))).put(uint16('w'), obj_(RegExpTree_WORD_CHARS)).put(uint16('W'), obj_(RegExpTree_INVERSE_WORD_CHARS)).buildOrThrow())
+	RegExpTree_NAMED_CHAR_GROUPS = tmapImm_(tc_Character, jtc_p_CharRanges, ImmutableMap_builder().put(uint16('d'), obj_(RegExpTree_DIGITS)).put(uint16('D'), obj_(CharRanges_ALL_CODE_UNITS.difference(RegExpTree_DIGITS))).put(uint16('s'), obj_(RegExpTree_SPACE_CHARS)).put(uint16('S'), obj_(CharRanges_ALL_CODE_UNITS.difference(RegExpTree_SPACE_CHARS))).put(uint16('w'), obj_(RegExpTree_WORD_CHARS)).put(uint16('W'), obj_(RegExpTree_INVERSE_WORD_CHARS)).buildOrThrow())
 	RegExpTree_DOT_CHARSET = new_RegExpTree_Charset(CharRanges_ALL_CODE_UNITS.difference(CharRanges_withMembers([]int32{10, 13, 8232, 8233})), CharRanges_EMPTY)
 
 }
@@ -330,11 +330,11 @@ func (this *RegExpTree_RegExpTreeAtom) numCapturingGroups_impl() int32 {
 	return 0
 }
 
-func (this *RegExpTree_RegExpTreeAtom) children_rImmutableList() *TList[*RegExpTree] {
-	return tlistEmptyImm_(tc_p_RegExpTree)
+func (this *RegExpTree_RegExpTreeAtom) children_rImmutableList() *JTList[*RegExpTree] {
+	return jtlistEmptyImm_(jtc_p_RegExpTree)
 }
 
-func (this *RegExpTree_RegExpTreeAtom) children_impl() *TList[*RegExpTree] {
+func (this *RegExpTree_RegExpTreeAtom) children_impl() *JTList[*RegExpTree] {
 	return this.children_rImmutableList()
 }
 
@@ -852,8 +852,8 @@ func (this *RegExpTree_Repetition) numCapturingGroups_impl() int32 {
 	return this.body.numCapturingGroups()
 }
 
-func (this *RegExpTree_Repetition) children_rImmutableList() *TList[*RegExpTree] {
-	return immutableListOf_[*RegExpTree](tc_p_RegExpTree, this.body)
+func (this *RegExpTree_Repetition) children_rImmutableList() *JTList[*RegExpTree] {
+	return jimmutableListOf_[*RegExpTree](jtc_p_RegExpTree, this.body)
 }
 
 func (this *RegExpTree_Repetition) appendBodySourceCode(sb *StringBuilder) {
@@ -1001,13 +1001,13 @@ func (this *RegExpTree_Repetition) hashCode_impl() int32 {
 	}() + (31 * this.body.hashCode()))))))
 }
 
-func (this *RegExpTree_Repetition) children_impl() *TList[*RegExpTree] {
+func (this *RegExpTree_Repetition) children_impl() *JTList[*RegExpTree] {
 	return this.children_rImmutableList()
 }
 
 type RegExpTree_Alternation struct {
 	RegExpTree
-	alternatives *TList[*RegExpTree]
+	alternatives *JTList[*RegExpTree]
 }
 
 func (this *RegExpTree_Alternation) up_RegExpTree() *RegExpTree {
@@ -1019,7 +1019,7 @@ func (this *RegExpTree_Alternation) up_RegExpTree() *RegExpTree {
 
 func (this *RegExpTree_Alternation) init_RegExpTree_Alternation(alternatives ListOf[*RegExpTree]) {
 	this.RegExpTree.init_RegExpTree()
-	this.alternatives = immutableListCopyOf_(tc_p_RegExpTree, Collection(alternatives))
+	this.alternatives = jimmutableListCopyOf_(jtc_p_RegExpTree, Collection(alternatives))
 }
 
 func new_RegExpTree_Alternation(alternatives ListOf[*RegExpTree]) *RegExpTree_Alternation {
@@ -1203,7 +1203,7 @@ func (this *RegExpTree_Alternation) numCapturingGroups_impl() int32 {
 	return n
 }
 
-func (this *RegExpTree_Alternation) children_rImmutableList() *TList[*RegExpTree] {
+func (this *RegExpTree_Alternation) children_rImmutableList() *JTList[*RegExpTree] {
 	return this.alternatives
 }
 
@@ -1241,7 +1241,7 @@ func (this *RegExpTree_Alternation) hashCode_impl() int32 {
 	return (1370848465 ^ hashR_(this.alternatives.asImm()))
 }
 
-func (this *RegExpTree_Alternation) children_impl() *TList[*RegExpTree] {
+func (this *RegExpTree_Alternation) children_impl() *JTList[*RegExpTree] {
 	return this.children_rImmutableList()
 }
 
@@ -1293,8 +1293,8 @@ func (this *RegExpTree_LookaheadAssertion) numCapturingGroups_impl() int32 {
 	return this.body.numCapturingGroups()
 }
 
-func (this *RegExpTree_LookaheadAssertion) children_rImmutableList() *TList[*RegExpTree] {
-	return immutableListOf_[*RegExpTree](tc_p_RegExpTree, this.body)
+func (this *RegExpTree_LookaheadAssertion) children_rImmutableList() *JTList[*RegExpTree] {
+	return jimmutableListOf_[*RegExpTree](jtc_p_RegExpTree, this.body)
 }
 
 func (this *RegExpTree_LookaheadAssertion) appendSourceCode_impl(sb *StringBuilder) {
@@ -1337,7 +1337,7 @@ func (this *RegExpTree_LookaheadAssertion) hashCode_impl() int32 {
 	return (119778217 ^ this.body.hashCode())
 }
 
-func (this *RegExpTree_LookaheadAssertion) children_impl() *TList[*RegExpTree] {
+func (this *RegExpTree_LookaheadAssertion) children_impl() *JTList[*RegExpTree] {
 	return this.children_rImmutableList()
 }
 
@@ -1389,8 +1389,8 @@ func (this *RegExpTree_LookbehindAssertion) numCapturingGroups_impl() int32 {
 	return this.body.numCapturingGroups()
 }
 
-func (this *RegExpTree_LookbehindAssertion) children_rImmutableList() *TList[*RegExpTree] {
-	return immutableListOf_[*RegExpTree](tc_p_RegExpTree, this.body)
+func (this *RegExpTree_LookbehindAssertion) children_rImmutableList() *JTList[*RegExpTree] {
+	return jimmutableListOf_[*RegExpTree](jtc_p_RegExpTree, this.body)
 }
 
 func (this *RegExpTree_LookbehindAssertion) appendSourceCode_impl(sb *StringBuilder) {
@@ -1433,7 +1433,7 @@ func (this *RegExpTree_LookbehindAssertion) hashCode_impl() int32 {
 	return (119778217 ^ this.body.hashCode())
 }
 
-func (this *RegExpTree_LookbehindAssertion) children_impl() *TList[*RegExpTree] {
+func (this *RegExpTree_LookbehindAssertion) children_impl() *JTList[*RegExpTree] {
 	return this.children_rImmutableList()
 }
 
@@ -1477,8 +1477,8 @@ func (this *RegExpTree_CapturingGroup) numCapturingGroups_impl() int32 {
 	return (1 + this.body.numCapturingGroups())
 }
 
-func (this *RegExpTree_CapturingGroup) children_rImmutableList() *TList[*RegExpTree] {
-	return immutableListOf_[*RegExpTree](tc_p_RegExpTree, this.body)
+func (this *RegExpTree_CapturingGroup) children_rImmutableList() *JTList[*RegExpTree] {
+	return jimmutableListOf_[*RegExpTree](jtc_p_RegExpTree, this.body)
 }
 
 func (this *RegExpTree_CapturingGroup) appendSourceCode_impl(sb *StringBuilder) {
@@ -1508,7 +1508,7 @@ func (this *RegExpTree_CapturingGroup) hashCode_impl() int32 {
 	return (1433933624 ^ this.body.hashCode())
 }
 
-func (this *RegExpTree_CapturingGroup) children_impl() *TList[*RegExpTree] {
+func (this *RegExpTree_CapturingGroup) children_impl() *JTList[*RegExpTree] {
 	return this.children_rImmutableList()
 }
 
@@ -1559,8 +1559,8 @@ func (this *RegExpTree_NamedCaptureGroup) numCapturingGroups_impl() int32 {
 	return (1 + this.body.numCapturingGroups())
 }
 
-func (this *RegExpTree_NamedCaptureGroup) children_rImmutableList() *TList[*RegExpTree] {
-	return immutableListOf_[*RegExpTree](tc_p_RegExpTree, this.body)
+func (this *RegExpTree_NamedCaptureGroup) children_rImmutableList() *JTList[*RegExpTree] {
+	return jimmutableListOf_[*RegExpTree](jtc_p_RegExpTree, this.body)
 }
 
 func (this *RegExpTree_NamedCaptureGroup) appendSourceCode_impl(sb *StringBuilder) {
@@ -1592,7 +1592,7 @@ func (this *RegExpTree_NamedCaptureGroup) hashCode_impl() int32 {
 	return (String_hashCode(this.name_) ^ this.body.hashCode())
 }
 
-func (this *RegExpTree_NamedCaptureGroup) children_impl() *TList[*RegExpTree] {
+func (this *RegExpTree_NamedCaptureGroup) children_impl() *JTList[*RegExpTree] {
 	return this.children_rImmutableList()
 }
 
@@ -1732,7 +1732,7 @@ func (this *RegExpTree_Charset) simplify_impl(flags string) *RegExpTree {
 	}
 	var best *CharRanges = this.ranges_
 	if String_indexOf(flags, 105) >= 0 {
-		var options *TSet[*CharRanges] = newTSet_(tce_p_CharRanges)
+		var options *JTSet[*CharRanges] = jnewTSet_(tce_p_CharRanges)
 		options.add(CaseCanonicalize_expandToAllMatched(this.ranges_))
 		options.add(CaseCanonicalize_reduceToMinimum(this.ranges_))
 		var lcaseLetters *CharRanges = this.ranges_.intersection(RegExpTree_LCASE_LETTERS)
@@ -2026,12 +2026,12 @@ func (this *RegExpTree_DecomposedCharset) hashCode() int32 {
 }
 
 func (this *RegExpTree_DecomposedCharset) toString() string {
-	return "DecomposedCharset[" + "inverted=" + boolstr_(this.inverted_) + ", ranges=" + tostr_(this.ranges_) + ", namedGroups=" + sstr_(this.namedGroups_) + "]"
+	return "DecomposedCharset[" + "inverted=" + boolstr_(this.inverted_) + ", ranges=" + jtostr_(this.ranges_) + ", namedGroups=" + sstr_(this.namedGroups_) + "]"
 }
 
 type RegExpTree_Concatenation struct {
 	RegExpTree
-	elements_ *TList[*RegExpTree]
+	elements_ *JTList[*RegExpTree]
 }
 
 func (this *RegExpTree_Concatenation) up_RegExpTree() *RegExpTree {
@@ -2043,7 +2043,7 @@ func (this *RegExpTree_Concatenation) up_RegExpTree() *RegExpTree {
 
 func (this *RegExpTree_Concatenation) init_RegExpTree_Concatenation_RegExpTree_RegExpTree(a *RegExpTree, b *RegExpTree) {
 	this.RegExpTree.init_RegExpTree()
-	this.elements_ = immutableListOf_[*RegExpTree](tc_p_RegExpTree, a, b)
+	this.elements_ = jimmutableListOf_[*RegExpTree](jtc_p_RegExpTree, a, b)
 }
 
 func new_RegExpTree_Concatenation_RegExpTree_RegExpTree(a *RegExpTree, b *RegExpTree) *RegExpTree_Concatenation {
@@ -2053,12 +2053,12 @@ func new_RegExpTree_Concatenation_RegExpTree_RegExpTree(a *RegExpTree, b *RegExp
 	return this
 }
 
-func (this *RegExpTree_Concatenation) init_RegExpTree_Concatenation_List(elements *TList[*RegExpTree]) {
+func (this *RegExpTree_Concatenation) init_RegExpTree_Concatenation_List(elements *JTList[*RegExpTree]) {
 	this.RegExpTree.init_RegExpTree()
-	this.elements_ = immutableListCopyOfT_(tc_p_RegExpTree, elements)
+	this.elements_ = immutableListCopyOfT_(jtc_p_RegExpTree, elements)
 }
 
-func new_RegExpTree_Concatenation_List(elements *TList[*RegExpTree]) *RegExpTree_Concatenation {
+func new_RegExpTree_Concatenation_List(elements *JTList[*RegExpTree]) *RegExpTree_Concatenation {
 	this := &RegExpTree_Concatenation{}
 	this.self_ = this
 	this.init_RegExpTree_Concatenation_List(elements)
@@ -2117,7 +2117,7 @@ func (this *RegExpTree_Concatenation) numCapturingGroups_impl() int32 {
 	return n
 }
 
-func (this *RegExpTree_Concatenation) children_rImmutableList() *TList[*RegExpTree] {
+func (this *RegExpTree_Concatenation) children_rImmutableList() *JTList[*RegExpTree] {
 	return this.elements_
 }
 
@@ -2191,7 +2191,7 @@ func (this *RegExpTree_Concatenation) hashCode_impl() int32 {
 	return (546930238 ^ hashR_(this.elements_.asImm()))
 }
 
-func (this *RegExpTree_Concatenation) children_impl() *TList[*RegExpTree] {
+func (this *RegExpTree_Concatenation) children_impl() *JTList[*RegExpTree] {
 	return this.children_rImmutableList()
 }
 
@@ -2200,13 +2200,13 @@ type RegExpTree_1Parser struct {
 	cap_flags                         string
 	pos                               int32
 	numCapturingGroups_               int32
-	capturingGroupNames               *TSet[string]
+	capturingGroupNames               *JTSet[string]
 	limit                             int32
 	lookForNamedCaptureBackreferences bool
 }
 
 func (this *RegExpTree_1Parser) finit_RegExpTree_1Parser() {
-	this.capturingGroupNames = newTSet_(tc_string)
+	this.capturingGroupNames = jnewTSet_(jtc_string)
 	this.limit = String_length(this.cap_pattern)
 }
 
@@ -2292,7 +2292,7 @@ topLoop_:
 		}
 		if (this.pos < this.limit) && (String_charAt(this.cap_pattern, this.pos) == '|') {
 			if alternatives == nil {
-				alternatives = newTListBuilder_(tc_p_RegExpTree)
+				alternatives = newTListBuilder_(jtc_p_RegExpTree)
 			}
 			alternatives.add(preceder)
 			preceder = nil
@@ -2380,7 +2380,7 @@ func (this *RegExpTree_1Parser) parseParenthetical() *RegExpTree {
 			panic(new_IllegalArgumentException_String(("Malformed named capture group: " + sstr_(String_substring_int(this.cap_pattern, start)))).self())
 		}
 	}
-	panic(new_AssertionError_Object(strobj_(("Unrecognized ParentheticalType " + tostr_(type_)))).self())
+	panic(new_AssertionError_Object(strobj_(("Unrecognized ParentheticalType " + jtostr_(type_)))).self())
 }
 
 func (this *RegExpTree_1Parser) scanNamedGroupName() string {
@@ -2476,7 +2476,7 @@ func (this *RegExpTree_1Parser) parseEscapeChar() int32 {
 			return 9
 		case 'u':
 			return func() int32 {
-				if (String_contains_s(this.cap_flags, "u") && (this.pos < this.limit)) && (String_charAt(this.cap_pattern, this.pos) == '{') {
+				if (JString_contains_s(this.cap_flags, "u") && (this.pos < this.limit)) && (String_charAt(this.cap_pattern, this.pos) == '{') {
 					return this.parseBracedUnicodeEscape()
 				}
 				return this.parseHex(4)
@@ -2524,7 +2524,7 @@ func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
 	if (ch == 'b') || (ch == 'B') {
 		this.pos++
 		return new_RegExpTree_WordBoundary(ch).up_RegExpTree()
-	} else if ((ch == 'p') || (ch == 'P')) && String_contains_s(this.cap_flags, "u") {
+	} else if ((ch == 'p') || (ch == 'P')) && JString_contains_s(this.cap_flags, "u") {
 		var negated bool = (ch == 'P')
 		this.pos++
 		if (this.pos < this.limit) && (String_charAt(this.cap_pattern, this.pos) == '{') {
@@ -2744,11 +2744,11 @@ func (this *RegExpTree_1Parser) parseRepetition(body *RegExpTree) *RegExpTree {
 type RegExpTree_Concatenation_1Simplifier struct {
 	outer_     *RegExpTree_Concatenation
 	cap_flags  string
-	simplified *TList[*RegExpTree]
+	simplified *JTList[*RegExpTree]
 }
 
 func (this *RegExpTree_Concatenation_1Simplifier) finit_RegExpTree_Concatenation_1Simplifier() {
-	this.simplified = newTList_(tc_p_RegExpTree)
+	this.simplified = jnewTList_(jtc_p_RegExpTree)
 }
 
 func (this *RegExpTree_Concatenation_1Simplifier) init_RegExpTree_Concatenation_1Simplifier() {

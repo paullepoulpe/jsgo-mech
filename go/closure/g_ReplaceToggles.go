@@ -5,7 +5,7 @@ package closure
 type ReplaceToggles struct {
 	compiler_      *AbstractCompiler
 	astFactory_    *AstFactory
-	ordinalMapping *TMap[string, any]
+	ordinalMapping *JTMap[string, any]
 }
 
 func (this *ReplaceToggles) finit_ReplaceToggles() {
@@ -86,8 +86,8 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceToggles_INVALID_ORDINAL_MAPPING, []string{"multiple initialized copies"}))
 			return
 		}
-		var mapping *TMap[string, any] = newTMap_(tc_string, tc_Integer)
-		var ordinals *TSet[any] = newTSet_(tc_Integer)
+		var mapping *JTMap[string, any] = jnewTMap_(jtc_string, tc_Integer)
+		var ordinals *JTSet[any] = jnewTSet_(tc_Integer)
 		{
 			var c Node = rhs.getFirstChild()
 			for ; c != 0; c = c.getNext() {
@@ -126,7 +126,7 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 				ordinals.add(int32(intValue))
 			}
 		}
-		this.outer_.ordinalMapping = immutableMapCopyOfT_(tc_string, tc_Integer, mapping)
+		this.outer_.ordinalMapping = immutableMapCopyOfT_(jtc_string, tc_Integer, mapping)
 		return
 	}
 	if !n.isCall() {

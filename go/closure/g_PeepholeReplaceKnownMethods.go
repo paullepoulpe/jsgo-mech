@@ -163,14 +163,14 @@ func (this *PeepholeReplaceKnownMethods) tryFoldKnownNumberMethods(subtree Node,
 
 func (this *PeepholeReplaceKnownMethods) tryFoldKnownMathMethods(subtree Node, callTarget Node) Node {
 	Preconditions_checkArgument((subtree.isCall() && callTarget.isGetProp()))
-	var args *TList[any] = tlistEmptyImm_(tc_Double)
+	var args *JTList[any] = jtlistEmptyImm_(tc_Double)
 	{
 		var arg Node = callTarget.getNext()
 		for ; arg != 0; arg = arg.getNext() {
 			var d any = this.getSideEffectFreeNumberValue(arg)
 			if d != nil {
 				if args.isEmpty() {
-					args = newTList_(tc_Double)
+					args = jnewTList_(tc_Double)
 				}
 				args.add(d)
 			} else {
@@ -762,7 +762,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 		}
 		return NodeUtil_getStringValue(right)
 	}()
-	var arrayFoldedChildren *TList[Node] = newTList_(tc_Node)
+	var arrayFoldedChildren *JTList[Node] = jnewTList_(jtc_Node)
 	var sb *StringBuilder = nil
 	var foldedSize int32 = 0
 	var prev Node = 0
@@ -959,7 +959,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringReplace(n Node, stringNode
 	}
 	var lookForPattern string = arg1.getString()
 	var replacementPattern string = arg2.getString()
-	if String_contains_s(replacementPattern, "$") {
+	if JString_contains_s(replacementPattern, "$") {
 		return n
 	}
 	var original string = stringNode.getString()
@@ -986,11 +986,11 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringReplaceAll(n Node, stringN
 		return n
 	}
 	var replacementPattern string = arg2.getString()
-	if String_contains_s(replacementPattern, "$") {
+	if JString_contains_s(replacementPattern, "$") {
 		return n
 	}
 	var original string = stringNode.getString()
-	var newString string = String_replace_s(original, arg1.getString(), replacementPattern)
+	var newString string = JString_replace_s(original, arg1.getString(), replacementPattern)
 	var resultNode Node = IR_string(newString).srcref(stringNode)
 	var parent Node = n.getParent()
 	n.replaceWith(resultNode)
@@ -1037,7 +1037,7 @@ func (this *PeepholeReplaceKnownMethods) jsSplit(stringValue string, separator O
 	if separator.isEmpty() {
 		return []string{stringValue}
 	}
-	var splitStrings *TList[string] = newTList_(tc_string)
+	var splitStrings *JTList[string] = jnewTList_(jtc_string)
 	if String_isEmpty(separator.get()) {
 		for i := int32(0); (i < String_length(stringValue)) && (i < limit); i++ {
 			splitStrings.add(String_substring(stringValue, i, (i + 1)))

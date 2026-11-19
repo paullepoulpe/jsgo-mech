@@ -8,7 +8,7 @@ type PolymerPassFindExterns struct {
 }
 
 func (this *PolymerPassFindExterns) init_PolymerPassFindExterns() {
-	this.polymerElementProps = newTListBuilder_(tc_Node)
+	this.polymerElementProps = newTListBuilder_(jtc_Node)
 }
 
 func new_PolymerPassFindExterns() *PolymerPassFindExterns {
@@ -29,7 +29,7 @@ func (this *PolymerPassFindExterns) visit(t *NodeTraversal, n Node, parent Node)
 	}
 }
 
-func (this *PolymerPassFindExterns) getPolymerElementProps() *TList[Node] {
+func (this *PolymerPassFindExterns) getPolymerElementProps() *JTList[Node] {
 	return this.polymerElementProps.build()
 }
 

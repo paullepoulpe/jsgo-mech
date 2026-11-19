@@ -59,7 +59,7 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base[*SourceMapObject
 		if sections.isErr() {
 			return Outcome_base_err[*SourceMapObject](sections.error())
 		}
-		builder.setSections(tlistImm_(tc_p_SourceMapSection, sections.get()))
+		builder.setSections(jtlistImm_(jtc_p_SourceMapSection, sections.get()))
 	}
 	var sources *Outcome_base[[]string] = SourceMapObjectParser_getJavaStringArray(sourceMapRoot, "sources")
 	if sources.isErr() {
@@ -76,7 +76,7 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base[*SourceMapObject
 		return Outcome_base_err[*SourceMapObject](names.error())
 	}
 	builder.setNames(names.get())
-	var extensions *TMap[string, any] = newTMap_(tc_string, tc_Object)
+	var extensions *JTMap[string, any] = jnewTMap_(jtc_string, tc_Object)
 	it_1 := sourceMapRoot.members().eachEntry()
 	for it_1.next() {
 		var entry *TEntry[string, *SimpleJsonValue] = it_1.entry()
@@ -104,7 +104,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 	if begun.isErr() {
 		return Outcome_base_err[any](begun.error())
 	}
-	var extensions *TMap[string, any] = newTMap_(tc_string, tc_Object)
+	var extensions *JTMap[string, any] = jnewTMap_(jtc_string, tc_Object)
 	for lexer.hasNext() {
 		var nameOutcome *Outcome_base[string] = lexer.nextName()
 		if nameOutcome.isErr() {
@@ -155,7 +155,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 			if sections.isErr() {
 				return Outcome_base_err[any](sections.error())
 			}
-			builder.setSections(tlistImm_(tc_p_SourceMapSection, sections.get()))
+			builder.setSections(jtlistImm_(jtc_p_SourceMapSection, sections.get()))
 		case "sources":
 			var sources *Outcome_base[[]string] = SourceMapObjectParser_readStringArray(lexer)
 			if sources.isErr() {
@@ -213,7 +213,7 @@ func SourceMapObjectParser_buildSections(sections *SimpleJsonValue) *Outcome_bas
 	if sections.kind() != SimpleJsonValue_Kind_ARRAY {
 		return Outcome_base_err[*ImmutableList](SourceMapObjectParser_invalidMember("sections").up_Throwable())
 	}
-	var listBuilder *TListBuilder[*SourceMapSection] = newTListBuilder_(tc_p_SourceMapSection)
+	var listBuilder *TListBuilder[*SourceMapSection] = newTListBuilder_(jtc_p_SourceMapSection)
 	it_1 := sections.elements().each()
 	for it_1.next() {
 		var each *SimpleJsonValue = it_1.v
@@ -316,7 +316,7 @@ func SourceMapObjectParser_readStringArray(lexer *SourceMapJsonLexer) *Outcome_b
 		lexer.pos += 4
 		return Outcome_base_ok_Object[[]string](nil)
 	}
-	var list *TList[string] = newTList_(tc_string)
+	var list *JTList[string] = jnewTList_(jtc_string)
 	var begun *Outcome_base[any] = lexer.beginArray()
 	if begun.isErr() {
 		return Outcome_base_err[[]string](begun.error())

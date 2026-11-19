@@ -8,22 +8,22 @@ type GlobalNamespace struct {
 	root                          Node
 	externsRoot                   Node
 	globalRoot                    Node
-	spreadSiblingCache            *TMap[Node, any]
+	spreadSiblingCache            *JTMap[Node, any]
 	sourceKind                    *GlobalNamespace_SourceKind
 	generated                     bool
 	decisionsLog                  *LogFile
-	globalNames                   *TList[*GlobalNamespace_Name]
-	nameMap                       *TMap[string, *GlobalNamespace_Name]
+	globalNames                   *JTList[*GlobalNamespace_Name]
+	nameMap                       *JTMap[string, *GlobalNamespace_Name]
 	nameMapByModule               *SimpleTable[*ModuleMetadataMap_ModuleMetadata, string, *GlobalNamespace_Name]
 	shouldTraverseScript          PredicateOf[Node]
 }
 
 func (this *GlobalNamespace) finit_GlobalNamespace() {
 	this.globalRoot = IR_root([]Node{})
-	this.spreadSiblingCache = newTMap_(tc_Node, tc_Boolean)
+	this.spreadSiblingCache = jnewTMap_(jtc_Node, tc_Boolean)
 	this.generated = false
-	this.globalNames = newTList_(tc_p_GlobalNamespace_Name)
-	this.nameMap = newTMap_(tc_string, tc_p_GlobalNamespace_Name)
+	this.globalNames = jnewTList_(jtc_p_GlobalNamespace_Name)
+	this.nameMap = jnewTMap_(jtc_string, jtc_p_GlobalNamespace_Name)
 	this.nameMapByModule = SimpleTable_create[*ModuleMetadataMap_ModuleMetadata, string, *GlobalNamespace_Name]()
 	this.shouldTraverseScript = &Predicate_tfn_Node{func(n Node) bool {
 		return true
@@ -134,17 +134,17 @@ func (this *GlobalNamespace) ensureGenerated() {
 	}
 }
 
-func (this *GlobalNamespace) getNameForest() *TList[*GlobalNamespace_Name] {
+func (this *GlobalNamespace) getNameForest() *JTList[*GlobalNamespace_Name] {
 	this.ensureGenerated()
 	return this.globalNames
 }
 
-func (this *GlobalNamespace) getNameIndex() *TMap[string, *GlobalNamespace_Name] {
+func (this *GlobalNamespace) getNameIndex() *JTMap[string, *GlobalNamespace_Name] {
 	this.ensureGenerated()
 	return this.nameMap
 }
 
-func (this *GlobalNamespace) scanNewNodes(newNodes *TSet[GlobalNamespace_AstChange]) {
+func (this *GlobalNamespace) scanNewNodes(newNodes *JTSet[GlobalNamespace_AstChange]) {
 	var builder *GlobalNamespace_BuildGlobalNamespace = new_GlobalNamespace_BuildGlobalNamespace(this)
 	it_1 := newNodes.each()
 	for it_1.next() {
@@ -389,7 +389,7 @@ func (this *GlobalNamespace_SimpleAstChange) hashCode() int32 {
 }
 
 func (this *GlobalNamespace_SimpleAstChange) toString() string {
-	return "SimpleAstChange[" + "node=" + tostrH_(this.node_) + ", chunk=" + tostr_(this.chunk_) + ", scope=" + tostr_(this.scope_) + "]"
+	return "SimpleAstChange[" + "node=" + tostrH_(this.node_) + ", chunk=" + jtostr_(this.chunk_) + ", scope=" + jtostr_(this.scope_) + "]"
 }
 
 type GlobalNamespace_RefBasedAstChange struct {
@@ -440,7 +440,7 @@ func (this *GlobalNamespace_RefBasedAstChange) hashCode() int32 {
 }
 
 func (this *GlobalNamespace_RefBasedAstChange) toString() string {
-	return "RefBasedAstChange[" + "ref=" + tostr_(this.ref_) + ", node=" + tostrH_(this.node_) + "]"
+	return "RefBasedAstChange[" + "ref=" + jtostr_(this.ref_) + ", node=" + tostrH_(this.node_) + "]"
 }
 
 type GlobalNamespace_BuildGlobalNamespace struct {
@@ -846,7 +846,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) determineRefTypeForGet(n Node,
 		case Token_rhino_NAME, Token_rhino_GETPROP, Token_rhino_GETELEM, Token_rhino_ARRAY_PATTERN, Token_rhino_OBJECT_PATTERN:
 			type_ = GlobalNamespace_Ref_Type_ALIASING_GET
 		default:
-			panic(new_IllegalStateException_String(("Unexpected previous sibling of " + tostr_(n.getToken()) + ": " + tostrH_(n.getPrevious()))).self())
+			panic(new_IllegalStateException_String(("Unexpected previous sibling of " + jtostr_(n.getToken()) + ": " + tostrH_(n.getPrevious()))).self())
 		}
 	default:
 		type_ = GlobalNamespace_Ref_Type_ALIASING_GET
@@ -1031,7 +1031,7 @@ type GlobalNamespace_Name struct {
 	outer_                                          *GlobalNamespace
 	baseName                                        string
 	parent                                          *GlobalNamespace_Name
-	props                                           *TList[*GlobalNamespace_Name]
+	props                                           *JTList[*GlobalNamespace_Name]
 	declaration_                                    *GlobalNamespace_Ref
 	initialization                                  *GlobalNamespace_Ref
 	refsForNode                                     any
@@ -1088,7 +1088,7 @@ func new_GlobalNamespace_Name(outer_ *GlobalNamespace, name string, parent *Glob
 
 func (this *GlobalNamespace_Name) addProperty(name string, sourceKind *GlobalNamespace_SourceKind) *GlobalNamespace_Name {
 	if this.props == nil {
-		this.props = newTList_(tc_p_GlobalNamespace_Name)
+		this.props = jnewTList_(jtc_p_GlobalNamespace_Name)
 	}
 	var node *GlobalNamespace_Name = new_GlobalNamespace_Name(this.outer_, name, this, sourceKind)
 	this.props.add(node)
@@ -1245,7 +1245,7 @@ func (this *GlobalNamespace_Name) putRef(node Node, ref *GlobalNamespace_Ref) {
 		return
 	}
 	if is_[*GlobalNamespace_Ref](this.refsForNode) {
-		var refsForNodeMap *TMap[Node, *GlobalNamespace_Ref] = newTMap_(tc_Node, tc_p_GlobalNamespace_Ref)
+		var refsForNodeMap *JTMap[Node, *GlobalNamespace_Ref] = jnewTMap_(jtc_Node, jtc_p_GlobalNamespace_Ref)
 		var existingRef *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](this.refsForNode)
 		refsForNodeMap.put(existingRef.node_, existingRef)
 		this.refsForNode = any(refsForNodeMap.asMap())
@@ -1639,7 +1639,7 @@ func (this *GlobalNamespace_Name) canCollapseOrInline() *GlobalNamespace_Inlinab
 		this.logDecision(unsafeInlinability, "parent cannot be inlined")
 		return unsafeInlinability
 	}
-	panic(new_IllegalStateException_String(("unknown enum value " + tostr_(parentInlinability))).self())
+	panic(new_IllegalStateException_String(("unknown enum value " + jtostr_(parentInlinability))).self())
 }
 
 func (this *GlobalNamespace_Name) logDecision(inlinability *GlobalNamespace_Inlinability, reason string) {
@@ -2226,5 +2226,5 @@ func (this *GlobalNamespace_ObjLitStringKeyAnalysis) hashCode() int32 {
 }
 
 func (this *GlobalNamespace_ObjLitStringKeyAnalysis) toString() string {
-	return "ObjLitStringKeyAnalysis[" + "nameString=" + objstr_(this.nameString_.box_()) + ", nameType=" + tostr_(this.nameType_) + "]"
+	return "ObjLitStringKeyAnalysis[" + "nameString=" + objstr_(this.nameString_.box_()) + ", nameType=" + jtostr_(this.nameType_) + "]"
 }

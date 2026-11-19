@@ -4,11 +4,11 @@ package closure
 
 type ErrorToFixMapper struct {
 	compiler_             *AbstractCompiler
-	metadataForEachScript *TMap[Node, *ScriptMetadata]
+	metadataForEachScript *JTMap[Node, *ScriptMetadata]
 }
 
 func (this *ErrorToFixMapper) finit_ErrorToFixMapper() {
-	this.metadataForEachScript = newTMap_(tc_Node, tc_p_ScriptMetadata)
+	this.metadataForEachScript = jnewTMap_(jtc_Node, jtc_p_ScriptMetadata)
 }
 
 func (this *ErrorToFixMapper) init_ErrorToFixMapper(compiler *AbstractCompiler) {
@@ -22,12 +22,12 @@ func new_ErrorToFixMapper(compiler *AbstractCompiler) *ErrorToFixMapper {
 	return this
 }
 
-func (this *ErrorToFixMapper) getFixesForJsError(error_ *JSError) *TList[*SuggestedFix] {
+func (this *ErrorToFixMapper) getFixesForJsError(error_ *JSError) *JTList[*SuggestedFix] {
 	var fix *SuggestedFix = this.getFixForJsError(error_)
 	if fix != nil {
-		return immutableListOf_[*SuggestedFix](tc_p_SuggestedFix, fix)
+		return jimmutableListOf_[*SuggestedFix](jtc_p_SuggestedFix, fix)
 	}
-	return tlistImm_(tc_p_SuggestedFix, func() *ImmutableList {
+	return jtlistImm_(jtc_p_SuggestedFix, func() *ImmutableList {
 		switch error_.type_().key_ {
 		case "JSC_IMPLICITLY_NONNULL_JSDOC", "JSC_IMPLICITLY_NULLABLE_JSDOC", "JSC_MISSING_NULLABILITY_MODIFIER_JSDOC", "JSC_NULL_MISSING_NULLABILITY_MODIFIER_JSDOC":
 			return this.getFixesForImplicitNullabilityErrors(error_)
@@ -102,7 +102,7 @@ func (this *ErrorToFixMapper) getFixForRedeclaration(error_ *JSError) *Suggested
 	if parent.hasOneChild() {
 		return fix.replace(parent, assign, this.compiler_).build()
 	}
-	var childrenOfAddedVarStatement *TList[Node] = newTList_(tc_Node)
+	var childrenOfAddedVarStatement *JTList[Node] = jnewTList_(jtc_Node)
 	{
 		var n Node = parent.getFirstChild()
 		for ; n != 0; n = n.getNext() {
@@ -170,7 +170,7 @@ func (this *ErrorToFixMapper) getFixForReferenceToShortImportByLongName(error_ *
 		}
 		return Optional_of[string](error_.node().getString())
 	}()
-	return fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, String_replace_s(oldName.get(), fullName, shortName.get())), this.compiler_).build()
+	return fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, JString_replace_s(oldName.get(), fullName, shortName.get())), this.compiler_).build()
 }
 
 func (this *ErrorToFixMapper) getFixesForImplicitNullabilityErrors(error_ *JSError) ImmutableListOf[*SuggestedFix] {
@@ -248,7 +248,7 @@ func (this *ErrorToFixMapper) getFixForMissingRequire(error_ *JSError, importTyp
 	var fix *SuggestedFix_Builder = new_SuggestedFix_Builder().attachMatchedNodeInfo(error_.node(), this.compiler_).addImport(match, namespaceToRequire, importType, scriptMetadata)
 	var alias Optional[string] = scriptMetadata.getAlias(namespaceToRequire)
 	if alias.isPresent() {
-		fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, String_replace_s(qName.get(), namespaceToRequire, alias.get())), this.compiler_)
+		fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, JString_replace_s(qName.get(), namespaceToRequire, alias.get())), this.compiler_)
 	}
 	return fix.build()
 }

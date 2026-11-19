@@ -63,7 +63,7 @@ func (this *CheckGoogModuleTypeScriptName) checkGoogModuleNamespace(t *NodeTrave
 }
 
 var CheckGoogModuleTypeScriptName_MODULE_NAMESPACE_MISMATCHES_TYPESCRIPT_NAMESPACE *DiagnosticType
-var CheckGoogModuleTypeScriptName_allowedDirectories *TSet[string]
+var CheckGoogModuleTypeScriptName_allowedDirectories *JTSet[string]
 
 var CheckGoogModuleTypeScriptName_clinit_done bool
 
@@ -73,7 +73,7 @@ func CheckGoogModuleTypeScriptName_clinit() {
 	}
 	CheckGoogModuleTypeScriptName_clinit_done = true
 	CheckGoogModuleTypeScriptName_MODULE_NAMESPACE_MISMATCHES_TYPESCRIPT_NAMESPACE = DiagnosticType_disabled("JSC_MODULE_NAMESPACE_MISMATCHES_TYPESCRIPT_NAMESPACE", "goog.module namespace does not match the future TypeScript namespace, which is generated from the file path. The correct namespace is: \"{0}\"")
-	CheckGoogModuleTypeScriptName_allowedDirectories = newTSet_(tc_string)
+	CheckGoogModuleTypeScriptName_allowedDirectories = jnewTSet_(jtc_string)
 	{
 		CheckGoogModuleTypeScriptName_allowedDirectories.add("google3/gws/")
 		CheckGoogModuleTypeScriptName_allowedDirectories.add("google3/java/com/google/gws/")

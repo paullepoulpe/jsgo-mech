@@ -9,16 +9,16 @@ type InstrumentAsyncContext struct {
 	uniqueIdSupplier      *UniqueIdSupplier
 	shouldInstrumentAwait bool
 	tryFunctionStack      *TDeque[Node]
-	needsInstrumentation  *TMap[Node, *InstrumentAsyncContext_FunctionContext]
-	alreadyInstrumented   *TSet[Node]
-	hasSuper              *TSet[Node]
+	needsInstrumentation  *JTMap[Node, *InstrumentAsyncContext_FunctionContext]
+	alreadyInstrumented   *JTSet[Node]
+	hasSuper              *JTSet[Node]
 }
 
 func (this *InstrumentAsyncContext) finit_InstrumentAsyncContext() {
-	this.tryFunctionStack = newTDeque_(tc_Node)
-	this.needsInstrumentation = newTMap_(tc_Node, tc_p_InstrumentAsyncContext_FunctionContext)
-	this.alreadyInstrumented = newTSet_(tc_Node)
-	this.hasSuper = newTSet_(tc_Node)
+	this.tryFunctionStack = newTDeque_(jtc_Node)
+	this.needsInstrumentation = jnewTMap_(jtc_Node, jtc_p_InstrumentAsyncContext_FunctionContext)
+	this.alreadyInstrumented = jnewTSet_(jtc_Node)
+	this.hasSuper = jnewTSet_(jtc_Node)
 }
 
 func (this *InstrumentAsyncContext) init_InstrumentAsyncContext(compiler *AbstractCompiler, shouldInstrumentAwait bool) {
@@ -473,5 +473,5 @@ func (this *InstrumentAsyncContext_FunctionContext) hashCode() int32 {
 }
 
 func (this *InstrumentAsyncContext_FunctionContext) toString() string {
-	return "FunctionContext[" + "uniqueSuffix=" + sstr_(this.uniqueSuffix_) + ", suspendName=" + tostrH_(this.suspendName_) + ", resumeName=" + tostrH_(this.resumeName_) + ", factoryName=" + tostrH_(this.factoryName_) + ", astFactory=" + tostr_(this.astFactory_) + "]"
+	return "FunctionContext[" + "uniqueSuffix=" + sstr_(this.uniqueSuffix_) + ", suspendName=" + tostrH_(this.suspendName_) + ", resumeName=" + tostrH_(this.resumeName_) + ", factoryName=" + tostrH_(this.factoryName_) + ", astFactory=" + jtostr_(this.astFactory_) + "]"
 }

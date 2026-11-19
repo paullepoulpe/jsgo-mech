@@ -5,9 +5,9 @@ package closure
 type FixingErrorManager struct {
 	BasicErrorManager
 	fixer           *ErrorToFixMapper
-	sureFixes       *TMap[*JSError, *SuggestedFix]
+	sureFixes       *JTMap[*JSError, *SuggestedFix]
 	multiFixes      *SimpleListMultimap
-	unfixableErrors *TSet[*DiagnosticType]
+	unfixableErrors *JTSet[*DiagnosticType]
 }
 
 func (this *FixingErrorManager) up_BasicErrorManager() *BasicErrorManager {
@@ -25,12 +25,12 @@ func (this *FixingErrorManager) up_SortingErrorManager() *SortingErrorManager {
 }
 
 func (this *FixingErrorManager) finit_FixingErrorManager() {
-	this.sureFixes = newTMap_(tce_p_JSError, tc_p_SuggestedFix)
+	this.sureFixes = jnewTMap_(tce_p_JSError, jtc_p_SuggestedFix)
 	this.multiFixes = SimpleListMultimap_create()
 }
 
 func (this *FixingErrorManager) init_FixingErrorManager_0() {
-	this.init_FixingErrorManager_ImmutableSet(tsetEmptyImm_(tce_p_DiagnosticType))
+	this.init_FixingErrorManager_ImmutableSet(jtsetEmptyImm_(tce_p_DiagnosticType))
 }
 
 func new_FixingErrorManager_0() *FixingErrorManager {
@@ -40,13 +40,13 @@ func new_FixingErrorManager_0() *FixingErrorManager {
 	return this
 }
 
-func (this *FixingErrorManager) init_FixingErrorManager_ImmutableSet(unfixableErrors *TSet[*DiagnosticType]) {
+func (this *FixingErrorManager) init_FixingErrorManager_ImmutableSet(unfixableErrors *JTSet[*DiagnosticType]) {
 	this.BasicErrorManager.init_BasicErrorManager()
 	this.finit_FixingErrorManager()
 	this.unfixableErrors = unfixableErrors
 }
 
-func new_FixingErrorManager_ImmutableSet(unfixableErrors *TSet[*DiagnosticType]) *FixingErrorManager {
+func new_FixingErrorManager_ImmutableSet(unfixableErrors *JTSet[*DiagnosticType]) *FixingErrorManager {
 	this := &FixingErrorManager{}
 	this.self_ = this
 	this.init_FixingErrorManager_ImmutableSet(unfixableErrors)
@@ -60,7 +60,7 @@ func (this *FixingErrorManager) setCompiler(compiler *AbstractCompiler) {
 func (this *FixingErrorManager) report_2_impl(level *CheckLevel, error_ *JSError) {
 	this.BasicErrorManager.report_2_impl(level, error_)
 	if !this.unfixableErrors.contains(error_.type_()) {
-		var fixes *TList[*SuggestedFix] = this.fixer.getFixesForJsError(error_)
+		var fixes *JTList[*SuggestedFix] = this.fixer.getFixesForJsError(error_)
 		if fixes.size() == 1 {
 			this.sureFixes.put(error_, fixes.get(0))
 		} else {

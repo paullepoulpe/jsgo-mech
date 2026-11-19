@@ -7,11 +7,11 @@ type GenerateExports struct {
 	exportSymbolFunction   Optional[string]
 	exportPropertyFunction Optional[string]
 	allowNonGlobalExports  bool
-	exportedVariables      *TSet[string]
+	exportedVariables      *JTSet[string]
 }
 
 func (this *GenerateExports) finit_GenerateExports() {
-	this.exportedVariables = newTSet_(tc_string)
+	this.exportedVariables = jnewTSet_(jtc_string)
 }
 
 func (this *GenerateExports) init_GenerateExports(compiler *AbstractCompiler, allowNonGlobalExports bool, exportSymbolFunction Optional[string], exportPropertyFunction Optional[string]) {
@@ -29,16 +29,16 @@ func new_GenerateExports(compiler *AbstractCompiler, allowNonGlobalExports bool,
 	return this
 }
 
-func (this *GenerateExports) getExportedVariableNames() *TSet[string] {
+func (this *GenerateExports) getExportedVariableNames() *JTSet[string] {
 	return this.exportedVariables
 }
 
 func (this *GenerateExports) process_2(externs Node, root Node) {
 	var findExportableNodes *FindExportableNodes = new_FindExportableNodes(this.compiler_, this.allowNonGlobalExports)
 	NodeTraversal_traverse(this.compiler_, root, FindExportableNodes_as_NodeTraversal_Callback(findExportableNodes))
-	var exports *TMap[string, Node] = findExportableNodes.getExports()
-	var es6Exports *TMap[Node, string] = findExportableNodes.getEs6ClassExports()
-	var localExports *TSet[string] = findExportableNodes.getLocalExports()
+	var exports *JTMap[string, Node] = findExportableNodes.getExports()
+	var es6Exports *JTMap[Node, string] = findExportableNodes.getEs6ClassExports()
+	var localExports *JTSet[string] = findExportableNodes.getLocalExports()
 	it_1 := localExports.each()
 	for it_1.next() {
 		var export string = it_1.v
@@ -63,7 +63,7 @@ func (this *GenerateExports) process_2(externs Node, root Node) {
 	}
 }
 
-func (this *GenerateExports) validateExportMethodsIncluded(exports *TMap[string, Node], es6Exports *TMap[Node, string], root Node) bool {
+func (this *GenerateExports) validateExportMethodsIncluded(exports *JTMap[string, Node], es6Exports *JTMap[Node, string], root Node) bool {
 	var errorLocation Node
 	if !exports.isEmpty() {
 		errorLocation = Node_of_(exports.asMap().values().iterator().next())
@@ -136,7 +136,7 @@ func (this *GenerateExports) addExportForEs6Method(memberFunction Node, ownerNam
 	this.addExportPropertyCall(ownerName, memberFunction, fullExport, memberFunction.getString())
 }
 
-func (this *GenerateExports) addExportMethod(exports *TMap[string, Node], export string, context Node) {
+func (this *GenerateExports) addExportMethod(exports *JTMap[string, Node], export string, context Node) {
 	var methodOwnerName string = ""
 	var isEs5StylePrototypeAssignment bool = false
 	var propertyName Optional[string] = Optional_empty[string]()

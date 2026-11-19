@@ -494,7 +494,7 @@ func PeepholeSubstituteAlternateSyntax_pickDelimiter(strings []string) Optional[
 NEXT_DELIMITER_:
 	for ; delimiters[i] != nullstr_; i++ {
 		for _, cur := range strings {
-			if String_contains_s(cur, delimiters[i]) {
+			if JString_contains_s(cur, delimiters[i]) {
 				continue NEXT_DELIMITER_
 			}
 		}
@@ -504,8 +504,8 @@ NEXT_DELIMITER_:
 }
 
 var PeepholeSubstituteAlternateSyntax_STRING_SPLIT_OVERHEAD int32
-var PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS *TSet[string]
-var PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS *TSet[string]
+var PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS *JTSet[string]
+var PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS *JTSet[string]
 
 var PeepholeSubstituteAlternateSyntax_clinit_done bool
 
@@ -515,8 +515,8 @@ func PeepholeSubstituteAlternateSyntax_clinit() {
 	}
 	PeepholeSubstituteAlternateSyntax_clinit_done = true
 	PeepholeSubstituteAlternateSyntax_STRING_SPLIT_OVERHEAD = String_length(".split('.')")
-	PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS = immutableSetOf_[string](tc_string, "Object", "Array", "Error", "RegExp", "Math")
-	PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS = immutableSetOf_[string](tc_string, "Object", "Array", "Error")
+	PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS = jimmutableSetOf_[string](jtc_string, "Object", "Array", "Error", "RegExp", "Math")
+	PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS = jimmutableSetOf_[string](jtc_string, "Object", "Array", "Error")
 
 }
 

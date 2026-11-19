@@ -85,7 +85,7 @@ func (this *SourceMapSection) hashCode() int32 {
 }
 
 func (this *SourceMapSection) toString() string {
-	return "SourceMapSection[" + "type=" + tostr_(this.type__) + ", value=" + sstr_(this.value_) + ", line=" + istr_(int64(this.line_)) + ", column=" + istr_(int64(this.column_)) + "]"
+	return "SourceMapSection[" + "type=" + jtostr_(this.type__) + ", value=" + sstr_(this.value_) + ", line=" + istr_(int64(this.line_)) + ", column=" + istr_(int64(this.column_)) + "]"
 }
 
 type SourceMapSection_SectionType struct {

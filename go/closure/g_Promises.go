@@ -52,13 +52,13 @@ func Promises_createAsyncReturnableType(registry *JSTypeRegistry, maybeThenable 
 	var unknownType *JSType = registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 	var iThenableType *ObjectType = registry.getNativeObjectType(JSTypeNative_I_THENABLE_TYPE)
 	var iThenableOfUnknownType *JSType = registry.createTemplatizedType(iThenableType, []*JSType{unknownType}).up_JSType()
-	var alternates *TList[*JSType] = func() *TList[*JSType] {
+	var alternates *JTList[*JSType] = func() *JTList[*JSType] {
 		if maybeThenable.isUnionType() {
 			return maybeThenable.toMaybeUnionType().getAlternates()
 		}
-		return immutableListOf_[*JSType](tc_p_JSType, maybeThenable)
+		return jimmutableListOf_[*JSType](jtc_p_JSType, maybeThenable)
 	}()
-	var asyncTemplateAlternatesBuilder *TListBuilder[*JSType] = newTListBuilder_(tc_p_JSType)
+	var asyncTemplateAlternatesBuilder *TListBuilder[*JSType] = newTListBuilder_(jtc_p_JSType)
 	it_1 := alternates.each()
 	for it_1.next() {
 		var t *JSType = it_1.v
@@ -66,7 +66,7 @@ func Promises_createAsyncReturnableType(registry *JSTypeRegistry, maybeThenable 
 			asyncTemplateAlternatesBuilder.add(Promises_getTemplateTypeOfThenable(registry, t))
 		}
 	}
-	var asyncTemplateAlternates *TList[*JSType] = asyncTemplateAlternatesBuilder.build()
+	var asyncTemplateAlternates *JTList[*JSType] = asyncTemplateAlternatesBuilder.build()
 	if asyncTemplateAlternates.isEmpty() {
 		return unknownType
 	}

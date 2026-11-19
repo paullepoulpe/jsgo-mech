@@ -36,7 +36,7 @@ func (this *CheckExtraRequiresPassConfig) getChecks_impl() *PassListBuilder {
 	passes.maybeAdd(PassFactory_builder().setName("removeUnusedImport").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		return CompilerPass(new_CombinedCompilerPass(compiler, immutableListOf_[NodeTraversal_Callback](tc_NodeTraversal_Callback, NodeTraversal_Callback(new_CheckExtraRequires(compiler, this.options_.getUnusedImportsToRemove())))))
+		return CompilerPass(new_CombinedCompilerPass(compiler, jimmutableListOf_[NodeTraversal_Callback](jtc_NodeTraversal_Callback, NodeTraversal_Callback(new_CheckExtraRequires(compiler, this.options_.getUnusedImportsToRemove())))))
 	}}).build())
 	return passes
 }

@@ -111,7 +111,7 @@ func (this *Export) hashCode() int32 {
 }
 
 func (this *Export) toString() string {
-	return "Export[" + "exportName=" + objstr_(this.exportName_.box_()) + ", moduleRequest=" + objstr_(this.moduleRequest_.box_()) + ", importName=" + objstr_(this.importName_.box_()) + ", localName=" + objstr_(this.localName_.box_()) + ", modulePath=" + tostr_(this.modulePath_) + ", exportNode=" + tostrH_(this.exportNode_) + ", nameNode=" + tostrH_(this.nameNode_) + ", moduleMetadata=" + tostr_(this.moduleMetadata_) + ", closureNamespace=" + objstr_(this.closureNamespace_.box_()) + ", mutated=" + boolstr_(this.mutated_) + "]"
+	return "Export[" + "exportName=" + objstr_(this.exportName_.box_()) + ", moduleRequest=" + objstr_(this.moduleRequest_.box_()) + ", importName=" + objstr_(this.importName_.box_()) + ", localName=" + objstr_(this.localName_.box_()) + ", modulePath=" + jtostr_(this.modulePath_) + ", exportNode=" + tostrH_(this.exportNode_) + ", nameNode=" + tostrH_(this.nameNode_) + ", moduleMetadata=" + jtostr_(this.moduleMetadata_) + ", closureNamespace=" + objstr_(this.closureNamespace_.box_()) + ", mutated=" + boolstr_(this.mutated_) + "]"
 }
 
 const Export_DEFAULT_EXPORT_NAME string = "*default*"
@@ -234,7 +234,7 @@ func (this *Export_Builder) autoBuild() *Export {
 		if (int32(this.set0) & 1) == 0 {
 			missing.append(" mutated")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + tostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
 	}
 	return new_Export(this.exportNameField, this.moduleRequestField, this.importNameField, this.localNameField, this.modulePathField, this.exportNodeField, this.nameNodeField, this.moduleMetadataField, this.closureNamespaceField, this.mutatedField)
 }

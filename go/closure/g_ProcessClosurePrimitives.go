@@ -5,8 +5,8 @@ package closure
 type ProcessClosurePrimitives struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_              *AbstractCompiler
-	knownClosureSubclasses *TSet[string]
-	closureModules         *TMap[string, *ModuleMetadataMap_ModuleMetadata]
+	knownClosureSubclasses *JTSet[string]
+	closureModules         *JTMap[string, *ModuleMetadataMap_ModuleMetadata]
 }
 
 func (this *ProcessClosurePrimitives) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -17,7 +17,7 @@ func (this *ProcessClosurePrimitives) up_NodeTraversal_AbstractPostOrderCallback
 }
 
 func (this *ProcessClosurePrimitives) finit_ProcessClosurePrimitives() {
-	this.knownClosureSubclasses = newTSet_(tc_string)
+	this.knownClosureSubclasses = jnewTSet_(jtc_string)
 }
 
 func (this *ProcessClosurePrimitives) init_ProcessClosurePrimitives(compiler *AbstractCompiler) {
@@ -197,7 +197,7 @@ func (this *ProcessClosurePrimitives) maybeProcessClassBaseCall(n Node) {
 		return
 	}
 	var enclosingQname string = enclosingFnNameNode.getQualifiedName()
-	if !String_contains_s(enclosingQname, ".prototype.") {
+	if !JString_contains_s(enclosingQname, ".prototype.") {
 		this.rewriteBaseCallInConstructor(enclosingQname, Optional_of[string](baseContainer).filter(&Predicate_tfn_string{func(s string) bool {
 			return !String_isEmpty(s)
 		}}), n, enclosingFnNameNode)
@@ -337,7 +337,7 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 	if !ProcessClosurePrimitives_verifySetCssNameMapping(compiler, left, arg) {
 		return nil
 	}
-	var cssNames *TMap[string, string] = newTMap_(tc_string, tc_string)
+	var cssNames *JTMap[string, string] = jnewTMap_(jtc_string, jtc_string)
 	{
 		var key Node = arg.getFirstChild()
 		for ; key != 0; key = key.getNext() {
@@ -366,11 +366,11 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 	}
 	var style *CssRenamingMap_Style = styleOrNull
 	if style == CssRenamingMap_Style_BY_PART {
-		var errors *TList[string] = newTList_(tc_string)
+		var errors *JTList[string] = jnewTList_(jtc_string)
 		it_3 := cssNames.eachKey()
 		for it_3.next() {
 			var key string = it_3.v
-			if String_contains_s(key, "-") && !String_startsWith(key, "--") {
+			if JString_contains_s(key, "-") && !String_startsWith(key, "--") {
 				errors.add(key)
 			}
 		}
@@ -378,7 +378,7 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{tostrR_(errors.asList())}))
 		}
 	} else if style == CssRenamingMap_Style_BY_WHOLE {
-		var errors *TList[string] = newTList_(tc_string)
+		var errors *JTList[string] = jnewTList_(jtc_string)
 		it_5 := cssNames.eachEntry()
 		for it_5.next() {
 			var b *TEntry[string, string] = it_5.entry()
@@ -469,7 +469,7 @@ func (this *ProcessClosurePrimitives) checkPropertyRenameCall(call Node) {
 	var propName Node = callee.getNext()
 	if (propName == 0) || !propName.isStringLit() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, ProcessClosurePrimitives_INVALID_RENAME_FUNCTION, []string{calleeName, "The first argument must be a string literal."}))
-	} else if String_contains_s(propName.getString(), ".") {
+	} else if JString_contains_s(propName.getString(), ".") {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, ProcessClosurePrimitives_INVALID_RENAME_FUNCTION, []string{calleeName, "The first argument must not be a property path."}))
 	}
 }
@@ -523,7 +523,7 @@ func ProcessClosurePrimitives_clinit() {
 }
 
 type ProcessClosurePrimitives_1 struct {
-	cap_cssNames *TMap[string, string]
+	cap_cssNames *JTMap[string, string]
 	cap_style    *CssRenamingMap_Style
 }
 
@@ -531,7 +531,7 @@ func (this *ProcessClosurePrimitives_1) init_ProcessClosurePrimitives_1() {
 
 }
 
-func new_ProcessClosurePrimitives_1(cap_cssNames *TMap[string, string], cap_style *CssRenamingMap_Style) *ProcessClosurePrimitives_1 {
+func new_ProcessClosurePrimitives_1(cap_cssNames *JTMap[string, string], cap_style *CssRenamingMap_Style) *ProcessClosurePrimitives_1 {
 	this := &ProcessClosurePrimitives_1{}
 	this.cap_cssNames = cap_cssNames
 	this.cap_style = cap_style

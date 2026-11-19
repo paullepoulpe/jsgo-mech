@@ -100,7 +100,7 @@ func (this *ModuleRenaming_GlobalizedModuleName) toQname(astFactory *AstFactory)
 }
 
 func (this *ModuleRenaming_GlobalizedModuleName) getprop(property string) *ModuleRenaming_GlobalizedModuleName {
-	Preconditions_checkArgument((!String_isEmpty(property) && !String_contains_s(property, ".")))
+	Preconditions_checkArgument((!String_isEmpty(property) && !JString_contains_s(property, ".")))
 	return ModuleRenaming_GlobalizedModuleName_create_QualifiedName_JSType(this.aliasName().getprop(property), this.rootNameType())
 }
 
@@ -120,7 +120,7 @@ func ModuleRenaming_GlobalizedModuleName_create_ModuleMetadata_Optional_TypedSco
 		return new_ModuleRenaming_GlobalizedModuleName(QualifiedName_of(moduleMetadata.path().toModuleName()), ModuleRenaming_getNameRootType(moduleMetadata.path().toModuleName(), globalTypedScope))
 	case ModuleMetadataMap_ModuleType_SCRIPT:
 	}
-	panic(new_IllegalStateException_String(("Unexpected module type: " + tostr_(moduleMetadata.moduleType()))).self())
+	panic(new_IllegalStateException_String(("Unexpected module type: " + jtostr_(moduleMetadata.moduleType()))).self())
 }
 
 func (this *ModuleRenaming_GlobalizedModuleName) aliasName() *QualifiedName {

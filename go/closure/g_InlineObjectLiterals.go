@@ -28,11 +28,11 @@ const InlineObjectLiterals_STRING_KEY_IDENTIFIER string = "string_key"
 
 type InlineObjectLiterals_InliningBehavior struct {
 	outer_    *InlineObjectLiterals
-	staleVars *TSet[*Var]
+	staleVars *JTSet[*Var]
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) finit_InlineObjectLiterals_InliningBehavior() {
-	this.staleVars = newTSet_(tce_p_Var)
+	this.staleVars = jnewTSet_(tce_p_Var)
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) init_InlineObjectLiterals_InliningBehavior() {
@@ -73,9 +73,9 @@ func (this *InlineObjectLiterals_InliningBehavior) isVarInlineForbidden(var_ *Va
 	return ((((var_.isGlobal() || var_.isExtern()) || this.outer_.compiler_.getCodingConvention().isExported_2(var_.getName(), true)) || this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(var_.getNameNode())) || this.staleVars.contains(var_))
 }
 
-func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *TList[*Reference]) bool {
+func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *JTList[*Reference]) bool {
 	var ret bool = false
-	var validProperties *TSet[string] = newTSet_(tc_string)
+	var validProperties *JTSet[string] = jnewTSet_(jtc_string)
 	it_1 := refs.each()
 	for it_1.next() {
 		var ref *Reference = it_1.v
@@ -148,8 +148,8 @@ func (this *InlineObjectLiterals_InliningBehavior) isVarOrAssignExprLhs(n Node) 
 	return (NodeUtil_isNameDeclaration(parent) || ((parent.isAssign() && (parent.getFirstChild() == n)) && parent.getParent().isExprResult()))
 }
 
-func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo *ReferenceCollection) *TMap[string, string] {
-	var varmap *TMap[string, string] = newTMap_(tc_string, tc_string)
+func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo *ReferenceCollection) *JTMap[string, string] {
+	var varmap *JTMap[string, string] = jnewTMap_(jtc_string, jtc_string)
 	it_1 := referenceInfo.references.each()
 	for it_1.next() {
 		var ref *Reference = it_1.v
@@ -188,7 +188,7 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 	return varmap
 }
 
-func (this *InlineObjectLiterals_InliningBehavior) fillInitialValues(init_ *Reference, initvals *TMap[string, Node]) {
+func (this *InlineObjectLiterals_InliningBehavior) fillInitialValues(init_ *Reference, initvals *JTMap[string, Node]) {
 	var object Node = init_.getAssignedValue()
 	Preconditions_checkState_boolean_Object_H(object.isObjectLit(), object)
 	{
@@ -199,12 +199,12 @@ func (this *InlineObjectLiterals_InliningBehavior) fillInitialValues(init_ *Refe
 	}
 }
 
-func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v *Var, ref *Reference, varmap *TMap[string, string]) {
+func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v *Var, ref *Reference, varmap *JTMap[string, string]) {
 	var nodes ListOf[Node] = icast_List(new_ArrayList_0().self())
 	var val Node = ref.getAssignedValue()
 	this.recordStaleVarReferencesInTree(val, v.getScope_rAbstractScope_rScope())
 	Preconditions_checkState_boolean_Object_H(val.isObjectLit(), val)
-	var all *TSet[string] = tsetFrom_(tc_string, Collection(varmap.asMap().keySet()))
+	var all *JTSet[string] = jtsetFrom_(jtc_string, Collection(varmap.asMap().keySet()))
 	{
 		var key Node = val.getFirstChild()
 		for ; key != 0; key = key.getNext() {
@@ -250,8 +250,8 @@ func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Reference, referenceInfo *ReferenceCollection) {
-	var varmap *TMap[string, string] = this.computeVarList(referenceInfo)
-	var initvals *TMap[string, Node] = newTMap_(tc_string, tc_Node)
+	var varmap *JTMap[string, string] = this.computeVarList(referenceInfo)
+	var initvals *JTMap[string, Node] = jnewTMap_(jtc_string, jtc_Node)
 	var vnode Node
 	var isBlockScoped bool = (v.isLet() || v.isConst())
 	var defined bool = (referenceInfo.isWellDefined() && NodeUtil_isNameDeclaration(init_.getParent()))

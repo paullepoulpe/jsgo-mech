@@ -3,16 +3,16 @@
 package closure
 
 type CoverageInstrumentationCallback struct {
-	instrumentationData *TMap[string, *FileInstrumentationData]
+	instrumentationData *JTMap[string, *FileInstrumentationData]
 	reach               *CoverageInstrumentationPass_CoverageReach
 }
 
-func (this *CoverageInstrumentationCallback) init_CoverageInstrumentationCallback(instrumentationData *TMap[string, *FileInstrumentationData], reach *CoverageInstrumentationPass_CoverageReach) {
+func (this *CoverageInstrumentationCallback) init_CoverageInstrumentationCallback(instrumentationData *JTMap[string, *FileInstrumentationData], reach *CoverageInstrumentationPass_CoverageReach) {
 	this.instrumentationData = instrumentationData
 	this.reach = reach
 }
 
-func new_CoverageInstrumentationCallback(instrumentationData *TMap[string, *FileInstrumentationData], reach *CoverageInstrumentationPass_CoverageReach) *CoverageInstrumentationCallback {
+func new_CoverageInstrumentationCallback(instrumentationData *JTMap[string, *FileInstrumentationData], reach *CoverageInstrumentationPass_CoverageReach) *CoverageInstrumentationCallback {
 	this := &CoverageInstrumentationCallback{}
 	this.init_CoverageInstrumentationCallback(instrumentationData, reach)
 	return this

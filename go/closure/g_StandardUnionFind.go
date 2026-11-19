@@ -3,7 +3,7 @@
 package closure
 
 type StandardUnionFind[E comparable] struct {
-	elmap *TMap[E, *StandardUnionFind_Node[E]]
+	elmap *JTMap[E, *StandardUnionFind_Node[E]]
 }
 
 func (this *StandardUnionFind[E]) isa_StandardUnionFind_() {}
@@ -14,7 +14,7 @@ func is_StandardUnionFind(v any) bool {
 }
 
 func (this *StandardUnionFind[E]) finit_StandardUnionFind() {
-	this.elmap = newTMap_(tceT_[E](), tc_p_StandardUnionFind_Node_E_[E]())
+	this.elmap = jnewTMap_(tceT_[E](), tc_p_StandardUnionFind_Node_E_[E]())
 }
 
 func (this *StandardUnionFind[E]) init_StandardUnionFind_0() {
@@ -31,7 +31,7 @@ func (this *StandardUnionFind[E]) init_StandardUnionFind_UnionFind(other UnionFi
 	this.finit_StandardUnionFind()
 	it_1 := foreach_(other.elements())
 	for it_1.next() {
-		var elem E = unboxT_[E](it_1.v)
+		var elem E = junboxT_[E](it_1.v)
 		this.union(other.find(elem), elem)
 	}
 }
@@ -49,7 +49,7 @@ func (this *StandardUnionFind[E]) add(e E) {
 func (this *StandardUnionFind[E]) addAll(es IterableOf[E]) {
 	it_1 := foreach_(es)
 	for it_1.next() {
-		var e E = unboxT_[E](it_1.v)
+		var e E = junboxT_[E](it_1.v)
 		this.add(e)
 	}
 }
@@ -91,7 +91,7 @@ func (this *StandardUnionFind[E]) elements() SetOf[E] {
 	return Collections_unmodifiableSet(this.elmap.asMap().keySet())
 }
 
-func (this *StandardUnionFind[E]) allEquivalenceClasses() *TList[*ImmutableSet] {
+func (this *StandardUnionFind[E]) allEquivalenceClasses() *JTList[*ImmutableSet] {
 	var groupsTmp *SimpleSetMultimap = SimpleSetMultimap_create()
 	it_1 := this.elmap.eachValue()
 	for it_1.next() {
@@ -157,7 +157,7 @@ func is_StandardUnionFind_Node(v any) bool {
 }
 
 func (this *StandardUnionFind_Node[E]) zero_StandardUnionFind_Node() {
-	this.element = null_[E]()
+	this.element = jnull_[E]()
 }
 
 func (this *StandardUnionFind_Node[E]) finit_StandardUnionFind_Node() {
@@ -211,7 +211,7 @@ func (this *StandardUnionFind_1[E]) apply(b any) bool {
 	if Objects_equals(boxT_(this.cap_value), b) {
 		return true
 	}
-	var nodeForB *StandardUnionFind_Node[E] = this.outer_.elmap.get(unboxT_[E](b))
+	var nodeForB *StandardUnionFind_Node[E] = this.outer_.elmap.get(junboxT_[E](b))
 	if nodeForB == nil {
 		return false
 	}

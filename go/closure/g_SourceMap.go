@@ -4,14 +4,14 @@ package closure
 
 type SourceMap struct {
 	generator                SourceMapGenerator
-	prefixMappings           *TList[SourceMap_LocationMapping]
-	sourceLocationFixupCache *TMap[string, string]
+	prefixMappings           *JTList[SourceMap_LocationMapping]
+	sourceLocationFixupCache *JTMap[string, string]
 	mapping                  SourceFileMapping
 }
 
 func (this *SourceMap) finit_SourceMap() {
-	this.prefixMappings = tlistEmptyImm_(tc_SourceMap_LocationMapping)
-	this.sourceLocationFixupCache = newTMap_(tc_string, tc_string)
+	this.prefixMappings = jtlistEmptyImm_(jtc_SourceMap_LocationMapping)
+	this.sourceLocationFixupCache = jnewTMap_(jtc_string, jtc_string)
 }
 
 func (this *SourceMap) init_SourceMap(generator SourceMapGenerator) {
@@ -129,7 +129,7 @@ func (this *SourceMap) validate(validate bool) {
 	this.generator.validate(validate)
 }
 
-func (this *SourceMap) setPrefixMappings(sourceMapLocationMappings *TList[SourceMap_LocationMapping]) {
+func (this *SourceMap) setPrefixMappings(sourceMapLocationMappings *JTList[SourceMap_LocationMapping]) {
 	this.prefixMappings = sourceMapLocationMappings
 }
 
@@ -367,7 +367,7 @@ func new_SourceMap_Mapping() *SourceMap_Mapping {
 }
 
 func (this *SourceMap_Mapping) toString() string {
-	return ("Mapping: start " + tostr_(this.start_) + ", end " + tostr_(this.end_) + ", node " + tostrH_(this.node_))
+	return ("Mapping: start " + jtostr_(this.start_) + ", end " + jtostr_(this.end_) + ", node " + tostrH_(this.node_))
 }
 
 type SourceMap_Format_1 struct {

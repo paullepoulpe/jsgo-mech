@@ -34,7 +34,7 @@ func FixedPointGraphTraversal_newReverseTraversal[NodeT comparable, EdgeT compar
 }
 
 func (this *FixedPointGraphTraversal[N, E]) computeFixedPoint(graph *DiGraph[N, E]) {
-	var nodes *TSet[N] = newTSet_(tceT_[N]())
+	var nodes *JTSet[N] = jnewTSet_(tceT_[N]())
 	it_1 := foreach_(graph.getNodes())
 	for it_1.next() {
 		var node DiGraph_DiGraphNode[N, E] = cast_[DiGraph_DiGraphNode[N, E]](it_1.v)
@@ -44,7 +44,7 @@ func (this *FixedPointGraphTraversal[N, E]) computeFixedPoint(graph *DiGraph[N, 
 }
 
 func (this *FixedPointGraphTraversal[N, E]) computeFixedPoint_2(graph *DiGraph[N, E], entry N) {
-	var entrySet *TSet[N] = newTSet_(tceT_[N]())
+	var entrySet *JTSet[N] = jnewTSet_(tceT_[N]())
 	entrySet.add(entry)
 	this.computeFixedPointSet(graph, entrySet.asSet())
 }
@@ -56,7 +56,7 @@ func (this *FixedPointGraphTraversal[N, E]) computeFixedPointSet(graph *DiGraph[
 	var workSet LinkedHashSetOf[DiGraph_DiGraphNode[N, E]] = new_LinkedHashSet()
 	it_1 := foreach_(entrySet)
 	for it_1.next() {
-		var n N = unboxT_[N](it_1.v)
+		var n N = junboxT_[N](it_1.v)
 		workSet.add(graph.getNode_Object_rDiGraphNode(n))
 	}
 	for ; !workSet.isEmpty() && (cycleCount < maxIterations); cycleCount++ {
@@ -91,7 +91,7 @@ func (this *FixedPointGraphTraversal[N, E]) visitNode(node DiGraph_DiGraphNode[N
 		}
 		return
 	}
-	panic(new_AssertionError_Object(strobj_(("Unrecognized direction " + tostr_(this.traversalDirection)))).self())
+	panic(new_AssertionError_Object(strobj_(("Unrecognized direction " + jtostr_(this.traversalDirection)))).self())
 }
 
 const FixedPointGraphTraversal_NON_HALTING_ERROR_MSG string = "Fixed point computation not halting"

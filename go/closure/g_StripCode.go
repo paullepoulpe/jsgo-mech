@@ -4,8 +4,8 @@ package closure
 
 type StripCode struct {
 	compiler_                      *AbstractCompiler
-	stripNameSuffixes              *TSet[string]
-	stripNamePrefixes              *TSet[string]
+	stripNameSuffixes              *JTSet[string]
+	stripNamePrefixes              *JTSet[string]
 	varsToRemove                   *LinkedIdentityHashSet[string]
 	stripTypesList                 []string
 	stripTypePrefixesList          []string
@@ -17,10 +17,10 @@ func (this *StripCode) finit_StripCode() {
 	this.varsToRemove = new_LinkedIdentityHashSet[string]()
 }
 
-func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes *TSet[string], stripNameSuffixes *TSet[string], stripNamePrefixes *TSet[string], enableTweakStripping bool) {
+func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes *JTSet[string], stripNameSuffixes *JTSet[string], stripNamePrefixes *JTSet[string], enableTweakStripping bool) {
 	this.finit_StripCode()
 	this.compiler_ = compiler
-	var stripNameSuffixesBuilder *TSetBuilder[string] = newTSetBuilder_(tc_string)
+	var stripNameSuffixesBuilder *TSetBuilder[string] = newTSetBuilder_(jtc_string)
 	it_1 := stripNameSuffixes.each()
 	for it_1.next() {
 		var s string = it_1.v
@@ -31,7 +31,7 @@ func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes *TS
 		}
 	}
 	this.stripNameSuffixes = stripNameSuffixesBuilder.build()
-	var stripNamePrefixesBuilder *TSetBuilder[string] = newTSetBuilder_(tc_string)
+	var stripNamePrefixesBuilder *TSetBuilder[string] = newTSetBuilder_(jtc_string)
 	it_5 := stripNamePrefixes.each()
 	for it_5.next() {
 		var s string = it_5.v
@@ -42,11 +42,11 @@ func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes *TS
 		}
 	}
 	this.stripNamePrefixes = stripNamePrefixesBuilder.build()
-	var stripTypesToAdjust *TList[string] = tlistFrom_(tc_string, Collection(stripTypes.asSet()))
+	var stripTypesToAdjust *JTList[string] = jtlistFrom_(jtc_string, Collection(stripTypes.asSet()))
 	if enableTweakStripping {
 		stripTypesToAdjust.add("goog.tweak")
 	}
-	var stripTypesAdjustedBuilder *TSetBuilder[string] = newTSetBuilder_(tc_string)
+	var stripTypesAdjustedBuilder *TSetBuilder[string] = newTSetBuilder_(jtc_string)
 	it_9 := stripTypesToAdjust.each()
 	for it_9.next() {
 		var s string = it_9.v
@@ -56,9 +56,9 @@ func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes *TS
 			stripTypesAdjustedBuilder.add(form)
 		}
 	}
-	var stripTypesAdjusted *TSet[string] = stripTypesAdjustedBuilder.build()
+	var stripTypesAdjusted *JTSet[string] = stripTypesAdjustedBuilder.build()
 	this.stripTypesList = arrmap_(stripTypesAdjusted.asImm().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
-	var stripTypePrefixes *TList[string] = newTList_(tc_string)
+	var stripTypePrefixes *JTList[string] = jnewTList_(jtc_string)
 	it_13 := stripTypesAdjusted.each()
 	for it_13.next() {
 		var s string = it_13.v
@@ -66,14 +66,14 @@ func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes *TS
 		stripTypePrefixes.add((sstr_(s) + "$"))
 	}
 	this.stripTypePrefixesList = arrmap_(stripTypePrefixes.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
-	var stripNamePrefixesLowerCase *TList[string] = newTList_(tc_string)
+	var stripNamePrefixesLowerCase *JTList[string] = jnewTList_(jtc_string)
 	it_15 := this.stripNamePrefixes.each()
 	for it_15.next() {
 		var s string = it_15.v
 		stripNamePrefixesLowerCase.add(String_toLowerCase(s, Locale_ROOT))
 	}
 	this.stripNamePrefixesLowerCaseList = arrmap_(stripNamePrefixesLowerCase.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
-	var stripNameSuffixesLowerCase *TList[string] = newTList_(tc_string)
+	var stripNameSuffixesLowerCase *JTList[string] = jnewTList_(jtc_string)
 	it_17 := this.stripNameSuffixes.each()
 	for it_17.next() {
 		var s string = it_17.v
@@ -82,14 +82,14 @@ func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes *TS
 	this.stripNameSuffixesLowerCaseList = arrmap_(stripNameSuffixesLowerCase.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 }
 
-func new_StripCode(compiler *AbstractCompiler, stripTypes *TSet[string], stripNameSuffixes *TSet[string], stripNamePrefixes *TSet[string], enableTweakStripping bool) *StripCode {
+func new_StripCode(compiler *AbstractCompiler, stripTypes *JTSet[string], stripNameSuffixes *JTSet[string], stripNamePrefixes *JTSet[string], enableTweakStripping bool) *StripCode {
 	this := &StripCode{}
 	this.init_StripCode(compiler, stripTypes, stripNameSuffixes, stripNamePrefixes, enableTweakStripping)
 	return this
 }
 
-func StripCode_toListWithCollapsedVersions(s string) *TList[string] {
-	var possibleForms *TList[string] = newTList_(tc_string)
+func StripCode_toListWithCollapsedVersions(s string) *JTList[string] {
+	var possibleForms *JTList[string] = jnewTList_(jtc_string)
 	possibleForms.add(s)
 	var chars []uint16 = String_toCharArray(s)
 	for i := int32(0); i < int32(len(chars)); i++ {
@@ -244,7 +244,7 @@ func (this *StripCode_Strip) removeVarDeclarationsByNameOrRvalue(t *NodeTraversa
 			}()
 			if (this.isStripName(possibleStripName) || this.qualifiedNameBeginsWithStripType(nameNode)) || this.isCallWhoseReturnValueShouldBeStripped(nameNode.getFirstChild()) {
 				this.outer_.varsToRemove.add(name)
-				if String_contains_s(name, "$") {
+				if JString_contains_s(name, "$") {
 					this.decisionsLog.log(&Supplier_tfn_string{func() string {
 						return (sstr_(name) + ": initialize with null (" + sstr_(possibleStripName) + ")")
 					}})

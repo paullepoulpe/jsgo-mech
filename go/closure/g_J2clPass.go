@@ -22,11 +22,11 @@ func (this *J2clPass) process_2(externs Node, root Node) {
 	if !J2clSourceFileChecker_shouldRunJ2clPasses(this.compiler_) {
 		return
 	}
-	var inlinings *TList[*J2clPass_InlineSpec] = newTList_(tc_p_J2clPass_InlineSpec)
-	inlinings.add(new_J2clPass_InlineSpec("Arrays.impl.java.js", immutableSetOf_[string](tc_string, "$create", "$createWithInitializer", "$init", "$instanceIsOfType", "$castTo", "$stampType"), FunctionInjector_InliningMode_DIRECT))
-	inlinings.add(new_J2clPass_InlineSpec("Casts.impl.java.js", immutableSetOf_[string](tc_string, "$to"), FunctionInjector_InliningMode_DIRECT))
-	inlinings.add(new_J2clPass_InlineSpec(J2clPass_ALL_CLASS_FILE_NAMES, immutableSetOf_[string](tc_string, "$markImplementor"), FunctionInjector_InliningMode_BLOCK))
-	inlinings.add(new_J2clPass_InlineSpec("Util.impl.java.js", immutableSetOf_[string](tc_string, "$setClassMetadata", "$setClassMetadataForInterface", "$setClassMetadataForEnum", "$setClassMetadataForPrimitive"), FunctionInjector_InliningMode_BLOCK))
+	var inlinings *JTList[*J2clPass_InlineSpec] = jnewTList_(jtc_p_J2clPass_InlineSpec)
+	inlinings.add(new_J2clPass_InlineSpec("Arrays.impl.java.js", jimmutableSetOf_[string](jtc_string, "$create", "$createWithInitializer", "$init", "$instanceIsOfType", "$castTo", "$stampType"), FunctionInjector_InliningMode_DIRECT))
+	inlinings.add(new_J2clPass_InlineSpec("Casts.impl.java.js", jimmutableSetOf_[string](jtc_string, "$to"), FunctionInjector_InliningMode_DIRECT))
+	inlinings.add(new_J2clPass_InlineSpec(J2clPass_ALL_CLASS_FILE_NAMES, jimmutableSetOf_[string](jtc_string, "$markImplementor"), FunctionInjector_InliningMode_BLOCK))
+	inlinings.add(new_J2clPass_InlineSpec("Util.impl.java.js", jimmutableSetOf_[string](jtc_string, "$setClassMetadata", "$setClassMetadataForInterface", "$setClassMetadataForEnum", "$setClassMetadataForPrimitive"), FunctionInjector_InliningMode_BLOCK))
 	new_J2clPass_ClassStaticFunctionsInliner(this, root, inlinings).run()
 }
 
@@ -34,7 +34,7 @@ const J2clPass_ALL_CLASS_FILE_NAMES string = "*"
 
 type J2clPass_InlineSpec struct {
 	classFileName_   string
-	fnNamesToInline_ *TSet[string]
+	fnNamesToInline_ *JTSet[string]
 	inliningMode_    *FunctionInjector_InliningMode
 }
 
@@ -42,13 +42,13 @@ func (this *J2clPass_InlineSpec) zero_J2clPass_InlineSpec() {
 	this.classFileName_ = nullstr_
 }
 
-func (this *J2clPass_InlineSpec) init_J2clPass_InlineSpec(classFileName string, fnNamesToInline *TSet[string], inliningMode *FunctionInjector_InliningMode) {
+func (this *J2clPass_InlineSpec) init_J2clPass_InlineSpec(classFileName string, fnNamesToInline *JTSet[string], inliningMode *FunctionInjector_InliningMode) {
 	this.classFileName_ = classFileName
 	this.fnNamesToInline_ = fnNamesToInline
 	this.inliningMode_ = inliningMode
 }
 
-func new_J2clPass_InlineSpec(classFileName string, fnNamesToInline *TSet[string], inliningMode *FunctionInjector_InliningMode) *J2clPass_InlineSpec {
+func new_J2clPass_InlineSpec(classFileName string, fnNamesToInline *JTSet[string], inliningMode *FunctionInjector_InliningMode) *J2clPass_InlineSpec {
 	this := &J2clPass_InlineSpec{}
 	this.zero_J2clPass_InlineSpec()
 	this.init_J2clPass_InlineSpec(classFileName, fnNamesToInline, inliningMode)
@@ -59,7 +59,7 @@ func (this *J2clPass_InlineSpec) classFileName() string {
 	return this.classFileName_
 }
 
-func (this *J2clPass_InlineSpec) fnNamesToInline() *TSet[string] {
+func (this *J2clPass_InlineSpec) fnNamesToInline() *JTSet[string] {
 	return this.fnNamesToInline_
 }
 
@@ -84,27 +84,27 @@ func (this *J2clPass_InlineSpec) hashCode() int32 {
 }
 
 func (this *J2clPass_InlineSpec) toString() string {
-	return "InlineSpec[" + "classFileName=" + sstr_(this.classFileName_) + ", fnNamesToInline=" + objstr_(this.fnNamesToInline_.asSet()) + ", inliningMode=" + tostr_(this.inliningMode_) + "]"
+	return "InlineSpec[" + "classFileName=" + sstr_(this.classFileName_) + ", fnNamesToInline=" + objstr_(this.fnNamesToInline_.asSet()) + ", inliningMode=" + jtostr_(this.inliningMode_) + "]"
 }
 
 type J2clPass_ClassStaticFunctionsInliner struct {
 	outer_                     *J2clPass
-	fnsToInlineByQualifiedName *TMap[string, *J2clPass_ClassStaticFunctionsInliner_InlinableFunction]
+	fnsToInlineByQualifiedName *JTMap[string, *J2clPass_ClassStaticFunctionsInliner_InlinableFunction]
 	injector                   *FunctionInjector
 	root                       Node
-	inlineSpecs                *TList[*J2clPass_InlineSpec]
+	inlineSpecs                *JTList[*J2clPass_InlineSpec]
 }
 
 func (this *J2clPass_ClassStaticFunctionsInliner) finit_J2clPass_ClassStaticFunctionsInliner() {
-	this.fnsToInlineByQualifiedName = newTMap_(tc_string, tc_p_J2clPass_ClassStaticFunctionsInliner_InlinableFunction)
+	this.fnsToInlineByQualifiedName = jnewTMap_(jtc_string, jtc_p_J2clPass_ClassStaticFunctionsInliner_InlinableFunction)
 }
 
-func (this *J2clPass_ClassStaticFunctionsInliner) init_J2clPass_ClassStaticFunctionsInliner(root Node, inlineSpecs *TList[*J2clPass_InlineSpec]) {
+func (this *J2clPass_ClassStaticFunctionsInliner) init_J2clPass_ClassStaticFunctionsInliner(root Node, inlineSpecs *JTList[*J2clPass_InlineSpec]) {
 	this.finit_J2clPass_ClassStaticFunctionsInliner()
 	this.root = root
 	this.inlineSpecs = inlineSpecs
 	this.injector = new_FunctionInjector_Builder(this.outer_.compiler_).safeNameIdSupplier(this.outer_.safeNameIdSupplier_).assumeStrictThis(true).build()
-	var fnNamesToInlineBuilder *TSetBuilder[string] = newTSetBuilder_(tc_string)
+	var fnNamesToInlineBuilder *TSetBuilder[string] = newTSetBuilder_(jtc_string)
 	it_1 := inlineSpecs.each()
 	for it_1.next() {
 		var b *J2clPass_InlineSpec = it_1.v
@@ -114,11 +114,11 @@ func (this *J2clPass_ClassStaticFunctionsInliner) init_J2clPass_ClassStaticFunct
 			fnNamesToInlineBuilder.add(fnName)
 		}
 	}
-	var fnNamesToInline *TSet[string] = fnNamesToInlineBuilder.build()
+	var fnNamesToInline *JTSet[string] = fnNamesToInlineBuilder.build()
 	this.injector.setKnownConstantFunctions(fnNamesToInline)
 }
 
-func new_J2clPass_ClassStaticFunctionsInliner(outer_ *J2clPass, root Node, inlineSpecs *TList[*J2clPass_InlineSpec]) *J2clPass_ClassStaticFunctionsInliner {
+func new_J2clPass_ClassStaticFunctionsInliner(outer_ *J2clPass, root Node, inlineSpecs *JTList[*J2clPass_InlineSpec]) *J2clPass_ClassStaticFunctionsInliner {
 	this := &J2clPass_ClassStaticFunctionsInliner{}
 	this.outer_ = outer_
 	this.init_J2clPass_ClassStaticFunctionsInliner(root, inlineSpecs)
@@ -130,8 +130,8 @@ func (this *J2clPass_ClassStaticFunctionsInliner) run() {
 	NodeTraversal_traverse(this.outer_.compiler_, this.root, NodeTraversal_Callback(new_J2clPass_ClassStaticFunctionsInliner_StaticCallInliner(this)))
 }
 
-func (this *J2clPass_ClassStaticFunctionsInliner) findMatchingSpecsForFile(sourceFileName string) *TList[*J2clPass_InlineSpec] {
-	var matchingSpecs *TListBuilder[*J2clPass_InlineSpec] = newTListBuilder_(tc_p_J2clPass_InlineSpec)
+func (this *J2clPass_ClassStaticFunctionsInliner) findMatchingSpecsForFile(sourceFileName string) *JTList[*J2clPass_InlineSpec] {
+	var matchingSpecs *TListBuilder[*J2clPass_InlineSpec] = newTListBuilder_(jtc_p_J2clPass_InlineSpec)
 	it_1 := this.inlineSpecs.each()
 	for it_1.next() {
 		var inlineSpec *J2clPass_InlineSpec = it_1.v
@@ -182,12 +182,12 @@ func (this *J2clPass_ClassStaticFunctionsInliner_InlinableFunction) hashCode() i
 }
 
 func (this *J2clPass_ClassStaticFunctionsInliner_InlinableFunction) toString() string {
-	return "InlinableFunction[" + "impl=" + tostrH_(this.impl_) + ", inliningMode=" + tostr_(this.inliningMode_) + "]"
+	return "InlinableFunction[" + "impl=" + tostrH_(this.impl_) + ", inliningMode=" + jtostr_(this.inliningMode_) + "]"
 }
 
 type J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector struct {
 	outer_              *J2clPass_ClassStaticFunctionsInliner
-	currFileInlineSpecs *TList[*J2clPass_InlineSpec]
+	currFileInlineSpecs *JTList[*J2clPass_InlineSpec]
 }
 
 func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) init_J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector() {

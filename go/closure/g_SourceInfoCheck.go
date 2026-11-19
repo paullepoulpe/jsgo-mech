@@ -60,7 +60,7 @@ func (this *SourceInfoCheck) checkJSDoc(info *JSDocInfo) {
 	for it_1.next() {
 		var expression *JSTypeExpression = cast_[*JSTypeExpression](it_1.v)
 		if String_isEmpty(expression.getSourceName()) {
-			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(expression.getRoot(), SourceInfoCheck_MISSING_SOURCE_NAME, []string{("JSTypeExpression " + tostr_(expression))}))
+			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(expression.getRoot(), SourceInfoCheck_MISSING_SOURCE_NAME, []string{("JSTypeExpression " + jtostr_(expression))}))
 		} else {
 			NodeUtil_visitPreOrder_Node_Visitor(expression.getRoot(), &NodeUtil_Visitor_fn{func(p0 Node) { this.checkSourceFile(p0) }})
 		}

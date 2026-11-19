@@ -83,5 +83,5 @@ func J2clUndefinedChecksRewriterPass_isUtilCall(node Node, methodName string) bo
 		return false
 	}
 	var qualifiedName string = node.getFirstChild().getOriginalQualifiedName()
-	return (String_contains_s(qualifiedName, "nativebootstrap$Util") && String_endsWith(qualifiedName, methodName))
+	return (JString_contains_s(qualifiedName, "nativebootstrap$Util") && String_endsWith(qualifiedName, methodName))
 }

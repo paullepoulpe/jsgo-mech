@@ -160,14 +160,14 @@ func Preconditions_checkArgument_boolean_String_Object_H[M handle_](b bool, t st
 
 // ---- Typed Object methods: Objects.equals, Objects.hashCode and String.valueOf of values
 // held at their static type (the members that the translator generates for a record, and string
-// concatenation). equals_, hash_ and tostr_ are for a pointer to a class without subclasses or
+// concatenation). equals_, hash_ and jtostr_ are for a pointer to a class without subclasses or
 // an interface, the H variants for a handle; null is the zero value.
 
 func equals_[T comparable](a, b T) bool { return objequals_(obj_(a), obj_(b)) }
 
 func hash_[T comparable](v T) int32 { return objhash_(obj_(v)) }
 
-func tostr_[T comparable](v T) string { return objstr_(obj_(v)) }
+func jtostr_[T comparable](v T) string { return objstr_(obj_(v)) }
 
 func equalsH_[T handle_](a, b T) bool { return objequals_(a.box_(), b.box_()) }
 
@@ -234,36 +234,36 @@ func dblhash_(v float64) int32 {
 // ---- String for CharSequence: the variants (suffix _s) of library functions and methods that
 // declare a CharSequence, for a call that passes a String. They take the Go string, so the
 // translated code does not box it (a string in an interface is an allocation). Each does what
-// the function taking the sequence does with a string: csStr_ is csString_ for a String (null
+// the function taking the sequence does with a string: jcsStr_ is csString_ for a String (null
 // is the NullPointerException that calling a method of the null sequence throws). The variants of
 // Pattern.matcher, Matcher.reset, CharMatcher.matchesAllOf and CharMatcher.anyOf are next to
 // the functions they vary.
 
-func csStr_(s string) string {
+func jcsStr_(s string) string {
 	if s == nullstr_ {
 		panic(new_NullPointerException_0().self())
 	}
 	return s
 }
 
-func String_contains_s(s string, sub string) bool { return strings.Contains(s, csStr_(sub)) }
+func JString_contains_s(s string, sub string) bool { return strings.Contains(s, jcsStr_(sub)) }
 
-func String_replace_s(s string, a string, b string) string {
-	return strings.ReplaceAll(s, csStr_(a), csStr_(b))
+func JString_replace_s(s string, a string, b string) string {
+	return strings.ReplaceAll(s, jcsStr_(a), jcsStr_(b))
 }
 
-func String_join_s(sep string, it Iterable) string {
+func JString_join_s(sep string, it Iterable) string {
 	parts := joinParts_(it)
-	return strings.Join(parts, csStr_(sep))
+	return strings.Join(parts, jcsStr_(sep))
 }
 
-func Pattern_matches_s(regex string, input string) bool {
+func JPattern_matches_s(regex string, input string) bool {
 	return Pattern_compile(regex).matcher_s(input).matches()
 }
 
-func (this *Splitter) split_s(seq string) Iterable { return listOf_(this.splitAll_(csStr_(seq))) }
+func (this *Splitter) split_s(seq string) Iterable { return listOf_(this.splitAll_(jcsStr_(seq))) }
 
-func (this *Splitter) splitToList_s(seq string) List { return listOf_(this.splitAll_(csStr_(seq))) }
+func (this *Splitter) splitToList_s(seq string) List { return listOf_(this.splitAll_(jcsStr_(seq))) }
 
 // Appendable_append_s is Appendable.append(CharSequence) for a String: a StringBuilder appends
 // the string (null appends "null"); any other Appendable (a class of the program) gets the
@@ -278,7 +278,7 @@ func Appendable_append_s(a Appendable, s string) Appendable {
 // Appendable_append_s_int_int is Appendable.append(CharSequence, int, int) for a String.
 func Appendable_append_s_int_int(a Appendable, s string, start int32, end int32) Appendable {
 	if sb, ok := a.(*StringBuilder); ok {
-		return sb.append(String_substring(csStr_(s), start, end))
+		return sb.append(String_substring(jcsStr_(s), start, end))
 	}
 	return a.append_CharSequence_int_int(strobj_(s), start, end)
 }

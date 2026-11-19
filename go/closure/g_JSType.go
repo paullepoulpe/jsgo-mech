@@ -412,9 +412,9 @@ func (this *JSType) getTemplateTypeMap_impl() *TemplateTypeMap {
 	return this.templateTypeMap
 }
 
-func (this *JSType) getTypeParameters() *TList[*TemplateType] {
+func (this *JSType) getTypeParameters() *JTList[*TemplateType] {
 	var map_ *TemplateTypeMap = this.getTemplateTypeMap()
-	return tlistImm_(tc_p_TemplateType, cast_[*ImmutableList](map_.getTemplateKeys().asImm().subList((map_.size()-this.getTemplateParamCount()), map_.size())))
+	return jtlistImm_(jtc_p_TemplateType, cast_[*ImmutableList](map_.getTemplateKeys().asImm().subList((map_.size()-this.getTemplateParamCount()), map_.size())))
 }
 
 func (this *JSType) getTemplateParamCount_impl() int32 {
@@ -424,7 +424,7 @@ func (this *JSType) getTemplateParamCount_impl() int32 {
 func (this *JSType) mergeSupertypeTemplateTypes(other *ObjectType) {
 	this.maybeLoosenTypecheckingDueToForwardReferencedSupertype(other.up_JSType())
 	if other.isRawTypeOfTemplatizedType() {
-		other = this.registry.createTemplatizedTypeImmutableList(other, tlistEmptyImm_(tc_p_JSType)).up_ObjectType()
+		other = this.registry.createTemplatizedTypeImmutableList(other, jtlistEmptyImm_(jtc_p_JSType)).up_ObjectType()
 	}
 	this.templateTypeMap = other.getTemplateTypeMap().copyWithExtension(this.getTemplateTypeMap())
 }

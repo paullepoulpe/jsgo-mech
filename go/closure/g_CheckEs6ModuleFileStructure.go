@@ -5,7 +5,7 @@ package closure
 type CheckEs6ModuleFileStructure struct {
 	NodeTraversal_AbstractPreOrderCallback
 	compiler_         *AbstractCompiler
-	orderedStatements *TSet[*CheckEs6ModuleFileStructure_OrderedStatement]
+	orderedStatements *JTSet[*CheckEs6ModuleFileStructure_OrderedStatement]
 }
 
 func (this *CheckEs6ModuleFileStructure) up_NodeTraversal_AbstractPreOrderCallback() *NodeTraversal_AbstractPreOrderCallback {

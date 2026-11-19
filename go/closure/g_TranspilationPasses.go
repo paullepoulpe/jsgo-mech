@@ -249,7 +249,7 @@ func TranspilationPasses_clinit() {
 	TranspilationPasses_peepholeTranspilationsPasses = PassFactory_builder().setName("peepholeTranspilationsPasses").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		var peepholeTranspilations *TList[*AbstractPeepholeTranspilation] = newTList_(tc_p_AbstractPeepholeTranspilation)
+		var peepholeTranspilations *JTList[*AbstractPeepholeTranspilation] = jnewTList_(jtc_p_AbstractPeepholeTranspilation)
 		peepholeTranspilations.add(new_ReportUntranspilableFeatures(compiler, compiler.getOptions().getBrowserFeaturesetYearObject(), compiler.getOptions().getOutputFeatureSet()).up_AbstractPeepholeTranspilation())
 		if compiler.getOptions().needsTranspilationOf(FeatureSet_Feature_OPTIONAL_CATCH_BINDING) {
 			peepholeTranspilations.add(new_RewriteCatchWithNoBinding(compiler).up_AbstractPeepholeTranspilation())

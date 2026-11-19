@@ -3,7 +3,7 @@
 package closure
 
 type CrossChunkReferenceCollector struct {
-	topLevelStatements     *TList[*CrossChunkReferenceCollector_TopLevelStatement]
+	topLevelStatements     *JTList[*CrossChunkReferenceCollector_TopLevelStatement]
 	compiler_              *AbstractCompiler
 	referenceCollector     *ReferenceCollector
 	statementCounter       int32
@@ -11,7 +11,7 @@ type CrossChunkReferenceCollector struct {
 }
 
 func (this *CrossChunkReferenceCollector) finit_CrossChunkReferenceCollector() {
-	this.topLevelStatements = newTList_(tc_p_CrossChunkReferenceCollector_TopLevelStatement)
+	this.topLevelStatements = jnewTList_(jtc_p_CrossChunkReferenceCollector_TopLevelStatement)
 	this.statementCounter = 0
 	this.topLevelStatementDraft = nil
 }
@@ -46,8 +46,8 @@ func (this *CrossChunkReferenceCollector) getReferences(v *Var) *ReferenceCollec
 	return this.referenceCollector.getReferences_Var(v)
 }
 
-func (this *CrossChunkReferenceCollector) getGlobalVariableNamesMap() *TMap[string, *Var] {
-	var builder *TMapBuilder[string, *Var] = newTMapBuilder_(tc_string, tc_p_Var)
+func (this *CrossChunkReferenceCollector) getGlobalVariableNamesMap() *JTMap[string, *Var] {
+	var builder *TMapBuilder[string, *Var] = newTMapBuilder_(jtc_string, jtc_p_Var)
 	it_1 := foreach_(this.referenceCollector.getAllSymbols())
 	for it_1.next() {
 		var v *Var = cast_[*Var](it_1.v)
@@ -132,7 +132,7 @@ func CrossChunkReferenceCollector_isPotentiallyMoveableGetElem(maybeGetElem Node
 	return (name.isName() && (name.getString() == "Symbol"))
 }
 
-func (this *CrossChunkReferenceCollector) getTopLevelStatements() *TList[*CrossChunkReferenceCollector_TopLevelStatement] {
+func (this *CrossChunkReferenceCollector) getTopLevelStatements() *JTList[*CrossChunkReferenceCollector_TopLevelStatement] {
 	return this.topLevelStatements
 }
 
@@ -290,7 +290,7 @@ type CrossChunkReferenceCollector_TopLevelStatement struct {
 	originalOrder            int32
 	chunk_                   *JSChunk
 	statementNode            Node
-	nonDeclarationReferences *TList[*Reference]
+	nonDeclarationReferences *JTList[*Reference]
 	declaredNameReference    *Reference
 	declaredValueNode        Node
 }
@@ -323,7 +323,7 @@ func (this *CrossChunkReferenceCollector_TopLevelStatement) getStatementNode() N
 	return this.statementNode
 }
 
-func (this *CrossChunkReferenceCollector_TopLevelStatement) getNonDeclarationReferences() *TList[*Reference] {
+func (this *CrossChunkReferenceCollector_TopLevelStatement) getNonDeclarationReferences() *JTList[*Reference] {
 	return this.nonDeclarationReferences
 }
 
@@ -347,14 +347,14 @@ type CrossChunkReferenceCollector_TopLevelStatementDraft struct {
 	originalOrder            int32
 	chunk_                   *JSChunk
 	statementNode            Node
-	nonDeclarationReferences *TList[*Reference]
+	nonDeclarationReferences *JTList[*Reference]
 	declaredValueNode        Node
 	declaredNameNode         Node
 	declaredNameReference    *Reference
 }
 
 func (this *CrossChunkReferenceCollector_TopLevelStatementDraft) finit_CrossChunkReferenceCollector_TopLevelStatementDraft() {
-	this.nonDeclarationReferences = newTList_(tc_p_Reference)
+	this.nonDeclarationReferences = jnewTList_(jtc_p_Reference)
 	this.declaredValueNode = 0
 	this.declaredNameNode = 0
 	this.declaredNameReference = nil

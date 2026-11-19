@@ -278,7 +278,7 @@ func (this *SemanticReverseAbstractInterpreter) caseAndOrNotShortCircuiting(left
 }
 
 func (this *SemanticReverseAbstractInterpreter) caseAndOrMaybeShortCircuiting(left Node, right Node, blindScope FlowScope, outcome *Outcome_rhino) FlowScope {
-	var refinements *TSet[string] = newTSet_(tc_string)
+	var refinements *JTSet[string] = jnewTSet_(jtc_string)
 	blindScope = FlowScope(new_SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope(blindScope, refinements))
 	var leftScope FlowScope = this.firstPreciserScopeKnowingConditionOutcome(left, blindScope, outcome.not())
 	var leftVar StaticTypedSlot = func() StaticTypedSlot {
@@ -528,15 +528,15 @@ func (this *SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVi
 
 type SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope struct {
 	delegate    FlowScope
-	refinements *TSet[string]
+	refinements *JTSet[string]
 }
 
-func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) init_SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope(delegate FlowScope, refinements *TSet[string]) {
+func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) init_SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope(delegate FlowScope, refinements *JTSet[string]) {
 	this.delegate = delegate
 	this.refinements = refinements
 }
 
-func new_SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope(delegate FlowScope, refinements *TSet[string]) *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope {
+func new_SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope(delegate FlowScope, refinements *JTSet[string]) *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope {
 	this := &SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope{}
 	this.init_SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope(delegate, refinements)
 	return this

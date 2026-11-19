@@ -45,7 +45,7 @@ func (this *GuardedCallback[T]) finit_GuardedCallback() {
 	this.registeredGuards = SimpleSetMultimap_create()
 	this.guarded = SimpleMultiset_create()
 	this.installedGuards = SimpleListMultimap_create()
-	this.contextStack = newTDeque_(tc_p_GuardedCallback_Context)
+	this.contextStack = newTDeque_(jtc_p_GuardedCallback_Context)
 }
 
 func (this *GuardedCallback[T]) init_GuardedCallback(compiler *AbstractCompiler) {
@@ -61,7 +61,7 @@ func (this *GuardedCallback[T]) shouldTraverse(traversal *NodeTraversal, n Node,
 		if ((parent != 0) && GuardedCallback_CAN_HAVE_GUARDS.contains(parent.getToken())) && this.registeredGuards.containsKey(parent.box_()) {
 			it_1 := foreach_(this.registeredGuards.removeAll(parent.box_()))
 			for it_1.next() {
-				var resource T = unboxT_[T](it_1.v)
+				var resource T = junboxT_[T](it_1.v)
 				this.guarded.add(boxT_(resource))
 				this.installedGuards.put(parent.box_(), boxT_(resource))
 			}
@@ -128,7 +128,7 @@ func (this *GuardedCallback[T]) visitGuarded(p0 *NodeTraversal, p1 Node, p2 Node
 	this.vt_GuardedCallback_.visitGuarded_impl(p0, p1, p2)
 }
 
-var GuardedCallback_CAN_HAVE_GUARDS *TSet[*Token_rhino]
+var GuardedCallback_CAN_HAVE_GUARDS *JTSet[*Token_rhino]
 
 var GuardedCallback_clinit_done bool
 

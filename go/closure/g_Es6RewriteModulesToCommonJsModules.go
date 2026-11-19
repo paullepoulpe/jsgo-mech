@@ -126,9 +126,9 @@ type Es6RewriteModulesToCommonJsModules_Rewriter struct {
 	NodeTraversal_AbstractPostOrderCallback
 	requireInsertSpot        Node
 	script_                  Node
-	exportedNameToLocalQName *TMap[string, *Es6RewriteModulesToCommonJsModules_LocalQName]
-	imports                  *TSet[Node]
-	importRequests           *TSet[*Es6RewriteModulesToCommonJsModules_ModuleRequest]
+	exportedNameToLocalQName *JTMap[string, *Es6RewriteModulesToCommonJsModules_LocalQName]
+	imports                  *JTSet[Node]
+	importRequests           *JTSet[*Es6RewriteModulesToCommonJsModules_ModuleRequest]
 	compiler_                *AbstractCompiler
 	modulePath_              *ModuleLoader_ModulePath
 }
@@ -145,9 +145,9 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) init_Es6RewriteModulesT
 	this.compiler_ = compiler
 	this.script_ = script
 	this.requireInsertSpot = 0
-	this.exportedNameToLocalQName = newTSortedMap_(tc_string, tc_p_Es6RewriteModulesToCommonJsModules_LocalQName)
-	this.importRequests = newTSet_(tce_p_Es6RewriteModulesToCommonJsModules_ModuleRequest)
-	this.imports = newTSet_(tc_Node)
+	this.exportedNameToLocalQName = newTSortedMap_(jtc_string, jtc_p_Es6RewriteModulesToCommonJsModules_LocalQName)
+	this.importRequests = jnewTSet_(tce_p_Es6RewriteModulesToCommonJsModules_ModuleRequest)
+	this.imports = jnewTSet_(jtc_Node)
 	this.modulePath_ = compiler.getInput(script.getInputId()).getPath()
 }
 
@@ -241,7 +241,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) addRequireCalls() {
 			var importDecl Node = it_1.v
 			importDecl.detach()
 		}
-		var importedNames *TSet[string] = newTSet_(tc_string)
+		var importedNames *JTSet[string] = jnewTSet_(jtc_string)
 		it_3 := this.importRequests.each()
 		for it_3.next() {
 			var request *Es6RewriteModulesToCommonJsModules_ModuleRequest = it_3.v
@@ -301,7 +301,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) addExport(definePropert
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitImport(path *ModuleLoader_ModulePath, importDecl Node) {
-	if String_contains_s(importDecl.getLastChild().getString(), "://") {
+	if JString_contains_s(importDecl.getLastChild().getString(), "://") {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(importDecl, TranspilationUtil_CANNOT_CONVERT, []string{"Module requests with protocols."}))
 	}
 	this.importRequests.add(Es6RewriteModulesToCommonJsModules_ModuleRequest_create(Es6RewriteModulesToCommonJsModules_normalizePath(path.resolveModuleAsPath(importDecl.getLastChild().getString()).toString()), this.getVarNameOfImportNode(importDecl)))

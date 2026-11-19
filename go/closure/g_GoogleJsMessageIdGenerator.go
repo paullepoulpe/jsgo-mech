@@ -16,7 +16,7 @@ func new_GoogleJsMessageIdGenerator(projectId Optional[string]) *GoogleJsMessage
 	return this
 }
 
-func (this *GoogleJsMessageIdGenerator) generateId(meaning Optional[string], messageParts *TList[JsMessage_Part]) string {
+func (this *GoogleJsMessageIdGenerator) generateId(meaning Optional[string], messageParts *JTList[JsMessage_Part]) string {
 	Preconditions_checkState(meaning.isPresent())
 	var sb *StringBuilder = new_StringBuilder()
 	it_1 := messageParts.each()

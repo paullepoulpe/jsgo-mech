@@ -174,7 +174,7 @@ func (this *PrototypeObjectType) appendTo_impl(sb *TypeStringBuilder) {
 		return
 	}
 	this.prettyPrint = false
-	var properties *TSet[*PrototypeObjectType_PropertyForPrettyPrinting] = newTSortedSetC_(tce_p_PrototypeObjectType_PropertyForPrettyPrinting, PrototypeObjectType_PROP_COMPARATOR)
+	var properties *JTSet[*PrototypeObjectType_PropertyForPrettyPrinting] = newTSortedSetC_(tce_p_PrototypeObjectType_PropertyForPrettyPrinting, PrototypeObjectType_PROP_COMPARATOR)
 	{
 		var current *ObjectType = this.up_ObjectType()
 		for ; current != nil; current = current.getImplicitPrototype() {
@@ -558,5 +558,5 @@ func (this *PrototypeObjectType_PropertyForPrettyPrinting) hashCode() int32 {
 }
 
 func (this *PrototypeObjectType_PropertyForPrettyPrinting) toString() string {
-	return "PropertyForPrettyPrinting[" + "key=" + tostr_(this.key_) + ", type=" + objstr_(this.type__.self()) + "]"
+	return "PropertyForPrettyPrinting[" + "key=" + jtostr_(this.key_) + ", type=" + objstr_(this.type__.self()) + "]"
 }

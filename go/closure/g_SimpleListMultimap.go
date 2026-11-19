@@ -59,7 +59,7 @@ func (this *SimpleListMultimap) putAll(key any, values IterableOf[any]) *SimpleL
 
 func (this *SimpleListMultimap) replaceValues(key any, values IterableOf[any]) {
 	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
-	var newValues *TList[any] = newTList_(tc_Object)
+	var newValues *JTList[any] = jnewTList_(tc_Object)
 	Iterables_addAll(Collection(newValues.asList()), values)
 	if newValues.isEmpty() {
 		this.map__.remove(key)

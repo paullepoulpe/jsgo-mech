@@ -3,12 +3,12 @@
 package closure
 
 type RequireAliasGenerator struct {
-	parts      *TList[string]
+	parts      *JTList[string]
 	capitalize bool
 }
 
 func (this *RequireAliasGenerator) init_RequireAliasGenerator(namespace string) {
-	this.parts = tlistImm_(tc_string, ImmutableList_copyOf_Iterable(RequireAliasGenerator_DOT_SPLITTER.split_s(namespace)).reverse())
+	this.parts = jtlistImm_(jtc_string, ImmutableList_copyOf_Iterable(RequireAliasGenerator_DOT_SPLITTER.split_s(namespace)).reverse())
 	this.capitalize = Ascii_isUpperCase(String_charAt(this.parts.get(0), 0))
 }
 
@@ -18,9 +18,9 @@ func new_RequireAliasGenerator(namespace string) *RequireAliasGenerator {
 	return this
 }
 
-func RequireAliasGenerator_createSkiplistedAliases() *TSet[string] {
-	var seeds *TSet[string] = immutableSetOf_[string](tc_string, "", "array", "event", "map", "math", "object", "promise", "set", "string", "thenable")
-	var builder *TSetBuilder[string] = newTSetBuilder_(tc_string)
+func RequireAliasGenerator_createSkiplistedAliases() *JTSet[string] {
+	var seeds *JTSet[string] = jimmutableSetOf_[string](jtc_string, "", "array", "event", "map", "math", "object", "promise", "set", "string", "thenable")
+	var builder *TSetBuilder[string] = newTSetBuilder_(jtc_string)
 	it_1 := seeds.each()
 	for it_1.next() {
 		var seed string = it_1.v
@@ -45,7 +45,7 @@ func RequireAliasGenerator_captializeFirstChar(w string) string {
 	return (chrstr_(Ascii_toUpperCase_char(String_charAt(w, 0))) + sstr_(String_substring_int(w, 1)))
 }
 
-var RequireAliasGenerator_SKIPLISTED_ALIASES *TSet[string]
+var RequireAliasGenerator_SKIPLISTED_ALIASES *JTSet[string]
 var RequireAliasGenerator_DOT_SPLITTER *Splitter
 
 var RequireAliasGenerator_clinit_done bool

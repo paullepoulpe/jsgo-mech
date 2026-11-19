@@ -30,11 +30,11 @@ func (this *ImplicitNullabilityCheck) process_2(externs Node, root Node) {
 	NodeTraversal_traverseRoots(this.compiler_, NodeTraversal_Callback(this), externs, root)
 }
 
-func ImplicitNullabilityCheck_findImplicitNullabilityResults(info *JSDocInfo, t *NodeTraversal) *TList[*ImplicitNullabilityCheck_Result] {
+func ImplicitNullabilityCheck_findImplicitNullabilityResults(info *JSDocInfo, t *NodeTraversal) *JTList[*ImplicitNullabilityCheck_Result] {
 	if info == nil {
-		return tlistEmptyImm_(tc_p_ImplicitNullabilityCheck_Result)
+		return jtlistEmptyImm_(jtc_p_ImplicitNullabilityCheck_Result)
 	}
-	var builder *TListBuilder[*ImplicitNullabilityCheck_Result] = newTListBuilder_(tc_p_ImplicitNullabilityCheck_Result)
+	var builder *TListBuilder[*ImplicitNullabilityCheck_Result] = newTListBuilder_(jtc_p_ImplicitNullabilityCheck_Result)
 	it_1 := foreach_(info.getTypeNodes())
 	for it_1.next() {
 		var typeRoot Node = Node_of_(it_1.v)
@@ -61,7 +61,7 @@ func (this *ImplicitNullabilityCheck) visit_impl(t *NodeTraversal, n Node, p Nod
 
 var ImplicitNullabilityCheck_IMPLICITLY_NULLABLE_JSDOC *DiagnosticType
 var ImplicitNullabilityCheck_IMPLICITLY_NONNULL_JSDOC *DiagnosticType
-var ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES *TSet[string]
+var ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES *JTSet[string]
 
 var ImplicitNullabilityCheck_clinit_done bool
 
@@ -72,7 +72,7 @@ func ImplicitNullabilityCheck_clinit() {
 	ImplicitNullabilityCheck_clinit_done = true
 	ImplicitNullabilityCheck_IMPLICITLY_NULLABLE_JSDOC = DiagnosticType_disabled("JSC_IMPLICITLY_NULLABLE_JSDOC", "Name {0} in JSDoc is implicitly nullable, and is discouraged by the style guide.\nPlease add a '!' to make it non-nullable, or a '?' to make it explicitly nullable.")
 	ImplicitNullabilityCheck_IMPLICITLY_NONNULL_JSDOC = DiagnosticType_disabled("JSC_IMPLICITLY_NONNULL_JSDOC", "Name {0} in JSDoc is implicitly non-null, and is discouraged by the style guide.\nPlease add a '!' to make it explicit.")
-	ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES = immutableSetOf_[string](tc_string, "*", "?", "bigint", "boolean", "null", "number", "string", "symbol", "undefined", "void")
+	ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES = jimmutableSetOf_[string](jtc_string, "*", "?", "bigint", "boolean", "null", "number", "string", "symbol", "undefined", "void")
 
 }
 

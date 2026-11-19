@@ -3,7 +3,7 @@
 package closure
 
 type ReferenceCollector struct {
-	referenceMap                            *TMap[*Var, *ReferenceCollection]
+	referenceMap                            *JTMap[*Var, *ReferenceCollection]
 	blockStack                              *TDeque[*BasicBlock]
 	behavior                                ReferenceCollector_Behavior
 	scopeCreator                            ScopeCreator
@@ -11,15 +11,15 @@ type ReferenceCollector struct {
 	varFilter                               Predicate_baseOf[*Var]
 	collectHoistedFunctionsInReferenceOrder bool
 	callback                                *ReferenceCollector_CollectorCallback
-	collectedHoistedFunctions               *TSet[Node]
+	collectedHoistedFunctions               *JTSet[Node]
 	narrowScope_                            *Scope
 }
 
 func (this *ReferenceCollector) finit_ReferenceCollector() {
-	this.referenceMap = newTMap_(tce_p_Var, tc_p_ReferenceCollection)
-	this.blockStack = newTDeque_(tc_p_BasicBlock)
+	this.referenceMap = jnewTMap_(tce_p_Var, tc_p_ReferenceCollection)
+	this.blockStack = newTDeque_(jtc_p_BasicBlock)
 	this.callback = new_ReferenceCollector_CollectorCallback(this)
-	this.collectedHoistedFunctions = newTSet_(tc_Node)
+	this.collectedHoistedFunctions = jnewTSet_(jtc_Node)
 }
 
 func (this *ReferenceCollector) init_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(compiler *AbstractCompiler, behavior ReferenceCollector_Behavior, creator ScopeCreator) {
@@ -101,7 +101,7 @@ func (this *ReferenceCollector) maybeJumpToHoistedFunction(var_ *Var, t *NodeTra
 		return
 	}
 	var oldBlockStack *TDeque[*BasicBlock] = this.blockStack
-	this.blockStack = newTDeque_(tc_p_BasicBlock)
+	this.blockStack = newTDeque_(jtc_p_BasicBlock)
 	if varScope.isGlobal() {
 		this.blockStack.add(cast_[*BasicBlock](SequencedCollection_getFirst(SequencedCollection(oldBlockStack.asDeque()))))
 	} else {

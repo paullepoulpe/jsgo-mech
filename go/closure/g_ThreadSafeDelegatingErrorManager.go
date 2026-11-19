@@ -65,11 +65,11 @@ func (this *ThreadSafeDelegatingErrorManager) getWarningCount() int32 {
 	return this.delegated.getWarningCount()
 }
 
-func (this *ThreadSafeDelegatingErrorManager) getErrors() *TList[*JSError] {
+func (this *ThreadSafeDelegatingErrorManager) getErrors() *JTList[*JSError] {
 	return this.delegated.getErrors()
 }
 
-func (this *ThreadSafeDelegatingErrorManager) getWarnings() *TList[*JSError] {
+func (this *ThreadSafeDelegatingErrorManager) getWarnings() *JTList[*JSError] {
 	return this.delegated.getWarnings()
 }
 

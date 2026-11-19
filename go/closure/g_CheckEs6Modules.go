@@ -4,11 +4,11 @@ package closure
 
 type CheckEs6Modules struct {
 	compiler_        *AbstractCompiler
-	importSpecifiers *TMap[string, Node]
+	importSpecifiers *JTMap[string, Node]
 }
 
 func (this *CheckEs6Modules) finit_CheckEs6Modules() {
-	this.importSpecifiers = newTMap_(tc_string, tc_Node)
+	this.importSpecifiers = jnewTMap_(jtc_string, jtc_Node)
 }
 
 func (this *CheckEs6Modules) init_CheckEs6Modules(compiler *AbstractCompiler) {

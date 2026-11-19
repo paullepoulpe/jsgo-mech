@@ -61,7 +61,7 @@ func (this *ControlFlowGraph[N]) up_Graph() *Graph[N, *ControlFlowGraph_Branch] 
 
 func (this *ControlFlowGraph[N]) init_ControlFlowGraph(entry N, nodeAnnotations bool, edgeAnnotations bool) {
 	this.LinkedDirectedGraph.init_LinkedDirectedGraph(nodeAnnotations, edgeAnnotations)
-	this.implicitReturn = cast_[DiGraph_DiGraphNode[N, *ControlFlowGraph_Branch]](this.createNode_Object_rDiGraphNode_rLinkedDiGraphNode(null_[N]()).self())
+	this.implicitReturn = cast_[DiGraph_DiGraphNode[N, *ControlFlowGraph_Branch]](this.createNode_Object_rDiGraphNode_rLinkedDiGraphNode(jnull_[N]()).self())
 	this.entry = cast_[DiGraph_DiGraphNode[N, *ControlFlowGraph_Branch]](this.createNode_Object_rDiGraphNode_rLinkedDiGraphNode(entry).self())
 }
 

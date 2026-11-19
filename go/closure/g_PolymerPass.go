@@ -5,10 +5,10 @@ package closure
 type PolymerPass struct {
 	NodeTraversal_ExternsSkippingCallback
 	compiler_                    *AbstractCompiler
-	tagNameMap                   *TMap[string, string]
+	tagNameMap                   *JTMap[string, string]
 	polymerElementExterns        Node
-	nativeExternsAdded           *TSet[string]
-	polymerElementProps          *TList[Node]
+	nativeExternsAdded           *JTSet[string]
+	polymerElementProps          *JTList[Node]
 	globalNames                  *GlobalNamespace
 	behaviorExtractor            *PolymerBehaviorExtractor
 	warnedPolymer1ExternsMissing bool
@@ -32,7 +32,7 @@ func (this *PolymerPass) init_PolymerPass(compiler *AbstractCompiler) {
 	this.finit_PolymerPass()
 	this.compiler_ = compiler
 	this.tagNameMap = TagNameToType_getMap()
-	this.nativeExternsAdded = newTSet_(tc_string)
+	this.nativeExternsAdded = jnewTSet_(jtc_string)
 }
 
 func new_PolymerPass(compiler *AbstractCompiler) *PolymerPass {

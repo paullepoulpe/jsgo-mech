@@ -22,7 +22,7 @@ type ImmutableMap struct {
 	keySet_  *ImmutableCollection
 	values_  *ImmutableCollection
 	entries_ *ImmutableCollection
-	typed_   any // the typed map (*TMap[K, V]) that typed code sees this map as (see ImmutableCollection)
+	jtyped_  any // the typed map (*JTMap[K, V]) that typed code sees this map as (see ImmutableCollection)
 }
 
 type ImmutableBiMap = ImmutableMap

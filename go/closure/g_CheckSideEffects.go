@@ -5,8 +5,8 @@ package closure
 type CheckSideEffects struct {
 	NodeTraversal_AbstractPostOrderCallback
 	report_                   bool
-	problemNodes              *TList[Node]
-	noSideEffectExterns       *TSet[string]
+	problemNodes              *JTList[Node]
+	noSideEffectExterns       *JTSet[string]
 	compiler_                 *AbstractCompiler
 	protectSideEffectFreeCode bool
 	preserveFunctionInjected  bool
@@ -20,8 +20,8 @@ func (this *CheckSideEffects) up_NodeTraversal_AbstractPostOrderCallback() *Node
 }
 
 func (this *CheckSideEffects) finit_CheckSideEffects() {
-	this.problemNodes = newTList_(tc_Node)
-	this.noSideEffectExterns = newTSet_(tc_string)
+	this.problemNodes = jnewTList_(jtc_Node)
+	this.noSideEffectExterns = jnewTSet_(jtc_string)
 	this.preserveFunctionInjected = false
 }
 

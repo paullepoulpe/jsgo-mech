@@ -326,8 +326,8 @@ func (this *ProxyObjectType) getConstructor_impl() *FunctionType {
 	}()
 }
 
-func (this *ProxyObjectType) getTemplateTypes_impl() *TList[*JSType] {
-	return func() *TList[*JSType] {
+func (this *ProxyObjectType) getTemplateTypes_impl() *JTList[*JSType] {
+	return func() *JTList[*JSType] {
 		if this.referencedObjType == nil {
 			return nil
 		}

@@ -51,13 +51,13 @@ func (this *ColorGraphBuilder) connectUnionWithAncestors(unionNode *LinkedDirect
 		return
 	}
 	Preconditions_checkState(!unionNode.getOutEdges().isEmpty())
-	var graphNodesBuilder *TSetBuilder[*ColorGraphNode] = newTSetBuilder_(tc_p_ColorGraphNode)
+	var graphNodesBuilder *TSetBuilder[*ColorGraphNode] = newTSetBuilder_(jtc_p_ColorGraphNode)
 	it_1 := flatUnion.getColor().getUnionElements().each()
 	for it_1.next() {
 		var element *Color = it_1.v
 		graphNodesBuilder.add(this.nodeFactory.createNode(element))
 	}
-	var graphNodes *TSet[*ColorGraphNode] = graphNodesBuilder.build()
+	var graphNodes *JTSet[*ColorGraphNode] = graphNodesBuilder.build()
 	it_3 := foreach_(obj_(this.lcaFinder.findAll(graphNodes.asSet())))
 	for it_3.next() {
 		var lca *ColorGraphNode = cast_[*ColorGraphNode](it_3.v)

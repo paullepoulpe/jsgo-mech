@@ -4,7 +4,7 @@ package closure
 
 type ArrayPatternTree struct {
 	ParseTree
-	elements_ *TList[*ParseTree]
+	elements_ *JTList[*ParseTree]
 }
 
 func (this *ArrayPatternTree) up_ParseTree() *ParseTree {
@@ -14,12 +14,12 @@ func (this *ArrayPatternTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ArrayPatternTree) init_ArrayPatternTree(location *SourceRange, elements *TList[*ParseTree]) {
+func (this *ArrayPatternTree) init_ArrayPatternTree(location *SourceRange, elements *JTList[*ParseTree]) {
 	this.ParseTree.init_ParseTree(ParseTreeType_ARRAY_PATTERN, location)
 	this.elements_ = elements
 }
 
-func new_ArrayPatternTree(location *SourceRange, elements *TList[*ParseTree]) *ArrayPatternTree {
+func new_ArrayPatternTree(location *SourceRange, elements *JTList[*ParseTree]) *ArrayPatternTree {
 	this := &ArrayPatternTree{}
 	this.self_ = this
 	this.init_ArrayPatternTree(location, elements)

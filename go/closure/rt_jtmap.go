@@ -1,25 +1,25 @@
 package closure
 
 // Typed maps (j2go rule "typed collections"): a LinkedHashMap<K, V> that the translator finds
-// typable is a *TMap[K, V]: its keys and values in insertion order, as K and V values, not
+// typable is a *JTMap[K, V]: its keys and values in insertion order, as K and V values, not
 // boxes. K is a type whose Go == is Java's equals for the map (a String, a handle, an enum, a
 // class without equals of its own); V is any type with one Go type.
 //
-// Erased code sees the map through asMap(), its one view (see TList). Like the erased table
+// Erased code sees the map through asMap(), its one view (see JTList). Like the erased table
 // (htable_) and the typed set, a small map is searched linearly and has no index, and a
 // removed mapping leaves a dead position until the map is compacted, so that a cursor keeps
 // its place.
 
-type TMap[K comparable, V any] struct {
+type JTMap[K comparable, V any] struct {
 	keys []K
 	vals []V         // beside keys
 	gone []bool      // beside keys once a mapping has been removed: the dead positions
 	idx  map[K]int32 // the position of each key; nil while the map is small
 	live int32
-	kc   *tconv_[K]
-	vc   *tconv_[V]
-	eq   *teq_           // of keys compared by equals and hashCode (kc.byEquals); else nil
-	view tmapView_[K, V] // the map as erased code sees it (asMap): part of the map
+	kc   *jtconv_[K]
+	vc   *jtconv_[V]
+	eq   *teq_            // of keys compared by equals and hashCode (kc.byEquals); else nil
+	view jtmapView_[K, V] // the map as erased code sees it (asMap): part of the map
 	// imm: nil for a hash map that can change; an immutable map (Guava's ImmutableMap,
 	// rt_timm.go) has here what it has beside its mappings: the ImmutableMap that erased code
 	// sees it as and its typed key set, each once it is needed (immPendingMap_ until then). A
@@ -27,21 +27,21 @@ type TMap[K comparable, V any] struct {
 	imm *timmMap_
 }
 
-// newTMap_ is new LinkedHashMap<>().
-func newTMap_[K comparable, V any](kc *tconv_[K], vc *tconv_[V]) *TMap[K, V] {
-	m := &TMap[K, V]{kc: kc, vc: vc}
+// jnewTMap_ is new LinkedHashMap<>().
+func jnewTMap_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V]) *JTMap[K, V] {
+	m := &JTMap[K, V]{kc: kc, vc: vc}
 	m.view.m = m
 	return m
 }
 
 // newTMapN_ is new LinkedHashMap<>(n): the capacity is not used.
-func newTMapN_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], n int32) *TMap[K, V] {
-	return newTMap_(kc, vc)
+func newTMapN_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], n int32) *JTMap[K, V] {
+	return jnewTMap_(kc, vc)
 }
 
-// tmapFrom_ is new LinkedHashMap<>(from).
-func tmapFrom_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from Map) *TMap[K, V] {
-	m := newTMap_(kc, vc)
+// jtmapFrom_ is new LinkedHashMap<>(from).
+func jtmapFrom_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], from Map) *JTMap[K, V] {
+	m := jnewTMap_(kc, vc)
 	if from == nil {
 		panic(new_NullPointerException_0().self())
 	}
@@ -50,16 +50,16 @@ func tmapFrom_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from Map) *TMa
 }
 
 // tmapCopy_ is new LinkedHashMap<>(from) of another typed map of the same types.
-func tmapCopy_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from *TMap[K, V]) *TMap[K, V] {
-	m := newTMap_(kc, vc)
+func tmapCopy_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], from *JTMap[K, V]) *JTMap[K, V] {
+	m := jnewTMap_(kc, vc)
 	m.putAllT(from)
 	return m
 }
 
-func (m *TMap[K, V]) dead(i int) bool { return m.gone != nil && m.gone[i] }
+func (m *JTMap[K, V]) dead(i int) bool { return m.gone != nil && m.gone[i] }
 
 // find returns the position of key k, or -1.
-func (m *TMap[K, V]) find(k K) int32 {
+func (m *JTMap[K, V]) find(k K) int32 {
 	if m.eq != nil {
 		// compared by equals and hashCode, or sorted
 		if m.eq.sorted {
@@ -84,14 +84,14 @@ func (m *TMap[K, V]) find(k K) int32 {
 	return -1
 }
 
-func (m *TMap[K, V]) size() int32   { return m.live }
-func (m *TMap[K, V]) isEmpty() bool { return m.live == 0 }
+func (m *JTMap[K, V]) size() int32   { return m.live }
+func (m *JTMap[K, V]) isEmpty() bool { return m.live == 0 }
 
 // has is containsKey.
-func (m *TMap[K, V]) containsKey(k K) bool { return m.find(k) >= 0 }
+func (m *JTMap[K, V]) containsKey(k K) bool { return m.find(k) >= 0 }
 
 // get is the value of key k, or null.
-func (m *TMap[K, V]) get(k K) V {
+func (m *JTMap[K, V]) get(k K) V {
 	if i := m.find(k); i >= 0 {
 		return m.vals[i]
 	}
@@ -99,7 +99,7 @@ func (m *TMap[K, V]) get(k K) V {
 }
 
 // getOr is getOrDefault.
-func (m *TMap[K, V]) getOrDefault(k K, def V) V {
+func (m *JTMap[K, V]) getOrDefault(k K, def V) V {
 	if i := m.find(k); i >= 0 {
 		return m.vals[i]
 	}
@@ -108,7 +108,7 @@ func (m *TMap[K, V]) getOrDefault(k K, def V) V {
 
 // locate returns the position of key k, or -1, and the key's hash code if the map compares its
 // keys by equals and hashCode (for append).
-func (m *TMap[K, V]) locate(k K) (i int32, h int32) {
+func (m *JTMap[K, V]) locate(k K) (i int32, h int32) {
 	if m.eq != nil && m.eq.sorted {
 		// h: the position at which append puts the key
 		p, ok := tsortSearch_(m.eq, m.kc, m.keys, k)
@@ -125,7 +125,7 @@ func (m *TMap[K, V]) locate(k K) (i int32, h int32) {
 }
 
 // put returns the value that key k had, or null.
-func (m *TMap[K, V]) put(k K, v V) V {
+func (m *JTMap[K, V]) put(k K, v V) V {
 	if m.imm != nil && m.imm != sortedMapMark_ {
 		panic(frozen_{})
 	}
@@ -140,7 +140,7 @@ func (m *TMap[K, V]) put(k K, v V) V {
 }
 
 // append adds a mapping for a key that the map does not have (h: see locate).
-func (m *TMap[K, V]) append(k K, v V, h int32) {
+func (m *JTMap[K, V]) append(k K, v V, h int32) {
 	if m.eq != nil && m.eq.sorted {
 		m.insertSorted(k, v, int(h))
 		return
@@ -176,10 +176,10 @@ func (m *TMap[K, V]) append(k K, v V, h int32) {
 }
 
 // isNull reports whether v is Java's null.
-func (m *TMap[K, V]) isNull(v V) bool { return any(v) == any(m.vc.null) }
+func (m *JTMap[K, V]) isNull(v V) bool { return any(v) == any(m.vc.null) }
 
 // putIfAbsent maps k to v unless k has a value that is not null, which it returns.
-func (m *TMap[K, V]) putIfAbsent(k K, v V) V {
+func (m *JTMap[K, V]) putIfAbsent(k K, v V) V {
 	if m.imm != nil && m.imm != sortedMapMark_ {
 		panic(frozen_{})
 	}
@@ -197,7 +197,7 @@ func (m *TMap[K, V]) putIfAbsent(k K, v V) V {
 
 // computeIfAbsent returns the value of key k if it has one that is not null; else the value f
 // makes for the key, which becomes the key's value unless it is null.
-func (m *TMap[K, V]) computeIfAbsent(k K, f Function) V {
+func (m *JTMap[K, V]) computeIfAbsent(k K, f Function) V {
 	if m.imm != nil && m.imm != sortedMapMark_ {
 		panic(frozen_{})
 	}
@@ -212,7 +212,7 @@ func (m *TMap[K, V]) computeIfAbsent(k K, f Function) V {
 }
 
 // del is remove(key): the value the key had, or null.
-func (m *TMap[K, V]) remove(k K) V {
+func (m *JTMap[K, V]) remove(k K) V {
 	if m.imm != nil && m.imm != sortedMapMark_ {
 		panic(frozen_{})
 	}
@@ -225,7 +225,7 @@ func (m *TMap[K, V]) remove(k K) V {
 	return old
 }
 
-func (m *TMap[K, V]) delAt(i int) {
+func (m *JTMap[K, V]) delAt(i int) {
 	if m.idx != nil {
 		delete(m.idx, m.keys[i])
 	}
@@ -244,7 +244,7 @@ func (m *TMap[K, V]) delAt(i int) {
 }
 
 // compact drops the dead positions; the order of the mappings is unchanged.
-func (m *TMap[K, V]) compact() {
+func (m *JTMap[K, V]) compact() {
 	n := 0
 	for i := range m.keys {
 		if !m.gone[i] {
@@ -267,7 +267,7 @@ func (m *TMap[K, V]) compact() {
 	}
 }
 
-func (m *TMap[K, V]) clear() {
+func (m *JTMap[K, V]) clear() {
 	if m.imm != nil && m.imm != sortedMapMark_ {
 		panic(frozen_{})
 	}
@@ -283,7 +283,7 @@ func (m *TMap[K, V]) clear() {
 }
 
 // putAllT is putAll of another typed map of the same types.
-func (m *TMap[K, V]) putAllT(o *TMap[K, V]) {
+func (m *JTMap[K, V]) putAllT(o *JTMap[K, V]) {
 	if m.imm != nil && m.imm != sortedMapMark_ {
 		panic(frozen_{})
 	}
@@ -298,14 +298,14 @@ func (m *TMap[K, V]) putAllT(o *TMap[K, V]) {
 // values, tmapEntries_ over its entries: the mappings in insertion order, read position by
 // position as the erased cursor reads its table.
 type tmapKeys_[K comparable, V any] struct {
-	m *TMap[K, V]
+	m *JTMap[K, V]
 	i int
 	v K
 }
 
 // eachKey is the cursor of a for-each loop over keySet(); a null map throws
 // NullPointerException here, where the loop asked for the key set.
-func (m *TMap[K, V]) eachKey() tmapKeys_[K, V] {
+func (m *JTMap[K, V]) eachKey() tmapKeys_[K, V] {
 	_ = m.live
 	return tmapKeys_[K, V]{m: m}
 }
@@ -324,13 +324,13 @@ func (e *tmapKeys_[K, V]) next() bool {
 }
 
 type tmapVals_[K comparable, V any] struct {
-	m *TMap[K, V]
+	m *JTMap[K, V]
 	i int
 	v V
 }
 
 // eachValue is the cursor of a for-each loop over values().
-func (m *TMap[K, V]) eachValue() tmapVals_[K, V] {
+func (m *JTMap[K, V]) eachValue() tmapVals_[K, V] {
 	_ = m.live
 	return tmapVals_[K, V]{m: m}
 }
@@ -349,12 +349,12 @@ func (e *tmapVals_[K, V]) next() bool {
 }
 
 type tmapEntries_[K comparable, V any] struct {
-	m *TMap[K, V]
+	m *JTMap[K, V]
 	i int
 }
 
 // eachEntry is the cursor of a for-each loop over entrySet().
-func (m *TMap[K, V]) eachEntry() tmapEntries_[K, V] {
+func (m *JTMap[K, V]) eachEntry() tmapEntries_[K, V] {
 	_ = m.live
 	return tmapEntries_[K, V]{m: m}
 }
@@ -380,7 +380,7 @@ func (e *tmapEntries_[K, V]) entry() *TEntry[K, V] {
 // reads and writes the value of its mapping while the map has it; after the mapping's removal
 // it keeps the last value, as the entry of the erased map does.
 type TEntry[K comparable, V any] struct {
-	m *TMap[K, V]
+	m *JTMap[K, V]
 	i int32
 	k K
 	v V
@@ -427,7 +427,7 @@ func (e *TEntry[K, V]) asEntry() Map_Entry {
 // tentryView_ is a TEntry seen as an erased Map.Entry.
 type tentryView_[K comparable, V any] struct {
 	e   *TEntry[K, V]
-	own TEntry[K, V] // the entry itself, where erased code asked the map for it (TMap.out)
+	own TEntry[K, V] // the entry itself, where erased code asked the map for it (JTMap.out)
 }
 
 func (v *tentryView_[K, V]) self() any     { return v }
@@ -447,7 +447,7 @@ func (v *tentryView_[K, V]) toString() string {
 
 // asMap is the map as an erased Map (nil for null): one view per map, its identity for erased
 // code.
-func (m *TMap[K, V]) asMap() Map {
+func (m *JTMap[K, V]) asMap() Map {
 	if m == nil || m.imm != nil {
 		return m.asOtherMap()
 	}
@@ -466,17 +466,17 @@ func erasedMap_(m any) Map {
 	return nil
 }
 
-// tmapView_ is a TMap seen as an erased Map. Its key set, values and entry set are parts of
+// jtmapView_ is a JTMap seen as an erased Map. Its key set, values and entry set are parts of
 // it: making one allocates nothing, as for the erased map.
-type tmapView_[K comparable, V any] struct {
-	m *TMap[K, V]
+type jtmapView_[K comparable, V any] struct {
+	m *JTMap[K, V]
 }
 
 // key is x as a key of the map, if it can be one (a lookup of an object of another class finds
 // nothing, as in Java).
-func (v *tmapView_[K, V]) key(x any) (k K, ok bool) { return tkeyOf_(v.m.kc, x) }
+func (v *jtmapView_[K, V]) key(x any) (k K, ok bool) { return tkeyOf_(v.m.kc, x) }
 
-func tkeyOf_[K any](c *tconv_[K], x any) (k K, ok bool) {
+func tkeyOf_[K any](c *jtconv_[K], x any) (k K, ok bool) {
 	if k, ok := x.(K); ok {
 		return k, true
 	}
@@ -489,14 +489,14 @@ func tkeyOf_[K any](c *tconv_[K], x any) (k K, ok bool) {
 }
 
 // goName_ makes getClass() of the view java.util.LinkedHashMap, the class of the Java object.
-func (v *tmapView_[K, V]) goName_() string { return "LinkedHashMap" }
+func (v *jtmapView_[K, V]) goName_() string { return "LinkedHashMap" }
 
-func (v *tmapView_[K, V]) self() any     { return v }
-func (v *tmapView_[K, V]) size() int32   { return v.m.live }
-func (v *tmapView_[K, V]) isEmpty() bool { return v.m.live == 0 }
-func (v *tmapView_[K, V]) clear()        { v.m.clear() }
+func (v *jtmapView_[K, V]) self() any     { return v }
+func (v *jtmapView_[K, V]) size() int32   { return v.m.live }
+func (v *jtmapView_[K, V]) isEmpty() bool { return v.m.live == 0 }
+func (v *jtmapView_[K, V]) clear()        { v.m.clear() }
 
-func (v *tmapView_[K, V]) get(x any) any {
+func (v *jtmapView_[K, V]) get(x any) any {
 	if k, ok := v.key(x); ok {
 		if i := v.m.find(k); i >= 0 {
 			return v.m.vc.box(v.m.vals[i])
@@ -505,12 +505,12 @@ func (v *tmapView_[K, V]) get(x any) any {
 	return nil
 }
 
-func (v *tmapView_[K, V]) containsKey(x any) bool {
+func (v *jtmapView_[K, V]) containsKey(x any) bool {
 	k, ok := v.key(x)
 	return ok && v.m.find(k) >= 0
 }
 
-func (v *tmapView_[K, V]) containsValue(x any) bool {
+func (v *jtmapView_[K, V]) containsValue(x any) bool {
 	m := v.m
 	for i := range m.keys {
 		if !m.dead(i) && objequals_(x, m.vc.box(m.vals[i])) {
@@ -520,12 +520,12 @@ func (v *tmapView_[K, V]) containsValue(x any) bool {
 	return false
 }
 
-func (v *tmapView_[K, V]) put(k any, x any) any {
+func (v *jtmapView_[K, V]) put(k any, x any) any {
 	return v.m.vc.box(v.m.put(v.m.kc.unbox(k), v.m.vc.unbox(x)))
 }
 
-func (v *tmapView_[K, V]) putAll(o Map) {
-	if t, ok := o.(*tmapView_[K, V]); ok && t != nil {
+func (v *jtmapView_[K, V]) putAll(o Map) {
+	if t, ok := o.(*jtmapView_[K, V]); ok && t != nil {
 		v.m.putAllT(t.m)
 		return
 	}
@@ -543,7 +543,7 @@ func (v *tmapView_[K, V]) putAll(o Map) {
 	}
 }
 
-func (v *tmapView_[K, V]) remove(x any) any {
+func (v *jtmapView_[K, V]) remove(x any) any {
 	if k, ok := v.key(x); ok {
 		return v.m.vc.box(v.m.remove(k))
 	}
@@ -552,7 +552,7 @@ func (v *tmapView_[K, V]) remove(x any) any {
 
 // get_s, containsKey_s, put_s and remove_s are the operations on a key that is a String and
 // not null, without its box (Map_get_s...).
-func (v *tmapView_[K, V]) get_s(s string) any {
+func (v *jtmapView_[K, V]) get_s(s string) any {
 	if k, ok := any(s).(K); ok {
 		if i := v.m.find(k); i >= 0 {
 			return v.m.vc.box(v.m.vals[i])
@@ -562,33 +562,33 @@ func (v *tmapView_[K, V]) get_s(s string) any {
 	return v.get(strobj_(s))
 }
 
-func (v *tmapView_[K, V]) containsKey_s(s string) bool {
+func (v *jtmapView_[K, V]) containsKey_s(s string) bool {
 	if k, ok := any(s).(K); ok {
 		return v.m.find(k) >= 0
 	}
 	return v.containsKey(strobj_(s))
 }
 
-func (v *tmapView_[K, V]) put_s(s string, x any) any {
+func (v *jtmapView_[K, V]) put_s(s string, x any) any {
 	if k, ok := any(s).(K); ok {
 		return v.m.vc.box(v.m.put(k, v.m.vc.unbox(x)))
 	}
 	return v.put(strobj_(s), x)
 }
 
-func (v *tmapView_[K, V]) remove_s(s string) any {
+func (v *jtmapView_[K, V]) remove_s(s string) any {
 	if k, ok := any(s).(K); ok {
 		return v.m.vc.box(v.m.remove(k))
 	}
 	return v.remove(strobj_(s))
 }
 
-func (v *tmapView_[K, V]) keySet() Set        { return (*tmapKeySet_[K, V])(v) }
-func (v *tmapView_[K, V]) values() Collection { return (*tmapValues_[K, V])(v) }
-func (v *tmapView_[K, V]) entrySet() Set      { return (*tmapEntrySet_[K, V])(v) }
-func (v *tmapView_[K, V]) equals(o any) bool  { return mapEquals_(v, o) }
-func (v *tmapView_[K, V]) hashCode() int32    { return mapHash_(v) }
-func (v *tmapView_[K, V]) toString() string   { return mapToString_(v) }
+func (v *jtmapView_[K, V]) keySet() Set        { return (*tmapKeySet_[K, V])(v) }
+func (v *jtmapView_[K, V]) values() Collection { return (*tmapValues_[K, V])(v) }
+func (v *jtmapView_[K, V]) entrySet() Set      { return (*tmapEntrySet_[K, V])(v) }
+func (v *jtmapView_[K, V]) equals(o any) bool  { return mapEquals_(v, o) }
+func (v *jtmapView_[K, V]) hashCode() int32    { return mapHash_(v) }
+func (v *jtmapView_[K, V]) toString() string   { return mapToString_(v) }
 
 // What an iterator or a for-each cursor of erased code reads from a typed map.
 const (
@@ -598,7 +598,7 @@ const (
 )
 
 // out is the key, the value or the entry at position i, boxed.
-func (m *TMap[K, V]) out(i int, mode int8) any {
+func (m *JTMap[K, V]) out(i int, mode int8) any {
 	switch mode {
 	case tkeys_:
 		return m.kc.box(m.keys[i])
@@ -611,7 +611,7 @@ func (m *TMap[K, V]) out(i int, mode int8) any {
 	return v
 }
 
-func (m *TMap[K, V]) step(i int, mode int8) (any, int) {
+func (m *JTMap[K, V]) step(i int, mode int8) (any, int) {
 	for ; i < len(m.keys); i++ {
 		if !m.dead(i) {
 			return m.out(i, mode), i + 1
@@ -620,7 +620,7 @@ func (m *TMap[K, V]) step(i int, mode int8) (any, int) {
 	return nil, -1
 }
 
-func (m *TMap[K, V]) all(mode int8) []any {
+func (m *JTMap[K, V]) all(mode int8) []any {
 	out := make([]any, 0, m.live)
 	for i := range m.keys {
 		if !m.dead(i) {
@@ -630,16 +630,16 @@ func (m *TMap[K, V]) all(mode int8) []any {
 	return out
 }
 
-// tmapIter_ iterates over the keys, the values or the entries of a TMap for erased code
+// jtmapIter_ iterates over the keys, the values or the entries of a JTMap for erased code
 // (Iterator, with remove).
-type tmapIter_[K comparable, V any] struct {
-	m    *TMap[K, V]
+type jtmapIter_[K comparable, V any] struct {
+	m    *JTMap[K, V]
 	i    int
 	last int
 	mode int8
 }
 
-func (it *tmapIter_[K, V]) hasNext() bool {
+func (it *jtmapIter_[K, V]) hasNext() bool {
 	m := it.m
 	for it.i < len(m.keys) && m.dead(it.i) {
 		it.i++
@@ -647,7 +647,7 @@ func (it *tmapIter_[K, V]) hasNext() bool {
 	return it.i < len(m.keys)
 }
 
-func (it *tmapIter_[K, V]) next() any {
+func (it *jtmapIter_[K, V]) next() any {
 	if !it.hasNext() {
 		panic(new_NoSuchElementException_0().self())
 	}
@@ -656,7 +656,7 @@ func (it *tmapIter_[K, V]) next() any {
 	return it.m.out(it.last, it.mode)
 }
 
-func (it *tmapIter_[K, V]) remove() {
+func (it *jtmapIter_[K, V]) remove() {
 	if it.last < 0 {
 		panic(new_IllegalStateException_0().self())
 	}
@@ -665,11 +665,11 @@ func (it *tmapIter_[K, V]) remove() {
 }
 
 // tmapKeySet_ is keySet() of the view of a typed map.
-type tmapKeySet_[K comparable, V any] struct{ m *TMap[K, V] }
+type tmapKeySet_[K comparable, V any] struct{ m *JTMap[K, V] }
 
 func (v *tmapKeySet_[K, V]) self() any { return v }
 func (v *tmapKeySet_[K, V]) iterator() Iterator {
-	return &tmapIter_[K, V]{m: v.m, last: -1, mode: tkeys_}
+	return &jtmapIter_[K, V]{m: v.m, last: -1, mode: tkeys_}
 }
 func (v *tmapKeySet_[K, V]) size() int32   { return v.m.live }
 func (v *tmapKeySet_[K, V]) isEmpty() bool { return v.m.live == 0 }
@@ -710,11 +710,11 @@ func (v *tmapKeySet_[K, V]) toString() string              { return collToString
 func (v *tmapKeySet_[K, V]) step_(i int) (any, int)        { return v.m.step(i, tkeys_) }
 
 // tmapValues_ is values() of the view of a typed map.
-type tmapValues_[K comparable, V any] struct{ m *TMap[K, V] }
+type tmapValues_[K comparable, V any] struct{ m *JTMap[K, V] }
 
 func (v *tmapValues_[K, V]) self() any { return v }
 func (v *tmapValues_[K, V]) iterator() Iterator {
-	return &tmapIter_[K, V]{m: v.m, last: -1, mode: tvals_}
+	return &jtmapIter_[K, V]{m: v.m, last: -1, mode: tvals_}
 }
 func (v *tmapValues_[K, V]) size() int32   { return v.m.live }
 func (v *tmapValues_[K, V]) isEmpty() bool { return v.m.live == 0 }
@@ -744,11 +744,11 @@ func (v *tmapValues_[K, V]) toString() string              { return collToString
 func (v *tmapValues_[K, V]) step_(i int) (any, int)        { return v.m.step(i, tvals_) }
 
 // tmapEntrySet_ is entrySet() of the view of a typed map.
-type tmapEntrySet_[K comparable, V any] struct{ m *TMap[K, V] }
+type tmapEntrySet_[K comparable, V any] struct{ m *JTMap[K, V] }
 
 func (v *tmapEntrySet_[K, V]) self() any { return v }
 func (v *tmapEntrySet_[K, V]) iterator() Iterator {
-	return &tmapIter_[K, V]{m: v.m, last: -1, mode: tentries_}
+	return &jtmapIter_[K, V]{m: v.m, last: -1, mode: tentries_}
 }
 func (v *tmapEntrySet_[K, V]) size() int32   { return v.m.live }
 func (v *tmapEntrySet_[K, V]) isEmpty() bool { return v.m.live == 0 }

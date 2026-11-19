@@ -4,15 +4,15 @@ package closure
 
 type CheckUnusedPrivateProperties struct {
 	compiler_                 *AbstractCompiler
-	used                      *TSet[string]
-	candidates                *TList[Node]
-	constructorsAndInterfaces *TSet[string]
+	used                      *JTSet[string]
+	candidates                *JTList[Node]
+	constructorsAndInterfaces *JTSet[string]
 }
 
 func (this *CheckUnusedPrivateProperties) finit_CheckUnusedPrivateProperties() {
-	this.used = newTSet_(tc_string)
-	this.candidates = newTList_(tc_Node)
-	this.constructorsAndInterfaces = newTSet_(tc_string)
+	this.used = jnewTSet_(jtc_string)
+	this.candidates = jnewTList_(jtc_Node)
+	this.constructorsAndInterfaces = jnewTSet_(jtc_string)
 }
 
 func (this *CheckUnusedPrivateProperties) init_CheckUnusedPrivateProperties(compiler *AbstractCompiler) {

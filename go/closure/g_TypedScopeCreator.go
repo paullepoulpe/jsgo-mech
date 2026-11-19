@@ -14,13 +14,13 @@ type TypedScopeCreator struct {
 	processClosurePrimitives     bool
 	memoized                     MapOf[Node, *TypedScope]
 	reservedNamesForScope        *SimpleListMultimap
-	functionsWithNonEmptyReturns *TSet[Node]
-	escapedVarNames              *TSet[*ScopedName]
+	functionsWithNonEmptyReturns *JTSet[Node]
+	escapedVarNames              *JTSet[*ScopedName]
 	assignedVarNames             *SimpleMultiset
 	unknownType                  *ObjectType
-	weakImports                  *TList[*TypedScopeCreator_WeakModuleImport]
-	unresolvedNodes              *TList[Node]
-	undeclaredNamesForClosure    *TSet[Node]
+	weakImports                  *JTList[*TypedScopeCreator_WeakModuleImport]
+	unresolvedNodes              *JTList[Node]
+	undeclaredNamesForClosure    *JTSet[Node]
 	providedNamesFromCall        *SimpleSetMultimap
 	stage                        *TypedScopeCreator_Stage
 }
@@ -52,7 +52,7 @@ func (this *TypedScopeCreator) init_TypedScopeCreator_AbstractCompiler_CodingCon
 		if compiler.getModuleMetadataMap() != nil {
 			return compiler.getModuleMetadataMap()
 		}
-		return new_ModuleMetadataMap(tmapEmptyImm_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata), tmapEmptyImm_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata))
+		return new_ModuleMetadataMap(jtmapEmptyImm_(jtc_string, jtc_p_ModuleMetadataMap_ModuleMetadata), jtmapEmptyImm_(jtc_string, jtc_p_ModuleMetadataMap_ModuleMetadata))
 	}()
 	this.moduleMap = compiler.getModuleMap()
 	this.moduleImportResolver = new_ModuleImportResolver(this.moduleMap, this.getNodeToScopeMapper(), this.typeRegistry)
@@ -70,8 +70,8 @@ func (this *TypedScopeCreator) report(error_ *JSError) {
 	this.compiler_.report(error_)
 }
 
-func (this *TypedScopeCreator) getReferences_StaticSlot_rImmutableList(var_ *TypedVar) *TList[*TypedVar] {
-	return immutableListOf_[*TypedVar](tc_p_TypedVar, var_)
+func (this *TypedScopeCreator) getReferences_StaticSlot_rImmutableList(var_ *TypedVar) *JTList[*TypedVar] {
+	return jimmutableListOf_[*TypedVar](jtc_p_TypedVar, var_)
 }
 
 func (this *TypedScopeCreator) getScope_StaticSlot_rTypedScope(var_ *TypedVar) *TypedScope {
@@ -79,7 +79,7 @@ func (this *TypedScopeCreator) getScope_StaticSlot_rTypedScope(var_ *TypedVar) *
 }
 
 func (this *TypedScopeCreator) getAllSymbols() IterableOf[*TypedVar] {
-	var vars *TList[*TypedVar] = newTList_(tc_p_TypedVar)
+	var vars *JTList[*TypedVar] = jnewTList_(jtc_p_TypedVar)
 	it_1 := foreach_(this.memoized.values())
 	for it_1.next() {
 		var s *TypedScope = cast_[*TypedScope](it_1.v)
@@ -136,7 +136,7 @@ func (this *TypedScopeCreator) createScopeInternal(root Node, typedParent *Typed
 		jsRoot.setJSType(globalThis)
 		newScope = this.createInitialScope(root)
 	} else {
-		var reservedNames *TSet[string] = newTSet_(tc_string)
+		var reservedNames *JTSet[string] = jnewTSet_(jtc_string)
 		reservedNames.asSet().addAll(Collection(this.reservedNamesForScope.removeAll(root.box_())))
 		if (module != nil) && module.metadata().isGoogModule() {
 			reservedNames.add("exports")
@@ -198,7 +198,7 @@ func (this *TypedScopeCreator) gatherAllProvides(root Node) {
 	}
 	var externs Node = root.getFirstChild()
 	var js Node = root.getSecondChild()
-	var providedNames *TMap[string, *ProcessClosureProvidesAndRequires_ProvidedName] = new_ProcessClosureProvidesAndRequires(this.compiler_, true).collectProvidedNames(externs, js)
+	var providedNames *JTMap[string, *ProcessClosureProvidesAndRequires_ProvidedName] = new_ProcessClosureProvidesAndRequires(this.compiler_, true).collectProvidedNames(externs, js)
 	it_1 := providedNames.eachValue()
 	for it_1.next() {
 		var name *ProcessClosureProvidesAndRequires_ProvidedName = it_1.v
@@ -306,12 +306,12 @@ func (this *TypedScopeCreator) finishAndFreeze() {
 
 func (this *TypedScopeCreator) clearCommonState() {
 	this.reservedNamesForScope = SimpleListMultimap_create()
-	this.functionsWithNonEmptyReturns = newTSet_(tc_Node)
-	this.escapedVarNames = newTSet_(tce_p_ScopedName)
+	this.functionsWithNonEmptyReturns = jnewTSet_(jtc_Node)
+	this.escapedVarNames = jnewTSet_(tce_p_ScopedName)
 	this.assignedVarNames = SimpleMultiset_create()
-	this.weakImports = newTList_(tc_p_TypedScopeCreator_WeakModuleImport)
-	this.unresolvedNodes = newTList_(tc_Node)
-	this.undeclaredNamesForClosure = newTSet_(tc_Node)
+	this.weakImports = jnewTList_(tc_p_TypedScopeCreator_WeakModuleImport)
+	this.unresolvedNodes = jnewTList_(jtc_Node)
+	this.undeclaredNamesForClosure = jnewTSet_(jtc_Node)
 	this.providedNamesFromCall = SimpleSetMultimap_createInsertionOrdered()
 }
 
@@ -370,7 +370,7 @@ var TypedScopeCreator_UNKNOWN_LENDS *DiagnosticType
 var TypedScopeCreator_LENDS_ON_NON_OBJECT *DiagnosticType
 var TypedScopeCreator_INCOMPATIBLE_ALIAS_ANNOTATION *DiagnosticType
 var TypedScopeCreator_DYNAMIC_EXTENDS_WITHOUT_JSDOC *DiagnosticType
-var TypedScopeCreator_WELL_KNOWN_SYMBOLS *TSet[string]
+var TypedScopeCreator_WELL_KNOWN_SYMBOLS *JTSet[string]
 
 var TypedScopeCreator_clinit_done bool
 
@@ -389,7 +389,7 @@ func TypedScopeCreator_clinit() {
 	TypedScopeCreator_LENDS_ON_NON_OBJECT = DiagnosticType_warning("JSC_LENDS_ON_NON_OBJECT", "May only lend properties to object types. {0} has type {1}.")
 	TypedScopeCreator_INCOMPATIBLE_ALIAS_ANNOTATION = DiagnosticType_warning("JSC_INCOMPATIBLE_ALIAS_ANNOTATION", "Annotation {0} on {1} incompatible with aliased type.")
 	TypedScopeCreator_DYNAMIC_EXTENDS_WITHOUT_JSDOC = DiagnosticType_warning("JSC_DYNAMIC_EXTENDS_WITHOUT_JSDOC", "The right-hand side of an extends clause must be a qualified name, or else @extends must be specified in JSDoc")
-	TypedScopeCreator_WELL_KNOWN_SYMBOLS = immutableSetOf_[string](tc_string, "Symbol.asyncDispose", "Symbol.asyncIterator", "Symbol.dispose", "Symbol.hasInstance", "Symbol.isConcatSpreadable", "Symbol.iterator", "Symbol.match", "Symbol.replace", "Symbol.species", "Symbol.toPrimitive", "Symbol.toStringTag", "Symbol.unscopables")
+	TypedScopeCreator_WELL_KNOWN_SYMBOLS = jimmutableSetOf_[string](jtc_string, "Symbol.asyncDispose", "Symbol.asyncIterator", "Symbol.dispose", "Symbol.hasInstance", "Symbol.isConcatSpreadable", "Symbol.iterator", "Symbol.match", "Symbol.replace", "Symbol.species", "Symbol.toPrimitive", "Symbol.toStringTag", "Symbol.unscopables")
 
 }
 
@@ -651,7 +651,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) initializeModuleScope(module
 		this.declareExportsInGoogModuleScope(this.getModule(), moduleBody)
 		this.outer_.markGoogModuleExportsAsConst(moduleBody)
 	case ModuleMetadataMap_ModuleType_ES6_MODULE:
-		var unresolvedImports *TMap[Node, *ScopedName] = this.outer_.moduleImportResolver.declareEsModuleImports(this.getModule(), this.currentScope, this.outer_.compiler_.getInput(NodeUtil_getInputId(moduleBody)))
+		var unresolvedImports *JTMap[Node, *ScopedName] = this.outer_.moduleImportResolver.declareEsModuleImports(this.getModule(), this.currentScope, this.outer_.compiler_.getInput(NodeUtil_getInputId(moduleBody)))
 		it_2 := unresolvedImports.eachEntry()
 		for it_2.next() {
 			var entry *TEntry[Node, *ScopedName] = it_2.entry()
@@ -869,7 +869,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) processObjectLitProperties(o
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) getDeclaredTypeInAnnotation(node Node, info *JSDocInfo) *JSType {
 	Preconditions_checkArgument_boolean_Object(info.hasType(), info)
-	var ownerTypeKeys *TList[*TemplateType] = this.findOwnerTypeKeys(node)
+	var ownerTypeKeys *JTList[*TemplateType] = this.findOwnerTypeKeys(node)
 	var templateScope StaticTypedScope = func() StaticTypedScope {
 		if !ownerTypeKeys.isEmpty() {
 			return this.outer_.typeRegistry.createScopeWithTemplates(TypedScope_as_StaticTypedScope(this.currentScope), Iterable(ownerTypeKeys.asList()))
@@ -879,13 +879,13 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getDeclaredTypeInAnnotation(
 	return info.getType().evaluate(templateScope, this.outer_.typeRegistry)
 }
 
-func (this *TypedScopeCreator_AbstractScopeBuilder) findOwnerTypeKeys(node Node) *TList[*TemplateType] {
+func (this *TypedScopeCreator_AbstractScopeBuilder) findOwnerTypeKeys(node Node) *JTList[*TemplateType] {
 	if ((node != 0) && !node.isStaticMember()) && node.getParent().isClassMembers() {
 		var classType *JSType = node.getGrandparent().getJSType()
 		if classType != nil {
 			return classType.toMaybeFunctionType().getTemplateTypeMap().getTemplateKeys()
 		}
-		return tlistEmptyImm_(tc_p_TemplateType)
+		return jtlistEmptyImm_(jtc_p_TemplateType)
 	}
 	var ownerNode Node = NodeUtil_getBestLValueOwner(node)
 	var ownerName Optional[string] = NodeUtil_getBestLValueName(ownerNode)
@@ -898,7 +898,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) findOwnerTypeKeys(node Node)
 			}
 		}
 	}
-	return tlistEmptyImm_(tc_p_TemplateType)
+	return jtlistEmptyImm_(jtc_p_TemplateType)
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) assertDefinitionNode(n Node, type_ *Token_rhino) {
@@ -1047,7 +1047,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getBestTypeName(lvalue Node,
 		return Optional_empty[string]()
 	}
 	if this.isGoogModuleExports(lvalue) {
-		return Optional_of[string](String_replace_s(syntacticLvalueName.get(), "exports", this.getModule().closureNamespace().get()))
+		return Optional_of[string](JString_replace_s(syntacticLvalueName.get(), "exports", this.getModule().closureNamespace().get()))
 	}
 	return syntacticLvalueName
 }
@@ -1146,7 +1146,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) createClassTypeFromNodes(cla
 		var ctorInfo *JSDocInfo = NodeUtil_getBestJSDocInfo(constructor)
 		builder.inferConstructorParameters(constructor.getSecondChild(), ctorInfo)
 	} else if extendsClause.isEmpty() {
-		builder.inferImplicitConstructorParameters(tlistEmptyImm_(tc_p_FunctionType_Parameter))
+		builder.inferImplicitConstructorParameters(jtlistEmptyImm_(jtc_p_FunctionType_Parameter))
 	} else {
 		var extendsCtor *FunctionType = func() *FunctionType {
 			if baseType != nil {
@@ -1232,7 +1232,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) isGoogModuleGetProperty(exte
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) getCtorForGoogModuleGet(extendsNode Node) *JSType {
 	var call Node = extendsNode
-	var properties *TList[string] = newTList_(tc_string)
+	var properties *JTList[string] = jnewTList_(jtc_string)
 	for !call.isCall() {
 		properties.insert(0, call.getString())
 		call = call.getFirstChild()
@@ -2066,7 +2066,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder_SlotDefiner) defineSlot() {
 	var parent Node = this.declarationNode.getParent()
 	var scopeToDeclareIn *TypedScope = this.scope_
 	var isGlobalVar bool = (this.declarationNode.isName() && scopeToDeclareIn.isGlobal())
-	var shouldDeclareOnGlobalThis bool = ((isGlobalVar && (parent.isVar() || parent.isFunction())) || (this.forGoogProvidedNameField && !String_contains_s(this.variableName.get(), ".")))
+	var shouldDeclareOnGlobalThis bool = ((isGlobalVar && (parent.isVar() || parent.isFunction())) || (this.forGoogProvidedNameField && !JString_contains_s(this.variableName.get(), ".")))
 	if (((scopeToDeclareIn != this.outer_.currentHoistScope) && scopeToDeclareIn.isGlobal()) && scopeToDeclareIn.hasOwnSlot(this.variableName.get())) && !this.forGoogProvidedNameField {
 		scopeToDeclareIn = this.outer_.currentHoistScope
 	}
@@ -2278,7 +2278,7 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareParameters(functionNo
 
 func (this *TypedScopeCreator_FunctionScopeBuilder) declareTemplatesInFunctionBody(functionNode Node, functionType *FunctionType) {
 	var info *JSDocInfo = NodeUtil_getBestJSDocInfo(functionNode)
-	var templateNames *TSet[string] = newTSet_(tc_string)
+	var templateNames *JTSet[string] = jnewTSet_(jtc_string)
 	var isPossiblePrototypeMethod bool = (!functionType.hasInstanceType() && ((info == nil) || !info.hasThisType()))
 	if isPossiblePrototypeMethod {
 		var ownerNode Node = NodeUtil_getBestLValue(functionNode)

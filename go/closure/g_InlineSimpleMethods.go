@@ -3,14 +3,14 @@
 package closure
 
 type InlineSimpleMethods struct {
-	nonInlineableProperties *TSet[string]
+	nonInlineableProperties *JTSet[string]
 	methodDefinitions       *SimpleSetMultimap
 	compiler_               *AbstractCompiler
 	astAnalyzer             *AstAnalyzer
 }
 
 func (this *InlineSimpleMethods) finit_InlineSimpleMethods() {
-	this.nonInlineableProperties = newTSet_(tc_string)
+	this.nonInlineableProperties = jnewTSet_(jtc_string)
 	this.methodDefinitions = SimpleSetMultimap_createInsertionOrdered()
 }
 
@@ -277,7 +277,7 @@ func (this *InlineSimpleMethods_GatherSignatures) visit_impl(t *NodeTraversal, n
 					this.outer_.nonInlineableProperties.add(key.getString())
 				case Token_rhino_COMPUTED_PROP, Token_rhino_OBJECT_SPREAD, Token_rhino_COMPUTED_FIELD_DEF, Token_rhino_BLOCK:
 				default:
-					panic(new_IllegalStateException_String(("Unexpected " + tostr_(n.getToken()) + " key: " + tostrH_(key))).self())
+					panic(new_IllegalStateException_String(("Unexpected " + jtostr_(n.getToken()) + " key: " + tostrH_(key))).self())
 				}
 			}
 		}

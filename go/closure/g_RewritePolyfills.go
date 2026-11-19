@@ -8,7 +8,7 @@ type RewritePolyfills struct {
 	polyfills                *PolyfillUsageFinder_Polyfills
 	injectPolyfills          bool
 	isolatePolyfills         bool
-	libraries                *TSet[string]
+	libraries                *JTSet[string]
 	injectPolyfillsNewerThan *CompilerOptions_LanguageMode
 	disambiguateProperties_  bool
 }
@@ -51,13 +51,13 @@ func (this *RewritePolyfills) process_2(externs Node, root Node) {
 		return
 	}
 	if this.injectPolyfills {
-		this.libraries = newTSet_(tc_string)
+		this.libraries = jnewTSet_(jtc_string)
 		new_PolyfillUsageFinder(this.compiler_, this.polyfills, this.disambiguateProperties_).traverseExcludingGuarded(root, &Consumer_tfn_PolyfillUsageFinder_PolyfillUsage{func(p0 *PolyfillUsageFinder_PolyfillUsage) { this.inject(p0) }})
 	}
-	var librariesToInject *TList[string]
+	var librariesToInject *JTList[string]
 	if this.injectPolyfillsNewerThan != nil {
-		var polyfillsToInject *TList[*PolyfillUsageFinder_Polyfill] = this.polyfills.getPolyfillsNewerThan(this.injectPolyfillsNewerThan)
-		var librariesToInjectBuilder *TListBuilder[string] = newTListBuilder_(tc_string)
+		var polyfillsToInject *JTList[*PolyfillUsageFinder_Polyfill] = this.polyfills.getPolyfillsNewerThan(this.injectPolyfillsNewerThan)
+		var librariesToInjectBuilder *TListBuilder[string] = newTListBuilder_(jtc_string)
 		it_1 := polyfillsToInject.each()
 		for it_1.next() {
 			var p *PolyfillUsageFinder_Polyfill = it_1.v
@@ -67,7 +67,7 @@ func (this *RewritePolyfills) process_2(externs Node, root Node) {
 		}
 		librariesToInject = librariesToInjectBuilder.build()
 	} else {
-		librariesToInject = immutableListCopyOf_(tc_string, Collection(this.libraries.asSet()))
+		librariesToInject = jimmutableListCopyOf_(jtc_string, Collection(this.libraries.asSet()))
 	}
 	this.injectAll(Iterable(librariesToInject.asList()), (this.injectPolyfillsNewerThan != nil))
 }

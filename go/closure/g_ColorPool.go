@@ -3,18 +3,18 @@
 package closure
 
 type ColorPool struct {
-	idToColor     *TMap[*ColorId, *Color]
+	idToColor     *JTMap[*ColorId, *Color]
 	colorRegistry *ColorRegistry
-	shardViews    *TList[*ColorPool_ShardView]
+	shardViews    *JTList[*ColorPool_ShardView]
 }
 
-func (this *ColorPool) init_ColorPool(idToColor *TMap[*ColorId, *Color], colorRegistry *ColorRegistry, shardViews *TList[*ColorPool_ShardView]) {
+func (this *ColorPool) init_ColorPool(idToColor *JTMap[*ColorId, *Color], colorRegistry *ColorRegistry, shardViews *JTList[*ColorPool_ShardView]) {
 	this.idToColor = idToColor
 	this.colorRegistry = colorRegistry
 	this.shardViews = shardViews
 }
 
-func new_ColorPool(idToColor *TMap[*ColorId, *Color], colorRegistry *ColorRegistry, shardViews *TList[*ColorPool_ShardView]) *ColorPool {
+func new_ColorPool(idToColor *JTMap[*ColorId, *Color], colorRegistry *ColorRegistry, shardViews *JTList[*ColorPool_ShardView]) *ColorPool {
 	this := &ColorPool{}
 	this.init_ColorPool(idToColor, colorRegistry, shardViews)
 	return this
@@ -40,7 +40,7 @@ func ColorPool_fromOnlyShardForTesting(typePool *TypePool, stringPool *StringPoo
 	return ColorPool_builder().addShardAnd(typePool, stringPool).forTesting().build()
 }
 
-func ColorPool_createTrimmedOffsetToId(typePool *TypePool) *TList[*ColorId] {
+func ColorPool_createTrimmedOffsetToId(typePool *TypePool) *JTList[*ColorId] {
 	var ids []*ColorId = make([]*ColorId, typePool.getTypeCount())
 	for i := int32(0); i < int32(len(ids)); i++ {
 		var proto *TypeProto = typePool.getType(i)
@@ -62,17 +62,17 @@ func ColorPool_createTrimmedOffsetToId(typePool *TypePool) *TList[*ColorId] {
 			panic(new_AssertionError_Object(obj_(proto)).self())
 		}
 	}
-	var seenIds *TSet[*ColorId] = newTSet_(tce_p_ColorId)
+	var seenIds *JTSet[*ColorId] = jnewTSet_(tce_p_ColorId)
 	for i := int32(0); i < int32(len(ids)); i++ {
 		var proto *TypeProto = typePool.getType(i)
 		MalformedTypedAstException_checkWellFormed_boolean_String_Object(seenIds.add(ids[i]), "Duplicate ID in single shard", obj_(proto))
 	}
-	return immutableListCopyOfArr_(tc_p_ColorId, ids)
+	return jimmutableListCopyOfArr_(jtc_p_ColorId, ids)
 }
 
 func ColorPool_createUnionColorId(proto *TypeProto, allObjectIds []*ColorId) *ColorId {
 	MalformedTypedAstException_checkWellFormed_boolean_String_Object((proto.getUnion().getUnionMemberCount() > 1), "Union has too few members", obj_(proto))
-	var members *TSet[*ColorId] = newTSet_(tce_p_ColorId)
+	var members *JTSet[*ColorId] = jnewTSet_(tce_p_ColorId)
 	var unionMemberList ListOf[BoxedOf[int32]] = proto.getUnion().getUnionMemberList()
 	for i := int32(0); i < unionMemberList.size(); i++ {
 		var memberPointer any = unionMemberList.get(i)
@@ -107,19 +107,19 @@ func ColorPool_clinit() {
 }
 
 type ColorPool_ShardView struct {
-	trimmedOffsetToId *TList[*ColorId]
+	trimmedOffsetToId *JTList[*ColorId]
 	typePool          *TypePool
 	stringPool        *StringPool
 	colorPool         *ColorPool
 }
 
-func (this *ColorPool_ShardView) init_ColorPool_ShardView(typePool *TypePool, stringPool *StringPool, trimmedOffsetToId *TList[*ColorId]) {
+func (this *ColorPool_ShardView) init_ColorPool_ShardView(typePool *TypePool, stringPool *StringPool, trimmedOffsetToId *JTList[*ColorId]) {
 	this.typePool = typePool
 	this.stringPool = stringPool
 	this.trimmedOffsetToId = trimmedOffsetToId
 }
 
-func new_ColorPool_ShardView(typePool *TypePool, stringPool *StringPool, trimmedOffsetToId *TList[*ColorId]) *ColorPool_ShardView {
+func new_ColorPool_ShardView(typePool *TypePool, stringPool *StringPool, trimmedOffsetToId *JTList[*ColorId]) *ColorPool_ShardView {
 	this := &ColorPool_ShardView{}
 	this.init_ColorPool_ShardView(typePool, stringPool, trimmedOffsetToId)
 	return this
@@ -147,7 +147,7 @@ func (this *ColorPool_ShardView) updateStateAfterColorPoolIsBuilt(colorPool *Col
 
 type ColorPool_Builder struct {
 	protoToShard            *LinkedIdentityHashMap[*TypePool, *ColorPool_ShardView]
-	idToColor               *TMap[*ColorId, *Color]
+	idToColor               *JTMap[*ColorId, *Color]
 	registry                *ColorRegistry_Builder
 	idToProto               *SimpleTable[*ColorId, *ColorPool_ShardView, *TypeProto]
 	forTestingField         bool
@@ -156,11 +156,11 @@ type ColorPool_Builder struct {
 
 func (this *ColorPool_Builder) finit_ColorPool_Builder() {
 	this.protoToShard = new_LinkedIdentityHashMap[*TypePool, *ColorPool_ShardView]()
-	this.idToColor = newTMap_(tce_p_ColorId, tc_p_Color)
+	this.idToColor = jnewTMap_(tce_p_ColorId, jtc_p_Color)
 	this.registry = ColorRegistry_builder()
 	this.idToProto = SimpleTable_create[*ColorId, *ColorPool_ShardView, *TypeProto]()
 	this.forTestingField = false
-	this.reconcilationDebugStack = newTDeque_(tc_p_ColorId)
+	this.reconcilationDebugStack = newTDeque_(jtc_p_ColorId)
 }
 
 func (this *ColorPool_Builder) init_ColorPool_Builder() {
@@ -191,7 +191,7 @@ func (this *ColorPool_Builder) addShard(typePool *TypePool, stringPool *StringPo
 		Preconditions_checkState_boolean_Object(JSCompObjects_identical(obj_(typePool), obj_(TypePool_getDefaultInstance())), typePool)
 		return existing
 	}
-	var trimmedOffsetToId *TList[*ColorId] = ColorPool_createTrimmedOffsetToId(typePool)
+	var trimmedOffsetToId *JTList[*ColorId] = ColorPool_createTrimmedOffsetToId(typePool)
 	var shard *ColorPool_ShardView = new_ColorPool_ShardView(typePool, stringPool, trimmedOffsetToId)
 	this.protoToShard.put(typePool, shard)
 	if typePool.hasDebugInfo() {
@@ -244,7 +244,7 @@ func (this *ColorPool_Builder) build() *ColorPool {
 	if this.forTestingField {
 		this.forEachShard(&Consumer_tfn_ColorPool_ShardView{func(p0 *ColorPool_ShardView) { shardViewsForTesting.add(obj_(p0)) }})
 	}
-	var colorPool *ColorPool = new_ColorPool(this.idToColor, this.registry.build(), tlistImm_(tc_p_ColorPool_ShardView, shardViewsForTesting.build()))
+	var colorPool *ColorPool = new_ColorPool(this.idToColor, this.registry.build(), jtlistImm_(jtc_p_ColorPool_ShardView, shardViewsForTesting.build()))
 	this.forEachShard(&Consumer_tfn_ColorPool_ShardView{func(shard *ColorPool_ShardView) {
 		shard.updateStateAfterColorPoolIsBuilt(colorPool)
 	}})
@@ -257,7 +257,7 @@ func (this *ColorPool_Builder) forEachShard(fn ConsumerOf[*ColorPool_ShardView])
 	}})
 }
 
-func (this *ColorPool_Builder) reconcilationDebugStackProtos() *TList[*ImmutableMap] {
+func (this *ColorPool_Builder) reconcilationDebugStackProtos() *JTList[*ImmutableMap] {
 	var result *TListBuilder[*ImmutableMap] = newTListBuilder_(tc_p_ImmutableMap)
 	it_1 := this.reconcilationDebugStack.each()
 	for it_1.next() {
@@ -311,7 +311,7 @@ func (this *ColorPool_Builder) lookupOrReconcileColor(id *ColorId) *Color {
 func (this *ColorPool_Builder) reconcileObjectProtos(id *ColorId, viewToProto MapOf[*ColorPool_ShardView, *TypeProto]) *Color {
 	var instanceColors *TSetBuilder[*Color] = newTSetBuilder_(tce_p_Color)
 	var prototypes *TSetBuilder[*Color] = newTSetBuilder_(tce_p_Color)
-	var ownProperties *TSetBuilder[string] = newTSetBuilder_(tc_string)
+	var ownProperties *TSetBuilder[string] = newTSetBuilder_(jtc_string)
 	var isClosureAssert *Tri = Tri_UNKNOWN
 	var isConstructor bool = false
 	var isInvalidating bool = false
@@ -347,7 +347,7 @@ func (this *ColorPool_Builder) reconcileObjectProtos(id *ColorId, viewToProto Ma
 }
 
 func (this *ColorPool_Builder) reconcileUnionProtos(id *ColorId, viewToProto MapOf[*ColorPool_ShardView, *TypeProto]) *Color {
-	var union *TSet[*Color] = newTSet_(tce_p_Color)
+	var union *JTSet[*Color] = jnewTSet_(tce_p_Color)
 	Map_forEach(viewToProto, &BiConsumer_tfn_ColorPool_ShardView_TypeProto{func(shard *ColorPool_ShardView, proto *TypeProto) {
 		Preconditions_checkState_boolean_Object(proto.hasUnion(), proto)
 		var unionMemberList ListOf[BoxedOf[int32]] = proto.getUnion().getUnionMemberList()

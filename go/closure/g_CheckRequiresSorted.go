@@ -5,7 +5,7 @@ package closure
 type CheckRequiresSorted struct {
 	mode_              *CheckRequiresSorted_Mode
 	importsByNamespace *SimpleListMultimap
-	originalImports    *TList[*CheckRequiresSorted_ImportStatement]
+	originalImports    *JTList[*CheckRequiresSorted_ImportStatement]
 	firstNode          Node
 	lastNode           Node
 	finished           bool
@@ -15,7 +15,7 @@ type CheckRequiresSorted struct {
 
 func (this *CheckRequiresSorted) finit_CheckRequiresSorted() {
 	this.importsByNamespace = SimpleListMultimap_create()
-	this.originalImports = newTList_(tc_p_CheckRequiresSorted_ImportStatement)
+	this.originalImports = jnewTList_(jtc_p_CheckRequiresSorted_ImportStatement)
 	this.firstNode = 0
 	this.lastNode = 0
 	this.finished = false
@@ -91,14 +91,14 @@ func CheckRequiresSorted_parseImport(callNode Node) *CheckRequiresSorted_ImportS
 	var namespace string = callNode.getSecondChild().getString()
 	var parent Node = callNode.getParent()
 	if parent.isExprResult() {
-		return CheckRequiresSorted_ImportStatement_of(immutableListOf_[Node](tc_Node, parent), primitive, namespace, Optional_empty[string](), nil)
+		return CheckRequiresSorted_ImportStatement_of(jimmutableListOf_[Node](jtc_Node, parent), primitive, namespace, Optional_empty[string](), nil)
 	}
 	var grandparent Node = parent.getParent()
 	if parent.isName() {
 		var alias string = parent.getString()
-		return CheckRequiresSorted_ImportStatement_of(immutableListOf_[Node](tc_Node, grandparent), primitive, namespace, Optional_of[string](alias), nil)
+		return CheckRequiresSorted_ImportStatement_of(jimmutableListOf_[Node](jtc_Node, grandparent), primitive, namespace, Optional_of[string](alias), nil)
 	}
-	var destructures *TListBuilder[*CheckRequiresSorted_DestructuringBinding] = newTListBuilder_(tc_p_CheckRequiresSorted_DestructuringBinding)
+	var destructures *TListBuilder[*CheckRequiresSorted_DestructuringBinding] = newTListBuilder_(jtc_p_CheckRequiresSorted_DestructuringBinding)
 	{
 		var name Node = parent.getFirstFirstChild()
 		for ; name != 0; name = name.getNext() {
@@ -108,22 +108,22 @@ func CheckRequiresSorted_parseImport(callNode Node) *CheckRequiresSorted_ImportS
 			destructures.add(CheckRequiresSorted_DestructuringBinding_of(exportedName, localName, isShorthandProperty))
 		}
 	}
-	return CheckRequiresSorted_ImportStatement_of(immutableListOf_[Node](tc_Node, grandparent), primitive, namespace, Optional_empty[string](), destructures.build())
+	return CheckRequiresSorted_ImportStatement_of(jimmutableListOf_[Node](jtc_Node, grandparent), primitive, namespace, Optional_empty[string](), destructures.build())
 }
 
 func (this *CheckRequiresSorted) checkCanonical(t *NodeTraversal) {
-	var canonicalImports *TList[*CheckRequiresSorted_ImportStatement] = CheckRequiresSorted_canonicalizeImports(this.importsByNamespace)
+	var canonicalImports *JTList[*CheckRequiresSorted_ImportStatement] = CheckRequiresSorted_canonicalizeImports(this.importsByNamespace)
 	if !equalsR_(this.originalImports.asList(), canonicalImports.asList()) {
 		this.needsFixField = true
-		this.replacement_ = Optional_of[string](String_join_s("\n", Iterables_transform(Iterable(canonicalImports.asList()), &Function_base_tfn_CheckRequiresSorted_ImportStatement_string{func(p0 *CheckRequiresSorted_ImportStatement) string { return p0.format() }})))
+		this.replacement_ = Optional_of[string](JString_join_s("\n", Iterables_transform(Iterable(canonicalImports.asList()), &Function_base_tfn_CheckRequiresSorted_ImportStatement_string{func(p0 *CheckRequiresSorted_ImportStatement) string { return p0.format() }})))
 		if this.mode_ == CheckRequiresSorted_Mode_COLLECT_AND_REPORT {
 			t.report(this.firstNode, CheckRequiresSorted_REQUIRES_NOT_SORTED, []string{this.replacement_.orElse("null")})
 		}
 	}
 }
 
-func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMultimap) *TList[*CheckRequiresSorted_ImportStatement] {
-	var canonicalImports *TList[*CheckRequiresSorted_ImportStatement] = newTList_(tc_p_CheckRequiresSorted_ImportStatement)
+func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMultimap) *JTList[*CheckRequiresSorted_ImportStatement] {
+	var canonicalImports *JTList[*CheckRequiresSorted_ImportStatement] = jnewTList_(jtc_p_CheckRequiresSorted_ImportStatement)
 	it_1 := foreach_(importsByNamespace.keySet())
 	for it_1.next() {
 		var namespace string = str_(it_1.v)
@@ -142,7 +142,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 			hasAliasing = true
 		}
 		var hasDestructuring bool = false
-		var destructuringNodesBuilder *TListBuilder[Node] = newTListBuilder_(tc_Node)
+		var destructuringNodesBuilder *TListBuilder[Node] = newTListBuilder_(jtc_Node)
 		it_7 := foreach_(allImports)
 		for it_7.next() {
 			var i *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_7.v)
@@ -154,8 +154,8 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 				}
 			}
 		}
-		var destructuringNodes *TList[Node] = destructuringNodesBuilder.build()
-		var sortedDestructures *TList[*CheckRequiresSorted_DestructuringBinding] = newTList_(tc_p_CheckRequiresSorted_DestructuringBinding)
+		var destructuringNodes *JTList[Node] = destructuringNodesBuilder.build()
+		var sortedDestructures *JTList[*CheckRequiresSorted_DestructuringBinding] = jnewTList_(jtc_p_CheckRequiresSorted_DestructuringBinding)
 		it_11 := foreach_(allImports)
 		for it_11.next() {
 			var i *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_11.v)
@@ -168,13 +168,13 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 			}
 		}
 		Collections_sort(sortedDestructures.asList())
-		var destructures *TList[*CheckRequiresSorted_DestructuringBinding] = immutableListCopyOf_(tc_p_CheckRequiresSorted_DestructuringBinding, Collection(new_LinkedHashSet_Collection(Collection(sortedDestructures.asList()))))
+		var destructures *JTList[*CheckRequiresSorted_DestructuringBinding] = jimmutableListCopyOf_(jtc_p_CheckRequiresSorted_DestructuringBinding, Collection(new_LinkedHashSet_Collection(Collection(sortedDestructures.asList()))))
 		if !destructures.isEmpty() {
 			canonicalImports.add(CheckRequiresSorted_ImportStatement_of(destructuringNodes, strongestPrimitive, namespace, Optional_empty[string](), destructures))
 			hasDestructuring = true
 		}
 		if !hasAliasing && !hasDestructuring {
-			var standaloneNodesBuilder *TListBuilder[Node] = newTListBuilder_(tc_Node)
+			var standaloneNodesBuilder *TListBuilder[Node] = newTListBuilder_(jtc_Node)
 			it_15 := foreach_(allImports)
 			for it_15.next() {
 				var i *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_15.v)
@@ -186,7 +186,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 					}
 				}
 			}
-			var standaloneNodes *TList[Node] = standaloneNodesBuilder.build()
+			var standaloneNodes *JTList[Node] = standaloneNodesBuilder.build()
 			canonicalImports.add(CheckRequiresSorted_ImportStatement_of(standaloneNodes, strongestPrimitive, namespace, Optional_empty[string](), nil))
 		}
 	}
@@ -433,18 +433,18 @@ func (this *CheckRequiresSorted_DestructuringBinding) toString() string {
 }
 
 type CheckRequiresSorted_ImportStatement struct {
-	nodes_        *TList[Node]
+	nodes_        *JTList[Node]
 	primitive_    *CheckRequiresSorted_ImportPrimitive
 	namespace_    string
 	alias_        Optional[string]
-	destructures_ *TList[*CheckRequiresSorted_DestructuringBinding]
+	destructures_ *JTList[*CheckRequiresSorted_DestructuringBinding]
 }
 
 func (this *CheckRequiresSorted_ImportStatement) zero_CheckRequiresSorted_ImportStatement() {
 	this.namespace_ = nullstr_
 }
 
-func (this *CheckRequiresSorted_ImportStatement) init_CheckRequiresSorted_ImportStatement(nodes *TList[Node], primitive *CheckRequiresSorted_ImportPrimitive, namespace string, alias Optional[string], destructures *TList[*CheckRequiresSorted_DestructuringBinding]) {
+func (this *CheckRequiresSorted_ImportStatement) init_CheckRequiresSorted_ImportStatement(nodes *JTList[Node], primitive *CheckRequiresSorted_ImportPrimitive, namespace string, alias Optional[string], destructures *JTList[*CheckRequiresSorted_DestructuringBinding]) {
 	Objects_requireNonNull(nodes.asList(), "nodes")
 	Objects_requireNonNull_T(primitive, "primitive")
 	Preconditions_checkArgument_boolean_Object((alias.isEmpty() || (destructures == nil)), "Import statement cannot be simultaneously aliasing and destructuring")
@@ -455,14 +455,14 @@ func (this *CheckRequiresSorted_ImportStatement) init_CheckRequiresSorted_Import
 	this.destructures_ = destructures
 }
 
-func new_CheckRequiresSorted_ImportStatement(nodes *TList[Node], primitive *CheckRequiresSorted_ImportPrimitive, namespace string, alias Optional[string], destructures *TList[*CheckRequiresSorted_DestructuringBinding]) *CheckRequiresSorted_ImportStatement {
+func new_CheckRequiresSorted_ImportStatement(nodes *JTList[Node], primitive *CheckRequiresSorted_ImportPrimitive, namespace string, alias Optional[string], destructures *JTList[*CheckRequiresSorted_DestructuringBinding]) *CheckRequiresSorted_ImportStatement {
 	this := &CheckRequiresSorted_ImportStatement{}
 	this.zero_CheckRequiresSorted_ImportStatement()
 	this.init_CheckRequiresSorted_ImportStatement(nodes, primitive, namespace, alias, destructures)
 	return this
 }
 
-func CheckRequiresSorted_ImportStatement_of(nodes *TList[Node], primitive *CheckRequiresSorted_ImportPrimitive, namespace string, alias Optional[string], destructures *TList[*CheckRequiresSorted_DestructuringBinding]) *CheckRequiresSorted_ImportStatement {
+func CheckRequiresSorted_ImportStatement_of(nodes *JTList[Node], primitive *CheckRequiresSorted_ImportPrimitive, namespace string, alias Optional[string], destructures *JTList[*CheckRequiresSorted_DestructuringBinding]) *CheckRequiresSorted_ImportStatement {
 	return new_CheckRequiresSorted_ImportStatement(nodes, primitive, namespace, alias, destructures)
 }
 
@@ -548,7 +548,7 @@ func (this *CheckRequiresSorted_ImportStatement) compareTo(other_ any) int32 {
 	return String_compareTo(this.formatWithoutDoc(), other.formatWithoutDoc())
 }
 
-func (this *CheckRequiresSorted_ImportStatement) nodes() *TList[Node] {
+func (this *CheckRequiresSorted_ImportStatement) nodes() *JTList[Node] {
 	return this.nodes_
 }
 
@@ -564,7 +564,7 @@ func (this *CheckRequiresSorted_ImportStatement) alias() Optional[string] {
 	return this.alias_
 }
 
-func (this *CheckRequiresSorted_ImportStatement) destructures() *TList[*CheckRequiresSorted_DestructuringBinding] {
+func (this *CheckRequiresSorted_ImportStatement) destructures() *JTList[*CheckRequiresSorted_DestructuringBinding] {
 	return this.destructures_
 }
 
@@ -587,5 +587,5 @@ func (this *CheckRequiresSorted_ImportStatement) hashCode() int32 {
 }
 
 func (this *CheckRequiresSorted_ImportStatement) toString() string {
-	return "ImportStatement[" + "nodes=" + objstr_(this.nodes_.asList()) + ", primitive=" + tostr_(this.primitive_) + ", namespace=" + sstr_(this.namespace_) + ", alias=" + objstr_(this.alias_.box_()) + ", destructures=" + objstr_(this.destructures_.asList()) + "]"
+	return "ImportStatement[" + "nodes=" + objstr_(this.nodes_.asList()) + ", primitive=" + jtostr_(this.primitive_) + ", namespace=" + sstr_(this.namespace_) + ", alias=" + objstr_(this.alias_.box_()) + ", destructures=" + objstr_(this.destructures_.asList()) + "]"
 }

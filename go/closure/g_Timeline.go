@@ -3,8 +3,8 @@
 package closure
 
 type Timeline[T comparable] struct {
-	eventsByTime  *TMap[*Timeline_Time, *Timeline_Event]
-	eventsByValue *TMap[T, *Timeline_Event]
+	eventsByTime  *JTMap[*Timeline_Time, *Timeline_Event]
+	eventsByValue *JTMap[T, *Timeline_Event]
 	headEvent     *Timeline_Event
 }
 
@@ -16,8 +16,8 @@ func is_Timeline(v any) bool {
 }
 
 func (this *Timeline[T]) finit_Timeline() {
-	this.eventsByTime = newTMap_(tce_p_Timeline_Time, tc_p_Timeline_Event)
-	this.eventsByValue = newTMap_(tceT_[T](), tc_p_Timeline_Event)
+	this.eventsByTime = jnewTMap_(tce_p_Timeline_Time, tc_p_Timeline_Event)
+	this.eventsByValue = jnewTMap_(tceT_[T](), tc_p_Timeline_Event)
 	this.headEvent = new_Timeline_Event(new_Timeline_Time("-beginning-"))
 }
 
@@ -54,7 +54,7 @@ func (this *Timeline[T]) mark(timeName string) {
 }
 
 func (this *Timeline[T]) getSince(timeName string) ListOf[T] {
-	var values *TList[T] = newTList_(tcT_[T]())
+	var values *JTList[T] = jnewTList_(tcT_[T]())
 	var firstEvent *Timeline_Event = this.eventsByTime.get(new_Timeline_Time(timeName))
 	if firstEvent == nil {
 		return nil
@@ -63,7 +63,7 @@ func (this *Timeline[T]) getSince(timeName string) ListOf[T] {
 		var event *Timeline_Event = firstEvent
 		for ; event != nil; event = event.nextEvent {
 			if !is_[*Timeline_Time](event.value_) {
-				values.add(unboxT_[T](event.value_))
+				values.add(junboxT_[T](event.value_))
 			}
 		}
 	}

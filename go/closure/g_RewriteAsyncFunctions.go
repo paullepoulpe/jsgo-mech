@@ -13,7 +13,7 @@ func (this *RewriteAsyncFunctions) init_RewriteAsyncFunctions(compiler *Abstract
 	this.compiler_ = Preconditions_checkNotNull_T(compiler)
 	this.astFactory_ = Preconditions_checkNotNull_T(astFactory)
 	this.namespace_ = Preconditions_checkNotNull_T(namespace)
-	this.contextStack = newTDeque_(tc_p_RewriteAsyncFunctions_LexicalContext)
+	this.contextStack = newTDeque_(jtc_p_RewriteAsyncFunctions_LexicalContext)
 }
 
 func new_RewriteAsyncFunctions(compiler *AbstractCompiler, astFactory *AstFactory, namespace StaticScope) *RewriteAsyncFunctions {
@@ -160,11 +160,11 @@ func (this *RewriteAsyncFunctions_SuperPropertyWrapperInfo) createWrapperFunctio
 
 type RewriteAsyncFunctions_SuperPropertyWrappers struct {
 	outer_                *RewriteAsyncFunctions
-	propertyNameToTypeMap *TMap[string, *RewriteAsyncFunctions_SuperPropertyWrapperInfo]
+	propertyNameToTypeMap *JTMap[string, *RewriteAsyncFunctions_SuperPropertyWrapperInfo]
 }
 
 func (this *RewriteAsyncFunctions_SuperPropertyWrappers) finit_RewriteAsyncFunctions_SuperPropertyWrappers() {
-	this.propertyNameToTypeMap = newTMap_(tc_string, tc_p_RewriteAsyncFunctions_SuperPropertyWrapperInfo)
+	this.propertyNameToTypeMap = jnewTMap_(jtc_string, jtc_p_RewriteAsyncFunctions_SuperPropertyWrapperInfo)
 }
 
 func (this *RewriteAsyncFunctions_SuperPropertyWrappers) init_RewriteAsyncFunctions_SuperPropertyWrappers() {

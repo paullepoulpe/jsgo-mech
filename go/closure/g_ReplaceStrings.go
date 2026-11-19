@@ -6,9 +6,9 @@ type ReplaceStrings struct {
 	NodeTraversal_AbstractPostOrderCallback
 	placeholderToken string
 	compiler_        *AbstractCompiler
-	functions        *TMap[string, *ReplaceStrings_Config]
+	functions        *JTMap[string, *ReplaceStrings_Config]
 	nameGenerator    *DefaultNameGenerator
-	results          *TMap[string, *ReplaceStrings_Result]
+	results          *JTMap[string, *ReplaceStrings_Result]
 }
 
 func (this *ReplaceStrings) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -23,11 +23,11 @@ func (this *ReplaceStrings) zero_ReplaceStrings() {
 }
 
 func (this *ReplaceStrings) finit_ReplaceStrings() {
-	this.functions = newTMap_(tc_string, tc_p_ReplaceStrings_Config)
-	this.results = newTMap_(tc_string, tc_p_ReplaceStrings_Result)
+	this.functions = jnewTMap_(jtc_string, tc_p_ReplaceStrings_Config)
+	this.results = jnewTMap_(jtc_string, jtc_p_ReplaceStrings_Result)
 }
 
-func (this *ReplaceStrings) init_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, functionsToInspect *TList[string]) {
+func (this *ReplaceStrings) init_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, functionsToInspect *JTList[string]) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.finit_ReplaceStrings()
 	this.compiler_ = compiler
@@ -41,7 +41,7 @@ func (this *ReplaceStrings) init_ReplaceStrings(compiler *AbstractCompiler, plac
 	this.parseConfigurationList(functionsToInspect)
 }
 
-func new_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, functionsToInspect *TList[string]) *ReplaceStrings {
+func new_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, functionsToInspect *JTList[string]) *ReplaceStrings {
 	this := &ReplaceStrings{}
 	this.self_ = this
 	this.zero_ReplaceStrings()
@@ -49,12 +49,12 @@ func new_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, fun
 	return this
 }
 
-func (this *ReplaceStrings) getResult() *TList[*ReplaceStrings_Result] {
-	return immutableListCopyOf_(tc_p_ReplaceStrings_Result, Iterables_filter(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS))
+func (this *ReplaceStrings) getResult() *JTList[*ReplaceStrings_Result] {
+	return jimmutableListCopyOf_(jtc_p_ReplaceStrings_Result, Iterables_filter(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS))
 }
 
 func (this *ReplaceStrings) getStringMap() *VariableMap {
-	var map_ *TMapBuilder[string, string] = newTMapBuilder_(tc_string, tc_string)
+	var map_ *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
 	it_1 := foreach_(Iterables_filter(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS))
 	for it_1.next() {
 		var result *ReplaceStrings_Result = cast_[*ReplaceStrings_Result](it_1.v)
@@ -222,7 +222,7 @@ func (this *ReplaceStrings) buildReplacement(t *NodeTraversal, expr Node, prefix
 	panic("unreachable")
 }
 
-func (this *ReplaceStrings) parseConfigurationList(functionsToInspect *TList[string]) {
+func (this *ReplaceStrings) parseConfigurationList(functionsToInspect *JTList[string]) {
 	it_1 := functionsToInspect.each()
 	for it_1.next() {
 		var function string = it_1.v
@@ -238,15 +238,15 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 	var last int32 = String_indexOf(function, 41)
 	var colon int32 = String_indexOf_String(function, ReplaceStrings_EXCLUSION_PREFIX)
 	Preconditions_checkState(((first != -1) && (last != -1)))
-	if String_contains_s(function, ".prototype.") {
+	if JString_contains_s(function, ".prototype.") {
 		this.compiler_.report(JSError_make_DiagnosticType_StringArr(ReplaceStrings_BAD_REPLACEMENT_CONFIGURATION, []string{function, "Cannot replace strings passed to prototype methods."}))
 		return nil
 	}
 	var name string = String_substring(function, 0, first)
 	var params string = String_substring(function, (first + 1), last)
 	var paramCount int32 = 0
-	var replacementParameters *TList[any] = newTList_(tc_Integer)
-	var parts *TList[string] = splitToListT_(tc_string, Splitter_on(','), strobj_(params))
+	var replacementParameters *JTList[any] = jnewTList_(tc_Integer)
+	var parts *JTList[string] = splitToListT_(jtc_string, Splitter_on(','), strobj_(params))
 	it_1 := parts.each()
 	for it_1.next() {
 		var param string = it_1.v
@@ -262,17 +262,17 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 		}
 	}
 	Preconditions_checkState(!replacementParameters.isEmpty())
-	return new_ReplaceStrings_Config(name, replacementParameters, func() *TSet[string] {
+	return new_ReplaceStrings_Config(name, replacementParameters, func() *JTSet[string] {
 		if colon == -1 {
-			return tsetEmptyImm_(tc_string)
+			return jtsetEmptyImm_(jtc_string)
 		}
-		return tsetImm_(tc_string, ImmutableSet_copyOf_ObjectArr(arrmap_(ReplaceStrings_COMMA_PATTERN.split(String_substring_int(function, (colon+String_length(ReplaceStrings_EXCLUSION_PREFIX)))), func(v_ string) any { return strobj_(v_) })))
+		return tsetImm_(jtc_string, ImmutableSet_copyOf_ObjectArr(arrmap_(ReplaceStrings_COMMA_PATTERN.split(String_substring_int(function, (colon+String_length(ReplaceStrings_EXCLUSION_PREFIX)))), func(v_ string) any { return strobj_(v_) })))
 	}())
 }
 
 func ReplaceStrings_createNameGenerator() *DefaultNameGenerator {
 	var namePrefix string = ""
-	var reservedChars *TSet[any] = tsetEmptyImm_(tc_Character)
+	var reservedChars *JTSet[any] = jtsetEmptyImm_(tc_Character)
 	return new_DefaultNameGenerator_Set_String_Set(ImmutableSet_as_Set(ImmutableSet_of()), namePrefix, reservedChars)
 }
 
@@ -305,21 +305,21 @@ func ReplaceStrings_clinit() {
 
 type ReplaceStrings_Config struct {
 	name_                    string
-	parameters               *TList[any]
-	excludedFilenameSuffixes *TSet[string]
+	parameters               *JTList[any]
+	excludedFilenameSuffixes *JTSet[string]
 }
 
 func (this *ReplaceStrings_Config) zero_ReplaceStrings_Config() {
 	this.name_ = nullstr_
 }
 
-func (this *ReplaceStrings_Config) init_ReplaceStrings_Config(name string, replacementParameters *TList[any], excludedFilenameSuffixes *TSet[string]) {
+func (this *ReplaceStrings_Config) init_ReplaceStrings_Config(name string, replacementParameters *JTList[any], excludedFilenameSuffixes *JTSet[string]) {
 	this.name_ = name
 	this.parameters = replacementParameters
 	this.excludedFilenameSuffixes = excludedFilenameSuffixes
 }
 
-func new_ReplaceStrings_Config(name string, replacementParameters *TList[any], excludedFilenameSuffixes *TSet[string]) *ReplaceStrings_Config {
+func new_ReplaceStrings_Config(name string, replacementParameters *JTList[any], excludedFilenameSuffixes *JTSet[string]) *ReplaceStrings_Config {
 	this := &ReplaceStrings_Config{}
 	this.zero_ReplaceStrings_Config()
 	this.init_ReplaceStrings_Config(name, replacementParameters, excludedFilenameSuffixes)

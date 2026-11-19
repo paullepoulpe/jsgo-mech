@@ -4,7 +4,7 @@ package closure
 
 type ByPathWarningsGuard struct {
 	WarningsGuard
-	paths      *TList[string]
+	paths      *JTList[string]
 	include    bool
 	priority   int32
 	levelField *CheckLevel
@@ -17,7 +17,7 @@ func (this *ByPathWarningsGuard) up_WarningsGuard() *WarningsGuard {
 	return &this.WarningsGuard
 }
 
-func (this *ByPathWarningsGuard) init_ByPathWarningsGuard(paths *TList[string], include bool, level *CheckLevel) {
+func (this *ByPathWarningsGuard) init_ByPathWarningsGuard(paths *JTList[string], include bool, level *CheckLevel) {
 	this.WarningsGuard.init_WarningsGuard()
 	Preconditions_checkArgument((paths != nil))
 	Preconditions_checkArgument(((level == CheckLevel_OFF) || (level == CheckLevel_ERROR)))
@@ -32,18 +32,18 @@ func (this *ByPathWarningsGuard) init_ByPathWarningsGuard(paths *TList[string], 
 	}()
 }
 
-func new_ByPathWarningsGuard(paths *TList[string], include bool, level *CheckLevel) *ByPathWarningsGuard {
+func new_ByPathWarningsGuard(paths *JTList[string], include bool, level *CheckLevel) *ByPathWarningsGuard {
 	this := &ByPathWarningsGuard{}
 	this.self_ = this
 	this.init_ByPathWarningsGuard(paths, include, level)
 	return this
 }
 
-func ByPathWarningsGuard_forPath(paths *TList[string], level *CheckLevel) *ByPathWarningsGuard {
+func ByPathWarningsGuard_forPath(paths *JTList[string], level *CheckLevel) *ByPathWarningsGuard {
 	return new_ByPathWarningsGuard(paths, true, level)
 }
 
-func ByPathWarningsGuard_exceptPath(paths *TList[string], level *CheckLevel) *ByPathWarningsGuard {
+func ByPathWarningsGuard_exceptPath(paths *JTList[string], level *CheckLevel) *ByPathWarningsGuard {
 	return new_ByPathWarningsGuard(paths, false, level)
 }
 
@@ -55,7 +55,7 @@ func (this *ByPathWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
 		it_1 := this.paths.each()
 		for it_1.next() {
 			var path string = it_1.v
-			inPath = bor_(inPath, String_contains_s(errorPath.get(), path))
+			inPath = bor_(inPath, JString_contains_s(errorPath.get(), path))
 		}
 		if inPath == this.include {
 			return this.levelField

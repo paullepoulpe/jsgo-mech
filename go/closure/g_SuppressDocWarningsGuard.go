@@ -4,7 +4,7 @@ package closure
 
 type SuppressDocWarningsGuard struct {
 	WarningsGuard
-	suppressors *TMap[string, *DiagnosticGroup]
+	suppressors *JTMap[string, *DiagnosticGroup]
 	compiler_   *AbstractCompiler
 }
 
@@ -15,24 +15,24 @@ func (this *SuppressDocWarningsGuard) up_WarningsGuard() *WarningsGuard {
 	return &this.WarningsGuard
 }
 
-func (this *SuppressDocWarningsGuard) init_SuppressDocWarningsGuard(compiler *AbstractCompiler, suppressors *TMap[string, *DiagnosticGroup]) {
+func (this *SuppressDocWarningsGuard) init_SuppressDocWarningsGuard(compiler *AbstractCompiler, suppressors *JTMap[string, *DiagnosticGroup]) {
 	this.WarningsGuard.init_WarningsGuard()
 	this.compiler_ = compiler
 	this.suppressors = SuppressDocWarningsGuard_createSuppressors(suppressors)
 }
 
-func new_SuppressDocWarningsGuard(compiler *AbstractCompiler, suppressors *TMap[string, *DiagnosticGroup]) *SuppressDocWarningsGuard {
+func new_SuppressDocWarningsGuard(compiler *AbstractCompiler, suppressors *JTMap[string, *DiagnosticGroup]) *SuppressDocWarningsGuard {
 	this := &SuppressDocWarningsGuard{}
 	this.self_ = this
 	this.init_SuppressDocWarningsGuard(compiler, suppressors)
 	return this
 }
 
-func SuppressDocWarningsGuard_createSuppressors(suppressors *TMap[string, *DiagnosticGroup]) *TMap[string, *DiagnosticGroup] {
-	var builder *TMap[string, *DiagnosticGroup] = tmapCopy_(tc_string, tc_p_DiagnosticGroup, suppressors)
+func SuppressDocWarningsGuard_createSuppressors(suppressors *JTMap[string, *DiagnosticGroup]) *JTMap[string, *DiagnosticGroup] {
+	var builder *JTMap[string, *DiagnosticGroup] = tmapCopy_(jtc_string, jtc_p_DiagnosticGroup, suppressors)
 	builder.put("missingProperties", DiagnosticGroup_createFromGroups_DiagnosticGroupArr([]*DiagnosticGroup{DiagnosticGroups_MISSING_PROPERTIES, DiagnosticGroups_STRICT_MISSING_PROPERTIES}))
 	builder.put("checkTypes", DiagnosticGroup_createFromGroups_DiagnosticGroupArr([]*DiagnosticGroup{DiagnosticGroups_CHECK_TYPES, DiagnosticGroups_STRICT_CHECK_TYPES}))
-	return immutableMapCopyOfT_(tc_string, tc_p_DiagnosticGroup, builder)
+	return immutableMapCopyOfT_(jtc_string, jtc_p_DiagnosticGroup, builder)
 }
 
 func (this *SuppressDocWarningsGuard) level_impl(error_ *JSError) *CheckLevel {

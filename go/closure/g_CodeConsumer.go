@@ -257,7 +257,7 @@ func (this *CodeConsumer) addNumber_impl(x float64, n Node) {
 
 func CodeConsumer_formatNumber(x float64) string {
 	if float64(f2i_[int64](float64(x))) != x {
-		return CodeConsumer_LEADING_ZERO_PATTERN.matcher_s(String_replace_s(String_valueOf_double(x), ".0E", "E")).replaceFirst(".")
+		return CodeConsumer_LEADING_ZERO_PATTERN.matcher_s(JString_replace_s(String_valueOf_double(x), ".0E", "E")).replaceFirst(".")
 	}
 	var value int64 = f2i_[int64](float64(x))
 	var mantissa int64 = value
@@ -286,7 +286,7 @@ func CodeConsumer_formatNumber(x float64) string {
 
 func (this *CodeConsumer) addBigInt(bi *BigInteger) {
 	var hexEncoded string = ("0x" + sstr_(bi.toString_int(16)) + "n")
-	var decimalEncoded string = (tostr_(bi) + "n")
+	var decimalEncoded string = (jtostr_(bi) + "n")
 	this.addConstant(func() string {
 		if String_length(hexEncoded) < String_length(decimalEncoded) {
 			return hexEncoded

@@ -4,7 +4,7 @@ package closure
 
 type AllowlistWarningsGuard struct {
 	WarningsGuard
-	allowlist *TSet[string]
+	allowlist *JTSet[string]
 }
 
 func (this *AllowlistWarningsGuard) up_WarningsGuard() *WarningsGuard {
@@ -15,7 +15,7 @@ func (this *AllowlistWarningsGuard) up_WarningsGuard() *WarningsGuard {
 }
 
 func (this *AllowlistWarningsGuard) init_AllowlistWarningsGuard_0() {
-	this.init_AllowlistWarningsGuard_Set(tsetEmptyImm_(tc_string))
+	this.init_AllowlistWarningsGuard_Set(jtsetEmptyImm_(jtc_string))
 }
 
 func new_AllowlistWarningsGuard_0() *AllowlistWarningsGuard {
@@ -25,21 +25,21 @@ func new_AllowlistWarningsGuard_0() *AllowlistWarningsGuard {
 	return this
 }
 
-func (this *AllowlistWarningsGuard) init_AllowlistWarningsGuard_Set(allowlist *TSet[string]) {
+func (this *AllowlistWarningsGuard) init_AllowlistWarningsGuard_Set(allowlist *JTSet[string]) {
 	this.WarningsGuard.init_WarningsGuard()
 	Preconditions_checkNotNull(allowlist.asSet())
 	this.allowlist = AllowlistWarningsGuard_normalizeAllowlist(allowlist)
 }
 
-func new_AllowlistWarningsGuard_Set(allowlist *TSet[string]) *AllowlistWarningsGuard {
+func new_AllowlistWarningsGuard_Set(allowlist *JTSet[string]) *AllowlistWarningsGuard {
 	this := &AllowlistWarningsGuard{}
 	this.self_ = this
 	this.init_AllowlistWarningsGuard_Set(allowlist)
 	return this
 }
 
-func AllowlistWarningsGuard_normalizeAllowlist(allowlist *TSet[string]) *TSet[string] {
-	var result *TSet[string] = newTSet_(tc_string)
+func AllowlistWarningsGuard_normalizeAllowlist(allowlist *JTSet[string]) *JTSet[string] {
+	var result *JTSet[string] = jnewTSet_(jtc_string)
 	it_1 := allowlist.each()
 	for it_1.next() {
 		var line string = it_1.v
@@ -49,7 +49,7 @@ func AllowlistWarningsGuard_normalizeAllowlist(allowlist *TSet[string]) *TSet[st
 		}
 		result.add(AllowlistWarningsGuard_LINE_NUMBER.matcher_s(trimmed).replaceFirst(":"))
 	}
-	return immutableSetCopyOfT_(tc_string, result)
+	return immutableSetCopyOfT_(jtc_string, result)
 }
 
 func (this *AllowlistWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
@@ -74,7 +74,7 @@ func AllowlistWarningsGuard_fromFile(file string) *AllowlistWarningsGuard {
 	return new_AllowlistWarningsGuard_Set(AllowlistWarningsGuard_loadAllowlistedJsWarningsFile(file))
 }
 
-func AllowlistWarningsGuard_loadAllowlistedJsWarningsFile(file string) *TSet[string] {
+func AllowlistWarningsGuard_loadAllowlistedJsWarningsFile(file string) *JTSet[string] {
 	var text *Outcome_base[string] = TextFiles_read(file, Charsets_UTF_8)
 	if text.isErr() {
 		panic(new_RuntimeException_Throwable(text.error()).self())
@@ -82,8 +82,8 @@ func AllowlistWarningsGuard_loadAllowlistedJsWarningsFile(file string) *TSet[str
 	return AllowlistWarningsGuard_loadAllowlistedJsWarningsText(text.get())
 }
 
-func AllowlistWarningsGuard_loadAllowlistedJsWarningsText(text string) *TSet[string] {
-	var result *TSet[string] = newTSet_(tc_string)
+func AllowlistWarningsGuard_loadAllowlistedJsWarningsText(text string) *JTSet[string] {
+	var result *JTSet[string] = jnewTSet_(jtc_string)
 	result.asSet().addAll(Collection(TextFiles_splitLines(text).asList()))
 	return result
 }
@@ -98,7 +98,7 @@ func (this *AllowlistWarningsGuard) formatWarning_2(error_ *JSError, withMetaDat
 	if withMetaData {
 		sb.append_int(error_.getLineNumber())
 	}
-	var lines *TList[string] = splitToListT_(tc_string, AllowlistWarningsGuard_LINE_SPLITTER, strobj_(error_.description()))
+	var lines *JTList[string] = splitToListT_(jtc_string, AllowlistWarningsGuard_LINE_SPLITTER, strobj_(error_.description()))
 	sb.append("  ").append(lines.get(0))
 	if withMetaData {
 		for i := int32(1); i < lines.size(); i++ {
@@ -143,14 +143,14 @@ func AllowlistWarningsGuard_clinit() {
 
 type AllowlistWarningsGuard_AllowlistBuilder struct {
 	outer_          *AllowlistWarningsGuard
-	warnings_       *TSet[*JSError]
+	warnings_       *JTSet[*JSError]
 	productName     Optional[string]
 	generatorTarget Optional[string]
 	headerNote      Optional[string]
 }
 
 func (this *AllowlistWarningsGuard_AllowlistBuilder) finit_AllowlistWarningsGuard_AllowlistBuilder() {
-	this.warnings_ = newTSet_(tce_p_JSError)
+	this.warnings_ = jnewTSet_(tce_p_JSError)
 	this.productName = Optional_empty[string]()
 	this.generatorTarget = Optional_empty[string]()
 	this.headerNote = Optional_empty[string]()

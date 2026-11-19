@@ -4,7 +4,7 @@ package closure
 
 type UnionType struct {
 	JSType
-	alternates                    *TList[*JSType]
+	alternates                    *JTList[*JSType]
 	alternatesResolvedBeforeBuild bool
 	resolvedAlternatesAtLastBuild int32
 }
@@ -42,7 +42,7 @@ func UnionType_builder(registry *JSTypeRegistry) *UnionType_Builder {
 	return new_UnionType_Builder(nil, registry)
 }
 
-func (this *UnionType) getAlternates() *TList[*JSType] {
+func (this *UnionType) getAlternates() *JTList[*JSType] {
 	if !this.isResolved() && !this.alternatesResolvedBeforeBuild {
 		var resolvedAlternates int32 = this.countResolvedAlternates()
 		if resolvedAlternates != this.resolvedAlternatesAtLastBuild {
@@ -191,7 +191,7 @@ func UnionType_getGreatestSubtypeUnionType(union *UnionType, that *JSType) *JSTy
 		}
 	}
 	if that.isUnionType() {
-		var thoseAlternates *TList[*JSType] = that.toMaybeUnionType().getAlternates()
+		var thoseAlternates *JTList[*JSType] = that.toMaybeUnionType().getAlternates()
 		for i := int32(0); i < thoseAlternates.size(); i++ {
 			var otherAlternate *JSType = thoseAlternates.get(i)
 			if otherAlternate.isSubtypeOf(union.up_JSType()) {
@@ -279,7 +279,7 @@ func (this *UnionType) getRestrictedUnion(type_ *JSType) *JSType {
 
 func (this *UnionType) appendTo_impl(sb *TypeStringBuilder) {
 	sb.append("(")
-	var names *TList[string] = newTList_(tc_string)
+	var names *JTList[string] = jnewTList_(jtc_string)
 	it_1 := this.alternates.each()
 	for it_1.next() {
 		var alt *JSType = it_1.v
@@ -431,8 +431,8 @@ func UnionType_clinit() {
 type UnionType_Builder struct {
 	rebuildTarget                 *UnionType
 	registry                      *JSTypeRegistry
-	alternates                    *TList[*JSType]
-	finalAlternates               *TList[*JSType]
+	alternates                    *JTList[*JSType]
+	finalAlternates               *JTList[*JSType]
 	containsVoidType              bool
 	isAllType_                    bool
 	isNativeUnknownType           bool
@@ -442,7 +442,7 @@ type UnionType_Builder struct {
 }
 
 func (this *UnionType_Builder) finit_UnionType_Builder() {
-	this.alternates = newTList_(tc_p_JSType)
+	this.alternates = jnewTList_(jtc_p_JSType)
 	this.finalAlternates = nil
 	this.containsVoidType = false
 	this.isAllType_ = false
@@ -477,7 +477,7 @@ func (this *UnionType_Builder) addAlternatesCollection(c CollectionOf[*JSType]) 
 	return this
 }
 
-func (this *UnionType_Builder) addAlternates(list *TList[*JSType]) *UnionType_Builder {
+func (this *UnionType_Builder) addAlternates(list *JTList[*JSType]) *UnionType_Builder {
 	for i := int32(0); i < list.size(); i++ {
 		this.addAlternate(list.get(i))
 	}
@@ -552,7 +552,7 @@ func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builde
 						return this
 					} else if !templatizedCurrent.getReferencedType().isReadonlyArrayType() {
 						var rawType *ObjectType = templatizedCurrent.getReferencedObjTypeInternal()
-						alternate = this.registry.createTemplatizedTypeImmutableList(rawType, tlistEmptyImm_(tc_p_JSType)).up_JSType()
+						alternate = this.registry.createTemplatizedTypeImmutableList(rawType, jtlistEmptyImm_(jtc_p_JSType)).up_JSType()
 						removeCurrent = true
 					}
 				}
@@ -608,16 +608,16 @@ func (this *UnionType_Builder) buildInternal() *UnionType_Builder {
 	var wildcard *JSType = this.getNativeWildcardType()
 	if wildcard != nil {
 		if this.containsVoidType {
-			this.finalAlternates = immutableListOf_[*JSType](tc_p_JSType, wildcard, this.registry.getNativeType(JSTypeNative_VOID_TYPE))
+			this.finalAlternates = jimmutableListOf_[*JSType](jtc_p_JSType, wildcard, this.registry.getNativeType(JSTypeNative_VOID_TYPE))
 		} else {
-			this.finalAlternates = immutableListOf_[*JSType](tc_p_JSType, wildcard)
+			this.finalAlternates = jimmutableListOf_[*JSType](jtc_p_JSType, wildcard)
 		}
 	} else if this.alternates.isEmpty() {
-		this.finalAlternates = immutableListOf_[*JSType](tc_p_JSType, this.registry.getNativeType(JSTypeNative_NO_TYPE))
+		this.finalAlternates = jimmutableListOf_[*JSType](jtc_p_JSType, this.registry.getNativeType(JSTypeNative_NO_TYPE))
 	} else if this.alternates.size() > UnionType_MAX_UNION_SIZE {
-		this.finalAlternates = immutableListOf_[*JSType](tc_p_JSType, this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE))
+		this.finalAlternates = jimmutableListOf_[*JSType](jtc_p_JSType, this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE))
 	} else {
-		this.finalAlternates = immutableListCopyOfT_(tc_p_JSType, this.alternates)
+		this.finalAlternates = immutableListCopyOfT_(jtc_p_JSType, this.alternates)
 	}
 	Preconditions_checkNotNull(this.finalAlternates.asList())
 	return this

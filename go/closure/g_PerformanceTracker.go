@@ -34,9 +34,9 @@ type PerformanceTracker struct {
 	diff                           int32
 	gzDiff                         int32
 	currentPass                    *TDeque[*PerformanceTracker_Stats]
-	passSummary                    *TMap[string, *PerformanceTracker_Stats]
+	passSummary                    *JTMap[string, *PerformanceTracker_Stats]
 	astManifest                    *SimpleMultiset
-	log_                           *TList[*PerformanceTracker_Stats]
+	log_                           *JTList[*PerformanceTracker_Stats]
 	pruningAnalysisSummary         string
 	disambiguatePropertiesSummary  string
 	ambiguatePropertiesSummary     string
@@ -74,8 +74,8 @@ func (this *PerformanceTracker) finit_PerformanceTracker() {
 	this.astDiff = 0
 	this.diff = 0
 	this.gzDiff = 0
-	this.currentPass = newTDeque_(tc_p_PerformanceTracker_Stats)
-	this.log_ = newTList_(tc_p_PerformanceTracker_Stats)
+	this.currentPass = newTDeque_(jtc_p_PerformanceTracker_Stats)
+	this.log_ = jnewTList_(jtc_p_PerformanceTracker_Stats)
 	this.pruningAnalysisSummary = "not executed"
 	this.disambiguatePropertiesSummary = "not executed"
 	this.ambiguatePropertiesSummary = "not executed"
@@ -283,7 +283,7 @@ func (this *PerformanceTracker) getLoopRuns() int32 {
 	return this.loopRuns
 }
 
-func (this *PerformanceTracker) getStats() *TMap[string, *PerformanceTracker_Stats] {
+func (this *PerformanceTracker) getStats() *JTMap[string, *PerformanceTracker_Stats] {
 	this.calcTotalStats()
 	return this.passSummary
 }
@@ -315,7 +315,7 @@ func (this *PerformanceTracker) calcTotalStats() {
 }
 
 func (this *PerformanceTracker) populatePassSummary() {
-	var tmpPassSummary *TMap[string, *PerformanceTracker_Stats] = newTMap_(tc_string, tc_p_PerformanceTracker_Stats)
+	var tmpPassSummary *JTMap[string, *PerformanceTracker_Stats] = jnewTMap_(jtc_string, jtc_p_PerformanceTracker_Stats)
 	it_1 := this.log_.each()
 	for it_1.next() {
 		var logStat *PerformanceTracker_Stats = it_1.v
@@ -331,7 +331,7 @@ func (this *PerformanceTracker) populatePassSummary() {
 		entry.diff += logStat.diff
 		entry.gzDiff += logStat.gzDiff
 	}
-	this.passSummary = immutableMapCopyOfT_(tc_string, tc_p_PerformanceTracker_Stats, tmpPassSummary)
+	this.passSummary = immutableMapCopyOfT_(jtc_string, jtc_p_PerformanceTracker_Stats, tmpPassSummary)
 }
 
 func (this *PerformanceTracker) populateAstManifest() {
@@ -395,7 +395,7 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 		return this.transitiveSummarySources
 	}()))), ("Type summary sources (post-pruning):   " + istr_(int64(this.transitiveSummarySources))), "", ("Dependency pruning analysis: " + sstr_(this.pruningAnalysisSummary))}))
 	output.println(JSCompStrings_lines([]string{"", "Summary:", "pass,runtime,allocMem,runs,changingRuns,astReduction,reduction,gzReduction"}))
-	var sortedPassSummary *TList[Map_Entry] = tlistFrom_(tc_Map_Entry, Collection(this.passSummary.asImm().entrySet()))
+	var sortedPassSummary *JTList[Map_Entry] = jtlistFrom_(tc_Map_Entry, Collection(this.passSummary.asImm().entrySet()))
 	List_sort(sortedPassSummary.asList(), Comparator_comparingLong(&ToLongFunction_tfn_Map_Entry{func(e Map_Entry) int64 {
 		return cast_[*PerformanceTracker_Stats](e.getValue()).runtime_
 	}}))
@@ -414,7 +414,7 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 	}
 	if this.astManifest != nil {
 		output.println(JSCompStrings_lines([]string{"", "Input AST Manifest:", "token,count"}))
-		var manifestLines *TList[string] = newTList_(tc_string)
+		var manifestLines *JTList[string] = jnewTList_(jtc_string)
 		it_5 := foreach_(this.astManifest.entrySet())
 		for it_5.next() {
 			var e Map_Entry = icast_Map_Entry(it_5.v)

@@ -3,12 +3,12 @@
 package closure
 
 type XtbMessageBundle struct {
-	messages         *TMap[string, *JsMessage]
+	messages         *JTMap[string, *JsMessage]
 	idGeneratorField JsMessage_IdGenerator
 }
 
 func (this *XtbMessageBundle) init_XtbMessageBundle(xtb []int8, projectId Optional[string]) {
-	this.messages = newTMap_(tc_string, tc_p_JsMessage)
+	this.messages = jnewTMap_(jtc_string, jtc_p_JsMessage)
 	this.idGeneratorField = JsMessage_IdGenerator(new_GoogleJsMessageIdGenerator(projectId))
 	_ = func() (code_ int) {
 		defer func() {

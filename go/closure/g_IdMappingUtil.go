@@ -15,7 +15,7 @@ func new_IdMappingUtil() *IdMappingUtil {
 	return this
 }
 
-func IdMappingUtil_generateSerializedIdMappings(idGeneratorMaps *TMap[string, Map]) string {
+func IdMappingUtil_generateSerializedIdMappings(idGeneratorMaps *JTMap[string, Map]) string {
 	var sb *StringBuilder = new_StringBuilder()
 	it_1 := idGeneratorMaps.eachEntry()
 	for it_1.next() {
@@ -33,8 +33,8 @@ func IdMappingUtil_generateSerializedIdMappings(idGeneratorMaps *TMap[string, Ma
 	return tostrR_(sb)
 }
 
-func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) *TMap[string, string] {
-	var mapBuilder *TMapBuilder[string, string] = newTMapBuilder_(tc_string, tc_string)
+func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) *JTMap[string, string] {
+	var mapBuilder *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
 	var mr *IdMappingUtil_MappingReader = new_IdMappingUtil_MappingReader(Io_utf8String(idMappings))
 	var inSection bool = false
 	for mr.next() {
@@ -52,11 +52,11 @@ func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) 
 	return mapBuilder.buildKeepingLast()
 }
 
-func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) *TMap[string, *SimpleBiMap] {
-	var resultMap *TMap[string, *SimpleBiMap] = newTMap_(tc_string, tc_p_SimpleBiMap)
+func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) *JTMap[string, *SimpleBiMap] {
+	var resultMap *JTMap[string, *SimpleBiMap] = jnewTMap_(jtc_string, jtc_p_SimpleBiMap)
 	var mr *IdMappingUtil_MappingReader = new_IdMappingUtil_MappingReader(idMappings)
 	var currentSectionMap *SimpleBiMap = nil
-	var sectionNames *TSet[string] = newTSet_(tc_string)
+	var sectionNames *JTSet[string] = jnewTSet_(jtc_string)
 	for mr.next() {
 		if mr.isSection() {
 			var sectionName Optional[string] = mr.getSection()
@@ -75,9 +75,9 @@ func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) *TMap[string
 	return resultMap
 }
 
-func IdMappingUtil_parseSerializedIdMappings(idMappings string) *TMap[string, *SimpleBiMap] {
+func IdMappingUtil_parseSerializedIdMappings(idMappings string) *JTMap[string, *SimpleBiMap] {
 	if Strings_isNullOrEmpty(idMappings) {
-		return tmapEmptyImm_(tc_string, tc_p_SimpleBiMap)
+		return jtmapEmptyImm_(jtc_string, jtc_p_SimpleBiMap)
 	}
 	return IdMappingUtil_parseSerializedIdMappingsText(idMappings)
 }
@@ -85,7 +85,7 @@ func IdMappingUtil_parseSerializedIdMappings(idMappings string) *TMap[string, *S
 const IdMappingUtil_NEW_LINE uint16 = '\n'
 
 type IdMappingUtil_MappingReader struct {
-	lines          *TList[string]
+	lines          *JTList[string]
 	nextLine       int32
 	currentSection Optional[string]
 	currentKey     Optional[string]

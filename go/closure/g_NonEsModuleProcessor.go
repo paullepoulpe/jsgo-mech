@@ -51,7 +51,7 @@ func (this *NonEsModuleProcessor_NonEsModule) resolveExport_impl(moduleRequestRe
 	panic(new_UnsupportedOperationException_0().self())
 }
 
-func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier Optional[string], exportName Optional[string], resolveSet *TSet[*ExportTrace], exportStarSet *TSet[*UnresolvedModule]) *ResolveExportResult {
+func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier Optional[string], exportName Optional[string], resolveSet *JTSet[*ExportTrace], exportStarSet *JTSet[*UnresolvedModule]) *ResolveExportResult {
 	var namespace Optional[string] = Optional_empty[string]()
 	if moduleSpecifier.isPresent() && GoogEsImports_isGoogImportSpecifier(moduleSpecifier.get()) {
 		namespace = Optional_of[string](GoogEsImports_getClosureIdFromGoogImportSpecifier(moduleSpecifier.get()))
@@ -75,17 +75,17 @@ func (this *NonEsModuleProcessor_NonEsModule) resolve_2_impl(moduleRequestResolv
 	if moduleSpecifier.isPresent() && GoogEsImports_isGoogImportSpecifier(moduleSpecifier.get()) {
 		namespace = Optional_of[string](GoogEsImports_getClosureIdFromGoogImportSpecifier(moduleSpecifier.get()))
 	}
-	return Module_builder().path(this.path_).metadata(this.metadataField).namespace(tmapEmptyImm_(tc_string, tc_p_Binding)).boundNames(tmapEmptyImm_(tc_string, tc_p_Binding)).localNameToLocalExport(tmapEmptyImm_(tc_string, tc_p_Export)).closureNamespace(namespace).build()
+	return Module_builder().path(this.path_).metadata(this.metadataField).namespace(jtmapEmptyImm_(jtc_string, jtc_p_Binding)).boundNames(jtmapEmptyImm_(jtc_string, jtc_p_Binding)).localNameToLocalExport(jtmapEmptyImm_(jtc_string, jtc_p_Export)).closureNamespace(namespace).build()
 }
 
 func (this *NonEsModuleProcessor_NonEsModule) metadata_impl() *ModuleMetadataMap_ModuleMetadata {
 	return this.metadataField
 }
 
-func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_impl(moduleRequestResolver ModuleRequestResolver) *TSet[string] {
+func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_impl(moduleRequestResolver ModuleRequestResolver) *JTSet[string] {
 	panic(new_UnsupportedOperationException_0().self())
 }
 
-func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_2_impl(moduleRequestResolver ModuleRequestResolver, visited *TSet[*UnresolvedModule]) *TSet[string] {
+func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_2_impl(moduleRequestResolver ModuleRequestResolver, visited *JTSet[*UnresolvedModule]) *JTSet[string] {
 	panic(new_UnsupportedOperationException_0().self())
 }

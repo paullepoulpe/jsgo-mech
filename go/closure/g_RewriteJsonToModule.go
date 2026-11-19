@@ -4,7 +4,7 @@ package closure
 
 type RewriteJsonToModule struct {
 	NodeTraversal_AbstractPostOrderCallback
-	packageJsonMainEntries *TMap[string, string]
+	packageJsonMainEntries *JTMap[string, string]
 	compiler_              *AbstractCompiler
 }
 
@@ -18,7 +18,7 @@ func (this *RewriteJsonToModule) up_NodeTraversal_AbstractPostOrderCallback() *N
 func (this *RewriteJsonToModule) init_RewriteJsonToModule(compiler *AbstractCompiler) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.compiler_ = compiler
-	this.packageJsonMainEntries = newTMap_(tc_string, tc_string)
+	this.packageJsonMainEntries = jnewTMap_(jtc_string, jtc_string)
 }
 
 func new_RewriteJsonToModule(compiler *AbstractCompiler) *RewriteJsonToModule {
@@ -28,8 +28,8 @@ func new_RewriteJsonToModule(compiler *AbstractCompiler) *RewriteJsonToModule {
 	return this
 }
 
-func (this *RewriteJsonToModule) getPackageJsonMainEntries() *TMap[string, string] {
-	return immutableMapCopyOfT_(tc_string, tc_string, this.packageJsonMainEntries)
+func (this *RewriteJsonToModule) getPackageJsonMainEntries() *JTMap[string, string] {
+	return immutableMapCopyOfT_(jtc_string, jtc_string, this.packageJsonMainEntries)
 }
 
 func (this *RewriteJsonToModule) process_2(externs Node, root Node) {
@@ -80,7 +80,7 @@ func (this *RewriteJsonToModule) visitScript(t *NodeTraversal, n Node) {
 	n.addChildToFront(IR_exprResult(IR_call(IR_getprop_Node_String(IR_name("goog"), "provide"), []Node{IR_string(moduleName)})).srcrefTreeIfMissing(n))
 	var inputPath string = t.getInput().getSourceFile().getName()
 	if String_endsWith(inputPath, "/package.json") && jsonObject.isObjectLit() {
-		var possibleMainEntries *TList[string] = this.compiler_.getOptions().getPackageJsonEntryNames()
+		var possibleMainEntries *JTList[string] = this.compiler_.getOptions().getPackageJsonEntryNames()
 		it_1 := possibleMainEntries.each()
 		for it_1.next() {
 			var entryName string = it_1.v

@@ -61,9 +61,9 @@ func (this *Es6RewriteSpreadExpressions) visitArrayLitOrCallWithSpread(t *NodeTr
 	}
 }
 
-func (this *Es6RewriteSpreadExpressions) extractSpreadGroups(spreadParent Node) *TList[Node] {
+func (this *Es6RewriteSpreadExpressions) extractSpreadGroups(spreadParent Node) *JTList[Node] {
 	Preconditions_checkArgument(((spreadParent.isCall() || spreadParent.isArrayLit()) || spreadParent.isNew()))
-	var groups *TList[Node] = newTList_(tc_Node)
+	var groups *JTList[Node] = jnewTList_(jtc_Node)
 	var currGroup Node = 0
 	{
 		var currElement Node = spreadParent.removeFirstChild()
@@ -99,7 +99,7 @@ func (this *Es6RewriteSpreadExpressions) extractSpreadGroups(spreadParent Node) 
 
 func (this *Es6RewriteSpreadExpressions) visitArrayLitContainingSpread(spreadParent Node) {
 	Preconditions_checkArgument(spreadParent.isArrayLit())
-	var groups *TList[Node] = this.extractSpreadGroups(spreadParent)
+	var groups *JTList[Node] = this.extractSpreadGroups(spreadParent)
 	var baseArrayLit Node
 	if groups.get(0).isArrayLit() {
 		baseArrayLit = groups.removeAt(0)
@@ -131,7 +131,7 @@ func (this *Es6RewriteSpreadExpressions) visitCallContainingSpread(t *NodeTraver
 	if spreadParent.hasOneChild() && this.isSpreadOfArguments(spreadParent.getOnlyChild()) {
 		joinedGroups = spreadParent.removeFirstChild().removeFirstChild()
 	} else {
-		var groups *TList[Node] = this.extractSpreadGroups(spreadParent)
+		var groups *JTList[Node] = this.extractSpreadGroups(spreadParent)
 		Preconditions_checkState(!groups.isEmpty())
 		if groups.size() == 1 {
 			joinedGroups = groups.removeAt(0)
@@ -178,7 +178,7 @@ func (this *Es6RewriteSpreadExpressions) isSpreadOfArguments(n Node) bool {
 func (this *Es6RewriteSpreadExpressions) visitNewWithSpread(spreadParent Node) {
 	Preconditions_checkArgument(spreadParent.isNew())
 	var callee Node = spreadParent.removeFirstChild()
-	var groups *TList[Node] = this.extractSpreadGroups(spreadParent)
+	var groups *JTList[Node] = this.extractSpreadGroups(spreadParent)
 	var baseArrayLit Node
 	if groups.get(0).isArrayLit() {
 		baseArrayLit = groups.removeAt(0)

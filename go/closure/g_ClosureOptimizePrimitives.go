@@ -88,7 +88,7 @@ func (this *ClosureOptimizePrimitives) canOptimizeObjectCreateSet(firstParam Nod
 		return false
 	}
 	var curParam Node = firstParam
-	var keys *TSet[string] = newTSet_(tc_string)
+	var keys *JTSet[string] = jnewTSet_(jtc_string)
 	for curParam != 0 {
 		if !this.isOptimizableKey(curParam) {
 			return false

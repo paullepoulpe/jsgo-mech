@@ -232,12 +232,12 @@ func (this *InlineVariables_InlineVarAnalysis) getAliasedVar() *Var {
 
 type InlineVariables_InliningBehavior struct {
 	outer_                            *InlineVariables
-	currentScopeHandledVarAnalysesMap *TMap[*Var, *InlineVariables_InlineVarAnalysis]
+	currentScopeHandledVarAnalysesMap *JTMap[*Var, *InlineVariables_InlineVarAnalysis]
 	varToAliasRetryHandlersMap        *SimpleSetMultimap
 }
 
 func (this *InlineVariables_InliningBehavior) finit_InlineVariables_InliningBehavior() {
-	this.currentScopeHandledVarAnalysesMap = newTMap_(tce_p_Var, tc_p_InlineVariables_InlineVarAnalysis)
+	this.currentScopeHandledVarAnalysesMap = jnewTMap_(tce_p_Var, jtc_p_InlineVariables_InlineVarAnalysis)
 	this.varToAliasRetryHandlersMap = SimpleSetMultimap_createInsertionOrdered()
 }
 
@@ -383,7 +383,7 @@ func (this *InlineVariables_InliningBehavior) inline(decl *Reference, init_ *Ref
 	}
 }
 
-func (this *InlineVariables_InliningBehavior) inlineWellDefinedVariable(v *Var, value Node, refSet *TList[*Reference]) {
+func (this *InlineVariables_InliningBehavior) inlineWellDefinedVariable(v *Var, value Node, refSet *JTList[*Reference]) {
 	it_1 := refSet.each()
 	for it_1.next() {
 		var r *Reference = it_1.v
@@ -934,12 +934,12 @@ func is_InlineVariables_InitiallyUnknown(v any) bool {
 }
 
 func (this *InlineVariables_InitiallyUnknown[T]) zero_InlineVariables_InitiallyUnknown() {
-	this.value_ = null_[T]()
+	this.value_ = jnull_[T]()
 }
 
 func (this *InlineVariables_InitiallyUnknown[T]) finit_InlineVariables_InitiallyUnknown() {
 	this.isKnownField = false
-	this.value_ = null_[T]()
+	this.value_ = jnull_[T]()
 }
 
 func (this *InlineVariables_InitiallyUnknown[T]) init_InlineVariables_InitiallyUnknown() {
@@ -958,7 +958,7 @@ func (this *InlineVariables_InitiallyUnknown[T]) isKnown() bool {
 }
 
 func (this *InlineVariables_InitiallyUnknown[T]) isKnownNotNull() bool {
-	return this.isKnownNotToBe(null_[T]())
+	return this.isKnownNotToBe(jnull_[T]())
 }
 
 func (this *InlineVariables_InitiallyUnknown[T]) isKnownToBe(other T) bool {

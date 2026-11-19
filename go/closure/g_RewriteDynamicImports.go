@@ -263,7 +263,7 @@ func (this *RewriteDynamicImports_AliasInjectingTraversal) shouldTraverse_impl(t
 	var registry *JSTypeRegistry = this.outer_.compiler_.getTypeRegistry()
 	var unknownType *JSType = registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 	var promiseType *JSType = registry.getNativeType(JSTypeNative_PROMISE_TYPE)
-	var promiseTemplatizedType *TemplatizedType = registry.createTemplatizedTypeImmutableList(promiseType.toObjectType(), immutableListOf_[*JSType](tc_p_JSType, unknownType))
+	var promiseTemplatizedType *TemplatizedType = registry.createTemplatizedTypeImmutableList(promiseType.toObjectType(), jimmutableListOf_[*JSType](jtc_p_JSType, unknownType))
 	var stringType *JSType = registry.getNativeType(JSTypeNative_STRING_TYPE)
 	var externsRoot Node = this.outer_.compiler_.getSynthesizedExternsInput().getAstRoot(this.outer_.compiler_)
 	if (this.outer_.alias_.get() == "import") || NodeUtil_isValidSimpleName(this.outer_.alias_.get()) {

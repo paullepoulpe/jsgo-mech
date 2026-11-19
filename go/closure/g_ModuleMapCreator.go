@@ -7,8 +7,8 @@ type ModuleMapCreator struct {
 	esModuleProcessor                   *EsModuleProcessor
 	closureModuleProcessor              *ClosureModuleProcessor
 	nonEsModuleProcessor                *NonEsModuleProcessor
-	unresolvedModules                   *TMap[string, *UnresolvedModule]
-	unresolvedModulesByClosureNamespace *TMap[string, *UnresolvedModule]
+	unresolvedModules                   *JTMap[string, *UnresolvedModule]
+	unresolvedModulesByClosureNamespace *JTMap[string, *UnresolvedModule]
 	moduleMetadataMap                   *ModuleMetadataMap
 }
 
@@ -18,8 +18,8 @@ func (this *ModuleMapCreator) init_ModuleMapCreator(compiler *AbstractCompiler, 
 	this.esModuleProcessor = new_EsModuleProcessor(compiler)
 	this.closureModuleProcessor = new_ClosureModuleProcessor(compiler)
 	this.nonEsModuleProcessor = new_NonEsModuleProcessor()
-	this.unresolvedModules = newTMap_(tc_string, tc_p_UnresolvedModule)
-	this.unresolvedModulesByClosureNamespace = newTMap_(tc_string, tc_p_UnresolvedModule)
+	this.unresolvedModules = jnewTMap_(jtc_string, jtc_p_UnresolvedModule)
+	this.unresolvedModulesByClosureNamespace = jnewTMap_(jtc_string, jtc_p_UnresolvedModule)
 }
 
 func new_ModuleMapCreator(compiler *AbstractCompiler, moduleMetadataMap *ModuleMetadataMap) *ModuleMapCreator {
@@ -41,10 +41,10 @@ func (this *ModuleMapCreator) create() *ModuleMap {
 
 func (this *ModuleMapCreator) resolve() *ModuleMap {
 	var requestResolver ModuleRequestResolver = ModuleRequestResolver(new_ModuleMapCreator_ModuleRequestResolverImpl(this))
-	var resolvedModules *TMap[string, *Module] = newTMap_(tc_string, tc_p_Module)
-	var resolvedClosureModules *TMap[string, *Module] = newTMap_(tc_string, tc_p_Module)
+	var resolvedModules *JTMap[string, *Module] = jnewTMap_(jtc_string, jtc_p_Module)
+	var resolvedClosureModules *JTMap[string, *Module] = jnewTMap_(jtc_string, jtc_p_Module)
 	for do_2 := true; do_2; do_2 = !resolvedModules.asMap().keySet().containsAll(Collection(this.unresolvedModules.asMap().keySet())) {
-		var toResolve *TSet[string] = tsetImm_(tc_string, Sets_difference(this.unresolvedModules.asMap().keySet(), resolvedModules.asMap().keySet()).immutableCopy())
+		var toResolve *JTSet[string] = tsetImm_(jtc_string, Sets_difference(this.unresolvedModules.asMap().keySet(), resolvedModules.asMap().keySet()).immutableCopy())
 		it_3 := toResolve.each()
 		for it_3.next() {
 			var key string = it_3.v
@@ -58,7 +58,7 @@ func (this *ModuleMapCreator) resolve() *ModuleMap {
 		}
 	}
 	for do_8 := true; do_8; do_8 = !resolvedClosureModules.asMap().keySet().containsAll(Collection(this.unresolvedModulesByClosureNamespace.asMap().keySet())) {
-		var toResolve *TSet[string] = tsetImm_(tc_string, Sets_difference(this.unresolvedModulesByClosureNamespace.asMap().keySet(), resolvedClosureModules.asMap().keySet()).immutableCopy())
+		var toResolve *JTSet[string] = tsetImm_(jtc_string, Sets_difference(this.unresolvedModulesByClosureNamespace.asMap().keySet(), resolvedClosureModules.asMap().keySet()).immutableCopy())
 		it_9 := toResolve.each()
 		for it_9.next() {
 			var namespace string = it_9.v
@@ -67,7 +67,7 @@ func (this *ModuleMapCreator) resolve() *ModuleMap {
 	}
 	this.unresolvedModules.clear()
 	this.unresolvedModulesByClosureNamespace.clear()
-	return new_ModuleMap(immutableMapCopyOfT_(tc_string, tc_p_Module, resolvedModules), immutableMapCopyOfT_(tc_string, tc_p_Module, resolvedClosureModules))
+	return new_ModuleMap(immutableMapCopyOfT_(jtc_string, jtc_p_Module, resolvedModules), immutableMapCopyOfT_(jtc_string, jtc_p_Module, resolvedClosureModules))
 }
 
 func (this *ModuleMapCreator) process(moduleMetadata *ModuleMetadataMap_ModuleMetadata) {
@@ -217,21 +217,21 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) reset_impl() {
 }
 
 func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolve_2_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier Optional[string]) *Module {
-	return Module_builder().boundNames(tmapEmptyImm_(tc_string, tc_p_Binding)).namespace(tmapEmptyImm_(tc_string, tc_p_Binding)).localNameToLocalExport(tmapEmptyImm_(tc_string, tc_p_Export)).path(this.cap_path).metadata(this.cap_metadata).build()
+	return Module_builder().boundNames(jtmapEmptyImm_(jtc_string, jtc_p_Binding)).namespace(jtmapEmptyImm_(jtc_string, jtc_p_Binding)).localNameToLocalExport(jtmapEmptyImm_(jtc_string, jtc_p_Export)).path(this.cap_path).metadata(this.cap_metadata).build()
 }
 
 func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) metadata_impl() *ModuleMetadataMap_ModuleMetadata {
 	return this.cap_metadata
 }
 
-func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames_impl(moduleRequestResolver ModuleRequestResolver) *TSet[string] {
-	return tsetEmptyImm_(tc_string)
+func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames_impl(moduleRequestResolver ModuleRequestResolver) *JTSet[string] {
+	return jtsetEmptyImm_(jtc_string)
 }
 
-func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames_2_impl(moduleRequestResolver ModuleRequestResolver, visited *TSet[*UnresolvedModule]) *TSet[string] {
-	return tsetEmptyImm_(tc_string)
+func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames_2_impl(moduleRequestResolver ModuleRequestResolver, visited *JTSet[*UnresolvedModule]) *JTSet[string] {
+	return jtsetEmptyImm_(jtc_string)
 }
 
-func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier Optional[string], exportName Optional[string], resolveSet *TSet[*ExportTrace], exportStarSet *TSet[*UnresolvedModule]) *ResolveExportResult {
+func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier Optional[string], exportName Optional[string], resolveSet *JTSet[*ExportTrace], exportStarSet *JTSet[*UnresolvedModule]) *ResolveExportResult {
 	return ResolveExportResult_of(Binding_from_Export_Node(Export_builder().localName(exportName).moduleMetadata(this.cap_metadata).modulePath(this.cap_path).closureNamespace(Optional_empty[string]()).build(), 0))
 }

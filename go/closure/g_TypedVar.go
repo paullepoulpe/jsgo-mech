@@ -196,7 +196,7 @@ func (this *TypedVar) getSymbol_rStaticTypedSlot() StaticTypedSlot {
 	return icast_StaticTypedSlot(obj_(this.getSymbol_rAbstractVar_rTypedVar()))
 }
 
-var TypedVar_NAME_NODE_TYPES *TSet[*Token_rhino]
+var TypedVar_NAME_NODE_TYPES *JTSet[*Token_rhino]
 
 var TypedVar_clinit_done bool
 

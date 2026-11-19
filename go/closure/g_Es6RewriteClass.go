@@ -412,7 +412,7 @@ func (this *Es6RewriteClass_ClassProperty) hashCode() int32 {
 }
 
 func (this *Es6RewriteClass_ClassProperty) toString() string {
-	return "ClassProperty[" + "propertyKey=" + sstr_(this.propertyKey_) + ", kind=" + tostr_(this.kind_) + ", jsDocInfo=" + tostr_(this.jsDocInfo_) + ", propertyType=" + tostr_(this.propertyType_) + "]"
+	return "ClassProperty[" + "propertyKey=" + sstr_(this.propertyKey_) + ", kind=" + jtostr_(this.kind_) + ", jsDocInfo=" + jtostr_(this.jsDocInfo_) + ", propertyType=" + jtostr_(this.propertyType_) + "]"
 }
 
 type Es6RewriteClass_ClassProperty_PropertyKind struct {
@@ -529,7 +529,7 @@ func (this *Es6RewriteClass_ClassProperty_Builder) build() *Es6RewriteClass_Clas
 		if this.jsDocInfoField == nil {
 			missing.append(" jsDocInfo")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + tostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
 	}
 	return new_Es6RewriteClass_ClassProperty(this.propertyKeyField.get(), this.kindField, this.jsDocInfoField, this.propertyTypeField)
 }
@@ -546,7 +546,7 @@ type Es6RewriteClass_ClassDeclarationMetadata struct {
 	superClassNameNodeField              Node
 }
 
-func (this *Es6RewriteClass_ClassDeclarationMetadata) init_Es6RewriteClass_ClassDeclarationMetadata(insertionPoint *Es6RewriteClass_InsertionPoint, definePropertiesObjForPrototype Node, definePropertiesObjForClass Node, classMembersToDeclare *TMap[string, *Es6RewriteClass_ClassProperty], fullClassNameNode Node, classPrototypeNode Node, anonymous bool, classNameNode Node, superClassNameNode Node) {
+func (this *Es6RewriteClass_ClassDeclarationMetadata) init_Es6RewriteClass_ClassDeclarationMetadata(insertionPoint *Es6RewriteClass_InsertionPoint, definePropertiesObjForPrototype Node, definePropertiesObjForClass Node, classMembersToDeclare *JTMap[string, *Es6RewriteClass_ClassProperty], fullClassNameNode Node, classPrototypeNode Node, anonymous bool, classNameNode Node, superClassNameNode Node) {
 	this.insertionPointField = Objects_requireNonNull_T(insertionPoint, "insertionPoint")
 	this.definePropertiesObjForPrototypeField = Objects_requireNonNull_T(definePropertiesObjForPrototype, "definePropertiesObjForPrototype")
 	this.definePropertiesObjForClassField = Objects_requireNonNull_T(definePropertiesObjForClass, "definePropertiesObjForClass")
@@ -558,7 +558,7 @@ func (this *Es6RewriteClass_ClassDeclarationMetadata) init_Es6RewriteClass_Class
 	this.anonymousField = anonymous
 }
 
-func new_Es6RewriteClass_ClassDeclarationMetadata(insertionPoint *Es6RewriteClass_InsertionPoint, definePropertiesObjForPrototype Node, definePropertiesObjForClass Node, classMembersToDeclare *TMap[string, *Es6RewriteClass_ClassProperty], fullClassNameNode Node, classPrototypeNode Node, anonymous bool, classNameNode Node, superClassNameNode Node) *Es6RewriteClass_ClassDeclarationMetadata {
+func new_Es6RewriteClass_ClassDeclarationMetadata(insertionPoint *Es6RewriteClass_InsertionPoint, definePropertiesObjForPrototype Node, definePropertiesObjForClass Node, classMembersToDeclare *JTMap[string, *Es6RewriteClass_ClassProperty], fullClassNameNode Node, classPrototypeNode Node, anonymous bool, classNameNode Node, superClassNameNode Node) *Es6RewriteClass_ClassDeclarationMetadata {
 	this := &Es6RewriteClass_ClassDeclarationMetadata{}
 	this.init_Es6RewriteClass_ClassDeclarationMetadata(insertionPoint, definePropertiesObjForPrototype, definePropertiesObjForClass, classMembersToDeclare, fullClassNameNode, classPrototypeNode, anonymous, classNameNode, superClassNameNode)
 	return this
@@ -609,7 +609,7 @@ func (this *Es6RewriteClass_ClassDeclarationMetadata) superClassNameNode() Node 
 }
 
 func Es6RewriteClass_ClassDeclarationMetadata_builder() *Es6RewriteClass_ClassDeclarationMetadata_Builder {
-	return new_Es6RewriteClass_ClassDeclarationMetadata_Builder().setClassMembersToDeclare(newTMap_(tc_string, tc_p_Es6RewriteClass_ClassProperty))
+	return new_Es6RewriteClass_ClassDeclarationMetadata_Builder().setClassMembersToDeclare(jnewTMap_(jtc_string, jtc_p_Es6RewriteClass_ClassProperty))
 }
 
 func Es6RewriteClass_ClassDeclarationMetadata_create(classNode Node, parent Node, astFactory *AstFactory) *Es6RewriteClass_ClassDeclarationMetadata {
@@ -650,7 +650,7 @@ type Es6RewriteClass_ClassDeclarationMetadata_Builder struct {
 	insertionPoint_                  *Es6RewriteClass_InsertionPoint
 	definePropertiesObjForPrototype_ Node
 	definePropertiesObjForClass_     Node
-	classMembersToDeclare_           *TMap[string, *Es6RewriteClass_ClassProperty]
+	classMembersToDeclare_           *JTMap[string, *Es6RewriteClass_ClassProperty]
 	fullClassNameNodeField           Node
 	classPrototypeNode_              Node
 	anonymous_                       bool
@@ -692,7 +692,7 @@ func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) fullClassNameNode(
 	return this.fullClassNameNodeField
 }
 
-func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) setClassMembersToDeclare(classMembersToDeclare *TMap[string, *Es6RewriteClass_ClassProperty]) *Es6RewriteClass_ClassDeclarationMetadata_Builder {
+func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) setClassMembersToDeclare(classMembersToDeclare *JTMap[string, *Es6RewriteClass_ClassProperty]) *Es6RewriteClass_ClassDeclarationMetadata_Builder {
 	if classMembersToDeclare == nil {
 		panic(new_NullPointerException_String("Null classMembersToDeclare").self())
 	}
@@ -776,7 +776,7 @@ func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) build() *Es6Rewrit
 		if this.superClassNameNode_ == 0 {
 			missing.append(" superClassNameNode")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + tostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
 	}
 	return new_Es6RewriteClass_ClassDeclarationMetadata(this.insertionPoint_, this.definePropertiesObjForPrototype_, this.definePropertiesObjForClass_, this.classMembersToDeclare_, this.fullClassNameNodeField, this.classPrototypeNode_, this.anonymous_, this.classNameNode_, this.superClassNameNode_)
 }

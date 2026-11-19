@@ -3,11 +3,11 @@
 package closure
 
 type ReplacedStringsDecoder struct {
-	originalToNewNameMap *TMap[string, string]
+	originalToNewNameMap *JTMap[string, string]
 }
 
 func (this *ReplacedStringsDecoder) init_ReplacedStringsDecoder(variableMap *VariableMap) {
-	this.originalToNewNameMap = tmapImm_(tc_string, tc_string, variableMap.getOriginalNameToNewNameMap())
+	this.originalToNewNameMap = tmapImm_(jtc_string, jtc_string, variableMap.getOriginalNameToNewNameMap())
 }
 
 func new_ReplacedStringsDecoder(variableMap *VariableMap) *ReplacedStringsDecoder {
@@ -54,6 +54,6 @@ func ReplacedStringsDecoder_clinit() {
 	}
 	ReplacedStringsDecoder_clinit_done = true
 	ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER_PATTERN = Pattern_compile(ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER)
-	ReplacedStringsDecoder_NULL_DECODER = new_ReplacedStringsDecoder(VariableMap_fromMap(tmapEmptyImm_(tc_string, tc_string)))
+	ReplacedStringsDecoder_NULL_DECODER = new_ReplacedStringsDecoder(VariableMap_fromMap(jtmapEmptyImm_(jtc_string, jtc_string)))
 
 }

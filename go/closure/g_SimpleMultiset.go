@@ -139,7 +139,7 @@ func (this *SimpleMultiset) isEmpty() bool {
 	return (this.totalCount == 0)
 }
 
-func (this *SimpleMultiset) asList() *TList[any] {
+func (this *SimpleMultiset) asList() *JTList[any] {
 	var list *TListBuilder[any] = newTListBuilder_(tc_Object)
 	it_1 := foreach_(this.counts.entrySet())
 	for it_1.next() {
@@ -173,7 +173,7 @@ func (this *SimpleMultiset) hashCode() int32 {
 }
 
 func (this *SimpleMultiset) toString() string {
-	var parts *TList[string] = newTList_(tc_string)
+	var parts *JTList[string] = jnewTList_(jtc_string)
 	it_1 := foreach_(this.counts.entrySet())
 	for it_1.next() {
 		var e Map_Entry = icast_Map_Entry(it_1.v)

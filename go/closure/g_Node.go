@@ -815,7 +815,7 @@ func (this Node) setNodePropertySideEffectFlags(propSet int64, sideEffectFlags i
 
 func (this Node) getPropListDebugString() string {
 	var propListItem *Node_PropListItem = this.propListHead_get_()
-	var propListStrRepr *TList[string] = newTList_(tc_string)
+	var propListStrRepr *JTList[string] = jnewTList_(jtc_string)
 	for propListItem != nil {
 		propListStrRepr.add(Node_Prop_values()[propListItem.propType].name())
 		propListItem = propListItem.next_
@@ -854,7 +854,7 @@ func (this Node) deserializeProperties(propSet int64, isInClosureUnawareSubtree 
 		default:
 			var prop *Node_Prop = PropTranslator_deserialize(nodeProperty)
 			if prop == nil {
-				panic(new_IllegalStateException_String(("Can not translate " + tostr_(nodeProperty) + " to AST Prop")).self())
+				panic(new_IllegalStateException_String(("Can not translate " + jtostr_(nodeProperty) + " to AST Prop")).self())
 			}
 			this.propListHead_set_(new_Node_IntPropListItem(int8(prop.ordinal()), 1, this.propListHead_get_()).up_Node_PropListItem())
 		}
@@ -1082,7 +1082,7 @@ func (this Node) getCookedString() Optional[string] {
 }
 
 func (this Node) payloadKindMismatch(wanted string) *ClassCastException {
-	return new_ClassCastException_String((tostr_(Token_rhino_byOrd1_[this.ns_().token]) + " node is not a " + sstr_(wanted) + " node"))
+	return new_ClassCastException_String((jtostr_(Token_rhino_byOrd1_[this.ns_().token]) + " node is not a " + sstr_(wanted) + " node"))
 }
 
 func (this Node) toString() string {
@@ -1136,7 +1136,7 @@ func (this Node) toString_4(sb *StringBuilder, printSource bool, printAnnotation
 			}
 			var x *Node_PropListItem = this.lookupProperty(type_)
 			sb.append(" [")
-			sb.append(Ascii_toLowerCase(tostr_(type_)))
+			sb.append(Ascii_toLowerCase(jtostr_(type_)))
 			sb.append(": ")
 			sb.append_Object(x.self())
 			sb.append_char(']')
@@ -1202,7 +1202,7 @@ func (this Node) toJson(sb Appendable) {
 		for i := int32(0); i < int32(len(keys)); i++ {
 			var type_ *Node_Prop = Node_propValues[keys[i]]
 			var x *Node_PropListItem = this.lookupProperty(type_)
-			Appendable_append_s(sb, Node_createJsonPair(Ascii_toLowerCase(tostr_(type_)), String_replace_s(String_replace_s(Object_toString(x.self()), "\n", "\\n"), "\"", "\\\"")))
+			Appendable_append_s(sb, Node_createJsonPair(Ascii_toLowerCase(jtostr_(type_)), JString_replace_s(JString_replace_s(Object_toString(x.self()), "\n", "\\n"), "\"", "\\\"")))
 			if (i + 1) < int32(len(keys)) {
 				sb.append_char(',')
 			}
@@ -1211,7 +1211,7 @@ func (this Node) toJson(sb Appendable) {
 	}
 	if this.cs_().jstypeOrColor != 0 {
 		sb.append_char(',')
-		Appendable_append_s(sb, Node_createJsonPair("typeString", String_replace_s(Object_toString(this.jstypeOrColor_get_()), "\"", "\\\"")))
+		Appendable_append_s(sb, Node_createJsonPair("typeString", JString_replace_s(Object_toString(this.jstypeOrColor_get_()), "\"", "\\\"")))
 	}
 	if this.ns_().first != 0 {
 		sb.append_char(',')

@@ -3,7 +3,7 @@ package closure
 import "unsafe"
 
 // Typed lists (j2go rule "typed collections"): an ArrayList<T> that the translator finds typable
-// is a *TList[T], a slice of T. Its elements are Java's values of type T themselves (a string, a
+// is a *JTList[T], a slice of T. Its elements are Java's values of type T themselves (a string, a
 // class pointer, a handle), not boxes.
 //
 // Code that sees the list at an erased type (Object, Collection<?>, a List parameter of a
@@ -11,10 +11,10 @@ import "unsafe"
 // out and unboxes on the way in. A list has one view, so the Java object keeps its identity
 // across the boundary. Behaviour mirrors ArrayList in rt_coll.go, exception messages included.
 
-// tconv_ converts the elements of one element type to and from their boxed form, as the erased
+// jtconv_ converts the elements of one element type to and from their boxed form, as the erased
 // code boxes and casts a value of that Java type (the translator generates one per element
-// type: tc_string, tc_p_JSType...).
-type tconv_[T any] struct {
+// type: jtc_string, jtc_p_JSType...).
+type jtconv_[T any] struct {
 	box   func(T) any
 	unbox func(any) T
 	null  T // Java's null as a T (the null string for a String, else the zero value)
@@ -26,10 +26,10 @@ type tconv_[T any] struct {
 	emptyL, emptyS, emptyM any
 }
 
-type TList[T any] struct {
+type JTList[T any] struct {
 	items []T
-	c     *tconv_[T]
-	view  tlistView_[T] // the list as erased code sees it (asList): part of the list, so one object
+	c     *jtconv_[T]
+	view  jtlistView_[T] // the list as erased code sees it (asList): part of the list, so one object
 	// twin: nil for a list that can change (an ArrayList). An immutable list (Guava's
 	// ImmutableList, rt_timm.go) has here the ImmutableList that erased code sees it as, or
 	// immPending_ until erased code first needs it; every change of such a list throws
@@ -38,49 +38,49 @@ type TList[T any] struct {
 	twin *ImmutableCollection
 }
 
-func newTList_[T any](c *tconv_[T]) *TList[T] {
-	l := &TList[T]{c: c}
+func jnewTList_[T any](c *jtconv_[T]) *JTList[T] {
+	l := &JTList[T]{c: c}
 	l.view.l = l
 	return l
 }
 
-// newTListN_ is new ArrayList<>(n).
-func newTListN_[T any](c *tconv_[T], n int32) *TList[T] {
-	l := &TList[T]{c: c, items: make([]T, 0, n)}
+// jnewTListN_ is new ArrayList<>(n).
+func jnewTListN_[T any](c *jtconv_[T], n int32) *JTList[T] {
+	l := &JTList[T]{c: c, items: make([]T, 0, n)}
 	l.view.l = l
 	return l
 }
 
-// tlistFrom_ is new ArrayList<>(from).
-func tlistFrom_[T any](c *tconv_[T], from Collection) *TList[T] {
+// jtlistFrom_ is new ArrayList<>(from).
+func jtlistFrom_[T any](c *jtconv_[T], from Collection) *JTList[T] {
 	src := toSlice_(from)
 	items := make([]T, len(src))
 	for i, x := range src {
 		items[i] = c.unbox(x)
 	}
-	l := &TList[T]{c: c, items: items}
+	l := &JTList[T]{c: c, items: items}
 	l.view.l = l
 	return l
 }
 
 // tlistCopy_ is new ArrayList<>(from) of another typed list of the same element type.
-func tlistCopy_[T any](c *tconv_[T], from *TList[T]) *TList[T] {
-	l := &TList[T]{c: c, items: append([]T(nil), from.items...)}
+func tlistCopy_[T any](c *jtconv_[T], from *JTList[T]) *JTList[T] {
+	l := &JTList[T]{c: c, items: append([]T(nil), from.items...)}
 	l.view.l = l
 	return l
 }
 
-func (l *TList[T]) size() int32   { return int32(len(l.items)) }
-func (l *TList[T]) isEmpty() bool { return len(l.items) == 0 }
+func (l *JTList[T]) size() int32   { return int32(len(l.items)) }
+func (l *JTList[T]) isEmpty() bool { return len(l.items) == 0 }
 
-func (l *TList[T]) get(i int32) T {
+func (l *JTList[T]) get(i int32) T {
 	if i < 0 || int(i) >= len(l.items) {
 		panic(new_IndexOutOfBoundsException_String("Index " + istr_(int64(i)) + " out of bounds for length " + istr_(int64(len(l.items)))).self())
 	}
 	return l.items[i]
 }
 
-func (l *TList[T]) set(i int32, v T) T {
+func (l *JTList[T]) set(i int32, v T) T {
 	if l.twin != nil {
 		panic(frozen_{})
 	}
@@ -89,7 +89,7 @@ func (l *TList[T]) set(i int32, v T) T {
 	return old
 }
 
-func (l *TList[T]) add(v T) bool {
+func (l *JTList[T]) add(v T) bool {
 	if l.twin != nil {
 		panic(frozen_{})
 	}
@@ -98,7 +98,7 @@ func (l *TList[T]) add(v T) bool {
 }
 
 // insert is add(int, T).
-func (l *TList[T]) insert(i int32, v T) {
+func (l *JTList[T]) insert(i int32, v T) {
 	if l.twin != nil {
 		panic(frozen_{})
 	}
@@ -111,7 +111,7 @@ func (l *TList[T]) insert(i int32, v T) {
 	l.items[i] = v
 }
 
-func (l *TList[T]) clear() {
+func (l *JTList[T]) clear() {
 	if l.twin != nil {
 		panic(frozen_{})
 	}
@@ -119,7 +119,7 @@ func (l *TList[T]) clear() {
 }
 
 // removeAt is remove(int).
-func (l *TList[T]) removeAt(i int32) T {
+func (l *JTList[T]) removeAt(i int32) T {
 	if l.twin != nil {
 		panic(frozen_{})
 	}
@@ -138,7 +138,7 @@ func (l *TList[T]) removeAt(i int32) T {
 }
 
 // addAllT is addAll of another typed list of the same element type.
-func (l *TList[T]) addAllT(o *TList[T]) bool {
+func (l *JTList[T]) addAllT(o *JTList[T]) bool {
 	if l.twin != nil {
 		panic(frozen_{})
 	}
@@ -146,15 +146,15 @@ func (l *TList[T]) addAllT(o *TList[T]) bool {
 	return len(o.items) > 0
 }
 
-// sliceEach_ is the cursor of a for-each loop over a typed list. As each_ over an ArrayList, it
+// jsliceEach_ is the cursor of a for-each loop over a typed list. As each_ over an ArrayList, it
 // reads the slice anew at every step, so elements appended during the loop are visited.
-type sliceEach_[T any] struct {
+type jsliceEach_[T any] struct {
 	src *[]T
 	i   int
 	v   T
 }
 
-func (e *sliceEach_[T]) next() bool {
+func (e *jsliceEach_[T]) next() bool {
 	if e.i < len(*e.src) {
 		e.v = (*e.src)[e.i]
 		e.i++
@@ -165,20 +165,20 @@ func (e *sliceEach_[T]) next() bool {
 
 // each is the cursor of a for-each loop over the list; a null list throws NullPointerException
 // here, where the loop asked for its iterator.
-func (l *TList[T]) each() sliceEach_[T] { return sliceEach_[T]{src: &l.items} }
+func (l *JTList[T]) each() jsliceEach_[T] { return jsliceEach_[T]{src: &l.items} }
 
 // iterator is the list's Iterator (of boxed elements, with remove), as its view's.
-func (l *TList[T]) iterator() Iterator {
+func (l *JTList[T]) iterator() Iterator {
 	if l == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	return &tlistIter_[T]{l: l}
+	return &jtlistIter_[T]{l: l}
 }
 
 // asList is the list as an erased List (nil for null): the list's one view, its identity for
 // erased code. The view is a field of the list (set when the list is made), so that a list
 // which erased code sees is still one object. An immutable list is seen as its ImmutableList.
-func (l *TList[T]) asList() List {
+func (l *JTList[T]) asList() List {
 	if l == nil || l.twin != nil {
 		return l.asOtherList()
 	}
@@ -197,12 +197,12 @@ func asList_(l any) List {
 	return nil
 }
 
-// tlistView_ is a TList seen as an erased List.
-type tlistView_[T any] struct {
-	l *TList[T]
+// jtlistView_ is a JTList seen as an erased List.
+type jtlistView_[T any] struct {
+	l *JTList[T]
 }
 
-func (v *tlistView_[T]) boxed() []any {
+func (v *jtlistView_[T]) boxed() []any {
 	out := make([]any, len(v.l.items))
 	for i, x := range v.l.items {
 		out[i] = v.l.c.box(x)
@@ -211,7 +211,7 @@ func (v *tlistView_[T]) boxed() []any {
 }
 
 // step_ is for the cursor of a for-each loop in erased code (foreach_).
-func (v *tlistView_[T]) step_(i int) (any, int) {
+func (v *jtlistView_[T]) step_(i int) (any, int) {
 	if i < len(v.l.items) {
 		return v.l.c.box(v.l.items[i]), i + 1
 	}
@@ -219,23 +219,23 @@ func (v *tlistView_[T]) step_(i int) (any, int) {
 }
 
 // goName_ makes getClass() of the view java.util.ArrayList, the class of the Java object.
-func (v *tlistView_[T]) goName_() string { return "ArrayList" }
+func (v *jtlistView_[T]) goName_() string { return "ArrayList" }
 
-func (v *tlistView_[T]) self() any                     { return v }
-func (v *tlistView_[T]) size() int32                   { return v.l.size() }
-func (v *tlistView_[T]) isEmpty() bool                 { return v.l.isEmpty() }
-func (v *tlistView_[T]) get(i int32) any               { return v.l.c.box(v.l.get(i)) }
-func (v *tlistView_[T]) set(i int32, x any) any        { return v.l.c.box(v.l.set(i, v.l.c.unbox(x))) }
-func (v *tlistView_[T]) add(x any) bool                { return v.l.add(v.l.c.unbox(x)) }
-func (v *tlistView_[T]) add_int_Object(i int32, x any) { v.l.insert(i, v.l.c.unbox(x)) }
-func (v *tlistView_[T]) remove(i int32) any            { return v.l.c.box(v.l.removeAt(i)) }
-func (v *tlistView_[T]) clear()                        { v.l.clear() }
+func (v *jtlistView_[T]) self() any                     { return v }
+func (v *jtlistView_[T]) size() int32                   { return v.l.size() }
+func (v *jtlistView_[T]) isEmpty() bool                 { return v.l.isEmpty() }
+func (v *jtlistView_[T]) get(i int32) any               { return v.l.c.box(v.l.get(i)) }
+func (v *jtlistView_[T]) set(i int32, x any) any        { return v.l.c.box(v.l.set(i, v.l.c.unbox(x))) }
+func (v *jtlistView_[T]) add(x any) bool                { return v.l.add(v.l.c.unbox(x)) }
+func (v *jtlistView_[T]) add_int_Object(i int32, x any) { v.l.insert(i, v.l.c.unbox(x)) }
+func (v *jtlistView_[T]) remove(i int32) any            { return v.l.c.box(v.l.removeAt(i)) }
+func (v *jtlistView_[T]) clear()                        { v.l.clear() }
 
-func (v *tlistView_[T]) addAll(c Collection) bool {
+func (v *jtlistView_[T]) addAll(c Collection) bool {
 	if v.l.twin != nil {
 		panic(frozen_{})
 	}
-	if o, ok := c.(*tlistView_[T]); ok && o != nil {
+	if o, ok := c.(*jtlistView_[T]); ok && o != nil {
 		return v.l.addAllT(o.l)
 	}
 	src := toSlice_(c)
@@ -247,7 +247,7 @@ func (v *tlistView_[T]) addAll(c Collection) bool {
 
 // strs is the list's items when its elements are strings (a search for a string compares
 // them without boxing each).
-func (v *tlistView_[T]) strs() ([]string, bool) {
+func (v *jtlistView_[T]) strs() ([]string, bool) {
 	p, ok := any(&v.l.items).(*[]string)
 	if !ok {
 		return nil, false
@@ -255,7 +255,7 @@ func (v *tlistView_[T]) strs() ([]string, bool) {
 	return *p, true
 }
 
-func (v *tlistView_[T]) indexOf(x any) int32 {
+func (v *jtlistView_[T]) indexOf(x any) int32 {
 	if s, ok := x.(string); ok {
 		if items, ok := v.strs(); ok {
 			return indexOfStr_(items, s)
@@ -279,14 +279,14 @@ func indexOfStr_(items []string, s string) int32 {
 }
 
 // contains_s is contains of a String that is not null, without its box (Collection_contains_s).
-func (v *tlistView_[T]) contains_s(s string) bool {
+func (v *jtlistView_[T]) contains_s(s string) bool {
 	if items, ok := v.strs(); ok {
 		return indexOfStr_(items, s) >= 0
 	}
 	return v.indexOf(strobj_(s)) >= 0
 }
 
-func (v *tlistView_[T]) lastIndexOf(x any) int32 {
+func (v *jtlistView_[T]) lastIndexOf(x any) int32 {
 	for i := len(v.l.items) - 1; i >= 0; i-- {
 		if objequals_(x, v.l.c.box(v.l.items[i])) {
 			return int32(i)
@@ -295,9 +295,9 @@ func (v *tlistView_[T]) lastIndexOf(x any) int32 {
 	return -1
 }
 
-func (v *tlistView_[T]) contains(x any) bool { return v.indexOf(x) >= 0 }
+func (v *jtlistView_[T]) contains(x any) bool { return v.indexOf(x) >= 0 }
 
-func (v *tlistView_[T]) containsAll(c Collection) bool {
+func (v *jtlistView_[T]) containsAll(c Collection) bool {
 	for it := c.iterator(); it.hasNext(); {
 		if !v.contains(it.next()) {
 			return false
@@ -306,7 +306,7 @@ func (v *tlistView_[T]) containsAll(c Collection) bool {
 	return true
 }
 
-func (v *tlistView_[T]) remove_Object(x any) bool {
+func (v *jtlistView_[T]) remove_Object(x any) bool {
 	i := v.indexOf(x)
 	if i < 0 {
 		return false
@@ -315,7 +315,7 @@ func (v *tlistView_[T]) remove_Object(x any) bool {
 	return true
 }
 
-func (v *tlistView_[T]) removeAll(c Collection) bool {
+func (v *jtlistView_[T]) removeAll(c Collection) bool {
 	l := v.l
 	if l.twin != nil {
 		panic(frozen_{})
@@ -332,32 +332,34 @@ func (v *tlistView_[T]) removeAll(c Collection) bool {
 	return changed
 }
 
-func (v *tlistView_[T]) iterator() Iterator                { return &tlistIter_[T]{l: v.l} }
-func (v *tlistView_[T]) listIterator(i int32) ListIterator { return &tlistIter_[T]{l: v.l, i: int(i)} }
+func (v *jtlistView_[T]) iterator() Iterator { return &jtlistIter_[T]{l: v.l} }
+func (v *jtlistView_[T]) listIterator(i int32) ListIterator {
+	return &jtlistIter_[T]{l: v.l, i: int(i)}
+}
 
 // subList is, as ArrayList's in rt_coll.go, a list of the elements in the range as they are now.
-func (v *tlistView_[T]) subList(a int32, b int32) List {
+func (v *jtlistView_[T]) subList(a int32, b int32) List {
 	if a < 0 || b > v.l.size() || a > b {
 		panic(new_IndexOutOfBoundsException_String("fromIndex: " + istr_(int64(a)) + ", toIndex: " + istr_(int64(b)) + ", size: " + istr_(int64(len(v.l.items)))).self())
 	}
 	return listOf_(v.boxed()[a:b:b])
 }
 
-func (v *tlistView_[T]) toArray_0() []any      { return v.boxed() }
-func (v *tlistView_[T]) toArray(a []any) []any { return fillArray_(v.boxed(), a) }
-func (v *tlistView_[T]) equals(o any) bool     { return listEquals_(v.boxed(), o) }
-func (v *tlistView_[T]) hashCode() int32       { return listHash_(v.boxed()) }
-func (v *tlistView_[T]) toString() string      { return collToString_(v) }
+func (v *jtlistView_[T]) toArray_0() []any      { return v.boxed() }
+func (v *jtlistView_[T]) toArray(a []any) []any { return fillArray_(v.boxed(), a) }
+func (v *jtlistView_[T]) equals(o any) bool     { return listEquals_(v.boxed(), o) }
+func (v *jtlistView_[T]) hashCode() int32       { return listHash_(v.boxed()) }
+func (v *jtlistView_[T]) toString() string      { return collToString_(v) }
 
-// tlistIter_ iterates over a TList for erased code (Iterator, with remove).
-type tlistIter_[T any] struct {
-	l *TList[T]
+// jtlistIter_ iterates over a JTList for erased code (Iterator, with remove).
+type jtlistIter_[T any] struct {
+	l *JTList[T]
 	i int
 }
 
-func (it *tlistIter_[T]) hasNext() bool { return it.i < len(it.l.items) }
+func (it *jtlistIter_[T]) hasNext() bool { return it.i < len(it.l.items) }
 
-func (it *tlistIter_[T]) next() any {
+func (it *jtlistIter_[T]) next() any {
 	if it.i >= len(it.l.items) {
 		panic(new_NoSuchElementException_0().self())
 	}
@@ -366,19 +368,19 @@ func (it *tlistIter_[T]) next() any {
 	return it.l.c.box(v)
 }
 
-func (it *tlistIter_[T]) remove() {
+func (it *jtlistIter_[T]) remove() {
 	it.i--
 	it.l.removeAt(int32(it.i))
 }
 
 // tcT_ is the conversion of an element type that is a Go type parameter (a List<T> in a generic
 // class): a value of that type meets Object as a value of a type parameter does (boxT_,
-// unboxT_). One object per instantiation, made on first use. (An instantiation of a generic
+// junboxT_). One object per instantiation, made on first use. (An instantiation of a generic
 // class that names type parameters, a List<DiGraphNode<N, E>>, has a generated generic function
 // with the conversions of the class: g_0casts.go.)
-func tcT_[T any]() *tconv_[T] {
-	return single_(&tcT_single_, func() *tconv_[T] {
-		return &tconv_[T]{box: boxT_[T], unbox: unboxT_[T], null: null_[T]()}
+func tcT_[T any]() *jtconv_[T] {
+	return single_(&tcT_single_, func() *jtconv_[T] {
+		return &jtconv_[T]{box: boxT_[T], unbox: junboxT_[T], null: jnull_[T]()}
 	})
 }
 
@@ -386,10 +388,10 @@ func tcT_[T any]() *tconv_[T] {
 // generic class): the collection compares them with == where that is Java's equals for the
 // instantiation (a String, a class that the translator registered with regGoEquals_), else by
 // equals and hashCode (an interface, Object, a class with its own equals, a library class).
-func tceT_[T any]() *tconv_[T] {
-	return single_(&tceT_single_, func() *tconv_[T] {
+func tceT_[T any]() *jtconv_[T] {
+	return single_(&tceT_single_, func() *jtconv_[T] {
 		var z T
-		return &tconv_[T]{box: boxT_[T], unbox: unboxT_[T], null: null_[T](), byEquals: !goEquals_(any(z))}
+		return &jtconv_[T]{box: boxT_[T], unbox: junboxT_[T], null: jnull_[T](), byEquals: !goEquals_(any(z))}
 	})
 }
 

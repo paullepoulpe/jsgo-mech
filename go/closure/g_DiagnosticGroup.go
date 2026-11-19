@@ -3,13 +3,13 @@
 package closure
 
 type DiagnosticGroup struct {
-	types *TSet[*DiagnosticType]
+	types *JTSet[*DiagnosticType]
 	name_ Optional[string]
 }
 
 func (this *DiagnosticGroup) init_DiagnosticGroup_Optional_DiagnosticTypeArr(name Optional[string], types []*DiagnosticType) {
 	this.name_ = name
-	this.types = immutableSetCopyOf_(tce_p_DiagnosticType, Collection(Arrays_asList(arrmap_(types, func(v_ *DiagnosticType) any { return obj_(v_) }))))
+	this.types = jimmutableSetCopyOf_(tce_p_DiagnosticType, Collection(Arrays_asList(arrmap_(types, func(v_ *DiagnosticType) any { return obj_(v_) }))))
 }
 
 func new_DiagnosticGroup_Optional_DiagnosticTypeArr(name Optional[string], types []*DiagnosticType) *DiagnosticGroup {
@@ -57,7 +57,7 @@ func (this *DiagnosticGroup) matchesDiagnosticType(type_ *DiagnosticType) bool {
 	return this.types.contains(type_)
 }
 
-func (this *DiagnosticGroup) getTypes() *TSet[*DiagnosticType] {
+func (this *DiagnosticGroup) getTypes() *JTSet[*DiagnosticType] {
 	return this.types
 }
 
@@ -76,7 +76,7 @@ func (this *DiagnosticGroup) toString() string {
 
 const DiagnosticGroup_serialVersionUID int64 = 1
 
-var DiagnosticGroup_singletons *TMap[*DiagnosticType, *DiagnosticGroup]
+var DiagnosticGroup_singletons *JTMap[*DiagnosticType, *DiagnosticGroup]
 
 var DiagnosticGroup_clinit_done bool
 
@@ -85,6 +85,6 @@ func DiagnosticGroup_clinit() {
 		return
 	}
 	DiagnosticGroup_clinit_done = true
-	DiagnosticGroup_singletons = newTMap_(tce_p_DiagnosticType, tc_p_DiagnosticGroup)
+	DiagnosticGroup_singletons = jnewTMap_(tce_p_DiagnosticType, jtc_p_DiagnosticGroup)
 
 }

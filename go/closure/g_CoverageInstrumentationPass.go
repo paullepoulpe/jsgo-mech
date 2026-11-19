@@ -4,7 +4,7 @@ package closure
 
 type CoverageInstrumentationPass struct {
 	compiler_                          *AbstractCompiler
-	instrumentationData                *TMap[string, *FileInstrumentationData]
+	instrumentationData                *JTMap[string, *FileInstrumentationData]
 	reach                              *CoverageInstrumentationPass_CoverageReach
 	instrumentOption                   *CompilerOptions_InstrumentOption
 	productionInstrumentationArrayName string
@@ -19,7 +19,7 @@ func (this *CoverageInstrumentationPass) init_CoverageInstrumentationPass_Abstra
 	this.reach = reach
 	this.instrumentOption = instrumentOption
 	this.productionInstrumentationArrayName = productionInstrumentationArrayName
-	this.instrumentationData = newTMap_(tc_string, tc_p_FileInstrumentationData)
+	this.instrumentationData = jnewTMap_(jtc_string, jtc_p_FileInstrumentationData)
 }
 
 func new_CoverageInstrumentationPass_AbstractCompiler_CoverageReach_InstrumentOption_String(compiler *AbstractCompiler, reach *CoverageInstrumentationPass_CoverageReach, instrumentOption *CompilerOptions_InstrumentOption, productionInstrumentationArrayName string) *CoverageInstrumentationPass {
@@ -92,7 +92,7 @@ func (this *CoverageInstrumentationPass) createConditionalObjectDecl(name string
 		case CompilerOptions_InstrumentOption_LINE_ONLY:
 			return IR_objectlit([]Node{IR_quotedStringKey("fileNames", IR_arraylit([]Node{})), IR_quotedStringKey("instrumentedLines", IR_arraylit([]Node{})), IR_quotedStringKey("executedLines", IR_arraylit([]Node{}))})
 		default:
-			panic(new_AssertionError_Object(strobj_(("Unexpected option: " + tostr_(this.instrumentOption)))).self())
+			panic(new_AssertionError_Object(strobj_(("Unexpected option: " + jtostr_(this.instrumentOption)))).self())
 		}
 		panic("unreachable")
 	}()

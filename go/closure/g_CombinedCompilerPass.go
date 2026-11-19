@@ -7,7 +7,7 @@ type CombinedCompilerPass struct {
 	compiler_ *AbstractCompiler
 }
 
-func (this *CombinedCompilerPass) init_CombinedCompilerPass(compiler *AbstractCompiler, callbacks *TList[NodeTraversal_Callback]) {
+func (this *CombinedCompilerPass) init_CombinedCompilerPass(compiler *AbstractCompiler, callbacks *JTList[NodeTraversal_Callback]) {
 	this.compiler_ = compiler
 	this.callbacks = make([]*CombinedCompilerPass_CallbackWrapper, callbacks.size())
 	for i := int32(0); i < callbacks.size(); i++ {
@@ -15,17 +15,17 @@ func (this *CombinedCompilerPass) init_CombinedCompilerPass(compiler *AbstractCo
 	}
 }
 
-func new_CombinedCompilerPass(compiler *AbstractCompiler, callbacks *TList[NodeTraversal_Callback]) *CombinedCompilerPass {
+func new_CombinedCompilerPass(compiler *AbstractCompiler, callbacks *JTList[NodeTraversal_Callback]) *CombinedCompilerPass {
 	this := &CombinedCompilerPass{}
 	this.init_CombinedCompilerPass(compiler, callbacks)
 	return this
 }
 
 func CombinedCompilerPass_createFromCallbacks(compiler *AbstractCompiler, callbacks []NodeTraversal_Callback) *CombinedCompilerPass {
-	return new_CombinedCompilerPass(compiler, immutableListCopyOfArr_(tc_NodeTraversal_Callback, callbacks))
+	return new_CombinedCompilerPass(compiler, jimmutableListCopyOfArr_(jtc_NodeTraversal_Callback, callbacks))
 }
 
-func CombinedCompilerPass_traverse(compiler *AbstractCompiler, root Node, callbacks *TList[NodeTraversal_Callback]) {
+func CombinedCompilerPass_traverse(compiler *AbstractCompiler, root Node, callbacks *JTList[NodeTraversal_Callback]) {
 	if callbacks.size() == 1 {
 		NodeTraversal_traverse(compiler, root, callbacks.get(0))
 	} else {

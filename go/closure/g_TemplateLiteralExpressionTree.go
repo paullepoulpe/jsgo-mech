@@ -5,7 +5,7 @@ package closure
 type TemplateLiteralExpressionTree struct {
 	ParseTree
 	operand   *ParseTree
-	elements_ *TList[*ParseTree]
+	elements_ *JTList[*ParseTree]
 }
 
 func (this *TemplateLiteralExpressionTree) up_ParseTree() *ParseTree {
@@ -15,13 +15,13 @@ func (this *TemplateLiteralExpressionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *TemplateLiteralExpressionTree) init_TemplateLiteralExpressionTree(location *SourceRange, operand *ParseTree, elements *TList[*ParseTree]) {
+func (this *TemplateLiteralExpressionTree) init_TemplateLiteralExpressionTree(location *SourceRange, operand *ParseTree, elements *JTList[*ParseTree]) {
 	this.ParseTree.init_ParseTree(ParseTreeType_TEMPLATE_LITERAL_EXPRESSION, location)
 	this.operand = operand
 	this.elements_ = elements
 }
 
-func new_TemplateLiteralExpressionTree(location *SourceRange, operand *ParseTree, elements *TList[*ParseTree]) *TemplateLiteralExpressionTree {
+func new_TemplateLiteralExpressionTree(location *SourceRange, operand *ParseTree, elements *JTList[*ParseTree]) *TemplateLiteralExpressionTree {
 	this := &TemplateLiteralExpressionTree{}
 	this.self_ = this
 	this.init_TemplateLiteralExpressionTree(location, operand, elements)

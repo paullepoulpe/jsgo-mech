@@ -42,6 +42,6 @@ func (this *CollectFileOverviewVisibility) visit(scriptNode Node) {
 	this.builder.put(scriptNode.getStaticSourceFile(), v)
 }
 
-func (this *CollectFileOverviewVisibility) getFileOverviewVisibilityMap() *TMap[StaticSourceFile, *JSDocInfo_Visibility] {
+func (this *CollectFileOverviewVisibility) getFileOverviewVisibilityMap() *JTMap[StaticSourceFile, *JSDocInfo_Visibility] {
 	return this.builder.buildOrThrow()
 }

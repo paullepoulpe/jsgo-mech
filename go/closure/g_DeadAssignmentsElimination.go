@@ -19,7 +19,7 @@ func (this *DeadAssignmentsElimination) up_NodeTraversal_AbstractCfgCallback() *
 func (this *DeadAssignmentsElimination) init_DeadAssignmentsElimination(compiler *AbstractCompiler) {
 	this.NodeTraversal_AbstractCfgCallback.init_NodeTraversal_AbstractCfgCallback()
 	this.compiler_ = compiler
-	this.functionStack = newTDeque_(tc_p_DeadAssignmentsElimination_BailoutInformation)
+	this.functionStack = newTDeque_(jtc_p_DeadAssignmentsElimination_BailoutInformation)
 }
 
 func new_DeadAssignmentsElimination(compiler *AbstractCompiler) *DeadAssignmentsElimination {
@@ -83,7 +83,7 @@ func (this *DeadAssignmentsElimination) eliminateDeadAssignments(t *NodeTraversa
 	var allVarsDeclaredInFunction *NodeUtil_AllVarsDeclaredInFunction = NodeUtil_getAllVarsDeclaredInFunction(this.compiler_, SyntacticScopeCreator_as_ScopeCreator(scopeCreator), functionScope)
 	this.liveness = new_LiveVariablesAnalysis(cfg, functionScope, blockScope, this.compiler_, SyntacticScopeCreator_as_ScopeCreator(scopeCreator), allVarsDeclaredInFunction)
 	this.liveness.analyze()
-	var allVarsInFn *TMap[string, *Var] = this.liveness.getAllVariables()
+	var allVarsInFn *JTMap[string, *Var] = this.liveness.getAllVariables()
 	this.tryRemoveDeadAssignments(t, cfg, allVarsInFn)
 }
 
@@ -91,7 +91,7 @@ func (this *DeadAssignmentsElimination) isRemovableAssign(n Node) bool {
 	return (((NodeUtil_isAssignmentOp(n) && n.getFirstChild().isName()) || n.isInc()) || n.isDec())
 }
 
-func (this *DeadAssignmentsElimination) tryRemoveDeadAssignments(t *NodeTraversal, cfg *ControlFlowGraph[Node], allVarsInFn *TMap[string, *Var]) {
+func (this *DeadAssignmentsElimination) tryRemoveDeadAssignments(t *NodeTraversal, cfg *ControlFlowGraph[Node], allVarsInFn *JTMap[string, *Var]) {
 	var nodes IterableOf[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]] = Iterable(cfg.getNodes())
 	it_1 := foreach_(nodes)
 L_2:
@@ -122,11 +122,11 @@ L_2:
 	}
 }
 
-func (this *DeadAssignmentsElimination) tryRemoveAssignment(t *NodeTraversal, n Node, state *DataFlowAnalysis_LinearFlowState, allVarsInFn *TMap[string, *Var]) {
+func (this *DeadAssignmentsElimination) tryRemoveAssignment(t *NodeTraversal, n Node, state *DataFlowAnalysis_LinearFlowState, allVarsInFn *JTMap[string, *Var]) {
 	this.tryRemoveAssignment_5(t, n, n, state, allVarsInFn)
 }
 
-func (this *DeadAssignmentsElimination) tryRemoveAssignment_5(t *NodeTraversal, n Node, exprRoot Node, state *DataFlowAnalysis_LinearFlowState, allVarsInFn *TMap[string, *Var]) {
+func (this *DeadAssignmentsElimination) tryRemoveAssignment_5(t *NodeTraversal, n Node, exprRoot Node, state *DataFlowAnalysis_LinearFlowState, allVarsInFn *JTMap[string, *Var]) {
 	var parent Node = n.getParent()
 	var isDeclarationNode bool = NodeUtil_isNameDeclaration(parent)
 	if ((NodeUtil_isAssignmentOp(n) || n.isInc()) || n.isDec()) || isDeclarationNode {

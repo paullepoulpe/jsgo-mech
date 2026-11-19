@@ -14,7 +14,7 @@ func (this *ProductionCoverageInstrumentationCallback) zero_ProductionCoverageIn
 }
 
 func (this *ProductionCoverageInstrumentationCallback) finit_ProductionCoverageInstrumentationCallback() {
-	this.functionNameStack = newTDeque_(tc_string)
+	this.functionNameStack = newTDeque_(jtc_string)
 }
 
 func (this *ProductionCoverageInstrumentationCallback) init_ProductionCoverageInstrumentationCallback(compiler *AbstractCompiler, instrumentationArrayName string) {
@@ -204,19 +204,19 @@ func ProductionCoverageInstrumentationCallback_Type_clinit() {
 }
 
 type ProductionCoverageInstrumentationCallback_ParameterMapping struct {
-	paramValueEncodings  *TMap[string, string]
-	fileNameToIndex      *TMap[string, any]
-	functionNameToIndex  *TMap[string, any]
-	typeToIndex          *TMap[string, any]
+	paramValueEncodings  *JTMap[string, string]
+	fileNameToIndex      *JTMap[string, any]
+	functionNameToIndex  *JTMap[string, any]
+	typeToIndex          *JTMap[string, any]
 	nextUniqueIdentifier int64
 }
 
 func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) init_ProductionCoverageInstrumentationCallback_ParameterMapping() {
 	this.nextUniqueIdentifier = 0
-	this.paramValueEncodings = newTMap_(tc_string, tc_string)
-	this.fileNameToIndex = newTMap_(tc_string, tc_Integer)
-	this.functionNameToIndex = newTMap_(tc_string, tc_Integer)
-	this.typeToIndex = newTMap_(tc_string, tc_Integer)
+	this.paramValueEncodings = jnewTMap_(jtc_string, jtc_string)
+	this.fileNameToIndex = jnewTMap_(jtc_string, tc_Integer)
+	this.functionNameToIndex = jnewTMap_(jtc_string, tc_Integer)
+	this.typeToIndex = jnewTMap_(jtc_string, tc_Integer)
 }
 
 func new_ProductionCoverageInstrumentationCallback_ParameterMapping() *ProductionCoverageInstrumentationCallback_ParameterMapping {
@@ -286,7 +286,7 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getParam
 	this.paramValueEncodings.put(ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(this.functionNameToIndex.asMap().keySet()), " FunctionNames")
 	this.paramValueEncodings.put(ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(this.typeToIndex.asMap().keySet()), " Types")
 	var preInversedMap *VariableMap = new_VariableMap(this.paramValueEncodings)
-	var inversedMap *TMap[string, string] = preInversedMap.getNewNameToOriginalNameMap()
+	var inversedMap *JTMap[string, string] = preInversedMap.getNewNameToOriginalNameMap()
 	return new_VariableMap(inversedMap)
 }
 

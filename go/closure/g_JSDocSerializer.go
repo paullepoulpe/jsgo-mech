@@ -151,7 +151,7 @@ func JSDocSerializer_serializeIdGenerator(doc *JSDocInfo) *JsdocTag {
 	} else if doc.isIdGenerator() {
 		return JsdocTag_JSDOC_ID_GENERATOR_INCONSISTENT
 	}
-	panic(new_IllegalStateException_String(("Failed to identify idGenerator inside JSDoc: " + tostr_(doc))).self())
+	panic(new_IllegalStateException_String(("Failed to identify idGenerator inside JSDoc: " + jtostr_(doc))).self())
 }
 
 func JSDocSerializer_createPlaceholderType() *JSTypeExpression {
@@ -182,8 +182,8 @@ func JSDocSerializer_deserializeJsdoc(serializedJsdoc *OptimizationJsdoc, string
 	if serializedJsdoc.getAlternateMessageIdPointer() != 0 {
 		builder.recordAlternateMessageId(stringPool.get(serializedJsdoc.getAlternateMessageIdPointer()))
 	}
-	var modifies *TSet[string] = nil
-	var suppressions *TSet[string] = nil
+	var modifies *JTSet[string] = nil
+	var suppressions *JTSet[string] = nil
 L_1:
 	for i := int32(0); i < serializedJsdoc.getKindCount(); i++ {
 		var tag *JsdocTag = cast_[*JsdocTag](serializedJsdoc.getKindList().get(i))
@@ -231,20 +231,20 @@ L_1:
 			builder.recordNoSideEffects()
 			continue L_1
 		case JsdocTag_JSDOC_MODIFIES_THIS:
-			modifies = func() *TSet[string] {
+			modifies = func() *JTSet[string] {
 				if modifies != nil {
 					return modifies
 				}
-				return newTSortedSet_(tc_string)
+				return newTSortedSet_(jtc_string)
 			}()
 			modifies.add("this")
 			continue L_1
 		case JsdocTag_JSDOC_MODIFIES_ARGUMENTS:
-			modifies = func() *TSet[string] {
+			modifies = func() *JTSet[string] {
 				if modifies != nil {
 					return modifies
 				}
-				return newTSortedSet_(tc_string)
+				return newTSortedSet_(jtc_string)
 			}()
 			modifies.add("arguments")
 			continue L_1
@@ -258,11 +258,11 @@ L_1:
 			builder.recordInterface()
 			continue L_1
 		case JsdocTag_JSDOC_SUPPRESS_PARTIAL_ALIAS:
-			suppressions = func() *TSet[string] {
+			suppressions = func() *JTSet[string] {
 				if suppressions != nil {
 					return suppressions
 				}
-				return newTSortedSet_(tc_string)
+				return newTSortedSet_(jtc_string)
 			}()
 			suppressions.add("partialAlias")
 			continue L_1
@@ -285,20 +285,20 @@ L_1:
 			builder.recordAbstract()
 			continue L_1
 		case JsdocTag_JSDOC_SUPPRESS_MESSAGE_CONVENTION:
-			suppressions = func() *TSet[string] {
+			suppressions = func() *JTSet[string] {
 				if suppressions != nil {
 					return suppressions
 				}
-				return newTSortedSet_(tc_string)
+				return newTSortedSet_(jtc_string)
 			}()
 			suppressions.add("messageConventions")
 			continue L_1
 		case JsdocTag_JSDOC_SUPPRESS_UNTRANSPILABLE_FEATURES:
-			suppressions = func() *TSet[string] {
+			suppressions = func() *JTSet[string] {
 				if suppressions != nil {
 					return suppressions
 				}
-				return newTSortedSet_(tc_string)
+				return newTSortedSet_(jtc_string)
 			}()
 			suppressions.add("untranspilableFeatures")
 			continue L_1
@@ -316,7 +316,7 @@ L_1:
 			_ = unused
 			continue L_1
 		case JsdocTag_JSDOC_UNSPECIFIED, JsdocTag_UNRECOGNIZED:
-			panic(obj_(new_MalformedTypedAstException_Object(strobj_(("Unsupported JSDoc tag can't be deserialized: " + tostr_(tag))))))
+			panic(obj_(new_MalformedTypedAstException_Object(strobj_(("Unsupported JSDoc tag can't be deserialized: " + jtostr_(tag))))))
 		}
 	}
 	if modifies != nil {

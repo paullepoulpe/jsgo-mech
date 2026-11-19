@@ -117,7 +117,7 @@ func (this *ReportUntranspilableFeatures) reportUntranspilable(feature *FeatureS
 	if this.browserFeatureSetYear != nil {
 		var minimumYear *CompilerOptions_BrowserFeaturesetYear = CompilerOptions_BrowserFeaturesetYear_minimumRequiredFor(feature)
 		if minimumYear == nil {
-			minimum = (tostr_(minimumLanguageMode) + ", which is not yet supported by any browser featureset year")
+			minimum = (jtostr_(minimumLanguageMode) + ", which is not yet supported by any browser featureset year")
 			suggestion = ""
 		} else {
 			minimum = ("browser featureset year " + istr_(int64(minimumYear.getYear())))
@@ -137,7 +137,7 @@ func (this *ReportUntranspilableFeatures) checkForRegExpSFlag(regexpNode Node) {
 		}
 		return ""
 	}()
-	if String_contains_s(flags, "s") {
+	if JString_contains_s(flags, "s") {
 		this.reportUntranspilable(FeatureSet_Feature_REGEXP_FLAG_S, regexpNode)
 	}
 }
@@ -183,7 +183,7 @@ func (this *ReportUntranspilableFeatures) checkForRegExpDFlag(regexpNode Node) {
 		}
 		return ""
 	}()
-	if String_contains_s(flags, "d") {
+	if JString_contains_s(flags, "d") {
 		this.reportUntranspilable(FeatureSet_Feature_REGEXP_FLAG_D, regexpNode)
 	}
 }

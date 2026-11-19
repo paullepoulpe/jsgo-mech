@@ -6,7 +6,7 @@ type FlowSensitiveInlineVariables struct {
 	compiler_           *AbstractCompiler
 	sideEffectPredicate *FlowSensitiveInlineVariables_SideEffectPredicate
 	cfg                 *ControlFlowGraph[Node]
-	candidates          *TSet[*FlowSensitiveInlineVariables_Candidate]
+	candidates          *JTSet[*FlowSensitiveInlineVariables_Candidate]
 	reachingDef         *MustBeReachingVariableDef
 	reachingUses        *MaybeReachingVariableUse
 }
@@ -50,14 +50,14 @@ func (this *FlowSensitiveInlineVariables) enterScope(t *NodeTraversal) {
 	}
 	var scopeCreator *SyntacticScopeCreator = cast_[*SyntacticScopeCreator](t.getScopeCreator())
 	this.cfg = ControlFlowAnalysis_builder().setCompiler(this.compiler_).setCfgRoot(functionScopeRoot).setIncludeEdgeAnnotations(true).computeCfg()
-	var escaped *TSet[*Var] = newTSet_(tce_p_Var)
+	var escaped *JTSet[*Var] = jnewTSet_(tce_p_Var)
 	var scope *Scope = t.getScope()
 	var allVarsDeclaredInFunction *NodeUtil_AllVarsDeclaredInFunction = NodeUtil_getAllVarsDeclaredInFunction(this.compiler_, SyntacticScopeCreator_as_ScopeCreator(scopeCreator), scope.getParent_rScope())
-	var allVarsInFn *TMap[string, *Var] = allVarsDeclaredInFunction.getAllVariables()
+	var allVarsInFn *JTMap[string, *Var] = allVarsDeclaredInFunction.getAllVariables()
 	DataFlowAnalysis_computeEscaped(scope.getParent_rScope(), escaped, this.compiler_, SyntacticScopeCreator_as_ScopeCreator(scopeCreator), allVarsInFn)
 	this.reachingDef = new_MustBeReachingVariableDef(this.cfg, this.compiler_, escaped, allVarsInFn)
 	this.reachingDef.analyze()
-	this.candidates = newTSet_(tc_p_FlowSensitiveInlineVariables_Candidate)
+	this.candidates = jnewTSet_(jtc_p_FlowSensitiveInlineVariables_Candidate)
 	NodeTraversal_traverse(this.compiler_, t.getScopeRoot(), NodeTraversal_Callback(new_FlowSensitiveInlineVariables_GatherCandidates(this)))
 	this.reachingUses = new_MaybeReachingVariableUse(this.cfg, escaped, allVarsInFn)
 	this.reachingUses.analyze()
@@ -173,7 +173,7 @@ func FlowSensitiveInlineVariables_checkPreExpressions(n Node, expressionRoot Nod
 
 type FlowSensitiveInlineVariables_SideEffectPredicate struct {
 	outer_       *FlowSensitiveInlineVariables
-	namesToCheck *TSet[string]
+	namesToCheck *JTSet[string]
 }
 
 func (this *FlowSensitiveInlineVariables_SideEffectPredicate) init_FlowSensitiveInlineVariables_SideEffectPredicate_0() {
@@ -187,11 +187,11 @@ func new_FlowSensitiveInlineVariables_SideEffectPredicate_0(outer_ *FlowSensitiv
 	return this
 }
 
-func (this *FlowSensitiveInlineVariables_SideEffectPredicate) init_FlowSensitiveInlineVariables_SideEffectPredicate_Set(names *TSet[string]) {
+func (this *FlowSensitiveInlineVariables_SideEffectPredicate) init_FlowSensitiveInlineVariables_SideEffectPredicate_Set(names *JTSet[string]) {
 	this.namesToCheck = names
 }
 
-func new_FlowSensitiveInlineVariables_SideEffectPredicate_Set(outer_ *FlowSensitiveInlineVariables, names *TSet[string]) *FlowSensitiveInlineVariables_SideEffectPredicate {
+func new_FlowSensitiveInlineVariables_SideEffectPredicate_Set(outer_ *FlowSensitiveInlineVariables, names *JTSet[string]) *FlowSensitiveInlineVariables_SideEffectPredicate {
 	this := &FlowSensitiveInlineVariables_SideEffectPredicate{}
 	this.outer_ = outer_
 	this.init_FlowSensitiveInlineVariables_SideEffectPredicate_Set(names)
@@ -374,7 +374,7 @@ func (this *FlowSensitiveInlineVariables_Candidate) canInline(scope *Scope) bool
 	if this.def.isAssign() && !NodeUtil_isExprAssign(this.def.getParent()) {
 		return false
 	}
-	var namesToCheck *TSet[string] = newTSet_(tc_string)
+	var namesToCheck *JTSet[string] = jnewTSet_(jtc_string)
 	if this.defMetadata.depends != nil {
 		it_1 := this.defMetadata.depends.each()
 		for it_1.next() {

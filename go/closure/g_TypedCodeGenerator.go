@@ -158,7 +158,7 @@ func (this *TypedCodeGenerator) getMemberFunctionAnnotation(fnNode Node) string 
 func (this *TypedCodeGenerator) appendFunctionParamAnnotations(sb *StringBuilder, funType *FunctionType, paramNode Node) {
 	var minArity int32 = funType.getMinArity()
 	var maxArity int32 = funType.getMaxArity()
-	var formals *TList[*FunctionType_Parameter] = funType.getParameters()
+	var formals *JTList[*FunctionType_Parameter] = funType.getParameters()
 	for i := int32(0); i < formals.size(); i++ {
 		sb.append(" * ")
 		TypedCodeGenerator_appendAnnotation(sb, "param", this.getParameterJSDocType(formals, i, minArity, maxArity))
@@ -196,13 +196,13 @@ func (this *TypedCodeGenerator) getClassAnnotation(classType *JSType) string {
 func (this *TypedCodeGenerator) appendTemplateAnnotations(sb *StringBuilder, typeParams CollectionOf[*JSType]) {
 	if !typeParams.isEmpty() {
 		sb.append(" * @template ")
-		var formattedTypeParams *TList[string] = newTList_(tc_string)
+		var formattedTypeParams *JTList[string] = jnewTList_(jtc_string)
 		it_1 := foreach_(typeParams)
 		for it_1.next() {
 			var typeParam *JSType = to_JSType(it_1.v)
 			formattedTypeParams.add(this.formatTypeVar(typeParam))
 		}
-		sb.append(String_join_s(",", Iterable(formattedTypeParams.asList())))
+		sb.append(JString_join_s(",", Iterable(formattedTypeParams.asList())))
 		sb.append("\n")
 	}
 }
@@ -246,7 +246,7 @@ func (this *TypedCodeGenerator) appendClassAnnotations(sb *StringBuilder, funTyp
 			sb.append("\n")
 		}
 	}
-	var interfaces *TSet[string] = newTSortedSet_(tc_string)
+	var interfaces *JTSet[string] = newTSortedSet_(jtc_string)
 	it_1 := foreach_(funType.getAncestorInterfaces())
 	for it_1.next() {
 		var interfaze *ObjectType = to_ObjectType(it_1.v)
@@ -262,7 +262,7 @@ func (this *TypedCodeGenerator) appendClassAnnotations(sb *StringBuilder, funTyp
 }
 
 func (this *TypedCodeGenerator) appendInterfaceAnnotations(sb *StringBuilder, funType *FunctionType) {
-	var interfaces *TSet[string] = newTSortedSet_(tc_string)
+	var interfaces *JTSet[string] = newTSortedSet_(jtc_string)
 	it_1 := foreach_(funType.getAncestorInterfaces())
 	for it_1.next() {
 		var interfaceType *ObjectType = to_ObjectType(it_1.v)
@@ -314,7 +314,7 @@ func TypedCodeGenerator_appendAnnotation(sb *StringBuilder, name string, type_ s
 	sb.append("@").append(name).append(" {").append(type_).append("}")
 }
 
-func (this *TypedCodeGenerator) getParameterJSDocType(parameters *TList[*FunctionType_Parameter], index int32, minArgs int32, maxArgs int32) string {
+func (this *TypedCodeGenerator) getParameterJSDocType(parameters *JTList[*FunctionType_Parameter], index int32, minArgs int32, maxArgs int32) string {
 	var type_ *JSType = parameters.get(index).getJSType()
 	if index < minArgs {
 		return type_.toAnnotationString(JSType_Nullability_EXPLICIT)
@@ -333,7 +333,7 @@ func (this *TypedCodeGenerator) restrictByUndefined(type_ *JSType) *JSType {
 	var restricted *JSType = type_.restrictByNotNullOrUndefined()
 	if type_.isNullable() {
 		var nullType *JSType = this.registry.getNativeType(JSTypeNative_NULL_TYPE)
-		return this.registry.createUnionTypeList(immutableListOf_[*JSType](tc_p_JSType, restricted, nullType))
+		return this.registry.createUnionTypeList(jimmutableListOf_[*JSType](jtc_p_JSType, restricted, nullType))
 	}
 	return func() *JSType {
 		if restricted.isEmptyType() {

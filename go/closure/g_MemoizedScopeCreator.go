@@ -3,12 +3,12 @@
 package closure
 
 type MemoizedScopeCreator struct {
-	scopesByScopeRoot *TMap[Node, *AbstractScope]
+	scopesByScopeRoot *JTMap[Node, *AbstractScope]
 	delegate          ScopeCreator
 }
 
 func (this *MemoizedScopeCreator) finit_MemoizedScopeCreator() {
-	this.scopesByScopeRoot = newTMap_(tc_Node, tc_p_AbstractScope)
+	this.scopesByScopeRoot = jnewTMap_(jtc_Node, jtc_p_AbstractScope)
 }
 
 func (this *MemoizedScopeCreator) init_MemoizedScopeCreator(delegate ScopeCreator) {

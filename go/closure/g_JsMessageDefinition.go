@@ -7,7 +7,7 @@ type JsMessageDefinition interface {
 	getMessageNode() Node
 	getTemplateTextNode() Node
 	getPlaceholderValuesNode() Node
-	getPlaceholderValueMap() *TMap[string, Node]
+	getPlaceholderValueMap() *JTMap[string, Node]
 	shouldEscapeLessThan() bool
 	shouldUnescapeHtmlEntities() bool
 }

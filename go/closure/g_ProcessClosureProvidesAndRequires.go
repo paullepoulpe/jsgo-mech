@@ -5,21 +5,21 @@ package closure
 type ProcessClosureProvidesAndRequires struct {
 	compiler_                       *AbstractCompiler
 	chunkGraph                      *JSChunkGraph
-	providedNames                   *TMap[string, *ProcessClosureProvidesAndRequires_ProvidedName]
-	exportedVariables               *TSet[string]
+	providedNames                   *JTMap[string, *ProcessClosureProvidesAndRequires_ProvidedName]
+	exportedVariables               *JTSet[string]
 	preserveGoogProvidesAndRequires bool
-	requiresToBeRemoved             *TList[Node]
+	requiresToBeRemoved             *JTList[Node]
 	hasRewritingOccurred            bool
-	forwardDeclaresToRemove         *TSet[Node]
+	forwardDeclaresToRemove         *JTSet[Node]
 	astFactory_                     *AstFactory
 }
 
 func (this *ProcessClosureProvidesAndRequires) finit_ProcessClosureProvidesAndRequires() {
-	this.providedNames = newTMap_(tc_string, tc_p_ProcessClosureProvidesAndRequires_ProvidedName)
-	this.exportedVariables = newTSet_(tc_string)
-	this.requiresToBeRemoved = newTList_(tc_Node)
+	this.providedNames = jnewTMap_(jtc_string, jtc_p_ProcessClosureProvidesAndRequires_ProvidedName)
+	this.exportedVariables = jnewTSet_(jtc_string)
+	this.requiresToBeRemoved = jnewTList_(jtc_Node)
 	this.hasRewritingOccurred = false
-	this.forwardDeclaresToRemove = newTSet_(tc_Node)
+	this.forwardDeclaresToRemove = jnewTSet_(jtc_Node)
 }
 
 func (this *ProcessClosureProvidesAndRequires) init_ProcessClosureProvidesAndRequires(compiler *AbstractCompiler, preserveGoogProvidesAndRequires bool) {
@@ -40,11 +40,11 @@ func (this *ProcessClosureProvidesAndRequires) process_2(externs Node, root Node
 	this.rewriteProvidesAndRequires(externs, root)
 }
 
-func (this *ProcessClosureProvidesAndRequires) getExportedVariableNames() *TSet[string] {
+func (this *ProcessClosureProvidesAndRequires) getExportedVariableNames() *JTSet[string] {
 	return this.exportedVariables
 }
 
-func (this *ProcessClosureProvidesAndRequires) collectProvidedNames(externs Node, root Node) *TMap[string, *ProcessClosureProvidesAndRequires_ProvidedName] {
+func (this *ProcessClosureProvidesAndRequires) collectProvidedNames(externs Node, root Node) *JTMap[string, *ProcessClosureProvidesAndRequires_ProvidedName] {
 	if this.providedNames.isEmpty() {
 		this.providedNames.put(ProcessClosureProvidesAndRequires_GOOG, new_ProcessClosureProvidesAndRequires_ProvidedNameBuilder(this).setNamespace(ProcessClosureProvidesAndRequires_GOOG).setNode(0).setChunk(nil).build())
 		NodeTraversal_traverseRoots(this.compiler_, NodeTraversal_Callback(new_ProcessClosureProvidesAndRequires_CollectDefinitions(this)), externs, root)
@@ -168,7 +168,7 @@ func (this *ProcessClosureProvidesAndRequires) handleStubDefinition(t *NodeTrave
 
 func (this *ProcessClosureProvidesAndRequires) checkNestedTypedefProvide(exprResult Node) {
 	var name string = exprResult.getFirstChild().getQualifiedName()
-	if String_isEmpty(name) || !String_contains_s(name, ".") {
+	if String_isEmpty(name) || !JString_contains_s(name, ".") {
 		return
 	}
 	if !this.providedNames.containsKey(name) {
@@ -233,7 +233,7 @@ func (this *ProcessClosureProvidesAndRequires) handleCandidateProvideDefinition(
 
 func (this *ProcessClosureProvidesAndRequires) processForwardDeclare(n Node, parent Node) {
 	var convention CodingConvention = this.compiler_.getCodingConvention()
-	var typeDeclarations *TList[string] = convention.identifyTypeDeclarationCall(n)
+	var typeDeclarations *JTList[string] = convention.identifyTypeDeclarationCall(n)
 	if (!this.preserveGoogProvidesAndRequires && (typeDeclarations != nil)) && (typeDeclarations.size() == 1) {
 		var toRemove Node = func() Node {
 			if parent.isExprResult() {
@@ -507,7 +507,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) updateMinimumChunk(n
 	}
 }
 
-func (this *ProcessClosureProvidesAndRequires_ProvidedName) replace(preserveGoogProvidesAndRequires bool, providedNames *TMap[string, *ProcessClosureProvidesAndRequires_ProvidedName]) {
+func (this *ProcessClosureProvidesAndRequires_ProvidedName) replace(preserveGoogProvidesAndRequires bool, providedNames *JTMap[string, *ProcessClosureProvidesAndRequires_ProvidedName]) {
 	Preconditions_checkState_boolean_String_Object_H(!this.isFromLegacyModule(), "Cannot rewrite provides without having rewritten goog.modules, found %s", this.firstNode)
 	if this.firstNode == 0 {
 		this.replacementNode = this.candidateDefinition
@@ -554,7 +554,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) convertProvideAssign
 	this.compiler_.reportChangeToEnclosingScope(varNode)
 }
 
-func (this *ProcessClosureProvidesAndRequires_ProvidedName) createNamespaceInitialization(replacement Node, providedNames *TMap[string, *ProcessClosureProvidesAndRequires_ProvidedName]) {
+func (this *ProcessClosureProvidesAndRequires_ProvidedName) createNamespaceInitialization(replacement Node, providedNames *JTMap[string, *ProcessClosureProvidesAndRequires_ProvidedName]) {
 	this.replacementNode = replacement
 	if this.firstChunk == this.minimumChunk {
 		this.replacementNode.insertBefore(this.firstNode)

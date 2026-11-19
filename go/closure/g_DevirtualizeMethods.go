@@ -33,7 +33,7 @@ func (this *DevirtualizeMethods) processReferenceList(name string, sites ListOf[
 		return
 	}
 	var canonicalDefinitionSite Node = Node_of_(Iterables_get(Iterable(functionsBySite.keySet()), 0))
-	var callSitesBuilder *TListBuilder[Node] = newTListBuilder_(tc_Node)
+	var callSitesBuilder *TListBuilder[Node] = newTListBuilder_(jtc_Node)
 	it_1 := foreach_(sites)
 	for it_1.next() {
 		var s Node = Node_of_(it_1.v)
@@ -41,7 +41,7 @@ func (this *DevirtualizeMethods) processReferenceList(name string, sites ListOf[
 			callSitesBuilder.add(s)
 		}
 	}
-	var callSites *TList[Node] = callSitesBuilder.build()
+	var callSites *JTList[Node] = callSitesBuilder.build()
 	if callSites.isEmpty() {
 		return
 	}

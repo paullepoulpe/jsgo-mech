@@ -4,11 +4,11 @@ package closure
 
 type RemoveUnnecessarySyntheticExterns struct {
 	compiler_     *AbstractCompiler
-	nodesToDetach *TSet[Node]
+	nodesToDetach *JTSet[Node]
 }
 
 func (this *RemoveUnnecessarySyntheticExterns) finit_RemoveUnnecessarySyntheticExterns() {
-	this.nodesToDetach = newTSet_(tc_Node)
+	this.nodesToDetach = jnewTSet_(jtc_Node)
 }
 
 func (this *RemoveUnnecessarySyntheticExterns) init_RemoveUnnecessarySyntheticExterns(compiler *AbstractCompiler) {

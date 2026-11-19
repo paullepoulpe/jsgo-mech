@@ -144,7 +144,7 @@ func (this *CodingConventions_Proxy) getExportSymbolFunction_impl() string {
 	return this.nextConvention.getExportSymbolFunction()
 }
 
-func (this *CodingConventions_Proxy) identifyTypeDeclarationCall_impl(n Node) *TList[string] {
+func (this *CodingConventions_Proxy) identifyTypeDeclarationCall_impl(n Node) *JTList[string] {
 	return this.nextConvention.identifyTypeDeclarationCall(n)
 }
 
@@ -242,8 +242,8 @@ func (this *CodingConventions_Proxy) getExportSymbolFunction() string {
 	return this.self_.(interface{ getExportSymbolFunction_impl() string }).getExportSymbolFunction_impl()
 }
 
-func (this *CodingConventions_Proxy) identifyTypeDeclarationCall(p0 Node) *TList[string] {
-	return this.self_.(interface{ identifyTypeDeclarationCall_impl(Node) *TList[string] }).identifyTypeDeclarationCall_impl(p0)
+func (this *CodingConventions_Proxy) identifyTypeDeclarationCall(p0 Node) *JTList[string] {
+	return this.self_.(interface{ identifyTypeDeclarationCall_impl(Node) *JTList[string] }).identifyTypeDeclarationCall_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) getAbstractMethodName() string {
@@ -425,8 +425,8 @@ func (this *CodingConventions_DefaultCodingConvention) getExportSymbolFunction()
 	return ""
 }
 
-func (this *CodingConventions_DefaultCodingConvention) identifyTypeDeclarationCall(n Node) *TList[string] {
-	return tlistEmptyImm_(tc_string)
+func (this *CodingConventions_DefaultCodingConvention) identifyTypeDeclarationCall(n Node) *JTList[string] {
+	return jtlistEmptyImm_(jtc_string)
 }
 
 func (this *CodingConventions_DefaultCodingConvention) applySubclassRelationship(parent *NominalTypeBuilder, child *NominalTypeBuilder, type_ *CodingConvention_SubclassType) {
@@ -469,8 +469,8 @@ func (this *CodingConventions_DefaultCodingConvention) getObjectLiteralCast(call
 	return nil
 }
 
-func (this *CodingConventions_DefaultCodingConvention) getAssertionFunctions_rImmutableSet() *TSet[*CodingConvention_AssertionFunctionSpec] {
-	return immutableSetOf_[*CodingConvention_AssertionFunctionSpec](tce_p_CodingConvention_AssertionFunctionSpec, CodingConvention_AssertionFunctionSpec_forTruthy().setClosurePrimitive(ClosurePrimitive_ASSERTS_TRUTHY).build(), CodingConvention_AssertionFunctionSpec_forMatchesReturn().setClosurePrimitive(ClosurePrimitive_ASSERTS_MATCHES_RETURN).build())
+func (this *CodingConventions_DefaultCodingConvention) getAssertionFunctions_rImmutableSet() *JTSet[*CodingConvention_AssertionFunctionSpec] {
+	return jimmutableSetOf_[*CodingConvention_AssertionFunctionSpec](tce_p_CodingConvention_AssertionFunctionSpec, CodingConvention_AssertionFunctionSpec_forTruthy().setClosurePrimitive(ClosurePrimitive_ASSERTS_TRUTHY).build(), CodingConvention_AssertionFunctionSpec_forMatchesReturn().setClosurePrimitive(ClosurePrimitive_ASSERTS_MATCHES_RETURN).build())
 }
 
 func (this *CodingConventions_DefaultCodingConvention) describeFunctionBind(n Node, checkTypes bool) *CodingConvention_Bind {

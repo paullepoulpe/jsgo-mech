@@ -14,14 +14,14 @@ type NodeTraversal struct {
 	currentFunction                                Node
 	currentScript                                  Node
 	currentChangeScope                             Node
-	scopes                                         *TList[any]
+	scopes                                         *JTList[any]
 	sourceName_                                    Optional[string]
 	inputId                                        *InputId
 	compilerInput                                  *CompilerInput
 }
 
 func (this *NodeTraversal) finit_NodeTraversal() {
-	this.scopes = newTList_(tc_Object)
+	this.scopes = jnewTList_(tc_Object)
 	this.sourceName_ = Optional_empty[string]()
 }
 
@@ -182,7 +182,7 @@ func (this *NodeTraversal) traverseAtScope(s *AbstractScope) {
 	var n Node = s.getRootNode()
 	this.initTraversal(n)
 	this.currentNode = n
-	var parentScopes *TDeque[*AbstractScope] = newTDeque_(tc_p_AbstractScope)
+	var parentScopes *TDeque[*AbstractScope] = newTDeque_(jtc_p_AbstractScope)
 	var temp *AbstractScope = s.getParent()
 	for temp != nil {
 		parentScopes.push(temp)
@@ -553,7 +553,7 @@ func (this *NodeTraversal) handleClassMembers(n Node, parent Node) {
 			case Token_rhino_BLOCK, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_VARIABLE_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
 				this.traverseBranch(child, n)
 			default:
-				panic(new_IllegalStateException_String(("Invalid class member: " + tostr_(child.getToken()))).self())
+				panic(new_IllegalStateException_String(("Invalid class member: " + jtostr_(child.getToken()))).self())
 			}
 			child = next
 		}
@@ -861,7 +861,7 @@ func (this *NodeTraversal) initTraversal(traversalRoot Node) {
 }
 
 func (this *NodeTraversal) initScopeRoots(n Node) {
-	var queuedScopeRoots *TDeque[Node] = newTDeque_(tc_Node)
+	var queuedScopeRoots *TDeque[Node] = newTDeque_(jtc_Node)
 	for n != 0 {
 		if this.isScopeRoot(n) {
 			queuedScopeRoots.push(n)

@@ -116,7 +116,7 @@ func (this *CheckJSDoc) validateSuppress(n Node, info *JSDocInfo) {
 }
 
 func CheckJSDoc_containsOnlySuppressionFor(jsdoc *JSDocInfo, allowedSuppression string) bool {
-	var suppressions *TSet[string] = jsdoc.getSuppressions()
+	var suppressions *JTSet[string] = jsdoc.getSuppressions()
 	return ((suppressions.size() == 1) && (str_(Iterables_getOnlyElement(Iterable(suppressions.asSet()))) == allowedSuppression))
 }
 

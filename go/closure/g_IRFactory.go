@@ -9,9 +9,9 @@ type IRFactory struct {
 	config                     *Config
 	errorReporter              ErrorReporter_rhino
 	transformDispatcher        *IRFactory_TransformDispatcher
-	reservedKeywords           *TSet[string]
-	parsedComments             *TSet[*Comment]
-	licenseBuilder             *TSet[string]
+	reservedKeywords           *JTSet[string]
+	parsedComments             *JTSet[*Comment]
+	licenseBuilder             *JTSet[string]
 	firstFileoverview          *JSDocInfo
 	templateNode               Node
 	defaultTemplateNode        Node
@@ -26,15 +26,15 @@ type IRFactory struct {
 }
 
 func (this *IRFactory) finit_IRFactory() {
-	this.parsedComments = newTSet_(tc_p_Comment)
-	this.licenseBuilder = newTSet_(tc_string)
+	this.parsedComments = jnewTSet_(jtc_p_Comment)
+	this.licenseBuilder = jnewTSet_(jtc_string)
 	this.firstFileoverview = nil
 	this.currentFileIsExterns = false
 	this.features_ = FeatureSet_BARE_MINIMUM
 	this.closureUnawareCodeRanges = TreeRangeSet_as_RangeSet(TreeRangeSet_create())
 }
 
-func (this *IRFactory) init_IRFactory(sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, comments *TList[*Comment], fileWithContent *SourceFile_parser, jsDocSourceKind *JsDocInfoParser_JsDocSourceKind) {
+func (this *IRFactory) init_IRFactory(sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, comments *JTList[*Comment], fileWithContent *SourceFile_parser, jsDocSourceKind *JsDocInfoParser_JsDocSourceKind) {
 	this.finit_IRFactory()
 	this.jsdocTracker = new_IRFactory_CommentTracker(comments, &Predicate_tfn_Comment{func(c *Comment) bool {
 		return (c.type__ == Comment_Type_JSDOC)
@@ -66,7 +66,7 @@ func (this *IRFactory) init_IRFactory(sourceFile StaticSourceFile, config *Confi
 	this.jsDocSourceKind = jsDocSourceKind
 }
 
-func new_IRFactory(sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, comments *TList[*Comment], fileWithContent *SourceFile_parser, jsDocSourceKind *JsDocInfoParser_JsDocSourceKind) *IRFactory {
+func new_IRFactory(sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, comments *JTList[*Comment], fileWithContent *SourceFile_parser, jsDocSourceKind *JsDocInfoParser_JsDocSourceKind) *IRFactory {
 	this := &IRFactory{}
 	this.init_IRFactory(sourceFile, config, errorReporter, comments, fileWithContent, jsDocSourceKind)
 	return this
@@ -126,7 +126,7 @@ func (this *IRFactory) getFeatures() *FeatureSet {
 }
 
 func (this *IRFactory) validateAll(n Node) {
-	var work *TDeque[Node] = newTDeque_(tc_Node)
+	var work *TDeque[Node] = newTDeque_(jtc_Node)
 	for n != 0 {
 		this.validate(n)
 		var nextSibling Node = n.getNext()
@@ -370,7 +370,7 @@ func (this *IRFactory) validateParameters(n Node) {
 	if !n.isParamList() {
 		return
 	}
-	var seenNames *TSet[string] = newTSet_(tc_string)
+	var seenNames *JTSet[string] = jnewTSet_(jtc_string)
 	{
 		var c Node = n.getFirstChild()
 		for ; c != 0; c = c.getNext() {
@@ -398,7 +398,7 @@ func (this *IRFactory) setFileOverviewJsDoc(irNode Node) {
 		return this.firstFileoverview.toBuilder()
 	}()
 	if !this.licenseBuilder.isEmpty() {
-		fileoverview.recordLicense(String_join_s("", Iterable(this.licenseBuilder.asSet())))
+		fileoverview.recordLicense(JString_join_s("", Iterable(this.licenseBuilder.asSet())))
 	}
 	irNode.setJSDocInfo(fileoverview.build_1(false))
 }
@@ -507,7 +507,7 @@ func (this *IRFactory) parseInlineJSDocAt(pos *SourcePosition_util) *JSDocInfo {
 	}
 	var comment *Comment = this.getJSDocCommentAt(pos)
 	return func() *JSDocInfo {
-		if (comment != nil) && !String_contains_s(comment.value_, "@") {
+		if (comment != nil) && !JString_contains_s(comment.value_, "@") {
 			return this.parseInlineTypeDoc(comment)
 		}
 		return this.parseJSDocInfoFrom(comment)
@@ -529,7 +529,7 @@ func (this *IRFactory) parseNonJSDocCommentAt(pos *SourcePosition_util, isInline
 		if withinClosureUnawareCodeRange {
 			var currentJsDocComment *Comment = this.jsdocTracker.current()
 			if (currentComment == nil) || ((currentJsDocComment != nil) && (IRFactory_COMMENT_START_POSITION_COMPARATOR.compare(obj_(currentComment), obj_(currentJsDocComment)) > 0)) {
-				if String_contains_s(currentJsDocComment.value_, "@license") {
+				if JString_contains_s(currentJsDocComment.value_, "@license") {
 					this.jsdocTracker.advance()
 					continue
 				}
@@ -732,9 +732,9 @@ func IRFactory_charno(location *SourcePosition_util) int32 {
 func IRFactory_languageFeatureWarningMessage(feature *FeatureSet_Feature) string {
 	var forFeature *Config_LanguageMode = Config_LanguageMode_minimumRequiredFor(feature)
 	if forFeature == Config_LanguageMode_UNSUPPORTED {
-		return ("This language feature is not currently supported by the compiler: " + tostr_(feature))
+		return ("This language feature is not currently supported by the compiler: " + jtostr_(feature))
 	} else {
-		return ("This language feature is only supported for " + tostr_(Config_LanguageMode_minimumRequiredFor(feature)) + " mode or better: " + tostr_(feature))
+		return ("This language feature is only supported for " + jtostr_(Config_LanguageMode_minimumRequiredFor(feature)) + " mode or better: " + jtostr_(feature))
 	}
 	panic("unreachable")
 }
@@ -857,7 +857,7 @@ func (this *IRFactory) reportErrorIfYieldOrAwaitInDefaultValue(defaultValueNode 
 }
 
 func IRFactory_findNodeTypeInExpression(expressionNode Node, token *Token_rhino) Node {
-	var worklist *TDeque[Node] = newTDeque_(tc_Node)
+	var worklist *TDeque[Node] = newTDeque_(jtc_Node)
 	worklist.add(expressionNode)
 	for !worklist.isEmpty() {
 		var node Node = worklist.pop()
@@ -1014,7 +1014,7 @@ func (this *IRFactory) inStrictContext() bool {
 
 func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 	var value string = token.value_
-	if String_contains_s(value, "_") {
+	if JString_contains_s(value, "_") {
 		value = this.removeNumericSeparators(value, token)
 	}
 	var location *SourceRange = token.location_
@@ -1102,7 +1102,7 @@ func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 func (this *IRFactory) normalizeBigInt(token *LiteralToken) *BigInteger {
 	var value string = token.value_
 	value = String_substring(value, 0, String_indexOf(value, 110))
-	if String_contains_s(value, "_") {
+	if JString_contains_s(value, "_") {
 		value = this.removeNumericSeparators(value, token)
 	}
 	var length int32 = String_length(value)
@@ -1134,7 +1134,7 @@ func (this *IRFactory) normalizeBigInt(token *LiteralToken) *BigInteger {
 
 func (this *IRFactory) removeNumericSeparators(value string, token *LiteralToken) string {
 	this.maybeWarnForFeatureToken(token.up_Token_parser(), FeatureSet_Feature_NUMERIC_SEPARATOR)
-	return String_replace_s(value, "_", "")
+	return JString_replace_s(value, "_", "")
 }
 
 func IRFactory_roundLargeRadixLiteral(v float64, digits string, radix int32) float64 {
@@ -1214,7 +1214,7 @@ func IRFactory_transformBooleanTokenType(token *TokenType) *Token_rhino {
 		case TokenType_FALSE:
 			return Token_rhino_FALSE
 		default:
-			panic(new_IllegalStateException_String(tostr_(token)).self())
+			panic(new_IllegalStateException_String(jtostr_(token)).self())
 		}
 		panic("unreachable")
 	}()
@@ -1228,7 +1228,7 @@ func IRFactory_transformUpdateTokenType(token *TokenType) *Token_rhino {
 		case TokenType_MINUS_MINUS:
 			return Token_rhino_DEC
 		default:
-			panic(new_IllegalStateException_String(tostr_(token)).self())
+			panic(new_IllegalStateException_String(jtostr_(token)).self())
 		}
 		panic("unreachable")
 	}()
@@ -1252,7 +1252,7 @@ func IRFactory_transformUnaryTokenType(token *TokenType) *Token_rhino {
 		case TokenType_VOID:
 			return Token_rhino_VOID
 		default:
-			panic(new_IllegalStateException_String(tostr_(token)).self())
+			panic(new_IllegalStateException_String(jtostr_(token)).self())
 		}
 		panic("unreachable")
 	}()
@@ -1346,7 +1346,7 @@ func IRFactory_transformBinaryTokenType(token *TokenType) *Token_rhino {
 		case TokenType_QUESTION_QUESTION_EQUAL:
 			return Token_rhino_ASSIGN_COALESCE
 		default:
-			panic(new_IllegalStateException_String(tostr_(token)).self())
+			panic(new_IllegalStateException_String(jtostr_(token)).self())
 		}
 		panic("unreachable")
 	}()
@@ -1424,8 +1424,8 @@ const IRFactory_UNEXPECTED_NEW_DOT_TARGET string = "new.target must be inside a 
 const IRFactory_NEW_DOT_TARGET_IN_CLASS_FIELD_OR_STATIC_BLOCK string = "new.target is not supported in class field initializers or static blocks"
 const IRFactory_UNDEFINED_LABEL string = "undefined label \"%s\""
 
-var IRFactory_ES5_RESERVED_KEYWORDS *TSet[string]
-var IRFactory_ES5_STRICT_RESERVED_KEYWORDS *TSet[string]
+var IRFactory_ES5_RESERVED_KEYWORDS *JTSet[string]
+var IRFactory_ES5_STRICT_RESERVED_KEYWORDS *JTSet[string]
 var IRFactory_COMMENT_START_POSITION_COMPARATOR Comparator
 
 const IRFactory_JSCOMP_CLOSURE_UNAWARE_CODE_SHADOW_HOST_NAME string = "$jscomp_wrap_closure_unaware_code"
@@ -1441,8 +1441,8 @@ func IRFactory_clinit() {
 	}
 	IRFactory_clinit_done = true
 	IRFactory_CR_OR_CRLF_PATTERN = Pattern_compile("\r\n?")
-	IRFactory_ES5_RESERVED_KEYWORDS = immutableSetOf_[string](tc_string, "class", "const", "enum", "export", "extends", "import", "super")
-	IRFactory_ES5_STRICT_RESERVED_KEYWORDS = immutableSetOf_[string](tc_string, "class", "const", "enum", "export", "extends", "import", "super", "implements", "interface", "let", "package", "private", "protected", "public", "static", "yield")
+	IRFactory_ES5_RESERVED_KEYWORDS = jimmutableSetOf_[string](jtc_string, "class", "const", "enum", "export", "extends", "import", "super")
+	IRFactory_ES5_STRICT_RESERVED_KEYWORDS = jimmutableSetOf_[string](jtc_string, "class", "const", "enum", "export", "extends", "import", "super", "implements", "interface", "let", "package", "private", "protected", "public", "static", "yield")
 	IRFactory_COMMENT_START_POSITION_COMPARATOR = Comparator_thenComparingInt(Comparator_comparingInt(&ToIntFunction_tfn_Comment{func(x *Comment) int32 {
 		return x.location_.start_.line_
 	}}), &ToIntFunction_tfn_Comment{func(x *Comment) int32 {
@@ -1506,7 +1506,7 @@ func (this *IRFactory_LineAndColumn) toString() string {
 }
 
 type IRFactory_CommentTracker struct {
-	source        *TList[*Comment]
+	source        *JTList[*Comment]
 	filter        PredicateOf[*Comment]
 	index_        int32
 	previousIndex int32
@@ -1517,14 +1517,14 @@ func (this *IRFactory_CommentTracker) finit_IRFactory_CommentTracker() {
 	this.previousIndex = -1
 }
 
-func (this *IRFactory_CommentTracker) init_IRFactory_CommentTracker(source *TList[*Comment], filter PredicateOf[*Comment]) {
+func (this *IRFactory_CommentTracker) init_IRFactory_CommentTracker(source *JTList[*Comment], filter PredicateOf[*Comment]) {
 	this.finit_IRFactory_CommentTracker()
 	this.source = source
 	this.filter = filter
 	this.advance()
 }
 
-func new_IRFactory_CommentTracker(source *TList[*Comment], filter PredicateOf[*Comment]) *IRFactory_CommentTracker {
+func new_IRFactory_CommentTracker(source *JTList[*Comment], filter PredicateOf[*Comment]) *IRFactory_CommentTracker {
 	this := &IRFactory_CommentTracker{}
 	this.init_IRFactory_CommentTracker(source, filter)
 	return this
@@ -1919,7 +1919,7 @@ func (this *IRFactory_TransformDispatcher) processFunctionCall(callNode *CallExp
 	var node Node = this.outer_.newNode_2(Token_rhino_CALL, this.outer_.transform(callNode.operand))
 	node.setTrailingComma(callNode.arguments.hasTrailingComma_)
 	var argumentsTree *ArgumentListTree = callNode.arguments
-	var zones *TList[*SourcePosition_util] = this.getEndOfArgCommentZones(argumentsTree.arguments, argumentsTree.commaPositions, argumentsTree.location_.end_)
+	var zones *JTList[*SourcePosition_util] = this.getEndOfArgCommentZones(argumentsTree.arguments, argumentsTree.commaPositions, argumentsTree.location_.end_)
 	var argCount int32 = 0
 	it_1 := callNode.arguments.arguments.each()
 	for it_1.next() {
@@ -1953,8 +1953,8 @@ func (this *IRFactory_TransformDispatcher) isNormalOrOptChainGet(n Node) bool {
 	return (((n.isGetProp() || n.isGetElem()) || n.isOptChainGetProp()) || n.isOptChainGetElem())
 }
 
-func (this *IRFactory_TransformDispatcher) getEndOfArgCommentZones(args *TList[*ParseTree], commaPositions *TList[*SourcePosition_util], argListEndPosition *SourcePosition_util) *TList[*SourcePosition_util] {
-	var zones *TListBuilder[*SourcePosition_util] = newTListBuilder_(tc_p_SourcePosition_util)
+func (this *IRFactory_TransformDispatcher) getEndOfArgCommentZones(args *JTList[*ParseTree], commaPositions *JTList[*SourcePosition_util], argListEndPosition *SourcePosition_util) *JTList[*SourcePosition_util] {
+	var zones *TListBuilder[*SourcePosition_util] = newTListBuilder_(jtc_p_SourcePosition_util)
 	var commaCount int32 = 0
 	it_1 := args.each()
 	for it_1.next() {
@@ -2150,8 +2150,8 @@ func (this *IRFactory_TransformDispatcher) processFormalParameterList(tree *Form
 	if !this.checkParameters(tree) {
 		return params
 	}
-	var parameters *TList[*ParseTree] = tree.parameters
-	var zones *TList[*SourcePosition_util] = this.getEndOfArgCommentZones(parameters, tree.commaPositions, tree.location_.end_)
+	var parameters *JTList[*ParseTree] = tree.parameters
+	var zones *JTList[*SourcePosition_util] = this.getEndOfArgCommentZones(parameters, tree.commaPositions, tree.location_.end_)
 	var argCount int32 = 0
 	it_1 := tree.parameters.each()
 	for it_1.next() {
@@ -2551,7 +2551,7 @@ func (this *IRFactory_TransformDispatcher) processPropertyNameAssignment(tree *P
 
 func (this *IRFactory_TransformDispatcher) checkParenthesizedExpression(exprNode *ParenExpressionTree) {
 	if exprNode.expression.type__ == ParseTreeType_COMMA_EXPRESSION {
-		var commaNodes *TList[*ParseTree] = exprNode.expression.asCommaExpression().expressions
+		var commaNodes *JTList[*ParseTree] = exprNode.expression.asCommaExpression().expressions
 		var lastChild *ParseTree = to_ParseTree(Iterables_getLast(Iterable(commaNodes.asList())))
 		if lastChild.type__ == ParseTreeType_ITER_REST {
 			this.outer_.errorReporter.error("A rest parameter must be in a parameter list.", this.outer_.sourceName_, IRFactory_lineno(lastChild), IRFactory_charnoParseTree(lastChild))
@@ -2888,7 +2888,7 @@ func (this *IRFactory_TransformDispatcher) createMissingExpressionNode() Node {
 }
 
 func (this *IRFactory_TransformDispatcher) processIllegalToken(node *ParseTree) Node {
-	this.outer_.errorReporter.error(("Unsupported syntax: " + tostr_(node.type__)), this.outer_.sourceName_, IRFactory_lineno(node), 0)
+	this.outer_.errorReporter.error(("Unsupported syntax: " + jtostr_(node.type__)), this.outer_.sourceName_, IRFactory_lineno(node), 0)
 	return this.outer_.newNode(Token_rhino_EMPTY)
 }
 
@@ -2981,12 +2981,12 @@ func (this *IRFactory_TransformDispatcher) processClassDeclaration(tree *ClassDe
 	return classNode
 }
 
-func (this *IRFactory_TransformDispatcher) validatePrivatePropertyUsage(privatePropNames *TSet[string], classMembers Node) {
+func (this *IRFactory_TransformDispatcher) validatePrivatePropertyUsage(privatePropNames *JTSet[string], classMembers Node) {
 	Preconditions_checkState(classMembers.isClassMembers())
 	if !classMembers.hasChildren() {
 		return
 	}
-	var visitStack *TDeque[Node] = newTDeque_(tc_Node)
+	var visitStack *TDeque[Node] = newTDeque_(jtc_Node)
 	visitStack.add(classMembers.getFirstChild())
 	for !visitStack.isEmpty() {
 		var node Node = Node_of_(SequencedCollection_removeLast(SequencedCollection(visitStack.asDeque())))
@@ -3006,7 +3006,7 @@ func (this *IRFactory_TransformDispatcher) validatePrivatePropertyUsage(privateP
 			}
 		}
 		if node.isClassMembers() {
-			var innerClassPrivatePropNames *TSet[string] = this.getPrivatePropsAndValidateUniqueness(node)
+			var innerClassPrivatePropNames *JTSet[string] = this.getPrivatePropsAndValidateUniqueness(node)
 			innerClassPrivatePropNames.asSet().addAll(Collection(privatePropNames.asSet()))
 			this.validatePrivatePropertyUsage(innerClassPrivatePropNames, node)
 		} else {
@@ -3020,13 +3020,13 @@ func (this *IRFactory_TransformDispatcher) validatePrivatePropertyUsage(privateP
 	}
 }
 
-func (this *IRFactory_TransformDispatcher) getPrivatePropsAndValidateUniqueness(classMembers Node) *TSet[string] {
-	var privateGetterNames *TSet[string] = newTSortedSet_(tc_string)
-	var privateSetterNames *TSet[string] = newTSortedSet_(tc_string)
-	var privateStaticGetterNames *TSet[string] = newTSortedSet_(tc_string)
-	var privateStaticSetterNames *TSet[string] = newTSortedSet_(tc_string)
-	var privateFieldAndMethodNames *TSet[string] = newTSortedSet_(tc_string)
-	var privatePropNames *TSet[string] = newTSortedSet_(tc_string)
+func (this *IRFactory_TransformDispatcher) getPrivatePropsAndValidateUniqueness(classMembers Node) *JTSet[string] {
+	var privateGetterNames *JTSet[string] = newTSortedSet_(jtc_string)
+	var privateSetterNames *JTSet[string] = newTSortedSet_(jtc_string)
+	var privateStaticGetterNames *JTSet[string] = newTSortedSet_(jtc_string)
+	var privateStaticSetterNames *JTSet[string] = newTSortedSet_(jtc_string)
+	var privateFieldAndMethodNames *JTSet[string] = newTSortedSet_(jtc_string)
+	var privatePropNames *JTSet[string] = newTSortedSet_(jtc_string)
 	{
 		var curNode Node = classMembers.getFirstChild()
 		for ; curNode != 0; curNode = curNode.getNext() {
@@ -3233,7 +3233,7 @@ func (this *IRFactory_TransformDispatcher) processImportMeta(tree *ImportMetaExp
 }
 
 func (this *IRFactory_TransformDispatcher) checkParameters(tree *FormalParameterListTree) bool {
-	var params *TList[*ParseTree] = tree.parameters
+	var params *JTList[*ParseTree] = tree.parameters
 	var good bool = true
 	for i := int32(0); i < params.size(); i++ {
 		var param *ParseTree = params.get(i)
@@ -3250,7 +3250,7 @@ func (this *IRFactory_TransformDispatcher) checkParameters(tree *FormalParameter
 	return good
 }
 
-func (this *IRFactory_TransformDispatcher) transformList(type_ *Token_rhino, list *TList[*ParseTree]) Node {
+func (this *IRFactory_TransformDispatcher) transformList(type_ *Token_rhino, list *JTList[*ParseTree]) Node {
 	var n Node = this.outer_.newNode(type_)
 	it_1 := list.each()
 	for it_1.next() {
@@ -3260,7 +3260,7 @@ func (this *IRFactory_TransformDispatcher) transformList(type_ *Token_rhino, lis
 	return n
 }
 
-func (this *IRFactory_TransformDispatcher) transformListOrEmpty(type_ *Token_rhino, list *TList[*ParseTree]) Node {
+func (this *IRFactory_TransformDispatcher) transformListOrEmpty(type_ *Token_rhino, list *JTList[*ParseTree]) Node {
 	if (list == nil) || list.isEmpty() {
 		return this.outer_.newNode(Token_rhino_EMPTY)
 	} else {
@@ -3285,7 +3285,7 @@ func (this *IRFactory_TransformDispatcher) processLiteralExpression(expr *Litera
 		case TokenType_REGULAR_EXPRESSION:
 			return this.processRegExpLiteral(expr)
 		default:
-			panic(new_IllegalStateException_String(("Unexpected literal type: " + tostr_(Object_getClass(expr.literalToken.self())) + " type: " + tostr_(expr.literalToken.type__))).self())
+			panic(new_IllegalStateException_String(("Unexpected literal type: " + jtostr_(Object_getClass(expr.literalToken.self())) + " type: " + jtostr_(expr.literalToken.type__))).self())
 		}
 		panic("unreachable")
 	}()

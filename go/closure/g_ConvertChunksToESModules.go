@@ -4,15 +4,15 @@ package closure
 
 type ConvertChunksToESModules struct {
 	compiler_              *AbstractCompiler
-	crossChunkExports      *TMap[*JSChunk, Set]
-	crossChunkImports      *TMap[*JSChunk, Map]
-	dynamicImportCallbacks *TList[Node]
+	crossChunkExports      *JTMap[*JSChunk, Set]
+	crossChunkImports      *JTMap[*JSChunk, Map]
+	dynamicImportCallbacks *JTList[Node]
 }
 
 func (this *ConvertChunksToESModules) finit_ConvertChunksToESModules() {
-	this.crossChunkExports = newTMap_(tc_p_JSChunk, tc_Set)
-	this.crossChunkImports = newTMap_(tc_p_JSChunk, tc_Map)
-	this.dynamicImportCallbacks = newTList_(tc_Node)
+	this.crossChunkExports = jnewTMap_(jtc_p_JSChunk, tc_Set)
+	this.crossChunkImports = jnewTMap_(jtc_p_JSChunk, tc_Map)
+	this.dynamicImportCallbacks = jnewTList_(jtc_Node)
 }
 
 func (this *ConvertChunksToESModules) init_ConvertChunksToESModules(compiler *AbstractCompiler) {
@@ -114,7 +114,7 @@ func (this *ConvertChunksToESModules) addImportStatements() {
 	it_1 := this.crossChunkImports.eachEntry()
 	for it_1.next() {
 		var chunkImportsEntry *TEntry[*JSChunk, Map] = it_1.entry()
-		var importStatements *TList[Node] = newTList_(tc_Node)
+		var importStatements *JTList[Node] = jnewTList_(jtc_Node)
 		var importingChunk *JSChunk = chunkImportsEntry.getKey()
 		var firstInput *CompilerInput = importingChunk.getFirst()
 		var moduleBody Node = firstInput.getAstRoot(this.compiler_).getFirstChild()
@@ -379,7 +379,7 @@ func (this *ConvertChunksToESModules_FindCrossChunkReferences) shouldTraverse_im
 func (this *ConvertChunksToESModules_FindCrossChunkReferences) visitScript(t *NodeTraversal, script Node) {
 	Preconditions_checkState(script.isScript())
 	var chunk *JSChunk = t.getChunk()
-	var chunkDependencies *TList[*JSChunk] = chunk.getDependencies()
+	var chunkDependencies *JTList[*JSChunk] = chunk.getDependencies()
 	this.outer_.crossChunkExports.putIfAbsent(chunk, Set(new_LinkedHashSet()))
 	if !chunkDependencies.isEmpty() {
 		var namesToImportByChunk MapOf[*JSChunk, SetOf[string]] = this.outer_.crossChunkImports.computeIfAbsent(chunk, &Function_tfn_JSChunk_Map{func(k *JSChunk) Map {

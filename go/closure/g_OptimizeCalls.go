@@ -4,17 +4,17 @@ package closure
 
 type OptimizeCalls struct {
 	compiler_       *AbstractCompiler
-	passes          *TList[OptimizeCalls_CallGraphCompilerPass]
+	passes          *JTList[OptimizeCalls_CallGraphCompilerPass]
 	considerExterns bool
 }
 
-func (this *OptimizeCalls) init_OptimizeCalls(compiler *AbstractCompiler, passes *TList[OptimizeCalls_CallGraphCompilerPass], considerExterns bool) {
+func (this *OptimizeCalls) init_OptimizeCalls(compiler *AbstractCompiler, passes *JTList[OptimizeCalls_CallGraphCompilerPass], considerExterns bool) {
 	this.compiler_ = compiler
 	this.passes = passes
 	this.considerExterns = considerExterns
 }
 
-func new_OptimizeCalls(compiler *AbstractCompiler, passes *TList[OptimizeCalls_CallGraphCompilerPass], considerExterns bool) *OptimizeCalls {
+func new_OptimizeCalls(compiler *AbstractCompiler, passes *JTList[OptimizeCalls_CallGraphCompilerPass], considerExterns bool) *OptimizeCalls {
 	this := &OptimizeCalls{}
 	this.init_OptimizeCalls(compiler, passes, considerExterns)
 	return this
@@ -43,12 +43,12 @@ func (this *OptimizeCalls) eliminateAccessorsFrom(references *OptimizeCalls_Refe
 	references.props.asMap().keySet().removeAll(Collection(this.compiler_.getAccessorSummary().getAccessors().asImm().keySet()))
 }
 
-func OptimizeCalls_safeSet(set *TSet[string]) *TSet[string] {
-	return func() *TSet[string] {
+func OptimizeCalls_safeSet(set *JTSet[string]) *JTSet[string] {
+	return func() *JTSet[string] {
 		if set != nil {
-			return immutableSetCopyOfT_(tc_string, set)
+			return immutableSetCopyOfT_(jtc_string, set)
 		}
-		return tsetEmptyImm_(tc_string)
+		return jtsetEmptyImm_(jtc_string)
 	}()
 }
 
@@ -113,7 +113,7 @@ type OptimizeCalls_Builder struct {
 }
 
 func (this *OptimizeCalls_Builder) finit_OptimizeCalls_Builder() {
-	this.passes = newTListBuilder_(tc_OptimizeCalls_CallGraphCompilerPass)
+	this.passes = newTListBuilder_(jtc_OptimizeCalls_CallGraphCompilerPass)
 }
 
 func (this *OptimizeCalls_Builder) init_OptimizeCalls_Builder() {
@@ -149,13 +149,13 @@ func (this *OptimizeCalls_Builder) build() *OptimizeCalls {
 
 type OptimizeCalls_ReferenceMap struct {
 	globalScope *Scope
-	names_      *TMap[string, *ArrayList]
-	props       *TMap[string, *ArrayList]
+	names_      *JTMap[string, *ArrayList]
+	props       *JTMap[string, *ArrayList]
 }
 
 func (this *OptimizeCalls_ReferenceMap) finit_OptimizeCalls_ReferenceMap() {
-	this.names_ = newTMap_(tc_string, tc_p_ArrayList)
-	this.props = newTMap_(tc_string, tc_p_ArrayList)
+	this.names_ = jnewTMap_(jtc_string, tc_p_ArrayList)
+	this.props = jnewTMap_(jtc_string, tc_p_ArrayList)
 }
 
 func (this *OptimizeCalls_ReferenceMap) init_OptimizeCalls_ReferenceMap() {
@@ -168,7 +168,7 @@ func new_OptimizeCalls_ReferenceMap() *OptimizeCalls_ReferenceMap {
 	return this
 }
 
-func (this *OptimizeCalls_ReferenceMap) addReference(data *TMap[string, *ArrayList], name string, n Node) {
+func (this *OptimizeCalls_ReferenceMap) addReference(data *JTMap[string, *ArrayList], name string, n Node) {
 	var refs ArrayListOf[Node] = data.computeIfAbsent(name, &Function_tfn_string_any{func(k string) any {
 		return new_ArrayList_0().self()
 	}})
@@ -205,15 +205,15 @@ func OptimizeCalls_ReferenceMap_getFunctionNodes(definitionSites ListOf[Node]) *
 	return result.immutableCopy()
 }
 
-func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) *TList[Node] {
+func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) *JTList[Node] {
 	if definitionSite.isGetterDef() || definitionSite.isSetterDef() {
-		return tlistEmptyImm_(tc_Node)
+		return jtlistEmptyImm_(jtc_Node)
 	}
 	var parent Node = definitionSite.getParent()
 	if parent == 0 {
-		return tlistEmptyImm_(tc_Node)
+		return jtlistEmptyImm_(jtc_Node)
 	}
-	var fns *TListBuilder[Node] = newTListBuilder_(tc_Node)
+	var fns *TListBuilder[Node] = newTListBuilder_(jtc_Node)
 	switch parent.getToken() {
 	case Token_rhino_CLASS:
 		if definitionSite.isFirstChildOf(parent) {
@@ -341,7 +341,7 @@ func OptimizeCalls_ReferenceMap_isSimpleAssignmentTarget(n Node) bool {
 
 type OptimizeCalls_ReferenceMapBuildingCallback struct {
 	outer_      *OptimizeCalls
-	externProps *TSet[string]
+	externProps *JTSet[string]
 	references  *OptimizeCalls_ReferenceMap
 	globalScope *Scope
 }

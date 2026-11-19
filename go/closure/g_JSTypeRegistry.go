@@ -31,14 +31,14 @@ type JSTypeRegistry struct {
 	reporter                        ErrorReporter_rhino
 	nativeTypes                     []*JSType
 	scopedNameTable                 *SimpleTable[Node, string, *JSType]
-	closureNamespaces               *TMap[string, *JSTypeRegistry_ClosureNamespace]
+	closureNamespaces               *JTMap[string, *JSTypeRegistry_ClosureNamespace]
 	nameTableGlobalRoot             Node
 	nonNullableTypeNames            *SimpleSetMultimap
 	forwardDeclaredTypes            SetOf[string]
 	nonRefTypesIndexedByProperty    *SimpleSetMultimap
 	sentinelObjectLiteral           *JSType
-	propertiesOfSupertypesInUnions  *TSet[string]
-	droppedPropertiesOfUnions       *TSet[string]
+	propertiesOfSupertypesInUnions  *JTSet[string]
+	droppedPropertiesOfUnions       *JTSet[string]
 	eachRefTypeIndexedByProperty    *SimpleSetMultimap
 	emptyTemplateTypeMap            *TemplateTypeMap
 	resolver                        *JSTypeResolver
@@ -46,12 +46,12 @@ type JSTypeRegistry struct {
 
 func (this *JSTypeRegistry) finit_JSTypeRegistry() {
 	this.scopedNameTable = SimpleTable_create[Node, string, *JSType]()
-	this.closureNamespaces = newTMap_(tc_string, tc_p_JSTypeRegistry_ClosureNamespace)
+	this.closureNamespaces = jnewTMap_(jtc_string, tc_p_JSTypeRegistry_ClosureNamespace)
 	this.nameTableGlobalRoot = new_Node_Token(Token_rhino_ROOT)
 	this.nonNullableTypeNames = SimpleSetMultimap_create()
 	this.nonRefTypesIndexedByProperty = SimpleSetMultimap_create()
-	this.propertiesOfSupertypesInUnions = newTSet_(tc_string)
-	this.droppedPropertiesOfUnions = newTSet_(tc_string)
+	this.propertiesOfSupertypesInUnions = jnewTSet_(jtc_string)
+	this.droppedPropertiesOfUnions = jnewTSet_(jtc_string)
 	this.eachRefTypeIndexedByProperty = SimpleSetMultimap_create()
 }
 
@@ -183,7 +183,7 @@ func (this *JSTypeRegistry) getIThenableTemplate() *TemplateType {
 	return Preconditions_checkNotNull_T(this.iThenableTemplateKey)
 }
 
-func (this *JSTypeRegistry) maybeGetTemplateTypesOfBuiltin(scope StaticScope, fnName string) *TList[*TemplateType] {
+func (this *JSTypeRegistry) maybeGetTemplateTypesOfBuiltin(scope StaticScope, fnName string) *JTList[*TemplateType] {
 	var type_ *JSType = this.getType(scope, fnName)
 	var objType *ObjectType = func() *ObjectType {
 		if type_ == nil {
@@ -284,13 +284,13 @@ func (this *JSTypeRegistry) initializeBuiltInTypes() {
 	var iteratorIterableNextTemplate *TemplateType = new_TemplateType_JSTypeRegistry_String(this, "TNext")
 	var iteratorIterableFunctionType *FunctionType = this.nativeInterface("IteratorIterable", []*TemplateType{this.iteratorIterableValueTemplate, this.iteratorIterableReturnTemplate, iteratorIterableNextTemplate})
 	this.registerNativeType(JSTypeNative_ITERATOR_ITERABLE_FUNCTION_TYPE, iteratorIterableFunctionType.up_JSType())
-	iteratorIterableFunctionType.setExtendedInterfaces(immutableListOf_[*ObjectType](tc_p_ObjectType, this.createTemplatizedType(iterableType, []*JSType{this.iteratorIterableValueTemplate.up_JSType(), this.iteratorIterableReturnTemplate.up_JSType(), iteratorIterableNextTemplate.up_JSType()}).up_ObjectType(), this.createTemplatizedType(iteratorLikeType, []*JSType{this.iteratorIterableValueTemplate.up_JSType(), this.iteratorIterableReturnTemplate.up_JSType(), iteratorIterableNextTemplate.up_JSType()}).up_ObjectType()))
+	iteratorIterableFunctionType.setExtendedInterfaces(jimmutableListOf_[*ObjectType](jtc_p_ObjectType, this.createTemplatizedType(iterableType, []*JSType{this.iteratorIterableValueTemplate.up_JSType(), this.iteratorIterableReturnTemplate.up_JSType(), iteratorIterableNextTemplate.up_JSType()}).up_ObjectType(), this.createTemplatizedType(iteratorLikeType, []*JSType{this.iteratorIterableValueTemplate.up_JSType(), this.iteratorIterableReturnTemplate.up_JSType(), iteratorIterableNextTemplate.up_JSType()}).up_ObjectType()))
 	var iteratorIterableType *ObjectType = iteratorIterableFunctionType.getInstanceType()
 	this.registerNativeType(JSTypeNative_ITERATOR_ITERABLE_TYPE, iteratorIterableType.up_JSType())
 	var iteratorFunctionType *FunctionType = this.nativeConstructorBuilder("Iterator").withParameters().withTemplateKeys([]*TemplateType{this.iteratorValueTemplate, this.iteratorReturnTemplate, iteratorNextTemplate}).build_rFunctionType()
 	this.registerNativeType(JSTypeNative_ITERATOR_FUNCTION_TYPE, iteratorFunctionType.up_JSType())
 	iteratorFunctionType.getPrototype()
-	iteratorFunctionType.setImplementedInterfaces(immutableListOf_[*ObjectType](tc_p_ObjectType, this.createTemplatizedType(iteratorIterableType, []*JSType{this.iteratorValueTemplate.up_JSType(), this.iteratorReturnTemplate.up_JSType(), iteratorNextTemplate.up_JSType()}).up_ObjectType()))
+	iteratorFunctionType.setImplementedInterfaces(jimmutableListOf_[*ObjectType](jtc_p_ObjectType, this.createTemplatizedType(iteratorIterableType, []*JSType{this.iteratorValueTemplate.up_JSType(), this.iteratorReturnTemplate.up_JSType(), iteratorNextTemplate.up_JSType()}).up_ObjectType()))
 	var iteratorType *ObjectType = iteratorFunctionType.getInstanceType()
 	this.registerNativeType(JSTypeNative_ITERATOR_TYPE, iteratorType.up_JSType())
 	this.iiterableResultValueTemplate = new_TemplateType_JSTypeRegistry_String(this, "TYield")
@@ -299,18 +299,18 @@ func (this *JSTypeRegistry) initializeBuiltInTypes() {
 	var iiterableResultType *ObjectType = iiterableResultFunctionType.getInstanceType()
 	this.registerNativeType(JSTypeNative_I_ITERABLE_RESULT_TYPE, iiterableResultType.up_JSType())
 	var iArrayLikeFunctionType *FunctionType = this.nativeRecord("IArrayLike", []*TemplateType{iArrayLikeTemplate})
-	iArrayLikeFunctionType.setExtendedInterfaces(immutableListOf_[*ObjectType](tc_p_ObjectType, this.createTemplatizedType(iObjectType, []*JSType{numberType.up_JSType(), iArrayLikeTemplate.up_JSType()}).up_ObjectType()))
+	iArrayLikeFunctionType.setExtendedInterfaces(jimmutableListOf_[*ObjectType](jtc_p_ObjectType, this.createTemplatizedType(iObjectType, []*JSType{numberType.up_JSType(), iArrayLikeTemplate.up_JSType()}).up_ObjectType()))
 	this.registerNativeType(JSTypeNative_I_ARRAY_LIKE_FUNCTION_TYPE, iArrayLikeFunctionType.up_JSType())
 	var iArrayLikeType *ObjectType = iArrayLikeFunctionType.getInstanceType()
 	this.registerNativeType(JSTypeNative_I_ARRAY_LIKE_TYPE, iArrayLikeType.up_JSType())
 	var readonlyArrayFunctionType *FunctionType = this.nativeRecord("ReadonlyArray", []*TemplateType{this.readonlyArrayElementTemplateKey})
 	this.registerNativeType(JSTypeNative_READONLY_ARRAY_FUNCTION_TYPE, readonlyArrayFunctionType.up_JSType())
-	readonlyArrayFunctionType.setExtendedInterfaces(immutableListOf_[*ObjectType](tc_p_ObjectType, this.createTemplatizedType(iArrayLikeType, []*JSType{this.readonlyArrayElementTemplateKey.up_JSType()}).up_ObjectType(), this.createTemplatizedType(iterableType, []*JSType{this.readonlyArrayElementTemplateKey.up_JSType()}).up_ObjectType()))
+	readonlyArrayFunctionType.setExtendedInterfaces(jimmutableListOf_[*ObjectType](jtc_p_ObjectType, this.createTemplatizedType(iArrayLikeType, []*JSType{this.readonlyArrayElementTemplateKey.up_JSType()}).up_ObjectType(), this.createTemplatizedType(iterableType, []*JSType{this.readonlyArrayElementTemplateKey.up_JSType()}).up_ObjectType()))
 	var readonlyArrayType *ObjectType = readonlyArrayFunctionType.getInstanceType()
 	this.registerNativeType(JSTypeNative_READONLY_ARRAY_TYPE, readonlyArrayType.up_JSType())
 	var arrayFunctionType *FunctionType = this.nativeConstructorBuilder("Array").withParameters_1(this.createParametersWithVarArgs([]*JSType{allType.up_JSType()})).withReturnsOwnInstanceType().withTemplateKeys([]*TemplateType{this.arrayElementTemplateKey}).build_rFunctionType()
 	arrayFunctionType.getPrototype()
-	arrayFunctionType.setImplementedInterfaces(immutableListOf_[*ObjectType](tc_p_ObjectType, this.createTemplatizedType(readonlyArrayType, []*JSType{this.arrayElementTemplateKey.up_JSType()}).up_ObjectType()))
+	arrayFunctionType.setImplementedInterfaces(jimmutableListOf_[*ObjectType](jtc_p_ObjectType, this.createTemplatizedType(readonlyArrayType, []*JSType{this.arrayElementTemplateKey.up_JSType()}).up_ObjectType()))
 	this.registerNativeType(JSTypeNative_ARRAY_FUNCTION_TYPE, arrayFunctionType.up_JSType())
 	var arrayType *ObjectType = arrayFunctionType.getInstanceType()
 	this.registerNativeType(JSTypeNative_ARRAY_TYPE, arrayType.up_JSType())
@@ -324,7 +324,7 @@ func (this *JSTypeRegistry) initializeBuiltInTypes() {
 	this.generatorReturnTemplate = new_TemplateType_JSTypeRegistry_String(this, "TReturn")
 	var generatorNextTemplate *TemplateType = new_TemplateType_JSTypeRegistry_String(this, "TNext")
 	var generatorFunctionType *FunctionType = this.nativeInterface("Generator", []*TemplateType{this.generatorValueTemplate, this.generatorReturnTemplate, generatorNextTemplate})
-	generatorFunctionType.setExtendedInterfaces(immutableListOf_[*ObjectType](tc_p_ObjectType, this.createTemplatizedType(iteratorIterableType, []*JSType{this.generatorValueTemplate.up_JSType(), this.generatorReturnTemplate.up_JSType(), generatorNextTemplate.up_JSType()}).up_ObjectType()))
+	generatorFunctionType.setExtendedInterfaces(jimmutableListOf_[*ObjectType](jtc_p_ObjectType, this.createTemplatizedType(iteratorIterableType, []*JSType{this.generatorValueTemplate.up_JSType(), this.generatorReturnTemplate.up_JSType(), generatorNextTemplate.up_JSType()}).up_ObjectType()))
 	this.registerNativeType(JSTypeNative_GENERATOR_FUNCTION_TYPE, generatorFunctionType.up_JSType())
 	this.registerNativeType(JSTypeNative_GENERATOR_TYPE, generatorFunctionType.getInstanceType().up_JSType())
 	this.asyncIteratorValueTemplate = new_TemplateType_JSTypeRegistry_String(this, "T")
@@ -343,7 +343,7 @@ func (this *JSTypeRegistry) initializeBuiltInTypes() {
 	var asyncIteratorIterableReturnTemplate *TemplateType = new_TemplateType_JSTypeRegistry_String(this, "TReturn")
 	var asyncIteratorIterableNextTemplate *TemplateType = new_TemplateType_JSTypeRegistry_String(this, "TNext")
 	var asyncIteratorIterableFunctionType *FunctionType = this.nativeInterface("AsyncIteratorIterable", []*TemplateType{asyncIteratorIterableTemplate, asyncIteratorIterableReturnTemplate, asyncIteratorIterableNextTemplate})
-	asyncIteratorIterableFunctionType.setExtendedInterfaces(immutableListOf_[*ObjectType](tc_p_ObjectType, this.createTemplatizedType(asyncIteratorFunctionType.getInstanceType(), []*JSType{asyncIteratorIterableTemplate.up_JSType(), asyncIteratorIterableReturnTemplate.up_JSType(), asyncIteratorIterableNextTemplate.up_JSType()}).up_ObjectType(), this.createTemplatizedType(asyncIterableFunctionType.getInstanceType(), []*JSType{asyncIteratorIterableTemplate.up_JSType(), asyncIteratorIterableReturnTemplate.up_JSType(), asyncIteratorIterableNextTemplate.up_JSType()}).up_ObjectType()))
+	asyncIteratorIterableFunctionType.setExtendedInterfaces(jimmutableListOf_[*ObjectType](jtc_p_ObjectType, this.createTemplatizedType(asyncIteratorFunctionType.getInstanceType(), []*JSType{asyncIteratorIterableTemplate.up_JSType(), asyncIteratorIterableReturnTemplate.up_JSType(), asyncIteratorIterableNextTemplate.up_JSType()}).up_ObjectType(), this.createTemplatizedType(asyncIterableFunctionType.getInstanceType(), []*JSType{asyncIteratorIterableTemplate.up_JSType(), asyncIteratorIterableReturnTemplate.up_JSType(), asyncIteratorIterableNextTemplate.up_JSType()}).up_ObjectType()))
 	this.registerNativeType(JSTypeNative_ASYNC_ITERATOR_ITERABLE_FUNCTION_TYPE, asyncIteratorIterableFunctionType.up_JSType())
 	this.registerNativeType(JSTypeNative_ASYNC_ITERATOR_ITERABLE_TYPE, asyncIteratorIterableFunctionType.getInstanceType().up_JSType())
 	var asyncGeneratorValueTemplate *TemplateType = new_TemplateType_JSTypeRegistry_String(this, "T")
@@ -351,7 +351,7 @@ func (this *JSTypeRegistry) initializeBuiltInTypes() {
 	var asyncGeneratorNextTemplate *TemplateType = new_TemplateType_JSTypeRegistry_String(this, "TNext")
 	var asyncGeneratorFunctionType *FunctionType = this.nativeInterface("AsyncGenerator", []*TemplateType{asyncGeneratorValueTemplate, asyncGeneratorReturnTemplate, asyncGeneratorNextTemplate})
 	this.registerNativeType(JSTypeNative_ASYNC_GENERATOR_FUNCTION_TYPE, asyncGeneratorFunctionType.up_JSType())
-	asyncGeneratorFunctionType.setExtendedInterfaces(immutableListOf_[*ObjectType](tc_p_ObjectType, this.createTemplatizedType(asyncIteratorIterableFunctionType.getInstanceType(), []*JSType{asyncGeneratorValueTemplate.up_JSType(), asyncGeneratorReturnTemplate.up_JSType(), asyncGeneratorNextTemplate.up_JSType()}).up_ObjectType()))
+	asyncGeneratorFunctionType.setExtendedInterfaces(jimmutableListOf_[*ObjectType](jtc_p_ObjectType, this.createTemplatizedType(asyncIteratorIterableFunctionType.getInstanceType(), []*JSType{asyncGeneratorValueTemplate.up_JSType(), asyncGeneratorReturnTemplate.up_JSType(), asyncGeneratorNextTemplate.up_JSType()}).up_ObjectType()))
 	this.registerNativeType(JSTypeNative_ASYNC_GENERATOR_TYPE, asyncGeneratorFunctionType.getInstanceType().up_JSType())
 	var ithenableFunctionType *FunctionType = this.nativeInterface("IThenable", []*TemplateType{this.iThenableTemplateKey})
 	ithenableFunctionType.setStruct()
@@ -363,11 +363,11 @@ func (this *JSTypeRegistry) initializeBuiltInTypes() {
 	this.registerNativeType(JSTypeNative_THENABLE_TYPE, thenableType)
 	var promiseParameterType *JSType = this.createFunctionType(unknownType.up_JSType(), []*JSType{this.createFunctionTypeList(unknownType.up_JSType(), this.createOptionalParameters([]*JSType{this.createUnionType([]*JSType{this.promiseTemplateKey.up_JSType(), this.createTemplatizedType(ithenableType, []*JSType{this.promiseTemplateKey.up_JSType()}).up_JSType(), thenableType, nullType.up_JSType()})})).up_JSType(), this.createFunctionTypeList(unknownType.up_JSType(), this.createOptionalParameters([]*JSType{allType.up_JSType()})).up_JSType()}).up_JSType()
 	var promiseFunctionType *FunctionType = this.nativeConstructorBuilder("Promise").withParameters_1(this.createParameters([]*JSType{promiseParameterType})).withTemplateKeys([]*TemplateType{this.promiseTemplateKey}).build_rFunctionType()
-	promiseFunctionType.setImplementedInterfaces(immutableListOf_[*ObjectType](tc_p_ObjectType, this.createTemplatizedType(ithenableType, []*JSType{this.promiseTemplateKey.up_JSType()}).up_ObjectType()))
+	promiseFunctionType.setImplementedInterfaces(jimmutableListOf_[*ObjectType](jtc_p_ObjectType, this.createTemplatizedType(ithenableType, []*JSType{this.promiseTemplateKey.up_JSType()}).up_ObjectType()))
 	this.registerNativeType(JSTypeNative_PROMISE_FUNCTION_TYPE, promiseFunctionType.up_JSType())
 	this.registerNativeType(JSTypeNative_PROMISE_TYPE, promiseFunctionType.getInstanceType().up_JSType())
 	var argumentsFunctionType *FunctionType = this.nativeConstructorBuilder("Arguments").withParameters().build_rFunctionType()
-	argumentsFunctionType.setImplementedInterfaces(immutableListOf_[*ObjectType](tc_p_ObjectType, this.createTemplatizedType(iArrayLikeType, []*JSType{unknownType.up_JSType()}).up_ObjectType(), this.createTemplatizedType(iterableType, []*JSType{unknownType.up_JSType()}).up_ObjectType()))
+	argumentsFunctionType.setImplementedInterfaces(jimmutableListOf_[*ObjectType](jtc_p_ObjectType, this.createTemplatizedType(iArrayLikeType, []*JSType{unknownType.up_JSType()}).up_ObjectType(), this.createTemplatizedType(iterableType, []*JSType{unknownType.up_JSType()}).up_ObjectType()))
 	this.registerNativeType(JSTypeNative_ARGUMENTS_FUNCTION_TYPE, argumentsFunctionType.up_JSType())
 	this.registerNativeType(JSTypeNative_ARGUMENTS_TYPE, argumentsFunctionType.getInstanceType().up_JSType())
 	var bigintNumberString *JSType = this.createUnionType([]*JSType{bigIntType.up_JSType(), numberType.up_JSType(), stringType.up_JSType()})
@@ -442,13 +442,13 @@ func (this *JSTypeRegistry) initializeBuiltInTypes() {
 	this.registerPropertyOnType("prototype", objectFunctionType.up_JSType())
 	var readonlyMapFunctionType *FunctionType = this.nativeInterface("ReadonlyMap", []*TemplateType{this.readonlyMapKeyTemplateKey, this.readonlyMapValueTemplateKey})
 	this.registerNativeType(JSTypeNative_READONLY_MAP_FUNCTION_TYPE, readonlyMapFunctionType.up_JSType())
-	readonlyMapFunctionType.setExtendedInterfaces(immutableListOf_[*ObjectType](tc_p_ObjectType, this.createTemplatizedType(iterableType, []*JSType{this.createTemplatizedType(arrayType, []*JSType{this.createUnionType([]*JSType{this.readonlyMapKeyTemplateKey.up_JSType(), this.readonlyMapValueTemplateKey.up_JSType()})}).up_JSType()}).up_ObjectType()))
+	readonlyMapFunctionType.setExtendedInterfaces(jimmutableListOf_[*ObjectType](jtc_p_ObjectType, this.createTemplatizedType(iterableType, []*JSType{this.createTemplatizedType(arrayType, []*JSType{this.createUnionType([]*JSType{this.readonlyMapKeyTemplateKey.up_JSType(), this.readonlyMapValueTemplateKey.up_JSType()})}).up_JSType()}).up_ObjectType()))
 	var readonlyMapType *ObjectType = readonlyMapFunctionType.getInstanceType()
 	this.registerNativeType(JSTypeNative_READONLY_MAP_TYPE, readonlyMapType.up_JSType())
 	var mapFunctionType *FunctionType = this.nativeConstructorBuilder("Map").withParameters_1(this.createOptionalParameters([]*JSType{this.createUnionType([]*JSType{nullType.up_JSType(), this.createTemplatizedType(iterableType, []*JSType{this.createTemplatizedType(arrayType, []*JSType{this.createUnionType([]*JSType{this.mapKeyTemplateKey.up_JSType(), this.mapValueTemplateKey.up_JSType()})}).up_JSType()}).up_JSType(), this.createTemplatizedType(arrayType, []*JSType{this.createTemplatizedType(arrayType, []*JSType{this.createUnionType([]*JSType{this.mapKeyTemplateKey.up_JSType(), this.mapValueTemplateKey.up_JSType()})}).up_JSType()}).up_JSType()})})).withTemplateKeys([]*TemplateType{this.mapKeyTemplateKey, this.mapValueTemplateKey}).build_rFunctionType()
 	this.registerNativeType(JSTypeNative_MAP_FUNCTION_TYPE, mapFunctionType.up_JSType())
 	mapFunctionType.getPrototype()
-	mapFunctionType.setImplementedInterfaces(immutableListOf_[*ObjectType](tc_p_ObjectType, this.createTemplatizedType(readonlyMapType, []*JSType{this.mapKeyTemplateKey.up_JSType(), this.mapValueTemplateKey.up_JSType()}).up_ObjectType()))
+	mapFunctionType.setImplementedInterfaces(jimmutableListOf_[*ObjectType](jtc_p_ObjectType, this.createTemplatizedType(readonlyMapType, []*JSType{this.mapKeyTemplateKey.up_JSType(), this.mapValueTemplateKey.up_JSType()}).up_ObjectType()))
 	var mapType *ObjectType = mapFunctionType.getInstanceType()
 	this.registerNativeType(JSTypeNative_MAP_TYPE, mapType.up_JSType())
 }
@@ -533,7 +533,7 @@ func (this *JSTypeRegistry) isDeclaredForScope(scope StaticScope, name string) b
 }
 
 func JSTypeRegistry_checkTypeName(typeName string) {
-	Preconditions_checkArgument_boolean_Object(!String_contains_s(typeName, "<"), "Type names cannot contain template annotations.")
+	Preconditions_checkArgument_boolean_Object(!JString_contains_s(typeName, "<"), "Type names cannot contain template annotations.")
 }
 
 func (this *JSTypeRegistry) getTypeInternal(scope StaticScope, name string) *JSType {
@@ -596,14 +596,14 @@ func JSTypeRegistry_isNameDefinedLocally(resolutionScope StaticTypedScope, refer
 
 func (this *JSTypeRegistry) resolveViaClosureNamespace(reference string) *JSType {
 	var prefix string = reference
-	var unusedComponents *TListBuilder[string] = newTListBuilder_(tc_string)
+	var unusedComponents *TListBuilder[string] = newTListBuilder_(jtc_string)
 	for {
 		var namespace *JSTypeRegistry_ClosureNamespace = this.closureNamespaces.get(prefix)
 		if namespace != nil {
 			if namespace.isLegacy() {
 				return nil
 			} else {
-				return this.resolveViaPropertyGivenSlot(namespace.type_(), namespace.definitionNode(), tlistImm_(tc_string, unusedComponents.build().asImm().reverse()))
+				return this.resolveViaPropertyGivenSlot(namespace.type_(), namespace.definitionNode(), jtlistImm_(jtc_string, unusedComponents.build().asImm().reverse()))
 			}
 		}
 		var lastDot int32 = String_lastIndexOf_String(prefix, ".")
@@ -624,12 +624,12 @@ func (this *JSTypeRegistry) resolveViaProperties(declarationScope StaticTypedSco
 	if slot == nil {
 		return nil
 	}
-	var componentNames *TList[string] = immutableListCopyOf_(tc_string, Iterables_skip(JSTypeRegistry_DOT_SPLITTER.split_s(qualifiedName), 1))
+	var componentNames *JTList[string] = jimmutableListCopyOf_(jtc_string, Iterables_skip(JSTypeRegistry_DOT_SPLITTER.split_s(qualifiedName), 1))
 	var slotType *JSType = slot.getType()
 	return this.resolveViaPropertyGivenSlot(slotType, 0, componentNames)
 }
 
-func (this *JSTypeRegistry) resolveViaPropertyGivenSlot(slotType *JSType, definitionNode Node, componentNames *TList[string]) *JSType {
+func (this *JSTypeRegistry) resolveViaPropertyGivenSlot(slotType *JSType, definitionNode Node, componentNames *JTList[string]) *JSType {
 	if componentNames.isEmpty() {
 		var typedefType *JSType = JSTypeRegistry_resolveTypeFromNodeIfTypedef(definitionNode)
 		if typedefType != nil {
@@ -832,8 +832,8 @@ func (this *JSTypeRegistry) getEachReferenceTypeWithProperty(propertyName string
 }
 
 func (this *JSTypeRegistry) findCommonSuperObject(a *ObjectType, b *ObjectType) *ObjectType {
-	var stackA *TList[*ObjectType] = JSTypeRegistry_getSuperStack(a)
-	var stackB *TList[*ObjectType] = JSTypeRegistry_getSuperStack(b)
+	var stackA *JTList[*ObjectType] = JSTypeRegistry_getSuperStack(a)
+	var stackB *JTList[*ObjectType] = JSTypeRegistry_getSuperStack(b)
 	var result *ObjectType = this.getNativeObjectType(JSTypeNative_OBJECT_TYPE)
 	for !stackA.isEmpty() && !stackB.isEmpty() {
 		var currentA *ObjectType = stackA.removeAt((stackA.size() - 1))
@@ -847,8 +847,8 @@ func (this *JSTypeRegistry) findCommonSuperObject(a *ObjectType, b *ObjectType) 
 	return result
 }
 
-func JSTypeRegistry_getSuperStack(a *ObjectType) *TList[*ObjectType] {
-	var stack *TList[*ObjectType] = newTListN_(tc_p_ObjectType, 5)
+func JSTypeRegistry_getSuperStack(a *ObjectType) *JTList[*ObjectType] {
+	var stack *JTList[*ObjectType] = jnewTListN_(jtc_p_ObjectType, 5)
 	{
 		var current *ObjectType = a
 		for ; current != nil; current = current.getImplicitPrototype() {
@@ -1070,10 +1070,10 @@ func (this *JSTypeRegistry) createOptionalNullableType(type_ *JSType) *JSType {
 }
 
 func (this *JSTypeRegistry) createUnionType(variants []*JSType) *JSType {
-	return this.createUnionTypeList(immutableListCopyOfArr_(tc_p_JSType, variants))
+	return this.createUnionTypeList(jimmutableListCopyOfArr_(jtc_p_JSType, variants))
 }
 
-func (this *JSTypeRegistry) createUnionTypeList(variants *TList[*JSType]) *JSType {
+func (this *JSTypeRegistry) createUnionTypeList(variants *JTList[*JSType]) *JSType {
 	return UnionType_builder(this).addAlternates(variants).build()
 }
 
@@ -1089,7 +1089,7 @@ func (this *JSTypeRegistry) createFunctionType(returnType *JSType, parameterType
 	return this.createFunctionTypeList(returnType, this.createParameters(parameterTypes))
 }
 
-func (this *JSTypeRegistry) createFunctionTypeList(returnType *JSType, parameters *TList[*FunctionType_Parameter]) *FunctionType {
+func (this *JSTypeRegistry) createFunctionTypeList(returnType *JSType, parameters *JTList[*FunctionType_Parameter]) *FunctionType {
 	return FunctionType_builder(this).withParameters_1(parameters).withReturnType(returnType).build_rFunctionType()
 }
 
@@ -1101,16 +1101,16 @@ func (this *JSTypeRegistry) createNativeFunctionTypeWithVarArgs(returnType *JSTy
 	return this.createNativeFunctionType(returnType, this.createParametersWithVarArgs(parameterTypes))
 }
 
-func (this *JSTypeRegistry) createFunctionTypeWithInstanceType(instanceType *ObjectType, returnType *JSType, parameterTypes *TList[*JSType]) *JSType {
-	var paramsNode *TList[*FunctionType_Parameter] = this.createParameters(arrmap_(parameterTypes.asList().toArray(arrmap_(make([]*JSType, 0), func(v_ *JSType) any { return v_.self() })), func(v_ any) *JSType { return to_JSType(v_) }))
+func (this *JSTypeRegistry) createFunctionTypeWithInstanceType(instanceType *ObjectType, returnType *JSType, parameterTypes *JTList[*JSType]) *JSType {
+	var paramsNode *JTList[*FunctionType_Parameter] = this.createParameters(arrmap_(parameterTypes.asList().toArray(arrmap_(make([]*JSType, 0), func(v_ *JSType) any { return v_.self() })), func(v_ any) *JSType { return to_JSType(v_) }))
 	return FunctionType_builder(this).withParameters_1(paramsNode).withReturnType(returnType).withTypeOfThis(instanceType.up_JSType()).build_rFunctionType().up_JSType()
 }
 
-func (this *JSTypeRegistry) createParameters(parameterTypes []*JSType) *TList[*FunctionType_Parameter] {
+func (this *JSTypeRegistry) createParameters(parameterTypes []*JSType) *JTList[*FunctionType_Parameter] {
 	return this.createParameters_2(false, parameterTypes)
 }
 
-func (this *JSTypeRegistry) createParameters_2(lastVarArgs bool, parameterTypes []*JSType) *TList[*FunctionType_Parameter] {
+func (this *JSTypeRegistry) createParameters_2(lastVarArgs bool, parameterTypes []*JSType) *JTList[*FunctionType_Parameter] {
 	var builder *FunctionParamBuilder = new_FunctionParamBuilder_JSTypeRegistry(this)
 	var max_ int32 = (int32(len(parameterTypes)) - 1)
 	for i := int32(0); i <= max_; i++ {
@@ -1123,11 +1123,11 @@ func (this *JSTypeRegistry) createParameters_2(lastVarArgs bool, parameterTypes 
 	return builder.build()
 }
 
-func (this *JSTypeRegistry) createParametersWithVarArgs(parameterTypes []*JSType) *TList[*FunctionType_Parameter] {
+func (this *JSTypeRegistry) createParametersWithVarArgs(parameterTypes []*JSType) *JTList[*FunctionType_Parameter] {
 	return this.createParameters_2(true, parameterTypes)
 }
 
-func (this *JSTypeRegistry) createOptionalParameters(parameterTypes []*JSType) *TList[*FunctionType_Parameter] {
+func (this *JSTypeRegistry) createOptionalParameters(parameterTypes []*JSType) *JTList[*FunctionType_Parameter] {
 	var builder *FunctionParamBuilder = new_FunctionParamBuilder_JSTypeRegistry(this)
 	builder.addOptionalParams(parameterTypes)
 	return builder.build()
@@ -1137,7 +1137,7 @@ func (this *JSTypeRegistry) createFunctionTypeWithNewReturnType(existingFunction
 	return existingFunctionType.toBuilder().withReturnType(returnType).build_rFunctionType()
 }
 
-func (this *JSTypeRegistry) createNativeFunctionType(returnType *JSType, parameters *TList[*FunctionType_Parameter]) *FunctionType {
+func (this *JSTypeRegistry) createNativeFunctionType(returnType *JSType, parameters *JTList[*FunctionType_Parameter]) *FunctionType {
 	return FunctionType_builder(this).withParameters_1(parameters).withReturnType(returnType).forNativeType().build_rFunctionType()
 }
 
@@ -1150,7 +1150,7 @@ func (this *JSTypeRegistry) buildRecordTypeFromObject(objType *ObjectType) *JSTy
 	if propNames.isEmpty() {
 		return this.getNativeType(JSTypeNative_OBJECT_TYPE)
 	}
-	var props *TMapBuilder[string, *JSType] = newTMapBuilder_(tc_string, tc_p_JSType)
+	var props *TMapBuilder[string, *JSType] = newTMapBuilder_(jtc_string, jtc_p_JSType)
 	it_1 := foreach_(propNames)
 	for it_1.next() {
 		var propName string = str_(it_1.v)
@@ -1197,7 +1197,7 @@ func (this *JSTypeRegistry) resetImplicitPrototype(type_ *JSType, newImplicitPro
 	}
 }
 
-func (this *JSTypeRegistry) createConstructorType(name string, source Node, parameters *TList[*FunctionType_Parameter], returnType *JSType, templateKeys *TList[*TemplateType], isAbstract bool) *FunctionType {
+func (this *JSTypeRegistry) createConstructorType(name string, source Node, parameters *JTList[*FunctionType_Parameter], returnType *JSType, templateKeys *JTList[*TemplateType], isAbstract bool) *FunctionType {
 	Preconditions_checkArgument((((source == 0) || source.isFunction()) || source.isClass()))
 	return FunctionType_builder(this).forConstructor().withName(Optional_of[string](name)).withSourceNode(source).withParameters_1(parameters).withReturnType(returnType).withTemplateKeysImmutableList(templateKeys).withIsAbstract(isAbstract).build_rFunctionType()
 }
@@ -1218,14 +1218,14 @@ func (this *JSTypeRegistry) getEmptyTemplateTypeMap() *TemplateTypeMap {
 	return this.emptyTemplateTypeMap
 }
 
-func (this *JSTypeRegistry) createTemplatizedTypeImmutableList(baseType *ObjectType, templatizedTypes *TList[*JSType]) *TemplatizedType {
+func (this *JSTypeRegistry) createTemplatizedTypeImmutableList(baseType *ObjectType, templatizedTypes *JTList[*JSType]) *TemplatizedType {
 	Preconditions_checkNotNull_T(baseType)
 	return new_TemplatizedType(this, baseType, templatizedTypes)
 }
 
-func (this *JSTypeRegistry) createTemplatizedTypeMap(baseType *ObjectType, templatizedTypes *TMap[*TemplateType, *JSType]) *TemplatizedType {
+func (this *JSTypeRegistry) createTemplatizedTypeMap(baseType *ObjectType, templatizedTypes *JTMap[*TemplateType, *JSType]) *TemplatizedType {
 	var unknownType *JSType = this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
-	return this.createTemplatizedTypeImmutableList(baseType, tlistImm_(tc_p_JSType, JSTypeIterations_mapTypesImmutableList(&Function_fn{func(key_ any) any {
+	return this.createTemplatizedTypeImmutableList(baseType, jtlistImm_(jtc_p_JSType, JSTypeIterations_mapTypesImmutableList(&Function_fn{func(key_ any) any {
 		var key *JSType = to_JSType(key_)
 		_ = key
 		return Map_getOrDefault(templatizedTypes.asMap(), key.self(), unknownType.self())
@@ -1233,7 +1233,7 @@ func (this *JSTypeRegistry) createTemplatizedTypeMap(baseType *ObjectType, templ
 }
 
 func (this *JSTypeRegistry) createTemplatizedType(baseType *ObjectType, templatizedTypes []*JSType) *TemplatizedType {
-	return this.createTemplatizedTypeImmutableList(baseType, immutableListCopyOfArr_(tc_p_JSType, templatizedTypes))
+	return this.createTemplatizedTypeImmutableList(baseType, jimmutableListCopyOfArr_(jtc_p_JSType, templatizedTypes))
 }
 
 func (this *JSTypeRegistry) createNamedType(scope StaticTypedScope, reference string, sourceName Optional[string], lineno int32, charno int32) *NamedType {
@@ -1293,7 +1293,7 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 		case Token_rhino_STAR:
 			return this.getNativeType(JSTypeNative_ALL_TYPE)
 		case Token_rhino_PIPE:
-			var builder *TListBuilder[*JSType] = newTListBuilder_(tc_p_JSType)
+			var builder *TListBuilder[*JSType] = newTListBuilder_(jtc_p_JSType)
 			{
 				var child Node = n.getFirstChild()
 				for ; child != 0; child = child.getNext() {
@@ -1322,7 +1322,7 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 			return type_
 		case Token_rhino_STRINGLIT:
 			var nominalType *JSType = this.getType_5(scope, n.getString(), sourceName, n.getLineno(), n.getCharno())
-			var templateArgs *TList[*JSType] = this.parseTemplateArgs(nominalType, n, sourceName, scope)
+			var templateArgs *JTList[*JSType] = this.parseTemplateArgs(nominalType, n, sourceName, scope)
 			if nominalType.isNamedType() && !nominalType.isResolved() {
 				if templateArgs != nil {
 					nominalType = nominalType.toMaybeNamedType().toBuilder().setTemplateTypes(templateArgs).build().up_JSType()
@@ -1420,7 +1420,7 @@ func (this *JSTypeRegistry) addNullabilityBasedOnParseContext(n Node, type_ *JST
 	panic("unreachable")
 }
 
-func (this *JSTypeRegistry) parseTemplateArgs(nominalType *JSType, typeNode Node, sourceName Optional[string], scope StaticTypedScope) *TList[*JSType] {
+func (this *JSTypeRegistry) parseTemplateArgs(nominalType *JSType, typeNode Node, sourceName Optional[string], scope StaticTypedScope) *JTList[*JSType] {
 	var typeList Node = typeNode.getFirstChild()
 	if typeList == 0 {
 		return nil
@@ -1437,18 +1437,18 @@ func (this *JSTypeRegistry) parseTemplateArgs(nominalType *JSType, typeNode Node
 		templateArgs.add_int_Object(0, this.getNativeType(JSTypeNative_UNKNOWN_TYPE).self())
 	}
 	if nominalType.isNamedType() && !nominalType.isResolved() {
-		return immutableListCopyOf_(tc_p_JSType, icast_Collection(templateArgs.self()))
+		return jimmutableListCopyOf_(jtc_p_JSType, icast_Collection(templateArgs.self()))
 	}
 	var requiredTemplateArgCount int32 = nominalType.getTemplateParamCount()
 	if templateArgs.size() <= requiredTemplateArgCount {
-		return immutableListCopyOf_(tc_p_JSType, icast_Collection(templateArgs.self()))
+		return jimmutableListCopyOf_(jtc_p_JSType, icast_Collection(templateArgs.self()))
 	}
 	if !nominalType.isUnknownType() && !this.isNonNullableName(StaticScope(scope), typeNode.getString()) {
 		var firstExtraTemplateParam Node = typeNode.getFirstChild().getChildAtIndex(requiredTemplateArgCount)
 		var message string = ("Too many template parameters\nFound " + istr_(int64(templateArgs.size())) + ", required at most " + istr_(int64(requiredTemplateArgCount)))
 		this.reporter.warning(message, sourceName, firstExtraTemplateParam.getLineno(), firstExtraTemplateParam.getCharno())
 	}
-	return immutableListCopyOf_(tc_p_JSType, Collection(templateArgs.subList(0, requiredTemplateArgCount)))
+	return jimmutableListCopyOf_(jtc_p_JSType, Collection(templateArgs.subList(0, requiredTemplateArgCount)))
 }
 
 func (this *JSTypeRegistry) createRecordTypeFromNodes(n Node, sourceName Optional[string], scope StaticTypedScope) *JSType {

@@ -172,12 +172,12 @@ func ExtractPrototypeMemberDeclarations_Pattern_clinit() {
 }
 
 type ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo struct {
-	instances  *TList[*ExtractPrototypeMemberDeclarations_ExtractionInstance]
+	instances  *JTList[*ExtractPrototypeMemberDeclarations_ExtractionInstance]
 	totalDelta int32
 }
 
 func (this *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo) finit_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo() {
-	this.instances = newTList_(tc_p_ExtractPrototypeMemberDeclarations_ExtractionInstance)
+	this.instances = jnewTList_(jtc_p_ExtractPrototypeMemberDeclarations_ExtractionInstance)
 	this.totalDelta = 0
 }
 
@@ -194,7 +194,7 @@ func new_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo() *ExtractPro
 type ExtractPrototypeMemberDeclarations_GatherExtractionInfo struct {
 	NodeTraversal_AbstractShallowCallback
 	outer_           *ExtractPrototypeMemberDeclarations
-	instancesByChunk *TMap[*JSChunk, *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo]
+	instancesByChunk *JTMap[*JSChunk, *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo]
 }
 
 func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) up_NodeTraversal_AbstractShallowCallback() *NodeTraversal_AbstractShallowCallback {
@@ -205,7 +205,7 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) up_NodeTrav
 }
 
 func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) finit_ExtractPrototypeMemberDeclarations_GatherExtractionInfo() {
-	this.instancesByChunk = newTMap_(tc_p_JSChunk, tc_p_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo)
+	this.instancesByChunk = jnewTMap_(jtc_p_JSChunk, jtc_p_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo)
 }
 
 func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) init_ExtractPrototypeMemberDeclarations_GatherExtractionInfo() {
@@ -266,13 +266,13 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) shouldExtra
 
 type ExtractPrototypeMemberDeclarations_ExtractionInstance struct {
 	outer_       *ExtractPrototypeMemberDeclarations
-	declarations *TList[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration]
+	declarations *JTList[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration]
 	delta        int32
 	parent       Node
 }
 
 func (this *ExtractPrototypeMemberDeclarations_ExtractionInstance) finit_ExtractPrototypeMemberDeclarations_ExtractionInstance() {
-	this.declarations = newTList_(tc_p_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration)
+	this.declarations = jnewTList_(jtc_p_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration)
 	this.delta = 0
 }
 

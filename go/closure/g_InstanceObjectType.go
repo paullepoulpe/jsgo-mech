@@ -152,11 +152,11 @@ func (this *InstanceObjectType) recursionUnsafeHashCode_impl() int32 {
 	panic("unreachable")
 }
 
-func (this *InstanceObjectType) getCtorImplementedInterfaces_rImmutableList() *TList[*ObjectType] {
+func (this *InstanceObjectType) getCtorImplementedInterfaces_rImmutableList() *JTList[*ObjectType] {
 	return this.getConstructor().getImplementedInterfaces()
 }
 
-func (this *InstanceObjectType) getCtorExtendedInterfaces_rImmutableList() *TList[*ObjectType] {
+func (this *InstanceObjectType) getCtorExtendedInterfaces_rImmutableList() *JTList[*ObjectType] {
 	return this.getConstructor().getExtendedInterfaces()
 }
 

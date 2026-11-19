@@ -19,7 +19,7 @@ func new_ClosureRequireProcessor(nameDeclaration Node, requireKind *Binding_Crea
 	return this
 }
 
-func ClosureRequireProcessor_getAllRequires(nameDeclaration Node) *TList[*ClosureRequireProcessor_Require] {
+func ClosureRequireProcessor_getAllRequires(nameDeclaration Node) *JTList[*ClosureRequireProcessor_Require] {
 	var rhs Node = func() Node {
 		if nameDeclaration.getFirstChild().isDestructuringLhs() {
 			return nameDeclaration.getFirstChild().getSecondChild()
@@ -28,7 +28,7 @@ func ClosureRequireProcessor_getAllRequires(nameDeclaration Node) *TList[*Closur
 	}()
 	var requireKind *Binding_CreatedBy = ClosureRequireProcessor_getModuleDependencyTypeFromRhs(rhs)
 	if requireKind == nil {
-		return tlistEmptyImm_(tc_p_ClosureRequireProcessor_Require)
+		return jtlistEmptyImm_(jtc_p_ClosureRequireProcessor_Require)
 	}
 	return new_ClosureRequireProcessor(nameDeclaration, requireKind).getAllRequiresInDeclaration()
 }
@@ -48,7 +48,7 @@ func ClosureRequireProcessor_getModuleDependencyTypeFromRhs(value Node) *Binding
 	return ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS.get(callee.getString())
 }
 
-func (this *ClosureRequireProcessor) getAllRequiresInDeclaration() *TList[*ClosureRequireProcessor_Require] {
+func (this *ClosureRequireProcessor) getAllRequiresInDeclaration() *JTList[*ClosureRequireProcessor_Require] {
 	var rhs Node = func() Node {
 		if this.nameDeclaration.getFirstChild().isDestructuringLhs() {
 			return this.nameDeclaration.getFirstChild().getSecondChild()
@@ -58,19 +58,19 @@ func (this *ClosureRequireProcessor) getAllRequiresInDeclaration() *TList[*Closu
 	var namespace string = rhs.getSecondChild().getString()
 	if this.nameDeclaration.getFirstChild().isName() {
 		var lhs Node = this.nameDeclaration.getFirstChild()
-		return immutableListOf_[*ClosureRequireProcessor_Require](tc_p_ClosureRequireProcessor_Require, ClosureRequireProcessor_Require_create(lhs.getString(), Import_builder().moduleRequest(namespace).localName(lhs.getString()).importName(Export_NAMESPACE).importNode(this.nameDeclaration).nameNode(lhs).build(), this.requireKind))
+		return jimmutableListOf_[*ClosureRequireProcessor_Require](jtc_p_ClosureRequireProcessor_Require, ClosureRequireProcessor_Require_create(lhs.getString(), Import_builder().moduleRequest(namespace).localName(lhs.getString()).importName(Export_NAMESPACE).importNode(this.nameDeclaration).nameNode(lhs).build(), this.requireKind))
 	} else {
 		var objectPattern Node = this.nameDeclaration.getFirstFirstChild()
 		if !objectPattern.isObjectPattern() {
-			return tlistEmptyImm_(tc_p_ClosureRequireProcessor_Require)
+			return jtlistEmptyImm_(jtc_p_ClosureRequireProcessor_Require)
 		}
 		return this.getAllRequiresFromDestructuring(objectPattern, namespace)
 	}
 	panic("unreachable")
 }
 
-func (this *ClosureRequireProcessor) getAllRequiresFromDestructuring(objectPattern Node, namespace string) *TList[*ClosureRequireProcessor_Require] {
-	var requireBuilder *TListBuilder[*ClosureRequireProcessor_Require] = newTListBuilder_(tc_p_ClosureRequireProcessor_Require)
+func (this *ClosureRequireProcessor) getAllRequiresFromDestructuring(objectPattern Node, namespace string) *JTList[*ClosureRequireProcessor_Require] {
+	var requireBuilder *TListBuilder[*ClosureRequireProcessor_Require] = newTListBuilder_(jtc_p_ClosureRequireProcessor_Require)
 	{
 		var key Node = objectPattern.getFirstChild()
 		for ; key != 0; key = key.getNext() {
@@ -87,7 +87,7 @@ func (this *ClosureRequireProcessor) getAllRequiresFromDestructuring(objectPatte
 	return requireBuilder.build()
 }
 
-var ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS *TMap[string, *Binding_CreatedBy]
+var ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS *JTMap[string, *Binding_CreatedBy]
 
 var ClosureRequireProcessor_clinit_done bool
 
@@ -96,7 +96,7 @@ func ClosureRequireProcessor_clinit() {
 		return
 	}
 	ClosureRequireProcessor_clinit_done = true
-	ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS = immutableMapOf3_[string, *Binding_CreatedBy](tc_string, tc_p_Binding_CreatedBy, "require", Binding_CreatedBy_GOOG_REQUIRE, "requireType", Binding_CreatedBy_GOOG_REQUIRE_TYPE, "forwardDeclare", Binding_CreatedBy_GOOG_FORWARD_DECLARE)
+	ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS = immutableMapOf3_[string, *Binding_CreatedBy](jtc_string, tc_p_Binding_CreatedBy, "require", Binding_CreatedBy_GOOG_REQUIRE, "requireType", Binding_CreatedBy_GOOG_REQUIRE_TYPE, "forwardDeclare", Binding_CreatedBy_GOOG_FORWARD_DECLARE)
 
 }
 
@@ -159,5 +159,5 @@ func (this *ClosureRequireProcessor_Require) hashCode() int32 {
 }
 
 func (this *ClosureRequireProcessor_Require) toString() string {
-	return "Require[" + "localName=" + sstr_(this.localName_) + ", importRecord=" + tostr_(this.importRecord_) + ", createdBy=" + tostr_(this.createdBy_) + "]"
+	return "Require[" + "localName=" + sstr_(this.localName_) + ", importRecord=" + jtostr_(this.importRecord_) + ", createdBy=" + jtostr_(this.createdBy_) + "]"
 }

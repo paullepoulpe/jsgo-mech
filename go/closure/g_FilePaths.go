@@ -65,8 +65,8 @@ func FilePaths_parent(path string) Optional[string] {
 	}())
 }
 
-func FilePaths_names(plain string) *TList[string] {
-	var names *TList[string] = newTList_(tc_string)
+func FilePaths_names(plain string) *JTList[string] {
+	var names *JTList[string] = jnewTList_(jtc_string)
 	if plain == "/" {
 		return names
 	}
@@ -88,7 +88,7 @@ func FilePaths_names(plain string) *TList[string] {
 	panic("unreachable")
 }
 
-func FilePaths_joinNames(names *TList[string], from int32) string {
+func FilePaths_joinNames(names *JTList[string], from int32) string {
 	var path *StringBuilder = new_StringBuilder()
 	for i := int32(from); i < names.size(); i++ {
 		if i > from {
@@ -102,7 +102,7 @@ func FilePaths_joinNames(names *TList[string], from int32) string {
 func FilePaths_normalize(path string) string {
 	var plain string = FilePaths_clean(path)
 	var absolute bool = FilePaths_isAbsolute(plain)
-	var kept *TList[string] = newTList_(tc_string)
+	var kept *JTList[string] = jnewTList_(jtc_string)
 	it_1 := FilePaths_names(plain).each()
 	for it_1.next() {
 		var name string = it_1.v
@@ -164,10 +164,10 @@ func FilePaths_relativize(path string, other string) Optional[string] {
 			return Optional_of[string](target)
 		}
 	}
-	var from *TList[string] = FilePaths_names(base)
-	var to *TList[string] = func() *TList[string] {
+	var from *JTList[string] = FilePaths_names(base)
+	var to *JTList[string] = func() *JTList[string] {
 		if String_isEmpty(target) {
-			return newTList_(tc_string)
+			return jnewTList_(jtc_string)
 		}
 		return FilePaths_names(target)
 	}()

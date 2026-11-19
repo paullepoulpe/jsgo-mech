@@ -95,7 +95,7 @@ func ConvertToTypedInterface_shouldPreserveAssignment(expr Node, t *NodeTraversa
 var ConvertToTypedInterface_CONSTANT_WITH_SUGGESTED_TYPE *DiagnosticType
 var ConvertToTypedInterface_CONSTANT_WITHOUT_EXPLICIT_TYPE *DiagnosticType
 var ConvertToTypedInterface_GOOG_SCOPE_HIDDEN_TYPE *DiagnosticType
-var ConvertToTypedInterface_CALLS_TO_PRESERVE *TSet[string]
+var ConvertToTypedInterface_CALLS_TO_PRESERVE *JTSet[string]
 
 var ConvertToTypedInterface_clinit_done bool
 
@@ -107,7 +107,7 @@ func ConvertToTypedInterface_clinit() {
 	ConvertToTypedInterface_CONSTANT_WITH_SUGGESTED_TYPE = DiagnosticType_warning("JSC_CONSTANT_WITH_SUGGESTED_TYPE", "Constants in top-level should have types explicitly specified.\nYou may want specify this type as:\t@const '{'{0}'}'")
 	ConvertToTypedInterface_CONSTANT_WITHOUT_EXPLICIT_TYPE = DiagnosticType_warning("JSC_CONSTANT_WITHOUT_EXPLICIT_TYPE", "Constants in top-level should have types explicitly specified.")
 	ConvertToTypedInterface_GOOG_SCOPE_HIDDEN_TYPE = DiagnosticType_warning("JSC_GOOG_SCOPE_HIDDEN_TYPE", "Found a goog.scope local type declaration.\nIf you can't yet migrate this file to goog.module, use a /** @private */ declaration within the goog.provide namespace.")
-	ConvertToTypedInterface_CALLS_TO_PRESERVE = immutableSetOf_[string](tc_string, "Polymer", "goog.addSingletonGetter", "goog.define", "goog.forwardDeclare", "goog.module", "goog.module.declareLegacyNamespace", "goog.declareModuleId", "goog.provide", "goog.require", "goog.requireType")
+	ConvertToTypedInterface_CALLS_TO_PRESERVE = jimmutableSetOf_[string](jtc_string, "Polymer", "goog.addSingletonGetter", "goog.define", "goog.forwardDeclare", "goog.module", "goog.module.declareLegacyNamespace", "goog.declareModuleId", "goog.provide", "goog.require", "goog.requireType")
 
 }
 
@@ -389,7 +389,7 @@ func (this *ConvertToTypedInterface_SimplifyDeclarations) removeDuplicateDeclara
 		if String_startsWith(name, "this.") {
 			continue
 		}
-		var declList *TList[*PotentialDeclaration] = tlistFrom_(tc_p_PotentialDeclaration, Collection(this.currentFile.getDeclarations().get(strobj_(name))))
+		var declList *JTList[*PotentialDeclaration] = jtlistFrom_(jtc_p_PotentialDeclaration, Collection(this.currentFile.getDeclarations().get(strobj_(name))))
 		List_sort(declList.asList(), ConvertToTypedInterface_SimplifyDeclarations_DECLARATIONS_FIRST)
 		for declList.size() > 1 {
 			var decl *PotentialDeclaration = declList.removeAt(1)
@@ -401,7 +401,7 @@ func (this *ConvertToTypedInterface_SimplifyDeclarations) removeDuplicateDeclara
 
 func (this *ConvertToTypedInterface_SimplifyDeclarations) simplifyAll() {
 	this.removeDuplicateDeclarations()
-	var seenNames *TList[string] = tlistImm_(tc_string, ImmutableList_sortedCopyOf(ConvertToTypedInterface_SimplifyDeclarations_SHORT_TO_LONG, Iterable(this.currentFile.getDeclarations().keySet())))
+	var seenNames *JTList[string] = jtlistImm_(jtc_string, ImmutableList_sortedCopyOf(ConvertToTypedInterface_SimplifyDeclarations_SHORT_TO_LONG, Iterable(this.currentFile.getDeclarations().keySet())))
 	it_1 := seenNames.each()
 	for it_1.next() {
 		var name string = it_1.v
@@ -447,7 +447,7 @@ func (this *ConvertToTypedInterface_SimplifyDeclarations) processClass(n Node) {
 				Preconditions_checkState_boolean_String_Object_H(member.getSecondChild().isFunction(), "Non-function computed class member: %s", member)
 				this.processFunction(member.getSecondChild())
 			default:
-				panic(new_AssertionError_Object(strobj_((tostr_(member.getToken()) + " should not be handled by processClass"))).self())
+				panic(new_AssertionError_Object(strobj_((jtostr_(member.getToken()) + " should not be handled by processClass"))).self())
 			}
 			member = next
 		}

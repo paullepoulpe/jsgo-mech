@@ -5,7 +5,7 @@ package closure
 type SimpleSetMultimap struct {
 	map__      MapOf[any, SetOf[any]]
 	sorted     bool
-	entryOrder *TSet[*SimpleSetMultimap_Entry]
+	entryOrder *JTSet[*SimpleSetMultimap_Entry]
 	frozen     bool
 }
 
@@ -22,9 +22,9 @@ func (this *SimpleSetMultimap) init_SimpleSetMultimap(sorted bool, insertionOrde
 		return Map(new_LinkedHashMap())
 	}()
 	this.sorted = sorted
-	this.entryOrder = func() *TSet[*SimpleSetMultimap_Entry] {
+	this.entryOrder = func() *JTSet[*SimpleSetMultimap_Entry] {
 		if insertionOrdered {
-			return newTSet_(tce_p_SimpleSetMultimap_Entry)
+			return jnewTSet_(tce_p_SimpleSetMultimap_Entry)
 		}
 		return nil
 	}()

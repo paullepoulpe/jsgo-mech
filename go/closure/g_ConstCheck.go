@@ -5,7 +5,7 @@ package closure
 type ConstCheck struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_            *AbstractCompiler
-	initializedConstants *TSet[*Var]
+	initializedConstants *JTSet[*Var]
 }
 
 func (this *ConstCheck) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -18,7 +18,7 @@ func (this *ConstCheck) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraver
 func (this *ConstCheck) init_ConstCheck(compiler *AbstractCompiler) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.compiler_ = compiler
-	this.initializedConstants = newTSet_(tce_p_Var)
+	this.initializedConstants = jnewTSet_(tce_p_Var)
 }
 
 func new_ConstCheck(compiler *AbstractCompiler) *ConstCheck {

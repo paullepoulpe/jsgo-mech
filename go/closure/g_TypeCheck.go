@@ -1222,11 +1222,11 @@ func (this *TypeCheck) couldBeAConstructor(type_ *JSType) bool {
 	return ((type_.isConstructor() || type_.isEmptyType()) || type_.isUnknownType())
 }
 
-func (this *TypeCheck) checkInterfaceConflictProperties(n Node, functionName string, properties *TMap[Property_Key, *ObjectType], currentProperties *TMap[Property_Key, *ObjectType], interfaceType *ObjectType) {
+func (this *TypeCheck) checkInterfaceConflictProperties(n Node, functionName string, properties *JTMap[Property_Key, *ObjectType], currentProperties *JTMap[Property_Key, *ObjectType], interfaceType *ObjectType) {
 	var implicitProto *ObjectType = interfaceType.getImplicitPrototype()
-	var currentPropertyNames *TSet[Property_Key]
+	var currentPropertyNames *JTSet[Property_Key]
 	if implicitProto == nil {
-		currentPropertyNames = tsetEmptyImm_(tce_Property_Key)
+		currentPropertyNames = jtsetEmptyImm_(tce_Property_Key)
 	} else {
 		currentPropertyNames = implicitProto.getOwnPropertyKeys()
 	}
@@ -1308,7 +1308,7 @@ func (this *TypeCheck) checkConstructor(n Node, functionType *FunctionType) {
 		if baseConstructor != nil {
 			this.checkStructDictSubtyping(n, functionType, baseConstructor)
 		}
-		var alreadySeenInterfaces *TSet[*JSType] = newTSet_(tce_p_JSType)
+		var alreadySeenInterfaces *JTSet[*JSType] = jnewTSet_(tce_p_JSType)
 		it_1 := functionType.getOwnImplementedInterfaces().each()
 		for it_1.next() {
 			var baseInterface *JSType = it_1.v.up_JSType()
@@ -1361,8 +1361,8 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 		}
 	}
 	if functionType.getExtendedInterfacesCount() > 1 {
-		var properties *TMap[Property_Key, *ObjectType] = newTMap_(tce_Property_Key, tc_p_ObjectType)
-		var currentProperties *TMap[Property_Key, *ObjectType] = newTMap_(tce_Property_Key, tc_p_ObjectType)
+		var properties *JTMap[Property_Key, *ObjectType] = jnewTMap_(tce_Property_Key, jtc_p_ObjectType)
+		var currentProperties *JTMap[Property_Key, *ObjectType] = jnewTMap_(tce_Property_Key, jtc_p_ObjectType)
 		it_3 := functionType.getExtendedInterfaces().each()
 		for it_3.next() {
 			var interfaceType *ObjectType = it_3.v
@@ -1371,15 +1371,15 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 			properties.asMap().putAll(currentProperties.asMap())
 		}
 	}
-	var loopPath *TList[*FunctionType] = functionType.checkExtendsLoop()
+	var loopPath *JTList[*FunctionType] = functionType.checkExtendsLoop()
 	if loopPath != nil {
-		var displayNames *TList[string] = newTList_(tc_string)
+		var displayNames *JTList[string] = jnewTList_(jtc_string)
 		it_5 := loopPath.each()
 		for it_5.next() {
 			var loopType *FunctionType = it_5.v
 			displayNames.add(loopType.getDisplayName().orElse(nullstr_))
 		}
-		var strPath string = String_join_s(" -> ", Iterable(displayNames.asList()))
+		var strPath string = JString_join_s(" -> ", Iterable(displayNames.asList()))
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_INTERFACE_EXTENDS_LOOP, []string{loopPath.get(0).getDisplayName().orElse("null"), strPath}))
 	}
 	this.validator.expectAllInterfaceProperties(n, functionType)
@@ -1772,7 +1772,7 @@ func (this *TypeCheck) checkJsdocInfoContainsObjectWithBadKey(n Node) {
 func (this *TypeCheck) checkTypeContainsObjectWithBadKey(n Node, type_ *JSTypeExpression) {
 	if (type_ != nil) && (type_.getRoot().getJSType() != nil) {
 		var realType *JSType = type_.getRoot().getJSType()
-		var objectWithBadKey *JSType = this.findObjectWithNonStringifiableKey(realType, newTSet_(tce_p_JSType))
+		var objectWithBadKey *JSType = this.findObjectWithNonStringifiableKey(realType, jnewTSet_(tce_p_JSType))
 		if objectWithBadKey != nil {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_NON_STRINGIFIABLE_OBJECT_KEY, []string{objectWithBadKey.toString()}))
 		}
@@ -1842,7 +1842,7 @@ func (this *TypeCheck) isObjectTypeWithNonStringifiableKey(type_ *JSType) bool {
 	panic("unreachable")
 }
 
-func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyCheckedTypes *TSet[*JSType]) *JSType {
+func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyCheckedTypes *JTSet[*JSType]) *JSType {
 	if alreadyCheckedTypes.contains(type_) {
 		return nil
 	} else {
@@ -1907,7 +1907,7 @@ func (this *TypeCheck) checkNotReadonlyPropertyAssignment(lhs Node) {
 		return
 	}
 	var roArray *JSType = this.getNativeType(JSTypeNative_READONLY_ARRAY_TYPE)
-	var alternates *TList[*JSType] = TypeCheck_flattenUnion(lhsType)
+	var alternates *JTList[*JSType] = TypeCheck_flattenUnion(lhsType)
 	for i := int32(0); i < alternates.size(); i++ {
 		var type_ *JSType = alternates.get(i)
 		if roArray.equals(type_.self()) || roArray.equals(TypeCheck_maybeReferencedType(type_).self()) {
@@ -1927,11 +1927,11 @@ func TypeCheck_maybeReferencedType(type_ *JSType) *JSType {
 	}()
 }
 
-func TypeCheck_flattenUnion(maybeUnion *JSType) *TList[*JSType] {
+func TypeCheck_flattenUnion(maybeUnion *JSType) *JTList[*JSType] {
 	var union *UnionType = maybeUnion.toMaybeUnionType()
-	return func() *TList[*JSType] {
+	return func() *JTList[*JSType] {
 		if union == nil {
-			return immutableListOf_[*JSType](tc_p_JSType, maybeUnion)
+			return jimmutableListOf_[*JSType](jtc_p_JSType, maybeUnion)
 		}
 		return union.getAlternates()
 	}()
@@ -2009,7 +2009,7 @@ func TypeCheck_clinit() {
 	TypeCheck_DETERMINISTIC_TEST = DiagnosticType_warning("JSC_DETERMINISTIC_TEST", "condition always evaluates to {2}\nleft : {0}\nright: {1}")
 	TypeCheck_INEXISTENT_ENUM_ELEMENT = DiagnosticType_warning("JSC_INEXISTENT_ENUM_ELEMENT", "element {0} does not exist on this enum")
 	TypeCheck_INEXISTENT_PROPERTY = DiagnosticType_warning("JSC_INEXISTENT_PROPERTY", "Property {0} never defined on {1}")
-	TypeCheck_POSSIBLE_INEXISTENT_PROPERTY = DiagnosticType_disabled("JSC_POSSIBLE_INEXISTENT_PROPERTY", ("Property {0} never defined on {1}" + sstr_(String_replace_s(TypeCheck_POSSIBLE_INEXISTENT_PROPERTY_EXPLANATION, "'", "''"))))
+	TypeCheck_POSSIBLE_INEXISTENT_PROPERTY = DiagnosticType_disabled("JSC_POSSIBLE_INEXISTENT_PROPERTY", ("Property {0} never defined on {1}" + sstr_(JString_replace_s(TypeCheck_POSSIBLE_INEXISTENT_PROPERTY_EXPLANATION, "'", "''"))))
 	TypeCheck_INEXISTENT_PROPERTY_WITH_SUGGESTION = DiagnosticType_warning("JSC_INEXISTENT_PROPERTY_WITH_SUGGESTION", "Property {0} never defined on {1}. Did you mean {2}?")
 	TypeCheck_STRICT_INEXISTENT_PROPERTY = DiagnosticType_disabled("JSC_STRICT_INEXISTENT_PROPERTY", "Property {0} never defined on {1}")
 	TypeCheck_STRICT_INEXISTENT_UNION_PROPERTY = DiagnosticType_disabled("JSC_STRICT_INEXISTENT_UNION_PROPERTY", "Property {0} not defined on all member types of {1}")

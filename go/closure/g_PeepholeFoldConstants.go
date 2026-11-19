@@ -604,7 +604,7 @@ func (this *PeepholeFoldConstants) performArithmeticOp(n Node, left Node, right 
 		}
 		result = float64(fmod_(float64(lval), float64(rval)))
 	default:
-		panic(new_IllegalStateException_String(("Unexpected arithmetic operator: " + tostr_(n.getToken()))).self())
+		panic(new_IllegalStateException_String(("Unexpected arithmetic operator: " + jtostr_(n.getToken()))).self())
 	}
 	return this.maybeReplaceBinaryOpWithNumericResult(result, lval, rval)
 }
@@ -977,7 +977,7 @@ func (this *PeepholeFoldConstants) tryFoldShift(n Node, left Node, right Node) N
 		case Token_rhino_URSH:
 			return float64((4294967295 & int64(int32(uint32(bits)>>(uint32(rvalInt)&31)))))
 		default:
-			panic(new_AssertionError_Object(strobj_(("Unknown shift operator: " + tostr_(n.getToken())))).self())
+			panic(new_AssertionError_Object(strobj_(("Unknown shift operator: " + jtostr_(n.getToken())))).self())
 		}
 		panic("unreachable")
 	}()

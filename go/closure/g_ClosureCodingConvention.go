@@ -141,12 +141,12 @@ func (this *ClosureCodingConvention) getExportSymbolFunction_impl() string {
 	return "goog.exportSymbol"
 }
 
-func (this *ClosureCodingConvention) identifyTypeDeclarationCall_impl(n Node) *TList[string] {
+func (this *ClosureCodingConvention) identifyTypeDeclarationCall_impl(n Node) *JTList[string] {
 	var callName Node = n.getFirstChild()
 	if ClosureCodingConvention_GOOG_FORWARDDECLARE.matches(callName) && n.hasTwoChildren() {
 		var typeDeclaration Node = n.getSecondChild()
 		if typeDeclaration.isStringLit() {
-			return immutableListOf_[string](tc_string, typeDeclaration.getString())
+			return jimmutableListOf_[string](jtc_string, typeDeclaration.getString())
 		}
 	}
 	return this.CodingConventions_Proxy.identifyTypeDeclarationCall_impl(n)
@@ -217,7 +217,7 @@ func (this *ClosureCodingConvention) getObjectLiteralCast_impl(callNode Node) *C
 	}}), typeNode.getNext(), nil)
 }
 
-func (this *ClosureCodingConvention) getAssertionFunctions_rImmutableSet() *TSet[*CodingConvention_AssertionFunctionSpec] {
+func (this *ClosureCodingConvention) getAssertionFunctions_rImmutableSet() *JTSet[*CodingConvention_AssertionFunctionSpec] {
 	return tsetImm_(tce_p_CodingConvention_AssertionFunctionSpec, ImmutableSet_builder().addAll(Iterable(this.CodingConventions_Proxy.getAssertionFunctions_impl())).add_ObjectArr([]any{obj_(CodingConvention_AssertionFunctionSpec_forTruthy().setFunctionName("goog.asserts.assert").build()), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Array")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Boolean")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Element")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Function")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Instanceof")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Number")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Object")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("String"))}).build())
 }
 

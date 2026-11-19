@@ -5,13 +5,13 @@ package closure
 type ScriptMetadata struct {
 	script_                     Node
 	supportsRequireAliasesField bool
-	requireAliases              *TMap[string, string]
-	namesInUse                  *TSet[string]
+	requireAliases              *JTMap[string, string]
+	namesInUse                  *JTSet[string]
 }
 
 func (this *ScriptMetadata) finit_ScriptMetadata() {
-	this.requireAliases = newTMap_(tc_string, tc_string)
-	this.namesInUse = newTSet_(tc_string)
+	this.requireAliases = jnewTMap_(jtc_string, jtc_string)
+	this.namesInUse = jnewTSet_(jtc_string)
 }
 
 func (this *ScriptMetadata) init_ScriptMetadata(script Node) {

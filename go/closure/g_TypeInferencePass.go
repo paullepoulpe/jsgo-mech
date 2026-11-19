@@ -9,7 +9,7 @@ type TypeInferencePass struct {
 	topScope                *TypedScope
 	scopeCreator            *TypedScopeCreator
 	assertionFunctionLookup *CodingConvention_AssertionFunctionLookup
-	stepCountHistogram      *TMap[any, *SimpleMultiset]
+	stepCountHistogram      *JTMap[any, *SimpleMultiset]
 }
 
 func (this *TypeInferencePass) init_TypeInferencePass(compiler *AbstractCompiler, reverseInterpreter ReverseAbstractInterpreter, scopeCreator *TypedScopeCreator) {
@@ -18,9 +18,9 @@ func (this *TypeInferencePass) init_TypeInferencePass(compiler *AbstractCompiler
 	this.reverseInterpreter = reverseInterpreter
 	this.scopeCreator = scopeCreator
 	this.assertionFunctionLookup = CodingConvention_AssertionFunctionLookup_of(compiler.getCodingConvention().getAssertionFunctions())
-	this.stepCountHistogram = func() *TMap[any, *SimpleMultiset] {
+	this.stepCountHistogram = func() *JTMap[any, *SimpleMultiset] {
 		if compiler.isDebugLoggingEnabled() {
-			return newTMap_(tc_Integer, tc_p_SimpleMultiset)
+			return jnewTMap_(tc_Integer, tc_p_SimpleMultiset)
 		}
 		return nil
 	}()
@@ -60,12 +60,12 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 			defer closeResource_(histogram.self())
 			histogram.logString("step_count token population")
 			var totals []int32 = []int32{0, 0}
-			var stepCounts *TList[any] = tlistFrom_(tc_Integer, Collection(this.stepCountHistogram.asMap().keySet()))
+			var stepCounts *JTList[any] = jtlistFrom_(tc_Integer, Collection(this.stepCountHistogram.asMap().keySet()))
 			List_sort(stepCounts.asList(), Comparator_reversed(Comparator_naturalOrder()))
 			it_5 := stepCounts.each()
 			for it_5.next() {
 				var stepCount any = it_5.v
-				var entries *TList[Map_Entry] = tlistFrom_(tc_Map_Entry, Collection(this.stepCountHistogram.get(stepCount).entrySet()))
+				var entries *JTList[Map_Entry] = jtlistFrom_(tc_Map_Entry, Collection(this.stepCountHistogram.get(stepCount).entrySet()))
 				List_sort(entries.asList(), Comparator_comparingInt(&ToIntFunction_tfn_Map_Entry{func(p0 Map_Entry) int32 { return unbox_[int32](p0.getValue()) }}))
 				it_7 := entries.each()
 				for it_7.next() {

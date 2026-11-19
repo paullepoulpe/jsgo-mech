@@ -80,10 +80,10 @@ type SyntacticScopeCreator_ScopeScanner struct {
 	redeclarationHandler          SyntacticScopeCreator_RedeclarationHandler
 	treatProvidesAsRedeclarations bool
 	inputId                       *InputId
-	changeRootSet                 *TSet[Node]
+	changeRootSet                 *JTSet[Node]
 }
 
-func (this *SyntacticScopeCreator_ScopeScanner) init_SyntacticScopeCreator_ScopeScanner(compiler *AbstractCompiler, redeclarationHandler SyntacticScopeCreator_RedeclarationHandler, scope *Scope, changeRootSet *TSet[Node], treatProvidesAsRedeclarations bool) {
+func (this *SyntacticScopeCreator_ScopeScanner) init_SyntacticScopeCreator_ScopeScanner(compiler *AbstractCompiler, redeclarationHandler SyntacticScopeCreator_RedeclarationHandler, scope *Scope, changeRootSet *JTSet[Node], treatProvidesAsRedeclarations bool) {
 	this.compiler_ = compiler
 	this.redeclarationHandler = redeclarationHandler
 	this.scope_ = scope
@@ -92,7 +92,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) init_SyntacticScopeCreator_Scope
 	this.treatProvidesAsRedeclarations = treatProvidesAsRedeclarations
 }
 
-func new_SyntacticScopeCreator_ScopeScanner(compiler *AbstractCompiler, redeclarationHandler SyntacticScopeCreator_RedeclarationHandler, scope *Scope, changeRootSet *TSet[Node], treatProvidesAsRedeclarations bool) *SyntacticScopeCreator_ScopeScanner {
+func new_SyntacticScopeCreator_ScopeScanner(compiler *AbstractCompiler, redeclarationHandler SyntacticScopeCreator_RedeclarationHandler, scope *Scope, changeRootSet *JTSet[Node], treatProvidesAsRedeclarations bool) *SyntacticScopeCreator_ScopeScanner {
 	this := &SyntacticScopeCreator_ScopeScanner{}
 	this.init_SyntacticScopeCreator_ScopeScanner(compiler, redeclarationHandler, scope, changeRootSet, treatProvidesAsRedeclarations)
 	return this

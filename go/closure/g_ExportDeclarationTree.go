@@ -7,7 +7,7 @@ type ExportDeclarationTree struct {
 	isDefault_          bool
 	isExportAll         bool
 	declaration_        *ParseTree
-	exportSpecifierList *TList[*ParseTree]
+	exportSpecifierList *JTList[*ParseTree]
 	from                *LiteralToken
 }
 
@@ -18,7 +18,7 @@ func (this *ExportDeclarationTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ExportDeclarationTree) init_ExportDeclarationTree(location *SourceRange, isDefault bool, isExportAll bool, declaration *ParseTree, exportSpecifierList *TList[*ParseTree], from *LiteralToken) {
+func (this *ExportDeclarationTree) init_ExportDeclarationTree(location *SourceRange, isDefault bool, isExportAll bool, declaration *ParseTree, exportSpecifierList *JTList[*ParseTree], from *LiteralToken) {
 	this.ParseTree.init_ParseTree(ParseTreeType_EXPORT_DECLARATION, location)
 	this.isDefault_ = isDefault
 	this.isExportAll = isExportAll
@@ -27,7 +27,7 @@ func (this *ExportDeclarationTree) init_ExportDeclarationTree(location *SourceRa
 	this.from = from
 }
 
-func new_ExportDeclarationTree(location *SourceRange, isDefault bool, isExportAll bool, declaration *ParseTree, exportSpecifierList *TList[*ParseTree], from *LiteralToken) *ExportDeclarationTree {
+func new_ExportDeclarationTree(location *SourceRange, isDefault bool, isExportAll bool, declaration *ParseTree, exportSpecifierList *JTList[*ParseTree], from *LiteralToken) *ExportDeclarationTree {
 	this := &ExportDeclarationTree{}
 	this.self_ = this
 	this.init_ExportDeclarationTree(location, isDefault, isExportAll, declaration, exportSpecifierList, from)

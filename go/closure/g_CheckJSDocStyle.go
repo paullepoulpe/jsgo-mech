@@ -155,11 +155,11 @@ func (this *CheckJSDocStyle) checkParams(t *NodeTraversal, function Node, jsDoc 
 	if (jsDoc != nil) && (jsDoc.getType() != nil) {
 		return
 	}
-	var paramsFromJsDoc *TList[string] = func() *TList[string] {
+	var paramsFromJsDoc *JTList[string] = func() *JTList[string] {
 		if jsDoc == nil {
-			return tlistEmptyImm_(tc_string)
+			return jtlistEmptyImm_(jtc_string)
 		}
-		return immutableListCopyOf_(tc_string, Collection(jsDoc.getParameterNames().asSet()))
+		return jimmutableListCopyOf_(jtc_string, Collection(jsDoc.getParameterNames().asSet()))
 	}()
 	if paramsFromJsDoc.isEmpty() {
 		this.checkInlineParams(t, function, jsDoc)
@@ -305,7 +305,7 @@ func (this *CheckJSDocStyle) checkLicenseComment(t *NodeTraversal, n Node) {
 		return
 	}
 	var license string = n.getJSDocInfo().getLicense().get()
-	if String_contains_s(license, "@externs") {
+	if JString_contains_s(license, "@externs") {
 		t.report(n, CheckJSDocStyle_LICENSE_CONTAINS_AT_EXTERNS, []string{})
 	}
 }

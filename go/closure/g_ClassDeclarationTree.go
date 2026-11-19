@@ -6,7 +6,7 @@ type ClassDeclarationTree struct {
 	ParseTree
 	name_       *IdentifierToken
 	superClass_ *ParseTree
-	elements_   *TList[*ParseTree]
+	elements_   *JTList[*ParseTree]
 }
 
 func (this *ClassDeclarationTree) up_ParseTree() *ParseTree {
@@ -16,14 +16,14 @@ func (this *ClassDeclarationTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ClassDeclarationTree) init_ClassDeclarationTree(location *SourceRange, name *IdentifierToken, superClass *ParseTree, elements *TList[*ParseTree]) {
+func (this *ClassDeclarationTree) init_ClassDeclarationTree(location *SourceRange, name *IdentifierToken, superClass *ParseTree, elements *JTList[*ParseTree]) {
 	this.ParseTree.init_ParseTree(ParseTreeType_CLASS_DECLARATION, location)
 	this.name_ = name
 	this.superClass_ = superClass
 	this.elements_ = elements
 }
 
-func new_ClassDeclarationTree(location *SourceRange, name *IdentifierToken, superClass *ParseTree, elements *TList[*ParseTree]) *ClassDeclarationTree {
+func new_ClassDeclarationTree(location *SourceRange, name *IdentifierToken, superClass *ParseTree, elements *JTList[*ParseTree]) *ClassDeclarationTree {
 	this := &ClassDeclarationTree{}
 	this.self_ = this
 	this.init_ClassDeclarationTree(location, name, superClass, elements)

@@ -37,16 +37,16 @@ func RhinoStringPool_clinit() {
 }
 
 type RhinoStringPool_LazyInternedStringList struct {
-	pool       *TList[string]
+	pool       *JTList[string]
 	isInterned *RhinoStringPool_WriteOnlyBitset
 }
 
-func (this *RhinoStringPool_LazyInternedStringList) init_RhinoStringPool_LazyInternedStringList(pool *TList[string]) {
-	this.pool = tlistCopy_(tc_string, pool)
+func (this *RhinoStringPool_LazyInternedStringList) init_RhinoStringPool_LazyInternedStringList(pool *JTList[string]) {
+	this.pool = tlistCopy_(jtc_string, pool)
 	this.isInterned = new_RhinoStringPool_WriteOnlyBitset(pool.size())
 }
 
-func new_RhinoStringPool_LazyInternedStringList(pool *TList[string]) *RhinoStringPool_LazyInternedStringList {
+func new_RhinoStringPool_LazyInternedStringList(pool *JTList[string]) *RhinoStringPool_LazyInternedStringList {
 	this := &RhinoStringPool_LazyInternedStringList{}
 	this.init_RhinoStringPool_LazyInternedStringList(pool)
 	return this
@@ -63,7 +63,7 @@ func (this *RhinoStringPool_LazyInternedStringList) get(offset int32) string {
 	return this.pool.get(offset)
 }
 
-func (this *RhinoStringPool_LazyInternedStringList) asList() *TList[string] {
+func (this *RhinoStringPool_LazyInternedStringList) asList() *JTList[string] {
 	return this.pool
 }
 
