@@ -1208,6 +1208,11 @@ func classesOf(x ast.Expr, depth int) ([]string, bool) {
 		}
 		break
 	}
+	// panic(frozen_{}): the typed translator's runtime (rt_jtimm.go) panics with this value for a
+	// change to an immutable typed collection; catch_ makes it an UnsupportedOperationException.
+	if cl, ok := x.(*ast.CompositeLit); ok && len(cl.Elts) == 0 && rw.Text(cl.Type) == "frozen_" {
+		return []string{"UnsupportedOperationException"}, true
+	}
 	if c, ok := x.(*ast.CallExpr); ok {
 		if id, ok := c.Fun.(*ast.Ident); ok {
 			if strings.HasPrefix(id.Name, "new_") {
