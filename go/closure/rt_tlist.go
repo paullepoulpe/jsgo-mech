@@ -34,6 +34,10 @@ type TList[T any] struct {
 	c     *tconv_[T]
 	view  *tlistView_[T]
 	imm   bool // an ImmutableList: every change throws UnsupportedOperationException
+	// unmod (with imm): a list that cannot be changed and is no ImmutableList
+	// (Collections.unmodifiableList of a list nothing else has, as Splitter.splitToList gives):
+	// erased code sees its view, not an ImmutableList (the translator's unmodMark_; jfam).
+	unmod bool
 }
 
 func newTList_[T any](c *tconv_[T]) *TList[T] { return &TList[T]{c: c} }
@@ -187,13 +191,22 @@ func (l *TList[T]) asList() List {
 	if l == nil {
 		return nil
 	}
-	if l.imm {
+	if l.imm && !l.unmod {
 		return l.asImm()
 	}
 	if l.view == nil {
 		l.view = &tlistView_[T]{l: l}
 	}
 	return l.view
+}
+
+// iterator is the list's Iterator (of boxed elements, with remove), as its view's; a null list
+// throws NullPointerException (the translator's typed lists call it; post-flip tool jfam).
+func (l *TList[T]) iterator() Iterator {
+	if l == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return l.asList().iterator()
 }
 
 // tlistView_ is a TList seen as an erased List. Of an immutable list it holds the
