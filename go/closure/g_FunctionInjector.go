@@ -648,7 +648,12 @@ func (this *FunctionInjector_Reference) as_FunctionInjector_Reference() *Functio
 }
 
 func to_FunctionInjector_Reference(v any) *FunctionInjector_Reference {
-	if v == nil {
+	switch p := v.(type) {
+	case *FunctionInjector_Reference:
+		return p
+	case *InlineFunctions_Reference:
+		return p.as_FunctionInjector_Reference()
+	case nil:
 		return nil
 	}
 	return v.(interface {

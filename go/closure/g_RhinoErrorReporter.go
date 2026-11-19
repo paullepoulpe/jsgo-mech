@@ -10,7 +10,10 @@ type RhinoErrorReporter struct {
 func (this *RhinoErrorReporter) as_RhinoErrorReporter() *RhinoErrorReporter { return this }
 
 func to_RhinoErrorReporter(v any) *RhinoErrorReporter {
-	if v == nil {
+	switch p := v.(type) {
+	case *RhinoErrorReporter_OldRhinoErrorReporter:
+		return p.as_RhinoErrorReporter()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_RhinoErrorReporter() *RhinoErrorReporter }).as_RhinoErrorReporter()

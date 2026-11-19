@@ -16,7 +16,14 @@ type ScopedName_I interface {
 func (this *ScopedName) as_ScopedName() *ScopedName { return this }
 
 func to_ScopedName(v any) *ScopedName {
-	if v == nil {
+	switch p := v.(type) {
+	case *ScopedName_Simple:
+		return p.as_ScopedName()
+	case *TypedVar:
+		return p.as_ScopedName()
+	case *Var:
+		return p.as_ScopedName()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_ScopedName() *ScopedName }).as_ScopedName()
