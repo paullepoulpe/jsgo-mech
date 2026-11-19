@@ -33,7 +33,14 @@
 // erased method boxing the argument it is given) is the method value x.mT_. A method an
 // override of which in a subclass exists, a class that is a lambda adapter (its function is
 // typed already), and a method whose first statements are not its parameters' casts are left,
-// counted. A rerun changes nothing.
+// counted.
+//
+// A method of no parameters whose result the interface erases (Supplier.get) and that the class
+// declares typed (`class RemovalLogRecord implements Supplier<String>` declares `String get()`)
+// is split the same way when every return boxes a value of one type (strobj_(e) of a string,
+// obj_(p) of a pointer, n.box_() of a Node): <name>T_ returns the value, and the bridge returns
+// B(this.<name>T_()), javac's bridge Object get(). Callers holding the class under the cast that
+// undoes the boxing (str_(x.get())) call the typed method (x.getT_()). A rerun changes nothing.
 //
 // usage: implsplit [-n] [-v] <dir of package closure>
 package main
@@ -58,9 +65,15 @@ var qual = func(p *types.Package) string {
 }
 
 // the methods of the Java library interfaces j2go's stubs declare erased
+// the methods of no parameters whose result the interface erases (Supplier.get)
+var resultMethods = map[string]bool{"get": true}
+
 var ifaceMethods = map[string]bool{"compare": true, "compareTo": true, "apply": true, "test": true, "accept": true, "applyAsInt": true}
 
 type split struct {
+	box    string // a result split: the boxing of every return (strobj_ / obj_ / .box_), else ""
+	rtype  types.Type
+	rets   []ast.Expr // the boxings of the returns
 	fd     *ast.FuncDecl
 	fo     *types.Func
 	class  *types.Named
@@ -116,13 +129,40 @@ func main() {
 		}
 		for _, d := range f.Decls {
 			fd, ok := d.(*ast.FuncDecl)
-			if !ok || fd.Recv == nil || fd.Body == nil || !ifaceMethods[fd.Name.Name] {
+			if !ok || fd.Recv == nil || fd.Body == nil || !(ifaceMethods[fd.Name.Name] || resultMethods[fd.Name.Name]) {
 				continue
 			}
 			fo := rw.Info.Defs[fd.Name].(*types.Func)
 			sig := fo.Type().(*types.Signature)
 			cls := ptrNamed(sig.Recv().Type())
-			if cls == nil || cls.TypeParams().Len() > 0 || sig.Params().Len() == 0 {
+			if cls == nil || cls.TypeParams().Len() > 0 {
+				continue
+			}
+			if sig.Params().Len() == 0 {
+				if !resultMethods[fd.Name.Name] || sig.Results().Len() != 1 || !isAny(sig.Results().At(0).Type()) {
+					continue
+				}
+				name := cls.Obj().Name()
+				if strings.Contains(name, "_tfn") || strings.HasSuffix(name, "_fn") || strings.HasSuffix(name, "_base") {
+					continue // a lambda adapter: its function is typed already
+				}
+				if rw.HasMethod(types.NewPointer(cls), fd.Name.Name+"T_") {
+					continue // a rerun
+				}
+				s := &split{fd: fd, fo: fo, class: cls}
+				if why := s.results_(); why != "" {
+					left(why, fd)
+					continue
+				}
+				if len(embedders[cls]) > 0 {
+					left("a class with subclasses (an override may exist)", fd)
+					continue
+				}
+				splits[fo] = s
+				order = append(order, s)
+				continue
+			}
+			if !ifaceMethods[fd.Name.Name] {
 				continue
 			}
 			allAny := true
@@ -138,6 +178,9 @@ func main() {
 			if strings.Contains(name, "_tfn") || strings.HasSuffix(name, "_fn") {
 				continue // a lambda adapter: its function is typed already
 			}
+			if rw.HasMethod(types.NewPointer(cls), fd.Name.Name+"T_") {
+				continue // a rerun
+			}
 			s := &split{fd: fd, fo: fo, class: cls}
 			if why := s.casts_(); why != "" {
 				left(why, fd)
@@ -146,9 +189,6 @@ func main() {
 			if len(embedders[cls]) > 0 {
 				left("a class with subclasses (an override may exist)", fd)
 				continue
-			}
-			if rw.HasMethod(types.NewPointer(cls), fd.Name.Name+"T_") {
-				continue // a rerun
 			}
 			splits[fo] = s
 			order = append(order, s)
@@ -170,6 +210,17 @@ func main() {
 			}
 			sp := splits[s.Obj().(*types.Func)]
 			if sp == nil {
+				return true
+			}
+			if c, ok := rw.Parent[sel].(*ast.CallExpr); ok && c.Fun == sel && sp.box != "" {
+				// K(x.get()) with K the cast that undoes the boxing
+				k, ok := rw.Up(c).(*ast.CallExpr)
+				if !ok || len(k.Args) != 1 || rw.Unparen(k.Args[0]) != c || !undoes(k, sp) {
+					left("a call on the class whose result is not unboxed by the cast that undoes the boxing", c)
+					return true
+				}
+				counts["calls on the class under the cast that undoes the boxing call the typed method"]++
+				rw.Rewrite[k] = func() string { return rw.Render(sel.X) + "." + sp.fd.Name.Name + "T_()" }
 				return true
 			}
 			if c, ok := rw.Parent[sel].(*ast.CallExpr); ok && c.Fun == sel {
@@ -208,6 +259,11 @@ func main() {
 	sort.Slice(order, func(i, j int) bool { return order[i].fd.Pos() < order[j].fd.Pos() })
 	for _, s := range order {
 		s := s
+		if s.box != "" {
+			counts["methods of no parameters split into the typed result and the bridge"]++
+			rw.Rewrite[s.fd] = func() string { return s.resultText() }
+			continue
+		}
 		counts["methods split into the typed method and the bridge"]++
 		rw.Rewrite[s.fd] = func() string { return s.text() }
 	}
@@ -362,4 +418,110 @@ func (s *split) text() string {
 		"// %s is the bridge of the interface's erased signature (javac's): it casts its arguments and calls %sT_.\nfunc %s %s(%s)%s {\n\t%sthis.%sT_(%s)\n}",
 		fd.Name.Name, fd.Name.Name, recv, fd.Name.Name, strings.Join(ps, ", "), res, body,
 		fd.Name.Name, fd.Name.Name, recv, fd.Name.Name, strings.Join(eparams, ", "), res, ret, fd.Name.Name, strings.Join(args, ", "))
+}
+
+// results_: every return of the method (outside function literals) is B(e) with one boxing B
+// and every e of one type: strobj_ of a string, obj_ of a pointer, .box_() of a Node.
+func (s *split) results_() string {
+	ok := true
+	ast.Inspect(s.fd.Body, func(n ast.Node) bool {
+		switch x := n.(type) {
+		case *ast.FuncLit:
+			return false
+		case *ast.ReturnStmt:
+			if len(x.Results) != 1 {
+				ok = false
+				return false
+			}
+			c, isCall := rw.Unparen(x.Results[0]).(*ast.CallExpr)
+			if !isCall {
+				ok = false
+				return false
+			}
+			var b string
+			var e ast.Expr
+			name, _ := rw.CallName(c)
+			switch {
+			case name == "strobj_" && len(c.Args) == 1:
+				b, e = "strobj_", c.Args[0]
+			case (name == "obj_" || strings.HasPrefix(name, "obj_[")) && len(c.Args) == 1:
+				if _, isPtr := rw.Info.TypeOf(c.Args[0]).(*types.Pointer); isPtr {
+					b, e = "obj_", c.Args[0]
+				}
+			case len(c.Args) == 0:
+				if sel, isSel := c.Fun.(*ast.SelectorExpr); isSel && sel.Sel.Name == "box_" {
+					if nt := ptrNamed(types.NewPointer(rw.Info.TypeOf(sel.X))); nt != nil && nt.Obj().Name() == "Node" {
+						b, e = "box_", sel.X
+					}
+				}
+			}
+			if b == "" || (s.box != "" && s.box != b) {
+				ok = false
+				return false
+			}
+			t := rw.Info.TypeOf(e)
+			if s.rtype != nil && !types.Identical(s.rtype, t) {
+				ok = false
+				return false
+			}
+			s.box, s.rtype = b, t
+			s.rets = append(s.rets, c)
+		}
+		return true
+	})
+	if !ok || s.box == "" {
+		s.box = ""
+		return "a result that is not one boxing of one type at every return"
+	}
+	return ""
+}
+
+// undoes: the cast K is the unboxing of the split's boxing.
+func undoes(k *ast.CallExpr, s *split) bool {
+	kn, _ := rw.CallName(k)
+	switch s.box {
+	case "strobj_":
+		return kn == "str_"
+	case "box_":
+		return kn == "Node_of_"
+	case "obj_":
+		if strings.HasPrefix(kn, "cast_[") {
+			if sig, ok := rw.Info.TypeOf(k.Fun).(*types.Signature); ok {
+				return types.Identical(sig.Results().At(0).Type(), s.rtype)
+			}
+		}
+	}
+	return false
+}
+
+// boxed: the bridge's boxing of the typed result.
+func (s *split) boxed(e string) string {
+	switch s.box {
+	case "strobj_":
+		return "strobj_(" + e + ")"
+	case "box_":
+		return e + ".box_()"
+	}
+	return "obj_(" + e + ")"
+}
+
+func (s *split) resultText() string {
+	fd := s.fd
+	recv := rw.Text(fd.Recv)
+	for _, r := range s.rets {
+		c := r.(*ast.CallExpr)
+		inner := ast.Expr(nil)
+		if s.box == "box_" {
+			inner = c.Fun.(*ast.SelectorExpr).X
+		} else {
+			inner = c.Args[0]
+		}
+		rw.Rewrite[c] = func() string { return rw.Render(inner) }
+	}
+	body := rw.Render(fd.Body)
+	rt := types.TypeString(s.rtype, qual)
+	return fmt.Sprintf("// %sT_ is %s with the result type the class declares (implsplit).\nfunc %s %sT_() %s %s\n\n"+
+		"// %s is the bridge of the interface's erased signature (javac's): it boxes the result of %sT_.\nfunc %s %s() any {\n\treturn %s\n}",
+		fd.Name.Name, fd.Name.Name, recv, fd.Name.Name, rt, body,
+		fd.Name.Name, fd.Name.Name, recv, fd.Name.Name, s.boxed("this."+fd.Name.Name+"T_()"))
 }
