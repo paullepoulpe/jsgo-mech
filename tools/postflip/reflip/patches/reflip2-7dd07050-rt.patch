@@ -1,0 +1,27 @@
+diff --git a/go/closure/rt_jbridge.go b/go/closure/rt_jbridge.go
+index c2e86ed9..c0b2b178 100644
+--- a/go/closure/rt_jbridge.go
++++ b/go/closure/rt_jbridge.go
+@@ -244,3 +244,22 @@ func immutableMapOf4P_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], k1 K,
+ func immutableMapOf5P_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], k1 K, v1 V, k2 K, v2 V, k3 K, v3 V, k4 K, v4 V, k5 K, v5 V) *TMap[K, V] {
+ 	return immutableMapOf_(kc, vc, []K{k1, k2, k3, k4, k5}, []V{v1, v2, v3, v4, v5})
+ }
++
++// forEachT is Map.forEach of a typed map with the action as a Go function of its key and value
++// types (post-flip tool bulkops): the mappings in iteration order, each read when it is reached,
++// as Map_forEach reads them through the entry set's iterator.
++func (m *TMap[K, V]) forEachT(f func(K, V)) {
++	for i := m.first(); i < len(m.keys); i++ {
++		if !m.isDead(i) {
++			f(m.keys[i], m.vals[i])
++		}
++	}
++}
++
++// forEachT is Iterable.forEach of a typed list with the action as a Go function of its element
++// type: element i is read when it is reached, as the list's iterator reads it.
++func (l *TList[T]) forEachT(f func(T)) {
++	for i := 0; i < len(l.items); i++ {
++		f(l.items[i])
++	}
++}

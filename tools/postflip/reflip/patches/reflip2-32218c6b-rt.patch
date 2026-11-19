@@ -1,0 +1,98 @@
+diff --git a/go/closure/rt_jbridge.go b/go/closure/rt_jbridge.go
+new file mode 100644
+index 00000000..673e0877
+--- /dev/null
++++ b/go/closure/rt_jbridge.go
+@@ -0,0 +1,23 @@
++package closure
++
++// What the typed collections the translator writes use and the post-flip typed collections
++// (rt_tlist.go, rt_tmap.go, rt_timm.go) did not have, for post-flip tool jfam: with these a
++// *JTList[T] is a *TList[T]. Each is the translator's function on the post-flip representation:
++// the same results, exceptions and iteration order.
++
++// immutableListCopyOfTP_ is ImmutableList.copyOf(l) of a typed list of the same element type:
++// an immutable list is itself; any other is copied (a null element throws
++// NullPointerException). (The translator's immutableListCopyOfT_.)
++func immutableListCopyOfTP_[T any](c *tconv_[T], l *TList[T]) *TList[T] {
++	if l.imm && !l.unmod {
++		return l
++	}
++	return immutableListCopyOfArr_(c, l.items)
++}
++
++// splitToListTP_ is Splitter.splitToList for a typed declaration: the parts as they are, in a
++// list that cannot be changed and is no ImmutableList, as Guava's. (The translator's
++// splitToListT_.)
++func splitToListTP_(c *tconv_[string], sp *Splitter, seq any) *TList[string] {
++	return &TList[string]{c: c, items: sp.splitStrs_(csString_(seq)), imm: true, unmod: true}
++}
+diff --git a/go/closure/rt_jtlist.go b/go/closure/rt_jtlist.go
+index f2ad0b98..587c8340 100644
+--- a/go/closure/rt_jtlist.go
++++ b/go/closure/rt_jtlist.go
+@@ -24,6 +24,24 @@ type jtconv_[T any] struct {
+ 	// the empty immutable list, set and map of this element type (as a map's value type, or
+ 	// else its key type): one object each, as Guava's (rt_timm.go)
+ 	emptyL, emptyS, emptyM any
++	// post: this conversion for the post-flip typed collections (t_), made on first use or
++	// set to the package's conversion of the same type (post-flip tool jfam -kind convs).
++	post *tconv_[T]
++}
++
++// t_ is the conversion as the post-flip typed collections take it (rt_tlist.go): the same box,
++// unbox and null; a conversion that compares by equals and hashCode (byEquals) gives the
++// post-flip one its hash and eq functions, the comparison through boxes that teqFind_ makes.
++// One per conversion, so that collections made with it share it as they shared c.
++func (c *jtconv_[T]) t_() *tconv_[T] {
++	if c.post == nil {
++		c.post = &tconv_[T]{box: c.box, unbox: c.unbox, null: c.null}
++		if c.byEquals {
++			c.post.hash = func(k T) int32 { return objhash_(c.box(k)) }
++			c.post.eq = func(a, b T) bool { return objequals_(c.box(a), c.box(b)) }
++		}
++	}
++	return c.post
+ }
+ 
+ type JTList[T any] struct {
+diff --git a/go/closure/rt_tlist.go b/go/closure/rt_tlist.go
+index ec758dce..cb903409 100644
+--- a/go/closure/rt_tlist.go
++++ b/go/closure/rt_tlist.go
+@@ -34,6 +34,10 @@ type TList[T any] struct {
+ 	c     *tconv_[T]
+ 	view  *tlistView_[T]
+ 	imm   bool // an ImmutableList: every change throws UnsupportedOperationException
++	// unmod (with imm): a list that cannot be changed and is no ImmutableList
++	// (Collections.unmodifiableList of a list nothing else has, as Splitter.splitToList gives):
++	// erased code sees its view, not an ImmutableList (the translator's unmodMark_; jfam).
++	unmod bool
+ }
+ 
+ func newTList_[T any](c *tconv_[T]) *TList[T] { return &TList[T]{c: c} }
+@@ -187,7 +191,7 @@ func (l *TList[T]) asList() List {
+ 	if l == nil {
+ 		return nil
+ 	}
+-	if l.imm {
++	if l.imm && !l.unmod {
+ 		return l.asImm()
+ 	}
+ 	if l.view == nil {
+@@ -196,6 +200,15 @@ func (l *TList[T]) asList() List {
+ 	return l.view
+ }
+ 
++// iterator is the list's Iterator (of boxed elements, with remove), as its view's; a null list
++// throws NullPointerException (the translator's typed lists call it; post-flip tool jfam).
++func (l *TList[T]) iterator() Iterator {
++	if l == nil {
++		panic(new_NullPointerException_0().self())
++	}
++	return l.asList().iterator()
++}
++
+ // tlistView_ is a TList seen as an erased List. Of an immutable list it holds the
+ // ImmutableList erased code sees instead (twin, rt_timm.go).
+ type tlistView_[T any] struct {
