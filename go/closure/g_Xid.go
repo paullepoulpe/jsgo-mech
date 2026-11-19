@@ -41,11 +41,11 @@ func Xid_toString(i int32) string {
 	var buf []uint16 = make([]uint16, 6)
 	var len_ int32 = 0
 	var l int64 = (int64(i) - -2147483648)
-	buf[len_] = String_charAt(Xid_START_CHARS, int32((l % int64(Xid_START_RADIX))))
+	buf[len_] = asciiCharAt_(Xid_START_CHARS, int32((l % int64(Xid_START_RADIX))))
 	len_++
 	i = int32((l / int64(Xid_START_RADIX)))
 	for i > 0 {
-		buf[len_] = String_charAt(Xid_CHARS, (i % Xid_RADIX))
+		buf[len_] = asciiCharAt_(Xid_CHARS, (i % Xid_RADIX))
 		len_++
 		i /= Xid_RADIX
 	}

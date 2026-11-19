@@ -57,8 +57,8 @@ func (this *SourceMapGeneratorV3) validate(validate bool) {
 func (this *SourceMapGeneratorV3) setWrapperPrefix(prefix string) {
 	var prefixLine int32 = 0
 	var prefixIndex int32 = 0
-	for i := int32(0); i < String_length(prefix); i++ {
-		if String_charAt(prefix, i) == '\n' {
+	for _, u_ := range stringUnits_(prefix) {
+		if u_ == '\n' {
 			prefixLine++
 			prefixIndex = 0
 		} else {
