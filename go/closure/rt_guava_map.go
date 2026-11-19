@@ -22,6 +22,7 @@ type ImmutableMap struct {
 	keySet_  *ImmutableCollection
 	values_  *ImmutableCollection
 	entries_ *ImmutableCollection
+	typed_   any // the typed map (*TMap[K, V]) that typed code sees this map as (see ImmutableCollection)
 }
 
 type ImmutableBiMap = ImmutableMap
@@ -31,6 +32,19 @@ func (this *ImmutableMap) up_ImmutableMap() *ImmutableMap { return this }
 
 func dupKey_(k, v1, v2 any) {
 	throwIAE_("Multiple entries with same key: " + objstr_(k) + "=" + objstr_(v1) + " and " + objstr_(k) + "=" + objstr_(v2))
+}
+
+// immDup_ throws the IllegalArgumentException of a key that keys has twice. As Guava, which
+// fills its table from the last entry to the first, it reports the last two entries of the
+// last key it meets again, the later entry first.
+func immDup_(keys, vals []any) {
+	t := &htable_{}
+	for i := len(keys) - 1; i >= 0; i-- {
+		if j := t.find(keys[i]); j >= 0 {
+			dupKey_(keys[i], t.vals[j], vals[i])
+		}
+		t.put(keys[i], vals[i])
+	}
 }
 
 // immMap_ builds a map of the given kind from parallel key/value slices, which
@@ -70,34 +84,22 @@ func immMap_(kind int8, keys, vals []any, cmp Comparator, keepLast bool) *Immuta
 		return this
 	}
 	t := &htable_{}
-	if keepLast {
-		// The surviving entry of a duplicated key is its last one, at that entry's position.
-		drop := make([]bool, len(keys))
-		dups := false
-		for i := len(keys) - 1; i >= 0; i-- {
-			if !t.add(keys[i]) {
-				drop[i] = true
-				dups = true
-			}
-		}
-		if dups {
-			var k2, v2 []any
-			for i := range keys {
-				if !drop[i] {
-					k2 = append(k2, keys[i])
-					v2 = append(v2, vals[i])
-				}
-			}
-			keys, vals = k2, v2
-		}
-		t = &htable_{}
-	}
+	n := 0
 	for i, k := range keys {
 		if j := t.find(k); j >= 0 {
-			dupKey_(k, vals[j], vals[i])
+			if !keepLast {
+				immDup_(keys, vals)
+			}
+			// buildKeepingLast: a key put more than once keeps its first position and has its
+			// last value
+			vals[j] = vals[i]
+			continue
 		}
 		t.add(k)
+		vals[n] = vals[i]
+		n++
 	}
+	keys, vals = t.keys, vals[:n]
 	this.keys, this.vals, this.idx = keys, vals, t
 	if kind == imBiMap_ {
 		vt := &htable_{}

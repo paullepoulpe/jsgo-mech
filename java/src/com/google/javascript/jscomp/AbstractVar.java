@@ -33,10 +33,10 @@ import org.jspecify.annotations.Nullable;
 /**
  * Used by {@code Scope} to store information about variables.
  */
-public class AbstractVar<S extends AbstractScope<S, V>, V extends AbstractVar<S, V>>
+public abstract class AbstractVar
     extends ScopedName implements StaticSlot, StaticRef {
 
-  private final String name;
+  final String name;
 
   private final @Nullable Node nameNode;
 
@@ -53,8 +53,6 @@ public class AbstractVar<S extends AbstractScope<S, V>, V extends AbstractVar<S,
    */
   private final int index;
 
-  private final S scope;
-
   /**
    * @param name The name of this var. Does not have to be semantically valid JS identifier.
    * @param nameNode The node representing this variables declaration or null
@@ -67,7 +65,6 @@ public class AbstractVar<S extends AbstractScope<S, V>, V extends AbstractVar<S,
   AbstractVar(
       String name,
       @Nullable Node nameNode,
-      @Nullable S scope,
       int index,
       @Nullable CompilerInput input,
       @Nullable Node implicitGoogNamespaceDefinition) {
@@ -80,7 +77,6 @@ public class AbstractVar<S extends AbstractScope<S, V>, V extends AbstractVar<S,
       this.nameNode = nameNode;
       this.implicitGoogNamespaceStrength = null;
     }
-    this.scope = scope;
     this.index = index;
     this.input = input;
   }
@@ -90,10 +86,7 @@ public class AbstractVar<S extends AbstractScope<S, V>, V extends AbstractVar<S,
     return name;
   }
 
-  @Override
-  public final Node getScopeRoot() {
-    return scope.getRootNode();
-  }
+  public abstract Node getScopeRoot();
 
   @Override
   public final Node getNode() {
@@ -104,20 +97,11 @@ public class AbstractVar<S extends AbstractScope<S, V>, V extends AbstractVar<S,
     return input;
   }
 
-  @Override
-  public final StaticSourceFile getSourceFile() {
-    return (this.getNode() != null ? this.getNode() : scope.getRootNode()).getStaticSourceFile();
-  }
+  public abstract StaticSourceFile getSourceFile();
 
-  @Override
-  public final V getSymbol() {
-    return thisVar();
-  }
+  public abstract AbstractVar getSymbol();
 
-  @Override
-  public final V getDeclaration() {
-    return this.getNode() == null ? null : thisVar();
-  }
+  public abstract AbstractVar getDeclaration();
 
   public final @Nullable Node getParentNode() {
     return this.getNode() == null ? null : this.getNode().getParent();
@@ -132,10 +116,7 @@ public class AbstractVar<S extends AbstractScope<S, V>, V extends AbstractVar<S,
     return parent != null && NodeUtil.isFunctionExpression(parent);
   }
 
-  @Override
-  public final S getScope() {
-    return scope;
-  }
+  public abstract AbstractScope getScope();
 
   /**
    * The index at which the var is declared. e.g. if it's 0, it's the first declared variable in
@@ -145,13 +126,9 @@ public class AbstractVar<S extends AbstractScope<S, V>, V extends AbstractVar<S,
     return index;
   }
 
-  public final boolean isGlobal() {
-    return scope.isGlobal();
-  }
+  public abstract boolean isGlobal();
 
-  public final boolean isLocal() {
-    return scope.isLocal();
-  }
+  public abstract boolean isLocal();
 
   final boolean isExtern() {
     return input == null || input.isExtern();
@@ -225,27 +202,13 @@ public class AbstractVar<S extends AbstractScope<S, V>, V extends AbstractVar<S,
     return declarationType() == Token.IMPORT;
   }
 
-  public final boolean isArguments() {
-    return Var.ARGUMENTS.equals(name) && scope.isFunctionScope();
-  }
+  public abstract boolean isArguments();
 
-  final boolean isGoogModuleExports() {
-    return scope.isModuleScope() && "exports".equals(name) && isImplicit();
-  }
+  abstract boolean isGoogModuleExports();
 
-  public final boolean isThis() {
-    return "this".equals(name) && scope.isFunctionScope();
-  }
+  public abstract boolean isThis();
 
-  private boolean isImplicit() {
-    if (isImplicitGoogNamespace()) {
-      return true;
-    }
-    AbstractScope.ImplicitVar var = AbstractScope.ImplicitVar.of(name);
-    return var != null && var.isMadeByScope(scope);
-  }
-
-  private static final ImmutableSet<Token> DECLARATION_TYPES = Sets.immutableEnumSet(
+  static final ImmutableSet<Token> DECLARATION_TYPES = Sets.immutableEnumSet(
       Token.VAR,
       Token.LET,
       Token.CONST,
@@ -255,28 +218,7 @@ public class AbstractVar<S extends AbstractScope<S, V>, V extends AbstractVar<S,
       Token.IMPORT,
       Token.PARAM_LIST);
 
-  final @Nullable Token declarationType() {
-    if (isImplicitGoogNamespace()) {
-      return null;
-    }
-    for (Node current = this.getNode(); current != null; current = current.getParent()) {
-      if (DECLARATION_TYPES.contains(current.getToken())) {
-        return current.getToken();
-      }
-    }
-    checkState(
-        isImplicit(),
-        "The nameNode for %s must be a descendant of one of: %s", this, DECLARATION_TYPES);
-    return null;
-  }
-
-  // This is safe because any concrete subclass of AbstractVar<V> should be assignable to V.
-  // While it's theoretically possible to do otherwise, such a class would be very awkward to
-  // implement, and is therefore not worth worrying about.
-  @SuppressWarnings("unchecked")
-  private V thisVar() {
-    return (V) this;
-  }
+  abstract @Nullable Token declarationType();
 
   /**
    * Whether this name comes from a goog.provide or legacy goog.module and does not have a normal

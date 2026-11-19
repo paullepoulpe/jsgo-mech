@@ -86,11 +86,14 @@ func Pattern_matches(regex string, input any) bool {
 	return Pattern_compile(regex).matcher(input).matches()
 }
 
-func (this *Pattern) pattern() string  { return this.src }
-func (this *Pattern) toString() string { return this.src }
-func (this *Pattern) matcher(input any) *Matcher_re2j {
+func (this *Pattern) pattern() string                 { return this.src }
+func (this *Pattern) toString() string                { return this.src }
+func (this *Pattern) matcher(input any) *Matcher_re2j { return this.matcher_s(csString_(input)) }
+
+// matcher_s is matcher for a String (rt_conv.go, "String for CharSequence").
+func (this *Pattern) matcher_s(input string) *Matcher_re2j {
 	m := &Matcher_re2j{p: this}
-	m.reset(input)
+	m.reset_s(input)
 	return m
 }
 
@@ -165,8 +168,11 @@ func (this *Matcher_re2j) reset_() {
 	this.done = false
 }
 
-func (this *Matcher_re2j) reset(input any) *Matcher_re2j {
-	this.s = csString_(input)
+func (this *Matcher_re2j) reset(input any) *Matcher_re2j { return this.reset_s(csString_(input)) }
+
+// reset_s is reset for a String (rt_conv.go, "String for CharSequence").
+func (this *Matcher_re2j) reset_s(input string) *Matcher_re2j {
+	this.s = csStr_(input)
 	this.ascii = allASCII_(this.s)
 	this.rs, this.re = 0, len(this.s)
 	this.reset_()

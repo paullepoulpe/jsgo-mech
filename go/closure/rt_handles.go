@@ -55,6 +55,15 @@ func handleBox_(proto any, self *uint32) any {
 	return proto
 }
 
+// handleColumn_ is one per-object array of a handle class, a record type or a column: zero is its
+// element's zero value. rt_handles_test.go checks that Node's hold no Go pointer.
+type handleColumn_ struct {
+	class, name string
+	zero        any
+}
+
+var handleColumns_ []handleColumn_
+
 // handleStats_ has one function per handle class: its object and per-field counts.
 var handleStats_ []func() string
 

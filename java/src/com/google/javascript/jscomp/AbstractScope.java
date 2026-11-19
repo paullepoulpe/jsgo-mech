@@ -18,17 +18,10 @@ package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.StaticScope;
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -61,11 +54,9 @@ import org.jspecify.annotations.Nullable;
  *
  * @see NodeTraversal
  */
-public abstract class AbstractScope<S extends AbstractScope<S, V>, V extends AbstractVar<S, V>>
+public abstract class AbstractScope
     implements StaticScope, Serializable {
-  private Map<String, V> vars = ImmutableMap.of();
-  private Map<ImplicitVar, V> implicitVars = ImmutableMap.of();
-  private final Node rootNode;
+  final Node rootNode;
 
   AbstractScope(Node rootNode) {
     this.rootNode = checkNotNull(rootNode);
@@ -75,7 +66,7 @@ public abstract class AbstractScope<S extends AbstractScope<S, V>, V extends Abs
   public abstract int getDepth();
 
   /** Returns the parent scope, or null if this is the global scope. */
-  public abstract S getParent();
+  public abstract AbstractScope getParent();
 
   @Override
   public final String toString() {
@@ -91,20 +82,6 @@ public abstract class AbstractScope<S extends AbstractScope<S, V>, V extends Abs
   }
 
   /**
-   * @return True if this scope contains {@code other}, or is the same scope as {@code other}.
-   */
-  final boolean contains(S other) {
-    S s = checkNotNull(other);
-    while (s != null) {
-      if (s == this) {
-        return true;
-      }
-      s = s.getParent();
-    }
-    return false;
-  }
-
-  /**
    * Gets the container node of the scope. This is typically the FUNCTION node or the global
    * BLOCK/SCRIPT node.
    */
@@ -114,53 +91,13 @@ public abstract class AbstractScope<S extends AbstractScope<S, V>, V extends Abs
   }
 
   /** Walks up the tree to find the global scope. */
-  public final S getGlobalScope() {
-    S result = thisScope();
-    while (result.getParent() != null) {
-      result = result.getParent();
-    }
-    return result;
-  }
+  public abstract AbstractScope getGlobalScope();
 
-  @Override
-  public final S getParentScope() {
-    return getParent();
-  }
+  public abstract AbstractScope getParentScope();
 
-  abstract V makeImplicitVar(ImplicitVar type);
+  abstract AbstractVar makeImplicitVar(ImplicitVar type);
 
-  /**
-   * Undeclares a variable, to be used when the compiler optimizes out a variable and removes it
-   * from the scope.
-   */
-  final void undeclare(V var) {
-    checkState(var.getScope() == this);
-    checkState(vars.get(var.getName()).equals(var));
-    undeclareInteral(var);
-  }
-
-  /** Without any safety checks */
-  final void undeclareInteral(V var) {
-    // Assume that vars must contain var, and thus not be empty
-    vars.remove(var.getName());
-  }
-
-  final void declareInternal(String name, V var) {
-    checkState(hasOwnSlot(name) || canDeclare(name), "Illegal shadow: %s", var.getNode());
-
-    // For memory savings, only initialize the map once it needs to add its first element
-    ImmutableMap<String, V> emptySentinel = ImmutableMap.of();
-    if (vars == emptySentinel) {
-      vars = Maps.newLinkedHashMapWithExpectedSize(1);
-    }
-    vars.put(name, var);
-  }
-
-  final void clearVarsInternal() {
-    if (!vars.isEmpty()) {
-      vars.clear();
-    }
-  }
+  abstract void clearVarsInternal();
 
   /** Returns true iff this scope implies a slot with the given name. */
   protected boolean hasOwnImplicitSlot(@Nullable ImplicitVar name) {
@@ -168,63 +105,21 @@ public abstract class AbstractScope<S extends AbstractScope<S, V>, V extends Abs
   }
 
   /** Returns true if a variable is declared in this scope, with no recursion. */
-  public final boolean hasOwnSlot(String name) {
-    return vars.containsKey(name) || hasOwnImplicitSlot(ImplicitVar.of(name));
-  }
+  public abstract boolean hasOwnSlot(String name);
 
   /** Returns true if a variable is declared in this or any parent scope. */
-  public final boolean hasSlot(String name) {
-    for (S scope = thisScope(); scope != null; scope = scope.getParent()) {
-      if (scope.hasOwnSlot(name)) {
-        return true;
-      }
-    }
-    return false;
-  }
+  public abstract boolean hasSlot(String name);
 
-  private final @Nullable V getOwnImplicitSlot(@Nullable ImplicitVar name) {
-    if (!hasOwnImplicitSlot(name)) {
-      return null;
-    }
+  public abstract AbstractVar getOwnSlot(String name);
 
-    // For memory savings, only initialize the map once it needs to add its first element
-    ImmutableMap<ImplicitVar, V> emptySentinel = ImmutableMap.of();
-    if (implicitVars == emptySentinel) {
-      implicitVars = new EnumMap<>(ImplicitVar.class);
-    }
-
-    return implicitVars.computeIfAbsent(name, this::makeImplicitVar);
-  }
-
-  @Override
-  public final V getOwnSlot(String name) {
-    V var = vars.get(name);
-    if (var != null) {
-      return var;
-    }
-
-    return getOwnImplicitSlot(ImplicitVar.of(name));
-  }
-
-  @Override
-  public final V getSlot(String name) {
-    return getVar(name);
-  }
+  public abstract AbstractVar getSlot(String name);
 
   /**
    * Returns the variable, may be null
    *
    * <p>Non-final for {@link TypedScope} which needs to handle qualified names.
    */
-  public V getVar(String name) {
-    for (AbstractScope<S, V> scope = thisScope(); scope != null; scope = scope.getParent()) {
-      @Nullable V var = scope.getOwnSlot(name);
-      if (var != null) {
-        return var;
-      }
-    }
-    return null;
-  }
+  public abstract AbstractVar getVar(String name);
 
   /**
    * Get a unique Var object to represent "arguments" within this scope.
@@ -232,47 +127,20 @@ public abstract class AbstractScope<S extends AbstractScope<S, V>, V extends Abs
    * <p>This explicitly excludes user declared variables that are names "arguments". It only returns
    * special "arguments" variable that is inherent to a function.
    */
-  public final V getArgumentsVar() {
-    for (AbstractScope<S, V> scope = thisScope(); scope != null; scope = scope.getParent()) {
-      @Nullable V arguments = scope.getOwnImplicitSlot(ImplicitVar.ARGUMENTS);
-      if (arguments != null) {
-        return arguments;
-      }
-    }
-    return null;
-  }
+  public abstract AbstractVar getArgumentsVar();
 
   /**
    * Returns true if the name can be declared on this scope without causing illegal shadowing.
    * Specifically, this is aware of the connection between function container scopes and function
    * block scopes and returns false for redeclaring parameters on the block scope.
    */
-  final boolean canDeclare(String name) {
-    return !hasOwnSlot(name)
-        && (!isFunctionBlockScope()
-            || !getParent().hasOwnSlot(name)
-            || isBleedingFunctionName(name));
-  }
-
-  /**
-   * Returns true if the given name is a bleeding function name in this scope. Local variables in
-   * the function block are not allowed to shadow parameters, but they are allowed to shadow a
-   * bleeding function name.
-   */
-  private boolean isBleedingFunctionName(String name) {
-    V var = getVar(name);
-    return var != null //
-        && var.getNode() != null //
-        && var.getNode().getParent().isFunction();
-  }
+  abstract boolean canDeclare(String name);
 
   /**
    * Return an iterable over all of the variables declared in this scope (except the special
    * 'arguments' variable).
    */
-  public final Iterable<V> getVarIterable() {
-    return vars.values();
-  }
+  public abstract Iterable<? extends AbstractVar> getVarIterable();
 
   /**
    * Return an iterable over all of the variables accessible to this scope (i.e. the variables in
@@ -286,27 +154,12 @@ public abstract class AbstractScope<S extends AbstractScope<S, V>, V extends Abs
    *
    * <p>We do not include the special 'arguments' variable.
    */
-  public final Iterable<V> getAllAccessibleVariables() {
-    Map<String, V> accessibleVars = new LinkedHashMap<>();
-    S s = thisScope();
+  public abstract Iterable<? extends AbstractVar> getAllAccessibleVariables();
 
-    while (s != null) {
-      for (V v : s.getVarIterable()) {
-        accessibleVars.putIfAbsent(v.getName(), v);
-      }
-      s = s.getParent();
-    }
-    return accessibleVars.values();
-  }
-
-  public final Iterable<V> getAllSymbols() {
-    return Collections.unmodifiableCollection(vars.values());
-  }
+  public abstract Iterable<? extends AbstractVar> getAllSymbols();
 
   /** Returns number of variables in this scope (excluding the special 'arguments' variable) */
-  public final int getVarCount() {
-    return vars.size();
-  }
+  public abstract int getVarCount();
 
   /** Returns whether this is the global scope. */
   public final boolean isGlobal() {
@@ -379,55 +232,15 @@ public abstract class AbstractScope<S extends AbstractScope<S, V>, V extends Abs
    * declare a var inside function parameters, it would make even less sense to say that such
    * declarations would be "hoisted" somewhere else.
    */
-  public final S getClosestHoistScope() {
-    S current = thisScope();
-    while (current != null) {
-      if (current.isHoistScope()) {
-        return current;
-      }
-      current = current.getParent();
-    }
-    return null;
-  }
+  public abstract AbstractScope getClosestHoistScope();
 
-  public final S getClosestCfgRootScope() {
-    S current = thisScope();
-    while (!current.isCfgRootScope()) {
-      current = current.getParent();
-    }
-    return current;
-  }
+  public abstract AbstractScope getClosestCfgRootScope();
 
   /**
    * Returns the closest container scope. This is equivalent to what the current scope would have
    * been for non-ES6 scope creators, and is thus useful for migrating code to use block scopes.
    */
-  public final S getClosestContainerScope() {
-    S scope = getClosestHoistScope();
-    if (scope.isFunctionBlockScope()) {
-      scope = scope.getParent();
-      checkState(!scope.isBlockScope(), scope);
-    }
-    return scope;
-  }
-
-  // This is safe because any concrete subclass of AbstractScope<S> should be assignable to S.
-  // While it's theoretically possible to do otherwise, such a class would be very awkward to
-  // implement, and is therefore not worth worrying about.
-  @SuppressWarnings("unchecked")
-  private S thisScope() {
-    return (S) this;
-  }
-
-  /** Performs simple validity checks on when constructing a child scope. */
-  final void checkChildScope(S parent) {
-    checkNotNull(parent);
-    checkArgument(NodeUtil.createsScope(rootNode), rootNode);
-    checkArgument(
-        rootNode != parent.getRootNode(),
-        "rootNode should not be the parent's root node: %s",
-        rootNode);
-  }
+  public abstract AbstractScope getClosestContainerScope();
 
   /** Performs simple validity checks on when constructing a root scope. */
   final void checkRootScope() {
@@ -436,46 +249,11 @@ public abstract class AbstractScope<S extends AbstractScope<S, V>, V extends Abs
         NodeUtil.createsScope(rootNode) || rootNode.isScript() || rootNode.isRoot(), rootNode);
   }
 
-  /** Returns the nearest common parent between two scopes. */
-  S getCommonParent(S other) {
-    S left = thisScope();
-    S right = other;
-    while (left != null && right != null && left != right) {
-      int leftDepth = left.getDepth();
-      int rightDepth = right.getDepth();
-      if (leftDepth >= rightDepth) {
-        left = left.getParent();
-      }
-      if (leftDepth <= rightDepth) {
-        right = right.getParent();
-      }
-    }
-
-    checkState(left != null && left == right);
-    return left;
-  }
-
-  /**
-   * Whether {@code this} and the {@code other} scope have the same container scope (i.e. are in the
-   * same function, or else both in the global hoist scope). This is equivalent to asking whether
-   * the two scopes would be equivalent in a pre-ES2015-block-scopes view of the world.
-   */
-  boolean hasSameContainerScope(S other) {
-    // Do identity check first as a shortcut.
-    return this == other || getClosestContainerScope() == other.getClosestContainerScope();
-  }
-
   /**
    * Returns the closest scope upon which `this` is defined, which is either the global scope or a
    * non-arrow-function scope.
    */
-  final S getScopeOfThis() {
-    S scope = getClosestContainerScope();
-    while (!scope.isGlobal() && !NodeUtil.isNonArrowFunction(scope.getRootNode())) {
-      scope = scope.getParent().getClosestContainerScope();
-    }
-    return scope;
-  }
+  abstract AbstractScope getScopeOfThis();
 
   /**
    * The three implicit var types, which are defined implicitly (at least) in every vanilla function
@@ -500,7 +278,7 @@ public abstract class AbstractScope<S extends AbstractScope<S, V>, V extends Abs
     }
 
     /** Whether this kind of implicit variable is created/owned by the given scope. */
-    boolean isMadeByScope(AbstractScope<?, ?> scope) {
+    boolean isMadeByScope(AbstractScope scope) {
       return switch (this) {
         case EXPORTS ->
             scope.isModuleScope()

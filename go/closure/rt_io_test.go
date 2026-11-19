@@ -77,17 +77,28 @@ func ioFailure_(e any) string {
 // ioRaw_ is a result that is in the table's notation already.
 type ioRaw_ string
 
+// outcomeShow_ is the failure of an Outcome, or what it holds.
+func outcomeShow_[T any](x *Outcome_base[T]) string {
+	if x.isErr() {
+		return ioFailure_(x.error().self_)
+	}
+	return ioShow_(boxT_(x.get()))
+}
+
 func ioShow_(v any) string {
 	switch x := v.(type) {
 	case nil:
 		return "null"
 	case ioRaw_:
 		return string(x)
-	case *Outcome_base:
-		if x.isErr() {
-			return ioFailure_(x.error().self_)
-		}
-		return ioShow_(x.get())
+	case *Outcome_base[[]int8]:
+		return outcomeShow_(x)
+	case *Outcome_base[any]:
+		return outcomeShow_(x)
+	case *Outcome_base[*Io_Sink]:
+		return outcomeShow_(x)
+	case *Outcome_base[*SimpleJsonValue]:
+		return outcomeShow_(x)
 	case []int8:
 		return "x" + hex.EncodeToString(u8_(x))
 	case string:
@@ -99,8 +110,8 @@ func ioShow_(v any) string {
 		return strconv.FormatBool(x)
 	case int64:
 		return strconv.FormatInt(x, 10)
-	case *Optional:
-		return ioShow_(x.orElse(nil))
+	case optional_:
+		return ioShow_(x.content_())
 	case *SimpleJsonValue:
 		return ioEsc_(x.toString())
 	case List:
@@ -186,11 +197,11 @@ func TestIoUtf8(t *testing.T) {
 }
 
 // ioSummary_ is the length and CRC-32 of the data, or the failure.
-func ioSummary_(data *Outcome_base) any {
+func ioSummary_(data *Outcome_base[[]int8]) any {
 	if data.isErr() {
 		return data
 	}
-	b := u8_(data.get().([]int8))
+	b := u8_(data.get())
 	return ioRaw_(fmt.Sprintf("%d %x", len(b), crc32.ChecksumIEEE(b)))
 }
 
@@ -214,7 +225,7 @@ func TestIoCodecs(t *testing.T) {
 			data[i] = int8(i * i / 7)
 		}
 		gz := Io_gzip(data)
-		if back := Io_gunzip(gz); back.isErr() || string(u8_(back.get().([]int8))) != string(u8_(data)) {
+		if back := Io_gunzip(gz); back.isErr() || string(u8_(back.get())) != string(u8_(data)) {
 			t.Errorf("gunzip(gzip) of %d bytes", size)
 		}
 		if u8_(gz)[0] != 0x1f || u8_(gz)[1] != 0x8b || size == 100000 && len(gz) > size/2 {
@@ -229,7 +240,7 @@ func ioSinkScript_(path string, appendTo bool) any {
 	if opened.isErr() {
 		return opened
 	}
-	sink := opened.get().(*Io_Sink)
+	sink := opened.get()
 	sink.write(Io_utf8Bytes("one "))
 	sink.write([]int8{})
 	sink.write(Io_utf8Bytes("two"))

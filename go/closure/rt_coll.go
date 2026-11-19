@@ -57,9 +57,17 @@ type each_ struct {
 	v    any      // the current element
 	src  *[]any   // the collection is one of: a slice (the list's own, read anew at each step),
 	t    *htable_ // a hash table (keys, values or entries according to mode),
+	at   stepper_ // the erased view of a typed collection (rt_tlist.go, rt_tset.go),
 	it   Iterator // or something with an iterator
 	i    int
 	mode int8
+}
+
+// stepper_ is a collection that a for-each cursor reads by position, as it reads the runtime's
+// own: step_(i) is the element at or after position i with the position to go on from, or a
+// negative position when there is none.
+type stepper_ interface {
+	step_(i int) (v any, next int)
 }
 
 func foreach_(c any) each_ {
@@ -80,6 +88,8 @@ func foreach_(c any) each_ {
 		return each_{t: x.t(), mode: hvals_}
 	case *mapEntries_:
 		return each_{t: x.t(), mode: hentries_}
+	case stepper_:
+		return each_{at: x}
 	case nil:
 		panic(new_NullPointerException_0().self())
 	}
@@ -117,6 +127,14 @@ func (e *each_) more() bool {
 			}
 		}
 		return false
+	}
+	if l := e.at; l != nil {
+		v, next := l.step_(e.i)
+		if next < 0 {
+			return false
+		}
+		e.v, e.i = v, next
+		return true
 	}
 	if e.it.hasNext() {
 		e.v = e.it.next()
@@ -1585,6 +1603,9 @@ func Map_get_s(m any, k string) any {
 		if im, ok := m.(*ImmutableMap); ok && im != nil {
 			return im.get_s(k)
 		}
+		if x, ok := m.(interface{ get_s(string) any }); ok {
+			return x.get_s(k) // the erased view of a typed map (rt_tmap.go)
+		}
 	}
 	return asMap_(m).get(strobj_(k))
 }
@@ -1597,6 +1618,9 @@ func Map_containsKey_s(m any, k string) bool {
 		if im, ok := m.(*ImmutableMap); ok && im != nil {
 			return im.containsKey_s(k)
 		}
+		if x, ok := m.(interface{ containsKey_s(string) bool }); ok {
+			return x.containsKey_s(k)
+		}
 	}
 	return asMap_(m).containsKey(strobj_(k))
 }
@@ -1606,6 +1630,9 @@ func Map_put_s(m any, k string, v any) any {
 		old, _ := h.t.putStr(k, v)
 		return old
 	}
+	if x, ok := m.(interface{ put_s(string, any) any }); ok && k != nullstr_ {
+		return x.put_s(k, v)
+	}
 	return asMap_(m).put(strobj_(k), v)
 }
 
@@ -1613,6 +1640,9 @@ func Map_remove_s(m any, k string) any {
 	if h := hashMapOf_(m); h != nil && k != nullstr_ {
 		old, _ := h.t.removeStr(k)
 		return old
+	}
+	if x, ok := m.(interface{ remove_s(string) any }); ok && k != nullstr_ {
+		return x.remove_s(k)
 	}
 	return asMap_(m).remove(strobj_(k))
 }
@@ -1657,6 +1687,9 @@ func Collection_contains_s(c any, k string) bool {
 			if x != nil {
 				return x.contains_s(k)
 			}
+		case interface{ contains_s(string) bool }:
+			// the erased view of a typed list (rt_tlist.go)
+			return x.contains_s(k)
 		}
 	}
 	return asColl_(c).contains(strobj_(k))
@@ -1667,6 +1700,9 @@ func Collection_add_s(c any, k string) bool {
 	if x, ok := c.(*LinkedHashSet); ok && x != nil && k != nullstr_ {
 		return x.t().addStr(k)
 	}
+	if x, ok := c.(interface{ add_s(string) bool }); ok {
+		return x.add_s(k) // the erased view of a typed set (rt_tset.go)
+	}
 	return asColl_(c).add(strobj_(k))
 }
 
@@ -1674,6 +1710,9 @@ func Collection_remove_s(c any, k string) bool {
 	if t := hashSetOf_(c); t != nil && k != nullstr_ {
 		_, existed := t.removeStr(k)
 		return existed
+	}
+	if x, ok := c.(interface{ remove_s(string) bool }); ok {
+		return x.remove_s(k) // the erased view of a typed set (rt_tset.go)
 	}
 	return asColl_(c).remove_Object(strobj_(k))
 }

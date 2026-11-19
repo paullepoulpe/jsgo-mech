@@ -83,13 +83,13 @@ func TestGuavaImmutableMap(t *testing.T) {
 				t.Fatal("buildOrThrow should throw")
 			}
 			msg := r.(interface{ getMessage() string }).getMessage()
-			if msg != "Multiple entries with same key: a=1 and a=3" {
+			if msg != "Multiple entries with same key: a=3 and a=1" {
 				t.Errorf("message %q", msg)
 			}
 		}()
 		b.buildOrThrow()
 	}()
-	guavaStr_(t, b.buildKeepingLast(), "{b=2, a=3, c=4}")
+	guavaStr_(t, b.buildKeepingLast(), "{a=3, b=2, c=4}")
 	guavaEq_(t, ImmutableMap_of().isEmpty(), true)
 	guavaEq_(t, ImmutableMap_of().get("a"), nil)
 }

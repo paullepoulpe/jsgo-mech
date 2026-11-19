@@ -197,6 +197,47 @@ public class Handles {
     }
   }
 
+  /**
+   * A handle class whose fields are ids (selftest/handles.txt): label and note are string-id Strings,
+   * value a string-id Object (a value code), kind a handle-table Object with Named as its flag type.
+   */
+  static final class Cell {
+    String label = "";
+    String note;
+    Object value;
+    Object kind;
+    Object extra;
+    Cell link;
+
+    Cell(String label) {
+      this.label = label;
+    }
+
+    double number() {
+      if (!(value instanceof Double d)) {
+        throw new ClassCastException("not a number: " + label);
+      }
+      return d;
+    }
+
+    String text() {
+      return value instanceof String s ? s : "<" + value + ">";
+    }
+
+    Named named() {
+      return kind instanceof Named n ? n : null;
+    }
+
+    /** extra is a runtime field and getExtra a runtime method (selftest/handles.txt, selftest/rt_cell.go). */
+    Object getExtra() {
+      return extra;
+    }
+
+    void setExtra(Object o) {
+      extra = o;
+    }
+  }
+
   static final class Holder {
     Item item;
     Item[] items = new Item[3];
@@ -539,6 +580,81 @@ public class Handles {
     return sb.append('\n').toString();
   }
 
+  /** Cell's fields are stored as ids (selftest/handles.txt); nothing may tell. */
+  static String ids() {
+    StringBuilder sb = new StringBuilder();
+    Cell a = new Cell("a");
+    Cell b = new Cell(new String(new char[] {'a'}));
+    sb.append(a.label).append(' ').append(a.label.equals(b.label)).append(' ')
+        .append(a.note == null).append(' ').append(a.note).append(' ').append(a.label.isEmpty()).append(' ');
+    a.note = "n1";
+    b.note = a.note;
+    b.label = "";
+    sb.append(b.note).append(' ').append(b.label.isEmpty()).append(' ').append(b.label.length()).append(' ');
+    a.note = null;
+    sb.append(a.note == null).append(' ').append(b.note).append('\n');
+    // value codes: null, strings, numbers (integral inline, others in a table), other objects
+    sb.append(a.value == null).append(' ').append(a.value instanceof String).append(' ').append(a.text()).append(' ');
+    double[] nums = {0.0, -0.0, 1.0, -1.0, 2.5, 1e300, 268435455.0, 268435456.0, -268435456.0, -268435457.0, Double.NaN, Double.POSITIVE_INFINITY};
+    for (double d : nums) {
+      a.value = d;
+      double back = a.number();
+      sb.append(back).append(Double.doubleToRawLongBits(back) == Double.doubleToRawLongBits(d) ? "" : "!").append(' ');
+    }
+    Object boxed = 7.0;
+    a.value = boxed;
+    sb.append(a.value instanceof Double).append(' ').append(a.value.equals(7.0)).append(' ').append(a.value instanceof String).append(' ');
+    a.value = "s";
+    sb.append(a.value instanceof Double).append(' ').append(a.text()).append(' ').append(((String) a.value).length()).append(' ');
+    b.value = a.value;
+    sb.append(b.value == a.value).append(' ').append(b.text()).append(' ');
+    Integer boxedInt = 7;
+    a.value = boxedInt;
+    sb.append(a.value instanceof Integer).append(' ').append(a.value instanceof Double).append(' ').append(a.value).append(' ');
+    try {
+      a.number();
+    } catch (ClassCastException e) {
+      sb.append("cce ");
+    }
+    try {
+      sb.append(((String) a.value).length());
+    } catch (ClassCastException e) {
+      sb.append("cce2 ");
+    }
+    List<String> list = new ArrayList<>();
+    a.value = list;
+    sb.append(a.value == list).append(' ').append(a.value instanceof List).append(' ');
+    a.value = a;
+    sb.append(a.value == a).append(' ').append(((Cell) a.value).label).append(' ');
+    a.value = null;
+    sb.append(a.value == null).append(' ').append((String) a.value).append('\n');
+    // handle tables
+    Item it = new Item(5, "five", Kind.LEAF);
+    Tag tag = new Tag("t", 1);
+    sb.append(a.kind == null).append(' ').append(a.named() == null).append(' ');
+    a.kind = it;
+    b.kind = it;
+    sb.append(a.kind == it).append(' ').append(a.kind == b.kind).append(' ').append(a.named() == it).append(' ').append(a.named().shout()).append(' ');
+    a.kind = tag;
+    sb.append(a.kind == tag).append(' ').append(a.named() == null).append(' ').append(a.kind instanceof Tag).append(' ').append(a.kind.equals(new Tag("t", 2)))
+        .append(' ');
+    a.kind = "str";
+    b.kind = a.kind;
+    sb.append(a.kind).append(' ').append(b.kind == a.kind).append(' ').append(a.named() == null).append(' ');
+    a.kind = null;
+    sb.append(a.kind == null).append(' ').append(b.named() == null).append(' ').append(Objects.equals(a.kind, b.kind)).append('\n');
+    // a runtime field
+    sb.append(a.extra == null).append(' ').append(a.getExtra()).append(' ');
+    a.extra = "e1";
+    b.extra = a.extra;
+    sb.append(b.extra != null).append(' ').append(b.getExtra()).append(' ').append(a.extra == b.extra).append(' ');
+    a.setExtra(2.5);
+    sb.append(a.extra).append(' ').append(b.extra).append(' ');
+    a.extra = null;
+    sb.append(a.extra == null).append(' ').append(a.getExtra()).append('\n');
+    return sb.toString();
+  }
+
   public static String run() {
     p(fields());
     p(nulls());
@@ -546,6 +662,7 @@ public class Handles {
     p(collections());
     p(trees());
     p(stringSlot());
+    p(ids());
     return out.toString();
   }
 

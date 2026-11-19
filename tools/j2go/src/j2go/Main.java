@@ -94,6 +94,21 @@ public final class Main {
     }.scan(cu, null);
   }
 
+  /** The source files and the translator's stub classes (in memory). */
+  static List<JavaFileObject> withStubs(Iterable<? extends JavaFileObject> files) {
+    List<JavaFileObject> out = new ArrayList<>();
+    for (JavaFileObject f : files) out.add(f);
+    for (var e : Ctx.STUBS.entrySet()) {
+      out.add(new SimpleJavaFileObject(java.net.URI.create("string:///j2go/rt/" + e.getKey() + ".java"), JavaFileObject.Kind.SOURCE) {
+        @Override
+        public CharSequence getCharContent(boolean ignoreEncodingErrors) {
+          return e.getValue();
+        }
+      });
+    }
+    return out;
+  }
+
   public static void main(String[] a) throws Exception {
     JavaCompiler jc = ToolProvider.getSystemJavaCompiler();
     StandardJavaFileManager fm = jc.getStandardFileManager(null, null, null);
@@ -106,9 +121,12 @@ public final class Main {
     DiagnosticCollector<JavaFileObject> diags = new DiagnosticCollector<>();
     JavacTask task = (JavacTask) jc.getTask(null, fm, diags,
         List.of("-proc:none", "-cp", a[0], "--release", "21", "-Xmaxerrs", "100000", "-parameters"), null,
-        fm.getJavaFileObjectsFromFiles(files));
+        withStubs(fm.getJavaFileObjectsFromFiles(files)));
     List<CompilationUnitTree> units = new ArrayList<>();
-    for (CompilationUnitTree cu : task.parse()) units.add(cu);
+    for (CompilationUnitTree cu : task.parse()) {
+      // the translator's own stub classes (Ctx.STUBS) are library classes: not translated
+      if (!cu.getSourceFile().getName().startsWith("/j2go/rt/")) units.add(cu);
+    }
     task.analyze();
     long errs = diags.getDiagnostics().stream().filter(d -> d.getKind() == Diagnostic.Kind.ERROR).count();
     if (errs > 0) {
@@ -241,6 +259,35 @@ public final class Main {
       for (String e : cx.handleErrors) System.err.println("handle class " + e);
       System.exit(1);
     }
+    GenScan gs = new GenScan(cx, trees);
+    gs.candidates(cx.source);
+    gs.noteOverrides(cx.source);
+    if (System.getenv("J2GO_ERASED") == null) {
+      gs.shared(units);
+      for (CompilationUnitTree cu : units) gs.refine(cu);
+    }
+    for (CompilationUnitTree cu : units) gs.scan(cu);
+    if (System.getenv("J2GO_GENERICS") != null) gs.report();
+    // J2GO_ERASED=1 translates every generic class erased (the translation before typed generics).
+    if (System.getenv("J2GO_ERASED") == null) {
+      cx.typedClasses.addAll(gs.typed());
+      cx.keptVars.addAll(gs.kept());
+      cx.fixedVars.addAll(gs.fixedVars());
+      for (TypeParameterElement tp : cx.keptVars) {
+        if (tp.getGenericElement() instanceof ExecutableElement m && !m.getModifiers().contains(Modifier.STATIC)) cx.genFns.add(m);
+      }
+    }
+    cx.findComparable(units);
+    cx.registerValueLibs();
+    cx.registerTypedColls();
+    if (System.getenv("J2GO_ERASED") == null) {
+      Colls colls = new Colls(cx, trees);
+      for (CompilationUnitTree cu : units) colls.groups(cu);
+      for (CompilationUnitTree cu : units) colls.candidates(cu);
+      for (CompilationUnitTree cu : units) colls.flows(cu);
+      colls.decide();
+    }
+    cx.conv.loadAliases(out);
     cx.assignClassNames();
     cx.analyzeMethods();
     Files.createDirectories(out);
@@ -296,6 +343,23 @@ public final class Main {
     for (String gt : cx.icasts) {
       cb.append("\nfunc icast_").append(gt).append("(v any) ").append(gt).append(" {\n\tif v == nil {\n\t\treturn nil\n\t}\n\treturn v.(")
           .append(gt).append(")\n}\n");
+    }
+    for (String d : cx.conv.upcasts.values()) cb.append("\n").append(d);
+    cx.conv.strSeqReport();
+    for (String d : cx.tconvs.values()) cb.append("\n").append(d);
+    if (!cx.collKinds.isEmpty() && !"1".equals(System.getenv("J2GO_NOCOMPARABLE"))) {
+      // The classes whose Go == is Java's equals (Ctx.goEquals): a typed set or map whose element
+      // or key type is a type parameter compares with == where the instantiation is one of them,
+      // else by equals and hashCode (tceT_ in rt_tlist.go).
+      TreeSet<String> ge = new TreeSet<>();
+      for (TypeElement te : cx.source) {
+        if (!cx.goEquals(te)) continue;
+        String g = cx.goType(cx.types.erasure(te.asType()));
+        if (!g.contains("[")) ge.add(g.startsWith("*") ? "(" + g + ")(nil)" : g + "(0)");
+      }
+      cb.append("\n// The classes whose == is Java's equals: a set or a map of a type parameter compares an\n// instantiation that is one of them with == (tceT_).\nfunc init() {\n\tregGoEquals_(\n");
+      for (String g : ge) cb.append("\t\t").append(g).append(",\n");
+      cb.append("\t)\n}\n");
     }
     Files.writeString(out.resolve("g_0casts.go"), cb.toString());
     // Java names of the Go types, for getClass().

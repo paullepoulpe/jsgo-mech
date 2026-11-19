@@ -17,15 +17,18 @@
 package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.javascript.rhino.ErrorReporter;
 import com.google.javascript.rhino.Node;
+import com.google.javascript.rhino.StaticSourceFile;
 import com.google.javascript.rhino.Token;
 import com.google.javascript.rhino.jstype.JSType;
 import com.google.javascript.rhino.jstype.StaticTypedRef;
 import com.google.javascript.rhino.jstype.StaticTypedSlot;
+import org.jspecify.annotations.Nullable;
 
 /**
  * {@link AbstractVar} subclass for use with {@link TypedScope}.
@@ -36,7 +39,7 @@ import com.google.javascript.rhino.jstype.StaticTypedSlot;
  * TypedVar} instances are stored in a set, the type information is at risk of disappearing if an
  * untyped (or differently typed) var is added for the same symbol.
  */
-public class TypedVar extends AbstractVar<TypedScope, TypedVar>
+public class TypedVar extends AbstractVar
     implements StaticTypedSlot, StaticTypedRef {
 
   private JSType type;
@@ -71,7 +74,8 @@ public class TypedVar extends AbstractVar<TypedScope, TypedVar>
 
   TypedVar(boolean inferred, String name, Node nameNode, JSType type,
       TypedScope scope, int index, CompilerInput input) {
-    super(name, nameNode, scope, index, input, /* implicitGoogNamespaceDefinition= */ null);
+    super(name, nameNode, index, input, /* implicitGoogNamespaceDefinition= */ null);
+    this.scope = scope;
     if (nameNode != null) {
       checkArgument(
           NAME_NODE_TYPES.contains(nameNode.getToken()),
@@ -136,5 +140,83 @@ public class TypedVar extends AbstractVar<TypedScope, TypedVar>
 
   boolean isMarkedAssignedExactlyOnce() {
     return markedAssignedExactlyOnce;
+  }
+
+  // Members pushed down from AbstractVar (prep 17), with its type parameters replaced.
+
+  private final TypedScope scope;
+
+  @Override
+  public final Node getScopeRoot() {
+    return scope.getRootNode();
+  }
+
+  @Override
+  public final StaticSourceFile getSourceFile() {
+    return (this.getNode() != null ? this.getNode() : scope.getRootNode()).getStaticSourceFile();
+  }
+
+  @Override
+  public final TypedVar getSymbol() {
+    return this;
+  }
+
+  @Override
+  public final TypedVar getDeclaration() {
+    return this.getNode() == null ? null : this;
+  }
+
+  @Override
+  public final TypedScope getScope() {
+    return scope;
+  }
+
+  @Override
+  public final boolean isGlobal() {
+    return scope.isGlobal();
+  }
+
+  @Override
+  public final boolean isLocal() {
+    return scope.isLocal();
+  }
+
+  @Override
+  public final boolean isArguments() {
+    return Var.ARGUMENTS.equals(name) && scope.isFunctionScope();
+  }
+
+  @Override
+  final boolean isGoogModuleExports() {
+    return scope.isModuleScope() && "exports".equals(name) && isImplicit();
+  }
+
+  @Override
+  public final boolean isThis() {
+    return "this".equals(name) && scope.isFunctionScope();
+  }
+
+  private boolean isImplicit() {
+    if (isImplicitGoogNamespace()) {
+      return true;
+    }
+    AbstractScope.ImplicitVar var = AbstractScope.ImplicitVar.of(name);
+    return var != null && var.isMadeByScope(scope);
+  }
+
+  @Override
+  final @Nullable Token declarationType() {
+    if (isImplicitGoogNamespace()) {
+      return null;
+    }
+    for (Node current = this.getNode(); current != null; current = current.getParent()) {
+      if (DECLARATION_TYPES.contains(current.getToken())) {
+        return current.getToken();
+      }
+    }
+    checkState(
+        isImplicit(),
+        "The nameNode for %s must be a descendant of one of: %s", this, DECLARATION_TYPES);
+    return null;
   }
 }

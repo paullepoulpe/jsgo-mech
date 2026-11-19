@@ -49,7 +49,9 @@ final class Emitter extends StmtEmitter {
   boolean needsZero(TypeElement te) {
     if (te == null || !cx.isSource(te)) return false;
     for (Element e : te.getEnclosedElements()) {
+      if (e.getKind() == ElementKind.FIELD && cx.strId((VariableElement) e)) continue;
       if (e.getKind() == ElementKind.FIELD && !e.getModifiers().contains(Modifier.STATIC) && cx.kind(e.asType()) == Ctx.K.STR) return true;
+      if (e.getKind() == ElementKind.FIELD && !e.getModifiers().contains(Modifier.STATIC) && cx.kind(e.asType()) == Ctx.K.TVAR) return true;
       if (e.getKind() == ElementKind.FIELD && cx.strSlot((VariableElement) e)) return true;
     }
     return needsZero(cx.superclass(te));
@@ -98,24 +100,28 @@ final class Emitter extends StmtEmitter {
 
   void interfaceDecl(ClassTree ct, TypeElement te) {
     String n = cx.className(te);
-    StringBuilder sb = new StringBuilder("type " + n + " interface {\n");
+    // A typed generic interface (GenScan) is a generic Go interface: I<X> is I[X].
+    TypeMirror site = te.asType();
+    String tps = tparams(te), tpu = cx.typedClasses.contains(te) ? cx.typeParamsUse(te.getTypeParameters()) : "";
+    StringBuilder sb = new StringBuilder("type " + n + tps + " interface {\n");
     for (TypeMirror st : te.getInterfaces()) {
-      if (cx.kind(st) == Ctx.K.IFACE) sb.append("\t").append(cx.className(Ctx.typeElement(st))).append("\n");
+      if (cx.kind(st) == Ctx.K.IFACE) sb.append("\t").append(cx.goType(st)).append("\n");
     }
     for (Element e : te.getEnclosedElements()) {
       if (!Ctx.isInstanceMethod(e) || e.getModifiers().contains(Modifier.PRIVATE)) continue;
       ExecutableElement m = (ExecutableElement) e;
       if (rootIsObject(m)) continue;
-      sb.append("\t").append(cx.methodName(m)).append(cx.goSig(cx.groupParams(m), cx.groupReturn(m), true)).append("\n");
+      sb.append("\t").append(cx.methodName(m)).append(cx.goSig(cx.groupParams(m, site), cx.groupReturn(m, site), true)).append("\n");
     }
     sb.append("}\n\n");
     file.append(sb);
     ExecutableElement fm = cx.functionalMethod(te);
     if (fm != null) {
       String fn = n + "_fn";
-      List<TypeMirror> ps = cx.groupParams(fm);
-      TypeMirror ret = cx.groupReturn(fm);
-      file.append("type ").append(fn).append(" struct {\n\tf func").append(cx.goSig(ps, ret)).append("\n}\n\n");
+      List<TypeMirror> ps = cx.groupParams(fm, site);
+      TypeMirror ret = cx.groupReturn(fm, site);
+      file.append("type ").append(fn).append(tps).append(" struct {\n\tf func").append(cx.goSig(ps, ret)).append("\n}\n\n");
+      fn += tpu;
       file.append("func (this *").append(fn).append(") ").append(cx.methodName(fm)).append(paramList(ps)).append(retSuffix(ret))
           .append(" {\n\t").append(ret.getKind() == TypeKind.VOID ? "" : "return ").append("this.f(").append(argNames(ps.size())).append(")\n}\n\n");
       // Default methods of the interface and its super-interfaces.
@@ -129,11 +135,11 @@ final class Emitter extends StmtEmitter {
           if (!Ctx.isInstanceMethod(e) || !((ExecutableElement) e).isDefault()) continue;
           ExecutableElement dm = (ExecutableElement) e;
           if (!seen.add(cx.root(dm)) || cx.root(dm).equals(cx.root(fm))) continue;
-          List<TypeMirror> dps = cx.groupParams(dm);
-          TypeMirror dret = cx.groupReturn(dm);
+          List<TypeMirror> dps = cx.groupParams(dm, site);
+          TypeMirror dret = cx.groupReturn(dm, site);
           file.append("func (this *").append(fn).append(") ").append(cx.methodName(dm)).append(paramList(dps)).append(retSuffix(dret))
               .append(" {\n\t").append(dret.getKind() == TypeKind.VOID ? "" : "return ").append(cx.className(it)).append("_").append(cx.methodName(dm))
-              .append("_default(this").append(dps.isEmpty() ? "" : ", " + argNames(dps.size())).append(")\n}\n\n");
+              .append("_default").append(cx.viewArgs(site, it)).append("(this").append(dps.isEmpty() ? "" : ", " + argNames(dps.size())).append(")\n}\n\n");
         }
       }
     }
@@ -141,7 +147,7 @@ final class Emitter extends StmtEmitter {
       for (ExecutableElement dm : cx.extDefaultOverrides(te)) {
         if (cx.root(dm).equals(cx.root(fm))) continue;
         List<TypeMirror> ps = cx.groupParams(dm);
-        file.append("func (this *").append(n).append("_fn) ").append(cx.methodName(dm)).append(paramList(ps)).append(retSuffix(cx.groupReturn(dm)))
+        file.append("func (this *").append(n).append("_fn").append(tpu).append(") ").append(cx.methodName(dm)).append(paramList(ps)).append(retSuffix(cx.groupReturn(dm)))
             .append(" {\n\t").append(cx.defaultBridgeBody(dm, cx.className(cx.ownerOf(dm)) + "(this)")).append("\n}\n\n");
       }
     }
@@ -177,13 +183,16 @@ final class Emitter extends StmtEmitter {
     String n = cx.className(te);
     TypeElement sup = cx.superclass(te);
     boolean handle = cx.isHandle(te);
-    StringBuilder sb = new StringBuilder(handle ? "" : "type " + n + " struct {\n");
-    if (sup != null) sb.append("\t").append(cx.className(sup)).append("\n");
+    String tps = cx.goTparamsDecl(te);
+    StringBuilder sb = new StringBuilder(handle ? "" : "type " + n + tps + " struct {\n");
+    if (sup != null) sb.append("\t").append(cx.superStruct(te, sup)).append("\n");
     if (cx.declaresSelf(te)) sb.append("\tself_ any\n");
+    List<ExecutableElement> vt = vtRoots(te);
+    if (!vt.isEmpty()) sb.append("\tvt_").append(n).append("_ ").append(n).append("_vt_").append(cx.goTparamsUse(te)).append("\n");
     ClassCtx c = cc();
     if (c.hasOuter) sb.append("\touter_ ").append(cx.ref(cx.enclosingClass(te))).append("\n");
     for (VariableElement cap : c.captures) {
-      sb.append("\tcap_").append(Ctx.safe(cap.getSimpleName().toString())).append(" ").append(cx.goType(cap.asType())).append("\n");
+      sb.append("\tcap_").append(Ctx.safe(cap.getSimpleName().toString())).append(" ").append(cx.goType(cx.vtype(cap))).append("\n");
     }
     List<VariableTree> enumConsts = new ArrayList<>();
     List<Tree> instanceInits = new ArrayList<>();
@@ -194,7 +203,7 @@ final class Emitter extends StmtEmitter {
         if (fe.getKind() == ElementKind.ENUM_CONSTANT) {
           enumConsts.add(v);
         } else if (!fe.getModifiers().contains(Modifier.STATIC)) {
-          if (!handle) sb.append("\t").append(cx.fieldName((VariableElement) fe)).append(" ").append(cx.declType(fe.asType())).append("\n");
+          if (!handle) sb.append("\t").append(cx.fieldName((VariableElement) fe)).append(" ").append(cx.declType(cx.vtype(fe))).append("\n");
           if (v.getInitializer() != null) instanceInits.add(v);
         }
       } else if (m instanceof BlockTree b && !b.isStatic()) {
@@ -203,13 +212,38 @@ final class Emitter extends StmtEmitter {
     }
     sb.append(handle ? handleDecl(te) : "}\n\n");
     boolean leaf = cx.isLeaf(te);
+    // A generic Go type (typed class, or a local class of a generic scope) is spelled with its
+    // type parameters; "instanceof" of it, which asks about any instantiation, has a marker method.
+    String self = handle ? n : cx.ref(te), gtd = cx.goTparamsDecl(te);
+    boolean generic = !handle && !gtd.isEmpty();
+    if (!vt.isEmpty()) {
+      sb.append("type ").append(n).append("_vt_").append(gtd).append(" interface {\n");
+      for (ExecutableElement r : vt) {
+        sb.append("\t").append(cx.methodName(r)).append("_impl").append(cx.goSig(cx.groupParams(r, te.asType()), cx.groupReturn(r, te.asType()))).append("\n");
+      }
+      sb.append("}\n\n");
+    }
+    if (generic) {
+      sb.append("func (this ").append(self).append(") isa_").append(n).append("_() {}\n\n");
+      sb.append("func is_").append(n).append("(v any) bool {\n\t_, ok := v.(interface{ isa_").append(n).append("_() })\n\treturn ok\n}\n\n");
+    }
     if (!leaf) {
-      sb.append("func (this *").append(n).append(") as_").append(n).append("() *").append(n).append(" { return this }\n\n");
-      sb.append("func to_").append(n).append("(v any) *").append(n).append(" {\n\tif v == nil {\n\t\treturn nil\n\t}\n\treturn v.(interface{ as_")
-          .append(n).append("() *").append(n).append(" }).as_").append(n).append("()\n}\n\n");
-      sb.append("func is_").append(n).append("(v any) bool {\n\t_, ok := v.(interface{ as_").append(n).append("() *").append(n).append(" })\n\treturn ok\n}\n\n");
+      sb.append("func (this ").append(self).append(") as_").append(n).append("() ").append(self).append(" { return this }\n\n");
+      if (generic) {
+        // Performance rule: in generic code an assertion to an interface that names a type
+        // parameter is looked up at run time on every call (no per-site cache). The view of a
+        // generic class is asked through an interface without type parameters, then asserted
+        // to the pointer type (one comparison).
+        sb.append("func (this ").append(self).append(") as_").append(n).append("_() any { return this }\n\n");
+        sb.append("func to_").append(n).append(gtd).append("(v any) ").append(self).append(" {\n\tif v == nil {\n\t\treturn nil\n\t}\n\treturn v.(interface{ as_")
+            .append(n).append("_() any }).as_").append(n).append("_().(").append(self).append(")\n}\n\n");
+      } else {
+        sb.append("func to_").append(n).append(gtd).append("(v any) ").append(self).append(" {\n\tif v == nil {\n\t\treturn nil\n\t}\n\treturn v.(interface{ as_")
+            .append(n).append("() ").append(self).append(" }).as_").append(n).append("()\n}\n\n");
+      }
+      if (!generic) sb.append("func is_").append(n).append("(v any) bool {\n\t_, ok := v.(interface{ as_").append(n).append("() *").append(n).append(" })\n\treturn ok\n}\n\n");
       if (cx.hasSelf(te)) {
-        sb.append("func (this *").append(n).append(") self() any {\n\tif this == nil {\n\t\treturn nil\n\t}\n\treturn this.self_\n}\n\n");
+        sb.append("func (this ").append(self).append(") self() any {\n\tif this == nil {\n\t\treturn nil\n\t}\n\treturn this.self_\n}\n\n");
       }
     }
     boolean pastLibrary = false;
@@ -217,15 +251,21 @@ final class Emitter extends StmtEmitter {
       // Only the nearest library superclass: the runtime's structs need not mirror the JDK's hierarchy.
       if (!cx.isSource(a)) pastLibrary = true;
       String an = cx.className(a);
-      sb.append("func (this *").append(n).append(") up_").append(an).append("() *").append(an)
+      sb.append("func (this ").append(self).append(") up_").append(an).append("() *").append(cx.superStruct(te, a))
           .append(" {\n\tif this == nil {\n\t\treturn nil\n\t}\n\treturn &this.").append(an).append("\n}\n\n");
     }
     if (needsZero(te)) {
       sb.append(recv(te)).append("zero_").append(n).append("() {\n");
       if (needsZero(sup)) sb.append("\tthis.").append(cx.className(sup)).append(".zero_").append(cx.className(sup)).append("()\n");
       for (Element e : te.getEnclosedElements()) {
+        // A string-id field needs nothing: id 0 is the null string, value code 0 is null.
+        if (e.getKind() == ElementKind.FIELD && cx.strId((VariableElement) e)) continue;
         if (e.getKind() == ElementKind.FIELD && !e.getModifiers().contains(Modifier.STATIC) && cx.kind(e.asType()) == Ctx.K.STR) {
           sb.append("\t").append(cx.fieldLoc("this", (VariableElement) e)).append(" = nullstr_\n");
+        }
+        if (e.getKind() == ElementKind.FIELD && !e.getModifiers().contains(Modifier.STATIC) && cx.kind(e.asType()) == Ctx.K.TVAR) {
+          // Java's null for a field of a type parameter (the null string for a String)
+          sb.append("\t").append(cx.fieldLoc("this", (VariableElement) e)).append(" = ").append(cx.nil(e.asType())).append("\n");
         }
         if (e.getKind() == ElementKind.FIELD && cx.strSlot((VariableElement) e)) {
           sb.append("\t").append(cx.strSlotLoc("this", (VariableElement) e)).append(" = nullstr_\n");
@@ -246,15 +286,23 @@ final class Emitter extends StmtEmitter {
     if (!anyCtor) defaultConstructor(te, hasFinit);
     for (Tree m : ct.getMembers()) {
       if (m instanceof MethodTree mt && !mt.getName().contentEquals("<init>")) {
+        // handles.txt "Class::method runtime": the handwritten runtime defines it.
+        if (handle && elemOf(mt) instanceof ExecutableElement me && cx.runtimeMethod(te, me)) continue;
         guarded("method " + n + "." + mt.getName(), () -> method(mt, te));
       }
     }
     stubs(te);
     bridges(te);
+    covBridges(te);
     extBridges(te);
     guarded("args4j table of " + n, () -> args4jTable(te));
     if (te.getKind() == ElementKind.RECORD) recordMembers(te);
     statics(ct, te, enumConsts);
+  }
+
+  /** The type parameter list of the constructors of te: "[K any, V any]" for a typed class, else "". */
+  String tparams(TypeElement te) {
+    return cx.goTparamsDecl(te);
   }
 
   /** Receiver clause of an instance method of class te. */
@@ -269,30 +317,94 @@ final class Emitter extends StmtEmitter {
   String handleDecl(TypeElement te) {
     String n = cx.className(te);
     List<VariableElement> ns = new ArrayList<>(), cs = new ArrayList<>(), ps = new ArrayList<>();
-    for (VariableElement f : Ctx.instanceFields(te)) (cx.cold(f) ? cs : cx.pointerFree(f) ? ns : ps).add(f);
+    for (VariableElement f : Ctx.instanceFields(te)) {
+      // A column is an array of its own (below).
+      if (!cx.column(f)) (cx.cold(f) ? cs : cx.pointerFree(f) ? ns : ps).add(f);
+    }
     // Widest first, so that the pointer-free records have no padding between fields.
     ns.sort(Comparator.comparingInt((VariableElement f) -> -storedSize(f)));
     cs.sort(Comparator.comparingInt((VariableElement f) -> -storedSize(f)));
     // The handle's own value, for box_ to point an interface at, is read only when boxing: it goes
-    // with the cold fields when there are any.
+    // with the cold fields when there are any, after their 8-byte fields.
     String selfAcc = cs.isEmpty() ? "ns_" : "cs_";
     StringBuilder sb = new StringBuilder("type " + n + " uint32\n\n");
     StringBuilder alloc = new StringBuilder();
+    // Every per-object array (records and columns), for the check that Node's hold no Go pointer.
+    StringBuilder arrays = new StringBuilder();
     String[][] recs = {{"_ns_", "ns_"}, {"_cs_", "cs_"}, {"_ps_", "ps_"}};
     List<List<VariableElement>> lists = List.of(ns, cs, ps);
+    List<VariableElement> vcs = new ArrayList<>();
+    for (VariableElement f : Ctx.instanceFields(te)) if (cx.column(f)) vcs.add(f);
     for (int k = 0; k < 3; k++) {
-      if (k == 1 && cs.isEmpty()) continue;
+      if ((k == 1 && cs.isEmpty()) || (k == 2 && ps.isEmpty())) continue;
       String rec = n + recs[k][0], acc = recs[k][1], tab = n + "_" + acc + "chunks_";
       sb.append("type ").append(rec).append(" struct {\n");
-      if (acc.equals(selfAcc)) sb.append("\tself_ uint32\n");
-      for (VariableElement f : lists.get(k)) sb.append("\t").append(cx.fieldName(f)).append(" ").append(cx.storedType(f)).append("\n");
+      boolean self = acc.equals(selfAcc);
+      for (VariableElement f : lists.get(k)) {
+        if (self && storedSize(f) <= 4) {
+          sb.append("\tself_ uint32\n");
+          self = false;
+        }
+        sb.append("\t").append(cx.fieldName(f)).append(" ").append(cx.storedType(f)).append("\n");
+      }
+      if (self) sb.append("\tself_ uint32\n");
       sb.append("}\n\n");
       sb.append("var ").append(tab).append(" [handleChunks_]*[handleChunkSize_]").append(rec).append("\n\n");
       sb.append(recv(te)).append(acc).append("() *").append(rec).append(" {\n\treturn &").append(tab).append("[this>>handleShift_][uint16(this)]\n}\n\n");
       alloc.append("\t\t").append(tab).append("[h>>handleShift_] = new([handleChunkSize_]").append(rec).append(")\n");
+      arrays.append("handleColumn_{").append(quote(n)).append(", ").append(quote(rec)).append(", ").append(rec).append("{}}, ");
+    }
+    for (VariableElement f : Ctx.instanceFields(te)) {
+      if (!cx.column(f)) continue;
+      String fn = cx.fieldName(f), tab = n + "_" + fn + "_c_chunks_", gt = cx.storedType(f);
+      sb.append("var ").append(tab).append(" [handleChunks_]*[handleChunkSize_]").append(gt).append("\n\n");
+      sb.append(recv(te)).append(fn).append("_c_() *").append(gt).append(" {\n\treturn &").append(tab).append("[this>>handleShift_][uint16(this)]\n}\n\n");
+      alloc.append("\t\t").append(tab).append("[h>>handleShift_] = new([handleChunkSize_]").append(gt).append(")\n");
+      arrays.append("handleColumn_{").append(quote(n)).append(", ").append(quote(fn + " column")).append(", *new(").append(gt).append(")}, ");
+    }
+    for (VariableElement f : Ctx.instanceFields(te)) {
+      if (!cx.valCode(f)) continue;
+      // A string-id field declared Object: one uint32 value code (rt_ids.go), pointer-free; every
+      // accessor of a string-slot field, on the code.
+      String fn = cx.fieldName(f), c = cx.fieldLoc("this", f);
+      String[][] acc = {
+        {"_get_() any", "return valcode_get_(" + c + ")"},
+        {"_set_(v any)", c + " = valcode_(v)"},
+        {"_sets_(s string)", c + " = valcode_s_(s)"},
+        {"_setd_(d float64)", c + " = valcode_d_(d)"},
+        {"_s_() string", "return valcode_str_(" + c + ")"},
+        {"_iss_() bool", "return " + c + "&1 != 0"},
+        {"_isd_() bool", "return valcode_isd_(" + c + ")"},
+        {"_d_() float64", "return valcode_dbl_(" + c + ")"},
+        {"_obj_() any", "return valcode_obj_(" + c + ")"},
+        {"_str_() string", "return valcode_caststr_(" + c + ")"},
+        {"_copy_(o " + n + ")", c + " = " + cx.fieldLoc("o", f)},
+      };
+      for (String[] a : acc) sb.append(recv(te)).append(fn).append(a[0]).append(" {\n\t").append(a[1]).append("\n}\n\n");
+    }
+    List<VariableElement> pf = new ArrayList<>(ns);
+    pf.addAll(cs);
+    pf.addAll(vcs);
+    for (VariableElement f : pf) {
+      if (cx.runtimeField(f) == null) continue;
+      // A runtime field: the runtime reads and writes its record slot through f_p_().
+      sb.append(recv(te)).append(cx.fieldName(f)).append("_p_() *").append(cx.runtimeField(f)).append(" {\n\treturn &").append(cx.fieldLoc("this", f))
+          .append("\n}\n\n");
+    }
+    for (VariableElement f : pf) {
+      TypeMirror flag = cx.handleTable(f);
+      if (flag == null) continue;
+      // A handle-table field: a uint32 handle into a table of distinct values (rt_ids.go: htab_set_), bit 0
+      // telling whether the value is an instance of the flag type.
+      String fn = cx.fieldName(f), loc = cx.fieldLoc("this", f);
+      boolean noFlag = flag.toString().equals("java.lang.Object");
+      sb.append(recv(te)).append(fn).append("_get_() any {\n\treturn htab_get_(").append(loc).append(")\n}\n\n");
+      sb.append(recv(te)).append(fn).append("_set_(v any) {\n\thtab_set_(&").append(loc).append(", v, ")
+          .append(noFlag ? "false" : isCheck("v", flag)).append(")\n}\n\n");
     }
     for (VariableElement f : ps) {
       if (!cx.strSlot(f)) continue;
+      arrays.append("handleColumn_{").append(quote(n)).append(", ").append(quote(cx.fieldName(f) + " string slot")).append(", \"\"}, ");
       // A string-slot field: the String a Java Object field holds is kept unboxed, in a column of its own
       // (most reads of the field are of the String, and a column keeps them dense).
       String fn = cx.fieldName(f), tab = n + "_" + fn + "_s_chunks_", s = "(*this." + fn + "_s_())";
@@ -319,15 +431,17 @@ final class Emitter extends StmtEmitter {
     sb.append("var ").append(n).append("_proto_ any = ").append(n).append("(0)\n\n");
     sb.append(recv(te)).append("box_() any {\n\tif this == 0 {\n\t\treturn nil\n\t}\n\treturn handleBox_(").append(n).append("_proto_, &this.").append(selfAcc).append("().self_)\n}\n\n");
     sb.append("func ").append(n).append("_of_(v any) ").append(n).append(" {\n\tif v == nil {\n\t\treturn 0\n\t}\n\treturn v.(").append(n).append(")\n}\n\n");
+    sb.append("func init() {\n\thandleColumns_ = append(handleColumns_, ").append(arrays).append(")\n}\n\n");
     // For JSGO_HANDLE_STATS: how many objects exist and how often each field is set.
-    sb.append("func init() {\n\thandleStats_ = append(handleStats_, func() string {\n\t\tvar c [").append(ns.size() + cs.size() + ps.size()).append("]int\n")
+    sb.append("func init() {\n\thandleStats_ = append(handleStats_, func() string {\n\t\tvar c [").append(ns.size() + cs.size() + ps.size() + vcs.size()).append("]int\n")
         .append("\t\tfor h := ").append(n).append("(handleChunkSize_); uint32(h) < ").append(n).append("_count_; h++ {\n");
     StringBuilder names = new StringBuilder();
     int i = 0;
-    for (List<VariableElement> l : lists) {
+    for (List<VariableElement> l : List.of(ns, cs, ps, vcs)) {
       for (VariableElement f : l) {
         String loc = cx.fieldLoc("h", f), gt = cx.storedType(f);
-        String unset = cx.kind(f.asType()) == Ctx.K.STR ? loc + " == nullstr_ || " + loc + " == \"\"" : loc + " == " + (gt.equals("bool") ? "false" : cx.pointerFree(f) ? "0" : "nil");
+        String unset = cx.runtimeField(f) != null ? loc + " == *new(" + gt + ")" : cx.strId(f) && !cx.valCode(f) ? loc + " <= 1" : cx.kind(f.asType()) == Ctx.K.STR ? loc + " == nullstr_ || " + loc + " == \"\""
+            : loc + " == " + (gt.equals("bool") ? "false" : cx.pointerFree(f) ? "0" : "nil");
         sb.append("\t\t\tif !(").append(unset).append(") {\n\t\t\t\tc[").append(i++).append("]++\n\t\t\t}\n");
         names.append(quote(f.getSimpleName() + " (" + gt + (l != ps ? ", pointer-free)" : ")"))).append(", ");
       }
@@ -337,6 +451,7 @@ final class Emitter extends StmtEmitter {
   }
 
   int storedSize(VariableElement f) {
+    if (cx.runtimeField(f) != null) return 8; // a runtime type: widest first, it may hold 8-byte fields
     switch (cx.storedType(f)) {
       case "int64", "float64": return 8;
       case "int16", "uint16": return 2;
@@ -351,7 +466,7 @@ final class Emitter extends StmtEmitter {
     for (Tree t : inits) {
       if (t instanceof VariableTree v) {
         VariableElement f = (VariableElement) elemOf(v);
-        TypeMirror ft = cx.erase(f.asType());
+        TypeMirror ft = cx.erase(cx.vtype(f));
         ExpressionTree init = v.getInitializer();
         String val = init instanceof NewArrayTree na && na.getType() == null ? newArray(na, (ArrayType) ft) : exprAs(init, ft);
         b.append(withPre(cx.fieldSet("this", f, val))).append("\n");
@@ -379,14 +494,14 @@ final class Emitter extends StmtEmitter {
       String name = Ctx.safe(v.getName().toString());
       mc.names.put(pe, name);
       mc.reads.add(pe);
-      TypeMirror declared = cx.erase(pe.asType());
+      TypeMirror declared = cx.erase(cx.vtype(pe));
       TypeMirror group = groupTypes == null ? declared : groupTypes.get(i);
       if (i > 0) {
         d.append(", ");
         nm.append(", ");
       }
       if (cx.goType(declared).equals(cx.goType(group))) {
-        d.append(name).append(" ").append(cx.declType(pe.asType()));
+        d.append(name).append(" ").append(cx.declType(cx.vtype(pe)));
         nm.append(name);
       } else {
         d.append(name).append("_ ").append(cx.goType(group));
@@ -422,7 +537,7 @@ final class Emitter extends StmtEmitter {
     for (VariableElement cap : c.captures) {
       String cn = "cap_" + Ctx.safe(cap.getSimpleName().toString());
       if (d.length() > 0) d.append(", ");
-      d.append(cn).append(" ").append(cx.goType(cap.asType()));
+      d.append(cn).append(" ").append(cx.goType(cx.vtype(cap)));
       set.append("this.").append(cn).append(" = ").append(cn).append("\n");
     }
     return new String[] {d.toString(), set.toString()};
@@ -435,8 +550,14 @@ final class Emitter extends StmtEmitter {
         if (cx.hasClinit(c) && c.getKind() != ElementKind.ENUM && !enumLike(c)) b.append(cx.className(c)).append("_clinit()\n");
       }
     }
-    b.append(cx.isHandle(te) ? "this := " + n + "_alloc_()\n" : "this := &" + n + "{}\n");
+    String targs = cx.goTparamsUse(te);
+    b.append(cx.isHandle(te) ? "this := " + n + "_alloc_()\n" : "this := &" + n + targs + "{}\n");
     if (cx.hasSelf(te)) b.append("this.self_ = this\n");
+    if (!te.getModifiers().contains(Modifier.ABSTRACT)) {
+      for (TypeElement c = te; c != null && cx.isSource(c); c = cx.superclass(c)) {
+        if (!vtRoots(c).isEmpty()) b.append("this.vt_").append(cx.className(c)).append("_ = this\n");
+      }
+    }
     if (needsZero(te)) b.append("this.zero_").append(n).append("()\n");
     return b.toString();
   }
@@ -456,7 +577,7 @@ final class Emitter extends StmtEmitter {
     if (hasFinit) b.append("this.finit_").append(n).append("()\n");
     file.append(recv(te)).append("init_").append(n).append("(").append(enumDecl).append(") {\n").append(indent(b.toString(), "\t")).append("}\n\n");
     if (!te.getModifiers().contains(Modifier.ABSTRACT)) {
-      file.append("func new_").append(n).append("(").append(join(extras[0], enumDecl)).append(") ").append(cx.ref(te)).append(" {\n")
+      file.append("func new_").append(n).append(tparams(te)).append("(").append(join(extras[0], enumDecl)).append(") ").append(cx.ref(te)).append(" {\n")
           .append(indent(newPrologue(te, n) + extras[1] + "this.init_" + n + "(" + enumArgs + ")\nreturn this\n", "\t")).append("}\n\n");
     }
   }
@@ -516,7 +637,7 @@ final class Emitter extends StmtEmitter {
         .append(indent(guards() + finish(b.toString()), "\t")).append("\n}\n\n");
     if (!te.getModifiers().contains(Modifier.ABSTRACT)) {
       String[] extras = creationExtras(te);
-      file.append("func ").append(cx.ctorName(e, "new_")).append("(").append(join(extras[0], enumDecl, p.decl)).append(") ").append(cx.ref(te)).append(" {\n")
+      file.append("func ").append(cx.ctorName(e, "new_")).append(tparams(te)).append("(").append(join(extras[0], enumDecl, p.decl)).append(") ").append(cx.ref(te)).append(" {\n")
           .append(indent(newPrologue(te, n) + extras[1] + "this." + init + "(" + join(enumArgs, p.names) + ")\nreturn this\n", "\t")).append("}\n\n");
     }
     mc = null;
@@ -549,6 +670,11 @@ final class Emitter extends StmtEmitter {
       }
     }
     List<TypeMirror> ps = ownParams(e);
+    if (cx.typedClasses.contains(sup)) {
+      // the superclass's constructor at this class's view of it
+      ps = new ArrayList<>();
+      for (VariableElement pe : e.getParameters()) ps.add(cx.erase(cx.atSite(pe.asType(), sup, te.asType())));
+    }
     String init = cx.ctorName(e, "init_");
     if (!cx.isSource(sup)) cx.noteMethodOn(sup, init, ps, cx.types.getNoType(TypeKind.VOID));
     sb.append("this.").append(sn).append(".").append(init).append("(").append(join(cx.isSource(sup) ? enumArgs : "", argList(e, ps, args(t.getArguments())))).append(")");
@@ -567,18 +693,25 @@ final class Emitter extends StmtEmitter {
     TypeMirror ret;
     Params p;
     if (isStatic) {
-      ret = cx.erase(e.getReturnType());
+      ret = cx.erase(cx.rtype(e));
       p = params(mt.getParameters(), null);
-      head = "func " + cx.staticMethodName(e) + "(" + p.decl + ")";
+      String mtps = cx.typeParamsDecl(e.getTypeParameters());
+      head = "func " + cx.staticMethodName(e) + mtps + "(" + p.decl + ")";
     } else if (iface) {
       boolean priv = e.getModifiers().contains(Modifier.PRIVATE);
-      ret = priv ? cx.erase(e.getReturnType()) : cx.groupReturn(e);
-      p = params(mt.getParameters(), priv ? null : cx.groupParams(e));
+      ret = priv ? cx.erase(cx.rtype(e)) : cx.groupReturn(e, te.asType());
+      p = params(mt.getParameters(), priv ? null : cx.groupParams(e, te.asType()));
       String fn = priv ? cx.staticMethodName(e) : n + "_" + cx.methodName(e) + "_default";
-      head = "func " + fn + "(" + join("this " + n, p.decl) + ")";
+      // a generic function of the interface's type parameters for a typed interface
+      head = "func " + fn + tparams(te) + "(" + join("this " + cx.goType(te.asType()), p.decl) + ")";
+    } else if (cx.genFns.contains(e)) {
+      // a generic instance method: a generic function taking the receiver first
+      ret = cx.erase(cx.rtype(e));
+      p = params(mt.getParameters(), null);
+      head = "func " + cx.genFnName(e) + cx.genFnTparamsDecl(e) + "(" + join("this " + cx.ref(te), p.decl) + ")";
     } else {
-      ret = cx.groupReturn(e);
-      p = params(mt.getParameters(), cx.groupParams(e));
+      ret = cx.groupReturn(e, te.asType());
+      p = params(mt.getParameters(), cx.groupParams(e, te.asType()));
       head = recv(te) + cx.implName(e, te) + "(" + p.decl + ")";
     }
     mc.isVoid = ret.getKind() == TypeKind.VOID;
@@ -591,20 +724,42 @@ final class Emitter extends StmtEmitter {
     }
     String own = cx.initGuards && isStatic && cx.hasClinit(te) ? n + "_clinit()\n" : "";
     // The method's own return type where it is the same Go type: its type arguments are the precise ones.
-    TypeMirror own_ = cx.erase(e.getReturnType());
-    String rs = !mc.isVoid && cx.goType(own_).equals(cx.goType(ret)) ? " " + cx.declType(e.getReturnType()) : retSuffix(ret);
+    TypeMirror own_ = cx.erase(cx.rtype(e));
+    String rs = !mc.isVoid && cx.goType(own_).equals(cx.goType(ret)) ? " " + cx.declType(cx.rtype(e)) : retSuffix(ret);
     file.append(head).append(rs).append(" {\n").append(indent(own + guards() + finish(b.toString()), "\t")).append("\n}\n\n");
     mc = null;
+  }
+
+  /** Whether the stub of root r on class te finds the implementation in a library superclass when no subclass overrides it. */
+  boolean libraryImpl(TypeElement te, ExecutableElement r) {
+    TypeElement ro = cx.ownerOf(r);
+    return !cx.isSource(ro) && !ro.getKind().isInterface() && !r.getModifiers().contains(Modifier.ABSTRACT)
+        && !ro.getQualifiedName().contentEquals("java.lang.Object") && cx.superclass(te) != null;
+  }
+
+  /**
+   * The dispatched methods of a generic class te that are called through its typed dispatch
+   * field vt_C_ (set at construction to the most derived object) instead of an assertion of
+   * self_ (performance rule: such an assertion, to an interface naming a type parameter, is
+   * looked up at run time on every call in generic code).
+   */
+  List<ExecutableElement> vtRoots(TypeElement te) {
+    List<ExecutableElement> out = new ArrayList<>();
+    Set<ExecutableElement> roots = cx.virtualAt.get(te);
+    if (roots == null || !cx.hasSelf(te) || cx.isHandle(te) || cx.goTparamsDecl(te).isEmpty()) return out;
+    for (ExecutableElement r : roots) if (!libraryImpl(te, r)) out.add(r);
+    return out;
   }
 
   void stubs(TypeElement te) {
     Set<ExecutableElement> roots = cx.virtualAt.get(te);
     if (roots == null) return;
+    List<ExecutableElement> vt = vtRoots(te);
     String n = cx.className(te);
     for (ExecutableElement r : roots) {
       String name = cx.methodName(r);
-      List<TypeMirror> ps = cx.groupParams(r);
-      TypeMirror ret = cx.groupReturn(r);
+      List<TypeMirror> ps = cx.groupParams(r, te.asType());
+      TypeMirror ret = cx.groupReturn(r, te.asType());
       String body;
       String ret0 = ret.getKind() == TypeKind.VOID ? "" : "return ";
       String iface = "interface{ " + name + "_impl" + cx.goSig(ps, ret) + " }";
@@ -616,6 +771,8 @@ final class Emitter extends StmtEmitter {
         // The library superclass implements the method: classes that do not override it use that.
         body = "if o, ok := this.self_.(" + iface + "); ok {\n\t\t" + ret0 + "o." + name + "_impl(" + argNames(ps.size()) + ")\n"
             + (ret0.isEmpty() ? "\t\treturn\n" : "") + "\t}\n\t" + ret0 + "this." + cx.className(sup) + "." + name + "(" + argNames(ps.size()) + ")";
+      } else if (vt.contains(r)) {
+        body = ret0 + "this.vt_" + n + "_." + name + "_impl(" + argNames(ps.size()) + ")";
       } else if (cx.hasSelf(te)) {
         body = ret0 + "this.self_.(" + iface + ")." + name + "_impl(" + argNames(ps.size()) + ")";
       } else {
@@ -625,17 +782,37 @@ final class Emitter extends StmtEmitter {
     }
   }
 
+  /**
+   * Rule "covariant overrides": for each method m of te that overrides f with a narrower result, the
+   * method of f's group at te, which calls m (its own group) and widens the result.
+   */
+  void covBridges(TypeElement te) {
+    List<ExecutableElement> ms = cx.covBridges.get(te);
+    if (ms == null) return;
+    for (ExecutableElement m : ms) {
+      ExecutableElement f = cx.covFrom.get(m);
+      List<TypeMirror> ps = cx.groupParams(f, te.asType()), mps = cx.groupParams(m, te.asType());
+      TypeMirror ret = cx.groupReturn(f, te.asType()), mret = cx.groupReturn(m, te.asType());
+      StringBuilder args = new StringBuilder();
+      for (int i = 0; i < ps.size(); i++) args.append(i > 0 ? ", " : "").append(cx.coerce("p" + i, ps.get(i), mps.get(i)));
+      String call = "this." + cx.methodName(m) + "(" + args + ")";
+      file.append(recv(te)).append(cx.implName(f, te)).append(paramList(ps)).append(retSuffix(ret)).append(" {\n\t")
+          .append(ret.getKind() == TypeKind.VOID ? call : "return " + cx.coerce(call, mret, ret)).append("\n}\n\n");
+    }
+  }
+
   void bridges(TypeElement te) {
     List<ExecutableElement> dms = cx.defaultBridges.get(te);
     if (dms == null) return;
     String n = cx.className(te);
     for (ExecutableElement dm : dms) {
       TypeElement it = cx.ownerOf(dm);
-      List<TypeMirror> ps = cx.groupParams(dm);
-      TypeMirror ret = cx.groupReturn(dm);
-      String self = cx.coerce("this", te.asType(), it.asType());
+      List<TypeMirror> ps = cx.groupParams(dm, te.asType());
+      TypeMirror ret = cx.groupReturn(dm, te.asType());
+      DeclaredType view = cx.superView(te.asType(), it);
+      String self = cx.coerce("this", te.asType(), view != null && cx.typedDecl(view) ? view : it.asType());
       file.append(recv(te)).append(cx.implName(dm, te)).append(paramList(ps)).append(retSuffix(ret)).append(" {\n\t")
-          .append(ret.getKind() == TypeKind.VOID ? "" : "return ").append(cx.className(it)).append("_").append(cx.methodName(dm)).append("_default(")
+          .append(ret.getKind() == TypeKind.VOID ? "" : "return ").append(cx.className(it)).append("_").append(cx.methodName(dm)).append("_default").append(cx.viewArgs(te.asType(), it)).append("(")
           .append(join(self, argNames(ps.size()))).append(")\n}\n\n");
     }
   }
@@ -733,7 +910,7 @@ final class Emitter extends StmtEmitter {
       if (acc != null && cx.trees.getTree(acc) == null) {
         VariableElement f = fields.get(fields.size() - 1);
         file.append("func (this *").append(n).append(") ").append(cx.implName(acc, te)).append("() ").append(cx.goType(cx.groupReturn(acc)))
-            .append(" {\n\treturn ").append(cx.coerce("this." + cx.fieldName(f), f.asType(), cx.groupReturn(acc))).append("\n}\n\n");
+            .append(" {\n\treturn ").append(cx.coerce("this." + cx.fieldName(f), cx.vtype(f), cx.groupReturn(acc))).append("\n}\n\n");
       }
     }
     boolean hasEquals = false, hasHash = false, hasToString = false;
@@ -749,16 +926,20 @@ final class Emitter extends StmtEmitter {
       StringBuilder b = new StringBuilder("\to, ok := p0.(*" + n + ")\n\tif !ok || o == nil {\n\t\treturn false\n\t}\n\treturn true");
       for (VariableElement f : fields) {
         String fn = cx.fieldName(f);
-        Ctx.K k = cx.kind(f.asType());
+        Ctx.K k = cx.kind(cx.vtype(f));
+        String typed = cx.conv.typedEquals("this." + fn, "o." + fn, cx.vtype(f));
         if (k == Ctx.K.PRIM || k == Ctx.K.STR) b.append(" && this.").append(fn).append(" == o.").append(fn);
-        else b.append(" && Objects_equals(").append(cx.coerce("this." + fn, f.asType(), objectType())).append(", ").append(cx.coerce("o." + fn, f.asType(), objectType())).append(")");
+        else if (typed != null) b.append(" && ").append(typed);
+        else b.append(" && Objects_equals(").append(cx.coerce("this." + fn, cx.vtype(f), objectType())).append(", ").append(cx.coerce("o." + fn, cx.vtype(f), objectType())).append(")");
       }
       file.append("func (this *").append(n).append(") equals(p0 any) bool {\n").append(b).append("\n}\n\n");
     }
     if (!hasHash) {
       StringBuilder b = new StringBuilder("\tvar h int32\n");
       for (VariableElement f : fields) {
-        b.append("\th = h*31 + Objects_hashCode(").append(cx.coerce("this." + cx.fieldName(f), f.asType(), objectType())).append(")\n");
+        String typed = cx.conv.typedHash("this." + cx.fieldName(f), cx.vtype(f));
+        if (typed != null) b.append("\th = h*31 + ").append(typed).append("\n");
+        else b.append("\th = h*31 + Objects_hashCode(").append(cx.coerce("this." + cx.fieldName(f), cx.vtype(f), objectType())).append(")\n");
       }
       file.append("func (this *").append(n).append(") hashCode() int32 {\n").append(b).append("\treturn h\n}\n\n");
     }
@@ -766,10 +947,30 @@ final class Emitter extends StmtEmitter {
       StringBuilder b = new StringBuilder("\treturn " + quote(te.getSimpleName() + "["));
       boolean first = true;
       for (VariableElement f : fields) {
-        b.append(" + ").append(quote((first ? "" : ", ") + f.getSimpleName() + "=")).append(" + objstr_(").append(cx.coerce("this." + cx.fieldName(f), f.asType(), objectType())).append(")");
+        b.append(" + ").append(quote((first ? "" : ", ") + f.getSimpleName() + "=")).append(" + ").append(valueStr("this." + cx.fieldName(f), cx.vtype(f)));
         first = false;
       }
       file.append("func (this *").append(n).append(") toString() string {\n").append(b).append(" + \"]\"\n}\n\n");
+    }
+  }
+
+  /** String.valueOf of a value of type t, as string concatenation converts it. */
+  String valueStr(String v, TypeMirror t) {
+    TypeMirror et = cx.erase(t);
+    switch (cx.kind(et)) {
+      case STR: return "sstr_(" + v + ")";
+      case PRIM:
+        switch (et.getKind()) {
+          case CHAR: return "chrstr_(" + v + ")";
+          case BOOLEAN: return "boolstr_(" + v + ")";
+          case FLOAT: return "fstr_(" + v + ")";
+          case DOUBLE: return "dstr_(" + v + ")";
+          default: return "istr_(int64(" + v + "))";
+        }
+      default: {
+        String typed = cx.conv.typedStr(v, t);
+        return typed != null ? typed : "objstr_(" + cx.coerce(v, t, objectType()) + ")";
+      }
     }
   }
 
@@ -849,11 +1050,24 @@ final class Emitter extends StmtEmitter {
         if (fe == null || fe.getKind() == ElementKind.ENUM_CONSTANT || !fe.getModifiers().contains(Modifier.STATIC)) continue;
         VariableElement f = (VariableElement) fe;
         String fn = cx.fieldName(f);
-        TypeMirror ft = cx.erase(f.asType());
+        TypeMirror ft = cx.erase(cx.vtype(f));
         Object cv = f.getConstantValue();
         String lit = cv == null ? null : constLiteral(cv, ft);
         if (lit != null) {
           decls.append("const ").append(fn).append(" ").append(cx.goType(ft)).append(" = ").append(lit).append("\n");
+          continue;
+        }
+        String shared = cx.sharedStatics.get(f);
+        if ("array".equals(shared)) continue;
+        if ("single".equals(shared)) {
+          // One object per instantiation, made on first use (rule "shared statics").
+          TypeElement st = Ctx.typeElement(f.asType());
+          String sty = cx.ref(st);
+          String made = exprAs(v.getInitializer(), st.asType());
+          if (!mc.pre.isEmpty()) throw new IllegalStateException("shared static " + fn + ": its initializer needs statements");
+          decls.append("var ").append(fn).append("_single_ singles_\n");
+          file.append("func ").append(fn).append(cx.goTparamsDecl(st)).append("() ").append(sty).append(" {\n\treturn single_(&").append(fn)
+              .append("_single_, func() ").append(sty).append(" { return ").append(made).append(" })\n}\n\n");
           continue;
         }
         decls.append("var ").append(fn).append(" ").append(cx.goType(ft)).append("\n");

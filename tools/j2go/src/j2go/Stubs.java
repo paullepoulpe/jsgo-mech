@@ -189,6 +189,75 @@ final class Stubs {
             .append(cx.defaultBridgeBody(dm, cx.className(cx.ownerOf(dm)) + "(this)")).append("\n}\n\n");
       }
     }
+    TypeMirror object = cx.elems.getTypeElement("java.lang.Object").asType();
+    for (var ce : cx.extConcreteAdapters.entrySet()) {
+      // A typed adapter of one instantiation: the lambda is a func of its Java types; the erased
+      // slots of the functional method meet it with the conversions of those types (performance
+      // rule: a generic adapter converting through unboxT_/boxT_ costs a dictionary lookup and an
+      // uncached interface assertion per call).
+      String n = ce.getKey();
+      TypeElement fi = (TypeElement) ce.getValue()[0];
+      @SuppressWarnings("unchecked")
+      List<TypeMirror> fts = (List<TypeMirror>) ce.getValue()[1];
+      TypeMirror fr = (TypeMirror) ce.getValue()[2];
+      ExecutableElement m = cx.functionalMethod(fi);
+      List<TypeMirror> ps = cx.groupParams(m);
+      TypeMirror ret = cx.groupReturn(m);
+      boolean isVoid = ret.getKind() == TypeKind.VOID;
+      List<String> fps = new ArrayList<>(), mps = new ArrayList<>(), call = new ArrayList<>();
+      for (int i = 0; i < ps.size(); i++) {
+        mps.add("p" + i + " " + cx.goType(ps.get(i)));
+        fps.add(cx.goType(fts.get(i)));
+        call.add(cx.goType(ps.get(i)).equals("any") ? cx.coerce("p" + i, object, fts.get(i)) : "p" + i);
+      }
+      sb.append("type ").append(n).append(" struct {\n\tf func(").append(String.join(", ", fps)).append(")").append(isVoid ? "" : " " + cx.goType(fr)).append("\n}\n\n");
+      String inner = "this.f(" + String.join(", ", call) + ")";
+      if (!isVoid && cx.goType(ret).equals("any")) inner = cx.coerce(inner, fr, object);
+      sb.append("func (this *").append(n).append(") ").append(cx.methodName(m)).append("(").append(String.join(", ", mps)).append(")")
+          .append(isVoid ? "" : " " + cx.goType(ret)).append(" {\n\t").append(isVoid ? inner : "return " + inner).append("\n}\n\n");
+      for (ExecutableElement dm : cx.extDefaultOverrides(fi)) {
+        if (cx.root(dm).equals(cx.root(m))) continue;
+        String dsig = cx.goSig(cx.groupParams(dm), cx.groupReturn(dm));
+        sb.append("func (this *").append(n).append(") ").append(cx.methodName(dm)).append(named(dsig)).append(" {\n\t")
+            .append(cx.defaultBridgeBody(dm, cx.className(cx.ownerOf(dm)) + "(this)")).append("\n}\n\n");
+      }
+    }
+    for (TypeElement fi : cx.extTypedAdapters) {
+      // A typed adapter: the lambda is a func of its Java types; the erased slots of the
+      // functional method meet it through unboxT_ and boxT_ (rt_generic.go).
+      String n = cx.className(fi) + "_tfn";
+      if (types.contains(n)) continue;
+      ExecutableElement m = cx.functionalMethod(fi);
+      List<TypeMirror> ps = cx.groupParams(m);
+      TypeMirror ret = cx.groupReturn(m);
+      boolean isVoid = ret.getKind() == TypeKind.VOID, retAny = !isVoid && cx.goType(ret).equals("any");
+      List<String> tps = new ArrayList<>(), fps = new ArrayList<>(), mps = new ArrayList<>(), call = new ArrayList<>();
+      for (int i = 0; i < ps.size(); i++) {
+        String g = cx.goType(ps.get(i));
+        mps.add("p" + i + " " + g);
+        if (g.equals("any")) {
+          tps.add("P" + i);
+          fps.add("P" + i);
+          call.add("unboxT_[P" + i + "](p" + i + ")");
+        } else {
+          fps.add(g);
+          call.add("p" + i);
+        }
+      }
+      if (retAny) tps.add("R");
+      String fret = isVoid ? "" : " " + (retAny ? "R" : cx.goType(ret));
+      String tpd = tps.isEmpty() ? "" : "[" + String.join(" any, ", tps) + " any]", tpu = tps.isEmpty() ? "" : "[" + String.join(", ", tps) + "]";
+      sb.append("type ").append(n).append(tpd).append(" struct {\n\tf func(").append(String.join(", ", fps)).append(")").append(fret).append("\n}\n\n");
+      String inner = "this.f(" + String.join(", ", call) + ")";
+      sb.append("func (this *").append(n).append(tpu).append(") ").append(cx.methodName(m)).append("(").append(String.join(", ", mps)).append(")")
+          .append(isVoid ? "" : " " + cx.goType(ret)).append(" {\n\t").append(isVoid ? inner : "return " + (retAny ? "boxT_(" + inner + ")" : inner)).append("\n}\n\n");
+      for (ExecutableElement dm : cx.extDefaultOverrides(fi)) {
+        if (cx.root(dm).equals(cx.root(m))) continue;
+        String dsig = cx.goSig(cx.groupParams(dm), cx.groupReturn(dm));
+        sb.append("func (this *").append(n).append(tpu).append(") ").append(cx.methodName(dm)).append(named(dsig)).append(" {\n\t")
+            .append(cx.defaultBridgeBody(dm, cx.className(cx.ownerOf(dm)) + "(this)")).append("\n}\n\n");
+      }
+    }
     for (var e : cx.extFuncs.entrySet()) {
       if (funcs.contains(e.getKey())) continue;
       nFuncs++;

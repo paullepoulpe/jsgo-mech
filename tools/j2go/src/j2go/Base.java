@@ -67,6 +67,8 @@ abstract class Base {
         try {
           if (t instanceof ExpressionTree || t instanceof VariableTree || t instanceof PatternTree) {
             TypeMirror tm = cx.trees.getTypeMirror(p);
+            TypeMirror refined = cx.refinedTrees.get(t);
+            if (refined != null) tm = refined;
             if (tm != null) typeMap.put(t, tm);
           }
           Element e = cx.trees.getElement(p);

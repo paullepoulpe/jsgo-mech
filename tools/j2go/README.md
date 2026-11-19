@@ -26,14 +26,371 @@ segment appended.
 | class, enum, record | pointer to a struct |
 | handle class (see below) | `uint32` handle |
 | interface | Go interface |
-| `Object`, boxed primitives, type variables | `any` |
+| `Object`, boxed primitives, erased type variables | `any` |
 | array | slice |
 
-**Generics are erased**, as in the JVM: `List<String>` is `List`, its elements
+**Generics are erased** by default, as in the JVM: `List<String>` is `List`, its elements
 are `any`, and reads convert back (`str_(list.get(0))`). The emitter inserts
 those conversions wherever the static type and the erased declaration differ,
 the way javac inserts `checkcast`. `Ctx.coerce` is the single place that knows
 how to convert between two Java types.
+
+**Covariant overrides.** Go has no covariant results. A method of a class that overrides one with
+a wider result type (both class or interface types, the overridden one not a type variable)
+starts a method group of its own, named after the overridden group and its result
+(`getScope` -> `getScope_rScope`), with its own signature; its class implements the overridden
+group with a bridge that calls it and widens the result, as javac's bridge method does
+(`Ctx.covariant`, `Emitter.covBridges`). A call that javac resolves to the override (the
+receiver's static type is its class or below) has the narrower result and no cast; a call
+through the wider type goes through the bridge. An interface that narrows a super-interface's
+method keeps one group. `J2GO_NO_COVARIANT=1` turns the rule off; `J2GO_COVARIANT=1` lists the
+overrides it applies to (70 in the tree).
+
+**Typed generics.** The program's own generic classes, interfaces and methods keep their type
+parameters where that is sound (`GenScan`; `J2GO_GENERICS=1` reports every declaration,
+`J2GO_ERASED=1` translates everything erased). A type parameter is kept when every mention of
+its declaration names, at its position, a concrete type or a kept type variable; a wildcard or
+raw use there, or an erased type variable, erases that parameter alone (`DiGraph<Node, ?>`
+somewhere makes `DiGraph[N]`, with the second parameter `any` everywhere). Then:
+
+- `C<X>` is `*C[X]`, `I<X>` is `I[X]`; a subclass struct embeds its superclass at its view of it
+  (`ControlFlowGraph[N]` embeds `LinkedDirectedGraph[N, *ControlFlowGraph_Branch]`), and
+  `to_C[X]`, `up_C`, dispatch through `self_` work as for other classes; `x instanceof C` is the
+  marker method `isa_C_` (any instantiation).
+- A method group whose root a typed declaration declares has the root's signature at the
+  receiver's (or implementing class's) view of that declaration; the lambda adapter of a typed
+  functional interface is generic (`I_fn[X]`).
+- Local and anonymous classes take the type parameters of the scope they are declared in.
+- A bounded type parameter is kept when its bound is an interface of the program (the Go
+  constraint: `DataFlowAnalysis[N any, L LatticeElement]`); a class bound erases it to the
+  bound, and one that every use instantiates with exactly its bound stands for the bound as a
+  type argument (`Outcome<B>` in `AbstractCommandLineRunner<A, B extends CompilerOptions>` is
+  `Outcome[*CompilerOptions]`).
+- Generic methods are Go generic functions when their type variables are needed as type
+  arguments of a kept parameter (or are factories of a typed class); an instance method that
+  overrides nothing and that nothing overrides becomes a function taking the receiver first
+  (`CmdLineParser_Option_enumValue[E any](this, values []E, ...)`). Other method type variables
+  are erased to their bound.
+- A value of a type parameter meets `Object` as the erased code boxed it (`boxT_`, `unboxT_`,
+  `null_`, `isnull_`, `eqT_`, and `hashCodeT_`/`equalsT_`/`toStringT_` without boxing a String;
+  `go/closure/rt_generic.go`).
+- Wildcards written for brevity do not erase. A local variable (or the variable of a for-each
+  loop) that is never assigned again and whose declared type has wildcard type arguments is
+  typed from its initializer or from the elements it iterates over
+  (`for (DiGraphEdge<?, E> edge : getEdgesInDirection(a, b))` is a `DiGraph_DiGraphEdge[N]`);
+  the expressions that read it are typed from that (`GenScan.refine`). A static final field
+  `C<?, ?>` initialized with `new C<>(...)`, which the program only casts to an instantiation
+  or compares with one (`==`), is one object per instantiation, made on first use by a generic
+  function (`HamtPMap_EMPTY[K, V]()`, `single_` in `rt_generic.go`); a static final empty array
+  `C<?, ?>[]` that is only cast is an empty array of the instantiation at each cast, and
+  `(C<K, V>[]) new C<?, ?>[n]` is a new array of the instantiation (`GenScan.shared`). The
+  constructor of a shared static must have no effect but the new object: it runs once per
+  instantiation, on first use.
+- A class without subclasses converts to a typed interface it implements as Go converts it
+  (null stays the nil interface), not through `cast_`.
+- Performance rule: generic Go code does not assert a value to an interface type that names a
+  type parameter where it can be avoided (Go caches such an assertion per site in ordinary code,
+  but looks the method table up on every call when the interface comes from a type parameter).
+  A generic class with dispatched methods holds its most derived object a second time, as its
+  typed dispatch interface (`vt_C_ C_vt_[N]`, set next to `self_`), and its stubs call through
+  it; `to_C[X](v)` asks for the view through an interface without type parameters
+  (`as_C_() any`) and asserts the pointer type.
+
+A lambda whose target is a library functional interface is a func of its Java types inside a
+typed adapter when a parameter or the result that the erased signature has as `any` has a type
+that one type assertion reaches (a String, a handle, a class without subclasses, an interface,
+an array). The adapter is generated per instantiation (`&Consumer_tfn_Node{func(name Node)
+{...}}`, `Function_tfn_string_JSChunk`; `g_zstubs.go`) and converts at the erased signature
+with the conversions the erased code makes for those types (`Node_of_`, `str_`, `cast_[*C]`,
+`icast_I`; `strobj_`, `obj_`, `box_()`), so it costs what the erased lambda cost. Only an
+adapter whose types name a type variable is generic (`Function_tfn[N, any]`, converting with
+`unboxT_`/`boxT_`).
+
+**`java.util.Optional` is a value.** The runtime's `Optional[T]` (`rt_base.go`) is a generic
+struct, not a heap object: `Optional<X>` is `Optional[X]`, its content held as an `X`, and
+`Optional.of`/`empty`/`ofNullable` are generic functions that allocate nothing. Its zero value
+is Java's `null` (a field never assigned; `o == null` is `o.null_()`), and every method of a
+null Optional throws `NullPointerException` as a call on null does. A wildcard, raw or erased
+type argument is `any` at that site only (`Optional[any]`): an Optional passes between two
+instantiations by a conversion of its content (`optAs_`), and to and from `Object` by
+`box_()`/`optOf_` (nil for null), where Java passes one object; `equals` compares the contents
+of any two instantiations. Java gives an Optional no identity a program may use (it is a
+value-based class), and the translator refuses `==` between two Optionals. `J2GO_ERASED=1`
+keeps this representation (the runtime has no other).
+
+**Typed collections.** A declaration of type `List<X>` / `ArrayList<X>` holds a typed list,
+`*TList[X]` (`rt_tlist.go`: a slice of X values, not of boxes), one of type `Set<X>` /
+`HashSet<X>` / `LinkedHashSet<X>` a typed set, `*TSet[X]` (`rt_tset.go`: the X values in
+insertion order, a Go map from element to position once the set is not small), one of type
+`Deque<X>` / `ArrayDeque<X>` / `Queue<X>` a typed deque, `*TDeque[X]` (`rt_tdeque.go`: a typed
+list whose first item is the head, as the erased ArrayDeque is an ArrayList), and one of type
+`Map<K, V>` / `HashMap<K, V>` / `LinkedHashMap<K, V>` a typed map, `*TMap[K, V]` (`rt_tmap.go`:
+the keys and the values in insertion order, a Go map from key to position once the map is not
+small), when the translator can see that it only ever holds collections the program makes for
+it (`Colls`; `J2GO_COLLS=1` reports the counts and why declarations stay erased, `J2GO_COLLS=2`
+each one). The decision is made declaration by declaration: a field, a local variable, and the
+parameters and the result of a method whose signature is its own (a constructor, a static or
+private method, an instance method that overrides nothing and that nothing overrides; not one
+named by a method reference). A parameter or the result of the methods of a group of
+overriding methods is one declaration (the methods have one signature in Go): it is typed in
+every method of the group or in none. Such a group is every method connected by "overrides"
+in some class of the program (a method that a class inherits is connected to the interface
+method it implements there), all of them methods of the program without type parameters,
+with the same collection type at that position; a group that a lambda or a method reference
+implements keeps the erased signature. A declaration is typed when
+
+- each type argument is a type that a typed collection holds (`Ctx.typedArg`): a String, a
+  class, an interface or a handle without type arguments; a boxed primitive or `Object`, held
+  as the box it is in erased code (`List<Integer>` is a `*TList[any]`, `Map<String, Integer>` a
+  `*TMap[string, any]`); or a library type with type arguments, held at its erasure
+  (`Map<String, List<Node>>` is a `*TMap[string, List]`, `List<List<String>>` a `*TList[List]`:
+  the element is the erased `List`, as it is everywhere else); a generic class of the program,
+  at the Go type it has (`List<DiGraphNode<N, E>>` in `DiGraph<N, E>` is a
+  `*TList[DiGraph_DiGraphNode[N, E]]`; no wildcard among its type arguments); or a type
+  variable: the Go type parameter where it is one (`List<T>` in a `Stack<T>` that is a Go
+  generic type is a `*TList[T]`), else what it is erased to (its bound); a wildcard
+  `? extends X` is X (`List<? extends JSType>` is a `*TList[*JSType]`: only a list made for a
+  declaration with element type X enters it). The elements of a set
+  and the keys of a map are compared: their type is not a type variable that is a Go type
+  parameter (its constraint is `any`, and a typed set needs `comparable`), not a library type
+  with type arguments, and not `Object`, `Float` or `Double`. Where Go's `==` is Java's `equals` for the type, the collection compares with
+  `==` (a Go map from element to position once it is not small): a String, an enum, a class of
+  the program (a handle class too) that inherits `equals` and `hashCode` from Object, as all
+  its subclasses do (`Ctx.goEquals`), and a boxed primitive (two boxes of equal values of one
+  type are `==` as Go interfaces; `Set<Character>` is a `*TSet[any]`). For any other class or
+  interface (one with its own `equals`, a library class) the collection finds an element as
+  `java.util.HashMap` does, by the hash code it had when it was added, then by identity or
+  `equals` (`Ctx.byEquals`; the conversion `tce_p_JSType` says so; `teq_` in `rt_tset.go`).
+  A declaration whose type arguments name a Go type parameter is typed only if every
+  expression that reads it has the declaration's own type arguments: inside the generic class
+  `items` is a `List<T>`, but `c.items` of a `Stack<String>`, or `items` in a subclass
+  `Words extends Stack<String>`, is a `List<String>`, and such a use keeps it erased;
+- every value that enters it is a new collection of its kind (`new ArrayList<>()`,
+  `new ArrayList<>(n)`, `new ArrayList<>(collection)`; `new LinkedHashSet<>(..)`, the only set
+  the program makes; `new ArrayDeque<>(..)`; `new LinkedHashMap<>()`, `(n)`, `(map)`, the only
+  hash map the program makes), `null`, or the value of another typed declaration of the same
+  kind and type arguments (an argument enters the parameter, a returned expression the result;
+  `Collections.unmodifiableList(x)` / `Set` / `Map` is `x`, as the runtime's is). A declaration
+  that nothing but `null` enters (a parameter of a method the program never calls, or calls
+  with `null`) is typed too;
+- every use is one the typed collection or its view serves: a `List` / `Set` / `Deque` / `Map`
+  method, a for-each loop, `==`, a string concatenation, or a place of type `List` / `Set` /
+  `Deque` / `Queue` / `Map`, `Collection`, `Iterable`, `Object` or a type variable (the result
+  of a lambda is a place of the type that its interface's method returns for the lambda). A place
+  that wants the class (`ArrayList`, `LinkedHashSet`, `ArrayDeque`, `LinkedHashMap`) must be a
+  typed declaration itself; `subList`, `listIterator` and `getClass` keep the declaration
+  erased.
+
+`list.get(i)`, `add`, `set`, `remove(int)`, `size`, `isEmpty`, `clear`, `iterator`, a set's
+`add`, `contains` and `remove` of an X (`s.contains(x)`, `s.remove(x)`), a deque's `push`, `pop`,
+`poll`, `peek`, `peekLast`, `add` (and `addFirst`, `removeFirst`...), a map's `get`, `put`,
+`containsKey`, `remove`, `getOrDefault`, `putIfAbsent` and `computeIfAbsent` with a key that is
+a K (`m.containsKey(k)`, `m.remove(k)`, `m.getOrDefault(k, v)`), and the for-each loop (`it := list.each()`) work
+on the X values. A for-each loop over `m.keySet()`, `m.values()` or `m.entrySet()` of a typed
+map reads the map itself (`it := m.eachKey()`, `m.eachValue()`, `m.eachEntry()`); the variable
+of the loop over the entries is a `*TEntry[K, V]` (`getKey`, `getValue`, `setValue` on the K
+and V values; an entry that goes anywhere else goes as Java's `Map.Entry` through
+`e.asEntry()`). Any other method, and every place that is not a typed declaration (a wildcard
+or raw type, `Object`, a library parameter, a method of a group of overriding methods), sees
+the collection as Java's `List` / `Set` / `Deque` / `Map` through `list.asList()` /
+`set.asSet()` / `deque.asDeque()` / `m.asMap()`. That is the collection's one erased view, a
+field of the collection itself (so a collection that erased code sees is still one object, as
+the Java collection is), which boxes and casts as the erased code did: the Java object stays one object
+wherever it goes (`==`, changes made on either side), `null` is `nil` on both sides, and a
+typed declaration never holds a collection that erased code made, so no conversion from the
+erased form exists. Inside the translator a typed declaration, and each expression that reads
+it, has the type `TList<X>` / `TSet<X>` / `TDeque<X>` / `TMap<K, V>` / `TEntry<K, V>` of a
+class that exists for it alone (`Ctx.STUBS`: the typed methods), and `Ctx.coerce` turns that
+type into any other through the view. The element conversions are generated per element type
+(`tc_string`, `tc_p_JSType` in `g_0casts.go`) with the conversions the erased code makes for
+that type; an element type that is a Go type parameter has the conversions of a value of a
+type parameter (`tcT_[T]()`: `boxT_`, `unboxT_`), and an instantiation of a generic class that
+names type parameters has a generic function with the conversions of the class
+(`tc_p_DiGraph_DiGraphNode_N__E_[N, E]()`); both are one object per instantiation (`single_`). The runtime's erased code reads a view without an iterator object (`foreach_`,
+`stepper_`) and looks a String up in it without a box (`contains_s`, `get_s`...).
+
+Guava's immutable collections are typed collections too. A declaration of type
+`ImmutableList<X>` / `ImmutableSet<X>` / `ImmutableMap<K, V>` is one of the list, set or map
+kind, and holds the same Go type, `*TList[X]` / `*TSet[X]` / `*TMap[K, V]`, with its `twin` set
+(`rt_timm.go`): a collection that never changes (every change throws
+`UnsupportedOperationException`, as Guava's do). So a `List<X>` declaration that holds an
+`ArrayList` on one path and `ImmutableList.of()` on another is one typed list, as it is one
+`List` in Java. Erased code sees an immutable typed collection as its twin, the runtime's
+`ImmutableList` / `ImmutableSet` / `ImmutableMap` with the same elements, boxed and made the
+first time erased code needs it (`asImm()`, which `asList()` / `asSet()` / `asMap()` return for
+an immutable collection; a place of type `ImmutableList` or `ImmutableCollection`, and a
+method that javac finds in those classes, `reverse()`, `asList()`, `subList`, gets the twin
+directly). The other way, an expression of the static type `ImmutableList<X>` enters a typed
+declaration whatever made its value: a typed declaration gives the typed list itself, and for
+an erased one (the result of a library method, of a method whose result is not typed, a cast)
+`tlistImm_(tc, x)` / `tsetImm_` / `tmapImm_` gives the typed collection of that object, made
+once and remembered by the erased object (`typed_`). A Java object is thus one typed object
+and one erased object, each found from the other: `==` and "`copyOf` of an immutable collection
+is the collection" hold on both sides, and because the contents never change the two cannot
+be told apart. Such an expression therefore erases nothing and nothing erases it (no
+"exchanges values" between an `ImmutableList` declaration and its sources). Where the typed
+declaration is the target, `ImmutableList.of(a, b)` is the typed factory
+(`immutableListOf_[X](tc, a, b)`, `immutableSetOf_`, `immutableMapOf2_(kc, vc, k1, v1, k2, v2)`;
+`tlistEmptyImm_(tc)` for `of()`: one empty collection per element type, whose twin is the
+runtime's one empty collection) and `ImmutableList.copyOf(c)` is `immutableListCopyOfT_` of a
+typed collection of the same type (an immutable one is itself), `immutableListCopyOfArr_` of an
+array, or `immutableListCopyOf_` of an erased collection. Guava's semantics are the runtime's
+(`rt_guava.go`): insertion order, `NullPointerException` for null elements, keys and values
+with Guava's messages, `IllegalArgumentException` for a key given twice.
+
+Their builders are typed as well: a declaration of type `ImmutableList.Builder<X>` /
+`ImmutableSet.Builder<X>` / `ImmutableMap.Builder<K, V>` holds a `*TListBuilder[X]` /
+`*TSetBuilder[X]` / `*TMapBuilder[K, V]` (the elements as they are; `build()` is the typed
+immutable collection) when every value that enters it is a new builder
+(`ImmutableList.builder()`, `builderWithExpectedSize(n)`, `new ImmutableList.Builder<>()`) or
+that of another typed builder declaration, and every use is `add`, `addAll`, `put`, `putAll`
+(whose result is the builder again), `build`, `buildOrThrow` or `buildKeepingLast`, or a
+place that is a typed builder declaration: a builder has no erased view.
+`J2GO_COLLS_NOIMM=1` and `J2GO_COLLS_NOBUILDERS=1` are the rules without them.
+
+Sorted collections are the same Go types in a sorted mode (`rt_tsorted.go`). A declaration
+of type `TreeSet<X>` / `SortedSet<X>` / `NavigableSet<X>` is one of the set kind, one of type
+`TreeMap<K, V>` / `SortedMap<K, V>` / `NavigableMap<K, V>` one of the map kind, and
+`new TreeSet<>()`, `new TreeSet<>(comparator)`, `new TreeSet<>(collection)` (and the same of
+`TreeMap`) make the typed set or map with its keys kept in the order of the comparator, or
+their natural ordering, and found by binary search with it, as the runtime's erased `TreeSet`
+finds its elements (`newTSortedSet_(tc)`, `newTSortedSetC_(tc, cmp)`, `tsortedSetFrom_`). So a
+`Set<X>` that holds a `TreeSet` on one path and a `LinkedHashSet` on another is one `*TSet[X]`.
+Natural ordering compares two Strings as they are; every other comparison is made on the
+boxes (the comparator is erased code). Erased code sees a sorted collection through its
+sorted view (the view of the hash mode with `tailSet` and `descendingSet`, and the class name
+`TreeSet`), which a place of type `SortedSet` / `NavigableSet` gets through `asSorted()`; a
+place of the class `TreeSet` itself must be a typed declaration. An `ImmutableSortedSet` /
+`ImmutableSortedMap` that reaches a declaration of type `ImmutableSet` / `ImmutableMap` is the
+typed collection in its sorted mode with its comparator. `J2GO_COLLS_NOSORTED=1` is the rule
+without them.
+
+Two differences from the JVM are accepted. An element of the wrong type that unchecked code
+puts into a typed collection through its view fails there with the `ClassCastException` that
+Java throws at the first typed read (or never, if the element is never read at its type). And
+the view is not the Go type `*ArrayList` / `*LinkedHashSet` / `*ArrayDeque` / `*LinkedHashMap`:
+its `getClass()` is the Java class, but `x instanceof ArrayList` or a cast to `ArrayList` of a
+view that reached erased code would fail (the program has neither; a declaration of the class
+type that a typed collection reaches is typed too, or the collection stays erased).
+`J2GO_ERASED=1` skips the rule.
+
+**Conversions without a box** (`Conv.java`). The erased translation converts between two Go
+types through Object: `icast_I(obj_(v))`. Where the Java conversion needs no check, these rules
+keep the value at its static type. Each has a switch `J2GO_NO<RULE>=1` that gives the previous
+translation, for bisecting.
+
+- *Static upcast* (`Conv.upcast`, `J2GO_NOUPCAST`). A class without subclasses becomes an
+  interface that it implements as Go converts a pointer to an interface. `this` and a new
+  object are never null: `NodeTraversal_Callback(this)`, `List(new_ArrayList_0())`. Any other
+  value goes through a generated function that keeps null as the nil interface (a nil pointer
+  converted by Go would be an interface that is not nil), one per pair of types in
+  `g_0casts.go`:
+
+  ```go
+  func Compiler_as_SourceExcerptProvider(v *Compiler) SourceExcerptProvider {
+  	if v == nil {
+  		return nil
+  	}
+  	return v
+  }
+  ```
+
+  The interface value is the one the type assertion made: the pointer of a class without
+  subclasses is the object itself. A class of the program must have every method of the Go
+  interface (`Ctx.implementsInGo`); for a class of the runtime (`*ArrayList`, `*ImmutableList`,
+  the view of a typed collection) the Go compiler checks the conversion. What stays
+  `icast_I(v.self())`: a class with subclasses (its value may be a part of a larger object),
+  a program class that lacks a method of the Go interface (a method implementing the methods
+  of two interfaces is in one group only), and values that are not statically subtypes (an
+  erased result).
+
+- *Typed non-null checks* (`Conv.nonNull`, `J2GO_NONONNULL`). `<T> T checkNotNull(T, ...)` of
+  Guava's `Preconditions` and `<T> T requireNonNull(T, ...)` of `java.util.Objects` return
+  their first argument. The call is a Go generic function of the argument's static type
+  (`rt_conv.go`), which tests the value against the null of that type and returns it:
+  `this.compiler_ = Preconditions_checkNotNull_T(compiler)` where the erased translation was
+  `cast_[*Compiler](Preconditions_checkNotNull(obj_(compiler)))`. `_T` is for a class, an
+  interface or a handle (null is nil, the zero value), `_Str` for a `String` (null is the null
+  string). Arguments that are typed collections or value types (`Optional`) and boxed
+  primitives keep the function taking an object.
+
+- *Bare arguments* (`Conv.bare`, `J2GO_NOBARE`). An argument for an `Object` parameter (or an
+  element of `Object...`) that cannot be null, a string literal or a new object of a class
+  without subclasses, is passed as it is: `sb.append("x")`, `list.add(new_Entry(k, v))`. Go
+  converts it to the interface value that `strobj_("x")` / `obj_(new_Entry(k, v))` return for
+  a value that is not null. Only arguments: there the parameter gives the expression its type.
+
+- *Message arguments* (`Conv.msgArg`, `Conv.handleMsg`, `J2GO_NOMSG`). An `Object` parameter
+  after the first of `Preconditions.checkState` / `checkArgument` / `checkNotNull` is only
+  formatted, and only when the check fails. A `String` or an object of a class is passed at
+  its own type: `Preconditions_checkState_boolean_String_Object(ok, "bad type %s", t)`. The
+  runtime makes it the object that the erased translation passed before it formats the
+  message (`canon_` in `rt_conv.go`: null for the null string and for a nil pointer, the most
+  derived object for a class with subclasses). A handle (a `Node`) as the one message
+  argument calls a variant generic in the handle type, which boxes it when the check fails:
+  `Preconditions_checkState_boolean_Object_H(n.isName(), n)`. Interfaces, primitives, typed
+  collections and value types are converted to `Object` as everywhere else.
+
+- *One Go type* (`Conv.sameGoType`, `J2GO_NOALIAS`). Two library classes that the runtime
+  declares as one Go type (`type ImmutableList = ImmutableCollection`; the translator reads
+  the alias declarations of `rt_*.go`) convert as the value itself: `this.names = b.build()`
+  where the erased translation asserted the type to itself,
+  `cast_[*ImmutableList](obj_(b.build()))` (it cannot fail and keeps nil). For the same
+  reason such a class becomes an interface by the static upcast although the declared
+  result is not a subtype in Java (`Builder.build()` is declared `*ImmutableCollection` in
+  the runtime; as a `List` it is `ImmutableCollection_as_List(b.build())`).
+
+- *Typed Object methods* (`Conv.typedEquals` / `typedHash` / `typedStr`, `J2GO_NOTYPEDOBJ`).
+  The members that the translator generates for a record, and string concatenation, apply
+  `Objects.equals`, `Objects.hashCode` and `String.valueOf` to values whose static type is
+  known. They are written at that type:
+
+  ```go
+  func (this *Property) equals(p0 any) bool {
+  	o, ok := p0.(*Property)
+  	if !ok || o == nil {
+  		return false
+  	}
+  	return true && this.name_ == o.name_ && this.kind_ == o.kind_ && equals_(this.owner_, o.owner_)
+  }
+  ```
+
+  Two values of an enum, or of a class of the program without subclasses that has no
+  `equals` but `Object`'s, are compared with `==` (what `Objects.equals` does for them).
+  Otherwise a pointer to a class without subclasses or an interface goes to the generic
+  runtime functions `equals_(a, b)`, `hash_(v)`, `tostr_(v)` (`rt_conv.go`; null is the zero
+  value), a handle to `equalsH_` / `hashH_` / `tostrH_`. In a record's `hashCode` a `String`
+  is `strhash_(s)` (0 for null), an `int` is itself, the other primitives are `boolhash_`,
+  `longhash_`, `dblhash_`; in `toString` they are converted as string concatenation converts
+  them. `"" + v` is `tostr_(v)` when `v` has its type by declaration (a variable, a field or
+  a method's result of that erased type, a new object); a value that would be cast to its
+  static type first (the result of an erased generic) is still converted as an Object, without
+  the cast. What keeps the conversion to Object: a class with subclasses (`objstr_(v.self())`:
+  the most derived object decides), typed collections (their view), value types.
+
+- *String for CharSequence* (`Conv.strSeq`, `J2GO_NOSTRSEQ`; `J2GO_STRSEQ=1` reports the calls
+  left). `CharSequence` is `any` in Go, so a `String` passed for one is boxed, and a string in
+  an interface is an allocation. A call of a library method with a `String` for each of its
+  `CharSequence` parameters calls a variant that takes Go strings, where the runtime has one
+  (`Conv.STR_SEQ`; suffix `_s`, in `rt_conv.go` or next to the function it varies):
+  `String_contains_s(name, prefix)`, `String_replace_s`, `String_join_s`,
+  `pattern.matcher_s(line)`, `matcher.reset_s`, `Pattern_matches_s`, `splitter.split_s` /
+  `splitToList_s`, `charMatcher.matchesAllOf_s`, `CharMatcher_anyOf_s`. The variant does what
+  the method does with the text of the sequence; the null string is the
+  `NullPointerException` of a null sequence. `Appendable.append(CharSequence)` is a method
+  that classes of the program implement too, so its variant is a function taking the receiver
+  first: `Appendable_append_s(out, s)` appends the string to a `StringBuilder` (null appends
+  "null") and gives any other `Appendable` the boxed sequence. A method of the *program* that
+  declares a `CharSequence` keeps the box: it tests the sequence for null.
+
+**Type arguments in declarations.** Library types stay erased; the declared type of a field,
+local or parameter whose Java type is a parameterized library type is written through a generic
+alias: `List<Reference>` becomes
+`ListOf[*Reference]`, with `type ListOf[T0 any] = List` in `g_0aliases.go`
+(`BoxedOf[int32]` for `Integer`; a type variable or unbounded wildcard is
+`any`). An alias is its right-hand side, so nothing changes for the compiler or
+at run time; the Java type arguments stay in the source, checked as Go types,
+for the post-flip steps that give collections real element types.
 
 **Inheritance.** A subclass struct embeds its superclass struct. A method
 overridden somewhere below gets a stub on the top-most class that dispatches
@@ -67,7 +424,8 @@ nothing in the translator knows a class by name. `JSGO_HANDLE_STATS=1` makes the
 Go program print, at exit, how many objects of each handle class exist and how
 often each field is set. `go/closure/rt_handles.go` is the handwritten part.
 
-A line `Class::field string-slot` in `handles.txt` (today `Node::payload`) names
+A line `Class::field string-slot` in `handles.txt` (`Node::payload` until it became a
+string-id field, below) names
 a field of a handle class that is declared `Object` and often holds a `String`.
 Its record gets a second slot `field_s_ string` (the null-string sentinel when
 the field holds no String): assigning an expression of static type `String`
@@ -80,21 +438,60 @@ such a field are of its String, and a column keeps them dense instead of
 spreading them over the larger `C_ps_` records. The Java keeps one field, so
 the object does not grow on the JVM (a 57th byte in `Node` costs Java 4%).
 
+A line `Class::field string-id` (today `Node::payload` and `Node::originalName`) stores a
+field as a `uint32` instead of a Go string or interface, so that the record holding it has no
+Go pointer (`go/closure/rt_ids.go`). A field declared `String` holds an id into one
+process-wide table of interned strings: `strid_(s)` interns (a hash lookup per store),
+`strid_str_(id)` reads (one more load); id 0 is the null string and id 1 the empty one, so a
+zeroed record reads as Java's default. A field declared `Object` that holds Strings and other
+values holds a value code: a String's id, an integral number inline (29 bits), any other number
+as an index into a table of doubles, any other object as an index into a table of objects (a
+new entry per store, so identity is kept). Reads, tests, casts and copies are those of a
+string-slot field, on the code: `field instanceof String` and `field instanceof Double` read
+no table, storing a `double` needs no box, `field == null` is `code == 0`, and a copy from the
+same field of another object copies the code (for a `String` field, the id).
+
+A line `Class::field handle-table [Flag]` (today `Node::jstypeOrColor`, flag `JSType`) stores
+a field declared `Object` whose values repeat across objects as a `uint32` handle into a table
+that holds each distinct value once (`htab_set_`, `rt_ids.go`; a value is found again by its
+interface words, so by identity). Bit 0 of the handle says whether the value is an instance
+of the flag type, so `field instanceof Flag` is a bit test; any other read is a table load.
+The table must not keep a value alive longer than the fields holding it would (the `JSType`s
+that a second type-check replaces are garbage in Java): an entry counts the fields holding
+its handle (`htab_set_` and, for a copy from the same field of another object, `htab_copy_`)
+and is freed when the count returns to zero. An object of a handle class is never freed, so
+what its fields hold stays, as it does for every other field of such an object.
+
+A line `Class::field runtime GoType` (today `Node::propListHead`, `Node_props_`) gives a field
+a storage the handwritten runtime defines: the record holds a `GoType`, which must hold no Go
+pointer; a read of the field is `x.f_get_()`, a write `x.f_set_(v)`, `x.f == null` is
+`x.f_isnull_()`, a copy from the same field of another object `x.f_copy_(y)`, and `x.f_p_()`
+is the slot itself; all but the last are runtime methods that convert between `GoType` and
+the Java value. A line `Class::method runtime` names a method (all overloads of that name)
+that the runtime defines in place of the translation, with the Go name and signature the
+translation would give it, so that the code using the field most can work on `GoType`
+directly. For `Node` these are `getProp`, `getIntProp`, `getBooleanProp`, `putProp`,
+`putIntProp` and `removeProp` (`go/closure/rt_node_props.go`); every other method that reads
+the property list (debug strings, validation, serialization, equivalence) is translated and
+reads the list Java would hold, which `propListHead_get_` builds from the bits.
+
 A line `Class::field cold` names a pointer-free field of a handle class that
-traversals do not read (today `Node::previous`, `linenoCharno`, `length`). Cold
-fields, and the handle's own value that `box_` points at, go to a third record
+traversals do not read (today `Node::previous`, `linenoCharno`, `length`,
+`originalName`, `jstypeOrColor` and `propListHead`). Cold
+fields, and the handle's own value that `box_` points at, go to a second record
 `C_cs_`, so that `C_ns_`, the record a traversal reads for every node, stays
 small: `Node_ns_` is 16 bytes (next, first, parent, token), four nodes to a
-cache line. Only the layout changes; reads and writes of the field are the same.
+cache line. A line `Class::field column` (today `Node::payload`) keeps a pointer-free
+field in an array of its own, one element per object, instead of a record: most reads of
+`Node.payload` are of its String, and a column of 4-byte codes keeps them dense. Only the
+layout changes; reads and writes of the field are the same. A class whose fields are all
+pointer-free has no `C_ps_` record.
 
-**Type arguments in declarations.** Generics are erased, but the declared type
-of a field, local or parameter whose Java type is a parameterized library type
-is written through a generic alias: `List<Reference>` becomes
-`ListOf[*Reference]`, with `type ListOf[T0 any] = List` in `g_0aliases.go`
-(`BoxedOf[int32]` for `Integer`; a type variable or unbounded wildcard is
-`any`). An alias is its right-hand side, so nothing changes for the compiler or
-at run time; the Java type arguments stay in the source, checked as Go types,
-for the post-flip steps that give collections real element types.
+Every per-object array of a handle class (its records and columns) is registered with its
+element type in `handleColumns_` (`rt_handles.go`). `Node`'s are a 16-byte `Node_ns_`, a
+40-byte `Node_cs_` and the 4-byte `payload` column: 60 bytes per node and no Go pointer, which
+`TestNodeColumnsHoldNoPointers` (`rt_handles_test.go`) asserts by reflection over the
+registered types, so that a later rule cannot bring a pointer back unnoticed.
 
 **Constructors.** `new_C(args)` allocates, `init_C(args)` runs the constructor
 body (calling the superclass's `init_`), `finit_C()` runs field initializers.

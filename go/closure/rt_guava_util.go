@@ -289,7 +289,7 @@ func Lists_reverse(p0 List) List {
 		sz:    p0.size,
 		at:    func(i int32) any { return p0.get(p0.size() - 1 - i) },
 		setf:  func(i int32, v any) any { return p0.set(p0.size()-1-i, v) },
-		rmAt:  func(i int32) any { return p0.remove(p0.size() - 1 - i) },
+		rmAt:  func(i int32) any { return listRemoveAt_(p0, p0.size()-1-i) },
 		addAt: func(i int32, v any) { p0.add_int_Object(p0.size()-i, v) },
 	}
 }
@@ -665,12 +665,18 @@ func Lists_newArrayList(p0 Iterator) *ArrayList {
 	return l
 }
 
+// listRemoveAt_ is l.remove(i). The interface List has the methods that translated code calls
+// on a List, and remove(int) need not be one of them (typed lists remove at their own type).
+func listRemoveAt_(l List, i int32) any {
+	return l.(interface{ remove(int32) any }).remove(i)
+}
+
 // Lists.transform: a lazy view; the function runs on every access.
 func Lists_transform(p0 List, p1 Function_base) List {
 	return &viewList_{
 		sz:   p0.size,
 		at:   func(i int32) any { return p1.apply(p0.get(i)) },
-		rmAt: func(i int32) any { return p1.apply(p0.remove(i)) },
+		rmAt: func(i int32) any { return p1.apply(listRemoveAt_(p0, i)) },
 	}
 }
 

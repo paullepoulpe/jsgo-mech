@@ -334,7 +334,7 @@ abstract class StmtEmitter extends ExprEmitter {
           String name = Ctx.safe(v.getName().toString());
           mc.names.put(ve, name);
           predeclared.add(ve);
-          sb.append("var ").append(name).append(" ").append(cx.goType(ve.asType())).append("\n_ = ").append(name).append("\n");
+          sb.append("var ").append(name).append(" ").append(cx.goType(cx.vtype(ve))).append("\n_ = ").append(name).append("\n");
         }
       }
     }
@@ -345,13 +345,13 @@ abstract class StmtEmitter extends ExprEmitter {
     Element e = elemOf(v);
     if (predeclared.contains(e)) {
       if (v.getInitializer() == null) return "";
-      return mc.names.get(e) + " = " + exprAs(v.getInitializer(), cx.erase(e.asType()));
+      return mc.names.get(e) + " = " + exprAs(v.getInitializer(), cx.erase(cx.vtype(e)));
     }
     String name = Ctx.safe(v.getName().toString());
     if (mc.hoisted.contains(name)) name = fresh(name);
     mc.names.put(e, name);
-    TypeMirror ty = cx.erase(e.asType());
-    String gt = cx.declType(e.asType());
+    TypeMirror ty = cx.erase(cx.vtype(e));
+    String gt = cx.declType(cx.vtype(e));
     String code = "var " + name + " " + gt;
     if (v.getInitializer() != null) {
       ExpressionTree init = v.getInitializer();
@@ -381,11 +381,11 @@ abstract class StmtEmitter extends ExprEmitter {
       if (mc.hoisted.contains(name)) name = fresh(name);
       mc.names.put(e, name);
       mc.reads.add(e);
-      TypeMirror ty = cx.erase(e.asType());
+      TypeMirror ty = cx.erase(cx.vtype(e));
       String val = exprAs(v.getInitializer(), ty);
       init = name + " := " + cx.goType(ty) + "(" + val + ")";
       if (cx.kind(ty) != Ctx.K.PRIM || ty.getKind() == TypeKind.BOOLEAN) {
-        pre.append("var ").append(name).append(" ").append(cx.declType(e.asType())).append(" = ").append(val).append("\n");
+        pre.append("var ").append(name).append(" ").append(cx.declType(cx.vtype(e))).append(" = ").append(val).append("\n");
         init = "";
       }
     } else {
@@ -441,7 +441,7 @@ abstract class StmtEmitter extends ExprEmitter {
     String name = Ctx.safe(v.getName().toString());
     if (mc.hoisted.contains(name)) name = fresh(name);
     mc.names.put(e, name);
-    TypeMirror vt = cx.erase(e.asType());
+    TypeMirror vt = cx.erase(cx.vtype(e));
     ExpressionTree ex = t.getExpression();
     TypeMirror et = cx.erase(typeOf(ex));
     String lab;
@@ -457,6 +457,26 @@ abstract class StmtEmitter extends ExprEmitter {
         head = "for _, " + tmp + " := range " + src + " ";
         bind = "var " + name + " " + cx.goType(vt) + " = " + cx.coerce(tmp, comp, vt) + "\n";
       }
+    } else if (typedMapLoop(ex, vt) != null) {
+      // The keys, the values or the entries of a typed map: the cursor reads them as they are.
+      String[] ml = typedMapLoop(ex, vt);
+      MemberSelectTree ms = (MemberSelectTree) ((MethodInvocationTree) strip(ex)).getMethodSelect();
+      DeclaredType mt = (DeclaredType) cx.erase(typeOf(ms.getExpression()));
+      String it = fresh("it");
+      String src = atomOrParen(expr(ms.getExpression()));
+      lab = enter("loop");
+      cursor = it + " := " + src + "." + ml[0] + "()\n";
+      head = "for " + it + ".next() ";
+      if (ml[1] == null) bind = "var " + name + " " + cx.goType(vt) + " = " + it + ".entry()\n";
+      else bind = "var " + name + " " + cx.goType(vt) + " = " + cx.coerce(it + ".v", mt.getTypeArguments().get(Integer.parseInt(ml[1])), vt) + "\n";
+    } else if (cx.isTypedColl(et)) {
+      // A typed collection: the cursor reads its elements as they are, unboxed.
+      TypeMirror comp = ((DeclaredType) et).getTypeArguments().get(0);
+      String it = fresh("it");
+      lab = enter("loop");
+      cursor = it + " := " + atomOrParen(expr(ex)) + ".each()\n";
+      head = "for " + it + ".next() ";
+      bind = "var " + name + " " + cx.goType(vt) + " = " + cx.coerce(it + ".v", comp, vt) + "\n";
     } else {
       TypeMirror iterable = cx.elems.getTypeElement("java.lang.Iterable").asType();
       String it = fresh("it");
@@ -518,7 +538,7 @@ abstract class StmtEmitter extends ExprEmitter {
   String caseLabel(ExpressionTree l, TypeMirror selType) {
     Element e = elemOf(l);
     if (e != null && e.getKind() == ElementKind.ENUM_CONSTANT) {
-      return cx.coerce(staticField((VariableElement) e), e.asType(), selType);
+      return cx.coerce(staticField((VariableElement) e), cx.vtype(e), selType);
     }
     if (l instanceof IdentifierTree id && cx.kind(selType) == Ctx.K.CLS) {
       // An unqualified enum constant that javac did not attribute as an expression.
@@ -557,7 +577,7 @@ abstract class StmtEmitter extends ExprEmitter {
         } else if (l instanceof PatternCaseLabelTree pl) {
           if (!(pl.getPattern() instanceof BindingPatternTree bp)) throw unsupported(c, "case pattern");
           Element ve = elemOf(bp.getVariable());
-          TypeMirror vt = cx.erase(ve.asType());
+          TypeMirror vt = cx.erase(cx.vtype(ve));
           String any = cx.coerce("sel_", selType, objectType());
           String check = isCheck(any, vt);
           if (c.getGuard() != null) {
@@ -747,5 +767,24 @@ abstract class StmtEmitter extends ExprEmitter {
       if (all) return cx.erase(c.asType());
     }
     return cx.elems.getTypeElement("java.lang.Throwable").asType();
+  }
+
+  /**
+   * A for-each loop over `m.keySet()`, `m.values()` or `m.entrySet()` of a typed map m (rule
+   * "typed collections"): the cursor method of the map and the index of the type argument it
+   * reads (null for the entries, which need a typed loop variable); null for any other loop.
+   */
+  String[] typedMapLoop(ExpressionTree ex, TypeMirror vt) {
+    if (!(strip(ex) instanceof MethodInvocationTree mi) || !mi.getArguments().isEmpty() || !(mi.getMethodSelect() instanceof MemberSelectTree ms)) return null;
+    TypeMirror rt = typeOf(ms.getExpression());
+    if (rt == null) return null;
+    Ctx.CollKind ck = cx.typedColl(cx.erase(rt));
+    if (ck == null || !ck.name.equals("map")) return null;
+    switch (ms.getIdentifier().toString()) {
+      case "keySet": return new String[] {"eachKey", "0"};
+      case "values": return new String[] {"eachValue", "1"};
+      case "entrySet": return cx.typedColl(vt) == cx.entryKind && cx.entryKind != null ? new String[] {"eachEntry", null} : null;
+      default: return null;
+    }
   }
 }

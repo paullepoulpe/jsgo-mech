@@ -186,6 +186,11 @@ abstract class ExprEmitter extends Base {
   String exprAs(ExpressionTree t, TypeMirror target) {
     TypeMirror from = typeOf(t);
     target = cx.erase(target);
+    if (cx.isTypedColl(target)) {
+      String made = newTyped(strip(t), target);
+      if (made != null) return made;
+      if (strip(t) instanceof MethodInvocationTree mi && Ctx.isUnmodifiable(elemOf(mi.getMethodSelect()), mi)) return exprAs(mi.getArguments().get(0), target);
+    }
     Ctx.K kt = cx.kind(target);
     if (kt == Ctx.K.PRIM && target.getKind() != TypeKind.BOOLEAN && isNumericLiteral(t)) {
       TypeMirror ft = cx.unboxed(from);
@@ -234,6 +239,93 @@ abstract class ExprEmitter extends Base {
     return cx.coerce(expr(t), from, target);
   }
 
+  /**
+   * `new ArrayList<>(..)` or `new HashSet<>(..)` where a typed collection is wanted (rule "typed
+   * collections"): the runtime's typed collection with the conversion of its element type; null
+   * for any other expression.
+   */
+  String newTyped(ExpressionTree t, TypeMirror target) {
+    if (t instanceof MethodInvocationTree mi) return immutableOf(mi, target);
+    if (!(t instanceof NewClassTree n) || n.getClassBody() != null) return null;
+    TypeElement made = Ctx.typeElement(cx.erase(typeOf(t)));
+    String fn = made == null ? null : cx.typedColl(target).made.get(made.getQualifiedName().toString());
+    if (fn == null) return null;
+    String tc = cx.tconvsOf(target);
+    List<? extends ExpressionTree> as = n.getArguments();
+    if (as.isEmpty()) return "newT" + fn + "_(" + tc + ")";
+    ExpressionTree a = as.get(0);
+    TypeMirror at = typeOf(a);
+    String lower = "t" + Character.toLowerCase(fn.charAt(0)) + fn.substring(1);
+    if (at.getKind() == TypeKind.INT) return "newT" + fn + "N_(" + tc + ", " + exprAs(a, at) + ")";
+    if (elemOf(n) instanceof ExecutableElement ctor && ctor.getParameters().size() == 1 && cx.erase(ctor.getParameters().get(0).asType()) instanceof DeclaredType pt
+        && Ctx.typeElement(pt).getQualifiedName().contentEquals("java.util.Comparator")) {
+      // new TreeSet<>(comparator)
+      return "newT" + fn + "C_(" + tc + ", " + exprAs(a, pt) + ")";
+    }
+    if (cx.isTypedColl(at) && cx.goType(at).equals(cx.goType(target))) return lower + "Copy_(" + tc + ", " + expr(a) + ")";
+    return lower + "From_(" + tc + ", " + exprAs(a, cx.elems.getTypeElement(cx.typedColl(target).fromType).asType()) + ")";
+  }
+
+  /**
+   * `ImmutableList.of(a, b)`, `ImmutableSet.of(..)` or `ImmutableMap.of(k, v, ..)` where a typed
+   * collection is wanted: the runtime's typed factory (rt_timm.go), which takes the elements as
+   * they are; null for any other call (its result enters through Ctx.coerce).
+   */
+  String immutableOf(MethodInvocationTree mi, TypeMirror target) {
+    Ctx.CollKind ck = cx.typedColl(target);
+    if (!(elemOf(mi.getMethodSelect()) instanceof ExecutableElement m)) return null;
+    List<? extends ExpressionTree> as = mi.getArguments();
+    String tc = cx.tconvsOf(target);
+    if (ck.factory(m) != null) {
+      // ImmutableList.builder(), builderWithExpectedSize(n): a typed builder
+      String fn = "newT" + ck.made.values().iterator().next() + ck.factory(m) + "_(" + tc;
+      for (ExpressionTree a : as) fn += ", " + exprAs(a, typeOf(a));
+      return fn + ")";
+    }
+    String[] maker = cx.typedMaker(m, ck, new ArrayList<>(((DeclaredType) target).getTypeArguments()));
+    if (maker != null && mi.getMethodSelect() instanceof MemberSelectTree ms && !m.getModifiers().contains(Modifier.STATIC)) {
+      // a library method that makes a list for its caller: the runtime's typed twin
+      StringBuilder sb = new StringBuilder(maker[0] + "(" + tc + ", " + exprAs(ms.getExpression(), cx.ownerOf(m).asType()));
+      for (int i = 0; i < as.size(); i++) sb.append(", ").append(exprAs(as.get(i), cx.erase(m.getParameters().get(i).asType())));
+      return sb.append(")").toString();
+    }
+    if (ck.name.equals("set") && m.getSimpleName().contentEquals("keySet") && as.isEmpty() && mi.getMethodSelect() instanceof MemberSelectTree ms) {
+      // keySet() of an immutable typed map (javac finds the method in ImmutableMap): its typed key set
+      TypeMirror rt = typeOf(ms.getExpression());
+      Ctx.CollKind rk = rt == null ? null : cx.typedColl(cx.erase(rt));
+      if (rk != null && rk.immType(cx.ownerOf(m)) && cx.goType(((DeclaredType) cx.erase(rt)).getTypeArguments().get(0)).equals(cx.goType(((DeclaredType) target).getTypeArguments().get(0)))) {
+        return atomOrParen(expr(ms.getExpression())) + ".keySetImm()";
+      }
+    }
+    if (ck.immClass == null || !m.getModifiers().contains(Modifier.STATIC)) return null;
+    // a call that passes an array for the variable arguments goes through the erased factory
+    if (m.isVarArgs() && as.size() == m.getParameters().size() && cx.erase(typeOf(as.get(as.size() - 1))).getKind() != TypeKind.DECLARED) return null;
+    if (!((TypeElement) m.getEnclosingElement()).getQualifiedName().contentEquals(ck.immClass)) return null;
+    String cap = Character.toUpperCase(ck.name.charAt(0)) + ck.name.substring(1);
+    List<? extends TypeMirror> tas = ((DeclaredType) target).getTypeArguments();
+    if (m.getSimpleName().contentEquals("copyOf") && as.size() == 1) {
+      // copyOf: of a typed collection of the same type (an immutable one is itself), of an
+      // array of the elements, or of a collection as erased code sees it
+      TypeMirror at = typeOf(as.get(0)), pt = cx.erase(m.getParameters().get(0).asType());
+      if (cx.isTypedColl(at) && cx.goType(at).equals(cx.goType(target))) return "immutable" + cap + "CopyOfT_(" + tc + ", " + expr(as.get(0)) + ")";
+      if (pt.getKind() == TypeKind.ARRAY) {
+        TypeMirror et = cx.erase(at);
+        if (!ck.name.equals("list") || et.getKind() != TypeKind.ARRAY || !cx.goType(((ArrayType) et).getComponentType()).equals(cx.goType(tas.get(0)))) return null;
+        return "immutableListCopyOfArr_(" + tc + ", " + exprAs(as.get(0), et) + ")";
+      }
+      String pn = pt.getKind() == TypeKind.DECLARED ? Ctx.typeElement(pt).getQualifiedName().toString() : "";
+      if (!pn.equals("java.util.Collection") && !pn.equals("java.lang.Iterable") && !pn.equals("java.util.Map")) return null;
+      return "immutable" + cap + "CopyOf_(" + tc + ", " + exprAs(as.get(0), pt) + ")";
+    }
+    if (!m.getSimpleName().contentEquals("of")) return null;
+    if (as.isEmpty()) return "t" + ck.name + "EmptyImm_(" + tc + ")";
+    boolean map = ck.name.equals("map");
+    if (map && as.size() > 10) return null;
+    StringBuilder sb = new StringBuilder("immutable" + cap + "Of" + (map ? as.size() / 2 : "") + "_[" + cx.goType(tas.get(0)) + (map ? ", " + cx.goType(tas.get(1)) : "") + "](" + tc);
+    for (int i = 0; i < as.size(); i++) sb.append(", ").append(exprAs(as.get(i), tas.get(map ? i % 2 : 0)));
+    return sb.append(")").toString();
+  }
+
   String cond(ExpressionTree t) {
     return exprAs(t, prim(TypeKind.BOOLEAN));
   }
@@ -278,6 +370,9 @@ abstract class ExprEmitter extends Base {
       case TYPE_CAST: {
         TypeCastTree c = (TypeCastTree) t;
         TypeMirror to = typeOf(t);
+        String shared = cx.sharedStatics.get(elemOf(strip(c.getExpression())));
+        if ("single".equals(shared)) return sharedSingle(strip(c.getExpression()), to);
+        if ("array".equals(shared)) return cx.goType(cx.erase(to)) + "{}";
         Object[] slot = strSlotRead(c.getExpression());
         if (slot != null && cx.kind(to) == Ctx.K.STR) return slot[0] + "." + cx.fieldName((VariableElement) slot[1]) + "_str_()";
         Object cv = constOf(t);
@@ -367,7 +462,7 @@ abstract class ExprEmitter extends Base {
     String code = "this";
     TypeMirror ot = cx.erase(owner.asType());
     for (ClassCtx c : classStack) {
-      if (cx.types.isSubtype(cx.erase(c.te.asType()), ot)) return new Recv(code, c.te.asType());
+      if (cx.sub(c.te.asType(), ot)) return new Recv(code, c.te.asType());
       code += ".outer_";
     }
     ClassCtx c = cc();
@@ -404,14 +499,14 @@ abstract class ExprEmitter extends Base {
     Element e = elemOf(t);
     if (name.equals("this")) return "this";
     if (e == null) throw unsupported(t, "unresolved identifier " + name);
-    if (isLocalKind(e)) return cx.coerce(localRef(e), e.asType(), typeOf(t));
+    if (isLocalKind(e)) return cx.coerce(localRef(e), cx.vtype(e), typeOf(t));
     switch (e.getKind()) {
       case FIELD, ENUM_CONSTANT: {
         VariableElement f = (VariableElement) e;
-        if (f.getModifiers().contains(Modifier.STATIC)) return cx.coerce(staticField(f), f.asType(), typeOf(t));
+        if (f.getModifiers().contains(Modifier.STATIC)) return cx.coerce(staticField(f), cx.vtype(f), typeOf(t));
         Recv r = implicitRecv(cx.ownerOf(f));
         noteField(f);
-        return cx.coerce(cx.fieldGet(r.code, f), f.asType(), typeOf(t));
+        return cx.coerce(cx.fieldGet(r.code, f), memberType(r.type, f), typeOf(t));
       }
       default:
         throw unsupported(t, "identifier of kind " + e.getKind());
@@ -443,7 +538,7 @@ abstract class ExprEmitter extends Base {
     switch (e.getKind()) {
       case FIELD, ENUM_CONSTANT: {
         VariableElement f = (VariableElement) e;
-        if (f.getModifiers().contains(Modifier.STATIC)) return cx.coerce(staticField(f), f.asType(), typeOf(t));
+        if (f.getModifiers().contains(Modifier.STATIC)) return cx.coerce(staticField(f), cx.vtype(f), typeOf(t));
         noteField(f);
         String recv;
         if (q instanceof IdentifierTree id && id.getName().contentEquals("super")) {
@@ -451,10 +546,36 @@ abstract class ExprEmitter extends Base {
         } else {
           recv = expr(q);
         }
-        return cx.coerce(cx.fieldGet(recv, f), f.asType(), typeOf(t));
+        return cx.coerce(cx.fieldGet(recv, f), memberType(typeOf(q), f), typeOf(t));
       }
       default:
         throw unsupported(t, "member of kind " + e.getKind());
+    }
+  }
+
+  /** The type of field f read through a value of type recv: a field of a typed class at the receiver's type arguments. */
+  TypeMirror memberType(TypeMirror recv, VariableElement f) {
+    if (recv != null && !f.getModifiers().contains(Modifier.STATIC) && cx.typedClasses.contains(cx.ownerOf(f))) {
+      return cx.atSite(cx.vtype(f), cx.ownerOf(f), recv);
+    }
+    return cx.vtype(f);
+  }
+
+  /** The instantiated type of the method invocation being translated (javac's, after inference), or null. */
+  ExecutableType curInst;
+  /** The type a call of a static generic function is to return, when not javac's (GenScan.shared). */
+  TypeMirror retOverride;
+
+  /** Binds the type variables in generic type g to the parts of a that stand where they stand. */
+  static void unify(TypeMirror g, TypeMirror a, Map<Element, TypeMirror> m) {
+    if (g == null || a == null) return;
+    if (g.getKind() == TypeKind.TYPEVAR) {
+      m.putIfAbsent(((TypeVariable) g).asElement(), a);
+    } else if (g.getKind() == TypeKind.DECLARED && a.getKind() == TypeKind.DECLARED) {
+      List<? extends TypeMirror> ga = ((DeclaredType) g).getTypeArguments(), aa = ((DeclaredType) a).getTypeArguments();
+      if (ga.size() == aa.size()) for (int i = 0; i < ga.size(); i++) unify(ga.get(i), aa.get(i), m);
+    } else if (g.getKind() == TypeKind.ARRAY && a.getKind() == TypeKind.ARRAY) {
+      unify(((ArrayType) g).getComponentType(), ((ArrayType) a).getComponentType(), m);
     }
   }
 
@@ -480,20 +601,24 @@ abstract class ExprEmitter extends Base {
         lv.code = localName(e);
         ClassCtx c = cc();
         if (c != null && !c.ownLocals.contains(e) && c.captures.contains(e)) lv.code = "this.cap_" + Ctx.safe(e.getSimpleName().toString());
-        lv.type = cx.erase(e.asType());
+        lv.type = cx.erase(cx.vtype(e));
         return lv;
       }
       VariableElement f = (VariableElement) e;
-      lv.type = cx.erase(f.asType());
+      lv.type = cx.erase(cx.vtype(f));
       if (f.getModifiers().contains(Modifier.STATIC)) lv.code = staticField(f);
-      else lv.code = cx.fieldLoc(implicitRecv(cx.ownerOf(f)).code, f);
+      else {
+        Recv r = implicitRecv(cx.ownerOf(f));
+        lv.code = cx.fieldLoc(r.code, f);
+        lv.type = cx.erase(memberType(r.type, f));
+      }
       lv.field = f;
       noteField(f);
       return lv;
     }
     if (t instanceof MemberSelectTree ms) {
       VariableElement f = (VariableElement) e;
-      lv.type = cx.erase(f.asType());
+      lv.type = cx.erase(memberType(typeOf(ms.getExpression()), f));
       if (f.getModifiers().contains(Modifier.STATIC)) {
         lv.code = staticField(f);
       } else {
@@ -576,8 +701,32 @@ abstract class ExprEmitter extends Base {
           case DOUBLE: return "dstr_(" + expr(t) + ")";
           default: return "istr_(int64(" + expr(t) + "))";
         }
+      default: {
+        // an object at its static type (Conv.typedStr), else through Object
+        String typed = cx.conv.typedStr("", ty) == null || !declaredAs(t, ty) ? null : cx.conv.typedStr(expr(t), ty);
+        return typed != null ? typed : "objstr_(" + asAny(t) + ")";
+      }
+    }
+  }
+
+  /**
+   * Whether the value of t has type ty by its declaration: a variable, a field or the result of
+   * a method declared with that (erased) type, a new object or `this`. Such an expression at
+   * its own type is the code that the conversion to Object boxes; any other one (a result or a
+   * field of a type variable's type, a conditional) is cast first when it is used at its type.
+   */
+  boolean declaredAs(ExpressionTree t, TypeMirror ty) {
+    switch (t.getKind()) {
+      case NEW_CLASS:
+        return true;
+      case IDENTIFIER, MEMBER_SELECT, METHOD_INVOCATION: {
+        Element e = elemOf(t.getKind() == Tree.Kind.METHOD_INVOCATION ? ((MethodInvocationTree) t).getMethodSelect() : t);
+        if (e instanceof ExecutableElement m) return cx.types.isSameType(cx.types.erasure(m.getReturnType()), cx.types.erasure(ty));
+        if (e instanceof VariableElement v) return cx.types.isSameType(cx.types.erasure(v.asType()), cx.types.erasure(ty));
+        return false;
+      }
       default:
-        return "objstr_(" + asAny(t) + ")";
+        return false;
     }
   }
 
@@ -657,16 +806,43 @@ abstract class ExprEmitter extends Base {
     return exprAs(t, p);
   }
 
+  /** The object of a shared static (rule "shared statics") for instantiation ty: C_F[K, V](). */
+  String sharedSingle(ExpressionTree x, TypeMirror ty) {
+    VariableElement f = (VariableElement) elemOf(x);
+    ty = cx.erase(ty);
+    if (!cx.typedDecl(ty)) return staticFieldFn(f) + "()";
+    return staticFieldFn(f) + cx.typeArgsOf(ty) + "()";
+  }
+
+  String staticFieldFn(VariableElement f) {
+    touch(cx.ownerOf(f));
+    return cx.fieldName(f);
+  }
+
   String equality(BinaryTree t) {
     ExpressionTree l = t.getLeftOperand(), r = t.getRightOperand();
     TypeMirror tl = typeOf(l), tr = typeOf(r);
     String op = t.getKind() == Tree.Kind.EQUAL_TO ? "==" : "!=";
+    if ("single".equals(cx.sharedStatics.get(elemOf(strip(l))))) return "(" + sharedSingle(strip(l), tr) + " " + op + " " + expr(r) + ")";
+    if ("single".equals(cx.sharedStatics.get(elemOf(strip(r))))) return "(" + expr(l) + " " + op + " " + sharedSingle(strip(r), tl) + ")";
     Ctx.K kl = cx.kind(tl), kr = cx.kind(tr);
     if (kl == Ctx.K.NULL || kr == Ctx.K.NULL) {
       ExpressionTree x = kl == Ctx.K.NULL ? r : l;
       Ctx.K kx = kl == Ctx.K.NULL ? kr : kl;
       if (kx == Ctx.K.NULL) return op.equals("==") ? "true" : "false";
+      Object[] rf = fieldRead(x, f -> cx.runtimeField(f) != null);
+      if (rf != null) return (op.equals("==") ? "" : "!") + rf[0] + "." + cx.fieldName((VariableElement) rf[1]) + "_isnull_()";
+      Object[] idf = fieldRead(x, f -> (cx.strId(f) && !cx.valCode(f)) || cx.valCode(f) || cx.handleTable(f) != null);
+      // Null is code 0 of a string id, value code or table handle.
+      if (idf != null) return "(" + cx.fieldLoc((String) idf[0], (VariableElement) idf[1]) + " " + op + " 0)";
+      if (kx == Ctx.K.TVAR) return (op.equals("==") ? "" : "!") + "isnull_(" + expr(x) + ")";
+      if (cx.isValueLibType(cx.erase(kl == Ctx.K.NULL ? tr : tl))) return (op.equals("==") ? "" : "!") + atomOrParen(expr(x)) + ".null_()";
       return "(" + expr(x) + " " + op + " " + cx.nil(kl == Ctx.K.NULL ? tr : tl) + ")";
+    }
+    if (kl == Ctx.K.TVAR || kr == Ctx.K.TVAR) {
+      // a type parameter is not comparable in Go: the boxes are, as in the erased code
+      if (kl == kr && cx.goType(tl).equals(cx.goType(tr))) return (op.equals("==") ? "" : "!") + "eqT_(" + expr(l) + ", " + expr(r) + ")";
+      return "(" + asAny(l) + " " + op + " " + asAny(r) + ")";
     }
     if (kl == Ctx.K.PRIM || kr == Ctx.K.PRIM) {
       TypeMirror p = promote(tl, tr);
@@ -680,6 +856,7 @@ abstract class ExprEmitter extends Base {
     if (kl == Ctx.K.ARR && kr == Ctx.K.ARR) {
       return (op.equals("==") ? "" : "!") + "samearr_(" + expr(l) + ", " + expr(r) + ")";
     }
+    if (cx.isValueLibType(cx.erase(tl)) || cx.isValueLibType(cx.erase(tr))) throw unsupported(t, "identity of a value library class (" + tl + " " + op + " " + tr + ")");
     if (kl == kr && cx.goType(tl).equals(cx.goType(tr))) {
       return "(" + expr(l) + " " + op + " " + expr(r) + ")";
     }
@@ -704,6 +881,9 @@ abstract class ExprEmitter extends Base {
       case STR: return "isstr_(" + anyCode + ")";
       case CLS: {
         TypeElement te = Ctx.typeElement(target);
+        if (cx.isValueLib(te)) return "is" + cx.className(te) + "_(" + anyCode + ")";
+        // a generic Go type: any instantiation, through the marker method isa_C_ (Emitter.structDecl)
+        if (cx.isSource(te) && !cx.goTparams(te).isEmpty()) return "is_" + cx.className(te) + "(" + anyCode + ")";
         if (cx.isLeaf(te)) return "is_[" + cx.goType(target) + "](" + anyCode + ")";
         return "is_" + cx.className(te) + "(" + anyCode + ")";
       }
@@ -723,27 +903,62 @@ abstract class ExprEmitter extends Base {
    * If t reads a string-slot field (Ctx.strSlots): the receiver's Go code and the field; else null.
    */
   Object[] strSlotRead(ExpressionTree t0) {
+    return fieldRead(t0, cx::strSlot);
+  }
+
+  /** If t reads an instance field f for which p holds: the receiver's Go code and f; else null. */
+  Object[] fieldRead(ExpressionTree t0, java.util.function.Predicate<VariableElement> p) {
     ExpressionTree t = strip(t0);
     Element e = (t instanceof IdentifierTree || t instanceof MemberSelectTree) ? elemOf(t) : null;
-    if (!(e instanceof VariableElement f) || e.getKind() != ElementKind.FIELD || !cx.strSlot(f)) return null;
+    if (!(e instanceof VariableElement f) || e.getKind() != ElementKind.FIELD || f.getModifiers().contains(Modifier.STATIC) || !p.test(f)) return null;
     if (t instanceof IdentifierTree) return new Object[] {implicitRecv(cx.ownerOf(f)).code, f};
     return new Object[] {expr(((MemberSelectTree) t).getExpression()), f};
   }
 
   String instanceOf(InstanceOfTree t) {
+    Object[] ht = fieldRead(t.getExpression(), f -> cx.handleTable(f) != null);
+    if (ht != null) {
+      VariableElement f = (VariableElement) ht[1];
+      TypeMirror target = t.getPattern() instanceof BindingPatternTree b0 ? cx.erase(elemOf(b0.getVariable()).asType())
+          : typeOf(t.getType()) != null ? typeOf(t.getType()) : cx.trees.getTypeMirror(cx.trees.getPath(cu, t.getType()));
+      if (cx.types.isSameType(cx.erase(target), cx.handleTable(f))) {
+        // The handle's bit 0 says whether the value is an instance of the flag type.
+        String test = "(" + cx.fieldLoc((String) ht[0], f) + "&1 != 0)";
+        if (t.getPattern() == null) return test;
+        Element ve = elemOf(((BindingPatternTree) t.getPattern()).getVariable());
+        String name = declareHoisted(ve);
+        return "func() bool { if !" + test + " { return false }; " + name + " = " + cx.coerce(ht[0] + "." + cx.fieldName(f) + "_get_()", objectType(), cx.erase(ve.asType()))
+            + "; return true }()";
+      }
+    }
     Object[] slot = strSlotRead(t.getExpression());
     if (slot != null) {
       // The String of a string-slot field is in the string slot, everything else in the other.
       TypeMirror target = t.getPattern() instanceof BindingPatternTree b0 ? cx.erase(elemOf(b0.getVariable()).asType())
           : typeOf(t.getType()) != null ? typeOf(t.getType()) : cx.trees.getTypeMirror(cx.trees.getPath(cu, t.getType()));
       VariableElement f = (VariableElement) slot[1];
+      String fn = slot[0] + "." + cx.fieldName(f);
       if (cx.kind(target) == Ctx.K.STR) {
         String loc = cx.strSlotLoc((String) slot[0], f);
+        if (cx.valCode(f)) {
+          // A value code says whether it is a String without reading the string table.
+          if (t.getPattern() == null) return fn + "_iss_()";
+          String name = declareHoisted(elemOf(((BindingPatternTree) t.getPattern()).getVariable()));
+          return "func() bool { if !" + fn + "_iss_() { return false }; " + name + " = " + loc + "; return true }()";
+        }
         if (t.getPattern() == null) return "(" + loc + " != nullstr_)";
         String name = declareHoisted(elemOf(((BindingPatternTree) t.getPattern()).getVariable()));
         return "func() bool { v_ := " + loc + "; if v_ == nullstr_ { return false }; " + name + " = v_; return true }()";
       }
-      String raw = cx.fieldLoc((String) slot[0], f);
+      if (cx.valCode(f) && cx.unboxed(target) != null && cx.unboxed(target).getKind() == TypeKind.DOUBLE) {
+        // A Double in a value code is a float64 inline or in the table of doubles: no box is made.
+        if (t.getPattern() == null) return fn + "_isd_()";
+        Element ve = elemOf(((BindingPatternTree) t.getPattern()).getVariable());
+        String name = declareHoisted(ve);
+        return "func() bool { if !" + fn + "_isd_() { return false }; " + name + " = " + cx.coerce(fn + "_d_()", cx.unboxed(target), cx.erase(ve.asType()))
+            + "; return true }()";
+      }
+      String raw = cx.valCode(f) ? fn + "_obj_()" : cx.fieldLoc((String) slot[0], f);
       if (t.getPattern() == null) return isCheck(raw, target);
       String name = declareHoisted(elemOf(((BindingPatternTree) t.getPattern()).getVariable()));
       return "func() bool { v_ := " + raw + "; if !" + isCheck("v_", target) + " { return false }; " + name + " = "
@@ -754,7 +969,7 @@ abstract class ExprEmitter extends Base {
     if (!(t.getPattern() instanceof BindingPatternTree bp)) throw unsupported(t, "pattern " + t.getPattern().getKind());
     VariableTree var = bp.getVariable();
     Element ve = elemOf(var);
-    TypeMirror vt = cx.erase(ve.asType());
+    TypeMirror vt = cx.erase(cx.vtype(ve));
     String name = declareHoisted(ve);
     return "func() bool { v_ := " + v + "; if !" + isCheck("v_", vt) + " { return false }; " + name + " = "
         + cx.coerce("v_", objectType(), vt) + "; return true }()";
@@ -768,7 +983,7 @@ abstract class ExprEmitter extends Base {
       mc.hoisted.add(name);
     }
     mc.names.put(ve, name);
-    mc.pre.add("var " + name + " " + cx.goType(ve.asType()) + "\n_ = " + name);
+    mc.pre.add("var " + name + " " + cx.goType(cx.vtype(ve)) + "\n_ = " + name);
     return name;
   }
 
@@ -777,8 +992,14 @@ abstract class ExprEmitter extends Base {
     throw unsupported(t, "++/-- used as a value");
   }
 
+  /** A string-id or handle-table field is assigned only as a whole (stmtExpr). */
+  void storedWhole(Tree t, LValue lv) {
+    if (lv.field != null && (cx.strId(lv.field) || cx.handleTable(lv.field) != null || cx.runtimeField(lv.field) != null)) throw unsupported(t, "compound assignment to a string-id or handle-table field");
+  }
+
   String incDecStmt(UnaryTree t) {
     LValue lv = lvalue(t.getExpression());
+    storedWhole(t, lv);
     boolean inc = t.getKind() == Tree.Kind.POSTFIX_INCREMENT || t.getKind() == Tree.Kind.PREFIX_INCREMENT;
     Element e = elemOf(strip(t.getExpression()));
     if (e != null) mc.reads.add(e);
@@ -789,6 +1010,7 @@ abstract class ExprEmitter extends Base {
 
   String compoundStmt(CompoundAssignmentTree t) {
     LValue lv = lvalue(t.getVariable());
+    storedWhole(t, lv);
     Element le = elemOf(strip(t.getVariable()));
     if (le != null) mc.reads.add(le);
     Tree.Kind k = t.getKind();
@@ -858,23 +1080,36 @@ abstract class ExprEmitter extends Base {
       }
     }
     int fixed = pack ? n - 1 : n;
-    for (int i = 0; i < fixed && i < args.size(); i++) out.add(args.get(i).as(params.get(i)));
+    for (int i = 0; i < fixed && i < args.size(); i++) out.add(argAs(e, i, args.get(i), params.get(i)));
     if (pack) {
       TypeMirror arr = params.get(n - 1);
       TypeMirror comp = ((ArrayType) arr).getComponentType();
       StringBuilder sb = new StringBuilder(cx.goType(arr) + "{");
       for (int i = fixed; i < args.size(); i++) {
         if (i > fixed) sb.append(", ");
-        sb.append(args.get(i).as(comp));
+        sb.append(argAs(e, i, args.get(i), comp));
       }
       out.add(sb.append("}").toString());
     }
     return String.join(", ", out);
   }
 
+  /** Argument i of a call of e, for a parameter (or an element of the variable arguments) of type target. */
+  String argAs(ExecutableElement e, int i, Arg a, TypeMirror target) {
+    TypeMirror own = cx.conv.msgArg(e, i, a.type, target);
+    if (own != null) return a.as(own);
+    return cx.conv.bare(a.as(target), target);
+  }
+
+  List<TypeMirror> argTypes(List<Arg> args) {
+    List<TypeMirror> out = new ArrayList<>();
+    for (Arg a : args) out.add(a.type == null ? null : cx.erase(a.type));
+    return out;
+  }
+
   List<TypeMirror> ownParams(ExecutableElement e) {
     List<TypeMirror> out = new ArrayList<>();
-    for (VariableElement p : e.getParameters()) out.add(cx.erase(p.asType()));
+    for (VariableElement p : e.getParameters()) out.add(cx.erase(cx.vtype(p)));
     return out;
   }
 
@@ -893,15 +1128,83 @@ abstract class ExprEmitter extends Base {
     TypeElement owner = cx.ownerOf(e);
     boolean src = cx.isSource(owner);
     boolean isStatic = e.getModifiers().contains(Modifier.STATIC);
+    TypeMirror retOver = retOverride;
+    retOverride = null;
     if (isStatic) {
       touch(owner);
       List<TypeMirror> params = ownParams(e);
-      TypeMirror ret = cx.erase(e.getReturnType());
+      TypeMirror ret = cx.erase(cx.rtype(e));
       String name = cx.staticMethodName(e);
       if (!src) noteMethod("func " + name, e, params, ret, "static");
+      if (!src) {
+        // a String for each CharSequence parameter: the variant taking strings (Conv.strSeq)
+        List<TypeMirror> sp = new ArrayList<>(params);
+        String sv = cx.conv.strSeq(name, e, sp, argTypes(args));
+        if (sv != null) return new CallResult(sv + "(" + argList(e, sp, args) + ")", ret);
+      }
+      TypeMirror hm = src || args.isEmpty() ? null : cx.conv.handleMsg(e, name, params.size(), args.size(), args.get(args.size() - 1).type);
+      if (hm != null) {
+        // a handle as the message argument of a check (Conv.handleMsg)
+        params = new ArrayList<>(params);
+        params.set(params.size() - 1, hm);
+        name += "_H";
+      }
+      TypeMirror nn = src || args.isEmpty() ? null : cx.conv.nonNull(e, args.get(0).type);
+      if (nn != null) {
+        // a typed non-null check (Conv.nonNull): a generic function of the argument's type
+        List<TypeMirror> p2 = new ArrayList<>(params);
+        p2.set(0, nn);
+        return new CallResult(name + cx.conv.nonNullSuffix(nn) + "(" + argList(e, p2, args) + ")", nn);
+      }
+      if ((src || cx.isValueLib(owner)) && !cx.keptOf(e.getTypeParameters()).isEmpty()) {
+        // A generic function: instantiated with javac's inferred type arguments (kept ones).
+        ExecutableType inst = curInst;
+        curInst = null;
+        if (inst == null || inst.getParameterTypes().size() != params.size()) throw new IllegalStateException("no instantiated type for a call of " + e);
+        Map<Element, TypeMirror> m = new HashMap<>();
+        unify(e.getReturnType(), inst.getReturnType(), m);
+        for (int i = 0; i < params.size(); i++) unify(e.getParameters().get(i).asType(), inst.getParameterTypes().get(i), m);
+        if (retOver != null) {
+          // the call's type is given (an argument of a shared static's constructor)
+          m.clear();
+          unify(e.getReturnType(), retOver, m);
+        }
+        Map<Element, TypeMirror> mk = new HashMap<>();
+        StringBuilder ta = new StringBuilder("[");
+        for (TypeParameterElement tp : cx.keptOf(e.getTypeParameters())) {
+          ta.append(ta.length() > 1 ? ", " : "").append(cx.goTypeArg(m.get(tp)));
+          if (m.get(tp) != null) mk.put(tp, m.get(tp));
+        }
+        params = new ArrayList<>();
+        for (VariableElement pe : e.getParameters()) params.add(cx.erase(cx.subst(pe.asType(), mk, 0)));
+        ret = cx.erase(cx.subst(e.getReturnType(), mk, 0));
+        return new CallResult(name + ta + "]" + "(" + argList(e, params, args) + ")", ret);
+      }
       return new CallResult(name + "(" + argList(e, params, args) + ")", ret);
     }
     if (recv == null) recv = implicitRecv(owner);
+    if (cx.isTypedColl(recv.type) && !superCall) {
+      // A typed collection: its typed method, or the method of List or Set on its erased view.
+      List<TypeMirror> ats = new ArrayList<>();
+      for (Arg a : args) ats.add(a.type);
+      ExecutableElement tm = cx.typedMethod(recv.type, e, ats);
+      if (tm != null) {
+        e = tm;
+        owner = cx.ownerOf(tm);
+        src = false;
+      } else {
+        Ctx.CollKind rk = cx.typedColl(recv.type);
+        if (owner.getQualifiedName().contentEquals(String.valueOf(rk.sortedClass))) {
+          // a method that javac finds in TreeSet / TreeMap: the method of the interface it implements
+          e = cx.root(e);
+          owner = cx.ownerOf(e);
+        }
+        // a method of Guava's immutable class (reverse(), asList()) is called on the twin, one
+        // of SortedSet / NavigableSet (tailSet) on the sorted view
+        TypeMirror view = rk.immType(owner) || rk.sortedType(owner) ? cx.types.erasure(owner.asType()) : cx.typedView(recv.type);
+        recv = new Recv(cx.coerce(recv.code, recv.type, view), view);
+      }
+    }
     if (superCall && owner.getQualifiedName().contentEquals("java.lang.Object")) {
       // super.hashCode() / equals / toString reaching Object: the identity-based defaults.
       String self = cx.coerce(recv.code, recv.type, objectType());
@@ -915,7 +1218,7 @@ abstract class ExprEmitter extends Base {
     if (src && owner.getKind().isInterface() && e.getModifiers().contains(Modifier.PRIVATE)) {
       List<TypeMirror> params = ownParams(e);
       String al = argList(e, params, args);
-      return new CallResult(cx.staticMethodName(e) + "(" + cx.coerce(recv.code, recv.type, owner.asType()) + (al.isEmpty() ? "" : ", " + al) + ")", cx.erase(e.getReturnType()));
+      return new CallResult(cx.staticMethodName(e) + "(" + cx.coerce(recv.code, recv.type, owner.asType()) + (al.isEmpty() ? "" : ", " + al) + ")", cx.erase(cx.rtype(e)));
     }
     Ctx.K ok = cx.kind(owner.asType());
     ExecutableElement re = cx.root(e);
@@ -942,12 +1245,28 @@ abstract class ExprEmitter extends Base {
       owner = ro;
       ok = cx.kind(owner.asType());
     }
+    if (!src && !superCall && recv != null && cx.kind(recv.type) == Ctx.K.TVAR && owner.getQualifiedName().contentEquals("java.lang.Object")) {
+      // Object's methods on a value of a type parameter: without boxing a String (rt_generic.go)
+      String mn = e.getSimpleName().toString();
+      if (mn.equals("hashCode") && args.isEmpty()) return new CallResult("hashCodeT_(" + recv.code + ")", prim(TypeKind.INT));
+      if (mn.equals("toString") && args.isEmpty()) return new CallResult("toStringT_(" + recv.code + ")", stringType());
+      if (mn.equals("equals") && args.size() == 1) {
+        Arg a = args.get(0);
+        if (cx.kind(a.type) == Ctx.K.TVAR && cx.goType(a.type).equals(cx.goType(recv.type))) {
+          return new CallResult("equalsTT_(" + recv.code + ", " + a.as(a.type) + ")", prim(TypeKind.BOOLEAN));
+        }
+        return new CallResult("equalsT_(" + recv.code + ", " + a.as(objectType()) + ")", prim(TypeKind.BOOLEAN));
+      }
+    }
     if (!src && (ok == Ctx.K.STR || ok == Ctx.K.ANY || owner.getKind().isInterface() && e.isDefault())) {
       // Static-style helper taking the receiver first.
       List<TypeMirror> params = ownParams(e);
       TypeMirror ret = cx.erase(e.getReturnType());
       String name = cx.staticMethodName(e);
       String r = cx.coerce(recv.code, recv.type, owner.asType());
+      List<TypeMirror> sp = new ArrayList<>(params);
+      String sv = cx.conv.strSeq(name, e, sp, argTypes(args));
+      if (sv != null) return new CallResult(sv + "(" + r + ", " + argList(e, sp, args) + ")", ret);
       String al = argList(e, params, args);
       List<TypeMirror> full = new ArrayList<>();
       full.add(cx.erase(owner.asType()));
@@ -955,10 +1274,19 @@ abstract class ExprEmitter extends Base {
       noteMethod("func " + name, e, full, ret, "receiver-first");
       return new CallResult(name + "(" + r + (al.isEmpty() ? "" : ", " + al) + ")", ret);
     }
-    List<TypeMirror> params = cx.groupParams(e);
-    TypeMirror ret = cx.groupReturn(e);
+    if (src && !superCall && cx.genFns.contains(e)) return genFnCall(e, recv, args);
+    // A method of a typed class or interface: its parameters and result at the receiver's view of it.
+    TypeMirror site = superCall ? cc().te.asType() : recv != null ? recv.type : null;
+    List<TypeMirror> params = cx.groupParams(e, site);
+    TypeMirror ret = cx.groupReturn(e, site);
     String name = cx.methodName(e);
     if (!src) noteMethod("method " + cx.className(cx.ownerOf(cx.root(e))) + "." + name, cx.root(e), params, ret, "method");
+    String strVariant = null;
+    if (!src && !superCall && recv != null) {
+      List<TypeMirror> sp = new ArrayList<>(params);
+      strVariant = cx.conv.strSeq(cx.className(cx.ownerOf(cx.root(e))) + "." + name, cx.root(e), sp, argTypes(args));
+      if (strVariant != null) params = sp;
+    }
     String target;
     if (superCall) {
       TypeElement sup = cx.superclass(cc().te);
@@ -977,14 +1305,47 @@ abstract class ExprEmitter extends Base {
     } else {
       Ctx.K rk = cx.kind(recv.type);
       String rc = recv.code;
-      if (rk == Ctx.K.ANY || rk == Ctx.K.STR || rk == Ctx.K.ARR || rk == Ctx.K.PRIM) {
+      boolean boxedTvar = rk == Ctx.K.TVAR && cx.bound((TypeParameterElement) ((TypeVariable) cx.erase(recv.type)).asElement()) == null;
+      if (rk == Ctx.K.ANY || rk == Ctx.K.STR || rk == Ctx.K.ARR || rk == Ctx.K.PRIM || boxedTvar) {
         rc = cx.coerce(rc, recv.type, owner.asType());
-      } else if (rk == Ctx.K.CLS && owner.getKind().isInterface() && !cx.types.isSubtype(cx.erase(recv.type), cx.erase(owner.asType()))) {
+      } else if (rk == Ctx.K.CLS && owner.getKind().isInterface() && !cx.sub(recv.type, owner.asType())) {
         rc = cx.coerce(rc, recv.type, owner.asType());
       }
       target = rc + "." + name;
+      if (strVariant != null) {
+        // the variant is a method of the class, or a function taking the receiver first
+        if (strVariant.contains("_") && Character.isUpperCase(strVariant.charAt(0))) return new CallResult(strVariant + "(" + rc + ", " + argList(e, params, args) + ")", ret);
+        target = rc + "." + strVariant;
+      }
     }
     return new CallResult(target + "(" + argList(e, params, args) + ")", ret);
+  }
+
+  /** A call of generic instance method e (Ctx.genFns): Owner_m[class args, method args](recv, args). */
+  CallResult genFnCall(ExecutableElement e, Recv recv, List<Arg> args) {
+    TypeElement owner = cx.ownerOf(e);
+    if (recv == null) recv = implicitRecv(owner);
+    ExecutableType inst = curInst;
+    curInst = null;
+    if (inst == null || inst.getParameterTypes().size() != e.getParameters().size()) throw new IllegalStateException("no instantiated type for a call of " + e);
+    Map<Element, TypeMirror> m = new HashMap<>();
+    unify(e.getReturnType(), inst.getReturnType(), m);
+    for (int i = 0; i < e.getParameters().size(); i++) unify(e.getParameters().get(i).asType(), inst.getParameterTypes().get(i), m);
+    Map<Element, TypeMirror> mk = new HashMap<>();
+    StringBuilder ta = new StringBuilder();
+    String ca = cx.typedClasses.contains(owner) ? cx.viewArgs(recv.type, owner) : cx.goTparamsUse(owner);
+    if (!ca.isEmpty()) ta.append(ca, 1, ca.length() - 1);
+    for (TypeParameterElement tp : cx.keptOf(e.getTypeParameters())) {
+      ta.append(ta.length() > 0 ? ", " : "").append(cx.goTypeArg(m.get(tp)));
+      if (m.get(tp) != null) mk.put(tp, m.get(tp));
+    }
+    List<TypeMirror> params = new ArrayList<>();
+    for (VariableElement pe : e.getParameters()) params.add(cx.erase(cx.subst(cx.atSite(pe.asType(), owner, recv.type), mk, 0)));
+    TypeMirror ret = cx.erase(cx.subst(cx.atSite(e.getReturnType(), owner, recv.type), mk, 0));
+    DeclaredType view = cx.superView(recv.type, owner);
+    String rc = cx.coerce(recv.code, recv.type, view != null && cx.typedDecl(view) ? view : owner.asType());
+    String al = argList(e, params, args);
+    return new CallResult(cx.genFnName(e) + "[" + ta + "](" + rc + (al.isEmpty() ? "" : ", " + al) + ")", ret);
   }
 
   /**
@@ -1023,6 +1384,8 @@ abstract class ExprEmitter extends Base {
     if (!(el instanceof ExecutableElement)) el = elemOf(sel);
     if (!(el instanceof ExecutableElement e)) throw unsupported(t, "unresolved call " + sel);
     List<Arg> as = args(t.getArguments());
+    curInst = typeOf(sel) instanceof ExecutableType et ? et : null;
+    retOverride = e.getModifiers().contains(Modifier.STATIC) && !cx.isTypedColl(cx.refinedTrees.get(t)) ? cx.refinedTrees.get(t) : null;
     if (sel instanceof MemberSelectTree ms) {
       ExpressionTree q = ms.getExpression();
       if (e.getModifiers().contains(Modifier.STATIC)) return special(e, null, as);
@@ -1030,16 +1393,22 @@ abstract class ExprEmitter extends Base {
       if (q instanceof MemberSelectTree qm && qm.getIdentifier().contentEquals("super")) {
         // I.super.m(): the default method of interface I.
         TypeElement owner = cx.ownerOf(e);
-        List<TypeMirror> params = cx.groupParams(e);
-        String self = cx.coerce("this", cc().te.asType(), owner.asType());
+        TypeMirror site = cc().te.asType();
+        List<TypeMirror> params = cx.groupParams(e, site);
+        DeclaredType view = cx.superView(site, owner);
+        String self = cx.coerce("this", site, view != null && cx.typedDecl(view) ? view : owner.asType());
         String al = argList(e, params, as);
-        return new CallResult(cx.className(owner) + "_" + cx.methodName(e) + "_default(" + self + (al.isEmpty() ? "" : ", " + al) + ")", cx.groupReturn(e));
+        return new CallResult(cx.className(owner) + "_" + cx.methodName(e) + "_default" + cx.viewArgs(site, owner) + "(" + self + (al.isEmpty() ? "" : ", " + al) + ")", cx.groupReturn(e, site));
       }
       TypeMirror qt = typeOf(q);
       if (qt != null && qt.getKind() == TypeKind.ARRAY && e.getSimpleName().contentEquals("clone")) {
         return new CallResult("append(" + cx.goType(qt) + "(nil), " + expr(q) + "...)", qt);
       }
-      return special(e, new Recv(expr(q), qt), as);
+      // the receiver's code first: a call in it sets curInst for itself
+      String rcode = expr(q);
+      curInst = typeOf(sel) instanceof ExecutableType et ? et : null;
+      retOverride = e.getModifiers().contains(Modifier.STATIC) && !cx.isTypedColl(cx.refinedTrees.get(t)) ? cx.refinedTrees.get(t) : null;
+      return special(e, new Recv(rcode, qt), as);
     }
     return special(e, null, as);
   }
@@ -1097,6 +1466,15 @@ abstract class ExprEmitter extends Base {
     List<TypeMirror> params = ownParams(ctor);
     String name = cx.ctorName(ctor, "new_");
     if (!cx.isSource(te)) noteMethod("func " + name, ctor, params, ty, "constructor");
+    if (cx.isSource(te) && (te.getNestingKind() == NestingKind.LOCAL || te.getNestingKind() == NestingKind.ANONYMOUS) && !cx.goTparams(te).isEmpty()) {
+      // a local or anonymous class of a generic scope: at that scope's type parameters
+      name += cx.goTparamsUse(te);
+    } else if (cx.typedDecl(ty)) {
+      // new C<X>(...): new_C[X], its parameters at those type arguments
+      params = new ArrayList<>();
+      for (VariableElement pe : ctor.getParameters()) params.add(cx.erase(cx.atSite(cx.vtype(pe), te, ty)));
+      name += cx.typeArgsOf(ty);
+    }
     String al = argList(ctor, params, args(t.getArguments()));
     if (!al.isEmpty()) pre.add(al);
     return name + "(" + String.join(", ", pre) + ")";
@@ -1111,7 +1489,7 @@ abstract class ExprEmitter extends Base {
     TypeElement outer = cx.enclosingClass(te);
     String code = "this";
     for (ClassCtx c : classStack) {
-      if (cx.types.isSubtype(cx.erase(c.te.asType()), cx.erase(outer.asType()))) {
+      if (cx.sub(c.te.asType(), outer.asType())) {
         return c.te.equals(outer) ? code : cx.coerce(code, c.te.asType(), outer.asType());
       }
       code += ".outer_";
@@ -1148,6 +1526,12 @@ abstract class ExprEmitter extends Base {
 
   // ------------------------------------------------------------ lambdas
 
+  /** The adapter struct of functional interface fi for a lambda of type ft: I_fn, or I_fn[X] for a typed interface. */
+  String adapterName(TypeElement fi, TypeMirror ft) {
+    if (cx.typedDecl(ft)) return cx.className(fi) + "_fn" + cx.typeArgsOf(ft);
+    return adapterName(fi);
+  }
+
   String adapterName(TypeElement fi) {
     String n = cx.className(fi) + "_fn";
     if (!cx.isSource(fi) && cx.extAdapters.add(fi)) {
@@ -1157,13 +1541,80 @@ abstract class ExprEmitter extends Base {
     return n;
   }
 
+  /**
+   * For a lambda or method reference whose target is a library functional interface: the typed
+   * adapter X_tfn[...] (Stubs) when a parameter or the result that the erased signature has as
+   * `any` has a Java type the adapter reaches with one assertion (Ctx.assertable). Returns the
+   * adapter's name with its type arguments, and fills params/ret with the func's Go types; null
+   * when the plain adapter X_fn is used.
+   */
+  String typedAdapter(TypeElement fi, ExecutableElement m, TypeMirror ft0, List<TypeMirror> inst, List<TypeMirror> params, TypeMirror[] ret) {
+    if (System.getenv("J2GO_ERASED") != null || cx.isSource(fi) || !(ft0 instanceof DeclaredType ft)) return null;
+    List<TypeMirror> gp = cx.groupParams(m);
+    TypeMirror gr = cx.groupReturn(m);
+    TypeMirror ir;
+    try {
+      ir = ((ExecutableType) cx.types.asMemberOf(ft, m)).getReturnType();
+    } catch (RuntimeException ex) {
+      return null;
+    }
+    StringBuilder ta = new StringBuilder();
+    boolean any = false;
+    List<TypeMirror> ps = new ArrayList<>();
+    for (int i = 0; i < gp.size(); i++) {
+      TypeMirror g = gp.get(i), p = i < inst.size() ? inst.get(i) : null;
+      if (!cx.goType(g).equals("any")) {
+        ps.add(g);
+        continue;
+      }
+      boolean typed = p != null && cx.assertable(p) && p.getKind() != TypeKind.WILDCARD;
+      ps.add(typed ? cx.erase(p) : g);
+      ta.append(ta.length() > 0 ? ", " : "").append(typed ? cx.goType(p) : "any");
+      any |= typed;
+    }
+    TypeMirror r = gr;
+    if (gr.getKind() != TypeKind.VOID && cx.goType(gr).equals("any")) {
+      boolean typed = ir != null && ir.getKind() != TypeKind.WILDCARD && ir.getKind() != TypeKind.TYPEVAR && cx.assertable(ir);
+      if (typed) r = cx.erase(ir);
+      ta.append(ta.length() > 0 ? ", " : "").append(typed ? cx.goType(ir) : "any");
+      any |= typed;
+    }
+    if (!any) return null;
+    params.clear();
+    params.addAll(ps);
+    ret[0] = r;
+    cx.className(fi);
+    boolean generic = cx.mentionsTypedVar(r);
+    for (TypeMirror p : ps) generic |= cx.mentionsTypedVar(p);
+    if (!generic) {
+      // Every type is known here: a concrete adapter per instantiation (Stubs), whose conversions
+      // are the ones the erased code makes for these types.
+      String n = cx.className(fi) + "_tfn_" + ta.toString().replace("*", "").replace("[]", "s_").replace(", ", "_").replaceAll("[^A-Za-z0-9_]", "_");
+      Object[] was = cx.extConcreteAdapters.get(n);
+      if (was == null) {
+        adapterName(fi);
+        cx.extConcreteAdapters.put(n, new Object[] {fi, new ArrayList<>(ps), r, ta.toString()});
+      } else if (!was[3].equals(ta.toString())) {
+        throw new IllegalStateException("typed adapter name clash: " + n + " for " + was[3] + " and " + ta);
+      }
+      return n;
+    }
+    if (cx.extTypedAdapters.add(fi)) adapterName(fi);
+    return cx.className(fi) + "_tfn[" + ta + "]";
+  }
+
   String lambda(LambdaExpressionTree t) {
     TypeMirror ft = cx.erase(typeOf(t));
     TypeElement fi = Ctx.typeElement(ft);
     ExecutableElement m = fi == null ? null : cx.functionalMethod(fi);
     if (m == null) throw unsupported(t, "lambda target " + ft);
-    List<TypeMirror> params = cx.groupParams(m);
-    TypeMirror ret = cx.groupReturn(m);
+    List<TypeMirror> params = cx.groupParams(m, ft);
+    TypeMirror ret = cx.groupReturn(m, ft);
+    List<TypeMirror> declared = new ArrayList<>();
+    for (VariableTree p : t.getParameters()) declared.add(elemOf(p).asType());
+    TypeMirror[] tret = {ret};
+    String tad = typedAdapter(fi, m, typeOf(t), declared, params, tret);
+    ret = tret[0];
     MethodCtx saved = mc;
     MethodCtx inner = new MethodCtx();
     inner.names = saved.names;
@@ -1175,7 +1626,7 @@ abstract class ExprEmitter extends Base {
     inner.isVoid = ret.getKind() == TypeKind.VOID;
     inner.ret = inner.isVoid ? null : ret;
     mc = inner;
-    StringBuilder sb = new StringBuilder("&" + adapterName(fi) + "{func(");
+    StringBuilder sb = new StringBuilder("&" + (tad != null ? tad : adapterName(fi, ft)) + "{func(");
     StringBuilder entry = new StringBuilder();
     for (int i = 0; i < t.getParameters().size(); i++) {
       VariableTree p = t.getParameters().get(i);
@@ -1221,8 +1672,8 @@ abstract class ExprEmitter extends Base {
     TypeElement fi = Ctx.typeElement(cx.erase(ft));
     ExecutableElement m = fi == null ? null : cx.functionalMethod(fi);
     if (m == null) throw unsupported(t, "method reference target " + ft);
-    List<TypeMirror> params = cx.groupParams(m);
-    TypeMirror ret = cx.groupReturn(m);
+    List<TypeMirror> params = cx.groupParams(m, cx.erase(ft));
+    TypeMirror ret = cx.groupReturn(m, cx.erase(ft));
     // Instantiated parameter types, to coerce from the erased ones.
     List<TypeMirror> inst = new ArrayList<>();
     try {
@@ -1231,6 +1682,9 @@ abstract class ExprEmitter extends Base {
     } catch (RuntimeException ex) {
       inst.addAll(params);
     }
+    TypeMirror[] tret = {ret};
+    String tad = typedAdapter(fi, m, ft, inst, params, tret);
+    ret = tret[0];
     Element el = elemOf(t);
     ExpressionTree q = t.getQualifierExpression();
     Element qe = elemOf(q);
@@ -1257,11 +1711,21 @@ abstract class ExprEmitter extends Base {
         List<TypeMirror> cp = ownParams(ctor);
         String name = cx.ctorName(ctor, "new_");
         if (!cx.isSource(te)) noteMethod("func " + name, ctor, cp, te.asType(), "constructor");
+        TypeMirror made = te.asType();
+        if (cx.typedClasses.contains(te)) {
+          // C::new for a typed class: C at the type arguments the functional method returns
+          TypeMirror want = ((ExecutableType) cx.types.asMemberOf((DeclaredType) ft, m)).getReturnType();
+          if (want.getKind() != TypeKind.DECLARED || !Ctx.typeElement(want).equals(te)) throw unsupported(t, "constructor reference to a typed class at " + want);
+          made = want;
+          cp = new ArrayList<>();
+          for (VariableElement pe : ctor.getParameters()) cp.add(cx.erase(cx.atSite(pe.asType(), te, want)));
+          name += cx.typeArgsOf(want);
+        }
         List<String> pre = new ArrayList<>();
         if (cx.isSource(te) && cx.hasOuter(te)) pre.add(outerFor(te));
         String al = argList(ctor, cp, as);
         if (!al.isEmpty()) pre.add(al);
-        r = new CallResult(name + "(" + String.join(", ", pre) + ")", te.asType());
+        r = new CallResult(name + "(" + String.join(", ", pre) + ")", made);
       }
     } else {
       ExecutableElement e = (ExecutableElement) el;
@@ -1271,6 +1735,9 @@ abstract class ExprEmitter extends Base {
         Arg first = as.remove(0);
         TypeMirror rt = cx.erase(typeOf(q));
         if (rt == null) rt = cx.ownerOf(e).asType();
+        // A typed declaration named raw (DiGraphNode::getPriority): the receiver at its own type arguments.
+        if (rt.getKind() == TypeKind.DECLARED && cx.typedClasses.contains(Ctx.typeElement(rt)) && ((DeclaredType) rt).getTypeArguments().isEmpty()
+            && first.type != null && cx.sub(first.type, rt)) rt = first.type;
         r = special(e, new Recv(first.as(rt), rt), as);
       } else if (q instanceof IdentifierTree id && id.getName().contentEquals("super")) {
         r = call(e, new Recv("this", cc().te.asType()), true, as);
@@ -1284,12 +1751,13 @@ abstract class ExprEmitter extends Base {
         r = special(e, new Recv(rc, typeOf(q)), as);
       }
     }
-    String fn = "&" + adapterName(fi) + "{func(" + sig + ")";
+    String an = tad != null ? tad : adapterName(fi, cx.erase(ft));
+    String fn = "&" + an + "{func(" + sig + ")";
     String gr = cx.goType(ret);
     String body = ret.getKind() == TypeKind.VOID ? r.code : "return " + cx.coerce(r.code, r.type, ret);
     fn += (gr.isEmpty() ? "" : " " + gr) + " { " + body + " }}";
     if (prefix.isEmpty()) return fn;
-    return "func() *" + adapterName(fi) + " { " + prefix + "return " + fn + " }()";
+    return "func() *" + an + " { " + prefix + "return " + fn + " }()";
   }
 
   boolean isTypeTree(Tree q) {
@@ -1317,7 +1785,26 @@ abstract class ExprEmitter extends Base {
           if (from != null && from[1] == slot[1]) return fn + "_copy_(" + from[0] + ")";
           TypeMirror rt = typeOf(a.getExpression());
           if (rt != null && cx.kind(rt) == Ctx.K.STR) return fn + "_sets_(" + expr(a.getExpression()) + ")";
+          if (cx.valCode((VariableElement) slot[1]) && rt != null && rt.getKind() == TypeKind.DOUBLE) return fn + "_setd_(" + expr(a.getExpression()) + ")";
           return fn + "_set_(" + asAny(a.getExpression()) + ")";
+        }
+        Object[] rtf = fieldRead(a.getVariable(), f -> cx.runtimeField(f) != null);
+        if (rtf != null) {
+          VariableElement f = (VariableElement) rtf[1];
+          Object[] from = fieldRead(a.getExpression(), g -> g == f);
+          String fn = rtf[0] + "." + cx.fieldName(f);
+          if (from != null) return fn + "_copy_(" + from[0] + ")";
+          return fn + "_set_(" + exprAs(a.getExpression(), cx.erase(f.asType())) + ")";
+        }
+        Object[] idf = fieldRead(a.getVariable(), f -> cx.strId(f) || cx.handleTable(f) != null);
+        if (idf != null) {
+          // A string id or table handle: a copy from the same field of another object copies the id.
+          VariableElement f = (VariableElement) idf[1];
+          Object[] from = fieldRead(a.getExpression(), g -> g == f);
+          // (the table counts the fields holding a handle).
+          if (from != null && cx.handleTable(f) != null) return "htab_copy_(&" + cx.fieldLoc((String) idf[0], f) + ", " + cx.fieldLoc((String) from[0], f) + ")";
+          if (from != null) return cx.fieldLoc((String) idf[0], f) + " = " + cx.fieldLoc((String) from[0], f);
+          if (cx.handleTable(f) != null) return idf[0] + "." + cx.fieldName(f) + "_set_(" + asAny(a.getExpression()) + ")";
         }
         LValue lv = lvalue(a.getVariable());
         String val = exprAs(a.getExpression(), lv.type);

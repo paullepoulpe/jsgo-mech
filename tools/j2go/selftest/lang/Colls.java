@@ -1,0 +1,1260 @@
+package lang;
+
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.function.Supplier;
+
+/**
+ * Typed collections (j2go rule "typed collections", Colls): fields and locals of type List<X> /
+ * ArrayList<X> that only hold lists made there are typed lists (*TList[X]); every other place
+ * sees the same object through its erased view. Elements that are Strings, classes with
+ * subclasses, interfaces and handles; null lists and null elements; identity, equals, hashCode
+ * and toString across the erased boundary; changes made through the view; the failures.
+ */
+public class Colls {
+  static final StringBuilder out = new StringBuilder();
+
+  static void p(Object s) {
+    out.append(s).append('\n');
+  }
+
+  interface Shape {
+    String name();
+  }
+
+  static class Base implements Shape {
+    final int id;
+
+    Base(int id) {
+      this.id = id;
+    }
+
+    @Override
+    public String name() {
+      return "base" + id;
+    }
+
+    @Override
+    public String toString() {
+      return name();
+    }
+  }
+
+  static class Derived extends Base {
+    Derived(int id) {
+      super(id);
+    }
+
+    @Override
+    public String name() {
+      return "derived" + id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      return o instanceof Derived d && d.id == id;
+    }
+
+    @Override
+    public int hashCode() {
+      return id;
+    }
+  }
+
+  // typed fields
+  private final List<String> names = new ArrayList<>();
+  private List<Base> bases;
+  private static final List<Shape> SHAPES = new ArrayList<>();
+  private ArrayList<String> spare = new ArrayList<>(4);
+  // stays erased: a list of another origin enters it
+  private List<String> mixed = new ArrayList<>();
+
+  static int count(Collection<?> c) {
+    int n = 0;
+    for (Object o : c) {
+      if (o != null) {
+        n++;
+      }
+    }
+    return n;
+  }
+
+  static Object asObject(Object o) {
+    return o;
+  }
+
+  static <T> T same(T t) {
+    return t;
+  }
+
+  static void addTwice(List<String> l, String s) {
+    l.add(s);
+    l.add(0, s);
+  }
+
+  @SuppressWarnings("unchecked")
+  static void addErased(Object l, Object x) {
+    ((List<Object>) l).add(x);
+  }
+
+  List<Base> basesOrNull() {
+    return bases;
+  }
+
+  static String fail(Runnable r) {
+    try {
+      r.run();
+      return "no failure";
+    } catch (RuntimeException e) {
+      return e.getClass().getSimpleName() + (e instanceof IndexOutOfBoundsException ? ": " + e.getMessage() : "");
+    }
+  }
+
+  void fields() {
+    names.add("b");
+    names.add("a");
+    names.add(null);
+    names.add(1, "c");
+    p(names + " " + names.size() + " " + names.isEmpty() + " " + names.get(1) + " " + names.contains("a") + " " + names.contains(null)
+        + " " + names.indexOf("a") + " " + names.indexOf("zz") + " " + names.lastIndexOf(null));
+    p(names.set(0, "B") + " " + names.remove(2) + " " + names.remove("zz") + " " + names.remove("c") + " " + names);
+    addTwice(names, "x");
+    p(names + " " + count(names) + " " + names.hashCode() + " " + names.equals(Collections.singletonList("x")) + " " + (asObject(names) == same(names)));
+    Object o = names;
+    List<String> viaObject = (List<String>) o;
+    viaObject.add("viaObject");
+    p(names.get(names.size() - 1) + " " + (viaObject == names) + " " + o.equals(names) + " " + names.equals(o));
+    p(bases == null);
+    p(basesOrNull() == null);
+    p(fail(() -> bases.size()));
+    p(fail(() -> {
+      for (Base b : bases) {
+        p(b);
+      }
+    }));
+    bases = new ArrayList<>();
+    Derived d = new Derived(7);
+    bases.add(d);
+    bases.add(new Base(1));
+    bases.add(null);
+    Base first = bases.get(0);
+    p(first.name() + " " + (first == d) + " " + (asObject(bases.get(0)) == d) + " " + bases.contains(new Derived(7)) + " " + bases.indexOf(new Derived(8))
+        + " " + bases.contains(null) + " " + bases);
+    addErased(bases, new Derived(9));
+    p(bases.get(3).name() + " " + bases.size() + " " + basesOrNull().get(3).id + " " + (basesOrNull() == bases));
+    p(fail(() -> bases.get(9)));
+    p(fail(() -> bases.get(-1)));
+    p(fail(() -> bases.add(9, null)));
+    p(fail(() -> bases.remove(5)));
+    for (Base b : bases) {
+      p(b == null ? "null" : b.name());
+    }
+    SHAPES.add(d);
+    SHAPES.add(() -> "lambda");
+    StringBuilder sb = new StringBuilder();
+    for (Shape s : SHAPES) {
+      sb.append(s.name()).append(' ');
+    }
+    p(sb);
+    spare.add("s");
+    spare.trimToSize();
+    ArrayList<String> spare2 = spare;
+    spare2.add("t");
+    p(spare + " " + (spare == spare2));
+    mixed.add("m");
+    mixed = Collections.unmodifiableList(mixed);
+    p(mixed);
+  }
+
+  static void locals(boolean flag) {
+    List<String> l = new ArrayList<>();
+    l.add("one");
+    l.add("two");
+    List<String> copy = new ArrayList<>(l);
+    List<String> alias = flag ? l : copy;
+    alias.add("three");
+    copy.add("four");
+    p(l + " " + copy + " " + (alias == l) + " " + (alias == copy) + " " + l.equals(copy));
+    List<String> fromErased = new ArrayList<>(Collections.nCopies(2, "x"));
+    fromErased.addAll(l);
+    fromErased.addAll(Collections.singletonList("z"));
+    p(fromErased + " " + fromErased.containsAll(l) + " " + String.join(",", fromErased));
+    l.add("one!");
+    l.add("two!");
+    p(l);
+    // removal through the iterator of the view
+    for (Iterator<String> it = l.iterator(); it.hasNext(); ) {
+      if (it.next().endsWith("!")) {
+        it.remove();
+      }
+    }
+    p(l);
+    Collections.sort(l);
+    p(l);
+    l.sort((a, b) -> b.compareTo(a));
+    p(l + " " + l.toArray().length + " " + l.toArray(new String[0])[0]);
+    l.clear();
+    p(l + " " + l.isEmpty());
+    List<Base> none = null;
+    p(none == null);
+    p(fail(() -> none.add(null)));
+    // captured by a lambda and by an anonymous class
+    List<Base> captured = new ArrayList<>();
+    Supplier<Integer> size = () -> captured.size();
+    Runnable adder = new Runnable() {
+      @Override
+      public void run() {
+        captured.add(new Base(captured.size()));
+      }
+    };
+    adder.run();
+    adder.run();
+    p(size.get() + " " + captured);
+    // a list of lists holds the erased List: its elements are the views of the typed lists
+    List<List<Base>> nested = new ArrayList<>();
+    nested.add(captured);
+    nested.get(0).add(new Derived(3));
+    p(captured.size() + " " + (nested.get(0) == captured) + " " + nested);
+    List<Integer> ints = new ArrayList<>();
+    ints.add(3);
+    p(ints);
+  }
+
+  // ---- parameters and results: constructors, static and private methods, methods nothing overrides
+  static class Bag {
+    private final List<Base> items;
+    private final ArrayList<String> tags;
+
+    Bag(List<Base> items, ArrayList<String> tags) {
+      this.items = items;
+      this.tags = tags;
+    }
+
+    List<Base> items() {
+      return items;
+    }
+
+    ArrayList<String> tags() {
+      return tags;
+    }
+
+    // overridden below: its signature stays erased
+    List<String> labels() {
+      List<String> l = new ArrayList<>();
+      l.add("bag");
+      return l;
+    }
+
+    private Base last(List<Base> from) {
+      return from.isEmpty() ? null : from.get(from.size() - 1);
+    }
+
+    Base lastItem() {
+      return last(items);
+    }
+  }
+
+  static class LabelledBag extends Bag {
+    LabelledBag() {
+      super(new ArrayList<>(), null);
+    }
+
+    @Override
+    List<String> labels() {
+      return Collections.singletonList("labelled");
+    }
+  }
+
+  static List<Base> make(int n) {
+    List<Base> l = new ArrayList<>(n);
+    for (int i = 0; i < n; i++) {
+      l.add(i % 2 == 0 ? new Base(i) : new Derived(i));
+    }
+    return l;
+  }
+
+  static List<Base> makeOrNull(boolean flag) {
+    if (flag) {
+      return null;
+    }
+    return make(1);
+  }
+
+  static int total(List<Base> l) {
+    int t = 0;
+    for (Base b : l) {
+      t += b.id;
+    }
+    return t;
+  }
+
+  static List<String> upper(List<String> in) {
+    List<String> out = new ArrayList<>();
+    for (String s : in) {
+      out.add(s + s);
+    }
+    return out;
+  }
+
+  static void methods() {
+    List<Base> made = make(4);
+    ArrayList<String> tags = new ArrayList<>();
+    tags.add("t1");
+    Bag bag = new Bag(made, tags);
+    bag.items().add(new Base(10));
+    bag.tags().add("t2");
+    p(made + " " + tags + " " + (bag.items() == made) + " " + (bag.tags() == tags) + " " + total(bag.items()) + " " + bag.lastItem() + " " + bag.labels());
+    Bag labelled = new LabelledBag();
+    p(labelled.labels() + " " + labelled.items() + " " + labelled.lastItem() + " " + (labelled.tags() == null) + " " + count(labelled.items()));
+    p((makeOrNull(true) == null) + " " + makeOrNull(false) + " " + fail(() -> total(makeOrNull(true))));
+    // named by a method reference: called at the erased signature
+    java.util.function.Function<List<String>, List<String>> f = Colls::upper;
+    List<String> words = new ArrayList<>();
+    words.add("a");
+    words.add("b");
+    p(f.apply(words) + " " + upper(words) + " " + upper(Collections.singletonList("z")));
+    Object o = make(2);
+    p(o + " " + (o instanceof List) + " " + ((List<?>) o).size() + " " + o.getClass().getSimpleName().isEmpty());
+  }
+
+  // ---- sets: LinkedHashSets of Strings, of enums, of classes without equals
+  enum Color {
+    RED,
+    GREEN,
+    BLUE
+  }
+
+  static final class Plain {
+    final String name;
+
+    Plain(String name) {
+      this.name = name;
+    }
+
+    @Override
+    public String toString() {
+      return name;
+    }
+  }
+
+  private final Set<String> seen = new LinkedHashSet<>();
+  private final LinkedHashSet<Color> colors = new LinkedHashSet<>();
+  // compared by equals and hashCode: Derived has its own equals
+  private final Set<Base> byEquals = new LinkedHashSet<>();
+
+  static boolean both(Set<String> a, String x, String y) {
+    return a.contains(x) && a.contains(y);
+  }
+
+  static Set<Plain> plains(Plain... ps) {
+    Set<Plain> s = new LinkedHashSet<>();
+    for (Plain p : ps) {
+      s.add(p);
+    }
+    return s;
+  }
+
+  void sets() {
+    p(seen.add("a") + " " + seen.add("b") + " " + seen.add("a") + " " + seen.add(null) + " " + seen.add(null) + " " + seen.size() + " " + seen);
+    p(seen.contains("a") + " " + seen.contains("zz") + " " + seen.contains(null) + " " + both(seen, "a", "b") + " " + count(seen) + " " + seen.isEmpty());
+    Object key = "b";
+    Object other = 42;
+    p(seen.contains(key) + " " + seen.contains(other) + " " + seen.remove(other) + " " + seen.remove(key) + " " + seen.remove("b") + " " + seen.remove(null) + " " + seen);
+    for (int i = 0; i < 40; i++) {
+      seen.add("k" + i);
+    }
+    for (int i = 0; i < 40; i += 2) {
+      seen.remove("k" + i);
+    }
+    seen.add("z");
+    StringBuilder sb = new StringBuilder();
+    for (String s : seen) {
+      sb.append(s).append(' ');
+    }
+    p(sb + " " + seen.size() + " " + seen.contains("k1") + " " + seen.contains("k2"));
+    for (Iterator<String> it = seen.iterator(); it.hasNext(); ) {
+      if (it.next().startsWith("k")) {
+        it.remove();
+      }
+    }
+    Set<String> copy = new LinkedHashSet<>(seen);
+    copy.add("extra");
+    Set<String> fromList = new LinkedHashSet<>(Collections.nCopies(3, "dup"));
+    fromList.addAll(copy);
+    p(seen + " " + copy + " " + fromList + " " + copy.containsAll(seen) + " " + seen.equals(copy) + " " + copy.equals(fromList) + " " + (seen.hashCode() == copy.hashCode()));
+    Object o = seen;
+    Set<String> viaObject = (Set<String>) o;
+    viaObject.add("viaObject");
+    p(seen.contains("viaObject") + " " + (viaObject == seen) + " " + o.equals(seen) + " " + (asObject(seen) == same(seen)) + " " + seen.size());
+    seen.clear();
+    p(seen + " " + seen.isEmpty() + " " + seen.add("again") + " " + seen);
+    colors.add(Color.BLUE);
+    colors.add(Color.RED);
+    colors.add(Color.BLUE);
+    p(colors + " " + colors.contains(Color.RED) + " " + colors.contains(Color.GREEN) + " " + colors.remove(Color.BLUE) + " " + colors);
+    Plain x = new Plain("x");
+    Plain y = new Plain("y");
+    Set<Plain> ps = plains(x, y, x, null);
+    p(ps + " " + ps.size() + " " + ps.contains(x) + " " + ps.contains(new Plain("x")) + " " + ps.contains(null) + " " + ps.remove(y) + " " + ps);
+    Derived d = new Derived(1);
+    byEquals.add(d);
+    byEquals.add(new Derived(1));
+    byEquals.add(new Base(1));
+    p(byEquals.size() + " " + byEquals.contains(new Derived(1)) + " " + byEquals.contains(new Base(1)));
+    Set<String> none = null;
+    p(none == null);
+    p(fail(() -> none.contains("a")));
+    p(fail(() -> {
+      for (String s : none) {
+        p(s);
+      }
+    }));
+    Set<Integer> ints = new LinkedHashSet<>();
+    ints.add(3);
+    ints.add(3);
+    p(ints);
+  }
+
+  // ---- deques: ArrayDeques used as stacks and as queues
+  private final Deque<Base> stack = new ArrayDeque<>();
+  private final Queue<String> queue = new ArrayDeque<>();
+
+  static int drain(Deque<String> d, StringBuilder into) {
+    int n = 0;
+    while (!d.isEmpty()) {
+      into.append(d.pop()).append(' ');
+      n++;
+    }
+    return n;
+  }
+
+  void deques() {
+    p(stack.peek() + " " + stack.poll() + " " + stack.isEmpty() + " " + fail(() -> stack.pop()) + " " + fail(() -> stack.removeFirst()) + " " + fail(() -> stack.getFirst()));
+    Derived d = new Derived(5);
+    stack.push(new Base(1));
+    stack.push(d);
+    stack.addLast(new Base(3));
+    stack.addFirst(new Base(0));
+    p(stack + " " + stack.size() + " " + stack.peek() + " " + stack.peekFirst() + " " + stack.peekLast() + " " + stack.getFirst() + " " + stack.getLast()
+        + " " + stack.contains(new Derived(5)) + " " + count(stack));
+    p(stack.pop() + " " + (stack.pop() == d) + " " + stack.removeLast() + " " + stack.pollFirst() + " " + stack.poll() + " " + stack);
+    queue.add("a");
+    queue.add("b");
+    queue.add("c");
+    p(queue.peek() + " " + queue.remove() + " " + queue.poll() + " " + queue.size() + " " + queue + " " + queue.contains("c") + " " + queue.contains("a"));
+    queue.clear();
+    p(queue.poll() + " " + queue.peek() + " " + queue.isEmpty() + " " + fail(() -> queue.remove()));
+    Deque<String> words = new ArrayDeque<>();
+    words.push("x");
+    words.push("y");
+    words.add("z");
+    Deque<String> copy = new ArrayDeque<>(words);
+    Deque<String> fromList = new ArrayDeque<>(Collections.nCopies(2, "n"));
+    StringBuilder sb = new StringBuilder();
+    for (String w : words) {
+      sb.append(w);
+    }
+    for (Iterator<String> it = words.descendingIterator(); it.hasNext(); ) {
+      sb.append(it.next());
+    }
+    Object o = words;
+    Deque<String> viaObject = (Deque<String>) o;
+    viaObject.push("viaObject");
+    p(sb + " " + words + " " + copy + " " + fromList + " " + (viaObject == words) + " " + words.peek() + " " + (asObject(words) == same(words)));
+    p(drain(copy, sb) + " " + sb + " " + copy.isEmpty() + " " + copy.peekLast());
+    Deque<String> none = null;
+    p(none == null);
+    p(fail(() -> none.push("a")));
+    p(fail(() -> none.peek()));
+  }
+
+  // ---- maps: LinkedHashMaps with keys that are Strings, enums and classes without equals
+  private final Map<String, Base> byName = new LinkedHashMap<>();
+  private final LinkedHashMap<Color, String> byColor = new LinkedHashMap<>();
+  private final Map<String, List<String>> lists = new LinkedHashMap<>();
+  // compared by equals and hashCode: Derived has its own equals
+  private final Map<Base, String> keyedByEquals = new LinkedHashMap<>();
+  // boxed primitives and Object: the boxes, compared as Java compares them
+  private final Map<Integer, String> byNumber = new LinkedHashMap<>();
+  private final Map<String, Integer> counts = new LinkedHashMap<>();
+  private final Set<Character> chars = new LinkedHashSet<>();
+  private final List<Long> longs = new ArrayList<>();
+  private final List<Object> things = new ArrayList<>();
+  private final List<List<String>> nested = new ArrayList<>();
+
+  void boxes() {
+    for (String w : new String[] {"a", "b", "a", "c", "a"}) {
+      Integer n = counts.get(w);
+      counts.put(w, n == null ? 1 : n + 1);
+    }
+    int total = 0;
+    for (int n : counts.values()) {
+      total += n;
+    }
+    for (Map.Entry<String, Integer> e : counts.entrySet()) {
+      e.setValue(e.getValue() * 10);
+    }
+    p(counts + " " + total + " " + counts.get("a") + " " + counts.get("zz") + " " + counts.getOrDefault("zz", -1) + " " + (counts.get("b") + counts.get("c")) + " "
+        + counts.containsValue(10) + " " + counts.containsValue(10L));
+    byNumber.put(1000, "k");
+    byNumber.put(Integer.valueOf(1000), "K");
+    byNumber.put(null, "none");
+    Object asLong = 1000L;
+    p(byNumber + " " + byNumber.get(1000) + " " + byNumber.get(asLong) + " " + byNumber.containsKey(1000) + " " + byNumber.containsKey(7) + " " + byNumber.get(null) + " "
+        + byNumber.remove(1000) + " " + byNumber.size());
+    for (char c : "hello".toCharArray()) {
+      chars.add(c);
+    }
+    Object ch = 'l';
+    Object notCh = "l";
+    p(chars + " " + chars.contains('h') + " " + chars.contains('z') + " " + chars.contains(ch) + " " + chars.contains(notCh) + " " + chars.remove('h') + " " + chars.size());
+    longs.add(5L);
+    longs.add(1L << 40);
+    longs.add(null);
+    long sum = 0;
+    for (Long l : longs) {
+      if (l != null) {
+        sum += l;
+      }
+    }
+    p(longs + " " + sum + " " + longs.get(0) + " " + longs.contains(5L) + " " + longs.contains(5) + " " + longs.indexOf(null) + " " + longs.remove(0) + " " + longs.size()
+        + " " + fail(() -> p(longs.get(1) + 1)));
+    things.add("s");
+    things.add(3);
+    things.add(things.size());
+    things.add(null);
+    things.add(new Base(4));
+    p(things + " " + things.contains(3) + " " + things.indexOf(2) + " " + (things.get(0) instanceof String) + " " + things.get(4));
+    List<String> inner = new ArrayList<>();
+    inner.add("in");
+    nested.add(inner);
+    nested.add(new ArrayList<>());
+    nested.get(1).add("second");
+    inner.add("more");
+    for (List<String> l : nested) {
+      l.add("!");
+    }
+    p(nested + " " + (nested.get(0) == inner) + " " + nested.get(1).size() + " " + nested.contains(inner));
+  }
+
+  static Map<Plain, String> named(Plain... ps) {
+    Map<Plain, String> m = new LinkedHashMap<>();
+    for (Plain p : ps) {
+      m.put(p, p == null ? "none" : p.name);
+    }
+    return m;
+  }
+
+  // stays erased: named by a method reference
+  static Map<String, Base> single() {
+    Map<String, Base> m = new LinkedHashMap<>();
+    m.put("single", new Derived(2));
+    return m;
+  }
+
+  static String describe(Map<String, Base> m) {
+    StringBuilder sb = new StringBuilder();
+    for (String k : m.keySet()) {
+      sb.append(k).append(',');
+    }
+    for (Base b : m.values()) {
+      sb.append(b).append(',');
+    }
+    for (Map.Entry<String, Base> e : m.entrySet()) {
+      sb.append(e.getKey()).append('=').append(e.getValue()).append(';');
+    }
+    return sb.toString();
+  }
+
+  static int entries(Map<?, ?> m) {
+    int n = 0;
+    for (Map.Entry<?, ?> e : m.entrySet()) {
+      if (e.getValue() != null) {
+        n++;
+      }
+    }
+    return n;
+  }
+
+  void maps() {
+    Base one = new Base(1);
+    Derived two = new Derived(2);
+    p(byName.put("one", one) + " " + byName.put("two", two) + " " + byName.put("one", one) + " " + byName.put(null, null) + " " + byName.put("none", null) + " " + byName.size()
+        + " " + byName);
+    p(byName.get("one") + " " + (byName.get("two") == two) + " " + byName.get("zz") + " " + byName.get(null) + " " + byName.containsKey(null) + " " + byName.containsKey("none")
+        + " " + byName.containsKey("zz") + " " + byName.getOrDefault("zz", one) + " " + byName.getOrDefault("none", one) + " " + byName.isEmpty());
+    Object key = "two";
+    Object other = 42;
+    p(byName.get(key) + " " + byName.get(other) + " " + byName.containsKey(key) + " " + byName.containsKey(other) + " " + byName.remove(other) + " " + byName.containsValue(two)
+        + " " + byName.containsValue(null) + " " + byName.containsValue("two"));
+    p(byName.putIfAbsent("none", two) + " " + byName.putIfAbsent("none", one) + " " + byName.putIfAbsent("three", new Base(3)) + " " + byName.putIfAbsent("three", one) + " "
+        + byName.remove(null) + " " + byName.remove(null) + " " + byName.remove("zz") + " " + byName);
+    p(describe(byName) + " " + entries(byName) + " " + count(byName.keySet()) + " " + count(byName.values()));
+    for (Map.Entry<String, Base> e : byName.entrySet()) {
+      if (e.getKey().equals("none")) {
+        p(e.setValue(new Base(9)) + " " + e.getValue() + " " + e);
+      }
+      Object eo = e;
+      if (e.getKey().equals("one")) {
+        p(eo + " " + eo.equals(e) + " " + (eo.hashCode() == (e.getKey().hashCode() ^ e.getValue().hashCode())) + " " + ((Map.Entry<?, ?>) eo).getKey());
+      }
+    }
+    p(byName);
+    for (int i = 0; i < 40; i++) {
+      byName.put("k" + i, new Base(i));
+    }
+    for (int i = 0; i < 40; i += 2) {
+      byName.remove("k" + i);
+    }
+    byName.put("z", null);
+    p(describe(byName) + " " + byName.size() + " " + byName.containsKey("k1") + " " + byName.containsKey("k2") + " " + byName.get("k39"));
+    for (Iterator<Map.Entry<String, Base>> it = byName.entrySet().iterator(); it.hasNext(); ) {
+      if (it.next().getKey().startsWith("k")) {
+        it.remove();
+      }
+    }
+    p(byName.keySet().remove("z") + " " + byName.keySet().remove("z") + " " + byName.values().remove(one) + " " + byName.keySet().contains("two") + " " + byName.keySet()
+        + " " + byName.values() + " " + byName.entrySet());
+    Map<String, Base> copy = new LinkedHashMap<>(byName);
+    copy.put("extra", one);
+    Supplier<Map<String, Base>> erased = Colls::single;
+    Map<String, Base> fromErased = new LinkedHashMap<>(erased.get());
+    fromErased.putAll(copy);
+    p(byName + " " + copy + " " + fromErased + " " + byName.equals(copy) + " " + copy.keySet().containsAll(byName.keySet()) + " " + (byName.hashCode() == copy.hashCode()));
+    copy.remove("extra");
+    p(byName.equals(copy) + " " + copy.equals(byName) + " " + (byName.hashCode() == copy.hashCode()) + " " + byName.keySet().equals(copy.keySet()));
+    Object o = byName;
+    Map<String, Base> viaObject = (Map<String, Base>) o;
+    viaObject.put("viaObject", one);
+    p(byName.containsKey("viaObject") + " " + (viaObject == byName) + " " + o.equals(byName) + " " + (asObject(byName) == same(byName)) + " " + byName.size() + " "
+        + asObject(byName).getClass().getName());
+    p(byName.computeIfAbsent("computed", k -> new Base(k.length())) + " " + byName.computeIfAbsent("computed", k -> one) + " " + byName.get("computed"));
+    byName.clear();
+    p(byName + " " + byName.isEmpty() + " " + byName.put("again", one) + " " + byName);
+    byColor.put(Color.BLUE, "blue");
+    byColor.put(Color.RED, "red");
+    byColor.put(Color.BLUE, "navy");
+    p(byColor + " " + byColor.get(Color.RED) + " " + byColor.get(Color.GREEN) + " " + byColor.containsKey(Color.BLUE) + " " + byColor.remove(Color.BLUE) + " " + byColor);
+    for (Map.Entry<Color, String> e : byColor.entrySet()) {
+      p(e.getKey().ordinal() + e.getValue());
+    }
+    lists.computeIfAbsent("a", k -> new ArrayList<>()).add("x");
+    lists.computeIfAbsent("a", k -> new ArrayList<>()).add("y");
+    List<String> made = new ArrayList<>();
+    made.add("m");
+    lists.put("b", made);
+    made.add("n");
+    p(lists + " " + lists.get("a").size() + " " + (lists.get("b") == made) + " " + lists.get("c"));
+    for (List<String> l : lists.values()) {
+      l.add("!");
+    }
+    p(lists + " " + made);
+    Plain x = new Plain("x");
+    Plain y = new Plain("y");
+    Map<Plain, String> ps = named(x, y, x, null);
+    p(ps + " " + ps.size() + " " + ps.get(x) + " " + ps.get(new Plain("x")) + " " + ps.get(null) + " " + ps.remove(y) + " " + ps);
+    Derived d = new Derived(1);
+    keyedByEquals.put(d, "d");
+    keyedByEquals.put(new Derived(1), "d2");
+    keyedByEquals.put(new Base(1), "b");
+    p(keyedByEquals.size() + " " + keyedByEquals.get(new Derived(1)) + " " + keyedByEquals.get(new Base(1)));
+    byNumber.put(3, "three");
+    byNumber.put(3, "drei");
+    p(byNumber + " " + byNumber.get(3));
+    Map<String, String> strings = new LinkedHashMap<>();
+    p(strings.put("a", "1") + " " + strings.put("a", "2") + " " + strings.get("a") + " " + strings.get("b") + " " + strings.getOrDefault("b", "dflt") + " " + strings.remove("b")
+        + " " + strings.remove("a") + " " + strings);
+    Map<String, Base> none = null;
+    p(none == null);
+    p(fail(() -> none.get("a")));
+    p(fail(() -> none.put("a", null)));
+    p(fail(() -> {
+      for (String s : none.keySet()) {
+        p(s);
+      }
+    }));
+    p(fail(() -> {
+      for (Map.Entry<String, Base> e : none.entrySet()) {
+        p(e);
+      }
+    }));
+  }
+
+  // ---- sets and maps compared by equals and hashCode: a class with its own equals, an interface
+  static final class Pair {
+    final int a;
+    final int b;
+
+    Pair(int a, int b) {
+      this.a = a;
+      this.b = b;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      return o instanceof Pair p && p.a == a && p.b == b;
+    }
+
+    @Override
+    public int hashCode() {
+      return a;  // many pairs share a hash code
+    }
+
+    @Override
+    public String toString() {
+      return a + ":" + b;
+    }
+  }
+
+  private final Set<Pair> pairs = new LinkedHashSet<>();
+  private final Map<Pair, String> pairNames = new LinkedHashMap<>();
+  private final Set<Shape> shapes = new LinkedHashSet<>();
+  private final Map<Shape, Integer> shapeIds = new LinkedHashMap<>();
+
+  void byEquals() {
+    for (int i = 0; i < 30; i++) {
+      p2(pairs.add(new Pair(i % 3, i % 10)));
+      pairNames.put(new Pair(i % 3, i % 10), "n" + i);
+    }
+    p(sb2 + " " + pairs.size() + " " + pairs + " " + pairNames);
+    sb2.setLength(0);
+    Pair probe = new Pair(1, 4);
+    Object probeObject = new Pair(2, 5);
+    p(pairs.contains(probe) + " " + pairs.contains(new Pair(1, 5)) + " " + pairs.contains(null) + " " + pairs.contains(probeObject) + " " + pairs.contains("1:4") + " "
+        + pairNames.get(probe) + " " + pairNames.get(new Pair(4, 1)) + " " + pairNames.get(probeObject) + " " + pairNames.containsKey(new Pair(0, 0)));
+    for (int i = 0; i < 30; i += 2) {
+      p2(pairs.remove(new Pair(i % 3, i % 10)));
+      p2(pairNames.remove(new Pair(i % 3, i % 10)));
+    }
+    pairs.add(null);
+    pairs.add(null);
+    pairs.add(new Pair(7, 7));
+    pairNames.put(null, "null");
+    pairNames.put(new Pair(7, 7), "seven");
+    p(sb2 + " " + pairs.size() + " " + pairs + " " + pairNames + " " + pairNames.get(null) + " " + pairs.contains(new Pair(7, 7)) + " " + pairs.contains(new Pair(0, 0)));
+    for (Iterator<Pair> it = pairs.iterator(); it.hasNext(); ) {
+      Pair q = it.next();
+      if (q != null && q.a == 1) {
+        it.remove();
+      }
+    }
+    for (int i = 0; i < 20; i++) {
+      pairs.add(new Pair(1, i));
+    }
+    Set<Pair> copy = new LinkedHashSet<>(pairs);
+    p(pairs + " " + copy.equals(pairs) + " " + (copy.hashCode() == pairs.hashCode()) + " " + copy.contains(new Pair(1, 19)) + " " + copy.remove(new Pair(1, 19)) + " "
+        + copy.equals(pairs));
+    pairs.clear();
+    p(pairs.add(probe) + " " + pairs.add(new Pair(1, 4)) + " " + pairs);
+    Base b1 = new Base(1);
+    shapes.add(b1);
+    shapes.add(new Base(1));
+    shapes.add(new Derived(1));
+    shapes.add(new Derived(1));
+    shapes.add(b1);
+    shapeIds.put(b1, 1);
+    shapeIds.put(new Derived(2), 2);
+    shapeIds.put(new Derived(2), 3);
+    shapeIds.put(new Base(2), 4);
+    p(shapes + " " + shapes.contains(new Derived(1)) + " " + shapes.contains(new Base(1)) + " " + shapes.contains(b1) + " " + shapeIds.size() + " " + shapeIds.get(new Derived(2))
+        + " " + shapeIds.get(new Base(2)) + " " + shapeIds.get(b1));
+  }
+
+  static final StringBuilder sb2 = new StringBuilder();
+
+  static void p2(Object o) {
+    sb2.append(o == null ? "-" : o instanceof Boolean ? ((Boolean) o ? "t" : "f") : o.toString());
+  }
+
+  // ---- elements of a type variable and of a generic class of the program
+  static final class Cell<T> {
+    final T value;
+    final int n;
+
+    Cell(T value, int n) {
+      this.value = value;
+      this.n = n;
+    }
+
+    @Override
+    public String toString() {
+      return value + "#" + n;
+    }
+  }
+
+  static class Stack<T> {
+    private final List<T> items = new ArrayList<>();
+    private final Deque<T> pending = new ArrayDeque<>();
+    private final Map<String, T> named = new LinkedHashMap<>();
+    private final List<Cell<T>> cells = new ArrayList<>();
+    private final Set<Cell<T>> seenCells = new LinkedHashSet<>();
+    // read at another instantiation (Stack<String>.shared below): stays erased
+    final List<T> shared = new ArrayList<>();
+
+    void push(T t) {
+      items.add(t);
+      if (t != null) {
+        pending.addLast(t);
+      }
+      named.put("n" + items.size(), t);
+      Cell<T> c = new Cell<>(t, items.size());
+      cells.add(c);
+      seenCells.add(c);
+      seenCells.add(c);
+      shared.add(t);
+    }
+
+    T top() {
+      return items.isEmpty() ? null : items.get(items.size() - 1);
+    }
+
+    T pop() {
+      T t = items.remove(items.size() - 1);
+      cells.remove(cells.size() - 1);
+      return t;
+    }
+
+    private List<T> reversed() {
+      List<T> r = new ArrayList<>();
+      for (int i = items.size() - 1; i >= 0; i--) {
+        r.add(items.get(i));
+      }
+      return r;
+    }
+
+    private static int count(List<String> l) {
+      return l.size();
+    }
+
+    String show() {
+      StringBuilder sb = new StringBuilder();
+      for (T t : reversed()) {
+        sb.append(t).append(t == null ? "!" : "").append(',');
+      }
+      for (Cell<T> c : cells) {
+        sb.append(c.n).append(seenCells.contains(c) ? "+" : "-");
+      }
+      T first = pending.peekFirst();
+      Object o = items;
+      Collection<T> coll = pending;
+      return sb + " " + items + " " + pending + " " + named + " " + cells + " " + first + " " + named.get("n2") + " " + named.get("x") + " " + items.contains(first) + " "
+          + items.indexOf(top()) + " " + o.equals(reversed()) + " " + coll.size() + " " + (o == items) + " " + seenCells.size();
+    }
+
+    List<T> copy() {
+      return new ArrayList<>(items);
+    }
+  }
+
+  static final class Words extends Stack<String> {
+    String joined() {
+      // the superclass's result at this class's instantiation
+      List<String> c = copy();
+      c.add("end");
+      return String.join("|", c) + " " + shared.size();
+    }
+  }
+
+  static String generic() {
+    Stack<String> s = new Stack<>();
+    s.push("a");
+    s.push(null);
+    s.push("c");
+    String r = s.show() + " " + s.pop() + " " + s.top() + " " + s.show();
+    List<String> sh = s.shared;
+    sh.add("z");
+    r += " " + sh + " " + s.shared.size();
+    Stack<Base> b = new Stack<>();
+    b.push(new Derived(1));
+    b.push(new Base(2));
+    Base top = b.top();
+    r += "\n" + b.show() + " " + top.name() + " " + b.copy();
+    Stack<Integer> n = new Stack<>();
+    n.push(3);
+    n.push(4);
+    int sum = n.pop() + n.top();
+    r += "\n" + n.show() + " " + sum;
+    // a typed list as the result of a lambda: the view where the interface returns a List or a T
+    List<String> made = new ArrayList<>();
+    made.add("m");
+    Supplier<List<String>> sup = () -> made;
+    Supplier<Object> osup = () -> {
+      made.add("n");
+      return made;
+    };
+    r += "\n" + (sup.get() == made) + " " + osup.get() + " " + sup.get().size() + " " + (osup.get() == sup.get());
+    // Collections.unmodifiableList of a typed list enters a typed declaration
+    List<String> un = Collections.unmodifiableList(made);
+    Map<String, Base> unm = Collections.unmodifiableMap(new LinkedHashMap<>());
+    made.add("o");
+    r += " " + un.size() + un.get(2) + un + unm.size() + unm.get("q");
+    Words w = new Words();
+    w.push("x");
+    w.push("y");
+    r += "\n" + w.joined() + " " + w.show();
+    return r;
+  }
+
+  // ---- parameters and results of methods in groups of overriding methods
+  interface Source {
+    List<String> names();
+
+    void fill(List<String> into, Set<Base> seen);
+
+    default List<String> twice() {
+      List<String> r = new ArrayList<>(names());
+      r.addAll(names());
+      return r;
+    }
+  }
+
+  abstract static class AbstractSource implements Source {
+    protected final List<String> mine = new ArrayList<>();
+
+    @Override
+    public List<String> names() {
+      return mine;
+    }
+
+    abstract Map<String, Base> index(List<Base> from);
+  }
+
+  static class FixedSource extends AbstractSource {
+    FixedSource(String... xs) {
+      for (String x : xs) {
+        mine.add(x);
+      }
+    }
+
+    @Override
+    public void fill(List<String> into, Set<Base> seen) {
+      into.addAll(mine);
+      seen.add(new Base(mine.size()));
+    }
+
+    @Override
+    Map<String, Base> index(List<Base> from) {
+      Map<String, Base> m = new LinkedHashMap<>();
+      for (Base b : from) {
+        m.put(b.name(), b);
+      }
+      return m;
+    }
+  }
+
+  static class UpperSource extends FixedSource {
+    UpperSource(String x) {
+      super(x);
+    }
+
+    @Override
+    public List<String> names() {
+      List<String> r = new ArrayList<>();
+      for (String n : super.names()) {
+        r.add(n + "!");
+      }
+      return r;
+    }
+
+    @Override
+    public void fill(List<String> into, Set<Base> seen) {
+      super.fill(into, seen);
+      into.add(null);
+    }
+  }
+
+  // implemented by a class that inherits the method from a class that does not know the interface
+  interface Sized {
+    Set<String> keys();
+  }
+
+  static class KeyHolder {
+    public Set<String> keys() {
+      Set<String> k = new LinkedHashSet<>();
+      k.add("k1");
+      return k;
+    }
+  }
+
+  static class SizedHolder extends KeyHolder implements Sized {}
+
+  // implemented by a lambda: the group keeps the erased signature
+  interface Lister {
+    List<String> list(List<String> from);
+  }
+
+  // `? extends X`: the typed collection of X
+  private static String wild(List<? extends Base> in, Set<? extends Shape> shapes) {
+    List<? extends Base> local = in;
+    StringBuilder sb = new StringBuilder();
+    for (Base b : local) {
+      sb.append(b == null ? "null" : b.name()).append(',');
+    }
+    Base first = local.isEmpty() ? null : local.get(0);
+    local.add(null);
+    for (Shape s : shapes) {
+      sb.append(s.name()).append(';');
+    }
+    return sb + " " + first + " " + in.size() + " " + shapes.contains(first) + " " + local.contains(null);
+  }
+
+  static String groups() {
+    Source[] sources = {new FixedSource("a", "b"), new UpperSource("c"), new Source() {
+      @Override
+      public List<String> names() {
+        List<String> l = new ArrayList<>();
+        l.add("anon");
+        return l;
+      }
+
+      @Override
+      public void fill(List<String> into, Set<Base> seen) {
+        into.add("filled");
+        seen.clear();
+      }
+    }};
+    StringBuilder sb = new StringBuilder();
+    List<String> all = new ArrayList<>();
+    Set<Base> seen = new LinkedHashSet<>();
+    for (Source s : sources) {
+      List<String> n = s.names();
+      n.add("+");
+      s.fill(all, seen);
+      sb.append(n).append(s.names().size()).append(s.twice()).append(seen).append(' ');
+    }
+    AbstractSource as = new FixedSource("q");
+    List<Base> bases = new ArrayList<>();
+    bases.add(new Derived(4));
+    bases.add(new Base(5));
+    Map<String, Base> idx = as.index(bases);
+    Sized sized = new SizedHolder();
+    Set<String> keys = sized.keys();
+    keys.add("k2");
+    Lister rev = from -> {
+      List<String> r = new ArrayList<>();
+      for (int i = from.size() - 1; i >= 0; i--) {
+        r.add(from.get(i));
+      }
+      return r;
+    };
+    Lister same = from -> from;
+    List<String> reversed = rev.list(all);
+    Set<Shape> shapeSet = new LinkedHashSet<>();
+    shapeSet.add(bases.get(0));
+    sb.append(wild(bases, shapeSet)).append(' ').append(wild(new ArrayList<>(), shapeSet)).append(bases.size()).append(' ');
+    return sb + " " + all + " " + idx + " " + idx.get("base5").id + " " + keys + new SizedHolder().keys().size() + " " + reversed + " " + (same.list(all) == all) + " "
+        + reversed.size();
+  }
+
+  public static String run() {
+    new Colls().fields();
+    locals(true);
+    locals(false);
+    methods();
+    new Colls().sets();
+    new Colls().deques();
+    new Colls().maps();
+    new Colls().boxes();
+    new Colls().byEquals();
+    p(generic());
+    p(groups());
+    p(typeVariableKeys());
+    new Colls().sorted(true);
+    new Colls().sorted(false);
+    return out.toString();
+  }
+
+  // ---- sets and maps of a type variable: compared with == or by equals, as the instantiation is
+
+  static final class Graph<N> {
+    private final Map<N, List<N>> edges = new LinkedHashMap<>();
+    private final Set<N> marked = new LinkedHashSet<>();
+    private final Map<N, Integer> rank = new LinkedHashMap<>();
+
+    void connect(N from, N to) {
+      List<N> out = edges.get(from);
+      if (out == null) {
+        out = new ArrayList<>();
+        edges.put(from, out);
+      }
+      out.add(to);
+      rank.put(to, rank.getOrDefault(to, 0) + 1);
+    }
+
+    boolean mark(N n) {
+      return marked.add(n);
+    }
+
+    boolean isMarked(N n) {
+      return marked.contains(n);
+    }
+
+    Set<N> reachable(N start) {
+      Set<N> seen = new LinkedHashSet<>();
+      Deque<N> work = new ArrayDeque<>();
+      work.add(start);
+      while (!work.isEmpty()) {
+        N n = work.poll();
+        if (!seen.add(n)) continue;
+        List<N> out = edges.get(n);
+        if (out != null) {
+          for (N m : out) work.add(m);
+        }
+      }
+      return seen;
+    }
+
+    String show() {
+      StringBuilder sb = new StringBuilder();
+      for (Map.Entry<N, List<N>> e : edges.entrySet()) sb.append(e.getKey()).append("->").append(e.getValue()).append(' ');
+      for (N n : marked) sb.append(n).append(',');
+      return sb + " " + rank + " " + edges.containsKey(null) + " " + marked.size();
+    }
+  }
+
+  static String typeVariableKeys() {
+    Graph<String> gs = new Graph<>();
+    gs.connect("a", "b");
+    gs.connect("b", "c");
+    gs.connect("a", "c");
+    gs.connect("c", "a");
+    gs.connect("x", new String(new char[] {'a'}));
+    String r = gs.show() + " " + gs.reachable("x") + " " + gs.mark("a") + gs.mark("a") + gs.isMarked("a") + gs.isMarked("q") + gs.mark(null) + gs.isMarked(null);
+    // a class compared by identity
+    Graph<Base> gb = new Graph<>();
+    Base b1 = new Base(1);
+    Base b2 = new Derived(2);
+    gb.connect(b1, b2);
+    gb.connect(b2, b1);
+    gb.connect(b2, new Base(1));
+    r += "\n" + gb.show() + " " + gb.reachable(b1) + " " + gb.mark(b1) + gb.mark(b1) + gb.mark(new Base(1)) + gb.isMarked(b2);
+    // a class compared by equals (many share a hash code)
+    Graph<Pair> gp = new Graph<>();
+    for (int i = 0; i < 12; i++) gp.connect(new Pair(i % 3, i), new Pair(i % 3, (i + 1) % 12));
+    gp.connect(new Pair(0, 0), new Pair(7, 7));
+    r += "\n" + gp.show() + " " + gp.reachable(new Pair(0, 0)) + " " + gp.mark(new Pair(1, 1)) + gp.mark(new Pair(1, 1)) + gp.isMarked(new Pair(1, 1)) + gp.isMarked(new Pair(1, 2));
+    // an interface, boxes
+    Graph<Shape> gi = new Graph<>();
+    gi.connect(b1, b2);
+    gi.connect(b2, b1);
+    Graph<Integer> gn = new Graph<>();
+    for (int i = 0; i < 20; i++) gn.connect(i % 5, 1000 + i % 7);
+    r += "\n" + gi.show() + " " + gi.reachable(b2) + " " + gn.show() + " " + gn.reachable(3) + " " + gn.mark(1000) + gn.mark(1000) + gn.isMarked(1000) + gn.isMarked(7);
+    return r;
+  }
+
+  // ---- sorted sets and maps (TreeSet, TreeMap): the typed set and map in their sorted mode
+
+  static final Comparator<Base> BY_ID_DESC = (x, y) -> y.id - x.id;
+
+  Set<String> sortedWords = new TreeSet<>();
+  final TreeSet<Base> ranked = new TreeSet<>(BY_ID_DESC);
+  Map<String, Integer> tally = new TreeMap<>();
+
+  static Set<String> pick(boolean sorted) {
+    Set<String> s = sorted ? new TreeSet<>() : new LinkedHashSet<>();
+    s.add("pear");
+    s.add("apple");
+    s.add("fig");
+    s.add("apple");
+    return s;
+  }
+
+  static String join(SortedSet<String> s) {
+    StringBuilder sb = new StringBuilder();
+    for (String x : s) sb.append(x).append('|');
+    return sb.toString();
+  }
+
+  void sorted(boolean flag) {
+    for (String w : new String[] {"delta", "alpha", "charlie", "bravo", "alpha"}) sortedWords.add(w);
+    p("words " + sortedWords + " " + sortedWords.size() + " " + sortedWords.contains("bravo") + " " + sortedWords.contains("zulu") + " " + sortedWords.remove("charlie") + " " + sortedWords.remove("charlie") + " " + sortedWords);
+    sortedWords.add("charlie");
+    sortedWords.add("aardvark");
+    StringBuilder sb = new StringBuilder();
+    for (String w : sortedWords) sb.append(w.charAt(0));
+    Object ow = sortedWords;
+    p(sb + " " + ow + " " + ((Set<?>) ow).contains("delta") + " " + (ow == sortedWords) + " " + ow.equals(new LinkedHashSet<>(sortedWords)) + " " + (ow.hashCode() == new LinkedHashSet<>(sortedWords).hashCode()));
+    Set<String> e = pick(flag);
+    p("pick " + e + " " + e.contains("fig") + " " + e.size());
+
+    // many elements, removals, and elements added again
+    Set<String> many = new TreeSet<>();
+    for (int i = 0; i < 40; i++) many.add("k" + (i * 7 % 40 < 10 ? "0" : "") + (i * 7 % 40));
+    for (int i = 0; i < 40; i += 2) many.remove("k" + (i < 10 ? "0" : "") + i);
+    for (int i = 0; i < 40; i += 8) many.add("k" + (i < 10 ? "0" : "") + i);
+    Iterator<String> it = many.iterator();
+    while (it.hasNext()) {
+      if (it.next().endsWith("3")) it.remove();
+    }
+    p("many " + many.size() + " " + many + " " + many.contains("k08") + " " + many.contains("k10") + " " + many.contains("k13"));
+    many.clear();
+    many.add("z");
+    many.add("y");
+    p("cleared " + many);
+
+    // a comparator, tailSet, descendingSet
+    for (int id : new int[] {5, 9, 2, 7, 9}) ranked.add(id == 7 ? new Derived(id) : new Base(id));
+    Base seven = null;
+    for (Base b : ranked) {
+      if (b.id == 7) seven = b;
+    }
+    p("ranked " + ranked + " " + ranked.size() + " " + ranked.contains(new Base(2)) + " " + ranked.tailSet(seven, true) + " " + ranked.tailSet(seven, false) + " " + ranked.descendingSet() + " " + ranked.remove(new Base(9)) + " " + ranked);
+    SortedSet<String> copy = new TreeSet<>(sortedWords);
+    copy.add("m");
+    List<String> src = new ArrayList<>();
+    src.add("q");
+    src.add("c");
+    SortedSet<String> fromList = new TreeSet<>(src);
+    p(join(copy) + " " + join(fromList) + " " + sortedWords.size());
+
+    // maps
+    tally.put("pear", 3);
+    tally.put("apple", 1);
+    tally.put("fig", 2);
+    tally.put("apple", tally.get("apple") + 10);
+    sb = new StringBuilder();
+    for (Map.Entry<String, Integer> en : tally.entrySet()) sb.append(en.getKey()).append('=').append(en.getValue()).append(' ');
+    for (String k : tally.keySet()) sb.append(k.charAt(0));
+    for (int v : tally.values()) sb.append(v);
+    Object oc = tally;
+    p("tally " + tally + " " + sb + " " + tally.containsKey("fig") + " " + tally.get("kiwi") + " " + tally.remove("fig") + " " + tally.size() + " " + oc + " " + ((Map<?, ?>) oc).get("pear") + " " + oc.equals(new LinkedHashMap<>(tally)));
+    tally.put("fig", 20);
+    tally.putIfAbsent("date", 4);
+    tally.computeIfAbsent("cherry", k -> k.length());
+    Map<String, Integer> either = flag ? new TreeMap<>() : new LinkedHashMap<>();
+    either.put("b", 2);
+    either.put("a", 1);
+    SortedMap<Base, String> byBase = new TreeMap<>(BY_ID_DESC);
+    byBase.put(new Base(1), "one");
+    byBase.put(new Base(3), "three");
+    byBase.put(new Base(2), "two");
+    byBase.put(new Base(3), "THREE");
+    Map<String, Integer> sortedCopy = new TreeMap<>(either);
+    sortedCopy.put("0", 0);
+    p(tally + " " + either + " " + byBase + " " + byBase.get(new Base(2)) + " " + sortedCopy + " " + sortedCopy.keySet());
+    for (int i = 0; i < 30; i++) tally.put("n" + (i * 11 % 30), i);
+    for (int i = 0; i < 30; i += 3) tally.remove("n" + i);
+    tally.put("n3", -3);
+    p(tally.size() + " " + tally);
+  }
+
+  public static void main(String[] args) {
+    System.out.print(run());
+  }
+}

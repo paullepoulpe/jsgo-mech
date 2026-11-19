@@ -23,8 +23,8 @@ const (
 
 // Json_parse parses a text that is one JSON value. A number keeps its source text; a member
 // whose name is repeated replaces the earlier one, at the earlier one's position.
-func Json_parse(text string) *Outcome_base {
-	malformed := Outcome_base_err(new_SimpleJsonException("Malformed JSON").as_Throwable())
+func Json_parse(text string) *Outcome_base[*SimpleJsonValue] {
+	malformed := Outcome_base_err[*SimpleJsonValue](new_SimpleJsonException("Malformed JSON").as_Throwable())
 	doc := []byte(text)
 	if bytes.IndexByte(doc, 0xED) >= 0 {
 		// A surrogate that the string holds on its own (three bytes, see rt_string.go) is written
@@ -50,7 +50,7 @@ func Json_parse(text string) *Outcome_base {
 	if value == nil {
 		return malformed
 	}
-	return Outcome_base_ok_Object(any(value))
+	return Outcome_base_ok_Object(value)
 }
 
 // readJson_ reads the next value of a valid document, which is inside depth arrays or objects;
@@ -77,9 +77,9 @@ func readJson_(decoder *json.Decoder, depth int) *SimpleJsonValue {
 				return nil
 			}
 			if t == '{' {
-				value.members().put(any(name), any(item))
+				erasedMap_(value.members()).put(any(name), any(item))
 			} else {
-				value.elements().add(any(item))
+				asList_(value.elements()).add(any(item))
 			}
 		}
 		decoder.Token() // the closing bracket
