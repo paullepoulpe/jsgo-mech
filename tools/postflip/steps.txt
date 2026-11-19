@@ -493,3 +493,5 @@ ef603915 patch 345-ef603915-rt.patch
 b1129850 patch 346-b1129850-rt.patch
 # 348. postflip (runtime): subList of a typed list's erased view boxes its range, not the whole list
 b0699ec8 patch 348-b0699ec8-rt.patch
+# 352. postflip (runtime): a protobuf builder's build() gives the message the builder's storage
+2df6c21b patch 352-2df6c21b-rt.patch
