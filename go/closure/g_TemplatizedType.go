@@ -62,7 +62,7 @@ func (this *TemplatizedType) getTypeClass_impl() JSTypeClass {
 func (this *TemplatizedType) getCtorImplementedInterfaces_impl() IterableOf[*ObjectType] {
 	var resolvedImplementedInterfaces *TSet[*ObjectType] = newTSet_(tch_p_ObjectType)
 	for obj := range elemsBy_(this.getReferencedObjTypeInternal().getCtorImplementedInterfaces(), to_ObjectType) {
-		resolvedImplementedInterfaces.Add(obj.visit(icast_Visitor(obj_(this.replacer))).(JSType_as).as_JSType().toObjectType())
+		resolvedImplementedInterfaces.Add(Preconditions_checkNotNullT(JSType_visit(obj.up_JSType(), icast_Visitor[*JSType](obj_(this.replacer)))).toObjectType())
 	}
 	return Iterable(resolvedImplementedInterfaces.asSet())
 }
@@ -70,7 +70,7 @@ func (this *TemplatizedType) getCtorImplementedInterfaces_impl() IterableOf[*Obj
 func (this *TemplatizedType) getCtorExtendedInterfaces_impl() IterableOf[*ObjectType] {
 	var resolvedExtendedInterfaces *TSet[*ObjectType] = newTSet_(tch_p_ObjectType)
 	for obj := range elemsBy_(this.getReferencedObjTypeInternal().getCtorExtendedInterfaces(), to_ObjectType) {
-		resolvedExtendedInterfaces.Add(obj.visit(icast_Visitor(obj_(this.replacer))).(JSType_as).as_JSType().toObjectType())
+		resolvedExtendedInterfaces.Add(Preconditions_checkNotNullT(JSType_visit(obj.up_JSType(), icast_Visitor[*JSType](obj_(this.replacer)))).toObjectType())
 	}
 	return Iterable(resolvedExtendedInterfaces.asSet())
 }
@@ -90,14 +90,6 @@ func (this *TemplatizedType) recursionUnsafeHashCode_impl() int32 {
 	return hashOf_(tlistHash_(this.templateTypes, true), int32(baseHash))
 }
 
-func (this *TemplatizedType) visitUntyped_impl(visitor Visitor) any {
-	return visitor.caseTemplatizedType(this)
-}
-
-func (this *TemplatizedType) visitUntyped_2_impl(visitor RelationshipVisitor, that *JSType) any {
-	return visitor.caseTemplatizedType(this, that)
-}
-
 func (this *TemplatizedType) toMaybeTemplatizedType_impl() *TemplatizedType {
 	return this
 }
@@ -112,7 +104,7 @@ func (this *TemplatizedType) getPropertyTypeKey_impl(propertyName Property_Key) 
 		if result == nil {
 			return nil
 		}
-		return to_JSType(result.visit(icast_Visitor(obj_(this.replacer))))
+		return JSType_visit(result, icast_Visitor[*JSType](obj_(this.replacer)))
 	}()
 }
 
@@ -227,22 +219,6 @@ func (this *TemplatizedType) recursionUnsafeHashCode() int32 {
 		return this.recursionUnsafeHashCode_impl()
 	}
 	return this.self_.recursionUnsafeHashCode_impl()
-}
-
-// visitUntyped: an object that is exactly a TemplatizedType calls its visitUntyped_impl directly (post-flip); others dispatch.
-func (this *TemplatizedType) visitUntyped(p0 Visitor) any {
-	if p, _ := this.self_.(*TemplatizedType); p == this {
-		return this.visitUntyped_impl(p0)
-	}
-	return this.self_.visitUntyped_impl(p0)
-}
-
-// visitUntyped_2: an object that is exactly a TemplatizedType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
-func (this *TemplatizedType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
-	if p, _ := this.self_.(*TemplatizedType); p == this {
-		return this.visitUntyped_2_impl(p0, p1)
-	}
-	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
 // toMaybeTemplatizedType: an object that is exactly a TemplatizedType calls its toMaybeTemplatizedType_impl directly (post-flip); others dispatch.

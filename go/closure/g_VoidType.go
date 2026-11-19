@@ -85,10 +85,6 @@ func (this *VoidType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_FALSE
 }
 
-func (this *VoidType) visitUntyped_impl(visitor Visitor) any {
-	return visitor.caseVoidType()
-}
-
 // getTypeClass: an object that is exactly a VoidType calls its getTypeClass_impl directly (post-flip); others dispatch.
 func (this *VoidType) getTypeClass() JSTypeClass {
 	if p, _ := this.self_.(*VoidType); p == this {
@@ -183,12 +179,4 @@ func (this *VoidType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}
 	return this.self_.getPossibleToBooleanOutcomes_impl()
-}
-
-// visitUntyped: an object that is exactly a VoidType calls its visitUntyped_impl directly (post-flip); others dispatch.
-func (this *VoidType) visitUntyped(p0 Visitor) any {
-	if p, _ := this.self_.(*VoidType); p == this {
-		return this.visitUntyped_impl(p0)
-	}
-	return this.self_.visitUntyped_impl(p0)
 }

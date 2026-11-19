@@ -112,14 +112,6 @@ func (this *TemplateType) hasAnyTemplateTypesInternal_impl() bool {
 	return true
 }
 
-func (this *TemplateType) visitUntyped_impl(visitor Visitor) any {
-	return visitor.caseTemplateType(this)
-}
-
-func (this *TemplateType) visitUntyped_2_impl(visitor RelationshipVisitor, that *JSType) any {
-	return visitor.caseTemplateType(this, that)
-}
-
 func (this *TemplateType) isTypeTransformation() bool {
 	return (this.typeTransformation != 0)
 }
@@ -143,7 +135,7 @@ func (this *TemplateType) setValidator_impl(validator Predicate_baseOf[*JSType])
 
 func (this *TemplateType) containsCycle() bool {
 	var typeVisitor *ContainsUpperBoundSuperTypeVisitor = new_ContainsUpperBoundSuperTypeVisitor(nil)
-	return (cast_[ContainsUpperBoundSuperTypeVisitor_Result](this.visit(typeVisitor)) == ContainsUpperBoundSuperTypeVisitor_Result_CYCLE)
+	return (JSType_visit(this.up_JSType(), typeVisitor) == ContainsUpperBoundSuperTypeVisitor_Result_CYCLE)
 }
 
 func (this *TemplateType) recursionUnsafeHashCode_impl() int32 {
@@ -202,22 +194,6 @@ func (this *TemplateType) hasAnyTemplateTypesInternal() bool {
 		return this.hasAnyTemplateTypesInternal_impl()
 	}
 	return this.self_.hasAnyTemplateTypesInternal_impl()
-}
-
-// visitUntyped: an object that is exactly a TemplateType calls its visitUntyped_impl directly (post-flip); others dispatch.
-func (this *TemplateType) visitUntyped(p0 Visitor) any {
-	if p, _ := this.self_.(*TemplateType); p == this {
-		return this.visitUntyped_impl(p0)
-	}
-	return this.self_.visitUntyped_impl(p0)
-}
-
-// visitUntyped_2: an object that is exactly a TemplateType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
-func (this *TemplateType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
-	if p, _ := this.self_.(*TemplateType); p == this {
-		return this.visitUntyped_2_impl(p0, p1)
-	}
-	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
 // setValidator: an object that is exactly a TemplateType calls its setValidator_impl directly (post-flip); others dispatch.

@@ -115,14 +115,6 @@ func (this *EnumType) getDisplayName_impl() Optional[string] {
 	return this.elementType.getDisplayName()
 }
 
-func (this *EnumType) visitUntyped_impl(visitor Visitor) any {
-	return visitor.caseObjectType(this.up_ObjectType())
-}
-
-func (this *EnumType) visitUntyped_2_impl(visitor RelationshipVisitor, that *JSType) any {
-	return visitor.caseObjectType(this.up_ObjectType(), that)
-}
-
 func (this *EnumType) getConstructor_impl() *FunctionType {
 	return nil
 }
@@ -282,22 +274,6 @@ func (this *EnumType) getDisplayName() Optional[string] {
 		return this.getDisplayName_impl()
 	}
 	return this.self_.getDisplayName_impl()
-}
-
-// visitUntyped: an object that is exactly a EnumType calls its visitUntyped_impl directly (post-flip); others dispatch.
-func (this *EnumType) visitUntyped(p0 Visitor) any {
-	if p, _ := this.self_.(*EnumType); p == this {
-		return this.visitUntyped_impl(p0)
-	}
-	return this.self_.visitUntyped_impl(p0)
-}
-
-// visitUntyped_2: an object that is exactly a EnumType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
-func (this *EnumType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
-	if p, _ := this.self_.(*EnumType); p == this {
-		return this.visitUntyped_2_impl(p0, p1)
-	}
-	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
 // getConstructor: an object that is exactly a EnumType calls its getConstructor_impl directly (post-flip); others dispatch.

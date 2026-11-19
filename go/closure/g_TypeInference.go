@@ -1493,7 +1493,7 @@ func (this *TypeInference) inferTemplatedTypesForCall(n Node, fnType *FunctionTy
 	}
 	var replacer *TemplateTypeReplacer = TemplateTypeReplacer_forInference(this.registry, inferred)
 	var callTarget Node = n.getFirstChild()
-	var replacementFnType *FunctionType = fnType.visit(replacer).(JSType_as).as_JSType().toMaybeFunctionType()
+	var replacementFnType *FunctionType = JSType_visit(fnType.up_JSType(), replacer).toMaybeFunctionType()
 	if replacementFnType == nil {
 		panic(new_NullPointerException_0())
 	}

@@ -2,26 +2,26 @@
 
 package closure
 
-type Visitor interface {
-	caseNoType(*NoType) any
-	caseEnumElementType(*EnumElementType) any
-	caseAllType() any
-	caseBooleanType() any
-	caseNoObjectType() any
-	caseFunctionType(*FunctionType) any
-	caseObjectType(*ObjectType) any
-	caseUnknownType() any
-	caseNullType() any
-	caseNamedType(*NamedType) any
-	caseProxyObjectType(*ProxyObjectType) any
-	caseNumberType() any
-	caseBigIntType() any
-	caseStringType() any
-	caseSymbolType(*SymbolType) any
-	caseVoidType() any
-	caseUnionType(*UnionType) any
-	caseTemplatizedType(*TemplatizedType) any
-	caseTemplateType(*TemplateType) any
+type Visitor[T any] interface {
+	caseNoType(*NoType) T
+	caseEnumElementType(*EnumElementType) T
+	caseAllType() T
+	caseBooleanType() T
+	caseNoObjectType() T
+	caseFunctionType(*FunctionType) T
+	caseObjectType(*ObjectType) T
+	caseUnknownType() T
+	caseNullType() T
+	caseNamedType(*NamedType) T
+	caseProxyObjectType(*ProxyObjectType) T
+	caseNumberType() T
+	caseBigIntType() T
+	caseStringType() T
+	caseSymbolType(*SymbolType) T
+	caseVoidType() T
+	caseUnionType(*UnionType) T
+	caseTemplatizedType(*TemplatizedType) T
+	caseTemplateType(*TemplateType) T
 }
 
 type Visitor_WithDefaultCase[T any] struct {
@@ -31,12 +31,12 @@ type Visitor_WithDefaultCase[T any] struct {
 
 type Visitor_WithDefaultCase_vt_[T any] interface {
 	caseDefault_impl(*JSType) T
-	caseEnumElementType_impl(*EnumElementType) any
-	caseFunctionType_impl(*FunctionType) any
-	caseNamedType_impl(*NamedType) any
-	caseUnionType_impl(*UnionType) any
-	caseTemplatizedType_impl(*TemplatizedType) any
-	caseTemplateType_impl(*TemplateType) any
+	caseEnumElementType_impl(*EnumElementType) T
+	caseFunctionType_impl(*FunctionType) T
+	caseNamedType_impl(*NamedType) T
+	caseUnionType_impl(*UnionType) T
+	caseTemplatizedType_impl(*TemplatizedType) T
+	caseTemplateType_impl(*TemplateType) T
 }
 
 func (this *Visitor_WithDefaultCase[T]) isa_Visitor_WithDefaultCase_() {}
@@ -65,106 +65,106 @@ func (this *Visitor_WithDefaultCase[T]) init_Visitor_WithDefaultCase() {
 
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseNoType(type_ *NoType) any {
-	return boxT_(this.caseDefault(type_.up_JSType()))
+func (this *Visitor_WithDefaultCase[T]) caseNoType(type_ *NoType) T {
+	return this.caseDefault(type_.up_JSType())
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseEnumElementType_impl(type_ *EnumElementType) any {
-	return boxT_(this.caseDefault(type_.up_JSType()))
+func (this *Visitor_WithDefaultCase[T]) caseEnumElementType_impl(type_ *EnumElementType) T {
+	return this.caseDefault(type_.up_JSType())
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseAllType() any {
-	return boxT_(this.caseDefault(nil))
+func (this *Visitor_WithDefaultCase[T]) caseAllType() T {
+	return this.caseDefault(nil)
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseBooleanType() any {
-	return boxT_(this.caseDefault(nil))
+func (this *Visitor_WithDefaultCase[T]) caseBooleanType() T {
+	return this.caseDefault(nil)
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseNoObjectType() any {
-	return boxT_(this.caseDefault(nil))
+func (this *Visitor_WithDefaultCase[T]) caseNoObjectType() T {
+	return this.caseDefault(nil)
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseFunctionType_impl(type_ *FunctionType) any {
-	return boxT_(this.caseDefault(type_.up_JSType()))
+func (this *Visitor_WithDefaultCase[T]) caseFunctionType_impl(type_ *FunctionType) T {
+	return this.caseDefault(type_.up_JSType())
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseObjectType(type_ *ObjectType) any {
-	return boxT_(this.caseDefault(type_.up_JSType()))
+func (this *Visitor_WithDefaultCase[T]) caseObjectType(type_ *ObjectType) T {
+	return this.caseDefault(type_.up_JSType())
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseUnknownType() any {
-	return boxT_(this.caseDefault(nil))
+func (this *Visitor_WithDefaultCase[T]) caseUnknownType() T {
+	return this.caseDefault(nil)
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseNullType() any {
-	return boxT_(this.caseDefault(nil))
+func (this *Visitor_WithDefaultCase[T]) caseNullType() T {
+	return this.caseDefault(nil)
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseNamedType_impl(type_ *NamedType) any {
-	return boxT_(this.caseDefault(type_.up_JSType()))
+func (this *Visitor_WithDefaultCase[T]) caseNamedType_impl(type_ *NamedType) T {
+	return this.caseDefault(type_.up_JSType())
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseProxyObjectType(type_ *ProxyObjectType) any {
-	return boxT_(this.caseDefault(type_.up_JSType()))
+func (this *Visitor_WithDefaultCase[T]) caseProxyObjectType(type_ *ProxyObjectType) T {
+	return this.caseDefault(type_.up_JSType())
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseNumberType() any {
-	return boxT_(this.caseDefault(nil))
+func (this *Visitor_WithDefaultCase[T]) caseNumberType() T {
+	return this.caseDefault(nil)
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseBigIntType() any {
-	return boxT_(this.caseDefault(nil))
+func (this *Visitor_WithDefaultCase[T]) caseBigIntType() T {
+	return this.caseDefault(nil)
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseStringType() any {
-	return boxT_(this.caseDefault(nil))
+func (this *Visitor_WithDefaultCase[T]) caseStringType() T {
+	return this.caseDefault(nil)
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseSymbolType(type_ *SymbolType) any {
-	return boxT_(this.caseDefault(type_.up_JSType()))
+func (this *Visitor_WithDefaultCase[T]) caseSymbolType(type_ *SymbolType) T {
+	return this.caseDefault(type_.up_JSType())
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseVoidType() any {
-	return boxT_(this.caseDefault(nil))
+func (this *Visitor_WithDefaultCase[T]) caseVoidType() T {
+	return this.caseDefault(nil)
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseUnionType_impl(type_ *UnionType) any {
-	return boxT_(this.caseDefault(type_.up_JSType()))
+func (this *Visitor_WithDefaultCase[T]) caseUnionType_impl(type_ *UnionType) T {
+	return this.caseDefault(type_.up_JSType())
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseTemplatizedType_impl(type_ *TemplatizedType) any {
-	return boxT_(this.caseDefault(type_.up_JSType()))
+func (this *Visitor_WithDefaultCase[T]) caseTemplatizedType_impl(type_ *TemplatizedType) T {
+	return this.caseDefault(type_.up_JSType())
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseTemplateType_impl(type_ *TemplateType) any {
-	return boxT_(this.caseDefault(type_.up_JSType()))
+func (this *Visitor_WithDefaultCase[T]) caseTemplateType_impl(type_ *TemplateType) T {
+	return this.caseDefault(type_.up_JSType())
 }
 
 func (this *Visitor_WithDefaultCase[T]) caseDefault(p0 *JSType) T {
 	return this.vt_Visitor_WithDefaultCase_.caseDefault_impl(p0)
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseEnumElementType(p0 *EnumElementType) any {
+func (this *Visitor_WithDefaultCase[T]) caseEnumElementType(p0 *EnumElementType) T {
 	return this.vt_Visitor_WithDefaultCase_.caseEnumElementType_impl(p0)
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseFunctionType(p0 *FunctionType) any {
+func (this *Visitor_WithDefaultCase[T]) caseFunctionType(p0 *FunctionType) T {
 	return this.vt_Visitor_WithDefaultCase_.caseFunctionType_impl(p0)
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseNamedType(p0 *NamedType) any {
+func (this *Visitor_WithDefaultCase[T]) caseNamedType(p0 *NamedType) T {
 	return this.vt_Visitor_WithDefaultCase_.caseNamedType_impl(p0)
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseUnionType(p0 *UnionType) any {
+func (this *Visitor_WithDefaultCase[T]) caseUnionType(p0 *UnionType) T {
 	return this.vt_Visitor_WithDefaultCase_.caseUnionType_impl(p0)
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseTemplatizedType(p0 *TemplatizedType) any {
+func (this *Visitor_WithDefaultCase[T]) caseTemplatizedType(p0 *TemplatizedType) T {
 	return this.vt_Visitor_WithDefaultCase_.caseTemplatizedType_impl(p0)
 }
 
-func (this *Visitor_WithDefaultCase[T]) caseTemplateType(p0 *TemplateType) any {
+func (this *Visitor_WithDefaultCase[T]) caseTemplateType(p0 *TemplateType) T {
 	return this.vt_Visitor_WithDefaultCase_.caseTemplateType_impl(p0)
 }

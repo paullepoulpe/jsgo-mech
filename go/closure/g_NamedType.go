@@ -346,10 +346,6 @@ func (this *NamedType) isObject_impl() bool {
 	return this.ProxyObjectType.isObject_impl()
 }
 
-func (this *NamedType) visitUntyped_impl(visitor Visitor) any {
-	return visitor.caseNamedType(this)
-}
-
 func NamedType_builder(registry *JSTypeRegistry, reference string) *NamedType_Builder {
 	return new_NamedType_Builder(registry, reference)
 }
@@ -638,12 +634,4 @@ func (this *NamedType) isObject() bool {
 		return this.isObject_impl()
 	}
 	return this.self_.isObject_impl()
-}
-
-// visitUntyped: an object that is exactly a NamedType calls its visitUntyped_impl directly (post-flip); others dispatch.
-func (this *NamedType) visitUntyped(p0 Visitor) any {
-	if p, _ := this.self_.(*NamedType); p == this {
-		return this.visitUntyped_impl(p0)
-	}
-	return this.self_.visitUntyped_impl(p0)
 }

@@ -15,26 +15,26 @@ func new_CanCastToVisitor() *CanCastToVisitor {
 	return this
 }
 
-func (this *CanCastToVisitor) caseUnknownType(thisType *JSType, thatType *JSType) any {
-	return any(bool(true))
+func (this *CanCastToVisitor) caseUnknownType(thisType *JSType, thatType *JSType) bool {
+	return true
 }
 
-func (this *CanCastToVisitor) caseNoType(thatType *JSType) any {
-	return any(bool(true))
+func (this *CanCastToVisitor) caseNoType(thatType *JSType) bool {
+	return true
 }
 
-func (this *CanCastToVisitor) caseNoObjectType(thatType *JSType) any {
-	return any(bool(true))
+func (this *CanCastToVisitor) caseNoObjectType(thatType *JSType) bool {
+	return true
 }
 
-func (this *CanCastToVisitor) caseAllType(thatType *JSType) any {
-	return any(bool(true))
+func (this *CanCastToVisitor) caseAllType(thatType *JSType) bool {
+	return true
 }
 
 func (this *CanCastToVisitor) canCastToUnion(thisType *JSType, unionType *UnionType) bool {
 	for _, el_1 := range unionType.getAlternates().items {
 		var type_ *JSType = el_1
-		if unbox_[bool](thisType.visit_2(this, type_)) {
+		if JSType_visit_2(thisType, this, type_) {
 			return true
 		}
 	}
@@ -58,67 +58,67 @@ func (this *CanCastToVisitor) isInterface(type_ *JSType) bool {
 	return false
 }
 
-func (this *CanCastToVisitor) castCastToHelper(thisType *JSType, thatType *JSType) any {
+func (this *CanCastToVisitor) castCastToHelper(thisType *JSType, thatType *JSType) bool {
 	if thisType.isNoResolvedType() {
-		return any(bool(true))
+		return true
 	} else if (((thatType.isUnknownType() || thatType.isAllType()) || thatType.isNoObjectType()) || thatType.isNoResolvedType()) || thatType.isNoType() {
-		return any(bool(true))
+		return true
 	} else if thisType.isRecordType() || thatType.isRecordType() {
-		return any(bool(true))
+		return true
 	} else if this.isInterface(thisType) || this.isInterface(thatType) {
-		return any(bool(true))
+		return true
 	} else if thatType.isEnumElementType() {
-		return thisType.visit_2(this, thatType.toMaybeEnumElementType().getPrimitiveType())
+		return JSType_visit_2(thisType, this, thatType.toMaybeEnumElementType().getPrimitiveType())
 	} else if thatType.isUnionType() {
-		return any(bool(this.canCastToUnion(thisType, thatType.toMaybeUnionType())))
+		return this.canCastToUnion(thisType, thatType.toMaybeUnionType())
 	} else if thatType.isFunctionType() {
-		return any(bool(this.canCastToFunction(thisType, thatType.toMaybeFunctionType())))
+		return this.canCastToFunction(thisType, thatType.toMaybeFunctionType())
 	} else if thatType.isTemplatizedType() {
-		return thisType.visit_2(this, thatType.toMaybeTemplatizedType().getReferencedTypeInternal())
+		return JSType_visit_2(thisType, this, thatType.toMaybeTemplatizedType().getReferencedTypeInternal())
 	}
-	return any(bool((thisType.isSubtypeOf(thatType) || thatType.isSubtypeOf(thisType))))
+	return (thisType.isSubtypeOf(thatType) || thatType.isSubtypeOf(thisType))
 }
 
-func (this *CanCastToVisitor) caseValueType(thisType *ValueType, thatType *JSType) any {
+func (this *CanCastToVisitor) caseValueType(thisType *ValueType, thatType *JSType) bool {
 	return this.castCastToHelper(thisType.up_JSType(), thatType)
 }
 
-func (this *CanCastToVisitor) caseObjectType(thisType *ObjectType, thatType *JSType) any {
+func (this *CanCastToVisitor) caseObjectType(thisType *ObjectType, thatType *JSType) bool {
 	return this.castCastToHelper(thisType.up_JSType(), thatType)
 }
 
-func (this *CanCastToVisitor) caseFunctionType(thisType *FunctionType, thatType *JSType) any {
+func (this *CanCastToVisitor) caseFunctionType(thisType *FunctionType, thatType *JSType) bool {
 	return this.castCastToHelper(thisType.up_JSType(), thatType)
 }
 
-func (this *CanCastToVisitor) caseUnionType(thisType *UnionType, thatType *JSType) any {
+func (this *CanCastToVisitor) caseUnionType(thisType *UnionType, thatType *JSType) bool {
 	var visited bool = false
 	for _, el_1 := range thisType.getAlternates().items {
 		var type_ *JSType = el_1
 		if type_.isVoidType() || type_.isNullType() {
 		} else {
 			visited = true
-			if unbox_[bool](type_.visit_2(this, thatType)) {
-				return any(bool(true))
+			if JSType_visit_2(type_, this, thatType) {
+				return true
 			}
 		}
 	}
 	if !visited {
 		var NULL_TYPE *JSType = thisType.getNativeType(JSTypeNative_NULL_TYPE)
 		var VOID_TYPE *JSType = thisType.getNativeType(JSTypeNative_VOID_TYPE)
-		return any(bool((unbox_[bool](NULL_TYPE.visit_2(this, thatType)) || unbox_[bool](VOID_TYPE.visit_2(this, thatType)))))
+		return (JSType_visit_2(NULL_TYPE, this, thatType) || JSType_visit_2(VOID_TYPE, this, thatType))
 	}
-	return any(bool(false))
+	return false
 }
 
-func (this *CanCastToVisitor) caseTemplatizedType(thisType *TemplatizedType, thatType *JSType) any {
-	return thisType.getReferencedTypeInternal().visit_2(this, thatType)
+func (this *CanCastToVisitor) caseTemplatizedType(thisType *TemplatizedType, thatType *JSType) bool {
+	return JSType_visit_2(thisType.getReferencedTypeInternal(), this, thatType)
 }
 
-func (this *CanCastToVisitor) caseTemplateType(thisType *TemplateType, thatType *JSType) any {
-	return any(bool(true))
+func (this *CanCastToVisitor) caseTemplateType(thisType *TemplateType, thatType *JSType) bool {
+	return true
 }
 
-func (this *CanCastToVisitor) caseEnumElementType(typeType *EnumElementType, thatType *JSType) any {
-	return typeType.getPrimitiveType().visit_2(this, thatType)
+func (this *CanCastToVisitor) caseEnumElementType(typeType *EnumElementType, thatType *JSType) bool {
+	return JSType_visit_2(typeType.getPrimitiveType(), this, thatType)
 }

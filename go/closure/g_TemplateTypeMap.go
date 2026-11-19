@@ -37,7 +37,7 @@ func (this *TemplateTypeMap) init_TemplateTypeMap(registry *JSTypeRegistry, temp
 			var templateKey *TemplateType = this.templateKeys.get(i)
 			replacer.setKeyType(templateKey, nextSubMap)
 			var templateValue *JSType = sliceAt_(this.templateValues, i)
-			resolvedValues[i] = to_JSType(templateValue.visit(replacer))
+			resolvedValues[i] = JSType_visit(templateValue, replacer)
 		} else {
 			resolvedValues[i] = obj_(this.templateKeys.get(i)).(*TemplateType).getBound()
 		}

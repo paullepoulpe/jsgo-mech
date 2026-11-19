@@ -380,13 +380,6 @@ func icast_ReferenceMap(v any) ReferenceMap {
 	return v.(ReferenceMap)
 }
 
-func icast_RelationshipVisitor(v any) RelationshipVisitor {
-	if v == nil {
-		return nil
-	}
-	return v.(RelationshipVisitor)
-}
-
 func icast_RemoveUnusedCode_VarInfo(v any) RemoveUnusedCode_VarInfo {
 	if v == nil {
 		return nil
@@ -583,11 +576,11 @@ func icast_TypedAstSerializer_TypeSerializer(v any) TypedAstSerializer_TypeSeria
 	return v.(TypedAstSerializer_TypeSerializer)
 }
 
-func icast_Visitor(v any) Visitor {
+func icast_Visitor[T any](v any) Visitor[T] {
 	if v == nil {
 		return nil
 	}
-	return v.(Visitor)
+	return v.(Visitor[T])
 }
 
 var tc_AnalyzePrototypeProperties_Symbol = &tconv_[AnalyzePrototypeProperties_Symbol]{
