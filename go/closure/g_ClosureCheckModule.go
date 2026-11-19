@@ -146,9 +146,7 @@ func (this *ClosureCheckModule) visit_4_impl(t *NodeTraversal, n Node, currentMo
 }
 
 func (this *ClosureCheckModule) checkJSDoc(t *NodeTraversal, jsDoc *JSDocInfo) {
-	it_1 := foreach_(jsDoc.getTypeNodes())
-	for it_1.next() {
-		var typeNode Node = Node_of_(it_1.v)
+	for typeNode := range elemsBy_(jsDoc.getTypeNodes(), Node_of_) {
 		this.checkTypeExpression(t, typeNode)
 	}
 }

@@ -94,9 +94,7 @@ func (this *JsMessage) asJsMessageString_1(genderCase JsMessage_GrammaticalGende
 		panic(new_IllegalArgumentException_String(("No message for grammtical gender case: " + jtostr_(genderCase))).self())
 	}
 	var sb *StringBuilder = new_StringBuilder()
-	it_1 := foreach_(obj_(this.getGenderedMessagesMap().get(genderCase)))
-	for it_1.next() {
-		var p JsMessage_Part = icast_JsMessage_Part(it_1.v)
+	for p := range elemsBy_(obj_(this.getGenderedMessagesMap().get(genderCase)), icast_JsMessage_Part) {
 		if p.isPlaceholder() {
 			sb.append(JsMessage_PH_JS_PREFIX).append(p.getJsPlaceholderName()).append(JsMessage_PH_JS_SUFFIX)
 		} else {
@@ -128,9 +126,7 @@ func (this *JsMessage) asIcuMessageString_1(genderCase JsMessage_GrammaticalGend
 		panic(new_IllegalArgumentException_String(("No message for grammtical gender case: " + jtostr_(genderCase))).self())
 	}
 	var sb *StringBuilder = new_StringBuilder()
-	it_1 := foreach_(obj_(this.getGenderedMessagesMap().get(genderCase)))
-	for it_1.next() {
-		var p JsMessage_Part = icast_JsMessage_Part(it_1.v)
+	for p := range elemsBy_(obj_(this.getGenderedMessagesMap().get(genderCase)), icast_JsMessage_Part) {
 		if p.isPlaceholder() {
 			cast_[*StringBuilder](sb.append_char('{')).append(p.getCanonicalPlaceholderName()).append_char('}')
 		} else {
