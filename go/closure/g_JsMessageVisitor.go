@@ -764,21 +764,19 @@ func JsMessageVisitor_removeScopedAliasesPrefix(name string) string {
 }
 
 func (this *JsMessageVisitor) processJsMessageDefinition(p0 JsMessageDefinition) {
-	this.self_.(interface{ processJsMessageDefinition_impl(JsMessageDefinition) }).processJsMessageDefinition_impl(p0)
+	this.self_.processJsMessageDefinition_impl(p0)
 }
 
 func (this *JsMessageVisitor) processIcuTemplateDefinition(p0 IcuTemplateDefinition) {
-	this.self_.(interface{ processIcuTemplateDefinition_impl(IcuTemplateDefinition) }).processIcuTemplateDefinition_impl(p0)
+	this.self_.processIcuTemplateDefinition_impl(p0)
 }
 
 func (this *JsMessageVisitor) process_2(p0 Node, p1 Node) {
-	this.self_.(interface{ process_2_impl(Node, Node) }).process_2_impl(p0, p1)
+	this.self_.process_2_impl(p0, p1)
 }
 
 func (this *JsMessageVisitor) processMessageFallback(p0 Node, p1 *JsMessage, p2 *JsMessage) {
-	this.self_.(interface {
-		processMessageFallback_impl(Node, *JsMessage, *JsMessage)
-	}).processMessageFallback_impl(p0, p1, p2)
+	this.self_.processMessageFallback_impl(p0, p1, p2)
 }
 
 const JsMessageVisitor_MSG_FUNCTION_NAME string = "getMsg"

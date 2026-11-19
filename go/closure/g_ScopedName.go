@@ -11,6 +11,63 @@ type ScopedName struct {
 type ScopedName_I interface {
 	getName_impl() string
 	getScopeRoot_impl() Node
+	declarationType_impl() *Token_rhino
+	getDeclaration_impl() StaticRef
+	getDeclaration_rAbstractVar_impl() *AbstractVar
+	getScope_impl() StaticScope
+	getScope_rAbstractScope_impl() *AbstractScope
+	getSourceFile_impl() StaticSourceFile
+	getSymbol_impl() StaticSlot
+	getSymbol_rAbstractVar_impl() *AbstractVar
+	isArguments_impl() bool
+	isGlobal_impl() bool
+	isGoogModuleExports_impl() bool
+	isLocal_impl() bool
+	isThis_impl() bool
+}
+
+// Bodies of the methods that only the subclasses of AbstractVar (13) implement. They put the
+// methods in ScopedName_I, so that the dispatchers of those classes call them through self_ without
+// an assertion. They are never run (a dispatcher's object is of a subclass of its class,
+// which has the method) and panic where the assertion would have (post-flip).
+func (this *ScopedName) declarationType_impl() *Token_rhino {
+	panic("declarationType_impl called on a " + goTypeName_(this.self_))
+}
+func (this *ScopedName) getDeclaration_impl() StaticRef {
+	panic("getDeclaration_impl called on a " + goTypeName_(this.self_))
+}
+func (this *ScopedName) getDeclaration_rAbstractVar_impl() *AbstractVar {
+	panic("getDeclaration_rAbstractVar_impl called on a " + goTypeName_(this.self_))
+}
+func (this *ScopedName) getScope_impl() StaticScope {
+	panic("getScope_impl called on a " + goTypeName_(this.self_))
+}
+func (this *ScopedName) getScope_rAbstractScope_impl() *AbstractScope {
+	panic("getScope_rAbstractScope_impl called on a " + goTypeName_(this.self_))
+}
+func (this *ScopedName) getSourceFile_impl() StaticSourceFile {
+	panic("getSourceFile_impl called on a " + goTypeName_(this.self_))
+}
+func (this *ScopedName) getSymbol_impl() StaticSlot {
+	panic("getSymbol_impl called on a " + goTypeName_(this.self_))
+}
+func (this *ScopedName) getSymbol_rAbstractVar_impl() *AbstractVar {
+	panic("getSymbol_rAbstractVar_impl called on a " + goTypeName_(this.self_))
+}
+func (this *ScopedName) isArguments_impl() bool {
+	panic("isArguments_impl called on a " + goTypeName_(this.self_))
+}
+func (this *ScopedName) isGlobal_impl() bool {
+	panic("isGlobal_impl called on a " + goTypeName_(this.self_))
+}
+func (this *ScopedName) isGoogModuleExports_impl() bool {
+	panic("isGoogModuleExports_impl called on a " + goTypeName_(this.self_))
+}
+func (this *ScopedName) isLocal_impl() bool {
+	panic("isLocal_impl called on a " + goTypeName_(this.self_))
+}
+func (this *ScopedName) isThis_impl() bool {
+	panic("isThis_impl called on a " + goTypeName_(this.self_))
 }
 
 func (this *ScopedName) as_ScopedName() *ScopedName { return this }
