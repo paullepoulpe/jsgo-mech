@@ -277,7 +277,9 @@ type that a typed collection reaches is typed too, or the collection stays erase
 **Conversions without a box** (`Conv.java`). The erased translation converts between two Go
 types through Object: `icast_I(obj_(v))`. Where the Java conversion needs no check, these rules
 keep the value at its static type. Each has a switch `J2GO_NO<RULE>=1` that gives the previous
-translation, for bisecting.
+translation, for bisecting. `J2GO_BOXES=1` reports the conversions to `Object` that the
+translation still makes: how many by kind of value (`boxes: kind 1119 String`), and for
+arguments by callee, parameter and kind (`boxes: arg 81 String.format [varargs] <- primitive`).
 
 - *Static upcast* (`Conv.upcast`, `J2GO_NOUPCAST`). A class without subclasses becomes an
   interface that it implements as Go converts a pointer to an interface. `this` and a new
@@ -367,6 +369,28 @@ translation, for bisecting.
   static type first (the result of an erased generic) is still converted as an Object, without
   the cast. What keeps the conversion to Object: a class with subclasses (`objstr_(v.self())`:
   the most derived object decides), typed collections (their view), value types.
+
+- *Typed Object calls* (`ExprEmitter.typedObjCall` / `typedObjStatic`, `J2GO_NOOBJCALL`). The
+  same for the calls that the program writes. `x.equals(y)`, `x.hashCode()` and `x.toString()`
+  where the method javac finds is `Object`'s (the receiver's class, a library class, an enum
+  or a class of the program, has no Go method of its own for it) were calls of a runtime
+  function on boxes: `Object_toString(obj_(sb))`, `Object_equals(obj_(mode), obj_(Mode_NONE))`.
+  A receiver that is a pointer to a class without subclasses, an interface or a handle now
+  stays at its static type: `tostrR_(sb)`, `hashR_(v)`, `equalsR_(x, y)` (`rt_conv.go`;
+  `tostrRH_`... for a handle) make it the object that the erased translation passed and call
+  `Object`'s method, so a null receiver throws `NullPointerException` as before. An argument
+  of `equals` that has the receiver's Go type by its declaration (as for string concatenation
+  above: a variable, a field, a method's result, a new object) stays typed too,
+  `equalsRR_(a, b)`; where `equals` of that type is identity (an enum, a class of the program
+  without subclasses that has only `Object`'s `equals`) the call is `eqR_(mode, Mode_NONE)`:
+  a test of the receiver for null and `==`. Any other argument is converted to `Object` as
+  before (it is not cast to its static type first: `equals` takes an `Object`).
+  `Objects.equals(a, b)` of two values that have one type by their declarations is `a == b`
+  for two Strings and for a type whose `equals` is identity, else `equals_(a, b)` /
+  `equalsH_`; `Objects.hashCode(v)` is `strhash_(v)` / `hash_(v)` / `hashH_(v)` and
+  `String.valueOf(v)` of an object `tostr_(v)` / `tostrH_(v)`. What keeps the conversion to
+  `Object`: a receiver or value of a class with subclasses (`v.self()`), a typed collection
+  (its view), a value type (`Optional`: `box_()`), and `Objects.hash(...)`.
 
 - *String for CharSequence* (`Conv.strSeq`, `J2GO_NOSTRSEQ`; `J2GO_STRSEQ=1` reports the calls
   left). `CharSequence` is `any` in Go, so a `String` passed for one is boxed, and a string in

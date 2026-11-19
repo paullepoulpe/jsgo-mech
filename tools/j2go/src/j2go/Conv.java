@@ -23,6 +23,54 @@ final class Conv {
     return "1".equals(System.getenv("J2GO_NO" + rule));
   }
 
+  // ------------------------------------------------------------------ report: conversions to Object
+
+  /** J2GO_BOXES=1 reports where values are converted to Object (Go `any`): by kind of value, and by callee for arguments. */
+  static final boolean BOXES = System.getenv("J2GO_BOXES") != null;
+
+  final TreeMap<String, Integer> boxKinds = new TreeMap<>(), boxSites = new TreeMap<>();
+
+  /** What a value of (erased) type t is when it is converted to Object. */
+  String boxKind(TypeMirror t) {
+    if (cx.isTypedColl(t)) return "typed collection";
+    switch (cx.kind(t)) {
+      case PRIM: return "primitive";
+      case STR: return "String";
+      case IFACE: return "interface";
+      case ARR: return "array";
+      case TVAR: return "type parameter";
+      case CLS: {
+        TypeElement te = Ctx.typeElement(t);
+        if (cx.isHandle(te)) return "handle";
+        if (cx.isValueLib(te)) return "value type";
+        if (te != null && te.getKind() == ElementKind.ENUM) return "enum";
+        if (!cx.isSource(te)) return "library class";
+        return cx.hasSelf(te) && !cx.isLeaf(te) ? "class with subclasses" : "class";
+      }
+      default: return "other";
+    }
+  }
+
+  void noteBox(TypeMirror from) {
+    if (BOXES) boxKinds.merge(boxKind(from), 1, Integer::sum);
+  }
+
+  /** An argument of static type arg passed for an Object parameter of e (or an element of its Object...). */
+  void noteBoxArg(ExecutableElement e, int i, TypeMirror arg, TypeMirror target, String code) {
+    if (!BOXES || arg == null || cx.kind(cx.erase(target)) != Ctx.K.ANY) return;
+    TypeMirror at = cx.erase(arg);
+    if (cx.kind(at) == Ctx.K.ANY || cx.kind(at) == Ctx.K.NULL) return;
+    boolean va = e.isVarArgs() && i >= e.getParameters().size() - 1;
+    String how = code.startsWith("strobj_(") || code.startsWith("obj_(") || code.startsWith("any(") || code.startsWith("boxT_(") || code.endsWith(".box_()") || code.endsWith(".self()") ? "" : " (no helper)";
+    boxSites.merge((cx.isSource(cx.ownerOf(e)) ? "program " : "") + cx.ownerOf(e).getSimpleName() + "." + e.getSimpleName() + (va ? " [varargs]" : " #" + i) + " <- " + boxKind(at) + how, 1, Integer::sum);
+  }
+
+  void boxReport() {
+    if (!BOXES) return;
+    for (var en : boxKinds.entrySet()) System.err.println("boxes: kind " + en.getValue() + " " + en.getKey());
+    for (var en : boxSites.entrySet()) System.err.println("boxes: arg " + en.getValue() + " " + en.getKey());
+  }
+
   // ------------------------------------------------------------------ static upcast
 
   static final boolean UPCAST = !off("UPCAST");
@@ -297,6 +345,17 @@ final class Conv {
     String h = objHelper(t);
     return h == null ? null : "tostr" + h + "_(" + v + ")";
   }
+
+  // ------------------------------------------------------------------ typed Object calls
+
+  /**
+   * Rule "typed Object calls" (ExprEmitter.typedObjCall, typedObjStatic): a call that the program
+   * writes of Object's equals / hashCode / toString on a receiver whose class does not declare
+   * the method, and of Objects.equals / Objects.hashCode / String.valueOf(Object), passes the
+   * values at their static types to runtime functions generic in them (rt_conv.go), where the
+   * erased translation converted each to Object first.
+   */
+  static final boolean OBJCALL = !off("OBJCALL");
 
   // ------------------------------------------------------------------ String for CharSequence
 

@@ -54,3 +54,43 @@ func TestConvMessages(t *testing.T) {
 		t.Errorf("identity")
 	}
 }
+
+// npe_ reports whether f throws NullPointerException.
+func npe_(f func()) (npe bool) {
+	defer func() {
+		if r := recover(); r != nil {
+			_, npe = r.(*NullPointerException)
+		}
+	}()
+	f()
+	return
+}
+
+// Rule "typed Object calls": the typed functions do what Object's methods do with the object
+// that the erased code passed, a null receiver included.
+func TestConvObjectCalls(t *testing.T) {
+	var nl *ImmutableList
+	var ni List
+	var nn Node
+	l, m := ImmutableList_of_Object("a"), ImmutableList_of_Object("a")
+	if !equalsRR_(l, m) || !equalsR_(l, obj_(m)) || equalsR_(l, nil) || equalsRR_(l, nl) || equalsR_(l, "a") {
+		t.Errorf("equalsR_ of two equal lists")
+	}
+	if equalsRR_(List(l), List(m)) != Object_equals(any(List(l)), any(List(m))) || equalsRR_(List(l), ni) {
+		t.Errorf("equalsRR_ of interfaces")
+	}
+	if hashR_(l) != Object_hashCode(obj_(l)) || hashR_(List(l)) != hashR_(m) || tostrR_(l) != Object_toString(obj_(l)) || tostrR_(List(l)) != "[a]" {
+		t.Errorf("hashR_ / tostrR_")
+	}
+	if !eqR_(l, l) || eqR_(l, m) || eqR_(l, nl) {
+		t.Errorf("eqR_ is identity")
+	}
+	for i, f := range []func(){
+		func() { equalsR_(nl, obj_(l)) }, func() { equalsRR_(nl, nl) }, func() { equalsRR_(ni, List(l)) }, func() { hashR_(nl) }, func() { tostrR_(ni) }, func() { eqR_(nl, nl) },
+		func() { equalsRH_(nn, nil) }, func() { equalsRRH_(nn, nn) }, func() { hashRH_(nn) }, func() { tostrRH_(nn) },
+	} {
+		if !npe_(f) {
+			t.Errorf("case %d: a null receiver does not throw NullPointerException", i)
+		}
+	}
+}

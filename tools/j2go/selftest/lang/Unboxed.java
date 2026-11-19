@@ -324,6 +324,79 @@ public class Unboxed {
         + " | " + p + noPlain + shape + noShape + box + noBox + tone + noTone + Tone.LOW + pair.left() + pair.right() + new Plain(7) + named.me() + a.list() + nulls.list() + a.any() + a.str() + nulls.str() + typedList + noTypedList + typedSet;
   }
 
+  // ---- typed Object calls: equals / hashCode / toString that are Object's, Objects.equals / hashCode, String.valueOf
+  enum Flat {
+    ONE,
+    TWO
+  }
+
+  static final class Ident {
+    final int n;
+
+    Ident(int n) {
+      this.n = n;
+    }
+  }
+
+  static <T> T erasedAs(Object o) {
+    @SuppressWarnings("unchecked")
+    T t = (T) o;
+    return t;
+  }
+
+  static int order;
+
+  static <T> T step(int expect, T v) {
+    order = order * 10 + expect;
+    return v;
+  }
+
+  static String objectCalls() {
+    Flat one = Flat.ONE, two = Flat.TWO, noFlat = null;
+    Tone low = Tone.LOW, high = Tone.HIGH, noTone = null;
+    Ident i1 = new Ident(1), i2 = new Ident(1), noIdent = null;
+    Dot d1 = new Dot(), d2 = new Dot(), noDot = null;
+    Shape s1 = d1, s2 = new Named(), noShape = null;
+    Object o = one, oi = i1;
+    StringBuilder sb = new StringBuilder("sb"), noSb = null;
+    java.math.BigInteger b1 = java.math.BigInteger.valueOf(12), b2 = new java.math.BigInteger("12"), noBig = null;
+    List<Object> erased = new java.util.LinkedList<>();
+    erased.add(one);
+    erased.add("str");
+    erased.add(i1);
+    List<Flat> flats = erasedAs(erased);
+    List<Ident> idents = erasedAs(erased);
+    List<String> strs = erasedAs(erased);
+    String str = "str", same = new StringBuilder("st").append('r').toString(), noStr = null;
+    String eq = one.equals(one) + "" + one.equals(two) + one.equals(noFlat) + one.equals(o) + one.equals("ONE") + Flat.TWO.equals(two) + two.equals(Flat.ONE)
+        + " " + low.equals(low) + low.equals(high) + high.equals(Tone.HIGH) + high.equals(noTone)
+        + " " + i1.equals(i1) + i1.equals(i2) + i1.equals(noIdent) + i1.equals(oi) + i1.equals(str)
+        + " " + s1.equals(s1) + s1.equals(d2) + s2.equals(s2) + s2.equals(s1) + s1.equals(noShape) + s2.equals(noShape)
+        + " " + b1.equals(b2) + b1.equals(noBig) + b1.equals(str) + b1.equals(b1.add(b2))
+        // an argument that is not what its static type says is never cast: equals takes an Object
+        + " " + one.equals(flats.get(0)) + one.equals(flats.get(1)) + i1.equals(idents.get(1)) + i1.equals(idents.get(2)) + s1.equals(erased.get(1));
+    String hashes = (i1.hashCode() == i1.hashCode()) + "" + (one.hashCode() == one.hashCode()) + (b1.hashCode() == b2.hashCode()) + b1.hashCode() + (s1.hashCode() == d2.hashCode()) + s1.hashCode()
+        + (sb.hashCode() == sb.hashCode());
+    String strings = one.toString() + two + low.toString() + high.toString() + sb.toString() + b1.toString() + i1.toString().startsWith("lang.Unboxed$Ident@") + s2.toString() + s1.toString().startsWith("lang.Unboxed$Dot@");
+    String statics = Objects.equals(str, same) + "" + Objects.equals(str, noStr) + Objects.equals(noStr, noStr) + Objects.equals(noStr, str) + Objects.equals(str, "st")
+        + " " + Objects.equals(one, one) + Objects.equals(one, two) + Objects.equals(noFlat, one) + Objects.equals(noFlat, noFlat) + Objects.equals(one, o) + Objects.equals(o, str)
+        + " " + Objects.equals(i1, i1) + Objects.equals(i1, i2) + Objects.equals(noIdent, noIdent) + Objects.equals(d1, d2) + Objects.equals(d1, noDot) + Objects.equals(noDot, d1)
+        + " " + Objects.equals(s1, s2) + Objects.equals(s1, d2) + Objects.equals(noShape, noShape) + Objects.equals(b1, b2) + Objects.equals(b1, noBig) + Objects.equals(low, high)
+        + " " + Objects.equals(strs.get(1), str) + Objects.equals(str, strs.get(0)) + Objects.equals(flats.get(1), one) + Objects.equals(flats.get(0), one) + Objects.equals(idents.get(1), idents.get(1))
+        + " " + Objects.hashCode(str) + Objects.hashCode(noStr) + Objects.hashCode(d1) + Objects.hashCode(noDot) + Objects.hashCode(b1) + Objects.hashCode(noBig) + Objects.hashCode(noShape) + Objects.hashCode(s1)
+        + (Objects.hashCode(i1) == i1.hashCode()) + Objects.hashCode(noFlat) + Objects.hashCode(strs.get(1))
+        + " " + String.valueOf(one) + String.valueOf(noFlat) + String.valueOf(high) + String.valueOf(d1 == null ? null : sb) + String.valueOf(noSb) + String.valueOf(b1) + String.valueOf(noBig)
+        + String.valueOf(noShape) + String.valueOf(noIdent) + String.valueOf((Object) str) + String.valueOf(flats.get(1));
+    String nulls = thrown(() -> noFlat.equals(one)) + " " + thrown(() -> noFlat.equals(noFlat)) + " " + thrown(() -> noTone.equals(low)) + " " + thrown(() -> noIdent.equals(noIdent))
+        + " " + thrown(() -> noShape.equals(s1)) + " " + thrown(() -> noBig.equals(b1)) + " " + thrown(() -> noBig.equals(str)) + " " + thrown(() -> noFlat.hashCode())
+        + " " + thrown(() -> noIdent.hashCode()) + " " + thrown(() -> noShape.hashCode()) + " " + thrown(() -> noBig.hashCode()) + " " + thrown(() -> noFlat.toString())
+        + " " + thrown(() -> noSb.toString()) + " " + thrown(() -> noIdent.toString()) + " " + thrown(() -> noShape.toString()) + " " + thrown(() -> noBig.toString());
+    // the receiver and the argument are evaluated once, in order, before a null receiver throws
+    order = 0;
+    String evals = step(1, one).equals(step(2, two)) + "" + step(3, i1).equals(step(4, oi)) + Objects.equals(step(5, str), step(6, same)) + thrown(() -> step(7, noFlat).equals(step(8, one))) + step(9, sb).toString() + order;
+    return eq + " | " + hashes + " | " + strings + " | " + statics + " | " + nulls + " | " + evals;
+  }
+
   // ---- a String for a CharSequence parameter
   static final class Shout implements Appendable {
     final StringBuilder sb = new StringBuilder();
@@ -389,6 +462,7 @@ public class Unboxed {
     p(upcasts());
     p(strSeqs());
     p(typedObjects());
+    p(objectCalls());
     p(nonNull());
     p(bare());
     p(messages());
