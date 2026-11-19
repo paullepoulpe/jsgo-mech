@@ -79,10 +79,11 @@ func (this *TranspileResult) equals(other any) bool {
 	_ = transpileResult
 	return ((((func() bool {
 		v_ := other
-		if !is_[*TranspileResult](v_) {
+		p, ok := v_.(*TranspileResult)
+		if !ok {
 			return false
 		}
-		transpileResult = cast_[*TranspileResult](v_)
+		transpileResult = p
 		return true
 	}() && (transpileResult.pathField == this.pathField)) && (transpileResult.originalField == this.originalField)) && (transpileResult.transpiledField == this.transpiledField)) && (transpileResult.sourceMapField == this.sourceMapField))
 }

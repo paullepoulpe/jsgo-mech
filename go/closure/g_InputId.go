@@ -37,10 +37,11 @@ func (this *InputId) equals(obj any) bool {
 	_ = inputId
 	if !(func() bool {
 		v_ := obj
-		if !is_[*InputId](v_) {
+		p, ok := v_.(*InputId)
+		if !ok {
 			return false
 		}
-		inputId = cast_[*InputId](v_)
+		inputId = p
 		return true
 	}()) {
 		return false
