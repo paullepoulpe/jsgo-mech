@@ -651,3 +651,5 @@ dd7c9fa2 patch reflip2-dd7c9fa2-rt.patch
 9cd99ed0 run t tnames && f
 # C36. postflip step: funcparams re-run on the bridged tree (tool change bee992e8: methods of generic types no interface asks for)
 c82e880d run t funcparams && f
+# C37. postflip step: fniface on the bridged tree (new tool 02885c51: adapter-only function interfaces are func types)
+84572dab run t fniface && f
