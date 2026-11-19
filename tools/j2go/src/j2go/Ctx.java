@@ -1045,6 +1045,35 @@ final class Ctx {
     return isHandleType(t) ? "0" : "nil";
   }
 
+  /** J2GO_NOLAYOUT=1: struct fields in Java's declaration order (rule "field layout" off). */
+  static final boolean NO_LAYOUT = "1".equals(System.getenv("J2GO_NOLAYOUT"));
+
+  static final int LAYOUT_RANKS = 4;
+
+  /**
+   * Where a field of Java type t goes in its struct, by the alignment of its Go type: 0 for 8
+   * bytes (a pointer, an interface, a string, a slice, int64, float64), 2 for 4 (int32, float32,
+   * a handle), 3 for 2, 4 for 1 (bool, int8). Rank 1 is a type whose alignment the instantiation
+   * decides, a Go type parameter or a value type of the runtime holding one (Optional[T]): 8 for
+   * a pointer, 4 for a handle, so after the 8-byte fields and before the 4-byte ones it leaves no
+   * hole either way.
+   */
+  int layoutRank(TypeMirror t0) {
+    TypeMirror t = erase(t0);
+    switch (kind(t)) {
+      case PRIM:
+        switch (t.getKind()) {
+          case BOOLEAN, BYTE: return 4;
+          case SHORT, CHAR: return 3;
+          case INT, FLOAT: return 2;
+          default: return 0;
+        }
+      case TVAR: return 1;
+      case CLS: return isValueLibType(t) ? 1 : isHandleType(t) ? 2 : 0;
+      default: return 0;
+    }
+  }
+
   static List<VariableElement> instanceFields(TypeElement te) {
     List<VariableElement> out = new ArrayList<>();
     for (Element e : te.getEnclosedElements()) {

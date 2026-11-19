@@ -612,6 +612,25 @@ the translated program.
   anything else. The cursor must be declared before the `for`, not in its init clause, where
   Go would copy it at every iteration.
 
+- **Field layout.** The fields of a class's struct are written in the order of their Go
+  alignment, widest first, and in Java's order among fields of one alignment
+  (`Ctx.layoutRank`, `Emitter.structDecl`): 8 bytes (pointers, interfaces, strings, slices,
+  `int64`, `float64`), then the fields of a Go type parameter and the runtime's value types
+  holding one (`Optional[T]`: 8 bytes for a pointer, 4 for a handle, so this place leaves no
+  hole either way), then 4 bytes (`int32`, `float32`, handles), 2, 1. Go lays a struct out as
+  it is written and pads each field to its alignment, so a `boolean` between two references
+  costs 8 bytes; in this order a struct has no padding but at its end. The embedded superclass
+  struct stays first, then `self_`, the dispatch table, the enclosing instance and the captured
+  variables with the declared fields, each by its alignment. Only the declaration changes:
+  every use names the field (the translation writes no positional composite literal of a class
+  struct, compares no struct value and converts none; the runtime finds `self_` and an embedded
+  superclass by name or by type, `Object_clone` and `embeddedPtr_`), and field initializers
+  and constructors run in Java's order. The records and columns of a handle class have their
+  own layout (above). `J2GO_NOLAYOUT=1` writes Java's order. Padding over the 2,172 generated
+  structs 3,639 -> 2,415 bytes (what is left is at the end of a struct); 115 structs are
+  smaller, 77 of them by an allocation size class (`Var` 72 -> 64 bytes, so 80 -> 64 allocated;
+  `HamtPMap` 56 -> 48, so 64 -> 48).
+
 What the runtime does for the same reason (entries of hash tables stored by value, small
 tables searched linearly, no per-entry or per-view objects) is described in `RUNTIME.md`.
 

@@ -212,13 +212,26 @@ final class Emitter extends StmtEmitter {
     String tps = cx.goTparamsDecl(te);
     StringBuilder sb = new StringBuilder(handle ? "" : "type " + n + tps + " struct {\n");
     if (sup != null) sb.append("\t").append(cx.superStruct(te, sup)).append("\n");
-    if (cx.declaresSelf(te)) sb.append("\tself_ any\n");
+    // The fields of the struct with their layout rank (Ctx.layoutRank); written after the loop.
+    List<String> flds = new ArrayList<>();
+    List<Integer> ranks = new ArrayList<>();
+    if (cx.declaresSelf(te)) {
+      flds.add("self_ any");
+      ranks.add(0);
+    }
     List<ExecutableElement> vt = vtRoots(te);
-    if (!vt.isEmpty()) sb.append("\tvt_").append(n).append("_ ").append(n).append("_vt_").append(cx.goTparamsUse(te)).append("\n");
+    if (!vt.isEmpty()) {
+      flds.add("vt_" + n + "_ " + n + "_vt_" + cx.goTparamsUse(te));
+      ranks.add(0);
+    }
     ClassCtx c = cc();
-    if (c.hasOuter) sb.append("\touter_ ").append(cx.ref(cx.enclosingClass(te))).append("\n");
+    if (c.hasOuter) {
+      flds.add("outer_ " + cx.ref(cx.enclosingClass(te)));
+      ranks.add(cx.isHandle(cx.enclosingClass(te)) ? 2 : 0);
+    }
     for (VariableElement cap : c.captures) {
-      sb.append("\tcap_").append(Ctx.safe(cap.getSimpleName().toString())).append(" ").append(cx.goType(cx.vtype(cap))).append("\n");
+      flds.add("cap_" + Ctx.safe(cap.getSimpleName().toString()) + " " + cx.goType(cx.vtype(cap)));
+      ranks.add(cx.layoutRank(cx.vtype(cap)));
     }
     List<VariableTree> enumConsts = new ArrayList<>();
     List<Tree> instanceInits = new ArrayList<>();
@@ -229,11 +242,24 @@ final class Emitter extends StmtEmitter {
         if (fe.getKind() == ElementKind.ENUM_CONSTANT) {
           enumConsts.add(v);
         } else if (!fe.getModifiers().contains(Modifier.STATIC)) {
-          if (!handle) sb.append("\t").append(cx.fieldName((VariableElement) fe)).append(" ").append(cx.declType(cx.vtype(fe))).append("\n");
+          flds.add(cx.fieldName((VariableElement) fe) + " " + cx.declType(cx.vtype(fe)));
+          ranks.add(cx.layoutRank(cx.vtype(fe)));
           if (v.getInitializer() != null) instanceInits.add(v);
         }
       } else if (m instanceof BlockTree b && !b.isStatic()) {
         instanceInits.add(b);
+      }
+    }
+    if (!handle) {
+      // Rule "field layout": the fields in the order of their alignment, widest first, and in
+      // Java's order among equals, so that the struct has no padding between two fields. Only
+      // the declaration changes: every use names the field, and constructors and initializers
+      // run in Java's order. The embedded superclass stays first. (The records of a handle class
+      // have their own layout, handleDecl.)
+      for (int r = 0; r <= Ctx.LAYOUT_RANKS; r++) {
+        for (int i = 0; i < flds.size(); i++) {
+          if (Ctx.NO_LAYOUT ? r == 0 : ranks.get(i) == r) sb.append("\t").append(flds.get(i)).append("\n");
+        }
       }
     }
     sb.append(handle ? handleDecl(te) : "}\n\n");
