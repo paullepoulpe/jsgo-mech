@@ -5,11 +5,11 @@ package closure
 type VariableReferenceCheck struct {
 	compiler_              *AbstractCompiler
 	checkUnusedLocals      bool
-	blocksWithDeclarations *TSet[*BasicBlock]
+	blocksWithDeclarations *JTSet[*BasicBlock]
 }
 
 func (this *VariableReferenceCheck) finit_VariableReferenceCheck() {
-	this.blocksWithDeclarations = newTSet_(tc_p_BasicBlock)
+	this.blocksWithDeclarations = jnewTSet_(jtc_p_BasicBlock)
 }
 
 func (this *VariableReferenceCheck) init_VariableReferenceCheck(compiler *AbstractCompiler) {
@@ -28,7 +28,7 @@ func (this *VariableReferenceCheck) process_2(externs Node, root Node) {
 	new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, ReferenceCollector_Behavior(new_VariableReferenceCheck_ReferenceCheckingBehavior(this)), icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)))).process_2(externs, root)
 }
 
-func (this *VariableReferenceCheck) lookForHoistedFunction(references *TList[*Reference]) *Reference {
+func (this *VariableReferenceCheck) lookForHoistedFunction(references *JTList[*Reference]) *Reference {
 	it_1 := references.each()
 	for it_1.next() {
 		var reference *Reference = it_1.v
@@ -176,7 +176,7 @@ var VariableReferenceCheck_UNUSED_LOCAL_ASSIGNMENT *DiagnosticType
 var VariableReferenceCheck_GOOG_REQUIRE *QualifiedName
 var VariableReferenceCheck_GOOG_REQUIRE_TYPE *QualifiedName
 var VariableReferenceCheck_GOOG_FORWARD_DECLARE *QualifiedName
-var VariableReferenceCheck_BLOCKLESS_DECLARATION_FORBIDDEN_STATEMENTS *TSet[*Token_rhino]
+var VariableReferenceCheck_BLOCKLESS_DECLARATION_FORBIDDEN_STATEMENTS *JTSet[*Token_rhino]
 var VariableReferenceCheck_GOOG_SCOPE *QualifiedName
 
 var VariableReferenceCheck_clinit_done bool
@@ -204,11 +204,11 @@ func VariableReferenceCheck_clinit() {
 
 type VariableReferenceCheck_ReferenceCheckingBehavior struct {
 	outer_             *VariableReferenceCheck
-	varsInFunctionBody *TSet[string]
+	varsInFunctionBody *JTSet[string]
 }
 
 func (this *VariableReferenceCheck_ReferenceCheckingBehavior) init_VariableReferenceCheck_ReferenceCheckingBehavior() {
-	this.varsInFunctionBody = newTSet_(tc_string)
+	this.varsInFunctionBody = jnewTSet_(jtc_string)
 }
 
 func new_VariableReferenceCheck_ReferenceCheckingBehavior(outer_ *VariableReferenceCheck) *VariableReferenceCheck_ReferenceCheckingBehavior {
@@ -247,11 +247,11 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) afterExitScope(t *
 	}
 }
 
-func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkDefaultParam(param *Var, scope *Scope, varsInFunctionBody *TSet[string]) {
+func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkDefaultParam(param *Var, scope *Scope, varsInFunctionBody *JTSet[string]) {
 	NodeTraversal_traverse(this.outer_.compiler_, param.getParentNode().getSecondChild(), NodeTraversal_Callback(new_VariableReferenceCheck_ReferenceCheckingBehavior_1(this, varsInFunctionBody, scope)))
 }
 
-func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkShadowParam(v *Var, functionScope *Scope, references *TList[*Reference]) {
+func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkShadowParam(v *Var, functionScope *Scope, references *JTList[*Reference]) {
 	var maybeParam *Var = functionScope.getVar_String_rVar(v.getName())
 	if ((maybeParam != nil) && maybeParam.isParam()) && (maybeParam.getScope_rAbstractScope_rScope() == functionScope) {
 		it_1 := references.each()
@@ -279,7 +279,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkGoogModuleExp
 	}
 }
 
-func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkVar(v *Var, references *TList[*Reference]) {
+func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkVar(v *Var, references *JTList[*Reference]) {
 	this.outer_.blocksWithDeclarations.clear()
 	var hasSeenDeclaration bool = false
 	var hasErrors bool = false
@@ -349,7 +349,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) afterVisitNode(p0 
 type VariableReferenceCheck_ReferenceCheckingBehavior_1 struct {
 	NodeTraversal_AbstractShallowCallback
 	outer_                 *VariableReferenceCheck_ReferenceCheckingBehavior
-	cap_varsInFunctionBody *TSet[string]
+	cap_varsInFunctionBody *JTSet[string]
 	cap_scope              *Scope
 }
 
@@ -364,7 +364,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior_1) init_VariableRef
 	this.NodeTraversal_AbstractShallowCallback.init_NodeTraversal_AbstractShallowCallback()
 }
 
-func new_VariableReferenceCheck_ReferenceCheckingBehavior_1(outer_ *VariableReferenceCheck_ReferenceCheckingBehavior, cap_varsInFunctionBody *TSet[string], cap_scope *Scope) *VariableReferenceCheck_ReferenceCheckingBehavior_1 {
+func new_VariableReferenceCheck_ReferenceCheckingBehavior_1(outer_ *VariableReferenceCheck_ReferenceCheckingBehavior, cap_varsInFunctionBody *JTSet[string], cap_scope *Scope) *VariableReferenceCheck_ReferenceCheckingBehavior_1 {
 	this := &VariableReferenceCheck_ReferenceCheckingBehavior_1{}
 	this.self_ = this
 	this.outer_ = outer_

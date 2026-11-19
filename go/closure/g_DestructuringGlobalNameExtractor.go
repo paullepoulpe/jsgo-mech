@@ -15,7 +15,7 @@ func new_DestructuringGlobalNameExtractor() *DestructuringGlobalNameExtractor {
 	return this
 }
 
-func DestructuringGlobalNameExtractor_reassignDestructringLvalue(stringKey Node, newName Node, newNodes *TSet[GlobalNamespace_AstChange], ref *GlobalNamespace_Ref, compiler *AbstractCompiler) {
+func DestructuringGlobalNameExtractor_reassignDestructringLvalue(stringKey Node, newName Node, newNodes *JTSet[GlobalNamespace_AstChange], ref *GlobalNamespace_Ref, compiler *AbstractCompiler) {
 	var pattern Node = stringKey.getParent()
 	var assignmentType Node = pattern.getParent()
 	Preconditions_checkState_boolean_Object_H((assignmentType.isAssign() || assignmentType.isDestructuringLhs()), assignmentType)
@@ -100,7 +100,7 @@ func DestructuringGlobalNameExtractor_replaceDestructuringAssignment(pattern Nod
 	}
 }
 
-func DestructuringGlobalNameExtractor_makeNewRvalueForDestructuringKey(stringKey Node, rvalue Node, newNodes *TSet[GlobalNamespace_AstChange], ref *GlobalNamespace_Ref) Node {
+func DestructuringGlobalNameExtractor_makeNewRvalueForDestructuringKey(stringKey Node, rvalue Node, newNodes *JTSet[GlobalNamespace_AstChange], ref *GlobalNamespace_Ref) Node {
 	if stringKey.getOnlyChild().isDefaultValue() {
 		var defaultValue Node = stringKey.getFirstChild().getSecondChild().detach()
 		var rvalueForSheq Node = rvalue.cloneTree()

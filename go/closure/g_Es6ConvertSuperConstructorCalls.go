@@ -18,7 +18,7 @@ func (this *Es6ConvertSuperConstructorCalls) init_Es6ConvertSuperConstructorCall
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
 	this.transpilationNamespace = compiler.getTranspilationNamespace()
-	this.constructorDataStack = newTDeque_(tc_p_Es6ConvertSuperConstructorCalls_ConstructorData)
+	this.constructorDataStack = newTDeque_(jtc_p_Es6ConvertSuperConstructorCalls_ConstructorData)
 	this.uniqueIdSupplier = compiler.getUniqueIdSupplier()
 	var runtimeJsLibManager *RuntimeJsLibManager = compiler.getRuntimeJsLibManager()
 	this.jscompInherits = runtimeJsLibManager.getJsLibField("$jscomp.inherits")
@@ -61,7 +61,7 @@ func (this *Es6ConvertSuperConstructorCalls) visit(t *NodeTraversal, n Node, par
 
 func (this *Es6ConvertSuperConstructorCalls) visitSuper(t *NodeTraversal, constructorData *Es6ConvertSuperConstructorCalls_ConstructorData) {
 	var constructor Node = constructorData.constructor_
-	var superCalls *TList[Node] = constructorData.superCalls
+	var superCalls *JTList[Node] = constructorData.superCalls
 	if superCalls.isEmpty() {
 		return
 	}
@@ -93,11 +93,11 @@ func (this *Es6ConvertSuperConstructorCalls) visitSuper(t *NodeTraversal, constr
 	}
 }
 
-func (this *Es6ConvertSuperConstructorCalls) replaceSuperCallsWithThis(superCalls *TList[Node], thisType AstFactory_Type) {
+func (this *Es6ConvertSuperConstructorCalls) replaceSuperCallsWithThis(superCalls *JTList[Node], thisType AstFactory_Type) {
 	it_1 := superCalls.each()
 	for it_1.next() {
 		var superCall Node = it_1.v
-		var sideEffectArgs *TList[Node] = newTList_(tc_Node)
+		var sideEffectArgs *JTList[Node] = jnewTList_(jtc_Node)
 		var callee Node = superCall.removeFirstChild()
 		Preconditions_checkState_boolean_Object_H(callee.isSuper(), callee)
 		for superCall.hasChildren() {
@@ -122,7 +122,7 @@ func (this *Es6ConvertSuperConstructorCalls) replaceSuperCallsWithThis(superCall
 	}
 }
 
-func (this *Es6ConvertSuperConstructorCalls) rewriteSuperCallsToJsCompConstructCalls(constructor Node, superCalls *TList[Node], superClassNameNode Node, thisType AstFactory_Type, uniqueSuperThisName string) {
+func (this *Es6ConvertSuperConstructorCalls) rewriteSuperCallsToJsCompConstructCalls(constructor Node, superCalls *JTList[Node], superClassNameNode Node, thisType AstFactory_Type, uniqueSuperThisName string) {
 	var constructorBody Node = Preconditions_checkNotNull_T(constructor.getChildAtIndex(2))
 	var firstStatement Node = constructorBody.getFirstChild()
 	Preconditions_checkNotNull_Object_Object_T(firstStatement, "Empty constructor body")
@@ -150,7 +150,7 @@ func (this *Es6ConvertSuperConstructorCalls) rewriteSuperCallsToJsCompConstructC
 	this.compiler_.reportChangeToEnclosingScope(constructorBody)
 }
 
-func (this *Es6ConvertSuperConstructorCalls) rewriteNativeErrorSuperCalls(t *NodeTraversal, superCalls *TList[Node], superClassNameNode Node, thisType AstFactory_Type) {
+func (this *Es6ConvertSuperConstructorCalls) rewriteNativeErrorSuperCalls(t *NodeTraversal, superCalls *JTList[Node], superClassNameNode Node, thisType AstFactory_Type) {
 	it_1 := superCalls.each()
 	for it_1.next() {
 		var superCall Node = it_1.v
@@ -159,7 +159,7 @@ func (this *Es6ConvertSuperConstructorCalls) rewriteNativeErrorSuperCalls(t *Nod
 	}
 }
 
-func (this *Es6ConvertSuperConstructorCalls) rewriteSuperCalls(superCalls *TList[Node], superClassNameNode Node, thisType AstFactory_Type) {
+func (this *Es6ConvertSuperConstructorCalls) rewriteSuperCalls(superCalls *JTList[Node], superClassNameNode Node, thisType AstFactory_Type) {
 	it_1 := superCalls.each()
 	for it_1.next() {
 		var superCall Node = it_1.v
@@ -174,7 +174,7 @@ func (this *Es6ConvertSuperConstructorCalls) rewriteSuperCalls(superCalls *TList
 	}
 }
 
-func (this *Es6ConvertSuperConstructorCalls) rewriteSuperAndPreserveReturnedThis(constructor Node, superCalls *TList[Node], superClassNameNode Node, thisType AstFactory_Type, uniqueSuperThisName string) {
+func (this *Es6ConvertSuperConstructorCalls) rewriteSuperAndPreserveReturnedThis(constructor Node, superCalls *JTList[Node], superClassNameNode Node, thisType AstFactory_Type, uniqueSuperThisName string) {
 	if this.es6SubclassTranspilation == CompilerOptions_Es6SubclassTranspilation_SAFE_REFLECT_CONSTRUCT {
 		this.rewriteSuperCallsToJsCompConstructCalls(constructor, superCalls, superClassNameNode, thisType, uniqueSuperThisName)
 		return
@@ -273,7 +273,7 @@ func (this *Es6ConvertSuperConstructorCalls) createNewSuperCall(superClassQNameN
 	Preconditions_checkArgument_boolean_Object_H(superCall.isCall(), superCall)
 	var callee Node = superCall.removeFirstChild()
 	Preconditions_checkState_boolean_Object_H(callee.isSuper(), callee)
-	var args *TList[Node] = newTList_(tc_Node)
+	var args *JTList[Node] = jnewTList_(jtc_Node)
 	var hasSpreadArg bool = false
 	for superCall.hasChildren() {
 		var arg Node = superCall.removeFirstChild()
@@ -313,7 +313,7 @@ func (this *Es6ConvertSuperConstructorCalls) createJSCompConstructorCall(superCl
 	Preconditions_checkState_boolean_Object_H(callee.isSuper(), callee)
 	var jscompDotConstruct Node = this.astFactory_.createQName(this.transpilationNamespace, this.jscompConstruct).srcrefTree(callee)
 	var superClassQName Node = superClassQNameNode.cloneTree()
-	var superCallArgList *TList[Node] = newTList_(tc_Node)
+	var superCallArgList *JTList[Node] = jnewTList_(jtc_Node)
 	for superCall.hasChildren() {
 		superCallArgList.add(superCall.removeFirstChild())
 	}
@@ -327,7 +327,7 @@ func (this *Es6ConvertSuperConstructorCalls) createJSCompConstructorCall(superCl
 	return this.astFactory_.createCall(jscompDotConstruct, AstFactory_type_Node(superCall), []Node{superClassQName, superArgs, thisDotConstructor}).srcref(superCall)
 }
 
-func Es6ConvertSuperConstructorCalls_isSingleSpreadOfArguments(nodeList *TList[Node]) bool {
+func Es6ConvertSuperConstructorCalls_isSingleSpreadOfArguments(nodeList *JTList[Node]) bool {
 	return ((nodeList.size() == 1) && Es6ConvertSuperConstructorCalls_isSpreadOfArguments(Node_of_(Iterables_getOnlyElement(Iterable(nodeList.asList())))))
 }
 
@@ -384,7 +384,7 @@ func (this *Es6ConvertSuperConstructorCalls) isDefinedInSources(t *NodeTraversal
 	return ((objectVar != nil) && !objectVar.isExtern())
 }
 
-func (this *Es6ConvertSuperConstructorCalls) updateThisToSuperThis(typeOfThis AstFactory_Type, constructorBody Node, superCalls *TList[Node], uniqueSuperThisName string) {
+func (this *Es6ConvertSuperConstructorCalls) updateThisToSuperThis(typeOfThis AstFactory_Type, constructorBody Node, superCalls *JTList[Node], uniqueSuperThisName string) {
 	var replaceThisWithSuperThis NodeTraversal_Callback = NodeTraversal_Callback(new_Es6ConvertSuperConstructorCalls_1(this, superCalls, uniqueSuperThisName, typeOfThis))
 	NodeTraversal_traverse(this.compiler_, constructorBody, replaceThisWithSuperThis)
 }
@@ -446,12 +446,12 @@ const Es6ConvertSuperConstructorCalls_SUPER_THIS string = "$jscomp$super$this"
 
 type Es6ConvertSuperConstructorCalls_ConstructorData struct {
 	constructor_ Node
-	superCalls   *TList[Node]
+	superCalls   *JTList[Node]
 }
 
 func (this *Es6ConvertSuperConstructorCalls_ConstructorData) init_Es6ConvertSuperConstructorCalls_ConstructorData(constructor Node) {
 	this.constructor_ = constructor
-	this.superCalls = newTList_(tc_Node)
+	this.superCalls = jnewTList_(jtc_Node)
 }
 
 func new_Es6ConvertSuperConstructorCalls_ConstructorData(constructor Node) *Es6ConvertSuperConstructorCalls_ConstructorData {
@@ -485,7 +485,7 @@ func (this *Es6ConvertSuperConstructorCalls_UndefinedReturnValueCheck) mayReturn
 
 type Es6ConvertSuperConstructorCalls_1 struct {
 	outer_                  *Es6ConvertSuperConstructorCalls
-	cap_superCalls          *TList[Node]
+	cap_superCalls          *JTList[Node]
 	cap_uniqueSuperThisName string
 	cap_typeOfThis          AstFactory_Type
 }
@@ -494,7 +494,7 @@ func (this *Es6ConvertSuperConstructorCalls_1) init_Es6ConvertSuperConstructorCa
 
 }
 
-func new_Es6ConvertSuperConstructorCalls_1(outer_ *Es6ConvertSuperConstructorCalls, cap_superCalls *TList[Node], cap_uniqueSuperThisName string, cap_typeOfThis AstFactory_Type) *Es6ConvertSuperConstructorCalls_1 {
+func new_Es6ConvertSuperConstructorCalls_1(outer_ *Es6ConvertSuperConstructorCalls, cap_superCalls *JTList[Node], cap_uniqueSuperThisName string, cap_typeOfThis AstFactory_Type) *Es6ConvertSuperConstructorCalls_1 {
 	this := &Es6ConvertSuperConstructorCalls_1{}
 	this.outer_ = outer_
 	this.cap_superCalls = cap_superCalls

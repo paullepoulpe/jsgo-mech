@@ -5,9 +5,9 @@ package closure
 type CheckExtraRequires struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_        *AbstractCompiler
-	requires         *TMap[string, Node]
-	usages           *TSet[string]
-	requiresToRemove *TSet[string]
+	requires         *JTMap[string, Node]
+	usages           *JTSet[string]
+	requiresToRemove *JTSet[string]
 }
 
 func (this *CheckExtraRequires) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -18,18 +18,18 @@ func (this *CheckExtraRequires) up_NodeTraversal_AbstractPostOrderCallback() *No
 }
 
 func (this *CheckExtraRequires) finit_CheckExtraRequires() {
-	this.requires = newTMap_(tc_string, tc_Node)
-	this.usages = newTSet_(tc_string)
+	this.requires = jnewTMap_(jtc_string, jtc_Node)
+	this.usages = jnewTSet_(jtc_string)
 }
 
-func (this *CheckExtraRequires) init_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove *TSet[string]) {
+func (this *CheckExtraRequires) init_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove *JTSet[string]) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.finit_CheckExtraRequires()
 	this.compiler_ = compiler
 	this.requiresToRemove = requiresToRemove
 }
 
-func new_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove *TSet[string]) *CheckExtraRequires {
+func new_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove *JTSet[string]) *CheckExtraRequires {
 	this := &CheckExtraRequires{}
 	this.self_ = this
 	this.init_CheckExtraRequires(compiler, requiresToRemove)
@@ -209,7 +209,7 @@ func (this *CheckExtraRequires) maybeAddJsDocUsages(n Node) {
 }
 
 var CheckExtraRequires_EXTRA_REQUIRE_WARNING *DiagnosticType
-var CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES *TSet[string]
+var CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES *JTSet[string]
 var CheckExtraRequires_GOOG_MODULE_GET *QualifiedName
 
 var CheckExtraRequires_clinit_done bool
@@ -220,7 +220,7 @@ func CheckExtraRequires_clinit() {
 	}
 	CheckExtraRequires_clinit_done = true
 	CheckExtraRequires_EXTRA_REQUIRE_WARNING = DiagnosticType_disabled("JSC_EXTRA_REQUIRE_WARNING", "extra require: ''{0}'' is never referenced in this file")
-	CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES = immutableSetOf_[string](tc_string, "goog.testing.asserts", "goog.testing.jsunit")
+	CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES = jimmutableSetOf_[string](jtc_string, "goog.testing.asserts", "goog.testing.jsunit")
 	CheckExtraRequires_GOOG_MODULE_GET = QualifiedName_of("goog.module.get")
 
 }

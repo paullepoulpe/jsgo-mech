@@ -5,9 +5,9 @@ package closure
 type FindExportableNodes struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_         *AbstractCompiler
-	exports           *TMap[string, Node]
-	es6ClassExports   *TMap[Node, string]
-	localExports      *TSet[string]
+	exports           *JTMap[string, Node]
+	es6ClassExports   *JTMap[Node, string]
+	localExports      *JTSet[string]
 	allowLocalExports bool
 }
 
@@ -19,9 +19,9 @@ func (this *FindExportableNodes) up_NodeTraversal_AbstractPostOrderCallback() *N
 }
 
 func (this *FindExportableNodes) finit_FindExportableNodes() {
-	this.exports = newTMap_(tc_string, tc_Node)
-	this.es6ClassExports = newTMap_(tc_Node, tc_string)
-	this.localExports = newTSet_(tc_string)
+	this.exports = jnewTMap_(jtc_string, jtc_Node)
+	this.es6ClassExports = jnewTMap_(jtc_Node, jtc_string)
+	this.localExports = jnewTSet_(jtc_string)
 }
 
 func (this *FindExportableNodes) init_FindExportableNodes(compiler *AbstractCompiler, allowLocalExports bool) {
@@ -151,15 +151,15 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 	}
 }
 
-func (this *FindExportableNodes) getExports() *TMap[string, Node] {
+func (this *FindExportableNodes) getExports() *JTMap[string, Node] {
 	return this.exports
 }
 
-func (this *FindExportableNodes) getLocalExports() *TSet[string] {
+func (this *FindExportableNodes) getLocalExports() *JTSet[string] {
 	return this.localExports
 }
 
-func (this *FindExportableNodes) getEs6ClassExports() *TMap[Node, string] {
+func (this *FindExportableNodes) getEs6ClassExports() *JTMap[Node, string] {
 	return this.es6ClassExports
 }
 

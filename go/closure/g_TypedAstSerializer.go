@@ -9,14 +9,14 @@ type TypedAstSerializer struct {
 	previousLine       int32
 	previousColumn     int32
 	subtreeSourceFiles *TDeque[*SourceFile_jscomp]
-	sourceFilePointers *TMap[*SourceFile_jscomp, any]
+	sourceFilePointers *JTMap[*SourceFile_jscomp, any]
 	typeSerializer     TypedAstSerializer_TypeSerializer
 }
 
 func (this *TypedAstSerializer) finit_TypedAstSerializer() {
 	this.stringPool = StringPool_builder()
-	this.subtreeSourceFiles = newTDeque_(tc_p_SourceFile_jscomp)
-	this.sourceFilePointers = newTMap_(tc_p_SourceFile_jscomp, tc_Integer)
+	this.subtreeSourceFiles = newTDeque_(jtc_p_SourceFile_jscomp)
+	this.sourceFilePointers = jnewTMap_(jtc_p_SourceFile_jscomp, tc_Integer)
 	this.typeSerializer = nil
 }
 
@@ -74,8 +74,8 @@ func (this *TypedAstSerializer) serializeRoots(externsRoot Node, jsRoot Node) *T
 	return cast_[*TypedAst](builder.addAllRuntimeLibraryToInject(Iterable(this.serializationMode.runtimeLibraries().asList())).setTypePool(this.typeSerializer.generateTypePool()).setStringPool(this.stringPool.build().toProto()).setSourceFilePool(sourceFiles).build())
 }
 
-func (this *TypedAstSerializer) sourceFileProtos() *TList[*SourceFileProto] {
-	var result *TListBuilder[*SourceFileProto] = newTListBuilder_(tc_p_SourceFileProto)
+func (this *TypedAstSerializer) sourceFileProtos() *JTList[*SourceFileProto] {
+	var result *TListBuilder[*SourceFileProto] = newTListBuilder_(jtc_p_SourceFileProto)
 	it_1 := this.sourceFilePointers.eachKey()
 	for it_1.next() {
 		var sourceFile *SourceFile_jscomp = it_1.v
@@ -506,8 +506,8 @@ func (this *TypedAstSerializer) createColorTypeSerializer(compiler *AbstractComp
 	return new_TypedAstSerializer_ColorTypeSerializer(colorSerializer, compiler.getColorRegistry())
 }
 
-func TypedAstSerializer_collectUsedPropertyNames(compiler *AbstractCompiler) *TSet[string] {
-	var propertyNamesBuilder *TSetBuilder[string] = newTSetBuilder_(tc_string)
+func TypedAstSerializer_collectUsedPropertyNames(compiler *AbstractCompiler) *JTSet[string] {
+	var propertyNamesBuilder *TSetBuilder[string] = newTSetBuilder_(jtc_string)
 	NodeTraversal_traverse(compiler, compiler.getRoot(), NodeTraversal_Callback(new_TypedAstSerializer_1(propertyNamesBuilder)))
 	return propertyNamesBuilder.build()
 }

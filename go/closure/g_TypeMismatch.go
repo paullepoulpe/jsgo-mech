@@ -89,11 +89,11 @@ func TypeMismatch_clinit() {
 }
 
 type TypeMismatch_Accumulator struct {
-	mismatches *TList[*TypeMismatch]
+	mismatches *JTList[*TypeMismatch]
 }
 
 func (this *TypeMismatch_Accumulator) finit_TypeMismatch_Accumulator() {
-	this.mismatches = newTList_(tc_p_TypeMismatch)
+	this.mismatches = jnewTList_(jtc_p_TypeMismatch)
 }
 
 func (this *TypeMismatch_Accumulator) init_TypeMismatch_Accumulator() {

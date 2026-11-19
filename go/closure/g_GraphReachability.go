@@ -95,8 +95,8 @@ func is_GraphReachability_EdgeTuple(v any) bool {
 }
 
 func (this *GraphReachability_EdgeTuple[N, E]) zero_GraphReachability_EdgeTuple() {
-	this.sourceNode_ = null_[N]()
-	this.edge = null_[E]()
+	this.sourceNode_ = jnull_[N]()
+	this.edge = jnull_[E]()
 }
 
 func (this *GraphReachability_EdgeTuple[N, E]) init_GraphReachability_EdgeTuple(sourceNode N, edge E, destNode N) {

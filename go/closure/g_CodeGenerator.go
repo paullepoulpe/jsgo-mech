@@ -1121,7 +1121,7 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		this.maybeAddTypeDecl(node)
 		this.cc.endStatement_2(true, this.hasTrailingCommentOnSameLine(node))
 	default:
-		panic(new_IllegalStateException_String(("Unknown token " + tostr_(type_) + "\n" + sstr_(node.toStringTree()))).self())
+		panic(new_IllegalStateException_String(("Unknown token " + jtostr_(type_) + "\n" + sstr_(node.toStringTree()))).self())
 	}
 	this.printTrailingComment(node)
 	this.cc.endSourceMapping(node)

@@ -5,28 +5,28 @@ package closure
 type ProcessDefines struct {
 	compiler_                           *AbstractCompiler
 	registry                            *JSTypeRegistry
-	replacementValuesFromFlags          *TMap[string, Node]
+	replacementValuesFromFlags          *JTMap[string, Node]
 	mode_                               *ProcessDefines_Mode
 	namespaceSupplier                   SupplierOf[*GlobalNamespace]
 	recognizeClosureDefines             bool
 	enableZonesDefineName               Optional[string]
 	zoneInputPattern                    *Pattern
-	unknownDefinesToIgnore              *TSet[string]
-	knownDefineJsdocs                   *TSet[*JSDocInfo]
-	knownGoogDefineCalls                *TSet[Node]
-	defineByDefineName                  *TMap[string, *ProcessDefines_Define]
-	replacementValuesFromClosureDefines *TMap[string, Node]
-	validDefineValueExpressions         *TSet[Node]
+	unknownDefinesToIgnore              *JTSet[string]
+	knownDefineJsdocs                   *JTSet[*JSDocInfo]
+	knownGoogDefineCalls                *JTSet[Node]
+	defineByDefineName                  *JTMap[string, *ProcessDefines_Define]
+	replacementValuesFromClosureDefines *JTMap[string, Node]
+	validDefineValueExpressions         *JTSet[Node]
 	hasZoneInput                        bool
 	namespace_                          *GlobalNamespace
 }
 
 func (this *ProcessDefines) finit_ProcessDefines() {
-	this.knownDefineJsdocs = newTSet_(tc_p_JSDocInfo)
-	this.knownGoogDefineCalls = newTSet_(tc_Node)
-	this.defineByDefineName = newTMap_(tc_string, tc_p_ProcessDefines_Define)
-	this.replacementValuesFromClosureDefines = newTMap_(tc_string, tc_Node)
-	this.validDefineValueExpressions = newTSet_(tc_Node)
+	this.knownDefineJsdocs = jnewTSet_(jtc_p_JSDocInfo)
+	this.knownGoogDefineCalls = jnewTSet_(jtc_Node)
+	this.defineByDefineName = jnewTMap_(jtc_string, jtc_p_ProcessDefines_Define)
+	this.replacementValuesFromClosureDefines = jnewTMap_(jtc_string, jtc_Node)
+	this.validDefineValueExpressions = jnewTSet_(jtc_Node)
 	this.hasZoneInput = false
 }
 
@@ -40,12 +40,12 @@ func (this *ProcessDefines) init_ProcessDefines(builder *ProcessDefines_Builder)
 		}
 		return nil
 	}()
-	this.replacementValuesFromFlags = immutableMapCopyOfT_(tc_string, tc_Node, builder.replacementValues)
+	this.replacementValuesFromFlags = immutableMapCopyOfT_(jtc_string, jtc_Node, builder.replacementValues)
 	this.namespaceSupplier = builder.namespaceSupplier
 	this.recognizeClosureDefines = builder.recognizeClosureDefines
 	this.enableZonesDefineName = builder.enableZonesDefineName
 	this.zoneInputPattern = builder.zoneInputPattern
-	this.unknownDefinesToIgnore = immutableSetCopyOf_(tc_string, Collection(builder.unknownDefinesToIgnore.asList()))
+	this.unknownDefinesToIgnore = jimmutableSetCopyOf_(jtc_string, Collection(builder.unknownDefinesToIgnore.asList()))
 }
 
 func new_ProcessDefines(builder *ProcessDefines_Builder) *ProcessDefines {
@@ -245,7 +245,7 @@ func ProcessDefines_getValueParentForDefine(declaration *GlobalNamespace_Ref) No
 }
 
 func (this *ProcessDefines) collectValidDefineValueExpressions() {
-	var namesToCheck *TSet[*GlobalNamespace_Name] = newTSet_(tc_p_GlobalNamespace_Name)
+	var namesToCheck *JTSet[*GlobalNamespace_Name] = jnewTSet_(jtc_p_GlobalNamespace_Name)
 	it_1 := foreach_(any(this.namespace_.getAllSymbols_rCollection()))
 	for it_1.next() {
 		var name *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](it_1.v)
@@ -266,7 +266,7 @@ func (this *ProcessDefines) collectValidDefineValueExpressions() {
 		}
 	}
 	for {
-		var namesToCheckAgain *TSet[*GlobalNamespace_Name] = newTSet_(tc_p_GlobalNamespace_Name)
+		var namesToCheckAgain *JTSet[*GlobalNamespace_Name] = jnewTSet_(jtc_p_GlobalNamespace_Name)
 		it_8 := namesToCheck.each()
 		for it_8.next() {
 			var name *GlobalNamespace_Name = it_8.v
@@ -529,7 +529,7 @@ func (this *ProcessDefines) verifyOfType(methodName Node, arg Node, desiredType 
 	return true
 }
 
-var ProcessDefines_KNOWN_DEFINES *TSet[string]
+var ProcessDefines_KNOWN_DEFINES *JTSet[string]
 var ProcessDefines_GOOG_DEFINE Node
 var ProcessDefines_UNKNOWN_DEFINE_WARNING *DiagnosticType
 var ProcessDefines_INVALID_DEFINE_NAME_ERROR *DiagnosticType
@@ -552,7 +552,7 @@ func ProcessDefines_clinit() {
 		return
 	}
 	ProcessDefines_clinit_done = true
-	ProcessDefines_KNOWN_DEFINES = immutableSetOf_[string](tc_string, "COMPILED", "goog.DEBUG", "$jscomp.ASSUME_ES5", "$jscomp.ASSUME_ES6", "$jscomp.ASSUME_ES2020", "$jscomp.ISOLATE_POLYFILLS", "$jscomp.INSTRUMENT_ASYNC_CONTEXT")
+	ProcessDefines_KNOWN_DEFINES = jimmutableSetOf_[string](jtc_string, "COMPILED", "goog.DEBUG", "$jscomp.ASSUME_ES5", "$jscomp.ASSUME_ES6", "$jscomp.ASSUME_ES2020", "$jscomp.ISOLATE_POLYFILLS", "$jscomp.INSTRUMENT_ASYNC_CONTEXT")
 	ProcessDefines_GOOG_DEFINE = IR_getprop_Node_String(IR_name("goog"), "define")
 	ProcessDefines_UNKNOWN_DEFINE_WARNING = DiagnosticType_warning("JSC_UNKNOWN_DEFINE_WARNING", "unknown @define variable {0}")
 	ProcessDefines_INVALID_DEFINE_NAME_ERROR = DiagnosticType_error("JSC_INVALID_DEFINE_NAME_ERROR", "\"{0}\" is not a valid JS identifier name")
@@ -631,21 +631,21 @@ func ProcessDefines_Mode_clinit() {
 
 type ProcessDefines_Builder struct {
 	compiler_               *AbstractCompiler
-	replacementValues       *TMap[string, Node]
+	replacementValues       *JTMap[string, Node]
 	mode_                   *ProcessDefines_Mode
 	namespaceSupplier       SupplierOf[*GlobalNamespace]
 	recognizeClosureDefines bool
 	enableZonesDefineName   Optional[string]
 	zoneInputPattern        *Pattern
-	unknownDefinesToIgnore  *TList[string]
+	unknownDefinesToIgnore  *JTList[string]
 }
 
 func (this *ProcessDefines_Builder) finit_ProcessDefines_Builder() {
-	this.replacementValues = newTMap_(tc_string, tc_Node)
+	this.replacementValues = jnewTMap_(jtc_string, jtc_Node)
 	this.recognizeClosureDefines = true
 	this.enableZonesDefineName = Optional_empty[string]()
 	this.zoneInputPattern = nil
-	this.unknownDefinesToIgnore = tlistEmptyImm_(tc_string)
+	this.unknownDefinesToIgnore = jtlistEmptyImm_(jtc_string)
 }
 
 func (this *ProcessDefines_Builder) init_ProcessDefines_Builder(compiler *AbstractCompiler) {
@@ -659,7 +659,7 @@ func new_ProcessDefines_Builder(compiler *AbstractCompiler) *ProcessDefines_Buil
 	return this
 }
 
-func (this *ProcessDefines_Builder) putReplacements(replacementValues *TMap[string, Node]) *ProcessDefines_Builder {
+func (this *ProcessDefines_Builder) putReplacements(replacementValues *JTMap[string, Node]) *ProcessDefines_Builder {
 	this.replacementValues.asMap().putAll(replacementValues.asMap())
 	return this
 }
@@ -674,7 +674,7 @@ func (this *ProcessDefines_Builder) injectNamespace(namespaceSupplier SupplierOf
 	return this
 }
 
-func (this *ProcessDefines_Builder) setUnknownDefinesToIgnore(unknownDefinesToIgnore *TList[string]) *ProcessDefines_Builder {
+func (this *ProcessDefines_Builder) setUnknownDefinesToIgnore(unknownDefinesToIgnore *JTList[string]) *ProcessDefines_Builder {
 	this.unknownDefinesToIgnore = unknownDefinesToIgnore
 	return this
 }

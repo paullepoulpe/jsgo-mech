@@ -5,11 +5,11 @@ package closure
 type OptimizeConstructors struct {
 	compiler_             *AbstractCompiler
 	astAnalyzer           *AstAnalyzer
-	removableConstructors *TList[Node]
+	removableConstructors *JTList[Node]
 }
 
 func (this *OptimizeConstructors) finit_OptimizeConstructors() {
-	this.removableConstructors = newTList_(tc_Node)
+	this.removableConstructors = jnewTList_(jtc_Node)
 }
 
 func (this *OptimizeConstructors) init_OptimizeConstructors(compiler *AbstractCompiler) {
@@ -48,7 +48,7 @@ func (this *OptimizeConstructors) addConstructorsToBeRemoved(name string, refs A
 	}
 	var candidateClassDefinition Node = 0
 	var candidateConstructor Node = 0
-	var subclassConstructors *TList[Node] = nil
+	var subclassConstructors *JTList[Node] = nil
 	it_1 := foreach_(refs.self())
 	for it_1.next() {
 		var n Node = Node_of_(it_1.v)
@@ -78,7 +78,7 @@ func (this *OptimizeConstructors) addConstructorsToBeRemoved(name string, refs A
 				var subclassConstructor Node = NodeUtil_getEs6ClassConstructorMemberFunctionDef(subclassLiteral)
 				if (subclassConstructor != 0) && OptimizeConstructors_constructorHasRemovableDefinition(subclassConstructor) {
 					if subclassConstructors == nil {
-						subclassConstructors = newTList_(tc_Node)
+						subclassConstructors = jnewTList_(jtc_Node)
 					}
 					subclassConstructors.add(subclassConstructor)
 				}

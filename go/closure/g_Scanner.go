@@ -8,7 +8,7 @@ type Scanner_parser struct {
 	lineNumberScanner  *LineNumberScanner
 	contents           string
 	contentsLength     int32
-	currentTokens      *TList[*Token_parser]
+	currentTokens      *JTList[*Token_parser]
 	index_             int32
 	commentRecorder    Scanner_CommentRecorder
 	typeParameterLevel int32
@@ -19,7 +19,7 @@ func (this *Scanner_parser) zero_Scanner_parser() {
 }
 
 func (this *Scanner_parser) finit_Scanner_parser() {
-	this.currentTokens = newTList_(tc_p_Token_parser)
+	this.currentTokens = jnewTList_(jtc_p_Token_parser)
 }
 
 func (this *Scanner_parser) init_Scanner_parser(errorReporter *ErrorReporter_util, commentRecorder Scanner_CommentRecorder, file *SourceFile_parser, offset int32) {
@@ -744,7 +744,7 @@ func (this *Scanner_parser) scanIdentifierOrKeyword(beginToken int32, ch uint16)
 }
 
 func Scanner_parser_processUnicodeEscapes(value Optional[string]) Optional[string] {
-	for String_contains_s(value.get(), "\\") {
+	for JString_contains_s(value.get(), "\\") {
 		var escapeStart int32 = String_indexOf(value.get(), 92)
 		var ret_2 Optional[string]
 		code_2 := func() (code_ int) {

@@ -7,8 +7,8 @@ type Es6RewriteModules struct {
 	astFactory_             *AstFactory
 	unknownType             *JSType
 	preprocessorSymbolTable *PreprocessorSymbolTable
-	namesToInlineByAlias    *TMap[string, *ModuleRenaming_GlobalizedModuleName]
-	typedefs                *TSet[string]
+	namesToInlineByAlias    *JTMap[string, *ModuleRenaming_GlobalizedModuleName]
+	typedefs                *JTSet[string]
 	moduleMetadataMap       *ModuleMetadataMap
 	moduleMap               *ModuleMap
 	globalTypedScope        *TypedScope
@@ -60,8 +60,8 @@ func (this *Es6RewriteModules) process_2(externs Node, root Node) {
 }
 
 func (this *Es6RewriteModules) clearPerFileState() {
-	this.typedefs = newTSet_(tc_string)
-	this.namesToInlineByAlias = newTMap_(tc_string, tc_p_ModuleRenaming_GlobalizedModuleName)
+	this.typedefs = jnewTSet_(jtc_string)
+	this.namesToInlineByAlias = jnewTMap_(jtc_string, tc_p_ModuleRenaming_GlobalizedModuleName)
 }
 
 func (this *Es6RewriteModules) shouldTraverse(nodeTraversal *NodeTraversal, n Node, parent Node) bool {
@@ -310,7 +310,7 @@ func (this *Es6RewriteModules) rewriteRequires(script Node) {
 func (this *Es6RewriteModules) inlineAliasedTypes(t *NodeTraversal, typeNode Node) {
 	if typeNode.isStringLit() {
 		var name string = typeNode.getString()
-		var split *TList[string] = splitToListT_(tc_string, Es6RewriteModules_DOT_SPLITTER.limit(2), strobj_(name))
+		var split *JTList[string] = splitToListT_(jtc_string, Es6RewriteModules_DOT_SPLITTER.limit(2), strobj_(name))
 		if t.getScope().getVar_String_rVar(split.get(0)) == nil {
 			var replacement *ModuleRenaming_GlobalizedModuleName = this.namesToInlineByAlias.get(split.get(0))
 			if replacement != nil {

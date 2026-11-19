@@ -184,7 +184,7 @@ func (this *TypedVar) getScope_rAbstractScope_impl() *AbstractScope {
 	return this.getScope_rAbstractScope_rTypedScope().up_AbstractScope()
 }
 
-var TypedVar_NAME_NODE_TYPES *TSet[*Token_rhino]
+var TypedVar_NAME_NODE_TYPES *JTSet[*Token_rhino]
 
 var TypedVar_clinit_done bool
 

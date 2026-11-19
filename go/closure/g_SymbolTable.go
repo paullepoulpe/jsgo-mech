@@ -4,8 +4,8 @@ package closure
 
 type SymbolTable struct {
 	symbols                *SimpleTable[Node, string, *SymbolTable_Symbol]
-	scopes                 *TMap[Node, *SymbolTable_SymbolScope]
-	docInfos               *TList[Node]
+	scopes                 *JTMap[Node, *SymbolTable_SymbolScope]
+	docInfos               *JTList[Node]
 	globalScope            *SymbolTable_SymbolScope
 	compiler_              *AbstractCompiler
 	registry               *JSTypeRegistry
@@ -18,8 +18,8 @@ type SymbolTable struct {
 
 func (this *SymbolTable) finit_SymbolTable() {
 	this.symbols = SimpleTable_create[Node, string, *SymbolTable_Symbol]()
-	this.scopes = newTMap_(tc_Node, tc_p_SymbolTable_SymbolScope)
-	this.docInfos = newTList_(tc_Node)
+	this.scopes = jnewTMap_(jtc_Node, jtc_p_SymbolTable_SymbolScope)
+	this.docInfos = jnewTList_(jtc_Node)
 	this.globalScope = nil
 	this.symbolThatDeclaresType = new_LinkedIdentityHashMap[*JSType, *SymbolTable_Symbol]()
 	this.sourceNameOrdering = Ordering_natural().nullsFirst()
@@ -44,12 +44,12 @@ func (this *SymbolTable) getReferences(symbol *SymbolTable_Symbol) IterableOf[*S
 	return Iterable(Collections_unmodifiableCollection(symbol.references.asMap().values()))
 }
 
-func (this *SymbolTable) getReferenceList(symbol *SymbolTable_Symbol) *TList[*SymbolTable_Reference] {
-	return immutableListCopyOf_(tc_p_SymbolTable_Reference, symbol.references.asMap().values())
+func (this *SymbolTable) getReferenceList(symbol *SymbolTable_Symbol) *JTList[*SymbolTable_Reference] {
+	return jimmutableListCopyOf_(jtc_p_SymbolTable_Reference, symbol.references.asMap().values())
 }
 
-func (this *SymbolTable) getAllSymbols() *TList[*SymbolTable_Symbol] {
-	return immutableListCopyOf_(tc_p_SymbolTable_Symbol, this.symbols.values())
+func (this *SymbolTable) getAllSymbols() *JTList[*SymbolTable_Symbol] {
+	return jimmutableListCopyOf_(jtc_p_SymbolTable_Symbol, this.symbols.values())
 }
 
 func (this *SymbolTable) getAllSymbolsSorted() ListOf[*SymbolTable_Symbol] {
@@ -196,12 +196,12 @@ func (this *SymbolTable) getSymbolForName(source Node, name Optional[string]) *S
 	return scope.getQualifiedSlot(name.get())
 }
 
-func (this *SymbolTable) getAllSymbolsForType(type_ *JSType) *TList[*SymbolTable_Symbol] {
+func (this *SymbolTable) getAllSymbolsForType(type_ *JSType) *JTList[*SymbolTable_Symbol] {
 	if type_ == nil {
-		return tlistEmptyImm_(tc_p_SymbolTable_Symbol)
+		return jtlistEmptyImm_(jtc_p_SymbolTable_Symbol)
 	}
 	if type_.isUnionType() {
-		var result *TListBuilder[*SymbolTable_Symbol] = newTListBuilder_(tc_p_SymbolTable_Symbol)
+		var result *TListBuilder[*SymbolTable_Symbol] = newTListBuilder_(jtc_p_SymbolTable_Symbol)
 		it_1 := type_.toMaybeUnionType().getAlternates().each()
 		for it_1.next() {
 			var alt *JSType = it_1.v
@@ -213,11 +213,11 @@ func (this *SymbolTable) getAllSymbolsForType(type_ *JSType) *TList[*SymbolTable
 		return result.build()
 	}
 	var result *SymbolTable_Symbol = this.getSymbolForTypeHelper(type_, true)
-	return func() *TList[*SymbolTable_Symbol] {
+	return func() *JTList[*SymbolTable_Symbol] {
 		if result == nil {
-			return tlistEmptyImm_(tc_p_SymbolTable_Symbol)
+			return jtlistEmptyImm_(jtc_p_SymbolTable_Symbol)
 		}
-		return immutableListOf_[*SymbolTable_Symbol](tc_p_SymbolTable_Symbol, result)
+		return jimmutableListOf_[*SymbolTable_Symbol](jtc_p_SymbolTable_Symbol, result)
 	}()
 }
 
@@ -288,7 +288,7 @@ func (this *SymbolTable) toDebugStringTree() string {
 			this.toDebugStringTree_4(builder, "", scope, childrenScopes)
 		}
 	}
-	var visitedScopes *TSet[*SymbolTable_SymbolScope] = tsetFrom_(tc_p_SymbolTable_SymbolScope, this.getAllScopes())
+	var visitedScopes *JTSet[*SymbolTable_SymbolScope] = jtsetFrom_(jtc_p_SymbolTable_SymbolScope, this.getAllScopes())
 	it_5 := this.getAllSymbols().each()
 	for it_5.next() {
 		var symbol *SymbolTable_Symbol = it_5.v
@@ -377,7 +377,7 @@ func (this *SymbolTable) getAllScopes() CollectionOf[*SymbolTable_SymbolScope] {
 }
 
 func (this *SymbolTable) addAnonymousFunctions() {
-	var scopes *TSet[*SymbolTable_SymbolScope] = newTSortedSetC_(tc_p_SymbolTable_SymbolScope, icast_Comparator(this.lexicalScopeOrdering.self()))
+	var scopes *JTSet[*SymbolTable_SymbolScope] = newTSortedSetC_(jtc_p_SymbolTable_SymbolScope, icast_Comparator(this.lexicalScopeOrdering.self()))
 	it_1 := foreach_(any(this.getAllScopes()))
 	for it_1.next() {
 		var scope *SymbolTable_SymbolScope = cast_[*SymbolTable_SymbolScope](it_1.v)
@@ -418,7 +418,7 @@ func SymbolTable_addSymbolsFrom[S interface {
 }](this *SymbolTable, otherSymbolTable StaticSymbolTable[S, R]) {
 	it_1 := foreach_(any(otherSymbolTable.getAllSymbols()))
 	for it_1.next() {
-		var otherSymbol S = unboxT_[S](it_1.v)
+		var otherSymbol S = junboxT_[S](it_1.v)
 		var name string = otherSymbol.getName()
 		var myScope *SymbolTable_SymbolScope = this.createScopeFrom(otherSymbolTable.getScope_StaticSlot(otherSymbol))
 		var decl StaticRef = SymbolTable_findBestDeclToAdd[S, R](this, otherSymbolTable, otherSymbol)
@@ -435,7 +435,7 @@ func SymbolTable_addSymbolsFrom[S interface {
 		if mySymbol != nil {
 			it_3 := foreach_(any(otherSymbolTable.getReferences_StaticSlot(otherSymbol)))
 			for it_3.next() {
-				var otherRef R = unboxT_[R](it_3.v)
+				var otherRef R = junboxT_[R](it_3.v)
 				if this.isGoodRefToAdd(icast_StaticRef(boxT_(otherRef))) {
 					mySymbol.defineReferenceAt(otherRef.getNode())
 				}
@@ -465,7 +465,7 @@ func SymbolTable_findBestDeclToAdd[S interface {
 	}
 	it_1 := foreach_(any(otherSymbolTable.getReferences_StaticSlot(slot)))
 	for it_1.next() {
-		var ref R = unboxT_[R](it_1.v)
+		var ref R = junboxT_[R](it_1.v)
 		if this.isGoodRefToAdd(icast_StaticRef(boxT_(ref))) {
 			return icast_StaticRef(boxT_(ref))
 		}
@@ -487,7 +487,7 @@ func (this *SymbolTable) copySymbolTo_3(sym StaticSlot, declNode Node, scope *Sy
 }
 
 func SymbolTable_sanitizeSpecialChars(s string) string {
-	return String_replace_s(String_replace_s(String_replace_s(s, "\\", "\\\\"), "\x00", "\\0"), "\n", "\\n")
+	return JString_replace_s(JString_replace_s(JString_replace_s(s, "\\", "\\\\"), "\x00", "\\0"), "\n", "\\n")
 }
 
 func (this *SymbolTable) addSymbol(name string, type_ *JSType, inferred bool, scope *SymbolTable_SymbolScope, declNode Node) *SymbolTable_Symbol {
@@ -521,10 +521,10 @@ func (this *SymbolTable) mergeSymbol(from *SymbolTable_Symbol, to *SymbolTable_S
 func (this *SymbolTable) removeSymbol(s *SymbolTable_Symbol) {
 	var scope *SymbolTable_SymbolScope = this.getScope(s)
 	if !s.equals(obj_(scope.ownSymbols.remove(s.getName()))) {
-		panic(new_IllegalStateException_String(("Symbol not found in scope " + tostr_(s))).self())
+		panic(new_IllegalStateException_String(("Symbol not found in scope " + jtostr_(s))).self())
 	}
 	if !s.equals(obj_(this.symbols.remove(s.getDeclaration_rReference().getNode().box_(), strobj_(s.getName())))) {
-		panic(new_IllegalStateException_String(("Symbol not found in table " + tostr_(s))).self())
+		panic(new_IllegalStateException_String(("Symbol not found in table " + jtostr_(s))).self())
 	}
 	if (s.propertyScope != nil) && s.equals(obj_(s.propertyScope.getSymbolForScope())) {
 		it_1 := foreach_(obj_(ImmutableList_copyOf(s.propertyScope.ownSymbols.asMap().values())))
@@ -594,8 +594,8 @@ func (this *SymbolTable) fillNamespaceReferences() {
 }
 
 func (this *SymbolTable) fillPropertyScopes() {
-	var types *TList[*SymbolTable_Symbol] = newTList_(tc_p_SymbolTable_Symbol)
-	var exports *TList[*SymbolTable_Symbol] = newTList_(tc_p_SymbolTable_Symbol)
+	var types *JTList[*SymbolTable_Symbol] = jnewTList_(jtc_p_SymbolTable_Symbol)
+	var exports *JTList[*SymbolTable_Symbol] = jnewTList_(jtc_p_SymbolTable_Symbol)
 	it_1 := this.getAllSymbols().each()
 	for it_1.next() {
 		var sym *SymbolTable_Symbol = it_1.v
@@ -731,7 +731,7 @@ func (this *SymbolTable) fillJSDocInfo(externs Node, root Node) {
 func (this *SymbolTable) fillSymbolVisibility(externs Node, root Node) {
 	var collectPass *CollectFileOverviewVisibility = new_CollectFileOverviewVisibility(this.compiler_)
 	collectPass.process_2(externs, root)
-	var visibilityMap *TMap[StaticSourceFile, *JSDocInfo_Visibility] = collectPass.getFileOverviewVisibilityMap()
+	var visibilityMap *JTMap[StaticSourceFile, *JSDocInfo_Visibility] = collectPass.getFileOverviewVisibilityMap()
 	NodeTraversal_traverseRoots(this.compiler_, NodeTraversal_Callback(new_SymbolTable_VisibilityCollector(this, visibilityMap)), externs, root)
 }
 
@@ -776,7 +776,7 @@ func (this *SymbolTable) createPropertyScopeFor(s *SymbolTable_Symbol) {
 		}
 		if this.symbols.get(newProp.getDeclaration().getNode().box_(), strobj_(newProp.getName())) != nil {
 			if SymbolTable_logger.isLoggable(Level_FINE) {
-				SymbolTable_logger.fine(("Found duplicate symbol " + tostr_(newProp)))
+				SymbolTable_logger.fine(("Found duplicate symbol " + jtostr_(newProp)))
 			}
 			continue
 		}
@@ -829,7 +829,7 @@ func (this *SymbolTable) fillSuperReferences(externs Node, root Node) {
 	NodeTraversal_traverseRoots(this.compiler_, collectSuper, externs, root)
 }
 
-func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes *TMap[string, *SymbolTable_SymbolScope]) {
+func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes *JTMap[string, *SymbolTable_SymbolScope]) {
 	if this.compiler_.getOptions().shouldRewriteModules() {
 		return
 	}
@@ -881,8 +881,8 @@ func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes 
 }
 
 func (this *SymbolTable) fillGoogProvideModuleRequires(externs Node, root Node) {
-	var declaredNamespaces *TMap[string, *SymbolTable_Symbol] = newTMap_(tc_string, tc_p_SymbolTable_Symbol)
-	var moduleScopes *TMap[string, *SymbolTable_SymbolScope] = newTMap_(tc_string, tc_p_SymbolTable_SymbolScope)
+	var declaredNamespaces *JTMap[string, *SymbolTable_Symbol] = jnewTMap_(jtc_string, jtc_p_SymbolTable_Symbol)
+	var moduleScopes *JTMap[string, *SymbolTable_SymbolScope] = jnewTMap_(jtc_string, jtc_p_SymbolTable_SymbolScope)
 	var looksLikeGoogCall PredicateOf[Node] = &Predicate_tfn_Node{func(n Node) bool {
 		if !n.isCall() {
 			return false
@@ -1074,7 +1074,7 @@ func SymbolTable_clinit() {
 
 type SymbolTable_Symbol struct {
 	SimpleSlot
-	references    *TMap[Node, *SymbolTable_Reference]
+	references    *JTMap[Node, *SymbolTable_Reference]
 	scope_        *SymbolTable_SymbolScope
 	propertyScope *SymbolTable_SymbolScope
 	declaration_  *SymbolTable_Reference
@@ -1095,7 +1095,7 @@ func (this *SymbolTable_Symbol) zero_SymbolTable_Symbol() {
 }
 
 func (this *SymbolTable_Symbol) finit_SymbolTable_Symbol() {
-	this.references = newTMap_(tc_Node, tc_p_SymbolTable_Reference)
+	this.references = jnewTMap_(jtc_Node, jtc_p_SymbolTable_Reference)
 	this.propertyScope = nil
 	this.declaration_ = nil
 	this.docInfo = nil
@@ -1260,7 +1260,7 @@ type SymbolTable_SymbolScope struct {
 	rootNode_           Node
 	parent              *SymbolTable_SymbolScope
 	typeOfThis          *JSType
-	ownSymbols          *TMap[string, *SymbolTable_Symbol]
+	ownSymbols          *JTMap[string, *SymbolTable_Symbol]
 	scopeDepth          int32
 	indexInParent       int32
 	numberOfChildScopes int32
@@ -1268,7 +1268,7 @@ type SymbolTable_SymbolScope struct {
 }
 
 func (this *SymbolTable_SymbolScope) finit_SymbolTable_SymbolScope() {
-	this.ownSymbols = newTMap_(tc_string, tc_p_SymbolTable_Symbol)
+	this.ownSymbols = jnewTMap_(jtc_string, jtc_p_SymbolTable_Symbol)
 	this.numberOfChildScopes = 0
 }
 
@@ -1405,7 +1405,7 @@ func (this *SymbolTable_SymbolScope) toString() string {
 		}
 		return (sstr_(type_) + "@" + sstr_(n.getSourceFileName()) + ":" + istr_(int64(n.getLineno())))
 	} else {
-		return ("PropertyScope@" + tostr_(this.getSymbolForScope()))
+		return ("PropertyScope@" + jtostr_(this.getSymbolForScope()))
 	}
 	panic("unreachable")
 }
@@ -1574,7 +1574,7 @@ func (this *SymbolTable_PropertyRefCollector) visit_impl(t *NodeTraversal, n Nod
 type SymbolTable_ThisRefCollector struct {
 	NodeTraversal_AbstractScopedCallback
 	outer_    *SymbolTable
-	thisStack *TList[*SymbolTable_Symbol]
+	thisStack *JTList[*SymbolTable_Symbol]
 }
 
 func (this *SymbolTable_ThisRefCollector) up_NodeTraversal_AbstractScopedCallback() *NodeTraversal_AbstractScopedCallback {
@@ -1585,7 +1585,7 @@ func (this *SymbolTable_ThisRefCollector) up_NodeTraversal_AbstractScopedCallbac
 }
 
 func (this *SymbolTable_ThisRefCollector) finit_SymbolTable_ThisRefCollector() {
-	this.thisStack = newTList_(tc_p_SymbolTable_Symbol)
+	this.thisStack = jnewTList_(jtc_p_SymbolTable_Symbol)
 }
 
 func (this *SymbolTable_ThisRefCollector) init_SymbolTable_ThisRefCollector() {
@@ -1724,7 +1724,7 @@ func (this *SymbolTable_JSDocInfoCollector) isNativeSourcelessType(name string) 
 	}()
 }
 
-func (this *SymbolTable_JSDocInfoCollector) visitTypeNode(templateTypeNames *TMap[string, *JSTypeExpression], scope *SymbolTable_SymbolScope, n Node) {
+func (this *SymbolTable_JSDocInfoCollector) visitTypeNode(templateTypeNames *JTMap[string, *JSTypeExpression], scope *SymbolTable_SymbolScope, n Node) {
 	if (n.isStringLit() && !this.isNativeSourcelessType(n.getString())) && !templateTypeNames.containsKey(n.getString()) {
 		var symbol *SymbolTable_Symbol = this.lookupPossiblyDottedName(scope, n.getString())
 		if symbol != nil {
@@ -1735,7 +1735,7 @@ func (this *SymbolTable_JSDocInfoCollector) visitTypeNode(templateTypeNames *TMa
 				}
 				return n.getString()
 			}()
-			if String_contains_s(typeString, ".") {
+			if JString_contains_s(typeString, ".") {
 				var lastPart string = String_substring_int(typeString, (String_lastIndexOf(typeString, 46) + 1))
 				var copy_ Node = n.cloneNode()
 				copy_.setLinenoCharno(copy_.getLineno(), ((copy_.getCharno() + copy_.getLength()) - String_length(lastPart)))
@@ -1776,7 +1776,7 @@ func (this *SymbolTable_JSDocInfoCollector) lookupPossiblyDottedName(scope *Symb
 type SymbolTable_VisibilityCollector struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_            *SymbolTable
-	fileVisibilityMap *TMap[StaticSourceFile, *JSDocInfo_Visibility]
+	fileVisibilityMap *JTMap[StaticSourceFile, *JSDocInfo_Visibility]
 }
 
 func (this *SymbolTable_VisibilityCollector) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -1786,12 +1786,12 @@ func (this *SymbolTable_VisibilityCollector) up_NodeTraversal_AbstractPostOrderC
 	return &this.NodeTraversal_AbstractPostOrderCallback
 }
 
-func (this *SymbolTable_VisibilityCollector) init_SymbolTable_VisibilityCollector(fileVisibilityMap *TMap[StaticSourceFile, *JSDocInfo_Visibility]) {
+func (this *SymbolTable_VisibilityCollector) init_SymbolTable_VisibilityCollector(fileVisibilityMap *JTMap[StaticSourceFile, *JSDocInfo_Visibility]) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.fileVisibilityMap = fileVisibilityMap
 }
 
-func new_SymbolTable_VisibilityCollector(outer_ *SymbolTable, fileVisibilityMap *TMap[StaticSourceFile, *JSDocInfo_Visibility]) *SymbolTable_VisibilityCollector {
+func new_SymbolTable_VisibilityCollector(outer_ *SymbolTable, fileVisibilityMap *JTMap[StaticSourceFile, *JSDocInfo_Visibility]) *SymbolTable_VisibilityCollector {
 	this := &SymbolTable_VisibilityCollector{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -2040,8 +2040,8 @@ type SymbolTable_3 struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_                 *SymbolTable
 	cap_looksLikeGoogCall  Predicate
-	cap_declaredNamespaces *TMap[string, *SymbolTable_Symbol]
-	cap_moduleScopes       *TMap[string, *SymbolTable_SymbolScope]
+	cap_declaredNamespaces *JTMap[string, *SymbolTable_Symbol]
+	cap_moduleScopes       *JTMap[string, *SymbolTable_SymbolScope]
 }
 
 func (this *SymbolTable_3) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -2055,7 +2055,7 @@ func (this *SymbolTable_3) init_SymbolTable_3() {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 }
 
-func new_SymbolTable_3(outer_ *SymbolTable, cap_looksLikeGoogCall Predicate, cap_declaredNamespaces *TMap[string, *SymbolTable_Symbol], cap_moduleScopes *TMap[string, *SymbolTable_SymbolScope]) *SymbolTable_3 {
+func new_SymbolTable_3(outer_ *SymbolTable, cap_looksLikeGoogCall Predicate, cap_declaredNamespaces *JTMap[string, *SymbolTable_Symbol], cap_moduleScopes *JTMap[string, *SymbolTable_SymbolScope]) *SymbolTable_3 {
 	this := &SymbolTable_3{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -2087,8 +2087,8 @@ type SymbolTable_4 struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_                 *SymbolTable
 	cap_looksLikeGoogCall  Predicate
-	cap_moduleScopes       *TMap[string, *SymbolTable_SymbolScope]
-	cap_declaredNamespaces *TMap[string, *SymbolTable_Symbol]
+	cap_moduleScopes       *JTMap[string, *SymbolTable_SymbolScope]
+	cap_declaredNamespaces *JTMap[string, *SymbolTable_Symbol]
 }
 
 func (this *SymbolTable_4) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -2102,7 +2102,7 @@ func (this *SymbolTable_4) init_SymbolTable_4() {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 }
 
-func new_SymbolTable_4(outer_ *SymbolTable, cap_looksLikeGoogCall Predicate, cap_moduleScopes *TMap[string, *SymbolTable_SymbolScope], cap_declaredNamespaces *TMap[string, *SymbolTable_Symbol]) *SymbolTable_4 {
+func new_SymbolTable_4(outer_ *SymbolTable, cap_looksLikeGoogCall Predicate, cap_moduleScopes *JTMap[string, *SymbolTable_SymbolScope], cap_declaredNamespaces *JTMap[string, *SymbolTable_Symbol]) *SymbolTable_4 {
 	this := &SymbolTable_4{}
 	this.self_ = this
 	this.outer_ = outer_

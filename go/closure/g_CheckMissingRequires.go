@@ -4,8 +4,8 @@ package closure
 
 type CheckMissingRequires struct {
 	NodeTraversal_AbstractModuleCallback
-	templateParamNames    *TSet[string]
-	moduleByNamespace     *TMap[string, *ModuleMetadataMap_ModuleMetadata]
+	templateParamNames    *JTSet[string]
+	moduleByNamespace     *JTMap[string, *ModuleMetadataMap_ModuleMetadata]
 	controlFlowScopeDepth int32
 }
 
@@ -17,7 +17,7 @@ func (this *CheckMissingRequires) up_NodeTraversal_AbstractModuleCallback() *Nod
 }
 
 func (this *CheckMissingRequires) finit_CheckMissingRequires() {
-	this.templateParamNames = newTSet_(tc_string)
+	this.templateParamNames = jnewTSet_(jtc_string)
 	this.controlFlowScopeDepth = 0
 }
 

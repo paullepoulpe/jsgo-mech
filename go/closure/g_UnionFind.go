@@ -8,6 +8,6 @@ type UnionFind[E comparable] interface {
 	find(E) E
 	areEquivalent(E, E) bool
 	elements() Set
-	allEquivalenceClasses() *TList[*ImmutableSet]
+	allEquivalenceClasses() *JTList[*ImmutableSet]
 	findAll(E) Set
 }

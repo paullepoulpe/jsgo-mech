@@ -16,7 +16,7 @@ type Es6NormalizeClasses struct {
 }
 
 func (this *Es6NormalizeClasses) finit_Es6NormalizeClasses() {
-	this.classStack = newTDeque_(tc_p_Es6NormalizeClasses_ClassRecord)
+	this.classStack = newTDeque_(jtc_p_Es6NormalizeClasses_ClassRecord)
 }
 
 func (this *Es6NormalizeClasses) init_Es6NormalizeClasses(compiler *AbstractCompiler) {
@@ -1316,12 +1316,12 @@ func (this *Es6NormalizeClasses_ResolvedPrivateMember) hashCode() int32 {
 }
 
 func (this *Es6NormalizeClasses_ResolvedPrivateMember) toString() string {
-	return "ResolvedPrivateMember[" + "classRecord=" + tostr_(this.classRecord_) + ", privateMember=" + tostr_(this.privateMember_) + "]"
+	return "ResolvedPrivateMember[" + "classRecord=" + jtostr_(this.classRecord_) + ", privateMember=" + jtostr_(this.privateMember_) + "]"
 }
 
 type Es6NormalizeClasses_ClassRecord struct {
-	privateMembers                       *TList[*Es6NormalizeClasses_ClassRecord_PrivateMember]
-	privateMembersByName                 *TMap[string, *Es6NormalizeClasses_ClassRecord_PrivateMember]
+	privateMembers                       *JTList[*Es6NormalizeClasses_ClassRecord_PrivateMember]
+	privateMembersByName                 *JTMap[string, *Es6NormalizeClasses_ClassRecord_PrivateMember]
 	privateMapVarName                    Optional[string]
 	staticPrivateMapVarName              Optional[string]
 	hasInstancePrivateMembers            bool
@@ -1338,13 +1338,13 @@ type Es6NormalizeClasses_ClassRecord struct {
 	instanceMembers                      *TDeque[Node]
 	staticMembers                        *TDeque[Node]
 	computedPropsWithSideEffects         *TDeque[Node]
-	constructorVars                      *TSet[*Var]
-	superCalls                           *TList[Node]
+	constructorVars                      *JTSet[*Var]
+	superCalls                           *JTList[Node]
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) finit_Es6NormalizeClasses_ClassRecord() {
-	this.privateMembers = newTList_(tc_p_Es6NormalizeClasses_ClassRecord_PrivateMember)
-	this.privateMembersByName = newTMap_(tc_string, tc_p_Es6NormalizeClasses_ClassRecord_PrivateMember)
+	this.privateMembers = jnewTList_(tc_p_Es6NormalizeClasses_ClassRecord_PrivateMember)
+	this.privateMembersByName = jnewTMap_(jtc_string, tc_p_Es6NormalizeClasses_ClassRecord_PrivateMember)
 	this.privateMapVarName = Optional_empty[string]()
 	this.staticPrivateMapVarName = Optional_empty[string]()
 	this.hasInstancePrivateMembers = false
@@ -1355,11 +1355,11 @@ func (this *Es6NormalizeClasses_ClassRecord) finit_Es6NormalizeClasses_ClassReco
 	this.privateVarName = Optional_empty[string]()
 	this.staticPrivateVarName = Optional_empty[string]()
 	this.privateProtoVarName = Optional_empty[string]()
-	this.instanceMembers = newTDeque_(tc_Node)
-	this.staticMembers = newTDeque_(tc_Node)
-	this.computedPropsWithSideEffects = newTDeque_(tc_Node)
-	this.constructorVars = tsetEmptyImm_(tce_p_Var)
-	this.superCalls = newTList_(tc_Node)
+	this.instanceMembers = newTDeque_(jtc_Node)
+	this.staticMembers = newTDeque_(jtc_Node)
+	this.computedPropsWithSideEffects = newTDeque_(jtc_Node)
+	this.constructorVars = jtsetEmptyImm_(tce_p_Var)
+	this.superCalls = jnewTList_(jtc_Node)
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) init_Es6NormalizeClasses_ClassRecord(normalizedNames *Es6NormalizeClasses_NormalizedNames, bindingIdentifier Optional[Node], classNode Node) {
@@ -1561,7 +1561,7 @@ type Es6NormalizeClasses_ClassRecord_PrivateMember struct {
 	methodNode       Node
 	getterNode       Node
 	setterNode       Node
-	declarationNodes *TList[Node]
+	declarationNodes *JTList[Node]
 }
 
 func (this *Es6NormalizeClasses_ClassRecord_PrivateMember) zero_Es6NormalizeClasses_ClassRecord_PrivateMember() {
@@ -1569,7 +1569,7 @@ func (this *Es6NormalizeClasses_ClassRecord_PrivateMember) zero_Es6NormalizeClas
 }
 
 func (this *Es6NormalizeClasses_ClassRecord_PrivateMember) finit_Es6NormalizeClasses_ClassRecord_PrivateMember() {
-	this.declarationNodes = newTList_(tc_Node)
+	this.declarationNodes = jnewTList_(jtc_Node)
 }
 
 func (this *Es6NormalizeClasses_ClassRecord_PrivateMember) init_Es6NormalizeClasses_ClassRecord_PrivateMember(name string, kind *Es6NormalizeClasses_ClassRecord_PrivateMemberKind, isStatic bool, initialNode Node) {

@@ -5,10 +5,10 @@ package closure
 type CheckNullabilityModifiers struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_             *AbstractCompiler
-	redundantCandidates   *TSet[Node]
-	missingCandidates     *TSet[Node]
-	nullMissingCandidates *TSet[Node]
-	templateTypeNames     *TSet[string]
+	redundantCandidates   *JTSet[Node]
+	missingCandidates     *JTSet[Node]
+	nullMissingCandidates *JTSet[Node]
+	templateTypeNames     *JTSet[string]
 }
 
 func (this *CheckNullabilityModifiers) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -19,10 +19,10 @@ func (this *CheckNullabilityModifiers) up_NodeTraversal_AbstractPostOrderCallbac
 }
 
 func (this *CheckNullabilityModifiers) finit_CheckNullabilityModifiers() {
-	this.redundantCandidates = newTSet_(tc_Node)
-	this.missingCandidates = newTSet_(tc_Node)
-	this.nullMissingCandidates = newTSet_(tc_Node)
-	this.templateTypeNames = newTSet_(tc_string)
+	this.redundantCandidates = jnewTSet_(jtc_Node)
+	this.missingCandidates = jnewTSet_(jtc_Node)
+	this.nullMissingCandidates = jnewTSet_(jtc_Node)
+	this.templateTypeNames = jnewTSet_(jtc_string)
 }
 
 func (this *CheckNullabilityModifiers) init_CheckNullabilityModifiers(compiler *AbstractCompiler) {
@@ -177,7 +177,7 @@ func CheckNullabilityModifiers_getReportedTypeName(node Node) string {
 var CheckNullabilityModifiers_MISSING_NULLABILITY_MODIFIER_JSDOC *DiagnosticType
 var CheckNullabilityModifiers_NULL_MISSING_NULLABILITY_MODIFIER_JSDOC *DiagnosticType
 var CheckNullabilityModifiers_REDUNDANT_NULLABILITY_MODIFIER_JSDOC *DiagnosticType
-var CheckNullabilityModifiers_PRIMITIVE_TYPE_NAMES *TSet[string]
+var CheckNullabilityModifiers_PRIMITIVE_TYPE_NAMES *JTSet[string]
 
 var CheckNullabilityModifiers_clinit_done bool
 
@@ -189,6 +189,6 @@ func CheckNullabilityModifiers_clinit() {
 	CheckNullabilityModifiers_MISSING_NULLABILITY_MODIFIER_JSDOC = DiagnosticType_disabled("JSC_MISSING_NULLABILITY_MODIFIER_JSDOC", "{0} is a reference type with no nullability modifier, which is disallowed by the style guide.\nPlease add a '!' to make it explicitly non-nullable, or a '?' to make it explicitly nullable.")
 	CheckNullabilityModifiers_NULL_MISSING_NULLABILITY_MODIFIER_JSDOC = DiagnosticType_disabled("JSC_NULL_MISSING_NULLABILITY_MODIFIER_JSDOC", "{0} is a reference type with no nullability modifier that is explicitly set to null.\nAdd a '?' to make it explicitly nullable.")
 	CheckNullabilityModifiers_REDUNDANT_NULLABILITY_MODIFIER_JSDOC = DiagnosticType_disabled("JSC_REDUNDANT_NULLABILITY_MODIFIER_JSDOC", "{0} is a non-reference type which is already non-nullable.\nPlease remove the redundant '!', which is disallowed by the style guide.")
-	CheckNullabilityModifiers_PRIMITIVE_TYPE_NAMES = immutableSetOf_[string](tc_string, "boolean", "number", "bigint", "string", "symbol", "undefined", "void", "null")
+	CheckNullabilityModifiers_PRIMITIVE_TYPE_NAMES = jimmutableSetOf_[string](jtc_string, "boolean", "number", "bigint", "string", "symbol", "undefined", "void", "null")
 
 }

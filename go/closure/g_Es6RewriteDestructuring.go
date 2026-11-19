@@ -15,7 +15,7 @@ type Es6RewriteDestructuring struct {
 }
 
 func (this *Es6RewriteDestructuring) finit_Es6RewriteDestructuring() {
-	this.patternNestingStack = newTDeque_(tc_p_Es6RewriteDestructuring_PatternNestingLevel)
+	this.patternNestingStack = newTDeque_(jtc_p_Es6RewriteDestructuring_PatternNestingLevel)
 	this.destructuringVarCounter = 0
 }
 
@@ -34,7 +34,7 @@ func (this *Es6RewriteDestructuring) init_Es6RewriteDestructuring(builder *Es6Re
 		this.featuresToTriggerRunningPass = FeatureSet_BARE_MINIMUM.with(FeatureSet_Feature_OBJECT_PATTERN_REST)
 		this.featuresToMarkAsRemoved = this.featuresToTriggerRunningPass
 	default:
-		panic(new_AssertionError_Object(strobj_(("Es6RewriteDestructuring cannot handle ObjectDestructuringRewriteMode " + tostr_(this.rewriteMode)))).self())
+		panic(new_AssertionError_Object(strobj_(("Es6RewriteDestructuring cannot handle ObjectDestructuringRewriteMode " + jtostr_(this.rewriteMode)))).self())
 	}
 }
 
@@ -258,9 +258,9 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 	var tempVarName string = this.getTempVariableName()
 	var tempVarType AstFactory_Type = AstFactory_type_Node(objectPattern)
 	var restTempVarName Optional[string] = Optional_empty[string]()
-	var propsToDeleteForRest *TList[Node] = nil
+	var propsToDeleteForRest *JTList[Node] = nil
 	if objectPattern.hasChildren() && objectPattern.getLastChild().isRest() {
-		propsToDeleteForRest = newTList_(tc_Node)
+		propsToDeleteForRest = jnewTList_(jtc_Node)
 		restTempVarName = Optional_of[string](this.getTempVariableName())
 	} else if this.rewriteMode == Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST {
 		if !this.patternNestingStack.peekLast().hasNestedObjectRest {
@@ -381,7 +381,7 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 	t.reportCodeChange()
 }
 
-func (this *Es6RewriteDestructuring) objectPatternRestRHS(objectPattern Node, rest Node, restTempVarName string, statedProperties *TList[Node]) Node {
+func (this *Es6RewriteDestructuring) objectPatternRestRHS(objectPattern Node, rest Node, restTempVarName string, statedProperties *JTList[Node]) Node {
 	Preconditions_checkArgument((objectPattern.getLastChild() == rest))
 	var restTempVarModel Node = this.createTempVarNameNode(restTempVarName, AstFactory_type_Node(objectPattern))
 	var result Node = restTempVarModel.cloneNode()

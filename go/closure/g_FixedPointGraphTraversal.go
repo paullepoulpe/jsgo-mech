@@ -34,7 +34,7 @@ func FixedPointGraphTraversal_newReverseTraversal[NodeT comparable, EdgeT compar
 }
 
 func (this *FixedPointGraphTraversal[N, E]) computeFixedPoint(graph *DiGraph[N]) {
-	var nodes *TSet[N] = newTSet_(tceT_[N]())
+	var nodes *JTSet[N] = jnewTSet_(tceT_[N]())
 	it_1 := foreach_(any(graph.getNodes()))
 	for it_1.next() {
 		var node DiGraph_DiGraphNode[N] = cast_[DiGraph_DiGraphNode[N]](it_1.v)
@@ -44,7 +44,7 @@ func (this *FixedPointGraphTraversal[N, E]) computeFixedPoint(graph *DiGraph[N])
 }
 
 func (this *FixedPointGraphTraversal[N, E]) computeFixedPoint_2(graph *DiGraph[N], entry N) {
-	var entrySet *TSet[N] = newTSet_(tceT_[N]())
+	var entrySet *JTSet[N] = jnewTSet_(tceT_[N]())
 	entrySet.add(entry)
 	this.computeFixedPointSet(graph, entrySet.asSet())
 }
@@ -56,7 +56,7 @@ func (this *FixedPointGraphTraversal[N, E]) computeFixedPointSet(graph *DiGraph[
 	var workSet LinkedHashSetOf[DiGraph_DiGraphNode[N]] = new_LinkedHashSet()
 	it_1 := foreach_(any(entrySet))
 	for it_1.next() {
-		var n N = unboxT_[N](it_1.v)
+		var n N = junboxT_[N](it_1.v)
 		workSet.add(any(graph.getNode_Object_rDiGraphNode(n)))
 	}
 	for ; !workSet.isEmpty() && (cycleCount < maxIterations); cycleCount++ {
@@ -74,7 +74,7 @@ func (this *FixedPointGraphTraversal[N, E]) visitNode(node DiGraph_DiGraphNode[N
 		for it_2.next() {
 			var edge DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_2.v)
 			var destValue N = edge.getDestination().getValue()
-			if this.callback.traverseEdge(sourceValue, unboxT_[E](edge.getValue()), destValue) {
+			if this.callback.traverseEdge(sourceValue, junboxT_[E](edge.getValue()), destValue) {
 				workSet.add(any(edge.getDestination()))
 			}
 		}
@@ -85,13 +85,13 @@ func (this *FixedPointGraphTraversal[N, E]) visitNode(node DiGraph_DiGraphNode[N
 		for it_4.next() {
 			var edge DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_4.v)
 			var revDestValue N = edge.getSource().getValue()
-			if this.callback.traverseEdge(revSourceValue, unboxT_[E](edge.getValue()), revDestValue) {
+			if this.callback.traverseEdge(revSourceValue, junboxT_[E](edge.getValue()), revDestValue) {
 				workSet.add(any(edge.getSource()))
 			}
 		}
 		return
 	}
-	panic(new_AssertionError_Object(strobj_(("Unrecognized direction " + tostr_(this.traversalDirection)))).self())
+	panic(new_AssertionError_Object(strobj_(("Unrecognized direction " + jtostr_(this.traversalDirection)))).self())
 }
 
 const FixedPointGraphTraversal_NON_HALTING_ERROR_MSG string = "Fixed point computation not halting"

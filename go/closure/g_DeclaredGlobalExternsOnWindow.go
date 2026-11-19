@@ -5,7 +5,7 @@ package closure
 type DeclaredGlobalExternsOnWindow struct {
 	NodeTraversal_AbstractShallowStatementCallback
 	compiler_       *AbstractCompiler
-	nodes_          *TSet[Node]
+	nodes_          *JTSet[Node]
 	windowInExterns bool
 }
 
@@ -17,7 +17,7 @@ func (this *DeclaredGlobalExternsOnWindow) up_NodeTraversal_AbstractShallowState
 }
 
 func (this *DeclaredGlobalExternsOnWindow) finit_DeclaredGlobalExternsOnWindow() {
-	this.nodes_ = newTSet_(tc_Node)
+	this.nodes_ = jnewTSet_(jtc_Node)
 	this.windowInExterns = false
 }
 
@@ -90,7 +90,7 @@ func DeclaredGlobalExternsOnWindow_addExtern(node Node, defineOnWindow bool) {
 			}
 			builder = JSDocInfo_Builder_copyFrom(oldJSDocInfo)
 		}
-		builder.recordSuppressions(immutableSetOf_[string](tc_string, "const", "duplicate"))
+		builder.recordSuppressions(jimmutableSetOf_[string](jtc_string, "const", "duplicate"))
 		var jsDocInfo *JSDocInfo = builder.build()
 		newNode.setJSDocInfo(jsDocInfo)
 	}

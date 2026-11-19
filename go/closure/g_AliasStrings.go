@@ -6,17 +6,17 @@ type AliasStrings struct {
 	compiler_                 *AbstractCompiler
 	chunkGraph                *JSChunkGraph
 	outputStringUsageField    bool
-	stringInfoMap             *TMap[string, *AliasStrings_StringInfo]
-	usedHashedAliases         *TSet[string]
+	stringInfoMap             *JTMap[string, *AliasStrings_StringInfo]
+	usedHashedAliases         *JTSet[string]
 	aliasStringsMode          *CompilerOptions_AliasStringsMode
-	chunkVarParentMap         *TMap[*JSChunk, Node]
+	chunkVarParentMap         *JTMap[*JSChunk, Node]
 	unitTestHashReductionMask int32
 }
 
 func (this *AliasStrings) finit_AliasStrings() {
-	this.stringInfoMap = newTSortedMap_(tc_string, tc_p_AliasStrings_StringInfo)
-	this.usedHashedAliases = newTSet_(tc_string)
-	this.chunkVarParentMap = newTMap_(tc_p_JSChunk, tc_Node)
+	this.stringInfoMap = newTSortedMap_(jtc_string, jtc_p_AliasStrings_StringInfo)
+	this.usedHashedAliases = jnewTSet_(jtc_string)
+	this.chunkVarParentMap = jnewTMap_(jtc_p_JSChunk, jtc_Node)
 	this.unitTestHashReductionMask = -1
 }
 
@@ -188,7 +188,7 @@ type AliasStrings_StringInfo struct {
 	outer_                       *AliasStrings
 	id                           int32
 	isAliased                    bool
-	occurrences                  *TList[Node]
+	occurrences                  *JTList[Node]
 	chunkToContainDecl           *JSChunk
 	parentForNewVarDecl          Node
 	siblingToInsertVarDeclBefore Node
@@ -196,7 +196,7 @@ type AliasStrings_StringInfo struct {
 }
 
 func (this *AliasStrings_StringInfo) finit_AliasStrings_StringInfo() {
-	this.occurrences = newTList_(tc_Node)
+	this.occurrences = jnewTList_(jtc_Node)
 	this.aliasName_ = Optional_empty[string]()
 }
 

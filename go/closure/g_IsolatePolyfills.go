@@ -59,11 +59,11 @@ func IsolatePolyfills_createJSCompPolyfillsAccess() Node {
 }
 
 func (this *IsolatePolyfills) process_2(externs Node, root Node) {
-	var injectedPolyfills *TSet[string] = this.findAllInjectedPolyfills()
+	var injectedPolyfills *JTSet[string] = this.findAllInjectedPolyfills()
 	var polyfillUsages ListOf[*PolyfillUsageFinder_PolyfillUsage] = icast_List(new_ArrayList_0().self())
 	var shouldDisambiguateProperties bool = this.compiler_.getOptions().shouldDisambiguateProperties()
 	new_PolyfillUsageFinder(this.compiler_, this.polyfills, shouldDisambiguateProperties).traverseIncludingGuarded(root, &Consumer_tfn_PolyfillUsageFinder_PolyfillUsage{func(p0 *PolyfillUsageFinder_PolyfillUsage) { polyfillUsages.add(obj_(p0)) }})
-	var visitedNodes *TSet[Node] = newTSet_(tc_Node)
+	var visitedNodes *JTSet[Node] = jnewTSet_(jtc_Node)
 	it_1 := foreach_(any(polyfillUsages))
 	for it_1.next() {
 		var usage *PolyfillUsageFinder_PolyfillUsage = cast_[*PolyfillUsageFinder_PolyfillUsage](it_1.v)
@@ -76,8 +76,8 @@ func (this *IsolatePolyfills) process_2(externs Node, root Node) {
 	this.cleanUpJscompLookupPolyfilledValue()
 }
 
-func (this *IsolatePolyfills) findAllInjectedPolyfills() *TSet[string] {
-	var actualPolyfills *TSetBuilder[string] = newTSetBuilder_(tc_string)
+func (this *IsolatePolyfills) findAllInjectedPolyfills() *JTSet[string] {
+	var actualPolyfills *TSetBuilder[string] = newTSetBuilder_(jtc_string)
 	var lastInjectedNode Node = this.compiler_.getNodeForCodeInsertion(nil)
 	NodeTraversal_traverse(this.compiler_, lastInjectedNode, NodeTraversal_Callback(new_IsolatePolyfills_1(this, actualPolyfills)))
 	return actualPolyfills.build()
@@ -186,7 +186,7 @@ func (this *IsolatePolyfills) cleanUpJscompLookupPolyfilledValue() {
 
 const IsolatePolyfills_POLYFILL_TEMP string = "$jscomp$polyfillTmp"
 
-var IsolatePolyfills_FILES_ALLOWED_UNQUALIFIED_POLYFILL_ACCESSES *TSet[string]
+var IsolatePolyfills_FILES_ALLOWED_UNQUALIFIED_POLYFILL_ACCESSES *JTSet[string]
 
 var IsolatePolyfills_clinit_done bool
 
@@ -195,7 +195,7 @@ func IsolatePolyfills_clinit() {
 		return
 	}
 	IsolatePolyfills_clinit_done = true
-	IsolatePolyfills_FILES_ALLOWED_UNQUALIFIED_POLYFILL_ACCESSES = immutableSetOf_[string](tc_string, (sstr_(AbstractCompiler_RUNTIME_LIB_DIR) + "util/global.js"), (sstr_(AbstractCompiler_RUNTIME_LIB_DIR) + "util/shouldpolyfill.js"), (sstr_(AbstractCompiler_RUNTIME_LIB_DIR) + "es6/util/construct.js"))
+	IsolatePolyfills_FILES_ALLOWED_UNQUALIFIED_POLYFILL_ACCESSES = jimmutableSetOf_[string](jtc_string, (sstr_(AbstractCompiler_RUNTIME_LIB_DIR) + "util/global.js"), (sstr_(AbstractCompiler_RUNTIME_LIB_DIR) + "util/shouldpolyfill.js"), (sstr_(AbstractCompiler_RUNTIME_LIB_DIR) + "es6/util/construct.js"))
 
 }
 

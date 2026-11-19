@@ -83,7 +83,7 @@ func (this *Import) hashCode() int32 {
 }
 
 func (this *Import) toString() string {
-	return "Import[" + "moduleRequest=" + sstr_(this.moduleRequest_) + ", importName=" + sstr_(this.importName_) + ", localName=" + sstr_(this.localName_) + ", modulePath=" + tostr_(this.modulePath_) + ", importNode=" + tostrH_(this.importNode_) + ", nameNode=" + tostrH_(this.nameNode_) + "]"
+	return "Import[" + "moduleRequest=" + sstr_(this.moduleRequest_) + ", importName=" + sstr_(this.importName_) + ", localName=" + sstr_(this.localName_) + ", modulePath=" + jtostr_(this.modulePath_) + ", importNode=" + tostrH_(this.importNode_) + ", nameNode=" + tostrH_(this.nameNode_) + "]"
 }
 
 type Import_Builder struct {
@@ -165,7 +165,7 @@ func (this *Import_Builder) build() *Import {
 		if this.nameNodeField == 0 {
 			missing.append(" nameNode")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + tostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
 	}
 	return new_Import(this.moduleRequestField.get(), this.importNameField.get(), this.localNameField.get(), this.modulePathField, this.importNodeField, this.nameNodeField)
 }

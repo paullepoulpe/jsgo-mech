@@ -7,14 +7,14 @@ type RuntimeJsLibManager struct {
 	mode_                *RuntimeJsLibManager_RuntimeLibraryMode
 	resourceProvider     RuntimeJsLibManager_ResourceProvider
 	nodeForCodeInsertion SupplierOf[Node]
-	injectedLibs         *TSet[string]
-	internedFields       *TMap[string, *RuntimeJsLibManager_InternalField]
+	injectedLibs         *JTSet[string]
+	internedFields       *JTMap[string, *RuntimeJsLibManager_InternalField]
 	lastInjectedLibrary  Node
 }
 
 func (this *RuntimeJsLibManager) finit_RuntimeJsLibManager() {
-	this.injectedLibs = newTSet_(tc_string)
-	this.internedFields = newTMap_(tc_string, tc_p_RuntimeJsLibManager_InternalField)
+	this.injectedLibs = jnewTSet_(jtc_string)
+	this.internedFields = jnewTMap_(jtc_string, jtc_p_RuntimeJsLibManager_InternalField)
 	this.lastInjectedLibrary = 0
 }
 
@@ -44,15 +44,15 @@ func (this *RuntimeJsLibManager) hasInjectedLibrary(resourceName string) bool {
 	return this.injectedLibs.contains(resourceName)
 }
 
-func (this *RuntimeJsLibManager) getInjectedLibraries() *TList[string] {
-	return immutableListCopyOf_(tc_string, Collection(this.injectedLibs.asSet()))
+func (this *RuntimeJsLibManager) getInjectedLibraries() *JTList[string] {
+	return jimmutableListCopyOf_(jtc_string, Collection(this.injectedLibs.asSet()))
 }
 
-func (this *RuntimeJsLibManager) getExternedFields() *TList[RuntimeJsLibManager_ExternedField] {
+func (this *RuntimeJsLibManager) getExternedFields() *JTList[RuntimeJsLibManager_ExternedField] {
 	if this.mode_ != RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES {
-		return tlistEmptyImm_(tc_RuntimeJsLibManager_ExternedField)
+		return jtlistEmptyImm_(jtc_RuntimeJsLibManager_ExternedField)
 	}
-	var result *TListBuilder[RuntimeJsLibManager_ExternedField] = newTListBuilder_(tc_RuntimeJsLibManager_ExternedField)
+	var result *TListBuilder[RuntimeJsLibManager_ExternedField] = newTListBuilder_(jtc_RuntimeJsLibManager_ExternedField)
 	it_1 := this.internedFields.eachValue()
 	for it_1.next() {
 		var field *RuntimeJsLibManager_InternalField = it_1.v
@@ -65,7 +65,7 @@ func (this *RuntimeJsLibManager) getExternedFields() *TList[RuntimeJsLibManager_
 
 func (this *RuntimeJsLibManager) createField(fieldName string) *RuntimeJsLibManager_InternalField {
 	Preconditions_checkArgument_boolean_Object(!String_isEmpty(fieldName), fieldName)
-	var parts *TList[string] = splitToListT_(tc_string, Splitter_on('.'), strobj_(fieldName))
+	var parts *JTList[string] = splitToListT_(jtc_string, Splitter_on('.'), strobj_(fieldName))
 	Preconditions_checkArgument_boolean_String_Object((parts.size() >= 2), "Field name must start with $jscomp., found %s", fieldName)
 	Preconditions_checkArgument_boolean_String_Object((parts.get(0) == "$jscomp"), "Field name must start with $jscomp, found %s", fieldName)
 	var propName string = parts.get(1)
@@ -159,7 +159,7 @@ func (this *RuntimeJsLibManager) injectLibraryDependencies(ast Node, force bool)
 		var node Node = ast.getFirstChild()
 		for ; ((node != 0) && node.isExprResult()) && node.getFirstChild().isStringLit(); node = ast.getFirstChild() {
 			var directive string = node.getFirstChild().getString()
-			var words *TList[string] = splitToListT_(tc_string, Splitter_on(' ').limit(2), strobj_(directive))
+			var words *JTList[string] = splitToListT_(jtc_string, Splitter_on(' ').limit(2), strobj_(directive))
 			switch words.get(0) {
 			case "use":
 			case "require":
@@ -266,13 +266,13 @@ func new_RuntimeJsLibManager_FieldsTable() *RuntimeJsLibManager_FieldsTable {
 	return this
 }
 
-func RuntimeJsLibManager_FieldsTable_loadFields() *TMap[string, string] {
+func RuntimeJsLibManager_FieldsTable_loadFields() *JTMap[string, string] {
 	var transpilationLibsTxt string = ResourceLoader_loadTextResource((sstr_(ResourceLoader_JSCOMP) + "js/transpilation_libs.txt"))
-	var allFields *TMapBuilder[string, string] = newTMapBuilder_(tc_string, tc_string)
+	var allFields *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
 	it_1 := foreach_(any(Splitter_on('\n').omitEmptyStrings().split_s(transpilationLibsTxt)))
 	for it_1.next() {
 		var line string = str_(it_1.v)
-		var tokens *TList[string] = splitToListT_(tc_string, Splitter_on(',').limit(2), strobj_(line))
+		var tokens *JTList[string] = splitToListT_(jtc_string, Splitter_on(',').limit(2), strobj_(line))
 		Preconditions_checkState_boolean_Object((tokens.size() == 2), any(tokens.asList()))
 		var fieldName string = tokens.get(0)
 		var resourcePath string = tokens.get(1)
@@ -281,7 +281,7 @@ func RuntimeJsLibManager_FieldsTable_loadFields() *TMap[string, string] {
 	return allFields.buildOrThrow()
 }
 
-var RuntimeJsLibManager_FieldsTable_INSTANCE *TMap[string, string]
+var RuntimeJsLibManager_FieldsTable_INSTANCE *JTMap[string, string]
 
 var RuntimeJsLibManager_FieldsTable_clinit_done bool
 

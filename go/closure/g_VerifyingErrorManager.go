@@ -4,7 +4,7 @@ package closure
 
 type VerifyingErrorManager struct {
 	ThreadSafeDelegatingErrorManager
-	unmatchedExpectations *TList[*Pattern]
+	unmatchedExpectations *JTList[*Pattern]
 	formatter             *LightweightMessageFormatter
 }
 
@@ -15,10 +15,10 @@ func (this *VerifyingErrorManager) up_ThreadSafeDelegatingErrorManager() *Thread
 	return &this.ThreadSafeDelegatingErrorManager
 }
 
-func (this *VerifyingErrorManager) init_VerifyingErrorManager(delegate ErrorManager, expectedDiagnostics *TList[string]) {
+func (this *VerifyingErrorManager) init_VerifyingErrorManager(delegate ErrorManager, expectedDiagnostics *JTList[string]) {
 	this.ThreadSafeDelegatingErrorManager.init_ThreadSafeDelegatingErrorManager(delegate)
 	this.formatter = LightweightMessageFormatter_withoutSource()
-	this.unmatchedExpectations = newTList_(tc_p_Pattern)
+	this.unmatchedExpectations = jnewTList_(jtc_p_Pattern)
 	it_1 := expectedDiagnostics.each()
 	for it_1.next() {
 		var exp string = it_1.v
@@ -26,7 +26,7 @@ func (this *VerifyingErrorManager) init_VerifyingErrorManager(delegate ErrorMana
 	}
 }
 
-func new_VerifyingErrorManager(delegate ErrorManager, expectedDiagnostics *TList[string]) *VerifyingErrorManager {
+func new_VerifyingErrorManager(delegate ErrorManager, expectedDiagnostics *JTList[string]) *VerifyingErrorManager {
 	this := &VerifyingErrorManager{}
 	this.self_ = this
 	this.init_VerifyingErrorManager(delegate, expectedDiagnostics)

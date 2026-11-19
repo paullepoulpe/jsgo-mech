@@ -7,8 +7,8 @@ type FileInstrumentationData struct {
 	arrayName        string
 	fileName         string
 	branchPresent    *BitSet
-	branchesInLine   *TMap[any, any]
-	branchNodes      *TMap[*FileInstrumentationData_BranchIndexPair, Node]
+	branchesInLine   *JTMap[any, any]
+	branchNodes      *JTMap[*FileInstrumentationData_BranchIndexPair, Node]
 }
 
 func (this *FileInstrumentationData) zero_FileInstrumentationData() {
@@ -21,8 +21,8 @@ func (this *FileInstrumentationData) init_FileInstrumentationData(fileName strin
 	this.arrayName = arrayName
 	this.instrumentedBits = new_BitSet()
 	this.branchPresent = new_BitSet()
-	this.branchesInLine = newTMap_(tc_Integer, tc_Integer)
-	this.branchNodes = newTMap_(tce_p_FileInstrumentationData_BranchIndexPair, tc_Node)
+	this.branchesInLine = jnewTMap_(tc_Integer, tc_Integer)
+	this.branchNodes = jnewTMap_(tce_p_FileInstrumentationData_BranchIndexPair, jtc_Node)
 }
 
 func new_FileInstrumentationData(fileName string, arrayName string) *FileInstrumentationData {

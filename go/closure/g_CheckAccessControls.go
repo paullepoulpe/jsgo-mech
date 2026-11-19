@@ -8,7 +8,7 @@ type CheckAccessControls struct {
 	deprecationDepth          int32
 	currentClassStack         DequeOf[*ObjectType]
 	constPropertyInits        *SimpleTable[*JSType, string, *CheckAccessControls_ConstantDeclaration]
-	defaultVisibilityForFiles *TMap[StaticSourceFile, *JSDocInfo_Visibility]
+	defaultVisibilityForFiles *JTMap[StaticSourceFile, *JSDocInfo_Visibility]
 }
 
 func (this *CheckAccessControls) finit_CheckAccessControls() {
@@ -724,7 +724,7 @@ func (this *CheckAccessControls) createPropertyReference(sourceNode Node) *Check
 	return builder.setSourceNode(sourceNode).build()
 }
 
-func CheckAccessControls_getEffectivePropertyVisibility(propRef *CheckAccessControls_PropertyReference, referenceType *ObjectType, fileVisibilityMap *TMap[StaticSourceFile, *JSDocInfo_Visibility]) *JSDocInfo_Visibility {
+func CheckAccessControls_getEffectivePropertyVisibility(propRef *CheckAccessControls_PropertyReference, referenceType *ObjectType, fileVisibilityMap *JTMap[StaticSourceFile, *JSDocInfo_Visibility]) *JSDocInfo_Visibility {
 	var propertyName string = propRef.name()
 	var isOverride bool = propRef.override()
 	var definingSource StaticSourceFile = AccessControlUtils_getDefiningSource(propRef.sourceNode(), referenceType, propertyName)
@@ -1079,7 +1079,7 @@ func (this *CheckAccessControls_PropertyReference) hashCode() int32 {
 }
 
 func (this *CheckAccessControls_PropertyReference) toString() string {
-	return "PropertyReference[" + "sourceNode=" + tostrH_(this.sourceNode_) + ", name=" + sstr_(this.name_) + ", receiverType=" + objstr_(this.receiverType_.self()) + ", mutation=" + boolstr_(this.mutation_) + ", declaration=" + boolstr_(this.declaration_) + ", override=" + boolstr_(this.override_) + ", readableTypeName=" + tostr_(this.readableTypeName_) + "]"
+	return "PropertyReference[" + "sourceNode=" + tostrH_(this.sourceNode_) + ", name=" + sstr_(this.name_) + ", receiverType=" + objstr_(this.receiverType_.self()) + ", mutation=" + boolstr_(this.mutation_) + ", declaration=" + boolstr_(this.declaration_) + ", override=" + boolstr_(this.override_) + ", readableTypeName=" + jtostr_(this.readableTypeName_) + "]"
 }
 
 type CheckAccessControls_PropertyReference_Builder struct {
@@ -1178,7 +1178,7 @@ func (this *CheckAccessControls_PropertyReference_Builder) build() *CheckAccessC
 		if this.readableTypeName_ == nil {
 			missing.append(" readableTypeName")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + tostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
 	}
 	return new_CheckAccessControls_PropertyReference(this.sourceNode_, this.name_.get(), this.receiverType_, this.mutation_, this.declaration_, this.override_, this.readableTypeName_)
 }

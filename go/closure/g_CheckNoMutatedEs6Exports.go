@@ -5,12 +5,12 @@ package closure
 type CheckNoMutatedEs6Exports struct {
 	compiler_          *AbstractCompiler
 	mutatedNames       *SimpleSetMultimap
-	exportedLocalNames *TSet[string]
+	exportedLocalNames *JTSet[string]
 }
 
 func (this *CheckNoMutatedEs6Exports) finit_CheckNoMutatedEs6Exports() {
 	this.mutatedNames = SimpleSetMultimap_create()
-	this.exportedLocalNames = newTSet_(tc_string)
+	this.exportedLocalNames = jnewTSet_(jtc_string)
 }
 
 func (this *CheckNoMutatedEs6Exports) init_CheckNoMutatedEs6Exports(compiler *AbstractCompiler) {

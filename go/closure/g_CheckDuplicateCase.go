@@ -33,7 +33,7 @@ func (this *CheckDuplicateCase) process_2(externs Node, root Node) {
 func (this *CheckDuplicateCase) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isSwitch() {
 		var switchBody Node = n.getSecondChild()
-		var cases *TSet[string] = newTSet_(tc_string)
+		var cases *JTSet[string] = jnewTSet_(jtc_string)
 		{
 			var curr Node = switchBody.getFirstChild()
 			for ; curr != 0; curr = curr.getNext() {

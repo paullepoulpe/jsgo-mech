@@ -5,14 +5,14 @@ package closure
 type CheckClosureImports struct {
 	compiler_      *AbstractCompiler
 	checker        *CheckClosureImports_Checker
-	namespacesSeen *TSet[string]
+	namespacesSeen *JTSet[string]
 	chunkGraph     *JSChunkGraph
 }
 
 func (this *CheckClosureImports) init_CheckClosureImports(compiler *AbstractCompiler, moduleMetadataMap *ModuleMetadataMap) {
 	this.compiler_ = compiler
 	this.checker = new_CheckClosureImports_Checker(this, compiler, moduleMetadataMap)
-	this.namespacesSeen = newTSet_(tc_string)
+	this.namespacesSeen = jnewTSet_(jtc_string)
 	this.chunkGraph = compiler.getChunkGraph()
 }
 

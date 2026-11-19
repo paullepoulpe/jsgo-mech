@@ -4,7 +4,7 @@ package closure
 
 type ColorFindPropertyReferences struct {
 	NodeTraversal_AbstractPostOrderCallback
-	propIndex             *TMap[string, *PropertyClustering]
+	propIndex             *JTMap[string, *PropertyClustering]
 	colorGraphNodeFactory *ColorGraphNodeFactory
 	isPropertyReflector   ColorFindPropertyReferences_IsPropertyReflector
 }
@@ -17,7 +17,7 @@ func (this *ColorFindPropertyReferences) up_NodeTraversal_AbstractPostOrderCallb
 }
 
 func (this *ColorFindPropertyReferences) finit_ColorFindPropertyReferences() {
-	this.propIndex = newTMap_(tc_string, tc_p_PropertyClustering)
+	this.propIndex = jnewTMap_(jtc_string, jtc_p_PropertyClustering)
 }
 
 func (this *ColorFindPropertyReferences) init_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactory, isPropertyReflector ColorFindPropertyReferences_IsPropertyReflector) {
@@ -34,8 +34,8 @@ func new_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactor
 	return this
 }
 
-func (this *ColorFindPropertyReferences) getPropertyIndex() *TMap[string, *PropertyClustering] {
-	var tmp *TMap[string, *PropertyClustering] = this.propIndex
+func (this *ColorFindPropertyReferences) getPropertyIndex() *JTMap[string, *PropertyClustering] {
+	var tmp *JTMap[string, *PropertyClustering] = this.propIndex
 	this.propIndex = nil
 	return tmp
 }
@@ -86,7 +86,7 @@ func (this *ColorFindPropertyReferences) handleClass(t *NodeTraversal, classNode
 		if m.isStaticMember() {
 			return classType
 		} else if m.isMemberFieldDef() {
-			var classInstanceType *TSet[*Color] = classType.getInstanceColors()
+			var classInstanceType *JTSet[*Color] = classType.getInstanceColors()
 			return func() *Color {
 				if classInstanceType.isEmpty() {
 					return StandardColors_UNKNOWN
@@ -95,7 +95,7 @@ func (this *ColorFindPropertyReferences) handleClass(t *NodeTraversal, classNode
 			}()
 		} else {
 			Preconditions_checkState_boolean_Object_H(((m.isMemberFunctionDef() || m.isGetterDef()) || m.isSetterDef()), m)
-			var classPrototypeType *TSet[*Color] = classType.getPrototypes()
+			var classPrototypeType *JTSet[*Color] = classType.getPrototypes()
 			return func() *Color {
 				if classPrototypeType.isEmpty() {
 					return StandardColors_UNKNOWN
@@ -164,7 +164,7 @@ func (this *ColorFindPropertyReferences) traverseObjectlitLike(t *NodeTraversal,
 				}
 				this.registerPropertyUse(t, child, cast_[*Color](memberOwnerFn.apply(child.box_())))
 			default:
-				panic(new_IllegalStateException_String(("Unexpected child of " + tostr_(n.getToken()) + ": " + sstr_(child.toStringTree()))).self())
+				panic(new_IllegalStateException_String(("Unexpected child of " + jtostr_(n.getToken()) + ": " + sstr_(child.toStringTree()))).self())
 			}
 		}
 	}

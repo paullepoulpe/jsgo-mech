@@ -5,7 +5,7 @@ package closure
 type AngularPass struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_   *AbstractCompiler
-	injectables *TList[*AngularPass_NodeContext]
+	injectables *JTList[*AngularPass_NodeContext]
 }
 
 func (this *AngularPass) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -16,7 +16,7 @@ func (this *AngularPass) up_NodeTraversal_AbstractPostOrderCallback() *NodeTrave
 }
 
 func (this *AngularPass) finit_AngularPass() {
-	this.injectables = newTList_(tc_p_AngularPass_NodeContext)
+	this.injectables = jnewTList_(tc_p_AngularPass_NodeContext)
 }
 
 func (this *AngularPass) init_AngularPass(compiler *AbstractCompiler) {
@@ -39,7 +39,7 @@ func (this *AngularPass) process_2(externs Node, root Node) {
 		var entry *AngularPass_NodeContext = it_1.v
 		var name string = entry.getName()
 		var fn Node = entry.getFunctionNode()
-		var dependencies *TList[Node] = this.createDependenciesList(fn)
+		var dependencies *JTList[Node] = this.createDependenciesList(fn)
 		if dependencies.isEmpty() {
 			continue
 		}
@@ -61,27 +61,27 @@ func (this *AngularPass) process_2(externs Node, root Node) {
 	}
 }
 
-func (this *AngularPass) createDependenciesList(n Node) *TList[Node] {
+func (this *AngularPass) createDependenciesList(n Node) *JTList[Node] {
 	Preconditions_checkArgument(n.isFunction())
 	var params Node = NodeUtil_getFunctionParameters(n)
 	if params != 0 {
 		return this.createStringsFromParamList(params)
 	}
-	return newTList_(tc_Node)
+	return jnewTList_(jtc_Node)
 }
 
-func (this *AngularPass) createStringsFromParamList(params Node) *TList[Node] {
+func (this *AngularPass) createStringsFromParamList(params Node) *JTList[Node] {
 	var param Node = params.getFirstChild()
-	var names *TList[Node] = newTList_(tc_Node)
+	var names *JTList[Node] = jnewTList_(jtc_Node)
 	for param != 0 {
 		if param.isName() {
 			names.add(IR_string(param.getString()).srcref(param))
 		} else if param.isDestructuringPattern() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(param, AngularPass_INJECTED_FUNCTION_HAS_DESTRUCTURED_PARAM, []string{}))
-			return newTList_(tc_Node)
+			return jnewTList_(jtc_Node)
 		} else if param.isDefaultValue() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(param, AngularPass_INJECTED_FUNCTION_HAS_DEFAULT_VALUE, []string{}))
-			return newTList_(tc_Node)
+			return jnewTList_(jtc_Node)
 		}
 		param = param.getNext()
 	}

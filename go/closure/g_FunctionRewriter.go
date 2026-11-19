@@ -17,7 +17,7 @@ func new_FunctionRewriter(compiler *AbstractCompiler) *FunctionRewriter {
 }
 
 func (this *FunctionRewriter) process_2(externs Node, root Node) {
-	var reducers *TList[*FunctionRewriter_Reducer] = immutableListOf_[*FunctionRewriter_Reducer](tc_p_FunctionRewriter_Reducer, new_FunctionRewriter_ReturnConstantReducer().up_FunctionRewriter_Reducer(), new_FunctionRewriter_GetterReducer().up_FunctionRewriter_Reducer(), new_FunctionRewriter_SetterReducer().up_FunctionRewriter_Reducer(), new_FunctionRewriter_EmptyFunctionReducer().up_FunctionRewriter_Reducer(), new_FunctionRewriter_IdentityReducer().up_FunctionRewriter_Reducer())
+	var reducers *JTList[*FunctionRewriter_Reducer] = jimmutableListOf_[*FunctionRewriter_Reducer](jtc_p_FunctionRewriter_Reducer, new_FunctionRewriter_ReturnConstantReducer().up_FunctionRewriter_Reducer(), new_FunctionRewriter_GetterReducer().up_FunctionRewriter_Reducer(), new_FunctionRewriter_SetterReducer().up_FunctionRewriter_Reducer(), new_FunctionRewriter_EmptyFunctionReducer().up_FunctionRewriter_Reducer(), new_FunctionRewriter_IdentityReducer().up_FunctionRewriter_Reducer())
 	var reductionMap *SimpleSetMultimap = SimpleSetMultimap_createInsertionOrdered()
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_FunctionRewriter_ReductionGatherer(this, reducers, reductionMap)))
 	it_1 := reducers.each()
@@ -53,7 +53,7 @@ func (this *FunctionRewriter) process_2(externs Node, root Node) {
 }
 
 func (this *FunctionRewriter) parseHelperCode(reducer *FunctionRewriter_Reducer) Node {
-	var root Node = this.compiler_.parseSyntheticCode((tostr_(Object_getClass(reducer.self())) + ":helper"), reducer.getHelperSource())
+	var root Node = this.compiler_.parseSyntheticCode((jtostr_(Object_getClass(reducer.self())) + ":helper"), reducer.getHelperSource())
 	return func() Node {
 		if root != 0 {
 			return root.removeFirstChild()
@@ -103,12 +103,12 @@ type FunctionRewriter_ReductionGatherer struct {
 	reductions *SimpleSetMultimap
 }
 
-func (this *FunctionRewriter_ReductionGatherer) init_FunctionRewriter_ReductionGatherer(reducers *TList[*FunctionRewriter_Reducer], reductions *SimpleSetMultimap) {
+func (this *FunctionRewriter_ReductionGatherer) init_FunctionRewriter_ReductionGatherer(reducers *JTList[*FunctionRewriter_Reducer], reductions *SimpleSetMultimap) {
 	this.reducers = arrmap_(reducers.asList().toArray(arrmap_(make([]*FunctionRewriter_Reducer, 0), func(v_ *FunctionRewriter_Reducer) any { return v_.self() })), func(v_ any) *FunctionRewriter_Reducer { return to_FunctionRewriter_Reducer(v_) })
 	this.reductions = reductions
 }
 
-func new_FunctionRewriter_ReductionGatherer(outer_ *FunctionRewriter, reducers *TList[*FunctionRewriter_Reducer], reductions *SimpleSetMultimap) *FunctionRewriter_ReductionGatherer {
+func new_FunctionRewriter_ReductionGatherer(outer_ *FunctionRewriter, reducers *JTList[*FunctionRewriter_Reducer], reductions *SimpleSetMultimap) *FunctionRewriter_ReductionGatherer {
 	this := &FunctionRewriter_ReductionGatherer{}
 	this.outer_ = outer_
 	this.init_FunctionRewriter_ReductionGatherer(reducers, reductions)
@@ -429,7 +429,7 @@ func (this *FunctionRewriter_GetterReducer) reduce_impl(node Node) Node {
 	var getprop Node = this.getGetPropertyName(node)
 	if getprop != 0 {
 		if !getprop.isGetProp() {
-			panic(new_IllegalStateException_String(("Expected GETPROP, got " + tostr_(getprop.getToken()))).self())
+			panic(new_IllegalStateException_String(("Expected GETPROP, got " + jtostr_(getprop.getToken()))).self())
 		}
 		var arg Node = IR_string(getprop.getString()).srcref(getprop)
 		return this.buildCallNode(FunctionRewriter_GetterReducer_FACTORY_METHOD_NAME, arg, node)
@@ -483,7 +483,7 @@ func (this *FunctionRewriter_SetterReducer) reduce_impl(node Node) Node {
 	var propName Node = this.getSetPropertyName(node)
 	if propName != 0 {
 		if !propName.isStringLit() {
-			panic(new_IllegalStateException_String(("Expected STRING, got " + tostr_(propName.getToken()))).self())
+			panic(new_IllegalStateException_String(("Expected STRING, got " + jtostr_(propName.getToken()))).self())
 		}
 		return this.buildCallNode(FunctionRewriter_SetterReducer_FACTORY_METHOD_NAME, propName, node)
 	} else {

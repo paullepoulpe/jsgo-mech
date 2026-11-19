@@ -5,7 +5,7 @@ package closure
 type J2clUtilGetDefineRewriterPass struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_ *AbstractCompiler
-	defines   *TSet[string]
+	defines   *JTSet[string]
 }
 
 func (this *J2clUtilGetDefineRewriterPass) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -77,7 +77,7 @@ func J2clUtilGetDefineRewriterPass_isUtilGetDefineCall(n Node) bool {
 }
 
 func J2clUtilGetDefineRewriterPass_isUtilGetDefineMethodName(fnName Optional[string]) bool {
-	return ((fnName.isPresent() && String_endsWith(fnName.get(), ".$getDefine")) && String_contains_s(fnName.get(), "Util"))
+	return ((fnName.isPresent() && String_endsWith(fnName.get(), ".$getDefine")) && JString_contains_s(fnName.get(), "Util"))
 }
 
 var J2clUtilGetDefineRewriterPass_J2CL_SYSTEM_GET_PROPERTY_CONSTANT_NAME *DiagnosticType
@@ -102,8 +102,8 @@ func J2clUtilGetDefineRewriterPass_clinit() {
 type J2clUtilGetDefineRewriterPass_CheckGetDefineCalls struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_                            *J2clUtilGetDefineRewriterPass
-	defineNameToAddSystemPropertyCall *TMap[string, Node]
-	defineNameToGetDefineCall         *TMap[string, Node]
+	defineNameToAddSystemPropertyCall *JTMap[string, Node]
+	defineNameToGetDefineCall         *JTMap[string, Node]
 }
 
 func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -114,8 +114,8 @@ func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) up_NodeTraversal_
 }
 
 func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) finit_J2clUtilGetDefineRewriterPass_CheckGetDefineCalls() {
-	this.defineNameToAddSystemPropertyCall = newTMap_(tc_string, tc_Node)
-	this.defineNameToGetDefineCall = newTMap_(tc_string, tc_Node)
+	this.defineNameToAddSystemPropertyCall = jnewTMap_(jtc_string, jtc_Node)
+	this.defineNameToGetDefineCall = jnewTMap_(jtc_string, jtc_Node)
 }
 
 func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) init_J2clUtilGetDefineRewriterPass_CheckGetDefineCalls() {

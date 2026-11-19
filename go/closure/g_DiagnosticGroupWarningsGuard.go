@@ -56,7 +56,7 @@ func (this *DiagnosticGroupWarningsGuard) mustRunChecks_impl(otherGroup *Diagnos
 	panic("unreachable")
 }
 
-func (this *DiagnosticGroupWarningsGuard) groupMatchesAny(types *TSet[*DiagnosticType]) bool {
+func (this *DiagnosticGroupWarningsGuard) groupMatchesAny(types *JTSet[*DiagnosticType]) bool {
 	it_1 := types.each()
 	for it_1.next() {
 		var type_ *DiagnosticType = it_1.v
@@ -67,7 +67,7 @@ func (this *DiagnosticGroupWarningsGuard) groupMatchesAny(types *TSet[*Diagnosti
 	return false
 }
 
-func (this *DiagnosticGroupWarningsGuard) groupMatchesAll(types *TSet[*DiagnosticType]) bool {
+func (this *DiagnosticGroupWarningsGuard) groupMatchesAll(types *JTSet[*DiagnosticType]) bool {
 	it_1 := types.each()
 	for it_1.next() {
 		var type_ *DiagnosticType = it_1.v
@@ -79,7 +79,7 @@ func (this *DiagnosticGroupWarningsGuard) groupMatchesAll(types *TSet[*Diagnosti
 }
 
 func (this *DiagnosticGroupWarningsGuard) toString() string {
-	return (tostr_(this.group) + "(" + tostr_(this.levelField) + ")")
+	return (jtostr_(this.group) + "(" + jtostr_(this.levelField) + ")")
 }
 
 const DiagnosticGroupWarningsGuard_serialVersionUID int64 = 1

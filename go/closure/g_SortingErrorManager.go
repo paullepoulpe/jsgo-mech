@@ -4,12 +4,12 @@ package closure
 
 type SortingErrorManager struct {
 	self_                 any
-	messages              *TSet[*SortingErrorManager_ErrorWithLevel]
+	messages              *JTSet[*SortingErrorManager_ErrorWithLevel]
 	originalErrorCount    int32
 	promotedErrorCount    int32
 	warningCount          int32
 	typedPercent          float64
-	errorReportGenerators *TSet[SortingErrorManager_ErrorReportGenerator]
+	errorReportGenerators *JTSet[SortingErrorManager_ErrorReportGenerator]
 }
 
 func (this *SortingErrorManager) as_SortingErrorManager() *SortingErrorManager { return this }
@@ -41,12 +41,12 @@ func (this *SortingErrorManager) finit_SortingErrorManager() {
 	this.typedPercent = 0.0
 }
 
-func (this *SortingErrorManager) init_SortingErrorManager(errorReportGenerators *TSet[SortingErrorManager_ErrorReportGenerator]) {
+func (this *SortingErrorManager) init_SortingErrorManager(errorReportGenerators *JTSet[SortingErrorManager_ErrorReportGenerator]) {
 	this.finit_SortingErrorManager()
 	this.errorReportGenerators = immutableSetCopyOfT_(tce_SortingErrorManager_ErrorReportGenerator, errorReportGenerators)
 }
 
-func new_SortingErrorManager(errorReportGenerators *TSet[SortingErrorManager_ErrorReportGenerator]) *SortingErrorManager {
+func new_SortingErrorManager(errorReportGenerators *JTSet[SortingErrorManager_ErrorReportGenerator]) *SortingErrorManager {
 	this := &SortingErrorManager{}
 	this.self_ = this
 	this.init_SortingErrorManager(errorReportGenerators)
@@ -80,11 +80,11 @@ func (this *SortingErrorManager) getWarningCount() int32 {
 	return this.warningCount
 }
 
-func (this *SortingErrorManager) getErrors() *TList[*JSError] {
+func (this *SortingErrorManager) getErrors() *JTList[*JSError] {
 	return this.filterToListOf(CheckLevel_ERROR)
 }
 
-func (this *SortingErrorManager) getWarnings() *TList[*JSError] {
+func (this *SortingErrorManager) getWarnings() *JTList[*JSError] {
 	return this.filterToListOf(CheckLevel_WARNING)
 }
 
@@ -100,8 +100,8 @@ func (this *SortingErrorManager) getTypedPercent() float64 {
 	return this.typedPercent
 }
 
-func (this *SortingErrorManager) filterToListOf(level *CheckLevel) *TList[*JSError] {
-	var result *TListBuilder[*JSError] = newTListBuilder_(tc_p_JSError)
+func (this *SortingErrorManager) filterToListOf(level *CheckLevel) *JTList[*JSError] {
+	var result *TListBuilder[*JSError] = newTListBuilder_(jtc_p_JSError)
 	it_1 := this.messages.each()
 	for it_1.next() {
 		var e *SortingErrorManager_ErrorWithLevel = it_1.v

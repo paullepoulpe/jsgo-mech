@@ -5,8 +5,8 @@ package closure
 type SimpleJsonValue struct {
 	tag   *SimpleJsonValue_Kind
 	text  string
-	items *TList[*SimpleJsonValue]
-	named *TMap[string, *SimpleJsonValue]
+	items *JTList[*SimpleJsonValue]
+	named *JTMap[string, *SimpleJsonValue]
 }
 
 func (this *SimpleJsonValue) zero_SimpleJsonValue() {
@@ -14,8 +14,8 @@ func (this *SimpleJsonValue) zero_SimpleJsonValue() {
 }
 
 func (this *SimpleJsonValue) finit_SimpleJsonValue() {
-	this.items = newTList_(tc_p_SimpleJsonValue)
-	this.named = newTMap_(tc_string, tc_p_SimpleJsonValue)
+	this.items = jnewTList_(tc_p_SimpleJsonValue)
+	this.named = jnewTMap_(jtc_string, tc_p_SimpleJsonValue)
 }
 
 func (this *SimpleJsonValue) init_SimpleJsonValue(tag *SimpleJsonValue_Kind, text string) {
@@ -64,11 +64,11 @@ func (this *SimpleJsonValue) kind() *SimpleJsonValue_Kind {
 	return this.tag
 }
 
-func (this *SimpleJsonValue) members() *TMap[string, *SimpleJsonValue] {
+func (this *SimpleJsonValue) members() *JTMap[string, *SimpleJsonValue] {
 	return this.named
 }
 
-func (this *SimpleJsonValue) elements() *TList[*SimpleJsonValue] {
+func (this *SimpleJsonValue) elements() *JTList[*SimpleJsonValue] {
 	return this.items
 }
 
@@ -80,7 +80,7 @@ func (this *SimpleJsonValue) asString() *Outcome_base[string] {
 	if ((this.tag == SimpleJsonValue_Kind_STRING) || (this.tag == SimpleJsonValue_Kind_NUMBER)) || (this.tag == SimpleJsonValue_Kind_BOOLEAN) {
 		return Outcome_base_ok_Object[string](this.text)
 	}
-	return Outcome_base_err[string](new_SimpleJsonException(("Expected a JSON string but found " + tostr_(this.tag))).up_Throwable())
+	return Outcome_base_err[string](new_SimpleJsonException(("Expected a JSON string but found " + jtostr_(this.tag))).up_Throwable())
 }
 
 func (this *SimpleJsonValue) asInt() *Outcome_base[any] {
@@ -94,7 +94,7 @@ func (this *SimpleJsonValue) asInt() *Outcome_base[any] {
 		parsed = any(int32(SimpleJsonValue_wrapToInt(this.text)))
 	}
 	if parsed == nil {
-		return Outcome_base_err[any](new_SimpleJsonException(("Expected a JSON integer but found " + tostr_(this.tag))).up_Throwable())
+		return Outcome_base_err[any](new_SimpleJsonException(("Expected a JSON integer but found " + jtostr_(this.tag))).up_Throwable())
 	}
 	return Outcome_base_ok_Object[any](parsed)
 }

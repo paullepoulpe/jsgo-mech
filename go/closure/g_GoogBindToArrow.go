@@ -44,7 +44,7 @@ func (this *GoogBindToArrow) matches_impl(node Node, metadata *NodeMetadata) boo
 	return (((secondArg != 0) && secondArg.isThis()) && (secondArg.getNext() == 0))
 }
 
-func (this *GoogBindToArrow) processMatch_Match_rImmutableList(match *Match) *TList[*SuggestedFix] {
+func (this *GoogBindToArrow) processMatch_Match_rImmutableList(match *Match) *JTList[*SuggestedFix] {
 	var compiler *AbstractCompiler = match.getMetadata().getCompiler()
 	var googBindCall Node = match.getNode()
 	var function Node = googBindCall.getFirstChild().getNext()
@@ -59,10 +59,10 @@ func (this *GoogBindToArrow) processMatch_Match_rImmutableList(match *Match) *TL
 	}
 	var fix *SuggestedFix_Builder = new_SuggestedFix_Builder()
 	fix.replace(googBindCall, arrowFunction, compiler)
-	return immutableListOf_[*SuggestedFix](tc_p_SuggestedFix, fix.build())
+	return jimmutableListOf_[*SuggestedFix](jtc_p_SuggestedFix, fix.build())
 }
 
-func (this *GoogBindToArrow) processMatch_Match_impl(p0 *Match) *TList[*SuggestedFix] {
+func (this *GoogBindToArrow) processMatch_Match_impl(p0 *Match) *JTList[*SuggestedFix] {
 	return this.processMatch_Match_rImmutableList(p0)
 }
 

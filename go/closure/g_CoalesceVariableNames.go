@@ -35,7 +35,7 @@ func (this *CoalesceVariableNames) init_CoalesceVariableNames(compiler *Abstract
 	Preconditions_checkState(compiler.getLifeCycleStage().isNormalized())
 	this.compiler_ = compiler
 	this.colorings = newTDeque_(tc_p_GraphColoring_p_Var__any_)
-	this.liveAnalyses = newTDeque_(tc_p_LiveVariablesAnalysis)
+	this.liveAnalyses = newTDeque_(jtc_p_LiveVariablesAnalysis)
 	this.usePseudoNames = usePseudoNames
 	this.astFactory_ = compiler.createAstFactory()
 	this.scopeCreator = new_MemoizedScopeCreator(icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(compiler))))
@@ -117,7 +117,7 @@ func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent N
 		this.compiler_.reportChangeToEnclosingScope(n)
 		this.updateDeclarationsPostCoalescing(n, coalescedVar, var_, parent)
 	} else {
-		var allMergedNames *TSet[string] = newTSortedSet_(tc_string)
+		var allMergedNames *JTSet[string] = newTSortedSet_(jtc_string)
 		it_1 := this.liveness.getAllVariablesInOrder().each()
 		for it_1.next() {
 			var iVar *Var = it_1.v
@@ -157,7 +157,7 @@ func (this *CoalesceVariableNames) isNameInsideDestructuringAssignment(n Node) b
 	return false
 }
 
-func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *ControlFlowGraph[Node], escaped *TSet[*Var]) *UndiGraph[*Var, any] {
+func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *ControlFlowGraph[Node], escaped *JTSet[*Var]) *UndiGraph[*Var, any] {
 	var interferenceGraph *UndiGraph[*Var, any] = LinkedUndirectedGraph_create[*Var, any]().up_UndiGraph()
 	var orderedVariables []*Var = arrmap_(this.liveness.getAllVariablesInOrder().asList().toArray(arrmap_(make([]*Var, 0), func(v_ *Var) any { return obj_(v_) })), func(v_ any) *Var { return cast_[*Var](v_) })
 	var interferenceGraphNodes *BitSet = new_BitSet()
@@ -334,13 +334,13 @@ type CoalesceVariableNames_LiveRangeChecker struct {
 	root             Node
 	state            *DataFlowAnalysis_LinearFlowState
 	orderedVariables []*Var
-	isAssignToList   *TList[any]
-	isReadFromList   *TList[any]
+	isAssignToList   *JTList[any]
+	isReadFromList   *JTList[any]
 }
 
 func (this *CoalesceVariableNames_LiveRangeChecker) finit_CoalesceVariableNames_LiveRangeChecker() {
-	this.isAssignToList = newTList_(tc_Integer)
-	this.isReadFromList = newTList_(tc_Integer)
+	this.isAssignToList = jnewTList_(tc_Integer)
+	this.isReadFromList = jnewTList_(tc_Integer)
 }
 
 func (this *CoalesceVariableNames_LiveRangeChecker) init_CoalesceVariableNames_LiveRangeChecker(root Node, orderedVariables []*Var, state *DataFlowAnalysis_LinearFlowState) {

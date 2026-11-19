@@ -8,7 +8,7 @@ type ScopedAliases struct {
 	moduleMetadataMap        *ModuleMetadataMap
 	uniqueIdInput            *CompilerInput
 	scopedAliasNames         *SimpleMultiset
-	closureNamespaces        *TSet[string]
+	closureNamespaces        *JTSet[string]
 	invalidModuleGetHandling *ScopedAliases_InvalidModuleGetHandling
 }
 
@@ -16,7 +16,7 @@ func (this *ScopedAliases) finit_ScopedAliases() {
 	this.scopedAliasNames = SimpleMultiset_create()
 }
 
-func (this *ScopedAliases) init_ScopedAliases(compiler *AbstractCompiler, preprocessorSymbolTable *PreprocessorSymbolTable, closureNamespaces *TSet[string], invalidModuleGetHandling *ScopedAliases_InvalidModuleGetHandling) {
+func (this *ScopedAliases) init_ScopedAliases(compiler *AbstractCompiler, preprocessorSymbolTable *PreprocessorSymbolTable, closureNamespaces *JTSet[string], invalidModuleGetHandling *ScopedAliases_InvalidModuleGetHandling) {
 	this.finit_ScopedAliases()
 	this.compiler_ = compiler
 	this.preprocessorSymbolTable = preprocessorSymbolTable
@@ -25,7 +25,7 @@ func (this *ScopedAliases) init_ScopedAliases(compiler *AbstractCompiler, prepro
 	this.invalidModuleGetHandling = invalidModuleGetHandling
 }
 
-func new_ScopedAliases(compiler *AbstractCompiler, preprocessorSymbolTable *PreprocessorSymbolTable, closureNamespaces *TSet[string], invalidModuleGetHandling *ScopedAliases_InvalidModuleGetHandling) *ScopedAliases {
+func new_ScopedAliases(compiler *AbstractCompiler, preprocessorSymbolTable *PreprocessorSymbolTable, closureNamespaces *JTSet[string], invalidModuleGetHandling *ScopedAliases_InvalidModuleGetHandling) *ScopedAliases {
 	this := &ScopedAliases{}
 	this.init_ScopedAliases(compiler, preprocessorSymbolTable, closureNamespaces, invalidModuleGetHandling)
 	return this
@@ -39,9 +39,9 @@ func (this *ScopedAliases) process_2(externs Node, root Node) {
 	var traversal *ScopedAliases_Traversal = new_ScopedAliases_Traversal(this)
 	NodeTraversal_traverse(this.compiler_, root, ScopedAliases_Traversal_as_NodeTraversal_Callback(traversal))
 	if !traversal.hasErrors() {
-		var aliasWorkQueue *TList[*ScopedAliases_AliasUsage] = tlistCopy_(tc_p_ScopedAliases_AliasUsage, traversal.getAliasUsages())
+		var aliasWorkQueue *JTList[*ScopedAliases_AliasUsage] = tlistCopy_(jtc_p_ScopedAliases_AliasUsage, traversal.getAliasUsages())
 		for !aliasWorkQueue.isEmpty() {
-			var newQueue *TList[*ScopedAliases_AliasUsage] = newTList_(tc_p_ScopedAliases_AliasUsage)
+			var newQueue *JTList[*ScopedAliases_AliasUsage] = jnewTList_(jtc_p_ScopedAliases_AliasUsage)
 			it_2 := aliasWorkQueue.each()
 			for it_2.next() {
 				var aliasUsage *ScopedAliases_AliasUsage = it_2.v
@@ -263,9 +263,9 @@ func (this *ScopedAliases_Builder) setInvalidModuleGetHandling(invalidModuleGetH
 }
 
 func (this *ScopedAliases_Builder) build() *ScopedAliases {
-	return new_ScopedAliases(this.compiler_, this.preprocessorSymbolTable, func() *TSet[string] {
+	return new_ScopedAliases(this.compiler_, this.preprocessorSymbolTable, func() *JTSet[string] {
 		if this.moduleMetadataMap == nil {
-			return tsetEmptyImm_(tc_string)
+			return jtsetEmptyImm_(jtc_string)
 		}
 		return this.moduleMetadataMap.getModulesByGoogNamespace().keySetImm()
 	}(), this.invalidModuleGetHandling)
@@ -309,7 +309,7 @@ func (this *ScopedAliases_AliasUsage) init_ScopedAliases_AliasUsage(aliasVar *Va
 	this.aliasReference = aliasReference
 }
 
-func (this *ScopedAliases_AliasUsage) referencesOtherAlias(deletedAliasVars *TSet[*Var]) bool {
+func (this *ScopedAliases_AliasUsage) referencesOtherAlias(deletedAliasVars *JTSet[*Var]) bool {
 	var aliasDefinition Node = this.aliasVar.getInitialValue()
 	var qname string = ScopedAliases_getAliasedNamespace(aliasDefinition)
 	var dotIndex int32 = String_indexOf(qname, 46)
@@ -398,13 +398,13 @@ func (this *ScopedAliases_AliasedTypeNode) applyAlias_impl(compiler *AbstractCom
 type ScopedAliases_Traversal struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_                   *ScopedAliases
-	aliasDefinitionsToDelete *TList[Node]
-	scopeCalls               *TList[Node]
-	aliasUsages              *TList[*ScopedAliases_AliasUsage]
-	aliases_                 *TMap[string, *Var]
-	injectedDecls            *TSet[Node]
-	deletedAliasVars         *TSet[*Var]
-	forbiddenLocals          *TSet[string]
+	aliasDefinitionsToDelete *JTList[Node]
+	scopeCalls               *JTList[Node]
+	aliasUsages              *JTList[*ScopedAliases_AliasUsage]
+	aliases_                 *JTMap[string, *Var]
+	injectedDecls            *JTSet[Node]
+	deletedAliasVars         *JTSet[*Var]
+	forbiddenLocals          *JTSet[string]
 	hasNamespaceShadows      bool
 	hasErrorsField           bool
 	scopeFunctionBody        Node
@@ -418,13 +418,13 @@ func (this *ScopedAliases_Traversal) up_NodeTraversal_AbstractPostOrderCallback(
 }
 
 func (this *ScopedAliases_Traversal) finit_ScopedAliases_Traversal() {
-	this.aliasDefinitionsToDelete = newTList_(tc_Node)
-	this.scopeCalls = newTList_(tc_Node)
-	this.aliasUsages = newTList_(tc_p_ScopedAliases_AliasUsage)
-	this.aliases_ = newTMap_(tc_string, tc_p_Var)
-	this.injectedDecls = newTSet_(tc_Node)
-	this.deletedAliasVars = newTSet_(tce_p_Var)
-	this.forbiddenLocals = tsetFrom_(tc_string, ImmutableSet_as_Collection(ImmutableSet_of_Object("$jscomp")))
+	this.aliasDefinitionsToDelete = jnewTList_(jtc_Node)
+	this.scopeCalls = jnewTList_(jtc_Node)
+	this.aliasUsages = jnewTList_(jtc_p_ScopedAliases_AliasUsage)
+	this.aliases_ = jnewTMap_(jtc_string, jtc_p_Var)
+	this.injectedDecls = jnewTSet_(jtc_Node)
+	this.deletedAliasVars = jnewTSet_(tce_p_Var)
+	this.forbiddenLocals = jtsetFrom_(jtc_string, ImmutableSet_as_Collection(ImmutableSet_of_Object("$jscomp")))
 	this.hasNamespaceShadows = false
 	this.hasErrorsField = false
 	this.scopeFunctionBody = 0
@@ -447,11 +447,11 @@ func (this *ScopedAliases_Traversal) getAliasDefinitionsToDelete() CollectionOf[
 	return Collection(this.aliasDefinitionsToDelete.asList())
 }
 
-func (this *ScopedAliases_Traversal) getAliasUsages() *TList[*ScopedAliases_AliasUsage] {
+func (this *ScopedAliases_Traversal) getAliasUsages() *JTList[*ScopedAliases_AliasUsage] {
 	return this.aliasUsages
 }
 
-func (this *ScopedAliases_Traversal) getScopeCalls() *TList[Node] {
+func (this *ScopedAliases_Traversal) getScopeCalls() *JTList[Node] {
 	return this.scopeCalls
 }
 

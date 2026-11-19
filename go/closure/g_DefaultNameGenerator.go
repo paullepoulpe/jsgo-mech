@@ -18,7 +18,7 @@ func (this *DefaultNameGenerator) zero_DefaultNameGenerator() {
 func (this *DefaultNameGenerator) init_DefaultNameGenerator_0() {
 	this.buildPriorityLookupMap()
 	var reservedNames SetOf[string] = LinkedHashSet_as_Set(Sets_newLinkedHashSetWithExpectedSize(0))
-	this.reset(reservedNames, "", tsetEmptyImm_(tc_Character))
+	this.reset(reservedNames, "", jtsetEmptyImm_(tc_Character))
 }
 
 func new_DefaultNameGenerator_0() *DefaultNameGenerator {
@@ -28,30 +28,30 @@ func new_DefaultNameGenerator_0() *DefaultNameGenerator {
 	return this
 }
 
-func (this *DefaultNameGenerator) init_DefaultNameGenerator_Set_String_Set(reservedNames SetOf[string], prefix string, reservedCharacters *TSet[any]) {
+func (this *DefaultNameGenerator) init_DefaultNameGenerator_Set_String_Set(reservedNames SetOf[string], prefix string, reservedCharacters *JTSet[any]) {
 	this.init_DefaultNameGenerator_Set_String_Set_Set(reservedNames, prefix, reservedCharacters, reservedCharacters)
 }
 
-func new_DefaultNameGenerator_Set_String_Set(reservedNames SetOf[string], prefix string, reservedCharacters *TSet[any]) *DefaultNameGenerator {
+func new_DefaultNameGenerator_Set_String_Set(reservedNames SetOf[string], prefix string, reservedCharacters *JTSet[any]) *DefaultNameGenerator {
 	this := &DefaultNameGenerator{}
 	this.zero_DefaultNameGenerator()
 	this.init_DefaultNameGenerator_Set_String_Set(reservedNames, prefix, reservedCharacters)
 	return this
 }
 
-func (this *DefaultNameGenerator) init_DefaultNameGenerator_Set_String_Set_Set(reservedNames SetOf[string], prefix string, reservedFirstCharacters *TSet[any], reservedNonFirstCharacters *TSet[any]) {
+func (this *DefaultNameGenerator) init_DefaultNameGenerator_Set_String_Set_Set(reservedNames SetOf[string], prefix string, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any]) {
 	this.buildPriorityLookupMap()
 	this.reset_4(reservedNames, prefix, reservedFirstCharacters, reservedNonFirstCharacters)
 }
 
-func new_DefaultNameGenerator_Set_String_Set_Set(reservedNames SetOf[string], prefix string, reservedFirstCharacters *TSet[any], reservedNonFirstCharacters *TSet[any]) *DefaultNameGenerator {
+func new_DefaultNameGenerator_Set_String_Set_Set(reservedNames SetOf[string], prefix string, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any]) *DefaultNameGenerator {
 	this := &DefaultNameGenerator{}
 	this.zero_DefaultNameGenerator()
 	this.init_DefaultNameGenerator_Set_String_Set_Set(reservedNames, prefix, reservedFirstCharacters, reservedNonFirstCharacters)
 	return this
 }
 
-func (this *DefaultNameGenerator) init_DefaultNameGenerator_Set_String_Set_Set_Map(reservedNames *TSet[string], prefix string, reservedFirstCharacters *TSet[any], reservedNonFirstCharacters *TSet[any], priorityLookupMap MapOf[BoxedOf[uint16], *DefaultNameGenerator_CharPriority]) {
+func (this *DefaultNameGenerator) init_DefaultNameGenerator_Set_String_Set_Set_Map(reservedNames *JTSet[string], prefix string, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any], priorityLookupMap MapOf[BoxedOf[uint16], *DefaultNameGenerator_CharPriority]) {
 	this.priorityLookupMap = LinkedHashMap_as_Map(Maps_newLinkedHashMapWithExpectedSize(int32(len(DefaultNameGenerator_NONFIRST_CHAR))))
 	it_1 := foreach_(any(priorityLookupMap.entrySet()))
 	for it_1.next() {
@@ -61,7 +61,7 @@ func (this *DefaultNameGenerator) init_DefaultNameGenerator_Set_String_Set_Set_M
 	this.reset_4(reservedNames.asSet(), prefix, reservedFirstCharacters, reservedNonFirstCharacters)
 }
 
-func new_DefaultNameGenerator_Set_String_Set_Set_Map(reservedNames *TSet[string], prefix string, reservedFirstCharacters *TSet[any], reservedNonFirstCharacters *TSet[any], priorityLookupMap MapOf[BoxedOf[uint16], *DefaultNameGenerator_CharPriority]) *DefaultNameGenerator {
+func new_DefaultNameGenerator_Set_String_Set_Set_Map(reservedNames *JTSet[string], prefix string, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any], priorityLookupMap MapOf[BoxedOf[uint16], *DefaultNameGenerator_CharPriority]) *DefaultNameGenerator {
 	this := &DefaultNameGenerator{}
 	this.zero_DefaultNameGenerator()
 	this.init_DefaultNameGenerator_Set_String_Set_Set_Map(reservedNames, prefix, reservedFirstCharacters, reservedNonFirstCharacters, priorityLookupMap)
@@ -81,11 +81,11 @@ func DefaultNameGenerator_isBadName(name string) bool {
 	return DefaultNameGenerator_BAD_NAMES.contains(name)
 }
 
-func (this *DefaultNameGenerator) reset(reservedNames SetOf[string], prefix string, reservedCharacters *TSet[any]) {
+func (this *DefaultNameGenerator) reset(reservedNames SetOf[string], prefix string, reservedCharacters *JTSet[any]) {
 	this.reset_4(reservedNames, prefix, reservedCharacters, reservedCharacters)
 }
 
-func (this *DefaultNameGenerator) reset_4(reservedNames SetOf[string], prefix string, reservedFirstCharacters *TSet[any], reservedNonFirstCharacters *TSet[any]) {
+func (this *DefaultNameGenerator) reset_4(reservedNames SetOf[string], prefix string, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any]) {
 	this.reservedNames = reservedNames
 	this.prefix_ = prefix
 	this.nameCount = 0
@@ -110,7 +110,7 @@ func (this *DefaultNameGenerator) reset_4(reservedNames SetOf[string], prefix st
 	this.checkPrefix(prefix)
 }
 
-func (this *DefaultNameGenerator) clone(reservedNames *TSet[string], prefix string, reservedCharacters *TSet[any]) NameGenerator {
+func (this *DefaultNameGenerator) clone(reservedNames *JTSet[string], prefix string, reservedCharacters *JTSet[any]) NameGenerator {
 	return NameGenerator(new_DefaultNameGenerator_Set_String_Set_Set_Map(reservedNames, prefix, reservedCharacters, reservedCharacters, this.priorityLookupMap))
 }
 
@@ -123,7 +123,7 @@ func (this *DefaultNameGenerator) favors(sequence any) {
 	}
 }
 
-func (this *DefaultNameGenerator) reserveCharacters(chars []uint16, reservedCharacterSet *TSet[any]) []*DefaultNameGenerator_CharPriority {
+func (this *DefaultNameGenerator) reserveCharacters(chars []uint16, reservedCharacterSet *JTSet[any]) []*DefaultNameGenerator_CharPriority {
 	if reservedCharacterSet.isEmpty() {
 		var result []*DefaultNameGenerator_CharPriority = make([]*DefaultNameGenerator_CharPriority, int32(len(chars)))
 		for i := int32(0); i < int32(len(chars)); i++ {
@@ -131,7 +131,7 @@ func (this *DefaultNameGenerator) reserveCharacters(chars []uint16, reservedChar
 		}
 		return result
 	}
-	var charSet *TSet[any] = tsetFrom_(tc_Character, Collection(Chars_asList(chars)))
+	var charSet *JTSet[any] = jtsetFrom_(tc_Character, Collection(Chars_asList(chars)))
 	charSet.asSet().removeAll(Collection(reservedCharacterSet.asSet()))
 	var result []*DefaultNameGenerator_CharPriority = make([]*DefaultNameGenerator_CharPriority, charSet.size())
 	var index int32 = 0
@@ -201,7 +201,7 @@ func (this *DefaultNameGenerator) generateNextName() string {
 
 var DefaultNameGenerator_FIRST_CHAR []uint16
 var DefaultNameGenerator_NONFIRST_CHAR []uint16
-var DefaultNameGenerator_BAD_NAMES *TSet[string]
+var DefaultNameGenerator_BAD_NAMES *JTSet[string]
 
 var DefaultNameGenerator_clinit_done bool
 
@@ -212,7 +212,7 @@ func DefaultNameGenerator_clinit() {
 	DefaultNameGenerator_clinit_done = true
 	DefaultNameGenerator_FIRST_CHAR = String_toCharArray("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$")
 	DefaultNameGenerator_NONFIRST_CHAR = String_toCharArray("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789$")
-	DefaultNameGenerator_BAD_NAMES = immutableSetOf_[string](tc_string, "let", "yield", "await", "eval")
+	DefaultNameGenerator_BAD_NAMES = jimmutableSetOf_[string](jtc_string, "let", "yield", "await", "eval")
 
 }
 

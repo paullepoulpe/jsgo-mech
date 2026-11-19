@@ -6,23 +6,23 @@ type ReplaceCssNames struct {
 	compiler_                    *AbstractCompiler
 	astFactory_                  *AstFactory
 	cssNameCollector             ReplaceCssNames_CssNameCollector
-	cssNamesBySymbol             *TMap[string, string]
-	classesObjectsQualifiedNames *TSet[string]
+	cssNamesBySymbol             *JTMap[string, string]
+	classesObjectsQualifiedNames *JTSet[string]
 	symbolMap                    CssRenamingMap
-	skiplist                     *TSet[string]
+	skiplist                     *JTSet[string]
 }
 
-func (this *ReplaceCssNames) init_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector ReplaceCssNames_CssNameCollector, skiplist *TSet[string]) {
+func (this *ReplaceCssNames) init_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector ReplaceCssNames_CssNameCollector, skiplist *JTSet[string]) {
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
 	this.symbolMap = symbolMap
 	this.cssNameCollector = cssNameCollector
 	this.skiplist = skiplist
-	this.cssNamesBySymbol = newTMap_(tc_string, tc_string)
-	this.classesObjectsQualifiedNames = newTSet_(tc_string)
+	this.cssNamesBySymbol = jnewTMap_(jtc_string, jtc_string)
+	this.classesObjectsQualifiedNames = jnewTSet_(jtc_string)
 }
 
-func new_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector ReplaceCssNames_CssNameCollector, skiplist *TSet[string]) *ReplaceCssNames {
+func new_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector ReplaceCssNames_CssNameCollector, skiplist *JTSet[string]) *ReplaceCssNames {
 	this := &ReplaceCssNames{}
 	this.init_ReplaceCssNames(compiler, symbolMap, cssNameCollector, skiplist)
 	return this
@@ -30,7 +30,7 @@ func new_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, c
 
 func (this *ReplaceCssNames) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_ReplaceCssNames_FindSetCssNameTraversal(this)))
-	var getCssNameInstances *TList[*ReplaceCssNames_GetCssNameInstance] = this.gatherGetCssNameInstances(root)
+	var getCssNameInstances *JTList[*ReplaceCssNames_GetCssNameInstance] = this.gatherGetCssNameInstances(root)
 	it_1 := getCssNameInstances.each()
 	for it_1.next() {
 		var getCssNameInstance *ReplaceCssNames_GetCssNameInstance = it_1.v
@@ -46,7 +46,7 @@ func (this *ReplaceCssNames) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_ReplaceCssNames_CountCssNamesBySymbol(this)))
 }
 
-func (this *ReplaceCssNames) gatherGetCssNameInstances(root Node) *TList[*ReplaceCssNames_GetCssNameInstance] {
+func (this *ReplaceCssNames) gatherGetCssNameInstances(root Node) *JTList[*ReplaceCssNames_GetCssNameInstance] {
 	var gatherCssNamesTraversal *ReplaceCssNames_GatherCssNamesTraversal = new_ReplaceCssNames_GatherCssNamesTraversal(this)
 	NodeTraversal_traverse(this.compiler_, root, ReplaceCssNames_GatherCssNamesTraversal_as_NodeTraversal_Callback(gatherCssNamesTraversal))
 	return gatherCssNamesTraversal.listOfCssNameInstances
@@ -228,12 +228,12 @@ func (this *ReplaceCssNames_FindSetCssNameTraversal) visit_impl(t *NodeTraversal
 
 type ReplaceCssNames_GatherCssNamesTraversal struct {
 	outer_                 *ReplaceCssNames
-	listOfCssNameInstances *TList[*ReplaceCssNames_GetCssNameInstance]
+	listOfCssNameInstances *JTList[*ReplaceCssNames_GetCssNameInstance]
 	traversalState         *ReplaceCssNames_GatherCssNamesTraversal_TraversalState
 }
 
 func (this *ReplaceCssNames_GatherCssNamesTraversal) finit_ReplaceCssNames_GatherCssNamesTraversal() {
-	this.listOfCssNameInstances = newTList_(tc_p_ReplaceCssNames_GetCssNameInstance)
+	this.listOfCssNameInstances = jnewTList_(jtc_p_ReplaceCssNames_GetCssNameInstance)
 	this.traversalState = new_ReplaceCssNames_GatherCssNamesTraversal_TraversalState()
 }
 

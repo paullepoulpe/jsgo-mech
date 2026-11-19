@@ -54,11 +54,11 @@ func new_DependencyInfo_Require(getSymbol string, getRawText string, getType *De
 }
 
 func (this *DependencyInfo_Require) toString() string {
-	return ("Require{symbol=" + sstr_(this.getSymbol_) + ", rawText=" + sstr_(this.getRawText_) + ", type=" + tostr_(this.getType_) + "}")
+	return ("Require{symbol=" + sstr_(this.getSymbol_) + ", rawText=" + sstr_(this.getRawText_) + ", type=" + jtostr_(this.getType_) + "}")
 }
 
-func DependencyInfo_Require_asSymbolList(requires IterableOf[*DependencyInfo_Require]) *TList[string] {
-	var result *TListBuilder[string] = newTListBuilder_(tc_string)
+func DependencyInfo_Require_asSymbolList(requires IterableOf[*DependencyInfo_Require]) *JTList[string] {
+	var result *TListBuilder[string] = newTListBuilder_(jtc_string)
 	it_1 := foreach_(any(requires))
 	for it_1.next() {
 		var require *DependencyInfo_Require = cast_[*DependencyInfo_Require](it_1.v)
@@ -263,7 +263,7 @@ func (this *DependencyInfo_Require_Builder) build() *DependencyInfo_Require {
 		if this.type__ == nil {
 			missing.append(" type")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + tostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
 	}
 	return new_DependencyInfo_Require(this.symbol_.get(), this.rawText.get(), this.type__)
 }
@@ -286,7 +286,7 @@ func DependencyInfo_Util_writeAddDependency(out Appendable, info DependencyInfo_
 	DependencyInfo_Util_writeJsArray(out, ImmutableList_as_Collection(info.getProvides()))
 	Appendable_append_s(out, ", ")
 	DependencyInfo_Util_writeJsArray(out, Collection(DependencyInfo_Require_asSymbolList(ImmutableList_as_Iterable(info.getRequires())).asList()))
-	var loadFlags *TMap[string, string] = tmapImm_(tc_string, tc_string, info.getLoadFlags())
+	var loadFlags *JTMap[string, string] = tmapImm_(jtc_string, jtc_string, info.getLoadFlags())
 	if !loadFlags.isEmpty() {
 		Appendable_append_s(out, ", ")
 		DependencyInfo_Util_writeJsObject(out, loadFlags)
@@ -294,13 +294,13 @@ func DependencyInfo_Util_writeAddDependency(out Appendable, info DependencyInfo_
 	Appendable_append_s(out, ");\n")
 }
 
-func DependencyInfo_Util_writeJsObject(out Appendable, map_ *TMap[string, string]) {
-	var entries *TList[string] = newTList_(tc_string)
+func DependencyInfo_Util_writeJsObject(out Appendable, map_ *JTMap[string, string]) {
+	var entries *JTList[string] = jnewTList_(jtc_string)
 	it_1 := map_.eachEntry()
 	for it_1.next() {
 		var entry *TEntry[string, string] = it_1.entry()
-		var key string = String_replace_s(entry.getKey(), "'", "\\'")
-		var value string = String_replace_s(entry.getValue(), "'", "\\'")
+		var key string = JString_replace_s(entry.getKey(), "'", "\\'")
+		var value string = JString_replace_s(entry.getValue(), "'", "\\'")
 		entries.add(("'" + sstr_(key) + "': '" + sstr_(value) + "'"))
 	}
 	Appendable_append_s(out, "{")
@@ -310,7 +310,7 @@ func DependencyInfo_Util_writeJsObject(out Appendable, map_ *TMap[string, string
 
 func DependencyInfo_Util_writeJsArray(out Appendable, values CollectionOf[string]) {
 	var quoted IterableOf[string] = Iterables_transform(Iterable(values), &Function_base_tfn_string_string{func(arg string) string {
-		return ("'" + sstr_(String_replace_s(arg, "'", "\\'")) + "'")
+		return ("'" + sstr_(JString_replace_s(arg, "'", "\\'")) + "'")
 	}})
 	Appendable_append_s(out, "[")
 	Appendable_append_s(out, Joiner_on(", ").join(quoted))

@@ -65,7 +65,7 @@ func (this *ReplaceMessagesForChrome) getNewValueNode(message *JsMessage, defini
 	if !message.jsPlaceholderNames().isEmpty() || isHtml {
 		var placeholderNames ListOf[string] = Ordering_natural().sortedCopy(Iterable(message.jsPlaceholderNames().asSet()))
 		var placeholderValueArray Node = this.astFactory_.createArraylit([]Node{})
-		var placeholderValueMap *TMap[string, Node] = definition.getPlaceholderValueMap()
+		var placeholderValueMap *JTMap[string, Node] = definition.getPlaceholderValueMap()
 		it_1 := foreach_(any(placeholderNames))
 		for it_1.next() {
 			var name string = str_(it_1.v)

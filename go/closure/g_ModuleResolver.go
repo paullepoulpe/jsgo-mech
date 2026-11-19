@@ -4,8 +4,8 @@ package closure
 
 type ModuleResolver struct {
 	self_           any
-	modulePaths     *TSet[string]
-	moduleRootPaths *TList[string]
+	modulePaths     *JTSet[string]
+	moduleRootPaths *JTList[string]
 	errorHandler    ErrorHandler
 	pathEscaper     *ModuleLoader_PathEscaper
 }
@@ -31,15 +31,15 @@ func (this *ModuleResolver) self() any {
 	return this.self_
 }
 
-func (this *ModuleResolver) init_ModuleResolver(modulePaths *TSet[string], moduleRootPaths *TList[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) {
+func (this *ModuleResolver) init_ModuleResolver(modulePaths *JTSet[string], moduleRootPaths *JTList[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) {
 	this.modulePaths = modulePaths
 	this.moduleRootPaths = moduleRootPaths
 	this.errorHandler = errorHandler
 	this.pathEscaper = pathEscaper
 }
 
-func (this *ModuleResolver) getPackageJsonMainEntries_impl() *TMap[string, string] {
-	return tmapEmptyImm_(tc_string, tc_string)
+func (this *ModuleResolver) getPackageJsonMainEntries_impl() *JTMap[string, string] {
+	return jtmapEmptyImm_(jtc_string, jtc_string)
 }
 
 func (this *ModuleResolver) resolveModuleAsPath_impl(scriptAddress string, moduleAddress string) string {
@@ -105,6 +105,6 @@ func (this *ModuleResolver) resolveModuleAsPath(p0 string, p1 string) string {
 	return this.self_.(interface{ resolveModuleAsPath_impl(string, string) string }).resolveModuleAsPath_impl(p0, p1)
 }
 
-func (this *ModuleResolver) getPackageJsonMainEntries() *TMap[string, string] {
-	return this.self_.(interface{ getPackageJsonMainEntries_impl() *TMap[string, string] }).getPackageJsonMainEntries_impl()
+func (this *ModuleResolver) getPackageJsonMainEntries() *JTMap[string, string] {
+	return this.self_.(interface{ getPackageJsonMainEntries_impl() *JTMap[string, string] }).getPackageJsonMainEntries_impl()
 }

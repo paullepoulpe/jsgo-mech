@@ -14,7 +14,7 @@ func (this *IllegalFormatConversionException) up_RuntimeException() *RuntimeExce
 }
 
 func (this *IllegalFormatConversionException) init_IllegalFormatConversionException(conversionType uint16, class1 ClassOf[any]) {
-	this.RuntimeException.init_RuntimeException_String(("ConversionType = " + chrstr_(conversionType) + " class = " + tostr_(class1)))
+	this.RuntimeException.init_RuntimeException_String(("ConversionType = " + chrstr_(conversionType) + " class = " + jtostr_(class1)))
 }
 
 func new_IllegalFormatConversionException(conversionType uint16, class1 ClassOf[any]) *IllegalFormatConversionException {

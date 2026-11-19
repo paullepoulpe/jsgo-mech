@@ -166,7 +166,7 @@ func J2clEqualitySameRewriterPass_hasName(fnName Node, className string, methodN
 		return false
 	}
 	var originalQname string = fnName.getOriginalQualifiedName()
-	return (String_endsWith(originalQname, methodName) && String_contains_s(originalQname, className))
+	return (String_endsWith(originalQname, methodName) && JString_contains_s(originalQname, className))
 }
 
 type J2clEqualitySameRewriterPass_NodeValue struct {

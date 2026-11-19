@@ -21,7 +21,7 @@ type CodingConvention interface {
 	extractClassNameIfRequire(Node, Node) Optional[string]
 	getExportPropertyFunction() string
 	getExportSymbolFunction() string
-	identifyTypeDeclarationCall(Node) *TList[string]
+	identifyTypeDeclarationCall(Node) *JTList[string]
 	applySubclassRelationship(*NominalTypeBuilder, *NominalTypeBuilder, *CodingConvention_SubclassType)
 	getAbstractMethodName() string
 	getSingletonGetterClassName(Node) string
@@ -206,7 +206,7 @@ func new_CodingConvention_AssertionFunctionSpec(getFunctionName Optional[string]
 }
 
 func (this *CodingConvention_AssertionFunctionSpec) toString() string {
-	return ("AssertionFunctionSpec{functionName=" + sstr_(this.getFunctionName_.orElse("null")) + ", closurePrimitive=" + tostr_(this.getClosurePrimitive_) + ", assertionKind=" + tostr_(this.getAssertionKind_) + ", paramIndex=" + istr_(int64(this.getParamIndex_)) + "}")
+	return ("AssertionFunctionSpec{functionName=" + sstr_(this.getFunctionName_.orElse("null")) + ", closurePrimitive=" + jtostr_(this.getClosurePrimitive_) + ", assertionKind=" + jtostr_(this.getAssertionKind_) + ", paramIndex=" + istr_(int64(this.getParamIndex_)) + "}")
 }
 
 func CodingConvention_AssertionFunctionSpec_builder() *CodingConvention_AssertionFunctionSpec_Builder {
@@ -381,7 +381,7 @@ func (this *CodingConvention_AssertionFunctionSpec_Builder) autoBuild() *CodingC
 		if (int32(this.set0) & 1) == 0 {
 			missing.append(" paramIndex")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + tostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
 	}
 	return new_CodingConvention_AssertionFunctionSpec(this.functionName, this.closurePrimitive, this.assertionKind, this.paramIndex)
 }

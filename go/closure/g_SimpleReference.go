@@ -40,7 +40,7 @@ func (this *SimpleReference[T]) self() any {
 }
 
 func (this *SimpleReference[T]) zero_SimpleReference() {
-	this.symbol_ = null_[T]()
+	this.symbol_ = jnull_[T]()
 }
 
 func (this *SimpleReference[T]) init_SimpleReference(symbol T, node Node) {

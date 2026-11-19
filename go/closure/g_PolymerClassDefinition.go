@@ -11,10 +11,10 @@ type PolymerClassDefinition struct {
 	descriptor        Node
 	constructor_      *PolymerPass_MemberDefinition
 	nativeBaseElement Optional[string]
-	props             *TList[*PolymerPass_MemberDefinition]
-	behaviorProps     *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]
-	methods           *TList[*PolymerPass_MemberDefinition]
-	behaviors         *TList[*PolymerBehaviorExtractor_BehaviorDefinition]
+	props             *JTList[*PolymerPass_MemberDefinition]
+	behaviorProps     *JTMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]
+	methods           *JTList[*PolymerPass_MemberDefinition]
+	behaviors         *JTList[*PolymerBehaviorExtractor_BehaviorDefinition]
 	features_         *FeatureSet
 	interfaceName     Optional[string]
 }
@@ -23,7 +23,7 @@ func (this *PolymerClassDefinition) finit_PolymerClassDefinition() {
 	this.interfaceName = Optional_empty[string]()
 }
 
-func (this *PolymerClassDefinition) init_PolymerClassDefinition(defType *PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement Optional[string], props *TList[*PolymerPass_MemberDefinition], behaviorProps *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *TList[*PolymerPass_MemberDefinition], behaviors *TList[*PolymerBehaviorExtractor_BehaviorDefinition], features *FeatureSet, input *CompilerInput) {
+func (this *PolymerClassDefinition) init_PolymerClassDefinition(defType *PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement Optional[string], props *JTList[*PolymerPass_MemberDefinition], behaviorProps *JTMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *JTList[*PolymerPass_MemberDefinition], behaviors *JTList[*PolymerBehaviorExtractor_BehaviorDefinition], features *FeatureSet, input *CompilerInput) {
 	this.finit_PolymerClassDefinition()
 	this.defType = defType
 	this.definition = definition
@@ -41,7 +41,7 @@ func (this *PolymerClassDefinition) init_PolymerClassDefinition(defType *Polymer
 	this.input = input
 }
 
-func new_PolymerClassDefinition(defType *PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement Optional[string], props *TList[*PolymerPass_MemberDefinition], behaviorProps *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *TList[*PolymerPass_MemberDefinition], behaviors *TList[*PolymerBehaviorExtractor_BehaviorDefinition], features *FeatureSet, input *CompilerInput) *PolymerClassDefinition {
+func new_PolymerClassDefinition(defType *PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement Optional[string], props *JTList[*PolymerPass_MemberDefinition], behaviorProps *JTMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *JTList[*PolymerPass_MemberDefinition], behaviors *JTList[*PolymerBehaviorExtractor_BehaviorDefinition], features *FeatureSet, input *CompilerInput) *PolymerClassDefinition {
 	this := &PolymerClassDefinition{}
 	this.init_PolymerClassDefinition(defType, definition, target, hasGeneratedLhs, descriptor, classInfo, constructor, nativeBaseElement, props, behaviorProps, methods, behaviors, features, input)
 	return this
@@ -104,9 +104,9 @@ func PolymerClassDefinition_extractFromCallNode(callNode Node, compiler *Abstrac
 		return Optional_of[string](baseClass.getString())
 	}()
 	var behaviorArray Node = NodeUtil_getFirstPropMatchingKey(descriptor, "behaviors")
-	var behaviors *TList[*PolymerBehaviorExtractor_BehaviorDefinition] = behaviorExtractor.extractBehaviors(behaviorArray, moduleMetadata)
-	var properties *TList[*PolymerPass_MemberDefinition] = newTList_(tc_p_PolymerPass_MemberDefinition)
-	var behaviorProps *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition] = newTMap_(tc_p_PolymerPass_MemberDefinition, tc_p_PolymerBehaviorExtractor_BehaviorDefinition)
+	var behaviors *JTList[*PolymerBehaviorExtractor_BehaviorDefinition] = behaviorExtractor.extractBehaviors(behaviorArray, moduleMetadata)
+	var properties *JTList[*PolymerPass_MemberDefinition] = jnewTList_(jtc_p_PolymerPass_MemberDefinition)
+	var behaviorProps *JTMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition] = jnewTMap_(jtc_p_PolymerPass_MemberDefinition, jtc_p_PolymerBehaviorExtractor_BehaviorDefinition)
 	it_1 := behaviors.each()
 	for it_1.next() {
 		var behavior *PolymerBehaviorExtractor_BehaviorDefinition = it_1.v
@@ -126,7 +126,7 @@ func PolymerClassDefinition_extractFromCallNode(callNode Node, compiler *Abstrac
 			newFeatures = newFeatures.union(behaviors.get(i).features_)
 		}
 	}
-	var methods *TList[*PolymerPass_MemberDefinition] = newTList_(tc_p_PolymerPass_MemberDefinition)
+	var methods *JTList[*PolymerPass_MemberDefinition] = jnewTList_(jtc_p_PolymerPass_MemberDefinition)
 	{
 		var keyNode Node = descriptor.getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
@@ -198,8 +198,8 @@ func PolymerClassDefinition_extractFromClassNode(classNode Node, compiler *Abstr
 	var enclosingModule Node = NodeUtil_getEnclosingModuleIfPresent(classNode)
 	var classInfo *JSDocInfo = NodeUtil_getBestJSDocInfo(classNode)
 	var constructor Node = NodeUtil_getEs6ClassConstructorMemberFunctionDef(classNode)
-	var properties *TList[*PolymerPass_MemberDefinition] = PolymerPassStaticUtils_extractProperties(propertiesDescriptor, PolymerClassDefinition_DefinitionType_ES6Class, compiler, constructor)
-	var methods *TList[*PolymerPass_MemberDefinition] = PolymerClassDefinition_extractClassMethods(classNode, enclosingModule)
+	var properties *JTList[*PolymerPass_MemberDefinition] = PolymerPassStaticUtils_extractProperties(propertiesDescriptor, PolymerClassDefinition_DefinitionType_ES6Class, compiler, constructor)
+	var methods *JTList[*PolymerPass_MemberDefinition] = PolymerClassDefinition_extractClassMethods(classNode, enclosingModule)
 	var ctorInfo *JSDocInfo = nil
 	if constructor != 0 {
 		ctorInfo = NodeUtil_getBestJSDocInfo(constructor)
@@ -209,8 +209,8 @@ func PolymerClassDefinition_extractFromClassNode(classNode Node, compiler *Abstr
 	return new_PolymerClassDefinition(PolymerClassDefinition_DefinitionType_ES6Class, classNode, target, false, propertiesDescriptor, classInfo, new_PolymerPass_MemberDefinition(ctorInfo, 0, constructor, enclosingModule), Optional_empty[string](), properties, nil, methods, nil, nil, input)
 }
 
-func PolymerClassDefinition_extractClassMethods(classNode Node, enclosingModule Node) *TList[*PolymerPass_MemberDefinition] {
-	var methods *TList[*PolymerPass_MemberDefinition] = newTList_(tc_p_PolymerPass_MemberDefinition)
+func PolymerClassDefinition_extractClassMethods(classNode Node, enclosingModule Node) *JTList[*PolymerPass_MemberDefinition] {
+	var methods *JTList[*PolymerPass_MemberDefinition] = jnewTList_(jtc_p_PolymerPass_MemberDefinition)
 	{
 		var keyNode Node = NodeUtil_getClassMembers(classNode).getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
@@ -230,7 +230,7 @@ func PolymerClassDefinition_isFunctionField(field Node) bool {
 	return ((value != 0) && value.isFunction())
 }
 
-func PolymerClassDefinition_addFunctionAssignmentsFromConstructor(constructor Node, enclosingModule Node, methods *TList[*PolymerPass_MemberDefinition]) {
+func PolymerClassDefinition_addFunctionAssignmentsFromConstructor(constructor Node, enclosingModule Node, methods *JTList[*PolymerPass_MemberDefinition]) {
 	var body Node = NodeUtil_getFunctionBody(constructor.getFirstChild())
 	{
 		var stmt Node = body.getFirstChild()
@@ -248,7 +248,7 @@ func PolymerClassDefinition_addFunctionAssignmentsFromConstructor(constructor No
 	}
 }
 
-func PolymerClassDefinition_overwriteMembersIfPresent(list *TList[*PolymerPass_MemberDefinition], newMembers *TList[*PolymerPass_MemberDefinition]) {
+func PolymerClassDefinition_overwriteMembersIfPresent(list *JTList[*PolymerPass_MemberDefinition], newMembers *JTList[*PolymerPass_MemberDefinition]) {
 	it_1 := newMembers.each()
 	for it_1.next() {
 		var newMember *PolymerPass_MemberDefinition = it_1.v
@@ -264,12 +264,12 @@ func PolymerClassDefinition_overwriteMembersIfPresent(list *TList[*PolymerPass_M
 	}
 }
 
-func PolymerClassDefinition_removeDuplicateBehaviorProps(behaviorProps *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]) {
+func PolymerClassDefinition_removeDuplicateBehaviorProps(behaviorProps *JTMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]) {
 	if behaviorProps == nil {
 		return
 	}
 	var behaviorsItr IteratorOf[Map_EntryOf[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]] = behaviorProps.asMap().entrySet().iterator()
-	var seen *TSet[string] = newTSet_(tc_string)
+	var seen *JTSet[string] = jnewTSet_(jtc_string)
 	for behaviorsItr.hasNext() {
 		var memberDefinition *PolymerPass_MemberDefinition = cast_[*PolymerPass_MemberDefinition](icast_Map_Entry(behaviorsItr.next()).getKey())
 		var propertyName string = memberDefinition.name_.getString()
@@ -279,11 +279,11 @@ func PolymerClassDefinition_removeDuplicateBehaviorProps(behaviorProps *TMap[*Po
 	}
 }
 
-func PolymerClassDefinition_removeBehaviorPropsOverlappingWithElementProps(behaviorProps *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], polymerElementProps *TList[*PolymerPass_MemberDefinition]) {
+func PolymerClassDefinition_removeBehaviorPropsOverlappingWithElementProps(behaviorProps *JTMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], polymerElementProps *JTList[*PolymerPass_MemberDefinition]) {
 	if behaviorProps == nil {
 		return
 	}
-	var elementPropNames *TSet[string] = newTSet_(tc_string)
+	var elementPropNames *JTSet[string] = jnewTSet_(jtc_string)
 	it_1 := polymerElementProps.each()
 	for it_1.next() {
 		var x *PolymerPass_MemberDefinition = it_1.v

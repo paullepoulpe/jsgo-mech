@@ -29,8 +29,8 @@ func (this *UniqueIdSupplier) getUniqueId(input *CompilerInput) string {
 	return (sstr_(fileHashString) + "$" + istr_(int64(id)))
 }
 
-func (this *UniqueIdSupplier) toProto() *TList[*UniqueIdProto] {
-	var result *TList[*UniqueIdProto] = newTList_(tc_p_UniqueIdProto)
+func (this *UniqueIdSupplier) toProto() *JTList[*UniqueIdProto] {
+	var result *JTList[*UniqueIdProto] = jnewTList_(jtc_p_UniqueIdProto)
 	it_1 := foreach_(any(this.counter.entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)

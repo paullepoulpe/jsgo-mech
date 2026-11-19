@@ -6,10 +6,10 @@ type LiveVariablesAnalysis struct {
 	DataFlowAnalysis[Node, *LiveVariablesAnalysis_LiveVariableLattice]
 	jsScope        *Scope
 	jsScopeChild   *Scope
-	escaped        *TSet[*Var]
-	scopeVariables *TMap[string, any]
-	orderedVars    *TList[*Var]
-	allVarsInFn    *TMap[string, *Var]
+	escaped        *JTSet[*Var]
+	scopeVariables *JTMap[string, any]
+	orderedVars    *JTList[*Var]
+	allVarsInFn    *JTMap[string, *Var]
 }
 
 func (this *LiveVariablesAnalysis) up_DataFlowAnalysis() *DataFlowAnalysis[Node, *LiveVariablesAnalysis_LiveVariableLattice] {
@@ -24,8 +24,8 @@ func (this *LiveVariablesAnalysis) init_LiveVariablesAnalysis(cfg *ControlFlowGr
 	Preconditions_checkState_boolean_Object(jsScope.isFunctionScope(), jsScope)
 	this.jsScope = jsScope
 	this.jsScopeChild = jsScopeChild
-	this.escaped = newTSet_(tce_p_Var)
-	this.scopeVariables = newTMap_(tc_string, tc_Integer)
+	this.escaped = jnewTSet_(tce_p_Var)
+	this.scopeVariables = jnewTMap_(jtc_string, tc_Integer)
 	this.orderedVars = allVarsDeclaredInFunction.getAllVariablesInOrder()
 	this.allVarsInFn = allVarsDeclaredInFunction.getAllVariables()
 	DataFlowAnalysis_computeEscaped(jsScope, this.escaped, compiler, scopeCreator, this.allVarsInFn)
@@ -50,15 +50,15 @@ func (this *LiveVariablesAnalysis) addScopeVariables() {
 	}
 }
 
-func (this *LiveVariablesAnalysis) getEscapedLocals() *TSet[*Var] {
+func (this *LiveVariablesAnalysis) getEscapedLocals() *JTSet[*Var] {
 	return this.escaped
 }
 
-func (this *LiveVariablesAnalysis) getAllVariables() *TMap[string, *Var] {
+func (this *LiveVariablesAnalysis) getAllVariables() *JTMap[string, *Var] {
 	return this.allVarsInFn
 }
 
-func (this *LiveVariablesAnalysis) getAllVariablesInOrder() *TList[*Var] {
+func (this *LiveVariablesAnalysis) getAllVariablesInOrder() *JTList[*Var] {
 	return this.orderedVars
 }
 

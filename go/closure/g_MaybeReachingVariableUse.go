@@ -4,8 +4,8 @@ package closure
 
 type MaybeReachingVariableUse struct {
 	DataFlowAnalysis[Node, *MaybeReachingVariableUse_ReachingUses]
-	escaped     *TSet[*Var]
-	allVarsInFn *TMap[string, *Var]
+	escaped     *JTSet[*Var]
+	allVarsInFn *JTMap[string, *Var]
 }
 
 func (this *MaybeReachingVariableUse) up_DataFlowAnalysis() *DataFlowAnalysis[Node, *MaybeReachingVariableUse_ReachingUses] {
@@ -15,13 +15,13 @@ func (this *MaybeReachingVariableUse) up_DataFlowAnalysis() *DataFlowAnalysis[No
 	return &this.DataFlowAnalysis
 }
 
-func (this *MaybeReachingVariableUse) init_MaybeReachingVariableUse(cfg *ControlFlowGraph[Node], escaped *TSet[*Var], allVarsInFn *TMap[string, *Var]) {
+func (this *MaybeReachingVariableUse) init_MaybeReachingVariableUse(cfg *ControlFlowGraph[Node], escaped *JTSet[*Var], allVarsInFn *JTMap[string, *Var]) {
 	this.DataFlowAnalysis.init_DataFlowAnalysis(cfg)
 	this.escaped = escaped
 	this.allVarsInFn = allVarsInFn
 }
 
-func new_MaybeReachingVariableUse(cfg *ControlFlowGraph[Node], escaped *TSet[*Var], allVarsInFn *TMap[string, *Var]) *MaybeReachingVariableUse {
+func new_MaybeReachingVariableUse(cfg *ControlFlowGraph[Node], escaped *JTSet[*Var], allVarsInFn *JTMap[string, *Var]) *MaybeReachingVariableUse {
 	this := &MaybeReachingVariableUse{}
 	this.self_ = this
 	this.vt_DataFlowAnalysis_ = this

@@ -7,19 +7,19 @@ type RescopeGlobalSymbolsRewriteCallback struct {
 	optimizeLocalAccess                     *CompilerOptions_OptimizeLocalAccess
 	symbolInfo                              *RescopeGlobalSymbolsInfo
 	renameHelper                            *RescopeGlobalSymbolsRenameHelper
-	preDeclarations                         *TList[*RescopeGlobalSymbolsRewriteCallback_ChunkGlobal]
-	localAliasesForUnwrappedCrossChunkNames *TMap[*JSChunk, Set]
-	chunksUsingCrossChunkSymbols            *TMap[string, Set]
-	chunksUsingWrappedReassignableSymbols   *TMap[string, Set]
-	chunksRequiringWrapperInitialization    *TMap[string, Set]
+	preDeclarations                         *JTList[*RescopeGlobalSymbolsRewriteCallback_ChunkGlobal]
+	localAliasesForUnwrappedCrossChunkNames *JTMap[*JSChunk, Set]
+	chunksUsingCrossChunkSymbols            *JTMap[string, Set]
+	chunksUsingWrappedReassignableSymbols   *JTMap[string, Set]
+	chunksRequiringWrapperInitialization    *JTMap[string, Set]
 }
 
 func (this *RescopeGlobalSymbolsRewriteCallback) finit_RescopeGlobalSymbolsRewriteCallback() {
-	this.preDeclarations = newTList_(tc_p_RescopeGlobalSymbolsRewriteCallback_ChunkGlobal)
-	this.localAliasesForUnwrappedCrossChunkNames = newTMap_(tc_p_JSChunk, tc_Set)
-	this.chunksUsingCrossChunkSymbols = newTMap_(tc_string, tc_Set)
-	this.chunksUsingWrappedReassignableSymbols = newTMap_(tc_string, tc_Set)
-	this.chunksRequiringWrapperInitialization = newTMap_(tc_string, tc_Set)
+	this.preDeclarations = jnewTList_(tc_p_RescopeGlobalSymbolsRewriteCallback_ChunkGlobal)
+	this.localAliasesForUnwrappedCrossChunkNames = jnewTMap_(jtc_p_JSChunk, tc_Set)
+	this.chunksUsingCrossChunkSymbols = jnewTMap_(jtc_string, tc_Set)
+	this.chunksUsingWrappedReassignableSymbols = jnewTMap_(jtc_string, tc_Set)
+	this.chunksRequiringWrapperInitialization = jnewTMap_(jtc_string, tc_Set)
 }
 
 func (this *RescopeGlobalSymbolsRewriteCallback) init_RescopeGlobalSymbolsRewriteCallback(compiler *AbstractCompiler, optimizeLocalAccess *CompilerOptions_OptimizeLocalAccess, symbolInfo *RescopeGlobalSymbolsInfo, renameHelper *RescopeGlobalSymbolsRenameHelper) {
@@ -364,7 +364,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappers(
 	var chunkGraph *JSChunkGraph = this.compiler_.getChunkGraph()
 	var chunks IterableOf[*JSChunk] = chunkGraph.getAllChunks()
 	var defaultRootChunk *JSChunk = cast_[*JSChunk](chunks.iterator().next())
-	var wrapperAssignmentChunks *TMap[string, *JSChunk] = newTMap_(tc_string, tc_p_JSChunk)
+	var wrapperAssignmentChunks *JTMap[string, *JSChunk] = jnewTMap_(jtc_string, jtc_p_JSChunk)
 	if this.optimizeLocalAccess.shouldWrapReassignableSymbols() && !this.symbolInfo.wrappedCrossChunkNames().isEmpty() {
 		it_1 := this.symbolInfo.wrappedCrossChunkNames().each()
 		for it_1.next() {
@@ -428,8 +428,8 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareCleanupHelper(cleanupHel
 	this.compiler_.reportChangeToEnclosingScope(script)
 }
 
-func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappersForChunk(chunk *JSChunk, wrapperAssignmentChunks *TMap[string, *JSChunk], cleanupHelperName string) bool {
-	var inputs *TList[*CompilerInput] = tlistImm_(tc_p_CompilerInput, chunk.getInputs())
+func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappersForChunk(chunk *JSChunk, wrapperAssignmentChunks *JTMap[string, *JSChunk], cleanupHelperName string) bool {
+	var inputs *JTList[*CompilerInput] = jtlistImm_(jtc_p_CompilerInput, chunk.getInputs())
 	if inputs.isEmpty() {
 		return false
 	}
@@ -437,9 +437,9 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappersF
 	var insertionPoint Node = script.getFirstChild()
 	var changed bool = false
 	var usedCleanupHelper bool = false
-	var wrappedReassignableLocalAliases *TSet[string] = tsetEmptyImm_(tc_string)
+	var wrappedReassignableLocalAliases *JTSet[string] = jtsetEmptyImm_(jtc_string)
 	if this.optimizeLocalAccess.shouldWrapReassignableSymbols() {
-		wrappedReassignableLocalAliases = newTSet_(tc_string)
+		wrappedReassignableLocalAliases = jnewTSet_(jtc_string)
 		it_1 := this.symbolInfo.wrappedCrossChunkNames().each()
 		for it_1.next() {
 			var name string = it_1.v
@@ -459,8 +459,8 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappersF
 	}
 	var allLocalAliases IterableOf[string] = Iterables_concat(Iterable(this.localAliasesForUnwrappedCrossChunkNames.getOrDefault(chunk, ImmutableSet_as_Set(ImmutableSet_of()))), Iterable(wrappedReassignableLocalAliases.asSet()))
 	if !Iterables_isEmpty(allLocalAliases) {
-		var aliasesToKeep *TList[string] = newTList_(tc_string)
-		var aliasesToDelete *TList[string] = newTList_(tc_string)
+		var aliasesToKeep *JTList[string] = jnewTList_(jtc_string)
+		var aliasesToDelete *JTList[string] = jnewTList_(jtc_string)
 		it_3 := foreach_(any(allLocalAliases))
 		for it_3.next() {
 			var name string = str_(it_3.v)

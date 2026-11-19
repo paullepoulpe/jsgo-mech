@@ -3,29 +3,29 @@
 package closure
 
 type SourceMapGeneratorV3 struct {
-	mappings             *TList[*SourceMapGeneratorV3_Mapping]
-	sourceFileMap        *TMap[string, any]
-	sourceFileContentMap *TMap[string, string]
-	originalNameMap      *TMap[string, any]
+	mappings             *JTList[*SourceMapGeneratorV3_Mapping]
+	sourceFileMap        *JTMap[string, any]
+	sourceFileContentMap *JTMap[string, string]
+	originalNameMap      *JTMap[string, any]
 	lastSourceFile       Optional[string]
 	lastSourceFileIndex  int32
 	lastMapping          *SourceMapGeneratorV3_Mapping
 	offsetPosition       *FilePosition
 	prefixPosition       *FilePosition
-	extensions           *TMap[string, any]
+	extensions           *JTMap[string, any]
 	sourceRootPath       Optional[string]
 }
 
 func (this *SourceMapGeneratorV3) finit_SourceMapGeneratorV3() {
-	this.mappings = newTList_(tc_p_SourceMapGeneratorV3_Mapping)
-	this.sourceFileMap = newTMap_(tc_string, tc_Integer)
-	this.sourceFileContentMap = newTMap_(tc_string, tc_string)
-	this.originalNameMap = newTMap_(tc_string, tc_Integer)
+	this.mappings = jnewTList_(jtc_p_SourceMapGeneratorV3_Mapping)
+	this.sourceFileMap = jnewTMap_(jtc_string, tc_Integer)
+	this.sourceFileContentMap = jnewTMap_(jtc_string, jtc_string)
+	this.originalNameMap = jnewTMap_(jtc_string, tc_Integer)
 	this.lastSourceFile = Optional_empty[string]()
 	this.lastSourceFileIndex = -1
 	this.offsetPosition = new_FilePosition(0, 0)
 	this.prefixPosition = new_FilePosition(0, 0)
-	this.extensions = newTMap_(tc_string, tc_Object)
+	this.extensions = jnewTMap_(jtc_string, tc_Object)
 	this.sourceRootPath = Optional_empty[string]()
 }
 
@@ -228,7 +228,7 @@ func (this *SourceMapGeneratorV3) addSourceNameMap(out Appendable) {
 func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
 	var found bool = false
 	var size int32 = this.sourceFileMap.size()
-	var contents *TList[string] = newTListN_(tc_string, size)
+	var contents *JTList[string] = jnewTListN_(jtc_string, size)
 	contents.asList().addAll(Collection(Collections_nCopies(size, "")))
 	it_1 := this.sourceFileMap.eachEntry()
 	for it_1.next() {
@@ -261,7 +261,7 @@ func (this *SourceMapGeneratorV3) addSymbolNameMap(out Appendable) {
 	SourceMapGeneratorV3_addNameMap(out, this.originalNameMap)
 }
 
-func SourceMapGeneratorV3_addNameMap(out Appendable, map_ *TMap[string, any]) {
+func SourceMapGeneratorV3_addNameMap(out Appendable, map_ *JTMap[string, any]) {
 	var i int32 = 0
 	it_1 := map_.eachEntry()
 	for it_1.next() {
@@ -324,7 +324,7 @@ func (this *SourceMapGeneratorV3) prepMappings() int32 {
 	return (maxLine + this.prefixPosition.getLine())
 }
 
-func (this *SourceMapGeneratorV3) appendIndexMapTo(out Appendable, name string, sections *TList[*SourceMapSection]) {
+func (this *SourceMapGeneratorV3) appendIndexMapTo(out Appendable, name string, sections *JTList[*SourceMapSection]) {
 	Appendable_append_s(out, "{\n")
 	SourceMapGeneratorV3_appendFirstField(out, "version", "3")
 	SourceMapGeneratorV3_appendField(out, "file", strobj_(SourceMapGeneratorV3_escapeString(name)))
@@ -503,7 +503,7 @@ func new_SourceMapGeneratorV3_MappingTraversal(outer_ *SourceMapGeneratorV3) *So
 }
 
 func (this *SourceMapGeneratorV3_MappingTraversal) traverse(v SourceMapGeneratorV3_MappingVisitor) {
-	var stack *TDeque[*SourceMapGeneratorV3_Mapping] = newTDeque_(tc_p_SourceMapGeneratorV3_Mapping)
+	var stack *TDeque[*SourceMapGeneratorV3_Mapping] = newTDeque_(jtc_p_SourceMapGeneratorV3_Mapping)
 	it_1 := this.outer_.mappings.each()
 	for it_1.next() {
 		var m *SourceMapGeneratorV3_Mapping = it_1.v

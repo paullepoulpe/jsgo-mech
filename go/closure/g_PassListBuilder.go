@@ -4,11 +4,11 @@ package closure
 
 type PassListBuilder struct {
 	options_ *CompilerOptions
-	passes   *TList[*PassFactory]
+	passes   *JTList[*PassFactory]
 }
 
 func (this *PassListBuilder) finit_PassListBuilder() {
-	this.passes = newTList_(tc_p_PassFactory)
+	this.passes = jnewTList_(jtc_p_PassFactory)
 }
 
 func (this *PassListBuilder) init_PassListBuilder(options *CompilerOptions) {
@@ -22,8 +22,8 @@ func new_PassListBuilder(options *CompilerOptions) *PassListBuilder {
 	return this
 }
 
-func (this *PassListBuilder) build() *TList[*PassFactory] {
-	return immutableListCopyOfT_(tc_p_PassFactory, this.passes)
+func (this *PassListBuilder) build() *JTList[*PassFactory] {
+	return immutableListCopyOfT_(jtc_p_PassFactory, this.passes)
 }
 
 func (this *PassListBuilder) addAll(other *PassListBuilder) {
@@ -45,7 +45,7 @@ func (this *PassListBuilder) addAfter(factory *PassFactory, passName string) {
 }
 
 func (this *PassListBuilder) addAllUpTo(other *PassListBuilder, passName string) {
-	var otherPasses *TList[*PassFactory] = other.build()
+	var otherPasses *JTList[*PassFactory] = other.build()
 	var index int32 = -1
 	for i := int32(0); i < otherPasses.size(); i++ {
 		if passName == otherPasses.get(i).getName() {

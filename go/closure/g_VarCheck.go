@@ -3,7 +3,7 @@
 package closure
 
 type VarCheck struct {
-	undefinedNamesFromExterns *TSet[string]
+	undefinedNamesFromExterns *JTSet[string]
 	compiler_                 *AbstractCompiler
 	validityCheck             bool
 	strictExternCheck         bool
@@ -11,7 +11,7 @@ type VarCheck struct {
 }
 
 func (this *VarCheck) finit_VarCheck() {
-	this.undefinedNamesFromExterns = newTSet_(tc_string)
+	this.undefinedNamesFromExterns = jnewTSet_(jtc_string)
 }
 
 func (this *VarCheck) init_VarCheck_AbstractCompiler(compiler *AbstractCompiler) {
@@ -222,7 +222,7 @@ const VarCheck_ARGUMENTS string = "arguments"
 const VarCheck_JSCOMP_CLOSURE_UNAWARE_CODE_SHADOW_HOST_NAME string = "$jscomp_wrap_closure_unaware_code"
 
 var VarCheck_googForwardDeclare Node
-var VarCheck_REQUIRED_SYMBOLS *TSet[string]
+var VarCheck_REQUIRED_SYMBOLS *JTSet[string]
 
 var VarCheck_clinit_done bool
 
@@ -241,7 +241,7 @@ func VarCheck_clinit() {
 	VarCheck_BLOCK_SCOPED_DECL_MULTIPLY_DECLARED_ERROR = DiagnosticType_error("JSC_BLOCK_SCOPED_DECL_MULTIPLY_DECLARED_ERROR", "Block-scoped variable {0} declared more than once. First occurrence: {1}")
 	VarCheck_VAR_ARGUMENTS_SHADOWED_ERROR = DiagnosticType_error("JSC_VAR_ARGUMENTS_SHADOWED_ERROR", "Shadowing \"arguments\" is not allowed")
 	VarCheck_googForwardDeclare = IR_getprop_Node_String(IR_name("goog"), "forwardDeclare")
-	VarCheck_REQUIRED_SYMBOLS = immutableSetOf_[string](tc_string, "AggregateError", "Array", "Error", "Float32Array", "Function", "Infinity", "Iterator", "JSCOMPILER_PRESERVE", "JSCompiler_renameProperty", "Map", "Math", "NaN", "Number", "Object", "Promise", "RangeError", "ReferenceError", "Reflect", "RegExp", "Set", "String", "SuppressedError", "Symbol", "TypeError", "WeakMap", "global", "globalThis", "isNaN", "parseFloat", "parseInt", "self", "undefined", "window")
+	VarCheck_REQUIRED_SYMBOLS = jimmutableSetOf_[string](jtc_string, "AggregateError", "Array", "Error", "Float32Array", "Function", "Infinity", "Iterator", "JSCOMPILER_PRESERVE", "JSCompiler_renameProperty", "Map", "Math", "NaN", "Number", "Object", "Promise", "RangeError", "ReferenceError", "Reflect", "RegExp", "Set", "String", "SuppressedError", "Symbol", "TypeError", "WeakMap", "global", "globalThis", "isNaN", "parseFloat", "parseInt", "self", "undefined", "window")
 
 }
 
@@ -312,11 +312,11 @@ func (this *VarCheck_NameRefInExternsCheck) visit(t *NodeTraversal, n Node, pare
 
 type VarCheck_RedeclarationCheckHandler struct {
 	outer_       *VarCheck
-	dupDeclNodes *TList[Node]
+	dupDeclNodes *JTList[Node]
 }
 
 func (this *VarCheck_RedeclarationCheckHandler) finit_VarCheck_RedeclarationCheckHandler() {
-	this.dupDeclNodes = newTList_(tc_Node)
+	this.dupDeclNodes = jnewTList_(jtc_Node)
 }
 
 func (this *VarCheck_RedeclarationCheckHandler) init_VarCheck_RedeclarationCheckHandler() {

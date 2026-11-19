@@ -3,15 +3,15 @@
 package closure
 
 type ConcretizeStaticInheritanceForInlining struct {
-	duplicateClassNames *TSet[string]
+	duplicateClassNames *JTSet[string]
 	inherits            RuntimeJsLibManager_JsLibField
 	compiler_           *AbstractCompiler
-	classByAlias        *TMap[string, *ConcretizeStaticInheritanceForInlining_JavascriptClass]
+	classByAlias        *JTMap[string, *ConcretizeStaticInheritanceForInlining_JavascriptClass]
 }
 
 func (this *ConcretizeStaticInheritanceForInlining) finit_ConcretizeStaticInheritanceForInlining() {
-	this.duplicateClassNames = newTSet_(tc_string)
-	this.classByAlias = newTMap_(tc_string, tc_p_ConcretizeStaticInheritanceForInlining_JavascriptClass)
+	this.duplicateClassNames = jnewTSet_(jtc_string)
+	this.classByAlias = jnewTMap_(jtc_string, tc_p_ConcretizeStaticInheritanceForInlining_JavascriptClass)
 }
 
 func (this *ConcretizeStaticInheritanceForInlining) init_ConcretizeStaticInheritanceForInlining(compiler *AbstractCompiler) {
@@ -110,7 +110,7 @@ func (this *ConcretizeStaticInheritanceForInlining) isReferenceToClass(t *NodeTr
 }
 
 var ConcretizeStaticInheritanceForInlining_DUPLICATE_CLASS *DiagnosticType
-var ConcretizeStaticInheritanceForInlining_BANNED_PROP_NAMES *TSet[string]
+var ConcretizeStaticInheritanceForInlining_BANNED_PROP_NAMES *JTSet[string]
 
 var ConcretizeStaticInheritanceForInlining_clinit_done bool
 
@@ -120,20 +120,20 @@ func ConcretizeStaticInheritanceForInlining_clinit() {
 	}
 	ConcretizeStaticInheritanceForInlining_clinit_done = true
 	ConcretizeStaticInheritanceForInlining_DUPLICATE_CLASS = DiagnosticType_error("DUPLICATE_CLASS", "Multiple classes cannot share the same name: {0}")
-	ConcretizeStaticInheritanceForInlining_BANNED_PROP_NAMES = immutableSetOf_[string](tc_string, "prototype", "getInstance")
+	ConcretizeStaticInheritanceForInlining_BANNED_PROP_NAMES = jimmutableSetOf_[string](jtc_string, "prototype", "getInstance")
 
 }
 
 type ConcretizeStaticInheritanceForInlining_JavascriptClass struct {
-	staticMembers     *TSet[Node]
-	staticMemberNames *TSet[string]
-	definedProperties *TSet[string]
+	staticMembers     *JTSet[Node]
+	staticMemberNames *JTSet[string]
+	definedProperties *JTSet[string]
 }
 
 func (this *ConcretizeStaticInheritanceForInlining_JavascriptClass) finit_ConcretizeStaticInheritanceForInlining_JavascriptClass() {
-	this.staticMembers = newTSet_(tc_Node)
-	this.staticMemberNames = newTSet_(tc_string)
-	this.definedProperties = newTSet_(tc_string)
+	this.staticMembers = jnewTSet_(jtc_Node)
+	this.staticMemberNames = jnewTSet_(jtc_string)
+	this.definedProperties = jnewTSet_(jtc_string)
 }
 
 func (this *ConcretizeStaticInheritanceForInlining_JavascriptClass) init_ConcretizeStaticInheritanceForInlining_JavascriptClass() {
@@ -154,8 +154,8 @@ func (this *ConcretizeStaticInheritanceForInlining_JavascriptClass) addStaticMem
 type ConcretizeStaticInheritanceForInlining_FindStaticMembers struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_        *ConcretizeStaticInheritanceForInlining
-	inheritsCalls *TList[Node]
-	nodeOrder     *TMap[Node, any]
+	inheritsCalls *JTList[Node]
+	nodeOrder     *JTMap[Node, any]
 }
 
 func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -166,8 +166,8 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) up_NodeTra
 }
 
 func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) finit_ConcretizeStaticInheritanceForInlining_FindStaticMembers() {
-	this.inheritsCalls = newTList_(tc_Node)
-	this.nodeOrder = newTMap_(tc_Node, tc_Integer)
+	this.inheritsCalls = jnewTList_(jtc_Node)
+	this.nodeOrder = jnewTMap_(jtc_Node, tc_Integer)
 }
 
 func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) init_ConcretizeStaticInheritanceForInlining_FindStaticMembers() {

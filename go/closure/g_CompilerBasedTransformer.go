@@ -215,7 +215,7 @@ func CompilerBasedTransformer_CompilerSupplier_clinit() {
 
 type CompilerBasedTransformer_CompileResult struct {
 	source       string
-	errors_      *TList[*JSError]
+	errors_      *JTList[*JSError]
 	transformed_ bool
 	sourceMap_   string
 }
@@ -225,14 +225,14 @@ func (this *CompilerBasedTransformer_CompileResult) zero_CompilerBasedTransforme
 	this.sourceMap_ = nullstr_
 }
 
-func (this *CompilerBasedTransformer_CompileResult) init_CompilerBasedTransformer_CompileResult(source string, errors *TList[*JSError], transformed bool, sourceMap string) {
+func (this *CompilerBasedTransformer_CompileResult) init_CompilerBasedTransformer_CompileResult(source string, errors *JTList[*JSError], transformed bool, sourceMap string) {
 	this.source = source
-	this.errors_ = tlistImm_(tc_p_JSError, cast_[*ImmutableList](Preconditions_checkNotNull(any(errors.asList()))))
+	this.errors_ = jtlistImm_(jtc_p_JSError, cast_[*ImmutableList](Preconditions_checkNotNull(any(errors.asList()))))
 	this.transformed_ = transformed
 	this.sourceMap_ = sourceMap
 }
 
-func new_CompilerBasedTransformer_CompileResult(source string, errors *TList[*JSError], transformed bool, sourceMap string) *CompilerBasedTransformer_CompileResult {
+func new_CompilerBasedTransformer_CompileResult(source string, errors *JTList[*JSError], transformed bool, sourceMap string) *CompilerBasedTransformer_CompileResult {
 	this := &CompilerBasedTransformer_CompileResult{}
 	this.zero_CompilerBasedTransformer_CompileResult()
 	this.init_CompilerBasedTransformer_CompileResult(source, errors, transformed, sourceMap)

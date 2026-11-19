@@ -20,7 +20,7 @@ func (this *ControlFlowAnalysis) finit_ControlFlowAnalysis() {
 	this.priorityComparator = Comparator_comparingInt(&ToIntFunction_tfn_DiGraph_DiGraphNode_Node_{func(digraphNode DiGraph_DiGraphNode[Node]) int32 {
 		return unbox_[int32](Preconditions_checkNotNull_Object_Object(this.astPosition.get(digraphNode.getValue()), digraphNode.getValue().box_()))
 	}})
-	this.exceptionHandler = newTDeque_(tc_Node)
+	this.exceptionHandler = newTDeque_(jtc_Node)
 	this.finallyMap = SimpleSetMultimap_createInsertionOrdered()
 }
 

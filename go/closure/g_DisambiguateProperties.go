@@ -4,23 +4,23 @@ package closure
 
 type DisambiguateProperties struct {
 	compiler_                      *AbstractCompiler
-	propertiesThatMustDisambiguate *TSet[string]
+	propertiesThatMustDisambiguate *JTSet[string]
 	registry                       *ColorRegistry
-	mayHavePropertySeenSet         *TSet[*Color]
+	mayHavePropertySeenSet         *JTSet[*Color]
 }
 
 func (this *DisambiguateProperties) finit_DisambiguateProperties() {
-	this.mayHavePropertySeenSet = newTSet_(tce_p_Color)
+	this.mayHavePropertySeenSet = jnewTSet_(tce_p_Color)
 }
 
-func (this *DisambiguateProperties) init_DisambiguateProperties(compiler *AbstractCompiler, propertiesThatMustDisambiguate *TSet[string]) {
+func (this *DisambiguateProperties) init_DisambiguateProperties(compiler *AbstractCompiler, propertiesThatMustDisambiguate *JTSet[string]) {
 	this.finit_DisambiguateProperties()
 	this.compiler_ = compiler
 	this.propertiesThatMustDisambiguate = propertiesThatMustDisambiguate
 	this.registry = this.compiler_.getColorRegistry()
 }
 
-func new_DisambiguateProperties(compiler *AbstractCompiler, propertiesThatMustDisambiguate *TSet[string]) *DisambiguateProperties {
+func new_DisambiguateProperties(compiler *AbstractCompiler, propertiesThatMustDisambiguate *JTSet[string]) *DisambiguateProperties {
 	this := &DisambiguateProperties{}
 	this.init_DisambiguateProperties(compiler, propertiesThatMustDisambiguate)
 	return this
@@ -42,7 +42,7 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 		return &Consumer_tfn_Node{func(p0 Node) { recv_2.reportChangeToEnclosingScope(p0) }}
 	}())
 	NodeTraversal_traverse(this.compiler_, externs.getParent(), ColorFindPropertyReferences_as_NodeTraversal_Callback(findRefs))
-	var propIndex *TMap[string, *PropertyClustering] = findRefs.getPropertyIndex()
+	var propIndex *JTMap[string, *PropertyClustering] = findRefs.getPropertyIndex()
 	DisambiguateProperties_invalidateWellKnownProperties(propIndex)
 	this.logForDiagnosticsStreamedJsonProducer("prop_refs", LogFile_StreamedJsonProducer(new_DisambiguateProperties_1(this, propIndex)))
 	graphBuilder.addAll(Collection(flattener.getAllKnownTypes().asSet()))
@@ -59,7 +59,7 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 		this.registerOwnDeclaredProperties(colorGraphNode, propIndex)
 	}
 	this.logForDiagnostics("graph", &Supplier_base_fn{func() any {
-		var result *TList[*DisambiguateProperties_TypeNodeJson] = newTList_(tc_p_DisambiguateProperties_TypeNodeJson)
+		var result *JTList[*DisambiguateProperties_TypeNodeJson] = jnewTList_(jtc_p_DisambiguateProperties_TypeNodeJson)
 		it_5 := foreach_(any(graph.getNodes()))
 		for it_5.next() {
 			var n DiGraph_DiGraphNode[*ColorGraphNode] = cast_[DiGraph_DiGraphNode[*ColorGraphNode]](it_5.v)
@@ -104,7 +104,7 @@ func (this *DisambiguateProperties) createInvalidationError(prop *PropertyCluste
 	return JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_empty[string](), -1, -1, DisambiguateProperties_PROPERTY_INVALIDATION, []string{prop.getName(), additionalContext})
 }
 
-func DisambiguateProperties_buildRenamingIndex(props *TMap[string, *PropertyClustering], renamer *UseSiteRenamer) ImmutableMapOf[string, any] {
+func DisambiguateProperties_buildRenamingIndex(props *JTMap[string, *PropertyClustering], renamer *UseSiteRenamer) ImmutableMapOf[string, any] {
 	var newNames *SimpleSetMultimap = renamer.getRenamingIndex()
 	var result ImmutableSortedMap_BuilderOf[string, any] = ImmutableSortedMap_naturalOrder()
 	it_1 := props.eachValue()
@@ -120,8 +120,8 @@ func DisambiguateProperties_buildRenamingIndex(props *TMap[string, *PropertyClus
 	return result.buildOrThrow()
 }
 
-func DisambiguateProperties_invalidateWellKnownProperties(propIndex *TMap[string, *PropertyClustering]) {
-	var names *TList[string] = immutableListOf_[string](tc_string, "prototype", "constructor", "then")
+func DisambiguateProperties_invalidateWellKnownProperties(propIndex *JTMap[string, *PropertyClustering]) {
+	var names *JTList[string] = jimmutableListOf_[string](jtc_string, "prototype", "constructor", "then")
 	it_1 := names.each()
 	for it_1.next() {
 		var name string = it_1.v
@@ -204,7 +204,7 @@ func (this *DisambiguateProperties) mayHaveProperty(color *Color, propertyName s
 	panic("unreachable")
 }
 
-func (this *DisambiguateProperties) registerOwnDeclaredProperties(colorGraphNode *ColorGraphNode, propIndex *TMap[string, *PropertyClustering]) {
+func (this *DisambiguateProperties) registerOwnDeclaredProperties(colorGraphNode *ColorGraphNode, propIndex *JTMap[string, *PropertyClustering]) {
 	Preconditions_checkArgument(!colorGraphNode.getColor().isUnion())
 	it_1 := colorGraphNode.getColor().getOwnProperties().each()
 	for it_1.next() {
@@ -423,7 +423,7 @@ func new_DisambiguateProperties_TypeNodeJson(n DiGraph_DiGraphNode[*ColorGraphNo
 }
 
 func (this *DisambiguateProperties_TypeNodeJson) toLogsGson() any {
-	var json *TMap[string, any] = newTMap_(tc_string, tc_Object)
+	var json *JTMap[string, any] = jnewTMap_(jtc_string, tc_Object)
 	json.put("index", any(int32(this.index_)))
 	json.put("invalidating", any(bool(this.invalidating)))
 	json.put("colorId", strobj_(this.colorId))
@@ -456,7 +456,7 @@ func (this *DisambiguateProperties_TypeEdgeJson) compareTo(x_ any) int32 {
 }
 
 func (this *DisambiguateProperties_TypeEdgeJson) toLogsGson() any {
-	var json *TMap[string, any] = newTMap_(tc_string, tc_Object)
+	var json *JTMap[string, any] = jnewTMap_(jtc_string, tc_Object)
 	json.put("dest", any(int32(this.dest)))
 	json.put("value", this.value_)
 	return any(json.asMap())
@@ -464,14 +464,14 @@ func (this *DisambiguateProperties_TypeEdgeJson) toLogsGson() any {
 
 type DisambiguateProperties_1 struct {
 	outer_        *DisambiguateProperties
-	cap_propIndex *TMap[string, *PropertyClustering]
+	cap_propIndex *JTMap[string, *PropertyClustering]
 }
 
 func (this *DisambiguateProperties_1) init_DisambiguateProperties_1() {
 
 }
 
-func new_DisambiguateProperties_1(outer_ *DisambiguateProperties, cap_propIndex *TMap[string, *PropertyClustering]) *DisambiguateProperties_1 {
+func new_DisambiguateProperties_1(outer_ *DisambiguateProperties, cap_propIndex *JTMap[string, *PropertyClustering]) *DisambiguateProperties_1 {
 	this := &DisambiguateProperties_1{}
 	this.outer_ = outer_
 	this.cap_propIndex = cap_propIndex

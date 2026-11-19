@@ -46,7 +46,7 @@ func (this *JsMessageExtractor) extractMessagesIterable(inputs IterableOf[*Sourc
 	if compiler.getErrors().isEmpty() {
 		extractCompilerPass.process_2(0, compiler.getRoot())
 	}
-	var errors *TList[*JSError] = compiler.getErrors()
+	var errors *JTList[*JSError] = compiler.getErrors()
 	if !errors.isEmpty() {
 		var msg *StringBuilder = new_StringBuilder_String("JSCompiler errors\n")
 		var formatter MessageFormatter = MessageFormatter(new_LightweightMessageFormatter_SourceExcerptProvider(Compiler_as_SourceExcerptProvider(compiler)))
@@ -63,7 +63,7 @@ func (this *JsMessageExtractor) extractMessagesIterable(inputs IterableOf[*Sourc
 type JsMessageExtractor_ExtractMessagesVisitor struct {
 	JsMessageVisitor
 	outer_   *JsMessageExtractor
-	messages *TList[*JsMessage]
+	messages *JTList[*JsMessage]
 }
 
 func (this *JsMessageExtractor_ExtractMessagesVisitor) up_JsMessageVisitor() *JsMessageVisitor {
@@ -81,7 +81,7 @@ func (this *JsMessageExtractor_ExtractMessagesVisitor) up_NodeTraversal_Abstract
 }
 
 func (this *JsMessageExtractor_ExtractMessagesVisitor) finit_JsMessageExtractor_ExtractMessagesVisitor() {
-	this.messages = newTList_(tc_p_JsMessage)
+	this.messages = jnewTList_(jtc_p_JsMessage)
 }
 
 func (this *JsMessageExtractor_ExtractMessagesVisitor) init_JsMessageExtractor_ExtractMessagesVisitor(compiler *AbstractCompiler) {

@@ -15,8 +15,8 @@ func new_PropertiesParser() *PropertiesParser {
 	return this
 }
 
-func PropertiesParser_parse(source string) *TMap[string, string] {
-	var builder *TMapBuilder[string, string] = newTMapBuilder_(tc_string, tc_string)
+func PropertiesParser_parse(source string) *JTMap[string, string] {
+	var builder *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
 	var lines []string = PropertiesParser_LINE_BREAK_PATTERN.split(source)
 	for i := int32(0); i < int32(len(lines)); i++ {
 		var line string = lines[i]

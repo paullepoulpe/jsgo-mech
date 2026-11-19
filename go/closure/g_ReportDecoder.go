@@ -24,8 +24,8 @@ func ReportDecoder_parseMappingFromFile(mappingFilePath string) *Outcome_base[Ma
 }
 
 func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[Map] {
-	var mapping *TMap[string, *InstrumentationPoint] = newTMap_(tc_string, tc_p_InstrumentationPoint)
-	var linesOfFile *TList[string] = splitToListT_(tc_string, Splitter_on('\n').omitEmptyStrings(), strobj_(mappingFileContent))
+	var mapping *JTMap[string, *InstrumentationPoint] = jnewTMap_(jtc_string, jtc_p_InstrumentationPoint)
+	var linesOfFile *JTList[string] = splitToListT_(jtc_string, Splitter_on('\n').omitEmptyStrings(), strobj_(mappingFileContent))
 	Preconditions_checkState_boolean_String_Object((linesOfFile.size() >= 3), "Malformed report %s", any(linesOfFile.asList()))
 	var fileNamesLine string = String_trim(linesOfFile.get(0))
 	var functionNamesLine string = String_trim(linesOfFile.get(1))
@@ -50,7 +50,7 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[Map] {
 	if typesAsStringList.isErr() {
 		return Outcome_base_err[Map](typesAsStringList.error())
 	}
-	var types *TList[*InstrumentationPoint_Type] = newTList_(tc_p_InstrumentationPoint_Type)
+	var types *JTList[*InstrumentationPoint_Type] = jnewTList_(tc_p_InstrumentationPoint_Type)
 	it_1 := foreach_(any(typesAsStringList.get()))
 	for it_1.next() {
 		var typeAsString string = str_(it_1.v)
@@ -75,7 +75,7 @@ func ReportDecoder_parseJsonStringList(json string) *Outcome_base[List] {
 	if parsed.get().kind() != SimpleJsonValue_Kind_ARRAY {
 		return Outcome_base_err[List](new_SimpleJsonException("Malformed mapping: expected a JSON array").up_Throwable())
 	}
-	var list *TList[string] = newTList_(tc_string)
+	var list *JTList[string] = jnewTList_(jtc_string)
 	it_1 := parsed.get().elements().each()
 	for it_1.next() {
 		var element *SimpleJsonValue = it_1.v
@@ -93,7 +93,7 @@ func ReportDecoder_parseJsonStringList(json string) *Outcome_base[List] {
 }
 
 func ReportDecoder_decodeReport(mapping MapOf[string, *InstrumentationPoint], frequencies MapOf[string, BoxedOf[int64]]) *ReportProfile {
-	var instrumentationPoints *TList[*InstrumentationPointStats] = newTList_(tc_p_InstrumentationPointStats)
+	var instrumentationPoints *JTList[*InstrumentationPointStats] = jnewTList_(jtc_p_InstrumentationPointStats)
 	it_1 := foreach_(any(mapping.entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
@@ -102,13 +102,13 @@ func ReportDecoder_decodeReport(mapping MapOf[string, *InstrumentationPoint], fr
 	return ReportDecoder_createReportProfile(instrumentationPoints)
 }
 
-func ReportDecoder_createProfileOfStaticallyUsedCode(mapping *TMap[string, *InstrumentationPoint], fileContent string, instrumentationArrayName string) *ReportProfile {
+func ReportDecoder_createProfileOfStaticallyUsedCode(mapping *JTMap[string, *InstrumentationPoint], fileContent string, instrumentationArrayName string) *ReportProfile {
 	var matcher *Matcher_re2j = Pattern_compile((sstr_(instrumentationArrayName) + "\\.push\\(['\"](" + sstr_(JavaRegex_DOT) + "*?)['\"]\\)")).matcher_s(fileContent)
-	var encodedPoints *TSet[string] = newTSet_(tc_string)
+	var encodedPoints *JTSet[string] = jnewTSet_(jtc_string)
 	for matcher.find() {
 		encodedPoints.add(matcher.group(1))
 	}
-	var instrumentationPoints *TList[*InstrumentationPointStats] = newTList_(tc_p_InstrumentationPointStats)
+	var instrumentationPoints *JTList[*InstrumentationPointStats] = jnewTList_(jtc_p_InstrumentationPointStats)
 	it_2 := mapping.eachEntry()
 	for it_2.next() {
 		var entry *TEntry[string, *InstrumentationPoint] = it_2.entry()
@@ -122,9 +122,9 @@ func ReportDecoder_createProfileOfStaticallyUsedCode(mapping *TMap[string, *Inst
 	return ReportDecoder_createReportProfile(instrumentationPoints)
 }
 
-func ReportDecoder_mergeProfiles(profiles *TList[*ReportProfile]) *ReportProfile {
-	var frequencies *TMap[*InstrumentationPoint, any] = newTMap_(tce_p_InstrumentationPoint, tc_Long)
-	var presences *TMap[*InstrumentationPoint, *InstrumentationPointStats_Presence] = newTMap_(tce_p_InstrumentationPoint, tc_p_InstrumentationPointStats_Presence)
+func ReportDecoder_mergeProfiles(profiles *JTList[*ReportProfile]) *ReportProfile {
+	var frequencies *JTMap[*InstrumentationPoint, any] = jnewTMap_(tce_p_InstrumentationPoint, tc_Long)
+	var presences *JTMap[*InstrumentationPoint, *InstrumentationPointStats_Presence] = jnewTMap_(tce_p_InstrumentationPoint, jtc_p_InstrumentationPointStats_Presence)
 	it_1 := profiles.each()
 	for it_1.next() {
 		var profile *ReportProfile = it_1.v
@@ -153,7 +153,7 @@ func ReportDecoder_mergeProfiles(profiles *TList[*ReportProfile]) *ReportProfile
 			}
 		}
 	}
-	var finalPoints *TList[*InstrumentationPointStats] = newTList_(tc_p_InstrumentationPointStats)
+	var finalPoints *JTList[*InstrumentationPointStats] = jnewTList_(jtc_p_InstrumentationPointStats)
 	it_7 := frequencies.eachEntry()
 	for it_7.next() {
 		var entry *TEntry[*InstrumentationPoint, any] = it_7.entry()
@@ -162,14 +162,14 @@ func ReportDecoder_mergeProfiles(profiles *TList[*ReportProfile]) *ReportProfile
 	return ReportDecoder_createReportProfile(finalPoints)
 }
 
-func ReportDecoder_createReportProfile(instrumentationPoints *TList[*InstrumentationPointStats]) *ReportProfile {
-	var sortedPoints *TList[*InstrumentationPointStats] = tlistCopy_(tc_p_InstrumentationPointStats, instrumentationPoints)
+func ReportDecoder_createReportProfile(instrumentationPoints *JTList[*InstrumentationPointStats]) *ReportProfile {
+	var sortedPoints *JTList[*InstrumentationPointStats] = tlistCopy_(jtc_p_InstrumentationPointStats, instrumentationPoints)
 	List_sort(sortedPoints.asList(), Comparator_thenComparingInt(Comparator_comparing(&Function_tfn_InstrumentationPointStats_string{func(pointStats *InstrumentationPointStats) string {
 		return pointStats.getPoint().getFileName()
 	}}), &ToIntFunction_tfn_InstrumentationPointStats{func(pointStats *InstrumentationPointStats) int32 {
 		return pointStats.getPoint().getLineNumber()
 	}}))
-	var pointsByFileName *TMap[string, List] = newTMap_(tc_string, tc_List)
+	var pointsByFileName *JTMap[string, List] = jnewTMap_(jtc_string, tc_List)
 	it_1 := sortedPoints.each()
 	for it_1.next() {
 		var pointStats *InstrumentationPointStats = it_1.v
@@ -177,7 +177,7 @@ func ReportDecoder_createReportProfile(instrumentationPoints *TList[*Instrumenta
 			return icast_List(new_ArrayList_0().self())
 		}}).add(obj_(pointStats))
 	}
-	var fileProfiles *TList[*FileProfile] = newTList_(tc_p_FileProfile)
+	var fileProfiles *JTList[*FileProfile] = jnewTList_(jtc_p_FileProfile)
 	it_3 := pointsByFileName.eachEntry()
 	for it_3.next() {
 		var entry *TEntry[string, List] = it_3.entry()

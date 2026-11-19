@@ -3,8 +3,8 @@
 package closure
 
 type GatherModuleMetadata struct {
-	modulesByPath          *TMap[string, *ModuleMetadataMap_ModuleMetadata]
-	modulesByGoogNamespace *TMap[string, *ModuleMetadataMap_ModuleMetadata]
+	modulesByPath          *JTMap[string, *ModuleMetadataMap_ModuleMetadata]
+	modulesByGoogNamespace *JTMap[string, *ModuleMetadataMap_ModuleMetadata]
 	currentModule          *GatherModuleMetadata_ModuleMetadataBuilder
 	parentModule           *GatherModuleMetadata_ModuleMetadataBuilder
 	loadModuleCall         Node
@@ -14,8 +14,8 @@ type GatherModuleMetadata struct {
 }
 
 func (this *GatherModuleMetadata) finit_GatherModuleMetadata() {
-	this.modulesByPath = newTMap_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata)
-	this.modulesByGoogNamespace = newTMap_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata)
+	this.modulesByPath = jnewTMap_(jtc_string, jtc_p_ModuleMetadataMap_ModuleMetadata)
+	this.modulesByGoogNamespace = jnewTMap_(jtc_string, jtc_p_ModuleMetadataMap_ModuleMetadata)
 }
 
 func (this *GatherModuleMetadata) init_GatherModuleMetadata(compiler *AbstractCompiler, processCommonJsModules bool, moduleResolutionMode *ModuleLoader_ResolutionMode) {
@@ -190,13 +190,13 @@ func (this *GatherModuleMetadata_ModuleMetadataBuilder) build() *ModuleMetadataM
 
 type GatherModuleMetadata_Finder struct {
 	outer_            *GatherModuleMetadata
-	toggleModuleNames *TSet[string]
-	toggleModules     *TSet[*Var]
+	toggleModuleNames *JTSet[string]
+	toggleModules     *JTSet[*Var]
 }
 
 func (this *GatherModuleMetadata_Finder) finit_GatherModuleMetadata_Finder() {
-	this.toggleModuleNames = newTSet_(tc_string)
-	this.toggleModules = newTSet_(tce_p_Var)
+	this.toggleModuleNames = jnewTSet_(jtc_string)
+	this.toggleModules = jnewTSet_(tce_p_Var)
 }
 
 func (this *GatherModuleMetadata_Finder) init_GatherModuleMetadata_Finder() {
@@ -500,6 +500,6 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 			return
 		case ModuleMetadataMap_ModuleType_COMMON_JS, ModuleMetadataMap_ModuleType_SCRIPT:
 		}
-		panic(new_IllegalStateException_String(("Unexpected module type: " + tostr_(existingType))).self())
+		panic(new_IllegalStateException_String(("Unexpected module type: " + jtostr_(existingType))).self())
 	}
 }

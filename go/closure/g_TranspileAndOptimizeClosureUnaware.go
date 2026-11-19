@@ -72,7 +72,7 @@ func (this *TranspileAndOptimizeClosureUnaware) setScriptFeaturesets(inputs Coll
 }
 
 func (this *TranspileAndOptimizeClosureUnaware) createInjectRuntimeLibrariesPass(shadowAsts CollectionOf[*TranspileAndOptimizeClosureUnaware_ShadowAst]) *PassFactory {
-	var callSites *TListBuilder[*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite] = newTListBuilder_(tc_p_InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite)
+	var callSites *TListBuilder[*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite] = newTListBuilder_(jtc_p_InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite)
 	it_1 := foreach_(any(shadowAsts))
 	for it_1.next() {
 		var shadowAst *TranspileAndOptimizeClosureUnaware_ShadowAst = cast_[*TranspileAndOptimizeClosureUnaware_ShadowAst](it_1.v)

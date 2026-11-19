@@ -4,7 +4,7 @@ package closure
 
 type LowestCommonAncestorFinder[N comparable, E comparable] struct {
 	graph          *DiGraph[N]
-	searchColoring *TMap[DiGraph_DiGraphNode[N], *LowestCommonAncestorFinder_Color]
+	searchColoring *JTMap[DiGraph_DiGraphNode[N], *LowestCommonAncestorFinder_Color]
 	searchQueue    *TDeque[DiGraph_DiGraphNode[N]]
 }
 
@@ -16,7 +16,7 @@ func is_LowestCommonAncestorFinder(v any) bool {
 }
 
 func (this *LowestCommonAncestorFinder[N, E]) finit_LowestCommonAncestorFinder() {
-	this.searchColoring = newTMap_(tce_DiGraph_DiGraphNode_N_[N, E](), tc_p_LowestCommonAncestorFinder_Color)
+	this.searchColoring = jnewTMap_(tce_DiGraph_DiGraphNode_N_[N, E](), jtc_p_LowestCommonAncestorFinder_Color)
 	this.searchQueue = newTDeque_(tc_DiGraph_DiGraphNode_N_[N, E]())
 }
 
@@ -38,7 +38,7 @@ func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetOf[N]) ImmutableS
 	var bitForRoot int32 = 1
 	it_1 := foreach_(any(roots))
 	for it_1.next() {
-		var root N = unboxT_[N](it_1.v)
+		var root N = junboxT_[N](it_1.v)
 		var rootNode DiGraph_DiGraphNode[N] = this.graph.getNode_Object_rDiGraphNode(root)
 		Preconditions_checkNotNull_Object_String_Object_T(rootNode, "Root not present in graph: %s", boxT_(root))
 		var color *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(bitForRoot)

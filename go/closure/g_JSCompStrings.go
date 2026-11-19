@@ -20,7 +20,7 @@ func JSCompStrings_lines(lines []string) string {
 }
 
 func JSCompStrings_linesIterable(lines IterableOf[string]) string {
-	return String_join_s("\n", lines)
+	return JString_join_s("\n", lines)
 }
 
 func JSCompStrings_parseIntOrNull(s Optional[string]) any {

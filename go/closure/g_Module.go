@@ -5,13 +5,13 @@ package closure
 type Module struct {
 	metadata_               *ModuleMetadataMap_ModuleMetadata
 	path_                   *ModuleLoader_ModulePath
-	namespace_              *TMap[string, *Binding]
-	boundNames_             *TMap[string, *Binding]
-	localNameToLocalExport_ *TMap[string, *Export]
+	namespace_              *JTMap[string, *Binding]
+	boundNames_             *JTMap[string, *Binding]
+	localNameToLocalExport_ *JTMap[string, *Export]
 	closureNamespace_       Optional[string]
 }
 
-func (this *Module) init_Module(metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, namespace *TMap[string, *Binding], boundNames *TMap[string, *Binding], localNameToLocalExport *TMap[string, *Export], closureNamespace Optional[string]) {
+func (this *Module) init_Module(metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, namespace *JTMap[string, *Binding], boundNames *JTMap[string, *Binding], localNameToLocalExport *JTMap[string, *Export], closureNamespace Optional[string]) {
 	Objects_requireNonNull_T(metadata, "metadata")
 	Objects_requireNonNull(any(namespace.asMap()), "namespace")
 	Objects_requireNonNull(any(boundNames.asMap()), "boundNames")
@@ -24,7 +24,7 @@ func (this *Module) init_Module(metadata *ModuleMetadataMap_ModuleMetadata, path
 	this.closureNamespace_ = closureNamespace
 }
 
-func new_Module(metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, namespace *TMap[string, *Binding], boundNames *TMap[string, *Binding], localNameToLocalExport *TMap[string, *Export], closureNamespace Optional[string]) *Module {
+func new_Module(metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, namespace *JTMap[string, *Binding], boundNames *JTMap[string, *Binding], localNameToLocalExport *JTMap[string, *Export], closureNamespace Optional[string]) *Module {
 	this := &Module{}
 	this.init_Module(metadata, path, namespace, boundNames, localNameToLocalExport, closureNamespace)
 	return this
@@ -46,15 +46,15 @@ func (this *Module) path() *ModuleLoader_ModulePath {
 	return this.path_
 }
 
-func (this *Module) namespace() *TMap[string, *Binding] {
+func (this *Module) namespace() *JTMap[string, *Binding] {
 	return this.namespace_
 }
 
-func (this *Module) boundNames() *TMap[string, *Binding] {
+func (this *Module) boundNames() *JTMap[string, *Binding] {
 	return this.boundNames_
 }
 
-func (this *Module) localNameToLocalExport() *TMap[string, *Export] {
+func (this *Module) localNameToLocalExport() *JTMap[string, *Export] {
 	return this.localNameToLocalExport_
 }
 
@@ -82,15 +82,15 @@ func (this *Module) hashCode() int32 {
 }
 
 func (this *Module) toString() string {
-	return "Module[" + "metadata=" + tostr_(this.metadata_) + ", path=" + tostr_(this.path_) + ", namespace=" + objstr_(any(this.namespace_.asMap())) + ", boundNames=" + objstr_(any(this.boundNames_.asMap())) + ", localNameToLocalExport=" + objstr_(any(this.localNameToLocalExport_.asMap())) + ", closureNamespace=" + objstr_(this.closureNamespace_.box_()) + "]"
+	return "Module[" + "metadata=" + jtostr_(this.metadata_) + ", path=" + jtostr_(this.path_) + ", namespace=" + objstr_(any(this.namespace_.asMap())) + ", boundNames=" + objstr_(any(this.boundNames_.asMap())) + ", localNameToLocalExport=" + objstr_(any(this.localNameToLocalExport_.asMap())) + ", closureNamespace=" + objstr_(this.closureNamespace_.box_()) + "]"
 }
 
 type Module_Builder struct {
 	metadataField               *ModuleMetadataMap_ModuleMetadata
 	pathField                   *ModuleLoader_ModulePath
-	namespaceField              *TMap[string, *Binding]
-	boundNamesField             *TMap[string, *Binding]
-	localNameToLocalExportField *TMap[string, *Export]
+	namespaceField              *JTMap[string, *Binding]
+	boundNamesField             *JTMap[string, *Binding]
+	localNameToLocalExportField *JTMap[string, *Export]
 	closureNamespaceField       Optional[string]
 }
 
@@ -137,7 +137,7 @@ func (this *Module_Builder) path(value *ModuleLoader_ModulePath) *Module_Builder
 	return this
 }
 
-func (this *Module_Builder) namespace(value *TMap[string, *Binding]) *Module_Builder {
+func (this *Module_Builder) namespace(value *JTMap[string, *Binding]) *Module_Builder {
 	if value == nil {
 		panic(new_NullPointerException_String("Null namespace").self())
 	}
@@ -145,7 +145,7 @@ func (this *Module_Builder) namespace(value *TMap[string, *Binding]) *Module_Bui
 	return this
 }
 
-func (this *Module_Builder) boundNames(value *TMap[string, *Binding]) *Module_Builder {
+func (this *Module_Builder) boundNames(value *JTMap[string, *Binding]) *Module_Builder {
 	if value == nil {
 		panic(new_NullPointerException_String("Null boundNames").self())
 	}
@@ -153,7 +153,7 @@ func (this *Module_Builder) boundNames(value *TMap[string, *Binding]) *Module_Bu
 	return this
 }
 
-func (this *Module_Builder) localNameToLocalExport(value *TMap[string, *Export]) *Module_Builder {
+func (this *Module_Builder) localNameToLocalExport(value *JTMap[string, *Export]) *Module_Builder {
 	if value == nil {
 		panic(new_NullPointerException_String("Null localNameToLocalExport").self())
 	}
@@ -181,7 +181,7 @@ func (this *Module_Builder) build() *Module {
 		if this.localNameToLocalExportField == nil {
 			missing.append(" localNameToLocalExport")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + tostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
 	}
 	return new_Module(this.metadataField, this.pathField, this.namespaceField, this.boundNamesField, this.localNameToLocalExportField, this.closureNamespaceField)
 }

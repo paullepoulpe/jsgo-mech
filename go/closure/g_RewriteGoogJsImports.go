@@ -7,11 +7,11 @@ type RewriteGoogJsImports struct {
 	moduleMap          *ModuleMap
 	compiler_          *AbstractCompiler
 	googModule         *Module
-	moduleReplacements *TMap[*Module, *Module]
+	moduleReplacements *JTMap[*Module, *Module]
 }
 
 func (this *RewriteGoogJsImports) finit_RewriteGoogJsImports() {
-	this.moduleReplacements = newTMap_(tce_p_Module, tc_p_Module)
+	this.moduleReplacements = jnewTMap_(tce_p_Module, jtc_p_Module)
 }
 
 func (this *RewriteGoogJsImports) init_RewriteGoogJsImports(compiler *AbstractCompiler, mode *RewriteGoogJsImports_Mode, moduleMap *ModuleMap) {
@@ -29,8 +29,8 @@ func new_RewriteGoogJsImports(compiler *AbstractCompiler, mode *RewriteGoogJsImp
 }
 
 func (this *RewriteGoogJsImports) changeModules() {
-	var resolvedModules *TMapBuilder[string, *Module] = newTMapBuilder_(tc_string, tc_p_Module)
-	var closureModules *TMapBuilder[string, *Module] = newTMapBuilder_(tc_string, tc_p_Module)
+	var resolvedModules *TMapBuilder[string, *Module] = newTMapBuilder_(jtc_string, jtc_p_Module)
+	var closureModules *TMapBuilder[string, *Module] = newTMapBuilder_(jtc_string, jtc_p_Module)
 	it_1 := this.moduleMap.getModulesByPath().eachEntry()
 	for it_1.next() {
 		var m *TEntry[string, *Module] = it_1.entry()
@@ -98,7 +98,7 @@ func (this *RewriteGoogJsImports) findGoogJsScriptNode(root Node) Node {
 	{
 		var script Node = root.getFirstChild()
 		for ; script != 0; script = script.getNext() {
-			var provides *TList[string] = tlistImm_(tc_string, this.compiler_.getInput(script.getInputId()).getProvides())
+			var provides *JTList[string] = jtlistImm_(jtc_string, this.compiler_.getInput(script.getInputId()).getProvides())
 			if Collection_contains_s(provides.asImm(), RewriteGoogJsImports_EXPECTED_BASE_PROVIDE) {
 				expectedGoogPath = this.compiler_.getInput(script.getInputId()).getPath().resolveModuleAsPath("./goog.js")
 				break
@@ -257,7 +257,7 @@ func (this *RewriteGoogJsImports_ReferenceReplacer) init_RewriteGoogJsImports_Re
 	this.globalizeAllReferences = globalizeAllReferences
 	NodeTraversal_traverse(this.outer_.compiler_, script, NodeTraversal_Callback(this))
 	if googImportNode.getSecondChild().isImportStar() {
-		var newBindings *TMap[string, *Binding] = tmapCopy_(tc_string, tc_p_Binding, module.boundNames())
+		var newBindings *JTMap[string, *Binding] = tmapCopy_(jtc_string, jtc_p_Binding, module.boundNames())
 		newBindings.remove("goog")
 		if this.hasBadExport {
 			googImportNode.getSecondChild().setOriginalName("goog")
@@ -266,7 +266,7 @@ func (this *RewriteGoogJsImports_ReferenceReplacer) init_RewriteGoogJsImports_Re
 		} else {
 			googImportNode.getSecondChild().replaceWith(IR_empty())
 		}
-		var newModule *Module = module.toBuilder().boundNames(immutableMapCopyOfT_(tc_string, tc_p_Binding, newBindings)).build()
+		var newModule *Module = module.toBuilder().boundNames(immutableMapCopyOfT_(jtc_string, jtc_p_Binding, newBindings)).build()
 		this.outer_.moduleReplacements.put(module, newModule)
 		this.outer_.compiler_.reportChangeToEnclosingScope(googImportNode)
 	}

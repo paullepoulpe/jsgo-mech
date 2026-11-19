@@ -52,7 +52,7 @@ func ColorId_fromBytesAt[T any](source T, length int32, byteAt ColorId_ByteAt[T]
 	return new_ColorId(rightAligned)
 }
 
-func ColorId_union(ids *TSet[*ColorId]) *ColorId {
+func ColorId_union(ids *JTSet[*ColorId]) *ColorId {
 	if ids.size() <= 1 {
 		return cast_[*ColorId](Iterables_getOnlyElement(Iterable(ids.asSet())))
 	}

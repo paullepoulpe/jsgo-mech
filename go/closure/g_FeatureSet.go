@@ -3,11 +3,11 @@
 package closure
 
 type FeatureSet struct {
-	features_ *TSet[*FeatureSet_Feature]
+	features_ *JTSet[*FeatureSet_Feature]
 }
 
 func (this *FeatureSet) init_FeatureSet(features EnumSetOf[*FeatureSet_Feature]) {
-	this.features_ = immutableSetCopyOf_(tc_p_FeatureSet_Feature, EnumSet_as_Collection(features))
+	this.features_ = jimmutableSetCopyOf_(jtc_p_FeatureSet_Feature, EnumSet_as_Collection(features))
 }
 
 func new_FeatureSet(features EnumSetOf[*FeatureSet_Feature]) *FeatureSet {
@@ -105,7 +105,7 @@ func FeatureSet_emptyEnumSet() EnumSetOf[*FeatureSet_Feature] {
 	return EnumSet_noneOf(classOf_("com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature"))
 }
 
-func FeatureSet_enumSetOf(set *TSet[*FeatureSet_Feature]) EnumSetOf[*FeatureSet_Feature] {
+func FeatureSet_enumSetOf(set *JTSet[*FeatureSet_Feature]) EnumSetOf[*FeatureSet_Feature] {
 	return func() *EnumSet {
 		if set.isEmpty() {
 			return FeatureSet_emptyEnumSet()
@@ -114,19 +114,19 @@ func FeatureSet_enumSetOf(set *TSet[*FeatureSet_Feature]) EnumSetOf[*FeatureSet_
 	}()
 }
 
-func FeatureSet_add(features *TSet[*FeatureSet_Feature], feature *FeatureSet_Feature) EnumSetOf[*FeatureSet_Feature] {
+func FeatureSet_add(features *JTSet[*FeatureSet_Feature], feature *FeatureSet_Feature) EnumSetOf[*FeatureSet_Feature] {
 	var result EnumSetOf[*FeatureSet_Feature] = FeatureSet_enumSetOf(features)
 	result.add(obj_(feature))
 	return result
 }
 
-func FeatureSet_union(features *TSet[*FeatureSet_Feature], newFeatures SetOf[*FeatureSet_Feature]) EnumSetOf[*FeatureSet_Feature] {
+func FeatureSet_union(features *JTSet[*FeatureSet_Feature], newFeatures SetOf[*FeatureSet_Feature]) EnumSetOf[*FeatureSet_Feature] {
 	var result EnumSetOf[*FeatureSet_Feature] = FeatureSet_enumSetOf(features)
 	result.addAll(Collection(newFeatures))
 	return result
 }
 
-func FeatureSet_difference(features *TSet[*FeatureSet_Feature], removedFeatures SetOf[*FeatureSet_Feature]) EnumSetOf[*FeatureSet_Feature] {
+func FeatureSet_difference(features *JTSet[*FeatureSet_Feature], removedFeatures SetOf[*FeatureSet_Feature]) EnumSetOf[*FeatureSet_Feature] {
 	var result EnumSetOf[*FeatureSet_Feature] = FeatureSet_enumSetOf(features)
 	result.removeAll(Collection(removedFeatures))
 	return result
@@ -155,7 +155,7 @@ func (this *FeatureSet) has(feature *FeatureSet_Feature) bool {
 	return this.features_.contains(feature)
 }
 
-func (this *FeatureSet) getFeatures() *TSet[*FeatureSet_Feature] {
+func (this *FeatureSet) getFeatures() *JTSet[*FeatureSet_Feature] {
 	return this.features_
 }
 

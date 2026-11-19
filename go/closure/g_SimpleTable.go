@@ -3,7 +3,7 @@
 package closure
 
 type SimpleTable[R comparable, C comparable, V comparable] struct {
-	rows *TMap[R, Map]
+	rows *JTMap[R, Map]
 }
 
 func (this *SimpleTable[R, C, V]) isa_SimpleTable_() {}
@@ -14,7 +14,7 @@ func is_SimpleTable(v any) bool {
 }
 
 func (this *SimpleTable[R, C, V]) finit_SimpleTable() {
-	this.rows = newTMap_(tceT_[R](), tc_Map)
+	this.rows = jnewTMap_(tceT_[R](), tc_Map)
 }
 
 func (this *SimpleTable[R, C, V]) init_SimpleTable() {
@@ -37,42 +37,42 @@ func (this *SimpleTable[R, C, V]) put(rowKey R, columnKey C, value V) V {
 		row = Map(new_LinkedHashMap())
 		this.rows.put(rowKey, row)
 	}
-	return unboxT_[V](row.put(boxT_(columnKey), boxT_(value)))
+	return junboxT_[V](row.put(boxT_(columnKey), boxT_(value)))
 }
 
 func (this *SimpleTable[R, C, V]) get(rowKey any, columnKey any) V {
-	var row MapOf[C, V] = this.rows.get(unboxT_[R](rowKey))
+	var row MapOf[C, V] = this.rows.get(junboxT_[R](rowKey))
 	return func() V {
 		if row == nil {
-			return null_[V]()
+			return jnull_[V]()
 		}
-		return unboxT_[V](row.get(columnKey))
+		return junboxT_[V](row.get(columnKey))
 	}()
 }
 
 func (this *SimpleTable[R, C, V]) contains(rowKey any, columnKey any) bool {
-	var row MapOf[C, V] = this.rows.get(unboxT_[R](rowKey))
+	var row MapOf[C, V] = this.rows.get(junboxT_[R](rowKey))
 	return ((row != nil) && row.containsKey(columnKey))
 }
 
 func (this *SimpleTable[R, C, V]) containsRow(rowKey any) bool {
-	return this.rows.containsKey(unboxT_[R](rowKey))
+	return this.rows.containsKey(junboxT_[R](rowKey))
 }
 
 func (this *SimpleTable[R, C, V]) remove(rowKey any, columnKey any) V {
-	var row MapOf[C, V] = this.rows.get(unboxT_[R](rowKey))
+	var row MapOf[C, V] = this.rows.get(junboxT_[R](rowKey))
 	if row == nil {
-		return null_[V]()
+		return jnull_[V]()
 	}
-	var value V = unboxT_[V](row.remove(columnKey))
+	var value V = junboxT_[V](row.remove(columnKey))
 	if row.isEmpty() {
-		this.rows.remove(unboxT_[R](rowKey))
+		this.rows.remove(junboxT_[R](rowKey))
 	}
 	return value
 }
 
 func (this *SimpleTable[R, C, V]) row(rowKey any) MapOf[C, V] {
-	var row MapOf[C, V] = this.rows.get(unboxT_[R](rowKey))
+	var row MapOf[C, V] = this.rows.get(junboxT_[R](rowKey))
 	return func() Map {
 		if row == nil {
 			return ImmutableMap_as_Map(ImmutableMap_of())

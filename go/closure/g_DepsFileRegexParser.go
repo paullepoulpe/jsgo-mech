@@ -6,7 +6,7 @@ type DepsFileRegexParser struct {
 	JsFileLineParser
 	depMatcher     *Matcher_re2j
 	depArgsMatch   *Matcher_re2j
-	depInfos       *TList[DependencyInfo_]
+	depInfos       *JTList[DependencyInfo_]
 	pathTranslator Function_baseOf[string, string]
 }
 
@@ -54,8 +54,8 @@ func (this *DepsFileRegexParser) parseFile(filePath string) *Outcome_base[List] 
 	return Outcome_base_ok_Object[List](this.parseFile_2(filePath, fileContents.get()).asList())
 }
 
-func (this *DepsFileRegexParser) parseFile_2(filePath string, fileContents string) *TList[DependencyInfo_] {
-	this.depInfos = newTList_(tc_DependencyInfo_)
+func (this *DepsFileRegexParser) parseFile_2(filePath string, fileContents string) *JTList[DependencyInfo_] {
+	this.depInfos = jnewTList_(tc_DependencyInfo_)
 	if DepsFileRegexParser_logger.isLoggable(Level_FINE) {
 		DepsFileRegexParser_logger.fine(("Parsing Dep: " + sstr_(filePath)))
 	}
@@ -65,7 +65,7 @@ func (this *DepsFileRegexParser) parseFile_2(filePath string, fileContents strin
 
 func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base[any] {
 	var hasDependencies bool = false
-	if String_contains_s(line, "addDependency") {
+	if JString_contains_s(line, "addDependency") {
 		this.depMatcher.reset_s(line)
 		if this.depMatcher.matches() {
 			hasDependencies = true
@@ -99,7 +99,7 @@ func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base[any] 
 			}
 			var depInfo DependencyInfo_ = SimpleDependencyInfo_as_DependencyInfo_(SimpleDependencyInfo_builder(path, this.filePath).setProvides(Collection(provides)).setRequires(Collection(DepsFileRegexParser_requiresParsedFromDeps(requiresOutcome.get()).asList())).setLoadFlags(loadFlags).build())
 			if DepsFileRegexParser_logger.isLoggable(Level_FINE) {
-				DepsFileRegexParser_logger.fine(("Found dep: " + tostr_(depInfo)))
+				DepsFileRegexParser_logger.fine(("Found dep: " + jtostr_(depInfo)))
 			}
 			this.depInfos.add(depInfo)
 		}
@@ -107,8 +107,8 @@ func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base[any] 
 	return Outcome_base_ok_Object[any](any(bool(((!this.shortcutMode || hasDependencies) || CharMatcher_whitespace().matchesAllOf_s(line)))))
 }
 
-func DepsFileRegexParser_requiresParsedFromDeps(symbols ListOf[string]) *TList[*DependencyInfo_Require] {
-	var result *TListBuilder[*DependencyInfo_Require] = newTListBuilder_(tc_p_DependencyInfo_Require)
+func DepsFileRegexParser_requiresParsedFromDeps(symbols ListOf[string]) *JTList[*DependencyInfo_Require] {
+	var result *TListBuilder[*DependencyInfo_Require] = newTListBuilder_(jtc_p_DependencyInfo_Require)
 	it_1 := foreach_(any(symbols))
 	for it_1.next() {
 		var symbol string = str_(it_1.v)

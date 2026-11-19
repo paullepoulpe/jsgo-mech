@@ -11,8 +11,8 @@ type NamedType struct {
 	resolutionKind        *NamedType_ResolutionKind
 	resolutionScope       StaticTypedScope
 	validator             Predicate_baseOf[*JSType]
-	propertyContinuations *TList[*NamedType_PropertyContinuation]
-	templateTypes         *TList[*JSType]
+	propertyContinuations *JTList[*NamedType_PropertyContinuation]
+	templateTypes         *JTList[*JSType]
 	restrictByNull        bool
 }
 
@@ -97,14 +97,14 @@ func (this *NamedType) getBangType() *JSType {
 	return this.toBuilder().setRestrictByNull(true).build().up_JSType()
 }
 
-func (this *NamedType) getTemplateTypes_impl() *TList[*JSType] {
+func (this *NamedType) getTemplateTypes_impl() *JTList[*JSType] {
 	return this.templateTypes
 }
 
 func (this *NamedType) defineProperty_impl(propertyName Property_Key, type_ *JSType, inferred bool, propertyNode Node) bool {
 	if !this.isResolved() {
 		if this.propertyContinuations == nil {
-			this.propertyContinuations = newTList_(tc_p_NamedType_PropertyContinuation)
+			this.propertyContinuations = jnewTList_(jtc_p_NamedType_PropertyContinuation)
 		}
 		this.propertyContinuations.add(new_NamedType_PropertyContinuation(propertyName, type_, inferred, propertyNode))
 		return true
@@ -166,7 +166,7 @@ func (this *NamedType) recursionUnsafeHashCode_impl() int32 {
 }
 
 func (this *NamedType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSType {
-	var resolvedTypeArgs *TList[*JSType] = tlistImm_(tc_p_JSType, JSTypeIterations_mapTypesImmutableList(&Function_fn{func(t_ any) any {
+	var resolvedTypeArgs *JTList[*JSType] = jtlistImm_(jtc_p_JSType, JSTypeIterations_mapTypesImmutableList(&Function_fn{func(t_ any) any {
 		var t *JSType = to_JSType(t_)
 		_ = t
 		return t.resolve(reporter).self()
@@ -197,7 +197,7 @@ func (this *NamedType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSTyp
 		}
 		var numKeys int32 = result.getTemplateParamCount()
 		if numKeys < resolvedTypeArgs.size() {
-			resolvedTypeArgs = tlistImm_(tc_p_JSType, cast_[*ImmutableList](resolvedTypeArgs.asImm().subList(0, numKeys)))
+			resolvedTypeArgs = jtlistImm_(jtc_p_JSType, cast_[*ImmutableList](resolvedTypeArgs.asImm().subList(0, numKeys)))
 		}
 		result = this.registry.createTemplatizedTypeImmutableList(resultAsObject, resolvedTypeArgs).up_JSType()
 		this.setReferencedType(result.resolve(reporter))
@@ -288,7 +288,7 @@ func (this *NamedType) handleUnresolvedType(reporter ErrorReporter_rhino) {
 	if !isForwardDeclared {
 		var msg string = ("Bad type annotation. Unknown type " + sstr_(this.reference))
 		var root string = func() string {
-			if String_contains_s(this.reference, ".") {
+			if JString_contains_s(this.reference, ".") {
 				return String_substring(this.reference, 0, String_indexOf_String(this.reference, "."))
 			}
 			return this.reference
@@ -459,7 +459,7 @@ type NamedType_Builder struct {
 	charno_        int32
 	referencedType *JSType
 	restrictByNull bool
-	templateTypes  *TList[*JSType]
+	templateTypes  *JTList[*JSType]
 }
 
 func (this *NamedType_Builder) zero_NamedType_Builder() {
@@ -469,7 +469,7 @@ func (this *NamedType_Builder) zero_NamedType_Builder() {
 
 func (this *NamedType_Builder) finit_NamedType_Builder() {
 	this.sourceName_ = ""
-	this.templateTypes = tlistEmptyImm_(tc_p_JSType)
+	this.templateTypes = jtlistEmptyImm_(jtc_p_JSType)
 }
 
 func (this *NamedType_Builder) init_NamedType_Builder(registry *JSTypeRegistry, referenceName string) {
@@ -510,7 +510,7 @@ func (this *NamedType_Builder) setErrorReportingLocationFrom(source Node) *Named
 	return this
 }
 
-func (this *NamedType_Builder) setTemplateTypes(templateTypes *TList[*JSType]) *NamedType_Builder {
+func (this *NamedType_Builder) setTemplateTypes(templateTypes *JTList[*JSType]) *NamedType_Builder {
 	this.templateTypes = templateTypes
 	return this
 }

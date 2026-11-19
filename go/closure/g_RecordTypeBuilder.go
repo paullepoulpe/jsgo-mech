@@ -6,13 +6,13 @@ type RecordTypeBuilder struct {
 	isEmpty_   bool
 	isDeclared bool
 	registry   *JSTypeRegistry
-	properties *TMap[string, *RecordTypeBuilder_RecordProperty]
+	properties *JTMap[string, *RecordTypeBuilder_RecordProperty]
 }
 
 func (this *RecordTypeBuilder) finit_RecordTypeBuilder() {
 	this.isEmpty_ = true
 	this.isDeclared = true
-	this.properties = newTMap_(tc_string, tc_p_RecordTypeBuilder_RecordProperty)
+	this.properties = jnewTMap_(jtc_string, jtc_p_RecordTypeBuilder_RecordProperty)
 }
 
 func (this *RecordTypeBuilder) init_RecordTypeBuilder(registry *JSTypeRegistry) {

@@ -31,7 +31,7 @@ type CompilerOptions struct {
 	checkSymbols                                 bool
 	checkSuspiciousCode                          bool
 	checkTypes                                   bool
-	extraAnnotationNames                         *TSet[string]
+	extraAnnotationNames                         *JTSet[string]
 	numParallelThreads                           int32
 	foldConstants                                bool
 	deadAssignmentElimination                    bool
@@ -84,7 +84,7 @@ type CompilerOptions struct {
 	computeFunctionSideEffects                   bool
 	disambiguateProperties_                      bool
 	ambiguateProperties                          bool
-	inputSourceMaps                              *TMap[string, *SourceMapInput]
+	inputSourceMaps                              *JTMap[string, *SourceMapInput]
 	inputVariableMap                             *VariableMap
 	inputPropertyMap                             *VariableMap
 	exportTestFunctions                          bool
@@ -109,11 +109,11 @@ type CompilerOptions struct {
 	removeClosureAsserts                         bool
 	removeJ2clAsserts                            bool
 	gatherCssNames                               bool
-	stripTypes                                   *TSet[string]
-	stripNameSuffixes                            *TSet[string]
-	stripNamePrefixes                            *TSet[string]
+	stripTypes                                   *JTSet[string]
+	stripNameSuffixes                            *JTSet[string]
+	stripNamePrefixes                            *JTSet[string]
 	customPasses                                 *SimpleSetMultimap
-	defineReplacements                           *TMap[string, any]
+	defineReplacements                           *JTMap[string, any]
 	tweakProcessing                              *CompilerOptions_TweakProcessing
 	rewriteGlobalDeclarationsForTryCatchWrapping bool
 	checksOnly                                   bool
@@ -121,27 +121,27 @@ type CompilerOptions struct {
 	generateExports                              bool
 	exportLocalPropertyDefinitions               bool
 	cssRenamingMap                               CssRenamingMap
-	cssRenamingSkiplist                          *TSet[string]
+	cssRenamingSkiplist                          *JTSet[string]
 	replaceIdGenerators                          bool
-	idGenerators                                 *TMap[string, RenamingMap]
+	idGenerators                                 *JTMap[string, RenamingMap]
 	xidHashFunction                              Xid_HashFunction
 	chunkIdHashFunction                          Xid_HashFunction
 	idGeneratorsMapSerialized                    string
-	replaceStringsFunctionDescriptions           *TList[string]
+	replaceStringsFunctionDescriptions           *JTList[string]
 	replaceStringsPlaceholderToken               string
-	propertiesThatMustDisambiguate               *TSet[string]
+	propertiesThatMustDisambiguate               *JTSet[string]
 	validateRequireInliningAnnotation            *Tri
 	processCommonJSModules                       bool
-	moduleRoots                                  *TList[string]
+	moduleRoots                                  *JTList[string]
 	rewritePolyfills                             bool
 	isolatePolyfills                             bool
 	injectPolyfillsNewerThan                     *CompilerOptions_LanguageMode
 	es6SubclassTranspilation                     *CompilerOptions_Es6SubclassTranspilation
 	instrumentAsyncContext                       bool
-	forceLibraryInjection                        *TList[string]
+	forceLibraryInjection                        *JTList[string]
 	runtimeLibraryMode                           *RuntimeJsLibManager_RuntimeLibraryMode
 	assumeForwardDeclaredForMissingTypesField    bool
-	unusedImportsToRemove                        *TSet[string]
+	unusedImportsToRemove                        *JTSet[string]
 	preserveTypeAnnotations                      bool
 	gentsMode                                    bool
 	prettyPrint                                  bool
@@ -157,9 +157,9 @@ type CompilerOptions struct {
 	preferSingleQuotes                           bool
 	trustedStrings                               bool
 	printSourceAfterEachPass                     bool
-	filesToPrintAfterEachPassRegexList           *TList[string]
-	chunksToPrintAfterEachPassRegexList          *TList[string]
-	qnameUsesToPrintAfterEachPassList            *TList[string]
+	filesToPrintAfterEachPassRegexList           *JTList[string]
+	chunksToPrintAfterEachPassRegexList          *JTList[string]
+	qnameUsesToPrintAfterEachPassList            *JTList[string]
 	tracer                                       *CompilerOptions_TracerMode
 	tracerOutput                                 Optional[string]
 	colorizeErrorOutput                          bool
@@ -169,7 +169,7 @@ type CompilerOptions struct {
 	lineLengthThreshold                          int32
 	useOriginalNamesInOutput                     bool
 	externExportsPath                            Optional[string]
-	extraReportGenerators                        *TList[SortingErrorManager_ErrorReportGenerator]
+	extraReportGenerators                        *JTList[SortingErrorManager_ErrorReportGenerator]
 	sourceMapOutputPath                          Optional[string]
 	shouldAlwaysGatherSourceMapInfo_             bool
 	sourceMapDetailLevel                         *SourceMap_DetailLevel
@@ -177,7 +177,7 @@ type CompilerOptions struct {
 	parseInlineSourceMaps_                       bool
 	applyInputSourceMaps                         bool
 	resolveSourceMapAnnotations                  bool
-	sourceMapLocationMappings                    *TList[SourceMap_LocationMapping]
+	sourceMapLocationMappings                    *JTList[SourceMap_LocationMapping]
 	sourceMapIncludeSourcesContent               bool
 	outputCharset                                Optional[string]
 	protectHiddenSideEffects                     bool
@@ -187,7 +187,7 @@ type CompilerOptions struct {
 	errorHandler                                 ErrorHandler
 	instrumentForCoverageOption                  *CompilerOptions_InstrumentOption
 	productionInstrumentationArrayName           string
-	conformanceConfigs                           *TList[*ConformanceConfig]
+	conformanceConfigs                           *JTList[*ConformanceConfig]
 	conformanceReportingMode                     *CompilerOptions_ConformanceReportingMode
 	conformanceRemoveRegexFromPath               Optional_baseOf[*Pattern]
 	wrapGoogModulesForWhitespaceOnly             bool
@@ -196,13 +196,13 @@ type CompilerOptions struct {
 	rewriteModulesBeforeTypechecking             bool
 	enableModuleRewriting                        bool
 	moduleResolutionMode                         *ModuleLoader_ResolutionMode
-	browserResolverPrefixReplacements            *TMap[string, string]
+	browserResolverPrefixReplacements            *JTMap[string, string]
 	pathEscaper                                  *ModuleLoader_PathEscaper
-	packageJsonEntryNames                        *TList[string]
+	packageJsonEntryNames                        *JTList[string]
 	allowDynamicImport                           bool
 	dynamicImportAlias                           Optional[string]
 	chunkOutputType                              *CompilerOptions_ChunkOutputType
-	unknownDefinesToIgnore                       *TList[string]
+	unknownDefinesToIgnore                       *JTList[string]
 	inlineFunctionsLevel                         *CompilerOptions_Reach
 	enableZonesDefineName                        Optional[string]
 	zoneInputPattern                             *Pattern
@@ -247,13 +247,13 @@ func (this *CompilerOptions) finit_CompilerOptions() {
 	this.removeJ2clAsserts = true
 	this.replaceIdGenerators = true
 	this.processCommonJSModules = false
-	this.moduleRoots = immutableListOf_[string](tc_string, ModuleLoader_DEFAULT_FILENAME_PREFIX)
+	this.moduleRoots = jimmutableListOf_[string](jtc_string, ModuleLoader_DEFAULT_FILENAME_PREFIX)
 	this.rewritePolyfills = false
 	this.isolatePolyfills = false
 	this.injectPolyfillsNewerThan = nil
 	this.es6SubclassTranspilation = CompilerOptions_Es6SubclassTranspilation_CONCISE_UNSAFE
 	this.instrumentAsyncContext = false
-	this.forceLibraryInjection = tlistEmptyImm_(tc_string)
+	this.forceLibraryInjection = jtlistEmptyImm_(jtc_string)
 	this.runtimeLibraryMode = RuntimeJsLibManager_RuntimeLibraryMode_INJECT
 	this.assumeForwardDeclaredForMissingTypesField = false
 	this.inputDelimiter = "// Input %num%"
@@ -261,16 +261,16 @@ func (this *CompilerOptions) finit_CompilerOptions() {
 	this.debugLogFilter = Optional_empty[string]()
 	this.stateCompressionWrapper = nil
 	this.stateDecompressionWrapper = nil
-	this.filesToPrintAfterEachPassRegexList = tlistEmptyImm_(tc_string)
-	this.chunksToPrintAfterEachPassRegexList = tlistEmptyImm_(tc_string)
-	this.qnameUsesToPrintAfterEachPassList = tlistEmptyImm_(tc_string)
+	this.filesToPrintAfterEachPassRegexList = jtlistEmptyImm_(jtc_string)
+	this.chunksToPrintAfterEachPassRegexList = jtlistEmptyImm_(jtc_string)
+	this.qnameUsesToPrintAfterEachPassList = jtlistEmptyImm_(jtc_string)
 	this.tracerOutput = Optional_empty[string]()
 	this.warningsGuard = ComposeWarningsGuard_createFromGuards([]*WarningsGuard{})
 	this.summaryDetailLevel = 1
 	this.lineLengthThreshold = CompilerOptions_DEFAULT_LINE_LENGTH_THRESHOLD
 	this.useOriginalNamesInOutput = false
 	this.externExportsPath = Optional_empty[string]()
-	this.extraReportGenerators = newTList_(tc_SortingErrorManager_ErrorReportGenerator)
+	this.extraReportGenerators = jnewTList_(jtc_SortingErrorManager_ErrorReportGenerator)
 	this.sourceMapOutputPath = Optional_empty[string]()
 	this.shouldAlwaysGatherSourceMapInfo_ = false
 	this.sourceMapDetailLevel = SourceMap_DetailLevel_ALL
@@ -278,13 +278,13 @@ func (this *CompilerOptions) finit_CompilerOptions() {
 	this.parseInlineSourceMaps_ = true
 	this.applyInputSourceMaps = false
 	this.resolveSourceMapAnnotations = true
-	this.sourceMapLocationMappings = tlistEmptyImm_(tc_SourceMap_LocationMapping)
+	this.sourceMapLocationMappings = jtlistEmptyImm_(jtc_SourceMap_LocationMapping)
 	this.sourceMapIncludeSourcesContent = false
 	this.outputCharset = Optional_empty[string]()
 	this.assumeGettersArePure_ = true
 	this.assumePropertiesAreStaticallyAnalyzable = true
 	this.assumeStaticInheritanceIsNotUsed = true
-	this.conformanceConfigs = tlistEmptyImm_(tc_p_ConformanceConfig)
+	this.conformanceConfigs = jtlistEmptyImm_(jtc_p_ConformanceConfig)
 	this.conformanceReportingMode = CompilerOptions_ConformanceReportingMode_IGNORE_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG
 	this.conformanceRemoveRegexFromPath = Optional_base_of(obj_(Pattern_compile("^((.*/)?google3/)?(/?(blaze|bazel)-out/[^/]+/(bin|genfiles)/)?")))
 	this.wrapGoogModulesForWhitespaceOnly = true
@@ -294,7 +294,7 @@ func (this *CompilerOptions) finit_CompilerOptions() {
 	this.enableModuleRewriting = true
 	this.allowDynamicImport = false
 	this.dynamicImportAlias = Optional_empty[string]()
-	this.unknownDefinesToIgnore = tlistEmptyImm_(tc_string)
+	this.unknownDefinesToIgnore = jtlistEmptyImm_(jtc_string)
 	this.enableZonesDefineName = Optional_empty[string]()
 	this.zoneInputPattern = nil
 	this.es6ModuleTranspilation = CompilerOptions_Es6ModuleTranspilation_COMPILE
@@ -304,9 +304,9 @@ func (this *CompilerOptions) init_CompilerOptions() {
 	this.finit_CompilerOptions()
 	this.languageIn = CompilerOptions_LanguageMode_STABLE_IN
 	this.environment = CompilerOptions_Environment_BROWSER
-	this.browserResolverPrefixReplacements = tmapEmptyImm_(tc_string, tc_string)
+	this.browserResolverPrefixReplacements = jtmapEmptyImm_(jtc_string, jtc_string)
 	this.moduleResolutionMode = ModuleLoader_ResolutionMode_BROWSER
-	this.packageJsonEntryNames = immutableListOf_[string](tc_string, "browser", "module", "main")
+	this.packageJsonEntryNames = jimmutableListOf_[string](jtc_string, "browser", "module", "main")
 	this.pathEscaper = ModuleLoader_PathEscaper_ESCAPE
 	this.rewriteModulesBeforeTypechecking = false
 	this.enableModuleRewriting = true
@@ -375,11 +375,11 @@ func (this *CompilerOptions) init_CompilerOptions() {
 	this.j2clMinifierEnabled = true
 	this.removeAbstractMethods = false
 	this.removeClosureAsserts = false
-	this.stripTypes = tsetEmptyImm_(tc_string)
-	this.stripNameSuffixes = tsetEmptyImm_(tc_string)
-	this.stripNamePrefixes = tsetEmptyImm_(tc_string)
+	this.stripTypes = jtsetEmptyImm_(jtc_string)
+	this.stripNameSuffixes = jtsetEmptyImm_(jtc_string)
+	this.stripNamePrefixes = jtsetEmptyImm_(jtc_string)
 	this.customPasses = nil
-	this.defineReplacements = newTMap_(tc_string, tc_Object)
+	this.defineReplacements = jnewTMap_(jtc_string, tc_Object)
 	this.tweakProcessing = CompilerOptions_TweakProcessing_OFF
 	this.rewriteGlobalDeclarationsForTryCatchWrapping = false
 	this.checksOnly = false
@@ -388,11 +388,11 @@ func (this *CompilerOptions) init_CompilerOptions() {
 	this.exportLocalPropertyDefinitions = true
 	this.cssRenamingMap = nil
 	this.cssRenamingSkiplist = nil
-	this.idGenerators = tmapEmptyImm_(tc_string, tc_RenamingMap)
-	this.replaceStringsFunctionDescriptions = tlistEmptyImm_(tc_string)
+	this.idGenerators = jtmapEmptyImm_(jtc_string, jtc_RenamingMap)
+	this.replaceStringsFunctionDescriptions = jtlistEmptyImm_(jtc_string)
 	this.replaceStringsPlaceholderToken = ""
-	this.propertiesThatMustDisambiguate = tsetEmptyImm_(tc_string)
-	this.inputSourceMaps = tmapEmptyImm_(tc_string, tc_p_SourceMapInput)
+	this.propertiesThatMustDisambiguate = jtsetEmptyImm_(jtc_string)
+	this.inputSourceMaps = jtmapEmptyImm_(jtc_string, jtc_p_SourceMapInput)
 	this.instrumentForCoverageOption = CompilerOptions_InstrumentOption_NONE
 	this.productionInstrumentationArrayName = ""
 	this.preserveTypeAnnotations = false
@@ -416,11 +416,11 @@ func new_CompilerOptions() *CompilerOptions {
 	return this
 }
 
-func CompilerOptions_getAngularPropertyReservedFirstChars() *TSet[any] {
+func CompilerOptions_getAngularPropertyReservedFirstChars() *JTSet[any] {
 	return CompilerOptions_ANGULAR_PROPERTY_RESERVED_FIRST_CHARS
 }
 
-func CompilerOptions_getPolymerPropertyReservedFirstChars() *TSet[any] {
+func CompilerOptions_getPolymerPropertyReservedFirstChars() *JTSet[any] {
 	return CompilerOptions_POLYMER_PROPERTY_RESERVED_FIRST_CHARS
 }
 
@@ -485,11 +485,11 @@ func (this *CompilerOptions) setSkipTranspilationAndCrash(value bool) {
 
 }
 
-func (this *CompilerOptions) setInputSourceMaps(inputSourceMaps *TMap[string, *SourceMapInput]) {
+func (this *CompilerOptions) setInputSourceMaps(inputSourceMaps *JTMap[string, *SourceMapInput]) {
 	this.inputSourceMaps = inputSourceMaps
 }
 
-func (this *CompilerOptions) getInputSourceMaps() *TMap[string, *SourceMapInput] {
+func (this *CompilerOptions) getInputSourceMaps() *JTMap[string, *SourceMapInput] {
 	return this.inputSourceMaps
 }
 
@@ -630,27 +630,27 @@ func (this *CompilerOptions) shouldPrintSourceAfterEachPass() bool {
 	return this.printSourceAfterEachPass
 }
 
-func (this *CompilerOptions) setFilesToPrintAfterEachPassRegexList(filePathRegexList *TList[string]) {
+func (this *CompilerOptions) setFilesToPrintAfterEachPassRegexList(filePathRegexList *JTList[string]) {
 	this.filesToPrintAfterEachPassRegexList = filePathRegexList
 }
 
-func (this *CompilerOptions) setChunksToPrintAfterEachPassRegexList(chunkPathRegexList *TList[string]) {
+func (this *CompilerOptions) setChunksToPrintAfterEachPassRegexList(chunkPathRegexList *JTList[string]) {
 	this.chunksToPrintAfterEachPassRegexList = chunkPathRegexList
 }
 
-func (this *CompilerOptions) setQnameUsesToPrintAfterEachPassList(qnameRegexList *TList[string]) {
+func (this *CompilerOptions) setQnameUsesToPrintAfterEachPassList(qnameRegexList *JTList[string]) {
 	this.qnameUsesToPrintAfterEachPassList = qnameRegexList
 }
 
-func (this *CompilerOptions) getFilesToPrintAfterEachPassRegexList() *TList[string] {
+func (this *CompilerOptions) getFilesToPrintAfterEachPassRegexList() *JTList[string] {
 	return this.filesToPrintAfterEachPassRegexList
 }
 
-func (this *CompilerOptions) getChunksToPrintAfterEachPassRegexList() *TList[string] {
+func (this *CompilerOptions) getChunksToPrintAfterEachPassRegexList() *JTList[string] {
 	return this.chunksToPrintAfterEachPassRegexList
 }
 
-func (this *CompilerOptions) getQnameUsesToPrintAfterEachPassList() *TList[string] {
+func (this *CompilerOptions) getQnameUsesToPrintAfterEachPassList() *JTList[string] {
 	return this.qnameUsesToPrintAfterEachPassList
 }
 
@@ -670,7 +670,7 @@ func (this *CompilerOptions) setTracerOutput(out Optional[string]) {
 	this.tracerOutput = out
 }
 
-func (this *CompilerOptions) getExtraReportGenerators() *TList[SortingErrorManager_ErrorReportGenerator] {
+func (this *CompilerOptions) getExtraReportGenerators() *JTList[SortingErrorManager_ErrorReportGenerator] {
 	return this.extraReportGenerators
 }
 
@@ -790,8 +790,8 @@ func (this *CompilerOptions) setRemoveUnusedClassProperties(removeUnusedClassPro
 	this.removeUnusedClassProperties = removeUnusedClassProperties
 }
 
-func (this *CompilerOptions) getDefineReplacements() *TMap[string, Node] {
-	var map_ *TMapBuilder[string, Node] = newTMapBuilder_(tc_string, tc_Node)
+func (this *CompilerOptions) getDefineReplacements() *JTMap[string, Node] {
+	var map_ *TMapBuilder[string, Node] = newTMapBuilder_(jtc_string, jtc_Node)
 	it_1 := this.defineReplacements.eachEntry()
 	for it_1.next() {
 		var entry *TEntry[string, any] = it_1.entry()
@@ -869,15 +869,15 @@ func (this *CompilerOptions) disables(group *DiagnosticGroup) bool {
 	return (this.warningsGuard.mustRunChecks(group) == Tri_FALSE)
 }
 
-func (this *CompilerOptions) setUnknownDefinesToIgnore(unknownDefinesToIgnore *TList[string]) {
+func (this *CompilerOptions) setUnknownDefinesToIgnore(unknownDefinesToIgnore *JTList[string]) {
 	this.unknownDefinesToIgnore = unknownDefinesToIgnore
 }
 
-func (this *CompilerOptions) addUnknownDefinesToIgnore(unknownDefinesToIgnore *TList[string]) {
-	this.unknownDefinesToIgnore = tlistImm_(tc_string, ImmutableList_builder().addAll(Iterable(this.unknownDefinesToIgnore.asList())).addAll(Iterable(unknownDefinesToIgnore.asList())).build())
+func (this *CompilerOptions) addUnknownDefinesToIgnore(unknownDefinesToIgnore *JTList[string]) {
+	this.unknownDefinesToIgnore = jtlistImm_(jtc_string, ImmutableList_builder().addAll(Iterable(this.unknownDefinesToIgnore.asList())).addAll(Iterable(unknownDefinesToIgnore.asList())).build())
 }
 
-func (this *CompilerOptions) getUnknownDefinesToIgnore() *TList[string] {
+func (this *CompilerOptions) getUnknownDefinesToIgnore() *JTList[string] {
 	return this.unknownDefinesToIgnore
 }
 
@@ -910,8 +910,8 @@ func (this *CompilerOptions) shouldReplaceIdGenerators() bool {
 	return this.replaceIdGenerators
 }
 
-func (this *CompilerOptions) setIdGenerators(idGenerators *TSet[string]) {
-	var builder *TMapBuilder[string, RenamingMap] = newTMapBuilder_(tc_string, tc_RenamingMap)
+func (this *CompilerOptions) setIdGenerators(idGenerators *JTSet[string]) {
+	var builder *TMapBuilder[string, RenamingMap] = newTMapBuilder_(jtc_string, jtc_RenamingMap)
 	it_1 := idGenerators.each()
 	for it_1.next() {
 		var name string = it_1.v
@@ -920,11 +920,11 @@ func (this *CompilerOptions) setIdGenerators(idGenerators *TSet[string]) {
 	this.idGenerators = builder.buildOrThrow()
 }
 
-func (this *CompilerOptions) setIdGeneratorsRenamingMaps(idGenerators *TMap[string, RenamingMap]) {
-	this.idGenerators = immutableMapCopyOfT_(tc_string, tc_RenamingMap, idGenerators)
+func (this *CompilerOptions) setIdGeneratorsRenamingMaps(idGenerators *JTMap[string, RenamingMap]) {
+	this.idGenerators = immutableMapCopyOfT_(jtc_string, jtc_RenamingMap, idGenerators)
 }
 
-func (this *CompilerOptions) getIdGenerators() *TMap[string, RenamingMap] {
+func (this *CompilerOptions) getIdGenerators() *JTMap[string, RenamingMap] {
 	return this.idGenerators
 }
 
@@ -1021,9 +1021,9 @@ func (this *CompilerOptions) shouldRemoveUnusedLocalVariables() bool {
 	return this.removeUnusedLocalVars
 }
 
-func (this *CompilerOptions) setReplaceStringsConfiguration(placeholderToken string, functionDescriptors *TList[string]) {
+func (this *CompilerOptions) setReplaceStringsConfiguration(placeholderToken string, functionDescriptors *JTList[string]) {
 	this.replaceStringsPlaceholderToken = placeholderToken
-	this.replaceStringsFunctionDescriptions = immutableListCopyOfT_(tc_string, functionDescriptors)
+	this.replaceStringsFunctionDescriptions = immutableListCopyOfT_(jtc_string, functionDescriptors)
 }
 
 func (this *CompilerOptions) setRemoveAbstractMethods(remove bool) {
@@ -1164,10 +1164,10 @@ func (this *CompilerOptions) getSummaryDetailLevel() int32 {
 }
 
 func (this *CompilerOptions) setExtraAnnotationNames(extraAnnotationNames IterableOf[string]) {
-	this.extraAnnotationNames = immutableSetCopyOf_(tc_string, extraAnnotationNames)
+	this.extraAnnotationNames = jimmutableSetCopyOf_(jtc_string, extraAnnotationNames)
 }
 
-func (this *CompilerOptions) getExtraAnnotationNames() *TSet[string] {
+func (this *CompilerOptions) getExtraAnnotationNames() *JTSet[string] {
 	return this.extraAnnotationNames
 }
 
@@ -1306,11 +1306,11 @@ func (this *CompilerOptions) setAssumeStrictThis(enable bool) {
 	this.assumeStrictThisField = enable
 }
 
-func (this *CompilerOptions) setPropertiesThatMustDisambiguate(names *TSet[string]) {
-	this.propertiesThatMustDisambiguate = immutableSetCopyOfT_(tc_string, names)
+func (this *CompilerOptions) setPropertiesThatMustDisambiguate(names *JTSet[string]) {
+	this.propertiesThatMustDisambiguate = immutableSetCopyOfT_(jtc_string, names)
 }
 
-func (this *CompilerOptions) getPropertiesThatMustDisambiguate() *TSet[string] {
+func (this *CompilerOptions) getPropertiesThatMustDisambiguate() *JTSet[string] {
 	return this.propertiesThatMustDisambiguate
 }
 
@@ -1874,27 +1874,27 @@ func (this *CompilerOptions) shouldGatherCssNames() bool {
 	return this.gatherCssNames
 }
 
-func (this *CompilerOptions) setStripTypes(stripTypes *TSet[string]) {
-	this.stripTypes = immutableSetCopyOfT_(tc_string, stripTypes)
+func (this *CompilerOptions) setStripTypes(stripTypes *JTSet[string]) {
+	this.stripTypes = immutableSetCopyOfT_(jtc_string, stripTypes)
 }
 
-func (this *CompilerOptions) getStripTypes() *TSet[string] {
+func (this *CompilerOptions) getStripTypes() *JTSet[string] {
 	return this.stripTypes
 }
 
-func (this *CompilerOptions) setStripNameSuffixes(stripNameSuffixes *TSet[string]) {
-	this.stripNameSuffixes = immutableSetCopyOfT_(tc_string, stripNameSuffixes)
+func (this *CompilerOptions) setStripNameSuffixes(stripNameSuffixes *JTSet[string]) {
+	this.stripNameSuffixes = immutableSetCopyOfT_(jtc_string, stripNameSuffixes)
 }
 
-func (this *CompilerOptions) getStripNameSuffixes() *TSet[string] {
+func (this *CompilerOptions) getStripNameSuffixes() *JTSet[string] {
 	return this.stripNameSuffixes
 }
 
-func (this *CompilerOptions) setStripNamePrefixes(stripNamePrefixes *TSet[string]) {
-	this.stripNamePrefixes = immutableSetCopyOfT_(tc_string, stripNamePrefixes)
+func (this *CompilerOptions) setStripNamePrefixes(stripNamePrefixes *JTSet[string]) {
+	this.stripNamePrefixes = immutableSetCopyOfT_(jtc_string, stripNamePrefixes)
 }
 
-func (this *CompilerOptions) getStripNamePrefixes() *TSet[string] {
+func (this *CompilerOptions) getStripNamePrefixes() *JTSet[string] {
 	return this.stripNamePrefixes
 }
 
@@ -1905,16 +1905,16 @@ func (this *CompilerOptions) addCustomPass(time *CustomPassExecutionTime, custom
 	this.customPasses.put(obj_(time), any(customPass))
 }
 
-func (this *CompilerOptions) getCustomPassesAt(executionTime *CustomPassExecutionTime) *TList[CompilerPass] {
-	return func() *TList[CompilerPass] {
+func (this *CompilerOptions) getCustomPassesAt(executionTime *CustomPassExecutionTime) *JTList[CompilerPass] {
+	return func() *JTList[CompilerPass] {
 		if this.customPasses == nil {
-			return tlistEmptyImm_(tc_CompilerPass)
+			return jtlistEmptyImm_(jtc_CompilerPass)
 		}
-		return immutableListCopyOf_(tc_CompilerPass, Collection(this.customPasses.get(obj_(executionTime))))
+		return jimmutableListCopyOf_(jtc_CompilerPass, Collection(this.customPasses.get(obj_(executionTime))))
 	}()
 }
 
-func (this *CompilerOptions) setDefineReplacements(defineReplacements *TMap[string, any]) {
+func (this *CompilerOptions) setDefineReplacements(defineReplacements *JTMap[string, any]) {
 	this.defineReplacements.clear()
 	this.defineReplacements.asMap().putAll(defineReplacements.asMap())
 }
@@ -1951,19 +1951,19 @@ func (this *CompilerOptions) getCssRenamingMap() CssRenamingMap {
 	return this.cssRenamingMap
 }
 
-func (this *CompilerOptions) setCssRenamingSkiplist(skiplist *TSet[string]) {
-	this.cssRenamingSkiplist = immutableSetCopyOfT_(tc_string, skiplist)
+func (this *CompilerOptions) setCssRenamingSkiplist(skiplist *JTSet[string]) {
+	this.cssRenamingSkiplist = immutableSetCopyOfT_(jtc_string, skiplist)
 }
 
-func (this *CompilerOptions) getCssRenamingSkiplist() *TSet[string] {
+func (this *CompilerOptions) getCssRenamingSkiplist() *JTSet[string] {
 	return this.cssRenamingSkiplist
 }
 
-func (this *CompilerOptions) setReplaceStringsFunctionDescriptions(replaceStringsFunctionDescriptions *TList[string]) {
-	this.replaceStringsFunctionDescriptions = immutableListCopyOfT_(tc_string, replaceStringsFunctionDescriptions)
+func (this *CompilerOptions) setReplaceStringsFunctionDescriptions(replaceStringsFunctionDescriptions *JTList[string]) {
+	this.replaceStringsFunctionDescriptions = immutableListCopyOfT_(jtc_string, replaceStringsFunctionDescriptions)
 }
 
-func (this *CompilerOptions) getReplaceStringsFunctionDescriptions() *TList[string] {
+func (this *CompilerOptions) getReplaceStringsFunctionDescriptions() *JTList[string] {
 	return this.replaceStringsFunctionDescriptions
 }
 
@@ -2146,11 +2146,11 @@ func (this *CompilerOptions) getSourceMapFormat() *SourceMap_Format {
 	return this.sourceMapFormat
 }
 
-func (this *CompilerOptions) setSourceMapLocationMappings(sourceMapLocationMappings *TList[SourceMap_LocationMapping]) {
-	this.sourceMapLocationMappings = immutableListCopyOfT_(tc_SourceMap_LocationMapping, sourceMapLocationMappings)
+func (this *CompilerOptions) setSourceMapLocationMappings(sourceMapLocationMappings *JTList[SourceMap_LocationMapping]) {
+	this.sourceMapLocationMappings = immutableListCopyOfT_(jtc_SourceMap_LocationMapping, sourceMapLocationMappings)
 }
 
-func (this *CompilerOptions) getSourceMapLocationMappings() *TList[SourceMap_LocationMapping] {
+func (this *CompilerOptions) getSourceMapLocationMappings() *JTList[SourceMap_LocationMapping] {
 	return this.sourceMapLocationMappings
 }
 
@@ -2175,10 +2175,10 @@ func (this *CompilerOptions) setCommonJSModulePathPrefix(commonJSModulePathPrefi
 }
 
 func (this *CompilerOptions) setModuleRoots(moduleRoots ListOf[string]) {
-	this.moduleRoots = immutableListCopyOf_(tc_string, Collection(moduleRoots))
+	this.moduleRoots = jimmutableListCopyOf_(jtc_string, Collection(moduleRoots))
 }
 
-func (this *CompilerOptions) getModuleRoots() *TList[string] {
+func (this *CompilerOptions) getModuleRoots() *JTList[string] {
 	return this.moduleRoots
 }
 
@@ -2227,10 +2227,10 @@ func (this *CompilerOptions) getEs6SubclassTranspilation() *CompilerOptions_Es6S
 }
 
 func (this *CompilerOptions) setForceLibraryInjection(libraries IterableOf[string]) {
-	this.forceLibraryInjection = immutableListCopyOf_(tc_string, libraries)
+	this.forceLibraryInjection = jimmutableListCopyOf_(jtc_string, libraries)
 }
 
-func (this *CompilerOptions) getForceLibraryInjectionList() *TList[string] {
+func (this *CompilerOptions) getForceLibraryInjectionList() *JTList[string] {
 	return this.forceLibraryInjection
 }
 
@@ -2251,11 +2251,11 @@ func (this *CompilerOptions) getRuntimeLibraryMode() *RuntimeJsLibManager_Runtim
 	return this.runtimeLibraryMode
 }
 
-func (this *CompilerOptions) setUnusedImportsToRemove(unusedImportsToRemove *TSet[string]) {
+func (this *CompilerOptions) setUnusedImportsToRemove(unusedImportsToRemove *JTSet[string]) {
 	this.unusedImportsToRemove = unusedImportsToRemove
 }
 
-func (this *CompilerOptions) getUnusedImportsToRemove() *TSet[string] {
+func (this *CompilerOptions) getUnusedImportsToRemove() *JTSet[string] {
 	return this.unusedImportsToRemove
 }
 
@@ -2275,20 +2275,20 @@ func (this *CompilerOptions) getProductionInstrumentationArrayName() string {
 	return this.productionInstrumentationArrayName
 }
 
-func (this *CompilerOptions) getConformanceConfigs() *TList[*ConformanceConfig] {
+func (this *CompilerOptions) getConformanceConfigs() *JTList[*ConformanceConfig] {
 	return this.conformanceConfigs
 }
 
 func (this *CompilerOptions) setConformanceConfig(conformanceConfig *ConformanceConfig) {
-	this.setConformanceConfigs(immutableListOf_[*ConformanceConfig](tc_p_ConformanceConfig, conformanceConfig))
+	this.setConformanceConfigs(jimmutableListOf_[*ConformanceConfig](jtc_p_ConformanceConfig, conformanceConfig))
 }
 
-func (this *CompilerOptions) setConformanceConfigs(configs *TList[*ConformanceConfig]) {
-	this.conformanceConfigs = immutableListCopyOfT_(tc_p_ConformanceConfig, configs)
+func (this *CompilerOptions) setConformanceConfigs(configs *JTList[*ConformanceConfig]) {
+	this.conformanceConfigs = immutableListCopyOfT_(jtc_p_ConformanceConfig, configs)
 }
 
 func (this *CompilerOptions) clearConformanceConfigs() {
-	this.conformanceConfigs = tlistEmptyImm_(tc_p_ConformanceConfig)
+	this.conformanceConfigs = jtlistEmptyImm_(jtc_p_ConformanceConfig)
 }
 
 func (this *CompilerOptions) shouldEmitUseStrict() bool {
@@ -2308,11 +2308,11 @@ func (this *CompilerOptions) setModuleResolutionMode(moduleResolutionMode *Modul
 	this.moduleResolutionMode = moduleResolutionMode
 }
 
-func (this *CompilerOptions) getBrowserResolverPrefixReplacements() *TMap[string, string] {
+func (this *CompilerOptions) getBrowserResolverPrefixReplacements() *JTMap[string, string] {
 	return this.browserResolverPrefixReplacements
 }
 
-func (this *CompilerOptions) setBrowserResolverPrefixReplacements(browserResolverPrefixReplacements *TMap[string, string]) {
+func (this *CompilerOptions) setBrowserResolverPrefixReplacements(browserResolverPrefixReplacements *JTMap[string, string]) {
 	this.browserResolverPrefixReplacements = browserResolverPrefixReplacements
 }
 
@@ -2324,11 +2324,11 @@ func (this *CompilerOptions) getPathEscaper() *ModuleLoader_PathEscaper {
 	return this.pathEscaper
 }
 
-func (this *CompilerOptions) getPackageJsonEntryNames() *TList[string] {
+func (this *CompilerOptions) getPackageJsonEntryNames() *JTList[string] {
 	return this.packageJsonEntryNames
 }
 
-func (this *CompilerOptions) setPackageJsonEntryNames(names *TList[string]) {
+func (this *CompilerOptions) setPackageJsonEntryNames(names *JTList[string]) {
 	this.packageJsonEntryNames = names
 }
 
@@ -2432,20 +2432,20 @@ func (this *CompilerOptions) setStrictModeInput(isStrictModeInput bool) *Compile
 	return this
 }
 
-func (this *CompilerOptions) getPropertyReservedNamingFirstChars() *TSet[any] {
+func (this *CompilerOptions) getPropertyReservedNamingFirstChars() *JTSet[any] {
 	if this.polymerPass {
 		return CompilerOptions_POLYMER_PROPERTY_RESERVED_FIRST_CHARS
 	} else if this.angularPass {
 		return CompilerOptions_ANGULAR_PROPERTY_RESERVED_FIRST_CHARS
 	}
-	return tsetEmptyImm_(tc_Character)
+	return jtsetEmptyImm_(tc_Character)
 }
 
-func (this *CompilerOptions) getPropertyReservedNamingNonFirstChars() *TSet[any] {
+func (this *CompilerOptions) getPropertyReservedNamingNonFirstChars() *JTSet[any] {
 	if this.polymerPass {
 		return CompilerOptions_POLYMER_PROPERTY_RESERVED_NON_FIRST_CHARS
 	}
-	return tsetEmptyImm_(tc_Character)
+	return jtsetEmptyImm_(tc_Character)
 }
 
 func (this *CompilerOptions) shouldOptimize() bool {
@@ -2457,9 +2457,9 @@ var CompilerOptions_LEADING_ES_PATTERN *Pattern
 
 const CompilerOptions_DEFAULT_LINE_LENGTH_THRESHOLD int32 = 500
 
-var CompilerOptions_POLYMER_PROPERTY_RESERVED_FIRST_CHARS *TSet[any]
-var CompilerOptions_POLYMER_PROPERTY_RESERVED_NON_FIRST_CHARS *TSet[any]
-var CompilerOptions_ANGULAR_PROPERTY_RESERVED_FIRST_CHARS *TSet[any]
+var CompilerOptions_POLYMER_PROPERTY_RESERVED_FIRST_CHARS *JTSet[any]
+var CompilerOptions_POLYMER_PROPERTY_RESERVED_NON_FIRST_CHARS *JTSet[any]
+var CompilerOptions_ANGULAR_PROPERTY_RESERVED_FIRST_CHARS *JTSet[any]
 
 const CompilerOptions_UNLIMITED_FUN_SIZE_AFTER_INLINING int32 = -1
 
@@ -2472,9 +2472,9 @@ func CompilerOptions_clinit() {
 	CompilerOptions_clinit_done = true
 	CompilerOptions_ECMASCRIPT_PATTERN = Pattern_compile("ECMASCRIPT")
 	CompilerOptions_LEADING_ES_PATTERN = Pattern_compile("^ES")
-	CompilerOptions_POLYMER_PROPERTY_RESERVED_FIRST_CHARS = immutableSetCopyOf_(tc_Character, Collection(Chars_asList(String_toCharArray("ABCDEFGHIJKLMNOPQRSTUVWXYZ$"))))
-	CompilerOptions_POLYMER_PROPERTY_RESERVED_NON_FIRST_CHARS = immutableSetOf_[any](tc_Character, any(uint16('_')), any(uint16('$')))
-	CompilerOptions_ANGULAR_PROPERTY_RESERVED_FIRST_CHARS = immutableSetOf_[any](tc_Character, any(uint16('$')))
+	CompilerOptions_POLYMER_PROPERTY_RESERVED_FIRST_CHARS = jimmutableSetCopyOf_(tc_Character, Collection(Chars_asList(String_toCharArray("ABCDEFGHIJKLMNOPQRSTUVWXYZ$"))))
+	CompilerOptions_POLYMER_PROPERTY_RESERVED_NON_FIRST_CHARS = jimmutableSetOf_[any](tc_Character, any(uint16('_')), any(uint16('$')))
+	CompilerOptions_ANGULAR_PROPERTY_RESERVED_FIRST_CHARS = jimmutableSetOf_[any](tc_Character, any(uint16('$')))
 
 }
 
@@ -2690,7 +2690,7 @@ var CompilerOptions_BrowserFeaturesetYear_YEAR_2024 *CompilerOptions_BrowserFeat
 var CompilerOptions_BrowserFeaturesetYear_YEAR_2025 *CompilerOptions_BrowserFeaturesetYear
 var CompilerOptions_BrowserFeaturesetYear_YEAR_2026 *CompilerOptions_BrowserFeaturesetYear
 var CompilerOptions_BrowserFeaturesetYear_values_ []*CompilerOptions_BrowserFeaturesetYear
-var CompilerOptions_BrowserFeaturesetYear_YEAR_MAP *TMap[any, *CompilerOptions_BrowserFeaturesetYear]
+var CompilerOptions_BrowserFeaturesetYear_YEAR_MAP *JTMap[any, *CompilerOptions_BrowserFeaturesetYear]
 
 var CompilerOptions_BrowserFeaturesetYear_clinit_done bool
 
@@ -3350,8 +3350,8 @@ func (this *CompilerOptions_LanguageMode) isDefaultStrict() bool {
 	}()
 }
 
-func CompilerOptions_LanguageMode_validCommandLineNames() *TList[string] {
-	var names *TList[string] = newTList_(tc_string)
+func CompilerOptions_LanguageMode_validCommandLineNames() *JTList[string] {
+	var names *JTList[string] = jnewTList_(jtc_string)
 	it_1 := foreach_(obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.CompilerOptions.LanguageMode"))))
 	for it_1.next() {
 		var mode *CompilerOptions_LanguageMode = cast_[*CompilerOptions_LanguageMode](it_1.v)

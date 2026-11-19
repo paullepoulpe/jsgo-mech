@@ -4,7 +4,7 @@ package closure
 
 type EqualityChecker struct {
 	eqMethod       *EqualityChecker_EqMethod
-	eqCache        *TMap[*EqualityChecker_CacheKey, *JSType_MatchStatus]
+	eqCache        *JTMap[*EqualityChecker_CacheKey, *JSType_MatchStatus]
 	recursionDepth int32
 	hasRun         bool
 }
@@ -50,7 +50,7 @@ func (this *EqualityChecker) checkParameters(left *ArrowType, right *ArrowType) 
 func (this *EqualityChecker) areEqualCaching(left *JSType, right *JSType) bool {
 	if this.recursionDepth > EqualityChecker_POTENTIALLY_CYCLIC_RECURSION_DEPTH {
 		if this.eqCache == nil {
-			this.eqCache = newTMap_(tce_p_EqualityChecker_CacheKey, tc_p_JSType_MatchStatus)
+			this.eqCache = jnewTMap_(tce_p_EqualityChecker_CacheKey, jtc_p_JSType_MatchStatus)
 		}
 	}
 	if this.eqCache == nil {
@@ -103,12 +103,12 @@ func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool 
 	if left.isUnionType() && right.isUnionType() {
 		return this.areUnionEqual(left.toMaybeUnionType(), right.toMaybeUnionType())
 	} else if left.isUnionType() {
-		var leftAlts *TList[*JSType] = left.toMaybeUnionType().getAlternates()
+		var leftAlts *JTList[*JSType] = left.toMaybeUnionType().getAlternates()
 		if leftAlts.size() == 1 {
 			return this.areEqualInternal(leftAlts.get(0), right)
 		}
 	} else if right.isUnionType() {
-		var rightAlts *TList[*JSType] = right.toMaybeUnionType().getAlternates()
+		var rightAlts *JTList[*JSType] = right.toMaybeUnionType().getAlternates()
 		if rightAlts.size() == 1 {
 			return this.areEqualInternal(left, rightAlts.get(0))
 		}
@@ -185,8 +185,8 @@ func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool 
 }
 
 func (this *EqualityChecker) areUnionEqual(left *UnionType, right *UnionType) bool {
-	var leftAlternates *TList[*JSType] = left.getAlternates()
-	var rightAlternates *TList[*JSType] = right.getAlternates()
+	var leftAlternates *JTList[*JSType] = left.getAlternates()
+	var rightAlternates *JTList[*JSType] = right.getAlternates()
 	if (this.eqMethod == EqualityChecker_EqMethod_IDENTITY) && (leftAlternates.size() != rightAlternates.size()) {
 		return false
 	}
@@ -292,10 +292,10 @@ func (this *EqualityChecker) areRecordEqual(left *RecordType, right *RecordType)
 }
 
 func (this *EqualityChecker) areTypeMapEqual(left *TemplateTypeMap, right *TemplateTypeMap) bool {
-	var leftKeys *TList[*TemplateType] = left.getTemplateKeys()
-	var leftValues *TList[*JSType] = left.getTemplateValues()
-	var rightKeys *TList[*TemplateType] = right.getTemplateKeys()
-	var rightValues *TList[*JSType] = right.getTemplateValues()
+	var leftKeys *JTList[*TemplateType] = left.getTemplateKeys()
+	var leftValues *JTList[*JSType] = left.getTemplateValues()
+	var rightKeys *JTList[*TemplateType] = right.getTemplateKeys()
+	var rightValues *JTList[*JSType] = right.getTemplateValues()
 outer_:
 	for i := int32(0); i < leftKeys.size(); i++ {
 		var leftKey *TemplateType = leftKeys.get(i)

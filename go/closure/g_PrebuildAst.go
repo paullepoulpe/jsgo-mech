@@ -27,7 +27,7 @@ func (this *PrebuildAst) prebuild(allInputs IterableOf[*CompilerInput]) {
 	}}
 	var poolExecutor *ThreadPoolExecutor = new_ThreadPoolExecutor_int_int_long_TimeUnit_BlockingQueue_ThreadFactory(this.numParallelThreads, this.numParallelThreads, int64(int32(2147483647)), TimeUnit_SECONDS, BlockingQueue(new_LinkedBlockingQueue()), threadFactory)
 	var executorService ListeningExecutorService = MoreExecutors_listeningDecorator(icast_ExecutorService(poolExecutor.self()))
-	var futureList *TList[ListenableFuture] = newTListN_(tc_ListenableFuture, Iterables_size(allInputs))
+	var futureList *JTList[ListenableFuture] = jnewTListN_(tc_ListenableFuture, Iterables_size(allInputs))
 	it_1 := foreach_(any(allInputs))
 	for it_1.next() {
 		var input *CompilerInput = cast_[*CompilerInput](it_1.v)

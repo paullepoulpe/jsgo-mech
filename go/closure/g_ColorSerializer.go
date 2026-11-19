@@ -6,13 +6,13 @@ type ColorSerializer struct {
 	serializationMode       *SerializationOptions
 	getStringPoolIndexFn    FunctionOf[string, BoxedOf[int32]]
 	propertyFilter          PredicateOf[string]
-	colorIdToTypePointer    *TMap[*ColorId, any]
-	colorsInSerializedOrder *TList[*Color]
+	colorIdToTypePointer    *JTMap[*ColorId, any]
+	colorsInSerializedOrder *JTList[*Color]
 }
 
 func (this *ColorSerializer) finit_ColorSerializer() {
-	this.colorIdToTypePointer = newTMap_(tce_p_ColorId, tc_Integer)
-	this.colorsInSerializedOrder = newTList_(tc_p_Color)
+	this.colorIdToTypePointer = jnewTMap_(tce_p_ColorId, tc_Integer)
+	this.colorsInSerializedOrder = jnewTList_(jtc_p_Color)
 }
 
 func (this *ColorSerializer) init_ColorSerializer(serializationMode *SerializationOptions, stringPoolIndexFn FunctionOf[string, BoxedOf[int32]], propertyFilter PredicateOf[string]) {
@@ -33,7 +33,7 @@ func new_ColorSerializer(serializationMode *SerializationOptions, stringPoolInde
 	return this
 }
 
-func (this *ColorSerializer) addColors(colors CollectionOf[*Color]) *TList[any] {
+func (this *ColorSerializer) addColors(colors CollectionOf[*Color]) *JTList[any] {
 	var builder *TListBuilder[any] = newTListBuilder_(tc_Integer)
 	it_1 := foreach_(any(colors))
 	for it_1.next() {
@@ -67,7 +67,7 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn Func
 	if this.serializationMode.includeDebugInfo() {
 		Preconditions_checkNotNull_T(getMismatchSourceRefsFn)
 		var debugInfoBuilder *TypePool_DebugInfo_Builder = typePoolBuilder.getDebugInfoBuilder()
-		var srcRefToTypePointerList *TMap[string, *ArrayList] = newTMap_(tc_string, tc_p_ArrayList)
+		var srcRefToTypePointerList *JTMap[string, *ArrayList] = jnewTMap_(jtc_string, tc_p_ArrayList)
 		it_4 := this.colorsInSerializedOrder.each()
 		for it_4.next() {
 			var color *Color = it_4.v
@@ -101,7 +101,7 @@ func (this *ColorSerializer) generateTypeProto(color *Color) *TypeProto {
 	return cast_[*TypeProto](typeProtoBuilder.build())
 }
 
-func (this *ColorSerializer) getOwnPropertyStringPoolOffsets(color *Color) *TList[any] {
+func (this *ColorSerializer) getOwnPropertyStringPoolOffsets(color *Color) *JTList[any] {
 	var builder *TListBuilder[any] = newTListBuilder_(tc_Integer)
 	it_1 := color.getOwnProperties().each()
 	for it_1.next() {

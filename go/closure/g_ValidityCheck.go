@@ -53,7 +53,7 @@ func (this *ValidityCheck) checkNormalization(externs Node, root Node) {
 }
 
 func (this *ValidityCheck) checkExternProperties(externs Node) {
-	var externProperties *TSet[string] = this.compiler_.getExternProperties()
+	var externProperties *JTSet[string] = this.compiler_.getExternProperties()
 	if externProperties == nil {
 		return
 	}
@@ -81,7 +81,7 @@ type ValidityCheck_VerifyConstants struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_             *AbstractCompiler
 	checkUserDeclarations bool
-	constantMap           *TMap[string, any]
+	constantMap           *JTMap[string, any]
 }
 
 func (this *ValidityCheck_VerifyConstants) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -92,7 +92,7 @@ func (this *ValidityCheck_VerifyConstants) up_NodeTraversal_AbstractPostOrderCal
 }
 
 func (this *ValidityCheck_VerifyConstants) finit_ValidityCheck_VerifyConstants() {
-	this.constantMap = newTMap_(tc_string, tc_Boolean)
+	this.constantMap = jnewTMap_(jtc_string, tc_Boolean)
 }
 
 func (this *ValidityCheck_VerifyConstants) init_ValidityCheck_VerifyConstants(compiler *AbstractCompiler, checkUserDeclarations bool) {

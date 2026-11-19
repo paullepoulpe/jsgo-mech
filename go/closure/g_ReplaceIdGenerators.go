@@ -5,23 +5,23 @@ package closure
 type ReplaceIdGenerators struct {
 	compiler_                     *AbstractCompiler
 	templateLiteralsAreTranspiled bool
-	nameGenerators                *TMap[string, ReplaceIdGenerators_NameSupplier]
-	consistNameMap                *TMap[string, Map]
-	idGeneratorMaps               *TMap[string, Map]
-	previousMap                   *TMap[string, *SimpleBiMap]
+	nameGenerators                *JTMap[string, ReplaceIdGenerators_NameSupplier]
+	consistNameMap                *JTMap[string, Map]
+	idGeneratorMaps               *JTMap[string, Map]
+	previousMap                   *JTMap[string, *SimpleBiMap]
 	generatePseudoNames           bool
 	xidHashFunction               Xid_HashFunction
 }
 
-func (this *ReplaceIdGenerators) init_ReplaceIdGenerators(compiler *AbstractCompiler, templateLiteralsAreTranspiled bool, idGens *TMap[string, RenamingMap], generatePseudoNames bool, previousMapSerialized string, xidHashFunction Xid_HashFunction) {
+func (this *ReplaceIdGenerators) init_ReplaceIdGenerators(compiler *AbstractCompiler, templateLiteralsAreTranspiled bool, idGens *JTMap[string, RenamingMap], generatePseudoNames bool, previousMapSerialized string, xidHashFunction Xid_HashFunction) {
 	this.compiler_ = compiler
 	this.templateLiteralsAreTranspiled = templateLiteralsAreTranspiled
 	this.generatePseudoNames = generatePseudoNames
 	this.xidHashFunction = xidHashFunction
-	this.nameGenerators = newTMap_(tc_string, tc_ReplaceIdGenerators_NameSupplier)
-	this.idGeneratorMaps = newTMap_(tc_string, tc_Map)
-	this.consistNameMap = newTMap_(tc_string, tc_Map)
-	var previousMap *TMap[string, *SimpleBiMap] = IdMappingUtil_parseSerializedIdMappings(previousMapSerialized)
+	this.nameGenerators = jnewTMap_(jtc_string, tc_ReplaceIdGenerators_NameSupplier)
+	this.idGeneratorMaps = jnewTMap_(jtc_string, tc_Map)
+	this.consistNameMap = jnewTMap_(jtc_string, tc_Map)
+	var previousMap *JTMap[string, *SimpleBiMap] = IdMappingUtil_parseSerializedIdMappings(previousMapSerialized)
 	this.previousMap = previousMap
 	if idGens != nil {
 		it_1 := idGens.eachEntry()
@@ -57,7 +57,7 @@ func (this *ReplaceIdGenerators) init_ReplaceIdGenerators(compiler *AbstractComp
 	}
 }
 
-func new_ReplaceIdGenerators(compiler *AbstractCompiler, templateLiteralsAreTranspiled bool, idGens *TMap[string, RenamingMap], generatePseudoNames bool, previousMapSerialized string, xidHashFunction Xid_HashFunction) *ReplaceIdGenerators {
+func new_ReplaceIdGenerators(compiler *AbstractCompiler, templateLiteralsAreTranspiled bool, idGens *JTMap[string, RenamingMap], generatePseudoNames bool, previousMapSerialized string, xidHashFunction Xid_HashFunction) *ReplaceIdGenerators {
 	this := &ReplaceIdGenerators{}
 	this.init_ReplaceIdGenerators(compiler, templateLiteralsAreTranspiled, idGens, generatePseudoNames, previousMapSerialized, xidHashFunction)
 	return this
@@ -206,7 +206,7 @@ type ReplaceIdGenerators_ObfuscatedNameSupplier struct {
 
 func (this *ReplaceIdGenerators_ObfuscatedNameSupplier) init_ReplaceIdGenerators_ObfuscatedNameSupplier(renameStrategy *ReplaceIdGenerators_RenameStrategy, previousMappings *SimpleBiMap) {
 	this.previousMappings = previousMappings.inverse()
-	this.generator = NameGenerator(new_DefaultNameGenerator_Set_String_Set(previousMappings.keySet(), "", tsetEmptyImm_(tc_Character)))
+	this.generator = NameGenerator(new_DefaultNameGenerator_Set_String_Set(previousMappings.keySet(), "", jtsetEmptyImm_(tc_Character)))
 	this.renameStrategy = renameStrategy
 }
 

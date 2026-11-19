@@ -7,13 +7,13 @@ type StringPool struct {
 	pool      *RhinoStringPool_LazyInternedStringList
 }
 
-func (this *StringPool) init_StringPool(maxLength int32, pool *TList[string]) {
+func (this *StringPool) init_StringPool(maxLength int32, pool *JTList[string]) {
 	this.maxLength = maxLength
 	this.pool = new_RhinoStringPool_LazyInternedStringList(pool)
 	Preconditions_checkState(String_isEmpty(pool.get(0)))
 }
 
-func new_StringPool(maxLength int32, pool *TList[string]) *StringPool {
+func new_StringPool(maxLength int32, pool *JTList[string]) *StringPool {
 	this := &StringPool{}
 	this.init_StringPool(maxLength, pool)
 	return this
@@ -21,7 +21,7 @@ func new_StringPool(maxLength int32, pool *TList[string]) *StringPool {
 
 func StringPool_fromProto(proto *StringPoolProto) *StringPool {
 	var decoder *Wtf8_Decoder = Wtf8_decoder(proto.getMaxLength())
-	var pool *TList[string] = newTList_(tc_string)
+	var pool *JTList[string] = jnewTList_(jtc_string)
 	pool.add("")
 	var stringsList ListOf[*ByteString] = proto.getStringsList()
 	for i := int32(0); i < stringsList.size(); i++ {
@@ -45,7 +45,7 @@ func (this *StringPool) getInternedStrings() *RhinoStringPool_LazyInternedString
 
 func (this *StringPool) toProto() *StringPoolProto {
 	var builder *StringPoolProto_Builder = StringPoolProto_newBuilder().setMaxLength(this.maxLength)
-	var strings *TList[string] = this.pool.asList()
+	var strings *JTList[string] = this.pool.asList()
 	for i := int32(1); i < strings.size(); i++ {
 		builder.addStrings(Wtf8_encodeToWtf8(strings.get(i)))
 	}
@@ -71,12 +71,12 @@ func StringPool_clinit() {
 
 type StringPool_Builder struct {
 	maxLength int32
-	pool      *TMap[string, any]
+	pool      *JTMap[string, any]
 }
 
 func (this *StringPool_Builder) finit_StringPool_Builder() {
 	this.maxLength = 0
-	this.pool = newTMap_(tc_string, tc_Integer)
+	this.pool = jnewTMap_(jtc_string, tc_Integer)
 }
 
 func (this *StringPool_Builder) init_StringPool_Builder() {
@@ -105,5 +105,5 @@ func (this *StringPool_Builder) putAnd(string_ string) *StringPool_Builder {
 }
 
 func (this *StringPool_Builder) build() *StringPool {
-	return new_StringPool(this.maxLength, tlistFrom_(tc_string, Collection(this.pool.asMap().keySet())))
+	return new_StringPool(this.maxLength, jtlistFrom_(jtc_string, Collection(this.pool.asMap().keySet())))
 }

@@ -420,5 +420,5 @@ func (this *ParseTree) isRestParameter() bool {
 }
 
 func (this *ParseTree) toString() string {
-	return (tostr_(this.type__) + "@" + tostr_(this.location_))
+	return (jtostr_(this.type__) + "@" + jtostr_(this.location_))
 }

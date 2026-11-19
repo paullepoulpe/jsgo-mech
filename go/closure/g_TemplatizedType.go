@@ -30,9 +30,9 @@ func (this *TemplatizedType) up_JSType() *JSType {
 	return &this.JSType
 }
 
-func (this *TemplatizedType) init_TemplatizedType(registry *JSTypeRegistry, objectType *ObjectType, templateTypes *TList[*JSType]) {
+func (this *TemplatizedType) init_TemplatizedType(registry *JSTypeRegistry, objectType *ObjectType, templateTypes *JTList[*JSType]) {
 	this.ProxyObjectType.init_ProxyObjectType_JSTypeRegistry_JSType_TemplateTypeMap(registry, objectType.up_JSType(), objectType.getTemplateTypeMap().copyFilledWithValues(templateTypes))
-	var builder *TListBuilder[*JSType] = newTListBuilder_(tc_p_JSType)
+	var builder *TListBuilder[*JSType] = newTListBuilder_(jtc_p_JSType)
 	var maybeIsSpecializedOnlyWithUnknown bool = true
 	it_1 := objectType.getTypeParameters().each()
 	for it_1.next() {
@@ -49,7 +49,7 @@ func (this *TemplatizedType) init_TemplatizedType(registry *JSTypeRegistry, obje
 	registry.getResolver().resolveIfClosed(this.up_JSType(), TemplatizedType_TYPE_CLASS_FIELD)
 }
 
-func new_TemplatizedType(registry *JSTypeRegistry, objectType *ObjectType, templateTypes *TList[*JSType]) *TemplatizedType {
+func new_TemplatizedType(registry *JSTypeRegistry, objectType *ObjectType, templateTypes *JTList[*JSType]) *TemplatizedType {
 	this := &TemplatizedType{}
 	this.self_ = this
 	this.init_TemplatizedType(registry, objectType, templateTypes)
@@ -61,7 +61,7 @@ func (this *TemplatizedType) getTypeClass_impl() *JSTypeClass {
 }
 
 func (this *TemplatizedType) getCtorImplementedInterfaces_impl() IterableOf[*ObjectType] {
-	var resolvedImplementedInterfaces *TSet[*ObjectType] = newTSet_(tce_p_ObjectType)
+	var resolvedImplementedInterfaces *JTSet[*ObjectType] = jnewTSet_(tce_p_ObjectType)
 	it_1 := foreach_(any(this.getReferencedObjTypeInternal().getCtorImplementedInterfaces()))
 	for it_1.next() {
 		var obj *ObjectType = to_ObjectType(it_1.v)
@@ -71,7 +71,7 @@ func (this *TemplatizedType) getCtorImplementedInterfaces_impl() IterableOf[*Obj
 }
 
 func (this *TemplatizedType) getCtorExtendedInterfaces_impl() IterableOf[*ObjectType] {
-	var resolvedExtendedInterfaces *TSet[*ObjectType] = newTSet_(tce_p_ObjectType)
+	var resolvedExtendedInterfaces *JTSet[*ObjectType] = jnewTSet_(tce_p_ObjectType)
 	it_1 := foreach_(any(this.getReferencedObjTypeInternal().getCtorExtendedInterfaces()))
 	for it_1.next() {
 		var obj *ObjectType = to_ObjectType(it_1.v)
@@ -107,8 +107,8 @@ func (this *TemplatizedType) toMaybeTemplatizedType_impl() *TemplatizedType {
 	return this
 }
 
-func (this *TemplatizedType) getTemplateTypes_impl() *TList[*JSType] {
-	return tlistImm_(tc_p_JSType, this.templateTypes)
+func (this *TemplatizedType) getTemplateTypes_impl() *JTList[*JSType] {
+	return jtlistImm_(jtc_p_JSType, this.templateTypes)
 }
 
 func (this *TemplatizedType) getPropertyTypeKey_impl(propertyName Property_Key) *JSType {
@@ -162,7 +162,7 @@ func (this *TemplatizedType) resolveInternal_impl(reporter ErrorReporter_rhino) 
 	var baseTypeBefore *JSType = this.getReferencedType().up_JSType()
 	this.ProxyObjectType.resolveInternal_impl(reporter)
 	var rebuild bool = (baseTypeBefore != this.getReferencedType().up_JSType())
-	var builder *TListBuilder[*JSType] = newTListBuilder_(tc_p_JSType)
+	var builder *TListBuilder[*JSType] = newTListBuilder_(jtc_p_JSType)
 	it_1 := foreach_(obj_(this.templateTypes))
 	for it_1.next() {
 		var type_ *JSType = to_JSType(it_1.v)

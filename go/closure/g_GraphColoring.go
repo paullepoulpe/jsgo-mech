@@ -46,7 +46,7 @@ func (this *GraphColoring[N, E]) getPartitionSuperNode(node N) N {
 	Preconditions_checkNotNull_Object_Object(any(this.colorToNodeMap), "No coloring founded. color() should be called first.")
 	var color *GraphColoring_Color = cast_[*GraphColoring_Color](Annotatable_getAnnotation(Annotatable(this.graph.getNode_Object(node))))
 	var headNode N = this.colorToNodeMap[color.value_]
-	if isnull_(headNode) {
+	if jisnull_(headNode) {
 		this.colorToNodeMap[color.value_] = node
 		return node
 	} else {
@@ -158,7 +158,7 @@ func new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator[N comparabl
 }
 
 func (this *GraphColoring_GreedyGraphColoring[N, E]) color_impl() int32 {
-	var worklist *TList[GraphNode[N]] = tlistFrom_(tc_GraphNode_N_[N, E](), this.graph.getNodes())
+	var worklist *JTList[GraphNode[N]] = jtlistFrom_(tc_GraphNode_N_[N, E](), this.graph.getNodes())
 	Collections_sort_List_Comparator(worklist.asList(), Comparator_comparing_Function_Comparator(&Function_tfn[GraphNode[N], any]{func(p0 GraphNode[N]) any { return boxT_(p0.getValue()) }}, &Comparator_tfn[N, N]{func(leftProperty N, rightProperty N) int32 {
 		var result int32 = (this.graph.getWeight(rightProperty) - this.graph.getWeight(leftProperty))
 		return func() int32 {
@@ -186,7 +186,7 @@ func (this *GraphColoring_GreedyGraphColoring[N, E]) color_impl() int32 {
 		}
 		count++
 	}
-	var map_ []N = arrmap_(make([]any, count), func(v_ any) N { return unboxT_[N](v_) })
+	var map_ []N = arrmap_(make([]any, count), func(v_ any) N { return junboxT_[N](v_) })
 	this.colorToNodeMap = map_
 	return count
 }

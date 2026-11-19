@@ -175,7 +175,7 @@ func (this *Reference) getSymbol() StaticSlot {
 	return icast_StaticSlot(obj_(this.getSymbol_rVar()))
 }
 
-var Reference_DECLARATION_PARENTS *TSet[*Token_rhino]
+var Reference_DECLARATION_PARENTS *JTSet[*Token_rhino]
 
 var Reference_clinit_done bool
 

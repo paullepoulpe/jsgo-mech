@@ -26,8 +26,8 @@ func Glob_matches(glob string, path string) bool {
 	return false
 }
 
-func Glob_expandBraces(glob string) *TList[string] {
-	var result *TList[string] = newTList_(tc_string)
+func Glob_expandBraces(glob string) *JTList[string] {
+	var result *JTList[string] = jnewTList_(jtc_string)
 	var open int32 = -1
 	for i := int32(0); (i < String_length(glob)) && (open < 0); i++ {
 		var c uint16 = String_charAt(glob, i)
@@ -48,7 +48,7 @@ func Glob_expandBraces(glob string) *TList[string] {
 		return result
 	}
 	var head string = String_substring(glob, 0, open)
-	var tails *TList[string] = Glob_expandBraces(String_substring_int(glob, (close_ + 1)))
+	var tails *JTList[string] = Glob_expandBraces(String_substring_int(glob, (close_ + 1)))
 	var start int32 = (open + 1)
 	for start <= close_ {
 		var comma int32 = Glob_findUnescaped(glob, ',', start)

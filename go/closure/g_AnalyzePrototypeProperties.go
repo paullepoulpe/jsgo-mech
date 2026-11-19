@@ -13,8 +13,8 @@ type AnalyzePrototypeProperties struct {
 	globalNode             *AnalyzePrototypeProperties_NameInfo
 	externNode             *AnalyzePrototypeProperties_NameInfo
 	anonymousNode          *AnalyzePrototypeProperties_NameInfo
-	propertyNameInfo       *TMap[string, *AnalyzePrototypeProperties_NameInfo]
-	varNameInfo            *TMap[string, *AnalyzePrototypeProperties_NameInfo]
+	propertyNameInfo       *JTMap[string, *AnalyzePrototypeProperties_NameInfo]
+	varNameInfo            *JTMap[string, *AnalyzePrototypeProperties_NameInfo]
 }
 
 func (this *AnalyzePrototypeProperties) finit_AnalyzePrototypeProperties() {
@@ -22,8 +22,8 @@ func (this *AnalyzePrototypeProperties) finit_AnalyzePrototypeProperties() {
 	this.globalNode = new_AnalyzePrototypeProperties_NameInfo(this, "[global]")
 	this.externNode = new_AnalyzePrototypeProperties_NameInfo(this, "[extern]")
 	this.anonymousNode = new_AnalyzePrototypeProperties_NameInfo(this, "[anonymous]")
-	this.propertyNameInfo = newTMap_(tc_string, tc_p_AnalyzePrototypeProperties_NameInfo)
-	this.varNameInfo = newTMap_(tc_string, tc_p_AnalyzePrototypeProperties_NameInfo)
+	this.propertyNameInfo = jnewTMap_(jtc_string, jtc_p_AnalyzePrototypeProperties_NameInfo)
+	this.varNameInfo = jnewTMap_(jtc_string, jtc_p_AnalyzePrototypeProperties_NameInfo)
 }
 
 func (this *AnalyzePrototypeProperties) init_AnalyzePrototypeProperties(compiler *AbstractCompiler, chunkGraph *JSChunkGraph, canModifyExterns bool, anchorUnusedVars bool, rootScopeUsesAreGlobal bool) {
@@ -80,13 +80,13 @@ func (this *AnalyzePrototypeProperties) process_2(externRoot Node, root Node) {
 }
 
 func (this *AnalyzePrototypeProperties) getAllNameInfo() CollectionOf[*AnalyzePrototypeProperties_NameInfo] {
-	var result *TList[*AnalyzePrototypeProperties_NameInfo] = tlistFrom_(tc_p_AnalyzePrototypeProperties_NameInfo, this.propertyNameInfo.asMap().values())
+	var result *JTList[*AnalyzePrototypeProperties_NameInfo] = jtlistFrom_(jtc_p_AnalyzePrototypeProperties_NameInfo, this.propertyNameInfo.asMap().values())
 	result.asList().addAll(this.varNameInfo.asMap().values())
 	return Collection(result.asList())
 }
 
 func (this *AnalyzePrototypeProperties) getNameInfoForName(name string, type_ *AnalyzePrototypeProperties_SymbolType) *AnalyzePrototypeProperties_NameInfo {
-	var map_ *TMap[string, *AnalyzePrototypeProperties_NameInfo] = func() *TMap[string, *AnalyzePrototypeProperties_NameInfo] {
+	var map_ *JTMap[string, *AnalyzePrototypeProperties_NameInfo] = func() *JTMap[string, *AnalyzePrototypeProperties_NameInfo] {
 		if type_ == AnalyzePrototypeProperties_PROPERTY {
 			return this.propertyNameInfo
 		}
@@ -105,7 +105,7 @@ func (this *AnalyzePrototypeProperties) getNameInfoForName(name string, type_ *A
 
 var AnalyzePrototypeProperties_PROPERTY *AnalyzePrototypeProperties_SymbolType
 var AnalyzePrototypeProperties_VAR *AnalyzePrototypeProperties_SymbolType
-var AnalyzePrototypeProperties_IMPLICITLY_USED_PROPERTIES *TSet[string]
+var AnalyzePrototypeProperties_IMPLICITLY_USED_PROPERTIES *JTSet[string]
 
 var AnalyzePrototypeProperties_clinit_done bool
 
@@ -116,7 +116,7 @@ func AnalyzePrototypeProperties_clinit() {
 	AnalyzePrototypeProperties_clinit_done = true
 	AnalyzePrototypeProperties_PROPERTY = AnalyzePrototypeProperties_SymbolType_PROPERTY
 	AnalyzePrototypeProperties_VAR = AnalyzePrototypeProperties_SymbolType_VAR
-	AnalyzePrototypeProperties_IMPLICITLY_USED_PROPERTIES = immutableSetOf_[string](tc_string, "length", "toString", "valueOf")
+	AnalyzePrototypeProperties_IMPLICITLY_USED_PROPERTIES = jimmutableSetOf_[string](jtc_string, "length", "toString", "valueOf")
 
 }
 
@@ -126,7 +126,7 @@ type AnalyzePrototypeProperties_ProcessProperties struct {
 }
 
 func (this *AnalyzePrototypeProperties_ProcessProperties) finit_AnalyzePrototypeProperties_ProcessProperties() {
-	this.symbolStack = newTDeque_(tc_p_AnalyzePrototypeProperties_NameContext)
+	this.symbolStack = newTDeque_(jtc_p_AnalyzePrototypeProperties_NameContext)
 }
 
 func (this *AnalyzePrototypeProperties_ProcessProperties) init_AnalyzePrototypeProperties_ProcessProperties() {
@@ -232,7 +232,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 						this.addSymbolUse(propNode.getString(), t.getChunk(), AnalyzePrototypeProperties_PROPERTY)
 					}
 				default:
-					panic(new_IllegalStateException_String(("Unexpected child of " + tostr_(n.getToken()) + ": " + sstr_(propNode.toStringTree()))).self())
+					panic(new_IllegalStateException_String(("Unexpected child of " + jtostr_(n.getToken()) + ": " + sstr_(propNode.toStringTree()))).self())
 				}
 			}
 		}

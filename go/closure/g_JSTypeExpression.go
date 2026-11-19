@@ -28,14 +28,14 @@ func new_JSTypeExpression(root Node, sourceName string) *JSTypeExpression {
 	return this
 }
 
-func (this *JSTypeExpression) replaceNamesWithUnknownType(names *TSet[string]) *JSTypeExpression {
+func (this *JSTypeExpression) replaceNamesWithUnknownType(names *JTSet[string]) *JSTypeExpression {
 	var oldExprRoot Node = this.root.cloneTree()
 	var newExprRoot Node = JSTypeExpression_replaceNames(oldExprRoot, names)
 	var newTypeExpression *JSTypeExpression = new_JSTypeExpression(newExprRoot, this.sourceName_)
 	return newTypeExpression
 }
 
-func JSTypeExpression_replaceNames(n Node, names *TSet[string]) Node {
+func JSTypeExpression_replaceNames(n Node, names *JTSet[string]) Node {
 	if n == 0 {
 		return 0
 	}
@@ -70,18 +70,18 @@ func JSTypeExpression_baseName(name string) string {
 	}()
 }
 
-func (this *JSTypeExpression) getAllTypeNodes() *TList[Node] {
+func (this *JSTypeExpression) getAllTypeNodes() *JTList[Node] {
 	var builder ImmutableList_BuilderOf[Node] = ImmutableList_builder()
 	JSTypeExpression_visitAllTypeNodes(this.root, &Consumer_tfn_Node{func(p0 Node) { builder.add(p0.box_()) }})
-	return tlistImm_(tc_Node, builder.build())
+	return jtlistImm_(jtc_Node, builder.build())
 }
 
-func (this *JSTypeExpression) getAllTypeNames() *TSet[string] {
+func (this *JSTypeExpression) getAllTypeNames() *JTSet[string] {
 	var builder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
 	JSTypeExpression_visitAllTypeNodes(this.root, &Consumer_tfn_Node{func(n Node) {
 		builder.add(strobj_(n.getString()))
 	}})
-	return tsetImm_(tc_string, builder.build())
+	return tsetImm_(jtc_string, builder.build())
 }
 
 func JSTypeExpression_visitAllTypeNodes(n Node, visitor ConsumerOf[Node]) {
@@ -161,8 +161,8 @@ func (this *JSTypeExpression) isExplicitUnknownTemplateBound() bool {
 	return ((JSCompObjects_identical(obj_(this.root.getToken()), obj_(Token_rhino_QMARK)) && !this.root.hasChildren()) && !(this.sourceName_ == JSTypeExpression_IMPLICIT_TEMPLATE_BOUND_SOURCE))
 }
 
-func (this *JSTypeExpression) getRecordPropertyNames() *TSet[string] {
-	var builder *TSetBuilder[string] = newTSetBuilder_(tc_string)
+func (this *JSTypeExpression) getRecordPropertyNames() *JTSet[string] {
+	var builder *TSetBuilder[string] = newTSetBuilder_(jtc_string)
 	JSTypeExpression_getRecordPropertyNamesRecursive(this.root, builder)
 	return builder.build()
 }

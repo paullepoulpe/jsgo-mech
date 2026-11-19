@@ -7,11 +7,11 @@ type PolyfillUsageFinder struct {
 	polyfills                  *PolyfillUsageFinder_Polyfills
 	disambiguateProperties_    bool
 	registry                   *ColorRegistry
-	hasInSupertypesListSeenSet *TSet[*Color]
+	hasInSupertypesListSeenSet *JTSet[*Color]
 }
 
 func (this *PolyfillUsageFinder) finit_PolyfillUsageFinder() {
-	this.hasInSupertypesListSeenSet = newTSet_(tce_p_Color)
+	this.hasInSupertypesListSeenSet = jnewTSet_(tce_p_Color)
 }
 
 func (this *PolyfillUsageFinder) init_PolyfillUsageFinder(compiler *AbstractCompiler, polyfills *PolyfillUsageFinder_Polyfills, disambiguateProperties bool) {
@@ -55,7 +55,7 @@ func (this *PolyfillUsageFinder) maybeCreateStaticPolyfillUsageForGetPropChain(t
 	if !this.polyfills.suffixes.contains(lastComponent) {
 		return nil
 	}
-	var components *TDeque[string] = newTDeque_(tc_string)
+	var components *TDeque[string] = newTDeque_(jtc_string)
 	components.push(lastComponent)
 	var ownerNode Node
 	{
@@ -69,7 +69,7 @@ func (this *PolyfillUsageFinder) maybeCreateStaticPolyfillUsageForGetPropChain(t
 	}
 	var rootName string = ownerNode.getString()
 	components.push(rootName)
-	var fullName string = String_join_s(".", Iterable(components.asDeque()))
+	var fullName string = JString_join_s(".", Iterable(components.asDeque()))
 	var globalPrefix Optional[string] = PolyfillUsageFinder_findGlobalPrefix(fullName)
 	if globalPrefix.isPresent() {
 		var polyfill *PolyfillUsageFinder_Polyfill = this.polyfills.statics.get(String_substring_int(fullName, String_length(globalPrefix.get())))
@@ -192,8 +192,8 @@ func (this *PolyfillUsageFinder) hasInSupertypesList(subCtor *Color, superCtor *
 }
 
 var PolyfillUsageFinder_PROTOTYPE_PREFIX_PATTERN *Pattern
-var PolyfillUsageFinder_GLOBAL_NAMES *TSet[string]
-var PolyfillUsageFinder_STANDARD_COLLECTION_IDS *TSet[*ColorId]
+var PolyfillUsageFinder_GLOBAL_NAMES *JTSet[string]
+var PolyfillUsageFinder_STANDARD_COLLECTION_IDS *JTSet[*ColorId]
 
 var PolyfillUsageFinder_clinit_done bool
 
@@ -203,8 +203,8 @@ func PolyfillUsageFinder_clinit() {
 	}
 	PolyfillUsageFinder_clinit_done = true
 	PolyfillUsageFinder_PROTOTYPE_PREFIX_PATTERN = Pattern_compile((sstr_(JavaRegex_DOT) + "*\\.prototype\\."))
-	PolyfillUsageFinder_GLOBAL_NAMES = immutableSetOf_[string](tc_string, "goog.global.", "window.", "goog$global.", "globalThis.")
-	PolyfillUsageFinder_STANDARD_COLLECTION_IDS = immutableSetOf_[*ColorId](tce_p_ColorId, StandardColors_ARRAY_ID, StandardColors_ARRAY_PROTOTYPE_ID, StandardColors_READONLY_ARRAY_ID, StandardColors_READONLY_ARRAY_PROTOTYPE_ID, StandardColors_I_TEMPLATE_ARRAY_ID, StandardColors_I_TEMPLATE_ARRAY_PROTOTYPE_ID, StandardColors_MAP_ID, StandardColors_MAP_PROTOTYPE_ID, StandardColors_READONLY_MAP_ID, StandardColors_READONLY_MAP_PROTOTYPE_ID, StandardColors_SET_ID, StandardColors_SET_PROTOTYPE_ID, StandardColors_READONLY_SET_ID, StandardColors_READONLY_SET_PROTOTYPE_ID)
+	PolyfillUsageFinder_GLOBAL_NAMES = jimmutableSetOf_[string](jtc_string, "goog.global.", "window.", "goog$global.", "globalThis.")
+	PolyfillUsageFinder_STANDARD_COLLECTION_IDS = jimmutableSetOf_[*ColorId](tce_p_ColorId, StandardColors_ARRAY_ID, StandardColors_ARRAY_PROTOTYPE_ID, StandardColors_READONLY_ARRAY_ID, StandardColors_READONLY_ARRAY_PROTOTYPE_ID, StandardColors_I_TEMPLATE_ARRAY_ID, StandardColors_I_TEMPLATE_ARRAY_PROTOTYPE_ID, StandardColors_MAP_ID, StandardColors_MAP_PROTOTYPE_ID, StandardColors_READONLY_MAP_ID, StandardColors_READONLY_MAP_PROTOTYPE_ID, StandardColors_SET_ID, StandardColors_SET_PROTOTYPE_ID, StandardColors_READONLY_SET_ID, StandardColors_READONLY_SET_PROTOTYPE_ID)
 
 }
 
@@ -293,25 +293,25 @@ func PolyfillUsageFinder_Polyfill_Kind_clinit() {
 
 type PolyfillUsageFinder_Polyfills struct {
 	methods         *SimpleListMultimap
-	statics         *TMap[string, *PolyfillUsageFinder_Polyfill]
-	suffixes        *TSet[string]
+	statics         *JTMap[string, *PolyfillUsageFinder_Polyfill]
+	suffixes        *JTSet[string]
 	byNativeVersion *SimpleListMultimap
 }
 
-func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(methods *SimpleListMultimap, statics *TMap[string, *PolyfillUsageFinder_Polyfill], byNativeVersion *SimpleListMultimap) {
+func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(methods *SimpleListMultimap, statics *JTMap[string, *PolyfillUsageFinder_Polyfill], byNativeVersion *SimpleListMultimap) {
 	this.methods = methods
 	this.statics = statics
 	this.byNativeVersion = byNativeVersion
-	var suffixList *TList[string] = newTList_(tc_string)
+	var suffixList *JTList[string] = jnewTList_(jtc_string)
 	it_1 := statics.eachKey()
 	for it_1.next() {
 		var arg string = it_1.v
 		suffixList.add(String_substring_int(arg, (String_lastIndexOf(arg, 46) + 1)))
 	}
-	this.suffixes = immutableSetCopyOf_(tc_string, Collection(suffixList.asList()))
+	this.suffixes = jimmutableSetCopyOf_(jtc_string, Collection(suffixList.asList()))
 }
 
-func new_PolyfillUsageFinder_Polyfills(methods *SimpleListMultimap, statics *TMap[string, *PolyfillUsageFinder_Polyfill], byNativeVersion *SimpleListMultimap) *PolyfillUsageFinder_Polyfills {
+func new_PolyfillUsageFinder_Polyfills(methods *SimpleListMultimap, statics *JTMap[string, *PolyfillUsageFinder_Polyfill], byNativeVersion *SimpleListMultimap) *PolyfillUsageFinder_Polyfills {
 	this := &PolyfillUsageFinder_Polyfills{}
 	this.init_PolyfillUsageFinder_Polyfills(methods, statics, byNativeVersion)
 	return this
@@ -319,19 +319,19 @@ func new_PolyfillUsageFinder_Polyfills(methods *SimpleListMultimap, statics *TMa
 
 func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_Polyfills {
 	var methods *SimpleListMultimap = SimpleListMultimap_create()
-	var statics *TMapBuilder[string, *PolyfillUsageFinder_Polyfill] = newTMapBuilder_(tc_string, tc_p_PolyfillUsageFinder_Polyfill)
+	var statics *TMapBuilder[string, *PolyfillUsageFinder_Polyfill] = newTMapBuilder_(jtc_string, jtc_p_PolyfillUsageFinder_Polyfill)
 	var byNativeVersion *SimpleListMultimap = SimpleListMultimap_create()
 	it_1 := foreach_(any(Splitter_on('\n').omitEmptyStrings().split_s(table)))
 	for it_1.next() {
 		var line string = str_(it_1.v)
-		var tokens *TList[string] = splitToListT_(tc_string, Splitter_on(' ').omitEmptyStrings(), strobj_(String_trim(line)))
+		var tokens *JTList[string] = splitToListT_(jtc_string, Splitter_on(' ').omitEmptyStrings(), strobj_(String_trim(line)))
 		if (tokens.size() == 1) && String_isEmpty(tokens.get(0)) {
 			continue
 		} else if tokens.size() < 3 {
 			panic(new_IllegalArgumentException_String(("Invalid table: too few tokens on line: " + sstr_(line))).self())
 		}
 		var symbol string = tokens.get(0)
-		var isPrototypeMethod bool = String_contains_s(symbol, ".prototype.")
+		var isPrototypeMethod bool = JString_contains_s(symbol, ".prototype.")
 		var nativeVersionStr string = tokens.get(1)
 		var polyfillVersionStr string = tokens.get(2)
 		var polyfill *PolyfillUsageFinder_Polyfill = new_PolyfillUsageFinder_Polyfill(symbol, nativeVersionStr, polyfillVersionStr, func() string {
@@ -355,9 +355,9 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 	return new_PolyfillUsageFinder_Polyfills(methods.immutableCopy(), statics.buildOrThrow(), byNativeVersion.immutableCopy())
 }
 
-func (this *PolyfillUsageFinder_Polyfills) getPolyfillsNewerThan(languageMode *CompilerOptions_LanguageMode) *TList[*PolyfillUsageFinder_Polyfill] {
+func (this *PolyfillUsageFinder_Polyfills) getPolyfillsNewerThan(languageMode *CompilerOptions_LanguageMode) *JTList[*PolyfillUsageFinder_Polyfill] {
 	var featureSet *FeatureSet = languageMode.toFeatureSet()
-	var result *TListBuilder[*PolyfillUsageFinder_Polyfill] = newTListBuilder_(tc_p_PolyfillUsageFinder_Polyfill)
+	var result *TListBuilder[*PolyfillUsageFinder_Polyfill] = newTListBuilder_(jtc_p_PolyfillUsageFinder_Polyfill)
 	it_1 := foreach_(any(this.byNativeVersion.keySet()))
 	for it_1.next() {
 		var nativeVersionStr string = str_(it_1.v)
@@ -438,7 +438,7 @@ func (this *PolyfillUsageFinder_PolyfillUsage) hashCode() int32 {
 }
 
 func (this *PolyfillUsageFinder_PolyfillUsage) toString() string {
-	return "PolyfillUsage[" + "polyfill=" + tostr_(this.polyfill_) + ", node=" + tostrH_(this.node_) + ", name=" + sstr_(this.name_) + ", isExplicitGlobal=" + boolstr_(this.isExplicitGlobal_) + "]"
+	return "PolyfillUsage[" + "polyfill=" + jtostr_(this.polyfill_) + ", node=" + tostrH_(this.node_) + ", name=" + sstr_(this.name_) + ", isExplicitGlobal=" + boolstr_(this.isExplicitGlobal_) + "]"
 }
 
 type PolyfillUsageFinder_Guard struct {

@@ -550,27 +550,27 @@ func (this Optional[T]) nn_() {
 	}
 }
 
-// null_ is `this == null`.
-func (this Optional[T]) null_() bool { return !this.set }
+// jnull_ is `this == null`.
+func (this Optional[T]) jnull_() bool { return !this.set }
 
 func Optional_empty[T any]() Optional[T] { return Optional[T]{set: true} }
 
 func Optional_of[T any](v T) Optional[T] {
-	if isnull_(v) {
+	if jisnull_(v) {
 		panic(new_NullPointerException_0().self())
 	}
 	return Optional[T]{v, true, true}
 }
 
 func Optional_ofNullable[T any](v T) Optional[T] {
-	if isnull_(v) {
+	if jisnull_(v) {
 		return Optional[T]{set: true}
 	}
 	return Optional[T]{v, true, true}
 }
 
-// optional_ is any instantiation of Optional.
-type optional_ interface {
+// joptional_ is any instantiation of Optional.
+type joptional_ interface {
 	content_() any
 	isSet_() bool
 }
@@ -602,9 +602,9 @@ func optOf_[T any](v any) Optional[T] {
 	if o, ok := v.(Optional[T]); ok {
 		return o
 	}
-	o := v.(optional_)
+	o := v.(joptional_)
 	if c := o.content_(); c != nil {
-		return Optional[T]{unboxT_[T](c), true, true}
+		return Optional[T]{junboxT_[T](c), true, true}
 	}
 	return Optional[T]{set: o.isSet_()}
 }
@@ -614,12 +614,12 @@ func optAs_[T, S any](o Optional[S]) Optional[T] {
 	if !o.present {
 		return Optional[T]{set: o.set}
 	}
-	return Optional[T]{unboxT_[T](boxT_(o.value)), true, true}
+	return Optional[T]{junboxT_[T](boxT_(o.value)), true, true}
 }
 
 // isOptional_ is `v instanceof Optional`.
 func isOptional_(v any) bool {
-	_, ok := v.(optional_)
+	_, ok := v.(joptional_)
 	return ok
 }
 
@@ -664,7 +664,7 @@ func (this Optional[T]) isPresent() bool { this.nn_(); return this.present }
 
 func (this Optional[T]) equals(o any) bool {
 	this.nn_()
-	x, ok := o.(optional_)
+	x, ok := o.(joptional_)
 	return ok && x.isSet_() && objequals_(this.content_(), x.content_())
 }
 

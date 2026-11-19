@@ -8,7 +8,7 @@ type SubtypeChecker struct {
 	registry                *JSTypeRegistry
 	isUsingStructuralTyping any
 	subtypingMode           *JSType_SubtypingMode
-	subtypeCache            *TMap[*SubtypeChecker_CacheKey, *JSType_MatchStatus]
+	subtypeCache            *JTMap[*SubtypeChecker_CacheKey, *JSType_MatchStatus]
 	hasRun                  bool
 	recursionDepth          int32
 }
@@ -72,7 +72,7 @@ func (this *SubtypeChecker) isSubtypeCaching(subtype *JSType, supertype *JSType)
 	Preconditions_checkNotNull_T(supertype)
 	if this.recursionDepth > SubtypeChecker_POTENTIALLY_CYCLIC_RECURSION_DEPTH {
 		if this.subtypeCache == nil {
-			this.subtypeCache = newTMap_(tce_p_SubtypeChecker_CacheKey, tc_p_JSType_MatchStatus)
+			this.subtypeCache = jnewTMap_(tce_p_SubtypeChecker_CacheKey, jtc_p_JSType_MatchStatus)
 		}
 	}
 	if this.subtypeCache == nil {
@@ -553,7 +553,7 @@ func SubtypeChecker_getObjectTypeIfNative(type_ *JSType) *ObjectType {
 	}()
 }
 
-var SubtypeChecker_BIVARIANT_TYPES *TSet[string]
+var SubtypeChecker_BIVARIANT_TYPES *JTSet[string]
 
 const SubtypeChecker_POTENTIALLY_CYCLIC_RECURSION_DEPTH int32 = 20
 
@@ -564,7 +564,7 @@ func SubtypeChecker_clinit() {
 		return
 	}
 	SubtypeChecker_clinit_done = true
-	SubtypeChecker_BIVARIANT_TYPES = immutableSetOf_[string](tc_string, "Object", "IArrayLike", "Array")
+	SubtypeChecker_BIVARIANT_TYPES = jimmutableSetOf_[string](jtc_string, "Object", "IArrayLike", "Array")
 
 }
 

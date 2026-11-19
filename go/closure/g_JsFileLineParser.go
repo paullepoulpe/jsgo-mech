@@ -55,7 +55,7 @@ func (this *JsFileLineParser) didParseSucceed() bool {
 func (this *JsFileLineParser) doParse(filePath string, fileContents string) {
 	this.filePath = Optional_of[string](filePath)
 	this.parseSucceeded = true
-	var lines *TList[string] = TextFiles_splitLines(fileContents)
+	var lines *JTList[string] = TextFiles_splitLines(fileContents)
 	var lineIndex int32 = 0
 	var line Optional[string] = Optional_empty[string]()
 	this.lineNum = 0
@@ -208,7 +208,7 @@ func (this *JsFileLineParser) parseJsString(jsStringLiteral string) *Outcome_bas
 }
 
 func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base[List] {
-	var results *TList[string] = newTList_(tc_string)
+	var results *JTList[string] = jnewTList_(jtc_string)
 	var indexStart int32 = String_indexOf(input, 91)
 	var indexEnd int32 = String_lastIndexOf(input, 93)
 	if (indexStart == -1) || (indexEnd == -1) {
@@ -248,7 +248,7 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base[Map] 
 		return Outcome_base_err[Map](checked.error())
 	}
 	input = String_trim(String_substring(input, 1, (String_length(input) - 1)))
-	var results *TMap[string, string] = newTMap_(tc_string, tc_string)
+	var results *JTMap[string, string] = jnewTMap_(jtc_string, jtc_string)
 	var done bool = String_isEmpty(input)
 	this.valueMatcher.reset_s(input)
 	for !done {

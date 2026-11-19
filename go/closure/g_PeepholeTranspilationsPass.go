@@ -9,20 +9,20 @@ type PeepholeTranspilationsPass struct {
 	featureSetToRunOn                *FeatureSet
 }
 
-func (this *PeepholeTranspilationsPass) init_PeepholeTranspilationsPass(compiler *AbstractCompiler, transpilations *TList[*AbstractPeepholeTranspilation], featureSetToRunOn *FeatureSet, featureSetToMarkAsTranspiledAway *FeatureSet) {
+func (this *PeepholeTranspilationsPass) init_PeepholeTranspilationsPass(compiler *AbstractCompiler, transpilations *JTList[*AbstractPeepholeTranspilation], featureSetToRunOn *FeatureSet, featureSetToMarkAsTranspiledAway *FeatureSet) {
 	this.compiler_ = compiler
 	this.peepholeTranspilations = arrmap_(transpilations.asList().toArray(arrmap_(make([]*AbstractPeepholeTranspilation, 0), func(v_ *AbstractPeepholeTranspilation) any { return v_.self() })), func(v_ any) *AbstractPeepholeTranspilation { return to_AbstractPeepholeTranspilation(v_) })
 	this.featureSetToRunOn = featureSetToRunOn
 	this.featureSetToMarkAsTranspiledAway = featureSetToMarkAsTranspiledAway
 }
 
-func new_PeepholeTranspilationsPass(compiler *AbstractCompiler, transpilations *TList[*AbstractPeepholeTranspilation], featureSetToRunOn *FeatureSet, featureSetToMarkAsTranspiledAway *FeatureSet) *PeepholeTranspilationsPass {
+func new_PeepholeTranspilationsPass(compiler *AbstractCompiler, transpilations *JTList[*AbstractPeepholeTranspilation], featureSetToRunOn *FeatureSet, featureSetToMarkAsTranspiledAway *FeatureSet) *PeepholeTranspilationsPass {
 	this := &PeepholeTranspilationsPass{}
 	this.init_PeepholeTranspilationsPass(compiler, transpilations, featureSetToRunOn, featureSetToMarkAsTranspiledAway)
 	return this
 }
 
-func PeepholeTranspilationsPass_create(compiler *AbstractCompiler, transpilations *TList[*AbstractPeepholeTranspilation]) *PeepholeTranspilationsPass {
+func PeepholeTranspilationsPass_create(compiler *AbstractCompiler, transpilations *JTList[*AbstractPeepholeTranspilation]) *PeepholeTranspilationsPass {
 	var featureSetToRunOn *FeatureSet = FeatureSet_BARE_MINIMUM
 	var featureSetToMarkAsTranspiledAway *FeatureSet = FeatureSet_BARE_MINIMUM
 	it_1 := transpilations.each()

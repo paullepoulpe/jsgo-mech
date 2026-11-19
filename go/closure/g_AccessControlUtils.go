@@ -15,7 +15,7 @@ func new_AccessControlUtils() *AccessControlUtils {
 	return this
 }
 
-func AccessControlUtils_getEffectiveNameVisibility(name Node, var_ *Var, fileVisibilityMap *TMap[StaticSourceFile, *JSDocInfo_Visibility]) *JSDocInfo_Visibility {
+func AccessControlUtils_getEffectiveNameVisibility(name Node, var_ *Var, fileVisibilityMap *JTMap[StaticSourceFile, *JSDocInfo_Visibility]) *JSDocInfo_Visibility {
 	var jsDocInfo *JSDocInfo = var_.getJSDocInfo()
 	var raw *JSDocInfo_Visibility = func() *JSDocInfo_Visibility {
 		if (jsDocInfo == nil) || (jsDocInfo.getVisibility() == nil) {
@@ -37,7 +37,7 @@ func AccessControlUtils_getEffectiveNameVisibility(name Node, var_ *Var, fileVis
 	}()
 }
 
-func AccessControlUtils_getEffectivePropertyVisibility(property Node, referenceType *ObjectType, fileVisibilityMap *TMap[StaticSourceFile, *JSDocInfo_Visibility]) *JSDocInfo_Visibility {
+func AccessControlUtils_getEffectivePropertyVisibility(property Node, referenceType *ObjectType, fileVisibilityMap *JTMap[StaticSourceFile, *JSDocInfo_Visibility]) *JSDocInfo_Visibility {
 	var propertyName string = property.getString()
 	var definingSource StaticSourceFile = AccessControlUtils_getDefiningSource(property, referenceType, propertyName)
 	var fileOverviewVisibility *JSDocInfo_Visibility = fileVisibilityMap.get(definingSource)

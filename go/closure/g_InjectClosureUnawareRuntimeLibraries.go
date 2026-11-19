@@ -5,16 +5,16 @@ package closure
 type InjectClosureUnawareRuntimeLibraries struct {
 	mainCompiler        *AbstractCompiler
 	shadowCompiler      *AbstractCompiler
-	closureUnawareCalls *TList[*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite]
+	closureUnawareCalls *JTList[*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite]
 }
 
-func (this *InjectClosureUnawareRuntimeLibraries) init_InjectClosureUnawareRuntimeLibraries(mainCompiler *AbstractCompiler, shadowCompiler *AbstractCompiler, closureUnawareCalls *TList[*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite]) {
+func (this *InjectClosureUnawareRuntimeLibraries) init_InjectClosureUnawareRuntimeLibraries(mainCompiler *AbstractCompiler, shadowCompiler *AbstractCompiler, closureUnawareCalls *JTList[*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite]) {
 	this.mainCompiler = mainCompiler
 	this.shadowCompiler = shadowCompiler
 	this.closureUnawareCalls = closureUnawareCalls
 }
 
-func new_InjectClosureUnawareRuntimeLibraries(mainCompiler *AbstractCompiler, shadowCompiler *AbstractCompiler, closureUnawareCalls *TList[*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite]) *InjectClosureUnawareRuntimeLibraries {
+func new_InjectClosureUnawareRuntimeLibraries(mainCompiler *AbstractCompiler, shadowCompiler *AbstractCompiler, closureUnawareCalls *JTList[*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite]) *InjectClosureUnawareRuntimeLibraries {
 	this := &InjectClosureUnawareRuntimeLibraries{}
 	this.init_InjectClosureUnawareRuntimeLibraries(mainCompiler, shadowCompiler, closureUnawareCalls)
 	return this
@@ -36,22 +36,22 @@ func (this *InjectClosureUnawareRuntimeLibraries) injectLibrariesIntoMainAst() {
 }
 
 func (this *InjectClosureUnawareRuntimeLibraries) injectFieldsIntoCallSites() {
-	var fieldsByNameBuilder *TMapBuilder[string, RuntimeJsLibManager_ExternedField] = newTMapBuilder_(tc_string, tc_RuntimeJsLibManager_ExternedField)
+	var fieldsByNameBuilder *TMapBuilder[string, RuntimeJsLibManager_ExternedField] = newTMapBuilder_(jtc_string, jtc_RuntimeJsLibManager_ExternedField)
 	it_1 := this.shadowCompiler.getRuntimeJsLibManager().getExternedFields().each()
 	for it_1.next() {
 		var field RuntimeJsLibManager_ExternedField = it_1.v
 		fieldsByNameBuilder.put(field.qualifiedName(), field)
 	}
-	var fieldsByName *TMap[string, RuntimeJsLibManager_ExternedField] = fieldsByNameBuilder.buildOrThrow()
+	var fieldsByName *JTMap[string, RuntimeJsLibManager_ExternedField] = fieldsByNameBuilder.buildOrThrow()
 	it_3 := this.closureUnawareCalls.each()
 	for it_3.next() {
 		var callSite *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite = it_3.v
-		var toInject *TSet[RuntimeJsLibManager_ExternedField] = InjectClosureUnawareRuntimeLibraries_gatherRuntimeFields(callSite.closureUnawareFunction(), fieldsByName)
+		var toInject *JTSet[RuntimeJsLibManager_ExternedField] = InjectClosureUnawareRuntimeLibraries_gatherRuntimeFields(callSite.closureUnawareFunction(), fieldsByName)
 		this.injectAll(callSite, toInject)
 	}
 }
 
-func (this *InjectClosureUnawareRuntimeLibraries) injectAll(callSite *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite, toInject *TSet[RuntimeJsLibManager_ExternedField]) {
+func (this *InjectClosureUnawareRuntimeLibraries) injectAll(callSite *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite, toInject *JTSet[RuntimeJsLibManager_ExternedField]) {
 	if toInject.isEmpty() {
 		return
 	}
@@ -72,8 +72,8 @@ func (this *InjectClosureUnawareRuntimeLibraries) injectAll(callSite *InjectClos
 	}
 }
 
-func InjectClosureUnawareRuntimeLibraries_gatherRuntimeFields(root Node, allKnownFields *TMap[string, RuntimeJsLibManager_ExternedField]) *TSet[RuntimeJsLibManager_ExternedField] {
-	var seen *TSet[RuntimeJsLibManager_ExternedField] = newTSet_(tce_RuntimeJsLibManager_ExternedField)
+func InjectClosureUnawareRuntimeLibraries_gatherRuntimeFields(root Node, allKnownFields *JTMap[string, RuntimeJsLibManager_ExternedField]) *JTSet[RuntimeJsLibManager_ExternedField] {
+	var seen *JTSet[RuntimeJsLibManager_ExternedField] = jnewTSet_(tce_RuntimeJsLibManager_ExternedField)
 	var visitor NodeUtil_Visitor = &NodeUtil_Visitor_fn{func(n Node) {
 		if !n.isName() {
 			return

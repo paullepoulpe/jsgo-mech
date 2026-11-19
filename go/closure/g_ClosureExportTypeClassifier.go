@@ -3,13 +3,13 @@
 package closure
 
 type ClosureExportTypeClassifier struct {
-	topLevelNames     *TMap[string, *ClosureExportTypeClassifier_NameInfo]
-	forcedNamedExport *TSet[string]
+	topLevelNames     *JTMap[string, *ClosureExportTypeClassifier_NameInfo]
+	forcedNamedExport *JTSet[string]
 }
 
 func (this *ClosureExportTypeClassifier) finit_ClosureExportTypeClassifier() {
-	this.topLevelNames = newTMap_(tc_string, tc_p_ClosureExportTypeClassifier_NameInfo)
-	this.forcedNamedExport = newTSet_(tc_string)
+	this.topLevelNames = jnewTMap_(jtc_string, jtc_p_ClosureExportTypeClassifier_NameInfo)
+	this.forcedNamedExport = jnewTSet_(jtc_string)
 }
 
 func (this *ClosureExportTypeClassifier) init_ClosureExportTypeClassifier() {

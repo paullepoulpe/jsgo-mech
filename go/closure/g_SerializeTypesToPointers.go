@@ -186,7 +186,7 @@ func (this *SerializeTypesToPointers_StreamObjectUuidsJson) writeJson(jsonWriter
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		jsonWriter.name(str_(entry.getKey()))
 		jsonWriter.beginArray()
-		var jstypes *TList[string] = newTList_(tc_string)
+		var jstypes *JTList[string] = jnewTList_(jtc_string)
 		it_3 := foreach_(any(icast_List(entry.getValue())))
 		for it_3.next() {
 			var jstype *JSType = to_JSType(it_3.v)
@@ -260,7 +260,7 @@ func SerializeTypesToPointers_TypeMismatchJson_typePointerToId(poolOffset int32,
 		return ColorId_fromBytesByteString(typeProto.getObject().getUuid())
 	case TypeProto_KindCase_KIND_NOT_SET:
 	}
-	panic(new_AssertionError_Object(strobj_(("Unrecognized TypeProto " + tostr_(typeProto)))).self())
+	panic(new_AssertionError_Object(strobj_(("Unrecognized TypeProto " + jtostr_(typeProto)))).self())
 }
 
 func (this *SerializeTypesToPointers_TypeMismatchJson) compareTo(x_ any) int32 {

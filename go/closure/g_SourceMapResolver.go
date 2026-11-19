@@ -30,7 +30,7 @@ func SourceMapResolver_extractSourceMap(jsFile *SourceFile_jscomp, sourceMapURL 
 }
 
 func SourceMapResolver_extractBase64String(url string) Optional[string] {
-	if String_startsWith(url, SourceMapResolver_BASE64_URL_PREFIX) && String_contains_s(url, SourceMapResolver_BASE64_START) {
+	if String_startsWith(url, SourceMapResolver_BASE64_URL_PREFIX) && JString_contains_s(url, SourceMapResolver_BASE64_START) {
 		var base64StartIndex int32 = String_indexOf_String(url, SourceMapResolver_BASE64_START)
 		var mediaType string = String_substring(url, String_length(SourceMapResolver_BASE64_URL_PREFIX), base64StartIndex)
 		if SourceMapResolver_ACCEPTED_MEDIA_TYPES.contains(mediaType) {
@@ -69,7 +69,7 @@ func SourceMapResolver_addBase64PrefixToEncodedSourceMap(encoded string) string 
 const SourceMapResolver_BASE64_URL_PREFIX string = "data:"
 const SourceMapResolver_BASE64_START string = "base64,"
 
-var SourceMapResolver_ACCEPTED_MEDIA_TYPES *TSet[string]
+var SourceMapResolver_ACCEPTED_MEDIA_TYPES *JTSet[string]
 
 var SourceMapResolver_clinit_done bool
 
@@ -78,6 +78,6 @@ func SourceMapResolver_clinit() {
 		return
 	}
 	SourceMapResolver_clinit_done = true
-	SourceMapResolver_ACCEPTED_MEDIA_TYPES = immutableSetOf_[string](tc_string, "application/json;charset=utf-8;", "application/json;")
+	SourceMapResolver_ACCEPTED_MEDIA_TYPES = jimmutableSetOf_[string](jtc_string, "application/json;charset=utf-8;", "application/json;")
 
 }

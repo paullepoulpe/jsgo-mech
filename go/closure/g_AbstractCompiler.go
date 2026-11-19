@@ -105,9 +105,9 @@ func (this *AbstractCompiler) createDefaultExpressionDecomposer() *ExpressionDec
 	return this.self_.(interface{ createDefaultExpressionDecomposer_impl() *ExpressionDecomposer }).createDefaultExpressionDecomposer_impl()
 }
 
-func (this *AbstractCompiler) createExpressionDecomposer(p0 Supplier, p1 *TSet[string], p2 *Scope) *ExpressionDecomposer {
+func (this *AbstractCompiler) createExpressionDecomposer(p0 Supplier, p1 *JTSet[string], p2 *Scope) *ExpressionDecomposer {
 	return this.self_.(interface {
-		createExpressionDecomposer_impl(Supplier, *TSet[string], *Scope) *ExpressionDecomposer
+		createExpressionDecomposer_impl(Supplier, *JTSet[string], *Scope) *ExpressionDecomposer
 	}).createExpressionDecomposer_impl(p0, p1, p2)
 }
 
@@ -115,8 +115,8 @@ func (this *AbstractCompiler) isDebugLoggingEnabled() bool {
 	return this.self_.(interface{ isDebugLoggingEnabled_impl() bool }).isDebugLoggingEnabled_impl()
 }
 
-func (this *AbstractCompiler) getDebugLogFilterList() *TList[string] {
-	return this.self_.(interface{ getDebugLogFilterList_impl() *TList[string] }).getDebugLogFilterList_impl()
+func (this *AbstractCompiler) getDebugLogFilterList() *JTList[string] {
+	return this.self_.(interface{ getDebugLogFilterList_impl() *JTList[string] }).getDebugLogFilterList_impl()
 }
 
 func (this *AbstractCompiler) createOrReopenLog(p0 *Class, p1 string, p2 []string) *LogFile {
@@ -253,8 +253,8 @@ func (this *AbstractCompiler) parseTestCode(p0 string) Node {
 	return this.self_.(interface{ parseTestCode_impl(string) Node }).parseTestCode_impl(p0)
 }
 
-func (this *AbstractCompiler) parseTestCodeImmutableList(p0 *TList[string]) Node {
-	return this.self_.(interface{ parseTestCodeImmutableList_impl(*TList[string]) Node }).parseTestCodeImmutableList_impl(p0)
+func (this *AbstractCompiler) parseTestCodeImmutableList(p0 *JTList[string]) Node {
+	return this.self_.(interface{ parseTestCodeImmutableList_impl(*JTList[string]) Node }).parseTestCodeImmutableList_impl(p0)
 }
 
 func (this *AbstractCompiler) getDefaultErrorReporter() ErrorReporter_rhino {
@@ -391,8 +391,8 @@ func (this *AbstractCompiler) setStringMap(p0 *VariableMap) {
 	this.self_.(interface{ setStringMap_impl(*VariableMap) }).setStringMap_impl(p0)
 }
 
-func (this *AbstractCompiler) setCssNames(p0 *TSet[string]) {
-	this.self_.(interface{ setCssNames_impl(*TSet[string]) }).setCssNames_impl(p0)
+func (this *AbstractCompiler) setCssNames(p0 *JTSet[string]) {
+	this.self_.(interface{ setCssNames_impl(*JTSet[string]) }).setCssNames_impl(p0)
 }
 
 func (this *AbstractCompiler) setIdGeneratorMap(p0 string) {
@@ -415,20 +415,20 @@ func (this *AbstractCompiler) setInstrumentationMapping(p0 *VariableMap) {
 	this.self_.(interface{ setInstrumentationMapping_impl(*VariableMap) }).setInstrumentationMapping_impl(p0)
 }
 
-func (this *AbstractCompiler) addExportedNames(p0 *TSet[string]) {
-	this.self_.(interface{ addExportedNames_impl(*TSet[string]) }).addExportedNames_impl(p0)
+func (this *AbstractCompiler) addExportedNames(p0 *JTSet[string]) {
+	this.self_.(interface{ addExportedNames_impl(*JTSet[string]) }).addExportedNames_impl(p0)
 }
 
-func (this *AbstractCompiler) getExportedNames() *TSet[string] {
-	return this.self_.(interface{ getExportedNames_impl() *TSet[string] }).getExportedNames_impl()
+func (this *AbstractCompiler) getExportedNames() *JTSet[string] {
+	return this.self_.(interface{ getExportedNames_impl() *JTSet[string] }).getExportedNames_impl()
 }
 
 func (this *AbstractCompiler) setDefineNames(p0 Collection) {
 	this.self_.(interface{ setDefineNames_impl(Collection) }).setDefineNames_impl(p0)
 }
 
-func (this *AbstractCompiler) getDefineNames() *TSet[string] {
-	return this.self_.(interface{ getDefineNames_impl() *TSet[string] }).getDefineNames_impl()
+func (this *AbstractCompiler) getDefineNames() *JTSet[string] {
+	return this.self_.(interface{ getDefineNames_impl() *JTSet[string] }).getDefineNames_impl()
 }
 
 func (this *AbstractCompiler) getOptions() *CompilerOptions {
@@ -491,12 +491,12 @@ func (this *AbstractCompiler) getLastPassName() string {
 	return this.self_.(interface{ getLastPassName_impl() string }).getLastPassName_impl()
 }
 
-func (this *AbstractCompiler) setExternProperties(p0 *TSet[string]) {
-	this.self_.(interface{ setExternProperties_impl(*TSet[string]) }).setExternProperties_impl(p0)
+func (this *AbstractCompiler) setExternProperties(p0 *JTSet[string]) {
+	this.self_.(interface{ setExternProperties_impl(*JTSet[string]) }).setExternProperties_impl(p0)
 }
 
-func (this *AbstractCompiler) getExternProperties() *TSet[string] {
-	return this.self_.(interface{ getExternProperties_impl() *TSet[string] }).getExternProperties_impl()
+func (this *AbstractCompiler) getExternProperties() *JTSet[string] {
+	return this.self_.(interface{ getExternProperties_impl() *JTSet[string] }).getExternProperties_impl()
 }
 
 func (this *AbstractCompiler) getAccessorSummary() *AccessorSummary {
@@ -507,9 +507,9 @@ func (this *AbstractCompiler) setAccessorSummary(p0 *AccessorSummary) {
 	this.self_.(interface{ setAccessorSummary_impl(*AccessorSummary) }).setAccessorSummary_impl(p0)
 }
 
-func (this *AbstractCompiler) addComments(p0 string, p1 *TList[*Comment]) {
+func (this *AbstractCompiler) addComments(p0 string, p1 *JTList[*Comment]) {
 	this.self_.(interface {
-		addComments_impl(string, *TList[*Comment])
+		addComments_impl(string, *JTList[*Comment])
 	}).addComments_impl(p0, p1)
 }
 

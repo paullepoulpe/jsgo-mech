@@ -82,8 +82,8 @@ func (this *ObjectType) getTypeOfThis_impl() *JSType {
 	return nil
 }
 
-func (this *ObjectType) getTemplateTypes_impl() *TList[*JSType] {
-	return tlistEmptyImm_(tc_p_JSType)
+func (this *ObjectType) getTemplateTypes_impl() *JTList[*JSType] {
+	return jtlistEmptyImm_(jtc_p_JSType)
 }
 
 func (this *ObjectType) getJSDocInfo_impl() *JSDocInfo {
@@ -392,7 +392,7 @@ func (this *ObjectType) getOwnPropertyNames_impl() SetOf[string] {
 	return this.getPropertyMap().getOwnPropertyNames()
 }
 
-func (this *ObjectType) getOwnPropertyKeys() *TSet[Property_Key] {
+func (this *ObjectType) getOwnPropertyKeys() *JTSet[Property_Key] {
 	var ownPropertyNames SetOf[string] = this.getOwnPropertyNames()
 	var ownSymbols SetOf[*KnownSymbolType] = this.getOwnPropertyKnownSymbols()
 	var ownPropertyKeys *TSetBuilder[Property_Key] = newTSetBuilder_(tce_Property_Key)
@@ -579,8 +579,8 @@ func (this *ObjectType) getCtorExtendedInterfaces_impl() IterableOf[*ObjectType]
 	return ImmutableSet_as_Iterable(ImmutableSet_of())
 }
 
-func (this *ObjectType) getPropertyTypeMap_impl() *TMap[string, *JSType] {
-	var propTypeMap *TMapBuilder[string, *JSType] = newTMapBuilder_(tc_string, tc_p_JSType)
+func (this *ObjectType) getPropertyTypeMap_impl() *JTMap[string, *JSType] {
+	var propTypeMap *TMapBuilder[string, *JSType] = newTMapBuilder_(jtc_string, jtc_p_JSType)
 	it_1 := foreach_(obj_(this.getPropertyNames()))
 	for it_1.next() {
 		var name string = str_(it_1.v)
@@ -647,8 +647,10 @@ func (this *ObjectType) hasCachedValues() bool {
 	return this.self_.(interface{ hasCachedValues_impl() bool }).hasCachedValues_impl()
 }
 
-func (this *ObjectType) getPropertyTypeMap() *TMap[string, *JSType] {
-	return this.self_.(interface{ getPropertyTypeMap_impl() *TMap[string, *JSType] }).getPropertyTypeMap_impl()
+func (this *ObjectType) getPropertyTypeMap() *JTMap[string, *JSType] {
+	return this.self_.(interface {
+		getPropertyTypeMap_impl() *JTMap[string, *JSType]
+	}).getPropertyTypeMap_impl()
 }
 
 func (this *ObjectType) getCtorImplementedInterfaces() Iterable {
@@ -659,8 +661,8 @@ func (this *ObjectType) getCtorExtendedInterfaces() Iterable {
 	return this.self_.(interface{ getCtorExtendedInterfaces_impl() Iterable }).getCtorExtendedInterfaces_impl()
 }
 
-func (this *ObjectType) getTemplateTypes() *TList[*JSType] {
-	return this.self_.(interface{ getTemplateTypes_impl() *TList[*JSType] }).getTemplateTypes_impl()
+func (this *ObjectType) getTemplateTypes() *JTList[*JSType] {
+	return this.self_.(interface{ getTemplateTypes_impl() *JTList[*JSType] }).getTemplateTypes_impl()
 }
 
 func (this *ObjectType) setPropertyJSDocInfoKey(p0 Property_Key, p1 *JSDocInfo) {

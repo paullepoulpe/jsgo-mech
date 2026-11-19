@@ -5,7 +5,7 @@ package closure
 type BranchCoverageInstrumentationCallback struct {
 	NodeTraversal_AbstractCfgCallback
 	compiler_           *AbstractCompiler
-	instrumentationData *TMap[string, *FileInstrumentationData]
+	instrumentationData *JTMap[string, *FileInstrumentationData]
 }
 
 func (this *BranchCoverageInstrumentationCallback) up_NodeTraversal_AbstractCfgCallback() *NodeTraversal_AbstractCfgCallback {
@@ -15,13 +15,13 @@ func (this *BranchCoverageInstrumentationCallback) up_NodeTraversal_AbstractCfgC
 	return &this.NodeTraversal_AbstractCfgCallback
 }
 
-func (this *BranchCoverageInstrumentationCallback) init_BranchCoverageInstrumentationCallback(compiler *AbstractCompiler, instrumentationData *TMap[string, *FileInstrumentationData]) {
+func (this *BranchCoverageInstrumentationCallback) init_BranchCoverageInstrumentationCallback(compiler *AbstractCompiler, instrumentationData *JTMap[string, *FileInstrumentationData]) {
 	this.NodeTraversal_AbstractCfgCallback.init_NodeTraversal_AbstractCfgCallback()
 	this.compiler_ = compiler
 	this.instrumentationData = instrumentationData
 }
 
-func new_BranchCoverageInstrumentationCallback(compiler *AbstractCompiler, instrumentationData *TMap[string, *FileInstrumentationData]) *BranchCoverageInstrumentationCallback {
+func new_BranchCoverageInstrumentationCallback(compiler *AbstractCompiler, instrumentationData *JTMap[string, *FileInstrumentationData]) *BranchCoverageInstrumentationCallback {
 	this := &BranchCoverageInstrumentationCallback{}
 	this.self_ = this
 	this.init_BranchCoverageInstrumentationCallback(compiler, instrumentationData)
@@ -87,7 +87,7 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 			return nil
 		}(), this.getChildrenBlocks(node))
 	} else if NodeUtil_isLoopStructure(node) {
-		var blocks *TList[Node] = this.getChildrenBlocks(node)
+		var blocks *JTList[Node] = this.getChildrenBlocks(node)
 		var cfg *ControlFlowGraph[Node] = this.getControlFlowGraph(this.compiler_)
 		it_3 := foreach_(any(cfg.getOutEdges(node)))
 		for it_3.next() {
@@ -119,8 +119,8 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 	}
 }
 
-func (this *BranchCoverageInstrumentationCallback) getChildrenBlocks(node Node) *TList[Node] {
-	var blocks *TList[Node] = newTList_(tc_Node)
+func (this *BranchCoverageInstrumentationCallback) getChildrenBlocks(node Node) *JTList[Node] {
+	var blocks *JTList[Node] = jnewTList_(jtc_Node)
 	{
 		var child Node = node.getFirstChild()
 		for ; child != 0; child = child.getNext() {
@@ -159,7 +159,7 @@ func (this *BranchCoverageInstrumentationCallback) newBranchInstrumentationNode(
 	return exprNode.srcrefTreeIfMissing(node)
 }
 
-func (this *BranchCoverageInstrumentationCallback) processBranchInfo(branchNode Node, data *FileInstrumentationData, blocks *TList[Node]) {
+func (this *BranchCoverageInstrumentationCallback) processBranchInfo(branchNode Node, data *FileInstrumentationData, blocks *JTList[Node]) {
 	var lineNumber int32 = branchNode.getLineno()
 	data.setBranchPresent(lineNumber)
 	var numBranches int32 = 0
@@ -188,7 +188,7 @@ func (this *BranchCoverageInstrumentationCallback) newHeaderNode(traversal *Node
 	}()
 	Preconditions_checkNotNull_T(data)
 	var objName string = CoverageInstrumentationPass_JS_INSTRUMENTATION_OBJECT_NAME
-	var nodes *TList[Node] = newTList_(tc_Node)
+	var nodes *JTList[Node] = jnewTList_(jtc_Node)
 	nodes.add(this.newArrayDeclarationNode(traversal))
 	nodes.add(IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("branchesTaken")), "push"), []Node{IR_name(BranchCoverageInstrumentationCallback_createArrayName(traversal))})))
 	nodes.add(IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("branchPresent")), "push"), []Node{IR_string(data.getBranchPresentAsHexString())})))
@@ -203,7 +203,7 @@ func (this *BranchCoverageInstrumentationCallback) newArrayDeclarationNode(trave
 }
 
 func (this *BranchCoverageInstrumentationCallback) newBranchesInLineNode(name string, data *FileInstrumentationData) Node {
-	var assignments *TList[Node] = newTList_(tc_Node)
+	var assignments *JTList[Node] = jnewTList_(jtc_Node)
 	assignments.add(IR_var_Node_Node(IR_name(name), IR_arraylit([]Node{})))
 	var lineWithBranch int32 = 0
 	for lineIdx := int32(1); lineIdx <= data.maxBranchPresentLine(); lineIdx++ {

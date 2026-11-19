@@ -4,7 +4,7 @@ package closure
 
 type NodeModuleResolver struct {
 	ModuleResolver
-	packageJsonMainEntries *TMap[string, string]
+	packageJsonMainEntries *JTMap[string, string]
 	nodeModulesFolders     ImmutableSortedSetOf[string]
 }
 
@@ -36,17 +36,17 @@ func (this *NodeModuleResolver) up_ModuleResolver() *ModuleResolver {
 	return &this.ModuleResolver
 }
 
-func (this *NodeModuleResolver) init_NodeModuleResolver(modulePaths *TSet[string], moduleRootPaths *TList[string], packageJsonMainEntries *TMap[string, string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) {
+func (this *NodeModuleResolver) init_NodeModuleResolver(modulePaths *JTSet[string], moduleRootPaths *JTList[string], packageJsonMainEntries *JTMap[string, string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) {
 	this.ModuleResolver.init_ModuleResolver(modulePaths, moduleRootPaths, errorHandler, pathEscaper)
 	this.nodeModulesFolders = NodeModuleResolver_buildNodeModulesFoldersRegistry(Iterable(modulePaths.asSet()), Iterable(moduleRootPaths.asList()))
 	if packageJsonMainEntries == nil {
-		this.packageJsonMainEntries = tmapEmptyImm_(tc_string, tc_string)
+		this.packageJsonMainEntries = jtmapEmptyImm_(jtc_string, jtc_string)
 	} else {
 		this.packageJsonMainEntries = this.buildPackageJsonMainEntries(packageJsonMainEntries)
 	}
 }
 
-func new_NodeModuleResolver(modulePaths *TSet[string], moduleRootPaths *TList[string], packageJsonMainEntries *TMap[string, string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) *NodeModuleResolver {
+func new_NodeModuleResolver(modulePaths *JTSet[string], moduleRootPaths *JTList[string], packageJsonMainEntries *JTMap[string, string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) *NodeModuleResolver {
 	this := &NodeModuleResolver{}
 	this.self_ = this
 	this.init_NodeModuleResolver(modulePaths, moduleRootPaths, packageJsonMainEntries, errorHandler, pathEscaper)
@@ -54,7 +54,7 @@ func new_NodeModuleResolver(modulePaths *TSet[string], moduleRootPaths *TList[st
 }
 
 func NodeModuleResolver_buildNodeModulesFoldersRegistry(modulePaths IterableOf[string], moduleRootPaths IterableOf[string]) ImmutableSortedSetOf[string] {
-	var registry *TSet[string] = newTSortedSetC_(tc_string, &Comparator_tfn_string_string{func(a string, b string) int32 {
+	var registry *JTSet[string] = newTSortedSetC_(jtc_string, &Comparator_tfn_string_string{func(a string, b string) int32 {
 		var comparison int32 = Integer_compare(String_length(b), String_length(a))
 		if comparison != 0 {
 			return comparison
@@ -86,8 +86,8 @@ func NodeModuleResolver_buildNodeModulesFoldersRegistry(modulePaths IterableOf[s
 	return ImmutableSortedSet_copyOfSorted(registry.asSorted())
 }
 
-func (this *NodeModuleResolver) buildPackageJsonMainEntries(packageJsonMainEntries *TMap[string, string]) *TMap[string, string] {
-	var builder *TMapBuilder[string, string] = newTMapBuilder_(tc_string, tc_string)
+func (this *NodeModuleResolver) buildPackageJsonMainEntries(packageJsonMainEntries *JTMap[string, string]) *JTMap[string, string] {
+	var builder *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
 	it_1 := packageJsonMainEntries.eachEntry()
 	for it_1.next() {
 		var packageJsonMainEntry *TEntry[string, string] = it_1.entry()
@@ -100,7 +100,7 @@ func (this *NodeModuleResolver) buildPackageJsonMainEntries(packageJsonMainEntri
 	return builder.buildOrThrow()
 }
 
-func (this *NodeModuleResolver) getPackageJsonMainEntries_impl() *TMap[string, string] {
+func (this *NodeModuleResolver) getPackageJsonMainEntries_impl() *JTMap[string, string] {
 	return this.packageJsonMainEntries
 }
 
@@ -215,7 +215,7 @@ func NodeModuleResolver_clinit() {
 }
 
 type NodeModuleResolver_Factory struct {
-	packageJsonMainEntries *TMap[string, string]
+	packageJsonMainEntries *JTMap[string, string]
 }
 
 func (this *NodeModuleResolver_Factory) init_NodeModuleResolver_Factory_0() {
@@ -228,16 +228,16 @@ func new_NodeModuleResolver_Factory_0() *NodeModuleResolver_Factory {
 	return this
 }
 
-func (this *NodeModuleResolver_Factory) init_NodeModuleResolver_Factory_Map(packageJsonMainEntries *TMap[string, string]) {
+func (this *NodeModuleResolver_Factory) init_NodeModuleResolver_Factory_Map(packageJsonMainEntries *JTMap[string, string]) {
 	this.packageJsonMainEntries = packageJsonMainEntries
 }
 
-func new_NodeModuleResolver_Factory_Map(packageJsonMainEntries *TMap[string, string]) *NodeModuleResolver_Factory {
+func new_NodeModuleResolver_Factory_Map(packageJsonMainEntries *JTMap[string, string]) *NodeModuleResolver_Factory {
 	this := &NodeModuleResolver_Factory{}
 	this.init_NodeModuleResolver_Factory_Map(packageJsonMainEntries)
 	return this
 }
 
 func (this *NodeModuleResolver_Factory) create(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) *ModuleResolver {
-	return new_NodeModuleResolver(tsetImm_(tc_string, modulePaths), tlistImm_(tc_string, moduleRootPaths), this.packageJsonMainEntries, errorHandler, pathEscaper).up_ModuleResolver()
+	return new_NodeModuleResolver(tsetImm_(jtc_string, modulePaths), jtlistImm_(jtc_string, moduleRootPaths), this.packageJsonMainEntries, errorHandler, pathEscaper).up_ModuleResolver()
 }

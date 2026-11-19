@@ -4,7 +4,7 @@ package closure
 
 type NestedCompilerRunner struct {
 	shadowCompiler   *Compiler
-	inputs           *TList[*CompilerInput]
+	inputs           *JTList[*CompilerInput]
 	baseChunk        *JSChunk
 	original_        *AbstractCompiler
 	shadowOptions    *CompilerOptions
@@ -14,7 +14,7 @@ type NestedCompilerRunner struct {
 
 func (this *NestedCompilerRunner) finit_NestedCompilerRunner() {
 	this.shadowCompiler = new_Compiler_0()
-	this.inputs = newTList_(tc_p_CompilerInput)
+	this.inputs = jnewTList_(jtc_p_CompilerInput)
 	this.baseChunk = new_JSChunk("shadow_base")
 }
 
@@ -54,17 +54,17 @@ func (this *NestedCompilerRunner) compile() {
 }
 
 func (this *NestedCompilerRunner) initializeCompiler() {
-	var externNames *TSet[string] = NodeUtil_collectExternVariableNames(this.original_, this.original_.getRoot().getFirstChild())
+	var externNames *JTSet[string] = NodeUtil_collectExternVariableNames(this.original_, this.original_.getRoot().getFirstChild())
 	this.shadowCompiler.addExportedNames(externNames)
 	this.shadowCompiler.setExternProperties(this.original_.getExternProperties())
 	this.shadowCompiler.setDebugMessage("<shadow AST compilation>")
-	var chunks *TList[*JSChunk] = this.createChunks()
+	var chunks *JTList[*JSChunk] = this.createChunks()
 	this.shadowCompiler.initChunks(ImmutableList_as_List(ImmutableList_of()), chunks.asList(), this.shadowOptions)
 	this.shadowCompiler.setPassConfig(this.shadowPassConfig)
 	this.shadowCompiler.parseForCompilation()
 }
 
-func (this *NestedCompilerRunner) createChunks() *TList[*JSChunk] {
+func (this *NestedCompilerRunner) createChunks() *JTList[*JSChunk] {
 	this.baseChunk.addCompilerInput(new_CompilerInput_SourceFile(SourceFile_jscomp_fromCode_String_String_SourceKind("synthetic_base", "", StaticSourceFile_SourceKind_STRONG)))
 	var chunks ImmutableList_BuilderOf[*JSChunk] = ImmutableList_builder().add(obj_(this.baseChunk))
 	it_1 := this.inputs.each()
@@ -75,7 +75,7 @@ func (this *NestedCompilerRunner) createChunks() *TList[*JSChunk] {
 		chunk.addDependency(this.baseChunk)
 		chunks.add(obj_(chunk))
 	}
-	return tlistImm_(tc_p_JSChunk, chunks.build())
+	return jtlistImm_(jtc_p_JSChunk, chunks.build())
 }
 
 func (this *NestedCompilerRunner) runCompilation() {

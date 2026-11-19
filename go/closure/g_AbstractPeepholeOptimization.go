@@ -6,7 +6,7 @@ type AbstractPeepholeOptimization struct {
 	self_       any
 	compiler_   *AbstractCompiler
 	astAnalyzer *AstAnalyzer
-	newFeatures *TSet[*FeatureSet_Feature]
+	newFeatures *JTSet[*FeatureSet_Feature]
 }
 
 func (this *AbstractPeepholeOptimization) as_AbstractPeepholeOptimization() *AbstractPeepholeOptimization {
@@ -37,7 +37,7 @@ func (this *AbstractPeepholeOptimization) self() any {
 }
 
 func (this *AbstractPeepholeOptimization) finit_AbstractPeepholeOptimization() {
-	this.newFeatures = newTSet_(tc_p_FeatureSet_Feature)
+	this.newFeatures = jnewTSet_(jtc_p_FeatureSet_Feature)
 }
 
 func (this *AbstractPeepholeOptimization) init_AbstractPeepholeOptimization() {
@@ -153,8 +153,8 @@ func (this *AbstractPeepholeOptimization) addFeatureToEnclosingScript(feature *F
 	this.newFeatures.add(feature)
 }
 
-func (this *AbstractPeepholeOptimization) getNewFeatures() *TSet[*FeatureSet_Feature] {
-	return immutableSetCopyOfT_(tc_p_FeatureSet_Feature, this.newFeatures)
+func (this *AbstractPeepholeOptimization) getNewFeatures() *JTSet[*FeatureSet_Feature] {
+	return immutableSetCopyOfT_(jtc_p_FeatureSet_Feature, this.newFeatures)
 }
 
 func (this *AbstractPeepholeOptimization) clearNewFeatures() {

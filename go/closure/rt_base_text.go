@@ -63,7 +63,7 @@ func (this *CharMatcher) matchesAllOf(seq any) bool { return this.matchesAllOf_s
 
 // matchesAllOf_s is matchesAllOf for a String (rt_conv.go, "String for CharSequence").
 func (this *CharMatcher) matchesAllOf_s(seq string) bool {
-	for _, c := range String_toCharArray(csStr_(seq)) {
+	for _, c := range String_toCharArray(jcsStr_(seq)) {
 		if !this.f(c) {
 			return false
 		}
@@ -101,7 +101,7 @@ func CharMatcher_anyOf(seq any) *CharMatcher { return CharMatcher_anyOf_s(csStri
 
 // CharMatcher_anyOf_s is anyOf for a String (rt_conv.go, "String for CharSequence").
 func CharMatcher_anyOf_s(seq string) *CharMatcher {
-	u := String_toCharArray(csStr_(seq))
+	u := String_toCharArray(jcsStr_(seq))
 	switch len(u) {
 	case 0:
 		return &CharMatcher{func(uint16) bool { return false }, "CharMatcher.none()"}
@@ -277,8 +277,8 @@ func (this *Splitter) splitToList(seq any) List { return listOf_(this.splitAll_(
 // splitToListT_ is splitToList for a typed declaration (j2go rule "typed collections"): the
 // parts as they are, in a list that cannot be changed, as Guava's
 // (Collections.unmodifiableList of a list that nothing else has).
-func splitToListT_(c *tconv_[string], sp *Splitter, seq any) *TList[string] {
-	l := &TList[string]{c: c, items: sp.splitStrs_(csString_(seq)), twin: unmodMark_}
+func splitToListT_(c *jtconv_[string], sp *Splitter, seq any) *JTList[string] {
+	l := &JTList[string]{c: c, items: sp.splitStrs_(csString_(seq)), twin: unmodMark_}
 	l.view.l = l
 	return l
 }

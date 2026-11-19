@@ -96,7 +96,7 @@ func (this *DeadPropertyAssignmentElimination_FunctionVisitor) enterChangedScope
 type DeadPropertyAssignmentElimination_Property struct {
 	name_     string
 	writes    *TDeque[*DeadPropertyAssignmentElimination_PropertyWrite]
-	children_ *TSet[*DeadPropertyAssignmentElimination_Property]
+	children_ *JTSet[*DeadPropertyAssignmentElimination_Property]
 }
 
 func (this *DeadPropertyAssignmentElimination_Property) zero_DeadPropertyAssignmentElimination_Property() {
@@ -105,7 +105,7 @@ func (this *DeadPropertyAssignmentElimination_Property) zero_DeadPropertyAssignm
 
 func (this *DeadPropertyAssignmentElimination_Property) finit_DeadPropertyAssignmentElimination_Property() {
 	this.writes = newTDeque_(tc_p_DeadPropertyAssignmentElimination_PropertyWrite)
-	this.children_ = newTSet_(tc_p_DeadPropertyAssignmentElimination_Property)
+	this.children_ = jnewTSet_(jtc_p_DeadPropertyAssignmentElimination_Property)
 }
 
 func (this *DeadPropertyAssignmentElimination_Property) init_DeadPropertyAssignmentElimination_Property(name string) {
@@ -127,8 +127,8 @@ func (this *DeadPropertyAssignmentElimination_Property) markLastWriteRead() {
 }
 
 func (this *DeadPropertyAssignmentElimination_Property) markChildrenRead() {
-	var propertiesSet *TSet[*DeadPropertyAssignmentElimination_Property] = tsetCopy_(tc_p_DeadPropertyAssignmentElimination_Property, this.children_)
-	var propertyQueue *TDeque[*DeadPropertyAssignmentElimination_Property] = tdequeFrom_(tc_p_DeadPropertyAssignmentElimination_Property, Collection(propertiesSet.asSet()))
+	var propertiesSet *JTSet[*DeadPropertyAssignmentElimination_Property] = tsetCopy_(jtc_p_DeadPropertyAssignmentElimination_Property, this.children_)
+	var propertyQueue *TDeque[*DeadPropertyAssignmentElimination_Property] = tdequeFrom_(jtc_p_DeadPropertyAssignmentElimination_Property, Collection(propertiesSet.asSet()))
 	propertiesSet.add(this)
 	for !propertyQueue.isEmpty() {
 		var childProperty *DeadPropertyAssignmentElimination_Property = propertyQueue.pop()
@@ -186,12 +186,12 @@ func (this *DeadPropertyAssignmentElimination_PropertyWrite) markRead() {
 }
 
 type DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal struct {
-	propertyMap         *TMap[string, *DeadPropertyAssignmentElimination_Property]
+	propertyMap         *JTMap[string, *DeadPropertyAssignmentElimination_Property]
 	skiplistedPropNames SetOf[string]
 }
 
 func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) finit_DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal() {
-	this.propertyMap = newTMap_(tc_string, tc_p_DeadPropertyAssignmentElimination_Property)
+	this.propertyMap = jnewTMap_(jtc_string, jtc_p_DeadPropertyAssignmentElimination_Property)
 }
 
 func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) init_DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal(skiplistedPropNames SetOf[string]) {

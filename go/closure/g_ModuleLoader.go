@@ -4,7 +4,7 @@ package closure
 
 type ModuleLoader struct {
 	errorHandler    ErrorHandler
-	moduleRootPaths *TList[string]
+	moduleRootPaths *JTList[string]
 	pathResolver    *ModuleLoader_PathResolver
 	pathEscaper     *ModuleLoader_PathEscaper
 	moduleResolver  *ModuleResolver
@@ -15,7 +15,7 @@ func (this *ModuleLoader) init_ModuleLoader(builder *ModuleLoader_Builder) {
 	this.pathResolver = Preconditions_checkNotNull_T(builder.pathResolver)
 	this.pathEscaper = Preconditions_checkNotNull_T(builder.pathEscaper)
 	this.moduleRootPaths = this.createRootPaths(Preconditions_checkNotNull_T(builder.moduleRoots))
-	var modulePaths *TSet[string] = this.resolvePaths(Preconditions_checkNotNull_T(builder.inputs))
+	var modulePaths *JTSet[string] = this.resolvePaths(Preconditions_checkNotNull_T(builder.inputs))
 	this.moduleResolver = builder.factory.create(modulePaths.asImm(), this.moduleRootPaths.asImm(), this.errorHandler, this.pathEscaper)
 }
 
@@ -29,7 +29,7 @@ func ModuleLoader_builder() *ModuleLoader_Builder {
 	return new_ModuleLoader_Builder()
 }
 
-func (this *ModuleLoader) getPackageJsonMainEntries() *TMap[string, string] {
+func (this *ModuleLoader) getPackageJsonMainEntries() *JTMap[string, string] {
 	return this.moduleResolver.getPackageJsonMainEntries()
 }
 
@@ -50,10 +50,10 @@ func ModuleLoader_isAmbiguousIdentifier(name string) bool {
 }
 
 func ModuleLoader_isPathIdentifier(name string) bool {
-	return String_contains_s(name, ModuleLoader_MODULE_SLASH)
+	return JString_contains_s(name, ModuleLoader_MODULE_SLASH)
 }
 
-func (this *ModuleLoader) createRootPaths(roots IterableOf[string]) *TList[string] {
+func (this *ModuleLoader) createRootPaths(roots IterableOf[string]) *JTList[string] {
 	var result ImmutableSortedSet_BuilderOf[string] = new_ImmutableSortedSet_Builder(ModuleLoader_BEST_MATCH_PATH_ORDERING)
 	it_1 := foreach_(any(roots))
 	for it_1.next() {
@@ -66,11 +66,11 @@ func (this *ModuleLoader) createRootPaths(roots IterableOf[string]) *TList[strin
 			return strobj_(n)
 		}())
 	}
-	return tlistImm_(tc_string, result.build().asList())
+	return jtlistImm_(jtc_string, result.build().asList())
 }
 
-func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo_]) *TSet[string] {
-	var sortedModulePaths *TList[string] = newTList_(tc_string)
+func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo_]) *JTSet[string] {
+	var sortedModulePaths *JTList[string] = jnewTList_(jtc_string)
 	it_1 := foreach_(any(inputs))
 	for it_1.next() {
 		var input DependencyInfo_ = icast_DependencyInfo_(it_1.v)
@@ -86,7 +86,7 @@ func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo_]) *TSet
 	List_sort(sortedModulePaths.asList(), ModuleLoader_BEST_MATCH_PATH_ORDERING)
 	var dupeModulePaths *SimpleMultiset = SimpleMultiset_copyOf(Iterable(sortedModulePaths.asList()))
 	Preconditions_checkState_boolean_String_Object((dupeModulePaths.size() == dupeModulePaths.elementSet().size()), "Duplicate module paths after resolving: %s", dupeModulePaths)
-	return immutableSetCopyOf_(tc_string, Collection(dupeModulePaths.elementSet()))
+	return jimmutableSetCopyOf_(jtc_string, Collection(dupeModulePaths.elementSet()))
 }
 
 func ModuleLoader_normalize(path string, moduleRootPaths IterableOf[string]) string {

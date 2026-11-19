@@ -7,7 +7,7 @@ type ExpressionDecomposer struct {
 	astAnalyzer            *AstAnalyzer
 	astFactory_            *AstFactory
 	safeNameIdSupplier_    SupplierOf[string]
-	knownConstantFunctions *TSet[string]
+	knownConstantFunctions *JTSet[string]
 	scope_                 *Scope
 	enabledWorkarounds     EnumSetOf[*ExpressionDecomposer_Workaround]
 	unknownType            *JSType
@@ -25,7 +25,7 @@ func (this *ExpressionDecomposer) finit_ExpressionDecomposer() {
 	this.resultNamePrefix = "JSCompiler_inline_result"
 }
 
-func (this *ExpressionDecomposer) init_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string], constFunctionNames *TSet[string], scope *Scope, enabledWorkarounds EnumSetOf[*ExpressionDecomposer_Workaround]) {
+func (this *ExpressionDecomposer) init_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string], constFunctionNames *JTSet[string], scope *Scope, enabledWorkarounds EnumSetOf[*ExpressionDecomposer_Workaround]) {
 	this.finit_ExpressionDecomposer()
 	Preconditions_checkNotNull_T(compiler)
 	Preconditions_checkNotNull_T(safeNameIdSupplier)
@@ -45,7 +45,7 @@ func (this *ExpressionDecomposer) init_ExpressionDecomposer(compiler *AbstractCo
 	}()
 }
 
-func new_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string], constFunctionNames *TSet[string], scope *Scope, enabledWorkarounds EnumSetOf[*ExpressionDecomposer_Workaround]) *ExpressionDecomposer {
+func new_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string], constFunctionNames *JTSet[string], scope *Scope, enabledWorkarounds EnumSetOf[*ExpressionDecomposer_Workaround]) *ExpressionDecomposer {
 	this := &ExpressionDecomposer{}
 	this.zero_ExpressionDecomposer()
 	this.init_ExpressionDecomposer(compiler, safeNameIdSupplier, constFunctionNames, scope, enabledWorkarounds)
@@ -127,7 +127,7 @@ func (this *ExpressionDecomposer) exposeExpression_2(expressionRoot Node, subExp
 
 func (this *ExpressionDecomposer) rewriteAllContainingOptionalChains(subExpression Node) {
 	var optChainRewriterBuilder *OptionalChainRewriter_Builder = OptionalChainRewriter_builder(this.compiler_).setTmpVarNameCreator(&OptionalChainRewriter_TmpVarNameCreator_fn{func() string { return this.getTempConstantValueName() }}).setScope(this.scope_)
-	var rewriters *TDeque[*OptionalChainRewriter] = newTDeque_(tc_p_OptionalChainRewriter)
+	var rewriters *TDeque[*OptionalChainRewriter] = newTDeque_(jtc_p_OptionalChainRewriter)
 	{
 		var exprParent Node = subExpression.getParent()
 		for ; !NodeUtil_isStatement(exprParent); exprParent = exprParent.getParent() {

@@ -24,7 +24,7 @@ func (this *RewriteAsyncIteration) init_RewriteAsyncIteration(compiler *Abstract
 	this.compiler_ = Preconditions_checkNotNull_T(compiler)
 	this.astFactory_ = Preconditions_checkNotNull_T(astFactory)
 	this.namespace_ = Preconditions_checkNotNull_T(namespace)
-	this.contextStack = newTDeque_(tc_p_RewriteAsyncIteration_LexicalContext)
+	this.contextStack = newTDeque_(jtc_p_RewriteAsyncIteration_LexicalContext)
 	var runtimeLibManager *RuntimeJsLibManager = compiler.getRuntimeJsLibManager()
 	this.asyncGeneratorWrapper = runtimeLibManager.getJsLibField("$jscomp.AsyncGeneratorWrapper")
 	this.actionRecordName = runtimeLibManager.getJsLibField("$jscomp.AsyncGeneratorWrapper$ActionRecord")
@@ -488,7 +488,7 @@ func (this *RewriteAsyncIteration_LexicalContext) mustReplaceThisSuperArgs() boo
 
 type RewriteAsyncIteration_ThisSuperArgsContext struct {
 	ctx                 *RewriteAsyncIteration_LexicalContext
-	usedSuperProperties *TSet[Node]
+	usedSuperProperties *JTSet[Node]
 	thisNodeToAdd       Node
 	usedArguments       bool
 	uniqueId            string
@@ -499,7 +499,7 @@ func (this *RewriteAsyncIteration_ThisSuperArgsContext) zero_RewriteAsyncIterati
 }
 
 func (this *RewriteAsyncIteration_ThisSuperArgsContext) finit_RewriteAsyncIteration_ThisSuperArgsContext() {
-	this.usedSuperProperties = newTSet_(tc_Node)
+	this.usedSuperProperties = jnewTSet_(jtc_Node)
 	this.thisNodeToAdd = 0
 	this.usedArguments = false
 }

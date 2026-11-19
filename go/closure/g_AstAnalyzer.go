@@ -278,10 +278,10 @@ func (this *AstAnalyzer) getPropertyKind(name string) *AccessorSummary_PropertyA
 	}()
 }
 
-var AstAnalyzer_CONSTRUCTORS_WITHOUT_SIDE_EFFECTS *TSet[string]
-var AstAnalyzer_BUILTIN_FUNCTIONS_WITHOUT_SIDEEFFECTS *TSet[string]
-var AstAnalyzer_REGEXP_METHODS *TSet[string]
-var AstAnalyzer_STRING_REGEXP_METHODS *TSet[string]
+var AstAnalyzer_CONSTRUCTORS_WITHOUT_SIDE_EFFECTS *JTSet[string]
+var AstAnalyzer_BUILTIN_FUNCTIONS_WITHOUT_SIDEEFFECTS *JTSet[string]
+var AstAnalyzer_REGEXP_METHODS *JTSet[string]
+var AstAnalyzer_STRING_REGEXP_METHODS *JTSet[string]
 
 var AstAnalyzer_clinit_done bool
 
@@ -290,10 +290,10 @@ func AstAnalyzer_clinit() {
 		return
 	}
 	AstAnalyzer_clinit_done = true
-	AstAnalyzer_CONSTRUCTORS_WITHOUT_SIDE_EFFECTS = immutableSetOf_[string](tc_string, "Array", "Date", "Error", "Object", "RegExp", "XMLHttpRequest")
-	AstAnalyzer_BUILTIN_FUNCTIONS_WITHOUT_SIDEEFFECTS = immutableSetOf_[string](tc_string, "Object", "Array", "String", "Number", "BigInt", "Boolean", "RegExp", "Error", "Symbol")
-	AstAnalyzer_REGEXP_METHODS = immutableSetOf_[string](tc_string, "test", "exec")
-	AstAnalyzer_STRING_REGEXP_METHODS = immutableSetOf_[string](tc_string, "match", "replace", "search", "split")
+	AstAnalyzer_CONSTRUCTORS_WITHOUT_SIDE_EFFECTS = jimmutableSetOf_[string](jtc_string, "Array", "Date", "Error", "Object", "RegExp", "XMLHttpRequest")
+	AstAnalyzer_BUILTIN_FUNCTIONS_WITHOUT_SIDEEFFECTS = jimmutableSetOf_[string](jtc_string, "Object", "Array", "String", "Number", "BigInt", "Boolean", "RegExp", "Error", "Symbol")
+	AstAnalyzer_REGEXP_METHODS = jimmutableSetOf_[string](jtc_string, "test", "exec")
+	AstAnalyzer_STRING_REGEXP_METHODS = jimmutableSetOf_[string](jtc_string, "match", "replace", "search", "split")
 
 }
 
@@ -415,7 +415,7 @@ func (this *AstAnalyzer_Options_Builder) build() *AstAnalyzer_Options {
 		if (int32(this.set0) & 8) == 0 {
 			missing.append(" assumeKnownBuiltinsArePure")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + tostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
 	}
 	return new_AstAnalyzer_Options(this.useTypesForLocalOptimization_, this.assumeGettersArePure_, this.hasRegexpGlobalReferences_, this.assumeKnownBuiltinsArePure_)
 }

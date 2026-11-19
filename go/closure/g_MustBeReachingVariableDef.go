@@ -5,8 +5,8 @@ package closure
 type MustBeReachingVariableDef struct {
 	DataFlowAnalysis[Node, *MustBeReachingVariableDef_MustDef]
 	compiler_   *AbstractCompiler
-	escaped     *TSet[*Var]
-	allVarsInFn *TMap[string, *Var]
+	escaped     *JTSet[*Var]
+	allVarsInFn *JTMap[string, *Var]
 }
 
 func (this *MustBeReachingVariableDef) up_DataFlowAnalysis() *DataFlowAnalysis[Node, *MustBeReachingVariableDef_MustDef] {
@@ -16,14 +16,14 @@ func (this *MustBeReachingVariableDef) up_DataFlowAnalysis() *DataFlowAnalysis[N
 	return &this.DataFlowAnalysis
 }
 
-func (this *MustBeReachingVariableDef) init_MustBeReachingVariableDef(cfg *ControlFlowGraph[Node], compiler *AbstractCompiler, escaped *TSet[*Var], allVarsInFn *TMap[string, *Var]) {
+func (this *MustBeReachingVariableDef) init_MustBeReachingVariableDef(cfg *ControlFlowGraph[Node], compiler *AbstractCompiler, escaped *JTSet[*Var], allVarsInFn *JTMap[string, *Var]) {
 	this.DataFlowAnalysis.init_DataFlowAnalysis(cfg)
 	this.compiler_ = compiler
 	this.escaped = escaped
 	this.allVarsInFn = allVarsInFn
 }
 
-func new_MustBeReachingVariableDef(cfg *ControlFlowGraph[Node], compiler *AbstractCompiler, escaped *TSet[*Var], allVarsInFn *TMap[string, *Var]) *MustBeReachingVariableDef {
+func new_MustBeReachingVariableDef(cfg *ControlFlowGraph[Node], compiler *AbstractCompiler, escaped *JTSet[*Var], allVarsInFn *JTMap[string, *Var]) *MustBeReachingVariableDef {
 	this := &MustBeReachingVariableDef{}
 	this.self_ = this
 	this.vt_DataFlowAnalysis_ = this
@@ -295,12 +295,12 @@ func (this *MustBeReachingVariableDef) createFlowJoiner_impl() DataFlowAnalysis_
 
 type MustBeReachingVariableDef_Definition struct {
 	node_               Node
-	depends             *TSet[*Var]
+	depends             *JTSet[*Var]
 	unknownDependencies bool
 }
 
 func (this *MustBeReachingVariableDef_Definition) finit_MustBeReachingVariableDef_Definition() {
-	this.depends = newTSet_(tce_p_Var)
+	this.depends = jnewTSet_(tce_p_Var)
 	this.unknownDependencies = false
 }
 
@@ -340,11 +340,11 @@ func (this *MustBeReachingVariableDef_Definition) hashCode() int32 {
 }
 
 type MustBeReachingVariableDef_MustDef struct {
-	reachingDef *TMap[*Var, *MustBeReachingVariableDef_Definition]
+	reachingDef *JTMap[*Var, *MustBeReachingVariableDef_Definition]
 }
 
 func (this *MustBeReachingVariableDef_MustDef) finit_MustBeReachingVariableDef_MustDef() {
-	this.reachingDef = newTMap_(tce_p_Var, tc_p_MustBeReachingVariableDef_Definition)
+	this.reachingDef = jnewTMap_(tce_p_Var, tc_p_MustBeReachingVariableDef_Definition)
 }
 
 func (this *MustBeReachingVariableDef_MustDef) init_MustBeReachingVariableDef_MustDef_0() {
@@ -397,7 +397,7 @@ func (this *MustBeReachingVariableDef_MustDef) hashCode() int32 {
 
 type MustBeReachingVariableDef_MustDefJoin struct {
 	result    *MustBeReachingVariableDef_MustDef
-	resultMap *TMap[*Var, *MustBeReachingVariableDef_Definition]
+	resultMap *JTMap[*Var, *MustBeReachingVariableDef_Definition]
 }
 
 func (this *MustBeReachingVariableDef_MustDefJoin) finit_MustBeReachingVariableDef_MustDefJoin() {

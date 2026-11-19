@@ -15,7 +15,7 @@ func is_Outcome_base(v any) bool {
 }
 
 func (this *Outcome_base[T]) zero_Outcome_base() {
-	this.value_ = null_[T]()
+	this.value_ = jnull_[T]()
 }
 
 func (this *Outcome_base[T]) init_Outcome_base(value T, error_ *Throwable) {
@@ -42,7 +42,7 @@ func Outcome_base_err[T any](error_ *Throwable) *Outcome_base[T] {
 	if error_ == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	return new_Outcome_base[T](null_[T](), error_)
+	return new_Outcome_base[T](jnull_[T](), error_)
 }
 
 func (this *Outcome_base[T]) isOk() bool {

@@ -156,7 +156,7 @@ func Tracer_setDefaultSilenceThreshold(threshold int32) {
 func Tracer_initCurrentThreadTrace_0() {
 	var events *Tracer_ThreadTrace = Tracer_getThreadTrace()
 	if !events.isEmpty() {
-		Tracer_logger.log(Level_WARNING, ("Non-empty timer log:\n" + tostr_(events)), new_Throwable_0())
+		Tracer_logger.log(Level_WARNING, ("Non-empty timer log:\n" + jtostr_(events)), new_Throwable_0())
 		Tracer_clearThreadTrace()
 		events = Tracer_getThreadTrace()
 	}
@@ -398,9 +398,9 @@ func (this *Tracer_Event) toString(prevEventTime int64, indent string, digitsCol
 
 type Tracer_ThreadTrace struct {
 	defaultSilenceThreshold      int32
-	events                       *TList[*Tracer_Event]
-	outstandingEvents            *TSet[*Tracer]
-	stats                        *TMap[string, *Tracer_Stat]
+	events                       *JTList[*Tracer_Event]
+	outstandingEvents            *JTSet[*Tracer]
+	stats                        *JTMap[string, *Tracer_Stat]
 	isOutstandingEventsTruncated bool
 	isEventsTruncated            bool
 	isInitializedField           bool
@@ -408,9 +408,9 @@ type Tracer_ThreadTrace struct {
 }
 
 func (this *Tracer_ThreadTrace) finit_Tracer_ThreadTrace() {
-	this.events = newTList_(tc_p_Tracer_Event)
-	this.outstandingEvents = newTSet_(tc_p_Tracer)
-	this.stats = newTMap_(tc_string, tc_p_Tracer_Stat)
+	this.events = jnewTList_(jtc_p_Tracer_Event)
+	this.outstandingEvents = jnewTSet_(jtc_p_Tracer)
+	this.stats = jnewTMap_(jtc_string, jtc_p_Tracer_Stat)
 	this.isOutstandingEventsTruncated = false
 	this.isEventsTruncated = false
 	this.isInitializedField = false
@@ -525,7 +525,7 @@ func (this *Tracer_ThreadTrace) toString() string {
 	var etime int64 = -1
 	var indent *TDeque[string] = func() *TDeque[string] {
 		if this.prettyPrint {
-			return newTDeque_(tc_string)
+			return newTDeque_(jtc_string)
 		}
 		return nil
 	}()

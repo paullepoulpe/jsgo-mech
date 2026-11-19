@@ -4,13 +4,13 @@ package closure
 
 type ExtraRequireRemover struct {
 	compiler_ *AbstractCompiler
-	requires  *TMap[string, Node]
-	usages    *TSet[string]
+	requires  *JTMap[string, Node]
+	usages    *JTSet[string]
 }
 
 func (this *ExtraRequireRemover) finit_ExtraRequireRemover() {
-	this.requires = newTMap_(tc_string, tc_Node)
-	this.usages = newTSet_(tc_string)
+	this.requires = jnewTMap_(jtc_string, jtc_Node)
+	this.usages = jnewTSet_(jtc_string)
 }
 
 func (this *ExtraRequireRemover) init_ExtraRequireRemover(compiler *AbstractCompiler) {
@@ -204,7 +204,7 @@ func ExtraRequireRemover_isTsickleProtoCall(call Node) bool {
 	return (((moduleId != 0) && moduleId.isStringLit()) && String_startsWith(moduleId.getString(), "proto."))
 }
 
-var ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES *TSet[string]
+var ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES *JTSet[string]
 var ExtraRequireRemover_GOOG_REQUIRE *QualifiedName
 var ExtraRequireRemover_GOOG_REQUIRE_TYPE *QualifiedName
 var ExtraRequireRemover_GOOG_FORWARD_DECLARE *QualifiedName
@@ -217,7 +217,7 @@ func ExtraRequireRemover_clinit() {
 		return
 	}
 	ExtraRequireRemover_clinit_done = true
-	ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES = immutableSetOf_[string](tc_string, "goog.testing.asserts", "goog.testing.jsunit", "goog.labs.testing.Environment")
+	ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES = jimmutableSetOf_[string](jtc_string, "goog.testing.asserts", "goog.testing.jsunit", "goog.labs.testing.Environment")
 	ExtraRequireRemover_GOOG_REQUIRE = QualifiedName_of("goog.require")
 	ExtraRequireRemover_GOOG_REQUIRE_TYPE = QualifiedName_of("goog.requireType")
 	ExtraRequireRemover_GOOG_FORWARD_DECLARE = QualifiedName_of("goog.forwardDeclare")

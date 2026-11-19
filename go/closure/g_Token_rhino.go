@@ -38,7 +38,7 @@ func Token_rhino_arity(token *Token_rhino) int32 {
 		case Token_rhino_CLASS, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_FUNCTION, Token_rhino_HOOK, Token_rhino_IMPORT, Token_rhino_INTERFACE:
 			return 3
 		default:
-			panic(new_IllegalStateException_String(("No arity defined for " + tostr_(token))).self())
+			panic(new_IllegalStateException_String(("No arity defined for " + jtostr_(token))).self())
 		}
 		panic("unreachable")
 	}()

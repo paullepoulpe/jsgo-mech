@@ -29,7 +29,7 @@ func ReplaceMessagesConstants_isProtectedMessage(n Node) bool {
 const ReplaceMessagesConstants_DEFINE_MSG_CALLEE string = "__jscomp_define_msg__"
 const ReplaceMessagesConstants_FALLBACK_MSG_CALLEE string = "__jscomp_msg_fallback__"
 
-var ReplaceMessagesConstants_PROTECTED_FUNCTION_NAMES *TSet[string]
+var ReplaceMessagesConstants_PROTECTED_FUNCTION_NAMES *JTSet[string]
 
 var ReplaceMessagesConstants_clinit_done bool
 
@@ -38,6 +38,6 @@ func ReplaceMessagesConstants_clinit() {
 		return
 	}
 	ReplaceMessagesConstants_clinit_done = true
-	ReplaceMessagesConstants_PROTECTED_FUNCTION_NAMES = immutableSetOf_[string](tc_string, ReplaceMessagesConstants_DEFINE_MSG_CALLEE, ReplaceMessagesConstants_FALLBACK_MSG_CALLEE)
+	ReplaceMessagesConstants_PROTECTED_FUNCTION_NAMES = jimmutableSetOf_[string](jtc_string, ReplaceMessagesConstants_DEFINE_MSG_CALLEE, ReplaceMessagesConstants_FALLBACK_MSG_CALLEE)
 
 }

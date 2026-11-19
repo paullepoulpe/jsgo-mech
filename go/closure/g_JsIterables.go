@@ -70,7 +70,7 @@ func JsIterables_maybeBoxIterableOrAsyncIterable(type_ *JSType, typeRegistry *JS
 }
 
 func JsIterables_maybeBoxIterableAndPossiblyAsyncIterable(type_ *JSType, typeRegistry *JSTypeRegistry, includeAsyncIterable bool) *JsIterables_MaybeBoxedType {
-	var templatedTypes *TList[*JSType] = newTList_(tc_p_JSType)
+	var templatedTypes *JTList[*JSType] = jnewTList_(jtc_p_JSType)
 	if type_.isUnionType() {
 		it_1 := type_.toMaybeUnionType().getAlternates().each()
 		for it_1.next() {

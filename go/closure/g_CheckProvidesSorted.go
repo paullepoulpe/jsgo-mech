@@ -4,7 +4,7 @@ package closure
 
 type CheckProvidesSorted struct {
 	mode_            *CheckProvidesSorted_Mode
-	originalProvides *TList[string]
+	originalProvides *JTList[string]
 	firstNode        Node
 	lastNode         Node
 	finished         bool
@@ -13,7 +13,7 @@ type CheckProvidesSorted struct {
 }
 
 func (this *CheckProvidesSorted) finit_CheckProvidesSorted() {
-	this.originalProvides = newTList_(tc_string)
+	this.originalProvides = jnewTList_(jtc_string)
 	this.firstNode = 0
 	this.lastNode = 0
 	this.finished = false
@@ -87,12 +87,12 @@ func CheckProvidesSorted_formatProvide(namespace string) string {
 }
 
 func (this *CheckProvidesSorted) checkCanonical(t *NodeTraversal) {
-	var sortedProvides *TList[string] = tlistCopy_(tc_string, this.originalProvides)
+	var sortedProvides *JTList[string] = tlistCopy_(jtc_string, this.originalProvides)
 	Collections_sort(sortedProvides.asList())
-	var canonicalProvides *TList[string] = immutableListCopyOf_(tc_string, Collection(new_LinkedHashSet_Collection(Collection(sortedProvides.asList()))))
+	var canonicalProvides *JTList[string] = jimmutableListCopyOf_(jtc_string, Collection(new_LinkedHashSet_Collection(Collection(sortedProvides.asList()))))
 	if !Object_equals(any(this.originalProvides.asList()), any(canonicalProvides.asList())) {
 		this.needsFixField = true
-		this.replacement_ = Optional_of[string](String_join_s("\n", Iterables_transform(Iterable(canonicalProvides.asList()), &Function_base_tfn_string_string{func(p0 string) string { return CheckProvidesSorted_formatProvide(p0) }})))
+		this.replacement_ = Optional_of[string](JString_join_s("\n", Iterables_transform(Iterable(canonicalProvides.asList()), &Function_base_tfn_string_string{func(p0 string) string { return CheckProvidesSorted_formatProvide(p0) }})))
 		if this.mode_ == CheckProvidesSorted_Mode_COLLECT_AND_REPORT {
 			t.report(this.firstNode, CheckProvidesSorted_PROVIDES_NOT_SORTED, []string{this.replacement_.orElse("null")})
 		}

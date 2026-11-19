@@ -30,7 +30,7 @@ func new_JSDocInfoPrinter_boolean_boolean(useOriginalName bool, printDesc bool) 
 
 func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	var multiline bool = false
-	var parts *TList[string] = newTList_(tc_string)
+	var parts *JTList[string] = jnewTList_(jtc_string)
 	parts.add("/**")
 	if info.isExterns() {
 		parts.add("@externs")
@@ -173,7 +173,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 		multiline = true
 		parts.add(("@throws " + sstr_(str_(info.getThrowsAnnotations().get(0)))))
 	}
-	var templates *TMap[string, *JSTypeExpression] = info.getTemplateTypes()
+	var templates *JTMap[string, *JSTypeExpression] = info.getTemplateTypes()
 	if !templates.isEmpty() {
 		multiline = true
 		Map_forEach(templates.asMap(), &BiConsumer_tfn_string_JSTypeExpression{func(name string, boundExpr *JSTypeExpression) {
@@ -185,7 +185,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 			}
 		}})
 	}
-	var typeTransformations *TMap[string, Node] = info.getTypeTransformations()
+	var typeTransformations *JTMap[string, Node] = info.getTypeTransformations()
 	if !typeTransformations.isEmpty() {
 		multiline = true
 		it_11 := typeTransformations.eachEntry()
@@ -307,7 +307,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 		Joiner_on(" ").appendTo(sb, Iterable(parts.asList()))
 		sb.append(" */")
 	}
-	var s string = JSDocInfoPrinter_STAR_WITHOUT_SPACE_PATTERN.matcher_s(String_replace_s(Object_toString(obj_(sb)), "\n", "\n *")).replaceAll("\n * $1")
+	var s string = JSDocInfoPrinter_STAR_WITHOUT_SPACE_PATTERN.matcher_s(JString_replace_s(Object_toString(obj_(sb)), "\n", "\n *")).replaceAll("\n * $1")
 	if multiline {
 		s += "\n */\n"
 	} else {
