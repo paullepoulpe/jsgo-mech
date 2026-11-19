@@ -6,7 +6,7 @@ type Compiler struct {
 	AbstractCompiler
 	options_                       *CompilerOptions
 	passes                         *PassConfig
-	externs                        ArrayListOf[*CompilerInput]
+	externs                        *TList[*CompilerInput]
 	chunkGraph                     *JSChunkGraph
 	moduleLoader                   *ModuleLoader
 	moduleTypesByName              *JTMap[string, *CompilerInput_ModuleType]
@@ -93,7 +93,7 @@ func (this *Compiler) zero_Compiler() {
 func (this *Compiler) finit_Compiler() {
 	this.options_ = nil
 	this.passes = nil
-	this.externs = new_ArrayList_0()
+	this.externs = newTList_(tc_p_CompilerInput)
 	this.lastJsSource = Optional_empty[string]()
 	this.inputsById = Map(new_ConcurrentHashMap())
 	this.scriptNodeByFilename = Map(new_ConcurrentHashMap())
@@ -267,7 +267,7 @@ func (this *Compiler) initOptions(options *CompilerOptions) {
 
 func (this *Compiler) printConfig() {
 	if this.isDebugLoggingEnabled() {
-		this.logToFile("externs.log", &Supplier_tfn_string{func() string { return Object_toString(this.externs.self()) }})
+		this.logToFile("externs.log", &Supplier_tfn_string{func() string { return Object_toString(any(this.externs.asList())) }})
 		this.logToFile("inputs.json", func() *Supplier_tfn_string {
 			recv_1 := Compiler_toPrettyJson(this.chunkGraph.toJson())
 			return &Supplier_tfn_string{func() string { return String_toString(recv_1) }}
@@ -281,7 +281,7 @@ func (this *Compiler) printConfig() {
 	} else {
 		var err *Output = Output_stderr()
 		err.println("==== Externs ====")
-		err.println(String_valueOf_Object(this.externs.self()))
+		err.println(String_valueOf_Object(any(this.externs.asList())))
 		err.println("==== Inputs ====")
 		err.println(Compiler_toPrettyJson(this.chunkGraph.toJson()))
 		err.println("==== CompilerOptions ====")
@@ -464,7 +464,7 @@ func (this *Compiler) initChunks(externs ListOf[*SourceFile_jscomp], chunks List
 	it_1 := foreach_(any(externs))
 	for it_1.next() {
 		var file *SourceFile_jscomp = cast_[*SourceFile_jscomp](it_1.v)
-		this.externs.add(new_CompilerInput_SourceFile_boolean(file, true))
+		this.externs.add(cast_[*CompilerInput](new_CompilerInput_SourceFile_boolean(file, true)))
 	}
 	var chunkGraphOutcome *Outcome_base[*JSChunkGraph] = JSChunkGraph_create(chunks)
 	if chunkGraphOutcome.isErr() {
@@ -547,9 +547,9 @@ func (this *Compiler) rebuildInputsFromChunks() {
 
 func (this *Compiler) initInputsByIdMap() {
 	this.inputsById.clear()
-	it_1 := foreach_(this.externs.self())
+	it_1 := this.externs.each()
 	for it_1.next() {
-		var input *CompilerInput = cast_[*CompilerInput](it_1.v)
+		var input *CompilerInput = it_1.v
 		var previous *CompilerInput = this.putCompilerInput(input)
 		if previous != nil {
 			this.report(JSError_make_DiagnosticType_StringArr(Compiler_DUPLICATE_EXTERN_INPUT, []string{input.getName()}))
@@ -1470,11 +1470,11 @@ func (this *Compiler) parseInputs() Node {
 			this.stopTracer(tracer, PassNames_PARSE_INPUTS)
 		}()
 		if this.options_.getNumParallelThreads() > 1 {
-			new_PrebuildAst(this.up_AbstractCompiler(), this.options_.getNumParallelThreads()).prebuild(icast_Iterable(this.externs.self()))
+			new_PrebuildAst(this.up_AbstractCompiler(), this.options_.getNumParallelThreads()).prebuild(icast_Iterable(any(this.externs.asList())))
 		}
-		it_2 := foreach_(this.externs.self())
+		it_2 := this.externs.each()
 		for it_2.next() {
-			var input *CompilerInput = cast_[*CompilerInput](it_2.v)
+			var input *CompilerInput = it_2.v
 			var n Node = Preconditions_checkNotNull_T(input.getAstRoot(this.up_AbstractCompiler()))
 			if this.hasErrors() {
 				ret_1 = 0
@@ -1607,7 +1607,7 @@ func (this *Compiler) orderInputs() {
 	this.maybeDoThreadedParsing()
 	var originalInputs *JTList[*CompilerInput] = jimmutableListCopyOf_(jtc_p_CompilerInput, this.chunkGraph.getAllInputs())
 	if this.tracker != nil {
-		this.tracker.recordPrePruningInputCount(Iterable(originalInputs.asList()), icast_Iterable(this.externs.self()))
+		this.tracker.recordPrePruningInputCount(Iterable(originalInputs.asList()), icast_Iterable(any(this.externs.asList())))
 	}
 	this.markExterns(originalInputs)
 	var staleInputs bool = false
@@ -1734,7 +1734,7 @@ func (this *Compiler) hoistIfExtern(input *CompilerInput) bool {
 			this.hoistedExternsByChunk.put(obj_(chunk), obj_(input))
 			chunk.remove(input)
 		}
-		this.externs.add(obj_(input))
+		this.externs.add(input)
 		return true
 	}
 	return false
@@ -2629,8 +2629,8 @@ func (this *Compiler) getInputsById() MapOf[*InputId, *CompilerInput] {
 	return Collections_unmodifiableMap(this.inputsById)
 }
 
-func (this *Compiler) getExternsInOrder() ListOf[*CompilerInput] {
-	return Collections_unmodifiableList(icast_List(this.externs.self()))
+func (this *Compiler) getExternsInOrder() *TList[*CompilerInput] {
+	return this.externs
 }
 
 func (this *Compiler) getInputsForTesting() *JTList[*CompilerInput] {
@@ -2642,8 +2642,8 @@ func (this *Compiler) getInputsForTesting() *JTList[*CompilerInput] {
 	}()
 }
 
-func (this *Compiler) getExternsForTesting() ListOf[*CompilerInput] {
-	return icast_List(this.externs.self())
+func (this *Compiler) getExternsForTesting() *TList[*CompilerInput] {
+	return this.externs
 }
 
 func (this *Compiler) hasRegExpGlobalReferences_impl() bool {
@@ -2671,7 +2671,7 @@ func (this *Compiler) getSynthesizedExternsInput_impl() *CompilerInput {
 	this.putCompilerInput(input)
 	this.syntheticExternsInput = input
 	this.externsRoot.addChildToFront(root)
-	this.externs.add_int_Object(0, obj_(input))
+	this.externs.insert(0, input)
 	Map_put_s(this.scriptNodeByFilename, input.getSourceFile().getName(), root.box_())
 	return input
 }
@@ -2690,7 +2690,7 @@ func (this *Compiler) getSynthesizedTypeSummaryInput_impl() *CompilerInput {
 	this.putCompilerInput(input)
 	this.syntheticTypeSummaryInput = input
 	this.externsRoot.addChildToFront(root)
-	this.externs.add_int_Object(0, obj_(input))
+	this.externs.insert(0, input)
 	Map_put_s(this.scriptNodeByFilename, input.getSourceFile().getName(), root.box_())
 	var builder *JSDocInfo_Builder = JSDocInfo_builder()
 	builder.recordTypeSummary()
@@ -2967,9 +2967,9 @@ func (this *Compiler) getCompilerStateProtoBuilder() *JSCompilerStateProto_Build
 		builder.setIdGeneratorMap(this.idGeneratorMap.get())
 	}
 	builder.setTranspiledFiles(this.transpiledFiles).setIdGeneratorCurrentId(this.crossChunkIdGenerator.getCurrentId()).setRunJ2ClPasses(this.runJ2clPassesField)
-	it_9 := foreach_(this.externs.self())
+	it_9 := this.externs.each()
 	for it_9.next() {
-		var extern *CompilerInput = cast_[*CompilerInput](it_9.v)
+		var extern *CompilerInput = it_9.v
 		builder.addExterns(extern.getInputId().getIdName())
 	}
 	builder.addAllInjectedLibraries(Iterable(this.runtimeJsLibManager.getInjectedLibraries().asList()))
@@ -3138,9 +3138,9 @@ func (this *Compiler) deserializeCompilerState(state []int8) {
 		allInputFiles.add(input.getSourceFile())
 		codeFilesBuilder.put(input.getInputId().getIdName(), input.getSourceFile())
 	}
-	it_3 := foreach_(this.externs.self())
+	it_3 := this.externs.each()
 	for it_3.next() {
-		var extern *CompilerInput = cast_[*CompilerInput](it_3.v)
+		var extern *CompilerInput = it_3.v
 		allInputFiles.add(extern.getSourceFile())
 		externFilesBuilder.put(extern.getInputId().getIdName(), extern.getSourceFile())
 	}
@@ -3189,7 +3189,7 @@ func (this *Compiler) deserializeCompilerState(state []int8) {
 		this.externsRoot.addChildToBack(script)
 		this.putCompilerInput(input)
 		Map_put_s(this.scriptNodeByFilename, externFile.getName(), script.box_())
-		this.externs.add(obj_(input))
+		this.externs.add(input)
 	}
 	for i := int32(0); i < chunks.size(); i++ {
 		var chunkProto *ChunkProto = stateProto.getChunks(i)
