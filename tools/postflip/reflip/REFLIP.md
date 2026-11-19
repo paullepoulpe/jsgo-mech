@@ -252,7 +252,7 @@ where a row says so; "sweep" below quotes its counted reasons.
 | instanceof | 71 | 82 | 82 | instof: 37 left inside an expression; castfold -instof: 64 inside a larger expression. OPEN: the planned type-switch tool |
 | boxing to any | 3,072 | 2,041 | 2,042 | j2go (generics, P2-P7). OPEN: typed lookups (Map.get(Object) with a typed key), Object varargs as ...any (planned translator rules) |
 | unboxing from any | 607 | 582 | 604 | as boxing |
-| lambda objects &X_fn{...} | 140 | 54 | 54 | j2go (typed adapters X_tfn_Y instead: 834 before, 762 after tfn handed 72 of them to the runtime as Go functions). OPEN: 175 PassFactory lambdas (passfn assumes the first flip's erased wrapper), the adapters stored in fields (funcparams reports no work on the typed form) |
+| lambda objects &X_fn{...} | 140 | 54 | 52 | j2go (typed adapters X_tfn_Y instead; tfn handed 72 of them to the runtime as Go functions). C28: passfn with a tool fix for the typed adapter forms: 188 PassFactory lambdas (175 factories, 11 checks, 2 conditions) are typed Go functions with an identity; adapter literals in g_*.go 775 -> 587. OPEN: the adapters stored in fields (funcparams reports no work on the typed form) |
 | Optional | 78 | 1,448 | 1,448 | a spelling count: j2go writes Optional[T], a Go value type, everywhere (the first flip's steps made it a value) |
 | try/catch emulation, defer | 50, 82 | 68, 91 | 62, 88 | exceptions, tryfn (10 left: the try's completion code is read); C23 removed the executor's nested try. The rest of the difference to postflip5 is not attributed yet: OPEN |
 | panic (throw) | 3,492 | 2,421 | 2,419 | the Go idiom; throws: 4 left (an exception held in a variable) |
@@ -297,3 +297,40 @@ bundle and typed-full, do little for the type-checking stage where googleapis sp
 (on the 3,500-chunk subset this tree's CHECKS takes 60.7-62.0s against postflip5's 50.8-51.3s:
 more collection work, the node store's property and type reads, erased string-keyed scope
 maps, interface assertions and boxing in generic code).
+
+## Steps C23 to C29 (19 Nov): dropped round 8 edits put back, two tools taught this flip's forms
+
+| step | kind | what | bundle CPU | typed-full CPU |
+|---|---|---|---|---|
+| C23 bde90b78 | manual | the compiler executor runs its callable on the calling goroutine (25c89a69 rewritten) | 29.08s -> 29.33s | 63.15s -> 62.89s |
+| C24 55140646 | runtime, manual | the executor, future and thread stubs are removed (07885c84, 9bdc7957, 08dc9ce1 apply again) | 28.96s -> 28.98s | not measured |
+| C25 77a8e1aa | manual | no thread kept, no same-thread checks (5c53206a rewritten) | 29.06s -> 29.09s (4 rounds) | 64.05s -> 64.57s (2 rounds) |
+| C26 d907dada | tool | sbuild, after a tool fix (jtostr_, StringBuilder_as_Appendable): 40 slots | 28.95s -> 29.00s | 63.53s -> 62.87s |
+| C27 8f212ee2 | manual | the two builders stored into Appendable slots (3e235bb3 applied) | 29.33s -> 28.96s (2 rounds) | not measured |
+| C28 d8b0f30c | tool | passfn, after a tool fix (typed adapters, generic identity helpers): 188 lambdas | 29.34s -> 29.05s | 63.44s -> 62.94s |
+| C29 2283a089 | manual | AbstractScope.vars is a scopeVars_ table, lookups hash the name once (a3f0161d, 6c2c7d00 rewritten) | 29.75s -> 28.63s | 63.02s -> 60.72s |
+
+Each against the binary before it, alternating rounds on an idle host (3 unless noted), all four
+gate projects MATCH after each. Only C29 is a measured gain (wall ranges do not overlap); the
+others are within noise and are kept for the Java-isms they remove. Four of the seven are
+hand-written edits that round 8 already had; C29 replaces a data structure by hand and is
+counted as such.
+
+Where the tree stands after C29 (runs/c29_gs3500.runs: first 3,500 chunks of googleapis-bench in
+three stages, 2 alternating rounds, chunks and states identical in all three binaries):
+
+| binary | total wall | CHECKS | OPTIMIZATIONS | FINALIZATIONS |
+|---|---|---|---|---|
+| postflip5-r9-ga (2df6c21b) | 100.9s, 99.3s | 50.61s | 40.48s | 8.98s |
+| second trial before C23 (fa597716) | 120.9s, 119.8s | 61.00s | 48.17s | 11.18s |
+| second trial after C29 | 118.6s, 118.5s | 60.23s | 47.37s | 10.94s |
+
+Bundle (2 rounds): postflip5 20.41s wall, 23.51s CPU; this tree 25.43s, 27.99s. The second trial
+is still about 18% behind postflip5 on the subset and about 25% on bundle; pre-flip Java ran the
+subset in 94.2-95.2s the same day.
+
+What the bundle profile of this tree shows above postflip5 (before C29; runs of 19 Nov), largest
+first: scope variable lookup through the erased map (1.5s of 28s; C29), lookups in typed sets
+and maps keyed by an interface (1.2s, the largest in MakeDeclaredNamesUnique's conflict sets,
+which postflip5 made native maps by hand in step 18), the node store's id table (0.6s),
+interface casts of graph nodes through cast_ (0.4s), casts to AbstractVar (0.2s).

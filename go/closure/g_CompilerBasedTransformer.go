@@ -108,20 +108,7 @@ func (this *CompilerBasedTransformer_CompilerSupplier) compile(path string, code
 	var source string = compiler.toSource()
 	var sourceMap strBuilder_
 	if result.sourceMap_ != nil {
-		func() {
-			defer func() {
-				if r_ := recover(); r_ != nil {
-					ex_ := catch_(r_)
-					if p, ok := ex_.(IOException_as); ok {
-						var e *IOException = p.as_IOException()
-						_ = e
-						return
-					}
-					panic(r_)
-				}
-			}()
-			result.sourceMap_.appendTo(appendable_(&sourceMap), Optional_of[string](path))
-		}()
+		result.sourceMap_.appendTo(appendable_(&sourceMap), Optional_of[string](path))
 	}
 	var transformed bool = this.transformed(result)
 	return new_CompilerBasedTransformer_CompileResult(source, result.errors_, transformed, func() string {
