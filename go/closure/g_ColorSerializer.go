@@ -20,9 +20,7 @@ func (this *ColorSerializer) init_ColorSerializer(serializationMode *Serializati
 	this.serializationMode = serializationMode
 	this.getStringPoolIndexFn = stringPoolIndexFn
 	this.propertyFilter = propertyFilter
-	it_1 := TypePointers_OFFSET_TO_AXIOMATIC_COLOR.each()
-	for it_1.next() {
-		var color *Color = it_1.v
+	for color := range TypePointers_OFFSET_TO_AXIOMATIC_COLOR.All() {
 		this.addColor(color)
 	}
 }
@@ -96,9 +94,7 @@ func (this *ColorSerializer) generateTypeProto(color *Color) *TypeProto {
 
 func (this *ColorSerializer) getOwnPropertyStringPoolOffsets(color *Color) *TList[any] {
 	var builder *ImmutableList_Builder[any] = immutableListBuilder_(tc_Integer)
-	it_1 := color.getOwnProperties().each()
-	for it_1.next() {
-		var ownProperty string = it_1.v
+	for ownProperty := range color.getOwnProperties().All() {
 		if this.propertyFilter(strobj_(ownProperty)) {
 			builder.add(this.getStringPoolIndexFn(strobj_(ownProperty)))
 		}

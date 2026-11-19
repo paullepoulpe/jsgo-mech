@@ -738,9 +738,7 @@ func (this *JSTypeRegistry) registerDroppedPropertiesInUnion(subtype *RecordType
 
 func (this *JSTypeRegistry) registerPropertyOnType(propertyName string, type_ *JSType) {
 	if type_.isUnionType() {
-		it_1 := type_.toMaybeUnionType().getAlternates().each()
-		for it_1.next() {
-			var alternate *JSType = it_1.v
+		for alternate := range type_.toMaybeUnionType().getAlternates().All() {
 			this.registerPropertyOnType(propertyName, alternate)
 		}
 		return

@@ -139,9 +139,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 		var destructuringNodesBuilder *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
 		for i := range elemsAs_[*CheckRequiresSorted_ImportStatement](allImports) {
 			if i.isDestructuring() {
-				it_9 := i.nodes().each()
-				for it_9.next() {
-					var node Node = it_9.v
+				for node := range i.nodes().All() {
 					destructuringNodesBuilder.add(node)
 				}
 			}
@@ -150,9 +148,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 		var sortedDestructures []*CheckRequiresSorted_DestructuringBinding = []*CheckRequiresSorted_DestructuringBinding{}
 		for i := range elemsAs_[*CheckRequiresSorted_ImportStatement](allImports) {
 			if i.isDestructuring() {
-				it_13 := i.destructures().each()
-				for it_13.next() {
-					var binding *CheckRequiresSorted_DestructuringBinding = it_13.v
+				for binding := range i.destructures().All() {
 					sortedDestructures = append(sortedDestructures, binding.canonicalizeShorthandProperties())
 				}
 			}
@@ -167,9 +163,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 			var standaloneNodesBuilder *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
 			for i := range elemsAs_[*CheckRequiresSorted_ImportStatement](allImports) {
 				if i.isStandalone() {
-					it_17 := i.nodes().each()
-					for it_17.next() {
-						var node Node = it_17.v
+					for node := range i.nodes().All() {
 						standaloneNodesBuilder.add(node)
 					}
 				}
@@ -531,9 +525,7 @@ func (this *CheckRequiresSorted_ImportStatement) formatWithoutDoc() string {
 	if this.destructures() != nil {
 		sb.append("{")
 		var first bool = true
-		it_1 := this.destructures().each()
-		for it_1.next() {
-			var binding *CheckRequiresSorted_DestructuringBinding = it_1.v
+		for binding := range this.destructures().All() {
 			var exportedName string = binding.exportedName()
 			var localName string = binding.localName()
 			if first {
@@ -561,9 +553,7 @@ func (this *CheckRequiresSorted_ImportStatement) formatWithoutDoc() string {
 
 func (this *CheckRequiresSorted_ImportStatement) format() string {
 	var sb strBuilder_
-	it_1 := this.nodes().each()
-	for it_1.next() {
-		var node Node = it_1.v
+	for node := range this.nodes().All() {
 		var comment string = node.getNonJSDocCommentString()
 		if comment != "" {
 			sb.append(node.getNonJSDocCommentString()).append("\n")

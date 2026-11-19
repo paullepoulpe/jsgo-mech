@@ -111,9 +111,7 @@ func (this *ClosureRewriteModule) process_2(externs Node, root Node) {
 
 func (this *ClosureRewriteModule) declareSyntheticExterns() {
 	var varsBuilder *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
-	it_1 := this.syntheticExterns.each()
-	for it_1.next() {
-		var lhs Node = it_1.v
+	for lhs := range this.syntheticExterns.Values() {
 		if !this.isNameInGlobalScope(lhs.getString()) {
 			varsBuilder.add(IR_var_Node(this.astFactory_.createNameWithUnknownType(lhs.getString())).srcrefTree(lhs))
 		}
@@ -797,9 +795,7 @@ func (this *ClosureRewriteModule) updateModuleBody(moduleBody Node) {
 	}
 	moduleBody.setToken(Token_rhino_BLOCK)
 	NodeUtil_tryMergeBlock(moduleBody, true)
-	it_1 := this.currentScript.exportsToInline.each()
-	for it_1.next() {
-		var export *ClosureRewriteModule_ExportDefinition = it_1.v
+	for export := range this.currentScript.exportsToInline.Values() {
 		var nameNode Node = export.nameDecl.getNameNode()
 		this.safeSetMaybeQualifiedString(nameNode, (sstr_(this.currentScript.getBinaryNamespace().orElse("null")) + sstr_(export.getExportPostfix())), false)
 	}

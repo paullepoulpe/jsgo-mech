@@ -87,9 +87,7 @@ func (this *JsMessage) asJsMessageString() string {
 		panic(new_UnsupportedOperationException_String("asJsMessageString() is not supported for messages with gendered variants. Please provide a grammatical gender case as an argument."))
 	}
 	var sb strBuilder_
-	it_1 := this.getParts().each()
-	for it_1.next() {
-		var p JsMessage_Part = it_1.v
+	for p := range this.getParts().All() {
 		if p.isPlaceholder() {
 			sb.append(JsMessage_PH_JS_PREFIX).append(p.getJsPlaceholderName()).append(JsMessage_PH_JS_SUFFIX)
 		} else {
@@ -120,9 +118,7 @@ func (this *JsMessage) asIcuMessageString() string {
 		panic(new_UnsupportedOperationException_String("asIcuMessageString() is not supported for messages with gendered variants. Please provide a grammatical gender case as an argument."))
 	}
 	var sb strBuilder_
-	it_1 := this.getParts().each()
-	for it_1.next() {
-		var p JsMessage_Part = it_1.v
+	for p := range this.getParts().All() {
 		if p.isPlaceholder() {
 			sb.append_char('{').append(p.getCanonicalPlaceholderName()).append_char('}')
 		} else {
@@ -646,9 +642,7 @@ func (this *JsMessage_Builder) appendPart(part JsMessage_Part) *JsMessage_Builde
 }
 
 func (this *JsMessage_Builder) appendParts(parts *TList[JsMessage_Part]) *JsMessage_Builder {
-	it_1 := parts.each()
-	for it_1.next() {
-		var part JsMessage_Part = it_1.v
+	for part := range parts.All() {
 		this.appendPart(part)
 	}
 	return this

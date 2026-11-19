@@ -67,9 +67,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		defer closeResource_(chunkGraphLog.self())
 		chunkGraphLog.logString(DotFormatter_toDot_GraphvizGraph(icast_GraphvizGraph(colorGraph.self())))
 	}()
-	it_2 := this.graphNodeFactory.getAllKnownTypes().each()
-	for it_2.next() {
-		var node *ColorGraphNode = it_2.v
+	for node := range this.graphNodeFactory.getAllKnownTypes().All() {
 		node.getSubtypeIndices().set(node.getIndex())
 	}
 	FixedPointGraphTraversal_newReverseTraversal[*ColorGraphNode, any](&FixedPointGraphTraversal_EdgeCallback_fn[*ColorGraphNode, any]{func(subtype *ColorGraphNode, e any, supertype *ColorGraphNode) bool {
@@ -81,15 +79,11 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		supertype.getSubtypeIndices().or(subtype.getSubtypeIndices())
 		return (supertype.getSubtypeIndices().cardinality() > startSize)
 	}}).computeFixedPoint(colorGraph.up_DiGraph())
-	it_4 := this.propertyMap.each()
-	for it_4.next() {
-		var prop *AmbiguateProperties_Property = it_4.v
+	for prop := range this.propertyMap.Values() {
 		if prop.relatedColorsSeeds == nil {
 			continue
 		}
-		it_6 := prop.relatedColorsSeeds.each()
-		for it_6.next() {
-			var color *ColorGraphNode = it_6.k
+		for color := range prop.relatedColorsSeeds.Keys() {
 			prop.relatedColors.or(color.getSubtypeIndices())
 		}
 		prop.relatedColorsSeeds = nil
@@ -98,9 +92,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	var numRenamedPropertyNames int32 = 0
 	var numSkippedPropertyNames int32 = 0
 	var nodes *TList[*AmbiguateProperties_PropertyGraphNode] = newTListN_(tc_p_AmbiguateProperties_PropertyGraphNode, this.propertyMap.Len())
-	it_8 := this.propertyMap.each()
-	for it_8.next() {
-		var prop *AmbiguateProperties_Property = it_8.v
+	for prop := range this.propertyMap.Values() {
 		if prop.skipAmbiguating {
 			numSkippedPropertyNames++
 			reservedNames.add(strobj_(prop.oldName))
@@ -119,9 +111,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	for i := int32(0); i < numNewPropertyNames; i++ {
 		colorMap[i] = nameGen.generateNextName()
 	}
-	it_11 := propertyGraph.getNodes_rList().each()
-	for it_11.next() {
-		var node *AmbiguateProperties_PropertyGraphNode = it_11.v
+	for node := range propertyGraph.getNodes_rList().All() {
 		node.getValue().newName = Optional_of[string](colorMap[Object_hashCode(Annotatable_getAnnotation(AmbiguateProperties_PropertyGraphNode_as_Annotatable(node)))])
 		if this.renamingMap != nil {
 			this.renamingMap.Put(node.getValue().oldName, node.getValue().newName.orElse(nullstr_))
@@ -221,9 +211,7 @@ func (this *AmbiguateProperties_PropertyGraph) newSubGraph() SubGraph[*Ambiguate
 }
 
 func (this *AmbiguateProperties_PropertyGraph) clearNodeAnnotations() {
-	it_1 := this.nodes_.each()
-	for it_1.next() {
-		var node *AmbiguateProperties_PropertyGraphNode = it_1.v
+	for node := range this.nodes_.All() {
 		node.setAnnotation(nil)
 	}
 }

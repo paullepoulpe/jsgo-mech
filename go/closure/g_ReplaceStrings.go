@@ -227,9 +227,7 @@ func (this *ReplaceStrings) buildReplacement(t *NodeTraversal, expr Node, prefix
 }
 
 func (this *ReplaceStrings) parseConfigurationList(functionsToInspect *TList[string]) {
-	it_1 := functionsToInspect.each()
-	for it_1.next() {
-		var function string = it_1.v
+	for function := range functionsToInspect.All() {
 		var config *ReplaceStrings_Config = this.parseConfiguration(function)
 		if config != nil {
 			this.functions[config.name_] = config
@@ -253,9 +251,7 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 	var paramCount int32 = 0
 	var replacementParameters *[]any = &[]any{}
 	var parts *TList[string] = splitToListTP_(tc_string, Splitter_on(','), strobj_(params))
-	it_1 := parts.each()
-	for it_1.next() {
-		var param string = it_1.v
+	for param := range parts.All() {
 		paramCount++
 		if param == ReplaceStrings_REPLACE_ALL_MARKER {
 			if paramCount != 1 || parts.size() != 1 {

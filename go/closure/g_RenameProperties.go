@@ -162,9 +162,7 @@ func (this *RenameProperties) generateNames(props *JTSet[*RenameProperties_Prope
 
 func (this *RenameProperties) getPropertyMap() *VariableMap {
 	var map_ *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
-	it_1 := this.propertyMap.each()
-	for it_1.next() {
-		var p *RenameProperties_Property = it_1.v
+	for p := range this.propertyMap.Values() {
 		if p.newName.isPresent() {
 			map_.put(p.oldName, p.newName.get())
 		}

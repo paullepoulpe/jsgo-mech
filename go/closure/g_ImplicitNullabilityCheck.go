@@ -43,9 +43,7 @@ func ImplicitNullabilityCheck_findImplicitNullabilityResults(info *JSDocInfo, t 
 
 func (this *ImplicitNullabilityCheck) visit_impl(t *NodeTraversal, n Node, p Node) {
 	var info *JSDocInfo = n.getJSDocInfo()
-	it_1 := ImplicitNullabilityCheck_findImplicitNullabilityResults(info, t).each()
-	for it_1.next() {
-		var r *ImplicitNullabilityCheck_Result = it_1.v
+	for r := range ImplicitNullabilityCheck_findImplicitNullabilityResults(info, t).All() {
 		var stringNode Node = r.getNode()
 		var dt *DiagnosticType = func() *DiagnosticType {
 			if r.getNullability().isNullable() {

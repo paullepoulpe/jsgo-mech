@@ -516,9 +516,7 @@ func (this *AbstractCommandLineRunner) createInputs_4(files *TList[*AbstractComm
 func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files *TList[*AbstractCommandLineRunner_FlagEntry[any]], moduleRoots ListOf[string], hasChunkSpecs bool) *Outcome_base[*ErasedImmutableList] {
 	var errors *ImmutableList_Builder[*JSError] = immutableListBuilder_(tc_p_JSError)
 	var relativeToAbsoluteName map[string]string = map[string]string{}
-	it_1 := files.each()
-	for it_1.next() {
-		var file *AbstractCommandLineRunner_FlagEntry[any] = it_1.v
+	for file := range files.All() {
 		if (cast_[AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_JS) || (cast_[AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_WEAKDEP) {
 			var absoluteName string = file.value_
 			var relativeName string = this.getModuleRootRelativeName(absoluteName, moduleRoots)
@@ -1764,9 +1762,7 @@ func (this *AbstractCommandLineRunner) outputStringMap() *Outcome_base[any] {
 }
 
 func AbstractCommandLineRunner_createDefineReplacements(definitions *TList[string], options *CompilerOptions) {
-	it_1 := definitions.each()
-	for it_1.next() {
-		var override string = it_1.v
+	for override := range definitions.All() {
 		var assignment []string = AbstractCommandLineRunner_EQUALS_PATTERN.split_String_int(override, 2)
 		var defName string = assignment[0]
 		if len(defName) != 0 {
@@ -2054,9 +2050,7 @@ func (this *AbstractCommandLineRunner) printBundleTo(chunk *JSChunk, out Appenda
 
 func (this *AbstractCommandLineRunner) constructRootRelativePathsMap() map[string]string {
 	var rootRelativePathsMap map[string]string = map[string]string{}
-	it_1 := this.config.manifestMaps.each()
-	for it_1.next() {
-		var mapString string = it_1.v
+	for mapString := range this.config.manifestMaps.All() {
 		var colonIndex int32 = int32(strings.IndexByte(mapString, ':'))
 		if colonIndex <= 0 {
 			panic(new_IllegalStateException_0())
@@ -2583,9 +2577,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setDependencyOptions(de
 
 func (this *AbstractCommandLineRunner_CommandLineConfig) setOutputManifest(outputManifests *TList[string]) *AbstractCommandLineRunner_CommandLineConfig {
 	this.outputManifests = newTList_(tc_string)
-	it_1 := outputManifests.each()
-	for it_1.next() {
-		var manifestName string = it_1.v
+	for manifestName := range outputManifests.All() {
 		if manifestName != "" {
 			this.outputManifests.add(manifestName)
 		}

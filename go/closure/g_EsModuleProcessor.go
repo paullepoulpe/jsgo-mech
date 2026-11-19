@@ -210,9 +210,7 @@ func (this *EsModuleProcessor_FindMutableExports) init_EsModuleProcessor_FindMut
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.exports = exports
 	this.exportsByLocalName = SimpleListMultimap_create[any, *Export]()
-	it_1 := exports.each()
-	for it_1.next() {
-		var e *Export = it_1.v
+	for e := range exports.All() {
 		this.exportsByLocalName.put_s(e.localName().orElse(nullstr_), e)
 	}
 }
@@ -367,9 +365,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolve_2_impl(moduleRequestRe
 	if this.resolved_ == nil {
 		var boundNames *TMap[string, *Binding] = tmapCopyT_(tc_string, tc_p_Binding, this.getAllResolvedImports(moduleRequestResolver))
 		var localNameToLocalExport *TMap[string, *Export] = newTMap_(tc_string, tc_p_Export)
-		it_1 := this.localExports.each()
-		for it_1.next() {
-			var e *Export = it_1.v
+		for e := range this.localExports.All() {
 			localNameToLocalExport.Put(e.localName().orElse(nullstr_), e)
 			if !Object_equals(Optional_of[string](Export_DEFAULT_EXPORT_NAME).box_(), e.localName().box_()) {
 				var b *ResolveExportResult = this.resolveExport(moduleRequestResolver, e.exportName())
@@ -392,9 +388,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) metadata_impl() *ModuleMetadat
 
 func (this *EsModuleProcessor_UnresolvedEsModule) getAllResolvedImports(moduleRequestResolver ModuleRequestResolver) *TMap[string, *Binding] {
 	var imports *TMap[string, *Binding] = newTMap_(tc_string, tc_p_Binding)
-	it_1 := this.importsByLocalName.each()
-	for it_1.next() {
-		var name string = it_1.k
+	for name := range this.importsByLocalName.Keys() {
 		var b *ResolveExportResult = this.resolveImport(moduleRequestResolver, name)
 		if b.resolved() {
 			imports.Put(name, b.getBinding())
@@ -472,19 +466,13 @@ func (this *EsModuleProcessor_UnresolvedEsModule) getExportedNames_2_impl(module
 	}
 	visited[this.up_UnresolvedModule()] = struct{}{}
 	var exportedNames *JTSet[string] = newTSortedSet_(jtc_string)
-	it_1 := this.localExports.each()
-	for it_1.next() {
-		var e *Export = it_1.v
+	for e := range this.localExports.All() {
 		exportedNames.add(e.exportName().orElse(nullstr_))
 	}
-	it_3 := this.indirectExports.each()
-	for it_3.next() {
-		var e *Export = it_3.v
+	for e := range this.indirectExports.All() {
 		exportedNames.add(e.exportName().orElse(nullstr_))
 	}
-	it_5 := this.starExports.each()
-	for it_5.next() {
-		var e *Export = it_5.v
+	for e := range this.starExports.All() {
 		var requested *UnresolvedModule = moduleRequestResolver.resolve(e)
 		if requested != nil {
 			if requested.metadata().isEs6Module() {

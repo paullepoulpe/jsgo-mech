@@ -254,14 +254,10 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) exitScope(t *NodeT
 		return
 	}
 	var scopeContext *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext = Preconditions_checkNotNull_T(this.scopeContextStack.pop())
-	it_1 := scopeContext.referencedVariables.each()
-	for it_1.next() {
-		var referencedVariable MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = it_1.v
+	for referencedVariable := range scopeContext.referencedVariables.All() {
 		scopeContext.recordPotentialConflicts(referencedVariable)
 	}
-	it_3 := scopeContext.declaredVariableInfos.each()
-	for it_3.next() {
-		var declaredVariableInfo *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo = it_3.v
+	for declaredVariableInfo := range scopeContext.declaredVariableInfos.All() {
 		var variableName string = declaredVariableInfo.getName()
 		var oldStackTop MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = this.variablesStackedByName.popVariableInfo(variableName)
 		if oldStackTop != obj_(declaredVariableInfo) {
@@ -333,9 +329,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) addPo
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) attemptRename() string {
 	var disallowedNames map[string]struct{} = map[string]struct{}{}
 	disallowedNames[MakeDeclaredNamesUnique_ARGUMENTS] = struct{}{}
-	it_1 := this.potentialShadowVariables.each()
-	for it_1.next() {
-		var potentialShadowVariable MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = it_1.v
+	for potentialShadowVariable := range this.potentialShadowVariables.All() {
 		var potentialShadowName string = potentialShadowVariable.getName()
 		disallowedNames[potentialShadowName] = struct{}{}
 	}
@@ -444,9 +438,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) recor
 	var thisScopeDepth int32 = this.scope_.getDepth()
 	var referencedVariableDeclarationDepth int32 = referencedVariable.getScopeDepth()
 	if thisScopeDepth >= referencedVariableDeclarationDepth {
-		it_1 := this.declaredVariableInfos.each()
-		for it_1.next() {
-			var declaredVariableInfo *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo = it_1.v
+		for declaredVariableInfo := range this.declaredVariableInfos.All() {
 			referencedVariable.addPotentialConflict(MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo_as_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(declaredVariableInfo))
 			declaredVariableInfo.addPotentialConflict(referencedVariable)
 		}

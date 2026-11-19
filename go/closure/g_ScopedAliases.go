@@ -44,9 +44,7 @@ func (this *ScopedAliases) process_2(externs Node, root Node) {
 		var aliasWorkQueue *TList[*ScopedAliases_AliasUsage] = tlistCopyT_(tc_p_ScopedAliases_AliasUsage, traversal.getAliasUsages())
 		for !aliasWorkQueue.isEmpty() {
 			var newQueue *TList[*ScopedAliases_AliasUsage] = newTList_(tc_p_ScopedAliases_AliasUsage)
-			it_2 := aliasWorkQueue.each()
-			for it_2.next() {
-				var aliasUsage *ScopedAliases_AliasUsage = it_2.v
+			for aliasUsage := range aliasWorkQueue.All() {
 				if aliasUsage.referencesOtherAlias(traversal.deletedAliasVars) {
 					newQueue.add(aliasUsage)
 				} else {
@@ -686,9 +684,7 @@ func (this *ScopedAliases_Traversal) renameNamespaceShadows(t *NodeTraversal) {
 	}
 	if this.hasNamespaceShadows {
 		var renamer MakeDeclaredNamesUnique_Renamer = MakeDeclaredNamesUnique_Renamer(new_MakeDeclaredNamesUnique_TargettedRenamer(new_MakeDeclaredNamesUnique_ContextualRenamer_0(), this.forbiddenLocals))
-		it_1 := this.forbiddenLocals.each()
-		for it_1.next() {
-			var s string = it_1.v
+		for s := range this.forbiddenLocals.All() {
 			renamer.addDeclaredName(s, false)
 		}
 		var uniquifier *MakeDeclaredNamesUnique = MakeDeclaredNamesUnique_builder().withRenamer(renamer).build()

@@ -148,9 +148,7 @@ func (this *InlineObjectLiterals_InliningBehavior) isVarOrAssignExprLhs(n Node) 
 
 func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo *ReferenceCollection) *TMap[string, string] {
 	var varmap *TMap[string, string] = newTMap_(tc_string, tc_string)
-	it_1 := referenceInfo.references.each()
-	for it_1.next() {
-		var ref *Reference = it_1.v
+	for ref := range referenceInfo.references.All() {
 		if ref.isLvalue() || ref.isInitializingDeclaration() {
 			var val Node = ref.getAssignedValue()
 			if val != 0 {
@@ -220,9 +218,7 @@ func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v
 			all.Delete(var_)
 		}
 	}
-	it_2 := all.each()
-	for it_2.next() {
-		var var_ string = it_2.v
+	for var_ := range all.All() {
 		nodes.add(IR_assign(IR_name(varmap.Get(var_)), NodeUtil_newUndefinedNode(0)).box_())
 	}
 	var replacement Node
@@ -309,9 +305,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 		this.outer_.compiler_.reportChangeToEnclosingScope(vnode.getParent())
 		vnode.detach()
 	}
-	it_3 := referenceInfo.references.each()
-	for it_3.next() {
-		var ref *Reference = it_3.v
+	for ref := range referenceInfo.references.All() {
 		if defined && (ref == init_) {
 			continue
 		}

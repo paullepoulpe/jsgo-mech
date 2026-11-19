@@ -917,9 +917,7 @@ func (this *CompilerOptions) shouldReplaceIdGenerators() bool {
 
 func (this *CompilerOptions) setIdGenerators(idGenerators *TSet[string]) {
 	var builder *ImmutableMap_Builder[string, RenamingMap] = immutableMapBuilder_(tc_string, tc_RenamingMap)
-	it_1 := idGenerators.each()
-	for it_1.next() {
-		var name string = it_1.v
+	for name := range idGenerators.All() {
 		builder.put(name, RenamingToken_as_RenamingMap(RenamingToken_INCONSISTENT))
 	}
 	this.idGenerators = builder.buildOrThrow()

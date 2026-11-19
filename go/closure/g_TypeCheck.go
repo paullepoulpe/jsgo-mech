@@ -542,9 +542,7 @@ func (this *TypeCheck) checkCanAssignToWithScope(t *NodeTraversal, nodeToWarn No
 }
 
 func (this *TypeCheck) checkDestructuringAssignment(t *NodeTraversal, nodeToWarn Node, pattern Node, rightType *JSType, msg string) {
-	it_1 := DestructuredTarget_createAllNonEmptyTargetsInPattern(this.typeRegistry, rightType, pattern).each()
-	for it_1.next() {
-		var target *DestructuredTarget = it_1.v
+	for target := range DestructuredTarget_createAllNonEmptyTargetsInPattern(this.typeRegistry, rightType, pattern).All() {
 		this.checkCanAssignToWithScope(t, nodeToWarn, target.getNode(), target.inferType(), nil, msg)
 	}
 }
@@ -1262,9 +1260,7 @@ func (this *TypeCheck) checkInterfaceConflictProperties(n Node, functionName str
 	} else {
 		currentPropertyNames = implicitProto.getOwnPropertyKeys()
 	}
-	it_1 := currentPropertyNames.each()
-	for it_1.next() {
-		var name Property_Key = it_1.v
+	for name := range currentPropertyNames.All() {
 		var oType *ObjectType = properties.Get(name)
 		currentProperties.Put(name, interfaceType)
 		if oType != nil {
@@ -1339,9 +1335,8 @@ func (this *TypeCheck) checkConstructor(n Node, functionType *FunctionType) {
 			this.checkStructDictSubtyping(n, functionType, baseConstructor)
 		}
 		var alreadySeenInterfaces *TSet[*JSType] = newTSet_(tce_p_JSType.t_())
-		it_1 := functionType.getOwnImplementedInterfaces().each()
-		for it_1.next() {
-			var baseInterface *JSType = it_1.v.up_JSType()
+		for el_1 := range functionType.getOwnImplementedInterfaces().All() {
+			var baseInterface *JSType = el_1.up_JSType()
 			var badImplementedType bool = false
 			var baseInterfaceObj *ObjectType = ObjectType_cast(baseInterface)
 			if baseInterfaceObj != nil {
@@ -1383,9 +1378,7 @@ func (this *TypeCheck) checkStructDictSubtyping(n Node, subtype *FunctionType, s
 }
 
 func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
-	it_1 := functionType.getExtendedInterfaces().each()
-	for it_1.next() {
-		var extInterface *ObjectType = it_1.v
+	for extInterface := range functionType.getExtendedInterfaces().All() {
 		if (extInterface.getConstructor() != nil) && !extInterface.getConstructor().isInterface() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_CONFLICTING_EXTENDED_TYPE, []string{"interface", this.getBestFunctionName(n)}))
 		}
@@ -1393,9 +1386,7 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 	if functionType.getExtendedInterfacesCount() > 1 {
 		var properties *TMap[Property_Key, *ObjectType] = newTMap_(tce_Property_Key.t_(), tc_p_ObjectType)
 		var currentProperties *TMap[Property_Key, *ObjectType] = newTMap_(tce_Property_Key.t_(), tc_p_ObjectType)
-		it_3 := functionType.getExtendedInterfaces().each()
-		for it_3.next() {
-			var interfaceType *ObjectType = it_3.v
+		for interfaceType := range functionType.getExtendedInterfaces().All() {
 			currentProperties.Clear()
 			this.checkInterfaceConflictProperties(n, this.getBestFunctionName(n), properties, currentProperties, interfaceType)
 			properties.putAllT(currentProperties)

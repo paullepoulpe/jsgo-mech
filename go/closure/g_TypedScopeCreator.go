@@ -211,9 +211,7 @@ func (this *TypedScopeCreator) gatherAllProvides(root Node) {
 	var externs Node = root.getFirstChild()
 	var js Node = root.getSecondChild()
 	var providedNames *TMap[string, *ProcessClosureProvidesAndRequires_ProvidedName] = new_ProcessClosureProvidesAndRequires(this.compiler_, true).collectProvidedNames(externs, js)
-	it_1 := providedNames.each()
-	for it_1.next() {
-		var name *ProcessClosureProvidesAndRequires_ProvidedName = it_1.v
+	for name := range providedNames.Values() {
 		if name.hasImplicitInitialization() {
 			continue
 		}
@@ -260,9 +258,7 @@ func (this *TypedScopeCreator) createInitialScope(root Node) *TypedScope {
 }
 
 func (this *TypedScopeCreator) addWellKnownSymbols(scope *TypedScope) {
-	it_1 := TypedScopeCreator_WELL_KNOWN_SYMBOLS.each()
-	for it_1.next() {
-		var symbol string = it_1.v
+	for symbol := range TypedScopeCreator_WELL_KNOWN_SYMBOLS.All() {
 		var type_ *JSType = new_KnownSymbolType(this.typeRegistry, symbol).up_JSType()
 		TypedScopeCreator_declareNativeType(scope, symbol, type_)
 	}
@@ -1038,11 +1034,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) inferTypeForDestructuredTarg
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) defineDestructuringPatternInVarDeclaration(pattern Node, scope *TypedScope, patternTypeSupplier func() any) {
-	it_1 := DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(this.outer_.typeRegistry, func() any {
+	for target := range DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(this.outer_.typeRegistry, func() any {
 		return patternTypeSupplier().(*TypedScopeCreator_RValueInfo).type__.self()
-	}, pattern).each()
-	for it_1.next() {
-		var target *DestructuredTarget = it_1.v
+	}, pattern).All() {
 		var typeSupplier func() any = (&Supplier_base_tfn_TypedScopeCreator_RValueInfo{func() *TypedScopeCreator_RValueInfo {
 			return this.inferTypeForDestructuredTarget(target, patternTypeSupplier)
 		}}).get
@@ -2340,9 +2334,7 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareTemplatesInFunctionBo
 	var isPossiblePrototypeMethod bool = (!functionType.hasInstanceType() && ((info == nil) || !info.hasThisType()))
 	if isPossiblePrototypeMethod {
 		var ownerNode Node = NodeUtil_getBestLValue(functionNode)
-		it_1 := this.findOwnerTypeKeys(ownerNode).each()
-		for it_1.next() {
-			var templateKey *TemplateType = it_1.v
+		for templateKey := range this.findOwnerTypeKeys(ownerNode).All() {
 			templateNames.Add(templateKey.getReferenceName().orElseThrow())
 		}
 	}
@@ -2355,9 +2347,7 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareTemplatesInFunctionBo
 	}
 	var input *CompilerInput = this.getCompilerInput()
 	var voidType *JSType = this.outer_.getNativeType(JSTypeNative_VOID_TYPE)
-	it_3 := templateNames.each()
-	for it_3.next() {
-		var name string = it_3.v
+	for name := range templateNames.All() {
 		if !this.currentScope.canDeclare(name) {
 			this.outer_.validator.expectUndeclaredVariable(Optional_of[string](NodeUtil_getSourceName(functionNode)).filter(&Predicate_tfn_string{func(s string) bool {
 				return s != ""
@@ -2412,9 +2402,7 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareNamesInPositionalPara
 }
 
 func (this *TypedScopeCreator_FunctionScopeBuilder) declareDestructuringParameter(isInferred bool, pattern Node, patternType *JSType) {
-	it_1 := DestructuredTarget_createAllNonEmptyTargetsInPattern(this.outer_.typeRegistry, patternType, pattern).each()
-	for it_1.next() {
-		var target *DestructuredTarget = it_1.v
+	for target := range DestructuredTarget_createAllNonEmptyTargetsInPattern(this.outer_.typeRegistry, patternType, pattern).All() {
 		var parameterType *JSType = target.inferTypeWithoutUsingDefaultValue()
 		if target.getNode().isDestructuringPattern() {
 			this.declareDestructuringParameter(isInferred, target.getNode(), parameterType)

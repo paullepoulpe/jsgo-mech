@@ -524,9 +524,7 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 		}
 	}
 	var builtTemplates *TList[*TemplateType] = templates.build()
-	it_9 := builtTemplates.each()
-	for it_9.next() {
-		var template *TemplateType = it_9.v
+	for template := range builtTemplates.All() {
 		if template.containsCycle() {
 			this.reportError(RhinoErrorReporter_CYCLIC_INHERITANCE_ERROR, []string{("Cycle detected in inheritance chain of type " + sstr_(template.getReferenceName().orElse("null")))})
 		}

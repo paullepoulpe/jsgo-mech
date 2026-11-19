@@ -270,9 +270,7 @@ func (this *InlineFunctions) inliningLowersCost(functionState *InlineFunctions_F
 }
 
 func (this *InlineFunctions) resolveInlineConflicts() {
-	it_1 := this.fns.each()
-	for it_1.next() {
-		var functionState *InlineFunctions_FunctionState = it_1.v
+	for functionState := range this.fns.Values() {
 		this.resolveInlineConflictsForFunction(functionState)
 	}
 }
@@ -292,9 +290,7 @@ func (this *InlineFunctions) resolveInlineConflictsForFunction(functionState *In
 	var fnNode Node = functionState.getFn().getFunctionNode()
 	var names *TSet[string] = this.findCalledFunctions(fnNode)
 	if !names.IsEmpty() {
-		it_1 := names.each()
-		for it_1.next() {
-			var name string = it_1.v
+		for name := range names.All() {
 			var fsCalled *InlineFunctions_FunctionState = this.fns.Get(name)
 			if (fsCalled != nil) && fsCalled.canRemove() {
 				fsCalled.setRemove(false, this.compiler_, InlineFunctions_CannotRemoveReason_CALLED_BY_INLINED_FUNCTION, InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_NO)
@@ -329,9 +325,7 @@ func InlineFunctions_findCalledFunctions(node Node, changed *TSet[string]) {
 }
 
 func (this *InlineFunctions) decomposeExpressions() {
-	it_1 := this.fns.each()
-	for it_1.next() {
-		var functionState *InlineFunctions_FunctionState = it_1.v
+	for functionState := range this.fns.Values() {
 		if functionState.canInline() {
 			for ref := range elemsAs_[*InlineFunctions_Reference](functionState.getReferences()) {
 				if ref.requiresDecomposition {

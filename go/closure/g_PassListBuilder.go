@@ -90,9 +90,7 @@ func (this *PassListBuilder) contains(factory *PassFactory) bool {
 }
 
 func (this *PassListBuilder) assertAllOneTimePasses() {
-	it_1 := this.passes.each()
-	for it_1.next() {
-		var pass *PassFactory = it_1.v
+	for pass := range this.passes.All() {
 		if pass.isRunInFixedPointLoop() {
 			panic(new_IllegalStateException_0())
 		}
@@ -100,9 +98,7 @@ func (this *PassListBuilder) assertAllOneTimePasses() {
 }
 
 func (this *PassListBuilder) assertAllLoopablePasses() {
-	it_1 := this.passes.each()
-	for it_1.next() {
-		var pass *PassFactory = it_1.v
+	for pass := range this.passes.All() {
 		if !pass.isRunInFixedPointLoop() {
 			panic(new_IllegalStateException_0())
 		}
