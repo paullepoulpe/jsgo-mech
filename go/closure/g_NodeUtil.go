@@ -4600,7 +4600,7 @@ func (this *NodeUtil_MatchNameNode) apply(n_ any) bool {
 }
 
 func (this *NodeUtil_MatchNameNode) test(p0 any) bool {
-	return Predicate_base_test(icast_Predicate_base(any(this)), p0)
+	return Predicate_base_test(this, p0)
 }
 
 type NodeUtil_MatchNodeType struct {
@@ -4624,7 +4624,7 @@ func (this *NodeUtil_MatchNodeType) apply(n_ any) bool {
 }
 
 func (this *NodeUtil_MatchNodeType) test(p0 any) bool {
-	return Predicate_base_test(icast_Predicate_base(any(this)), p0)
+	return Predicate_base_test(this, p0)
 }
 
 type NodeUtil_MatchDeclaration struct {
@@ -4647,7 +4647,7 @@ func (this *NodeUtil_MatchDeclaration) apply(n_ any) bool {
 }
 
 func (this *NodeUtil_MatchDeclaration) test(p0 any) bool {
-	return Predicate_base_test(icast_Predicate_base(any(this)), p0)
+	return Predicate_base_test(this, p0)
 }
 
 type NodeUtil_MatchShallowStatement struct {
@@ -4671,7 +4671,7 @@ func (this *NodeUtil_MatchShallowStatement) apply(n_ any) bool {
 }
 
 func (this *NodeUtil_MatchShallowStatement) test(p0 any) bool {
-	return Predicate_base_test(icast_Predicate_base(any(this)), p0)
+	return Predicate_base_test(this, p0)
 }
 
 type NodeUtil_Visitor interface {

@@ -107,9 +107,9 @@ func (this *SimpleSetMultimap) put_s(key string, value any) bool {
 	if values == nil {
 		values = func() Set {
 			if this.sorted {
-				return icast_Set(obj_(new_TreeSet()))
+				return new_TreeSet()
 			}
-			return icast_Set(obj_(new_LinkedHashSet()))
+			return new_LinkedHashSet()
 		}()
 		values.add(value)
 		Map_put_s(this.map__, key, any(values))
@@ -157,7 +157,7 @@ func (this *SimpleSetMultimap) get(key any) SetOf[any] {
 func (this *SimpleSetMultimap) get_s(key string) SetOf[any] {
 	var values SetOf[any] = icast_Set(Map_get_s(this.map__, key))
 	if values == nil {
-		return icast_Set(obj_(ImmutableSet_of()))
+		return ImmutableSet_of()
 	}
 	return Collections_unmodifiableSet(values)
 }
@@ -192,7 +192,7 @@ func (this *SimpleSetMultimap) removeAll_s(key string) SetOf[any] {
 	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
 	var values SetOf[any] = icast_Set(Map_remove_s(this.map__, key))
 	if values == nil {
-		return icast_Set(obj_(ImmutableSet_of()))
+		return ImmutableSet_of()
 	}
 	if this.entryOrder != nil {
 		k := strobj_(key)
@@ -218,7 +218,7 @@ func (this *SimpleSetMultimap) keySet() SetOf[any] {
 }
 
 func (this *SimpleSetMultimap) values() CollectionOf[any] {
-	return icast_Collection(obj_(new_SimpleSetMultimap_1(this)))
+	return new_SimpleSetMultimap_1(this)
 }
 
 func (this *SimpleSetMultimap) asMap() MapOf[any, SetOf[any]] {
