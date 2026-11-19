@@ -247,7 +247,7 @@ func FunctionToBlockMutator_replaceReturns(block Node, resultName Optional[strin
 	}
 	var root Node = block
 	var hasReturnAtExit bool = false
-	var returnCount int32 = NodeUtil_getNodeTypeReferenceCount(block, Token_rhino_RETURN, new_NodeUtil_MatchShallowStatement())
+	var returnCount int32 = NodeUtil_getNodeTypeReferenceCount(block, Token_rhino_RETURN, new_NodeUtil_MatchShallowStatement().applyT_)
 	if returnCount > 0 {
 		hasReturnAtExit = FunctionToBlockMutator_hasReturnAtExit(block)
 		if hasReturnAtExit {

@@ -196,7 +196,7 @@ func (this *DevirtualizeMethods) isEligibleDefinitionFunction(definitionFunction
 			}
 		}
 	}
-	if NodeUtil_has(definitionFunction, (Node).isSuper, Predicates_alwaysTrue()) {
+	if NodeUtil_has(definitionFunction, (Node).isSuper, Predicates_alwaysTrueT_[Node]) {
 		return false
 	}
 	if NodeUtil_doesFunctionReferenceOwnArgumentsObject(definitionFunction) {

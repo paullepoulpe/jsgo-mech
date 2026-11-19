@@ -36,7 +36,7 @@ func ImplicitNullabilityCheck_findImplicitNullabilityResults(info *JSDocInfo, t 
 	}
 	var builder *ImmutableList_Builder[*ImplicitNullabilityCheck_Result] = immutableListBuilder_(tc_p_ImplicitNullabilityCheck_Result)
 	for typeRoot := range elemsBy_(info.getTypeNodes(), Node_of_) {
-		NodeUtil_visitPreOrder_Node_Visitor_Predicate(typeRoot, new_ImplicitNullabilityCheck_1(t, builder), Predicates_alwaysTrue())
+		NodeUtil_visitPreOrder_Node_Visitor_Predicate(typeRoot, new_ImplicitNullabilityCheck_1(t, builder), Predicates_alwaysTrueT_[Node])
 	}
 	return builder.build().items
 }

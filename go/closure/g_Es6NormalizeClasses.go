@@ -1095,11 +1095,11 @@ func (this *Es6NormalizeClasses) rewriteStaticMembers(t *NodeTraversal, record *
 	if !staticInitTempParent.hasChildren() {
 		return
 	}
-	if (!hasPriv && !NodeUtil_has(staticInitTempParent, func(n Node) bool {
+	if !hasPriv && !NodeUtil_has(staticInitTempParent, func(n Node) bool {
 		return (n.isSuper() || n.isPrivateIdentifier())
-	}, &Predicate_base_tfn_Node{func(n Node) bool {
+	}, func(n Node) bool {
 		return (!n.isClass() && (!n.isFunction() || n.isArrowFunction()))
-	}})) {
+	}) {
 		for staticInitTempParent.hasChildren() {
 			staticInitTempParent.getLastChild().detach().insertAfter(insertionPoint)
 		}

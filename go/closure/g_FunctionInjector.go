@@ -59,7 +59,7 @@ func (this *FunctionInjector) doesFunctionMeetMinimumRequirements(fnName string,
 		}
 		return false
 	}}).apply
-	return (!referencesArguments && !NodeUtil_has(block, unboxedPred_[Node](blocksInjection), Predicates_alwaysTrue()))
+	return (!referencesArguments && !NodeUtil_has(block, unboxedPred_[Node](blocksInjection), Predicates_alwaysTrueT_[Node]))
 }
 
 func (this *FunctionInjector) canInlineReferenceToFunction(ref *FunctionInjector_Reference, fnNode Node, needAliases *ImmutableSet[string], referencesThis bool, containsClosures bool) FunctionInjector_CanInlineResult {
@@ -325,9 +325,9 @@ func (this *FunctionInjector) referencesEval(fn Node) bool {
 	}
 	var result bool = NodeUtil_has(fn, func(n Node) bool {
 		return (n.isName() && (n.getStringIs_(sid_eval)))
-	}, &Predicate_base_tfn_Node{func(n Node) bool {
+	}, func(n Node) bool {
 		return (!n.isFunction() || equalsId_(n, fn))
-	}})
+	})
 	this.referencesEvalCache[fn] = any(bool(result))
 	return result
 }
@@ -364,7 +364,7 @@ func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 }
 
 func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *FunctionInjector_Reference, calleeFn Node, namesToAlias *ImmutableSet[string]) bool {
-	var calleeContainsVars bool = NodeUtil_has(NodeUtil_getFunctionBody(calleeFn), new_NodeUtil_MatchDeclaration().applyT_, new_NodeUtil_MatchShallowStatement())
+	var calleeContainsVars bool = NodeUtil_has(NodeUtil_getFunctionBody(calleeFn), new_NodeUtil_MatchDeclaration().applyT_, new_NodeUtil_MatchShallowStatement().applyT_)
 	var forbidTemps bool = false
 	if !callRef.scope_.getClosestHoistScope().isGlobal() {
 		var callerFn Node = callRef.scope_.getClosestHoistScope().getRootNode().getParent()
@@ -508,7 +508,7 @@ func FunctionInjector_inlineCostDelta(fnNode Node, namesToAlias map[string]struc
 		var perReturnOverhead int32 = 2
 		var perReturnResultOverhead int32 = 3
 		var perAliasOverhead int32 = 3
-		var returnCount int32 = NodeUtil_getNodeTypeReferenceCount(block, Token_rhino_RETURN, new_NodeUtil_MatchShallowStatement())
+		var returnCount int32 = NodeUtil_getNodeTypeReferenceCount(block, Token_rhino_RETURN, new_NodeUtil_MatchShallowStatement().applyT_)
 		var resultCount int32 = func() int32 {
 			if returnCount > 0 {
 				return (returnCount - 1)
