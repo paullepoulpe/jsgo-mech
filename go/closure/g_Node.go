@@ -1032,10 +1032,10 @@ func (this Node) getDouble() float64 {
 
 func (this Node) setDouble(x float64) {
 	if Double_isNaN(x) {
-		panic(new_IllegalStateException_String(objstr_(any(float64(x)))).self())
+		panic(new_IllegalStateException_String(dstr_(float64(x))).self())
 	}
 	if !JSCompDoubles_isPositive(x) {
-		panic(new_IllegalStateException_String(objstr_(any(float64(x)))).self())
+		panic(new_IllegalStateException_String(dstr_(float64(x))).self())
 	}
 	if !this.payload_isd_() {
 		panic(this.payloadKindMismatch("number").self())

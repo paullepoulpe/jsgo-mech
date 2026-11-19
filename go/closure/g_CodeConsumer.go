@@ -284,7 +284,7 @@ func (this *CodeConsumer) addOp(op string, binOp bool) {
 
 func (this *CodeConsumer) addNumber_impl(x float64, n Node) {
 	if !JSCompDoubles_isPositive(x) {
-		panic(new_IllegalStateException_String(objstr_(any(float64(x)))).self())
+		panic(new_IllegalStateException_String(dstr_(float64(x))).self())
 	}
 	this.addConstant(CodeConsumer_formatNumber(x))
 }

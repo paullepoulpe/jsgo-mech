@@ -35,7 +35,7 @@ func (this *AbstractVar) zero_AbstractVar() {
 func (this *AbstractVar) init_AbstractVar(name string, nameNode Node, index int32, input *CompilerInput, implicitGoogNamespaceDefinition Node) {
 	this.ScopedName.init_ScopedName()
 	if index < -1 {
-		panic(new_IllegalArgumentException_String(objstr_(any(int32(index)))).self())
+		panic(new_IllegalArgumentException_String(istr_(int64(int32(index)))).self())
 	}
 	this.name_ = name
 	if implicitGoogNamespaceDefinition != 0 {

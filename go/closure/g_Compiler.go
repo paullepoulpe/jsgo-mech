@@ -1031,7 +1031,7 @@ func (this *Compiler) createOrReopenLog_impl(owner ClassOf[any], firstNamePart s
 
 func (this *Compiler) createOrReopenIndexedLog_impl(owner ClassOf[any], firstNamePart string, restNameParts []string) *LogFile {
 	if this.currentPassIndex < 0 {
-		panic(new_IllegalStateException_String(objstr_(any(int32(this.currentPassIndex)))).self())
+		panic(new_IllegalStateException_String(istr_(int64(int32(this.currentPassIndex)))).self())
 	}
 	var index string = Strings_padStart(Integer_toString(this.currentPassIndex), 3, '0')
 	var length int32 = int32(len(restNameParts))
@@ -1584,7 +1584,7 @@ func (this *Compiler) parseInputs() Node {
 		}
 		if this.typedAstFilesystem != nil {
 			if ok_, a1_ := ((this.typedAstFilesystem.size() == 1) || this.typedAstFilesystem.isEmpty()), int32(this.typedAstFilesystem.size()); !ok_ {
-				panic(new_IllegalStateException_String(objstr_(any(a1_))).self())
+				panic(new_IllegalStateException_String(istr_(int64(a1_))).self())
 			}
 		}
 		ret_1 = this.externAndJsRoot

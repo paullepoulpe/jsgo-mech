@@ -1744,7 +1744,7 @@ func (this *GlobalNamespace_Name) getUnsafeInlinabilityBasedOnDeclaredType() Glo
 	} else if this.getBooleanProperty(GlobalNamespace_NameProp_NOT_A_TYPE) {
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	}
-	panic(new_IllegalStateException_String(("name missing declaredType value: " + objstr_(any(this)))).self())
+	panic(new_IllegalStateException_String(("name missing declaredType value: " + this.toString())).self())
 }
 
 func (this *GlobalNamespace_Name) referencesSuperOrInnerClassName() bool {
@@ -1928,7 +1928,7 @@ func (this *GlobalNamespace_Name) setNameType(type_ GlobalNamespace_NameProp) {
 
 func (this *GlobalNamespace_Name) isDeclaredType() bool {
 	if (this.propertyBitSet & GlobalNamespace_NameProp_DECLARED_TYPE_KIND_MASK) == 0 {
-		panic(new_IllegalStateException_String(objstr_(any(int32(this.propertyBitSet)))).self())
+		panic(new_IllegalStateException_String(istr_(int64(int32(this.propertyBitSet)))).self())
 	}
 	return !this.getBooleanProperty(GlobalNamespace_NameProp_NOT_A_TYPE)
 }
