@@ -18,6 +18,13 @@
 // before. Left and counted: an argument that is not the erased view of a typed collection of
 // the same type.
 //
+// forEach with a typed lambda: Map_forEach(m.asMap(), &BiConsumer_tfn_K_V{func(k K, v V) {...}})
+// and Iterable_forEach(l.asList(), &Consumer_tfn_T{func(x T) {...}}), where the function's
+// parameter types are the map's key and value types (the list's element type), become
+// m.forEachT(func...) and l.forEachT(func...): the same calls in the same order, without the
+// view, the iterator, an entry object and two boxes per mapping, and the adapter that unboxes
+// them again. Left and counted: a function of other parameter types (the adapter converts).
+//
 // usage: bulkops [-n] <dir of package closure>
 package main
 
@@ -79,6 +86,11 @@ func main() {
 		}
 		ast.Inspect(f, func(n ast.Node) bool {
 			c, ok := n.(*ast.CallExpr)
+			if ok && len(c.Args) == 2 {
+				if forEach(c, done, left) {
+					return false
+				}
+			}
 			if !ok || len(c.Args) != 1 {
 				return true
 			}
@@ -159,4 +171,60 @@ func sorted(m map[string]int) []string {
 	}
 	sort.Strings(keys)
 	return keys
+}
+
+// forEach rewrites Map_forEach / Iterable_forEach of a typed collection's view with a typed
+// lambda adapter; reports whether it did.
+func forEach(c *ast.CallExpr, done, left map[string]int) bool {
+	id, ok := c.Fun.(*ast.Ident)
+	if !ok {
+		return false
+	}
+	view, typ := "", ""
+	switch id.Name {
+	case "Map_forEach":
+		view, typ = "asMap", "TMap"
+	case "Iterable_forEach":
+		view, typ = "asList", "TList"
+	default:
+		return false
+	}
+	what := typ + ": " + id.Name + " with a typed lambda"
+	a, tn := viewOf(c.Args[0], view)
+	if a == nil || tn != typ {
+		if _, isLit := rw.Unparen(c.Args[1]).(*ast.UnaryExpr); isLit {
+			left[what+": not the erased view of a post-flip typed collection"]++
+		}
+		return false
+	}
+	u, ok := rw.Unparen(c.Args[1]).(*ast.UnaryExpr)
+	if !ok || u.Op != token.AND {
+		left[what+": the action is not a lambda adapter"]++
+		return false
+	}
+	lit, ok := u.X.(*ast.CompositeLit)
+	if !ok || len(lit.Elts) != 1 {
+		left[what+": the action is not a lambda adapter"]++
+		return false
+	}
+	fl, ok := lit.Elts[0].(*ast.FuncLit)
+	if !ok {
+		left[what+": the action is not a lambda adapter"]++
+		return false
+	}
+	sig, _ := rw.Info.TypeOf(fl).(*types.Signature)
+	args := rw.Info.TypeOf(a).(*types.Pointer).Elem().(*types.Named).TypeArgs()
+	if sig == nil || sig.Results().Len() != 0 || sig.Params().Len() != args.Len() {
+		left[what+": a function of other parameter types"]++
+		return false
+	}
+	for i := 0; i < args.Len(); i++ {
+		if !types.Identical(sig.Params().At(i).Type(), args.At(i)) {
+			left[what+": a function of other parameter types"]++
+			return false
+		}
+	}
+	done[typ+": "+id.Name+"("+view+"(), lambda) -> forEachT"]++
+	rw.Rewrite[c] = func() string { return rw.Render(a) + ".forEachT(" + rw.Render(fl) + ")" }
+	return true
 }
