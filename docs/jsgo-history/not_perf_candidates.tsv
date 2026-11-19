@@ -1,0 +1,117 @@
+hash	date	subject	reason
+ff1c0043	2026-10-16	jutil: Java collections equality, TreeMap, Character, BigInteger, FarmHash, ToStringHelper	port of Java/Guava runtime semantics
+66bdf96b	2026-10-16	Delete the first attempt (legacy/)	deletes abandoned first attempt, housekeeping
+b571a48f	2026-10-16	parsing: port Config (+AutoValue_Config), Annotation, JsDocToken, JsDocTokenStream	pure port of parsing classes
+2d7fb46a	2026-10-16	jscompdeps: single-pass comment/literal stripper	dependency-tool correctness fix, not speed
+6ef821fc	2026-10-16	jutil: BitSet, Random, murmur3_128, BiMap, Charset/UTF-8, Escaper, Appendable, Set, CaseFormat, Logger	port of Java/Guava runtime helpers
+0c6bd51c	2026-10-16	jutil: MessageFormat, Path, URI, TreeSet, LoadingCache, %.Nf, split, base64, PercentEscaper, PrintStream, ImmutableMultiset, Pattern	port of Java/Guava runtime helpers
+dfd5b790	2026-10-16	jutil: keep one TreeSet (red-black tree, Java-vector tested) and add AddAll	removes duplicate TreeSet after merge
+268f5b81	2026-10-16	jutil: Objects.hash, List/Set hashCode for slices, BitSet(int)/size(), TreeMap keys/values	runtime helper additions, no perf claim
+ff12a597	2026-10-16	jutil: Gson toJson vectors, Writer/OutputStreamWriter/BufferedWriter, Files	port of Gson/Writer/Files helpers
+511b9c90	2026-10-16	parsing: mark the remaining Go-only adapters in JsDocInfoParser / JsDocTokenStream	comment markers only
+920ce523	2026-10-16	JsDocInfoParserTest: un-skip the TypeTransformationParser and parseFull tests	test un-skip
+ddeafe67	2026-10-16	jutil: ObjectLinkedHashSet/ObjectLinkedHashMap.Clear	adds Clear method, functional
+3d9cd7ff	2026-10-16	jutil: Charset decoding, InputStreamReader, CharStreams.toString, Files.readString/newBufferedReader, MalformedInputException	port of charset decoding helpers
+c9c5e546	2026-10-16	parsing: port ParserTest (649 tests: 614 pass, 34 skip on rhino/jstype, 1 deep-recursion skip)	test port
+784d9bab	2026-10-16	jutil: HashBasedTable (Guava), insertion-ordered rows and columns	port of Guava HashBasedTable
+fd62c414	2026-10-16	jscomp protos: enforce CodedInputStream's recursion limit (100) on nested messages and unknown groups	protobuf recursion-limit parity fix
+3d2d5166	2026-10-16	jscomp: skip JSDocInfoPrinterTest (JSDocInfoPrinter dropped from this wave)	test skip
+ba2c8d9d	2026-10-16	jutil: Hasher.putInt and Hasher.putString(UTF_8) for farmHashFingerprint64	hasher API addition
+1a438059	2026-10-16	jscomp: keep WarningsGuardBase non-zero-size so guards keep Java identity	identity-semantics behaviour fix
+beb8851f	2026-10-16	jutil: BitSet.previousSetBit, tested against JDK vectors	BitSet API addition with vectors
+82ff9d27	2026-10-16	jutil: PriorityQueue, HashMultiset, mutable ListMultimap/SetMultimap ops, ExecutionException	port of collections for Java ordering
+ab6c3c4c	2026-10-16	jscomp: keep the scope bounds free of Scope/TypedScope references; use g1's NodeUtil name	generic-constraint compile fix
+f0d62641	2026-10-16	jutil: drop the duplicate PriorityQueue in favour of port/core-g5's	removes duplicate PriorityQueue after merge
+ac1e9372	2026-10-16	jutil: Objects.equals/hashCode compare a nullable String (*string) by value	equality correctness fix for *string
+dd585218	2026-10-16	resources: export ResourceLoader_GetResourceAsStream for Compiler.getResourceAsStream	exports a function
+048aa0b4	2026-10-16	jutil: JavaHashMap, JavaHashSet, HashMultimap with Java hash iteration order	port of HashMap for iteration-order parity
+7847f11e	2026-10-16	jutil: JavaHashMap string fast path, fail-fast and capacity unit tests	test-only diff; subject mentions a String key fast path but the commit changes only test files
+b85150e0	2026-10-16	jscomp harness: port testing.ScopeSubject; Truth facts and failWithoutActual	test harness port
+1fb944a9	2026-10-16	jscomp: Compiler.inputSourceMaps: note ConcurrentHashMap order	comment only
+34664d07	2026-10-16	jscomp: DefaultExterns comment — the caller passes a LinkedHashMap	comment only
+23555e13	2026-10-16	jscomp: pending declarations panic with *PendingPort; tests that reach one are skipped	pending-port test plumbing
+d5fb792e	2026-10-16	jutil: clean-room Math.round/max, String.lastIndexOf(String, int), Matcher.appendReplacement	clean-room rewrite of helpers (licence), behaviour parity; contains an ASCII byte fast path in lastIndexOf but no perf purpose stated
+0d0df85e	2026-10-16	jutil: clean-room JavaHashMap / JavaHashSet (JDK 21 HashMap order)	clean-room HashMap rewrite for licence/parity
+e9edd7ab	2026-10-16	jutil: re-audit fixes for JavaHashMap (rewrite sizing, growth and tree search)	licence re-audit rewrite of HashMap
+d9a4e294	2026-10-16	jutil: URI re-audit renames; hashCode as a fold over the component list	licence re-audit renames
+7a388795	2026-10-16	jutil: drop JDK-internal names and references (licence audit 3)	licence audit renames, no behaviour change
+cc0aa9a2	2026-10-17	jscomp: CheckNoMutatedEs6Exports reports in Java's HashMap key order	report-order parity fix
+da1fea18	2026-10-17	jscomp: document how Compiler.inputSourceMaps diverges from ConcurrentHashMap	comment/documentation only
+1e167bec	2026-10-17	jutil: Monitor, a re-entrant per-goroutine lock for synchronized	re-entrant lock for correctness, not speed
+63041fca	2026-10-17	Translate every synchronized method and block with jutil.Monitor	deadlock fix via re-entrant monitors
+519aa0ae	2026-10-17	jutil: JsonElement equals/hashCode from Gson 2.9.1	port of Gson equals/hashCode
+d19bb5b2	2026-10-17	tests, cli: remove the PendingPort skip plumbing	removes test skip plumbing
+0ddef5a1	2026-10-17	jutil: drop Uncatchable	removes unused type
+ba72e309	2026-10-17	polymer_j2cl oracle: generate the goldens with a constant identity hash	oracle golden recipe (identity-hash order), not performance
+fe2edc82	2026-10-18	experiment: pin Java character semantics to Unicode 15 across Go toolchains	Unicode 15 table pinning for toolchain upgrade; behaviour parity
+c0a28a97	2026-10-18	Document measured compiler gains and worker comparison	documentation of measurements only
+c53e4906	2026-10-18	Validate equivalent Java cached workers and compare matched protocol workloads	benchmark tooling for Java worker comparison
+659b1b1f	2026-10-18	Add reusable parallel prebuild CLI parity and race gate	parity and race gate script, tooling
+50ad945d	2026-10-18	Document prerequisites for deterministic parallel compiler analysis	design document only
+8f222de0	2026-10-18	Keep missing-module warning gates outside Java optimization crash	gate script tweak, tooling
+460280c7	2026-10-18	Cover concurrent ZIP entry loading in parallel gate	gate script coverage, tooling
+21c008cd	2026-10-18	Compare shared-origin parallel printing against a cold serial oracle	test-only change
+fdf0f393	2026-10-18	Audit matched worker provenance and expose steady-state diagnostics	benchmark tooling and diagnostics
+e7707f06	2026-10-18	Withdraw unequal-cache worker claim and report memory ratios	docs correction, withdraws a worker claim
+9e5813a5	2026-10-18	Use normalized assignment operators in indexed may-use fixture	test fixture correction
+6acbcf87	2026-10-18	Keep source method attribution in generated traversal adapters	attribution comments in generated experiment code
+7ac51834	2026-10-18	Validate clone source bindings before mutating returned type lists	test-only change for clone prototype
+4881beed	2026-10-18	Persist complete stock worker oracles for verified replay gates	benchmark gate tooling
+a1bd890b	2026-10-18	Revert "Validate clone source bindings before mutating returned type lists"	reverts test-only commit 7ac51834
+9ed8ef04	2026-10-18	Assert indexed dispatch across existing type-inference fixtures	test assertions only
+3c526de4	2026-10-18	Add full CLI Java oracle gate for indexed type-flow storage	gate tooling
+c17b9c19	2026-10-18	Use a complete loader fixture and include the CLI parallel gate	test fixture and gate tooling
+79291cf0	2026-10-18	Describe native parser experiment for ordinary CLI compilation	docs only
+17e5ce91	2026-10-18	Keep active redesign documentation and thread comparisons CLI-only	docs and bench script wording
+b3ee66ce	2026-10-18	Record direct AST parser component time and memory measurements	docs: records parser experiment measurements
+dbc9cfbc	2026-10-18	Retain upstream attribution on native CFG prioritization	attribution comments only
+0cbf366a	2026-10-18	Record experimental CLI settings in thread benchmark metadata	benchmark metadata tooling
+938664b7	2026-10-18	Align performance roadmap with ordinary CLI and parallel exploration scope	docs only
+6afb0277	2026-10-18	Record rejection and allocation audit of indexed flow-slot experiment	docs: records rejection of indexed flow slots
+08e44535	2026-10-18	Remove unused small-task fixtures from discarded worker benchmarks	removes unused benchmark fixtures
+7d83d233	2026-10-18	Record CLI redesign screen and correctness validation without claiming a gain	docs: screen results, no gain claimed
+f45e39b1	2026-10-18	Report ordinary CLI thread scaling with Java and Go memory ratios	docs: thread scaling measurements
+940505e8	2026-10-18	Ensure FSIV differential fixture performs actual local inlining	test fixture correction
+5558a1fe	2026-10-18	Document parallel FSIV ownership and function cohort constraints	design document only
+f00c6b16	2026-10-18	Exercise active type inspection in parallel FSIV fallback fixtures	test fixtures only
+49b25dd5	2026-10-18	Record negative reference lookup screen and isolate parallel inlining effects	docs: records negative screen results
+d1cda1bb	2026-10-19	Publish complete performance experiment records and prototype history	publishes experiment records and docs only
+7cb633ac	2026-10-19	Correct performance attribution for inactive post-colorization experiments	docs: attribution correction
+ee12b233	2026-10-19	Clarify latest-main overlap and reset experimental baseline	docs only
+d0bab959	2026-10-19	Publish current-main baseline and completed type-allocation screen	docs and measurement records only
+dc4046a8	2026-10-19	Correct worker-count documentation against current pool implementation	docs correction
+1404308b	2026-10-19	Publish clean-main prototype screens, profiles and recoverable sources	docs and measurement records only
+6ae2ace9	2026-10-19	Record final design and thread results and document open performance ideas	docs: final results and open ideas
+d8bb6e81	2026-10-20	Publish complete first round4 evidence cut and frozen prototype sources	docs and archived experiment records
+e395e31a	2026-10-20	Publish second evidence cut and synchronize new main5de performance work	docs and archived experiment records
+114f2216	2026-10-20	Clarify source versions in the performance record	docs only
+30027deb	2026-10-20	Publish verified main5de warm-JVM win, memory ratios and raw trials	docs and raw trial records
+3783fe43	2026-10-20	Publish full allocation screen, failed refinements and generated-workload evidence	docs and archived experiment records
+aacc4fa0	2026-10-20	Publish latest-main compatibility validation and indexed AST model evidence	docs and archived experiment records
+b8845a55	2026-10-20	Cover creator publication before allocation and after arena release	test-only coverage for arena publication fix
+e225c0a0	2026-10-20	Format integrated Round 10 source and complete new scope-creator control	gofmt/format cleanup and test completion after Round 10
+e67ba970	2026-10-24	fix(jscomp): each Compiler gets its own empty ModuleLoader	behaviour fix (shared ModuleLoader error handler), found by stale-id check
+6e19088d	2026-10-24	parser: drop array and generator comprehensions (v20261021)	upstream parser sync: comprehensions removed (v20261021)
+4dde6db4	2026-10-25	refactor(jscomp): drop dead GlobalNamespace/AnalyzePrototypeProperties Release and deduplicate CodePrinter_ToSource	dead Release hooks removed, CodePrinter_ToSource deduplicated; no perf claim
+63474b95	2026-10-25	jutil: the unsafe allowlist names internal/strpool (the moved string pool); docs: the six latest typed ports	unsafe allowlist path update and docs
+5b10f34d	2026-10-25	jscomp: CreateSyntheticBlocks keeps markers and blocks as typed nodes	typed-AST readability port of CreateSyntheticBlocks; no perf claim
+49befc08	2026-10-25	jscomp: drop two discarded pure calls in ControlFlowAnalysis.walkBranch	removes two discarded pure calls; cleanup without perf claim
+eb363212	2026-10-26	tools/maprangecheck: require a reason on every Go map iteration in internal/	tooling: maprangecheck determinism guard for map iteration
+497a04b0	2026-10-27	compiler_compact: put Timeline.ForwardValues' order-independent reason on the line maprangecheck reads	comment placement for maprangecheck
+40db8389	2026-10-27	fast_mode_gate: relaxed gate (diagnostics multiset, semantic source maps, corpus size)	benchmark gate tooling for fast mode
+32ae048b	2026-10-27	fast mode: test countAstSizes against NodeUtil.countAstSize	test for parallel countAstSizes
+a49e0bab	2026-10-27	refactor(graph,jscomp): extract internal/graph package, jutil.ReuseSlab, and ast_isomorphism tool	package extraction (internal/graph), ReuseSlab helper and tool; measured neutral
+a8ed485b	2026-10-27	ast, jscomp: expand typed ast and idiomatize call & method optimization passes	typed-AST expansion and readability rewrite; measured neutral, no perf claim
+32e870a9	2026-10-27	jscomp: idiomatize transpilation & peephole passes, split 3 large passes, adopt internal/ast	idiomatization and file splits; measured performance-neutral
+af4b509e	2026-10-29	Collapse SortingErrorManager/NoObjectType hierarchies, simplify CLI/jutil/TypeInference, and split 7 monoliths	hierarchy collapse and file splits; measured neutral, no perf claim
+17ce7e66	2026-10-31	PLAN: §8, the behavioural oracle for fast mode	plan document only (fast-mode behavioural oracle)
+03f3b3e8	2026-10-31	jscomp: remove Java-port wrappers superseded by Go implementations	deletes zero-caller Java-port wrappers; no perf claim
+a77474cd	2026-11-01	jscomp: the computeEscaped test adapter keeps every Var it resolves	test-only adapter fix after d1c35b97 refactor
+85bae2b1	2026-11-02	jscomp: clearer file names; drop more superseded wrappers	file renames and dead wrapper removal; ab_gate neutral
+15bfee68	2026-11-02	fix: guard detached/nil AST nodes, support XTB ATTLIST/ignorable whitespace, expand Java regex translation, refresh PhaseOptimizer roots, and tighten typedast gzip	nil-node/XTB/regex bug fixes; tiny gzip tweak
+9467e52e	2026-11-02	port(v20261028): CheckSuper return-without-super, NodeUtil helpers, logical assignment on private fields, and class tests	port of upstream v20261028 changes
+c5734d1b	2026-11-03	rhino: assert block reuse in the local-order copy test at one worker only	test flake fix for compaction block-reuse test
+5a1c3417	2026-11-03	compaction: test a compilation with the tracer on and JSDoc documentation parsed	adds a compaction regression test only
+7a6caaf6	2026-11-03	jscomp,rhino,parsing,args4j,sourcemap,refactoring: Round 85 bugfix sweep, AST/CFG boundary fixes, and unboxed string optionals	bug-fix sweep; minor *string unboxing, no body
+e7d9b311	2026-11-04	feat: Bazel external-test isolation, worker static baseline rewind, and embedder API hooks	embedder API and Bazel test isolation; worker baseline rewind
+cd445f2c	2026-11-05	fix,feat(jscomp,rhino): upstream conformance/StripCode parity fixes and embedder hooks	conformance/StripCode parity fixes and embedder hooks
