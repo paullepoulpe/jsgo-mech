@@ -1,4 +1,0 @@
-  flags5447/CHECKS hr2q1 wall=172.33 cpu=220.94 round=0 load=1.19 rss=10162M exit=0
-  flags5447/OPTIMIZATIONS hr2q1 wall=130.18 cpu=148.22 round=0 load=1.46 rss=5795M exit=0
-  flags5447/FINALIZATIONS hr2q1 wall=27.40 cpu=33.23 round=0 load=1.30 rss=1198M exit=0
-  flags5447 hr2q1 wall=329.91 cpu=402.39 round=0 load=1.28 sha=2043969e874d
