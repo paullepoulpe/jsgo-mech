@@ -1,4 +1,2 @@
 .cache/
-go/closure/g_*.go
-go/closure/externals.tsv
-go/closure/j2go-errors.txt
+.replay.log
