@@ -180,10 +180,10 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	var typeTransformations *ImmutableMap[string, Node] = info.getTypeTransformations()
 	if !typeTransformations.IsEmpty() {
 		multiline = true
-		for _, el := range immElems_(cast_[*ErasedImmutableSet](typeTransformations.asImm().entrySet())) {
-			e := icast_Map_Entry(el)
-			var name string = str_(e.getKey())
-			var tranformationDefinition string = new_CodePrinter_Builder(Node_of_(e.getValue())).build()
+		for i, eKey := range typeTransformations.keys {
+			eValue := typeTransformations.vals[i]
+			var name string = eKey
+			var tranformationDefinition string = new_CodePrinter_Builder(eValue).build()
 			parts.add(("@template " + sstr_(name) + " := " + sstr_(tranformationDefinition) + " =:"))
 		}
 	}

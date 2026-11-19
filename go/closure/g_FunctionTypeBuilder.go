@@ -132,14 +132,14 @@ func (this *FunctionTypeBuilder) inferFromOverriddenFunction(oldType *FunctionTy
 		}
 	} else {
 		var paramBuilder *FunctionParamBuilder = new_FunctionParamBuilder_JSTypeRegistry(this.typeRegistry)
-		var oldParams *immCursor_ = immCursorOf_(oldType.getParameters().asImm())
+		var oldParams *immCursorT_[*FunctionType_Parameter] = immCursorTOf_(oldType.getParameters())
 		var warnedAboutArgList bool = false
 		var oldParamsListHitOptArgs bool = false
 		{
 			var currentParam Node = paramsParent.getFirstChild()
 			for ; currentParam != 0; currentParam = currentParam.getNext() {
 				if oldParams.hasNext() {
-					var oldParam *FunctionType_Parameter = cast_[*FunctionType_Parameter](oldParams.next())
+					var oldParam *FunctionType_Parameter = oldParams.next()
 					oldParamsListHitOptArgs = ((oldParamsListHitOptArgs || oldParam.isVariadic()) || oldParam.isOptional())
 					var isOptionalArg bool = oldParam.isOptional()
 					var isVarArgs bool = oldParam.isVariadic()
@@ -157,7 +157,7 @@ func (this *FunctionTypeBuilder) inferFromOverriddenFunction(oldType *FunctionTy
 			}
 		}
 		for oldParams.hasNext() {
-			paramBuilder.newOptionalParameterFrom(cast_[*FunctionType_Parameter](oldParams.next()))
+			paramBuilder.newOptionalParameterFrom(oldParams.next())
 		}
 		this.parameters = paramBuilder.build()
 	}
@@ -484,25 +484,25 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 		return immutableListOf_(tc_p_TemplateType)
 	}
 	var unboundedTemplates *TList[*TemplateType] = newTList_(tc_p_TemplateType)
-	for _, el := range immElems_(cast_[*ErasedImmutableSet](infoTypeKeys.asImm().keySet())) {
-		templateKey := str_(el)
+	for _, el := range infoTypeKeys.keys {
+		templateKey := el
 		unboundedTemplates.add(this.typeRegistry.createTemplateType(templateKey))
 	}
 	this.templateScope = this.typeRegistry.createScopeWithTemplates(this.templateScope, Iterable(unboundedTemplates.asList()))
 	var templates *ImmutableList_Builder[*TemplateType] = immutableListBuilder_(tc_p_TemplateType)
 	var templatesToBounds *TMap[*TemplateType, *JSType] = newTMap_(tch_p_TemplateType, tc_p_JSType)
-	for _, el2 := range immElems_(cast_[*ErasedImmutableSet](infoTypeKeys.asImm().entrySet())) {
-		entry := icast_Map_Entry(el2)
-		var expr *JSTypeExpression = cast_[*JSTypeExpression](entry.getValue())
-		var typeBound *JSType = this.typeRegistry.evaluateTypeExpression(cast_[*JSTypeExpression](entry.getValue()), this.templateScope)
+	for i, entryKey := range infoTypeKeys.keys {
+		entryValue := infoTypeKeys.vals[i]
+		var expr *JSTypeExpression = entryValue
+		var typeBound *JSType = this.typeRegistry.evaluateTypeExpression(entryValue, this.templateScope)
 		if expr.isExplicitUnknownTemplateBound() {
-			this.reportError(FunctionTypeBuilder_TEMPLATE_TYPE_ILLEGAL_BOUND, []string{objstr_(typeBound.self()), str_(entry.getKey())})
+			this.reportError(FunctionTypeBuilder_TEMPLATE_TYPE_ILLEGAL_BOUND, []string{objstr_(typeBound.self()), entryKey})
 		}
-		var template *TemplateType = this.typeRegistry.getType(StaticScope(this.templateScope), str_(entry.getKey())).toMaybeTemplateType()
+		var template *TemplateType = this.typeRegistry.getType(StaticScope(this.templateScope), entryKey).toMaybeTemplateType()
 		if template != nil {
 			templatesToBounds.Put(template, typeBound)
 		} else {
-			templatesToBounds.Put(this.typeRegistry.createTemplateType_2(str_(entry.getKey()), typeBound), typeBound)
+			templatesToBounds.Put(this.typeRegistry.createTemplateType_2(entryKey, typeBound), typeBound)
 		}
 	}
 	it_5 := templatesToBounds.eachEntry()
@@ -513,12 +513,12 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 		template.setBound(bound)
 		templates.add(template)
 	}
-	for _, el3 := range immElems_(cast_[*ErasedImmutableSet](infoTypeTransformations.asImm().entrySet())) {
-		entry := icast_Map_Entry(el3)
+	for i2, entryKey2 := range infoTypeTransformations.keys {
+		entryValue2 := infoTypeTransformations.vals[i2]
 		if allowTypeTransformations {
-			templates.add(this.typeRegistry.createTemplateTypeWithTransformation(str_(entry.getKey()), Node_of_(entry.getValue())))
+			templates.add(this.typeRegistry.createTemplateTypeWithTransformation(entryKey2, entryValue2))
 		} else {
-			this.reportWarning(FunctionTypeBuilder_TEMPLATE_TRANSFORMATION_ON_CLASS, []string{str_(entry.getKey())})
+			this.reportWarning(FunctionTypeBuilder_TEMPLATE_TRANSFORMATION_ON_CLASS, []string{entryKey2})
 		}
 	}
 	var builtTemplates *ImmutableList[*TemplateType] = templates.build()

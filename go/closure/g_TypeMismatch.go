@@ -132,10 +132,10 @@ func (this *TypeMismatch_Accumulator) registerMismatch(location Node, found *JST
 	if found.isFunctionType() && required.isFunctionType() {
 		var fnTypeA *FunctionType = found.toMaybeFunctionType()
 		var fnTypeB *FunctionType = required.toMaybeFunctionType()
-		var paramItA *immCursor_ = immCursorOf_(fnTypeA.getParameters().asImm())
-		var paramItB *immCursor_ = immCursorOf_(fnTypeB.getParameters().asImm())
+		var paramItA *immCursorT_[*FunctionType_Parameter] = immCursorTOf_(fnTypeA.getParameters())
+		var paramItB *immCursorT_[*FunctionType_Parameter] = immCursorTOf_(fnTypeB.getParameters())
 		for paramItA.hasNext() && paramItB.hasNext() {
-			this.registerIfMismatch(location, paramItA.next().(*FunctionType_Parameter).getJSType(), paramItB.next().(*FunctionType_Parameter).getJSType())
+			this.registerIfMismatch(location, paramItA.next().getJSType(), paramItB.next().getJSType())
 		}
 		this.registerIfMismatch(location, fnTypeA.getReturnType(), fnTypeB.getReturnType())
 	}

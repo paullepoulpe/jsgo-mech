@@ -1479,12 +1479,12 @@ func (this *TypeCheck) visitCall(t *NodeTraversal, n Node) {
 }
 
 func (this *TypeCheck) visitArgumentList(call Node, functionType *FunctionType) {
-	var parameters *immCursor_ = immCursorOf_(functionType.getParameters().asImm())
+	var parameters *immCursorT_[*FunctionType_Parameter] = immCursorTOf_(functionType.getParameters())
 	var arguments IteratorOf[Node] = NodeUtil_getInvocationArgsAsIterable(call).iterator()
 	this.checkArgumentsMatchParameters(call, functionType, arguments, parameters, 0)
 }
 
-func (this *TypeCheck) checkArgumentsMatchParameters(call Node, functionType *FunctionType, arguments IteratorOf[Node], parameters *immCursor_, firstParameterIndex int32) {
+func (this *TypeCheck) checkArgumentsMatchParameters(call Node, functionType *FunctionType, arguments IteratorOf[Node], parameters *immCursorT_[*FunctionType_Parameter], firstParameterIndex int32) {
 	var spreadArgumentCount int32 = 0
 	var normalArgumentCount int32 = firstParameterIndex
 	var checkArgumentTypeAgainstParameter bool = true
@@ -1500,7 +1500,7 @@ func (this *TypeCheck) checkArgumentsMatchParameters(call Node, functionType *Fu
 		}
 		if checkArgumentTypeAgainstParameter {
 			if parameters.hasNext() {
-				parameter = cast_[*FunctionType_Parameter](parameters.next())
+				parameter = parameters.next()
 			} else if (parameter != nil) && parameter.isVariadic() {
 			} else {
 				parameter = nil
@@ -1630,12 +1630,12 @@ func (this *TypeCheck) visitTaggedTemplateLit(n Node) {
 		return
 	}
 	var tagFnType *FunctionType = tagType.toMaybeFunctionType()
-	var parameters *immCursor_ = immCursorOf_(tagFnType.getParameters().asImm())
+	var parameters *immCursorT_[*FunctionType_Parameter] = immCursorTOf_(tagFnType.getParameters())
 	if !parameters.hasNext() {
 		this.report(n, TypeCheck_WRONG_ARGUMENT_COUNT, []string{this.typeRegistry.getReadableTypeNameNoDeref(tag).orElse("null"), strconv.Itoa(int(NodeUtil_getInvocationArgsCount(n))), "0", " and no more than 0 argument(s)"})
 		return
 	}
-	var firstParameter *FunctionType_Parameter = cast_[*FunctionType_Parameter](parameters.next())
+	var firstParameter *FunctionType_Parameter = parameters.next()
 	var parameterType *JSType = firstParameter.getJSType().restrictByNotNullOrUndefined()
 	if parameterType != nil {
 		this.validator.expectITemplateArraySupertype(tag, parameterType, "Invalid type for the first parameter of tag function")

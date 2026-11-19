@@ -388,8 +388,8 @@ func (this *EsModuleProcessor_UnresolvedEsModule) metadata_impl() *ModuleMetadat
 
 func (this *EsModuleProcessor_UnresolvedEsModule) getAllResolvedImports(moduleRequestResolver ModuleRequestResolver) *TMap[string, *Binding] {
 	var imports *TMap[string, *Binding] = newTMap_(tc_string, tc_p_Binding)
-	for _, el := range immElems_(cast_[*ErasedImmutableSet](this.importsByLocalName.asImm().keySet())) {
-		name := str_(el)
+	for _, el := range this.importsByLocalName.keys {
+		name := el
 		var b *ResolveExportResult = this.resolveImport(moduleRequestResolver, name)
 		if b.resolved() {
 			imports.Put(name, b.getBinding())

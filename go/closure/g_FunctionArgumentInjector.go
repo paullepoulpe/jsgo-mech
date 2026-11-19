@@ -192,10 +192,10 @@ func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *
 	var namesAfterSideEffects *ImmutableSet[string] = parametersThatMayNeedTemps.parametersReferencedAfterSideEffect()
 	var parametersWithNamesReferencedBefore *ImmutableSet[string] = parametersThatMayNeedTemps.parametersWithNamesReferencedBeforeParameter()
 	var getStringU16 utf16_
-	for _, el := range immElems_(cast_[*ErasedImmutableSet](argMap.asImm().entrySet())) {
-		entry := icast_Map_Entry(el)
-		var parameterName string = str_(entry.getKey())
-		var cArg Node = entry.getValue().(*FunctionArgumentInjector_ParamArgPair).arg()
+	for i, entryKey := range argMap.keys {
+		entryValue := argMap.vals[i]
+		var parameterName string = entryKey
+		var cArg Node = entryValue.arg()
 		if namesNeedingTemps.Has(parameterName) {
 			requiresTempsUpToThisParameterName = parameterName
 			continue
@@ -231,8 +231,8 @@ func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *
 		}
 	}
 	if requiresTempsUpToThisParameterName != "" {
-		for _, el2 := range immElems_(cast_[*ErasedImmutableSet](argMap.asImm().keySet())) {
-			parameterName := str_(el2)
+		for _, el2 := range argMap.keys {
+			parameterName := el2
 			if (parameterName == FunctionArgumentInjector_THIS_MARKER) && (NodeUtil_isUndefined(obj_(argMap.Get(FunctionArgumentInjector_THIS_MARKER)).(*FunctionArgumentInjector_ParamArgPair).arg()) || (fnNode.isArrowFunction() && obj_(argMap.Get(FunctionArgumentInjector_THIS_MARKER)).(*FunctionArgumentInjector_ParamArgPair).arg().isThis())) {
 				continue
 			}

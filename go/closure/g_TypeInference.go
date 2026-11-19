@@ -99,10 +99,10 @@ func (this *TypeInference) inferParameters(entryFlowScope FlowScope) FlowScope {
 		iifeArgumentNode = functionNode.getNext()
 	}
 	var functionType *FunctionType = JSType_toMaybeFunctionType(functionNode.getJSType())
-	var parameterTypes *immCursor_ = immCursorOf_(functionType.getParameters().asImm())
+	var parameterTypes *immCursorT_[*FunctionType_Parameter] = immCursorTOf_(functionType.getParameters())
 	var parameter *FunctionType_Parameter = func() *FunctionType_Parameter {
 		if parameterTypes.hasNext() {
-			return cast_[*FunctionType_Parameter](parameterTypes.next())
+			return parameterTypes.next()
 		}
 		return nil
 	}()
@@ -142,7 +142,7 @@ func (this *TypeInference) inferParameters(entryFlowScope FlowScope) FlowScope {
 			}
 			parameter = func() *FunctionType_Parameter {
 				if parameterTypes.hasNext() {
-					return cast_[*FunctionType_Parameter](parameterTypes.next())
+					return parameterTypes.next()
 				}
 				return nil
 			}()
@@ -1378,7 +1378,7 @@ func (this *TypeInference) updateTypeOfArguments(n Node, fnType *FunctionType) {
 	if !NodeUtil_isInvocation(n) {
 		panic(new_IllegalStateException_String(tostr_(n)))
 	}
-	var parameters *immCursor_ = immCursorOf_(fnType.getParameters().asImm())
+	var parameters *immCursorT_[*FunctionType_Parameter] = immCursorTOf_(fnType.getParameters())
 	if n.isTaggedTemplateLit() {
 		if !parameters.hasNext() {
 			return
@@ -1391,7 +1391,7 @@ func (this *TypeInference) updateTypeOfArguments(n Node, fnType *FunctionType) {
 	for parameters.hasNext() && arguments.hasNext() {
 		iArgument = Node_of_(arguments.next())
 		var iArgumentType *JSType = this.getJSType(iArgument)
-		iParameter = cast_[*FunctionType_Parameter](parameters.next())
+		iParameter = parameters.next()
 		var iParameterType *JSType = func() *JSType {
 			if iParameter.getJSType() != nil {
 				return iParameter.getJSType()

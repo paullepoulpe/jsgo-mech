@@ -306,8 +306,8 @@ func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(me
 	this.statics = statics
 	this.byNativeVersion = byNativeVersion
 	var suffixList *TList[string] = newTList_(tc_string)
-	for _, el := range immElems_(cast_[*ErasedImmutableSet](statics.asImm().keySet())) {
-		arg := str_(el)
+	for _, el := range statics.keys {
+		arg := el
 		suffixList.add(arg[strings.LastIndexByte(arg, '.')+1:])
 	}
 	this.suffixes = immutableSetCopyOf_(tc_string, Collection(suffixList.asList()))

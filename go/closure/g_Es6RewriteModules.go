@@ -248,10 +248,11 @@ func (this *Es6RewriteModules) createExportsObject(moduleName string, t *NodeTra
 	moduleVar.getFirstChild().setDeclaredConstantVar(true)
 	script.addChildToBack(moduleVar.srcrefTreeIfMissing(script))
 	var thisModule *Module = this.moduleMap.getModule(t.getInput().getPath())
-	for _, el := range immElems_(cast_[*ErasedImmutableSet](thisModule.namespace().asImm().entrySet())) {
-		entry := icast_Map_Entry(el)
-		var exportedName string = str_(entry.getKey())
-		var binding *Binding = cast_[*Binding](entry.getValue())
+	m := thisModule.namespace()
+	for i, entryKey := range m.keys {
+		entryValue := m.vals[i]
+		var exportedName string = entryKey
+		var binding *Binding = entryValue
 		var nodeForSourceInfo Node = binding.sourceNode()
 		var mutated bool = binding.isMutated()
 		var boundVariableQualifiedName *QualifiedName = ModuleRenaming_getGlobalName_Binding(binding)

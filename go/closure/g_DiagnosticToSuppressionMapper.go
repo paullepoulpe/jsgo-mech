@@ -32,13 +32,13 @@ func (this *DiagnosticToSuppressionMapper) createSuppressionMap() ImmutableSorte
 	delete(validSuppressions, "accessControls")
 	delete(validSuppressions, "missingSourcesWarnings")
 	var diagnosticToSuppression *TMap[*DiagnosticType, string] = newTMap_(tch_p_DiagnosticType, tc_string)
-	for _, el := range immElems_(cast_[*ErasedImmutableSet](this.diagnosticGroups.asImm().entrySet())) {
-		entry := icast_Map_Entry(el)
-		var suppression string = str_(entry.getKey())
+	for i, entryKey := range this.diagnosticGroups.keys {
+		entryValue := this.diagnosticGroups.vals[i]
+		var suppression string = entryKey
 		if !has_(validSuppressions, suppression) {
 			continue
 		}
-		var group *DiagnosticGroup = cast_[*DiagnosticGroup](entry.getValue())
+		var group *DiagnosticGroup = entryValue
 		for _, el2 := range group.getTypes().keys {
 			diagnosticType := el2
 			Map_merge(diagnosticToSuppression.asMap(), obj_(diagnosticType), strobj_(suppression), &BiFunction_tfn_string_string_string{func(p0 string, p1 string) string { return this.preferMoreTargetedGroup(p0, p1) }})

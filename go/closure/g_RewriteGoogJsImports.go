@@ -35,15 +35,17 @@ func new_RewriteGoogJsImports(compiler *AbstractCompiler, mode RewriteGoogJsImpo
 func (this *RewriteGoogJsImports) changeModules() {
 	var resolvedModules *ImmutableMap_Builder[string, *Module] = immutableMapBuilder_(tc_string, tc_p_Module)
 	var closureModules *ImmutableMap_Builder[string, *Module] = immutableMapBuilder_(tc_string, tc_p_Module)
-	for _, el := range immElems_(cast_[*ErasedImmutableSet](this.moduleMap.getModulesByPath().asImm().entrySet())) {
-		m := icast_Map_Entry(el)
-		var newModule *Module = this.moduleReplacements.GetOr(cast_[*Module](m.getValue()), cast_[*Module](m.getValue()))
-		resolvedModules.put(str_(m.getKey()), newModule)
+	m2 := this.moduleMap.getModulesByPath()
+	for i, mKey := range m2.keys {
+		mValue := m2.vals[i]
+		var newModule *Module = this.moduleReplacements.GetOr(mValue, mValue)
+		resolvedModules.put(mKey, newModule)
 	}
-	for _, el2 := range immElems_(cast_[*ErasedImmutableSet](this.moduleMap.getModulesByClosureNamespace().asImm().entrySet())) {
-		m := icast_Map_Entry(el2)
-		var newModule *Module = this.moduleReplacements.GetOr(cast_[*Module](m.getValue()), cast_[*Module](m.getValue()))
-		closureModules.put(str_(m.getKey()), newModule)
+	m3 := this.moduleMap.getModulesByClosureNamespace()
+	for i2, mKey2 := range m3.keys {
+		mValue2 := m3.vals[i2]
+		var newModule *Module = this.moduleReplacements.GetOr(mValue2, mValue2)
+		closureModules.put(mKey2, newModule)
 	}
 	this.compiler_.setModuleMap(new_ModuleMap(resolvedModules.buildOrThrow(), closureModules.buildOrThrow()))
 	this.moduleReplacements.Clear()

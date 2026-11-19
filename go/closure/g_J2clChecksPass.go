@@ -29,8 +29,8 @@ func new_J2clChecksPass(compiler *AbstractCompiler) *J2clChecksPass {
 }
 
 func (this *J2clChecksPass) visit_impl(unused *NodeTraversal, n Node, parent Node) {
-	for _, el := range immElems_(cast_[*ErasedImmutableSet](J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS.asImm().keySet())) {
-		typeName := str_(el)
+	for _, el := range J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS.keys {
+		typeName := el
 		this.checkReferenceEquality(n, typeName, J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS.Get(typeName))
 	}
 }

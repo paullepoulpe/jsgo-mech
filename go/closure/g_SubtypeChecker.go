@@ -361,17 +361,17 @@ func (this *SubtypeChecker) isArrowTypeSubtype(subtype *ArrowType, nonArrowSuper
 	if !this.isSubtypeCaching(subtype.getReturnType(), supertype.getReturnType()) {
 		return false
 	}
-	var subtypeParameters *immCursor_ = immCursorOf_(subtype.getParameterList().asImm())
-	var supertypeParameters *immCursor_ = immCursorOf_(supertype.getParameterList().asImm())
+	var subtypeParameters *immCursorT_[*FunctionType_Parameter] = immCursorTOf_(subtype.getParameterList())
+	var supertypeParameters *immCursorT_[*FunctionType_Parameter] = immCursorTOf_(supertype.getParameterList())
 	var subtypeParam *FunctionType_Parameter = func() *FunctionType_Parameter {
 		if subtypeParameters.hasNext() {
-			return cast_[*FunctionType_Parameter](subtypeParameters.next())
+			return subtypeParameters.next()
 		}
 		return nil
 	}()
 	var supertypeParam *FunctionType_Parameter = func() *FunctionType_Parameter {
 		if supertypeParameters.hasNext() {
-			return cast_[*FunctionType_Parameter](supertypeParameters.next())
+			return supertypeParameters.next()
 		}
 		return nil
 	}()
@@ -396,7 +396,7 @@ func (this *SubtypeChecker) isArrowTypeSubtype(subtype *ArrowType, nonArrowSuper
 		if !thisIsVarArgs {
 			subtypeParam = func() *FunctionType_Parameter {
 				if subtypeParameters.hasNext() {
-					return cast_[*FunctionType_Parameter](subtypeParameters.next())
+					return subtypeParameters.next()
 				}
 				return nil
 			}()
@@ -404,7 +404,7 @@ func (this *SubtypeChecker) isArrowTypeSubtype(subtype *ArrowType, nonArrowSuper
 		if !thatIsVarArgs {
 			supertypeParam = func() *FunctionType_Parameter {
 				if supertypeParameters.hasNext() {
-					return cast_[*FunctionType_Parameter](supertypeParameters.next())
+					return supertypeParameters.next()
 				}
 				return nil
 			}()

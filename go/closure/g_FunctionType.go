@@ -947,12 +947,12 @@ func (this *FunctionType) checkExtendsLoop_2(cache *TSet[*FunctionType], path *[
 
 func (this *FunctionType) acceptsArguments(argumentTypes []*JSType) bool {
 	var arguments int
-	var parameters *immCursor_ = immCursorOf_(this.getParameters().asImm())
+	var parameters *immCursorT_[*FunctionType_Parameter] = immCursorTOf_(this.getParameters())
 	var parameter *FunctionType_Parameter = nil
 	var argument *JSType = nil
 	for (arguments < len(argumentTypes)) && (parameters.hasNext() || ((parameter != nil) && parameter.isVariadic())) {
 		if parameters.hasNext() {
-			parameter = cast_[*FunctionType_Parameter](parameters.next())
+			parameter = parameters.next()
 		}
 		argument = sliceNext_(argumentTypes, &arguments)
 		if !argument.isSubtypeOf(parameter.getJSType()) {

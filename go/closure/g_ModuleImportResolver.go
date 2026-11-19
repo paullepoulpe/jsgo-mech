@@ -94,10 +94,11 @@ func (this *ModuleImportResolver) declareEsModuleImports(module *Module, scope *
 		panic(new_IllegalArgumentException_String(tostr_(scope)))
 	}
 	var missingNames *ImmutableMap_Builder[Node, *ScopedName] = immutableMapBuilder_(tc_Node, tc_p_ScopedName)
-	for _, el := range immElems_(cast_[*ErasedImmutableSet](module.boundNames().asImm().entrySet())) {
-		boundName := icast_Map_Entry(el)
-		var binding *Binding = cast_[*Binding](boundName.getValue())
-		var localName string = str_(boundName.getKey())
+	m := module.boundNames()
+	for i, boundNameKey := range m.keys {
+		boundNameValue := m.vals[i]
+		var binding *Binding = boundNameValue
+		var localName string = boundNameKey
 		if !binding.isCreatedByEsImport() {
 			continue
 		}
@@ -131,13 +132,14 @@ func (this *ModuleImportResolver) updateEsModuleNamespaceType(namespace *ObjectT
 	if !scope.isModuleScope() {
 		panic(new_IllegalArgumentException_String(tostr_(scope)))
 	}
-	for _, el := range immElems_(cast_[*ErasedImmutableSet](module.namespace().asImm().entrySet())) {
-		boundName := icast_Map_Entry(el)
-		var exportKey string = str_(boundName.getKey())
+	m := module.namespace()
+	for i, boundNameKey := range m.keys {
+		boundNameValue := m.vals[i]
+		var exportKey string = boundNameKey
 		if namespace.isPropertyTypeDeclared(exportKey) {
 			continue
 		}
-		var binding *Binding = cast_[*Binding](boundName.getValue())
+		var binding *Binding = boundNameValue
 		var bindingSourceNode Node = binding.sourceNode()
 		var export *ScopedName = this.getScopedNameFromEsBinding(binding)
 		var originalScope *TypedScope = func() *TypedScope {

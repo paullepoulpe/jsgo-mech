@@ -662,9 +662,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) initializeModuleScope(module
 		this.outer_.markGoogModuleExportsAsConst(moduleBody)
 	case ModuleMetadataMap_ModuleType_ES6_MODULE:
 		var unresolvedImports *ImmutableMap[Node, *ScopedName] = this.outer_.moduleImportResolver.declareEsModuleImports(this.getModule(), this.currentScope, this.outer_.compiler_.getInput(NodeUtil_getInputId(moduleBody)))
-		for _, el := range immElems_(cast_[*ErasedImmutableSet](unresolvedImports.asImm().entrySet())) {
-			entry := icast_Map_Entry(el)
-			*this.outer_.weakImports = append(*this.outer_.weakImports, new_TypedScopeCreator_WeakModuleImport(this.outer_, Node_of_(entry.getKey()), to_ScopedName(entry.getValue()), this.currentScope))
+		for i, entryKey := range unresolvedImports.keys {
+			entryValue := unresolvedImports.vals[i]
+			*this.outer_.weakImports = append(*this.outer_.weakImports, new_TypedScopeCreator_WeakModuleImport(this.outer_, entryKey, entryValue, this.currentScope))
 		}
 	default:
 		panic(new_IllegalStateException_String(String_format("Unexpected module type %s in module %s", obj_(moduleType), obj_(this.getModule()))))
@@ -2296,10 +2296,10 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareParameters(functionNo
 	}
 	var functionType *FunctionType = JSType_toMaybeFunctionType(functionNode.getJSType())
 	if functionType != nil {
-		var jsdocParameters *immCursor_ = immCursorOf_(functionType.getParameters().asImm())
+		var jsdocParameters *immCursorT_[*FunctionType_Parameter] = immCursorTOf_(functionType.getParameters())
 		var jsDocParameter *FunctionType_Parameter = func() *FunctionType_Parameter {
 			if jsdocParameters.hasNext() {
-				return cast_[*FunctionType_Parameter](jsdocParameters.next())
+				return jsdocParameters.next()
 			}
 			return nil
 		}()
@@ -2319,7 +2319,7 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareParameters(functionNo
 				if jsDocParameter != nil {
 					jsDocParameter = func() *FunctionType_Parameter {
 						if jsdocParameters.hasNext() {
-							return cast_[*FunctionType_Parameter](jsdocParameters.next())
+							return jsdocParameters.next()
 						}
 						return nil
 					}()

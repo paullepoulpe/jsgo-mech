@@ -1616,9 +1616,9 @@ func (this *CommandLineRunner_Flags) getSourceMapLocationMappings() *Outcome_bas
 		return Outcome_base_err[*TList[SourceMap_LocationMapping]](splitOutcome.error())
 	}
 	var split *ImmutableMap[string, string] = tmapFrom_(tc_string, tc_string, splitOutcome.get(), true)
-	for _, el := range immElems_(cast_[*ErasedImmutableSet](split.asImm().entrySet())) {
-		mapping := icast_Map_Entry(el)
-		locationMappings.add(new_SourceMap_PrefixLocationMapping(str_(mapping.getKey()), str_(mapping.getValue())))
+	for i, mappingKey := range split.keys {
+		mappingValue := split.vals[i]
+		locationMappings.add(new_SourceMap_PrefixLocationMapping(mappingKey, mappingValue))
 	}
 	return Outcome_base_ok_Object[*TList[SourceMap_LocationMapping]](locationMappings.build())
 }

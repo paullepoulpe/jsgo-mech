@@ -50,11 +50,11 @@ func (this *InvocationTemplateTypeMatcher) match() *ImmutableMap[*TemplateType, 
 		this.matchTemplateTypesRecursive(typeOfThisRequiredByTheFunction, typeOfThisProvidedByTheCall)
 	}
 	if this.invocation.isTaggedTemplateLit() {
-		var calleeParameters *immCursor_ = immCursorOf_(this.calleeType.getParameters().asImm())
+		var calleeParameters *immCursorT_[*FunctionType_Parameter] = immCursorTOf_(this.calleeType.getParameters())
 		if !calleeParameters.hasNext() {
 			return this.copyMatchedTypes()
 		}
-		this.matchTemplateTypesRecursive(calleeParameters.next().(*FunctionType_Parameter).getJSType(), this.registry.getNativeType(JSTypeNative_I_TEMPLATE_ARRAY_TYPE))
+		this.matchTemplateTypesRecursive(calleeParameters.next().getJSType(), this.registry.getNativeType(JSTypeNative_I_TEMPLATE_ARRAY_TYPE))
 		this.matchTemplateTypesFromNodes(Iterables_skip(iup_Iterable(this.calleeType.getParameters().asImm()), 1), NodeUtil_getInvocationArgsAsIterable(this.invocation))
 	} else if this.invocation.hasMoreThanOneChild() {
 		this.matchTemplateTypesFromNodes(iup_Iterable(this.calleeType.getParameters().asImm()), NodeUtil_getInvocationArgsAsIterable(this.invocation))
@@ -88,7 +88,7 @@ func (this *InvocationTemplateTypeMatcher) matchTemplateTypesRecursive(paramType
 		if (argFunctionType != nil) && argFunctionType.isSubtype(paramType) {
 			this.matchTemplateTypesRecursive(paramFunctionType.getTypeOfThis(), argFunctionType.getTypeOfThis())
 			this.matchTemplateTypesRecursive(paramFunctionType.getReturnType(), argFunctionType.getReturnType())
-			this.matchTemplateTypesFromParameters(immCursorOf_(paramFunctionType.getParameters().asImm()), immCursorOf_(argFunctionType.getParameters().asImm()))
+			this.matchTemplateTypesFromParameters(immCursorTOf_(paramFunctionType.getParameters()), immCursorTOf_(argFunctionType.getParameters()))
 		}
 	} else if paramType.isRecordType() && !paramType.isNominalType() {
 		if this.seenTypes.add(paramType) {
@@ -138,13 +138,13 @@ func (this *InvocationTemplateTypeMatcher) matchTemplateTypesFromNodesIterator(d
 	}
 }
 
-func (this *InvocationTemplateTypeMatcher) matchTemplateTypesFromParameters(declParams *immCursor_, callParams *immCursor_) {
+func (this *InvocationTemplateTypeMatcher) matchTemplateTypesFromParameters(declParams *immCursorT_[*FunctionType_Parameter], callParams *immCursorT_[*FunctionType_Parameter]) {
 	for declParams.hasNext() && callParams.hasNext() {
-		var declParam *FunctionType_Parameter = cast_[*FunctionType_Parameter](declParams.next())
-		this.matchTemplateTypesRecursive(declParam.getJSType(), callParams.next().(*FunctionType_Parameter).getJSType())
+		var declParam *FunctionType_Parameter = declParams.next()
+		this.matchTemplateTypesRecursive(declParam.getJSType(), callParams.next().getJSType())
 		if declParam.isVariadic() {
 			for callParams.hasNext() {
-				this.matchTemplateTypesRecursive(declParam.getJSType(), callParams.next().(*FunctionType_Parameter).getJSType())
+				this.matchTemplateTypesRecursive(declParam.getJSType(), callParams.next().getJSType())
 			}
 		}
 	}

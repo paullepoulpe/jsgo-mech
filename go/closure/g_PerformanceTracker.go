@@ -303,8 +303,8 @@ func (this *PerformanceTracker) calcTotalStats() {
 	}
 	this.endTime = System_currentTimeMillis()
 	this.populatePassSummary()
-	for _, el := range immElems_(cast_[*ImmutableCollection](this.passSummary.asImm().values())) {
-		stats := cast_[*PerformanceTracker_Stats](el)
+	for _, el := range this.passSummary.vals {
+		stats := el
 		this.passesRuntime = int32((int64(this.passesRuntime) + stats.runtime_))
 		this.maxMem = Math_max(this.maxMem, stats.allocMem)
 		this.runs += stats.runs

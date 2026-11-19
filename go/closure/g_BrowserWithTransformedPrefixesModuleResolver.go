@@ -24,9 +24,9 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) zero_BrowserWithTransf
 func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransformedPrefixesModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper, prefixReplacements *ImmutableMap[string, string]) {
 	this.ModuleResolver.init_ModuleResolver(modulePaths, moduleRootPaths, errorHandler, pathEscaper)
 	var sortedReplacements *TList[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement] = newTList_(tc_p_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement)
-	for _, el := range immElems_(cast_[*ErasedImmutableSet](prefixReplacements.asImm().entrySet())) {
-		entry := icast_Map_Entry(el)
-		sortedReplacements.add(BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement_of(str_(entry.getKey()), str_(entry.getValue())))
+	for i, entryKey := range prefixReplacements.keys {
+		entryValue := prefixReplacements.vals[i]
+		sortedReplacements.add(BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement_of(entryKey, entryValue))
 	}
 	List_sort(sortedReplacements.asList(), Comparator_thenComparing(Comparator_reversed(Comparator_comparingInt(&ToIntFunction_tfn_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement{func(r *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) int32 {
 		return String_length(r.prefix())
