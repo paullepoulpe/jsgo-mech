@@ -187,3 +187,29 @@ first; gast.py 2 rounds):
 So this tree uses less memory than postflip5 (the node store) and is 19-24% slower in CPU: the
 manual patches it lacks (43 of 51), the translator's typed collections the post-flip tools do
 not reach yet, and the lambda-adapter steps (passfn).
+
+### The bridge on the second trial (branch reflip2-bridge, from reflip2-replayed)
+
+jfam extended for this flip's typed kinds, each step gated (runtime tests ok, four MATCH):
+
+| step | what | counts |
+|---|---|---|
+| jfam -kind convs | every named translator conversion has one post-flip conversion (g_zconv_jfam.go) | 70 renamed; 270 conversions: 13 share the package's tc_X, 257 get tc_X = jtc_X.t_() |
+| jfam -kind list | typed lists, immutable lists and list builders are the post-flip ones | 1,438 mentions, 777 constructor calls; left: 102 TDeque (its own type on the translator's list) |
+| colls/run.sh | | 97 list declarations typed, 425 typed lists are Go slices |
+| runtime | a typed list's erased view is part of the list | |
+| jfam -kind keyed | typed sets, maps, entries and builders, by declaration group (a group a sorted collection can reach stays) | 1,690 mentions, 861 constructor calls, 2,985 method calls; left 240 by reason: sorted 66, function values and conversions 63, function literals 55, keySetImm 51, a runtime helper 5 |
+| colls/run.sh | | 73 map and set declarations typed, 148 maps and 172 sets are Go maps, 142 map reads never nil |
+| bulkops (new tool) | addAll / putAll between typed collections of one type are typed | 30 sites; left 26 |
+
+Tool fixes added: 10 (native leaves a result or parameter whose collection type mentions a type
+parameter). Measured against the replayed tree (079459be), fb.py 3 rounds, CPU: the list group
+is neutral (bundle 30.01s -> 29.73s, typed-full 63.50s -> 63.37s); jfam -kind keyed with its
+pipeline run was a regression (bundle +4.6%, typed-full +1.6%: the post-flip set and map make
+objects where erased code sees them) that bulkops takes back to within 0.7% (bundle 30.53s ->
+30.75s, typed-full 64.55s -> 64.94s against the tree before keyed). Objects, bundle /
+typed-full: 177.6M / 318.4M at 079459be, 190.8M / 333.2M now. So the bridge makes the
+translator's collections visible to the post-flip tools (598 more are native Go slices and maps)
+at no cost in time, and no gain yet: what remains is erased iteration over typed maps
+(Map.forEach with a lambda, entryOut_), the typed lambda adapters (passfn, funcparams) and the
+manual patches both trials dropped.
