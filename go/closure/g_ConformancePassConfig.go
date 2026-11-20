@@ -49,7 +49,7 @@ func (this *ConformancePassConfig) getChecks() *PassListBuilder {
 	if this.self_ == any(this) {
 		return this.getChecks_impl()
 	}
-	return this.self_.(interface{ getChecks_impl() *PassListBuilder }).getChecks_impl()
+	return this.self_.getChecks_impl()
 }
 
 // getOptimizations: an object that is exactly a ConformancePassConfig calls its getOptimizations_impl directly (post-flip); others dispatch.
@@ -57,5 +57,5 @@ func (this *ConformancePassConfig) getOptimizations() *PassListBuilder {
 	if this.self_ == any(this) {
 		return this.getOptimizations_impl()
 	}
-	return this.self_.(interface{ getOptimizations_impl() *PassListBuilder }).getOptimizations_impl()
+	return this.self_.getOptimizations_impl()
 }

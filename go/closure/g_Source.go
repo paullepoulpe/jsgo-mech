@@ -364,7 +364,13 @@ func Source_Transformer_compose_default(this Source_Transformer, before Source_T
 }
 
 type Source_Lazy struct {
-	self_ any
+	self_ Source_Lazy_I
+}
+
+// Source_Lazy_I holds the methods the dispatchers of Source_Lazy's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type Source_Lazy_I interface {
+	get_impl() any
 }
 
 func (this *Source_Lazy) as_Source_Lazy() *Source_Lazy { return this }
@@ -410,7 +416,7 @@ func Source_Lazy_memoize(supplier Supplier_baseOf[any]) *Source_Lazy {
 }
 
 func (this *Source_Lazy) get() any {
-	return this.self_.(interface{ get_impl() any }).get_impl()
+	return this.self_.get_impl()
 }
 
 type Source_Lazy_1 struct {
@@ -474,7 +480,7 @@ func (this *Source_Lazy_1) get() any {
 	if this.self_ == any(this) {
 		return this.get_impl()
 	}
-	return this.self_.(interface{ get_impl() any }).get_impl()
+	return this.self_.get_impl()
 }
 
 // get: an object that is exactly a Source_Lazy_2 calls its get_impl directly (post-flip); others dispatch.
@@ -482,5 +488,5 @@ func (this *Source_Lazy_2) get() any {
 	if this.self_ == any(this) {
 		return this.get_impl()
 	}
-	return this.self_.(interface{ get_impl() any }).get_impl()
+	return this.self_.get_impl()
 }

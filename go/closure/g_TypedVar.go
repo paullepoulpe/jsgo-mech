@@ -214,7 +214,7 @@ func (this *TypedVar) getScopeRoot() Node {
 	if this.self_ == any(this) {
 		return this.getScopeRoot_impl()
 	}
-	return this.self_.(interface{ getScopeRoot_impl() Node }).getScopeRoot_impl()
+	return this.self_.getScopeRoot_impl()
 }
 
 // getSourceFile: an object that is exactly a TypedVar calls its getSourceFile_impl directly (post-flip); others dispatch.
