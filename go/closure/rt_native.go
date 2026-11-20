@@ -320,6 +320,20 @@ func mapComputeIfAbsent_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], m ma
 	return v
 }
 
+// mapComputeIfAbsent_f is mapComputeIfAbsent_ with the function as a Go func value.
+func mapComputeIfAbsent_f[K comparable, V any](kc *tconv_[K], vc *tconv_[V], m map[K]V, k K, f func(any) any) V {
+	if v, ok := m[k]; ok && !vc.isNull(v) {
+		return v
+	}
+	r := f(kc.box(k))
+	if r == nil {
+		return vc.null
+	}
+	v := vc.unbox(r)
+	m[k] = v
+	return v
+}
+
 // setRemove_ is Set.remove used as a value: whether k was there.
 func setRemove_[K comparable](m map[K]struct{}, k K) bool {
 	if _, ok := m[k]; !ok {
@@ -405,6 +419,22 @@ func mapComputeIfAbsentObj_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], m
 		}
 	}
 	v := f.apply(k)
+	if v != nil {
+		m[kc.unbox(k)] = vc.unbox(v)
+	}
+	return v
+}
+
+// mapComputeIfAbsentObj_f is mapComputeIfAbsentObj_ with the function as a Go func value.
+func mapComputeIfAbsentObj_f[K comparable, V any](kc *tconv_[K], vc *tconv_[V], m map[K]V, k any, f func(any) any) any {
+	if kk, ok := kc.try(k); ok {
+		if old, ok := m[kk]; ok {
+			if b := vc.box(old); b != nil {
+				return b
+			}
+		}
+	}
+	v := f(k)
 	if v != nil {
 		m[kc.unbox(k)] = vc.unbox(v)
 	}
