@@ -336,23 +336,15 @@ func (this *TemplateTypeReplacer) setKeyType(keyType *TemplateType, ownSubMapBou
 	this.ownSubMapBoundary = ownSubMapBoundary
 }
 
-func (this *TemplateTypeReplacer) guardAgainstCycles(type_ *JSType, mapper func(any) any) *JSType {
+func (this *TemplateTypeReplacer) guardAgainstCycles(type_ *JSType, mapper func(any) any) (ret_1 *JSType) {
 	this.initSeenTypes()
 	if !this.seenTypes.add(type_.self()) {
 		return type_
 	}
-	var ret_1 *JSType
-	code_1 := func() (code_ int) {
-		defer func() {
-			this.seenTypes.remove_Object(type_.self())
-		}()
-		ret_1 = to_JSType(mapper(type_.self()))
-		return 1
+	defer func() {
+		this.seenTypes.remove_Object(type_.self())
 	}()
-	if code_1 == 1 {
-		return ret_1
-	}
-	panic("unreachable")
+	return to_JSType(mapper(type_.self()))
 }
 
 func (this *TemplateTypeReplacer) getVisitedObjectTypeOrNull(type_ *JSType) *JSType {

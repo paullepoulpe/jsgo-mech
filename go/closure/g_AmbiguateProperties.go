@@ -62,11 +62,10 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	}}).create, this.colorRegistry)
 	graphBuilder.addAll(Collection(this.graphNodeFactory.getAllKnownTypes().asSet()))
 	var colorGraph *LinkedDirectedGraph[*ColorGraphNode, any] = graphBuilder.build()
-	_ = func() (code_ int) {
+	func() {
 		var chunkGraphLog *LogFile = this.compiler_.createOrReopenLog(Object_getClass(this), "color_graph.dot", []string{})
 		defer closeResource_(chunkGraphLog.self())
 		chunkGraphLog.logString(DotFormatter_toDot_GraphvizGraph(icast_GraphvizGraph(colorGraph.self())))
-		return 0
 	}()
 	it_2 := this.graphNodeFactory.getAllKnownTypes().each()
 	for it_2.next() {

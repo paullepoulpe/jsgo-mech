@@ -197,32 +197,29 @@ func TypedAstDeserializer_createStubWeakScriptNode(file *SourceFile_jscomp) Supp
 }
 
 func TypedAstDeserializer_deserializeTypedAsts(typedAstsStream []int8, deserializer *TypedAstDeserializer, compiler *AbstractCompiler, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) {
-	_ = func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if p, ok := ex_.(IOException_as); ok {
-					var ex *IOException = p.as_IOException()
-					panic(new_IllegalArgumentException_String_Throwable("Cannot read from TypedAST input stream", ex.up_Throwable()))
-				}
-				panic(r_)
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if p, ok := ex_.(IOException_as); ok {
+				var ex *IOException = p.as_IOException()
+				panic(new_IllegalArgumentException_String_Throwable("Cannot read from TypedAST input stream", ex.up_Throwable()))
 			}
-		}()
-		var codedInput *CodedInputStream = CodedInputStream_newInstance(typedAstsStream)
-		var typedAstBuilder *TypedAst_Builder = TypedAst_newBuilder()
-		for !codedInput.isAtEnd() {
-			var tag int32 = codedInput.readTag()
-			if (WireFormat_getTagFieldNumber(tag) != int32(1)) || (WireFormat_getTagWireType(tag) != int32(2)) {
-				panic(new_InvalidProtocolBufferException_String(("Unexpected field number " + istr_(int64(WireFormat_getTagFieldNumber(tag))) + " or wire type " + istr_(int64(WireFormat_getTagWireType(tag))))))
-			}
-			codedInput.readMessage(TypedAst_Builder_as_MessageLite_Builder(typedAstBuilder), ExtensionRegistry_getEmptyRegistry().up_ExtensionRegistryLite())
-			var typedAst *TypedAst = cast_[*TypedAst](typedAstBuilder.build())
-			typedAstBuilder.clear()
-			codedInput.resetSizeCounter()
-			deserializer.deserializeTypedAst(typedAst, compiler, resolveSourceMapAnnotations, parseInlineSourceMaps)
+			panic(r_)
 		}
-		return 0
 	}()
+	var codedInput *CodedInputStream = CodedInputStream_newInstance(typedAstsStream)
+	var typedAstBuilder *TypedAst_Builder = TypedAst_newBuilder()
+	for !codedInput.isAtEnd() {
+		var tag int32 = codedInput.readTag()
+		if (WireFormat_getTagFieldNumber(tag) != int32(1)) || (WireFormat_getTagWireType(tag) != int32(2)) {
+			panic(new_InvalidProtocolBufferException_String(("Unexpected field number " + istr_(int64(WireFormat_getTagFieldNumber(tag))) + " or wire type " + istr_(int64(WireFormat_getTagWireType(tag))))))
+		}
+		codedInput.readMessage(TypedAst_Builder_as_MessageLite_Builder(typedAstBuilder), ExtensionRegistry_getEmptyRegistry().up_ExtensionRegistryLite())
+		var typedAst *TypedAst = cast_[*TypedAst](typedAstBuilder.build())
+		typedAstBuilder.clear()
+		codedInput.resetSizeCounter()
+		deserializer.deserializeTypedAst(typedAst, compiler, resolveSourceMapAnnotations, parseInlineSourceMaps)
+	}
 }
 
 type TypedAstDeserializer_Mode uint8
