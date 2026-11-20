@@ -770,3 +770,12 @@ ad8c897b patch 492-ad8c897b-rt.patch
 265af42f patch 496-265af42f-rt.patch
 # 497. postflip (runtime, re-flip): protobuf fields are stored typed, in one struct per message written by tools/protogen, instead of boxed in a []any
 7be430ed patch 497-7be430ed-rt.patch
+# 510. postflip (runtime, re-flip): an erased immutable collection keeps what only multisets, sorted sets with a comparator, enum sets and asList() of a set use in a record of its own (80 bytes instead of 192)
+d791dde5 patch 510-d791dde5-rt.patch
+# 511. postflip (runtime, re-flip): helpers for a typed collection that goes through its erased form and straight back, with a test against the conversions they stand for
+68513bc0 patch 511-68513bc0-rt.patch
+# 512. postflip step (re-flip): trips, 88 round trips of a typed collection through its erased form become typed helper calls (tool a9769ba0, runtime 68513bc0)
+#: trips: 88 round trips through an erased collection rewritten; files changed: 47 (10 tsetAddAllOf_, 5 tsetAddList_, 13 tsetAddSet_, 7 immCopySlice_, 1 sliceSkip_ of splitStrs_, 15 tlistImmCopy_, 8 sliceAddSlice_, 1 sliceAddList_, 1 immCopyArr_, 5 tlistSlice_, 20 splitStrs_, 2 tsetCopy_; left 1 array boxed by a function literal)
+e9d53d6c run t trips && f
+# 513. postflip (runtime, re-flip): a Splitter makes the slice of its pieces once, at its final size
+4071b655 patch 513-4071b655-rt.patch
