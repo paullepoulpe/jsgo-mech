@@ -14,10 +14,10 @@ type RemoveUnusedCode struct {
 	worklist                                       *TDeque[*RemoveUnusedCode_Continuation]
 	varInfoMap                                     *JTMap[*Var, RemoveUnusedCode_VarInfo]
 	pinnedPropertyNames                            *JTSet[string]
-	removablesForPropertyNames                     *SimpleSetMultimap
+	removablesForPropertyNames                     *SimpleSetMultimap[any, *RemoveUnusedCode_Removable]
 	canonicalUnremovableVarInfo                    RemoveUnusedCode_VarInfo
 	allFunctionParamScopes                         *JTList[*Scope]
-	polyfills                                      *SimpleSetMultimap
+	polyfills                                      *SimpleSetMultimap[any, *RemoveUnusedCode_PolyfillInfo]
 	guardedUsages                                  *JTSet[Node]
 	polyfillsFromTable                             *PolyfillUsageFinder_Polyfills
 	polyfillUsageFinder                            *PolyfillUsageFinder
@@ -36,9 +36,9 @@ func (this *RemoveUnusedCode) finit_RemoveUnusedCode() {
 	this.worklist = newTDeque_(jtc_p_RemoveUnusedCode_Continuation)
 	this.varInfoMap = jnewTMap_(tce_p_Var, tc_RemoveUnusedCode_VarInfo)
 	this.pinnedPropertyNames = tsetCopy_(jtc_string, RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES)
-	this.removablesForPropertyNames = SimpleSetMultimap_createInsertionOrdered()
+	this.removablesForPropertyNames = SimpleSetMultimap_createInsertionOrdered[any, *RemoveUnusedCode_Removable]()
 	this.allFunctionParamScopes = jnewTList_(tc_p_Scope)
-	this.polyfills = SimpleSetMultimap_createInsertionOrdered()
+	this.polyfills = SimpleSetMultimap_createInsertionOrdered[any, *RemoveUnusedCode_PolyfillInfo]()
 	this.guardedUsages = jnewTSet_(jtc_Node)
 }
 
@@ -346,7 +346,7 @@ func (this *RemoveUnusedCode) traverseCall(callNode Node, scope *Scope) {
 			polyfillName = ("TypedArray.prototype." + sstr_(polyfillName))
 		}
 		var info *RemoveUnusedCode_PolyfillInfo = this.createPolyfillInfo(callNode, scope, polyfillName)
-		this.polyfills.put_s(info.key_, info.self())
+		this.polyfills.put_s(info.key_, info)
 		this.traverseNode(callNode.getFirstChild(), scope)
 	} else if (NodeUtil_isGoogWeakUsageCall(callNode) && callNode.hasTwoChildren()) && callNode.getSecondChild().isName() {
 		var varInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(callNode.getSecondChild(), scope)
@@ -958,7 +958,7 @@ func (this *RemoveUnusedCode) considerForIndependentRemoval(removable *RemoveUnu
 		if this.pinnedPropertyNames.contains(propertyName) || this.codingConvention.isExported_2(propertyName, false) {
 			removable.applyContinuations()
 		} else if this.isIndependentlyRemovable(removable) {
-			this.removablesForPropertyNames.put_s(propertyName, removable.self())
+			this.removablesForPropertyNames.put_s(propertyName, removable)
 		} else {
 			removable.applyContinuations()
 			this.markPropertyNameAsPinned(propertyName)

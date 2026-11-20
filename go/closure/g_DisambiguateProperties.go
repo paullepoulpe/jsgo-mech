@@ -104,7 +104,7 @@ func (this *DisambiguateProperties) createInvalidationError(prop *PropertyCluste
 }
 
 func DisambiguateProperties_buildRenamingIndex(props *JTMap[string, *PropertyClustering], renamer *UseSiteRenamer) ImmutableMapOf[string, any] {
-	var newNames *SimpleSetMultimap = renamer.getRenamingIndex()
+	var newNames *SimpleSetMultimap[any, string] = renamer.getRenamingIndex()
 	var result ImmutableSortedMap_BuilderOf[string, any] = ImmutableSortedMap_naturalOrder()
 	it_1 := props.eachValue()
 	for it_1.next() {

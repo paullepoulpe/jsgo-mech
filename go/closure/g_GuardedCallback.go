@@ -6,9 +6,9 @@ type GuardedCallback[T comparable] struct {
 	self_               any
 	vt_GuardedCallback_ GuardedCallback_vt_[T]
 	compiler_           *AbstractCompiler
-	registeredGuards    *SimpleSetMultimap
-	guarded             *SimpleMultiset
-	installedGuards     *SimpleListMultimap
+	registeredGuards    *SimpleSetMultimap[Node, any]
+	guarded             *SimpleMultiset[any]
+	installedGuards     *SimpleListMultimap[Node, any]
 	contextStack        *TDeque[*GuardedCallback_Context]
 }
 
@@ -37,9 +37,9 @@ func (this *GuardedCallback[T]) self() any {
 }
 
 func (this *GuardedCallback[T]) finit_GuardedCallback() {
-	this.registeredGuards = SimpleSetMultimap_create()
-	this.guarded = SimpleMultiset_create()
-	this.installedGuards = SimpleListMultimap_create()
+	this.registeredGuards = SimpleSetMultimap_create[Node, any]()
+	this.guarded = SimpleMultiset_create[any]()
+	this.installedGuards = SimpleListMultimap_create[Node, any]()
 	this.contextStack = newTDeque_(jtc_p_GuardedCallback_Context)
 }
 
@@ -57,7 +57,7 @@ func (this *GuardedCallback[T]) shouldTraverse(traversal *NodeTraversal, n Node,
 			for el_1 := range elems_(this.registeredGuards.removeAll(parent.box_())) {
 				var resource T = junboxT_[T](el_1)
 				this.guarded.add(boxT_(resource))
-				this.installedGuards.put(parent.box_(), boxT_(resource))
+				this.installedGuards.put(parent, boxT_(resource))
 			}
 		}
 	}
@@ -82,7 +82,7 @@ func (this *GuardedCallback[T]) promoteAbruptReturns(parent Node) {
 	if parent.isIf() && this.installedGuards.containsKey(parent.box_()) {
 		var grandparent Node = parent.getParent()
 		if grandparent.isBlock() || grandparent.isScript() {
-			this.registeredGuards.putAll_2(grandparent.box_(), Iterable(this.installedGuards.get(parent.box_())))
+			this.registeredGuards.putAll_2(grandparent, Iterable(this.installedGuards.get(parent.box_())))
 		}
 	}
 }
@@ -96,7 +96,7 @@ func (this *GuardedCallback[T]) isGuarded(resource T) bool {
 		return false
 	}
 	for (context != nil) && (context.conditional != 0) {
-		this.registeredGuards.put(context.conditional.box_(), boxT_(resource))
+		this.registeredGuards.put(context.conditional, boxT_(resource))
 		context = context.linked
 	}
 	return true

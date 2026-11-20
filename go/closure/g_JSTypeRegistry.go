@@ -35,13 +35,13 @@ type JSTypeRegistry struct {
 	scopedNameTable                 *SimpleTable[Node, string, *JSType]
 	closureNamespaces               *JTMap[string, *JSTypeRegistry_ClosureNamespace]
 	nameTableGlobalRoot             Node
-	nonNullableTypeNames            *SimpleSetMultimap
+	nonNullableTypeNames            *SimpleSetMultimap[Node, string]
 	forwardDeclaredTypes            SetOf[string]
-	nonRefTypesIndexedByProperty    *SimpleSetMultimap
+	nonRefTypesIndexedByProperty    *SimpleSetMultimap[any, *JSType]
 	sentinelObjectLiteral           *JSType
 	propertiesOfSupertypesInUnions  *JTSet[string]
 	droppedPropertiesOfUnions       *JTSet[string]
-	eachRefTypeIndexedByProperty    *SimpleSetMultimap
+	eachRefTypeIndexedByProperty    *SimpleSetMultimap[any, *ObjectType]
 	emptyTemplateTypeMap            *TemplateTypeMap
 	resolver                        *JSTypeResolver
 }
@@ -50,11 +50,11 @@ func (this *JSTypeRegistry) finit_JSTypeRegistry() {
 	this.scopedNameTable = SimpleTable_create[Node, string, *JSType]()
 	this.closureNamespaces = jnewTMap_(jtc_string, tc_p_JSTypeRegistry_ClosureNamespace)
 	this.nameTableGlobalRoot = new_Node_Token(Token_rhino_ROOT)
-	this.nonNullableTypeNames = SimpleSetMultimap_create()
-	this.nonRefTypesIndexedByProperty = SimpleSetMultimap_create()
+	this.nonNullableTypeNames = SimpleSetMultimap_create[Node, string]()
+	this.nonRefTypesIndexedByProperty = SimpleSetMultimap_create[any, *JSType]()
 	this.propertiesOfSupertypesInUnions = jnewTSet_(jtc_string)
 	this.droppedPropertiesOfUnions = jnewTSet_(jtc_string)
-	this.eachRefTypeIndexedByProperty = SimpleSetMultimap_create()
+	this.eachRefTypeIndexedByProperty = SimpleSetMultimap_create[any, *ObjectType]()
 }
 
 func (this *JSTypeRegistry) init_JSTypeRegistry_ErrorReporter(reporter ErrorReporter_rhino) {
@@ -811,9 +811,9 @@ func (this *JSTypeRegistry) registerPropertyOnType(propertyName string, type_ *J
 		objType = p.as_ObjectType()
 		return true
 	}() && objType.hasReferenceName() {
-		this.eachRefTypeIndexedByProperty.put_s(propertyName, objType.self())
+		this.eachRefTypeIndexedByProperty.put_s(propertyName, objType)
 	} else {
-		this.nonRefTypesIndexedByProperty.put_s(propertyName, type_.self())
+		this.nonRefTypesIndexedByProperty.put_s(propertyName, type_)
 	}
 }
 
@@ -1303,7 +1303,7 @@ func (this *JSTypeRegistry) createNamedType(scope StaticTypedScope, reference st
 
 func (this *JSTypeRegistry) identifyNonNullableName(scope StaticScope, name string) {
 	var lookupScope StaticScope = JSTypeRegistry_getLookupScope(scope, name)
-	this.nonNullableTypeNames.put(this.getRootNodeForScope(lookupScope).box_(), strobj_(name))
+	this.nonNullableTypeNames.put(this.getRootNodeForScope(lookupScope), name)
 }
 
 func (this *JSTypeRegistry) isNonNullableName(scope StaticScope, name string) bool {

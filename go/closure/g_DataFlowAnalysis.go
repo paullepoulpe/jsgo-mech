@@ -81,7 +81,7 @@ func (this *DataFlowAnalysis[N, L]) analyze() {
 	this.initialize()
 	for !this.workQueue.isEmpty() {
 		var curNode DiGraph_DiGraphNode[N, ControlFlowGraph_Branch] = this.workQueue.removeFirst()
-		var curState *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(curNode)))
+		var curState *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(curNode)))
 		var stepCount int32 = curState.stepCount
 		curState.stepCount++
 		if stepCount > DataFlowAnalysis_MAX_STEPS_PER_NODE {
@@ -123,7 +123,7 @@ func (this *DataFlowAnalysis[N, L]) initialize() {
 }
 
 func (this *DataFlowAnalysis[N, L]) flow(node DiGraph_DiGraphNode[N, ControlFlowGraph_Branch]) bool {
-	var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(node)))
+	var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(node)))
 	if this.isForward() {
 		var outBefore L = junboxT_[L](state.getOut())
 		state.setOut(boxT_(this.flowThrough(node.getValue(), junboxT_[L](state.getIn()))))
@@ -147,7 +147,7 @@ func (this *DataFlowAnalysis[N, L]) flow(node DiGraph_DiGraphNode[N, ControlFlow
 }
 
 func (this *DataFlowAnalysis[N, L]) joinInputs(node DiGraph_DiGraphNode[N, ControlFlowGraph_Branch]) {
-	var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(node)))
+	var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(node)))
 	if this.isForward() && (this.cfg.getEntry() == node) {
 		state.setIn(boxT_(this.createEntryLattice()))
 		return
@@ -182,14 +182,14 @@ func (this *DataFlowAnalysis[N, L]) getInputFromEdge(edge DiGraph_DiGraphEdge[N,
 	if this.isBranched() {
 		return junboxT_[L](Annotatable_getAnnotation(Annotatable(edge)))
 	} else if this.isForward() {
-		var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(edge.getSource())))
+		var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(edge.getSource())))
 		return junboxT_[L](state.getOut())
 	} else {
 		var node DiGraph_DiGraphNode[N, ControlFlowGraph_Branch] = edge.getDestination()
 		if node == this.cfg.getImplicitReturn() {
 			return this.createEntryLattice()
 		}
-		var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(node)))
+		var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(node)))
 		return junboxT_[L](state.getIn())
 	}
 }
@@ -269,62 +269,62 @@ func (this *DataFlowAnalysis_FlowBrancher_fn[L]) branchFlow(p0 ControlFlowGraph_
 	return this.f(p0)
 }
 
-type DataFlowAnalysis_LinearFlowState struct {
+type DataFlowAnalysis_LinearFlowState[L comparable] struct {
 	stepCount int32
-	in        any
-	out       any
+	in        L
+	out       L
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) finit_DataFlowAnalysis_LinearFlowState() {
+func (this *DataFlowAnalysis_LinearFlowState[L]) finit_DataFlowAnalysis_LinearFlowState() {
 	this.stepCount = 0
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) init_DataFlowAnalysis_LinearFlowState(in any, out any) {
+func (this *DataFlowAnalysis_LinearFlowState[L]) init_DataFlowAnalysis_LinearFlowState(in L, out L) {
 	this.finit_DataFlowAnalysis_LinearFlowState()
-	if in == nil {
+	if in == null_[L]() {
 		panic(new_NullPointerException_0().self())
 	}
-	if out == nil {
+	if out == null_[L]() {
 		panic(new_NullPointerException_0().self())
 	}
 	this.in = in
 	this.out = out
 }
 
-func new_DataFlowAnalysis_LinearFlowState(in any, out any) *DataFlowAnalysis_LinearFlowState {
-	this := &DataFlowAnalysis_LinearFlowState{}
+func new_DataFlowAnalysis_LinearFlowState[L comparable](in L, out L) *DataFlowAnalysis_LinearFlowState[L] {
+	this := &DataFlowAnalysis_LinearFlowState[L]{in: null_[L](), out: null_[L]()}
 	this.init_DataFlowAnalysis_LinearFlowState(in, out)
 	return this
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) getStepCount() int32 {
+func (this *DataFlowAnalysis_LinearFlowState[L]) getStepCount() int32 {
 	return this.stepCount
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) getIn() any {
+func (this *DataFlowAnalysis_LinearFlowState[L]) getIn() L {
 	return this.in
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) setIn(in any) {
-	if in == nil {
+func (this *DataFlowAnalysis_LinearFlowState[L]) setIn(in L) {
+	if in == null_[L]() {
 		panic(new_NullPointerException_0().self())
 	}
 	this.in = in
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) getOut() any {
+func (this *DataFlowAnalysis_LinearFlowState[L]) getOut() L {
 	return this.out
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) setOut(out any) {
-	if out == nil {
+func (this *DataFlowAnalysis_LinearFlowState[L]) setOut(out L) {
+	if out == null_[L]() {
 		panic(new_NullPointerException_0().self())
 	}
 	this.out = out
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) toString() string {
-	return String_format("IN: %s OUT: %s", []any{this.in, this.out})
+func (this *DataFlowAnalysis_LinearFlowState[L]) toString() string {
+	return String_format("IN: %s OUT: %s", []any{boxNull_(this.in), boxNull_(this.out)})
 }
 
 type DataFlowAnalysis_UniqueQueue[T comparable] struct {
