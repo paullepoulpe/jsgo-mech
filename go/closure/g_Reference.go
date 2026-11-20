@@ -87,7 +87,7 @@ func Reference_isDeclarationHelper(node Node) bool {
 	if parent.isArrowFunction() {
 		return (node == parent.getFirstChild())
 	}
-	return Reference_DECLARATION_PARENTS.Has(parent.getToken())
+	return Reference_DECLARATION_PARENTS_has_(parent.getToken())
 }
 
 func (this *Reference) isVarDeclaration() bool {
