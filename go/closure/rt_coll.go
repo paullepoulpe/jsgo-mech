@@ -174,7 +174,11 @@ func Iterator_remove(it Iterator) {
 	r.remove()
 }
 
-func Iterable_forEach(it Iterable, c Consumer) { Iterable_forEach_f(it, c.accept) }
+func Iterable_forEach(it Iterable, c Consumer) {
+	for i := it.iterator(); i.hasNext(); {
+		c.accept(i.next())
+	}
+}
 
 // Iterable_forEach_f is Iterable_forEach with the action as a Go func value.
 func Iterable_forEach_f(it Iterable, c func(any)) {
@@ -1881,7 +1885,16 @@ func Map_putIfAbsent(m Map, k any, v any) any {
 	return nil
 }
 
-func Map_computeIfAbsent(m Map, k any, f Function) any { return Map_computeIfAbsent_f(m, k, f.apply) }
+func Map_computeIfAbsent(m Map, k any, f Function) any {
+	if old := m.get(k); old != nil {
+		return old
+	}
+	v := f.apply(k)
+	if v != nil {
+		m.put(k, v)
+	}
+	return v
+}
 
 // Map_computeIfAbsent_f is Map_computeIfAbsent with the function as a Go func value, which the
 // caller's closure can stay on the stack for (post-flip step funcparams calls it for lambdas).
@@ -1896,7 +1909,19 @@ func Map_computeIfAbsent_f(m Map, k any, f func(any) any) any {
 	return v
 }
 
-func Map_merge(m Map, k any, v any, f BiFunction) any { return Map_merge_f(m, k, v, f.apply) }
+func Map_merge(m Map, k any, v any, f BiFunction) any {
+	old := m.get(k)
+	nv := v
+	if old != nil {
+		nv = f.apply(old, v)
+	}
+	if nv == nil {
+		m.remove(k)
+	} else {
+		m.put(k, nv)
+	}
+	return nv
+}
 
 // Map_merge_f is Map_merge with the function as a Go func value.
 func Map_merge_f(m Map, k any, v any, f func(any, any) any) any {
@@ -1913,7 +1938,12 @@ func Map_merge_f(m Map, k any, v any, f func(any, any) any) any {
 	return nv
 }
 
-func Map_forEach(m Map, f BiConsumer) { Map_forEach_f(m, f.accept) }
+func Map_forEach(m Map, f BiConsumer) {
+	for it := m.entrySet().iterator(); it.hasNext(); {
+		e := it.next().(Map_Entry)
+		f.accept(e.getKey(), e.getValue())
+	}
+}
 
 // Map_forEach_f is Map_forEach with the action as a Go func value.
 func Map_forEach_f(m Map, f func(any, any)) {
@@ -2034,7 +2064,18 @@ func Comparator_thenComparingLong(c Comparator, f ToLongFunction) Comparator {
 
 func Collections_unmodifiableSortedSet(s SortedSet) SortedSet { return s }
 
-func Map_compute(m Map, k any, f BiFunction) any { return Map_compute_f(m, k, f.apply) }
+func Map_compute(m Map, k any, f BiFunction) any {
+	old := m.get(k)
+	v := f.apply(k, old)
+	if v == nil {
+		if old != nil || m.containsKey(k) {
+			m.remove(k)
+		}
+		return nil
+	}
+	m.put(k, v)
+	return v
+}
 
 // Map_compute_f is Map_compute with the function as a Go func value.
 func Map_compute_f(m Map, k any, f func(any, any) any) any {
