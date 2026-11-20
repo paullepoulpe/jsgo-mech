@@ -30,7 +30,7 @@ func FixedPointGraphTraversal_newReverseTraversal[NodeT comparable, EdgeT compar
 
 func (this *FixedPointGraphTraversal[N, E]) computeFixedPoint(graph *DiGraph[N, E]) {
 	var nodes *TSet[N] = newTSet_(tchT_[N]())
-	for node := range elemsAs_[DiGraph_DiGraphNode[N, E]](graph.getNodes()) {
+	for node := range elemsBy_(graph.getNodes(), gcast_DiGraph_DiGraphNode_N_E[N, E]) {
 		nodes.Add(node.getValue())
 	}
 	this.computeFixedPointSet(graph, nodes.asSet())
@@ -52,7 +52,7 @@ func (this *FixedPointGraphTraversal[N, E]) computeFixedPointSet(graph *DiGraph[
 		workSet.add(graph.getNode_Object_rDiGraphNode(n))
 	}
 	for ; !workSet.isEmpty() && (cycleCount < maxIterations); cycleCount++ {
-		this.visitNode(cast_[DiGraph_DiGraphNode[N, E]](SequencedCollection_getFirst(LinkedHashSet_as_SequencedCollection(workSet))), workSet)
+		this.visitNode(gcast_DiGraph_DiGraphNode_N_E[N, E](SequencedCollection_getFirst(LinkedHashSet_as_SequencedCollection(workSet))), workSet)
 	}
 	if cycleCount == maxIterations {
 		panic(new_IllegalStateException_String(objstr_(FixedPointGraphTraversal_NON_HALTING_ERROR_MSG)))
@@ -64,7 +64,7 @@ func (this *FixedPointGraphTraversal[N, E]) visitNode(node DiGraph_DiGraphNode[N
 	switch this.traversalDirection {
 	case FixedPointGraphTraversal_TraversalDirection_OUTWARDS:
 		var sourceValue N = node.getValue()
-		for edge := range elemsAs_[DiGraph_DiGraphEdge[N, E]](node.getOutEdges()) {
+		for edge := range elemsBy_(node.getOutEdges(), gcast_DiGraph_DiGraphEdge_N_E[N, E]) {
 			var destValue N = edge.getDestination().getValue()
 			if this.callback.traverseEdge(sourceValue, edge.getValue(), destValue) {
 				workSet.add(edge.getDestination())
@@ -73,7 +73,7 @@ func (this *FixedPointGraphTraversal[N, E]) visitNode(node DiGraph_DiGraphNode[N
 		return
 	case FixedPointGraphTraversal_TraversalDirection_INWARDS:
 		var revSourceValue N = node.getValue()
-		for edge := range elemsAs_[DiGraph_DiGraphEdge[N, E]](node.getInEdges()) {
+		for edge := range elemsBy_(node.getInEdges(), gcast_DiGraph_DiGraphEdge_N_E[N, E]) {
 			var revDestValue N = edge.getSource().getValue()
 			if this.callback.traverseEdge(revSourceValue, edge.getValue(), revDestValue) {
 				workSet.add(edge.getSource())

@@ -43,7 +43,7 @@ func DominatorTree_compute[N comparable, E comparable](graph *DiGraph[N, E], ent
 			}
 			var nodeIdx int32 = unbox_[int32](postOrderIndex.Get(node))
 			var newIdomIdx int32 = -1
-			for pred := range elemsAs_[DiGraph_DiGraphNode[N, E]](graph.getDirectedPredNodes(node)) {
+			for pred := range elemsBy_(graph.getDirectedPredNodes(node), gcast_DiGraph_DiGraphNode_N_E[N, E]) {
 				var predValue N = pred.getValue()
 				var predIdx any = postOrderIndex.Get(predValue)
 				if (predIdx != nil) && (idomIndexes[unbox_[int32](predIdx)] != -1) {
@@ -52,7 +52,7 @@ func DominatorTree_compute[N comparable, E comparable](graph *DiGraph[N, E], ent
 				}
 			}
 			if newIdomIdx != -1 {
-				for pred := range elemsAs_[DiGraph_DiGraphNode[N, E]](graph.getDirectedPredNodes(node)) {
+				for pred := range elemsBy_(graph.getDirectedPredNodes(node), gcast_DiGraph_DiGraphNode_N_E[N, E]) {
 					var predValue N = pred.getValue()
 					var predIdx any = postOrderIndex.Get(predValue)
 					if (predIdx != nil) && (idomIndexes[unbox_[int32](predIdx)] != -1) {
@@ -98,7 +98,7 @@ func DominatorTree_intersect(idomIndexes []int32, i int32, j int32) int32 {
 
 func DominatorTree_buildPostOrder[N comparable, E comparable](graph *DiGraph[N, E], node N, postOrder ListOf[N], visited MapOf[N, BoxedOf[bool]]) {
 	visited.put(boxT_(node), bool(true))
-	for succ := range elemsAs_[DiGraph_DiGraphNode[N, E]](graph.getDirectedSuccNodes(node)) {
+	for succ := range elemsBy_(graph.getDirectedSuccNodes(node), gcast_DiGraph_DiGraphNode_N_E[N, E]) {
 		var succValue N = succ.getValue()
 		if !visited.containsKey(boxT_(succValue)) {
 			DominatorTree_buildPostOrder[N, E](graph, succValue, postOrder, visited)
