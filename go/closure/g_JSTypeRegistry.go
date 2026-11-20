@@ -1471,8 +1471,10 @@ func (this *JSTypeRegistry) createRecordTypeFromNodes(n Node, sourceName Optiona
 				hasType = true
 			}
 			var fieldName string = fieldNameNode.getString()
+			fieldNameU16 := utf16Of_(fieldName)
 			if strings.HasPrefix(fieldName, "'") || strings.HasPrefix(fieldName, "\"") {
-				fieldName = String_substring(fieldName, 1, (String_length(fieldName) - 1))
+				fieldName = fieldNameU16.substring(1, (fieldNameU16.length() - 1))
+				fieldNameU16 = utf16Of_(fieldName)
 			}
 			var fieldType *JSType = nil
 			if hasType {

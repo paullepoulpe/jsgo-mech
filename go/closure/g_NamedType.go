@@ -297,9 +297,10 @@ func (this *NamedType) handleUnresolvedType(reporter ErrorReporter_rhino) {
 	var isForwardDeclared bool = this.registry.isForwardDeclaredType(this.reference)
 	if !isForwardDeclared {
 		var msg string = ("Bad type annotation. Unknown type " + sstr_(this.reference))
+		referenceU16 := utf16Of_(this.reference)
 		var root string = func() string {
 			if JString_contains_s(this.reference, ".") {
-				return String_substring(this.reference, 0, String_indexOf_String(this.reference, "."))
+				return referenceU16.substring(0, referenceU16.indexOf_String("."))
 			}
 			return this.reference
 		}()

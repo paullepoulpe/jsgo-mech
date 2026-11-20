@@ -218,7 +218,7 @@ func ChangeVerifier_EqualsResult_equal() *ChangeVerifier_EqualsResult {
 
 func ChangeVerifier_EqualsResult_notEqual(errorNode Node, error_ string, after any, before any) *ChangeVerifier_EqualsResult {
 	return new_ChangeVerifier_EqualsResult(false, errorNode, &Supplier_tfn_string{func() string {
-		return String_format("%s\nBefore: %s\nAfter:  %s\n", []any{strobj_(error_), before, after})
+		return (sstr_(error_) + "\nBefore: " + objstr_(before) + "\nAfter:  " + objstr_(after) + "\n")
 	}})
 }
 
