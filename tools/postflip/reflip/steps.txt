@@ -728,7 +728,9 @@ c0e9eb59 run t etaconv && f
 # 462. postflip (runtime, re-flip): scopeVarsOf_[V], the scope's variable table generic in the variable type
 84fd3438 patch 462-84fd3438-rt.patch
 # 463. postflip (manual, re-flip): AbstractScope.vars spells the table's instantiation, scopeVarsOf_[*AbstractVar]
-48b1b012 patch 463-48b1b012-manual.patch
+#=4 48b1b012 adapted (fourth flip): redone against this flip's text as e02e43af (tag flip4-redo-463): the same edit made where the field now is: Scope.vars and TypedScope.vars spell the table's instantiation, scopeVarsOf_[*Var] and scopeVarsOf_[*TypedVar] (prep step 18 moved the field out of AbstractScope, so the instantiation is the subclass's own, as fbound (464) wrote it on the lead line), and the casts step 430 kept for the erased table go
+#- 48b1b012 patch 463-48b1b012-manual.patch
+e02e43af patch 463-e02e43af-manual.patch
 # 464. postflip step (re-flip): fbound, AbstractScope / AbstractVar written out for Scope / Var and TypedScope / TypedVar; 268 casts and 48 assertions of S and V are the typed values (tool 6dfcbbe6)
 96047e68 run t fbound && f
 #: fbound: fields moved vars, implicitVars (AbstractScope), scope_ (AbstractVar); 58 methods written out per subclass, 6 split into <name>T_ + bridge; the base keeps getParent (bridged) and isGlobal for AbstractScope<?, ?> receivers; 212 cast_[T](x.m().self()) and 53 casts of T_ results are calls, 24 + 24 assertions dereferenced at once dropped, 2 iup_I, 1 up_B, 24 up_B() given to typed slots dropped, 3 up_B() added for erased slots, 3 super calls; left 9 assertions where the method called hands its receiver on first (getClosestHoistScope 5, getClosestCfgRootScope, getClosestContainerScope, getGlobalScope, getVar)
