@@ -66,9 +66,9 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func
 		for color := range sliceAll_(this.colorsInSerializedOrder) {
 			var typePointer any = this.colorIdToTypePointer.Get(color.getId())
 			for srcRef := range elemsBy_(icast_Set(getMismatchSourceRefsFn(obj_(color))), str_) {
-				var typePointerList ArrayListOf[BoxedOf[int32]] = srcRefToTypePointerList.computeIfAbsent(srcRef, &Function_tfn_string_any{func(key string) any {
+				var typePointerList ArrayListOf[BoxedOf[int32]] = srcRefToTypePointerList.ComputeIfAbsentObj(srcRef, func(key string) any {
 					return new_ArrayList_0().self()
-				}})
+				})
 				typePointerList.add(typePointer)
 			}
 		}
