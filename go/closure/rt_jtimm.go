@@ -34,8 +34,8 @@ var unmodMark_ = &ImmutableCollection{}
 
 // timmMap_ is what an immutable typed map has beside its mappings.
 type timmMap_ struct {
-	twin *ImmutableMap // the map as erased code sees it, once that is needed
-	keys any           // keySet() as typed code sees it (a *JTSet[K]), once that is needed
+	twin *ErasedImmutableMap // the map as erased code sees it, once that is needed
+	keys any                 // keySet() as typed code sees it (a *JTSet[K]), once that is needed
 }
 
 // immPendingMap_ is shared by the immutable typed maps that have neither yet.
@@ -132,7 +132,7 @@ func jtlistImm_[T any](c *jtconv_[T], ic *ImmutableCollection) *JTList[T] {
 
 func tlistImmNew_[T any](c *jtconv_[T], ic *ImmutableCollection) *JTList[T] {
 	if ic.kind != icList_ {
-		classCastImm_("com.google.common.collect.ImmutableSet", "com.google.common.collect.ImmutableList")
+		classCastImm_("com.google.common.collect.ErasedImmutableSet", "com.google.common.collect.ErasedImmutableList")
 	}
 	if len(ic.items) == 0 {
 		return jtlistEmptyImm_(c)
@@ -165,7 +165,7 @@ func (l *JTList[T]) asImm() *ImmutableCollection {
 		t.jtyped_ = l
 		l.twin = t
 	} else if l.twin == nil || l.twin == unmodMark_ {
-		classCastImm_("java.util.ArrayList", "com.google.common.collect.ImmutableList")
+		classCastImm_("java.util.ArrayList", "com.google.common.collect.ErasedImmutableList")
 	}
 	return l.twin
 }
@@ -239,7 +239,7 @@ func tsetImm_[K comparable](c *jtconv_[K], ic *ImmutableCollection) *JTSet[K] {
 
 func tsetImmNew_[K comparable](c *jtconv_[K], ic *ImmutableCollection) *JTSet[K] {
 	if ic.kind == icList_ {
-		classCastImm_("com.google.common.collect.ImmutableList", "com.google.common.collect.ImmutableSet")
+		classCastImm_("com.google.common.collect.ErasedImmutableList", "com.google.common.collect.ErasedImmutableSet")
 	}
 	if ic == emptyImmSet_ {
 		return jtsetEmptyImm_(c)
@@ -296,7 +296,7 @@ func (s *JTSet[K]) asImm() *ImmutableCollection {
 		t.jtyped_ = s
 		s.twin = t
 	} else if s.twin == nil || s.twin == sortedMark_ {
-		classCastImm_("java.util."+s.view.goName_(), "com.google.common.collect.ImmutableSet")
+		classCastImm_("java.util."+s.view.goName_(), "com.google.common.collect.ErasedImmutableSet")
 	}
 	return s.twin
 }
@@ -389,7 +389,7 @@ func immutableMapOf5_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], k1 K,
 
 // tmapImm_ is an ImmutableMap that erased code made, entering a typed declaration (see
 // jtlistImm_).
-func tmapImm_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], im *ImmutableMap) *JTMap[K, V] {
+func tmapImm_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], im *ErasedImmutableMap) *JTMap[K, V] {
 	if im == nil {
 		return nil
 	}
@@ -399,7 +399,7 @@ func tmapImm_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], im *Immutable
 	return tmapImmNew_(kc, vc, im)
 }
 
-func tmapImmNew_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], im *ImmutableMap) *JTMap[K, V] {
+func tmapImmNew_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], im *ErasedImmutableMap) *JTMap[K, V] {
 	if im == emptyImmMap_ {
 		return jtmapEmptyImm_(kc, vc)
 	}
@@ -426,17 +426,17 @@ func tmapImmNew_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], im *Immuta
 }
 
 // asImm is an immutable map as erased code sees it: its twin, the runtime's ImmutableMap.
-func (m *JTMap[K, V]) asImm() *ImmutableMap {
+func (m *JTMap[K, V]) asImm() *ErasedImmutableMap {
 	if m == nil {
 		return nil
 	}
 	if m.imm == nil || m.imm == sortedMapMark_ {
-		classCastImm_("java.util."+m.view.goName_(), "com.google.common.collect.ImmutableMap")
+		classCastImm_("java.util."+m.view.goName_(), "com.google.common.collect.ErasedImmutableMap")
 	}
 	x := m.info()
 	if x.twin == nil {
 		// the twin's index is built on its first lookup (ImmutableMap.index_)
-		t := &ImmutableMap{kind: imMap_, keys: jboxAll_(m.kc, m.keys), vals: jboxAll_(m.vc, m.vals)}
+		t := &ErasedImmutableMap{kind: imMap_, keys: jboxAll_(m.kc, m.keys), vals: jboxAll_(m.vc, m.vals)}
 		t.jtyped_ = m
 		if s, ok := x.keys.(*JTSet[K]); ok {
 			// its key set is the one that typed code has
@@ -459,7 +459,7 @@ func (m *JTMap[K, V]) info() *timmMap_ {
 // typed set, the same object as the key set that erased code gets from the map's twin.
 func (m *JTMap[K, V]) keySetImm() *JTSet[K] {
 	if m.imm == nil || m.imm == sortedMapMark_ {
-		classCastImm_("java.util."+m.view.goName_(), "com.google.common.collect.ImmutableMap")
+		classCastImm_("java.util."+m.view.goName_(), "com.google.common.collect.ErasedImmutableMap")
 	}
 	x := m.info()
 	if s, ok := x.keys.(*JTSet[K]); ok {
@@ -601,7 +601,7 @@ func immutableMapCopyOfT_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], m
 // ImmutableMap (not a sorted one) is itself.
 func jimmutableMapCopyOf_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], from Map) *JTMap[K, V] {
 	switch x := from.(type) {
-	case *ImmutableMap:
+	case *ErasedImmutableMap:
 		if x.kind != imSorted_ {
 			return tmapImm_(kc, vc, x)
 		}
@@ -776,7 +776,7 @@ func (b *TMapBuilder[K, V]) putAll(from Map) *TMapBuilder[K, V] {
 	switch x := from.(type) {
 	case *jtmapView_[K, V]:
 		t = x.m
-	case *ImmutableMap:
+	case *ErasedImmutableMap:
 		t, _ = x.jtyped_.(*JTMap[K, V])
 	}
 	if t != nil {
