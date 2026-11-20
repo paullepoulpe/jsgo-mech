@@ -239,7 +239,7 @@ func (this *TemplateTypeMap) toString() string {
 	s += "{ "
 	for i := int32(0); i < len_; i++ {
 		s += "("
-		s += objstr_(obj_(this.templateKeys.get(i)))
+		s += tostr_(this.templateKeys.get(i))
 		s += ","
 		s += objstr_(func() any {
 			if i < this.templateValues.size() {
