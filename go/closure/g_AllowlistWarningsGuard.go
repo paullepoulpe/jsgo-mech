@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type AllowlistWarningsGuard struct {
 	WarningsGuard
 	allowlist *JTSet[string]
@@ -45,7 +47,7 @@ func AllowlistWarningsGuard_normalizeAllowlist(allowlist *JTSet[string]) *JTSet[
 	it_1 := allowlist.each()
 	for it_1.next() {
 		var line string = it_1.v
-		var trimmed string = String_trim(line)
+		var trimmed string = strings.Trim(line, javaSpace_)
 		if trimmed == "" || (String_charAt(trimmed, 0) == '#') {
 			continue
 		}
