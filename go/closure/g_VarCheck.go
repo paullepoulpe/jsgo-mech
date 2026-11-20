@@ -52,9 +52,7 @@ func (this *VarCheck) process_2(externs Node, root Node) {
 		NodeTraversal_builder().setCompiler(this.compiler_).setCallback(NodeTraversal_Callback(new_VarCheck_NameRefInExternsCheck(this))).setScopeCreator(scopeCreator).traverse(externs)
 	}
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(NodeTraversal_Callback(this)).setScopeCreator(scopeCreator).traverseRoots(externs, root)
-	it_1 := this.undefinedNamesFromExterns.each()
-	for it_1.next() {
-		var varName string = it_1.v
+	for varName := range this.undefinedNamesFromExterns.All() {
 		this.createSynthesizedExternVar(varName, false)
 	}
 	if this.dupHandler != nil {
@@ -157,9 +155,7 @@ func (this *VarCheck) enterScope(t *NodeTraversal) {
 func (this *VarCheck) exitScope(t *NodeTraversal) {
 	if !this.validityCheck && t.inGlobalScope() {
 		var scope *Scope = t.getScope()
-		it_1 := VarCheck_REQUIRED_SYMBOLS.each()
-		for it_1.next() {
-			var requiredSymbol string = it_1.v
+		for requiredSymbol := range VarCheck_REQUIRED_SYMBOLS.All() {
 			var var_ *Var = scope.getVar_String_rVar(requiredSymbol)
 			if var_ == nil {
 				this.undefinedNamesFromExterns.Add(requiredSymbol)

@@ -74,9 +74,8 @@ func (this *InlineObjectLiterals_InliningBehavior) isVarInlineForbidden(var_ *Va
 func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *TList[*Reference]) bool {
 	var ret bool = false
 	var validProperties map[string]struct{} = map[string]struct{}{}
-	it_1 := refs.each()
-	for it_1.next() {
-		var ref *Reference = it_1.v
+	for i_1 := 0; i_1 < len(refs.items); i_1++ {
+		var ref *Reference = refs.items[i_1]
 		var name Node = ref.getNode()
 		var parent Node = ref.getParent()
 		var grandparent Node = ref.getGrandparent()
@@ -125,9 +124,8 @@ func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *TList
 				}
 				validProperties[child.getString()] = struct{}{}
 				var childVal Node = child.getFirstChild()
-				it_5 := refs.each()
-				for it_5.next() {
-					var t *Reference = it_5.v
+				for i_5 := 0; i_5 < len(refs.items); i_5++ {
+					var t *Reference = refs.items[i_5]
 					var refNode Node = t.getParent()
 					for !NodeUtil_isStatementBlock(refNode) {
 						if refNode == childVal {
@@ -150,9 +148,7 @@ func (this *InlineObjectLiterals_InliningBehavior) isVarOrAssignExprLhs(n Node) 
 
 func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo *ReferenceCollection) *TMap[string, string] {
 	var varmap *TMap[string, string] = newTMap_(tc_string, tc_string)
-	it_1 := referenceInfo.references.each()
-	for it_1.next() {
-		var ref *Reference = it_1.v
+	for ref := range referenceInfo.references.All() {
 		if ref.isLvalue() || ref.isInitializingDeclaration() {
 			var val Node = ref.getAssignedValue()
 			if val != 0 {
@@ -222,9 +218,7 @@ func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v
 			all.Delete(var_)
 		}
 	}
-	it_2 := all.each()
-	for it_2.next() {
-		var var_ string = it_2.v
+	for var_ := range all.All() {
 		nodes.add(IR_assign(IR_name(varmap.Get(var_)), NodeUtil_newUndefinedNode(0)).box_())
 	}
 	var replacement Node
@@ -311,9 +305,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 		this.outer_.compiler_.reportChangeToEnclosingScope(vnode.getParent())
 		vnode.detach()
 	}
-	it_3 := referenceInfo.references.each()
-	for it_3.next() {
-		var ref *Reference = it_3.v
+	for ref := range referenceInfo.references.All() {
 		if defined && (ref == init_) {
 			continue
 		}

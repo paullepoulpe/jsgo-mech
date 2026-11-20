@@ -34,9 +34,7 @@ func (this *OptimizeCalls) process_2(externs Node, root Node) {
 	var references *OptimizeCalls_ReferenceMap = new_OptimizeCalls_ReferenceMap()
 	NodeTraversal_traverseRoots(this.compiler_, NodeTraversal_Callback(new_OptimizeCalls_ReferenceMapBuildingCallback(this, references)), externs, root)
 	this.eliminateAccessorsFrom(references)
-	it_1 := this.passes.each()
-	for it_1.next() {
-		var pass OptimizeCalls_CallGraphCompilerPass = it_1.v
+	for pass := range this.passes.All() {
 		pass.process_3(externs, root, references)
 	}
 }

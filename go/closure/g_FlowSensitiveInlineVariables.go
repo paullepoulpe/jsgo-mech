@@ -381,9 +381,7 @@ func (this *FlowSensitiveInlineVariables_Candidate) canInline(scope *Scope) bool
 	}
 	var namesToCheck map[string]struct{} = map[string]struct{}{}
 	if this.defMetadata.depends != nil {
-		it_1 := this.defMetadata.depends.each()
-		for it_1.next() {
-			var var_ *Var = it_1.v
+		for var_ := range this.defMetadata.depends.All() {
 			namesToCheck[var_.getName()] = struct{}{}
 		}
 	}

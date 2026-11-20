@@ -85,9 +85,7 @@ func ParserRunner_parse(sourceFile StaticSourceFile, sourceString string, config
 		if config.jsDocParsingMode().shouldParseDescriptions() {
 			comments = p.getComments()
 			var builder *ImmutableList_Builder[*SourceRange] = immutableListBuilderN_(tc_p_SourceRange, tree.sourceElements.size())
-			it_2 := tree.sourceElements.each()
-			for it_2.next() {
-				var element *ParseTree = it_2.v
+			for element := range tree.sourceElements.All() {
 				builder.add(element.location_)
 			}
 			topLevelStatementRanges = builder.build()

@@ -657,9 +657,7 @@ func TypeInference_addMissingInterfaceProperties(constructor *JSType) {
 	}
 	var f *FunctionType = constructor.toMaybeFunctionType()
 	var proto *ObjectType = f.getPrototype()
-	it_1 := f.getImplementedInterfaces().each()
-	for it_1.next() {
-		var interf *ObjectType = it_1.v
+	for interf := range f.getImplementedInterfaces().All() {
 		for _, el := range immElems_(interf.getPropertyNames()) {
 			pname := str_(el)
 			if !proto.hasProperty(pname) {
@@ -853,9 +851,7 @@ func (this *TypeInference) traverseDestructuringPatternHelper(pattern Node, scop
 	if patternType == nil {
 		panic(new_NullPointerException_0())
 	}
-	it_1 := DestructuredTarget_createAllNonEmptyTargetsInPattern(this.registry, patternType, pattern).each()
-	for it_1.next() {
-		var target *DestructuredTarget = it_1.v
+	for target := range DestructuredTarget_createAllNonEmptyTargetsInPattern(this.registry, patternType, pattern).All() {
 		if target.hasComputedProperty() {
 			scope = this.traverse(target.getComputedProperty().getFirstChild(), scope)
 		}
@@ -949,9 +945,7 @@ func TypeInference_getBigIntPresence(type_ *JSType) TypeInference_BigIntPresence
 		var containsBigInt bool = false
 		var containsNumber bool = false
 		var containsOther bool = false
-		it_1 := typeAsUnion.getAlternates().each()
-		for it_1.next() {
-			var alternate *JSType = it_1.v
+		for alternate := range typeAsUnion.getAlternates().All() {
 			if TypeInference_getBigIntPresence(alternate) != TypeInference_BigIntPresence_NO_BIGINT {
 				containsBigInt = true
 			} else if alternate.isNumber() && !alternate.isUnknownType() {
@@ -1406,9 +1400,7 @@ func (this *TypeInference) updateTypeOfArguments(n Node, fnType *FunctionType) {
 		var restrictedParameter *FunctionType = nil
 		if iParameterType.isUnionType() {
 			var union *UnionType = iParameterType.toMaybeUnionType()
-			it_2 := union.getAlternates().each()
-			for it_2.next() {
-				var alternative *JSType = it_2.v
+			for alternative := range union.getAlternates().All() {
 				if alternative.isFunctionType() {
 					restrictedParameter = alternative.toMaybeFunctionType()
 					break
@@ -1455,9 +1447,7 @@ func (this *TypeInference) evaluateTypeTransformations(templateTypes *TList[*Tem
 	var typeVars *TMap[string, *JSType] = nil
 	var result *TMap[*TemplateType, *JSType] = nil
 	var ttlObj *TypeTransformation = nil
-	it_1 := templateTypes.each()
-	for it_1.next() {
-		var type_ *TemplateType = it_1.v
+	for type_ := range templateTypes.All() {
 		if type_.isTypeTransformation() {
 			if ttlObj == nil {
 				ttlObj = new_TypeTransformation(this.compiler_, scope.getDeclarationScope())
@@ -1479,9 +1469,7 @@ func (this *TypeInference) inferTemplatedTypesForCall(n Node, fnType *FunctionTy
 	}
 	var bindings *TMap[*TemplateType, *JSType] = new_InvocationTemplateTypeMatcher(this.registry, fnType, scope.getTypeOfThis(), n).match()
 	var inferred *TMap[*TemplateType, *JSType] = newTMap_(tch_p_TemplateType, tc_p_JSType)
-	it_1 := keys.each()
-	for it_1.next() {
-		var key *TemplateType = it_1.v
+	for key := range keys.All() {
 		inferred.Put(key, bindings.GetOr(key, this.unknownType.up_JSType()))
 	}
 	Map_replaceAll(inferred.asMap(), &BiFunction_tfn_TemplateType_any_any{func(k *TemplateType, v_ any) any {

@@ -53,9 +53,12 @@ func (this *CheckGoogModuleTypeScriptName) checkGoogModuleNamespace(t *NodeTrave
 	}
 	var replacementNamespace string = String_substring(strings.ReplaceAll(sourceName.get(), "/", "."), 0, (String_length(sourceName.get()) - int32(len(".js"))))
 	if !(originalNamespace.get() == replacementNamespace) {
-		it_1 := CheckGoogModuleTypeScriptName_allowedDirectories.each()
-		for it_1.next() {
-			var allowedDirectory string = it_1.v
+		l_1 := CheckGoogModuleTypeScriptName_allowedDirectories
+		for i_1 := l_1.first(); i_1 < len(l_1.keys); i_1++ {
+			if l_1.isDead(i_1) {
+				continue
+			}
+			var allowedDirectory string = l_1.keys[i_1]
 			if strings.HasPrefix(sourceName.get(), allowedDirectory) {
 				t.report(n, CheckGoogModuleTypeScriptName_MODULE_NAMESPACE_MISMATCHES_TYPESCRIPT_NAMESPACE, []string{replacementNamespace})
 				return

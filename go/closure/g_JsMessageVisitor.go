@@ -44,9 +44,7 @@ func (this *JsMessageVisitor) init_JsMessageVisitor(compiler *AbstractCompiler, 
 
 func (this *JsMessageVisitor) process_2_impl(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, this.self().(NodeTraversal_Callback))
-	it_1 := this.googMsgNodes.each()
-	for it_1.next() {
-		var msgNode Node = it_1.v
+	for msgNode := range this.googMsgNodes.All() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(msgNode, JsMessageVisitor_MESSAGE_NODE_IS_ORPHANED, []string{msgNode.getFirstChild().getQualifiedName()}))
 	}
 }
@@ -588,9 +586,11 @@ func (this *JsMessageVisitor) extractIcuTemplateOptions(optionsBag Node) *Outcom
 	}
 	var placeholderOriginalCodeMap *TMap[string, string] = tmapImm_(tc_string, tc_string, placeholderOriginalCodeMapOutcome.get())
 	var placeholderNames *TSet[string] = tsetImm_(tc_string, ImmutableSet_builder().addAll(Iterable(placeholderExamplesMap.asImm().keySet())).addAll(Iterable(placeholderOriginalCodeMap.asImm().keySet())).build())
-	it_1 := placeholderNames.each()
-	for it_1.next() {
-		var placeholderName string = it_1.v
+	for i_1 := placeholderNames.first(); i_1 < len(placeholderNames.keys); i_1++ {
+		if placeholderNames.isDead(i_1) {
+			continue
+		}
+		var placeholderName string = placeholderNames.keys[i_1]
 		if !JsMessage_isCanonicalPlaceholderNameFormat(placeholderName) {
 			return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](new_JsMessageVisitor_MalformedException(("Placeholder not in UPPER_SNAKE_CASE: " + sstr_(placeholderName)), optionsBag).up_Throwable())
 		}
@@ -986,9 +986,12 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsStringToStringMap() 
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForUnexpectedKeys(expectedKeys *TSet[string], createErrorMessage func(any) any) *Outcome_base[any] {
-	it_1 := this.stringToStringKeyMap.each()
-	for it_1.next() {
-		var key string = it_1.k
+	l_1 := this.stringToStringKeyMap
+	for i_1 := l_1.first(); i_1 < len(l_1.keys); i_1++ {
+		if l_1.isDead(i_1) {
+			continue
+		}
+		var key string = l_1.keys[i_1]
 		if !expectedKeys.Has(key) {
 			return Outcome_base_err[any](new_JsMessageVisitor_MalformedException(str_(createErrorMessage(strobj_(key))), this.stringToStringKeyMap.Get(key)).up_Throwable())
 		}
@@ -997,9 +1000,11 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForUnexpectedKeys(expect
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForRequiredKeys(requiredKeys *TSet[string], createException func(any) any) *Outcome_base[any] {
-	it_1 := requiredKeys.each()
-	for it_1.next() {
-		var requiredKey string = it_1.v
+	for i_1 := requiredKeys.first(); i_1 < len(requiredKeys.keys); i_1++ {
+		if requiredKeys.isDead(i_1) {
+			continue
+		}
+		var requiredKey string = requiredKeys.keys[i_1]
 		if !this.stringToStringKeyMap.Has(requiredKey) {
 			return Outcome_base_err[any](to_Throwable(createException(strobj_(requiredKey))))
 		}

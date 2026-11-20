@@ -130,9 +130,7 @@ func AbstractCommandLineRunner_setWarningGuardOptions(options *CompilerOptions, 
 		var groupNames *TSet[string] = DiagnosticGroups_getRegisteredGroups().keySetImm()
 		for entry := range sliceAll_(warningGuards) {
 			if "*" == entry.value_ {
-				it_3 := groupNames.each()
-				for it_3.next() {
-					var groupName string = it_3.v
+				for groupName := range groupNames.All() {
 					if !DiagnosticGroups_wildcardExcludedGroups.Has(groupName) {
 						diagnosticGroups.setWarningLevel(options, groupName, cast_[CheckLevel](entry.flag_))
 					}
@@ -248,9 +246,9 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 	}
 	if !this.config.outputManifests.isEmpty() {
 		var uniqueNames map[string]struct{} = map[string]struct{}{}
-		it_3 := this.config.outputManifests.each()
-		for it_3.next() {
-			var filename string = it_3.v
+		l_3 := this.config.outputManifests
+		for i_3 := 0; i_3 < len(l_3.items); i_3++ {
+			var filename string = l_3.items[i_3]
 			if !setAdd_(uniqueNames, filename) {
 				return Outcome_base_err[any](new_FlagUsageException(("output_manifest flags specify duplicate file names: " + sstr_(filename))).up_Throwable())
 			}
@@ -258,9 +256,9 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 	}
 	if !this.config.outputBundles.isEmpty() {
 		var uniqueNames map[string]struct{} = map[string]struct{}{}
-		it_5 := this.config.outputBundles.each()
-		for it_5.next() {
-			var filename string = it_5.v
+		l_5 := this.config.outputBundles
+		for i_5 := 0; i_5 < len(l_5.items); i_5++ {
+			var filename string = l_5.items[i_5]
 			if !setAdd_(uniqueNames, filename) {
 				return Outcome_base_err[any](new_FlagUsageException(("output_bundle flags specify duplicate file names: " + sstr_(filename))).up_Throwable())
 			}
@@ -413,9 +411,9 @@ func (this *AbstractCommandLineRunner) parseJsonFilesFromInputStream() *Outcome_
 	if parsed.get().kind() != SimpleJsonValue_Kind_ARRAY {
 		return Outcome_base_err[*TList[*AbstractCommandLineRunner_JsonFileSpec]](new_SimpleJsonException("Malformed JSON stream: expected an array").up_Throwable())
 	}
-	it_1 := parsed.get().elements().each()
-	for it_1.next() {
-		var element *SimpleJsonValue = it_1.v
+	l_1 := parsed.get().elements()
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var element *SimpleJsonValue = l_1.items[i_1]
 		var jsonFile *Outcome_base[*AbstractCommandLineRunner_JsonFileSpec] = AbstractCommandLineRunner_JsonFileSpec_readJson(element)
 		if jsonFile.isErr() {
 			return Outcome_base_err[*TList[*AbstractCommandLineRunner_JsonFileSpec]](jsonFile.error())
@@ -525,9 +523,7 @@ func (this *AbstractCommandLineRunner) createInputs_4(files *TList[*AbstractComm
 func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files *TList[*AbstractCommandLineRunner_FlagEntry[any]], moduleRoots ListOf[string], hasChunkSpecs bool) *Outcome_base[*ErasedImmutableList] {
 	var errors *ImmutableList_Builder[*JSError] = immutableListBuilder_(tc_p_JSError)
 	var relativeToAbsoluteName map[string]string = map[string]string{}
-	it_1 := files.each()
-	for it_1.next() {
-		var file *AbstractCommandLineRunner_FlagEntry[any] = it_1.v
+	for file := range files.All() {
 		if (cast_[AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_JS) || (cast_[AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_WEAKDEP) {
 			var absoluteName string = file.value_
 			var relativeName string = this.getModuleRootRelativeName(absoluteName, moduleRoots)
@@ -640,9 +636,9 @@ func AbstractCommandLineRunner_createJsChunks(specs *[]*AbstractCommandLineRunne
 			return Outcome_base_err[List](new_FlagUsageException(("Duplicate chunk name: " + sstr_(spec.name_))).up_Throwable())
 		}
 		var chunk *JSChunk = new_JSChunk(spec.name_)
-		it_3 := spec.deps.each()
-		for it_3.next() {
-			var dep string = it_3.v
+		l_3 := spec.deps
+		for i_3 := 0; i_3 < len(l_3.items); i_3++ {
+			var dep string = l_3.items[i_3]
 			var other *JSChunk = chunksByName.Get(dep)
 			if other == nil {
 				return Outcome_base_err[List](new_FlagUsageException(("Chunk '" + sstr_(spec.name_) + "' depends on unknown chunk '" + sstr_(dep) + "'. Be sure to list chunks in dependency order.")).up_Throwable())
@@ -1773,9 +1769,7 @@ func (this *AbstractCommandLineRunner) outputStringMap() *Outcome_base[any] {
 }
 
 func AbstractCommandLineRunner_createDefineReplacements(definitions *TList[string], options *CompilerOptions) {
-	it_1 := definitions.each()
-	for it_1.next() {
-		var override string = it_1.v
+	for override := range definitions.All() {
 		var assignment []string = AbstractCommandLineRunner_EQUALS_PATTERN.split_String_int(override, 2)
 		var defName string = assignment[0]
 		if len(defName) != 0 {
@@ -1852,9 +1846,8 @@ func (this *AbstractCommandLineRunner) outputManifestOrBundle(outputFiles *TList
 	if outputFiles.isEmpty() {
 		return Outcome_base_ok_0()
 	}
-	it_1 := outputFiles.each()
-	for it_1.next() {
-		var output string = it_1.v
+	for i_1 := 0; i_1 < len(outputFiles.items); i_1++ {
+		var output string = outputFiles.items[i_1]
 		if output == "" {
 			continue
 		}
@@ -2021,9 +2014,8 @@ func (this *AbstractCommandLineRunner) printBundleTo(chunk *JSChunk, out Appenda
 		new_PrebuildAst(this.compiler_.up_AbstractCompiler(), this.compiler_.getOptions().getNumParallelThreads()).prebuild(Iterable(inputs.asList()))
 	}
 	if options.getRuntimeLibraryMode() == RuntimeJsLibManager_RuntimeLibraryMode_INJECT {
-		it_1 := inputs.each()
-		for it_1.next() {
-			var input *CompilerInput = it_1.v
+		for i_1 := 0; i_1 < len(inputs.items); i_1++ {
+			var input *CompilerInput = inputs.items[i_1]
 			if input.isEs6Module() {
 				var appendRuntimeToOutcome *Outcome_base[any] = this.appendRuntimeTo(out)
 				if appendRuntimeToOutcome.isErr() {
@@ -2033,9 +2025,8 @@ func (this *AbstractCommandLineRunner) printBundleTo(chunk *JSChunk, out Appenda
 			}
 		}
 	}
-	it_3 := inputs.each()
-	for it_3.next() {
-		var input *CompilerInput = it_3.v
+	for i_3 := 0; i_3 < len(inputs.items); i_3++ {
+		var input *CompilerInput = inputs.items[i_3]
 		var name string = input.getName()
 		var codeRes *Outcome_base[string] = input.getSourceFile().readCode()
 		if codeRes.isErr() {
@@ -2066,9 +2057,7 @@ func (this *AbstractCommandLineRunner) printBundleTo(chunk *JSChunk, out Appenda
 
 func (this *AbstractCommandLineRunner) constructRootRelativePathsMap() map[string]string {
 	var rootRelativePathsMap map[string]string = map[string]string{}
-	it_1 := this.config.manifestMaps.each()
-	for it_1.next() {
-		var mapString string = it_1.v
+	for mapString := range this.config.manifestMaps.All() {
 		var colonIndex int32 = int32(strings.IndexByte(mapString, ':'))
 		if colonIndex <= 0 {
 			panic(new_IllegalStateException_0())
@@ -2595,9 +2584,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setDependencyOptions(de
 
 func (this *AbstractCommandLineRunner_CommandLineConfig) setOutputManifest(outputManifests *TList[string]) *AbstractCommandLineRunner_CommandLineConfig {
 	this.outputManifests = newTList_(tc_string)
-	it_1 := outputManifests.each()
-	for it_1.next() {
-		var manifestName string = it_1.v
+	for manifestName := range outputManifests.All() {
 		if manifestName != "" {
 			this.outputManifests.add(manifestName)
 		}
