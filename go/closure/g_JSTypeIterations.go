@@ -15,40 +15,40 @@ func new_JSTypeIterations() *JSTypeIterations {
 	return this
 }
 
-func JSTypeIterations_anyTypeMatchesImmutableList(predicate func(any) bool, types *TList[*JSType]) bool {
+func JSTypeIterations_anyTypeMatchesImmutableList(predicate func(*JSType) bool, types *TList[*JSType]) bool {
 	for i := int32(0); i < types.size(); i++ {
-		if predicate(types.get(i).self()) {
+		if predicate(types.get(i)) {
 			return true
 		}
 	}
 	return false
 }
 
-func JSTypeIterations_anyTypeMatches(predicate func(any) bool, union *UnionType) bool {
+func JSTypeIterations_anyTypeMatches(predicate func(*JSType) bool, union *UnionType) bool {
 	return JSTypeIterations_anyTypeMatchesImmutableList(predicate, union.getAlternates())
 }
 
-func JSTypeIterations_allTypesMatchImmutableList(predicate func(any) bool, types *TList[*JSType]) bool {
+func JSTypeIterations_allTypesMatchImmutableList(predicate func(*JSType) bool, types *TList[*JSType]) bool {
 	for i := int32(0); i < types.size(); i++ {
-		if !predicate(types.get(i).self()) {
+		if !predicate(types.get(i)) {
 			return false
 		}
 	}
 	return true
 }
 
-func JSTypeIterations_allTypesMatch(predicate func(any) bool, union *UnionType) bool {
+func JSTypeIterations_allTypesMatch(predicate func(*JSType) bool, union *UnionType) bool {
 	return JSTypeIterations_allTypesMatchImmutableList(predicate, union.getAlternates())
 }
 
-func JSTypeIterations_mapTypesImmutableList(mapper func(any) any, types []*JSType) []any {
+func JSTypeIterations_mapTypesImmutableList(mapper func(*JSType) any, types []*JSType) []any {
 	var builder *ImmutableList_Builder[*JSType] = immutableListBuilder_(tc_p_JSType)
 	for i := int32(0); i < int32(len(types)); i++ {
-		builder.add(to_JSType(mapper(sliceAt_(types, i).self())))
+		builder.add(to_JSType(mapper(sliceAt_(types, i))))
 	}
 	return sliceImm_(tc_any, builder.build().asImm())
 }
 
-func JSTypeIterations_mapTypes(mapper func(any) any, union *UnionType) *JSType {
+func JSTypeIterations_mapTypes(mapper func(*JSType) any, union *UnionType) *JSType {
 	return UnionType_builder(union.registry).addAlternates(tlistImm_(tc_p_JSType, sliceView_(tc_any, JSTypeIterations_mapTypesImmutableList(mapper, sliceImm_(tc_p_JSType, union.getAlternates().asImm()))))).build()
 }
