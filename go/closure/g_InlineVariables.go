@@ -632,7 +632,6 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) isNeverAssigned(
 	} else {
 		return unbox_[bool](this.isNeverAssignedField.setKnownValueOnce(bool(this.referenceInfo.isNeverAssigned())))
 	}
-	panic("unreachable")
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert) isWellDefined() bool {
@@ -641,7 +640,6 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) isWellDefined() 
 	} else {
 		return unbox_[bool](this.isWellDefinedField.setKnownValueOnce(bool(this.referenceInfo.isWellDefined())))
 	}
-	panic("unreachable")
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert) isAssignedOnceInLifetime() bool {
@@ -650,7 +648,6 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) isAssignedOnceIn
 	} else {
 		return unbox_[bool](this.isAssignedOnceInLifetimeField.setKnownValueOnce(bool(this.referenceInfo.isAssignedOnceInLifetime())))
 	}
-	panic("unreachable")
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert) isReferencedWeakly() bool {
@@ -659,7 +656,6 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) isReferencedWeak
 	} else {
 		return unbox_[bool](this.isReferencedWeaklyField.setKnownValueOnce(bool(this.referenceInfo.isReferencedWeakly())))
 	}
-	panic("unreachable")
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert) isWellDefinedAssignedOnce() bool {
@@ -668,7 +664,6 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) isWellDefinedAss
 	} else {
 		return unbox_[bool](this.isWellDefinedAssignedOnceField.setKnownValueOnce(bool((((!this.isWellDefinedField.isKnownToBe(bool(false)) && !this.isAssignedOnceInLifetimeField.isKnownToBe(bool(false))) && this.isWellDefined()) && this.isAssignedOnceInLifetime()))))
 	}
-	panic("unreachable")
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert) getInitialization() *Reference {
@@ -683,7 +678,6 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) getInitializatio
 		}()
 		return this.initializationReference.setKnownValueOnce(initRef)
 	}
-	panic("unreachable")
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert) hasValidDeclaration() bool {
@@ -714,7 +708,6 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) allReferencesAre
 		}
 		return unbox_[bool](this.allReferencesAreValidField.setKnownValueOnce(bool(false)))
 	}
-	panic("unreachable")
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert) analyze_impl() *InlineVariables_InlineVarAnalysis {
@@ -840,7 +833,6 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert_InitialValueAnaly
 	} else {
 		return unbox_[bool](this.isImmutableValueField.setKnownValueOnce(bool(((this.value_ != 0) && NodeUtil_isImmutableValue(this.value_)))))
 	}
-	panic("unreachable")
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert_InitialValueAnalysis) isAlias() bool {
@@ -862,7 +854,6 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert_InitialValueAnaly
 		}
 		return this.aliasedVar.setKnownValueOnce(nil)
 	}
-	panic("unreachable")
 }
 
 type InlineVariables_InliningBehavior_PositiveInlineVarAnalysis struct {
