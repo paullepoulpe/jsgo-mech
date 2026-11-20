@@ -61,9 +61,7 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[Map] {
 		return Outcome_base_err[Map](typesAsStringList.error())
 	}
 	var types *JTList[InstrumentationPoint_Type] = jnewTList_(tc_p_InstrumentationPoint_Type)
-	it_1 := foreach_(typesAsStringList.get())
-	for it_1.next() {
-		var typeAsString string = str_(it_1.v)
+	for typeAsString := range elemsBy_(typesAsStringList.get(), str_) {
 		types.add(InstrumentationPoint_Type_valueOf(typeAsString))
 	}
 	for i := int32(3); i < linesOfFile.size(); i++ {
@@ -104,9 +102,7 @@ func ReportDecoder_parseJsonStringList(json string) *Outcome_base[List] {
 
 func ReportDecoder_decodeReport(mapping MapOf[string, *InstrumentationPoint], frequencies MapOf[string, BoxedOf[int64]]) *ReportProfile {
 	var instrumentationPoints *JTList[*InstrumentationPointStats] = jnewTList_(jtc_p_InstrumentationPointStats)
-	it_1 := foreach_(mapping.entrySet())
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(mapping.entrySet(), icast_Map_Entry) {
 		instrumentationPoints.add(cast_[*InstrumentationPointStats](InstrumentationPointStats_newBuilder().setPoint(cast_[*InstrumentationPoint](entry.getValue())).setTimesExecuted(unbox_[int64](Map_getOrDefault_s(frequencies, str_(entry.getKey()), int64(0)))).build()))
 	}
 	return ReportDecoder_createReportProfile(instrumentationPoints)
@@ -138,12 +134,8 @@ func ReportDecoder_mergeProfiles(profiles *JTList[*ReportProfile]) *ReportProfil
 	it_1 := profiles.each()
 	for it_1.next() {
 		var profile *ReportProfile = it_1.v
-		it_3 := foreach_(profile.getFileProfileList())
-		for it_3.next() {
-			var fileProfile *FileProfile = cast_[*FileProfile](it_3.v)
-			it_5 := foreach_(fileProfile.getInstrumentationPointsStatsList())
-			for it_5.next() {
-				var pointStats *InstrumentationPointStats = cast_[*InstrumentationPointStats](it_5.v)
+		for fileProfile := range elemsAs_[*FileProfile](profile.getFileProfileList()) {
+			for pointStats := range elemsAs_[*InstrumentationPointStats](fileProfile.getInstrumentationPointsStatsList()) {
 				Map_compute(frequencies.asMap(), obj_(pointStats.getPoint()), &BiFunction_tfn_InstrumentationPoint_any_any{func(p *InstrumentationPoint, existing any) any {
 					return int64((func() int64 {
 						if existing == nil {

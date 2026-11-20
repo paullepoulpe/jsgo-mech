@@ -314,9 +314,7 @@ func (this *Es6RewriteModules) rewriteRequires(script Node) {
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(func(t *NodeTraversal, n Node, parent Node) {
 		var info *JSDocInfo = n.getJSDocInfo()
 		if info != nil {
-			it_1 := foreach_(info.getTypeNodes())
-			for it_1.next() {
-				var typeNode Node = Node_of_(it_1.v)
+			for typeNode := range elemsBy_(info.getTypeNodes(), Node_of_) {
 				this.inlineAliasedTypes(t, typeNode)
 			}
 		}
@@ -693,9 +691,7 @@ func new_Es6RewriteModules_RenameGlobalVars(outer_ *Es6RewriteModules, thisModul
 func (this *Es6RewriteModules_RenameGlobalVars) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	var info *JSDocInfo = n.getJSDocInfo()
 	if info != nil {
-		it_1 := foreach_(info.getTypeNodes())
-		for it_1.next() {
-			var typeNode Node = Node_of_(it_1.v)
+		for typeNode := range elemsBy_(info.getTypeNodes(), Node_of_) {
 			this.fixTypeNode(t, typeNode)
 		}
 	}

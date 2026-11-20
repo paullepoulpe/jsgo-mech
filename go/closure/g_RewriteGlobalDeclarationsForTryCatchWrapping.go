@@ -26,15 +26,11 @@ func new_RewriteGlobalDeclarationsForTryCatchWrapping(compiler *AbstractCompiler
 
 func (this *RewriteGlobalDeclarationsForTryCatchWrapping) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(this))
-	it_1 := foreach_(this.functions.asMap().entrySet())
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(this.functions.asMap().entrySet(), icast_Map_Entry) {
 		var addingRoot Node = this.compiler_.getNodeForCodeInsertion(cast_[*JSChunk](entry.getKey()))
 		var fnNodes ListOf[Node] = Lists_reverse(icast_List(entry.getValue()))
 		if !fnNodes.isEmpty() {
-			it_3 := foreach_(fnNodes)
-			for it_3.next() {
-				var n Node = Node_of_(it_3.v)
+			for n := range elemsBy_(fnNodes, Node_of_) {
 				var parent Node = n.getParent()
 				n.detach()
 				this.compiler_.reportChangeToEnclosingScope(parent)
