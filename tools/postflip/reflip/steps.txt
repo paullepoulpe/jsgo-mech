@@ -779,3 +779,17 @@ d791dde5 patch 510-d791dde5-rt.patch
 e9d53d6c run t trips && f
 # 513. postflip (runtime, re-flip): a Splitter makes the slice of its pieces once, at its final size
 4071b655 patch 513-4071b655-rt.patch
+# 530. postflip (manual, re-flip): a node's JSType is kept in the table of distinct values as the *JSType, so getJSType is one type comparison
+ec365959 patch 530-ec365959-manual.patch
+ec365959 patch 530-ec365959-rt.patch
+# 531. postflip (runtime, re-flip): buildLastT_ on every protobuf builder, a build that turns the builder's allocation into the message
+313c74a6 patch 531-313c74a6-rt.patch
+# 532. postflip step (re-flip): pblast, 29 last builds of a protobuf builder are buildLastT_() (tool 7db1e46c, runtime 313c74a6)
+e7442814 run t pblast && f
+#: pblast: 29 last builds of a protobuf builder are buildLastT_(): 20 of a fresh builder expression, 9 of an owned local variable in a return (117 generated builder methods checked to keep no reference, 6 parameters borrowed); left 8 buildT_() calls; 0 already buildLastT_(). f (gofmt of go1.27.3) also realigns g_0names.go, which the tree before was not formatted by.
+# 533. postflip (runtime, re-flip): the protobuf writer tests a field's presence in line and writes a repeated message field in its own loop
+2a0d8fa6 patch 533-2a0d8fa6-rt.patch
+# 534. postflip (manual, re-flip): expectWellFormedTemplatizedType makes its verifier only for a node that has a type
+43f5a0f0 patch 534-43f5a0f0-manual.patch
+# 535. postflip (runtime, re-flip): the shared property lists of nodes have a direct-mapped front, so reading a node's list is a comparison, not a map lookup
+036df818 patch 535-036df818-rt.patch
