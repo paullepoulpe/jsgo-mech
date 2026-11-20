@@ -128,7 +128,7 @@ func TypeDeclarationsIR_unionType(options IterableOf[Node]) Node {
 }
 
 func TypeDeclarationsIR_unionTypeNodeVarargs(options []Node) Node {
-	return TypeDeclarationsIR_unionType(Iterable(Arrays_asList(arrmap_(options, func(v_ Node) any { return v_.box_() }))))
+	return TypeDeclarationsIR_unionType(Iterable(Arrays_asList(arrmap_(options, (Node).box_))))
 }
 
 func TypeDeclarationsIR_optionalParameter(parameterType Node) Node {

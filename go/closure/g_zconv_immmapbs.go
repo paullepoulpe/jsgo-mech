@@ -4,13 +4,13 @@ package closure
 
 // Element conversions of the typed immmapbs.
 
-var tc_Annotation_parsing = &tconv_[Annotation_parsing]{box: func(v Annotation_parsing) any { return v.self() }, unbox: func(v any) Annotation_parsing { return cast_[Annotation_parsing](v) }}
-var tc_JSTypeNative = &tconv_[JSTypeNative]{box: func(v JSTypeNative) any { return v.self() }, unbox: func(v any) JSTypeNative { return cast_[JSTypeNative](v) }}
-var tc_p_CharRanges = &tconv_[*CharRanges]{box: func(v *CharRanges) any { return obj_(v) }, unbox: func(v any) *CharRanges { return cast_[*CharRanges](v) }}
-var tc_p_Color = &tconv_[*Color]{box: func(v *Color) any { return obj_(v) }, unbox: func(v any) *Color { return cast_[*Color](v) }}
-var tc_p_DiagnosticType = &tconv_[*DiagnosticType]{box: func(v *DiagnosticType) any { return obj_(v) }, unbox: func(v any) *DiagnosticType { return cast_[*DiagnosticType](v) }}
-var tc_p_Function_tfn_Node_any = &tconv_[*Function_tfn_Node_any]{box: func(v *Function_tfn_Node_any) any { return obj_(v) }, unbox: func(v any) *Function_tfn_Node_any { return cast_[*Function_tfn_Node_any](v) }}
-var tc_p_Node_Prop = &tconv_[*Node_Prop]{box: func(v *Node_Prop) any { return obj_(v) }, unbox: func(v any) *Node_Prop { return cast_[*Node_Prop](v) }}
-var tc_p_Pattern = &tconv_[*Pattern]{box: func(v *Pattern) any { return obj_(v) }, unbox: func(v any) *Pattern { return cast_[*Pattern](v) }}
-var tc_p_TemplateType = &tconv_[*TemplateType]{box: func(v *TemplateType) any { return obj_(v) }, unbox: func(v any) *TemplateType { return cast_[*TemplateType](v) }}
-var tc_uint16 = &tconv_[uint16]{box: func(v uint16) any { return any(v) }, unbox: func(v any) uint16 { return unbox_[uint16](v) }}
+var tc_Annotation_parsing = &tconv_[Annotation_parsing]{box: (Annotation_parsing).self, unbox: cast_[Annotation_parsing]}
+var tc_JSTypeNative = &tconv_[JSTypeNative]{box: (JSTypeNative).self, unbox: cast_[JSTypeNative]}
+var tc_p_CharRanges = &tconv_[*CharRanges]{box: obj_[*CharRanges], unbox: cast_[*CharRanges]}
+var tc_p_Color = &tconv_[*Color]{box: obj_[*Color], unbox: cast_[*Color]}
+var tc_p_DiagnosticType = &tconv_[*DiagnosticType]{box: obj_[*DiagnosticType], unbox: cast_[*DiagnosticType]}
+var tc_p_Function_tfn_Node_any = &tconv_[*Function_tfn_Node_any]{box: obj_[*Function_tfn_Node_any], unbox: cast_[*Function_tfn_Node_any]}
+var tc_p_Node_Prop = &tconv_[*Node_Prop]{box: obj_[*Node_Prop], unbox: cast_[*Node_Prop]}
+var tc_p_Pattern = &tconv_[*Pattern]{box: obj_[*Pattern], unbox: cast_[*Pattern]}
+var tc_p_TemplateType = &tconv_[*TemplateType]{box: obj_[*TemplateType], unbox: cast_[*TemplateType]}
+var tc_uint16 = &tconv_[uint16]{box: func(v uint16) any { return any(v) }, unbox: unbox_[uint16]}

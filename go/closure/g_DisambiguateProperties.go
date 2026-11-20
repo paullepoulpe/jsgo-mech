@@ -116,7 +116,7 @@ func DisambiguateProperties_buildRenamingIndex(props *TMap[string, *PropertyClus
 func DisambiguateProperties_invalidateWellKnownProperties(propIndex *TMap[string, *PropertyClustering]) {
 	var names *TList[string] = immutableListOf_[string](tc_string, "prototype", "constructor", "then")
 	for name := range names.All() {
-		propIndex.ComputeIfAbsent(name, func(p0 string) *PropertyClustering { return new_PropertyClustering(p0) }).invalidate(Invalidation_wellKnownProperty())
+		propIndex.ComputeIfAbsent(name, new_PropertyClustering).invalidate(Invalidation_wellKnownProperty())
 	}
 }
 

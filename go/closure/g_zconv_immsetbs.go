@@ -4,4 +4,4 @@ package closure
 
 // Element conversions of the typed immsetbs.
 
-var tc_p_ColorId = &tconv_[*ColorId]{box: func(v *ColorId) any { return obj_(v) }, unbox: func(v any) *ColorId { return cast_[*ColorId](v) }}
+var tc_p_ColorId = &tconv_[*ColorId]{box: obj_[*ColorId], unbox: cast_[*ColorId]}

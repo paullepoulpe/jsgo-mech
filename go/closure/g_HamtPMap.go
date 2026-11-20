@@ -421,7 +421,7 @@ func HamtPMap_compareUnsigned(left int32, right int32) int32 {
 }
 
 func (this *HamtPMap[K, V]) pivot(key K, hash int32) *HamtPMap[K, V] {
-	return this.pivot_4(key, hash, nil, arrmap_(make([]any, 1), func(v_ any) V { return junboxT_[V](v_) }))
+	return this.pivot_4(key, hash, nil, arrmap_(make([]any, 1), junboxT_[V]))
 }
 
 func (this *HamtPMap[K, V]) pivot_4(key K, hash int32, parent *HamtPMap[K, V], result []V) *HamtPMap[K, V] {

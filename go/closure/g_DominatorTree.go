@@ -134,7 +134,7 @@ func (this *DominatorTree[N]) getAllSubtreeSizes() ImmutableMapOf[N, BoxedOf[int
 
 func DominatorTree_toReversedArray[N comparable](list ListOf[N]) []N {
 	var size int32 = list.size()
-	var reversed []N = arrmap_(make([]any, size), func(v_ any) N { return junboxT_[N](v_) })
+	var reversed []N = arrmap_(make([]any, size), junboxT_[N])
 	for i := int32(0); i < size; i++ {
 		reversed[i] = junboxT_[N](list.get(((size - 1) - i)))
 	}

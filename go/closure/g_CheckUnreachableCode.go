@@ -46,9 +46,7 @@ func (this *CheckUnreachableCode) shouldTraverse_impl(t *NodeTraversal, n Node, 
 }
 
 func (this *CheckUnreachableCode) initScope(controlFlowGraph *ControlFlowGraph[Node]) {
-	new_GraphReachability_DiGraph_Predicate[Node, ControlFlowGraph_Branch](controlFlowGraph.up_DiGraph(), &Predicate_base_tfn_GraphReachability_EdgeTuple_Node_ControlFlowGraph_Branch_{func(p0 *GraphReachability_EdgeTuple[Node, ControlFlowGraph_Branch]) bool {
-		return CheckUnreachableCode_isReachable(p0)
-	}}).compute(controlFlowGraph.getEntry().getValue())
+	new_GraphReachability_DiGraph_Predicate[Node, ControlFlowGraph_Branch](controlFlowGraph.up_DiGraph(), &Predicate_base_tfn_GraphReachability_EdgeTuple_Node_ControlFlowGraph_Branch_{CheckUnreachableCode_isReachable}).compute(controlFlowGraph.getEntry().getValue())
 }
 
 func CheckUnreachableCode_isReachable(input *GraphReachability_EdgeTuple[Node, ControlFlowGraph_Branch]) bool {

@@ -16,7 +16,7 @@ func new_JSCompStrings() *JSCompStrings {
 }
 
 func JSCompStrings_lines(lines []string) string {
-	return String_join_CharSequence_CharSequenceArr("\n", arrmap_(lines, func(v_ string) any { return strobj_(v_) }))
+	return String_join_CharSequence_CharSequenceArr("\n", arrmap_(lines, strobj_))
 }
 
 func JSCompStrings_linesIterable(lines IterableOf[string]) string {
