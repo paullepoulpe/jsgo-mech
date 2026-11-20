@@ -1,0 +1,333 @@
+diff --git a/go/closure/rt_proto.go b/go/closure/rt_proto.go
+index 14ec4e1a..3a0c5bde 100644
+--- a/go/closure/rt_proto.go
++++ b/go/closure/rt_proto.go
+@@ -832,6 +832,27 @@ func (this *pbData_) build_() *pbData_ {
+ 	m.d_ = d
+ 	d.cp(unsafe.Pointer(m), unsafe.Pointer(this))
+ 	m.unk_ = this.unk_
++	if m.seal_() {
++		this.size_ = pbShared_
++	}
++	return m
++}
++
++// buildLast_ is build_ for a builder that nothing uses afterwards (post-flip step pblast
++// shows that of the calls it rewrites): the builder's allocation becomes the message, which a
++// message and its builder allow by having one layout (pbDesc_.asM). The message is the one
++// build_ would have copied out of it.
++func (this *pbData_) buildLast_() *pbData_ {
++	this.size_ = 0
++	this.seal_()
++	return this
++}
++
++// seal_ finishes the fields of a new message that were copied from a builder: the repeated
++// fields' slices stay those of the builder, except where an element is a builder, which is
++// built for the message; it says whether a slice is still the builder's.
++func (m *pbData_) seal_() bool {
++	d := m.d_
+ 	shared := false
+ 	for _, f := range d.reps {
+ 		s := (*pbSlice_)(m.fp_(f))
+@@ -868,10 +889,7 @@ func (this *pbData_) build_() *pbData_ {
+ 			*pp = unsafe.Pointer((*pbData_)(e).build_())
+ 		}
+ 	}
+-	if shared {
+-		this.size_ = pbShared_
+-	}
+-	return m
++	return shared
+ }
+ 
+ // toBuilder_ is a builder with the fields of a message.
+diff --git a/go/closure/rt_proto_bench_test.go b/go/closure/rt_proto_bench_test.go
+new file mode 100644
+index 00000000..ef443a83
+--- /dev/null
++++ b/go/closure/rt_proto_bench_test.go
+@@ -0,0 +1,49 @@
++package closure
++
++import "testing"
++
++// pbBenchTree_ builds an AST message the way TypedAstSerializer.visit does: a builder per
++// node, its children built first.
++func pbBenchTree_(depth, fan int, n *int32) *AstNode {
++	*n++
++	b := AstNode_newBuilder().setRelativeLine(*n & 1).setRelativeColumn(*n%7 - 3)
++	if *n%3 != 0 {
++		b.setType(*n % 5000)
++	}
++	b.setKindValue(1 + *n%40)
++	switch *n % 4 {
++	case 0, 1:
++		b.setStringValuePointer(*n % 3000)
++	case 2:
++		b.setDoubleValue(float64(*n))
++	}
++	b.setBooleanProperties(int64(*n & 4))
++	b.setSourceFile(0)
++	if depth > 0 {
++		for i := 0; i < fan; i++ {
++			b.addChild(pbBenchTree_(depth-1, fan, n))
++		}
++	}
++	b.setOriginalNamePointer(0)
++	return b.buildLastT_()
++}
++
++// BenchmarkProtoAstBuildBytes: building a script's AST message (3,280 nodes) and writing it.
++func BenchmarkProtoAstBuildBytes(b *testing.B) {
++	b.ReportAllocs()
++	for i := 0; i < b.N; i++ {
++		var n int32
++		if len(pbBenchTree_(7, 3, &n).bytes_()) == 0 {
++			b.Fatal("empty")
++		}
++	}
++}
++
++// BenchmarkProtoAstBuild: the building alone.
++func BenchmarkProtoAstBuild(b *testing.B) {
++	b.ReportAllocs()
++	for i := 0; i < b.N; i++ {
++		var n int32
++		pbBenchTree_(7, 3, &n)
++	}
++}
+diff --git a/go/closure/rt_proto_build.go b/go/closure/rt_proto_build.go
+index f0c8d5e5..bee5fd48 100644
+--- a/go/closure/rt_proto_build.go
++++ b/go/closure/rt_proto_build.go
+@@ -1,5 +1,7 @@
+ package closure
+ 
++import "unsafe"
++
+ // buildT_ is a protobuf builder's build() with the type Java's generated builder declares for
+ // it, the message class (javac's covariant override of MessageLite.Builder.build()); the
+ // translation's build() is the erased one, returning the message as a MessageLite that the
+@@ -119,3 +121,149 @@ func (this *ObjectTypeProto_DebugInfo_Builder) buildT_() *ObjectTypeProto_DebugI
+ }
+ func (this *TypeProto_Builder) buildT_() *TypeProto       { return this.pbBuild_().(*TypeProto) }
+ func (this *TypePoolList_Builder) buildT_() *TypePoolList { return this.pbBuild_().(*TypePoolList) }
++
++// buildLastT_ is buildT_ for a builder that nothing uses after the call (post-flip step pblast
++// rewrites the buildT_ calls of which it shows that): the builder's allocation becomes the
++// message (pbData_.buildLast_) instead of being copied into a new one. One per message.
++
++func (this *Mapping_OriginalMapping_Builder) buildLastT_() *Mapping_OriginalMapping {
++	return (*Mapping_OriginalMapping)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *AdditionalConformanceReport_Builder) buildLastT_() *AdditionalConformanceReport {
++	return (*AdditionalConformanceReport)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *AdditionalConformanceReport_ReportByRuleId_Builder) buildLastT_() *AdditionalConformanceReport_ReportByRuleId {
++	return (*AdditionalConformanceReport_ReportByRuleId)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *AdditionalConformanceReport_ViolationLocation_Builder) buildLastT_() *AdditionalConformanceReport_ViolationLocation {
++	return (*AdditionalConformanceReport_ViolationLocation)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *JSCompilerStateProto_Builder) buildLastT_() *JSCompilerStateProto {
++	return (*JSCompilerStateProto)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *ChunkProto_Builder) buildLastT_() *ChunkProto {
++	return (*ChunkProto)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *UniqueIdProto_Builder) buildLastT_() *UniqueIdProto {
++	return (*UniqueIdProto)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *AccessorSummaryEntryProto_Builder) buildLastT_() *AccessorSummaryEntryProto {
++	return (*AccessorSummaryEntryProto)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *AccessorSummaryProto_Builder) buildLastT_() *AccessorSummaryProto {
++	return (*AccessorSummaryProto)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *VariableMapEntryProto_Builder) buildLastT_() *VariableMapEntryProto {
++	return (*VariableMapEntryProto)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *ConformanceViolationsProto_Builder) buildLastT_() *ConformanceViolationsProto {
++	return (*ConformanceViolationsProto)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *ViolationProto_Builder) buildLastT_() *ViolationProto {
++	return (*ViolationProto)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *ConformanceConfig_Builder) buildLastT_() *ConformanceConfig {
++	return (*ConformanceConfig)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *Requirement_Builder) buildLastT_() *Requirement {
++	return (*Requirement)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *RequirementScopeEntry_Builder) buildLastT_() *RequirementScopeEntry {
++	return (*RequirementScopeEntry)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *RequirementScope_Builder) buildLastT_() *RequirementScope {
++	return (*RequirementScope)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *InstrumentationPoint_Builder) buildLastT_() *InstrumentationPoint {
++	return (*InstrumentationPoint)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *InstrumentationPointStats_Builder) buildLastT_() *InstrumentationPointStats {
++	return (*InstrumentationPointStats)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *FileProfile_Builder) buildLastT_() *FileProfile {
++	return (*FileProfile)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *ReportProfile_Builder) buildLastT_() *ReportProfile {
++	return (*ReportProfile)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *JsCompilerConformanceReportWrapper_Builder) buildLastT_() *JsCompilerConformanceReportWrapper {
++	return (*JsCompilerConformanceReportWrapper)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *JsCompilerConformanceReport_Builder) buildLastT_() *JsCompilerConformanceReport {
++	return (*JsCompilerConformanceReport)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) buildLastT_() *JsCompilerConformanceReport_ConformanceViolation {
++	return (*JsCompilerConformanceReport_ConformanceViolation)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *OptimizationJsdoc_Builder) buildLastT_() *OptimizationJsdoc {
++	return (*OptimizationJsdoc)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *SourceFilePool_Builder) buildLastT_() *SourceFilePool {
++	return (*SourceFilePool)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *SourceFileProto_Builder) buildLastT_() *SourceFileProto {
++	return (*SourceFileProto)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *SourceFileProto_FileOnDisk_Builder) buildLastT_() *SourceFileProto_FileOnDisk {
++	return (*SourceFileProto_FileOnDisk)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *SourceFileProto_ZipEntryOnDisk_Builder) buildLastT_() *SourceFileProto_ZipEntryOnDisk {
++	return (*SourceFileProto_ZipEntryOnDisk)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *TypedAst_Builder) buildLastT_() *TypedAst {
++	return (*TypedAst)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *TypedAst_List_Builder) buildLastT_() *TypedAst_List {
++	return (*TypedAst_List)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *LazyAst_Builder) buildLastT_() *LazyAst {
++	return (*LazyAst)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *NonLazyTypedAst_Builder) buildLastT_() *NonLazyTypedAst {
++	return (*NonLazyTypedAst)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *NonLazyTypedAst_List_Builder) buildLastT_() *NonLazyTypedAst_List {
++	return (*NonLazyTypedAst_List)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *NonLazyAst_Builder) buildLastT_() *NonLazyAst {
++	return (*NonLazyAst)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *StringPoolProto_Builder) buildLastT_() *StringPoolProto {
++	return (*StringPoolProto)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *ExternsSummary_Builder) buildLastT_() *ExternsSummary {
++	return (*ExternsSummary)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *AstNode_Builder) buildLastT_() *AstNode {
++	return (*AstNode)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *TemplateStringValue_Builder) buildLastT_() *TemplateStringValue {
++	return (*TemplateStringValue)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *TypePool_Builder) buildLastT_() *TypePool {
++	return (*TypePool)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *TypePool_DebugInfo_Builder) buildLastT_() *TypePool_DebugInfo {
++	return (*TypePool_DebugInfo)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *TypePool_DebugInfo_Mismatch_Builder) buildLastT_() *TypePool_DebugInfo_Mismatch {
++	return (*TypePool_DebugInfo_Mismatch)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *SubtypingEdge_Builder) buildLastT_() *SubtypingEdge {
++	return (*SubtypingEdge)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *UnionTypeProto_Builder) buildLastT_() *UnionTypeProto {
++	return (*UnionTypeProto)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *ObjectTypeProto_Builder) buildLastT_() *ObjectTypeProto {
++	return (*ObjectTypeProto)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *ObjectTypeProto_DebugInfo_Builder) buildLastT_() *ObjectTypeProto_DebugInfo {
++	return (*ObjectTypeProto_DebugInfo)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *TypeProto_Builder) buildLastT_() *TypeProto {
++	return (*TypeProto)(unsafe.Pointer(this.buildLast_()))
++}
++func (this *TypePoolList_Builder) buildLastT_() *TypePoolList {
++	return (*TypePoolList)(unsafe.Pointer(this.buildLast_()))
++}
+diff --git a/go/closure/rt_proto_test.go b/go/closure/rt_proto_test.go
+index eac61839..c4e93c9a 100644
+--- a/go/closure/rt_proto_test.go
++++ b/go/closure/rt_proto_test.go
+@@ -12,6 +12,7 @@ import (
+ 	"path/filepath"
+ 	"strings"
+ 	"testing"
++	"unsafe"
+ )
+ 
+ func pbFixture_(t *testing.T, name string) []byte {
+@@ -260,3 +261,59 @@ func TestProtoBuildShares(t *testing.T) {
+ 		t.Fatal("repeated field elements after build")
+ 	}
+ }
++
++// TestProtoBuildLast: buildLastT_ (pbData_.buildLast_) turns the builder's allocation into the
++// message that buildT_ would have copied out of it: equal, with the same bytes and text, a
++// message to everything that asks (size, toBuilder), nested builders built, and independent of
++// a message built from the same builder before.
++func TestProtoBuildLast(t *testing.T) {
++	var inner *SubtypingEdge_Builder
++	mk := func() *TypePool_Builder {
++		tp := TypePool_newBuilder()
++		tp.addType(TypeProto_newBuilder().setUnion(UnionTypeProto_getDefaultInstance()).buildT_())
++		tp.addDisambiguationEdges(SubtypingEdge_newBuilder().setSubtype(1).setSupertype(2))
++		inner = tp.addDisambiguationEdgesBuilder().setSubtype(5)
++		tp.getDebugInfoBuilder().addMismatchBuilder().setSourceRef("a.js:1:2").addAllInvolvedColor(pbInts_(4, 5))
++		return tp
++	}
++	want := mk().buildT_()
++	b := mk()
++	got := b.buildLastT_()
++	if unsafe.Pointer(got) != unsafe.Pointer(b) {
++		t.Fatal("buildLastT_ made a new allocation")
++	}
++	if !got.equals(want) || !bytes.Equal(got.pbm_().bytes_(), want.pbm_().bytes_()) || got.pbm_().toString() != want.pbm_().toString() {
++		t.Fatalf("buildLastT_ differs from buildT_:\n got %s\nwant %s", got.pbm_().toString(), want.pbm_().toString())
++	}
++	if got.isBuilder_() || got.getSerializedSize() != want.getSerializedSize() || got.getSerializedSize() != int32(len(got.pbm_().bytes_())) {
++		t.Fatal("the result is not a message with its size")
++	}
++	if _, ok := got.pbData_.me_().(*TypePool); !ok {
++		t.Fatalf("the result is a %T to the runtime", got.pbData_.me_())
++	}
++	// The nested builder was built for the message: changing it afterwards changes nothing.
++	inner.setSubtype(99)
++	if !got.equals(want) || got.getDisambiguationEdges(1).getSubtype() != 5 {
++		t.Fatal("the message changed with a builder it was built from")
++	}
++	// A builder from the message builds an equal one, and changing it leaves the message.
++	nb := got.toBuilder().(*TypePool_Builder)
++	if !nb.buildT_().equals(want) {
++		t.Fatal("toBuilder of the result")
++	}
++	nb.addDisambiguationEdges(SubtypingEdge_newBuilder().setSubtype(7)).clearType()
++	if !got.equals(want) || nb.buildLastT_().getDisambiguationEdgesCount() != 3 {
++		t.Fatal("the message changed with its toBuilder")
++	}
++	// After an earlier build() the two messages share the repeated fields' slices and are equal.
++	b2 := mk()
++	m1 := b2.buildT_()
++	m2 := b2.buildLastT_()
++	if !m1.equals(want) || !m2.equals(want) || !bytes.Equal(m1.pbm_().bytes_(), m2.pbm_().bytes_()) {
++		t.Fatal("buildT_ then buildLastT_")
++	}
++	// A builder with nothing set is the default message.
++	if e := AstNode_newBuilder().buildLastT_(); !e.equals(AstNode_getDefaultInstance()) || len(e.pbm_().bytes_()) != 0 {
++		t.Fatal("empty builder")
++	}
++}
