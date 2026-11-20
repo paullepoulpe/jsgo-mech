@@ -18,7 +18,7 @@ import (
 
 var (
 	Fset    = token.NewFileSet()
-	Info    = &types.Info{Types: map[ast.Expr]types.TypeAndValue{}, Defs: map[*ast.Ident]types.Object{}, Uses: map[*ast.Ident]types.Object{}, Selections: map[*ast.SelectorExpr]*types.Selection{}}
+	Info    = &types.Info{Types: map[ast.Expr]types.TypeAndValue{}, Defs: map[*ast.Ident]types.Object{}, Uses: map[*ast.Ident]types.Object{}, Selections: map[*ast.SelectorExpr]*types.Selection{}, Instances: map[*ast.Ident]types.Instance{}}
 	Parent  = map[ast.Node]ast.Node{}
 	Src     = map[*token.File][]byte{}
 	Rewrite = map[ast.Node]func() string{}
@@ -50,8 +50,13 @@ func RenderChildren(n ast.Node) string {
 		}
 		if g, ok := Rewrite[c]; ok {
 			a, b := f.Offset(c.Pos())-base, f.Offset(c.End())-base
+			txt := g()
+			if txt == DelDoc {
+				a = docStart(s, a)
+				txt = Del
+			}
 			out.Write(s[last:a])
-			out.WriteString(g())
+			out.WriteString(txt)
 			last = b
 			return false
 		}
@@ -134,7 +139,7 @@ type Conv struct {
 }
 
 func ConvFor(t types.Type) Conv {
-	if ReflipGeneric_(t, true) {
+	if ReflipGeneric_(t, false) {
 		return Conv{IsUnbox: func(string) bool { return false }}
 	}
 	id := func(e string) string { return e }
@@ -164,6 +169,17 @@ func ConvFor(t types.Type) Conv {
 			// a class that only inherits it has no subclasses, so the pointer is the object.
 			if o, ix, _ := types.LookupFieldOrMethod(u, true, Pkg, "self"); o != nil && len(ix) == 1 {
 				box = func(e string) string { return e + ".self()" }
+			}
+			if n.TypeArgs().Len() > 0 {
+				// A pointer to an instance of a generic type (a functional interface that is a
+				// *funcObj_[func(...)...]): the cast spells the whole type, by its alias where
+				// t is one (icast_Alias where the casts file declares it).
+				spelled := types.TypeString(t, types.RelativeTo(Pkg))
+				un := "cast_[" + spelled + "]"
+				if a, ok := t.(*types.Alias); ok && a.TypeArgs().Len() == 0 && HasFunc("icast_"+a.Obj().Name()) {
+					un = "icast_" + a.Obj().Name()
+				}
+				return Conv{box, func(e string) string { return un + "(" + e + ")" }, func(n string) bool { return n == un }, true}
 			}
 			un := "cast_[*" + name + "]"
 			if HasFunc("to_" + name) {
@@ -223,11 +239,15 @@ var Files []*ast.File
 // UsesOf maps an object to its uses, in source order.
 var UsesOf = map[types.Object][]*ast.Ident{}
 
+// WithTests makes Load include the package's test files (for a step that renames what the
+// tests use too).
+var WithTests bool
+
 // Load parses and type-checks the package in dir.
 func Load(dir string) {
 	names, _ := filepath.Glob(filepath.Join(dir, "*.go"))
 	for _, n := range names {
-		if strings.HasSuffix(n, "_test.go") {
+		if strings.HasSuffix(n, "_test.go") && !WithTests {
 			continue
 		}
 		b, err := os.ReadFile(n)
@@ -285,6 +305,28 @@ func Load(dir string) {
 // Del, as the text of a rewrite of a statement, deletes the statement and its line.
 const Del = "\x00del\x00"
 
+// DelDoc, as the text of a rewrite of a declaration, deletes it with its doc comment.
+const DelDoc = "\x00deldoc\x00"
+
+// docStart is the start of the // comment lines right above offset a (a declaration at the
+// start of its line); the files are parsed without comments, so they are found in the text.
+func docStart(s []byte, a int) int {
+	for {
+		i := a - 1 // the newline ending the line above
+		if i < 0 || s[i] != '\n' {
+			return a
+		}
+		j := i
+		for j > 0 && s[j-1] != '\n' {
+			j--
+		}
+		if !strings.HasPrefix(strings.TrimSpace(string(s[j:i])), "//") {
+			return a
+		}
+		a = j
+	}
+}
+
 // dropDeleted removes the lines that hold only a deleted statement.
 func dropDeleted(s string) string {
 	if !strings.Contains(s, Del) {
@@ -304,14 +346,26 @@ func dropDeleted(s string) string {
 	return strings.Join(out, "")
 }
 
-// Save writes back every file that the registered rewrites change, and returns their number.
-func Save() int {
-	changed := 0
+// rendered is the source of every file with the registered rewrites applied, by file name.
+func rendered() map[string]string {
+	outs := map[string]string{}
 	for _, f := range Files {
 		tf := Fset.File(f.Pos())
 		// The file node starts at `package`; keep what precedes it.
-		out := dropDeleted(string(Src[tf][:tf.Offset(f.Pos())]) + RenderChildren(f) + string(Src[tf][tf.Offset(f.End()):]))
-		if out != string(Src[tf]) {
+		outs[tf.Name()] = dropDeleted(string(Src[tf][:tf.Offset(f.Pos())]) + RenderChildren(f) + string(Src[tf][tf.Offset(f.End()):]))
+	}
+	return outs
+}
+
+// Save writes back every file that the registered rewrites change, and returns their number.
+// All files are rendered before the first is written, so a failing rewrite leaves the
+// package as it was.
+func Save() int {
+	outs := rendered()
+	changed := 0
+	for _, f := range Files {
+		tf := Fset.File(f.Pos())
+		if out := outs[tf.Name()]; out != string(Src[tf]) {
 			if err := os.WriteFile(tf.Name(), []byte(out), 0o644); err != nil {
 				panic(err)
 			}
@@ -319,6 +373,38 @@ func Save() int {
 		}
 	}
 	return changed
+}
+
+// SaveChecked is Save, when the rewritten package type-checks; otherwise it prints the type
+// errors, writes nothing and exits with status 1.
+func SaveChecked() int {
+	outs := rendered()
+	fset := token.NewFileSet()
+	var files []*ast.File
+	names := make([]string, 0, len(outs))
+	for n := range outs {
+		names = append(names, n)
+	}
+	sort.Strings(names)
+	for _, n := range names {
+		f, err := parser.ParseFile(fset, n, outs[n], parser.SkipObjectResolution)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "rewritten source does not parse:", err)
+			os.Exit(1)
+		}
+		files = append(files, f)
+	}
+	nerr := 0
+	conf := types.Config{Importer: importer.ForCompiler(fset, "source", nil), Error: func(err error) {
+		if nerr++; nerr <= 20 {
+			fmt.Fprintln(os.Stderr, err)
+		}
+	}}
+	if _, err := conf.Check("closure", fset, files, nil); err != nil {
+		fmt.Fprintf(os.Stderr, "the rewritten package does not type-check (%d errors): nothing written\n", nerr)
+		os.Exit(1)
+	}
+	return Save()
 }
 
 // VarExpr is the expression naming a variable at use id: the identifier, or the selector whose

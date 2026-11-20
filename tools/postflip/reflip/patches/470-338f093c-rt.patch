@@ -1,0 +1,60 @@
+diff --git a/go/closure/rt_base.go b/go/closure/rt_base.go
+index 45e0a13c..930894e4 100644
+--- a/go/closure/rt_base.go
++++ b/go/closure/rt_base.go
+@@ -829,6 +829,11 @@ var alwaysTrue_ Predicate_base = alwaysTruePredicate_{}
+ 
+ func Predicates_alwaysTrue() Predicate_base { return alwaysTrue_ }
+ 
++// Predicates_alwaysTrueT_ is Predicates.alwaysTrue() where the predicate's parameter is typed (a
++// func(T) bool, tools/postflip/tfnparams): it is called and never compared, so the singleton's
++// identity is not needed.
++func Predicates_alwaysTrueT_[T any](T) bool { return true }
++
+ type isNullPredicate_ struct{}
+ 
+ func (isNullPredicate_) apply(v any) bool { return v == nil }
+diff --git a/go/closure/rt_native.go b/go/closure/rt_native.go
+index d00a8ae3..718a1414 100644
+--- a/go/closure/rt_native.go
++++ b/go/closure/rt_native.go
+@@ -2,6 +2,8 @@ package closure
+ 
+ // Support for collections that are Go slices and maps (post-flip steps 1 and 2).
+ 
++import "sort"
++
+ // sliceEach_ iterates over a slice the way each_ iterates over an ArrayList: it reads the slice
+ // anew at every step, so elements appended during the loop are visited.
+ type sliceEach_[T any] struct {
+@@ -653,6 +655,30 @@ func slicePtrImm_[T any](c *tconv_[T], from Collection) *[]T {
+ // expression that must be evaluated once.
+ func sliceAppend_[T any](p *[]T, v ...T) { *p = append(*p, v...) }
+ 
++// sortSliceF_ is List.sort(c) / Collections.sort(list, c) of sliceView_(s) with a typed
++// comparator cmp (tools/postflip/tcmp): as List_sort sorts a view, the items are sorted in a copy
++// (sort.SliceStable, the same comparisons in the same order as on the boxes) and written back
++// once the sort has returned, so a comparator that throws leaves the list as it was. A nil list
++// throws as List_sort of the nil view did.
++func sortSliceF_[T any](s []T, cmp func(a, b T) int32) {
++	if s == nil {
++		List_sort(nil, nil)
++		return
++	}
++	tmp := append([]T(nil), s...)
++	sort.SliceStable(tmp, func(i, j int) bool { return cmp(tmp[i], tmp[j]) < 0 })
++	copy(s, tmp)
++}
++
++// sortSlicePF_ is sortSliceF_ of the list p points to (sliceViewP_).
++func sortSlicePF_[T any](p *[]T, cmp func(a, b T) int32) {
++	if p == nil {
++		List_sort(nil, nil)
++		return
++	}
++	sortSliceF_(*p, cmp)
++}
++
+ // sliceViewP_ is sliceView_ of the list p points to: nil for a nil pointer, as a typed list's
+ // asList() was.
+ func sliceViewP_[T any](c *tconv_[T], p *[]T) List {

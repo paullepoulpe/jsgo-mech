@@ -1,0 +1,19 @@
+diff --git a/go/closure/rt_iter.go b/go/closure/rt_iter.go
+index 7225112e..1299212f 100644
+--- a/go/closure/rt_iter.go
++++ b/go/closure/rt_iter.go
+@@ -145,3 +145,14 @@ func (m *TMap[K, V]) firstLive() int {
+ 	}
+ 	return i
+ }
++
++// immElems_ is the elements of an immutable collection, for a for-each loop over it (post-flip
++// step ranges -index): a range over them visits what foreach_'s cursor visited, since the
++// collection never changes (a multiset's elements with their repetitions, as its iterator
++// gives them). A null collection throws NullPointerException as foreach_(nil) did.
++func immElems_(c *ImmutableCollection) []any {
++	if c == nil {
++		panic(new_NullPointerException_0().self())
++	}
++	return c.elems_()
++}
