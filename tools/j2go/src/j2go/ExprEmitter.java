@@ -299,6 +299,12 @@ abstract class ExprEmitter extends Base {
       return fn + ")";
     }
     String[] maker = cx.typedMaker(m, ck, new ArrayList<>(((DeclaredType) target).getTypeArguments()));
+    if (maker != null && m.getModifiers().contains(Modifier.STATIC)) {
+      // a library function that makes a collection for its caller: the runtime's typed constructor
+      StringBuilder sb = new StringBuilder(maker[0] + "(" + tc);
+      for (int i = 0; i < as.size(); i++) sb.append(", ").append(exprAs(as.get(i), cx.erase(m.getParameters().get(i).asType())));
+      return sb.append(")").toString();
+    }
     if (maker != null && mi.getMethodSelect() instanceof MemberSelectTree ms && !m.getModifiers().contains(Modifier.STATIC)) {
       // a library method that makes a list for its caller: the runtime's typed twin
       StringBuilder sb = new StringBuilder(maker[0] + "(" + tc + ", " + exprAs(ms.getExpression(), cx.ownerOf(m).asType()));

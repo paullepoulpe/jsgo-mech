@@ -2,6 +2,8 @@ package lang;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -258,7 +260,96 @@ public class LibGen {
     return r + count(wrong);
   }
 
+  // ---- pieces `makers`, `views`, `cov`
+
+  /** A kennel: its pets by name, in a map that a runtime factory makes; the views of the map as Iterables. */
+  abstract static class Shelter {
+    abstract Iterable<? extends Animal> all();
+
+    abstract Iterable<? extends Animal> some(String prefix);
+
+    String list() {
+      String r = "";
+      for (Animal a : all()) {
+        r += a + ";";
+      }
+      return r;
+    }
+  }
+
+  static final class Kennel extends Shelter {
+    final Map<String, Dog> dogs = Maps.newLinkedHashMapWithExpectedSize(4);
+    final Set<String> gone = Sets.newLinkedHashSetWithExpectedSize(2);
+
+    void add(String n) {
+      dogs.put(n, new Dog(n));
+    }
+
+    // narrows the result of Shelter.all: a caller that has a Kennel reads Dogs
+    @Override
+    Iterable<Dog> all() {
+      return dogs.values();
+    }
+
+    @Override
+    Iterable<Dog> some(String prefix) {
+      List<Dog> r = new ArrayList<>();
+      for (Dog d : dogs.values()) {
+        if (d.name.startsWith(prefix)) {
+          r.add(d);
+        }
+      }
+      return r;
+    }
+
+    Iterable<String> names() {
+      return dogs.keySet();
+    }
+  }
+
+  static String views() {
+    Kennel k = new Kennel();
+    k.add("rex");
+    k.add("fido");
+    k.add("rolf");
+    String r = "";
+    for (Dog d : k.all()) {
+      r += d.name + ",";
+    }
+    for (Dog d : k.some("r")) {
+      r += d.name.length();
+    }
+    Shelter s = k;
+    r += "|" + s.list() + names(s.some("f")) + "|" + join(k.names()) + count(k.all());
+    // the views are live, and an iterator of a view removes from the map
+    Iterable<Dog> all = k.all();
+    Iterable<String> names = k.names();
+    k.add("ace");
+    Iterator<String> it = names.iterator();
+    while (it.hasNext()) {
+      if (it.next().equals("fido")) {
+        it.remove();
+      }
+    }
+    r += "|" + names(all) + join(names) + k.dogs.size() + k.dogs.containsKey("fido");
+    Iterator<Dog> di = all.iterator();
+    di.next();
+    di.remove();
+    r += k.dogs.keySet() + "" + (k.all() == (Object) k.dogs.values()) + (s.all() == (Object) k.all());
+    k.gone.add("x");
+    r += k.gone;
+    try {
+      Iterator<Dog> e = new Kennel().all().iterator();
+      e.next();
+      r += "no";
+    } catch (NoSuchElementException e) {
+      r += "nse";
+    }
+    return r;
+  }
+
   public static String run() {
+    p(views());
     p(loops());
     p(variance());
     p(identity());

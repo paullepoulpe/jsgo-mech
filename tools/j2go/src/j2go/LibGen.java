@@ -98,6 +98,55 @@ final class LibGen {
     if ("2".equals(System.getenv("J2GO_LIBGEN"))) sites.forEach((k, n) -> System.err.println("libgen: site " + n + " " + k));
   }
 
+  /** The kind (of KINDS) that the library interface te belongs to, or null. */
+  static String kindOf(TypeElement te) {
+    if (te == null) return null;
+    String qn = te.getQualifiedName().toString();
+    for (var k : KINDS.entrySet()) if (k.getValue().contains(qn)) return k.getKey();
+    return null;
+  }
+
+  /** The erasure of what type argument a stands for in a declaration: a wildcard is its bound. */
+  private TypeMirror argBound(TypeMirror a) {
+    if (a.getKind() == TypeKind.WILDCARD) {
+      WildcardType w = (WildcardType) a;
+      a = w.getExtendsBound() != null ? w.getExtendsBound() : object();
+    }
+    return cx.types.erasure(a);
+  }
+
+  /**
+   * Piece `cov` (J2GO_NOLIBGEN=cov is the translation without it): whether result type sub of an
+   * overriding method narrows result type sup of the method it overrides, where both are the
+   * same library interface of an enabled kind: some type argument of sub is, by its erasure,
+   * another type than sup's (`Iterable<Var>` under `Iterable<? extends AbstractVar>`; not
+   * `List<X>` under `List<? extends X>`). Decided on javac's types alone. Such an override is a
+   * method group of its own (rule "covariant overrides"): a caller whose receiver is the
+   * narrowing class gets the collection at its element type, with no wrapper; the bridge of the
+   * wider group converts.
+   */
+  boolean narrows(TypeMirror sub, TypeMirror sup) {
+    if (!on("cov") || sub.getKind() != TypeKind.DECLARED || sup.getKind() != TypeKind.DECLARED) return false;
+    String k = kindOf(Ctx.typeElement(sub));
+    if (k == null || !on(k)) return false;
+    List<? extends TypeMirror> as = ((DeclaredType) sub).getTypeArguments(), bs = ((DeclaredType) sup).getTypeArguments();
+    if (as.isEmpty() || as.size() != bs.size()) return false;
+    for (int i = 0; i < as.size(); i++) {
+      // (a type variable in the overridden result: an implementation of a generic method, no narrowing)
+      if (bs.get(i).getKind() == TypeKind.TYPEVAR || as.get(i).getKind() == TypeKind.TYPEVAR) continue;
+      TypeMirror x = argBound(as.get(i)), y = argBound(bs.get(i));
+      if (!cx.types.isSameType(x, y) && cx.types.isSubtype(x, y)) return true;
+    }
+    return false;
+  }
+
+  /** The type arguments of t as part of a method name: Of_Var. */
+  String argTokens(TypeMirror t) {
+    StringBuilder sb = new StringBuilder("Of");
+    for (TypeMirror a : ((DeclaredType) t).getTypeArguments()) sb.append("_").append(cx.typeToken(argBound(a)));
+    return sb.toString();
+  }
+
   boolean isLib(TypeElement te) {
     return te != null && libs.contains(te);
   }

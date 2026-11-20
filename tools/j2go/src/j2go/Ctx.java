@@ -495,18 +495,30 @@ final class Ctx {
   }
 
   /**
-   * Library methods that make a list for their caller alone, each with the runtime function
-   * that makes the typed list instead (its arguments: the conversion, the receiver, the
-   * method's arguments) and the list's element type: Splitter.splitToList is splitToListT_.
+   * Library methods that make a collection for their caller alone, each with the runtime
+   * function that makes the typed collection instead (its arguments: the conversions, the
+   * receiver of an instance method, the method's arguments), the kind of the collection, and
+   * its element type where the method fixes it (else null: any type arguments):
+   * Splitter.splitToList is splitToListT_. The static ones (rule "typed library interfaces",
+   * piece `makers`; J2GO_NOLIBGEN=makers is the translation without them) are Guava's
+   * constructors with an expected size, which are the runtime's typed constructors.
    */
   static final Map<String, String[]> TYPED_MAKERS = Map.of(
-      "com.google.common.base.Splitter.splitToList", new String[] {"splitToListT_", "java.lang.String"});
+      "com.google.common.base.Splitter.splitToList", new String[] {"splitToListT_", "list", "java.lang.String"},
+      "com.google.common.collect.Maps.newLinkedHashMapWithExpectedSize", new String[] {"newTMapN_", "map", null},
+      "com.google.common.collect.Maps.newHashMapWithExpectedSize", new String[] {"newTMapN_", "map", null},
+      "com.google.common.collect.Sets.newLinkedHashSetWithExpectedSize", new String[] {"newTSetN_", "set", null},
+      "com.google.common.collect.Sets.newHashSetWithExpectedSize", new String[] {"newTSetN_", "set", null},
+      "com.google.common.collect.Lists.newArrayListWithCapacity", new String[] {"newTListN_", "list", null},
+      "com.google.common.collect.Lists.newArrayListWithExpectedSize", new String[] {"newTListN_", "list", null});
 
   /** The entry of TYPED_MAKERS for method m where it makes a collection for kind k with type arguments args; else null. */
   String[] typedMaker(Element m, CollKind k, List<TypeMirror> args) {
-    if (!(m instanceof ExecutableElement me) || !k.name.equals("list") || args.size() != 1 || "1".equals(System.getenv("J2GO_COLLS_NOMAKERS"))) return null;
+    if (!(m instanceof ExecutableElement me) || "1".equals(System.getenv("J2GO_COLLS_NOMAKERS"))) return null;
     String[] tm = TYPED_MAKERS.get(((TypeElement) me.getEnclosingElement()).getQualifiedName() + "." + me.getSimpleName());
-    return tm != null && types.isSameType(args.get(0), elems.getTypeElement(tm[1]).asType()) ? tm : null;
+    if (tm == null || !k.name.equals(tm[1])) return null;
+    if (tm[2] == null) return LibGen.on("makers") ? tm : null;
+    return args.size() == 1 && types.isSameType(args.get(0), elems.getTypeElement(tm[2]).asType()) ? tm : null;
   }
 
   /** The kind of typed collection that type t (TList<X>, TSet<X>) is, or null. */
@@ -1928,7 +1940,11 @@ final class Ctx {
     if (found.getReturnType().getKind() == TypeKind.TYPEVAR) return false;
     TypeMirror a = types.erasure(m.getReturnType()), b = types.erasure(found.getReturnType());
     if (a.getKind() != TypeKind.DECLARED || b.getKind() != TypeKind.DECLARED) return false;
-    if (types.isSameType(a, b)) return false;
+    if (types.isSameType(a, b)) {
+      // rule "typed library interfaces", piece `cov`: the same library interface at a narrower
+      // element type (`Iterable<Var>` under `Iterable<? extends AbstractVar>`), in a class
+      return !owner.getKind().isInterface() && isSource(ownerOf(found)) && lg.narrows(m.getReturnType(), found.getReturnType());
+    }
     if (!owner.getKind().isInterface()) return true;
     Boolean ok = ifaceCovOk.get(m);
     if (ok == null) {
@@ -2446,7 +2462,10 @@ final class Ctx {
       // (that group may be a narrowing one itself, not named yet)
       ExecutableElement pr = root(covFrom.get(r));
       if (!methodNames.containsKey(pr) && covFrom.containsKey(pr)) methodNames.put(pr, nameRoot(pr, null));
-      return methodName(pr) + "_r" + typeToken(types.erasure(r.getReturnType()));
+      String tok = typeToken(types.erasure(r.getReturnType()));
+      // (the same library interface at a narrower element type: named after the elements too)
+      if (types.isSameType(types.erasure(r.getReturnType()), types.erasure(covFrom.get(r).getReturnType()))) tok += lg.argTokens(r.getReturnType());
+      return methodName(pr) + "_r" + tok;
     }
     if (conflict == null) return base;
     boolean arityUnique = true;
