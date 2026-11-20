@@ -383,3 +383,34 @@ func boxed(e ast.Expr) ast.Expr {
 		}
 	}
 E17
+# 20. (in-bounds line) generics -classes: the String variants of a generic class's methods (m_s: m with its key typed string, which
+#    the step strvar writes where the manual steps 29, 35 and 121 wrote them by hand) are no Java declarations, so their key is
+#    no type-variable slot, and a call x.m_s(s) said nothing about x's type argument: an object whose every keyed call had become a
+#    variant's (SimpleBiMap, a SimpleListMultimap, a SimpleSetMultimap) stayed erased, C[any, V]. x.m_s(s, ...) is x.m(strobj_(s), ...)
+#    by the convention of the variants (strkeys' rule 1 rewrites the one to the other on that ground), so the string is written to
+#    the slot of m's first parameter: evidence for that type argument like the boxed string it stands for.
+reflip_edit tools/postflip/generics/classes.go reflipSvar <<'E20'
+			case *ast.CallExpr:
+				if len(v.Args) == 1 {
+					if name, _ := rw.CallName(v); name != "" && unboxNames.MatchString(name) {
+=====
+			case *ast.CallExpr:
+				// reflipSvar: x.m_s(s, ...) is x.m(strobj_(s), ...): a string written to m's first slot
+				if sel, ok := v.Fun.(*ast.SelectorExpr); ok && strings.HasSuffix(sel.Sel.Name, "_s") && len(v.Args) > 0 {
+					if sn := rw.Info.Selections[sel]; sn != nil && sn.Kind() == types.MethodVal {
+						if at := rw.Info.Types[v.Args[0]].Type; at != nil && types.Identical(types.Unalias(at), types.Typ[types.String]) {
+							if mo, _, _ := types.LookupFieldOrMethod(sn.Recv(), true, rw.Pkg, strings.TrimSuffix(sel.Sel.Name, "_s")); mo != nil {
+								if mf, ok := mo.(*types.Func); ok {
+									if ms := mf.Type().(*types.Signature); ms.Params().Len() > 0 {
+										if tg := tagOf(ms.Params().At(0).Type()); tg != "" {
+											writeEv(tg, types.Typ[types.String], nil)
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				if len(v.Args) == 1 {
+					if name, _ := rw.CallName(v); name != "" && unboxNames.MatchString(name) {
+E20
