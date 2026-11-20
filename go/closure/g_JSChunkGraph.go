@@ -71,7 +71,7 @@ func JSChunkGraph_initChunksByDepth(chunks []*JSChunk) *Outcome_base[List] {
 		}
 		chunk.setDepth(depth)
 		if depth == tmpChunksByDepth.size() {
-			tmpChunksByDepth.add(icast_List(new_ArrayList_0().self()))
+			tmpChunksByDepth.add(new_ArrayList_0())
 		}
 		tmpChunksByDepth.get(depth).add(obj_(chunk))
 	}

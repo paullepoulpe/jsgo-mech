@@ -231,7 +231,7 @@ func (this *SimpleSetMultimap) keySet() SetOf[any] {
 }
 
 func (this *SimpleSetMultimap) values() CollectionOf[any] {
-	return icast_Collection(obj_(new_SimpleSetMultimap_1(this)))
+	return new_SimpleSetMultimap_1(this)
 }
 
 func (this *SimpleSetMultimap) asMap() MapOf[any, SetOf[any]] {
