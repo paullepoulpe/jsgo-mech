@@ -374,6 +374,17 @@ func main() {
 	if len(os.Args) > 3 {
 		top, _ = strconv.Atoi(os.Args[3])
 	}
+	strobjLine := ""
+	if o, ok := rw.Pkg.Scope().Lookup("strobj_").(*types.Func); ok {
+		// the allocating line of strobj_ is its last statement, `return s`
+		for _, f := range rw.Files {
+			for _, d := range f.Decls {
+				if fd, ok := d.(*ast.FuncDecl); ok && rw.Info.Defs[fd.Name] == o {
+					strobjLine = lineOf(fd.Body.List[len(fd.Body.List)-1].Pos())
+				}
+			}
+		}
+	}
 	bySink := map[string]float64{}
 	byHolder := map[string]float64{}
 	byClass := map[string]float64{}
@@ -390,7 +401,7 @@ func main() {
 		gl, leaf, callee := c[0], c[1], c[2]
 		var cands []*site
 		switch {
-		case leaf == "rt_core.go:52": // inside strobj_
+		case leaf == strobjLine: // inside strobj_
 			for _, s := range byLine[gl] {
 				if s.explicit == "strobj_" && s.alloc {
 					cands = append(cands, s)

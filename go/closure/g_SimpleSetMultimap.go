@@ -138,9 +138,9 @@ func (this *SimpleSetMultimap) containsKey_s(key string) bool {
 	return Map_containsKey_s(this.map__, key)
 }
 
-func (this *SimpleSetMultimap) containsEntry(key any, value any) bool {
+func (this *SimpleSetMultimap) containsEntry(key any, value string) bool {
 	var values SetOf[any] = icast_Set(this.map__.get(key))
-	return ((values != nil) && values.contains(value))
+	return ((values != nil) && values.contains(strobj_(value)))
 }
 
 func (this *SimpleSetMultimap) removeAll(key any) SetOf[any] {
