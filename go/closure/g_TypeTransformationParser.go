@@ -358,7 +358,7 @@ func (this *TypeTransformationParser) isValidStringParam(expr Node) bool {
 		this.warnInvalid("string")
 		return false
 	}
-	if expr.getString() == "" {
+	if expr.getStringIs_(sidx_) {
 		this.warnInvalid("string parameter")
 		return false
 	}

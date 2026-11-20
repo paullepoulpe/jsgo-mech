@@ -362,7 +362,7 @@ func (this *InlineVariables_InliningBehavior) isSecondArgumentToDotApplyMethod(n
 	if NodeUtil_isNormalOrOptChainCall(callNode) {
 		var calleeNode Node = callNode.getFirstChild()
 		if NodeUtil_isNormalOrOptChainGetProp(calleeNode) {
-			if calleeNode.getString() == "apply" {
+			if calleeNode.getStringIs_(sid_apply) {
 				var thisArgNode Node = calleeNode.getNext()
 				if thisArgNode != 0 {
 					return (thisArgNode.getNext() == n)

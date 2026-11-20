@@ -253,7 +253,7 @@ func PolymerClassDefinition_addFunctionAssignmentsFromConstructor(constructor No
 func PolymerClassDefinition_overwriteMembersIfPresent(list *TList[*PolymerPass_MemberDefinition], newMembers *TList[*PolymerPass_MemberDefinition]) {
 	for newMember := range newMembers.All() {
 		for member := range list.All() {
-			if member.name_.getString() == newMember.name_.getString() {
+			if member.name_.getStringId_() == newMember.name_.getStringId_() {
 				list.asList().remove_Object(obj_(member))
 				break
 			}

@@ -934,7 +934,7 @@ func (this *AstFactory) createZeroArgArrowFunctionForExpression(expression Node)
 }
 
 func (this *AstFactory) createMemberFunctionDef(name string, function Node) Node {
-	if function.getFirstChild().getString() != "" {
+	if !function.getFirstChild().getStringIs_(sidx_) {
 		Preconditions_checkArgument_boolean_Object_H(false, function)
 	}
 	var result Node = IR_memberFunctionDef(name, function)

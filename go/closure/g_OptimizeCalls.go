@@ -291,7 +291,7 @@ func OptimizeCalls_ReferenceMap_isCallTarget(n Node) bool {
 		return true
 	}
 	var grandParent Node = parent.getParent()
-	return (((parent.isGetProp() && grandParent.isCall()) && parent.isFirstChildOf(grandParent)) && (parent.getString() == "call"))
+	return (((parent.isGetProp() && grandParent.isCall()) && parent.isFirstChildOf(grandParent)) && (parent.getStringIs_(sid_call)))
 }
 
 func OptimizeCalls_ReferenceMap_isOptChainCallTarget(n Node) bool {
@@ -300,7 +300,7 @@ func OptimizeCalls_ReferenceMap_isOptChainCallTarget(n Node) bool {
 		return true
 	}
 	var grandParent Node = parent.getParent()
-	return (((parent.isOptChainGetProp() && grandParent.isOptChainCall()) && parent.isFirstChildOf(grandParent)) && (parent.getString() == "call"))
+	return (((parent.isOptChainGetProp() && grandParent.isOptChainCall()) && parent.isFirstChildOf(grandParent)) && (parent.getStringIs_(sid_call)))
 }
 
 func OptimizeCalls_ReferenceMap_isNewTarget(n Node) bool {

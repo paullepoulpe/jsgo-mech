@@ -103,7 +103,7 @@ func (this *ProcessClosurePrimitives) checkPossibleGoogProvideInit(namespace Opt
 	if n.ns_().token == tokOrd1_BANG {
 		n = n.getFirstChild()
 	}
-	if (n.isStringLit() && !n.hasChildren()) && (n.getString() == "Object") {
+	if (n.isStringLit() && !n.hasChildren()) && (n.getStringIs_(sid_Object)) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(definition, ProcessClosurePrimitives_WEAK_NAMESPACE_TYPE, []string{}))
 	}
 }
@@ -114,7 +114,7 @@ func (this *ProcessClosurePrimitives) checkGoogFunctions(t *NodeTraversal, call 
 		return
 	}
 	var receiver Node = callee.getFirstChild()
-	if !receiver.isName() || !(receiver.getString() == ProcessClosurePrimitives_GOOG) {
+	if !receiver.isName() || !(receiver.getStringIs_(sid_goog)) {
 		return
 	}
 	var methodName string = callee.getString()
@@ -170,7 +170,7 @@ func (this *ProcessClosurePrimitives) validatePrimitiveCallWithMessage(t *NodeTr
 
 func (this *ProcessClosurePrimitives) maybeProcessClassBaseCall(n Node) {
 	var callTarget Node = n.getFirstChild()
-	if !callTarget.isGetProp() || !(callTarget.getString() == "base") {
+	if !callTarget.isGetProp() || !(callTarget.getStringIs_(sid_base)) {
 		return
 	}
 	var baseContainerNode Node = callTarget.getFirstChild()
@@ -236,7 +236,7 @@ func (this *ProcessClosurePrimitives) rewriteBaseCallInConstructor(enclosingQnam
 		return
 	}
 	var methodNameNode Node = thisArg.getNext()
-	if ((methodNameNode == 0) || !methodNameNode.isStringLit()) || !(methodNameNode.getString() == "constructor") {
+	if ((methodNameNode == 0) || !methodNameNode.isStringLit()) || !(methodNameNode.getStringIs_(sid_constructor)) {
 		this.reportBadBaseMethodUse(n, baseContainer, "Second argument must be 'constructor'.")
 		return
 	}

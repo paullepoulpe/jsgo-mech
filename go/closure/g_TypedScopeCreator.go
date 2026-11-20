@@ -1737,7 +1737,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getDeclaredRValueType(lValue
 	if rValue.isOr() {
 		var firstClause Node = rValue.getFirstChild()
 		var secondClause Node = firstClause.getNext()
-		var namesMatch bool = (((firstClause.isName() && (lValue != 0)) && lValue.isName()) && (firstClause.getString() == lValue.getString()))
+		var namesMatch bool = (((firstClause.isName() && (lValue != 0)) && lValue.isName()) && (firstClause.getStringId_() == lValue.getStringId_()))
 		if namesMatch {
 			type_ = secondClause.getJSType()
 			if (type_ != nil) && !type_.isUnknownType() {
@@ -2463,7 +2463,7 @@ func (this *TypedScopeCreator_ClassScopeBuilder) visitPreorder_impl(t *NodeTrave
 
 func (this *TypedScopeCreator_ClassScopeBuilder) visitPostorder_impl(t *NodeTraversal, n Node, parent Node) {
 	if (n.isName() && (parent == this.currentScope.getRootNode())) && NodeUtil_isClassExpression(parent) {
-		if n.getString() == "" {
+		if n.getStringIs_(sidx_) {
 			panic(new_IllegalStateException_0())
 		}
 		new_TypedScopeCreator_AbstractScopeBuilder_SlotDefiner(this.up_TypedScopeCreator_AbstractScopeBuilder()).forDeclarationNode(n).readVariableNameFromDeclarationNode().inScope(this.currentScope).withType(parent.getJSType()).allowLaterTypeInference(false).defineSlot()

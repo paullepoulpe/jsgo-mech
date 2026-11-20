@@ -288,7 +288,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 			this.cc.endStatement(this.hasTrailingCommentOnSameLine(node))
 		}
 	case Token_rhino_LABEL_NAME:
-		if node.getString() == "" {
+		if node.getStringIs_(sidx_) {
 			Preconditions_checkState_boolean_Object_H(false, node)
 		}
 		this.addIdentifier(node.getString())
@@ -451,7 +451,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.add("}")
 	case Token_rhino_EXPORT_SPEC, Token_rhino_IMPORT_SPEC:
 		this.addNode(first)
-		if node.isShorthandProperty() && (first.getString() == last.getString()) {
+		if node.isShorthandProperty() && (first.getStringId_() == last.getStringId_()) {
 			break
 		}
 		this.add("as")
@@ -575,7 +575,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 			if !first.isFunction() {
 				Preconditions_checkState_boolean_Object_H(false, first)
 			}
-			if first.getFirstChild().getString() != "" {
+			if !first.getFirstChild().getStringIs_(sidx_) {
 				Preconditions_checkState_boolean_Object_H(false, first)
 			}
 			var fn Node = first
@@ -1298,7 +1298,7 @@ func (this *CodeGenerator) arrowFunctionNeedsParens(n Node) bool {
 }
 
 func (this *CodeGenerator) addArrowFunction(n Node, first Node, last Node, context CodeGenerator_Context) {
-	if first.getString() != "" {
+	if !first.getStringIs_(sidx_) {
 		Preconditions_checkState_boolean_Object_H(false, first)
 	}
 	var funcNeedsParens bool = this.arrowFunctionNeedsParens(n)
@@ -1336,7 +1336,7 @@ func (this *CodeGenerator) addFunction(n Node, first Node, last Node, context Co
 	}())
 	if n.isGeneratorFunction() {
 		this.add("*")
-		if first.getString() != "" {
+		if !first.getStringIs_(sidx_) {
 			this.cc.maybeInsertSpace()
 		}
 	}
@@ -1420,7 +1420,7 @@ func CodeGenerator_getSimpleNumber(s string) float64 {
 }
 
 func CodeGenerator_isIndirectEval(n Node) bool {
-	return ((n.isName() && ("eval" == n.getString())) && !n.getBooleanProp(Node_DIRECT_EVAL))
+	return ((n.isName() && (n.getStringIs_(sid_eval))) && !n.getBooleanProp(Node_DIRECT_EVAL))
 }
 
 func (this *CodeGenerator) addNonEmptyStatement(n Node, context CodeGenerator_Context, allowNonBlockChild bool) {

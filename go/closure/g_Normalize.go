@@ -113,7 +113,7 @@ func (this *Normalize_PropagateConstantPropertyOverVars) shouldTraverse(t *NodeT
 }
 
 func (this *Normalize_PropagateConstantPropertyOverVars) visit(t *NodeTraversal, n Node, parent Node) {
-	if !n.isName() || n.getString() == "" {
+	if !n.isName() || n.getStringIs_(sidx_) {
 		return
 	}
 	var var_ *Var = t.getScope().getVar_String_rVar(n.getString())
