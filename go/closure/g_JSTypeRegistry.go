@@ -589,17 +589,7 @@ func JSTypeRegistry_checkTypeName(typeName string) {
 
 func (this *JSTypeRegistry) getTypeInternal(scope StaticScope, name string) *JSType {
 	JSTypeRegistry_checkTypeName(name)
-	var syntheticTemplateScope *JSTypeRegistry_SyntheticTemplateScope
-	_ = syntheticTemplateScope
-	if func() bool {
-		v_ := any(scope)
-		p, ok := v_.(*JSTypeRegistry_SyntheticTemplateScope)
-		if !ok {
-			return false
-		}
-		syntheticTemplateScope = p
-		return true
-	}() {
+	if syntheticTemplateScope, ok := any(scope).(*JSTypeRegistry_SyntheticTemplateScope); ok {
 		var type_ *TemplateType = syntheticTemplateScope.getTemplateType(name)
 		if type_ != nil {
 			return type_.up_JSType()
@@ -715,17 +705,7 @@ func (this *JSTypeRegistry) resolveViaPropertyGivenSlot(slotType *JSType, defini
 	} else if slotType.isNoObjectType() {
 		return this.getNativeObjectType(JSTypeNative_NO_OBJECT_TYPE).up_JSType()
 	} else {
-		var enumType *EnumType
-		_ = enumType
-		if func() bool {
-			v_ := slotType.self()
-			p, ok := v_.(*EnumType)
-			if !ok {
-				return false
-			}
-			enumType = p
-			return true
-		}() {
+		if enumType, ok := slotType.self().(*EnumType); ok {
 			return enumType.getElementsType().up_JSType()
 		} else {
 			return nil
@@ -1233,17 +1213,8 @@ func (this *JSTypeRegistry) createAnonymousObjectType(info *JSDocInfo) *ObjectTy
 }
 
 func (this *JSTypeRegistry) resetImplicitPrototype(type_ *JSType, newImplicitProto *ObjectType) {
-	var poType *PrototypeObjectType
-	_ = poType
-	if func() bool {
-		v_ := type_.self()
-		p, ok := v_.(PrototypeObjectType_as)
-		if !ok {
-			return false
-		}
-		poType = p.as_PrototypeObjectType()
-		return true
-	}() {
+	if p, ok := type_.self().(PrototypeObjectType_as); ok {
+		poType := p.as_PrototypeObjectType()
 		poType.clearCachedValues()
 		poType.setImplicitPrototype(newImplicitProto)
 	}
@@ -1323,17 +1294,7 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 			return this.createRecordTypeFromNodes(n.getFirstChild(), sourceName, scope)
 		case tokOrd1_BANG:
 			var child *JSType = this.createTypeFromCommentNode_3(n.getFirstChild(), sourceName, scope)
-			var namedType *NamedType
-			_ = namedType
-			if func() bool {
-				v_ := child.self()
-				p, ok := v_.(*NamedType)
-				if !ok {
-					return false
-				}
-				namedType = p
-				return true
-			}() {
+			if namedType, ok := child.self().(*NamedType); ok {
 				return namedType.getBangType()
 			}
 			return child.restrictByNotNullOrUndefined()
@@ -1674,18 +1635,8 @@ type JSTypeRegistry_SyntheticTemplateScope struct {
 
 func (this *JSTypeRegistry_SyntheticTemplateScope) init_JSTypeRegistry_SyntheticTemplateScope(delegate StaticTypedScope, templates IterableOf[*TemplateType]) {
 	this.delegate = delegate
-	var syntheticTemplateScope *JSTypeRegistry_SyntheticTemplateScope
-	_ = syntheticTemplateScope
 	var types PMap[string, *TemplateType] = func() PMap[string, *TemplateType] {
-		if func() bool {
-			v_ := any(delegate)
-			p, ok := v_.(*JSTypeRegistry_SyntheticTemplateScope)
-			if !ok {
-				return false
-			}
-			syntheticTemplateScope = p
-			return true
-		}() {
+		if syntheticTemplateScope, ok := any(delegate).(*JSTypeRegistry_SyntheticTemplateScope); ok {
 			return syntheticTemplateScope.types
 		}
 		return func() PMap[string, *TemplateType] {

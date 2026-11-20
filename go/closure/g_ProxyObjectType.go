@@ -113,17 +113,8 @@ func (this *ProxyObjectType) setReferencedType(referencedType *JSType) {
 		panic(new_NullPointerException_0())
 	}
 	this.referencedType = referencedType
-	var objectType *ObjectType
-	_ = objectType
-	if func() bool {
-		v_ := referencedType.self()
-		p, ok := v_.(ObjectType_as)
-		if !ok {
-			return false
-		}
-		objectType = p.as_ObjectType()
-		return true
-	}() {
+	if p, ok := referencedType.self().(ObjectType_as); ok {
+		objectType := p.as_ObjectType()
 		this.referencedObjType = objectType
 	} else {
 		this.referencedObjType = nil
