@@ -213,7 +213,7 @@ func (this *PolymerClassRewriter) rewritePolymerCall(cls *PolymerClassDefinition
 		var scriptNode Node = NodeUtil_getEnclosingScript(parent)
 		var oldFeatures *FeatureSet = cast_[*FeatureSet](scriptNode.getFeatureSet())
 		var newFeatures *FeatureSet = oldFeatures.union(cls.features_)
-		if !newFeatures.equals(obj_(oldFeatures)) {
+		if !newFeatures.equals_FeatureSet(oldFeatures) {
 			scriptNode.setFeatureSet(newFeatures)
 			this.compiler_.reportChangeToChangeScope(scriptNode)
 		}
