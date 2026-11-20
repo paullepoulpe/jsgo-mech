@@ -90,3 +90,31 @@ and getVarById_ used to be); variable-keyed typed maps hashing through Object.ha
 (TMap[*Var,..].findH, identityHash_: 1-2 s in OPTIMIZATIONS, where varMap_ used to be). Both
 have an allowed form: the scope's map as a typed map by the collection tools, and identity
 hashing for key classes without equals/hashCode by a tool. In progress as steps 550, 551.
+
+## Steps on the in-bounds line after the replay
+
+550, identity keys: NOT MADE. The premise (the variable classes have no equals/hashCode) was
+wrong: AbstractVar extends ScopedName, whose final equals/hashCode compare name and scope
+root. A census of the 37 equals-compared key conversions found no class an identity rule
+would convert.
+
+551, colls: a field that holds the empty immutable map or a map made in its class is a typed
+map (Scope.vars, TypedScope.vars; 21 declarations in 5 classes; tool 855a5071, step a2c2775c on
+branch inb-keys). Gated (four MATCH). RECORDED, NOT ACTIVE: CPU did not drop in any stage (one
+run: 128.66 -> 130.53 s; the lookup cost moved from the erased table to the typed map's
+index).
+
+552, hashmemo (tool a994e38c, step 27632e6f on branch inb-hashmemo): a class whose hashCode is
+provably constant (not overridden or dispatched; a straight-line body over fields assigned
+only in constructors; only stable hashes combined; `this` does not escape a constructor before
+the hashed fields are set) keeps the value once computed, 0 meaning not computed, as
+java.lang.String does. Java caches a String's hash in the String; the translated code
+recomputed it on every ScopedName.hashCode and InputId.hashCode. 22 classes written of 123
+that declare hashCode (13 more proved but hash no string; 88 fail an obligation, listed by the
+tool's report). Cost: 4 bytes per object, 16 allocated bytes for a Var (64 -> 80). Gate: four
+MATCH. Time, 2 alternating rounds, 18% subset (runs14/t13_gs3500.runs): 107.58 / 107.58 s
+before, 105.04 / 105.01 s after (-2.4%); CPU 129.6 / 128.7 -> 126.2 / 126.3 s; OPTIMIZATIONS
+43.1 / 43.2 -> 41.6 / 41.3 s. Peak RSS within run-to-run spread. ACTIVE. Open: its replay
+through the driver has not been run; the tool has no test of its own.
+
+In bounds after 552: 105.0 s against pre-flip Java's 94.3 s (t12): Java/Go about 0.90.
