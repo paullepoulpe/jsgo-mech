@@ -163,9 +163,9 @@ func (this *InvocationTemplateTypeMatcher) recordTemplateMatch(template *Templat
 var lambda_InvocationTemplateTypeMatcher_recordTemplateMatch_1_ = &BiFunction_fn{func(p0 any, p1 any) any { return to_JSType(p0).getLeastSupertype(to_JSType(p1)).self() }}
 
 func (this *InvocationTemplateTypeMatcher) copyMatchedTypes() *JTMap[*TemplateType, *JSType] {
-	var builder ImmutableMap_BuilderOf[*TemplateType, *JSType] = ImmutableMap_builder()
-	this.matchedTypes.forEach(&BiConsumer_tfn_TemplateType_any{func(p0 *TemplateType, p1 any) { builder.put(obj_(p0), to_JSType(p1).self()) }})
-	return tmapImm_(tce_p_TemplateType, jtc_p_JSType, builder.buildOrThrow())
+	var builder *ImmutableMap_Builder[*TemplateType, *JSType] = immutableMapBuilder_(tc_p_TemplateType, tc_p_JSType)
+	this.matchedTypes.forEach(&BiConsumer_tfn_TemplateType_any{func(p0 *TemplateType, p1 any) { builder.put(p0, to_JSType(p1)) }})
+	return tmapImm_(tce_p_TemplateType, jtc_p_JSType, builder.buildOrThrowErased())
 }
 
 func (this *InvocationTemplateTypeMatcher) getTypeOrUnknown(n Node) *JSType {

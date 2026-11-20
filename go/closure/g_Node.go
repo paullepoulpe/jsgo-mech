@@ -1494,7 +1494,7 @@ func (this Node) setLinenoCharno(lineno int32, charno int32) Node {
 
 func (this Node) children() IterableOf[Node] {
 	if this.ns_().first == 0 {
-		return ImmutableSet_as_Iterable(ImmutableSet_of())
+		return ImmutableSet_as_Iterable(immutableSetOf_(tc_string))
 	} else {
 		return Iterable(new_Node_SiblingNodeIterable(this.ns_().first))
 	}
@@ -3063,25 +3063,25 @@ func Node_clinit() {
 	Node_ES6_MODULE = Node_Prop_ES6_MODULE
 	Node_NUMBER_PAYLOAD_UNSET = any(float64(0.0))
 	Node_BIGINT_PAYLOAD_UNSET = BigInteger_ZERO
-	Node_PROP_MAP_FOR_EQUALITY = new_ImmutableMap_Builder().put(obj_(Node_Prop_ARROW_FN), &Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isArrowFunction())) }}).put(obj_(Node_Prop_ASYNC_FN), &Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isAsyncFunction())) }}).put(obj_(Node_Prop_GENERATOR_FN), &Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isGeneratorFunction())) }}).put(obj_(Node_Prop_START_OF_OPT_CHAIN), &Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isOptionalChainStart())) }}).put(obj_(Node_Prop_STATIC_MEMBER), &Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isStaticMember())) }}).put(obj_(Node_Prop_YIELD_ALL), &Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isYieldAll())) }}).put(obj_(Node_Prop_EXPORT_DEFAULT), &Function_tfn_Node_any{func(n Node) any {
+	Node_PROP_MAP_FOR_EQUALITY = immutableMapBuilder_(tc_p_Node_Prop, tc_p_Function_tfn_Node_any).put(Node_Prop_ARROW_FN, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isArrowFunction())) }})).put(Node_Prop_ASYNC_FN, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isAsyncFunction())) }})).put(Node_Prop_GENERATOR_FN, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isGeneratorFunction())) }})).put(Node_Prop_START_OF_OPT_CHAIN, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isOptionalChainStart())) }})).put(Node_Prop_STATIC_MEMBER, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isStaticMember())) }})).put(Node_Prop_YIELD_ALL, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isYieldAll())) }})).put(Node_Prop_EXPORT_DEFAULT, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(n Node) any {
 		return int32(n.getIntProp(Node_Prop_EXPORT_DEFAULT))
-	}}).put(obj_(Node_Prop_EXPORT_ALL_FROM), &Function_tfn_Node_any{func(n Node) any {
+	}})).put(Node_Prop_EXPORT_ALL_FROM, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(n Node) any {
 		return int32(n.getIntProp(Node_Prop_EXPORT_ALL_FROM))
-	}}).put(obj_(Node_Prop_INCRDECR), &Function_tfn_Node_any{func(n Node) any {
+	}})).put(Node_Prop_INCRDECR, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(n Node) any {
 		return int32(n.getIntProp(Node_Prop_INCRDECR))
-	}}).put(obj_(Node_Prop_QUOTED), &Function_tfn_Node_any{func(n Node) any {
+	}})).put(Node_Prop_QUOTED, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(n Node) any {
 		return int32(n.getIntProp(Node_Prop_QUOTED))
-	}}).put(obj_(Node_Prop_FREE_CALL), &Function_tfn_Node_any{func(n Node) any {
+	}})).put(Node_Prop_FREE_CALL, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(n Node) any {
 		return bool(n.getBooleanProp(Node_Prop_FREE_CALL))
-	}}).put(obj_(Node_Prop_DIRECT_EVAL), &Function_tfn_Node_any{func(n Node) any {
+	}})).put(Node_Prop_DIRECT_EVAL, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(n Node) any {
 		return bool(n.getBooleanProp(Node_Prop_DIRECT_EVAL))
-	}}).put(obj_(Node_Prop_COMPUTED_PROP_METHOD), &Function_tfn_Node_any{func(n Node) any {
+	}})).put(Node_Prop_COMPUTED_PROP_METHOD, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(n Node) any {
 		return bool(n.getBooleanProp(Node_Prop_COMPUTED_PROP_METHOD))
-	}}).put(obj_(Node_Prop_COMPUTED_PROP_GETTER), &Function_tfn_Node_any{func(n Node) any {
+	}})).put(Node_Prop_COMPUTED_PROP_GETTER, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(n Node) any {
 		return bool(n.getBooleanProp(Node_Prop_COMPUTED_PROP_GETTER))
-	}}).put(obj_(Node_Prop_COMPUTED_PROP_SETTER), &Function_tfn_Node_any{func(n Node) any {
+	}})).put(Node_Prop_COMPUTED_PROP_SETTER, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(n Node) any {
 		return bool(n.getBooleanProp(Node_Prop_COMPUTED_PROP_SETTER))
-	}}).buildOrThrow()
+	}})).buildOrThrowErased()
 	Node_propMapForEqualityKeys = EnumSet_copyOf(Collection(Node_PROP_MAP_FOR_EQUALITY.keySet()))
 
 }

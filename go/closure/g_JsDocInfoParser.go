@@ -169,7 +169,7 @@ func JsDocInfoParser_parseFileOverviewJsdoc(toParse string) *JSDocInfo {
 }
 
 func JsDocInfoParser_getParser(toParse string) *JsDocInfoParser {
-	var config *Config = Config_builder().setLanguageMode(Config_LanguageMode_ECMASCRIPT3).setStrictMode(Config_StrictMode_SLOPPY).setClosurePrimitiveNames(ImmutableSet_as_Iterable(ImmutableSet_of_Object("testPrimitive"))).build()
+	var config *Config = Config_builder().setLanguageMode(Config_LanguageMode_ECMASCRIPT3).setStrictMode(Config_StrictMode_SLOPPY).setClosurePrimitiveNames(ImmutableSet_as_Iterable(immutableSetOf_(tc_string, str_("testPrimitive")))).build()
 	return new_JsDocInfoParser(new_JsDocTokenStream_String(toParse), Optional_of[string](toParse), 0, 0, config, JsDocInfoParser_JsDocSourceKind_NORMAL, ErrorReporter_rhino_NULL_INSTANCE)
 }
 
