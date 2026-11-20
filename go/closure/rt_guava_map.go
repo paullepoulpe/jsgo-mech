@@ -204,7 +204,7 @@ func (this *ErasedImmutableMap) containsValue(v any) bool {
 func (this *ErasedImmutableMap) keySet() Set {
 	if this.keySet_ == nil {
 		if this.kind == imSorted_ {
-			this.keySet_ = &ImmutableCollection{kind: icSorted_, items: this.keys, cmp: this.cmp}
+			this.keySet_ = immSortedOf_(this.keys, this.cmp)
 		} else {
 			this.keySet_ = &ImmutableCollection{kind: icSet_, items: this.keys, idx: this.index_()}
 		}
