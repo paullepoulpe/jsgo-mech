@@ -28,7 +28,7 @@ type JSType_I interface {
 	getLeastSupertype_impl(*JSType) *JSType
 	getPossibleToBooleanOutcomes_impl() BooleanLiteralSet
 	getPropertyKind_2_impl(Property_Key, bool) JSType_HasPropertyKind
-	getRestrictedTypeGivenOutcome_impl(*Outcome_rhino) *JSType
+	getRestrictedTypeGivenOutcome_impl(Outcome_rhino) *JSType
 	getTemplateParamCount_impl() int32
 	getTemplateTypeMap_impl() *TemplateTypeMap
 	getTypeClass_impl() JSTypeClass
@@ -958,7 +958,7 @@ func JSType_getGreatestSubtype(thisType *JSType, thatType *JSType) *JSType {
 	return thisType.getNativeType(JSTypeNative_NO_TYPE)
 }
 
-func (this *JSType) getRestrictedTypeGivenOutcome_impl(outcome *Outcome_rhino) *JSType {
+func (this *JSType) getRestrictedTypeGivenOutcome_impl(outcome Outcome_rhino) *JSType {
 	if outcome.isTruthy() && JSCompObjects_identical(this.self(), this.getNativeType(JSTypeNative_UNKNOWN_TYPE).self()) {
 		return this.getNativeType(JSTypeNative_CHECKED_UNKNOWN_TYPE)
 	}
@@ -1460,7 +1460,7 @@ func (this *JSType) isExplicitlyVoidable() bool {
 	return this.self_.isExplicitlyVoidable_impl()
 }
 
-func (this *JSType) getRestrictedTypeGivenOutcome(p0 *Outcome_rhino) *JSType {
+func (this *JSType) getRestrictedTypeGivenOutcome(p0 Outcome_rhino) *JSType {
 	return this.self_.getRestrictedTypeGivenOutcome_impl(p0)
 }
 
