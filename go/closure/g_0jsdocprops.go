@@ -20,9 +20,12 @@ func (p JSDocInfo_PropertyOf_[T]) up_JSDocInfo_Property() *JSDocInfo_Property {
 	return p.JSDocInfo_Property
 }
 
-// valueT_ is Java's (T) of a stored value: the value itself, null as T's null, another type
+// valueT_ is Java's (T) of a stored value: null as T's null, the value itself, another type
 // the erased cast's ClassCastException (junboxT_).
 func (p JSDocInfo_PropertyOf_[T]) valueT_(v any) T {
+	if v == nil {
+		return jnull_[T]()
+	}
 	if t, ok := v.(T); ok {
 		return t
 	}
@@ -34,13 +37,10 @@ func (p JSDocInfo_PropertyOf_[T]) getT_(info *JSDocInfo) T {
 	return p.valueT_(p.get(info))
 }
 
-// valueT_ is Java's (T) of a stored value of a JSDocInfo_NodeMapProperty (Property<*LinkedHashMap>): the value itself,
-// null as T's null, another type the erased cast's ClassCastException (junboxT_).
+// valueT_ is Java's (T) of a stored value of a JSDocInfo_NodeMapProperty (Property<*LinkedHashMap>): the cast j2go writes
+// to *LinkedHashMap (null is T's null).
 func (this *JSDocInfo_NodeMapProperty) valueT_(v any) *LinkedHashMap {
-	if t, ok := v.(*LinkedHashMap); ok {
-		return t
-	}
-	return junboxT_[*LinkedHashMap](v)
+	return cast_[*LinkedHashMap](v)
 }
 
 // getT_ is Property.get with its result typed.
@@ -48,13 +48,10 @@ func (this *JSDocInfo_NodeMapProperty) getT_(info *JSDocInfo) *LinkedHashMap {
 	return this.valueT_(this.get(info))
 }
 
-// valueT_ is Java's (T) of a stored value of a JSDocInfo_TypeListProperty (Property<*ArrayList>): the value itself,
-// null as T's null, another type the erased cast's ClassCastException (junboxT_).
+// valueT_ is Java's (T) of a stored value of a JSDocInfo_TypeListProperty (Property<*ArrayList>): the cast j2go writes
+// to *ArrayList (null is T's null).
 func (this *JSDocInfo_TypeListProperty) valueT_(v any) *ArrayList {
-	if t, ok := v.(*ArrayList); ok {
-		return t
-	}
-	return junboxT_[*ArrayList](v)
+	return to_ArrayList(v)
 }
 
 // getT_ is Property.get with its result typed.
@@ -62,13 +59,10 @@ func (this *JSDocInfo_TypeListProperty) getT_(info *JSDocInfo) *ArrayList {
 	return this.valueT_(this.get(info))
 }
 
-// valueT_ is Java's (T) of a stored value of a JSDocInfo_TypeMapProperty (Property<*LinkedHashMap>): the value itself,
-// null as T's null, another type the erased cast's ClassCastException (junboxT_).
+// valueT_ is Java's (T) of a stored value of a JSDocInfo_TypeMapProperty (Property<*LinkedHashMap>): the cast j2go writes
+// to *LinkedHashMap (null is T's null).
 func (this *JSDocInfo_TypeMapProperty) valueT_(v any) *LinkedHashMap {
-	if t, ok := v.(*LinkedHashMap); ok {
-		return t
-	}
-	return junboxT_[*LinkedHashMap](v)
+	return cast_[*LinkedHashMap](v)
 }
 
 // getT_ is Property.get with its result typed.
@@ -76,13 +70,10 @@ func (this *JSDocInfo_TypeMapProperty) getT_(info *JSDocInfo) *LinkedHashMap {
 	return this.valueT_(this.get(info))
 }
 
-// valueT_ is Java's (T) of a stored value of a JSDocInfo_TypeProperty (Property<*JSTypeExpression>): the value itself,
-// null as T's null, another type the erased cast's ClassCastException (junboxT_).
+// valueT_ is Java's (T) of a stored value of a JSDocInfo_TypeProperty (Property<*JSTypeExpression>): the cast j2go writes
+// to *JSTypeExpression (null is T's null).
 func (this *JSDocInfo_TypeProperty) valueT_(v any) *JSTypeExpression {
-	if t, ok := v.(*JSTypeExpression); ok {
-		return t
-	}
-	return junboxT_[*JSTypeExpression](v)
+	return cast_[*JSTypeExpression](v)
 }
 
 // getT_ is Property.get with its result typed.
