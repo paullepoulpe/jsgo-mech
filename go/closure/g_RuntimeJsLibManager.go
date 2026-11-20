@@ -223,10 +223,6 @@ func (this RuntimeJsLibManager_RuntimeLibraryMode) toString() string {
 	return this.enum_().name_
 }
 
-func (this RuntimeJsLibManager_RuntimeLibraryMode) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this RuntimeJsLibManager_RuntimeLibraryMode) self() any {
 	if this == 0 {
 		return nil

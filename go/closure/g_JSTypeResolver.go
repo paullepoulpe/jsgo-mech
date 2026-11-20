@@ -157,10 +157,6 @@ func (this JSTypeResolver_State) ordinal() int32 {
 
 func (this JSTypeResolver_State) toString() string { return this.enum_().name_ }
 
-func (this JSTypeResolver_State) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this JSTypeResolver_State) self() any {
 	if this == 0 {
 		return nil

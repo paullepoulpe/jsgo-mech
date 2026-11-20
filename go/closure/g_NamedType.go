@@ -421,10 +421,6 @@ func (this NamedType_ResolutionKind) toString() string {
 	return this.enum_().name_
 }
 
-func (this NamedType_ResolutionKind) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this NamedType_ResolutionKind) self() any {
 	if this == 0 {
 		return nil

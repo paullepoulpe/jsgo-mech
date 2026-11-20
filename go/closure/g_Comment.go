@@ -66,8 +66,6 @@ func (this Comment_Type) ordinal() int32 {
 
 func (this Comment_Type) toString() string { return this.enum_().name_ }
 
-func (this Comment_Type) compareTo(o any) int32 { return this.enum_().compareTo(o) }
-
 func (this Comment_Type) self() any {
 	if this == 0 {
 		return nil

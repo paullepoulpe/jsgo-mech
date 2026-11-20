@@ -29,8 +29,6 @@ func (this WarningLevel) ordinal() int32 {
 
 func (this WarningLevel) toString() string { return this.enum_().name_ }
 
-func (this WarningLevel) compareTo(o any) int32 { return this.enum_().compareTo(o) }
-
 func (this WarningLevel) self() any {
 	if this == 0 {
 		return nil

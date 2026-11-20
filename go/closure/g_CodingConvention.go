@@ -119,10 +119,6 @@ func (this CodingConvention_SubclassType) toString() string {
 	return this.enum_().name_
 }
 
-func (this CodingConvention_SubclassType) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this CodingConvention_SubclassType) self() any {
 	if this == 0 {
 		return nil
@@ -323,10 +319,6 @@ func (this CodingConvention_AssertionFunctionSpec_AssertionKind) ordinal() int32
 
 func (this CodingConvention_AssertionFunctionSpec_AssertionKind) toString() string {
 	return this.enum_().name_
-}
-
-func (this CodingConvention_AssertionFunctionSpec_AssertionKind) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this CodingConvention_AssertionFunctionSpec_AssertionKind) self() any {

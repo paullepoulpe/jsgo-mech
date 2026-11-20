@@ -1068,10 +1068,6 @@ func (this FunctionType_Kind) ordinal() int32 {
 
 func (this FunctionType_Kind) toString() string { return this.enum_().name_ }
 
-func (this FunctionType_Kind) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this FunctionType_Kind) self() any {
 	if this == 0 {
 		return nil
@@ -1139,10 +1135,6 @@ func (this FunctionType_PropAccess) ordinal() int32 {
 
 func (this FunctionType_PropAccess) toString() string {
 	return this.enum_().name_
-}
-
-func (this FunctionType_PropAccess) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this FunctionType_PropAccess) self() any {
@@ -1213,10 +1205,6 @@ func (this FunctionType_ConstructorAmbiguity) ordinal() int32 {
 
 func (this FunctionType_ConstructorAmbiguity) toString() string {
 	return this.enum_().name_
-}
-
-func (this FunctionType_ConstructorAmbiguity) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this FunctionType_ConstructorAmbiguity) self() any {

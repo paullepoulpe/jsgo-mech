@@ -101,10 +101,6 @@ func (this SuggestedFix_ImportType) toString() string {
 	return this.enum_().name_
 }
 
-func (this SuggestedFix_ImportType) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this SuggestedFix_ImportType) self() any {
 	if this == 0 {
 		return nil

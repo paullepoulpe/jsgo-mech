@@ -95,10 +95,6 @@ func (this WarningsGuard_Priority) toString() string {
 	return this.enum_().name_
 }
 
-func (this WarningsGuard_Priority) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this WarningsGuard_Priority) self() any {
 	if this == 0 {
 		return nil

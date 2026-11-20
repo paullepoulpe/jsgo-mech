@@ -376,10 +376,6 @@ func (this JSTypeReconserializer_State) toString() string {
 	return this.enum_().name_
 }
 
-func (this JSTypeReconserializer_State) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this JSTypeReconserializer_State) self() any {
 	if this == 0 {
 		return nil

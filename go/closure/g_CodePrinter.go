@@ -702,10 +702,6 @@ func (this CodePrinter_Format) ordinal() int32 {
 
 func (this CodePrinter_Format) toString() string { return this.enum_().name_ }
 
-func (this CodePrinter_Format) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this CodePrinter_Format) self() any {
 	if this == 0 {
 		return nil

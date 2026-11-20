@@ -32,10 +32,6 @@ func (this CustomPassExecutionTime) toString() string {
 	return this.enum_().name_
 }
 
-func (this CustomPassExecutionTime) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this CustomPassExecutionTime) self() any {
 	if this == 0 {
 		return nil
