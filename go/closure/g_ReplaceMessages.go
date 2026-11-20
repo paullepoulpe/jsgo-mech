@@ -364,24 +364,6 @@ func (this *ReplaceMessages_MsgProtectionData) messageOptions() *ReplaceMessages
 	return this.messageOptions_
 }
 
-func (this *ReplaceMessages_MsgProtectionData) equals(p0 any) bool {
-	o, ok := p0.(*ReplaceMessages_MsgProtectionData)
-	if !ok || o == nil {
-		return false
-	}
-	return true && equals_(this.message_, o.message_) && this.messageNode_ == o.messageNode_ && this.templateTextNode_ == o.templateTextNode_ && this.placeholderValuesNode_ == o.placeholderValuesNode_ && equals_(this.messageOptions_, o.messageOptions_)
-}
-
-func (this *ReplaceMessages_MsgProtectionData) hashCode() int32 {
-	var h int32
-	h = h*31 + hash_(this.message_)
-	h = h*31 + hashH_(this.messageNode_)
-	h = h*31 + hashH_(this.templateTextNode_)
-	h = h*31 + hashH_(this.placeholderValuesNode_)
-	h = h*31 + hash_(this.messageOptions_)
-	return h
-}
-
 func (this *ReplaceMessages_MsgProtectionData) toString() string {
 	return "MsgProtectionData[" + "message=" + jtostr_(this.message_) + ", messageNode=" + tostrH_(this.messageNode_) + ", templateTextNode=" + tostrH_(this.templateTextNode_) + ", placeholderValuesNode=" + tostrH_(this.placeholderValuesNode_) + ", messageOptions=" + jtostr_(this.messageOptions_) + "]"
 }
@@ -676,23 +658,6 @@ func (this *ReplaceMessages_FullReplacementMsgData) placeholderValueMap() *TMap[
 	return this.placeholderValueMap_
 }
 
-func (this *ReplaceMessages_FullReplacementMsgData) equals(p0 any) bool {
-	o, ok := p0.(*ReplaceMessages_FullReplacementMsgData)
-	if !ok || o == nil {
-		return false
-	}
-	return true && equals_(this.message_, o.message_) && this.messageNode_ == o.messageNode_ && equals_(this.messageOptions_, o.messageOptions_) && Objects_equals(this.placeholderValueMap_.asMap(), o.placeholderValueMap_.asMap())
-}
-
-func (this *ReplaceMessages_FullReplacementMsgData) hashCode() int32 {
-	var h int32
-	h = h*31 + hash_(this.message_)
-	h = h*31 + hashH_(this.messageNode_)
-	h = h*31 + hash_(this.messageOptions_)
-	h = h*31 + objhashDyn_(this.placeholderValueMap_.asMap())
-	return h
-}
-
 func (this *ReplaceMessages_FullReplacementMsgData) toString() string {
 	return "FullReplacementMsgData[" + "message=" + jtostr_(this.message_) + ", messageNode=" + tostrH_(this.messageNode_) + ", messageOptions=" + jtostr_(this.messageOptions_) + ", placeholderValueMap=" + objstr_(this.placeholderValueMap_.asMap()) + "]"
 }
@@ -812,22 +777,6 @@ func (this *ReplaceMessages_MsgOptions) escapeLessThan() bool {
 
 func (this *ReplaceMessages_MsgOptions) unescapeHtmlEntities() bool {
 	return this.unescapeHtmlEntities_
-}
-
-func (this *ReplaceMessages_MsgOptions) equals(p0 any) bool {
-	o, ok := p0.(*ReplaceMessages_MsgOptions)
-	if !ok || o == nil {
-		return false
-	}
-	return true && this.isIcuTemplate_ == o.isIcuTemplate_ && this.escapeLessThan_ == o.escapeLessThan_ && this.unescapeHtmlEntities_ == o.unescapeHtmlEntities_
-}
-
-func (this *ReplaceMessages_MsgOptions) hashCode() int32 {
-	var h int32
-	h = h*31 + boolhash_(this.isIcuTemplate_)
-	h = h*31 + boolhash_(this.escapeLessThan_)
-	h = h*31 + boolhash_(this.unescapeHtmlEntities_)
-	return h
 }
 
 func (this *ReplaceMessages_MsgOptions) toString() string {

@@ -2055,22 +2055,6 @@ func (this *RegExpTree_DecomposedCharset) namedGroups() string {
 	return this.namedGroups_
 }
 
-func (this *RegExpTree_DecomposedCharset) equals(p0 any) bool {
-	o, ok := p0.(*RegExpTree_DecomposedCharset)
-	if !ok || o == nil {
-		return false
-	}
-	return true && this.inverted_ == o.inverted_ && equals_(this.ranges_, o.ranges_) && this.namedGroups_ == o.namedGroups_
-}
-
-func (this *RegExpTree_DecomposedCharset) hashCode() int32 {
-	var h int32
-	h = h*31 + boolhash_(this.inverted_)
-	h = h*31 + hash_(this.ranges_)
-	h = h*31 + strhash_(this.namedGroups_)
-	return h
-}
-
 func (this *RegExpTree_DecomposedCharset) toString() string {
 	return "DecomposedCharset[" + "inverted=" + boolstr_(this.inverted_) + ", ranges=" + jtostr_(this.ranges_) + ", namedGroups=" + sstr_(this.namedGroups_) + "]"
 }

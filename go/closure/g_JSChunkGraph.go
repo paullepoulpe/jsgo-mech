@@ -576,22 +576,6 @@ func (this *JSChunkGraph_DependencyManagementResult) entryPointInputs() *TSet[*C
 	return this.entryPointInputs_
 }
 
-func (this *JSChunkGraph_DependencyManagementResult) equals(p0 any) bool {
-	o, ok := p0.(*JSChunkGraph_DependencyManagementResult)
-	if !ok || o == nil {
-		return false
-	}
-	return true && Objects_equals(this.orderedInputs_.asList(), o.orderedInputs_.asList()) && this.sorter_ == o.sorter_ && Objects_equals(this.entryPointInputs_.asSet(), o.entryPointInputs_.asSet())
-}
-
-func (this *JSChunkGraph_DependencyManagementResult) hashCode() int32 {
-	var h int32
-	h = h*31 + objhashVia_(this.orderedInputs_.asList())
-	h = h*31 + hash_(this.sorter_)
-	h = h*31 + objhashDyn_(this.entryPointInputs_.asSet())
-	return h
-}
-
 func (this *JSChunkGraph_DependencyManagementResult) toString() string {
 	return "DependencyManagementResult[" + "orderedInputs=" + objstr_(this.orderedInputs_.asList()) + ", sorter=" + jtostr_(this.sorter_) + ", entryPointInputs=" + objstr_(this.entryPointInputs_.asSet()) + "]"
 }

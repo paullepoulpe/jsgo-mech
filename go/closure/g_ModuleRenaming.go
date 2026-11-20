@@ -135,21 +135,6 @@ func (this *ModuleRenaming_GlobalizedModuleName) rootNameType() *JSType {
 	return this.rootNameType_
 }
 
-func (this *ModuleRenaming_GlobalizedModuleName) equals(p0 any) bool {
-	o, ok := p0.(*ModuleRenaming_GlobalizedModuleName)
-	if !ok || o == nil {
-		return false
-	}
-	return true && this.aliasName_ == o.aliasName_ && objequalsBy_(this.rootNameType_, o.rootNameType_.self(), (*JSType).equals)
-}
-
-func (this *ModuleRenaming_GlobalizedModuleName) hashCode() int32 {
-	var h int32
-	h = h*31 + objhashId_(this.aliasName_.self())
-	h = h*31 + objhashBy_(this.rootNameType_, (*JSType).hashCode)
-	return h
-}
-
 func (this *ModuleRenaming_GlobalizedModuleName) toString() string {
 	return "GlobalizedModuleName[" + "aliasName=" + objstr_(this.aliasName_.self()) + ", rootNameType=" + objstr_(this.rootNameType_.self()) + "]"
 }
