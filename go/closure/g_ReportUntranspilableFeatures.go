@@ -144,36 +144,45 @@ func (this *ReportUntranspilableFeatures) checkForRegExpSFlag(regexpNode Node) {
 
 func (this *ReportUntranspilableFeatures) checkForLookbehind(regexpNode Node, tree *RegExpTree) {
 	Preconditions_checkArgument((regexpNode != 0))
-	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, &Predicate_fn{func(t_ any) bool {
-		var t *RegExpTree = to_RegExpTree(t_)
-		_ = t
-		return is_[*RegExpTree_LookbehindAssertion](t.self())
-	}}) {
+	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, lambda_ReportUntranspilableFeatures_checkForLookbehind_1_) {
 		this.reportUntranspilable(FeatureSet_Feature_REGEXP_LOOKBEHIND, regexpNode)
 	}
 }
 
+// lambda_ReportUntranspilableFeatures_checkForLookbehind_1_ is a lambda of ReportUntranspilableFeatures_checkForLookbehind that captures nothing (post-flip step lambdas).
+var lambda_ReportUntranspilableFeatures_checkForLookbehind_1_ = &Predicate_fn{func(t_ any) bool {
+	var t *RegExpTree = to_RegExpTree(t_)
+	_ = t
+	return is_[*RegExpTree_LookbehindAssertion](t.self())
+}}
+
 func (this *ReportUntranspilableFeatures) checkForNamedGroups(regexpNode Node, tree *RegExpTree) {
 	Preconditions_checkArgument((regexpNode != 0))
-	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, &Predicate_fn{func(t_ any) bool {
-		var t *RegExpTree = to_RegExpTree(t_)
-		_ = t
-		return is_[*RegExpTree_NamedCaptureGroup](t.self())
-	}}) {
+	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, lambda_ReportUntranspilableFeatures_checkForNamedGroups_1_) {
 		this.reportUntranspilable(FeatureSet_Feature_REGEXP_NAMED_GROUPS, regexpNode)
 	}
 }
 
+// lambda_ReportUntranspilableFeatures_checkForNamedGroups_1_ is a lambda of ReportUntranspilableFeatures_checkForNamedGroups that captures nothing (post-flip step lambdas).
+var lambda_ReportUntranspilableFeatures_checkForNamedGroups_1_ = &Predicate_fn{func(t_ any) bool {
+	var t *RegExpTree = to_RegExpTree(t_)
+	_ = t
+	return is_[*RegExpTree_NamedCaptureGroup](t.self())
+}}
+
 func (this *ReportUntranspilableFeatures) checkForUnicodePropertyEscape(regexpNode Node, tree *RegExpTree) {
 	Preconditions_checkArgument((regexpNode != 0))
-	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, &Predicate_fn{func(t_ any) bool {
-		var t *RegExpTree = to_RegExpTree(t_)
-		_ = t
-		return is_[*RegExpTree_UnicodePropertyEscape](t.self())
-	}}) {
+	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, lambda_ReportUntranspilableFeatures_checkForUnicodePropertyEscape_1_) {
 		this.reportUntranspilable(FeatureSet_Feature_REGEXP_UNICODE_PROPERTY_ESCAPE, regexpNode)
 	}
 }
+
+// lambda_ReportUntranspilableFeatures_checkForUnicodePropertyEscape_1_ is a lambda of ReportUntranspilableFeatures_checkForUnicodePropertyEscape that captures nothing (post-flip step lambdas).
+var lambda_ReportUntranspilableFeatures_checkForUnicodePropertyEscape_1_ = &Predicate_fn{func(t_ any) bool {
+	var t *RegExpTree = to_RegExpTree(t_)
+	_ = t
+	return is_[*RegExpTree_UnicodePropertyEscape](t.self())
+}}
 
 func (this *ReportUntranspilableFeatures) checkForRegExpDFlag(regexpNode Node) {
 	Preconditions_checkArgument(regexpNode.isRegExp())
