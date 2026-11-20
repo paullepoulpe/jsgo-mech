@@ -218,14 +218,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 		for _, el := range immElems_(cast_[*ErasedImmutableSet](suppressions.entrySet())) {
 			suppression := icast_Map_Entry(el)
 			var warnings []string = arrmap_(cast_[*ErasedImmutableSet](suppression.getKey()).toArray(arrmap_(newstrarr_(0), strobj_)), str_)
-			func() {
-				arr_15 := warnings
-				tmp_16 := arrmap_(arr_15, strobj_)
-				Arrays_sort_ObjectArr_Comparator(tmp_16, Comparator_naturalOrder())
-				for i_ := range tmp_16 {
-					arr_15[i_] = str_(tmp_16[i_])
-				}
-			}()
+			sortArrF_(warnings, compareStrNat_)
 			var text string = str_(suppression.getValue())
 			var sb strBuilder_
 			sb.append("@suppress {").append(Joiner_on_char(',').join_ObjectArr(arrmap_(warnings, strobj_))).append("}")
