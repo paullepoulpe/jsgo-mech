@@ -4,22 +4,22 @@ package closure
 
 type RescopeGlobalSymbolsInfo struct {
 	globalSymbolNamespace_                                  string
-	externNames_                                            *JTSet[string]
-	crossChunkNames_                                        *JTSet[string]
-	crossChunkNamesWithWriteFromOtherChunk_                 *JTSet[string]
-	crossChunkNamesUsedInNonDependentChunk_                 *JTSet[string]
-	globalNamesWithReadInDefiningChunk_                     *JTSet[string]
-	globalNamesWithInnerScopeWriteInDefiningChunk_          *JTSet[string]
-	globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_ *JTSet[string]
-	maybeReferencesThis_                                    *JTSet[string]
-	wrappedCrossChunkNames_                                 *JTSet[string]
+	externNames_                                            *TSet[string]
+	crossChunkNames_                                        *TSet[string]
+	crossChunkNamesWithWriteFromOtherChunk_                 *TSet[string]
+	crossChunkNamesUsedInNonDependentChunk_                 *TSet[string]
+	globalNamesWithReadInDefiningChunk_                     *TSet[string]
+	globalNamesWithInnerScopeWriteInDefiningChunk_          *TSet[string]
+	globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_ *TSet[string]
+	maybeReferencesThis_                                    *TSet[string]
+	wrappedCrossChunkNames_                                 *TSet[string]
 }
 
 func (this *RescopeGlobalSymbolsInfo) zero_RescopeGlobalSymbolsInfo() {
 	this.globalSymbolNamespace_ = nullstr_
 }
 
-func (this *RescopeGlobalSymbolsInfo) init_RescopeGlobalSymbolsInfo_String_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet(globalSymbolNamespace string, externNames *JTSet[string], crossChunkNames *JTSet[string], crossChunkNamesWithWriteFromOtherChunk *JTSet[string], crossChunkNamesUsedInNonDependentChunk *JTSet[string], globalNamesWithReadInDefiningChunk *JTSet[string], globalNamesWithInnerScopeWriteInDefiningChunk *JTSet[string], globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk *JTSet[string], maybeReferencesThis *JTSet[string], wrappedCrossChunkNames *JTSet[string]) {
+func (this *RescopeGlobalSymbolsInfo) init_RescopeGlobalSymbolsInfo_String_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet(globalSymbolNamespace string, externNames *TSet[string], crossChunkNames *TSet[string], crossChunkNamesWithWriteFromOtherChunk *TSet[string], crossChunkNamesUsedInNonDependentChunk *TSet[string], globalNamesWithReadInDefiningChunk *TSet[string], globalNamesWithInnerScopeWriteInDefiningChunk *TSet[string], globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk *TSet[string], maybeReferencesThis *TSet[string], wrappedCrossChunkNames *TSet[string]) {
 	this.globalSymbolNamespace_ = globalSymbolNamespace
 	this.externNames_ = externNames
 	this.crossChunkNames_ = crossChunkNames
@@ -32,7 +32,7 @@ func (this *RescopeGlobalSymbolsInfo) init_RescopeGlobalSymbolsInfo_String_Immut
 	this.wrappedCrossChunkNames_ = wrappedCrossChunkNames
 }
 
-func new_RescopeGlobalSymbolsInfo_String_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet(globalSymbolNamespace string, externNames *JTSet[string], crossChunkNames *JTSet[string], crossChunkNamesWithWriteFromOtherChunk *JTSet[string], crossChunkNamesUsedInNonDependentChunk *JTSet[string], globalNamesWithReadInDefiningChunk *JTSet[string], globalNamesWithInnerScopeWriteInDefiningChunk *JTSet[string], globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk *JTSet[string], maybeReferencesThis *JTSet[string], wrappedCrossChunkNames *JTSet[string]) *RescopeGlobalSymbolsInfo {
+func new_RescopeGlobalSymbolsInfo_String_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet(globalSymbolNamespace string, externNames *TSet[string], crossChunkNames *TSet[string], crossChunkNamesWithWriteFromOtherChunk *TSet[string], crossChunkNamesUsedInNonDependentChunk *TSet[string], globalNamesWithReadInDefiningChunk *TSet[string], globalNamesWithInnerScopeWriteInDefiningChunk *TSet[string], globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk *TSet[string], maybeReferencesThis *TSet[string], wrappedCrossChunkNames *TSet[string]) *RescopeGlobalSymbolsInfo {
 	this := &RescopeGlobalSymbolsInfo{}
 	this.zero_RescopeGlobalSymbolsInfo()
 	this.init_RescopeGlobalSymbolsInfo_String_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet(globalSymbolNamespace, externNames, crossChunkNames, crossChunkNamesWithWriteFromOtherChunk, crossChunkNamesUsedInNonDependentChunk, globalNamesWithReadInDefiningChunk, globalNamesWithInnerScopeWriteInDefiningChunk, globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk, maybeReferencesThis, wrappedCrossChunkNames)
@@ -40,7 +40,7 @@ func new_RescopeGlobalSymbolsInfo_String_ImmutableSet_ImmutableSet_ImmutableSet_
 }
 
 func (this *RescopeGlobalSymbolsInfo) init_RescopeGlobalSymbolsInfo_String_Set_Set_Set_Set_Set_Set_Set_Set(globalSymbolNamespace string, externNames SetOf[string], crossChunkNames SetOf[string], crossChunkNamesWithWriteFromOtherChunk SetOf[string], crossChunkNamesUsedInNonDependentChunk SetOf[string], globalNamesWithReadInDefiningChunk SetOf[string], globalNamesWithInnerScopeWriteInDefiningChunk SetOf[string], globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk SetOf[string], maybeReferencesThis SetOf[string]) {
-	this.init_RescopeGlobalSymbolsInfo_String_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet(globalSymbolNamespace, jimmutableSetCopyOf_(jtc_string, Collection(externNames)), jimmutableSetCopyOf_(jtc_string, Collection(crossChunkNames)), jimmutableSetCopyOf_(jtc_string, Collection(crossChunkNamesWithWriteFromOtherChunk)), jimmutableSetCopyOf_(jtc_string, Collection(crossChunkNamesUsedInNonDependentChunk)), jimmutableSetCopyOf_(jtc_string, Collection(globalNamesWithReadInDefiningChunk)), jimmutableSetCopyOf_(jtc_string, Collection(globalNamesWithInnerScopeWriteInDefiningChunk)), jimmutableSetCopyOf_(jtc_string, Collection(globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk)), jimmutableSetCopyOf_(jtc_string, Collection(maybeReferencesThis)), RescopeGlobalSymbolsInfo_collectWrappedCrossChunkNames(externNames, crossChunkNames, crossChunkNamesWithWriteFromOtherChunk, crossChunkNamesUsedInNonDependentChunk, globalNamesWithInnerScopeWriteInDefiningChunk))
+	this.init_RescopeGlobalSymbolsInfo_String_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet(globalSymbolNamespace, immutableSetCopyOf_(tc_string, Collection(externNames)), immutableSetCopyOf_(tc_string, Collection(crossChunkNames)), immutableSetCopyOf_(tc_string, Collection(crossChunkNamesWithWriteFromOtherChunk)), immutableSetCopyOf_(tc_string, Collection(crossChunkNamesUsedInNonDependentChunk)), immutableSetCopyOf_(tc_string, Collection(globalNamesWithReadInDefiningChunk)), immutableSetCopyOf_(tc_string, Collection(globalNamesWithInnerScopeWriteInDefiningChunk)), immutableSetCopyOf_(tc_string, Collection(globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk)), immutableSetCopyOf_(tc_string, Collection(maybeReferencesThis)), RescopeGlobalSymbolsInfo_collectWrappedCrossChunkNames(externNames, crossChunkNames, crossChunkNamesWithWriteFromOtherChunk, crossChunkNamesUsedInNonDependentChunk, globalNamesWithInnerScopeWriteInDefiningChunk))
 }
 
 func new_RescopeGlobalSymbolsInfo_String_Set_Set_Set_Set_Set_Set_Set_Set(globalSymbolNamespace string, externNames SetOf[string], crossChunkNames SetOf[string], crossChunkNamesWithWriteFromOtherChunk SetOf[string], crossChunkNamesUsedInNonDependentChunk SetOf[string], globalNamesWithReadInDefiningChunk SetOf[string], globalNamesWithInnerScopeWriteInDefiningChunk SetOf[string], globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk SetOf[string], maybeReferencesThis SetOf[string]) *RescopeGlobalSymbolsInfo {
@@ -50,56 +50,56 @@ func new_RescopeGlobalSymbolsInfo_String_Set_Set_Set_Set_Set_Set_Set_Set(globalS
 	return this
 }
 
-func RescopeGlobalSymbolsInfo_collectWrappedCrossChunkNames(externNames SetOf[string], crossChunkNames SetOf[string], crossChunkNamesWithWriteFromOtherChunk SetOf[string], crossChunkNamesUsedInNonDependentChunk SetOf[string], globalNamesWithInnerScopeWriteInDefiningChunk SetOf[string]) *JTSet[string] {
-	var candidates *JTSet[string] = jnewTSet_(jtc_string)
+func RescopeGlobalSymbolsInfo_collectWrappedCrossChunkNames(externNames SetOf[string], crossChunkNames SetOf[string], crossChunkNamesWithWriteFromOtherChunk SetOf[string], crossChunkNamesUsedInNonDependentChunk SetOf[string], globalNamesWithInnerScopeWriteInDefiningChunk SetOf[string]) *TSet[string] {
+	var candidates *TSet[string] = newTSet_(tc_string)
 	candidates.asSet().addAll(Collection(crossChunkNamesWithWriteFromOtherChunk))
 	candidates.asSet().addAll(Collection(crossChunkNamesUsedInNonDependentChunk))
 	for name := range elemsBy_(globalNamesWithInnerScopeWriteInDefiningChunk, str_) {
 		if Collection_contains_s(crossChunkNames, name) {
-			candidates.add(name)
+			candidates.Add(name)
 		}
 	}
 	candidates.asSet().removeAll(Collection(externNames))
-	return immutableSetCopyOfT_(jtc_string, candidates)
+	return immutableSetCopyOfT_(tc_string, candidates)
 }
 
 func (this *RescopeGlobalSymbolsInfo) globalSymbolNamespace() string {
 	return this.globalSymbolNamespace_
 }
 
-func (this *RescopeGlobalSymbolsInfo) externNames() *JTSet[string] {
+func (this *RescopeGlobalSymbolsInfo) externNames() *TSet[string] {
 	return this.externNames_
 }
 
-func (this *RescopeGlobalSymbolsInfo) crossChunkNames() *JTSet[string] {
+func (this *RescopeGlobalSymbolsInfo) crossChunkNames() *TSet[string] {
 	return this.crossChunkNames_
 }
 
-func (this *RescopeGlobalSymbolsInfo) crossChunkNamesWithWriteFromOtherChunk() *JTSet[string] {
+func (this *RescopeGlobalSymbolsInfo) crossChunkNamesWithWriteFromOtherChunk() *TSet[string] {
 	return this.crossChunkNamesWithWriteFromOtherChunk_
 }
 
-func (this *RescopeGlobalSymbolsInfo) crossChunkNamesUsedInNonDependentChunk() *JTSet[string] {
+func (this *RescopeGlobalSymbolsInfo) crossChunkNamesUsedInNonDependentChunk() *TSet[string] {
 	return this.crossChunkNamesUsedInNonDependentChunk_
 }
 
-func (this *RescopeGlobalSymbolsInfo) globalNamesWithReadInDefiningChunk() *JTSet[string] {
+func (this *RescopeGlobalSymbolsInfo) globalNamesWithReadInDefiningChunk() *TSet[string] {
 	return this.globalNamesWithReadInDefiningChunk_
 }
 
-func (this *RescopeGlobalSymbolsInfo) globalNamesWithInnerScopeWriteInDefiningChunk() *JTSet[string] {
+func (this *RescopeGlobalSymbolsInfo) globalNamesWithInnerScopeWriteInDefiningChunk() *TSet[string] {
 	return this.globalNamesWithInnerScopeWriteInDefiningChunk_
 }
 
-func (this *RescopeGlobalSymbolsInfo) globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk() *JTSet[string] {
+func (this *RescopeGlobalSymbolsInfo) globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk() *TSet[string] {
 	return this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_
 }
 
-func (this *RescopeGlobalSymbolsInfo) maybeReferencesThis() *JTSet[string] {
+func (this *RescopeGlobalSymbolsInfo) maybeReferencesThis() *TSet[string] {
 	return this.maybeReferencesThis_
 }
 
-func (this *RescopeGlobalSymbolsInfo) wrappedCrossChunkNames() *JTSet[string] {
+func (this *RescopeGlobalSymbolsInfo) wrappedCrossChunkNames() *TSet[string] {
 	return this.wrappedCrossChunkNames_
 }
 

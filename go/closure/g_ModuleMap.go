@@ -3,41 +3,41 @@
 package closure
 
 type ModuleMap struct {
-	resolvedModules        *JTMap[string, *Module]
-	resolvedClosureModules *JTMap[string, *Module]
+	resolvedModules        *TMap[string, *Module]
+	resolvedClosureModules *TMap[string, *Module]
 }
 
-func (this *ModuleMap) init_ModuleMap(resolvedModules *JTMap[string, *Module], resolvedClosureModules *JTMap[string, *Module]) {
+func (this *ModuleMap) init_ModuleMap(resolvedModules *TMap[string, *Module], resolvedClosureModules *TMap[string, *Module]) {
 	this.resolvedModules = resolvedModules
 	this.resolvedClosureModules = resolvedClosureModules
 }
 
-func new_ModuleMap(resolvedModules *JTMap[string, *Module], resolvedClosureModules *JTMap[string, *Module]) *ModuleMap {
+func new_ModuleMap(resolvedModules *TMap[string, *Module], resolvedClosureModules *TMap[string, *Module]) *ModuleMap {
 	this := &ModuleMap{}
 	this.init_ModuleMap(resolvedModules, resolvedClosureModules)
 	return this
 }
 
 func (this *ModuleMap) getModuleString(moduleName string) *Module {
-	return this.resolvedModules.get(moduleName)
+	return this.resolvedModules.Get(moduleName)
 }
 
 func (this *ModuleMap) getModule(path *ModuleLoader_ModulePath) *Module {
 	return this.getModuleString(path.toModuleName())
 }
 
-func (this *ModuleMap) getModulesByPath() *JTMap[string, *Module] {
+func (this *ModuleMap) getModulesByPath() *TMap[string, *Module] {
 	return this.resolvedModules
 }
 
-func (this *ModuleMap) getModulesByClosureNamespace() *JTMap[string, *Module] {
+func (this *ModuleMap) getModulesByClosureNamespace() *TMap[string, *Module] {
 	return this.resolvedClosureModules
 }
 
 func (this *ModuleMap) getClosureModule(namespace string) *Module {
-	return this.resolvedClosureModules.get(namespace)
+	return this.resolvedClosureModules.Get(namespace)
 }
 
 func ModuleMap_emptyForTesting() *ModuleMap {
-	return new_ModuleMap(jtmapEmptyImm_(jtc_string, jtc_p_Module), jtmapEmptyImm_(jtc_string, jtc_p_Module))
+	return new_ModuleMap(tmapEmptyImm_(tc_string, tc_p_Module), tmapEmptyImm_(tc_string, tc_p_Module))
 }

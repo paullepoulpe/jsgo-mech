@@ -3,28 +3,26 @@ package closure
 // Typed deques (j2go rule "typed collections"): an ArrayDeque<T> that the translator finds
 // typable is a *TDeque[T]: a typed list whose first item is the deque's head, as the erased
 // ArrayDeque in rt_coll.go is an ArrayList whose first item is its head. Erased code sees it
-// through asDeque(), its one view (see JTList).
+// through asDeque(), its one view (see TList). (The deques that post-flip step colls -kind
+// deque types are TLists whose last item is the head: rt_tlist.go push_, pop_.)
 
 type TDeque[T any] struct {
-	JTList[T]
-	dview jtdequeView_[T] // the deque as erased code sees it (asDeque): part of the deque
+	TList[T]
+	dview *tdequeFace_[T]
 }
 
 // newTDeque_ is new ArrayDeque<>().
-func newTDeque_[T any](c *jtconv_[T]) *TDeque[T] {
+func newTDeque_[T any](c *tconv_[T]) *TDeque[T] {
 	d := &TDeque[T]{}
 	d.c = c
-	d.view.l = &d.JTList
-	d.dview.l = &d.JTList
-	d.dview.d = d
 	return d
 }
 
 // newTDequeN_ is new ArrayDeque<>(n): the capacity is not used.
-func newTDequeN_[T any](c *jtconv_[T], n int32) *TDeque[T] { return newTDeque_(c) }
+func newTDequeN_[T any](c *tconv_[T], n int32) *TDeque[T] { return newTDeque_(c) }
 
 // tdequeFrom_ is new ArrayDeque<>(from): from's first element is the head.
-func tdequeFrom_[T any](c *jtconv_[T], from Collection) *TDeque[T] {
+func tdequeFrom_[T any](c *tconv_[T], from Collection) *TDeque[T] {
 	d := newTDeque_(c)
 	src := toSlice_(from)
 	d.items = make([]T, len(src))
@@ -35,7 +33,7 @@ func tdequeFrom_[T any](c *jtconv_[T], from Collection) *TDeque[T] {
 }
 
 // tdequeCopy_ is new ArrayDeque<>(from) of another typed deque of the same element type.
-func tdequeCopy_[T any](c *jtconv_[T], from *TDeque[T]) *TDeque[T] {
+func tdequeCopy_[T any](c *tconv_[T], from *TDeque[T]) *TDeque[T] {
 	d := newTDeque_(c)
 	d.items = append([]T(nil), from.items...)
 	return d
@@ -86,28 +84,33 @@ func (d *TDeque[T]) asDeque() Deque {
 	if d == nil {
 		return nil
 	}
-	return &d.dview
+	if d.dview == nil {
+		v := &tdequeFace_[T]{d: d}
+		v.l = &d.TList
+		d.dview = v
+	}
+	return d.dview
 }
 
-// jtdequeView_ is a TDeque seen as an erased Deque: the list view of its items, and the
+// tdequeFace_ is a TDeque seen as an erased Deque: the list view of its items, and the
 // operations at its ends as ArrayDeque in rt_coll.go has them.
-type jtdequeView_[T any] struct {
-	jtlistView_[T]
+type tdequeFace_[T any] struct {
+	tlistView_[T]
 	d *TDeque[T]
 }
 
-func (v *jtdequeView_[T]) self() any       { return v }
-func (v *jtdequeView_[T]) goName_() string { return "ArrayDeque" }
-func (v *jtdequeView_[T]) peek() any       { return v.d.c.box(v.d.peek()) }
-func (v *jtdequeView_[T]) peekFirst() any  { return v.d.c.box(v.d.peek()) }
-func (v *jtdequeView_[T]) peekLast() any   { return v.d.c.box(v.d.peekLast()) }
-func (v *jtdequeView_[T]) poll() any       { return v.d.c.box(v.d.poll()) }
-func (v *jtdequeView_[T]) pollFirst() any  { return v.d.c.box(v.d.poll()) }
-func (v *jtdequeView_[T]) pop() any        { return v.d.c.box(v.d.pop()) }
-func (v *jtdequeView_[T]) remove_0() any   { return v.d.c.box(v.d.pop()) }
-func (v *jtdequeView_[T]) push(x any)      { v.d.push(v.d.c.unbox(x)) }
+func (v *tdequeFace_[T]) self() any       { return v }
+func (v *tdequeFace_[T]) goName_() string { return "ArrayDeque" }
+func (v *tdequeFace_[T]) peek() any       { return v.d.c.box(v.d.peek()) }
+func (v *tdequeFace_[T]) peekFirst() any  { return v.d.c.box(v.d.peek()) }
+func (v *tdequeFace_[T]) peekLast() any   { return v.d.c.box(v.d.peekLast()) }
+func (v *tdequeFace_[T]) poll() any       { return v.d.c.box(v.d.poll()) }
+func (v *tdequeFace_[T]) pollFirst() any  { return v.d.c.box(v.d.poll()) }
+func (v *tdequeFace_[T]) pop() any        { return v.d.c.box(v.d.pop()) }
+func (v *tdequeFace_[T]) remove_0() any   { return v.d.c.box(v.d.pop()) }
+func (v *tdequeFace_[T]) push(x any)      { v.d.push(v.d.c.unbox(x)) }
 
-func (v *jtdequeView_[T]) descendingIterator() Iterator {
+func (v *tdequeFace_[T]) descendingIterator() Iterator {
 	rev := make([]any, len(v.d.items))
 	for i, x := range v.d.items {
 		rev[len(rev)-1-i] = v.d.c.box(x)

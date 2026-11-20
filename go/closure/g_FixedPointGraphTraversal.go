@@ -29,16 +29,16 @@ func FixedPointGraphTraversal_newReverseTraversal[NodeT comparable, EdgeT compar
 }
 
 func (this *FixedPointGraphTraversal[N, E]) computeFixedPoint(graph *DiGraph[N, E]) {
-	var nodes *JTSet[N] = jnewTSet_(tceT_[N]())
+	var nodes *TSet[N] = newTSet_(tchT_[N]())
 	for node := range elemsAs_[DiGraph_DiGraphNode[N, E]](graph.getNodes()) {
-		nodes.add(node.getValue())
+		nodes.Add(node.getValue())
 	}
 	this.computeFixedPointSet(graph, nodes.asSet())
 }
 
 func (this *FixedPointGraphTraversal[N, E]) computeFixedPoint_2(graph *DiGraph[N, E], entry N) {
-	var entrySet *JTSet[N] = jnewTSet_(tceT_[N]())
-	entrySet.add(entry)
+	var entrySet *TSet[N] = newTSet_(tchT_[N]())
+	entrySet.Add(entry)
 	this.computeFixedPointSet(graph, entrySet.asSet())
 }
 

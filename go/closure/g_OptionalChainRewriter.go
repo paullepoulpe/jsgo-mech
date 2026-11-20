@@ -32,7 +32,7 @@ func (this *OptionalChainRewriter) init_OptionalChainRewriter(builder *OptionalC
 	} else {
 		this.insertionPoint_ = enclosingStatement
 	}
-	this.deletesToDelete = newTDeque_(jtc_Node)
+	this.deletesToDelete = newTDeque_(tc_Node)
 }
 
 func new_OptionalChainRewriter(builder *OptionalChainRewriter_Builder, wholeChain Node) *OptionalChainRewriter {
@@ -49,7 +49,7 @@ func (this *OptionalChainRewriter) rewrite() {
 	if !NodeUtil_isOptChainNode(this.wholeChain) {
 		Preconditions_checkState_boolean_String_Object_H(false, "already rewritten: %s", this.wholeChain)
 	}
-	var startNodeStack *TDeque[Node] = newTDeque_(jtc_Node)
+	var startNodeStack *TDeque[Node] = newTDeque_(tc_Node)
 	var subchainEnd Node = this.wholeChain
 	for NodeUtil_isOptChainNode(subchainEnd) {
 		var subchainStart Node = NodeUtil_getStartOfOptChainSegment(subchainEnd)

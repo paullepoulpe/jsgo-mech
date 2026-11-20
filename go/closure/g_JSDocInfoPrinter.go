@@ -32,7 +32,7 @@ func new_JSDocInfoPrinter_boolean_boolean(useOriginalName bool, printDesc bool) 
 
 func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	var multiline bool = false
-	var parts *JTList[string] = jnewTList_(jtc_string)
+	var parts *TList[string] = newTList_(tc_string)
 	parts.add("/**")
 	if info.isExterns() {
 		parts.add("@externs")
@@ -167,8 +167,8 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 		multiline = true
 		parts.add(("@throws " + sstr_(str_(info.getThrowsAnnotations().get(0)))))
 	}
-	var templates *JTMap[string, *JSTypeExpression] = info.getTemplateTypes()
-	if !templates.isEmpty() {
+	var templates *TMap[string, *JSTypeExpression] = info.getTemplateTypes()
+	if !templates.IsEmpty() {
 		multiline = true
 		Map_forEach(templates.asMap(), &BiConsumer_tfn_string_JSTypeExpression{func(name string, boundExpr *JSTypeExpression) {
 			var boundRoot Node = boundExpr.getRoot()
@@ -179,8 +179,8 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 			}
 		}})
 	}
-	var typeTransformations *JTMap[string, Node] = info.getTypeTransformations()
-	if !typeTransformations.isEmpty() {
+	var typeTransformations *TMap[string, Node] = info.getTypeTransformations()
+	if !typeTransformations.IsEmpty() {
 		multiline = true
 		it_11 := typeTransformations.eachEntry()
 		for it_11.next() {

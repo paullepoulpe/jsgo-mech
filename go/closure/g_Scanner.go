@@ -9,7 +9,7 @@ type Scanner_parser struct {
 	contents           string
 	contentsU16        utf16_
 	contentsLength     int32
-	currentTokens      *JTList[*Token_parser]
+	currentTokens      *TList[*Token_parser]
 	index_             int32
 	commentRecorder    Scanner_CommentRecorder
 	typeParameterLevel int32
@@ -21,7 +21,7 @@ func (this *Scanner_parser) zero_Scanner_parser() {
 }
 
 func (this *Scanner_parser) finit_Scanner_parser() {
-	this.currentTokens = jnewTList_(jtc_p_Token_parser)
+	this.currentTokens = newTList_(tc_p_Token_parser)
 }
 
 func (this *Scanner_parser) init_Scanner_parser(errorReporter *ErrorReporter_util, commentRecorder Scanner_CommentRecorder, file *SourceFile_parser, offset int32) {

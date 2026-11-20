@@ -33,13 +33,13 @@ func (this *DevirtualizeMethods) processReferenceList(name string, sites ListOf[
 		return
 	}
 	var canonicalDefinitionSite Node = Node_of_(Iterables_get(Iterable(functionsBySite.keySet()), 0))
-	var callSitesBuilder *TListBuilder[Node] = newTListBuilder_(jtc_Node)
+	var callSitesBuilder *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
 	for s := range elemsBy_(sites, Node_of_) {
 		if !functionsBySite.containsKey(s.box_()) {
 			callSitesBuilder.add(s)
 		}
 	}
-	var callSites *JTList[Node] = callSitesBuilder.build()
+	var callSites *TList[Node] = callSitesBuilder.build()
 	if callSites.isEmpty() {
 		return
 	}

@@ -4,8 +4,8 @@ package closure
 
 type TranspilationException struct {
 	RuntimeException
-	errorsField   *JTList[*JSError]
-	warningsField *JTList[*JSError]
+	errorsField   *TList[*JSError]
+	warningsField *TList[*JSError]
 }
 
 func (this *TranspilationException) up_RuntimeException() *RuntimeException {
@@ -26,11 +26,11 @@ func new_TranspilationException_Exception(cause *Exception) *TranspilationExcept
 	return this
 }
 
-func (this *TranspilationException) init_TranspilationException_SourceExcerptProvider_ImmutableList_ImmutableList(source SourceExcerptProvider, errors *JTList[*JSError], warnings *JTList[*JSError]) {
+func (this *TranspilationException) init_TranspilationException_SourceExcerptProvider_ImmutableList_ImmutableList(source SourceExcerptProvider, errors *TList[*JSError], warnings *TList[*JSError]) {
 	this.init_TranspilationException_ImmutableList_ImmutableList_String_Exception(errors, warnings, TranspilationException_format(source, errors, warnings), nil)
 }
 
-func new_TranspilationException_SourceExcerptProvider_ImmutableList_ImmutableList(source SourceExcerptProvider, errors *JTList[*JSError], warnings *JTList[*JSError]) *TranspilationException {
+func new_TranspilationException_SourceExcerptProvider_ImmutableList_ImmutableList(source SourceExcerptProvider, errors *TList[*JSError], warnings *TList[*JSError]) *TranspilationException {
 	this := &TranspilationException{}
 	this.self_ = this
 	this.init_TranspilationException_SourceExcerptProvider_ImmutableList_ImmutableList(source, errors, warnings)
@@ -48,28 +48,28 @@ func new_TranspilationException_TranspilationException_Exception(root *Transpila
 	return this
 }
 
-func (this *TranspilationException) init_TranspilationException_ImmutableList_ImmutableList_String_Exception(errors *JTList[*JSError], warnings *JTList[*JSError], formatted string, cause *Exception) {
+func (this *TranspilationException) init_TranspilationException_ImmutableList_ImmutableList_String_Exception(errors *TList[*JSError], warnings *TList[*JSError], formatted string, cause *Exception) {
 	this.RuntimeException.init_RuntimeException_String_Throwable(formatted, cause.up_Throwable())
 	this.errorsField = errors
 	this.warningsField = warnings
 }
 
-func new_TranspilationException_ImmutableList_ImmutableList_String_Exception(errors *JTList[*JSError], warnings *JTList[*JSError], formatted string, cause *Exception) *TranspilationException {
+func new_TranspilationException_ImmutableList_ImmutableList_String_Exception(errors *TList[*JSError], warnings *TList[*JSError], formatted string, cause *Exception) *TranspilationException {
 	this := &TranspilationException{}
 	this.self_ = this
 	this.init_TranspilationException_ImmutableList_ImmutableList_String_Exception(errors, warnings, formatted, cause)
 	return this
 }
 
-func (this *TranspilationException) errors() *JTList[*JSError] {
+func (this *TranspilationException) errors() *TList[*JSError] {
 	return this.errorsField
 }
 
-func (this *TranspilationException) warnings() *JTList[*JSError] {
+func (this *TranspilationException) warnings() *TList[*JSError] {
 	return this.warningsField
 }
 
-func TranspilationException_format(source SourceExcerptProvider, errors *JTList[*JSError], warnings *JTList[*JSError]) string {
+func TranspilationException_format(source SourceExcerptProvider, errors *TList[*JSError], warnings *TList[*JSError]) string {
 	var sb *StringBuilder = new_StringBuilder().append("Transpilation failed:\n")
 	var formatter MessageFormatter = func() MessageFormatter {
 		if source != nil {

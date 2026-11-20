@@ -6,17 +6,17 @@ type AliasStrings struct {
 	compiler_                 *AbstractCompiler
 	chunkGraph                *JSChunkGraph
 	outputStringUsageField    bool
-	stringInfoMap             *JTMap[string, *AliasStrings_StringInfo]
-	usedHashedAliases         *JTSet[string]
+	stringInfoMap             *TMap[string, *AliasStrings_StringInfo]
+	usedHashedAliases         *TSet[string]
 	aliasStringsMode          CompilerOptions_AliasStringsMode
-	chunkVarParentMap         *JTMap[*JSChunk, Node]
+	chunkVarParentMap         *TMap[*JSChunk, Node]
 	unitTestHashReductionMask int32
 }
 
 func (this *AliasStrings) finit_AliasStrings() {
-	this.stringInfoMap = newTSortedMap_(jtc_string, jtc_p_AliasStrings_StringInfo)
-	this.usedHashedAliases = jnewTSet_(jtc_string)
-	this.chunkVarParentMap = jnewTMap_(jtc_p_JSChunk, jtc_Node)
+	this.stringInfoMap = newTSortedMap_(tc_string, tc_p_AliasStrings_StringInfo)
+	this.usedHashedAliases = newTSet_(tc_string)
+	this.chunkVarParentMap = newTMap_(tc_p_JSChunk, tc_Node)
 	this.unitTestHashReductionMask = -1
 }
 
@@ -88,10 +88,10 @@ func (this *AliasStrings) visit(t *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *AliasStrings) getOrCreateStringInfo(string_ string) *AliasStrings_StringInfo {
-	var info *AliasStrings_StringInfo = this.stringInfoMap.get(string_)
+	var info *AliasStrings_StringInfo = this.stringInfoMap.Get(string_)
 	if info == nil {
-		info = new_AliasStrings_StringInfo(this, this.stringInfoMap.size())
-		this.stringInfoMap.put(string_, info)
+		info = new_AliasStrings_StringInfo(this, this.stringInfoMap.Len())
+		this.stringInfoMap.Put(string_, info)
 	}
 	return info
 }
@@ -189,7 +189,7 @@ type AliasStrings_StringInfo struct {
 	outer_                       *AliasStrings
 	id                           int32
 	isAliased                    bool
-	occurrences                  *JTList[Node]
+	occurrences                  *TList[Node]
 	chunkToContainDecl           *JSChunk
 	parentForNewVarDecl          Node
 	siblingToInsertVarDeclBefore Node
@@ -197,7 +197,7 @@ type AliasStrings_StringInfo struct {
 }
 
 func (this *AliasStrings_StringInfo) finit_AliasStrings_StringInfo() {
-	this.occurrences = jnewTList_(jtc_Node)
+	this.occurrences = newTList_(tc_Node)
 	this.aliasName_ = Optional_empty[string]()
 }
 
@@ -252,7 +252,7 @@ func (this *AliasStrings_StringInfo) encodeStringAsIdentifier(prefix string, s s
 	sb.append_char('_')
 	sb.append(Integer_toHexString(hash))
 	var encoded string = tostrR_(sb)
-	if !this.outer_.usedHashedAliases.add(encoded) {
+	if !this.outer_.usedHashedAliases.Add(encoded) {
 		encoded += sstr_(("_" + istr_(int64(this.id))))
 	}
 	return encoded

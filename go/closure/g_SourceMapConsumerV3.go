@@ -9,16 +9,16 @@ type SourceMapConsumerV3 struct {
 	file                 Optional[string]
 	lineCount            int32
 	mappings             *SourceMapConsumerV3_Mappings
-	reverseSourceMapping *JTMap[string, Map]
+	reverseSourceMapping *TMap[string, Map]
 	sourceRoot           Optional[string]
-	extensions           *JTMap[string, any]
+	extensions           *TMap[string, any]
 }
 
 func (this *SourceMapConsumerV3) finit_SourceMapConsumerV3() {
 	this.file = Optional_empty[string]()
 	this.mappings = nil
 	this.sourceRoot = Optional_empty[string]()
-	this.extensions = jnewTMap_(jtc_string, tc_Object)
+	this.extensions = newTMap_(tc_string, tc_Object)
 }
 
 func (this *SourceMapConsumerV3) init_SourceMapConsumerV3() {
@@ -163,7 +163,7 @@ func (this *SourceMapConsumerV3) getReverseMapping(originalFile string, line int
 	if this.reverseSourceMapping == nil {
 		this.createReverseMapping()
 	}
-	var sourceLineToCollectionMap MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] = this.reverseSourceMapping.get(originalFile)
+	var sourceLineToCollectionMap MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] = this.reverseSourceMapping.Get(originalFile)
 	if sourceLineToCollectionMap == nil {
 		return Collection(Collections_emptyList())
 	} else {
@@ -180,7 +180,7 @@ func (this *SourceMapConsumerV3) getSourceRoot() Optional[string] {
 	return this.sourceRoot
 }
 
-func (this *SourceMapConsumerV3) getExtensions() *JTMap[string, any] {
+func (this *SourceMapConsumerV3) getExtensions() *TMap[string, any] {
 	return this.extensions
 }
 
@@ -231,7 +231,7 @@ func (this *SourceMapConsumerV3) getOriginalMappingForEntry(index int32, precisi
 }
 
 func (this *SourceMapConsumerV3) createReverseMapping() {
-	this.reverseSourceMapping = jnewTMap_(jtc_string, tc_Map)
+	this.reverseSourceMapping = newTMap_(tc_string, tc_Map)
 	for targetLine := int32(0); targetLine < this.mappings.getParsedLineCount(); targetLine++ {
 		var start int32 = this.mappings.getLineStart(targetLine)
 		var end int32 = this.mappings.getLineStart((targetLine + 1))
