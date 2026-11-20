@@ -107,20 +107,20 @@ func (this *LiveVariablesAnalysis) flowThrough_impl(node Node, input *LiveVariab
 }
 
 func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *BitSet, conditional bool) {
-	switch n.getToken() {
-	case Token_rhino_SCRIPT, Token_rhino_ROOT, Token_rhino_FUNCTION, Token_rhino_BLOCK:
+	switch n.ns_().token {
+	case tokOrd1_SCRIPT, tokOrd1_ROOT, tokOrd1_FUNCTION, tokOrd1_BLOCK:
 		return
-	case Token_rhino_WHILE, Token_rhino_DO, Token_rhino_IF, Token_rhino_FOR:
+	case tokOrd1_WHILE, tokOrd1_DO, tokOrd1_IF, tokOrd1_FOR:
 		this.computeGenKill(NodeUtil_getConditionExpression(n), gen, kill, conditional)
 		return
-	case Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_FOR_IN:
+	case tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_FOR_IN:
 		var lhs Node = n.getFirstChild()
 		if NodeUtil_isNameDeclaration(lhs) {
 			lhs = lhs.getLastChild()
 		}
 		this.computeGenKill(lhs, gen, kill, conditional)
 		return
-	case Token_rhino_LET, Token_rhino_CONST, Token_rhino_VAR:
+	case tokOrd1_LET, tokOrd1_CONST, tokOrd1_VAR:
 		{
 			var c Node = n.getFirstChild()
 			for ; c != 0; c = c.getNext() {
@@ -144,11 +144,11 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 			}
 		}
 		return
-	case Token_rhino_AND, Token_rhino_OR, Token_rhino_COALESCE, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_OPTCHAIN_GETPROP:
+	case tokOrd1_AND, tokOrd1_OR, tokOrd1_COALESCE, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_OPTCHAIN_GETPROP:
 		this.computeGenKill(n.getFirstChild(), gen, kill, conditional)
 		this.computeGenKill(n.getLastChild(), gen, kill, true)
 		return
-	case Token_rhino_OPTCHAIN_CALL:
+	case tokOrd1_OPTCHAIN_CALL:
 		this.computeGenKill(n.getFirstChild(), gen, kill, conditional)
 		{
 			var c Node = n.getSecondChild()
@@ -157,12 +157,12 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 			}
 		}
 		return
-	case Token_rhino_HOOK:
+	case tokOrd1_HOOK:
 		this.computeGenKill(n.getFirstChild(), gen, kill, conditional)
 		this.computeGenKill(n.getSecondChild(), gen, kill, true)
 		this.computeGenKill(n.getLastChild(), gen, kill, true)
 		return
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		if n.getString() == "arguments" {
 			this.markAllParametersEscaped()
 		} else if !NodeUtil_isLhsByDestructuring(n) {

@@ -119,12 +119,12 @@ func (this *PeepholeCollectPropertyAssignments) collectProperty(propertyCandidat
 	if !NodeUtil_isLiteralValue(rhs, true) && PeepholeCollectPropertyAssignments_mightContainForwardReference(rhs, name) {
 		return false
 	}
-	switch value.getToken() {
-	case Token_rhino_ARRAYLIT:
+	switch value.ns_().token {
+	case tokOrd1_ARRAYLIT:
 		if !PeepholeCollectPropertyAssignments_collectArrayProperty(value, propertyCandidate) {
 			return false
 		}
-	case Token_rhino_OBJECTLIT:
+	case tokOrd1_OBJECTLIT:
 		if !this.collectObjectProperty(value, propertyCandidate) {
 			return false
 		}

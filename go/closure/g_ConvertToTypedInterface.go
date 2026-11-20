@@ -144,8 +144,8 @@ func (this *ConvertToTypedInterface_RemoveNonDeclarations) shouldTraverse(t *Nod
 		return false
 	case Token_rhino_EXPR_RESULT:
 		var expr Node = n.getFirstChild()
-		switch expr.getToken() {
-		case Token_rhino_CALL:
+		switch expr.ns_().token {
+		case tokOrd1_CALL:
 			var callee Node = expr.getFirstChild()
 			Preconditions_checkState(!ConvertToTypedInterface_RemoveNonDeclarations_GOOG_SCOPE.matches(callee))
 			if ConvertToTypedInterface_CALLS_TO_PRESERVE.contains(callee.getQualifiedName()) {
@@ -153,19 +153,19 @@ func (this *ConvertToTypedInterface_RemoveNonDeclarations) shouldTraverse(t *Nod
 			}
 			NodeUtil_deleteNode(n, t.getCompiler())
 			return false
-		case Token_rhino_ASSIGN:
+		case tokOrd1_ASSIGN:
 			if ConvertToTypedInterface_shouldPreserveAssignment(expr, t) {
 				return true
 			}
 			NodeUtil_deleteNode(n, t.getCompiler())
 			return false
-		case Token_rhino_GETPROP:
+		case tokOrd1_GETPROP:
 			if !expr.isQualifiedName() || (expr.getJSDocInfo() == nil) {
 				NodeUtil_deleteNode(n, t.getCompiler())
 				return false
 			}
 			return true
-		case Token_rhino_GETELEM:
+		case tokOrd1_GETELEM:
 			if ConvertToTypedInterface_isSymbolProp(expr.getSecondChild()) && (expr.getJSDocInfo() != nil) {
 				return true
 			}
@@ -235,15 +235,15 @@ func (this *ConvertToTypedInterface_RemoveNonDeclarations) shouldTraverse(t *Nod
 }
 
 func (this *ConvertToTypedInterface_RemoveNonDeclarations) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_TRY, Token_rhino_LABEL, Token_rhino_DEFAULT_CASE, Token_rhino_CASE, Token_rhino_DO, Token_rhino_WHILE, Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_IF:
+	switch n.ns_().token {
+	case tokOrd1_TRY, tokOrd1_LABEL, tokOrd1_DEFAULT_CASE, tokOrd1_CASE, tokOrd1_DO, tokOrd1_WHILE, tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_IF:
 		if n.hasParent() {
 			var children Node = n.removeChildren()
 			parent.addChildrenAfter(children, n)
 			n.detach()
 			t.reportCodeChange()
 		}
-	case Token_rhino_SWITCH:
+	case tokOrd1_SWITCH:
 		if n.hasParent() {
 			Preconditions_checkState_boolean_String_Object(n.hasOneChild(), "malfrmed sWITCH %s", n.toStringTree())
 			var children Node = n.getFirstChild().removeChildren()
@@ -251,9 +251,9 @@ func (this *ConvertToTypedInterface_RemoveNonDeclarations) visit(t *NodeTraversa
 			n.detach()
 			t.reportCodeChange()
 		}
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		ConvertToTypedInterface_RemoveNonDeclarations_splitNameDeclarationsAndRemoveDestructuring(n, t)
-	case Token_rhino_BLOCK:
+	case tokOrd1_BLOCK:
 		if !parent.isFunction() {
 			parent.addChildrenAfter(n.removeChildren(), n)
 			n.detach()
@@ -437,13 +437,13 @@ func (this *ConvertToTypedInterface_SimplifyDeclarations) processClass(n Node) {
 		var member Node = n.getLastChild().getFirstChild()
 		for member != 0 {
 			var next Node = member.getNext()
-			switch member.getToken() {
-			case Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_FIELD_DEF:
-			case Token_rhino_EMPTY:
+			switch member.ns_().token {
+			case tokOrd1_MEMBER_FIELD_DEF, tokOrd1_COMPUTED_FIELD_DEF:
+			case tokOrd1_EMPTY:
 				NodeUtil_deleteNode(member, this.compiler_)
-			case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
+			case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 				this.processFunction(member.getLastChild())
-			case Token_rhino_COMPUTED_PROP:
+			case tokOrd1_COMPUTED_PROP:
 				Preconditions_checkState_boolean_String_Object_H(member.getSecondChild().isFunction(), "Non-function computed class member: %s", member)
 				this.processFunction(member.getSecondChild())
 			default:
