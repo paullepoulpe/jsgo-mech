@@ -61,13 +61,13 @@ func (this *DiagnosticType) equals(type_ any) bool {
 }
 
 func (this *DiagnosticType) hashCode() int32 {
-	return String_hashCode(this.key_)
+	return utf16Hash_(this.key_)
 }
 
 func (this *DiagnosticType) compareTo(diagnosticType_ any) int32 {
 	var diagnosticType *DiagnosticType = cast_[*DiagnosticType](diagnosticType_)
 	_ = diagnosticType
-	return String_compareTo(this.key_, diagnosticType.key_)
+	return utf16Compare_(this.key_, diagnosticType.key_)
 }
 
 func (this *DiagnosticType) toString() string {
