@@ -174,12 +174,12 @@ func (this *CodingConvention_SubclassRelationship) init_CodingConvention_Subclas
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected qualified name, found: %s", []any{superclassNode.box_()})))
 	}
 	this.type__ = type_
-	this.subclassName = Optional_of[string](subclassNode.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
+	this.subclassName = Optional_of[string](subclassNode.getQualifiedName()).filterFn_(func(s string) bool {
 		return s != ""
-	}})
-	this.superclassName = Optional_of[string](superclassNode.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
+	})
+	this.superclassName = Optional_of[string](superclassNode.getQualifiedName()).filterFn_(func(s string) bool {
 		return s != ""
-	}})
+	})
 }
 
 func new_CodingConvention_SubclassRelationship(type_ CodingConvention_SubclassType, subclassNode Node, superclassNode Node) *CodingConvention_SubclassRelationship {

@@ -72,9 +72,9 @@ func (this *PreprocessorSymbolTable) getQualifiedName(n Node) Optional[string] {
 		if n.isStringLit() {
 			return Optional_of[string](n.getString())
 		}
-		return Optional_of[string](n.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
+		return Optional_of[string](n.getQualifiedName()).filterFn_(func(s string) bool {
 			return s != ""
-		}})
+		})
 	}()
 }
 

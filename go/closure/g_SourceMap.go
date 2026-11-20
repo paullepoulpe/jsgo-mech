@@ -39,9 +39,9 @@ func (this *SourceMap) addMapping_3(node Node, outputStartPosition *FilePosition
 	var sourceFileName Optional[string] = Optional_of[string](sourceFile.getName())
 	var lineNo int32 = node.getLineno()
 	var charNo int32 = node.getCharno()
-	var originalName Optional[string] = Optional_of[string](SourceMap_getOriginalName(node)).filter(&Predicate_tfn_string{func(s string) bool {
+	var originalName Optional[string] = Optional_of[string](SourceMap_getOriginalName(node)).filterFn_(func(s string) bool {
 		return s != ""
-	}})
+	})
 	if this.mapping != nil {
 		var sourceMapping *Mapping_OriginalMapping = this.mapping(sourceFileName, lineNo, charNo)
 		if sourceMapping == nil {
