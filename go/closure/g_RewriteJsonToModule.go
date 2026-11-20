@@ -133,3 +133,14 @@ func RewriteJsonToModule_clinit() {
 	RewriteJsonToModule_JSON_UNEXPECTED_TOKEN = DiagnosticType_error("JSC_JSON_UNEXPECTED_TOKEN", "Unexpected JSON token")
 
 }
+
+// visit: an object that is exactly a RewriteJsonToModule calls its visit_impl directly (post-flip); others dispatch.
+func (this *RewriteJsonToModule) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

@@ -230,3 +230,14 @@ func FindExportableNodes_Mode_clinit() {
 	registerEnum_("com.google.javascript.jscomp.FindExportableNodes.Mode", enumValues_(FindExportableNodes_Mode_values_))
 
 }
+
+// visit: an object that is exactly a FindExportableNodes calls its visit_impl directly (post-flip); others dispatch.
+func (this *FindExportableNodes) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}
