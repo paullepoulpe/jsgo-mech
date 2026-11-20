@@ -540,3 +540,68 @@ func reflipVariant1_(k check, variant string) bool {
 	return false
 }
 E18
+# 19. (fourth flip, in bounds) sbuild: two more forms of this translator that kept 41 StringBuilder slots (16 "passed to jtostr_",
+#    25 "returned as another type"; the third flip's tool fix e8c5ab2d on reflip2-bridge, which the lead line's tools never had
+#    because its translator wrote neither form):
+#    - jtostr_(sb), the translator's String.valueOf at the argument's type (rt_conv.go: objstr_(obj_(sb)), "null" for nil), is the
+#      read tostr_(sb) is, handled the same way;
+#    - StringBuilder_as_Appendable(sb), the nil-keeping upcast helper of g_0casts.go (rule "implicit conversions"), is where the
+#      erased output had the builder itself in an Appendable position: the helper's parameter is no slot, the argument is a builder
+#      passed as an Appendable (appendable_(sb), which keeps nil too) and the helper call around a converted builder is dropped.
+if [[ -f $bg ]] && ! grep -q 'reflip19' $bg && grep -q 'fn.Name() == "tostrR_")' $bg; then
+  perl -pi -e 's/\|\| fn\.Name\(\) == "tostrR_"\) && len\(x\.Args\) == 1/|| fn.Name() == "tostrR_" || fn.Name() == "jtostr_") \&\& len(x.Args) == 1/' $bg
+  grep -q '"jtostr_")' $bg || { echo "toolfix: sbuild: the tostr_ line was not found" >&2; exit 1; }
+  reflip_edit $bg reflip19 <<'E19'
+func appendArg(k key, e ast.Expr, local bool, v *types.Var) {
+=====
+// reflipAsAppendable_ is the translator's upcast of a *StringBuilder to Appendable (reflip19); reflipUpcasts_ are its calls
+// around a builder of each class.
+const reflipAsAppendable_ = "StringBuilder_as_Appendable"
+
+var reflipUpcasts_ = map[key][]*ast.CallExpr{}
+
+func appendArg(k key, e ast.Expr, local bool, v *types.Var) {
+-----
+				sig := fn.Type().(*types.Signature)
+				results[x] = sig
+				fieldList(x.Type.Params, func(i int) *types.Var { return sig.Params().At(i) }, g, "")
+=====
+				sig := fn.Type().(*types.Signature)
+				results[x] = sig
+				if x.Recv == nil && x.Name.Name == reflipAsAppendable_ { // reflip19: its parameter is no slot
+					return true
+				}
+				fieldList(x.Type.Params, func(i int) *types.Var { return sig.Params().At(i) }, g, "")
+-----
+				for i, a := range x.Args {
+					if rw.Unparen(a) == e {
+						if pv := paramVar(fn, i); pv != nil && isSlot[pv] {
+=====
+				if fn.Name() == reflipAsAppendable_ && len(x.Args) == 1 && rw.Unparen(x.Args[0]) == e { // reflip19
+					appendArg(k, e, local, v)
+					reflipUpcasts_[k] = append(reflipUpcasts_[k], x)
+					return
+				}
+				for i, a := range x.Args {
+					if rw.Unparen(a) == e {
+						if pv := paramVar(fn, i); pv != nil && isSlot[pv] {
+-----
+	if nApp > 0 {
+		fmt.Fprintf(os.Stderr, "builders passed as an Appendable (appendable_): %d\n", nApp)
+	}
+=====
+	for k, cs := range reflipUpcasts_ { // reflip19: the upcast helper around a converted builder goes
+		if !conv[k] {
+			continue
+		}
+		for _, c := range cs {
+			c := c
+			rw.Rewrite[c] = func() string { return rw.Render(c.Args[0]) }
+		}
+	}
+	if nApp > 0 {
+		fmt.Fprintf(os.Stderr, "builders passed as an Appendable (appendable_): %d\n", nApp)
+	}
+E19
+  grep -q 'reflip19' $bg || echo '// reflip19: jtostr_ only (this version has no Appendable arguments)' >> $bg
+fi
