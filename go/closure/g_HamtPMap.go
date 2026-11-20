@@ -97,7 +97,7 @@ func (this *HamtPMap[K, V]) keys() IterableOf[K] {
 func (this *HamtPMap[K, V]) get(key K) V {
 	return func() V {
 		if !this.isEmpty() {
-			return this.get_2(key, HamtPMap_hash(boxT_(key)))
+			return this.get_2(key, HamtPMap_hashOf_(key))
 		}
 		return jnull_[V]()
 	}()
@@ -123,9 +123,9 @@ func (this *HamtPMap[K, V]) plus_Object_Object_rHamtPMap(key K, value V) *HamtPM
 	}
 	return func() *HamtPMap[K, V] {
 		if !this.isEmpty() {
-			return this.plus_3(key, HamtPMap_hash(boxT_(key)), value)
+			return this.plus_3(key, HamtPMap_hashOf_(key), value)
 		}
-		return new_HamtPMap[K, V](key, HamtPMap_hash(boxT_(key)), value, 0, HamtPMap_emptyChildren[K, V]())
+		return new_HamtPMap[K, V](key, HamtPMap_hashOf_(key), value, 0, HamtPMap_emptyChildren[K, V]())
 	}()
 }
 
@@ -178,7 +178,7 @@ func (this *HamtPMap[K, V]) replaceRoot(key K, hash int32, value V) *HamtPMap[K,
 func (this *HamtPMap[K, V]) minus_Object_rHamtPMap(key K) *HamtPMap[K, V] {
 	return func() *HamtPMap[K, V] {
 		if !this.isEmpty() {
-			return this.minus_3(key, HamtPMap_hash(boxT_(key)), nil)
+			return this.minus_3(key, HamtPMap_hashOf_(key), nil)
 		}
 		return this
 	}()
@@ -391,6 +391,13 @@ func HamtPMap_hash(key any) int32 {
 	return Integer_reverse(Object_hashCode(key))
 }
 
+// HamtPMap_hashOf_ is hash(key) for a key of the map's type, without boxing it: the hash code
+// is taken from the value as it is (post-flip manual step: a String key was boxed for its
+// hashCode at every get, plus and minus).
+func HamtPMap_hashOf_[K any](key K) int32 {
+	return Integer_reverse(hashCodeT_(key))
+}
+
 func HamtPMap_bucket(hash int32) int32 {
 	return int32(uint32(hash) >> 28)
 }
@@ -531,9 +538,9 @@ func (this *HamtPMap[K, V]) assertCorrectStructure() *HamtPMap[K, V] {
 	if this.isEmpty() {
 		return this
 	}
-	var hash int32 = HamtPMap_hash(boxT_(this.key_))
+	var hash int32 = HamtPMap_hashOf_(this.key_)
 	for i := int32(0); i < int32(len(this.children_)); i++ {
-		var childHash int32 = HamtPMap_hash(boxT_(this.children_[i].key_))
+		var childHash int32 = HamtPMap_hashOf_(this.children_[i].key_)
 		if HamtPMap_compareUnsigned(childHash, hash) < 0 {
 			panic(new_AssertionError_Object(strobj_(("Invalid map has decreasing hash " + objstr_(boxT_(this.children_[i].key_)) + "(" + sstr_(Integer_toHexString(childHash)) + ") beneath " + objstr_(boxT_(this.key_)) + "(" + sstr_(Integer_toHexString(hash)) + ": " + jtostr_(this)))))
 		}
