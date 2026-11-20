@@ -38,14 +38,14 @@ func (this *GatherExternProperties) shouldTraverse(t *NodeTraversal, n Node, par
 
 func (this *GatherExternProperties) visit(t *NodeTraversal, n Node, parent Node) {
 	if this.mode_.optimize {
-		switch n.getToken() {
-		case Token_rhino_GETPROP:
+		switch n.ns_().token {
+		case tokOrd1_GETPROP:
 			this.externProperties.add(n.getString())
-		case Token_rhino_STRING_KEY:
+		case tokOrd1_STRING_KEY:
 			if parent.isObjectLit() {
 				this.externProperties.add(n.getString())
 			}
-		case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
+		case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 			this.externProperties.add(n.getString())
 		default:
 		}
@@ -65,8 +65,8 @@ func (this *GatherExternProperties) gatherPropertiesFromJSDocInfo(jsDocInfo *JSD
 }
 
 func (this *GatherExternProperties) gatherPropertiesFromJsTypeExpressionNode(jsTypeExpressionNode Node) {
-	switch jsTypeExpressionNode.getToken() {
-	case Token_rhino_LB:
+	switch jsTypeExpressionNode.ns_().token {
+	case tokOrd1_LB:
 		this.gatherPropertiesFromJsDocRecordType(jsTypeExpressionNode)
 	default:
 		{
@@ -79,13 +79,13 @@ func (this *GatherExternProperties) gatherPropertiesFromJsTypeExpressionNode(jsT
 }
 
 func (this *GatherExternProperties) gatherPropertiesFromJsDocRecordType(jsDocRecordNode Node) {
-	Preconditions_checkState_boolean_Object_H((jsDocRecordNode.getToken() == Token_rhino_LB), jsDocRecordNode)
+	Preconditions_checkState_boolean_Object_H((jsDocRecordNode.ns_().token == tokOrd1_LB), jsDocRecordNode)
 	{
 		var fieldNode Node = jsDocRecordNode.getFirstChild()
 		for ; fieldNode != 0; fieldNode = fieldNode.getNext() {
 			var fieldNameNode Node
 			var fieldTypeNode Node
-			if fieldNode.getToken() == Token_rhino_COLON {
+			if fieldNode.ns_().token == tokOrd1_COLON {
 				fieldNameNode = fieldNode.getFirstChild()
 				fieldTypeNode = fieldNameNode.getNext()
 			} else {

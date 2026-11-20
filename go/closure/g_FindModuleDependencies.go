@@ -82,7 +82,7 @@ func (this *FindModuleDependencies) visit(t *NodeTraversal, n Node, parent Node)
 	} else if this.supportsEs6Modules && n.isImport() {
 		this.moduleType_ = CompilerInput_ModuleType_ES6
 		this.addEs6ModuleImportToGraph(t, n)
-	} else if (this.supportsEs6Modules && (n.getToken() == Token_rhino_DYNAMIC_IMPORT)) && n.getFirstChild().isString() {
+	} else if (this.supportsEs6Modules && (n.ns_().token == tokOrd1_DYNAMIC_IMPORT)) && n.getFirstChild().isString() {
 		var path string = n.getFirstChild().getString()
 		var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModuleSilently(path)
 		if modulePath != nil {

@@ -56,10 +56,10 @@ func (this *Es6RewriteDestructuring) shouldTraverse(t *NodeTraversal, n Node, pa
 		var scriptFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(n)
 		return scriptFeatures.containsAtLeastOneOf(this.featuresToTriggerRunningPass)
 	}
-	switch n.getToken() {
-	case Token_rhino_PARAM_LIST:
+	switch n.ns_().token {
+	case tokOrd1_PARAM_LIST:
 		this.pullDestructuringOutOfParams(n, parent)
-	case Token_rhino_ARRAY_PATTERN, Token_rhino_OBJECT_PATTERN:
+	case tokOrd1_ARRAY_PATTERN, tokOrd1_OBJECT_PATTERN:
 		var hasRest bool = ((n.isObjectPattern() && n.hasChildren()) && n.getLastChild().isRest())
 		if !this.patternNestingStack.isEmpty() && hasRest {
 			it_2 := this.patternNestingStack.each()
@@ -79,8 +79,8 @@ func (this *Es6RewriteDestructuring) shouldTraverse(t *NodeTraversal, n Node, pa
 }
 
 func (this *Es6RewriteDestructuring) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_ARRAY_PATTERN, Token_rhino_OBJECT_PATTERN:
+	switch n.ns_().token {
+	case tokOrd1_ARRAY_PATTERN, tokOrd1_OBJECT_PATTERN:
 		this.visitPattern(t, n)
 		if n == cast_[*Es6RewriteDestructuring_PatternNestingLevel](SequencedCollection_getLast(SequencedCollection(this.patternNestingStack.asDeque()))).pattern {
 			SequencedCollection_removeLast(SequencedCollection(this.patternNestingStack.asDeque()))
@@ -213,8 +213,8 @@ func (this *Es6RewriteDestructuring) getTempVariableName() string {
 
 func (this *Es6RewriteDestructuring) visitPattern(t *NodeTraversal, pattern Node) {
 	var parent Node = pattern.getParent()
-	switch parent.getToken() {
-	case Token_rhino_DESTRUCTURING_LHS:
+	switch parent.ns_().token {
+	case tokOrd1_DESTRUCTURING_LHS:
 		{
 			var declaration Node = parent.getParent()
 			var declarationParent Node = declaration.getParent()
@@ -226,16 +226,16 @@ func (this *Es6RewriteDestructuring) visitPattern(t *NodeTraversal, pattern Node
 				this.replacePattern(t, pattern, pattern.getNext(), declaration, declaration)
 			}
 		}
-	case Token_rhino_ASSIGN:
+	case tokOrd1_ASSIGN:
 		if parent.getParent().isExprResult() {
 			this.replacePattern(t, pattern, pattern.getNext(), parent, parent.getParent())
 		} else {
 			this.wrapAssignOrDestructuringInCallToArrow(t, parent)
 		}
-	case Token_rhino_OBJECT_REST, Token_rhino_ITER_REST, Token_rhino_STRING_KEY, Token_rhino_ARRAY_PATTERN, Token_rhino_DEFAULT_VALUE, Token_rhino_COMPUTED_PROP:
-	case Token_rhino_FOR_OF, Token_rhino_FOR_IN, Token_rhino_FOR_AWAIT_OF:
+	case tokOrd1_OBJECT_REST, tokOrd1_ITER_REST, tokOrd1_STRING_KEY, tokOrd1_ARRAY_PATTERN, tokOrd1_DEFAULT_VALUE, tokOrd1_COMPUTED_PROP:
+	case tokOrd1_FOR_OF, tokOrd1_FOR_IN, tokOrd1_FOR_AWAIT_OF:
 		this.visitDestructuringPatternInEnhancedForWithOuterVars(pattern)
-	case Token_rhino_CATCH:
+	case tokOrd1_CATCH:
 		this.visitDestructuringPatternInCatch(t, pattern)
 	default:
 		panic(new_IllegalStateException_String("unexpected parent").self())
@@ -244,10 +244,10 @@ func (this *Es6RewriteDestructuring) visitPattern(t *NodeTraversal, pattern Node
 
 func (this *Es6RewriteDestructuring) replacePattern(t *NodeTraversal, pattern Node, rhs Node, parent Node, nodeToDetach Node) {
 	Preconditions_checkArgument_boolean_Object_H(NodeUtil_isStatement(nodeToDetach), nodeToDetach)
-	switch pattern.getToken() {
-	case Token_rhino_ARRAY_PATTERN:
+	switch pattern.ns_().token {
+	case tokOrd1_ARRAY_PATTERN:
 		this.replaceArrayPattern(t, pattern, rhs, parent, nodeToDetach)
-	case Token_rhino_OBJECT_PATTERN:
+	case tokOrd1_OBJECT_PATTERN:
 		this.replaceObjectPattern(t, pattern, rhs, parent, nodeToDetach)
 	default:
 		panic(new_IllegalStateException_String("unexpected").self())
@@ -399,15 +399,15 @@ func (this *Es6RewriteDestructuring) objectPatternRestRHS(objectPattern Node, re
 
 func (this *Es6RewriteDestructuring) deletionNodeForRestProperty(restTempVarNameNode Node, property Node) Node {
 	var get Node = func() Node {
-		switch property.getToken() {
-		case Token_rhino_STRING_KEY:
+		switch property.ns_().token {
+		case tokOrd1_STRING_KEY:
 			return func() Node {
 				if property.isQuotedStringKey() {
 					return this.astFactory_.createGetElem(restTempVarNameNode, this.astFactory_.createString(property.getString()))
 				}
 				return this.astFactory_.createGetPropWithUnknownType(restTempVarNameNode, property.getString())
 			}()
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			return this.astFactory_.createGetElem(restTempVarNameNode, property)
 		default:
 			panic(new_IllegalStateException_String(("Unexpected property to delete node: " + sstr_(property.toStringTree()))).self())
@@ -511,15 +511,15 @@ func (this *Es6RewriteDestructuring) visitDestructuringPatternInVanillaForInnerV
 	for insertionPoint.getParent().isLabel() {
 		insertionPoint = insertionPoint.getParent()
 	}
-	switch declaration.getToken() {
-	case Token_rhino_CONST:
+	switch declaration.ns_().token {
+	case tokOrd1_CONST:
 		{
 			var block Node = IR_block_0().srcref(insertionPoint)
 			insertionPoint.replaceWith(block)
 			block.addChildToBack(insertionPoint)
 		}
 		fallthrough
-	case Token_rhino_VAR:
+	case tokOrd1_VAR:
 		{
 			{
 				var c Node = declaration.getFirstChild()
@@ -537,7 +537,7 @@ func (this *Es6RewriteDestructuring) visitDestructuringPatternInVanillaForInnerV
 				declaration.replaceWith(IR_empty())
 			}
 		}
-	case Token_rhino_LET:
+	case tokOrd1_LET:
 		{
 			ParsingUtil_getParamOrPatternNames(pattern, &Consumer_tfn_Node{func(name Node) {
 				name.cloneNode().insertBefore(destructuringLhs)

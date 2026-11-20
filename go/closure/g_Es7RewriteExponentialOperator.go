@@ -40,12 +40,12 @@ func (this *Es7RewriteExponentialOperator) shouldTraverse(t *NodeTraversal, n No
 }
 
 func (this *Es7RewriteExponentialOperator) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_EXPONENT:
+	switch n.ns_().token {
+	case tokOrd1_EXPONENT:
 		if this.checkOperatorType(n) {
 			this.visitExponentiationOperator(n)
 		}
-	case Token_rhino_ASSIGN_EXPONENT:
+	case tokOrd1_ASSIGN_EXPONENT:
 		if this.checkOperatorType(n) {
 			this.visitExponentiationAssignmentOperator(t, n)
 		}
