@@ -86,3 +86,44 @@ func TestDequeView(t *testing.T) {
 		t.Error("the view of a null deque should be null")
 	}
 }
+
+// TestNestedImmutableTypedCollections: an immutable typed collection held in a typed
+// container is boxed as its twin, the immutable collection erased code sees (rt_timm.go),
+// and unboxed to itself: made typed, made from an erased immutable collection, and empty
+// (the one empty twin of every element type).
+func TestNestedImmutableTypedCollections(t *testing.T) {
+	lc := tlistConv_[string]()
+	l := immutableListOf_(tc_string, "a", "b")
+	if b := lc.box(l); b != any(l.asImm()) || lc.unbox(b) != l {
+		t.Error("an immutable typed list should box as its twin and unbox to itself")
+	}
+	er := immList_([]any{strobj_("x")})
+	fl := tlistImm_(tc_string, Collection(er))
+	if b := lc.box(fl); b != any(er) || lc.unbox(b) != fl {
+		t.Error("a typed list made from an immutable list should box as that list and unbox to itself")
+	}
+	el := immutableListOf_(tc_string)
+	if b := lc.box(el); b != any(emptyImmList_) || lc.unbox(b) != el {
+		t.Error("the empty immutable typed list should box as the empty list and unbox to itself")
+	}
+	m := newTMap_(tc_string, lc)
+	m.put("k", l)
+	m.put("e", el)
+	if m.asMap().get(strobj_("k")) != any(l.asImm()) || m.get("k") != l || m.get("e") != el {
+		t.Error("a map of immutable typed lists should give the twin to erased code and the list to typed code")
+	}
+	sc := tsetConv_[string]()
+	s := immutableSetOf_(tc_string, "a")
+	es := immutableSetOf_(tc_string)
+	if b := sc.box(s); b != any(s.asImm()) || sc.unbox(b) != s {
+		t.Error("an immutable typed set should box as its twin and unbox to itself")
+	}
+	if b := sc.box(es); b != any(emptyImmSet_) || sc.unbox(b) != es {
+		t.Error("the empty immutable typed set should box as the empty set and unbox to itself")
+	}
+	mc := tmapConv_[string, string]()
+	im := immutableMapOf_(tc_string, tc_string, []string{"k"}, []string{"v"})
+	if b := mc.box(im); b != any(im.asImm()) || mc.unbox(b) != im {
+		t.Error("an immutable typed map should box as its twin and unbox to itself")
+	}
+}
