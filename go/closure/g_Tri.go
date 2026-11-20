@@ -20,11 +20,11 @@ func (this Tri) enum_() *Enum {
 	return &Tri_enum_[this-1]
 }
 
-func (this Tri) name() string { return Tri_enum_[this-1].name_ }
+func (this Tri) name() string { return this.enum_().name_ }
 
-func (this Tri) ordinal() int32 { return Tri_enum_[this-1].ordinal_ }
+func (this Tri) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this Tri) compareTo(o any) int32 { return Tri_enum_[this-1].compareTo(o) }
+func (this Tri) compareTo(o any) int32 { return this.enum_().compareTo(o) }
 
 func (this Tri) self() any {
 	if this == 0 {
