@@ -85,10 +85,11 @@ func (this *CombinedCompilerPass_CallbackWrapper) init_CombinedCompilerPass_Call
 	_ = scopedCallback
 	if func() bool {
 		v_ := any(callback)
-		if !is_[NodeTraversal_ScopedCallback](v_) {
+		p, ok := v_.(NodeTraversal_ScopedCallback)
+		if !ok {
 			return false
 		}
-		scopedCallback = icast_NodeTraversal_ScopedCallback(v_)
+		scopedCallback = p
 		return true
 	}() {
 		this.scopedCallback = scopedCallback
