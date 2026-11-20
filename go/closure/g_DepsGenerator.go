@@ -258,7 +258,7 @@ func DepsGenerator_parseDepsFile(depsParser *DepsFileRegexParser, file *SourceFi
 	var code *Outcome_base[string] = file.readCodeWithoutCaching()
 	if TextFiles_isDecodingError(code.error()) {
 		depsParser.reportReadError(file.getName())
-		return Outcome_base_ok_Object[List](icast_List(new_ArrayList_0().self()))
+		return Outcome_base_ok_Object[List](List(new_ArrayList_0()))
 	}
 	if code.isErr() {
 		return Outcome_base_err[List](code.error())

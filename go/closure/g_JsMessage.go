@@ -684,7 +684,7 @@ func (this *JsMessage_Builder) appendStringPart_2(genderCase JsMessage_Grammatic
 
 func (this *JsMessage_Builder) addGenderedMessageKey(part JsMessage_GrammaticalGenderCase) *JsMessage_Builder {
 	Preconditions_checkNotNull_Object_Object_T(part, "Gendered message key must not be null")
-	this.genderedMessageMap.put(part, icast_List(new_ArrayList_0().self()))
+	this.genderedMessageMap.put(part, new_ArrayList_0())
 	return this
 }
 
