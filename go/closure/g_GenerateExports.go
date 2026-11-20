@@ -16,7 +16,9 @@ func (this *GenerateExports) finit_GenerateExports() {
 
 func (this *GenerateExports) init_GenerateExports(compiler *AbstractCompiler, allowNonGlobalExports bool, exportSymbolFunction Optional[string], exportPropertyFunction Optional[string]) {
 	this.finit_GenerateExports()
-	Preconditions_checkNotNull_T(compiler)
+	if compiler == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	this.compiler_ = compiler
 	this.allowNonGlobalExports = allowNonGlobalExports
 	this.exportSymbolFunction = exportSymbolFunction
@@ -131,10 +133,10 @@ func (this *GenerateExports) recordExportSymbol(qname string) {
 
 func (this *GenerateExports) addExportForEs6Method(memberFunction Node, ownerName string) {
 	if !memberFunction.isMemberFunctionDef() {
-		Preconditions_checkArgument_boolean_Object_H(false, memberFunction)
+		panic(new_IllegalArgumentException_String(objstr_(memberFunction.box_())).self())
 	}
 	if String_isEmpty(ownerName) {
-		Preconditions_checkArgument_boolean_Object(false, ownerName)
+		panic(new_IllegalArgumentException_String(objstr_(ownerName)).self())
 	}
 	var fullExport string = (sstr_(ownerName) + "." + sstr_(memberFunction.getString()))
 	this.addExportPropertyCall(ownerName, memberFunction, fullExport, memberFunction.getString())

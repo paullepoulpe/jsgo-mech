@@ -189,7 +189,7 @@ func (this *CheckExtraRequires) addUsagesOfAllPrefixes(qualifiedName *QualifiedN
 
 func (this *CheckExtraRequires) visitQualifiedName(n Node) {
 	if !n.isQualifiedName() {
-		Preconditions_checkArgument_boolean_Object_H(false, n)
+		panic(new_IllegalArgumentException_String(objstr_(n.box_())).self())
 	}
 	this.addUsagesOfAllPrefixes(n.getQualifiedNameObject())
 }

@@ -57,7 +57,9 @@ func (this *CoverageInstrumentationCallback) newHeaderNode(traversal *NodeTraver
 		}
 		return nil
 	}()
-	Preconditions_checkNotNull_T(data)
+	if data == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var objName string = CoverageInstrumentationPass_JS_INSTRUMENTATION_OBJECT_NAME
 	return IR_blockNodeVarargs([]Node{this.newArrayDeclarationNode(traversal), IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("executedLines")), "push"), []Node{IR_name(arrayName)})), IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("instrumentedLines")), "push"), []Node{IR_string(data.getInstrumentedLinesAsHexString())})), IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("fileNames")), "push"), []Node{IR_string(fileName.get())}))}).srcrefTreeIfMissing(srcref)
 }

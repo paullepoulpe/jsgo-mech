@@ -53,7 +53,9 @@ func (this *ProcessClosureProvidesAndRequires) collectProvidedNames(externs Node
 }
 
 func (this *ProcessClosureProvidesAndRequires) rewriteProvidesAndRequires(externs Node, root Node) {
-	Preconditions_checkState_boolean_Object(!this.hasRewritingOccurred, "Cannot call rewriteProvidesAndRequires twice per instance")
+	if this.hasRewritingOccurred {
+		panic(new_IllegalStateException_String(objstr_("Cannot call rewriteProvidesAndRequires twice per instance")).self())
+	}
 	this.hasRewritingOccurred = true
 	this.collectProvidedNames(externs, root)
 	it_1 := this.providedNames.eachValue()
@@ -125,7 +127,9 @@ func (this *ProcessClosureProvidesAndRequires) processLegacyModuleCall(namespace
 }
 
 func (this *ProcessClosureProvidesAndRequires) processProvideCall(t *NodeTraversal, call Node, parent Node) {
-	Preconditions_checkState(call.isCall())
+	if !call.isCall() {
+		panic(new_IllegalStateException_0().self())
+	}
 	if !this.verifyOnlyArgumentIsString(call) {
 		return
 	}
@@ -436,7 +440,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) init_ProcessClosureP
 	this.astFactory_ = astFactory
 	var node Node = builder.node_
 	if !(((node == 0) || NodeUtil_isExprCall(node)) || (!builder.explicit && ((NodeUtil_isExprAssign(node) || NodeUtil_isNameDeclaration(node)) || (node.isExprResult() && node.getFirstChild().isQualifiedName())))) {
-		Preconditions_checkArgument_boolean_Object_H(false, node)
+		panic(new_IllegalArgumentException_String(objstr_(node.box_())).self())
 	}
 	this.namespace_ = builder.namespace_
 	this.firstNode = builder.node_
@@ -455,9 +459,11 @@ func new_ProcessClosureProvidesAndRequires_ProvidedName(builder *ProcessClosureP
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) addProvide(node Node, chunk *JSChunk, explicit bool, chunkGraph *JSChunkGraph) {
 	if explicit {
-		Preconditions_checkState((this.explicitNode == 0))
+		if this.explicitNode != 0 {
+			panic(new_IllegalStateException_0().self())
+		}
 		if !node.isExprResult() {
-			Preconditions_checkArgument_boolean_Object_H(false, node)
+			panic(new_IllegalArgumentException_String(objstr_(node.box_())).self())
 		}
 		this.explicitNode = node
 	}
@@ -493,8 +499,12 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) getNamespace() strin
 }
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) addDefinition(node Node, chunk *JSChunk, chunkGraph *JSChunkGraph) {
-	Preconditions_checkArgument(((node.isExprResult() || node.isFunction()) || NodeUtil_isNameDeclaration(node)))
-	Preconditions_checkArgument((this.explicitNode != node))
+	if !((node.isExprResult() || node.isFunction()) || NodeUtil_isNameDeclaration(node)) {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if this.explicitNode == node {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if (this.candidateDefinition == 0) || !node.isExprResult() {
 		this.candidateDefinition = node
 		this.updateMinimumChunk(chunk, chunkGraph)
@@ -507,13 +517,15 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) updateMinimumChunk(n
 	} else if chunkGraph.getChunkCount() > 1 {
 		this.minimumChunk = chunkGraph.getDeepestCommonDependencyInclusive_2(this.minimumChunk, newChunk)
 	} else {
-		Preconditions_checkState_boolean_Object((newChunk == this.minimumChunk), "Missing chunk graph")
+		if newChunk != this.minimumChunk {
+			panic(new_IllegalStateException_String(objstr_("Missing chunk graph")).self())
+		}
 	}
 }
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) replace(preserveGoogProvidesAndRequires bool, providedNames *JTMap[string, *ProcessClosureProvidesAndRequires_ProvidedName]) {
 	if this.isFromLegacyModule() {
-		Preconditions_checkState_boolean_String_Object_H(false, "Cannot rewrite provides without having rewritten goog.modules, found %s", this.firstNode)
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot rewrite provides without having rewritten goog.modules, found %s", []any{this.firstNode.box_()})).self())
 	}
 	if this.firstNode == 0 {
 		this.replacementNode = this.candidateDefinition
@@ -548,10 +560,10 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) replace(preserveGoog
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) convertProvideAssignmentToVarDeclaration(assignNode Node, nameNode Node) {
 	if !assignNode.isAssign() {
-		Preconditions_checkArgument_boolean_Object_H(false, assignNode)
+		panic(new_IllegalArgumentException_String(objstr_(assignNode.box_())).self())
 	}
 	if !nameNode.isName() {
-		Preconditions_checkArgument_boolean_Object_H(false, nameNode)
+		panic(new_IllegalArgumentException_String(objstr_(nameNode.box_())).self())
 	}
 	var valueNode Node = nameNode.getNext()
 	nameNode.detach()
@@ -574,8 +586,12 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) createNamespaceIniti
 			this.compiler_.getNodeForCodeInsertion(this.minimumChunk).addChildToBack(this.replacementNode)
 		} else {
 			var parentName *ProcessClosureProvidesAndRequires_ProvidedName = providedNames.get(String_substring(this.namespace_, 0, indexOfDot))
-			Preconditions_checkNotNull_T(parentName)
-			Preconditions_checkNotNull_T(parentName.replacementNode)
+			if parentName == nil {
+				panic(new_NullPointerException_0().self())
+			}
+			if parentName.replacementNode == 0 {
+				panic(new_NullPointerException_0().self())
+			}
 			this.replacementNode.insertAfter(parentName.replacementNode)
 		}
 	}
@@ -583,8 +599,8 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) createNamespaceIniti
 }
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) createDeclarationNode(value Node) Node {
-	if !(value.isObjectLit() || value.isCast()) {
-		Preconditions_checkArgument_boolean_Object_H(false, value)
+	if !value.isObjectLit() && !value.isCast() {
+		panic(new_IllegalArgumentException_String(objstr_(value.box_())).self())
 	}
 	if String_indexOf(this.namespace_, 46) == -1 {
 		return this.makeVarDeclNode(value)
@@ -605,7 +621,9 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) makeVarDeclNode(valu
 	if !this.hasCandidateDefinition() {
 		decl.setJSDocInfo(NodeUtil_createConstantJsDoc())
 	}
-	Preconditions_checkState(ProcessClosureProvidesAndRequires_isNamespacePlaceholder(decl))
+	if !ProcessClosureProvidesAndRequires_isNamespacePlaceholder(decl) {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.setSourceInfo(decl)
 	return decl
 }
@@ -617,7 +635,9 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) makeAssignmentExprNo
 	if !this.hasCandidateDefinition() {
 		decl.getFirstChild().setJSDocInfo(NodeUtil_createConstantJsDoc())
 	}
-	Preconditions_checkState(ProcessClosureProvidesAndRequires_isNamespacePlaceholder(decl))
+	if !ProcessClosureProvidesAndRequires_isNamespacePlaceholder(decl) {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.setSourceInfo(decl)
 	lhs.getFirstChild().makeNonIndexableRecursive()
 	return decl

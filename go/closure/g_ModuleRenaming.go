@@ -49,7 +49,11 @@ func ModuleRenaming_getNameRootType(qname string, globalTypedScope *TypedScope) 
 		return nil
 	}
 	var root string = NodeUtil_getRootOfQualifiedNameString(qname)
-	return Preconditions_checkNotNull_Object_String_Object_T(globalTypedScope.getVar_String_rTypedVar(root), "missing var for %s", root).getType()
+	nn_ := globalTypedScope.getVar_String_rTypedVar(root)
+	if nn_ == nil {
+		panic(new_NullPointerException_String(Strings_lenientFormat("missing var for %s", []any{root})).self())
+	}
+	return nn_.getType()
 }
 
 func ModuleRenaming_getGlobalNameForJsDoc(moduleMap *ModuleMap, binding *Binding, propertyChain ListOf[string]) Optional[string] {
@@ -100,7 +104,9 @@ func (this *ModuleRenaming_GlobalizedModuleName) toQname(astFactory *AstFactory)
 }
 
 func (this *ModuleRenaming_GlobalizedModuleName) getprop(property string) *ModuleRenaming_GlobalizedModuleName {
-	Preconditions_checkArgument((!String_isEmpty(property) && !JString_contains_s(property, ".")))
+	if String_isEmpty(property) || JString_contains_s(property, ".") {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	return ModuleRenaming_GlobalizedModuleName_create_QualifiedName_JSType(this.aliasName().getprop(property), this.rootNameType())
 }
 
@@ -109,7 +115,9 @@ func ModuleRenaming_GlobalizedModuleName_create_QualifiedName_JSType(aliasName *
 }
 
 func ModuleRenaming_GlobalizedModuleName_create_ModuleMetadata_Optional_TypedScope(moduleMetadata *ModuleMetadataMap_ModuleMetadata, googNamespace Optional[string], globalTypedScope *TypedScope) *ModuleRenaming_GlobalizedModuleName {
-	Preconditions_checkState((googNamespace.isEmpty() || moduleMetadata.googNamespaces().contains_s(googNamespace.get())))
+	if !googNamespace.isEmpty() && !moduleMetadata.googNamespaces().contains_s(googNamespace.get()) {
+		panic(new_IllegalStateException_0().self())
+	}
 	switch moduleMetadata.moduleType() {
 	case ModuleMetadataMap_ModuleType_GOOG_MODULE:
 		var moduleBody Node = moduleMetadata.rootNode().getFirstChild()

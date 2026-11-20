@@ -63,8 +63,12 @@ func (this *SimpleMultiset) add_s(element string) bool {
 }
 
 func (this *SimpleMultiset) add_2(element any, occurrences int32) int32 {
-	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
-	Preconditions_checkArgument((occurrences >= 0))
+	if this.frozen {
+		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+	}
+	if occurrences < 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var oldCount int32 = this.count(element)
 	if occurrences > 0 {
 		this.counts.put(element, int32((oldCount + occurrences)))
@@ -75,8 +79,12 @@ func (this *SimpleMultiset) add_2(element any, occurrences int32) int32 {
 
 // add_2_s is add_2 for a string key that is not boxed (post-flip step strvar).
 func (this *SimpleMultiset) add_2_s(element string, occurrences int32) int32 {
-	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
-	Preconditions_checkArgument((occurrences >= 0))
+	if this.frozen {
+		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+	}
+	if occurrences < 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var oldCount int32 = this.count_s(element)
 	if occurrences > 0 {
 		Map_put_s(this.counts, element, int32((oldCount + occurrences)))
@@ -94,8 +102,12 @@ func (this *SimpleMultiset) addAll(elements IterableOf[any]) {
 }
 
 func (this *SimpleMultiset) setCount(element any, expectedOldCount int32, newCount int32) bool {
-	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
-	Preconditions_checkArgument(((expectedOldCount >= 0) && (newCount >= 0)))
+	if this.frozen {
+		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+	}
+	if expectedOldCount < 0 || newCount < 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if this.count(element) != expectedOldCount {
 		return false
 	}
@@ -110,8 +122,12 @@ func (this *SimpleMultiset) setCount(element any, expectedOldCount int32, newCou
 
 // setCount_s is setCount for a string key that is not boxed (post-flip step strvar).
 func (this *SimpleMultiset) setCount_s(element string, expectedOldCount int32, newCount int32) bool {
-	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
-	Preconditions_checkArgument(((expectedOldCount >= 0) && (newCount >= 0)))
+	if this.frozen {
+		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+	}
+	if expectedOldCount < 0 || newCount < 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if this.count_s(element) != expectedOldCount {
 		return false
 	}

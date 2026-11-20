@@ -348,14 +348,16 @@ func new_PhaseOptimizer_Loop(outer_ *PhaseOptimizer) *PhaseOptimizer_Loop {
 func (this *PhaseOptimizer_Loop) addLoopedPass(factory *PassFactory) {
 	var name string = factory.getName()
 	if this.myNames.contains(name) {
-		Preconditions_checkArgument_boolean_String_Object(false, "Already a pass with name '%s' in this loop", name)
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Already a pass with name '%s' in this loop", []any{name})).self())
 	}
 	this.myNames.add(name)
 	this.myPasses.add(new_PhaseOptimizer_NamedPass(this.outer_, factory))
 }
 
 func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
-	Preconditions_checkState_boolean_Object(!this.outer_.inLoop_, "Nested loops are forbidden")
+	if this.outer_.inLoop_ {
+		panic(new_IllegalStateException_String(objstr_("Nested loops are forbidden")).self())
+	}
 	this.outer_.inLoop_ = true
 	this.isCodeRemovalLoopField = this.isCodeRemovalLoop()
 	this.scopeHandler = new_PhaseOptimizer_ScopedChangeHandler(this.outer_)
@@ -420,7 +422,9 @@ func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
 					return 1
 				}
 			} else {
-				Preconditions_checkState((state == PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER))
+				if state != PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER {
+					panic(new_IllegalStateException_0().self())
+				}
 				if !lastIterMadeChanges || !this.isAstSufficientlyChanging(previousAstSize, astSize) {
 					state = PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER
 				}

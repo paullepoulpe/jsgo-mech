@@ -64,7 +64,9 @@ func (this *FunctionTypeBuilder) finit_FunctionTypeBuilder() {
 
 func (this *FunctionTypeBuilder) init_FunctionTypeBuilder(fnName Optional[string], compiler *AbstractCompiler, errorRoot Node, scope *TypedScope) {
 	this.finit_FunctionTypeBuilder()
-	Preconditions_checkNotNull_T(errorRoot)
+	if errorRoot == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	this.fnName = fnName.orElse("")
 	this.codingConvention = compiler.getCodingConvention()
 	this.typeRegistry = compiler.getTypeRegistry()
@@ -353,7 +355,10 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 				isVarArgs = true
 				paramLhs = param.getOnlyChild()
 			} else if param.isDefaultValue() {
-				paramLhs = Preconditions_checkNotNull_Object_Object_T(param.getFirstChild(), param.box_())
+				paramLhs = param.getFirstChild()
+				if paramLhs == 0 {
+					panic(new_NullPointerException_String(objstr_(param.box_())).self())
+				}
 				isOptionalParam = true
 			} else {
 				isVarArgs = this.isVarArgsParameterByConvention(param)
@@ -364,7 +369,9 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 			if paramLhs.isName() {
 				paramName = Optional_of[string](paramLhs.getString())
 			} else {
-				Preconditions_checkState(paramLhs.isDestructuringPattern())
+				if !paramLhs.isDestructuringPattern() {
+					panic(new_IllegalStateException_0().self())
+				}
 				if info != nil {
 					paramName = info.getParameterNameAt(paramIndex)
 				}
@@ -604,7 +611,9 @@ func (this *FunctionTypeBuilder) provideDefaultReturnType() {
 func (this *FunctionTypeBuilder) buildAndRegister() *FunctionType {
 	if this.returnType == nil {
 		this.provideDefaultReturnType()
-		Preconditions_checkNotNull_T(this.returnType)
+		if this.returnType == nil {
+			panic(new_NullPointerException_0().self())
+		}
 	}
 	if this.parameters == nil {
 		panic(new_IllegalStateException_String("All Function types must have params and a return type").self())
@@ -714,7 +723,9 @@ func FunctionTypeBuilder_isFunctionTypeDeclaration(info *JSDocInfo) bool {
 }
 
 func FunctionTypeBuilder_hasMoreTagsToResolve(objectType *ObjectType) bool {
-	Preconditions_checkArgument(objectType.isUnknownType())
+	if !objectType.isUnknownType() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var ctor *FunctionType = objectType.getConstructor()
 	if ctor != nil {
 		it_1 := ctor.getExtendedInterfaces().each()

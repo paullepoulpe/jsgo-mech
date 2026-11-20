@@ -127,7 +127,10 @@ func (this *RefactoringDriver_Builder) addInputs(inputs IterableOf[*SourceFile_j
 }
 
 func (this *RefactoringDriver_Builder) withCompilerOptions(compilerOptions *CompilerOptions) *RefactoringDriver_Builder {
-	this.compilerOptions = Preconditions_checkNotNull_T(compilerOptions)
+	if compilerOptions == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.compilerOptions = compilerOptions
 	return this
 }
 

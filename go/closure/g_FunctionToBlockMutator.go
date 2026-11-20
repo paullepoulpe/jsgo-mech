@@ -9,7 +9,10 @@ type FunctionToBlockMutator struct {
 }
 
 func (this *FunctionToBlockMutator) init_FunctionToBlockMutator(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string]) {
-	this.compiler_ = Preconditions_checkNotNull_T(compiler)
+	if compiler == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.compiler_ = compiler
 	this.safeNameIdSupplier_ = safeNameIdSupplier
 	this.functionArgumentInjector_ = new_FunctionArgumentInjector(compiler.getAstAnalyzer())
 }
@@ -47,14 +50,18 @@ func (this *FunctionToBlockMutator) mutateInternal(fnName string, fnNode Node, c
 	newBlock.detach()
 	if hasArgs {
 		var inlineResult Node = this.aliasAndInlineArguments(newBlock, args, allNamesToAlias)
-		Preconditions_checkState((newBlock == inlineResult))
+		if newBlock != inlineResult {
+			panic(new_IllegalStateException_0().self())
+		}
 	}
 	if isCallInLoop {
 		FunctionToBlockMutator_fixUninitializedVarDeclarations_Node_Node(newBlock, newBlock)
 	}
 	var labelName string = this.getLabelNameForFunction(fnName)
 	var injectableBlock Node = FunctionToBlockMutator_replaceReturns(newBlock, resultName, labelName, needsDefaultResult)
-	Preconditions_checkState((injectableBlock != 0))
+	if injectableBlock == 0 {
+		panic(new_IllegalStateException_0().self())
+	}
 	return injectableBlock
 }
 
@@ -191,7 +198,9 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 			replacements.put(entry.getKey(), entry.getValue().arg())
 		}
 		var result Node = this.functionArgumentInjector_.inject(this.compiler_, fnTemplateRoot, 0, replacements)
-		Preconditions_checkState((result == fnTemplateRoot))
+		if result != fnTemplateRoot {
+			panic(new_IllegalStateException_0().self())
+		}
 		return result
 	} else {
 		var paramReplacements *JTMap[string, Node] = jnewTMap_(jtc_string, jtc_Node)
@@ -226,7 +235,9 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 			}
 		}
 		var result Node = this.functionArgumentInjector_.inject(this.compiler_, fnTemplateRoot, 0, paramReplacements)
-		Preconditions_checkState((result == fnTemplateRoot))
+		if result != fnTemplateRoot {
+			panic(new_IllegalStateException_0().self())
+		}
 		it_5 := newAliasesToAdd.each()
 		for it_5.next() {
 			var n Node = it_5.v
@@ -238,7 +249,9 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 }
 
 func FunctionToBlockMutator_replaceReturns(block Node, resultName Optional[string], labelName string, resultMustBeSet bool) Node {
-	Preconditions_checkNotNull_T(block)
+	if block == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	var root Node = block
 	var hasReturnAtExit bool = false
 	var returnCount int32 = NodeUtil_getNodeTypeReferenceCount(block, Token_rhino_RETURN, new_NodeUtil_MatchShallowStatement())
@@ -264,7 +277,9 @@ func FunctionToBlockMutator_replaceReturns(block Node, resultName Optional[strin
 }
 
 func FunctionToBlockMutator_addDummyAssignment(node Node, resultName string) {
-	Preconditions_checkArgument(node.isBlock())
+	if !node.isBlock() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var srcLocation Node = node
 	var retVal Node = NodeUtil_newUndefinedNode(srcLocation)
 	var resultNode Node = FunctionToBlockMutator_createAssignStatementNode(resultName, retVal)
@@ -274,7 +289,9 @@ func FunctionToBlockMutator_addDummyAssignment(node Node, resultName string) {
 
 func FunctionToBlockMutator_convertLastReturnToStatement(block Node, resultName Optional[string]) {
 	var ret Node = block.getLastChild()
-	Preconditions_checkArgument(ret.isReturn())
+	if !ret.isReturn() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var resultNode Node = FunctionToBlockMutator_getReplacementReturnStatement(ret, resultName)
 	if resultNode == 0 {
 		ret.detach()
@@ -319,7 +336,9 @@ func FunctionToBlockMutator_replaceReturnWithBreak(current Node, parent Node, re
 		return current
 	}
 	if current.isReturn() {
-		Preconditions_checkState(NodeUtil_isStatementBlock(parent))
+		if !NodeUtil_isStatementBlock(parent) {
+			panic(new_IllegalStateException_0().self())
+		}
 		var resultNode Node = FunctionToBlockMutator_getReplacementReturnStatement(current, resultName)
 		var breakNode Node = IR_breakNode_Node(IR_labelName(labelName))
 		breakNode.srcrefTreeIfMissing(current)

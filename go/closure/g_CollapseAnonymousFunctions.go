@@ -16,7 +16,9 @@ func (this *CollapseAnonymousFunctions) up_NodeTraversal_AbstractPostOrderCallba
 
 func (this *CollapseAnonymousFunctions) init_CollapseAnonymousFunctions(compiler *AbstractCompiler) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
-	Preconditions_checkArgument(compiler.getLifeCycleStage().isNormalized())
+	if !compiler.getLifeCycleStage().isNormalized() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	this.compiler_ = compiler
 }
 

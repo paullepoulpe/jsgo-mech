@@ -18,7 +18,9 @@ func new_DevirtualizeMethods(compiler *AbstractCompiler) *DevirtualizeMethods {
 }
 
 func (this *DevirtualizeMethods) process_3(externs Node, root Node, refMap *OptimizeCalls_ReferenceMap) {
-	Preconditions_checkState_boolean_Object((this.refMap == nil), "`process` should only be called once.")
+	if this.refMap != nil {
+		panic(new_IllegalStateException_String(objstr_("`process` should only be called once.")).self())
+	}
 	this.refMap = refMap
 	it_1 := foreach_(refMap.getPropReferences())
 	for it_1.next() {
@@ -94,7 +96,7 @@ func (this *DevirtualizeMethods) isPrototypeOrStaticMethodDefinition(node Node) 
 			return false
 		case tokOrd1_STRING_KEY:
 			if !parent.isObjectLit() {
-				Preconditions_checkArgument_boolean_Object_H(false, parent)
+				panic(new_IllegalArgumentException_String(objstr_(parent.box_())).self())
 			}
 			return (DevirtualizeMethods_isPrototypeObjectLit(parent) && node.getFirstChild().isFunction())
 		default:
@@ -106,7 +108,7 @@ func (this *DevirtualizeMethods) isPrototypeOrStaticMethodDefinition(node Node) 
 
 func DevirtualizeMethods_isPrototypeObjectLit(objectLit Node) bool {
 	if !objectLit.isObjectLit() {
-		Preconditions_checkArgument_boolean_Object_H(false, objectLit)
+		panic(new_IllegalArgumentException_String(objstr_(objectLit.box_())).self())
 	}
 	var parent Node = objectLit.getParent()
 	return (objectLit.isSecondChildOf(parent) && NodeUtil_isPrototypeAssignment(parent.getFirstChild()))
@@ -184,7 +186,7 @@ func (this *DevirtualizeMethods) isEligibleDefinitionSite(name string, definitio
 
 func (this *DevirtualizeMethods) isEligibleDefinitionFunction(definitionFunction Node) bool {
 	if !definitionFunction.isFunction() {
-		Preconditions_checkArgument_boolean_Object_H(false, definitionFunction)
+		panic(new_IllegalArgumentException_String(objstr_(definitionFunction.box_())).self())
 	}
 	if definitionFunction.isArrowFunction() {
 		return false
@@ -232,7 +234,7 @@ func (this *DevirtualizeMethods) allDefinitionsEquivalent(definitions Collection
 	}
 	var definition Node = Node_of_(Iterables_get(Iterable(definitions), 0))
 	if !definition.isFunction() {
-		Preconditions_checkArgument_boolean_Object_H(false, definition)
+		panic(new_IllegalArgumentException_String(objstr_(definition.box_())).self())
 	}
 	it_1 := foreach_(definitions)
 	for it_1.next() {
@@ -246,11 +248,11 @@ func (this *DevirtualizeMethods) allDefinitionsEquivalent(definitions Collection
 
 func (this *DevirtualizeMethods) rewriteCall(getprop Node, newMethodName string, isConstantName bool) {
 	if !getprop.isGetProp() {
-		Preconditions_checkArgument_boolean_Object_H(false, getprop)
+		panic(new_IllegalArgumentException_String(objstr_(getprop.box_())).self())
 	}
 	var call Node = getprop.getParent()
 	if !call.isCall() {
-		Preconditions_checkArgument_boolean_Object_H(false, call)
+		panic(new_IllegalArgumentException_String(objstr_(call.box_())).self())
 	}
 	var receiver Node = getprop.getFirstChild()
 	receiver.detach()
@@ -353,7 +355,7 @@ func DevirtualizeMethods_isScopingOrBranchingConstruct(node Node) bool {
 
 func DevirtualizeMethods_localNameIsDeclaredByClass(clazz Node) bool {
 	if !clazz.isClass() {
-		Preconditions_checkArgument_boolean_Object_H(false, clazz)
+		panic(new_IllegalArgumentException_String(objstr_(clazz.box_())).self())
 	}
 	if clazz.getFirstChild().isEmpty() {
 		return false

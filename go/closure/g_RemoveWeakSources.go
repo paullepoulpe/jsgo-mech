@@ -20,7 +20,9 @@ func (this *RemoveWeakSources) process_2(externs Node, root Node) {
 	{
 		var script Node = root.getFirstChild()
 		for ; script != 0; script = script.getNext() {
-			Preconditions_checkState(script.isScript())
+			if !script.isScript() {
+				panic(new_IllegalStateException_0().self())
+			}
 			if script.getStaticSourceFile().isWeak() {
 				NodeUtil_deleteChildren(script, this.compiler_)
 			}
