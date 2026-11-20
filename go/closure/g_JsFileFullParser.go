@@ -90,11 +90,11 @@ type JsFileFullParser_FileInfo struct {
 	importedModules   *JTSet[string]
 	dynamicRequires   *JTSet[string]
 	readToggles_      *JTSet[string]
-	provides          *SimpleMultiset
-	requires          *SimpleMultiset
-	typeRequires      *SimpleMultiset
-	maybeRequires     *SimpleMultiset
-	loadFlags_        *SimpleSetMultimap
+	provides          *SimpleMultiset[any]
+	requires          *SimpleMultiset[any]
+	typeRequires      *SimpleMultiset[any]
+	maybeRequires     *SimpleMultiset[any]
+	loadFlags_        *SimpleSetMultimap[any, any]
 	parsed            *ParserRunner_ParseResult
 }
 
@@ -106,11 +106,11 @@ func (this *JsFileFullParser_FileInfo) finit_JsFileFullParser_FileInfo() {
 	this.importedModules = jnewTSet_(jtc_string)
 	this.dynamicRequires = jnewTSet_(jtc_string)
 	this.readToggles_ = jnewTSet_(jtc_string)
-	this.provides = SimpleMultiset_createSorted()
-	this.requires = SimpleMultiset_createSorted()
-	this.typeRequires = SimpleMultiset_createSorted()
-	this.maybeRequires = SimpleMultiset_createSorted()
-	this.loadFlags_ = SimpleSetMultimap_createSorted()
+	this.provides = SimpleMultiset_createSorted[any]()
+	this.requires = SimpleMultiset_createSorted[any]()
+	this.typeRequires = SimpleMultiset_createSorted[any]()
+	this.maybeRequires = SimpleMultiset_createSorted[any]()
+	this.loadFlags_ = SimpleSetMultimap_createSorted[any, any]()
 	this.parsed = nil
 }
 

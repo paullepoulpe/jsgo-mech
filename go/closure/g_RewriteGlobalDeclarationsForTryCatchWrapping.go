@@ -4,12 +4,12 @@ package closure
 
 type RewriteGlobalDeclarationsForTryCatchWrapping struct {
 	compiler_ *AbstractCompiler
-	functions *SimpleListMultimap
+	functions *SimpleListMultimap[*JSChunk, Node]
 	classes   *JTList[Node]
 }
 
 func (this *RewriteGlobalDeclarationsForTryCatchWrapping) finit_RewriteGlobalDeclarationsForTryCatchWrapping() {
-	this.functions = SimpleListMultimap_create()
+	this.functions = SimpleListMultimap_create[*JSChunk, Node]()
 	this.classes = jnewTList_(jtc_Node)
 }
 
@@ -65,7 +65,7 @@ func (this *RewriteGlobalDeclarationsForTryCatchWrapping) visit(t *NodeTraversal
 		return
 	}
 	if NodeUtil_isFunctionDeclaration(n) {
-		this.functions.put(obj_(t.getChunk()), n.box_())
+		this.functions.put(t.getChunk(), n)
 	}
 	if NodeUtil_isClassDeclaration(n) {
 		this.classes.add(n)

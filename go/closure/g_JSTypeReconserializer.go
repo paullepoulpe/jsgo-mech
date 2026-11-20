@@ -13,14 +13,14 @@ type JSTypeReconserializer struct {
 	topFunctionRecord           *JSTypeReconserializer_SeenTypeRecord
 	typeToRecordCache           *LinkedIdentityHashMap[*JSType, *JSTypeReconserializer_SeenTypeRecord]
 	seenTypeRecords             *JTMap[*ColorId, *JSTypeReconserializer_SeenTypeRecord]
-	disambiguateEdges           *SimpleSetMultimap
+	disambiguateEdges           *SimpleSetMultimap[any, any]
 	state                       JSTypeReconserializer_State
 }
 
 func (this *JSTypeReconserializer) finit_JSTypeReconserializer() {
 	this.typeToRecordCache = new_LinkedIdentityHashMap[*JSType, *JSTypeReconserializer_SeenTypeRecord]()
 	this.seenTypeRecords = jnewTMap_(tce_p_ColorId, jtc_p_JSTypeReconserializer_SeenTypeRecord)
-	this.disambiguateEdges = SimpleSetMultimap_createInsertionOrdered()
+	this.disambiguateEdges = SimpleSetMultimap_createInsertionOrdered[any, any]()
 	this.state = JSTypeReconserializer_State_COLLECTING_TYPES
 }
 
@@ -325,14 +325,14 @@ func (this *JSTypeReconserializer) generateTypePool() *TypePool {
 	return cast_[*TypePool](builder.build())
 }
 
-func (this *JSTypeReconserializer) getColorIdToJSTypeMapForDebugging() *SimpleListMultimap {
-	var unordered *SimpleListMultimap = SimpleListMultimap_create()
+func (this *JSTypeReconserializer) getColorIdToJSTypeMapForDebugging() *SimpleListMultimap[string, any] {
+	var unordered *SimpleListMultimap[string, *JSType] = SimpleListMultimap_create[string, *JSType]()
 	this.typeToRecordCache.forEach(&BiConsumer_tfn_any_JSTypeReconserializer_SeenTypeRecord{func(jstype_ any, record *JSTypeReconserializer_SeenTypeRecord) {
 		var jstype *JSType = to_JSType(jstype_)
 		_ = jstype
-		unordered.put_s(record.colorId.toString(), jstype.self())
+		unordered.put_s(record.colorId.toString(), jstype)
 	}})
-	var colorIdToTypes *SimpleListMultimap = SimpleListMultimap_create()
+	var colorIdToTypes *SimpleListMultimap[string, any] = SimpleListMultimap_create[string, any]()
 	for _, el := range immElems_(ImmutableList_sortedCopyOf_Iterable(Iterable(unordered.keySet()))) {
 		colorId := str_(el)
 		colorIdToTypes.putAll_s(colorId, Iterable(unordered.get_s(colorId)))

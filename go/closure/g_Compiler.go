@@ -24,7 +24,7 @@ type Compiler struct {
 	allowableFeatures              *FeatureSet
 	inputsById                     MapOf[*InputId, *CompilerInput]
 	scriptNodeByFilename           MapOf[string, Node]
-	hoistedExternsByChunk          *SimpleSetMultimap
+	hoistedExternsByChunk          *SimpleSetMultimap[*JSChunk, *CompilerInput]
 	inputPathByWebpackId           *JTMap[string, string]
 	transpilationNamespace         StaticScope
 	runtimeJsLibManager            *RuntimeJsLibManager
@@ -102,7 +102,7 @@ func (this *Compiler) finit_Compiler() {
 	this.lastJsSource = Optional_empty[string]()
 	this.inputsById = Map(new_ConcurrentHashMap())
 	this.scriptNodeByFilename = Map(new_ConcurrentHashMap())
-	this.hoistedExternsByChunk = SimpleSetMultimap_createInsertionOrdered()
+	this.hoistedExternsByChunk = SimpleSetMultimap_createInsertionOrdered[*JSChunk, *CompilerInput]()
 	this.sourceMapOriginalSources = new_ConcurrentHashMap()
 	this.inputSourceMaps = new_ConcurrentHashMap()
 	this.commentsPerFile = Map(new_ConcurrentHashMap())
@@ -1144,7 +1144,7 @@ func (this *Compiler) getCurrentJsSource() string {
 		}
 	}
 	if !qnameSet.isEmpty() {
-		var originalToNewQNameMap *SimpleSetMultimap = SimpleSetMultimap_createInsertionOrdered()
+		var originalToNewQNameMap *SimpleSetMultimap[string, string] = SimpleSetMultimap_createInsertionOrdered[string, string]()
 		var statements *JTList[Node] = this.getTopLevelStatements(this.jsRoot)
 		builder.append("//\n")
 		builder.append("// closure-compiler: Printing all of the top-level statements\n")
@@ -1175,7 +1175,7 @@ func (this *Compiler) getCurrentJsSource() string {
 				}
 				var originalQname string = n.getOriginalQualifiedName()
 				if originalQname != "" && qnameSet.contains(originalQname) {
-					originalToNewQNameMap.put_s(originalQname, strobj_(qname))
+					originalToNewQNameMap.put_s(originalQname, qname)
 					return true
 				} else {
 					return false
@@ -1776,7 +1776,7 @@ func (this *Compiler) hoistIfExtern(input *CompilerInput) bool {
 		Map_put_s(this.scriptNodeByFilename, input.getSourceFile().getName(), root.box_())
 		var chunk *JSChunk = input.getChunk()
 		if chunk != nil {
-			this.hoistedExternsByChunk.put(obj_(chunk), obj_(input))
+			this.hoistedExternsByChunk.put(chunk, input)
 			chunk.remove(input)
 		}
 		this.externs.add(input)

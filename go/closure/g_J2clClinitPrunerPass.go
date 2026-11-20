@@ -35,7 +35,7 @@ func (this *J2clClinitPrunerPass) process_2(externs Node, root Node) {
 	if this.emptiedClinitMethods.isEmpty() {
 		return
 	}
-	var clinitReferences *SimpleSetMultimap = this.collectClinitReferences(root)
+	var clinitReferences *SimpleSetMultimap[string, Node] = this.collectClinitReferences(root)
 	for do_2 := true; do_2; do_2 = !this.emptiedClinitMethods.isEmpty() {
 		var newChangedScopes *JTList[Node] = this.cleanEmptyClinitReferences(clinitReferences)
 		this.pruneEmptyClinits(root, newChangedScopes.asList())
@@ -85,13 +85,13 @@ func (this *J2clClinitPrunerPass) resolveReplacement(node Node) Node {
 	}()
 }
 
-func (this *J2clClinitPrunerPass) collectClinitReferences(root Node) *SimpleSetMultimap {
-	var clinitReferences *SimpleSetMultimap = SimpleSetMultimap_createInsertionOrdered()
+func (this *J2clClinitPrunerPass) collectClinitReferences(root Node) *SimpleSetMultimap[string, Node] {
+	var clinitReferences *SimpleSetMultimap[string, Node] = SimpleSetMultimap_createInsertionOrdered[string, Node]()
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_J2clClinitPrunerPass_1(this, clinitReferences)))
 	return clinitReferences
 }
 
-func (this *J2clClinitPrunerPass) cleanEmptyClinitReferences(clinitReferences *SimpleSetMultimap) *JTList[Node] {
+func (this *J2clClinitPrunerPass) cleanEmptyClinitReferences(clinitReferences *SimpleSetMultimap[string, Node]) *JTList[Node] {
 	var newChangedScopes *JTList[Node] = jnewTList_(jtc_Node)
 	it_1 := this.emptiedClinitMethods.eachEntry()
 	for it_1.next() {
@@ -107,7 +107,7 @@ func (this *J2clClinitPrunerPass) cleanEmptyClinitReferences(clinitReferences *S
 				replacement = replacement.cloneTree()
 				reference.replaceWith(replacement)
 				this.compiler_.reportChangeToChangeScope(changedScope)
-				clinitReferences.put_s(J2clClinitPrunerPass_getClinitMethodName(replacement).orElse(nullstr_), replacement.box_())
+				clinitReferences.put_s(J2clClinitPrunerPass_getClinitMethodName(replacement).orElse(nullstr_), replacement)
 			}
 			newChangedScopes.add(changedScope)
 		}
@@ -428,7 +428,7 @@ func (this *J2clClinitPrunerPass_HierarchicalSet[T]) parentsContains(o T) bool {
 type J2clClinitPrunerPass_1 struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_               *J2clClinitPrunerPass
-	cap_clinitReferences *SimpleSetMultimap
+	cap_clinitReferences *SimpleSetMultimap[string, Node]
 }
 
 func (this *J2clClinitPrunerPass_1) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -442,7 +442,7 @@ func (this *J2clClinitPrunerPass_1) init_J2clClinitPrunerPass_1() {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 }
 
-func new_J2clClinitPrunerPass_1(outer_ *J2clClinitPrunerPass, cap_clinitReferences *SimpleSetMultimap) *J2clClinitPrunerPass_1 {
+func new_J2clClinitPrunerPass_1(outer_ *J2clClinitPrunerPass, cap_clinitReferences *SimpleSetMultimap[string, Node]) *J2clClinitPrunerPass_1 {
 	this := &J2clClinitPrunerPass_1{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -454,7 +454,7 @@ func new_J2clClinitPrunerPass_1(outer_ *J2clClinitPrunerPass, cap_clinitReferenc
 func (this *J2clClinitPrunerPass_1) visit_impl(t *NodeTraversal, node Node, parent Node) {
 	var clinitName Optional[string] = J2clClinitPrunerPass_getClinitMethodName(node)
 	if clinitName.isPresent() {
-		this.cap_clinitReferences.put_s(clinitName.get(), node.box_())
+		this.cap_clinitReferences.put_s(clinitName.get(), node)
 	}
 }
 

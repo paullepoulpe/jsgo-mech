@@ -313,13 +313,13 @@ func PolyfillUsageFinder_Polyfill_Kind_clinit() {
 }
 
 type PolyfillUsageFinder_Polyfills struct {
-	methods         *SimpleListMultimap
+	methods         *SimpleListMultimap[string, *PolyfillUsageFinder_Polyfill]
 	statics         *JTMap[string, *PolyfillUsageFinder_Polyfill]
 	suffixes        *JTSet[string]
-	byNativeVersion *SimpleListMultimap
+	byNativeVersion *SimpleListMultimap[string, *PolyfillUsageFinder_Polyfill]
 }
 
-func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(methods *SimpleListMultimap, statics *JTMap[string, *PolyfillUsageFinder_Polyfill], byNativeVersion *SimpleListMultimap) {
+func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(methods *SimpleListMultimap[string, *PolyfillUsageFinder_Polyfill], statics *JTMap[string, *PolyfillUsageFinder_Polyfill], byNativeVersion *SimpleListMultimap[string, *PolyfillUsageFinder_Polyfill]) {
 	this.methods = methods
 	this.statics = statics
 	this.byNativeVersion = byNativeVersion
@@ -332,16 +332,16 @@ func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(me
 	this.suffixes = jimmutableSetCopyOf_(jtc_string, Collection(suffixList.asList()))
 }
 
-func new_PolyfillUsageFinder_Polyfills(methods *SimpleListMultimap, statics *JTMap[string, *PolyfillUsageFinder_Polyfill], byNativeVersion *SimpleListMultimap) *PolyfillUsageFinder_Polyfills {
+func new_PolyfillUsageFinder_Polyfills(methods *SimpleListMultimap[string, *PolyfillUsageFinder_Polyfill], statics *JTMap[string, *PolyfillUsageFinder_Polyfill], byNativeVersion *SimpleListMultimap[string, *PolyfillUsageFinder_Polyfill]) *PolyfillUsageFinder_Polyfills {
 	this := &PolyfillUsageFinder_Polyfills{}
 	this.init_PolyfillUsageFinder_Polyfills(methods, statics, byNativeVersion)
 	return this
 }
 
 func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_Polyfills {
-	var methods *SimpleListMultimap = SimpleListMultimap_create()
+	var methods *SimpleListMultimap[string, *PolyfillUsageFinder_Polyfill] = SimpleListMultimap_create[string, *PolyfillUsageFinder_Polyfill]()
 	var statics *TMapBuilder[string, *PolyfillUsageFinder_Polyfill] = newTMapBuilder_(jtc_string, jtc_p_PolyfillUsageFinder_Polyfill)
-	var byNativeVersion *SimpleListMultimap = SimpleListMultimap_create()
+	var byNativeVersion *SimpleListMultimap[string, *PolyfillUsageFinder_Polyfill] = SimpleListMultimap_create[string, *PolyfillUsageFinder_Polyfill]()
 	for line := range elemsBy_(Splitter_on('\n').omitEmptyStrings().split_s(table), str_) {
 		var tokens *JTList[string] = splitToListT_(jtc_string, Splitter_on(' ').omitEmptyStrings(), strobj_(strings.Trim(line, javaSpace_)))
 		if (tokens.size() == 1) && tokens.get(0) == "" {
@@ -365,11 +365,11 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 			return PolyfillUsageFinder_Polyfill_Kind_STATIC
 		}())
 		if isPrototypeMethod {
-			methods.put_s(PolyfillUsageFinder_PROTOTYPE_PREFIX_PATTERN.matcher_s(symbol).replaceAll(""), obj_(polyfill))
+			methods.put_s(PolyfillUsageFinder_PROTOTYPE_PREFIX_PATTERN.matcher_s(symbol).replaceAll(""), polyfill)
 		} else {
 			statics.put(symbol, polyfill)
 		}
-		byNativeVersion.put_s(nativeVersionStr, obj_(polyfill))
+		byNativeVersion.put_s(nativeVersionStr, polyfill)
 	}
 	return new_PolyfillUsageFinder_Polyfills(methods.immutableCopy(), statics.buildOrThrow(), byNativeVersion.immutableCopy())
 }

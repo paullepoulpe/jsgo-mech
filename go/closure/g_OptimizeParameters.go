@@ -249,10 +249,10 @@ func OptimizeParameters_mayReferenceParamBeforeBody(function Node) bool {
 	if !paramList.hasChildren() {
 		return false
 	}
-	var namesByNames *SimpleListMultimap = SimpleListMultimap_create()
+	var namesByNames *SimpleListMultimap[string, Node] = SimpleListMultimap_create[string, Node]()
 	NodeUtil_visitPostOrder_Node_Visitor(paramList, func(n Node) {
 		if n.isName() {
-			namesByNames.put_s(n.getString(), n.box_())
+			namesByNames.put_s(n.getString(), n)
 		}
 	})
 	it_1 := foreach_(namesByNames.asMap().values())
@@ -307,7 +307,7 @@ func (this *OptimizeParameters) tryEliminateConstantArgs(refs ArrayListOf[Node])
 	if parameters == nil {
 		return
 	}
-	var fns *SimpleListMultimap = OptimizeCalls_ReferenceMap_getFunctionNodes(icast_List(refs.self()))
+	var fns *SimpleListMultimap[Node, any] = OptimizeCalls_ReferenceMap_getFunctionNodes(icast_List(refs.self()))
 	if fns.size() > 1 {
 		return
 	}
@@ -720,7 +720,7 @@ func new_OptimizeParameters_UnusedParameterOptimizer(outer_ *OptimizeParameters)
 }
 
 func (this *OptimizeParameters_UnusedParameterOptimizer) tryEliminateUnusedArgs(refs ArrayListOf[Node]) {
-	var fns *SimpleListMultimap = OptimizeCalls_ReferenceMap_getFunctionNodes(icast_List(refs.self()))
+	var fns *SimpleListMultimap[Node, any] = OptimizeCalls_ReferenceMap_getFunctionNodes(icast_List(refs.self()))
 	if fns.isEmpty() {
 		panic(new_IllegalStateException_0().self())
 	}

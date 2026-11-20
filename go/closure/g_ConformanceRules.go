@@ -986,7 +986,7 @@ var lambda_ConformanceRules_BannedName_clinit_1_ = &CheckConformance_Preconditio
 type ConformanceRules_BannedProperty struct {
 	ConformanceRules_AbstractRule
 	registry                *JSTypeRegistry
-	props                   *SimpleSetMultimap
+	props                   *SimpleSetMultimap[string, *JSType]
 	requirementPrecondition ConformanceRules_BannedProperty_RequirementPrecondition
 }
 
@@ -1047,7 +1047,7 @@ func (this *ConformanceRules_BannedProperty) initBannedProperty(compiler *Abstra
 		}
 	}()
 	this.registry = compiler.getTypeRegistry()
-	var builder *SimpleSetMultimap = SimpleSetMultimap_create()
+	var builder *SimpleSetMultimap[string, *JSType] = SimpleSetMultimap_create[string, *JSType]()
 	it_2 := foreach_(ProtocolStringList(requirement.getValueList()))
 	for it_2.next() {
 		var value string = str_(it_2.v)
@@ -1063,7 +1063,7 @@ func (this *ConformanceRules_BannedProperty) initBannedProperty(compiler *Abstra
 		if ((type_ == nil) || type_.isUnknownType()) || type_.isEmptyType() {
 			continue
 		}
-		builder.put_s(property.get(), type_.self())
+		builder.put_s(property.get(), type_)
 	}
 	this.props = builder.immutableCopy()
 	return Outcome_base_ok_0()
@@ -3424,7 +3424,7 @@ func (this *ConformanceRules_BanCreateDom) isCreateDomCall(n Node) bool {
 	return false
 }
 
-var ConformanceRules_BanCreateDom_ELEMENT_TAG_NAMES *SimpleListMultimap
+var ConformanceRules_BanCreateDom_ELEMENT_TAG_NAMES *SimpleListMultimap[any, any]
 
 var ConformanceRules_BanCreateDom_clinit_done bool
 
@@ -3433,7 +3433,7 @@ func ConformanceRules_BanCreateDom_clinit() {
 		return
 	}
 	ConformanceRules_BanCreateDom_clinit_done = true
-	ConformanceRules_BanCreateDom_ELEMENT_TAG_NAMES = SimpleListMultimap_create().put("HTMLAnchorElement", "a").put("HTMLAppletElement", "applet").put("HTMLAreaElement", "area").put("HTMLAudioElement", "audio").put("HTMLBRElement", "br").put("HTMLBaseElement", "base").put("HTMLBaseFontElement", "basefont").put("HTMLBodyElement", "body").put("HTMLButtonElement", "button").put("HTMLCanvasElement", "canvas").put("HTMLDListElement", "dl").put("HTMLDataListElement", "datalist").put("HTMLDetailsElement", "details").put("HTMLDialogElement", "dialog").put("HTMLDirectoryElement", "dir").put("HTMLDivElement", "div").put("HTMLEmbedElement", "embed").put("HTMLFieldSetElement", "fieldset").put("HTMLFontElement", "font").put("HTMLFormElement", "form").put("HTMLFrameElement", "frame").put("HTMLFrameSetElement", "frameset").put("HTMLHRElement", "hr").put("HTMLHeadElement", "head").put("HTMLHeadingElement", "h1").put("HTMLHeadingElement", "h2").put("HTMLHeadingElement", "h3").put("HTMLHeadingElement", "h4").put("HTMLHeadingElement", "h5").put("HTMLHeadingElement", "h6").put("HTMLHtmlElement", "html").put("HTMLIFrameElement", "iframe").put("HTMLImageElement", "img").put("HTMLInputElement", "input").put("HTMLIsIndexElement", "isindex").put("HTMLLIElement", "li").put("HTMLLabelElement", "label").put("HTMLLegendElement", "legend").put("HTMLLinkElement", "link").put("HTMLMapElement", "map").put("HTMLMenuElement", "menu").put("HTMLMetaElement", "meta").put("HTMLMeterElement", "meter").put("HTMLModElement", "del").put("HTMLModElement", "ins").put("HTMLOListElement", "ol").put("HTMLObjectElement", "object").put("HTMLOptGroupElement", "optgroup").put("HTMLOptionElement", "option").put("HTMLOutputElement", "output").put("HTMLParagraphElement", "p").put("HTMLParamElement", "param").put("HTMLPreElement", "pre").put("HTMLProgressElement", "progress").put("HTMLQuoteElement", "blockquote").put("HTMLQuoteElement", "q").put("HTMLScriptElement", "script").put("HTMLSelectElement", "select").put("HTMLSourceElement", "source").put("HTMLSpanElement", "span").put("HTMLStyleElement", "style").put("HTMLTableCaptionElement", "caption").put("HTMLTableCellElement", "td").put("HTMLTableCellElement", "th").put("HTMLTableColElement", "col").put("HTMLTableColElement", "colgroup").put("HTMLTableElement", "table").put("HTMLTableRowElement", "tr").put("HTMLTableSectionElement", "tbody").put("HTMLTableSectionElement", "tfoot").put("HTMLTableSectionElement", "thead").put("HTMLTemplateElement", "template").put("HTMLTextAreaElement", "textarea").put("HTMLTitleElement", "title").put("HTMLTrackElement", "track").put("HTMLUListElement", "ul").put("HTMLVideoElement", "video").immutableCopy()
+	ConformanceRules_BanCreateDom_ELEMENT_TAG_NAMES = SimpleListMultimap_create[any, any]().put("HTMLAnchorElement", "a").put("HTMLAppletElement", "applet").put("HTMLAreaElement", "area").put("HTMLAudioElement", "audio").put("HTMLBRElement", "br").put("HTMLBaseElement", "base").put("HTMLBaseFontElement", "basefont").put("HTMLBodyElement", "body").put("HTMLButtonElement", "button").put("HTMLCanvasElement", "canvas").put("HTMLDListElement", "dl").put("HTMLDataListElement", "datalist").put("HTMLDetailsElement", "details").put("HTMLDialogElement", "dialog").put("HTMLDirectoryElement", "dir").put("HTMLDivElement", "div").put("HTMLEmbedElement", "embed").put("HTMLFieldSetElement", "fieldset").put("HTMLFontElement", "font").put("HTMLFormElement", "form").put("HTMLFrameElement", "frame").put("HTMLFrameSetElement", "frameset").put("HTMLHRElement", "hr").put("HTMLHeadElement", "head").put("HTMLHeadingElement", "h1").put("HTMLHeadingElement", "h2").put("HTMLHeadingElement", "h3").put("HTMLHeadingElement", "h4").put("HTMLHeadingElement", "h5").put("HTMLHeadingElement", "h6").put("HTMLHtmlElement", "html").put("HTMLIFrameElement", "iframe").put("HTMLImageElement", "img").put("HTMLInputElement", "input").put("HTMLIsIndexElement", "isindex").put("HTMLLIElement", "li").put("HTMLLabelElement", "label").put("HTMLLegendElement", "legend").put("HTMLLinkElement", "link").put("HTMLMapElement", "map").put("HTMLMenuElement", "menu").put("HTMLMetaElement", "meta").put("HTMLMeterElement", "meter").put("HTMLModElement", "del").put("HTMLModElement", "ins").put("HTMLOListElement", "ol").put("HTMLObjectElement", "object").put("HTMLOptGroupElement", "optgroup").put("HTMLOptionElement", "option").put("HTMLOutputElement", "output").put("HTMLParagraphElement", "p").put("HTMLParamElement", "param").put("HTMLPreElement", "pre").put("HTMLProgressElement", "progress").put("HTMLQuoteElement", "blockquote").put("HTMLQuoteElement", "q").put("HTMLScriptElement", "script").put("HTMLSelectElement", "select").put("HTMLSourceElement", "source").put("HTMLSpanElement", "span").put("HTMLStyleElement", "style").put("HTMLTableCaptionElement", "caption").put("HTMLTableCellElement", "td").put("HTMLTableCellElement", "th").put("HTMLTableColElement", "col").put("HTMLTableColElement", "colgroup").put("HTMLTableElement", "table").put("HTMLTableRowElement", "tr").put("HTMLTableSectionElement", "tbody").put("HTMLTableSectionElement", "tfoot").put("HTMLTableSectionElement", "thead").put("HTMLTemplateElement", "template").put("HTMLTextAreaElement", "textarea").put("HTMLTitleElement", "title").put("HTMLTrackElement", "track").put("HTMLUListElement", "ul").put("HTMLVideoElement", "video").immutableCopy()
 
 }
 

@@ -2,83 +2,84 @@
 
 package closure
 
-type SimpleMultiset struct {
+type SimpleMultiset[E comparable] struct {
 	counts     MapOf[any, BoxedOf[int32]]
 	totalCount int32
 	frozen     bool
 }
 
-func (this *SimpleMultiset) finit_SimpleMultiset() {
+func (this *SimpleMultiset[E]) finit_SimpleMultiset() {
 	this.totalCount = 0
 	this.frozen = false
 }
 
-func (this *SimpleMultiset) init_SimpleMultiset(counts MapOf[any, BoxedOf[int32]]) {
+func (this *SimpleMultiset[E]) init_SimpleMultiset(counts MapOf[any, BoxedOf[int32]]) {
 	this.finit_SimpleMultiset()
 	this.counts = counts
 }
 
-func new_SimpleMultiset(counts MapOf[any, BoxedOf[int32]]) *SimpleMultiset {
-	this := &SimpleMultiset{}
+func new_SimpleMultiset[E comparable](counts MapOf[any, BoxedOf[int32]]) *SimpleMultiset[E] {
+	this := &SimpleMultiset[E]{}
 	this.init_SimpleMultiset(counts)
 	return this
 }
 
-func SimpleMultiset_create() *SimpleMultiset {
-	return new_SimpleMultiset(Map(new_LinkedHashMap()))
+func SimpleMultiset_create[E comparable]() *SimpleMultiset[E] {
+	return new_SimpleMultiset[E](Map(new_LinkedHashMap()))
 }
 
-func SimpleMultiset_createSorted() *SimpleMultiset {
-	return new_SimpleMultiset(Map(new_TreeMap()))
+func SimpleMultiset_createSorted[E comparable]() *SimpleMultiset[E] {
+	return new_SimpleMultiset[E](Map(new_TreeMap()))
 }
 
-func SimpleMultiset_of() *SimpleMultiset {
-	return SimpleMultiset_create().immutableCopy()
+func SimpleMultiset_of[E comparable]() *SimpleMultiset[E] {
+	return SimpleMultiset_create[E]().immutableCopy()
 }
 
-func SimpleMultiset_copyOf(elements IterableOf[any]) *SimpleMultiset {
-	var copy_ *SimpleMultiset = SimpleMultiset_create()
+func SimpleMultiset_copyOf[E comparable](elements IterableOf[any]) *SimpleMultiset[E] {
+	var copy_ *SimpleMultiset[E] = SimpleMultiset_create[E]()
 	copy_.addAll(elements)
 	copy_.frozen = true
 	return copy_
 }
 
-func (this *SimpleMultiset) immutableCopy() *SimpleMultiset {
-	var copy_ *SimpleMultiset = SimpleMultiset_create()
+func (this *SimpleMultiset[E]) immutableCopy() *SimpleMultiset[E] {
+	var copy_ *SimpleMultiset[E] = SimpleMultiset_create[E]()
 	copy_.counts.putAll(this.counts)
 	copy_.totalCount = this.totalCount
 	copy_.frozen = true
 	return copy_
 }
 
-func (this *SimpleMultiset) add(element any) bool {
+func (this *SimpleMultiset[E]) add(element E) bool {
 	this.add_2(element, 1)
 	return true
 }
 
 // add_s is add for a string key that is not boxed (post-flip step strvar).
-func (this *SimpleMultiset) add_s(element string) bool {
+func (this *SimpleMultiset[E]) add_s(element string) bool {
 	this.add_2_s(element, 1)
 	return true
 }
 
-func (this *SimpleMultiset) add_2(element any, occurrences int32) int32 {
+func (this *SimpleMultiset[E]) add_2(element E, occurrences int32) int32 {
+	elementBox_ := boxNull_(element)
 	if this.frozen {
 		panic(new_IllegalStateException_String(objstr_("immutable")).self())
 	}
 	if occurrences < 0 {
 		panic(new_IllegalArgumentException_0().self())
 	}
-	var oldCount int32 = this.count(element)
+	var oldCount int32 = this.count(elementBox_)
 	if occurrences > 0 {
-		this.counts.put(element, int32((oldCount + occurrences)))
+		this.counts.put(elementBox_, int32((oldCount + occurrences)))
 		this.totalCount += occurrences
 	}
 	return oldCount
 }
 
 // add_2_s is add_2 for a string key that is not boxed (post-flip step strvar).
-func (this *SimpleMultiset) add_2_s(element string, occurrences int32) int32 {
+func (this *SimpleMultiset[E]) add_2_s(element string, occurrences int32) int32 {
 	if this.frozen {
 		panic(new_IllegalStateException_String(objstr_("immutable")).self())
 	}
@@ -93,33 +94,34 @@ func (this *SimpleMultiset) add_2_s(element string, occurrences int32) int32 {
 	return oldCount
 }
 
-func (this *SimpleMultiset) addAll(elements IterableOf[any]) {
+func (this *SimpleMultiset[E]) addAll(elements IterableOf[any]) {
 	for element := range elems_(elements) {
-		this.add_2(element, 1)
+		this.add_2(unboxT_[E](element), 1)
 	}
 }
 
-func (this *SimpleMultiset) setCount(element any, expectedOldCount int32, newCount int32) bool {
+func (this *SimpleMultiset[E]) setCount(element E, expectedOldCount int32, newCount int32) bool {
+	elementBox_ := boxNull_(element)
 	if this.frozen {
 		panic(new_IllegalStateException_String(objstr_("immutable")).self())
 	}
 	if expectedOldCount < 0 || newCount < 0 {
 		panic(new_IllegalArgumentException_0().self())
 	}
-	if this.count(element) != expectedOldCount {
+	if this.count(elementBox_) != expectedOldCount {
 		return false
 	}
 	if newCount == 0 {
-		this.counts.remove(element)
+		this.counts.remove(elementBox_)
 	} else {
-		this.counts.put(element, int32(newCount))
+		this.counts.put(elementBox_, int32(newCount))
 	}
 	this.totalCount += (newCount - expectedOldCount)
 	return true
 }
 
 // setCount_s is setCount for a string key that is not boxed (post-flip step strvar).
-func (this *SimpleMultiset) setCount_s(element string, expectedOldCount int32, newCount int32) bool {
+func (this *SimpleMultiset[E]) setCount_s(element string, expectedOldCount int32, newCount int32) bool {
 	if this.frozen {
 		panic(new_IllegalStateException_String(objstr_("immutable")).self())
 	}
@@ -138,24 +140,24 @@ func (this *SimpleMultiset) setCount_s(element string, expectedOldCount int32, n
 	return true
 }
 
-func (this *SimpleMultiset) remove(element any) bool {
-	var oldCount int32 = this.count(element)
+func (this *SimpleMultiset[E]) remove(element E) bool {
+	var oldCount int32 = this.count(boxNull_(element))
 	return ((oldCount > 0) && this.setCount(element, oldCount, (oldCount-1)))
 }
 
-func (this *SimpleMultiset) removeAll(elements IterableOf[any]) bool {
+func (this *SimpleMultiset[E]) removeAll(elements IterableOf[any]) bool {
 	var changed bool = false
 	for element := range elems_(elements) {
 		var oldCount int32 = this.count(element)
 		if oldCount > 0 {
-			this.setCount(element, oldCount, 0)
+			this.setCount(unboxT_[E](element), oldCount, 0)
 			changed = true
 		}
 	}
 	return changed
 }
 
-func (this *SimpleMultiset) count(element any) int32 {
+func (this *SimpleMultiset[E]) count(element any) int32 {
 	var count any = this.counts.get(element)
 	return func() int32 {
 		if count == nil {
@@ -166,7 +168,7 @@ func (this *SimpleMultiset) count(element any) int32 {
 }
 
 // count_s is count for a string key that is not boxed (post-flip step strvar).
-func (this *SimpleMultiset) count_s(element string) int32 {
+func (this *SimpleMultiset[E]) count_s(element string) int32 {
 	var count any = Map_get_s(this.counts, element)
 	return func() int32 {
 		if count == nil {
@@ -176,32 +178,32 @@ func (this *SimpleMultiset) count_s(element string) int32 {
 	}()
 }
 
-func (this *SimpleMultiset) contains(element any) bool {
+func (this *SimpleMultiset[E]) contains(element any) bool {
 	return this.counts.containsKey(element)
 }
 
 // contains_s is contains for a string key that is not boxed (post-flip step strvar).
-func (this *SimpleMultiset) contains_s(element string) bool {
+func (this *SimpleMultiset[E]) contains_s(element string) bool {
 	return Map_containsKey_s(this.counts, element)
 }
 
-func (this *SimpleMultiset) elementSet() SetOf[any] {
+func (this *SimpleMultiset[E]) elementSet() SetOf[any] {
 	return Collections_unmodifiableSet(this.counts.keySet())
 }
 
-func (this *SimpleMultiset) entrySet() SetOf[Map_EntryOf[any, BoxedOf[int32]]] {
+func (this *SimpleMultiset[E]) entrySet() SetOf[Map_EntryOf[any, BoxedOf[int32]]] {
 	return Collections_unmodifiableMap(this.counts).entrySet()
 }
 
-func (this *SimpleMultiset) size() int32 {
+func (this *SimpleMultiset[E]) size() int32 {
 	return this.totalCount
 }
 
-func (this *SimpleMultiset) isEmpty() bool {
+func (this *SimpleMultiset[E]) isEmpty() bool {
 	return (this.totalCount == 0)
 }
 
-func (this *SimpleMultiset) asList() *JTList[any] {
+func (this *SimpleMultiset[E]) asList() *JTList[any] {
 	var list *TListBuilder[any] = newTListBuilder_(tc_Object)
 	for e := range elemsBy_(this.counts.entrySet(), icast_Map_Entry) {
 		for i := int32(0); i < unbox_[int32](e.getValue()); i++ {
@@ -211,16 +213,16 @@ func (this *SimpleMultiset) asList() *JTList[any] {
 	return list.build()
 }
 
-func (this *SimpleMultiset) iterator() IteratorOf[any] {
+func (this *SimpleMultiset[E]) iterator() IteratorOf[any] {
 	return this.asList().iterator()
 }
 
-func (this *SimpleMultiset) equals(o any) bool {
-	var that *SimpleMultiset
+func (this *SimpleMultiset[E]) equals(o any) bool {
+	var that *SimpleMultiset[any]
 	_ = that
 	return (func() bool {
 		v_ := o
-		p, ok := v_.(*SimpleMultiset)
+		p, ok := v_.(*SimpleMultiset[any])
 		if !ok {
 			return false
 		}
@@ -229,11 +231,11 @@ func (this *SimpleMultiset) equals(o any) bool {
 	}() && equalsDyn_(this.counts, that.counts))
 }
 
-func (this *SimpleMultiset) hashCode() int32 {
+func (this *SimpleMultiset[E]) hashCode() int32 {
 	return hashDyn_(this.counts)
 }
 
-func (this *SimpleMultiset) toString() string {
+func (this *SimpleMultiset[E]) toString() string {
 	var parts *JTList[string] = jnewTList_(jtc_string)
 	for e := range elemsBy_(this.counts.entrySet(), icast_Map_Entry) {
 		var element string = objstr_(e.getKey())

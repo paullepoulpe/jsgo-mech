@@ -2,107 +2,110 @@
 
 package closure
 
-type SimpleBiMap struct {
+type SimpleBiMap[K, V comparable] struct {
 	forward  LinkedHashMapOf[any, any]
 	backward LinkedHashMapOf[any, any]
 }
 
-func (this *SimpleBiMap) finit_SimpleBiMap() {
+func (this *SimpleBiMap[K, V]) finit_SimpleBiMap() {
 	this.forward = new_LinkedHashMap()
 	this.backward = new_LinkedHashMap()
 }
 
-func (this *SimpleBiMap) init_SimpleBiMap() {
+func (this *SimpleBiMap[K, V]) init_SimpleBiMap() {
 	this.finit_SimpleBiMap()
 }
 
-func new_SimpleBiMap() *SimpleBiMap {
-	this := &SimpleBiMap{}
+func new_SimpleBiMap[K, V comparable]() *SimpleBiMap[K, V] {
+	this := &SimpleBiMap[K, V]{}
 	this.init_SimpleBiMap()
 	return this
 }
 
-func SimpleBiMap_create() *SimpleBiMap {
-	return new_SimpleBiMap()
+func SimpleBiMap_create[K, V comparable]() *SimpleBiMap[K, V] {
+	return new_SimpleBiMap[K, V]()
 }
 
-func SimpleBiMap_copyOf(map_ MapOf[any, any]) *SimpleBiMap {
-	var copy_ *SimpleBiMap = new_SimpleBiMap()
+func SimpleBiMap_copyOf[K, V comparable](map_ MapOf[any, any]) *SimpleBiMap[K, V] {
+	var copy_ *SimpleBiMap[K, V] = new_SimpleBiMap[K, V]()
 	for e := range elemsBy_(map_.entrySet(), icast_Map_Entry) {
-		copy_.put(e.getKey(), e.getValue())
+		copy_.put(unboxT_[K](e.getKey()), unboxT_[V](e.getValue()))
 	}
 	return copy_
 }
 
-func (this *SimpleBiMap) put(key any, value any) any {
-	var hadKey bool = this.forward.containsKey(key)
-	var oldValue any = this.forward.get(key)
-	if hadKey && Objects_equals(oldValue, value) {
-		return oldValue
+func (this *SimpleBiMap[K, V]) put(key K, value V) V {
+	keyBox_ := boxNull_(key)
+	valueBox_ := boxNull_(value)
+	var hadKey bool = this.forward.containsKey(keyBox_)
+	var oldValue any = this.forward.get(keyBox_)
+	if hadKey && Objects_equals(oldValue, valueBox_) {
+		return unboxT_[V](oldValue)
 	}
-	if this.backward.containsKey(value) {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("value already present: %s", []any{value})).self())
+	if this.backward.containsKey(valueBox_) {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("value already present: %s", []any{valueBox_})).self())
 	}
-	this.forward.put(key, value)
+	this.forward.put(keyBox_, valueBox_)
 	if hadKey {
 		this.backward.clear()
 		for e := range elemsBy_(this.forward.entrySet(), icast_Map_Entry) {
 			this.backward.put(e.getValue(), e.getKey())
 		}
 	} else {
-		this.backward.put(value, key)
+		this.backward.put(valueBox_, keyBox_)
 	}
-	return oldValue
+	return unboxT_[V](oldValue)
 }
 
 // put_s is put for a string key that is not boxed (post-flip step strvar).
-func (this *SimpleBiMap) put_s(key string, value any) any {
+func (this *SimpleBiMap[K, V]) put_s(key string, value V) V {
+	valueBox_ := boxNull_(value)
 	var hadKey bool = Map_containsKey_s(this.forward, key)
 	var oldValue any = Map_get_s(this.forward, key)
-	if hadKey && Objects_equals(oldValue, value) {
-		return oldValue
+	if hadKey && Objects_equals(oldValue, valueBox_) {
+		return unboxT_[V](oldValue)
 	}
-	if this.backward.containsKey(value) {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("value already present: %s", []any{value})).self())
+	if this.backward.containsKey(valueBox_) {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("value already present: %s", []any{valueBox_})).self())
 	}
-	Map_put_s(this.forward, key, value)
+	Map_put_s(this.forward, key, valueBox_)
 	if hadKey {
 		this.backward.clear()
 		for e := range elemsBy_(this.forward.entrySet(), icast_Map_Entry) {
 			this.backward.put(e.getValue(), e.getKey())
 		}
 	} else {
-		this.backward.put(value, strobj_(key))
+		this.backward.put(valueBox_, strobj_(key))
 	}
-	return oldValue
+	return unboxT_[V](oldValue)
 }
 
-func (this *SimpleBiMap) get(key any) any {
-	return this.forward.get(key)
+func (this *SimpleBiMap[K, V]) get(key any) V {
+	return unboxT_[V](this.forward.get(key))
 }
 
 // get_s is get for a string key that is not boxed (post-flip step strvar).
-func (this *SimpleBiMap) get_s(key string) any {
-	return Map_get_s(this.forward, key)
+func (this *SimpleBiMap[K, V]) get_s(key string) V {
+	return unboxT_[V](Map_get_s(this.forward, key))
 }
 
-func (this *SimpleBiMap) clear() {
+func (this *SimpleBiMap[K, V]) clear() {
 	this.forward.clear()
 	this.backward.clear()
 }
 
-func (this *SimpleBiMap) keySet() SetOf[any] {
+func (this *SimpleBiMap[K, V]) keySet() SetOf[any] {
 	return Collections_unmodifiableSet(this.forward.keySet())
 }
 
-func (this *SimpleBiMap) asMap() MapOf[any, any] {
+func (this *SimpleBiMap[K, V]) asMap() MapOf[any, any] {
 	return Collections_unmodifiableMap(LinkedHashMap_as_Map(this.forward))
 }
 
-func (this *SimpleBiMap) inverse() MapOf[any, any] {
+func (this *SimpleBiMap[K, V]) inverse() MapOf[any, any] {
 	return Collections_unmodifiableMap(LinkedHashMap_as_Map(this.backward))
 }
 
-func (this *SimpleBiMap) toString() string {
+func (this *SimpleBiMap[K, V]) toString() string {
 	return tostrR_(this.forward)
 }
