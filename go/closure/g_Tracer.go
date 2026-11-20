@@ -18,7 +18,7 @@ func (this *Tracer) zero_Tracer() {
 func (this *Tracer) init_Tracer_Optional_Optional(type_ Optional[string], comment Optional[string]) {
 	this.type__ = type_
 	this.comment = comment.orElse("")
-	this.startTimeMs = Tracer_clock.currentTimeMillis()
+	this.startTimeMs = Tracer_clock()
 	this.startThread = Thread_currentThread()
 	if !Tracer_extraTracingStatistics.isEmpty() {
 		var size int32 = Tracer_extraTracingStatistics.size()
@@ -122,7 +122,7 @@ func (this *Tracer) stop_1(silenceThreshold int32) int64 {
 	if !trace.isInitialized() {
 		return 0
 	}
-	this.stopTimeMs = Tracer_clock.currentTimeMillis()
+	this.stopTimeMs = Tracer_clock()
 	if this.extraTracingValues != nil {
 		for i := int32(0); i < int32(len(this.extraTracingValues)); i++ {
 			var value int64 = icast_Tracer_TracingStatistic(Tracer_extraTracingStatistics.get(i)).stop(this.startThread)
@@ -267,7 +267,7 @@ var Tracer_extraTracingStatistics List
 
 const Tracer_MAX_TRACE_SIZE int32 = 1000
 
-var Tracer_clock Tracer_InternalClock
+var Tracer_clock func() int64
 var Tracer_typeToCountMap *Tracer_AtomicTracerStatMap
 var Tracer_typeToSilentMap *Tracer_AtomicTracerStatMap
 var Tracer_typeToTimeMap *Tracer_AtomicTracerStatMap
@@ -283,7 +283,7 @@ func Tracer_clinit() {
 	Tracer_clinit_done = true
 	Tracer_logger = Logger_getLogger(classOf_("com.google.javascript.jscomp.Tracer").getName())
 	Tracer_extraTracingStatistics = List(new_CopyOnWriteArrayList())
-	Tracer_clock = Tracer_InternalClock(new_Tracer_1())
+	Tracer_clock = new_Tracer_1().currentTimeMillis
 	Tracer_ZERO_STAT = new_Tracer_Stat()
 	Tracer_traces = new_ThreadLocal()
 
@@ -548,7 +548,7 @@ func (this *Tracer_ThreadTrace) toString() string {
 		}
 	}
 	if !this.outstandingEvents.isEmpty() {
-		var now int64 = Tracer_clock.currentTimeMillis()
+		var now int64 = Tracer_clock()
 		sb.append(" Unstopped timers:\n")
 		it_3 := this.outstandingEvents.each()
 		for it_3.next() {

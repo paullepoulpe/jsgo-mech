@@ -587,14 +587,14 @@ func (this *Es6NormalizeClasses) rewriteThisToThisDotSelf(fn Node) bool {
 		return false
 	}
 	var hasThis []bool = make([]bool, 1)
-	NodeUtil_visitPostOrder_Node_Visitor_Predicate(fnBody, &NodeUtil_Visitor_fn{func(n Node) {
+	NodeUtil_visitPostOrder_Node_Visitor_Predicate(fnBody, func(n Node) {
 		if n.isThis() {
 			hasThis[0] = true
 			var target Node = this.astFactory_.createGetPropWithUnknownType(this.astFactory_.createThis(AstFactory_typeColor(StandardColors_UNKNOWN)), "$self").srcref(n)
 			n.replaceWith(target)
 			this.compiler_.reportChangeToEnclosingScope(target)
 		}
-	}}, &Predicate_base_tfn_Node{func(n Node) bool {
+	}, &Predicate_base_tfn_Node{func(n Node) bool {
 		return (!n.isClass() && (!n.isFunction() || n.isArrowFunction()))
 	}})
 	return hasThis[0]
@@ -606,11 +606,11 @@ func (this *Es6NormalizeClasses) hasThisReference(fn Node) bool {
 		return false
 	}
 	var hasThis []bool = make([]bool, 1)
-	NodeUtil_visitPostOrder_Node_Visitor_Predicate(fnBody, &NodeUtil_Visitor_fn{func(n Node) {
+	NodeUtil_visitPostOrder_Node_Visitor_Predicate(fnBody, func(n Node) {
 		if n.isThis() {
 			hasThis[0] = true
 		}
-	}}, &Predicate_base_tfn_Node{func(n Node) bool {
+	}, &Predicate_base_tfn_Node{func(n Node) bool {
 		return (!n.isClass() && (!n.isFunction() || n.isArrowFunction()))
 	}})
 	return hasThis[0]
@@ -626,7 +626,7 @@ func (this *Es6NormalizeClasses) rewriteSuperReferencesInPrivateMember(memberNod
 		return
 	}
 	var isStatic bool = memberNode.isStaticMember()
-	NodeUtil_visitPostOrder_Node_Visitor_Predicate(fnBody, &NodeUtil_Visitor_fn{func(n Node) {
+	NodeUtil_visitPostOrder_Node_Visitor_Predicate(fnBody, func(n Node) {
 		if n.isSuper() {
 			var parent Node = n.getParent()
 			if parent.isGetProp() || parent.isGetElem() {
@@ -668,7 +668,7 @@ func (this *Es6NormalizeClasses) rewriteSuperReferencesInPrivateMember(memberNod
 				this.compiler_.reportChangeToEnclosingScope(fnBody)
 			}
 		}
-	}}, &Predicate_base_tfn_Node{func(n Node) bool {
+	}, &Predicate_base_tfn_Node{func(n Node) bool {
 		return !n.isClass()
 	}})
 }
@@ -915,9 +915,9 @@ func (this *Es6NormalizeClasses) convNonCompFieldToGetProp(receiver Node, noncom
 	if "__proto__" == propName {
 		return this.createFieldDefineProperty(noncomputedField, fieldValue, receiver, this.astFactory_.createString(propName))
 	}
-	return this.createFieldAssignment(noncomputedField, fieldValue, &Supplier_tfn_Node{func() Node {
+	return this.createFieldAssignment(noncomputedField, fieldValue, (&Supplier_tfn_Node{func() Node {
 		return this.astFactory_.createGetProp(receiver, propName, AstFactory_type_Node(noncomputedField))
-	}})
+	}}).get)
 }
 
 func (this *Es6NormalizeClasses) convCompFieldToGetElem(receiver Node, computedField Node, isStatic bool) Node {
@@ -940,27 +940,27 @@ func (this *Es6NormalizeClasses) convCompFieldToGetElem(receiver Node, computedF
 	if "__proto__" == NodeUtil_getStringValue(compFieldNameExpr).orElse("") {
 		return this.createFieldDefineProperty(computedField, fieldValue, receiver, compFieldNameExpr)
 	}
-	return this.createFieldAssignment(computedField, fieldValue, &Supplier_tfn_Node{func() Node {
+	return this.createFieldAssignment(computedField, fieldValue, (&Supplier_tfn_Node{func() Node {
 		return this.astFactory_.createGetElem(receiver, compFieldNameExpr)
-	}})
+	}}).get)
 }
 
 func (this *Es6NormalizeClasses) createFieldDefineProperty(field Node, fieldValue Node, receiver Node, keyNode Node) Node {
-	return this.createFieldInitializationStatement(field, fieldValue, &Function_tfn_Node_Node{func(val Node) Node {
+	return this.createFieldInitializationStatement(field, fieldValue, (&Function_tfn_Node_Node{func(val Node) Node {
 		var descriptor Node = this.astFactory_.createObjectLit([]Node{this.astFactory_.createStringKey("configurable", this.astFactory_.createBoolean(true)), this.astFactory_.createStringKey("enumerable", this.astFactory_.createBoolean(true)), this.astFactory_.createStringKey("writable", this.astFactory_.createBoolean(true)), this.astFactory_.createStringKey("value", val)})
 		var definePropertyCall Node = this.astFactory_.createCallWithUnknownType(this.createObjectDotDefineProperty(), []Node{receiver, keyNode, descriptor})
 		return this.astFactory_.exprResult(definePropertyCall)
 		panic("unreachable")
-	}})
+	}}).apply)
 }
 
-func (this *Es6NormalizeClasses) createFieldAssignment(field Node, fieldValue Node, createAssignLhs SupplierOf[Node]) Node {
-	return this.createFieldInitializationStatement(field, fieldValue, &Function_tfn_Node_Node{func(val Node) Node {
-		return this.astFactory_.createAssignStatement(Node_of_(createAssignLhs.get()), val)
-	}})
+func (this *Es6NormalizeClasses) createFieldAssignment(field Node, fieldValue Node, createAssignLhs func() any) Node {
+	return this.createFieldInitializationStatement(field, fieldValue, (&Function_tfn_Node_Node{func(val Node) Node {
+		return this.astFactory_.createAssignStatement(Node_of_(createAssignLhs()), val)
+	}}).apply)
 }
 
-func (this *Es6NormalizeClasses) createFieldInitializationStatement(field Node, fieldValue Node, createStatement FunctionOf[Node, Node]) Node {
+func (this *Es6NormalizeClasses) createFieldInitializationStatement(field Node, fieldValue Node, createStatement func(any) any) Node {
 	if this.transpileClassFields && !field.isPrivateIdentifier() {
 		field.detach()
 	}
@@ -972,7 +972,7 @@ func (this *Es6NormalizeClasses) createFieldInitializationStatement(field Node, 
 	} else {
 		fieldValue.detach()
 	}
-	var result Node = Node_of_(createStatement.apply(fieldValue.box_()))
+	var result Node = Node_of_(createStatement(fieldValue.box_()))
 	if this.transpileClassFields {
 		result.getFirstChild().setJSDocInfo(field.getJSDocInfo())
 	}
@@ -1081,9 +1081,9 @@ func (this *Es6NormalizeClasses) rewriteStaticMembers(t *NodeTraversal, record *
 	if !staticInitTempParent.hasChildren() {
 		return
 	}
-	if (!hasPriv && !NodeUtil_has(staticInitTempParent, &Predicate_base_tfn_Node{func(n Node) bool {
+	if (!hasPriv && !NodeUtil_has(staticInitTempParent, (&Predicate_base_tfn_Node{func(n Node) bool {
 		return (n.isSuper() || n.isPrivateIdentifier())
-	}}, &Predicate_base_tfn_Node{func(n Node) bool {
+	}}).apply, &Predicate_base_tfn_Node{func(n Node) bool {
 		return (!n.isClass() && (!n.isFunction() || n.isArrowFunction()))
 	}})) {
 		for staticInitTempParent.hasChildren() {
