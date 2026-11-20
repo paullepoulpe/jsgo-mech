@@ -6,20 +6,40 @@ import (
 	"unicode/utf8"
 )
 
-// strBuilder_ is a java.lang.StringBuilder that is only appended to and read whole (the
-// post-flip step sbuild gives it to local builders used only so): the bytes of the appended
-// strings in a strings.Builder, with no UTF-16 copy and no copy at toString.
+// strBuilder_ is a java.lang.StringBuilder held as the bytes of the appended strings in a
+// strings.Builder, with no UTF-16 copy and no copy at toString (the post-flip step sbuild gives
+// it to builders whose every use it has: locals, and the parameters, fields and results they
+// flow through).
 //
 // StringBuilder holds UTF-16 units, and toString encodes them again, pairing surrogates. For
 // strings that are valid UTF-8 (no lone surrogate, no stray byte) that is the concatenation
 // of their bytes. From the first string that is not, the builder continues as a StringBuilder
-// holding what was appended so far, so the result is StringBuilder's in every case.
+// holding what was appended so far, so the result is StringBuilder's in every case. It keeps
+// StringBuilder's UTF-16 semantics on the fast path: length counts UTF-16 units as they are
+// appended, and charAt reads a byte while everything is ASCII (and the last unit always); the
+// other reads by index and the changes in place (setCharAt, insert, delete, setLength to a
+// shorter non-zero length) continue as a StringBuilder too.
 //
-// It is a value: a local variable of this type is a builder, and is never copied.
+// A local variable of this type is a builder, and is never copied.
 type strBuilder_ struct {
 	b    strings.Builder
+	n16  int32          // the length in UTF-16 units
 	wide bool           // some appended character is not ASCII
 	slow *StringBuilder // the UTF-16 builder, from the first string that is not valid UTF-8
+}
+
+// strBuilderCap_ is new StringBuilder(n).
+func strBuilderCap_(n int32) *strBuilder_ {
+	b := &strBuilder_{}
+	b.grow(n)
+	return b
+}
+
+// strBuilderOf_ is new StringBuilder(s).
+func strBuilderOf_(s string) *strBuilder_ {
+	b := &strBuilder_{}
+	b.append(s)
+	return b
 }
 
 // toSlow continues the builder as a StringBuilder.
@@ -50,6 +70,9 @@ func (this *strBuilder_) append(s string) *strBuilder_ {
 			return this
 		}
 		this.wide = true
+		this.n16 += String_length(s)
+	} else {
+		this.n16 += int32(len(s))
 	}
 	this.b.WriteString(s)
 	return this
@@ -61,9 +84,11 @@ func (this *strBuilder_) append_char(c uint16) *strBuilder_ {
 		this.toSlow().appendUnit(c)
 	case c < 0x80:
 		this.b.WriteByte(byte(c))
+		this.n16++
 	default:
 		this.wide = true
 		this.b.WriteRune(rune(c))
+		this.n16++
 	}
 	return this
 }
@@ -83,7 +108,9 @@ func (this *strBuilder_) append_long(i int64) *strBuilder_ {
 		return this
 	}
 	var buf [20]byte
-	this.b.Write(strconv.AppendInt(buf[:0], i, 10))
+	d := strconv.AppendInt(buf[:0], i, 10)
+	this.b.Write(d)
+	this.n16 += int32(len(d))
 	return this
 }
 
@@ -102,26 +129,108 @@ func (this *strBuilder_) append_CharSequence(v any) *strBuilder_ {
 	return this.append(csString_(v))
 }
 
+func (this *strBuilder_) append_CharSequence_s(v string) *strBuilder_ { return this.append(v) }
+
 func (this *strBuilder_) append_CharSequence_int_int(v any, a int32, b int32) *strBuilder_ {
 	return this.append(String_substring(csString_(v), a, b))
 }
 
-// length is the number of UTF-16 units.
-func (this *strBuilder_) length() int32 {
-	switch {
-	case this.slow != nil:
-		return this.slow.length()
-	case !this.wide:
-		return int32(this.b.Len())
-	}
-	return String_length(this.b.String())
+func (this *strBuilder_) append_CharSequence_int_int_s(v string, a int32, b int32) *strBuilder_ {
+	return this.append(String_substring(csStr_(v), a, b))
 }
 
-func (this *strBuilder_) isEmpty() bool {
+func (this *strBuilder_) repeat(v any, n int32) *strBuilder_ {
+	return this.append(strings.Repeat(csString_(v), int(n)))
+}
+
+func (this *strBuilder_) repeat_int_int(cp int32, n int32) *strBuilder_ {
+	return this.append(strings.Repeat(cpString_(cp), int(n)))
+}
+
+// length is the number of UTF-16 units.
+func (this *strBuilder_) length() int32 {
 	if this.slow != nil {
-		return this.slow.isEmpty()
+		return this.slow.length()
 	}
-	return this.b.Len() == 0
+	return this.n16
+}
+
+func (this *strBuilder_) isEmpty() bool { return this.length() == 0 }
+
+// charAt is the UTF-16 unit at i: a byte while everything is ASCII; the last unit from the
+// last character; otherwise as a StringBuilder.
+func (this *strBuilder_) charAt(i int32) uint16 {
+	switch {
+	case this.slow != nil:
+		return this.slow.charAt(i)
+	case !this.wide:
+		return uint16(this.b.String()[i])
+	case i == this.n16-1:
+		r, _ := utf8.DecodeLastRuneInString(this.b.String())
+		if r >= 0x10000 {
+			return uint16(0xDC00 + (r-0x10000)&0x3FF)
+		}
+		return uint16(r)
+	}
+	return this.toSlow().charAt(i)
+}
+
+// setLength truncates or pads with '\0': setLength(0) empties the builder, a longer length
+// appends; a shorter non-zero length continues as a StringBuilder.
+func (this *strBuilder_) setLength(n int32) {
+	switch {
+	case this.slow != nil:
+		this.slow.setLength(n)
+	case n == 0:
+		this.b = strings.Builder{}
+		this.n16, this.wide = 0, false
+	case n > this.n16:
+		for this.n16 < n {
+			this.append_char(0)
+		}
+	case n < this.n16:
+		this.toSlow().setLength(n)
+	}
+}
+
+func (this *strBuilder_) setCharAt(i int32, c uint16) { this.toSlow().setCharAt(i, c) }
+
+func (this *strBuilder_) deleteCharAt(i int32) *strBuilder_ {
+	this.toSlow().deleteCharAt(i)
+	return this
+}
+
+func (this *strBuilder_) delete(a int32, b int32) *strBuilder_ {
+	this.toSlow().delete(a, b)
+	return this
+}
+
+func (this *strBuilder_) insert_int_String(i int32, s string) *strBuilder_ {
+	this.toSlow().insert_int_String(i, s)
+	return this
+}
+
+func (this *strBuilder_) insert(i int32, c uint16) *strBuilder_ {
+	this.toSlow().insert(i, c)
+	return this
+}
+
+func (this *strBuilder_) substring_int(a int32) string { return this.substring(a, this.length()) }
+
+func (this *strBuilder_) substring(a int32, b int32) string {
+	switch {
+	case this.slow != nil:
+		return this.slow.substring(a, b)
+	case !this.wide:
+		return this.b.String()[a:b]
+	}
+	return this.toSlow().substring(a, b)
+}
+
+func (this *strBuilder_) indexOf(s string) int32 { return String_indexOf_String(this.toString(), s) }
+
+func (this *strBuilder_) lastIndexOf(s string) int32 {
+	return String_lastIndexOf_String(this.toString(), s)
 }
 
 func (this *strBuilder_) toString() string {
@@ -129,4 +238,21 @@ func (this *strBuilder_) toString() string {
 		return this.slow.toString()
 	}
 	return this.b.String()
+}
+
+// appendToStr_ is Joiner.appendTo for a strBuilder_ (the step sbuild calls it for builders it
+// converts): the same appends.
+func (this *Joiner) appendToStr_(sb *strBuilder_, parts Iterable) *strBuilder_ {
+	if sb == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	it := parts.iterator()
+	if it.hasNext() {
+		sb.append(joinPart_(it.next()))
+		for it.hasNext() {
+			sb.append(this.sep_)
+			sb.append(joinPart_(it.next()))
+		}
+	}
+	return sb
 }
