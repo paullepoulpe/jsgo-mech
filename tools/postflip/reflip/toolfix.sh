@@ -813,3 +813,20 @@ reflip_edit tools/postflip/funcparams/main.go reflip22 <<'E22'
 		}
 	}
 E22
+# 23. (fourth flip, in bounds) exceptions: the translator's typed collection runtime (rt_jtimm.go, until step 402 unifies the
+#    families) panics with the value frozen_{} for a change to an immutable typed collection, and catch_ makes it Java's
+#    UnsupportedOperationException (rt_lang.go). The tool took it for a value of unknown class that every caller of a typed
+#    collection could throw and kept every catch clause such a call reaches ("it can throw a value of unknown class:
+#    computeIfAbsent: panic(frozen_{})"). The class is known (the third flip's tool fix 9cddf058 on reflip2-bridge).
+reflip_edit tools/postflip/exceptions/main.go reflip23 <<'E23'
+	if c, ok := x.(*ast.CallExpr); ok {
+		if id, ok := c.Fun.(*ast.Ident); ok {
+			if strings.HasPrefix(id.Name, "new_") {
+=====
+	if cl, ok := x.(*ast.CompositeLit); ok && len(cl.Elts) == 0 && rw.Text(cl.Type) == "frozen_" { // reflip23
+		return []string{"UnsupportedOperationException"}, true
+	}
+	if c, ok := x.(*ast.CallExpr); ok {
+		if id, ok := c.Fun.(*ast.Ident); ok {
+			if strings.HasPrefix(id.Name, "new_") {
+E23
