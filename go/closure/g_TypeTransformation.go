@@ -90,7 +90,7 @@ func (this *TypeTransformation) createUnionType(variants []*JSType) *JSType {
 }
 
 func (this *TypeTransformation) createRecordType(props *TMap[string, *JSType]) *JSType {
-	return this.registry.createRecordType(props.asMap())
+	return this.registry.createRecordType(props)
 }
 
 func (this *TypeTransformation) reportWarning(n Node, msg *DiagnosticType, param []string) {
@@ -501,7 +501,7 @@ func (this *TypeTransformation) evalRecord(record Node, nameResolver *TypeTransf
 			}
 		}
 	}
-	return this.registry.createRecordType(props.asMap())
+	return this.registry.createRecordType(props)
 }
 
 func (this *TypeTransformation) evalRecordParam(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {

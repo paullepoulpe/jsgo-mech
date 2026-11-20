@@ -227,7 +227,7 @@ func (this *CompilerInput) getDependencyInfo() DependencyInfo_ {
 		this.dependencyInfo = this.generateDependencyInfo()
 	}
 	if len(*this.extraRequires) != 0 || len(*this.extraProvides) != 0 {
-		this.dependencyInfo = SimpleDependencyInfo_as_DependencyInfo_(SimpleDependencyInfo_builder(this.getName(), Optional_of[string](this.getName())).setProvides(ImmutableSet_as_Collection(CompilerInput_concat(ImmutableList_as_Iterable(this.dependencyInfo.getProvides()), Iterable(slicePtrView_(tc_string, this.extraProvides))))).setRequires(ImmutableSet_as_Collection(CompilerInput_concat(ImmutableList_as_Iterable(this.dependencyInfo.getRequires()), Iterable(slicePtrView_(tc_p_DependencyInfo_Require, this.extraRequires))))).setTypeRequires(ImmutableList_as_Collection(this.dependencyInfo.getTypeRequires())).setLoadFlags(ImmutableMap_as_Map(this.dependencyInfo.getLoadFlags())).setHasExternsAnnotation(this.dependencyInfo.getHasExternsAnnotation()).setHasNoCompileAnnotation(this.dependencyInfo.getHasNoCompileAnnotation()).build())
+		this.dependencyInfo = SimpleDependencyInfo_as_DependencyInfo_(SimpleDependencyInfo_builder(this.getName(), Optional_of[string](this.getName())).setProvides(ImmutableSet_as_Collection(CompilerInput_concat(ImmutableList_as_Iterable(this.dependencyInfo.getProvides()), Iterable(slicePtrView_(tc_string, this.extraProvides))))).setRequires(ImmutableSet_as_Collection(CompilerInput_concat(ImmutableList_as_Iterable(this.dependencyInfo.getRequires()), Iterable(slicePtrView_(tc_p_DependencyInfo_Require, this.extraRequires))))).setTypeRequires(ImmutableList_as_Collection(this.dependencyInfo.getTypeRequires())).setLoadFlags(tmapFrom_(tc_string, tc_string, this.dependencyInfo.getLoadFlags(), true)).setHasExternsAnnotation(this.dependencyInfo.getHasExternsAnnotation()).setHasNoCompileAnnotation(this.dependencyInfo.getHasNoCompileAnnotation()).build())
 		sliceClear_(this.extraRequires)
 		sliceClear_(this.extraProvides)
 	}
@@ -253,7 +253,7 @@ func (this *CompilerInput) generateDependencyInfo() DependencyInfo_ {
 		}
 		finder.visitTree(root)
 		var info *JSDocInfo = root.getJSDocInfo()
-		return SimpleDependencyInfo_as_DependencyInfo_(SimpleDependencyInfo_builder("", Optional_of[string]("")).setProvides(Collection(finder.provides.asList())).setRequires(Collection(finder.requires.asList())).setTypeRequires(Collection(finder.typeRequires.asList())).setLoadFlags(finder.loadFlags_.asMap()).setHasExternsAnnotation(((info != nil) && info.isExterns())).setHasNoCompileAnnotation(((info != nil) && info.isNoCompile())).build())
+		return SimpleDependencyInfo_as_DependencyInfo_(SimpleDependencyInfo_builder("", Optional_of[string]("")).setProvides(Collection(finder.provides.asList())).setRequires(Collection(finder.requires.asList())).setTypeRequires(Collection(finder.typeRequires.asList())).setLoadFlags(finder.loadFlags_).setHasExternsAnnotation(((info != nil) && info.isExterns())).setHasNoCompileAnnotation(((info != nil) && info.isNoCompile())).build())
 	}
 }
 

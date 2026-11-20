@@ -357,7 +357,7 @@ func (this *JSTypeRegistry) initializeBuiltInTypes() {
 	this.registerNativeType(JSTypeNative_I_THENABLE_FUNCTION_TYPE, ithenableFunctionType.up_JSType())
 	var ithenableType *ObjectType = ithenableFunctionType.getInstanceType()
 	this.registerNativeType(JSTypeNative_I_THENABLE_TYPE, ithenableType.up_JSType())
-	var thenableType *JSType = this.createRecordType(ImmutableMap_as_Map(ImmutableMap_of_Object_Object("then", obj_(unknownType))))
+	var thenableType *JSType = this.createRecordType(immutableMapOf_(tc_string, tc_p_JSType, []string{str_("then")}, []*JSType{to_JSType(obj_(unknownType))}))
 	this.identifyNonNullableName(nil, "Thenable")
 	this.registerNativeType(JSTypeNative_THENABLE_TYPE, thenableType)
 	var promiseParameterType *JSType = this.createFunctionType(unknownType.up_JSType(), []*JSType{this.createFunctionTypeList(unknownType.up_JSType(), this.createOptionalParameters([]*JSType{this.createUnionType([]*JSType{this.promiseTemplateKey.up_JSType(), this.createTemplatizedType(ithenableType, []*JSType{this.promiseTemplateKey.up_JSType()}).up_JSType(), thenableType, nullType.up_JSType()})})).up_JSType(), this.createFunctionTypeList(unknownType.up_JSType(), this.createOptionalParameters([]*JSType{allType.up_JSType()})).up_JSType()}).up_JSType()
@@ -1139,13 +1139,13 @@ func (this *JSTypeRegistry) buildRecordTypeFromObject(objType *ObjectType) *JSTy
 	for propName := range elemsBy_(propNames, str_) {
 		props.put(propName, objType.getPropertyType(propName))
 	}
-	return this.createRecordType(props.buildOrThrow().asMap())
+	return this.createRecordType(props.buildOrThrow())
 }
 
-func (this *JSTypeRegistry) createRecordType(props MapOf[string, *JSType]) *JSType {
-	var propMap MapOf[string, *JSType] = props
+func (this *JSTypeRegistry) createRecordType(props *TMap[string, *JSType]) *JSType {
+	var propMap *TMap[string, *JSType] = props
 	var builder *RecordTypeBuilder = new_RecordTypeBuilder(this)
-	for e := range elemsBy_(propMap.entrySet(), icast_Map_Entry) {
+	for e := range elemsBy_(propMap.asMap().entrySet(), icast_Map_Entry) {
 		builder.addProperty(str_(e.getKey()), to_JSType(e.getValue()), 0)
 	}
 	return builder.build()

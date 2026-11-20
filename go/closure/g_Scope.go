@@ -6,7 +6,7 @@ type Scope struct {
 	AbstractScope
 	parent       *Scope
 	depth        int32
-	vars         MapOf[string, *Var]
+	vars         *TMap[string, *Var]
 	implicitVars MapOf[AbstractScope_ImplicitVar, *Var]
 }
 
@@ -18,7 +18,7 @@ func (this *Scope) up_AbstractScope() *AbstractScope {
 }
 
 func (this *Scope) finit_Scope() {
-	this.vars = ImmutableMap_as_Map(ImmutableMap_of())
+	this.vars = tmapEmptyImm_(tc_string, tc_p_Var)
 	this.implicitVars = ImmutableMap_as_Map(ImmutableMap_of())
 }
 
@@ -132,14 +132,14 @@ func (this *Scope) undeclare(var_ *Var) {
 	if var_.getScope_rAbstractScope_rScope() != this {
 		panic(new_IllegalStateException_0())
 	}
-	if !cast_[*Var](Map_get_s(this.vars, var_.getName())).equals_ScopedName(var_.up_ScopedName()) {
+	if !this.vars.Get(var_.getName()).equals_ScopedName(var_.up_ScopedName()) {
 		panic(new_IllegalStateException_0())
 	}
 	this.undeclareInteral(var_)
 }
 
 func (this *Scope) undeclareInteral(var_ *Var) {
-	Map_remove_s(this.vars, var_.getName())
+	this.vars.Delete(var_.getName())
 }
 
 func (this *Scope) declareInternal(name string, var_ *Var) {
@@ -147,20 +147,20 @@ func (this *Scope) declareInternal(name string, var_ *Var) {
 		Preconditions_checkState_boolean_String_Object_H(false, "Illegal shadow: %s", a1_)
 	}
 	var emptySentinel *TMap[string, *Var] = tmapEmptyImm_(tc_string, tc_p_Var)
-	if this.vars == emptySentinel.asMap() {
-		this.vars = LinkedHashMap_as_Map(Maps_newLinkedHashMapWithExpectedSize(1))
+	if this.vars == emptySentinel {
+		this.vars = newTMap_(tc_string, tc_p_Var)
 	}
-	Map_put_s(this.vars, name, obj_(var_))
+	this.vars.Put(name, var_)
 }
 
 func (this *Scope) clearVarsInternal_impl() {
-	if !this.vars.isEmpty() {
-		this.vars.clear()
+	if !this.vars.IsEmpty() {
+		this.vars.Clear()
 	}
 }
 
 func (this *Scope) hasOwnSlot_impl(name string) bool {
-	return (Map_containsKey_s(this.vars, name) || this.hasOwnImplicitSlot(AbstractScope_ImplicitVar_of(name)))
+	return (this.vars.Has(name) || this.hasOwnImplicitSlot(AbstractScope_ImplicitVar_of(name)))
 }
 
 func (this *Scope) hasSlot_impl(name string) bool {
@@ -187,7 +187,7 @@ func (this *Scope) getOwnImplicitSlot(name AbstractScope_ImplicitVar) *Var {
 }
 
 func (this *Scope) getOwnSlot_String_rAbstractVar_rVar(name string) *Var {
-	var var_ *Var = cast_[*Var](Map_get_s(this.vars, name))
+	var var_ *Var = this.vars.Get(name)
 	if var_ != nil {
 		return var_
 	}
@@ -234,7 +234,7 @@ func (this *Scope) isBleedingFunctionName(name string) bool {
 }
 
 func (this *Scope) getVarIterable_impl() IterableOf[*Var] {
-	return Iterable(this.vars.values())
+	return Iterable(this.vars.asMap().values())
 }
 
 func (this *Scope) getAllAccessibleVariables_impl() IterableOf[*Var] {
@@ -250,11 +250,11 @@ func (this *Scope) getAllAccessibleVariables_impl() IterableOf[*Var] {
 }
 
 func (this *Scope) getAllSymbols_impl() IterableOf[*Var] {
-	return Iterable(Collections_unmodifiableCollection(this.vars.values()))
+	return Iterable(Collections_unmodifiableCollection(this.vars.asMap().values()))
 }
 
 func (this *Scope) getVarCount_impl() int32 {
-	return this.vars.size()
+	return this.vars.Len()
 }
 
 func (this *Scope) getClosestHoistScope_rScope() *Scope {

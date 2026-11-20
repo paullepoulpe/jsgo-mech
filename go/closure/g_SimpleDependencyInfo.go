@@ -45,7 +45,7 @@ func (this *SimpleDependencyInfo) toString() string {
 }
 
 func SimpleDependencyInfo_builder(srcPathRelativeToClosure string, pathOfDefiningFile Optional[string]) *SimpleDependencyInfo_Builder {
-	return new_SimpleDependencyInfo_Builder().setName(pathOfDefiningFile).setPathRelativeToClosureBase(srcPathRelativeToClosure).setProvides(ImmutableList_as_Collection(ImmutableList_of())).setRequires(ImmutableList_as_Collection(ImmutableList_of())).setTypeRequires(ImmutableList_as_Collection(ImmutableList_of())).setLoadFlags(ImmutableMap_as_Map(ImmutableMap_of())).setHasExternsAnnotation(false).setHasNoCompileAnnotation(false)
+	return new_SimpleDependencyInfo_Builder().setName(pathOfDefiningFile).setPathRelativeToClosureBase(srcPathRelativeToClosure).setProvides(ImmutableList_as_Collection(ImmutableList_of())).setRequires(ImmutableList_as_Collection(ImmutableList_of())).setTypeRequires(ImmutableList_as_Collection(ImmutableList_of())).setLoadFlags(immutableMapOf_(tc_string, tc_string, []string{}, []string{})).setHasExternsAnnotation(false).setHasNoCompileAnnotation(false)
 }
 
 func (this *SimpleDependencyInfo) getRequiredSymbols() *ErasedImmutableList {
@@ -154,7 +154,7 @@ func new_SimpleDependencyInfo_Builder() *SimpleDependencyInfo_Builder {
 }
 
 func SimpleDependencyInfo_Builder_from(copy_ DependencyInfo_) *SimpleDependencyInfo_Builder {
-	return new_SimpleDependencyInfo_Builder().setName(Optional_of[string](copy_.getName())).setPathRelativeToClosureBase(copy_.getPathRelativeToClosureBase()).setProvides(ImmutableList_as_Collection(copy_.getProvides())).setRequires(ImmutableList_as_Collection(copy_.getRequires())).setTypeRequires(ImmutableList_as_Collection(copy_.getTypeRequires())).setLoadFlags(ImmutableMap_as_Map(copy_.getLoadFlags())).setHasExternsAnnotation(copy_.getHasExternsAnnotation()).setHasNoCompileAnnotation(copy_.getHasNoCompileAnnotation())
+	return new_SimpleDependencyInfo_Builder().setName(Optional_of[string](copy_.getName())).setPathRelativeToClosureBase(copy_.getPathRelativeToClosureBase()).setProvides(ImmutableList_as_Collection(copy_.getProvides())).setRequires(ImmutableList_as_Collection(copy_.getRequires())).setTypeRequires(ImmutableList_as_Collection(copy_.getTypeRequires())).setLoadFlags(tmapFrom_(tc_string, tc_string, copy_.getLoadFlags(), true)).setHasExternsAnnotation(copy_.getHasExternsAnnotation()).setHasNoCompileAnnotation(copy_.getHasNoCompileAnnotation())
 }
 
 func (this *SimpleDependencyInfo_Builder) setName(name Optional[string]) *SimpleDependencyInfo_Builder {
@@ -197,8 +197,8 @@ func (this *SimpleDependencyInfo_Builder) setTypeRequiresStringVarargs(typeRequi
 	return this.setTypeRequires(ImmutableList_as_Collection(ImmutableList_copyOf_ObjectArr(arrmap_(typeRequires, strobj_))))
 }
 
-func (this *SimpleDependencyInfo_Builder) setLoadFlags(loadFlags MapOf[string, string]) *SimpleDependencyInfo_Builder {
-	this.loadFlags_ = immutableMapCopyOf_(tc_string, tc_string, loadFlags)
+func (this *SimpleDependencyInfo_Builder) setLoadFlags(loadFlags *TMap[string, string]) *SimpleDependencyInfo_Builder {
+	this.loadFlags_ = immutableMapCopyOf_(tc_string, tc_string, loadFlags.asMap())
 	return this
 }
 
@@ -215,11 +215,11 @@ func (this *SimpleDependencyInfo_Builder) setHasNoCompileAnnotation(hasNoCompile
 }
 
 func (this *SimpleDependencyInfo_Builder) setGoogModule(isModule bool) *SimpleDependencyInfo_Builder {
-	return this.setLoadFlags(func() Map {
+	return this.setLoadFlags(func() *TMap[string, string] {
 		if isModule {
-			return SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS.asMap()
+			return SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS
 		}
-		return ImmutableMap_as_Map(ImmutableMap_of())
+		return immutableMapOf_(tc_string, tc_string, []string{}, []string{})
 	}())
 }
 

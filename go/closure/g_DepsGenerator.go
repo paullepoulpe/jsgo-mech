@@ -102,7 +102,7 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 			}
 			provides = builder.build()
 		}
-		newJsFiles.Put(dependencyInfo.getPathRelativeToClosureBase(), SimpleDependencyInfo_as_DependencyInfo_(SimpleDependencyInfo_builder(dependencyInfo.getPathRelativeToClosureBase(), Optional_of[string](dependencyInfo.getName())).setProvides(Collection(provides.asList())).setRequires(Collection(newRequires.asList())).setLoadFlags(ImmutableMap_as_Map(dependencyInfo.getLoadFlags())).build()))
+		newJsFiles.Put(dependencyInfo.getPathRelativeToClosureBase(), SimpleDependencyInfo_as_DependencyInfo_(SimpleDependencyInfo_builder(dependencyInfo.getPathRelativeToClosureBase(), Optional_of[string](dependencyInfo.getName())).setProvides(Collection(provides.asList())).setRequires(Collection(newRequires.asList())).setLoadFlags(tmapFrom_(tc_string, tc_string, dependencyInfo.getLoadFlags(), true)).build()))
 	}
 	return newJsFiles
 }

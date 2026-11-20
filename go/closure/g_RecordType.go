@@ -33,13 +33,13 @@ func (this *RecordType) finit_RecordType() {
 	this.isFrozen = false
 }
 
-func (this *RecordType) init_RecordType(registry *JSTypeRegistry, properties MapOf[string, *RecordTypeBuilder_RecordProperty], declared bool) {
+func (this *RecordType) init_RecordType(registry *JSTypeRegistry, properties *TMap[string, *RecordTypeBuilder_RecordProperty], declared bool) {
 	this.PrototypeObjectType.init_PrototypeObjectType(PrototypeObjectType_builder(registry))
 	this.finit_RecordType()
 	this.setPrettyPrint(true)
 	this.declared = declared
-	for property := range elemsBy_(properties.keySet(), str_) {
-		var prop *RecordTypeBuilder_RecordProperty = cast_[*RecordTypeBuilder_RecordProperty](Map_get_s(properties, property))
+	for property := range elemsBy_(properties.asMap().keySet(), str_) {
+		var prop *RecordTypeBuilder_RecordProperty = properties.Get(property)
 		if prop == nil {
 			panic(new_IllegalStateException_String("RecordProperty associated with a property should not be null!"))
 		}
@@ -53,7 +53,7 @@ func (this *RecordType) init_RecordType(registry *JSTypeRegistry, properties Map
 	registry.getResolver().resolveIfClosed(this.up_JSType(), RecordType_TYPE_CLASS_FIELD)
 }
 
-func new_RecordType(registry *JSTypeRegistry, properties MapOf[string, *RecordTypeBuilder_RecordProperty], declared bool) *RecordType {
+func new_RecordType(registry *JSTypeRegistry, properties *TMap[string, *RecordTypeBuilder_RecordProperty], declared bool) *RecordType {
 	this := &RecordType{}
 	this.self_ = this
 	this.init_RecordType(registry, properties, declared)

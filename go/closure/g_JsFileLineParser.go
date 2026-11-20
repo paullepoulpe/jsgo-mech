@@ -242,14 +242,14 @@ func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base[*TL
 	return Outcome_base_ok_Object[*TList[string]](results)
 }
 
-func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base[Map] {
+func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base[*TMap[string, string]] {
 	inputU16 := utf16Of_(input)
 	input = CharMatcher_whitespace().trimFrom_s(input)
 	inputU16 = utf16Of_(input)
 	var checked *Outcome_base[any]
 	checked = JsFileLineParser_check(((input != "" && (input[0] == '{')) && (input[len(input)-1] == '}')), "Syntax error when parsing JS object")
 	if checked.isErr() {
-		return Outcome_base_err[Map](checked.error())
+		return Outcome_base_err[*TMap[string, string]](checked.error())
 	}
 	input = strings.Trim(inputU16.substring(1, (inputU16.length()-1)), javaSpace_)
 	inputU16 = utf16Of_(input)
@@ -259,7 +259,7 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base[Map] 
 	for !done {
 		checked = JsFileLineParser_check(this.valueMatcher.lookingAt(), "Bad key in JS object literal")
 		if checked.isErr() {
-			return Outcome_base_err[Map](checked.error())
+			return Outcome_base_err[*TMap[string, string]](checked.error())
 		}
 		var key string = func() string {
 			if Optional_ofNullable[string](this.valueMatcher.group(1)).isPresent() {
@@ -269,18 +269,18 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base[Map] 
 		}()
 		checked = JsFileLineParser_check((this.valueMatcher.end() != inputU16.length()), "Missing value in JS object literal")
 		if checked.isErr() {
-			return Outcome_base_err[Map](checked.error())
+			return Outcome_base_err[*TMap[string, string]](checked.error())
 		}
 		checked = JsFileLineParser_check((inputU16.charAt(this.valueMatcher.end()) == ':'), "Missing colon in JS object literal")
 		if checked.isErr() {
-			return Outcome_base_err[Map](checked.error())
+			return Outcome_base_err[*TMap[string, string]](checked.error())
 		}
 		input = inputU16.substring_int((this.valueMatcher.end() + 1))
 		inputU16 = utf16Of_(input)
 		this.valueMatcher.reset_s(input)
 		checked = JsFileLineParser_check(this.valueMatcher.lookingAt(), "Bad value in JS object literal")
 		if checked.isErr() {
-			return Outcome_base_err[Map](checked.error())
+			return Outcome_base_err[*TMap[string, string]](checked.error())
 		}
 		var val string = func() string {
 			if Optional_ofNullable[string](this.valueMatcher.group(1)).isPresent() {
@@ -292,7 +292,7 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base[Map] 
 		if this.valueMatcher.end() != inputU16.length() {
 			checked = JsFileLineParser_check((inputU16.charAt(this.valueMatcher.end()) == ','), "Missing comma in JS object literal")
 			if checked.isErr() {
-				return Outcome_base_err[Map](checked.error())
+				return Outcome_base_err[*TMap[string, string]](checked.error())
 			}
 			input = inputU16.substring_int((this.valueMatcher.end() + 1))
 			inputU16 = utf16Of_(input)
@@ -301,7 +301,7 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base[Map] 
 			done = true
 		}
 	}
-	return Outcome_base_ok_Object[Map](results.asMap())
+	return Outcome_base_ok_Object[*TMap[string, string]](results)
 }
 
 func JsFileLineParser_check(condition bool, message string) *Outcome_base[any] {

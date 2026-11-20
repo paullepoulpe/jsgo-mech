@@ -85,12 +85,12 @@ func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base[any] 
 				return Outcome_base_err[any](providesOutcome.error())
 			}
 			var provides *TList[string] = providesOutcome.get()
-			var loadFlagsOutcome *Outcome_base[Map] = this.parseLoadFlags(Optional_ofNullable[string](this.depArgsMatch.group(4)))
+			var loadFlagsOutcome *Outcome_base[*TMap[string, string]] = this.parseLoadFlags(Optional_ofNullable[string](this.depArgsMatch.group(4)))
 			if loadFlagsOutcome.isErr() {
 				return Outcome_base_err[any](loadFlagsOutcome.error())
 			}
-			var loadFlags MapOf[string, string] = loadFlagsOutcome.get()
-			if "es6" == str_(Map_get_s(loadFlags, "module")) {
+			var loadFlags *TMap[string, string] = loadFlagsOutcome.get()
+			if "es6" == loadFlags.Get("module") {
 				provides.add(relativePath)
 			}
 			var requiresOutcome *Outcome_base[*TList[string]] = this.parseJsStringArray(this.depArgsMatch.group(3))
@@ -115,11 +115,11 @@ func DepsFileRegexParser_requiresParsedFromDeps(symbols *TList[string]) *TList[*
 	return result.build()
 }
 
-func (this *DepsFileRegexParser) parseLoadFlags(loadFlags Optional[string]) *Outcome_base[Map] {
+func (this *DepsFileRegexParser) parseLoadFlags(loadFlags Optional[string]) *Outcome_base[*TMap[string, string]] {
 	if loadFlags.isEmpty() || (loadFlags.get() == "false") {
-		return Outcome_base_ok_Object[Map](ImmutableMap_as_Map(ImmutableMap_of()))
+		return Outcome_base_ok_Object[*TMap[string, string]](immutableMapOf_(tc_string, tc_string, []string{}, []string{}))
 	} else if loadFlags.get() == "true" {
-		return Outcome_base_ok_Object[Map](ImmutableMap_as_Map(ImmutableMap_of_Object_Object("module", "goog")))
+		return Outcome_base_ok_Object[*TMap[string, string]](immutableMapOf_(tc_string, tc_string, []string{str_("module")}, []string{str_("goog")}))
 	} else {
 		return this.parseJsStringMap(loadFlags.get())
 	}
