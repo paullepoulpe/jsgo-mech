@@ -3,7 +3,15 @@
 package closure
 
 type AbstractPeepholeTranspilation struct {
-	self_ any
+	self_ AbstractPeepholeTranspilation_I
+}
+
+// AbstractPeepholeTranspilation_I holds the methods the dispatchers of AbstractPeepholeTranspilation's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type AbstractPeepholeTranspilation_I interface {
+	getAdditionalFeaturesToRunOn_impl() *FeatureSet
+	getTranspiledAwayFeatures_impl() *FeatureSet
+	transpileSubtree_impl(Node) Node
 }
 
 func (this *AbstractPeepholeTranspilation) as_AbstractPeepholeTranspilation() *AbstractPeepholeTranspilation {
@@ -42,13 +50,13 @@ func (this *AbstractPeepholeTranspilation) getAdditionalFeaturesToRunOn_impl() *
 }
 
 func (this *AbstractPeepholeTranspilation) transpileSubtree(p0 Node) Node {
-	return this.self_.(interface{ transpileSubtree_impl(Node) Node }).transpileSubtree_impl(p0)
+	return this.self_.transpileSubtree_impl(p0)
 }
 
 func (this *AbstractPeepholeTranspilation) getTranspiledAwayFeatures() *FeatureSet {
-	return this.self_.(interface{ getTranspiledAwayFeatures_impl() *FeatureSet }).getTranspiledAwayFeatures_impl()
+	return this.self_.getTranspiledAwayFeatures_impl()
 }
 
 func (this *AbstractPeepholeTranspilation) getAdditionalFeaturesToRunOn() *FeatureSet {
-	return this.self_.(interface{ getAdditionalFeaturesToRunOn_impl() *FeatureSet }).getAdditionalFeaturesToRunOn_impl()
+	return this.self_.getAdditionalFeaturesToRunOn_impl()
 }

@@ -769,7 +769,5 @@ func (this *AnalyzePrototypeProperties_ProcessExternProperties) visit(p0 *NodeTr
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
