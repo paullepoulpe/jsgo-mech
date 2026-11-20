@@ -137,7 +137,7 @@ func (this *SortingErrorManager) report_2(p0 CheckLevel, p1 *JSError) {
 }
 
 func (this *SortingErrorManager) shouldReportConformanceViolation(p0 *Requirement, p1 Optional_base, p2 *JSError, p3 ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, p4 bool) bool {
-	return ErrorManager_shouldReportConformanceViolation_default(icast_ErrorManager(this.self()), p0, p1, p2, p3, p4)
+	return ErrorManager_shouldReportConformanceViolation_default(this.self().(ErrorManager), p0, p1, p2, p3, p4)
 }
 
 type SortingErrorManager_ErrorReportGenerator interface {

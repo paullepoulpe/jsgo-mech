@@ -224,7 +224,7 @@ func (this *InlineFunctions) trimCandidatesNotMeetingMinimumRequirements() {
 	{
 		i = this.fns.asMap().entrySet().iterator()
 		for i.hasNext() {
-			var functionState *InlineFunctions_FunctionState = cast_[*InlineFunctions_FunctionState](icast_Map_Entry(i.next()).getValue())
+			var functionState *InlineFunctions_FunctionState = cast_[*InlineFunctions_FunctionState](i.next().(Map_Entry).getValue())
 			if !functionState.hasExistingFunctionDefinition() || !functionState.canInline() {
 				Iterator_remove(i)
 			}
@@ -237,7 +237,7 @@ func (this *InlineFunctions) trimCandidatesUsingOnCost() {
 	{
 		i = this.fns.asMap().entrySet().iterator()
 		for i.hasNext() {
-			var functionState *InlineFunctions_FunctionState = cast_[*InlineFunctions_FunctionState](icast_Map_Entry(i.next()).getValue())
+			var functionState *InlineFunctions_FunctionState = cast_[*InlineFunctions_FunctionState](i.next().(Map_Entry).getValue())
 			if functionState.hasReferences() {
 				var lowersCost bool = this.minimizeCost(functionState)
 				if !lowersCost {
@@ -801,7 +801,7 @@ func (this *InlineFunctions_FunctionState) removeBlockInliningReferences() {
 		i = this.getReferencesInternal().asMap().entrySet().iterator()
 		for i.hasNext() {
 			var entry Map_EntryOf[Node, *InlineFunctions_Reference] = icast_Map_Entry(i.next())
-			if cast_[*InlineFunctions_Reference](entry.getValue()).mode_ == FunctionInjector_InliningMode_BLOCK {
+			if entry.getValue().(*InlineFunctions_Reference).mode_ == FunctionInjector_InliningMode_BLOCK {
 				Iterator_remove(i)
 			}
 		}
