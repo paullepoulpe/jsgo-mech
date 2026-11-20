@@ -232,3 +232,65 @@ func single_[T any](s *singles_, mk func() T) T {
 	s.list.Store(&l)
 	return v
 }
+
+// Typed containers inside generic code (post-flip step gmaps): a typed map or set keyed by a
+// type parameter needs the key's conversion (tconv_), which generated code names per type
+// (tc_X, tch_X); generic code gets it from the instantiation instead, once per type.
+
+var tconvCache_, tconvIdCache_ sync.Map // reflect.Type -> *tconv_[T]
+
+// tconvT_ is the conversion of type parameter T's values for a LinkedHashMap / LinkedHashSet
+// keyed by them: boxed as the erased code boxes them (boxT_, junboxT_, jnull_); compared by
+// Go's == where that is Java's equals (strings, handles and enums, pointers to classes without
+// equals of their own: their box is their most derived object, one per object), else by
+// hashCode and equals as the erased table compared the boxes (hashCodeT_, equalsTT_; an
+// interface type: its values may be of either kind).
+func tconvT_[T any]() *tconv_[T] {
+	t := reflect.TypeFor[T]()
+	if c, ok := tconvCache_.Load(t); ok {
+		return c.(*tconv_[T])
+	}
+	c := &tconv_[T]{box: boxT_[T], unbox: junboxT_[T], null: jnull_[T]()}
+	if !eqIsIdentityT_[T]() {
+		c.hash = hashCodeT_[T]
+		c.eq = equalsTT_[T]
+	}
+	v, _ := tconvCache_.LoadOrStore(t, c)
+	return v.(*tconv_[T])
+}
+
+// tconvIdT_ is the conversion of T's values for an IdentityHashMap keyed by them: compared by
+// identity, as the erased table compared the boxes (==): by Go's == where the value is its own
+// identity (a pointer, a string, a handle, an enum), else by its box (an interface value, whose
+// dynamic type may be any class of the object's hierarchy).
+func tconvIdT_[T any]() *tconv_[T] {
+	t := reflect.TypeFor[T]()
+	if c, ok := tconvIdCache_.Load(t); ok {
+		return c.(*tconv_[T])
+	}
+	c := &tconv_[T]{box: boxT_[T], unbox: junboxT_[T], null: jnull_[T]()}
+	if t.Kind() == reflect.Interface {
+		c.hash = func(v T) int32 { return identityHash_(boxT_(v)) }
+		c.eq = func(a, b T) bool { return boxT_(a) == boxT_(b) }
+	}
+	v, _ := tconvIdCache_.LoadOrStore(t, c)
+	return v.(*tconv_[T])
+}
+
+// eqIsIdentityT_ reports whether Java's equals of T's values is Go's == on them.
+func eqIsIdentityT_[T any]() bool {
+	t := reflect.TypeFor[T]()
+	switch t.Kind() {
+	case reflect.String, reflect.Bool, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return true
+	case reflect.Pointer:
+		if t.Elem().Kind() != reflect.Struct {
+			return false
+		}
+		var z T
+		_, has := any(z).(interface{ equals(any) bool })
+		return !has
+	}
+	return false
+}
