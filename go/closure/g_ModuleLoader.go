@@ -290,6 +290,13 @@ func (this *ModuleLoader_ModulePath) resolveModuleAsPath(moduleAddress string) *
 
 type ModuleLoader_PathEscaper struct {
 	Enum
+	selfI_ ModuleLoader_PathEscaper_I
+}
+
+// ModuleLoader_PathEscaper_I holds the methods the dispatchers of enum ModuleLoader_PathEscaper call on its
+// constant (selfI_, set with self_); every constant of the enum implements them (post-flip).
+type ModuleLoader_PathEscaper_I interface {
+	escape_impl(string) string
 }
 
 func (this *ModuleLoader_PathEscaper) as_ModuleLoader_PathEscaper() *ModuleLoader_PathEscaper {
@@ -336,7 +343,7 @@ func (this *ModuleLoader_PathEscaper) init_ModuleLoader_PathEscaper(name_ string
 }
 
 func (this *ModuleLoader_PathEscaper) escape(p0 string) string {
-	return this.self_.(interface{ escape_impl(string) string }).escape_impl(p0)
+	return this.selfI_.escape_impl(p0)
 }
 
 func ModuleLoader_PathEscaper_values() []*ModuleLoader_PathEscaper {
@@ -372,6 +379,13 @@ func ModuleLoader_PathEscaper_clinit() {
 
 type ModuleLoader_PathResolver struct {
 	Enum
+	selfI_ ModuleLoader_PathResolver_I
+}
+
+// ModuleLoader_PathResolver_I holds the methods the dispatchers of enum ModuleLoader_PathResolver call on its
+// constant (selfI_, set with self_); every constant of the enum implements them (post-flip).
+type ModuleLoader_PathResolver_I interface {
+	apply_impl(any) any
 }
 
 func (this *ModuleLoader_PathResolver) as_ModuleLoader_PathResolver() *ModuleLoader_PathResolver {
@@ -418,7 +432,7 @@ func (this *ModuleLoader_PathResolver) init_ModuleLoader_PathResolver(name_ stri
 }
 
 func (this *ModuleLoader_PathResolver) apply(p0 any) any {
-	return this.self_.(interface{ apply_impl(any) any }).apply_impl(p0)
+	return this.selfI_.apply_impl(p0)
 }
 
 func ModuleLoader_PathResolver_values() []*ModuleLoader_PathResolver {
@@ -546,6 +560,7 @@ func (this *ModuleLoader_PathEscaper_1) init_ModuleLoader_PathEscaper_1(name_ st
 func new_ModuleLoader_PathEscaper_1(name_ string, ordinal_ int32) *ModuleLoader_PathEscaper_1 {
 	this := &ModuleLoader_PathEscaper_1{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ModuleLoader_PathEscaper_1(name_, ordinal_)
 	return this
 }
@@ -606,6 +621,7 @@ func (this *ModuleLoader_PathEscaper_2) init_ModuleLoader_PathEscaper_2(name_ st
 func new_ModuleLoader_PathEscaper_2(name_ string, ordinal_ int32) *ModuleLoader_PathEscaper_2 {
 	this := &ModuleLoader_PathEscaper_2{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ModuleLoader_PathEscaper_2(name_, ordinal_)
 	return this
 }
@@ -666,6 +682,7 @@ func (this *ModuleLoader_PathResolver_1) init_ModuleLoader_PathResolver_1(name_ 
 func new_ModuleLoader_PathResolver_1(name_ string, ordinal_ int32) *ModuleLoader_PathResolver_1 {
 	this := &ModuleLoader_PathResolver_1{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ModuleLoader_PathResolver_1(name_, ordinal_)
 	return this
 }
@@ -728,6 +745,7 @@ func (this *ModuleLoader_PathResolver_2) init_ModuleLoader_PathResolver_2(name_ 
 func new_ModuleLoader_PathResolver_2(name_ string, ordinal_ int32) *ModuleLoader_PathResolver_2 {
 	this := &ModuleLoader_PathResolver_2{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ModuleLoader_PathResolver_2(name_, ordinal_)
 	return this
 }
@@ -770,7 +788,7 @@ func (this *ModuleLoader_PathEscaper_1) escape(p0 string) string {
 	if this.self_ == any(this) {
 		return this.escape_impl(p0)
 	}
-	return this.self_.(interface{ escape_impl(string) string }).escape_impl(p0)
+	return this.selfI_.escape_impl(p0)
 }
 
 // escape: an object that is exactly a ModuleLoader_PathEscaper_2 calls its escape_impl directly (post-flip); others dispatch.
@@ -778,7 +796,7 @@ func (this *ModuleLoader_PathEscaper_2) escape(p0 string) string {
 	if this.self_ == any(this) {
 		return this.escape_impl(p0)
 	}
-	return this.self_.(interface{ escape_impl(string) string }).escape_impl(p0)
+	return this.selfI_.escape_impl(p0)
 }
 
 // apply: an object that is exactly a ModuleLoader_PathResolver_1 calls its apply_impl directly (post-flip); others dispatch.
@@ -786,7 +804,7 @@ func (this *ModuleLoader_PathResolver_1) apply(p0 any) any {
 	if this.self_ == any(this) {
 		return this.apply_impl(p0)
 	}
-	return this.self_.(interface{ apply_impl(any) any }).apply_impl(p0)
+	return this.selfI_.apply_impl(p0)
 }
 
 // apply: an object that is exactly a ModuleLoader_PathResolver_2 calls its apply_impl directly (post-flip); others dispatch.
@@ -794,5 +812,5 @@ func (this *ModuleLoader_PathResolver_2) apply(p0 any) any {
 	if this.self_ == any(this) {
 		return this.apply_impl(p0)
 	}
-	return this.self_.(interface{ apply_impl(any) any }).apply_impl(p0)
+	return this.selfI_.apply_impl(p0)
 }
