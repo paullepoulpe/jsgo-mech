@@ -166,7 +166,7 @@ func Iterator_remove(it Iterator) {
 	r.remove()
 }
 
-func Iterable_forEach(it Iterable, c Consumer) {
+func Iterable_forEach(it Iterable, c Consumer_e) {
 	for i := it.iterator(); i.hasNext(); {
 		c.accept(i.next())
 	}
@@ -1436,65 +1436,21 @@ func compareNatural_(a, b any) int32 {
 	panic(new_ClassCastException_String(goTypeName_(a) + " is not Comparable").self())
 }
 
-type cmpFunc_ struct{ f func(a, b any) int32 }
+var naturalOrder_ Comparator_e = Comparator_of_(compareNatural_)
 
-func (c *cmpFunc_) compare(a, b any) int32 { return c.f(a, b) }
-
-var naturalOrder_ Comparator = &cmpFunc_{compareNatural_}
-
-func Comparator_naturalOrder() Comparator { return naturalOrder_ }
-
-func Comparator_reversed(c Comparator) Comparator {
-	return &cmpFunc_{func(a, b any) int32 { return c.compare(b, a) }}
+// cmpReversed_ is c with its arguments exchanged.
+func cmpReversed_(c Comparator_e) Comparator_e {
+	return Comparator_of_(func(a, b any) int32 { return c.compare(b, a) })
 }
 
-func Comparator_comparing(f Function) Comparator {
-	return &cmpFunc_{func(a, b any) int32 { return compareNatural_(f.apply(a), f.apply(b)) }}
-}
-
-func Comparator_comparing_Function_Comparator(f Function, c Comparator) Comparator {
-	return &cmpFunc_{func(a, b any) int32 { return c.compare(f.apply(a), f.apply(b)) }}
-}
-
-func Comparator_comparingInt(f ToIntFunction) Comparator {
-	return &cmpFunc_{func(a, b any) int32 { return Integer_compare(f.applyAsInt(a), f.applyAsInt(b)) }}
-}
-
-func Comparator_comparingLong(f ToLongFunction) Comparator {
-	return &cmpFunc_{func(a, b any) int32 { return Long_compare(f.applyAsLong(a), f.applyAsLong(b)) }}
-}
-
-func Comparator_thenComparing_Comparator(c Comparator, d Comparator) Comparator {
-	return &cmpFunc_{func(a, b any) int32 {
-		if r := c.compare(a, b); r != 0 {
-			return r
-		}
-		return d.compare(a, b)
-	}}
-}
-
-func Comparator_thenComparing(c Comparator, f Function) Comparator {
-	return Comparator_thenComparing_Comparator(c, Comparator_comparing(f))
-}
-
-func Comparator_thenComparingInt(c Comparator, f ToIntFunction) Comparator {
-	return Comparator_thenComparing_Comparator(c, Comparator_comparingInt(f))
-}
-
-func Map_Entry_comparingByKey() Comparator {
-	return &cmpFunc_{func(a, b any) int32 {
-		return compareNatural_(a.(Map_Entry).getKey(), b.(Map_Entry).getKey())
-	}}
-}
-
-func sortSlice_(s []any, c Comparator) {
+func sortSlice_(s []any, c Comparator_e) {
 	if c == nil {
 		c = naturalOrder_
 	}
 	sort.SliceStable(s, func(i, j int) bool { return c.compare(s[i], s[j]) < 0 })
 }
 
-func List_sort(l List, c Comparator) {
+func List_sort(l List, c Comparator_e) {
 	if a, ok := l.(interface{ as_ArrayList() *ArrayList }); ok {
 		sortSlice_(a.as_ArrayList().items, c)
 		return
@@ -1507,8 +1463,8 @@ func List_sort(l List, c Comparator) {
 	}
 }
 
-func Collections_sort(l List)                               { List_sort(l, nil) }
-func Collections_sort_List_Comparator(l List, c Comparator) { List_sort(l, c) }
+func Collections_sort(l List)                                 { List_sort(l, nil) }
+func Collections_sort_List_Comparator(l List, c Comparator_e) { List_sort(l, c) }
 
 func Collections_reverse(l List) {
 	n := l.size()
@@ -1662,7 +1618,7 @@ func Map_putIfAbsent_s(m any, k string, v any) any {
 	return nil
 }
 
-func Map_computeIfAbsent_s(m any, k string, f Function) any {
+func Map_computeIfAbsent_s(m any, k string, f Function_e) any {
 	if old := Map_get_s(m, k); old != nil {
 		return old
 	}
@@ -1734,7 +1690,7 @@ func Map_putIfAbsent(m Map, k any, v any) any {
 	return nil
 }
 
-func Map_computeIfAbsent(m Map, k any, f Function) any {
+func Map_computeIfAbsent(m Map, k any, f Function_e) any {
 	if old := m.get(k); old != nil {
 		return old
 	}
@@ -1745,7 +1701,7 @@ func Map_computeIfAbsent(m Map, k any, f Function) any {
 	return v
 }
 
-func Map_merge(m Map, k any, v any, f BiFunction) any {
+func Map_merge(m Map, k any, v any, f BiFunction_e) any {
 	old := m.get(k)
 	nv := v
 	if old != nil {
@@ -1759,14 +1715,14 @@ func Map_merge(m Map, k any, v any, f BiFunction) any {
 	return nv
 }
 
-func Map_forEach(m Map, f BiConsumer) {
+func Map_forEach(m Map, f BiConsumer_e) {
 	for it := m.entrySet().iterator(); it.hasNext(); {
 		e := it.next().(Map_Entry)
 		f.accept(e.getKey(), e.getValue())
 	}
 }
 
-func Map_replaceAll(m Map, f BiFunction) {
+func Map_replaceAll(m Map, f BiFunction_e) {
 	for it := m.entrySet().iterator(); it.hasNext(); {
 		e := it.next().(Map_Entry)
 		e.setValue(f.apply(e.getKey(), e.getValue()))
@@ -1851,17 +1807,17 @@ func Arrays_fill_intArr_int_int_int(a []int32, from int32, to int32, v int32) {
 	}
 }
 
-func Arrays_setAll(a []any, f IntFunction) {
+func Arrays_setAll(a []any, f IntFunction_e) {
 	for i := range a {
 		a[i] = f.apply(int32(i))
 	}
 }
 
-func Arrays_sort(a []any)                                    { sortSlice_(a, nil) }
-func Arrays_sort_ObjectArr_Comparator(a []any, c Comparator) { sortSlice_(a, c) }
-func Arrays_sort_byteArr(a []int8)                           { sort.Slice(a, func(i, j int) bool { return a[i] < a[j] }) }
-func Arrays_sort_intArr(a []int32)                           { sort.Slice(a, func(i, j int) bool { return a[i] < a[j] }) }
-func Arrays_sort_longArr(a []int64)                          { sort.Slice(a, func(i, j int) bool { return a[i] < a[j] }) }
+func Arrays_sort(a []any)                                      { sortSlice_(a, nil) }
+func Arrays_sort_ObjectArr_Comparator(a []any, c Comparator_e) { sortSlice_(a, c) }
+func Arrays_sort_byteArr(a []int8)                             { sort.Slice(a, func(i, j int) bool { return a[i] < a[j] }) }
+func Arrays_sort_intArr(a []int32)                             { sort.Slice(a, func(i, j int) bool { return a[i] < a[j] }) }
+func Arrays_sort_longArr(a []int64)                            { sort.Slice(a, func(i, j int) bool { return a[i] < a[j] }) }
 
 func Arrays_toString(a []uint16) string {
 	parts := make([]string, len(a))
@@ -1871,13 +1827,9 @@ func Arrays_toString(a []uint16) string {
 	return "[" + strings.Join(parts, ", ") + "]"
 }
 
-func Comparator_thenComparingLong(c Comparator, f ToLongFunction) Comparator {
-	return Comparator_thenComparing_Comparator(c, Comparator_comparingLong(f))
-}
-
 func Collections_unmodifiableSortedSet(s SortedSet) SortedSet { return s }
 
-func Map_compute(m Map, k any, f BiFunction) any {
+func Map_compute(m Map, k any, f BiFunction_e) any {
 	old := m.get(k)
 	v := f.apply(k, old)
 	if v == nil {

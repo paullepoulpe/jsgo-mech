@@ -41,7 +41,7 @@ func copySlice_(c Iterable) []any {
 
 // safeCompare_ compares with c, reporting ok=false where Java would throw
 // ClassCastException or NullPointerException from the comparator.
-func safeCompare_(c Comparator, a, b any) (r int32, ok bool) {
+func safeCompare_(c Comparator_e, a, b any) (r int32, ok bool) {
 	defer func() {
 		if recover() != nil {
 			r, ok = 0, false
@@ -50,7 +50,7 @@ func safeCompare_(c Comparator, a, b any) (r int32, ok bool) {
 	return c.compare(a, b), true
 }
 
-func cmpOrNatural_(c Comparator) Comparator {
+func cmpOrNatural_(c Comparator_e) Comparator_e {
 	if c == nil {
 		return naturalOrder_
 	}
@@ -59,7 +59,7 @@ func cmpOrNatural_(c Comparator) Comparator {
 
 // comparatorOf_ is SortedSet.comparator() / SortedMap.comparator() for the
 // sorted collections of this runtime (nil: natural ordering).
-func comparatorOf_(v any) Comparator {
+func comparatorOf_(v any) Comparator_e {
 	switch x := v.(type) {
 	case *TreeSet:
 		return x.cmp
@@ -73,7 +73,7 @@ func comparatorOf_(v any) Comparator {
 		return x.cmp
 	case *ImmutableMap:
 		return x.cmp
-	case interface{ comparator() Comparator }:
+	case interface{ comparator() Comparator_e }:
 		return x.comparator()
 	}
 	return nil
@@ -107,12 +107,12 @@ const (
 type ImmutableCollection struct {
 	kind   int8
 	hashed bool
-	total  int32      // multiset: size
-	hash_  int32      // plain set: the hash code, once computed (Guava computes it at construction)
-	items  []any      // list: the elements; otherwise the distinct elements in iteration order
-	idx    *htable_   // set, multiset: element -> position in items (built on demand)
-	counts []int32    // multiset: occurrences of items[i]
-	cmp    Comparator // sorted set (nil: natural ordering)
+	total  int32        // multiset: size
+	hash_  int32        // plain set: the hash code, once computed (Guava computes it at construction)
+	items  []any        // list: the elements; otherwise the distinct elements in iteration order
+	idx    *htable_     // set, multiset: element -> position in items (built on demand)
+	counts []int32      // multiset: occurrences of items[i]
+	cmp    Comparator_e // sorted set (nil: natural ordering)
 	list_  *ImmutableCollection
 	all_   []any // multiset: the elements with repetition
 	byOrd  []any // immutable enum set: the element with ordinal i at i (nil where absent)
@@ -159,7 +159,7 @@ func immSet_(items []any) *ImmutableSet {
 }
 
 // immSorted_ makes an ImmutableSortedSet; items is not modified.
-func immSorted_(items []any, cmp Comparator) *ImmutableSortedSet {
+func immSorted_(items []any, cmp Comparator_e) *ImmutableSortedSet {
 	checkNoNulls_(items)
 	c := cmpOrNatural_(cmp)
 	s := append([]any(nil), items...)
@@ -503,7 +503,7 @@ func ImmutableList_copyOf_ObjectArr(p0 []any) *ImmutableList {
 	return immList_(append([]any(nil), p0...))
 }
 
-func ImmutableList_sortedCopyOf(p0 Comparator, p1 Iterable) *ImmutableList {
+func ImmutableList_sortedCopyOf(p0 Comparator_e, p1 Iterable) *ImmutableList {
 	s := copySlice_(p1)
 	checkNoNulls_(s)
 	sortSlice_(s, p0)
@@ -565,7 +565,7 @@ func ImmutableSortedSet_copyOf(p0 Collection) *ImmutableSortedSet {
 	return immSorted_(toSlice_(p0), nil)
 }
 
-func ImmutableSortedSet_copyOf_Comparator_Collection(p0 Comparator, p1 Collection) *ImmutableSortedSet {
+func ImmutableSortedSet_copyOf_Comparator_Collection(p0 Comparator_e, p1 Collection) *ImmutableSortedSet {
 	if p0 == nil {
 		throwNPE_("comparator")
 	}
@@ -579,14 +579,14 @@ func ImmutableSortedSet_copyOfSorted(p0 SortedSet) *ImmutableSortedSet {
 	return immSorted_(toSlice_(p0), comparatorOf_(p0))
 }
 
-func (this *ImmutableSortedSet) comparator() Comparator { return cmpOrNatural_(this.cmp) }
+func (this *ImmutableSortedSet) comparator() Comparator_e { return cmpOrNatural_(this.cmp) }
 
 func (this *ImmutableSortedSet) descendingSet() NavigableSet {
 	out := make([]any, len(this.items))
 	for i, v := range this.items {
 		out[len(out)-1-i] = v
 	}
-	return &ImmutableCollection{kind: icSorted_, items: out, cmp: Comparator_reversed(cmpOrNatural_(this.cmp))}
+	return &ImmutableCollection{kind: icSorted_, items: out, cmp: cmpReversed_(cmpOrNatural_(this.cmp))}
 }
 
 func (this *ImmutableSortedSet) tailSet(from any, inclusive bool) NavigableSet {
@@ -606,7 +606,7 @@ type msEntry_ struct {
 type ImmutableCollection_Builder struct {
 	kind  int8
 	items []any
-	cmp   Comparator
+	cmp   Comparator_e
 }
 
 type ImmutableList_Builder = ImmutableCollection_Builder
@@ -631,7 +631,7 @@ func ImmutableSet_builderWithExpectedSize(p0 int32) *ImmutableSet_Builder {
 func ImmutableSortedSet_naturalOrder() *ImmutableSortedSet_Builder {
 	return &ImmutableCollection_Builder{kind: icSorted_}
 }
-func ImmutableSortedSet_orderedBy(p0 Comparator) *ImmutableSortedSet_Builder {
+func ImmutableSortedSet_orderedBy(p0 Comparator_e) *ImmutableSortedSet_Builder {
 	return &ImmutableCollection_Builder{kind: icSorted_, cmp: p0}
 }
 

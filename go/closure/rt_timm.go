@@ -42,7 +42,12 @@ type timmMap_ struct {
 var immPendingMap_ = &timmMap_{}
 
 // immNull_ reports whether x is Java's null.
-func immNull_[T any](c *tconv_[T], x T) bool { return any(x) == any(c.null) }
+func immNull_[T any](c *tconv_[T], x T) bool {
+	if c.isnull != nil {
+		return c.isnull(x)
+	}
+	return any(x) == any(c.null)
+}
 
 func boxAll_[T any](c *tconv_[T], s []T) []any {
 	out := make([]any, len(s))

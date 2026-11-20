@@ -489,7 +489,7 @@ func (this *Optional_base) or_Optional(o *Optional_base) *Optional_base {
 	return o
 }
 
-func (this *Optional_base) transform(f Function_base) *Optional_base {
+func (this *Optional_base) transform(f Function_base_e) *Optional_base {
 	if f == nil {
 		panic(new_NullPointerException_0().self())
 	}
@@ -641,24 +641,6 @@ func (this Optional[T]) orElse(other T) T {
 
 func (this Optional[T]) orElseThrow() T { return this.get() }
 
-func (this Optional[T]) filter(p Predicate) Optional[T] {
-	this.nn_()
-	if p == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	if !this.present || p.test(this.content_()) {
-		return this
-	}
-	return Optional[T]{set: true}
-}
-
-func (this Optional[T]) ifPresent(c Consumer) {
-	this.nn_()
-	if this.present {
-		c.accept(this.content_())
-	}
-}
-
 func (this Optional[T]) isEmpty() bool   { this.nn_(); return !this.present }
 func (this Optional[T]) isPresent() bool { this.nn_(); return this.present }
 
@@ -678,80 +660,7 @@ func (this Optional[T]) toString() string {
 	return "Optional[" + objstr_(this.content_()) + "]"
 }
 
-// ---- Predicates, Functions, Suppliers
-
-type alwaysTruePredicate_ struct{}
-
-func (alwaysTruePredicate_) apply(any) bool   { return true }
-func (alwaysTruePredicate_) test(any) bool    { return true }
-func (alwaysTruePredicate_) toString() string { return "Predicates.alwaysTrue()" }
-
-var alwaysTrue_ Predicate_base = alwaysTruePredicate_{}
-
-func Predicates_alwaysTrue() Predicate_base { return alwaysTrue_ }
-
-type isNullPredicate_ struct{}
-
-func (isNullPredicate_) apply(v any) bool { return v == nil }
-func (isNullPredicate_) test(v any) bool  { return v == nil }
-func (isNullPredicate_) toString() string { return "Predicates.isNull()" }
-
-type equalToPredicate_ struct {
-	target any
-}
-
-func (this *equalToPredicate_) apply(v any) bool { return Object_equals(this.target, v) }
-func (this *equalToPredicate_) test(v any) bool  { return Object_equals(this.target, v) }
-func (this *equalToPredicate_) toString() string {
-	return "Predicates.equalTo(" + objstr_(this.target) + ")"
-}
-func (this *equalToPredicate_) hashCode() int32 { return objhash_(this.target) }
-func (this *equalToPredicate_) equals(o any) bool {
-	x, ok := o.(*equalToPredicate_)
-	return ok && objequals_(this.target, x.target)
-}
-
-func Predicates_equalTo(target any) Predicate_base {
-	if target == nil {
-		return isNullPredicate_{}
-	}
-	return &equalToPredicate_{target}
-}
-
-type identityFunction_ struct{}
-
-type memoizingSupplier_ struct {
-	delegate Supplier_base
-	done     bool
-	value    any
-}
-
-func (this *memoizingSupplier_) get() any {
-	if !this.done {
-		v := this.delegate.get()
-		this.value = v
-		this.done = true
-		this.delegate = nil
-	}
-	return this.value
-}
-
-func (this *memoizingSupplier_) toString() string {
-	if this.done {
-		return "Suppliers.memoize(<supplier that returned " + objstr_(this.value) + ">)"
-	}
-	return "Suppliers.memoize(" + objstr_(this.delegate) + ")"
-}
-
-func Suppliers_memoize(s Supplier_base) Supplier_base {
-	if m, ok := s.(*memoizingSupplier_); ok {
-		return m
-	}
-	if s == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	return &memoizingSupplier_{delegate: s}
-}
+// ---- Predicates, Functions, Suppliers: rt_fn.go (rule "function types") and rt_fn_erased.go
 
 // ---- Throwables
 
@@ -903,9 +812,3 @@ var StandardSystemProperty_USER_DIR = func() *StandardSystemProperty {
 	this.Enum.init_Enum("USER_DIR", 27)
 	return this
 }()
-
-func Functions_identity() Function_base { return identityFunction_{} }
-
-func (identityFunction_) apply(v any) any { return v }
-
-func (identityFunction_) toString() string { return "Functions.identity()" }

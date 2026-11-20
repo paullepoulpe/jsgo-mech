@@ -49,7 +49,7 @@ func tsortSearch_[K any](x *teq_, c *tconv_[K], keys []K, k K) (int, bool) {
 func newTSortedSet_[K comparable](c *tconv_[K]) *TSet[K] { return newTSortedSetC_(c, nil) }
 
 // newTSortedSetC_ is new TreeSet<>(comparator).
-func newTSortedSetC_[K comparable](c *tconv_[K], cmp Comparator) *TSet[K] {
+func newTSortedSetC_[K comparable](c *tconv_[K], cmp Comparator_e) *TSet[K] {
 	s := &TSet[K]{c: c, eq: &teq_{sorted: true, cmp: cmp}, twin: sortedMark_}
 	s.view.s = s
 	return s
@@ -160,9 +160,9 @@ func (v *tsortedSetView_[K]) containsAll(c Collection) bool {
 // are now.
 func (v *tsortedSetView_[K]) descendingSet() NavigableSet {
 	s := v.s
-	out := &TreeSet{cmp: Comparator_reversed(&cmpFunc_{func(a, b any) int32 {
+	out := &TreeSet{cmp: cmpReversed_(Comparator_of_(func(a, b any) int32 {
 		return tsortCmp_(s.eq, s.c, s.c.unbox(a), s.c.unbox(b))
-	}})}
+	}))}
 	for i := len(s.keys) - 1; i >= 0; i-- {
 		if !s.dead(i) {
 			out.items = append(out.items, s.c.box(s.keys[i]))
@@ -194,7 +194,7 @@ func newTSortedMap_[K comparable, V any](kc *tconv_[K], vc *tconv_[V]) *TMap[K, 
 }
 
 // newTSortedMapC_ is new TreeMap<>(comparator).
-func newTSortedMapC_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], cmp Comparator) *TMap[K, V] {
+func newTSortedMapC_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], cmp Comparator_e) *TMap[K, V] {
 	m := &TMap[K, V]{kc: kc, vc: vc, eq: &teq_{sorted: true, cmp: cmp}, imm: sortedMapMark_}
 	m.view.m = m
 	return m

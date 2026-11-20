@@ -16,8 +16,8 @@ type ImmutableMap struct {
 	kind     int8
 	keys     []any
 	vals     []any
-	idx      *htable_   // key -> position (nil for sorted maps and until first lookup)
-	cmp      Comparator // sorted map (nil: natural ordering)
+	idx      *htable_     // key -> position (nil for sorted maps and until first lookup)
+	cmp      Comparator_e // sorted map (nil: natural ordering)
 	inv      *ImmutableMap
 	keySet_  *ImmutableCollection
 	values_  *ImmutableCollection
@@ -49,7 +49,7 @@ func immDup_(keys, vals []any) {
 
 // immMap_ builds a map of the given kind from parallel key/value slices, which
 // it owns. Duplicate keys throw, or with keepLast keep the last entry.
-func immMap_(kind int8, keys, vals []any, cmp Comparator, keepLast bool) *ImmutableMap {
+func immMap_(kind int8, keys, vals []any, cmp Comparator_e, keepLast bool) *ImmutableMap {
 	if len(keys) == 0 && kind == emptyImmMap_.kind && cmp == nil {
 		return emptyImmMap_
 	}
@@ -250,7 +250,7 @@ func (this *ImmutableMap) hashCode() int32 {
 }
 func (this *ImmutableMap) toString() string { return mapToString_(this) }
 
-func (this *ImmutableSortedMap) comparator() Comparator { return cmpOrNatural_(this.cmp) }
+func (this *ImmutableSortedMap) comparator() Comparator_e { return cmpOrNatural_(this.cmp) }
 
 // mapEntries_ copies a Map's entries to parallel slices.
 func mapKV_(m Map) (keys, vals []any) {
@@ -318,7 +318,7 @@ func Maps_immutableEnumMap(p0 Map) *ImmutableMap {
 		order[i] = i
 	}
 	c := ordinalCmp_()
-	sortSlice_(order, &cmpFunc_{func(a, b any) int32 { return c.compare(keys[a.(int)], keys[b.(int)]) }})
+	sortSlice_(order, Comparator_of_(func(a, b any) int32 { return c.compare(keys[a.(int)], keys[b.(int)]) }))
 	k2, v2 := make([]any, len(keys)), make([]any, len(keys))
 	for i, j := range order {
 		k2[i], v2[i] = keys[j.(int)], vals[j.(int)]
@@ -332,7 +332,7 @@ type ImmutableMap_Builder struct {
 	kind int8
 	keys []any
 	vals []any
-	cmp  Comparator
+	cmp  Comparator_e
 }
 
 type ImmutableSortedMap_Builder = ImmutableMap_Builder
@@ -395,8 +395,8 @@ type ImmutableMultimap_Builder struct {
 	set    bool
 	keys   []any
 	idx    htable_ // key -> *[]any
-	keyCmp Comparator
-	valCmp Comparator
+	keyCmp Comparator_e
+	valCmp Comparator_e
 }
 
 type ImmutableListMultimap_Builder = ImmutableMultimap_Builder

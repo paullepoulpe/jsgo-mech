@@ -446,7 +446,7 @@ type teq_ struct {
 	// sorted: the set or map is a sorted one (a TreeSet, a TreeMap: rt_tsorted.go), its keys
 	// in the order of cmp (nil: their natural ordering); hs, first and next are not used.
 	sorted bool
-	cmp    Comparator
+	cmp    Comparator_e
 	view   any // the sorted collection as erased code sees it, once that is needed
 }
 

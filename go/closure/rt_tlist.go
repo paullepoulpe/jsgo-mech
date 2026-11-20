@@ -18,6 +18,8 @@ type tconv_[T any] struct {
 	box   func(T) any
 	unbox func(any) T
 	null  T // Java's null as a T (the null string for a String, else the zero value)
+	// isnull: set for an element type that Go cannot compare (a func type): whether v is null
+	isnull func(T) bool
 	// byEquals: a set or a map compares elements of this type by equals and hashCode (through
 	// their boxes), not by Go's == (a class with its own equals, an interface, a library class).
 	byEquals bool

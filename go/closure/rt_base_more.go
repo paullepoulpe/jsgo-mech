@@ -14,7 +14,7 @@ func Objects_requireNonNull_Object(v any) any {
 }
 
 // Predicate_base_test is the default method test of Guava's Predicate.
-func Predicate_base_test(p Predicate_base, v any) bool { return p.apply(v) }
+func Predicate_base_test(p Predicate_base_e, v any) bool { return p.apply(v) }
 
 func Strings_padEnd(s string, minLength int32, padChar uint16) string {
 	if s == nullstr_ {
@@ -97,7 +97,7 @@ func new_ParseException(msg string, errorOffset int32) *ParseException {
 	return this
 }
 
-func new_ImmutableSortedSet_Builder(cmp Comparator) *ImmutableSortedSet_Builder {
+func new_ImmutableSortedSet_Builder(cmp Comparator_e) *ImmutableSortedSet_Builder {
 	return ImmutableSortedSet_orderedBy(cmp)
 }
 

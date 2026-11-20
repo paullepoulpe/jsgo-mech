@@ -11,7 +11,7 @@ import (
 // ---- TreeMap: a sorted slice of entries
 
 type TreeMap struct {
-	cmp     Comparator
+	cmp     Comparator_e
 	entries []*hentry_
 }
 
@@ -117,12 +117,12 @@ func (this *TreeMap) toString() string  { return mapToString_(this) }
 // ---- TreeSet: a sorted slice
 
 type TreeSet struct {
-	cmp   Comparator
+	cmp   Comparator_e
 	items []any
 }
 
-func new_TreeSet() *TreeSet                        { return &TreeSet{} }
-func new_TreeSet_Comparator(c Comparator) *TreeSet { return &TreeSet{cmp: c} }
+func new_TreeSet() *TreeSet                          { return &TreeSet{} }
+func new_TreeSet_Comparator(c Comparator_e) *TreeSet { return &TreeSet{cmp: c} }
 func (this *TreeSet) compare(a, b any) int32 {
 	if this.cmp != nil {
 		return this.cmp.compare(a, b)
@@ -183,7 +183,7 @@ func (this *TreeSet) hashCode() int32               { return setHash_(this) }
 func (this *TreeSet) toString() string              { return collToString_(this) }
 
 func (this *TreeSet) descendingSet() NavigableSet {
-	out := &TreeSet{cmp: Comparator_reversed(&cmpFunc_{this.compare})}
+	out := &TreeSet{cmp: cmpReversed_(Comparator_of_(this.compare))}
 	for i := len(this.items) - 1; i >= 0; i-- {
 		out.items = append(out.items, this.items[i])
 	}
@@ -203,20 +203,20 @@ func (this *TreeSet) tailSet(from any, inclusive bool) NavigableSet {
 
 type PriorityQueue struct {
 	ArrayList
-	cmp Comparator
+	cmp Comparator_e
 }
 
-func new_PriorityQueue(c Comparator) *PriorityQueue {
+func new_PriorityQueue(c Comparator_e) *PriorityQueue {
 	this := &PriorityQueue{cmp: c}
 	this.self_ = this
 	return this
 }
 
-func new_PriorityQueue_int_Comparator(n int32, c Comparator) *PriorityQueue {
+func new_PriorityQueue_int_Comparator(n int32, c Comparator_e) *PriorityQueue {
 	return new_PriorityQueue(c)
 }
 
-func (this *PriorityQueue) order() Comparator {
+func (this *PriorityQueue) order() Comparator_e {
 	if this.cmp == nil {
 		return naturalOrder_
 	}
@@ -341,10 +341,10 @@ func new_LinkedBlockingQueue() *LinkedBlockingQueue {
 
 // ---- EnumMap, EnumSet: ordered by ordinal
 
-func ordinalCmp_() Comparator {
-	return &cmpFunc_{func(a, b any) int32 {
+func ordinalCmp_() Comparator_e {
+	return Comparator_of_(func(a, b any) int32 {
 		return a.(interface{ ordinal() int32 }).ordinal() - b.(interface{ ordinal() int32 }).ordinal()
-	}}
+	})
 }
 
 type EnumMap struct{ TreeMap }
@@ -729,4 +729,4 @@ func (this *AbstractIterator) peek() any {
 	return this.next_
 }
 
-func new_TreeMap_Comparator(c Comparator) *TreeMap { return &TreeMap{cmp: c} }
+func new_TreeMap_Comparator(c Comparator_e) *TreeMap { return &TreeMap{cmp: c} }

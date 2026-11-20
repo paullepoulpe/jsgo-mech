@@ -18,7 +18,7 @@ func (this *CacheLoader) init_CacheLoader() {}
 // functionCacheLoader_ is CacheLoader.from(function).
 type functionCacheLoader_ struct {
 	CacheLoader
-	f_ Function_base
+	f_ Function_base_e
 }
 
 type CacheBuilder struct {
@@ -135,7 +135,7 @@ func (this *localCache_) size() int64 { return int64(this.map_.size()) }
 
 func (this *localCache_) cleanUp() {}
 
-func CacheLoader_from(f Function_base) *CacheLoader {
+func CacheLoader_from(f Function_base_e) *CacheLoader {
 	if f == nil {
 		panic(new_NullPointerException_0().self())
 	}

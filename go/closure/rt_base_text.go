@@ -381,10 +381,6 @@ func (this *Escaper) escape(s string) string {
 	return this.self_.(interface{ escape(string) string }).escape(s)
 }
 
-func (this *Escaper) asFunction() Function_base {
-	return &Function_base_fn{func(v any) any { return strobj_(this.escape(str_(v))) }}
-}
-
 type UnicodeEscaper struct {
 	Escaper
 }

@@ -168,11 +168,11 @@ func Iterables_contains(p0 Iterable, p1 any) bool {
 	return false
 }
 
-func Iterables_filter(p0 Iterable, p1 Predicate_base) Iterable {
+func Iterables_filter(p0 Iterable, p1 Predicate_base_e) Iterable {
 	return &iterView_{func() Iterator { return filterIter_(p0.iterator(), p1.apply) }}
 }
 
-func Iterables_transform(p0 Iterable, p1 Function_base) Iterable {
+func Iterables_transform(p0 Iterable, p1 Function_base_e) Iterable {
 	return &iterView_{func() Iterator { return mapIter_(p0.iterator(), p1.apply) }}
 }
 
@@ -375,7 +375,7 @@ func Maps_newLinkedHashMapWithExpectedSize(p0 int32) *LinkedHashMap { return new
 
 type Ordering struct {
 	self_ any
-	cmp_  Comparator // set for orderings made by this library
+	cmp_  Comparator_e // set for orderings made by this library
 }
 
 func (this *Ordering) as_Ordering() *Ordering { return this }
@@ -393,11 +393,11 @@ func (this *Ordering) compare(p0 any, p1 any) int32 {
 	if this.cmp_ != nil {
 		return this.cmp_.compare(p0, p1)
 	}
-	return this.self_.(Comparator).compare(p0, p1)
+	return this.self_.(interface{ compare(any, any) int32 }).compare(p0, p1)
 }
 
-func Ordering_from(p0 Comparator) *Ordering {
-	if o, ok := p0.(interface{ as_Ordering() *Ordering }); ok {
+func Ordering_from(p0 Comparator_e) *Ordering {
+	if o, ok := any(p0).(interface{ as_Ordering() *Ordering }); ok {
 		return o.as_Ordering()
 	}
 	this := &Ordering{cmp_: p0}
@@ -405,21 +405,21 @@ func Ordering_from(p0 Comparator) *Ordering {
 	return this
 }
 
-var naturalOrdering_ = Ordering_from(&cmpFunc_{func(a, b any) int32 {
+var naturalOrdering_ = Ordering_from(Comparator_of_(func(a, b any) int32 {
 	if a == nil || b == nil {
 		throwNPE_("null")
 	}
 	return compareNatural_(a, b)
-}})
+}))
 
 func Ordering_natural() *Ordering { return naturalOrdering_ }
 
 func (this *Ordering) reverse() *Ordering {
-	return Ordering_from(&cmpFunc_{func(a, b any) int32 { return this.compare(b, a) }})
+	return Ordering_from(Comparator_of_(func(a, b any) int32 { return this.compare(b, a) }))
 }
 
 func (this *Ordering) nullsFirst() *Ordering {
-	return Ordering_from(&cmpFunc_{func(a, b any) int32 {
+	return Ordering_from(Comparator_of_(func(a, b any) int32 {
 		switch {
 		case a == nil && b == nil:
 			return 0
@@ -429,13 +429,13 @@ func (this *Ordering) nullsFirst() *Ordering {
 			return 1
 		}
 		return this.compare(a, b)
-	}})
+	}))
 }
 
 // sortedCopy is a stable sort into a new mutable list.
 func (this *Ordering) sortedCopy(p0 Iterable) List {
 	s := copySlice_(p0)
-	sortSlice_(s, &cmpFunc_{this.compare})
+	sortSlice_(s, Comparator_of_(this.compare))
 	return listOf_(s)
 }
 
@@ -620,7 +620,7 @@ type MultimapBuilder_SetMultimapBuilder struct{ MultimapBuilder }
 
 type customTable_ struct {
 	m Map // row key -> Map (column key -> value)
-	f Supplier
+	f Supplier_e
 }
 
 // tableRow_ is the live view Table.row(r).
@@ -636,7 +636,7 @@ type HashBiMap struct {
 	inv_     *HashBiMap
 }
 
-func Iterators_filter(p0 Iterator, p1 Predicate_base) *UnmodifiableIterator {
+func Iterators_filter(p0 Iterator, p1 Predicate_base_e) *UnmodifiableIterator {
 	return &UnmodifiableIterator{it: filterIter_(p0, p1.apply)}
 }
 
@@ -647,7 +647,7 @@ func Iterables_unmodifiableIterable(p0 Iterable) Iterable {
 	return &iterView_{func() Iterator { return &UnmodifiableIterator{it: p0.iterator()} }}
 }
 
-func Iterables_indexOf(p0 Iterable, p1 Predicate_base) int32 {
+func Iterables_indexOf(p0 Iterable, p1 Predicate_base_e) int32 {
 	var i int32
 	for it := p0.iterator(); it.hasNext(); i++ {
 		if p1.apply(it.next()) {
@@ -672,7 +672,7 @@ func listRemoveAt_(l List, i int32) any {
 }
 
 // Lists.transform: a lazy view; the function runs on every access.
-func Lists_transform(p0 List, p1 Function_base) List {
+func Lists_transform(p0 List, p1 Function_base_e) List {
 	return &viewList_{
 		sz:   p0.size,
 		at:   func(i int32) any { return p1.apply(p0.get(i)) },

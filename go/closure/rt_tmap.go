@@ -176,7 +176,7 @@ func (m *TMap[K, V]) append(k K, v V, h int32) {
 }
 
 // isNull reports whether v is Java's null.
-func (m *TMap[K, V]) isNull(v V) bool { return any(v) == any(m.vc.null) }
+func (m *TMap[K, V]) isNull(v V) bool { return immNull_(m.vc, v) }
 
 // putIfAbsent maps k to v unless k has a value that is not null, which it returns.
 func (m *TMap[K, V]) putIfAbsent(k K, v V) V {
@@ -193,22 +193,6 @@ func (m *TMap[K, V]) putIfAbsent(k K, v V) V {
 	}
 	m.append(k, v, h)
 	return m.vc.null
-}
-
-// computeIfAbsent returns the value of key k if it has one that is not null; else the value f
-// makes for the key, which becomes the key's value unless it is null.
-func (m *TMap[K, V]) computeIfAbsent(k K, f Function) V {
-	if m.imm != nil && m.imm != sortedMapMark_ {
-		panic(frozen_{})
-	}
-	if i := m.find(k); i >= 0 && !m.isNull(m.vals[i]) {
-		return m.vals[i]
-	}
-	v := m.vc.unbox(f.apply(m.kc.box(k)))
-	if !m.isNull(v) {
-		m.put(k, v)
-	}
-	return v
 }
 
 // del is remove(key): the value the key had, or null.

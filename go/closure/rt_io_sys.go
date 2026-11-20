@@ -159,7 +159,7 @@ func (this *Thread) toString() string    { return "Thread[" + this.name_ + ",5,m
 type ThreadLocal struct {
 	value_   any
 	set_     bool
-	initial_ Supplier
+	initial_ Supplier_e
 }
 
 func new_ThreadLocal() *ThreadLocal { return &ThreadLocal{} }
@@ -317,7 +317,7 @@ func (this *AbstractExecutorService) execute(task Runnable) {
 	new_Thread_Runnable(task).start()
 }
 
-func (this *AbstractExecutorService) submit(task Callable) Future {
+func (this *AbstractExecutorService) submit(task Callable_e) Future {
 	if task == nil {
 		panic(new_NullPointerException_0().self())
 	}
@@ -391,8 +391,8 @@ type listeningExecutor_ struct {
 	delegate_ ExecutorService
 }
 
-func (this *listeningExecutor_) submit(task Callable) Future { return this.delegate_.submit(task) }
-func (this *listeningExecutor_) shutdown()                   { this.delegate_.shutdown() }
+func (this *listeningExecutor_) submit(task Callable_e) Future { return this.delegate_.submit(task) }
+func (this *listeningExecutor_) shutdown()                     { this.delegate_.shutdown() }
 func (this *listeningExecutor_) execute(task Runnable) {
 	if e, ok := this.delegate_.(interface{ execute(Runnable) }); ok {
 		e.execute(task)
