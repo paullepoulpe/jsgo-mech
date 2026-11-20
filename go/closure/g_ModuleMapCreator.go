@@ -238,7 +238,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolveExport_5_impl(m
 
 // reset: an object that is exactly a ModuleMapCreator_ModuleRequestResolverImpl_1 calls its reset_impl directly (post-flip); others dispatch.
 func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) reset() {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ModuleMapCreator_ModuleRequestResolverImpl_1); p == this {
 		this.reset_impl()
 		return
 	}
@@ -247,7 +247,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) reset() {
 
 // resolve_2: an object that is exactly a ModuleMapCreator_ModuleRequestResolverImpl_1 calls its resolve_2_impl directly (post-flip); others dispatch.
 func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolve_2(p0 ModuleRequestResolver, p1 Optional[string]) *Module {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ModuleMapCreator_ModuleRequestResolverImpl_1); p == this {
 		return this.resolve_2_impl(p0, p1)
 	}
 	return this.self_.resolve_2_impl(p0, p1)
@@ -255,7 +255,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolve_2(p0 ModuleReq
 
 // metadata: an object that is exactly a ModuleMapCreator_ModuleRequestResolverImpl_1 calls its metadata_impl directly (post-flip); others dispatch.
 func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) metadata() *ModuleMetadataMap_ModuleMetadata {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ModuleMapCreator_ModuleRequestResolverImpl_1); p == this {
 		return this.metadata_impl()
 	}
 	return this.self_.metadata_impl()
@@ -263,7 +263,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) metadata() *ModuleMeta
 
 // getExportedNames: an object that is exactly a ModuleMapCreator_ModuleRequestResolverImpl_1 calls its getExportedNames_impl directly (post-flip); others dispatch.
 func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames(p0 ModuleRequestResolver) *JTSet[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ModuleMapCreator_ModuleRequestResolverImpl_1); p == this {
 		return this.getExportedNames_impl(p0)
 	}
 	return this.self_.getExportedNames_impl(p0)
@@ -271,7 +271,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames(p0 Mo
 
 // getExportedNames_2: an object that is exactly a ModuleMapCreator_ModuleRequestResolverImpl_1 calls its getExportedNames_2_impl directly (post-flip); others dispatch.
 func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames_2(p0 ModuleRequestResolver, p1 *JTSet[*UnresolvedModule]) *JTSet[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ModuleMapCreator_ModuleRequestResolverImpl_1); p == this {
 		return this.getExportedNames_2_impl(p0, p1)
 	}
 	return this.self_.getExportedNames_2_impl(p0, p1)
@@ -279,7 +279,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames_2(p0 
 
 // resolveExport_5: an object that is exactly a ModuleMapCreator_ModuleRequestResolverImpl_1 calls its resolveExport_5_impl directly (post-flip); others dispatch.
 func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolveExport_5(p0 ModuleRequestResolver, p1 Optional[string], p2 Optional[string], p3 *JTSet[*ExportTrace], p4 *JTSet[*UnresolvedModule]) *ResolveExportResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ModuleMapCreator_ModuleRequestResolverImpl_1); p == this {
 		return this.resolveExport_5_impl(p0, p1, p2, p3, p4)
 	}
 	return this.self_.resolveExport_5_impl(p0, p1, p2, p3, p4)

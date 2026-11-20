@@ -50,7 +50,7 @@ func (this *Es6RenameReferences) renameReference(t *NodeTraversal, n Node, oldNa
 
 // visit: an object that is exactly a Es6RenameReferences calls its visit_impl directly (post-flip); others dispatch.
 func (this *Es6RenameReferences) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Es6RenameReferences); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

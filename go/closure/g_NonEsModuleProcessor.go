@@ -92,7 +92,7 @@ func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_2_impl(moduleRequ
 
 // resolveExport: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its resolveExport_impl directly (post-flip); others dispatch.
 func (this *NonEsModuleProcessor_NonEsModule) resolveExport(p0 ModuleRequestResolver, p1 Optional[string]) *ResolveExportResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NonEsModuleProcessor_NonEsModule); p == this {
 		return this.resolveExport_impl(p0, p1)
 	}
 	return this.self_.resolveExport_impl(p0, p1)
@@ -100,7 +100,7 @@ func (this *NonEsModuleProcessor_NonEsModule) resolveExport(p0 ModuleRequestReso
 
 // resolveExport_5: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its resolveExport_5_impl directly (post-flip); others dispatch.
 func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5(p0 ModuleRequestResolver, p1 Optional[string], p2 Optional[string], p3 *JTSet[*ExportTrace], p4 *JTSet[*UnresolvedModule]) *ResolveExportResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NonEsModuleProcessor_NonEsModule); p == this {
 		return this.resolveExport_5_impl(p0, p1, p2, p3, p4)
 	}
 	return this.self_.resolveExport_5_impl(p0, p1, p2, p3, p4)
@@ -108,7 +108,7 @@ func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5(p0 ModuleRequestRe
 
 // reset: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its reset_impl directly (post-flip); others dispatch.
 func (this *NonEsModuleProcessor_NonEsModule) reset() {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NonEsModuleProcessor_NonEsModule); p == this {
 		this.reset_impl()
 		return
 	}
@@ -117,7 +117,7 @@ func (this *NonEsModuleProcessor_NonEsModule) reset() {
 
 // resolve_2: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its resolve_2_impl directly (post-flip); others dispatch.
 func (this *NonEsModuleProcessor_NonEsModule) resolve_2(p0 ModuleRequestResolver, p1 Optional[string]) *Module {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NonEsModuleProcessor_NonEsModule); p == this {
 		return this.resolve_2_impl(p0, p1)
 	}
 	return this.self_.resolve_2_impl(p0, p1)
@@ -125,7 +125,7 @@ func (this *NonEsModuleProcessor_NonEsModule) resolve_2(p0 ModuleRequestResolver
 
 // metadata: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its metadata_impl directly (post-flip); others dispatch.
 func (this *NonEsModuleProcessor_NonEsModule) metadata() *ModuleMetadataMap_ModuleMetadata {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NonEsModuleProcessor_NonEsModule); p == this {
 		return this.metadata_impl()
 	}
 	return this.self_.metadata_impl()
@@ -133,7 +133,7 @@ func (this *NonEsModuleProcessor_NonEsModule) metadata() *ModuleMetadataMap_Modu
 
 // getExportedNames: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its getExportedNames_impl directly (post-flip); others dispatch.
 func (this *NonEsModuleProcessor_NonEsModule) getExportedNames(p0 ModuleRequestResolver) *JTSet[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NonEsModuleProcessor_NonEsModule); p == this {
 		return this.getExportedNames_impl(p0)
 	}
 	return this.self_.getExportedNames_impl(p0)
@@ -141,7 +141,7 @@ func (this *NonEsModuleProcessor_NonEsModule) getExportedNames(p0 ModuleRequestR
 
 // getExportedNames_2: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its getExportedNames_2_impl directly (post-flip); others dispatch.
 func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_2(p0 ModuleRequestResolver, p1 *JTSet[*UnresolvedModule]) *JTSet[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NonEsModuleProcessor_NonEsModule); p == this {
 		return this.getExportedNames_2_impl(p0, p1)
 	}
 	return this.self_.getExportedNames_2_impl(p0, p1)
