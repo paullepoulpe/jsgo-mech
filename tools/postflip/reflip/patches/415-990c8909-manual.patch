@@ -1,0 +1,44 @@
+diff --git a/go/closure/g_AbstractScope.go b/go/closure/g_AbstractScope.go
+index 61e87f33..2d4b90dd 100644
+--- a/go/closure/g_AbstractScope.go
++++ b/go/closure/g_AbstractScope.go
+@@ -4,8 +4,8 @@ package closure
+ 
+ type AbstractScope struct {
+ 	self_        AbstractScope_I
+-	vars         *scopeVars_ // nil until the first declaration (Java: an empty ImmutableMap)
+-	implicitVars MapOf[AbstractScope_ImplicitVar, any]
++	vars         *scopeVars_      // nil until the first declaration (Java: an empty ImmutableMap)
++	implicitVars *[4]*AbstractVar // by ordinal; nil until the first (Java: an EnumMap made at the first)
+ 	rootNode_    Node
+ }
+ 
+@@ -50,7 +50,6 @@ func (this *AbstractScope) self() any {
+ }
+ 
+ func (this *AbstractScope) finit_AbstractScope() {
+-	this.implicitVars = ImmutableMap_of()
+ }
+ 
+ func (this *AbstractScope) init_AbstractScope(rootNode Node) {
+@@ -159,11 +158,16 @@ func (this *AbstractScope) getOwnImplicitSlot(name AbstractScope_ImplicitVar) *A
+ 	if !this.hasOwnImplicitSlot(name) {
+ 		return nil
+ 	}
+-	var emptySentinel ImmutableMapOf[AbstractScope_ImplicitVar, any] = ImmutableMap_of()
+-	if this.implicitVars == obj_(emptySentinel) {
+-		this.implicitVars = new_EnumMap(classOf_("com.google.javascript.jscomp.AbstractScope.ImplicitVar"))
++	// implicitVars.computeIfAbsent(name, this::makeImplicitVar) on an array indexed by the
++	// enum's ordinal, Java's EnumMap (post-flip manual step): a null result is not stored.
++	if this.implicitVars == nil {
++		this.implicitVars = new([4]*AbstractVar)
+ 	}
+-	return to_AbstractVar(Map_computeIfAbsent(this.implicitVars, obj_(name), &Function_tfn_AbstractScope_ImplicitVar_any{func(p0 AbstractScope_ImplicitVar) any { return this.makeImplicitVar(p0).self() }}))
++	slot := &this.implicitVars[name.ordinal()]
++	if *slot == nil {
++		*slot = this.makeImplicitVar(name)
++	}
++	return *slot
+ }
+ 
+ func (this *AbstractScope) getOwnSlot(name string) StaticSlot {

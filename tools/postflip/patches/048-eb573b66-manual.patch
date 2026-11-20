@@ -1,0 +1,56 @@
+diff --git a/go/closure/g_ControlFlowAnalysis.go b/go/closure/g_ControlFlowAnalysis.go
+index 37ddb8cf..71964d92 100644
+--- a/go/closure/g_ControlFlowAnalysis.go
++++ b/go/closure/g_ControlFlowAnalysis.go
+@@ -92,8 +92,11 @@ func (this *ControlFlowAnalysis) prioritizeFromEntryNode(entry DiGraph_DiGraphNo
+ 		}
+ 		this.priorityCounter++
+ 		current.setPriority(this.priorityCounter)
+-		var successors *TList[DiGraph_DiGraphNode] = this.cfg.getDirectedSuccNodesDiGraphNode(current)
+-		worklist.addAll(Collection(successors.asList()))
++		// worklist.addAll(successors of current), from its out-edges in order, without the list
++		// and its view (post-flip manual step).
++		for _, e := range to_LinkedDirectedGraph_LinkedDiGraphNode(current).getOutEdges().items {
++			worklist.add(any(to_LinkedDirectedGraph_LinkedDiGraphEdge(any(e)).getDestination()))
++		}
+ 	}
+ }
+ 
+diff --git a/go/closure/g_DataFlowAnalysis.go b/go/closure/g_DataFlowAnalysis.go
+index 3c115547..bb17ae29 100644
+--- a/go/closure/g_DataFlowAnalysis.go
++++ b/go/closure/g_DataFlowAnalysis.go
+@@ -68,17 +68,23 @@ func (this *DataFlowAnalysis) analyze() {
+ 		}
+ 		this.joinInputs(curNode)
+ 		if this.flow(curNode) {
+-			var nextNodes *TList[DiGraph_DiGraphNode] = func() *TList[DiGraph_DiGraphNode] {
+-				if this.isForward() {
+-					return this.cfg.getDirectedSuccNodesDiGraphNode(curNode)
++			// The successors (forward) or predecessors of curNode, in edge order, from its edges
++			// instead of a list made of them (post-flip manual step: a list per flow step; the
++			// control-flow graph overrides neither method).
++			lNode := to_LinkedDirectedGraph_LinkedDiGraphNode(curNode)
++			if this.isForward() {
++				for _, e := range lNode.getOutEdges().items {
++					var nextNode DiGraph_DiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphEdge(any(e)).getDestination()
++					if nextNode != this.cfg.getImplicitReturn() {
++						this.workQueue.add(any(nextNode))
++					}
+ 				}
+-				return this.cfg.getDirectedPredNodesDiGraphNode(curNode)
+-			}()
+-			it_2 := nextNodes.each()
+-			for it_2.next() {
+-				var nextNode DiGraph_DiGraphNode = it_2.v
+-				if nextNode != this.cfg.getImplicitReturn() {
+-					this.workQueue.add(any(nextNode))
++			} else {
++				for _, e := range lNode.getInEdges().items {
++					var nextNode DiGraph_DiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphEdge(any(e)).getSource()
++					if nextNode != this.cfg.getImplicitReturn() {
++						this.workQueue.add(any(nextNode))
++					}
+ 				}
+ 			}
+ 		}

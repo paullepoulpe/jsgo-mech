@@ -56,12 +56,30 @@ func (this *SimpleMultiset) add(element any) bool {
 	return true
 }
 
+// add_s is add for a string key that is not boxed (post-flip step strvar).
+func (this *SimpleMultiset) add_s(element string) bool {
+	this.add_2_s(element, 1)
+	return true
+}
+
 func (this *SimpleMultiset) add_2(element any, occurrences int32) int32 {
 	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
 	Preconditions_checkArgument((occurrences >= 0))
 	var oldCount int32 = this.count(element)
 	if occurrences > 0 {
 		this.counts.put(element, int32((oldCount + occurrences)))
+		this.totalCount += occurrences
+	}
+	return oldCount
+}
+
+// add_2_s is add_2 for a string key that is not boxed (post-flip step strvar).
+func (this *SimpleMultiset) add_2_s(element string, occurrences int32) int32 {
+	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
+	Preconditions_checkArgument((occurrences >= 0))
+	var oldCount int32 = this.count_s(element)
+	if occurrences > 0 {
+		Map_put_s(this.counts, element, int32((oldCount + occurrences)))
 		this.totalCount += occurrences
 	}
 	return oldCount
@@ -85,6 +103,22 @@ func (this *SimpleMultiset) setCount(element any, expectedOldCount int32, newCou
 		this.counts.remove(element)
 	} else {
 		this.counts.put(element, int32(newCount))
+	}
+	this.totalCount += (newCount - expectedOldCount)
+	return true
+}
+
+// setCount_s is setCount for a string key that is not boxed (post-flip step strvar).
+func (this *SimpleMultiset) setCount_s(element string, expectedOldCount int32, newCount int32) bool {
+	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
+	Preconditions_checkArgument(((expectedOldCount >= 0) && (newCount >= 0)))
+	if this.count_s(element) != expectedOldCount {
+		return false
+	}
+	if newCount == 0 {
+		Map_remove_s(this.counts, element)
+	} else {
+		Map_put_s(this.counts, element, int32(newCount))
 	}
 	this.totalCount += (newCount - expectedOldCount)
 	return true
@@ -119,8 +153,24 @@ func (this *SimpleMultiset) count(element any) int32 {
 	}()
 }
 
+// count_s is count for a string key that is not boxed (post-flip step strvar).
+func (this *SimpleMultiset) count_s(element string) int32 {
+	var count any = Map_get_s(this.counts, element)
+	return func() int32 {
+		if count == nil {
+			return 0
+		}
+		return unbox_[int32](count)
+	}()
+}
+
 func (this *SimpleMultiset) contains(element any) bool {
 	return this.counts.containsKey(element)
+}
+
+// contains_s is contains for a string key that is not boxed (post-flip step strvar).
+func (this *SimpleMultiset) contains_s(element string) bool {
+	return Map_containsKey_s(this.counts, element)
 }
 
 func (this *SimpleMultiset) elementSet() SetOf[any] {

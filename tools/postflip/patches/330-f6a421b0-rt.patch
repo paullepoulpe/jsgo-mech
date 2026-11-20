@@ -1,0 +1,184 @@
+diff --git a/go/closure/rt_tnested.go b/go/closure/rt_tnested.go
+index b1502398..5f1e9f87 100644
+--- a/go/closure/rt_tnested.go
++++ b/go/closure/rt_tnested.go
+@@ -8,66 +8,118 @@ package closure
+ // collection behind it. Only collections of the class are ever stored there (colls proves
+ // it), so the view is always one of a typed collection of these types.
+ 
+-// tlistOf_ is the typed list whose view v is (null for null).
++// An immutable typed collection (rt_timm.go) is seen by erased code as its twin, the
++// runtime's immutable collection with the same elements (asList is asImm for it), not as a
++// view: the twin keeps the typed collection it is the twin of (typed_), which is what it
++// unboxes to. The empty twins (emptyImmList_, emptyImmSet_, emptyImmMap_: one object each,
++// as in Guava) are shared by every element type, so a conversion remembers the empty
++// immutable collection it boxed last and unboxes the empty twin to it.
++
++// tlistOf_ is the typed list whose view v is (null for null), or whose twin v is.
+ func tlistOf_[T any](v any) *TList[T] {
+-	if v == nil {
++	switch x := v.(type) {
++	case nil:
+ 		return nil
++	case *ImmutableCollection:
++		if l, ok := x.typed_.v.(*TList[T]); ok {
++			return l
++		}
+ 	}
+ 	return v.(*tlistView_[T]).l
+ }
+ 
+-// tmapOf_ is the typed map whose view v is.
++// tmapOf_ is the typed map whose view v is, or whose twin v is.
+ func tmapOf_[K comparable, V any](v any) *TMap[K, V] {
+-	if v == nil {
++	switch x := v.(type) {
++	case nil:
+ 		return nil
++	case *ErasedImmutableMap:
++		if m, ok := x.typed_.v.(*TMap[K, V]); ok {
++			return m
++		}
+ 	}
+ 	return v.(*tmapView_[K, V]).m
+ }
+ 
+-// tsetOf_ is the typed set whose view v is.
++// tsetOf_ is the typed set whose view v is, or whose twin v is.
+ func tsetOf_[K comparable](v any) *TSet[K] {
+-	if v == nil {
++	switch x := v.(type) {
++	case nil:
+ 		return nil
++	case *ImmutableCollection:
++		if s, ok := x.typed_.v.(*TSet[K]); ok {
++			return s
++		}
+ 	}
+ 	return v.(*tsetView_[K]).s
+ }
+ 
+ // tlistConv_ is the conversion of typed lists as elements of a typed container.
+ func tlistConv_[T any]() *tconv_[*TList[T]] {
++	var empty *TList[T] // the empty immutable list boxed last
+ 	return &tconv_[*TList[T]]{
+ 		box: func(l *TList[T]) any {
+ 			if l == nil {
+ 				return nil
+ 			}
+-			return l.asList()
++			v := l.asList()
++			if v == List(emptyImmList_) {
++				empty = l
++			}
++			return v
++		},
++		unbox: func(v any) *TList[T] {
++			if v == any(emptyImmList_) && empty != nil {
++				return empty
++			}
++			return tlistOf_[T](v)
+ 		},
+-		unbox: tlistOf_[T],
+ 	}
+ }
+ 
+ // tmapConv_ is the conversion of typed maps as elements of a typed container.
+ func tmapConv_[K comparable, V any]() *tconv_[*TMap[K, V]] {
++	var empty *TMap[K, V] // the empty immutable map boxed last
+ 	return &tconv_[*TMap[K, V]]{
+ 		box: func(m *TMap[K, V]) any {
+ 			if m == nil {
+ 				return nil
+ 			}
+-			return m.asMap()
++			v := m.asMap()
++			if v == Map(emptyImmMap_) {
++				empty = m
++			}
++			return v
++		},
++		unbox: func(v any) *TMap[K, V] {
++			if v == any(emptyImmMap_) && empty != nil {
++				return empty
++			}
++			return tmapOf_[K, V](v)
+ 		},
+-		unbox: tmapOf_[K, V],
+ 	}
+ }
+ 
+ // tsetConv_ is the conversion of typed sets as elements of a typed container.
+ func tsetConv_[K comparable]() *tconv_[*TSet[K]] {
++	var empty *TSet[K] // the empty immutable set boxed last
+ 	return &tconv_[*TSet[K]]{
+ 		box: func(s *TSet[K]) any {
+ 			if s == nil {
+ 				return nil
+ 			}
+-			return s.asSet()
++			v := s.asSet()
++			if v == Set(emptyImmSet_) {
++				empty = s
++			}
++			return v
++		},
++		unbox: func(v any) *TSet[K] {
++			if v == any(emptyImmSet_) && empty != nil {
++				return empty
++			}
++			return tsetOf_[K](v)
+ 		},
+-		unbox: tsetOf_[K],
+ 	}
+ }
+ 
+diff --git a/go/closure/rt_tnested_test.go b/go/closure/rt_tnested_test.go
+index b8f8614f..deeb369b 100644
+--- a/go/closure/rt_tnested_test.go
++++ b/go/closure/rt_tnested_test.go
+@@ -86,3 +86,44 @@ func TestDequeView(t *testing.T) {
+ 		t.Error("the view of a null deque should be null")
+ 	}
+ }
++
++// TestNestedImmutableTypedCollections: an immutable typed collection held in a typed
++// container is boxed as its twin, the immutable collection erased code sees (rt_timm.go),
++// and unboxed to itself: made typed, made from an erased immutable collection, and empty
++// (the one empty twin of every element type).
++func TestNestedImmutableTypedCollections(t *testing.T) {
++	lc := tlistConv_[string]()
++	l := immutableListOf_(tc_string, "a", "b")
++	if b := lc.box(l); b != any(l.asImm()) || lc.unbox(b) != l {
++		t.Error("an immutable typed list should box as its twin and unbox to itself")
++	}
++	er := immList_([]any{strobj_("x")})
++	fl := tlistImm_(tc_string, Collection(er))
++	if b := lc.box(fl); b != any(er) || lc.unbox(b) != fl {
++		t.Error("a typed list made from an immutable list should box as that list and unbox to itself")
++	}
++	el := immutableListOf_(tc_string)
++	if b := lc.box(el); b != any(emptyImmList_) || lc.unbox(b) != el {
++		t.Error("the empty immutable typed list should box as the empty list and unbox to itself")
++	}
++	m := newTMap_(tc_string, lc)
++	m.put("k", l)
++	m.put("e", el)
++	if m.asMap().get(strobj_("k")) != any(l.asImm()) || m.get("k") != l || m.get("e") != el {
++		t.Error("a map of immutable typed lists should give the twin to erased code and the list to typed code")
++	}
++	sc := tsetConv_[string]()
++	s := immutableSetOf_(tc_string, "a")
++	es := immutableSetOf_(tc_string)
++	if b := sc.box(s); b != any(s.asImm()) || sc.unbox(b) != s {
++		t.Error("an immutable typed set should box as its twin and unbox to itself")
++	}
++	if b := sc.box(es); b != any(emptyImmSet_) || sc.unbox(b) != es {
++		t.Error("the empty immutable typed set should box as the empty set and unbox to itself")
++	}
++	mc := tmapConv_[string, string]()
++	im := immutableMapOf_(tc_string, tc_string, []string{"k"}, []string{"v"})
++	if b := mc.box(im); b != any(im.asImm()) || mc.unbox(b) != im {
++		t.Error("an immutable typed map should box as its twin and unbox to itself")
++	}
++}
