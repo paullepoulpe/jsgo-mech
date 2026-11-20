@@ -104,7 +104,7 @@ func (this *Scanner_parser) nextRegularExpressionLiteralToken() *LiteralToken {
 		return new_LiteralToken(TokenType_REGULAR_EXPRESSION, this.getTokenString(beginToken), this.getTokenRange(beginToken))
 	}
 	if this.peekChar() != '/' {
-		this.reportError("Expected '/' in regular expression literal", []any{})
+		this.reportError("Expected '/' in regular expression literal")
 		return new_LiteralToken(TokenType_REGULAR_EXPRESSION, this.getTokenString(beginToken), this.getTokenRange(beginToken))
 	}
 	this.nextChar()
@@ -117,14 +117,14 @@ func (this *Scanner_parser) nextRegularExpressionLiteralToken() *LiteralToken {
 func (this *Scanner_parser) nextTemplateLiteralToken() *TemplateLiteralToken {
 	var token *Token_parser = this.nextToken()
 	if this.isAtEnd() || (token.type__ != TokenType_CLOSE_CURLY) {
-		this.reportError_3(this.getPosition_1(this.index_), "Expected '}' after expression in template literal", []any{})
+		this.reportError_3(this.getPosition_1(this.index_), "Expected '}' after expression in template literal")
 	}
 	return this.nextTemplateLiteralTokenShared(TokenType_TEMPLATE_TAIL, TokenType_TEMPLATE_MIDDLE)
 }
 
 func (this *Scanner_parser) skipRegularExpressionBody() bool {
 	if !Scanner_parser_isRegularExpressionFirstChar(this.peekChar()) {
-		this.reportError("Expected regular expression first char", []any{})
+		this.reportError("Expected regular expression first char")
 		return false
 	}
 	if !this.skipRegularExpressionChar() {
@@ -155,7 +155,7 @@ func (this *Scanner_parser) skipRegularExpressionChar() bool {
 func (this *Scanner_parser) skipRegularExpressionBackslashSequence() bool {
 	this.nextChar()
 	if Scanner_parser_isLineTerminator(this.peekChar()) {
-		this.reportError("New line not allowed in regular expression literal", []any{})
+		this.reportError("New line not allowed in regular expression literal")
 		return false
 	}
 	this.nextChar()
@@ -170,7 +170,7 @@ func (this *Scanner_parser) skipRegularExpressionClass() bool {
 		}
 	}
 	if this.peekChar() != ']' {
-		this.reportError("']' expected", []any{})
+		this.reportError("']' expected")
 		return false
 	}
 	this.nextChar()
@@ -315,7 +315,7 @@ func (this *Scanner_parser) skipComment() bool {
 }
 
 func (this *Scanner_parser) reportHtmlCommentWarning() {
-	this.reportWarning("In some cases, '<!--' and '-->' are treated as a '//' for legacy reasons. Removing this from your code is safe for all browsers currently in use.", []any{})
+	this.reportWarning("In some cases, '<!--' and '-->' are treated as a '//' for legacy reasons. Removing this from your code is safe for all browsers currently in use.")
 }
 
 func (this *Scanner_parser) skipSingleLineComment() {
@@ -358,7 +358,7 @@ func (this *Scanner_parser) skipMultiLineComment() {
 		var value string = this.contentsU16.substring(startOffset, this.index_)
 		this.recordComment(type_, range_, value)
 	} else {
-		this.reportError("unterminated comment", []any{})
+		this.reportError("unterminated comment")
 	}
 }
 
@@ -569,7 +569,7 @@ func (this *Scanner_parser) scanToken() *Token_parser {
 		}
 	case '#':
 		if this.peek('!') {
-			this.reportError_3(this.getPosition_1(this.index_), "Shebang comment must be at the start of the file", []any{})
+			this.reportError_3(this.getPosition_1(this.index_), "Shebang comment must be at the start of the file")
 			return this.createToken(TokenType_ERROR, beginToken)
 		}
 		return this.scanIdentifierOrKeyword(beginToken, ch)
@@ -607,7 +607,7 @@ func (this *Scanner_parser) scanPostZero(beginToken int32) *Token_parser {
 		case 'b', 'B':
 			this.nextChar()
 			if !Scanner_parser_isBinaryDigit(this.peekChar()) {
-				this.reportError("Binary Integer Literal must contain at least one digit", []any{})
+				this.reportError("Binary Integer Literal must contain at least one digit")
 			}
 			this.skipBinaryDigits()
 			isBigInt = this.peek('n')
@@ -623,11 +623,11 @@ func (this *Scanner_parser) scanPostZero(beginToken int32) *Token_parser {
 		case 'o', 'O':
 			this.nextChar()
 			if !Scanner_parser_isOctalDigit(this.peekChar()) {
-				this.reportError("Octal Integer Literal must contain at least one digit", []any{})
+				this.reportError("Octal Integer Literal must contain at least one digit")
 			}
 			this.skipOctalDigits()
 			if this.peek('8') || this.peek('9') {
-				this.reportError("Invalid octal digit in octal literal.", []any{})
+				this.reportError("Invalid octal digit in octal literal.")
 			}
 			isBigInt = this.peek('n')
 			if isBigInt {
@@ -642,7 +642,7 @@ func (this *Scanner_parser) scanPostZero(beginToken int32) *Token_parser {
 		case 'x', 'X':
 			this.nextChar()
 			if !this.peekHexDigit() {
-				this.reportError("Hex Integer Literal must contain at least one digit", []any{})
+				this.reportError("Hex Integer Literal must contain at least one digit")
 			}
 			this.skipHexDigits()
 			isBigInt = this.peek('n')
@@ -666,7 +666,7 @@ func (this *Scanner_parser) scanPostZero(beginToken int32) *Token_parser {
 				this.skipDecimalDigits_1(false)
 			}
 			if this.peek('n') {
-				this.reportError("SyntaxError: nonzero BigInt can't have leading zero", []any{})
+				this.reportError("SyntaxError: nonzero BigInt can't have leading zero")
 			}
 			return new_LiteralToken(TokenType_NUMBER, this.getTokenString(beginToken), this.getTokenRange(beginToken)).up_Token_parser()
 		case 'n':
@@ -713,13 +713,13 @@ func (this *Scanner_parser) scanIdentifierOrKeyword(beginToken int32, ch uint16)
 	}
 	var value Optional[string] = Optional_of[string](this.contentsU16.substring(valueStartIndex, this.index_))
 	if isPrivateIdentifier && (value.get() == "#") {
-		this.reportError_3(this.getPosition_1(beginToken), "Invalid usage of #", []any{})
+		this.reportError_3(this.getPosition_1(beginToken), "Invalid usage of #")
 		return this.createToken(TokenType_ERROR, beginToken)
 	}
 	if containsUnicodeEscape {
 		value = Scanner_parser_processUnicodeEscapes(value)
 		if value.isEmpty() {
-			this.reportError_3(this.getPosition_1(this.index_), "Invalid escape sequence", []any{})
+			this.reportError_3(this.getPosition_1(this.index_), "Invalid escape sequence")
 			return this.createToken(TokenType_ERROR, beginToken)
 		}
 	}
@@ -729,7 +729,7 @@ func (this *Scanner_parser) scanIdentifierOrKeyword(beginToken int32, ch uint16)
 		start = valueU16.of(value.get()).charAt(1)
 	}
 	if !Identifiers_isIdentifierStart(start) {
-		this.reportError_3(this.getPosition_1(beginToken), "Character '%c' (U+%04X) is not a valid identifier start char", []any{uint16(start), int32(int32(start))})
+		this.reportError_3(this.getPosition_1(beginToken), "Character '%c' (U+%04X) is not a valid identifier start char", uint16(start), int32(int32(start)))
 		return this.createToken(TokenType_ERROR, beginToken)
 	}
 	var k Keywords = Keywords_getString(value.orElseThrow())
@@ -814,7 +814,7 @@ func (this *Scanner_parser) scanStringLiteral(beginIndex int32, terminator uint1
 		}
 	}
 	if this.peekChar() != terminator {
-		this.reportError_3(startingPosition, "Unterminated string literal", []any{})
+		this.reportError_3(startingPosition, "Unterminated string literal")
 	} else {
 		this.nextChar()
 	}
@@ -823,7 +823,7 @@ func (this *Scanner_parser) scanStringLiteral(beginIndex int32, terminator uint1
 
 func (this *Scanner_parser) scanTemplateLiteral(beginIndex int32) *Token_parser {
 	if this.isAtEnd() {
-		this.reportError_3(this.getPosition_1(beginIndex), "Unterminated template literal", []any{})
+		this.reportError_3(this.getPosition_1(beginIndex), "Unterminated template literal")
 	}
 	return this.nextTemplateLiteralTokenShared(TokenType_NO_SUBSTITUTION_TEMPLATE, TokenType_TEMPLATE_HEAD).up_Token_parser()
 }
@@ -833,7 +833,7 @@ func (this *Scanner_parser) nextTemplateLiteralTokenShared(endType TokenType, mi
 	var startingPosition *SourcePosition_util = this.getPosition_1(beginIndex)
 	var skipTemplateCharactersResult *Scanner_SkipTemplateCharactersResult = this.skipTemplateCharacters()
 	if this.isAtEnd() {
-		this.reportError_3(startingPosition, "Unterminated template literal", []any{})
+		this.reportError_3(startingPosition, "Unterminated template literal")
 	}
 	var value string = this.getTokenString(beginIndex)
 	return func() *TemplateLiteralToken {
@@ -895,7 +895,7 @@ func (this *Scanner_parser) skipTemplateCharacters() *Scanner_SkipTemplateCharac
 func (this *Scanner_parser) skipTemplateLiteralEscapeSequence() *Scanner_SkipTemplateCharactersResult {
 	this.nextChar()
 	if this.isAtEnd() {
-		this.reportError("Unterminated template literal escape sequence", []any{})
+		this.reportError("Unterminated template literal escape sequence")
 		return nil
 	}
 	if Scanner_parser_isLineTerminator(this.peekChar()) {
@@ -942,16 +942,16 @@ func (this *Scanner_parser) skipTemplateLiteralEscapeSequence() *Scanner_SkipTem
 	case '\\', 'b', 'f', 'n', 'r', 't', 'v', '$', '`':
 		return nil
 	case '\'':
-		return this.createSkipTemplateCharactersResult(Optional_of[string](Strings_lenientFormat("Unnecessary escape: \"\\%s\" is equivalent to just \"%s\"", []any{uint16(next), uint16(next)})), TemplateLiteralToken_ErrorLevel_WARNING)
+		return this.createSkipTemplateCharactersResult(Optional_of[string](Strings_lenientFormat("Unnecessary escape: \"\\%s\" is equivalent to just \"%s\"", uint16(next), uint16(next))), TemplateLiteralToken_ErrorLevel_WARNING)
 	default:
-		return this.createSkipTemplateCharactersResult(Optional_of[string](Strings_lenientFormat("Unnecessary escape: '\\%s' is equivalent to just '%s'", []any{uint16(next), uint16(next)})), TemplateLiteralToken_ErrorLevel_WARNING)
+		return this.createSkipTemplateCharactersResult(Optional_of[string](Strings_lenientFormat("Unnecessary escape: '\\%s' is equivalent to just '%s'", uint16(next), uint16(next))), TemplateLiteralToken_ErrorLevel_WARNING)
 	}
 }
 
 func (this *Scanner_parser) skipStringLiteralEscapeSequence() bool {
 	this.nextChar()
 	if this.isAtEnd() {
-		this.reportError("Unterminated string literal escape sequence", []any{})
+		this.reportError("Unterminated string literal escape sequence")
 		return false
 	}
 	if Scanner_parser_isLineTerminator(this.peekChar()) {
@@ -965,14 +965,14 @@ func (this *Scanner_parser) skipStringLiteralEscapeSequence() bool {
 	case 'x':
 		var doubleHexDigit bool = (this.skipHexDigit() && this.skipHexDigit())
 		if !doubleHexDigit {
-			this.reportError("Hex digit expected", []any{})
+			this.reportError("Hex digit expected")
 		}
 		return doubleHexDigit
 	case 'u':
 		if this.peek('{') {
 			this.nextChar()
 			if this.peek('}') {
-				this.reportError("Empty unicode escape", []any{})
+				this.reportError("Empty unicode escape")
 				return false
 			}
 			var allHexDigits bool = true
@@ -980,14 +980,14 @@ func (this *Scanner_parser) skipStringLiteralEscapeSequence() bool {
 				allHexDigits = (allHexDigits && this.skipHexDigit())
 			}
 			if !allHexDigits {
-				this.reportError("Hex digit expected", []any{})
+				this.reportError("Hex digit expected")
 			}
 			this.nextChar()
 			return allHexDigits
 		} else {
 			var quadHexDigit bool = (((this.skipHexDigit() && this.skipHexDigit()) && this.skipHexDigit()) && this.skipHexDigit())
 			if !quadHexDigit {
-				this.reportError("Hex digit expected", []any{})
+				this.reportError("Hex digit expected")
 			}
 			return quadHexDigit
 		}
@@ -995,7 +995,7 @@ func (this *Scanner_parser) skipStringLiteralEscapeSequence() bool {
 	}
 	if next == '/' {
 	} else {
-		this.reportWarning("Unnecessary escape: '\\%s' is equivalent to just '%s'", []any{uint16(next), uint16(next)})
+		this.reportWarning("Unnecessary escape: '\\%s' is equivalent to just '%s'", uint16(next), uint16(next))
 	}
 	return true
 }
@@ -1033,7 +1033,7 @@ func (this *Scanner_parser) scanExponentOfNumericLiteral(beginToken int32) *Lite
 		default:
 		}
 		if !Scanner_parser_isDecimalDigit(this.peekChar()) {
-			this.reportError("Exponent part must contain at least one digit", []any{})
+			this.reportError("Exponent part must contain at least one digit")
 		}
 		this.skipDecimalDigits()
 	default:
@@ -1054,7 +1054,7 @@ func (this *Scanner_parser) skipDecimalDigits_1(hasLeadingDigit bool) {
 			if hasDigit && Scanner_parser_isDecimalDigit(this.peekChar()) {
 				this.nextChar()
 			} else {
-				this.reportError("Trailing numeric separator", []any{})
+				this.reportError("Trailing numeric separator")
 			}
 		} else {
 			hasDigit = true
@@ -1090,7 +1090,7 @@ func (this *Scanner_parser) skipHexDigits() {
 			if this.peekHexDigit() {
 				this.nextChar()
 			} else {
-				this.reportError("Trailing numeric separator", []any{})
+				this.reportError("Trailing numeric separator")
 			}
 		}
 		ch = this.peekChar()
@@ -1105,7 +1105,7 @@ func (this *Scanner_parser) skipOctalDigits() {
 			if Scanner_parser_isOctalDigit(this.peekChar()) {
 				this.nextChar()
 			} else {
-				this.reportError("Trailing numeric separator", []any{})
+				this.reportError("Trailing numeric separator")
 			}
 		}
 		ch = this.peekChar()
@@ -1135,7 +1135,7 @@ func (this *Scanner_parser) skipBinaryDigits() {
 			if Scanner_parser_isBinaryDigit(this.peekChar()) {
 				this.nextChar()
 			} else {
-				this.reportError("Trailing numeric separator", []any{})
+				this.reportError("Trailing numeric separator")
 			}
 		}
 		ch = this.peekChar()
@@ -1185,16 +1185,16 @@ func (this *Scanner_parser) peekChar_1(offset int32) uint16 {
 	}()
 }
 
-func (this *Scanner_parser) reportError(format string, arguments []any) {
-	this.reportError_3(this.getPosition(), format, arguments)
+func (this *Scanner_parser) reportError(format string, arguments ...any) {
+	this.reportError_3(this.getPosition(), format, arguments...)
 }
 
-func (this *Scanner_parser) reportError_3(position *SourcePosition_util, format string, arguments []any) {
-	this.errorReporter.reportError_3(position, format, arguments)
+func (this *Scanner_parser) reportError_3(position *SourcePosition_util, format string, arguments ...any) {
+	this.errorReporter.reportError_3(position, format, arguments...)
 }
 
-func (this *Scanner_parser) reportWarning(format string, arguments []any) {
-	this.errorReporter.reportWarning_3(this.getPosition(), format, arguments)
+func (this *Scanner_parser) reportWarning(format string, arguments ...any) {
+	this.errorReporter.reportWarning_3(this.getPosition(), format, arguments...)
 }
 
 func (this *Scanner_parser) incTypeParameterLevel() {

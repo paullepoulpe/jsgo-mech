@@ -85,7 +85,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitNameDeclaration(t *NodeTra
 
 func (this *RescopeGlobalSymbolsRewriteCallback) globalVarStaysLocalInDefiningChunk(name string, t *NodeTraversal) bool {
 	if !t.getScope().getVar_String_rVar(name).isGlobal() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected global variable: %s", []any{name})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected global variable: %s", name)))
 	}
 	if this.isExternVar(name, t) {
 		return false
@@ -159,7 +159,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) rewriteNameDeclaration(t *NodeT
 			} else if child.isDestructuringLhs() {
 				if child.hasOneChild() {
 					if ok_, a1_ := NodeUtil_isEnhancedFor(declaration.getParent()), declaration.toStringTree(); !ok_ {
-						panic(new_IllegalStateException_String(Strings_lenientFormat("DESTRUCTURING_LHS should have two children: %s", []any{a1_})))
+						panic(new_IllegalStateException_String(Strings_lenientFormat("DESTRUCTURING_LHS should have two children: %s", a1_)))
 					}
 					child.replaceWith(child.removeFirstChild())
 				} else {
@@ -246,7 +246,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitName(t *NodeTraversal, n N
 		return
 	}
 	if !this.symbolInfo.wrappedCrossChunkNames().Has(name) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected unaliased cross-chunk symbol under ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS: %s", []any{name})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected unaliased cross-chunk symbol under ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS: %s", name)))
 	}
 	mapComputeIfAbsent_(tc_string, tc_Set, this.chunksUsingWrappedReassignableSymbols, name, &Function_tfn_string_Set{func(k string) Set {
 		return Set(new_LinkedHashSet())

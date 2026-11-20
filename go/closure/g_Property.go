@@ -135,7 +135,7 @@ func (this *Property) getScope_rStaticTypedScope() StaticTypedScope {
 }
 
 func (this *Property) hashCode() int32 {
-	return Objects_hash([]any{this.name_, this.type__.self()})
+	return Objects_hash(this.name_, this.type__.self())
 }
 
 func (this *Property) getSymbol_rStaticTypedSlot() StaticTypedSlot {

@@ -252,7 +252,7 @@ func (this *ConvertToTypedInterface_RemoveNonDeclarations) visit(t *NodeTraversa
 	case tokOrd1_SWITCH:
 		if n.hasParent() {
 			if ok_, a1_ := n.hasOneChild(), n.toStringTree(); !ok_ {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("malfrmed sWITCH %s", []any{a1_})))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("malfrmed sWITCH %s", a1_)))
 			}
 			var children Node = n.getFirstChild().removeChildren()
 			parent.addChildrenAfter(children, n)

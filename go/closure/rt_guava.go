@@ -538,7 +538,7 @@ func ImmutableSet_of_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, 
 	return immSet_([]any{p0, p1, p2, p3, p4})
 }
 
-func ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 []any) *ErasedImmutableSet {
+func ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 ...any) *ErasedImmutableSet {
 	return immSet_(append([]any{p0, p1, p2, p3, p4, p5}, p6...))
 }
 

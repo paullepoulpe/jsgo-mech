@@ -503,7 +503,7 @@ func (this *ClosureRewriteModule) updateGoogRequireDynamicCallInThen(call Node) 
 	paramListNode.removeChildren()
 	var languageIn CompilerOptions_LanguageMode = this.compiler_.getOptions().getLanguageIn()
 	if !languageIn.toFeatureSet().contains(FeatureSet_Feature_CONST_DECLARATIONS) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("'%s' does not contain '%s'", []any{languageIn, FeatureSet_Feature_CONST_DECLARATIONS})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("'%s' does not contain '%s'", languageIn, FeatureSet_Feature_CONST_DECLARATIONS)))
 	}
 	var enclosingScript Node = NodeUtil_getEnclosingScript(call)
 	NodeUtil_addFeatureToScript(enclosingScript, FeatureSet_Feature_CONST_DECLARATIONS, this.compiler_)
@@ -875,10 +875,10 @@ func ClosureRewriteModule_markConstAndCopyJsDoc(from Node, target Node) {
 
 func (this *ClosureRewriteModule) recordExportToInline(exportDefinition *ClosureRewriteModule_ExportDefinition) {
 	if ok_, a1_, a2_ := exportDefinition.hasInlinableName(this.currentScript.exportsToInline.asMap().keySet()), exportDefinition, this.currentScript.exportsToInline.asMap().keySet(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("exportDefinition: %s\n\nexportsToInline keys: %s", []any{a1_, a2_})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("exportDefinition: %s\n\nexportsToInline keys: %s", a1_, a2_)))
 	}
 	if ok_, a1_ := (this.currentScript.exportsToInline.Put(exportDefinition.nameDecl, exportDefinition) == nil), exportDefinition.nameDecl; !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Already found a mapping for inlining export: %s", []any{a1_})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Already found a mapping for inlining export: %s", a1_)))
 	}
 	var localName Optional[string] = exportDefinition.getLocalName()
 	var fullExportedName string = (sstr_(this.currentScript.getBinaryNamespace().orElse("null")) + sstr_(exportDefinition.getExportPostfix()))

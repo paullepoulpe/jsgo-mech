@@ -261,7 +261,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) exitScope(t *NodeT
 		var variableName string = declaredVariableInfo.getName()
 		var oldStackTop MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = this.variablesStackedByName.popVariableInfo(variableName)
 		if oldStackTop != obj_(declaredVariableInfo) {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Declared variable \"%s\" was not the top of the name stack", []any{variableName})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Declared variable \"%s\" was not the top of the name stack", variableName)))
 		}
 		declaredVariableInfo.tryToInvertName()
 	}

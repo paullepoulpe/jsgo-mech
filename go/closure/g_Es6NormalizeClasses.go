@@ -1204,7 +1204,7 @@ func (this *Es6NormalizeClasses) visitThisAndSuper(t *NodeTraversal, n Node) {
 	var classNode Node = rootNode.getGrandparent()
 	var classRecord *Es6NormalizeClasses_ClassRecord = this.classStack.peek()
 	if ok_, a1_, a2_ := (classRecord.classNode == classNode), classRecord.classNode, classNode; !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("wrong class node: %s != %s", []any{a1_.box_(), a2_.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("wrong class node: %s != %s", a1_.box_(), a2_.box_())))
 	}
 	var newNameNode Node = 0
 	if forceRewriteStaticThis {

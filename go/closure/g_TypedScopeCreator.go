@@ -671,7 +671,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) initializeModuleScope(module
 			*this.outer_.weakImports = append(*this.outer_.weakImports, new_TypedScopeCreator_WeakModuleImport(this.outer_, entry.getKey(), entry.getValue(), this.currentScope))
 		}
 	default:
-		panic(new_IllegalStateException_String(String_format("Unexpected module type %s in module %s", []any{obj_(moduleType), obj_(this.getModule())})))
+		panic(new_IllegalStateException_String(String_format("Unexpected module type %s in module %s", obj_(moduleType), obj_(this.getModule()))))
 	}
 }
 
@@ -1348,7 +1348,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) createFunctionTypeFromNodes(
 		}
 		if ownerName.isPresent() && name.isPresent() {
 			if ok_, a1_, a2_ := strings.HasPrefix(name.get(), ownerName.get()), name.get(), ownerName.get(); !ok_ {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Expected \"%s\" to start with \"%s\"", []any{strobj_(a1_), strobj_(a2_)})))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Expected \"%s\" to start with \"%s\"", strobj_(a1_), strobj_(a2_))))
 			}
 			propName = Optional_of[string](String_substring_int(name.get(), (String_length(ownerName.get()) + 1)))
 		}

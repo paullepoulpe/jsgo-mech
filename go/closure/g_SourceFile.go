@@ -223,7 +223,7 @@ func (this *SourceFile_jscomp) markAsClosureUnawareCode() {
 
 func (this *SourceFile_jscomp) getLineOfOffset(offset int32) int32 {
 	if offset < 0 {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("offset must be non-negative: %s", []any{offset})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("offset must be non-negative: %s", offset)))
 	}
 	this.findLineOffsets()
 	var search int32 = Arrays_binarySearch(this.lineOffsets, offset)
@@ -451,20 +451,20 @@ func SourceFile_jscomp_canonicalizePathForMatching(path string) string {
 
 func (this *SourceFile_jscomp) restoreCachedStateFrom(protoSourceFile *SourceFileProto) {
 	if ok_, a1_, a2_ := ((protoSourceFile.getFilename() == this.getName()) || (SourceFile_jscomp_canonicalizePathForMatching(protoSourceFile.getFilename()) == SourceFile_jscomp_canonicalizePathForMatching(this.getName()))), this.getName(), protoSourceFile.getFilename(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot restore state for %s from %s", []any{a1_, a2_})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot restore state for %s from %s", a1_, a2_)))
 	}
 	if protoSourceFile.getSourceKind() == SourceFileProto_SourceKind_EXTERN {
 		if ok_, a1_ := (this.getKind() == StaticSourceFile_SourceKind_EXTERN), this.getName(); !ok_ {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("TypedAST compilations must pass all extern files as externs, not js, but found %s", []any{a1_})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("TypedAST compilations must pass all extern files as externs, not js, but found %s", a1_)))
 		}
 	}
 	var protoNumLines int32 = (protoSourceFile.getNumLinesPlusOne() - 1)
 	var protoNumBytes int32 = (protoSourceFile.getNumBytesPlusOne() - 1)
 	if protoNumLines < -1 {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("protoNumLines must be >= -1: %s", []any{protoNumLines})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("protoNumLines must be >= -1: %s", protoNumLines)))
 	}
 	if protoNumBytes < -1 {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("protoNumBytes must be >= -1: %s", []any{protoNumBytes})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("protoNumBytes must be >= -1: %s", protoNumBytes)))
 	}
 	this.numLines = func() int32 {
 		if protoNumLines != -1 {
@@ -487,10 +487,10 @@ func SourceFile_jscomp_fromProto_SourceFileProto(protoSourceFile *SourceFileProt
 	var protoNumLines int32 = (protoSourceFile.getNumLinesPlusOne() - 1)
 	var protoNumBytes int32 = (protoSourceFile.getNumBytesPlusOne() - 1)
 	if protoNumLines < -1 {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("protoNumLines must be >= -1: %s", []any{protoNumLines})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("protoNumLines must be >= -1: %s", protoNumLines)))
 	}
 	if protoNumBytes < -1 {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("protoNumBytes must be >= -1: %s", []any{protoNumBytes})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("protoNumBytes must be >= -1: %s", protoNumBytes)))
 	}
 	sourceFile.numLines = protoNumLines
 	sourceFile.numBytes = protoNumBytes
