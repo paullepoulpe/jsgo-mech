@@ -49,6 +49,33 @@
 // map operations as above. Not with a Comparator, nor other keys: those compare Objects, so a
 // typed collection would box both elements of every comparison again.
 //
+// The empty immutable map as a sentinel (-kind map; post-flip step 551): a Map declaration
+// that starts as ImmutableMap.of() and is replaced by a LinkedHashMap on the first write,
+//
+//	if (vars == EMPTY) { vars = new LinkedHashMap<>(); }      (EMPTY = ImmutableMap.of())
+//
+// The typed translator writes the upcasts of such a declaration as calls of its nil-keeping
+// helpers (LinkedHashMap_as_Map(v), ImmutableMap_as_Map(v): `return v` as a Map, nil for nil),
+// which keep the object and are followed like the other conversions, and the comparison as
+// `this.vars == emptySentinel.asMap()` with emptySentinel a typed tmapEmptyImm_(kc, vc), whose
+// view is the runtime's one empty ImmutableMap. The class becomes typed, with the comparison
+// kept as an identity comparison of typed maps (`this.vars == emptySentinel`), when
+//   - the compared value is tmapEmptyImm_(kc, vc) itself, or a local variable declared with
+//     it and never assigned again, and kc, vc are the conversions the class's maps get;
+//   - every immutable map that enters the class is the literal ImmutableMap_of(), which is then
+//     written tmapEmptyImm_(kc, vc): one object per pair of conversions (rt_timm.go), so the
+//     typed comparison is true exactly where the erased one was (the erased values were the
+//     one empty ImmutableMap, the view of every tmapEmptyImm_; the class's other values are
+//     maps made in it, which are neither); and
+//   - no typed map enters the class through its view, nor an immutable map from elsewhere (a
+//     copyOf that may be empty): their typed forms are other objects than tmapEmptyImm_(kc, vc)
+//     where the erased forms could be the same empty map.
+//
+// Proof obligations beyond the kind's own: the identity of tmapEmptyImm_ per conversion pair;
+// that a typed immutable map fails its changes as the erased one does (TMap.imm: put, remove,
+// clear throw UnsupportedOperationException); iteration in insertion order, as LinkedHashMap.
+// A class with such a comparison that fails a condition stays erased, with the reason.
+//
 // usage: colls -kind list|map|set|deque|treeset|treemap|idmap|immlist|immset|immmap|immlistb|immsetb|immmapb [-n] [-v] <dir of package closure>
 //
 // The imm kinds (Guava's immutable collections and their builders) are described in imm.go.
@@ -103,6 +130,80 @@ type class struct {
 	deep string
 	// The element types of the typed collections that enter the class through their views.
 	typed [][]types.Type
+	// The empty immutable map as a sentinel: the comparisons of the class with a typed empty
+	// immutable (the conversions it was made with, where), where an immutable collection that is
+	// not the literal empty one enters, and where a typed collection enters through its view.
+	sentinels []sentinel
+	immIn     string
+	typedIn   string
+}
+
+type sentinel struct {
+	convs []string
+	at    string
+}
+
+// emptyLit reports whether e is the kind's literal empty immutable collection (ImmutableMap_of()).
+func emptyLit(e ast.Expr) bool {
+	n, c := rw.CallName(rw.Unparen(e))
+	return K.emptyLit != "" && n == K.emptyLit && len(c.Args) == 0
+}
+
+// emptyTyped: e is the kind's typed empty immutable, tmapEmptyImm_(kc, vc) with conversion
+// variables as arguments, or a local variable declared with that value and never assigned,
+// nor its address taken, afterwards. It returns the names of the conversions.
+func emptyTyped(e ast.Expr) ([]string, bool) {
+	e = rw.Unparen(e)
+	if id, ok := e.(*ast.Ident); ok {
+		v, ok := rw.Info.Uses[id].(*types.Var)
+		if !ok || v.IsField() || v.Parent() == rw.Pkg.Scope() || v.Parent() == nil {
+			return nil, false
+		}
+		var init ast.Expr
+		for _, use := range rw.UsesOf[v] {
+			switch p := rw.Parent[use].(type) {
+			case *ast.AssignStmt:
+				for _, l := range p.Lhs {
+					if l == ast.Expr(use) {
+						return nil, false
+					}
+				}
+			case *ast.UnaryExpr:
+				if p.Op == token.AND {
+					return nil, false
+				}
+			case *ast.IncDecStmt:
+				return nil, false
+			}
+		}
+		for d, o := range rw.Info.Defs {
+			if o != types.Object(v) {
+				continue
+			}
+			vs, ok := rw.Parent[d].(*ast.ValueSpec)
+			if !ok || len(vs.Names) != 1 || len(vs.Values) != 1 {
+				return nil, false
+			}
+			init = vs.Values[0]
+		}
+		if init == nil {
+			return nil, false
+		}
+		e = rw.Unparen(init)
+	}
+	n, c := rw.CallName(e)
+	if K.emptyFn == "" || n != K.emptyFn || len(c.Args) != K.nargs {
+		return nil, false
+	}
+	var names []string
+	for _, a := range c.Args {
+		id, ok := a.(*ast.Ident)
+		if !ok {
+			return nil, false
+		}
+		names = append(names, id.Name)
+	}
+	return names, true
 }
 
 // ---- kinds
@@ -117,6 +218,8 @@ type kindDef struct {
 	aliases   []string
 	nargs     int
 	conv      []string // conversions that keep the object
+	emptyLit  string   // the runtime's literal empty immutable collection (ImmutableMap_of)
+	emptyFn   string   // the typed empty immutable of given conversions (tmapEmptyImm_)
 	newFns    map[string]int
 	copyFns   map[string]bool
 	immutable map[string]bool
@@ -183,7 +286,8 @@ func kinds() map[string]*kindDef {
 		},
 		"map": {
 			name: "map", held: []types.Type{look("Map"), ptr("LinkedHashMap")}, aliases: []string{"MapOf", "LinkedHashMapOf"}, nargs: 2,
-			conv:      []string{"Collections_unmodifiableMap", "icast_Map", "to_LinkedHashMap", "cast_[*LinkedHashMap]", "Map"},
+			conv:     []string{"LinkedHashMap_as_Map", "ImmutableMap_as_Map", "Collections_unmodifiableMap", "icast_Map", "to_LinkedHashMap", "cast_[*LinkedHashMap]", "Map"},
+			emptyLit: "ImmutableMap_of", emptyFn: "tmapEmptyImm_",
 			newFns:    map[string]int{"new_LinkedHashMap": 0, "Maps_newLinkedHashMapWithExpectedSize": 1},
 			copyFns:   map[string]bool{"new_LinkedHashMap_Map": true},
 			immutable: map[string]bool{"ErasedImmutableMap": true},
@@ -303,6 +407,13 @@ func union(a, b int) {
 	}
 	da.typeExpr = append(da.typeExpr, db.typeExpr...)
 	da.typed = append(da.typed, db.typed...)
+	da.sentinels = append(da.sentinels, db.sentinels...)
+	if da.immIn == "" {
+		da.immIn = db.immIn
+	}
+	if da.typedIn == "" {
+		da.typedIn = db.typedIn
+	}
 	da.edits = append(da.edits, db.edits...)
 	da.slots += db.slots
 	da.strKey = da.strKey || db.strKey
@@ -931,8 +1042,18 @@ func flow(dest int, src ast.Expr, top ast.Expr) {
 	case vImm, vCopy:
 		inferBad(dest, -1, "an erased collection is copied in")
 		from, imm := v.from, v.kind == vImm
+		lit := imm && emptyLit(from)
+		if imm && !lit {
+			if c := cls(dest); c.immIn == "" {
+				c.immIn = at(top)
+			}
+		}
 		edit(dest, func(c *class) rw.Edit {
 			return rw.Edit{Node: top, Gen: func() string {
+				if lit && len(c.sentinels) > 0 {
+					// The class is compared with this object: the one typed empty immutable.
+					return K.emptyFn + "(" + c.convName(0) + ", " + c.convName(1) + ")"
+				}
 				r := rw.Render
 				if from == top {
 					r = rw.RenderChildren
@@ -952,6 +1073,9 @@ func flow(dest int, src ast.Expr, top ast.Expr) {
 		}
 	case vTyped:
 		c := cls(dest)
+		if c.typedIn == "" {
+			c.typedIn = at(top)
+		}
 		ts := comps(typeOf(v.from))
 		c.typed = append(c.typed, ts)
 		if c.inferred == nil {
@@ -1369,9 +1493,20 @@ func handle(e ast.Expr) {
 				return
 			}
 			if isList(typeOf(other)) && top == unwrap(e) {
-				if ov := valueOf(other); ov.kind == vSlot && src != 0 {
+				ov := valueOf(other)
+				if ov.kind == vSlot && src != 0 {
 					union(src, ov.k)
 					return
+				}
+				// The typed empty immutable, seen through its view: compared as typed objects.
+				if ov.kind == vTyped && src != 0 && K.nargs == 2 {
+					if names, ok := emptyTyped(ov.from); ok {
+						c := cls(src)
+						c.sentinels = append(c.sentinels, sentinel{names, at(x)})
+						from := ov.from
+						edit(src, func(c *class) rw.Edit { return rw.Edit{Node: other, Gen: func() string { return rw.Render(from) }} })
+						return
+					}
 				}
 			}
 		}
@@ -2561,6 +2696,22 @@ func main() {
 				for i := 0; i < K.nargs && why == ""; i++ {
 					if !types.Identical(ts[i], c.elem[i]) {
 						why = "a typed collection of other element types enters it (" + types.TypeString(ts[i], types.RelativeTo(rw.Pkg)) + ")"
+					}
+				}
+			}
+			// The empty immutable as a sentinel: every immutable of the class is that one object.
+			if why == "" && len(c.sentinels) > 0 {
+				switch {
+				case c.immIn != "":
+					why = "compared with the typed empty immutable, and another immutable collection enters it (" + c.immIn + ")"
+				case c.typedIn != "":
+					why = "compared with the typed empty immutable, and a typed collection enters it (" + c.typedIn + ")"
+				}
+				for _, s := range c.sentinels {
+					for i := 0; i < K.nargs && why == ""; i++ {
+						if s.convs[i] != c.convName(i) {
+							why = "compared with the empty immutable of other conversions (" + s.at + ": " + s.convs[i] + ", not " + c.convName(i) + ")"
+						}
 					}
 				}
 			}
