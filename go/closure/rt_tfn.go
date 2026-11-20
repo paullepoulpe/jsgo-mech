@@ -1,0 +1,15 @@
+package closure
+
+// Wrappers for tools/postflip/tfnargs (post-flip runtime): a function parameter that took the
+// method of a typed lambda adapter, func(any) bool or func(any), now takes the typed function
+// func(T) bool or func(T) of a handle type T; a call that passes some other function of the
+// erased type wraps it. The wrapper calls it with x.box_(), which is the call the function
+// body made before; a null f fails when the wrapper is called, as the call of f did.
+
+func unboxedPred_[T interface{ box_() any }](f func(any) bool) func(T) bool {
+	return func(x T) bool { return f(x.box_()) }
+}
+
+func unboxedCons_[T interface{ box_() any }](f func(any)) func(T) {
+	return func(x T) { f(x.box_()) }
+}
