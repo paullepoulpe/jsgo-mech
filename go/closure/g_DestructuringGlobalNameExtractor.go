@@ -22,7 +22,9 @@ func DestructuringGlobalNameExtractor_reassignDestructringLvalue(stringKey Node,
 		Preconditions_checkState_boolean_Object_H(false, assignmentType)
 	}
 	var originalRvalue Node = pattern.getNext()
-	Preconditions_checkState(originalRvalue.isQualifiedName())
+	if !originalRvalue.isQualifiedName() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var lvalueToReassign Node = func() Node {
 		if stringKey.getOnlyChild().isDefaultValue() {
 			return stringKey.getOnlyChild().getFirstChild()
@@ -93,7 +95,9 @@ func DestructuringGlobalNameExtractor_replaceDestructuringAssignment(pattern Nod
 		var newAssign Node = IR_assign(newLvalue, newRvalue).srcref(parent)
 		parent.replaceWith(newAssign)
 	} else if newLvalue.isName() {
-		Preconditions_checkState(parent.isDestructuringLhs())
+		if !parent.isDestructuringLhs() {
+			panic(new_IllegalStateException_0().self())
+		}
 		parent.replaceWith(newLvalue)
 		newLvalue.addChildToBack(newRvalue)
 	} else {

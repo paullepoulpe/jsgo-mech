@@ -38,7 +38,9 @@ func (this *PeepholeCollectPropertyAssignments) optimizeSubtree_impl(subtree Nod
 			if !PeepholeCollectPropertyAssignments_isPropertyAssignmentToName(child.getNext()) {
 				continue
 			}
-			Preconditions_checkState(child.hasOneChild())
+			if !child.hasOneChild() {
+				panic(new_IllegalStateException_0().self())
+			}
 			var name Node = PeepholeCollectPropertyAssignments_getName(child)
 			if !name.isName() {
 				continue

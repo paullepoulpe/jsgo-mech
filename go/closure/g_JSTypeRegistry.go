@@ -533,7 +533,9 @@ func (this *JSTypeRegistry) isDeclaredForScope(scope StaticScope, name string) b
 }
 
 func JSTypeRegistry_checkTypeName(typeName string) {
-	Preconditions_checkArgument_boolean_Object(!JString_contains_s(typeName, "<"), "Type names cannot contain template annotations.")
+	if JString_contains_s(typeName, "<") {
+		panic(new_IllegalArgumentException_String(objstr_("Type names cannot contain template annotations.")).self())
+	}
 }
 
 func (this *JSTypeRegistry) getTypeInternal(scope StaticScope, name string) *JSType {
@@ -620,7 +622,9 @@ func (this *JSTypeRegistry) resolveViaClosureNamespace(reference string) *JSType
 }
 
 func (this *JSTypeRegistry) resolveViaProperties(declarationScope StaticTypedScope, qualifiedName string) *JSType {
-	Preconditions_checkArgument(!String_isEmpty(qualifiedName))
+	if String_isEmpty(qualifiedName) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var rootName string = JSTypeRegistry_getRootElementOfName(qualifiedName)
 	var slot StaticTypedSlot = declarationScope.getOwnSlot_String_rStaticTypedSlot(rootName)
 	if slot == nil {
@@ -863,7 +867,9 @@ func JSTypeRegistry_getSuperStack(a *ObjectType) *JTList[*ObjectType] {
 }
 
 func (this *JSTypeRegistry) declareType(scope StaticScope, name string, type_ *JSType) bool {
-	Preconditions_checkState(!String_isEmpty(name))
+	if String_isEmpty(name) {
+		panic(new_IllegalStateException_0().self())
+	}
 	if this.getTypeForScopeInternal(JSTypeRegistry_getLookupScope(scope, name), name) != nil {
 		return false
 	}
@@ -872,7 +878,9 @@ func (this *JSTypeRegistry) declareType(scope StaticScope, name string, type_ *J
 }
 
 func (this *JSTypeRegistry) declareTypeForExactScope(scope StaticScope, name string, type_ *JSType) bool {
-	Preconditions_checkState(!String_isEmpty(name))
+	if String_isEmpty(name) {
+		panic(new_IllegalStateException_0().self())
+	}
 	if this.getTypeForScopeInternal(scope, name) != nil {
 		return false
 	}
@@ -882,7 +890,7 @@ func (this *JSTypeRegistry) declareTypeForExactScope(scope StaticScope, name str
 
 func (this *JSTypeRegistry) overwriteDeclaredType(scope StaticScope, name string, type_ *JSType) {
 	if !this.isDeclaredForScope(scope, name) {
-		Preconditions_checkState_boolean_String_Object(false, "missing name %s", name)
+		panic(new_IllegalStateException_String(Strings_lenientFormat("missing name %s", []any{name})).self())
 	}
 	this.register(scope, type_, name)
 }
@@ -1030,7 +1038,7 @@ func (this *JSTypeRegistry) getType_5(scope StaticTypedScope, jsTypeName string,
 		type_ = thisType.getTemplateTypeMap().getLastTemplateTypeKeyByName(jsTypeName).up_JSType()
 		if type_ != nil {
 			if !type_.isTemplateType() {
-				Preconditions_checkState_boolean_String_Object(false, "expected:%s", type_)
+				panic(new_IllegalStateException_String(Strings_lenientFormat("expected:%s", []any{type_})).self())
 			}
 			return type_
 		}
@@ -1209,7 +1217,9 @@ func (this *JSTypeRegistry) resetImplicitPrototype(type_ *JSType, newImplicitPro
 }
 
 func (this *JSTypeRegistry) createConstructorType(name string, source Node, parameters *JTList[*FunctionType_Parameter], returnType *JSType, templateKeys *JTList[*TemplateType], isAbstract bool) *FunctionType {
-	Preconditions_checkArgument((((source == 0) || source.isFunction()) || source.isClass()))
+	if !(((source == 0) || source.isFunction()) || source.isClass()) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	return FunctionType_builder(this).forConstructor().withName(Optional_of[string](name)).withSourceNode(source).withParameters_1(parameters).withReturnType(returnType).withTemplateKeysImmutableList(templateKeys).withIsAbstract(isAbstract).build_rFunctionType()
 }
 

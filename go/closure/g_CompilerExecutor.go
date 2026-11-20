@@ -50,7 +50,9 @@ func (this *CompilerExecutor) runInCompilerThread(callable func() any, dumpTrace
 	var executor ExecutorService = this.getExecutorService()
 	var result any = nil
 	var exception []*Throwable = make([]*Throwable, 1)
-	Preconditions_checkState_boolean_Object(((this.compilerThread == nil) || (this.compilerThread == Thread_currentThread())), "Please do not share the Compiler across threads")
+	if this.compilerThread != nil && this.compilerThread != Thread_currentThread() {
+		panic(new_IllegalStateException_String(objstr_("Please do not share the Compiler across threads")).self())
+	}
 	if this.useThreads && (this.compilerThread == nil) {
 		_ = func() (code_ int) {
 			defer func() {

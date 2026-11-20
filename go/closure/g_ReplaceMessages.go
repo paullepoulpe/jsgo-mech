@@ -524,7 +524,7 @@ func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addString(key string, val
 
 func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addNode(key string, node Node) *ReplaceMessages_QuotedKeyObjectLitBuilder {
 	if this.keyToValueNodeMap.containsKey(key) {
-		Preconditions_checkState_boolean_String_Object(false, "repeated key: %s", key)
+		panic(new_IllegalStateException_String(Strings_lenientFormat("repeated key: %s", []any{key})).self())
 	}
 	this.keyToValueNodeMap.put(key, node)
 	return this
@@ -913,7 +913,9 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 			var key string = strKey.getString()
 			var valueNode Node = strKey.getOnlyChild()
 			if key == "icu_placeholder_names" {
-				Preconditions_checkState_boolean_Object(valueNode.isArrayLit(), "icu_placeholder_names must be an array")
+				if !valueNode.isArrayLit() {
+					panic(new_IllegalStateException_String(objstr_("icu_placeholder_names must be an array")).self())
+				}
 				it_2 := foreach_(valueNode.children())
 				for it_2.next() {
 					var valueNodeChild Node = Node_of_(it_2.v)
@@ -949,7 +951,9 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 		}
 	}
 	if !icuPlaceholderNames.isEmpty() {
-		Preconditions_checkState_boolean_Object(isIcuTemplate, "Found icu_placeholder_names for a message that is not an ICU template.")
+		if !isIcuTemplate {
+			panic(new_IllegalStateException_String(objstr_("Found icu_placeholder_names for a message that is not an ICU template.")).self())
+		}
 		var icuMessageTemplateString *JsMessageVisitor_IcuMessageTemplateString = new_JsMessageVisitor_IcuMessageTemplateString(messageText.orElse(nullstr_))
 		var extractedIcuTemplateParts *JsMessageVisitor_ExtractedIcuTemplateParts = icuMessageTemplateString.extractParts(icuPlaceholderNames)
 		jsMessageBuilder.appendParts(extractedIcuTemplateParts.extractedParts)

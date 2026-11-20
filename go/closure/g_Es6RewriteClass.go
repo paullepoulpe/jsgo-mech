@@ -177,7 +177,9 @@ func (this *Es6RewriteClass) flushPendingDefineProperties(metadata *Es6RewriteCl
 }
 
 func (this *Es6RewriteClass) addToDefinePropertiesObject(metadata *Es6RewriteClass_ClassDeclarationMetadata, member Node) {
-	Preconditions_checkArgument(!member.isComputedProp())
+	if member.isComputedProp() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var obj Node = func() Node {
 		if member.isStaticMember() {
 			return metadata.definePropertiesObjForClass()

@@ -40,7 +40,9 @@ func (this *ClosureModuleProcessor) process(metadata *ModuleMetadataMap_ModuleMe
 	if !(script.isScript() || script.isCall()) {
 		Preconditions_checkArgument_boolean_String_Object_H(false, "Unexpected module root %s", script)
 	}
-	Preconditions_checkArgument_boolean_Object((script.isCall() || (path != nil)), "Non goog.loadModules must have a path")
+	if !script.isCall() && path == nil {
+		panic(new_IllegalArgumentException_String(objstr_("Non goog.loadModules must have a path")).self())
+	}
 	var moduleProcessingCallback *ClosureModuleProcessor_ModuleProcessingCallback = new_ClosureModuleProcessor_ModuleProcessingCallback(metadata)
 	NodeTraversal_traverse(this.compiler_, script, ClosureModuleProcessor_ModuleProcessingCallback_as_NodeTraversal_Callback(moduleProcessingCallback))
 	return new_ClosureModuleProcessor_UnresolvedGoogModule(metadata, script.getSourceFileName(), path, immutableMapCopyOfT_(jtc_string, jtc_p_Binding, moduleProcessingCallback.namespace_), immutableMapCopyOfT_(jtc_string, jtc_p_ClosureRequireProcessor_Require, moduleProcessingCallback.requiresByLocalName), this.compiler_).up_UnresolvedModule()

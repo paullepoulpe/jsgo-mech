@@ -146,12 +146,20 @@ func (this *RewriteGoogJsImports) process_2(externs Node, root Node) {
 			var googJsPath *ModuleLoader_ModulePath = this.compiler_.getInput(googJsScriptNode.getInputId()).getPath()
 			this.googModule = this.moduleMap.getModule(googJsPath)
 			Preconditions_checkNotNull_T(this.googModule)
-			Preconditions_checkState_boolean_Object(RewriteGoogJsImports_allFromGoog(this.googModule.boundNames().asImm().values(), googJsPath), "goog.js should never import anything")
-			Preconditions_checkState_boolean_Object(!this.googModule.namespace().containsKey("default"), "goog.js should never have a default export.")
-			Preconditions_checkState_boolean_Object(RewriteGoogJsImports_allFromGoog(this.googModule.namespace().asImm().values(), googJsPath), "goog.js should never export from anything.")
+			if !RewriteGoogJsImports_allFromGoog(this.googModule.boundNames().asImm().values(), googJsPath) {
+				panic(new_IllegalStateException_String(objstr_("goog.js should never import anything")).self())
+			}
+			if this.googModule.namespace().containsKey("default") {
+				panic(new_IllegalStateException_String(objstr_("goog.js should never have a default export.")).self())
+			}
+			if !RewriteGoogJsImports_allFromGoog(this.googModule.namespace().asImm().values(), googJsPath) {
+				panic(new_IllegalStateException_String(objstr_("goog.js should never export from anything.")).self())
+			}
 		}
 	} else {
-		Preconditions_checkState((this.mode_ == RewriteGoogJsImports_Mode_LINT_ONLY))
+		if this.mode_ != RewriteGoogJsImports_Mode_LINT_ONLY {
+			panic(new_IllegalStateException_0().self())
+		}
 	}
 	{
 		var script Node = root.getFirstChild()

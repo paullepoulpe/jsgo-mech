@@ -24,7 +24,7 @@ func new_JSTypeColorIdHasher(registry *JSTypeRegistry) *JSTypeColorIdHasher {
 
 func (this *JSTypeColorIdHasher) hashObjectType(type_ *ObjectType) *ColorId {
 	if !((((((type_ != nil) && !type_.isEnumElementType()) && !type_.isNoResolvedType()) && !type_.isTemplatizedType()) && !type_.isUnknownType()) && !type_.isTemplateType()) {
-		Preconditions_checkState_boolean_Object(false, type_)
+		panic(new_IllegalStateException_String(objstr_(type_)).self())
 	}
 	var boxId *ColorId = this.standardColorObjectIds.get(type_)
 	if boxId != nil {
