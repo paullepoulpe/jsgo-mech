@@ -12,7 +12,7 @@ type TypedScope struct {
 	isBottomField bool
 	reservedNames *TSet[string]
 	vars          MapOf[string, *TypedVar]
-	implicitVars  MapOf[AbstractScope_ImplicitVar, *TypedVar]
+	implicitVars  *[4]*TypedVar // by ordinal; nil until the first (Java: an EnumMap made at the first)
 }
 
 func (this *TypedScope) up_AbstractScope() *AbstractScope {
@@ -24,7 +24,6 @@ func (this *TypedScope) up_AbstractScope() *AbstractScope {
 
 func (this *TypedScope) finit_TypedScope() {
 	this.vars = ImmutableMap_as_Map(ImmutableMap_of())
-	this.implicitVars = ImmutableMap_as_Map(ImmutableMap_of())
 }
 
 func (this *TypedScope) init_TypedScope_TypedScope_Node_Set_Module(parent *TypedScope, rootNode Node, reservedNames *TSet[string], module *Module) {
@@ -327,11 +326,16 @@ func (this *TypedScope) getOwnImplicitSlot(name AbstractScope_ImplicitVar) *Type
 	if !this.hasOwnImplicitSlot(name) {
 		return nil
 	}
-	var emptySentinel *TMap[AbstractScope_ImplicitVar, *TypedVar] = tmapEmptyImm_(tc_p_AbstractScope_ImplicitVar, tc_p_TypedVar)
-	if this.implicitVars == emptySentinel.asMap() {
-		this.implicitVars = Map(new_EnumMap(classOf_("com.google.javascript.jscomp.AbstractScope.ImplicitVar")))
+	// implicitVars.computeIfAbsent(name, this::makeImplicitVar) on an array indexed by the
+	// enum's ordinal, Java's EnumMap (post-flip manual step): a null result is not stored.
+	if this.implicitVars == nil {
+		this.implicitVars = new([4]*TypedVar)
 	}
-	return cast_[*TypedVar](Map_computeIfAbsent(this.implicitVars, obj_(name), &Function_tfn_AbstractScope_ImplicitVar_TypedVar{func(p0 AbstractScope_ImplicitVar) *TypedVar { return this.makeImplicitVar_ImplicitVar_rTypedVar(p0) }}))
+	slot := &this.implicitVars[name.ordinal()]
+	if *slot == nil {
+		*slot = this.makeImplicitVar_ImplicitVar_rTypedVar(name)
+	}
+	return *slot
 }
 
 func (this *TypedScope) getOwnSlot_String_rAbstractVar_rTypedVar(name string) *TypedVar {
