@@ -305,7 +305,7 @@ func FunctionArgumentInjector_getFunctionParameterSet(fnNode Node) *JTSet[string
 			if n.isRest() {
 				builder.add(FunctionArgumentInjector_REST_MARKER)
 			} else if (n.isDefaultValue() || n.isObjectPattern()) || n.isArrayPattern() {
-				panic(new_IllegalStateException_String(("Not supported: " + tostrH_(n))).self())
+				panic(new_IllegalStateException_String(("Not supported: " + tostrH_(n))))
 			} else {
 				builder.add(n.getString())
 			}

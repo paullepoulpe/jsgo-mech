@@ -78,7 +78,7 @@ func (this *PeepholeSubstituteAlternateSyntax) tryMinimizeWindowRefs(node Node) 
 		return node
 	}
 	if !node.isGetProp() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if node.getFirstChild().isName() {
 		var nameNode Node = node.getFirstChild()
@@ -123,7 +123,7 @@ func (this *PeepholeSubstituteAlternateSyntax) tryRotateAssociativeOperator(n No
 		return n
 	}
 	if !NodeUtil_isAssociative(n.getToken()) {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var rhs Node = n.getLastChild()
 	if n.getToken() == rhs.getToken() {
@@ -179,7 +179,7 @@ func (this *PeepholeSubstituteAlternateSyntax) tryFoldSimpleFunctionCall(n Node)
 
 func (this *PeepholeSubstituteAlternateSyntax) tryFoldImmediateCallToBoundFunction(n Node) Node {
 	if !n.isCall() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var callTarget Node = n.getFirstChild()
 	var bind *CodingConvention_Bind = this.getCodingConvention().describeFunctionBind(callTarget, false)
@@ -238,14 +238,14 @@ func (this *PeepholeSubstituteAlternateSyntax) trySplitComma(n Node) Node {
 		return n
 	}
 	if !n.isExprResult() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if n.getParent().isLabel() {
 		return n
 	}
 	var comma Node = n.getFirstChild()
 	if !comma.isComma() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var leftmost Node = this.splitComma(comma, false, n)
 	n.removeChildren()
@@ -300,7 +300,7 @@ func (this *PeepholeSubstituteAlternateSyntax) tryReduceReturn(n Node) Node {
 
 func (this *PeepholeSubstituteAlternateSyntax) tryFoldStandardConstructors(n Node) Node {
 	if !n.isNew() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if this.canFoldStandardConstructors(n) {
 		n.setToken(Token_rhino_CALL)
@@ -327,7 +327,7 @@ func (this *PeepholeSubstituteAlternateSyntax) canFoldStandardConstructors(n Nod
 
 func (this *PeepholeSubstituteAlternateSyntax) tryFoldLiteralConstructor(n Node) Node {
 	if !n.isCall() && !n.isNew() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var constructorNameNode Node = n.getFirstChild()
 	var newLiteralNode Node = 0

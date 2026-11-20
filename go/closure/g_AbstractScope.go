@@ -76,11 +76,11 @@ func (this *AbstractScope) toString() string {
 }
 
 func (this *AbstractScope) untyped_impl() *Scope {
-	panic(new_IllegalStateException_String("untyped() called, but not an untyped scope.").self())
+	panic(new_IllegalStateException_String("untyped() called, but not an untyped scope."))
 }
 
 func (this *AbstractScope) typed_impl() *TypedScope {
-	panic(new_IllegalStateException_String("typed() called, but not a typed scope.").self())
+	panic(new_IllegalStateException_String("typed() called, but not a typed scope."))
 }
 
 func (this *AbstractScope) getRootNode() Node {

@@ -48,7 +48,7 @@ func (this *TranspileAndOptimizeClosureUnaware) reattachShadowNodes(inputs *Simp
 	for shadowAst := range elemsAs_[*TranspileAndOptimizeClosureUnaware_ShadowAst](inputs.values()) {
 		var script Node = shadowAst.script()
 		if ok_, a1_ := script.hasOneChild(), script.toStringTree(); !ok_ {
-			panic(new_IllegalStateException_String(objstr_(a1_)).self())
+			panic(new_IllegalStateException_String(objstr_(a1_)))
 		}
 		shadowAst.originalRoot().addChildToFront(script.detach())
 		script.setInputId(nil)

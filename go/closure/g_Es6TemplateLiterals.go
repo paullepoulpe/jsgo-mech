@@ -32,7 +32,7 @@ func (this *Es6TemplateLiterals) visitTemplateLiteral(t *NodeTraversal, n Node) 
 	} else {
 		var first Node = n.removeFirstChild()
 		if !first.isTemplateLitString() || !first.getCookedString().isPresent() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		var firstStr Node = this.astFactory_.createString(first.getCookedString().get())
 		if length == 1 {
@@ -43,7 +43,7 @@ func (this *Es6TemplateLiterals) visitTemplateLiteral(t *NodeTraversal, n Node) 
 				var child Node = n.removeFirstChild()
 				if child.isTemplateLitString() {
 					if !child.getCookedString().isPresent() {
-						panic(new_IllegalStateException_0().self())
+						panic(new_IllegalStateException_0())
 					}
 					if child.getCookedString().get() == "" {
 						continue

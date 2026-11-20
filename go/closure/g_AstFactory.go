@@ -70,7 +70,7 @@ func (this *AstFactory) isAddingColors() bool {
 
 func (this *AstFactory) assertNotAddingColors() {
 	if this.isAddingColors() {
-		panic(new_IllegalStateException_String(objstr_("method not supported for colors")).self())
+		panic(new_IllegalStateException_String(objstr_("method not supported for colors")))
 	}
 }
 
@@ -116,13 +116,13 @@ func (this *AstFactory) createTryFinally(tryBlock Node, finallyBlock Node) Node 
 
 func (this *AstFactory) createTryCatchFinally(tryBlock Node, catchNode Node, finallyBlock Node) Node {
 	if !tryBlock.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !catchNode.isCatch() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !finallyBlock.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return IR_tryCatchFinally(tryBlock, catchNode, finallyBlock)
 }
@@ -221,10 +221,10 @@ func (this *AstFactory) createThisForEs6Class(functionNode Node) Node {
 
 func (this *AstFactory) createThisForEs6ClassMember(memberNode Node) Node {
 	if !memberNode.getParent().isClassMembers() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if !((memberNode.isMemberFunctionDef() || memberNode.isMemberFieldDef()) || memberNode.isComputedFieldDef()) {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var classNode Node = memberNode.getGrandparent()
 	if memberNode.isStaticMember() {
@@ -292,7 +292,7 @@ func (this *AstFactory) createSingleNameDeclaration(tokenType Token_rhino, name 
 		case Token_rhino_CONST:
 			return this.createSingleConstNameDeclaration(name, value)
 		default:
-			panic(new_UnsupportedOperationException_String(("Unexpeted token type: " + jtostr_(tokenType))).self())
+			panic(new_UnsupportedOperationException_String(("Unexpeted token type: " + jtostr_(tokenType))))
 		}
 	}()
 }
@@ -343,7 +343,7 @@ func (this *AstFactory) createArgumentsAliasDeclaration(aliasName string) Node {
 
 func (this *AstFactory) createName(name string, type_ AstFactory_Type) Node {
 	if name == "$jscomp" {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Use createQName(RuntimeJsLibManager.Field) to reference $jscomp.* methods. Found: %s", []any{name})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Use createQName(RuntimeJsLibManager.Field) to reference $jscomp.* methods. Found: %s", []any{name})))
 	}
 	var result Node = IR_name(name)
 	this.setJSTypeOrColor(type_, result)
@@ -355,7 +355,7 @@ func (this *AstFactory) createName(name string, type_ AstFactory_Type) Node {
 
 func (this *AstFactory) createConstantName(name string, type_ AstFactory_Type) Node {
 	if name == "$jscomp" {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Use createQName(RuntimeJsLibManager.Field) to reference $jscomp.* methods. Found: %s", []any{name})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Use createQName(RuntimeJsLibManager.Field) to reference $jscomp.* methods. Found: %s", []any{name})))
 	}
 	var result Node = IR_name(name)
 	this.setJSTypeOrColor(type_, result)
@@ -367,7 +367,7 @@ func (this *AstFactory) createConstantName(name string, type_ AstFactory_Type) N
 
 func (this *AstFactory) createNameStaticScope(scope StaticScope, name string) Node {
 	if name == "$jscomp" {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Use createQName(RuntimeJsLibManager.Field) to reference $jscomp.* methods. Found: %s", []any{name})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Use createQName(RuntimeJsLibManager.Field) to reference $jscomp.* methods. Found: %s", []any{name})))
 	}
 	var result Node = IR_name(name)
 	if this.lifeCycleStage.isNormalized() || !eqR_(this.typeMode, AstFactory_TypeMode_NONE) {
@@ -375,7 +375,7 @@ func (this *AstFactory) createNameStaticScope(scope StaticScope, name string) No
 		var var_ StaticSlot = scope.getSlot_String(name)
 		if var_ == nil {
 			if !eqR_(this.typeMode, AstFactory_TypeMode_NONE) {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Missing var %s in scope %s", []any{name, scope})).self())
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Missing var %s in scope %s", []any{name, scope})))
 			}
 		} else {
 			var declaration StaticRef = Preconditions_checkNotNull_Object_String_Object_T(var_.getDeclaration(), "Cannot find type for var with missing declaration %s", var_)
@@ -413,12 +413,12 @@ func (this *AstFactory) createNameWithUnknownType(name string) Node {
 
 func (this *AstFactory) createQNameUsingJSTypeInfo(globalTypedScope *TypedScope, qname string) Node {
 	if globalTypedScope != nil && !globalTypedScope.isGlobal() {
-		panic(new_IllegalArgumentException_String(objstr_(globalTypedScope)).self())
+		panic(new_IllegalArgumentException_String(objstr_(globalTypedScope)))
 	}
 	this.assertNotAddingColors()
 	var nameParts ListOf[string] = AstFactory_DOT_SPLITTER.splitToList_s(qname)
 	if nameParts.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var receiverPart string = str_(nameParts.get(0))
 	var receiver Node = IR_name(receiverPart)
@@ -469,7 +469,7 @@ func (this *AstFactory) createQName(scope StaticScope, field RuntimeJsLibManager
 	var parts *JTList[string] = splitToListT_(jtc_string, AstFactory_DOT_SPLITTER, strobj_(qname))
 	var baseName string = Optional_ofNullable[string](str_(Iterables_getFirst(Iterable(parts.asList()), nil))).orElseThrow()
 	if !strings.HasPrefix(baseName, "$jscomp") {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected Field name %s", []any{baseName})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected Field name %s", []any{baseName})))
 	}
 	var baseNameNode Node = func() Node {
 		if baseName == "$jscomp" {
@@ -492,7 +492,7 @@ func (this *AstFactory) createQNameWithUnknownTypeJsLibField(field RuntimeJsLibM
 	var parts *JTList[string] = splitToListT_(jtc_string, AstFactory_DOT_SPLITTER, strobj_(field.assertInjected().qualifiedName()))
 	var baseName string = Optional_ofNullable[string](str_(Iterables_getFirst(Iterable(parts.asList()), nil))).orElseThrow()
 	if !strings.HasPrefix(baseName, "$jscomp") {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected Field name %s", []any{baseName})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected Field name %s", []any{baseName})))
 	}
 	var baseNameNode Node = func() Node {
 		if baseName == "$jscomp" {
@@ -871,7 +871,7 @@ func (this *AstFactory) createEmptyFunction(type_ AstFactory_Type) Node {
 	var result Node = NodeUtil_emptyFunction()
 	if this.isAddingTypes() {
 		if !type_.getJSType(this.registry).isFunctionType() {
-			panic(new_IllegalArgumentException_String(objstr_(type_)).self())
+			panic(new_IllegalArgumentException_String(objstr_(type_)))
 		}
 	}
 	this.setJSTypeOrColor(type_, result)
@@ -889,7 +889,7 @@ func (this *AstFactory) createFunction(name string, paramList Node, body Node, t
 	var result Node = IR_function(nameNode, paramList, body)
 	if this.isAddingTypes() {
 		if !type_.getJSType(this.registry).isFunctionType() {
-			panic(new_IllegalArgumentException_String(objstr_(type_)).self())
+			panic(new_IllegalArgumentException_String(objstr_(type_)))
 		}
 	}
 	this.setJSTypeOrColor(type_, result)
@@ -1008,7 +1008,7 @@ func (this *AstFactory) createJSCompMakeIteratorCall(iterable Node, scope Static
 	case AstFactory_TypeMode_NONE:
 		type_ = AstFactory_noTypeInformation()
 	default:
-		panic(new_AssertionError_0().self())
+		panic(new_AssertionError_0())
 	}
 	var call Node = this.createCall(makeIteratorName, type_, []Node{iterable})
 	call.putBooleanProp(Node_FREE_CALL, true)
@@ -1080,7 +1080,7 @@ func (this *AstFactory) createJSCompMakeAsyncIteratorCall(iterable Node, scope S
 	case AstFactory_TypeMode_NONE:
 		resultType = AstFactory_noTypeInformation()
 	default:
-		panic(new_AssertionError_0().self())
+		panic(new_AssertionError_0())
 	}
 	var call Node = this.createCall(makeIteratorAsyncName, resultType, []Node{iterable})
 	call.putBooleanProp(Node_FREE_CALL, true)

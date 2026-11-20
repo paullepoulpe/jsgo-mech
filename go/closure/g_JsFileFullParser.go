@@ -223,7 +223,7 @@ func (this *JsFileFullParser_DelegatingReporter) finit_JsFileFullParser_Delegati
 func (this *JsFileFullParser_DelegatingReporter) init_JsFileFullParser_DelegatingReporter(delegate func(bool, string, Optional[string], int32, int32)) {
 	this.finit_JsFileFullParser_DelegatingReporter()
 	if delegate == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.delegate = delegate
 }

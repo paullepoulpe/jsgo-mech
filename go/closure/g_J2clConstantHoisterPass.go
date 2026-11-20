@@ -85,7 +85,7 @@ func (this *J2clConstantHoisterPass) hoistConstantLikeField(clinitAssignment Nod
 		this.compiler_.reportChangeToEnclosingScope(topLevelDeclaration)
 	} else if !equalsRRH_(declarationAssignedValue, clinitAssignedValue) {
 		if !NodeUtil_isLiteralValue(declarationAssignedValue, false) {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		declarationAssignedValue.replaceWith(clinitAssignedValue)
 		this.compiler_.reportChangeToEnclosingScope(topLevelDeclaration)

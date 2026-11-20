@@ -14,17 +14,17 @@ type ModuleLoader struct {
 
 func (this *ModuleLoader) init_ModuleLoader(builder *ModuleLoader_Builder) {
 	if builder.errorHandler == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.errorHandler = builder.errorHandler
 	this.pathResolver = Preconditions_checkNotNull_T(builder.pathResolver)
 	this.pathEscaper = Preconditions_checkNotNull_T(builder.pathEscaper)
 	if builder.moduleRoots == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.moduleRootPaths = this.createRootPaths(builder.moduleRoots)
 	if builder.inputs == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var modulePaths *JTSet[string] = this.resolvePaths(builder.inputs)
 	this.moduleResolver = builder.factory.create(modulePaths.asImm(), this.moduleRootPaths.asImm(), this.errorHandler, this.pathEscaper)
@@ -93,7 +93,7 @@ func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo_]) *JTSe
 	List_sort(sortedModulePaths.asList(), ModuleLoader_BEST_MATCH_PATH_ORDERING)
 	var dupeModulePaths *SimpleMultiset[any] = SimpleMultiset_copyOf[any](Iterable(sortedModulePaths.asList()))
 	if dupeModulePaths.size() != dupeModulePaths.elementSet().size() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Duplicate module paths after resolving: %s", []any{dupeModulePaths})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Duplicate module paths after resolving: %s", []any{dupeModulePaths})))
 	}
 	return jimmutableSetCopyOf_(jtc_string, Collection(dupeModulePaths.elementSet()))
 }
@@ -341,7 +341,7 @@ func (this ModuleLoader_PathEscaper) escape(path string) string {
 	case ModuleLoader_PathEscaper_CANONICALIZE_ONLY:
 		return ModuleNames_canonicalizePath(path)
 	default:
-		panic(new_NullPointerException_0().self()) // a call on null
+		panic(new_NullPointerException_0()) // a call on null
 	}
 }
 
@@ -425,7 +425,7 @@ func (this ModuleLoader_PathResolver) apply(path_ any) any {
 		_ = path
 		return strobj_(FilePaths_toAbsolute(path))
 	default:
-		panic(new_NullPointerException_0().self()) // a call on null
+		panic(new_NullPointerException_0()) // a call on null
 	}
 }
 

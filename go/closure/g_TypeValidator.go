@@ -427,7 +427,7 @@ func (this *TypeValidator) expectUndeclaredVariable(sourceName Optional[string],
 				n.setJSType(varType)
 			} else {
 				if !parent.isFunction() && !parent.isClass() {
-					panic(new_IllegalStateException_0().self())
+					panic(new_IllegalStateException_0())
 				}
 				parent.setJSType(varType)
 			}
@@ -524,7 +524,7 @@ func (this *TypeValidator) checkPropertyType(n Node, instance *JSType, parent *O
 
 func (this *TypeValidator) expectAbstractMethodsImplemented(n Node, ctorType *FunctionType) {
 	if !ctorType.isConstructor() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var abstractMethodSuperTypeMap *JTMap[Property_Key, *ObjectType] = jnewTMap_(tce_Property_Key, jtc_p_ObjectType)
 	var currSuperCtor *FunctionType = ctorType.getSuperClassConstructor()

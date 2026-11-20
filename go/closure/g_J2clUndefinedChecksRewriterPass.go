@@ -49,7 +49,7 @@ func (this *J2clUndefinedChecksRewriterPass) optimizeSubtree_impl(subtree Node) 
 	}
 	if replacement != 0 {
 		if replacement == subtree {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		replacement.srcrefTreeIfMissing(subtree)
 		subtree.replaceWith(replacement)

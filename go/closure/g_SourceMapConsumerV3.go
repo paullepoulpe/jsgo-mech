@@ -141,7 +141,7 @@ func (this *SourceMapConsumerV3) getMappingForLine(lineNumber int32, column int3
 	}
 	var index int32 = this.search(column, start, (end - this.mappings.getEntrySize()))
 	if index < 0 {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("unexpected:%s", []any{index})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("unexpected:%s", []any{index})))
 	}
 	return this.getOriginalMappingForEntry(index, Mapping_OriginalMapping_Precision_EXACT)
 }
@@ -532,15 +532,15 @@ func (this *SourceMapConsumerV3_MappingBuilder) getSourceColumn(index int32) int
 
 func (this *SourceMapConsumerV3_MappingBuilder) validateEntry(entriesCount int32, line int32) {
 	if this.lineCount >= 0 && line >= this.lineCount {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("line=%s, lineCount=%s", []any{line, this.lineCount})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("line=%s, lineCount=%s", []any{line, this.lineCount})))
 	}
 	var sourceFileId int32 = this.getSourceFileId(entriesCount)
 	var nameId int32 = this.getNameId(entriesCount)
 	if sourceFileId != SourceMapConsumerV3_UNMAPPED && sourceFileId >= int32(len(this.outer_.sources)) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if nameId != SourceMapConsumerV3_UNMAPPED && nameId >= int32(len(this.outer_.names_)) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 }
 

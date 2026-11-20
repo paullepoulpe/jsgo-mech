@@ -42,10 +42,10 @@ func new_PureFunctionIdentifier(compiler *AbstractCompiler, assumeGettersArePure
 
 func (this *PureFunctionIdentifier) process_3(externs Node, root Node, references *OptimizeCalls_ReferenceMap) {
 	if !this.compiler_.getLifeCycleStage().isNormalized() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if this.hasProcessed {
-		panic(new_IllegalStateException_String(objstr_("PureFunctionIdentifier::process may only be called once per instance.")).self())
+		panic(new_IllegalStateException_String(objstr_("PureFunctionIdentifier::process may only be called once per instance.")))
 	}
 	this.hasProcessed = true
 	this.populateDatastructuresForAnalysisTraversal(references)
@@ -190,7 +190,7 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) *JTLi
 		return jimmutableListOf_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](jtc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary, this.unknownFunctionSummary)
 	}
 	if callees.isEmpty() {
-		panic(new_IllegalStateException_String(objstr_("Unexpected empty callees for valid result")).self())
+		panic(new_IllegalStateException_String(objstr_("Unexpected empty callees for valid result")))
 	}
 	var results *TListBuilder[*PureFunctionIdentifier_AmbiguatedFunctionSummary] = newTListBuilder_(jtc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary)
 	it_1 := callees.each()
@@ -227,10 +227,10 @@ func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(r
 		referencesByName.putAll_s((sstr_(PureFunctionIdentifier_PROP_NAME_PREFIX) + sstr_(str_(entry.getKey()))), icast_Iterable(entry.getValue()))
 	}
 	if referencesByName.containsKey("") {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if referencesByName.containsKey_s(PureFunctionIdentifier_PROP_NAME_PREFIX) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	for name := range elemsBy_(referencesByName.keySet(), str_) {
 		this.summariesByName.put(name, PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), name))
@@ -389,7 +389,7 @@ func PureFunctionIdentifier_nameForReference(nameRef Node) Optional[string] {
 		case tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP:
 			return Optional_of[string]((sstr_(PureFunctionIdentifier_PROP_NAME_PREFIX) + sstr_(nameRef.getString())))
 		default:
-			panic(new_IllegalStateException_String(("Unexpected name reference: " + tostrH_(nameRef))).self())
+			panic(new_IllegalStateException_String(("Unexpected name reference: " + tostrH_(nameRef))))
 		}
 	}()
 }
@@ -465,10 +465,10 @@ func (this *PureFunctionIdentifier_ExternFunctionAnnotationAnalyzer) visit(trave
 
 func (this *PureFunctionIdentifier_ExternFunctionAnnotationAnalyzer) updateSideEffectsForExternFunction(externFunction Node, summary *PureFunctionIdentifier_AmbiguatedFunctionSummary) {
 	if !externFunction.isFunction() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if !externFunction.isFromExterns() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var info *JSDocInfo = NodeUtil_getBestJSDocInfo(externFunction)
 	if info == nil {
@@ -608,7 +608,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) updateSideEffectsForNod
 			break
 		}
 		if this.outer_.compiler_.getAstAnalyzer().nodeTypeMayHaveSideEffects(node) {
-			panic(new_IllegalArgumentException_String(("Unhandled side effect node type " + tostrH_(node))).self())
+			panic(new_IllegalArgumentException_String(("Unhandled side effect node type " + tostrH_(node))))
 		}
 	}
 }
@@ -1010,7 +1010,7 @@ func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) setMutatesArgument
 
 func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) setMutatesArgumentAt(paramIndex int32, debuggingReason Node) *PureFunctionIdentifier_AmbiguatedFunctionSummary {
 	if paramIndex < 0 {
-		panic(new_IllegalArgumentException_String(objstr_(int32(paramIndex))).self())
+		panic(new_IllegalArgumentException_String(objstr_(int32(paramIndex))))
 	}
 	this.maybeCollectImpureDebuggingReason(debuggingReason)
 	var paramBit int64 = func() int64 {

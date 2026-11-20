@@ -67,19 +67,19 @@ func (this *RuntimeJsLibManager) getExternedFields() *JTList[RuntimeJsLibManager
 
 func (this *RuntimeJsLibManager) createField(fieldName string) *RuntimeJsLibManager_InternalField {
 	if fieldName == "" {
-		panic(new_IllegalArgumentException_String(objstr_(fieldName)).self())
+		panic(new_IllegalArgumentException_String(objstr_(fieldName)))
 	}
 	var parts *JTList[string] = splitToListT_(jtc_string, Splitter_on('.'), strobj_(fieldName))
 	if parts.size() < 2 {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Field name must start with $jscomp., found %s", []any{fieldName})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Field name must start with $jscomp., found %s", []any{fieldName})))
 	}
 	if parts.get(0) != "$jscomp" {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Field name must start with $jscomp, found %s", []any{fieldName})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Field name must start with $jscomp, found %s", []any{fieldName})))
 	}
 	var propName string = parts.get(1)
 	var resource Optional[string] = Optional_ofNullable[string](RuntimeJsLibManager_FieldsTable_INSTANCE.get(propName))
 	if resource.isEmpty() {
-		panic(new_NullPointerException_String(("Cannot find definition of " + sstr_(fieldName))).self())
+		panic(new_NullPointerException_String(("Cannot find definition of " + sstr_(fieldName))))
 	}
 	var resourceName string = resource.get()
 	var compiledName string = func() string {
@@ -175,7 +175,7 @@ func (this *RuntimeJsLibManager) injectLibraryDependencies(ast Node, force bool)
 			case "require":
 				this.ensureLibraryInjected(words.get(1), force)
 			default:
-				panic(new_IllegalStateException_String(("Bad directive: " + sstr_(directive))).self())
+				panic(new_IllegalStateException_String(("Bad directive: " + sstr_(directive))))
 			}
 			node.detach()
 		}
@@ -300,7 +300,7 @@ func RuntimeJsLibManager_FieldsTable_loadFields() *JTMap[string, string] {
 	for line := range elemsBy_(Splitter_on('\n').omitEmptyStrings().split_s(transpilationLibsTxt), str_) {
 		var tokens *JTList[string] = splitToListT_(jtc_string, Splitter_on(',').limit(2), strobj_(line))
 		if ok_, a1_ := (tokens.size() == 2), tokens.asList(); !ok_ {
-			panic(new_IllegalStateException_String(objstr_(a1_)).self())
+			panic(new_IllegalStateException_String(objstr_(a1_)))
 		}
 		var fieldName string = tokens.get(0)
 		var resourcePath string = tokens.get(1)
@@ -368,7 +368,7 @@ func (this *RuntimeJsLibManager_InternalField) assertInjected_rInternalField() *
 	case RuntimeJsLibManager_RuntimeLibraryMode_NO_OP, RuntimeJsLibManager_RuntimeLibraryMode_RECORD_ONLY:
 	case RuntimeJsLibManager_RuntimeLibraryMode_RECORD_AND_VALIDATE_FIELDS, RuntimeJsLibManager_RuntimeLibraryMode_INJECT, RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES:
 		if !this.injected {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Field %s is not injected", []any{this.uncompiledNameField})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Field %s is not injected", []any{this.uncompiledNameField})))
 		}
 	}
 	return this
