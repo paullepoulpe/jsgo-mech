@@ -37,7 +37,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransf
 	for replacement := range this.prefixReplacements.All() {
 		sortedPrefixes.add(replacement.prefix())
 	}
-	Collections_sort(sortedPrefixes.asList())
+	sortTListF_(sortedPrefixes, compareStrNat_)
 	this.expectedPrefixes = JString_join_s(", ", Iterable(sortedPrefixes.asList()))
 }
 
