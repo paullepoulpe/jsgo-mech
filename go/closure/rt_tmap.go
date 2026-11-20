@@ -398,6 +398,20 @@ func (m *TMap[K, V]) computeIfAbsent_f(k K, f func(any) any) V {
 	return v
 }
 
+// ComputeIfAbsent is Map.computeIfAbsent with a typed function (tools/postflip/tnames): the
+// value of k if it has one that is not null; else f(k), stored unless it is null.
+func (m *TMap[K, V]) ComputeIfAbsent(k K, f func(K) V) V {
+	if i := m.find(k); i >= 0 && !m.vc.isNull(m.vals[i]) {
+		return m.vals[i]
+	}
+	v := f(k)
+	if m.vc.isNull(v) {
+		return m.vc.null
+	}
+	m.put(k, v)
+	return v
+}
+
 // each is the cursor of a for-each loop over the entries (keys, values) of the map.
 func (m *TMap[K, V]) each() tmapEach_[K, V] { return tmapEach_[K, V]{m: m, i: m.first()} }
 
@@ -535,7 +549,7 @@ func (s *TSet[K]) asSet() Set {
 	}
 	x := s.ext()
 	if x.sview == nil {
-		x.sview = &tsetView_[K]{m: &s.TMap}
+		x.sview = &tsetView_[K]{m: &s.TMap, s: s}
 	}
 	return x.sview
 }
@@ -842,7 +856,10 @@ func (v *tentriesView_[K, V]) hashCode() int32               { return setHash_(v
 func (v *tentriesView_[K, V]) toString() string              { return collToString_(v) }
 
 // tsetView_ is a TSet seen as an erased Set.
-type tsetView_[K comparable] struct{ m *TMap[K, struct{}] }
+type tsetView_[K comparable] struct {
+	m *TMap[K, struct{}]
+	s *TSet[K] // the set itself (m is its map)
+}
 
 func (v *tsetView_[K]) keys() *tkeysView_[K, struct{}] { return &tkeysView_[K, struct{}]{m: v.m} }
 func (v *tsetView_[K]) self() any                      { return v }
