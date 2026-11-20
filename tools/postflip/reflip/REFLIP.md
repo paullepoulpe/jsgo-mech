@@ -991,11 +991,14 @@ typed-full wall -0.2%, cpu -0.9%; bundle wall +1.0%, cpu +0.5% (-1.8..+3.1).
 ## What stays (census rows at the tip, against jsgo)
 
 Every census.py row with a count left, at the tip (52b78402: 259,377 lines of g_*.go; the rows
-the eighth session moved are given at its tip c0e9eb59, 258,856 lines, with 52b78402's in
-parentheses), against the same Java-ism counted in the hand port jsgo (`python3
+the eighth and ninth sessions moved are given at the ninth session's tip 8cb67888, 259,567 lines,
+with the eighth's c0e9eb59 in parentheses), against the same Java-ism counted in the hand port jsgo (`python3
 tools/postflip/reflip/jsgocensus.py`: non-test files under jsgo/internal, 402,963 lines, by the
 idiom jsgo writes for it). The reasons are the counted left reasons of the tools that own the
-row (the command is given); "jsgo" says how the hand port handled the same sites.
+row (the command is given); "jsgo" says how the hand port handled the same sites. Calls and
+function values are given apart where etaconv passes a conversion as a value
+(`reflip/fnvals.py`: icast_X 106, to_X 116, cast_[T] 273, obj_[T]/strobj_ 271, (T).box_/.self 60,
+str_/Node_of_ 145 values at 8cb67888).
 
 | row | tip | jsgo | what stays, counted (command) | jsgo at the same spot |
 |---|---:|---:|---|---|
@@ -1004,9 +1007,9 @@ row (the command is given); "jsgo" says how the hand port handled the same sites
 | Guava immutables / builders | 210 | 213 Immutable | the immutability contract (UnsupportedOperationException on change) of fields and results; the typed ImmutableList[T]/Set/Map runtime has no boxing | same (jsgo has its own Immutable types) |
 | for-each via iterator objects / explicit Iterator | 108 / 107 | 16 Iterator/HasNext | ranges -loops -n: 105 loops whose body returns or branches to an outer label (a range-over-func loop is slower there; the cursor keeps Java's re-read of the list), 5 iterators used for more than the loop; iters -n: 29 iterators that enter erased code | jsgo rewrote those loops by hand over slices it owns |
 | anonymous interface assertions | 16 | 0 | 16 to_X helpers of generic classes (`v.(interface{ as_X_() any })`): the class cast of a generic class from an Object, one per generic class | jsgo has no Object slots for them |
-| casts icast_ / to_ / cast_ and is_ | 295 / 1283 / 71 (778 / 1540 / 71 at 52b78402; + 37 icast_X and 32 to_X passed as function values since etaconv, reflip/fnvals.py) | 648 assertions + 78 type switches | castcensus (calls): 1,290 casts (2,262 at 52b78402; 1,585 with the 295 conversion functions etaconv passes as values): 377 values boxed on the spot that are downcasts, not upcasts (castfold -nilup took the 451 upcasts): 357 self() of a class with subclasses, of which 225 the erased type parameters S and V of AbstractScope<S, V> / AbstractVar<S, V> (AbstractVar -> Var 124, -> TypedVar 32, AbstractScope -> Scope 34, -> TypedScope 28, the Static* interfaces 7), 31 PrototypeObjectType -> FunctionType, 13 the F-bounded builders, 8 AbstractCompiler -> CompilerInputProvider; 20 boxT_/obj_ of type parameters; 279 of variables/parameters declared Object (castfold: 173 parameters of methods an interface lists, apply/accept/compare/equals of named classes; 68 locals; 42 for-each elements of erased collections; 12 caught exceptions; 9 lambda parameters lamparams leaves); 203 Object results of program methods (covret: 431 of them before: self() of an extended class 307, the scope protocol getScope/getSlot/getOwnSlot 59, JSDocInfo's property bag 54: Property<T> erased over one Object array; 11 others); 201 Object results of the runtime (erased collections' elements, Optional_base, the proto builders); 133 through interfaces (Map.Entry 55, Iterator 16); 53 Object fields; 19 function values; 18 Java-interface variables; is_: 27 inside && / ||, 21 multi-catch tests, 17 helper declarations, 3 for conditions, 3 other | jsgo keeps 648 comma-ok/direct assertions and 78 type switches for real downcasts; the rest it removed by retyping by hand, and it writes AbstractScope's code once per instantiation (Scope.GetVar returns *Var, TypedScope its own): what a tool that monomorphizes AbstractScope/AbstractVar per subclass, or j2go keeping S and V as Go type parameters, would do here |
-| boxing to any / fields-params declared any | 1980 / 973 (2728 / 1675 at 52b78402; + 271 obj_[T]/strobj_ and 60 (T).box_/self passed as function values since etaconv) | 281 any declarations | objslots -n: 1,704 any slots (2,401 at 52b78402): 398 parameters and 510 results of methods an interface lists (results: self() 352, apply 88, get 37; parameters: apply 106, equals 80 + equals_impl 15, accept 40, test 29, compare 14, applyAsInt 13, compareTo of 11 classes: the Java library's functional and collection interfaces are erased in the runtime, FunctionOf[A, R] is an alias of Function, so a class implementing Function<Node, X> has apply(any) any; enumcmp deleted the 204 enum compareTo(o any)), 145 cast helpers, 133 range variables, 127 + 15 + 15 + 12 slots that receive a value that is not a box, 115 that no box is stored into, 103 of generic functions, 69 func-literal parameters (579 before lamparams and etaconv), 27 used as a value, 7 boxes of two types, 13 others | jsgo writes each comparator/override with its concrete type and passes func values; equals(any) stays on 66 classes there |
-| unboxing str_ / Node_of_ / .(T) | 348 (370; + 22 str_ passed as a function value since etaconv) | (in the assertions) | the reads of the Object slots above | |
+| casts icast_ / to_ / cast_ and is_ | calls 275 / 970 / 71 (295 / 1283 / 71 at c0e9eb59); values: 106 icast_X, 116 to_X, 273 cast_[T] | 648 assertions + 78 type switches | castcensus (calls): 950 casts (1,290 at c0e9eb59; 1,246 with the 296 conversion functions etaconv passes as values): 283 of variables/parameters declared Object (castfold's: 173 parameters of methods an interface lists, the bridges implsplit keeps among them; locals, for-each elements of erased collections, catches, lambda parameters); 201 Object results of the runtime (erased collections' elements, Optional_base, the proto builders); 155 values boxed on the spot that are downcasts (138 self() of a class with subclasses: PrototypeObjectType -> FunctionType 31, the F-bounded builders of PrototypeObjectType 13, AbstractCompiler -> CompilerInputProvider 8, ...; fbound took the 225 of AbstractScope<S, V> / AbstractVar<S, V> but 9 kept assertions, the scope creators' createScope results and Reference.getSymbol; 10 boxT_ and 7 obj_ of type parameters); 133 through interfaces (Map.Entry 55, Iterator 16); 81 Object results of program methods (covret, fbound and jsdocprops took the 431 - 81: self() of an extended class, the scope protocol, JSDocInfo's property bag; Annotatable.getAnnotation 14, Node.getFeatureSet 6, ...); 53 Object fields; 19 function values; is_: 27 inside && / \|\|, 21 multi-catch tests, 17 helper declarations, 3 for conditions, 3 other | jsgo keeps 648 comma-ok/direct assertions and 78 type switches for real downcasts; it writes AbstractScope's code once per subclass (as fbound does here) and keeps JSDocInfo's bag erased with a jsdocGet[T] cast at each of 90 reads (jsdocprops types the reads here) |
+| boxing to any / fields-params declared any | 1982 / 981 (1980 / 973 at c0e9eb59); values: 271 obj_[T]/strobj_, 60 (T).box_/self | 281 any declarations | objslots -n: 1,709 any slots (1,704 at c0e9eb59; +5 the valueT_ conversions of jsdocprops): 402 parameters and 510 results of methods an interface lists (results: self() 352, Java's `this` as an Object, one per class, what identity compares and an erased slot holds; apply 88, get 37: the lambda adapters' bridges (194 X_tfn_ types in g_zstubs.go: their function f is typed, the erased method is javac's bridge to the interface the runtime calls) and named classes' methods; parameters: equals 80 + equals_impl 15 (Java's Object.equals: Object in Java itself), apply 106, accept 40, test 29, compare 14, applyAsInt 13, compareTo of 11 classes (implsplit split 23 of the named classes' methods into the typed method and the bridge, which keeps the erased parameters; tfnparams -n: no functional parameter is given only typed adapters, 159 of 188 groups get a named object or a runtime value somewhere), 145 cast helpers, 133 range variables, 127 + 15 + 15 + 12 slots that receive a value that is not a box, 115 that no box is stored into, 104 of generic functions, 69 func-literal parameters, 27 used as a value, 7 boxes of two types, 13 others | jsgo writes each comparator/override with its concrete type and passes func values; equals(any) stays on 66 classes there |
+| unboxing str_ / Node_of_ / .(T) | 332 (348 at c0e9eb59; values: 145 str_ / Node_of_) | (in the assertions) | the reads of the Object slots above (jsdocprops took 16 str_ of the property bag) | |
 | lambda objects &X_fn{func | 45 (47; 2 erased adapters hold a function value since etaconv) | 0 (func values) | excensus: 21 capturing lambdas returned as an interface value, 13 passed to a parameter that is stored or handed on, 2 stored, 11 non-capturing package-level lambdas with identity | jsgo passes func values; the 47 are interface values stored by the callee |
 | Optional | 1448 | 57 (names: OptionalChain..., no java.util.Optional) | 1,404 spellings of the type Optional[T], 1,376 of them Optional[string]: Java prep 10_find_null_strings writes `@Nullable String` as Optional<String>, and j2go's Optional[T] is a value (no allocation, no box, the string unboxed): 421 parameters, 413 results, 387 locals, 180 fields; calls Optional_of 922, Optional_empty 442, Optional_ofNullable 99, Optional_baseOf 38 (Guava's, also a value). It costs nothing; the exact rewrite of jsgo's choice is a string with nullstr_ for null, which respells ~1,400 types and ~2,700 calls (get 740, isPresent 310, isEmpty 209, orElse 168, ...) and needs every Optional field proved assigned (an unassigned one is a null Optional whose methods throw) | jsgo writes a nullable String as a string with "" for null, not Java's behaviour where "" is a value |
 | try/catch: recover / catch_ | 27 / 27 | 58 recover | excensus: 13 boundary catch-alls (runner, executor, wrap and rethrow), 14 typed catches of failures raised in callees (parsers, number formats, IO) | jsgo 58 recovers at the same boundaries |
@@ -1229,3 +1232,217 @@ m_r12f (461, the tip); m_r11e (454), m_m8final (round 8). Logs: $S/r12/meas.log 
 cpu_r12f_1.prof (the etaconv check), gate_r12a..f.out ($S/rf/gate_r12*.log), vstep_*.out.
 Scripts: $S/r12/meas.sh, meas2.sh, milestone.sh, chain.sh, vstep2.sh (vstep.sh in a worktree of
 its own); $S/rf/gatew.sh, rec.sh, pairs.py, ident.sh.
+
+## Ninth session: AbstractScope / AbstractVar written out, JSDocInfo's property bag typed, the functional parameters, etaconv re-measured (2026-11-19)
+
+Steps 462-467 of steps.txt (each with a `#:` line of its counts and left reasons).
+
+| step | commits | command | counts |
+|---|---|---|---|
+| 462 | 84fd3438 (runtime) | patch | scopeVarsOf_[V], the scope's variable table generic in the variable type (scopeVars_ the erased instantiation) |
+| 463 | 48b1b012 (manual) | patch | AbstractScope.vars spells its instantiation, scopeVarsOf_[*AbstractVar] (2 edits) |
+| 464 | 6dfcbbe6, 96047e68 | `t fbound && f` | AbstractScope / AbstractVar written out for Scope / Var and TypedScope / TypedVar: 58 methods per subclass, 3 fields moved; 268 casts and 48 assertions of S and V are the typed values |
+| 465 | 559568f0, 9394ca60 | `t jsdocprops && f` | 35 property constants carry their T; 80 reads of the bag typed |
+| 466 | fc1d5137, cb1d01e7 | `t jsdocprops && f` | the helpers written again: valueT_ returns null first, the subclasses' valueT_ is j2go's cast |
+| 467 | df2b3b2a, 8cb67888 | `t implsplit && f` | 23 named-class methods of erased library interfaces split into the typed method and javac's bridge |
+| - | afa2f4b8 (tool only) | `t tfnparams -n -v` | the report of the functional parameters: none qualifies at the tip, 188 groups counted by reason |
+
+**Task 1: approach (a), a post-flip tool that writes the F-bounded bases out per subclass
+(fbound), not a j2go rule that keeps S and V as Go type parameters.** Reasons: (1) what the
+hand port did and what reads next to Java: jsgo has Scope.GetVar returning *Var and TypedScope
+its own, with scopeCommon holding what mentions neither S nor V; the written-out methods here are
+the base's Java methods with S and V substituted, each with a comment naming the base method;
+(2) speed: Go instantiates a generic method once per GC shape, and every pointer type argument
+shares the *uint8 shape, so a call of a method of S inside AbstractScope[S, V] (the getParent
+of each scope of a getVar chain) would go through the instantiation's dictionary instead of a
+direct, inlinable call; (3) the hand patches on this code (strids' getVarById_ and id-keyed
+table, the scope table runtime, implicitVars as an array, varMap_'s vkHash_, 990c8909) are in the
+bodies the tool copies, so they are carried through as they are, where a j2go rule means a new
+flip and the patches re-made on its text; (4) the wildcard AbstractScope<?, ?> (NodeTraversal,
+the scope creators, RenameVars' multimap key) needs a non-generic base in either case.
+
+**fbound** (464, after the runtime 462 and the 2-edit manual 463). The family is read from the
+Java class headers: AbstractScope<S extends AbstractScope<S, V>, V extends AbstractVar<S, V>>
+and AbstractVar<S, V>, the substitutions from `Scope extends AbstractScope<Scope, Var>`,
+`TypedScope extends AbstractScope<TypedScope, TypedVar>`, `Var extends AbstractVar<Scope, Var>`,
+`TypedVar extends AbstractVar<TypedScope, TypedVar>` (nothing extends the four: the hierarchy is
+closed, so a written-out method is what Java's dispatch runs on a subclass object). The fields
+whose type mentions S or V move into each subclass with the substitution: vars
+(scopeVarsOf_[*Var] / [*TypedVar]: the runtime's table made generic by 462), implicitVars
+(*[4]*Var), a variable's scope_ (*Scope). The methods that mention S or V (in their signature,
+a typed local, an expression of type S or V, a moved field, or a call of such a method on this:
+58 of AbstractScope's and AbstractVar's) are written out on each subclass with every type
+substituted and a comment naming the base method; the subclass's own override is the body,
+typed (TypedScope.getVar returns *TypedVar; its super call is getVarSuper_, AbstractScope.getVar
+written out for TypedScope). The 6 that implement an interface method with a wider result
+(getParentScope, getOwnSlot, getSlot of StaticScope; getScope, getSymbol, getDeclaration of
+StaticSlot / StaticRef) are split as javac splits them (covret): <name>T_ typed and the iup_
+bridge. The base keeps AbstractScope.getParent (a dispatcher; each subclass's getParent_impl is
+the bridge returning the erased type) and isGlobal for the AbstractScope<?, ?> holders
+(NodeTraversal, the scope creators, RenameVars); AbstractVar keeps what mentions neither (name,
+node, input, the goog-namespace strength), as jsgo's varCommon. AbstractVar.getName's
+"exactly an AbstractVar" fast path goes: no AbstractVar is constructed (new_AbstractVar had no
+caller and is deleted).
+
+Callers: 212 cast_[T](x.m().self()) of a typed result are x.m(), 53 casts of a T_ result call the typed method (cast_[*Scope](v.getScope())
+-> v.getScopeT_()), 24 + 24 castfold -assert assertions x.m().(T).f and x.m().self().(T).f are
+dropped where f is a field or a method whose body reads a field of its receiver before it calls
+anything (then the nil dereference is where Java threw), 2 casts to an interface are iup_I of
+the typed result, 1 cast to AbstractScope for a wildcard slot is the typed value's up_, 24
+x.up_AbstractScope() / up_AbstractVar() given to slots now typed are x, 3 typed results given
+to erased slots are upcast. Left, counted: 9 assertions on a method that hands its receiver on
+first (getClosestHoistScope 5, getClosestCfgRootScope, getClosestContainerScope,
+getGlobalScope, getVar: on nil they return nil where Java threw NullPointerException at the
+call). castfold (plain and -nilup) finds nothing more after the step.
+
+**jsdocprops** (465; task 2). The task's premise, that jsgo has a field per property, does not
+hold: jsgo's JSDocInfo is the same three words (propertyBits, propertyKeysBitset, propertyValues
+any: nil, one value, or an []any packed by bit), its Property is one struct with a kind, and
+every read casts the stored value with jsdocGet[T] (90 calls in js_doc_info*.go). A field per
+property would make each JSDocInfo 36 slots wide; typed storage packed by kind would add an
+allocation per kind present and change what asMap / toBuilder / equality walk. So the storage
+stays Java's, and the tool types the accessors, which is where Java has its (T): Property<T>.get
+and Builder.getProp. The 23 constants Java declares Property<X> become
+JSDocInfo_PropertyOf_[X] (the *JSDocInfo_Property and X); the 12 of a subclass that binds T
+(TypeProperty, TypeListProperty, TypeMapProperty, NodeMapProperty) keep their class, which gets
+valueT_ / getT_. T's Go type is what the reads cast to (string, *JSTypeExpression,
+JSDocInfo_Visibility, *LinkedHashMap, List, ...). 57 reads P.get(info), 19 Builder.getProp(P)
+and 4 getPropWithDefault(P) under the cast to P's T are typed calls (4 of them under an
+interface cast: iup_I of the typed read). The one conversion is valueT_ (the value itself, else
+junboxT_[T]: null is T's null, another type the erased cast's ClassCastException), in
+g_0jsdocprops.go with the generic JSDocInfo_Builder_getPropT_[T, P JSDocInfo_PropertyT_[T]].
+Left: ORIGINAL_COMMENT_POSITION (Property<Integer>, read as an Object), and the bag's own erased
+loops over every property (asMap, toBuilder's clone, equality, the Builder's isPropEmpty /
+addUnique taking a Property<?>), which Java writes with Property<Object> casts too.
+
+**Task 3: the Java library's functional interfaces.** What objslots counts there (398 parameters
+and 510 results of "methods an interface lists" at 461) is, by kind: (1) self() of every class
+(352 of the results): Java's `this` as an Object, the most derived object that an erased slot
+holds and that identity compares; it is one method per class, the dispatch handle, and stays;
+(2) the lambda adapters j2go writes for typed lambdas (X_tfn_T: 194 types in g_zstubs.go, 8 in
+g_0lamparams.go): their function f is typed already, and the erased method (apply(p0 any) any,
+get() any, ...) is exactly javac's bridge to the erased interface the runtime calls; (3)
+equals(Object) / equals_impl (95 parameters): Java itself declares Object there (jsgo keeps 66
+Equals(any)); (4) named classes implementing Comparator / Predicate / Function / Comparable
+(compare, apply, test, compareTo: 23 methods with their parameters cast on entry, 13 others); (5) the runtime's own erased helpers.
+
+The tools: **implsplit** (467) splits the named classes' methods as javac compiles them: 23
+methods whose first statements cast their erased parameters (compareTo of 10 Comparable classes,
+compare of 6 comparators, apply of 7 predicates) are <name>T_ with the declared parameter types
+holding the body, and the bridge with the interface's erased signature casting its arguments
+(same order, before anything else) and calling it; the runtime keeps calling the bridge through
+the erased interface (sorts, TreeSet, NodeUtil's traverseChildrenPred), callers holding the class
+call the typed method (3 unboxedPred_[Node](new_X().apply) -> new_X().applyT_, 1 direct call).
+Left: 12 methods that do not start with their parameters' casts (Guava's test forwarding to
+apply, the FunctionTypeBuilder validators), 1 class with subclasses (JSDocInfo.Property). The
+casts move into the bridges, so the census rows do not move (boxing -1); the any slots stay (the
+bridges are listed by the interface).
+
+**tfnparams** (tool afa2f4b8, no step) is the rule for "where callers are already typed": a
+parameter of a Java functional interface type that every call gives a typed lambda adapter of
+one type takes the adapter's function (LogFile.log(Supplier<String>) -> func() string, the
+calls of it the adapter's method inlined and str_(strobj_(..)) undone, the dispatch of a typed
+self_ and the parameters passed on to one another converted as one). At this tip no parameter
+qualifies, and its report counts why, by group of parameters: 159 are given another value than a
+typed adapter at some call (a named class implementing the interface: RemoveUnusedCode's
+RemovalLogRecord and StripCode's config record as Supplier<String> to LogFile.log; a runtime
+value: Predicates.alwaysTrue() as NodeUtil's traverseChildrenPred, 20 calls; an adapter made in
+an immediately called literal: Compiler.logToFile), 19 are never given an adapter, 4 are stored
+or compared (PassFactory's factories: AutoValue compares them by identity, which is passfn's
+rule; setReadableTypeName), 6 are listed by an interface with another signature or by a Java
+interface. Making the runtime's functional interfaces generic does not reach these: the values
+are named objects and runtime singletons, and the consumers (the runtime's sorts, sets,
+predicates) are erased. The order that would: implsplit's typed methods as an accepted value
+(o.mT_ for a named object), then typed runtime variants of the consumers (a sort of a typed list
+taking func(a, b T) int32, Predicates.alwaysTrue as a typed func).
+
+**Task 4: etaconv (461) re-measured.** 6 rounds interleaved, 460 (m_r12e) against 461
+(m_r12f), idle host (load 1.0-1.8): typed-full cpu 56.98 -> 57.21 s, median of per-round ratios
+-0.0% (rounds -0.4..+1.6), wall +0.1%; bundle cpu +0.8% (-0.1..+3.5; one round under the load
+of a type check), wall +0.2%. Outputs identical. The +1.6% of the eighth session's 4 rounds is
+not there in 6: no regression to find a cause for, and etaconv stays as it is.
+
+**Census** (census.py), c0e9eb59 (461) -> 8cb67888 (467), the rows that move, with jsgo
+(jsgocensus.py):
+
+```
+ 461 -> 464 fbound -> 465/466 jsdocprops -> 467 implsplit     jsgo
+ 295 ->  287       ->  275               ->  275               interface casts icast_X(     jsgo: 648 assertions + 78 type switches for all casts
+1283 -> 1018       ->  966 / 970         ->  970               class casts to_X( / cast_[T](
+1980 -> 1983       -> 1983               -> 1982               boxing to any
+ 348 ->  348       ->  332               ->  332               unboxing from any            (in jsgo's assertions)
+3480 -> 3491       -> 3491               -> 3491               throw as panic(              jsgo: 1724 panic + 1882 jutil.Check*
+ 973 ->  973       ->  981               ->  981               fields/params declared any   jsgo: 281
+```
+
+castcensus (every cast call in g_*.go, by the source of its operand): 1,290 -> 1,013 (fbound)
+-> 946 (jsdocprops) -> 950 (466: the 4 subclass conversions) -> 950 (implsplit moves casts into
+bridges); 1,246 with the 296 conversion functions passed as values (fnvals.py). objslots: 1,704
+any slots -> 1,709 (the 5 valueT_ conversions; the bridges keep their slots).
+
+**Gate** after every step (gatew.sh, a worktree at the commit): runtime tests ok (53 Test
+functions), checks/bundle/downlevel/advanced MATCH.
+
+**Measurements** (fb.py, ABBA, under gate.lock, no PGO; medians of per-round ratios; outputs
+byte-identical: ident.sh and the gate). Each step against the step before it, 4 rounds of each
+task; allocations by j2mem.py (JSGO_MEMSTATS), one run each.
+
+| step | typed-full cpu | wall | bundle cpu | wall | allocations typed-full; bundle |
+|---|---:|---:|---:|---:|---|
+| 462-464 fbound (vs 461) | -0.7% (57.52 -> 56.73 s; -2.1..+0.4) | -0.7% | -0.7% (25.68 -> 25.52 s; -3.0..+1.3) | -2.0% | 181.63M, 11.329 -> 11.250 GB; 86.89M, 5.958 -> 5.899 GB |
+| 465 jsdocprops (vs 464) | -1.0% (56.19 -> 55.73 s; -2.3..+0.3) | -1.1% | +1.8% (24.76 -> 25.16 s; +0.2..+3.8) | +0.6% | 181.63M, 11.250 -> 11.249 GB; 86.89M, 5.898 -> 5.899 GB |
+| 466 jsdocprops re-run (vs 465) | -1.0% (55.57 -> 55.50 s; -1.4..+2.3) | -0.3% | -1.4% (24.73 -> 24.39 s; -2.9..+0.7) | -0.7% | 181.63M, 11.250 GB; 86.89M, 5.898 GB (unchanged) |
+| 467 implsplit (vs 466) | +0.0% (55.50 -> 55.66 s; -2.2..+2.0) | +0.0% | +1.9% (24.39 -> 24.79 s; -2.4..+3.2) | +0.3% | 181.63M, 11.251 GB; 86.89M, 5.899 GB (unchanged) |
+| **466-467 vs 465** | -0.0% (-1.8..+0.6) | +0.5% | +0.1% (-1.7..+0.8) | -0.0% | |
+
+Each line is its own interleaved run (464 against 461; 465 against 464; 465, 466 and 467 in one
+run), idle host (load 1.0-2.0). The 4 rounds of 465 put bundle at +1.8% in every round: its
+valueT_ took the null of an absent property, the common read, through junboxT_'s slow path where
+the cast_ it replaced returned at once; 466 (the tool's fix, the helpers written again) gives
+-1.4% back in the next run. implsplit's +1.9% on bundle spans -2.4..+3.2 across the rounds and
+465 -> 467 is +0.1%: no change that 4 rounds resolve.
+
+**Milestone run** at the tip 8cb67888 (m_r13d), interleaved with pre-flip Java and round 8
+(m_m8final), 6 rounds each, idle host (load 1.1-2.1, the high end during Java's runs), no PGO;
+stdout, stderr, out.js (and out.js.map) byte-identical with Java's for both binaries (ident.sh).
+Medians:
+
+| | typed-full wall (cpu) | Java/Go | bundle wall (cpu) | Java/Go |
+|---|---:|---:|---:|---:|
+| pre-flip Java | 54.57 s (127.8) | | 28.70 s (68.8) | |
+| tip 8cb67888 | 48.52 s (57.1) | **1.125** | 24.02 s (25.7) | **1.200** |
+| round 8 | 50.51 s (61.2) | 1.089 | 24.95 s (28.7) | 1.142 |
+
+(Java/Go is the median of the per-round ratios.) Against round 8, per round: typed-full wall
+-3.5%, cpu -6.3% (-11.0..-5.3); bundle wall -4.1%, cpu -10.3% (-13.3..-8.7). Allocations
+(JSGO_MEMSTATS): typed-full 181.63M objects / 11.25 GB (round 8: 185.08M / 11.42 GB), bundle
+86.89M / 5.90 GB (88.90M / 6.08 GB). The eighth session's milestone had the tip at 1.088 and
+1.160 against a faster Java run (52.64 / 27.92 s), and against round 8 typed-full wall -1.7%,
+cpu -4.5%, bundle wall -3.0%, cpu -9.9%: fbound's direct scope lookups (the 461 -> 464 run:
+-0.7% cpu on both tasks, 79 MB less allocated on typed-full) are the visible change.
+
+## Handover after the ninth session
+
+1. **What is left of the scope casts** (fbound's 9 counted assertions, and the scope creators):
+   the 9 x.m().(T).f where m first hands its receiver on (getClosestHoistScope and kin return
+   nil for a nil receiver where Java threw at the call) need a nil check written before the call
+   (a Preconditions-style NullPointerException) to drop the assertion; the casts of
+   ScopeCreator.createScope's result (<T extends AbstractScope<?, ?>> T, erased) and of
+   Reference.getSymbol (StaticRef's) are another generic method and another covariant return.
+2. **JSDocInfo's bag**: the reads are typed; the bag's own erased loops over all properties
+   (asMap, toBuilder's clone, equality) stay, as Java writes them with Property<Object>.
+3. **The functional interfaces**: the program's parameters of Java functional interface types (188 groups,
+   tfnparams -n -v) are not given typed adapters alone; the next step is to let tfnparams accept
+   a named object with implsplit's typed method (o.mT_, the object never null where it is made)
+   and a covariant get() of the named suppliers (covret's rule: RemovalLogRecord.get returns
+   String), then LogFile.log (24 calls, 1.5M Supplier_tfn_string adapters on typed-full) becomes
+   a func() string. The runtime's consumers of comparators and predicates (sorts, TreeSet,
+   NodeUtil's traverseChildrenPred given Predicates.alwaysTrue()) need typed variants before a
+   comparator or predicate can be a typed func value there.
+4. Step 426 (MemProfileRate) still needs the decision of the fourth session's handover item 4.
+
+Binaries: $S/proto/m_r13a (464), m_r13b (465), m_r13c (466), m_r13d (467, the tip); m_r12e (460),
+m_r12f (461), m_m8final (round 8). Logs: $S/r13/t4.log (etaconv re-measured), m1.log / mem1.log
+(464), m2.log / mem2.log (465), m3.log / mem3.log (466-467), milestone.log and mem_ms.log, the
+gates $S/rf/gate_r13a..d.log. Scripts: $S/r13/t4.sh, m1.sh, m2.sh, m3.sh, milestone.sh;
+$S/rf/gatew.sh, rec.sh, pairs.py, ident.sh.

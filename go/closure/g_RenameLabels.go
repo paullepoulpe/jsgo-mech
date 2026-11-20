@@ -50,8 +50,14 @@ func new_RenameLabels_DefaultNameSupplier() *RenameLabels_DefaultNameSupplier {
 	return this
 }
 
+// getT_ is get with the result type the class declares (implsplit).
+func (this *RenameLabels_DefaultNameSupplier) getT_() string {
+	return this.nameGenerator.generateNextName()
+}
+
+// get is the bridge of the interface's erased signature (javac's): it boxes the result of getT_.
 func (this *RenameLabels_DefaultNameSupplier) get() any {
-	return strobj_(this.nameGenerator.generateNextName())
+	return strobj_(this.getT_())
 }
 
 type RenameLabels_ProcessLabels struct {
