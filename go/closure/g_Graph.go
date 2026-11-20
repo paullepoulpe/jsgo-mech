@@ -73,13 +73,13 @@ func (this *Graph[N, E]) getNodeOrFail(val N) GraphNode[N, E] {
 }
 
 func (this *Graph[N, E]) clearNodeAnnotations() {
-	for n := range elemsAs_[GraphNode[N, E]](this.getNodes()) {
+	for n := range elemsBy_(this.getNodes(), gcast_GraphNode_N_E[N, E]) {
 		n.setAnnotation(nil)
 	}
 }
 
 func (this *Graph[N, E]) clearEdgeAnnotations() {
-	for e := range elemsAs_[Graph_GraphEdge[N, E]](this.getEdges()) {
+	for e := range elemsBy_(this.getEdges(), gcast_Graph_GraphEdge_N_E[N, E]) {
 		e.setAnnotation(nil)
 	}
 }
