@@ -61,6 +61,11 @@ type u16index_ struct {
 	n     int32   // length in UTF-16 units
 	every []int32 // byte offset of unit 64*k (never inside a 4-byte character's second half)
 	adj   []int8  // 1 if unit 64*k is the low half of the character at every[k]
+	// The last position located (a character start): the scanner reads a source text in order,
+	// so the next lookup is usually a few units further and starts here instead of at a
+	// checkpoint up to 63 units back.
+	memoU   int32
+	memoOff int
 }
 
 const indexStride_ = 64
@@ -109,8 +114,9 @@ func locate_(s string, i int32) (off int, low bool) {
 		panic(new_StringIndexOutOfBoundsException_String("index " + istr_(int64(i))).self())
 	}
 	start, unit := 0, int32(0)
+	var c *u16index_
 	if len(s) >= 256 {
-		c := indexOf_(s)
+		c = indexOf_(s)
 		if c.ascii {
 			return int(i), false
 		}
@@ -124,11 +130,17 @@ func locate_(s string, i int32) (off int, low bool) {
 				return int(c.every[k]) + int(i-int32(k)*indexStride_), false
 			}
 			start, unit = int(c.every[k]), int32(k)*indexStride_-int32(c.adj[k])
+			if c.memoU > unit && c.memoU <= i {
+				start, unit = c.memoOff, c.memoU
+			}
 		}
 	}
 	for off = start; off < len(s); {
 		cp, size := decode_(s, off)
 		if unit == i {
+			if c != nil {
+				c.memoU, c.memoOff = unit, off
+			}
 			return off, false
 		}
 		if cp >= 0x10000 {
