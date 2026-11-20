@@ -950,3 +950,5 @@ d6407a3e run t tryfn && f
 a106f72e patch 554b-a106f72e-rt.patch
 # 555. postflip step (in-bounds line): valplain (tool 3018d7ba, step commit 2a41395d on inb-stepper): an immutable class without equals and hashCode whose identity nothing observes is a struct used by value (lead of that branch: 20 classes, SourcePosition, SourceRange and 18 others)
 2a41395d run t valplain && f
+# 556. postflip (runtime, in-bounds line): a typed map or set is its own erased view, as lists are since 554b: asMap/asSet make neither a view nor the side structure (branch inb-mapview c5b33687; CPU neutral, CHECKS peak memory -3% on the 18% subset)
+c5b33687 patch 556-c5b33687-rt.patch
