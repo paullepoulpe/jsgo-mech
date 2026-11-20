@@ -467,7 +467,7 @@ func (this *AstFactory) createQName_4(scope StaticScope, baseName string, baseNa
 func (this *AstFactory) createQName(scope StaticScope, field RuntimeJsLibManager_JsLibField) Node {
 	var qname string = field.assertInjected().qualifiedName()
 	var parts *TList[string] = splitToListT_(tc_string, AstFactory_DOT_SPLITTER, strobj_(qname))
-	var baseName string = Optional_ofNullable[string](str_(Iterables_getFirst(Iterable(parts.asList()), nil))).orElseThrow()
+	var baseName string = Optional_ofNullable[string](parts.getFirstT_(nil)).orElseThrow()
 	if !strings.HasPrefix(baseName, "$jscomp") {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected Field name %s", baseName)))
 	}
@@ -490,7 +490,7 @@ func (this *AstFactory) createQNameWithUnknownType(qname string) Node {
 
 func (this *AstFactory) createQNameWithUnknownTypeJsLibField(field RuntimeJsLibManager_JsLibField) Node {
 	var parts *TList[string] = splitToListT_(tc_string, AstFactory_DOT_SPLITTER, strobj_(field.assertInjected().qualifiedName()))
-	var baseName string = Optional_ofNullable[string](str_(Iterables_getFirst(Iterable(parts.asList()), nil))).orElseThrow()
+	var baseName string = Optional_ofNullable[string](parts.getFirstT_(nil)).orElseThrow()
 	if !strings.HasPrefix(baseName, "$jscomp") {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected Field name %s", baseName)))
 	}
@@ -1099,7 +1099,7 @@ func (this *AstFactory) createEmptyAsyncGeneratorWrapperArgument(asyncGeneratorW
 		if asyncGeneratorWrapperType.isUnknownType() {
 			generatorType = AstFactory_typeJSType_JSType(this.registry.createFunctionType(this.replaceTemplate(this.getNativeType(JSTypeNative_GENERATOR_TYPE), immutableListOf_[*JSType](tc_p_JSType, this.unknownType)), []*JSType{}).up_JSType())
 		} else {
-			var innerFunctionReturnType *JSType = Iterables_getOnlyElement(Iterable(asyncGeneratorWrapperType.toMaybeFunctionType().getParameters().asList())).(*FunctionType_Parameter).getJSType()
+			var innerFunctionReturnType *JSType = asyncGeneratorWrapperType.toMaybeFunctionType().getParameters().getOnlyElementT_().getJSType()
 			generatorType = AstFactory_typeJSType_JSType(this.registry.createFunctionType(innerFunctionReturnType, []*JSType{}).up_JSType())
 		}
 	} else if this.isAddingColors() {

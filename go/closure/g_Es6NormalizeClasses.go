@@ -1666,7 +1666,7 @@ func (this *Es6NormalizeClasses_ClassRecord_PrivateMember) getPrimaryDeclaration
 	if this.setterNode != 0 {
 		return this.setterNode
 	}
-	return Node_of_(Iterables_getFirst(Iterable(sliceViewP_(tc_Node, this.declarationNodes)), nil))
+	return sliceGetFirstT_(tc_Node, *this.declarationNodes, nil)
 }
 
 type Es6NormalizeClasses_NormalizedNames struct {

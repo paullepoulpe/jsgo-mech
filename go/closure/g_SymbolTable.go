@@ -1590,7 +1590,7 @@ func (this *SymbolTable_ThisRefCollector) visit_impl(t *NodeTraversal, n Node, p
 	if !n.isThis() {
 		return
 	}
-	var symbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](Iterables_getLast(Iterable(sliceViewP_(tc_p_SymbolTable_Symbol, this.thisStack))))
+	var symbol *SymbolTable_Symbol = sliceGetLastT_(tc_p_SymbolTable_Symbol, *this.thisStack)
 	if symbol != nil {
 		var ref *SymbolTable_Reference = symbol.defineReferenceAt(n)
 		if symbol.getDeclaration_rStaticTypedRef_rReference() == nil {
