@@ -1,0 +1,76 @@
+package closure
+
+// Helpers of the post-flip step eqhash: equals and hashCode calls whose static types decide
+// what they do. Each is what Object_equals, Objects_equals or Objects_hashCode does for a value
+// of that type, without the dynamic dispatch on the boxed value.
+
+// equalsId_ is a.equals(b) for a class that does not override equals: identity, and a
+// NullPointerException when a is null.
+func equalsId_[T comparable](a, b T) bool {
+	var zero T
+	if a == zero {
+		panic(new_NullPointerException_0().self())
+	}
+	return a == b
+}
+
+// strequals_ is a.equals(b) for two strings: a NullPointerException when a is null.
+func strequals_(a, b string) bool {
+	if a == nullstr_ {
+		panic(new_NullPointerException_0().self())
+	}
+	return a == b
+}
+
+// equalsBy_ is a.equals(b) for a class whose equals method is eq: a NullPointerException when
+// a is null.
+func equalsBy_[T comparable](a T, b any, eq func(T, any) bool) bool {
+	var zero T
+	if a == zero {
+		panic(new_NullPointerException_0().self())
+	}
+	return eq(a, b)
+}
+
+// objequalsBy_ is Objects.equals(a, b) for a class whose equals method is eq.
+func objequalsBy_[T comparable](a T, b any, eq func(T, any) bool) bool {
+	var zero T
+	if a == zero || b == nil {
+		return a == zero && b == nil
+	}
+	return eq(a, b)
+}
+
+// objhashBy_ is Objects.hashCode(a) for a class whose hashCode method is h.
+func objhashBy_[T comparable](a T, h func(T) int32) int32 {
+	var zero T
+	if a == zero {
+		return 0
+	}
+	return h(a)
+}
+
+// objhashId_ is Objects.hashCode(a) for a class without a hashCode method: the identity hash.
+func objhashId_[T comparable](a T) int32 {
+	var zero T
+	if a == zero {
+		return 0
+	}
+	return identityHash_(a)
+}
+
+// objhashStr_ is Objects.hashCode(s) for a string.
+func objhashStr_(s string) int32 {
+	if s == nullstr_ {
+		return 0
+	}
+	return String_hashCode(s)
+}
+
+// Boolean_hashCode is Boolean.hashCode(boolean).
+func Boolean_hashCode(b bool) int32 {
+	if b {
+		return 1231
+	}
+	return 1237
+}
