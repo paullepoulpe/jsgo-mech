@@ -206,19 +206,17 @@ func (this *Splitter) trimResults() *Splitter {
 
 func wsRune_(r rune) bool { return r < 0x10000 && guavaWhitespace_(uint16(r)) }
 
-// splitAll_ is the parts of s, boxed (for an erased list).
-func (this *Splitter) splitAll_(s string) []any {
-	parts := this.splitStrs_(s)
-	out := make([]any, len(parts))
-	for i, p := range parts {
-		out[i] = p
-	}
-	return out
-}
+func (this *Splitter) splitAll_(s string) []any { return splitPieces_[any](this, s) }
 
-// splitStrs_ is the parts of s.
-func (this *Splitter) splitStrs_(s string) []string {
-	var out []string
+// splitStrs_ is the pieces of s as strings: what sliceImm_ makes of splitToList(s), without
+// the boxed pieces and their list in between (post-flip step trips). A null s throws
+// NullPointerException.
+func (this *Splitter) splitStrs_(s string) []string { return splitPieces_[string](this, csStr_(s)) }
+
+// splitPieces_ is the pieces the splitter cuts s into, as strings or as boxed strings
+// (E is string or any).
+func splitPieces_[E any](this *Splitter, s string) []E {
+	var out []E
 	limit := this.limit_
 	offset := 0
 	for offset != -1 {
@@ -265,7 +263,10 @@ func (this *Splitter) splitStrs_(s string) []string {
 		} else {
 			limit--
 		}
-		out = append(out, s[start:end])
+		out = append(out, any(s[start:end]).(E))
+	}
+	if out == nil {
+		out = []E{}
 	}
 	return out
 }
