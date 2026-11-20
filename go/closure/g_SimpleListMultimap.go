@@ -83,7 +83,7 @@ func (this *SimpleListMultimap[K, V]) replaceValues(key K, values IterableOf[any
 	if this.frozen {
 		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
-	var newValues *JTList[any] = jnewTList_(tc_Object)
+	var newValues *TList[any] = newTList_(tc_Object)
 	Iterables_addAll(Collection(newValues.asList()), values)
 	if newValues.isEmpty() {
 		this.map__.remove(keyBox_)
@@ -97,7 +97,7 @@ func (this *SimpleListMultimap[K, V]) replaceValues_s(key string, values Iterabl
 	if this.frozen {
 		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
-	var newValues *JTList[any] = jnewTList_(tc_Object)
+	var newValues *TList[any] = newTList_(tc_Object)
 	Iterables_addAll(Collection(newValues.asList()), values)
 	if newValues.isEmpty() {
 		Map_remove_s(this.map__, key)

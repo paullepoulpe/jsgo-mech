@@ -86,7 +86,7 @@ func (this *CheckJSDoc) visit_impl(t *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *CheckJSDoc) validateSuppress(n Node, info *JSDocInfo) {
-	if (info == nil) || info.getSuppressions().isEmpty() {
+	if (info == nil) || info.getSuppressions().IsEmpty() {
 		return
 	}
 	switch n.ns_().token {
@@ -116,8 +116,8 @@ func (this *CheckJSDoc) validateSuppress(n Node, info *JSDocInfo) {
 }
 
 func CheckJSDoc_containsOnlySuppressionFor(jsdoc *JSDocInfo, allowedSuppression string) bool {
-	var suppressions *JTSet[string] = jsdoc.getSuppressions()
-	return ((suppressions.size() == 1) && (str_(Iterables_getOnlyElement(Iterable(suppressions.asSet()))) == allowedSuppression))
+	var suppressions *TSet[string] = jsdoc.getSuppressions()
+	return ((suppressions.Len() == 1) && (str_(Iterables_getOnlyElement(Iterable(suppressions.asSet()))) == allowedSuppression))
 }
 
 func (this *CheckJSDoc) validateTypedefs(n Node, info *JSDocInfo) {

@@ -3,13 +3,13 @@
 package closure
 
 type PreprocessorSymbolTable struct {
-	symbols *JTMap[string, *SimpleSlot]
+	symbols *TMap[string, *SimpleSlot]
 	refs    *SimpleListMultimap[string, *PreprocessorSymbolTable_Reference]
 	root    Node
 }
 
 func (this *PreprocessorSymbolTable) finit_PreprocessorSymbolTable() {
-	this.symbols = jnewTMap_(jtc_string, jtc_p_SimpleSlot)
+	this.symbols = newTMap_(tc_string, tc_p_SimpleSlot)
 	this.refs = SimpleListMultimap_create[string, *PreprocessorSymbolTable_Reference]()
 }
 
@@ -37,7 +37,7 @@ func (this *PreprocessorSymbolTable) getParentScope_rStaticTypedScope() StaticTy
 }
 
 func (this *PreprocessorSymbolTable) getSlot_String_rStaticTypedSlot_rSimpleSlot(name string) *SimpleSlot {
-	return this.symbols.get(name)
+	return this.symbols.Get(name)
 }
 
 func (this *PreprocessorSymbolTable) getOwnSlot_String_rStaticTypedSlot_rSimpleSlot(name string) *SimpleSlot {
@@ -64,7 +64,7 @@ func (this *PreprocessorSymbolTable) addReference_2(node Node, name string) {
 	this.symbols.computeIfAbsent(name, &Function_tfn_string_any{func(k string) any {
 		return new_SimpleSlot(k, nil, true).self()
 	}})
-	this.refs.put_s(name, new_PreprocessorSymbolTable_Reference(this.symbols.get(name), node))
+	this.refs.put_s(name, new_PreprocessorSymbolTable_Reference(this.symbols.Get(name), node))
 }
 
 func (this *PreprocessorSymbolTable) getQualifiedName(n Node) Optional[string] {

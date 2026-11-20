@@ -14,8 +14,8 @@ type FunctionTypeBuilder struct {
 	syntacticFnName              string
 	returnType                   *JSType
 	returnTypeInferred           bool
-	implementedInterfaces        *JTList[*ObjectType]
-	extendedInterfaces           *JTList[*ObjectType]
+	implementedInterfaces        *TList[*ObjectType]
+	extendedInterfaces           *TList[*ObjectType]
 	baseType                     *ObjectType
 	thisType                     *JSType
 	isClass_                     bool
@@ -27,10 +27,10 @@ type FunctionTypeBuilder struct {
 	isRecord                     bool
 	isAbstract_                  bool
 	isKnownAmbiguous             bool
-	parameters                   *JTList[*FunctionType_Parameter]
+	parameters                   *TList[*FunctionType_Parameter]
 	closurePrimitiveId           ClosurePrimitive
-	templateTypeNames            *JTList[*TemplateType]
-	constructorTemplateTypeNames *JTList[*TemplateType]
+	templateTypeNames            *TList[*TemplateType]
+	constructorTemplateTypeNames *TList[*TemplateType]
 	declarationScope             *TypedScope
 	templateScope                StaticTypedScope
 }
@@ -59,8 +59,8 @@ func (this *FunctionTypeBuilder) finit_FunctionTypeBuilder() {
 	this.isKnownAmbiguous = false
 	this.parameters = nil
 	this.closurePrimitiveId = 0
-	this.templateTypeNames = jtlistEmptyImm_(jtc_p_TemplateType)
-	this.constructorTemplateTypeNames = jtlistEmptyImm_(jtc_p_TemplateType)
+	this.templateTypeNames = tlistEmptyImm_(tc_p_TemplateType)
+	this.constructorTemplateTypeNames = tlistEmptyImm_(tc_p_TemplateType)
 	this.declarationScope = nil
 }
 
@@ -210,7 +210,7 @@ func (this *FunctionTypeBuilder) inferKind(info *JSDocInfo) *FunctionTypeBuilder
 }
 
 func (this *FunctionTypeBuilder) maybeUseNativeClassTemplateNames(info *JSDocInfo) bool {
-	var nativeKeys *JTList[*TemplateType] = this.typeRegistry.maybeGetTemplateTypesOfBuiltin(TypedScope_as_StaticScope(this.declarationScope), this.fnName)
+	var nativeKeys *TList[*TemplateType] = this.typeRegistry.maybeGetTemplateTypesOfBuiltin(TypedScope_as_StaticScope(this.declarationScope), this.fnName)
 	if (nativeKeys != nil) && (info.getTemplateTypeNames().size() == nativeKeys.size()) {
 		this.templateTypeNames = nativeKeys
 		return true
@@ -239,7 +239,7 @@ func (this *FunctionTypeBuilder) inferInheritance(info *JSDocInfo, classExtendsT
 	}
 	if (info != nil) && (info.getImplementedInterfaceCount() > 0) {
 		if this.isConstructor_ {
-			this.implementedInterfaces = jnewTList_(jtc_p_ObjectType)
+			this.implementedInterfaces = newTList_(tc_p_ObjectType)
 			for t := range elemsAs_[*JSTypeExpression](info.getImplementedInterfaces()) {
 				var maybeInterType *JSType = t.evaluate(this.templateScope, this.typeRegistry)
 				if maybeInterType.setValidator(icast_Predicate_base(obj_(this.createImplementedTypeValidator()))) {
@@ -253,7 +253,7 @@ func (this *FunctionTypeBuilder) inferInheritance(info *JSDocInfo, classExtendsT
 		}
 	}
 	if this.isInterface_ {
-		this.extendedInterfaces = jnewTList_(jtc_p_ObjectType)
+		this.extendedInterfaces = newTList_(tc_p_ObjectType)
 		if info != nil {
 			for t := range elemsAs_[*JSTypeExpression](info.getExtendedInterfaces()) {
 				var maybeInterfaceType *JSType = t.evaluate(this.templateScope, this.typeRegistry)
@@ -336,11 +336,11 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 	}
 	var builder *FunctionParamBuilder = new_FunctionParamBuilder_JSTypeRegistry(this.typeRegistry)
 	var warnedAboutArgList bool = false
-	var allJsDocParams *JTSet[string] = func() *JTSet[string] {
+	var allJsDocParams *TSet[string] = func() *TSet[string] {
 		if info == nil {
-			return jnewTSet_(jtc_string)
+			return newTSet_(tc_string)
 		}
-		return tsetCopy_(jtc_string, info.getParameterNames())
+		return tsetCopy_(tc_string, info.getParameterNames())
 	}()
 	var isVarArgs bool = false
 	var paramIndex int32 = 0
@@ -375,7 +375,7 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 				}
 			}
 			if paramName.isPresent() {
-				allJsDocParams.remove(paramName.get())
+				allJsDocParams.Delete(paramName.get())
 			}
 			var parameterType *JSType = nil
 			if (info != nil) && info.hasParameterType(paramName) {
@@ -442,7 +442,7 @@ func (this *FunctionTypeBuilder) inferConstructorParameters(argsParent Node, inf
 	return this
 }
 
-func (this *FunctionTypeBuilder) inferImplicitConstructorParameters(parameters *JTList[*FunctionType_Parameter]) *FunctionTypeBuilder {
+func (this *FunctionTypeBuilder) inferImplicitConstructorParameters(parameters *TList[*FunctionType_Parameter]) *FunctionTypeBuilder {
 	this.parameters = parameters
 	return this
 }
@@ -454,14 +454,14 @@ func (this *FunctionTypeBuilder) inferClosurePrimitive(info *JSDocInfo) *Functio
 	return this
 }
 
-func (this *FunctionTypeBuilder) setConstructorTemplateTypeNames(templates *JTList[*TemplateType], ctor Node) {
+func (this *FunctionTypeBuilder) setConstructorTemplateTypeNames(templates *TList[*TemplateType], ctor Node) {
 	if !templates.isEmpty() {
-		this.constructorTemplateTypeNames = immutableListCopyOfT_(jtc_p_TemplateType, templates)
-		this.templateTypeNames = func() *JTList[*TemplateType] {
+		this.constructorTemplateTypeNames = immutableListCopyOfT_(tc_p_TemplateType, templates)
+		this.templateTypeNames = func() *TList[*TemplateType] {
 			if this.templateTypeNames.isEmpty() {
-				return immutableListCopyOfT_(jtc_p_TemplateType, templates)
+				return immutableListCopyOfT_(tc_p_TemplateType, templates)
 			}
-			return jtlistImm_(jtc_p_TemplateType, ImmutableList_builder().addAll(Iterable(this.templateTypeNames.asList())).addAll(Iterable(this.constructorTemplateTypeNames.asList())).build())
+			return tlistImm_(tc_p_TemplateType, ImmutableList_builder().addAll(Iterable(this.templateTypeNames.asList())).addAll(Iterable(this.constructorTemplateTypeNames.asList())).build())
 		}()
 		this.registerTemplates(Iterable(templates.asList()), ctor)
 	}
@@ -481,21 +481,21 @@ func (this *FunctionTypeBuilder) isVarArgsParameterByConvention(param Node) bool
 	return this.codingConvention.isVarArgsParameter(param)
 }
 
-func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo, allowTypeTransformations bool) *JTList[*TemplateType] {
-	var infoTypeKeys *JTMap[string, *JSTypeExpression] = info.getTemplateTypes()
-	var infoTypeTransformations *JTMap[string, Node] = info.getTypeTransformations()
-	if infoTypeKeys.isEmpty() && infoTypeTransformations.isEmpty() {
-		return jtlistEmptyImm_(jtc_p_TemplateType)
+func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo, allowTypeTransformations bool) *TList[*TemplateType] {
+	var infoTypeKeys *TMap[string, *JSTypeExpression] = info.getTemplateTypes()
+	var infoTypeTransformations *TMap[string, Node] = info.getTypeTransformations()
+	if infoTypeKeys.IsEmpty() && infoTypeTransformations.IsEmpty() {
+		return tlistEmptyImm_(tc_p_TemplateType)
 	}
-	var unboundedTemplates *JTList[*TemplateType] = jnewTList_(jtc_p_TemplateType)
-	it_1 := infoTypeKeys.eachKey()
+	var unboundedTemplates *TList[*TemplateType] = newTList_(tc_p_TemplateType)
+	it_1 := infoTypeKeys.each()
 	for it_1.next() {
-		var templateKey string = it_1.v
+		var templateKey string = it_1.k
 		unboundedTemplates.add(this.typeRegistry.createTemplateType(templateKey))
 	}
 	this.templateScope = this.typeRegistry.createScopeWithTemplates(this.templateScope, Iterable(unboundedTemplates.asList()))
-	var templates *TListBuilder[*TemplateType] = newTListBuilder_(jtc_p_TemplateType)
-	var templatesToBounds *JTMap[*TemplateType, *JSType] = jnewTMap_(tce_p_TemplateType, jtc_p_JSType)
+	var templates *ImmutableList_Builder[*TemplateType] = immutableListBuilder_(tc_p_TemplateType)
+	var templatesToBounds *TMap[*TemplateType, *JSType] = newTMap_(tch_p_TemplateType, tc_p_JSType)
 	it_3 := infoTypeKeys.eachEntry()
 	for it_3.next() {
 		var entry *TEntry[string, *JSTypeExpression] = it_3.entry()
@@ -506,9 +506,9 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 		}
 		var template *TemplateType = this.typeRegistry.getType(StaticScope(this.templateScope), entry.getKey()).toMaybeTemplateType()
 		if template != nil {
-			templatesToBounds.put(template, typeBound)
+			templatesToBounds.Put(template, typeBound)
 		} else {
-			templatesToBounds.put(this.typeRegistry.createTemplateType_2(entry.getKey(), typeBound), typeBound)
+			templatesToBounds.Put(this.typeRegistry.createTemplateType_2(entry.getKey(), typeBound), typeBound)
 		}
 	}
 	it_5 := templatesToBounds.eachEntry()
@@ -528,7 +528,7 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 			this.reportWarning(FunctionTypeBuilder_TEMPLATE_TRANSFORMATION_ON_CLASS, []string{entry.getKey()})
 		}
 	}
-	var builtTemplates *JTList[*TemplateType] = templates.build()
+	var builtTemplates *TList[*TemplateType] = templates.build()
 	it_9 := builtTemplates.each()
 	for it_9.next() {
 		var template *TemplateType = it_9.v
@@ -541,16 +541,16 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 
 func (this *FunctionTypeBuilder) inferTemplateTypeName(info *JSDocInfo, ownerType *JSType) *FunctionTypeBuilder {
 	if (info != nil) && !this.maybeUseNativeClassTemplateNames(info) {
-		var templates *JTList[*TemplateType] = this.buildTemplateTypesFromJSDocInfo(info, !(this.isConstructor_ || this.isInterface_))
+		var templates *TList[*TemplateType] = this.buildTemplateTypesFromJSDocInfo(info, !(this.isConstructor_ || this.isInterface_))
 		if !templates.isEmpty() {
 			this.templateTypeNames = templates
 		}
 	}
-	var ownerTypeKeys *JTList[*TemplateType] = func() *JTList[*TemplateType] {
+	var ownerTypeKeys *TList[*TemplateType] = func() *TList[*TemplateType] {
 		if ownerType != nil {
 			return ownerType.getTemplateTypeMap().getTemplateKeys()
 		}
-		return jtlistEmptyImm_(jtc_p_TemplateType)
+		return tlistEmptyImm_(tc_p_TemplateType)
 	}()
 	if !this.templateTypeNames.isEmpty() || !ownerTypeKeys.isEmpty() {
 		this.registerTemplates(Iterables_concat(Iterable(this.templateTypeNames.asList()), Iterable(ownerTypeKeys.asList())), this.contents.getSourceNode())

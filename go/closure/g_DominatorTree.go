@@ -3,15 +3,15 @@
 package closure
 
 type DominatorTree[N comparable] struct {
-	idoms        *JTMap[N, N]
-	subtreeSizes *JTMap[N, any]
+	idoms        *TMap[N, N]
+	subtreeSizes *TMap[N, any]
 }
 
 func (this *DominatorTree[N]) isa_DominatorTree_() {}
 
 func (this *DominatorTree[N]) init_DominatorTree(idoms MapOf[N, N], subtreeSizes MapOf[N, BoxedOf[int32]]) {
-	this.idoms = jimmutableMapCopyOf_(tceT_[N](), tcT_[N](), idoms)
-	this.subtreeSizes = jimmutableMapCopyOf_(tceT_[N](), tc_Integer, subtreeSizes)
+	this.idoms = immutableMapCopyOf_(tchT_[N](), tcT_[N](), idoms)
+	this.subtreeSizes = immutableMapCopyOf_(tchT_[N](), tc_Integer, subtreeSizes)
 }
 
 func new_DominatorTree[N comparable](idoms MapOf[N, N], subtreeSizes MapOf[N, BoxedOf[int32]]) *DominatorTree[N] {
@@ -24,17 +24,17 @@ func DominatorTree_compute[N comparable, E comparable](graph *DiGraph[N, E], ent
 	if graph.getNode_Object_rDiGraphNode(entry) == nil {
 		panic(new_NullPointerException_String("Entry node not in graph"))
 	}
-	var postOrder *JTList[N] = jnewTList_(tcT_[N]())
-	var postOrderIndex *JTMap[N, any] = jnewTMap_(tceT_[N](), tc_Integer)
+	var postOrder *TList[N] = newTList_(tcT_[N]())
+	var postOrderIndex *TMap[N, any] = newTMap_(tchT_[N](), tc_Integer)
 	DominatorTree_buildPostOrder[N, E](graph, entry, postOrder.asList(), Map(new_LinkedHashMap()))
 	var numNodes int32 = postOrder.size()
 	var reversePostOrder []N = DominatorTree_toReversedArray[N](postOrder.asList())
 	for i := int32(0); i < numNodes; i++ {
-		postOrderIndex.put(postOrder.get(i), int32(i))
+		postOrderIndex.Put(postOrder.get(i), int32(i))
 	}
 	var idomIndexes []int32 = make([]int32, numNodes)
 	Arrays_fill_intArr_int_int_int(idomIndexes, 0, numNodes, -1)
-	var startNodeIndex int32 = unbox_[int32](postOrderIndex.get(entry))
+	var startNodeIndex int32 = unbox_[int32](postOrderIndex.Get(entry))
 	idomIndexes[startNodeIndex] = startNodeIndex
 	var changed bool = true
 	for changed {
@@ -43,11 +43,11 @@ func DominatorTree_compute[N comparable, E comparable](graph *DiGraph[N, E], ent
 			if equalsTT_(node, entry) {
 				continue
 			}
-			var nodeIdx int32 = unbox_[int32](postOrderIndex.get(node))
+			var nodeIdx int32 = unbox_[int32](postOrderIndex.Get(node))
 			var newIdomIdx int32 = -1
 			for pred := range elemsAs_[DiGraph_DiGraphNode[N, E]](graph.getDirectedPredNodes(node)) {
 				var predValue N = pred.getValue()
-				var predIdx any = postOrderIndex.get(predValue)
+				var predIdx any = postOrderIndex.Get(predValue)
 				if (predIdx != nil) && (idomIndexes[unbox_[int32](predIdx)] != -1) {
 					newIdomIdx = unbox_[int32](predIdx)
 					break
@@ -56,7 +56,7 @@ func DominatorTree_compute[N comparable, E comparable](graph *DiGraph[N, E], ent
 			if newIdomIdx != -1 {
 				for pred := range elemsAs_[DiGraph_DiGraphNode[N, E]](graph.getDirectedPredNodes(node)) {
 					var predValue N = pred.getValue()
-					var predIdx any = postOrderIndex.get(predValue)
+					var predIdx any = postOrderIndex.Get(predValue)
 					if (predIdx != nil) && (idomIndexes[unbox_[int32](predIdx)] != -1) {
 						newIdomIdx = DominatorTree_intersect(idomIndexes, unbox_[int32](predIdx), newIdomIdx)
 					}
@@ -68,18 +68,18 @@ func DominatorTree_compute[N comparable, E comparable](graph *DiGraph[N, E], ent
 			}
 		}
 	}
-	var idomsMap *JTMap[N, N] = jnewTMap_(tceT_[N](), tcT_[N]())
+	var idomsMap *TMap[N, N] = newTMap_(tchT_[N](), tcT_[N]())
 	var children *SimpleListMultimap[any, any] = SimpleListMultimap_create[any, any]()
 	for i := int32(0); i < numNodes; i++ {
 		var node N = postOrder.get(i)
 		var idomIdx int32 = idomIndexes[i]
 		if (idomIdx != -1) && (i != startNodeIndex) {
 			var idom N = postOrder.get(idomIdx)
-			idomsMap.put(node, idom)
+			idomsMap.Put(node, idom)
 			children.put(boxT_(idom), boxT_(node))
 		}
 	}
-	var sizesMap *JTMap[N, any] = jnewTMap_(tceT_[N](), tc_Integer)
+	var sizesMap *TMap[N, any] = newTMap_(tchT_[N](), tc_Integer)
 	DominatorTree_computeSubtreeSizes[N](entry, children, sizesMap.asMap())
 	return new_DominatorTree[N](idomsMap.asMap(), sizesMap.asMap())
 }
@@ -123,11 +123,11 @@ func DominatorTree_computeSubtreeSizes[N comparable](node N, children *SimpleLis
 }
 
 func (this *DominatorTree[N]) getImmediateDominator(node N) N {
-	return this.idoms.get(node)
+	return this.idoms.Get(node)
 }
 
 func (this *DominatorTree[N]) getDominatedSubtreeSize(node N) int32 {
-	return unbox_[int32](this.subtreeSizes.getOrDefault(node, int32(0)))
+	return unbox_[int32](this.subtreeSizes.GetOr(node, int32(0)))
 }
 
 func (this *DominatorTree[N]) getAllSubtreeSizes() ImmutableMapOf[N, BoxedOf[int32]] {

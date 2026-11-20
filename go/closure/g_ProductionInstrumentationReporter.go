@@ -43,7 +43,7 @@ func ProductionInstrumentationReporter_readFile(filePath string) *Outcome_base[s
 }
 
 func (this *ProductionInstrumentationReporter) getAllExecutionResults(folder string) *Outcome_base[*ErasedImmutableList] {
-	var result *TListBuilder[Map] = newTListBuilder_(tc_Map)
+	var result *ImmutableList_Builder[Map] = immutableListBuilder_(tc_Map)
 	it_1 := foreach_(Io_listFiles(folder))
 	for it_1.next() {
 		var fileEntry string = str_(it_1.v)
@@ -66,7 +66,7 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 		return Outcome_base_err[Map](parsed.error())
 	}
 	var document *SimpleJsonValue = parsed.get()
-	var map_ *JTMap[string, any] = jnewTMap_(jtc_string, tc_Long)
+	var map_ *TMap[string, any] = newTMap_(tc_string, tc_Long)
 	if document.kind() == SimpleJsonValue_Kind_OBJECT {
 		it_1 := document.members().eachEntry()
 		for it_1.next() {
@@ -75,7 +75,7 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 			if value.isErr() {
 				return Outcome_base_err[Map](value.error())
 			}
-			map_.put(member.getKey(), value.get())
+			map_.Put(member.getKey(), value.get())
 		}
 		return Outcome_base_ok_Object[Map](map_.asMap())
 	} else if document.kind() != SimpleJsonValue_Kind_ARRAY {
@@ -95,7 +95,7 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 		if value.isErr() {
 			return Outcome_base_err[Map](value.error())
 		}
-		var replaced any = map_.put(key.get(), value.get())
+		var replaced any = map_.Put(key.get(), value.get())
 		if replaced != nil {
 			return Outcome_base_err[Map](new_SimpleJsonException(("duplicate key: " + sstr_(key.get()))).up_Throwable())
 		}
@@ -135,7 +135,7 @@ func (this *ProductionInstrumentationReporter) doMain(args []string) *Outcome_ba
 	if listOfExecutionResults.isErr() {
 		return Outcome_base_err[any](listOfExecutionResults.error())
 	}
-	return this.createFile(this.finalResultOutput, ProfilingReport_createTabSeparatedProfilingReport(mapping.get(), jtlistImm_(tc_Map, listOfExecutionResults.get())))
+	return this.createFile(this.finalResultOutput, ProfilingReport_createTabSeparatedProfilingReport(mapping.get(), tlistImm_(tc_Map, listOfExecutionResults.get())))
 }
 
 func (this *ProductionInstrumentationReporter) parseCmdLineArguments(args []string) {

@@ -13,8 +13,8 @@ type NamedType struct {
 	resolutionKind        NamedType_ResolutionKind
 	resolutionScope       StaticTypedScope
 	validator             Predicate_baseOf[*JSType]
-	propertyContinuations *JTList[*NamedType_PropertyContinuation]
-	templateTypes         *JTList[*JSType]
+	propertyContinuations *TList[*NamedType_PropertyContinuation]
+	templateTypes         *TList[*JSType]
 	restrictByNull        bool
 }
 
@@ -107,14 +107,14 @@ func (this *NamedType) getBangType() *JSType {
 	return this.toBuilder().setRestrictByNull(true).build().up_JSType()
 }
 
-func (this *NamedType) getTemplateTypes_impl() *JTList[*JSType] {
+func (this *NamedType) getTemplateTypes_impl() *TList[*JSType] {
 	return this.templateTypes
 }
 
 func (this *NamedType) defineProperty_impl(propertyName Property_Key, type_ *JSType, inferred bool, propertyNode Node) bool {
 	if !this.isResolved() {
 		if this.propertyContinuations == nil {
-			this.propertyContinuations = jnewTList_(jtc_p_NamedType_PropertyContinuation)
+			this.propertyContinuations = newTList_(tc_p_NamedType_PropertyContinuation)
 		}
 		this.propertyContinuations.add(new_NamedType_PropertyContinuation(propertyName, type_, inferred, propertyNode))
 		return true
@@ -175,7 +175,7 @@ func (this *NamedType) recursionUnsafeHashCode_impl() int32 {
 }
 
 func (this *NamedType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSType {
-	var resolvedTypeArgs *JTList[*JSType] = jtlistImm_(jtc_p_JSType, JSTypeIterations_mapTypesImmutableList(func(t_ any) any {
+	var resolvedTypeArgs *TList[*JSType] = tlistImm_(tc_p_JSType, JSTypeIterations_mapTypesImmutableList(func(t_ any) any {
 		var t *JSType = to_JSType(t_)
 		_ = t
 		return t.resolve(reporter).self()
@@ -208,7 +208,7 @@ func (this *NamedType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSTyp
 		}
 		var numKeys int32 = result.getTemplateParamCount()
 		if numKeys < resolvedTypeArgs.size() {
-			resolvedTypeArgs = jtlistImm_(jtc_p_JSType, cast_[*ErasedImmutableList](resolvedTypeArgs.asImm().subList(0, numKeys)))
+			resolvedTypeArgs = tlistImm_(tc_p_JSType, cast_[*ErasedImmutableList](resolvedTypeArgs.asImm().subList(0, numKeys)))
 		}
 		result = this.registry.createTemplatizedTypeImmutableList(resultAsObject, resolvedTypeArgs).up_JSType()
 		this.setReferencedType(result.resolve(reporter))
@@ -493,7 +493,7 @@ type NamedType_Builder struct {
 	charno_        int32
 	referencedType *JSType
 	restrictByNull bool
-	templateTypes  *JTList[*JSType]
+	templateTypes  *TList[*JSType]
 }
 
 func (this *NamedType_Builder) zero_NamedType_Builder() {
@@ -503,7 +503,7 @@ func (this *NamedType_Builder) zero_NamedType_Builder() {
 
 func (this *NamedType_Builder) finit_NamedType_Builder() {
 	this.sourceName_ = ""
-	this.templateTypes = jtlistEmptyImm_(jtc_p_JSType)
+	this.templateTypes = tlistEmptyImm_(tc_p_JSType)
 }
 
 func (this *NamedType_Builder) init_NamedType_Builder(registry *JSTypeRegistry, referenceName string) {
@@ -544,7 +544,7 @@ func (this *NamedType_Builder) setErrorReportingLocationFrom(source Node) *Named
 	return this
 }
 
-func (this *NamedType_Builder) setTemplateTypes(templateTypes *JTList[*JSType]) *NamedType_Builder {
+func (this *NamedType_Builder) setTemplateTypes(templateTypes *TList[*JSType]) *NamedType_Builder {
 	this.templateTypes = templateTypes
 	return this
 }
@@ -572,7 +572,7 @@ func (this *NamedType) getTypeClass() JSTypeClass {
 }
 
 // getTemplateTypes: an object that is exactly a NamedType calls its getTemplateTypes_impl directly (post-flip); others dispatch.
-func (this *NamedType) getTemplateTypes() *JTList[*JSType] {
+func (this *NamedType) getTemplateTypes() *TList[*JSType] {
 	if p, _ := this.self_.(*NamedType); p == this {
 		return this.getTemplateTypes_impl()
 	}

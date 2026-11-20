@@ -4,7 +4,7 @@ package closure
 
 type ColorFindPropertyReferences struct {
 	NodeTraversal_AbstractPostOrderCallback
-	propIndex             *JTMap[string, *PropertyClustering]
+	propIndex             *TMap[string, *PropertyClustering]
 	colorGraphNodeFactory *ColorGraphNodeFactory
 	isPropertyReflector   func(Node) bool
 }
@@ -17,7 +17,7 @@ func (this *ColorFindPropertyReferences) up_NodeTraversal_AbstractPostOrderCallb
 }
 
 func (this *ColorFindPropertyReferences) finit_ColorFindPropertyReferences() {
-	this.propIndex = jnewTMap_(jtc_string, jtc_p_PropertyClustering)
+	this.propIndex = newTMap_(tc_string, tc_p_PropertyClustering)
 }
 
 func (this *ColorFindPropertyReferences) init_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactory, isPropertyReflector func(Node) bool) {
@@ -34,8 +34,8 @@ func new_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactor
 	return this
 }
 
-func (this *ColorFindPropertyReferences) getPropertyIndex() *JTMap[string, *PropertyClustering] {
-	var tmp *JTMap[string, *PropertyClustering] = this.propIndex
+func (this *ColorFindPropertyReferences) getPropertyIndex() *TMap[string, *PropertyClustering] {
+	var tmp *TMap[string, *PropertyClustering] = this.propIndex
 	this.propIndex = nil
 	return tmp
 }
@@ -86,9 +86,9 @@ func (this *ColorFindPropertyReferences) handleClass(t *NodeTraversal, classNode
 		if m.isStaticMember() {
 			return classType
 		} else if m.isMemberFieldDef() {
-			var classInstanceType *JTSet[*Color] = classType.getInstanceColors()
+			var classInstanceType *TSet[*Color] = classType.getInstanceColors()
 			return func() *Color {
-				if classInstanceType.isEmpty() {
+				if classInstanceType.IsEmpty() {
 					return StandardColors_UNKNOWN
 				}
 				return Color_createUnion(classInstanceType)
@@ -97,9 +97,9 @@ func (this *ColorFindPropertyReferences) handleClass(t *NodeTraversal, classNode
 			if !((m.isMemberFunctionDef() || m.isGetterDef()) || m.isSetterDef()) {
 				panic(new_IllegalStateException_String(tostr_(m)))
 			}
-			var classPrototypeType *JTSet[*Color] = classType.getPrototypes()
+			var classPrototypeType *TSet[*Color] = classType.getPrototypes()
 			return func() *Color {
-				if classPrototypeType.isEmpty() {
+				if classPrototypeType.IsEmpty() {
 					return StandardColors_UNKNOWN
 				}
 				return Color_createUnion(classPrototypeType)
@@ -111,7 +111,7 @@ func (this *ColorFindPropertyReferences) handleClass(t *NodeTraversal, classNode
 
 func (this *ColorFindPropertyReferences) handleFunction(fnNode Node) {
 	var fnType *Color = fnNode.getColor()
-	if (fnType != nil) && !fnType.getInstanceColors().isEmpty() {
+	if (fnType != nil) && !fnType.getInstanceColors().IsEmpty() {
 		this.colorGraphNodeFactory.createNode(fnType)
 	}
 }
@@ -176,9 +176,9 @@ func (this *ColorFindPropertyReferences) traverseObjectlitLike(t *NodeTraversal,
 func (this *ColorFindPropertyReferences) registerPropertyUse(t *NodeTraversal, site Node, owner *Color) {
 	var prop *PropertyClustering = this.propIndex.computeIfAbsent(site.getString(), &Function_tfn_string_PropertyClustering{func(p0 string) *PropertyClustering { return new_PropertyClustering(p0) }})
 	var flatOwner *ColorGraphNode = this.colorGraphNodeFactory.createNode(owner)
-	flatOwner.getAssociatedProps().put(prop, ColorGraphNode_PropAssociation_AST)
+	flatOwner.getAssociatedProps().Put(prop, ColorGraphNode_PropAssociation_AST)
 	prop.getClusters().add(flatOwner)
-	prop.getUseSites().put(site, flatOwner)
+	prop.getUseSites().Put(site, flatOwner)
 	if t.getCurrentScript().isFromExterns() || ((owner != nil) && owner.getPropertiesKeepOriginalName()) {
 		prop.registerOriginalNameType(flatOwner)
 	}

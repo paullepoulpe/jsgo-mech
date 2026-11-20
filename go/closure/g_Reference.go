@@ -87,7 +87,7 @@ func Reference_isDeclarationHelper(node Node) bool {
 	if parent.isArrowFunction() {
 		return (node == parent.getFirstChild())
 	}
-	return Reference_DECLARATION_PARENTS.contains(parent.getToken())
+	return Reference_DECLARATION_PARENTS.Has(parent.getToken())
 }
 
 func (this *Reference) isVarDeclaration() bool {
@@ -174,7 +174,7 @@ func (this *Reference) getSymbol() StaticSlot {
 	return icast_StaticSlot(obj_(this.getSymbol_rVar()))
 }
 
-var Reference_DECLARATION_PARENTS *JTSet[Token_rhino]
+var Reference_DECLARATION_PARENTS *TSet[Token_rhino]
 
 var Reference_clinit_done bool
 

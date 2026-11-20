@@ -5,7 +5,7 @@ package closure
 type BranchCoverageInstrumentationCallback struct {
 	NodeTraversal_AbstractCfgCallback
 	compiler_           *AbstractCompiler
-	instrumentationData *JTMap[string, *FileInstrumentationData]
+	instrumentationData *TMap[string, *FileInstrumentationData]
 }
 
 func (this *BranchCoverageInstrumentationCallback) up_NodeTraversal_AbstractCfgCallback() *NodeTraversal_AbstractCfgCallback {
@@ -15,13 +15,13 @@ func (this *BranchCoverageInstrumentationCallback) up_NodeTraversal_AbstractCfgC
 	return &this.NodeTraversal_AbstractCfgCallback
 }
 
-func (this *BranchCoverageInstrumentationCallback) init_BranchCoverageInstrumentationCallback(compiler *AbstractCompiler, instrumentationData *JTMap[string, *FileInstrumentationData]) {
+func (this *BranchCoverageInstrumentationCallback) init_BranchCoverageInstrumentationCallback(compiler *AbstractCompiler, instrumentationData *TMap[string, *FileInstrumentationData]) {
 	this.NodeTraversal_AbstractCfgCallback.init_NodeTraversal_AbstractCfgCallback()
 	this.compiler_ = compiler
 	this.instrumentationData = instrumentationData
 }
 
-func new_BranchCoverageInstrumentationCallback(compiler *AbstractCompiler, instrumentationData *JTMap[string, *FileInstrumentationData]) *BranchCoverageInstrumentationCallback {
+func new_BranchCoverageInstrumentationCallback(compiler *AbstractCompiler, instrumentationData *TMap[string, *FileInstrumentationData]) *BranchCoverageInstrumentationCallback {
 	this := &BranchCoverageInstrumentationCallback{}
 	this.self_ = this
 	this.init_BranchCoverageInstrumentationCallback(compiler, instrumentationData)
@@ -40,7 +40,7 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 	if node.isScript() {
 		if func() *FileInstrumentationData {
 			if fileName.isPresent() {
-				return this.instrumentationData.get(fileName.get())
+				return this.instrumentationData.Get(fileName.get())
 			}
 			return nil
 		}() != nil {
@@ -54,7 +54,7 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 			this.compiler_.reportChangeToEnclosingScope(node)
 			this.instrumentBranchCoverage(traversal, func() *FileInstrumentationData {
 				if fileName.isPresent() {
-					return this.instrumentationData.get(fileName.get())
+					return this.instrumentationData.Get(fileName.get())
 				}
 				return nil
 			}())
@@ -80,12 +80,12 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 		}})
 		this.processBranchInfo(node, func() *FileInstrumentationData {
 			if fileName.isPresent() {
-				return this.instrumentationData.get(fileName.get())
+				return this.instrumentationData.Get(fileName.get())
 			}
 			return nil
 		}(), this.getChildrenBlocks(node))
 	} else if NodeUtil_isLoopStructure(node) {
-		var blocks *JTList[Node] = this.getChildrenBlocks(node)
+		var blocks *TList[Node] = this.getChildrenBlocks(node)
 		var cfg *ControlFlowGraph[Node] = this.getControlFlowGraph(this.compiler_)
 		for outEdge := range elemsAs_[DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch]](cfg.getOutEdges(node)) {
 			if outEdge.getValue() == ControlFlowGraph_Branch_ON_FALSE {
@@ -108,15 +108,15 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 		}})
 		this.processBranchInfo(node, func() *FileInstrumentationData {
 			if fileName.isPresent() {
-				return this.instrumentationData.get(fileName.get())
+				return this.instrumentationData.Get(fileName.get())
 			}
 			return nil
 		}(), blocks)
 	}
 }
 
-func (this *BranchCoverageInstrumentationCallback) getChildrenBlocks(node Node) *JTList[Node] {
-	var blocks *JTList[Node] = jnewTList_(jtc_Node)
+func (this *BranchCoverageInstrumentationCallback) getChildrenBlocks(node Node) *TList[Node] {
+	var blocks *TList[Node] = newTList_(tc_Node)
 	{
 		var child Node = node.getFirstChild()
 		for ; child != 0; child = child.getNext() {
@@ -155,7 +155,7 @@ func (this *BranchCoverageInstrumentationCallback) newBranchInstrumentationNode(
 	return exprNode.srcrefTreeIfMissing(node)
 }
 
-func (this *BranchCoverageInstrumentationCallback) processBranchInfo(branchNode Node, data *FileInstrumentationData, blocks *JTList[Node]) {
+func (this *BranchCoverageInstrumentationCallback) processBranchInfo(branchNode Node, data *FileInstrumentationData, blocks *TList[Node]) {
 	var lineNumber int32 = branchNode.getLineno()
 	data.setBranchPresent(lineNumber)
 	var numBranches int32 = 0
@@ -178,7 +178,7 @@ func (this *BranchCoverageInstrumentationCallback) newHeaderNode(traversal *Node
 	var fileName Optional[string] = traversal.getSourceName()
 	var data *FileInstrumentationData = func() *FileInstrumentationData {
 		if fileName.isPresent() {
-			return this.instrumentationData.get(fileName.get())
+			return this.instrumentationData.Get(fileName.get())
 		}
 		return nil
 	}()
@@ -186,7 +186,7 @@ func (this *BranchCoverageInstrumentationCallback) newHeaderNode(traversal *Node
 		panic(new_NullPointerException_0())
 	}
 	var objName string = CoverageInstrumentationPass_JS_INSTRUMENTATION_OBJECT_NAME
-	var nodes *JTList[Node] = jnewTList_(jtc_Node)
+	var nodes *TList[Node] = newTList_(tc_Node)
 	nodes.add(this.newArrayDeclarationNode(traversal))
 	nodes.add(IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("branchesTaken")), "push"), []Node{IR_name(BranchCoverageInstrumentationCallback_createArrayName(traversal))})))
 	nodes.add(IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("branchPresent")), "push"), []Node{IR_string(data.getBranchPresentAsHexString())})))
@@ -201,7 +201,7 @@ func (this *BranchCoverageInstrumentationCallback) newArrayDeclarationNode(trave
 }
 
 func (this *BranchCoverageInstrumentationCallback) newBranchesInLineNode(name string, data *FileInstrumentationData) Node {
-	var assignments *JTList[Node] = jnewTList_(jtc_Node)
+	var assignments *TList[Node] = newTList_(tc_Node)
 	assignments.add(IR_var_Node_Node(IR_name(name), IR_arraylit([]Node{})))
 	var lineWithBranch int32 = 0
 	for lineIdx := int32(1); lineIdx <= data.maxBranchPresentLine(); lineIdx++ {

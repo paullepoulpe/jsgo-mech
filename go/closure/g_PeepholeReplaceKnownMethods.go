@@ -179,14 +179,14 @@ func (this *PeepholeReplaceKnownMethods) tryFoldKnownMathMethods(subtree Node, c
 	if !subtree.isCall() || !callTarget.isGetProp() {
 		panic(new_IllegalArgumentException_0())
 	}
-	var args *JTList[any] = jtlistEmptyImm_(tc_Double)
+	var args *TList[any] = tlistEmptyImm_(tc_Double)
 	{
 		var arg Node = callTarget.getNext()
 		for ; arg != 0; arg = arg.getNext() {
 			var d any = this.getSideEffectFreeNumberValue(arg)
 			if d != nil {
 				if args.isEmpty() {
-					args = jnewTList_(tc_Double)
+					args = newTList_(tc_Double)
 				}
 				args.add(d)
 			} else {
@@ -812,7 +812,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 		}
 		return NodeUtil_getStringValue(right)
 	}()
-	var arrayFoldedChildren *JTList[Node] = jnewTList_(jtc_Node)
+	var arrayFoldedChildren *TList[Node] = newTList_(tc_Node)
 	var sb *strBuilder_ = nil
 	var foldedSize int32 = 0
 	var prev Node = 0
@@ -1127,7 +1127,7 @@ func (this *PeepholeReplaceKnownMethods) jsSplit(stringValue string, separator O
 	if separator.isEmpty() {
 		return []string{stringValue}
 	}
-	var splitStrings *JTList[string] = jnewTList_(jtc_string)
+	var splitStrings *TList[string] = newTList_(tc_string)
 	if separator.get() == "" {
 		for i, u_ := range stringUnits_(stringValue) {
 			if !(i < limit) {
