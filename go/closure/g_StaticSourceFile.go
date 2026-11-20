@@ -93,4 +93,3 @@ func StaticSourceFile_SourceKind_clinit() {
 	registerEnum_("com.google.javascript.rhino.StaticSourceFile.SourceKind", enumValues_(StaticSourceFile_SourceKind_values_))
 
 }
-

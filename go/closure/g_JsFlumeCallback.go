@@ -3,15 +3,15 @@
 package closure
 
 type JsFlumeCallback struct {
-	scanner *Scanner_refactoring
+	scanner            *Scanner_refactoring
 	includeFilePattern *Pattern
-	matches_ *TList[*Match]
-	fixes *TList[*SuggestedFix]
+	matches_           *JTList[*Match]
+	fixes              *JTList[*SuggestedFix]
 }
 
 func (this *JsFlumeCallback) finit_JsFlumeCallback() {
-	this.matches_ = newTList_(tc_p_Match)
-	this.fixes = newTList_(tc_p_SuggestedFix)
+	this.matches_ = jnewTList_(jtc_p_Match)
+	this.fixes = jnewTList_(jtc_p_SuggestedFix)
 }
 
 func (this *JsFlumeCallback) init_JsFlumeCallback(scanner *Scanner_refactoring, includeFilePattern *Pattern) {
@@ -26,11 +26,11 @@ func new_JsFlumeCallback(scanner *Scanner_refactoring, includeFilePattern *Patte
 	return this
 }
 
-func (this *JsFlumeCallback) getMatches() *TList[*Match] {
+func (this *JsFlumeCallback) getMatches() *JTList[*Match] {
 	return this.matches_
 }
 
-func (this *JsFlumeCallback) getFixes() *TList[*SuggestedFix] {
+func (this *JsFlumeCallback) getFixes() *JTList[*SuggestedFix] {
 	return this.fixes
 }
 
@@ -40,7 +40,7 @@ func (this *JsFlumeCallback) shouldTraverse(nodeTraversal *NodeTraversal, n Node
 	}
 	if n.isScript() {
 		var filename string = n.getSourceFileName()
-		if (((this.includeFilePattern != nil) && !String_isEmpty(this.includeFilePattern.pattern())) && !String_isEmpty(filename)) {
+		if ((this.includeFilePattern != nil) && !String_isEmpty(this.includeFilePattern.pattern())) && !String_isEmpty(filename) {
 			return this.includeFilePattern.matcher_s(filename).find()
 		}
 	}
@@ -55,4 +55,3 @@ func (this *JsFlumeCallback) visit(t *NodeTraversal, n Node, parent Node) {
 		this.matches_.add(match)
 	}
 }
-

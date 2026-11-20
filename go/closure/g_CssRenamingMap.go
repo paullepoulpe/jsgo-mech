@@ -90,4 +90,3 @@ func (this *CssRenamingMap_ByWhole) getStyle() *CssRenamingMap_Style {
 func (this *CssRenamingMap_ByWhole) get(p0 string) Optional[string] {
 	panic("abstract method CssRenamingMap_ByWhole.get")
 }
-

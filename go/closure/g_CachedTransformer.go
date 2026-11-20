@@ -47,4 +47,3 @@ func (this *CachedTransformer) compose(p0 Source_Transformer) Source_Transformer
 }
 
 const CachedTransformer_DEFAULT_CACHE_SPEC string = "maximumSize=10000"
-

@@ -55,4 +55,3 @@ func PolymerPassErrors_clinit() {
 	PolymerPassErrors_POLYMER_UNPARSABLE_STRING = DiagnosticType_error("JSC_POLYMER_UNPARSABLE_STRING", "The Polymer computed property or complex observer string could not be parsed.")
 
 }
-

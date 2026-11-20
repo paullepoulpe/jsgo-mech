@@ -61,4 +61,3 @@ func ClosurePrimitiveErrors_clinit() {
 	ClosurePrimitiveErrors_GOOG_MODULE_GET_OF_WEAK_MODULE = DiagnosticType_error("JSC_GOOG_MODULE_GET_OF_WEAK_MODULE", "goog.module.get of \"{0}\" references a namespace that is only imported by goog.requireType.")
 
 }
-

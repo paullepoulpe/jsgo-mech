@@ -21,9 +21,9 @@ func (this *J2clConstantHoisterPass) process_2(externs Node, root Node) {
 		return
 	}
 	var fieldAssignments *SimpleListMultimap[string, Node] = SimpleListMultimap_create[string, Node]()
-	var hoistableFunctions *TSet[Node] = newTSet_(tc_Node)
+	var hoistableFunctions *JTSet[Node] = jnewTSet_(jtc_Node)
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(&NodeTraversal_AbstractPostOrderCallbackInterface_fn{func(t *NodeTraversal, node Node, parent Node) {
-		if ((parent != 0) && NodeUtil_isLValue(node)) {
+		if (parent != 0) && NodeUtil_isLValue(node) {
 			fieldAssignments.put(node.getQualifiedName(), parent)
 		}
 		if J2clConstantHoisterPass_isHoistableFunction(t, node) {
@@ -42,21 +42,31 @@ func J2clConstantHoisterPass_isHoistableFunction(t *NodeTraversal, node Node) bo
 }
 
 func (this *J2clConstantHoisterPass) maybeHoistClassField(assignments CollectionOf[Node], hoistableFunctions CollectionOf[Node]) {
-	if (assignments.size() != 2) {
+	if assignments.size() != 2 {
 		return
 	}
 	var first Node = Node_of_(Iterables_get(Iterable(assignments), 0))
 	var second Node = Node_of_(Iterables_get(Iterable(assignments), 1))
-	var topLevelDeclaration Node = func() Node { if J2clConstantHoisterPass_isClassFieldDeclaration(first) { return first }; return second }()
-	var clinitAssignment Node = func() Node { if J2clConstantHoisterPass_isClinitFieldAssignment(first) { return first }; return second }()
-	if (!J2clConstantHoisterPass_isClassFieldDeclaration(topLevelDeclaration) || !J2clConstantHoisterPass_isClinitFieldAssignment(clinitAssignment)) {
+	var topLevelDeclaration Node = func() Node {
+		if J2clConstantHoisterPass_isClassFieldDeclaration(first) {
+			return first
+		}
+		return second
+	}()
+	var clinitAssignment Node = func() Node {
+		if J2clConstantHoisterPass_isClinitFieldAssignment(first) {
+			return first
+		}
+		return second
+	}()
+	if !J2clConstantHoisterPass_isClassFieldDeclaration(topLevelDeclaration) || !J2clConstantHoisterPass_isClinitFieldAssignment(clinitAssignment) {
 		return
 	}
 	var assignmentRhs Node = clinitAssignment.getSecondChild()
-	if (!NodeUtil_isLiteralValue(assignmentRhs, true) || (assignmentRhs.isFunction() && !hoistableFunctions.contains(assignmentRhs.box_()))) {
+	if !NodeUtil_isLiteralValue(assignmentRhs, true) || (assignmentRhs.isFunction() && !hoistableFunctions.contains(assignmentRhs.box_())) {
 		return
 	}
-	if (NodeUtil_getEnclosingScript(clinitAssignment) != NodeUtil_getEnclosingScript(topLevelDeclaration)) {
+	if NodeUtil_getEnclosingScript(clinitAssignment) != NodeUtil_getEnclosingScript(topLevelDeclaration) {
 		return
 	}
 	this.hoistConstantLikeField(clinitAssignment, topLevelDeclaration)
@@ -70,7 +80,7 @@ func (this *J2clConstantHoisterPass) hoistConstantLikeField(clinitAssignment Nod
 	NodeUtil_removeChild(clinitAssignment.getParent(), clinitAssignment)
 	clinitAssignedValue.detach()
 	this.compiler_.reportChangeToChangeScope(clinitChangeScope)
-	if (declarationAssignedValue == 0) {
+	if declarationAssignedValue == 0 {
 		declarationInClass.addChildToFront(clinitAssignedValue)
 		this.compiler_.reportChangeToEnclosingScope(topLevelDeclaration)
 	} else if !equalsRRH_(declarationAssignedValue, clinitAssignedValue) {
@@ -100,4 +110,3 @@ func J2clConstantHoisterPass_isClinitMethod(fnNode Node) bool {
 func J2clConstantHoisterPass_isClinitMethodName(methodName Optional[string]) bool {
 	return (methodName.isPresent() && (String_endsWith(methodName.get(), "$$0clinit") || String_endsWith(methodName.get(), ".$clinit")))
 }
-

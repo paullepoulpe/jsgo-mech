@@ -3,45 +3,45 @@
 package closure
 
 type RenameProperties struct {
-	compiler_ *AbstractCompiler
-	prevUsedPropertyMap *VariableMap
-	toRemove *TList[Node]
-	stringNodesToRename *TList[Node]
-	callNodeToParentMap *TMap[Node, Node]
-	reservedFirstCharacters *TSet[any]
-	reservedNonFirstCharacters *TSet[any]
-	propertyMap *TMap[string, *RenameProperties_Property]
-	externedNames *TSet[string]
-	quotedNames *TSet[string]
-	nameGenerator NameGenerator
+	compiler_                       *AbstractCompiler
+	prevUsedPropertyMap             *VariableMap
+	toRemove                        *JTList[Node]
+	stringNodesToRename             *JTList[Node]
+	callNodeToParentMap             *JTMap[Node, Node]
+	reservedFirstCharacters         *JTSet[any]
+	reservedNonFirstCharacters      *JTSet[any]
+	propertyMap                     *JTMap[string, *RenameProperties_Property]
+	externedNames                   *JTSet[string]
+	quotedNames                     *JTSet[string]
+	nameGenerator                   NameGenerator
 	propertyRenameEligibilityFilter Predicate[Node]
-	filteredOutNames *TSet[string]
-	generatePseudoNames bool
+	filteredOutNames                *JTSet[string]
+	generatePseudoNames             bool
 }
 
 func (this *RenameProperties) finit_RenameProperties() {
-	this.toRemove = newTList_(tc_Node)
-	this.stringNodesToRename = newTList_(tc_Node)
-	this.callNodeToParentMap = newTMap_(tc_Node, tc_Node)
-	this.propertyMap = newTMap_(tc_string, tc_p_RenameProperties_Property)
-	this.externedNames = tsetFrom_(tc_string, Collection(Arrays_asList([]any{"prototype"})))
-	this.quotedNames = newTSet_(tc_string)
-	this.filteredOutNames = newTSet_(tc_string)
+	this.toRemove = jnewTList_(jtc_Node)
+	this.stringNodesToRename = jnewTList_(jtc_Node)
+	this.callNodeToParentMap = jnewTMap_(jtc_Node, jtc_Node)
+	this.propertyMap = jnewTMap_(jtc_string, jtc_p_RenameProperties_Property)
+	this.externedNames = jtsetFrom_(jtc_string, Collection(Arrays_asList([]any{"prototype"})))
+	this.quotedNames = jnewTSet_(jtc_string)
+	this.filteredOutNames = jnewTSet_(jtc_string)
 }
 
-func (this *RenameProperties) init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters *TSet[any], reservedNonFirstCharacters *TSet[any], nameGenerator NameGenerator) {
+func (this *RenameProperties) init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any], nameGenerator NameGenerator) {
 	this.init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler, generatePseudoNames, prevUsedPropertyMap, reservedFirstCharacters, reservedNonFirstCharacters, nameGenerator, Predicate[Node](func(n Node) bool {
 		return true
 	}))
 }
 
-func new_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters *TSet[any], reservedNonFirstCharacters *TSet[any], nameGenerator NameGenerator) *RenameProperties {
+func new_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any], nameGenerator NameGenerator) *RenameProperties {
 	this := &RenameProperties{}
 	this.init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator(compiler, generatePseudoNames, prevUsedPropertyMap, reservedFirstCharacters, reservedNonFirstCharacters, nameGenerator)
 	return this
 }
 
-func (this *RenameProperties) init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters *TSet[any], reservedNonFirstCharacters *TSet[any], nameGenerator NameGenerator, propertyRenameEligibilityFilter Predicate[Node]) {
+func (this *RenameProperties) init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any], nameGenerator NameGenerator, propertyRenameEligibilityFilter Predicate[Node]) {
 	this.finit_RenameProperties()
 	this.compiler_ = compiler
 	this.generatePseudoNames = generatePseudoNames
@@ -53,7 +53,7 @@ func (this *RenameProperties) init_RenameProperties_AbstractCompiler_boolean_Var
 	this.externedNames.asSet().addAll(Collection(compiler.getExternProperties().asSet()))
 }
 
-func new_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters *TSet[any], reservedNonFirstCharacters *TSet[any], nameGenerator NameGenerator, propertyRenameEligibilityFilter Predicate[Node]) *RenameProperties {
+func new_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any], nameGenerator NameGenerator, propertyRenameEligibilityFilter Predicate[Node]) *RenameProperties {
 	this := &RenameProperties{}
 	this.init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler, generatePseudoNames, prevUsedPropertyMap, reservedFirstCharacters, reservedNonFirstCharacters, nameGenerator, propertyRenameEligibilityFilter)
 	return this
@@ -65,9 +65,17 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 	var reservedNames SetOf[string] = LinkedHashSet_as_Set(Sets_newLinkedHashSetWithExpectedSize((this.externedNames.size() + this.quotedNames.size())))
 	reservedNames.addAll(Collection(this.externedNames.asSet()))
 	reservedNames.addAll(Collection(this.quotedNames.asSet()))
-	var propsByFreq *TSet[*RenameProperties_Property] = newTSortedSetC_(tc_p_RenameProperties_Property, func() Comparator[any] { f_ := RenameProperties_FREQUENCY_COMPARATOR; if f_ == nil { return nil }; return func(p0 any, p1 any) int32 { return f_(cast_[*RenameProperties_Property](p0), cast_[*RenameProperties_Property](p1)) } }())
+	var propsByFreq *JTSet[*RenameProperties_Property] = newTSortedSetC_(jtc_p_RenameProperties_Property, func() Comparator[any] {
+		f_ := RenameProperties_FREQUENCY_COMPARATOR
+		if f_ == nil {
+			return nil
+		}
+		return func(p0 any, p1 any) int32 {
+			return f_(cast_[*RenameProperties_Property](p0), cast_[*RenameProperties_Property](p1))
+		}
+	}())
 	propsByFreq.asSet().addAll(this.propertyMap.asMap().values())
-	if (this.prevUsedPropertyMap != nil) {
+	if this.prevUsedPropertyMap != nil {
 		this.reusePropertyNames(reservedNames, Collection(propsByFreq.asSet()))
 	}
 	this.generateNames(propsByFreq, reservedNames)
@@ -79,7 +87,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 			continue
 		}
 		var p *RenameProperties_Property = this.propertyMap.get(oldName)
-		if ((p != nil) && p.newName.isPresent()) {
+		if (p != nil) && p.newName.isPresent() {
 			Preconditions_checkState((oldName == p.oldName))
 			n.setString(p.newName.get())
 			if !(p.newName.get() == oldName) {
@@ -98,7 +106,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 			var oldName string = str_(it_5.v)
 			var p *RenameProperties_Property = this.propertyMap.get(oldName)
 			var replacement string
-			if ((p != nil) && p.newName.isPresent()) {
+			if (p != nil) && p.newName.isPresent() {
 				Preconditions_checkState((oldName == p.oldName))
 				if this.filteredOutNames.contains(oldName) {
 					replacement = oldName
@@ -108,7 +116,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 			} else {
 				replacement = oldName
 			}
-			if (sb.length() > 0) {
+			if sb.length() > 0 {
 				sb.append_char('.')
 			}
 			sb.append(replacement)
@@ -123,7 +131,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 		this.compiler_.reportChangeToEnclosingScope(n)
 		n.detach()
 		NodeUtil_markFunctionsDeleted(n, this.compiler_)
-		if (!parent.hasChildren() && !parent.isScript()) {
+		if !parent.hasChildren() && !parent.isScript() {
 			parent.detach()
 		}
 	}
@@ -136,7 +144,7 @@ func (this *RenameProperties) reusePropertyNames(reservedNames SetOf[string], al
 	for it_1.next() {
 		var prop *RenameProperties_Property = cast_[*RenameProperties_Property](it_1.v)
 		var prevName Optional[string] = this.prevUsedPropertyMap.lookupNewName(prop.oldName)
-		if (!this.generatePseudoNames && prevName.isPresent()) {
+		if !this.generatePseudoNames && prevName.isPresent() {
 			if Collection_contains_s(reservedNames, prevName.get()) {
 				continue
 			}
@@ -146,7 +154,7 @@ func (this *RenameProperties) reusePropertyNames(reservedNames SetOf[string], al
 	}
 }
 
-func (this *RenameProperties) generateNames(props *TSet[*RenameProperties_Property], reservedNames SetOf[string]) {
+func (this *RenameProperties) generateNames(props *JTSet[*RenameProperties_Property], reservedNames SetOf[string]) {
 	this.nameGenerator.reset_4(reservedNames, "", this.reservedFirstCharacters, this.reservedNonFirstCharacters)
 	it_1 := props.each()
 	for it_1.next() {
@@ -163,7 +171,7 @@ func (this *RenameProperties) generateNames(props *TSet[*RenameProperties_Proper
 }
 
 func (this *RenameProperties) getPropertyMap() *VariableMap {
-	var map_ *TMapBuilder[string, string] = newTMapBuilder_(tc_string, tc_string)
+	var map_ *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
 	it_1 := this.propertyMap.eachValue()
 	for it_1.next() {
 		var p *RenameProperties_Property = it_1.v
@@ -188,7 +196,7 @@ func RenameProperties_clinit() {
 	RenameProperties_clinit_done = true
 	RenameProperties_DOT_SPLITTER = Splitter_on('.')
 	RenameProperties_FREQUENCY_COMPARATOR = Comparator[*RenameProperties_Property](func(p1 *RenameProperties_Property, p2 *RenameProperties_Property) int32 {
-		if (p1.numOccurrences != p2.numOccurrences) {
+		if p1.numOccurrences != p2.numOccurrences {
 			return (p2.numOccurrences - p1.numOccurrences)
 		}
 		return String_compareTo(p1.oldName, p2.oldName)
@@ -229,7 +237,7 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 		this.maybeMarkCandidate(n)
 	case Token_rhino_GETELEM, Token_rhino_OPTCHAIN_GETELEM:
 		var child Node = n.getLastChild()
-		if ((child != 0) && child.isStringLit()) {
+		if (child != 0) && child.isStringLit() {
 			this.outer_.quotedNames.add(child.getString())
 		}
 	case Token_rhino_CALL:
@@ -262,17 +270,17 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 	case Token_rhino_FUNCTION:
 		if NodeUtil_isFunctionDeclaration(n) {
 			var name string = n.getFirstChild().getString()
-			if (NodeUtil_JSC_PROPERTY_NAME_FN == name) {
+			if NodeUtil_JSC_PROPERTY_NAME_FN == name {
 				this.outer_.toRemove.add(n)
 			}
-		} else if (parent.isName() && (NodeUtil_JSC_PROPERTY_NAME_FN == parent.getString())) {
+		} else if parent.isName() && (NodeUtil_JSC_PROPERTY_NAME_FN == parent.getString()) {
 			var varNode Node = parent.getParent()
 			if varNode.isVar() {
 				this.outer_.toRemove.add(parent)
 			}
-		} else if (((NodeUtil_isFunctionExpression(n) && parent.isAssign()) && parent.getFirstChild().isGetProp()) && this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(parent.getFirstChild())) {
+		} else if ((NodeUtil_isFunctionExpression(n) && parent.isAssign()) && parent.getFirstChild().isGetProp()) && this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(parent.getFirstChild()) {
 			var exprResult Node = parent.getParent()
-			if ((exprResult.isExprResult() && NodeUtil_isStatementBlock(exprResult.getParent())) && exprResult.getFirstChild().isAssign()) {
+			if (exprResult.isExprResult() && NodeUtil_isStatementBlock(exprResult.getParent())) && exprResult.getFirstChild().isAssign() {
 				this.outer_.toRemove.add(exprResult)
 			}
 		}
@@ -317,8 +325,8 @@ func (this *RenameProperties_ProcessProperties) countPropertyOccurrence(name str
 }
 
 type RenameProperties_Property struct {
-	oldName string
-	newName Optional[string]
+	oldName        string
+	newName        Optional[string]
 	numOccurrences int32
 }
 
@@ -341,4 +349,3 @@ func new_RenameProperties_Property(name string) *RenameProperties_Property {
 	this.init_RenameProperties_Property(name)
 	return this
 }
-

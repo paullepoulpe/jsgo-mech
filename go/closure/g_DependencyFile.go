@@ -3,12 +3,12 @@
 package closure
 
 type DependencyFile struct {
-	dependencies *TMap[string, DependencyInfo_]
-	delegate SourceFile_deps
+	dependencies *JTMap[string, DependencyInfo_]
+	delegate     SourceFile_deps
 }
 
 func (this *DependencyFile) finit_DependencyFile() {
-	this.dependencies = newTMap_(tc_string, tc_DependencyInfo_)
+	this.dependencies = jnewTMap_(jtc_string, tc_DependencyInfo_)
 }
 
 func (this *DependencyFile) init_DependencyFile(delegate SourceFile_deps) {
@@ -35,7 +35,7 @@ func (this *DependencyFile) wasModified() bool {
 }
 
 func (this *DependencyFile) ensureUpToDate() {
-	if (this.dependencies.isEmpty() || this.wasModified()) {
+	if this.dependencies.isEmpty() || this.wasModified() {
 		this.loadGraph()
 	}
 }
@@ -49,7 +49,7 @@ func (this *DependencyFile) loadGraph() {
 	DependencyFile_logger.info("Loading dependency graph")
 	var errorManager ErrorManager = ErrorManager(new_LoggerErrorManager_Logger(DependencyFile_logger))
 	var parser *DepsFileRegexParser = new_DepsFileRegexParser_ErrorManager(errorManager)
-	var depInfos *TList[DependencyInfo_] = parser.parseFile_2(this.getName(), this.getContent())
+	var depInfos *JTList[DependencyInfo_] = parser.parseFile_2(this.getName(), this.getContent())
 	if !parser.didParseSucceed() {
 		panic(obj_(new_ServiceException(("Problem parsing " + sstr_(this.getName()) + ". See logs for details."))))
 	}
@@ -60,13 +60,13 @@ func (this *DependencyFile) loadGraph() {
 		for it_3.next() {
 			var provide string = str_(it_3.v)
 			var existing DependencyInfo_ = this.dependencies.get(provide)
-			if ((existing != nil) && !equalsRR_(existing, depInfo)) {
+			if (existing != nil) && !equalsRR_(existing, depInfo) {
 				panic(obj_(new_ServiceException(("Duplicate provide of " + sstr_(provide) + ". Was provided by " + sstr_(existing.getPathRelativeToClosureBase()) + " and " + sstr_(depInfo.getPathRelativeToClosureBase())))))
 			}
 			this.dependencies.put(provide, depInfo)
 		}
 	}
-	var provides *TList[string] = newTList_(tc_string)
+	var provides *JTList[string] = jnewTList_(jtc_string)
 	provides.add(DefaultDependencyResolver_CLOSURE_BASE_PROVIDE)
 	this.dependencies.put(DefaultDependencyResolver_CLOSURE_BASE_PROVIDE, SimpleDependencyInfo_as_DependencyInfo_(SimpleDependencyInfo_builder(DefaultDependencyResolver_CLOSURE_BASE, Optional_of[string](DefaultDependencyResolver_CLOSURE_BASE)).setProvides(Collection(provides.asList())).build()))
 	errorManager.generateReport()
@@ -85,4 +85,3 @@ func DependencyFile_clinit() {
 	DependencyFile_logger = Logger_getLogger(classOf_("com.google.javascript.jscomp.deps.DependencyFile").getName())
 
 }
-

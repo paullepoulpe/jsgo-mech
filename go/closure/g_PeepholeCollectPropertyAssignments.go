@@ -25,14 +25,14 @@ func new_PeepholeCollectPropertyAssignments() *PeepholeCollectPropertyAssignment
 }
 
 func (this *PeepholeCollectPropertyAssignments) optimizeSubtree_impl(subtree Node) Node {
-	if (!subtree.isScript() && !subtree.isBlock()) {
+	if !subtree.isScript() && !subtree.isBlock() {
 		return subtree
 	}
 	var codeChanged bool = false
 	{
 		var child Node = subtree.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
-			if (!NodeUtil_isNameDeclaration(child) && !NodeUtil_isExprAssign(child)) {
+		for ; child != 0; child = child.getNext() {
+			if !NodeUtil_isNameDeclaration(child) && !NodeUtil_isExprAssign(child) {
 				continue
 			}
 			if !PeepholeCollectPropertyAssignments_isPropertyAssignmentToName(child.getNext()) {
@@ -44,13 +44,13 @@ func (this *PeepholeCollectPropertyAssignments) optimizeSubtree_impl(subtree Nod
 				continue
 			}
 			var value Node = PeepholeCollectPropertyAssignments_getValue(child)
-			if ((value == 0) || !PeepholeCollectPropertyAssignments_isInterestingValue(value)) {
+			if (value == 0) || !PeepholeCollectPropertyAssignments_isInterestingValue(value) {
 				continue
 			}
 			var propertyCandidate Node
 			for {
 				propertyCandidate = child.getNext()
-				if (propertyCandidate == 0) {
+				if propertyCandidate == 0 {
 					break
 				}
 				if !this.collectProperty(propertyCandidate, name.getString(), value) {
@@ -89,7 +89,7 @@ func PeepholeCollectPropertyAssignments_isInterestingValue(n Node) bool {
 }
 
 func PeepholeCollectPropertyAssignments_isPropertyAssignmentToName(propertyCandidate Node) bool {
-	if (propertyCandidate == 0) {
+	if propertyCandidate == 0 {
 		return false
 	}
 	if !NodeUtil_isExprAssign(propertyCandidate) {
@@ -113,10 +113,10 @@ func (this *PeepholeCollectPropertyAssignments) collectProperty(propertyCandidat
 		return false
 	}
 	var rhs Node = lhs.getNext()
-	if (this.mayHaveSideEffects(rhs) || NodeUtil_canBeSideEffected_Node(rhs)) {
+	if this.mayHaveSideEffects(rhs) || NodeUtil_canBeSideEffected_Node(rhs) {
 		return false
 	}
-	if (!NodeUtil_isLiteralValue(rhs, true) && PeepholeCollectPropertyAssignments_mightContainForwardReference(rhs, name)) {
+	if !NodeUtil_isLiteralValue(rhs, true) && PeepholeCollectPropertyAssignments_mightContainForwardReference(rhs, name) {
 		return false
 	}
 	switch value.getToken() {
@@ -149,21 +149,21 @@ func PeepholeCollectPropertyAssignments_collectArrayProperty(arrayLiteral Node, 
 		return false
 	}
 	var dindex float64 = property.getDouble()
-	if ((!(dindex >= 0) || Double_isInfinite(dindex)) || (dindex > 2147483647)) {
+	if (!(dindex >= 0) || Double_isInfinite(dindex)) || (dindex > 2147483647) {
 		return false
 	}
 	var index int32 = f2i_[int32](float64(dindex))
-	if (dindex != float64(index)) {
+	if dindex != float64(index) {
 		return false
 	}
-	if ((maxIndexAssigned + 4) < index) {
+	if (maxIndexAssigned + 4) < index {
 		return false
 	}
 	if PeepholeCollectPropertyAssignments_arrayLiteralHasSpread(arrayLiteral) {
 		return false
 	}
-	if (index > maxIndexAssigned) {
-		for (maxIndexAssigned < (index - 1)) {
+	if index > maxIndexAssigned {
+		for maxIndexAssigned < (index - 1) {
 			var emptyNode Node = IR_empty().srcref(arrayLiteral)
 			arrayLiteral.addChildToBack(emptyNode)
 			maxIndexAssigned++
@@ -182,13 +182,18 @@ func PeepholeCollectPropertyAssignments_collectArrayProperty(arrayLiteral Node, 
 
 func PeepholeCollectPropertyAssignments_arrayLiteralHasSpread(arrayLiteral Node) bool {
 	var script Node = NodeUtil_getEnclosingScript(arrayLiteral)
-	var scriptFeatures *FeatureSet = func() *FeatureSet { if (script != 0) { return NodeUtil_getFeatureSetOfScript(script) }; return nil }()
-	if ((scriptFeatures != nil) && !scriptFeatures.has(FeatureSet_Feature_SPREAD_EXPRESSIONS)) {
+	var scriptFeatures *FeatureSet = func() *FeatureSet {
+		if script != 0 {
+			return NodeUtil_getFeatureSetOfScript(script)
+		}
+		return nil
+	}()
+	if (scriptFeatures != nil) && !scriptFeatures.has(FeatureSet_Feature_SPREAD_EXPRESSIONS) {
 		return false
 	}
 	{
 		var child Node = arrayLiteral.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			if child.isSpread() {
 				return true
 			}
@@ -221,27 +226,27 @@ func (this *PeepholeCollectPropertyAssignments) collectObjectProperty(objectLite
 	var existingProperty Node = 0
 	{
 		var currentProperty Node = objectLiteral.getFirstChild()
-		for ; (currentProperty != 0); currentProperty = currentProperty.getNext() {
-			if (currentProperty.isStringKey() || currentProperty.isMemberFunctionDef()) {
+		for ; currentProperty != 0; currentProperty = currentProperty.getNext() {
+			if currentProperty.isStringKey() || currentProperty.isMemberFunctionDef() {
 				var currentPropertyName string = currentProperty.getString()
 				var currentValue Node = currentProperty.getFirstChild()
 				if Object_equals(Optional_of[string](currentPropertyName).box_(), propertyName.box_()) {
 					existingProperty = currentProperty
 					var isCurrentValueSideEffect bool = NodeUtil_canBeSideEffected_Node(currentValue)
 					var isNewValueSideEffect bool = NodeUtil_canBeSideEffected_Node(rhs)
-					if (isCurrentValueSideEffect || isNewValueSideEffect) {
+					if isCurrentValueSideEffect || isNewValueSideEffect {
 						return false
 					}
 					break
 				}
-			} else if (currentProperty.isGetterDef() || currentProperty.isSetterDef()) {
+			} else if currentProperty.isGetterDef() || currentProperty.isSetterDef() {
 				var currentPropertyName string = currentProperty.getString()
 				if Object_equals(Optional_of[string](currentPropertyName).box_(), propertyName.box_()) {
 					return false
 				}
 			} else if currentProperty.isComputedProp() {
 				var keyNode Node = currentProperty.getFirstChild()
-				if (!keyNode.isStringLit() || Object_equals(Optional_of[string](keyNode.getString()).box_(), propertyName.box_())) {
+				if !keyNode.isStringLit() || Object_equals(Optional_of[string](keyNode.getString()).box_(), propertyName.box_()) {
 					return false
 				}
 			}
@@ -253,7 +258,7 @@ func (this *PeepholeCollectPropertyAssignments) collectObjectProperty(objectLite
 	}
 	var newValue Node = rhs.detach()
 	newProperty.addChildToBack(newValue)
-	if (existingProperty != 0) {
+	if existingProperty != 0 {
 		this.deleteNode(existingProperty)
 	}
 	objectLiteral.addChildToBack(newProperty)
@@ -267,7 +272,7 @@ func PeepholeCollectPropertyAssignments_mightContainForwardReference(node Node, 
 	}
 	{
 		var child Node = node.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			if PeepholeCollectPropertyAssignments_mightContainForwardReference(child, varName) {
 				return true
 			}
@@ -275,4 +280,3 @@ func PeepholeCollectPropertyAssignments_mightContainForwardReference(node Node, 
 	}
 	return false
 }
-

@@ -3,10 +3,10 @@
 package closure
 
 type LineNumberScanner struct {
-	sourceFile *SourceFile_parser
-	contents string
-	sourceLength int32
-	lastLine int32
+	sourceFile    *SourceFile_parser
+	contents      string
+	sourceLength  int32
+	lastLine      int32
 	lastLineStart int32
 	nextLineStart int32
 }
@@ -37,7 +37,7 @@ func new_LineNumberScanner(sourceFile *SourceFile_parser) *LineNumberScanner {
 
 func (this *LineNumberScanner) getSourcePosition(offset int32) *SourcePosition_util {
 	Preconditions_checkArgument_boolean_String_int_int((offset >= this.lastLineStart), "Must call rewindTo before calling getSourcePosition for an earlier line (%s < %s)", offset, this.lastLineStart)
-	for (offset >= this.nextLineStart) {
+	for offset >= this.nextLineStart {
 		this.advanceLine()
 	}
 	return new_SourcePosition_util(this.sourceFile, offset, this.lastLine, (offset - this.lastLineStart))
@@ -49,7 +49,7 @@ func (this *LineNumberScanner) getSourceRange(startOffset int32, endOffset int32
 
 func (this *LineNumberScanner) rewindTo(position *SourcePosition_util) {
 	Preconditions_checkArgument((position.source == this.sourceFile))
-	if (position.offset < this.lastLineStart) {
+	if position.offset < this.lastLineStart {
 		this.lastLine = (position.line_ - 1)
 		this.nextLineStart = (position.offset - position.column_)
 		this.advanceLine()
@@ -59,10 +59,10 @@ func (this *LineNumberScanner) rewindTo(position *SourcePosition_util) {
 func (this *LineNumberScanner) advanceLine() {
 	this.lastLine++
 	this.lastLineStart = this.nextLineStart
-	for index := int32(this.lastLineStart); (index < this.sourceLength); index++ {
+	for index := int32(this.lastLineStart); index < this.sourceLength; index++ {
 		var ch uint16 = String_charAt(this.contents, index)
 		if LineNumberScanner_isLineTerminator(ch) {
-			if (((ch == '\r') && ((index + 1) < this.sourceLength)) && (String_charAt(this.contents, (index + 1)) == '\n')) {
+			if ((ch == '\r') && ((index + 1) < this.sourceLength)) && (String_charAt(this.contents, (index+1)) == '\n') {
 				index++
 			}
 			this.nextLineStart = (index + 1)
@@ -83,4 +83,3 @@ func LineNumberScanner_isLineTerminator(ch uint16) bool {
 		panic("unreachable")
 	}()
 }
-

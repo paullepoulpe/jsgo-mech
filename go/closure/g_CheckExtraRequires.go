@@ -4,10 +4,10 @@ package closure
 
 type CheckExtraRequires struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
-	requires *TMap[string, Node]
-	usages *TSet[string]
-	requiresToRemove *TSet[string]
+	compiler_        *AbstractCompiler
+	requires         *JTMap[string, Node]
+	usages           *JTSet[string]
+	requiresToRemove *JTSet[string]
 }
 
 func (this *CheckExtraRequires) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -18,18 +18,18 @@ func (this *CheckExtraRequires) up_NodeTraversal_AbstractPostOrderCallback() *No
 }
 
 func (this *CheckExtraRequires) finit_CheckExtraRequires() {
-	this.requires = newTMap_(tc_string, tc_Node)
-	this.usages = newTSet_(tc_string)
+	this.requires = jnewTMap_(jtc_string, jtc_Node)
+	this.usages = jnewTSet_(jtc_string)
 }
 
-func (this *CheckExtraRequires) init_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove *TSet[string]) {
+func (this *CheckExtraRequires) init_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove *JTSet[string]) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.finit_CheckExtraRequires()
 	this.compiler_ = compiler
 	this.requiresToRemove = requiresToRemove
 }
 
-func new_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove *TSet[string]) *CheckExtraRequires {
+func new_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove *JTSet[string]) *CheckExtraRequires {
 	this := &CheckExtraRequires{}
 	this.self_ = this
 	this.init_CheckExtraRequires(compiler, requiresToRemove)
@@ -49,7 +49,7 @@ func (this *CheckExtraRequires) extractNamespace(call Node, primitiveNames []str
 	for _, primitiveName := range primitiveNames {
 		if callee.matchesQualifiedName(primitiveName) {
 			var target Node = callee.getNext()
-			if ((target != 0) && target.isStringLit()) {
+			if (target != 0) && target.isStringLit() {
 				return Optional_of[string](target.getString())
 			}
 		}
@@ -69,11 +69,11 @@ func (this *CheckExtraRequires) visit_impl(t *NodeTraversal, n Node, parent Node
 	this.maybeAddJsDocUsages(n)
 	switch n.getToken() {
 	case Token_rhino_NAME:
-		if ((!NodeUtil_isLValue(n) && !parent.isGetProp()) && !parent.isImportSpec()) {
+		if (!NodeUtil_isLValue(n) && !parent.isGetProp()) && !parent.isImportSpec() {
 			this.visitQualifiedName(n)
 		}
 	case Token_rhino_GETPROP:
-		if (!parent.isGetProp() && n.isQualifiedName()) {
+		if !parent.isGetProp() && n.isQualifiedName() {
 			this.visitQualifiedName(n)
 		}
 	case Token_rhino_CALL:
@@ -98,7 +98,7 @@ func (this *CheckExtraRequires) visitScriptNode() {
 		var entry *TEntry[string, Node] = it_1.entry()
 		var require string = entry.getKey()
 		var call Node = entry.getValue()
-		if (!this.usages.contains(require) && ((this.requiresToRemove == nil) || this.requiresToRemove.contains(require))) {
+		if !this.usages.contains(require) && ((this.requiresToRemove == nil) || this.requiresToRemove.contains(require)) {
 			this.reportExtraRequireWarning(call, require)
 		}
 	}
@@ -109,7 +109,7 @@ func (this *CheckExtraRequires) reportExtraRequireWarning(call Node, require str
 		return
 	}
 	var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(call)
-	if ((jsDoc != nil) && jsDoc.getSuppressions().contains("extraRequire")) {
+	if (jsDoc != nil) && jsDoc.getSuppressions().contains("extraRequire") {
 		return
 	}
 	this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, CheckExtraRequires_EXTRA_REQUIRE_WARNING, []string{require}))
@@ -128,7 +128,7 @@ func (this *CheckExtraRequires) visitImportNode(importNode Node) {
 	if namedImports.isImportSpecs() {
 		{
 			var importSpec Node = namedImports.getFirstChild()
-			for ; (importSpec != 0); importSpec = importSpec.getNext() {
+			for ; importSpec != 0; importSpec = importSpec.getNext() {
 				this.visitRequire(importSpec.getLastChild().getString(), importNode)
 			}
 		}
@@ -142,11 +142,11 @@ func (this *CheckExtraRequires) visitForwardDeclare(namespace string, forwardDec
 func (this *CheckExtraRequires) visitGoogRequire(namespace string, googRequireCall Node, parent Node) {
 	if parent.isName() {
 		this.visitRequire(parent.getString(), googRequireCall)
-	} else if (parent.isDestructuringLhs() && parent.getFirstChild().isObjectPattern()) {
+	} else if parent.isDestructuringLhs() && parent.getFirstChild().isObjectPattern() {
 		if parent.getFirstChild().hasChildren() {
 			{
 				var stringKey Node = parent.getFirstFirstChild()
-				for ; (stringKey != 0); stringKey = stringKey.getNext() {
+				for ; stringKey != 0; stringKey = stringKey.getNext() {
 					var importName Node = stringKey.getFirstChild()
 					if !importName.isName() {
 						continue
@@ -174,7 +174,7 @@ func (this *CheckExtraRequires) visitCallNode(call Node, parent Node) {
 		return
 	}
 	var callee Node = call.getFirstChild()
-	if (CheckExtraRequires_GOOG_MODULE_GET.matches(callee) && call.getSecondChild().isStringLit()) {
+	if CheckExtraRequires_GOOG_MODULE_GET.matches(callee) && call.getSecondChild().isStringLit() {
 		this.usages.add(call.getSecondChild().getString())
 	}
 }
@@ -194,7 +194,7 @@ func (this *CheckExtraRequires) visitQualifiedName(n Node) {
 
 func (this *CheckExtraRequires) maybeAddJsDocUsages(n Node) {
 	var info *JSDocInfo = n.getJSDocInfo()
-	if (info == nil) {
+	if info == nil {
 		return
 	}
 	it_1 := foreach_(info.getTypeExpressions())
@@ -209,7 +209,7 @@ func (this *CheckExtraRequires) maybeAddJsDocUsages(n Node) {
 }
 
 var CheckExtraRequires_EXTRA_REQUIRE_WARNING *DiagnosticType
-var CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES *TSet[string]
+var CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES *JTSet[string]
 var CheckExtraRequires_GOOG_MODULE_GET *QualifiedName
 
 var CheckExtraRequires_clinit_done bool
@@ -220,8 +220,7 @@ func CheckExtraRequires_clinit() {
 	}
 	CheckExtraRequires_clinit_done = true
 	CheckExtraRequires_EXTRA_REQUIRE_WARNING = DiagnosticType_disabled("JSC_EXTRA_REQUIRE_WARNING", "extra require: ''{0}'' is never referenced in this file")
-	CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES = immutableSetOf_[string](tc_string, "goog.testing.asserts", "goog.testing.jsunit")
+	CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES = jimmutableSetOf_[string](jtc_string, "goog.testing.asserts", "goog.testing.jsunit")
 	CheckExtraRequires_GOOG_MODULE_GET = QualifiedName_of("goog.module.get")
 
 }
-

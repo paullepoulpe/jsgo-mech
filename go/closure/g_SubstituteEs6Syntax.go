@@ -4,7 +4,7 @@ package closure
 
 type SubstituteEs6Syntax struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
+	compiler_                      *AbstractCompiler
 	objectLiteralShorthandWasAdded bool
 }
 
@@ -43,7 +43,7 @@ func (this *SubstituteEs6Syntax) visit_impl(t *NodeTraversal, n Node, parent Nod
 			this.maybeSimplifyArrowFunctionBody(n, n.getLastChild())
 		}
 	case Token_rhino_STRING_KEY:
-		if (n.getFirstChild().isName() && (n.getFirstChild().getString() == n.getString())) {
+		if n.getFirstChild().isName() && (n.getFirstChild().getString() == n.getString()) {
 			n.setShorthandProperty(true)
 			this.objectLiteralShorthandWasAdded = true
 		}
@@ -58,12 +58,16 @@ func (this *SubstituteEs6Syntax) visit_impl(t *NodeTraversal, n Node, parent Nod
 
 func (this *SubstituteEs6Syntax) maybeSimplifyArrowFunctionBody(arrowFunction Node, body Node) {
 	Preconditions_checkArgument(arrowFunction.isArrowFunction())
-	if ((!body.isBlock() || !body.hasOneChild()) || !body.getFirstChild().isReturn()) {
+	if (!body.isBlock() || !body.hasOneChild()) || !body.getFirstChild().isReturn() {
 		return
 	}
 	var returnValue Node = body.getFirstChild().removeFirstChild()
-	var replacement Node = func() Node { if (returnValue != 0) { return returnValue }; return IR_name("undefined") }()
+	var replacement Node = func() Node {
+		if returnValue != 0 {
+			return returnValue
+		}
+		return IR_name("undefined")
+	}()
 	body.replaceWith(replacement)
 	this.compiler_.reportChangeToEnclosingScope(replacement)
 }
-

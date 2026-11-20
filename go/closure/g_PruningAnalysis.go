@@ -3,13 +3,13 @@
 package closure
 
 type PruningAnalysis struct {
-	sorter_ *SortedDependencies[*CompilerInput]
-	entryPoints_ *TSet[*CompilerInput]
+	sorter_      *SortedDependencies[*CompilerInput]
+	entryPoints_ *JTSet[*CompilerInput]
 }
 
 func (this *PruningAnalysis) init_PruningAnalysis(sorter *SortedDependencies[*CompilerInput], entryPoints CollectionOf[*CompilerInput]) {
 	this.sorter_ = sorter
-	this.entryPoints_ = immutableSetCopyOf_(tc_p_CompilerInput, entryPoints)
+	this.entryPoints_ = jimmutableSetCopyOf_(jtc_p_CompilerInput, entryPoints)
 }
 
 func new_PruningAnalysis(sorter *SortedDependencies[*CompilerInput], entryPoints CollectionOf[*CompilerInput]) *PruningAnalysis {
@@ -23,41 +23,47 @@ func PruningAnalysis_create(sorter *SortedDependencies[*CompilerInput], entryPoi
 }
 
 func (this *PruningAnalysis) analyze() *PruningAnalysis_Result {
-	var total *TMap[string, any] = this.calculateTotalBlame()
-	var bottlenecks *TMap[string, any] = this.calculateBottlenecks()
+	var total *JTMap[string, any] = this.calculateTotalBlame()
+	var bottlenecks *JTMap[string, any] = this.calculateBottlenecks()
 	return new_PruningAnalysis_Result(total, bottlenecks)
 }
 
-func (this *PruningAnalysis) calculateTotalBlame() *TMap[string, any] {
-	var reachabilityPerEntryPoint *TMapBuilder[string, any] = newTMapBuilder_(tc_string, tc_Integer)
+func (this *PruningAnalysis) calculateTotalBlame() *JTMap[string, any] {
+	var reachabilityPerEntryPoint *TMapBuilder[string, any] = newTMapBuilder_(jtc_string, tc_Integer)
 	it_1 := this.entryPoints_.each()
 	for it_1.next() {
 		var provider *CompilerInput = it_1.v
-		var transitiveClosure *TSet[*CompilerInput] = newTSetBuilder_(tc_p_CompilerInput).addAll(ImmutableList_as_Iterable(this.sorter_.getStrongDependenciesOf(ImmutableList_as_List(ImmutableList_of_Object(obj_(provider))), false))).addAll(ImmutableList_as_Iterable(this.sorter_.getSortedWeakDependenciesOf(ImmutableList_as_List(ImmutableList_of_Object(obj_(provider)))))).build()
+		var transitiveClosure *JTSet[*CompilerInput] = newTSetBuilder_(jtc_p_CompilerInput).addAll(ImmutableList_as_Iterable(this.sorter_.getStrongDependenciesOf(ImmutableList_as_List(ImmutableList_of_Object(obj_(provider))), false))).addAll(ImmutableList_as_Iterable(this.sorter_.getSortedWeakDependenciesOf(ImmutableList_as_List(ImmutableList_of_Object(obj_(provider)))))).build()
 		reachabilityPerEntryPoint.put(provider.getName(), int32(transitiveClosure.size()))
 	}
 	return reachabilityPerEntryPoint.buildOrThrow()
 }
 
-func (this *PruningAnalysis) calculateBottlenecks() *TMap[string, any] {
+func (this *PruningAnalysis) calculateBottlenecks() *JTMap[string, any] {
 	var graph *DiGraph[string, string] = this.buildGraph()
 	var dominatorTree *DominatorTree[string] = DominatorTree_compute[string, string](graph, PruningAnalysis_VIRTUAL_ROOT)
-	var bottleneckBlame *TMap[string, any] = newTMap_(tc_string, tc_Integer)
+	var bottleneckBlame *JTMap[string, any] = jnewTMap_(jtc_string, tc_Integer)
 	it_1 := foreach_(obj_(cast_[*ImmutableSet](dominatorTree.getAllSubtreeSizes().entrySet())))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var node string = str_(entry.getKey())
 		var retainedCount int32 = unbox_[int32](entry.getValue())
-		if (!(node == PruningAnalysis_VIRTUAL_ROOT) && (retainedCount > 1)) {
+		if !(node == PruningAnalysis_VIRTUAL_ROOT) && (retainedCount > 1) {
 			bottleneckBlame.put(node, int32(retainedCount))
 		}
 	}
-	var sortedBlame *TList[Map_Entry] = tlistFrom_(tc_Map_Entry, Collection(bottleneckBlame.asMap().entrySet()))
-	List_sort(sortedBlame.asList(), func() Comparator[any] { f_ := Comparator_comparingInt[Map_Entry](ToIntFunction[Map_Entry](func(entry Map_Entry) int32 {
-		return unbox_[int32](entry.getValue())
-	})).reversed(); if f_ == nil { return nil }; return func(p0 any, p1 any) int32 { return f_(icast_Map_Entry(p0), icast_Map_Entry(p1)) } }())
-	var result *TMapBuilder[string, any] = newTMapBuilder_(tc_string, tc_Integer)
-	for i := int32(0); ((i < sortedBlame.size()) && (i < PruningAnalysis_BOTTLENECK_THRESHOLD)); i++ {
+	var sortedBlame *JTList[Map_Entry] = jtlistFrom_(tc_Map_Entry, Collection(bottleneckBlame.asMap().entrySet()))
+	List_sort(sortedBlame.asList(), func() Comparator[any] {
+		f_ := Comparator_comparingInt[Map_Entry](ToIntFunction[Map_Entry](func(entry Map_Entry) int32 {
+			return unbox_[int32](entry.getValue())
+		})).reversed()
+		if f_ == nil {
+			return nil
+		}
+		return func(p0 any, p1 any) int32 { return f_(icast_Map_Entry(p0), icast_Map_Entry(p1)) }
+	}())
+	var result *TMapBuilder[string, any] = newTMapBuilder_(jtc_string, tc_Integer)
+	for i := int32(0); (i < sortedBlame.size()) && (i < PruningAnalysis_BOTTLENECK_THRESHOLD); i++ {
 		var entry Map_EntryOf[string, BoxedOf[int32]] = sortedBlame.get(i)
 		result.put(str_(entry.getKey()), entry.getValue())
 	}
@@ -81,7 +87,7 @@ func (this *PruningAnalysis) buildGraph() *DiGraph[string, string] {
 	for it_5.next() {
 		var input *CompilerInput = cast_[*CompilerInput](it_5.v)
 		var name string = input.getName()
-		var depSymbols *TSet[string] = newTSet_(tc_string)
+		var depSymbols *JTSet[string] = jnewTSet_(jtc_string)
 		it_7 := foreach_(obj_(input.getRequires()))
 		for it_7.next() {
 			var req *DependencyInfo_Require = cast_[*DependencyInfo_Require](it_7.v)
@@ -108,26 +114,26 @@ const PruningAnalysis_BOTTLENECK_THRESHOLD int32 = 25
 const PruningAnalysis_VIRTUAL_ROOT string = "ENTRY POINTS ROOT"
 
 type PruningAnalysis_Result struct {
-	entryPointDependencyCount_ *TMap[string, any]
-	bottleneckBlame_ *TMap[string, any]
+	entryPointDependencyCount_ *JTMap[string, any]
+	bottleneckBlame_           *JTMap[string, any]
 }
 
-func (this *PruningAnalysis_Result) init_PruningAnalysis_Result(entryPointDependencyCount *TMap[string, any], bottleneckBlame *TMap[string, any]) {
+func (this *PruningAnalysis_Result) init_PruningAnalysis_Result(entryPointDependencyCount *JTMap[string, any], bottleneckBlame *JTMap[string, any]) {
 	this.entryPointDependencyCount_ = entryPointDependencyCount
 	this.bottleneckBlame_ = bottleneckBlame
 }
 
-func new_PruningAnalysis_Result(entryPointDependencyCount *TMap[string, any], bottleneckBlame *TMap[string, any]) *PruningAnalysis_Result {
+func new_PruningAnalysis_Result(entryPointDependencyCount *JTMap[string, any], bottleneckBlame *JTMap[string, any]) *PruningAnalysis_Result {
 	this := &PruningAnalysis_Result{}
 	this.init_PruningAnalysis_Result(entryPointDependencyCount, bottleneckBlame)
 	return this
 }
 
-func (this *PruningAnalysis_Result) entryPointDependencyCount() *TMap[string, any] {
+func (this *PruningAnalysis_Result) entryPointDependencyCount() *JTMap[string, any] {
 	return this.entryPointDependencyCount_
 }
 
-func (this *PruningAnalysis_Result) bottleneckBlame() *TMap[string, any] {
+func (this *PruningAnalysis_Result) bottleneckBlame() *JTMap[string, any] {
 	return this.bottleneckBlame_
 }
 
@@ -149,4 +155,3 @@ func (this *PruningAnalysis_Result) hashCode() int32 {
 func (this *PruningAnalysis_Result) toString() string {
 	return "Result[" + "entryPointDependencyCount=" + objstr_(this.entryPointDependencyCount_.asMap()) + ", bottleneckBlame=" + objstr_(this.bottleneckBlame_.asMap()) + "]"
 }
-

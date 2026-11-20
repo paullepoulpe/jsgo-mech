@@ -3,14 +3,14 @@
 package closure
 
 type ZipArchive struct {
-	bytes []int8
-	entryNames *TList[string]
-	records *TMap[string, any]
+	bytes      []int8
+	entryNames *JTList[string]
+	records    *JTMap[string, any]
 }
 
 func (this *ZipArchive) finit_ZipArchive() {
-	this.entryNames = newTList_(tc_string)
-	this.records = newTMap_(tc_string, tc_Integer)
+	this.entryNames = jnewTList_(jtc_string)
+	this.records = jnewTMap_(jtc_string, tc_Integer)
 }
 
 func (this *ZipArchive) init_ZipArchive(bytes []int8) {
@@ -27,25 +27,25 @@ func new_ZipArchive(bytes []int8) *ZipArchive {
 func ZipArchive_parse(bytes []int8) Optional[*ZipArchive] {
 	var end int32 = (int32(len(bytes)) - ZipArchive_END_SIZE)
 	var lowest int32 = Math_max(0, (end - 65535))
-	for ((end >= lowest) && (ZipArchive_int32(bytes, end) != ZipArchive_END_SIGNATURE)) {
+	for (end >= lowest) && (ZipArchive_int32(bytes, end) != ZipArchive_END_SIGNATURE) {
 		end--
 	}
-	if (end < lowest) {
+	if end < lowest {
 		return Optional_empty[*ZipArchive]()
 	}
 	var count int32 = ZipArchive_int16(bytes, (end + 10))
 	var position int32 = ZipArchive_int32(bytes, (end + 16))
-	if ((count == 65535) || (position == -1)) {
+	if (count == 65535) || (position == -1) {
 		return Optional_empty[*ZipArchive]()
 	}
 	var archive *ZipArchive = new_ZipArchive(bytes)
-	for i := int32(0); (i < count); i++ {
-		if (((position < 0) || ((position + ZipArchive_RECORD_SIZE) > int32(len(bytes)))) || (ZipArchive_int32(bytes, position) != ZipArchive_RECORD_SIGNATURE)) {
+	for i := int32(0); i < count; i++ {
+		if ((position < 0) || ((position + ZipArchive_RECORD_SIZE) > int32(len(bytes)))) || (ZipArchive_int32(bytes, position) != ZipArchive_RECORD_SIGNATURE) {
 			return Optional_empty[*ZipArchive]()
 		}
 		var nameLength int32 = ZipArchive_int16(bytes, (position + 28))
-		var next int32 = ((((position + ZipArchive_RECORD_SIZE) + nameLength) + ZipArchive_int16(bytes, (position + 30))) + ZipArchive_int16(bytes, (position + 32)))
-		if (next > int32(len(bytes))) {
+		var next int32 = ((((position + ZipArchive_RECORD_SIZE) + nameLength) + ZipArchive_int16(bytes, (position+30))) + ZipArchive_int16(bytes, (position+32)))
+		if next > int32(len(bytes)) {
 			return Optional_empty[*ZipArchive]()
 		}
 		var name string = Io_utf8String(ZipArchive_slice(bytes, (position + ZipArchive_RECORD_SIZE), nameLength))
@@ -56,35 +56,35 @@ func ZipArchive_parse(bytes []int8) Optional[*ZipArchive] {
 	return Optional_of[*ZipArchive](archive)
 }
 
-func (this *ZipArchive) names() *TList[string] {
+func (this *ZipArchive) names() *JTList[string] {
 	return this.entryNames
 }
 
 func (this *ZipArchive) read(name string) Optional[[]int8] {
 	var record any = this.records.get(name)
-	if (record == nil) {
+	if record == nil {
 		return Optional_empty[[]int8]()
 	}
 	var method int32 = ZipArchive_int16(this.bytes, (unbox_[int32](record) + 10))
 	var storedSize int32 = ZipArchive_int32(this.bytes, (unbox_[int32](record) + 20))
 	var size int32 = ZipArchive_int32(this.bytes, (unbox_[int32](record) + 24))
 	var local int32 = ZipArchive_int32(this.bytes, (unbox_[int32](record) + 42))
-	if (((((local < 0) || ((local + ZipArchive_LOCAL_SIZE) > int32(len(this.bytes)))) || (ZipArchive_int32(this.bytes, local) != ZipArchive_LOCAL_SIGNATURE)) || (storedSize < 0)) || (size < 0)) {
+	if ((((local < 0) || ((local + ZipArchive_LOCAL_SIZE) > int32(len(this.bytes)))) || (ZipArchive_int32(this.bytes, local) != ZipArchive_LOCAL_SIGNATURE)) || (storedSize < 0)) || (size < 0) {
 		return Optional_empty[[]int8]()
 	}
-	var start int32 = (((local + ZipArchive_LOCAL_SIZE) + ZipArchive_int16(this.bytes, (local + 26))) + ZipArchive_int16(this.bytes, (local + 28)))
-	if ((start + storedSize) > int32(len(this.bytes))) {
+	var start int32 = (((local + ZipArchive_LOCAL_SIZE) + ZipArchive_int16(this.bytes, (local+26))) + ZipArchive_int16(this.bytes, (local+28)))
+	if (start + storedSize) > int32(len(this.bytes)) {
 		return Optional_empty[[]int8]()
 	}
 	var stored []int8 = ZipArchive_slice(this.bytes, start, storedSize)
-	if (method == 0) {
+	if method == 0 {
 		return Optional_of[[]int8](stored)
 	}
-	if (method != 8) {
+	if method != 8 {
 		return Optional_empty[[]int8]()
 	}
 	var data *Outcome_base[[]int8] = Io_inflate(stored)
-	if (data.isErr() || (int32(len(data.get())) != size)) {
+	if data.isErr() || (int32(len(data.get())) != size) {
 		return Optional_empty[[]int8]()
 	}
 	return Optional_of[[]int8](data.get())
@@ -97,17 +97,17 @@ func ZipArchive_slice(bytes []int8, start int32, length int32) []int8 {
 }
 
 func ZipArchive_int16(bytes []int8, position int32) int32 {
-	return ((int32(bytes[position]) & 255) | ((int32(bytes[(position + 1)]) & 255) << 8))
+	return ((int32(bytes[position]) & 255) | ((int32(bytes[(position+1)]) & 255) << 8))
 }
 
 func ZipArchive_int32(bytes []int8, position int32) int32 {
-	return (ZipArchive_int16(bytes, position) | (ZipArchive_int16(bytes, (position + 2)) << 16))
+	return (ZipArchive_int16(bytes, position) | (ZipArchive_int16(bytes, (position+2)) << 16))
 }
 
 func ZipArchive_open(path string) *Outcome_base[*ZipArchive] {
 	var modified int64 = Io_lastModified(path)
 	var known *ZipArchive_Opened = ZipArchive_opened.get(path)
-	if ((known != nil) && (known.modified == modified)) {
+	if (known != nil) && (known.modified == modified) {
 		return Outcome_base_ok_Object[*ZipArchive](known.archive)
 	}
 	var bytes *Outcome_base[[]int8] = Io_readBytes(path)
@@ -144,7 +144,8 @@ const ZipArchive_RECORD_SIGNATURE int32 = 33639248
 const ZipArchive_RECORD_SIZE int32 = 46
 const ZipArchive_LOCAL_SIGNATURE int32 = 67324752
 const ZipArchive_LOCAL_SIZE int32 = 30
-var ZipArchive_opened *TMap[string, *ZipArchive_Opened]
+
+var ZipArchive_opened *JTMap[string, *ZipArchive_Opened]
 
 var ZipArchive_clinit_done bool
 
@@ -153,12 +154,12 @@ func ZipArchive_clinit() {
 		return
 	}
 	ZipArchive_clinit_done = true
-	ZipArchive_opened = newTMap_(tc_string, tc_p_ZipArchive_Opened)
+	ZipArchive_opened = jnewTMap_(jtc_string, jtc_p_ZipArchive_Opened)
 
 }
 
 type ZipArchive_Opened struct {
-	archive *ZipArchive
+	archive  *ZipArchive
 	modified int64
 }
 
@@ -172,4 +173,3 @@ func new_ZipArchive_Opened(archive *ZipArchive, modified int64) *ZipArchive_Open
 	this.init_ZipArchive_Opened(archive, modified)
 	return this
 }
-

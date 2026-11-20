@@ -3,11 +3,11 @@
 package closure
 
 type JSTypeColorIdHasher struct {
-	standardColorObjectIds *TMap[*ObjectType, *ColorId]
+	standardColorObjectIds *JTMap[*ObjectType, *ColorId]
 }
 
 func (this *JSTypeColorIdHasher) init_JSTypeColorIdHasher(registry *JSTypeRegistry) {
-	var standardColorObjectIdsBuilder *TMapBuilder[*ObjectType, *ColorId] = newTMapBuilder_(tce_p_ObjectType, tc_p_ColorId)
+	var standardColorObjectIdsBuilder *TMapBuilder[*ObjectType, *ColorId] = newTMapBuilder_(tce_p_ObjectType, jtc_p_ColorId)
 	it_1 := JSTypeColorIdHasher_NATIVE_TYPE_TO_ID.eachEntry()
 	for it_1.next() {
 		var e *TEntry[*JSTypeNative, *ColorId] = it_1.entry()
@@ -25,7 +25,7 @@ func new_JSTypeColorIdHasher(registry *JSTypeRegistry) *JSTypeColorIdHasher {
 func (this *JSTypeColorIdHasher) hashObjectType(type_ *ObjectType) *ColorId {
 	Preconditions_checkState_boolean_Object(((((((type_ != nil) && !type_.isEnumElementType()) && !type_.isNoResolvedType()) && !type_.isTemplatizedType()) && !type_.isUnknownType()) && !type_.isTemplateType()), type_)
 	var boxId *ColorId = this.standardColorObjectIds.get(type_)
-	if (boxId != nil) {
+	if boxId != nil {
 		return boxId
 	}
 	var hasher Hasher = JSTypeColorIdHasher_FARM_64.newHasher()
@@ -50,7 +50,7 @@ func (this *JSTypeColorIdHasher) hashObjectType(type_ *ObjectType) *ColorId {
 func (this *JSTypeColorIdHasher) putReferenceNameType(hasher Hasher, type_ *ObjectType) {
 	JSTypeColorIdHasher_putUtf8(hasher, type_.getReferenceName().get())
 	var sourceRef JSType_WithSourceRef = JSTypeColorIdHasher_sourceRefFor(type_)
-	if (sourceRef == nil) {
+	if sourceRef == nil {
 		hasher.putInt(JSTypeColorIdHasher_Marker_UNKNOWN_SOURCEREF)
 		return
 	}
@@ -72,7 +72,7 @@ func JSTypeColorIdHasher_sourceRefFor(type_ *ObjectType) JSType_WithSourceRef {
 		return icast_JSType_WithSourceRef(type_.toMaybeFunctionType().self())
 	} else if type_.isFunctionPrototypeType() {
 		return icast_JSType_WithSourceRef(type_.getOwnerFunction().self())
-	} else if (type_.getConstructor() != nil) {
+	} else if type_.getConstructor() != nil {
 		return icast_JSType_WithSourceRef(type_.getConstructor().self())
 	}
 	return nil
@@ -83,7 +83,7 @@ func JSTypeColorIdHasher_putUtf8(hasher Hasher, s string) {
 }
 
 var JSTypeColorIdHasher_FARM_64 HashFunction
-var JSTypeColorIdHasher_NATIVE_TYPE_TO_ID *TMap[*JSTypeNative, *ColorId]
+var JSTypeColorIdHasher_NATIVE_TYPE_TO_ID *JTMap[*JSTypeNative, *ColorId]
 
 var JSTypeColorIdHasher_clinit_done bool
 
@@ -93,7 +93,7 @@ func JSTypeColorIdHasher_clinit() {
 	}
 	JSTypeColorIdHasher_clinit_done = true
 	JSTypeColorIdHasher_FARM_64 = Hashing_farmHashFingerprint64()
-	JSTypeColorIdHasher_NATIVE_TYPE_TO_ID = newTMapBuilder_(tc_p_JSTypeNative, tc_p_ColorId).put(JSTypeNative_ARGUMENTS_TYPE, StandardColors_ARGUMENTS_ID).put(JSTypeNative_ARRAY_TYPE, StandardColors_ARRAY_ID).put(JSTypeNative_READONLY_ARRAY_TYPE, StandardColors_READONLY_ARRAY_ID).put(JSTypeNative_ASYNC_ITERATOR_ITERABLE_TYPE, StandardColors_ASYNC_ITERATOR_ITERABLE_ID).put(JSTypeNative_GENERATOR_TYPE, StandardColors_GENERATOR_ID).put(JSTypeNative_I_TEMPLATE_ARRAY_TYPE, StandardColors_I_TEMPLATE_ARRAY_ID).put(JSTypeNative_ITERATOR_TYPE, StandardColors_ITERATOR_ID).put(JSTypeNative_PROMISE_TYPE, StandardColors_PROMISE_ID).put(JSTypeNative_BIGINT_OBJECT_TYPE, StandardColors_BIGINT_OBJECT_ID).put(JSTypeNative_BOOLEAN_OBJECT_TYPE, StandardColors_BOOLEAN_OBJECT_ID).put(JSTypeNative_NUMBER_OBJECT_TYPE, StandardColors_NUMBER_OBJECT_ID).put(JSTypeNative_STRING_OBJECT_TYPE, StandardColors_STRING_OBJECT_ID).put(JSTypeNative_SYMBOL_OBJECT_TYPE, StandardColors_SYMBOL_OBJECT_ID).buildOrThrow()
+	JSTypeColorIdHasher_NATIVE_TYPE_TO_ID = newTMapBuilder_(tc_p_JSTypeNative, jtc_p_ColorId).put(JSTypeNative_ARGUMENTS_TYPE, StandardColors_ARGUMENTS_ID).put(JSTypeNative_ARRAY_TYPE, StandardColors_ARRAY_ID).put(JSTypeNative_READONLY_ARRAY_TYPE, StandardColors_READONLY_ARRAY_ID).put(JSTypeNative_ASYNC_ITERATOR_ITERABLE_TYPE, StandardColors_ASYNC_ITERATOR_ITERABLE_ID).put(JSTypeNative_GENERATOR_TYPE, StandardColors_GENERATOR_ID).put(JSTypeNative_I_TEMPLATE_ARRAY_TYPE, StandardColors_I_TEMPLATE_ARRAY_ID).put(JSTypeNative_ITERATOR_TYPE, StandardColors_ITERATOR_ID).put(JSTypeNative_PROMISE_TYPE, StandardColors_PROMISE_ID).put(JSTypeNative_BIGINT_OBJECT_TYPE, StandardColors_BIGINT_OBJECT_ID).put(JSTypeNative_BOOLEAN_OBJECT_TYPE, StandardColors_BOOLEAN_OBJECT_ID).put(JSTypeNative_NUMBER_OBJECT_TYPE, StandardColors_NUMBER_OBJECT_ID).put(JSTypeNative_STRING_OBJECT_TYPE, StandardColors_STRING_OBJECT_ID).put(JSTypeNative_SYMBOL_OBJECT_TYPE, StandardColors_SYMBOL_OBJECT_ID).buildOrThrow()
 
 }
 
@@ -113,4 +113,3 @@ func new_JSTypeColorIdHasher_Marker() *JSTypeColorIdHasher_Marker {
 const JSTypeColorIdHasher_Marker_HAS_INSTANCE_TYPE int32 = -1937018661
 const JSTypeColorIdHasher_Marker_NO_GOOG_MODULE_ID int32 = 630441471
 const JSTypeColorIdHasher_Marker_UNKNOWN_SOURCEREF int32 = 1712056194
-

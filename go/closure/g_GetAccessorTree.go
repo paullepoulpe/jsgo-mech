@@ -5,9 +5,9 @@ package closure
 type GetAccessorTree struct {
 	ParseTree
 	propertyName_ *Token_parser
-	body *BlockTree
+	body          *BlockTree
 	isClassMember bool
-	isStatic bool
+	isStatic      bool
 }
 
 func (this *GetAccessorTree) up_ParseTree() *ParseTree {
@@ -31,4 +31,3 @@ func new_GetAccessorTree(location *SourceRange, propertyName *Token_parser, isCl
 	this.init_GetAccessorTree(location, propertyName, isClassMember, isStatic, body)
 	return this
 }
-

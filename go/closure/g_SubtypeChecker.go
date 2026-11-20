@@ -3,14 +3,14 @@
 package closure
 
 type SubtypeChecker struct {
-	initialSupertype *JSType
-	initialSubtype *JSType
-	registry *JSTypeRegistry
+	initialSupertype        *JSType
+	initialSubtype          *JSType
+	registry                *JSTypeRegistry
 	isUsingStructuralTyping any
-	subtypingMode *JSType_SubtypingMode
-	subtypeCache *TMap[*SubtypeChecker_CacheKey, *JSType_MatchStatus]
-	recursionDepth int32
-	hasRun bool
+	subtypingMode           *JSType_SubtypingMode
+	subtypeCache            *JTMap[*SubtypeChecker_CacheKey, *JSType_MatchStatus]
+	recursionDepth          int32
+	hasRun                  bool
 }
 
 func (this *SubtypeChecker) finit_SubtypeChecker() {
@@ -70,12 +70,12 @@ func (this *SubtypeChecker) check() bool {
 func (this *SubtypeChecker) isSubtypeCaching(subtype *JSType, supertype *JSType) bool {
 	Preconditions_checkNotNull_T(subtype)
 	Preconditions_checkNotNull_T(supertype)
-	if (this.recursionDepth > SubtypeChecker_POTENTIALLY_CYCLIC_RECURSION_DEPTH) {
-		if (this.subtypeCache == nil) {
-			this.subtypeCache = newTMap_(tce_p_SubtypeChecker_CacheKey, tc_p_JSType_MatchStatus)
+	if this.recursionDepth > SubtypeChecker_POTENTIALLY_CYCLIC_RECURSION_DEPTH {
+		if this.subtypeCache == nil {
+			this.subtypeCache = jnewTMap_(tce_p_SubtypeChecker_CacheKey, jtc_p_JSType_MatchStatus)
 		}
 	}
-	if (this.subtypeCache == nil) {
+	if this.subtypeCache == nil {
 		var ret_1 bool
 		code_1 := func() (code_ int) {
 			defer func() {
@@ -92,12 +92,12 @@ func (this *SubtypeChecker) isSubtypeCaching(subtype *JSType, supertype *JSType)
 	}
 	var key *SubtypeChecker_CacheKey = new_SubtypeChecker_CacheKey(subtype, supertype)
 	var cached *JSType_MatchStatus = this.subtypeCache.putIfAbsent(key, JSType_MatchStatus_PROCESSING)
-	if (cached == nil) {
+	if cached == nil {
 		var result bool = this.isSubtypeDispatching(subtype, supertype)
 		this.subtypeCache.put(key, JSType_MatchStatus_valueOfBoolean(result))
 		return result
 	}
-	if (cached == JSType_MatchStatus_PROCESSING) {
+	if cached == JSType_MatchStatus_PROCESSING {
 		this.subtypeCache.put(key, JSType_MatchStatus_MATCH)
 		return true
 	}
@@ -141,10 +141,10 @@ func (this *SubtypeChecker) isWellKnownSymbolSubtype(subtype *KnownSymbolType, s
 }
 
 func (this *SubtypeChecker) isSubtypeHelper(subtype *JSType, supertype *JSType) bool {
-	if (((((subtype == supertype) || supertype.isUnknownType()) || supertype.isAllType()) || subtype.isUnknownType()) || subtype.isNoType()) {
+	if ((((subtype == supertype) || supertype.isUnknownType()) || supertype.isAllType()) || subtype.isUnknownType()) || subtype.isNoType() {
 		return true
 	}
-	if ((this.subtypingMode == JSType_SubtypingMode_IGNORE_NULL_UNDEFINED) && (subtype.isNullType() || subtype.isVoidType())) {
+	if (this.subtypingMode == JSType_SubtypingMode_IGNORE_NULL_UNDEFINED) && (subtype.isNullType() || subtype.isVoidType()) {
 		return true
 	}
 	if Objects_equals(subtype.self(), supertype.self()) {
@@ -164,7 +164,7 @@ func (this *SubtypeChecker) isSubtypeHelper(subtype *JSType, supertype *JSType) 
 			return this.isSubtypeCaching(subtype, sup)
 		}), supertype.toMaybeUnionType())
 	}
-	if (!subtype.isObjectType() || !supertype.isObjectType()) {
+	if !subtype.isObjectType() || !supertype.isObjectType() {
 		return false
 	}
 	return this.isObjectSubtypeHelper(subtype.assertObjectType(), supertype.assertObjectType())
@@ -174,7 +174,7 @@ func (this *SubtypeChecker) isObjectSubtypeHelper(subtype *ObjectType, supertype
 	var subtypeParams *TemplateTypeMap = subtype.getTemplateTypeMap()
 	var supertypeParams *TemplateTypeMap = supertype.getTemplateTypeMap()
 	var subAndSuperAreSameBaseType bool = false
-	if (subtype.isTemplatizedType() && supertype.isTemplatizedType()) {
+	if subtype.isTemplatizedType() && supertype.isTemplatizedType() {
 		var templatizedSubType *TemplatizedType = subtype.toMaybeTemplatizedType()
 		var templatizedSuperType *TemplatizedType = supertype.toMaybeTemplatizedType()
 		var superTypeReferencedType *ObjectType = templatizedSuperType.getReferencedType()
@@ -193,9 +193,14 @@ func (this *SubtypeChecker) isObjectSubtypeHelper(subtype *ObjectType, supertype
 		}
 		bivarantMatch = true
 	}
-	var covariantKey *TemplateType = func() *TemplateType { if bivarantMatch { return nil }; return SubtypeChecker_getTemplateKeyIfCovariantType(supertype.up_JSType()) }()
-	if ((!subAndSuperAreSameBaseType && unbox_[bool](this.isUsingStructuralTyping)) && supertype.isStructuralType()) {
-		if ((covariantKey == this.registry.getReadonlyArrayElementKey()) && this.isNativeArrayType(subtype)) {
+	var covariantKey *TemplateType = func() *TemplateType {
+		if bivarantMatch {
+			return nil
+		}
+		return SubtypeChecker_getTemplateKeyIfCovariantType(supertype.up_JSType())
+	}()
+	if (!subAndSuperAreSameBaseType && unbox_[bool](this.isUsingStructuralTyping)) && supertype.isStructuralType() {
+		if (covariantKey == this.registry.getReadonlyArrayElementKey()) && this.isNativeArrayType(subtype) {
 			var thisElement *JSType = subtypeParams.getResolvedTemplateType(covariantKey)
 			var thatElement *JSType = supertypeParams.getResolvedTemplateType(covariantKey)
 			return this.meetVarianceConstraint(SubtypeChecker_Variance_COVARIANT, thisElement, thatElement)
@@ -203,7 +208,7 @@ func (this *SubtypeChecker) isObjectSubtypeHelper(subtype *ObjectType, supertype
 		return this.isStructuralSubtypeHelper(subtype, supertype, SubtypeChecker_PropertyOptionality_VOIDABLE_PROPS_ARE_OPTIONAL)
 	}
 	if !bivarantMatch {
-		if (covariantKey != nil) {
+		if covariantKey != nil {
 			var thisElement *JSType = subtypeParams.getResolvedTemplateType(covariantKey)
 			var thatElement *JSType = supertypeParams.getResolvedTemplateType(covariantKey)
 			if !this.meetVarianceConstraint(SubtypeChecker_Variance_COVARIANT, thisElement, thatElement) {
@@ -215,7 +220,7 @@ func (this *SubtypeChecker) isObjectSubtypeHelper(subtype *ObjectType, supertype
 	}
 	var subtypeCtor *FunctionType = subtype.getConstructor()
 	var supertypeCtor *FunctionType = supertype.getConstructor()
-	if ((subtypeCtor != nil) && subtypeCtor.isInterface()) {
+	if (subtypeCtor != nil) && subtypeCtor.isInterface() {
 		it_1 := foreach_(subtype.getCtorExtendedInterfaces())
 		for it_1.next() {
 			var subtypeInterface *ObjectType = to_ObjectType(it_1.v)
@@ -223,7 +228,7 @@ func (this *SubtypeChecker) isObjectSubtypeHelper(subtype *ObjectType, supertype
 				return true
 			}
 		}
-	} else if ((supertypeCtor != nil) && supertypeCtor.isInterface()) {
+	} else if (supertypeCtor != nil) && supertypeCtor.isInterface() {
 		it_3 := foreach_(subtype.getCtorImplementedInterfaces())
 		for it_3.next() {
 			var subtypeInterface *ObjectType = to_ObjectType(it_3.v)
@@ -236,8 +241,18 @@ func (this *SubtypeChecker) isObjectSubtypeHelper(subtype *ObjectType, supertype
 }
 
 func (this *SubtypeChecker) isStructuralSubtypeHelper(subtype *ObjectType, supertype *ObjectType, optionality *SubtypeChecker_PropertyOptionality) bool {
-	var keys *PropertyMap_AllKeys = func() *PropertyMap_AllKeys { if supertype.isRecordType() { return nil }; return supertype.getPropertyMap().getAllKeys() }()
-	var props IterableOf[string] = func() Iterable { if supertype.isRecordType() { return Iterable(supertype.getOwnPropertyNames()) }; return ImmutableSortedSet_as_Iterable(keys.stringKeys()) }()
+	var keys *PropertyMap_AllKeys = func() *PropertyMap_AllKeys {
+		if supertype.isRecordType() {
+			return nil
+		}
+		return supertype.getPropertyMap().getAllKeys()
+	}()
+	var props IterableOf[string] = func() Iterable {
+		if supertype.isRecordType() {
+			return Iterable(supertype.getOwnPropertyNames())
+		}
+		return ImmutableSortedSet_as_Iterable(keys.stringKeys())
+	}()
 	it_1 := foreach_(props)
 	for it_1.next() {
 		var property string = str_(it_1.v)
@@ -245,7 +260,12 @@ func (this *SubtypeChecker) isStructuralSubtypeHelper(subtype *ObjectType, super
 			return false
 		}
 	}
-	var knownSymbols IterableOf[*KnownSymbolType] = func() Iterable { if supertype.isRecordType() { return Iterable(supertype.getOwnPropertyKnownSymbols()) }; return Iterable(keys.knownSymbolKeys().asSet()) }()
+	var knownSymbols IterableOf[*KnownSymbolType] = func() Iterable {
+		if supertype.isRecordType() {
+			return Iterable(supertype.getOwnPropertyKnownSymbols())
+		}
+		return Iterable(keys.knownSymbolKeys().asSet())
+	}()
 	it_3 := foreach_(knownSymbols)
 	for it_3.next() {
 		var knownSymbolType *KnownSymbolType = cast_[*KnownSymbolType](it_3.v)
@@ -302,7 +322,14 @@ func (this *SubtypeChecker) isVariousBottomsSubtype(subtype *JSType, supertype *
 func (this *SubtypeChecker) isArrowTypeSubtype(subtype *ArrowType, nonArrowSupertype *JSType) bool {
 	var supertype *ArrowType
 	_ = supertype
-	if !(func() bool { v_ := nonArrowSupertype.self(); if !is_[*ArrowType](v_) { return false }; supertype = cast_[*ArrowType](v_); return true }()) {
+	if !(func() bool {
+		v_ := nonArrowSupertype.self()
+		if !is_[*ArrowType](v_) {
+			return false
+		}
+		supertype = cast_[*ArrowType](v_)
+		return true
+	}()) {
 		return false
 	}
 	if !this.isSubtypeCaching(subtype.getReturnType(), supertype.getReturnType()) {
@@ -310,13 +337,23 @@ func (this *SubtypeChecker) isArrowTypeSubtype(subtype *ArrowType, nonArrowSuper
 	}
 	var subtypeParameters IteratorOf[*FunctionType_Parameter] = subtype.getParameterList().iterator()
 	var supertypeParameters IteratorOf[*FunctionType_Parameter] = supertype.getParameterList().iterator()
-	var subtypeParam *FunctionType_Parameter = func() *FunctionType_Parameter { if subtypeParameters.hasNext() { return cast_[*FunctionType_Parameter](subtypeParameters.next()) }; return nil }()
-	var supertypeParam *FunctionType_Parameter = func() *FunctionType_Parameter { if supertypeParameters.hasNext() { return cast_[*FunctionType_Parameter](supertypeParameters.next()) }; return nil }()
-	for ((subtypeParam != nil) && (supertypeParam != nil)) {
+	var subtypeParam *FunctionType_Parameter = func() *FunctionType_Parameter {
+		if subtypeParameters.hasNext() {
+			return cast_[*FunctionType_Parameter](subtypeParameters.next())
+		}
+		return nil
+	}()
+	var supertypeParam *FunctionType_Parameter = func() *FunctionType_Parameter {
+		if supertypeParameters.hasNext() {
+			return cast_[*FunctionType_Parameter](supertypeParameters.next())
+		}
+		return nil
+	}()
+	for (subtypeParam != nil) && (supertypeParam != nil) {
 		var subtypeParamType *JSType = subtypeParam.getJSType()
 		var supertypeParamType *JSType = supertypeParam.getJSType()
-		if (subtypeParamType != nil) {
-			if ((supertypeParamType == nil) || !this.isSubtypeCaching(supertypeParamType, subtypeParamType)) {
+		if subtypeParamType != nil {
+			if (supertypeParamType == nil) || !this.isSubtypeCaching(supertypeParamType, subtypeParamType) {
 				return false
 			}
 		}
@@ -324,19 +361,29 @@ func (this *SubtypeChecker) isArrowTypeSubtype(subtype *ArrowType, nonArrowSuper
 		var thatIsVarArgs bool = supertypeParam.isVariadic()
 		var thisIsOptional bool = (thisIsVarArgs || subtypeParam.isOptional())
 		var thatIsOptional bool = (thatIsVarArgs || supertypeParam.isOptional())
-		if (!thisIsOptional && thatIsOptional) {
+		if !thisIsOptional && thatIsOptional {
 			var isTopFunction bool = (thatIsVarArgs && (((supertypeParamType == nil) || supertypeParamType.isUnknownType()) || supertypeParamType.isNoType()))
 			if !isTopFunction {
 				return false
 			}
 		}
 		if !thisIsVarArgs {
-			subtypeParam = func() *FunctionType_Parameter { if subtypeParameters.hasNext() { return cast_[*FunctionType_Parameter](subtypeParameters.next()) }; return nil }()
+			subtypeParam = func() *FunctionType_Parameter {
+				if subtypeParameters.hasNext() {
+					return cast_[*FunctionType_Parameter](subtypeParameters.next())
+				}
+				return nil
+			}()
 		}
 		if !thatIsVarArgs {
-			supertypeParam = func() *FunctionType_Parameter { if supertypeParameters.hasNext() { return cast_[*FunctionType_Parameter](supertypeParameters.next()) }; return nil }()
+			supertypeParam = func() *FunctionType_Parameter {
+				if supertypeParameters.hasNext() {
+					return cast_[*FunctionType_Parameter](supertypeParameters.next())
+				}
+				return nil
+			}()
 		}
-		if (thisIsVarArgs && thatIsVarArgs) {
+		if thisIsVarArgs && thatIsVarArgs {
 			break
 		}
 	}
@@ -348,7 +395,7 @@ func (this *SubtypeChecker) isEnumSubtype(subtype *EnumType, supertype *JSType) 
 }
 
 func (this *SubtypeChecker) isEnumElementSubtype(subtype *EnumElementType, supertype *JSType) bool {
-	if (supertype.isEnumElementType() && (subtype.getEnumType() == supertype.toMaybeEnumElementType().getEnumType())) {
+	if supertype.isEnumElementType() && (subtype.getEnumType() == supertype.toMaybeEnumElementType().getEnumType()) {
 		return this.isSubtypeCaching(subtype.getPrimitiveType(), supertype.toMaybeEnumElementType().getPrimitiveType())
 	}
 	if this.isSubtypeHelper(subtype.up_JSType(), supertype) {
@@ -364,7 +411,7 @@ func (this *SubtypeChecker) isProxyObjectSubtype(subtype *ProxyObjectType, super
 }
 
 func (this *SubtypeChecker) isTemplateSubtype(subtype *TemplateType, supertype *JSType) bool {
-	if ((!subtype.getBound().isUnknownType() && supertype.isTemplateType()) && !supertype.toMaybeTemplateType().getBound().isUnknownType()) {
+	if (!subtype.getBound().isUnknownType() && supertype.isTemplateType()) && !supertype.toMaybeTemplateType().getBound().isUnknownType() {
 		return (cast_[*ContainsUpperBoundSuperTypeVisitor_Result](subtype.visit(Visitor(new_ContainsUpperBoundSuperTypeVisitor(supertype)))) == ContainsUpperBoundSuperTypeVisitor_Result_PRESENT)
 	} else {
 		return this.isProxyObjectSubtype(subtype.up_ProxyObjectType(), supertype)
@@ -382,12 +429,12 @@ func (this *SubtypeChecker) isTypeMapSubmap(subtype *ObjectType, supertype *Obje
 	for it_1.next() {
 		var key *TemplateType = it_1.v
 		var keyCount int32 = submap.getTemplateKeyCountThisShouldAlwaysBeOneOrZeroButIsnt(key)
-		if (keyCount == 0) {
+		if keyCount == 0 {
 			if subtype.loosenTypecheckingDueToForwardReferencedSupertype() {
 				continue
 			}
 			return false
-		} else if (keyCount > 1) {
+		} else if keyCount > 1 {
 			continue
 		}
 		var subvalue *JSType = submap.getResolvedTemplateType(key)
@@ -428,7 +475,12 @@ func SubtypeChecker_getTemplateKeyIfCovariantType(type_ *JSType) *TemplateType {
 		}
 	}
 	var unwrapped *ObjectType = SubtypeChecker_getObjectTypeIfNative(type_)
-	var unwrappedTypeName Optional[string] = func() Optional[string] { if (unwrapped == nil) { return Optional_empty[string]() }; return unwrapped.getReferenceName() }()
+	var unwrappedTypeName Optional[string] = func() Optional[string] {
+		if unwrapped == nil {
+			return Optional_empty[string]()
+		}
+		return unwrapped.getReferenceName()
+	}()
 	if unwrappedTypeName.isEmpty() {
 		return nil
 	}
@@ -460,7 +512,7 @@ func SubtypeChecker_getTemplateKeyIfCovariantType(type_ *JSType) *TemplateType {
 }
 
 func (this *SubtypeChecker) shouldTreatThisTypesAsCovariant(subtype *FunctionType, supertype *FunctionType) bool {
-	if (((supertype.getTypeOfThis().toObjectType() != nil) && (supertype.getTypeOfThis().toObjectType().getConstructor() != nil)) && supertype.getTypeOfThis().toObjectType().getConstructor().isInterface()) {
+	if ((supertype.getTypeOfThis().toObjectType() != nil) && (supertype.getTypeOfThis().toObjectType().getConstructor() != nil)) && supertype.getTypeOfThis().toObjectType().getConstructor().isInterface() {
 		return true
 	}
 	return this.hackTemporarilyChangeSubtypingMode(JSType_SubtypingMode_NORMAL, &BooleanSupplier_fn{func() bool {
@@ -489,10 +541,16 @@ func (this *SubtypeChecker) hackTemporarilyChangeSubtypingMode(tempMode *JSType_
 func SubtypeChecker_getObjectTypeIfNative(type_ *JSType) *ObjectType {
 	var objType *ObjectType = type_.toObjectType()
 	var unwrapped *ObjectType = ObjectType_deeplyUnwrap(objType)
-	return func() *ObjectType { if ((unwrapped != nil) && unwrapped.isNativeObjectType()) { return unwrapped }; return nil }()
+	return func() *ObjectType {
+		if (unwrapped != nil) && unwrapped.isNativeObjectType() {
+			return unwrapped
+		}
+		return nil
+	}()
 }
 
-var SubtypeChecker_BIVARIANT_TYPES *TSet[string]
+var SubtypeChecker_BIVARIANT_TYPES *JTSet[string]
+
 const SubtypeChecker_POTENTIALLY_CYCLIC_RECURSION_DEPTH int32 = 20
 
 var SubtypeChecker_clinit_done bool
@@ -502,7 +560,7 @@ func SubtypeChecker_clinit() {
 		return
 	}
 	SubtypeChecker_clinit_done = true
-	SubtypeChecker_BIVARIANT_TYPES = immutableSetOf_[string](tc_string, "Object", "IArrayLike", "Array")
+	SubtypeChecker_BIVARIANT_TYPES = jimmutableSetOf_[string](jtc_string, "Object", "IArrayLike", "Array")
 
 }
 
@@ -621,8 +679,8 @@ func SubtypeChecker_Variance_clinit() {
 }
 
 type SubtypeChecker_CacheKey struct {
-	left *JSType
-	right *JSType
+	left          *JSType
+	right         *JSType
 	hashCodeField int32
 }
 
@@ -644,9 +702,8 @@ func (this *SubtypeChecker_CacheKey) hashCode() int32 {
 
 func (this *SubtypeChecker_CacheKey) equals(other any) bool {
 	var that *SubtypeChecker_CacheKey = cast_[*SubtypeChecker_CacheKey](other)
-	if ((this.left == that.left) && (this.right == that.right)) {
+	if (this.left == that.left) && (this.right == that.right) {
 		return true
 	}
 	return (Objects_equals(this.left.self(), that.left.self()) && Objects_equals(this.right.self(), that.right.self()))
 }
-

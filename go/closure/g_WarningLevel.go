@@ -106,4 +106,3 @@ func WarningLevel_clinit() {
 	registerEnum_("com.google.javascript.jscomp.WarningLevel", enumValues_(WarningLevel_values_))
 
 }
-

@@ -25,10 +25,15 @@ func new_StrictWarningsGuard() *StrictWarningsGuard {
 }
 
 func (this *StrictWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
-	if (error_.type_() == StrictWarningsGuard_UNRAISABLE_WARNING) {
+	if error_.type_() == StrictWarningsGuard_UNRAISABLE_WARNING {
 		return nil
 	}
-	return func() *CheckLevel { if error_.defaultLevel().isOn() { return CheckLevel_ERROR }; return nil }()
+	return func() *CheckLevel {
+		if error_.defaultLevel().isOn() {
+			return CheckLevel_ERROR
+		}
+		return nil
+	}()
 }
 
 func (this *StrictWarningsGuard) getPriority_impl() int32 {
@@ -36,6 +41,7 @@ func (this *StrictWarningsGuard) getPriority_impl() int32 {
 }
 
 const StrictWarningsGuard_serialVersionUID int64 = 1
+
 var StrictWarningsGuard_UNRAISABLE_WARNING *DiagnosticType
 
 var StrictWarningsGuard_clinit_done bool
@@ -48,4 +54,3 @@ func StrictWarningsGuard_clinit() {
 	StrictWarningsGuard_UNRAISABLE_WARNING = DiagnosticType_warning("JSC_UNRAISABLE_WARNING", "{0}")
 
 }
-

@@ -107,7 +107,7 @@ func (identityFunction_) toString() string { return "Functions.identity()" }
 
 // computeIfAbsent returns the value of key k if it has one that is not null; else the value f
 // makes for the key, which becomes the key's value unless it is null.
-func (m *TMap[K, V]) computeIfAbsent(k K, f Function_e) V {
+func (m *JTMap[K, V]) computeIfAbsent(k K, f Function_e) V {
 	if m.imm != nil && m.imm != sortedMapMark_ {
 		panic(frozen_{})
 	}

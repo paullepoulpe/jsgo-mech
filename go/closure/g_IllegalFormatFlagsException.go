@@ -23,4 +23,3 @@ func new_IllegalFormatFlagsException(message string) *IllegalFormatFlagsExceptio
 	this.init_IllegalFormatFlagsException(message)
 	return this
 }
-

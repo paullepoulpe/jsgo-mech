@@ -43,20 +43,20 @@ func TextFiles_write(path string, charset string, text string) *Outcome_base[any
 	return Io_writeBytes(path, Charsets_encode(text, charset))
 }
 
-func TextFiles_splitLines(text string) *TList[string] {
-	var lines *TList[string] = newTList_(tc_string)
+func TextFiles_splitLines(text string) *JTList[string] {
+	var lines *JTList[string] = jnewTList_(jtc_string)
 	var start int32 = 0
-	for i := int32(0); (i < String_length(text)); i++ {
+	for i := int32(0); i < String_length(text); i++ {
 		var c uint16 = String_charAt(text, i)
-		if ((c == '\n') || (c == '\r')) {
+		if (c == '\n') || (c == '\r') {
 			lines.add(String_substring(text, start, i))
-			if (((c == '\r') && ((i + 1) < String_length(text))) && (String_charAt(text, (i + 1)) == '\n')) {
+			if ((c == '\r') && ((i + 1) < String_length(text))) && (String_charAt(text, (i+1)) == '\n') {
 				i++
 			}
 			start = (i + 1)
 		}
 	}
-	if (start < String_length(text)) {
+	if start < String_length(text) {
 		lines.add(String_substring_int(text, start))
 	}
 	return lines
@@ -85,4 +85,3 @@ func new_TextFiles_DecodingException(message string) *TextFiles_DecodingExceptio
 }
 
 const TextFiles_DecodingException_serialVersionUID int64 = 1
-

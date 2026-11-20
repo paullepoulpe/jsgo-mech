@@ -35,7 +35,7 @@ func (this *BasicErrorManager) up_SortingErrorManager() *SortingErrorManager {
 }
 
 func (this *BasicErrorManager) init_BasicErrorManager() {
-	this.SortingErrorManager.init_SortingErrorManager(tsetEmptyImm_(tce_SortingErrorManager_ErrorReportGenerator))
+	this.SortingErrorManager.init_SortingErrorManager(jtsetEmptyImm_(tce_SortingErrorManager_ErrorReportGenerator))
 }
 
 func (this *BasicErrorManager) generateReport_impl() {
@@ -54,4 +54,3 @@ func (this *BasicErrorManager) println(p0 *CheckLevel, p1 *JSError) {
 func (this *BasicErrorManager) printSummary() {
 	this.self_.(interface{ printSummary_impl() }).printSummary_impl()
 }
-

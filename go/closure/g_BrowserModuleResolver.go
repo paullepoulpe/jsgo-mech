@@ -14,7 +14,7 @@ func (this *BrowserModuleResolver) up_ModuleResolver() *ModuleResolver {
 }
 
 func (this *BrowserModuleResolver) init_BrowserModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) {
-	this.ModuleResolver.init_ModuleResolver(tsetImm_(tc_string, modulePaths), tlistImm_(tc_string, moduleRootPaths), errorHandler, pathEscaper)
+	this.ModuleResolver.init_ModuleResolver(tsetImm_(jtc_string, modulePaths), jtlistImm_(jtc_string, moduleRootPaths), errorHandler, pathEscaper)
 }
 
 func new_BrowserModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) *BrowserModuleResolver {
@@ -37,7 +37,12 @@ func (this *BrowserModuleResolver) resolveJsModule_impl(scriptAddress string, mo
 }
 
 func (this *BrowserModuleResolver) resolveJsModuleSilently_impl(scriptAddress string, moduleAddress string) Optional[string] {
-	return func() Optional[string] { if ModuleLoader_isAmbiguousIdentifier(moduleAddress) { return Optional_empty[string]() }; return this.locate(scriptAddress, moduleAddress) }()
+	return func() Optional[string] {
+		if ModuleLoader_isAmbiguousIdentifier(moduleAddress) {
+			return Optional_empty[string]()
+		}
+		return this.locate(scriptAddress, moduleAddress)
+	}()
 }
 
 var BrowserModuleResolver_FACTORY ModuleLoader_ModuleResolverFactory
@@ -49,7 +54,8 @@ func BrowserModuleResolver_clinit() {
 		return
 	}
 	BrowserModuleResolver_clinit_done = true
-	BrowserModuleResolver_FACTORY = &ModuleLoader_ModuleResolverFactory_fn{func(p0 *ImmutableSet, p1 *ImmutableList, p2 ErrorHandler, p3 *ModuleLoader_PathEscaper) *ModuleResolver { return new_BrowserModuleResolver(p0, p1, p2, p3).up_ModuleResolver() }}
+	BrowserModuleResolver_FACTORY = &ModuleLoader_ModuleResolverFactory_fn{func(p0 *ImmutableSet, p1 *ImmutableList, p2 ErrorHandler, p3 *ModuleLoader_PathEscaper) *ModuleResolver {
+		return new_BrowserModuleResolver(p0, p1, p2, p3).up_ModuleResolver()
+	}}
 
 }
-

@@ -25,4 +25,3 @@ func new_ObjectSpreadTree(location *SourceRange, expression *ParseTree) *ObjectS
 	this.init_ObjectSpreadTree(location, expression)
 	return this
 }
-

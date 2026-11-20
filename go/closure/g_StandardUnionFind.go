@@ -3,7 +3,7 @@
 package closure
 
 type StandardUnionFind[E comparable] struct {
-	elmap *TMap[E, *StandardUnionFind_Node[E]]
+	elmap *JTMap[E, *StandardUnionFind_Node[E]]
 }
 
 func (this *StandardUnionFind[E]) isa_StandardUnionFind_() {}
@@ -14,7 +14,7 @@ func is_StandardUnionFind(v any) bool {
 }
 
 func (this *StandardUnionFind[E]) finit_StandardUnionFind() {
-	this.elmap = newTMap_(tceT_[E](), tc_p_StandardUnionFind_Node_E_[E]())
+	this.elmap = jnewTMap_(tceT_[E](), tc_p_StandardUnionFind_Node_E_[E]())
 }
 
 func (this *StandardUnionFind[E]) init_StandardUnionFind_0() {
@@ -31,7 +31,7 @@ func (this *StandardUnionFind[E]) init_StandardUnionFind_UnionFind(other UnionFi
 	this.finit_StandardUnionFind()
 	it_1 := foreach_(other.elements())
 	for it_1.next() {
-		var elem E = unboxT_[E](it_1.v)
+		var elem E = junboxT_[E](it_1.v)
 		this.union(other.find(elem), elem)
 	}
 }
@@ -49,7 +49,7 @@ func (this *StandardUnionFind[E]) add(e E) {
 func (this *StandardUnionFind[E]) addAll(es IterableOf[E]) {
 	it_1 := foreach_(es)
 	for it_1.next() {
-		var e E = unboxT_[E](it_1.v)
+		var e E = junboxT_[E](it_1.v)
 		this.add(e)
 	}
 }
@@ -57,13 +57,13 @@ func (this *StandardUnionFind[E]) addAll(es IterableOf[E]) {
 func (this *StandardUnionFind[E]) union(a E, b E) E {
 	var nodeA *StandardUnionFind_Node[E] = this.findRootOrCreateNode(a)
 	var nodeB *StandardUnionFind_Node[E] = this.findRootOrCreateNode(b)
-	if (nodeA == nodeB) {
+	if nodeA == nodeB {
 		return nodeA.element
 	}
-	if (nodeA.rank >= nodeB.rank) {
+	if nodeA.rank >= nodeB.rank {
 		nodeB.parent = nodeA
 		nodeA.size_ += nodeB.size_
-		if (nodeA.rank == nodeB.rank) {
+		if nodeA.rank == nodeB.rank {
 			nodeA.rank++
 		}
 		return nodeA.element
@@ -91,7 +91,7 @@ func (this *StandardUnionFind[E]) elements() SetOf[E] {
 	return Collections_unmodifiableSet(this.elmap.asMap().keySet())
 }
 
-func (this *StandardUnionFind[E]) allEquivalenceClasses() *TList[*ImmutableSet] {
+func (this *StandardUnionFind[E]) allEquivalenceClasses() *JTList[*ImmutableSet] {
 	var groupsTmp *SimpleSetMultimap[*StandardUnionFind_Node[E], E] = SimpleSetMultimap_create[*StandardUnionFind_Node[E], E]()
 	it_1 := this.elmap.eachValue()
 	for it_1.next() {
@@ -112,7 +112,7 @@ func (this *StandardUnionFind[E]) allRepresentatives() ImmutableSetOf[E] {
 	it_1 := this.elmap.eachValue()
 	for it_1.next() {
 		var n *StandardUnionFind_Node[E] = it_1.v
-		if (n == n.parent) {
+		if n == n.parent {
 			result.add(n.element)
 		}
 	}
@@ -121,7 +121,7 @@ func (this *StandardUnionFind[E]) allRepresentatives() ImmutableSetOf[E] {
 
 func (this *StandardUnionFind[E]) findRootOrCreateNode(e E) *StandardUnionFind_Node[E] {
 	var node *StandardUnionFind_Node[E] = this.elmap.get(e)
-	if (node != nil) {
+	if node != nil {
 		return this.findRoot(node)
 	}
 	node = new_StandardUnionFind_Node[E](e)
@@ -130,7 +130,7 @@ func (this *StandardUnionFind[E]) findRootOrCreateNode(e E) *StandardUnionFind_N
 }
 
 func (this *StandardUnionFind[E]) findRoot(node *StandardUnionFind_Node[E]) *StandardUnionFind_Node[E] {
-	if (node.parent != node) {
+	if node.parent != node {
 		node.parent = this.findRoot(node.parent)
 	}
 	return node.parent
@@ -138,15 +138,21 @@ func (this *StandardUnionFind[E]) findRoot(node *StandardUnionFind_Node[E]) *Sta
 
 func (this *StandardUnionFind[E]) findAll(value E) SetOf[E] {
 	Preconditions_checkArgument_boolean_String_Object(this.elmap.containsKey(value), "Element does not exist: %s", boxT_(value))
-	var isSameRoot Predicate_base[any] = func() Predicate_base[any] { v_ := new_StandardUnionFind_1[E](this, value); if v_ == nil { return nil }; return v_.apply }()
+	var isSameRoot Predicate_base[any] = func() Predicate_base[any] {
+		v_ := new_StandardUnionFind_1[E](this, value)
+		if v_ == nil {
+			return nil
+		}
+		return v_.apply
+	}()
 	return icast_Set(obj_(new_StandardUnionFind_2[E](this, isSameRoot, value)))
 }
 
 type StandardUnionFind_Node[E comparable] struct {
-	parent *StandardUnionFind_Node[E]
+	parent  *StandardUnionFind_Node[E]
 	element E
-	rank int32
-	size_ int32
+	rank    int32
+	size_   int32
 }
 
 func (this *StandardUnionFind_Node[E]) isa_StandardUnionFind_Node_() {}
@@ -157,7 +163,7 @@ func is_StandardUnionFind_Node(v any) bool {
 }
 
 func (this *StandardUnionFind_Node[E]) zero_StandardUnionFind_Node() {
-	this.element = null_[E]()
+	this.element = jnull_[E]()
 }
 
 func (this *StandardUnionFind_Node[E]) finit_StandardUnionFind_Node() {
@@ -179,9 +185,9 @@ func new_StandardUnionFind_Node[E comparable](element E) *StandardUnionFind_Node
 }
 
 type StandardUnionFind_1[E comparable] struct {
-	outer_ *StandardUnionFind[E]
+	outer_       *StandardUnionFind[E]
 	nodeForValue *StandardUnionFind_Node[E]
-	cap_value E
+	cap_value    E
 }
 
 func (this *StandardUnionFind_1[E]) isa_StandardUnionFind_1_() {}
@@ -211,8 +217,8 @@ func (this *StandardUnionFind_1[E]) apply(b any) bool {
 	if Objects_equals(boxT_(this.cap_value), b) {
 		return true
 	}
-	var nodeForB *StandardUnionFind_Node[E] = this.outer_.elmap.get(unboxT_[E](b))
-	if (nodeForB == nil) {
+	var nodeForB *StandardUnionFind_Node[E] = this.outer_.elmap.get(junboxT_[E](b))
+	if nodeForB == nil {
 		return false
 	}
 	this.nodeForValue = this.outer_.findRoot(this.nodeForValue)
@@ -221,9 +227,9 @@ func (this *StandardUnionFind_1[E]) apply(b any) bool {
 
 type StandardUnionFind_2[E comparable] struct {
 	AbstractSet
-	outer_ *StandardUnionFind[E]
+	outer_         *StandardUnionFind[E]
 	cap_isSameRoot Predicate_base[any]
-	cap_value E
+	cap_value      E
 }
 
 func (this *StandardUnionFind_2[E]) isa_StandardUnionFind_2_() {}
@@ -265,4 +271,3 @@ func (this *StandardUnionFind_2[E]) iterator() IteratorOf[E] {
 func (this *StandardUnionFind_2[E]) size() int32 {
 	return this.outer_.findRoot(this.outer_.elmap.get(this.cap_value)).size_
 }
-

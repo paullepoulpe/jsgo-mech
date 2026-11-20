@@ -3,10 +3,10 @@
 package closure
 
 type TranspileResult struct {
-	pathField string
-	originalField string
+	pathField       string
+	originalField   string
 	transpiledField string
-	sourceMapField string
+	sourceMapField  string
 }
 
 func (this *TranspileResult) zero_TranspileResult() {
@@ -77,7 +77,14 @@ func (this *TranspileResult) wasTranspiled() bool {
 func (this *TranspileResult) equals(other any) bool {
 	var transpileResult *TranspileResult
 	_ = transpileResult
-	return ((((func() bool { v_ := other; if !is_[*TranspileResult](v_) { return false }; transpileResult = cast_[*TranspileResult](v_); return true }() && (transpileResult.pathField == this.pathField)) && (transpileResult.originalField == this.originalField)) && (transpileResult.transpiledField == this.transpiledField)) && (transpileResult.sourceMapField == this.sourceMapField))
+	return ((((func() bool {
+		v_ := other
+		if !is_[*TranspileResult](v_) {
+			return false
+		}
+		transpileResult = cast_[*TranspileResult](v_)
+		return true
+	}() && (transpileResult.pathField == this.pathField)) && (transpileResult.originalField == this.originalField)) && (transpileResult.transpiledField == this.transpiledField)) && (transpileResult.sourceMapField == this.sourceMapField))
 }
 
 func (this *TranspileResult) hashCode() int32 {
@@ -100,4 +107,3 @@ func TranspileResult_clinit() {
 	TranspileResult_ESCAPER = new_PercentEscaper("-_.*", false).up_Escaper()
 
 }
-

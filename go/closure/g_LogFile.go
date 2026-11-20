@@ -48,7 +48,9 @@ func (this *LogFile) logString(p0 string) *LogFile {
 }
 
 func (this *LogFile) log(p0 Supplier[string]) *LogFile {
-	return this.self_.(interface{ log_impl(Supplier[string]) *LogFile }).log_impl(p0)
+	return this.self_.(interface {
+		log_impl(Supplier[string]) *LogFile
+	}).log_impl(p0)
 }
 
 func (this *LogFile) log_2(p0 string, p1 []any) *LogFile {
@@ -64,7 +66,9 @@ func (this *LogFile) logJsonSupplier(p0 Supplier[any]) *LogFile {
 }
 
 func (this *LogFile) logJson(p0 LogFile_StreamedJsonProducer) *LogFile {
-	return this.self_.(interface{ logJson_impl(LogFile_StreamedJsonProducer) *LogFile }).logJson_impl(p0)
+	return this.self_.(interface {
+		logJson_impl(LogFile_StreamedJsonProducer) *LogFile
+	}).logJson_impl(p0)
 }
 
 func (this *LogFile) close() {
@@ -86,4 +90,3 @@ type LogFile_StreamedJsonProducer_fn struct {
 func (this *LogFile_StreamedJsonProducer_fn) writeJson(p0 *SimpleJsonWriter) {
 	this.f(p0)
 }
-

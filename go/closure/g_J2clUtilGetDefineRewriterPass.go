@@ -5,7 +5,7 @@ package closure
 type J2clUtilGetDefineRewriterPass struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_ *AbstractCompiler
-	defines *TSet[string]
+	defines   *JTSet[string]
 }
 
 func (this *J2clUtilGetDefineRewriterPass) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -47,7 +47,7 @@ func (this *J2clUtilGetDefineRewriterPass) visit_impl(t *NodeTraversal, n Node, 
 func (this *J2clUtilGetDefineRewriterPass) rewriteUtilGetDefine(t *NodeTraversal, callNode Node) {
 	var firstExpr Node = callNode.getSecondChild()
 	var secondExpr Node = callNode.getLastChild()
-	if (secondExpr != firstExpr) {
+	if secondExpr != firstExpr {
 		secondExpr.detach()
 	} else {
 		secondExpr = IR_nullNode()
@@ -77,7 +77,7 @@ func J2clUtilGetDefineRewriterPass_isUtilGetDefineCall(n Node) bool {
 }
 
 func J2clUtilGetDefineRewriterPass_isUtilGetDefineMethodName(fnName Optional[string]) bool {
-	return ((fnName.isPresent() && String_endsWith(fnName.get(), ".$getDefine")) && String_contains_s(fnName.get(), "Util"))
+	return ((fnName.isPresent() && String_endsWith(fnName.get(), ".$getDefine")) && JString_contains_s(fnName.get(), "Util"))
 }
 
 var J2clUtilGetDefineRewriterPass_J2CL_SYSTEM_GET_PROPERTY_CONSTANT_NAME *DiagnosticType
@@ -101,9 +101,9 @@ func J2clUtilGetDefineRewriterPass_clinit() {
 
 type J2clUtilGetDefineRewriterPass_CheckGetDefineCalls struct {
 	NodeTraversal_AbstractPostOrderCallback
-	outer_ *J2clUtilGetDefineRewriterPass
-	defineNameToAddSystemPropertyCall *TMap[string, Node]
-	defineNameToGetDefineCall *TMap[string, Node]
+	outer_                            *J2clUtilGetDefineRewriterPass
+	defineNameToAddSystemPropertyCall *JTMap[string, Node]
+	defineNameToGetDefineCall         *JTMap[string, Node]
 }
 
 func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -114,8 +114,8 @@ func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) up_NodeTraversal_
 }
 
 func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) finit_J2clUtilGetDefineRewriterPass_CheckGetDefineCalls() {
-	this.defineNameToAddSystemPropertyCall = newTMap_(tc_string, tc_Node)
-	this.defineNameToGetDefineCall = newTMap_(tc_string, tc_Node)
+	this.defineNameToAddSystemPropertyCall = jnewTMap_(jtc_string, jtc_Node)
+	this.defineNameToGetDefineCall = jnewTMap_(jtc_string, jtc_Node)
 }
 
 func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) init_J2clUtilGetDefineRewriterPass_CheckGetDefineCalls() {
@@ -171,7 +171,7 @@ func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) validateRegistere
 
 func J2clUtilGetDefineRewriterPass_CheckGetDefineCalls_getDefineNameParameter(callNode Node) Optional[string] {
 	var nameNode Node = callNode.getSecondChild()
-	if ((nameNode == 0) || !nameNode.isString()) {
+	if (nameNode == 0) || !nameNode.isString() {
 		return Optional_empty[string]()
 	}
 	return Optional_of[string](nameNode.getString())
@@ -180,4 +180,3 @@ func J2clUtilGetDefineRewriterPass_CheckGetDefineCalls_getDefineNameParameter(ca
 func J2clUtilGetDefineRewriterPass_CheckGetDefineCalls_isAddSystemPropertyFromGoogDefine(n Node) bool {
 	return ((n.isCall() && !String_isEmpty(n.getFirstChild().getQualifiedName())) && String_endsWith(n.getFirstChild().getQualifiedName(), "addSystemPropertyFromGoogDefine"))
 }
-

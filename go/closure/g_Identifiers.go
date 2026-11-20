@@ -16,16 +16,15 @@ func new_Identifiers() *Identifiers {
 }
 
 func Identifiers_isIdentifierStart(ch uint16) bool {
-	if (int32(ch) <= 127) {
+	if int32(ch) <= 127 {
 		return bor_(bor_(band_((int32(ch) >= 65), (int32(ch) <= 90)), band_((int32(ch) >= 97), (int32(ch) <= 122))), bor_((ch == '_'), (ch == '$')))
 	}
 	return Character_isLetter(ch)
 }
 
 func Identifiers_isIdentifierPart(ch uint16) bool {
-	if (int32(ch) <= 127) {
+	if int32(ch) <= 127 {
 		return bor_(bor_(bor_(band_((int32(ch) >= 65), (int32(ch) <= 90)), band_((int32(ch) >= 97), (int32(ch) <= 122))), band_((int32(ch) >= 48), (int32(ch) <= 57))), bor_((ch == '_'), (ch == '$')))
 	}
 	return (Identifiers_isIdentifierStart(ch) || Character_isDigit(ch))
 }
-

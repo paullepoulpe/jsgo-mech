@@ -3,7 +3,7 @@
 package closure
 
 type RewriteLogicalAssignmentOperatorsPass struct {
-	compiler_ *AbstractCompiler
+	compiler_                               *AbstractCompiler
 	rewriteLogicalAssignmentOperatorsHelper *RewriteLogicalAssignmentOperatorsHelper
 }
 
@@ -38,4 +38,3 @@ func (this *RewriteLogicalAssignmentOperatorsPass) visit(t *NodeTraversal, logic
 	default:
 	}
 }
-

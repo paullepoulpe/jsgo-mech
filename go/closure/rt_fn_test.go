@@ -114,12 +114,12 @@ func TestFnOptional(t *testing.T) {
 
 // A typed map whose values are functions: null values are told apart without comparing funcs.
 func TestFnTypedMapOfFunctions(t *testing.T) {
-	c := &tconv_[Supplier[string]]{
+	c := &jtconv_[Supplier[string]]{
 		box:    func(v Supplier[string]) any { return v.box_() },
 		unbox:  func(v any) Supplier[string] { return fnUnbox_[Supplier[string]](v) },
 		isnull: func(v Supplier[string]) bool { return v == nil },
 	}
-	m := newTMap_(tc_string, c)
+	m := jnewTMap_(jtc_string, c)
 	calls := 0
 	mk := func(k string) Supplier[string] { calls++; return func() string { return k + "!" } }
 	if m.computeIfAbsent("a", mk)() != "a!" || m.computeIfAbsent("a", mk)() != "a!" || calls != 1 {

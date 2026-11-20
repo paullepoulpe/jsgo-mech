@@ -3,11 +3,11 @@
 package closure
 
 type SerializeTypesToPointers struct {
-	compiler_ *AbstractCompiler
-	jstypeReconserializer *JSTypeReconserializer
+	compiler_                 *AbstractCompiler
+	jstypeReconserializer     *JSTypeReconserializer
 	propertiesReferencedInAst LinkedHashSetOf[string]
-	typePointersByJstype *LinkedIdentityHashMap[*JSType, any]
-	typePool *TypePool
+	typePointersByJstype      *LinkedIdentityHashMap[*JSType, any]
+	typePool                  *TypePool
 }
 
 func (this *SerializeTypesToPointers) finit_SerializeTypesToPointers() {
@@ -156,11 +156,11 @@ func (this *SerializeTypesToPointers_TypeSearchCallback) visit(t *NodeTraversal,
 		return
 	}
 	var type_ *JSType = n.getJSType()
-	if (type_ != nil) {
+	if type_ != nil {
 		this.outer_.typePointersByJstype.computeIfAbsent(type_, Function[*JSType, any](func(p0 *JSType) any { return any(int32(this.outer_.jstypeReconserializer.serializeType(p0))) }))
 	}
 	var shadow Node = n.getClosureUnawareShadow()
-	if (shadow != 0) {
+	if shadow != 0 {
 		NodeTraversal_traverse(this.outer_.compiler_, shadow.getFirstFirstChild().getFirstChild(), NodeTraversal_Callback(new_SerializeTypesToPointers_TypeSearchCallback(this.outer_)))
 	}
 }
@@ -186,7 +186,7 @@ func (this *SerializeTypesToPointers_StreamObjectUuidsJson) writeJson(jsonWriter
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		jsonWriter.name(str_(entry.getKey()))
 		jsonWriter.beginArray()
-		var jstypes *TList[string] = newTList_(tc_string)
+		var jstypes *JTList[string] = jnewTList_(jtc_string)
 		it_3 := foreach_(icast_List(entry.getValue()))
 		for it_3.next() {
 			var jstype *JSType = to_JSType(it_3.v)
@@ -204,8 +204,8 @@ func (this *SerializeTypesToPointers_StreamObjectUuidsJson) writeJson(jsonWriter
 }
 
 type SerializeTypesToPointers_TypeMismatchJson struct {
-	location_ string
-	foundColorId string
+	location_       string
+	foundColorId    string
 	requiredColorId string
 }
 
@@ -260,7 +260,7 @@ func SerializeTypesToPointers_TypeMismatchJson_typePointerToId(poolOffset int32,
 		return ColorId_fromBytesByteString(typeProto.getObject().getUuid())
 	case TypeProto_KindCase_KIND_NOT_SET:
 	}
-	panic(new_AssertionError_Object(strobj_(("Unrecognized TypeProto " + tostr_(typeProto)))).self())
+	panic(new_AssertionError_Object(strobj_(("Unrecognized TypeProto " + jtostr_(typeProto)))).self())
 }
 
 func (this *SerializeTypesToPointers_TypeMismatchJson) compareTo(x_ any) int32 {
@@ -268,4 +268,3 @@ func (this *SerializeTypesToPointers_TypeMismatchJson) compareTo(x_ any) int32 {
 	_ = x
 	return ComparisonChain_start().compare(strobj_(this.foundColorId), strobj_(x.foundColorId)).compare(strobj_(this.requiredColorId), strobj_(x.requiredColorId)).compare(strobj_(this.location_), strobj_(x.location_)).result()
 }
-

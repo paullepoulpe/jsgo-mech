@@ -29,11 +29,11 @@ func JsIterables_getElementType(iterableOrIterator *JSType, typeRegistry *JSType
 		return templateTypeMap.getResolvedTemplateType(typeRegistry.getAsyncIteratorValueTemplate())
 	}
 	var nextProperty *JSType = iterableOrIterator.findPropertyType("next")
-	if (nextProperty != nil) {
+	if nextProperty != nil {
 		var nextFn *FunctionType = nextProperty.toMaybeFunctionType()
-		if ((nextFn != nil) && (nextFn.getReturnType() != nil)) {
+		if (nextFn != nil) && (nextFn.getReturnType() != nil) {
 			var valueProperty *JSType = nextFn.getReturnType().findPropertyType("value")
-			if (valueProperty != nil) {
+			if valueProperty != nil {
 				return valueProperty
 			}
 		}
@@ -70,28 +70,48 @@ func JsIterables_maybeBoxIterableOrAsyncIterable(type_ *JSType, typeRegistry *JS
 }
 
 func JsIterables_maybeBoxIterableAndPossiblyAsyncIterable(type_ *JSType, typeRegistry *JSTypeRegistry, includeAsyncIterable bool) *JsIterables_MaybeBoxedType {
-	var templatedTypes *TList[*JSType] = newTList_(tc_p_JSType)
+	var templatedTypes *JTList[*JSType] = jnewTList_(jtc_p_JSType)
 	if type_.isUnionType() {
 		it_1 := type_.toMaybeUnionType().getAlternates().each()
 		for it_1.next() {
 			var alt *JSType = it_1.v
-			alt = func() *JSType { if alt.isBoxableScalar() { return alt.autoboxesTo() }; return alt }()
+			alt = func() *JSType {
+				if alt.isBoxableScalar() {
+					return alt.autoboxesTo()
+				}
+				return alt
+			}()
 			var isIterable bool = alt.isSubtypeOf(typeRegistry.getNativeType(JSTypeNative_ITERABLE_TYPE))
 			var isAsyncIterable bool = (includeAsyncIterable && alt.isSubtypeOf(typeRegistry.getNativeType(JSTypeNative_ASYNC_ITERABLE_TYPE)))
-			if (!isIterable && !isAsyncIterable) {
+			if !isIterable && !isAsyncIterable {
 				return new_JsIterables_MaybeBoxedType(nil, alt)
 			}
-			var valueTemplate *TemplateType = func() *TemplateType { if isAsyncIterable { return typeRegistry.getAsyncIterableValueTemplate() }; return typeRegistry.getIterableValueTemplate() }()
+			var valueTemplate *TemplateType = func() *TemplateType {
+				if isAsyncIterable {
+					return typeRegistry.getAsyncIterableValueTemplate()
+				}
+				return typeRegistry.getIterableValueTemplate()
+			}()
 			templatedTypes.add(alt.getTemplateTypeMap().getResolvedTemplateType(valueTemplate))
 		}
 	} else {
-		var autoboxedType *JSType = func() *JSType { if type_.isBoxableScalar() { return type_.autoboxesTo() }; return type_ }()
+		var autoboxedType *JSType = func() *JSType {
+			if type_.isBoxableScalar() {
+				return type_.autoboxesTo()
+			}
+			return type_
+		}()
 		var isIterable bool = autoboxedType.isSubtypeOf(typeRegistry.getNativeType(JSTypeNative_ITERABLE_TYPE))
 		var isAsyncIterable bool = (includeAsyncIterable && autoboxedType.isSubtypeOf(typeRegistry.getNativeType(JSTypeNative_ASYNC_ITERABLE_TYPE)))
-		if (!isIterable && !isAsyncIterable) {
+		if !isIterable && !isAsyncIterable {
 			return new_JsIterables_MaybeBoxedType(nil, autoboxedType)
 		}
-		var templateType *TemplateType = func() *TemplateType { if isAsyncIterable { return typeRegistry.getAsyncIterableValueTemplate() }; return typeRegistry.getIterableValueTemplate() }()
+		var templateType *TemplateType = func() *TemplateType {
+			if isAsyncIterable {
+				return typeRegistry.getAsyncIterableValueTemplate()
+			}
+			return typeRegistry.getIterableValueTemplate()
+		}()
 		templatedTypes.add(autoboxedType.getTemplateTypeMap().getResolvedTemplateType(templateType))
 	}
 	return new_JsIterables_MaybeBoxedType(typeRegistry.createUnionTypeList(templatedTypes), nil)
@@ -99,7 +119,7 @@ func JsIterables_maybeBoxIterableAndPossiblyAsyncIterable(type_ *JSType, typeReg
 
 type JsIterables_MaybeBoxedType struct {
 	templatedType *JSType
-	mismatchType *JSType
+	mismatchType  *JSType
 }
 
 func (this *JsIterables_MaybeBoxedType) init_JsIterables_MaybeBoxedType(templatedType *JSType, mismatchType *JSType) {
@@ -134,4 +154,3 @@ func (this *JsIterables_MaybeBoxedType) orElse(type_ *JSType) *JSType {
 func (this *JsIterables_MaybeBoxedType) isMatch() bool {
 	return (this.templatedType != nil)
 }
-

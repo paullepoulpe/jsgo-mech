@@ -31,19 +31,22 @@ func (this *Scanner_refactoring) init_Scanner_refactoring() {
 
 }
 
-func (this *Scanner_refactoring) processMatch_Match_impl(match *Match) *TList[*SuggestedFix] {
-	return tlistEmptyImm_(tc_p_SuggestedFix)
+func (this *Scanner_refactoring) processMatch_Match_impl(match *Match) *JTList[*SuggestedFix] {
+	return jtlistEmptyImm_(jtc_p_SuggestedFix)
 }
 
-func (this *Scanner_refactoring) processAllMatches(matches CollectionOf[*Match]) *TList[*SuggestedFix] {
-	return tlistEmptyImm_(tc_p_SuggestedFix)
+func (this *Scanner_refactoring) processAllMatches(matches CollectionOf[*Match]) *JTList[*SuggestedFix] {
+	return jtlistEmptyImm_(jtc_p_SuggestedFix)
 }
 
 func (this *Scanner_refactoring) matches(p0 Node, p1 *NodeMetadata) bool {
-	return this.self_.(interface{ matches_impl(Node, *NodeMetadata) bool }).matches_impl(p0, p1)
+	return this.self_.(interface {
+		matches_impl(Node, *NodeMetadata) bool
+	}).matches_impl(p0, p1)
 }
 
-func (this *Scanner_refactoring) processMatch_Match(p0 *Match) *TList[*SuggestedFix] {
-	return this.self_.(interface{ processMatch_Match_impl(*Match) *TList[*SuggestedFix] }).processMatch_Match_impl(p0)
+func (this *Scanner_refactoring) processMatch_Match(p0 *Match) *JTList[*SuggestedFix] {
+	return this.self_.(interface {
+		processMatch_Match_impl(*Match) *JTList[*SuggestedFix]
+	}).processMatch_Match_impl(p0)
 }
-

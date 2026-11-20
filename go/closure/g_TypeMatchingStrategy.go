@@ -4,7 +4,7 @@ package closure
 
 type TypeMatchingStrategy struct {
 	Enum
-	allowSubtypes bool
+	allowSubtypes     bool
 	ignoreNullability bool
 	allowLooseMatches bool
 }
@@ -34,8 +34,13 @@ func (this *TypeMatchingStrategy) match(templateType *JSType, type_ *JSType) *Ty
 	if templateType.isUnknownType() {
 		return TypeMatchingStrategy_MatchResult_MATCH
 	}
-	if (((type_ == nil) || type_.isUnknownType()) || type_.isAllType()) {
-		return func() *TypeMatchingStrategy_MatchResult { if this.allowLooseMatches { return TypeMatchingStrategy_MatchResult_LOOSE_MATCH }; return TypeMatchingStrategy_MatchResult_NO_MATCH }()
+	if ((type_ == nil) || type_.isUnknownType()) || type_.isAllType() {
+		return func() *TypeMatchingStrategy_MatchResult {
+			if this.allowLooseMatches {
+				return TypeMatchingStrategy_MatchResult_LOOSE_MATCH
+			}
+			return TypeMatchingStrategy_MatchResult_NO_MATCH
+		}()
 	}
 	if this.allowSubtypes {
 		if this.ignoreNullability {
@@ -47,10 +52,15 @@ func (this *TypeMatchingStrategy) match(templateType *JSType, type_ *JSType) *Ty
 	}
 	var nullableMismatch bool = (templateType.isNullable() != type_.isNullable())
 	var voidableMismatch bool = (templateType.isVoidable() != type_.isVoidable())
-	if (!this.ignoreNullability && (nullableMismatch || voidableMismatch)) {
+	if !this.ignoreNullability && (nullableMismatch || voidableMismatch) {
 		return TypeMatchingStrategy_MatchResult_NO_MATCH
 	}
-	return func() *TypeMatchingStrategy_MatchResult { if type_.equals(templateType.self()) { return TypeMatchingStrategy_MatchResult_MATCH }; return TypeMatchingStrategy_MatchResult_NO_MATCH }()
+	return func() *TypeMatchingStrategy_MatchResult {
+		if type_.equals(templateType.self()) {
+			return TypeMatchingStrategy_MatchResult_MATCH
+		}
+		return TypeMatchingStrategy_MatchResult_NO_MATCH
+	}()
 }
 
 func TypeMatchingStrategy_values() []*TypeMatchingStrategy {
@@ -150,4 +160,3 @@ func TypeMatchingStrategy_MatchResult_clinit() {
 	registerEnum_("com.google.javascript.jscomp.TypeMatchingStrategy.MatchResult", enumValues_(TypeMatchingStrategy_MatchResult_values_))
 
 }
-

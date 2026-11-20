@@ -56,4 +56,3 @@ func VariableRenamingPolicy_clinit() {
 	registerEnum_("com.google.javascript.jscomp.VariableRenamingPolicy", enumValues_(VariableRenamingPolicy_values_))
 
 }
-

@@ -4,10 +4,10 @@ package closure
 
 type Scope struct {
 	AbstractScope
-	parent *Scope
-	vars MapOf[string, *Var]
+	parent       *Scope
+	vars         MapOf[string, *Var]
 	implicitVars MapOf[*AbstractScope_ImplicitVar, *Var]
-	depth int32
+	depth        int32
 }
 
 func (this *Scope) up_AbstractScope() *AbstractScope {
@@ -84,7 +84,7 @@ func (this *Scope) declareImplicitGoogNamespaceIfAbsent(name string, definition 
 	Preconditions_checkArgument(!String_isEmpty(name))
 	Preconditions_checkState_boolean_String_Object(this.isGlobal(), "Cannot declare implicit goog namespace in local scope %s", this)
 	var var_ *Var = this.getOwnSlot_String_rAbstractVar_rVar(name)
-	if (var_ == nil) {
+	if var_ == nil {
 		var_ = Var_createImplicitGoogNamespace(name, this, definition)
 		this.declareInternal(name, var_)
 	} else if var_.isImplicitGoogNamespace() {
@@ -99,8 +99,8 @@ func (this *Scope) makeImplicitVar_ImplicitVar_rVar(var_ *AbstractScope_Implicit
 
 func (this *Scope) contains(other *Scope) bool {
 	var s *Scope = Preconditions_checkNotNull_T(other)
-	for (s != nil) {
-		if (s == this) {
+	for s != nil {
+		if s == this {
 			return true
 		}
 		s = s.getParent_rScope()
@@ -110,7 +110,7 @@ func (this *Scope) contains(other *Scope) bool {
 
 func (this *Scope) getGlobalScope_rScope() *Scope {
 	var result *Scope = this
-	for (result.getParent_rScope() != nil) {
+	for result.getParent_rScope() != nil {
 		result = result.getParent_rScope()
 	}
 	return result
@@ -132,8 +132,8 @@ func (this *Scope) undeclareInteral(var_ *Var) {
 
 func (this *Scope) declareInternal(name string, var_ *Var) {
 	Preconditions_checkState_boolean_String_Object_H((this.hasOwnSlot(name) || this.canDeclare(name)), "Illegal shadow: %s", var_.getNode())
-	var emptySentinel *TMap[string, *Var] = tmapEmptyImm_(tc_string, tc_p_Var)
-	if (any(this.vars) == any(emptySentinel.asMap())) {
+	var emptySentinel *JTMap[string, *Var] = jtmapEmptyImm_(jtc_string, jtc_p_Var)
+	if any(this.vars) == any(emptySentinel.asMap()) {
 		this.vars = LinkedHashMap_as_Map(Maps_newLinkedHashMapWithExpectedSize(1))
 	}
 	Map_put_s(this.vars, name, obj_(var_))
@@ -152,7 +152,7 @@ func (this *Scope) hasOwnSlot_impl(name string) bool {
 func (this *Scope) hasSlot_impl(name string) bool {
 	{
 		var scope *Scope = this
-		for ; (scope != nil); scope = scope.getParent_rScope() {
+		for ; scope != nil; scope = scope.getParent_rScope() {
 			if scope.hasOwnSlot(name) {
 				return true
 			}
@@ -165,16 +165,18 @@ func (this *Scope) getOwnImplicitSlot(name *AbstractScope_ImplicitVar) *Var {
 	if !this.hasOwnImplicitSlot(name) {
 		return nil
 	}
-	var emptySentinel *TMap[*AbstractScope_ImplicitVar, *Var] = tmapEmptyImm_(tc_p_AbstractScope_ImplicitVar, tc_p_Var)
-	if (any(this.implicitVars) == any(emptySentinel.asMap())) {
+	var emptySentinel *JTMap[*AbstractScope_ImplicitVar, *Var] = jtmapEmptyImm_(tc_p_AbstractScope_ImplicitVar, jtc_p_Var)
+	if any(this.implicitVars) == any(emptySentinel.asMap()) {
 		this.implicitVars = Map(new_EnumMap(classOf_("com.google.javascript.jscomp.AbstractScope.ImplicitVar")))
 	}
-	return cast_[*Var](Map_computeIfAbsent(this.implicitVars, obj_(name), Function[any, any](func(p0 any) any { return obj_(this.makeImplicitVar_ImplicitVar_rVar(cast_[*AbstractScope_ImplicitVar](p0))) })))
+	return cast_[*Var](Map_computeIfAbsent(this.implicitVars, obj_(name), Function[any, any](func(p0 any) any {
+		return obj_(this.makeImplicitVar_ImplicitVar_rVar(cast_[*AbstractScope_ImplicitVar](p0)))
+	})))
 }
 
 func (this *Scope) getOwnSlot_String_rAbstractVar_rVar(name string) *Var {
 	var var_ *Var = cast_[*Var](Map_get_s(this.vars, name))
-	if (var_ != nil) {
+	if var_ != nil {
 		return var_
 	}
 	return this.getOwnImplicitSlot(AbstractScope_ImplicitVar_of(name))
@@ -187,9 +189,9 @@ func (this *Scope) getSlot_String_rAbstractVar_rVar(name string) *Var {
 func (this *Scope) getVar_String_rVar(name string) *Var {
 	{
 		var scope *Scope = this
-		for ; (scope != nil); scope = scope.getParent_rScope() {
+		for ; scope != nil; scope = scope.getParent_rScope() {
 			var var_ *Var = scope.getOwnSlot_String_rAbstractVar_rVar(name)
-			if (var_ != nil) {
+			if var_ != nil {
 				return var_
 			}
 		}
@@ -200,9 +202,9 @@ func (this *Scope) getVar_String_rVar(name string) *Var {
 func (this *Scope) getArgumentsVar_rVar() *Var {
 	{
 		var scope *Scope = this
-		for ; (scope != nil); scope = scope.getParent_rScope() {
+		for ; scope != nil; scope = scope.getParent_rScope() {
 			var arguments *Var = scope.getOwnImplicitSlot(AbstractScope_ImplicitVar_ARGUMENTS)
-			if (arguments != nil) {
+			if arguments != nil {
 				return arguments
 			}
 		}
@@ -224,9 +226,9 @@ func (this *Scope) getVarIterable_impl() IterableOf[*Var] {
 }
 
 func (this *Scope) getAllAccessibleVariables_impl() IterableOf[*Var] {
-	var accessibleVars *TMap[string, *Var] = newTMap_(tc_string, tc_p_Var)
+	var accessibleVars *JTMap[string, *Var] = jnewTMap_(jtc_string, jtc_p_Var)
 	var s *Scope = this
-	for (s != nil) {
+	for s != nil {
 		it_2 := foreach_(s.getVarIterable())
 		for it_2.next() {
 			var v *Var = cast_[*Var](it_2.v)
@@ -247,7 +249,7 @@ func (this *Scope) getVarCount_impl() int32 {
 
 func (this *Scope) getClosestHoistScope_rScope() *Scope {
 	var current *Scope = this
-	for (current != nil) {
+	for current != nil {
 		if current.isHoistScope() {
 			return current
 		}
@@ -282,13 +284,13 @@ func (this *Scope) checkChildScope(parent *Scope) {
 func (this *Scope) getCommonParent(other *Scope) *Scope {
 	var left *Scope = this
 	var right *Scope = other
-	for (((left != nil) && (right != nil)) && (left != right)) {
+	for ((left != nil) && (right != nil)) && (left != right) {
 		var leftDepth int32 = left.getDepth()
 		var rightDepth int32 = right.getDepth()
-		if (leftDepth >= rightDepth) {
+		if leftDepth >= rightDepth {
 			left = left.getParent_rScope()
 		}
-		if (leftDepth <= rightDepth) {
+		if leftDepth <= rightDepth {
 			right = right.getParent_rScope()
 		}
 	}
@@ -302,7 +304,7 @@ func (this *Scope) hasSameContainerScope(other *Scope) bool {
 
 func (this *Scope) getScopeOfThis_rScope() *Scope {
 	var scope *Scope = this.getClosestContainerScope_rScope()
-	for (!scope.isGlobal() && !NodeUtil_isNonArrowFunction(scope.getRootNode())) {
+	for !scope.isGlobal() && !NodeUtil_isNonArrowFunction(scope.getRootNode()) {
 		scope = scope.getParent_rScope().getClosestContainerScope_rScope()
 	}
 	return scope
@@ -355,4 +357,3 @@ func (this *Scope) getClosestContainerScope_impl() *AbstractScope {
 func (this *Scope) getScopeOfThis_impl() *AbstractScope {
 	return this.getScopeOfThis_rScope().up_AbstractScope()
 }
-

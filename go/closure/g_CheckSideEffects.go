@@ -4,12 +4,12 @@ package closure
 
 type CheckSideEffects struct {
 	NodeTraversal_AbstractPostOrderCallback
-	problemNodes *TList[Node]
-	noSideEffectExterns *TSet[string]
-	compiler_ *AbstractCompiler
-	report_ bool
+	problemNodes              *JTList[Node]
+	noSideEffectExterns       *JTSet[string]
+	compiler_                 *AbstractCompiler
+	report_                   bool
 	protectSideEffectFreeCode bool
-	preserveFunctionInjected bool
+	preserveFunctionInjected  bool
 }
 
 func (this *CheckSideEffects) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -20,8 +20,8 @@ func (this *CheckSideEffects) up_NodeTraversal_AbstractPostOrderCallback() *Node
 }
 
 func (this *CheckSideEffects) finit_CheckSideEffects() {
-	this.problemNodes = newTList_(tc_Node)
-	this.noSideEffectExterns = newTSet_(tc_string)
+	this.problemNodes = jnewTList_(jtc_Node)
+	this.noSideEffectExterns = jnewTSet_(jtc_string)
 	this.preserveFunctionInjected = false
 }
 
@@ -49,28 +49,28 @@ func (this *CheckSideEffects) process_2(externs Node, root Node) {
 }
 
 func (this *CheckSideEffects) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if (n.isEmpty() || n.isComma()) {
+	if n.isEmpty() || n.isComma() {
 		return
 	}
-	if (parent == 0) {
+	if parent == 0 {
 		return
 	}
-	if (n.isExprResult() || n.isBlock()) {
+	if n.isExprResult() || n.isBlock() {
 		return
 	}
-	if (n.isQualifiedName() && (n.getJSDocInfo() != nil)) {
+	if n.isQualifiedName() && (n.getJSDocInfo() != nil) {
 		return
 	}
-	if ((((n.isStringLit() && n.getParent().isExprResult()) && n.getGrandparent().isScript()) && String_startsWith(n.getSourceFileName(), AbstractCompiler_RUNTIME_LIB_DIR)) && String_startsWith(n.getString(), "require ")) {
+	if (((n.isStringLit() && n.getParent().isExprResult()) && n.getGrandparent().isScript()) && String_startsWith(n.getSourceFileName(), AbstractCompiler_RUNTIME_LIB_DIR)) && String_startsWith(n.getString(), "require ") {
 		return
 	}
 	var isResultUsed bool = NodeUtil_isExpressionResultUsed(n)
 	var isSimpleOp bool = ((NodeUtil_isSimpleOperator(n) || n.isGetProp()) || n.isGetElem())
-	if (!isResultUsed && !n.isVoid()) {
-		if (isSimpleOp || !t.getCompiler().getAstAnalyzer().mayHaveSideEffects(n)) {
+	if !isResultUsed && !n.isVoid() {
+		if isSimpleOp || !t.getCompiler().getAstAnalyzer().mayHaveSideEffects(n) {
 			if this.report_ {
 				var msg string = "This code lacks side-effects. Is there a bug?"
-				if (n.isStringLit() || n.isTemplateLit()) {
+				if n.isStringLit() || n.isTemplateLit() {
 					msg = "Is there a missing '+' on the previous line?"
 				} else if isSimpleOp {
 					msg = ("The result of the '" + sstr_(Ascii_toLowerCase(tostrR_(n.getToken()))) + "' operator is not being used.")
@@ -80,7 +80,7 @@ func (this *CheckSideEffects) visit_impl(t *NodeTraversal, n Node, parent Node) 
 			if !NodeUtil_isStatement(n) {
 				this.problemNodes.add(n)
 			}
-		} else if (n.isCall() && ((n.getFirstChild().isGetProp() || n.getFirstChild().isName()) || n.getFirstChild().isStringLit())) {
+		} else if n.isCall() && ((n.getFirstChild().isGetProp() || n.getFirstChild().isName()) || n.getFirstChild().isStringLit()) {
 			var qname string = n.getFirstChild().getQualifiedName()
 			var isDefinedInSrc bool = false
 			if !String_isEmpty(qname) {
@@ -91,7 +91,7 @@ func (this *CheckSideEffects) visit_impl(t *NodeTraversal, n Node, parent Node) 
 					isDefinedInSrc = (t.getScope().getVar_String_rVar(qname) != nil)
 				}
 			}
-			if ((!String_isEmpty(qname) && this.noSideEffectExterns.contains(qname)) && !isDefinedInSrc) {
+			if (!String_isEmpty(qname) && this.noSideEffectExterns.contains(qname)) && !isDefinedInSrc {
 				this.problemNodes.add(n)
 				if this.report_ {
 					var msg string = ("The result of the extern function call '" + sstr_(qname) + "' is not being used.")
@@ -126,6 +126,7 @@ func CheckSideEffects_addExtern(compiler *AbstractCompiler) {
 }
 
 var CheckSideEffects_USELESS_CODE_ERROR *DiagnosticType
+
 const CheckSideEffects_PROTECTOR_FN string = "JSCOMPILER_PRESERVE"
 const CheckSideEffects_J2CL_PROTECTOR_FN string = "$J2CL_PRESERVE$"
 
@@ -174,14 +175,14 @@ func (this *CheckSideEffects_StripProtection) visit_impl(t *NodeTraversal, n Nod
 		if !target.isName() {
 			return
 		}
-		if (target.getString() == CheckSideEffects_J2CL_PROTECTOR_FN) {
+		if target.getString() == CheckSideEffects_J2CL_PROTECTOR_FN {
 			Preconditions_checkState_boolean_Object(J2clSourceUtils_isJ2clSourceString(Optional_of[string](n.getSourceFileName()).filter(Predicate[string](func(s string) bool {
 				return !String_isEmpty(s)
 			}))), "Only allowed for J2CL code")
 			NodeUtil_deleteFunctionCall(n, this.compiler_)
 			return
 		}
-		if (target.getString() == CheckSideEffects_PROTECTOR_FN) {
+		if target.getString() == CheckSideEffects_PROTECTOR_FN {
 			var expr Node = n.getLastChild()
 			n.detachChildren()
 			n.replaceWith(expr)
@@ -217,13 +218,12 @@ func new_CheckSideEffects_GetNoSideEffectExterns(outer_ *CheckSideEffects) *Chec
 func (this *CheckSideEffects_GetNoSideEffectExterns) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isFunction() {
 		var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
-		if ((jsDoc != nil) && jsDoc.isNoSideEffects()) {
+		if (jsDoc != nil) && jsDoc.isNoSideEffects() {
 			var name string = NodeUtil_getName(n)
 			this.outer_.noSideEffectExterns.add(name)
 		}
 	}
-	if (n.isName() && (CheckSideEffects_PROTECTOR_FN == n.getString())) {
+	if n.isName() && (CheckSideEffects_PROTECTOR_FN == n.getString()) {
 		this.outer_.preserveFunctionInjected = true
 	}
 }
-

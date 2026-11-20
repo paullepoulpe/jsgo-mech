@@ -17,21 +17,20 @@ func new_RefactoringUtils() *RefactoringUtils {
 
 func RefactoringUtils_isInClosurizedFile(node Node, metadata *NodeMetadata) bool {
 	var script Node = NodeUtil_getEnclosingScript(node)
-	if (script == 0) {
+	if script == 0 {
 		return false
 	}
 	var child Node = script.getFirstChild()
-	for (child != 0) {
+	for child != 0 {
 		if NodeUtil_isExprCall(child) {
 			var firstChild Node = child.getFirstChild()
-			if (Matchers_googRequire().matches(firstChild, metadata) || Matchers_googModuleOrProvide().matches(firstChild, metadata)) {
+			if Matchers_googRequire().matches(firstChild, metadata) || Matchers_googModuleOrProvide().matches(firstChild, metadata) {
 				return true
 			}
-		} else if (child.isVar() && child.getBooleanProp(Node_IS_NAMESPACE)) {
+		} else if child.isVar() && child.getBooleanProp(Node_IS_NAMESPACE) {
 			return true
 		}
 		child = child.getNext()
 	}
 	return false
 }
-

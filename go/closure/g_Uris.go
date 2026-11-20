@@ -16,16 +16,16 @@ func new_Uris() *Uris {
 }
 
 func Uris_isValid(uri string) bool {
-	for i := int32(0); (i < String_length(uri)); i++ {
+	for i := int32(0); i < String_length(uri); i++ {
 		var c uint16 = String_charAt(uri, i)
-		if (int32(c) >= 128) {
-			if (Character_isSpaceChar(c) || Character_isISOControl(c)) {
+		if int32(c) >= 128 {
+			if Character_isSpaceChar(c) || Character_isISOControl(c) {
 				return false
 			}
-		} else if (!Uris_isAsciiLetterOrDigit(c) && (String_indexOf(Uris_LEGAL_PUNCTUATION, int32(c)) < 0)) {
+		} else if !Uris_isAsciiLetterOrDigit(c) && (String_indexOf(Uris_LEGAL_PUNCTUATION, int32(c)) < 0) {
 			return false
 		}
-		if ((c == '%') && ((((i + 2) >= String_length(uri)) || !Uris_isHexDigit(String_charAt(uri, (i + 1)))) || !Uris_isHexDigit(String_charAt(uri, (i + 2))))) {
+		if (c == '%') && ((((i + 2) >= String_length(uri)) || !Uris_isHexDigit(String_charAt(uri, (i+1)))) || !Uris_isHexDigit(String_charAt(uri, (i+2)))) {
 			return false
 		}
 	}
@@ -38,27 +38,32 @@ func Uris_hasScheme(uri string) bool {
 }
 
 func Uris_path(uri string) string {
-	var start int32 = func() int32 { if Uris_hasScheme(uri) { return (Uris_schemeLength(uri) + 1) }; return 0 }()
+	var start int32 = func() int32 {
+		if Uris_hasScheme(uri) {
+			return (Uris_schemeLength(uri) + 1)
+		}
+		return 0
+	}()
 	if String_startsWith_String_int(uri, "//", start) {
 		start += 2
-		for ((start < String_length(uri)) && (String_indexOf("/?#", int32(String_charAt(uri, start))) < 0)) {
+		for (start < String_length(uri)) && (String_indexOf("/?#", int32(String_charAt(uri, start))) < 0) {
 			start++
 		}
 	}
 	var end int32 = start
-	for ((end < String_length(uri)) && (String_indexOf("?#", int32(String_charAt(uri, end))) < 0)) {
+	for (end < String_length(uri)) && (String_indexOf("?#", int32(String_charAt(uri, end))) < 0) {
 		end++
 	}
 	return String_substring(uri, start, end)
 }
 
 func Uris_firstColon(uri string) int32 {
-	for i := int32(0); (i < String_length(uri)); i++ {
+	for i := int32(0); i < String_length(uri); i++ {
 		var c uint16 = String_charAt(uri, i)
-		if (c == ':') {
+		if c == ':' {
 			return i
 		}
-		if (((c == '/') || (c == '?')) || (c == '#')) {
+		if ((c == '/') || (c == '?')) || (c == '#') {
 			return -1
 		}
 	}
@@ -67,14 +72,14 @@ func Uris_firstColon(uri string) int32 {
 
 func Uris_schemeLength(uri string) int32 {
 	var i int32 = 0
-	for (i < String_length(uri)) {
+	for i < String_length(uri) {
 		var c uint16 = String_charAt(uri, i)
-		if (c == ':') {
+		if c == ':' {
 			return i
 		}
 		var letter bool = (((int32(c) >= 97) && (int32(c) <= 122)) || ((int32(c) >= 65) && (int32(c) <= 90)))
 		var other bool = (((((int32(c) >= 48) && (int32(c) <= 57)) || (c == '+')) || (c == '-')) || (c == '.'))
-		if (!letter && !(other && (i > 0))) {
+		if !letter && !(other && (i > 0)) {
 			return 0
 		}
 		i++
@@ -91,4 +96,3 @@ func Uris_isHexDigit(c uint16) bool {
 }
 
 const Uris_LEGAL_PUNCTUATION string = "_-!.~'()*;/?:@&=+$,%#"
-

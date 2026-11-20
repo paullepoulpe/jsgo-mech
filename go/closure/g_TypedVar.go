@@ -4,11 +4,11 @@ package closure
 
 type TypedVar struct {
 	AbstractVar
-	type__ *JSType
-	scope_ *TypedScope
-	markedEscaped bool
+	type__                    *JSType
+	scope_                    *TypedScope
+	markedEscaped             bool
 	markedAssignedExactlyOnce bool
-	typeInferred bool
+	typeInferred              bool
 }
 
 func (this *TypedVar) up_AbstractVar() *AbstractVar {
@@ -38,7 +38,7 @@ func (this *TypedVar) init_TypedVar(inferred bool, name string, nameNode Node, t
 	this.AbstractVar.init_AbstractVar(name, nameNode, index, input, 0)
 	this.finit_TypedVar()
 	this.scope_ = scope
-	if (nameNode != 0) {
+	if nameNode != 0 {
 		Preconditions_checkArgument_boolean_String_Object(TypedVar_NAME_NODE_TYPES.contains(nameNode.getToken()), "Invalid name node token %s", nameNode.getToken())
 	}
 	this.type__ = type_
@@ -62,7 +62,7 @@ func (this *TypedVar) setType(type_ *JSType) {
 }
 
 func (this *TypedVar) resolveType(errorReporter ErrorReporter_rhino) {
-	if (this.type__ != nil) {
+	if this.type__ != nil {
 		this.type__ = this.type__.resolve(errorReporter)
 	}
 }
@@ -72,7 +72,7 @@ func (this *TypedVar) isTypeInferred() bool {
 }
 
 func (this *TypedVar) getInputName() string {
-	if (this.getInput() == nil) {
+	if this.getInput() == nil {
 		return "<non-file>"
 	}
 	return this.getInput().getName()
@@ -103,7 +103,12 @@ func (this *TypedVar) getScopeRoot_impl() Node {
 }
 
 func (this *TypedVar) getSourceFile_impl() StaticSourceFile {
-	return func() Node { if (this.getNode() != 0) { return this.getNode() }; return this.scope_.getRootNode() }().getStaticSourceFile()
+	return func() Node {
+		if this.getNode() != 0 {
+			return this.getNode()
+		}
+		return this.scope_.getRootNode()
+	}().getStaticSourceFile()
 }
 
 func (this *TypedVar) getSymbol_rAbstractVar_rTypedVar() *TypedVar {
@@ -111,7 +116,12 @@ func (this *TypedVar) getSymbol_rAbstractVar_rTypedVar() *TypedVar {
 }
 
 func (this *TypedVar) getDeclaration_rAbstractVar_rTypedVar() *TypedVar {
-	return func() *TypedVar { if (this.getNode() == 0) { return nil }; return this }()
+	return func() *TypedVar {
+		if this.getNode() == 0 {
+			return nil
+		}
+		return this
+	}()
 }
 
 func (this *TypedVar) getScope_rAbstractScope_rTypedScope() *TypedScope {
@@ -152,7 +162,7 @@ func (this *TypedVar) declarationType_impl() *Token_rhino {
 	}
 	{
 		var current Node = this.getNode()
-		for ; (current != 0); current = current.getParent() {
+		for ; current != 0; current = current.getParent() {
 			if AbstractVar_DECLARATION_TYPES.contains(current.getToken()) {
 				return current.getToken()
 			}
@@ -186,7 +196,7 @@ func (this *TypedVar) getSymbol_rStaticTypedSlot() StaticTypedSlot {
 	return icast_StaticTypedSlot(obj_(this.getSymbol_rAbstractVar_rTypedVar()))
 }
 
-var TypedVar_NAME_NODE_TYPES *TSet[*Token_rhino]
+var TypedVar_NAME_NODE_TYPES *JTSet[*Token_rhino]
 
 var TypedVar_clinit_done bool
 
@@ -198,4 +208,3 @@ func TypedVar_clinit() {
 	TypedVar_NAME_NODE_TYPES = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_NAME.up_Enum(), []*Enum{Token_rhino_THIS.up_Enum(), Token_rhino_IMPORT_STAR.up_Enum(), Token_rhino_EXPR_RESULT.up_Enum(), Token_rhino_EXPORT.up_Enum(), Token_rhino_GETPROP.up_Enum(), Token_rhino_FUNCTION.up_Enum(), Token_rhino_STRING_KEY.up_Enum(), Token_rhino_SETTER_DEF.up_Enum(), Token_rhino_GETTER_DEF.up_Enum(), Token_rhino_MEMBER_FUNCTION_DEF.up_Enum(), Token_rhino_MODULE_BODY.up_Enum()}))
 
 }
-

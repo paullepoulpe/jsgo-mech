@@ -4,7 +4,7 @@ package closure
 
 type Match struct {
 	metadata_ *NodeMetadata
-	node_ Node
+	node_     Node
 }
 
 func (this *Match) init_Match(node Node, metadata *NodeMetadata) {
@@ -25,4 +25,3 @@ func (this *Match) getNode() Node {
 func (this *Match) getMetadata() *NodeMetadata {
 	return this.metadata_
 }
-

@@ -38,9 +38,23 @@ func (this *VerboseMessageFormatter) format(message *JSError) string {
 	var lineNumber int32 = message.getLineNumber()
 	var sourceRegion Region = this.getSource().getSourceRegion(sourceName, lineNumber)
 	var lineSource Optional[string] = Optional_empty[string]()
-	if (sourceRegion != nil) {
+	if sourceRegion != nil {
 		lineSource = Optional_of[string](sourceRegion.getSourceExcerpt())
 	}
-	return String_format("%s at %s line %s %s", []any{strobj_(description), func() any { if String_isEmpty(sourceName.orElse("")) { return strobj_("(unknown source)") }; return strobj_(sourceName.get()) }(), func() any { if (lineNumber < 0) { return strobj_("(unknown line)") }; return strobj_(String_valueOf(lineNumber)) }(), func() any { if lineSource.isPresent() { return strobj_((":\n\n" + sstr_(lineSource.get()))) }; return strobj_(".") }()})
+	return String_format("%s at %s line %s %s", []any{strobj_(description), func() any {
+		if String_isEmpty(sourceName.orElse("")) {
+			return strobj_("(unknown source)")
+		}
+		return strobj_(sourceName.get())
+	}(), func() any {
+		if lineNumber < 0 {
+			return strobj_("(unknown line)")
+		}
+		return strobj_(String_valueOf(lineNumber))
+	}(), func() any {
+		if lineSource.isPresent() {
+			return strobj_((":\n\n" + sstr_(lineSource.get())))
+		}
+		return strobj_(".")
+	}()})
 }
-

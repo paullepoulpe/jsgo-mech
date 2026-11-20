@@ -13,4 +13,3 @@ type RenamingMap_fn struct {
 func (this *RenamingMap_fn) get(p0 string) Optional[string] {
 	return this.f(p0)
 }
-

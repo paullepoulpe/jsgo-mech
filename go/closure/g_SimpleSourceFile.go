@@ -44,7 +44,7 @@ func (this *SimpleSourceFile) getLineOfOffset(offset int32) int32 {
 }
 
 func (this *SimpleSourceFile) getLineOffset(line int32) int32 {
-	if (line < 1) {
+	if line < 1 {
 		panic(new_IllegalStateException_String(("Should not call getLineOffset with line number " + istr_(int64(line)))).self())
 	}
 	return int32(-2147483648)
@@ -73,4 +73,3 @@ func (this *SimpleSourceFile) isNonCode() bool {
 func (this *SimpleSourceFile) isTypeScriptSource() bool {
 	return StaticSourceFile_isTypeScriptSource_default(StaticSourceFile(this))
 }
-

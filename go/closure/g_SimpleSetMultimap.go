@@ -3,10 +3,10 @@
 package closure
 
 type SimpleSetMultimap[K comparable, V comparable] struct {
-	map__ MapOf[K, SetOf[V]]
-	entryOrder *TSet[*SimpleSetMultimap_Entry]
-	sorted bool
-	frozen bool
+	map__      MapOf[K, SetOf[V]]
+	entryOrder *JTSet[*SimpleSetMultimap_Entry]
+	sorted     bool
+	frozen     bool
 }
 
 func (this *SimpleSetMultimap[K, V]) isa_SimpleSetMultimap_() {}
@@ -22,9 +22,19 @@ func (this *SimpleSetMultimap[K, V]) finit_SimpleSetMultimap() {
 
 func (this *SimpleSetMultimap[K, V]) init_SimpleSetMultimap(sorted bool, insertionOrdered bool) {
 	this.finit_SimpleSetMultimap()
-	this.map__ = func() Map { if sorted { return Map(new_TreeMap()) }; return Map(new_LinkedHashMap()) }()
+	this.map__ = func() Map {
+		if sorted {
+			return Map(new_TreeMap())
+		}
+		return Map(new_LinkedHashMap())
+	}()
 	this.sorted = sorted
-	this.entryOrder = func() *TSet[*SimpleSetMultimap_Entry] { if insertionOrdered { return newTSet_(tce_p_SimpleSetMultimap_Entry) }; return nil }()
+	this.entryOrder = func() *JTSet[*SimpleSetMultimap_Entry] {
+		if insertionOrdered {
+			return jnewTSet_(tce_p_SimpleSetMultimap_Entry)
+		}
+		return nil
+	}()
 }
 
 func new_SimpleSetMultimap[K comparable, V comparable](sorted bool, insertionOrdered bool) *SimpleSetMultimap[K, V] {
@@ -63,8 +73,8 @@ func (this *SimpleSetMultimap[K, V]) inverse() *SimpleSetMultimap[V, K] {
 		var e Map_Entry = icast_Map_Entry(it_1.v)
 		it_3 := foreach_(icast_Set(e.getValue()))
 		for it_3.next() {
-			var value V = unboxT_[V](it_3.v)
-			inverse.put(value, unboxT_[K](e.getKey()))
+			var value V = junboxT_[V](it_3.v)
+			inverse.put(value, junboxT_[K](e.getKey()))
 		}
 	}
 	inverse.frozen = true
@@ -74,14 +84,19 @@ func (this *SimpleSetMultimap[K, V]) inverse() *SimpleSetMultimap[V, K] {
 func (this *SimpleSetMultimap[K, V]) put(key K, value V) bool {
 	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
 	var values SetOf[V] = icast_Set(this.map__.get(boxT_(key)))
-	if (values == nil) {
-		values = func() Set { if this.sorted { return Set(new_TreeSet()) }; return Set(new_LinkedHashSet()) }()
+	if values == nil {
+		values = func() Set {
+			if this.sorted {
+				return Set(new_TreeSet())
+			}
+			return Set(new_LinkedHashSet())
+		}()
 		values.add(boxT_(value))
 		this.map__.put(boxT_(key), values)
 	} else if !values.add(boxT_(value)) {
 		return false
 	}
-	if (this.entryOrder != nil) {
+	if this.entryOrder != nil {
 		this.entryOrder.add(new_SimpleSetMultimap_Entry(boxT_(key), boxT_(value)))
 	}
 	return true
@@ -90,30 +105,35 @@ func (this *SimpleSetMultimap[K, V]) put(key K, value V) bool {
 func (this *SimpleSetMultimap[K, V]) putAll_2(key K, values IterableOf[V]) {
 	it_1 := foreach_(values)
 	for it_1.next() {
-		var value V = unboxT_[V](it_1.v)
+		var value V = junboxT_[V](it_1.v)
 		this.put(key, value)
 	}
 }
 
 func SimpleSetMultimap_putAll_SimpleSetMultimap[K comparable, V comparable, K2 comparable, V2 comparable](this *SimpleSetMultimap[K, V], other *SimpleSetMultimap[K2, V2]) {
-	if (other.entryOrder != nil) {
+	if other.entryOrder != nil {
 		it_1 := other.entryOrder.each()
 		for it_1.next() {
 			var e *SimpleSetMultimap_Entry = it_1.v
-			this.put(unboxT_[K](e.key()), unboxT_[V](e.value()))
+			this.put(junboxT_[K](e.key()), junboxT_[V](e.value()))
 		}
 	} else {
 		it_3 := foreach_(other.map__.entrySet())
 		for it_3.next() {
 			var e Map_Entry = icast_Map_Entry(it_3.v)
-			this.putAll_2(unboxT_[K](e.getKey()), icast_Iterable(e.getValue()))
+			this.putAll_2(junboxT_[K](e.getKey()), icast_Iterable(e.getValue()))
 		}
 	}
 }
 
 func (this *SimpleSetMultimap[K, V]) get(key K) SetOf[V] {
 	var values SetOf[V] = icast_Set(this.map__.get(boxT_(key)))
-	return func() Set { if (values == nil) { return ImmutableSet_as_Set(ImmutableSet_of()) }; return Collections_unmodifiableSet(values) }()
+	return func() Set {
+		if values == nil {
+			return ImmutableSet_as_Set(ImmutableSet_of())
+		}
+		return Collections_unmodifiableSet(values)
+	}()
 }
 
 func (this *SimpleSetMultimap[K, V]) containsKey(key K) bool {
@@ -128,13 +148,13 @@ func (this *SimpleSetMultimap[K, V]) containsEntry(key K, value V) bool {
 func (this *SimpleSetMultimap[K, V]) removeAll(key K) SetOf[V] {
 	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
 	var values SetOf[V] = icast_Set(this.map__.remove(boxT_(key)))
-	if (values == nil) {
+	if values == nil {
 		return ImmutableSet_as_Set(ImmutableSet_of())
 	}
-	if (this.entryOrder != nil) {
+	if this.entryOrder != nil {
 		it_1 := foreach_(values)
 		for it_1.next() {
-			var value V = unboxT_[V](it_1.v)
+			var value V = junboxT_[V](it_1.v)
 			this.entryOrder.remove(new_SimpleSetMultimap_Entry(boxT_(key), boxT_(value)))
 		}
 	}
@@ -144,7 +164,7 @@ func (this *SimpleSetMultimap[K, V]) removeAll(key K) SetOf[V] {
 func (this *SimpleSetMultimap[K, V]) clear() {
 	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
 	this.map__.clear()
-	if (this.entryOrder != nil) {
+	if this.entryOrder != nil {
 		this.entryOrder.clear()
 	}
 }
@@ -192,7 +212,7 @@ func (this *SimpleSetMultimap[K, V]) toString() string {
 }
 
 type SimpleSetMultimap_Entry struct {
-	key_ any
+	key_   any
 	value_ any
 }
 
@@ -235,12 +255,13 @@ func (this *SimpleSetMultimap_Entry) toString() string {
 }
 
 type SimpleSetMultimap_1InsertionOrderedValuesIterator[K comparable, V comparable] struct {
-	outer_ *SimpleSetMultimap[K, V]
+	outer_  *SimpleSetMultimap[K, V]
 	entries IteratorOf[*SimpleSetMultimap_Entry]
-	last *SimpleSetMultimap_Entry
+	last    *SimpleSetMultimap_Entry
 }
 
-func (this *SimpleSetMultimap_1InsertionOrderedValuesIterator[K, V]) isa_SimpleSetMultimap_1InsertionOrderedValuesIterator_() {}
+func (this *SimpleSetMultimap_1InsertionOrderedValuesIterator[K, V]) isa_SimpleSetMultimap_1InsertionOrderedValuesIterator_() {
+}
 
 func is_SimpleSetMultimap_1InsertionOrderedValuesIterator(v any) bool {
 	_, ok := v.(interface{ isa_SimpleSetMultimap_1InsertionOrderedValuesIterator_() })
@@ -314,10 +335,14 @@ func new_SimpleSetMultimap_1[K comparable, V comparable](outer_ *SimpleSetMultim
 }
 
 func (this *SimpleSetMultimap_1[K, V]) iterator() IteratorOf[V] {
-	return func() Iterator { if (this.outer_.entryOrder != nil) { return icast_Iterator(obj_(new_SimpleSetMultimap_1InsertionOrderedValuesIterator[K, V](this.outer_))) }; return Iterables_unmodifiableIterable(Iterables_concat_Iterable(Iterable(this.outer_.map__.values()))).iterator() }()
+	return func() Iterator {
+		if this.outer_.entryOrder != nil {
+			return icast_Iterator(obj_(new_SimpleSetMultimap_1InsertionOrderedValuesIterator[K, V](this.outer_)))
+		}
+		return Iterables_unmodifiableIterable(Iterables_concat_Iterable(Iterable(this.outer_.map__.values()))).iterator()
+	}()
 }
 
 func (this *SimpleSetMultimap_1[K, V]) size() int32 {
 	return this.outer_.size()
 }
-

@@ -3,7 +3,7 @@
 package closure
 
 type SimpleListMultimap[K comparable, V comparable] struct {
-	map__ *TMap[K, List]
+	map__  *JTMap[K, List]
 	frozen bool
 }
 
@@ -15,7 +15,7 @@ func is_SimpleListMultimap(v any) bool {
 }
 
 func (this *SimpleListMultimap[K, V]) finit_SimpleListMultimap() {
-	this.map__ = newTMap_(tceT_[K](), tc_List)
+	this.map__ = jnewTMap_(tceT_[K](), tc_List)
 	this.frozen = false
 }
 
@@ -47,7 +47,7 @@ func (this *SimpleListMultimap[K, V]) immutableCopy() *SimpleListMultimap[K, V] 
 func (this *SimpleListMultimap[K, V]) put(key K, value V) *SimpleListMultimap[K, V] {
 	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
 	var values ListOf[V] = this.map__.get(key)
-	if (values == nil) {
+	if values == nil {
 		values = icast_List(new_ArrayList_0().self())
 		this.map__.put(key, values)
 	}
@@ -58,7 +58,7 @@ func (this *SimpleListMultimap[K, V]) put(key K, value V) *SimpleListMultimap[K,
 func (this *SimpleListMultimap[K, V]) putAll(key K, values IterableOf[V]) *SimpleListMultimap[K, V] {
 	it_1 := foreach_(values)
 	for it_1.next() {
-		var value V = unboxT_[V](it_1.v)
+		var value V = junboxT_[V](it_1.v)
 		this.put(key, value)
 	}
 	return this
@@ -66,7 +66,7 @@ func (this *SimpleListMultimap[K, V]) putAll(key K, values IterableOf[V]) *Simpl
 
 func (this *SimpleListMultimap[K, V]) replaceValues(key K, values IterableOf[V]) {
 	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
-	var newValues *TList[V] = newTList_(tcT_[V]())
+	var newValues *JTList[V] = jnewTList_(tcT_[V]())
 	Iterables_addAll(Collection(newValues.asList()), values)
 	if newValues.isEmpty() {
 		this.map__.remove(key)
@@ -77,7 +77,12 @@ func (this *SimpleListMultimap[K, V]) replaceValues(key K, values IterableOf[V])
 
 func (this *SimpleListMultimap[K, V]) get(key K) ListOf[V] {
 	var values ListOf[V] = this.map__.get(key)
-	return func() List { if (values == nil) { return ImmutableList_as_List(ImmutableList_of()) }; return Collections_unmodifiableList(values) }()
+	return func() List {
+		if values == nil {
+			return ImmutableList_as_List(ImmutableList_of())
+		}
+		return Collections_unmodifiableList(values)
+	}()
 }
 
 func (this *SimpleListMultimap[K, V]) containsKey(key K) bool {
@@ -87,7 +92,7 @@ func (this *SimpleListMultimap[K, V]) containsKey(key K) bool {
 func (this *SimpleListMultimap[K, V]) remove(key K, value V) bool {
 	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
 	var values ListOf[V] = this.map__.get(key)
-	if ((values == nil) || !values.remove_Object(boxT_(value))) {
+	if (values == nil) || !values.remove_Object(boxT_(value)) {
 		return false
 	}
 	if values.isEmpty() {
@@ -99,7 +104,12 @@ func (this *SimpleListMultimap[K, V]) remove(key K, value V) bool {
 func (this *SimpleListMultimap[K, V]) removeAll(key K) ListOf[V] {
 	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
 	var values ListOf[V] = this.map__.remove(key)
-	return func() List { if (values == nil) { return ImmutableList_as_List(ImmutableList_of()) }; return Collections_unmodifiableList(values) }()
+	return func() List {
+		if values == nil {
+			return ImmutableList_as_List(ImmutableList_of())
+		}
+		return Collections_unmodifiableList(values)
+	}()
 }
 
 func (this *SimpleListMultimap[K, V]) keySet() SetOf[K] {
@@ -182,4 +192,3 @@ func (this *SimpleListMultimap_1[K, V]) iterator() IteratorOf[V] {
 func (this *SimpleListMultimap_1[K, V]) size() int32 {
 	return this.outer_.size()
 }
-

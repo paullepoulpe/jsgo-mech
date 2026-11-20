@@ -3,13 +3,13 @@
 package closure
 
 type ColorRegistry struct {
-	nativeColors *TMap[*ColorId, *Color]
+	nativeColors                        *JTMap[*ColorId, *Color]
 	colorToDisambiguationSupertypeGraph *SimpleSetMultimap[*Color, *Color]
-	mismatchLocations *SimpleSetMultimap[*ColorId, string]
+	mismatchLocations                   *SimpleSetMultimap[*ColorId, string]
 }
 
 func (this *ColorRegistry) init_ColorRegistry(builder *ColorRegistry_Builder) {
-	this.nativeColors = immutableMapCopyOfT_(tce_p_ColorId, tc_p_Color, builder.nativeColors)
+	this.nativeColors = immutableMapCopyOfT_(tce_p_ColorId, jtc_p_Color, builder.nativeColors)
 	this.colorToDisambiguationSupertypeGraph = builder.colorToDisambiguationSupertypeGraph.immutableCopy()
 	this.mismatchLocations = builder.mismatchLocations.immutableCopy()
 	Preconditions_checkState(equalsR_(cast_[*ImmutableSet](this.nativeColors.asImm().keySet()), ColorRegistry_REQUIRED_IDS.asSet()))
@@ -38,7 +38,7 @@ func ColorRegistry_builder() *ColorRegistry_Builder {
 	return new_ColorRegistry_Builder()
 }
 
-var ColorRegistry_REQUIRED_IDS *TSet[*ColorId]
+var ColorRegistry_REQUIRED_IDS *JTSet[*ColorId]
 
 var ColorRegistry_clinit_done bool
 
@@ -52,13 +52,13 @@ func ColorRegistry_clinit() {
 }
 
 type ColorRegistry_Builder struct {
-	nativeColors *TMap[*ColorId, *Color]
+	nativeColors                        *JTMap[*ColorId, *Color]
 	colorToDisambiguationSupertypeGraph *SimpleSetMultimap[*Color, *Color]
-	mismatchLocations *SimpleSetMultimap[*ColorId, string]
+	mismatchLocations                   *SimpleSetMultimap[*ColorId, string]
 }
 
 func (this *ColorRegistry_Builder) finit_ColorRegistry_Builder() {
-	this.nativeColors = newTMap_(tce_p_ColorId, tc_p_Color)
+	this.nativeColors = jnewTMap_(tce_p_ColorId, jtc_p_Color)
 	this.colorToDisambiguationSupertypeGraph = SimpleSetMultimap_create[*Color, *Color]()
 	this.mismatchLocations = SimpleSetMultimap_create[*ColorId, string]()
 }
@@ -101,4 +101,3 @@ func (this *ColorRegistry_Builder) setDefaultNativeColorsForTesting() *ColorRegi
 func (this *ColorRegistry_Builder) build() *ColorRegistry {
 	return new_ColorRegistry(this)
 }
-

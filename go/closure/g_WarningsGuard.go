@@ -119,4 +119,3 @@ func WarningsGuard_Priority_clinit() {
 	registerEnum_("com.google.javascript.jscomp.WarningsGuard.Priority", enumValues_(WarningsGuard_Priority_values_))
 
 }
-

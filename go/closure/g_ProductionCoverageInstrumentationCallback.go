@@ -4,9 +4,9 @@ package closure
 
 type ProductionCoverageInstrumentationCallback struct {
 	instrumentationArrayName string
-	compiler_ *AbstractCompiler
-	parameterMapping *ProductionCoverageInstrumentationCallback_ParameterMapping
-	functionNameStack *TDeque[string]
+	compiler_                *AbstractCompiler
+	parameterMapping         *ProductionCoverageInstrumentationCallback_ParameterMapping
+	functionNameStack        *TDeque[string]
 }
 
 func (this *ProductionCoverageInstrumentationCallback) zero_ProductionCoverageInstrumentationCallback() {
@@ -14,7 +14,7 @@ func (this *ProductionCoverageInstrumentationCallback) zero_ProductionCoverageIn
 }
 
 func (this *ProductionCoverageInstrumentationCallback) finit_ProductionCoverageInstrumentationCallback() {
-	this.functionNameStack = newTDeque_(tc_string)
+	this.functionNameStack = newTDeque_(jtc_string)
 }
 
 func (this *ProductionCoverageInstrumentationCallback) init_ProductionCoverageInstrumentationCallback(compiler *AbstractCompiler, instrumentationArrayName string) {
@@ -32,12 +32,17 @@ func new_ProductionCoverageInstrumentationCallback(compiler *AbstractCompiler, i
 }
 
 func (this *ProductionCoverageInstrumentationCallback) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	if (!n.isRoot() && !(t.getSourceName().orElse("") == n.getSourceFileName())) {
+	if !n.isRoot() && !(t.getSourceName().orElse("") == n.getSourceFileName()) {
 		return false
 	}
 	if n.isFunction() {
 		var fnName Optional[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
-		fnName = func() Optional[string] { if fnName.isEmpty() { return Optional_of[string](ProductionCoverageInstrumentationCallback_ANONYMOUS_FUNCTION_NAME) }; return fnName }()
+		fnName = func() Optional[string] {
+			if fnName.isEmpty() {
+				return Optional_of[string](ProductionCoverageInstrumentationCallback_ANONYMOUS_FUNCTION_NAME)
+			}
+			return fnName
+		}()
 		this.functionNameStack.push(fnName.orElse(nullstr_))
 	}
 	if this.functionNameStack.isEmpty() {
@@ -57,11 +62,11 @@ func (this *ProductionCoverageInstrumentationCallback) visit(traversal *NodeTrav
 	case Token_rhino_IF:
 		var ifTrueNode Node = node.getSecondChild()
 		this.instrumentBlockNode(ifTrueNode, sourceFileName, functionName, ProductionCoverageInstrumentationCallback_Type_BRANCH)
-		if (node.getChildCount() == 2) {
+		if node.getChildCount() == 2 {
 			this.addElseBlock(node)
 		}
 		var ifFalseNode Node = node.getLastChild()
-		if (NodeUtil_isEmptyBlock(ifFalseNode) || (ifFalseNode.hasChildren() && !ifFalseNode.getFirstChild().isIf())) {
+		if NodeUtil_isEmptyBlock(ifFalseNode) || (ifFalseNode.hasChildren() && !ifFalseNode.getFirstChild().isIf()) {
 			this.instrumentBlockNode(ifFalseNode, sourceFileName, functionName, ProductionCoverageInstrumentationCallback_Type_BRANCH_DEFAULT)
 		}
 	case Token_rhino_SWITCH:
@@ -69,7 +74,7 @@ func (this *ProductionCoverageInstrumentationCallback) visit(traversal *NodeTrav
 		var switchBody Node = node.getSecondChild()
 		{
 			var c Node = switchBody.getFirstChild()
-			for ; (c != 0); c = c.getNext() {
+			for ; c != 0; c = c.getNext() {
 				if c.isDefaultCase() {
 					this.instrumentBlockNode(c.getLastChild(), sourceFileName, functionName, ProductionCoverageInstrumentationCallback_Type_BRANCH_DEFAULT)
 					hasDefaultCase = true
@@ -199,19 +204,19 @@ func ProductionCoverageInstrumentationCallback_Type_clinit() {
 }
 
 type ProductionCoverageInstrumentationCallback_ParameterMapping struct {
-	paramValueEncodings *TMap[string, string]
-	fileNameToIndex *TMap[string, any]
-	functionNameToIndex *TMap[string, any]
-	typeToIndex *TMap[string, any]
+	paramValueEncodings  *JTMap[string, string]
+	fileNameToIndex      *JTMap[string, any]
+	functionNameToIndex  *JTMap[string, any]
+	typeToIndex          *JTMap[string, any]
 	nextUniqueIdentifier int64
 }
 
 func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) init_ProductionCoverageInstrumentationCallback_ParameterMapping() {
 	this.nextUniqueIdentifier = 0
-	this.paramValueEncodings = newTMap_(tc_string, tc_string)
-	this.fileNameToIndex = newTMap_(tc_string, tc_Integer)
-	this.functionNameToIndex = newTMap_(tc_string, tc_Integer)
-	this.typeToIndex = newTMap_(tc_string, tc_Integer)
+	this.paramValueEncodings = jnewTMap_(jtc_string, jtc_string)
+	this.fileNameToIndex = jnewTMap_(jtc_string, tc_Integer)
+	this.functionNameToIndex = jnewTMap_(jtc_string, tc_Integer)
+	this.typeToIndex = jnewTMap_(jtc_string, tc_Integer)
 }
 
 func new_ProductionCoverageInstrumentationCallback_ParameterMapping() *ProductionCoverageInstrumentationCallback_ParameterMapping {
@@ -247,7 +252,7 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncod
 	var encodedParam string = tostrR_(sb)
 	if !this.paramValueEncodings.containsKey(encodedParam) {
 		var uniqueIdentifier int64 = this.generateUniqueIdentifier()
-		if (uniqueIdentifier > int64(int32(2147483647))) {
+		if uniqueIdentifier > int64(int32(2147483647)) {
 			panic(new_ArithmeticException_String("Unique Identifier exceeds value of Integer.MAX_VALUE, could not encode with Base 64 VLQ").self())
 		}
 		sb = new_StringBuilder()
@@ -281,7 +286,7 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getParam
 	this.paramValueEncodings.put(ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(this.functionNameToIndex.asMap().keySet()), " FunctionNames")
 	this.paramValueEncodings.put(ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(this.typeToIndex.asMap().keySet()), " Types")
 	var preInversedMap *VariableMap = new_VariableMap(this.paramValueEncodings)
-	var inversedMap *TMap[string, string] = preInversedMap.getNewNameToOriginalNameMap()
+	var inversedMap *JTMap[string, string] = preInversedMap.getNewNameToOriginalNameMap()
 	return new_VariableMap(inversedMap)
 }
 
@@ -298,4 +303,3 @@ func ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(stri
 	writer.endArray()
 	return writer.toString()
 }
-

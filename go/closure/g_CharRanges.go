@@ -17,7 +17,7 @@ func new_CharRanges(ranges []int32) *CharRanges {
 }
 
 func CharRanges_inclusive(start int32, end int32) *CharRanges {
-	if (start > end) {
+	if start > end {
 		panic(new_IndexOutOfBoundsException_String((istr_(int64(start)) + " > " + istr_(int64(end)))).self())
 	}
 	return new_CharRanges([]int32{start, (end + 1)})
@@ -28,12 +28,12 @@ func CharRanges_withMembers(members []int32) *CharRanges {
 }
 
 func CharRanges_withRanges(ranges []int32) *CharRanges {
-	if ((int32(len(ranges)) & 1) != 0) {
+	if (int32(len(ranges)) & 1) != 0 {
 		panic(new_IllegalArgumentException_0().self())
 	}
-	for i := int32(1); (i < int32(len(ranges))); i++ {
-		if (ranges[i] <= ranges[(i - 1)]) {
-			panic(new_IllegalArgumentException_String((istr_(int64(ranges[i])) + " > " + istr_(int64(ranges[(i - 1)])))).self())
+	for i := int32(1); i < int32(len(ranges)); i++ {
+		if ranges[i] <= ranges[(i-1)] {
+			panic(new_IllegalArgumentException_String((istr_(int64(ranges[i])) + " > " + istr_(int64(ranges[(i-1)])))).self())
 		}
 	}
 	return new_CharRanges(ranges)
@@ -41,31 +41,31 @@ func CharRanges_withRanges(ranges []int32) *CharRanges {
 
 func CharRanges_intArrayToRanges(members []int32) []int32 {
 	var nMembers int32 = int32(len(members))
-	if (nMembers == 0) {
+	if nMembers == 0 {
 		return make([]int32, 0)
 	}
 	Arrays_sort_intArr(members)
 	var nRuns int32 = 1
-	for i := int32(1); (i < nMembers); i++ {
+	for i := int32(1); i < nMembers; i++ {
 		var current int32 = members[i]
 		var last int32 = members[(i - 1)]
-		if (current == last) {
+		if current == last {
 			continue
 		}
-		if (current != (last + 1)) {
+		if current != (last + 1) {
 			nRuns++
 		}
 	}
 	var ranges []int32 = make([]int32, (nRuns * 2))
 	ranges[0] = members[0]
 	var k int32 = 0
-	for i := int32(1); ((k + 2) < int32(len(ranges))); i++ {
+	for i := int32(1); (k + 2) < int32(len(ranges)); i++ {
 		var current int32 = members[i]
 		var last int32 = members[(i - 1)]
-		if (current == last) {
+		if current == last {
 			continue
 		}
-		if (current != (last + 1)) {
+		if current != (last + 1) {
 			k++
 			ranges[k] = (last + 1)
 			k++
@@ -73,7 +73,7 @@ func CharRanges_intArrayToRanges(members []int32) []int32 {
 		}
 	}
 	k++
-	ranges[k] = (members[(nMembers - 1)] + 1)
+	ranges[k] = (members[(nMembers-1)] + 1)
 	return ranges
 }
 
@@ -102,28 +102,28 @@ func (this *CharRanges) union(other *CharRanges) *CharRanges {
 	var r []int32 = other.ranges_
 	var m int32 = int32(len(q))
 	var n int32 = int32(len(r))
-	if (m == 0) {
+	if m == 0 {
 		return other
 	}
-	if (n == 0) {
+	if n == 0 {
 		return this
 	}
 	var out []int32 = make([]int32, (m + n))
 	var i int32 = 0
 	var j int32 = 0
 	var k int32 = 0
-	for ((i < m) && (j < n)) {
+	for (i < m) && (j < n) {
 		var a0 int32 = q[i]
 		var a1 int32 = q[(i + 1)]
 		var b0 int32 = r[j]
 		var b1 int32 = r[(j + 1)]
-		if (a1 < b0) {
+		if a1 < b0 {
 			out[k] = a0
 			k++
 			out[k] = a1
 			k++
 			i += 2
-		} else if (b1 < a0) {
+		} else if b1 < a0 {
 			out[k] = b0
 			k++
 			out[k] = b1
@@ -134,12 +134,12 @@ func (this *CharRanges) union(other *CharRanges) *CharRanges {
 			var end int32 = Math_max(a1, b1)
 			i += 2
 			j += 2
-			for ((i < m) || (j < n)) {
-				if ((i < m) && (q[i] <= end)) {
-					end = Math_max(end, q[(i + 1)])
+			for (i < m) || (j < n) {
+				if (i < m) && (q[i] <= end) {
+					end = Math_max(end, q[(i+1)])
 					i += 2
-				} else if ((j < n) && (r[j] <= end)) {
-					end = Math_max(end, r[(j + 1)])
+				} else if (j < n) && (r[j] <= end) {
+					end = Math_max(end, r[(j+1)])
 					j += 2
 				} else {
 					break
@@ -151,14 +151,14 @@ func (this *CharRanges) union(other *CharRanges) *CharRanges {
 			k++
 		}
 	}
-	if (i < m) {
+	if i < m {
 		System_arraycopy(q, i, out, k, (m - i))
 		k += (m - i)
-	} else if (j < n) {
+	} else if j < n {
 		System_arraycopy(r, j, out, k, (n - j))
 		k += (n - j)
 	}
-	if (k != int32(len(out))) {
+	if k != int32(len(out)) {
 		var clipped []int32 = Arrays_copyOf(out, k)
 		out = clipped
 	}
@@ -170,10 +170,10 @@ func (this *CharRanges) intersection(other *CharRanges) *CharRanges {
 	var bRanges []int32 = other.ranges_
 	var aLen int32 = int32(len(aRanges))
 	var bLen int32 = int32(len(bRanges))
-	if (aLen == 0) {
+	if aLen == 0 {
 		return this
 	}
-	if (bLen == 0) {
+	if bLen == 0 {
 		return other
 	}
 	var aIdx int32 = 0
@@ -181,21 +181,21 @@ func (this *CharRanges) intersection(other *CharRanges) *CharRanges {
 	var intersection []int32 = make([]int32, Math_min(aLen, bLen))
 	var intersectionIdx int32 = 0
 	var pos int32 = Math_min(aRanges[0], bRanges[0])
-	for ((aIdx < aLen) && (bIdx < bLen)) {
-		if (aRanges[(aIdx + 1)] <= pos) {
+	for (aIdx < aLen) && (bIdx < bLen) {
+		if aRanges[(aIdx+1)] <= pos {
 			aIdx += 2
-		} else if (bRanges[(bIdx + 1)] <= pos) {
+		} else if bRanges[(bIdx+1)] <= pos {
 			bIdx += 2
 		} else {
 			var start int32 = Math_max(aRanges[aIdx], bRanges[bIdx])
-			if (pos < start) {
+			if pos < start {
 				pos = start
 			} else {
-				var end int32 = Math_min(aRanges[(aIdx + 1)], bRanges[(bIdx + 1)])
-				if ((intersectionIdx != 0) && (pos == intersection[(intersectionIdx - 1)])) {
+				var end int32 = Math_min(aRanges[(aIdx+1)], bRanges[(bIdx+1)])
+				if (intersectionIdx != 0) && (pos == intersection[(intersectionIdx-1)]) {
 					intersection[(intersectionIdx - 1)] = end
 				} else {
-					if (intersectionIdx == int32(len(intersection))) {
+					if intersectionIdx == int32(len(intersection)) {
 						var newArr []int32 = make([]int32, (intersectionIdx * 2))
 						System_arraycopy(intersection, 0, newArr, 0, intersectionIdx)
 						intersection = newArr
@@ -209,7 +209,7 @@ func (this *CharRanges) intersection(other *CharRanges) *CharRanges {
 			}
 		}
 	}
-	if (intersectionIdx != int32(len(intersection))) {
+	if intersectionIdx != int32(len(intersection)) {
 		var newArr []int32 = Arrays_copyOf(intersection, intersectionIdx)
 		intersection = newArr
 	}
@@ -221,7 +221,7 @@ func (this *CharRanges) difference(subtrahendRanges *CharRanges) *CharRanges {
 	var subtrahend []int32 = subtrahendRanges.ranges_
 	var mn int32 = int32(len(minuend))
 	var sn int32 = int32(len(subtrahend))
-	if ((mn == 0) || (sn == 0)) {
+	if (mn == 0) || (sn == 0) {
 		return this
 	}
 	var difference []int32 = make([]int32, int32(len(minuend)))
@@ -229,20 +229,25 @@ func (this *CharRanges) difference(subtrahendRanges *CharRanges) *CharRanges {
 	var sIdx int32 = 0
 	var dIdx int32 = 0
 	var pos int32 = minuend[0]
-	for (mIdx < mn) {
-		if (pos >= minuend[(mIdx + 1)]) {
+	for mIdx < mn {
+		if pos >= minuend[(mIdx+1)] {
 			mIdx += 2
-		} else if (pos < minuend[mIdx]) {
+		} else if pos < minuend[mIdx] {
 			pos = minuend[mIdx]
-		} else if ((sIdx < sn) && (pos >= subtrahend[sIdx])) {
+		} else if (sIdx < sn) && (pos >= subtrahend[sIdx]) {
 			pos = subtrahend[(sIdx + 1)]
 			sIdx += 2
 		} else {
-			var end int32 = func() int32 { if (sIdx < sn) { return Math_min(minuend[(mIdx + 1)], subtrahend[sIdx]) }; return minuend[(mIdx + 1)] }()
-			if ((dIdx != 0) && (difference[(dIdx - 1)] == pos)) {
+			var end int32 = func() int32 {
+				if sIdx < sn {
+					return Math_min(minuend[(mIdx+1)], subtrahend[sIdx])
+				}
+				return minuend[(mIdx + 1)]
+			}()
+			if (dIdx != 0) && (difference[(dIdx-1)] == pos) {
 				difference[(dIdx - 1)] = pos
 			} else {
-				if (dIdx == int32(len(difference))) {
+				if dIdx == int32(len(difference)) {
 					var newArr []int32 = make([]int32, (dIdx * 2))
 					System_arraycopy(difference, 0, newArr, 0, dIdx)
 					difference = newArr
@@ -255,7 +260,7 @@ func (this *CharRanges) difference(subtrahendRanges *CharRanges) *CharRanges {
 			pos = end
 		}
 	}
-	if (dIdx != int32(len(difference))) {
+	if dIdx != int32(len(difference)) {
 		var newArr []int32 = Arrays_copyOf(difference, dIdx)
 		difference = newArr
 	}
@@ -269,15 +274,15 @@ func (this *CharRanges) containsAll(sub *CharRanges) bool {
 	var subIdx int32 = 0
 	var superLen int32 = int32(len(superRanges))
 	var subLen int32 = int32(len(subRanges))
-	for (subIdx < subLen) {
-		if (superIdx == superLen) {
+	for subIdx < subLen {
+		if superIdx == superLen {
 			return false
 		}
-		if (superRanges[(superIdx + 1)] <= subRanges[subIdx]) {
+		if superRanges[(superIdx+1)] <= subRanges[subIdx] {
 			superIdx += 2
-		} else if (superRanges[superIdx] > subRanges[subIdx]) {
+		} else if superRanges[superIdx] > subRanges[subIdx] {
 			return false
-		} else if (superRanges[(superIdx + 1)] >= subRanges[(subIdx + 1)]) {
+		} else if superRanges[(superIdx+1)] >= subRanges[(subIdx+1)] {
 			subIdx += 2
 		} else {
 			return false
@@ -288,22 +293,22 @@ func (this *CharRanges) containsAll(sub *CharRanges) bool {
 
 func (this *CharRanges) shift(delta int32) *CharRanges {
 	var n int32 = int32(len(this.ranges_))
-	if ((delta == 0) || (n == 0)) {
+	if (delta == 0) || (n == 0) {
 		return this
 	}
-	if (delta < 0) {
+	if delta < 0 {
 		var lmin int64 = int64((this.ranges_[0] + delta))
-		if (lmin < int64(int32(-2147483648))) {
+		if lmin < int64(int32(-2147483648)) {
 			panic(new_IndexOutOfBoundsException_0().self())
 		}
 	} else {
-		var lmax int64 = int64((this.ranges_[(n - 1)] + delta))
-		if (lmax > int64(int32(2147483647))) {
+		var lmax int64 = int64((this.ranges_[(n-1)] + delta))
+		if lmax > int64(int32(2147483647)) {
 			panic(new_IndexOutOfBoundsException_0().self())
 		}
 	}
 	var shiftedRanges []int32 = make([]int32, n)
-	for i := int32((n - 1)); (i >= 0); i-- {
+	for i := int32((n - 1)); i >= 0; i-- {
 		shiftedRanges[i] = (this.ranges_[i] + delta)
 	}
 	return new_CharRanges(shiftedRanges)
@@ -312,12 +317,17 @@ func (this *CharRanges) shift(delta int32) *CharRanges {
 func (this *CharRanges) toString() string {
 	var sb *StringBuilder = new_StringBuilder()
 	sb.append_char('[')
-	for i := int32(0); (i < int32(len(this.ranges_))); i++ {
-		if (((i & 1) != 0) && (this.ranges_[i] == (this.ranges_[(i - 1)] + 1))) {
+	for i := int32(0); i < int32(len(this.ranges_)); i++ {
+		if ((i & 1) != 0) && (this.ranges_[i] == (this.ranges_[(i-1)] + 1)) {
 			continue
 		}
-		if (i != 0) {
-			sb.append_char(func() uint16 { if ((i & 1) == 0) { return ' ' }; return '-' }())
+		if i != 0 {
+			sb.append_char(func() uint16 {
+				if (i & 1) == 0 {
+					return ' '
+				}
+				return '-'
+			}())
 		}
 		sb.append("0x").append(Integer_toString_int_int((this.ranges_[i] - (i & 1)), 16))
 	}
@@ -328,7 +338,14 @@ func (this *CharRanges) toString() string {
 func (this *CharRanges) equals(o any) bool {
 	var charRanges *CharRanges
 	_ = charRanges
-	if !(func() bool { v_ := o; if !is_[*CharRanges](v_) { return false }; charRanges = cast_[*CharRanges](v_); return true }()) {
+	if !(func() bool {
+		v_ := o
+		if !is_[*CharRanges](v_) {
+			return false
+		}
+		charRanges = cast_[*CharRanges](v_)
+		return true
+	}()) {
 		return false
 	}
 	return Arrays_equals(this.ranges_, charRanges.ranges_)
@@ -339,7 +356,7 @@ func (this *CharRanges) hashCode() int32 {
 	{
 		var i int32 = 0
 		var n int32 = Math_min(16, int32(len(this.ranges_)))
-		for ; (i < n); i++ {
+		for ; i < n; i++ {
 			hc = ((hc << 2) + this.ranges_[i])
 		}
 	}
@@ -360,4 +377,3 @@ func CharRanges_clinit() {
 	CharRanges_ALL_CODE_UNITS = new_CharRanges([]int32{0, 65536})
 
 }
-

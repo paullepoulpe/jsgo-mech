@@ -4,8 +4,8 @@ package closure
 
 type OptionalMemberExpressionTree struct {
 	ParseTree
-	operand *ParseTree
-	memberName *IdentifierToken
+	operand                *ParseTree
+	memberName             *IdentifierToken
 	isStartOfOptionalChain bool
 }
 
@@ -29,4 +29,3 @@ func new_OptionalMemberExpressionTree(location *SourceRange, operand *ParseTree,
 	this.init_OptionalMemberExpressionTree(location, operand, memberName, isStartOfOptionalChain)
 	return this
 }
-

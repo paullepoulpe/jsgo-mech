@@ -3,9 +3,9 @@
 package closure
 
 type ProductionInstrumentationReporter struct {
-	instrumentationMappingLocation string
+	instrumentationMappingLocation  string
 	instrumentationReportsDirectory string
-	finalResultOutput string
+	finalResultOutput               string
 }
 
 func (this *ProductionInstrumentationReporter) zero_ProductionInstrumentationReporter() {
@@ -66,8 +66,8 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 		return Outcome_base_err[Map](parsed.error())
 	}
 	var document *SimpleJsonValue = parsed.get()
-	var map_ *TMap[string, any] = newTMap_(tc_string, tc_Long)
-	if (document.kind() == SimpleJsonValue_Kind_OBJECT) {
+	var map_ *JTMap[string, any] = jnewTMap_(jtc_string, tc_Long)
+	if document.kind() == SimpleJsonValue_Kind_OBJECT {
 		it_1 := document.members().eachEntry()
 		for it_1.next() {
 			var member *TEntry[string, *SimpleJsonValue] = it_1.entry()
@@ -78,13 +78,13 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 			map_.put(member.getKey(), value.get())
 		}
 		return Outcome_base_ok_Object[Map](map_.asMap())
-	} else if (document.kind() != SimpleJsonValue_Kind_ARRAY) {
+	} else if document.kind() != SimpleJsonValue_Kind_ARRAY {
 		return Outcome_base_err[Map](new_SimpleJsonException("Malformed report: expected a JSON object").up_Throwable())
 	}
 	it_3 := document.elements().each()
 	for it_3.next() {
 		var pair *SimpleJsonValue = it_3.v
-		if ((pair.kind() != SimpleJsonValue_Kind_ARRAY) || (pair.elements().size() != 2)) {
+		if (pair.kind() != SimpleJsonValue_Kind_ARRAY) || (pair.elements().size() != 2) {
 			return Outcome_base_err[Map](new_SimpleJsonException("Malformed report: expected a [name, value]").up_Throwable())
 		}
 		var key *Outcome_base[string] = pair.elements().get(0).asString()
@@ -96,7 +96,7 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 			return Outcome_base_err[Map](value.error())
 		}
 		var replaced any = map_.put(key.get(), value.get())
-		if (replaced != nil) {
+		if replaced != nil {
 			return Outcome_base_err[Map](new_SimpleJsonException(("duplicate key: " + sstr_(key.get()))).up_Throwable())
 		}
 	}
@@ -104,12 +104,17 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 }
 
 func ProductionInstrumentationReporter_readJsonLong(value *SimpleJsonValue) *Outcome_base[any] {
-	if (value.kind() == SimpleJsonValue_Kind_NULL) {
+	if value.kind() == SimpleJsonValue_Kind_NULL {
 		return Outcome_base_ok_Object[any](nil)
 	}
 	var text *Outcome_base[string] = value.asString()
-	var result any = func() any { if text.isErr() { return nil }; return Longs_tryParse(text.get()) }()
-	if (result == nil) {
+	var result any = func() any {
+		if text.isErr() {
+			return nil
+		}
+		return Longs_tryParse(text.get())
+	}()
+	if result == nil {
 		return Outcome_base_err[any](new_SimpleJsonException("Malformed report: expected an integer").up_Throwable())
 	}
 	return Outcome_base_ok_Object[any](result)
@@ -130,7 +135,7 @@ func (this *ProductionInstrumentationReporter) doMain(args []string) *Outcome_ba
 	if listOfExecutionResults.isErr() {
 		return Outcome_base_err[any](listOfExecutionResults.error())
 	}
-	return this.createFile(this.finalResultOutput, ProfilingReport_createTabSeparatedProfilingReport(mapping.get(), tlistImm_(tc_Map, listOfExecutionResults.get())))
+	return this.createFile(this.finalResultOutput, ProfilingReport_createTabSeparatedProfilingReport(mapping.get(), jtlistImm_(tc_Map, listOfExecutionResults.get())))
 }
 
 func (this *ProductionInstrumentationReporter) parseCmdLineArguments(args []string) {
@@ -158,4 +163,3 @@ func (this *ProductionInstrumentationReporter) parseCmdLineArguments(args []stri
 		return
 	}
 }
-

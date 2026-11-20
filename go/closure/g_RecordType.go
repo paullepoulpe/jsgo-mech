@@ -42,7 +42,7 @@ func (this *RecordType) init_RecordType(registry *JSTypeRegistry, properties Map
 	for it_1.next() {
 		var property string = str_(it_1.v)
 		var prop *RecordTypeBuilder_RecordProperty = cast_[*RecordTypeBuilder_RecordProperty](Map_get_s(properties, property))
-		if (prop == nil) {
+		if prop == nil {
 			panic(new_IllegalStateException_String("RecordProperty associated with a property should not be null!").self())
 		}
 		if declared {
@@ -124,7 +124,7 @@ func (this *RecordType) getGreatestSubtypeHelper(that *JSType) *JSType {
 			for it_7.next() {
 				var alt *ObjectType = to_ObjectType(it_7.v)
 				var altPropType *JSType = alt.getPropertyType(propName)
-				if ((((altPropType != nil) && !alt.equals(obj_(this))) && alt.isSubtypeOf(that)) && altPropType.isSubtypeOf(propType)) {
+				if (((altPropType != nil) && !alt.equals(obj_(this))) && alt.isSubtypeOf(that)) && altPropType.isSubtypeOf(propType) {
 					builder.addAlternate(alt.up_JSType())
 				}
 			}
@@ -154,4 +154,3 @@ func RecordType_clinit() {
 	RecordType_TYPE_CLASS_FIELD = JSTypeClass_RECORD
 
 }
-

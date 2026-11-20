@@ -9,4 +9,3 @@ type StaticTypedSlot interface {
 	getDeclaration_rStaticTypedRef() StaticTypedRef
 	getScope_rStaticTypedScope() StaticTypedScope
 }
-

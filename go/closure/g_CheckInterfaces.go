@@ -45,11 +45,11 @@ func (this *CheckInterfaces) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	case Token_rhino_CLASS:
 		var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
 		if CheckInterfaces_isInterface(jsdoc) {
-			if ((n.getSecondChild() != 0) && n.getSecondChild().isName()) {
+			if (n.getSecondChild() != 0) && n.getSecondChild().isName() {
 				t.report(n, CheckInterfaces_INTERFACE_DEFINED_WITH_EXTENDS, []string{})
 			}
 			var ctorDef Node = NodeUtil_getEs6ClassConstructorMemberFunctionDef(n)
-			if (ctorDef != 0) {
+			if ctorDef != 0 {
 				var ctor Node = ctorDef.getFirstChild()
 				CheckInterfaces_checkInterfaceConstructorArgs(t, ctor)
 				CheckInterfaces_checkConstructorBlock(t, ctor)
@@ -73,7 +73,7 @@ func CheckInterfaces_checkClassMethods(t *NodeTraversal, classNode Node, ctorDef
 	Preconditions_checkState_boolean_Object_H(classMembers.isClassMembers(), classMembers)
 	{
 		var memberFuncDef Node = classMembers.getFirstChild()
-		for ; (memberFuncDef != 0); memberFuncDef = memberFuncDef.getNext() {
+		for ; memberFuncDef != 0; memberFuncDef = memberFuncDef.getNext() {
 			if equalsRRH_(memberFuncDef, ctorDef) {
 				continue
 			}
@@ -103,11 +103,11 @@ func CheckInterfaces_checkConstructorBlock(t *NodeTraversal, funcNode Node) {
 	}
 	{
 		var stmt Node = block.getFirstChild()
-		for ; (stmt != 0); stmt = stmt.getNext() {
+		for ; stmt != 0; stmt = stmt.getNext() {
 			if !CheckInterfaces_isThisPropAccess(stmt) {
 				t.report(stmt, CheckInterfaces_NON_DECLARATION_STATEMENT_IN_INTERFACE, []string{})
 				break
-			} else if (stmt.getFirstChild().getJSDocInfo() == nil) {
+			} else if stmt.getFirstChild().getJSDocInfo() == nil {
 				t.report(stmt, CheckInterfaces_MISSING_JSDOC_IN_DECLARATION_STATEMENT, []string{})
 				break
 			}
@@ -120,6 +120,7 @@ func CheckInterfaces_isThisPropAccess(stmt Node) bool {
 }
 
 const CheckInterfaces_ANONYMOUS_CLASSNAME string = "<anonymous>"
+
 var CheckInterfaces_NON_DECLARATION_STATEMENT_IN_INTERFACE *DiagnosticType
 var CheckInterfaces_MISSING_JSDOC_IN_DECLARATION_STATEMENT *DiagnosticType
 var CheckInterfaces_INTERFACE_CLASS_NONSTATIC_METHOD_NOT_EMPTY *DiagnosticType
@@ -142,4 +143,3 @@ func CheckInterfaces_clinit() {
 	CheckInterfaces_INTERFACE_DEFINED_WITH_EXTENDS = DiagnosticType_disabled("JSC_INTERFACE_DEFINED_WITH_EXTENDS", "Interface/Record class should use the `@extends` annotation instead of extends keyword.")
 
 }
-

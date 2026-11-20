@@ -6,11 +6,11 @@ type VariableMap struct {
 	map__ *SimpleBiMap[string, string]
 }
 
-func (this *VariableMap) init_VariableMap(map_ *TMap[string, string]) {
+func (this *VariableMap) init_VariableMap(map_ *JTMap[string, string]) {
 	this.map__ = SimpleBiMap_copyOf[string, string](map_.asMap())
 }
 
-func new_VariableMap(map_ *TMap[string, string]) *VariableMap {
+func new_VariableMap(map_ *JTMap[string, string]) *VariableMap {
 	this := &VariableMap{}
 	this.init_VariableMap(map_)
 	return this
@@ -28,8 +28,8 @@ func (this *VariableMap) getOriginalNameToNewNameMap() ImmutableMapOf[string, st
 	return ImmutableSortedMap_copyOf(this.map__.asMap()).up_ImmutableMap()
 }
 
-func (this *VariableMap) getNewNameToOriginalNameMap() *TMap[string, string] {
-	return immutableMapCopyOf_(tc_string, tc_string, this.map__.inverse())
+func (this *VariableMap) getNewNameToOriginalNameMap() *JTMap[string, string] {
+	return jimmutableMapCopyOf_(jtc_string, jtc_string, this.map__.inverse())
 }
 
 func (this *VariableMap) save(filename string) *Outcome_base[any] {
@@ -50,7 +50,13 @@ func VariableMap_load(filename string) *Outcome_base[*VariableMap] {
 
 func (this *VariableMap) toBytes() []int8 {
 	var writer *StringBuilder = new_StringBuilder()
-	it_1 := foreach_(obj_(ImmutableSortedSet_copyOf_Comparator_Collection(func() Comparator[any] { f_ := Map_Entry_comparingByKey(); if f_ == nil { return nil }; return func(p0 any, p1 any) int32 { return f_(icast_Map_Entry(p0), icast_Map_Entry(p1)) } }(), Collection(this.map__.asMap().entrySet()))))
+	it_1 := foreach_(obj_(ImmutableSortedSet_copyOf_Comparator_Collection(func() Comparator[any] {
+		f_ := Map_Entry_comparingByKey()
+		if f_ == nil {
+			return nil
+		}
+		return func(p0 any, p1 any) int32 { return f_(icast_Map_Entry(p0), icast_Map_Entry(p1)) }
+	}(), Collection(this.map__.asMap().entrySet()))))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		writer.append(VariableMap_escape(str_(entry.getKey())))
@@ -66,7 +72,7 @@ func VariableMap_fromBytes(bytes []int8) *Outcome_base[*VariableMap] {
 }
 
 func VariableMap_fromStreamBytes(bytes []int8) *Outcome_base[*VariableMap] {
-	var map_ *TMapBuilder[string, string] = newTMapBuilder_(tc_string, tc_string)
+	var map_ *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
 	it_1 := TextFiles_splitLines(Io_utf8String(bytes)).each()
 	for it_1.next() {
 		var line string = it_1.v
@@ -74,24 +80,29 @@ func VariableMap_fromStreamBytes(bytes []int8) *Outcome_base[*VariableMap] {
 			continue
 		}
 		var pos int32 = VariableMap_findIndexOfUnescapedChar(line, VariableMap_SEPARATOR)
-		if (pos <= 0) {
+		if pos <= 0 {
 			return Outcome_base_err[*VariableMap](new_ParseException(("Bad line: " + sstr_(line)), 0).up_Throwable())
 		}
-		map_.put(VariableMap_unescape(String_substring(line, 0, pos)), func() string { if (pos == (String_length(line) - 1)) { return "" }; return VariableMap_unescape(String_substring_int(line, (pos + 1))) }())
+		map_.put(VariableMap_unescape(String_substring(line, 0, pos)), func() string {
+			if pos == (String_length(line) - 1) {
+				return ""
+			}
+			return VariableMap_unescape(String_substring_int(line, (pos + 1)))
+		}())
 	}
 	return Outcome_base_ok_Object[*VariableMap](new_VariableMap(map_.buildOrThrow()))
 }
 
 func VariableMap_fromLines(string_ string) *Outcome_base[*VariableMap] {
-	var map_ *TMapBuilder[string, string] = newTMapBuilder_(tc_string, tc_string)
+	var map_ *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
 	var startOfLine int32 = 0
-	for (startOfLine < String_length(string_)) {
+	for startOfLine < String_length(string_) {
 		var newLine int32 = String_indexOf_int_int(string_, 10, startOfLine)
-		if (newLine == -1) {
+		if newLine == -1 {
 			newLine = String_length(string_)
 		}
 		var endOfLine int32 = newLine
-		if ((newLine > 0) && (String_charAt(string_, (newLine - 1)) == '\r')) {
+		if (newLine > 0) && (String_charAt(string_, (newLine-1)) == '\r') {
 			newLine--
 		}
 		var line string = String_substring(string_, startOfLine, newLine)
@@ -100,26 +111,31 @@ func VariableMap_fromLines(string_ string) *Outcome_base[*VariableMap] {
 			continue
 		}
 		var pos int32 = VariableMap_findIndexOfUnescapedChar(line, VariableMap_SEPARATOR)
-		if (pos <= 0) {
+		if pos <= 0 {
 			return Outcome_base_err[*VariableMap](new_ParseException(("Bad line: " + sstr_(line)), 0).up_Throwable())
 		}
-		map_.put(VariableMap_unescape(String_substring(line, 0, pos)), func() string { if (pos == (String_length(line) - 1)) { return "" }; return VariableMap_unescape(String_substring_int(line, (pos + 1))) }())
+		map_.put(VariableMap_unescape(String_substring(line, 0, pos)), func() string {
+			if pos == (String_length(line) - 1) {
+				return ""
+			}
+			return VariableMap_unescape(String_substring_int(line, (pos + 1)))
+		}())
 	}
 	return Outcome_base_ok_Object[*VariableMap](new_VariableMap(map_.buildOrThrow()))
 }
 
 func VariableMap_escape(value string) string {
-	return String_replace_s(String_replace_s(String_replace_s(value, "\\", "\\\\"), ":", "\\:"), "\n", "\\n")
+	return JString_replace_s(JString_replace_s(JString_replace_s(value, "\\", "\\\\"), ":", "\\:"), "\n", "\\n")
 }
 
 func VariableMap_findIndexOfUnescapedChar(value string, stopChar uint16) int32 {
 	var len_ int32 = String_length(value)
-	for i := int32(0); (i < len_);  {
+	for i := int32(0); i < len_; {
 		var stopCharIndex int32 = String_indexOf_int_int(value, int32(stopChar), i)
-		if (stopCharIndex == -1) {
+		if stopCharIndex == -1 {
 			return -1
 		}
-		if ((stopCharIndex == 0) || (String_charAt(value, (stopCharIndex - 1)) != '\\')) {
+		if (stopCharIndex == 0) || (String_charAt(value, (stopCharIndex-1)) != '\\') {
 			return stopCharIndex
 		}
 		i = (stopCharIndex + 1)
@@ -129,17 +145,17 @@ func VariableMap_findIndexOfUnescapedChar(value string, stopChar uint16) int32 {
 
 func VariableMap_unescape(value string) string {
 	var slashIndex int32 = String_indexOf(value, 92)
-	if (slashIndex == -1) {
+	if slashIndex == -1 {
 		return value
 	}
 	var sb *StringBuilder = new_StringBuilder_int((String_length(value) - 1))
 	Appendable_append_s_int_int(sb, value, 0, slashIndex)
 	var len_ int32 = String_length(value)
-	for i := int32(slashIndex); (i < len_); i++ {
+	for i := int32(slashIndex); i < len_; i++ {
 		var c uint16 = String_charAt(value, i)
-		if (c == '\\') {
+		if c == '\\' {
 			i++
-			if (i < len_) {
+			if i < len_ {
 				c = String_charAt(value, i)
 			}
 		}
@@ -148,13 +164,12 @@ func VariableMap_unescape(value string) string {
 	return tostrR_(sb)
 }
 
-func VariableMap_fromMap(map_ *TMap[string, string]) *VariableMap {
+func VariableMap_fromMap(map_ *JTMap[string, string]) *VariableMap {
 	return new_VariableMap(map_)
 }
 
-func (this *VariableMap) toMap() *TMap[string, string] {
-	return immutableMapCopyOf_(tc_string, tc_string, this.map__.asMap())
+func (this *VariableMap) toMap() *JTMap[string, string] {
+	return jimmutableMapCopyOf_(jtc_string, jtc_string, this.map__.asMap())
 }
 
 const VariableMap_SEPARATOR uint16 = ':'
-

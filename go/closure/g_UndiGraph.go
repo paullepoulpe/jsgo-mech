@@ -75,4 +75,3 @@ type UndiGraph_UndiGraphNode[N comparable, E comparable] interface {
 type UndiGraph_UndiGraphEdge[N comparable, E comparable] interface {
 	Graph_GraphEdge[N, E]
 }
-

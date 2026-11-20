@@ -18,36 +18,36 @@ func new_DToA() *DToA {
 func DToA_lo0bits(y int32) int32 {
 	var k int32
 	var x int32 = y
-	if ((x & 7) != 0) {
-		if ((x & 1) != 0) {
+	if (x & 7) != 0 {
+		if (x & 1) != 0 {
 			return 0
 		}
-		if ((x & 2) != 0) {
+		if (x & 2) != 0 {
 			return 1
 		}
 		return 2
 	}
 	k = 0
-	if ((x & 65535) == 0) {
+	if (x & 65535) == 0 {
 		k = 16
 		x = int32(uint32(x) >> 16)
 	}
-	if ((x & 255) == 0) {
+	if (x & 255) == 0 {
 		k += 8
 		x = int32(uint32(x) >> 8)
 	}
-	if ((x & 15) == 0) {
+	if (x & 15) == 0 {
 		k += 4
 		x = int32(uint32(x) >> 4)
 	}
-	if ((x & 3) == 0) {
+	if (x & 3) == 0 {
 		k += 2
 		x = int32(uint32(x) >> 2)
 	}
-	if ((x & 1) == 0) {
+	if (x & 1) == 0 {
 		k++
 		x = int32(uint32(x) >> 1)
-		if ((x & 1) == 0) {
+		if (x & 1) == 0 {
 			return 32
 		}
 	}
@@ -56,25 +56,25 @@ func DToA_lo0bits(y int32) int32 {
 
 func DToA_hi0bits(x int32) int32 {
 	var k int32 = 0
-	if ((x & -65536) == 0) {
+	if (x & -65536) == 0 {
 		k = 16
 		x = (x << 16)
 	}
-	if ((x & -16777216) == 0) {
+	if (x & -16777216) == 0 {
 		k += 8
 		x = (x << 8)
 	}
-	if ((x & -268435456) == 0) {
+	if (x & -268435456) == 0 {
 		k += 4
 		x = (x << 4)
 	}
-	if ((x & -1073741824) == 0) {
+	if (x & -1073741824) == 0 {
 		k += 2
 		x = (x << 2)
 	}
-	if ((x & -2147483648) == 0) {
+	if (x & -2147483648) == 0 {
 		k++
-		if ((x & 1073741824) == 0) {
+		if (x & 1073741824) == 0 {
 			return 32
 		}
 	}
@@ -101,22 +101,27 @@ func DToA_d2b(d float64, e []int32, bits []int32) *BigInteger {
 	z = (d0 & DToA_Frac_mask)
 	d0 &= 2147483647
 	de = int32(uint32(d0) >> 20)
-	if (de != 0) {
+	if de != 0 {
 		z |= DToA_Exp_msk1
 	}
 	y = d1
-	if (y != 0) {
+	if y != 0 {
 		dbl_bits = make([]int8, 8)
 		k = DToA_lo0bits(y)
 		y = int32(uint32(y) >> (uint32(k) & 31))
-		if (k != 0) {
+		if k != 0 {
 			DToA_stuffBits(dbl_bits, 4, (y | (z << (uint32((32 - k)) & 31))))
 			z = (z >> (uint32(k) & 31))
 		} else {
 			DToA_stuffBits(dbl_bits, 4, y)
 		}
 		DToA_stuffBits(dbl_bits, 0, z)
-		i = func() int32 { if (z != 0) { return 2 }; return 1 }()
+		i = func() int32 {
+			if z != 0 {
+				return 2
+			}
+			return 1
+		}()
 	} else {
 		dbl_bits = make([]int8, 4)
 		k = DToA_lo0bits(z)
@@ -125,7 +130,7 @@ func DToA_d2b(d float64, e []int32, bits []int32) *BigInteger {
 		k += 32
 		i = 1
 	}
-	if (de != 0) {
+	if de != 0 {
 		e[0] = (((de - DToA_Bias) - 52) + k)
 		bits[0] = (DToA_P - k)
 	} else {
@@ -157,10 +162,10 @@ func DToA_pow5mult(b *BigInteger, k int32) *BigInteger {
 
 func DToA_roundOff(buf *StringBuilder) bool {
 	var i int32 = buf.length()
-	for (i != 0) {
+	for i != 0 {
 		i--
 		var c uint16 = buf.charAt(i)
-		if (c != '9') {
+		if c != '9' {
 			buf.setCharAt(i, uint16((int32(c) + 1)))
 			buf.setLength((i + 1))
 			return false
@@ -205,55 +210,65 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 	var k_check bool
 	var try_quick bool
 	var leftright bool
-	if ((DToA_word0(d) & DToA_Sign_bit) != 0) {
+	if (DToA_word0(d) & DToA_Sign_bit) != 0 {
 		sign[0] = true
 		d = DToA_setWord0(d, (DToA_word0(d) & 2147483647))
 	} else {
 		sign[0] = false
 	}
-	if ((DToA_word0(d) & DToA_Exp_mask) == DToA_Exp_mask) {
-		buf.append(func() string { if ((DToA_word1(d) == 0) && ((DToA_word0(d) & DToA_Frac_mask) == 0)) { return "Infinity" }; return "NaN" }())
+	if (DToA_word0(d) & DToA_Exp_mask) == DToA_Exp_mask {
+		buf.append(func() string {
+			if (DToA_word1(d) == 0) && ((DToA_word0(d) & DToA_Frac_mask) == 0) {
+				return "Infinity"
+			}
+			return "NaN"
+		}())
 		return 9999
 	}
-	if (d == 0) {
+	if d == 0 {
 		buf.setLength(0)
 		buf.append_char('0')
 		return 1
 	}
 	b = DToA_d2b(d, be, bbits)
-	i = (int32(uint32(DToA_word0(d)) >> 20) & 2047)
-	if (i != 0) {
+	i = (int32(uint32(DToA_word0(d))>>20) & 2047)
+	if i != 0 {
 		d2 = DToA_setWord0(d, ((DToA_word0(d) & DToA_Frac_mask1) | DToA_Exp_11))
 		i -= DToA_Bias
 		denorm = false
 	} else {
 		i = ((bbits[0] + be[0]) + 1074)
-		x = func() int64 { if (i > 32) { return ((int64(DToA_word0(d)) << (uint32((64 - i)) & 63)) | int64(int32(uint32(DToA_word1(d)) >> (uint32((i - 32)) & 31)))) }; return (int64(DToA_word1(d)) << (uint32((32 - i)) & 63)) }()
+		x = func() int64 {
+			if i > 32 {
+				return ((int64(DToA_word0(d)) << (uint32((64 - i)) & 63)) | int64(int32(uint32(DToA_word1(d))>>(uint32((i-32))&31))))
+			}
+			return (int64(DToA_word1(d)) << (uint32((32 - i)) & 63))
+		}()
 		d2 = DToA_setWord0(float64(x), (DToA_word0(float64(x)) - 32505856))
 		i -= 1075
 		denorm = true
 	}
 	ds = ((((d2 - 1.5) * 0.289529654602168) + 0.1760912590558) + (float64(i) * 0.301029995663981))
 	k = f2i_[int32](float64(ds))
-	if ((ds < 0.0) && (ds != float64(k))) {
+	if (ds < 0.0) && (ds != float64(k)) {
 		k--
 	}
 	k_check = true
-	if ((k >= 0) && (k <= DToA_Ten_pmax)) {
-		if (d < DToA_tens[k]) {
+	if (k >= 0) && (k <= DToA_Ten_pmax) {
+		if d < DToA_tens[k] {
 			k--
 		}
 		k_check = false
 	}
 	j = ((bbits[0] - i) - 1)
-	if (j >= 0) {
+	if j >= 0 {
 		b2 = 0
 		s2 = j
 	} else {
 		b2 = (-j)
 		s2 = 0
 	}
-	if (k >= 0) {
+	if k >= 0 {
 		b5 = 0
 		s5 = k
 		s2 += k
@@ -262,11 +277,11 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 		b5 = (-k)
 		s5 = 0
 	}
-	if ((mode < 0) || (mode > 9)) {
+	if (mode < 0) || (mode > 9) {
 		mode = 0
 	}
 	try_quick = true
-	if (mode > 5) {
+	if mode > 5 {
 		mode -= 4
 		try_quick = false
 	}
@@ -283,7 +298,7 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 		leftright = false
 		fallthrough
 	case 4:
-		if (ndigits <= 0) {
+		if ndigits <= 0 {
 			ndigits = 1
 		}
 		i = ndigits
@@ -296,21 +311,21 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 		i = ((ndigits + k) + 1)
 		ilim = i
 		ilim1 = (i - 1)
-		if (i <= 0) {
+		if i <= 0 {
 			i = 1
 		}
 	}
 	var fast_failed bool = false
-	if (((ilim >= 0) && (ilim <= DToA_Quick_max)) && try_quick) {
+	if ((ilim >= 0) && (ilim <= DToA_Quick_max)) && try_quick {
 		i = 0
 		d2 = d
 		k0 = k
 		ilim0 = ilim
 		ieps = 2
-		if (k > 0) {
+		if k > 0 {
 			ds = DToA_tens[(k & 15)]
 			j = (k >> 4)
-			if ((j & DToA_Bletch) != 0) {
+			if (j & DToA_Bletch) != 0 {
 				j &= 15
 				d /= DToA_bigtens[4]
 				ieps++
@@ -324,7 +339,7 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 				if !(j != 0) {
 					break
 				}
-				if ((j & 1) != 0) {
+				if (j & 1) != 0 {
 					ieps++
 					ds *= DToA_bigtens[i]
 				}
@@ -332,7 +347,7 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 			d /= ds
 		} else {
 			j1 = (-k)
-			if (j1 != 0) {
+			if j1 != 0 {
 				d *= DToA_tens[(j1 & 15)]
 				{
 					j = (j1 >> 4)
@@ -345,7 +360,7 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 						if !(j != 0) {
 							break
 						}
-						if ((j & 1) != 0) {
+						if (j & 1) != 0 {
 							ieps++
 							d *= DToA_bigtens[i]
 						}
@@ -353,8 +368,8 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 				}
 			}
 		}
-		if ((k_check && (d < 1.0)) && (ilim > 0)) {
-			if (ilim1 <= 0) {
+		if (k_check && (d < 1.0)) && (ilim > 0) {
+			if ilim1 <= 0 {
 				fast_failed = true
 			} else {
 				ilim = ilim1
@@ -365,16 +380,16 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 		}
 		eps = ((float64(ieps) * d) + 7.0)
 		eps = DToA_setWord0(eps, (DToA_word0(eps) - 54525952))
-		if (ilim == 0) {
+		if ilim == 0 {
 			mhi = nil
 			S = nil
 			d -= 5.0
-			if (d > eps) {
+			if d > eps {
 				buf.append_char('1')
 				k++
 				return (k + 1)
 			}
-			if (d < (-eps)) {
+			if d < (-eps) {
 				buf.setLength(0)
 				buf.append_char('0')
 				return 1
@@ -384,25 +399,25 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 		if !fast_failed {
 			fast_failed = true
 			if leftright {
-				eps = ((0.5 / DToA_tens[(ilim - 1)]) - eps)
+				eps = ((0.5 / DToA_tens[(ilim-1)]) - eps)
 				{
 					i = 0
 					for {
 						L = f2i_[int64](float64(d))
 						d -= float64(L)
 						buf.append_char(uint16(('0' + L)))
-						if (d < eps) {
+						if d < eps {
 							return (k + 1)
 						}
-						if ((1.0 - d) < eps) {
+						if (1.0 - d) < eps {
 							var lastCh uint16
 							for {
 								lastCh = buf.charAt((buf.length() - 1))
 								buf.setLength((buf.length() - 1))
-								if (lastCh != '9') {
+								if lastCh != '9' {
 									break
 								}
-								if (buf.length() == 0) {
+								if buf.length() == 0 {
 									k++
 									lastCh = '0'
 									break
@@ -412,7 +427,7 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 							return (k + 1)
 						}
 						i++
-						if (i >= ilim) {
+						if i >= ilim {
 							break
 						}
 						eps *= 10.0
@@ -432,16 +447,16 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 						L = f2i_[int64](float64(d))
 						d -= float64(L)
 						buf.append_char(uint16(('0' + L)))
-						if (i == ilim) {
-							if (d > (0.5 + eps)) {
+						if i == ilim {
+							if d > (0.5 + eps) {
 								var lastCh uint16
 								for {
 									lastCh = buf.charAt((buf.length() - 1))
 									buf.setLength((buf.length() - 1))
-									if (lastCh != '9') {
+									if lastCh != '9' {
 										break
 									}
-									if (buf.length() == 0) {
+									if buf.length() == 0 {
 										k++
 										lastCh = '0'
 										break
@@ -449,7 +464,7 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 								}
 								buf.append_char(uint16((int32(lastCh) + 1)))
 								return (k + 1)
-							} else if (d < (0.5 - eps)) {
+							} else if d < (0.5 - eps) {
 								DToA_stripTrailingZeroes(buf)
 								return (k + 1)
 							}
@@ -466,12 +481,12 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 			ilim = ilim0
 		}
 	}
-	if ((be[0] >= 0) && (k <= DToA_Int_max)) {
+	if (be[0] >= 0) && (k <= DToA_Int_max) {
 		ds = DToA_tens[k]
-		if ((ndigits < 0) && (ilim <= 0)) {
+		if (ndigits < 0) && (ilim <= 0) {
 			mhi = nil
 			S = nil
-			if (((ilim < 0) || (d < (5 * ds))) || (!biasUp && (d == (5 * ds)))) {
+			if ((ilim < 0) || (d < (5 * ds))) || (!biasUp && (d == (5 * ds))) {
 				buf.setLength(0)
 				buf.append_char('0')
 				return 1
@@ -486,17 +501,17 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 				L = f2i_[int64](float64((d / ds)))
 				d -= (float64(L) * ds)
 				buf.append_char(uint16(('0' + L)))
-				if (i == ilim) {
+				if i == ilim {
 					d += d
-					if ((d > ds) || ((d == ds) && (((L & 1) != 0) || biasUp))) {
+					if (d > ds) || ((d == ds) && (((L & 1) != 0) || biasUp)) {
 						var lastCh uint16
 						for {
 							lastCh = buf.charAt((buf.length() - 1))
 							buf.setLength((buf.length() - 1))
-							if (lastCh != '9') {
+							if lastCh != '9' {
 								break
 							}
-							if (buf.length() == 0) {
+							if buf.length() == 0 {
 								k++
 								lastCh = '0'
 								break
@@ -507,7 +522,7 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 					break
 				}
 				d *= 10.0
-				if (d == 0) {
+				if d == 0 {
 					break
 				}
 			}
@@ -519,11 +534,16 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 	mlo = nil
 	mhi = nil
 	if leftright {
-		if (mode < 2) {
-			i = func() int32 { if denorm { return (be[0] + 1075) }; return (54 - bbits[0]) }()
+		if mode < 2 {
+			i = func() int32 {
+				if denorm {
+					return (be[0] + 1075)
+				}
+				return (54 - bbits[0])
+			}()
 		} else {
 			j = (ilim - 1)
-			if (m5 >= j) {
+			if m5 >= j {
 				m5 -= j
 			} else {
 				j -= m5
@@ -532,7 +552,7 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 				m5 = 0
 			}
 			i = ilim
-			if (i < 0) {
+			if i < 0 {
 				m2 -= i
 				i = 0
 			}
@@ -541,21 +561,26 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 		s2 += i
 		mhi = BigInteger_valueOf(1)
 	}
-	if ((m2 > 0) && (s2 > 0)) {
-		i = func() int32 { if (m2 < s2) { return m2 }; return s2 }()
+	if (m2 > 0) && (s2 > 0) {
+		i = func() int32 {
+			if m2 < s2 {
+				return m2
+			}
+			return s2
+		}()
 		b2 -= i
 		m2 -= i
 		s2 -= i
 	}
-	if (b5 > 0) {
+	if b5 > 0 {
 		if leftright {
-			if (m5 > 0) {
+			if m5 > 0 {
 				mhi = DToA_pow5mult(mhi, m5)
 				b1 = mhi.multiply(b)
 				b = b1
 			}
 			j = (b5 - m5)
-			if (j != 0) {
+			if j != 0 {
 				b = DToA_pow5mult(b, j)
 			}
 		} else {
@@ -563,12 +588,12 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 		}
 	}
 	S = BigInteger_valueOf(1)
-	if (s5 > 0) {
+	if s5 > 0 {
 		S = DToA_pow5mult(S, s5)
 	}
 	spec_case = false
-	if (mode < 2) {
-		if (((DToA_word1(d) == 0) && ((DToA_word0(d) & DToA_Bndry_mask) == 0)) && ((DToA_word0(d) & 2145386496) != 0)) {
+	if mode < 2 {
+		if ((DToA_word1(d) == 0) && ((DToA_word0(d) & DToA_Bndry_mask) == 0)) && ((DToA_word0(d) & 2145386496) != 0) {
 			b2 += DToA_Log2P
 			s2 += DToA_Log2P
 			spec_case = true
@@ -576,35 +601,40 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 	}
 	var S_bytes []int8 = S.toByteArray()
 	var S_hiWord int32 = 0
-	for idx := int32(0); (idx < 4); idx++ {
+	for idx := int32(0); idx < 4; idx++ {
 		S_hiWord = (S_hiWord << 8)
-		if (idx < int32(len(S_bytes))) {
+		if idx < int32(len(S_bytes)) {
 			S_hiWord |= (int32(S_bytes[idx]) & 255)
 		}
 	}
-	i = ((func() int32 { if (s5 != 0) { return (32 - DToA_hi0bits(S_hiWord)) }; return 1 }() + s2) & 31)
-	if (i != 0) {
+	i = ((func() int32 {
+		if s5 != 0 {
+			return (32 - DToA_hi0bits(S_hiWord))
+		}
+		return 1
+	}() + s2) & 31)
+	if i != 0 {
 		i = (32 - i)
 	}
-	if (i > 4) {
+	if i > 4 {
 		i -= 4
 		b2 += i
 		m2 += i
 		s2 += i
-	} else if (i < 4) {
+	} else if i < 4 {
 		i += 28
 		b2 += i
 		m2 += i
 		s2 += i
 	}
-	if (b2 > 0) {
+	if b2 > 0 {
 		b = b.shiftLeft(b2)
 	}
-	if (s2 > 0) {
+	if s2 > 0 {
 		S = S.shiftLeft(s2)
 	}
 	if k_check {
-		if (b.compareTo(obj_(S)) < 0) {
+		if b.compareTo(obj_(S)) < 0 {
 			k--
 			b = b.multiply(BigInteger_valueOf(10))
 			if leftright {
@@ -613,7 +643,7 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 			ilim = ilim1
 		}
 	}
-	if ((ilim <= 0) && (mode > 2)) {
+	if (ilim <= 0) && (mode > 2) {
 		var noDigits bool = (ilim < 0)
 		if !noDigits {
 			S = S.multiply(BigInteger_valueOf(5))
@@ -630,7 +660,7 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 		return (k + 1)
 	}
 	if leftright {
-		if (m2 > 0) {
+		if m2 > 0 {
 			mhi = mhi.shiftLeft(m2)
 		}
 		mlo = mhi
@@ -646,9 +676,14 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 				dig = uint16((divResult[0].intValue() + 48))
 				j = b.compareTo(obj_(mlo))
 				delta = S.subtract(mhi)
-				j1 = func() int32 { if (delta.signum() <= 0) { return 1 }; return b.compareTo(obj_(delta)) }()
-				if (((j1 == 0) && (mode == 0)) && ((DToA_word1(d) & 1) == 0)) {
-					if (dig == '9') {
+				j1 = func() int32 {
+					if delta.signum() <= 0 {
+						return 1
+					}
+					return b.compareTo(obj_(delta))
+				}()
+				if ((j1 == 0) && (mode == 0)) && ((DToA_word1(d) & 1) == 0) {
+					if dig == '9' {
 						buf.append_char('9')
 						if DToA_roundOff(buf) {
 							k++
@@ -656,18 +691,18 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 						}
 						return (k + 1)
 					}
-					if (j > 0) {
+					if j > 0 {
 						dig++
 					}
 					buf.append_char(dig)
 					return (k + 1)
 				}
-				if ((j < 0) || (((j == 0) && (mode == 0)) && ((DToA_word1(d) & 1) == 0))) {
-					if (j1 > 0) {
+				if (j < 0) || (((j == 0) && (mode == 0)) && ((DToA_word1(d) & 1) == 0)) {
+					if j1 > 0 {
 						b = b.shiftLeft(1)
 						j1 = b.compareTo(obj_(S))
 						var roundNineUp bool = false
-						if ((j1 > 0) || ((j1 == 0) && (((int32(dig) & 1) == 1) || biasUp))) {
+						if (j1 > 0) || ((j1 == 0) && (((int32(dig) & 1) == 1) || biasUp)) {
 							roundNineUp = (dig == '9')
 							dig++
 						}
@@ -683,8 +718,8 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 					buf.append_char(dig)
 					return (k + 1)
 				}
-				if (j1 > 0) {
-					if (dig == '9') {
+				if j1 > 0 {
+					if dig == '9' {
 						buf.append_char('9')
 						if DToA_roundOff(buf) {
 							k++
@@ -696,11 +731,11 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 					return (k + 1)
 				}
 				buf.append_char(dig)
-				if (i == ilim) {
+				if i == ilim {
 					break
 				}
 				b = b.multiply(BigInteger_valueOf(10))
-				if (mlo == mhi) {
+				if mlo == mhi {
 					mhi = mhi.multiply(BigInteger_valueOf(10))
 					mlo = mhi
 				} else {
@@ -717,7 +752,7 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 				b = divResult[1]
 				dig = uint16((divResult[0].intValue() + 48))
 				buf.append_char(dig)
-				if (i >= ilim) {
+				if i >= ilim {
 					break
 				}
 				b = b.multiply(BigInteger_valueOf(10))
@@ -726,7 +761,7 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 	}
 	b = b.shiftLeft(1)
 	j = b.compareTo(obj_(S))
-	if ((j > 0) || ((j == 0) && (((int32(dig) & 1) == 1) || biasUp))) {
+	if (j > 0) || ((j == 0) && (((int32(dig) & 1) == 1) || biasUp)) {
 		if DToA_roundOff(buf) {
 			k++
 			buf.append_char('1')
@@ -754,24 +789,24 @@ func DToA_JS_dtostr(buffer *StringBuilder, mode int32, precision int32, d float6
 	var decPt int32
 	var sign []bool = make([]bool, 1)
 	var nDigits int32
-	if ((mode == DToA_DTOSTR_FIXED) && ((d >= 1.0E21) || (d <= (-1.0E21)))) {
+	if (mode == DToA_DTOSTR_FIXED) && ((d >= 1.0e21) || (d <= (-1.0e21))) {
 		mode = DToA_DTOSTR_STANDARD
 	}
 	decPt = DToA_JS_dtoa(d, DToA_dtoaModes[mode], (mode >= DToA_DTOSTR_FIXED), precision, sign, buffer)
 	nDigits = buffer.length()
-	if (decPt != 9999) {
+	if decPt != 9999 {
 		var exponentialNotation bool = false
 		var minNDigits int32 = 0
 		var p int32
 		switch mode {
 		case DToA_DTOSTR_STANDARD:
-			if ((decPt < -5) || (decPt > 21)) {
+			if (decPt < -5) || (decPt > 21) {
 				exponentialNotation = true
 			} else {
 				minNDigits = decPt
 			}
 		case DToA_DTOSTR_FIXED:
-			if (precision >= 0) {
+			if precision >= 0 {
 				minNDigits = (decPt + precision)
 			} else {
 				minNDigits = decPt
@@ -783,11 +818,11 @@ func DToA_JS_dtostr(buffer *StringBuilder, mode int32, precision int32, d float6
 			exponentialNotation = true
 		case DToA_DTOSTR_PRECISION:
 			minNDigits = precision
-			if ((decPt < -5) || (decPt > precision)) {
+			if (decPt < -5) || (decPt > precision) {
 				exponentialNotation = true
 			}
 		}
-		if (nDigits < minNDigits) {
+		if nDigits < minNDigits {
 			p = minNDigits
 			nDigits = minNDigits
 			for do_3 := true; do_3; do_3 = (buffer.length() != p) {
@@ -795,26 +830,26 @@ func DToA_JS_dtostr(buffer *StringBuilder, mode int32, precision int32, d float6
 			}
 		}
 		if exponentialNotation {
-			if (nDigits != 1) {
+			if nDigits != 1 {
 				buffer.insert(1, '.')
 			}
 			buffer.append_char('e')
-			if ((decPt - 1) >= 0) {
+			if (decPt - 1) >= 0 {
 				buffer.append_char('+')
 			}
 			buffer.append_int((decPt - 1))
-		} else if (decPt != nDigits) {
-			if (decPt > 0) {
+		} else if decPt != nDigits {
+			if decPt > 0 {
 				buffer.insert(decPt, '.')
 			} else {
-				for i := int32(0); (i < (1 - decPt)); i++ {
+				for i := int32(0); i < (1 - decPt); i++ {
 					buffer.insert(0, '0')
 				}
 				buffer.insert(1, '.')
 			}
 		}
 	}
-	if ((sign[0] && !((DToA_word0(d) == DToA_Sign_bit) && (DToA_word1(d) == 0))) && !(((DToA_word0(d) & DToA_Exp_mask) == DToA_Exp_mask) && ((DToA_word1(d) != 0) || ((DToA_word0(d) & DToA_Frac_mask) != 0)))) {
+	if (sign[0] && !((DToA_word0(d) == DToA_Sign_bit) && (DToA_word1(d) == 0))) && !(((DToA_word0(d) & DToA_Exp_mask) == DToA_Exp_mask) && ((DToA_word1(d) != 0) || ((DToA_word0(d) & DToA_Frac_mask) != 0))) {
 		buffer.insert(0, '-')
 	}
 }
@@ -823,10 +858,10 @@ func DToA_numberToString(value float64) string {
 	if Double_isNaN(value) {
 		return "NaN"
 	}
-	if (value == 0.0) {
+	if value == 0.0 {
 		return "0"
 	}
-	if (value < 0) {
+	if value < 0 {
 		return ("-" + sstr_(DToA_numberToString((-value))))
 	}
 	if Double_isInfinite(value) {
@@ -859,6 +894,7 @@ const DToA_Bletch int32 = 16
 const DToA_Frac_mask1 int32 = 1048575
 const DToA_Int_max int32 = 14
 const DToA_n_bigtens int32 = 5
+
 var DToA_tens []float64
 var DToA_bigtens []float64
 var DToA_dtoaModes []int32
@@ -870,9 +906,8 @@ func DToA_clinit() {
 		return
 	}
 	DToA_clinit_done = true
-	DToA_tens = []float64{1.0, 10.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0, 1.0E7, 1.0E8, 1.0E9, 1.0E10, 1.0E11, 1.0E12, 1.0E13, 1.0E14, 1.0E15, 1.0E16, 1.0E17, 1.0E18, 1.0E19, 1.0E20, 1.0E21, 1.0E22}
-	DToA_bigtens = []float64{1.0E16, 1.0E32, 1.0E64, 1.0E128, 1.0E256}
+	DToA_tens = []float64{1.0, 10.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0, 1.0e7, 1.0e8, 1.0e9, 1.0e10, 1.0e11, 1.0e12, 1.0e13, 1.0e14, 1.0e15, 1.0e16, 1.0e17, 1.0e18, 1.0e19, 1.0e20, 1.0e21, 1.0e22}
+	DToA_bigtens = []float64{1.0e16, 1.0e32, 1.0e64, 1.0e128, 1.0e256}
 	DToA_dtoaModes = []int32{0, 0, 3, 2, 2}
 
 }
-

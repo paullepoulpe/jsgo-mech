@@ -3,8 +3,8 @@
 package closure
 
 type ParseTree struct {
-	self_ any
-	type__ *ParseTreeType
+	self_     any
+	type__    *ParseTreeType
 	location_ *SourceRange
 }
 
@@ -367,7 +367,7 @@ func (this *ParseTree) asFieldDeclaration() *FieldDeclarationTree {
 
 func (this *ParseTree) isPattern() bool {
 	var parseTree *ParseTree = this
-	for (parseTree.type__ == ParseTreeType_PAREN_EXPRESSION) {
+	for parseTree.type__ == ParseTreeType_PAREN_EXPRESSION {
 		parseTree = parseTree.asParenExpression().expression
 	}
 	return func() bool {
@@ -383,7 +383,7 @@ func (this *ParseTree) isPattern() bool {
 
 func (this *ParseTree) isValidNonVanillaAssignmentTarget() bool {
 	var parseTree *ParseTree = this
-	for (parseTree.type__ == ParseTreeType_PAREN_EXPRESSION) {
+	for parseTree.type__ == ParseTreeType_PAREN_EXPRESSION {
 		parseTree = parseTree.asParenExpression().expression
 	}
 	return func() bool {
@@ -401,7 +401,7 @@ func (this *ParseTree) isValidNonVanillaAssignmentTarget() bool {
 
 func (this *ParseTree) isValidAssignmentTarget() bool {
 	var parseTree *ParseTree = this
-	for (parseTree.type__ == ParseTreeType_PAREN_EXPRESSION) {
+	for parseTree.type__ == ParseTreeType_PAREN_EXPRESSION {
 		parseTree = parseTree.asParenExpression().expression
 	}
 	return func() bool {
@@ -420,6 +420,5 @@ func (this *ParseTree) isRestParameter() bool {
 }
 
 func (this *ParseTree) toString() string {
-	return (tostr_(this.type__) + "@" + tostr_(this.location_))
+	return (jtostr_(this.type__) + "@" + jtostr_(this.location_))
 }
-

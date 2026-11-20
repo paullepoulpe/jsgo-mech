@@ -38,7 +38,7 @@ func (this *CheckArrayWithGoogObject) isGoogObjectIterationOverArray(n Node) boo
 		return false
 	}
 	var firstArg Node = n.getSecondChild()
-	if (firstArg == 0) {
+	if firstArg == 0 {
 		return false
 	}
 	var type_ *JSType = firstArg.getJSType()
@@ -50,7 +50,7 @@ func (this *CheckArrayWithGoogObject) containsArray(type_ *JSType) bool {
 		return true
 	}
 	var templatizedType *TemplatizedType = type_.toMaybeTemplatizedType()
-	if ((templatizedType != nil) && templatizedType.getReferencedType().isArrayType()) {
+	if (templatizedType != nil) && templatizedType.getReferencedType().isArrayType() {
 		return true
 	}
 	if type_.isUnionType() {
@@ -76,7 +76,7 @@ func (this *CheckArrayWithGoogObject) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(this))
 }
 
-var CheckArrayWithGoogObject_GOOG_OBJECT_METHODS *TSet[string]
+var CheckArrayWithGoogObject_GOOG_OBJECT_METHODS *JTSet[string]
 var CheckArrayWithGoogObject_ARRAY_PASSED_TO_GOOG_OBJECT *DiagnosticType
 
 var CheckArrayWithGoogObject_clinit_done bool
@@ -86,8 +86,7 @@ func CheckArrayWithGoogObject_clinit() {
 		return
 	}
 	CheckArrayWithGoogObject_clinit_done = true
-	CheckArrayWithGoogObject_GOOG_OBJECT_METHODS = immutableSetOf_[string](tc_string, "goog.object.forEach", "goog.object.filter", "goog.object.map", "goog.object.some", "goog.object.every", "goog.object.getCount", "goog.object.getAnyKey", "goog.object.getAnyValue", "goog.object.contains", "goog.object.getValues", "goog.object.getKeys", "goog.object.findKey", "goog.object.findValue", "goog.object.isEmpty", "goog.object.clear", "goog.object.remove", "goog.object.equals", "goog.object.clone", "goog.object.transpose")
+	CheckArrayWithGoogObject_GOOG_OBJECT_METHODS = jimmutableSetOf_[string](jtc_string, "goog.object.forEach", "goog.object.filter", "goog.object.map", "goog.object.some", "goog.object.every", "goog.object.getCount", "goog.object.getAnyKey", "goog.object.getAnyValue", "goog.object.contains", "goog.object.getValues", "goog.object.getKeys", "goog.object.findKey", "goog.object.findValue", "goog.object.isEmpty", "goog.object.clear", "goog.object.remove", "goog.object.equals", "goog.object.clone", "goog.object.transpose")
 	CheckArrayWithGoogObject_ARRAY_PASSED_TO_GOOG_OBJECT = DiagnosticType_warning("JSC_ARRAY_PASSED_TO_GOOG_OBJECT", "{0} expects an object, not an array. Did you mean to use goog.array?")
 
 }
-

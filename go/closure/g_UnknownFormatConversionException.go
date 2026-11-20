@@ -23,4 +23,3 @@ func new_UnknownFormatConversionException(message string) *UnknownFormatConversi
 	this.init_UnknownFormatConversionException(message)
 	return this
 }
-

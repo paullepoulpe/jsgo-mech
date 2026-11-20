@@ -39,7 +39,7 @@ func (this *Es6RewriteScriptsToModules) forceToEs6Module(root Node) {
 func (this *Es6RewriteScriptsToModules) process_2(externs Node, root Node) {
 	{
 		var file Node = root.getFirstChild()
-		for ; (file != 0); file = file.getNext() {
+		for ; file != 0; file = file.getNext() {
 			Preconditions_checkArgument(file.isScript())
 			NodeTraversal_traverse(this.compiler_, file, NodeTraversal_Callback(this))
 		}
@@ -49,10 +49,9 @@ func (this *Es6RewriteScriptsToModules) process_2(externs Node, root Node) {
 func (this *Es6RewriteScriptsToModules) shouldTraverse_impl(nodeTraversal *NodeTraversal, n Node, parent Node) bool {
 	if n.isScript() {
 		var moduleType *CompilerInput_ModuleType = this.compiler_.getInput(n.getInputId()).getJsModuleType()
-		if (moduleType == CompilerInput_ModuleType_IMPORTED_SCRIPT) {
+		if moduleType == CompilerInput_ModuleType_IMPORTED_SCRIPT {
 			this.forceToEs6Module(n)
 		}
 	}
 	return false
 }
-

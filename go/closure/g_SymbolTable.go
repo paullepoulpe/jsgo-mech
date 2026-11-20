@@ -3,23 +3,23 @@
 package closure
 
 type SymbolTable struct {
-	symbols *SimpleTable[Node, string, *SymbolTable_Symbol]
-	scopes *TMap[Node, *SymbolTable_SymbolScope]
-	docInfos *TList[Node]
-	globalScope *SymbolTable_SymbolScope
-	compiler_ *AbstractCompiler
-	registry *JSTypeRegistry
+	symbols                *SimpleTable[Node, string, *SymbolTable_Symbol]
+	scopes                 *JTMap[Node, *SymbolTable_SymbolScope]
+	docInfos               *JTList[Node]
+	globalScope            *SymbolTable_SymbolScope
+	compiler_              *AbstractCompiler
+	registry               *JSTypeRegistry
 	symbolThatDeclaresType *LinkedIdentityHashMap[*JSType, *SymbolTable_Symbol]
-	sourceNameOrdering OrderingOf[string]
-	nodeOrdering OrderingOf[Node]
-	lexicalScopeOrdering OrderingOf[*SymbolTable_SymbolScope]
-	symbolOrdering OrderingOf[*SymbolTable_Symbol]
+	sourceNameOrdering     OrderingOf[string]
+	nodeOrdering           OrderingOf[Node]
+	lexicalScopeOrdering   OrderingOf[*SymbolTable_SymbolScope]
+	symbolOrdering         OrderingOf[*SymbolTable_Symbol]
 }
 
 func (this *SymbolTable) finit_SymbolTable() {
 	this.symbols = SimpleTable_create[Node, string, *SymbolTable_Symbol]()
-	this.scopes = newTMap_(tc_Node, tc_p_SymbolTable_SymbolScope)
-	this.docInfos = newTList_(tc_Node)
+	this.scopes = jnewTMap_(jtc_Node, jtc_p_SymbolTable_SymbolScope)
+	this.docInfos = jnewTList_(jtc_Node)
 	this.globalScope = nil
 	this.symbolThatDeclaresType = new_LinkedIdentityHashMap[*JSType, *SymbolTable_Symbol]()
 	this.sourceNameOrdering = Ordering_natural().nullsFirst()
@@ -44,12 +44,12 @@ func (this *SymbolTable) getReferences(symbol *SymbolTable_Symbol) IterableOf[*S
 	return Iterable(Collections_unmodifiableCollection(symbol.references.asMap().values()))
 }
 
-func (this *SymbolTable) getReferenceList(symbol *SymbolTable_Symbol) *TList[*SymbolTable_Reference] {
-	return immutableListCopyOf_(tc_p_SymbolTable_Reference, symbol.references.asMap().values())
+func (this *SymbolTable) getReferenceList(symbol *SymbolTable_Symbol) *JTList[*SymbolTable_Reference] {
+	return jimmutableListCopyOf_(jtc_p_SymbolTable_Reference, symbol.references.asMap().values())
 }
 
-func (this *SymbolTable) getAllSymbols() *TList[*SymbolTable_Symbol] {
-	return immutableListCopyOf_(tc_p_SymbolTable_Symbol, this.symbols.values())
+func (this *SymbolTable) getAllSymbols() *JTList[*SymbolTable_Symbol] {
+	return jimmutableListCopyOf_(jtc_p_SymbolTable_Symbol, this.symbols.values())
 }
 
 func (this *SymbolTable) getAllSymbolsSorted() ListOf[*SymbolTable_Symbol] {
@@ -70,10 +70,10 @@ func (this *SymbolTable) getAllJSDocInfoNodes() CollectionOf[Node] {
 
 func (this *SymbolTable) getEnclosingScope(n Node) *SymbolTable_SymbolScope {
 	var current Node = n.getParent()
-	if (n.isName() && n.getParent().isFunction()) {
+	if n.isName() && n.getParent().isFunction() {
 		current = current.getParent()
 	}
-	for ; (current != 0); current = current.getParent() {
+	for ; current != 0; current = current.getParent() {
 		if this.scopes.containsKey(current) {
 			return this.scopes.get(current)
 		}
@@ -83,12 +83,12 @@ func (this *SymbolTable) getEnclosingScope(n Node) *SymbolTable_SymbolScope {
 
 func (this *SymbolTable) getEnclosingFunctionScope(n Node) *SymbolTable_SymbolScope {
 	var current Node = n.getParent()
-	if ((n.isName() && (current != 0)) && current.isFunction()) {
+	if (n.isName() && (current != 0)) && current.isFunction() {
 		current = current.getParent()
 	}
-	for ; (current != 0); current = current.getParent() {
+	for ; current != 0; current = current.getParent() {
 		var scope *SymbolTable_SymbolScope = this.scopes.get(current)
-		if ((scope != nil) && !scope.isBlockScope()) {
+		if (scope != nil) && !scope.isBlockScope() {
 			return scope
 		}
 	}
@@ -97,9 +97,9 @@ func (this *SymbolTable) getEnclosingFunctionScope(n Node) *SymbolTable_SymbolSc
 
 func (this *SymbolTable) getParameterInFunction(sym *SymbolTable_Symbol, paramName string) *SymbolTable_Symbol {
 	var scope *SymbolTable_SymbolScope = this.getScopeInFunction(sym)
-	if (scope != nil) {
+	if scope != nil {
 		var param *SymbolTable_Symbol = scope.getSlot(paramName)
-		if ((param != nil) && (param.scope_ == scope)) {
+		if (param != nil) && (param.scope_ == scope) {
 			return param
 		}
 	}
@@ -108,18 +108,18 @@ func (this *SymbolTable) getParameterInFunction(sym *SymbolTable_Symbol, paramNa
 
 func (this *SymbolTable) getScopeInFunction(sym *SymbolTable_Symbol) *SymbolTable_SymbolScope {
 	var type_ *FunctionType = sym.getFunctionType()
-	if (type_ == nil) {
+	if type_ == nil {
 		return nil
 	}
 	var functionNode Node = type_.getSource()
-	if (functionNode == 0) {
+	if functionNode == 0 {
 		return nil
 	}
 	return this.scopes.get(functionNode)
 }
 
 func (this *SymbolTable) getSymbolForScope(scope *SymbolTable_SymbolScope) *SymbolTable_Symbol {
-	if (scope.getSymbolForScope() == nil) {
+	if scope.getSymbolForScope() == nil {
 		scope.setSymbolForScope(this.findSymbolForScope(scope))
 	}
 	return scope.getSymbolForScope()
@@ -127,14 +127,19 @@ func (this *SymbolTable) getSymbolForScope(scope *SymbolTable_SymbolScope) *Symb
 
 func (this *SymbolTable) findSymbolForScope(scope *SymbolTable_SymbolScope) *SymbolTable_Symbol {
 	var rootNode Node = scope.getRootNode()
-	if (rootNode.getParent() == 0) {
+	if rootNode.getParent() == 0 {
 		return this.globalScope.getSlot(SymbolTable_GLOBAL_THIS)
 	}
 	if !rootNode.isFunction() {
 		return nil
 	}
 	var name Optional[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(rootNode))
-	return func() *SymbolTable_Symbol { if name.isEmpty() { return nil }; return scope.getParentScope().getQualifiedSlot(name.get()) }()
+	return func() *SymbolTable_Symbol {
+		if name.isEmpty() {
+			return nil
+		}
+		return scope.getParentScope().getQualifiedSlot(name.get())
+	}()
 }
 
 func (this *SymbolTable) getAllSymbolsForTypeOf(sym *SymbolTable_Symbol) IterableOf[*SymbolTable_Symbol] {
@@ -157,7 +162,7 @@ func (this *SymbolTable) getSymbolDeclaredByEnumType(enumType *EnumType) *Symbol
 
 func (this *SymbolTable) getSymbolForInstancesOfSymbol(sym *SymbolTable_Symbol) *SymbolTable_Symbol {
 	var fn *FunctionType = sym.getFunctionType()
-	if ((fn != nil) && fn.isNominalConstructorOrInterface()) {
+	if (fn != nil) && fn.isNominalConstructorOrInterface() {
 		return this.getSymbolForInstancesOf(fn)
 	}
 	return nil
@@ -170,11 +175,16 @@ func (this *SymbolTable) getSymbolForInstancesOf(fn *FunctionType) *SymbolTable_
 }
 
 func (this *SymbolTable) getSymbolForName(source Node, name Optional[string]) *SymbolTable_Symbol {
-	if (name.isEmpty() || (this.globalScope == nil)) {
+	if name.isEmpty() || (this.globalScope == nil) {
 		return nil
 	}
-	var scope *SymbolTable_SymbolScope = func() *SymbolTable_SymbolScope { if (source == 0) { return this.globalScope }; return this.getEnclosingScope(source) }()
-	if (scope == nil) {
+	var scope *SymbolTable_SymbolScope = func() *SymbolTable_SymbolScope {
+		if source == 0 {
+			return this.globalScope
+		}
+		return this.getEnclosingScope(source)
+	}()
+	if scope == nil {
 		return nil
 	}
 	if scope.isModuleScope() {
@@ -186,46 +196,71 @@ func (this *SymbolTable) getSymbolForName(source Node, name Optional[string]) *S
 	return scope.getQualifiedSlot(name.get())
 }
 
-func (this *SymbolTable) getAllSymbolsForType(type_ *JSType) *TList[*SymbolTable_Symbol] {
-	if (type_ == nil) {
-		return tlistEmptyImm_(tc_p_SymbolTable_Symbol)
+func (this *SymbolTable) getAllSymbolsForType(type_ *JSType) *JTList[*SymbolTable_Symbol] {
+	if type_ == nil {
+		return jtlistEmptyImm_(jtc_p_SymbolTable_Symbol)
 	}
 	if type_.isUnionType() {
-		var result *TListBuilder[*SymbolTable_Symbol] = newTListBuilder_(tc_p_SymbolTable_Symbol)
+		var result *TListBuilder[*SymbolTable_Symbol] = newTListBuilder_(jtc_p_SymbolTable_Symbol)
 		it_1 := type_.toMaybeUnionType().getAlternates().each()
 		for it_1.next() {
 			var alt *JSType = it_1.v
 			var altSym *SymbolTable_Symbol = this.getSymbolForTypeHelper(alt, true)
-			if (altSym != nil) {
+			if altSym != nil {
 				result.add(altSym)
 			}
 		}
 		return result.build()
 	}
 	var result *SymbolTable_Symbol = this.getSymbolForTypeHelper(type_, true)
-	return func() *TList[*SymbolTable_Symbol] { if (result == nil) { return tlistEmptyImm_(tc_p_SymbolTable_Symbol) }; return immutableListOf_[*SymbolTable_Symbol](tc_p_SymbolTable_Symbol, result) }()
+	return func() *JTList[*SymbolTable_Symbol] {
+		if result == nil {
+			return jtlistEmptyImm_(jtc_p_SymbolTable_Symbol)
+		}
+		return jimmutableListOf_[*SymbolTable_Symbol](jtc_p_SymbolTable_Symbol, result)
+	}()
 }
 
 func (this *SymbolTable) getSymbolForTypeHelper(type_ *JSType, linkToCtor bool) *SymbolTable_Symbol {
-	if (type_ == nil) {
+	if type_ == nil {
 		return nil
 	}
 	if type_.isGlobalThisType() {
 		return this.globalScope.getSlot(SymbolTable_GLOBAL_THIS)
 	} else if type_.isNominalConstructorOrInterface() {
-		return func() *SymbolTable_Symbol { if linkToCtor { return this.globalScope.getSlot("Function") }; return this.getSymbolDeclaredBy(type_.toMaybeFunctionType()) }()
+		return func() *SymbolTable_Symbol {
+			if linkToCtor {
+				return this.globalScope.getSlot("Function")
+			}
+			return this.getSymbolDeclaredBy(type_.toMaybeFunctionType())
+		}()
 	} else if type_.isFunctionPrototypeType() {
 		var ownerFn *FunctionType = to_ObjectType(type_.self()).getOwnerFunction()
-		if (!ownerFn.isConstructor() && !ownerFn.isInterface()) {
+		if !ownerFn.isConstructor() && !ownerFn.isInterface() {
 			return nil
 		}
-		return func() *SymbolTable_Symbol { if linkToCtor { return this.getSymbolDeclaredBy(ownerFn) }; return this.getSymbolForInstancesOf(ownerFn) }()
+		return func() *SymbolTable_Symbol {
+			if linkToCtor {
+				return this.getSymbolDeclaredBy(ownerFn)
+			}
+			return this.getSymbolForInstancesOf(ownerFn)
+		}()
 	} else if type_.isInstanceType() {
 		var ownerFn *FunctionType = to_ObjectType(type_.self()).getConstructor()
-		return func() *SymbolTable_Symbol { if linkToCtor { return this.getSymbolDeclaredBy(ownerFn) }; return this.getSymbolForInstancesOf(ownerFn) }()
+		return func() *SymbolTable_Symbol {
+			if linkToCtor {
+				return this.getSymbolDeclaredBy(ownerFn)
+			}
+			return this.getSymbolForInstancesOf(ownerFn)
+		}()
 	} else if type_.isFunctionType() {
-		return func() *SymbolTable_Symbol { if linkToCtor { return this.globalScope.getSlot("Function") }; return this.globalScope.getQualifiedSlot("Function.prototype") }()
-	} else if (type_.autoboxesTo() != nil) {
+		return func() *SymbolTable_Symbol {
+			if linkToCtor {
+				return this.globalScope.getSlot("Function")
+			}
+			return this.globalScope.getQualifiedSlot("Function.prototype")
+		}()
+	} else if type_.autoboxesTo() != nil {
 		return this.getSymbolForTypeHelper(type_.autoboxesTo(), linkToCtor)
 	} else if type_.isEnumType() {
 		return this.getSymbolDeclaredByEnumType(cast_[*EnumType](type_.self()))
@@ -240,7 +275,7 @@ func (this *SymbolTable) toDebugStringTree() string {
 	it_1 := foreach_(this.getAllScopes())
 	for it_1.next() {
 		var scope *SymbolTable_SymbolScope = cast_[*SymbolTable_SymbolScope](it_1.v)
-		if (scope.getParentScope() != nil) {
+		if scope.getParentScope() != nil {
 			childrenScopesBuilder.put(scope.getParentScope(), scope)
 		}
 	}
@@ -249,15 +284,15 @@ func (this *SymbolTable) toDebugStringTree() string {
 	it_3 := foreach_(this.getAllScopes())
 	for it_3.next() {
 		var scope *SymbolTable_SymbolScope = cast_[*SymbolTable_SymbolScope](it_3.v)
-		if (scope.getParentScope() == nil) {
+		if scope.getParentScope() == nil {
 			this.toDebugStringTree_4(builder, "", scope, childrenScopes)
 		}
 	}
-	var visitedScopes *TSet[*SymbolTable_SymbolScope] = tsetFrom_(tc_p_SymbolTable_SymbolScope, this.getAllScopes())
+	var visitedScopes *JTSet[*SymbolTable_SymbolScope] = jtsetFrom_(jtc_p_SymbolTable_SymbolScope, this.getAllScopes())
 	it_5 := this.getAllSymbols().each()
 	for it_5.next() {
 		var symbol *SymbolTable_Symbol = it_5.v
-		if ((symbol.propertyScope == nil) || visitedScopes.contains(symbol.propertyScope)) {
+		if (symbol.propertyScope == nil) || visitedScopes.contains(symbol.propertyScope) {
 			continue
 		}
 		visitedScopes.add(symbol.getPropertyScope())
@@ -315,7 +350,12 @@ func (this *SymbolTable) toDebugString_4(builder *StringBuilder, prefix string, 
 	for it_1.next() {
 		var ref *SymbolTable_Reference = cast_[*SymbolTable_Reference](it_1.v)
 		var node Node = ref.getNode()
-		builder.append(prefix).append(String_format("  Ref %d: %s line: %d col: %d len: %d %s\n", []any{int32(refCount), strobj_(node.getSourceFileName()), int32(node.getLineno()), int32(node.getCharno()), int32(node.getLength()), func() any { if node.isIndexable() { return strobj_("") }; return strobj_("non indexable") }()}))
+		builder.append(prefix).append(String_format("  Ref %d: %s line: %d col: %d len: %d %s\n", []any{int32(refCount), strobj_(node.getSourceFileName()), int32(node.getLineno()), int32(node.getCharno()), int32(node.getLength()), func() any {
+			if node.isIndexable() {
+				return strobj_("")
+			}
+			return strobj_("non indexable")
+		}()}))
 		refCount++
 	}
 }
@@ -337,7 +377,13 @@ func (this *SymbolTable) getAllScopes() CollectionOf[*SymbolTable_SymbolScope] {
 }
 
 func (this *SymbolTable) addAnonymousFunctions() {
-	var scopes *TSet[*SymbolTable_SymbolScope] = newTSortedSetC_(tc_p_SymbolTable_SymbolScope, func() Comparator[any] { v_ := this.lexicalScopeOrdering; if v_ == nil { return nil }; return v_.compare }())
+	var scopes *JTSet[*SymbolTable_SymbolScope] = newTSortedSetC_(jtc_p_SymbolTable_SymbolScope, func() Comparator[any] {
+		v_ := this.lexicalScopeOrdering
+		if v_ == nil {
+			return nil
+		}
+		return v_.compare
+	}())
 	it_1 := foreach_(this.getAllScopes())
 	for it_1.next() {
 		var scope *SymbolTable_SymbolScope = cast_[*SymbolTable_SymbolScope](it_1.v)
@@ -354,9 +400,9 @@ func (this *SymbolTable) addAnonymousFunctions() {
 
 func (this *SymbolTable) addAnonymousFunctionsInScope(scope *SymbolTable_SymbolScope) {
 	var sym *SymbolTable_Symbol = this.getSymbolForScope(scope)
-	if (sym == nil) {
+	if sym == nil {
 		var rootNode Node = scope.getRootNode()
-		if (((((scope.isLexicalScope() && !scope.isGlobalScope()) && (rootNode != 0)) && !rootNode.isFromExterns()) && (scope.getParentScope() != nil)) && rootNode.isFunction()) {
+		if ((((scope.isLexicalScope() && !scope.isGlobalScope()) && (rootNode != 0)) && !rootNode.isFromExterns()) && (scope.getParentScope() != nil)) && rootNode.isFunction() {
 			var parent *SymbolTable_SymbolScope = scope.getParentScope()
 			var innerName string = ("function%" + istr_(int64(scope.getIndexInParent())))
 			var type_ *JSType = rootNode.getJSType()
@@ -369,27 +415,33 @@ func (this *SymbolTable) addAnonymousFunctionsInScope(scope *SymbolTable_SymbolS
 	}
 }
 
-func SymbolTable_addSymbolsFrom[S interface{ StaticSlot; comparable }, R interface{ StaticRef; comparable }](this *SymbolTable, otherSymbolTable StaticSymbolTable[S, R]) {
+func SymbolTable_addSymbolsFrom[S interface {
+	StaticSlot
+	comparable
+}, R interface {
+	StaticRef
+	comparable
+}](this *SymbolTable, otherSymbolTable StaticSymbolTable[S, R]) {
 	it_1 := foreach_(otherSymbolTable.getAllSymbols())
 	for it_1.next() {
-		var otherSymbol S = unboxT_[S](it_1.v)
+		var otherSymbol S = junboxT_[S](it_1.v)
 		var name string = otherSymbol.getName()
 		var myScope *SymbolTable_SymbolScope = this.createScopeFrom(otherSymbolTable.getScope_StaticSlot(otherSymbol))
 		var decl StaticRef = SymbolTable_findBestDeclToAdd[S, R](this, otherSymbolTable, otherSymbol)
 		var mySymbol *SymbolTable_Symbol = nil
-		if (decl != nil) {
+		if decl != nil {
 			var declNode Node = decl.getNode()
 			mySymbol = this.isAnySymbolDeclared(name, declNode, myScope)
-			if (mySymbol == nil) {
+			if mySymbol == nil {
 				mySymbol = this.copySymbolTo_3(icast_StaticSlot(boxT_(otherSymbol)), declNode, myScope)
 			}
 		} else {
 			mySymbol = myScope.getOwnSlot(name)
 		}
-		if (mySymbol != nil) {
+		if mySymbol != nil {
 			it_3 := foreach_(otherSymbolTable.getReferences_StaticSlot(otherSymbol))
 			for it_3.next() {
-				var otherRef R = unboxT_[R](it_3.v)
+				var otherRef R = junboxT_[R](it_3.v)
 				if this.isGoodRefToAdd(icast_StaticRef(boxT_(otherRef))) {
 					mySymbol.defineReferenceAt(otherRef.getNode())
 				}
@@ -400,20 +452,26 @@ func SymbolTable_addSymbolsFrom[S interface{ StaticSlot; comparable }, R interfa
 
 func (this *SymbolTable) isAnySymbolDeclared(name string, declNode Node, scope *SymbolTable_SymbolScope) *SymbolTable_Symbol {
 	var sym *SymbolTable_Symbol = this.symbols.get(declNode, name)
-	if (sym == nil) {
+	if sym == nil {
 		return scope.ownSymbols.get(name)
 	}
 	return sym
 }
 
-func SymbolTable_findBestDeclToAdd[S interface{ StaticSlot; comparable }, R interface{ StaticRef; comparable }](this *SymbolTable, otherSymbolTable StaticSymbolTable[S, R], slot S) StaticRef {
+func SymbolTable_findBestDeclToAdd[S interface {
+	StaticSlot
+	comparable
+}, R interface {
+	StaticRef
+	comparable
+}](this *SymbolTable, otherSymbolTable StaticSymbolTable[S, R], slot S) StaticRef {
 	var decl StaticRef = slot.getDeclaration()
 	if this.isGoodRefToAdd(decl) {
 		return decl
 	}
 	it_1 := foreach_(otherSymbolTable.getReferences_StaticSlot(slot))
 	for it_1.next() {
-		var ref R = unboxT_[R](it_1.v)
+		var ref R = junboxT_[R](it_1.v)
 		if this.isGoodRefToAdd(icast_StaticRef(boxT_(ref))) {
 			return icast_StaticRef(boxT_(ref))
 		}
@@ -435,7 +493,7 @@ func (this *SymbolTable) copySymbolTo_3(sym StaticSlot, declNode Node, scope *Sy
 }
 
 func SymbolTable_sanitizeSpecialChars(s string) string {
-	return String_replace_s(String_replace_s(String_replace_s(s, "\\", "\\\\"), "\x00", "\\0"), "\n", "\\n")
+	return JString_replace_s(JString_replace_s(JString_replace_s(s, "\\", "\\\\"), "\x00", "\\0"), "\n", "\\n")
 }
 
 func (this *SymbolTable) addSymbol(name string, type_ *JSType, inferred bool, scope *SymbolTable_SymbolScope, declNode Node) *SymbolTable_Symbol {
@@ -469,12 +527,12 @@ func (this *SymbolTable) mergeSymbol(from *SymbolTable_Symbol, to *SymbolTable_S
 func (this *SymbolTable) removeSymbol(s *SymbolTable_Symbol) {
 	var scope *SymbolTable_SymbolScope = this.getScope(s)
 	if !s.equals(obj_(scope.ownSymbols.remove(s.getName()))) {
-		panic(new_IllegalStateException_String(("Symbol not found in scope " + tostr_(s))).self())
+		panic(new_IllegalStateException_String(("Symbol not found in scope " + jtostr_(s))).self())
 	}
 	if !s.equals(obj_(this.symbols.remove(s.getDeclaration_rStaticTypedRef_rReference().getNode(), s.getName()))) {
-		panic(new_IllegalStateException_String(("Symbol not found in table " + tostr_(s))).self())
+		panic(new_IllegalStateException_String(("Symbol not found in table " + jtostr_(s))).self())
 	}
-	if ((s.propertyScope != nil) && s.equals(obj_(s.propertyScope.getSymbolForScope()))) {
+	if (s.propertyScope != nil) && s.equals(obj_(s.propertyScope.getSymbolForScope())) {
 		it_1 := foreach_(obj_(ImmutableList_copyOf(s.propertyScope.ownSymbols.asMap().values())))
 		for it_1.next() {
 			var childSymbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](it_1.v)
@@ -487,7 +545,7 @@ func (this *SymbolTable) removeSymbol(s *SymbolTable_Symbol) {
 func (this *SymbolTable) renameSymbol(scope *SymbolTable_SymbolScope, sym *SymbolTable_Symbol, newName string) {
 	Preconditions_checkState_boolean_Object((sym.propertyScope == nil), "Renaming supported for simple symbols that don't have property scopes.")
 	var existingSym *SymbolTable_Symbol = scope.getSlot(newName)
-	if (existingSym == nil) {
+	if existingSym == nil {
 		existingSym = this.declareSymbol(newName, this.getType(SymbolTable_Symbol_as_StaticSlot(sym)), this.isTypeInferred(SymbolTable_Symbol_as_StaticSlot(sym)), scope, sym.getDeclarationNode(), sym.getJSDocInfo())
 	}
 	this.mergeSymbol(sym, existingSym)
@@ -499,11 +557,11 @@ func (this *SymbolTable) fillNamespaceReferences() {
 		var symbol *SymbolTable_Symbol = it_1.v
 		var qName string = symbol.getName()
 		var rootIndex int32 = String_indexOf(qName, 46)
-		if (rootIndex == -1) {
+		if rootIndex == -1 {
 			continue
 		}
 		var root *SymbolTable_Symbol = symbol.scope_.getQualifiedSlot(String_substring(qName, 0, rootIndex))
-		if (root == nil) {
+		if root == nil {
 			continue
 		}
 		it_3 := foreach_(this.getReferences(symbol))
@@ -520,15 +578,20 @@ func (this *SymbolTable) fillNamespaceReferences() {
 					continue
 				}
 				var namespace *SymbolTable_Symbol = this.isAnySymbolDeclared(name, currentNode, root.scope_)
-				if (namespace == nil) {
+				if namespace == nil {
 					namespace = root.scope_.getQualifiedSlot(name)
 				}
-				if ((namespace == nil) && root.scope_.isGlobalScope()) {
+				if (namespace == nil) && root.scope_.isGlobalScope() {
 					var nodeType *JSType = currentNode.getJSType()
-					var symbolType *JSType = func() *JSType { if ((nodeType != nil) && !nodeType.isFunctionPrototypeType()) { return nodeType }; return this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE) }()
+					var symbolType *JSType = func() *JSType {
+						if (nodeType != nil) && !nodeType.isFunctionPrototypeType() {
+							return nodeType
+						}
+						return this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
+					}()
 					namespace = this.declareSymbol(name, symbolType, true, root.scope_, currentNode, nil)
 				}
-				if (namespace != nil) {
+				if namespace != nil {
 					namespace.defineReferenceAt(currentNode)
 				}
 			}
@@ -537,28 +600,34 @@ func (this *SymbolTable) fillNamespaceReferences() {
 }
 
 func (this *SymbolTable) fillPropertyScopes() {
-	var types *TList[*SymbolTable_Symbol] = newTList_(tc_p_SymbolTable_Symbol)
-	var exports *TList[*SymbolTable_Symbol] = newTList_(tc_p_SymbolTable_Symbol)
+	var types *JTList[*SymbolTable_Symbol] = jnewTList_(jtc_p_SymbolTable_Symbol)
+	var exports *JTList[*SymbolTable_Symbol] = jnewTList_(jtc_p_SymbolTable_Symbol)
 	it_1 := this.getAllSymbols().each()
 	for it_1.next() {
 		var sym *SymbolTable_Symbol = it_1.v
 		if this.needsPropertyScope(sym) {
 			var name string = sym.getName()
-			if (name == "exports") {
+			if name == "exports" {
 				exports.add(sym)
 			} else {
 				types.add(sym)
 			}
 		}
 	}
-	Collections_sort_List_Comparator(types.asList(), func() Comparator[any] { v_ := this.getNaturalSymbolOrdering().reverse(); if v_ == nil { return nil }; return v_.compare }())
+	Collections_sort_List_Comparator(types.asList(), func() Comparator[any] {
+		v_ := this.getNaturalSymbolOrdering().reverse()
+		if v_ == nil {
+			return nil
+		}
+		return v_.compare
+	}())
 	var allTypes IterableOf[*SymbolTable_Symbol] = Iterables_concat(Iterable(types.asList()), Iterable(exports.asList()))
 	it_3 := foreach_(allTypes)
 	for it_3.next() {
 		var s *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](it_3.v)
 		var type_ *JSType = this.getType(SymbolTable_Symbol_as_StaticSlot(s))
 		var symbolForType *SymbolTable_Symbol = this.getSymbolForTypeHelper(type_, false)
-		if (((type_.isNominalConstructorOrInterface() || type_.isFunctionPrototypeType()) || type_.isEnumType()) && !s.equals(obj_(symbolForType))) {
+		if ((type_.isNominalConstructorOrInterface() || type_.isFunctionPrototypeType()) || type_.isEnumType()) && !s.equals(obj_(symbolForType)) {
 			continue
 		}
 		this.symbolThatDeclaresType.put(type_, s)
@@ -567,7 +636,7 @@ func (this *SymbolTable) fillPropertyScopes() {
 	for it_5.next() {
 		var s *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](it_5.v)
 		var type_ *JSType = this.getType(SymbolTable_Symbol_as_StaticSlot(s))
-		if ((type_ == nil) || s.equals(obj_(this.symbolThatDeclaresType.get(type_)))) {
+		if (type_ == nil) || s.equals(obj_(this.symbolThatDeclaresType.get(type_))) {
 			this.createPropertyScopeFor(s)
 		}
 	}
@@ -575,7 +644,7 @@ func (this *SymbolTable) fillPropertyScopes() {
 	for it_7.next() {
 		var s *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](it_7.v)
 		var type_ *JSType = this.getType(SymbolTable_Symbol_as_StaticSlot(s))
-		if ((type_ != nil) && (this.symbolThatDeclaresType.get(type_) != nil)) {
+		if (type_ != nil) && (this.symbolThatDeclaresType.get(type_) != nil) {
 			s.propertyScope = this.symbolThatDeclaresType.get(type_).getPropertyScope()
 		}
 	}
@@ -584,17 +653,17 @@ func (this *SymbolTable) fillPropertyScopes() {
 
 func (this *SymbolTable) needsPropertyScope(sym *SymbolTable_Symbol) bool {
 	var jsType *JSType = this.getType(SymbolTable_Symbol_as_StaticSlot(sym))
-	if ((jsType != nil) && jsType.isRecordType()) {
+	if (jsType != nil) && jsType.isRecordType() {
 		return true
 	}
 	var type_ *ObjectType = ObjectType_cast(this.getType(SymbolTable_Symbol_as_StaticSlot(sym)))
-	if (type_ == nil) {
+	if type_ == nil {
 		return false
 	}
 	if type_.getReferenceName().isEmpty() {
 		return true
 	}
-	if (type_.isNominalConstructorOrInterface() || type_.isFunctionPrototypeType()) {
+	if type_.isNominalConstructorOrInterface() || type_.isFunctionPrototypeType() {
 		return true
 	}
 	if type_.isEnumType() {
@@ -605,22 +674,22 @@ func (this *SymbolTable) needsPropertyScope(sym *SymbolTable_Symbol) bool {
 
 func (this *SymbolTable) pruneOrphanedNames() {
 	it_1 := this.getAllSymbols().each()
-	nextSymbol_:
+nextSymbol_:
 	for it_1.next() {
 		var s *SymbolTable_Symbol = it_1.v
 		var currentName string = s.getName()
-		if (s.isProperty() || (this.compiler_.getModuleMap().getClosureModule(currentName) != nil)) {
+		if s.isProperty() || (this.compiler_.getModuleMap().getClosureModule(currentName) != nil) {
 			continue
 		}
 		var dot int32 = -1
 		for {
 			dot = String_lastIndexOf(currentName, 46)
-			if (dot == -1) {
+			if dot == -1 {
 				break
 			}
 			currentName = String_substring(currentName, 0, dot)
 			var owner *SymbolTable_Symbol = s.scope_.getQualifiedSlot(currentName)
-			if (((owner != nil) && (this.getType(SymbolTable_Symbol_as_StaticSlot(owner)) != nil)) && ((this.getType(SymbolTable_Symbol_as_StaticSlot(owner)).isNominalConstructorOrInterface() || this.getType(SymbolTable_Symbol_as_StaticSlot(owner)).isFunctionPrototypeType()) || this.getType(SymbolTable_Symbol_as_StaticSlot(owner)).isEnumType())) {
+			if ((owner != nil) && (this.getType(SymbolTable_Symbol_as_StaticSlot(owner)) != nil)) && ((this.getType(SymbolTable_Symbol_as_StaticSlot(owner)).isNominalConstructorOrInterface() || this.getType(SymbolTable_Symbol_as_StaticSlot(owner)).isFunctionPrototypeType()) || this.getType(SymbolTable_Symbol_as_StaticSlot(owner)).isEnumType()) {
 				this.removeSymbol(s)
 				continue nextSymbol_
 			}
@@ -638,30 +707,30 @@ func (this *SymbolTable) fillJSDocInfo(externs Node, root Node) {
 	for it_1.next() {
 		var sym *SymbolTable_Symbol = it_1.v
 		var info *JSDocInfo = sym.getJSDocInfo()
-		if (info == nil) {
+		if info == nil {
 			continue
 		}
 		it_3 := foreach_(info.getMarkers())
 		for it_3.next() {
 			var marker *JSDocInfo_Marker = cast_[*JSDocInfo_Marker](it_3.v)
 			var pos *SourcePosition_rhino = marker.getNameNode().up_SourcePosition_rhino()
-			if (pos == nil) {
+			if pos == nil {
 				continue
 			}
 			var paramNode Node = Node_of_(pos.getItem())
 			var name string = paramNode.getString()
 			var param *SymbolTable_Symbol = this.getParameterInFunction(sym, name)
-			if (param == nil) {
+			if param == nil {
 				var typePos *SourcePosition_rhino = marker.getType().up_SourcePosition_rhino()
 				var type_ *JSType = nil
-				if (typePos != nil) {
+				if typePos != nil {
 					type_ = Node_of_(typePos.getItem()).getJSType()
 				}
-				if (sym.docScope == nil) {
+				if sym.docScope == nil {
 					sym.docScope = new_SymbolTable_SymbolScope(0, nil, nil, sym)
 				}
 				var existingSymbol *SymbolTable_Symbol = this.isAnySymbolDeclared(name, paramNode, sym.docScope)
-				if (existingSymbol == nil) {
+				if existingSymbol == nil {
 					this.declareSymbol(name, type_, (type_ == nil), sym.docScope, paramNode, nil)
 				}
 			} else {
@@ -674,20 +743,25 @@ func (this *SymbolTable) fillJSDocInfo(externs Node, root Node) {
 func (this *SymbolTable) fillSymbolVisibility(externs Node, root Node) {
 	var collectPass *CollectFileOverviewVisibility = new_CollectFileOverviewVisibility(this.compiler_)
 	collectPass.process_2(externs, root)
-	var visibilityMap *TMap[StaticSourceFile, *JSDocInfo_Visibility] = collectPass.getFileOverviewVisibilityMap()
+	var visibilityMap *JTMap[StaticSourceFile, *JSDocInfo_Visibility] = collectPass.getFileOverviewVisibilityMap()
 	NodeTraversal_traverseRoots(this.compiler_, NodeTraversal_Callback(new_SymbolTable_VisibilityCollector(this, visibilityMap)), externs, root)
 }
 
 func (this *SymbolTable) createPropertyScopeFor(s *SymbolTable_Symbol) {
-	if (s.propertyScope != nil) {
+	if s.propertyScope != nil {
 		return
 	}
 	var jsType *JSType = this.getType(SymbolTable_Symbol_as_StaticSlot(s))
-	var type_ *ObjectType = func() *ObjectType { if (jsType == nil) { return nil }; return jsType.toObjectType() }()
-	if (type_ == nil) {
+	var type_ *ObjectType = func() *ObjectType {
+		if jsType == nil {
+			return nil
+		}
+		return jsType.toObjectType()
+	}()
+	if type_ == nil {
 		return
 	}
-	if ((s.getName() == "exports") && s.getDeclarationNode().isModuleBody()) {
+	if (s.getName() == "exports") && s.getDeclarationNode().isModuleBody() {
 		s.propertyScope = this.scopes.get(s.getDeclarationNode())
 		return
 	}
@@ -705,22 +779,22 @@ func (this *SymbolTable) createPropertyScopeFor(s *SymbolTable_Symbol) {
 	for it_1.next() {
 		var propName string = str_(it_1.v)
 		var newProp StaticSlot = Property_as_StaticSlot(instanceType.getSlotString(propName))
-		if (newProp.getDeclaration() == nil) {
+		if newProp.getDeclaration() == nil {
 			continue
 		}
 		var oldProp *SymbolTable_Symbol = this.symbols.get(newProp.getDeclaration().getNode(), (sstr_(s.getName()) + "." + sstr_(propName)))
-		if ((oldProp != nil) && (this.compiler_.getModuleMap().getClosureModule(oldProp.getName()) != nil)) {
+		if (oldProp != nil) && (this.compiler_.getModuleMap().getClosureModule(oldProp.getName()) != nil) {
 			continue
 		}
-		if (this.symbols.get(newProp.getDeclaration().getNode(), newProp.getName()) != nil) {
+		if this.symbols.get(newProp.getDeclaration().getNode(), newProp.getName()) != nil {
 			if SymbolTable_logger.isLoggable(Level_FINE) {
-				SymbolTable_logger.fine(("Found duplicate symbol " + tostr_(newProp)))
+				SymbolTable_logger.fine(("Found duplicate symbol " + jtostr_(newProp)))
 			}
 			continue
 		}
 		var newSym *SymbolTable_Symbol = this.copySymbolTo(newProp, s.propertyScope)
-		if (oldProp != nil) {
-			if (newSym.getJSDocInfo() == nil) {
+		if oldProp != nil {
+			if newSym.getJSDocInfo() == nil {
 				newSym.setJSDocInfo(oldProp.getJSDocInfo())
 			}
 			newSym.setPropertyScope(oldProp.propertyScope)
@@ -736,18 +810,18 @@ func (this *SymbolTable) createPropertyScopeFor(s *SymbolTable_Symbol) {
 
 func (this *SymbolTable) maybeGetParentPropertyScope(symbolObjectType *ObjectType) *SymbolTable_SymbolScope {
 	var proto *ObjectType = symbolObjectType.getImplicitPrototype()
-	if ((proto == nil) || (proto == symbolObjectType)) {
+	if (proto == nil) || (proto == symbolObjectType) {
 		return nil
 	}
 	var parentSymbol *SymbolTable_Symbol
 	if this.isEs6ClassConstructor(proto.up_JSType()) {
 		parentSymbol = this.getSymbolDeclaredBy(proto.toMaybeFunctionType())
-	} else if (proto.getConstructor() != nil) {
+	} else if proto.getConstructor() != nil {
 		parentSymbol = this.getSymbolForInstancesOf(proto.getConstructor())
 	} else {
 		return nil
 	}
-	if (parentSymbol == nil) {
+	if parentSymbol == nil {
 		return nil
 	}
 	this.createPropertyScopeFor(parentSymbol)
@@ -767,18 +841,23 @@ func (this *SymbolTable) fillSuperReferences(externs Node, root Node) {
 	NodeTraversal_traverseRoots(this.compiler_, collectSuper, externs, root)
 }
 
-func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes *TMap[string, *SymbolTable_SymbolScope]) {
+func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes *JTMap[string, *SymbolTable_SymbolScope]) {
 	if this.compiler_.getOptions().shouldRewriteModules() {
 		return
 	}
 	var require Node = n.getLastChild()
 	var moduleName string = require.getSecondChild().getString()
 	var module *Module = this.compiler_.getModuleMap().getClosureModule(moduleName)
-	var moduleType *ModuleMetadataMap_ModuleType = func() *ModuleMetadataMap_ModuleType { if (module == nil) { return nil }; return module.metadata().moduleType() }()
+	var moduleType *ModuleMetadataMap_ModuleType = func() *ModuleMetadataMap_ModuleType {
+		if module == nil {
+			return nil
+		}
+		return module.metadata().moduleType()
+	}()
 	var moduleScope *SymbolTable_SymbolScope = googModuleScopes.get(moduleName)
 	if n.isName() {
 		var declaration *SymbolTable_Symbol = this.getSymbolForTypeHelper(n.getJSType(), false)
-		if (declaration != nil) {
+		if declaration != nil {
 			declaration.defineReferenceAt(n)
 		}
 		switch moduleType {
@@ -788,7 +867,7 @@ func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes 
 			declaration = this.getSymbolForName(0, Optional_of[string](moduleName))
 		default:
 		}
-		if (declaration != nil) {
+		if declaration != nil {
 			declaration.defineReferenceAt(n)
 		}
 	} else if n.isDestructuringLhs() {
@@ -806,7 +885,7 @@ func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes 
 				varDeclaration = this.getSymbolForName(0, Optional_of[string]((sstr_(moduleName) + "." + sstr_(varName))))
 			default:
 			}
-			if (varDeclaration != nil) {
+			if varDeclaration != nil {
 				varDeclaration.defineReferenceAt(stringKey)
 			}
 		}
@@ -814,15 +893,15 @@ func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes 
 }
 
 func (this *SymbolTable) fillGoogProvideModuleRequires(externs Node, root Node) {
-	var declaredNamespaces *TMap[string, *SymbolTable_Symbol] = newTMap_(tc_string, tc_p_SymbolTable_Symbol)
-	var moduleScopes *TMap[string, *SymbolTable_SymbolScope] = newTMap_(tc_string, tc_p_SymbolTable_SymbolScope)
+	var declaredNamespaces *JTMap[string, *SymbolTable_Symbol] = jnewTMap_(jtc_string, jtc_p_SymbolTable_Symbol)
+	var moduleScopes *JTMap[string, *SymbolTable_SymbolScope] = jnewTMap_(jtc_string, jtc_p_SymbolTable_SymbolScope)
 	var looksLikeGoogCall Predicate[Node] = Predicate[Node](func(n Node) bool {
 		if !n.isCall() {
 			return false
 		}
 		var left Node = n.getFirstChild()
 		var arg Node = n.getSecondChild()
-		if ((!((left.isGetProp() && left.getFirstChild().isName()) && (left.getFirstChild().getString() == "goog")) || (arg == 0)) || !arg.isStringLit()) {
+		if (!((left.isGetProp() && left.getFirstChild().isName()) && (left.getFirstChild().getString() == "goog")) || (arg == 0)) || !arg.isStringLit() {
 			return false
 		}
 		return true
@@ -866,7 +945,7 @@ func (this *SymbolTable) mergeExternSymbolsDuplicatedOnWindow() {
 	it_1 := foreach_(obj_(ImmutableList_copyOf_Iterable(this.symbols.values())))
 	for it_1.next() {
 		var symbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](it_1.v)
-		if (((symbol.getDeclarationNode() == 0) || (symbol.getDeclarationNode().getStaticSourceFile() == nil)) || !symbol.getDeclarationNode().getStaticSourceFile().isExtern()) {
+		if ((symbol.getDeclarationNode() == 0) || (symbol.getDeclarationNode().getStaticSourceFile() == nil)) || !symbol.getDeclarationNode().getStaticSourceFile().isExtern() {
 			continue
 		}
 		var sourceFile string = symbol.getSourceFileName()
@@ -894,7 +973,7 @@ func (this *SymbolTable) removeGeneratedSymbols() {
 			if !symbolAlreadyRemoved {
 				this.removeSymbol(symbol)
 			}
-		} else if ((symbol.getDeclarationNode() != 0) && symbol.getDeclarationNode().isModuleBody()) {
+		} else if (symbol.getDeclarationNode() != 0) && symbol.getDeclarationNode().isModuleBody() {
 			this.removeSymbol(symbol)
 		}
 	}
@@ -904,12 +983,17 @@ func (this *SymbolTable) removeGeneratedSymbols() {
 func (this *SymbolTable) createScopeFrom(otherScope StaticScope) *SymbolTable_SymbolScope {
 	var otherScopeRoot Node = otherScope.getRootNode()
 	var myScope *SymbolTable_SymbolScope = this.scopes.get(otherScopeRoot)
-	if (myScope == nil) {
+	if myScope == nil {
 		var otherScopeParent StaticScope = otherScope.getParentScope()
-		if (otherScopeParent == nil) {
+		if otherScopeParent == nil {
 			Preconditions_checkState_boolean_Object((this.globalScope == nil), "Global scopes found at different roots")
 		}
-		myScope = new_SymbolTable_SymbolScope(otherScopeRoot, func() *SymbolTable_SymbolScope { if (otherScopeParent == nil) { return nil }; return this.createScopeFrom(otherScopeParent) }(), this.getTypeOfThis(otherScope), nil)
+		myScope = new_SymbolTable_SymbolScope(otherScopeRoot, func() *SymbolTable_SymbolScope {
+			if otherScopeParent == nil {
+				return nil
+			}
+			return this.createScopeFrom(otherScopeParent)
+		}(), this.getTypeOfThis(otherScope), nil)
 		this.scopes.put(otherScopeRoot, myScope)
 		if myScope.isGlobalScope() {
 			this.globalScope = myScope
@@ -919,7 +1003,7 @@ func (this *SymbolTable) createScopeFrom(otherScope StaticScope) *SymbolTable_Sy
 }
 
 func (this *SymbolTable) getLexicalScopeDepth(scope *SymbolTable_SymbolScope) int32 {
-	if (scope.isLexicalScope() || scope.isDocScope()) {
+	if scope.isLexicalScope() || scope.isDocScope() {
 		return scope.getScopeDepth()
 	} else {
 		Preconditions_checkState(scope.isPropertyScope())
@@ -931,16 +1015,23 @@ func (this *SymbolTable) getLexicalScopeDepth(scope *SymbolTable_SymbolScope) in
 }
 
 func (this *SymbolTable) getType(sym StaticSlot) *JSType {
-	if ((sym.getJSDocInfo() != nil) && sym.getJSDocInfo().hasTypedefType()) {
+	if (sym.getJSDocInfo() != nil) && sym.getJSDocInfo().hasTypedefType() {
 		var type_ *JSType = this.registry.getGlobalType(sym.getName())
-		if (type_ != nil) {
+		if type_ != nil {
 			return type_
 		}
 		return sym.getJSDocInfo().getTypedefType().evaluate(TypedScope_as_StaticTypedScope(this.compiler_.getTopScope()), this.registry)
 	}
 	var staticTypedSlot StaticTypedSlot
 	_ = staticTypedSlot
-	if func() bool { v_ := any(sym); if !is_[StaticTypedSlot](v_) { return false }; staticTypedSlot = icast_StaticTypedSlot(v_); return true }() {
+	if func() bool {
+		v_ := any(sym)
+		if !is_[StaticTypedSlot](v_) {
+			return false
+		}
+		staticTypedSlot = icast_StaticTypedSlot(v_)
+		return true
+	}() {
 		return staticTypedSlot.getType()
 	}
 	return nil
@@ -949,7 +1040,14 @@ func (this *SymbolTable) getType(sym StaticSlot) *JSType {
 func (this *SymbolTable) getTypeOfThis(s StaticScope) *JSType {
 	var staticTypedScope StaticTypedScope
 	_ = staticTypedScope
-	if func() bool { v_ := any(s); if !is_[StaticTypedScope](v_) { return false }; staticTypedScope = icast_StaticTypedScope(v_); return true }() {
+	if func() bool {
+		v_ := any(s)
+		if !is_[StaticTypedScope](v_) {
+			return false
+		}
+		staticTypedScope = icast_StaticTypedScope(v_)
+		return true
+	}() {
 		return staticTypedScope.getTypeOfThis()
 	}
 	return nil
@@ -958,13 +1056,21 @@ func (this *SymbolTable) getTypeOfThis(s StaticScope) *JSType {
 func (this *SymbolTable) isTypeInferred(sym StaticSlot) bool {
 	var staticTypedSlot StaticTypedSlot
 	_ = staticTypedSlot
-	if func() bool { v_ := any(sym); if !is_[StaticTypedSlot](v_) { return false }; staticTypedSlot = icast_StaticTypedSlot(v_); return true }() {
+	if func() bool {
+		v_ := any(sym)
+		if !is_[StaticTypedSlot](v_) {
+			return false
+		}
+		staticTypedSlot = icast_StaticTypedSlot(v_)
+		return true
+	}() {
 		return staticTypedSlot.isTypeInferred()
 	}
 	return true
 }
 
 var SymbolTable_logger *Logger
+
 const SymbolTable_GLOBAL_THIS string = "*global*"
 
 var SymbolTable_clinit_done bool
@@ -980,13 +1086,13 @@ func SymbolTable_clinit() {
 
 type SymbolTable_Symbol struct {
 	SimpleSlot
-	references *TMap[Node, *SymbolTable_Reference]
-	scope_ *SymbolTable_SymbolScope
+	references    *JTMap[Node, *SymbolTable_Reference]
+	scope_        *SymbolTable_SymbolScope
 	propertyScope *SymbolTable_SymbolScope
-	declaration_ *SymbolTable_Reference
-	docInfo *JSDocInfo
-	visibility *JSDocInfo_Visibility
-	docScope *SymbolTable_SymbolScope
+	declaration_  *SymbolTable_Reference
+	docInfo       *JSDocInfo
+	visibility    *JSDocInfo_Visibility
+	docScope      *SymbolTable_SymbolScope
 }
 
 func (this *SymbolTable_Symbol) up_SimpleSlot() *SimpleSlot {
@@ -1001,7 +1107,7 @@ func (this *SymbolTable_Symbol) zero_SymbolTable_Symbol() {
 }
 
 func (this *SymbolTable_Symbol) finit_SymbolTable_Symbol() {
-	this.references = newTMap_(tc_Node, tc_p_SymbolTable_Reference)
+	this.references = jnewTMap_(jtc_Node, jtc_p_SymbolTable_Reference)
 	this.propertyScope = nil
 	this.declaration_ = nil
 	this.docInfo = nil
@@ -1026,7 +1132,14 @@ func new_SymbolTable_Symbol(name string, type_ *JSType, inferred bool, scope *Sy
 func (this *SymbolTable_Symbol) equals(o any) bool {
 	var other *SymbolTable_Symbol
 	_ = other
-	if !(func() bool { v_ := o; if !is_[*SymbolTable_Symbol](v_) { return false }; other = cast_[*SymbolTable_Symbol](v_); return true }()) {
+	if !(func() bool {
+		v_ := o
+		if !is_[*SymbolTable_Symbol](v_) {
+			return false
+		}
+		other = cast_[*SymbolTable_Symbol](v_)
+		return true
+	}()) {
 		return false
 	}
 	return ((((this.isTypeInferred() == other.isTypeInferred()) && (this.getName() == other.getName())) && Objects_equals(this.getType().self(), other.getType().self())) && (this.scope_ == other.scope_))
@@ -1056,12 +1169,22 @@ func (this *SymbolTable_Symbol) setDeclaration(ref *SymbolTable_Reference) {
 }
 
 func (this *SymbolTable_Symbol) getDeclarationNode() Node {
-	return func() Node { if (this.declaration_ == nil) { return 0 }; return this.declaration_.getNode() }()
+	return func() Node {
+		if this.declaration_ == nil {
+			return 0
+		}
+		return this.declaration_.getNode()
+	}()
 }
 
 func (this *SymbolTable_Symbol) getSourceFileName() string {
 	var n Node = this.getDeclarationNode()
-	return func() string { if (n == 0) { return "" }; return n.getSourceFileName() }()
+	return func() string {
+		if n == 0 {
+			return ""
+		}
+		return n.getSourceFileName()
+	}()
 }
 
 func (this *SymbolTable_Symbol) getPropertyScope() *SymbolTable_SymbolScope {
@@ -1070,7 +1193,7 @@ func (this *SymbolTable_Symbol) getPropertyScope() *SymbolTable_SymbolScope {
 
 func (this *SymbolTable_Symbol) setPropertyScope(scope *SymbolTable_SymbolScope) {
 	this.propertyScope = scope
-	if (scope != nil) {
+	if scope != nil {
 		this.propertyScope.setSymbolForScope(this)
 	}
 }
@@ -1105,7 +1228,12 @@ func (this *SymbolTable_Symbol) isDocOnlyParameter() bool {
 
 func (this *SymbolTable_Symbol) toString() string {
 	var n Node = this.getDeclarationNode()
-	var lineNo int32 = func() int32 { if (n == 0) { return -1 }; return n.getLineno() }()
+	var lineNo int32 = func() int32 {
+		if n == 0 {
+			return -1
+		}
+		return n.getLineno()
+	}()
 	return (sstr_(this.getName()) + "@" + sstr_(this.getSourceFileName()) + ":" + istr_(int64(lineNo)))
 }
 
@@ -1141,18 +1269,18 @@ func new_SymbolTable_Reference(symbol *SymbolTable_Symbol, node Node) *SymbolTab
 }
 
 type SymbolTable_SymbolScope struct {
-	parent *SymbolTable_SymbolScope
-	typeOfThis *JSType
-	ownSymbols *TMap[string, *SymbolTable_Symbol]
-	mySymbol *SymbolTable_Symbol
-	rootNode_ Node
-	scopeDepth int32
-	indexInParent int32
+	parent              *SymbolTable_SymbolScope
+	typeOfThis          *JSType
+	ownSymbols          *JTMap[string, *SymbolTable_Symbol]
+	mySymbol            *SymbolTable_Symbol
+	rootNode_           Node
+	scopeDepth          int32
+	indexInParent       int32
 	numberOfChildScopes int32
 }
 
 func (this *SymbolTable_SymbolScope) finit_SymbolTable_SymbolScope() {
-	this.ownSymbols = newTMap_(tc_string, tc_p_SymbolTable_Symbol)
+	this.ownSymbols = jnewTMap_(jtc_string, jtc_p_SymbolTable_Symbol)
 	this.numberOfChildScopes = 0
 }
 
@@ -1161,9 +1289,14 @@ func (this *SymbolTable_SymbolScope) init_SymbolTable_SymbolScope(rootNode Node,
 	this.rootNode_ = rootNode
 	this.parent = parent
 	this.typeOfThis = typeOfThis
-	this.scopeDepth = func() int32 { if (parent == nil) { return 0 }; return (parent.getScopeDepth() + 1) }()
+	this.scopeDepth = func() int32 {
+		if parent == nil {
+			return 0
+		}
+		return (parent.getScopeDepth() + 1)
+	}()
 	this.mySymbol = mySymbol
-	if (parent == nil) {
+	if parent == nil {
 		this.indexInParent = 0
 	} else {
 		this.indexInParent = parent.numberOfChildScopes
@@ -1186,7 +1319,13 @@ func (this *SymbolTable_SymbolScope) setSymbolForScope(sym *SymbolTable_Symbol) 
 }
 
 func (this *SymbolTable_SymbolScope) getIndexOfSymbol(sym *SymbolTable_Symbol) int32 {
-	return Iterables_indexOf(Iterable(this.ownSymbols.asMap().values()), func() Predicate_base[any] { f_ := Predicates_equalTo[*SymbolTable_Symbol](sym); if f_ == nil { return nil }; return func(p0 any) bool { return f_(cast_[*SymbolTable_Symbol](p0)) } }())
+	return Iterables_indexOf(Iterable(this.ownSymbols.asMap().values()), func() Predicate_base[any] {
+		f_ := Predicates_equalTo[*SymbolTable_Symbol](sym)
+		if f_ == nil {
+			return nil
+		}
+		return func(p0 any) bool { return f_(cast_[*SymbolTable_Symbol](p0)) }
+	}())
 }
 
 func (this *SymbolTable_SymbolScope) getRootNode() Node {
@@ -1199,13 +1338,13 @@ func (this *SymbolTable_SymbolScope) getParentScope() *SymbolTable_SymbolScope {
 
 func (this *SymbolTable_SymbolScope) getQualifiedSlot(name string) *SymbolTable_Symbol {
 	var fullyNamedSym *SymbolTable_Symbol = this.getSlot(name)
-	if (fullyNamedSym != nil) {
+	if fullyNamedSym != nil {
 		return fullyNamedSym
 	}
 	var dot int32 = String_lastIndexOf(name, 46)
-	if (dot != -1) {
+	if dot != -1 {
 		var owner *SymbolTable_Symbol = this.getQualifiedSlot(String_substring(name, 0, dot))
-		if ((owner != nil) && (owner.getPropertyScope() != nil)) {
+		if (owner != nil) && (owner.getPropertyScope() != nil) {
 			return owner.getPropertyScope().getSlot(String_substring_int(name, (dot + 1)))
 		}
 	}
@@ -1214,11 +1353,16 @@ func (this *SymbolTable_SymbolScope) getQualifiedSlot(name string) *SymbolTable_
 
 func (this *SymbolTable_SymbolScope) getSlot(name string) *SymbolTable_Symbol {
 	var own *SymbolTable_Symbol = this.getOwnSlot(name)
-	if (own != nil) {
+	if own != nil {
 		return own
 	}
-	var ancestor *SymbolTable_Symbol = func() *SymbolTable_Symbol { if (this.parent == nil) { return nil }; return this.parent.getSlot(name) }()
-	if (ancestor != nil) {
+	var ancestor *SymbolTable_Symbol = func() *SymbolTable_Symbol {
+		if this.parent == nil {
+			return nil
+		}
+		return this.parent.getSlot(name)
+	}()
+	if ancestor != nil {
 		return ancestor
 	}
 	return nil
@@ -1268,7 +1412,7 @@ func (this *SymbolTable_SymbolScope) toString() string {
 	var n Node = this.getRootNode()
 	if this.isGlobalScope() {
 		return "GlobalScope"
-	} else if (n != 0) {
+	} else if n != 0 {
 		var type_ string = "Scope"
 		if this.isModuleScope() {
 			type_ = "ModuleScope"
@@ -1279,7 +1423,7 @@ func (this *SymbolTable_SymbolScope) toString() string {
 		}
 		return (sstr_(type_) + "@" + sstr_(n.getSourceFileName()) + ":" + istr_(int64(n.getLineno())))
 	} else {
-		return ("PropertyScope@" + tostr_(this.getSymbolForScope()))
+		return ("PropertyScope@" + jtostr_(this.getSymbolForScope()))
 	}
 	panic("unreachable")
 }
@@ -1313,21 +1457,21 @@ func (this *SymbolTable_PropertyRefCollector) process_2(externs Node, root Node)
 }
 
 func (this *SymbolTable_PropertyRefCollector) maybeDefineReference(n Node, propName string, ownerSymbol *SymbolTable_Symbol) bool {
-	if (ownerSymbol == nil) {
+	if ownerSymbol == nil {
 		return false
 	}
 	var owner *JSType = ownerSymbol.getType()
-	if ((owner != nil) && owner.isObjectType()) {
+	if (owner != nil) && owner.isObjectType() {
 		var propNode Node = owner.toObjectType().getPropertyNode(propName)
 		var propSymbol *SymbolTable_Symbol = this.outer_.symbols.get(propNode, propName)
-		if (propSymbol != nil) {
+		if propSymbol != nil {
 			propSymbol.defineReferenceAt(n)
 			return true
 		}
 	}
-	if (ownerSymbol.getPropertyScope() != nil) {
+	if ownerSymbol.getPropertyScope() != nil {
 		var prop *SymbolTable_Symbol = ownerSymbol.getPropertyScope().getSlot(propName)
-		if (prop != nil) {
+		if prop != nil {
 			prop.defineReferenceAt(n)
 			return true
 		}
@@ -1338,7 +1482,7 @@ func (this *SymbolTable_PropertyRefCollector) maybeDefineReference(n Node, propN
 func (this *SymbolTable_PropertyRefCollector) tryDefineLexicalQualifiedNameRef(name Optional[string], n Node) bool {
 	if name.isPresent() {
 		var lexicalSym *SymbolTable_Symbol = this.outer_.getEnclosingScope(n).getQualifiedSlot(name.get())
-		if (lexicalSym != nil) {
+		if lexicalSym != nil {
 			lexicalSym.defineReferenceAt(n)
 			return true
 		}
@@ -1349,7 +1493,7 @@ func (this *SymbolTable_PropertyRefCollector) tryDefineLexicalQualifiedNameRef(n
 func (this *SymbolTable_PropertyRefCollector) tryRemoveLexicalQualifiedNameRef(name Optional[string], n Node) {
 	if name.isPresent() {
 		var lexicalSym *SymbolTable_Symbol = this.outer_.getEnclosingScope(n).getQualifiedSlot(name.get())
-		if (((lexicalSym != nil) && lexicalSym.isLexicalVariable()) && (lexicalSym.getDeclaration_rStaticTypedRef_rReference().getNode() == n)) {
+		if ((lexicalSym != nil) && lexicalSym.isLexicalVariable()) && (lexicalSym.getDeclaration_rStaticTypedRef_rReference().getNode() == n) {
 			this.outer_.removeSymbol(lexicalSym)
 		}
 	}
@@ -1358,7 +1502,7 @@ func (this *SymbolTable_PropertyRefCollector) tryRemoveLexicalQualifiedNameRef(n
 func (this *SymbolTable_PropertyRefCollector) maybeDefineTypedReference(n Node, propName string, owner *JSType) bool {
 	if owner.isGlobalThisType() {
 		var sym *SymbolTable_Symbol = this.outer_.globalScope.getSlot(propName)
-		if (sym != nil) {
+		if sym != nil {
 			sym.defineReferenceAt(n)
 			return true
 		}
@@ -1371,10 +1515,10 @@ func (this *SymbolTable_PropertyRefCollector) maybeDefineTypedReference(n Node, 
 		it_1 := this.outer_.getAllSymbolsForType(owner).each()
 		for it_1.next() {
 			var ctor *SymbolTable_Symbol = it_1.v
-			if (ctor.getPropertyScope() != nil) {
+			if ctor.getPropertyScope() != nil {
 				var ctorType *JSType = ctor.getType()
 				var isConstructor bool = ((ctorType != nil) && (ctorType.isConstructor() || ctorType.isInterface()))
-				if (!isConstructor && this.maybeDefineReference(n, propName, ctor)) {
+				if !isConstructor && this.maybeDefineReference(n, propName, ctor) {
 					defined = true
 				}
 			}
@@ -1386,30 +1530,30 @@ func (this *SymbolTable_PropertyRefCollector) maybeDefineTypedReference(n Node, 
 			return true
 		}
 	}
-	if (owner.isObjectType() && (owner.toMaybeObjectType() != nil)) {
+	if owner.isObjectType() && (owner.toMaybeObjectType() != nil) {
 		var propNodeDecl Node = owner.assertObjectType().getPropertyNode(propName)
-		if (propNodeDecl == 0) {
+		if propNodeDecl == 0 {
 			return false
 		}
-		if ((propNodeDecl != 0) && (propNodeDecl.isGetProp() || propNodeDecl.isOptChainGetProp())) {
+		if (propNodeDecl != 0) && (propNodeDecl.isGetProp() || propNodeDecl.isOptChainGetProp()) {
 			var namespace Node = propNodeDecl.getFirstChild()
 			var namespaceSym *SymbolTable_Symbol = this.outer_.getSymbolForName(namespace, Optional_of[string](namespace.getQualifiedName()).filter(Predicate[string](func(s string) bool {
 				return !String_isEmpty(s)
 			})))
-			if ((namespaceSym != nil) && (namespaceSym.getPropertyScope() != nil)) {
+			if (namespaceSym != nil) && (namespaceSym.getPropertyScope() != nil) {
 				var propSym *SymbolTable_Symbol = namespaceSym.getPropertyScope().getSlot(propName)
-				if ((propSym != nil) && (propSym.getDeclarationNode() != n)) {
+				if (propSym != nil) && (propSym.getDeclarationNode() != n) {
 					propSym.defineReferenceAt(n)
 					return true
 				}
 			}
 		}
 		var propNodeDeclScope *SymbolTable_SymbolScope = this.outer_.getEnclosingScope(propNodeDecl)
-		if ((propNodeDeclScope == nil) || !propNodeDeclScope.isModuleScope()) {
+		if (propNodeDeclScope == nil) || !propNodeDeclScope.isModuleScope() {
 			return false
 		}
 		var symbol *SymbolTable_Symbol = this.outer_.getSymbolForName(propNodeDecl, Optional_of[string](propName))
-		if ((symbol != nil) && (symbol.getDeclarationNode() != n)) {
+		if (symbol != nil) && (symbol.getDeclarationNode() != n) {
 			symbol.defineReferenceAt(n)
 			return true
 		}
@@ -1418,9 +1562,9 @@ func (this *SymbolTable_PropertyRefCollector) maybeDefineTypedReference(n Node, 
 }
 
 func (this *SymbolTable_PropertyRefCollector) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if (n.isGetProp() || n.isOptChainGetProp()) {
+	if n.isGetProp() || n.isOptChainGetProp() {
 		var owner *JSType = n.getFirstChild().getJSType()
-		if (owner != nil) {
+		if owner != nil {
 			var defined bool = this.maybeDefineTypedReference(n, n.getString(), owner)
 			if defined {
 				this.tryRemoveLexicalQualifiedNameRef(Optional_of[string](n.getQualifiedName()).filter(Predicate[string](func(s string) bool {
@@ -1434,7 +1578,7 @@ func (this *SymbolTable_PropertyRefCollector) visit_impl(t *NodeTraversal, n Nod
 		})), n)
 	} else if n.isStringKey() {
 		var owner *JSType = parent.getJSType()
-		if (owner != nil) {
+		if owner != nil {
 			var defined bool = this.maybeDefineTypedReference(n, n.getString(), owner)
 			if defined {
 				this.tryRemoveLexicalQualifiedNameRef(NodeUtil_getBestLValueName(n), n)
@@ -1447,8 +1591,8 @@ func (this *SymbolTable_PropertyRefCollector) visit_impl(t *NodeTraversal, n Nod
 
 type SymbolTable_ThisRefCollector struct {
 	NodeTraversal_AbstractScopedCallback
-	outer_ *SymbolTable
-	thisStack *TList[*SymbolTable_Symbol]
+	outer_    *SymbolTable
+	thisStack *JTList[*SymbolTable_Symbol]
 }
 
 func (this *SymbolTable_ThisRefCollector) up_NodeTraversal_AbstractScopedCallback() *NodeTraversal_AbstractScopedCallback {
@@ -1459,7 +1603,7 @@ func (this *SymbolTable_ThisRefCollector) up_NodeTraversal_AbstractScopedCallbac
 }
 
 func (this *SymbolTable_ThisRefCollector) finit_SymbolTable_ThisRefCollector() {
-	this.thisStack = newTList_(tc_p_SymbolTable_Symbol)
+	this.thisStack = jnewTList_(jtc_p_SymbolTable_Symbol)
 }
 
 func (this *SymbolTable_ThisRefCollector) init_SymbolTable_ThisRefCollector() {
@@ -1483,7 +1627,7 @@ func (this *SymbolTable_ThisRefCollector) enterScope_impl(t *NodeTraversal) {
 	var symbol *SymbolTable_Symbol = nil
 	if t.inGlobalScope() {
 		var firstInputRoot Node = t.getScopeRoot().getLastChild().getFirstChild()
-		if (firstInputRoot != 0) {
+		if firstInputRoot != 0 {
 			symbol = this.outer_.addSymbol(SymbolTable_GLOBAL_THIS, this.outer_.registry.getNativeType(JSTypeNative_GLOBAL_THIS), false, this.outer_.globalScope, firstInputRoot)
 			symbol.setDeclaration(new_SymbolTable_Reference(symbol, firstInputRoot))
 		}
@@ -1493,14 +1637,24 @@ func (this *SymbolTable_ThisRefCollector) enterScope_impl(t *NodeTraversal) {
 		var scope *SymbolTable_SymbolScope = this.outer_.scopes.get(scopeRoot)
 		if NodeUtil_getFunctionBody(scopeRoot).hasChildren() {
 			var scopeSymbol *SymbolTable_Symbol = this.outer_.getSymbolForScope(scope)
-			if (scopeSymbol != nil) {
+			if scopeSymbol != nil {
 				var propScope *SymbolTable_SymbolScope = scopeSymbol.getPropertyScope()
-				if (propScope != nil) {
+				if propScope != nil {
 					symbol = propScope.getOwnSlot("this")
-					if (symbol == nil) {
+					if symbol == nil {
 						var rootType *JSType = t.getScopeRoot().getJSType()
-						var fnType *FunctionType = func() *FunctionType { if (rootType == nil) { return nil }; return rootType.toMaybeFunctionType() }()
-						var type_ *JSType = func() *JSType { if (fnType == nil) { return nil }; return fnType.getTypeOfThis() }()
+						var fnType *FunctionType = func() *FunctionType {
+							if rootType == nil {
+								return nil
+							}
+							return rootType.toMaybeFunctionType()
+						}()
+						var type_ *JSType = func() *JSType {
+							if fnType == nil {
+								return nil
+							}
+							return fnType.getTypeOfThis()
+						}()
 						symbol = this.outer_.addSymbol("this", type_, false, scope, scopeRoot)
 					}
 				}
@@ -1513,7 +1667,7 @@ func (this *SymbolTable_ThisRefCollector) enterScope_impl(t *NodeTraversal) {
 }
 
 func (this *SymbolTable_ThisRefCollector) exitScope_impl(t *NodeTraversal) {
-	if (t.inGlobalScope() || t.getScopeRoot().isFunction()) {
+	if t.inGlobalScope() || t.getScopeRoot().isFunction() {
 		this.thisStack.removeAt((this.thisStack.size() - 1))
 	}
 }
@@ -1523,9 +1677,9 @@ func (this *SymbolTable_ThisRefCollector) visit_impl(t *NodeTraversal, n Node, p
 		return
 	}
 	var symbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](Iterables_getLast(Iterable(this.thisStack.asList())))
-	if (symbol != nil) {
+	if symbol != nil {
 		var ref *SymbolTable_Reference = symbol.defineReferenceAt(n)
-		if (symbol.getDeclaration_rStaticTypedRef_rReference() == nil) {
+		if symbol.getDeclaration_rStaticTypedRef_rReference() == nil {
 			symbol.setDeclaration(ref)
 		}
 	}
@@ -1533,7 +1687,7 @@ func (this *SymbolTable_ThisRefCollector) visit_impl(t *NodeTraversal, n Node, p
 
 type SymbolTable_JSDocInfoCollector struct {
 	NodeTraversal_AbstractPostOrderCallback
-	outer_ *SymbolTable
+	outer_       *SymbolTable
 	typeRegistry *JSTypeRegistry
 }
 
@@ -1559,7 +1713,7 @@ func new_SymbolTable_JSDocInfoCollector(outer_ *SymbolTable, registry *JSTypeReg
 
 func (this *SymbolTable_JSDocInfoCollector) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	var info *JSDocInfo = n.getJSDocInfo()
-	if (info == nil) {
+	if info == nil {
 		return
 	}
 	this.outer_.docInfos.add(n)
@@ -1567,7 +1721,12 @@ func (this *SymbolTable_JSDocInfoCollector) visit_impl(t *NodeTraversal, n Node,
 	for it_1.next() {
 		var typeAst Node = Node_of_(it_1.v)
 		var scope *SymbolTable_SymbolScope = this.outer_.scopes.get(t.getScopeRoot())
-		this.visitTypeNode(info.getTemplateTypes(), func() *SymbolTable_SymbolScope { if (scope == nil) { return this.outer_.globalScope }; return scope }(), typeAst)
+		this.visitTypeNode(info.getTemplateTypes(), func() *SymbolTable_SymbolScope {
+			if scope == nil {
+				return this.outer_.globalScope
+			}
+			return scope
+		}(), typeAst)
 	}
 }
 
@@ -1583,13 +1742,18 @@ func (this *SymbolTable_JSDocInfoCollector) isNativeSourcelessType(name string) 
 	}()
 }
 
-func (this *SymbolTable_JSDocInfoCollector) visitTypeNode(templateTypeNames *TMap[string, *JSTypeExpression], scope *SymbolTable_SymbolScope, n Node) {
-	if ((n.isStringLit() && !this.isNativeSourcelessType(n.getString())) && !templateTypeNames.containsKey(n.getString())) {
+func (this *SymbolTable_JSDocInfoCollector) visitTypeNode(templateTypeNames *JTMap[string, *JSTypeExpression], scope *SymbolTable_SymbolScope, n Node) {
+	if (n.isStringLit() && !this.isNativeSourcelessType(n.getString())) && !templateTypeNames.containsKey(n.getString()) {
 		var symbol *SymbolTable_Symbol = this.lookupPossiblyDottedName(scope, n.getString())
-		if (symbol != nil) {
+		if symbol != nil {
 			var ref Node = n
-			var typeString string = func() string { if !String_isEmpty(n.getOriginalName()) { return n.getOriginalName() }; return n.getString() }()
-			if String_contains_s(typeString, ".") {
+			var typeString string = func() string {
+				if !String_isEmpty(n.getOriginalName()) {
+					return n.getOriginalName()
+				}
+				return n.getString()
+			}()
+			if JString_contains_s(typeString, ".") {
 				var lastPart string = String_substring_int(typeString, (String_lastIndexOf(typeString, 46) + 1))
 				var copy_ Node = n.cloneNode()
 				copy_.setLinenoCharno(copy_.getLineno(), ((copy_.getCharno() + copy_.getLength()) - String_length(lastPart)))
@@ -1601,7 +1765,7 @@ func (this *SymbolTable_JSDocInfoCollector) visitTypeNode(templateTypeNames *TMa
 	}
 	{
 		var child Node = n.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			this.visitTypeNode(templateTypeNames, scope, child)
 		}
 	}
@@ -1609,18 +1773,28 @@ func (this *SymbolTable_JSDocInfoCollector) visitTypeNode(templateTypeNames *TMa
 
 func (this *SymbolTable_JSDocInfoCollector) lookupPossiblyDottedName(scope *SymbolTable_SymbolScope, dottedName string) *SymbolTable_Symbol {
 	var result *SymbolTable_Symbol = scope.getQualifiedSlot(dottedName)
-	if (result != nil) {
+	if result != nil {
 		return result
 	}
 	var type_ *JSType = this.typeRegistry.getGlobalType(dottedName)
-	var autobox *JSType = func() *JSType { if (type_ == nil) { return nil }; return type_.autoboxesTo() }()
-	return func() *SymbolTable_Symbol { if (autobox == nil) { return this.outer_.getSymbolForTypeHelper(type_, true) }; return this.outer_.getSymbolForTypeHelper(autobox, true) }()
+	var autobox *JSType = func() *JSType {
+		if type_ == nil {
+			return nil
+		}
+		return type_.autoboxesTo()
+	}()
+	return func() *SymbolTable_Symbol {
+		if autobox == nil {
+			return this.outer_.getSymbolForTypeHelper(type_, true)
+		}
+		return this.outer_.getSymbolForTypeHelper(autobox, true)
+	}()
 }
 
 type SymbolTable_VisibilityCollector struct {
 	NodeTraversal_AbstractPostOrderCallback
-	outer_ *SymbolTable
-	fileVisibilityMap *TMap[StaticSourceFile, *JSDocInfo_Visibility]
+	outer_            *SymbolTable
+	fileVisibilityMap *JTMap[StaticSourceFile, *JSDocInfo_Visibility]
 }
 
 func (this *SymbolTable_VisibilityCollector) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -1630,12 +1804,12 @@ func (this *SymbolTable_VisibilityCollector) up_NodeTraversal_AbstractPostOrderC
 	return &this.NodeTraversal_AbstractPostOrderCallback
 }
 
-func (this *SymbolTable_VisibilityCollector) init_SymbolTable_VisibilityCollector(fileVisibilityMap *TMap[StaticSourceFile, *JSDocInfo_Visibility]) {
+func (this *SymbolTable_VisibilityCollector) init_SymbolTable_VisibilityCollector(fileVisibilityMap *JTMap[StaticSourceFile, *JSDocInfo_Visibility]) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.fileVisibilityMap = fileVisibilityMap
 }
 
-func new_SymbolTable_VisibilityCollector(outer_ *SymbolTable, fileVisibilityMap *TMap[StaticSourceFile, *JSDocInfo_Visibility]) *SymbolTable_VisibilityCollector {
+func new_SymbolTable_VisibilityCollector(outer_ *SymbolTable, fileVisibilityMap *JTMap[StaticSourceFile, *JSDocInfo_Visibility]) *SymbolTable_VisibilityCollector {
 	this := &SymbolTable_VisibilityCollector{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -1646,25 +1820,25 @@ func new_SymbolTable_VisibilityCollector(outer_ *SymbolTable, fileVisibilityMap 
 func (this *SymbolTable_VisibilityCollector) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isName() {
 		this.visitName(t, n)
-	} else if (n.isGetProp() || n.isOptChainGetProp()) {
+	} else if n.isGetProp() || n.isOptChainGetProp() {
 		this.visitProperty(n, parent)
 	}
 }
 
 func (this *SymbolTable_VisibilityCollector) visitName(t *NodeTraversal, n Node) {
 	var symbol *SymbolTable_Symbol = this.outer_.symbols.get(n, n.getString())
-	if (symbol == nil) {
+	if symbol == nil {
 		return
 	}
-	if (symbol.getVisibility() != nil) {
+	if symbol.getVisibility() != nil {
 		return
 	}
 	var var_ *Var = t.getScope().getVar_String_rVar(n.getString())
-	if (var_ == nil) {
+	if var_ == nil {
 		return
 	}
 	var v *JSDocInfo_Visibility = AccessControlUtils_getEffectiveNameVisibility(n, var_, this.fileVisibilityMap)
-	if (v == nil) {
+	if v == nil {
 		return
 	}
 	symbol.setVisibility(v)
@@ -1673,14 +1847,14 @@ func (this *SymbolTable_VisibilityCollector) visitName(t *NodeTraversal, n Node)
 func (this *SymbolTable_VisibilityCollector) visitProperty(getprop Node, parent Node) {
 	var propertyName string = getprop.getString()
 	var symbol *SymbolTable_Symbol = this.outer_.symbols.get(getprop, propertyName)
-	if (symbol == nil) {
+	if symbol == nil {
 		return
 	}
-	if (symbol.getVisibility() != nil) {
+	if symbol.getVisibility() != nil {
 		return
 	}
 	var jsType *JSType = getprop.getFirstChild().getJSType()
-	if (jsType == nil) {
+	if jsType == nil {
 		return
 	}
 	var isOverride bool = (((parent.getJSDocInfo() != nil) && parent.isAssign()) && (parent.getFirstChild() == getprop))
@@ -1689,7 +1863,7 @@ func (this *SymbolTable_VisibilityCollector) visitProperty(getprop Node, parent 
 	} else {
 		var referenceType *ObjectType = ObjectType_cast(jsType.dereference().up_JSType())
 		var v *JSDocInfo_Visibility = AccessControlUtils_getEffectivePropertyVisibility(getprop, referenceType, this.fileVisibilityMap)
-		if (v == nil) {
+		if v == nil {
 			return
 		}
 		symbol.setVisibility(v)
@@ -1726,7 +1900,7 @@ func (this *SymbolTable_5) compare(a_ any, b_ any) int32 {
 	var b Node = Node_of_(b_)
 	_ = b
 	var result int32 = this.outer_.sourceNameOrdering.compare(strobj_(a.getSourceFileName()), strobj_(b.getSourceFileName()))
-	if (result != 0) {
+	if result != 0 {
 		return result
 	}
 	return (a.getSourcePosition() - b.getSourcePosition())
@@ -1763,7 +1937,7 @@ func (this *SymbolTable_6) compare(a_ any, b_ any) int32 {
 	_ = b
 	Preconditions_checkState_boolean_Object((a.isLexicalScope() && b.isLexicalScope()), "We can only sort lexical scopes")
 	var result int32 = this.outer_.nodeOrdering.compare(a.getRootNode().box_(), b.getRootNode().box_())
-	if (result != 0) {
+	if result != 0 {
 		return result
 	}
 	return (a.getScopeDepth() - b.getScopeDepth())
@@ -1801,14 +1975,14 @@ func (this *SymbolTable_7) compare(a_ any, b_ any) int32 {
 	var scopeA *SymbolTable_SymbolScope = this.outer_.getScope(a)
 	var scopeB *SymbolTable_SymbolScope = this.outer_.getScope(b)
 	var result int32 = (this.outer_.getLexicalScopeDepth(scopeA) - this.outer_.getLexicalScopeDepth(scopeB))
-	if (result != 0) {
+	if result != 0 {
 		return result
 	}
 	result = String_compareTo(a.getName(), b.getName())
-	if (result != 0) {
+	if result != 0 {
 		return result
 	}
-	if (scopeA.isLexicalScope() && scopeB.isLexicalScope()) {
+	if scopeA.isLexicalScope() && scopeB.isLexicalScope() {
 		return this.outer_.lexicalScopeOrdering.compare(obj_(scopeA), obj_(scopeB))
 	}
 	return this.outer_.nodeOrdering.nullsFirst().compare(a.getDeclarationNode().box_(), b.getDeclarationNode().box_())
@@ -1871,21 +2045,21 @@ func new_SymbolTable_2(outer_ *SymbolTable) *SymbolTable_2 {
 }
 
 func (this *SymbolTable_2) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if (!n.isSuper() || (n.getJSType() == nil)) {
+	if !n.isSuper() || (n.getJSType() == nil) {
 		return
 	}
 	var classSymbol *SymbolTable_Symbol = this.outer_.getSymbolForTypeHelper(n.getJSType(), false)
-	if (classSymbol != nil) {
+	if classSymbol != nil {
 		classSymbol.defineReferenceAt(n)
 	}
 }
 
 type SymbolTable_3 struct {
 	NodeTraversal_AbstractPostOrderCallback
-	outer_ *SymbolTable
-	cap_looksLikeGoogCall Predicate[Node]
-	cap_declaredNamespaces *TMap[string, *SymbolTable_Symbol]
-	cap_moduleScopes *TMap[string, *SymbolTable_SymbolScope]
+	outer_                 *SymbolTable
+	cap_looksLikeGoogCall  Predicate[Node]
+	cap_declaredNamespaces *JTMap[string, *SymbolTable_Symbol]
+	cap_moduleScopes       *JTMap[string, *SymbolTable_SymbolScope]
 }
 
 func (this *SymbolTable_3) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -1899,7 +2073,7 @@ func (this *SymbolTable_3) init_SymbolTable_3() {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 }
 
-func new_SymbolTable_3(outer_ *SymbolTable, cap_looksLikeGoogCall Predicate[Node], cap_declaredNamespaces *TMap[string, *SymbolTable_Symbol], cap_moduleScopes *TMap[string, *SymbolTable_SymbolScope]) *SymbolTable_3 {
+func new_SymbolTable_3(outer_ *SymbolTable, cap_looksLikeGoogCall Predicate[Node], cap_declaredNamespaces *JTMap[string, *SymbolTable_Symbol], cap_moduleScopes *JTMap[string, *SymbolTable_SymbolScope]) *SymbolTable_3 {
 	this := &SymbolTable_3{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -1929,10 +2103,10 @@ func (this *SymbolTable_3) visit_impl(t *NodeTraversal, n Node, parent Node) {
 
 type SymbolTable_4 struct {
 	NodeTraversal_AbstractPostOrderCallback
-	outer_ *SymbolTable
-	cap_looksLikeGoogCall Predicate[Node]
-	cap_moduleScopes *TMap[string, *SymbolTable_SymbolScope]
-	cap_declaredNamespaces *TMap[string, *SymbolTable_Symbol]
+	outer_                 *SymbolTable
+	cap_looksLikeGoogCall  Predicate[Node]
+	cap_moduleScopes       *JTMap[string, *SymbolTable_SymbolScope]
+	cap_declaredNamespaces *JTMap[string, *SymbolTable_Symbol]
 }
 
 func (this *SymbolTable_4) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -1946,7 +2120,7 @@ func (this *SymbolTable_4) init_SymbolTable_4() {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 }
 
-func new_SymbolTable_4(outer_ *SymbolTable, cap_looksLikeGoogCall Predicate[Node], cap_moduleScopes *TMap[string, *SymbolTable_SymbolScope], cap_declaredNamespaces *TMap[string, *SymbolTable_Symbol]) *SymbolTable_4 {
+func new_SymbolTable_4(outer_ *SymbolTable, cap_looksLikeGoogCall Predicate[Node], cap_moduleScopes *JTMap[string, *SymbolTable_SymbolScope], cap_declaredNamespaces *JTMap[string, *SymbolTable_Symbol]) *SymbolTable_4 {
 	this := &SymbolTable_4{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -1967,10 +2141,9 @@ func (this *SymbolTable_4) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	case "require", "requireType", "forwardDeclare":
 		this.outer_.addRefsInGoogRequireStatement(n.getParent(), this.cap_moduleScopes)
 		var symbol *SymbolTable_Symbol = this.cap_declaredNamespaces.get(namespaceName)
-		if (symbol != nil) {
+		if symbol != nil {
 			symbol.defineReferenceAt(arg)
 		}
 	default:
 	}
 }
-

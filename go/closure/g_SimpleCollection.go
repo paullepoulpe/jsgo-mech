@@ -13,4 +13,3 @@ type SimpleCollection_fn struct {
 func (this *SimpleCollection_fn) untypedMap() Map {
 	return this.f()
 }
-

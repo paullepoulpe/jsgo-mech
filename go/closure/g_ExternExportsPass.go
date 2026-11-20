@@ -4,14 +4,14 @@ package closure
 
 type ExternExportsPass struct {
 	NodeTraversal_AbstractPostOrderCallback
-	exports *TList[*ExternExportsPass_Export]
-	definitionMap *TMap[string, Node]
-	compiler_ *AbstractCompiler
-	mappedPaths *TMap[string, string]
-	alreadyExportedPaths *TSet[string]
-	exportSymbolFunctionNames *TSet[string]
-	exportPropertyFunctionNames *TSet[string]
-	externsRoot Node
+	exports                     *JTList[*ExternExportsPass_Export]
+	definitionMap               *JTMap[string, Node]
+	compiler_                   *AbstractCompiler
+	mappedPaths                 *JTMap[string, string]
+	alreadyExportedPaths        *JTSet[string]
+	exportSymbolFunctionNames   *JTSet[string]
+	exportPropertyFunctionNames *JTSet[string]
+	externsRoot                 Node
 }
 
 func (this *ExternExportsPass) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -23,12 +23,12 @@ func (this *ExternExportsPass) up_NodeTraversal_AbstractPostOrderCallback() *Nod
 
 func (this *ExternExportsPass) init_ExternExportsPass(compiler *AbstractCompiler) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
-	this.exports = newTList_(tc_p_ExternExportsPass_Export)
+	this.exports = jnewTList_(jtc_p_ExternExportsPass_Export)
 	this.compiler_ = compiler
-	this.definitionMap = newTMap_(tc_string, tc_Node)
+	this.definitionMap = jnewTMap_(jtc_string, jtc_Node)
 	this.externsRoot = IR_script_0()
-	this.alreadyExportedPaths = newTSet_(tc_string)
-	this.mappedPaths = newTMap_(tc_string, tc_string)
+	this.alreadyExportedPaths = jnewTSet_(jtc_string)
+	this.mappedPaths = jnewTMap_(jtc_string, jtc_string)
 	this.initExportMethods()
 }
 
@@ -39,12 +39,12 @@ func new_ExternExportsPass(compiler *AbstractCompiler) *ExternExportsPass {
 	return this
 }
 
-func ExternExportsPass_computePathPrefixes(path string) *TList[string] {
-	var pieces *TList[string] = splitToListT_(tc_string, ExternExportsPass_Q_NAME_SPLITTER, strobj_(path))
-	var pathPrefixes *TListBuilder[string] = newTListBuilder_(tc_string)
+func ExternExportsPass_computePathPrefixes(path string) *JTList[string] {
+	var pieces *JTList[string] = splitToListT_(jtc_string, ExternExportsPass_Q_NAME_SPLITTER, strobj_(path))
+	var pathPrefixes *TListBuilder[string] = newTListBuilder_(jtc_string)
 	var partial string = pieces.get(0)
 	pathPrefixes.add(partial)
-	for i := int32(1); (i < pieces.size()); i++ {
+	for i := int32(1); i < pieces.size(); i++ {
 		partial = ExternExportsPass_Q_NAME_JOINER.join_Object_Object_ObjectArr(strobj_(partial), strobj_(pieces.get(i)), []any{})
 		pathPrefixes.add(partial)
 	}
@@ -53,13 +53,21 @@ func ExternExportsPass_computePathPrefixes(path string) *TList[string] {
 
 func (this *ExternExportsPass) initExportMethods() {
 	var convention CodingConvention = this.compiler_.getCodingConvention()
-	this.exportSymbolFunctionNames = immutableSetOf_[string](tc_string, convention.getExportSymbolFunction(), "google_exportSymbol")
-	this.exportPropertyFunctionNames = immutableSetOf_[string](tc_string, convention.getExportPropertyFunction(), "google_exportProperty")
+	this.exportSymbolFunctionNames = jimmutableSetOf_[string](jtc_string, convention.getExportSymbolFunction(), "google_exportSymbol")
+	this.exportPropertyFunctionNames = jimmutableSetOf_[string](jtc_string, convention.getExportPropertyFunction(), "google_exportProperty")
 }
 
 func (this *ExternExportsPass) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(this))
-	var sorted *TSet[*ExternExportsPass_Export] = newTSortedSetC_(tc_p_ExternExportsPass_Export, func() Comparator[any] { f_ := Comparator_comparing[*ExternExportsPass_Export, any](Function[*ExternExportsPass_Export, any](func(p0 *ExternExportsPass_Export) any { return strobj_(p0.getExportedPath()) })); if f_ == nil { return nil }; return func(p0 any, p1 any) int32 { return f_(to_ExternExportsPass_Export(p0), to_ExternExportsPass_Export(p1)) } }())
+	var sorted *JTSet[*ExternExportsPass_Export] = newTSortedSetC_(jtc_p_ExternExportsPass_Export, func() Comparator[any] {
+		f_ := Comparator_comparing[*ExternExportsPass_Export, any](Function[*ExternExportsPass_Export, any](func(p0 *ExternExportsPass_Export) any { return strobj_(p0.getExportedPath()) }))
+		if f_ == nil {
+			return nil
+		}
+		return func(p0 any, p1 any) int32 {
+			return f_(to_ExternExportsPass_Export(p0), to_ExternExportsPass_Export(p1))
+		}
+	}())
 	sorted.asSet().addAll(Collection(this.exports.asList()))
 	it_1 := sorted.each()
 	for it_1.next() {
@@ -92,14 +100,14 @@ func (this *ExternExportsPass) lookForQnameDefinition(n Node) {
 		}
 	} else if n.isAssign() {
 		var lhs Node = n.getFirstChild()
-		if (lhs.isQualifiedName() && (!lhs.hasChildren() || !lhs.getFirstChild().isThis())) {
+		if lhs.isQualifiedName() && (!lhs.hasChildren() || !lhs.getFirstChild().isThis()) {
 			this.definitionMap.put(lhs.getQualifiedName(), n.getLastChild())
 		}
 	} else if n.isName() {
 		var parent Node = Preconditions_checkNotNull_Object_Object_T(n.getParent(), n.box_())
 		if NodeUtil_isNameDeclaration(parent) {
 			var value Node = n.getFirstChild()
-			if (value != 0) {
+			if value != 0 {
 				this.definitionMap.put(n.getString(), value)
 			}
 		}
@@ -147,7 +155,7 @@ func (this *ExternExportsPass) lookForPropertyExportCall(n Node) {
 	this.exports.add(new_ExternExportsPass_PropertyExport(this, objectArg.getQualifiedName(), nameArg.getString(), valueArg).up_ExternExportsPass_Export())
 }
 
-func (this *ExternExportsPass) isCallToOneOf(n Node, functionQnames *TSet[string]) bool {
+func (this *ExternExportsPass) isCallToOneOf(n Node, functionQnames *JTSet[string]) bool {
 	if !n.isCall() {
 		return false
 	} else {
@@ -158,18 +166,23 @@ func (this *ExternExportsPass) isCallToOneOf(n Node, functionQnames *TSet[string
 }
 
 func (this *ExternExportsPass) lookForAtExportOnThisDotProperty(t *NodeTraversal, thisDotPropName Node) {
-	if (!thisDotPropName.isGetProp() || !thisDotPropName.getFirstChild().isThis()) {
+	if !thisDotPropName.isGetProp() || !thisDotPropName.getFirstChild().isThis() {
 		return
 	}
 	var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(thisDotPropName)
-	if ((jsdoc == nil) || !jsdoc.isExport()) {
+	if (jsdoc == nil) || !jsdoc.isExport() {
 		return
 	}
 	var constructorNode Node = t.getEnclosingFunction()
 	if !NodeUtil_isConstructor(constructorNode) {
 		return
 	}
-	var classNode Node = func() Node { if NodeUtil_isEs6Constructor(constructorNode) { return NodeUtil_getEnclosingClass(constructorNode) }; return constructorNode }()
+	var classNode Node = func() Node {
+		if NodeUtil_isEs6Constructor(constructorNode) {
+			return NodeUtil_getEnclosingClass(constructorNode)
+		}
+		return constructorNode
+	}()
 	var className string = NodeUtil_getName(classNode)
 	var propertyName string = thisDotPropName.getString()
 	var prototypeName string = (sstr_(className) + ".prototype")
@@ -193,23 +206,29 @@ func ExternExportsPass_clinit() {
 }
 
 type ExternExportsPass_Export struct {
-	self_ any
-	outer_ *ExternExportsPass
+	self_      any
+	outer_     *ExternExportsPass
 	symbolName string
-	value_ Node
+	value_     Node
 }
 
-func (this *ExternExportsPass_Export) as_ExternExportsPass_Export() *ExternExportsPass_Export { return this }
+func (this *ExternExportsPass_Export) as_ExternExportsPass_Export() *ExternExportsPass_Export {
+	return this
+}
 
 func to_ExternExportsPass_Export(v any) *ExternExportsPass_Export {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ExternExportsPass_Export() *ExternExportsPass_Export }).as_ExternExportsPass_Export()
+	return v.(interface {
+		as_ExternExportsPass_Export() *ExternExportsPass_Export
+	}).as_ExternExportsPass_Export()
 }
 
 func is_ExternExportsPass_Export(v any) bool {
-	_, ok := v.(interface{ as_ExternExportsPass_Export() *ExternExportsPass_Export })
+	_, ok := v.(interface {
+		as_ExternExportsPass_Export() *ExternExportsPass_Export
+	})
 	return ok
 }
 
@@ -234,8 +253,8 @@ func (this *ExternExportsPass_Export) generateExterns() {
 }
 
 func (this *ExternExportsPass_Export) appendExtern(path string, valueToExport Node) {
-	var pathPrefixes *TList[string] = ExternExportsPass_computePathPrefixes(path)
-	for i := int32(0); (i < pathPrefixes.size()); i++ {
+	var pathPrefixes *JTList[string] = ExternExportsPass_computePathPrefixes(path)
+	for i := int32(0); i < pathPrefixes.size(); i++ {
 		var pathPrefix string = pathPrefixes.get(i)
 		var isCompletePathPrefix bool = (i == (pathPrefixes.size() - 1))
 		var skipPathPrefix bool = (String_endsWith(pathPrefix, ".prototype") || (this.outer_.alreadyExportedPaths.contains(pathPrefix) && !isCompletePathPrefix))
@@ -243,15 +262,15 @@ func (this *ExternExportsPass_Export) appendExtern(path string, valueToExport No
 			continue
 		}
 		var exportedValueDefinesNewType bool = false
-		if (valueToExport != 0) {
+		if valueToExport != 0 {
 			var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(valueToExport)
-			if (valueToExport.isClass() || ((jsdoc != nil) && jsdoc.containsTypeDefinition())) {
+			if valueToExport.isClass() || ((jsdoc != nil) && jsdoc.containsTypeDefinition()) {
 				exportedValueDefinesNewType = true
 			}
 		}
 		var initializer Node
 		var jsdoc *JSDocInfo = nil
-		if (isCompletePathPrefix && (valueToExport != 0)) {
+		if isCompletePathPrefix && (valueToExport != 0) {
 			if valueToExport.isFunction() {
 				initializer = this.createExternFunction(valueToExport)
 			} else if valueToExport.isClass() {
@@ -260,7 +279,7 @@ func (this *ExternExportsPass_Export) appendExtern(path string, valueToExport No
 				Preconditions_checkState(valueToExport.isObjectLit())
 				initializer = this.createExternObjectLit(valueToExport)
 			}
-		} else if (!isCompletePathPrefix && exportedValueDefinesNewType) {
+		} else if !isCompletePathPrefix && exportedValueDefinesNewType {
 			jsdoc = this.buildNamespaceJSDoc()
 			initializer = this.createExternObjectLit(IR_objectlit([]Node{}))
 			initializer.setJSDocInfo(nil)
@@ -273,7 +292,7 @@ func (this *ExternExportsPass_Export) appendExtern(path string, valueToExport No
 
 func (this *ExternExportsPass_Export) appendPathDefinition(path string, initializer Node, jsdoc *JSDocInfo) {
 	var pathDefinition Node
-	if String_contains_s(path, ".") {
+	if JString_contains_s(path, ".") {
 		var qualifiedPath Node = NodeUtil_newQName_AbstractCompiler_String(this.outer_.compiler_, path)
 		if initializer.isEmpty() {
 			pathDefinition = NodeUtil_newExpr(qualifiedPath)
@@ -287,7 +306,7 @@ func (this *ExternExportsPass_Export) appendPathDefinition(path string, initiali
 			pathDefinition = NodeUtil_newVarNode(path, initializer)
 		}
 	}
-	if (jsdoc != nil) {
+	if jsdoc != nil {
 		if pathDefinition.isExprResult() {
 			pathDefinition.getFirstChild().setJSDocInfo(jsdoc)
 		} else {
@@ -308,10 +327,10 @@ func (this *ExternExportsPass_Export) createExternFunction(exportedFunction Node
 
 func (this *ExternExportsPass_Export) createExternsParamListFromOriginalFunction(exportedFunction Node) Node {
 	var originalParamList Node = NodeUtil_getFunctionParameters(exportedFunction)
-	var originalParamNames *TList[string] = newTList_(tc_string)
+	var originalParamNames *JTList[string] = jnewTList_(jtc_string)
 	{
 		var originalParam Node = originalParamList.getFirstChild()
-		for ; (originalParam != 0); originalParam = originalParam.getNext() {
+		for ; originalParam != 0; originalParam = originalParam.getNext() {
 			originalParamNames.add(this.getOriginalNameForParam(originalParam))
 		}
 	}
@@ -325,11 +344,16 @@ func (this *ExternExportsPass_Export) createExternsParamListFromFunctionType(fun
 
 func (this *ExternExportsPass_Export) createExternsParamListFromOriginalParamList(originalParamNames ListOf[string]) Node {
 	var paramList Node = IR_paramList([]Node{})
-	var nameGenerator NameGenerator = NameGenerator(new_DefaultNameGenerator_Set_String_Set(ImmutableSet_as_Set(ImmutableSet_copyOf(Collection(originalParamNames))), "", tsetEmptyImm_(tc_Character)))
+	var nameGenerator NameGenerator = NameGenerator(new_DefaultNameGenerator_Set_String_Set(ImmutableSet_as_Set(ImmutableSet_copyOf(Collection(originalParamNames))), "", jtsetEmptyImm_(tc_Character)))
 	it_1 := foreach_(originalParamNames)
 	for it_1.next() {
 		var originalParamName string = str_(it_1.v)
-		var externParamName string = func() string { if String_isEmpty(originalParamName) { return nameGenerator.generateNextName() }; return originalParamName }()
+		var externParamName string = func() string {
+			if String_isEmpty(originalParamName) {
+				return nameGenerator.generateNextName()
+			}
+			return originalParamName
+		}()
 		paramList.addChildToBack(IR_name(externParamName))
 	}
 	return paramList
@@ -346,7 +370,12 @@ func (this *ExternExportsPass_Export) getOriginalNameForParam(paramNode Node) st
 	}
 	if nameOrPatternNode.isName() {
 		var originalName string = nameOrPatternNode.getOriginalName()
-		return func() string { if !String_isEmpty(originalName) { return originalName }; return nameOrPatternNode.getString() }()
+		return func() string {
+			if !String_isEmpty(originalName) {
+				return originalName
+			}
+			return nameOrPatternNode.getString()
+		}()
 	} else {
 		Preconditions_checkState_boolean_Object_H(nameOrPatternNode.isDestructuringPattern(), nameOrPatternNode)
 		return ""
@@ -356,7 +385,7 @@ func (this *ExternExportsPass_Export) getOriginalNameForParam(paramNode Node) st
 
 func (this *ExternExportsPass_Export) createExternFunctionForEs6Class(exportedClass Node) Node {
 	var constructorMethodDefinition Node = NodeUtil_getEs6ClassConstructorMemberFunctionDef(exportedClass)
-	if (constructorMethodDefinition == 0) {
+	if constructorMethodDefinition == 0 {
 		var classJSType *JSType = exportedClass.getJSType()
 		var paramList Node = this.createExternsParamListFromFunctionType(classJSType)
 		var externFunction Node = IR_function(IR_name(""), paramList, IR_block_0())
@@ -375,7 +404,7 @@ func (this *ExternExportsPass_Export) buildEmptyJSDoc() *JSDocInfo {
 func (this *ExternExportsPass_Export) buildNamespaceJSDoc() *JSDocInfo {
 	var builder *JSDocInfo_Builder = JSDocInfo_builder()
 	builder.recordConstancy()
-	builder.recordSuppressions(immutableSetOf_[string](tc_string, "const", "duplicate"))
+	builder.recordSuppressions(jimmutableSetOf_[string](jtc_string, "const", "duplicate"))
 	return builder.build()
 }
 
@@ -386,7 +415,7 @@ func (this *ExternExportsPass_Export) createExternObjectLit(exportedObjectLit No
 	var index int32 = 1
 	{
 		var child Node = exportedObjectLit.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			if child.isStringKey() {
 				lit.addChildToBack(IR_propdef(IR_stringKey_String(child.getString()), IR_number(float64(index))))
 				index++
@@ -402,10 +431,10 @@ func (this *ExternExportsPass_Export) getValue() Node {
 		return 0
 	}
 	var definition Node = this.outer_.definitionMap.get(qualifiedName)
-	if (definition == 0) {
+	if definition == 0 {
 		return 0
 	}
-	if ((definition.isFunction() || definition.isClass()) || definition.isObjectLit()) {
+	if (definition.isFunction() || definition.isClass()) || definition.isObjectLit() {
 		return definition
 	}
 	return 0
@@ -455,7 +484,7 @@ func (this *ExternExportsPass_SymbolExport) getExportedPath_impl() string {
 
 type ExternExportsPass_PropertyExport struct {
 	ExternExportsPass_Export
-	outer_ *ExternExportsPass
+	outer_     *ExternExportsPass
 	exportPath string
 }
 
@@ -500,4 +529,3 @@ func (this *ExternExportsPass_PropertyExport) getExportedPath_impl() string {
 	}
 	return ExternExportsPass_Q_NAME_JOINER.join_Object_Object_ObjectArr(strobj_(this.exportPath), strobj_(this.symbolName), []any{})
 }
-

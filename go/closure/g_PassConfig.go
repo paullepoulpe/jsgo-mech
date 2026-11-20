@@ -3,7 +3,7 @@
 package closure
 
 type PassConfig struct {
-	self_ any
+	self_    any
 	options_ *CompilerOptions
 }
 
@@ -55,9 +55,9 @@ func (this *PassConfig) getPassGraph() GraphvizGraph {
 			i++
 		}
 		graph.createNode_Object_rDiGraphNode_rLinkedDiGraphNode(passName)
-		if (loopStart.isEmpty() && pass.isRunInFixedPointLoop()) {
+		if loopStart.isEmpty() && pass.isRunInFixedPointLoop() {
 			loopStart = Optional_of[string](passName)
-		} else if (loopStart.isPresent() && !pass.isRunInFixedPointLoop()) {
+		} else if loopStart.isPresent() && !pass.isRunInFixedPointLoop() {
 			graph.connect(lastPass.orElse(nullstr_), "loop", loopStart.get())
 			loopStart = Optional_empty[string]()
 		}
@@ -102,17 +102,23 @@ type PassConfig_PassConfigDelegate struct {
 	delegate *PassConfig
 }
 
-func (this *PassConfig_PassConfigDelegate) as_PassConfig_PassConfigDelegate() *PassConfig_PassConfigDelegate { return this }
+func (this *PassConfig_PassConfigDelegate) as_PassConfig_PassConfigDelegate() *PassConfig_PassConfigDelegate {
+	return this
+}
 
 func to_PassConfig_PassConfigDelegate(v any) *PassConfig_PassConfigDelegate {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_PassConfig_PassConfigDelegate() *PassConfig_PassConfigDelegate }).as_PassConfig_PassConfigDelegate()
+	return v.(interface {
+		as_PassConfig_PassConfigDelegate() *PassConfig_PassConfigDelegate
+	}).as_PassConfig_PassConfigDelegate()
 }
 
 func is_PassConfig_PassConfigDelegate(v any) bool {
-	_, ok := v.(interface{ as_PassConfig_PassConfigDelegate() *PassConfig_PassConfigDelegate })
+	_, ok := v.(interface {
+		as_PassConfig_PassConfigDelegate() *PassConfig_PassConfigDelegate
+	})
 	return ok
 }
 
@@ -161,4 +167,3 @@ func (this *PassConfig_PassConfigDelegate) getFinalizations_impl() *PassListBuil
 func (this *PassConfig_PassConfigDelegate) getTranspileOnlyPasses_impl() *PassListBuilder {
 	return this.delegate.getTranspileOnlyPasses()
 }
-

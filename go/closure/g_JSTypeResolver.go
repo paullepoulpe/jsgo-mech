@@ -3,15 +3,15 @@
 package closure
 
 type JSTypeResolver struct {
-	registry *JSTypeRegistry
-	captureStack *TDeque[*JSType]
+	registry        *JSTypeRegistry
+	captureStack    *TDeque[*JSType]
 	resolutionQueue *TDeque[*JSType]
-	state *JSTypeResolver_State
+	state           *JSTypeResolver_State
 }
 
 func (this *JSTypeResolver) finit_JSTypeResolver() {
-	this.captureStack = newTDeque_(tc_p_JSType)
-	this.resolutionQueue = newTDeque_(tc_p_JSType)
+	this.captureStack = newTDeque_(jtc_p_JSType)
+	this.resolutionQueue = newTDeque_(jtc_p_JSType)
 	this.state = JSTypeResolver_State_CLOSED
 }
 
@@ -27,7 +27,7 @@ func new_JSTypeResolver(registry *JSTypeRegistry) *JSTypeResolver {
 }
 
 func JSTypeResolver_create(registry *JSTypeRegistry) *JSTypeResolver {
-	if (registry.getResolver() != nil) {
+	if registry.getResolver() != nil {
 		return registry.getResolver()
 	}
 	return new_JSTypeResolver(registry)
@@ -66,13 +66,13 @@ func (this *JSTypeResolver) resolveAll() {
 	for !this.resolutionQueue.isEmpty() {
 		this.doResolve(this.resolutionQueue.pop())
 	}
-	this.resolutionQueue = newTDeque_(tc_p_JSType)
+	this.resolutionQueue = newTDeque_(jtc_p_JSType)
 	this.state = JSTypeResolver_State_CLOSED
 	var globalThis *PrototypeObjectType = to_PrototypeObjectType(this.registry.getNativeType(JSTypeNative_GLOBAL_THIS).self())
 	var windowType *JSType = this.registry.getGlobalType("Window")
 	if globalThis.isUnknownType() {
 		var windowObjType *ObjectType = ObjectType_cast(windowType)
-		if (windowObjType != nil) {
+		if windowObjType != nil {
 			globalThis.setImplicitPrototype(windowObjType)
 		} else {
 			globalThis.setImplicitPrototype(this.registry.getNativeObjectType(JSTypeNative_OBJECT_TYPE))
@@ -168,4 +168,3 @@ func JSTypeResolver_State_clinit() {
 	registerEnum_("com.google.javascript.rhino.jstype.JSTypeResolver.State", enumValues_(JSTypeResolver_State_values_))
 
 }
-

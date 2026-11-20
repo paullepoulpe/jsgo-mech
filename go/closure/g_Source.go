@@ -3,15 +3,15 @@
 package closure
 
 type Source struct {
-	path_ string
-	sourceMap_ string
-	sourceUrl_ string
-	sourceMappingUrl_ string
-	runtimes_ *TSet[string]
-	loadFlags_ *TMap[string, string]
-	codeSupplier_ *Source_Lazy
+	path_                 string
+	sourceMap_            string
+	sourceUrl_            string
+	sourceMappingUrl_     string
+	runtimes_             *JTSet[string]
+	loadFlags_            *JTMap[string, string]
+	codeSupplier_         *Source_Lazy
 	originalCodeSupplier_ *Source_Lazy
-	estimatedSize_ int32
+	estimatedSize_        int32
 }
 
 func (this *Source) zero_Source() {
@@ -21,7 +21,7 @@ func (this *Source) zero_Source() {
 	this.sourceMappingUrl_ = nullstr_
 }
 
-func (this *Source) init_Source(path string, sourceMap string, sourceUrl string, sourceMappingUrl string, runtimes *TSet[string], loadFlags *TMap[string, string], estimatedSize int32, codeSupplier *Source_Lazy, originalCodeSupplier *Source_Lazy) {
+func (this *Source) init_Source(path string, sourceMap string, sourceUrl string, sourceMappingUrl string, runtimes *JTSet[string], loadFlags *JTMap[string, string], estimatedSize int32, codeSupplier *Source_Lazy, originalCodeSupplier *Source_Lazy) {
 	Objects_requireNonNull(runtimes.asSet(), "runtimes")
 	Objects_requireNonNull(loadFlags.asMap(), "loadFlags")
 	Objects_requireNonNull_T(codeSupplier, "codeSupplier")
@@ -36,7 +36,7 @@ func (this *Source) init_Source(path string, sourceMap string, sourceUrl string,
 	this.originalCodeSupplier_ = originalCodeSupplier
 }
 
-func new_Source(path string, sourceMap string, sourceUrl string, sourceMappingUrl string, runtimes *TSet[string], loadFlags *TMap[string, string], estimatedSize int32, codeSupplier *Source_Lazy, originalCodeSupplier *Source_Lazy) *Source {
+func new_Source(path string, sourceMap string, sourceUrl string, sourceMappingUrl string, runtimes *JTSet[string], loadFlags *JTMap[string, string], estimatedSize int32, codeSupplier *Source_Lazy, originalCodeSupplier *Source_Lazy) *Source {
 	this := &Source{}
 	this.zero_Source()
 	this.init_Source(path, sourceMap, sourceUrl, sourceMappingUrl, runtimes, loadFlags, estimatedSize, codeSupplier, originalCodeSupplier)
@@ -60,7 +60,7 @@ func (this *Source) toBuilder() *Source_Builder {
 }
 
 func Source_builder() *Source_Builder {
-	return new_Source_Builder_0().setPath(Source_DEV_NULL).setCode("").setOriginalCodeSupplier(nil).setSourceMap("").setSourceUrl("").setSourceMappingUrl("").setRuntimes(tsetEmptyImm_(tc_string)).setLoadFlags(tmapEmptyImm_(tc_string, tc_string)).setEstimatedSize(0)
+	return new_Source_Builder_0().setPath(Source_DEV_NULL).setCode("").setOriginalCodeSupplier(nil).setSourceMap("").setSourceUrl("").setSourceMappingUrl("").setRuntimes(jtsetEmptyImm_(jtc_string)).setLoadFlags(jtmapEmptyImm_(jtc_string, jtc_string)).setEstimatedSize(0)
 }
 
 func (this *Source) path() string {
@@ -79,11 +79,11 @@ func (this *Source) sourceMappingUrl() string {
 	return this.sourceMappingUrl_
 }
 
-func (this *Source) runtimes() *TSet[string] {
+func (this *Source) runtimes() *JTSet[string] {
 	return this.runtimes_
 }
 
-func (this *Source) loadFlags() *TMap[string, string] {
+func (this *Source) loadFlags() *JTMap[string, string] {
 	return this.loadFlags_
 }
 
@@ -124,16 +124,16 @@ func (this *Source) hashCode() int32 {
 const Source_DEV_NULL string = "/dev/null"
 
 type Source_Builder struct {
-	runtimesField *TSet[string]
-	loadFlags_ *TMap[string, string]
-	codeSupplierField *Source_Lazy
+	runtimesField             *JTSet[string]
+	loadFlags_                *JTMap[string, string]
+	codeSupplierField         *Source_Lazy
 	originalCodeSupplierField *Source_Lazy
-	path_ Optional[string]
-	sourceMap_ Optional[string]
-	sourceUrl_ Optional[string]
-	sourceMappingUrl_ Optional[string]
-	estimatedSize_ int32
-	set0 int8
+	path_                     Optional[string]
+	sourceMap_                Optional[string]
+	sourceUrl_                Optional[string]
+	sourceMappingUrl_         Optional[string]
+	estimatedSize_            int32
+	set0                      int8
 }
 
 func (this *Source_Builder) finit_Source_Builder() {
@@ -193,16 +193,16 @@ func (this *Source_Builder) setSourceMappingUrl(sourceMappingUrl string) *Source
 	return this
 }
 
-func (this *Source_Builder) setRuntimes(runtimes *TSet[string]) *Source_Builder {
-	if (runtimes == nil) {
+func (this *Source_Builder) setRuntimes(runtimes *JTSet[string]) *Source_Builder {
+	if runtimes == nil {
 		panic(new_NullPointerException_String("Null runtimes").self())
 	}
 	this.runtimesField = runtimes
 	return this
 }
 
-func (this *Source_Builder) setLoadFlags(flags *TMap[string, string]) *Source_Builder {
-	if (flags == nil) {
+func (this *Source_Builder) setLoadFlags(flags *JTMap[string, string]) *Source_Builder {
+	if flags == nil {
 		panic(new_NullPointerException_String("Null loadFlags").self())
 	}
 	this.loadFlags_ = flags
@@ -216,7 +216,13 @@ func (this *Source_Builder) setEstimatedSize(estimatedSize int32) *Source_Builde
 }
 
 func (this *Source_Builder) setCodeFromSupplier(code Supplier_base[string]) *Source_Builder {
-	return this.setCodeSupplier(Source_Lazy_memoize(func() Supplier_base[any] { f_ := code; if f_ == nil { return nil }; return func() any { return strobj_(f_()) } }()))
+	return this.setCodeSupplier(Source_Lazy_memoize(func() Supplier_base[any] {
+		f_ := code
+		if f_ == nil {
+			return nil
+		}
+		return func() any { return strobj_(f_()) }
+	}()))
 }
 
 func (this *Source_Builder) setCode(code string) *Source_Builder {
@@ -228,22 +234,22 @@ func (this *Source_Builder) setOriginalCode(code string) *Source_Builder {
 }
 
 func (this *Source_Builder) addRuntime(runtimes []string) *Source_Builder {
-	return this.setRuntimes(tsetImm_(tc_string, ImmutableSet_builder().addAll(Iterable(this.runtimes().asSet())).add_ObjectArr(arrmap_(runtimes, func(v_ string) any { return strobj_(v_) })).build()))
+	return this.setRuntimes(tsetImm_(jtc_string, ImmutableSet_builder().addAll(Iterable(this.runtimes().asSet())).add_ObjectArr(arrmap_(runtimes, func(v_ string) any { return strobj_(v_) })).build()))
 }
 
 func (this *Source_Builder) setDependencyInfo(info DependencyInfo_) *Source_Builder {
-	return this.setLoadFlags(tmapImm_(tc_string, tc_string, info.getLoadFlags()))
+	return this.setLoadFlags(tmapImm_(jtc_string, jtc_string, info.getLoadFlags()))
 }
 
 func (this *Source_Builder) build() *Source {
-	if (this.originalCodeSupplier() == nil) {
+	if this.originalCodeSupplier() == nil {
 		this.setOriginalCodeSupplier(this.codeSupplier())
 	}
 	return this.autoBuild()
 }
 
 func (this *Source_Builder) setCodeSupplier(code *Source_Lazy) *Source_Builder {
-	if (code == nil) {
+	if code == nil {
 		panic(new_NullPointerException_String("Null codeSupplier").self())
 	}
 	this.codeSupplierField = code
@@ -255,22 +261,22 @@ func (this *Source_Builder) setOriginalCodeSupplier(code *Source_Lazy) *Source_B
 	return this
 }
 
-func (this *Source_Builder) runtimes() *TSet[string] {
-	if (this.runtimesField == nil) {
+func (this *Source_Builder) runtimes() *JTSet[string] {
+	if this.runtimesField == nil {
 		panic(new_IllegalStateException_String("Property \"runtimes\" has not been set").self())
 	}
 	return this.runtimesField
 }
 
 func (this *Source_Builder) codeSupplier() *Source_Lazy {
-	if (this.codeSupplierField == nil) {
+	if this.codeSupplierField == nil {
 		panic(new_IllegalStateException_String("Property \"codeSupplier\" has not been set").self())
 	}
 	return this.codeSupplierField
 }
 
 func (this *Source_Builder) autoBuild() *Source {
-	if ((((((((int32(this.set0) != 1) || this.path_.isEmpty()) || this.sourceMap_.isEmpty()) || this.sourceUrl_.isEmpty()) || this.sourceMappingUrl_.isEmpty()) || (this.runtimesField == nil)) || (this.loadFlags_ == nil)) || (this.codeSupplierField == nil)) {
+	if (((((((int32(this.set0) != 1) || this.path_.isEmpty()) || this.sourceMap_.isEmpty()) || this.sourceUrl_.isEmpty()) || this.sourceMappingUrl_.isEmpty()) || (this.runtimesField == nil)) || (this.loadFlags_ == nil)) || (this.codeSupplierField == nil) {
 		var missing *StringBuilder = new_StringBuilder()
 		if this.path_.isEmpty() {
 			missing.append(" path")
@@ -284,19 +290,19 @@ func (this *Source_Builder) autoBuild() *Source {
 		if this.sourceMappingUrl_.isEmpty() {
 			missing.append(" sourceMappingUrl")
 		}
-		if (this.runtimesField == nil) {
+		if this.runtimesField == nil {
 			missing.append(" runtimes")
 		}
-		if (this.loadFlags_ == nil) {
+		if this.loadFlags_ == nil {
 			missing.append(" loadFlags")
 		}
-		if ((int32(this.set0) & 1) == 0) {
+		if (int32(this.set0) & 1) == 0 {
 			missing.append(" estimatedSize")
 		}
-		if (this.codeSupplierField == nil) {
+		if this.codeSupplierField == nil {
 			missing.append(" codeSupplier")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + tostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
 	}
 	return new_Source(this.path_.get(), this.sourceMap_.get(), this.sourceUrl_.get(), this.sourceMappingUrl_.get(), this.runtimesField, this.loadFlags_, this.estimatedSize_, this.codeSupplierField, this.originalCodeSupplierField)
 }
@@ -465,4 +471,3 @@ func new_Source_Lazy_2(cap_memoized Supplier_base[any]) *Source_Lazy_2 {
 func (this *Source_Lazy_2) get_impl() any {
 	return this.cap_memoized.get()
 }
-

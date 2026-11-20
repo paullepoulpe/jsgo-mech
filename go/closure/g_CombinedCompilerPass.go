@@ -7,26 +7,26 @@ type CombinedCompilerPass struct {
 	compiler_ *AbstractCompiler
 }
 
-func (this *CombinedCompilerPass) init_CombinedCompilerPass(compiler *AbstractCompiler, callbacks *TList[NodeTraversal_Callback]) {
+func (this *CombinedCompilerPass) init_CombinedCompilerPass(compiler *AbstractCompiler, callbacks *JTList[NodeTraversal_Callback]) {
 	this.compiler_ = compiler
 	this.callbacks = make([]*CombinedCompilerPass_CallbackWrapper, callbacks.size())
-	for i := int32(0); (i < callbacks.size()); i++ {
+	for i := int32(0); i < callbacks.size(); i++ {
 		this.callbacks[i] = new_CombinedCompilerPass_CallbackWrapper(callbacks.get(i))
 	}
 }
 
-func new_CombinedCompilerPass(compiler *AbstractCompiler, callbacks *TList[NodeTraversal_Callback]) *CombinedCompilerPass {
+func new_CombinedCompilerPass(compiler *AbstractCompiler, callbacks *JTList[NodeTraversal_Callback]) *CombinedCompilerPass {
 	this := &CombinedCompilerPass{}
 	this.init_CombinedCompilerPass(compiler, callbacks)
 	return this
 }
 
 func CombinedCompilerPass_createFromCallbacks(compiler *AbstractCompiler, callbacks []NodeTraversal_Callback) *CombinedCompilerPass {
-	return new_CombinedCompilerPass(compiler, immutableListCopyOfArr_(tc_NodeTraversal_Callback, callbacks))
+	return new_CombinedCompilerPass(compiler, jimmutableListCopyOfArr_(jtc_NodeTraversal_Callback, callbacks))
 }
 
-func CombinedCompilerPass_traverse(compiler *AbstractCompiler, root Node, callbacks *TList[NodeTraversal_Callback]) {
-	if (callbacks.size() == 1) {
+func CombinedCompilerPass_traverse(compiler *AbstractCompiler, root Node, callbacks *JTList[NodeTraversal_Callback]) {
+	if callbacks.size() == 1 {
 		NodeTraversal_traverse(compiler, root, callbacks.get(0))
 	} else {
 		new_CombinedCompilerPass(compiler, callbacks).process_2(0, root)
@@ -69,9 +69,9 @@ func (this *CombinedCompilerPass) exitScope(t *NodeTraversal) {
 }
 
 type CombinedCompilerPass_CallbackWrapper struct {
-	callback NodeTraversal_Callback
+	callback       NodeTraversal_Callback
 	scopedCallback NodeTraversal_ScopedCallback
-	waiting Node
+	waiting        Node
 }
 
 func (this *CombinedCompilerPass_CallbackWrapper) finit_CombinedCompilerPass_CallbackWrapper() {
@@ -83,7 +83,14 @@ func (this *CombinedCompilerPass_CallbackWrapper) init_CombinedCompilerPass_Call
 	this.callback = callback
 	var scopedCallback NodeTraversal_ScopedCallback
 	_ = scopedCallback
-	if func() bool { v_ := any(callback); if !is_[NodeTraversal_ScopedCallback](v_) { return false }; scopedCallback = icast_NodeTraversal_ScopedCallback(v_); return true }() {
+	if func() bool {
+		v_ := any(callback)
+		if !is_[NodeTraversal_ScopedCallback](v_) {
+			return false
+		}
+		scopedCallback = icast_NodeTraversal_ScopedCallback(v_)
+		return true
+	}() {
 		this.scopedCallback = scopedCallback
 	} else {
 		this.scopedCallback = nil
@@ -99,25 +106,25 @@ func new_CombinedCompilerPass_CallbackWrapper(callback NodeTraversal_Callback) *
 func (this *CombinedCompilerPass_CallbackWrapper) visitOrMaybeActivate(t *NodeTraversal, n Node, parent Node) {
 	if this.isActive() {
 		this.callback.visit(t, n, parent)
-	} else if (this.waiting == n) {
+	} else if this.waiting == n {
 		this.waiting = 0
 	}
 }
 
 func (this *CombinedCompilerPass_CallbackWrapper) shouldTraverseIfActive(t *NodeTraversal, n Node, parent Node) {
-	if (this.isActive() && !this.callback.shouldTraverse(t, n, parent)) {
+	if this.isActive() && !this.callback.shouldTraverse(t, n, parent) {
 		this.waiting = n
 	}
 }
 
 func (this *CombinedCompilerPass_CallbackWrapper) enterScopeIfActive(t *NodeTraversal) {
-	if (this.isActive() && (this.scopedCallback != nil)) {
+	if this.isActive() && (this.scopedCallback != nil) {
 		this.scopedCallback.enterScope(t)
 	}
 }
 
 func (this *CombinedCompilerPass_CallbackWrapper) exitScopeIfActive(t *NodeTraversal) {
-	if (this.isActive() && (this.scopedCallback != nil)) {
+	if this.isActive() && (this.scopedCallback != nil) {
 		this.scopedCallback.exitScope(t)
 	}
 }
@@ -125,4 +132,3 @@ func (this *CombinedCompilerPass_CallbackWrapper) exitScopeIfActive(t *NodeTrave
 func (this *CombinedCompilerPass_CallbackWrapper) isActive() bool {
 	return (this.waiting == 0)
 }
-

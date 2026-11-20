@@ -3,14 +3,14 @@
 package closure
 
 type SimpleDependencyInfo struct {
-	getName_ string
+	getName_                      string
 	getPathRelativeToClosureBase_ string
-	getProvides_ *TList[string]
-	getRequires_ *TList[*DependencyInfo_Require]
-	getTypeRequires_ *TList[string]
-	getLoadFlags_ *TMap[string, string]
-	getHasExternsAnnotation_ bool
-	getHasNoCompileAnnotation_ bool
+	getProvides_                  *JTList[string]
+	getRequires_                  *JTList[*DependencyInfo_Require]
+	getTypeRequires_              *JTList[string]
+	getLoadFlags_                 *JTMap[string, string]
+	getHasExternsAnnotation_      bool
+	getHasNoCompileAnnotation_    bool
 }
 
 func (this *SimpleDependencyInfo) zero_SimpleDependencyInfo() {
@@ -18,7 +18,7 @@ func (this *SimpleDependencyInfo) zero_SimpleDependencyInfo() {
 	this.getPathRelativeToClosureBase_ = nullstr_
 }
 
-func (this *SimpleDependencyInfo) init_SimpleDependencyInfo(getName string, getPathRelativeToClosureBase string, getProvides *TList[string], getRequires *TList[*DependencyInfo_Require], getTypeRequires *TList[string], getLoadFlags *TMap[string, string], getHasExternsAnnotation bool, getHasNoCompileAnnotation bool) {
+func (this *SimpleDependencyInfo) init_SimpleDependencyInfo(getName string, getPathRelativeToClosureBase string, getProvides *JTList[string], getRequires *JTList[*DependencyInfo_Require], getTypeRequires *JTList[string], getLoadFlags *JTMap[string, string], getHasExternsAnnotation bool, getHasNoCompileAnnotation bool) {
 	Objects_requireNonNull(getProvides.asList(), "getProvides")
 	Objects_requireNonNull(getRequires.asList(), "getRequires")
 	Objects_requireNonNull(getTypeRequires.asList(), "getTypeRequires")
@@ -33,7 +33,7 @@ func (this *SimpleDependencyInfo) init_SimpleDependencyInfo(getName string, getP
 	this.getHasNoCompileAnnotation_ = getHasNoCompileAnnotation
 }
 
-func new_SimpleDependencyInfo(getName string, getPathRelativeToClosureBase string, getProvides *TList[string], getRequires *TList[*DependencyInfo_Require], getTypeRequires *TList[string], getLoadFlags *TMap[string, string], getHasExternsAnnotation bool, getHasNoCompileAnnotation bool) *SimpleDependencyInfo {
+func new_SimpleDependencyInfo(getName string, getPathRelativeToClosureBase string, getProvides *JTList[string], getRequires *JTList[*DependencyInfo_Require], getTypeRequires *JTList[string], getLoadFlags *JTMap[string, string], getHasExternsAnnotation bool, getHasNoCompileAnnotation bool) *SimpleDependencyInfo {
 	this := &SimpleDependencyInfo{}
 	this.zero_SimpleDependencyInfo()
 	this.init_SimpleDependencyInfo(getName, getPathRelativeToClosureBase, getProvides, getRequires, getTypeRequires, getLoadFlags, getHasExternsAnnotation, getHasNoCompileAnnotation)
@@ -127,15 +127,15 @@ func SimpleDependencyInfo_clinit() {
 }
 
 type SimpleDependencyInfo_Builder struct {
-	provides *TList[string]
-	requires *TList[*DependencyInfo_Require]
-	typeRequires *TList[string]
-	loadFlags_ *TMap[string, string]
-	name_ Optional[string]
+	provides                  *JTList[string]
+	requires                  *JTList[*DependencyInfo_Require]
+	typeRequires              *JTList[string]
+	loadFlags_                *JTMap[string, string]
+	name_                     Optional[string]
 	pathRelativeToClosureBase Optional[string]
-	hasExternsAnnotation bool
-	hasNoCompileAnnotation bool
-	set0 int8
+	hasExternsAnnotation      bool
+	hasNoCompileAnnotation    bool
+	set0                      int8
 }
 
 func (this *SimpleDependencyInfo_Builder) finit_SimpleDependencyInfo_Builder() {
@@ -171,7 +171,7 @@ func (this *SimpleDependencyInfo_Builder) setPathRelativeToClosureBase(srcPathRe
 }
 
 func (this *SimpleDependencyInfo_Builder) setProvides(provides CollectionOf[string]) *SimpleDependencyInfo_Builder {
-	this.provides = immutableListCopyOf_(tc_string, provides)
+	this.provides = jimmutableListCopyOf_(jtc_string, provides)
 	return this
 }
 
@@ -180,7 +180,7 @@ func (this *SimpleDependencyInfo_Builder) setProvidesStringVarargs(provides []st
 }
 
 func (this *SimpleDependencyInfo_Builder) setRequires(requires CollectionOf[*DependencyInfo_Require]) *SimpleDependencyInfo_Builder {
-	this.requires = immutableListCopyOf_(tc_p_DependencyInfo_Require, requires)
+	this.requires = jimmutableListCopyOf_(jtc_p_DependencyInfo_Require, requires)
 	return this
 }
 
@@ -189,7 +189,7 @@ func (this *SimpleDependencyInfo_Builder) setRequiresRequireVarargs(requires []*
 }
 
 func (this *SimpleDependencyInfo_Builder) setTypeRequires(typeRequires CollectionOf[string]) *SimpleDependencyInfo_Builder {
-	this.typeRequires = immutableListCopyOf_(tc_string, typeRequires)
+	this.typeRequires = jimmutableListCopyOf_(jtc_string, typeRequires)
 	return this
 }
 
@@ -198,7 +198,7 @@ func (this *SimpleDependencyInfo_Builder) setTypeRequiresStringVarargs(typeRequi
 }
 
 func (this *SimpleDependencyInfo_Builder) setLoadFlags(loadFlags MapOf[string, string]) *SimpleDependencyInfo_Builder {
-	this.loadFlags_ = immutableMapCopyOf_(tc_string, tc_string, loadFlags)
+	this.loadFlags_ = jimmutableMapCopyOf_(jtc_string, jtc_string, loadFlags)
 	return this
 }
 
@@ -215,11 +215,16 @@ func (this *SimpleDependencyInfo_Builder) setHasNoCompileAnnotation(hasNoCompile
 }
 
 func (this *SimpleDependencyInfo_Builder) setGoogModule(isModule bool) *SimpleDependencyInfo_Builder {
-	return this.setLoadFlags(func() Map { if isModule { return SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS.asMap() }; return ImmutableMap_as_Map(ImmutableMap_of()) }())
+	return this.setLoadFlags(func() Map {
+		if isModule {
+			return SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS.asMap()
+		}
+		return ImmutableMap_as_Map(ImmutableMap_of())
+	}())
 }
 
 func (this *SimpleDependencyInfo_Builder) build() *SimpleDependencyInfo {
-	if (((((((int32(this.set0) != 3) || this.name_.isEmpty()) || this.pathRelativeToClosureBase.isEmpty()) || (this.provides == nil)) || (this.requires == nil)) || (this.typeRequires == nil)) || (this.loadFlags_ == nil)) {
+	if ((((((int32(this.set0) != 3) || this.name_.isEmpty()) || this.pathRelativeToClosureBase.isEmpty()) || (this.provides == nil)) || (this.requires == nil)) || (this.typeRequires == nil)) || (this.loadFlags_ == nil) {
 		var missing *StringBuilder = new_StringBuilder()
 		if this.name_.isEmpty() {
 			missing.append(" name")
@@ -227,30 +232,30 @@ func (this *SimpleDependencyInfo_Builder) build() *SimpleDependencyInfo {
 		if this.pathRelativeToClosureBase.isEmpty() {
 			missing.append(" pathRelativeToClosureBase")
 		}
-		if (this.provides == nil) {
+		if this.provides == nil {
 			missing.append(" provides")
 		}
-		if (this.requires == nil) {
+		if this.requires == nil {
 			missing.append(" requires")
 		}
-		if (this.typeRequires == nil) {
+		if this.typeRequires == nil {
 			missing.append(" typeRequires")
 		}
-		if (this.loadFlags_ == nil) {
+		if this.loadFlags_ == nil {
 			missing.append(" loadFlags")
 		}
-		if ((int32(this.set0) & 1) == 0) {
+		if (int32(this.set0) & 1) == 0 {
 			missing.append(" hasExternsAnnotation")
 		}
-		if ((int32(this.set0) & 2) == 0) {
+		if (int32(this.set0) & 2) == 0 {
 			missing.append(" hasNoCompileAnnotation")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + tostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
 	}
 	return new_SimpleDependencyInfo(this.name_.get(), this.pathRelativeToClosureBase.get(), this.provides, this.requires, this.typeRequires, this.loadFlags_, this.hasExternsAnnotation, this.hasNoCompileAnnotation)
 }
 
-var SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS *TMap[string, string]
+var SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS *JTMap[string, string]
 
 var SimpleDependencyInfo_Builder_clinit_done bool
 
@@ -259,7 +264,6 @@ func SimpleDependencyInfo_Builder_clinit() {
 		return
 	}
 	SimpleDependencyInfo_Builder_clinit_done = true
-	SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS = immutableMapOf1_[string, string](tc_string, tc_string, "module", "goog")
+	SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS = immutableMapOf1_[string, string](jtc_string, jtc_string, "module", "goog")
 
 }
-

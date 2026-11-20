@@ -4,8 +4,8 @@ package closure
 
 type TypeTransformation struct {
 	compiler_ *AbstractCompiler
-	registry *JSTypeRegistry
-	typeEnv StaticTypedScope
+	registry  *JSTypeRegistry
+	typeEnv   StaticTypedScope
 }
 
 func (this *TypeTransformation) init_TypeTransformation(compiler *AbstractCompiler, typeEnv StaticTypedScope) {
@@ -38,13 +38,18 @@ func (this *TypeTransformation) nameToKeyword(s string) *TypeTransformationParse
 
 func (this *TypeTransformation) getType(typeName string) *JSType {
 	var type_ *JSType = this.registry.getType(StaticScope(this.typeEnv), typeName)
-	if (type_ != nil) {
+	if type_ != nil {
 		return type_
 	}
 	var slot StaticTypedSlot = this.typeEnv.getSlot_String_rStaticTypedSlot(typeName)
-	type_ = func() *JSType { if (slot != nil) { return slot.getType() }; return nil }()
-	if (type_ != nil) {
-		if (type_.isConstructor() || type_.isInterface()) {
+	type_ = func() *JSType {
+		if slot != nil {
+			return slot.getType()
+		}
+		return nil
+	}()
+	if type_ != nil {
+		if type_.isConstructor() || type_.isInterface() {
 			return type_.toMaybeFunctionType().getInstanceType().getRawType().up_JSType()
 		}
 		if type_.isEnumElementType() {
@@ -52,8 +57,13 @@ func (this *TypeTransformation) getType(typeName string) *JSType {
 		}
 		return type_
 	}
-	var jsdoc *JSDocInfo = func() *JSDocInfo { if (slot == nil) { return nil }; return slot.getJSDocInfo() }()
-	if ((jsdoc != nil) && jsdoc.hasTypedefType()) {
+	var jsdoc *JSDocInfo = func() *JSDocInfo {
+		if slot == nil {
+			return nil
+		}
+		return slot.getJSDocInfo()
+	}()
+	if (jsdoc != nil) && jsdoc.hasTypedefType() {
 		return this.registry.evaluateTypeExpression(jsdoc.getTypedefType(), this.typeEnv)
 	}
 	return nil
@@ -79,7 +89,7 @@ func (this *TypeTransformation) createUnionType(variants []*JSType) *JSType {
 	return this.registry.createUnionType(variants)
 }
 
-func (this *TypeTransformation) createRecordType(props *TMap[string, *JSType]) *JSType {
+func (this *TypeTransformation) createRecordType(props *JTMap[string, *JSType]) *JSType {
 	return this.registry.createRecordType(props.asMap())
 }
 
@@ -111,10 +121,10 @@ func (this *TypeTransformation) getCallParamCount(n Node) int32 {
 	return (n.getChildCount() - 1)
 }
 
-func (this *TypeTransformation) getCallParams(n Node) *TList[Node] {
+func (this *TypeTransformation) getCallParams(n Node) *JTList[Node] {
 	Preconditions_checkArgument_boolean_String_Object_H(n.isCall(), "Expected a call node, found %s", n)
-	var builder *TListBuilder[Node] = newTListBuilder_(tc_Node)
-	for i := int32(0); (i < this.getCallParamCount(n)); i++ {
+	var builder *TListBuilder[Node] = newTListBuilder_(jtc_Node)
+	for i := int32(0); i < this.getCallParamCount(n); i++ {
 		builder.add(this.getCallArgument(n, i))
 	}
 	return builder.build()
@@ -130,13 +140,18 @@ func (this *TypeTransformation) getComputedPropName(n Node) string {
 	return n.getFirstChild().getString()
 }
 
-func (this *TypeTransformation) eval(ttlAst Node, typeVars *TMap[string, *JSType]) *JSType {
-	return this.eval_3(ttlAst, typeVars, tmapEmptyImm_(tc_string, tc_string))
+func (this *TypeTransformation) eval(ttlAst Node, typeVars *JTMap[string, *JSType]) *JSType {
+	return this.eval_3(ttlAst, typeVars, jtmapEmptyImm_(jtc_string, jtc_string))
 }
 
-func (this *TypeTransformation) eval_3(ttlAst Node, typeVars *TMap[string, *JSType], nameVars *TMap[string, string]) *JSType {
+func (this *TypeTransformation) eval_3(ttlAst Node, typeVars *JTMap[string, *JSType], nameVars *JTMap[string, string]) *JSType {
 	var result *JSType = this.evalInternal(ttlAst, new_TypeTransformation_NameResolver(typeVars, nameVars))
-	return func() *JSType { if result.isEmptyType() { return this.getUnknownType() }; return result }()
+	return func() *JSType {
+		if result.isEmptyType() {
+			return this.getUnknownType()
+		}
+		return result
+	}()
 }
 
 func (this *TypeTransformation) evalInternal(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {
@@ -220,7 +235,7 @@ func (this *TypeTransformation) evalTypeExpression(ttlAst Node, nameResolver *Ty
 func (this *TypeTransformation) evalTypeName(ttlAst Node) *JSType {
 	var typeName string = ttlAst.getString()
 	var resultingType *JSType = this.getType(typeName)
-	if (resultingType == nil) {
+	if resultingType == nil {
 		this.reportWarning(ttlAst, TypeTransformation_UNKNOWN_TYPENAME, []string{typeName})
 		return this.getUnknownType()
 	}
@@ -228,16 +243,23 @@ func (this *TypeTransformation) evalTypeName(ttlAst Node) *JSType {
 }
 
 func (this *TypeTransformation) evalTemplatizedType(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {
-	var params *TList[Node] = this.getCallParams(ttlAst)
+	var params *JTList[Node] = this.getCallParams(ttlAst)
 	var firstParam *JSType = this.evalInternal(params.get(0), nameResolver)
 	if !firstParam.isRawTypeOfTemplatizedType() {
 		this.reportWarning(ttlAst, TypeTransformation_BASETYPE_INVALID, []string{firstParam.toString()})
 		return this.getUnknownType()
 	}
 	var templatizedTypes []*JSType = make([]*JSType, (params.size() - 1))
-	func() { arr_1 := templatizedTypes; tmp_2 := arrmap_(arr_1, func(v_ *JSType) any { return v_.self() }); Arrays_setAll(tmp_2, IntFunction[any](func(i int32) any {
-		return this.evalInternal(params.get((i + 1)), nameResolver).self()
-	})); for i_ := range tmp_2 { arr_1[i_] = to_JSType(tmp_2[i_]) } }()
+	func() {
+		arr_1 := templatizedTypes
+		tmp_2 := arrmap_(arr_1, func(v_ *JSType) any { return v_.self() })
+		Arrays_setAll(tmp_2, IntFunction[any](func(i int32) any {
+			return this.evalInternal(params.get((i + 1)), nameResolver).self()
+		}))
+		for i_ := range tmp_2 {
+			arr_1[i_] = to_JSType(tmp_2[i_])
+		}
+	}()
 	var baseType *ObjectType = firstParam.toMaybeObjectType()
 	return this.registry.createTemplatizedType(baseType, templatizedTypes).up_JSType()
 }
@@ -245,7 +267,7 @@ func (this *TypeTransformation) evalTemplatizedType(ttlAst Node, nameResolver *T
 func (this *TypeTransformation) evalTypeVar(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {
 	var typeVar string = ttlAst.getString()
 	var resultingType *JSType = nameResolver.typeVars.get(typeVar)
-	if (resultingType == nil) {
+	if resultingType == nil {
 		this.reportWarning(ttlAst, TypeTransformation_UNKNOWN_TYPEVAR, []string{typeVar})
 		return this.getUnknownType()
 	}
@@ -253,20 +275,20 @@ func (this *TypeTransformation) evalTypeVar(ttlAst Node, nameResolver *TypeTrans
 }
 
 func (this *TypeTransformation) evalUnionType(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {
-	var params *TList[Node] = this.getCallParams(ttlAst)
+	var params *JTList[Node] = this.getCallParams(ttlAst)
 	var paramCount int32 = params.size()
 	var basicTypes []*JSType = make([]*JSType, paramCount)
-	for i := int32(0); (i < paramCount); i++ {
+	for i := int32(0); i < paramCount; i++ {
 		basicTypes[i] = this.evalInternal(params.get(i), nameResolver)
 	}
 	return this.createUnionType(basicTypes)
 }
 
 func (this *TypeTransformation) evalTypeParams(ttlAst Node, nameResolver *TypeTransformation_NameResolver) []*JSType {
-	var params *TList[Node] = this.getCallParams(ttlAst)
+	var params *JTList[Node] = this.getCallParams(ttlAst)
 	var paramCount int32 = params.size()
 	var result []*JSType = make([]*JSType, paramCount)
-	for i := int32(0); (i < paramCount); i++ {
+	for i := int32(0); i < paramCount; i++ {
 		result[i] = this.evalInternal(params.get(i), nameResolver)
 	}
 	return result
@@ -284,10 +306,10 @@ func (this *TypeTransformation) evalString(ttlAst Node, nameResolver *TypeTransf
 }
 
 func (this *TypeTransformation) evalStringParams(ttlAst Node, nameResolver *TypeTransformation_NameResolver) []string {
-	var params *TList[Node] = this.getCallParams(ttlAst)
+	var params *JTList[Node] = this.getCallParams(ttlAst)
 	var paramCount int32 = params.size()
 	var result []string = newstrarr_(paramCount)
-	for i := int32(0); (i < paramCount); i++ {
+	for i := int32(0); i < paramCount; i++ {
 		result[i] = this.evalString(params.get(i), nameResolver)
 	}
 	return result
@@ -321,7 +343,7 @@ func (this *TypeTransformation) evalTypePredicate(ttlAst Node, nameResolver *Typ
 
 func (this *TypeTransformation) evalStringPredicate(ttlAst Node, nameResolver *TypeTransformation_NameResolver) bool {
 	var params []string = this.evalStringParams(ttlAst, nameResolver)
-	for i := int32(0); (i < int32(len(params))); i++ {
+	for i := int32(0); i < int32(len(params)); i++ {
 		if String_isEmpty(params[i]) {
 			return false
 		}
@@ -389,7 +411,7 @@ func (this *TypeTransformation) evalBoolean(ttlAst Node, nameResolver *TypeTrans
 }
 
 func (this *TypeTransformation) evalConditional(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {
-	var params *TList[Node] = this.getCallParams(ttlAst)
+	var params *JTList[Node] = this.getCallParams(ttlAst)
 	if this.evalBoolean(params.get(0), nameResolver) {
 		return this.evalInternal(params.get(1), nameResolver)
 	} else {
@@ -399,7 +421,7 @@ func (this *TypeTransformation) evalConditional(ttlAst Node, nameResolver *TypeT
 }
 
 func (this *TypeTransformation) evalMapunion(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {
-	var params *TList[Node] = this.getCallParams(ttlAst)
+	var params *JTList[Node] = this.getCallParams(ttlAst)
 	var unionParam Node = params.get(0)
 	var mapFunction Node = params.get(1)
 	var paramName string = this.getFunctionParameter(mapFunction, 0)
@@ -410,17 +432,17 @@ func (this *TypeTransformation) evalMapunion(ttlAst Node, nameResolver *TypeTran
 	var mapFunctionBody Node = NodeUtil_getFunctionBody(mapFunction)
 	var unionType *JSType = this.evalInternal(unionParam, nameResolver)
 	if !unionType.isUnionType() {
-		var newNameResolver *TypeTransformation_NameResolver = new_TypeTransformation_NameResolver(tmapImm_(tc_string, tc_p_JSType, this.addNewEntry(nameResolver.typeVars.asImm(), paramName, unionType.self())), nameResolver.nameVars)
+		var newNameResolver *TypeTransformation_NameResolver = new_TypeTransformation_NameResolver(tmapImm_(jtc_string, jtc_p_JSType, this.addNewEntry(nameResolver.typeVars.asImm(), paramName, unionType.self())), nameResolver.nameVars)
 		return this.evalInternal(mapFunctionBody, newNameResolver)
 	}
-	var unionElms *TList[*JSType] = immutableListCopyOf_(tc_p_JSType, unionType.getUnionMembers())
+	var unionElms *JTList[*JSType] = jimmutableListCopyOf_(jtc_p_JSType, unionType.getUnionMembers())
 	var unionSize int32 = unionElms.size()
 	var newUnionElms []*JSType = make([]*JSType, unionSize)
 	var i int32 = 0
 	it_1 := unionElms.each()
 	for it_1.next() {
 		var elm *JSType = it_1.v
-		var newNameResolver *TypeTransformation_NameResolver = new_TypeTransformation_NameResolver(tmapImm_(tc_string, tc_p_JSType, this.addNewEntry(nameResolver.typeVars.asImm(), paramName, elm.self())), nameResolver.nameVars)
+		var newNameResolver *TypeTransformation_NameResolver = new_TypeTransformation_NameResolver(tmapImm_(jtc_string, jtc_p_JSType, this.addNewEntry(nameResolver.typeVars.asImm(), paramName, elm.self())), nameResolver.nameVars)
 		newUnionElms[i] = this.evalInternal(mapFunctionBody, newNameResolver)
 		i++
 	}
@@ -428,7 +450,7 @@ func (this *TypeTransformation) evalMapunion(ttlAst Node, nameResolver *TypeTran
 }
 
 func (this *TypeTransformation) evalRawTypeOf(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {
-	var params *TList[Node] = this.getCallParams(ttlAst)
+	var params *JTList[Node] = this.getCallParams(ttlAst)
 	var type_ *JSType = this.evalInternal(params.get(0), nameResolver)
 	if !type_.isTemplatizedType() {
 		this.reportWarning(ttlAst, TypeTransformation_TEMPTYPE_INVALID, []string{"rawTypeOf", type_.toString()})
@@ -438,15 +460,15 @@ func (this *TypeTransformation) evalRawTypeOf(ttlAst Node, nameResolver *TypeTra
 }
 
 func (this *TypeTransformation) evalTemplateTypeOf(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {
-	var params *TList[Node] = this.getCallParams(ttlAst)
+	var params *JTList[Node] = this.getCallParams(ttlAst)
 	var type_ *JSType = this.evalInternal(params.get(0), nameResolver)
 	if !type_.isTemplatizedType() {
 		this.reportWarning(ttlAst, TypeTransformation_TEMPTYPE_INVALID, []string{"templateTypeOf", type_.toString()})
 		return this.getUnknownType()
 	}
 	var index int32 = f2i_[int32](float64(params.get(1).getDouble()))
-	var templateTypes *TList[*JSType] = type_.toMaybeObjectType().getTemplateTypes()
-	if (index >= templateTypes.size()) {
+	var templateTypes *JTList[*JSType] = type_.toMaybeObjectType().getTemplateTypes()
+	if index >= templateTypes.size() {
 		this.reportWarning(ttlAst, TypeTransformation_INDEX_OUTOFBOUNDS, []string{Integer_toString(templateTypes.size()), Integer_toString(index)})
 		return this.getUnknownType()
 	}
@@ -454,10 +476,10 @@ func (this *TypeTransformation) evalTemplateTypeOf(ttlAst Node, nameResolver *Ty
 }
 
 func (this *TypeTransformation) evalRecord(record Node, nameResolver *TypeTransformation_NameResolver) *JSType {
-	var props *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
+	var props *JTMap[string, *JSType] = jnewTMap_(jtc_string, jtc_p_JSType)
 	{
 		var propNode Node = record.getFirstChild()
-		for ; (propNode != 0); propNode = propNode.getNext() {
+		for ; propNode != 0; propNode = propNode.getNext() {
 			if propNode.isComputedProp() {
 				var compPropName string = this.getComputedPropName(propNode)
 				if !nameResolver.nameVars.containsKey(compPropName) {
@@ -487,11 +509,11 @@ func (this *TypeTransformation) evalRecordParam(ttlAst Node, nameResolver *TypeT
 
 func (this *TypeTransformation) evalRecordType(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {
 	var paramCount int32 = this.getCallParamCount(ttlAst)
-	var recTypesBuilder *TListBuilder[*ObjectType] = newTListBuilder_(tc_p_ObjectType)
-	for i := int32(0); (i < paramCount); i++ {
+	var recTypesBuilder *TListBuilder[*ObjectType] = newTListBuilder_(jtc_p_ObjectType)
+	for i := int32(0); i < paramCount; i++ {
 		var type_ *JSType = this.evalRecordParam(this.getCallArgument(ttlAst, i), nameResolver)
 		var objType *ObjectType = type_.toMaybeObjectType()
-		if ((objType == nil) || objType.isUnknownType()) {
+		if (objType == nil) || objType.isUnknownType() {
 			this.reportWarning(ttlAst, TypeTransformation_RECPARAM_INVALID, []string{type_.toString()})
 			return this.getUnknownType()
 		}
@@ -503,16 +525,16 @@ func (this *TypeTransformation) evalRecordType(ttlAst Node, nameResolver *TypeTr
 	return this.joinRecordTypes(recTypesBuilder.build())
 }
 
-func (this *TypeTransformation) putNewPropInPropertyMap(props *TMap[string, *JSType], newPropName string, newPropValue *JSType) {
-	if ((!props.containsKey(newPropName) || !newPropValue.isRecordType()) || !props.get(newPropName).isRecordType()) {
+func (this *TypeTransformation) putNewPropInPropertyMap(props *JTMap[string, *JSType], newPropName string, newPropValue *JSType) {
+	if (!props.containsKey(newPropName) || !newPropValue.isRecordType()) || !props.get(newPropName).isRecordType() {
 		props.put(newPropName, newPropValue)
 		return
 	}
-	props.put(newPropName, this.joinRecordTypes(immutableListOf_[*ObjectType](tc_p_ObjectType, to_ObjectType(props.get(newPropName).self()), to_ObjectType(newPropValue.self()))))
+	props.put(newPropName, this.joinRecordTypes(jimmutableListOf_[*ObjectType](jtc_p_ObjectType, to_ObjectType(props.get(newPropName).self()), to_ObjectType(newPropValue.self()))))
 }
 
-func (this *TypeTransformation) joinRecordTypes(recTypes *TList[*ObjectType]) *JSType {
-	var props *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
+func (this *TypeTransformation) joinRecordTypes(recTypes *JTList[*ObjectType]) *JSType {
+	var props *JTMap[string, *JSType] = jnewTMap_(jtc_string, jtc_p_JSType)
 	it_1 := recTypes.each()
 	for it_1.next() {
 		var recType *ObjectType = it_1.v
@@ -523,7 +545,7 @@ func (this *TypeTransformation) joinRecordTypes(recTypes *TList[*ObjectType]) *J
 			this.putNewPropInPropertyMap(props, newPropName, newPropValue)
 		}
 	}
-	return this.createRecordType(immutableMapCopyOfT_(tc_string, tc_p_JSType, props))
+	return this.createRecordType(immutableMapCopyOfT_(jtc_string, jtc_p_JSType, props))
 }
 
 func (this *TypeTransformation) evalMaprecord(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {
@@ -549,17 +571,17 @@ func (this *TypeTransformation) evalMaprecord(ttlAst Node, nameResolver *TypeTra
 		return this.getUnknownType()
 	}
 	var mapFnBody Node = NodeUtil_getFunctionBody(mapFunction)
-	var newProps *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
+	var newProps *JTMap[string, *JSType] = jnewTMap_(jtc_string, jtc_p_JSType)
 	it_1 := foreach_(objtype.getOwnPropertyNames())
 	for it_1.next() {
 		var propName string = str_(it_1.v)
 		var propValue *JSType = objtype.getPropertyType(propName)
-		var newNameResolver *TypeTransformation_NameResolver = new_TypeTransformation_NameResolver(tmapImm_(tc_string, tc_p_JSType, this.addNewEntry(nameResolver.typeVars.asImm(), paramValue, propValue.self())), tmapImm_(tc_string, tc_string, this.addNewEntry(nameResolver.nameVars.asImm(), paramKey, strobj_(propName))))
+		var newNameResolver *TypeTransformation_NameResolver = new_TypeTransformation_NameResolver(tmapImm_(jtc_string, jtc_p_JSType, this.addNewEntry(nameResolver.typeVars.asImm(), paramValue, propValue.self())), tmapImm_(jtc_string, jtc_string, this.addNewEntry(nameResolver.nameVars.asImm(), paramKey, strobj_(propName))))
 		var body *JSType = this.evalInternal(mapFnBody, newNameResolver)
 		if body.isUnknownType() {
 			return this.getUnknownType()
 		}
-		if (body.isEmptyType() || body.equals(this.getObjectType().self())) {
+		if body.isEmptyType() || body.equals(this.getObjectType().self()) {
 			continue
 		}
 		if !body.isRecordType() {
@@ -574,14 +596,19 @@ func (this *TypeTransformation) evalMaprecord(ttlAst Node, nameResolver *TypeTra
 			this.putNewPropInPropertyMap(newProps, newPropName, newPropValue)
 		}
 	}
-	return this.createRecordType(immutableMapCopyOfT_(tc_string, tc_p_JSType, newProps))
+	return this.createRecordType(immutableMapCopyOfT_(jtc_string, jtc_p_JSType, newProps))
 }
 
 func (this *TypeTransformation) evalTypeOfVar(ttlAst Node) *JSType {
 	var name string = this.getCallArgument(ttlAst, 0).getString()
 	var slot StaticTypedSlot = this.typeEnv.getSlot_String_rStaticTypedSlot(name)
-	var type_ *JSType = func() *JSType { if (slot != nil) { return slot.getType() }; return nil }()
-	if (type_ == nil) {
+	var type_ *JSType = func() *JSType {
+		if slot != nil {
+			return slot.getType()
+		}
+		return nil
+	}()
+	if type_ == nil {
 		this.reportWarning(ttlAst, TypeTransformation_VAR_UNDEFINED, []string{name})
 		return this.getUnknownType()
 	}
@@ -590,7 +617,7 @@ func (this *TypeTransformation) evalTypeOfVar(ttlAst Node) *JSType {
 
 func (this *TypeTransformation) evalInstanceOf(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {
 	var type_ *JSType = this.evalInternal(this.getCallArgument(ttlAst, 0), nameResolver)
-	if (type_.isUnknownType() || !type_.isConstructor()) {
+	if type_.isUnknownType() || !type_.isConstructor() {
 		this.reportWarning(ttlAst, TypeTransformation_INVALID_CTOR, []string{type_.getDisplayName().orElse("null")})
 		return this.getUnknownType()
 	}
@@ -612,7 +639,7 @@ func (this *TypeTransformation) evalPrintType(ttlAst Node, nameResolver *TypeTra
 func (this *TypeTransformation) evalPropType(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {
 	var type_ *JSType = this.evalInternal(this.getCallArgument(ttlAst, 1), nameResolver)
 	var objType *ObjectType = type_.toMaybeObjectType()
-	if (objType == nil) {
+	if objType == nil {
 		this.reportWarning(ttlAst, TypeTransformation_PROPTYPE_INVALID, []string{type_.toString()})
 		return this.getUnknownType()
 	}
@@ -621,6 +648,7 @@ func (this *TypeTransformation) evalPropType(ttlAst Node, nameResolver *TypeTran
 }
 
 const TypeTransformation_VIRTUAL_FILE string = "<TypeTransformation.java>"
+
 var TypeTransformation_UNKNOWN_TYPEVAR *DiagnosticType
 var TypeTransformation_UNKNOWN_STRVAR *DiagnosticType
 var TypeTransformation_UNKNOWN_TYPENAME *DiagnosticType
@@ -661,18 +689,17 @@ func TypeTransformation_clinit() {
 }
 
 type TypeTransformation_NameResolver struct {
-	typeVars *TMap[string, *JSType]
-	nameVars *TMap[string, string]
+	typeVars *JTMap[string, *JSType]
+	nameVars *JTMap[string, string]
 }
 
-func (this *TypeTransformation_NameResolver) init_TypeTransformation_NameResolver(typeVars *TMap[string, *JSType], nameVars *TMap[string, string]) {
+func (this *TypeTransformation_NameResolver) init_TypeTransformation_NameResolver(typeVars *JTMap[string, *JSType], nameVars *JTMap[string, string]) {
 	this.typeVars = typeVars
 	this.nameVars = nameVars
 }
 
-func new_TypeTransformation_NameResolver(typeVars *TMap[string, *JSType], nameVars *TMap[string, string]) *TypeTransformation_NameResolver {
+func new_TypeTransformation_NameResolver(typeVars *JTMap[string, *JSType], nameVars *JTMap[string, string]) *TypeTransformation_NameResolver {
 	this := &TypeTransformation_NameResolver{}
 	this.init_TypeTransformation_NameResolver(typeVars, nameVars)
 	return this
 }
-

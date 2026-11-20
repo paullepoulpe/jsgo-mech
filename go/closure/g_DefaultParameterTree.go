@@ -4,7 +4,7 @@ package closure
 
 type DefaultParameterTree struct {
 	ParseTree
-	lhs *ParseTree
+	lhs          *ParseTree
 	defaultValue *ParseTree
 }
 
@@ -27,4 +27,3 @@ func new_DefaultParameterTree(location *SourceRange, lhs *ParseTree, defaultValu
 	this.init_DefaultParameterTree(location, lhs, defaultValue)
 	return this
 }
-

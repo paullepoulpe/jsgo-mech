@@ -4,8 +4,8 @@ package closure
 
 type TryStatementTree struct {
 	ParseTree
-	body *ParseTree
-	catchBlock *ParseTree
+	body         *ParseTree
+	catchBlock   *ParseTree
 	finallyBlock *ParseTree
 }
 
@@ -29,4 +29,3 @@ func new_TryStatementTree(location *SourceRange, body *ParseTree, catchBlock *Pa
 	this.init_TryStatementTree(location, body, catchBlock, finallyBlock)
 	return this
 }
-

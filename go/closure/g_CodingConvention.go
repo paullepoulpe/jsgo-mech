@@ -21,7 +21,7 @@ type CodingConvention interface {
 	extractClassNameIfRequire(Node, Node) Optional[string]
 	getExportPropertyFunction() string
 	getExportSymbolFunction() string
-	identifyTypeDeclarationCall(Node) *TList[string]
+	identifyTypeDeclarationCall(Node) *JTList[string]
 	applySubclassRelationship(*NominalTypeBuilder, *NominalTypeBuilder, *CodingConvention_SubclassType)
 	getAbstractMethodName() string
 	getSingletonGetterClassName(Node) string
@@ -44,8 +44,8 @@ func CodingConvention_blockRenamingForProperty_default(this CodingConvention, na
 }
 
 type CodingConvention_Bind struct {
-	target Node
-	thisValue Node
+	target     Node
+	thisValue  Node
 	parameters Node
 }
 
@@ -62,7 +62,7 @@ func new_CodingConvention_Bind(target Node, thisValue Node, parameters Node) *Co
 }
 
 func (this *CodingConvention_Bind) getBoundParameterCount() int32 {
-	if (this.parameters == 0) {
+	if this.parameters == 0 {
 		return 0
 	}
 	var paramParent Node = this.parameters.getParent()
@@ -71,9 +71,9 @@ func (this *CodingConvention_Bind) getBoundParameterCount() int32 {
 
 type CodingConvention_Cache struct {
 	cacheObj Node
-	key_ Node
-	valueFn Node
-	keyFn Node
+	key_     Node
+	valueFn  Node
+	keyFn    Node
 }
 
 func (this *CodingConvention_Cache) init_CodingConvention_Cache(cacheObj Node, key Node, valueFn Node, keyFn Node) {
@@ -143,8 +143,8 @@ func CodingConvention_SubclassType_clinit() {
 }
 
 type CodingConvention_SubclassRelationship struct {
-	type__ *CodingConvention_SubclassType
-	subclassName Optional[string]
+	type__         *CodingConvention_SubclassType
+	subclassName   Optional[string]
 	superclassName Optional[string]
 }
 
@@ -168,8 +168,8 @@ func new_CodingConvention_SubclassRelationship(type_ *CodingConvention_SubclassT
 
 type CodingConvention_ObjectLiteralCast struct {
 	diagnosticType *DiagnosticType
-	typeName Optional[string]
-	objectNode Node
+	typeName       Optional[string]
+	objectNode     Node
 }
 
 func (this *CodingConvention_ObjectLiteralCast) init_CodingConvention_ObjectLiteralCast(typeName Optional[string], objectNode Node, diagnosticType *DiagnosticType) {
@@ -186,9 +186,9 @@ func new_CodingConvention_ObjectLiteralCast(typeName Optional[string], objectNod
 
 type CodingConvention_AssertionFunctionSpec struct {
 	getClosurePrimitive_ *ClosurePrimitive
-	getAssertionKind_ *CodingConvention_AssertionFunctionSpec_AssertionKind
-	getFunctionName_ Optional[string]
-	getParamIndex_ int32
+	getAssertionKind_    *CodingConvention_AssertionFunctionSpec_AssertionKind
+	getFunctionName_     Optional[string]
+	getParamIndex_       int32
 }
 
 func (this *CodingConvention_AssertionFunctionSpec) init_CodingConvention_AssertionFunctionSpec(getFunctionName Optional[string], getClosurePrimitive *ClosurePrimitive, getAssertionKind *CodingConvention_AssertionFunctionSpec_AssertionKind, getParamIndex int32) {
@@ -206,7 +206,7 @@ func new_CodingConvention_AssertionFunctionSpec(getFunctionName Optional[string]
 }
 
 func (this *CodingConvention_AssertionFunctionSpec) toString() string {
-	return ("AssertionFunctionSpec{functionName=" + sstr_(this.getFunctionName_.orElse("null")) + ", closurePrimitive=" + tostr_(this.getClosurePrimitive_) + ", assertionKind=" + tostr_(this.getAssertionKind_) + ", paramIndex=" + istr_(int64(this.getParamIndex_)) + "}")
+	return ("AssertionFunctionSpec{functionName=" + sstr_(this.getFunctionName_.orElse("null")) + ", closurePrimitive=" + jtostr_(this.getClosurePrimitive_) + ", assertionKind=" + jtostr_(this.getAssertionKind_) + ", paramIndex=" + istr_(int64(this.getParamIndex_)) + "}")
 }
 
 func CodingConvention_AssertionFunctionSpec_builder() *CodingConvention_AssertionFunctionSpec_Builder {
@@ -222,12 +222,17 @@ func CodingConvention_AssertionFunctionSpec_forMatchesReturn() *CodingConvention
 }
 
 func (this *CodingConvention_AssertionFunctionSpec) getId() any {
-	return func() any { if (this.getClosurePrimitive() != nil) { return obj_(this.getClosurePrimitive()) }; return strobj_(this.getFunctionName().orElse(nullstr_)) }()
+	return func() any {
+		if this.getClosurePrimitive() != nil {
+			return obj_(this.getClosurePrimitive())
+		}
+		return strobj_(this.getFunctionName().orElse(nullstr_))
+	}()
 }
 
 func (this *CodingConvention_AssertionFunctionSpec) getAssertedArg(firstArg Node) Node {
-	for i := int32(0); (i < this.getParamIndex()); i++ {
-		if (firstArg == 0) {
+	for i := int32(0); i < this.getParamIndex(); i++ {
+		if firstArg == 0 {
 			return 0
 		}
 		firstArg = firstArg.getNext()
@@ -323,10 +328,10 @@ func CodingConvention_AssertionFunctionSpec_AssertionKind_clinit() {
 
 type CodingConvention_AssertionFunctionSpec_Builder struct {
 	closurePrimitive *ClosurePrimitive
-	assertionKind *CodingConvention_AssertionFunctionSpec_AssertionKind
-	functionName Optional[string]
-	paramIndex int32
-	set0 int8
+	assertionKind    *CodingConvention_AssertionFunctionSpec_AssertionKind
+	functionName     Optional[string]
+	paramIndex       int32
+	set0             int8
 }
 
 func (this *CodingConvention_AssertionFunctionSpec_Builder) finit_CodingConvention_AssertionFunctionSpec_Builder() {
@@ -360,7 +365,7 @@ func (this *CodingConvention_AssertionFunctionSpec_Builder) setParamIndex(paramI
 }
 
 func (this *CodingConvention_AssertionFunctionSpec_Builder) setAssertionKind(kind *CodingConvention_AssertionFunctionSpec_AssertionKind) *CodingConvention_AssertionFunctionSpec_Builder {
-	if (kind == nil) {
+	if kind == nil {
 		panic(new_NullPointerException_String("Null assertionKind").self())
 	}
 	this.assertionKind = kind
@@ -368,15 +373,15 @@ func (this *CodingConvention_AssertionFunctionSpec_Builder) setAssertionKind(kin
 }
 
 func (this *CodingConvention_AssertionFunctionSpec_Builder) autoBuild() *CodingConvention_AssertionFunctionSpec {
-	if ((int32(this.set0) != 1) || (this.assertionKind == nil)) {
+	if (int32(this.set0) != 1) || (this.assertionKind == nil) {
 		var missing *StringBuilder = new_StringBuilder()
-		if (this.assertionKind == nil) {
+		if this.assertionKind == nil {
 			missing.append(" assertionKind")
 		}
-		if ((int32(this.set0) & 1) == 0) {
+		if (int32(this.set0) & 1) == 0 {
 			missing.append(" paramIndex")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + tostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
 	}
 	return new_CodingConvention_AssertionFunctionSpec(this.functionName, this.closurePrimitive, this.assertionKind, this.paramIndex)
 }
@@ -414,9 +419,9 @@ func CodingConvention_AssertionFunctionLookup_of(specs CollectionOf[*CodingConve
 
 func (this *CodingConvention_AssertionFunctionLookup) lookupByCallee(callee Node) *CodingConvention_AssertionFunctionSpec {
 	var fnType *FunctionType = JSType_toMaybeFunctionType(callee.getJSType())
-	if ((fnType != nil) && (fnType.getClosurePrimitive() != nil)) {
+	if (fnType != nil) && (fnType.getClosurePrimitive() != nil) {
 		var spec *CodingConvention_AssertionFunctionSpec = cast_[*CodingConvention_AssertionFunctionSpec](this.internal.get(obj_(fnType.getClosurePrimitive())))
-		if (spec != nil) {
+		if spec != nil {
 			return spec
 		}
 	}
@@ -425,4 +430,3 @@ func (this *CodingConvention_AssertionFunctionLookup) lookupByCallee(callee Node
 	}
 	return nil
 }
-

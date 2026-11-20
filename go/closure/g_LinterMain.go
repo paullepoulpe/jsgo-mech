@@ -4,8 +4,8 @@ package closure
 
 type LinterMain struct {
 	resolutionMode *ModuleLoader_ResolutionMode
-	files ListOf[string]
-	fix_ bool
+	files          ListOf[string]
+	fix_           bool
 }
 
 func (this *LinterMain) finit_LinterMain() {
@@ -66,4 +66,3 @@ func (this *LinterMain) run(args []string) *Outcome_base[any] {
 	}
 	return Outcome_base_ok_0()
 }
-

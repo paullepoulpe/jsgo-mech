@@ -23,4 +23,3 @@ func new_IllegalFormatWidthException(width int32) *IllegalFormatWidthException {
 	this.init_IllegalFormatWidthException(width)
 	return this
 }
-

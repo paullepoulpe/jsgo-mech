@@ -19,4 +19,3 @@ const JavaRegex_DOT string = "[^\\n\\r\\x{85}\\x{2028}\\x{2029}]"
 const JavaRegex_SPACE string = "[\\s\\x0B]"
 const JavaRegex_NON_SPACE string = "[^\\s\\x0B]"
 const JavaRegex_END string = "(?:\\r\\n|[\\n\\r\\x{85}\\x{2028}\\x{2029}])?\\z"
-

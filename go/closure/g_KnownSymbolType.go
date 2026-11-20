@@ -73,4 +73,3 @@ func KnownSymbolType_clinit() {
 	KnownSymbolType_TYPE_CLASS = JSTypeClass_WELL_KNOWN_SYMBOL
 
 }
-

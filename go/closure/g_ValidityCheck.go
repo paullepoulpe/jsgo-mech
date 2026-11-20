@@ -3,9 +3,9 @@
 package closure
 
 type ValidityCheck struct {
-	compiler_ *AbstractCompiler
+	compiler_     *AbstractCompiler
 	changeTracker *ChangeTracker
-	astValidator *AstValidator
+	astValidator  *AstValidator
 }
 
 func (this *ValidityCheck) init_ValidityCheck(compiler *AbstractCompiler) {
@@ -53,8 +53,8 @@ func (this *ValidityCheck) checkNormalization(externs Node, root Node) {
 }
 
 func (this *ValidityCheck) checkExternProperties(externs Node) {
-	var externProperties *TSet[string] = this.compiler_.getExternProperties()
-	if (externProperties == nil) {
+	var externProperties *JTSet[string] = this.compiler_.getExternProperties()
+	if externProperties == nil {
 		return
 	}
 	new_GatherExternProperties(this.compiler_, GatherExternProperties_Mode_CHECK).process_2(externs, 0)
@@ -79,8 +79,8 @@ func ValidityCheck_clinit() {
 
 type ValidityCheck_VerifyConstants struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
-	constantMap *TMap[string, any]
+	compiler_             *AbstractCompiler
+	constantMap           *JTMap[string, any]
 	checkUserDeclarations bool
 }
 
@@ -92,7 +92,7 @@ func (this *ValidityCheck_VerifyConstants) up_NodeTraversal_AbstractPostOrderCal
 }
 
 func (this *ValidityCheck_VerifyConstants) finit_ValidityCheck_VerifyConstants() {
-	this.constantMap = newTMap_(tc_string, tc_Boolean)
+	this.constantMap = jnewTMap_(jtc_string, tc_Boolean)
 }
 
 func (this *ValidityCheck_VerifyConstants) init_ValidityCheck_VerifyConstants(compiler *AbstractCompiler, checkUserDeclarations bool) {
@@ -126,16 +126,16 @@ func (this *ValidityCheck_VerifyConstants) visit_impl(t *NodeTraversal, n Node, 
 		if this.checkUserDeclarations {
 			var expectedConst bool = false
 			var convention CodingConvention = this.compiler_.getCodingConvention()
-			if (NodeUtil_isConstantName(n) || NodeUtil_isConstantByConvention(convention, n)) {
+			if NodeUtil_isConstantName(n) || NodeUtil_isConstantByConvention(convention, n) {
 				expectedConst = true
 			} else {
 				expectedConst = false
 				var info *JSDocInfo = nil
 				var var_ *Var = t.getScope().getVar_String_rVar(n.getString())
-				if (var_ != nil) {
+				if var_ != nil {
 					info = var_.getJSDocInfo()
 				}
-				if ((info != nil) && info.isConstant()) {
+				if (info != nil) && info.isConstant() {
 					expectedConst = true
 				} else {
 					expectedConst = false
@@ -148,11 +148,10 @@ func (this *ValidityCheck_VerifyConstants) visit_impl(t *NodeTraversal, n Node, 
 			}
 		}
 		var value any = this.constantMap.get(name)
-		if (value == nil) {
+		if value == nil {
 			this.constantMap.put(name, bool(isConst))
-		} else if (Boolean_booleanValue(value) != isConst) {
+		} else if Boolean_booleanValue(value) != isConst {
 			panic(new_IllegalStateException_String(("The name " + sstr_(name) + " is not consistently annotated as constant. Current constness: " + boolstr_(isConst) + ", previous constness: " + boolstr_(Boolean_booleanValue(value)) + "\n\nAt node: " + tostrH_(n))).self())
 		}
 	}
 }
-

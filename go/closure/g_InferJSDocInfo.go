@@ -27,10 +27,10 @@ func new_InferJSDocInfo(compiler *AbstractCompiler) *InferJSDocInfo {
 }
 
 func (this *InferJSDocInfo) process_2(externs Node, root Node) {
-	if (externs != 0) {
+	if externs != 0 {
 		NodeTraversal_traverse(this.compiler_, externs, NodeTraversal_Callback(this))
 	}
-	if (root != 0) {
+	if root != 0 {
 		NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(this))
 	}
 }
@@ -52,7 +52,7 @@ func (this *InferJSDocInfo) visit_impl(t *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *InferJSDocInfo) inferJSDocForName(n Node, parent Node) {
-	if (parent == 0) {
+	if parent == 0 {
 		return
 	}
 	var typeDoc *JSDocInfo
@@ -60,23 +60,38 @@ func (this *InferJSDocInfo) inferJSDocForName(n Node, parent Node) {
 	var inferredType *JSType
 	if NodeUtil_isNameDeclaration(parent) {
 		var nameInfo *JSDocInfo = n.getJSDocInfo()
-		typeDoc = func() *JSDocInfo { if (nameInfo != nil) { return nameInfo }; return parent.getJSDocInfo() }()
+		typeDoc = func() *JSDocInfo {
+			if nameInfo != nil {
+				return nameInfo
+			}
+			return parent.getJSDocInfo()
+		}()
 		inferredType = n.getJSType()
 		var value Node = n.getFirstChild()
-		aliasedType = func() *JSType { if ((value != 0) && value.isQualifiedName()) { return value.getJSType() }; return nil }()
-	} else if (NodeUtil_isFunctionDeclaration(parent) || NodeUtil_isClassDeclaration(parent)) {
+		aliasedType = func() *JSType {
+			if (value != 0) && value.isQualifiedName() {
+				return value.getJSType()
+			}
+			return nil
+		}()
+	} else if NodeUtil_isFunctionDeclaration(parent) || NodeUtil_isClassDeclaration(parent) {
 		typeDoc = parent.getJSDocInfo()
 		inferredType = parent.getJSType()
 		aliasedType = nil
-	} else if (parent.isAssign() && n.isFirstChildOf(parent)) {
+	} else if parent.isAssign() && n.isFirstChildOf(parent) {
 		typeDoc = parent.getJSDocInfo()
 		inferredType = n.getJSType()
 		var value Node = n.getNext()
-		aliasedType = func() *JSType { if value.isQualifiedName() { return value.getJSType() }; return nil }()
+		aliasedType = func() *JSType {
+			if value.isQualifiedName() {
+				return value.getJSType()
+			}
+			return nil
+		}()
 	} else {
 		return
 	}
-	if (typeDoc == nil) {
+	if typeDoc == nil {
 		return
 	}
 	var objType *ObjectType = InferJSDocInfo_dereferenced(inferredType)
@@ -87,13 +102,13 @@ func (this *InferJSDocInfo) inferJSDocForName(n Node, parent Node) {
 
 func (this *InferJSDocInfo) inferJSDocForObjectKeyOrClassField(n Node, parent Node) {
 	var typeDoc *JSDocInfo = n.getJSDocInfo()
-	if (typeDoc == nil) {
+	if typeDoc == nil {
 		return
 	}
 	var owningType *ObjectType
 	if parent.isClassMembers() {
 		var ctorType *FunctionType = JSType_toMaybeFunctionType(parent.getParent().getJSType())
-		if (ctorType == nil) {
+		if ctorType == nil {
 			return
 		}
 		if n.isStaticMember() {
@@ -106,20 +121,20 @@ func (this *InferJSDocInfo) inferJSDocForObjectKeyOrClassField(n Node, parent No
 	} else {
 		owningType = InferJSDocInfo_dereferenced(parent.getJSType())
 	}
-	if (owningType == nil) {
+	if owningType == nil {
 		return
 	}
 	var propName Property_Key
-	if (n.isComputedFieldDef() || n.isComputedProp()) {
+	if n.isComputedFieldDef() || n.isComputedProp() {
 		var keyType *JSType = n.getFirstChild().getJSType()
-		if ((keyType == nil) || !keyType.isKnownSymbolValueType()) {
+		if (keyType == nil) || !keyType.isKnownSymbolValueType() {
 			return
 		}
 		propName = Property_Key(new_Property_SymbolKey(keyType.toMaybeKnownSymbolType()))
 	} else {
 		propName = Property_Key(new_Property_StringKey(n.getString()))
 	}
-	if (owningType.hasOwnPropertyKey(propName) && (owningType.getPropertyJSDocInfoKey(propName) == nil)) {
+	if owningType.hasOwnPropertyKey(propName) && (owningType.getPropertyJSDocInfoKey(propName) == nil) {
 		owningType.setPropertyJSDocInfoKey(propName, typeDoc)
 	}
 }
@@ -127,25 +142,30 @@ func (this *InferJSDocInfo) inferJSDocForObjectKeyOrClassField(n Node, parent No
 func (this *InferJSDocInfo) inferJSDocForProperty(n Node, parent Node) {
 	var typeDoc *JSDocInfo
 	var aliasedType *JSType
-	if (parent.isAssign() && n.isFirstChildOf(parent)) {
+	if parent.isAssign() && n.isFirstChildOf(parent) {
 		typeDoc = parent.getJSDocInfo()
 		var rhs Node = n.getNext()
-		aliasedType = func() *JSType { if rhs.isQualifiedName() { return rhs.getJSType() }; return nil }()
+		aliasedType = func() *JSType {
+			if rhs.isQualifiedName() {
+				return rhs.getJSType()
+			}
+			return nil
+		}()
 	} else if parent.isExprResult() {
 		typeDoc = n.getJSDocInfo()
 		aliasedType = nil
 	} else {
 		return
 	}
-	if ((typeDoc == nil) || !typeDoc.containsDeclaration()) {
+	if (typeDoc == nil) || !typeDoc.containsDeclaration() {
 		return
 	}
 	var lhsType *ObjectType = InferJSDocInfo_dereferenced(n.getFirstChild().getJSType())
-	if (lhsType == nil) {
+	if lhsType == nil {
 		return
 	}
 	var propName string = n.getString()
-	if (lhsType.hasOwnProperty(propName) && (lhsType.getPropertyJSDocInfo(propName) == nil)) {
+	if lhsType.hasOwnProperty(propName) && (lhsType.getPropertyJSDocInfo(propName) == nil) {
 		lhsType.setPropertyJSDocInfo(propName, typeDoc)
 	}
 	var propType *ObjectType = InferJSDocInfo_dereferenced(lhsType.getPropertyType(propName))
@@ -157,7 +177,12 @@ func (this *InferJSDocInfo) inferJSDocForProperty(n Node, parent Node) {
 }
 
 func InferJSDocInfo_dereferenced(type_ *JSType) *ObjectType {
-	return func() *ObjectType { if (type_ == nil) { return nil }; return type_.dereference() }()
+	return func() *ObjectType {
+		if type_ == nil {
+			return nil
+		}
+		return type_.dereference()
+	}()
 }
 
 func InferJSDocInfo_shouldAttachJSDocToNominalTypeOrShape(type_ *ObjectType, aliasedType *JSType) bool {
@@ -165,7 +190,7 @@ func InferJSDocInfo_shouldAttachJSDocToNominalTypeOrShape(type_ *ObjectType, ali
 }
 
 func InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(objType *ObjectType, docInfo *JSDocInfo, qName Optional[string]) {
-	if (objType.isConstructor() || objType.isInterface()) {
+	if objType.isConstructor() || objType.isInterface() {
 		if !InferJSDocInfo_isReferenceNameOf(objType, qName) {
 			return
 		}
@@ -178,7 +203,7 @@ func InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(objType *ObjectType, doc
 		}
 		objType.setJSDocInfo(docInfo)
 		elementType.setJSDocInfo(docInfo)
-	} else if (!objType.isNativeObjectType() && objType.isFunctionType()) {
+	} else if !objType.isNativeObjectType() && objType.isFunctionType() {
 		objType.setJSDocInfo(docInfo)
 	}
 }
@@ -186,4 +211,3 @@ func InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(objType *ObjectType, doc
 func InferJSDocInfo_isReferenceNameOf(type_ *ObjectType, name Optional[string]) bool {
 	return (type_.hasReferenceName() && Object_equals(type_.getReferenceName().box_(), name.box_()))
 }
-

@@ -27,11 +27,21 @@ func new_Tri(name_ string, ordinal_ int32, value int32) *Tri {
 }
 
 func (this *Tri) or(x *Tri) *Tri {
-	return func() *Tri { if (this.value_ > x.value_) { return this }; return x }()
+	return func() *Tri {
+		if this.value_ > x.value_ {
+			return this
+		}
+		return x
+	}()
 }
 
 func (this *Tri) and(x *Tri) *Tri {
-	return func() *Tri { if (this.value_ < x.value_) { return this }; return x }()
+	return func() *Tri {
+		if this.value_ < x.value_ {
+			return this
+		}
+		return x
+	}()
 }
 
 func (this *Tri) xor(x *Tri) *Tri {
@@ -57,7 +67,12 @@ func (this *Tri) toBoolean(x bool) bool {
 }
 
 func Tri_forBoolean(x bool) *Tri {
-	return func() *Tri { if x { return Tri_TRUE }; return Tri_FALSE }()
+	return func() *Tri {
+		if x {
+			return Tri_TRUE
+		}
+		return Tri_FALSE
+	}()
 }
 
 func (this *Tri) toString() string {
@@ -102,4 +117,3 @@ func Tri_clinit() {
 	Tri_VALUES = Tri_values()
 
 }
-

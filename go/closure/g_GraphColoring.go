@@ -3,10 +3,10 @@
 package closure
 
 type GraphColoring[N comparable, E comparable] struct {
-	self_ any
+	self_             any
 	vt_GraphColoring_ GraphColoring_vt_[N, E]
-	colorToNodeMap []N
-	graph AdjacencyGraph[N, E]
+	colorToNodeMap    []N
+	graph             AdjacencyGraph[N, E]
 }
 
 type GraphColoring_vt_[N comparable, E comparable] interface {
@@ -46,7 +46,7 @@ func (this *GraphColoring[N, E]) getPartitionSuperNode(node N) N {
 	Preconditions_checkNotNull_Object_Object(this.colorToNodeMap, "No coloring founded. color() should be called first.")
 	var color *GraphColoring_Color = cast_[*GraphColoring_Color](Annotatable_getAnnotation(Annotatable(this.graph.getNode_Object(node))))
 	var headNode N = this.colorToNodeMap[color.value_]
-	if isnull_(headNode) {
+	if jisnull_(headNode) {
 		this.colorToNodeMap[color.value_] = node
 		return node
 	} else {
@@ -94,7 +94,14 @@ func new_GraphColoring_Color(value int32) *GraphColoring_Color {
 func (this *GraphColoring_Color) equals(other any) bool {
 	var color *GraphColoring_Color
 	_ = color
-	if !(func() bool { v_ := other; if !is_[*GraphColoring_Color](v_) { return false }; color = cast_[*GraphColoring_Color](v_); return true }()) {
+	if !(func() bool {
+		v_ := other
+		if !is_[*GraphColoring_Color](v_) {
+			return false
+		}
+		color = cast_[*GraphColoring_Color](v_)
+		return true
+	}()) {
 		return false
 	} else {
 		return (this.value_ == color.value_)
@@ -151,12 +158,23 @@ func new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator[N comparabl
 }
 
 func (this *GraphColoring_GreedyGraphColoring[N, E]) color_impl() int32 {
-	var worklist *TList[GraphNode[N, E]] = tlistFrom_(tc_GraphNode_N__E_[N, E](), this.graph.getNodes())
-	Collections_sort_List_Comparator(worklist.asList(), func() Comparator[any] { f_ := Comparator_comparing_Function_Comparator[GraphNode[N, E], N](Function[GraphNode[N, E], N](func(p0 GraphNode[N, E]) N { return p0.getValue() }), Comparator[N](func(leftProperty N, rightProperty N) int32 {
-		var result int32 = (this.graph.getWeight(rightProperty) - this.graph.getWeight(leftProperty))
-		return func() int32 { if ((result == 0) && (this.tieBreaker != nil)) { return this.tieBreaker.compare(leftProperty, rightProperty) }; return result }()
-		panic("unreachable")
-	})); if f_ == nil { return nil }; return func(p0 any, p1 any) int32 { return f_(cast_[GraphNode[N, E]](p0), cast_[GraphNode[N, E]](p1)) } }())
+	var worklist *JTList[GraphNode[N, E]] = jtlistFrom_(tc_GraphNode_N__E_[N, E](), this.graph.getNodes())
+	Collections_sort_List_Comparator(worklist.asList(), func() Comparator[any] {
+		f_ := Comparator_comparing_Function_Comparator[GraphNode[N, E], N](Function[GraphNode[N, E], N](func(p0 GraphNode[N, E]) N { return p0.getValue() }), Comparator[N](func(leftProperty N, rightProperty N) int32 {
+			var result int32 = (this.graph.getWeight(rightProperty) - this.graph.getWeight(leftProperty))
+			return func() int32 {
+				if (result == 0) && (this.tieBreaker != nil) {
+					return this.tieBreaker.compare(leftProperty, rightProperty)
+				}
+				return result
+			}()
+			panic("unreachable")
+		}))
+		if f_ == nil {
+			return nil
+		}
+		return func(p0 any, p1 any) int32 { return f_(cast_[GraphNode[N, E]](p0), cast_[GraphNode[N, E]](p1)) }
+	}())
 	var count int32 = 0
 	for do_2 := true; do_2; do_2 = !worklist.isEmpty() {
 		var color *GraphColoring_Color = new_GraphColoring_Color(count)
@@ -174,8 +192,7 @@ func (this *GraphColoring_GreedyGraphColoring[N, E]) color_impl() int32 {
 		}
 		count++
 	}
-	var map_ []N = arrmap_(make([]any, count), func(v_ any) N { return unboxT_[N](v_) })
+	var map_ []N = arrmap_(make([]any, count), func(v_ any) N { return junboxT_[N](v_) })
 	this.colorToNodeMap = map_
 	return count
 }
-

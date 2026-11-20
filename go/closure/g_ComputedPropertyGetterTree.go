@@ -5,8 +5,8 @@ package closure
 type ComputedPropertyGetterTree struct {
 	ParseTree
 	property_ *ParseTree
-	body *BlockTree
-	isStatic bool
+	body      *BlockTree
+	isStatic  bool
 }
 
 func (this *ComputedPropertyGetterTree) up_ParseTree() *ParseTree {
@@ -29,4 +29,3 @@ func new_ComputedPropertyGetterTree(location *SourceRange, property *ParseTree, 
 	this.init_ComputedPropertyGetterTree(location, property, isStatic, body)
 	return this
 }
-

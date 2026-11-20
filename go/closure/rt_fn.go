@@ -72,7 +72,7 @@ func Suppliers_memoize[T any](s Supplier_base[T]) Supplier_base[T] {
 
 // computeIfAbsent returns the value of key k if it has one that is not null; else the value f
 // makes for the key, which becomes the key's value unless it is null.
-func (m *TMap[K, V]) computeIfAbsent(k K, f Function[K, V]) V {
+func (m *JTMap[K, V]) computeIfAbsent(k K, f Function[K, V]) V {
 	if m.imm != nil && m.imm != sortedMapMark_ {
 		panic(frozen_{})
 	}

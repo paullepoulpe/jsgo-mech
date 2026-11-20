@@ -4,9 +4,9 @@ package closure
 
 type CheckRegExp struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
-	reportErrors bool
-	globalRegExpPropertiesUsed bool
+	compiler_                          *AbstractCompiler
+	reportErrors                       bool
+	globalRegExpPropertiesUsed         bool
 	assumeAllGlobalRegexpUsagesVisible bool
 }
 
@@ -50,7 +50,7 @@ func (this *CheckRegExp) process_2(externs Node, root Node) {
 func (this *CheckRegExp) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if NodeUtil_isReferenceName(n) {
 		var name string = n.getString()
-		if ((name == "RegExp") && (t.getScope().getVar_String_rVar(name) == nil)) {
+		if (name == "RegExp") && (t.getScope().getVar_String_rVar(name) == nil) {
 			var parentType *Token_rhino = parent.getToken()
 			var first bool = (n == parent.getFirstChild())
 			if !((((((((((parentType == Token_rhino_NEW) && first) || ((parentType == Token_rhino_CALL) && first)) || ((parentType == Token_rhino_INSTANCEOF) && !first)) || (parentType == Token_rhino_EQ)) || (parentType == Token_rhino_NE)) || (parentType == Token_rhino_SHEQ)) || (parentType == Token_rhino_SHNE)) || (parentType == Token_rhino_CASE)) || (((parentType == Token_rhino_GETPROP) && first) && !CheckRegExp_REGEXP_PROPERTY_SKIPLIST.contains(parent.getString()))) {
@@ -60,9 +60,14 @@ func (this *CheckRegExp) visit_impl(t *NodeTraversal, n Node, parent Node) {
 				this.globalRegExpPropertiesUsed = true
 			}
 		}
-	} else if (this.reportErrors && n.isRegExp()) {
+	} else if this.reportErrors && n.isRegExp() {
 		var pattern string = n.getFirstChild().getString()
-		var flags string = func() string { if n.hasTwoChildren() { return n.getLastChild().getString() }; return "" }()
+		var flags string = func() string {
+			if n.hasTwoChildren() {
+				return n.getLastChild().getString()
+			}
+			return ""
+		}()
 		_ = func() (code_ int) {
 			defer func() {
 				if r_ := recover(); r_ != nil {
@@ -83,7 +88,7 @@ func (this *CheckRegExp) visit_impl(t *NodeTraversal, n Node, parent Node) {
 
 var CheckRegExp_REGEXP_REFERENCE *DiagnosticType
 var CheckRegExp_MALFORMED_REGEXP *DiagnosticType
-var CheckRegExp_REGEXP_PROPERTY_SKIPLIST *TSet[string]
+var CheckRegExp_REGEXP_PROPERTY_SKIPLIST *JTSet[string]
 
 var CheckRegExp_clinit_done bool
 
@@ -94,7 +99,6 @@ func CheckRegExp_clinit() {
 	CheckRegExp_clinit_done = true
 	CheckRegExp_REGEXP_REFERENCE = DiagnosticType_warning("JSC_REGEXP_REFERENCE", "References to the global RegExp object prevents optimization of regular expressions.")
 	CheckRegExp_MALFORMED_REGEXP = DiagnosticType_warning("JSC_MALFORMED_REGEXP", "Malformed Regular Expression: {0}")
-	CheckRegExp_REGEXP_PROPERTY_SKIPLIST = immutableSetOf_[string](tc_string, "$1", "$2", "$3", "$4", "$5", "$6", "$7", "$8", "$9", "$_", "$input", "input", "lastMatch", "lastParen", "leftContext", "rightContext", "global", "ignoreCase", "lastIndex", "multiline", "source")
+	CheckRegExp_REGEXP_PROPERTY_SKIPLIST = jimmutableSetOf_[string](jtc_string, "$1", "$2", "$3", "$4", "$5", "$6", "$7", "$8", "$9", "$_", "$input", "input", "lastMatch", "lastParen", "leftContext", "rightContext", "global", "ignoreCase", "lastIndex", "multiline", "source")
 
 }
-

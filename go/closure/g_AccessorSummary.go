@@ -3,26 +3,26 @@
 package closure
 
 type AccessorSummary struct {
-	accessors *TMap[string, *AccessorSummary_PropertyAccessKind]
+	accessors                   *JTMap[string, *AccessorSummary_PropertyAccessKind]
 	assumeAlwaysGetterAndSetter bool
 }
 
-func (this *AccessorSummary) init_AccessorSummary(accessors *TMap[string, *AccessorSummary_PropertyAccessKind], assumeAlwaysGetterAndSetter bool) {
+func (this *AccessorSummary) init_AccessorSummary(accessors *JTMap[string, *AccessorSummary_PropertyAccessKind], assumeAlwaysGetterAndSetter bool) {
 	this.accessors = accessors
 	this.assumeAlwaysGetterAndSetter = assumeAlwaysGetterAndSetter
 }
 
-func new_AccessorSummary(accessors *TMap[string, *AccessorSummary_PropertyAccessKind], assumeAlwaysGetterAndSetter bool) *AccessorSummary {
+func new_AccessorSummary(accessors *JTMap[string, *AccessorSummary_PropertyAccessKind], assumeAlwaysGetterAndSetter bool) *AccessorSummary {
 	this := &AccessorSummary{}
 	this.init_AccessorSummary(accessors, assumeAlwaysGetterAndSetter)
 	return this
 }
 
-func AccessorSummary_create(accessors *TMap[string, *AccessorSummary_PropertyAccessKind]) *AccessorSummary {
-	return new_AccessorSummary(immutableMapCopyOfT_(tc_string, tc_p_AccessorSummary_PropertyAccessKind, accessors), false)
+func AccessorSummary_create(accessors *JTMap[string, *AccessorSummary_PropertyAccessKind]) *AccessorSummary {
+	return new_AccessorSummary(immutableMapCopyOfT_(jtc_string, jtc_p_AccessorSummary_PropertyAccessKind, accessors), false)
 }
 
-func (this *AccessorSummary) getAccessors() *TMap[string, *AccessorSummary_PropertyAccessKind] {
+func (this *AccessorSummary) getAccessors() *JTMap[string, *AccessorSummary_PropertyAccessKind] {
 	return this.accessors
 }
 
@@ -34,7 +34,7 @@ func (this *AccessorSummary) getKind(name string) *AccessorSummary_PropertyAcces
 }
 
 func AccessorSummary_createAssumingAlwaysGetterAndSetter() *AccessorSummary {
-	return new_AccessorSummary(tmapEmptyImm_(tc_string, tc_p_AccessorSummary_PropertyAccessKind), true)
+	return new_AccessorSummary(jtmapEmptyImm_(jtc_string, jtc_p_AccessorSummary_PropertyAccessKind), true)
 }
 
 func (this *AccessorSummary) toProto() *AccessorSummaryProto {
@@ -71,7 +71,7 @@ func AccessorSummary_fromProto(proto *AccessorSummaryProto) *AccessorSummary {
 	if proto.getAssumeAlwaysGetterAndSetter() {
 		return AccessorSummary_createAssumingAlwaysGetterAndSetter()
 	}
-	var builder *TMapBuilder[string, *AccessorSummary_PropertyAccessKind] = newTMapBuilder_(tc_string, tc_p_AccessorSummary_PropertyAccessKind)
+	var builder *TMapBuilder[string, *AccessorSummary_PropertyAccessKind] = newTMapBuilder_(jtc_string, jtc_p_AccessorSummary_PropertyAccessKind)
 	it_1 := foreach_(proto.getAccessorsList())
 	for it_1.next() {
 		var entry *AccessorSummaryEntryProto = cast_[*AccessorSummaryEntryProto](it_1.v)
@@ -92,7 +92,7 @@ func AccessorSummary_fromProtoPropertyAccessKindProto(kind *PropertyAccessKindPr
 		case PropertyAccessKindProto_KIND_GETTER_AND_SETTER:
 			return AccessorSummary_PropertyAccessKind_GETTER_AND_SETTER
 		default:
-			panic(new_IllegalArgumentException_String(("Unknown kind: " + tostr_(kind))).self())
+			panic(new_IllegalArgumentException_String(("Unknown kind: " + jtostr_(kind))).self())
 		}
 		panic("unreachable")
 	}()
@@ -187,4 +187,3 @@ func AccessorSummary_PropertyAccessKind_clinit() {
 	registerEnum_("com.google.javascript.jscomp.AccessorSummary.PropertyAccessKind", enumValues_(AccessorSummary_PropertyAccessKind_values_))
 
 }
-

@@ -3,9 +3,9 @@
 package closure
 
 type SimpleSlot struct {
-	self_ any
-	name_ string
-	type__ *JSType
+	self_    any
+	name_    string
+	type__   *JSType
 	inferred bool
 }
 
@@ -89,4 +89,3 @@ func (this *SimpleSlot) getScope() StaticScope {
 }
 
 const SimpleSlot_serialVersionUID int64 = 1
-

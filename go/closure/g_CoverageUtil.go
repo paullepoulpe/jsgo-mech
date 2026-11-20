@@ -31,4 +31,3 @@ func CoverageUtil_clinit() {
 	CoverageUtil_NON_ALPHANUMERIC_PATTERN = Pattern_compile("[^a-zA-Z0-9]")
 
 }
-
