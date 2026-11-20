@@ -957,3 +957,187 @@ Need adapting:
   not refused: it compares the boxes by closure identity.
 - The translation without the rule was gated once, on this tree; the two builds are kept in
   step only by that gate.
+
+## 8. Stage 2 as built (2026-11-20, branch main-libgen-b2): kind `iter` only
+
+Stage 2 was to type the collection and iteration interfaces kind by kind. **One kind is built
+and gated: `iter` (Iterator, Iterable).** List/Collection, Set, Map/Entry and Guava Optional are
+not started; the reason is in "Why it stops here" below, with the measurement behind it.
+
+Rule "typed library interfaces": `tools/j2go/src/j2go/LibGen.java` and its hooks, the runtime's
+`rt_lg.go`, described in `tools/j2go/README.md`. Switch: `J2GO_NOLIBGEN=iter` (a comma list of
+kinds; `all`); default on. Report: `J2GO_LIBGEN=1` (`=2` by type). With the kind off the
+generated files are byte-identical to the B1 tip's.
+
+### The form, and how it differs from the study's
+
+The study proposed `type Iterator[T any] interface{ hasNext() bool; next() T }` with the typed
+list implementing it "directly". As built, the typed interface is **the erased interface plus
+the typed methods under another name**, the way a class file has a method and its bridge:
+
+```go
+type IteratorT[T any] interface { Iterator; next_t() T }                 // rt_lg.go
+type IterableT[T any] interface { Iterable; iterator_t() IteratorT[T] }
+
+func (this *TypeCheck) visitArgumentList(call Node, functionType *FunctionType) {
+	var parameters IteratorT[*FunctionType_Parameter] = functionType.getParameters().iterator_t()
+	var arguments IteratorT[Node] = NodeUtil_getInvocationArgsAsIterable(call).iterator_t()
+...
+		argument = arguments.next_t()                  // was Node_of_(arguments.next())
+				parameter = parameters.next_t()            // was cast_[*FunctionType_Parameter](parameters.next())
+
+func (this *Node_SiblingNodeIterable) iterator_t() IteratorT[Node] { ... }   // the Java method
+func (this *Node_SiblingNodeIterable) iterator() Iterator { return Iterator_un_(this.iterator_t()) }  // bridge
+it_1 := eachOf_(this.getVarIterable())                 // for-each: it_1.v is a *Var, no cast
+```
+
+Why: with one method name for both forms, an object could be a value of the typed interface or
+of the erased one, not both, and every flow between typed and erased code would need a second
+object (a view), which breaks identity (`==`, `instanceof`, the runtime's own type tests on what
+it is given) or forces every such object to exist twice. With the bridge form a typed value
+*is* an erased value, the same object, and goes to erased code as it is. Only the other
+direction converts: `iterableAs_(tc_X, v)` gives `v` itself where its object has the typed
+methods (a typed collection or its view, the typed list of an immutable list, a class of the
+program) and else a wrapper that unboxes per element; the wrapper never reaches erased code or
+`Object` (`Iterable_un_`, `lgBox_` take the wrapped object out). Consequences:
+
+- the covariant and `?` flows of the kind need no special treatment and nothing stays erased
+  for variance: `Iterable<Dog>` for `Iterable<? extends Animal>` is a wrapper over the erased
+  form (18 conversions between two instantiations, 12 of them to `IterableT[any]`);
+- an unchecked cast behaves as in Java (nothing is checked until an element is read), so no
+  refusal is needed for unchecked casts in this kind; **the one refusal is a raw use** of
+  `Iterator` / `Iterable` (`typed library interfaces: refused: ...`; the tree has 0);
+- the typed interfaces are declared in the runtime for both translations, so there is no build
+  tag for this rule.
+
+### Counts (`baseline.sh`, B1 tip -> with `iter`)
+
+| spelling in `g_[A-Z]*.go` | before | after |
+|---|---:|---:|
+| `cast_[` | 1,029 | 924 |
+| `icast_X(` | 332 | 292 |
+| `str_(` | 259 | 228 |
+| `Node_of_(` | 154 | 135 |
+| `obj_(` | 581 | 569 |
+| `unboxT_[` | 48 | 40 |
+| erased for-each `foreach_(` | 624 | 478 |
+| typed for-each `eachOf_(` | 0 | 146 |
+| `XOf[` alias uses / aliases | 1,063 / 40 | 833 / 38 |
+| `tc_` descriptor uses / descriptors | 2,249 / 330 | 2,439 / 336 |
+
+New spellings: `next_t()` 88, `iterator_t()` 56, `.asIterable()` 81 (a typed collection as the
+Iterable of its elements: itself, no view), `IterableT[` 212, `IteratorT[` 60, `X_un_(` 85 (a
+typed value given to an erased place: the runtime's functions), `lgBox_(` 1, 11 typed methods of
+program classes with their bridges. The descriptor uses rise because `iterableAs_` takes one.
+
+Runtime lines (verify.sh): 19,594 -> 19,832 (`rt_lg.go` 238 lines; nothing was removed: the
+erased collections are all still needed, see below). Test lines 3,876 -> 4,032.
+
+### What stays converted (`J2GO_LIBGEN=2`)
+
+| | count | where |
+|---|---:|---|
+| erased to typed, `iterableAs_` | 179 | by the static type of the value: `*ImmutableList` / `*ImmutableSet` / `*ImmutableCollection` / `*ImmutableSortedSet` 50 (erased immutables: results of `ImmutableList.copyOf`, builders), erased `Iterable` 36 (results of `Iterables.*`, `Splitter.split`, program methods under a non-native class), erased `List` 32 / `Collection` 24 / `Set` 11 / `*ArrayList` 4 (declarations that the typed-collections rule leaves erased, `map.values()`, `keySet()`), another instantiation 18, `Object` 4 |
+| erased to typed, `iteratorAs_` | 22 | iterators of erased collections (20), of 2 non-native program classes |
+| typed to erased, `X_un_` | 85 | arguments of runtime functions (`ImmutableList.copyOf`, `Iterables.*`, `addAll`) and bridges |
+| for-each loops left on the erased cursor | 478 | loops over erased collections and over results of erased methods (the result is not wrapped for the loop) |
+
+Whether a conversion allocates is decided at run time: `iterableAs_` wraps only an object that
+is not native.
+
+Allocation, CHECKS of the 18% subset (same command as B1; saved state sha256 1cb35c70ccb88501,
+identical): B1 tip 363.2 M and, run again, 366.6 M objects, 18.46 / 18.76 GB (so +-1% between
+runs of one binary; the protobuf builders are pooled and vary with collector timing); with
+`iter` 370.4 M objects, 18.74 GB. By function: +3.8 M wrappers (`iterableAs_`; the callers are
+`Scope` / `TypedScope.getVarIterable`, `getAllSymbols`, `getDeclarativelyUnboundVarsWithoutTypes`,
+`PropertyMap.values`, each returning the `values()` of an erased map as an `Iterable<Var>`),
+-2.7 M boxes and erased twins that typed loops no longer make (`boxAll_`, `TList.asImm`). Net
+about +1% objects, bytes within the noise. A first version allocated +20 M: a for-each over a
+wrapper went through two iterator objects; `eachOf_` now reads a wrapped erased collection with
+the erased loop's in-place cursor, and typed sets and deques by position.
+
+### Why it stops here (requirement: stop at a gated state if a kind proves larger)
+
+The same form extends to `CollectionT` / `ListT` / `SetT` / `MapT` (typed methods `get_t`,
+`add_t`, ...; the typed collections and their views native; `listAs_` wrappers for erased
+values). I did not build them, for a reason the `iter` numbers make concrete: **every place
+that is typed while its value is made erased costs a wrapper** (here 3.8 M objects for four
+methods that return `map.values()`). For Iterable that boundary is small. For List / Set / Map
+it is the 820 collection declarations that rule "typed collections" leaves erased (233 lists,
+91 maps, 101 sets, 119 `Collection`), whose values are `new ArrayList<>()`, `new
+LinkedHashMap<>()` and results of the erased runtime: typing those places without typing what is
+put into them would wrap each such collection once and send every `get` through the wrapper,
+which removes casts from the generated text and adds an allocation and an indirection at run
+time. The stage is only worth having with its other half: **constructors typed by their place**
+(`new ArrayList<X>()` in a `ListT[X]` place is `newTList_`, as `Colls` already does for a typed
+declaration; the study's "no proof is needed" point), the typed map's `keySet()` / `values()` /
+`entrySet()` views native, the erased immutables' typed lists found without a twin, and the
+runtime's factory functions (`Lists.newArrayList`, `ImmutableList.copyOf`, `Collections.*`,
+`Arrays.asList`, the protobuf lists) giving typed collections. That is the rewrite of the
+erased collection runtime that the study sized at about 5,100 lines plus `tools/protogen`; it
+is where requirement 5 (the runtime shrinks) is met, and it cannot be done kind by kind behind a
+switch as cheaply as `iter` was, because `Colls`' decision for a constructor depends on all the
+places its value reaches. I judged that larger than what could be built and gated here and
+stopped at the gated `iter` tree.
+
+What `iter` leaves ready for it: the bridge form (`X_t` methods, native check, `xAs_` /
+`X_un_` / `lgBox_`), `LibGen.rt` (a library method's signature is the runtime's), the kind
+switch, the typed for-each cursor, and the measurement that wrappers must be kept off returns of
+erased collections.
+
+Not done from the request, for the same reason: the read-only covariant view for the graph
+classes' `getOutEdges` / `getInEdges` (they return `List`), Guava Optional, the protobuf lists
+(`rt_proto_gen.go` untouched: its `List` results are erased and are wrapped where a typed
+Iterable is wanted, counted above). The `FunctionType.Parameter` walks are done: they are
+`Iterator<Parameter>` over a typed list (first code block above).
+
+### Gate
+
+`tools/prune/verify.sh`: default translation, and `J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all` (every
+switch of both stages off, whose generated files are main's except `g_zstubs.go`): self-test
+PASS (with `lang/LibGen.java`), runtime tests ok, checks / bundle / downlevel / advanced MATCH.
+
+### B1 points
+
+- `fnBox_` stays (functions are still values of erased collections); `rt_fn_test.go` has
+  `TestFnValueIsOnePointer`, which fails if a func value is not one pointer, is not stored as
+  that pointer in an interface, or is not the closure.
+- Record `equals` on function components by closure pointer: documented in the README's
+  "Function types".
+
+### Post-flip steps: expectations for the fifth flip (not run; from the emitted text)
+
+In addition to section 7's list:
+
+- `iters` (228, 404), `tviews` (479: "15 cursors"), `tgeneric` (488): explicit iterators over
+  typed and immutable collections are `IteratorT[X]` with `next_t()` from the translator; the
+  casts those steps removed are not there. Expect them to find little; `iters`' stack cursors
+  (no iterator object) are still a possible step, on new text (`x.iterator_t()`,
+  `it.next_t()`).
+- `ranges` (170, 202, 226, 227, 404, 454): 146 loops are `eachOf_(x)` cursors over a typed
+  Iterable instead of `foreach_(x)`; the tool reads `foreach_` and `immElems_` and will not see
+  them. Needs adapting (the cursor's element is typed, so its rewrite is simpler).
+- `implsplit` (467, 468), `deadbridge`: the program classes implementing Iterator / Iterable
+  natively (11 methods) already have the typed method and the bridge, under the translator's names (`next_t`), not the
+  tool's (`nextT_`); the tool must not split them again.
+- `castfold`, `casts`, `anyconv`, `objslots`: fewer sites, same text.
+- `colls`, `unify` (402), `native`: the typed family has new methods (`asIterable`,
+  `iterator_t`, `unwrap_`, `step_t`) and `tconv_` descriptors have a new use (`iterableAs_(tc_X,
+  ..)`); `unify`'s renames of the `tc_` / `tce_` descriptors must cover those call sites, and the
+  runtime patches of 402 and 554a/554b/556 (views) touch `rt_tlist.go` / `rt_tset.go` next to
+  code `rt_lg.go` depends on (`tlistIter_`, `tsetIter_`, the view fields): expect them to need
+  regenerating.
+- Any tool that follows values of type `Iterable` / `Iterator` by type name sees `IterableT[X]`
+  / `IteratorT[X]`; the aliases `IterableOf[X]` / `IteratorOf[X]` are no longer written.
+
+### Not verified
+
+- No time measurement. Allocation: one run of the `iter` binary, two of the B1 binary.
+- No post-flip tool was run.
+- The semantics the gate covers are those the four end-to-end projects and the self-test
+  exercise; `lang/LibGen.java` adds identity, `instanceof`, casts, variance, null, exhausted
+  iterators and a late ClassCastException for wrapped values. `o instanceof Set` of a list view
+  is true in Go (the view has every method of the erased Set); that is so on main too and is
+  not caused by this rule.
+- ConcurrentModificationException: the typed iterators are the collections' existing iterator
+  types with one more method, so behaviour is unchanged by construction; no test was added.
