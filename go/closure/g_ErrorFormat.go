@@ -326,3 +326,43 @@ func ErrorFormat_4_clinit() {
 	registerEnum_("<anonymous com.google.javascript.jscomp.ErrorFormat>", enumValues_(ErrorFormat_4_values_))
 
 }
+
+// toFormatter: an object that is exactly a ErrorFormat_1 calls its toFormatter_impl directly (post-flip); others dispatch.
+func (this *ErrorFormat_1) toFormatter(p0 SourceExcerptProvider, p1 bool) MessageFormatter {
+	if this.self_ == any(this) {
+		return this.toFormatter_impl(p0, p1)
+	}
+	return this.self_.(interface {
+		toFormatter_impl(SourceExcerptProvider, bool) MessageFormatter
+	}).toFormatter_impl(p0, p1)
+}
+
+// toFormatter: an object that is exactly a ErrorFormat_2 calls its toFormatter_impl directly (post-flip); others dispatch.
+func (this *ErrorFormat_2) toFormatter(p0 SourceExcerptProvider, p1 bool) MessageFormatter {
+	if this.self_ == any(this) {
+		return this.toFormatter_impl(p0, p1)
+	}
+	return this.self_.(interface {
+		toFormatter_impl(SourceExcerptProvider, bool) MessageFormatter
+	}).toFormatter_impl(p0, p1)
+}
+
+// toFormatter: an object that is exactly a ErrorFormat_3 calls its toFormatter_impl directly (post-flip); others dispatch.
+func (this *ErrorFormat_3) toFormatter(p0 SourceExcerptProvider, p1 bool) MessageFormatter {
+	if this.self_ == any(this) {
+		return this.toFormatter_impl(p0, p1)
+	}
+	return this.self_.(interface {
+		toFormatter_impl(SourceExcerptProvider, bool) MessageFormatter
+	}).toFormatter_impl(p0, p1)
+}
+
+// toFormatter: an object that is exactly a ErrorFormat_4 calls its toFormatter_impl directly (post-flip); others dispatch.
+func (this *ErrorFormat_4) toFormatter(p0 SourceExcerptProvider, p1 bool) MessageFormatter {
+	if this.self_ == any(this) {
+		return this.toFormatter_impl(p0, p1)
+	}
+	return this.self_.(interface {
+		toFormatter_impl(SourceExcerptProvider, bool) MessageFormatter
+	}).toFormatter_impl(p0, p1)
+}

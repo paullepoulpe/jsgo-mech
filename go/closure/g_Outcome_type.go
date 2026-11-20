@@ -225,3 +225,51 @@ func Outcome_2_type_clinit() {
 	registerEnum_("<anonymous com.google.javascript.jscomp.type.Outcome>", enumValues_(Outcome_2_type_values_))
 
 }
+
+// isTruthy: an object that is exactly a Outcome_1_type calls its isTruthy_impl directly (post-flip); others dispatch.
+func (this *Outcome_1_type) isTruthy() bool {
+	if this.self_ == any(this) {
+		return this.isTruthy_impl()
+	}
+	return this.self_.(interface{ isTruthy_impl() bool }).isTruthy_impl()
+}
+
+// isNullish: an object that is exactly a Outcome_1_type calls its isNullish_impl directly (post-flip); others dispatch.
+func (this *Outcome_1_type) isNullish() *Tri {
+	if this.self_ == any(this) {
+		return this.isNullish_impl()
+	}
+	return this.self_.(interface{ isNullish_impl() *Tri }).isNullish_impl()
+}
+
+// not: an object that is exactly a Outcome_1_type calls its not_impl directly (post-flip); others dispatch.
+func (this *Outcome_1_type) not() *Outcome_type {
+	if this.self_ == any(this) {
+		return this.not_impl()
+	}
+	return this.self_.(interface{ not_impl() *Outcome_type }).not_impl()
+}
+
+// isTruthy: an object that is exactly a Outcome_2_type calls its isTruthy_impl directly (post-flip); others dispatch.
+func (this *Outcome_2_type) isTruthy() bool {
+	if this.self_ == any(this) {
+		return this.isTruthy_impl()
+	}
+	return this.self_.(interface{ isTruthy_impl() bool }).isTruthy_impl()
+}
+
+// isNullish: an object that is exactly a Outcome_2_type calls its isNullish_impl directly (post-flip); others dispatch.
+func (this *Outcome_2_type) isNullish() *Tri {
+	if this.self_ == any(this) {
+		return this.isNullish_impl()
+	}
+	return this.self_.(interface{ isNullish_impl() *Tri }).isNullish_impl()
+}
+
+// not: an object that is exactly a Outcome_2_type calls its not_impl directly (post-flip); others dispatch.
+func (this *Outcome_2_type) not() *Outcome_type {
+	if this.self_ == any(this) {
+		return this.not_impl()
+	}
+	return this.self_.(interface{ not_impl() *Outcome_type }).not_impl()
+}

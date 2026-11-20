@@ -58,3 +58,14 @@ func CheckDuplicateCase_clinit() {
 	CheckDuplicateCase_DUPLICATE_CASE = DiagnosticType_warning("JSC_DUPLICATE_CASE", "Duplicate case in a switch statement.")
 
 }
+
+// visit: an object that is exactly a CheckDuplicateCase calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckDuplicateCase) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

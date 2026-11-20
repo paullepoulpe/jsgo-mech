@@ -410,3 +410,32 @@ func DeadAssignmentsElimination_VariableLiveness_clinit() {
 	registerEnum_("com.google.javascript.jscomp.DeadAssignmentsElimination.VariableLiveness", enumValues_(DeadAssignmentsElimination_VariableLiveness_values_))
 
 }
+
+// visit: an object that is exactly a DeadAssignmentsElimination calls its visit_impl directly (post-flip); others dispatch.
+func (this *DeadAssignmentsElimination) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}
+
+// enterScopeWithCfg: an object that is exactly a DeadAssignmentsElimination calls its enterScopeWithCfg_impl directly (post-flip); others dispatch.
+func (this *DeadAssignmentsElimination) enterScopeWithCfg(p0 *NodeTraversal) {
+	if this.self_ == any(this) {
+		this.enterScopeWithCfg_impl(p0)
+		return
+	}
+	this.self_.(interface{ enterScopeWithCfg_impl(*NodeTraversal) }).enterScopeWithCfg_impl(p0)
+}
+
+// exitScopeWithCfg: an object that is exactly a DeadAssignmentsElimination calls its exitScopeWithCfg_impl directly (post-flip); others dispatch.
+func (this *DeadAssignmentsElimination) exitScopeWithCfg(p0 *NodeTraversal) {
+	if this.self_ == any(this) {
+		this.exitScopeWithCfg_impl(p0)
+		return
+	}
+	this.self_.(interface{ exitScopeWithCfg_impl(*NodeTraversal) }).exitScopeWithCfg_impl(p0)
+}

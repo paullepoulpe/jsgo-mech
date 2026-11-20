@@ -323,3 +323,25 @@ func (this *ChromePass_RenameInternalsToExternalsCallback) buildQualifiedName(in
 	var externalName string = this.exports.get(internalName.getString())
 	return NodeUtil_newQName_AbstractCompiler_String(this.outer_.compiler_, (sstr_(this.namespaceName) + "." + sstr_(externalName))).srcrefTree(internalName)
 }
+
+// visit: an object that is exactly a ChromePass calls its visit_impl directly (post-flip); others dispatch.
+func (this *ChromePass) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a ChromePass_RenameInternalsToExternalsCallback calls its visit_impl directly (post-flip); others dispatch.
+func (this *ChromePass_RenameInternalsToExternalsCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

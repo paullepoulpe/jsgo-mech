@@ -48,3 +48,14 @@ func CheckEmptyStatements_clinit() {
 	CheckEmptyStatements_USELESS_EMPTY_STATEMENT = DiagnosticType_disabled("JSC_USELESS_EMPTY_STATEMENT", "Useless empty statement. Remove semicolon.")
 
 }
+
+// visit: an object that is exactly a CheckEmptyStatements calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckEmptyStatements) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}
