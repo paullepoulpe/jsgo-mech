@@ -275,6 +275,16 @@ func optOfEquals_(s string, o Optional[string]) bool {
 	return o.set && o.present && o.value == s
 }
 
+// strNonNull_ is the null check of Optional.of(s) for a String s, made where Java makes it:
+// as the first argument of optOfEquals_ it throws before the second argument is computed (Go
+// evaluates the calls of an argument list from left to right).
+func strNonNull_(s string) string {
+	if s == nullstr_ {
+		panic(new_NullPointerException_0())
+	}
+	return s
+}
+
 // optEqualsOf_ is o.equals(Optional.of(s)): the NullPointerException of Optional.of when s is
 // null, then that of the call on o when o is null.
 func optEqualsOf_(o Optional[string], s string) bool {
