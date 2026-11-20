@@ -222,3 +222,41 @@ func TestProtoCodedBytes(t *testing.T) {
 		t.Errorf("limit past the current limit: %s", class)
 	}
 }
+
+// TestProtoBuildShares: build() hands the builder's storage to the message (pbBuild_); the
+// message must not see what the builder does afterwards, and a second build() gives the
+// builder's new state.
+func TestProtoBuildShares(t *testing.T) {
+	b := Mapping_OriginalMapping_newBuilder().setOriginalFile("f.js").setLineNumber(3)
+	m1 := b.build().(*Mapping_OriginalMapping)
+	b1 := m1.pbm_().bytes_()
+	b.setLineNumber(7).setOriginalFile("g.js")
+	m2 := b.build().(*Mapping_OriginalMapping)
+	if m1.getLineNumber() != 3 || m1.getOriginalFile() != "f.js" || !bytes.Equal(m1.pbm_().bytes_(), b1) {
+		t.Fatalf("the first message changed with its builder: %s", m1.pbm_().toString())
+	}
+	if m2.getLineNumber() != 7 || m2.getOriginalFile() != "g.js" || m1.equals(m2) {
+		t.Fatalf("the second message: %s", m2.pbm_().toString())
+	}
+	// Two builds without a change in between are equal messages; clearing the builder leaves both.
+	m3 := b.build().(*Mapping_OriginalMapping)
+	b.clear()
+	if !m2.equals(m3) || m3.getLineNumber() != 7 || b.build().(*Mapping_OriginalMapping).getLineNumber() != 0 {
+		t.Fatal("builds around clear()")
+	}
+	// A repeated field: the message keeps its elements when the builder adds, removes and clears.
+	ta := pbTestTypedAst_()
+	lb := TypedAst_List_newBuilder().addTypedAsts(ta)
+	l1 := lb.build().(*TypedAst_List)
+	lb.addTypedAsts(TypedAst_getDefaultInstance()).addTypedAsts(ta)
+	l2 := lb.build().(*TypedAst_List)
+	lb.removeTypedAsts(0)
+	l3 := lb.build().(*TypedAst_List)
+	lb.clearTypedAsts()
+	if l1.getTypedAstsCount() != 1 || l2.getTypedAstsCount() != 3 || l3.getTypedAstsCount() != 2 || lb.build().(*TypedAst_List).getTypedAstsCount() != 0 {
+		t.Fatalf("repeated field after build: %d %d %d", l1.getTypedAstsCount(), l2.getTypedAstsCount(), l3.getTypedAstsCount())
+	}
+	if !l1.getTypedAsts(0).equals(ta) || !l3.getTypedAsts(1).equals(ta) {
+		t.Fatal("repeated field elements after build")
+	}
+}
