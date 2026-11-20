@@ -98,9 +98,7 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 		panic(new_IllegalStateException_0())
 	}
 	var baseRequirementBehaviors map[string]ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = map[string]ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior{}
-	it_1 := configs.each()
-	for it_1.next() {
-		var config *ConformanceConfig = it_1.v
+	for config := range configs.All() {
 		if !config.hasLibraryLevelNonAllowlistedConformanceViolationsBehavior() {
 			continue
 		}
@@ -111,9 +109,8 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 			}
 		}
 	}
-	it_5 := configs.each()
-	for it_5.next() {
-		var config *ConformanceConfig = it_5.v
+	for i_5 := 0; i_5 < len(configs.items); i_5++ {
+		var config *ConformanceConfig = configs.items[i_5]
 		if !config.hasLibraryLevelNonAllowlistedConformanceViolationsBehavior() {
 			continue
 		}
@@ -139,9 +136,7 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, configs *TList[*ConformanceConfig], isLibraryLevelConformanceReportingMode bool) []*Requirement {
 	var rootRequirements *TMap[*Requirement_Builder, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = newTMap_(tch_p_Requirement_Builder, tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
 	var extendable map[string]*Requirement_Builder = map[string]*Requirement_Builder{}
-	it_1 := configs.each()
-	for it_1.next() {
-		var config *ConformanceConfig = it_1.v
+	for config := range configs.All() {
 		for requirement := range elemsAs_[*Requirement](config.getRequirementList()) {
 			var builder *Requirement_Builder = cast_[*Requirement_Builder](requirement.toBuilder())
 			if requirement.hasRuleId() {
@@ -170,9 +165,7 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 			}
 		}
 	}
-	it_5 := configs.each()
-	for it_5.next() {
-		var config *ConformanceConfig = it_5.v
+	for config := range configs.All() {
 		for requirement := range elemsAs_[*Requirement](config.getRequirementList()) {
 			if requirement.hasExtends() {
 				var extendableRequirement *Requirement_Builder = extendable[requirement.getExtends()]

@@ -53,9 +53,7 @@ func (this *DependencyFile) loadGraph() {
 	if !parser.didParseSucceed() {
 		panic(new_ServiceException(("Problem parsing " + sstr_(this.getName()) + ". See logs for details.")))
 	}
-	it_1 := depInfos.each()
-	for it_1.next() {
-		var depInfo DependencyInfo_ = it_1.v
+	for depInfo := range depInfos.All() {
 		for _, el := range immElems_(depInfo.getProvides()) {
 			provide := str_(el)
 			var existing DependencyInfo_ = this.dependencies[provide]

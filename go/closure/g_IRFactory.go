@@ -97,9 +97,7 @@ func IRFactory_transformTree(tree *ProgramTree, sourceFile StaticSourceFile, con
 	var n Node = irFactory.transformDispatcher.process(tree.up_ParseTree())
 	irFactory.setSourceInfo(n, tree.up_ParseTree())
 	if tree.sourceComments != nil {
-		it_1 := tree.sourceComments.each()
-		for it_1.next() {
-			var comment *Comment = it_1.v
+		for comment := range tree.sourceComments.All() {
 			if ((comment.type__ == Comment_Type_JSDOC) || (comment.type__ == Comment_Type_IMPORTANT)) && !has_(irFactory.parsedComments, comment) {
 				var useLicensesOnlyConfig bool = irFactory.withinClosureUnawareCodeRange(comment.location_.start_.line_, comment.location_.start_.column_)
 				irFactory.handlePossibleFileOverviewJsDoc_2(comment, useLicensesOnlyConfig)
@@ -1645,9 +1643,7 @@ func (this *IRFactory_TransformDispatcher) processObjectLitKey(input *Token_pars
 func (this *IRFactory_TransformDispatcher) processArrayLiteral(tree *ArrayLiteralExpressionTree) Node {
 	var node Node = this.outer_.newNode(Token_rhino_ARRAYLIT)
 	node.setTrailingComma(tree.hasTrailingComma_)
-	it_1 := tree.elements_.each()
-	for it_1.next() {
-		var child *ParseTree = it_1.v
+	for child := range tree.elements_.All() {
 		var c Node = this.outer_.transform(child)
 		node.addChildToBack(c)
 	}
@@ -1657,9 +1653,7 @@ func (this *IRFactory_TransformDispatcher) processArrayLiteral(tree *ArrayLitera
 func (this *IRFactory_TransformDispatcher) processArrayPattern(tree *ArrayPatternTree) Node {
 	this.outer_.maybeWarnForFeature(tree.up_ParseTree(), FeatureSet_Feature_ARRAY_DESTRUCTURING)
 	var node Node = this.outer_.newNode(Token_rhino_ARRAY_PATTERN)
-	it_1 := tree.elements_.each()
-	for it_1.next() {
-		var child *ParseTree = it_1.v
+	for child := range tree.elements_.All() {
 		var elementNode Node
 		switch child.type__ {
 		case ParseTreeType_DEFAULT_PARAMETER:
@@ -1678,9 +1672,7 @@ func (this *IRFactory_TransformDispatcher) processArrayPattern(tree *ArrayPatter
 func (this *IRFactory_TransformDispatcher) processObjectPattern(tree *ObjectPatternTree) Node {
 	this.outer_.maybeWarnForFeature(tree.up_ParseTree(), FeatureSet_Feature_OBJECT_DESTRUCTURING)
 	var node Node = this.outer_.newNode(Token_rhino_OBJECT_PATTERN)
-	it_1 := tree.fields.each()
-	for it_1.next() {
-		var child *ParseTree = it_1.v
+	for child := range tree.fields.All() {
 		var childNode Node = this.processObjectPatternElement(child)
 		node.addChildToBack(childNode)
 	}
@@ -1757,9 +1749,7 @@ func (this *IRFactory_TransformDispatcher) processObjectPatternComputedPropertyD
 
 func (this *IRFactory_TransformDispatcher) processAstRoot(rootNode *ProgramTree) Node {
 	var scriptNode Node = this.outer_.newNode(Token_rhino_SCRIPT)
-	it_1 := rootNode.sourceElements.each()
-	for it_1.next() {
-		var child *ParseTree = it_1.v
+	for child := range rootNode.sourceElements.All() {
 		scriptNode.addChildToBack(this.outer_.transform(child))
 	}
 	this.parseDirectives(scriptNode)
@@ -1817,9 +1807,7 @@ func (this *IRFactory_TransformDispatcher) parseDirectives(node Node) {
 
 func (this *IRFactory_TransformDispatcher) processBlock(blockNode *BlockTree) Node {
 	var node Node = this.outer_.newNode(Token_rhino_BLOCK)
-	it_1 := blockNode.statements.each()
-	for it_1.next() {
-		var child *ParseTree = it_1.v
+	for child := range blockNode.statements.All() {
 		var childNode Node = this.outer_.transform(child)
 		node.addChildToBack(childNode)
 		this.attachPossibleTrailingComment(childNode, child.getEnd())
@@ -1929,9 +1917,7 @@ func (this *IRFactory_TransformDispatcher) processFunctionCall(callNode *CallExp
 	var argumentsTree *ArgumentListTree = callNode.arguments
 	var zones *TList[*SourcePosition_util] = this.getEndOfArgCommentZones(argumentsTree.arguments, argumentsTree.commaPositions, argumentsTree.location_.end_)
 	var argCount int32 = 0
-	it_1 := callNode.arguments.arguments.each()
-	for it_1.next() {
-		var child *ParseTree = it_1.v
+	for child := range callNode.arguments.arguments.All() {
 		var childNode Node = this.outer_.transform(child)
 		node.addChildToBack(childNode)
 		this.attachPossibleTrailingCommentsForArg(childNode, zones.get(argCount))
@@ -1966,9 +1952,7 @@ func (this *IRFactory_TransformDispatcher) isNormalOrOptChainGet(n Node) bool {
 func (this *IRFactory_TransformDispatcher) getEndOfArgCommentZones(args *TList[*ParseTree], commaPositions *TList[*SourcePosition_util], argListEndPosition *SourcePosition_util) *TList[*SourcePosition_util] {
 	var zones *ImmutableList_Builder[*SourcePosition_util] = immutableListBuilder_(tc_p_SourcePosition_util)
 	var commaCount int32 = 0
-	it_1 := args.each()
-	for it_1.next() {
-		var arg *ParseTree = it_1.v
+	for arg := range args.All() {
 		if args.size() > (commaCount + 1) {
 			var nextParam *ParseTree = args.get((commaCount + 1))
 			if nextParam.location_.start_.line_ > arg.location_.end_.line_ {
@@ -2042,9 +2026,7 @@ func (this *IRFactory_TransformDispatcher) processOptChainFunctionCall(callNode 
 	this.outer_.maybeWarnForFeature(callNode.up_ParseTree(), FeatureSet_Feature_OPTIONAL_CHAINING)
 	var node Node = this.outer_.newNode_2(Token_rhino_OPTCHAIN_CALL, this.outer_.transform(callNode.operand))
 	node.setTrailingComma(callNode.hasTrailingComma_)
-	it_1 := callNode.arguments.arguments.each()
-	for it_1.next() {
-		var child *ParseTree = it_1.v
+	for child := range callNode.arguments.arguments.All() {
 		node.addChildToBack(this.outer_.transform(child))
 	}
 	node.setIsOptionalChainStart(callNode.isStartOfOptionalChain)
@@ -2165,9 +2147,7 @@ func (this *IRFactory_TransformDispatcher) processFormalParameterList(tree *Form
 	var parameters *TList[*ParseTree] = tree.parameters
 	var zones *TList[*SourcePosition_util] = this.getEndOfArgCommentZones(parameters, tree.commaPositions, tree.location_.end_)
 	var argCount int32 = 0
-	it_1 := tree.parameters.each()
-	for it_1.next() {
-		var param *ParseTree = it_1.v
+	for param := range tree.parameters.All() {
 		var paramNode Node
 		switch param.type__ {
 		case ParseTreeType_DEFAULT_PARAMETER:
@@ -2413,9 +2393,7 @@ func (this *IRFactory_TransformDispatcher) processNewExpression(exprNode *NewExp
 	var node Node = this.outer_.newNode_2(Token_rhino_NEW, this.outer_.transform(exprNode.operand))
 	node.setTrailingComma(exprNode.hasTrailingComma_)
 	if exprNode.arguments != nil {
-		it_1 := exprNode.arguments.arguments.each()
-		for it_1.next() {
-			var arg *ParseTree = it_1.v
+		for arg := range exprNode.arguments.arguments.All() {
 			node.addChildToBack(this.outer_.transform(arg))
 		}
 	}
@@ -2441,9 +2419,7 @@ func (this *IRFactory_TransformDispatcher) processObjectLiteral(objTree *ObjectL
 	var node Node = this.outer_.newNode(Token_rhino_OBJECTLIT)
 	node.setTrailingComma(objTree.hasTrailingComma_)
 	var maybeWarn bool = false
-	it_1 := objTree.propertyNameAndValues.each()
-	for it_1.next() {
-		var el *ParseTree = it_1.v
+	for el := range objTree.propertyNameAndValues.All() {
 		if el.type__ == ParseTreeType_DEFAULT_PARAMETER {
 			this.outer_.errorReporter.error("Default value cannot appear at top level of an object literal.", this.outer_.sourceName_, IRFactory_lineno(el), 0)
 			continue
@@ -2681,9 +2657,7 @@ func (this *IRFactory_TransformDispatcher) processTemplateLiteral(tree *Template
 		}
 		return this.outer_.newNode_3(Token_rhino_TAGGED_TEMPLATELIT, this.outer_.transform(tree.operand), templateLitNode)
 	}()
-	it_1 := tree.elements_.each()
-	for it_1.next() {
-		var child *ParseTree = it_1.v
+	for child := range tree.elements_.All() {
 		templateLitNode.addChildToBack(this.outer_.transform(child))
 	}
 	if node.isTaggedTemplateLit() {
@@ -2707,9 +2681,7 @@ func (this *IRFactory_TransformDispatcher) processSwitchCase(caseNode *CaseClaus
 	block.setIsAddedBlock(true)
 	this.outer_.setSourceInfo(block, caseNode.up_ParseTree())
 	if caseNode.statements != nil {
-		it_1 := caseNode.statements.each()
-		for it_1.next() {
-			var child *ParseTree = it_1.v
+		for child := range caseNode.statements.All() {
 			block.addChildToBack(this.outer_.transform(child))
 		}
 	}
@@ -2723,9 +2695,7 @@ func (this *IRFactory_TransformDispatcher) processSwitchDefault(caseNode *Defaul
 	block.setIsAddedBlock(true)
 	this.outer_.setSourceInfo(block, caseNode.up_ParseTree())
 	if caseNode.statements != nil {
-		it_1 := caseNode.statements.each()
-		for it_1.next() {
-			var child *ParseTree = it_1.v
+		for child := range caseNode.statements.All() {
 			block.addChildToBack(this.outer_.transform(child))
 		}
 	}
@@ -2738,9 +2708,7 @@ func (this *IRFactory_TransformDispatcher) processSwitchStatement(statementNode 
 	var switchBody Node = this.outer_.newNode(Token_rhino_SWITCH_BODY)
 	this.outer_.setSourceInfo(switchBody, statementNode.up_ParseTree())
 	node.addChildToBack(switchBody)
-	it_1 := statementNode.caseClauses.each()
-	for it_1.next() {
-		var child *ParseTree = it_1.v
+	for child := range statementNode.caseClauses.All() {
 		switchBody.addChildToBack(this.outer_.transform(child))
 	}
 	return node
@@ -2850,9 +2818,7 @@ func (this *IRFactory_TransformDispatcher) processVariableDeclarationList(decl *
 		panic(new_IllegalStateException_0())
 	}
 	var node Node = this.outer_.newNode(declType)
-	it_2 := decl.declarations.each()
-	for it_2.next() {
-		var child *VariableDeclarationTree = it_2.v
+	for child := range decl.declarations.All() {
 		node.addChildToBack(this.outer_.transformNodeWithInlineComments(child.up_ParseTree()))
 	}
 	this.attachPossibleTrailingComment(node, decl.getEnd())
@@ -2935,9 +2901,7 @@ func (this *IRFactory_TransformDispatcher) processCommaExpression(tree *CommaExp
 	var start *SourcePosition_util = tree.expressions.get(0).location_.start_
 	var end *SourcePosition_util = tree.expressions.get(1).location_.end_
 	this.outer_.setSourceInfo_3(root, start, end)
-	it_1 := tree.expressions.each()
-	for it_1.next() {
-		var expr *ParseTree = it_1.v
+	for expr := range tree.expressions.All() {
 		var count int32 = root.getChildCount()
 		if count < 2 {
 			root.addChildToBack(this.outer_.transform(expr))
@@ -2960,9 +2924,7 @@ func (this *IRFactory_TransformDispatcher) processClassDeclaration(tree *ClassDe
 		var ignored IRFactory_TransformDispatcher_AutoDecrement = this.classScope.increment()
 		defer closeResource_(ignored)
 		var hasConstructor bool = false
-		it_2 := tree.elements_.each()
-		for it_2.next() {
-			var child *ParseTree = it_2.v
+		for child := range tree.elements_.All() {
 			switch child.type__ {
 			case ParseTreeType_COMPUTED_PROPERTY_GETTER, ParseTreeType_COMPUTED_PROPERTY_SETTER, ParseTreeType_GET_ACCESSOR, ParseTreeType_SET_ACCESSOR:
 				this.outer_.features_ = this.outer_.features_.with(FeatureSet_Feature_CLASS_GETTER_SETTER)
@@ -3271,9 +3233,7 @@ func (this *IRFactory_TransformDispatcher) checkParameters(tree *FormalParameter
 
 func (this *IRFactory_TransformDispatcher) transformList(type_ Token_rhino, list *TList[*ParseTree]) Node {
 	var n Node = this.outer_.newNode(type_)
-	it_1 := list.each()
-	for it_1.next() {
-		var tree *ParseTree = it_1.v
+	for tree := range list.All() {
 		n.addChildToBack(this.outer_.transform(tree))
 	}
 	return n

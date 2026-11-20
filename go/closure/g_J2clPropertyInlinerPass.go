@@ -399,9 +399,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLCla
 			}
 		}
 	}
-	it_3 := getterDefByName.each()
-	for it_3.next() {
-		var propertyName string = it_3.k
+	for propertyName := range getterDefByName.Keys() {
 		var getterDef Node = getterDefByName.Get(propertyName)
 		var setterDef Node = setterDefByName[propertyName]
 		if this.outer_.matchesJ2clGetKeySignature(className, getterDef) && ((setterDef == 0) || this.outer_.matchesJ2clSetKeySignature(className, setterDef)) {
@@ -475,9 +473,7 @@ func new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_InlineProperties
 
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_InlinePropertiesPass) run() {
 	NodeTraversal_traverse(this.outer_.outer_.compiler_, this.outer_.root, NodeTraversal_Callback(this))
-	it_1 := this.propertiesByName.each()
-	for it_1.next() {
-		var prop *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty = it_1.v
+	for prop := range this.propertiesByName.Values() {
 		if prop.isSafeToInline {
 			prop.remove()
 		}

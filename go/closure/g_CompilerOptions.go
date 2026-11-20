@@ -917,9 +917,7 @@ func (this *CompilerOptions) shouldReplaceIdGenerators() bool {
 
 func (this *CompilerOptions) setIdGenerators(idGenerators *TSet[string]) {
 	var builder *ImmutableMap_Builder[string, RenamingMap] = immutableMapBuilder_(tc_string, tc_RenamingMap)
-	it_1 := idGenerators.each()
-	for it_1.next() {
-		var name string = it_1.v
+	for name := range idGenerators.All() {
 		builder.put(name, RenamingToken_as_RenamingMap(RenamingToken_INCONSISTENT))
 	}
 	this.idGenerators = builder.buildOrThrow()
@@ -2732,9 +2730,13 @@ func (this CompilerOptions_BrowserFeaturesetYear) getYear() int32 {
 }
 
 func CompilerOptions_BrowserFeaturesetYear_minimumRequiredFor(feature FeatureSet_Feature) CompilerOptions_BrowserFeaturesetYear {
-	it_1 := CompilerOptions_BrowserFeaturesetYear_YEAR_MAP.each()
-	for it_1.next() {
-		var year int32 = unbox_[int32](it_1.k)
+	l_1 := CompilerOptions_BrowserFeaturesetYear_YEAR_MAP
+	for i_1 := l_1.first(); i_1 < len(l_1.keys); i_1++ {
+		if l_1.isDead(i_1) {
+			continue
+		}
+		k_1 := l_1.keys[i_1]
+		var year int32 = unbox_[int32](k_1)
 		var yearObject CompilerOptions_BrowserFeaturesetYear = CompilerOptions_BrowserFeaturesetYear_YEAR_MAP.Get(int32(year))
 		if yearObject.getFeatureSet().contains(feature) {
 			return yearObject
