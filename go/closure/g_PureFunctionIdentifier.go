@@ -590,7 +590,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) updateSideEffectsForNod
 			if (value != 0) && !NodeUtil_evaluatesToLocalValue(value) {
 				var scope *Scope = traversal.getScope()
 				var var_ *Var = scope.getVar_String_rVar(node.getString())
-				cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque()))).skiplistedVars.add(var_)
+				SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque())).(*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry).skiplistedVars.add(var_)
 			}
 		}
 	case tokOrd1_THROW:
@@ -641,8 +641,8 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) deprecatedSetSideEffect
 }
 
 func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) recordThrowsBasedOnContext(encloserSummary *PureFunctionIdentifier_AmbiguatedFunctionSummary) {
-	if cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque()))).catchDepth == 0 {
-		encloserSummary.setThrows(cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque()))).root)
+	if SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque())).(*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry).catchDepth == 0 {
+		encloserSummary.setThrows(SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque())).(*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry).root)
 	}
 }
 
@@ -705,7 +705,7 @@ func PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerSco
 func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitLhsNode(encloserSummary *PureFunctionIdentifier_AmbiguatedFunctionSummary, scope *Scope, lhs Node, hasLocalRhs PredicateOf[Node]) {
 	if NodeUtil_isNormalOrOptChainGet(lhs) {
 		if lhs.getFirstChild().isThis() {
-			if cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque()))).root.isArrowFunction() {
+			if SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque())).(*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry).root.isArrowFunction() {
 				encloserSummary.setMutatesGlobalStateAndAllOtherFlags(lhs)
 			} else {
 				encloserSummary.setMutatesThis(lhs)
@@ -715,7 +715,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitLhsNode(encloserSu
 			if objectNode.isName() {
 				var var_ *Var = scope.getVar_String_rVar(objectNode.getString())
 				if PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(var_, scope) {
-					cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque()))).taintedVars.add(var_)
+					SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque())).(*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry).taintedVars.add(var_)
 				} else {
 					encloserSummary.setMutatesGlobalStateAndAllOtherFlags(lhs)
 				}
@@ -730,7 +730,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitLhsNode(encloserSu
 		var var_ *Var = scope.getVar_String_rVar(lhs.getString())
 		if PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(var_, scope) {
 			if !hasLocalRhs.test(lhs.box_()) {
-				cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque()))).skiplistedVars.add(var_)
+				SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque())).(*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry).skiplistedVars.add(var_)
 			}
 		} else {
 			encloserSummary.setMutatesGlobalStateAndAllOtherFlags(lhs)
@@ -773,7 +773,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) addToCatchDepthIfTryBlo
 	if jsCatch == 0 {
 		return
 	}
-	cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque()))).catchDepth += delta
+	SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque())).(*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry).catchDepth += delta
 }
 
 type PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry struct {
