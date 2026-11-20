@@ -195,3 +195,9 @@ lihmForEach_ (rt_idmap.go, step 212).
 
 Manual patch 422 was regenerated: one hunk's context changed with fix 21 (inline null checks in
 CoalesceVariableNames); the first replay stopped there, as the driver is meant to.
+
+The replay of the merged list (overlay 969831a5 with its toolfix 20, the fixes 21-27, the five
+dead runtime patches dropped, steps 554a, 554b and 555 of inb-stepper appended): worktree
+replay4q, one run from the flip base without a stop, 273 commits, tip add052af (go/ tree
+2af55fe7). Gate on branch inb-toolgaps-tree: ok jsgomech/closure; checks, bundle, downlevel,
+advanced MATCH. The driver takes the overlay worktree from REFLIP_OVERLAY.
