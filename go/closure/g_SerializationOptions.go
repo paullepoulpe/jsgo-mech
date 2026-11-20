@@ -37,22 +37,6 @@ func (this *SerializationOptions) runtimeLibraries() *TList[string] {
 	return this.runtimeLibraries_
 }
 
-func (this *SerializationOptions) equals(p0 any) bool {
-	o, ok := p0.(*SerializationOptions)
-	if !ok || o == nil {
-		return false
-	}
-	return true && this.includeDebugInfo_ == o.includeDebugInfo_ && this.runValidation_ == o.runValidation_ && Objects_equals(this.runtimeLibraries_.asList(), o.runtimeLibraries_.asList())
-}
-
-func (this *SerializationOptions) hashCode() int32 {
-	var h int32
-	h = h*31 + boolhash_(this.includeDebugInfo_)
-	h = h*31 + boolhash_(this.runValidation_)
-	h = h*31 + objhashVia_(this.runtimeLibraries_.asList())
-	return h
-}
-
 func (this *SerializationOptions) toString() string {
 	return "SerializationOptions[" + "includeDebugInfo=" + boolstr_(this.includeDebugInfo_) + ", runValidation=" + boolstr_(this.runValidation_) + ", runtimeLibraries=" + objstr_(this.runtimeLibraries_.asList()) + "]"
 }

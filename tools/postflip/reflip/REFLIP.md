@@ -406,3 +406,100 @@ translated code as a whole is level with round 8's (flat 35.1 against 34.9 s on 
 Binaries: $S/proto/m_rfn8 (tip), m_m8final (round 8). Scripts: $S/rf/meas.sh, mem.sh, cum2.py
 (cumulative-time diff of two `pprof -top -cum` listings by name pattern), cpudiff.py, rec.sh
 (appends a commit to steps.txt with its patch); the milestone log is $S/rf/milestone4.log.
+
+## Fourth session: strids, icasts, tfnargs (2026-11-18/19)
+
+Steps 429-437 of steps.txt (patches/429, 430, 433, 435, 436; the rest are tool runs). The three
+step commits and the re-run were committed as "WIP ... (message to be amended)"; the commit that
+records each in steps.txt carries its message, counts and numbers (history not rewritten).
+Each run line was checked the way replay-all.sh runs it: go/ of the commit's parent, the tools of
+the commit with toolfix.sh, then `t <tool> && f` gives the commit's go/ byte for byte; tfnargs
+run again on the tip converts nothing; b6e39a43 and 2bd6d6b2 (runtime patches applied alone)
+pass the type check tc. `replay-all.sh -steps reflip/steps.txt -list`: 235 commits, 110 with
+tool runs, 98 runtime and 51 manual patches.
+
+| step | commit | what | allocations typed-full; bundle (objects) |
+|---|---|---|---|
+| 429-431 | b6e39a43, 84bcaeda, 26118a47 | runtime + manual + tool strids: `n.getString() == "lit"` -> getStringIs_ (183), two nodes' strings compared by id (17), `getVar(n.getString())` -> getVarById_ (52); 55 left (compared with a string that is neither a constant nor a node's) | 182.49M -> 182.52M (bytes +0.03 GB: id slots); 86.23M -> 86.24M |
+| 432 | 28eb1868 | tool icasts: casts to an instantiated generic interface outside generic code call named icast_ functions (27; 63 left in generic code) | unchanged |
+| 433-434 | 2bd6d6b2, 8571bed2 | runtime + tool tfnargs: parameters always given an adapter's method take the typed function (64; NodeUtil.has, getEnclosingNode, findPreorder ...) | 182.52M -> 181.90M; unchanged |
+| 435 | 4e0d485a | manual: InlineAndCollapseProperties makes a decision's message only for a log that records | 181.90M -> 181.01M; unchanged |
+| 436 | 3798ad00 | manual: a string stored in a node is interned once, by the node store | 181.01M -> 180.82M (11.53 -> 11.48 GB); 86.24M -> 86.11M (6.05 -> 6.02 GB) |
+| 437 | fec23265 | tool tfnargs re-run (96ac790e): parameters passing the function on to one another, as one group (30: the LHS visitors of NodeUtil) | unchanged |
+
+Gate at the tip: runtime tests ok (50 Test functions; 49 at 7b082bc9, plus TestScopeVarsById),
+checks/bundle/downlevel/advanced MATCH.
+
+**Per step** (fb.py, 4 ABBA rounds of all 14 binaries 7b082bc9..fec23265, each also built with
+step 426 reverted, i.e. `runtime.MemProfileRate = 0` replaced by no-ops in the binary; load
+1.0-1.6; median of the per-round cpu ratios). A round took 12 minutes and the host slowed by up
+to 15% inside one, so single steps are below what this resolves; the commit messages have the
+medians and ranges.
+
+| step | typed-full cpu | without 426 | bundle cpu | without 426 |
+|---|---:|---:|---:|---:|
+| strids (431 vs 7b082bc9) | +1.1% | +0.7% | -0.1% | -1.0% |
+| icasts (432) | +0.4% | -2.3% | +1.1% | -1.7% |
+| tfnargs (433-434) | -4.0% | +2.0% | +0.5% | +1.4% |
+| 435 IACP log | -1.5% | -5.8% | -1.3% | -4.0% |
+| 436 interning | -1.0% | +0.6% | -0.2% | +0.6% |
+| tfnargs re-run (437) | -0.2% | -2.7% | -1.2% | -0.7% |
+| **tip vs 7b082bc9** | **-6.3%** (57.69 -> 53.75 s) | **-8.8%** | **-0.6%** (23.30 -> 23.30 s) | **-2.6%** |
+
+**Milestone run** at the tip fec23265 (m_rg5; m_rg5x without 426), with pre-flip Java, round 8
+(m_m8final) and 7b082bc9 (m_rfj0), 6 rounds each, idle host (load 1.0-2.7, the high end during
+Java's runs), no PGO; stdout, stderr, out.js (and out.js.map) byte-identical with Java's for every
+binary. The container restarted during the first attempt and the run was repeated on the new
+host (whose typed-full times were erratic, 50-103 s for one binary, for its first 40 minutes:
+that run is discarded; the table is from the runs after it settled). Medians:
+
+| | typed-full wall (cpu) | Java/Go | bundle wall (cpu) | Java/Go |
+|---|---:|---:|---:|---:|
+| pre-flip Java | 51.86 s (123.2) | | 27.16 s (65.3) | |
+| tip fec23265 | 48.58 s (56.7) | **1.068** | 24.12 s (25.9) | **1.126** |
+| tip without 426 | 49.27 s (57.3) | 1.053 | 24.33 s (26.1) | 1.116 |
+| round 8 | 48.01 s (58.0) | 1.080 | 24.42 s (28.1) | 1.112 |
+| 7b082bc9 | 49.98 s (58.3) | 1.038 | 24.37 s (26.4) | 1.114 |
+
+Per-round ratios: against 7b082bc9 typed-full cpu -2.7%, wall -2.0%; bundle cpu -1.7%, wall
+-0.9%. Against round 8: typed-full cpu -2.5%, wall +0.9% (without 426: -1.3%, +2.2%); bundle
+cpu -7.7%, wall -1.0% (without 426: -8.4%, -0.9%). The three rounds completed before the
+restart, on the earlier host, had the tip's typed-full wall below round 8's in each (40.81 /
+43.61, 43.55 / 44.36, 44.80 / 45.11 s). Allocations (JSGO_MEMSTATS): typed-full 180.8M / 11.48
+GB, bundle 86.1M / 6.02 GB (round 8: 186.0M / 11.54 GB, 88.9M / 6.08 GB).
+
+So: bundle is now at or ahead of round 8 in wall and well ahead in CPU; typed-full is ahead in
+CPU and within 1% of round 8's wall. 426 is worth about 1% of typed-full (1.068 vs 1.053) and
+nothing resolvable on bundle.
+
+**reflip-javaisms (1f0b2534, m_rfj4) on bundle**, in the same milestone run against its base
+7b082bc9 (m_rfj0): cpu 26.43 -> 26.84 s (+1.2%, rounds -0.4..+2.1), wall 24.37 -> 24.88 s
+(+1.1%). Three CPU profiles of each, interleaved, right after: 3 x 26.41 -> 3 x 26.01 s cpu
+(-1.5%), profile totals 48.49 -> 47.63 s; translated code +0.15 s over the three runs,
+collector -0.47, allocator -0.19. The largest per-function moves are inlining and attribution
+shifts (Node.payload_c_ appears out of line under payload_iss_: +0.43 s over three runs;
+traverseBranch +0.39; Node.getLastChild gone, -0.35; TList.add gone, -0.26), no new hot
+function. Verdict: the +1 to +3.7% does not hold as a regression; what is left is at most
+about 1%, inside what six rounds resolve.
+
+## Handover after the fourth session
+
+1. **typed-full wall** is the one number still (just) behind round 8: +0.9% per round. The
+   items of the third session's handover still stand: the string table behind Node.getString
+   (strids took the comparisons and scope lookups; the hashing callers ReferenceCollector.visit
+   and ScopeScanner.declareVar remain), the generic classes outside the collection steps.
+2. **icasts' 63 left** are in generic code (LinkedUndirectedGraph, Graph, GraphColoring):
+   the class's own code working on the class, as 422 did for the directed graph.
+3. **tfnargs' left** (12 parameters used otherwise, 48 adapters converting in a way the rule
+   does not know, mostly PassFactory lambdas run once per pass; 66 flag suppliers): little CPU.
+4. **426 needs a decision**: kept as runtime tuning it is about 1% of typed-full; if it counts
+   as tuning to be excluded, the numbers without it are in every table above.
+5. reflip-javaisms and this branch both number their new steps from 429: whichever merges
+   second renumbers (the patch files carry the commit hash, so only the `# N.` lines and the
+   patch names' numbers change).
+
+Binaries: $S/proto/m_rg5 (tip fec23265), m_rg5x (the same without 426), m_rfj0 (7b082bc9),
+m_m8final (round 8). Logs: $S/rf/meas.log (per step, labels p9*), milestone6.log (bundle),
+milestone7.log (typed-full), pj.log (javaisms profiles). Scripts: pairs.py (medians and per-round
+ratios of fb.py lines), vstep.sh (a run line against its commit), ident.sh (outputs against
+Java's), bld.sh / unpatch426.py (a binary and its copy without 426).
