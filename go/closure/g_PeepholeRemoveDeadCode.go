@@ -771,11 +771,11 @@ func (this *PeepholeRemoveDeadCode) redeclareIfBlockScopedVar(decl Node, parent 
 	if decl.isClass() {
 		blockScopedVars.add(decl.getFirstChild())
 	} else {
-		NodeUtil_visitLhsNodesInNode(decl, &Consumer_tfn_Node{func(n Node) {
+		NodeUtil_visitLhsNodesInNode(decl, (&Consumer_tfn_Node{func(n Node) {
 			if n.isName() {
 				blockScopedVars.add(n)
 			}
-		}})
+		}}).accept)
 	}
 	var addBefore Node = NodeUtil_getInsertionPointAfterAllInnerFunctionDeclarations(parent)
 	it_1 := blockScopedVars.each()
@@ -1173,13 +1173,13 @@ func (this *PeepholeRemoveDeadCode) isRemovableDestructuringTarget(destructrurin
 }
 
 func PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue(n Node) bool {
-	return (NodeUtil_has(n, &Predicate_base_tfn_Node{func(node Node) bool {
+	return (NodeUtil_has(n, (&Predicate_base_tfn_Node{func(node Node) bool {
 		return (node.isBreak() && !node.hasChildren())
-	}}, &Predicate_base_tfn_Node{func(node Node) bool {
+	}}).apply, &Predicate_base_tfn_Node{func(node Node) bool {
 		return ((!IR_mayBeExpression(node) && !NodeUtil_isLoopStructure(node)) && !node.isSwitch())
-	}}) || NodeUtil_has(n, &Predicate_base_tfn_Node{func(node Node) bool {
+	}}) || NodeUtil_has(n, (&Predicate_base_tfn_Node{func(node Node) bool {
 		return (node.isContinue() && !node.hasChildren())
-	}}, &Predicate_base_tfn_Node{func(node Node) bool {
+	}}).apply, &Predicate_base_tfn_Node{func(node Node) bool {
 		return (!IR_mayBeExpression(node) && !NodeUtil_isLoopStructure(node))
 	}}))
 }
@@ -1209,7 +1209,7 @@ func (this *PeepholeRemoveDeadCode) tryRemoveOptionalChaining(optionalChain Node
 	return result
 }
 
-var PeepholeRemoveDeadCode_MATCH_UNNAMED_BREAK Predicate_base
+var PeepholeRemoveDeadCode_MATCH_UNNAMED_BREAK func(any) bool
 
 var PeepholeRemoveDeadCode_clinit_done bool
 
@@ -1218,7 +1218,7 @@ func PeepholeRemoveDeadCode_clinit() {
 		return
 	}
 	PeepholeRemoveDeadCode_clinit_done = true
-	PeepholeRemoveDeadCode_MATCH_UNNAMED_BREAK = icast_Predicate_base(obj_(new_PeepholeRemoveDeadCode_MatchUnnamedBreak()))
+	PeepholeRemoveDeadCode_MATCH_UNNAMED_BREAK = new_PeepholeRemoveDeadCode_MatchUnnamedBreak().apply
 
 }
 
