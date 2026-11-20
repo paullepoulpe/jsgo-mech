@@ -472,9 +472,9 @@ func (this *PolymerClassRewriter) createVarsInExternsBlock(block Node, propertyN
 		var n Node = Node_newString_Token_String(Token_rhino_NAME, varName)
 		var var_ Node = new_Node_Token(Token_rhino_VAR)
 		var_.addChildToBack(n)
-		var newType *JSTypeExpression = PolymerClassRewriter_createNewTypeExpressionForExtern(propName, Optional_of[string](propType.getSourceName()).filter(&Predicate_tfn_string{func(s string) bool {
+		var newType *JSTypeExpression = PolymerClassRewriter_createNewTypeExpressionForExtern(propName, Optional_of[string](propType.getSourceName()).filterFn_(func(s string) bool {
 			return s != ""
-		}}), prop)
+		}), prop)
 		var oldInfoBuilder *JSDocInfo_Builder = JSDocInfo_Builder_maybeCopyFrom(prop.info)
 		var info *JSDocInfo = oldInfoBuilder.build()
 		var newInfo *JSDocInfo_Builder = JSDocInfo_Builder_copyFromWithNewType(info, newType)

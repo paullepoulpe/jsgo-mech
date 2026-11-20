@@ -70,9 +70,9 @@ func (this *J2clChecksPass) getSourceName(jsType *JSType) Optional[string] {
 	if constructor == nil {
 		return Optional_of[string]("")
 	}
-	return Optional_of[string](NodeUtil_getSourceName(constructor.getSource())).filter(&Predicate_tfn_string{func(s string) bool {
+	return Optional_of[string](NodeUtil_getSourceName(constructor.getSource())).filterFn_(func(s string) bool {
 		return s != ""
-	}})
+	})
 }
 
 func (this *J2clChecksPass) process_2(externs Node, root Node) {

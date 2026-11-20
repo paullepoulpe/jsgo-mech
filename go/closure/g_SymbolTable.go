@@ -1109,9 +1109,9 @@ func (this *SymbolTable_Symbol) getFunctionType() *FunctionType {
 }
 
 func (this *SymbolTable_Symbol) defineReferenceAt(n Node) *SymbolTable_Reference {
-	return this.references.computeIfAbsent(n, &Function_tfn_Node_SymbolTable_Reference{func(k Node) *SymbolTable_Reference {
+	return this.references.ComputeIfAbsent(n, func(k Node) *SymbolTable_Reference {
 		return new_SymbolTable_Reference(this, k)
-	}})
+	})
 }
 
 func (this *SymbolTable_Symbol) setDeclaration(ref *SymbolTable_Reference) {
@@ -1481,9 +1481,9 @@ func (this *SymbolTable_PropertyRefCollector) maybeDefineTypedReference(n Node, 
 		}
 		if (propNodeDecl != 0) && (propNodeDecl.isGetProp() || propNodeDecl.isOptChainGetProp()) {
 			var namespace Node = propNodeDecl.getFirstChild()
-			var namespaceSym *SymbolTable_Symbol = this.outer_.getSymbolForName(namespace, Optional_of[string](namespace.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
+			var namespaceSym *SymbolTable_Symbol = this.outer_.getSymbolForName(namespace, Optional_of[string](namespace.getQualifiedName()).filterFn_(func(s string) bool {
 				return s != ""
-			}}))
+			}))
 			if (namespaceSym != nil) && (namespaceSym.getPropertyScope() != nil) {
 				var propSym *SymbolTable_Symbol = namespaceSym.getPropertyScope().getSlot(propName)
 				if (propSym != nil) && (propSym.getDeclarationNode() != n) {
@@ -1511,15 +1511,15 @@ func (this *SymbolTable_PropertyRefCollector) visit_impl(t *NodeTraversal, n Nod
 		if owner != nil {
 			var defined bool = this.maybeDefineTypedReference(n, n.getString(), owner)
 			if defined {
-				this.tryRemoveLexicalQualifiedNameRef(Optional_of[string](n.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
+				this.tryRemoveLexicalQualifiedNameRef(Optional_of[string](n.getQualifiedName()).filterFn_(func(s string) bool {
 					return s != ""
-				}}), n)
+				}), n)
 				return
 			}
 		}
-		this.tryDefineLexicalQualifiedNameRef(Optional_of[string](n.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
+		this.tryDefineLexicalQualifiedNameRef(Optional_of[string](n.getQualifiedName()).filterFn_(func(s string) bool {
 			return s != ""
-		}}), n)
+		}), n)
 	} else if n.isStringKey() {
 		var owner *JSType = parent.getJSType()
 		if owner != nil {

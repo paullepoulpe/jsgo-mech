@@ -72,9 +72,9 @@ func (this *J2clUtilGetDefineRewriterPass) getDefineReplacement(firstExpr Node, 
 }
 
 func J2clUtilGetDefineRewriterPass_isUtilGetDefineCall(n Node) bool {
-	return (n.isCall() && J2clUtilGetDefineRewriterPass_isUtilGetDefineMethodName(Optional_of[string](n.getFirstChild().getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
+	return (n.isCall() && J2clUtilGetDefineRewriterPass_isUtilGetDefineMethodName(Optional_of[string](n.getFirstChild().getQualifiedName()).filterFn_(func(s string) bool {
 		return s != ""
-	}})))
+	})))
 }
 
 func J2clUtilGetDefineRewriterPass_isUtilGetDefineMethodName(fnName Optional[string]) bool {

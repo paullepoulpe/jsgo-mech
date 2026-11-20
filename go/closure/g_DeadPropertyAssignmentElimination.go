@@ -168,9 +168,9 @@ func (this *DeadPropertyAssignmentElimination_PropertyWrite) init_DeadPropertyAs
 		panic(new_IllegalArgumentException_0())
 	}
 	this.assignedAt = assignedAt
-	this.qualifiedName_ = Optional_of[string](assignedAt.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
+	this.qualifiedName_ = Optional_of[string](assignedAt.getQualifiedName()).filterFn_(func(s string) bool {
 		return s != ""
-	}})
+	})
 }
 
 func new_DeadPropertyAssignmentElimination_PropertyWrite(assignedAt Node) *DeadPropertyAssignmentElimination_PropertyWrite {
@@ -215,13 +215,13 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 		if propNode.isGetProp() {
 			return Optional_of[string](propNode.getString())
 		}
-		return Optional_of[string](propNode.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
+		return Optional_of[string](propNode.getQualifiedName()).filterFn_(func(s string) bool {
 			return s != ""
-		}})
+		})
 	}()
-	var property *DeadPropertyAssignmentElimination_Property = this.propertyMap.computeIfAbsent(propName.orElse(nullstr_), &Function_tfn_string_DeadPropertyAssignmentElimination_Property{func(p0 string) *DeadPropertyAssignmentElimination_Property {
+	var property *DeadPropertyAssignmentElimination_Property = this.propertyMap.ComputeIfAbsent(propName.orElse(nullstr_), func(p0 string) *DeadPropertyAssignmentElimination_Property {
 		return new_DeadPropertyAssignmentElimination_Property(p0)
-	}})
+	})
 	if propNode.isGetProp() {
 		var parentProperty *DeadPropertyAssignmentElimination_Property = this.getOrCreateProperty(propNode.getFirstChild())
 		if parentProperty != nil {
