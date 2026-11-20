@@ -6,6 +6,7 @@ type DiagnosticType struct {
 	key_        string
 	formatField string
 	level_      CheckLevel
+	hashMemo_   int32 // hashCode, once computed, when it is not 0 (post-flip step hashmemo)
 }
 
 func (this *DiagnosticType) zero_DiagnosticType() {
@@ -57,6 +58,16 @@ func (this *DiagnosticType) equals_DiagnosticType(diagnosticType *DiagnosticType
 }
 
 func (this *DiagnosticType) hashCode() int32 {
+	if h := this.hashMemo_; h != 0 {
+		return h
+	}
+	h := this.hashCodeOnce_()
+	this.hashMemo_ = h
+	return h
+}
+
+// hashCodeOnce_ computes hashCode: a function of data that is final in the object (post-flip step hashmemo).
+func (this *DiagnosticType) hashCodeOnce_() int32 {
 	return utf16Hash_(this.key_)
 }
 

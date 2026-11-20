@@ -244,7 +244,8 @@ func Property_Key_matches_default(this Property_Key, stringKey string) bool {
 }
 
 type Property_StringKey struct {
-	string_ string
+	string_   string
+	hashMemo_ int32 // hashCode, once computed, when it is not 0 (post-flip step hashmemo)
 }
 
 func (this *Property_StringKey) zero_Property_StringKey() {
@@ -291,6 +292,16 @@ func (this *Property_StringKey) equals(p0 any) bool {
 }
 
 func (this *Property_StringKey) hashCode() int32 {
+	if h := this.hashMemo_; h != 0 {
+		return h
+	}
+	h := this.hashCodeOnce_()
+	this.hashMemo_ = h
+	return h
+}
+
+// hashCodeOnce_ computes hashCode: a function of data that is final in the object (post-flip step hashmemo).
+func (this *Property_StringKey) hashCodeOnce_() int32 {
 	var h int32
 	h = h*31 + strhash_(this.string_)
 	return h
