@@ -274,5 +274,5 @@ func (this *AbstractVar) getName() string {
 	if this.self_ == any(this) {
 		return this.getName_impl()
 	}
-	return this.self_.(interface{ getName_impl() string }).getName_impl()
+	return this.self_.getName_impl()
 }

@@ -208,9 +208,16 @@ func (this *RewriteAsyncFunctions_SuperPropertyWrappers) asCollection() Collecti
 }
 
 type RewriteAsyncFunctions_LexicalContext struct {
-	self_           any
+	self_           RewriteAsyncFunctions_LexicalContext_I
 	contextRootNode Node
 	uniqueId        string
+}
+
+// RewriteAsyncFunctions_LexicalContext_I holds the methods the dispatchers of RewriteAsyncFunctions_LexicalContext's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type RewriteAsyncFunctions_LexicalContext_I interface {
+	getContextForNode_impl(*NodeTraversal, Node) *RewriteAsyncFunctions_LexicalContext
+	visit_impl(*NodeTraversal, Node)
 }
 
 func (this *RewriteAsyncFunctions_LexicalContext) as_RewriteAsyncFunctions_LexicalContext() *RewriteAsyncFunctions_LexicalContext {
@@ -254,13 +261,11 @@ func (this *RewriteAsyncFunctions_LexicalContext) getContextRootNode() Node {
 }
 
 func (this *RewriteAsyncFunctions_LexicalContext) getContextForNode(p0 *NodeTraversal, p1 Node) *RewriteAsyncFunctions_LexicalContext {
-	return this.self_.(interface {
-		getContextForNode_impl(*NodeTraversal, Node) *RewriteAsyncFunctions_LexicalContext
-	}).getContextForNode_impl(p0, p1)
+	return this.self_.getContextForNode_impl(p0, p1)
 }
 
 func (this *RewriteAsyncFunctions_LexicalContext) visit(p0 *NodeTraversal, p1 Node) {
-	this.self_.(interface{ visit_impl(*NodeTraversal, Node) }).visit_impl(p0, p1)
+	this.self_.visit_impl(p0, p1)
 }
 
 type RewriteAsyncFunctions_RootContext struct {
@@ -552,9 +557,7 @@ func (this *RewriteAsyncFunctions_RootContext) getContextForNode(p0 *NodeTravers
 	if this.self_ == any(this) {
 		return this.getContextForNode_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		getContextForNode_impl(*NodeTraversal, Node) *RewriteAsyncFunctions_LexicalContext
-	}).getContextForNode_impl(p0, p1)
+	return this.self_.getContextForNode_impl(p0, p1)
 }
 
 // visit: an object that is exactly a RewriteAsyncFunctions_RootContext calls its visit_impl directly (post-flip); others dispatch.
@@ -563,7 +566,7 @@ func (this *RewriteAsyncFunctions_RootContext) visit(p0 *NodeTraversal, p1 Node)
 		this.visit_impl(p0, p1)
 		return
 	}
-	this.self_.(interface{ visit_impl(*NodeTraversal, Node) }).visit_impl(p0, p1)
+	this.self_.visit_impl(p0, p1)
 }
 
 // getContextForNode: an object that is exactly a RewriteAsyncFunctions_ParameterListContext calls its getContextForNode_impl directly (post-flip); others dispatch.
@@ -571,9 +574,7 @@ func (this *RewriteAsyncFunctions_ParameterListContext) getContextForNode(p0 *No
 	if this.self_ == any(this) {
 		return this.getContextForNode_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		getContextForNode_impl(*NodeTraversal, Node) *RewriteAsyncFunctions_LexicalContext
-	}).getContextForNode_impl(p0, p1)
+	return this.self_.getContextForNode_impl(p0, p1)
 }
 
 // visit: an object that is exactly a RewriteAsyncFunctions_ParameterListContext calls its visit_impl directly (post-flip); others dispatch.
@@ -582,7 +583,7 @@ func (this *RewriteAsyncFunctions_ParameterListContext) visit(p0 *NodeTraversal,
 		this.visit_impl(p0, p1)
 		return
 	}
-	this.self_.(interface{ visit_impl(*NodeTraversal, Node) }).visit_impl(p0, p1)
+	this.self_.visit_impl(p0, p1)
 }
 
 // getContextForNode: an object that is exactly a RewriteAsyncFunctions_FunctionContext calls its getContextForNode_impl directly (post-flip); others dispatch.
@@ -590,9 +591,7 @@ func (this *RewriteAsyncFunctions_FunctionContext) getContextForNode(p0 *NodeTra
 	if this.self_ == any(this) {
 		return this.getContextForNode_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		getContextForNode_impl(*NodeTraversal, Node) *RewriteAsyncFunctions_LexicalContext
-	}).getContextForNode_impl(p0, p1)
+	return this.self_.getContextForNode_impl(p0, p1)
 }
 
 // visit: an object that is exactly a RewriteAsyncFunctions_FunctionContext calls its visit_impl directly (post-flip); others dispatch.
@@ -601,5 +600,5 @@ func (this *RewriteAsyncFunctions_FunctionContext) visit(p0 *NodeTraversal, p1 N
 		this.visit_impl(p0, p1)
 		return
 	}
-	this.self_.(interface{ visit_impl(*NodeTraversal, Node) }).visit_impl(p0, p1)
+	this.self_.visit_impl(p0, p1)
 }
