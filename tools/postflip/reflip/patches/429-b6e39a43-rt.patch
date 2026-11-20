@@ -1,0 +1,413 @@
+diff --git a/go/closure/rt_scopevars.go b/go/closure/rt_scopevars.go
+index 228e949c..70fb3b06 100644
+--- a/go/closure/rt_scopevars.go
++++ b/go/closure/rt_scopevars.go
+@@ -1,6 +1,9 @@
+ package closure
+ 
+-import "hash/maphash"
++import (
++	"hash/maphash"
++	"unsafe"
++)
+ 
+ // scopeVars_ is AbstractScope.vars, Java's LinkedHashMap<String, V> of the variables a scope
+ // declares (post-flip runtime): the entries in declaration order in one slice, the first four
+@@ -12,20 +15,37 @@ import "hash/maphash"
+ // (String caches its hashCode); here a lookup that walks the chain passes the hash along
+ // (lookup), computing it only when it first meets an indexed scope.
+ //
++// An entry can also hold the id of its name in the table of interned strings (rt_ids.go), and
++// an indexed table then has further slots keyed by that id: a lookup by the name of a node
++// (Node.getStringId_: the id is what the node's record holds) compares ids and hashes no
++// bytes (findId, lookupId). Equal strings have one id, so the two lookups find the same entry.
++// The id comes with the declaration (putId: the declaring node holds it); interning a name
++// that no node holds would hash it and keep it for good, so a table that was given a name
++// without its id (put: the qualified names of a typed scope) keeps no ids, and a lookup by
++// id there is a lookup by the id's string.
++//
+ // Removal (undeclare, rare) closes the gap, so that the remaining entries keep their order,
+ // as in LinkedHashMap.
+ type scopeVars_ struct {
+ 	ents  []scopeVarEnt_
+-	slots []uint64
++	slots []uint64 // nil, or n slots by the name's hash and, unless noIds, n 32-bit slots by its id (n/2 words)
+ 	view  *scopeVarsView_
++	noIds bool // an entry was put without the id of its name
+ 	first [4]scopeVarEnt_
+ }
+ 
++// scopeVarEnt_ is an entry: the name as its bytes and length (a Go string would be two words;
++// with a 32-bit length the id fits beside it and the entry is as large as name and variable
++// alone), the name's string id, and the variable.
+ type scopeVarEnt_ struct {
+-	name string
+-	v    *AbstractVar
++	p  *byte
++	n  uint32
++	id uint32
++	v  *AbstractVar
+ }
+ 
++func (e *scopeVarEnt_) name() string { return unsafe.String(e.p, int(e.n)) }
++
+ const scopeVarsSmall_ = 8
+ 
+ var scopeVarsSeed_ = maphash.MakeSeed()
+@@ -44,7 +64,7 @@ func newScopeVars_() *scopeVars_ {
+ func (t *scopeVars_) find(name string, h *uint32) int {
+ 	if t.slots == nil {
+ 		for i := range t.ents {
+-			if t.ents[i].name == name {
++			if t.ents[i].name() == name {
+ 				return i
+ 			}
+ 		}
+@@ -53,17 +73,73 @@ func (t *scopeVars_) find(name string, h *uint32) int {
+ 	if *h == 0 {
+ 		*h = scopeVarHash_(name)
+ 	}
+-	mask := uint32(len(t.slots) - 1)
+-	for j := *h & mask; t.slots[j] != 0; j = (j + 1) & mask {
+-		if sl := t.slots[j]; uint32(sl>>32) == *h {
+-			if i := int(uint32(sl)) - 1; t.ents[i].name == name {
++	slots := t.slots[:t.nslots()]
++	mask := uint32(len(slots) - 1)
++	for j := *h & mask; slots[j] != 0; j = (j + 1) & mask {
++		if sl := slots[j]; uint32(sl>>32) == *h {
++			if i := int(uint32(sl)) - 1; t.ents[i].name() == name {
++				return i
++			}
++		}
++	}
++	return -1
++}
++
++// scopeVarIdHash_ spreads the ids of interned strings (consecutive numbers) over the slots.
++func scopeVarIdHash_(id uint32) uint32 {
++	h := id * 0x9E3779B1
++	return h ^ h>>15
++}
++
++// findId is the position of the name with string id `id`, or -1.
++func (t *scopeVars_) findId(id uint32) int {
++	if t.noIds {
++		var h uint32
++		return t.find(strid_str_(id), &h)
++	}
++	if t.slots == nil {
++		for i := range t.ents {
++			if t.ents[i].id == id {
+ 				return i
+ 			}
+ 		}
++		return -1
++	}
++	slots := t.idSlots()
++	mask := uint32(len(slots) - 1)
++	for j := scopeVarIdHash_(id) & mask; slots[j] != 0; j = (j + 1) & mask {
++		if i := int(slots[j]) - 1; t.ents[i].id == id {
++			return i
++		}
+ 	}
+ 	return -1
+ }
+ 
++// nslots is the number of slots keyed by the name's hash.
++func (t *scopeVars_) nslots() int {
++	if t.noIds {
++		return len(t.slots)
++	}
++	return len(t.slots) / 3 * 2
++}
++
++// idSlots is the part of slots keyed by id: 1 + position, 0 for a free slot.
++func (t *scopeVars_) idSlots() []uint32 {
++	n := len(t.slots) / 3 * 2
++	return unsafe.Slice((*uint32)(unsafe.Pointer(unsafe.SliceData(t.slots[n:]))), n)
++}
++
++// lookupId is get(name) for the name with string id `id`. A nil table has no variables.
++func (t *scopeVars_) lookupId(id uint32) *AbstractVar {
++	if t == nil {
++		return nil
++	}
++	if i := t.findId(id); i >= 0 {
++		return t.ents[i].v
++	}
++	return nil
++}
++
+ // lookup is get(name) for a lookup chain: h carries the name's hash from table to table.
+ // A nil table (a scope that declares nothing) has no variables.
+ func (t *scopeVars_) lookup(name string, h *uint32) *AbstractVar {
+@@ -97,36 +173,59 @@ func (t *scopeVars_) size() int32 {
+ 	return int32(len(t.ents))
+ }
+ 
+-// put maps name to v; a name already there keeps its position (LinkedHashMap).
++// put maps name to v; a name already there keeps its position (LinkedHashMap). The table
++// keeps no ids from here on.
+ func (t *scopeVars_) put(name string, v *AbstractVar) {
++	if !t.noIds {
++		t.noIds = true
++		if t.slots != nil {
++			t.rebuild()
++		}
++	}
++	t.putId(name, 0, v)
++}
++
++// putId is put for a name whose string id is `id`.
++func (t *scopeVars_) putId(name string, id uint32, v *AbstractVar) {
+ 	var h uint32
+ 	if i := t.find(name, &h); i >= 0 {
+ 		t.ents[i].v = v
+ 		return
+ 	}
+-	t.ents = append(t.ents, scopeVarEnt_{name, v})
++	t.ents = append(t.ents, scopeVarEnt_{unsafe.StringData(name), uint32(len(name)), id, v})
+ 	if t.slots != nil {
+-		if len(t.ents)*8 > len(t.slots)*3 {
++		if len(t.ents)*8 > t.nslots()*3 {
+ 			t.rebuild()
+ 		} else {
+ 			if h == 0 {
+ 				h = scopeVarHash_(name)
+ 			}
+-			t.place(h, len(t.ents)-1)
++			t.place(h, id, len(t.ents)-1)
+ 		}
+ 	} else if len(t.ents) > scopeVarsSmall_ {
+ 		t.rebuild()
+ 	}
+ }
+ 
+-// place puts position i, of a name with hash h, in a free slot.
+-func (t *scopeVars_) place(h uint32, i int) {
+-	mask := uint32(len(t.slots) - 1)
++// place puts position i, of a name with hash h and string id `id`, in a free slot of each half.
++func (t *scopeVars_) place(h uint32, id uint32, i int) {
++	n := t.nslots()
++	mask := uint32(n - 1)
++	slots := t.slots[:n]
+ 	j := h & mask
+-	for t.slots[j] != 0 {
++	for slots[j] != 0 {
+ 		j = (j + 1) & mask
+ 	}
+-	t.slots[j] = uint64(h)<<32 | uint64(uint32(i+1))
++	slots[j] = uint64(h)<<32 | uint64(uint32(i+1))
++	if t.noIds {
++		return
++	}
++	ids := t.idSlots()
++	j = scopeVarIdHash_(id) & mask
++	for ids[j] != 0 {
++		j = (j + 1) & mask
++	}
++	ids[j] = uint32(i + 1)
+ }
+ 
+ func (t *scopeVars_) rebuild() {
+@@ -134,13 +233,17 @@ func (t *scopeVars_) rebuild() {
+ 		t.slots = nil
+ 		return
+ 	}
+-	n := 64
++	n := 32
+ 	for n*3 < len(t.ents)*8 {
+ 		n *= 2
+ 	}
+-	t.slots = make([]uint64, n)
++	if t.noIds {
++		t.slots = make([]uint64, n)
++	} else {
++		t.slots = make([]uint64, n+n/2)
++	}
+ 	for i := range t.ents {
+-		t.place(scopeVarHash_(t.ents[i].name), i)
++		t.place(scopeVarHash_(t.ents[i].name()), t.ents[i].id, i)
+ 	}
+ }
+ 
+@@ -168,6 +271,7 @@ func (t *scopeVars_) clear() {
+ 	clear(t.ents)
+ 	t.ents = t.ents[:0]
+ 	t.slots = nil
++	t.noIds = false
+ }
+ 
+ // values is vars.values(): a live view of the variables in declaration order, made once per
+diff --git a/go/closure/rt_scopevars_test.go b/go/closure/rt_scopevars_test.go
+index b8867379..7367295a 100644
+--- a/go/closure/rt_scopevars_test.go
++++ b/go/closure/rt_scopevars_test.go
+@@ -39,17 +39,18 @@ func TestScopeVars(t *testing.T) {
+ 		if m.size() != int32(n-1) || m.get("v1") != nil {
+ 			t.Fatalf("n=%d: remove", n)
+ 		}
+-		for i, e := range m.ents {
++		for i := range m.ents {
++			e := &m.ents[i]
+ 			want := i
+ 			if i >= 1 {
+ 				want = i + 1
+ 			}
+-			if e.name != fmt.Sprint("v", want) || m.get(e.name) == nil {
+-				t.Fatalf("n=%d: order after remove at %d: %s", n, i, e.name)
++			if e.name() != fmt.Sprint("v", want) || m.get(e.name()) == nil {
++				t.Fatalf("n=%d: order after remove at %d: %s", n, i, e.name())
+ 			}
+ 		}
+ 		m.put("v1", vars[1])
+-		if m.ents[len(m.ents)-1].name != "v1" || m.get("v1") != vars[1] {
++		if m.ents[len(m.ents)-1].name() != "v1" || m.get("v1") != vars[1] {
+ 			t.Fatalf("n=%d: re-put goes last", n)
+ 		}
+ 		m.clear()
+@@ -63,3 +64,66 @@ func TestScopeVars(t *testing.T) {
+ 		t.Fatal("nil table")
+ 	}
+ }
++
++// A lookup by the string id of a name finds what the lookup by the name finds, in tables
++// below and above the indexed size, with ids (putId) and without (put), also when a table
++// with ids is given a name without one, and after a removal has rebuilt the slots.
++func TestScopeVarsById(t *testing.T) {
++	for _, n := range []int{1, 4, 8, 9, 10, 13, 64, 500, 1001, 1002} {
++		withIds, mixed := n%2 == 0, n == 10 || n == 1002
++		m := newScopeVars_()
++		vars := make([]*AbstractVar, n)
++		put := func(name string, v *AbstractVar) {
++			if withIds {
++				m.putId(name, strid_(name), v)
++			} else {
++				m.put(name, v)
++			}
++		}
++		for i := range vars {
++			vars[i] = &AbstractVar{}
++			if i == n-1 && mixed {
++				m.put(fmt.Sprint("idv", i), vars[i]) // the table drops its ids
++			} else {
++				put(fmt.Sprint("idv", i), vars[i])
++			}
++		}
++		check := func(what string) {
++			for i := range vars {
++				name := fmt.Sprint("idv", i)
++				if got := m.lookupId(strid_(name)); got != m.get(name) {
++					t.Fatalf("n=%d %s: lookupId(%s) = %p, get = %p", n, what, name, got, m.get(name))
++				}
++			}
++			if m.lookupId(strid_("idv-absent")) != nil || m.findId(strid_("")) != -1 {
++				t.Fatalf("n=%d %s: absent found", n, what)
++			}
++		}
++		check("filled")
++		if m.lookupId(strid_("idv0")) != vars[0] {
++			t.Fatalf("n=%d: idv0", n)
++		}
++		m.remove(fmt.Sprint("idv", n/2))
++		check("after remove")
++		repl := &AbstractVar{}
++		put(fmt.Sprint("idv", n-1), repl)
++		check("after replace")
++		put("idv-new", repl)
++		if m.lookupId(strid_("idv-new")) != repl {
++			t.Fatalf("n=%d: new", n)
++		}
++		m.clear()
++		if m.lookupId(strid_("idv0")) != nil {
++			t.Fatalf("n=%d: clear", n)
++		}
++	}
++	var nilTable *scopeVars_
++	if nilTable.lookupId(1) != nil {
++		t.Fatal("nil table")
++	}
++	for _, s := range []string{"arguments", "super", "this", "exports", "", "x", "thiss"} {
++		if AbstractScope_ImplicitVar_ofId_(strid_(s)) != AbstractScope_ImplicitVar_of(s) {
++			t.Fatalf("implicit var of %q", s)
++		}
++	}
++}
+diff --git a/go/closure/rt_strid.go b/go/closure/rt_strid.go
+new file mode 100644
+index 00000000..f5510ba8
+--- /dev/null
++++ b/go/closure/rt_strid.go
+@@ -0,0 +1,72 @@
++package closure
++
++import "unsafe"
++
++// Lookups and comparisons by the id of a node's string (post-flip runtime, tools/postflip/strids).
++//
++// A Node record holds its string as an id into the table of interned strings (rt_ids.go);
++// getString() reads the table, and the caller then compares or hashes the bytes. Equal
++// strings have one id, so where only equality matters the id is enough:
++//
++//	n.getString() == "prototype"          n.getStringIs_(sid_prototype)
++//	a.getString() == b.getString()        a.getStringId_() == b.getStringId_()
++//	scope.getVar(n.getString())           scope.getVarById_(n.getStringId_())
++//
++// getStringId_ throws what getString() throws for a node that holds no string.
++
++// getStringId_ is the string id of getString().
++func (this Node) getStringId_() uint32 {
++	c := Node_payload_c_chunks_[this>>handleShift_][uint16(this)]
++	if c&1 == 0 {
++		noString_(this)
++	}
++	return c >> 1
++}
++
++// noString_ throws what getString() throws for a node that holds no string.
++//
++//go:noinline
++func noString_(n Node) {
++	n.getString()
++}
++
++// getStringIs_ is getString().equals(s) for the string s with id `id` (a sid_ variable).
++func (this Node) getStringIs_(id uint32) bool {
++	return this.getStringId_() == id
++}
++
++var (
++	implicitVarArguments_ = strid_("arguments")
++	implicitVarSuper_     = strid_("super")
++	implicitVarThis_      = strid_("this")
++	implicitVarExports_   = strid_("exports")
++)
++
++// AbstractScope_ImplicitVar_ofId_ is ImplicitVar.of(name) for the name with string id `id`.
++func AbstractScope_ImplicitVar_ofId_(id uint32) AbstractScope_ImplicitVar {
++	switch id {
++	case implicitVarArguments_:
++		return AbstractScope_ImplicitVar_ARGUMENTS
++	case implicitVarSuper_:
++		return AbstractScope_ImplicitVar_SUPER
++	case implicitVarThis_:
++		return AbstractScope_ImplicitVar_THIS
++	case implicitVarExports_:
++		return AbstractScope_ImplicitVar_EXPORTS
++	}
++	return 0
++}
++
++// nameId_ is the string id of name, the name a declaration at node n declares: the id n holds
++// when n's string is name (a NAME node declares its string), else name's id from the table,
++// interning it.
++func nameId_(name string, n Node) uint32 {
++	if n != 0 {
++		if c := *n.payload_c_(); c&1 != 0 {
++			if s := strid_str_(c >> 1); len(s) == len(name) && (unsafe.StringData(s) == unsafe.StringData(name) || s == name) {
++				return c >> 1
++			}
++		}
++	}
++	return strid_(name)
++}
