@@ -1952,7 +1952,7 @@ func (this *SymbolTable_7) compare(a_ any, b_ any) int32 {
 	if result != 0 {
 		return result
 	}
-	result = String_compareTo(a.getName(), b.getName())
+	result = utf16Compare_(a.getName(), b.getName())
 	if result != 0 {
 		return result
 	}

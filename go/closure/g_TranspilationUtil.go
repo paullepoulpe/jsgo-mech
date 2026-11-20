@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type TranspilationUtil struct {
 }
 
@@ -24,7 +26,7 @@ func TranspilationUtil_cannotConvertYet(compiler *AbstractCompiler, n Node, feat
 }
 
 func TranspilationUtil_preloadTranspilationRuntimeFunction(compiler *AbstractCompiler, function string) {
-	compiler.getRuntimeJsLibManager().ensureLibraryInjected(("es6/util/" + sstr_(String_toLowerCase(function, Locale_ROOT))), false)
+	compiler.getRuntimeJsLibManager().ensureLibraryInjected(("es6/util/" + sstr_(strings.ToLower(function))), false)
 }
 
 var TranspilationUtil_CANNOT_CONVERT *DiagnosticType

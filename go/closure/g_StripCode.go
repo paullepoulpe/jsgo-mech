@@ -72,14 +72,14 @@ func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes *JT
 	it_15 := this.stripNamePrefixes.each()
 	for it_15.next() {
 		var s string = it_15.v
-		stripNamePrefixesLowerCase.add(String_toLowerCase(s, Locale_ROOT))
+		stripNamePrefixesLowerCase.add(strings.ToLower(s))
 	}
 	this.stripNamePrefixesLowerCaseList = arrmap_(stripNamePrefixesLowerCase.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 	var stripNameSuffixesLowerCase *JTList[string] = jnewTList_(jtc_string)
 	it_17 := this.stripNameSuffixes.each()
 	for it_17.next() {
 		var s string = it_17.v
-		stripNameSuffixesLowerCase.add(String_toLowerCase(s, Locale_ROOT))
+		stripNameSuffixesLowerCase.add(strings.ToLower(s))
 	}
 	this.stripNameSuffixesLowerCaseList = arrmap_(stripNameSuffixesLowerCase.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 }
@@ -577,7 +577,7 @@ func (this *StripCode_Strip) isStripName(name string) bool {
 		this.logNotAStripName(Optional_of[string](name), "empty or starts with uppercase")
 		return false
 	}
-	var lcName string = String_toLowerCase(name, Locale_ROOT)
+	var lcName string = strings.ToLower(name)
 	for _, stripName := range this.outer_.stripNamePrefixesLowerCaseList {
 		if strings.HasPrefix(lcName, stripName) {
 			this.logStripNameSupplier(name, (&Supplier_tfn_string{func() string {
