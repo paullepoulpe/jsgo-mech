@@ -4,6 +4,15 @@ package closure
 
 type Outcome_rhino struct {
 	Enum
+	selfI_ Outcome_rhino_I
+}
+
+// Outcome_rhino_I holds the methods the dispatchers of enum Outcome_rhino call on its
+// constant (selfI_, set with self_); every constant of the enum implements them (post-flip).
+type Outcome_rhino_I interface {
+	isNullish_impl() *Tri
+	isTruthy_impl() bool
+	not_impl() *Outcome_rhino
 }
 
 func (this *Outcome_rhino) as_Outcome_rhino() *Outcome_rhino { return this }
@@ -48,15 +57,15 @@ func Outcome_rhino_forBoolean(val bool) *Outcome_rhino {
 }
 
 func (this *Outcome_rhino) isTruthy() bool {
-	return this.self_.(interface{ isTruthy_impl() bool }).isTruthy_impl()
+	return this.selfI_.isTruthy_impl()
 }
 
 func (this *Outcome_rhino) isNullish() *Tri {
-	return this.self_.(interface{ isNullish_impl() *Tri }).isNullish_impl()
+	return this.selfI_.isNullish_impl()
 }
 
 func (this *Outcome_rhino) not() *Outcome_rhino {
-	return this.self_.(interface{ not_impl() *Outcome_rhino }).not_impl()
+	return this.selfI_.not_impl()
 }
 
 func Outcome_rhino_values() []*Outcome_rhino {
@@ -119,6 +128,7 @@ func (this *Outcome_1_rhino) init_Outcome_1_rhino(name_ string, ordinal_ int32) 
 func new_Outcome_1_rhino(name_ string, ordinal_ int32) *Outcome_1_rhino {
 	this := &Outcome_1_rhino{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_Outcome_1_rhino(name_, ordinal_)
 	return this
 }
@@ -187,6 +197,7 @@ func (this *Outcome_2_rhino) init_Outcome_2_rhino(name_ string, ordinal_ int32) 
 func new_Outcome_2_rhino(name_ string, ordinal_ int32) *Outcome_2_rhino {
 	this := &Outcome_2_rhino{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_Outcome_2_rhino(name_, ordinal_)
 	return this
 }
@@ -255,6 +266,7 @@ func (this *Outcome_3) init_Outcome_3(name_ string, ordinal_ int32) {
 func new_Outcome_3(name_ string, ordinal_ int32) *Outcome_3 {
 	this := &Outcome_3{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_Outcome_3(name_, ordinal_)
 	return this
 }
@@ -323,6 +335,7 @@ func (this *Outcome_4) init_Outcome_4(name_ string, ordinal_ int32) {
 func new_Outcome_4(name_ string, ordinal_ int32) *Outcome_4 {
 	this := &Outcome_4{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_Outcome_4(name_, ordinal_)
 	return this
 }
@@ -371,7 +384,7 @@ func (this *Outcome_1_rhino) isTruthy() bool {
 	if this.self_ == any(this) {
 		return this.isTruthy_impl()
 	}
-	return this.self_.(interface{ isTruthy_impl() bool }).isTruthy_impl()
+	return this.selfI_.isTruthy_impl()
 }
 
 // isNullish: an object that is exactly a Outcome_1_rhino calls its isNullish_impl directly (post-flip); others dispatch.
@@ -379,7 +392,7 @@ func (this *Outcome_1_rhino) isNullish() *Tri {
 	if this.self_ == any(this) {
 		return this.isNullish_impl()
 	}
-	return this.self_.(interface{ isNullish_impl() *Tri }).isNullish_impl()
+	return this.selfI_.isNullish_impl()
 }
 
 // not: an object that is exactly a Outcome_1_rhino calls its not_impl directly (post-flip); others dispatch.
@@ -387,7 +400,7 @@ func (this *Outcome_1_rhino) not() *Outcome_rhino {
 	if this.self_ == any(this) {
 		return this.not_impl()
 	}
-	return this.self_.(interface{ not_impl() *Outcome_rhino }).not_impl()
+	return this.selfI_.not_impl()
 }
 
 // isTruthy: an object that is exactly a Outcome_2_rhino calls its isTruthy_impl directly (post-flip); others dispatch.
@@ -395,7 +408,7 @@ func (this *Outcome_2_rhino) isTruthy() bool {
 	if this.self_ == any(this) {
 		return this.isTruthy_impl()
 	}
-	return this.self_.(interface{ isTruthy_impl() bool }).isTruthy_impl()
+	return this.selfI_.isTruthy_impl()
 }
 
 // isNullish: an object that is exactly a Outcome_2_rhino calls its isNullish_impl directly (post-flip); others dispatch.
@@ -403,7 +416,7 @@ func (this *Outcome_2_rhino) isNullish() *Tri {
 	if this.self_ == any(this) {
 		return this.isNullish_impl()
 	}
-	return this.self_.(interface{ isNullish_impl() *Tri }).isNullish_impl()
+	return this.selfI_.isNullish_impl()
 }
 
 // not: an object that is exactly a Outcome_2_rhino calls its not_impl directly (post-flip); others dispatch.
@@ -411,7 +424,7 @@ func (this *Outcome_2_rhino) not() *Outcome_rhino {
 	if this.self_ == any(this) {
 		return this.not_impl()
 	}
-	return this.self_.(interface{ not_impl() *Outcome_rhino }).not_impl()
+	return this.selfI_.not_impl()
 }
 
 // isTruthy: an object that is exactly a Outcome_3 calls its isTruthy_impl directly (post-flip); others dispatch.
@@ -419,7 +432,7 @@ func (this *Outcome_3) isTruthy() bool {
 	if this.self_ == any(this) {
 		return this.isTruthy_impl()
 	}
-	return this.self_.(interface{ isTruthy_impl() bool }).isTruthy_impl()
+	return this.selfI_.isTruthy_impl()
 }
 
 // isNullish: an object that is exactly a Outcome_3 calls its isNullish_impl directly (post-flip); others dispatch.
@@ -427,7 +440,7 @@ func (this *Outcome_3) isNullish() *Tri {
 	if this.self_ == any(this) {
 		return this.isNullish_impl()
 	}
-	return this.self_.(interface{ isNullish_impl() *Tri }).isNullish_impl()
+	return this.selfI_.isNullish_impl()
 }
 
 // not: an object that is exactly a Outcome_3 calls its not_impl directly (post-flip); others dispatch.
@@ -435,7 +448,7 @@ func (this *Outcome_3) not() *Outcome_rhino {
 	if this.self_ == any(this) {
 		return this.not_impl()
 	}
-	return this.self_.(interface{ not_impl() *Outcome_rhino }).not_impl()
+	return this.selfI_.not_impl()
 }
 
 // isTruthy: an object that is exactly a Outcome_4 calls its isTruthy_impl directly (post-flip); others dispatch.
@@ -443,7 +456,7 @@ func (this *Outcome_4) isTruthy() bool {
 	if this.self_ == any(this) {
 		return this.isTruthy_impl()
 	}
-	return this.self_.(interface{ isTruthy_impl() bool }).isTruthy_impl()
+	return this.selfI_.isTruthy_impl()
 }
 
 // isNullish: an object that is exactly a Outcome_4 calls its isNullish_impl directly (post-flip); others dispatch.
@@ -451,7 +464,7 @@ func (this *Outcome_4) isNullish() *Tri {
 	if this.self_ == any(this) {
 		return this.isNullish_impl()
 	}
-	return this.self_.(interface{ isNullish_impl() *Tri }).isNullish_impl()
+	return this.selfI_.isNullish_impl()
 }
 
 // not: an object that is exactly a Outcome_4 calls its not_impl directly (post-flip); others dispatch.
@@ -459,5 +472,5 @@ func (this *Outcome_4) not() *Outcome_rhino {
 	if this.self_ == any(this) {
 		return this.not_impl()
 	}
-	return this.self_.(interface{ not_impl() *Outcome_rhino }).not_impl()
+	return this.selfI_.not_impl()
 }
