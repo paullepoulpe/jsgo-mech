@@ -102,3 +102,14 @@ func CheckRegExp_clinit() {
 	CheckRegExp_REGEXP_PROPERTY_SKIPLIST = jimmutableSetOf_[string](jtc_string, "$1", "$2", "$3", "$4", "$5", "$6", "$7", "$8", "$9", "$_", "$input", "input", "lastMatch", "lastParen", "leftContext", "rightContext", "global", "ignoreCase", "lastIndex", "multiline", "source")
 
 }
+
+// visit: an object that is exactly a CheckRegExp calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckRegExp) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

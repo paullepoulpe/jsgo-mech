@@ -241,3 +241,31 @@ func new_NodeModuleResolver_Factory_Map(packageJsonMainEntries *JTMap[string, st
 func (this *NodeModuleResolver_Factory) create(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) *ModuleResolver {
 	return new_NodeModuleResolver(tsetImm_(jtc_string, modulePaths), jtlistImm_(jtc_string, moduleRootPaths), this.packageJsonMainEntries, errorHandler, pathEscaper).up_ModuleResolver()
 }
+
+// getPackageJsonMainEntries: an object that is exactly a NodeModuleResolver calls its getPackageJsonMainEntries_impl directly (post-flip); others dispatch.
+func (this *NodeModuleResolver) getPackageJsonMainEntries() *JTMap[string, string] {
+	if this.self_ == any(this) {
+		return this.getPackageJsonMainEntries_impl()
+	}
+	return this.self_.(interface{ getPackageJsonMainEntries_impl() *JTMap[string, string] }).getPackageJsonMainEntries_impl()
+}
+
+// resolveJsModule: an object that is exactly a NodeModuleResolver calls its resolveJsModule_impl directly (post-flip); others dispatch.
+func (this *NodeModuleResolver) resolveJsModule(p0 string, p1 string, p2 Optional[string], p3 int32, p4 int32) Optional[string] {
+	if this.self_ == any(this) {
+		return this.resolveJsModule_impl(p0, p1, p2, p3, p4)
+	}
+	return this.self_.(interface {
+		resolveJsModule_impl(string, string, Optional[string], int32, int32) Optional[string]
+	}).resolveJsModule_impl(p0, p1, p2, p3, p4)
+}
+
+// resolveJsModuleSilently: an object that is exactly a NodeModuleResolver calls its resolveJsModuleSilently_impl directly (post-flip); others dispatch.
+func (this *NodeModuleResolver) resolveJsModuleSilently(p0 string, p1 string) Optional[string] {
+	if this.self_ == any(this) {
+		return this.resolveJsModuleSilently_impl(p0, p1)
+	}
+	return this.self_.(interface {
+		resolveJsModuleSilently_impl(string, string) Optional[string]
+	}).resolveJsModuleSilently_impl(p0, p1)
+}

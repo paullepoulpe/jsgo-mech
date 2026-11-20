@@ -44,3 +44,19 @@ func (this *CheckExtraRequiresPassConfig) getChecks_impl() *PassListBuilder {
 func (this *CheckExtraRequiresPassConfig) getOptimizations_impl() *PassListBuilder {
 	return new_PassListBuilder(this.options_)
 }
+
+// getChecks: an object that is exactly a CheckExtraRequiresPassConfig calls its getChecks_impl directly (post-flip); others dispatch.
+func (this *CheckExtraRequiresPassConfig) getChecks() *PassListBuilder {
+	if this.self_ == any(this) {
+		return this.getChecks_impl()
+	}
+	return this.self_.(interface{ getChecks_impl() *PassListBuilder }).getChecks_impl()
+}
+
+// getOptimizations: an object that is exactly a CheckExtraRequiresPassConfig calls its getOptimizations_impl directly (post-flip); others dispatch.
+func (this *CheckExtraRequiresPassConfig) getOptimizations() *PassListBuilder {
+	if this.self_ == any(this) {
+		return this.getOptimizations_impl()
+	}
+	return this.self_.(interface{ getOptimizations_impl() *PassListBuilder }).getOptimizations_impl()
+}

@@ -57,3 +57,11 @@ func (this *IdentifierToken) getMaybePrivateValue() string {
 func (this *IdentifierToken) isPrivateIdentifier() bool {
 	return this.privateIdentifier
 }
+
+// toString: an object that is exactly a IdentifierToken calls its toString_impl directly (post-flip); others dispatch.
+func (this *IdentifierToken) toString() string {
+	if this.self_ == any(this) {
+		return this.toString_impl()
+	}
+	return this.self_.(interface{ toString_impl() string }).toString_impl()
+}
