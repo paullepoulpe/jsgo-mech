@@ -210,6 +210,10 @@ func (m *TMap[K, V]) remove(k K) V {
 }
 
 func (m *TMap[K, V]) delAt(i int) {
+	if m.imm != nil && m.imm != sortedMapMark_ {
+		// (through a view of an immutable map that typed code holds: valuesT)
+		panic(frozen_{})
+	}
 	if m.idx != nil {
 		delete(m.idx, m.keys[i])
 	}

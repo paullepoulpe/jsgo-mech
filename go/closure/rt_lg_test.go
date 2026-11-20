@@ -161,3 +161,93 @@ func TestLgTypedMapViews(t *testing.T) {
 	}()
 	i.next_t()
 }
+
+// Kind coll: a typed list, set or deque as a Collection is its view (native), an erased
+// collection is wrapped, an erased immutable list gives the view of its typed list; erased code
+// gets the object it knows.
+func TestLgCollection(t *testing.T) {
+	l := newTList_(tc_string)
+	l.add("a")
+	c := l.asCollT()
+	if (*TList[string])(nil).asCollT() != nil || (*TSet[string])(nil).asCollT() != nil || (*TDeque[string])(nil).asCollT() != nil {
+		t.Fatal("null as a Collection is not nil")
+	}
+	if Collection_un_(c) != Collection(l.asList()) || lgBox_(c) != any(l.asList()) || collectionAs_(tc_string, Collection(l.asList())) != c {
+		t.Fatal("the typed list as a Collection is not its view")
+	}
+	c.add("b") // the erased method, through the view
+	if l.size() != 2 || c.iterator_t().next_t() != "a" {
+		t.Fatal(l.size())
+	}
+	d := newTDeque_(tc_string)
+	d.push("x")
+	if Collection_un_(d.asCollT()) != Collection(d.asDeque()) {
+		t.Fatal("the typed deque as a Collection is not its deque view")
+	}
+	// an immutable typed list: the view for typed code, the twin for erased code
+	il := immutableListOf_(tc_string, "p", "q")
+	ic := il.asCollT()
+	if Collection_un_(ic) != Collection(il.asImm()) || collectionAs_(tc_string, Collection(il.asImm())) != ic {
+		t.Fatal("the immutable typed list as a Collection")
+	}
+	got := ""
+	for e := eachOf_[string](ic); e.next(); {
+		got += e.v
+	}
+	// an erased collection: a wrapper that unboxes; erased code gets the collection back
+	al := new_ArrayList_0()
+	al.add(strobj_("m"))
+	w := collectionAs_(tc_string, Collection(al))
+	for e := eachOf_[string](w); e.next(); {
+		got += e.v
+	}
+	if got != "pqm" || Collection_un_(w) != Collection(al) || w.size() != 1 {
+		t.Fatal(got)
+	}
+	if collectionAs_(tc_string, nil) != nil || Collection_un_(nil) != nil {
+		t.Fatal("null")
+	}
+}
+
+// valuesT of a typed map: the map's values at their type; of an immutable map too, where every
+// change throws; erased code gets the erased map's values().
+func TestLgValuesT(t *testing.T) {
+	m := newTMap_(tc_string, tc_string)
+	m.put("a", "x")
+	m.put("b", "y")
+	v := m.valuesT()
+	if Collection_un_(v) != m.asMap().values() || lgBox_(v) != any(m.asMap().values()) {
+		t.Fatal("valuesT of a map that can change is not the erased view's values()")
+	}
+	m.put("c", "z")
+	got := ""
+	for e := eachOf_[string](v); e.next(); {
+		got += e.v
+	}
+	im := immutableMapOf1_(tc_string, tc_string, "k", "w")
+	iv := im.valuesT()
+	for e := eachOf_[string](iv); e.next(); {
+		got += e.v
+	}
+	if got != "xyzw" || iv.size() != 1 || Collection_un_(iv) != im.asImm().values() {
+		t.Fatal(got)
+	}
+	func() {
+		defer func() {
+			if recover() == nil {
+				t.Fatal("removing through the values of an immutable map did not throw")
+			}
+		}()
+		it := iv.iterator_t()
+		it.next_t()
+		it.(interface{ remove() }).remove()
+	}()
+	func() {
+		defer func() {
+			if recover() == nil {
+				t.Fatal("valuesT of null did not throw")
+			}
+		}()
+		(*TMap[string, string])(nil).valuesT()
+	}()
+}

@@ -205,6 +205,8 @@ func eachOf_[T any](x IterableT[T]) iterEach_[T] {
 		return iterEach_[T]{at: l}
 	case *iterableAs[T]:
 		return iterEach_[T]{c: l.c, e: foreach_(l.Iterable)}
+	case *collectionAs[T]:
+		return iterEach_[T]{c: l.c, e: foreach_(l.Collection)}
 	}
 	return iterEach_[T]{it: x.iterator_t()}
 }
@@ -292,3 +294,84 @@ func (v *tmapValues_[K, V]) step_t(i int) (x V, next int, ok bool) {
 	}
 	return x, i, false
 }
+
+// ---- Kind `coll`: java.util.Collection<T>. A typed Collection is the erased one that is also
+// a typed Iterable (the methods that take elements are the erased ones).
+
+type CollectionT[T any] interface {
+	Collection
+	iterator_t() IteratorT[T]
+}
+
+// Collection_un_ is typed value x as erased code knows it.
+func Collection_un_(x Collection) Collection {
+	if w, ok := x.(lgWrap_); ok {
+		u, _ := w.unwrap_().(Collection)
+		return u
+	}
+	return x
+}
+
+type collectionAs[T any] struct {
+	Collection
+	c *tconv_[T]
+}
+
+func (w *collectionAs[T]) iterator_t() IteratorT[T] { return iteratorAs_(w.c, w.Collection.iterator()) }
+func (w *collectionAs[T]) unwrap_() any             { return w.Collection }
+
+// collectionAs_ is erased v as a Collection of T: v itself where its object is native (the
+// view of a typed collection, a view of a typed map), the view of the typed collection of an
+// erased immutable collection, else a wrapper.
+func collectionAs_[T any](c *tconv_[T], v Collection) CollectionT[T] {
+	if v == nil {
+		return nil
+	}
+	if t, ok := v.(CollectionT[T]); ok {
+		return t
+	}
+	if ic, ok := v.(*ImmutableCollection); ok {
+		if l, ok := ic.typed_.(*TList[T]); ok {
+			return &l.view
+		}
+	}
+	return &collectionAs[T]{v, c}
+}
+
+// asCollT is a typed list, set or deque as the Collection of its elements: its view, which is
+// part of it (nil for null). Erased code and Object get what asList() / asSet() / asDeque()
+// give (unwrap_: the twin of an immutable collection).
+func (l *TList[T]) asCollT() CollectionT[T] {
+	if l == nil {
+		return nil
+	}
+	return &l.view
+}
+func (v *tlistView_[T]) unwrap_() any { return v.l.asList() }
+
+func (s *TSet[K]) asCollT() CollectionT[K] {
+	if s == nil {
+		return nil
+	}
+	return &s.view
+}
+func (v *tsetView_[K]) unwrap_() any { return v.s.asSet() }
+
+func (d *TDeque[T]) asCollT() CollectionT[T] {
+	if d == nil {
+		return nil
+	}
+	return &d.dview
+}
+func (v *tdequeView_[T]) unwrap_() any { return v }
+
+// valuesT is values() of a typed map for typed code: the Collection of its values, which is the
+// map itself under another type (no object, no box; live, as Java's view). It serves an
+// immutable map too (every change throws); erased code and Object get what the erased map's
+// values() gives (unwrap_), so the view of a map that can change is one object on both sides.
+// A null map throws NullPointerException.
+func (m *TMap[K, V]) valuesT() CollectionT[V] {
+	_ = m.live
+	return (*tmapValues_[K, V])(&m.view)
+}
+func (v *tmapValues_[K, V]) unwrap_() any { return v.m.asMap().values() }

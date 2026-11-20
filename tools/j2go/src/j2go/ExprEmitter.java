@@ -191,6 +191,11 @@ abstract class ExprEmitter extends Base {
       if (made != null) return made;
       if (strip(t) instanceof MethodInvocationTree mi && Ctx.isUnmodifiable(elemOf(mi.getMethodSelect()), mi)) return exprAs(mi.getArguments().get(0), target);
     }
+    if (cx.lg.is(target) && strip(t) instanceof MethodInvocationTree mi && cx.lg.passes(elemOf(mi.getMethodSelect()), mi)) {
+      // Collections.unmodifiableCollection(x) and its like where a typed interface is wanted: the
+      // runtime's is its argument, so the value is x at that type (no detour through the erased form)
+      return exprAs(mi.getArguments().get(0), target);
+    }
     Ctx.K kt = cx.kind(target);
     if (kt == Ctx.K.PRIM && target.getKind() != TypeKind.BOOLEAN && isNumericLiteral(t)) {
       TypeMirror ft = cx.unboxed(from);
@@ -1313,6 +1318,11 @@ abstract class ExprEmitter extends Base {
         src = false;
       } else {
         Ctx.CollKind rk = cx.typedColl(recv.type);
+        TypeMirror vt = cx.lg.mapValues(rk, recv.type, e, args.size());
+        if (vt != null) {
+          // values() of a typed map where Collection is a typed interface: the map's typed view (piece `views`)
+          return new CallResult(atomOrParen(recv.code) + ".valuesT()", vt);
+        }
         if (owner.getQualifiedName().contentEquals(String.valueOf(rk.sortedClass))) {
           // a method that javac finds in TreeSet / TreeMap: the method of the interface it implements
           e = cx.root(e);

@@ -4,7 +4,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import java.util.AbstractCollection;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -348,7 +355,152 @@ public class LibGen {
     return r;
   }
 
+  // ---- kind `coll`
+
+  static String all(Collection<String> c) {
+    String r = c.size() + ":";
+    for (String s : c) {
+      r += s;
+    }
+    Iterator<String> it = c.iterator();
+    while (it.hasNext()) {
+      r += it.next().length();
+    }
+    return r + c.contains("b") + c.isEmpty() + c;
+  }
+
+  static String pets(Collection<? extends Animal> c) {
+    String r = "";
+    for (Animal a : c) {
+      r += a.name;
+    }
+    return r + c.size();
+  }
+
+  static int any(Collection<?> c) {
+    int n = 0;
+    for (Object o : c) {
+      n += o == null ? 100 : 1;
+    }
+    return n + c.size();
+  }
+
+  static boolean grow(Collection<String> c, String s) {
+    return c.add(s);
+  }
+
+  /** A collection of the program under a library class: it has no typed methods of its own. */
+  static final class Pair extends AbstractCollection<String> {
+    final String a;
+    final String b;
+
+    Pair(String a, String b) {
+      this.a = a;
+      this.b = b;
+    }
+
+    @Override
+    public Iterator<String> iterator() {
+      List<String> l = new ArrayList<>();
+      l.add(a);
+      l.add(b);
+      return l.iterator();
+    }
+
+    @Override
+    public int size() {
+      return 2;
+    }
+  }
+
+  static final class Zoo {
+    Map<String, Dog> byName = ImmutableMap.of();
+    final Collection<String> log = new ArrayList<>();
+
+    void add(String n) {
+      if (byName.isEmpty()) {
+        byName = new LinkedHashMap<>();
+      }
+      byName.put(n, new Dog(n));
+      log.add("+" + n);
+    }
+
+    Collection<Dog> dogs() {
+      return byName.values();
+    }
+
+    Collection<Dog> frozen() {
+      return Collections.unmodifiableCollection(byName.values());
+    }
+  }
+
+  static String colls() {
+    List<String> l = new ArrayList<>();
+    l.add("a");
+    l.add("b");
+    Set<String> s = new LinkedHashSet<>(l);
+    Deque<String> d = new ArrayDeque<>(l);
+    d.push("z");
+    ImmutableList<String> il = ImmutableList.of("i", "b");
+    ImmutableSet<String> is = ImmutableSet.of("j");
+    String r = all(l) + all(s) + all(d) + all(il) + all(is) + all(new Pair("p", "b")) + all(Collections.emptyList());
+    Collection<String> c = l;
+    grow(c, "c");
+    grow(s, "c");
+    r += "|" + l + s + (c == (Object) l) + c.equals(l) + (c.hashCode() == l.hashCode()) + (c instanceof List);
+    try {
+      grow(il, "x");
+      r += "no";
+    } catch (UnsupportedOperationException e) {
+      r += "uoe";
+    }
+    Collection<String> nul = null;
+    r += (nul == null);
+    try {
+      all(nul);
+      r += "no";
+    } catch (NullPointerException e) {
+      r += "npe";
+    }
+    // values() of a map that is immutable at first, then one that can change
+    Zoo z = new Zoo();
+    r += "|" + pets(z.dogs()) + any(z.dogs()) + z.dogs().isEmpty();
+    try {
+      z.dogs().clear();
+      r += "cleared";
+    } catch (UnsupportedOperationException e) {
+      r += "uoe";
+    }
+    try {
+      Iterator<Dog> it = z.dogs().iterator();
+      it.next();
+      r += "no";
+    } catch (NoSuchElementException e) {
+      r += "nse";
+    }
+    z.add("rex");
+    z.add("ace");
+    Collection<Dog> ds = z.dogs();
+    z.add("bo");
+    r += pets(ds) + any(ds) + (ds == z.dogs()) + (z.frozen().size()) + pets(z.frozen()) + all(z.log);
+    Iterator<Dog> it = ds.iterator();
+    it.next();
+    it.remove();
+    ds.remove(z.byName.get("bo"));
+    r += z.byName.keySet() + "" + ds + ds.contains(z.byName.get("ace"));
+    Object o = ds;
+    r += (o == z.byName.values()) + "" + (o instanceof Collection) + ((Collection<?>) o).size();
+    List<Collection<String>> nested = new ArrayList<>();
+    nested.add(l);
+    nested.add(is);
+    for (Collection<String> x : nested) {
+      r += all(x);
+    }
+    return r;
+  }
+
   public static String run() {
+    p(colls());
     p(views());
     p(loops());
     p(variance());

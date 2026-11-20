@@ -49,6 +49,22 @@ final class LibGen {
 
   static {
     KINDS.put("iter", List.of("java.util.Iterator", "java.lang.Iterable"));
+    KINDS.put("coll", List.of("java.util.Collection"));
+  }
+
+  /**
+   * The methods of the interfaces of the collection kinds that have a typed form (name/arity);
+   * every other method of theirs keeps the erased signature of the runtime, which the typed
+   * interface embeds. (Of the kind `iter`, every method whose signature names the type
+   * parameter has one.) Collection has none of its own: it is a typed Iterable.
+   */
+  static final Map<String, Set<String>> TYPED_METHODS = Map.of(
+      "java.util.Collection", Set.of());
+
+  /** Whether root method r of one of the interfaces has its typed signature on a typed receiver. */
+  boolean typedMethod(ExecutableElement r) {
+    Set<String> ms = TYPED_METHODS.get(cx.ownerOf(r).getQualifiedName().toString());
+    return ms == null || ms.contains(r.getSimpleName() + "/" + r.getParameters().size());
   }
 
   static final Set<String> OFF = new HashSet<>();
@@ -216,7 +232,7 @@ final class LibGen {
    * among its interfaces and has no subclass (so the methods are not dispatched).
    */
   boolean nativeClass(TypeElement c, TypeElement lib) {
-    if (c == null || !cx.isSource(c) || c.getKind().isInterface() || !cx.isLeaf(c) || cx.isHandle(c)) return false;
+    if (c == null || !cx.isSource(c) || c.getKind().isInterface() || !cx.isLeaf(c) || cx.isHandle(c) || !"iter".equals(kindOf(lib))) return false;
     for (TypeMirror st : c.getInterfaces()) if (lib.equals(Ctx.typeElement(st))) return true;
     return false;
   }
@@ -237,7 +253,7 @@ final class LibGen {
   /** Whether the group of m (rooted in one of the interfaces) has its typed signature for a receiver of type site. */
   boolean typedAt(ExecutableElement m, TypeMirror site) {
     TypeElement lib = cx.ownerOf(cx.root(m));
-    return isLib(lib) && typedView(site, lib) != null;
+    return isLib(lib) && typedMethod(cx.root(m)) && typedView(site, lib) != null;
   }
 
   /** Whether root method r of one of the interfaces has a typed form of its own (its signature names a type parameter): the Go method r_t. */
@@ -265,14 +281,20 @@ final class LibGen {
     return Character.toLowerCase(n.charAt(0)) + n.substring(1) + "As_";
   }
 
-  /** A typed collection (list, set, deque) as the Iterable of its elements: itself. */
+  /**
+   * A typed collection (list, set, deque) as the Iterable of its elements: itself; as the
+   * Collection of its elements: its view, which has the typed methods (asCollT).
+   */
   String fromTypedColl(String code, TypeMirror from, TypeMirror to) {
-    if (!is(to) || !Ctx.typeElement(to).getQualifiedName().contentEquals("java.lang.Iterable")) return null;
+    if (!is(to)) return null;
+    String qn = Ctx.typeElement(to).getQualifiedName().toString();
+    String as = qn.equals("java.lang.Iterable") ? ".asIterable()" : qn.equals("java.util.Collection") ? ".asCollT()" : null;
+    if (as == null) return null;
     Ctx.CollKind k = cx.typedColl(from);
     if (k == null || k.builds != null || k.pair()) return null;
     TypeMirror elem = ((DeclaredType) from).getTypeArguments().get(0);
     if (!cx.goTypeArg(elem).equals(cx.goTypeArg(((DeclaredType) to).getTypeArguments().get(0)))) return null;
-    return code + ".asIterable()";
+    return ExprEmitter.atomOrParen(code) + as;
   }
 
   /** Ctx.coerce where from or to is a typed use of one of the interfaces (both erased); null: as any other interface. */
@@ -280,6 +302,11 @@ final class LibGen {
     Ctx.K kf = cx.kind(from), kt = cx.kind(to);
     if (is(to)) {
       TypeElement lib = Ctx.typeElement(to);
+      if (is(from) && !lib.equals(Ctx.typeElement(from))) {
+        // a typed interface above from's, at the same element type: the same value (CollectionT[X] is an IterableT[X])
+        DeclaredType v = cx.superView(from, lib);
+        if (v != null && is(erase(v)) && cx.goType(erase(v)).equals(cx.goType(to))) return code;
+      }
       if (!is(from) && from.getKind() == TypeKind.DECLARED && nativeClass(Ctx.typeElement(from), lib)) {
         DeclaredType v = typedView(from, lib);
         // an object of a native class: Go converts it (Ctx.coerce, as for the program's typed interfaces)
@@ -307,6 +334,32 @@ final class LibGen {
       return cx.coerce(cx.className(lib) + "_un_(" + code + ")", er, to);
     }
     return cx.coerce("lgBox_(" + code + ")", object(), to);
+  }
+
+  /**
+   * Piece `views` (J2GO_NOLIBGEN=views is the translation without it): the type of the typed
+   * view that call m (with nargs arguments) on a typed map of type recv gives, or null where the
+   * erased view serves the call: `values()` declared with result java.util.Collection, where
+   * Collection is a typed interface, is the Collection of the map's values.
+   */
+  TypeMirror mapValues(Ctx.CollKind rk, TypeMirror recv, ExecutableElement m, int nargs) {
+    if (!on("views") || !rk.name.equals("map") || nargs != 0 || !m.getSimpleName().contentEquals("values")) return null;
+    TypeElement coll = cx.elems.getTypeElement("java.util.Collection");
+    if (!isLib(coll) || !coll.equals(Ctx.typeElement(cx.types.erasure(m.getReturnType())))) return null;
+    TypeMirror t = cx.erase(cx.types.getDeclaredType(coll, ((DeclaredType) recv).getTypeArguments().get(1)));
+    return is(t) ? t : null;
+  }
+
+  /**
+   * Whether call t of library method m gives its one argument back (the runtime's
+   * Collections.unmodifiableCollection / List / Set / Map / SortedSet return it: rt_coll.go), so
+   * that its value at a typed interface is the argument's.
+   */
+  boolean passes(Element m, MethodInvocationTree t) {
+    if (!(m instanceof ExecutableElement me) || t.getArguments().size() != 1 || !on("views")) return false;
+    String n = me.getSimpleName().toString();
+    return (n.equals("unmodifiableCollection") || n.equals("unmodifiableList") || n.equals("unmodifiableSet") || n.equals("unmodifiableMap"))
+        && ((TypeElement) me.getEnclosingElement()).getQualifiedName().contentEquals("java.util.Collections");
   }
 
   // ------------------------------------------------------------------ refusals
