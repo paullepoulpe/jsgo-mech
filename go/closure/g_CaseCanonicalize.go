@@ -23,7 +23,8 @@ func CaseCanonicalize_caseCanonicalizeString(s string) string {
 			var ch uint16 = String_charAt(s, i)
 			var cu uint16 = CaseCanonicalize_caseCanonicalize(ch)
 			if cu != ch {
-				var sb *StringBuilder = new_StringBuilder_String(s)
+				var sb strBuilder_
+				sb.append(s)
 				sb.setCharAt(i, cu)
 				for {
 					i++
@@ -32,7 +33,7 @@ func CaseCanonicalize_caseCanonicalizeString(s string) string {
 					}
 					sb.setCharAt(i, CaseCanonicalize_caseCanonicalize(String_charAt(s, i)))
 				}
-				return tostrR_(sb)
+				return sb.toString()
 			}
 		}
 	}
