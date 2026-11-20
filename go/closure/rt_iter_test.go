@@ -241,3 +241,30 @@ func sameInts_(a, b []int32) bool {
 	}
 	return true
 }
+
+// TestImmCursorMatchesIterator walks immutable lists and sets (empty, with duplicates folded
+// by the set) with immCursorOf_ and with the collection's own iterator: same elements, then
+// NoSuchElementException from next at the end; remove throws UnsupportedOperationException.
+func TestImmCursorMatchesIterator(t *testing.T) {
+	throws := func(f func()) (thrown bool) {
+		defer func() { thrown = recover() != nil }()
+		f()
+		return false
+	}
+	for _, c := range []*ImmutableCollection{
+		immList_(nil), immList_([]any{"a", "b", "a"}), immSet_([]any{"a", "b", "a", "c"}),
+	} {
+		it, cur := c.iterator(), immCursorOf_(c)
+		for it.hasNext() {
+			if !cur.hasNext() || cur.next() != it.next() {
+				t.Fatalf("cursor differs from iterator over %v", c.elems_())
+			}
+		}
+		if cur.hasNext() || !throws(func() { cur.next() }) || !throws(func() { cur.remove() }) {
+			t.Fatalf("cursor end differs over %v", c.elems_())
+		}
+	}
+	if !throws(func() { immElems_(nil) }) || !throws(func() { immCursorOf_(nil) }) {
+		t.Fatal("a null immutable collection does not throw")
+	}
+}
