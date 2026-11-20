@@ -333,6 +333,11 @@ func (this *DataFlowAnalysis_LinearFlowState[L]) toString() string {
 }
 
 type DataFlowAnalysis_UniqueQueue[T comparable] struct {
+	// membership only, never iterated. A graph node that is in this queue names it in its
+	// queuedIn_ field (queueMarked_), so a lookup reads that field (post-flip manual steps).
+	// A node added while another queue holds it, and an element of any other class, is kept in
+	// seenSet instead; seenSet and the marked nodes are disjoint, and together are the
+	// queue's elements.
 	seenSet *TSet[T]
 	queue   QueueOf[T]
 }
@@ -365,17 +370,45 @@ func (this *DataFlowAnalysis_UniqueQueue[T]) isEmpty() bool {
 
 func (this *DataFlowAnalysis_UniqueQueue[T]) removeFirst() T {
 	var t T = junboxT_[T](this.queue.poll())
+	if m, ok := any(t).(queueMarked_); ok {
+		if q := m.queueMark_(); *q == any(this) {
+			*q = nil
+			return t
+		}
+	}
 	this.seenSet.Delete(t)
 	return t
 }
 
+// queueMarked_ is a graph node, which holds the UniqueQueue it is in (LinkedDiGraphNode).
+type queueMarked_ interface{ queueMark_() *any }
+
 func (this *DataFlowAnalysis_UniqueQueue[T]) add(t T) {
+	if m, ok := any(t).(queueMarked_); ok {
+		q := m.queueMark_()
+		if *q == any(this) {
+			return
+		}
+		if this.seenSet.Len() != 0 && this.seenSet.Has(t) {
+			return
+		}
+		if *q == nil {
+			*q = any(this)
+		} else {
+			this.seenSet.Add(t)
+		}
+		this.queue.add(boxT_(t))
+		return
+	}
 	if this.seenSet.Add(t) {
 		this.queue.add(boxT_(t))
 	}
 }
 
 func (this *DataFlowAnalysis_UniqueQueue[T]) clear() {
+	for !this.queue.isEmpty() {
+		this.removeFirst() // takes the mark off each node
+	}
 	this.seenSet.Clear()
 	this.queue.clear()
 }
