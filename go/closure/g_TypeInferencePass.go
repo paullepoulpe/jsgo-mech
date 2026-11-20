@@ -85,7 +85,7 @@ func (this *TypeInferencePass) inferScope(n Node, scope *TypedScope) {
 	var typeInference *TypeInference = new_TypeInference(this.compiler_, cfg, this.reverseInterpreter, scope, this.scopeCreator, this.assertionFunctionLookup)
 	typeInference.analyze()
 	if this.stepCountHistogram != nil {
-		for node := range elemsAs_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](cfg.getNodes()) {
+		for node := range elemsBy_(cfg.getNodes(), icast_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch) {
 			if node == cfg.getImplicitReturn() {
 				continue
 			}
