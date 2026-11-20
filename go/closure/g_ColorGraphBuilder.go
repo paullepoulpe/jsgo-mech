@@ -106,7 +106,7 @@ func (this *ColorGraphBuilder) connectSourceToDest(source *LinkedDirectedGraph_L
 	if equalsId_(source, dest) || this.colorHoldsInstanceGraph.isConnectedInDirectionLinkedDiGraphNode(source, lambda_ColorGraphBuilder_connectSourceToDest_1_, dest) {
 		return
 	}
-	this.colorHoldsInstanceGraph.connectDiGraphNode(cast_[DiGraph_DiGraphNode[*ColorGraphNode, any]](source.self()), obj_(reason), cast_[DiGraph_DiGraphNode[*ColorGraphNode, any]](dest.self()))
+	this.colorHoldsInstanceGraph.connectDiGraphNode(icast_DiGraph_DiGraphNode_ColorGraphNode_any(source.self()), obj_(reason), icast_DiGraph_DiGraphNode_ColorGraphNode_any(dest.self()))
 }
 
 // lambda_ColorGraphBuilder_connectSourceToDest_1_ is a lambda of ColorGraphBuilder_connectSourceToDest that captures nothing (post-flip step lambdas).
