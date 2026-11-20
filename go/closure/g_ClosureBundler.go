@@ -198,8 +198,6 @@ func (this ClosureBundler_EvalMode) ordinal() int32 {
 
 func (this ClosureBundler_EvalMode) toString() string { return this.enum_().name_ }
 
-func (this ClosureBundler_EvalMode) compareTo(o any) int32 { return this.enum_().compareTo(o) }
-
 func (this ClosureBundler_EvalMode) self() any {
 	if this == 0 {
 		return nil
@@ -298,8 +296,6 @@ func (this ClosureBundler_EscapeMode) ordinal() int32 {
 }
 
 func (this ClosureBundler_EscapeMode) toString() string { return this.enum_().name_ }
-
-func (this ClosureBundler_EscapeMode) compareTo(o any) int32 { return this.enum_().compareTo(o) }
 
 func (this ClosureBundler_EscapeMode) self() any {
 	if this == 0 {

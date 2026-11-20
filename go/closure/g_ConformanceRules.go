@@ -173,10 +173,6 @@ func (this ConformanceRules_ConformanceLevel) toString() string {
 	return this.enum_().name_
 }
 
-func (this ConformanceRules_ConformanceLevel) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this ConformanceRules_ConformanceLevel) self() any {
 	if this == 0 {
 		return nil
@@ -1194,10 +1190,6 @@ func (this ConformanceRules_BannedProperty_RequirementPrecondition) ordinal() in
 
 func (this ConformanceRules_BannedProperty_RequirementPrecondition) toString() string {
 	return this.enum_().name_
-}
-
-func (this ConformanceRules_BannedProperty_RequirementPrecondition) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this ConformanceRules_BannedProperty_RequirementPrecondition) self() any {

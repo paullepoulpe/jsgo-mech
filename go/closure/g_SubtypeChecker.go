@@ -599,10 +599,6 @@ func (this SubtypeChecker_PropertyOptionality) toString() string {
 	return this.enum_().name_
 }
 
-func (this SubtypeChecker_PropertyOptionality) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this SubtypeChecker_PropertyOptionality) self() any {
 	if this == 0 {
 		return nil
@@ -672,10 +668,6 @@ func (this SubtypeChecker_Variance) ordinal() int32 {
 
 func (this SubtypeChecker_Variance) toString() string {
 	return this.enum_().name_
-}
-
-func (this SubtypeChecker_Variance) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this SubtypeChecker_Variance) self() any {

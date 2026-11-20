@@ -1390,8 +1390,6 @@ func (this JSDocInfo_Bit) ordinal() int32 {
 
 func (this JSDocInfo_Bit) toString() string { return this.enum_().name_ }
 
-func (this JSDocInfo_Bit) compareTo(o any) int32 { return this.enum_().compareTo(o) }
-
 func (this JSDocInfo_Bit) self() any {
 	if this == 0 {
 		return nil
@@ -1608,10 +1606,6 @@ func (this JSDocInfo_Visibility) ordinal() int32 {
 
 func (this JSDocInfo_Visibility) toString() string { return this.enum_().name_ }
 
-func (this JSDocInfo_Visibility) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this JSDocInfo_Visibility) self() any {
 	if this == 0 {
 		return nil
@@ -1680,10 +1674,6 @@ func (this JSDocInfo_IdGenerator) ordinal() int32 {
 }
 
 func (this JSDocInfo_IdGenerator) toString() string { return this.enum_().name_ }
-
-func (this JSDocInfo_IdGenerator) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
 
 func (this JSDocInfo_IdGenerator) self() any {
 	if this == 0 {
@@ -1754,10 +1744,6 @@ func (this JSDocInfo_PerFileClosureUnawareMode) ordinal() int32 {
 
 func (this JSDocInfo_PerFileClosureUnawareMode) toString() string {
 	return this.enum_().name_
-}
-
-func (this JSDocInfo_PerFileClosureUnawareMode) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this JSDocInfo_PerFileClosureUnawareMode) self() any {

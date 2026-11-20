@@ -118,10 +118,6 @@ func (this SourceMapSection_SectionType) toString() string {
 	return this.enum_().name_
 }
 
-func (this SourceMapSection_SectionType) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this SourceMapSection_SectionType) self() any {
 	if this == 0 {
 		return nil
