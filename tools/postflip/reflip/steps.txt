@@ -804,3 +804,5 @@ fb7f9349 patch 521-fb7f9349-rt.patch
 # 523. postflip (manual, re-flip): a token's SourceRange and its two SourcePositions are one allocation
 #= 444eac19 not taken (thirteenth session): a one-off hand edit of pass code, measured and gated on its branch; to come back as a tool or not at all
 #- 444eac19 patch 523-444eac19-manual.patch
+# 540. postflip step: tryfn re-run after its third pattern (tool 0aa7a128): 2 tries with a finally block that always return
+d6407a3e run t tryfn && f
