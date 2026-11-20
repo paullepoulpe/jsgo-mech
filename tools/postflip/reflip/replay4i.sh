@@ -4,8 +4,9 @@
 # does not merge cleanly, or a step that fails its type check, stops the replay: no step is dropped unless steps.txt says so with a reason.
 . /mnt/data/ubuntu/jm/env.sh
 # replay4i.sh [NAME]: the replay worktree is $B/wt/NAME (default replay4i), its logs $B/logs/NAME*.log.
+# REFLIP_OVERLAY=DIR: the worktree holding the overlay (steps.txt, toolfix.sh, patches) instead of $B/wt/flip4i.
 N=${1:-replay4i}
-R=$B/wt/flip4i; W=$B/wt/$N; O=$R/tools/postflip/reflip/patches; cd $R
+R=${REFLIP_OVERLAY:-$B/wt/flip4i}; W=$B/wt/$N; O=$R/tools/postflip/reflip/patches; cd $R
 for i in $(seq 1 200); do
   tools/postflip/replay-all.sh -base dfdb5197 -noverify -steps tools/postflip/reflip/steps.txt -overlay $O -toolfix tools/postflip/reflip/toolfix.sh -check "$B/bin/tc go/closure" -w $W > $B/logs/$N.log 2>&1 && { echo "REPLAY DONE"; exit 0; }
   line=$(grep "^FAILED at .*: patch " $B/logs/$N.log | tail -1)
