@@ -130,3 +130,25 @@ func TestStrBuilderReadsAndChanges(t *testing.T) {
 		}
 	}
 }
+
+// TestStrBuilderToStringStays checks that a string toString returned keeps its text when the
+// builder is changed in place afterwards.
+func TestStrBuilderToStringStays(t *testing.T) {
+	var a strBuilder_
+	a.append("abcdef")
+	s := a.toString()
+	a.setLength(2)
+	a.append("XY")
+	a.setCharAt(0, 'Q')
+	a.deleteCharAt(1)
+	a.insert(0, '-')
+	if s != "abcdef" || a.toString() != "-QXY" {
+		t.Errorf("toString %q, then %q", s, a.toString())
+	}
+	s = a.toString()
+	a.setLength(0)
+	a.append("1234")
+	if s != "-QXY" || a.toString() != "1234" {
+		t.Errorf("toString %q, then %q", s, a.toString())
+	}
+}
