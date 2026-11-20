@@ -1958,3 +1958,64 @@ Binaries: $S/proto/m_r16a (490), m_r16b (491), m_r16c (492, the tip); m_r15f (48
 the profiles bundle_m488/m490.memprof, typed-full_c488/c491.cpuprof; gates $S/r16/gate_r16a..c.log;
 census $S/r16/cen_490.txt, the tool's counts optstr_n.txt, colls' constructor reasons ctor_why.txt.
 Scripts: $S/r16/gate.sh, cen.sh, m1.sh, m2.sh, milestone.sh, ratio.py, mprof.py, cprof.py.
+
+## Thirteenth session: googleapis-bench, the protobuf steps, value classes weighed (2026-11-19, on the VPS)
+
+The first googleapis-bench figures for this line. The full benchmark (44,577 files, 7,526 chunks)
+peaks near 21 GB for Go on this 23 GB host, so two prefixes of it are used: the first 3,500
+chunks (7,886 files, 18% of the input) and the first 5,447 (23,196 files, 52%); three stages
+(CHECKS, OPTIMIZATIONS, FINALIZATIONS) run as jsgo's run_googleapis_bench.py runs them, chunks
+and saved states hashed and compared with pre-flip Java's in every run (proto/gast.py). Run
+files: reflip/runs13/.
+
+Steps 493-497 (commits 34aca0ab, 62aa65b3, 75f0351d, 265af42f, 7be430ed; record 0f1e1ee8): the
+five protobuf and collection runtime steps of the postflip5 line, which this line did not have
+(tmapIter_.remove in constant time and its test, subList boxing its range, build() handing the
+builder's storage to the message, protobuf fields stored typed in one struct per message).
+They applied almost unchanged. Gated together on the final state (runtime tests ok, the four
+projects MATCH, the subset's hash unchanged); 493-496 singly had build and unit tests only.
+tools/protogen/main.go as committed before 497 did not reproduce the committed rt_proto_gen.go
+(the replay applies runtime commits as patches of go/, so the generator half of 74086be6 never
+arrived); 7be430ed brings the generator to the state that does and commits it with the
+regenerated file. Patch 497 covers go/ only: a replay of the patch alone leaves the generator
+stale again. OPEN: the step record should carry tools/protogen too.
+
+Step-by-step, 18% subset, 3 alternating rounds, idle host, no PGO (t6_gs3500.runs; t5 is the
+same comparison disturbed by a gate running beside it):
+
+| | total wall | CHECKS | OPTIMIZATIONS | FINALIZATIONS | CHECKS objects / bytes |
+|---|---|---|---|---|---|
+| pre-flip Java | 93.1 / 91.2 / 91.8 s | 39.05 s | 41.69 s | 11.18 s | |
+| 492 (7305101c), t5 | 100.0 / 97.9 / 97.1 s | 50.77 s | 38.54 s | 8.62 s | 280.3M / 16.58 GB |
+| 497 (7be430ed) | 91.3 / 90.9 / 90.0 s | 47.91 s | 34.88 s | 8.07 s | 239.4M / 13.59 GB |
+| 497 + valobj | 91.6 / 91.6 / 90.9 s | 47.92 s | 35.17 s | 8.18 s | (243.4M / 16.54 GB on 492) |
+
+497 against 492 (t5, same run): total CPU 118-121 s -> 108-109 s, wall about -6%. Against
+pre-flip Java 497 is ahead in every round of the clean run by 0.3 to 1.8 s (Java/Go about
+1.01-1.02): CHECKS 0.82, OPTIMIZATIONS 1.20, FINALIZATIONS 1.39.
+
+52% subset (t7_gs5447.runs, 2 alternating rounds): pre-flip Java 231.5 s, 234.7 s; 497 260.7 s,
+260.3 s (Java/Go 0.89-0.90). By stage: CHECKS 104.7 / 108.4 s against 140.6 / 141.2 s (0.76),
+OPTIMIZATIONS 105.6 / 105.6 s against 100.2 / 98.9 s (1.06), FINALIZATIONS 21.3 / 20.7 s against
+19.9 / 20.2 s (1.05). 492 at this size, one round earlier the same day (t1_gs5447.runs, Java
+247.4 s): 286.5 s (0.86), CHECKS 0.76, OPTIMIZATIONS 0.97, FINALIZATIONS 0.99. So with the
+protobuf steps the two later stages stay ahead of Java at this size, and the whole deficit is
+CHECKS, where the ratio is worse at 52% (0.76) than at 18% (0.82).
+
+CHECKS by pass at 52% (tracer, one run each, wall): inferTypes 31.7 s Java / 50.1 s Go,
+parseInputs 15.4 / 24.2, serializeTypedAst 8.7 / 16.0, checkTypes 7.5 / 13.1, checkControlFlow
+5.8 / 7.9; the other passes are within a second of Java's. CPU of 497's CHECKS at 18% (flat
+samples, no heap profiling): translated code 37%, GC mark and sweep 20%, node store accessors
+13.5%, maps 7%, allocation 7%, collections 5%, casts 2.5%, protobuf 2%. Bytes allocated by pass:
+inferTypes 37% (4.4 GB, no site above 2% of the stage), parseInputs 24% (source positions and
+ranges 0.71 GB, node records 0.38 GB, tokens 0.39 GB), serializeTypedAst 7%, checkTypes 5%.
+
+valobj (branch reflip-trial-values: tool 71a7e048, step 72b5b892; merged with 497 as
+reflip-trial-r17 for the measurement above, where it replays on top of 497 to the same tree):
+SourcePosition and SourceRange as Go values, by a checked-in list (valobj/classes.txt) whose
+classes the tool checks for shape, immutability, identity-freedom and nil-freedom, with the
+"assigned before read" argument of 12 fields written there by hand. 36.9M fewer objects in
+CHECKS (-13%), the same bytes (a range is 48 bytes inline in every token and tree instead of a
+pointer). Gated. Not a gain: 0.3-0.9 s slower in total in each round, no stage faster. NOT
+TAKEN on this line; the tool stays on its branch. What it shows: on this workload time follows
+the bytes allocated and what the collector walks, not the number of objects.
