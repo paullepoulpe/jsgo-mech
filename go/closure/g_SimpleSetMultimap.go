@@ -133,6 +133,11 @@ func (this *SimpleSetMultimap) containsKey(key any) bool {
 	return this.map__.containsKey(key)
 }
 
+// containsKey_s is containsKey for a string key that is not boxed (post-flip manual step).
+func (this *SimpleSetMultimap) containsKey_s(key string) bool {
+	return Map_containsKey_s(this.map__, key)
+}
+
 func (this *SimpleSetMultimap) containsEntry(key any, value any) bool {
 	var values SetOf[any] = icast_Set(this.map__.get(key))
 	return ((values != nil) && values.contains(value))
