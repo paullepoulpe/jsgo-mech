@@ -7,6 +7,7 @@ package closure
 // insertion order (the Java tree has been prepared not to depend on hash order).
 
 import (
+	"maps"
 	"sort"
 	"strings"
 	"unsafe"
@@ -902,6 +903,33 @@ func (t *htable_) insertPlain(k any) {
 	}
 }
 
+// copyFrom makes the empty table t a copy of s (only its keys when vals is false), if s has no
+// removed entry and compares keys as t does: the keys, values and index are copied as they
+// are, so no key's hashCode is called again (Java's copy rehashes every key; a key's hash
+// code does not change while it is in a table). It reports whether it copied.
+func (t *htable_) copyFrom(s *htable_, vals bool) bool {
+	if len(t.keys) != 0 || s.identity != t.identity || int(s.live) != len(s.keys) {
+		return false
+	}
+	if s.live == 0 {
+		return true
+	}
+	n := max(len(s.keys), hfirst_)
+	t.keys = append(make([]any, 0, n), s.keys...)
+	if vals {
+		t.vals = append(make([]any, 0, n), s.vals...)
+	}
+	t.live = s.live
+	if s.indexed {
+		x := &hindex_{strs: maps.Clone(s.x.strs), prim: maps.Clone(s.x.prim), custom: maps.Clone(s.x.custom)}
+		if s.x.next != nil {
+			x.next = append(make([]int32, 0, n), s.x.next...)
+		}
+		t.x, t.indexed = x, true
+	}
+	return true
+}
+
 func (t *htable_) buildIndex() {
 	if t.x == nil {
 		t.x = &hindex_{}
@@ -1236,6 +1264,9 @@ func (this *LinkedHashMap) put(k any, v any) any {
 
 func (this *LinkedHashMap) putAll(m Map) {
 	if h := hashMapOf_(m); h != nil {
+		if this.t.copyFrom(&h.t, true) {
+			return
+		}
 		for i, k := range h.t.keys {
 			if k != dead_ {
 				this.t.put(k, h.t.vals[i])
@@ -1440,6 +1471,9 @@ func new_LinkedHashSet_Collection(c Collection) *LinkedHashSet {
 func (this *LinkedHashSet) add(k any) bool { return this.t().add(k) }
 
 func (this *LinkedHashSet) addAll(c Collection) bool {
+	if h := hashSetOf_(c); h != nil && this.t().copyFrom(h, false) {
+		return h.live > 0
+	}
 	changed := false
 	for it := c.iterator(); it.hasNext(); {
 		if this.add(it.next()) {
