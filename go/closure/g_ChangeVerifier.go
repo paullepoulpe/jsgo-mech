@@ -244,14 +244,14 @@ func (this *ChangeVerifier_EqualsResult) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.equals_ == o.equals_ && this.errorNode_ == o.errorNode_ && equals_(this.errorMessage_, o.errorMessage_)
+	return true && this.equals_ == o.equals_ && this.errorNode_ == o.errorNode_ && objequalsDyn_(this.errorMessage_, obj_(o.errorMessage_))
 }
 
 func (this *ChangeVerifier_EqualsResult) hashCode() int32 {
 	var h int32
 	h = h*31 + boolhash_(this.equals_)
-	h = h*31 + hashH_(this.errorNode_)
-	h = h*31 + hash_(this.errorMessage_)
+	h = h*31 + objhashId_(this.errorNode_)
+	h = h*31 + objhashDyn_(this.errorMessage_)
 	return h
 }
 

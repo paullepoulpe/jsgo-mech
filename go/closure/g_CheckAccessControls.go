@@ -1017,9 +1017,15 @@ func (this *CheckAccessControls_PropertyReference) zero_CheckAccessControls_Prop
 }
 
 func (this *CheckAccessControls_PropertyReference) init_CheckAccessControls_PropertyReference(sourceNode Node, name string, receiverType *ObjectType, mutation bool, declaration bool, override bool, readableTypeName SupplierOf[string]) {
-	Objects_requireNonNull_T(sourceNode, "sourceNode")
-	Objects_requireNonNull_T(receiverType, "receiverType")
-	Objects_requireNonNull_T(readableTypeName, "readableTypeName")
+	if sourceNode == 0 {
+		panic(new_NullPointerException_String("sourceNode").self())
+	}
+	if receiverType == nil {
+		panic(new_NullPointerException_String("receiverType").self())
+	}
+	if readableTypeName == nil {
+		panic(new_NullPointerException_String("readableTypeName").self())
+	}
 	this.sourceNode_ = sourceNode
 	this.name_ = name
 	this.receiverType_ = receiverType
@@ -1103,18 +1109,18 @@ func (this *CheckAccessControls_PropertyReference) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.sourceNode_ == o.sourceNode_ && this.name_ == o.name_ && Objects_equals(this.receiverType_.self(), o.receiverType_.self()) && this.mutation_ == o.mutation_ && this.declaration_ == o.declaration_ && this.override_ == o.override_ && equals_(this.readableTypeName_, o.readableTypeName_)
+	return true && this.sourceNode_ == o.sourceNode_ && this.name_ == o.name_ && objequalsBy_(this.receiverType_, o.receiverType_.self(), (*ObjectType).equals) && this.mutation_ == o.mutation_ && this.declaration_ == o.declaration_ && this.override_ == o.override_ && objequalsDyn_(this.readableTypeName_, obj_(o.readableTypeName_))
 }
 
 func (this *CheckAccessControls_PropertyReference) hashCode() int32 {
 	var h int32
-	h = h*31 + hashH_(this.sourceNode_)
+	h = h*31 + objhashId_(this.sourceNode_)
 	h = h*31 + strhash_(this.name_)
-	h = h*31 + Objects_hashCode(this.receiverType_.self())
+	h = h*31 + objhashBy_(this.receiverType_, (*ObjectType).hashCode)
 	h = h*31 + boolhash_(this.mutation_)
 	h = h*31 + boolhash_(this.declaration_)
 	h = h*31 + boolhash_(this.override_)
-	h = h*31 + hash_(this.readableTypeName_)
+	h = h*31 + objhashDyn_(this.readableTypeName_)
 	return h
 }
 

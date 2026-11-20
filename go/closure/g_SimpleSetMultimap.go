@@ -273,11 +273,11 @@ func (this *SimpleSetMultimap) equals(o any) bool {
 		}
 		that = p
 		return true
-	}() && equalsRR_(this.map__, that.map__))
+	}() && equalsDyn_(this.map__, obj_(that.map__)))
 }
 
 func (this *SimpleSetMultimap) hashCode() int32 {
-	return hashR_(this.map__)
+	return hashDyn_(this.map__)
 }
 
 func (this *SimpleSetMultimap) toString() string {

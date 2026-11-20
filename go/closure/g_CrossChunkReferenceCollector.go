@@ -299,7 +299,7 @@ func (this *CrossChunkReferenceCollector_TopLevelStatementCollectingBehavior) af
 	if this.outer_.topLevelStatementDraft == nil {
 		return
 	}
-	if equalsRRH_(n, this.outer_.topLevelStatementDraft.statementNode) {
+	if equalsId_(n, this.outer_.topLevelStatementDraft.statementNode) {
 		this.outer_.topLevelStatements.add(new_CrossChunkReferenceCollector_TopLevelStatement(this.outer_, this.outer_.topLevelStatementDraft))
 		this.outer_.topLevelStatementDraft = nil
 	} else if (addedReference != nil) && n.isName() {

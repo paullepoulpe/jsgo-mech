@@ -80,8 +80,8 @@ func (this *J2clPass_InlineSpec) equals(p0 any) bool {
 func (this *J2clPass_InlineSpec) hashCode() int32 {
 	var h int32
 	h = h*31 + strhash_(this.classFileName_)
-	h = h*31 + Objects_hashCode(this.fnNamesToInline_.asSet())
-	h = h*31 + hash_(this.inliningMode_)
+	h = h*31 + objhashDyn_(this.fnNamesToInline_.asSet())
+	h = h*31 + objhashId_(this.inliningMode_)
 	return h
 }
 
@@ -178,8 +178,8 @@ func (this *J2clPass_ClassStaticFunctionsInliner_InlinableFunction) equals(p0 an
 
 func (this *J2clPass_ClassStaticFunctionsInliner_InlinableFunction) hashCode() int32 {
 	var h int32
-	h = h*31 + hashH_(this.impl_)
-	h = h*31 + hash_(this.inliningMode_)
+	h = h*31 + objhashId_(this.impl_)
+	h = h*31 + objhashId_(this.inliningMode_)
 	return h
 }
 

@@ -1860,7 +1860,7 @@ func (this Node) isEquivalentTo_5(node Node, recursion Node_RecursionMode, typeC
 				bigint = p
 				return true
 			}() {
-				return equalsR_(bigint, node.payload_get_())
+				return equalsBy_(bigint, node.payload_get_(), (*BigInteger).equals)
 			} else {
 				var substring *Node_TemplateLiteralSubstring
 				_ = substring

@@ -12,10 +12,18 @@ type Module struct {
 }
 
 func (this *Module) init_Module(metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, namespace *JTMap[string, *Binding], boundNames *JTMap[string, *Binding], localNameToLocalExport *JTMap[string, *Export], closureNamespace Optional[string]) {
-	Objects_requireNonNull_T(metadata, "metadata")
-	Objects_requireNonNull(namespace.asMap(), "namespace")
-	Objects_requireNonNull(boundNames.asMap(), "boundNames")
-	Objects_requireNonNull(localNameToLocalExport.asMap(), "localNameToLocalExport")
+	if metadata == nil {
+		panic(new_NullPointerException_String("metadata").self())
+	}
+	if namespace.asMap() == nil {
+		panic(new_NullPointerException_String("namespace").self())
+	}
+	if boundNames.asMap() == nil {
+		panic(new_NullPointerException_String("boundNames").self())
+	}
+	if localNameToLocalExport.asMap() == nil {
+		panic(new_NullPointerException_String("localNameToLocalExport").self())
+	}
 	this.metadata_ = metadata
 	this.path_ = path
 	this.namespace_ = namespace
@@ -67,16 +75,16 @@ func (this *Module) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && equals_(this.metadata_, o.metadata_) && this.path_ == o.path_ && Objects_equals(this.namespace_.asMap(), o.namespace_.asMap()) && Objects_equals(this.boundNames_.asMap(), o.boundNames_.asMap()) && Objects_equals(this.localNameToLocalExport_.asMap(), o.localNameToLocalExport_.asMap()) && Objects_equals(this.closureNamespace_.box_(), o.closureNamespace_.box_())
+	return true && objequalsBy_(this.metadata_, obj_(o.metadata_), (*ModuleMetadataMap_ModuleMetadata).equals) && this.path_ == o.path_ && Objects_equals(this.namespace_.asMap(), o.namespace_.asMap()) && Objects_equals(this.boundNames_.asMap(), o.boundNames_.asMap()) && Objects_equals(this.localNameToLocalExport_.asMap(), o.localNameToLocalExport_.asMap()) && Objects_equals(this.closureNamespace_.box_(), o.closureNamespace_.box_())
 }
 
 func (this *Module) hashCode() int32 {
 	var h int32
-	h = h*31 + hash_(this.metadata_)
-	h = h*31 + hash_(this.path_)
-	h = h*31 + Objects_hashCode(this.namespace_.asMap())
-	h = h*31 + Objects_hashCode(this.boundNames_.asMap())
-	h = h*31 + Objects_hashCode(this.localNameToLocalExport_.asMap())
+	h = h*31 + objhashBy_(this.metadata_, (*ModuleMetadataMap_ModuleMetadata).hashCode)
+	h = h*31 + objhashId_(this.path_)
+	h = h*31 + objhashDyn_(this.namespace_.asMap())
+	h = h*31 + objhashDyn_(this.boundNames_.asMap())
+	h = h*31 + objhashDyn_(this.localNameToLocalExport_.asMap())
 	h = h*31 + Objects_hashCode(this.closureNamespace_.box_())
 	return h
 }

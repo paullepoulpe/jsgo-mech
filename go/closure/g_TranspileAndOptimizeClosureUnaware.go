@@ -130,9 +130,9 @@ func (this *TranspileAndOptimizeClosureUnaware_ShadowAst) equals(p0 any) bool {
 
 func (this *TranspileAndOptimizeClosureUnaware_ShadowAst) hashCode() int32 {
 	var h int32
-	h = h*31 + hashH_(this.originalRoot_)
-	h = h*31 + hashH_(this.callNode_)
-	h = h*31 + hashH_(this.script_)
+	h = h*31 + objhashId_(this.originalRoot_)
+	h = h*31 + objhashId_(this.callNode_)
+	h = h*31 + objhashId_(this.script_)
 	return h
 }
 
