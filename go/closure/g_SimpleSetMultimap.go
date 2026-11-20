@@ -5,7 +5,7 @@ package closure
 type SimpleSetMultimap[K, V comparable] struct {
 	map__      MapOf[any, SetOf[any]]
 	sorted     bool
-	entryOrder *JTSet[*SimpleSetMultimap_Entry[any, any]]
+	entryOrder *TSet[*SimpleSetMultimap_Entry[any, any]]
 	frozen     bool
 }
 
@@ -22,9 +22,9 @@ func (this *SimpleSetMultimap[K, V]) init_SimpleSetMultimap(sorted bool, inserti
 		return Map(new_LinkedHashMap())
 	}()
 	this.sorted = sorted
-	this.entryOrder = func() *JTSet[*SimpleSetMultimap_Entry[any, any]] {
+	this.entryOrder = func() *TSet[*SimpleSetMultimap_Entry[any, any]] {
 		if insertionOrdered {
-			return jnewTSet_(tce_p_SimpleSetMultimap_Entry)
+			return newTSet_(tch_p_SimpleSetMultimap_Entry)
 		}
 		return nil
 	}()
@@ -88,7 +88,7 @@ func (this *SimpleSetMultimap[K, V]) put(key K, value V) bool {
 		return false
 	}
 	if this.entryOrder != nil {
-		this.entryOrder.add(new_SimpleSetMultimap_Entry[any, any](keyBox_, valueBox_))
+		this.entryOrder.Add(new_SimpleSetMultimap_Entry[any, any](keyBox_, valueBox_))
 	}
 	return true
 }
@@ -183,7 +183,7 @@ func (this *SimpleSetMultimap[K, V]) removeAll(key any) SetOf[any] {
 	}
 	if this.entryOrder != nil {
 		for value := range elems_(values) {
-			this.entryOrder.remove(new_SimpleSetMultimap_Entry(key, value))
+			this.entryOrder.Delete(new_SimpleSetMultimap_Entry(key, value))
 		}
 	}
 	return Collections_unmodifiableSet(values)
@@ -201,7 +201,7 @@ func (this *SimpleSetMultimap[K, V]) removeAll_s(key string) SetOf[any] {
 	if this.entryOrder != nil {
 		k := strobj_(key)
 		for value := range elems_(values) {
-			this.entryOrder.remove(new_SimpleSetMultimap_Entry(k, value))
+			this.entryOrder.Delete(new_SimpleSetMultimap_Entry(k, value))
 		}
 	}
 	return Collections_unmodifiableSet(values)
@@ -213,7 +213,7 @@ func (this *SimpleSetMultimap[K, V]) clear() {
 	}
 	this.map__.clear()
 	if this.entryOrder != nil {
-		this.entryOrder.clear()
+		this.entryOrder.Clear()
 	}
 }
 

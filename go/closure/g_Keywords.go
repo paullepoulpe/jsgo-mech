@@ -115,15 +115,15 @@ func Keywords_isStrictKeyword(token TokenType) bool {
 }
 
 func Keywords_getTokenType(value string) TokenType {
-	return Keywords_type___[Keywords_KEYWORDS_BY_NAME.get(value)-1]
+	return Keywords_type___[Keywords_KEYWORDS_BY_NAME.Get(value)-1]
 }
 
 func Keywords_getString(value string) Keywords {
-	return Keywords_KEYWORDS_BY_NAME.get(value)
+	return Keywords_KEYWORDS_BY_NAME.Get(value)
 }
 
 func Keywords_get(token TokenType) Keywords {
-	return Keywords_KEYWORDS_BY_TYPE.get(token)
+	return Keywords_KEYWORDS_BY_TYPE.Get(token)
 }
 
 func Keywords_values() []Keywords {
@@ -186,8 +186,8 @@ const Keywords_TRUE Keywords = 44
 const Keywords_FALSE Keywords = 45
 
 var Keywords_values_ []Keywords
-var Keywords_KEYWORDS_BY_NAME *JTMap[string, Keywords]
-var Keywords_KEYWORDS_BY_TYPE *JTMap[TokenType, Keywords]
+var Keywords_KEYWORDS_BY_NAME *TMap[string, Keywords]
+var Keywords_KEYWORDS_BY_TYPE *TMap[TokenType, Keywords]
 
 var Keywords_clinit_done bool
 
@@ -289,7 +289,7 @@ func Keywords_clinit() {
 	Keywords_values_ = []Keywords{Keywords_BREAK, Keywords_CASE, Keywords_CATCH, Keywords_CONTINUE, Keywords_DEBUGGER, Keywords_DEFAULT, Keywords_DELETE, Keywords_DO, Keywords_ELSE, Keywords_FINALLY, Keywords_FOR, Keywords_FUNCTION, Keywords_IF, Keywords_IN, Keywords_INSTANCEOF, Keywords_NEW, Keywords_RETURN, Keywords_SWITCH, Keywords_THIS, Keywords_THROW, Keywords_TRY, Keywords_TYPEOF, Keywords_VAR, Keywords_VOID, Keywords_WHILE, Keywords_WITH, Keywords_CLASS, Keywords_CONST, Keywords_ENUM, Keywords_EXPORT, Keywords_EXTENDS, Keywords_IMPORT, Keywords_SUPER, Keywords_IMPLEMENTS, Keywords_INTERFACE, Keywords_LET, Keywords_PACKAGE, Keywords_PRIVATE, Keywords_PROTECTED, Keywords_PUBLIC, Keywords_STATIC, Keywords_YIELD, Keywords_NULL, Keywords_TRUE, Keywords_FALSE}
 	registerEnum_("com.google.javascript.jscomp.parsing.parser.Keywords", enumValues_(Keywords_values_))
 	{
-		var keywordsByName *TMapBuilder[string, Keywords] = newTMapBuilder_(jtc_string, tc_p_Keywords)
+		var keywordsByName *ImmutableMap_Builder[string, Keywords] = immutableMapBuilder_(tc_string, tc_p_Keywords)
 		var keywordsByType EnumMapOf[TokenType, Keywords] = new_EnumMap(classOf_("com.google.javascript.jscomp.parsing.parser.TokenType"))
 		for kw := range elemsAs_[Keywords](obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.parsing.parser.Keywords")))) {
 			keywordsByName.put(Keywords_value__[kw-1], kw)

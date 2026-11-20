@@ -6,13 +6,13 @@ import "strings"
 
 type ExtraRequireRemover struct {
 	compiler_ *AbstractCompiler
-	requires  *JTMap[string, Node]
-	usages    *JTSet[string]
+	requires  *TMap[string, Node]
+	usages    *TSet[string]
 }
 
 func (this *ExtraRequireRemover) finit_ExtraRequireRemover() {
-	this.requires = jnewTMap_(jtc_string, jtc_Node)
-	this.usages = jnewTSet_(jtc_string)
+	this.requires = newTMap_(tc_string, tc_Node)
+	this.usages = newTSet_(tc_string)
 }
 
 func (this *ExtraRequireRemover) init_ExtraRequireRemover(compiler *AbstractCompiler) {
@@ -76,8 +76,8 @@ func (this *ExtraRequireRemover) visit(t *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *ExtraRequireRemover) reset() {
-	this.usages.clear()
-	this.requires.clear()
+	this.usages.Clear()
+	this.requires.Clear()
 }
 
 func (this *ExtraRequireRemover) removeExtraRequiresInScript() {
@@ -91,11 +91,11 @@ func (this *ExtraRequireRemover) removeExtraRequiresInScript() {
 }
 
 func (this *ExtraRequireRemover) removeExtraRequire(call Node, require string) {
-	if this.usages.contains(require) {
+	if this.usages.Has(require) {
 		return
 	}
 	var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(call)
-	if (jsDoc != nil) && jsDoc.getSuppressions().contains("extraRequire") {
+	if (jsDoc != nil) && jsDoc.getSuppressions().Has("extraRequire") {
 		return
 	}
 	if ExtraRequireRemover_isTsickleProtoCall(call) {
@@ -137,10 +137,10 @@ func (this *ExtraRequireRemover) removeExtraRequire(call Node, require string) {
 }
 
 func (this *ExtraRequireRemover) visitRequire(localName string, namespace string, node Node) {
-	if ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES.contains(namespace) {
+	if ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES.Has(namespace) {
 		return
 	}
-	this.requires.putIfAbsent(localName, node)
+	this.requires.PutIfAbsent(localName, node)
 }
 
 func (this *ExtraRequireRemover) visitGoogRequire(namespace string, googRequireCall Node, parent Node) {
@@ -171,15 +171,15 @@ func (this *ExtraRequireRemover) visitCallNode(call Node, parent Node) {
 	}
 	var callee Node = call.getFirstChild()
 	if ExtraRequireRemover_GOOG_MODULE_GET.matches(callee) && call.getSecondChild().isStringLit() {
-		this.usages.add(call.getSecondChild().getString())
+		this.usages.Add(call.getSecondChild().getString())
 	}
 }
 
 func (this *ExtraRequireRemover) addUsagesOfAllPrefixes(qualifiedName *QualifiedName) {
-	this.usages.add(qualifiedName.join().orElse(nullstr_))
+	this.usages.Add(qualifiedName.join().orElse(nullstr_))
 	for !qualifiedName.isSimple() {
 		qualifiedName = qualifiedName.getOwner()
-		this.usages.add(qualifiedName.join().orElse(nullstr_))
+		this.usages.Add(qualifiedName.join().orElse(nullstr_))
 	}
 }
 
@@ -212,7 +212,7 @@ func ExtraRequireRemover_isTsickleProtoCall(call Node) bool {
 	return (((moduleId != 0) && moduleId.isStringLit()) && strings.HasPrefix(moduleId.getString(), "proto."))
 }
 
-var ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES *JTSet[string]
+var ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES *TSet[string]
 var ExtraRequireRemover_GOOG_REQUIRE *QualifiedName
 var ExtraRequireRemover_GOOG_REQUIRE_TYPE *QualifiedName
 var ExtraRequireRemover_GOOG_FORWARD_DECLARE *QualifiedName
@@ -225,7 +225,7 @@ func ExtraRequireRemover_clinit() {
 		return
 	}
 	ExtraRequireRemover_clinit_done = true
-	ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES = jimmutableSetOf_[string](jtc_string, "goog.testing.asserts", "goog.testing.jsunit", "goog.labs.testing.Environment")
+	ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES = immutableSetOf_[string](tc_string, "goog.testing.asserts", "goog.testing.jsunit", "goog.labs.testing.Environment")
 	ExtraRequireRemover_GOOG_REQUIRE = QualifiedName_of("goog.require")
 	ExtraRequireRemover_GOOG_REQUIRE_TYPE = QualifiedName_of("goog.requireType")
 	ExtraRequireRemover_GOOG_FORWARD_DECLARE = QualifiedName_of("goog.forwardDeclare")
