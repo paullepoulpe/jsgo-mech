@@ -7,8 +7,11 @@ type Xid struct {
 }
 
 func (this *Xid) init_Xid_0() {
-	this.hasher = &Xid_HashFunction_fn{func(p0 string) int32 { return String_hashCode(p0) }}
+	this.hasher = lambda_Xid_init_Xid_0_1_
 }
+
+// lambda_Xid_init_Xid_0_1_ is a lambda of Xid_init_Xid_0 that captures nothing (post-flip step lambdas).
+var lambda_Xid_init_Xid_0_1_ = &Xid_HashFunction_fn{func(p0 string) int32 { return String_hashCode(p0) }}
 
 func new_Xid_0() *Xid {
 	this := &Xid{}
