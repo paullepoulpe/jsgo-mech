@@ -240,7 +240,7 @@ func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base[Lis
 func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base[Map] {
 	input = CharMatcher_whitespace().trimFrom_s(input)
 	var checked *Outcome_base[any]
-	checked = JsFileLineParser_check(((input != "" && (String_charAt(input, 0) == '{')) && (String_charAt(input, (String_length(input)-1)) == '}')), "Syntax error when parsing JS object")
+	checked = JsFileLineParser_check(((input != "" && (input[0] == '{')) && (input[len(input)-1] == '}')), "Syntax error when parsing JS object")
 	if checked.isErr() {
 		return Outcome_base_err[Map](checked.error())
 	}
