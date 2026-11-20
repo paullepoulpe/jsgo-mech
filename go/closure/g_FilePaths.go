@@ -54,7 +54,7 @@ func FilePaths_fileName(path string) string {
 
 func FilePaths_parent(path string) Optional[string] {
 	var plain string = FilePaths_clean(path)
-	var slash int32 = String_lastIndexOf(plain, 47)
+	var slash int32 = int32(strings.LastIndexByte(plain, '/'))
 	if (slash < 0) || (plain == "/") {
 		return Optional_empty[string]()
 	}
@@ -62,7 +62,7 @@ func FilePaths_parent(path string) Optional[string] {
 		if slash == 0 {
 			return "/"
 		}
-		return String_substring(plain, 0, slash)
+		return plain[:slash]
 	}())
 }
 
@@ -78,12 +78,12 @@ func FilePaths_names(plain string) *JTList[string] {
 		return 0
 	}()
 	for {
-		var slash int32 = String_indexOf_int_int(plain, 47, start)
+		var slash int32 = indexByteFrom_(plain, '/', start)
 		if slash < 0 {
-			names.add(String_substring_int(plain, start))
+			names.add(plain[start:])
 			return names
 		}
-		names.add(String_substring(plain, start, slash))
+		names.add(cutBytes_(plain, start, slash))
 		start = (slash + 1)
 	}
 }

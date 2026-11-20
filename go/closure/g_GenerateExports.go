@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type GenerateExports struct {
 	compiler_              *AbstractCompiler
 	exportSymbolFunction   Optional[string]
@@ -121,11 +123,11 @@ func (this *GenerateExports) addExtern(export string) {
 }
 
 func (this *GenerateExports) recordExportSymbol(qname string) {
-	var dot int32 = String_indexOf(qname, 46)
+	var dot int32 = int32(strings.IndexByte(qname, '.'))
 	if dot == -1 {
 		this.exportedVariables.add(qname)
 	} else {
-		this.exportedVariables.add(String_substring(qname, 0, dot))
+		this.exportedVariables.add(qname[:dot])
 	}
 }
 

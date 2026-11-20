@@ -967,9 +967,9 @@ func (this *JsDocInfoParser) parseTtlAst(ttlExtraction *JsDocInfoParser_Extracti
 		return 0
 	}
 	ttlExpression = ttlExpression[len(JsDocInfoParser_TTL_START_DELIMITER):]
-	var endIndex int32 = String_indexOf_String(ttlExpression, JsDocInfoParser_TTL_END_DELIMITER)
+	var endIndex int32 = int32(strings.Index(ttlExpression, JsDocInfoParser_TTL_END_DELIMITER))
 	if endIndex >= 0 {
-		ttlExpression = String_substring(ttlExpression, 0, endIndex)
+		ttlExpression = ttlExpression[:endIndex]
 	} else {
 		this.addTypeWarning_3(Msg_JSDOC_TEMPLATE_TYPETRANSFORMATION_MISSINGDELIMIIER, lineno, charno)
 	}
