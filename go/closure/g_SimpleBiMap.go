@@ -57,8 +57,36 @@ func (this *SimpleBiMap[K, V]) put(key K, value V) V {
 	return unboxT_[V](oldValue)
 }
 
+// put_s is put for a string key that is not boxed (post-flip step strvar).
+func (this *SimpleBiMap[K, V]) put_s(key string, value V) V {
+	valueBox_ := boxNull_(value)
+	var hadKey bool = Map_containsKey_s(this.forward, key)
+	var oldValue any = Map_get_s(this.forward, key)
+	if hadKey && Objects_equals(oldValue, valueBox_) {
+		return unboxT_[V](oldValue)
+	}
+	if this.backward.containsKey(valueBox_) {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("value already present: %s", valueBox_)))
+	}
+	Map_put_s(this.forward, key, valueBox_)
+	if hadKey {
+		this.backward.clear()
+		for e := range elemsBy_(this.forward.entrySet(), icast_Map_Entry) {
+			this.backward.put(e.getValue(), e.getKey())
+		}
+	} else {
+		this.backward.put(valueBox_, strobj_(key))
+	}
+	return unboxT_[V](oldValue)
+}
+
 func (this *SimpleBiMap[K, V]) get(key any) V {
 	return unboxT_[V](this.forward.get(key))
+}
+
+// get_s is get for a string key that is not boxed (post-flip step strvar).
+func (this *SimpleBiMap[K, V]) get_s(key string) V {
+	return unboxT_[V](Map_get_s(this.forward, key))
 }
 
 func (this *SimpleBiMap[K, V]) clear() {

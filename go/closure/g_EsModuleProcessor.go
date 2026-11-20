@@ -242,7 +242,7 @@ func (this *EsModuleProcessor_FindMutableExports) visit_impl(t *NodeTraversal, n
 		var i int32 = this.exports.asList().indexOf(obj_(e))
 		var mutated *Export = e.mutatedCopy()
 		this.exports.set(i, mutated)
-		this.exportsByLocalName.remove(strobj_(e.localName()), obj_(e))
+		this.exportsByLocalName.remove_s(e.localName(), obj_(e))
 		this.exportsByLocalName.put_s(e.localName(), mutated)
 	}
 }

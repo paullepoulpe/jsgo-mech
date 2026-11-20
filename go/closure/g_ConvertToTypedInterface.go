@@ -405,7 +405,7 @@ func (this *ConvertToTypedInterface_SimplifyDeclarations) removeDuplicateDeclara
 			var decl *PotentialDeclaration = declList.removeAt(1)
 			decl.remove(this.compiler_)
 		}
-		this.currentFile.getDeclarations().replaceValues(name, Iterable(declList.asList()))
+		this.currentFile.getDeclarations().replaceValues_s(name, Iterable(declList.asList()))
 	}
 }
 

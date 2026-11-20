@@ -50,10 +50,10 @@ func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) 
 	return mapBuilder.buildKeepingLast()
 }
 
-func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) *TMap[string, *SimpleBiMap[string, string]] {
-	var resultMap *TMap[string, *SimpleBiMap[string, string]] = newTMap_(tc_string, tc_p_SimpleBiMap)
+func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) *TMap[string, *SimpleBiMap[any, string]] {
+	var resultMap *TMap[string, *SimpleBiMap[any, string]] = newTMap_(tc_string, tc_p_SimpleBiMap)
 	var mr *IdMappingUtil_MappingReader = new_IdMappingUtil_MappingReader(idMappings)
-	var currentSectionMap *SimpleBiMap[string, string] = nil
+	var currentSectionMap *SimpleBiMap[any, string] = nil
 	var sectionNames map[string]struct{} = map[string]struct{}{}
 	for mr.next() {
 		if mr.isSection() {
@@ -61,19 +61,19 @@ func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) *TMap[string
 			if !setAdd_(sectionNames, sectionName) {
 				panic(new_IllegalArgumentException_String(("Cannot parse id map: Duplicate section " + sstr_(optstrOr_(sectionName, "null")) + "\n lineIndex: " + istr_(int64(int32(mr.getLineIndex()))))))
 			}
-			currentSectionMap = SimpleBiMap_create[string, string]()
+			currentSectionMap = SimpleBiMap_create[any, string]()
 			resultMap.Put(sectionName, currentSectionMap)
 		} else {
 			if currentSectionMap == nil {
 				panic(new_IllegalArgumentException_String("Mapping entry outside of section"))
 			}
-			currentSectionMap.put(mr.getKey(), mr.getValue())
+			currentSectionMap.put_s(mr.getKey(), mr.getValue())
 		}
 	}
 	return resultMap
 }
 
-func IdMappingUtil_parseSerializedIdMappings(idMappings string) *TMap[string, *SimpleBiMap[string, string]] {
+func IdMappingUtil_parseSerializedIdMappings(idMappings string) *TMap[string, *SimpleBiMap[any, string]] {
 	if Strings_isNullOrEmpty(idMappings) {
 		return tmapEmptyImm_(tc_string, tc_p_SimpleBiMap)
 	}

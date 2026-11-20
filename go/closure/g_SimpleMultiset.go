@@ -56,6 +56,12 @@ func (this *SimpleMultiset[E]) add(element E) bool {
 	return true
 }
 
+// add_s is add for a string key that is not boxed (post-flip step strvar).
+func (this *SimpleMultiset[E]) add_s(element string) bool {
+	this.add_2_s(element, 1)
+	return true
+}
+
 func (this *SimpleMultiset[E]) add_2(element E, occurrences int32) int32 {
 	elementBox_ := boxNull_(element)
 	if this.frozen {
@@ -72,23 +78,17 @@ func (this *SimpleMultiset[E]) add_2(element E, occurrences int32) int32 {
 	return oldCount
 }
 
-// add_s, add_2_s, setCount_s, count_s and contains_s are add, add_2, setCount, count and
-// contains for a string element that is not boxed (post-flip manual step).
-func (this *SimpleMultiset[E]) add_s(element string) bool {
-	this.add_2_s(element, 1)
-	return true
-}
-
+// add_2_s is add_2 for a string key that is not boxed (post-flip step strvar).
 func (this *SimpleMultiset[E]) add_2_s(element string, occurrences int32) int32 {
 	if this.frozen {
-		panic(new_IllegalStateException_String("immutable"))
+		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
 	if occurrences < 0 {
 		panic(new_IllegalArgumentException_0())
 	}
 	var oldCount int32 = this.count_s(element)
 	if occurrences > 0 {
-		Map_put_s(this.counts, element, any(int32((oldCount + occurrences))))
+		Map_put_s(this.counts, element, int32((oldCount + occurrences)))
 		this.totalCount += occurrences
 	}
 	return oldCount
@@ -120,9 +120,10 @@ func (this *SimpleMultiset[E]) setCount(element E, expectedOldCount int32, newCo
 	return true
 }
 
+// setCount_s is setCount for a string key that is not boxed (post-flip step strvar).
 func (this *SimpleMultiset[E]) setCount_s(element string, expectedOldCount int32, newCount int32) bool {
 	if this.frozen {
-		panic(new_IllegalStateException_String("immutable"))
+		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
 	if expectedOldCount < 0 || newCount < 0 {
 		panic(new_IllegalArgumentException_0())
@@ -133,7 +134,7 @@ func (this *SimpleMultiset[E]) setCount_s(element string, expectedOldCount int32
 	if newCount == 0 {
 		Map_remove_s(this.counts, element)
 	} else {
-		Map_put_s(this.counts, element, any(int32(newCount)))
+		Map_put_s(this.counts, element, int32(newCount))
 	}
 	this.totalCount += (newCount - expectedOldCount)
 	return true
@@ -166,18 +167,22 @@ func (this *SimpleMultiset[E]) count(element any) int32 {
 	}()
 }
 
+// count_s is count for a string key that is not boxed (post-flip step strvar).
 func (this *SimpleMultiset[E]) count_s(element string) int32 {
 	var count any = Map_get_s(this.counts, element)
-	if count == nil {
-		return 0
-	}
-	return unbox_[int32](count)
+	return func() int32 {
+		if count == nil {
+			return 0
+		}
+		return unbox_[int32](count)
+	}()
 }
 
 func (this *SimpleMultiset[E]) contains(element any) bool {
 	return this.counts.containsKey(element)
 }
 
+// contains_s is contains for a string key that is not boxed (post-flip step strvar).
 func (this *SimpleMultiset[E]) contains_s(element string) bool {
 	return Map_containsKey_s(this.counts, element)
 }

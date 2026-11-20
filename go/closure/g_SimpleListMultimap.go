@@ -49,10 +49,10 @@ func (this *SimpleListMultimap[K, V]) put(key K, value V) *SimpleListMultimap[K,
 	return this
 }
 
-// put_s is put for a string key that is not boxed (post-flip manual step).
+// put_s is put for a string key that is not boxed (post-flip step strvar).
 func (this *SimpleListMultimap[K, V]) put_s(key string, value V) *SimpleListMultimap[K, V] {
 	if this.frozen {
-		panic(new_IllegalStateException_String("immutable"))
+		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
 	var values ListOf[any] = icast_List(Map_get_s(this.map__, key))
 	if values == nil {
@@ -70,7 +70,7 @@ func (this *SimpleListMultimap[K, V]) putAll(key K, values IterableOf[any]) *Sim
 	return this
 }
 
-// putAll_s is putAll for a string key that is not boxed (post-flip manual step).
+// putAll_s is putAll for a string key that is not boxed (post-flip step strvar).
 func (this *SimpleListMultimap[K, V]) putAll_s(key string, values IterableOf[any]) *SimpleListMultimap[K, V] {
 	for value := range elems_(values) {
 		this.put_s(key, unboxT_[V](value))
@@ -92,6 +92,20 @@ func (this *SimpleListMultimap[K, V]) replaceValues(key K, values IterableOf[any
 	}
 }
 
+// replaceValues_s is replaceValues for a string key that is not boxed (post-flip step strvar).
+func (this *SimpleListMultimap[K, V]) replaceValues_s(key string, values IterableOf[any]) {
+	if this.frozen {
+		panic(new_IllegalStateException_String(objstr_("immutable")))
+	}
+	var newValues *TList[any] = newTList_(tc_Object)
+	Iterables_addAll(Collection(newValues.asList()), values)
+	if newValues.isEmpty() {
+		Map_remove_s(this.map__, key)
+	} else {
+		Map_put_s(this.map__, key, newValues.asList())
+	}
+}
+
 func (this *SimpleListMultimap[K, V]) get(key any) ListOf[any] {
 	var values ListOf[any] = icast_List(this.map__.get(key))
 	return func() List {
@@ -102,20 +116,22 @@ func (this *SimpleListMultimap[K, V]) get(key any) ListOf[any] {
 	}()
 }
 
-// get_s is get for a string key that is not boxed (post-flip manual step).
+// get_s is get for a string key that is not boxed (post-flip step strvar).
 func (this *SimpleListMultimap[K, V]) get_s(key string) ListOf[any] {
 	var values ListOf[any] = icast_List(Map_get_s(this.map__, key))
-	if values == nil {
-		return ImmutableList_of()
-	}
-	return Collections_unmodifiableList(values)
+	return func() List {
+		if values == nil {
+			return ImmutableList_as_List(ImmutableList_of())
+		}
+		return Collections_unmodifiableList(values)
+	}()
 }
 
 func (this *SimpleListMultimap[K, V]) containsKey(key any) bool {
 	return this.map__.containsKey(key)
 }
 
-// containsKey_s is containsKey for a string key that is not boxed (post-flip manual step).
+// containsKey_s is containsKey for a string key that is not boxed (post-flip step strvar).
 func (this *SimpleListMultimap[K, V]) containsKey_s(key string) bool {
 	return Map_containsKey_s(this.map__, key)
 }
@@ -130,6 +146,21 @@ func (this *SimpleListMultimap[K, V]) remove(key any, value any) bool {
 	}
 	if values.isEmpty() {
 		this.map__.remove(key)
+	}
+	return true
+}
+
+// remove_s is remove for a string key that is not boxed (post-flip step strvar).
+func (this *SimpleListMultimap[K, V]) remove_s(key string, value any) bool {
+	if this.frozen {
+		panic(new_IllegalStateException_String(objstr_("immutable")))
+	}
+	var values ListOf[any] = icast_List(Map_get_s(this.map__, key))
+	if (values == nil) || !values.remove_Object(value) {
+		return false
+	}
+	if values.isEmpty() {
+		Map_remove_s(this.map__, key)
 	}
 	return true
 }

@@ -17,7 +17,7 @@ func new_VariableMap(map_ *TMap[string, string]) *VariableMap {
 }
 
 func (this *VariableMap) lookupNewName(sourceName string) string {
-	return this.map__.get(strobj_(sourceName))
+	return this.map__.get_s(sourceName)
 }
 
 func (this *VariableMap) lookupSourceName(newName string) string {

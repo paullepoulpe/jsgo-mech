@@ -391,9 +391,7 @@ func HamtPMap_hash(key any) int32 {
 	return Integer_reverse(Object_hashCode(key))
 }
 
-// HamtPMap_hashOf_ is hash(key) for a key of the map's type, without boxing it: the hash code
-// is taken from the value as it is (post-flip manual step: a String key was boxed for its
-// hashCode at every get, plus and minus).
+// HamtPMap_hashOf_ is HamtPMap_hash of a value of a type parameter, which is not boxed for its hash code (post-flip step strvar).
 func HamtPMap_hashOf_[K any](key K) int32 {
 	return Integer_reverse(hashCodeT_(key))
 }

@@ -2965,9 +2965,9 @@ var tc_p_ScriptNodeDeserializer = &tconv_[*ScriptNodeDeserializer]{
 	unbox: cast_[*ScriptNodeDeserializer],
 }
 
-var tc_p_SimpleBiMap = &tconv_[*SimpleBiMap[string, string]]{
-	box:   obj_[*SimpleBiMap[string, string]],
-	unbox: cast_[*SimpleBiMap[string, string]],
+var tc_p_SimpleBiMap = &tconv_[*SimpleBiMap[any, string]]{
+	box:   obj_[*SimpleBiMap[any, string]],
+	unbox: cast_[*SimpleBiMap[any, string]],
 }
 
 var tc_p_SimpleJsonValue = &tconv_[*SimpleJsonValue]{
@@ -4829,7 +4829,7 @@ func init() {
 		(*SetAccessorTree)(nil),
 		(*ShowByPathWarningsGuard)(nil),
 		(ShowByPathWarningsGuard_ShowType)(0),
-		(*SimpleBiMap[string, string])(nil),
+		(*SimpleBiMap[any, string])(nil),
 		(*SimpleDependencyInfo_Builder)(nil),
 		(*SimpleJsonValue)(nil),
 		(SimpleJsonValue_Kind)(0),

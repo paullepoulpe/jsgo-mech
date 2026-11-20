@@ -93,29 +93,27 @@ func (this *SimpleSetMultimap[K, V]) put(key K, value V) bool {
 	return true
 }
 
-// put_s is put for a string key that is not boxed (post-flip manual step). An
-// insertion-ordered multimap keeps the key in an entry too: it is boxed once, by put.
+// put_s is put for a string key that is not boxed (post-flip step strvar).
 func (this *SimpleSetMultimap[K, V]) put_s(key string, value V) bool {
 	valueBox_ := boxNull_(value)
-	if this.entryOrder != nil {
-		k := strobj_(key)
-		return this.put(unboxT_[K](k), value)
-	}
 	if this.frozen {
-		panic(new_IllegalStateException_String("immutable"))
+		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
 	var values SetOf[any] = icast_Set(Map_get_s(this.map__, key))
 	if values == nil {
 		values = func() Set {
 			if this.sorted {
-				return new_TreeSet()
+				return Set(new_TreeSet())
 			}
-			return new_LinkedHashSet()
+			return Set(new_LinkedHashSet())
 		}()
 		values.add(valueBox_)
 		Map_put_s(this.map__, key, values)
 	} else if !values.add(valueBox_) {
 		return false
+	}
+	if this.entryOrder != nil {
+		this.entryOrder.Add(new_SimpleSetMultimap_Entry[any, any](strobj_(key), valueBox_))
 	}
 	return true
 }
@@ -123,6 +121,13 @@ func (this *SimpleSetMultimap[K, V]) put_s(key string, value V) bool {
 func (this *SimpleSetMultimap[K, V]) putAll_2(key K, values IterableOf[any]) {
 	for value := range elems_(values) {
 		this.put(key, unboxT_[V](value))
+	}
+}
+
+// putAll_2_s is putAll_2 for a string key that is not boxed (post-flip step strvar).
+func (this *SimpleSetMultimap[K, V]) putAll_2_s(key string, values IterableOf[any]) {
+	for value := range elems_(values) {
+		this.put_s(key, unboxT_[V](value))
 	}
 }
 
@@ -148,20 +153,22 @@ func (this *SimpleSetMultimap[K, V]) get(key any) SetOf[any] {
 	}()
 }
 
-// get_s is get for a string key that is not boxed (post-flip manual step).
+// get_s is get for a string key that is not boxed (post-flip step strvar).
 func (this *SimpleSetMultimap[K, V]) get_s(key string) SetOf[any] {
 	var values SetOf[any] = icast_Set(Map_get_s(this.map__, key))
-	if values == nil {
-		return ImmutableSet_of()
-	}
-	return Collections_unmodifiableSet(values)
+	return func() Set {
+		if values == nil {
+			return ImmutableSet_as_Set(ImmutableSet_of())
+		}
+		return Collections_unmodifiableSet(values)
+	}()
 }
 
 func (this *SimpleSetMultimap[K, V]) containsKey(key any) bool {
 	return this.map__.containsKey(key)
 }
 
-// containsKey_s is containsKey for a string key that is not boxed (post-flip manual step).
+// containsKey_s is containsKey for a string key that is not boxed (post-flip step strvar).
 func (this *SimpleSetMultimap[K, V]) containsKey_s(key string) bool {
 	return Map_containsKey_s(this.map__, key)
 }
@@ -187,19 +194,18 @@ func (this *SimpleSetMultimap[K, V]) removeAll(key any) SetOf[any] {
 	return Collections_unmodifiableSet(values)
 }
 
-// removeAll_s is removeAll for a string key that is not boxed (post-flip manual step).
+// removeAll_s is removeAll for a string key that is not boxed (post-flip step strvar).
 func (this *SimpleSetMultimap[K, V]) removeAll_s(key string) SetOf[any] {
 	if this.frozen {
-		panic(new_IllegalStateException_String("immutable"))
+		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
 	var values SetOf[any] = icast_Set(Map_remove_s(this.map__, key))
 	if values == nil {
-		return ImmutableSet_of()
+		return ImmutableSet_as_Set(ImmutableSet_of())
 	}
 	if this.entryOrder != nil {
-		k := strobj_(key)
 		for value := range elems_(values) {
-			this.entryOrder.Delete(new_SimpleSetMultimap_Entry(k, value))
+			this.entryOrder.Delete(new_SimpleSetMultimap_Entry(strobj_(key), value))
 		}
 	}
 	return Collections_unmodifiableSet(values)
