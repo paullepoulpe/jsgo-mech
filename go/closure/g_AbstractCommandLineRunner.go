@@ -55,7 +55,7 @@ func (this *AbstractCommandLineRunner) finit_AbstractCommandLineRunner() {
 	this.externsSupplierForTesting = nil
 	this.inputsSupplierForTesting = nil
 	this.chunksSupplierForTesting = nil
-	this.exitCodeReceiver = icast_Function_base(obj_(AbstractCommandLineRunner_SystemExitCodeReceiver_INSTANCE))
+	this.exitCodeReceiver = iup_Function_base(AbstractCommandLineRunner_SystemExitCodeReceiver_INSTANCE)
 	this.rootRelativePathsMap = nil
 	this.parsedChunkWrappers = nil
 	this.parsedChunkOutputFiles = nil
