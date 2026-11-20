@@ -52,7 +52,7 @@ func (this *RewritePolyfills) process_2(externs Node, root Node) {
 	}
 	if this.injectPolyfills {
 		this.libraries = jnewTSet_(jtc_string)
-		new_PolyfillUsageFinder(this.compiler_, this.polyfills, this.disambiguateProperties_).traverseExcludingGuarded(root, &Consumer_tfn_PolyfillUsageFinder_PolyfillUsage{func(p0 *PolyfillUsageFinder_PolyfillUsage) { this.inject(p0) }})
+		new_PolyfillUsageFinder(this.compiler_, this.polyfills, this.disambiguateProperties_).traverseExcludingGuarded(root, (&Consumer_tfn_PolyfillUsageFinder_PolyfillUsage{func(p0 *PolyfillUsageFinder_PolyfillUsage) { this.inject(p0) }}).accept)
 	}
 	var librariesToInject *JTList[string]
 	if this.injectPolyfillsNewerThan != 0 {

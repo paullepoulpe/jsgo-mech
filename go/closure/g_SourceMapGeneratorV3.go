@@ -123,24 +123,24 @@ func (this *SourceMapGeneratorV3) mergeMapSection(line int32, column int32, mapS
 	if parsed.isErr() {
 		return Outcome_base_err[any](parsed.error())
 	}
-	section.visitMappings(SourceMapConsumerV3_EntryVisitor(new_SourceMapGeneratorV3_ConsumerEntryVisitor(this)))
+	section.visitMappings(new_SourceMapGeneratorV3_ConsumerEntryVisitor(this).visit)
 	return Outcome_base_ok_0()
 }
 
-func (this *SourceMapGeneratorV3) mergeMapSection_4(line int32, column int32, mapSectionContents string, mergeAction SourceMapGeneratorV3_ExtensionMergeAction) *Outcome_base[any] {
+func (this *SourceMapGeneratorV3) mergeMapSection_4(line int32, column int32, mapSectionContents string, mergeAction func(string, any, any) any) *Outcome_base[any] {
 	this.setStartingPosition(line, column)
 	var section *SourceMapConsumerV3 = new_SourceMapConsumerV3()
 	var parsed *Outcome_base[any] = section.parse(mapSectionContents)
 	if parsed.isErr() {
 		return Outcome_base_err[any](parsed.error())
 	}
-	section.visitMappings(SourceMapConsumerV3_EntryVisitor(new_SourceMapGeneratorV3_ConsumerEntryVisitor(this)))
+	section.visitMappings(new_SourceMapGeneratorV3_ConsumerEntryVisitor(this).visit)
 	it_1 := section.getExtensions().eachEntry()
 	for it_1.next() {
 		var entry *TEntry[string, any] = it_1.entry()
 		var extensionKey string = entry.getKey()
 		if this.extensions.containsKey(extensionKey) {
-			this.extensions.put(extensionKey, mergeAction.merge(extensionKey, this.extensions.get(extensionKey), entry.getValue()))
+			this.extensions.put(extensionKey, mergeAction(extensionKey, this.extensions.get(extensionKey), entry.getValue()))
 		} else {
 			this.extensions.put(extensionKey, entry.getValue())
 		}
@@ -310,7 +310,7 @@ func SourceMapGeneratorV3_appendFieldEnd(out Appendable) {
 }
 
 func (this *SourceMapGeneratorV3) prepMappings() int32 {
-	new_SourceMapGeneratorV3_MappingTraversal(this).traverse(SourceMapGeneratorV3_MappingVisitor(new_SourceMapGeneratorV3_UsedMappingCheck()))
+	new_SourceMapGeneratorV3_MappingTraversal(this).traverse(new_SourceMapGeneratorV3_UsedMappingCheck().visit)
 	var id int32 = 0
 	var maxLine int32 = 0
 	it_1 := this.mappings.each()
@@ -504,7 +504,7 @@ func new_SourceMapGeneratorV3_MappingTraversal(outer_ *SourceMapGeneratorV3) *So
 	return this
 }
 
-func (this *SourceMapGeneratorV3_MappingTraversal) traverse(v SourceMapGeneratorV3_MappingVisitor) {
+func (this *SourceMapGeneratorV3_MappingTraversal) traverse(v func(*SourceMapGeneratorV3_Mapping, int32, int32, int32, int32)) {
 	var stack *TDeque[*SourceMapGeneratorV3_Mapping] = newTDeque_(jtc_p_SourceMapGeneratorV3_Mapping)
 	it_1 := this.outer_.mappings.each()
 	for it_1.next() {
@@ -546,7 +546,7 @@ func (this *SourceMapGeneratorV3_MappingTraversal) isOverlapped(m1 *SourceMapGen
 	return (((l1 == l2) && (c1 >= c2)) || (l1 > l2))
 }
 
-func (this *SourceMapGeneratorV3_MappingTraversal) maybeVisit(v SourceMapGeneratorV3_MappingVisitor, m *SourceMapGeneratorV3_Mapping) {
+func (this *SourceMapGeneratorV3_MappingTraversal) maybeVisit(v func(*SourceMapGeneratorV3_Mapping, int32, int32, int32, int32), m *SourceMapGeneratorV3_Mapping) {
 	var nextLine int32 = this.getAdjustedLine(m.endPosition)
 	var nextCol int32 = this.getAdjustedCol(m.endPosition)
 	if (this.line_ < nextLine) || ((this.line_ == nextLine) && (this.col < nextCol)) {
@@ -554,7 +554,7 @@ func (this *SourceMapGeneratorV3_MappingTraversal) maybeVisit(v SourceMapGenerat
 	}
 }
 
-func (this *SourceMapGeneratorV3_MappingTraversal) maybeVisitParent(v SourceMapGeneratorV3_MappingVisitor, parent *SourceMapGeneratorV3_Mapping, m *SourceMapGeneratorV3_Mapping) {
+func (this *SourceMapGeneratorV3_MappingTraversal) maybeVisitParent(v func(*SourceMapGeneratorV3_Mapping, int32, int32, int32, int32), parent *SourceMapGeneratorV3_Mapping, m *SourceMapGeneratorV3_Mapping) {
 	var nextLine int32 = this.getAdjustedLine(m.startPosition)
 	var nextCol int32 = this.getAdjustedCol(m.startPosition)
 	Preconditions_checkState(((this.line_ < nextLine) || (this.col <= nextCol)))
@@ -563,13 +563,13 @@ func (this *SourceMapGeneratorV3_MappingTraversal) maybeVisitParent(v SourceMapG
 	}
 }
 
-func (this *SourceMapGeneratorV3_MappingTraversal) visit(v SourceMapGeneratorV3_MappingVisitor, m *SourceMapGeneratorV3_Mapping, nextLine int32, nextCol int32) {
+func (this *SourceMapGeneratorV3_MappingTraversal) visit(v func(*SourceMapGeneratorV3_Mapping, int32, int32, int32, int32), m *SourceMapGeneratorV3_Mapping, nextLine int32, nextCol int32) {
 	Preconditions_checkState((this.line_ <= nextLine))
 	Preconditions_checkState(((this.line_ < nextLine) || (this.col < nextCol)))
 	if (this.line_ == nextLine) && (this.col == nextCol) {
 		panic(new_IllegalStateException_0().self())
 	}
-	v.visit(m, this.line_, this.col, nextLine, nextCol)
+	v(m, this.line_, this.col, nextLine, nextCol)
 	this.line_ = nextLine
 	this.col = nextCol
 }
@@ -652,7 +652,7 @@ func (this *SourceMapGeneratorV3_LineMapper) writeEntry(m *SourceMapGeneratorV3_
 
 func (this *SourceMapGeneratorV3_LineMapper) appendLineMappings() {
 	this.openLine(true)
-	new_SourceMapGeneratorV3_MappingTraversal(this.outer_).traverse(SourceMapGeneratorV3_MappingVisitor(this))
+	new_SourceMapGeneratorV3_MappingTraversal(this.outer_).traverse(this.visit)
 	this.closeLine(true)
 }
 
