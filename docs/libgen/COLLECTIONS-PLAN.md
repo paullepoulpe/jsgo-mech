@@ -175,6 +175,218 @@ Each piece: a switch, self-test, runtime tests, gate (`$B/gate.sh agZ <label>`),
 
 State of each piece: section 3.
 
-## 3. Record
+## 3. Record (state at the end of this session, 2026-11-20)
 
-(filled in as pieces land)
+**How far: pieces A (makers), B (views, the part that the kinds built so far need), C (kind
+`coll`), D (kind `list`, with typed-by-place and the variance decision) are built and gated.
+Kinds `set` and `map`/`entry`, protobuf lists, the class-typed declarations, the deletion of
+erased runtime code and the refusal for unchecked casts are NOT built.** The order differs
+from section 2 as planned there and from the brief's guess ((3), (2), (1), then the kinds):
+the map showed that origins are a long tail whose consumers are erased places, so each kind was
+built together with the origins that feed it (section 1, last paragraph).
+
+### 3.1 Commits (branch `main-libgen-b3`, on c8a3f9d5)
+
+| commit | what | switch (`J2GO_NOLIBGEN=`) |
+|---|---|---|
+| 3cd3524c | this file, `CollMap.java`, `collmap.py`, `Colls.Slot.whys` (report only) | `J2GO_COLLMAP=<dir>` |
+| 7b097dba | runtime: `keySet()` / `values()` of the view of a typed map are native typed Iterables | (runtime) |
+| a421fb83 | pieces `makers` and `cov` (for `Iterable`) | `makers`, `cov` |
+| ba3ad013 | kind `coll`; `valuesT()`; `Collections.unmodifiableX(x)` passes through | `coll`, `views` |
+| 6c7533b9 | kind `list`; piece `place`; variance of Lists; erased method for an `Object` consumer; typed `subList`; README | `list`, `place` |
+
+With `J2GO_NOLIBGEN=makers,views,place,cov,coll,list` the generated files are byte-identical
+to those of the starting tree (checked: `scratchpad/b3/outMine` against `out0`). Not behind a
+switch: the runtime changes (`tlistView_.subList` is a typed list on the same items instead of
+a boxed copy; `TMap.delAt` refuses an immutable map; the new methods), and "a typed call whose
+result enters an `Object` is the erased method", which also applies to kind `iter` (no site of
+the tree changed by it with the other switches off).
+
+### 3.2 Counts
+
+`baseline.sh` (`g_[A-Z]*.go`), start -> end: `cast_[` 924 -> 787, `icast_X(` 292 -> 238,
+`str_(` 228 -> 196, `Node_of_(` 135 -> 98, `obj_(` 569 -> 557, `strobj_(` 402 -> 396,
+erased views `.asList()` etc. 1,117 -> 873, `foreach_(` 478 -> 272 (`eachOf_(` 146 -> 350),
+`XOf[` alias uses 833 -> 485, `tc_` uses 2,439 -> 2,679 (the conversions take one).
+New spellings: `ListT[` 440, `CollectionT[` 151, `.asListT()` 221, `.asCollT()` 61,
+`.valuesT()` 42, `get_t(` 34, `X_un_(` 85 -> 367 (typed value given to an erased parameter:
+one type test, no allocation).
+
+Declarations of a collection type (3,867; `J2GO_COLLMAP`, `scratchpad/b3/mapE`):
+
+| state | start | end |
+|---|---:|---:|
+| L1 concrete typed collection | 3,051 | 3,067 |
+| L2 typed interface (`ListT`, `CollectionT`) | 0 | 342 |
+| erased: `List` with a wildcard (variance, see 3.4) | | 23 |
+| erased: kind not built: set (`Set`, `EnumSet`, `ImmutableSortedSet`, ...) | | 143 |
+| erased: kind not built: map / entry | | 194 |
+| erased: class-typed (`ArrayList<X>`, `ImmutableList<X>`), builders, deques, other | | 98 |
+| erased, total | 816 | 458 |
+
+Conversions left (`J2GO_LIBGEN=1`): `iterableAs_` 179 -> 119, `iteratorAs_` 22 -> 14,
+`collectionAs_` 110, `listAs_` 84 (results of erased program methods and runtime functions,
+erased `ImmutableList` / `ArrayList` declarations, `Arrays.asList`, elements of collections of
+collections), 268 uses of a `List` with a wildcard left erased. Whether one allocates is
+decided at run time (native check); see 3.3 for what does.
+
+Runtime lines (verify.sh): 19,832 -> 20,040 (+208: `rt_lg.go`); test lines 4,032 -> 4,240.
+**Nothing was deleted**: every erased class is still constructed (erased places, kinds not
+built). The requirement "the runtime shrinks" is not met at this point.
+
+### 3.3 Allocation (CHECKS of the 18% subset, one run each, state sha256 1cb35c70ccb88501 in every run)
+
+| tree (binary in `scratchpad/b3/`) | alloc_objects | alloc_space | objects without the protobuf pool functions |
+|---|---:|---:|---:|
+| start, b2 tip (`../b2/mech_iter`) | 375.2 M | 19.16 GB | 340.7 M |
+| makers + views + cov (`mech_AB`) | 365.6 M | 18.44 GB | 337.5 M |
+| + coll (`mech_C`; had lost `Collection_add_s`: +2.3 M boxes, fixed in the list commit) | 375.2 M | 19.12 GB | |
+| + list, first form (`mech_D`): 7.7 M covariant wrappers of the graph classes | 380.0 M | 19.63 GB | |
+| + list, wildcard Lists erased (`mech_D3`) | 361.4 M | 18.69 GB | 334.1 M |
+| + typed subList, final (`mech_D4`) | 371.3 M | 19.04 GB | 335.2 M |
+
+The protobuf builders are pooled and their count moves by several million between runs of one
+binary (`pbDesc_.newMsg_`, `newBuilder_`, `pbData_`, the two `init.func7xx` they call: 27.3 M in
+the D3 run, 36.2 M in the D4 run, 34.5 M in the start run); the last column leaves them out and
+is the comparable one: **340.7 M -> 335.2 M (-1.6%)**. D3 -> D4 otherwise differs by -448 MB
+(`tlistView_.boxed` under `subList` in `AbstractCommandLineRunner.createJsChunks`: the old
+`subList` of a typed list's view boxed the whole list on every call; found by this profile).
+
+The `iter` kind's +3.8 M `iterableAs_` wrappers: **gone, confirmed** (3.42 M in the start
+profile; `iterableAs_` is below the profile's listing threshold in D3/D4). They needed three
+things, not one: `Scope.vars` typed (`makers`), the narrowing overrides
+`Scope.getVarIterable(): Iterable<Var>` in groups of their own (`cov`), and `valuesT()` (the
+map is `ImmutableMap.of()` until the first variable is declared, and the erased view of an
+immutable typed map is its boxed twin, never native).
+
+Wrappers still allocated in CHECKS (D3 profile): `listAs_` 1.4 M in
+`DataFlowAnalysis.analyze` (the local `nextNodes` is initialized by a conditional of two
+narrowed results; `tryRefine` does not take a conditional's captured type), `collectionAs_`
+about 0.7 M (`TypedScopeCreator.NormalScopeBuilder.visitPostorder` 0.36 M,
+`JSDocInfo.getParameterNames` 0.17 M, `TemplateTypeReplacer.forInference` 0.08 M: a `Set` /
+`keySet()` or an erased `ImmutableList` given as a `Collection<X>`; kinds `set` and the
+class-typed declarations remove them).
+
+### 3.4 Variance (brief item 6): what was done
+
+- Same-bound wildcards are typed at the bound for `Iterable` and `Collection`.
+- Narrowing overrides in classes are method groups of their own (`cov`, on rule "covariant
+  overrides"): 6 scope methods (`Iterable`), and the graph classes' `getInEdges` /
+  `getOutEdges` / `getEdges` / `getDirectedSuccNodes` / `getDirectedPredNodes` (`List`). A caller
+  with the narrowing class reads typed, without a wrapper.
+- The wide side of the graph family: **stays erased** (`LibGen.wildErased`: a `List<? extends
+  X>` / `List<?>` place is the erased `List`). Tried and measured first: typed wide `ListT`
+  with a wrapper per call (+7.7 M objects), then the view kept in a field of the object that
+  has the bridge (`listUp_`, an atomic pointer per bridge): still 3.7 M allocations, because a
+  graph node's edge list is asked for about once per node, and the nodes grew by the fields (+52 MB in `new_..AnnotatedLinkedDiGraphNode`). A form that
+  allocates nothing needs the view to be part of the list (a second view struct in every
+  `TList`: 48 -> 64 bytes for 22.8 M lists in CHECKS) and was not built. So through
+  `DiGraphNode.getInEdges()` the code is what it was before this stage (erased list, cast per
+  element, no allocation); `listUp_` was removed again.
+- 4 locals of wildcard List type take the narrowed type of their initializer (`tryRefine`).
+
+### 3.5 Semantics, refusals, tests
+
+- Gate lines of the final tree are in 3.7. Self-test `lang/LibGen.java`: `views()`, `colls()`,
+  `lists()` (identity, `equals`/`hashCode`, null, `UnsupportedOperationException` on immutables,
+  `IndexOutOfBounds`, `NoSuchElement`, live views, iterator `remove`, late
+  `ClassCastException` after an unchecked cast, collections of lists, an `AbstractCollection`
+  subclass). Runtime tests: `TestLgTypedMapViews`, `TestLgCollection`, `TestLgValuesT`,
+  `TestLgList`, `TestLgSubList`.
+- Refusals: the raw-use refusal of `iter` covers `Collection` and `List` (LibGen.check; the
+  tree has 0). **Not built: the refusal for unchecked casts on library generics** (the two
+  known ones behave as in Java: the wrapper checks when an element is read) and a refusal for
+  `instanceof` / casts to the classes `ArrayList` etc. (a typed-by-place list is a view, not a
+  `*ArrayList`; the README says the tree has neither; nothing checks it).
+- Differences from Java seen while testing, all older than this stage and unchanged:
+  `Arrays.asList` and `Collections.emptyList` of the runtime are lists that accept `add`;
+  `o instanceof Set` is true of a list view.
+- ConcurrentModificationException: no test added; the typed iterators are the existing ones.
+
+### 3.6 Left to do, in the order I would take it
+
+1. Kind `set` (`SetT[X]`: `Set` + `iterator_t`; `keySetT()` of a typed map; typed-by-place for
+   `new LinkedHashSet`, `ImmutableSet.of/copyOf`; `fromTypedColl` for the set kind). Same shape
+   as `coll`; about 143 declarations. `LibGen.TYPED_METHODS`, `KINDS`, `rt_lg.go`.
+2. Kind `map` + `entry` (`MapT[K,V]` with `get_t` / `values_t` / `keySet_t` / `entrySet_t`,
+   `EntryT[K,V]`): about 194 declarations and the nested collections. Then make the element
+   type of collections the typed interface (`Ctx.typedArg`: `lg.isLib(ae)` returns the erasure
+   today), so `Map<K, List<X>>` is `*TMap[K, ListT[X]]` and `computeIfAbsent(k, k -> new
+   ArrayList<>())` is typed by place.
+3. Class-typed declarations (`ArrayList<X>`, `ImmutableList<X>`, `LinkedHashMap<K,V>` that
+   `Colls` leaves erased: 98) and more typed methods (`add_t`, `set_t`, `remove_t`, `contains_t`).
+4. Typed results of the remaining runtime functions (`Arrays.asList`, `Lists.reverse`,
+   `Collections.emptyList` / `singletonList`, `Ordering.sortedCopy`, `Sets.union` ...) and
+   protobuf lists (`tools/protogen`; 89 origins): only after 1-3, by the wrapper counts of a
+   CHECKS profile (`go tool pprof -peek 'listAs_|collectionAs_'`), which is how every decision
+   above was made.
+5. Refusals (unchecked casts with a name list; casts to the collection classes).
+6. Deletion: only when a profile and `grep new_ArrayList` (22 sites left in `g_[A-Z]*.go`) show
+   an erased class is no longer constructed.
+7. The no-object covariant view (3.4), if the graph casts matter.
+
+Traps met: the translator reads `rt_*.go` of its output directory; `Ctx.erase` of a library
+type parameter is a Go type parameter once its interface is a kind (use `lg.rt` where the
+runtime's signature is meant: that lost `Collection_add_s`); javac's type of an expression has
+wildcards captured (`wildErased`); a typed method whose result goes to `Object` must be the
+erased one; the erased interface in `g_zstubs.go` only has the methods some call names, so a
+typed call also notes the erased method.
+
+### 3.7 Gate lines
+
+Final tree (code of 6c7533b9), default translation, `$B/gate.sh agZ b3_D4` (log
+`/mnt/data/ubuntu/jm/logs/gate-b3_D4.log`, copy in `scratchpad/b3/`):
+
+```
+GATE OK b3_D4
+selftest: PASS
+ok  	jsgomech/closure	(cached)
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20040  test lines: 4240
+```
+
+(the test line says "cached": the same test binary had printed `ok jsgomech/closure 1.947s`
+in the run just before the gate.) Same tree, every switch of the three stages off
+(`J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all`, translated with `-tags j2go_nofntypes`,
+`tools/prune/verify.sh`; `scratchpad/b3/verify-alloff.log`):
+
+```
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.973s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20040  test lines: 4240
+```
+
+Earlier gates: `b3_AB` (makers, views, cov), `b3_C` (coll), `b3_D3` (list before the subList
+change): GATE OK each (logs beside the above). Not gated one by one: each switch of this stage
+alone off.
+
+### 3.8 Fifth flip: post-flip steps, judged from the emitted text (none was run)
+
+In addition to LIBGEN-STUDY.md 7 and 8:
+
+- `colls` (3-5, 87-90, 218, 322, 336, 338, 403), `gmaps` (453): they type collections across
+  methods where the translator left `List` / `Collection`; 342 of those declarations are now
+  `ListT[X]` / `CollectionT[X]`, which they do not know. Expect them to find less and to need
+  the new type names as "already typed, through an interface".
+- `unify` (402) and the `JT*` rename: the typed family has new methods (`asListT`, `asCollT`,
+  `valuesT`, `get_t`, `unwrap_` on the views) and `tlistView_.subList` now returns a typed list;
+  its runtime patch touches `rt_tlist.go` / `rt_tmap.go` next to them and will need regenerating.
+- `ranges` (170, 202, 226, 227, 404, 454): 350 loops are `eachOf_` cursors (146 before).
+- `iters`, `tviews` (479), `tgeneric` (488), `trips` (512): `x.asCollT()` / `x.asListT()` are
+  views of the same object; the round trips those steps removed (`asList()` then a cast per
+  element) are not written at these sites.
+- `castfold`, `casts`, `anyconv`, `objslots`, `icasts`, `gcasts`: fewer sites (`cast_[` -137,
+  `icast_` -54), same text.
+- `native` / `slices` / `maps` (1, 60-63, 91, 92, 451), `immbuild` (104): unchanged subject
+  (L1 collections), +16 declarations; a `ListT[X]` place is not a candidate for a slice.
+- `strkeys` (123, 180): `Collection_add_s` etc. unchanged in count.
+- New for any tool that follows types by name: `ListT[`, `CollectionT[`, method groups named
+  `m_rListOf_X` / `m_rIterableOf_X` / `m_rCollectionOf_X` for narrowing overrides.
