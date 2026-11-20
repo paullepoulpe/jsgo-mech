@@ -783,11 +783,11 @@ func (this *ScopedAliases_Traversal) visit_impl(t *NodeTraversal, n Node, parent
 func (this *ScopedAliases_Traversal) fixTypeNode(typeNode Node) {
 	if typeNode.isStringLit() {
 		var name string = typeNode.getString()
-		var endIndex int32 = String_indexOf(name, 46)
+		var endIndex int32 = int32(strings.IndexByte(name, '.'))
 		if endIndex == -1 {
-			endIndex = String_length(name)
+			endIndex = int32(len(name))
 		}
-		var baseName string = String_substring(name, 0, endIndex)
+		var baseName string = name[:endIndex]
 		var aliasVar *Var = this.aliases_.get(baseName)
 		if aliasVar != nil {
 			this.aliasUsages.add(new_ScopedAliases_AliasedTypeNode(aliasVar, typeNode).up_ScopedAliases_AliasUsage())

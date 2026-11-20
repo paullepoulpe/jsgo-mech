@@ -37,10 +37,10 @@ func QualifiedName_of(string_ string) *QualifiedName {
 	var index int32
 	var builder *TListBuilder[string] = newTListBuilder_(jtc_string)
 	for do_2 := true; do_2; do_2 = (index >= 0) {
-		index = String_indexOf_int_int(string_, 46, lastIndex)
-		var term string = String_substring(string_, lastIndex, func() int32 {
+		index = indexByteFrom_(string_, '.', lastIndex)
+		var term string = cutBytes_(string_, lastIndex, func() int32 {
 			if index < 0 {
-				return String_length(string_)
+				return int32(len(string_))
 			}
 			return index
 		}())
