@@ -209,7 +209,7 @@ func (this *SimpleSetMultimap) removeAll_s(key string) SetOf[any] {
 	}
 	if this.entryOrder != nil {
 		k := strobj_(key)
-		it_1 := foreach_(any(values))
+		it_1 := foreach_(values)
 		for it_1.next() {
 			var value any = it_1.v
 			this.entryOrder.remove(new_SimpleSetMultimap_Entry(k, value))
