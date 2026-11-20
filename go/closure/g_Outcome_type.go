@@ -2,58 +2,57 @@
 
 package closure
 
-type Outcome_type struct {
-	Enum
-	selfI_ Outcome_type_I
+type Outcome_type uint8
+
+// Outcome_type_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Outcome_type_enum_ = [2]Enum{
+	{self_: Outcome_type_TRUE, name_: "TRUE", ordinal_: 0},
+	{self_: Outcome_type_FALSE, name_: "FALSE", ordinal_: 1},
 }
 
-// Outcome_type_I holds the methods the dispatchers of enum Outcome_type call on its
-// constant (selfI_, set with self_); every constant of the enum implements them (post-flip).
-type Outcome_type_I interface {
-	isNullish_impl() Tri
-	isTruthy_impl() bool
-	not_impl() *Outcome_type
-}
-
-func (this *Outcome_type) as_Outcome_type() *Outcome_type { return this }
-
-func to_Outcome_type(v any) *Outcome_type {
-	switch p := v.(type) {
-	case *Outcome_1_type:
-		return p.as_Outcome_type()
-	case *Outcome_2_type:
-		return p.as_Outcome_type()
-	case nil:
+func (this Outcome_type) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return v.(interface{ as_Outcome_type() *Outcome_type }).as_Outcome_type()
+	return &Outcome_type_enum_[this-1]
+}
+
+func (this Outcome_type) name() string { return this.enum_().name_ }
+
+func (this Outcome_type) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this Outcome_type) toString() string { return this.enum_().name_ }
+
+func (this Outcome_type) compareTo(o any) int32 { return this.enum_().compareTo(o) }
+
+func (this Outcome_type) self() any {
+	if this == 0 {
+		return nil
+	}
+	return this
+}
+
+func (this Outcome_type) as_Outcome_type() Outcome_type { return this }
+
+func to_Outcome_type(v any) Outcome_type {
+	if v == nil {
+		return 0
+	}
+	return v.(interface{ as_Outcome_type() Outcome_type }).as_Outcome_type()
 }
 
 func is_Outcome_type(v any) bool {
-	_, ok := v.(interface{ as_Outcome_type() *Outcome_type })
+	_, ok := v.(interface{ as_Outcome_type() Outcome_type })
 	return ok
 }
 
-func (this *Outcome_type) self() any {
-	if this == nil {
-		return nil
-	}
-	return this.self_
-}
-
-func (this *Outcome_type) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *Outcome_type) init_Outcome_type(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-}
-
-func Outcome_type_forBoolean(val bool) *Outcome_type {
-	return func() *Outcome_type {
+func Outcome_type_forBoolean(val bool) Outcome_type {
+	return func() Outcome_type {
 		if val {
 			return Outcome_type_TRUE
 		}
@@ -61,34 +60,56 @@ func Outcome_type_forBoolean(val bool) *Outcome_type {
 	}()
 }
 
-func (this *Outcome_type) isTruthy() bool {
-	return this.selfI_.isTruthy_impl()
+func (this Outcome_type) isTruthy() bool {
+	switch this {
+	case Outcome_type_TRUE:
+		return true
+	case Outcome_type_FALSE:
+		return false
+	default:
+		panic(new_NullPointerException_0().self()) // a call on null
+	}
 }
 
-func (this *Outcome_type) isNullish() Tri {
-	return this.selfI_.isNullish_impl()
+func (this Outcome_type) isNullish() Tri {
+	switch this {
+	case Outcome_type_TRUE:
+		return Tri_FALSE
+	case Outcome_type_FALSE:
+		return Tri_UNKNOWN
+	default:
+		panic(new_NullPointerException_0().self()) // a call on null
+	}
 }
 
-func (this *Outcome_type) not() *Outcome_type {
-	return this.selfI_.not_impl()
+func (this Outcome_type) not() Outcome_type {
+	switch this {
+	case Outcome_type_TRUE:
+		return Outcome_type_FALSE
+	case Outcome_type_FALSE:
+		return Outcome_type_TRUE
+	default:
+		panic(new_NullPointerException_0().self()) // a call on null
+	}
 }
 
-func Outcome_type_values() []*Outcome_type {
-	return append([]*Outcome_type(nil), Outcome_type_values_...)
+func Outcome_type_values() []Outcome_type {
+	return append([]Outcome_type(nil), Outcome_type_values_...)
 }
 
-func Outcome_type_valueOf(name string) *Outcome_type {
+func Outcome_type_valueOf(name string) Outcome_type {
 	for _, v := range Outcome_type_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Outcome", name))
 }
 
-var Outcome_type_TRUE *Outcome_type
-var Outcome_type_FALSE *Outcome_type
-var Outcome_type_values_ []*Outcome_type
+const Outcome_type_TRUE Outcome_type = 1
+const Outcome_type_FALSE Outcome_type = 2
+
+var Outcome_type_values_ []Outcome_type
 
 var Outcome_type_clinit_done bool
 
@@ -97,195 +118,7 @@ func Outcome_type_clinit() {
 		return
 	}
 	Outcome_type_clinit_done = true
-	Outcome_type_TRUE = new_Outcome_1_type("TRUE", 0).up_Outcome_type()
-	Outcome_type_FALSE = new_Outcome_2_type("FALSE", 1).up_Outcome_type()
-	Outcome_type_values_ = []*Outcome_type{Outcome_type_TRUE, Outcome_type_FALSE}
+	Outcome_type_values_ = []Outcome_type{Outcome_type_TRUE, Outcome_type_FALSE}
 	registerEnum_("com.google.javascript.jscomp.type.Outcome", enumValues_(Outcome_type_values_))
 
-}
-
-type Outcome_1_type struct {
-	Outcome_type
-}
-
-func (this *Outcome_1_type) up_Outcome_type() *Outcome_type {
-	if this == nil {
-		return nil
-	}
-	return &this.Outcome_type
-}
-
-func (this *Outcome_1_type) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *Outcome_1_type) init_Outcome_1_type(name_ string, ordinal_ int32) {
-	this.Outcome_type.init_Outcome_type(name_, ordinal_)
-}
-
-func new_Outcome_1_type(name_ string, ordinal_ int32) *Outcome_1_type {
-	this := &Outcome_1_type{}
-	this.self_ = this
-	this.selfI_ = this
-	this.init_Outcome_1_type(name_, ordinal_)
-	return this
-}
-
-func (this *Outcome_1_type) isTruthy_impl() bool {
-	return true
-}
-
-func (this *Outcome_1_type) isNullish_impl() Tri {
-	return Tri_FALSE
-}
-
-func (this *Outcome_1_type) not_impl() *Outcome_type {
-	return Outcome_type_FALSE
-}
-
-func Outcome_1_type_values() []*Outcome_1_type {
-	return append([]*Outcome_1_type(nil), Outcome_1_type_values_...)
-}
-
-func Outcome_1_type_valueOf(name string) *Outcome_1_type {
-	for _, v := range Outcome_1_type_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var Outcome_1_type_values_ []*Outcome_1_type
-
-var Outcome_1_type_clinit_done bool
-
-func Outcome_1_type_clinit() {
-	if Outcome_1_type_clinit_done {
-		return
-	}
-	Outcome_1_type_clinit_done = true
-	Outcome_1_type_values_ = []*Outcome_1_type{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.type.Outcome>", enumValues_(Outcome_1_type_values_))
-
-}
-
-type Outcome_2_type struct {
-	Outcome_type
-}
-
-func (this *Outcome_2_type) up_Outcome_type() *Outcome_type {
-	if this == nil {
-		return nil
-	}
-	return &this.Outcome_type
-}
-
-func (this *Outcome_2_type) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *Outcome_2_type) init_Outcome_2_type(name_ string, ordinal_ int32) {
-	this.Outcome_type.init_Outcome_type(name_, ordinal_)
-}
-
-func new_Outcome_2_type(name_ string, ordinal_ int32) *Outcome_2_type {
-	this := &Outcome_2_type{}
-	this.self_ = this
-	this.selfI_ = this
-	this.init_Outcome_2_type(name_, ordinal_)
-	return this
-}
-
-func (this *Outcome_2_type) isTruthy_impl() bool {
-	return false
-}
-
-func (this *Outcome_2_type) isNullish_impl() Tri {
-	return Tri_UNKNOWN
-}
-
-func (this *Outcome_2_type) not_impl() *Outcome_type {
-	return Outcome_type_TRUE
-}
-
-func Outcome_2_type_values() []*Outcome_2_type {
-	return append([]*Outcome_2_type(nil), Outcome_2_type_values_...)
-}
-
-func Outcome_2_type_valueOf(name string) *Outcome_2_type {
-	for _, v := range Outcome_2_type_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var Outcome_2_type_values_ []*Outcome_2_type
-
-var Outcome_2_type_clinit_done bool
-
-func Outcome_2_type_clinit() {
-	if Outcome_2_type_clinit_done {
-		return
-	}
-	Outcome_2_type_clinit_done = true
-	Outcome_2_type_values_ = []*Outcome_2_type{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.type.Outcome>", enumValues_(Outcome_2_type_values_))
-
-}
-
-// isTruthy: an object that is exactly a Outcome_1_type calls its isTruthy_impl directly (post-flip); others dispatch.
-func (this *Outcome_1_type) isTruthy() bool {
-	if p, _ := this.self_.(*Outcome_1_type); p == this {
-		return this.isTruthy_impl()
-	}
-	return this.selfI_.isTruthy_impl()
-}
-
-// isNullish: an object that is exactly a Outcome_1_type calls its isNullish_impl directly (post-flip); others dispatch.
-func (this *Outcome_1_type) isNullish() Tri {
-	if p, _ := this.self_.(*Outcome_1_type); p == this {
-		return this.isNullish_impl()
-	}
-	return this.selfI_.isNullish_impl()
-}
-
-// not: an object that is exactly a Outcome_1_type calls its not_impl directly (post-flip); others dispatch.
-func (this *Outcome_1_type) not() *Outcome_type {
-	if p, _ := this.self_.(*Outcome_1_type); p == this {
-		return this.not_impl()
-	}
-	return this.selfI_.not_impl()
-}
-
-// isTruthy: an object that is exactly a Outcome_2_type calls its isTruthy_impl directly (post-flip); others dispatch.
-func (this *Outcome_2_type) isTruthy() bool {
-	if p, _ := this.self_.(*Outcome_2_type); p == this {
-		return this.isTruthy_impl()
-	}
-	return this.selfI_.isTruthy_impl()
-}
-
-// isNullish: an object that is exactly a Outcome_2_type calls its isNullish_impl directly (post-flip); others dispatch.
-func (this *Outcome_2_type) isNullish() Tri {
-	if p, _ := this.self_.(*Outcome_2_type); p == this {
-		return this.isNullish_impl()
-	}
-	return this.selfI_.isNullish_impl()
-}
-
-// not: an object that is exactly a Outcome_2_type calls its not_impl directly (post-flip); others dispatch.
-func (this *Outcome_2_type) not() *Outcome_type {
-	if p, _ := this.self_.(*Outcome_2_type); p == this {
-		return this.not_impl()
-	}
-	return this.selfI_.not_impl()
 }
