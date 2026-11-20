@@ -497,14 +497,14 @@ func (this *JsMessage_PlaceholderReference) isCanonicalFormat() bool {
 
 func JsMessage_PlaceholderReference_createForJsName(name string) *JsMessage_PlaceholderReference {
 	if !JsMessage_isLowerCamelCaseWithNumericSuffixes(name) {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("invalid JS placeholder name format: '%s'", []any{name})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("invalid JS placeholder name format: '%s'", name)))
 	}
 	return new_JsMessage_PlaceholderReference(name, false)
 }
 
 func JsMessage_PlaceholderReference_createForCanonicalName(name string) *JsMessage_PlaceholderReference {
 	if !JsMessage_isCanonicalPlaceholderNameFormat(name) {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("not a canonical placeholder name format: '%s'", []any{name})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("not a canonical placeholder name format: '%s'", name)))
 	}
 	return new_JsMessage_PlaceholderReference(name, true)
 }
@@ -716,7 +716,7 @@ func (this *JsMessage_Builder) setIsAnonymous(isAnonymous bool) *JsMessage_Build
 
 func (this *JsMessage_Builder) setId(id Optional[string]) *JsMessage_Builder {
 	if ok_, a1_, a2_ := this.id.isEmpty(), this.id.orElse("null"), id.orElse("null"); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("id already set to '%s': cannot change it to '%s'", []any{strobj_(a1_), strobj_(a2_)})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("id already set to '%s': cannot change it to '%s'", strobj_(a1_), strobj_(a2_))))
 	}
 	this.id = id
 	return this

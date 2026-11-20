@@ -418,7 +418,7 @@ func (this Node) getClosureUnawareShadow() Node {
 
 func (this Node) setIsInClosureUnawareSubtree(value bool) {
 	if (this.propListHead_isnull_() || (int32(this.propListHead_get_().propType) != Node_Prop_SOURCE_FILE.ordinal())) || (this.propListHead_get_().next_ != nil) {
-		panic(new_IllegalArgumentException_String(String_format("Cannot set IS_IN_CLOSURE_UNAWARE_SUBTREE property on a node which proplist is not a single SOURCE_FILE prop: %s %s", []any{this.box_(), strobj_(this.getPropListDebugString())})))
+		panic(new_IllegalArgumentException_String(String_format("Cannot set IS_IN_CLOSURE_UNAWARE_SUBTREE property on a node which proplist is not a single SOURCE_FILE prop: %s %s", this.box_(), strobj_(this.getPropListDebugString()))))
 	}
 	this.putBooleanProp(Node_Prop_IS_IN_CLOSURE_UNAWARE_SUBTREE, value)
 }
@@ -474,7 +474,7 @@ func (this Node) addChildToFront(child Node) {
 
 func (this Node) addChildToBack(child Node) {
 	if ok_, a1_, a2_, a3_ := (child.ns_().parent == 0), child, child.ns_().parent, this; !ok_ {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Cannot add already-owned child node.\nChild: %s\nExisting parent: %s\nNew parent: %s", []any{a1_.box_(), a2_.box_(), a3_.box_()})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Cannot add already-owned child node.\nChild: %s\nExisting parent: %s\nNew parent: %s", a1_.box_(), a2_.box_(), a3_.box_())))
 	}
 	if child.ns_().next_ != 0 {
 		panic(new_IllegalArgumentException_0())
@@ -714,7 +714,7 @@ func (this Node) validateProperties(violationMessageConsumer func(any)) {
 		for ; propListItem != nil; propListItem = propListItem.next_ {
 			var prop *Node_Prop = Node_propValues[propListItem.propType]
 			if prop.ordinal() != int32(propListItem.propType) {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("ordinal doesn't match: %s", []any{prop})))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("ordinal doesn't match: %s", prop)))
 			}
 			switch prop {
 			case Node_Prop_IS_PARENTHESIZED:

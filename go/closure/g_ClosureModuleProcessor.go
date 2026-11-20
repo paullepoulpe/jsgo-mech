@@ -173,9 +173,9 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) reportInvalidDestructur
 	if unresolvedGoogModule, ok := requested.self().(*ClosureModuleProcessor_UnresolvedGoogModule); ok {
 		var exports *TMap[string, *Binding] = unresolvedGoogModule.namespace_
 		if exports.Has(Export_NAMESPACE) {
-			additionalInfo = Strings_lenientFormat("\nThe goog.module \"%s\" cannot be destructured as it contains a default export, not named exports. See %s.", []any{strobj_(importRecord.moduleRequest()), "https://github.com/google/closure-library/wiki/goog.module%3A-an-ES6-module-like-alternative-to-goog.provide#destructuring-imports"})
+			additionalInfo = Strings_lenientFormat("\nThe goog.module \"%s\" cannot be destructured as it contains a default export, not named exports. See %s.", strobj_(importRecord.moduleRequest()), "https://github.com/google/closure-library/wiki/goog.module%3A-an-ES6-module-like-alternative-to-goog.provide#destructuring-imports")
 			if ClosureModuleProcessor_mayBeAccidentalDefaultExport(importRecord.importName(), exports) {
-				additionalInfo += sstr_(Strings_lenientFormat("\nEither use a non-destructuring require or rewrite the goog.module \"%s\" to support destructuring requires. For example, consider replacing\n  exports = {%s: <value>[, ...]};\nwith individual named export assignments like\n  exports.%s = <value>;\n", []any{strobj_(importRecord.moduleRequest()), strobj_(importRecord.importName()), strobj_(importRecord.importName())}))
+				additionalInfo += sstr_(Strings_lenientFormat("\nEither use a non-destructuring require or rewrite the goog.module \"%s\" to support destructuring requires. For example, consider replacing\n  exports = {%s: <value>[, ...]};\nwith individual named export assignments like\n  exports.%s = <value>;\n", strobj_(importRecord.moduleRequest()), strobj_(importRecord.importName()), strobj_(importRecord.importName())))
 			}
 		}
 	}

@@ -492,7 +492,7 @@ func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addString(key string, val
 
 func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addNode(key string, node Node) *ReplaceMessages_QuotedKeyObjectLitBuilder {
 	if this.keyToValueNodeMap.Has(key) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("repeated key: %s", []any{key})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("repeated key: %s", key)))
 	}
 	this.keyToValueNodeMap.Put(key, node)
 	return this

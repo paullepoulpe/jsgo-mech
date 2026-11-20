@@ -1105,7 +1105,7 @@ func (this *CompilerOptions) getAngularPass() bool {
 
 func (this *CompilerOptions) setPolymerVersion(polymerVersion any) {
 	if !(((polymerVersion == nil) || (unbox_[int32](polymerVersion) == 1)) || (unbox_[int32](polymerVersion) == 2)) {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Invalid Polymer version: (%s)", []any{polymerVersion})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Invalid Polymer version: (%s)", polymerVersion)))
 	}
 	this.polymerPass = (polymerVersion != nil)
 }
@@ -2707,7 +2707,7 @@ func CompilerOptions_BrowserFeaturesetYear_from(year int32) CompilerOptions_Brow
 
 func CompilerOptions_BrowserFeaturesetYear_fromResult(year int32) *Outcome_base[CompilerOptions_BrowserFeaturesetYear] {
 	if !CompilerOptions_BrowserFeaturesetYear_YEAR_MAP.Has(int32(year)) {
-		return Outcome_base_err[CompilerOptions_BrowserFeaturesetYear](new_IllegalStateException_String(Strings_lenientFormat("Illegal browser_featureset_year=%s. We support values 2012, or 2018..2026 only", []any{int32(year)})).up_Throwable())
+		return Outcome_base_err[CompilerOptions_BrowserFeaturesetYear](new_IllegalStateException_String(Strings_lenientFormat("Illegal browser_featureset_year=%s. We support values 2012, or 2018..2026 only", int32(year))).up_Throwable())
 	}
 	return Outcome_base_ok_Object[CompilerOptions_BrowserFeaturesetYear](CompilerOptions_BrowserFeaturesetYear_YEAR_MAP.Get(int32(year)))
 }

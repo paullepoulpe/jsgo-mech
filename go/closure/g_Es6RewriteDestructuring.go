@@ -204,7 +204,7 @@ func (this *Es6RewriteDestructuring) rewriteVarDestructuringDeclaration(destruct
 	})
 	var destructuringPattern Node = destructuringLhs.removeFirstChild()
 	if ok_, a1_ := destructuringPattern.isDestructuringPattern(), destructuringPattern.toStringTree(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected destructuring pattern but got %s", []any{a1_})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected destructuring pattern but got %s", a1_)))
 	}
 	var rhs Node = destructuringLhs.removeFirstChild()
 	var assign Node = this.astFactory_.createAssign(destructuringPattern, rhs)

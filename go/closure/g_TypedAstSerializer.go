@@ -148,7 +148,7 @@ func (this *TypedAstSerializer) getSourceFilePointer(n Node) int32 {
 	var sourceFile *SourceFile_jscomp = cast_[*SourceFile_jscomp](n.getStaticSourceFile())
 	if sourceFile == nil {
 		if ok_, a1_, a2_ := this.subtreeSourceFiles.peekLast().isExtern(), n.toStringTree(), n.getParent(); !ok_ {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected null SourceFile for node %s with parent %s", []any{a1_, a2_.box_()})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected null SourceFile for node %s with parent %s", a1_, a2_.box_())))
 		}
 		return 0
 	}
@@ -565,7 +565,7 @@ func (this *TypedAstSerializer_JSTypeSerializer) addTypeForNode(node Node, astNo
 	if type_ != nil {
 		nn_ := this.typesToPointers.get(type_)
 		if nn_ == nil {
-			panic(new_NullPointerException_String(Strings_lenientFormat("cannot find pointer for %s", []any{type_})))
+			panic(new_NullPointerException_String(Strings_lenientFormat("cannot find pointer for %s", type_)))
 		}
 		astNodeBuilder.setType(unbox_[int32](nn_))
 	}

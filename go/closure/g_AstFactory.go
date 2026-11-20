@@ -343,7 +343,7 @@ func (this *AstFactory) createArgumentsAliasDeclaration(aliasName string) Node {
 
 func (this *AstFactory) createName(name string, type_ AstFactory_Type) Node {
 	if name == "$jscomp" {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Use createQName(RuntimeJsLibManager.Field) to reference $jscomp.* methods. Found: %s", []any{name})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Use createQName(RuntimeJsLibManager.Field) to reference $jscomp.* methods. Found: %s", name)))
 	}
 	var result Node = IR_name(name)
 	this.setJSTypeOrColor(type_, result)
@@ -355,7 +355,7 @@ func (this *AstFactory) createName(name string, type_ AstFactory_Type) Node {
 
 func (this *AstFactory) createConstantName(name string, type_ AstFactory_Type) Node {
 	if name == "$jscomp" {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Use createQName(RuntimeJsLibManager.Field) to reference $jscomp.* methods. Found: %s", []any{name})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Use createQName(RuntimeJsLibManager.Field) to reference $jscomp.* methods. Found: %s", name)))
 	}
 	var result Node = IR_name(name)
 	this.setJSTypeOrColor(type_, result)
@@ -367,7 +367,7 @@ func (this *AstFactory) createConstantName(name string, type_ AstFactory_Type) N
 
 func (this *AstFactory) createNameStaticScope(scope StaticScope, name string) Node {
 	if name == "$jscomp" {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Use createQName(RuntimeJsLibManager.Field) to reference $jscomp.* methods. Found: %s", []any{name})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Use createQName(RuntimeJsLibManager.Field) to reference $jscomp.* methods. Found: %s", name)))
 	}
 	var result Node = IR_name(name)
 	if this.lifeCycleStage.isNormalized() || !eqR_(this.typeMode, AstFactory_TypeMode_NONE) {
@@ -375,7 +375,7 @@ func (this *AstFactory) createNameStaticScope(scope StaticScope, name string) No
 		var var_ StaticSlot = scope.getSlot_String(name)
 		if var_ == nil {
 			if !eqR_(this.typeMode, AstFactory_TypeMode_NONE) {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Missing var %s in scope %s", []any{name, scope})))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Missing var %s in scope %s", name, scope)))
 			}
 		} else {
 			var declaration StaticRef = Preconditions_checkNotNull_Object_String_Object_T(var_.getDeclaration(), "Cannot find type for var with missing declaration %s", var_)
@@ -469,7 +469,7 @@ func (this *AstFactory) createQName(scope StaticScope, field RuntimeJsLibManager
 	var parts *TList[string] = splitToListT_(tc_string, AstFactory_DOT_SPLITTER, strobj_(qname))
 	var baseName string = Optional_ofNullable[string](str_(Iterables_getFirst(Iterable(parts.asList()), nil))).orElseThrow()
 	if !strings.HasPrefix(baseName, "$jscomp") {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected Field name %s", []any{baseName})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected Field name %s", baseName)))
 	}
 	var baseNameNode Node = func() Node {
 		if baseName == "$jscomp" {
@@ -492,7 +492,7 @@ func (this *AstFactory) createQNameWithUnknownTypeJsLibField(field RuntimeJsLibM
 	var parts *TList[string] = splitToListT_(tc_string, AstFactory_DOT_SPLITTER, strobj_(field.assertInjected().qualifiedName()))
 	var baseName string = Optional_ofNullable[string](str_(Iterables_getFirst(Iterable(parts.asList()), nil))).orElseThrow()
 	if !strings.HasPrefix(baseName, "$jscomp") {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected Field name %s", []any{baseName})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected Field name %s", baseName)))
 	}
 	var baseNameNode Node = func() Node {
 		if baseName == "$jscomp" {

@@ -84,7 +84,7 @@ func (this *TypedScope) typed_impl() *TypedScope {
 
 func (this *TypedScope) validateCompletelyBuilt() {
 	if ok_, a1_, a2_ := this.reservedNames.IsEmpty(), this, this.reservedNames.asSet(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected %s to have no reserved names, found: %s. This probably indicates a bug in TypedScopeCreator where it is failing to declare a variable.", []any{a1_, a2_})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected %s to have no reserved names, found: %s. This probably indicates a bug in TypedScopeCreator where it is failing to declare a variable.", a1_, a2_)))
 	}
 	this.reservedNames = tsetEmptyImm_(tc_string)
 }
