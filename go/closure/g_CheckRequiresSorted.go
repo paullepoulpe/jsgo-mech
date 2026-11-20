@@ -68,7 +68,7 @@ func (this *CheckRequiresSorted) visit(t *NodeTraversal, n Node, parent Node) {
 	if (callNode != 0) && CheckRequiresSorted_isValidImportCall(callNode) {
 		var stmt *CheckRequiresSorted_ImportStatement = CheckRequiresSorted_parseImport(callNode)
 		this.originalImports.add(stmt)
-		this.importsByNamespace.put(strobj_(stmt.namespace()), obj_(stmt))
+		this.importsByNamespace.put_s(stmt.namespace(), obj_(stmt))
 		if this.firstNode == 0 {
 			this.lastNode = n
 			this.firstNode = n
@@ -127,7 +127,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 	it_1 := foreach_(importsByNamespace.keySet())
 	for it_1.next() {
 		var namespace string = str_(it_1.v)
-		var allImports CollectionOf[*CheckRequiresSorted_ImportStatement] = Collection(importsByNamespace.get(strobj_(namespace)))
+		var allImports CollectionOf[*CheckRequiresSorted_ImportStatement] = Collection(importsByNamespace.get_s(namespace))
 		var strongestPrimitive CheckRequiresSorted_ImportPrimitive = CheckRequiresSorted_ImportPrimitive_WEAKEST
 		it_3 := foreach_(allImports)
 		for it_3.next() {

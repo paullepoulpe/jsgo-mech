@@ -318,14 +318,14 @@ func (this *DepsGenerator) writeDepsContent(depsFiles MapOf[string, DependencyIn
 		it_1 := foreach_(depsFiles.values())
 		for it_1.next() {
 			var info DependencyInfo_ = icast_DependencyInfo_(it_1.v)
-			infosIndex.put(strobj_(info.getName()), info)
+			infosIndex.put_s(info.getName(), info)
 		}
 		it_3 := foreach_(infosIndex.keySet())
 		for it_3.next() {
 			var depsPath string = str_(it_3.v)
 			var path string = this.formatPathToDepsFile(depsPath)
 			out.append(("\n// Included from: " + sstr_(path))).append(System_lineSeparator())
-			DepsGenerator_writeDepInfos(out, Collection(infosIndex.get(strobj_(depsPath))))
+			DepsGenerator_writeDepInfos(out, Collection(infosIndex.get_s(depsPath)))
 		}
 	}
 }
