@@ -134,22 +134,22 @@ func ReportDecoder_mergeProfiles(profiles []*ReportProfile) *ReportProfile {
 	for _, profile := range profiles {
 		for fileProfile := range elemsAs_[*FileProfile](profile.getFileProfileList()) {
 			for pointStats := range elemsAs_[*InstrumentationPointStats](fileProfile.getInstrumentationPointsStatsList()) {
-				Map_compute(frequencies.asMap(), obj_(pointStats.getPoint()), &BiFunction_tfn_InstrumentationPoint_any_any{func(p *InstrumentationPoint, existing any) any {
+				frequencies.computeT_(pointStats.getPoint(), func(p *InstrumentationPoint, existing any) any {
 					return int64((func() int64 {
 						if existing == nil {
 							return 0
 						}
 						return unbox_[int64](existing)
 					}() + pointStats.getTimesExecuted()))
-				}})
-				Map_compute(presences.asMap(), obj_(pointStats.getPoint()), &BiFunction_tfn_InstrumentationPoint_InstrumentationPointStats_Presence_InstrumentationPointStats_Presence{func(p *InstrumentationPoint, existing InstrumentationPointStats_Presence) InstrumentationPointStats_Presence {
+				})
+				presences.computeT_(pointStats.getPoint(), func(p *InstrumentationPoint, existing InstrumentationPointStats_Presence) InstrumentationPointStats_Presence {
 					return func() InstrumentationPointStats_Presence {
 						if ((pointStats.getPointPresence() == InstrumentationPointStats_Presence_PRESENT) || (existing == InstrumentationPointStats_Presence_PRESENCE_UNKNOWN)) || (existing == 0) {
 							return pointStats.getPointPresence()
 						}
 						return existing
 					}()
-				}})
+				})
 			}
 		}
 	}
@@ -164,11 +164,11 @@ func ReportDecoder_mergeProfiles(profiles []*ReportProfile) *ReportProfile {
 
 func ReportDecoder_createReportProfile(instrumentationPoints *TList[*InstrumentationPointStats]) *ReportProfile {
 	var sortedPoints *TList[*InstrumentationPointStats] = tlistCopy_(tc_p_InstrumentationPointStats, instrumentationPoints)
-	List_sort(sortedPoints.asList(), Comparator_thenComparingInt(Comparator_comparing(&Function_tfn_InstrumentationPointStats_string{func(pointStats *InstrumentationPointStats) string {
+	sortTListF_(sortedPoints, thenComparingT_(comparingT_(tc_string, func(pointStats *InstrumentationPointStats) string {
 		return pointStats.getPoint().getFileName()
-	}}), &ToIntFunction_tfn_InstrumentationPointStats{func(pointStats *InstrumentationPointStats) int32 {
+	}), comparingIntT_(func(pointStats *InstrumentationPointStats) int32 {
 		return pointStats.getPoint().getLineNumber()
-	}}))
+	})))
 	var pointsByFileName *TMap[string, List] = newTMap_(tc_string, tc_List)
 	for pointStats := range sortedPoints.All() {
 		pointsByFileName.ComputeIfAbsent(pointStats.getPoint().getFileName(), func(k string) List {
@@ -181,7 +181,7 @@ func ReportDecoder_createReportProfile(instrumentationPoints *TList[*Instrumenta
 		var entry *TEntry[string, List] = it_3.entry()
 		fileProfiles.add(FileProfile_newBuilder().setFileName(entry.getKey()).addAllInstrumentationPointsStats(Iterable(entry.getValue())).buildT_())
 	}
-	List_sort(fileProfiles.asList(), Comparator_comparing(&Function_tfn_FileProfile_string{(*FileProfile).getFileName}))
+	sortTListF_(fileProfiles, comparingT_(tc_string, (*FileProfile).getFileName))
 	return ReportProfile_newBuilder().addAllFileProfile(Iterable(fileProfiles.asList())).buildT_()
 }
 
