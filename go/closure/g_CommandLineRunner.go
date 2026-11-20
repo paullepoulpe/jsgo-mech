@@ -1659,7 +1659,7 @@ func CommandLineRunner_Flags_addMultiFlagValue(values *[]string, value Optional[
 		values = &[]string{}
 	}
 	*values = append(*values, normalizedValue.orElse(nullstr_))
-	entries.add(cast_[*AbstractCommandLineRunner_FlagEntry[any]](new_AbstractCommandLineRunner_FlagEntry(flag, normalizedValue.orElse(nullstr_))))
+	entries.add(new_AbstractCommandLineRunner_FlagEntry(flag, normalizedValue.orElse(nullstr_)))
 	return values
 }
 
