@@ -1093,9 +1093,7 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}}).accept)
 	CmdLineParser_Option_enumValue[SourceMap_Format](this.parser.option("--source_map_format").hidden_1(true).usage("The source map format to produce. Options are V3 and DEFAULT, which are equivalent."), SourceMap_Format_values(), &Supplier_fn{func() any {
 		return this.sourceMapFormat.self()
-	}}, &Consumer_fn{func(v_ any) {
-		var v SourceMap_Format = to_SourceMap_Format(v_)
-		_ = v
+	}}, &Consumer_cSourceMap_Format_fn{func(v SourceMap_Format) {
 		this.sourceMapFormat = v
 	}})
 	this.parser.option("--source_map_location_mapping").usage("Source map location mapping separated by a '|' (i.e. filesystem-path|webserver-path)").stringList(&Supplier_tfn_List{func() List {

@@ -62,9 +62,7 @@ func (this *PassFactory) validatePreconditions(options *CompilerOptions) {
 }
 
 func PassFactory_createEmptyPass(name string) *PassFactory {
-	return PassFactory_builder().setName(name).setInternalFactory(&Function_tfn_any_CompilerPass{func(c_ any) CompilerPass {
-		var c *AbstractCompiler = to_AbstractCompiler(c_)
-		_ = c
+	return PassFactory_builder().setName(name).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(c *AbstractCompiler) CompilerPass {
 		return lambda_PassFactory_createEmptyPass_1_
 	}}).build()
 }

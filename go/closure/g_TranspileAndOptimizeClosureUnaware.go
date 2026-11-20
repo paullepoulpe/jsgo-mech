@@ -73,9 +73,7 @@ func (this *TranspileAndOptimizeClosureUnaware) createInjectRuntimeLibrariesPass
 		}})
 		callSites.add(new_InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite(shadowAst.callNode(), closureUnawareFunction))
 	}
-	return PassFactory_builder().setName("injectClosureUnawareRuntimeLibs").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	return PassFactory_builder().setName("injectClosureUnawareRuntimeLibs").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return CompilerPass(new_InjectClosureUnawareRuntimeLibraries(this.original_, compiler, callSites.build()))
 	}}).build()
 }

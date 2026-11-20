@@ -156,11 +156,11 @@ func (this *InvocationTemplateTypeMatcher) recordTemplateMatch(template *Templat
 }
 
 // lambda_InvocationTemplateTypeMatcher_recordTemplateMatch_1_ is a lambda of InvocationTemplateTypeMatcher_recordTemplateMatch that captures nothing (post-flip step lambdas).
-var lambda_InvocationTemplateTypeMatcher_recordTemplateMatch_1_ = &BiFunction_fn{func(p0 any, p1 any) any { return to_JSType(p0).getLeastSupertype(to_JSType(p1)).self() }}
+var lambda_InvocationTemplateTypeMatcher_recordTemplateMatch_1_ = &BiFunction_cJSType_JSType_fn{func(p0 *JSType, p1 *JSType) any { return p0.getLeastSupertype(p1).self() }}
 
 func (this *InvocationTemplateTypeMatcher) copyMatchedTypes() *TMap[*TemplateType, *JSType] {
 	var builder *ImmutableMap_Builder[*TemplateType, *JSType] = immutableMapBuilder_(tc_p_TemplateType, tc_p_JSType)
-	this.matchedTypes.forEach(&BiConsumer_tfn_TemplateType_any{func(p0 *TemplateType, p1 any) { builder.put(p0, to_JSType(p1)) }})
+	this.matchedTypes.forEach(&BiConsumer_tfn_TemplateType_any_cx_JSType{func(p0 *TemplateType, p1 *JSType) { builder.put(p0, p1) }})
 	return tmapImm_(tch_p_TemplateType, tc_p_JSType, builder.buildOrThrowErased())
 }
 
