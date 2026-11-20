@@ -155,7 +155,7 @@ func PolymerPassStaticUtils_extractMethodName(signature string) Optional[string]
 	var openParenIndex int32 = int32(strings.IndexByte(signature, '('))
 	return func() Optional[string] {
 		if openParenIndex > 0 {
-			return Optional_of[string](String_trim(signature[:openParenIndex]))
+			return Optional_of[string](strings.Trim(signature[:openParenIndex], javaSpace_))
 		}
 		return Optional_empty[string]()
 	}()
