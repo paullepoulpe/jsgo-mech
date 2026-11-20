@@ -129,15 +129,16 @@ func (this *ObjectType) hasReferenceName() bool {
 func (this *ObjectType) getNormalizedReferenceName() Optional[string] {
 	var name Optional[string] = this.getReferenceName()
 	if name.isPresent() {
-		var start int32 = String_indexOf(name.get(), 40)
+		var nameU16 utf16_
+		var start int32 = nameU16.of(name.get()).indexOf(40)
 		if start != -1 {
-			var end int32 = String_lastIndexOf(name.get(), 41)
-			var prefix string = String_substring(name.get(), 0, start)
+			var end int32 = nameU16.of(name.get()).lastIndexOf(41)
+			var prefix string = nameU16.of(name.get()).substring(0, start)
 			return func() Optional[string] {
-				if (end + (1 % String_length(name.get()))) == 0 {
+				if (end + (1 % nameU16.of(name.get()).length())) == 0 {
 					return Optional_of[string](prefix)
 				}
-				return Optional_of[string]((sstr_(prefix) + sstr_(String_substring_int(name.get(), (end+1)))))
+				return Optional_of[string]((sstr_(prefix) + sstr_(nameU16.of(name.get()).substring_int((end + 1)))))
 			}()
 		}
 	}
