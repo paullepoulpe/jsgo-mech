@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type AbstractCompiler struct {
 	self_ AbstractCompiler_I
 }
@@ -46,7 +48,7 @@ func AbstractCompiler_createFillFileName(chunkName string) string {
 }
 
 func AbstractCompiler_isFillFileName(fileName string) bool {
-	return String_endsWith(fileName, AbstractCompiler_FILL_FILE_SUFFIX)
+	return strings.HasSuffix(fileName, AbstractCompiler_FILL_FILE_SUFFIX)
 }
 
 func (this *AbstractCompiler) initRuntimeLibraryTypedAsts_impl(colorPoolBuilder Optional_baseOf[*ColorPool_Builder]) {

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type BrowserWithTransformedPrefixesModuleResolver struct {
 	ModuleResolver
 	prefixReplacements *JTSet[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement]
@@ -57,7 +59,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) replacePathPrefixes(mo
 	it_1 := this.prefixReplacements.each()
 	for it_1.next() {
 		var prefixReplacement *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement = it_1.v
-		if String_startsWith(moduleAddress.get(), prefixReplacement.prefix()) {
+		if strings.HasPrefix(moduleAddress.get(), prefixReplacement.prefix()) {
 			transformedAddress = (sstr_(prefixReplacement.replacement()) + sstr_(String_substring_int(moduleAddress.get(), String_length(prefixReplacement.prefix()))))
 			break
 		}
@@ -92,7 +94,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) resolveModuleAsPath_im
 	it_1 := this.prefixReplacements.each()
 	for it_1.next() {
 		var prefixReplacement *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement = it_1.v
-		if String_startsWith(moduleAddress, prefixReplacement.prefix()) {
+		if strings.HasPrefix(moduleAddress, prefixReplacement.prefix()) {
 			transformedAddress = (sstr_(prefixReplacement.replacement()) + sstr_(String_substring_int(moduleAddress, String_length(prefixReplacement.prefix()))))
 			break
 		}

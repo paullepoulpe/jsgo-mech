@@ -133,7 +133,7 @@ func (this *GenerateExports) addExportForEs6Method(memberFunction Node, ownerNam
 	if !memberFunction.isMemberFunctionDef() {
 		Preconditions_checkArgument_boolean_Object_H(false, memberFunction)
 	}
-	if String_isEmpty(ownerName) {
+	if ownerName == "" {
 		panic(new_IllegalArgumentException_String(objstr_(ownerName)).self())
 	}
 	var fullExport string = (sstr_(ownerName) + "." + sstr_(memberFunction.getString()))
@@ -157,7 +157,7 @@ func (this *GenerateExports) addExportMethod(exports *JTMap[string, Node], expor
 	var useExportSymbol bool = true
 	if isEs5StylePrototypeAssignment {
 		useExportSymbol = false
-	} else if !String_isEmpty(methodOwnerName) && exports.containsKey(methodOwnerName) {
+	} else if methodOwnerName != "" && exports.containsKey(methodOwnerName) {
 		useExportSymbol = false
 	}
 	if useExportSymbol {

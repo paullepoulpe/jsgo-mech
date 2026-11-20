@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type FunctionTypeBuilder struct {
 	fnName                       string
 	compiler_                    *AbstractCompiler
@@ -90,7 +92,7 @@ func (this *FunctionTypeBuilder) createImplementedTypeValidator() *FunctionTypeB
 
 func (this *FunctionTypeBuilder) formatFnName() string {
 	return func() string {
-		if String_isEmpty(this.fnName) {
+		if this.fnName == "" {
 			return "<anonymous>"
 		}
 		return this.fnName
@@ -499,7 +501,7 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 		var expr *JSTypeExpression = entry.getValue()
 		var typeBound *JSType = this.typeRegistry.evaluateTypeExpression(entry.getValue(), this.templateScope)
 		if expr.isExplicitUnknownTemplateBound() {
-			this.reportError(FunctionTypeBuilder_TEMPLATE_TYPE_ILLEGAL_BOUND, []string{String_valueOf_Object(typeBound.self()), entry.getKey()})
+			this.reportError(FunctionTypeBuilder_TEMPLATE_TYPE_ILLEGAL_BOUND, []string{objstr_(typeBound.self()), entry.getKey()})
 		}
 		var template *TemplateType = this.typeRegistry.getType(StaticScope(this.templateScope), entry.getKey()).toMaybeTemplateType()
 		if template != nil {
@@ -674,7 +676,7 @@ func (this *FunctionTypeBuilder) getOrCreateConstructor() *FunctionType {
 		}
 	}
 	this.maybeSetBaseType(fnType)
-	if !String_isEmpty(this.syntacticFnName) && !String_startsWith(this.syntacticFnName, "this.") {
+	if this.syntacticFnName != "" && !strings.HasPrefix(this.syntacticFnName, "this.") {
 		this.typeRegistry.declareTypeForExactScope(TypedScope_as_StaticScope(this.declarationScope), this.syntacticFnName, fnType.getInstanceType().up_JSType())
 	}
 	return fnType
@@ -695,7 +697,7 @@ func (this *FunctionTypeBuilder) getOrCreateInterface() *FunctionType {
 		if this.makesStructs_ {
 			fnType.setStruct()
 		}
-		if !String_isEmpty(this.fnName) {
+		if this.fnName != "" {
 			this.typeRegistry.declareTypeForExactScope(TypedScope_as_StaticScope(this.declarationScope), this.syntacticFnName, fnType.getInstanceType().up_JSType())
 		}
 		this.maybeSetBaseType(fnType)

@@ -65,8 +65,8 @@ func Xid_clinit() {
 		return
 	}
 	Xid_clinit_done = true
-	Xid_START_RADIX = String_length(Xid_START_CHARS)
-	Xid_RADIX = String_length(Xid_CHARS)
+	Xid_START_RADIX = int32(len(Xid_START_CHARS))
+	Xid_RADIX = int32(len(Xid_CHARS))
 
 }
 
