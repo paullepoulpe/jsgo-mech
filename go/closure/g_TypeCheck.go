@@ -104,13 +104,13 @@ func (this *TypeCheck) processForTesting(externsRoot Node, jsRoot Node) *TypedSc
 		panic(new_IllegalStateException_0().self())
 	}
 	if externsRoot != 0 && !externsRoot.isRoot() {
-		panic(new_IllegalArgumentException_String(objstr_(externsRoot.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(externsRoot)).self())
 	}
 	if !jsRoot.isRoot() {
-		panic(new_IllegalArgumentException_String(objstr_(jsRoot.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(jsRoot)).self())
 	}
 	if ok_, a1_ := (jsRoot.hasParent() && jsRoot.getParent().isRoot()), jsRoot.getParent(); !ok_ {
-		panic(new_IllegalStateException_String(objstr_(a1_.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(a1_)).self())
 	}
 	if externsRoot != 0 && externsRoot.getNext() != jsRoot {
 		panic(new_IllegalStateException_String(objstr_("externs root must be the preceding sibling of the js root")).self())
@@ -560,7 +560,7 @@ func (this *TypeCheck) checkDestructuringAssignment(t *NodeTraversal, nodeToWarn
 
 func (this *TypeCheck) checkCanAssignToNameGetpropOrGetelem(t *NodeTraversal, nodeToWarn Node, lvalue Node, rightType *JSType, info *JSDocInfo, msg string) {
 	if !(((lvalue.isName() || lvalue.isGetProp()) || lvalue.isGetElem()) || lvalue.isCast()) {
-		panic(new_IllegalArgumentException_String(objstr_(lvalue.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(lvalue)).self())
 	}
 	this.checkNotReadonlyPropertyAssignment(lvalue)
 	if lvalue.isGetProp() {
@@ -1030,7 +1030,7 @@ func (this *TypeCheck) visitOptChainGetProp(optChainGetProp Node) {
 
 func (this *TypeCheck) checkPropertyAccessForGetProp(getProp Node) {
 	if !getProp.isGetProp() && !getProp.isOptChainGetProp() {
-		panic(new_IllegalArgumentException_String(objstr_(getProp.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(getProp)).self())
 	}
 	var objNode Node = getProp.getFirstChild()
 	var objType *JSType = this.getJSType(objNode)
@@ -1041,10 +1041,10 @@ func (this *TypeCheck) checkPropertyAccessForGetProp(getProp Node) {
 
 func (this *TypeCheck) checkPropertyAccessForDestructuring(pattern Node, objectType *JSType, stringKey Node, inferredPropType *JSType) {
 	if !pattern.isDestructuringPattern() {
-		panic(new_IllegalArgumentException_String(objstr_(pattern.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(pattern)).self())
 	}
 	if !stringKey.isStringKey() {
-		panic(new_IllegalArgumentException_String(objstr_(stringKey.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(stringKey)).self())
 	}
 	var objNode Node = 0
 	var patternParent Node = pattern.getParent()
@@ -1225,7 +1225,7 @@ func (this *TypeCheck) visitVar(t *NodeTraversal, n Node) {
 				}
 			} else {
 				if !child.isDestructuringLhs() {
-					panic(new_IllegalStateException_String(objstr_(child.box_())).self())
+					panic(new_IllegalStateException_String(tostr_(child)).self())
 				}
 				var name Node = child.getFirstChild()
 				var value Node = child.getSecondChild()

@@ -499,7 +499,7 @@ func (this Node) addChildrenToFront(children Node) {
 		return
 	}
 	if children.cs_().previous == 0 {
-		panic(new_NullPointerException_String(objstr_(children.box_())).self())
+		panic(new_NullPointerException_String(tostr_(children)).self())
 	}
 	{
 		var child Node = children
@@ -564,7 +564,7 @@ func (this Node) addChildrenAfter(children Node, node Node) {
 		panic(new_IllegalArgumentException_0().self())
 	}
 	if children.cs_().previous == 0 {
-		panic(new_NullPointerException_String(objstr_(children.box_())).self())
+		panic(new_NullPointerException_String(tostr_(children)).self())
 	}
 	if node == 0 {
 		this.addChildrenToFront(children)
@@ -2194,7 +2194,7 @@ func (this Node) getJSTypeRequired() *JSType {
 
 func (this Node) setJSType(x *JSType) Node {
 	if this.cs_().jstypeOrColor != 0 && this.cs_().jstypeOrColor&1 == 0 {
-		panic(new_IllegalStateException_String(objstr_(this.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(this)).self())
 	}
 	this.jstypeOrColor_set_(x.self())
 	return this
@@ -2221,7 +2221,7 @@ func (this Node) getColor() *Color {
 
 func (this Node) setColor(x *Color) Node {
 	if this.cs_().jstypeOrColor != 0 && !is_[*Color](this.jstypeOrColor_get_()) {
-		panic(new_IllegalStateException_String(objstr_(this.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(this)).self())
 	}
 	this.jstypeOrColor_set_(obj_(x))
 	return this
@@ -2501,7 +2501,7 @@ func (this Node) isQuotedStringKey() bool {
 
 func (this Node) setQuotedStringKey() {
 	if !this.payload_iss_() {
-		panic(new_IllegalStateException_String(objstr_(this.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(this)).self())
 	}
 	this.putBooleanProp(Node_Prop_QUOTED, true)
 }
@@ -2512,7 +2512,7 @@ func (this Node) isPrivateIdentifier() bool {
 
 func (this Node) setPrivateIdentifier() {
 	if !this.payload_iss_() {
-		panic(new_IllegalStateException_String(objstr_(this.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(this)).self())
 	}
 	if !strings.HasPrefix(this.getString(), "#") {
 		panic(new_IllegalStateException_0().self())

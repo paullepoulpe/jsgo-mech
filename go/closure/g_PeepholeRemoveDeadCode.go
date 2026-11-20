@@ -77,7 +77,7 @@ func (this *PeepholeRemoveDeadCode) optimizeSubtree_impl(subtree Node) Node {
 
 func (this *PeepholeRemoveDeadCode) tryRemoveDefaultValue(defaultValue Node) Node {
 	if !defaultValue.isDefaultValue() {
-		panic(new_IllegalArgumentException_String(objstr_(defaultValue.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(defaultValue)).self())
 	}
 	var lValue Node = defaultValue.getFirstChild()
 	var val Node = defaultValue.getSecondChild()
@@ -158,7 +158,7 @@ func PeepholeRemoveDeadCode_getOnlyInterestingChild(block Node) Node {
 
 func (this *PeepholeRemoveDeadCode) tryFoldTry(n Node) Node {
 	if !n.isTry() {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	var body Node = n.getFirstChild()
 	var catchBlock Node = body.getNext()
@@ -283,14 +283,14 @@ func (this *PeepholeRemoveDeadCode) trySimplifyUnusedResultInternal(tree Node, s
 		var falseNode Node = this.trySimplifyUnusedResult(tree.getLastChild())
 		if (trueNode == 0) && (falseNode != 0) {
 			if !tree.hasTwoChildren() {
-				panic(new_IllegalStateException_String(objstr_(tree.box_())).self())
+				panic(new_IllegalStateException_String(tostr_(tree)).self())
 			}
 			tree.setToken(Token_rhino_OR)
 			sideEffectRoots.add(tree)
 			return false
 		} else if (trueNode != 0) && (falseNode == 0) {
 			if !tree.hasTwoChildren() {
-				panic(new_IllegalStateException_String(objstr_(tree.box_())).self())
+				panic(new_IllegalStateException_String(tostr_(tree)).self())
 			}
 			tree.setToken(Token_rhino_AND)
 			sideEffectRoots.add(tree)
@@ -357,7 +357,7 @@ func PeepholeRemoveDeadCode_asDetachedExpression(expr Node) Node {
 		expr.detach()
 	}
 	if !IR_mayBeExpression(expr) {
-		panic(new_IllegalStateException_String(objstr_(expr.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(expr)).self())
 	}
 	return expr
 }
@@ -418,7 +418,7 @@ func (this *PeepholeRemoveDeadCode) tryRemoveSwitch(n Node) Node {
 
 func (this *PeepholeRemoveDeadCode) tryOptimizeSwitch(n Node) Node {
 	if !n.isSwitch() {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	var switchBody Node = n.getSecondChild()
 	var defaultCase Node = this.tryOptimizeDefaultCase(n)
@@ -499,7 +499,7 @@ func (this *PeepholeRemoveDeadCode) tryOptimizeSwitch(n Node) Node {
 
 func (this *PeepholeRemoveDeadCode) tryOptimizeDefaultCase(n Node) Node {
 	if !n.isSwitch() {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	var switchBody Node = n.getSecondChild()
 	var lastNonRemovable Node = 0
@@ -634,10 +634,10 @@ func PeepholeRemoveDeadCode_isExit(n Node) bool {
 
 func PeepholeRemoveDeadCode_isUnconditionalBlockExit(n Node) bool {
 	if !n.isBlock() {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	if n.getParent().isLabel() {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	var lastStm Node = n.getLastChild()
 	if lastStm == 0 {
@@ -671,7 +671,7 @@ func PeepholeRemoveDeadCode_isUnconditionalBlockExit(n Node) bool {
 
 func PeepholeRemoveDeadCode_isSwitchExit(n Node) bool {
 	if !n.isSwitch() {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	var hasDefaultCase bool = false
 	var switchBody Node = n.getSecondChild()
@@ -692,7 +692,7 @@ func PeepholeRemoveDeadCode_isSwitchExit(n Node) bool {
 
 func PeepholeRemoveDeadCode_isTryExit(n Node) bool {
 	if !n.isTry() {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	if n.hasXChildren(3) {
 		if PeepholeRemoveDeadCode_isUnconditionalBlockExit(n.getLastChild()) {
@@ -915,7 +915,7 @@ func (this *PeepholeRemoveDeadCode) getConditionalStatementCondition(n Node) Nod
 
 func (this *PeepholeRemoveDeadCode) tryFoldIf(n Node) Node {
 	if !n.isIf() {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	var parent Node = n.getParent()
 	if parent == 0 {
@@ -1020,7 +1020,7 @@ func (this *PeepholeRemoveDeadCode) tryFoldIf(n Node) Node {
 
 func (this *PeepholeRemoveDeadCode) tryFoldHook(n Node) Node {
 	if !n.isHook() {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	var parent Node = n.getParent()
 	if parent == 0 {
@@ -1147,7 +1147,7 @@ func (this *PeepholeRemoveDeadCode) tryFoldEmptyDo(n Node) Node {
 
 func (this *PeepholeRemoveDeadCode) tryOptimizeObjectPattern(pattern Node) Node {
 	if !pattern.isObjectPattern() {
-		panic(new_IllegalArgumentException_String(objstr_(pattern.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(pattern)).self())
 	}
 	if pattern.hasChildren() && pattern.getLastChild().isRest() {
 		return pattern
@@ -1171,7 +1171,7 @@ func (this *PeepholeRemoveDeadCode) tryOptimizeObjectPattern(pattern Node) Node 
 
 func (this *PeepholeRemoveDeadCode) tryOptimizeArrayPattern(pattern Node) Node {
 	if !pattern.isArrayPattern() {
-		panic(new_IllegalArgumentException_String(objstr_(pattern.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(pattern)).self())
 	}
 	{
 		var lastChild Node = pattern.getLastChild()

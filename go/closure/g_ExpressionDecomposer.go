@@ -80,7 +80,7 @@ func (this *ExpressionDecomposer) exposeExpression(expression Node) bool {
 		panic(new_NullPointerException_0().self())
 	}
 	if !NodeUtil_isStatement(expressionRoot) {
-		panic(new_IllegalStateException_String(objstr_(expressionRoot.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(expressionRoot)).self())
 	}
 	return this.exposeExpression_2(expressionRoot, expression)
 }
@@ -98,7 +98,7 @@ func (this *ExpressionDecomposer) exposeExpression_2(expressionRoot Node, subExp
 	var expressionParent Node = expressionToExpose.getParent()
 	for expressionParent != expressionRoot {
 		if ExpressionDecomposer_isConditionalOp(expressionParent) && !expressionToExpose.isFirstChildOf(expressionParent) {
-			panic(new_IllegalStateException_String(objstr_(expressionParent.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(expressionParent)).self())
 		}
 		if expressionParent.isAssign() {
 			if this.isSafeAssign(expressionParent, state.sideEffects) {
@@ -301,7 +301,7 @@ func (this *ExpressionDecomposer) isConstantNameNode(n Node) bool {
 
 func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint Node) Node {
 	if NodeUtil_isLogicalAssignmentOp(expr) {
-		panic(new_IllegalStateException_String(objstr_(expr.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(expr)).self())
 	}
 	var parent Node = expr.getParent()
 	var isLhsOfAssignOp bool = ((NodeUtil_isAssignmentOp(parent) && !parent.isAssign()) && expr.isFirstChildOf(parent))
@@ -326,7 +326,7 @@ func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint No
 	var tempNameValue Node
 	if isLhsOfAssignOp {
 		if !expr.isName() && !NodeUtil_isNormalGet(expr) {
-			panic(new_IllegalStateException_String(objstr_(expr.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(expr)).self())
 		}
 		var opNode Node = new_Node_Token(NodeUtil_getOpFromAssignmentOp(parent)).copyTypeFrom(parent).srcrefIfMissing(parent)
 		var rightOperand Node = parent.getLastChild()
@@ -370,11 +370,11 @@ func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint No
 
 func (this *ExpressionDecomposer) rewriteCallExpression(call Node, state *ExpressionDecomposer_DecompositionState) {
 	if !call.isCall() {
-		panic(new_IllegalArgumentException_String(objstr_(call.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(call)).self())
 	}
 	var first Node = call.getFirstChild()
 	if !NodeUtil_isNormalGet(first) {
-		panic(new_IllegalArgumentException_String(objstr_(first.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(first)).self())
 	}
 	var fnCallType *JSType = nil
 	if this.astFactory_.isAddingTypes() {
@@ -395,7 +395,7 @@ func (this *ExpressionDecomposer) rewriteCallExpression(call Node, state *Expres
 	}
 	var getExprNode Node = getVarNode.getFirstFirstChild()
 	if !NodeUtil_isNormalGet(getExprNode) {
-		panic(new_IllegalArgumentException_String(objstr_(getExprNode.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(getExprNode)).self())
 	}
 	var origThisValue Node = getExprNode.getFirstChild()
 	var receiverNode Node
@@ -450,7 +450,7 @@ func ExpressionDecomposer_findInjectionPoint(subExpression Node) Node {
 		parent = injectionPoint.getParent()
 	}
 	if !NodeUtil_isStatementBlock(parent) {
-		panic(new_IllegalStateException_String(objstr_(parent.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(parent)).self())
 	}
 	return injectionPoint
 }

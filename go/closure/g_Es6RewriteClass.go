@@ -262,7 +262,7 @@ func (this *Es6RewriteClass) visitNonMethodMember(member Node, metadata *Es6Rewr
 		return
 	}
 	if member.isComputedProp() {
-		panic(new_IllegalStateException_String(objstr_(member.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(member)).self())
 	}
 	var membersToDeclare MapOf[string, *Es6RewriteClass_ClassProperty] = metadata.classMembersToDeclare()
 	var builder *Es6RewriteClass_ClassProperty_Builder = Es6RewriteClass_ClassProperty_builder()

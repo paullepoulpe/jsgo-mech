@@ -157,7 +157,7 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 			var val Node = ref.getAssignedValue()
 			if val != 0 {
 				if !val.isObjectLit() {
-					panic(new_IllegalStateException_String(objstr_(val.box_())).self())
+					panic(new_IllegalStateException_String(tostr_(val)).self())
 				}
 				{
 					var child Node = val.getFirstChild()
@@ -179,7 +179,7 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 		} else {
 			var getprop Node = ref.getParent()
 			if !NodeUtil_isNormalOrOptChainGetProp(getprop) {
-				panic(new_IllegalStateException_String(objstr_(getprop.box_())).self())
+				panic(new_IllegalStateException_String(tostr_(getprop)).self())
 			}
 			var varname string = getprop.getString()
 			if varmap.containsKey(varname) {
@@ -195,7 +195,7 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 func (this *InlineObjectLiterals_InliningBehavior) fillInitialValues(init_ *Reference, initvals *JTMap[string, Node]) {
 	var object Node = init_.getAssignedValue()
 	if !object.isObjectLit() {
-		panic(new_IllegalStateException_String(objstr_(object.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(object)).self())
 	}
 	{
 		var key Node = object.getFirstChild()
@@ -210,7 +210,7 @@ func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v
 	var val Node = ref.getAssignedValue()
 	this.recordStaleVarReferencesInTree(val, v.getScope_rAbstractScope_rScope())
 	if !val.isObjectLit() {
-		panic(new_IllegalStateException_String(objstr_(val.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(val)).self())
 	}
 	var all *JTSet[string] = jtsetFrom_(jtc_string, Collection(varmap.asMap().keySet()))
 	{
@@ -278,7 +278,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 		vnode = v.getScope_rAbstractScope_rScope().getClosestHoistScope_rScope().getRootNode().getFirstChild()
 	}
 	if !NodeUtil_isStatement(vnode) {
-		panic(new_IllegalStateException_String(objstr_(vnode.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(vnode)).self())
 	}
 	if isBlockScoped && !varmap.isEmpty() {
 		var script Node = NodeUtil_getEnclosingScript(vnode)
@@ -325,7 +325,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 		} else {
 			var getprop Node = ref.getParent()
 			if !NodeUtil_isNormalOrOptChainGetProp(getprop) {
-				panic(new_IllegalStateException_String(objstr_(getprop.box_())).self())
+				panic(new_IllegalStateException_String(tostr_(getprop)).self())
 			}
 			var var_ string = getprop.getString()
 			if !varmap.containsKey(var_) {
