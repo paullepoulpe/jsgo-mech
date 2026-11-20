@@ -130,7 +130,6 @@ func (this *ChangeVerifier) getNameForNode(n Node) string {
 		default:
 			panic(new_IllegalStateException_String("unexpected Node type").self())
 		}
-		panic("unreachable")
 	}()
 }
 

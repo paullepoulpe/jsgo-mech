@@ -371,7 +371,6 @@ func (this *SourceMap_PrefixLocationMapping) equals(other any) bool {
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *SourceMap_PrefixLocationMapping) hashCode() int32 {

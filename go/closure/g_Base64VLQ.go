@@ -21,7 +21,6 @@ func Base64VLQ_toVLQSigned(value int32) int32 {
 	} else {
 		return ((value << 1) + 0)
 	}
-	panic("unreachable")
 }
 
 func Base64VLQ_fromVLQSigned(value int32) int32 {

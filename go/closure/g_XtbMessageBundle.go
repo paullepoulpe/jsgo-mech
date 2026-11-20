@@ -17,7 +17,6 @@ func (this *XtbMessageBundle) init_XtbMessageBundle(xtb []int8, projectId Option
 				if is_ParserConfigurationException(ex_) || is_IOException(ex_) || is_SAXException(ex_) {
 					var e *Exception = to_Exception(ex_)
 					panic(new_RuntimeException_Throwable(e.up_Throwable()).self())
-					return
 				}
 				panic(r_)
 			}
