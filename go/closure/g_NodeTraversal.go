@@ -856,9 +856,7 @@ func (this *NodeTraversal) initScopeRoots(n Node) {
 		}
 		n = n.getParent()
 	}
-	it_2 := eachRevOf_(&queuedScopeRoots)
-	for it_2.next() {
-		var queuedScopeRoot Node = it_2.v
+	for queuedScopeRoot := range sliceAllRev_(&queuedScopeRoots) {
 		this.pushScope(queuedScopeRoot)
 	}
 }

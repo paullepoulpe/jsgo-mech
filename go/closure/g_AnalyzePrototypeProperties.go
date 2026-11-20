@@ -186,9 +186,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) shouldTraverse(t *Node
 func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal, n Node, parent Node) {
 	switch n.getToken() {
 	case Token_rhino_SUPER:
-		it_2 := eachRevOf_(this.symbolStack)
-		for it_2.next() {
-			var context *AnalyzePrototypeProperties_NameContext = it_2.v
+		for context := range sliceAllRev_(this.symbolStack) {
 			context.name_.referencesSuperField = true
 			if NodeUtil_isMethodDeclaration(context.scope_.getRootNode()) {
 				break
@@ -262,9 +260,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 					}
 				}
 			} else if var_.getScope_rAbstractScope_rScope() != t.getScope() {
-				it_7 := eachRevOf_(this.symbolStack)
-				for it_7.next() {
-					var context *AnalyzePrototypeProperties_NameContext = it_7.v
+				for context := range sliceAllRev_(this.symbolStack) {
 					if context.scope_ == var_.getScope_rAbstractScope_rScope() {
 						break
 					}
@@ -282,9 +278,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 func (this *AnalyzePrototypeProperties_ProcessProperties) addSymbolUse(name string, chunk *JSChunk, type_ AnalyzePrototypeProperties_SymbolType) {
 	var info *AnalyzePrototypeProperties_NameInfo = this.outer_.getNameInfoForName(name, type_)
 	var def *AnalyzePrototypeProperties_NameInfo = nil
-	it_1 := eachRevOf_(this.symbolStack)
-	for it_1.next() {
-		var context *AnalyzePrototypeProperties_NameContext = it_1.v
+	for context := range sliceAllRev_(this.symbolStack) {
 		def = context.name_
 		if def != this.outer_.anonymousNode {
 			break

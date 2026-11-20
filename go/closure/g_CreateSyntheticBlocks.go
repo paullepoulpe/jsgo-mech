@@ -46,9 +46,7 @@ func new_CreateSyntheticBlocks(compiler *AbstractCompiler, startMarkerName strin
 
 func (this *CreateSyntheticBlocks) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(this))
-	it_1 := eachRevOf_(this.markerStack)
-	for it_1.next() {
-		var node Node = it_1.v
+	for node := range sliceAllRev_(this.markerStack) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, CreateSyntheticBlocks_UNMATCHED_START_MARKER, []string{this.startMarkerName}))
 	}
 	for marker := range sliceAll_(this.validMarkers) {
