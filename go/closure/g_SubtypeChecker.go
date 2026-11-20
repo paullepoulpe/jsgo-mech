@@ -61,6 +61,15 @@ func (this *SubtypeChecker) checkHasNotRun() {
 	Preconditions_checkState(!this.hasRun)
 }
 
+// checkAndRelease_ is check(), after which the checker goes back to its registry's free list
+// for the next subtype check (post-flip manual step: JSType.isSubtypeOf made a new checker
+// for every check). Nothing keeps a checker after its check.
+func (this *SubtypeChecker) checkAndRelease_() bool {
+	r := this.check()
+	this.registry.subtypeCheckerFree_ = append(this.registry.subtypeCheckerFree_, this)
+	return r
+}
+
 func (this *SubtypeChecker) check() bool {
 	this.checkHasNotRun()
 	this.hasRun = true
