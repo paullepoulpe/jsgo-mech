@@ -69,7 +69,7 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[*TMap[s
 		var id string = cutBytes_(lineItem, 0, int32(strings.IndexByte(lineItem, ':')))
 		var encodedDetails string = lineItem[strings.IndexByte(lineItem, ':')+1:]
 		var encodedDetailsAsCharIt *ReportDecoder_StringCharIterator = new_ReportDecoder_StringCharIterator(encodedDetails)
-		var temp *InstrumentationPoint = InstrumentationPoint_newBuilder().setFileName(localFileNames.get(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt)))).setFunctionName(functionNames.get(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt)))).setType(sliceAt_(types, Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt)))).setLineNumber(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt))).setColumnNumber(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt))).buildT_()
+		var temp *InstrumentationPoint = InstrumentationPoint_newBuilder().setFileName(localFileNames.get(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt)))).setFunctionName(functionNames.get(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt)))).setType(sliceAt_(types, Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt)))).setLineNumber(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt))).setColumnNumber(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt))).buildLastT_()
 		mapping.PutIfAbsent(id, temp)
 	}
 	return Outcome_base_ok_Object[*TMap[string, *InstrumentationPoint]](mapping)
@@ -103,7 +103,7 @@ func ReportDecoder_parseJsonStringList(json string) *Outcome_base[*TList[string]
 func ReportDecoder_decodeReport(mapping *TMap[string, *InstrumentationPoint], frequencies MapOf[string, BoxedOf[int64]]) *ReportProfile {
 	var instrumentationPoints *TList[*InstrumentationPointStats] = newTList_(tc_p_InstrumentationPointStats)
 	for entryKey, entryValue := range mapping.All() {
-		instrumentationPoints.add(InstrumentationPointStats_newBuilder().setPoint(entryValue).setTimesExecuted(unbox_[int64](Map_getOrDefault_s(frequencies, entryKey, int64(0)))).buildT_())
+		instrumentationPoints.add(InstrumentationPointStats_newBuilder().setPoint(entryValue).setTimesExecuted(unbox_[int64](Map_getOrDefault_s(frequencies, entryKey, int64(0)))).buildLastT_())
 	}
 	return ReportDecoder_createReportProfile(instrumentationPoints)
 }
@@ -123,7 +123,7 @@ func ReportDecoder_createProfileOfStaticallyUsedCode(mapping *TMap[string, *Inst
 				return InstrumentationPointStats_Presence_PRESENT
 			}
 			return InstrumentationPointStats_Presence_STATICALLY_REMOVED
-		}()).buildT_())
+		}()).buildLastT_())
 	}
 	return ReportDecoder_createReportProfile(instrumentationPoints)
 }
@@ -157,7 +157,7 @@ func ReportDecoder_mergeProfiles(profiles []*ReportProfile) *ReportProfile {
 	it_7 := frequencies.eachEntry()
 	for it_7.next() {
 		var entry *TEntry[*InstrumentationPoint, any] = it_7.entry()
-		finalPoints.add(InstrumentationPointStats_newBuilder().setPoint(entry.getKey()).setTimesExecuted(unbox_[int64](entry.getValue())).setPointPresence(presences.Get(entry.getKey())).buildT_())
+		finalPoints.add(InstrumentationPointStats_newBuilder().setPoint(entry.getKey()).setTimesExecuted(unbox_[int64](entry.getValue())).setPointPresence(presences.Get(entry.getKey())).buildLastT_())
 	}
 	return ReportDecoder_createReportProfile(finalPoints)
 }
@@ -179,10 +179,10 @@ func ReportDecoder_createReportProfile(instrumentationPoints *TList[*Instrumenta
 	it_3 := pointsByFileName.eachEntry()
 	for it_3.next() {
 		var entry *TEntry[string, List] = it_3.entry()
-		fileProfiles.add(FileProfile_newBuilder().setFileName(entry.getKey()).addAllInstrumentationPointsStats(Iterable(entry.getValue())).buildT_())
+		fileProfiles.add(FileProfile_newBuilder().setFileName(entry.getKey()).addAllInstrumentationPointsStats(Iterable(entry.getValue())).buildLastT_())
 	}
 	sortTListF_(fileProfiles, comparingT_(tc_string, (*FileProfile).getFileName))
-	return ReportProfile_newBuilder().addAllFileProfile(Iterable(fileProfiles.asList())).buildT_()
+	return ReportProfile_newBuilder().addAllFileProfile(Iterable(fileProfiles.asList())).buildLastT_()
 }
 
 type ReportDecoder_StringCharIterator struct {

@@ -78,7 +78,7 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func
 			debugInfoBuilder.addMismatchBuilder().setSourceRef(entry.getKey()).addAllInvolvedColor(icast_Iterable(entry.getValue().self()))
 		}
 	}
-	return typePoolBuilder.buildT_()
+	return typePoolBuilder.buildLastT_()
 }
 
 func (this *ColorSerializer) generateTypeProto(color *Color) *TypeProto {
@@ -89,7 +89,7 @@ func (this *ColorSerializer) generateTypeProto(color *Color) *TypeProto {
 		var objectTypeProtoBuilder *ObjectTypeProto_Builder = typeProtoBuilder.getObjectBuilder()
 		objectTypeProtoBuilder.setIsInvalidating(color.isInvalidating()).setUuid(color.getId().asByteString()).setPropertiesKeepOriginalName(color.getPropertiesKeepOriginalName()).addAllInstanceType(Iterable(this.addColors(Collection(color.getInstanceColors().asSet())).asList())).addAllPrototype(Iterable(this.addColors(Collection(color.getPrototypes().asSet())).asList())).setMarkedConstructor(color.isConstructor()).addAllOwnProperty(Iterable(this.getOwnPropertyStringPoolOffsets(color).asList())).setClosureAssert(color.isClosureAssert())
 	}
-	return typeProtoBuilder.buildT_()
+	return typeProtoBuilder.buildLastT_()
 }
 
 func (this *ColorSerializer) getOwnPropertyStringPoolOffsets(color *Color) *TList[any] {
