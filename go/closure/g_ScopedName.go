@@ -108,17 +108,13 @@ func ScopedName_of(name string, scopeRoot Node) *ScopedName {
 }
 
 func (this *ScopedName) equals(other any) bool {
-	var scopedName *ScopedName
-	_ = scopedName
-	if !(func() bool {
-		v_ := other
-		p, ok := v_.(ScopedName_as)
-		if !ok {
-			return false
-		}
-		scopedName = p.as_ScopedName()
-		return true
-	}()) {
+	p, ok := other.(ScopedName_as)
+	return ok && this.equals_ScopedName(p.as_ScopedName())
+}
+
+// equals_ScopedName is equals of a ScopedName (post-flip step eqtyped).
+func (this *ScopedName) equals_ScopedName(scopedName *ScopedName) bool {
+	if !(scopedName != nil) {
 		return false
 	}
 	return ((this.getName() == scopedName.getName()) && equalsId_(this.getScopeRoot(), scopedName.getScopeRoot()))

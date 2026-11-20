@@ -336,17 +336,13 @@ func (this *CharRanges) toString() string {
 }
 
 func (this *CharRanges) equals(o any) bool {
-	var charRanges *CharRanges
-	_ = charRanges
-	if !(func() bool {
-		v_ := o
-		p, ok := v_.(*CharRanges)
-		if !ok {
-			return false
-		}
-		charRanges = p
-		return true
-	}()) {
+	p, ok := o.(*CharRanges)
+	return ok && this.equals_CharRanges(p)
+}
+
+// equals_CharRanges is equals of a CharRanges (post-flip step eqtyped).
+func (this *CharRanges) equals_CharRanges(charRanges *CharRanges) bool {
+	if !(charRanges != nil) {
 		return false
 	}
 	return Arrays_equals(this.ranges_, charRanges.ranges_)

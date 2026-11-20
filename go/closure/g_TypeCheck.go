@@ -509,7 +509,7 @@ func (this *TypeCheck) checkGetterOrSetterType(child Node, classType *FunctionTy
 		}
 		return classType.getPrototype().getPropertyType(propertyName)
 	}()
-	if !propertyType.equals(officialPropertyType.self()) {
+	if !propertyType.equals_JSType(officialPropertyType) {
 		this.report(child, TypeCheck_CONFLICTING_GETTER_SETTER_TYPE, []string{propertyName, func() string {
 			if child.isGetterDef() {
 				return propertyType.toString()
@@ -1076,11 +1076,11 @@ func (this *TypeCheck) checkAbstractPropertyAccess(method Node) {
 func (this *TypeCheck) checkPropertyAccess(childType *JSType, propNode Node, propType *JSType, objNode Node) {
 	var isGetprop bool = NodeUtil_isNormalOrOptChainGetProp(propNode)
 	var propName string = propNode.getString()
-	if propType.equals(this.typeRegistry.getNativeType(JSTypeNative_UNKNOWN_TYPE).self()) {
+	if propType.equals_JSType(this.typeRegistry.getNativeType(JSTypeNative_UNKNOWN_TYPE)) {
 		childType = childType.autobox()
 		var objectType *ObjectType = ObjectType_cast(childType)
 		if objectType != nil {
-			if !objectType.hasProperty(propName) || objectType.equals(this.typeRegistry.getNativeType(JSTypeNative_UNKNOWN_TYPE).self()) {
+			if !objectType.hasProperty(propName) || objectType.equals_JSType(this.typeRegistry.getNativeType(JSTypeNative_UNKNOWN_TYPE)) {
 				if _, ok := objectType.self().(*EnumType); ok {
 					this.report(propNode, TypeCheck_INEXISTENT_ENUM_ELEMENT, []string{propName})
 				} else {
@@ -1124,7 +1124,7 @@ func (this *TypeCheck) checkPropertyAccessHelper(objectType *JSType, propNode No
 
 func (this *TypeCheck) reportMissingProperty(objNode Node, objectType *JSType, propNode Node, kind JSTypeRegistry_PropDefinitionKind, strictReport bool) {
 	var propName string = propNode.getString()
-	var isObjectType bool = objectType.equals(this.getNativeType(JSTypeNative_OBJECT_TYPE).self())
+	var isObjectType bool = objectType.equals_JSType(this.getNativeType(JSTypeNative_OBJECT_TYPE))
 	var lowConfidence bool = ((objectType.isUnknownType() || objectType.isAllType()) || isObjectType)
 	var isKnownToUnionMember bool = eqR_(kind, JSTypeRegistry_PropDefinitionKind_LOOSE_UNION)
 	var pair *TypeCheck_SuggestionPair = nil
@@ -1239,7 +1239,7 @@ func (this *TypeCheck) visitVar(t *NodeTraversal, n Node) {
 func (this *TypeCheck) visitNew(n Node) {
 	var constructor Node = n.getFirstChild()
 	var type_ *JSType = this.getJSType(constructor).restrictByNotNullOrUndefined()
-	if (!this.couldBeAConstructor(type_) || type_.equals(this.typeRegistry.getNativeType(JSTypeNative_SYMBOL_OBJECT_FUNCTION_TYPE).self())) || type_.equals(this.typeRegistry.getNativeType(JSTypeNative_BIGINT_OBJECT_FUNCTION_TYPE).self()) {
+	if (!this.couldBeAConstructor(type_) || type_.equals_JSType(this.typeRegistry.getNativeType(JSTypeNative_SYMBOL_OBJECT_FUNCTION_TYPE))) || type_.equals_JSType(this.typeRegistry.getNativeType(JSTypeNative_BIGINT_OBJECT_FUNCTION_TYPE)) {
 		this.report(n, TypeCheck_NOT_A_CONSTRUCTOR, []string{type_.toString()})
 		this.ensureTyped(n)
 		return
@@ -1955,7 +1955,7 @@ func (this *TypeCheck) checkNotReadonlyPropertyAssignment(lhs Node) {
 	var alternates *JTList[*JSType] = TypeCheck_flattenUnion(lhsType)
 	for i := int32(0); i < alternates.size(); i++ {
 		var type_ *JSType = alternates.get(i)
-		if roArray.equals(type_.self()) || roArray.equals(TypeCheck_maybeReferencedType(type_).self()) {
+		if roArray.equals_JSType(type_) || roArray.equals_JSType(TypeCheck_maybeReferencedType(type_)) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(lhs, TypeCheck_PROPERTY_ASSIGNMENT_TO_READONLY_VALUE, []string{type_.toString()}))
 			break
 		}

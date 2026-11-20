@@ -95,7 +95,7 @@ func (this *EnumType) testForEquality_impl(that *JSType) Tri {
 		return result
 	}
 	return func() Tri {
-		if this.equals(that.self()) {
+		if this.equals_JSType(that) {
 			return Tri_TRUE
 		}
 		return Tri_FALSE
