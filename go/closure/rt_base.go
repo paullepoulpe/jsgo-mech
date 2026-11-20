@@ -830,6 +830,11 @@ var alwaysTrue_ Predicate_base = alwaysTruePredicate_{}
 
 func Predicates_alwaysTrue() Predicate_base { return alwaysTrue_ }
 
+// Predicates_alwaysTrueT_ is Predicates.alwaysTrue() where the predicate's parameter is typed (a
+// func(T) bool, tools/postflip/tfnparams): it is called and never compared, so the singleton's
+// identity is not needed.
+func Predicates_alwaysTrueT_[T any](T) bool { return true }
+
 type isNullPredicate_ struct{}
 
 func (isNullPredicate_) apply(v any) bool { return v == nil }
