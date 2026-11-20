@@ -742,14 +742,6 @@ func (this *FunctionType) appendOptionalArgString(sb *TypeStringBuilder, paramTy
 	sb.appendNonNull(paramType).append("=")
 }
 
-func (this *FunctionType) visitUntyped_impl(visitor Visitor) any {
-	return visitor.caseFunctionType(this)
-}
-
-func (this *FunctionType) visitUntyped_2_impl(visitor RelationshipVisitor, that *JSType) any {
-	return visitor.caseFunctionType(this, that)
-}
-
 func (this *FunctionType) getInstanceType() *ObjectType {
 	if !this.hasInstanceType() {
 		panic(new_IllegalStateException_0())
@@ -1646,22 +1638,6 @@ func (this *FunctionType) appendTo(p0 *TypeStringBuilder) {
 		return
 	}
 	this.self_.appendTo_impl(p0)
-}
-
-// visitUntyped: an object that is exactly a FunctionType calls its visitUntyped_impl directly (post-flip); others dispatch.
-func (this *FunctionType) visitUntyped(p0 Visitor) any {
-	if p, _ := this.self_.(*FunctionType); p == this {
-		return this.visitUntyped_impl(p0)
-	}
-	return this.self_.visitUntyped_impl(p0)
-}
-
-// visitUntyped_2: an object that is exactly a FunctionType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
-func (this *FunctionType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
-	if p, _ := this.self_.(*FunctionType); p == this {
-		return this.visitUntyped_2_impl(p0, p1)
-	}
-	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
 // getTypeOfThis: an object that is exactly a FunctionType calls its getTypeOfThis_impl directly (post-flip); others dispatch.
