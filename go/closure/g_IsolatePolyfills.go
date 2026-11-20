@@ -60,11 +60,11 @@ func IsolatePolyfills_createJSCompPolyfillsAccess() Node {
 
 func (this *IsolatePolyfills) process_2(externs Node, root Node) {
 	var injectedPolyfills *JTSet[string] = this.findAllInjectedPolyfills()
-	var polyfillUsages *TList[*PolyfillUsageFinder_PolyfillUsage] = newTList_(tc_p_PolyfillUsageFinder_PolyfillUsage)
+	var polyfillUsages []*PolyfillUsageFinder_PolyfillUsage = []*PolyfillUsageFinder_PolyfillUsage{}
 	var shouldDisambiguateProperties bool = this.compiler_.getOptions().shouldDisambiguateProperties()
-	new_PolyfillUsageFinder(this.compiler_, this.polyfills, shouldDisambiguateProperties).traverseIncludingGuarded(root, &Consumer_tfn_PolyfillUsageFinder_PolyfillUsage{func(p0 *PolyfillUsageFinder_PolyfillUsage) { polyfillUsages.add(p0) }})
+	new_PolyfillUsageFinder(this.compiler_, this.polyfills, shouldDisambiguateProperties).traverseIncludingGuarded(root, &Consumer_tfn_PolyfillUsageFinder_PolyfillUsage{func(p0 *PolyfillUsageFinder_PolyfillUsage) { polyfillUsages = append(polyfillUsages, p0) }})
 	var visitedNodes *JTSet[Node] = jnewTSet_(jtc_Node)
-	it_1 := polyfillUsages.each()
+	it_1 := eachOf_(&polyfillUsages)
 	for it_1.next() {
 		var usage *PolyfillUsageFinder_PolyfillUsage = it_1.v
 		if (visitedNodes.contains(usage.node()) || String_isEmpty(usage.polyfill().library)) || !injectedPolyfills.contains(usage.polyfill().nativeSymbol) {
