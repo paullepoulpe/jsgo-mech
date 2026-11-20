@@ -11,7 +11,7 @@ algorithmic change, no PGO, no collector tuning; output byte-identical.
 |---|---|---|
 | Java prep steps 1-20, translator with the rules of 2026-11-19 | main | gate 0 (30,393 Java tests, 4 projects identical to stock) and the Go gate pass |
 | flip of main ("the fourth flip"): overlay with step list, driver, tool fixes | main-r11-flip4-inbounds | tools/postflip/reflip/REFLIP4.md is its record |
-| the replayed tree, in bounds | reflip4-inbounds, then inb-hashmemo, inb-optstr | 273 replayed steps + 552, 553; runtime tests ok; checks, bundle, downlevel, advanced MATCH |
+| the replayed tree, in bounds | inb-toolgaps-tree (b59f6ea1) | the whole list through step 556; runtime tests ok; checks, bundle, downlevel, advanced MATCH |
 | the same flip with every step of the older lead line | main-r11-flip4 / reflip4-replayed | 298 steps; includes out-of-bounds manual patches; reference only |
 | the older lead line | reflip-trial-r18 | flipped from an older translator; reference only |
 
@@ -23,36 +23,59 @@ pre-flip state by construction.
 An audit on 2026-11-20 found that the lead post-flip line carried 40 manual patches, most of
 them hand-written changes of a data structure or algorithm in pass code (caches, a free list,
 hand-made tables, restructured graph nodes and work queues). The in-bounds step list leaves
-out the 24 of that kind and the runtime that existed only for them. 8 manual patches remain
-(17 files, 325 changed lines), all typing or notation; turning them into tool steps is in
-progress. Numbers reported before this date for post-flip trees include the out-of-bounds
+out the 24 of that kind and the runtime that existed only for them. Of the 8 manual patches
+that remained, 5 are tool steps since 2026-11-20 (tool strvar); 3 remain (416, 419, 422: an
+inlined computeIfAbsent and typed reads that rest on facts about one class each). Numbers reported before this date for post-flip trees include the out-of-bounds
 patches and are not results of the plan.
 
-## Speed against pre-flip Java (googleapis-bench subset, 7,886 of 44,577 files, same output)
+## Speed against pre-flip Java (idle host, same output, 2026-11-20)
+
+Full googleapis-bench (44,577 files, 7,526 chunks; one run each, same session):
+
+| tree | total | CHECKS | OPTIMIZATIONS | FINALIZATIONS | peak memory |
+|---|---|---|---|---|---|
+| pre-flip Java | 454.1 s | 213.9 | 199.6 | 40.7 | 14.3 GB |
+| the plan, in bounds (through step 556) | 585.5 s | 309.3 | 226.3 | 49.9 | 17.5 GB |
+
+Java/Go 0.78. This is the standing.
+
+The 18% subset (7,886 files; two alternating rounds), used to compare one step with the next:
 
 | tree | total | CHECKS | OPTIMIZATIONS | FINALIZATIONS |
 |---|---|---|---|---|
-| pre-flip Java | 95.5 / 95.2 s | 40.8 / 40.6 | 42.6 / 42.6 | 12.1 / 12.0 |
-| the plan, in bounds (after step 553) | 105.9 / 105.2 s | 53.8 / 53.5 | 42.1 / 41.8 | 10.1 / 10.0 |
+| pre-flip Java | 94.1 / 95.5 s | 40.5 / 41.1 | 41.9 / 42.9 | 11.7 / 11.6 |
+| in bounds after step 553 | 103.9 / 104.4 s | 52.8 / 52.7 | 41.4 / 41.5 | 9.7 / 10.1 |
+| in bounds through step 556 | 100.7 / 101.0 s | 51.2 / 51.5 | 40.1 / 39.9 | 9.4 / 9.6 |
 
-Java/Go 0.90 on this subset. Not measured in bounds on larger inputs; on earlier trees CHECKS
-fell further behind as the input grew, so the full benchmark is expected to be lower. With the
-out-of-bounds patches the same flip is level with Java on this subset (94.2-94.8 s).
+Java/Go 0.94 on the subset. The subset flatters Go: Go's times grow about in proportion to the
+input, Java's grow less (its two later stages are behind Go on the subset and ahead of it on
+the full input), so the subset is not a measure of the standing.
 
-The deficit is the CHECKS stage. Its profile is flat (no function of translated code above
-2%); both compilers run the passes on one thread.
+Full-size CHECKS by where the CPU goes (profile of the in-bounds tree): translated code 35%,
+collector 30% (19% on the subset), Go maps and hashing 13% (7%), allocation 9%, runtime
+collections 6%, node store 5%. Nothing in translated code is above 2%. Both compilers run the
+passes on one thread.
+
+Steps of 2026-11-20 (CPU on the subset against the previous binary): 554a for-each over typed
+views by position (-0.5%), 554b a typed list is its own erased view (-2%), 555 valplain, 20
+immutable classes by value (neutral; 38M fewer heap objects in CHECKS), 556 typed maps and sets
+are their own views (neutral; CHECKS peak memory -3%), and seven tool fixes that restore the
+coverage of existing steps on this translator's output (Preconditions calls 1,047 to 6,
+StringBuilder 78 to 5, requireNonNull 81 to 6, str_( 390 to 154).
 
 ## Open
 
-- Speed: not met in bounds.
-- The 8 manual patches as tools; unattended replay including steps 552 and 553.
-- Runtime audit: the scope table (unused in bounds, to delete), the front table of node
-  property lists and the per-type lookup memos (stopgaps), node keys hashed as handles (to
-  read).
+- Speed: not met in bounds (0.78 on the full benchmark).
+- A start-to-finish unattended replay of the final list (the list grew while its last replay
+  ran, and step 556 was applied on top by hand).
+- 3 manual patches (416, 419, 422).
+- Coverage still below the older line: explicit iterators over immutable lists (125 against
+  107) and Objects.equals of typed views (28 against 11) need new rules.
+- Runtime: the scope table and the variable map that nothing used are gone; the helpers of
+  step 212 (lihmComputeIfAbsent_ and two more) are dead and still there. The fast paths of
+  steps 39, 140, 520, 521 and 535 are inside the runtime's own collections and node store.
 - Structural: the translator emits one typed collection family and the post-flip steps
   another, merged by a step that has had to be rewritten at each flip. The translator should
   emit the family the plan ends with.
-- Java-ism accounting against jsgo (docs/jsgo-history, and JAVAISMS.md on the older post-flip
-  branches) has not been redone on the in-bounds tree.
-- A full-size benchmark run has not been made for any tree since 2026-11-19 (memory on the
-  measurement host).
+- Java-ism accounting against jsgo has not been redone item by item on the in-bounds tree;
+  the census of the final tree is in REFLIP4.md on main-r11-flip4-inbounds.
