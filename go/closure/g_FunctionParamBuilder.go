@@ -84,7 +84,7 @@ func (this *FunctionParamBuilder) hasOptionalOrVarArgs() bool {
 }
 
 func (this *FunctionParamBuilder) hasVarArgs() bool {
-	return (!this.parameters.isEmpty() && cast_[*FunctionType_Parameter](Iterables_getLast(Iterable(this.parameters.asList()))).isVariadic())
+	return (!this.parameters.isEmpty() && Iterables_getLast(Iterable(this.parameters.asList())).(*FunctionType_Parameter).isVariadic())
 }
 
 func (this *FunctionParamBuilder) build() *JTList[*FunctionType_Parameter] {

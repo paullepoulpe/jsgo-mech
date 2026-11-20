@@ -408,7 +408,7 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 	output.println(JSCompStrings_lines([]string{"", "Summary:", "pass,runtime,allocMem,runs,changingRuns,astReduction,reduction,gzReduction"}))
 	var sortedPassSummary *JTList[Map_Entry] = jtlistFrom_(tc_Map_Entry, Collection(this.passSummary.asImm().entrySet()))
 	List_sort(sortedPassSummary.asList(), Comparator_comparingLong(&ToLongFunction_tfn_Map_Entry{func(e Map_Entry) int64 {
-		return cast_[*PerformanceTracker_Stats](e.getValue()).runtime_
+		return e.getValue().(*PerformanceTracker_Stats).runtime_
 	}}))
 	it_1 := sortedPassSummary.each()
 	for it_1.next() {

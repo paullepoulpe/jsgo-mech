@@ -405,7 +405,7 @@ func ConformanceRules_AbstractRule_getTypeMatchingStrategy(requirement *Requirem
 func (this *ConformanceRules_AbstractRule) findAllowListForPath(path string) *ConformanceRules_AllowList {
 	var pathRegex Optional_baseOf[*Pattern] = this.compiler_.getOptions().getConformanceRemoveRegexFromPath()
 	if pathRegex.isPresent() {
-		path = cast_[*Pattern](pathRegex.get()).matcher_s(path).replaceFirst("")
+		path = pathRegex.get().(*Pattern).matcher_s(path).replaceFirst("")
 	}
 	it_1 := this.allowlists.each()
 	for it_1.next() {
@@ -474,7 +474,7 @@ func (this *ConformanceRules_AbstractRule) tsIsAllowlisted() bool {
 }
 
 func (this *ConformanceRules_AbstractRule) getPrecondition_impl() CheckConformance_Precondition {
-	return CheckConformance_Rule_getPrecondition_default(icast_CheckConformance_Rule(this.self()))
+	return CheckConformance_Rule_getPrecondition_default(this.self().(CheckConformance_Rule))
 }
 
 type ConformanceRules_NoOp struct {

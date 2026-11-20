@@ -54,7 +54,10 @@
 // With -instof, an instanceof that guards an if statement is a comma-ok type assertion and the
 // casts it guards use the asserted value; see instof.go.
 //
-// usage: castfold [-n] [-v] [-instof] <dir of package closure>
+// With -assert, a cast that cannot see null, or whose value is dereferenced at once, is a Go type
+// assertion; see assert.go.
+//
+// usage: castfold [-n] [-v] [-instof | -assert] <dir of package closure>
 package main
 
 import (
@@ -71,7 +74,7 @@ import (
 )
 
 func main() {
-	dry, verbose, instofMode := false, false, false
+	dry, verbose, instofMode, assertMode := false, false, false, false
 	for _, a := range os.Args[1 : len(os.Args)-1] {
 		switch a {
 		case "-n":
@@ -80,6 +83,8 @@ func main() {
 			verbose = true
 		case "-instof":
 			instofMode = true
+		case "-assert":
+			assertMode = true
 		}
 	}
 	rw.Load(os.Args[len(os.Args)-1])
@@ -93,6 +98,10 @@ func main() {
 		}
 	}
 	checkSelfInvariant()
+	if assertMode {
+		asserts(dry, verbose)
+		return
+	}
 
 	folded := map[string]int{}
 	left := map[string]int{}
