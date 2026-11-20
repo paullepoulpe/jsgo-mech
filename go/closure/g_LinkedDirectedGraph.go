@@ -436,7 +436,7 @@ func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) getColor() string {
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) getId() string {
-	return ("LDN" + istr_(int64(Object_hashCode(this.self()))))
+	return ("LDN" + istr_(int64(objhashId_(this))))
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) getLabel_impl() string {

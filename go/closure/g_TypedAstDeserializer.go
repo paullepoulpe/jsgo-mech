@@ -389,7 +389,7 @@ func (this *TypedAstDeserializer_DeserializedAst) hashCode() int32 {
 	var h int32
 	h = h*31 + hash_(this.getFilesystem_)
 	h = h*31 + hash_(this.getColorRegistry_)
-	h = h*31 + Objects_hashCode(this.getExternProperties_.asSet())
-	h = h*31 + Objects_hashCode(this.getRuntimeLibraries_.asSet())
+	h = h*31 + objhashDyn_(this.getExternProperties_.asSet())
+	h = h*31 + objhashDyn_(this.getRuntimeLibraries_.asSet())
 	return h
 }

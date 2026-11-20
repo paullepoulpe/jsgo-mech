@@ -104,10 +104,10 @@ func (this *SimpleDependencyInfo) hashCode() int32 {
 	var h int32
 	h = h*31 + strhash_(this.getName_)
 	h = h*31 + strhash_(this.getPathRelativeToClosureBase_)
-	h = h*31 + Objects_hashCode(this.getProvides_.asList())
-	h = h*31 + Objects_hashCode(this.getRequires_.asList())
-	h = h*31 + Objects_hashCode(this.getTypeRequires_.asList())
-	h = h*31 + Objects_hashCode(this.getLoadFlags_.asMap())
+	h = h*31 + objhashVia_(this.getProvides_.asList())
+	h = h*31 + objhashVia_(this.getRequires_.asList())
+	h = h*31 + objhashVia_(this.getTypeRequires_.asList())
+	h = h*31 + objhashDyn_(this.getLoadFlags_.asMap())
 	h = h*31 + boolhash_(this.getHasExternsAnnotation_)
 	h = h*31 + boolhash_(this.getHasNoCompileAnnotation_)
 	return h

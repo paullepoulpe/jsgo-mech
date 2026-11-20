@@ -80,7 +80,7 @@ func (this *J2clPass_InlineSpec) equals(p0 any) bool {
 func (this *J2clPass_InlineSpec) hashCode() int32 {
 	var h int32
 	h = h*31 + strhash_(this.classFileName_)
-	h = h*31 + Objects_hashCode(this.fnNamesToInline_.asSet())
+	h = h*31 + objhashDyn_(this.fnNamesToInline_.asSet())
 	h = h*31 + hash_(this.inliningMode_)
 	return h
 }
