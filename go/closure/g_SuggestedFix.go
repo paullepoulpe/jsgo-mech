@@ -15,7 +15,7 @@ func (this *SuggestedFix) init_SuggestedFix(matchedNodeInfo *SuggestedFix_Matche
 	this.matchedNodeInfo = matchedNodeInfo
 	this.replacements = replacements
 	this.description_ = description
-	this.alternatives = tlistImm_(tc_p_SuggestedFix, immutableListBuilder_(tc_p_SuggestedFix).add(cast_[*SuggestedFix](this)).addAll(Iterable(alternatives.asList())).buildErased())
+	this.alternatives = tlistImm_(tc_p_SuggestedFix, immutableListBuilder_(tc_p_SuggestedFix).add(this).addAll(Iterable(alternatives.asList())).buildErased())
 }
 
 func new_SuggestedFix(matchedNodeInfo *SuggestedFix_MatchedNodeInfo, replacements *SimpleSetMultimap[any, any], description Optional[string], alternatives *TList[*SuggestedFix]) *SuggestedFix {
