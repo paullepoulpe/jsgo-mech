@@ -134,7 +134,7 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 		var outEdges ListOf[DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch]] = this.cfg.getOutEdges(parent)
 		var edgeList []string = newstrarr_(outEdges.size())
 		for i := int32(0); i < int32(len(edgeList)); i++ {
-			var edge DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch]](outEdges.get(i))
+			var edge DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch] = icast_DiGraph_DiGraphEdge_Node_ControlFlowGraph_Branch(outEdges.get(i))
 			var succ DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = edge.getDestination()
 			var toNode Optional[string] = Optional_empty[string]()
 			if succ == this.cfg.getImplicitReturn() {

@@ -89,7 +89,7 @@ func (this *CoalesceVariableNames) enterScopeWithCfg_impl(t *NodeTraversal) {
 	this.liveness.analyze()
 	this.liveAnalyses.push(this.liveness)
 	var interferenceGraph *UndiGraph[*Var, any] = this.computeVariableNamesInterferenceGraph(cfg, this.liveness.getEscapedLocals())
-	var coloring *GraphColoring[*Var, any] = new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator[*Var, any](cast_[AdjacencyGraph[*Var, any]](interferenceGraph.self()), this.coloringTieBreaker).up_GraphColoring()
+	var coloring *GraphColoring[*Var, any] = new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator[*Var, any](icast_AdjacencyGraph_Var_any(interferenceGraph.self()), this.coloringTieBreaker).up_GraphColoring()
 	coloring.color()
 	this.colorings.push(coloring)
 }
@@ -194,7 +194,7 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
 		interferenceGraph.createNode_Object(v)
 		interferenceGraphNodes.set(vIndex)
 	}
-	for cfgNode := range elemsAs_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](cfg.getNodes()) {
+	for cfgNode := range elemsBy_(cfg.getNodes(), icast_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch) {
 		if cfg.isImplicitReturn(cfgNode) {
 			continue
 		}
@@ -331,7 +331,7 @@ func (this *CoalesceVariableNames) isUninitializedLetNameInLoopBodyAndLive(nameN
 	}
 	var letNode Node = nameNode.getParent()
 	var cfg *ControlFlowGraph[Node] = this.liveness.getCfg()
-	var cfgNode DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](Preconditions_checkNotNull_T(cfg.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(letNode)).self())
+	var cfgNode DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = icast_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch(Preconditions_checkNotNull_T(cfg.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(letNode)).self())
 	var state *DataFlowAnalysis_LinearFlowState[*LiveVariablesAnalysis_LiveVariableLattice] = Preconditions_checkNotNull_T(cast_[*DataFlowAnalysis_LinearFlowState[*LiveVariablesAnalysis_LiveVariableLattice]](Annotatable_getAnnotation(Annotatable(cfgNode))))
 	var varIndex int32 = this.liveness.getVarIndex(originalVar.getName())
 	return ((varIndex >= 0) && state.getOut().isLive(varIndex))
