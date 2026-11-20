@@ -72,7 +72,9 @@ func (this *CreateSyntheticBlocks) rewriteFunctionDeclaration(n Node) {
 }
 
 func (this *CreateSyntheticBlocks) rewriteFunctionDeclarationsInBlock(block Node) {
-	Preconditions_checkState(block.isBlock())
+	if !block.isBlock() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var next Node = 0
 	{
 		var current Node = block.getFirstChild()
@@ -99,7 +101,9 @@ func (this *CreateSyntheticBlocks) addBlocks(marker *CreateSyntheticBlocks_Marke
 	if ok_, a1_ := (outerBlock.getParent().isBlock() || outerBlock.getParent().isScript()), outerBlock.getParent(); !ok_ {
 		Preconditions_checkState_boolean_Object_H(false, a1_)
 	}
-	Preconditions_checkState(innerBlock.getParent().isBlock())
+	if !innerBlock.getParent().isBlock() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.compiler_.reportChangeToEnclosingScope(outerBlock)
 }
 

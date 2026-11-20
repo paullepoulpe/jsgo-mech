@@ -103,7 +103,9 @@ func (this *SuppressDocWarningsGuard) getScriptNodeBySourceName(error_ *JSError)
 	if scriptNode == 0 {
 		return 0
 	}
-	Preconditions_checkState(scriptNode.isScript())
+	if !scriptNode.isScript() {
+		panic(new_IllegalStateException_0().self())
+	}
 	return scriptNode
 }
 

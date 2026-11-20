@@ -19,7 +19,9 @@ func new_MinimizedCondition(p *MinimizedCondition_MeasuredNode, n *MinimizedCond
 }
 
 func MinimizedCondition_fromConditionNode(n Node) *MinimizedCondition {
-	Preconditions_checkState(n.hasParent())
+	if !n.hasParent() {
+		panic(new_IllegalStateException_0().self())
+	}
 	return func() *MinimizedCondition {
 		switch n.ns_().token {
 		case tokOrd1_NOT, tokOrd1_AND, tokOrd1_OR, tokOrd1_HOOK, tokOrd1_COMMA:
@@ -208,7 +210,9 @@ func (this *MinimizedCondition_MeasuredNode) isNot() bool {
 }
 
 func (this *MinimizedCondition_MeasuredNode) withoutNot() *MinimizedCondition_MeasuredNode {
-	Preconditions_checkState(this.isNot())
+	if !this.isNot() {
+		panic(new_IllegalStateException_0().self())
+	}
 	return MinimizedCondition_MeasuredNode_normalizeChildren(this.node_, this.children_)[0].change()
 }
 
@@ -307,7 +311,9 @@ func (this *MinimizedCondition_MeasuredNode) willChange(original Node) bool {
 
 func (this *MinimizedCondition_MeasuredNode) applyTo(original Node) Node {
 	Preconditions_checkNotNull_T(original)
-	Preconditions_checkState(this.willChange(original))
+	if !this.willChange(original) {
+		panic(new_IllegalStateException_0().self())
+	}
 	var replacement Node = this.buildReplacement()
 	if original != replacement {
 		this.safeDetach(replacement)

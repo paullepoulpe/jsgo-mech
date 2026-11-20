@@ -111,8 +111,12 @@ func new_ValidityCheck_VerifyConstants(compiler *AbstractCompiler, checkUserDecl
 
 func (this *ValidityCheck_VerifyConstants) process_2(externs Node, root Node) {
 	var externsAndJs Node = root.getParent()
-	Preconditions_checkState((externsAndJs != 0))
-	Preconditions_checkState(externsAndJs.hasChild(externs))
+	if externsAndJs == 0 {
+		panic(new_IllegalStateException_0().self())
+	}
+	if !externsAndJs.hasChild(externs) {
+		panic(new_IllegalStateException_0().self())
+	}
 	NodeTraversal_traverseRoots(this.compiler_, NodeTraversal_Callback(this), externs, root)
 }
 
@@ -142,12 +146,12 @@ func (this *ValidityCheck_VerifyConstants) visit_impl(t *NodeTraversal, n Node, 
 				}
 			}
 			if expectedConst {
-				if !(expectedConst == isConst) {
-					Preconditions_checkState_boolean_String_Object(false, "The name %s is not annotated as constant.", name)
+				if expectedConst != isConst {
+					panic(new_IllegalStateException_String(Strings_lenientFormat("The name %s is not annotated as constant.", []any{name})).self())
 				}
 			} else {
-				if !(expectedConst == isConst) {
-					Preconditions_checkState_boolean_String_Object(false, "The name %s should not be annotated as constant.", name)
+				if expectedConst != isConst {
+					panic(new_IllegalStateException_String(Strings_lenientFormat("The name %s should not be annotated as constant.", []any{name})).self())
 				}
 			}
 		}

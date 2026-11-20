@@ -96,7 +96,9 @@ func (this *CompilerInput) getPathRelativeToClosureBase() string {
 
 func (this *CompilerInput) getAstRoot(compiler *AbstractCompiler) Node {
 	var root Node = Preconditions_checkNotNull_T(this.ast.getAstRoot(compiler))
-	Preconditions_checkState(root.isScript())
+	if !root.isScript() {
+		panic(new_IllegalStateException_0().self())
+	}
 	Preconditions_checkNotNull_T(root.getInputId())
 	return root
 }
@@ -263,7 +265,9 @@ func (this *CompilerInput) getChunk() *JSChunk {
 }
 
 func (this *CompilerInput) setChunk(chunk *JSChunk) {
-	Preconditions_checkArgument((((chunk == nil) || (this.chunk_ == nil)) || (this.chunk_ == chunk)))
+	if !(((chunk == nil) || (this.chunk_ == nil)) || (this.chunk_ == chunk)) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	this.chunk_ = chunk
 }
 
@@ -351,7 +355,9 @@ func new_CompilerInput_DepsFinder(modulePath *ModuleLoader_ModulePath) *Compiler
 
 func (this *CompilerInput_DepsFinder) visitTree(n Node) {
 	this.visitSubtree(n, 0)
-	Preconditions_checkArgument(n.isScript())
+	if !n.isScript() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var features *FeatureSet = cast_[*FeatureSet](n.getFeatureSet())
 	if features != nil {
 		var version string = features.version()
@@ -439,8 +445,12 @@ func (this *CompilerInput_DepsFinder) visitSubtree(n Node, parent Node) {
 }
 
 func (this *CompilerInput_DepsFinder) visitEs6ModuleName(n Node, parent Node) {
-	Preconditions_checkArgument(n.isStringLit())
-	Preconditions_checkArgument((parent.isExport() || parent.isImport()))
+	if !n.isStringLit() {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if !parent.isExport() && !parent.isImport() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var moduleName string = n.getString()
 	if String_startsWith(moduleName, "goog:") {
 		this.requires.add(DependencyInfo_Require_googRequireSymbol(String_substring_int(moduleName, 5)))
@@ -560,7 +570,9 @@ func (this *CompilerInput_JsAst) getAstRoot(compiler *AbstractCompiler) Node {
 	} else {
 		this.parse(compiler)
 	}
-	Preconditions_checkState(JSCompObjects_identical(this.root.getStaticSourceFile(), obj_(this.outer_.sourceFile)))
+	if !JSCompObjects_identical(this.root.getStaticSourceFile(), obj_(this.outer_.sourceFile)) {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.root.setInputId(this.outer_.id)
 	this.outer_.sourceFile.clearCachedSource()
 	return this.root

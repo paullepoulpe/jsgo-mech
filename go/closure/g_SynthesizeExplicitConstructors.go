@@ -19,7 +19,9 @@ func new_SynthesizeExplicitConstructors(compiler *AbstractCompiler) *SynthesizeE
 }
 
 func (this *SynthesizeExplicitConstructors) synthesizeClassConstructorIfMissing(t *NodeTraversal, classNode Node) {
-	Preconditions_checkArgument(classNode.isClass())
+	if !classNode.isClass() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if NodeUtil_getEs6ClassConstructorMemberFunctionDef(classNode) == 0 {
 		this.addSyntheticConstructor(t, classNode)
 	}

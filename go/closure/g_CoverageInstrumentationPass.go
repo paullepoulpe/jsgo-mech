@@ -72,7 +72,9 @@ func (this *CoverageInstrumentationPass) process_2(externsNode Node, rootNode No
 			NodeTraversal_traverse(this.compiler_, rootNode, NodeTraversal_Callback(new_CoverageInstrumentationCallback(this.instrumentationData, this.reach)))
 		}
 		var firstScript Node = rootNode.getFirstChild()
-		Preconditions_checkState(firstScript.isScript())
+		if !firstScript.isScript() {
+			panic(new_IllegalStateException_0().self())
+		}
 		if firstScript.hasChildren() && firstScript.getFirstChild().isModuleBody() {
 			firstScript = firstScript.getFirstChild()
 		}

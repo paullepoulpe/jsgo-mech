@@ -27,8 +27,12 @@ func new_ShowByPathWarningsGuard_String(checkWarningsOnlyForPath string) *ShowBy
 
 func (this *ShowByPathWarningsGuard) init_ShowByPathWarningsGuard_StringArr_ShowType(paths []string, showType ShowByPathWarningsGuard_ShowType) {
 	this.WarningsGuard.init_WarningsGuard()
-	Preconditions_checkArgument((paths != nil))
-	Preconditions_checkArgument((showType != 0))
+	if paths == nil {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if showType == 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var pathList *JTList[string] = jimmutableListCopyOfArr_(jtc_string, paths)
 	if showType == ShowByPathWarningsGuard_ShowType_INCLUDE {
 		this.warningsGuard = ByPathWarningsGuard_exceptPath(pathList, CheckLevel_OFF)

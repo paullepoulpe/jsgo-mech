@@ -100,7 +100,9 @@ func (this *LateEs6ToEs3Converter) visitObject(t *NodeTraversal, obj Node) {
 }
 
 func (this *LateEs6ToEs3Converter) visitObjectWithComputedProperty(t *NodeTraversal, obj Node) {
-	Preconditions_checkArgument(obj.isObjectLit())
+	if !obj.isObjectLit() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var props ListOf[Node] = new_ArrayList_0()
 	var currElement Node = obj.getFirstChild()
 	var objectType AstFactory_Type = AstFactory_type_Node(obj)

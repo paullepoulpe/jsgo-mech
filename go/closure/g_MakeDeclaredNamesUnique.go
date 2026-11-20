@@ -48,7 +48,9 @@ func (this *MakeDeclaredNamesUnique) enterScope_impl(t *NodeTraversal) {
 	var declarationRoot Node = t.getScopeRoot()
 	var renamer MakeDeclaredNamesUnique_Renamer
 	if this.renamerStack.isEmpty() {
-		Preconditions_checkState((!declarationRoot.isFunction() || !is_MakeDeclaredNamesUnique_ContextualRenamer(any(this.rootRenamer))))
+		if declarationRoot.isFunction() && is_MakeDeclaredNamesUnique_ContextualRenamer(any(this.rootRenamer)) {
+			panic(new_IllegalStateException_0().self())
+		}
 		renamer = this.rootRenamer
 	} else {
 		var hoist bool = (!declarationRoot.isFunction() && !NodeUtil_createsBlockScope(declarationRoot))
@@ -263,8 +265,8 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) exitScope(t *NodeT
 		var declaredVariableInfo *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo = it_3.v
 		var variableName string = declaredVariableInfo.getName()
 		var oldStackTop MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = this.variablesStackedByName.popVariableInfo(variableName)
-		if !(oldStackTop == obj_(declaredVariableInfo)) {
-			Preconditions_checkState_boolean_String_Object(false, "Declared variable \"%s\" was not the top of the name stack", variableName)
+		if oldStackTop != obj_(declaredVariableInfo) {
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Declared variable \"%s\" was not the top of the name stack", []any{variableName})).self())
 		}
 		declaredVariableInfo.tryToInvertName()
 	}
@@ -731,7 +733,9 @@ func (this *MakeDeclaredNamesUnique_InlineRenamer) init_MakeDeclaredNamesUnique_
 	this.finit_MakeDeclaredNamesUnique_InlineRenamer()
 	this.convention = convention
 	this.uniqueIdSupplier = uniqueIdSupplier
-	Preconditions_checkArgument(!String_isEmpty(idPrefix))
+	if String_isEmpty(idPrefix) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	this.idPrefix = idPrefix
 	this.removeConstness = removeConstness
 	if hoistingTargetScope {
@@ -749,7 +753,9 @@ func new_MakeDeclaredNamesUnique_InlineRenamer(convention CodingConvention, uniq
 }
 
 func (this *MakeDeclaredNamesUnique_InlineRenamer) addDeclaredName(name string, hoisted bool) {
-	Preconditions_checkState(!(name == MakeDeclaredNamesUnique_ARGUMENTS))
+	if name == MakeDeclaredNamesUnique_ARGUMENTS {
+		panic(new_IllegalStateException_0().self())
+	}
 	if hoisted && (this.hoistRenamer != any(this)) {
 		this.hoistRenamer.addDeclaredName(name, hoisted)
 	} else {

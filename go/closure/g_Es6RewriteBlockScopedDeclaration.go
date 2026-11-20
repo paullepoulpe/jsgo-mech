@@ -99,7 +99,9 @@ func Es6RewriteBlockScopedDeclaration_maybeAddConstJSDoc(srcDeclaration Node, sr
 
 func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationList(declarationList Node, parent Node) {
 	if declarationList.isVar() {
-		Preconditions_checkState_boolean_Object((!declarationList.hasChildren() || declarationList.hasOneChild()), "var declaration can have maximum one child post normalization.")
+		if declarationList.hasChildren() && !declarationList.hasOneChild() {
+			panic(new_IllegalStateException_String(objstr_("var declaration can have maximum one child post normalization.")).self())
+		}
 		return
 	}
 	if parent.isVanillaFor() {
@@ -123,12 +125,14 @@ func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationList(decl
 }
 
 func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationListInForInInitializer(declarationList Node, parent Node) {
-	Preconditions_checkState(parent.isForIn())
+	if !parent.isForIn() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var first Node = declarationList
 	var lhs Node = first.getFirstChild()
 	var loopNode Node = parent
 	if lhs.isDestructuringLhs() {
-		Preconditions_checkState_boolean_Object(false, "Destructuring syntax is unsupported in ES6RewriteBlockScopedDeclarations pass")
+		panic(new_IllegalStateException_String(objstr_("Destructuring syntax is unsupported in ES6RewriteBlockScopedDeclarations pass")).self())
 		NodeUtil_visitLhsNodesInNode(lhs, (&Consumer_tfn_Node{func(name Node) {
 			if !name.isName() {
 				Preconditions_checkState_boolean_String_Object_H(false, "lhs in destructuring declaration should be a simple name. (%s)", name)
@@ -153,7 +157,9 @@ func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationListInFor
 }
 
 func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationListInVanillaForInitializer(declarationList Node, parent Node) {
-	Preconditions_checkState(parent.isVanillaFor())
+	if !parent.isVanillaFor() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var insertSpot Node = this.getInsertSpotBeforeLoop(parent)
 	for declarationList.hasChildren() {
 		var name Node = declarationList.getLastChild()
@@ -290,7 +296,9 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) shouldTrave
 		var nodeToWrapInClosure Node
 		if enclosingFunction.getParent().isGetterDef() || enclosingFunction.getParent().isSetterDef() {
 			nodeToWrapInClosure = enclosingFunction.getGrandparent()
-			Preconditions_checkState(nodeToWrapInClosure.isObjectLit())
+			if !nodeToWrapInClosure.isObjectLit() {
+				panic(new_IllegalStateException_0().self())
+			}
 		} else {
 			nodeToWrapInClosure = enclosingFunction
 		}
