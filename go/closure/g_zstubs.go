@@ -1293,11 +1293,6 @@ type InterruptedException struct {
 
 func (this *InterruptedException) as_InterruptedException() *InterruptedException { return this }
 
-func is_InterruptedException(v any) bool {
-	_, ok := v.(*InterruptedException)
-	return ok
-}
-
 func (this *InterruptedException) self() any {
 	if this == nil {
 		return nil
