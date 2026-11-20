@@ -86,7 +86,5 @@ func (this *ConformanceAllowlister_1) shouldReportConformanceViolation(p0 *Requi
 	if this.self_ == any(this) {
 		return this.shouldReportConformanceViolation_impl(p0, p1, p2, p3, p4)
 	}
-	return this.self_.(interface {
-		shouldReportConformanceViolation_impl(*Requirement, *Optional_base, *JSError, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, bool) bool
-	}).shouldReportConformanceViolation_impl(p0, p1, p2, p3, p4)
+	return this.self_.shouldReportConformanceViolation_impl(p0, p1, p2, p3, p4)
 }

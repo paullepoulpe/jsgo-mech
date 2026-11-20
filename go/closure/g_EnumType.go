@@ -236,7 +236,7 @@ func (this *EnumType) getTypeClass() *JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
-	return this.self_.(interface{ getTypeClass_impl() *JSTypeClass }).getTypeClass_impl()
+	return this.self_.getTypeClass_impl()
 }
 
 // toMaybeEnumType: an object that is exactly a EnumType calls its toMaybeEnumType_impl directly (post-flip); others dispatch.
@@ -244,7 +244,7 @@ func (this *EnumType) toMaybeEnumType() *EnumType {
 	if this.self_ == any(this) {
 		return this.toMaybeEnumType_impl()
 	}
-	return this.self_.(interface{ toMaybeEnumType_impl() *EnumType }).toMaybeEnumType_impl()
+	return this.self_.toMaybeEnumType_impl()
 }
 
 // getImplicitPrototype: an object that is exactly a EnumType calls its getImplicitPrototype_impl directly (post-flip); others dispatch.
@@ -268,7 +268,7 @@ func (this *EnumType) testForEquality(p0 *JSType) *Tri {
 	if this.self_ == any(this) {
 		return this.testForEquality_impl(p0)
 	}
-	return this.self_.(interface{ testForEquality_impl(*JSType) *Tri }).testForEquality_impl(p0)
+	return this.self_.testForEquality_impl(p0)
 }
 
 // appendTo: an object that is exactly a EnumType calls its appendTo_impl directly (post-flip); others dispatch.
@@ -277,7 +277,7 @@ func (this *EnumType) appendTo(p0 *TypeStringBuilder) {
 		this.appendTo_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendTo_impl(*TypeStringBuilder) }).appendTo_impl(p0)
+	this.self_.appendTo_impl(p0)
 }
 
 // getDisplayName: an object that is exactly a EnumType calls its getDisplayName_impl directly (post-flip); others dispatch.
@@ -285,7 +285,7 @@ func (this *EnumType) getDisplayName() Optional[string] {
 	if this.self_ == any(this) {
 		return this.getDisplayName_impl()
 	}
-	return this.self_.(interface{ getDisplayName_impl() Optional[string] }).getDisplayName_impl()
+	return this.self_.getDisplayName_impl()
 }
 
 // visitUntyped: an object that is exactly a EnumType calls its visitUntyped_impl directly (post-flip); others dispatch.
@@ -293,7 +293,7 @@ func (this *EnumType) visitUntyped(p0 Visitor) any {
 	if this.self_ == any(this) {
 		return this.visitUntyped_impl(p0)
 	}
-	return this.self_.(interface{ visitUntyped_impl(Visitor) any }).visitUntyped_impl(p0)
+	return this.self_.visitUntyped_impl(p0)
 }
 
 // visitUntyped_2: an object that is exactly a EnumType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
@@ -301,9 +301,7 @@ func (this *EnumType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
 	if this.self_ == any(this) {
 		return this.visitUntyped_2_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		visitUntyped_2_impl(RelationshipVisitor, *JSType) any
-	}).visitUntyped_2_impl(p0, p1)
+	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
 // getConstructor: an object that is exactly a EnumType calls its getConstructor_impl directly (post-flip); others dispatch.
@@ -319,7 +317,7 @@ func (this *EnumType) matchesNumberContext() bool {
 	if this.self_ == any(this) {
 		return this.matchesNumberContext_impl()
 	}
-	return this.self_.(interface{ matchesNumberContext_impl() bool }).matchesNumberContext_impl()
+	return this.self_.matchesNumberContext_impl()
 }
 
 // matchesStringContext: an object that is exactly a EnumType calls its matchesStringContext_impl directly (post-flip); others dispatch.
@@ -327,7 +325,7 @@ func (this *EnumType) matchesStringContext() bool {
 	if this.self_ == any(this) {
 		return this.matchesStringContext_impl()
 	}
-	return this.self_.(interface{ matchesStringContext_impl() bool }).matchesStringContext_impl()
+	return this.self_.matchesStringContext_impl()
 }
 
 // matchesObjectContext: an object that is exactly a EnumType calls its matchesObjectContext_impl directly (post-flip); others dispatch.
@@ -335,7 +333,7 @@ func (this *EnumType) matchesObjectContext() bool {
 	if this.self_ == any(this) {
 		return this.matchesObjectContext_impl()
 	}
-	return this.self_.(interface{ matchesObjectContext_impl() bool }).matchesObjectContext_impl()
+	return this.self_.matchesObjectContext_impl()
 }
 
 // resolveInternal: an object that is exactly a EnumType calls its resolveInternal_impl directly (post-flip); others dispatch.
@@ -343,9 +341,7 @@ func (this *EnumType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
 	if this.self_ == any(this) {
 		return this.resolveInternal_impl(p0)
 	}
-	return this.self_.(interface {
-		resolveInternal_impl(ErrorReporter_rhino) *JSType
-	}).resolveInternal_impl(p0)
+	return this.self_.resolveInternal_impl(p0)
 }
 
 // setName: an object that is exactly a EnumType_Builder calls its setName_impl directly (post-flip); others dispatch.
@@ -353,9 +349,7 @@ func (this *EnumType_Builder) setName(p0 Optional[string]) *PrototypeObjectType_
 	if this.self_ == any(this) {
 		return this.setName_impl(p0)
 	}
-	return this.self_.(interface {
-		setName_impl(Optional[string]) *PrototypeObjectType_Builder
-	}).setName_impl(p0)
+	return this.self_.setName_impl(p0)
 }
 
 // build: an object that is exactly a EnumType_Builder calls its build_impl directly (post-flip); others dispatch.
@@ -363,5 +357,5 @@ func (this *EnumType_Builder) build() *PrototypeObjectType {
 	if this.self_ == any(this) {
 		return this.build_impl()
 	}
-	return this.self_.(interface{ build_impl() *PrototypeObjectType }).build_impl()
+	return this.self_.build_impl()
 }
