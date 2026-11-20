@@ -1585,33 +1585,92 @@ var naturalOrder_ Comparator = &cmpFunc_{compareNatural_}
 
 func Comparator_naturalOrder() Comparator { return naturalOrder_ }
 
+// The Comparator combinators return comparators of their own types, not closures over the
+// comparators and key functions they wrap: comparing through one of them is one method call per
+// level of the combination. Each calls its comparators and key functions in the JDK's order.
+
+// intKeyCmp_ is Comparator.comparingInt(key), and, with rev, its reversed(): Integer.compare of
+// key(a) and key(b), or of key(b) and key(a). It holds the key function's Go func when there is
+// one, so a comparison calls it directly.
+type intKeyCmp_ struct {
+	key func(any) int32
+	rev bool
+}
+
+func (c *intKeyCmp_) compare(a, b any) int32 {
+	if c.rev {
+		a, b = b, a
+	}
+	return Integer_compare(c.key(a), c.key(b))
+}
+
+// reversedCmp_ is c.reversed() (Collections.reverseOrder(c)): c.compare(b, a).
+type reversedCmp_ struct{ c Comparator }
+
+func (r *reversedCmp_) compare(a, b any) int32 { return r.c.compare(b, a) }
+
+// keyCmp_ is Comparator.comparing(key) (natural order of the keys) or, with c,
+// Comparator.comparing(key, c).
+type keyCmp_ struct {
+	key Function
+	c   Comparator
+}
+
+func (k *keyCmp_) compare(a, b any) int32 {
+	if k.c == nil {
+		return compareNatural_(k.key.apply(a), k.key.apply(b))
+	}
+	return k.c.compare(k.key.apply(a), k.key.apply(b))
+}
+
+// longKeyCmp_ is Comparator.comparingLong(key).
+type longKeyCmp_ struct{ key ToLongFunction }
+
+func (k *longKeyCmp_) compare(a, b any) int32 {
+	return Long_compare(k.key.applyAsLong(a), k.key.applyAsLong(b))
+}
+
+// thenCmp_ is c.thenComparing(d): c, and d where c finds a and b equal.
+type thenCmp_ struct{ c, d Comparator }
+
+func (t *thenCmp_) compare(a, b any) int32 {
+	if r := t.c.compare(a, b); r != 0 {
+		return r
+	}
+	return t.d.compare(a, b)
+}
+
 func Comparator_reversed(c Comparator) Comparator {
-	return &cmpFunc_{func(a, b any) int32 { return c.compare(b, a) }}
+	switch k := c.(type) {
+	case *intKeyCmp_:
+		return &intKeyCmp_{key: k.key, rev: !k.rev}
+	case *reversedCmp_:
+		return k.c // as the JDK's reversed() of a reversed comparator
+	}
+	return &reversedCmp_{c}
 }
 
 func Comparator_comparing(f Function) Comparator {
-	return &cmpFunc_{func(a, b any) int32 { return compareNatural_(f.apply(a), f.apply(b)) }}
+	return &keyCmp_{key: f}
 }
 
 func Comparator_comparing_Function_Comparator(f Function, c Comparator) Comparator {
-	return &cmpFunc_{func(a, b any) int32 { return c.compare(f.apply(a), f.apply(b)) }}
+	return &keyCmp_{key: f, c: c}
 }
 
 func Comparator_comparingInt(f ToIntFunction) Comparator {
-	return &cmpFunc_{func(a, b any) int32 { return Integer_compare(f.applyAsInt(a), f.applyAsInt(b)) }}
+	if fn, ok := f.(*ToIntFunction_fn); ok && fn != nil {
+		return &intKeyCmp_{key: fn.f}
+	}
+	return &intKeyCmp_{key: func(v any) int32 { return f.applyAsInt(v) }}
 }
 
 func Comparator_comparingLong(f ToLongFunction) Comparator {
-	return &cmpFunc_{func(a, b any) int32 { return Long_compare(f.applyAsLong(a), f.applyAsLong(b)) }}
+	return &longKeyCmp_{f}
 }
 
 func Comparator_thenComparing_Comparator(c Comparator, d Comparator) Comparator {
-	return &cmpFunc_{func(a, b any) int32 {
-		if r := c.compare(a, b); r != 0 {
-			return r
-		}
-		return d.compare(a, b)
-	}}
+	return &thenCmp_{c, d}
 }
 
 func Comparator_thenComparing(c Comparator, f Function) Comparator {
