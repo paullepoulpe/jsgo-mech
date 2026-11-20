@@ -158,7 +158,7 @@ func (this *JSChunk) getInputCount() int32 {
 }
 
 func (this *JSChunk) getFirst() *CompilerInput {
-	return cast_[*CompilerInput](this.inputs.asMap().values().iterator().next())
+	return cast_[*CompilerInput](first_(this.inputs.asMap().values()))
 }
 
 func (this *JSChunk) getInputs() ImmutableListOf[*CompilerInput] {
