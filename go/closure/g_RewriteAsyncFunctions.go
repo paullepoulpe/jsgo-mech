@@ -228,6 +228,12 @@ type RewriteAsyncFunctions_LexicalContext_I interface {
 	visit_impl(*NodeTraversal, Node)
 }
 
+// RewriteAsyncFunctions_LexicalContext_as is implemented by RewriteAsyncFunctions_LexicalContext and the classes that extend it: a cast to RewriteAsyncFunctions_LexicalContext asserts to it
+// (post-flip).
+type RewriteAsyncFunctions_LexicalContext_as interface {
+	as_RewriteAsyncFunctions_LexicalContext() *RewriteAsyncFunctions_LexicalContext
+}
+
 func (this *RewriteAsyncFunctions_LexicalContext) as_RewriteAsyncFunctions_LexicalContext() *RewriteAsyncFunctions_LexicalContext {
 	return this
 }
@@ -243,16 +249,7 @@ func to_RewriteAsyncFunctions_LexicalContext(v any) *RewriteAsyncFunctions_Lexic
 	case nil:
 		return nil
 	}
-	return v.(interface {
-		as_RewriteAsyncFunctions_LexicalContext() *RewriteAsyncFunctions_LexicalContext
-	}).as_RewriteAsyncFunctions_LexicalContext()
-}
-
-func is_RewriteAsyncFunctions_LexicalContext(v any) bool {
-	_, ok := v.(interface {
-		as_RewriteAsyncFunctions_LexicalContext() *RewriteAsyncFunctions_LexicalContext
-	})
-	return ok
+	return v.(RewriteAsyncFunctions_LexicalContext_as).as_RewriteAsyncFunctions_LexicalContext()
 }
 
 func (this *RewriteAsyncFunctions_LexicalContext) self() any {
