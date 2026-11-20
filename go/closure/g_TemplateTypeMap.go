@@ -12,16 +12,16 @@ type TemplateTypeMap struct {
 
 func (this *TemplateTypeMap) init_TemplateTypeMap(registry *JSTypeRegistry, templateKeys *JTList[*TemplateType], templateValues *JTList[*JSType], subMapStarts *BitSet) {
 	if templateKeys.asList() == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if templateValues.asList() == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if templateValues.size() > templateKeys.size() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if templateKeys.size() > subMapStarts.size() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	this.registry = registry
 	this.templateKeys = templateKeys
@@ -53,7 +53,7 @@ func new_TemplateTypeMap(registry *JSTypeRegistry, templateKeys *JTList[*Templat
 
 func TemplateTypeMap_createEmpty(registry *JSTypeRegistry) *TemplateTypeMap {
 	if registry.getEmptyTemplateTypeMap() != nil {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	return new_TemplateTypeMap(registry, jtlistEmptyImm_(jtc_p_TemplateType), jtlistEmptyImm_(jtc_p_JSType), new_BitSet())
 }
@@ -68,7 +68,7 @@ func (this *TemplateTypeMap) nextSubMapStart(index int32) int32 {
 func (this *TemplateTypeMap) copyFilledWithValues(values *JTList[*JSType]) *TemplateTypeMap {
 	var requiredUnknownCount int32 = (this.numUnfilledTemplateKeys() - values.size())
 	if requiredUnknownCount < 0 {
-		panic(new_IllegalArgumentException_String(objstr_(int32(requiredUnknownCount))).self())
+		panic(new_IllegalArgumentException_String(objstr_(int32(requiredUnknownCount))))
 	}
 	if this.numUnfilledTemplateKeys() == 0 {
 		return this
@@ -96,7 +96,7 @@ func (this *TemplateTypeMap) copyWithExtension_2(keys *JTList[*TemplateType], va
 func (this *TemplateTypeMap) copyWithExtension_3(keys *JTList[*TemplateType], values *JTList[*JSType], newsubMapStarts *BitSet) *TemplateTypeMap {
 	var extendedUnfilledCount int32 = (keys.size() - values.size())
 	if extendedUnfilledCount < 0 {
-		panic(new_IllegalArgumentException_String(objstr_(int32(extendedUnfilledCount))).self())
+		panic(new_IllegalArgumentException_String(objstr_(int32(extendedUnfilledCount))))
 	}
 	if (this.numUnfilledTemplateKeys() == 0) && keys.isEmpty() {
 		return this
@@ -272,7 +272,7 @@ func (this *TemplateTypeMap) toString() string {
 
 func (this *TemplateTypeMap) padToSameLength(keys *JTList[*TemplateType], builder *JTList[*JSType]) {
 	if builder.size() > keys.size() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	for i := int32(builder.size()); i < keys.size(); i++ {
 		builder.add(this.defaultValueType(keys.get(i)))

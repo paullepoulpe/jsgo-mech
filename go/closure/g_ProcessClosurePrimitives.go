@@ -28,7 +28,7 @@ func (this *ProcessClosurePrimitives) init_ProcessClosurePrimitives(compiler *Ab
 	this.compiler_ = compiler
 	nn_ := compiler.getModuleMetadataMap()
 	if nn_ == nil {
-		panic(new_NullPointerException_String("Need to run GatherModuleMetadata").self())
+		panic(new_NullPointerException_String("Need to run GatherModuleMetadata"))
 	}
 	this.closureModules = nn_.getModulesByGoogNamespace()
 }

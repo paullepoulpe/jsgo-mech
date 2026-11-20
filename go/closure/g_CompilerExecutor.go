@@ -51,7 +51,7 @@ func (this *CompilerExecutor) runInCompilerThread(callable func() any, dumpTrace
 	var result any = nil
 	var exception []*Throwable = make([]*Throwable, 1)
 	if this.compilerThread != nil && this.compilerThread != Thread_currentThread() {
-		panic(new_IllegalStateException_String(objstr_("Please do not share the Compiler across threads")).self())
+		panic(new_IllegalStateException_String(objstr_("Please do not share the Compiler across threads")))
 	}
 	if this.useThreads && (this.compilerThread == nil) {
 		_ = func() (code_ int) {
@@ -63,7 +63,7 @@ func (this *CompilerExecutor) runInCompilerThread(callable func() any, dumpTrace
 					ex_ := catch_(r_)
 					if is_ExecutionException(ex_) {
 						var e *Exception = to_Exception(ex_)
-						panic(new_RuntimeException_Throwable(e.up_Throwable()).self())
+						panic(new_RuntimeException_Throwable(e.up_Throwable()))
 					}
 					panic(r_)
 				}
@@ -128,10 +128,10 @@ func (this *CompilerExecutor) runInCompilerThread(callable func() any, dumpTrace
 	}
 	if exception[0] != nil {
 		if this.debugMessage.isPresent() {
-			panic(new_RuntimeException_String_Throwable(("Exception during compilation: " + sstr_(this.debugMessage.get())), exception[0]).self())
+			panic(new_RuntimeException_String_Throwable(("Exception during compilation: " + sstr_(this.debugMessage.get())), exception[0]))
 		}
 		Throwables_throwIfUnchecked(exception[0])
-		panic(new_RuntimeException_Throwable(exception[0]).self())
+		panic(new_RuntimeException_Throwable(exception[0]))
 	}
 	return result
 }

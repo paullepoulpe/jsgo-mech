@@ -144,7 +144,7 @@ func (this *ClosureBundler) getSourceMap(path string) string {
 
 func (this *ClosureBundler) transpile_2(s string, t Transpiler_transpile) string {
 	if !Uris_isValid(this.path_) {
-		panic(new_RuntimeException_String(("Invalid path: " + sstr_(this.path_))).self())
+		panic(new_RuntimeException_String(("Invalid path: " + sstr_(this.path_))))
 	}
 	var result *TranspileResult = t.transpile(this.path_, s)
 	Map_put_s(this.sourceMapCache, this.path_, strobj_(result.sourceMap()))
@@ -222,7 +222,7 @@ func (this ClosureBundler_EvalMode) appendTraditional(s string, out Appendable, 
 		ClosureBundler_EscapeMode_NORMAL.append(s, out)
 		ClosureBundler_appendSourceUrl(out, ClosureBundler_EscapeMode_NORMAL, sourceUrl)
 	default:
-		panic(new_NullPointerException_0().self()) // a call on null
+		panic(new_NullPointerException_0()) // a call on null
 	}
 }
 
@@ -239,7 +239,7 @@ func (this ClosureBundler_EvalMode) appendGoogModule(s string, out Appendable, s
 		Appendable_append_s(out, "\n;return exports;});\n")
 		ClosureBundler_appendSourceUrl(out, ClosureBundler_EscapeMode_NORMAL, sourceUrl)
 	default:
-		panic(new_NullPointerException_0().self()) // a call on null
+		panic(new_NullPointerException_0()) // a call on null
 	}
 }
 
@@ -319,7 +319,7 @@ func (this ClosureBundler_EscapeMode) append(s string, out Appendable) {
 	case ClosureBundler_EscapeMode_NORMAL:
 		Appendable_append_s(out, s)
 	default:
-		panic(new_NullPointerException_0().self()) // a call on null
+		panic(new_NullPointerException_0()) // a call on null
 	}
 }
 

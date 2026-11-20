@@ -43,7 +43,7 @@ func (this *SimpleBiMap[K, V]) put(key K, value V) V {
 		return unboxT_[V](oldValue)
 	}
 	if this.backward.containsKey(valueBox_) {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("value already present: %s", []any{valueBox_})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("value already present: %s", []any{valueBox_})))
 	}
 	this.forward.put(keyBox_, valueBox_)
 	if hadKey {
@@ -66,7 +66,7 @@ func (this *SimpleBiMap[K, V]) put_s(key string, value V) V {
 		return unboxT_[V](oldValue)
 	}
 	if this.backward.containsKey(valueBox_) {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("value already present: %s", []any{valueBox_})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("value already present: %s", []any{valueBox_})))
 	}
 	Map_put_s(this.forward, key, valueBox_)
 	if hadKey {

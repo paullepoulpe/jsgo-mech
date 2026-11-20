@@ -64,7 +64,7 @@ func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
 			var exportSpec Node = export.getFirstFirstChild()
 			for ; exportSpec != 0; exportSpec = exportSpec.getNext() {
 				if !exportSpec.hasTwoChildren() {
-					panic(new_IllegalStateException_0().self())
+					panic(new_IllegalStateException_0())
 				}
 				this.exportedLocalNames.add(exportSpec.getFirstChild().getString())
 			}
@@ -74,7 +74,7 @@ func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
 		if NodeUtil_isNameDeclaration(declaration) {
 			NodeUtil_visitLhsNodesInNode(declaration, (&Consumer_tfn_Node{func(lhs Node) {
 				if !lhs.isName() {
-					panic(new_IllegalStateException_0().self())
+					panic(new_IllegalStateException_0())
 				}
 				this.exportedLocalNames.add(lhs.getString())
 			}}).accept)
@@ -88,7 +88,7 @@ func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
 			}
 		} else {
 			if !declaration.isClass() && !declaration.isFunction() {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			var nameNode Node = declaration.getFirstChild()
 			this.exportedLocalNames.add(nameNode.getString())

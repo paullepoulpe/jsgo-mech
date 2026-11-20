@@ -23,13 +23,13 @@ func (this *InlineFunctions) finit_InlineFunctions() {
 func (this *InlineFunctions) init_InlineFunctions(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string], reach CompilerOptions_Reach, assumeStrictThis bool, maxSizeAfterInlining int32) {
 	this.finit_InlineFunctions()
 	if compiler == nil {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if safeNameIdSupplier == nil {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if reach == CompilerOptions_Reach_NONE {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	this.compiler_ = compiler
 	this.reach = reach
@@ -53,7 +53,7 @@ func (this *InlineFunctions) getOrCreateFunctionState(fnName string) *InlineFunc
 
 func (this *InlineFunctions) process_2(externs Node, root Node) {
 	if !this.compiler_.getLifeCycleStage().isNormalized() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_InlineFunctions_FindCandidateFunctions(this)))
 	if this.fns.isEmpty() {
@@ -78,7 +78,7 @@ func (this *InlineFunctions) process_2(externs Node, root Node) {
 
 func InlineFunctions_isAlwaysInlinable(fn Node) bool {
 	if !fn.isFunction() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var body Node = NodeUtil_getFunctionBody(fn)
 	return (!body.hasChildren() || (body.hasOneChild() && body.getFirstChild().isReturn()))
@@ -103,7 +103,7 @@ func (this *InlineFunctions) maybeAddFunction(fn InlineFunctions_Function, chunk
 	var functionState *InlineFunctions_FunctionState = this.getOrCreateFunctionState(name)
 	this.updateFunctionStateForInlining(fn, chunk, functionState)
 	if InlineFunctions_hasRequireInliningAnnotation(fn.getFunctionNode()) && !functionState.canInline() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 }
 
@@ -202,7 +202,7 @@ func (this *InlineFunctions) isCandidateFunction(fn InlineFunctions_Function) bo
 func InlineFunctions_isCandidateUsage(name Node) bool {
 	var parent Node = name.getParent()
 	if !name.isName() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if NodeUtil_isNameDeclaration(parent) || parent.isFunction() {
 		return true
@@ -279,7 +279,7 @@ func (this *InlineFunctions) resolveInlineConflicts() {
 
 func InlineFunctions_hasNonInlinableParam(node Node) bool {
 	if node == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var pred func(any) bool = (&Predicate_base_tfn_Node{func(input Node) bool {
 		return (input.isDefaultValue() || input.isDestructuringPattern())
@@ -317,7 +317,7 @@ func (this *InlineFunctions) findCalledFunctions(node Node) *JTSet[string] {
 
 func InlineFunctions_findCalledFunctions(node Node, changed *JTSet[string]) {
 	if changed == nil {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if node.isName() && InlineFunctions_isCandidateUsage(node) {
 		changed.add(node.getString())
@@ -353,10 +353,10 @@ func (this *InlineFunctions) removeInlinedFunctions() {
 		if functionState.canRemove() {
 			var fn InlineFunctions_Function = functionState.getFn()
 			if !functionState.canInline() {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			if fn == nil {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			this.verifyAllReferencesInlined(name, functionState)
 			fn.remove()
@@ -374,7 +374,7 @@ func (this *InlineFunctions) verifyAllReferencesInlined(name string, functionSta
 					return "null"
 				}
 				return parent.toStringTree()
-			}()))).self())
+			}()))))
 		}
 	}
 }
@@ -477,7 +477,7 @@ func (this *InlineFunctions_FindCandidateFunctions) findNamedFunctions(t *NodeTr
 	switch n.ns_().token {
 	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		if !n.hasOneChild() {
-			panic(new_IllegalStateException_String(tostr_(n)).self())
+			panic(new_IllegalStateException_String(tostr_(n)))
 		}
 		var nameNode Node = n.getFirstChild()
 		if (nameNode.isName() && nameNode.hasChildren()) && nameNode.getFirstChild().isFunction() {
@@ -485,7 +485,7 @@ func (this *InlineFunctions_FindCandidateFunctions) findNamedFunctions(t *NodeTr
 		}
 	case tokOrd1_FUNCTION:
 		if !NodeUtil_isStatementBlock(parent) && !parent.isLabel() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		if NodeUtil_isFunctionDeclaration(n) {
 			var fn InlineFunctions_Function = InlineFunctions_Function(new_InlineFunctions_NamedFunction(this.outer_, n))
@@ -579,7 +579,7 @@ func (this *InlineFunctions_CallVisitor) visit_impl(t *NodeTraversal, n Node, pa
 			name = Optional_ofNullable[string](this.anonFunctionMap.get(child))
 		} else if NodeUtil_isFunctionObjectCall(n) {
 			if !NodeUtil_isNormalOrOptChainGet(child) {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			var fnIdentifyingNode Node = child.getFirstChild()
 			if fnIdentifyingNode.isName() {
@@ -677,7 +677,7 @@ func (this *InlineFunctions_FindCandidatesReferences) maybeAddReferenceUsingMode
 
 func (this *InlineFunctions_FindCandidatesReferences) checkNameUsage(n Node, parent Node) {
 	if !n.isName() {
-		panic(new_IllegalStateException_String(tostr_(n)).self())
+		panic(new_IllegalStateException_String(tostr_(n)))
 	}
 	if InlineFunctions_isCandidateUsage(n) {
 		return
@@ -712,7 +712,7 @@ func new_InlineFunctions_Inline(injector *FunctionInjector) *InlineFunctions_Inl
 
 func (this *InlineFunctions_Inline) visitCallSite(t *NodeTraversal, callNode Node, functionState *InlineFunctions_FunctionState) {
 	if !functionState.hasExistingFunctionDefinition() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if functionState.canInline() {
 		var ref *InlineFunctions_Reference = functionState.getReference(callNode)
@@ -827,7 +827,7 @@ func (this *InlineFunctions_FunctionState) getFn() InlineFunctions_Function {
 
 func (this *InlineFunctions_FunctionState) setFn(fn InlineFunctions_Function) {
 	if this.fn != nil {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.fn = fn
 }

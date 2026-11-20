@@ -76,7 +76,7 @@ func (this *SimpleJsonWriter) endObject() *SimpleJsonWriter {
 
 func (this *SimpleJsonWriter) name(name string) *SimpleJsonWriter {
 	if this.deferredName.isPresent() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.deferredName = Optional_of[string](name)
 	return this
@@ -151,10 +151,10 @@ func (this *SimpleJsonWriter) open(empty int32, openBracket uint16) *SimpleJsonW
 func (this *SimpleJsonWriter) close(empty int32, nonempty int32, closeBracket uint16) *SimpleJsonWriter {
 	var context int32 = unbox_[int32](this.stack.get((this.stack.size() - 1)))
 	if (context != nonempty) && (context != empty) {
-		panic(new_IllegalStateException_String("Nesting problem.").self())
+		panic(new_IllegalStateException_String("Nesting problem."))
 	}
 	if this.deferredName.isPresent() {
-		panic(new_IllegalStateException_String(("Dangling name: " + sstr_(this.deferredName.get()))).self())
+		panic(new_IllegalStateException_String(("Dangling name: " + sstr_(this.deferredName.get()))))
 	}
 	this.stack.removeAt((this.stack.size() - 1))
 	if context == nonempty {
@@ -174,7 +174,7 @@ func (this *SimpleJsonWriter) beforeValue() {
 		if context == SimpleJsonWriter_NONEMPTY_OBJECT {
 			this.out.append_char(',')
 		} else if context != SimpleJsonWriter_EMPTY_OBJECT {
-			panic(new_IllegalStateException_String("Nesting problem.").self())
+			panic(new_IllegalStateException_String("Nesting problem."))
 		}
 		this.newline()
 		this.string(this.deferredName.get())
@@ -193,7 +193,7 @@ func (this *SimpleJsonWriter) beforeValue() {
 		this.out.append_char(',')
 		this.newline()
 	} else if context != SimpleJsonWriter_DOCUMENT {
-		panic(new_IllegalStateException_String("Nesting problem.").self())
+		panic(new_IllegalStateException_String("Nesting problem."))
 	}
 }
 

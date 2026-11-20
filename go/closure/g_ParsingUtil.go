@@ -17,7 +17,7 @@ func new_ParsingUtil() *ParsingUtil {
 
 func ParsingUtil_getParamOrPatternNames(n Node, cb func(any)) {
 	if n == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	switch n.ns_().token {
 	case tokOrd1_EMPTY, tokOrd1_GETELEM, tokOrd1_GETPROP:
@@ -35,6 +35,6 @@ func ParsingUtil_getParamOrPatternNames(n Node, cb func(any)) {
 			}
 		}
 	default:
-		panic(new_IllegalStateException_String("Unexpected parameter structure").self())
+		panic(new_IllegalStateException_String("Unexpected parameter structure"))
 	}
 }

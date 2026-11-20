@@ -35,7 +35,7 @@ func (this *PrebuildAst) prebuild(allInputs IterableOf[*CompilerInput]) {
 				ex_ := catch_(r_)
 				if is_ExecutionException(ex_) {
 					var e *Exception = to_Exception(ex_)
-					panic(new_RuntimeException_Throwable(e.up_Throwable()).self())
+					panic(new_RuntimeException_Throwable(e.up_Throwable()))
 				}
 				panic(r_)
 			}

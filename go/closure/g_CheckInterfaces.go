@@ -71,7 +71,7 @@ func CheckInterfaces_checkInterfaceConstructorArgs(t *NodeTraversal, funcNode No
 func CheckInterfaces_checkClassMethods(t *NodeTraversal, classNode Node, ctorDef Node) {
 	var classMembers Node = classNode.getLastChild()
 	if !classMembers.isClassMembers() {
-		panic(new_IllegalStateException_String(tostr_(classMembers)).self())
+		panic(new_IllegalStateException_String(tostr_(classMembers)))
 	}
 	{
 		var memberFuncDef Node = classMembers.getFirstChild()

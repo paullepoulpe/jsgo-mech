@@ -55,7 +55,7 @@ func (this *JsMessageExtractor) extractMessagesIterable(inputs IterableOf[*Sourc
 			var e *JSError = it_1.v
 			msg.append(formatter.formatError(e))
 		}
-		panic(new_RuntimeException_String(msg.toString()).self())
+		panic(new_RuntimeException_String(msg.toString()))
 	}
 	return extractCompilerPass.getMessages()
 }

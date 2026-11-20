@@ -49,7 +49,7 @@ func (this *Es6RenameTypeReferences) renameTypeNodeRecursive(t *NodeTraversal, n
 
 func (this *Es6RenameTypeReferences) renameTypeReference(t *NodeTraversal, n Node) {
 	if !n.isStringLit() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var fullName string = n.getString()
 	var rootName string
@@ -72,7 +72,7 @@ func (this *Es6RenameTypeReferences) renameReference(t *NodeTraversal, n Node, o
 		var newName Optional[string] = Optional_ofNullable[string](this.renameTable.get(currentRootNode.box_(), strobj_(oldName)))
 		if newName.isPresent() {
 			if !((currentRootNode.isModuleBody() || currentRootNode.isScript()) || NodeUtil_isFunctionBlock(currentRootNode)) {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Not a MODULE_BODY or SCRIPT or goog.loadModule root: %s", []any{currentRootNode.box_()})).self())
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Not a MODULE_BODY or SCRIPT or goog.loadModule root: %s", []any{currentRootNode.box_()})))
 			}
 			var newFullName string = func() string {
 				if rest.isEmpty() {
