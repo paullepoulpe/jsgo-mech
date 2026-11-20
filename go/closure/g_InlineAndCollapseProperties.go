@@ -1078,9 +1078,9 @@ func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForName(n
 	if !logsOn_(this.outer_.decisionsLog) {
 		return
 	}
-	this.outer_.decisionsLog.log(&Supplier_tfn_string{func() string {
+	this.outer_.decisionsLog.log(func() string {
 		return (sstr_(name.getFullName()) + ": " + sstr_(message))
-	}})
+	})
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForNameSupplier(name *GlobalNamespace_Name, messageSupplier func() string) {
@@ -1089,9 +1089,9 @@ func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForNameSu
 	if !logsOn_(this.outer_.decisionsLog) {
 		return
 	}
-	this.outer_.decisionsLog.log(&Supplier_tfn_string{func() string {
+	this.outer_.decisionsLog.log(func() string {
 		return (sstr_(name.getFullName()) + ": " + sstr_(messageSupplier()))
-	}})
+	})
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) flattenSimpleStubDeclaration(name *GlobalNamespace_Name, alias string) {
