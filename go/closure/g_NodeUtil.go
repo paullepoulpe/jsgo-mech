@@ -787,9 +787,9 @@ func NodeUtil_findClosureUnawareScriptRoot(script Node) Node {
 	if !script.isScript() || !script.getIsInClosureUnawareSubtree() {
 		panic(new_IllegalArgumentException_String(tostr_(script)))
 	}
-	return NodeUtil_findPreorder(script, (Node).isBlock, &Predicate_base_tfn_Node{func(c Node) bool {
+	return NodeUtil_findPreorder(script, (Node).isBlock, func(c Node) bool {
 		return true
-	}})
+	})
 }
 
 func NodeUtil_getInsertionPointAfterAllInnerFunctionDeclarations(block Node) Node {
@@ -1490,9 +1490,9 @@ func NodeUtil_referencesEnclosingReceiver(n Node) bool {
 func NodeUtil_referencesSuper(n Node) bool {
 	var curr Node = n.getFirstChild()
 	for curr != 0 {
-		if NodeUtil_has(curr, (Node).isSuper, &Predicate_base_tfn_Node{func(node Node) bool {
+		if NodeUtil_has(curr, (Node).isSuper, func(node Node) bool {
 			return !node.isClass()
-		}}) {
+		}) {
 			return true
 		}
 		curr = curr.getNext()
@@ -3145,27 +3145,27 @@ func NodeUtil_isShallowStatementTree(n Node) bool {
 	return ((((n == 0) || NodeUtil_isControlStructure(n)) || NodeUtil_isStatementBlock(n)) || n.isSwitchBody())
 }
 
-func NodeUtil_getNodeTypeReferenceCount(node Node, type_ Token_rhino, traverseChildrenPred Predicate_baseOf[Node]) int32 {
+func NodeUtil_getNodeTypeReferenceCount(node Node, type_ Token_rhino, traverseChildrenPred func(Node) bool) int32 {
 	return NodeUtil_getCount(node, new_NodeUtil_MatchNodeType(type_).apply, traverseChildrenPred)
 }
 
-func NodeUtil_isNameReferenced_Node_String_Predicate(node Node, name string, traverseChildrenPred Predicate_baseOf[Node]) bool {
+func NodeUtil_isNameReferenced_Node_String_Predicate(node Node, name string, traverseChildrenPred func(Node) bool) bool {
 	return NodeUtil_has(node, new_NodeUtil_MatchNameNode(name).applyT_, traverseChildrenPred)
 }
 
 func NodeUtil_isNameReferenced_Node_String(node Node, name string) bool {
-	return NodeUtil_isNameReferenced_Node_String_Predicate(node, name, Predicates_alwaysTrue())
+	return NodeUtil_isNameReferenced_Node_String_Predicate(node, name, Predicates_alwaysTrueT_[Node])
 }
 
 func NodeUtil_getNameReferenceCount(node Node, name string) int32 {
-	return NodeUtil_getCount(node, new_NodeUtil_MatchNameNode(name).apply, Predicates_alwaysTrue())
+	return NodeUtil_getCount(node, new_NodeUtil_MatchNameNode(name).apply, Predicates_alwaysTrueT_[Node])
 }
 
-func NodeUtil_has(node Node, pred func(Node) bool, traverseChildrenPred Predicate_baseOf[Node]) bool {
+func NodeUtil_has(node Node, pred func(Node) bool, traverseChildrenPred func(Node) bool) bool {
 	if pred(node) {
 		return true
 	}
-	if !traverseChildrenPred.apply(node.box_()) {
+	if !traverseChildrenPred(node) {
 		return false
 	}
 	{
@@ -3179,11 +3179,11 @@ func NodeUtil_has(node Node, pred func(Node) bool, traverseChildrenPred Predicat
 	return false
 }
 
-func NodeUtil_findPreorder(node Node, pred func(Node) bool, traverseChildrenPred Predicate_baseOf[Node]) Node {
+func NodeUtil_findPreorder(node Node, pred func(Node) bool, traverseChildrenPred func(Node) bool) Node {
 	if pred(node) {
 		return node
 	}
-	if !traverseChildrenPred.apply(node.box_()) {
+	if !traverseChildrenPred(node) {
 		return 0
 	}
 	{
@@ -3198,12 +3198,12 @@ func NodeUtil_findPreorder(node Node, pred func(Node) bool, traverseChildrenPred
 	return 0
 }
 
-func NodeUtil_getCount(n Node, pred func(any) bool, traverseChildrenPred Predicate_baseOf[Node]) int32 {
+func NodeUtil_getCount(n Node, pred func(any) bool, traverseChildrenPred func(Node) bool) int32 {
 	var total int32 = 0
 	if pred(n.box_()) {
 		total++
 	}
-	if traverseChildrenPred.apply(n.box_()) {
+	if traverseChildrenPred(n) {
 		{
 			var c Node = n.getFirstChild()
 			for ; c != 0; c = c.getNext() {
@@ -3215,12 +3215,12 @@ func NodeUtil_getCount(n Node, pred func(any) bool, traverseChildrenPred Predica
 }
 
 func NodeUtil_visitPreOrder_Node_Visitor(node Node, visitor NodeUtil_Visitor) {
-	NodeUtil_visitPreOrder_Node_Visitor_Predicate(node, visitor, Predicates_alwaysTrue())
+	NodeUtil_visitPreOrder_Node_Visitor_Predicate(node, visitor, Predicates_alwaysTrueT_[Node])
 }
 
-func NodeUtil_visitPreOrder_Node_Visitor_Predicate(node Node, visitor NodeUtil_Visitor, traverseChildrenPred Predicate_baseOf[Node]) {
+func NodeUtil_visitPreOrder_Node_Visitor_Predicate(node Node, visitor NodeUtil_Visitor, traverseChildrenPred func(Node) bool) {
 	visitor.visit(node)
-	if traverseChildrenPred.apply(node.box_()) {
+	if traverseChildrenPred(node) {
 		{
 			var c Node = node.getFirstChild()
 			for ; c != 0; c = c.getNext() {
@@ -3907,9 +3907,9 @@ func NodeUtil_countAstSizeUpToLimit(n Node, limit int32) int32 {
 	var wrappedSize []int32 = []int32{0}
 	NodeUtil_visitPreOrder_Node_Visitor_Predicate(n, &NodeUtil_Visitor_fn{func(n12 Node) {
 		wrappedSize[0]++
-	}}, &Predicate_base_tfn_Node{func(n1 Node) bool {
+	}}, func(n1 Node) bool {
 		return (wrappedSize[0] < limit)
-	}})
+	})
 	return wrappedSize[0]
 }
 
@@ -4456,8 +4456,8 @@ var NodeUtil_DEFINITE_CFG_ROOTS *TSet[Token_rhino]
 var NodeUtil_IS_STATEMENT_PARENT *TSet[Token_rhino]
 var NodeUtil_GLOBAL_OBJECT *QualifiedName
 var NodeUtil_GLOBAL_OBJECT_MANGLED *QualifiedName
-var NodeUtil_MATCH_NOT_FUNCTION Predicate_base
-var NodeUtil_MATCH_ANYTHING_BUT_NON_ARROW_FUNCTION Predicate_base
+var NodeUtil_MATCH_NOT_FUNCTION func(Node) bool
+var NodeUtil_MATCH_ANYTHING_BUT_NON_ARROW_FUNCTION func(Node) bool
 var NodeUtil_NUMBER_NAN Node
 var NodeUtil_GOOG_LOADMODULE *QualifiedName
 
@@ -4485,12 +4485,12 @@ func NodeUtil_clinit() {
 	NodeUtil_IS_STATEMENT_PARENT = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_SCRIPT.enum_(), []*Enum{Token_rhino_MODULE_BODY.enum_(), Token_rhino_BLOCK.enum_(), Token_rhino_LABEL.enum_(), Token_rhino_NAMESPACE_ELEMENTS.enum_(), Token_rhino_INTERFACE_MEMBERS.enum_()}))
 	NodeUtil_GLOBAL_OBJECT = QualifiedName_of("$jscomp.global.Object")
 	NodeUtil_GLOBAL_OBJECT_MANGLED = QualifiedName_of("$jscomp$global.Object")
-	NodeUtil_MATCH_NOT_FUNCTION = &Predicate_base_tfn_Node{func(n Node) bool {
+	NodeUtil_MATCH_NOT_FUNCTION = func(n Node) bool {
 		return !n.isFunction()
-	}}
-	NodeUtil_MATCH_ANYTHING_BUT_NON_ARROW_FUNCTION = &Predicate_base_tfn_Node{func(n Node) bool {
+	}
+	NodeUtil_MATCH_ANYTHING_BUT_NON_ARROW_FUNCTION = func(n Node) bool {
 		return !NodeUtil_isNonArrowFunction(n)
-	}}
+	}
 	NodeUtil_NUMBER_NAN = IR_getprop_Node_String(IR_name("Number"), "NaN")
 	NodeUtil_GOOG_LOADMODULE = QualifiedName_of("goog.loadModule")
 
