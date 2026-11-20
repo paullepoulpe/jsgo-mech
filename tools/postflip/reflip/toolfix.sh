@@ -390,8 +390,8 @@ E17
 #    are (an Object message is String.valueOf(canon_(msg))). The tool read the erased names only, so it left all of these (1,044 of
 #    2,503 checks: the lead line's translator wrote none of them and its step made 2,497 of 2,501 inline). A typed variant is the
 #    erased check of the same name with: the handle read as boxed by box_() (_H); the checked value tested at its type by the
-#    tool's own null test (_T, _Str); a single Object message read under the boxing canon_ gives it (a String strobj_, a class
-#    pointer self(), anything else canon_ itself). Every rewrite is then the tool's own, with the runtime function's exception and
+#    tool's own null test (_T, _Str); a single Object message read under the boxing canon_ gives it (a String strobj_, anything
+#    else canon_ itself, as the runtime function writes it). Every rewrite is then the tool's own, with the runtime function's exception and
 #    message.
 reflip_edit tools/postflip/checks/main.go reflip18 <<'E18'
 func unbox(e ast.Expr) (string, ast.Expr) {
@@ -524,12 +524,9 @@ func reflipVariant1_(k check, variant string) bool {
 			at := rw.Info.Types[a].Type
 			if box, _ := unbox(a); box == "%s" && at != nil && !rw.Info.Types[a].IsNil() {
 				ab, _ := at.Underlying().(*types.Basic)
-				_, ptr := at.Underlying().(*types.Pointer)
 				switch {
 				case ab != nil && ab.Kind() == types.String:
 					reflipBox_[a] = "strobj_(%s)"
-				case ptr && rw.HasMethod(at, "self") && reflipPrimary_(a):
-					reflipBox_[a] = "%s.self()"
 				default:
 					reflipBox_[a] = "canon_(%s)"
 				}
