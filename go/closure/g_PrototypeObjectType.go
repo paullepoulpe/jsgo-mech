@@ -384,7 +384,7 @@ func PrototypeObjectType_clinit() {
 					case Property_KeyKind_SYMBOL:
 						return -1
 					}
-					panic("unreachable")
+					panic(new_NullPointerException_0())
 				}()
 			case Property_KeyKind_SYMBOL:
 				return func() int32 {
@@ -394,10 +394,10 @@ func PrototypeObjectType_clinit() {
 					case Property_KeyKind_SYMBOL:
 						return utf16Compare_(thisProp.type_().toString(), otherProp.type_().toString())
 					}
-					panic("unreachable")
+					panic(new_NullPointerException_0())
 				}()
 			}
-			panic("unreachable")
+			panic(new_NullPointerException_0())
 		}()
 	}}
 

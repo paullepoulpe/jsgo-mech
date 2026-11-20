@@ -1003,7 +1003,7 @@ func (this *JSType) getTypesUnderEquality_impl(that *JSType) *JSType_TypePair {
 		case Tri_TRUE, Tri_UNKNOWN:
 			return new_JSType_TypePair(this, that)
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
