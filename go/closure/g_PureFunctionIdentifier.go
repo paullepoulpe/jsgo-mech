@@ -81,7 +81,7 @@ func (this *PureFunctionIdentifier) validateArtificialPurity() {
 }
 
 func PureFunctionIdentifier_formatSourceLocation(node Node) string {
-	return String_format("%s:%s:%s", []any{strobj_(node.getSourceFileName()), int32(node.getLineno()), int32(node.getCharno())})
+	return String_format("%s:%s:%s", strobj_(node.getSourceFileName()), int32(node.getLineno()), int32(node.getCharno()))
 }
 
 func PureFunctionIdentifier_collectCallableLeaves(expr Node, astAnalyzer *AstAnalyzer) *TList[Node] {

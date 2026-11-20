@@ -98,7 +98,7 @@ func IR_block_0() Node {
 
 func IR_block_Node(stmt Node) Node {
 	if ok_, a1_ := IR_mayBeStatement(stmt), stmt.getToken(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Block node cannot contain %s", []any{a1_})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Block node cannot contain %s", a1_)))
 	}
 	return new_Node_Token_Node(Token_rhino_BLOCK, stmt)
 }
@@ -479,7 +479,7 @@ func IR_newNode(target Node, args []Node) Node {
 
 func IR_name(name string) Node {
 	if strings.Contains(name, ".") {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Invalid name '%s'. Did you mean to use NodeUtil.newQName?", []any{name})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Invalid name '%s'. Did you mean to use NodeUtil.newQName?", name)))
 	}
 	return Node_newString_Token_String(Token_rhino_NAME, name)
 }

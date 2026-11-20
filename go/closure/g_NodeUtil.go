@@ -4251,7 +4251,7 @@ func NodeUtil_addFeatureToScript(scriptNode Node, feature FeatureSet_Feature, co
 	scriptNode.setFeatureSet(newFeatures)
 	if feature != FeatureSet_Feature_MODULES {
 		if !compiler.getAllowableFeatures().contains(feature) {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot add feature: %s. It is not supported in the output language, and either 1) its corresponding transpilation pass has already run or 2) transpilation of this feature is unsupported entirely", []any{feature})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot add feature: %s. It is not supported in the output language, and either 1) its corresponding transpilation pass has already run or 2) transpilation of this feature is unsupported entirely", feature)))
 		}
 	} else {
 		compiler.setAllowableFeatures(compiler.getAllowableFeatures().with(feature))

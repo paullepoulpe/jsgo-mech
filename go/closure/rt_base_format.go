@@ -423,7 +423,7 @@ func absU64_(x int64) uint64 {
 	return uint64(x)
 }
 
-func String_format(format string, args []any) string {
+func String_format(format string, args ...any) string {
 	if format == nullstr_ {
 		panic(new_NullPointerException_0().self())
 	}

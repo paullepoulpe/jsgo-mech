@@ -34,7 +34,7 @@ func (this *TypeInference) init_TypeInference(compiler *AbstractCompiler, cfg *C
 	this.DataFlowAnalysis.init_DataFlowAnalysis(cfg)
 	this.finit_TypeInference()
 	if ok_, a1_, a2_ := (syntacticScope.getRootNode() == cfg.getEntry().getValue()), cfg.getEntry(), syntacticScope.getRootNode(); !ok_ {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected syntactic scope to be rooted at CFG root node of %s, but instead got syntactic scope root node of %s", []any{a1_, a2_.box_()})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected syntactic scope to be rooted at CFG root node of %s, but instead got syntactic scope root node of %s", a1_, a2_.box_())))
 	}
 	this.compiler_ = Preconditions_checkNotNull_T(compiler)
 	this.registry = Preconditions_checkNotNull_T(compiler.getTypeRegistry())

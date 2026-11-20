@@ -161,8 +161,8 @@ func JvmMetrics_writeGarbageCollectionStats(out *Output, verbose bool, pretty bo
 		} else {
 			for gcBean := range elemsBy_(gcBeans, icast_GarbageCollectorMXBean) {
 				var name string = JvmMetrics_normalizeName(gcBean.getName())
-				out.println(JvmMetrics_normalizeTabularColonPos(String_format(("gc-" + sstr_(name) + "-collection-count : %d"), []any{int64(gcBean.getCollectionCount())})))
-				out.println(JvmMetrics_normalizeTabularColonPos(String_format(("gc-" + sstr_(name) + "-collection-time-ms : %d"), []any{int64(gcBean.getCollectionTime())})))
+				out.println(JvmMetrics_normalizeTabularColonPos(String_format(("gc-" + sstr_(name) + "-collection-count : %d"), int64(gcBean.getCollectionCount()))))
+				out.println(JvmMetrics_normalizeTabularColonPos(String_format(("gc-" + sstr_(name) + "-collection-time-ms : %d"), int64(gcBean.getCollectionTime()))))
 			}
 		}
 	} else {

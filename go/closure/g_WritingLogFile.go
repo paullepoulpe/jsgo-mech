@@ -50,8 +50,8 @@ func (this *WritingLogFile) log_impl(value SupplierOf[string]) *LogFile {
 	return this.logInternal(str_(value.get()))
 }
 
-func (this *WritingLogFile) log_2_impl(template string, values []any) *LogFile {
-	return this.logInternal(String_format(template, values))
+func (this *WritingLogFile) log_2_impl(template string, values ...any) *LogFile {
+	return this.logInternal(String_format(template, values...))
 }
 
 func (this *WritingLogFile) logJsonObject_impl(value any) *LogFile {
@@ -122,11 +122,11 @@ func (this *WritingLogFile) log(p0 Supplier) *LogFile {
 }
 
 // log_2: an object that is exactly a WritingLogFile calls its log_2_impl directly (post-flip); others dispatch.
-func (this *WritingLogFile) log_2(p0 string, p1 []any) *LogFile {
+func (this *WritingLogFile) log_2(p0 string, p1 ...any) *LogFile {
 	if p, _ := this.self_.(*WritingLogFile); p == this {
-		return this.log_2_impl(p0, p1)
+		return this.log_2_impl(p0, p1...)
 	}
-	return this.self_.log_2_impl(p0, p1)
+	return this.self_.log_2_impl(p0, p1...)
 }
 
 // logJsonObject: an object that is exactly a WritingLogFile calls its logJsonObject_impl directly (post-flip); others dispatch.

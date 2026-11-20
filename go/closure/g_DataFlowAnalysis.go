@@ -338,7 +338,7 @@ func (this *DataFlowAnalysis_LinearFlowState[L]) setOut(out L) {
 }
 
 func (this *DataFlowAnalysis_LinearFlowState[L]) toString() string {
-	return String_format("IN: %s OUT: %s", []any{boxNull_(this.in), boxNull_(this.out)})
+	return String_format("IN: %s OUT: %s", boxNull_(this.in), boxNull_(this.out))
 }
 
 type DataFlowAnalysis_UniqueQueue[T comparable] struct {

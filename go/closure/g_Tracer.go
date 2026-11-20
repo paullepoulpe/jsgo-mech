@@ -242,7 +242,7 @@ func Tracer_getStatsForType(type_ string) *Tracer_Stat {
 func Tracer_formatTime(time int64) string {
 	var sec int32 = int32(((time / 1000) % 60))
 	var ms int32 = int32((time % 1000))
-	return String_format("%02d.%03d", []any{int32(sec), int32(ms)})
+	return String_format("%02d.%03d", int32(sec), int32(ms))
 }
 
 func Tracer_getThreadTrace() *Tracer_ThreadTrace {
@@ -383,7 +383,7 @@ func (this *Tracer_Event) toString(prevEventTime int64, indent string, digitsCol
 		if this.tracer.extraTracingValues != nil {
 			for i := int32(0); i < int32(len(this.tracer.extraTracingValues)); i++ {
 				delta = this.tracer.extraTracingValues[i]
-				sb.append(String_format("%4d", []any{int64(delta)}))
+				sb.append(String_format("%4d", int64(delta)))
 				sb.append(Tracer_extraTracingStatistics.get(i).(Tracer_TracingStatistic).getUnits())
 				sb.append(";  ")
 			}
