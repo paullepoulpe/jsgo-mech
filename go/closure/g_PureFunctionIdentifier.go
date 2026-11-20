@@ -7,7 +7,7 @@ type PureFunctionIdentifier struct {
 	astAnalyzer                          *AstAnalyzer
 	validateArtificialPurityField        bool
 	summariesByName                      *JTMap[string, *PureFunctionIdentifier_AmbiguatedFunctionSummary]
-	summariesForAllNamesOfFunctionByNode *SimpleListMultimap
+	summariesForAllNamesOfFunctionByNode *SimpleListMultimap[Node, *PureFunctionIdentifier_AmbiguatedFunctionSummary]
 	artificiallyPureLiteralsForDebugging *JTSet[Node]
 	allFunctionCalls                     *JTList[Node]
 	reverseCallGraph                     *LinkedDirectedGraph[*PureFunctionIdentifier_AmbiguatedFunctionSummary, *PureFunctionIdentifier_SideEffectPropagation]
@@ -18,7 +18,7 @@ type PureFunctionIdentifier struct {
 
 func (this *PureFunctionIdentifier) finit_PureFunctionIdentifier() {
 	this.summariesByName = jnewTMap_(jtc_string, jtc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary)
-	this.summariesForAllNamesOfFunctionByNode = SimpleListMultimap_create()
+	this.summariesForAllNamesOfFunctionByNode = SimpleListMultimap_create[Node, *PureFunctionIdentifier_AmbiguatedFunctionSummary]()
 	this.artificiallyPureLiteralsForDebugging = jnewTSet_(jtc_Node)
 	this.allFunctionCalls = jnewTList_(jtc_Node)
 	this.reverseCallGraph = LinkedDirectedGraph_createWithoutAnnotations[*PureFunctionIdentifier_AmbiguatedFunctionSummary, *PureFunctionIdentifier_SideEffectPropagation]()
@@ -219,7 +219,7 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) *JTLi
 }
 
 func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(referenceMap *OptimizeCalls_ReferenceMap) {
-	var referencesByName *SimpleListMultimap = SimpleListMultimap_create()
+	var referencesByName *SimpleListMultimap[any, any] = SimpleListMultimap_create[any, any]()
 	for entry := range elemsBy_(referenceMap.getNameReferences(), icast_Map_Entry) {
 		referencesByName.putAll(entry.getKey(), icast_Iterable(entry.getValue()))
 	}
@@ -236,7 +236,7 @@ func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(r
 		this.summariesByName.put(name, PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), name))
 	}
 	Map_forEach(referencesByName.asMap(), &BiConsumer_tfn_string_List{func(p0 string, p1 List) { this.populateFunctionDefinitions(p0, p1) }})
-	this.summariesForAllNamesOfFunctionByNode.put(PureFunctionIdentifier_IMPLICIT_PURE_FN.box_(), obj_(PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), "<implicit pure class ctor")))
+	this.summariesForAllNamesOfFunctionByNode.put(PureFunctionIdentifier_IMPLICIT_PURE_FN, PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), "<implicit pure class ctor"))
 }
 
 func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, references ListOf[Node]) {
@@ -280,7 +280,7 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 			for _, el := range immElems_(callables) {
 				rvalue := Node_of_(el)
 				if rvalue.isFunction() {
-					this.summariesForAllNamesOfFunctionByNode.put(rvalue.box_(), obj_(summaryForName))
+					this.summariesForAllNamesOfFunctionByNode.put(rvalue, summaryForName)
 				} else if NodeUtil_isUndefined(rvalue) {
 				} else {
 					var rvalueName Optional[string] = PureFunctionIdentifier_nameForReference(rvalue)
@@ -643,7 +643,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) enterScope(t *NodeTrave
 	this.functionScopeStack.add(new_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry(function, isArtificiallyPure))
 	if !this.outer_.summariesForAllNamesOfFunctionByNode.containsKey(function.box_()) {
 		var summary *PureFunctionIdentifier_AmbiguatedFunctionSummary = PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.outer_.reverseCallGraph.up_DiGraph(), "<anonymous>")
-		this.outer_.summariesForAllNamesOfFunctionByNode.put(function.box_(), obj_(summary))
+		this.outer_.summariesForAllNamesOfFunctionByNode.put(function, summary)
 	}
 }
 

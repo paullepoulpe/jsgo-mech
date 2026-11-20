@@ -371,11 +371,11 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		}
 	}
 	var absoluteOrder *JTList[*CompilerInput] = jtlistImm_(jtc_p_CompilerInput, sorter.getStrongDependenciesOf(originalInputs.asList(), dependencyOptions.shouldSort()))
-	var entryPointInputsPerChunk *SimpleListMultimap = SimpleListMultimap_create()
+	var entryPointInputsPerChunk *SimpleListMultimap[*JSChunk, *CompilerInput] = SimpleListMultimap_create[*JSChunk, *CompilerInput]()
 	for input := range elemsAs_[*CompilerInput](entryPointInputs) {
 		var chunk *JSChunk = input.getChunk()
 		Preconditions_checkNotNull_T(chunk)
-		entryPointInputsPerChunk.put(obj_(chunk), obj_(input))
+		entryPointInputsPerChunk.put(chunk, input)
 	}
 	for chunk := range elemsAs_[*JSChunk](this.getAllChunks()) {
 		chunk.removeAll()

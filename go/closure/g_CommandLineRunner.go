@@ -167,8 +167,8 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 	}
 	this.flags.flagFiles = new_ArrayList_0()
 	tokens = CommandLineRunner_processArgs(arrmap_(tokens.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }))
-	var previousGuardLevels *JTList[*AbstractCommandLineRunner_FlagEntry] = tlistCopy_(jtc_p_AbstractCommandLineRunner_FlagEntry, this.flags.guardLevels)
-	var previousMixedJsSources *JTList[*AbstractCommandLineRunner_FlagEntry] = tlistCopy_(jtc_p_AbstractCommandLineRunner_FlagEntry, this.flags.mixedJsSources)
+	var previousGuardLevels *JTList[*AbstractCommandLineRunner_FlagEntry[any]] = tlistCopy_(jtc_p_AbstractCommandLineRunner_FlagEntry, this.flags.guardLevels)
+	var previousMixedJsSources *JTList[*AbstractCommandLineRunner_FlagEntry[any]] = tlistCopy_(jtc_p_AbstractCommandLineRunner_FlagEntry, this.flags.mixedJsSources)
 	this.flags.guardLevels.clear()
 	this.flags.mixedJsSources.clear()
 	var parsed *Outcome_base[any] = this.flags.parse(tokens)
@@ -229,7 +229,7 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 		var e *CmdLineException = cast_[*CmdLineException](flagInputsRead.error().self())
 		this.reportError(e.getMessage())
 	}
-	var mixedSources ListOf[*AbstractCommandLineRunner_FlagEntry] = flagInputs.mixedSources
+	var mixedSources ListOf[*AbstractCommandLineRunner_FlagEntry[any]] = flagInputs.mixedSources
 	var mappings ListOf[SourceMap_LocationMapping] = flagInputs.mappings
 	var sourceMapInputs *JTMap[string, string] = flagInputs.sourceMapInputs
 	var parseInlineSourceMaps bool = flagInputs.parseInlineSourceMaps_
@@ -696,8 +696,8 @@ func CommandLineRunner_clinit() {
 }
 
 type CommandLineRunner_Flags struct {
-	guardLevels                        *JTList[*AbstractCommandLineRunner_FlagEntry]
-	mixedJsSources                     *JTList[*AbstractCommandLineRunner_FlagEntry]
+	guardLevels                        *JTList[*AbstractCommandLineRunner_FlagEntry[any]]
+	mixedJsSources                     *JTList[*AbstractCommandLineRunner_FlagEntry[any]]
 	browserFeaturesetYear              any
 	displayHelp                        bool
 	printTree                          bool
@@ -1567,11 +1567,11 @@ func CommandLineRunner_Flags_printShortUsageAfterErrors(ps *Output) {
 }
 
 func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[List] {
-	var mixedSources *JTList[*AbstractCommandLineRunner_FlagEntry] = jnewTList_(jtc_p_AbstractCommandLineRunner_FlagEntry)
+	var mixedSources *JTList[*AbstractCommandLineRunner_FlagEntry[any]] = jnewTList_(jtc_p_AbstractCommandLineRunner_FlagEntry)
 	var excludes *JTSet[string] = jnewTSet_(jtc_string)
 	it_1 := this.mixedJsSources.each()
 	for it_1.next() {
-		var source *AbstractCommandLineRunner_FlagEntry = it_1.v
+		var source *AbstractCommandLineRunner_FlagEntry[any] = it_1.v
 		if strings.HasSuffix(source.getValue(), ".zip") {
 			mixedSources.add(source)
 		} else if strings.HasPrefix(source.getValue(), "!") {
@@ -1646,7 +1646,7 @@ func (this *CommandLineRunner_Flags) getPackageJsonEntryNames() *JTList[string] 
 	return splitToListT_(jtc_string, Splitter_on(','), strobj_(this.packageJsonEntryNames.get()))
 }
 
-func CommandLineRunner_Flags_addMultiFlagValue(values *TList[string], value Optional[string], flag any, entries ListOf[*AbstractCommandLineRunner_FlagEntry]) *TList[string] {
+func CommandLineRunner_Flags_addMultiFlagValue(values *TList[string], value Optional[string], flag any, entries ListOf[*AbstractCommandLineRunner_FlagEntry[any]]) *TList[string] {
 	var normalizedValue Optional[string] = value
 	if ((value.isPresent() && (len(value.get()) != 0)) && ((String_substring(value.get(), 0, 1) == "'") || (String_substring(value.get(), 0, 1) == "\""))) && (String_substring_int(value.get(), (String_length(value.get())-1)) == String_substring(value.get(), 0, 1)) {
 		normalizedValue = Optional_of[string](String_substring(value.get(), 1, (String_length(value.get()) - 1)))
@@ -1659,7 +1659,7 @@ func CommandLineRunner_Flags_addMultiFlagValue(values *TList[string], value Opti
 	return values
 }
 
-var CommandLineRunner_Flags_categories *SimpleListMultimap
+var CommandLineRunner_Flags_categories *SimpleListMultimap[any, any]
 
 const CommandLineRunner_Flags_BOLD_PREFIX string = "\x1b[1m"
 const CommandLineRunner_Flags_NORMAL_PREFIX string = "\x1b[0m"
@@ -1674,7 +1674,7 @@ func CommandLineRunner_Flags_clinit() {
 		return
 	}
 	CommandLineRunner_Flags_clinit_done = true
-	CommandLineRunner_Flags_categories = SimpleListMultimap_create().putAll("Basic Usage", ImmutableList_as_Iterable(ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object("compilation_level", "env", "externs", "js", "js_output_file", "language_in", "language_out", "warning_level"))).putAll("Warning and Error Management", ImmutableList_as_Iterable(ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object("conformance_configs", "error_format", "extra_annotation_name", "hide_warnings_for", "jscomp_error", "jscomp_off", "jscomp_warning", "strict_mode_input", "warnings_allowlist_file"))).putAll("Output", ImmutableList_as_Iterable(ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object("assume_function_wrapper", "debug", "emit_use_strict", "export_local_property_definitions", "formatting", "generate_exports", "isolation_mode", "output_wrapper", "output_wrapper_file", "rename_variable_prefix"))).putAll("Dependency Management", ImmutableList_as_Iterable(ImmutableList_of_Object_Object("dependency_mode", "entry_point"))).putAll("JS Modules", ImmutableList_as_Iterable(ImmutableList_of_Object_Object_Object_Object_Object("dynamic_import_alias", "js_module_root", "module_resolution", "process_common_js_modules", "package_json_entry_names"))).putAll("Library and Framework Specific", ImmutableList_as_Iterable(ImmutableList_of_Object_Object_Object_Object_Object_Object_Object("angular_pass", "force_inject_library", "inject_libraries", "polymer_version", "process_closure_primitives", "rewrite_polyfills", "isolate_polyfills"))).putAll("Code Splitting", ImmutableList_as_Iterable(ImmutableList_of_Object_Object_Object_Object_Object("chunk", "chunk_output_path_prefix", "chunk_output_type", "chunk_wrapper", "rename_prefix_namespace"))).putAll("Reports", ImmutableList_as_Iterable(ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object("create_source_map", "output_manifest", "output_chunk_dependencies", "property_renaming_report", "source_map_input", "source_map_include_content", "source_map_location_mapping", "variable_renaming_report"))).putAll("Miscellaneous", ImmutableList_as_Iterable(ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object("assume_static_inheritance_is_not_used", "browser_featureset_year", "charset", "checks_only", "define", "flagfile", "help", "json_streams", "third_party", "use_types_for_optimization", "version"))).immutableCopy()
+	CommandLineRunner_Flags_categories = SimpleListMultimap_create[any, any]().putAll("Basic Usage", ImmutableList_as_Iterable(ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object("compilation_level", "env", "externs", "js", "js_output_file", "language_in", "language_out", "warning_level"))).putAll("Warning and Error Management", ImmutableList_as_Iterable(ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object("conformance_configs", "error_format", "extra_annotation_name", "hide_warnings_for", "jscomp_error", "jscomp_off", "jscomp_warning", "strict_mode_input", "warnings_allowlist_file"))).putAll("Output", ImmutableList_as_Iterable(ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object("assume_function_wrapper", "debug", "emit_use_strict", "export_local_property_definitions", "formatting", "generate_exports", "isolation_mode", "output_wrapper", "output_wrapper_file", "rename_variable_prefix"))).putAll("Dependency Management", ImmutableList_as_Iterable(ImmutableList_of_Object_Object("dependency_mode", "entry_point"))).putAll("JS Modules", ImmutableList_as_Iterable(ImmutableList_of_Object_Object_Object_Object_Object("dynamic_import_alias", "js_module_root", "module_resolution", "process_common_js_modules", "package_json_entry_names"))).putAll("Library and Framework Specific", ImmutableList_as_Iterable(ImmutableList_of_Object_Object_Object_Object_Object_Object_Object("angular_pass", "force_inject_library", "inject_libraries", "polymer_version", "process_closure_primitives", "rewrite_polyfills", "isolate_polyfills"))).putAll("Code Splitting", ImmutableList_as_Iterable(ImmutableList_of_Object_Object_Object_Object_Object("chunk", "chunk_output_path_prefix", "chunk_output_type", "chunk_wrapper", "rename_prefix_namespace"))).putAll("Reports", ImmutableList_as_Iterable(ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object("create_source_map", "output_manifest", "output_chunk_dependencies", "property_renaming_report", "source_map_input", "source_map_include_content", "source_map_location_mapping", "variable_renaming_report"))).putAll("Miscellaneous", ImmutableList_as_Iterable(ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object("assume_static_inheritance_is_not_used", "browser_featureset_year", "charset", "checks_only", "define", "flagfile", "help", "json_streams", "third_party", "use_types_for_optimization", "version"))).immutableCopy()
 	CommandLineRunner_Flags_MARKDOWN_CHARS_TO_ESCAPE = Pattern_compile("[-*\\`\\[\\]{}\\(\\)#+\\.!<>]")
 	CommandLineRunner_Flags_WHITESPACE_PATTERN = Pattern_compile(JavaRegex_SPACE)
 
@@ -1765,7 +1765,7 @@ func CommandLineRunner_FormattingOption_clinit() {
 }
 
 type CommandLineRunner_FlagInputs struct {
-	mixedSources           ListOf[*AbstractCommandLineRunner_FlagEntry]
+	mixedSources           ListOf[*AbstractCommandLineRunner_FlagEntry[any]]
 	mappings               ListOf[SourceMap_LocationMapping]
 	sourceMapInputs        *JTMap[string, string]
 	parseInlineSourceMaps_ bool

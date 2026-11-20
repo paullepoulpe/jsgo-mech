@@ -140,11 +140,11 @@ func ApplySuggestedFixes_clinit() {
 }
 
 type ApplySuggestedFixes_ReplacementMap struct {
-	map__ *SimpleSetMultimap
+	map__ *SimpleSetMultimap[any, any]
 }
 
 func (this *ApplySuggestedFixes_ReplacementMap) finit_ApplySuggestedFixes_ReplacementMap() {
-	this.map__ = SimpleSetMultimap_createInsertionOrdered()
+	this.map__ = SimpleSetMultimap_createInsertionOrdered[any, any]()
 }
 
 func (this *ApplySuggestedFixes_ReplacementMap) init_ApplySuggestedFixes_ReplacementMap() {

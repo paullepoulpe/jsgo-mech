@@ -40,7 +40,7 @@ type PerformanceTracker struct {
 	gzDiff                         int32
 	currentPass                    *TDeque[*PerformanceTracker_Stats]
 	passSummary                    *JTMap[string, *PerformanceTracker_Stats]
-	astManifest                    *SimpleMultiset
+	astManifest                    *SimpleMultiset[Token_rhino]
 	log_                           *JTList[*PerformanceTracker_Stats]
 	pruningAnalysisSummary         string
 	disambiguatePropertiesSummary  string
@@ -353,9 +353,9 @@ func (this *PerformanceTracker) populateAstManifest() {
 	if this.astManifest != nil {
 		return
 	}
-	var builder *SimpleMultiset = SimpleMultiset_create()
+	var builder *SimpleMultiset[Token_rhino] = SimpleMultiset_create[Token_rhino]()
 	NodeUtil_visitPreOrder_Node_Visitor(this.jsRoot, &NodeUtil_Visitor_fn{func(n Node) {
-		builder.add(obj_(n.getToken()))
+		builder.add(n.getToken())
 	}})
 	this.astManifest = builder.immutableCopy()
 }

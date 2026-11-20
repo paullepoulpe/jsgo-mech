@@ -3,11 +3,11 @@
 package closure
 
 type VariableMap struct {
-	map__ *SimpleBiMap
+	map__ *SimpleBiMap[any, string]
 }
 
 func (this *VariableMap) init_VariableMap(map_ *JTMap[string, string]) {
-	this.map__ = SimpleBiMap_copyOf(map_.asMap())
+	this.map__ = SimpleBiMap_copyOf[any, string](map_.asMap())
 }
 
 func new_VariableMap(map_ *JTMap[string, string]) *VariableMap {
@@ -17,7 +17,7 @@ func new_VariableMap(map_ *JTMap[string, string]) *VariableMap {
 }
 
 func (this *VariableMap) lookupNewName(sourceName string) Optional[string] {
-	return Optional_ofNullable[string](str_(this.map__.get(strobj_(sourceName))))
+	return Optional_ofNullable[string](this.map__.get(strobj_(sourceName)))
 }
 
 func (this *VariableMap) lookupSourceName(newName Optional[string]) string {
