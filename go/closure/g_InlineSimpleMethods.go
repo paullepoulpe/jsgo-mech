@@ -215,7 +215,7 @@ func (this *InlineSimpleMethods_InlineTrivialAccessors) visit_4_impl(t *NodeTrav
 		this.outer_.nonInlineableProperties.add(callName)
 		return
 	}
-	var firstDefinition Node = Node_of_(definitions.iterator().next())
+	var firstDefinition Node = Node_of_(first_(definitions))
 	if !this.outer_.argsMayHaveSideEffects(callNode) && !NodeUtil_referencesSuper(callNode) {
 		var returned Node = InlineSimpleMethods_returnedExpression(firstDefinition)
 		if returned != 0 {
