@@ -3146,7 +3146,7 @@ func NodeUtil_isShallowStatementTree(n Node) bool {
 }
 
 func NodeUtil_getNodeTypeReferenceCount(node Node, type_ Token_rhino, traverseChildrenPred func(Node) bool) int32 {
-	return NodeUtil_getCount(node, new_NodeUtil_MatchNodeType(type_).apply, traverseChildrenPred)
+	return NodeUtil_getCount(node, new_NodeUtil_MatchNodeType(type_).applyT_, traverseChildrenPred)
 }
 
 func NodeUtil_isNameReferenced_Node_String_Predicate(node Node, name string, traverseChildrenPred func(Node) bool) bool {
@@ -3158,7 +3158,7 @@ func NodeUtil_isNameReferenced_Node_String(node Node, name string) bool {
 }
 
 func NodeUtil_getNameReferenceCount(node Node, name string) int32 {
-	return NodeUtil_getCount(node, new_NodeUtil_MatchNameNode(name).apply, Predicates_alwaysTrueT_[Node])
+	return NodeUtil_getCount(node, new_NodeUtil_MatchNameNode(name).applyT_, Predicates_alwaysTrueT_[Node])
 }
 
 func NodeUtil_has(node Node, pred func(Node) bool, traverseChildrenPred func(Node) bool) bool {
@@ -3198,9 +3198,9 @@ func NodeUtil_findPreorder(node Node, pred func(Node) bool, traverseChildrenPred
 	return 0
 }
 
-func NodeUtil_getCount(n Node, pred func(any) bool, traverseChildrenPred func(Node) bool) int32 {
+func NodeUtil_getCount(n Node, pred func(Node) bool, traverseChildrenPred func(Node) bool) int32 {
 	var total int32 = 0
-	if pred(n.box_()) {
+	if pred(n) {
 		total++
 	}
 	if traverseChildrenPred(n) {

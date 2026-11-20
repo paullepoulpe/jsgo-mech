@@ -37,8 +37,8 @@ func (this *LinterMain) run(args []string) *Outcome_base[any] {
 	var parser *CmdLineParser = new_CmdLineParser()
 	parser.option("--fix").usage("Fix lint warnings automatically").flag(func() any {
 		return bool(this.fix_)
-	}, func(v any) {
-		this.fix_ = unbox_[bool](v)
+	}, func(v bool) {
+		this.fix_ = v
 	})
 	CmdLineParser_Option_enumValue[ModuleLoader_ResolutionMode](parser.option("--resolution_mode").usage("Expected path resolution mode for resolving module specifiers."), ModuleLoader_ResolutionMode_values(), &Supplier_tfn_ModuleLoader_ResolutionMode{func() ModuleLoader_ResolutionMode {
 		return this.resolutionMode
