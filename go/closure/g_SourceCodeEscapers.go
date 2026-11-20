@@ -120,7 +120,7 @@ func (this *SourceCodeEscapers_JavaScriptEscaper) escape(string_ string) string 
 		this.appendTo(strobj_(string_), StringBuilder_as_Appendable(sb))
 		return 0
 	}()
-	return tostrR_(sb)
+	return sb.toString()
 }
 
 var SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS [][]uint16

@@ -64,10 +64,10 @@ func new_Tracer_String(comment string) *Tracer {
 
 func Tracer_longToPaddedString(v int64, digitsColumnWidth int32) string {
 	var digitWidth int32 = Tracer_numDigits(v)
-	var sb *StringBuilder = new_StringBuilder()
-	Tracer_appendSpaces(sb, (digitsColumnWidth - digitWidth))
+	var sb strBuilder_
+	Tracer_appendSpaces(&sb, (digitsColumnWidth - digitWidth))
 	sb.append_long(v)
-	return tostrR_(sb)
+	return sb.toString()
 }
 
 func Tracer_numDigits(n int64) int32 {
@@ -79,7 +79,7 @@ func Tracer_numDigits(n int64) int32 {
 	return i
 }
 
-func Tracer_appendSpaces(sb *StringBuilder, numSpaces int32) {
+func Tracer_appendSpaces(sb *strBuilder_, numSpaces int32) {
 	if numSpaces > 16 {
 		Tracer_logger.warning("Tracer.appendSpaces called with large numSpaces")
 		numSpaces = 16
@@ -363,9 +363,10 @@ func (this *Tracer_Event) eventTime() int64 {
 }
 
 func (this *Tracer_Event) toString(prevEventTime int64, indent string, digitsColWidth int32) string {
-	var sb *StringBuilder = new_StringBuilder_int(120)
+	var sb strBuilder_
+	sb.grow(120)
 	if prevEventTime == -1 {
-		Tracer_appendSpaces(sb, digitsColWidth)
+		Tracer_appendSpaces(&sb, digitsColWidth)
 	} else {
 		sb.append(Tracer_longToPaddedString((this.eventTime() - prevEventTime), digitsColWidth))
 	}
@@ -373,7 +374,7 @@ func (this *Tracer_Event) toString(prevEventTime int64, indent string, digitsCol
 	sb.append(Tracer_formatTime(this.eventTime()))
 	if this.isStart {
 		sb.append(" Start ")
-		Tracer_appendSpaces(sb, digitsColWidth)
+		Tracer_appendSpaces(&sb, digitsColWidth)
 		sb.append("   ")
 	} else {
 		sb.append(" Done ")
@@ -391,7 +392,7 @@ func (this *Tracer_Event) toString(prevEventTime int64, indent string, digitsCol
 	}
 	sb.append(indent)
 	sb.append_Object(obj_(this.tracer))
-	return tostrR_(sb)
+	return sb.toString()
 }
 
 type Tracer_ThreadTrace struct {
@@ -525,7 +526,7 @@ func (this *Tracer_ThreadTrace) truncateEvents() {
 
 func (this *Tracer_ThreadTrace) toString() string {
 	var numDigits int32 = this.getMaxDigits()
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	var etime int64 = -1
 	var indent *TDeque[string] = func() *TDeque[string] {
 		if this.prettyPrint {
@@ -569,13 +570,13 @@ func (this *Tracer_ThreadTrace) toString() string {
 			if stat.extraInfo != nil {
 				for i := int32(0); i < int32(len(stat.extraInfo)); i++ {
 					sb.append("; ")
-					cast_[*StringBuilder](sb.append_int(stat.extraInfo[i]).append_char(' ')).append(icast_Tracer_TracingStatistic(Tracer_extraTracingStatistics.get(i)).getUnits())
+					sb.append_int(stat.extraInfo[i]).append_char(' ').append(icast_Tracer_TracingStatistic(Tracer_extraTracingStatistics.get(i)).getUnits())
 				}
 			}
 			sb.append(")\n")
 		}
 	}
-	return tostrR_(sb)
+	return sb.toString()
 }
 
 func (this *Tracer_ThreadTrace) getMaxDigits() int32 {

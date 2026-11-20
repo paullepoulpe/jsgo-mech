@@ -33,13 +33,13 @@ func (this *CompilerBasedTransformer) transform(input *Source) *Source {
 	var result *CompilerBasedTransformer_CompileResult = this.compilerSupplierField.compile(input.path(), input.code())
 	if !result.errors_.isEmpty() {
 		var formatter MessageFormatter = ErrorFormat_SOURCELESS.toFormatter(nil, false)
-		var message *StringBuilder = new_StringBuilder().append(this.getTranformationName()).append(" failed.\n")
+		var message *strBuilder_ = (&strBuilder_{}).append(this.getTranformationName()).append(" failed.\n")
 		it_1 := result.errors_.each()
 		for it_1.next() {
 			var error_ *JSError = it_1.v
 			message.append(formatter.formatError(error_))
 		}
-		panic(new_IllegalStateException_String(tostrR_(message)).self())
+		panic(new_IllegalStateException_String(message.toString()).self())
 	}
 	if !result.transformed_ {
 		return input
@@ -129,7 +129,7 @@ func (this *CompilerBasedTransformer_CompilerSupplier) compile(path string, code
 	var transformed bool = this.transformed(result)
 	return new_CompilerBasedTransformer_CompileResult(source, result.errors_, transformed, func() string {
 		if transformed {
-			return tostrR_(sourceMap)
+			return sourceMap.toString()
 		}
 		return ""
 	}())
