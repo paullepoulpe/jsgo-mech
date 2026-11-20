@@ -787,7 +787,7 @@ func NodeUtil_findClosureUnawareScriptRoot(script Node) Node {
 	if !script.isScript() || !script.getIsInClosureUnawareSubtree() {
 		panic(new_IllegalArgumentException_String(tostr_(script)))
 	}
-	return NodeUtil_findPreorder(script, (&Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isBlock() }}).apply, &Predicate_base_tfn_Node{func(c Node) bool {
+	return NodeUtil_findPreorder(script, func(p0 Node) bool { return p0.isBlock() }, &Predicate_base_tfn_Node{func(c Node) bool {
 		return true
 	}})
 }
@@ -1378,45 +1378,45 @@ func NodeUtil_getOpFromAssignmentOp(n Node) Token_rhino {
 }
 
 func NodeUtil_getEnclosingType(n Node, type_ Token_rhino) Node {
-	return NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(n1 Node) bool {
+	return NodeUtil_getEnclosingNode(n, func(n1 Node) bool {
 		return (n1.getToken() == type_)
-	}}).apply)
+	})
 }
 
 func NodeUtil_getEnclosingNonArrowFunction(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isNonArrowFunction(p0) }}).apply)
+	return NodeUtil_getEnclosingNode(n, func(p0 Node) bool { return NodeUtil_isNonArrowFunction(p0) })
 }
 
 func NodeUtil_getEnclosingClass(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isClass() }}).apply)
+	return NodeUtil_getEnclosingNode(n, func(p0 Node) bool { return p0.isClass() })
 }
 
 func NodeUtil_getEnclosingModuleIfPresent(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isModuleBody() }}).apply)
+	return NodeUtil_getEnclosingNode(n, func(p0 Node) bool { return p0.isModuleBody() })
 }
 
 func NodeUtil_getEnclosingFunction(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isFunction() }}).apply)
+	return NodeUtil_getEnclosingNode(n, func(p0 Node) bool { return p0.isFunction() })
 }
 
 func NodeUtil_getEnclosingScript(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isScript() }}).apply)
+	return NodeUtil_getEnclosingNode(n, func(p0 Node) bool { return p0.isScript() })
 }
 
 func NodeUtil_getEnclosingBlock(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isBlock() }}).apply)
+	return NodeUtil_getEnclosingNode(n, func(p0 Node) bool { return p0.isBlock() })
 }
 
 func NodeUtil_getEnclosingBlockScopeRoot(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_createsBlockScope(p0) }}).apply)
+	return NodeUtil_getEnclosingNode(n, func(p0 Node) bool { return NodeUtil_createsBlockScope(p0) })
 }
 
 func NodeUtil_getEnclosingScopeRoot(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_createsScope(p0) }}).apply)
+	return NodeUtil_getEnclosingNode(n, func(p0 Node) bool { return NodeUtil_createsScope(p0) })
 }
 
 func NodeUtil_getEnclosingHoistScopeRoot(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isHoistScopeRoot(p0) }}).apply)
+	return NodeUtil_getEnclosingNode(n, func(p0 Node) bool { return NodeUtil_isHoistScopeRoot(p0) })
 }
 
 func NodeUtil_isHoistScopeRoot(n Node) bool {
@@ -1428,12 +1428,12 @@ func NodeUtil_isInFunction(n Node) bool {
 }
 
 func NodeUtil_getEnclosingStatement(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isStatement(p0) }}).apply)
+	return NodeUtil_getEnclosingNode(n, func(p0 Node) bool { return NodeUtil_isStatement(p0) })
 }
 
-func NodeUtil_getEnclosingNode(n Node, pred func(any) bool) Node {
+func NodeUtil_getEnclosingNode(n Node, pred func(Node) bool) Node {
 	var curr Node = n
-	for (curr != 0) && !pred(curr.box_()) {
+	for (curr != 0) && !pred(curr) {
 		curr = curr.getParent()
 	}
 	return curr
@@ -1482,15 +1482,15 @@ func NodeUtil_referencesOwnReceiver(fn Node) bool {
 }
 
 func NodeUtil_referencesEnclosingReceiver(n Node) bool {
-	return NodeUtil_has(n, (&Predicate_base_tfn_Node{func(c Node) bool {
+	return NodeUtil_has(n, func(c Node) bool {
 		return (c.isThis() || c.isSuper())
-	}}).apply, NodeUtil_MATCH_ANYTHING_BUT_NON_ARROW_FUNCTION)
+	}, NodeUtil_MATCH_ANYTHING_BUT_NON_ARROW_FUNCTION)
 }
 
 func NodeUtil_referencesSuper(n Node) bool {
 	var curr Node = n.getFirstChild()
 	for curr != 0 {
-		if NodeUtil_has(curr, (&Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isSuper() }}).apply, &Predicate_base_tfn_Node{func(node Node) bool {
+		if NodeUtil_has(curr, func(p0 Node) bool { return p0.isSuper() }, &Predicate_base_tfn_Node{func(node Node) bool {
 			return !node.isClass()
 		}}) {
 			return true
@@ -3152,7 +3152,7 @@ func NodeUtil_getNodeTypeReferenceCount(node Node, type_ Token_rhino, traverseCh
 }
 
 func NodeUtil_isNameReferenced_Node_String_Predicate(node Node, name string, traverseChildrenPred Predicate_baseOf[Node]) bool {
-	return NodeUtil_has(node, new_NodeUtil_MatchNameNode(name).apply, traverseChildrenPred)
+	return NodeUtil_has(node, unboxedPred_[Node](new_NodeUtil_MatchNameNode(name).apply), traverseChildrenPred)
 }
 
 func NodeUtil_isNameReferenced_Node_String(node Node, name string) bool {
@@ -3163,8 +3163,8 @@ func NodeUtil_getNameReferenceCount(node Node, name string) int32 {
 	return NodeUtil_getCount(node, new_NodeUtil_MatchNameNode(name).apply, Predicates_alwaysTrue())
 }
 
-func NodeUtil_has(node Node, pred func(any) bool, traverseChildrenPred Predicate_baseOf[Node]) bool {
-	if pred(node.box_()) {
+func NodeUtil_has(node Node, pred func(Node) bool, traverseChildrenPred Predicate_baseOf[Node]) bool {
+	if pred(node) {
 		return true
 	}
 	if !traverseChildrenPred.apply(node.box_()) {
@@ -3181,8 +3181,8 @@ func NodeUtil_has(node Node, pred func(any) bool, traverseChildrenPred Predicate
 	return false
 }
 
-func NodeUtil_findPreorder(node Node, pred func(any) bool, traverseChildrenPred Predicate_baseOf[Node]) Node {
-	if pred(node.box_()) {
+func NodeUtil_findPreorder(node Node, pred func(Node) bool, traverseChildrenPred Predicate_baseOf[Node]) Node {
+	if pred(node) {
 		return node
 	}
 	if !traverseChildrenPred.apply(node.box_()) {
@@ -4353,7 +4353,7 @@ func NodeUtil_addFeaturesToScript(scriptNode Node, features *FeatureSet, compile
 }
 
 func NodeUtil_getParamOrPatternNames(n Node, cb func(any)) {
-	ParsingUtil_getParamOrPatternNames(n, cb)
+	ParsingUtil_getParamOrPatternNames(n, unboxedCons_[Node](cb))
 }
 
 func NodeUtil_getGoogRequireInfo_String_Scope(name string, scope *Scope) *NodeUtil_GoogRequire {
