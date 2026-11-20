@@ -157,9 +157,7 @@ func (this *ReportUntranspilableFeatures) checkForLookbehind(regexpNode Node, tr
 }
 
 // lambda_ReportUntranspilableFeatures_checkForLookbehind_1_ is a lambda of ReportUntranspilableFeatures_checkForLookbehind that captures nothing (post-flip step lambdas).
-func lambda_ReportUntranspilableFeatures_checkForLookbehind_1_(t_ any) bool {
-	var t *RegExpTree = to_RegExpTree(t_)
-	_ = t
+func lambda_ReportUntranspilableFeatures_checkForLookbehind_1_(t *RegExpTree) bool {
 	_, ok := t.self().(*RegExpTree_LookbehindAssertion)
 	return ok
 }
@@ -174,9 +172,7 @@ func (this *ReportUntranspilableFeatures) checkForNamedGroups(regexpNode Node, t
 }
 
 // lambda_ReportUntranspilableFeatures_checkForNamedGroups_1_ is a lambda of ReportUntranspilableFeatures_checkForNamedGroups that captures nothing (post-flip step lambdas).
-func lambda_ReportUntranspilableFeatures_checkForNamedGroups_1_(t_ any) bool {
-	var t *RegExpTree = to_RegExpTree(t_)
-	_ = t
+func lambda_ReportUntranspilableFeatures_checkForNamedGroups_1_(t *RegExpTree) bool {
 	_, ok := t.self().(*RegExpTree_NamedCaptureGroup)
 	return ok
 }
@@ -191,9 +187,7 @@ func (this *ReportUntranspilableFeatures) checkForUnicodePropertyEscape(regexpNo
 }
 
 // lambda_ReportUntranspilableFeatures_checkForUnicodePropertyEscape_1_ is a lambda of ReportUntranspilableFeatures_checkForUnicodePropertyEscape that captures nothing (post-flip step lambdas).
-func lambda_ReportUntranspilableFeatures_checkForUnicodePropertyEscape_1_(t_ any) bool {
-	var t *RegExpTree = to_RegExpTree(t_)
-	_ = t
+func lambda_ReportUntranspilableFeatures_checkForUnicodePropertyEscape_1_(t *RegExpTree) bool {
 	_, ok := t.self().(*RegExpTree_UnicodePropertyEscape)
 	return ok
 }
@@ -225,8 +219,8 @@ func (this *ReportUntranspilableFeatures) checkForTopLevelAwait(awaitNode Node) 
 	}
 }
 
-func ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree *RegExpTree, p func(any) bool) bool {
-	if p(tree.self()) {
+func ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree *RegExpTree, p func(*RegExpTree) bool) bool {
+	if p(tree) {
 		return true
 	}
 	l_1 := tree.children()
