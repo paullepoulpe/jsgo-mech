@@ -624,7 +624,8 @@ func PolymerClassRewriter_makeParamSafe(param Node, index int32) {
 
 func (this *PolymerClassRewriter) makeReadOnlySetter(prop *PolymerPass_MemberDefinition, qualifiedPath string) Node {
 	var propName string = prop.name_.getString()
-	var setterName string = ("_set" + sstr_(strings.ToUpper(String_substring(propName, 0, 1))) + sstr_(String_substring_int(propName, 1)))
+	propNameU16 := utf16Of_(propName)
+	var setterName string = ("_set" + sstr_(strings.ToUpper(propNameU16.substring(0, 1))) + sstr_(propNameU16.substring_int(1)))
 	var fnNode Node = IR_function(IR_name(""), IR_paramList([]Node{IR_name(propName)}), IR_block_0())
 	this.compiler_.reportChangeToChangeScope(fnNode)
 	var exprResNode Node = IR_exprResult(IR_assign(NodeUtil_newQName_AbstractCompiler_String(this.compiler_, (sstr_(qualifiedPath)+sstr_(setterName))), fnNode))
@@ -675,7 +676,8 @@ func (this *PolymerClassRewriter) createExportsAndExterns(cls *PolymerClassDefin
 	for it_9.next() {
 		var prop *PolymerPass_MemberDefinition = it_9.v
 		var propName string = prop.name_.getString()
-		var setterName string = ("_set" + sstr_(strings.ToUpper(String_substring(propName, 0, 1))) + sstr_(String_substring_int(propName, 1)))
+		propNameU16 := utf16Of_(propName)
+		var setterName string = ("_set" + sstr_(strings.ToUpper(propNameU16.substring(0, 1))) + sstr_(propNameU16.substring_int(1)))
 		var setterExprNode Node = IR_exprResult(NodeUtil_newQName_AbstractCompiler_String(this.compiler_, (sstr_(interfaceBasePath) + sstr_(setterName))))
 		var setterInfo *JSDocInfo_Builder = JSDocInfo_builder().parseDocumentation()
 		var propType *JSTypeExpression = PolymerPassStaticUtils_getTypeFromProperty(prop, this.compiler_)
@@ -784,13 +786,14 @@ func (this *PolymerClassRewriter) validateReflectedString(methodSignature Node) 
 		panic(new_IllegalArgumentException_0())
 	}
 	var methodSignatureString string = strings.Trim(methodSignature.getString(), javaSpace_)
-	var openParenIndex int32 = String_indexOf(methodSignatureString, 40)
+	methodSignatureStringU16 := utf16Of_(methodSignatureString)
+	var openParenIndex int32 = methodSignatureStringU16.indexOf(40)
 	if (byteAt_(methodSignatureString, (int32(len(methodSignatureString))-1)) != ')') || (openParenIndex < 1) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(methodSignature, PolymerPassErrors_POLYMER_UNPARSABLE_STRING, []string{}))
 		return
 	}
-	if openParenIndex < (String_length(methodSignatureString) - 2) {
-		var methodParamsString string = strings.Trim(String_substring(methodSignatureString, (openParenIndex+1), (String_length(methodSignatureString)-1)), javaSpace_)
+	if openParenIndex < (methodSignatureStringU16.length() - 2) {
+		var methodParamsString string = strings.Trim(methodSignatureStringU16.substring((openParenIndex+1), (methodSignatureStringU16.length()-1)), javaSpace_)
 		this.parseMethodParams(methodParamsString, methodSignature)
 	}
 }

@@ -3,18 +3,21 @@
 package closure
 
 type SourceFile_parser struct {
-	name_    string
-	contents string
+	name_       string
+	contents    string
+	contentsU16 utf16_
 }
 
 func (this *SourceFile_parser) zero_SourceFile_parser() {
 	this.name_ = nullstr_
 	this.contents = nullstr_
+	this.contentsU16 = utf16Of_(this.contents)
 }
 
 func (this *SourceFile_parser) init_SourceFile_parser(name string, contents string) {
 	this.name_ = name
 	this.contents = contents
+	this.contentsU16 = utf16Of_(this.contents)
 }
 
 func new_SourceFile_parser(name string, contents string) *SourceFile_parser {
