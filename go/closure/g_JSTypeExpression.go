@@ -158,7 +158,7 @@ func (this *JSTypeExpression) copy() *JSTypeExpression {
 }
 
 func (this *JSTypeExpression) isExplicitUnknownTemplateBound() bool {
-	return ((JSCompObjects_identical(obj_(this.root.getToken()), obj_(Token_rhino_QMARK)) && !this.root.hasChildren()) && !(this.sourceName_ == JSTypeExpression_IMPLICIT_TEMPLATE_BOUND_SOURCE))
+	return (((this.root.getToken() == Token_rhino_QMARK) && !this.root.hasChildren()) && !(this.sourceName_ == JSTypeExpression_IMPLICIT_TEMPLATE_BOUND_SOURCE))
 }
 
 func (this *JSTypeExpression) getRecordPropertyNames() *TSet[string] {

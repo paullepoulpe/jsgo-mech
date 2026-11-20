@@ -118,7 +118,7 @@ func (this *ReferenceCollector) maybeJumpToHoistedFunction(var_ *Var, t *NodeTra
 }
 
 func ReferenceCollector_isNonLocalModuleSpecifierName(n Node, parent Node) bool {
-	return ((parent.isImportSpec() && !JSCompObjects_identical(n.box_(), parent.getLastChild().box_())) || (parent.isExportSpec() && !JSCompObjects_identical(n.box_(), parent.getFirstChild().box_())))
+	return ((parent.isImportSpec() && (n != parent.getLastChild())) || (parent.isExportSpec() && (n != parent.getFirstChild())))
 }
 
 func (this *ReferenceCollector) pushNewBlock(root Node) {
@@ -133,7 +133,7 @@ func (this *ReferenceCollector) popLastBlock(root Node) {
 	var last *BasicBlock = blockStackEnd_(this.blockStack, len(this.blockStack)-1)
 	this.blockStack[len(this.blockStack)-1] = nil
 	this.blockStack = this.blockStack[:len(this.blockStack)-1]
-	if !JSCompObjects_identical(root.box_(), last.getRoot().box_()) {
+	if root != last.getRoot() {
 		Preconditions_checkState_boolean_Object_H(false, root)
 	}
 }
