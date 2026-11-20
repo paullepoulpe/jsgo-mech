@@ -546,6 +546,13 @@ func (this *AtomicIntegerArray) updateAndGet(i int32, f IntUnaryOperator) int32 
 	return v
 }
 
+// updateAndGet_f is updateAndGet of a lambda, as a Go func value (post-flip step funcparams).
+func (this *AtomicIntegerArray) updateAndGet_f(i int32, f func(int32) int32) int32 {
+	v := f(this.a[i])
+	this.a[i] = v
+	return v
+}
+
 func (this *AtomicIntegerArray) toString() string {
 	parts := make([]string, len(this.a))
 	for i, v := range this.a {
