@@ -59,7 +59,6 @@ func (this *PeepholeFoldConstants) optimizeSubtree_impl(subtree Node) Node {
 			this.tryReduceOperandsForOp(subtree)
 			return this.tryFoldBinaryOperator(subtree)
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -103,7 +102,6 @@ func (this *PeepholeFoldConstants) tryFoldBinaryOperator(subtree Node) Node {
 		default:
 			return subtree
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -285,7 +283,6 @@ func (this *PeepholeFoldConstants) tryFoldUnaryOperator(n Node) Node {
 		default:
 			return n
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -355,7 +352,6 @@ func (this *PeepholeFoldConstants) tryFoldAssign(n Node, left Node, right Node) 
 		default:
 			return 0
 		}
-		panic("unreachable")
 	}()
 	if newType == 0 {
 		return n
@@ -446,7 +442,6 @@ func (this *PeepholeFoldConstants) tryFoldAndOr(n Node, left Node, right Node) N
 	} else {
 		return n
 	}
-	panic("unreachable")
 }
 
 func (this *PeepholeFoldConstants) tryFoldCoalesce(n Node, left Node, right Node) Node {
@@ -474,7 +469,6 @@ func (this *PeepholeFoldConstants) tryFoldCoalesce(n Node, left Node, right Node
 	} else {
 		return n
 	}
-	panic("unreachable")
 }
 
 func (this *PeepholeFoldConstants) tryFoldAdjacentLiteralLeaves(n Node, left Node, right Node) Node {
@@ -650,14 +644,12 @@ func (this *PeepholeFoldConstants) performBigIntArithmeticOp(n Node, left Node, 
 							ret_2 = 0
 							code_ = 1
 							return
-							return
 						}
 						panic(r_)
 					}
 				}()
 				ret_2 = PeepholeFoldConstants_bigintNode(lVal.pow(rVal.intValueExact()), n)
 				return 1
-				return 0
 			}()
 			if code_2 == 1 {
 				return ret_2
@@ -709,7 +701,6 @@ func (this *PeepholeFoldConstants) performBigIntArithmeticOp(n Node, left Node, 
 		default:
 			return 0
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -922,7 +913,6 @@ func (this *PeepholeFoldConstants) tryFoldAdd(node Node, left Node, right Node) 
 	} else {
 		return this.tryFoldArithmeticOp(node, left, right)
 	}
-	panic("unreachable")
 }
 
 func (this *PeepholeFoldConstants) foldTemplateLiteralAndConstant(oldNode Node, left Node, rightStr string) Node {
@@ -1001,7 +991,6 @@ func (this *PeepholeFoldConstants) tryFoldShift(n Node, left Node, right Node) N
 		default:
 			panic(new_AssertionError_Object(strobj_(("Unknown shift operator: " + jtostr_(n.getToken())))).self())
 		}
-		panic("unreachable")
 	}()
 	var newNumber Node = NodeUtil_numberNode(result, n)
 	this.reportChangeToEnclosingScope(n)
@@ -1114,7 +1103,6 @@ func PeepholeFoldConstants_bigintLessThanDouble(bigint *BigInteger, number float
 	} else {
 		return Tri_forBoolean(JSCompDoubles_isPositive(number)).xor(invert)
 	}
-	panic("unreachable")
 }
 
 func PeepholeFoldConstants_tryAbstractEqualityComparison(peepholeOptimization *AbstractPeepholeOptimization, left Node, right Node) Tri {

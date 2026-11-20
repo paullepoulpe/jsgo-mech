@@ -373,7 +373,6 @@ func (this *CmdLineParser_Option) string(get func() any, set func(any)) {
 		}
 		set(strobj_(value.get()))
 		return Outcome_base_ok_Object[any](int32(1))
-		panic("unreachable")
 	}
 }
 
@@ -389,7 +388,6 @@ func (this *CmdLineParser_Option) stringList(get SupplierOf[ListOf[string]], set
 		}
 		CmdLineParser_Option_addValue(get, set, strobj_(value.get()))
 		return Outcome_base_ok_Object[any](int32(1))
-		panic("unreachable")
 	}
 }
 
@@ -403,7 +401,6 @@ func (this *CmdLineParser_Option) stringEach(add func(any)) {
 		}
 		add(strobj_(value.get()))
 		return Outcome_base_ok_Object[any](int32(1))
-		panic("unreachable")
 	}
 }
 
@@ -428,7 +425,6 @@ func (this *CmdLineParser_Option) integer(get func() any, set func(any)) {
 		}
 		set(value)
 		return Outcome_base_ok_Object[any](int32(1))
-		panic("unreachable")
 	}
 }
 
@@ -440,7 +436,6 @@ func (this *CmdLineParser_Option) flag(get func() any, set func(any)) {
 	this.handler = func(params CmdLineParser_Parameters) *Outcome_base[any] {
 		set(bool(true))
 		return Outcome_base_ok_Object[any](int32(0))
-		panic("unreachable")
 	}
 }
 
@@ -466,7 +461,6 @@ func (this *CmdLineParser_Option) bool(get func() any, set func(any)) {
 			}
 			return Outcome_base_ok_Object[any](int32(1))
 		}
-		panic("unreachable")
 	}
 }
 
@@ -482,7 +476,6 @@ func CmdLineParser_Option_enumValue[E comparable](this *CmdLineParser_Option, va
 		}
 		set.accept(boxT_(value.get()))
 		return Outcome_base_ok_Object[any](int32(1))
-		panic("unreachable")
 	}
 }
 
@@ -498,7 +491,6 @@ func CmdLineParser_Option_enumList[E comparable](this *CmdLineParser_Option, val
 		}
 		CmdLineParser_Option_addValue(get, set, boxT_(value.get()))
 		return Outcome_base_ok_Object[any](int32(1))
-		panic("unreachable")
 	}
 }
 
@@ -532,7 +524,6 @@ func (this *CmdLineParser_Option) map_(get func() any, set func(any)) {
 		}
 		Map_put_s(map_, mapKey, strobj_(mapValue.orElse(nullstr_)))
 		return Outcome_base_ok_Object[any](int32(1))
-		panic("unreachable")
 	}
 }
 

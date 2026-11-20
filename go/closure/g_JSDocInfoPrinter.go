@@ -362,7 +362,6 @@ func (this *JSDocInfoPrinter) buildParamType(info *JSDocInfo, name string) strin
 	} else {
 		return name
 	}
-	panic("unreachable")
 }
 
 func (this *JSDocInfoPrinter) typeNode(typeNode Node) string {

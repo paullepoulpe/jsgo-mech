@@ -44,7 +44,6 @@ func (this *CheckEs6Modules) shouldTraverse(t *NodeTraversal, n Node, parent Nod
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 

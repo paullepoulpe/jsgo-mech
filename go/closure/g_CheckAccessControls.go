@@ -60,7 +60,6 @@ func CheckAccessControls_primaryAccessControlScopeRootFor(node Node) Node {
 	} else {
 		return 0
 	}
-	panic("unreachable")
 }
 
 func (this *CheckAccessControls) bestInstanceTypeForMethodOrCtor(n Node) *ObjectType {
@@ -106,7 +105,6 @@ func (this *CheckAccessControls) bestInstanceTypeForMethodOrCtor(n Node) *Object
 	default:
 		return nil
 	}
-	panic("unreachable")
 }
 
 func CheckAccessControls_instanceTypeFor(type_ *JSType) *ObjectType {
@@ -672,7 +670,6 @@ func (this *CheckAccessControls) getTypeOfThis(scopeRoot Node) *JSType {
 	} else {
 		return nil
 	}
-	panic("unreachable")
 }
 
 func (this *CheckAccessControls) createPropertyReference(sourceNode Node) *CheckAccessControls_PropertyReference {
@@ -740,7 +737,6 @@ func CheckAccessControls_getEffectivePropertyVisibility(propRef *CheckAccessCont
 	} else {
 		return CheckAccessControls_getEffectiveVisibilityForNonOverriddenProperty(propRef, objectType, fileOverviewVisibility)
 	}
-	panic("unreachable")
 }
 
 func CheckAccessControls_getEffectiveVisibilityForNonOverriddenProperty(propRef *CheckAccessControls_PropertyReference, objectType *ObjectType, fileOverviewVisibility JSDocInfo_Visibility) JSDocInfo_Visibility {
@@ -966,7 +962,6 @@ func CheckAccessControls_IdentifierBehaviour_select(target Node) CheckAccessCont
 			return CheckAccessControls_IdentifierBehaviour_ES6_CLASS_NAMESPACE
 		}()
 	}
-	panic("unreachable")
 }
 
 func CheckAccessControls_IdentifierBehaviour_values() []CheckAccessControls_IdentifierBehaviour {

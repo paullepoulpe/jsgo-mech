@@ -207,7 +207,6 @@ func (this *StripCode_Strip) shouldTraverse(t *NodeTraversal, n Node, parent Nod
 	default:
 		return true
 	}
-	panic("unreachable")
 }
 
 func (this *StripCode_Strip) visit(t *NodeTraversal, n Node, parent Node) {
