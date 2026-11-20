@@ -12,7 +12,7 @@ type TypeInference struct {
 	scopeCreator            *TypedScopeCreator
 	assertionFunctionLookup *CodingConvention_AssertionFunctionLookup
 	moduleImportResolver    *ModuleImportResolver
-	optChainArrayDeque      *TDeque[*TypeInference_OptChainInfo]
+	optChainArrayDeque      *[]*TypeInference_OptChainInfo
 	inferredUnboundVars     map[*TypedScope]struct{}
 	unknownType             *ObjectType
 	numberAdditionSupertype *JSType
@@ -26,7 +26,7 @@ func (this *TypeInference) up_DataFlowAnalysis() *DataFlowAnalysis[Node, FlowSco
 }
 
 func (this *TypeInference) finit_TypeInference() {
-	this.optChainArrayDeque = newTDeque_(tc_p_TypeInference_OptChainInfo)
+	this.optChainArrayDeque = &[]*TypeInference_OptChainInfo{}
 	this.inferredUnboundVars = map[*TypedScope]struct{}{}
 }
 
@@ -1686,11 +1686,11 @@ func (this *TypeInference) traverseOptChain(n Node, scope FlowScope) FlowScope {
 	if NodeUtil_isEndOfOptChainSegment(n) {
 		var startOfChain Node = NodeUtil_getStartOfOptChainSegment(n)
 		var optChainInfo *TypeInference_OptChainInfo = new_TypeInference_OptChainInfo(n, startOfChain)
-		this.optChainArrayDeque.push(optChainInfo)
+		*this.optChainArrayDeque = append(*this.optChainArrayDeque, optChainInfo)
 	}
 	var lhsScope FlowScope = this.traverse(n.getFirstChild(), scope)
 	if n.isOptionalChainStart() {
-		this.optChainArrayDeque.peek().unconditionalScope = lhsScope
+		slicePeekTop_(tc_p_TypeInference_OptChainInfo, *this.optChainArrayDeque).unconditionalScope = lhsScope
 	}
 	var aboutToExecuteScope FlowScope = lhsScope
 	var nextChild Node = n.getSecondChild()
@@ -1704,7 +1704,7 @@ func (this *TypeInference) traverseOptChain(n Node, scope FlowScope) FlowScope {
 	}
 	if NodeUtil_isEndOfOptChainSegment(n) {
 		var startOfChain Node = NodeUtil_getStartOfOptChainSegment(n)
-		var currentChain *TypeInference_OptChainInfo = this.optChainArrayDeque.pop()
+		var currentChain *TypeInference_OptChainInfo = slicePop_(tc_p_TypeInference_OptChainInfo, this.optChainArrayDeque)
 		if currentChain.endOfChain != n {
 			panic(new_IllegalStateException_0())
 		}

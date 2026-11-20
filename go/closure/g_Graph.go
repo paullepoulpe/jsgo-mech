@@ -5,8 +5,8 @@ package closure
 type Graph[N comparable, E comparable] struct {
 	self_               any
 	vt_Graph_           Graph_vt_[N, E]
-	nodeAnnotationStack *TDeque[*Graph_GraphAnnotationState]
-	edgeAnnotationStack *TDeque[*Graph_GraphAnnotationState]
+	nodeAnnotationStack *[]*Graph_GraphAnnotationState
+	edgeAnnotationStack *[]*Graph_GraphAnnotationState
 }
 
 type Graph_vt_[N comparable, E comparable] interface {
@@ -86,13 +86,13 @@ func (this *Graph[N, E]) clearEdgeAnnotations() {
 
 func (this *Graph[N, E]) pushNodeAnnotations() {
 	if this.nodeAnnotationStack == nil {
-		this.nodeAnnotationStack = newTDeque_(tc_p_Graph_GraphAnnotationState)
+		this.nodeAnnotationStack = &[]*Graph_GraphAnnotationState{}
 	}
 	Graph_pushAnnotations(this.nodeAnnotationStack, this.getNodes())
 }
 
 func (this *Graph[N, E]) popNodeAnnotations() {
-	if this.nodeAnnotationStack.asDeque() == nil {
+	if this.nodeAnnotationStack == nil {
 		panic(new_NullPointerException_String(objstr_("Popping node annotations without pushing.")))
 	}
 	Graph_popAnnotations(this.nodeAnnotationStack)
@@ -100,28 +100,28 @@ func (this *Graph[N, E]) popNodeAnnotations() {
 
 func (this *Graph[N, E]) pushEdgeAnnotations() {
 	if this.edgeAnnotationStack == nil {
-		this.edgeAnnotationStack = newTDeque_(tc_p_Graph_GraphAnnotationState)
+		this.edgeAnnotationStack = &[]*Graph_GraphAnnotationState{}
 	}
 	Graph_pushAnnotations(this.edgeAnnotationStack, Collection(this.getEdges()))
 }
 
 func (this *Graph[N, E]) popEdgeAnnotations() {
-	if this.edgeAnnotationStack.asDeque() == nil {
+	if this.edgeAnnotationStack == nil {
 		panic(new_NullPointerException_String(objstr_("Popping edge annotations without pushing.")))
 	}
 	Graph_popAnnotations(this.edgeAnnotationStack)
 }
 
-func Graph_pushAnnotations(stack *TDeque[*Graph_GraphAnnotationState], haveAnnotations CollectionOf[Annotatable]) {
-	stack.push(new_Graph_GraphAnnotationState(haveAnnotations.size()))
+func Graph_pushAnnotations(stack *[]*Graph_GraphAnnotationState, haveAnnotations CollectionOf[Annotatable]) {
+	*stack = append(*stack, new_Graph_GraphAnnotationState(haveAnnotations.size()))
 	for h := range elemsBy_(haveAnnotations, icast_Annotatable) {
-		stack.peek().add(new_Graph_AnnotationState(h, Annotatable_getAnnotation(h)))
+		slicePeekTop_(tc_p_Graph_GraphAnnotationState, *stack).add(new_Graph_AnnotationState(h, Annotatable_getAnnotation(h)))
 		h.setAnnotation(nil)
 	}
 }
 
-func Graph_popAnnotations(stack *TDeque[*Graph_GraphAnnotationState]) {
-	for as := range elemsAs_[*Graph_AnnotationState](obj_(stack.pop())) {
+func Graph_popAnnotations(stack *[]*Graph_GraphAnnotationState) {
+	for as := range elemsAs_[*Graph_AnnotationState](obj_(slicePop_(tc_p_Graph_GraphAnnotationState, stack))) {
 		as.first.setAnnotation(as.second)
 	}
 }
