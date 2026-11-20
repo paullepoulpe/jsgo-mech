@@ -126,7 +126,8 @@ func new_StripCode_StripCodeConfigRecord(outer_ *StripCode) *StripCode_StripCode
 	return this
 }
 
-func (this *StripCode_StripCodeConfigRecord) get() any {
+// getT_ is get with the result type the class declares (implsplit).
+func (this *StripCode_StripCodeConfigRecord) getT_() string {
 	var builder strBuilder_
 	builder.append("=== stripNameSuffixes ===\n")
 	for stripNameSuffix := range this.outer_.stripNameSuffixes.All() {
@@ -148,7 +149,12 @@ func (this *StripCode_StripCodeConfigRecord) get() any {
 		builder.append(stripNamePrefix).append("\n")
 	}
 	builder.append("\n")
-	return strobj_(builder.toString())
+	return builder.toString()
+}
+
+// get is the bridge of the interface's erased signature (javac's): it boxes the result of getT_.
+func (this *StripCode_StripCodeConfigRecord) get() any {
+	return strobj_(this.getT_())
 }
 
 type StripCode_Strip struct {

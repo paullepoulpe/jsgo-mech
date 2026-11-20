@@ -368,6 +368,12 @@ func new_FunctionToBlockMutator_LabelNameSupplier(idSupplier SupplierOf[string])
 	return this
 }
 
+// getT_ is get with the result type the class declares (implsplit).
+func (this *FunctionToBlockMutator_LabelNameSupplier) getT_() string {
+	return ("JSCompiler_inline_label_" + sstr_(str_(this.idSupplier.get())))
+}
+
+// get is the bridge of the interface's erased signature (javac's): it boxes the result of getT_.
 func (this *FunctionToBlockMutator_LabelNameSupplier) get() any {
-	return strobj_(("JSCompiler_inline_label_" + sstr_(str_(this.idSupplier.get()))))
+	return strobj_(this.getT_())
 }
