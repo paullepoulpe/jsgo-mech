@@ -137,12 +137,12 @@ func (this *AstAnalyzer) checkForStateChangeHelper(n Node, checkForNewObjects bo
 			return false
 		case Token_rhino_COMPUTED_PROP:
 			return func() bool {
-				switch parent.getToken() {
-				case Token_rhino_CLASS_MEMBERS:
+				switch parent.ns_().token {
+				case tokOrd1_CLASS_MEMBERS:
 					return this.checkForStateChangeHelper(n.getFirstChild(), checkForNewObjects)
-				case Token_rhino_OBJECT_PATTERN:
+				case tokOrd1_OBJECT_PATTERN:
 					return (parent.getLastChild().isObjectRest() || this.checkForChangeStateInChildren(n, checkForNewObjects))
-				case Token_rhino_OBJECTLIT:
+				case tokOrd1_OBJECTLIT:
 					return this.checkForChangeStateInChildren(n, checkForNewObjects)
 				default:
 					panic(new_IllegalStateException_String(("Illegal COMPUTED_PROP parent " + tostrH_(parent))).self())
@@ -238,29 +238,29 @@ func (this *AstAnalyzer) nodeTypeMayHaveSideEffects(n Node) bool {
 		return true
 	}
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_DELPROP, Token_rhino_DEC, Token_rhino_INC, Token_rhino_YIELD, Token_rhino_THROW, Token_rhino_AWAIT, Token_rhino_DYNAMIC_IMPORT:
+		switch n.ns_().token {
+		case tokOrd1_DELPROP, tokOrd1_DEC, tokOrd1_INC, tokOrd1_YIELD, tokOrd1_THROW, tokOrd1_AWAIT, tokOrd1_DYNAMIC_IMPORT:
 			return true
-		case Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
+		case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 			return true
-		case Token_rhino_OPTCHAIN_CALL, Token_rhino_CALL, Token_rhino_TAGGED_TEMPLATELIT:
+		case tokOrd1_OPTCHAIN_CALL, tokOrd1_CALL, tokOrd1_TAGGED_TEMPLATELIT:
 			return this.functionCallHasSideEffects(n)
-		case Token_rhino_NEW:
+		case tokOrd1_NEW:
 			return this.constructorCallHasSideEffects(n)
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			return n.hasChildren()
-		case Token_rhino_DESTRUCTURING_LHS:
+		case tokOrd1_DESTRUCTURING_LHS:
 			return true
-		case Token_rhino_OBJECT_REST, Token_rhino_OBJECT_SPREAD:
+		case tokOrd1_OBJECT_REST, tokOrd1_OBJECT_SPREAD:
 			return !this.assumeGettersArePure_
-		case Token_rhino_ITER_REST, Token_rhino_ITER_SPREAD:
+		case tokOrd1_ITER_REST, tokOrd1_ITER_SPREAD:
 			return NodeUtil_iteratesImpureIterable(n)
-		case Token_rhino_STRING_KEY:
+		case tokOrd1_STRING_KEY:
 			if n.getParent().isObjectPattern() {
 				return this.getPropertyKind(n.getString()).hasGetter()
 			}
 			return false
-		case Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP:
+		case tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP:
 			return this.getPropertyKind(n.getString()).hasGetterOrSetter()
 		default:
 			return false

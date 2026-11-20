@@ -52,10 +52,10 @@ func (this *SourceInformationAnnotator) visit_impl(t *NodeTraversal, n Node, par
 
 func SourceInformationAnnotator_isStringNodeRequiringOriginalName(node Node) bool {
 	return func() bool {
-		switch node.getToken() {
-		case Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_NAME:
+		switch node.ns_().token {
+		case tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_NAME:
 			return true
-		case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_STRING_KEY:
+		case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_STRING_KEY:
 			return (node.getParent().isObjectLit() && !node.isQuotedStringKey())
 		default:
 			return false

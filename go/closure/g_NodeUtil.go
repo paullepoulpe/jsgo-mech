@@ -98,10 +98,10 @@ func NodeUtil_getBooleanValue(n Node) *Tri {
 
 func NodeUtil_getStringValue(n Node) Optional[string] {
 	return func() Optional[string] {
-		switch n.getToken() {
-		case Token_rhino_STRINGLIT, Token_rhino_STRING_KEY:
+		switch n.ns_().token {
+		case tokOrd1_STRINGLIT, tokOrd1_STRING_KEY:
 			return Optional_of[string](n.getString())
-		case Token_rhino_TEMPLATELIT:
+		case tokOrd1_TEMPLATELIT:
 			var string_ *StringBuilder = new_StringBuilder()
 			{
 				var child Node = n.getFirstChild()
@@ -118,31 +118,31 @@ func NodeUtil_getStringValue(n Node) Optional[string] {
 				}
 			}
 			return Optional_of[string](tostrR_(string_))
-		case Token_rhino_TEMPLATELIT_STRING:
+		case tokOrd1_TEMPLATELIT_STRING:
 			return n.getCookedString()
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			var name string = n.getString()
 			if (("undefined" == name) || ("Infinity" == name)) || ("NaN" == name) {
 				return Optional_of[string](name)
 			}
 			return Optional_empty[string]()
-		case Token_rhino_NEG, Token_rhino_NUMBER:
+		case tokOrd1_NEG, tokOrd1_NUMBER:
 			var value any = NodeUtil_getNumberValue(n)
 			if value != nil {
 				return Optional_of[string](DToA_numberToString(Double_doubleValue(value)))
 			}
 			return Optional_empty[string]()
-		case Token_rhino_BIGINT:
+		case tokOrd1_BIGINT:
 			return Optional_ofNullable[string](tostrR_(n.getBigInt()))
-		case Token_rhino_FALSE:
+		case tokOrd1_FALSE:
 			return Optional_of[string]("false")
-		case Token_rhino_TRUE:
+		case tokOrd1_TRUE:
 			return Optional_of[string]("true")
-		case Token_rhino_NULL:
+		case tokOrd1_NULL:
 			return Optional_of[string]("null")
-		case Token_rhino_VOID:
+		case tokOrd1_VOID:
 			return Optional_of[string]("undefined")
-		case Token_rhino_NOT:
+		case tokOrd1_NOT:
 			var child *Tri = NodeUtil_getBooleanValue(n.getFirstChild())
 			if child != Tri_UNKNOWN {
 				return func() Optional[string] {
@@ -153,9 +153,9 @@ func NodeUtil_getStringValue(n Node) Optional[string] {
 				}()
 			}
 			return Optional_empty[string]()
-		case Token_rhino_ARRAYLIT:
+		case tokOrd1_ARRAYLIT:
 			return NodeUtil_arrayToString(n)
-		case Token_rhino_OBJECTLIT:
+		case tokOrd1_OBJECTLIT:
 			return func() Optional[string] {
 				if n.hasChildren() {
 					return Optional_empty[string]()
@@ -520,10 +520,10 @@ func NodeUtil_getNameNode(n Node) Node {
 	Preconditions_checkState_boolean_Object_H((n.isFunction() || n.isClass()), n)
 	var parent Node = n.getParent()
 	return func() Node {
-		switch parent.getToken() {
-		case Token_rhino_NAME:
+		switch parent.ns_().token {
+		case tokOrd1_NAME:
 			return parent
-		case Token_rhino_ASSIGN:
+		case tokOrd1_ASSIGN:
 			var firstChild Node = parent.getFirstChild()
 			return func() Node {
 				if firstChild.isQualifiedName() {
@@ -566,10 +566,10 @@ func NodeUtil_getNearestFunctionName(n Node) Optional[string] {
 	}
 	var parent Node = n.getParent()
 	return func() Optional[string] {
-		switch parent.getToken() {
-		case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_SETTER_DEF, Token_rhino_GETTER_DEF, Token_rhino_STRING_KEY:
+		switch parent.ns_().token {
+		case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_SETTER_DEF, tokOrd1_GETTER_DEF, tokOrd1_STRING_KEY:
 			return Optional_of[string](parent.getString())
-		case Token_rhino_NUMBER:
+		case tokOrd1_NUMBER:
 			return NodeUtil_getStringValue(parent)
 		default:
 			return Optional_empty[string]()
@@ -611,15 +611,15 @@ func NodeUtil_hasInstanceElements(classNode Node) bool {
 
 func NodeUtil_isImmutableValue(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_STRINGLIT, Token_rhino_NUMBER, Token_rhino_BIGINT, Token_rhino_NULL, Token_rhino_TRUE, Token_rhino_FALSE:
+		switch n.ns_().token {
+		case tokOrd1_STRINGLIT, tokOrd1_NUMBER, tokOrd1_BIGINT, tokOrd1_NULL, tokOrd1_TRUE, tokOrd1_FALSE:
 			return true
-		case Token_rhino_CAST, Token_rhino_NOT, Token_rhino_VOID, Token_rhino_NEG:
+		case tokOrd1_CAST, tokOrd1_NOT, tokOrd1_VOID, tokOrd1_NEG:
 			return NodeUtil_isImmutableValue(n.getFirstChild())
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			var name string = n.getString()
 			return ((("undefined" == name) || ("Infinity" == name)) || ("NaN" == name))
-		case Token_rhino_TEMPLATELIT:
+		case tokOrd1_TEMPLATELIT:
 			{
 				var child Node = n.getFirstChild()
 				for ; child != 0; child = child.getNext() {
@@ -631,7 +631,7 @@ func NodeUtil_isImmutableValue(n Node) bool {
 				}
 			}
 			return true
-		case Token_rhino_TEMPLATELIT_STRING:
+		case tokOrd1_TEMPLATELIT_STRING:
 			panic(new_IllegalArgumentException_String(("Invalid argument " + tostrH_(n))).self())
 		default:
 			return false
@@ -650,12 +650,12 @@ func NodeUtil_isNumericLiteral(n Node) bool {
 func NodeUtil_getNumericLiteralValue(n Node) float64 {
 	Preconditions_checkArgument_boolean_Object_H(NodeUtil_isNumericLiteral(n), n)
 	return func() float64 {
-		switch n.getToken() {
-		case Token_rhino_NUMBER:
+		switch n.ns_().token {
+		case tokOrd1_NUMBER:
 			return n.getDouble()
-		case Token_rhino_POS:
+		case tokOrd1_POS:
 			return n.getFirstChild().getDouble()
-		case Token_rhino_NEG:
+		case tokOrd1_NEG:
 			return (-n.getFirstChild().getDouble())
 		default:
 			panic(new_AssertionError_Object(strobj_(("Unreachable: " + tostrH_(n)))).self())
@@ -666,8 +666,8 @@ func NodeUtil_getNumericLiteralValue(n Node) float64 {
 
 func NodeUtil_isSymmetricOperation(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_EQ, Token_rhino_NE, Token_rhino_SHEQ, Token_rhino_SHNE, Token_rhino_MUL:
+		switch n.ns_().token {
+		case tokOrd1_EQ, tokOrd1_NE, tokOrd1_SHEQ, tokOrd1_SHNE, tokOrd1_MUL:
 			return true
 		default:
 			return false
@@ -678,8 +678,8 @@ func NodeUtil_isSymmetricOperation(n Node) bool {
 
 func NodeUtil_isRelationalOperation(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_GT, Token_rhino_GE, Token_rhino_LT, Token_rhino_LE:
+		switch n.ns_().token {
+		case tokOrd1_GT, tokOrd1_GE, tokOrd1_LT, tokOrd1_LE:
 			return true
 		default:
 			return false
@@ -735,20 +735,20 @@ func NodeUtil_isLiteralValue(n Node, includeFunctions bool) bool {
 			{
 				var child Node = n.getFirstChild()
 				for ; child != 0; child = child.getNext() {
-					switch child.getToken() {
-					case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
+					switch child.ns_().token {
+					case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 						if !includeFunctions {
 							return false
 						}
-					case Token_rhino_COMPUTED_PROP:
+					case tokOrd1_COMPUTED_PROP:
 						if !NodeUtil_isLiteralValue(child.getFirstChild(), includeFunctions) || !NodeUtil_isLiteralValue(child.getLastChild(), includeFunctions) {
 							return false
 						}
-					case Token_rhino_OBJECT_SPREAD:
+					case tokOrd1_OBJECT_SPREAD:
 						if !NodeUtil_isLiteralValue(child.getOnlyChild(), includeFunctions) {
 							return false
 						}
-					case Token_rhino_STRING_KEY:
+					case tokOrd1_STRING_KEY:
 						if !NodeUtil_isLiteralValue(child.getOnlyChild(), includeFunctions) {
 							return false
 						}
@@ -955,10 +955,10 @@ func NodeUtil_iteratesImpureIterable(node Node) bool {
 		iterable = node.getSecondChild()
 	case Token_rhino_ITER_REST:
 		return func() bool {
-			switch parent.getToken() {
-			case Token_rhino_PARAM_LIST:
+			switch parent.ns_().token {
+			case tokOrd1_PARAM_LIST:
 				return false
-			case Token_rhino_ARRAY_PATTERN:
+			case tokOrd1_ARRAY_PATTERN:
 				return true
 			default:
 				panic(new_IllegalStateException_String(("Unexpected parent of ITRE_REST: " + sstr_(parent.toStringTree()))).self())
@@ -973,8 +973,8 @@ func NodeUtil_iteratesImpureIterable(node Node) bool {
 
 func NodeUtil_isPureIterable(node Node) bool {
 	return func() bool {
-		switch node.getToken() {
-		case Token_rhino_ARRAYLIT, Token_rhino_STRINGLIT, Token_rhino_TEMPLATELIT:
+		switch node.ns_().token {
+		case tokOrd1_ARRAYLIT, tokOrd1_STRINGLIT, tokOrd1_TEMPLATELIT:
 			return true
 		default:
 			return false
@@ -1005,16 +1005,16 @@ func NodeUtil_canBeSideEffected_Node(n Node) bool {
 }
 
 func NodeUtil_canBeSideEffected_Node_Set_Scope(n Node, knownConstants *JTSet[string], scope *Scope) bool {
-	switch n.getToken() {
-	case Token_rhino_YIELD, Token_rhino_CALL, Token_rhino_OPTCHAIN_CALL, Token_rhino_NEW, Token_rhino_TAGGED_TEMPLATELIT, Token_rhino_AWAIT, Token_rhino_DYNAMIC_IMPORT:
+	switch n.ns_().token {
+	case tokOrd1_YIELD, tokOrd1_CALL, tokOrd1_OPTCHAIN_CALL, tokOrd1_NEW, tokOrd1_TAGGED_TEMPLATELIT, tokOrd1_AWAIT, tokOrd1_DYNAMIC_IMPORT:
 		return true
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		return (!NodeUtil_isConstantVar(n, scope) && !knownConstants.contains(n.getString()))
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		return !n.getFirstChild().matchesName("Symbol")
-	case Token_rhino_GETELEM, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_OPTCHAIN_GETELEM:
+	case tokOrd1_GETELEM, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OPTCHAIN_GETELEM:
 		return true
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		Preconditions_checkState_boolean_Object_H(!NodeUtil_isFunctionDeclaration(n), n)
 		return false
 	default:
@@ -1089,10 +1089,10 @@ func NodeUtil_precedence(type_ *Token_rhino) int32 {
 
 func NodeUtil_isUndefined(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_VOID:
+		switch n.ns_().token {
+		case tokOrd1_VOID:
 			return true
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			return (n.getString() == "undefined")
 		default:
 			return false
@@ -1106,16 +1106,16 @@ func NodeUtil_isNullOrUndefined(n Node) bool {
 }
 
 func NodeUtil_getKnownValueType(n Node) *NodeUtil_ValueType {
-	switch n.getToken() {
-	case Token_rhino_CAST:
+	switch n.ns_().token {
+	case tokOrd1_CAST:
 		return NodeUtil_getKnownValueType(n.getFirstChild())
-	case Token_rhino_ASSIGN, Token_rhino_COMMA:
+	case tokOrd1_ASSIGN, tokOrd1_COMMA:
 		return NodeUtil_getKnownValueType(n.getLastChild())
-	case Token_rhino_AND, Token_rhino_OR, Token_rhino_COALESCE, Token_rhino_ASSIGN_OR, Token_rhino_ASSIGN_AND, Token_rhino_ASSIGN_COALESCE:
+	case tokOrd1_AND, tokOrd1_OR, tokOrd1_COALESCE, tokOrd1_ASSIGN_OR, tokOrd1_ASSIGN_AND, tokOrd1_ASSIGN_COALESCE:
 		return NodeUtil_and(NodeUtil_getKnownValueType(n.getFirstChild()), NodeUtil_getKnownValueType(n.getLastChild()))
-	case Token_rhino_HOOK:
+	case tokOrd1_HOOK:
 		return NodeUtil_and(NodeUtil_getKnownValueType(n.getSecondChild()), NodeUtil_getKnownValueType(n.getLastChild()))
-	case Token_rhino_ADD:
+	case tokOrd1_ADD:
 		var last *NodeUtil_ValueType = NodeUtil_getKnownValueType(n.getLastChild())
 		if last == NodeUtil_ValueType_STRING {
 			return NodeUtil_ValueType_STRING
@@ -1135,13 +1135,13 @@ func NodeUtil_getKnownValueType(n Node) *NodeUtil_ValueType {
 			}
 		}
 		return NodeUtil_ValueType_UNDETERMINED
-	case Token_rhino_ASSIGN_ADD:
+	case tokOrd1_ASSIGN_ADD:
 		var last *NodeUtil_ValueType = NodeUtil_getKnownValueType(n.getLastChild())
 		if last == NodeUtil_ValueType_STRING {
 			return NodeUtil_ValueType_STRING
 		}
 		return NodeUtil_ValueType_UNDETERMINED
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		var name string = n.getString()
 		if name == "undefined" {
 			return NodeUtil_ValueType_VOID
@@ -1153,15 +1153,15 @@ func NodeUtil_getKnownValueType(n Node) *NodeUtil_ValueType {
 			return NodeUtil_ValueType_NUMBER
 		}
 		return NodeUtil_ValueType_UNDETERMINED
-	case Token_rhino_ASSIGN_BITOR, Token_rhino_ASSIGN_BITXOR, Token_rhino_ASSIGN_BITAND, Token_rhino_ASSIGN_LSH, Token_rhino_ASSIGN_RSH, Token_rhino_ASSIGN_URSH, Token_rhino_ASSIGN_SUB, Token_rhino_ASSIGN_MUL, Token_rhino_ASSIGN_EXPONENT, Token_rhino_ASSIGN_DIV, Token_rhino_ASSIGN_MOD:
+	case tokOrd1_ASSIGN_BITOR, tokOrd1_ASSIGN_BITXOR, tokOrd1_ASSIGN_BITAND, tokOrd1_ASSIGN_LSH, tokOrd1_ASSIGN_RSH, tokOrd1_ASSIGN_URSH, tokOrd1_ASSIGN_SUB, tokOrd1_ASSIGN_MUL, tokOrd1_ASSIGN_EXPONENT, tokOrd1_ASSIGN_DIV, tokOrd1_ASSIGN_MOD:
 		if NodeUtil_getKnownValueType(n.getLastChild()) == NodeUtil_ValueType_BIGINT {
 			return NodeUtil_ValueType_BIGINT
 		} else {
 			return NodeUtil_ValueType_NUMBER
 		}
-	case Token_rhino_BIGINT:
+	case tokOrd1_BIGINT:
 		return NodeUtil_ValueType_BIGINT
-	case Token_rhino_BITOR, Token_rhino_BITXOR, Token_rhino_BITAND, Token_rhino_LSH, Token_rhino_RSH, Token_rhino_SUB, Token_rhino_MUL, Token_rhino_MOD, Token_rhino_DIV, Token_rhino_EXPONENT:
+	case tokOrd1_BITOR, tokOrd1_BITXOR, tokOrd1_BITAND, tokOrd1_LSH, tokOrd1_RSH, tokOrd1_SUB, tokOrd1_MUL, tokOrd1_MOD, tokOrd1_DIV, tokOrd1_EXPONENT:
 		var first *NodeUtil_ValueType = NodeUtil_getKnownValueType(n.getFirstChild())
 		var last *NodeUtil_ValueType = NodeUtil_getKnownValueType(n.getLastChild())
 		if (first == NodeUtil_ValueType_BIGINT) || (last == NodeUtil_ValueType_BIGINT) {
@@ -1169,25 +1169,25 @@ func NodeUtil_getKnownValueType(n Node) *NodeUtil_ValueType {
 		} else {
 			return NodeUtil_ValueType_NUMBER
 		}
-	case Token_rhino_BITNOT, Token_rhino_NEG:
+	case tokOrd1_BITNOT, tokOrd1_NEG:
 		if NodeUtil_getKnownValueType(n.getOnlyChild()) == NodeUtil_ValueType_BIGINT {
 			return NodeUtil_ValueType_BIGINT
 		} else {
 			return NodeUtil_ValueType_NUMBER
 		}
-	case Token_rhino_INC, Token_rhino_DEC:
+	case tokOrd1_INC, tokOrd1_DEC:
 		return NodeUtil_ValueType_NUMBER
-	case Token_rhino_URSH, Token_rhino_POS, Token_rhino_NUMBER:
+	case tokOrd1_URSH, tokOrd1_POS, tokOrd1_NUMBER:
 		return NodeUtil_ValueType_NUMBER
-	case Token_rhino_TRUE, Token_rhino_FALSE, Token_rhino_EQ, Token_rhino_NE, Token_rhino_SHEQ, Token_rhino_SHNE, Token_rhino_LT, Token_rhino_GT, Token_rhino_LE, Token_rhino_GE, Token_rhino_IN, Token_rhino_INSTANCEOF, Token_rhino_NOT, Token_rhino_DELPROP:
+	case tokOrd1_TRUE, tokOrd1_FALSE, tokOrd1_EQ, tokOrd1_NE, tokOrd1_SHEQ, tokOrd1_SHNE, tokOrd1_LT, tokOrd1_GT, tokOrd1_LE, tokOrd1_GE, tokOrd1_IN, tokOrd1_INSTANCEOF, tokOrd1_NOT, tokOrd1_DELPROP:
 		return NodeUtil_ValueType_BOOLEAN
-	case Token_rhino_TYPEOF, Token_rhino_STRINGLIT, Token_rhino_TEMPLATELIT:
+	case tokOrd1_TYPEOF, tokOrd1_STRINGLIT, tokOrd1_TEMPLATELIT:
 		return NodeUtil_ValueType_STRING
-	case Token_rhino_NULL:
+	case tokOrd1_NULL:
 		return NodeUtil_ValueType_NULL
-	case Token_rhino_VOID:
+	case tokOrd1_VOID:
 		return NodeUtil_ValueType_VOID
-	case Token_rhino_FUNCTION, Token_rhino_NEW, Token_rhino_ARRAYLIT, Token_rhino_OBJECTLIT, Token_rhino_REGEXP:
+	case tokOrd1_FUNCTION, tokOrd1_NEW, tokOrd1_ARRAYLIT, tokOrd1_OBJECTLIT, tokOrd1_REGEXP:
 		return NodeUtil_ValueType_OBJECT
 	default:
 		Preconditions_checkArgument(!n.isTemplateLitString())
@@ -1305,8 +1305,8 @@ func NodeUtil_isCommutative(type_ *Token_rhino) bool {
 
 func NodeUtil_isAssignmentOp(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_ASSIGN, Token_rhino_ASSIGN_BITOR, Token_rhino_ASSIGN_BITXOR, Token_rhino_ASSIGN_BITAND, Token_rhino_ASSIGN_LSH, Token_rhino_ASSIGN_RSH, Token_rhino_ASSIGN_URSH, Token_rhino_ASSIGN_ADD, Token_rhino_ASSIGN_SUB, Token_rhino_ASSIGN_MUL, Token_rhino_ASSIGN_EXPONENT, Token_rhino_ASSIGN_DIV, Token_rhino_ASSIGN_MOD, Token_rhino_ASSIGN_OR, Token_rhino_ASSIGN_AND, Token_rhino_ASSIGN_COALESCE:
+		switch n.ns_().token {
+		case tokOrd1_ASSIGN, tokOrd1_ASSIGN_BITOR, tokOrd1_ASSIGN_BITXOR, tokOrd1_ASSIGN_BITAND, tokOrd1_ASSIGN_LSH, tokOrd1_ASSIGN_RSH, tokOrd1_ASSIGN_URSH, tokOrd1_ASSIGN_ADD, tokOrd1_ASSIGN_SUB, tokOrd1_ASSIGN_MUL, tokOrd1_ASSIGN_EXPONENT, tokOrd1_ASSIGN_DIV, tokOrd1_ASSIGN_MOD, tokOrd1_ASSIGN_OR, tokOrd1_ASSIGN_AND, tokOrd1_ASSIGN_COALESCE:
 			return true
 		default:
 			return false
@@ -1317,8 +1317,8 @@ func NodeUtil_isAssignmentOp(n Node) bool {
 
 func NodeUtil_isLogicalAssignmentOp(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_ASSIGN_OR, Token_rhino_ASSIGN_AND, Token_rhino_ASSIGN_COALESCE:
+		switch n.ns_().token {
+		case tokOrd1_ASSIGN_OR, tokOrd1_ASSIGN_AND, tokOrd1_ASSIGN_COALESCE:
 			return true
 		default:
 			return false
@@ -1333,36 +1333,36 @@ func NodeUtil_isCompoundAssignmentOp(n Node) bool {
 
 func NodeUtil_getOpFromAssignmentOp(n Node) *Token_rhino {
 	return func() *Token_rhino {
-		switch n.getToken() {
-		case Token_rhino_ASSIGN_BITOR:
+		switch n.ns_().token {
+		case tokOrd1_ASSIGN_BITOR:
 			return Token_rhino_BITOR
-		case Token_rhino_ASSIGN_BITXOR:
+		case tokOrd1_ASSIGN_BITXOR:
 			return Token_rhino_BITXOR
-		case Token_rhino_ASSIGN_BITAND:
+		case tokOrd1_ASSIGN_BITAND:
 			return Token_rhino_BITAND
-		case Token_rhino_ASSIGN_LSH:
+		case tokOrd1_ASSIGN_LSH:
 			return Token_rhino_LSH
-		case Token_rhino_ASSIGN_RSH:
+		case tokOrd1_ASSIGN_RSH:
 			return Token_rhino_RSH
-		case Token_rhino_ASSIGN_URSH:
+		case tokOrd1_ASSIGN_URSH:
 			return Token_rhino_URSH
-		case Token_rhino_ASSIGN_ADD:
+		case tokOrd1_ASSIGN_ADD:
 			return Token_rhino_ADD
-		case Token_rhino_ASSIGN_SUB:
+		case tokOrd1_ASSIGN_SUB:
 			return Token_rhino_SUB
-		case Token_rhino_ASSIGN_MUL:
+		case tokOrd1_ASSIGN_MUL:
 			return Token_rhino_MUL
-		case Token_rhino_ASSIGN_EXPONENT:
+		case tokOrd1_ASSIGN_EXPONENT:
 			return Token_rhino_EXPONENT
-		case Token_rhino_ASSIGN_DIV:
+		case tokOrd1_ASSIGN_DIV:
 			return Token_rhino_DIV
-		case Token_rhino_ASSIGN_MOD:
+		case tokOrd1_ASSIGN_MOD:
 			return Token_rhino_MOD
-		case Token_rhino_ASSIGN_OR:
+		case tokOrd1_ASSIGN_OR:
 			return Token_rhino_OR
-		case Token_rhino_ASSIGN_AND:
+		case tokOrd1_ASSIGN_AND:
 			return Token_rhino_AND
-		case Token_rhino_ASSIGN_COALESCE:
+		case tokOrd1_ASSIGN_COALESCE:
 			return Token_rhino_COALESCE
 		default:
 			panic(new_IllegalArgumentException_String(("Not an assignment op:" + tostrH_(n))).self())
@@ -1595,12 +1595,12 @@ func NodeUtil_getNonOptChainToken(optChainToken *Token_rhino) *Token_rhino {
 
 func NodeUtil_isBlockScopedDeclaration(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_LET, Token_rhino_CONST, Token_rhino_CATCH:
+		switch n.ns_().token {
+		case tokOrd1_LET, tokOrd1_CONST, tokOrd1_CATCH:
 			return true
-		case Token_rhino_CLASS:
+		case tokOrd1_CLASS:
 			return NodeUtil_isClassDeclaration(n)
-		case Token_rhino_FUNCTION:
+		case tokOrd1_FUNCTION:
 			return NodeUtil_isBlockScopedFunctionDeclaration(n)
 		default:
 			return false
@@ -1662,8 +1662,8 @@ func NodeUtil_isAnyFor(n Node) bool {
 
 func NodeUtil_isLoopStructure(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_DO, Token_rhino_WHILE:
+		switch n.ns_().token {
+		case tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_DO, tokOrd1_WHILE:
 			return true
 		default:
 			return false
@@ -1674,10 +1674,10 @@ func NodeUtil_isLoopStructure(n Node) bool {
 
 func NodeUtil_getLoopCodeBlock(n Node) Node {
 	return func() Node {
-		switch n.getToken() {
-		case Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_WHILE:
+		switch n.ns_().token {
+		case tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_WHILE:
 			return n.getLastChild()
-		case Token_rhino_DO:
+		case tokOrd1_DO:
 			return n.getFirstChild()
 		default:
 			return 0
@@ -1702,8 +1702,8 @@ func NodeUtil_isWithinLoop(n Node) bool {
 
 func NodeUtil_isControlStructure(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_DO, Token_rhino_WHILE, Token_rhino_WITH, Token_rhino_IF, Token_rhino_LABEL, Token_rhino_TRY, Token_rhino_CATCH, Token_rhino_SWITCH, Token_rhino_CASE, Token_rhino_DEFAULT_CASE:
+		switch n.ns_().token {
+		case tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_DO, tokOrd1_WHILE, tokOrd1_WITH, tokOrd1_IF, tokOrd1_LABEL, tokOrd1_TRY, tokOrd1_CATCH, tokOrd1_SWITCH, tokOrd1_CASE, tokOrd1_DEFAULT_CASE:
 			return true
 		default:
 			return false
@@ -1714,16 +1714,16 @@ func NodeUtil_isControlStructure(n Node) bool {
 
 func NodeUtil_isControlStructureCodeBlock(parent Node, n Node) bool {
 	return func() bool {
-		switch parent.getToken() {
-		case Token_rhino_DO:
+		switch parent.ns_().token {
+		case tokOrd1_DO:
 			return (parent.getFirstChild() == n)
-		case Token_rhino_TRY:
+		case tokOrd1_TRY:
 			return ((parent.getFirstChild() == n) || (parent.getLastChild() == n))
-		case Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_WHILE, Token_rhino_LABEL, Token_rhino_WITH, Token_rhino_CATCH:
+		case tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_WHILE, tokOrd1_LABEL, tokOrd1_WITH, tokOrd1_CATCH:
 			return (parent.getLastChild() == n)
-		case Token_rhino_IF, Token_rhino_SWITCH, Token_rhino_CASE:
+		case tokOrd1_IF, tokOrd1_SWITCH, tokOrd1_CASE:
 			return (parent.getFirstChild() != n)
-		case Token_rhino_DEFAULT_CASE:
+		case tokOrd1_DEFAULT_CASE:
 			return true
 		default:
 			Preconditions_checkState_boolean_Object_H(NodeUtil_isControlStructure(parent), parent)
@@ -1735,14 +1735,14 @@ func NodeUtil_isControlStructureCodeBlock(parent Node, n Node) bool {
 
 func NodeUtil_getConditionExpression(n Node) Node {
 	return func() Node {
-		switch n.getToken() {
-		case Token_rhino_IF, Token_rhino_WHILE:
+		switch n.ns_().token {
+		case tokOrd1_IF, tokOrd1_WHILE:
 			return n.getFirstChild()
-		case Token_rhino_DO:
+		case tokOrd1_DO:
 			return n.getLastChild()
-		case Token_rhino_FOR:
+		case tokOrd1_FOR:
 			return n.getSecondChild()
-		case Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_CASE:
+		case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_CASE:
 			return 0
 		default:
 			panic(new_IllegalArgumentException_String((tostrH_(n) + " does not have a condition.")).self())
@@ -1757,14 +1757,14 @@ func NodeUtil_isStatementBlock(n Node) bool {
 
 func NodeUtil_createsBlockScope(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_BLOCK:
+		switch n.ns_().token {
+		case tokOrd1_BLOCK:
 			var parent Node = n.getParent()
 			if ((parent != 0) && (parent.isBlock() || parent.isScript())) && n.isSyntheticBlock() {
 				return false
 			}
 			return (((parent != 0) && !NodeUtil_isSwitchCase(parent)) && !parent.isCatch())
-		case Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_SWITCH_BODY, Token_rhino_CLASS:
+		case tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_SWITCH_BODY, tokOrd1_CLASS:
 			return true
 		default:
 			return false
@@ -1791,8 +1791,8 @@ func NodeUtil_isStatementParent(parent Node) bool {
 
 func NodeUtil_isDeclarationParent(parent Node) bool {
 	return func() bool {
-		switch parent.getToken() {
-		case Token_rhino_DECLARE, Token_rhino_EXPORT:
+		switch parent.ns_().token {
+		case tokOrd1_DECLARE, tokOrd1_EXPORT:
 			return true
 		default:
 			return NodeUtil_isStatementParent(parent)
@@ -1984,14 +1984,14 @@ func NodeUtil_canMergeBlock(block Node) bool {
 		var c Node = block.getFirstChild()
 	L_1:
 		for ; c != 0; c = c.getNext() {
-			switch c.getToken() {
-			case Token_rhino_LABEL:
+			switch c.ns_().token {
+			case tokOrd1_LABEL:
 				if NodeUtil_canMergeBlock(c) {
 					continue L_1
 				} else {
 					return false
 				}
-			case Token_rhino_CONST, Token_rhino_LET, Token_rhino_CLASS, Token_rhino_FUNCTION:
+			case tokOrd1_CONST, tokOrd1_LET, tokOrd1_CLASS, tokOrd1_FUNCTION:
 				return false
 			default:
 				continue L_1
@@ -2049,10 +2049,10 @@ func NodeUtil_isMethodDeclaration(n Node) bool {
 	if n.isFunction() {
 		var parent Node = n.getParent()
 		return func() bool {
-			switch parent.getToken() {
-			case Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_MEMBER_FUNCTION_DEF:
+			switch parent.ns_().token {
+			case tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_MEMBER_FUNCTION_DEF:
 				return true
-			case Token_rhino_COMPUTED_PROP:
+			case tokOrd1_COMPUTED_PROP:
 				return ((parent.getLastChild() == n) && ((parent.getBooleanProp(Node_COMPUTED_PROP_METHOD) || parent.getBooleanProp(Node_COMPUTED_PROP_GETTER)) || parent.getBooleanProp(Node_COMPUTED_PROP_SETTER)))
 			default:
 				return false
@@ -2083,10 +2083,10 @@ func NodeUtil_isBlockScopedFunctionDeclaration(n Node) bool {
 	}
 	var current Node = n.getParent()
 	for current != 0 {
-		switch current.getToken() {
-		case Token_rhino_BLOCK:
+		switch current.ns_().token {
+		case tokOrd1_BLOCK:
 			return !current.getParent().isFunction()
-		case Token_rhino_FUNCTION, Token_rhino_SCRIPT, Token_rhino_DECLARE, Token_rhino_EXPORT, Token_rhino_MODULE_BODY:
+		case tokOrd1_FUNCTION, tokOrd1_SCRIPT, tokOrd1_DECLARE, tokOrd1_EXPORT, tokOrd1_MODULE_BODY:
 			return false
 		default:
 			Preconditions_checkState_boolean_Object_H(current.isLabel(), current)
@@ -2207,8 +2207,8 @@ func NodeUtil_isNameDeclOrSimpleAssignLhs(n Node, parent Node) bool {
 }
 
 func NodeUtil_isLValue(n Node) bool {
-	switch n.getToken() {
-	case Token_rhino_NAME, Token_rhino_GETPROP, Token_rhino_GETELEM:
+	switch n.ns_().token {
+	case tokOrd1_NAME, tokOrd1_GETPROP, tokOrd1_GETELEM:
 	default:
 		return false
 	}
@@ -2217,14 +2217,14 @@ func NodeUtil_isLValue(n Node) bool {
 		return false
 	}
 	return func() bool {
-		switch parent.getToken() {
-		case Token_rhino_IMPORT_SPEC:
+		switch parent.ns_().token {
+		case tokOrd1_IMPORT_SPEC:
 			return (parent.getLastChild() == n)
-		case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST, Token_rhino_ITER_REST, Token_rhino_OBJECT_REST, Token_rhino_PARAM_LIST, Token_rhino_IMPORT, Token_rhino_INC, Token_rhino_DEC, Token_rhino_CATCH:
+		case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST, tokOrd1_ITER_REST, tokOrd1_OBJECT_REST, tokOrd1_PARAM_LIST, tokOrd1_IMPORT, tokOrd1_INC, tokOrd1_DEC, tokOrd1_CATCH:
 			return true
-		case Token_rhino_CLASS, Token_rhino_FUNCTION, Token_rhino_DEFAULT_VALUE, Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
+		case tokOrd1_CLASS, tokOrd1_FUNCTION, tokOrd1_DEFAULT_VALUE, tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 			return (parent.getFirstChild() == n)
-		case Token_rhino_ARRAY_PATTERN, Token_rhino_STRING_KEY, Token_rhino_COMPUTED_PROP:
+		case tokOrd1_ARRAY_PATTERN, tokOrd1_STRING_KEY, tokOrd1_COMPUTED_PROP:
 			return NodeUtil_isLhsByDestructuring(n)
 		default:
 			return (NodeUtil_isAssignmentOp(parent) && (parent.getFirstChild() == n))
@@ -2249,10 +2249,10 @@ func NodeUtil_isDeclarationLValue(n Node) bool {
 	}
 	var parent Node = n.getParent()
 	return func() bool {
-		switch parent.getToken() {
-		case Token_rhino_IMPORT_SPEC, Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST, Token_rhino_PARAM_LIST, Token_rhino_IMPORT, Token_rhino_CATCH, Token_rhino_CLASS, Token_rhino_FUNCTION:
+		switch parent.ns_().token {
+		case tokOrd1_IMPORT_SPEC, tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST, tokOrd1_PARAM_LIST, tokOrd1_IMPORT, tokOrd1_CATCH, tokOrd1_CLASS, tokOrd1_FUNCTION:
 			return true
-		case Token_rhino_STRING_KEY, Token_rhino_OBJECT_PATTERN, Token_rhino_ARRAY_PATTERN, Token_rhino_COMPUTED_PROP, Token_rhino_DEFAULT_VALUE, Token_rhino_ITER_REST, Token_rhino_OBJECT_REST:
+		case tokOrd1_STRING_KEY, tokOrd1_OBJECT_PATTERN, tokOrd1_ARRAY_PATTERN, tokOrd1_COMPUTED_PROP, tokOrd1_DEFAULT_VALUE, tokOrd1_ITER_REST, tokOrd1_OBJECT_REST:
 			var rootTargetParent Node = NodeUtil_getRootTarget(n).getParent()
 			if rootTargetParent.isRest() || rootTargetParent.isDefaultValue() {
 				return rootTargetParent.getParent().isParamList()
@@ -2320,37 +2320,37 @@ func NodeUtil_getEnclosingTarget(targetNode Node) Node {
 		targetIsFirstChild = (targetNode == parent.getFirstChild())
 	}
 	return func() Node {
-		switch parent.getToken() {
-		case Token_rhino_ARRAY_PATTERN:
+		switch parent.ns_().token {
+		case tokOrd1_ARRAY_PATTERN:
 			return parent
-		case Token_rhino_OBJECT_PATTERN:
+		case tokOrd1_OBJECT_PATTERN:
 			return parent
-		case Token_rhino_COMPUTED_PROP:
+		case tokOrd1_COMPUTED_PROP:
 			Preconditions_checkState_boolean_Object_H(!targetIsFirstChild, parent)
 			var grandparent Node = Preconditions_checkNotNull_Object_Object_T(parent.getParent(), parent.box_())
 			Preconditions_checkState_boolean_Object_H(grandparent.isObjectPattern(), grandparent)
 			return grandparent
-		case Token_rhino_STRING_KEY:
+		case tokOrd1_STRING_KEY:
 			var grandparent Node = Preconditions_checkNotNull_Object_Object_T(parent.getParent(), parent.box_())
 			Preconditions_checkState_boolean_Object_H(grandparent.isObjectPattern(), grandparent)
 			return grandparent
-		case Token_rhino_PARAM_LIST, Token_rhino_LET, Token_rhino_CONST, Token_rhino_VAR:
+		case tokOrd1_PARAM_LIST, tokOrd1_LET, tokOrd1_CONST, tokOrd1_VAR:
 			return 0
-		case Token_rhino_FUNCTION, Token_rhino_CLASS:
+		case tokOrd1_FUNCTION, tokOrd1_CLASS:
 			Preconditions_checkState_boolean_Object_H(targetIsFirstChild, targetNode)
 			return 0
-		case Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
+		case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 			Preconditions_checkState_boolean_Object_H(targetIsFirstChild, targetNode)
 			return 0
-		case Token_rhino_DESTRUCTURING_LHS:
+		case tokOrd1_DESTRUCTURING_LHS:
 			Preconditions_checkState_boolean_Object_H(targetIsFirstChild, targetNode)
 			return 0
-		case Token_rhino_IMPORT:
+		case tokOrd1_IMPORT:
 			return 0
-		case Token_rhino_IMPORT_SPEC:
+		case tokOrd1_IMPORT_SPEC:
 			Preconditions_checkState_boolean_Object_H(!targetIsFirstChild, parent)
 			return 0
-		case Token_rhino_CATCH:
+		case tokOrd1_CATCH:
 			return 0
 		default:
 			Preconditions_checkState_boolean_Object_H((NodeUtil_isAssignmentOp(parent) && targetIsFirstChild), parent)
@@ -2362,8 +2362,8 @@ func NodeUtil_getEnclosingTarget(targetNode Node) Node {
 
 func NodeUtil_isLhsByDestructuring(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_NAME, Token_rhino_GETPROP, Token_rhino_GETELEM:
+		switch n.ns_().token {
+		case tokOrd1_NAME, tokOrd1_GETPROP, tokOrd1_GETELEM:
 			return NodeUtil_isLhsByDestructuringHelper(n)
 		default:
 			return false
@@ -2376,14 +2376,14 @@ func NodeUtil_isLhsByDestructuringHelper(n Node) bool {
 	var parent Node = n.getParent()
 	var grandparent Node = n.getGrandparent()
 	return func() bool {
-		switch parent.getToken() {
-		case Token_rhino_ARRAY_PATTERN, Token_rhino_ITER_REST, Token_rhino_OBJECT_REST:
+		switch parent.ns_().token {
+		case tokOrd1_ARRAY_PATTERN, tokOrd1_ITER_REST, tokOrd1_OBJECT_REST:
 			return true
-		case Token_rhino_COMPUTED_PROP:
+		case tokOrd1_COMPUTED_PROP:
 			return (!n.isFirstChildOf(parent) && grandparent.isObjectPattern())
-		case Token_rhino_STRING_KEY:
+		case tokOrd1_STRING_KEY:
 			return grandparent.isObjectPattern()
-		case Token_rhino_DEFAULT_VALUE:
+		case tokOrd1_DEFAULT_VALUE:
 			return (n.isFirstChildOf(parent) && NodeUtil_isLhsByDestructuringHelper(parent))
 		default:
 			return false
@@ -2394,8 +2394,8 @@ func NodeUtil_isLhsByDestructuringHelper(n Node) bool {
 
 func NodeUtil_mayBeObjectLitKey(node Node) bool {
 	return func() bool {
-		switch node.getToken() {
-		case Token_rhino_STRING_KEY, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_MEMBER_FUNCTION_DEF:
+		switch node.ns_().token {
+		case tokOrd1_STRING_KEY, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_MEMBER_FUNCTION_DEF:
 			return true
 		default:
 			return false
@@ -2417,10 +2417,10 @@ func NodeUtil_getObjectOrClassLitKeyName(key Node) Optional[string] {
 }
 
 func NodeUtil_getObjectOrClassLitKeyNode(key Node) Node {
-	switch key.getToken() {
-	case Token_rhino_STRING_KEY, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF:
+	switch key.ns_().token {
+	case tokOrd1_STRING_KEY, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_FIELD_DEF:
 		return key
-	case Token_rhino_COMPUTED_PROP, Token_rhino_COMPUTED_FIELD_DEF:
+	case tokOrd1_COMPUTED_PROP, tokOrd1_COMPUTED_FIELD_DEF:
 		return func() Node {
 			if key.getFirstChild().isStringLit() {
 				return key.getFirstChild()
@@ -2434,10 +2434,10 @@ func NodeUtil_getObjectOrClassLitKeyNode(key Node) Node {
 
 func NodeUtil_isGetOrSetKey(node Node) bool {
 	return func() bool {
-		switch node.getToken() {
-		case Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
+		switch node.ns_().token {
+		case tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 			return true
-		case Token_rhino_COMPUTED_PROP:
+		case tokOrd1_COMPUTED_PROP:
 			return (node.getBooleanProp(Node_COMPUTED_PROP_GETTER) || node.getBooleanProp(Node_COMPUTED_PROP_SETTER))
 		default:
 			return false
@@ -2575,8 +2575,8 @@ func NodeUtil_redeclareVarsInsideBranch(branch Node) {
 func NodeUtil_canContainHoistedVarsDecls(n Node) bool {
 	if NodeUtil_isStatement(n) {
 		return func() bool {
-			switch n.getToken() {
-			case Token_rhino_EXPR_RESULT, Token_rhino_RETURN, Token_rhino_THROW, Token_rhino_BREAK, Token_rhino_CONTINUE, Token_rhino_EMPTY, Token_rhino_DEBUGGER:
+			switch n.ns_().token {
+			case tokOrd1_EXPR_RESULT, tokOrd1_RETURN, tokOrd1_THROW, tokOrd1_BREAK, tokOrd1_CONTINUE, tokOrd1_EMPTY, tokOrd1_DEBUGGER:
 				return false
 			default:
 				return true
@@ -2602,11 +2602,11 @@ crawl_ancestors_:
 		if ancestor == 0 {
 			break
 		}
-		switch ancestor.getToken() {
-		case Token_rhino_SCRIPT, Token_rhino_MODULE_BODY:
+		switch ancestor.ns_().token {
+		case tokOrd1_SCRIPT, tokOrd1_MODULE_BODY:
 			addingRoot = ancestor
 			break crawl_ancestors_
-		case Token_rhino_FUNCTION:
+		case tokOrd1_FUNCTION:
 			addingRoot = ancestor.getLastChild()
 			break crawl_ancestors_
 		default:
@@ -2820,12 +2820,12 @@ func NodeUtil_getVarsDeclaredInBranch(root Node) CollectionOf[Node] {
 }
 
 func NodeUtil_getLhsNodesHelper(n Node, consumer ConsumerOf[Node]) {
-	switch n.getToken() {
-	case Token_rhino_IMPORT:
+	switch n.ns_().token {
+	case tokOrd1_IMPORT:
 		NodeUtil_getLhsNodesHelper(n.getFirstChild(), consumer)
 		NodeUtil_getLhsNodesHelper(n.getSecondChild(), consumer)
 		return
-	case Token_rhino_VAR, Token_rhino_CONST, Token_rhino_LET, Token_rhino_OBJECT_PATTERN, Token_rhino_ARRAY_PATTERN, Token_rhino_PARAM_LIST, Token_rhino_IMPORT_SPECS:
+	case tokOrd1_VAR, tokOrd1_CONST, tokOrd1_LET, tokOrd1_OBJECT_PATTERN, tokOrd1_ARRAY_PATTERN, tokOrd1_PARAM_LIST, tokOrd1_IMPORT_SPECS:
 		{
 			var child Node = n.getFirstChild()
 			for ; child != 0; child = child.getNext() {
@@ -2833,16 +2833,16 @@ func NodeUtil_getLhsNodesHelper(n Node, consumer ConsumerOf[Node]) {
 			}
 		}
 		return
-	case Token_rhino_DESTRUCTURING_LHS, Token_rhino_DEFAULT_VALUE, Token_rhino_CATCH, Token_rhino_ITER_REST, Token_rhino_OBJECT_REST, Token_rhino_CAST:
+	case tokOrd1_DESTRUCTURING_LHS, tokOrd1_DEFAULT_VALUE, tokOrd1_CATCH, tokOrd1_ITER_REST, tokOrd1_OBJECT_REST, tokOrd1_CAST:
 		NodeUtil_getLhsNodesHelper(n.getFirstChild(), consumer)
-	case Token_rhino_IMPORT_SPEC, Token_rhino_COMPUTED_PROP, Token_rhino_STRING_KEY:
+	case tokOrd1_IMPORT_SPEC, tokOrd1_COMPUTED_PROP, tokOrd1_STRING_KEY:
 		NodeUtil_getLhsNodesHelper(n.getLastChild(), consumer)
-	case Token_rhino_NAME, Token_rhino_IMPORT_STAR:
+	case tokOrd1_NAME, tokOrd1_IMPORT_STAR:
 		consumer.accept(n.box_())
-	case Token_rhino_GETPROP, Token_rhino_GETELEM:
+	case tokOrd1_GETPROP, tokOrd1_GETELEM:
 		consumer.accept(n.box_())
-	case Token_rhino_EMPTY:
-	case Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
+	case tokOrd1_EMPTY:
+	case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 		NodeUtil_getLhsNodesHelper(n.getFirstChild(), consumer)
 	default:
 		if NodeUtil_isAssignmentOp(n) {
@@ -2884,10 +2884,10 @@ func NodeUtil_isObjectCreateWithPropertiesDefinition(n Node) bool {
 
 func NodeUtil_isKnownGlobalObjectReference(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_NAME:
+		switch n.ns_().token {
+		case tokOrd1_NAME:
 			return (n.getString() == "Object")
-		case Token_rhino_GETPROP:
+		case tokOrd1_GETPROP:
 			return (NodeUtil_GLOBAL_OBJECT.matches(n) || NodeUtil_GLOBAL_OBJECT_MANGLED.matches(n))
 		default:
 			return false
@@ -2957,14 +2957,14 @@ func NodeUtil_isPrototypeAssignment(getProp Node) bool {
 func NodeUtil_isPropertyTest(compiler *AbstractCompiler, propAccess Node) bool {
 	var parent Node = propAccess.getParent()
 	return func() bool {
-		switch parent.getToken() {
-		case Token_rhino_CALL:
+		switch parent.ns_().token {
+		case tokOrd1_CALL:
 			return ((parent.getFirstChild() != propAccess) && compiler.getCodingConvention().isPropertyTestFunction(parent))
-		case Token_rhino_IF, Token_rhino_WHILE, Token_rhino_DO, Token_rhino_FOR, Token_rhino_FOR_IN:
+		case tokOrd1_IF, tokOrd1_WHILE, tokOrd1_DO, tokOrd1_FOR, tokOrd1_FOR_IN:
 			return (NodeUtil_getConditionExpression(parent) == propAccess)
-		case Token_rhino_INSTANCEOF, Token_rhino_TYPEOF, Token_rhino_AND, Token_rhino_OR, Token_rhino_COALESCE, Token_rhino_OPTCHAIN_GETPROP:
+		case tokOrd1_INSTANCEOF, tokOrd1_TYPEOF, tokOrd1_AND, tokOrd1_OR, tokOrd1_COALESCE, tokOrd1_OPTCHAIN_GETPROP:
 			return true
-		case Token_rhino_NE, Token_rhino_SHNE:
+		case tokOrd1_NE, tokOrd1_SHNE:
 			var other Node = func() Node {
 				if parent.getFirstChild() == propAccess {
 					return parent.getSecondChild()
@@ -2972,11 +2972,11 @@ func NodeUtil_isPropertyTest(compiler *AbstractCompiler, propAccess Node) bool {
 				return parent.getFirstChild()
 			}()
 			return (NodeUtil_isUndefined(other) || (parent.isNE() && other.isNull()))
-		case Token_rhino_OPTCHAIN_CALL, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_HOOK:
+		case tokOrd1_OPTCHAIN_CALL, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_HOOK:
 			return (parent.getFirstChild() == propAccess)
-		case Token_rhino_NOT:
+		case tokOrd1_NOT:
 			return (parent.getParent().isOr() && (parent.getParent().getFirstChild() == parent))
-		case Token_rhino_CAST:
+		case tokOrd1_CAST:
 			return NodeUtil_isPropertyTest(compiler, parent)
 		default:
 			return false
@@ -2988,8 +2988,8 @@ func NodeUtil_isPropertyTest(compiler *AbstractCompiler, propAccess Node) bool {
 func NodeUtil_isPropertyAbsenceTest(propAccess Node) bool {
 	var parent Node = propAccess.getParent()
 	return func() bool {
-		switch parent.getToken() {
-		case Token_rhino_EQ, Token_rhino_SHEQ:
+		switch parent.ns_().token {
+		case tokOrd1_EQ, tokOrd1_SHEQ:
 			var other Node = func() Node {
 				if parent.getFirstChild() == propAccess {
 					return parent.getSecondChild()
@@ -3346,36 +3346,36 @@ func NodeUtil_newCallNode(callTarget Node, parameters []Node) Node {
 
 func NodeUtil_evaluatesToLocalValue(value Node) bool {
 	return func() bool {
-		switch value.getToken() {
-		case Token_rhino_ASSIGN:
+		switch value.ns_().token {
+		case tokOrd1_ASSIGN:
 			return NodeUtil_isImmutableValue(value.getLastChild())
-		case Token_rhino_COMMA:
+		case tokOrd1_COMMA:
 			return NodeUtil_evaluatesToLocalValue(value.getLastChild())
-		case Token_rhino_AND, Token_rhino_OR, Token_rhino_COALESCE:
+		case tokOrd1_AND, tokOrd1_OR, tokOrd1_COALESCE:
 			return (NodeUtil_evaluatesToLocalValue(value.getFirstChild()) && NodeUtil_evaluatesToLocalValue(value.getLastChild()))
-		case Token_rhino_HOOK:
+		case tokOrd1_HOOK:
 			return (NodeUtil_evaluatesToLocalValue(value.getSecondChild()) && NodeUtil_evaluatesToLocalValue(value.getLastChild()))
-		case Token_rhino_DYNAMIC_IMPORT:
+		case tokOrd1_DYNAMIC_IMPORT:
 			return true
-		case Token_rhino_THIS, Token_rhino_SUPER:
+		case tokOrd1_THIS, tokOrd1_SUPER:
 			return false
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			return NodeUtil_isImmutableValue(value)
-		case Token_rhino_GETELEM, Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_OPTCHAIN_GETPROP:
+		case tokOrd1_GETELEM, tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_OPTCHAIN_GETPROP:
 			return false
-		case Token_rhino_CALL, Token_rhino_OPTCHAIN_CALL:
+		case tokOrd1_CALL, tokOrd1_OPTCHAIN_CALL:
 			return NodeUtil_isToStringMethodCall(value)
-		case Token_rhino_TAGGED_TEMPLATELIT:
+		case tokOrd1_TAGGED_TEMPLATELIT:
 			return false
-		case Token_rhino_NEW:
+		case tokOrd1_NEW:
 			return NodeUtil_newHasLocalResult(value)
-		case Token_rhino_DELPROP, Token_rhino_INC, Token_rhino_DEC, Token_rhino_CLASS, Token_rhino_FUNCTION, Token_rhino_REGEXP, Token_rhino_EMPTY, Token_rhino_ARRAYLIT, Token_rhino_OBJECTLIT, Token_rhino_TEMPLATELIT:
+		case tokOrd1_DELPROP, tokOrd1_INC, tokOrd1_DEC, tokOrd1_CLASS, tokOrd1_FUNCTION, tokOrd1_REGEXP, tokOrd1_EMPTY, tokOrd1_ARRAYLIT, tokOrd1_OBJECTLIT, tokOrd1_TEMPLATELIT:
 			return true
-		case Token_rhino_CAST:
+		case tokOrd1_CAST:
 			return NodeUtil_evaluatesToLocalValue(value.getFirstChild())
-		case Token_rhino_ITER_SPREAD, Token_rhino_OBJECT_SPREAD, Token_rhino_NEW_TARGET:
+		case tokOrd1_ITER_SPREAD, tokOrd1_OBJECT_SPREAD, tokOrd1_NEW_TARGET:
 			return false
-		case Token_rhino_YIELD, Token_rhino_AWAIT:
+		case tokOrd1_YIELD, tokOrd1_AWAIT:
 			return false
 		default:
 			if NodeUtil_isLogicalAssignmentOp(value) {
@@ -3396,22 +3396,22 @@ func NodeUtil_mayBeUndefined(n Node) bool {
 
 func NodeUtil_isDefinedValue(value Node) bool {
 	return func() bool {
-		switch value.getToken() {
-		case Token_rhino_ASSIGN, Token_rhino_CAST, Token_rhino_COMMA:
+		switch value.ns_().token {
+		case tokOrd1_ASSIGN, tokOrd1_CAST, tokOrd1_COMMA:
 			return NodeUtil_isDefinedValue(value.getLastChild())
-		case Token_rhino_COALESCE:
+		case tokOrd1_COALESCE:
 			return NodeUtil_isDefinedValue(value.getSecondChild())
-		case Token_rhino_AND, Token_rhino_OR:
+		case tokOrd1_AND, tokOrd1_OR:
 			return (NodeUtil_isDefinedValue(value.getFirstChild()) && NodeUtil_isDefinedValue(value.getLastChild()))
-		case Token_rhino_HOOK:
+		case tokOrd1_HOOK:
 			return (NodeUtil_isDefinedValue(value.getSecondChild()) && NodeUtil_isDefinedValue(value.getLastChild()))
-		case Token_rhino_CALL, Token_rhino_OPTCHAIN_CALL, Token_rhino_GETELEM, Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_TAGGED_TEMPLATELIT, Token_rhino_THIS, Token_rhino_YIELD, Token_rhino_AWAIT, Token_rhino_VOID:
+		case tokOrd1_CALL, tokOrd1_OPTCHAIN_CALL, tokOrd1_GETELEM, tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_TAGGED_TEMPLATELIT, tokOrd1_THIS, tokOrd1_YIELD, tokOrd1_AWAIT, tokOrd1_VOID:
 			return false
-		case Token_rhino_DELPROP, Token_rhino_INC, Token_rhino_DEC, Token_rhino_CLASS, Token_rhino_FUNCTION, Token_rhino_REGEXP, Token_rhino_EMPTY, Token_rhino_ARRAYLIT, Token_rhino_OBJECTLIT, Token_rhino_TEMPLATELIT, Token_rhino_STRINGLIT, Token_rhino_NUMBER, Token_rhino_BIGINT, Token_rhino_NULL, Token_rhino_TRUE, Token_rhino_FALSE, Token_rhino_NEW:
+		case tokOrd1_DELPROP, tokOrd1_INC, tokOrd1_DEC, tokOrd1_CLASS, tokOrd1_FUNCTION, tokOrd1_REGEXP, tokOrd1_EMPTY, tokOrd1_ARRAYLIT, tokOrd1_OBJECTLIT, tokOrd1_TEMPLATELIT, tokOrd1_STRINGLIT, tokOrd1_NUMBER, tokOrd1_BIGINT, tokOrd1_NULL, tokOrd1_TRUE, tokOrd1_FALSE, tokOrd1_NEW:
 			return true
-		case Token_rhino_TEMPLATELIT_STRING:
+		case tokOrd1_TEMPLATELIT_STRING:
 			return value.getCookedString().isPresent()
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			var name string = value.getString()
 			return (("Infinity" == name) || ("NaN" == name))
 		default:
@@ -3600,18 +3600,18 @@ func NodeUtil_getBestLValue(n Node) Node {
 
 func NodeUtil_getRValueOfLValue(n Node) Node {
 	var parent Node = n.getParent()
-	switch parent.getToken() {
-	case Token_rhino_ASSIGN, Token_rhino_ASSIGN_BITOR, Token_rhino_ASSIGN_BITXOR, Token_rhino_ASSIGN_BITAND, Token_rhino_ASSIGN_LSH, Token_rhino_ASSIGN_RSH, Token_rhino_ASSIGN_URSH, Token_rhino_ASSIGN_ADD, Token_rhino_ASSIGN_SUB, Token_rhino_ASSIGN_MUL, Token_rhino_ASSIGN_EXPONENT, Token_rhino_ASSIGN_DIV, Token_rhino_ASSIGN_MOD, Token_rhino_ASSIGN_OR, Token_rhino_ASSIGN_AND, Token_rhino_ASSIGN_COALESCE, Token_rhino_DESTRUCTURING_LHS:
+	switch parent.ns_().token {
+	case tokOrd1_ASSIGN, tokOrd1_ASSIGN_BITOR, tokOrd1_ASSIGN_BITXOR, tokOrd1_ASSIGN_BITAND, tokOrd1_ASSIGN_LSH, tokOrd1_ASSIGN_RSH, tokOrd1_ASSIGN_URSH, tokOrd1_ASSIGN_ADD, tokOrd1_ASSIGN_SUB, tokOrd1_ASSIGN_MUL, tokOrd1_ASSIGN_EXPONENT, tokOrd1_ASSIGN_DIV, tokOrd1_ASSIGN_MOD, tokOrd1_ASSIGN_OR, tokOrd1_ASSIGN_AND, tokOrd1_ASSIGN_COALESCE, tokOrd1_DESTRUCTURING_LHS:
 		return n.getNext()
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		return n.getLastChild()
-	case Token_rhino_OBJECTLIT:
+	case tokOrd1_OBJECTLIT:
 		Preconditions_checkState_boolean_Object_H(((((n.isStringKey() || n.isComputedProp()) || n.isMemberFunctionDef()) || n.isGetterDef()) || n.isSetterDef()), n)
 		return n.getLastChild()
-	case Token_rhino_CLASS_MEMBERS:
+	case tokOrd1_CLASS_MEMBERS:
 		Preconditions_checkState_boolean_Object_H(((((n.isMemberFunctionDef() || n.isMemberFieldDef()) || n.isComputedFieldDef()) || n.isGetterDef()) || n.isSetterDef()), n)
 		return n.getLastChild()
-	case Token_rhino_FUNCTION, Token_rhino_CLASS:
+	case tokOrd1_FUNCTION, tokOrd1_CLASS:
 		return parent
 	default:
 	}
@@ -3674,12 +3674,12 @@ func NodeUtil_getBestLValueRoot(lValue Node) Node {
 		return 0
 	}
 	return func() Node {
-		switch lValue.getToken() {
-		case Token_rhino_STRING_KEY:
+		switch lValue.ns_().token {
+		case tokOrd1_STRING_KEY:
 			return NodeUtil_getBestLValueRoot(NodeUtil_getBestLValue(lValue.getParent()))
-		case Token_rhino_GETPROP, Token_rhino_GETELEM:
+		case tokOrd1_GETPROP, tokOrd1_GETELEM:
 			return NodeUtil_getBestLValueRoot(lValue.getFirstChild())
-		case Token_rhino_THIS, Token_rhino_SUPER, Token_rhino_NAME:
+		case tokOrd1_THIS, tokOrd1_SUPER, tokOrd1_NAME:
 			return lValue
 		default:
 			return 0
@@ -3690,14 +3690,14 @@ func NodeUtil_getBestLValueRoot(lValue Node) Node {
 
 func NodeUtil_isExpressionResultUsed(expr Node) bool {
 	var parent Node = expr.getParent()
-	switch parent.getToken() {
-	case Token_rhino_BLOCK, Token_rhino_EXPR_RESULT:
+	switch parent.ns_().token {
+	case tokOrd1_BLOCK, tokOrd1_EXPR_RESULT:
 		return false
-	case Token_rhino_CAST:
+	case tokOrd1_CAST:
 		return NodeUtil_isExpressionResultUsed(parent)
-	case Token_rhino_HOOK, Token_rhino_AND, Token_rhino_OR, Token_rhino_COALESCE:
+	case tokOrd1_HOOK, tokOrd1_AND, tokOrd1_OR, tokOrd1_COALESCE:
 		return ((expr == parent.getFirstChild()) || NodeUtil_isExpressionResultUsed(parent))
-	case Token_rhino_COMMA:
+	case tokOrd1_COMMA:
 		var grandparent Node = parent.getParent()
 		if (((grandparent.isCall() || grandparent.isTaggedTemplateLit()) && (parent == grandparent.getFirstChild())) && (expr == parent.getFirstChild())) && parent.hasTwoChildren() {
 			var calledFn Node = parent.getLastChild()
@@ -3709,7 +3709,7 @@ func NodeUtil_isExpressionResultUsed(expr Node) bool {
 			}
 		}
 		return ((expr != parent.getFirstChild()) && NodeUtil_isExpressionResultUsed(parent))
-	case Token_rhino_FOR:
+	case tokOrd1_FOR:
 		return (parent.getSecondChild() == expr)
 	default:
 	}
@@ -3730,13 +3730,13 @@ func NodeUtil_isExecutedExactlyOnce(n Node) bool {
 				break
 			}
 			var parent Node = n.getParent()
-			switch parent.getToken() {
-			case Token_rhino_IF, Token_rhino_HOOK, Token_rhino_AND, Token_rhino_OR, Token_rhino_COALESCE, Token_rhino_ASSIGN_OR, Token_rhino_ASSIGN_AND, Token_rhino_ASSIGN_COALESCE, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_OPTCHAIN_CALL, Token_rhino_DEFAULT_VALUE:
+			switch parent.ns_().token {
+			case tokOrd1_IF, tokOrd1_HOOK, tokOrd1_AND, tokOrd1_OR, tokOrd1_COALESCE, tokOrd1_ASSIGN_OR, tokOrd1_ASSIGN_AND, tokOrd1_ASSIGN_COALESCE, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_OPTCHAIN_CALL, tokOrd1_DEFAULT_VALUE:
 				if parent.getFirstChild() != n {
 					return false
 				}
 				continue inspect_
-			case Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
+			case tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 				if NodeUtil_isEnhancedFor(parent) {
 					if parent.getSecondChild() != n {
 						return false
@@ -3747,14 +3747,14 @@ func NodeUtil_isExecutedExactlyOnce(n Node) bool {
 					}
 				}
 				continue inspect_
-			case Token_rhino_TRY:
+			case tokOrd1_TRY:
 				if !NodeUtil_hasFinally(parent) || (parent.getLastChild() != n) {
 					return false
 				}
 				continue inspect_
-			case Token_rhino_WHILE, Token_rhino_DO, Token_rhino_CASE, Token_rhino_DEFAULT_CASE:
+			case tokOrd1_WHILE, tokOrd1_DO, tokOrd1_CASE, tokOrd1_DEFAULT_CASE:
 				return false
-			case Token_rhino_SCRIPT, Token_rhino_FUNCTION:
+			case tokOrd1_SCRIPT, tokOrd1_FUNCTION:
 				break inspect_
 			default:
 			}
@@ -3795,7 +3795,7 @@ func NodeUtil_numberNode(value float64, srcref Node) Node {
 }
 
 func NodeUtil_isNaN(n Node) bool {
-	return (((n.isName() && (n.getString() == "NaN")) || (((((n.getToken() == Token_rhino_DIV) && n.getFirstChild().isNumber()) && (n.getFirstChild().getDouble() == 0)) && n.getLastChild().isNumber()) && (n.getLastChild().getDouble() == 0))) || n.matchesQualifiedNameNode(NodeUtil_NUMBER_NAN))
+	return (((n.isName() && (n.getString() == "NaN")) || (((((n.ns_().token == tokOrd1_DIV) && n.getFirstChild().isNumber()) && (n.getFirstChild().getDouble() == 0)) && n.getLastChild().isNumber()) && (n.getLastChild().getDouble() == 0))) || n.matchesQualifiedNameNode(NodeUtil_NUMBER_NAN))
 }
 
 func NodeUtil_countAstSizeUpToLimit(n Node, limit int32) int32 {

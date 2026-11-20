@@ -85,12 +85,12 @@ func (this *ScopedAliases) process_2(externs Node, root Node) {
 
 func ScopedAliases_isValidAliasRhs(rhs Node) bool {
 	return func() bool {
-		switch rhs.getToken() {
-		case Token_rhino_GETPROP:
+		switch rhs.ns_().token {
+		case tokOrd1_GETPROP:
 			return ScopedAliases_isValidAliasRhs(rhs.getFirstChild())
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			return true
-		case Token_rhino_CALL:
+		case tokOrd1_CALL:
 			return NodeUtil_isCallToQualifiedName(rhs, ScopedAliases_GOOG_MODULE_GET)
 		default:
 			return false
@@ -109,12 +109,12 @@ func ScopedAliases_isAliasDefinition(nameNode Node) bool {
 
 func ScopedAliases_getAliasedNamespace(rhs Node) string {
 	return func() string {
-		switch rhs.getToken() {
-		case Token_rhino_GETPROP:
+		switch rhs.ns_().token {
+		case tokOrd1_GETPROP:
 			return (sstr_(ScopedAliases_getAliasedNamespace(rhs.getFirstChild())) + "." + sstr_(rhs.getString()))
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			return rhs.getString()
-		case Token_rhino_CALL:
+		case tokOrd1_CALL:
 			Preconditions_checkState_boolean_Object_H(NodeUtil_isCallToQualifiedName(rhs, ScopedAliases_GOOG_MODULE_GET), rhs)
 			Preconditions_checkState_boolean_Object_H(rhs.hasTwoChildren(), rhs)
 			return rhs.getLastChild().getString()
@@ -627,12 +627,12 @@ func (this *ScopedAliases_Traversal) recordAlias(aliasVar *Var) {
 
 func (this *ScopedAliases_Traversal) containsInvalidGoogModuleGet(expression Node) bool {
 	return func() bool {
-		switch expression.getToken() {
-		case Token_rhino_NAME:
+		switch expression.ns_().token {
+		case tokOrd1_NAME:
 			return false
-		case Token_rhino_GETPROP:
+		case tokOrd1_GETPROP:
 			return this.containsInvalidGoogModuleGet(expression.getFirstChild())
-		case Token_rhino_CALL:
+		case tokOrd1_CALL:
 			var namespace string = expression.getSecondChild().getString()
 			return !this.outer_.closureNamespaces.contains(namespace)
 		default:

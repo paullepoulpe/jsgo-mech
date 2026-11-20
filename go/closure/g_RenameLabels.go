@@ -107,10 +107,10 @@ func (this *RenameLabels_ProcessLabels) shouldTraverse(nodeTraversal *NodeTraver
 }
 
 func (this *RenameLabels_ProcessLabels) visit(t *NodeTraversal, node Node, parent Node) {
-	switch node.getToken() {
-	case Token_rhino_LABEL:
+	switch node.ns_().token {
+	case tokOrd1_LABEL:
 		this.visitLabel(t, node)
-	case Token_rhino_BREAK, Token_rhino_CONTINUE:
+	case tokOrd1_BREAK, tokOrd1_CONTINUE:
 		this.visitBreakOrContinue(t, node)
 	default:
 	}
