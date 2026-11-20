@@ -478,7 +478,6 @@ func (this *FlowSensitiveInlineVariables_Candidate) isRhsSafeToInline(usageScope
 		default:
 		}
 		return false
-		panic("unreachable")
 	}}).apply, &Predicate_base_tfn_Node{func(input Node) bool {
 		return !input.isFunction()
 	}}) {
@@ -492,7 +491,6 @@ func (this *FlowSensitiveInlineVariables_Candidate) isRhsSafeToInline(usageScope
 			}
 		}
 		return false
-		panic("unreachable")
 	}}).apply, Predicates_alwaysTrue()) {
 		return false
 	}

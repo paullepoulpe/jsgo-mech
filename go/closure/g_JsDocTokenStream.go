@@ -191,7 +191,6 @@ func (this *JsDocTokenStream) getJsDocToken() JsDocToken {
 			}
 		}
 	}
-	panic("unreachable")
 }
 
 func (this *JsDocTokenStream) getRemainingJSDocLine() string {
@@ -214,7 +213,6 @@ func (this *JsDocTokenStream) getRemainingJSDocLine() string {
 			this.addToString(c)
 		}
 	}
-	panic("unreachable")
 }
 
 func (this *JsDocTokenStream) getLineno() int32 {
@@ -263,7 +261,6 @@ func (this *JsDocTokenStream) matchChar(test int32) bool {
 		this.ungetCharIgnoreLineEnd(c)
 		return false
 	}
-	panic("unreachable")
 }
 
 func JsDocTokenStream_isAlpha(c int32) bool {
@@ -272,7 +269,6 @@ func JsDocTokenStream_isAlpha(c int32) bool {
 	} else {
 		return ((97 <= c) && (c <= 122))
 	}
-	panic("unreachable")
 }
 
 func JsDocTokenStream_isJSDocString(c int32) bool {
@@ -283,7 +279,6 @@ func JsDocTokenStream_isJSDocString(c int32) bool {
 		default:
 			return !TokenUtil_isJSSpace(c)
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -345,7 +340,6 @@ func (this *JsDocTokenStream) getChar() int32 {
 		}
 		return c
 	}
-	panic("unreachable")
 }
 
 func (this *JsDocTokenStream) getCharIgnoreLineEnd() int32 {
@@ -387,7 +381,6 @@ func (this *JsDocTokenStream) getCharIgnoreLineEnd() int32 {
 		}
 		return c
 	}
-	panic("unreachable")
 }
 
 func JsDocTokenStream_isJSLineTerminator(c int32) bool {

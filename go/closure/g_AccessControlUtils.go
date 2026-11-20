@@ -50,7 +50,6 @@ func AccessControlUtils_getEffectivePropertyVisibility(property Node, referenceT
 	} else {
 		return AccessControlUtils_getEffectiveVisibilityForNonOverriddenProperty(property, objectType, fileOverviewVisibility)
 	}
-	panic("unreachable")
 }
 
 func AccessControlUtils_getDefiningSource(node Node, referenceType *ObjectType, propertyName string) StaticSourceFile {

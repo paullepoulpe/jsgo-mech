@@ -411,7 +411,6 @@ func RemoveUnusedCode_isJscompPolyfill(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1004,7 +1003,6 @@ func (this *RemoveUnusedCode) isIndependentlyRemovable(removable *RemoveUnusedCo
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *RemoveUnusedCode) markUnusedParameters(paramList Node, fparamScope *Scope) {
@@ -1093,7 +1091,6 @@ func (this *RemoveUnusedCode) traverseVar(var_ *Var) RemoveUnusedCode_VarInfo {
 	} else {
 		return this.getVarInfo(var_)
 	}
-	panic("unreachable")
 }
 
 func RemoveUnusedCode_nameOfParam(param Node) Node {
@@ -1110,7 +1107,6 @@ func RemoveUnusedCode_nameOfParam(param Node) Node {
 		default:
 			panic(new_IllegalStateException_String(("Unexpected child of PARAM_LIST: " + sstr_(param.toStringTree()))).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1151,7 +1147,6 @@ func (this *RemoveUnusedCode) getVarInfo(var_ *Var) RemoveUnusedCode_VarInfo {
 		}
 		return varInfo
 	}
-	panic("unreachable")
 }
 
 func (this *RemoveUnusedCode) removeUnreferencedVarsAndPolyfills() {
@@ -1466,7 +1461,6 @@ func RemoveUnusedCode_RemovalLogRecord_getLoggableFunctionNameSupplier(argList N
 		}
 		var functionName Optional[string] = NodeUtil_getNearestFunctionName(argList.getParent())
 		return functionName.orElse("<anonymous>")
-		panic("unreachable")
 	}}
 }
 
@@ -2072,7 +2066,6 @@ func (this *RemoveUnusedCode_IndirectAssign) preventsRemovalOfVariableWithNonLoc
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *RemoveUnusedCode_IndirectAssign) isNamedPropertyAssignment_impl() bool {
@@ -2595,7 +2588,6 @@ func (this *RemoveUnusedCode_Assign) getLocalAssignedValue_impl() Node {
 			return 0
 		}
 	}
-	panic("unreachable")
 }
 
 func (this *RemoveUnusedCode_Assign) preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl() bool {
@@ -2616,7 +2608,6 @@ func (this *RemoveUnusedCode_Assign) isStaticProperty_impl() bool {
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *RemoveUnusedCode_Assign) removeInternal_impl(compiler *AbstractCompiler) {

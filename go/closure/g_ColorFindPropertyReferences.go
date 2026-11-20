@@ -105,7 +105,6 @@ func (this *ColorFindPropertyReferences) handleClass(t *NodeTraversal, classNode
 				return Color_createUnion(classPrototypeType)
 			}()
 		}
-		panic("unreachable")
 	}}).apply)
 	this.colorGraphNodeFactory.createNode(classType)
 }
