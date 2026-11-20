@@ -2,6 +2,11 @@
 
 package closure
 
+import (
+	"strconv"
+	"strings"
+)
+
 type Compiler struct {
 	AbstractCompiler
 	options_                       *CompilerOptions
@@ -270,7 +275,7 @@ func (this *Compiler) printConfig() {
 		this.logToFile("externs.log", &Supplier_tfn_string{func() string { return Object_toString(this.externs.asList()) }})
 		this.logToFile("inputs.json", func() *Supplier_tfn_string {
 			recv_1 := Compiler_toPrettyJson(this.chunkGraph.toJson())
-			return &Supplier_tfn_string{func() string { return String_toString(recv_1) }}
+			return &Supplier_tfn_string{func() string { return recv_1 }}
 		}())
 		this.logToFile("options.log", &Supplier_tfn_string{func() string {
 			return this.options_.toString()
@@ -281,13 +286,13 @@ func (this *Compiler) printConfig() {
 	} else {
 		var err *Output = Output_stderr()
 		err.println("==== Externs ====")
-		err.println(String_valueOf_Object(this.externs.asList()))
+		err.println(objstr_(this.externs.asList()))
 		err.println("==== Inputs ====")
 		err.println(Compiler_toPrettyJson(this.chunkGraph.toJson()))
 		err.println("==== CompilerOptions ====")
 		err.println(jtostr_(this.options_))
 		err.println("==== WarningsGuard ====")
-		err.println(String_valueOf_Object(this.warningsGuard.self()))
+		err.println(objstr_(this.warningsGuard.self()))
 	}
 }
 
@@ -304,7 +309,7 @@ func (this *Compiler) maybeLogPrunedInputs() {
 	if this.isDebugLoggingEnabled() {
 		this.logToFile("inputs_pruned.json", func() *Supplier_tfn_string {
 			recv_1 := Compiler_toPrettyJson(this.chunkGraph.toJson())
-			return &Supplier_tfn_string{func() string { return String_toString(recv_1) }}
+			return &Supplier_tfn_string{func() string { return recv_1 }}
 		}())
 	}
 }
@@ -354,7 +359,7 @@ func (this *Compiler) getTypedAstDeserializer_impl(file *SourceFile_jscomp) Supp
 		return nil
 	}
 	var ast SupplierOf[Node] = icast_Supplier(this.typedAstFilesystem.remove(obj_(file)))
-	if !(((ast != nil) || String_startsWith(file.getName(), Compiler_SYNTHETIC_FILE_NAME_PREFIX)) || AbstractCompiler_isFillFileName(file.getName())) {
+	if !(((ast != nil) || strings.HasPrefix(file.getName(), Compiler_SYNTHETIC_FILE_NAME_PREFIX)) || AbstractCompiler_isFillFileName(file.getName())) {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("TypedAST filesystem initialized, but missing requested file: %s", []any{file})).self())
 	}
 	return ast
@@ -1173,11 +1178,11 @@ func (this *Compiler) getCurrentJsSource() string {
 		it_12 := qnameSet.each()
 		for it_12.next() {
 			var qname string = it_12.v
-			builder.append(String_format("// '%s'\n", []any{strobj_(qname)}))
+			builder.append(("// '" + sstr_(qname) + "'\n"))
 			it_14 := foreach_(originalToNewQNameMap.get_s(qname))
 			for it_14.next() {
 				var newName string = str_(it_14.v)
-				builder.append(String_format("// '%s' (originally '%s')\n", []any{strobj_(newName), strobj_(qname)}))
+				builder.append(("// '" + sstr_(newName) + "' (originally '" + sstr_(qname) + "')\n"))
 			}
 		}
 		builder.append("//\n")
@@ -1194,7 +1199,7 @@ func (this *Compiler) getCurrentJsSource() string {
 					return true
 				}
 				var originalQname string = n.getOriginalQualifiedName()
-				if !String_isEmpty(originalQname) && qnameSet.contains(originalQname) {
+				if originalQname != "" && qnameSet.contains(originalQname) {
 					originalToNewQNameMap.put_s(originalQname, strobj_(qname))
 					return true
 				} else {
@@ -1206,7 +1211,7 @@ func (this *Compiler) getCurrentJsSource() string {
 			}}) {
 				continue
 			}
-			builder.append(String_format("// %s\n", []any{strobj_(statement.getLocation())})).append(this.toSource_1(statement)).append("\n")
+			builder.append(("// " + sstr_(statement.getLocation()) + "\n")).append(this.toSource_1(statement)).append("\n")
 		}
 	}
 	return builder.toString()
@@ -1296,7 +1301,7 @@ func (this *Compiler) nextUniqueNameId() int32 {
 
 func (this *Compiler) getUniqueNameIdSupplier_rSupplier() Supplier_baseOf[string] {
 	return &Supplier_base_tfn_string{func() string {
-		return String_valueOf(this.nextUniqueNameId())
+		return strconv.Itoa(int(this.nextUniqueNameId()))
 	}}
 }
 
@@ -1711,7 +1716,7 @@ func (this *Compiler) findModulesFromEntryPoints(supportEs6Modules bool, support
 	for it_1.next() {
 		var input *CompilerInput = cast_[*CompilerInput](it_1.v)
 		var provides IterableOf[string] = Iterables_filter(ImmutableList_as_Iterable(input.getProvides()), &Predicate_base_tfn_string{func(p string) bool {
-			return !String_startsWith(p, "module$")
+			return !strings.HasPrefix(p, "module$")
 		}})
 		if !this.options_.getDependencyOptions().shouldDropMoochers() && Iterables_isEmpty(provides) {
 			entryPoints.add(input)
@@ -1862,7 +1867,7 @@ func (this *Compiler) processJsonInputs(inputsToProcess IterableOf[*CompilerInpu
 	it_1 := foreach_(inputsToProcess)
 	for it_1.next() {
 		var input *CompilerInput = cast_[*CompilerInput](it_1.v)
-		if !String_endsWith(input.getSourceFile().getName(), ".json") {
+		if !strings.HasSuffix(input.getSourceFile().getName(), ".json") {
 			continue
 		}
 		input.setCompiler(this.up_AbstractCompiler())
@@ -2051,13 +2056,13 @@ func (this *Compiler) toSource_4(cb *Compiler_CodeBuilder, licenseTracker CodePr
 			var delimiter string = this.options_.getInputDelimiter()
 			var inputName string = root.getInputId().getIdName()
 			var sourceName string = root.getSourceFileName()
-			if String_isEmpty(sourceName) {
+			if sourceName == "" {
 				panic(new_IllegalStateException_0().self())
 			}
-			if String_isEmpty(sourceName) {
+			if sourceName == "" {
 				panic(new_IllegalStateException_0().self())
 			}
-			delimiter = JString_replace_s(JString_replace_s(JString_replace_s(delimiter, "%name%", inputName), "%num%", String_valueOf(inputSeqNum)), "%n%", "\n")
+			delimiter = JString_replace_s(JString_replace_s(JString_replace_s(delimiter, "%name%", inputName), "%num%", strconv.Itoa(int(inputSeqNum))), "%n%", "\n")
 			cb.append(delimiter).append("\n")
 		}
 		var sourceAndMappings *CodePrinter_SourceAndMappings = this.toSourceAndMappings(root, (inputSeqNum == 0), licenseTracker)
@@ -2067,7 +2072,7 @@ func (this *Compiler) toSource_4(cb *Compiler_CodeBuilder, licenseTracker CodePr
 			var license string = it_1.v
 			cb.append("/*\n").append(license).append("*/\n")
 		}
-		if String_isEmpty(code) {
+		if code == "" {
 			return nil
 		}
 		if this.options_.shouldGatherSourceMapInfo() {
@@ -2466,7 +2471,7 @@ func (this *Compiler) getBase64SourceMapContents_impl(sourceFileName Optional[st
 		}
 		return Optional_empty[string]()
 	}()
-	if sourceMappingURL.isPresent() && String_endsWith(sourceMappingURL.get(), ".inline.map") {
+	if sourceMappingURL.isPresent() && strings.HasSuffix(sourceMappingURL.get(), ".inline.map") {
 		var unencoded Optional[string] = sourceMapInput.getRawSourceMapContents()
 		return Optional_of[string](Io_base64Encode(Io_utf8Bytes(unencoded.get())))
 	}
@@ -2974,7 +2979,7 @@ func Compiler_fromProtoList(protos ListOf[FeatureProto]) *FeatureSet {
 	for it_1.next() {
 		var p FeatureProto = cast_[FeatureProto](it_1.v)
 		if p != FeatureProto_FEATURE_UNKNOWN {
-			var name string = String_substring_int(p.name(), String_length("FEATURE_"))
+			var name string = String_substring_int(p.name(), int32(len("FEATURE_")))
 			for _, feature := range FeatureSet_Feature_values() {
 				if feature.name() == name {
 					features.add(feature)
@@ -3337,7 +3342,7 @@ func (this *Compiler) setModuleMap_impl(moduleMap *ModuleMap) {
 }
 
 func Compiler_resolveSibling(fromPath string, toPath string) string {
-	if String_startsWith(toPath, "/") {
+	if strings.HasPrefix(toPath, "/") {
 		return toPath
 	}
 	var fromPathParts *JTList[string] = jtlistFrom_(jtc_string, Collection(Arrays_asList(arrmap_(Compiler_SLASH_PATTERN.split(fromPath), func(v_ string) any { return strobj_(v_) }))))
@@ -3544,7 +3549,7 @@ func (this *Compiler_SeenSetLicenseTracker) trackLicensesForNode(node Node) {
 		return
 	}
 	var file string = node.getSourceFileName()
-	if String_isEmpty(file) {
+	if file == "" {
 		return
 	}
 	if file == this.lastSeenFile {
@@ -3695,7 +3700,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 		return
 	}
 	var sourceFile string = node.getSourceFileName()
-	if String_isEmpty(sourceFile) {
+	if sourceFile == "" {
 		return
 	}
 	if this.lastSeenFile == sourceFile {
@@ -3716,7 +3721,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 		this.haveInitializedCurrentChunkLicenses = true
 	}
 	var license Optional[string] = Compiler_getLicenseForFile(this.compiler_, Optional_of[string](node.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}}))
 	if license.isEmpty() {
 		return

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type CheckGlobalThis struct {
 	compiler_      *AbstractCompiler
 	assignLhsChild Node
@@ -50,7 +52,7 @@ func (this *CheckGlobalThis) shouldTraverse(t *NodeTraversal, n Node, parent Nod
 		var grandparent Node = parent.getParent()
 		if NodeUtil_mayBeObjectLitKey(parent) {
 			var maybeLends *JSDocInfo = grandparent.getJSDocInfo()
-			if ((maybeLends != nil) && maybeLends.hasLendsName()) && String_endsWith(maybeLends.getLendsName().getRoot().getString(), ".prototype") {
+			if ((maybeLends != nil) && maybeLends.hasLendsName()) && strings.HasSuffix(maybeLends.getLendsName().getRoot().getString(), ".prototype") {
 				return false
 			}
 		}

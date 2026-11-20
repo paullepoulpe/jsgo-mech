@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ClosureRewriteModule struct {
 	compiler_                         *AbstractCompiler
 	astFactory_                       *AstFactory
@@ -50,7 +52,7 @@ func new_ClosureRewriteModule(compiler *AbstractCompiler, preprocessorSymbolTabl
 }
 
 func ClosureRewriteModule_getBinaryModuleNamespace(namespaceId string) string {
-	return (sstr_(ClosureRewriteModule_MODULE_EXPORTS_PREFIX) + sstr_(String_replace_char_char(namespaceId, '.', '$')))
+	return (sstr_(ClosureRewriteModule_MODULE_EXPORTS_PREFIX) + sstr_(strings.ReplaceAll(namespaceId, ".", "$")))
 }
 
 func (this *ClosureRewriteModule) rewriteJsdoc(info *JSDocInfo, scope *Scope) {
@@ -283,7 +285,7 @@ func (this *ClosureRewriteModule) recordGoogModuleGet(t *NodeTraversal, call Nod
 
 func (this *ClosureRewriteModule) recordTopLevelClassOrFunctionName(classOrFunctionNode Node) {
 	var nameNode Node = classOrFunctionNode.getFirstChild()
-	if nameNode.isName() && !String_isEmpty(nameNode.getString()) {
+	if nameNode.isName() && nameNode.getString() != "" {
 		var name string = nameNode.getString()
 		this.currentScript.topLevelNames.add(name)
 	}
@@ -670,7 +672,7 @@ func (this *ClosureRewriteModule) maybeUpdateTopLevelName(t *NodeTraversal, name
 		}
 		var isModuleNamespace bool = ((inline.namespaceId.isPresent() && this.rewriteState.scriptDescriptionsByGoogModuleNamespace.containsKey(inline.namespaceId.get())) && !this.rewriteState.scriptDescriptionsByGoogModuleNamespace.get(inline.namespaceId.get()).willCreateExportsObject)
 		this.safeSetMaybeQualifiedString(nameNode, namespaceToInline, isModuleNamespace)
-		if String_indexOf(namespaceToInline, 46) != -1 {
+		if strings.Contains(namespaceToInline, ".") {
 			var firstQualifiedName string = String_substring(namespaceToInline, 0, String_indexOf(namespaceToInline, 46))
 			var shadowedVar *Var = t.getScope().getVar_String_rVar(firstQualifiedName)
 			if ((shadowedVar == nil) || shadowedVar.isGlobal()) || shadowedVar.getScope_rAbstractScope_rScope().isModuleScope() {
@@ -930,7 +932,7 @@ func (this *ClosureRewriteModule) safeSetString(n Node, newString string) {
 	}
 	var originalName string = n.getString()
 	n.setString(newString)
-	if String_isEmpty(n.getOriginalName()) {
+	if n.getOriginalName() == "" {
 		n.setOriginalName(originalName)
 	}
 	var changeScope Node = ChangeTracker_getEnclosingChangeScopeRoot(n)
@@ -1026,7 +1028,7 @@ func ClosureRewriteModule_updateSourceInfoForExportedTopLevelVariable(assign Nod
 		return
 	}
 	var name Optional[string] = Optional_of[string](sourceName.getOriginalName()).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}})
 	if name.isEmpty() {
 		name = Optional_of[string](sourceName.getString())
@@ -1046,15 +1048,15 @@ func (this *ClosureRewriteModule) isTopLevel(t *NodeTraversal, n Node, scopeType
 }
 
 func ClosureRewriteModule_toModuleContentsPrefix(namespaceId string) string {
-	return (sstr_(ClosureRewriteModule_MODULE_CONTENTS_PREFIX) + sstr_(String_replace_char_char(namespaceId, '.', '$')) + "_")
+	return (sstr_(ClosureRewriteModule_MODULE_CONTENTS_PREFIX) + sstr_(strings.ReplaceAll(namespaceId, ".", "$")) + "_")
 }
 
 func ClosureRewriteModule_isModuleExport(name string) bool {
-	return String_startsWith(name, ClosureRewriteModule_MODULE_EXPORTS_PREFIX)
+	return strings.HasPrefix(name, ClosureRewriteModule_MODULE_EXPORTS_PREFIX)
 }
 
 func ClosureRewriteModule_isModuleContent(name string) bool {
-	return String_startsWith(name, ClosureRewriteModule_MODULE_CONTENTS_PREFIX)
+	return strings.HasPrefix(name, ClosureRewriteModule_MODULE_CONTENTS_PREFIX)
 }
 
 func ClosureRewriteModule_isGoogModuleExportsRef(t *NodeTraversal, target Node) bool {
@@ -1740,12 +1742,12 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) visit(typeRefNode Node) {
 		return
 	}
 	var typeName string = typeRefNode.getString()
-	var dot int32 = String_indexOf(typeName, 46)
+	var dot int32 = int32(strings.IndexByte(typeName, '.'))
 	var rootOfType string = func() string {
 		if dot == -1 {
 			return typeName
 		}
-		return String_substring(typeName, 0, dot)
+		return typeName[:dot]
 	}()
 	var rootVar *Var = this.scope_.getVar_String_rVar(rootOfType)
 	if ((rootVar != nil) && !rootVar.getScope_rAbstractScope_rScope().getClosestHoistScope_rScope().isGlobal()) && !rootVar.getScope_rAbstractScope_rScope().isModuleScope() {
@@ -1763,7 +1765,7 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) visit(typeRefNode Node) {
 			if dot == -1 {
 				return ""
 			}
-			return String_substring_int(typeName, dot)
+			return typeName[dot:]
 		}()
 		this.outer_.safeSetString(typeRefNode, (sstr_(aliasedNamespace) + sstr_(remainder)))
 	} else if this.outer_.currentScript.isModule_ && this.outer_.currentScript.topLevelNames.contains(rootOfType) {
@@ -1774,7 +1776,7 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) visit(typeRefNode Node) {
 			if dot == -1 {
 				return ""
 			}
-			return String_substring_int(typeName, dot)
+			return typeName[dot:]
 		}()
 		this.outer_.safeSetString(typeRefNode, (sstr_(namespace.orElse("null")) + sstr_(remainder)))
 	} else {

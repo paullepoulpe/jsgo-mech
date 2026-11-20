@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type SourceMapObjectParser struct {
 }
 
@@ -80,7 +82,7 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base[*SourceMapObject
 	it_1 := sourceMapRoot.members().eachEntry()
 	for it_1.next() {
 		var entry *TEntry[string, *SimpleJsonValue] = it_1.entry()
-		if String_startsWith(entry.getKey(), "x_") {
+		if strings.HasPrefix(entry.getKey(), "x_") {
 			extensions.put(entry.getKey(), obj_(entry.getValue()))
 		}
 	}
@@ -175,7 +177,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 			}
 			builder.setNames(names.get())
 		default:
-			if String_startsWith(name, "x_") {
+			if strings.HasPrefix(name, "x_") {
 				var rawValue *Outcome_base[string] = lexer.nextRawValue()
 				if rawValue.isErr() {
 					return Outcome_base_err[any](rawValue.error())

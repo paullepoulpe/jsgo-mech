@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type PeepholeMinimizeConditions struct {
 	AbstractPeepholeOptimization
 	late bool
@@ -529,7 +531,7 @@ func PeepholeMinimizeConditions_isFoldableExpressBlock(n Node) bool {
 					var calledFn Node = maybeExpr.getFirstFirstChild()
 					if calledFn.isGetElem() || calledFn.isOptChainGetElem() {
 						return false
-					} else if (calledFn.isGetProp() || calledFn.isOptChainGetProp()) && String_startsWith(calledFn.getString(), "on") {
+					} else if (calledFn.isGetProp() || calledFn.isOptChainGetProp()) && strings.HasPrefix(calledFn.getString(), "on") {
 						return false
 					}
 				}
