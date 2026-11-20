@@ -147,3 +147,162 @@ apply and native does not see j2go's renamed JT* collections. So the re-flip is 
 until (1) one typed-collection runtime serves j2go and the post-flip tools, so native/tnames
 convert j2go's collections, and (2) the dropped hot-path manual patches are re-made on the new
 text or turned into tools.
+
+## After the replay: one collection family, the hot paths re-made (2026-11-18, second session)
+
+Goal: the re-flip at least as fast as postflip5's round 8. Everything below is appended to the
+replay as further steps (steps.txt 402-421, patches/4xx); the tools are those of each commit
+(the tip's tools have the toolfix.sh edits applied as a real tool commit, c96df2bd). Replayed:
+replay-all.sh from the replay's result (aa029acd's go/) through steps 402-421 with the
+comparison on gives every commit's go/ byte for byte and ends at go/closure 434f621c, the
+tip's (6 min). The whole chain from the flip commit in one run was not repeated.
+
+**1. One typed collection family** (e69c634a, 8c9c3988, 3b887150). The cheaper of the two ways
+was a conversion step, not a change of j2go: the two families are the same design (the
+translator's was derived from post-flip step 3), so `tools/postflip/unify` rewrites what the
+generated code names (JTList/JTMap/JTSet/jtconv_, the makers, the JTMap/JTSet methods to the
+Go names tnames gave TMap/TSet, jtc_X/tce_X to the post-flip tc_X/tch_X, `byEquals` to hash and
+eq: 3,748 rewrites in 287 files, nothing left) and a runtime patch removes rt_jtlist.go,
+rt_jtmap.go and rt_jtset.go and gives the post-flip types the few things only the translator's
+family had (copies, putAllT, eachEntry and TEntry, iterator, TDeque on TList). rename.sh stays
+as the flip's preparation (the two families cannot be in one package under one name before
+this step); the step could move to just after post-flip step 5, which needs the whole replay
+re-run and was not done. Then `colls/run.sh` and ranges/iters see every typed collection:
+colls types 101 + 9 list, 82 map and 40 set declarations more, native makes 391 slices and
+149 + 143 Go maps, ranges rewrites 118 + 23 + 5 loops.
+
+Census, trial after replay | after unify | after the collection steps (postflip5 tip):
+typed TList/TMap/TSet constructors 15 (+818 of the J family) | 790 | 375 (339); for-each via
+iterator objects 405 | 453 | 133 (99); erased constructors 192 | 192 | 186 (194); Guava
+immutables 249 | 249 | 210 (218). Still the translator's own: 94 mentions of TDeque (head at
+index 0; the post-flip deque steps do not know it), 720 typed lambda adapters `&X_tfn_Y{`.
+
+A new tool for what funcparams/tnames did to the erased wrappers, `tools/postflip/adapters`
+(ab26441f): Optional[T].filter and (*TMap).computeIfAbsent given a typed adapter literal take
+the function (102 + 25 calls; 11 left, counted).
+
+**2. The dropped hot-path manual patches, re-made on the typed text** (highest allocation
+first; each commit names the original). Where the text around is the first flip's, the hunks
+of postflip5's tip were applied; in the generic classes j2go now writes they were written
+again in the same pattern.
+
+| re-made | original commits | what |
+|---|---|---|
+| 67259c7a | 99c1ce0e | findModifiedParameters adds to one set |
+| 3da0ef84 | 8d8b945c, 3d4d3023 | Var-keyed maps of RemoveUnusedCode and MustDef are varMap_ |
+| 1dc40729 | 3d0eda46, 46de9ec8, bdfed150 | ReferenceCollector: varMap_, block stack a slice, room for four |
+| 42cfbc2c | 751c653e, 18181b92, a3cb96f9, ebd14889 | graph node holds its edge lists; createNode, isConnectedInDirection |
+| dc3eb3ea | eb573b66 | data flow and CFG prioritization walk edges |
+| 144a1e01 | 8f32a538, eecb7a60 | RemoveUnusedCode reasons only for a log that records |
+| 7c529de7 | cba93024 | InlineVariables memo cells in their owner |
+| a18a5929 | 03415e92 | getAstAnalyzer hands out the last analyzer |
+| 32758f01 | 0788ad44, 76f5ebbd, 5de844d3 | NodeTraversal scope stack |
+| 990c8909 | 3a99f7ab | a scope's implicit variables by ordinal |
+| 43d498fa | 35e845b7, 531be9bd | the renaming inverter's variable sets |
+| 88f8ba50 | c81b9996 | data-flow node comparators call getPriority directly |
+| ae56a16d | 16e33273 | ControlFlowAnalysis AST positions in a Go map of ints |
+| b4d1cfd0 | 6073a778, 010746fe | the data-flow work queue marks the graph nodes it holds |
+| 112242b3 | (new) | SerializeTypesToPointers without a function object per node |
+| dbababe1 | (runtime, as 1646c20a) | TDeque.push writes into room at the head |
+
+Of the 35 dropped manual patches 25 are re-made above. Retired: the Node patches 1cdb1423,
+831fc72f, 53dca890, 4e065c50 (the node store replaces what they edit) and 7992da4a (PMap and
+HamtPMap are generic in j2go). Not re-made: 13c7e5ba (Compiler.inputsById keyed by the id's
+string), fbb901b4 (createEdge looks each graph node up once), 25c89a69/9bdc7957/08dc9ce1
+(threads and executors: the trial still runs the compiler "thread" and the prebuild pools
+through the emulation).
+
+**Allocations** (JSGO_MEMSTATS, objects / bytes):
+
+| | bundle | typed-full |
+|---|---|---|
+| trial after the replay (aa029acd) | 183.7M / 8.08 GB | 317.2M / 13.96 GB |
+| after unify | 204.8M / 9.00 GB | 329.2M / 14.47 GB |
+| after the collection steps, ranges | 202.9M / 8.83 GB | 326.6M / 14.25 GB |
+| + findModifiedParameters, varMap_ | 144.8M / 7.19 GB | |
+| + ReferenceCollector, graph, data flow | 113.2M / 6.91 GB | |
+| + RemoveUnusedCode, InlineVariables, AstAnalyzer, NodeTraversal | 97.3M / 6.66 GB | 218.2M / 12.71 GB |
+| + TDeque, adapters, implicit vars, SerializeTypes | 92.2M / 6.37 GB | 195.0M / 12.08 GB |
+| + AST positions, work-queue marks (tip, b4d1cfd0) | 89.6M / 6.05 GB | 190.5M / 11.57 GB |
+| round 8 (72b0f693) | 88.9M / 6.08 GB | 186.0M / 11.54 GB |
+
+(unify alone costs objects: the post-flip views have no fast paths for erased callers, and
+the hot erased callers were the sites of the manual patches.)
+
+**Timing.** Milestone runs, interleaved with pre-flip Java and round 8 (m_m8final), idle host
+(load 1.1-2.5), no PGO; stdout, stderr and the outputs byte-identical with Java's.
+
+| | typed-full wall (cpu) | Java/Go | bundle wall (cpu) | Java/Go |
+|---|---:|---:|---:|---:|
+| trial after the replay (aa029acd), 6 rounds | 58.19 s (69.8) | 0.882 | 28.82 s (31.2) | 0.933 |
+| 88f8ba50, 6 rounds: Java 51.12 / 27.41 | 48.27 s (57.3) | 1.059 | 24.21 s (26.0) | 1.132 |
+| round 8 in that run | 45.09 s (55.4) | 1.134 | 22.78 s (26.9) | 1.203 |
+| tip b4d1cfd0, 4 rounds: Java 49.34 / 25.84 | 46.67 s (55.3) | **1.057** | 23.26 s (25.0) | **1.111** |
+| round 8 in that run | 44.03 s (54.0) | 1.121 | 22.01 s (26.0) | 1.174 |
+
+Per step, CPU against the previous binary (ABBA, medians): the unify group typed-full -2.9%,
+bundle +0.8% (2 rounds); the manual patches up to NodeTraversal typed-full 67.4 -> 61.0 s,
+bundle 32.1 -> 26.7 s (2 rounds); TDeque/adapters/implicit vars typed-full 59.75 -> 59.38,
+bundle 25.98 -> 25.77 (2 rounds); AST positions and queue marks typed-full 59.68 -> 59.23,
+bundle 25.05 -> 24.53, wall 23.26 -> 22.61 (3 rounds).
+
+**Where it stands.** Faster than pre-flip Java on both tasks; allocations at round 8's; on
+bundle less CPU than round 8 (-4%), on typed-full +2.5%. Wall is 6% behind round 8 on both.
+The CPU profiles say why (bundle, one run each, flat seconds; round 8 | tip-2): collector
+3.8 | 1.5 (the node store: the collector no longer scans the AST), translated code 15.8 |
+17.4, allocator 2.2 | 2.6. The collector's work ran on the idle cores, the translated code is
+one thread: the re-flip trades parallel collector time for mutator time, and wall follows the
+mutator. What the mutator pays, by pass (typed-full, --tracer_mode, one run each at
+88f8ba50, round 8 -> trial, ms): inferTypes 5046 -> 5846, flowSensitiveInlineVariables 2017
+-> 2684, coalesceVariableNames 1000 -> 1370, checkTypes 1408 -> 1670, typesToColors 1094 ->
+1285, inlineAndCollapseProperties 997 -> 1147, checkControlFlow 742 -> 878; inlineVariables,
+peepholeOptimizations, normalize, renameVars are faster. The slower passes are the data-flow
+ones, i.e. the generic classes j2go now writes (DataFlowAnalysis[N, L], the graphs,
+LinkedIdentityHashMap[K, V], HamtPMap[K, V]):
+
+## Handover: what is left for round 8's wall time (in order of expected gain)
+
+1. **Generic classes are outside every collection step.** toolfix 2-4 make rw/colls/native
+   leave every slot that meets a type parameter, so the collections of LinkedDirectedGraph,
+   DataFlowAnalysis, UniqueQueue, LinkedIdentityHashMap, SimpleTable, the multimaps stay
+   erased (ArrayList/LinkedHashMap of boxes) and their elements cross boxT_/junboxT_
+   (rt_generic.go) at every access. The manual patches above cover the hottest sites only.
+   Needed: colls and native taught generic classes (a typed list of T with the conversion
+   taken from the instantiation, or the erased element kept where T has no single boxing).
+2. **Casts to a generic interface are slow in generic code.** cast_[DiGraph_DiGraphEdge[N]],
+   elemsAs_[...], junboxT_[L] with an interface L: a type assertion to an interface inside a
+   Go generic function goes through the dictionary and runtime.getitab at every call (0.6 s
+   on typed-full, 0.3 s on bundle), where the first flip's icast_X functions hit the
+   per-call-site cache. Fix candidates: the casts tool writes named non-generic cast functions
+   for the instantiations in use (icast_DiGraph_DiGraphNode_Node_), or the graph code asserts
+   to the concrete node and edge classes (to_LinkedDirectedGraph_LinkedDiGraphNode[N, E]) as
+   88f8ba50 and ae56a16d do for the comparators.
+3. **DataFlowAnalysis.flow/joinInputs box the lattice** (LinearFlowState[any]: boxT_ and
+   junboxT_ of L around every getIn/getOut, equalsTT_): the state should hold L. This is
+   j2go's typing of LinearFlowState (GenScan), or a manual patch of the class.
+4. **Typed lambda adapters** (720 `&X_tfn_Y{...}`): tools/postflip/adapters covers
+   Optional.filter and TMap.computeIfAbsent; funcparams, lambdas and passfn (dropped: 188
+   uses) still expect the erased `&X_fn{...}`. Predicate/Consumer/Supplier adapters on hot
+   paths (NodeUtil predicates, LogFile.log suppliers) allocate and unbox per call.
+5. **The translator's TDeque** (94 mentions): head at index 0; the post-flip deque steps
+   (colls -kind deque, native) do not know it, so the deques stay objects (push no longer
+   reallocates: dbababe1). unify could turn TDeque into the post-flip deque-as-TList where
+   the uses allow.
+6. **The node store's handle table** ((*idTable_).at: 0.5 s bundle, 0.8 s typed-full) is the
+   price of the collector not scanning the AST; on a host with idle cores it buys CPU, not
+   wall. Worth a look in main-r8-nodestore (inlining of at/ptr, fewer bounds checks).
+7. 13c7e5ba and fbb901b4 (not re-made), the 7 Map_computeIfAbsent calls with typed adapters
+   on erased maps (adapters: left), the view fast paths for erased callers that the
+   translator's family had (step_, get_s, add_s, contains_s: not kept by unify; no hot caller
+   left in the two profiles).
+8. Plan hygiene: move the unify step to just after post-flip step 5 and re-run the whole
+   replay (then rename.sh's j-names never reach the later tools, and the manual patches
+   018-050 that apply as-is may need regenerating); c96df2bd holds a staging mistake (the
+   removal of the rt_jt* files belongs to e69c634a; steps.txt has the note); the trial still
+   has the thread/executor emulation (25c89a69 and its followers dropped).
+
+Binaries: $S/proto/m_rfm7 (tip), m_m8final (round 8). Scripts used: $S/rf/meas.sh (fb.py for
+both tasks, medians), mem.sh (JSGO_MEMSTATS, MEMPROF=1 for a profile), prof.sh/agg2.py/diff2.py
+(allocation profile by leaf and caller against round 8's), cpudiff.py (two `pprof -top`
+listings by category), tracer.py (per-pass times).
+
