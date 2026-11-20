@@ -100,7 +100,7 @@ func (this *CheckAccessControls) bestInstanceTypeForMethodOrCtor(n Node) *Object
 		} else if greatGrandparent.isClass() {
 			return CheckAccessControls_instanceTypeFor(greatGrandparent.getJSType())
 		} else {
-			panic(new_AssertionError_Object(greatGrandparent.box_()).self())
+			panic(new_AssertionError_Object(greatGrandparent.box_()))
 		}
 	default:
 		return nil
@@ -716,7 +716,7 @@ func (this *CheckAccessControls) createPropertyReference(sourceNode Node) *Check
 					builder.setReceiverType(owningType)
 				}
 			default:
-				panic(new_AssertionError_0().self())
+				panic(new_AssertionError_0())
 			}
 		}
 	default:
@@ -1144,7 +1144,7 @@ func new_CheckAccessControls_PropertyReference_Builder() *CheckAccessControls_Pr
 
 func (this *CheckAccessControls_PropertyReference_Builder) setSourceNode(node Node) *CheckAccessControls_PropertyReference_Builder {
 	if node == 0 {
-		panic(new_NullPointerException_String("Null sourceNode").self())
+		panic(new_NullPointerException_String("Null sourceNode"))
 	}
 	this.sourceNode_ = node
 	return this
@@ -1157,7 +1157,7 @@ func (this *CheckAccessControls_PropertyReference_Builder) setName(name string) 
 
 func (this *CheckAccessControls_PropertyReference_Builder) setReceiverType(receiverType *ObjectType) *CheckAccessControls_PropertyReference_Builder {
 	if receiverType == nil {
-		panic(new_NullPointerException_String("Null receiverType").self())
+		panic(new_NullPointerException_String("Null receiverType"))
 	}
 	this.receiverType_ = receiverType
 	return this
@@ -1183,7 +1183,7 @@ func (this *CheckAccessControls_PropertyReference_Builder) setOverride(isOverrid
 
 func (this *CheckAccessControls_PropertyReference_Builder) setReadableTypeName(typeName SupplierOf[string]) *CheckAccessControls_PropertyReference_Builder {
 	if typeName == nil {
-		panic(new_NullPointerException_String("Null readableTypeName").self())
+		panic(new_NullPointerException_String("Null readableTypeName"))
 	}
 	this.readableTypeName_ = typeName
 	return this
@@ -1213,7 +1213,7 @@ func (this *CheckAccessControls_PropertyReference_Builder) build() *CheckAccessC
 		if this.readableTypeName_ == nil {
 			missing.append(" readableTypeName")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))))
 	}
 	return new_CheckAccessControls_PropertyReference(this.sourceNode_, this.name_.get(), this.receiverType_, this.mutation_, this.declaration_, this.override_, this.readableTypeName_)
 }

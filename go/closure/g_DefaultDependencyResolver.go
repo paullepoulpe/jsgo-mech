@@ -47,7 +47,7 @@ func (this *DefaultDependencyResolver) addDependency(symbol string, seen *JTSet[
 	var dependency DependencyInfo_ = this.getDependencyInfo(symbol)
 	if dependency == nil {
 		if this.strictRequires {
-			panic(obj_(new_ServiceException(("Unknown require of " + sstr_(symbol)))))
+			panic(new_ServiceException(("Unknown require of " + sstr_(symbol))))
 		}
 	} else if !seen.asSet().containsAll(ImmutableList_as_Collection(dependency.getProvides())) {
 		seen.asSet().addAll(ImmutableList_as_Collection(dependency.getProvides()))

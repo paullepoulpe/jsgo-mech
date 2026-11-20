@@ -130,7 +130,7 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 		sourceName = (sstr_(traversal.getSourceName().orElse("null")) + ":" + istr_(int64(node.getLineno())))
 	}
 	if !msgNode.isCall() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var fnNameNode Node = msgNode.getFirstChild()
 	if this.isDeclareIcuTemplateCallee(fnNameNode) {

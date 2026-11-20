@@ -39,7 +39,7 @@ func (this *CompilerBasedTransformer) transform(input *Source) *Source {
 			var error_ *JSError = it_1.v
 			message.append(formatter.formatError(error_))
 		}
-		panic(new_IllegalStateException_String(message.toString()).self())
+		panic(new_IllegalStateException_String(message.toString()))
 	}
 	if !result.transformed_ {
 		return input
@@ -211,7 +211,7 @@ func (this *CompilerBasedTransformer_CompileResult) init_CompilerBasedTransforme
 	this.source = source
 	nn_ := errors.asList()
 	if nn_ == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.errors_ = jtlistImm_(jtc_p_JSError, cast_[*ImmutableList](nn_))
 	this.transformed_ = transformed

@@ -6,7 +6,7 @@ type JSCompStrings struct {
 }
 
 func (this *JSCompStrings) init_JSCompStrings() {
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 func new_JSCompStrings() *JSCompStrings {

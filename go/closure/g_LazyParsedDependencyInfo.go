@@ -11,7 +11,7 @@ type LazyParsedDependencyInfo struct {
 
 func (this *LazyParsedDependencyInfo) init_LazyParsedDependencyInfo(delegate DependencyInfo_, ast *CompilerInput, compiler *AbstractCompiler) {
 	if delegate == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.delegate = delegate
 	this.ast = Preconditions_checkNotNull_T(ast)

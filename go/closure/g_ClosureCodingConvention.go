@@ -174,7 +174,7 @@ func (this *ClosureCodingConvention) applySingletonGetter_impl(classType *Nomina
 
 func (this *ClosureCodingConvention) isPropertyTestFunction_impl(call Node) bool {
 	if !call.isCall() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var target Node = call.getFirstChild()
 	if target.isGetProp() {

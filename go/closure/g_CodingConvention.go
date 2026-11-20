@@ -406,7 +406,7 @@ func (this *CodingConvention_AssertionFunctionSpec_Builder) setParamIndex(paramI
 
 func (this *CodingConvention_AssertionFunctionSpec_Builder) setAssertionKind(kind CodingConvention_AssertionFunctionSpec_AssertionKind) *CodingConvention_AssertionFunctionSpec_Builder {
 	if kind == 0 {
-		panic(new_NullPointerException_String("Null assertionKind").self())
+		panic(new_NullPointerException_String("Null assertionKind"))
 	}
 	this.assertionKind = kind
 	return this
@@ -421,7 +421,7 @@ func (this *CodingConvention_AssertionFunctionSpec_Builder) autoBuild() *CodingC
 		if (int32(this.set0) & 1) == 0 {
 			missing.append(" paramIndex")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))))
 	}
 	return new_CodingConvention_AssertionFunctionSpec(this.functionName, this.closurePrimitive, this.assertionKind, this.paramIndex)
 }
@@ -429,7 +429,7 @@ func (this *CodingConvention_AssertionFunctionSpec_Builder) autoBuild() *CodingC
 func (this *CodingConvention_AssertionFunctionSpec_Builder) build() *CodingConvention_AssertionFunctionSpec {
 	var spec *CodingConvention_AssertionFunctionSpec = this.autoBuild()
 	if !spec.getFunctionName().isPresent() && spec.getClosurePrimitive() == 0 {
-		panic(new_IllegalStateException_String(objstr_("Must provide a function name or ClosurePrimitive for each spec")).self())
+		panic(new_IllegalStateException_String(objstr_("Must provide a function name or ClosurePrimitive for each spec")))
 	}
 	return spec
 }

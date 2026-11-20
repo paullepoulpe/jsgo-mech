@@ -41,7 +41,7 @@ func (this *Es6RewriteScriptsToModules) process_2(externs Node, root Node) {
 		var file Node = root.getFirstChild()
 		for ; file != 0; file = file.getNext() {
 			if !file.isScript() {
-				panic(new_IllegalArgumentException_0().self())
+				panic(new_IllegalArgumentException_0())
 			}
 			NodeTraversal_traverse(this.compiler_, file, NodeTraversal_Callback(this))
 		}

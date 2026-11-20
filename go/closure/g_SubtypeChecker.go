@@ -32,7 +32,7 @@ func new_SubtypeChecker(registry *JSTypeRegistry) *SubtypeChecker {
 func (this *SubtypeChecker) setSupertype(value *JSType) *SubtypeChecker {
 	this.checkHasNotRun()
 	if this.initialSupertype != nil {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.initialSupertype = Preconditions_checkNotNull_T(value)
 	return this
@@ -41,7 +41,7 @@ func (this *SubtypeChecker) setSupertype(value *JSType) *SubtypeChecker {
 func (this *SubtypeChecker) setSubtype(value *JSType) *SubtypeChecker {
 	this.checkHasNotRun()
 	if this.initialSubtype != nil {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.initialSubtype = Preconditions_checkNotNull_T(value)
 	return this
@@ -50,7 +50,7 @@ func (this *SubtypeChecker) setSubtype(value *JSType) *SubtypeChecker {
 func (this *SubtypeChecker) setUsingStructuralSubtyping(value bool) *SubtypeChecker {
 	this.checkHasNotRun()
 	if this.isUsingStructuralTyping != nil {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.isUsingStructuralTyping = any(bool(value))
 	return this
@@ -59,7 +59,7 @@ func (this *SubtypeChecker) setUsingStructuralSubtyping(value bool) *SubtypeChec
 func (this *SubtypeChecker) setSubtypingMode(value JSType_SubtypingMode) *SubtypeChecker {
 	this.checkHasNotRun()
 	if this.subtypingMode != 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.subtypingMode = Preconditions_checkNotNull_T(value)
 	return this
@@ -67,7 +67,7 @@ func (this *SubtypeChecker) setSubtypingMode(value JSType_SubtypingMode) *Subtyp
 
 func (this *SubtypeChecker) checkHasNotRun() {
 	if this.hasRun {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 }
 

@@ -6,7 +6,7 @@ type JSCompObjects struct {
 }
 
 func (this *JSCompObjects) init_JSCompObjects() {
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 func new_JSCompObjects() *JSCompObjects {

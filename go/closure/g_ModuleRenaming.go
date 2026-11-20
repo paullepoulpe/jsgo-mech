@@ -101,7 +101,7 @@ func (this *ModuleRenaming_GlobalizedModuleName) toQname(astFactory *AstFactory)
 
 func (this *ModuleRenaming_GlobalizedModuleName) getprop(property string) *ModuleRenaming_GlobalizedModuleName {
 	if property == "" || JString_contains_s(property, ".") {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	return ModuleRenaming_GlobalizedModuleName_create_QualifiedName_JSType(this.aliasName().getprop(property), this.rootNameType())
 }
@@ -112,7 +112,7 @@ func ModuleRenaming_GlobalizedModuleName_create_QualifiedName_JSType(aliasName *
 
 func ModuleRenaming_GlobalizedModuleName_create_ModuleMetadata_Optional_TypedScope(moduleMetadata *ModuleMetadataMap_ModuleMetadata, googNamespace Optional[string], globalTypedScope *TypedScope) *ModuleRenaming_GlobalizedModuleName {
 	if !googNamespace.isEmpty() && !moduleMetadata.googNamespaces().contains_s(googNamespace.get()) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	switch moduleMetadata.moduleType() {
 	case ModuleMetadataMap_ModuleType_GOOG_MODULE:
@@ -124,7 +124,7 @@ func ModuleRenaming_GlobalizedModuleName_create_ModuleMetadata_Optional_TypedSco
 		return new_ModuleRenaming_GlobalizedModuleName(QualifiedName_of(moduleMetadata.path().toModuleName()), ModuleRenaming_getNameRootType(moduleMetadata.path().toModuleName(), globalTypedScope))
 	case ModuleMetadataMap_ModuleType_SCRIPT:
 	}
-	panic(new_IllegalStateException_String(("Unexpected module type: " + jtostr_(moduleMetadata.moduleType()))).self())
+	panic(new_IllegalStateException_String(("Unexpected module type: " + jtostr_(moduleMetadata.moduleType()))))
 }
 
 func (this *ModuleRenaming_GlobalizedModuleName) aliasName() *QualifiedName {

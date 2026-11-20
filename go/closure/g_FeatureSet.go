@@ -59,7 +59,7 @@ func (this *FeatureSet) version() string {
 	if FeatureSet_ALL.containsFeatureSet(this) {
 		return "all"
 	}
-	panic(new_IllegalStateException_String(this.toString()).self())
+	panic(new_IllegalStateException_String(this.toString()))
 }
 
 func (this *FeatureSet) versionForDebugging() string {
@@ -209,7 +209,7 @@ func FeatureSet_valueOf(name string) *FeatureSet {
 		case "all":
 			return FeatureSet_ALL
 		default:
-			panic(new_IllegalArgumentException_String(("No such FeatureSet: " + sstr_(name))).self())
+			panic(new_IllegalArgumentException_String(("No such FeatureSet: " + sstr_(name))))
 		}
 	}()
 }

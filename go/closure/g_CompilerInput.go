@@ -93,13 +93,13 @@ func (this *CompilerInput) getName() string {
 }
 
 func (this *CompilerInput) getPathRelativeToClosureBase() string {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *CompilerInput) getAstRoot(compiler *AbstractCompiler) Node {
 	var root Node = Preconditions_checkNotNull_T(this.ast.getAstRoot(compiler))
 	if !root.isScript() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	Preconditions_checkNotNull_T(root.getInputId())
 	return root
@@ -267,7 +267,7 @@ func (this *CompilerInput) getChunk() *JSChunk {
 
 func (this *CompilerInput) setChunk(chunk *JSChunk) {
 	if !(((chunk == nil) || (this.chunk_ == nil)) || (this.chunk_ == chunk)) {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	this.chunk_ = chunk
 }
@@ -357,7 +357,7 @@ func new_CompilerInput_DepsFinder(modulePath *ModuleLoader_ModulePath) *Compiler
 func (this *CompilerInput_DepsFinder) visitTree(n Node) {
 	this.visitSubtree(n, 0)
 	if !n.isScript() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var features *FeatureSet = cast_[*FeatureSet](n.getFeatureSet())
 	if features != nil {
@@ -403,7 +403,7 @@ func (this *CompilerInput_DepsFinder) visitSubtree(n Node, parent Node) {
 				return
 			case "loadModule":
 				if argument.isStringLit() {
-					panic(new_IllegalArgumentException_String("Unsupported parse of goog.loadModule with string literal").self())
+					panic(new_IllegalArgumentException_String("Unsupported parse of goog.loadModule with string literal"))
 				}
 				n = argument.getLastChild()
 			case "declareModuleId":
@@ -447,10 +447,10 @@ func (this *CompilerInput_DepsFinder) visitSubtree(n Node, parent Node) {
 
 func (this *CompilerInput_DepsFinder) visitEs6ModuleName(n Node, parent Node) {
 	if !n.isStringLit() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if !parent.isExport() && !parent.isImport() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var moduleName string = n.getString()
 	if strings.HasPrefix(moduleName, "goog:") {
@@ -572,7 +572,7 @@ func (this *CompilerInput_JsAst) getAstRoot(compiler *AbstractCompiler) Node {
 		this.parse(compiler)
 	}
 	if !JSCompObjects_identical(this.root.getStaticSourceFile(), obj_(this.outer_.sourceFile)) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.root.setInputId(this.outer_.id)
 	this.outer_.sourceFile.clearCachedSource()

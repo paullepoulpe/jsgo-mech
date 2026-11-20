@@ -89,7 +89,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) init_SyntacticScopeCreator_Scope
 	this.scope_ = scope
 	this.changeRootSet = changeRootSet
 	if changeRootSet != nil && !scope.isGlobal() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.treatProvidesAsRedeclarations = treatProvidesAsRedeclarations
 }
@@ -108,7 +108,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) populate() {
 		var fnNameNode Node = n.getFirstChild()
 		var args Node = fnNameNode.getNext()
 		if !args.isParamList() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		this.declareLHS(this.scope_, args)
 		var fnName string = fnNameNode.getString()
@@ -124,7 +124,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) populate() {
 		return
 	case tokOrd1_ROOT, tokOrd1_SCRIPT:
 		if !this.scope_.isGlobal() {
-			panic(new_IllegalStateException_String(objstr_(this.scope_)).self())
+			panic(new_IllegalStateException_String(objstr_(this.scope_)))
 		}
 		this.scanVars(n, this.scope_, this.scope_)
 		return
@@ -144,7 +144,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) populate() {
 	case tokOrd1_COMPUTED_FIELD_DEF, tokOrd1_MEMBER_FIELD_DEF:
 		return
 	default:
-		panic(new_RuntimeException_String(("Illegal scope root: " + tostrH_(n))).self())
+		panic(new_RuntimeException_String(("Illegal scope root: " + tostrH_(n))))
 	}
 }
 

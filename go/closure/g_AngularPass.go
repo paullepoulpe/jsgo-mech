@@ -63,7 +63,7 @@ func (this *AngularPass) process_2(externs Node, root Node) {
 
 func (this *AngularPass) createDependenciesList(n Node) *JTList[Node] {
 	if !n.isFunction() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var params Node = NodeUtil_getFunctionParameters(n)
 	if params != 0 {
@@ -161,7 +161,7 @@ func (this *AngularPass) addNode(n Node) {
 		return
 	}
 	if !name.isPresent() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.injectables.add(new_AngularPass_NodeContext(name.get(), n, fn, injectAfter))
 }
@@ -169,7 +169,7 @@ func (this *AngularPass) addNode(n Node) {
 func AngularPass_getDeclarationRValue(n Node) Node {
 	Preconditions_checkNotNull_T(n)
 	if !NodeUtil_isNameDeclaration(n) {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	n = n.getFirstFirstChild()
 	if n == 0 {

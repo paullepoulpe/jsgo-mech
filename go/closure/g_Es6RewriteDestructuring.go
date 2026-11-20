@@ -36,7 +36,7 @@ func (this *Es6RewriteDestructuring) init_Es6RewriteDestructuring(builder *Es6Re
 		this.featuresToTriggerRunningPass = FeatureSet_BARE_MINIMUM.with(FeatureSet_Feature_OBJECT_PATTERN_REST)
 		this.featuresToMarkAsRemoved = this.featuresToTriggerRunningPass
 	default:
-		panic(new_AssertionError_Object(strobj_(("Es6RewriteDestructuring cannot handle ObjectDestructuringRewriteMode " + jtostr_(this.rewriteMode)))).self())
+		panic(new_AssertionError_Object(strobj_(("Es6RewriteDestructuring cannot handle ObjectDestructuringRewriteMode " + jtostr_(this.rewriteMode)))))
 	}
 }
 
@@ -48,12 +48,12 @@ func new_Es6RewriteDestructuring(builder *Es6RewriteDestructuring_Builder) *Es6R
 
 func (this *Es6RewriteDestructuring) process_2(externs Node, root Node) {
 	if !this.patternNestingStack.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(this))
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, this.featuresToMarkAsRemoved)
 	if !this.patternNestingStack.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 }
 
@@ -188,7 +188,7 @@ func (this *Es6RewriteDestructuring) rewriteVarDestructuringDeclaration(destruct
 		Preconditions_checkState_boolean_Object_H(false, destructuringLhs)
 	}
 	if destructuringLhs.getGrandparent().isExport() {
-		panic(new_IllegalStateException_String(objstr_("Export destructuring declarations not expected inside a function body.")).self())
+		panic(new_IllegalStateException_String(objstr_("Export destructuring declarations not expected inside a function body.")))
 	}
 	var var_ Node = destructuringLhs.getParent()
 	NodeUtil_visitLhsNodesInNode(destructuringLhs, (&Consumer_tfn_Node{func(name Node) {
@@ -204,7 +204,7 @@ func (this *Es6RewriteDestructuring) rewriteVarDestructuringDeclaration(destruct
 	}}).accept)
 	var destructuringPattern Node = destructuringLhs.removeFirstChild()
 	if ok_, a1_ := destructuringPattern.isDestructuringPattern(), destructuringPattern.toStringTree(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected destructuring pattern but got %s", []any{a1_})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected destructuring pattern but got %s", []any{a1_})))
 	}
 	var rhs Node = destructuringLhs.removeFirstChild()
 	var assign Node = this.astFactory_.createAssign(destructuringPattern, rhs)
@@ -252,7 +252,7 @@ func (this *Es6RewriteDestructuring) visitPattern(t *NodeTraversal, pattern Node
 	case tokOrd1_CATCH:
 		this.visitDestructuringPatternInCatch(t, pattern)
 	default:
-		panic(new_IllegalStateException_String("unexpected parent").self())
+		panic(new_IllegalStateException_String("unexpected parent"))
 	}
 }
 
@@ -266,7 +266,7 @@ func (this *Es6RewriteDestructuring) replacePattern(t *NodeTraversal, pattern No
 	case tokOrd1_OBJECT_PATTERN:
 		this.replaceObjectPattern(t, pattern, rhs, parent, nodeToDetach)
 	default:
-		panic(new_IllegalStateException_String("unexpected").self())
+		panic(new_IllegalStateException_String("unexpected"))
 	}
 }
 
@@ -355,7 +355,7 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 				}
 			} else if child.isRest() {
 				if next != 0 {
-					panic(new_IllegalStateException_String("object rest may not be followed by any properties").self())
+					panic(new_IllegalStateException_String("object rest may not be followed by any properties"))
 				}
 				var assignCall Node = func() Node {
 					if this.useJscompAssign {
@@ -377,7 +377,7 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 				}
 				newRHS = this.objectPatternRestRHS(objectPattern, child, restTempVarName.get(), propsToDeleteForRest)
 			} else {
-				panic(new_IllegalStateException_String("unexpected child").self())
+				panic(new_IllegalStateException_String("unexpected child"))
 			}
 			var newNode Node
 			if NodeUtil_isNameDeclaration(parent) {
@@ -388,7 +388,7 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 			} else if parent.isAssign() {
 				newNode = IR_exprResult(this.astFactory_.createAssign(newLHS, newRHS))
 			} else {
-				panic(new_IllegalStateException_String("not reached").self())
+				panic(new_IllegalStateException_String("not reached"))
 			}
 			newNode.srcrefTreeIfMissing(child)
 			newNode.insertBefore(nodeToDetach)
@@ -401,7 +401,7 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 
 func (this *Es6RewriteDestructuring) objectPatternRestRHS(objectPattern Node, rest Node, restTempVarName string, statedProperties *JTList[Node]) Node {
 	if objectPattern.getLastChild() != rest {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var restTempVarModel Node = this.createTempVarNameNode(restTempVarName, AstFactory_type_Node(objectPattern))
 	var result Node = restTempVarModel.cloneNode()
@@ -430,7 +430,7 @@ func (this *Es6RewriteDestructuring) deletionNodeForRestProperty(restTempVarName
 		case tokOrd1_NAME:
 			return this.astFactory_.createGetElem(restTempVarNameNode, property)
 		default:
-			panic(new_IllegalStateException_String(("Unexpected property to delete node: " + sstr_(property.toStringTree()))).self())
+			panic(new_IllegalStateException_String(("Unexpected property to delete node: " + sstr_(property.toStringTree()))))
 		}
 	}()
 	return this.astFactory_.createDelProp(get)
@@ -526,7 +526,7 @@ func (this *Es6RewriteDestructuring) validateNoAwaitOrYieldInNestedAssignmentPat
 
 func (this *Es6RewriteDestructuring) visitDestructuringPatternInVanillaForInnerVars(t *NodeTraversal, pattern Node) {
 	if !pattern.isDestructuringPattern() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var destructuringLhs Node = pattern.getParent()
 	var declaration Node = destructuringLhs.getParent()
@@ -571,24 +571,24 @@ func (this *Es6RewriteDestructuring) visitDestructuringPatternInVanillaForInnerV
 			this.wrapAssignOrDestructuringInCallToArrow(t, destructuringLhs)
 		}
 	default:
-		panic(new_IllegalStateException_String(declaration.toString()).self())
+		panic(new_IllegalStateException_String(declaration.toString()))
 	}
 	this.compiler_.reportChangeToEnclosingScope(insertionPoint)
 }
 
 func (this *Es6RewriteDestructuring) visitDestructuringPatternInEnhancedForInnerVars(pattern Node) {
 	if !pattern.isDestructuringPattern() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var tempVarName string = this.getTempVariableName()
 	var destructuringLhs Node = pattern.getParent()
 	if !destructuringLhs.isDestructuringLhs() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var declarationNode Node = destructuringLhs.getParent()
 	var forNode Node = declarationNode.getParent()
 	if !NodeUtil_isEnhancedFor(forNode) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var block Node = forNode.getLastChild()
 	destructuringLhs.replaceWith(this.createTempVarNameNode(tempVarName, AstFactory_type_Node(pattern)).srcref(pattern))
@@ -602,7 +602,7 @@ func (this *Es6RewriteDestructuring) visitDestructuringPatternInEnhancedForInner
 
 func (this *Es6RewriteDestructuring) visitDestructuringPatternInEnhancedForWithOuterVars(pattern Node) {
 	if !pattern.isDestructuringPattern() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var tempVarName string = this.getTempVariableName()
 	var forNode Node = pattern.getParent()

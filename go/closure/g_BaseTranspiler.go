@@ -127,7 +127,7 @@ func (this *BaseTranspiler_CompilerSupplier) compile(path string, code string) *
 	}
 	var transpiled bool = result.transpiledFiles
 	if !result.errors_.isEmpty() {
-		panic(obj_(new_TranspilationException_SourceExcerptProvider_ImmutableList_ImmutableList(Compiler_as_SourceExcerptProvider(compiler), result.errors_, result.warnings_)))
+		panic(new_TranspilationException_SourceExcerptProvider_ImmutableList_ImmutableList(Compiler_as_SourceExcerptProvider(compiler), result.errors_, result.warnings_))
 	}
 	return new_BaseTranspiler_CompileResult(source, transpiled, func() string {
 		if transpiled {
