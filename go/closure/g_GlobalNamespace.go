@@ -206,7 +206,7 @@ func (this *GlobalNamespace) getNameFromModule(moduleMetadata *ModuleMetadataMap
 
 func (this *GlobalNamespace) declarationHasFollowingObjectSpreadSibling(declaration Node) bool {
 	if !declaration.getParent().isObjectLit() {
-		panic(new_IllegalStateException_String(objstr_(declaration.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(declaration)).self())
 	}
 	var cached any = this.spreadSiblingCache.get(declaration)
 	if cached != nil {
@@ -232,7 +232,7 @@ func (this *GlobalNamespace) createNameForTesting(name string) *GlobalNamespace_
 func (this *GlobalNamespace) getOutermostObjectLit(objLitKey Node) Node {
 	var outermostObjectLit Node = objLitKey.getParent()
 	if !outermostObjectLit.isObjectLit() {
-		panic(new_IllegalStateException_String(objstr_(outermostObjectLit.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(outermostObjectLit)).self())
 	}
 	for {
 		var objLitGrandparent Node = outermostObjectLit.getGrandparent()
@@ -667,14 +667,14 @@ func (this *GlobalNamespace_BuildGlobalNamespace) createObjLitStringKeyAnalysis(
 	} else {
 		var objLitNode Node = stringKeyNode.getParent()
 		if !objLitNode.isObjectLit() {
-			panic(new_IllegalArgumentException_String(objstr_(objLitNode.box_())).self())
+			panic(new_IllegalArgumentException_String(tostr_(objLitNode)).self())
 		}
 		var objLitParentNode Node = objLitNode.getParent()
 		if NodeUtil_isObjectDefinePropertiesDefinition(objLitParentNode) {
 			var receiverNode Node = objLitParentNode.getSecondChild()
 			if receiverNode.isQualifiedName() {
 				if objLitNode != receiverNode.getNext() {
-					panic(new_IllegalStateException_String(objstr_(objLitParentNode.box_())).self())
+					panic(new_IllegalStateException_String(tostr_(objLitParentNode)).self())
 				}
 				nameString = Optional_of[string]((sstr_(receiverNode.getQualifiedName()) + "." + sstr_(stringKeyNode.getString())))
 				return GlobalNamespace_ObjLitStringKeyAnalysis_forObjectDefineProperty(nameString.orElseThrow())
@@ -912,7 +912,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) isClassDefiningCall(callNode N
 
 func (this *GlobalNamespace_BuildGlobalNamespace) isObjectHasOwnPropertyCall(callNode Node) bool {
 	if !callNode.isCall() && !callNode.isOptChainCall() {
-		panic(new_IllegalArgumentException_String(objstr_(callNode.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(callNode)).self())
 	}
 	if !callNode.hasTwoChildren() {
 		return false

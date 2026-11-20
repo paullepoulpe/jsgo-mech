@@ -477,7 +477,7 @@ func (this *InlineFunctions_FindCandidateFunctions) findNamedFunctions(t *NodeTr
 	switch n.ns_().token {
 	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		if !n.hasOneChild() {
-			panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(n)).self())
 		}
 		var nameNode Node = n.getFirstChild()
 		if (nameNode.isName() && nameNode.hasChildren()) && nameNode.getFirstChild().isFunction() {
@@ -677,7 +677,7 @@ func (this *InlineFunctions_FindCandidatesReferences) maybeAddReferenceUsingMode
 
 func (this *InlineFunctions_FindCandidatesReferences) checkNameUsage(n Node, parent Node) {
 	if !n.isName() {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	if InlineFunctions_isCandidateUsage(n) {
 		return

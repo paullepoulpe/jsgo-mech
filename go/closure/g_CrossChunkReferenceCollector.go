@@ -171,7 +171,7 @@ func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode N
 					var keyExpr Node = member.getFirstChild()
 					var method Node = member.getLastChild()
 					if !method.isFunction() {
-						panic(new_IllegalStateException_String(objstr_(method.box_())).self())
+						panic(new_IllegalStateException_String(tostr_(method)).self())
 					}
 					if !this.canMoveValue(scope, keyExpr) {
 						return false
@@ -189,7 +189,7 @@ func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode N
 					return false
 				} else {
 					if !member.isMemberFunctionDef() && !NodeUtil_isGetOrSetKey(member) {
-						panic(new_IllegalStateException_String(objstr_(member.box_())).self())
+						panic(new_IllegalStateException_String(tostr_(member)).self())
 					}
 				}
 			}
@@ -249,7 +249,7 @@ func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode N
 					}
 				} else {
 					if !child.isTemplateLitString() {
-						panic(new_IllegalStateException_String(objstr_(child.box_())).self())
+						panic(new_IllegalStateException_String(tostr_(child)).self())
 					}
 				}
 			}
@@ -287,7 +287,7 @@ func new_CrossChunkReferenceCollector_TopLevelStatementCollectingBehavior(outer_
 func (this *CrossChunkReferenceCollector_TopLevelStatementCollectingBehavior) beforeTraverseNode(t *NodeTraversal, n Node, parent Node) {
 	if (parent != 0) && NodeUtil_isTopLevel(parent) {
 		if this.outer_.topLevelStatementDraft != nil {
-			panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(n)).self())
 		}
 		this.outer_.topLevelStatementDraft = this.outer_.initializeDraftStatement(t.getChunk(), n)
 	}

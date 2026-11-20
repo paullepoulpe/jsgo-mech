@@ -25,7 +25,7 @@ func (this *FunctionArgumentInjector) inject_5(compiler *AbstractCompiler, node 
 		var replacementTemplate Node = replacements.get(node.getString())
 		if replacementTemplate != 0 {
 			if (parent.isFunction() || parent.isVar()) || parent.isCatch() {
-				panic(new_IllegalStateException_String(objstr_(parent.box_())).self())
+				panic(new_IllegalStateException_String(tostr_(parent)).self())
 			}
 			var replacement Node = replacementTemplate.cloneTree()
 			node.replaceWith(replacement)
@@ -82,7 +82,7 @@ func (this *FunctionArgumentInjector) getFunctionCallParameterMap(fnNode Node, c
 		cArg = cArg.getNext()
 	} else {
 		if NodeUtil_isFunctionObjectApply(callNode) {
-			panic(new_IllegalStateException_String(objstr_(callNode.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(callNode)).self())
 		}
 		argMap.put(FunctionArgumentInjector_THIS_MARKER, new_FunctionArgumentInjector_ParamArgPair(FunctionArgumentInjector_THIS_MARKER_NODE, NodeUtil_newUndefinedNode(callNode)))
 	}
@@ -92,7 +92,7 @@ func (this *FunctionArgumentInjector) getFunctionCallParameterMap(fnNode Node, c
 			if cArg != 0 {
 				if fnParam.isRest() {
 					if ok_, a1_ := fnParam.getOnlyChild().isName(), fnParam.getOnlyChild(); !ok_ {
-						panic(new_IllegalStateException_String(objstr_(a1_.box_())).self())
+						panic(new_IllegalStateException_String(tostr_(a1_)).self())
 					}
 					var array Node = IR_arraylit([]Node{})
 					array.srcrefTreeIfMissing(cArg)
@@ -103,7 +103,7 @@ func (this *FunctionArgumentInjector) getFunctionCallParameterMap(fnNode Node, c
 					return argMap.put(fnParam.getOnlyChild().getString(), new_FunctionArgumentInjector_ParamArgPair(fnParam.getOnlyChild(), array)).buildOrThrow()
 				} else {
 					if !fnParam.isName() {
-						panic(new_IllegalStateException_String(objstr_(fnParam.box_())).self())
+						panic(new_IllegalStateException_String(tostr_(fnParam)).self())
 					}
 					argMap.put(fnParam.getString(), new_FunctionArgumentInjector_ParamArgPair(fnParam, cArg))
 				}
@@ -111,13 +111,13 @@ func (this *FunctionArgumentInjector) getFunctionCallParameterMap(fnNode Node, c
 			} else {
 				if fnParam.isRest() {
 					if !fnParam.getOnlyChild().isName() {
-						panic(new_IllegalStateException_String(objstr_(fnParam.box_())).self())
+						panic(new_IllegalStateException_String(tostr_(fnParam)).self())
 					}
 					var array Node = IR_arraylit([]Node{}).srcref(fnParam)
 					argMap.put(fnParam.getOnlyChild().getString(), new_FunctionArgumentInjector_ParamArgPair(fnParam.getOnlyChild(), array))
 				} else {
 					if !fnParam.isName() {
-						panic(new_IllegalStateException_String(objstr_(fnParam.box_())).self())
+						panic(new_IllegalStateException_String(tostr_(fnParam)).self())
 					}
 					var srcLocation Node = callNode
 					argMap.put(fnParam.getString(), new_FunctionArgumentInjector_ParamArgPair(fnParam, NodeUtil_newUndefinedNode(srcLocation)))
@@ -174,7 +174,7 @@ func FunctionArgumentInjector_canNameValueChange(n Node) bool {
 
 func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *AbstractCompiler, fnNode Node, argMap *JTMap[string, *FunctionArgumentInjector_ParamArgPair], modifiedParameters *JTSet[string], convention CodingConvention) *JTSet[string] {
 	if !fnNode.isFunction() {
-		panic(new_IllegalArgumentException_String(objstr_(fnNode.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(fnNode)).self())
 	}
 	if argMap.isEmpty() {
 		return modifiedParameters

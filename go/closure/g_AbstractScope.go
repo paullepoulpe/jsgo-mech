@@ -144,7 +144,7 @@ func (this *AbstractScope) isHoistScope() bool {
 
 func (this *AbstractScope) checkRootScope() {
 	if !((NodeUtil_createsScope(this.rootNode_) || this.rootNode_.isScript()) || this.rootNode_.isRoot()) {
-		panic(new_IllegalArgumentException_String(objstr_(this.rootNode_.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(this.rootNode_)).self())
 	}
 }
 

@@ -20,7 +20,7 @@ func (this *ControlFlowAnalysis) finit_ControlFlowAnalysis() {
 	this.priorityComparator = Comparator_comparingInt(&ToIntFunction_tfn_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch_{func(digraphNode DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]) int32 {
 		nn_, nn1_ := this.astPosition.get(digraphNode.getValue()), digraphNode.getValue()
 		if nn_ == nil {
-			panic(new_NullPointerException_String(objstr_(nn1_.box_())).self())
+			panic(new_NullPointerException_String(tostr_(nn1_)).self())
 		}
 		return unbox_[int32](nn_)
 	}})
