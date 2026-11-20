@@ -22,7 +22,7 @@ func (this *J2clConstantHoisterPass) process_2(externs Node, root Node) {
 	if !J2clSourceFileChecker_shouldRunJ2clPasses(this.compiler_) {
 		return
 	}
-	var fieldAssignments *SimpleListMultimap[any, Node] = SimpleListMultimap_create[any, Node]()
+	var fieldAssignments *SimpleListMultimap[string, Node] = SimpleListMultimap_create[string, Node]()
 	var hoistableFunctions *TSet[Node] = newTSet_(tc_Node)
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(func(t *NodeTraversal, node Node, parent Node) {
 		if (parent != 0) && NodeUtil_isLValue(node) {

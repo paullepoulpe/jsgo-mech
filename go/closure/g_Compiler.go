@@ -1093,7 +1093,7 @@ func (this *Compiler) getCurrentJsSource() string {
 		}
 	}
 	if !qnameSet.IsEmpty() {
-		var originalToNewQNameMap *SimpleSetMultimap[any, string] = SimpleSetMultimap_createInsertionOrdered[any, string]()
+		var originalToNewQNameMap *SimpleSetMultimap[string, string] = SimpleSetMultimap_createInsertionOrdered[string, string]()
 		var statements *[]Node = this.getTopLevelStatements(this.jsRoot)
 		builder.append("//\n")
 		builder.append("// closure-compiler: Printing all of the top-level statements\n")

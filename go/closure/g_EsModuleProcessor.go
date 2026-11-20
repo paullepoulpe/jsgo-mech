@@ -196,7 +196,7 @@ func EsModuleProcessor_clinit() {
 type EsModuleProcessor_FindMutableExports struct {
 	NodeTraversal_AbstractPostOrderCallback
 	exports            *TList[*Export]
-	exportsByLocalName *SimpleListMultimap[any, *Export]
+	exportsByLocalName *SimpleListMultimap[string, *Export]
 }
 
 func (this *EsModuleProcessor_FindMutableExports) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -209,7 +209,7 @@ func (this *EsModuleProcessor_FindMutableExports) up_NodeTraversal_AbstractPostO
 func (this *EsModuleProcessor_FindMutableExports) init_EsModuleProcessor_FindMutableExports(exports *TList[*Export]) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.exports = exports
-	this.exportsByLocalName = SimpleListMultimap_create[any, *Export]()
+	this.exportsByLocalName = SimpleListMultimap_create[string, *Export]()
 	for e := range exports.All() {
 		this.exportsByLocalName.put_s(e.localName(), e)
 	}

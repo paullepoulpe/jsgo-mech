@@ -307,13 +307,13 @@ func PolyfillUsageFinder_Polyfill_Kind_clinit() {
 }
 
 type PolyfillUsageFinder_Polyfills struct {
-	methods         *SimpleListMultimap[any, *PolyfillUsageFinder_Polyfill]
+	methods         *SimpleListMultimap[string, *PolyfillUsageFinder_Polyfill]
 	statics         *TMap[string, *PolyfillUsageFinder_Polyfill]
 	suffixes        *TSet[string]
-	byNativeVersion *SimpleListMultimap[any, *PolyfillUsageFinder_Polyfill]
+	byNativeVersion *SimpleListMultimap[string, *PolyfillUsageFinder_Polyfill]
 }
 
-func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(methods *SimpleListMultimap[any, *PolyfillUsageFinder_Polyfill], statics *TMap[string, *PolyfillUsageFinder_Polyfill], byNativeVersion *SimpleListMultimap[any, *PolyfillUsageFinder_Polyfill]) {
+func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(methods *SimpleListMultimap[string, *PolyfillUsageFinder_Polyfill], statics *TMap[string, *PolyfillUsageFinder_Polyfill], byNativeVersion *SimpleListMultimap[string, *PolyfillUsageFinder_Polyfill]) {
 	this.methods = methods
 	this.statics = statics
 	this.byNativeVersion = byNativeVersion
@@ -324,16 +324,16 @@ func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(me
 	this.suffixes = immutableSetCopyOf_(tc_string, Collection(suffixList.asList()))
 }
 
-func new_PolyfillUsageFinder_Polyfills(methods *SimpleListMultimap[any, *PolyfillUsageFinder_Polyfill], statics *TMap[string, *PolyfillUsageFinder_Polyfill], byNativeVersion *SimpleListMultimap[any, *PolyfillUsageFinder_Polyfill]) *PolyfillUsageFinder_Polyfills {
+func new_PolyfillUsageFinder_Polyfills(methods *SimpleListMultimap[string, *PolyfillUsageFinder_Polyfill], statics *TMap[string, *PolyfillUsageFinder_Polyfill], byNativeVersion *SimpleListMultimap[string, *PolyfillUsageFinder_Polyfill]) *PolyfillUsageFinder_Polyfills {
 	this := &PolyfillUsageFinder_Polyfills{}
 	this.init_PolyfillUsageFinder_Polyfills(methods, statics, byNativeVersion)
 	return this
 }
 
 func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_Polyfills {
-	var methods *SimpleListMultimap[any, *PolyfillUsageFinder_Polyfill] = SimpleListMultimap_create[any, *PolyfillUsageFinder_Polyfill]()
+	var methods *SimpleListMultimap[string, *PolyfillUsageFinder_Polyfill] = SimpleListMultimap_create[string, *PolyfillUsageFinder_Polyfill]()
 	var statics *ImmutableMap_Builder[string, *PolyfillUsageFinder_Polyfill] = immutableMapBuilder_(tc_string, tc_p_PolyfillUsageFinder_Polyfill)
-	var byNativeVersion *SimpleListMultimap[any, *PolyfillUsageFinder_Polyfill] = SimpleListMultimap_create[any, *PolyfillUsageFinder_Polyfill]()
+	var byNativeVersion *SimpleListMultimap[string, *PolyfillUsageFinder_Polyfill] = SimpleListMultimap_create[string, *PolyfillUsageFinder_Polyfill]()
 	for line := range elemsBy_(Splitter_on('\n').omitEmptyStrings().split_s(table), str_) {
 		var tokens *TList[string] = splitToListT_(tc_string, Splitter_on(' ').omitEmptyStrings(), strobj_(strings.Trim(line, javaSpace_)))
 		if (tokens.size() == 1) && tokens.get(0) == "" {

@@ -36,7 +36,7 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 				if multimap_1, ok3 := value.(*SimpleSetMultimap[any, any]); ok3 {
 					out.rawValue(optstrOf_(LogsGson_toJson(multimap_1.asMap())))
 				} else {
-					if bimap, ok4 := value.(*SimpleBiMap[any, string]); ok4 {
+					if bimap, ok4 := value.(*SimpleBiMap[string, string]); ok4 {
 						out.rawValue(optstrOf_(LogsGson_toJson(bimap.asMap())))
 					} else {
 						if multiset, ok5 := value.(*SimpleMultiset[any]); ok5 {

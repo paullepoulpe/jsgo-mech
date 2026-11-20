@@ -4,13 +4,13 @@ package closure
 
 type PreprocessorSymbolTable struct {
 	symbols *TMap[string, *SimpleSlot]
-	refs    *SimpleListMultimap[any, *PreprocessorSymbolTable_Reference]
+	refs    *SimpleListMultimap[string, *PreprocessorSymbolTable_Reference]
 	root    Node
 }
 
 func (this *PreprocessorSymbolTable) finit_PreprocessorSymbolTable() {
 	this.symbols = newTMap_(tc_string, tc_p_SimpleSlot)
-	this.refs = SimpleListMultimap_create[any, *PreprocessorSymbolTable_Reference]()
+	this.refs = SimpleListMultimap_create[string, *PreprocessorSymbolTable_Reference]()
 }
 
 func (this *PreprocessorSymbolTable) init_PreprocessorSymbolTable(root Node) {

@@ -4,14 +4,14 @@ package closure
 
 type InlineSimpleMethods struct {
 	nonInlineableProperties map[string]struct{}
-	methodDefinitions       *SimpleSetMultimap[any, Node]
+	methodDefinitions       *SimpleSetMultimap[string, Node]
 	compiler_               *AbstractCompiler
 	astAnalyzer             *AstAnalyzer
 }
 
 func (this *InlineSimpleMethods) finit_InlineSimpleMethods() {
 	this.nonInlineableProperties = map[string]struct{}{}
-	this.methodDefinitions = SimpleSetMultimap_createInsertionOrdered[any, Node]()
+	this.methodDefinitions = SimpleSetMultimap_createInsertionOrdered[string, Node]()
 }
 
 func (this *InlineSimpleMethods) init_InlineSimpleMethods(compiler *AbstractCompiler) {

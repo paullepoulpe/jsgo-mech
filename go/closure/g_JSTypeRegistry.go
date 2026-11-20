@@ -37,11 +37,11 @@ type JSTypeRegistry struct {
 	nameTableGlobalRoot             Node
 	nonNullableTypeNames            *SimpleSetMultimap[Node, string]
 	forwardDeclaredTypes            SetOf[string]
-	nonRefTypesIndexedByProperty    *SimpleSetMultimap[any, *JSType]
+	nonRefTypesIndexedByProperty    *SimpleSetMultimap[string, *JSType]
 	sentinelObjectLiteral           *JSType
 	propertiesOfSupertypesInUnions  map[string]struct{}
 	droppedPropertiesOfUnions       map[string]struct{}
-	eachRefTypeIndexedByProperty    *SimpleSetMultimap[any, *ObjectType]
+	eachRefTypeIndexedByProperty    *SimpleSetMultimap[string, *ObjectType]
 	emptyTemplateTypeMap            *TemplateTypeMap
 	resolver                        *JSTypeResolver
 }
@@ -51,10 +51,10 @@ func (this *JSTypeRegistry) finit_JSTypeRegistry() {
 	this.closureNamespaces = map[string]*JSTypeRegistry_ClosureNamespace{}
 	this.nameTableGlobalRoot = new_Node_Token(Token_rhino_ROOT)
 	this.nonNullableTypeNames = SimpleSetMultimap_create[Node, string]()
-	this.nonRefTypesIndexedByProperty = SimpleSetMultimap_create[any, *JSType]()
+	this.nonRefTypesIndexedByProperty = SimpleSetMultimap_create[string, *JSType]()
 	this.propertiesOfSupertypesInUnions = map[string]struct{}{}
 	this.droppedPropertiesOfUnions = map[string]struct{}{}
-	this.eachRefTypeIndexedByProperty = SimpleSetMultimap_create[any, *ObjectType]()
+	this.eachRefTypeIndexedByProperty = SimpleSetMultimap_create[string, *ObjectType]()
 }
 
 func (this *JSTypeRegistry) init_JSTypeRegistry_ErrorReporter(reporter ErrorReporter_rhino) {

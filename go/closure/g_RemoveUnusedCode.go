@@ -14,10 +14,10 @@ type RemoveUnusedCode struct {
 	worklist                                       *[]*RemoveUnusedCode_Continuation
 	varInfoMap                                     *TMap[*Var, RemoveUnusedCode_VarInfo]
 	pinnedPropertyNames                            *TSet[string]
-	removablesForPropertyNames                     *SimpleSetMultimap[any, *RemoveUnusedCode_Removable]
+	removablesForPropertyNames                     *SimpleSetMultimap[string, *RemoveUnusedCode_Removable]
 	canonicalUnremovableVarInfo                    RemoveUnusedCode_VarInfo
 	allFunctionParamScopes                         *[]*Scope
-	polyfills                                      *SimpleSetMultimap[any, *RemoveUnusedCode_PolyfillInfo]
+	polyfills                                      *SimpleSetMultimap[string, *RemoveUnusedCode_PolyfillInfo]
 	guardedUsages                                  map[Node]struct{}
 	polyfillsFromTable                             *PolyfillUsageFinder_Polyfills
 	polyfillUsageFinder                            *PolyfillUsageFinder
@@ -36,9 +36,9 @@ func (this *RemoveUnusedCode) finit_RemoveUnusedCode() {
 	this.worklist = &[]*RemoveUnusedCode_Continuation{}
 	this.varInfoMap = newTMap_(tch_p_Var, tc_RemoveUnusedCode_VarInfo)
 	this.pinnedPropertyNames = tsetCopy_(tc_string, RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES)
-	this.removablesForPropertyNames = SimpleSetMultimap_createInsertionOrdered[any, *RemoveUnusedCode_Removable]()
+	this.removablesForPropertyNames = SimpleSetMultimap_createInsertionOrdered[string, *RemoveUnusedCode_Removable]()
 	this.allFunctionParamScopes = &[]*Scope{}
-	this.polyfills = SimpleSetMultimap_createInsertionOrdered[any, *RemoveUnusedCode_PolyfillInfo]()
+	this.polyfills = SimpleSetMultimap_createInsertionOrdered[string, *RemoveUnusedCode_PolyfillInfo]()
 	this.guardedUsages = map[Node]struct{}{}
 }
 

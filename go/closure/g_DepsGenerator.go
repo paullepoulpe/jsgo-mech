@@ -293,7 +293,7 @@ func (this *DepsGenerator) parseSources(preparsedFiles SetOf[string]) *Outcome_b
 func (this *DepsGenerator) writeDepsContent(depsFiles MapOf[string, DependencyInfo_], jsFiles *TMap[string, DependencyInfo_], out *StringBuilder) {
 	DepsGenerator_writeDepInfos(out, jsFiles.asMap().values())
 	if this.mergeStrategy == DepsGenerator_InclusionStrategy_ALWAYS {
-		var infosIndex *SimpleListMultimap[any, DependencyInfo_] = SimpleListMultimap_create[any, DependencyInfo_]()
+		var infosIndex *SimpleListMultimap[string, DependencyInfo_] = SimpleListMultimap_create[string, DependencyInfo_]()
 		for info := range elemsBy_(depsFiles.values(), icast_DependencyInfo_) {
 			infosIndex.put_s(info.getName(), info)
 		}

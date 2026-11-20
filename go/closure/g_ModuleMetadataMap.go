@@ -140,16 +140,16 @@ type ModuleMetadataMap_ModuleMetadata struct {
 	isTestOnly_                        bool
 	googNamespaces_                    *SimpleMultiset[any]
 	stronglyRequiredGoogNamespaces_    *SimpleMultiset[any]
-	dynamicallyRequiredGoogNamespaces_ *SimpleMultiset[any]
+	dynamicallyRequiredGoogNamespaces_ *SimpleMultiset[string]
 	maybeRequiredGoogNamespaces_       *SimpleMultiset[any]
 	weaklyRequiredGoogNamespaces_      *SimpleMultiset[any]
-	es6ImportSpecifiers_               *SimpleMultiset[any]
+	es6ImportSpecifiers_               *SimpleMultiset[string]
 	nestedModules_                     *TList[*ModuleMetadataMap_ModuleMetadata]
-	readToggles_                       *SimpleMultiset[any]
+	readToggles_                       *SimpleMultiset[string]
 	path_                              *ModuleLoader_ModulePath
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata) init_ModuleMetadataMap_ModuleMetadata(moduleType ModuleMetadataMap_ModuleType, rootNode Node, usesClosure bool, isTestOnly bool, googNamespaces *SimpleMultiset[any], stronglyRequiredGoogNamespaces *SimpleMultiset[any], dynamicallyRequiredGoogNamespaces *SimpleMultiset[any], maybeRequiredGoogNamespaces *SimpleMultiset[any], weaklyRequiredGoogNamespaces *SimpleMultiset[any], es6ImportSpecifiers *SimpleMultiset[any], nestedModules *TList[*ModuleMetadataMap_ModuleMetadata], readToggles *SimpleMultiset[any], path *ModuleLoader_ModulePath) {
+func (this *ModuleMetadataMap_ModuleMetadata) init_ModuleMetadataMap_ModuleMetadata(moduleType ModuleMetadataMap_ModuleType, rootNode Node, usesClosure bool, isTestOnly bool, googNamespaces *SimpleMultiset[any], stronglyRequiredGoogNamespaces *SimpleMultiset[any], dynamicallyRequiredGoogNamespaces *SimpleMultiset[string], maybeRequiredGoogNamespaces *SimpleMultiset[any], weaklyRequiredGoogNamespaces *SimpleMultiset[any], es6ImportSpecifiers *SimpleMultiset[string], nestedModules *TList[*ModuleMetadataMap_ModuleMetadata], readToggles *SimpleMultiset[string], path *ModuleLoader_ModulePath) {
 	Objects_requireNonNull_T(moduleType, "moduleType")
 	Objects_requireNonNull_T(googNamespaces, "googNamespaces")
 	Objects_requireNonNull_T(stronglyRequiredGoogNamespaces, "stronglyRequiredGoogNamespaces")
@@ -174,7 +174,7 @@ func (this *ModuleMetadataMap_ModuleMetadata) init_ModuleMetadataMap_ModuleMetad
 	this.path_ = path
 }
 
-func new_ModuleMetadataMap_ModuleMetadata(moduleType ModuleMetadataMap_ModuleType, rootNode Node, usesClosure bool, isTestOnly bool, googNamespaces *SimpleMultiset[any], stronglyRequiredGoogNamespaces *SimpleMultiset[any], dynamicallyRequiredGoogNamespaces *SimpleMultiset[any], maybeRequiredGoogNamespaces *SimpleMultiset[any], weaklyRequiredGoogNamespaces *SimpleMultiset[any], es6ImportSpecifiers *SimpleMultiset[any], nestedModules *TList[*ModuleMetadataMap_ModuleMetadata], readToggles *SimpleMultiset[any], path *ModuleLoader_ModulePath) *ModuleMetadataMap_ModuleMetadata {
+func new_ModuleMetadataMap_ModuleMetadata(moduleType ModuleMetadataMap_ModuleType, rootNode Node, usesClosure bool, isTestOnly bool, googNamespaces *SimpleMultiset[any], stronglyRequiredGoogNamespaces *SimpleMultiset[any], dynamicallyRequiredGoogNamespaces *SimpleMultiset[string], maybeRequiredGoogNamespaces *SimpleMultiset[any], weaklyRequiredGoogNamespaces *SimpleMultiset[any], es6ImportSpecifiers *SimpleMultiset[string], nestedModules *TList[*ModuleMetadataMap_ModuleMetadata], readToggles *SimpleMultiset[string], path *ModuleLoader_ModulePath) *ModuleMetadataMap_ModuleMetadata {
 	this := &ModuleMetadataMap_ModuleMetadata{}
 	this.init_ModuleMetadataMap_ModuleMetadata(moduleType, rootNode, usesClosure, isTestOnly, googNamespaces, stronglyRequiredGoogNamespaces, dynamicallyRequiredGoogNamespaces, maybeRequiredGoogNamespaces, weaklyRequiredGoogNamespaces, es6ImportSpecifiers, nestedModules, readToggles, path)
 	return this
@@ -264,7 +264,7 @@ func (this *ModuleMetadataMap_ModuleMetadata) stronglyRequiredGoogNamespaces() *
 	return this.stronglyRequiredGoogNamespaces_
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata) dynamicallyRequiredGoogNamespaces() *SimpleMultiset[any] {
+func (this *ModuleMetadataMap_ModuleMetadata) dynamicallyRequiredGoogNamespaces() *SimpleMultiset[string] {
 	return this.dynamicallyRequiredGoogNamespaces_
 }
 
@@ -276,7 +276,7 @@ func (this *ModuleMetadataMap_ModuleMetadata) weaklyRequiredGoogNamespaces() *Si
 	return this.weaklyRequiredGoogNamespaces_
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata) es6ImportSpecifiers() *SimpleMultiset[any] {
+func (this *ModuleMetadataMap_ModuleMetadata) es6ImportSpecifiers() *SimpleMultiset[string] {
 	return this.es6ImportSpecifiers_
 }
 
@@ -284,7 +284,7 @@ func (this *ModuleMetadataMap_ModuleMetadata) nestedModules() *TList[*ModuleMeta
 	return this.nestedModules_
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata) readToggles() *SimpleMultiset[any] {
+func (this *ModuleMetadataMap_ModuleMetadata) readToggles() *SimpleMultiset[string] {
 	return this.readToggles_
 }
 
@@ -301,18 +301,18 @@ type ModuleMetadataMap_ModuleMetadata_Builder struct {
 	googNamespaces_                               *SimpleMultiset[any]
 	stronglyRequiredGoogNamespacesBuilderField    *SimpleMultiset[any]
 	stronglyRequiredGoogNamespaces_               *SimpleMultiset[any]
-	dynamicallyRequiredGoogNamespacesBuilderField *SimpleMultiset[any]
-	dynamicallyRequiredGoogNamespaces_            *SimpleMultiset[any]
+	dynamicallyRequiredGoogNamespacesBuilderField *SimpleMultiset[string]
+	dynamicallyRequiredGoogNamespaces_            *SimpleMultiset[string]
 	maybeRequiredGoogNamespacesBuilderField       *SimpleMultiset[any]
 	maybeRequiredGoogNamespaces_                  *SimpleMultiset[any]
 	weaklyRequiredGoogNamespacesBuilderField      *SimpleMultiset[any]
 	weaklyRequiredGoogNamespaces_                 *SimpleMultiset[any]
-	es6ImportSpecifiersBuilderField               *SimpleMultiset[any]
-	es6ImportSpecifiers_                          *SimpleMultiset[any]
+	es6ImportSpecifiersBuilderField               *SimpleMultiset[string]
+	es6ImportSpecifiers_                          *SimpleMultiset[string]
 	nestedModulesBuilderField                     *ImmutableList_Builder[*ModuleMetadataMap_ModuleMetadata]
 	nestedModules_                                *TList[*ModuleMetadataMap_ModuleMetadata]
-	readTogglesBuilderField                       *SimpleMultiset[any]
-	readToggles_                                  *SimpleMultiset[any]
+	readTogglesBuilderField                       *SimpleMultiset[string]
+	readToggles_                                  *SimpleMultiset[string]
 	pathField                                     *ModuleLoader_ModulePath
 	set0                                          int8
 }
@@ -341,7 +341,7 @@ func (this *ModuleMetadataMap_ModuleMetadata_Builder) build() *ModuleMetadataMap
 	if this.dynamicallyRequiredGoogNamespacesBuilderField != nil {
 		this.dynamicallyRequiredGoogNamespaces_ = this.dynamicallyRequiredGoogNamespacesBuilderField.immutableCopy()
 	} else if this.dynamicallyRequiredGoogNamespaces_ == nil {
-		this.dynamicallyRequiredGoogNamespaces_ = SimpleMultiset_of[any]()
+		this.dynamicallyRequiredGoogNamespaces_ = SimpleMultiset_of[string]()
 	}
 	if this.maybeRequiredGoogNamespacesBuilderField != nil {
 		this.maybeRequiredGoogNamespaces_ = this.maybeRequiredGoogNamespacesBuilderField.immutableCopy()
@@ -356,7 +356,7 @@ func (this *ModuleMetadataMap_ModuleMetadata_Builder) build() *ModuleMetadataMap
 	if this.es6ImportSpecifiersBuilderField != nil {
 		this.es6ImportSpecifiers_ = this.es6ImportSpecifiersBuilderField.immutableCopy()
 	} else if this.es6ImportSpecifiers_ == nil {
-		this.es6ImportSpecifiers_ = SimpleMultiset_of[any]()
+		this.es6ImportSpecifiers_ = SimpleMultiset_of[string]()
 	}
 	if this.nestedModulesBuilderField != nil {
 		this.nestedModules_ = this.nestedModulesBuilderField.build()
@@ -366,7 +366,7 @@ func (this *ModuleMetadataMap_ModuleMetadata_Builder) build() *ModuleMetadataMap
 	if this.readTogglesBuilderField != nil {
 		this.readToggles_ = this.readTogglesBuilderField.immutableCopy()
 	} else if this.readToggles_ == nil {
-		this.readToggles_ = SimpleMultiset_of[any]()
+		this.readToggles_ = SimpleMultiset_of[string]()
 	}
 	if (int32(this.set0) != 3) || (this.moduleTypeField == 0) {
 		var missing *StringBuilder = new_StringBuilder()
@@ -403,9 +403,9 @@ func (this *ModuleMetadataMap_ModuleMetadata_Builder) stronglyRequiredGoogNamesp
 	return this.stronglyRequiredGoogNamespacesBuilderField
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata_Builder) dynamicallyRequiredGoogNamespacesBuilder() *SimpleMultiset[any] {
+func (this *ModuleMetadataMap_ModuleMetadata_Builder) dynamicallyRequiredGoogNamespacesBuilder() *SimpleMultiset[string] {
 	if this.dynamicallyRequiredGoogNamespacesBuilderField == nil {
-		this.dynamicallyRequiredGoogNamespacesBuilderField = SimpleMultiset_create[any]()
+		this.dynamicallyRequiredGoogNamespacesBuilderField = SimpleMultiset_create[string]()
 	}
 	return this.dynamicallyRequiredGoogNamespacesBuilderField
 }
@@ -424,9 +424,9 @@ func (this *ModuleMetadataMap_ModuleMetadata_Builder) weaklyRequiredGoogNamespac
 	return this.weaklyRequiredGoogNamespacesBuilderField
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata_Builder) es6ImportSpecifiersBuilder() *SimpleMultiset[any] {
+func (this *ModuleMetadataMap_ModuleMetadata_Builder) es6ImportSpecifiersBuilder() *SimpleMultiset[string] {
 	if this.es6ImportSpecifiersBuilderField == nil {
-		this.es6ImportSpecifiersBuilderField = SimpleMultiset_create[any]()
+		this.es6ImportSpecifiersBuilderField = SimpleMultiset_create[string]()
 	}
 	return this.es6ImportSpecifiersBuilderField
 }
@@ -438,9 +438,9 @@ func (this *ModuleMetadataMap_ModuleMetadata_Builder) nestedModulesBuilder() *Im
 	return this.nestedModulesBuilderField
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata_Builder) readTogglesBuilder() *SimpleMultiset[any] {
+func (this *ModuleMetadataMap_ModuleMetadata_Builder) readTogglesBuilder() *SimpleMultiset[string] {
 	if this.readTogglesBuilderField == nil {
-		this.readTogglesBuilderField = SimpleMultiset_create[any]()
+		this.readTogglesBuilderField = SimpleMultiset_create[string]()
 	}
 	return this.readTogglesBuilderField
 }

@@ -234,7 +234,7 @@ func OptimizeParameters_mayReferenceParamBeforeBody(function Node) bool {
 	if !paramList.hasChildren() {
 		return false
 	}
-	var namesByNames *SimpleListMultimap[any, Node] = SimpleListMultimap_create[any, Node]()
+	var namesByNames *SimpleListMultimap[string, Node] = SimpleListMultimap_create[string, Node]()
 	NodeUtil_visitPostOrder_Node_Visitor(paramList, &NodeUtil_Visitor_fn{func(n Node) {
 		if n.isName() {
 			namesByNames.put_s(n.getString(), n)

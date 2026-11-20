@@ -4,7 +4,7 @@ package closure
 
 type CheckRequiresSorted struct {
 	mode_              CheckRequiresSorted_Mode
-	importsByNamespace *SimpleListMultimap[any, *CheckRequiresSorted_ImportStatement]
+	importsByNamespace *SimpleListMultimap[string, *CheckRequiresSorted_ImportStatement]
 	originalImports    *TList[*CheckRequiresSorted_ImportStatement]
 	firstNode          Node
 	lastNode           Node
@@ -14,7 +14,7 @@ type CheckRequiresSorted struct {
 }
 
 func (this *CheckRequiresSorted) finit_CheckRequiresSorted() {
-	this.importsByNamespace = SimpleListMultimap_create[any, *CheckRequiresSorted_ImportStatement]()
+	this.importsByNamespace = SimpleListMultimap_create[string, *CheckRequiresSorted_ImportStatement]()
 	this.originalImports = newTList_(tc_p_CheckRequiresSorted_ImportStatement)
 	this.firstNode = 0
 	this.lastNode = 0
@@ -122,7 +122,7 @@ func (this *CheckRequiresSorted) checkCanonical(t *NodeTraversal) {
 	}
 }
 
-func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMultimap[any, *CheckRequiresSorted_ImportStatement]) *TList[*CheckRequiresSorted_ImportStatement] {
+func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMultimap[string, *CheckRequiresSorted_ImportStatement]) *TList[*CheckRequiresSorted_ImportStatement] {
 	var canonicalImports *TList[*CheckRequiresSorted_ImportStatement] = newTList_(tc_p_CheckRequiresSorted_ImportStatement)
 	for namespace := range elemsBy_(importsByNamespace.keySet(), str_) {
 		var allImports CollectionOf[*CheckRequiresSorted_ImportStatement] = Collection(importsByNamespace.get_s(namespace))

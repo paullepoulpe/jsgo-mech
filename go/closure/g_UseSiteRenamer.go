@@ -4,11 +4,11 @@ package closure
 
 type UseSiteRenamer struct {
 	mutationCb    ConsumerOf[Node]
-	renamingIndex *SimpleSetMultimap[any, string]
+	renamingIndex *SimpleSetMultimap[string, string]
 }
 
 func (this *UseSiteRenamer) finit_UseSiteRenamer() {
-	this.renamingIndex = SimpleSetMultimap_create[any, string]()
+	this.renamingIndex = SimpleSetMultimap_create[string, string]()
 }
 
 func (this *UseSiteRenamer) init_UseSiteRenamer(mutationCb ConsumerOf[Node]) {
@@ -47,7 +47,7 @@ func (this *UseSiteRenamer) renameUses(prop *PropertyClustering) UseSiteRenamer_
 	return UseSiteRenamer_RenameUsesResult_DISAMBIGUATED
 }
 
-func (this *UseSiteRenamer) getRenamingIndex() *SimpleSetMultimap[any, string] {
+func (this *UseSiteRenamer) getRenamingIndex() *SimpleSetMultimap[string, string] {
 	return this.renamingIndex.immutableCopy()
 }
 

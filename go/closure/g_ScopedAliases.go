@@ -9,13 +9,13 @@ type ScopedAliases struct {
 	preprocessorSymbolTable  *PreprocessorSymbolTable
 	moduleMetadataMap        *ModuleMetadataMap
 	uniqueIdInput            *CompilerInput
-	scopedAliasNames         *SimpleMultiset[any]
+	scopedAliasNames         *SimpleMultiset[string]
 	closureNamespaces        *TSet[string]
 	invalidModuleGetHandling ScopedAliases_InvalidModuleGetHandling
 }
 
 func (this *ScopedAliases) finit_ScopedAliases() {
-	this.scopedAliasNames = SimpleMultiset_create[any]()
+	this.scopedAliasNames = SimpleMultiset_create[string]()
 }
 
 func (this *ScopedAliases) init_ScopedAliases(compiler *AbstractCompiler, preprocessorSymbolTable *PreprocessorSymbolTable, closureNamespaces *TSet[string], invalidModuleGetHandling ScopedAliases_InvalidModuleGetHandling) {

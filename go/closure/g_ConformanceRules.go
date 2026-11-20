@@ -957,7 +957,7 @@ var lambda_ConformanceRules_BannedName_clinit_1_ = &CheckConformance_Preconditio
 type ConformanceRules_BannedProperty struct {
 	ConformanceRules_AbstractRule
 	registry                *JSTypeRegistry
-	props                   *SimpleSetMultimap[any, *JSType]
+	props                   *SimpleSetMultimap[string, *JSType]
 	requirementPrecondition ConformanceRules_BannedProperty_RequirementPrecondition
 }
 
@@ -1018,7 +1018,7 @@ func (this *ConformanceRules_BannedProperty) initBannedProperty(compiler *Abstra
 		}
 	}()
 	this.registry = compiler.getTypeRegistry()
-	var builder *SimpleSetMultimap[any, *JSType] = SimpleSetMultimap_create[any, *JSType]()
+	var builder *SimpleSetMultimap[string, *JSType] = SimpleSetMultimap_create[string, *JSType]()
 	it_2 := foreach_(ProtocolStringList(requirement.getValueList()))
 	for it_2.next() {
 		var value string = str_(it_2.v)
