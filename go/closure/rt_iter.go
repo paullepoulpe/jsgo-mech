@@ -156,3 +156,30 @@ func immElems_(c *ImmutableCollection) []any {
 	}
 	return c.elems_()
 }
+
+// immCursor_ is an explicit iterator over an immutable collection (post-flip step iters): the
+// translated code's hasNext/next/remove on it mean what they meant on the collection's own
+// iterator (ImmutableCollection.iterator, a sliceIter_ over its elements), but it is a typed
+// pointer, so a function that only advances it keeps it on the stack.
+type immCursor_ struct {
+	items []any
+	i     int
+}
+
+// immCursorOf_ is c.iterator(): the elements in iteration order (a multiset's with their
+// repetitions); a null c throws NullPointerException as calling c.iterator() did.
+func immCursorOf_(c *ImmutableCollection) *immCursor_ { return &immCursor_{items: c.elems_()} }
+
+func (it *immCursor_) hasNext() bool { return it.i < len(it.items) }
+
+func (it *immCursor_) next() any {
+	if it.i >= len(it.items) {
+		panic(new_NoSuchElementException_0().self())
+	}
+	v := it.items[it.i]
+	it.i++
+	return v
+}
+
+// remove throws UnsupportedOperationException, as an immutable collection's iterator does.
+func (it *immCursor_) remove() { throwUOE_() }
