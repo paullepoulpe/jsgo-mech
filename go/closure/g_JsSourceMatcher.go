@@ -6,11 +6,11 @@ type JsSourceMatcher struct {
 	matcher *TemplateAstMatcher
 }
 
-func (this *JsSourceMatcher) init_JsSourceMatcher(compiler *AbstractCompiler, templateNode Node, typeMatchingStrategy *TypeMatchingStrategy) {
+func (this *JsSourceMatcher) init_JsSourceMatcher(compiler *AbstractCompiler, templateNode Node, typeMatchingStrategy TypeMatchingStrategy) {
 	this.matcher = new_TemplateAstMatcher(compiler, templateNode, typeMatchingStrategy)
 }
 
-func new_JsSourceMatcher(compiler *AbstractCompiler, templateNode Node, typeMatchingStrategy *TypeMatchingStrategy) *JsSourceMatcher {
+func new_JsSourceMatcher(compiler *AbstractCompiler, templateNode Node, typeMatchingStrategy TypeMatchingStrategy) *JsSourceMatcher {
 	this := &JsSourceMatcher{}
 	this.init_JsSourceMatcher(compiler, templateNode, typeMatchingStrategy)
 	return this

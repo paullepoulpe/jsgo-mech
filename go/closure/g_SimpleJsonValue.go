@@ -3,7 +3,7 @@
 package closure
 
 type SimpleJsonValue struct {
-	tag   *SimpleJsonValue_Kind
+	tag   SimpleJsonValue_Kind
 	text  string
 	items *JTList[*SimpleJsonValue]
 	named *JTMap[string, *SimpleJsonValue]
@@ -18,13 +18,13 @@ func (this *SimpleJsonValue) finit_SimpleJsonValue() {
 	this.named = jnewTMap_(jtc_string, tc_p_SimpleJsonValue)
 }
 
-func (this *SimpleJsonValue) init_SimpleJsonValue(tag *SimpleJsonValue_Kind, text string) {
+func (this *SimpleJsonValue) init_SimpleJsonValue(tag SimpleJsonValue_Kind, text string) {
 	this.finit_SimpleJsonValue()
 	this.tag = tag
 	this.text = text
 }
 
-func new_SimpleJsonValue(tag *SimpleJsonValue_Kind, text string) *SimpleJsonValue {
+func new_SimpleJsonValue(tag SimpleJsonValue_Kind, text string) *SimpleJsonValue {
 	this := &SimpleJsonValue{}
 	this.zero_SimpleJsonValue()
 	this.init_SimpleJsonValue(tag, text)
@@ -60,7 +60,7 @@ func SimpleJsonValue_ofNull() *SimpleJsonValue {
 	return new_SimpleJsonValue(SimpleJsonValue_Kind_NULL, "null")
 }
 
-func (this *SimpleJsonValue) kind() *SimpleJsonValue_Kind {
+func (this *SimpleJsonValue) kind() SimpleJsonValue_Kind {
 	return this.tag
 }
 
@@ -193,48 +193,63 @@ func (this *SimpleJsonValue) toString() string {
 	return writer.toString()
 }
 
-type SimpleJsonValue_Kind struct {
-	Enum
+type SimpleJsonValue_Kind uint8
+
+// SimpleJsonValue_Kind_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var SimpleJsonValue_Kind_enum_ = [6]Enum{
+	{self_: SimpleJsonValue_Kind_OBJECT, name_: "OBJECT", ordinal_: 0},
+	{self_: SimpleJsonValue_Kind_ARRAY, name_: "ARRAY", ordinal_: 1},
+	{self_: SimpleJsonValue_Kind_STRING, name_: "STRING", ordinal_: 2},
+	{self_: SimpleJsonValue_Kind_NUMBER, name_: "NUMBER", ordinal_: 3},
+	{self_: SimpleJsonValue_Kind_BOOLEAN, name_: "BOOLEAN", ordinal_: 4},
+	{self_: SimpleJsonValue_Kind_NULL, name_: "NULL", ordinal_: 5},
 }
 
-func (this *SimpleJsonValue_Kind) up_Enum() *Enum {
-	if this == nil {
+func (this SimpleJsonValue_Kind) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &SimpleJsonValue_Kind_enum_[this-1]
 }
 
-func (this *SimpleJsonValue_Kind) init_SimpleJsonValue_Kind(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this SimpleJsonValue_Kind) name() string { return SimpleJsonValue_Kind_enum_[this-1].name_ }
+
+func (this SimpleJsonValue_Kind) ordinal() int32 { return SimpleJsonValue_Kind_enum_[this-1].ordinal_ }
+
+func (this SimpleJsonValue_Kind) toString() string { return SimpleJsonValue_Kind_enum_[this-1].name_ }
+
+func (this SimpleJsonValue_Kind) compareTo(o any) int32 {
+	return SimpleJsonValue_Kind_enum_[this-1].compareTo(o)
 }
 
-func new_SimpleJsonValue_Kind(name_ string, ordinal_ int32) *SimpleJsonValue_Kind {
-	this := &SimpleJsonValue_Kind{}
-	this.self_ = this
-	this.init_SimpleJsonValue_Kind(name_, ordinal_)
+func (this SimpleJsonValue_Kind) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func SimpleJsonValue_Kind_values() []*SimpleJsonValue_Kind {
-	return append([]*SimpleJsonValue_Kind(nil), SimpleJsonValue_Kind_values_...)
+func SimpleJsonValue_Kind_values() []SimpleJsonValue_Kind {
+	return append([]SimpleJsonValue_Kind(nil), SimpleJsonValue_Kind_values_...)
 }
 
-func SimpleJsonValue_Kind_valueOf(name string) *SimpleJsonValue_Kind {
+func SimpleJsonValue_Kind_valueOf(name string) SimpleJsonValue_Kind {
 	for _, v := range SimpleJsonValue_Kind_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Kind", name))
 }
 
-var SimpleJsonValue_Kind_OBJECT *SimpleJsonValue_Kind
-var SimpleJsonValue_Kind_ARRAY *SimpleJsonValue_Kind
-var SimpleJsonValue_Kind_STRING *SimpleJsonValue_Kind
-var SimpleJsonValue_Kind_NUMBER *SimpleJsonValue_Kind
-var SimpleJsonValue_Kind_BOOLEAN *SimpleJsonValue_Kind
-var SimpleJsonValue_Kind_NULL *SimpleJsonValue_Kind
-var SimpleJsonValue_Kind_values_ []*SimpleJsonValue_Kind
+const SimpleJsonValue_Kind_OBJECT SimpleJsonValue_Kind = 1
+const SimpleJsonValue_Kind_ARRAY SimpleJsonValue_Kind = 2
+const SimpleJsonValue_Kind_STRING SimpleJsonValue_Kind = 3
+const SimpleJsonValue_Kind_NUMBER SimpleJsonValue_Kind = 4
+const SimpleJsonValue_Kind_BOOLEAN SimpleJsonValue_Kind = 5
+const SimpleJsonValue_Kind_NULL SimpleJsonValue_Kind = 6
+
+var SimpleJsonValue_Kind_values_ []SimpleJsonValue_Kind
 
 var SimpleJsonValue_Kind_clinit_done bool
 
@@ -243,13 +258,7 @@ func SimpleJsonValue_Kind_clinit() {
 		return
 	}
 	SimpleJsonValue_Kind_clinit_done = true
-	SimpleJsonValue_Kind_OBJECT = new_SimpleJsonValue_Kind("OBJECT", 0)
-	SimpleJsonValue_Kind_ARRAY = new_SimpleJsonValue_Kind("ARRAY", 1)
-	SimpleJsonValue_Kind_STRING = new_SimpleJsonValue_Kind("STRING", 2)
-	SimpleJsonValue_Kind_NUMBER = new_SimpleJsonValue_Kind("NUMBER", 3)
-	SimpleJsonValue_Kind_BOOLEAN = new_SimpleJsonValue_Kind("BOOLEAN", 4)
-	SimpleJsonValue_Kind_NULL = new_SimpleJsonValue_Kind("NULL", 5)
-	SimpleJsonValue_Kind_values_ = []*SimpleJsonValue_Kind{SimpleJsonValue_Kind_OBJECT, SimpleJsonValue_Kind_ARRAY, SimpleJsonValue_Kind_STRING, SimpleJsonValue_Kind_NUMBER, SimpleJsonValue_Kind_BOOLEAN, SimpleJsonValue_Kind_NULL}
+	SimpleJsonValue_Kind_values_ = []SimpleJsonValue_Kind{SimpleJsonValue_Kind_OBJECT, SimpleJsonValue_Kind_ARRAY, SimpleJsonValue_Kind_STRING, SimpleJsonValue_Kind_NUMBER, SimpleJsonValue_Kind_BOOLEAN, SimpleJsonValue_Kind_NULL}
 	registerEnum_("com.google.javascript.jscomp.base.SimpleJsonValue.Kind", enumValues_(SimpleJsonValue_Kind_values_))
 
 }

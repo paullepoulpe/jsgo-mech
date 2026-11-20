@@ -62,7 +62,7 @@ func new_RecordType(registry *JSTypeRegistry, properties MapOf[string, *RecordTy
 	return this
 }
 
-func (this *RecordType) getTypeClass_impl() *JSTypeClass {
+func (this *RecordType) getTypeClass_impl() JSTypeClass {
 	return RecordType_TYPE_CLASS_FIELD
 }
 
@@ -142,7 +142,7 @@ func (this *RecordType) isStructuralType_impl() bool {
 	return true
 }
 
-var RecordType_TYPE_CLASS_FIELD *JSTypeClass
+var RecordType_TYPE_CLASS_FIELD JSTypeClass
 
 var RecordType_clinit_done bool
 
@@ -156,7 +156,7 @@ func RecordType_clinit() {
 }
 
 // getTypeClass: an object that is exactly a RecordType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *RecordType) getTypeClass() *JSTypeClass {
+func (this *RecordType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}

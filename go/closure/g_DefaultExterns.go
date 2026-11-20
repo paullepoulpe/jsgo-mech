@@ -15,7 +15,7 @@ func new_DefaultExterns() *DefaultExterns {
 	return this
 }
 
-func DefaultExterns_prepareExterns(env *CompilerOptions_Environment, externs *JTMap[string, *SourceFile_jscomp]) *JTList[*SourceFile_jscomp] {
+func DefaultExterns_prepareExterns(env CompilerOptions_Environment, externs *JTMap[string, *SourceFile_jscomp]) *JTList[*SourceFile_jscomp] {
 	var out *JTList[*SourceFile_jscomp] = jnewTList_(jtc_p_SourceFile_jscomp)
 	it_1 := DefaultExterns_BUILTIN_LANG_EXTERNS.each()
 	for it_1.next() {
