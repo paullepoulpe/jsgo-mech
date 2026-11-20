@@ -40,7 +40,9 @@ func (this *DependencyInfo_Require) zero_DependencyInfo_Require() {
 }
 
 func (this *DependencyInfo_Require) init_DependencyInfo_Require(getSymbol string, getRawText string, getType DependencyInfo_Require_Type) {
-	Objects_requireNonNull_T(getType, "getType")
+	if getType == 0 {
+		panic(new_NullPointerException_String("getType").self())
+	}
 	this.getSymbol_ = getSymbol
 	this.getRawText_ = getRawText
 	this.getType_ = getType
@@ -123,7 +125,7 @@ func (this *DependencyInfo_Require) hashCode() int32 {
 	var h int32
 	h = h*31 + strhash_(this.getSymbol_)
 	h = h*31 + strhash_(this.getRawText_)
-	h = h*31 + hash_(this.getType_)
+	h = h*31 + objhashId_(this.getType_)
 	return h
 }
 

@@ -25,11 +25,21 @@ func (this *JsMessage) zero_JsMessage() {
 }
 
 func (this *JsMessage) init_JsMessage(getSourceName Optional[string], getKey string, isAnonymous bool, isExternal bool, getId string, getParts *JTList[JsMessage_Part], getGenderedMessagesMap *JTMap[JsMessage_GrammaticalGenderCase, *ImmutableList], getAlternateId Optional[string], getDesc Optional[string], getMeaning Optional[string], getPlaceholderNameToExampleMap *JTMap[string, string], getPlaceholderNameToOriginalCodeMap *JTMap[string, string], jsPlaceholderNames *JTSet[string], canonicalPlaceholderNames *JTSet[string]) {
-	Objects_requireNonNull(getParts.asList(), "getParts")
-	Objects_requireNonNull(getPlaceholderNameToExampleMap.asMap(), "getPlaceholderNameToExampleMap")
-	Objects_requireNonNull(getPlaceholderNameToOriginalCodeMap.asMap(), "getPlaceholderNameToOriginalCodeMap")
-	Objects_requireNonNull(jsPlaceholderNames.asSet(), "jsPlaceholderNames")
-	Objects_requireNonNull(canonicalPlaceholderNames.asSet(), "canonicalPlaceholderNames")
+	if getParts.asList() == nil {
+		panic(new_NullPointerException_String("getParts").self())
+	}
+	if getPlaceholderNameToExampleMap.asMap() == nil {
+		panic(new_NullPointerException_String("getPlaceholderNameToExampleMap").self())
+	}
+	if getPlaceholderNameToOriginalCodeMap.asMap() == nil {
+		panic(new_NullPointerException_String("getPlaceholderNameToOriginalCodeMap").self())
+	}
+	if jsPlaceholderNames.asSet() == nil {
+		panic(new_NullPointerException_String("jsPlaceholderNames").self())
+	}
+	if canonicalPlaceholderNames.asSet() == nil {
+		panic(new_NullPointerException_String("canonicalPlaceholderNames").self())
+	}
 	this.getSourceName_ = getSourceName
 	this.getKey_ = getKey
 	this.isAnonymous_ = isAnonymous
@@ -271,15 +281,15 @@ func (this *JsMessage) hashCode() int32 {
 	h = h*31 + boolhash_(this.isAnonymous_)
 	h = h*31 + boolhash_(this.isExternal_)
 	h = h*31 + strhash_(this.getId_)
-	h = h*31 + Objects_hashCode(this.getParts_.asList())
-	h = h*31 + Objects_hashCode(this.getGenderedMessagesMap_.asMap())
+	h = h*31 + objhashVia_(this.getParts_.asList())
+	h = h*31 + objhashDyn_(this.getGenderedMessagesMap_.asMap())
 	h = h*31 + Objects_hashCode(this.getAlternateId_.box_())
 	h = h*31 + Objects_hashCode(this.getDesc_.box_())
 	h = h*31 + Objects_hashCode(this.getMeaning_.box_())
-	h = h*31 + Objects_hashCode(this.getPlaceholderNameToExampleMap_.asMap())
-	h = h*31 + Objects_hashCode(this.getPlaceholderNameToOriginalCodeMap_.asMap())
-	h = h*31 + Objects_hashCode(this.jsPlaceholderNames_.asSet())
-	h = h*31 + Objects_hashCode(this.canonicalPlaceholderNames_.asSet())
+	h = h*31 + objhashDyn_(this.getPlaceholderNameToExampleMap_.asMap())
+	h = h*31 + objhashDyn_(this.getPlaceholderNameToOriginalCodeMap_.asMap())
+	h = h*31 + objhashDyn_(this.jsPlaceholderNames_.asSet())
+	h = h*31 + objhashDyn_(this.canonicalPlaceholderNames_.asSet())
 	return h
 }
 

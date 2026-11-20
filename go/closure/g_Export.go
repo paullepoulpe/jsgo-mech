@@ -16,7 +16,9 @@ type Export struct {
 }
 
 func (this *Export) init_Export(exportName Optional[string], moduleRequest Optional[string], importName Optional[string], localName Optional[string], modulePath *ModuleLoader_ModulePath, exportNode Node, nameNode Node, moduleMetadata *ModuleMetadataMap_ModuleMetadata, closureNamespace Optional[string], mutated bool) {
-	Objects_requireNonNull_T(moduleMetadata, "moduleMetadata")
+	if moduleMetadata == nil {
+		panic(new_NullPointerException_String("moduleMetadata").self())
+	}
 	this.exportName_ = exportName
 	this.moduleRequest_ = moduleRequest
 	this.importName_ = importName
@@ -92,7 +94,7 @@ func (this *Export) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.exportName_.box_(), o.exportName_.box_()) && Objects_equals(this.moduleRequest_.box_(), o.moduleRequest_.box_()) && Objects_equals(this.importName_.box_(), o.importName_.box_()) && Objects_equals(this.localName_.box_(), o.localName_.box_()) && this.modulePath_ == o.modulePath_ && this.exportNode_ == o.exportNode_ && this.nameNode_ == o.nameNode_ && equals_(this.moduleMetadata_, o.moduleMetadata_) && Objects_equals(this.closureNamespace_.box_(), o.closureNamespace_.box_()) && this.mutated_ == o.mutated_
+	return true && Objects_equals(this.exportName_.box_(), o.exportName_.box_()) && Objects_equals(this.moduleRequest_.box_(), o.moduleRequest_.box_()) && Objects_equals(this.importName_.box_(), o.importName_.box_()) && Objects_equals(this.localName_.box_(), o.localName_.box_()) && this.modulePath_ == o.modulePath_ && this.exportNode_ == o.exportNode_ && this.nameNode_ == o.nameNode_ && objequalsBy_(this.moduleMetadata_, obj_(o.moduleMetadata_), (*ModuleMetadataMap_ModuleMetadata).equals) && Objects_equals(this.closureNamespace_.box_(), o.closureNamespace_.box_()) && this.mutated_ == o.mutated_
 }
 
 func (this *Export) hashCode() int32 {
@@ -101,10 +103,10 @@ func (this *Export) hashCode() int32 {
 	h = h*31 + Objects_hashCode(this.moduleRequest_.box_())
 	h = h*31 + Objects_hashCode(this.importName_.box_())
 	h = h*31 + Objects_hashCode(this.localName_.box_())
-	h = h*31 + hash_(this.modulePath_)
-	h = h*31 + hashH_(this.exportNode_)
-	h = h*31 + hashH_(this.nameNode_)
-	h = h*31 + hash_(this.moduleMetadata_)
+	h = h*31 + objhashId_(this.modulePath_)
+	h = h*31 + objhashId_(this.exportNode_)
+	h = h*31 + objhashId_(this.nameNode_)
+	h = h*31 + objhashBy_(this.moduleMetadata_, (*ModuleMetadataMap_ModuleMetadata).hashCode)
 	h = h*31 + Objects_hashCode(this.closureNamespace_.box_())
 	h = h*31 + boolhash_(this.mutated_)
 	return h

@@ -347,12 +347,12 @@ func (this *Property_SymbolKey) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && equals_(this.symbol_, o.symbol_)
+	return true && objequalsBy_(this.symbol_, obj_(o.symbol_), (*KnownSymbolType).equals)
 }
 
 func (this *Property_SymbolKey) hashCode() int32 {
 	var h int32
-	h = h*31 + hash_(this.symbol_)
+	h = h*31 + objhashBy_(this.symbol_, (*KnownSymbolType).hashCode)
 	return h
 }
 

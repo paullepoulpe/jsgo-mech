@@ -154,15 +154,33 @@ type ModuleMetadataMap_ModuleMetadata struct {
 }
 
 func (this *ModuleMetadataMap_ModuleMetadata) init_ModuleMetadataMap_ModuleMetadata(moduleType ModuleMetadataMap_ModuleType, rootNode Node, usesClosure bool, isTestOnly bool, googNamespaces *SimpleMultiset, stronglyRequiredGoogNamespaces *SimpleMultiset, dynamicallyRequiredGoogNamespaces *SimpleMultiset, maybeRequiredGoogNamespaces *SimpleMultiset, weaklyRequiredGoogNamespaces *SimpleMultiset, es6ImportSpecifiers *SimpleMultiset, nestedModules *JTList[*ModuleMetadataMap_ModuleMetadata], readToggles *SimpleMultiset, path *ModuleLoader_ModulePath) {
-	Objects_requireNonNull_T(moduleType, "moduleType")
-	Objects_requireNonNull_T(googNamespaces, "googNamespaces")
-	Objects_requireNonNull_T(stronglyRequiredGoogNamespaces, "stronglyRequiredGoogNamespaces")
-	Objects_requireNonNull_T(dynamicallyRequiredGoogNamespaces, "dynamicallyRequiredGoogNamespaces")
-	Objects_requireNonNull_T(maybeRequiredGoogNamespaces, "maybeRequiredGoogNamespaces")
-	Objects_requireNonNull_T(weaklyRequiredGoogNamespaces, "weaklyRequiredGoogNamespaces")
-	Objects_requireNonNull_T(es6ImportSpecifiers, "es6ImportSpecifiers")
-	Objects_requireNonNull(nestedModules.asList(), "nestedModules")
-	Objects_requireNonNull_T(readToggles, "readToggles")
+	if moduleType == 0 {
+		panic(new_NullPointerException_String("moduleType").self())
+	}
+	if googNamespaces == nil {
+		panic(new_NullPointerException_String("googNamespaces").self())
+	}
+	if stronglyRequiredGoogNamespaces == nil {
+		panic(new_NullPointerException_String("stronglyRequiredGoogNamespaces").self())
+	}
+	if dynamicallyRequiredGoogNamespaces == nil {
+		panic(new_NullPointerException_String("dynamicallyRequiredGoogNamespaces").self())
+	}
+	if maybeRequiredGoogNamespaces == nil {
+		panic(new_NullPointerException_String("maybeRequiredGoogNamespaces").self())
+	}
+	if weaklyRequiredGoogNamespaces == nil {
+		panic(new_NullPointerException_String("weaklyRequiredGoogNamespaces").self())
+	}
+	if es6ImportSpecifiers == nil {
+		panic(new_NullPointerException_String("es6ImportSpecifiers").self())
+	}
+	if nestedModules.asList() == nil {
+		panic(new_NullPointerException_String("nestedModules").self())
+	}
+	if readToggles == nil {
+		panic(new_NullPointerException_String("readToggles").self())
+	}
 	this.moduleType_ = moduleType
 	this.rootNode_ = rootNode
 	this.usesClosure_ = usesClosure

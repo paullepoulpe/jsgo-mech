@@ -18,8 +18,12 @@ func (this *Import) zero_Import() {
 }
 
 func (this *Import) init_Import(moduleRequest string, importName string, localName string, modulePath *ModuleLoader_ModulePath, importNode Node, nameNode Node) {
-	Objects_requireNonNull_T(importNode, "importNode")
-	Objects_requireNonNull_T(nameNode, "nameNode")
+	if importNode == 0 {
+		panic(new_NullPointerException_String("importNode").self())
+	}
+	if nameNode == 0 {
+		panic(new_NullPointerException_String("nameNode").self())
+	}
 	this.moduleRequest_ = moduleRequest
 	this.importName_ = importName
 	this.localName_ = localName
@@ -76,9 +80,9 @@ func (this *Import) hashCode() int32 {
 	h = h*31 + strhash_(this.moduleRequest_)
 	h = h*31 + strhash_(this.importName_)
 	h = h*31 + strhash_(this.localName_)
-	h = h*31 + hash_(this.modulePath_)
-	h = h*31 + hashH_(this.importNode_)
-	h = h*31 + hashH_(this.nameNode_)
+	h = h*31 + objhashId_(this.modulePath_)
+	h = h*31 + objhashId_(this.importNode_)
+	h = h*31 + objhashId_(this.nameNode_)
 	return h
 }
 

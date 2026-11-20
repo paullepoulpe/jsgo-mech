@@ -12,8 +12,12 @@ type Binding struct {
 }
 
 func (this *Binding) init_Binding(metadata *ModuleMetadataMap_ModuleMetadata, sourceNode Node, originatingExport *Export, isModuleNamespace bool, closureNamespace Optional[string], createdBy Binding_CreatedBy) {
-	Objects_requireNonNull_T(metadata, "metadata")
-	Objects_requireNonNull_T(createdBy, "createdBy")
+	if metadata == nil {
+		panic(new_NullPointerException_String("metadata").self())
+	}
+	if createdBy == 0 {
+		panic(new_NullPointerException_String("createdBy").self())
+	}
 	this.metadata_ = metadata
 	this.sourceNode_ = sourceNode
 	this.originatingExport_ = originatingExport
@@ -102,17 +106,17 @@ func (this *Binding) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && equals_(this.metadata_, o.metadata_) && this.sourceNode_ == o.sourceNode_ && equals_(this.originatingExport_, o.originatingExport_) && this.isModuleNamespace_ == o.isModuleNamespace_ && Objects_equals(this.closureNamespace_.box_(), o.closureNamespace_.box_()) && this.createdBy_ == o.createdBy_
+	return true && objequalsBy_(this.metadata_, obj_(o.metadata_), (*ModuleMetadataMap_ModuleMetadata).equals) && this.sourceNode_ == o.sourceNode_ && objequalsBy_(this.originatingExport_, obj_(o.originatingExport_), (*Export).equals) && this.isModuleNamespace_ == o.isModuleNamespace_ && Objects_equals(this.closureNamespace_.box_(), o.closureNamespace_.box_()) && this.createdBy_ == o.createdBy_
 }
 
 func (this *Binding) hashCode() int32 {
 	var h int32
-	h = h*31 + hash_(this.metadata_)
-	h = h*31 + hashH_(this.sourceNode_)
-	h = h*31 + hash_(this.originatingExport_)
+	h = h*31 + objhashBy_(this.metadata_, (*ModuleMetadataMap_ModuleMetadata).hashCode)
+	h = h*31 + objhashId_(this.sourceNode_)
+	h = h*31 + objhashBy_(this.originatingExport_, (*Export).hashCode)
 	h = h*31 + boolhash_(this.isModuleNamespace_)
 	h = h*31 + Objects_hashCode(this.closureNamespace_.box_())
-	h = h*31 + hash_(this.createdBy_)
+	h = h*31 + objhashId_(this.createdBy_)
 	return h
 }
 

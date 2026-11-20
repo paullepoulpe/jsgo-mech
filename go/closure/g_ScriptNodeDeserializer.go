@@ -334,13 +334,13 @@ func (this *ScriptNodeDeserializer) deserializeSingleNode(n *AstNode, templateNo
 		return this.newNodeFromTemplate(Token_rhino_DEFAULT_VALUE, templateNode)
 	case NodeKind_RENAMABLE_GETTER_DEF, NodeKind_QUOTED_GETTER_DEF:
 		var getterDef Node = this.stringNode(Token_rhino_GETTER_DEF, n, templateNode)
-		if equalsRR_(n.getKind(), NodeKind_QUOTED_GETTER_DEF) {
+		if equalsId_(n.getKind(), NodeKind_QUOTED_GETTER_DEF) {
 			getterDef.setQuotedStringKey()
 		}
 		return getterDef
 	case NodeKind_RENAMABLE_SETTER_DEF, NodeKind_QUOTED_SETTER_DEF:
 		var setterDef Node = this.stringNode(Token_rhino_SETTER_DEF, n, templateNode)
-		if equalsRR_(n.getKind(), NodeKind_QUOTED_SETTER_DEF) {
+		if equalsId_(n.getKind(), NodeKind_QUOTED_SETTER_DEF) {
 			setterDef.setQuotedStringKey()
 		}
 		return setterDef

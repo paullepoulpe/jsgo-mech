@@ -219,11 +219,11 @@ func (this *SimpleListMultimap) equals(o any) bool {
 		}
 		that = p
 		return true
-	}() && equalsRR_(this.map__, that.map__))
+	}() && equalsBy_(this.map__, obj_(that.map__), (LinkedHashMapOf[any, ListOf[any]]).equals))
 }
 
 func (this *SimpleListMultimap) hashCode() int32 {
-	return hashR_(this.map__)
+	return hashBy_(this.map__, (LinkedHashMapOf[any, ListOf[any]]).hashCode)
 }
 
 func (this *SimpleListMultimap) toString() string {

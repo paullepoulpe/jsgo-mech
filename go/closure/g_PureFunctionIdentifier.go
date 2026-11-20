@@ -688,10 +688,10 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) exitScope(t *NodeTraver
 		return
 	}
 	var functionEntry *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry = cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque())))
-	if ok_, a1_ := equalsRRH_(functionScope.getRootNode(), functionEntry.root), functionScope.getRootNode(); !ok_ {
+	if ok_, a1_ := equalsId_(functionScope.getRootNode(), functionEntry.root), functionScope.getRootNode(); !ok_ {
 		panic(new_IllegalStateException_String(objstr_(a1_.box_())).self())
 	}
-	if equalsRRH_(t.getScopeRoot(), functionEntry.root) {
+	if equalsId_(t.getScopeRoot(), functionEntry.root) {
 		SequencedCollection_removeLast(SequencedCollection(this.functionScopeStack.asDeque()))
 	}
 	it_1 := foreach_(this.outer_.summariesForAllNamesOfFunctionByNode.get(functionEntry.root.box_()))
@@ -1073,7 +1073,7 @@ func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) setCollectImpureDe
 }
 
 func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) toString() string {
-	return tostrR_(MoreObjects_toStringHelper_Class(Object_getClass(this)).add("name", strobj_(this.name_)).add_String_int("graphNode", hashR_(this.graphNode)).add("sideEffects", strobj_(this.sideEffectsToString())))
+	return tostrR_(MoreObjects_toStringHelper_Class(Object_getClass(this)).add("name", strobj_(this.name_)).add_String_int("graphNode", hashId_(this.graphNode)).add("sideEffects", strobj_(this.sideEffectsToString())))
 }
 
 func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) sideEffectsToString() string {

@@ -77,7 +77,7 @@ func (this *SourceMapSection) equals(p0 any) bool {
 
 func (this *SourceMapSection) hashCode() int32 {
 	var h int32
-	h = h*31 + hash_(this.type__)
+	h = h*31 + objhashId_(this.type__)
 	h = h*31 + strhash_(this.value_)
 	h = h*31 + this.line_
 	h = h*31 + this.column_

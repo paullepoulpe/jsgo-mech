@@ -214,7 +214,9 @@ type CodingConvention_AssertionFunctionSpec struct {
 }
 
 func (this *CodingConvention_AssertionFunctionSpec) init_CodingConvention_AssertionFunctionSpec(getFunctionName Optional[string], getClosurePrimitive ClosurePrimitive, getAssertionKind CodingConvention_AssertionFunctionSpec_AssertionKind, getParamIndex int32) {
-	Objects_requireNonNull_T(getAssertionKind, "getAssertionKind")
+	if getAssertionKind == 0 {
+		panic(new_NullPointerException_String("getAssertionKind").self())
+	}
 	this.getFunctionName_ = getFunctionName
 	this.getClosurePrimitive_ = getClosurePrimitive
 	this.getAssertionKind_ = getAssertionKind
@@ -289,8 +291,8 @@ func (this *CodingConvention_AssertionFunctionSpec) equals(p0 any) bool {
 func (this *CodingConvention_AssertionFunctionSpec) hashCode() int32 {
 	var h int32
 	h = h*31 + Objects_hashCode(this.getFunctionName_.box_())
-	h = h*31 + hash_(this.getClosurePrimitive_)
-	h = h*31 + hash_(this.getAssertionKind_)
+	h = h*31 + objhashId_(this.getClosurePrimitive_)
+	h = h*31 + objhashId_(this.getAssertionKind_)
 	h = h*31 + this.getParamIndex_
 	return h
 }

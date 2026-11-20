@@ -448,7 +448,7 @@ func (this *CheckSuper_ConstructorContext) visitSuperConstructorCall_impl(t *Nod
 		this.hasMultipleSuperCalls = true
 	}
 	var call Node = superNode.getParent()
-	if ((this.rootLevelSuperCall == 0) && equalsRRH_(NodeUtil_getEnclosingStatement(call).getParent(), NodeUtil_getFunctionBody(this.getContextNode()))) && NodeUtil_isExecutedExactlyOnce(call) {
+	if ((this.rootLevelSuperCall == 0) && equalsId_(NodeUtil_getEnclosingStatement(call).getParent(), NodeUtil_getFunctionBody(this.getContextNode()))) && NodeUtil_isExecutedExactlyOnce(call) {
 		this.rootLevelSuperCall = superNode
 	}
 }
