@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type SuggestedFix struct {
 	matchedNodeInfo *SuggestedFix_MatchedNodeInfo
 	replacements    *SimpleSetMultimap
@@ -214,7 +216,7 @@ func (this *SuggestedFix_Builder) insertBefore(nodeToInsertBefore Node, content 
 
 func (this *SuggestedFix_Builder) insertBeforeString(nodeToInsertBefore Node, content string, sortKey string) *SuggestedFix_Builder {
 	var startPosition int32 = SuggestedFix_getStartPositionForNodeConsideringComments(nodeToInsertBefore)
-	if String_isEmpty(nodeToInsertBefore.getSourceFileName()) {
+	if nodeToInsertBefore.getSourceFileName() == "" {
 		Preconditions_checkState_boolean_String_Object_H(false, "No source file name for node: %s", nodeToInsertBefore)
 	}
 	this.replacements.put_s(nodeToInsertBefore.getSourceFileName(), obj_(CodeReplacement_create_int_int_String_String(startPosition, 0, content, sortKey)))
@@ -325,11 +327,11 @@ func (this *SuggestedFix_Builder) replace(original Node, newNode Node, compiler 
 		original = parent
 	}
 	var newCode string = this.generateCode(compiler, newNode)
-	if String_endsWith(newCode, "\n") {
+	if strings.HasSuffix(newCode, "\n") {
 		newCode = String_substring(newCode, 0, (String_length(newCode) - 1))
 	}
 	var needsSemicolon bool = ((parent != 0) && (((parent.isExprResult() || parent.isBlock()) || parent.isScript()) || parent.isModuleBody()))
-	if String_endsWith(newCode, ";") && !needsSemicolon {
+	if strings.HasSuffix(newCode, ";") && !needsSemicolon {
 		newCode = String_substring(newCode, 0, (String_length(newCode) - 1))
 	}
 	if (parent != 0) && IR_mayBeExpression(parent) {
@@ -523,7 +525,7 @@ func (this *SuggestedFix_Builder) addImport(m *Match, namespace string, importTy
 		var existingAlias Optional[string] = scriptMetadata.getAlias(namespace)
 		if existingAlias.isPresent() {
 			alias = existingAlias
-		} else if String_indexOf(namespace, 46) == -1 {
+		} else if !strings.Contains(namespace, ".") {
 			alias = Optional_of[string](namespace)
 		} else {
 			alias = Optional_of[string](SuggestedFix_Builder_firstUnusedAlias(namespace, scriptMetadata))
@@ -574,7 +576,7 @@ func (this *SuggestedFix_Builder) addImport(m *Match, namespace string, importTy
 			lastGoogRequireNode = child.getFirstFirstChild()
 			var requireName string = child.getFirstChild().getString()
 			var originalName string = child.getFirstChild().getOriginalName()
-			if !String_isEmpty(originalName) {
+			if originalName != "" {
 				requireName = originalName
 			}
 			if String_compareTo(alias.get(), requireName) < 0 {

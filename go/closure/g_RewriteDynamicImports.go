@@ -75,7 +75,7 @@ func (this *RewriteDynamicImports) visit_impl(t *NodeTraversal, n Node, parent N
 	var importSpecifier Node = n.getFirstChild()
 	if importSpecifier.isStringLit() && (moduleMap != nil) {
 		var targetPath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importSpecifier.getString(), Optional_of[string](n.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}}), n.getLineno(), n.getCharno())
 		var module *Module = func() *Module {
 			if targetPath == nil {

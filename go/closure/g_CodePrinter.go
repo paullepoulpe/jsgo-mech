@@ -135,7 +135,7 @@ func (this *CodePrinter_MappedCodePrinter) startSourceMapping_impl(node Node) {
 	if node == 0 {
 		panic(new_IllegalStateException_0().self())
 	}
-	if ((this.createSrcMap && !String_isEmpty(node.getSourceFileName())) && (node.getLineno() > 0)) && this.sourceMapDetailLevel.apply(node.box_()) {
+	if ((this.createSrcMap && node.getSourceFileName() != "") && (node.getLineno() > 0)) && this.sourceMapDetailLevel.apply(node.box_()) {
 		var line int32 = this.getCurrentLineIndex()
 		var index int32 = this.getCurrentCharIndex()
 		if line < 0 {
@@ -294,7 +294,7 @@ func (this *CodePrinter_PrettyCodePrinter) append_impl(str string) {
 	if (this.lineLength == 0) && !this.isInTemplateLiteral() {
 		for i := int32(0); i < this.indent_; i++ {
 			this.code_.append(CodePrinter_PrettyCodePrinter_INDENT)
-			this.lineLength += String_length(CodePrinter_PrettyCodePrinter_INDENT)
+			this.lineLength += int32(len(CodePrinter_PrettyCodePrinter_INDENT))
 		}
 	}
 	this.CodePrinter_MappedCodePrinter.append_impl(str)

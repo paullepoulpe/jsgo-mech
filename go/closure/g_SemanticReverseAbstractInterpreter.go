@@ -378,7 +378,7 @@ func (this *SemanticReverseAbstractInterpreter) caseIn(object Node, propertyName
 	}
 	if !hasProperty {
 		var qualifiedName string = object.getQualifiedName()
-		if !String_isEmpty(qualifiedName) {
+		if qualifiedName != "" {
 			var propertyQualifiedName string = (sstr_(qualifiedName) + "." + sstr_(propertyName))
 			if blindScope.getSlot_String_rStaticTypedSlot(propertyQualifiedName) == nil {
 				var unknownType *JSType = this.typeRegistry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
