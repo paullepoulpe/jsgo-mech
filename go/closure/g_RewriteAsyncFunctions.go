@@ -202,7 +202,7 @@ func (this *RewriteAsyncFunctions_SuperPropertyWrappers) getOrCreateSuperPropert
 		superPropertyWrapperInfo = this.propertyNameToTypeMap.Get(propertyName)
 		var existingColor *Color = superPropertyWrapperInfo.getPropertyType()
 		if !objequalsBy_(existingColor, obj_(propertyType), (*Color).equals) {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Previous reference type: %s differs from current reference type: %s", []any{existingColor, propertyType})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Previous reference type: %s differs from current reference type: %s", existingColor, propertyType)))
 		}
 	} else {
 		superPropertyWrapperInfo = this.createNewInfo(superDotPropertyNode)

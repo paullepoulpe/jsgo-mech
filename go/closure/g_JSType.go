@@ -483,7 +483,7 @@ func (this *JSType) toMaybeFunctionType_impl() *FunctionType {
 func (this *JSType) assertFunctionType() *FunctionType {
 	var result *FunctionType = this.toMaybeFunctionType()
 	if result == nil {
-		panic(new_NullPointerException_String(Strings_lenientFormat("not a FunctionType: %s", []any{this})))
+		panic(new_NullPointerException_String(Strings_lenientFormat("not a FunctionType: %s", this)))
 	}
 	return result
 }
@@ -491,7 +491,7 @@ func (this *JSType) assertFunctionType() *FunctionType {
 func (this *JSType) assertObjectType() *ObjectType {
 	var result *ObjectType = this.toMaybeObjectType()
 	if result == nil {
-		panic(new_NullPointerException_String(Strings_lenientFormat("Not an ObjectType: %s", []any{this})))
+		panic(new_NullPointerException_String(Strings_lenientFormat("Not an ObjectType: %s", this)))
 	}
 	return result
 }

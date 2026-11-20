@@ -1357,7 +1357,7 @@ func (this *ConformanceRules_BannedStringRegex) checkConformance_impl(traversal 
 			}
 		} else {
 			if ok_, a1_ := ConformanceRules_isTaggedTemplateLitString(node), node.getRawString(); !ok_ {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Found untagged template literal with invalid (uncookable) escape sequence: %s", []any{a1_})))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Found untagged template literal with invalid (uncookable) escape sequence: %s", a1_)))
 			}
 			var rawString string = node.getRawString()
 			if this.stringPattern.matcher_s(rawString).matches() {
@@ -3496,7 +3496,7 @@ func ConformanceRules_SecuritySensitiveAttributes_clinit() {
 		return
 	}
 	ConformanceRules_SecuritySensitiveAttributes_clinit_done = true
-	ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr("href", "rel", "src", "srcdoc", "action", "formaction", []any{"sandbox", "icon", "codebase", "data"})
+	ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr("href", "rel", "src", "srcdoc", "action", "formaction", "sandbox", "icon", "codebase", "data")
 
 }
 

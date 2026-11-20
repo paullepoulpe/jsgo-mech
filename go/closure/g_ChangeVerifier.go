@@ -108,7 +108,7 @@ func (this *ChangeVerifier) verifyNodeChange(passNameMsg string, n Node, snapsho
 		}
 	} else {
 		if !result.equals_0() {
-			panic(new_IllegalStateException_String(String_format("\"%schanged scope not marked as changed: %s.\n%s\nAncestor nodes:\n%s\n", []any{strobj_(passNameMsg), strobj_(this.getNameForNode(n)), result.errorMessage_.get(), strobj_(this.path(n, result.errorNode()))})))
+			panic(new_IllegalStateException_String(String_format("\"%schanged scope not marked as changed: %s.\n%s\nAncestor nodes:\n%s\n", strobj_(passNameMsg), strobj_(this.getNameForNode(n)), result.errorMessage_.get(), strobj_(this.path(n, result.errorNode())))))
 		}
 	}
 }

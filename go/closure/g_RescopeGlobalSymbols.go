@@ -346,7 +346,7 @@ func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) visit_impl(t *NodeTrav
 			var c Node = n.getFirstChild()
 			for ; c != 0; c = c.getNext() {
 				if c.isDestructuringLhs() {
-					panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected DESTRUCTURING_LHS child: %s", []any{c.box_()})))
+					panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected DESTRUCTURING_LHS child: %s", c.box_())))
 				}
 				if this.preserveLocalVarDeclarations && c.isName() {
 					if currentVar == 0 {

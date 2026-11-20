@@ -223,7 +223,7 @@ func (this *Normalize_NormalizeStatements) annotateConstantsByConvention(n Node)
 	}
 	if !n.getBooleanProp(Node_IS_CONSTANT_NAME) && NodeUtil_isConstantByConvention(this.compiler_.getCodingConvention(), n) {
 		if this.assertOnChange_ {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Not marked as constant when it should be: %s", []any{n.box_()})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Not marked as constant when it should be: %s", n.box_())))
 		}
 		n.putBooleanProp(Node_IS_CONSTANT_NAME, true)
 	}
@@ -231,7 +231,7 @@ func (this *Normalize_NormalizeStatements) annotateConstantsByConvention(n Node)
 
 func (this *Normalize_NormalizeStatements) annotateFunctionExpressionNameAsConstant(n Node) {
 	if ok_, a1_ := n.isName(), tostrR_(n.getToken()); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected NAME node but got %s", []any{a1_})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected NAME node but got %s", a1_)))
 	}
 	if Normalize_isFunctionExpressionNameNode(n) {
 		n.putBooleanProp(Node_IS_CONSTANT_NAME, true)
@@ -339,7 +339,7 @@ func (this *Normalize_NormalizeStatements) rewriteVarDestructuringDeclaration(de
 	var var_ Node = destructuringLhs.getParent()
 	NodeUtil_visitLhsNodesInNode(destructuringLhs, func(name Node) {
 		if !name.isName() {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("lhs in destructuring declaration should be a simple name. (%s)", []any{name.box_()})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("lhs in destructuring declaration should be a simple name. (%s)", name.box_())))
 		}
 		var newName Node = IR_name(name.getString()).srcref(name)
 		if name.getBooleanProp(Node_IS_CONSTANT_NAME) {
@@ -409,7 +409,7 @@ func (this *Normalize_NormalizeStatements) extractForInitializer(n Node, before 
 					if lhs.isDestructuringLhs() {
 						NodeUtil_visitLhsNodesInNode(lhs, func(name Node) {
 							if !name.isName() {
-								panic(new_IllegalStateException_String(Strings_lenientFormat("lhs in destructuring declaration should be a simple name. (%s)", []any{name.box_()})))
+								panic(new_IllegalStateException_String(Strings_lenientFormat("lhs in destructuring declaration should be a simple name. (%s)", name.box_())))
 							}
 							var newName Node = IR_name(name.getString()).srcref(name)
 							var newVar Node = IR_var_Node(newName).srcref(name)

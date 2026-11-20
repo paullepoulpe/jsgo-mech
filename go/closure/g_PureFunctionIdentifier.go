@@ -84,7 +84,7 @@ func (this *PureFunctionIdentifier) validateArtificialPurity() {
 }
 
 func PureFunctionIdentifier_formatSourceLocation(node Node) string {
-	return String_format("%s:%s:%s", []any{strobj_(node.getSourceFileName()), int32(node.getLineno()), int32(node.getCharno())})
+	return String_format("%s:%s:%s", strobj_(node.getSourceFileName()), int32(node.getLineno()), int32(node.getCharno()))
 }
 
 func PureFunctionIdentifier_collectCallableLeaves(expr Node, astAnalyzer *AstAnalyzer) *TList[Node] {
@@ -204,7 +204,7 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) *TLis
 			}
 			var summariesForFunction CollectionOf[*PureFunctionIdentifier_AmbiguatedFunctionSummary] = Collection(this.summariesForAllNamesOfFunctionByNode.get(callee.box_()))
 			if summariesForFunction.isEmpty() {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Function missed during analysis: %s", []any{callee.box_()})))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Function missed during analysis: %s", callee.box_())))
 			}
 			results.addAll(Iterable(summariesForFunction))
 		} else {
@@ -663,7 +663,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) exitScope(t *NodeTraver
 	}
 	for sideEffectInfo := range elemsAs_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](this.outer_.summariesForAllNamesOfFunctionByNode.get(functionEntry.root.box_())) {
 		if v_, a1_ := sideEffectInfo, functionEntry.root; v_ == nil {
-			panic(new_NullPointerException_String(Strings_lenientFormat("%s has no side effect info.", []any{a1_.box_()})))
+			panic(new_NullPointerException_String(Strings_lenientFormat("%s has no side effect info.", a1_.box_())))
 		}
 		if sideEffectInfo.mutatesGlobalState() {
 			continue
