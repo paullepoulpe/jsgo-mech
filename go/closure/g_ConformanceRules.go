@@ -1232,7 +1232,7 @@ func (this *ConformanceRules_BannedProperty) extractName(n Node) Optional[string
 
 type ConformanceRules_BannedProperty_RequirementPrecondition struct {
 	Enum
-	selfI_ ConformanceRules_BannedProperty_RequirementPrecondition_I
+	selfI_ func(Node) bool
 }
 
 // ConformanceRules_BannedProperty_RequirementPrecondition_I holds the methods the dispatchers of enum ConformanceRules_BannedProperty_RequirementPrecondition call on its
@@ -1280,7 +1280,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition) init_Confor
 }
 
 func (this *ConformanceRules_BannedProperty_RequirementPrecondition) shouldCheck(p0 Node) bool {
-	return this.selfI_.shouldCheck_impl(p0)
+	return this.selfI_(p0)
 }
 
 func ConformanceRules_BannedProperty_RequirementPrecondition_values() []*ConformanceRules_BannedProperty_RequirementPrecondition {
@@ -1528,12 +1528,12 @@ func ConformanceRules_ConformanceUtil_getValueFromGlobalName(scope *Scope, gns *
 	if (((gn == nil) || (gn.getGlobalSets() != 1)) || (gn.getTotalSets() != 1)) || !ConformanceRules_ConformanceUtil_isAnnotatedAsConst(gn.getJSDocInfo()) {
 		return Optional_empty[string]()
 	}
-	return ConformanceRules_ConformanceUtil_inferStringValue(scope, NodeUtil_getRValueOfLValue(gn.getDeclaration_rRef().getNode()), &Supplier_tfn_GlobalNamespace{func() *GlobalNamespace {
+	return ConformanceRules_ConformanceUtil_inferStringValue(scope, NodeUtil_getRValueOfLValue(gn.getDeclaration_rRef().getNode()), (&Supplier_tfn_GlobalNamespace{func() *GlobalNamespace {
 		return gns
-	}})
+	}}).get)
 }
 
-func ConformanceRules_ConformanceUtil_inferStringValue(scope *Scope, node Node, globalNamespaceSupplier SupplierOf[*GlobalNamespace]) Optional[string] {
+func ConformanceRules_ConformanceUtil_inferStringValue(scope *Scope, node Node, globalNamespaceSupplier func() any) Optional[string] {
 	if node == 0 {
 		return Optional_empty[string]()
 	}
@@ -1569,7 +1569,7 @@ func ConformanceRules_ConformanceUtil_inferStringValue(scope *Scope, node Node, 
 			}
 			return ConformanceRules_ConformanceUtil_inferStringValue(nil, NodeUtil_getFirstPropMatchingKey(enumSource, node.getString()), globalNamespaceSupplier)
 		} else if type_.isString() {
-			var gns *GlobalNamespace = cast_[*GlobalNamespace](globalNamespaceSupplier.get())
+			var gns *GlobalNamespace = cast_[*GlobalNamespace](globalNamespaceSupplier())
 			if gns == nil {
 				return Optional_empty[string]()
 			}
@@ -3010,11 +3010,11 @@ func (this *ConformanceRules_BanGlobalVars) isAllowlisted(n Node) bool {
 	}
 	if NodeUtil_isNameDeclaration(n) {
 		var allowlisted []bool = []bool{true}
-		NodeUtil_visitLhsNodesInNode(n, &Consumer_tfn_Node{func(name Node) {
+		NodeUtil_visitLhsNodesInNode(n, (&Consumer_tfn_Node{func(name Node) {
 			if !this.isAllowlistedName(name.getString()) {
 				allowlisted[0] = false
 			}
-		}})
+		}}).accept)
 		return allowlisted[0]
 	}
 	return false
@@ -3460,13 +3460,13 @@ func ConformanceRules_BanCreateDom_clinit() {
 
 type ConformanceRules_SecuritySensitiveAttributes struct {
 	bannedAtrrs             *JTSet[string]
-	globalNamespaceSupplier SupplierOf[*GlobalNamespace]
+	globalNamespaceSupplier func() any
 }
 
 func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_SecuritySensitiveAttributes_0() {
-	this.init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(ImmutableSet_as_Collection(ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS), &Supplier_tfn_GlobalNamespace{func() *GlobalNamespace {
+	this.init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(ImmutableSet_as_Collection(ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS), (&Supplier_tfn_GlobalNamespace{func() *GlobalNamespace {
 		return nil
-	}})
+	}}).get)
 }
 
 func new_ConformanceRules_SecuritySensitiveAttributes_0() *ConformanceRules_SecuritySensitiveAttributes {
@@ -3475,17 +3475,17 @@ func new_ConformanceRules_SecuritySensitiveAttributes_0() *ConformanceRules_Secu
 	return this
 }
 
-func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_SecuritySensitiveAttributes_Supplier(globalNamespaceSupplier SupplierOf[*GlobalNamespace]) {
+func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_SecuritySensitiveAttributes_Supplier(globalNamespaceSupplier func() any) {
 	this.init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(ImmutableSet_as_Collection(ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS), globalNamespaceSupplier)
 }
 
-func new_ConformanceRules_SecuritySensitiveAttributes_Supplier(globalNamespaceSupplier SupplierOf[*GlobalNamespace]) *ConformanceRules_SecuritySensitiveAttributes {
+func new_ConformanceRules_SecuritySensitiveAttributes_Supplier(globalNamespaceSupplier func() any) *ConformanceRules_SecuritySensitiveAttributes {
 	this := &ConformanceRules_SecuritySensitiveAttributes{}
 	this.init_ConformanceRules_SecuritySensitiveAttributes_Supplier(globalNamespaceSupplier)
 	return this
 }
 
-func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs CollectionOf[string], globalNamespaceSupplier SupplierOf[*GlobalNamespace]) {
+func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs CollectionOf[string], globalNamespaceSupplier func() any) {
 	var bannedAtrrsBuilder *TSetBuilder[string] = newTSetBuilder_(jtc_string)
 	it_1 := foreach_(bannedAtrrs)
 	for it_1.next() {
@@ -3496,16 +3496,16 @@ func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_
 	this.globalNamespaceSupplier = globalNamespaceSupplier
 }
 
-func new_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs CollectionOf[string], globalNamespaceSupplier SupplierOf[*GlobalNamespace]) *ConformanceRules_SecuritySensitiveAttributes {
+func new_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs CollectionOf[string], globalNamespaceSupplier func() any) *ConformanceRules_SecuritySensitiveAttributes {
 	this := &ConformanceRules_SecuritySensitiveAttributes{}
 	this.init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs, globalNamespaceSupplier)
 	return this
 }
 
 func ConformanceRules_SecuritySensitiveAttributes_createFromBannedAttrs(bannedAtrrs CollectionOf[string]) *ConformanceRules_SecuritySensitiveAttributes {
-	return new_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs, &Supplier_tfn_GlobalNamespace{func() *GlobalNamespace {
+	return new_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs, (&Supplier_tfn_GlobalNamespace{func() *GlobalNamespace {
 		return nil
-	}})
+	}}).get)
 }
 
 func (this *ConformanceRules_SecuritySensitiveAttributes) contains(attributeName string) bool {
@@ -3606,7 +3606,7 @@ func (this *ConformanceRules_BanElementSetAttribute) initBanElementSetAttribute(
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	this.securitySensitiveAttributes = new_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(Collection(requirement.getValueList()), &Supplier_tfn_GlobalNamespace{func() *GlobalNamespace { return this.getGlobalNamespace() }})
+	this.securitySensitiveAttributes = new_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(Collection(requirement.getValueList()), (&Supplier_tfn_GlobalNamespace{func() *GlobalNamespace { return this.getGlobalNamespace() }}).get)
 	this.defaultDecisionForUncertainCases = func() *ConformanceRules_ConformanceResult {
 		if requirement.getReportLooseTypeViolations() {
 			return ConformanceRules_ConformanceResult_VIOLATION
@@ -3688,7 +3688,7 @@ func (this *ConformanceRules_BanElementSetAttribute) getBannedPropertyName(callN
 
 func (this *ConformanceRules_BanElementSetAttribute) checkConformanceOnGetElement(traversal *NodeTraversal, getElementNode Node) *ConformanceRules_ConformanceResult {
 	var key Node = getElementNode.getSecondChild()
-	var keyName Optional[string] = ConformanceRules_ConformanceUtil_inferStringValue(traversal.getScope(), key, &Supplier_tfn_GlobalNamespace{func() *GlobalNamespace { return this.getGlobalNamespace() }})
+	var keyName Optional[string] = ConformanceRules_ConformanceUtil_inferStringValue(traversal.getScope(), key, (&Supplier_tfn_GlobalNamespace{func() *GlobalNamespace { return this.getGlobalNamespace() }}).get)
 	if keyName.isPresent() {
 		if this.securitySensitiveAttributes.contains(String_toLowerCase(keyName.get(), Locale_ROOT)) || (this.requirement_.getReportLooseTypeViolations() && ((keyName.get() == "innerHTML") || (keyName.get() == "outerHTML"))) {
 			if this.hasElementType(getElementNode) {
@@ -4072,7 +4072,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_1) init_Conf
 func new_ConformanceRules_BannedProperty_RequirementPrecondition_1(name_ string, ordinal_ int32) *ConformanceRules_BannedProperty_RequirementPrecondition_1 {
 	this := &ConformanceRules_BannedProperty_RequirementPrecondition_1{}
 	this.self_ = this
-	this.selfI_ = this
+	this.selfI_ = this.shouldCheck_impl
 	this.init_ConformanceRules_BannedProperty_RequirementPrecondition_1(name_, ordinal_)
 	return this
 }
@@ -4141,7 +4141,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_2) init_Conf
 func new_ConformanceRules_BannedProperty_RequirementPrecondition_2(name_ string, ordinal_ int32) *ConformanceRules_BannedProperty_RequirementPrecondition_2 {
 	this := &ConformanceRules_BannedProperty_RequirementPrecondition_2{}
 	this.self_ = this
-	this.selfI_ = this
+	this.selfI_ = this.shouldCheck_impl
 	this.init_ConformanceRules_BannedProperty_RequirementPrecondition_2(name_, ordinal_)
 	return this
 }
@@ -4202,7 +4202,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_3) init_Conf
 func new_ConformanceRules_BannedProperty_RequirementPrecondition_3(name_ string, ordinal_ int32) *ConformanceRules_BannedProperty_RequirementPrecondition_3 {
 	this := &ConformanceRules_BannedProperty_RequirementPrecondition_3{}
 	this.self_ = this
-	this.selfI_ = this
+	this.selfI_ = this.shouldCheck_impl
 	this.init_ConformanceRules_BannedProperty_RequirementPrecondition_3(name_, ordinal_)
 	return this
 }
@@ -4269,7 +4269,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_4) init_Conf
 func new_ConformanceRules_BannedProperty_RequirementPrecondition_4(name_ string, ordinal_ int32) *ConformanceRules_BannedProperty_RequirementPrecondition_4 {
 	this := &ConformanceRules_BannedProperty_RequirementPrecondition_4{}
 	this.self_ = this
-	this.selfI_ = this
+	this.selfI_ = this.shouldCheck_impl
 	this.init_ConformanceRules_BannedProperty_RequirementPrecondition_4(name_, ordinal_)
 	return this
 }
@@ -4330,7 +4330,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_5) init_Conf
 func new_ConformanceRules_BannedProperty_RequirementPrecondition_5(name_ string, ordinal_ int32) *ConformanceRules_BannedProperty_RequirementPrecondition_5 {
 	this := &ConformanceRules_BannedProperty_RequirementPrecondition_5{}
 	this.self_ = this
-	this.selfI_ = this
+	this.selfI_ = this.shouldCheck_impl
 	this.init_ConformanceRules_BannedProperty_RequirementPrecondition_5(name_, ordinal_)
 	return this
 }
@@ -4651,7 +4651,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_1) shouldChe
 	if this.self_ == any(this) {
 		return this.shouldCheck_impl(p0)
 	}
-	return this.selfI_.shouldCheck_impl(p0)
+	return this.selfI_(p0)
 }
 
 // shouldCheck: an object that is exactly a ConformanceRules_BannedProperty_RequirementPrecondition_2 calls its shouldCheck_impl directly (post-flip); others dispatch.
@@ -4659,7 +4659,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_2) shouldChe
 	if this.self_ == any(this) {
 		return this.shouldCheck_impl(p0)
 	}
-	return this.selfI_.shouldCheck_impl(p0)
+	return this.selfI_(p0)
 }
 
 // shouldCheck: an object that is exactly a ConformanceRules_BannedProperty_RequirementPrecondition_3 calls its shouldCheck_impl directly (post-flip); others dispatch.
@@ -4667,7 +4667,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_3) shouldChe
 	if this.self_ == any(this) {
 		return this.shouldCheck_impl(p0)
 	}
-	return this.selfI_.shouldCheck_impl(p0)
+	return this.selfI_(p0)
 }
 
 // shouldCheck: an object that is exactly a ConformanceRules_BannedProperty_RequirementPrecondition_4 calls its shouldCheck_impl directly (post-flip); others dispatch.
@@ -4675,7 +4675,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_4) shouldChe
 	if this.self_ == any(this) {
 		return this.shouldCheck_impl(p0)
 	}
-	return this.selfI_.shouldCheck_impl(p0)
+	return this.selfI_(p0)
 }
 
 // shouldCheck: an object that is exactly a ConformanceRules_BannedProperty_RequirementPrecondition_5 calls its shouldCheck_impl directly (post-flip); others dispatch.
@@ -4683,5 +4683,5 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_5) shouldChe
 	if this.self_ == any(this) {
 		return this.shouldCheck_impl(p0)
 	}
-	return this.selfI_.shouldCheck_impl(p0)
+	return this.selfI_(p0)
 }

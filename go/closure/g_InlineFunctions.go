@@ -129,7 +129,7 @@ func (this *InlineFunctions) updateFunctionStateForInlining(fn InlineFunctions_F
 			if NodeUtil_referencesEnclosingReceiver(block) {
 				functionState.setReferencesThis(true)
 			}
-			if NodeUtil_has(block, &Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isFunctionOrNonStaticClassFieldInitializer(p0) }}, Predicates_alwaysTrue()) {
+			if NodeUtil_has(block, (&Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isFunctionOrNonStaticClassFieldInitializer(p0) }}).apply, Predicates_alwaysTrue()) {
 				functionState.setHasInnerClosures(true)
 				if InlineFunctions_hasLocalNames(fnNode) {
 					functionState.disallowInlining(this.compiler_, InlineFunctions_DisallowInliningReason_HAS_LOCAL_NAMES)
@@ -138,9 +138,9 @@ func (this *InlineFunctions) updateFunctionStateForInlining(fn InlineFunctions_F
 		}
 		if fnNode.getGrandparent().isVar() {
 			var block Node = functionState.getFn().getDeclaringBlock()
-			if ((block.isBlock() && !block.getParent().isFunction()) && NodeUtil_has(block, &Predicate_base_tfn_Node{func(n Node) bool {
+			if (block.isBlock() && !block.getParent().isFunction()) && NodeUtil_has(block, (&Predicate_base_tfn_Node{func(n Node) bool {
 				return (n.isLet() || n.isConst())
-			}}, Predicates_alwaysTrue())) {
+			}}).apply, Predicates_alwaysTrue()) {
 				functionState.disallowInlining(this.compiler_, InlineFunctions_DisallowInliningReason_CAPTURED_VARIABLE_NOT_IN_SCOPE)
 			}
 		}
@@ -170,7 +170,7 @@ func InlineFunctions_hasRequireInliningAnnotation(fnNode Node) bool {
 
 func InlineFunctions_hasLocalNames(fnNode Node) bool {
 	var block Node = NodeUtil_getFunctionBody(fnNode)
-	return (NodeUtil_getFunctionParameters(fnNode).hasChildren() || NodeUtil_has(block, icast_Predicate_base(obj_(new_NodeUtil_MatchDeclaration())), icast_Predicate_base(obj_(new_NodeUtil_MatchShallowStatement()))))
+	return (NodeUtil_getFunctionParameters(fnNode).hasChildren() || NodeUtil_has(block, new_NodeUtil_MatchDeclaration().apply, icast_Predicate_base(obj_(new_NodeUtil_MatchShallowStatement()))))
 }
 
 func (this *InlineFunctions) isCandidateFunction(fn InlineFunctions_Function) bool {
@@ -263,9 +263,9 @@ func (this *InlineFunctions) resolveInlineConflicts() {
 
 func InlineFunctions_hasNonInlinableParam(node Node) bool {
 	Preconditions_checkNotNull_T(node)
-	var pred Predicate_baseOf[Node] = &Predicate_base_tfn_Node{func(input Node) bool {
+	var pred func(any) bool = (&Predicate_base_tfn_Node{func(input Node) bool {
 		return (input.isDefaultValue() || input.isDestructuringPattern())
-	}}
+	}}).apply
 	return NodeUtil_has(node, pred, Predicates_alwaysTrue())
 }
 

@@ -14,15 +14,15 @@ func (this *ColorGraphBuilder) finit_ColorGraphBuilder() {
 	this.colorHoldsInstanceGraph = LinkedDirectedGraph_createWithoutAnnotations[*ColorGraphNode, any]()
 }
 
-func (this *ColorGraphBuilder) init_ColorGraphBuilder(nodeFactory *ColorGraphNodeFactory, lcaFinderFactory LowestCommonAncestorFinder_Factory[*ColorGraphNode, any], registry *ColorRegistry) {
+func (this *ColorGraphBuilder) init_ColorGraphBuilder(nodeFactory *ColorGraphNodeFactory, lcaFinderFactory func(*DiGraph[*ColorGraphNode, any]) *LowestCommonAncestorFinder[*ColorGraphNode, any], registry *ColorRegistry) {
 	this.finit_ColorGraphBuilder()
 	this.registry = registry
 	this.nodeFactory = nodeFactory
-	this.lcaFinder = lcaFinderFactory.create(this.colorHoldsInstanceGraph.up_DiGraph())
+	this.lcaFinder = lcaFinderFactory(this.colorHoldsInstanceGraph.up_DiGraph())
 	this.topNode = this.colorHoldsInstanceGraph.createNode_Object_rDiGraphNode_rLinkedDiGraphNode(this.nodeFactory.createNode(StandardColors_UNKNOWN))
 }
 
-func new_ColorGraphBuilder(nodeFactory *ColorGraphNodeFactory, lcaFinderFactory LowestCommonAncestorFinder_Factory[*ColorGraphNode, any], registry *ColorRegistry) *ColorGraphBuilder {
+func new_ColorGraphBuilder(nodeFactory *ColorGraphNodeFactory, lcaFinderFactory func(*DiGraph[*ColorGraphNode, any]) *LowestCommonAncestorFinder[*ColorGraphNode, any], registry *ColorRegistry) *ColorGraphBuilder {
 	this := &ColorGraphBuilder{}
 	this.init_ColorGraphBuilder(nodeFactory, lcaFinderFactory, registry)
 	return this

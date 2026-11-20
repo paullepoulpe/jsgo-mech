@@ -214,12 +214,12 @@ func (this *ColorPool_Builder) addShard(typePool *TypePool, stringPool *StringPo
 
 func (this *ColorPool_Builder) build() *ColorPool {
 	Preconditions_checkState_boolean_Object(this.idToProto.isEmpty(), "build has already been called")
-	this.forEachShard(&Consumer_tfn_ColorPool_ShardView{func(shard *ColorPool_ShardView) {
+	this.forEachShard((&Consumer_tfn_ColorPool_ShardView{func(shard *ColorPool_ShardView) {
 		for i := int32(0); i < shard.typePool.getTypeCount(); i++ {
 			var id *ColorId = shard.trimmedOffsetToId.get(i)
 			this.idToProto.put(id, shard, shard.typePool.getType(i))
 		}
-	}})
+	}}).accept)
 	it_2 := StandardColors_AXIOMATIC_COLORS.eachKey()
 	for it_2.next() {
 		var id *ColorId = it_2.v
@@ -237,27 +237,27 @@ func (this *ColorPool_Builder) build() *ColorPool {
 			return Color_singleBuilder().setId(colorId).build()
 		}}))
 	}
-	this.forEachShard(&Consumer_tfn_ColorPool_ShardView{func(shard *ColorPool_ShardView) {
+	this.forEachShard((&Consumer_tfn_ColorPool_ShardView{func(shard *ColorPool_ShardView) {
 		it_8 := foreach_(shard.typePool.getDisambiguationEdgesList())
 		for it_8.next() {
 			var edge *SubtypingEdge = cast_[*SubtypingEdge](it_8.v)
 			this.registry.addDisambiguationEdge(this.idToColor.get(shard.getId(ColorPool_validatePointer(edge.getSubtype(), shard))), this.idToColor.get(shard.getId(ColorPool_validatePointer(edge.getSupertype(), shard))))
 		}
-	}})
+	}}).accept)
 	var shardViewsForTesting ImmutableList_BuilderOf[*ColorPool_ShardView] = ImmutableList_builder()
 	if this.forTestingField {
-		this.forEachShard(&Consumer_tfn_ColorPool_ShardView{func(p0 *ColorPool_ShardView) { shardViewsForTesting.add(obj_(p0)) }})
+		this.forEachShard((&Consumer_tfn_ColorPool_ShardView{func(p0 *ColorPool_ShardView) { shardViewsForTesting.add(obj_(p0)) }}).accept)
 	}
 	var colorPool *ColorPool = new_ColorPool(this.idToColor, this.registry.build(), jtlistImm_(jtc_p_ColorPool_ShardView, shardViewsForTesting.build()))
-	this.forEachShard(&Consumer_tfn_ColorPool_ShardView{func(shard *ColorPool_ShardView) {
+	this.forEachShard((&Consumer_tfn_ColorPool_ShardView{func(shard *ColorPool_ShardView) {
 		shard.updateStateAfterColorPoolIsBuilt(colorPool)
-	}})
+	}}).accept)
 	return colorPool
 }
 
-func (this *ColorPool_Builder) forEachShard(fn ConsumerOf[*ColorPool_ShardView]) {
+func (this *ColorPool_Builder) forEachShard(fn func(any)) {
 	this.protoToShard.forEach(&BiConsumer_tfn_TypePool_ColorPool_ShardView{func(unused *TypePool, shard *ColorPool_ShardView) {
-		fn.accept(obj_(shard))
+		fn(obj_(shard))
 	}})
 }
 

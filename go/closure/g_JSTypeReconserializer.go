@@ -8,7 +8,7 @@ type JSTypeReconserializer struct {
 	invalidatingTypes           *InvalidatingTypes
 	stringPoolBuilder           *StringPool_Builder
 	hasher                      *JSTypeColorIdHasher
-	shouldPropagatePropertyName PredicateOf[string]
+	shouldPropagatePropertyName func(any) bool
 	unknownRecord               *JSTypeReconserializer_SeenTypeRecord
 	topFunctionRecord           *JSTypeReconserializer_SeenTypeRecord
 	typeToRecordCache           *LinkedIdentityHashMap[*JSType, *JSTypeReconserializer_SeenTypeRecord]
@@ -24,7 +24,7 @@ func (this *JSTypeReconserializer) finit_JSTypeReconserializer() {
 	this.state = JSTypeReconserializer_State_COLLECTING_TYPES
 }
 
-func (this *JSTypeReconserializer) init_JSTypeReconserializer(registry *JSTypeRegistry, invalidatingTypes *InvalidatingTypes, stringPoolBuilder *StringPool_Builder, shouldPropagatePropertyName PredicateOf[string], serializationMode *SerializationOptions) {
+func (this *JSTypeReconserializer) init_JSTypeReconserializer(registry *JSTypeRegistry, invalidatingTypes *InvalidatingTypes, stringPoolBuilder *StringPool_Builder, shouldPropagatePropertyName func(any) bool, serializationMode *SerializationOptions) {
 	this.finit_JSTypeReconserializer()
 	this.registry = registry
 	this.hasher = new_JSTypeColorIdHasher(registry)
@@ -37,13 +37,13 @@ func (this *JSTypeReconserializer) init_JSTypeReconserializer(registry *JSTypeRe
 	this.topFunctionRecord = this.seenTypeRecords.get(StandardColors_TOP_FUNCTION.getId())
 }
 
-func new_JSTypeReconserializer(registry *JSTypeRegistry, invalidatingTypes *InvalidatingTypes, stringPoolBuilder *StringPool_Builder, shouldPropagatePropertyName PredicateOf[string], serializationMode *SerializationOptions) *JSTypeReconserializer {
+func new_JSTypeReconserializer(registry *JSTypeRegistry, invalidatingTypes *InvalidatingTypes, stringPoolBuilder *StringPool_Builder, shouldPropagatePropertyName func(any) bool, serializationMode *SerializationOptions) *JSTypeReconserializer {
 	this := &JSTypeReconserializer{}
 	this.init_JSTypeReconserializer(registry, invalidatingTypes, stringPoolBuilder, shouldPropagatePropertyName, serializationMode)
 	return this
 }
 
-func JSTypeReconserializer_create(registry *JSTypeRegistry, invalidatingTypes *InvalidatingTypes, stringPoolBuilder *StringPool_Builder, shouldPropagatePropertyName PredicateOf[string], serializationMode *SerializationOptions) *JSTypeReconserializer {
+func JSTypeReconserializer_create(registry *JSTypeRegistry, invalidatingTypes *InvalidatingTypes, stringPoolBuilder *StringPool_Builder, shouldPropagatePropertyName func(any) bool, serializationMode *SerializationOptions) *JSTypeReconserializer {
 	var serializer *JSTypeReconserializer = new_JSTypeReconserializer(registry, invalidatingTypes, stringPoolBuilder, shouldPropagatePropertyName, serializationMode)
 	serializer.checkValidLinearTime()
 	return serializer
@@ -224,7 +224,7 @@ func (this *JSTypeReconserializer) reconcileObjectTypes(seen *JSTypeReconseriali
 		it_3 := foreach_(objType.getOwnPropertyNames())
 		for it_3.next() {
 			var ownProperty string = str_(it_3.v)
-			if this.shouldPropagatePropertyName.test(strobj_(ownProperty)) {
+			if this.shouldPropagatePropertyName(strobj_(ownProperty)) {
 				ownProperties.add(int32(this.stringPoolBuilder.put(ownProperty)))
 			}
 		}

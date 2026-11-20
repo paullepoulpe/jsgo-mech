@@ -53,9 +53,9 @@ func (this *AmbiguateProperties) getRenamingMap() *JTMap[string, string] {
 func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	this.graphNodeFactory = ColorGraphNodeFactory_createFactory(this.colorRegistry)
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_AmbiguateProperties_ProcessPropertiesAndConstructors(this)))
-	var graphBuilder *ColorGraphBuilder = new_ColorGraphBuilder(this.graphNodeFactory, &LowestCommonAncestorFinder_Factory_fn[*ColorGraphNode, any]{func(p0 *DiGraph[*ColorGraphNode, any]) *LowestCommonAncestorFinder[*ColorGraphNode, any] {
+	var graphBuilder *ColorGraphBuilder = new_ColorGraphBuilder(this.graphNodeFactory, (&LowestCommonAncestorFinder_Factory_fn[*ColorGraphNode, any]{func(p0 *DiGraph[*ColorGraphNode, any]) *LowestCommonAncestorFinder[*ColorGraphNode, any] {
 		return new_LowestCommonAncestorFinder[*ColorGraphNode, any](p0)
-	}}, this.colorRegistry)
+	}}).create, this.colorRegistry)
 	graphBuilder.addAll(Collection(this.graphNodeFactory.getAllKnownTypes().asSet()))
 	var colorGraph *LinkedDirectedGraph[*ColorGraphNode, any] = graphBuilder.build()
 	_ = func() (code_ int) {
