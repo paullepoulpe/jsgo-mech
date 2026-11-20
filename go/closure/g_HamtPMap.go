@@ -598,14 +598,14 @@ func HamtPMap_clinit() {
 }
 
 type HamtPMap_Iter[K comparable, V comparable, O comparable] struct {
-	queue       *TDeque[*HamtPMap[K, V]]
+	queue       *TList[*HamtPMap[K, V]]
 	transformer Function_baseOf[*HamtPMap[K, V], O]
 }
 
 func (this *HamtPMap_Iter[K, V, O]) isa_HamtPMap_Iter_() {}
 
 func (this *HamtPMap_Iter[K, V, O]) finit_HamtPMap_Iter() {
-	this.queue = newTDeque_(tc_p_HamtPMap_K__V_[K, V]())
+	this.queue = newTList_(tc_p_HamtPMap_K__V_[K, V]())
 }
 
 func (this *HamtPMap_Iter[K, V, O]) init_HamtPMap_Iter(map_ *HamtPMap[K, V], transformer Function_baseOf[*HamtPMap[K, V], O]) {
@@ -627,7 +627,7 @@ func (this *HamtPMap_Iter[K, V, O]) hasNext() bool {
 }
 
 func (this *HamtPMap_Iter[K, V, O]) next() any {
-	var top *HamtPMap[K, V] = this.queue.pop()
+	var top *HamtPMap[K, V] = this.queue.popFirst_()
 	for i := int32((int32(len(top.children_)) - 1)); i >= 0; i-- {
 		this.queue.add(top.children_[i])
 	}

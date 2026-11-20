@@ -4,7 +4,7 @@ package closure
 
 type ReferenceCollector struct {
 	referenceMap                            *TMap[*Var, *ReferenceCollection]
-	blockStack                              *TDeque[*BasicBlock]
+	blockStack                              *[]*BasicBlock
 	behavior                                ReferenceCollector_Behavior
 	scopeCreator                            ScopeCreator
 	compiler_                               *AbstractCompiler
@@ -17,7 +17,7 @@ type ReferenceCollector struct {
 
 func (this *ReferenceCollector) finit_ReferenceCollector() {
 	this.referenceMap = newTMap_(tch_p_Var, tc_p_ReferenceCollection)
-	this.blockStack = newTDeque_(tc_p_BasicBlock)
+	this.blockStack = &[]*BasicBlock{}
 	this.callback = new_ReferenceCollector_CollectorCallback(this)
 	this.collectedHoistedFunctions = map[Node]struct{}{}
 }
@@ -100,15 +100,13 @@ func (this *ReferenceCollector) maybeJumpToHoistedFunction(var_ *Var, t *NodeTra
 	if (((fnNode == 0) || !NodeUtil_isHoistedFunctionDeclaration(fnNode)) || ((this.narrowScope_ != nil) && (this.narrowScope_.getDepth() > varScope.getDepth()))) || has_(this.collectedHoistedFunctions, fnNode) {
 		return
 	}
-	var oldBlockStack *TDeque[*BasicBlock] = this.blockStack
-	this.blockStack = newTDeque_(tc_p_BasicBlock)
+	var oldBlockStack *[]*BasicBlock = this.blockStack
+	this.blockStack = &[]*BasicBlock{}
 	if varScope.isGlobal() {
-		this.blockStack.add(cast_[*BasicBlock](SequencedCollection_getFirst(SequencedCollection(oldBlockStack.asDeque()))))
+		*this.blockStack = append(*this.blockStack, sliceFirst_(tc_p_BasicBlock, *oldBlockStack))
 	} else {
-		it_1 := oldBlockStack.each()
-		for it_1.next() {
-			var b *BasicBlock = it_1.v
-			this.blockStack.add(b)
+		for b := range sliceAll_(oldBlockStack) {
+			*this.blockStack = append(*this.blockStack, b)
 			if b.getRoot() == varScope.getRootNode() {
 				break
 			}
@@ -124,11 +122,11 @@ func ReferenceCollector_isNonLocalModuleSpecifierName(n Node, parent Node) bool 
 }
 
 func (this *ReferenceCollector) pushNewBlock(root Node) {
-	this.blockStack.add(new_BasicBlock(this.blockStack.peekLast(), root))
+	*this.blockStack = append(*this.blockStack, new_BasicBlock(slicePeekTop_(tc_p_BasicBlock, *this.blockStack), root))
 }
 
 func (this *ReferenceCollector) popLastBlock(root Node) {
-	var last *BasicBlock = cast_[*BasicBlock](SequencedCollection_removeLast(SequencedCollection(this.blockStack.asDeque())))
+	var last *BasicBlock = slicePop_(tc_p_BasicBlock, this.blockStack)
 	if root != last.getRoot() {
 		Preconditions_checkState_boolean_Object_H(false, root)
 	}
@@ -154,7 +152,7 @@ func (this *ReferenceCollector) addReference(v *Var, n Node, t *NodeTraversal) *
 	var collection *ReferenceCollection = this.referenceMap.ComputeIfAbsent(v, func(k *Var) *ReferenceCollection {
 		return new_ReferenceCollection()
 	})
-	var reference *Reference = new_Reference_Node_NodeTraversal_BasicBlock(n, t, cast_[*BasicBlock](SequencedCollection_getLast(SequencedCollection(this.blockStack.asDeque()))))
+	var reference *Reference = new_Reference_Node_NodeTraversal_BasicBlock(n, t, sliceTop_(tc_p_BasicBlock, *this.blockStack))
 	collection.add(reference)
 	return reference
 }
