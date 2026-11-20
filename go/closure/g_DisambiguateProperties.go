@@ -83,7 +83,7 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 			this.compiler_.report(this.createInvalidationError(prop))
 		}
 	}
-	this.compiler_.reportDisambiguatePropertiesSummary((&Supplier_tfn_string{func() string { return trackerSummaryGenerator.buildSummaryString() }}).get)
+	this.compiler_.reportDisambiguatePropertiesSummary(func() string { return trackerSummaryGenerator.buildSummaryString() })
 	this.logForDiagnostics("renaming_index", &Supplier_base_fn{func() any {
 		return obj_(DisambiguateProperties_buildRenamingIndex(propIndex, renamer).asImm())
 	}})

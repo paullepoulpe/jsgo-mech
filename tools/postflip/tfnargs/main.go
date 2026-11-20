@@ -18,11 +18,13 @@
 //   - F is only ever called, and for a method no interface of the package has a method of its
 //     name (an interface call cannot reach it);
 //   - every call of F passes (&X_tfn...{f}).m, with one adapter type X and its method m for
-//     all calls, or, inside F, p itself (a recursive call);
+//     all calls, or a parameter that is converted with p: parameters that are passed on to
+//     one another (a recursive call, a helper) form a group, which is converted as one with
+//     one adapter for all its calls;
 //   - m is `return this.f(c0(p0), ...)` or `return box(this.f(...))`, where each c is absent
 //     (the parameter is passed as it is), X_of_ (a handle) or str_ (a String), and box is
 //     absent or strobj_;
-//   - every use of p in F is such a recursive argument or a call p(a0, ...) whose arguments at
+//   - every use of p in F passes it on to a parameter of its group or is a call p(a0, ...) whose arguments at
 //     the converted positions are the matching boxings, e.box_() and strobj_(e), with e of
 //     the function's parameter type, and whose result, when the adapter boxes it, is the
 //     operand of str_(...) or objstr_(...).
@@ -299,94 +301,168 @@ func main() {
 			valueUse[fn] = true
 		}
 	}
+	// The function parameters of func type, and the groups of them that pass a function on to
+	// one another (a recursive call, a helper): a group is converted as one.
+	type key struct {
+		fn *types.Func
+		i  int
+	}
+	type cand struct {
+		k     key
+		fd    *ast.FuncDecl
+		pv    *types.Var
+		ptype ast.Expr
+		calls []*ast.CallExpr
+	}
+	cands := map[key]*cand{}
+	keyOf := map[*types.Var]key{}
+	var order []key
 	var fns []*types.Func
-	for fn := range callsOf {
+	for fn := range declOf {
 		fns = append(fns, fn)
 	}
 	sort.Slice(fns, func(i, j int) bool { return fns[i].Pos() < fns[j].Pos() })
 	for _, fn := range fns {
 		fd := declOf[fn]
 		sig := fn.Type().(*types.Signature)
-		calls := callsOf[fn]
-		sort.Slice(calls, func(i, j int) bool { return calls[i].Pos() < calls[j].Pos() })
-		// the parameter identifiers, by position
-		var pids []*ast.Ident
 		var ptypes []ast.Expr
 		for _, f := range fd.Type.Params.List {
-			for _, n := range f.Names {
-				pids = append(pids, n)
+			for range f.Names {
 				ptypes = append(ptypes, f.Type)
 			}
 		}
-		if len(pids) != sig.Params().Len() {
+		if len(ptypes) != sig.Params().Len() {
 			continue
 		}
+		calls := callsOf[fn]
+		sort.Slice(calls, func(i, j int) bool { return calls[i].Pos() < calls[j].Pos() })
 		for i := 0; i < sig.Params().Len(); i++ {
-			pv := sig.Params().At(i)
-			if _, isFunc := pv.Type().(*types.Signature); !isFunc {
-				continue
+			if _, isFunc := sig.Params().At(i).Type().(*types.Signature); isFunc {
+				k := key{fn, i}
+				cands[k] = &cand{k, fd, sig.Params().At(i), ptypes[i], calls}
+				keyOf[sig.Params().At(i)] = k
+				order = append(order, k)
 			}
-			// Is the parameter given an adapter's method anywhere?
-			var m *types.Func
-			sites := 0
-			for _, c := range calls {
-				if i < len(c.Args) && !c.Ellipsis.IsValid() {
-					if am, _ := methodValue(c.Args[i]); am != nil && adapterOf(am) != nil {
-						sites++
-						if m == nil {
-							m = am
-						}
+		}
+	}
+	group := map[key]key{}
+	var find func(k key) key
+	find = func(k key) key {
+		if g, ok := group[k]; ok && g != k {
+			r := find(g)
+			group[k] = r
+			return r
+		}
+		return k
+	}
+	// paramArg is the candidate whose parameter the argument names, if any.
+	paramArg := func(arg ast.Expr) (key, bool) {
+		if id, ok := rw.Unparen(arg).(*ast.Ident); ok {
+			if v, ok := rw.Info.Uses[id].(*types.Var); ok {
+				k, ok := keyOf[v]
+				return k, ok
+			}
+		}
+		return key{}, false
+	}
+	for _, k := range order {
+		c := cands[k]
+		for _, call := range c.calls {
+			if k.i < len(call.Args) && !call.Ellipsis.IsValid() {
+				if from, ok := paramArg(call.Args[k.i]); ok && types.Identical(cands[from].pv.Type(), c.pv.Type()) {
+					if a, b := find(k), find(from); a != b {
+						group[a] = b
 					}
 				}
 			}
-			if m == nil {
-				for _, c := range calls {
-					if i < len(c.Args) && !c.Ellipsis.IsValid() {
-						if am, _ := methodValue(c.Args[i]); am != nil && strings.Contains(typeString(am.Type().(*types.Signature).Recv().Type()), "_tfn") {
-							left["the adapter's method converts its arguments or result in a way the rule does not know"]++
+		}
+	}
+	members := map[key][]key{}
+	var roots []key
+	for _, k := range order {
+		r := find(k)
+		if members[r] == nil {
+			roots = append(roots, r)
+		}
+		members[r] = append(members[r], k)
+	}
+	for _, root := range roots {
+		ms := members[root]
+		// The adapter methods the group is given.
+		var m *types.Func
+		sites, unknown := 0, 0
+		mixed := false
+		for _, k := range ms {
+			for _, call := range cands[k].calls {
+				if k.i < len(call.Args) && !call.Ellipsis.IsValid() {
+					am, _ := methodValue(call.Args[k.i])
+					if am == nil {
+						continue
+					}
+					if adapterOf(am) == nil {
+						if strings.Contains(typeString(am.Type().(*types.Signature).Recv().Type()), "_tfn") {
+							unknown++
 						}
+						continue
+					}
+					sites++
+					if m == nil {
+						m = am
+					} else if m != am {
+						mixed = true
 					}
 				}
-				continue
 			}
-			leave := func(why string) {
-				left[why] += sites
-				if verbose {
-					fmt.Fprintf(os.Stderr, "    %s (%d): %s\n", fn.FullName(), sites, why)
+		}
+		if m == nil {
+			if unknown > 0 {
+				left["the adapter's method converts its arguments or result in a way the rule does not know"] += unknown
+			}
+			continue
+		}
+		ad := adapterOf(m)
+		why, where := "", root.fn
+		wrapped := 0
+		var edits []func()
+		if mixed {
+			why = "the calls pass methods of different adapters"
+		}
+		for _, k := range ms {
+			if why != "" {
+				break
+			}
+			c := cands[k]
+			fn, i, pv := k.fn, k.i, c.pv
+			sig := fn.Type().(*types.Signature)
+			where = fn
+			switch {
+			case !generated[c.fd] || c.fd.Body == nil:
+				why = "the function is handwritten"
+			case sig.TypeParams().Len() > 0 || sig.RecvTypeParams().Len() > 0:
+				why = "the function is generic"
+			case valueUse[fn]:
+				why = "the function is used as a value"
+			case sig.Recv() != nil && ifaceMethods[fn.Name()]:
+				why = "an interface has a method of the function's name"
+			case sig.Variadic() && i == sig.Params().Len()-1:
+				why = "the parameter is variadic"
+			}
+			for _, f := range c.fd.Type.Params.List {
+				if why == "" && f.Type == c.ptype && len(f.Names) > 1 {
+					why = "the parameter shares its type with another in the declaration"
 				}
 			}
-			if !generated[fd] || fd.Body == nil {
-				leave("the function is handwritten")
-				continue
+			if why != "" {
+				break
 			}
-			if sig.TypeParams().Len() > 0 || sig.RecvTypeParams().Len() > 0 {
-				leave("the function is generic")
-				continue
-			}
-			if valueUse[fn] {
-				leave("the function is used as a value")
-				continue
-			}
-			if sig.Recv() != nil && ifaceMethods[fn.Name()] {
-				leave("an interface has a method of the function's name")
-				continue
-			}
-			if sig.Variadic() && i == sig.Params().Len()-1 {
-				leave("the parameter is variadic")
-				continue
-			}
-			ad := adapterOf(m)
-			why := ""
-			wrapped := 0
-			var edits []func()
-			for _, c := range calls {
-				if len(c.Args) != sig.Params().Len() || c.Ellipsis.IsValid() {
+			for _, call := range c.calls {
+				if len(call.Args) != sig.Params().Len() || call.Ellipsis.IsValid() {
 					why = "a call does not pass the parameters one by one"
 					break
 				}
-				arg := c.Args[i]
-				if id, ok := rw.Unparen(arg).(*ast.Ident); ok && rw.Info.Uses[id] == pv {
-					continue // p itself, in F: a recursive call
+				arg := call.Args[i]
+				if from, ok := paramArg(arg); ok && find(from) == root {
+					continue // a parameter of the group, passed on
 				}
 				am, f := methodValue(arg)
 				if am == nil || adapterOf(am) == nil {
@@ -399,18 +475,13 @@ func main() {
 					why = "a call passes something that is not the method of an adapter literal"
 					break
 				}
-				if am != m {
-					why = "the calls pass methods of different adapters"
-					break
-				}
 				edits = append(edits, func() { rw.Rewrite[arg] = func() string { return rw.Render(f) } })
 			}
-			if why != "" {
-				leave(why)
-				continue
-			}
-			// the uses of p in F
+			// the uses of the parameter in the function
 			for _, use := range rw.UsesOf[pv] {
+				if why != "" {
+					break
+				}
 				var e ast.Node = use
 				for {
 					p, ok := rw.Parent[e].(*ast.ParenExpr)
@@ -421,21 +492,28 @@ func main() {
 				}
 				call, ok := rw.Parent[e].(*ast.CallExpr)
 				if !ok {
-					why = "the parameter is used other than called or passed on in a recursive call"
+					why = "the parameter is used other than called or passed on to such a parameter"
 					break
 				}
 				if call.Fun != e {
-					// an argument: of a recursive call, at its own position
+					// an argument: of a call of a function of the group, at the parameter's position
 					callee := call.Fun
 					if s, ok := callee.(*ast.SelectorExpr); ok {
 						callee = s.Sel
 					}
-					cid, _ := callee.(*ast.Ident)
-					if cid == nil || rw.Info.Uses[cid] != fn || len(call.Args) <= i || call.Args[i] != e {
-						why = "the parameter is used other than called or passed on in a recursive call"
+					ok := false
+					if cid, _ := callee.(*ast.Ident); cid != nil {
+						if g, isFn := rw.Info.Uses[cid].(*types.Func); isFn {
+							for j, a := range call.Args {
+								if a == e {
+									_, isCand := cands[key{g, j}]
+									ok = isCand && find(key{g, j}) == root
+								}
+							}
+						}
 					}
-					if why != "" {
-						break
+					if !ok {
+						why = "the parameter is used other than called or passed on to such a parameter"
 					}
 					continue
 				}
@@ -467,10 +545,7 @@ func main() {
 					}
 					edits = append(edits, func() { rw.Rewrite[a] = func() string { return rw.Render(inner) } })
 				}
-				if why != "" {
-					break
-				}
-				if ad.res == "strobj" {
+				if why == "" && ad.res == "strobj" {
 					var up ast.Node = call
 					for {
 						p, ok := rw.Parent[up].(*ast.ParenExpr)
@@ -492,36 +567,25 @@ func main() {
 					default:
 						why = "the boxed result of a call of the parameter is not unboxed at once"
 					}
-					if why != "" {
-						break
-					}
 				}
 			}
-			if why != "" {
-				leave(why)
-				continue
-			}
-			// a parameter list `a, b T` shares its type
-			shared := false
-			for _, f := range fd.Type.Params.List {
-				if f.Type == ptypes[i] && len(f.Names) > 1 {
-					shared = true
-				}
-			}
-			if shared {
-				leave("the parameter shares its type with another in the declaration")
-				continue
-			}
-			for _, e := range edits {
-				e()
-			}
-			pt := ptypes[i]
-			rw.Rewrite[pt] = func() string { return ad.fieldText }
-			if wrapped > 0 {
-				done["another function given to such a parameter is wrapped ("+wrapper(ad)+")"] += wrapped
-			}
-			done[fmt.Sprintf("a parameter given %s takes the %s", m.Type().(*types.Signature).Recv().Type().(*types.Pointer).Elem().(*types.Named).Obj().Name(), ad.fieldText)] += sites
+			pt := c.ptype
+			edits = append(edits, func() { rw.Rewrite[pt] = func() string { return ad.fieldText } })
 		}
+		if why != "" {
+			left[why] += sites
+			if verbose {
+				fmt.Fprintf(os.Stderr, "    %s (%d): %s\n", where.FullName(), sites, why)
+			}
+			continue
+		}
+		for _, e := range edits {
+			e()
+		}
+		if wrapped > 0 {
+			done["another function given to such a parameter is wrapped ("+wrapper(ad)+")"] += wrapped
+		}
+		done[fmt.Sprintf("a parameter given %s takes the %s", m.Type().(*types.Signature).Recv().Type().(*types.Pointer).Elem().(*types.Named).Obj().Name(), ad.fieldText)] += sites
 	}
 	keys := []string{}
 	for k := range left {
