@@ -50,8 +50,13 @@ func RenderChildren(n ast.Node) string {
 		}
 		if g, ok := Rewrite[c]; ok {
 			a, b := f.Offset(c.Pos())-base, f.Offset(c.End())-base
+			txt := g()
+			if txt == DelDoc {
+				a = docStart(s, a)
+				txt = Del
+			}
 			out.Write(s[last:a])
-			out.WriteString(g())
+			out.WriteString(txt)
 			last = b
 			return false
 		}
@@ -279,6 +284,28 @@ func Load(dir string) {
 
 // Del, as the text of a rewrite of a statement, deletes the statement and its line.
 const Del = "\x00del\x00"
+
+// DelDoc, as the text of a rewrite of a declaration, deletes it with its doc comment.
+const DelDoc = "\x00deldoc\x00"
+
+// docStart is the start of the // comment lines right above offset a (a declaration at the
+// start of its line); the files are parsed without comments, so they are found in the text.
+func docStart(s []byte, a int) int {
+	for {
+		i := a - 1 // the newline ending the line above
+		if i < 0 || s[i] != '\n' {
+			return a
+		}
+		j := i
+		for j > 0 && s[j-1] != '\n' {
+			j--
+		}
+		if !strings.HasPrefix(strings.TrimSpace(string(s[j:i])), "//") {
+			return a
+		}
+		a = j
+	}
+}
 
 // dropDeleted removes the lines that hold only a deleted statement.
 func dropDeleted(s string) string {
