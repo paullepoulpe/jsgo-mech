@@ -223,9 +223,9 @@ func TestProtoCodedBytes(t *testing.T) {
 	}
 }
 
-// TestProtoBuildShares: build() hands the builder's storage to the message (pbBuild_); the
-// message must not see what the builder does afterwards, and a second build() gives the
-// builder's new state.
+// TestProtoBuildShares: build() copies the builder's struct of fields into the message and
+// leaves the repeated fields' slices shared (pbData_.build_); the message must not see what the
+// builder does afterwards, and a second build() gives the builder's new state.
 func TestProtoBuildShares(t *testing.T) {
 	b := Mapping_OriginalMapping_newBuilder().setOriginalFile("f.js").setLineNumber(3)
 	m1 := b.build().(*Mapping_OriginalMapping)

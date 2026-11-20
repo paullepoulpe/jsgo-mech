@@ -1,0 +1,70 @@
+none: case=4 str=false/0 dbl=false/0 tmpl=false/{}
+none: builder {kind: NUMBER_LITERAL}
+none: 08c901 | {kind: NUMBER_LITERAL} | hash 790142431 | size 3
+string 0: case=1 str=true/0 dbl=false/0 tmpl=false/{}
+string 0: builder {kind: NUMBER_LITERAL; string_value_pointer: 0}
+string 0: 08c9011800 | {kind: NUMBER_LITERAL; string_value_pointer: 0} | hash -1013886506 | size 5
+double: case=2 str=false/0 dbl=true/2.5 tmpl=false/{}
+double: builder {kind: NUMBER_LITERAL; double_value: 2.5}
+double: 08c901210000000000000440 | {kind: NUMBER_LITERAL; double_value: 2.5} | hash 60117515 | size 12
+clear the other member: case=2 str=false/0 dbl=true/2.5 tmpl=false/{}
+clear the other member: builder {kind: NUMBER_LITERAL; double_value: 2.5}
+clear the other member: 08c901210000000000000440 | {kind: NUMBER_LITERAL; double_value: 2.5} | hash 60117515 | size 12
+template: case=3 str=false/0 dbl=false/0 tmpl=true/{raw_string_pointer: 4}
+template: builder {kind: NUMBER_LITERAL; template_string_value {;   raw_string_pointer: 4; }}
+template: 08c90142020804 | {kind: NUMBER_LITERAL; template_string_value {;   raw_string_pointer: 4; }} | hash -1781243221 | size 7
+string 9: case=1 str=true/9 dbl=false/0 tmpl=false/{}
+string 9: builder {kind: NUMBER_LITERAL; string_value_pointer: 9}
+string 9: 08c9011809 | {kind: NUMBER_LITERAL; string_value_pointer: 9} | hash -1013886497 | size 5
+template from builder: case=3 str=false/0 dbl=false/0 tmpl=true/{cooked_string_pointer: 1}
+template from builder: builder {kind: NUMBER_LITERAL; template_string_value {;   cooked_string_pointer: 1; }}
+template from builder: 08c90142021001 | {kind: NUMBER_LITERAL; template_string_value {;   cooked_string_pointer: 1; }} | hash -1781243171 | size 7
+template builder changed: case=3 str=false/0 dbl=false/0 tmpl=true/{raw_string_pointer: 8; cooked_string_pointer: 1}
+template builder changed: builder {kind: NUMBER_LITERAL; template_string_value {;   raw_string_pointer: 8;   cooked_string_pointer: 1; }}
+template builder changed: 08c901420408081001 | {kind: NUMBER_LITERAL; template_string_value {;   raw_string_pointer: 8;   cooked_string_pointer: 1; }} | hash 1732604826 | size 9
+double 0: case=2 str=false/0 dbl=true/0 tmpl=false/{}
+double 0: builder {kind: NUMBER_LITERAL; double_value: 0.0}
+double 0: 08c901210000000000000000 | {kind: NUMBER_LITERAL; double_value: 0.0} | hash -1013886453 | size 12
+empty template builder: case=3 str=false/0 dbl=false/0 tmpl=true/{}
+empty template builder: builder {kind: NUMBER_LITERAL; template_string_value {; }}
+empty template builder: 08c9014200 | {kind: NUMBER_LITERAL; template_string_value {; }} | hash -1496119878 | size 5
+merge template over double: case=3 str=false/0 dbl=false/0 tmpl=true/{raw_string_pointer: 2}
+merge template over double: builder {kind: NUMBER_LITERAL; template_string_value {;   raw_string_pointer: 2; }}
+merge template over double: 08c90142020802 | {kind: NUMBER_LITERAL; template_string_value {;   raw_string_pointer: 2; }} | hash -1781243223 | size 7
+clear oneof: case=4 str=false/0 dbl=false/0 tmpl=false/{}
+clear oneof: builder {kind: NUMBER_LITERAL}
+clear oneof: 08c901 | {kind: NUMBER_LITERAL} | hash 790142431 | size 3
+clear the member set: case=4 str=false/0 dbl=false/0 tmpl=false/{}
+clear the member set: builder {kind: NUMBER_LITERAL}
+clear the member set: 08c901 | {kind: NUMBER_LITERAL} | hash 790142431 | size 3
+file none: case=5 pre=false/"" disk=false zip=false stub=false/false
+file none: builder {filename: "f"}
+file none: 0a0166 | {filename: "f"} | hash 222747985 | size 3
+file preloaded: case=1 pre=true/"x" disk=false zip=false stub=false/false
+file preloaded: builder {filename: "f"; preloaded_contents: "x"}
+file preloaded: 0a0166120178 | {filename: "f"; preloaded_contents: "x"} | hash -1277865381 | size 6
+file on disk: case=2 pre=false/"" disk=true zip=false stub=false/false
+file on disk: builder {filename: "f"; file_on_disk {;   actual_path: "/p"; }}
+file on disk: 0a01661a040a022f70 | {filename: "f"; file_on_disk {;   actual_path: "/p"; }} | hash -1452362284 | size 9
+file zip builder: case=3 pre=false/"" disk=false zip=true stub=false/false
+file zip builder: builder {filename: "f"; zip_entry {;   zip_path: "z"; }}
+file zip builder: 0a016622030a017a | {filename: "f"; zip_entry {;   zip_path: "z"; }} | hash -2069251009 | size 8
+file stub false: case=4 pre=false/"" disk=false zip=false stub=true/false
+file stub false: builder {filename: "f"; stub_file: false}
+file stub false: 0a01664800 | {filename: "f"; stub_file: false} | hash -1277863893 | size 5
+file preloaded empty: case=1 pre=true/"" disk=false zip=false stub=false/false
+file preloaded empty: builder {filename: "f"; preloaded_contents: ""}
+file preloaded empty: 0a01661200 | {filename: "f"; preloaded_contents: ""} | hash -1277865501 | size 5
+file clear the other member: case=1 pre=true/"" disk=false zip=false stub=false/false
+file clear the other member: builder {filename: "f"; preloaded_contents: ""}
+file clear the other member: 0a01661200 | {filename: "f"; preloaded_contents: ""} | hash -1277865501 | size 5
+file clear oneof: case=5 pre=false/"" disk=false zip=false stub=false/false
+file clear oneof: builder {filename: "f"}
+file clear oneof: 0a0166 | {filename: "f"} | hash 222747985 | size 3
+file message: case=4 stub=true/true pre=false disk=false default disk=true
+file parsed twice: case=4 pre=false stub=true
+file parsed twice: 4801 | {stub_file: true} | hash 222749538 | size 2
+type object: case=1
+type union: case=2 object=false union=true
+type union: builder {union {;   union_member: 3; }}
+type union: 22030a0103 | {union {;   union_member: 3; }} | hash 972162822 | size 5
