@@ -75,7 +75,7 @@ func (this *SimpleListMultimap) putAll(key any, values IterableOf[any]) *SimpleL
 
 // putAll_s is putAll for a string key that is not boxed (post-flip manual step).
 func (this *SimpleListMultimap) putAll_s(key string, values IterableOf[any]) *SimpleListMultimap {
-	it_1 := foreach_(any(values))
+	it_1 := foreach_(values)
 	for it_1.next() {
 		var value any = it_1.v
 		this.put_s(key, value)
