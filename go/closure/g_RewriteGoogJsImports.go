@@ -58,7 +58,7 @@ func (this *RewriteGoogJsImports) findGoogImportNode(scriptRoot Node) Node {
 		var child Node = scriptRoot.getFirstFirstChild()
 		for ; child != 0; child = child.getNext() {
 			if child.isImport() && strings.HasSuffix(child.getLastChild().getString(), "/goog.js") {
-				if (child.getFirstChild().isEmpty() && child.getSecondChild().isImportStar()) && (child.getSecondChild().getString() == "goog") {
+				if (child.getFirstChild().isEmpty() && child.getSecondChild().isImportStar()) && (child.getSecondChild().getStringIs_(sid_goog)) {
 					googImportNode = child
 				} else {
 					valid = false
@@ -315,7 +315,7 @@ func new_RewriteGoogJsImports_ReferenceReplacer(outer_ *RewriteGoogJsImports, sc
 }
 
 func (this *RewriteGoogJsImports_ReferenceReplacer) maybeRewriteBadGoogJsImportRef(t *NodeTraversal, nameNode Node, parent Node) {
-	if !parent.isGetProp() || !(nameNode.getString() == "goog") {
+	if !parent.isGetProp() || !(nameNode.getStringIs_(sid_goog)) {
 		return
 	}
 	var var_ *Var = t.getScope().getVar_String_rVar(nameNode.getString())
@@ -370,7 +370,7 @@ func (this *RewriteGoogJsImports_FindReexports) checkIfForwardingExport(t *NodeT
 }
 
 func (this *RewriteGoogJsImports_FindReexports) checkIfNameFowardedExport(t *NodeTraversal, nameNode Node, parent Node) {
-	if this.hasGoogImport && (nameNode.getString() == "goog") {
+	if this.hasGoogImport && (nameNode.getStringIs_(sid_goog)) {
 		if (parent.isExportSpec() && (parent.getFirstChild() == nameNode)) || parent.isExport() {
 			t.report(nameNode, RewriteGoogJsImports_GOOG_JS_REEXPORTED, []string{})
 		}

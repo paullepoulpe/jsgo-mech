@@ -1426,7 +1426,7 @@ func (this *JsDocInfoParser) parseTypeExpressionAnnotation(token JsDocToken) Nod
 		if typeNode != 0 {
 			this.skipEOLs()
 			if !this.match(JsDocToken_RIGHT_CURLY) {
-				if typeNode.isStringLit() && ("import" == typeNode.getString()) {
+				if typeNode.isStringLit() && (typeNode.getStringIs_(sid_import)) {
 					this.reportTypeSyntaxWarning(Msg_JSDOC_IMPORT)
 				} else {
 					this.reportTypeSyntaxWarning(Msg_JSDOC_MISSING_RC)

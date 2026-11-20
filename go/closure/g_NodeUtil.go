@@ -535,7 +535,7 @@ func NodeUtil_getNameNode(n Node) Node {
 		default:
 			var funNameNode Node = n.getFirstChild()
 			return func() Node {
-				if funNameNode.isEmpty() || funNameNode.getString() == "" {
+				if funNameNode.isEmpty() || funNameNode.getStringIs_(sidx_) {
 					return 0
 				}
 				return funNameNode
@@ -1104,7 +1104,7 @@ func NodeUtil_isUndefined(n Node) bool {
 		case tokOrd1_VOID:
 			return true
 		case tokOrd1_NAME:
-			return (n.getString() == "undefined")
+			return (n.getStringIs_(sid_undefined))
 		default:
 			return false
 		}
@@ -1815,7 +1815,7 @@ func NodeUtil_isSwitchCase(n Node) bool {
 }
 
 func NodeUtil_isReferenceName(n Node) bool {
-	return (n.isName() && n.getString() != "")
+	return (n.isName() && !n.getStringIs_(sidx_))
 }
 
 func NodeUtil_isNonlocalModuleExportName(n Node) bool {
@@ -2151,7 +2151,7 @@ func NodeUtil_isFunctionExpression(n Node) bool {
 }
 
 func NodeUtil_isNamedFunctionExpression(n Node) bool {
-	return (NodeUtil_isFunctionExpression(n) && n.getFirstChild().getString() != "")
+	return (NodeUtil_isFunctionExpression(n) && !n.getFirstChild().getStringIs_(sidx_))
 }
 
 func NodeUtil_isClassExpression(n Node) bool {
@@ -2171,7 +2171,7 @@ func NodeUtil_isNamedClass(n Node) bool {
 }
 
 func NodeUtil_isBleedingFunctionName(n Node) bool {
-	if !n.isName() || n.getString() == "" {
+	if !n.isName() || n.getStringIs_(sidx_) {
 		return false
 	}
 	var parent Node = n.getParent()
@@ -2193,7 +2193,7 @@ func NodeUtil_doesFunctionReferenceOwnArgumentsObject(fn Node) bool {
 }
 
 func NodeUtil_referencesArgumentsHelper(node Node) bool {
-	if node.isName() && (node.getString() == "arguments") {
+	if node.isName() && (node.getStringIs_(sid_arguments)) {
 		return true
 	}
 	if NodeUtil_isNonArrowFunction(node) {
@@ -2952,7 +2952,7 @@ func NodeUtil_isObjectDefinePropertiesDefinition(n Node) bool {
 	if !getprop.isGetProp() {
 		return false
 	}
-	return ((getprop.getString() == "defineProperties") && NodeUtil_isKnownGlobalObjectReference(getprop.getFirstChild()))
+	return ((getprop.getStringIs_(sid_defineProperties)) && NodeUtil_isKnownGlobalObjectReference(getprop.getFirstChild()))
 }
 
 func NodeUtil_isObjectCreateWithPropertiesDefinition(n Node) bool {
@@ -2960,14 +2960,14 @@ func NodeUtil_isObjectCreateWithPropertiesDefinition(n Node) bool {
 		return false
 	}
 	var getprop Node = n.getFirstChild()
-	return ((getprop.isGetProp() && (getprop.getString() == "create")) && NodeUtil_isKnownGlobalObjectReference(getprop.getFirstChild()))
+	return ((getprop.isGetProp() && (getprop.getStringIs_(sid_create))) && NodeUtil_isKnownGlobalObjectReference(getprop.getFirstChild()))
 }
 
 func NodeUtil_isKnownGlobalObjectReference(n Node) bool {
 	return func() bool {
 		switch n.ns_().token {
 		case tokOrd1_NAME:
-			return (n.getString() == "Object")
+			return (n.getStringIs_(sid_Object))
 		case tokOrd1_GETPROP:
 			return (NodeUtil_GLOBAL_OBJECT.matches(n) || NodeUtil_GLOBAL_OBJECT_MANGLED.matches(n))
 		default:
@@ -2984,7 +2984,7 @@ func NodeUtil_isObjectDefinePropertyDefinition(n Node) bool {
 	if !getprop.isGetProp() {
 		return false
 	}
-	return ((getprop.getString() == "defineProperty") && NodeUtil_isKnownGlobalObjectReference(getprop.getFirstChild()))
+	return ((getprop.getStringIs_(sid_defineProperty)) && NodeUtil_isKnownGlobalObjectReference(getprop.getFirstChild()))
 }
 
 func NodeUtil_getObjectDefinedPropertiesKeys(definePropertiesCall Node) IterableOf[Node] {
@@ -3014,7 +3014,7 @@ func NodeUtil_isPrototypeProperty(n Node) bool {
 		return false
 	}
 	var recv Node = n.getFirstChild()
-	return (recv.isGetProp() && (recv.getString() == "prototype"))
+	return (recv.isGetProp() && (recv.getStringIs_(sid_prototype)))
 }
 
 func NodeUtil_isPrototypeMethod(n Node) bool {
@@ -3033,7 +3033,7 @@ func NodeUtil_isPrototypeAssignment(getProp Node) bool {
 		return false
 	}
 	var parent Node = getProp.getParent()
-	return ((parent.isAssign() && getProp.isFirstChildOf(parent)) && (getProp.getString() == "prototype"))
+	return ((parent.isAssign() && getProp.isFirstChildOf(parent)) && (getProp.getStringIs_(sid_prototype)))
 }
 
 func NodeUtil_isPropertyTest(compiler *AbstractCompiler, propAccess Node) bool {
@@ -3088,11 +3088,11 @@ func NodeUtil_getPrototypeClassName(qName Node) Node {
 	if !qName.isGetProp() {
 		return 0
 	}
-	if qName.getString() == "prototype" {
+	if qName.getStringIs_(sid_prototype) {
 		return qName.getFirstChild()
 	}
 	var recv Node = qName.getFirstChild()
-	if recv.isGetProp() && (recv.getString() == "prototype") {
+	if recv.isGetProp() && (recv.getStringIs_(sid_prototype)) {
 		return recv.getFirstChild()
 	}
 	return 0
@@ -3902,7 +3902,7 @@ func NodeUtil_numberNode(value float64, srcref Node) Node {
 }
 
 func NodeUtil_isNaN(n Node) bool {
-	return (((n.isName() && (n.getString() == "NaN")) || (((((n.ns_().token == tokOrd1_DIV) && n.getFirstChild().isNumber()) && (n.getFirstChild().getDouble() == 0)) && n.getLastChild().isNumber()) && (n.getLastChild().getDouble() == 0))) || n.matchesQualifiedNameNode(NodeUtil_NUMBER_NAN))
+	return (((n.isName() && (n.getStringIs_(sid_NaN))) || (((((n.ns_().token == tokOrd1_DIV) && n.getFirstChild().isNumber()) && (n.getFirstChild().getDouble() == 0)) && n.getLastChild().isNumber()) && (n.getLastChild().getDouble() == 0))) || n.matchesQualifiedNameNode(NodeUtil_NUMBER_NAN))
 }
 
 func NodeUtil_countAstSizeUpToLimit(n Node, limit int32) int32 {
@@ -4000,7 +4000,7 @@ func NodeUtil_isModuleScopeRoot(n Node) bool {
 }
 
 func NodeUtil_isGoogModuleExportsReference(scope *Scope, possibleName Node) bool {
-	if !possibleName.isName() || !(possibleName.getString() == "exports") {
+	if !possibleName.isName() || !(possibleName.getStringIs_(sid_exports)) {
 		return false
 	}
 	var var_ *Var = scope.getVar_String_rVar(possibleName.getString())
@@ -4077,7 +4077,7 @@ func NodeUtil_isEs6ConstructorMemberFunctionDef(memberFunctionDef Node) bool {
 	if !memberFunctionDef.isMemberFunctionDef() {
 		return false
 	}
-	return ((memberFunctionDef.getParent().isClassMembers() && !memberFunctionDef.isStaticMember()) && (memberFunctionDef.getString() == "constructor"))
+	return ((memberFunctionDef.getParent().isClassMembers() && !memberFunctionDef.isStaticMember()) && (memberFunctionDef.getStringIs_(sid_constructor)))
 }
 
 func NodeUtil_isEs6Constructor(fnNode Node) bool {

@@ -394,7 +394,7 @@ func RemoveUnusedCode_isJscompPolyfill(n Node) bool {
 			return ((((name == "$jscomp$polyfill") || (name == "$jscomp$patch")) || (name == "$jscomp$polyfillTypedArrayMethod")) && n.getNext().isStringLit())
 		case tokOrd1_GETPROP:
 			var propertyName string = n.getString()
-			return ((((((propertyName == "polyfill") || (propertyName == "patch")) || (propertyName == "polyfillTypedArrayMethod")) && n.getFirstChild().isName()) && (n.getFirstChild().getString() == "$jscomp")) && n.getNext().isStringLit())
+			return ((((((propertyName == "polyfill") || (propertyName == "patch")) || (propertyName == "polyfillTypedArrayMethod")) && n.getFirstChild().isName()) && (n.getFirstChild().getStringIs_(sidx_246a73636f6d70))) && n.getNext().isStringLit())
 		default:
 			return false
 		}
@@ -512,7 +512,7 @@ func (this *RemoveUnusedCode) isAssignmentToPrototype(n Node) bool {
 }
 
 func RemoveUnusedCode_isDotPrototype(n Node) bool {
-	return (NodeUtil_isNormalOrOptChainGetProp(n) && (n.getString() == "prototype"))
+	return (NodeUtil_isNormalOrOptChainGetProp(n) && (n.getStringIs_(sid_prototype)))
 }
 
 func (this *RemoveUnusedCode) traverseCatch(catchNode Node, scope *Scope) {
@@ -716,7 +716,7 @@ func (this *RemoveUnusedCode) traverseRemovableAssignValue(valueNode Node, build
 }
 
 func (this *RemoveUnusedCode) isNameDotPrototype(n Node) bool {
-	return ((n.isGetProp() && n.getFirstChild().isName()) && (n.getString() == "prototype"))
+	return ((n.isGetProp() && n.getFirstChild().isName()) && (n.getStringIs_(sid_prototype)))
 }
 
 func (this *RemoveUnusedCode) traverseObjectPattern(pattern Node, scope *Scope) {
@@ -904,7 +904,7 @@ func (this *RemoveUnusedCode) traverseFunction(function Node, parentScope *Scope
 	var fparamScope *Scope = this.scopeCreator.createScope(function, parentScope)
 	var fbodyScope *Scope = this.scopeCreator.createScope(body, fparamScope)
 	var nameNode Node = function.getFirstChild()
-	if nameNode.getString() != "" {
+	if !nameNode.getStringIs_(sidx_) {
 		var varInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(nameNode, fparamScope)
 		if NodeUtil_isExpressionResultUsed(function) {
 			varInfo.setHasNonLocalOrNonLiteralValue()
@@ -2668,7 +2668,7 @@ func (this *RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign) removeIntern
 		panic(new_IllegalStateException_String(tostr_(objDotPrototype)))
 	}
 	var objExpression Node = objDotPrototype.getFirstChild()
-	if objDotPrototype.getString() != "prototype" {
+	if !objDotPrototype.getStringIs_(sid_prototype) {
 		panic(new_IllegalStateException_String(tostr_(objDotPrototype)))
 	}
 	var mustPreserveRhs bool = (this.outer_.mayHaveSideEffects(rhs) || NodeUtil_isExpressionResultUsed(this.assignNode))
