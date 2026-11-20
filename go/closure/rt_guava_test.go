@@ -2,6 +2,7 @@ package closure
 
 import (
 	"testing"
+	"unsafe"
 )
 
 // guavaThrows_ runs f and returns the simple class name of the Java exception it throws ("" if none).
@@ -214,4 +215,48 @@ func TestGuavaIterables(t *testing.T) {
 	x := ImmutableList_of_Object("q")
 	guavaEq_(t, in.intern(x) == any(x), true)
 	guavaEq_(t, in.intern(ImmutableList_of_Object("q")) == any(x), true)
+}
+
+// An ImmutableCollection keeps what only multisets, sorted sets with a comparator, enum sets
+// and sets asked for asList() use in an immRare_ of its own: lists and plain sets are 80 bytes.
+func TestGuavaImmutableCollectionRare(t *testing.T) {
+	if n := unsafe.Sizeof(ImmutableCollection{}); n > 80 {
+		t.Errorf("ImmutableCollection is %d bytes", n)
+	}
+	a, b, c := strobj_("a"), strobj_("b"), strobj_("c")
+	l := immList_([]any{b, a, c})
+	if l.rare != nil || l.cmp_() != nil || l.byOrd_() != nil {
+		t.Errorf("a list has an immRare_")
+	}
+	guavaEq_(t, l.asList(), l)
+	s := immSet_([]any{b, a, b, c})
+	if s.rare != nil {
+		t.Errorf("a plain set has an immRare_")
+	}
+	guavaEq_(t, s.size(), int32(3))
+	guavaEq_(t, s.contains(a), true)
+	guavaEq_(t, s.asList(), immList_([]any{b, a, c}))
+	if s.asList() != s.asList() {
+		t.Errorf("asList() of a set is made twice")
+	}
+	guavaEq_(t, s.contains(c), true)
+	nat := immSorted_([]any{b, c, a}, nil)
+	if nat.rare != nil {
+		t.Errorf("a naturally ordered set has an immRare_")
+	}
+	guavaEq_(t, nat.asList(), immList_([]any{a, b, c}))
+	rev := nat.descendingSet().(*ImmutableSortedSet)
+	guavaEq_(t, rev.asList(), immList_([]any{c, b, a}))
+	guavaEq_(t, rev.comparator().compare(a, b) > 0, true)
+	guavaEq_(t, rev.tailSet(b, true).(*ImmutableSortedSet).asList(), immList_([]any{b, a}))
+	guavaEq_(t, rev.tailSet(b, true).(*ImmutableSortedSet).comparator().compare(a, b) > 0, true)
+	guavaEq_(t, nat.tailSet(b, false).(*ImmutableSortedSet).asList(), immList_([]any{c}))
+	ms := immMultiset_([]any{a, b, a, a})
+	guavaEq_(t, ms.size(), int32(4))
+	guavaEq_(t, len(ms.elems_()), 4)
+	guavaEq_(t, ms.toString(), "[a x 3, b]")
+	guavaEq_(t, ms.entrySet().size(), int32(2))
+	guavaEq_(t, len(toSlice_(ms)), 4)
+	guavaEq_(t, immMultiset_(nil).size(), int32(0))
+	guavaEq_(t, len(immMultiset_(nil).elems_()), 0)
 }
