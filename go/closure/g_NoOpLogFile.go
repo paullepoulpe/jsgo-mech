@@ -62,7 +62,7 @@ func (this *NoOpLogFile) isLogging_impl() bool {
 
 // logObject: an object that is exactly a NoOpLogFile calls its logObject_impl directly (post-flip); others dispatch.
 func (this *NoOpLogFile) logObject(p0 any) *LogFile {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoOpLogFile); p == this {
 		return this.logObject_impl(p0)
 	}
 	return this.self_.logObject_impl(p0)
@@ -70,7 +70,7 @@ func (this *NoOpLogFile) logObject(p0 any) *LogFile {
 
 // logString: an object that is exactly a NoOpLogFile calls its logString_impl directly (post-flip); others dispatch.
 func (this *NoOpLogFile) logString(p0 string) *LogFile {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoOpLogFile); p == this {
 		return this.logString_impl(p0)
 	}
 	return this.self_.logString_impl(p0)
@@ -78,7 +78,7 @@ func (this *NoOpLogFile) logString(p0 string) *LogFile {
 
 // log: an object that is exactly a NoOpLogFile calls its log_impl directly (post-flip); others dispatch.
 func (this *NoOpLogFile) log(p0 Supplier) *LogFile {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoOpLogFile); p == this {
 		return this.log_impl(p0)
 	}
 	return this.self_.log_impl(p0)
@@ -86,7 +86,7 @@ func (this *NoOpLogFile) log(p0 Supplier) *LogFile {
 
 // log_2: an object that is exactly a NoOpLogFile calls its log_2_impl directly (post-flip); others dispatch.
 func (this *NoOpLogFile) log_2(p0 string, p1 []any) *LogFile {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoOpLogFile); p == this {
 		return this.log_2_impl(p0, p1)
 	}
 	return this.self_.log_2_impl(p0, p1)
@@ -94,7 +94,7 @@ func (this *NoOpLogFile) log_2(p0 string, p1 []any) *LogFile {
 
 // logJsonObject: an object that is exactly a NoOpLogFile calls its logJsonObject_impl directly (post-flip); others dispatch.
 func (this *NoOpLogFile) logJsonObject(p0 any) *LogFile {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoOpLogFile); p == this {
 		return this.logJsonObject_impl(p0)
 	}
 	return this.self_.logJsonObject_impl(p0)
@@ -102,7 +102,7 @@ func (this *NoOpLogFile) logJsonObject(p0 any) *LogFile {
 
 // logJsonSupplier: an object that is exactly a NoOpLogFile calls its logJsonSupplier_impl directly (post-flip); others dispatch.
 func (this *NoOpLogFile) logJsonSupplier(p0 Supplier) *LogFile {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoOpLogFile); p == this {
 		return this.logJsonSupplier_impl(p0)
 	}
 	return this.self_.logJsonSupplier_impl(p0)
@@ -110,7 +110,7 @@ func (this *NoOpLogFile) logJsonSupplier(p0 Supplier) *LogFile {
 
 // logJson: an object that is exactly a NoOpLogFile calls its logJson_impl directly (post-flip); others dispatch.
 func (this *NoOpLogFile) logJson(p0 LogFile_StreamedJsonProducer) *LogFile {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoOpLogFile); p == this {
 		return this.logJson_impl(p0)
 	}
 	return this.self_.logJson_impl(p0)
@@ -118,7 +118,7 @@ func (this *NoOpLogFile) logJson(p0 LogFile_StreamedJsonProducer) *LogFile {
 
 // close: an object that is exactly a NoOpLogFile calls its close_impl directly (post-flip); others dispatch.
 func (this *NoOpLogFile) close() {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoOpLogFile); p == this {
 		this.close_impl()
 		return
 	}
@@ -127,7 +127,7 @@ func (this *NoOpLogFile) close() {
 
 // isLogging: an object that is exactly a NoOpLogFile calls its isLogging_impl directly (post-flip); others dispatch.
 func (this *NoOpLogFile) isLogging() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NoOpLogFile); p == this {
 		return this.isLogging_impl()
 	}
 	return this.self_.isLogging_impl()

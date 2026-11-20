@@ -296,7 +296,7 @@ func SourceExcerptProvider_SourceExcerpt_3_clinit() {
 
 // get_5: an object that is exactly a SourceExcerptProvider_SourceExcerpt_1 calls its get_5_impl directly (post-flip); others dispatch.
 func (this *SourceExcerptProvider_SourceExcerpt_1) get_5(p0 SourceExcerptProvider, p1 Optional[string], p2 int32, p3 int32, p4 SourceExcerptProvider_ExcerptFormatter) Optional[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*SourceExcerptProvider_SourceExcerpt_1); p == this {
 		return this.get_5_impl(p0, p1, p2, p3, p4)
 	}
 	return this.selfI_(p0, p1, p2, p3, p4)
@@ -304,7 +304,7 @@ func (this *SourceExcerptProvider_SourceExcerpt_1) get_5(p0 SourceExcerptProvide
 
 // get_5: an object that is exactly a SourceExcerptProvider_SourceExcerpt_2 calls its get_5_impl directly (post-flip); others dispatch.
 func (this *SourceExcerptProvider_SourceExcerpt_2) get_5(p0 SourceExcerptProvider, p1 Optional[string], p2 int32, p3 int32, p4 SourceExcerptProvider_ExcerptFormatter) Optional[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*SourceExcerptProvider_SourceExcerpt_2); p == this {
 		return this.get_5_impl(p0, p1, p2, p3, p4)
 	}
 	return this.selfI_(p0, p1, p2, p3, p4)
@@ -312,7 +312,7 @@ func (this *SourceExcerptProvider_SourceExcerpt_2) get_5(p0 SourceExcerptProvide
 
 // get_5: an object that is exactly a SourceExcerptProvider_SourceExcerpt_3 calls its get_5_impl directly (post-flip); others dispatch.
 func (this *SourceExcerptProvider_SourceExcerpt_3) get_5(p0 SourceExcerptProvider, p1 Optional[string], p2 int32, p3 int32, p4 SourceExcerptProvider_ExcerptFormatter) Optional[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*SourceExcerptProvider_SourceExcerpt_3); p == this {
 		return this.get_5_impl(p0, p1, p2, p3, p4)
 	}
 	return this.selfI_(p0, p1, p2, p3, p4)

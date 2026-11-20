@@ -150,7 +150,7 @@ const LocaleDataPasses_LocaleSubstitutions_DEFAULT_LOCALE string = "en"
 
 // visit: an object that is exactly a LocaleDataPasses_ProtectCurrentLocale calls its visit_impl directly (post-flip); others dispatch.
 func (this *LocaleDataPasses_ProtectCurrentLocale) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*LocaleDataPasses_ProtectCurrentLocale); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -159,7 +159,7 @@ func (this *LocaleDataPasses_ProtectCurrentLocale) visit(p0 *NodeTraversal, p1 N
 
 // visit: an object that is exactly a LocaleDataPasses_LocaleSubstitutions calls its visit_impl directly (post-flip); others dispatch.
 func (this *LocaleDataPasses_LocaleSubstitutions) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*LocaleDataPasses_LocaleSubstitutions); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

@@ -193,7 +193,7 @@ func TemplatizedType_clinit() {
 
 // getTypeClass: an object that is exactly a TemplatizedType calls its getTypeClass_impl directly (post-flip); others dispatch.
 func (this *TemplatizedType) getTypeClass() JSTypeClass {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TemplatizedType); p == this {
 		return this.getTypeClass_impl()
 	}
 	return this.self_.getTypeClass_impl()
@@ -201,7 +201,7 @@ func (this *TemplatizedType) getTypeClass() JSTypeClass {
 
 // getCtorImplementedInterfaces: an object that is exactly a TemplatizedType calls its getCtorImplementedInterfaces_impl directly (post-flip); others dispatch.
 func (this *TemplatizedType) getCtorImplementedInterfaces() Iterable {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TemplatizedType); p == this {
 		return this.getCtorImplementedInterfaces_impl()
 	}
 	return this.self_.getCtorImplementedInterfaces_impl()
@@ -209,7 +209,7 @@ func (this *TemplatizedType) getCtorImplementedInterfaces() Iterable {
 
 // getCtorExtendedInterfaces: an object that is exactly a TemplatizedType calls its getCtorExtendedInterfaces_impl directly (post-flip); others dispatch.
 func (this *TemplatizedType) getCtorExtendedInterfaces() Iterable {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TemplatizedType); p == this {
 		return this.getCtorExtendedInterfaces_impl()
 	}
 	return this.self_.getCtorExtendedInterfaces_impl()
@@ -217,7 +217,7 @@ func (this *TemplatizedType) getCtorExtendedInterfaces() Iterable {
 
 // appendTo: an object that is exactly a TemplatizedType calls its appendTo_impl directly (post-flip); others dispatch.
 func (this *TemplatizedType) appendTo(p0 *TypeStringBuilder) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TemplatizedType); p == this {
 		this.appendTo_impl(p0)
 		return
 	}
@@ -226,7 +226,7 @@ func (this *TemplatizedType) appendTo(p0 *TypeStringBuilder) {
 
 // recursionUnsafeHashCode: an object that is exactly a TemplatizedType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
 func (this *TemplatizedType) recursionUnsafeHashCode() int32 {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TemplatizedType); p == this {
 		return this.recursionUnsafeHashCode_impl()
 	}
 	return this.self_.recursionUnsafeHashCode_impl()
@@ -234,7 +234,7 @@ func (this *TemplatizedType) recursionUnsafeHashCode() int32 {
 
 // visitUntyped: an object that is exactly a TemplatizedType calls its visitUntyped_impl directly (post-flip); others dispatch.
 func (this *TemplatizedType) visitUntyped(p0 Visitor) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TemplatizedType); p == this {
 		return this.visitUntyped_impl(p0)
 	}
 	return this.self_.visitUntyped_impl(p0)
@@ -242,7 +242,7 @@ func (this *TemplatizedType) visitUntyped(p0 Visitor) any {
 
 // visitUntyped_2: an object that is exactly a TemplatizedType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
 func (this *TemplatizedType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TemplatizedType); p == this {
 		return this.visitUntyped_2_impl(p0, p1)
 	}
 	return this.self_.visitUntyped_2_impl(p0, p1)
@@ -250,7 +250,7 @@ func (this *TemplatizedType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) 
 
 // toMaybeTemplatizedType: an object that is exactly a TemplatizedType calls its toMaybeTemplatizedType_impl directly (post-flip); others dispatch.
 func (this *TemplatizedType) toMaybeTemplatizedType() *TemplatizedType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TemplatizedType); p == this {
 		return this.toMaybeTemplatizedType_impl()
 	}
 	return this.self_.toMaybeTemplatizedType_impl()
@@ -258,7 +258,7 @@ func (this *TemplatizedType) toMaybeTemplatizedType() *TemplatizedType {
 
 // getTemplateTypes: an object that is exactly a TemplatizedType calls its getTemplateTypes_impl directly (post-flip); others dispatch.
 func (this *TemplatizedType) getTemplateTypes() *JTList[*JSType] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TemplatizedType); p == this {
 		return this.getTemplateTypes_impl()
 	}
 	return this.self_.getTemplateTypes_impl()
@@ -266,7 +266,7 @@ func (this *TemplatizedType) getTemplateTypes() *JTList[*JSType] {
 
 // getPropertyTypeKey: an object that is exactly a TemplatizedType calls its getPropertyTypeKey_impl directly (post-flip); others dispatch.
 func (this *TemplatizedType) getPropertyTypeKey(p0 Property_Key) *JSType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TemplatizedType); p == this {
 		return this.getPropertyTypeKey_impl(p0)
 	}
 	return this.self_.getPropertyTypeKey_impl(p0)
@@ -274,7 +274,7 @@ func (this *TemplatizedType) getPropertyTypeKey(p0 Property_Key) *JSType {
 
 // getTemplateTypeMap: an object that is exactly a TemplatizedType calls its getTemplateTypeMap_impl directly (post-flip); others dispatch.
 func (this *TemplatizedType) getTemplateTypeMap() *TemplateTypeMap {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TemplatizedType); p == this {
 		return this.getTemplateTypeMap_impl()
 	}
 	return this.self_.getTemplateTypeMap_impl()
@@ -282,7 +282,7 @@ func (this *TemplatizedType) getTemplateTypeMap() *TemplateTypeMap {
 
 // hasAnyTemplateTypesInternal: an object that is exactly a TemplatizedType calls its hasAnyTemplateTypesInternal_impl directly (post-flip); others dispatch.
 func (this *TemplatizedType) hasAnyTemplateTypesInternal() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TemplatizedType); p == this {
 		return this.hasAnyTemplateTypesInternal_impl()
 	}
 	return this.self_.hasAnyTemplateTypesInternal_impl()
@@ -290,7 +290,7 @@ func (this *TemplatizedType) hasAnyTemplateTypesInternal() bool {
 
 // resolveInternal: an object that is exactly a TemplatizedType calls its resolveInternal_impl directly (post-flip); others dispatch.
 func (this *TemplatizedType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TemplatizedType); p == this {
 		return this.resolveInternal_impl(p0)
 	}
 	return this.self_.resolveInternal_impl(p0)
