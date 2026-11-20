@@ -53,19 +53,23 @@ a5370110 patch 016-a5370110-rt.patch
 #= 531be9bd dropped: manual patch no longer applies (2 files; conflicts in g_MakeDeclaredNamesUnique.go g_SourceFile.go)
 #- 531be9bd patch 020-531be9bd-manual.patch
 # 21. postflip (manual): Var-keyed maps of RemoveUnusedCode and MustBeReachingVariableDef
-8d8b945c patch 021-8d8b945c-rt.patch
+#=4i 8d8b945c dropped (in-bounds variant): runtime that exists only for dropped steps: varMap_ (rt_varmap.go) was made for the manual Var-keyed maps of steps 21-24, re-made as 406/407 (out of bounds, dropped); no g_*.go, no other rt_*.go and no tool names varMap_ at any commit of the replay. The file's used part (varKey_, vkey_, exportTraceKey_, etkey_: step 315) is made by step 315's patch
+#- 8d8b945c patch 021-8d8b945c-rt.patch
 #= 8d8b945c dropped: manual patch no longer applies (2 files; conflicts in g_MustBeReachingVariableDef.go g_RemoveUnusedCode.go)
 #- 8d8b945c patch 021-8d8b945c-manual.patch
 # 22. postflip (manual): ReferenceCollector.referenceMap is a Var-keyed map
-3d0eda46 patch 022-3d0eda46-rt.patch
+#=4i 3d0eda46 dropped (in-bounds variant): runtime that exists only for dropped steps: varMap_ (rt_varmap.go) was made for the manual Var-keyed maps of steps 21-24, re-made as 406/407 (out of bounds, dropped); no g_*.go, no other rt_*.go and no tool names varMap_ at any commit of the replay. The file's used part (varKey_, vkey_, exportTraceKey_, etkey_: step 315) is made by step 315's patch
+#- 3d0eda46 patch 022-3d0eda46-rt.patch
 #= 3d0eda46 dropped: manual patch no longer applies (1 files; conflicts in g_ReferenceCollector.go)
 #- 3d0eda46 patch 022-3d0eda46-manual.patch
 # 23. postflip (manual): fewer allocations in findModifiedParameters and data-flow map copies
-99c1ce0e patch 023-99c1ce0e-rt.patch
+#=4i 99c1ce0e dropped (in-bounds variant): runtime that exists only for dropped steps: varMap_ (rt_varmap.go) was made for the manual Var-keyed maps of steps 21-24, re-made as 406/407 (out of bounds, dropped); no g_*.go, no other rt_*.go and no tool names varMap_ at any commit of the replay. The file's used part (varKey_, vkey_, exportTraceKey_, etkey_: step 315) is made by step 315's patch
+#- 99c1ce0e patch 023-99c1ce0e-rt.patch
 #= 99c1ce0e dropped: manual patch no longer applies (1 files; conflicts in g_FunctionArgumentInjector.go)
 #- 99c1ce0e patch 023-99c1ce0e-manual.patch
 # 24. postflip (manual): varMap_ keeps its entries in one slice
-3d4d3023 patch 024-3d4d3023-rt.patch
+#=4i 3d4d3023 dropped (in-bounds variant): runtime that exists only for dropped steps: varMap_ (rt_varmap.go) was made for the manual Var-keyed maps of steps 21-24, re-made as 406/407 (out of bounds, dropped); no g_*.go, no other rt_*.go and no tool names varMap_ at any commit of the replay. The file's used part (varKey_, vkey_, exportTraceKey_, etkey_: step 315) is made by step 315's patch
+#- 3d4d3023 patch 024-3d4d3023-rt.patch
 #= 3d4d3023 dropped: manual patch no longer applies (2 files; conflicts in g_MustBeReachingVariableDef.go g_RemoveUnusedCode.go)
 #- 3d4d3023 patch 024-3d4d3023-manual.patch
 # 25. postflip (manual): Compiler.inputsById keyed by the id's string
@@ -551,7 +555,9 @@ e62c5f22 run t strview && f
 # 313. postflip (runtime): test that a for-each over a null list throws NullPointerException
 1c7325ae patch 313-1c7325ae-rt.patch
 # 315. postflip (runtime): vkey_ and etkey_, Go map keys of Var and ExportTrace
-218fccf8 patch 315-218fccf8-rt.patch
+#=4i 218fccf8 adapted (in-bounds variant): the patch makes rt_varmap.go with what the generated code uses (varKey_, vkey_, exportTraceKey_, etkey_: the same text), without varMap_ (steps 21-24 dropped)
+#- 218fccf8 patch 315-218fccf8-rt.patch
+218fccf8 patch 315-218fccf8-varkey-rt.patch
 # 317. postflip (runtime): a nil Go map throws NullPointerException where it is read
 2a9c86c0 patch 317-2a9c86c0-rt.patch
 # 319. postflip (runtime): typed collections as elements of typed containers, deque views, ComputeIfAbsent
