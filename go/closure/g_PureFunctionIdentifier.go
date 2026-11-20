@@ -253,7 +253,7 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 		panic(new_NullPointerException_0())
 	}
 	var invalid bool = false
-	var rvaluesAssignedToName *JTList[*ImmutableList] = jnewTList_(tc_p_ImmutableList)
+	var rvaluesAssignedToName *JTList[*ErasedImmutableList] = jnewTList_(tc_p_ImmutableList)
 	for reference := range elemsBy_(references, Node_of_) {
 		if !PureFunctionIdentifier_isDefinitelyRValue(reference) {
 			var rvalue Node = NodeUtil_getRValueOfLValue(reference)
@@ -287,7 +287,7 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 	} else {
 		it_5 := rvaluesAssignedToName.each()
 		for it_5.next() {
-			var callables *ImmutableList = it_5.v
+			var callables *ErasedImmutableList = it_5.v
 			for _, el := range immElems_(callables) {
 				rvalue := Node_of_(el)
 				if rvalue.isFunction() {

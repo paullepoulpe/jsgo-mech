@@ -526,7 +526,7 @@ func (this *AbstractCommandLineRunner) createInputs_4(files *JTList[*AbstractCom
 	return Outcome_base_ok_Object[List](inputs.asList())
 }
 
-func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files *JTList[*AbstractCommandLineRunner_FlagEntry[any]], moduleRoots ListOf[string], hasChunkSpecs bool) *Outcome_base[*ImmutableList] {
+func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files *JTList[*AbstractCommandLineRunner_FlagEntry[any]], moduleRoots ListOf[string], hasChunkSpecs bool) *Outcome_base[*ErasedImmutableList] {
 	var errors *TListBuilder[*JSError] = newTListBuilder_(jtc_p_JSError)
 	var relativeToAbsoluteName *JTMap[string, string] = jnewTMap_(jtc_string, jtc_string)
 	it_1 := files.each()
@@ -543,7 +543,7 @@ func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files *JTList[*Abstra
 		var file *AbstractCommandLineRunner_FlagEntry[any] = cast_[*AbstractCommandLineRunner_FlagEntry[any]](iterator.next())
 		if cast_[AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_IJS {
 			if hasChunkSpecs {
-				return Outcome_base_err[*ImmutableList](new_FlagUsageException("--ijs is incompatible with --chunk or --module.").up_Throwable())
+				return Outcome_base_err[*ErasedImmutableList](new_FlagUsageException("--ijs is incompatible with --chunk or --module.").up_Throwable())
 			}
 			var absoluteName string = file.value_
 			if !strings.HasSuffix(absoluteName, ".i.js") {
@@ -559,7 +559,7 @@ func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files *JTList[*Abstra
 			}
 		}
 	}
-	return Outcome_base_ok_Object[*ImmutableList](errors.build().asImm())
+	return Outcome_base_ok_Object[*ErasedImmutableList](errors.build().asImm())
 }
 
 func (this *AbstractCommandLineRunner) getModuleRootRelativeName(filename string, moduleRoots ListOf[string]) string {
@@ -586,7 +586,7 @@ func (this *AbstractCommandLineRunner) createSourceInputs(jsChunkSpecs *JTList[*
 	if (files.isEmpty() && (jsonFiles == nil)) && this.config.defaultToStdin {
 		files = jimmutableListOf_[*AbstractCommandLineRunner_FlagEntry[any]](jtc_p_AbstractCommandLineRunner_FlagEntry, new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), "-"))
 	}
-	var ijsErrors *Outcome_base[*ImmutableList] = this.deduplicateIjsFiles(files, moduleRoots, !jsChunkSpecs.isEmpty())
+	var ijsErrors *Outcome_base[*ErasedImmutableList] = this.deduplicateIjsFiles(files, moduleRoots, !jsChunkSpecs.isEmpty())
 	if ijsErrors.isErr() {
 		return Outcome_base_err[List](ijsErrors.error())
 	}
@@ -736,7 +736,7 @@ func AbstractCommandLineRunner_parseChunkWrappers(specs *JTList[string], chunks 
 	return Outcome_base_ok_Object[Map](wrappers.asMap())
 }
 
-func AbstractCommandLineRunner_parseChunkOutputFiles(specs *JTList[string]) *Outcome_base[*ImmutableMap] {
+func AbstractCommandLineRunner_parseChunkOutputFiles(specs *JTList[string]) *Outcome_base[*ErasedImmutableMap] {
 	if specs == nil {
 		panic(new_IllegalArgumentException_0())
 	}
@@ -746,18 +746,18 @@ func AbstractCommandLineRunner_parseChunkOutputFiles(specs *JTList[string]) *Out
 		var spec string = it_1.v
 		var pos int32 = int32(strings.IndexByte(spec, ':'))
 		if pos == -1 {
-			return Outcome_base_err[*ImmutableMap](new_FlagUsageException(("Expected chunk_output_file to have <name>:<output_file> format: " + sstr_(spec))).up_Throwable())
+			return Outcome_base_err[*ErasedImmutableMap](new_FlagUsageException(("Expected chunk_output_file to have <name>:<output_file> format: " + sstr_(spec))).up_Throwable())
 		}
 		var name string = spec[:pos]
 		var filename string = spec[pos+1:]
 		outputFilesBuilder.put(name, filename)
 	}
-	return Outcome_base_ok_Object[*ImmutableMap](outputFilesBuilder.buildOrThrow().asImm())
+	return Outcome_base_ok_Object[*ErasedImmutableMap](outputFilesBuilder.buildOrThrow().asImm())
 }
 
 func (this *AbstractCommandLineRunner) getChunkOutputFileName(m *JSChunk) *Outcome_base[string] {
 	if this.parsedChunkOutputFiles == nil {
-		var parsedChunkOutputFilesOutcome *Outcome_base[*ImmutableMap] = AbstractCommandLineRunner_parseChunkOutputFiles(this.config.chunkOutputFiles)
+		var parsedChunkOutputFilesOutcome *Outcome_base[*ErasedImmutableMap] = AbstractCommandLineRunner_parseChunkOutputFiles(this.config.chunkOutputFiles)
 		if parsedChunkOutputFilesOutcome.isErr() {
 			return Outcome_base_err[string](parsedChunkOutputFilesOutcome.error())
 		}
@@ -772,7 +772,7 @@ func (this *AbstractCommandLineRunner) getChunkOutputFileName(m *JSChunk) *Outco
 
 func (this *AbstractCommandLineRunner) getChunkConformanceFileName(m *JSChunk) *Outcome_base[string] {
 	if this.parsedChunkConformanceFiles == nil {
-		var parsedChunkConformanceFilesOutcome *Outcome_base[*ImmutableMap] = AbstractCommandLineRunner_parseChunkOutputFiles(this.config.chunkConformanceFiles)
+		var parsedChunkConformanceFilesOutcome *Outcome_base[*ErasedImmutableMap] = AbstractCommandLineRunner_parseChunkOutputFiles(this.config.chunkConformanceFiles)
 		if parsedChunkConformanceFilesOutcome.isErr() {
 			return Outcome_base_err[string](parsedChunkConformanceFilesOutcome.error())
 		}
