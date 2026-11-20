@@ -1,0 +1,52 @@
+diff --git a/go/closure/rt_iter_test.go b/go/closure/rt_iter_test.go
+index ea87f419..ada9b87a 100644
+--- a/go/closure/rt_iter_test.go
++++ b/go/closure/rt_iter_test.go
+@@ -350,3 +350,47 @@ func TestTypedCursorsMatchViewIterators(t *testing.T) {
+ 		t.Fatalf("walks %v / %v, left %v / %v", a, b, r1, r2)
+ 	}
+ }
++
++// Removing through a typed set's iterator, across the compactions it causes, visits every
++// element once in insertion order and leaves the elements a model keeps (the iterator continues
++// at the right position after each compaction).
++func TestTypedIteratorRemoveAcrossCompactions(t *testing.T) {
++	kc := &tconv_[int32]{box: func(v int32) any { return v }, unbox: func(v any) int32 { return v.(int32) }}
++	for _, keep := range []int32{1, 2, 3, 7, 1000} { // keep every keep-th element; 1000: nearly none
++		s := newTSet_(kc)
++		const n = 5000
++		for i := int32(0); i < n; i++ {
++			s.Add(i)
++		}
++		var seen, want []int32
++		for it := s.cursor(); it.hasNext(); {
++			k := it.nextKey()
++			seen = append(seen, k)
++			if k%keep != 0 || keep == 1 && k%2 == 1 {
++				it.remove()
++			} else {
++				want = append(want, k)
++			}
++		}
++		if len(seen) != n {
++			t.Fatalf("keep %d: visited %d of %d", keep, len(seen), n)
++		}
++		for i, k := range seen {
++			if k != int32(i) {
++				t.Fatalf("keep %d: visit %d was %d", keep, i, k)
++			}
++		}
++		var got []int32
++		for k := range s.Keys() {
++			got = append(got, k)
++		}
++		if len(got) != len(want) {
++			t.Fatalf("keep %d: %d left, want %d", keep, len(got), len(want))
++		}
++		for i := range got {
++			if got[i] != want[i] || !s.Has(want[i]) {
++				t.Fatalf("keep %d: element %d is %d, want %d", keep, i, got[i], want[i])
++			}
++		}
++	}
++}

@@ -1,0 +1,47 @@
+diff --git a/go/closure/rt_node_props.go b/go/closure/rt_node_props.go
+index 45462476..254aad7c 100644
+--- a/go/closure/rt_node_props.go
++++ b/go/closure/rt_node_props.go
+@@ -101,6 +101,17 @@ type nodePropListKey_ struct {
+ 	small    uint8
+ }
+ 
++// nodePropFront_ holds the lists of nodePropLists_ that were asked for last, one per slot of a
++// hash of the key: a walk over a tree asks for the lists of the same few shapes of one source
++// file again and again, and a slot answers with a comparison where the map hashes the key. A
++// list of nodePropLists_ is never replaced, so a slot cannot go stale.
++const nodePropFrontBits_ = 10
++
++var nodePropFront_ [1 << nodePropFrontBits_]struct {
++	key nodePropListKey_
++	l   *Node_PropListItem
++}
++
+ // For JSGO_HANDLE_STATS.
+ func init() {
+ 	handleStats_ = append(handleStats_, func() string {
+@@ -462,14 +473,18 @@ func (this Node) propListHead_get_() *Node_PropListItem {
+ 			return nil
+ 		}
+ 		key := nodePropListKey_{r.aux, r.src, uint8(r.bits >> nodePropConstVarShift_)}
+-		if l, ok := nodePropLists_[key]; ok {
+-			return l
++		f := &nodePropFront_[(key.aux*0x9E3779B1^key.src*0x85EBCA6B^uint32(key.small))>>(32-nodePropFrontBits_)]
++		if f.key == key && f.l != nil {
++			return f.l
+ 		}
+-		var l *Node_PropListItem
+-		for i := int(r.inlineCount()) - 1; i >= 0; i-- {
+-			l = r.item(r.inlineAt(uint32(i)), l)
++		l, ok := nodePropLists_[key]
++		if !ok {
++			for i := int(r.inlineCount()) - 1; i >= 0; i-- {
++				l = r.item(r.inlineAt(uint32(i)), l)
++			}
++			nodePropLists_[key] = l
+ 		}
+-		nodePropLists_[key] = l
++		f.key, f.l = key, l
+ 		return l
+ 	}
+ 	e := r.ext()
