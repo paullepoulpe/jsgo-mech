@@ -4,4 +4,4 @@ package closure
 
 // Element conversions of the typed immlists.
 
-var tc_p_SuggestedFix = &tconv_[*SuggestedFix]{box: func(v *SuggestedFix) any { return obj_(v) }, unbox: func(v any) *SuggestedFix { return cast_[*SuggestedFix](v) }}
+var tc_p_SuggestedFix = &tconv_[*SuggestedFix]{box: obj_[*SuggestedFix], unbox: cast_[*SuggestedFix]}

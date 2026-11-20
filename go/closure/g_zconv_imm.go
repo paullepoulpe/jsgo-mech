@@ -4,4 +4,4 @@ package closure
 
 // Element conversions of the ImmutableLists that are slices.
 
-var tc_p_JSType = &tconv_[*JSType]{box: func(v *JSType) any { return v.self() }, unbox: func(v any) *JSType { return to_JSType(v) }}
+var tc_p_JSType = &tconv_[*JSType]{box: (*JSType).self, unbox: to_JSType}
