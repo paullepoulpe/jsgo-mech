@@ -54,7 +54,12 @@
 // variables live in memory across the enclosing function; the cursor (a stack struct, no
 // allocation) has neither cost. Without -loops the step rewrites only C.iterator().next().
 //
-// usage: ranges [-n] [-loops] <dir of package closure>
+// -index (index.go) turns the cursor loops -loops leaves because their bodies return into
+// index loops (typed lists, slices, typed sets and maps) and every loop over an immutable
+// collection into a Go range over its elements; -entries (entries.go) turns loops over the
+// entry set of a typed map's erased view into ranges over the typed map. Run after -loops.
+//
+// usage: ranges [-n] [-loops] [-index] [-entries] <dir of package closure>
 package main
 
 import (
@@ -367,12 +372,23 @@ func process(f *fn, list []ast.Stmt) {
 	for i := 0; i+1 < len(list); i++ {
 		if id, src := cursor(list[i]); id != nil {
 			if loop := loopOf(list[i+1]); loop != nil && condOn(loop, rw.Info.Defs[id], "next") {
-				if exitsEarly(list[i+1], loop.Body) {
+				early := exitsEarly(list[i+1], loop.Body)
+				if index && (early || src.kind == "erased" && immArg(src.x) != nil) {
+					indexLoop(f, list[i], id, src, loop)
+					continue
+				}
+				if !loops {
+					continue
+				}
+				if early {
 					left["the body returns, or branches to an enclosing loop's label (slower as a range-over-func loop)"]++
 					continue
 				}
 				cursorLoop(f, list[i], id, src, loop)
 			}
+			continue
+		}
+		if !loops {
 			continue
 		}
 		if id, c := iterator(list[i]); id != nil {
@@ -706,22 +722,28 @@ func implementsIterable(t types.Type) bool {
 	return ok && types.Implements(t, iface)
 }
 
+var loops, index, entries bool
+
 func main() {
-	report, loops := false, false
+	report := false
 	for _, a := range os.Args[1 : len(os.Args)-1] {
 		switch a {
 		case "-n":
 			report = true
 		case "-loops":
 			loops = true
+		case "-index":
+			index = true
+		case "-entries":
+			entries = true
 		default:
-			fmt.Fprintln(os.Stderr, "usage: ranges [-n] [-loops] <dir of package closure>")
+			fmt.Fprintln(os.Stderr, "usage: ranges [-n] [-loops] [-index] [-entries] <dir of package closure>")
 			os.Exit(2)
 		}
 	}
 	rw.Load(os.Args[len(os.Args)-1])
 	for _, file := range rw.Files {
-		if !loops || !strings.HasPrefix(filepath.Base(rw.Fset.File(file.Pos()).Name()), "g_") {
+		if !loops && !index && !entries || !strings.HasPrefix(filepath.Base(rw.Fset.File(file.Pos()).Name()), "g_") {
 			continue
 		}
 		for _, d := range file.Decls {
@@ -741,6 +763,13 @@ func main() {
 					process(f, s.Body)
 				case *ast.CommClause:
 					process(f, s.Body)
+				case *ast.RangeStmt:
+					if index {
+						immRange(f, s)
+					}
+					if entries {
+						entryRange(f, s)
+					}
 				}
 				return true
 			})

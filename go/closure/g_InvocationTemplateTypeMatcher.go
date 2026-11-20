@@ -98,7 +98,8 @@ func (this *InvocationTemplateTypeMatcher) matchTemplateTypesRecursive(paramType
 			var argObjectType *ObjectType = argType.restrictByNotNullOrUndefined().toObjectType()
 			if ((argObjectType != nil) && !argObjectType.isUnknownType()) && !argObjectType.isEmptyType() {
 				var names ImmutableSortedSetOf[string] = paramRecordType.getPropertyNames()
-				for name := range elemsBy_(obj_(names), str_) {
+				for _, el := range immElems_(names) {
+					name := str_(el)
 					if paramRecordType.hasOwnProperty(name) && argObjectType.hasProperty(name) {
 						this.matchTemplateTypesRecursive(paramRecordType.getPropertyType(name), argObjectType.getPropertyType(name))
 					}

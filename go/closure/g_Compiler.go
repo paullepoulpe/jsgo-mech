@@ -376,7 +376,8 @@ func (this *Compiler) initChunksWithTypedAstFilesystem(externs ListOf[*SourceFil
 	var filesBuilder *TSetBuilder[*SourceFile_jscomp] = newTSetBuilder_(jtc_p_SourceFile_jscomp)
 	filesBuilder.addAll(Iterable(externs))
 	for chunk := range elemsAs_[*JSChunk](chunks) {
-		for input := range elemsAs_[*CompilerInput](obj_(chunk.getInputs())) {
+		for _, el := range immElems_(chunk.getInputs()) {
+			input := cast_[*CompilerInput](el)
 			filesBuilder.add(input.getSourceFile())
 		}
 	}
@@ -503,7 +504,8 @@ func (this *Compiler) initBasedOnOptions() {
 		if this.options_.getApplyInputSourceMaps() {
 			this.sourceMap_.setSourceFileMapping(this.getSourceMapping_Optional_int_int)
 			if this.options_.getSourceMapIncludeSourcesContent() {
-				for inputSourceMap := range elemsAs_[*SourceMapInput](obj_(cast_[*ImmutableCollection](ImmutableSortedMap_copyOf(ConcurrentHashMap_as_Map(this.inputSourceMaps)).values()))) {
+				for _, el := range immElems_(cast_[*ImmutableCollection](ImmutableSortedMap_copyOf(ConcurrentHashMap_as_Map(this.inputSourceMaps)).values())) {
+					inputSourceMap := cast_[*SourceMapInput](el)
 					this.addSourceMapSourceFiles(inputSourceMap)
 				}
 			}
@@ -1089,7 +1091,8 @@ func (this *Compiler) getCurrentJsSource() string {
 		if this.jsRoot == 0 {
 			panic(new_NullPointerException_0().self())
 		}
-		for r := range elemsBy_(obj_(ImmutableList_of_Object_Object(this.externsRoot.box_(), this.jsRoot.box_())), Node_of_) {
+		for _, el := range immElems_(ImmutableList_of_Object_Object(this.externsRoot.box_(), this.jsRoot.box_())) {
+			r := Node_of_(el)
 			{
 				var fileNode Node = r.getFirstChild()
 				for ; fileNode != 0; fileNode = fileNode.getNext() {
@@ -1518,9 +1521,9 @@ func (this *Compiler) parseInputs() Node {
 		if this.options_.getNumParallelThreads() > 1 {
 			new_PrebuildAst(this.up_AbstractCompiler(), this.options_.getNumParallelThreads()).prebuild(this.externs.asList())
 		}
-		it_2 := this.externs.each()
-		for it_2.next() {
-			var input *CompilerInput = it_2.v
+		l_2 := this.externs
+		for i_2 := 0; i_2 < len(l_2.items); i_2++ {
+			var input *CompilerInput = l_2.items[i_2]
 			var n Node = input.getAstRoot(this.up_AbstractCompiler())
 			if n == 0 {
 				panic(new_NullPointerException_0().self())
@@ -1805,7 +1808,8 @@ func (this *Compiler) markExterns(originalInputs *JTList[*CompilerInput]) {
 func (this *Compiler) hoistNoCompileFiles() {
 	var staleInputs bool = false
 	this.maybeDoThreadedParsing()
-	for input := range elemsAs_[*CompilerInput](obj_(ImmutableList_copyOf_Iterable(this.chunkGraph.getAllInputs()))) {
+	for _, el := range immElems_(ImmutableList_copyOf_Iterable(this.chunkGraph.getAllInputs())) {
+		input := cast_[*CompilerInput](el)
 		if input.getHasNoCompileAnnotation() {
 			input.getChunk().remove(input)
 			staleInputs = true
@@ -2941,7 +2945,8 @@ func Compiler_toProto(stage AbstractCompiler_LifeCycleStage) LifeCycleStageProto
 func Compiler_toVariableMapEntries(map_ *VariableMap) *JTList[*VariableMapEntryProto] {
 	var entries *JTList[*VariableMapEntryProto] = jnewTList_(jtc_p_VariableMapEntryProto)
 	if map_ != nil {
-		for entry := range elemsBy_(obj_(cast_[*ImmutableSet](map_.getOriginalNameToNewNameMap().entrySet())), icast_Map_Entry) {
+		for _, el := range immElems_(cast_[*ImmutableSet](map_.getOriginalNameToNewNameMap().entrySet())) {
+			entry := icast_Map_Entry(el)
 			entries.add(cast_[*VariableMapEntryProto](VariableMapEntryProto_newBuilder().setOriginalName(str_(entry.getKey())).setNewName(str_(entry.getValue())).build()))
 		}
 	}
@@ -3014,7 +3019,8 @@ func (this *Compiler) getCompilerStateProtoBuilder() *JSCompilerStateProto_Build
 			}
 			chunkBuilder.addDependencies(unbox_[int32](depIdx))
 		}
-		for input := range elemsAs_[*CompilerInput](obj_(chunk.getInputs())) {
+		for _, el := range immElems_(chunk.getInputs()) {
+			input := cast_[*CompilerInput](el)
 			chunkBuilder.addInputIds(input.getInputId().getIdName())
 		}
 		builder.addChunks(cast_[*ChunkProto](chunkBuilder.build()))
@@ -3327,7 +3333,8 @@ func (this *Compiler) resetAndIntitializeSourceMap() {
 	this.sourceMap_.reset()
 	if this.options_.getSourceMapIncludeSourcesContent() {
 		if this.options_.getApplyInputSourceMaps() {
-			for inputSourceMap := range elemsAs_[*SourceMapInput](obj_(cast_[*ImmutableCollection](ImmutableSortedMap_copyOf(ConcurrentHashMap_as_Map(this.inputSourceMaps)).values()))) {
+			for _, el := range immElems_(cast_[*ImmutableCollection](ImmutableSortedMap_copyOf(ConcurrentHashMap_as_Map(this.inputSourceMaps)).values())) {
+				inputSourceMap := cast_[*SourceMapInput](el)
 				this.addSourceMapSourceFiles(inputSourceMap)
 			}
 		}
@@ -3335,7 +3342,8 @@ func (this *Compiler) resetAndIntitializeSourceMap() {
 		if allChunks != nil {
 			var sourceFiles *JTList[*SourceFile_jscomp] = jnewTList_(jtc_p_SourceFile_jscomp)
 			for chunk := range elemsAs_[*JSChunk](allChunks) {
-				for input := range elemsAs_[*CompilerInput](obj_(chunk.getInputs())) {
+				for _, el2 := range immElems_(chunk.getInputs()) {
+					input := cast_[*CompilerInput](el2)
 					var sourceFile *SourceFile_jscomp = input.getSourceFile()
 					if sourceFile.isStubSourceFileForAlreadyProvidedInput() {
 						continue

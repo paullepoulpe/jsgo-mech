@@ -589,7 +589,8 @@ func (this *JSDocInfo) getSuppressions() *JTSet[string] {
 	}
 	var nameSets ImmutableSetOf[ImmutableSetOf[string]] = cast_[*ImmutableSet](suppressions.keySet())
 	var names *JTSet[string] = jnewTSet_(jtc_string)
-	for nameSet := range elemsBy_(obj_(nameSets), icast_Set) {
+	for _, el := range immElems_(nameSets) {
+		nameSet := icast_Set(el)
 		names.asSet().addAll(Collection(nameSet))
 	}
 	return immutableSetCopyOfT_(jtc_string, names)
