@@ -32,7 +32,7 @@ func (this *TypedScope) init_TypedScope_TypedScope_Node_Set_Module(parent *Typed
 		if reservedNames.IsEmpty() {
 			return immutableSetOf_(tc_string)
 		}
-		return tsetFrom_(tc_string, Collection(reservedNames.asSet()), false)
+		return tsetCopy_(tc_string, reservedNames)
 	}()
 	this.module_ = module
 }

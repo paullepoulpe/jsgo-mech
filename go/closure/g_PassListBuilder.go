@@ -23,7 +23,7 @@ func new_PassListBuilder(options *CompilerOptions) *PassListBuilder {
 }
 
 func (this *PassListBuilder) build() *ImmutableList[*PassFactory] {
-	return immutableListCopyOf_(tc_p_PassFactory, Collection(this.passes.asList()))
+	return tlistImmCopy_(tc_p_PassFactory, this.passes)
 }
 
 func (this *PassListBuilder) addAll(other *PassListBuilder) {

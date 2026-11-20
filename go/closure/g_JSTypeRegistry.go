@@ -669,7 +669,7 @@ func (this *JSTypeRegistry) resolveViaProperties(declarationScope StaticTypedSco
 	if slot == nil {
 		return nil
 	}
-	var componentNames []string = immCopyOf_(tc_string, Iterables_skip(JSTypeRegistry_DOT_SPLITTER.split_s(qualifiedName), 1))
+	var componentNames []string = sliceSkip_(JSTypeRegistry_DOT_SPLITTER.splitStrs_(qualifiedName), 1)
 	var slotType *JSType = slot.getType()
 	return this.resolveViaPropertyGivenSlot(slotType, 0, componentNames)
 }
@@ -1106,7 +1106,7 @@ func (this *JSTypeRegistry) createOptionalNullableType(type_ *JSType) *JSType {
 }
 
 func (this *JSTypeRegistry) createUnionType(variants []*JSType) *JSType {
-	return this.createUnionTypeList(sliceImm_(tc_p_JSType, ImmutableList_copyOf_ObjectArr(arrmap_(variants, (*JSType).self))))
+	return this.createUnionTypeList(immCopyArr_(tc_p_JSType, variants))
 }
 
 func (this *JSTypeRegistry) createUnionTypeList(variants []*JSType) *JSType {

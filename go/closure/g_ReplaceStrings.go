@@ -249,7 +249,7 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 	var params string = cutBytes_(function, (first + 1), last)
 	var paramCount int32 = 0
 	var replacementParameters *[]any = &[]any{}
-	var parts []string = sliceImm_(tc_string, Splitter_on(',').splitToList_s(params))
+	var parts []string = Splitter_on(',').splitStrs_(params)
 	for _, param := range parts {
 		paramCount++
 		if param == ReplaceStrings_REPLACE_ALL_MARKER {

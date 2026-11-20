@@ -42,7 +42,7 @@ func new_ExternExportsPass(compiler *AbstractCompiler) *ExternExportsPass {
 }
 
 func ExternExportsPass_computePathPrefixes(path string) *ImmutableList[string] {
-	var pieces []string = sliceImm_(tc_string, ExternExportsPass_Q_NAME_SPLITTER.splitToList_s(path))
+	var pieces []string = ExternExportsPass_Q_NAME_SPLITTER.splitStrs_(path)
 	var pathPrefixes *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
 	var partial string = sliceAt_(pieces, 0)
 	pathPrefixes.add(partial)

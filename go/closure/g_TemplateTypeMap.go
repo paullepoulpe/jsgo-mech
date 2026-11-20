@@ -74,10 +74,10 @@ func (this *TemplateTypeMap) copyFilledWithValues(values *ImmutableList[*JSType]
 		return this
 	}
 	var extendedValues *[]*JSType = &[]*JSType{}
-	sliceAddAll_(tc_p_JSType, extendedValues, sliceView_(tc_p_JSType, this.templateValues))
-	sliceAddAll_(tc_p_JSType, extendedValues, iup_Collection(values.asImm()))
+	sliceAddSlice_(extendedValues, this.templateValues)
+	sliceAddList_(extendedValues, values)
 	this.padToSameLength(this.templateKeys, extendedValues)
-	return new_TemplateTypeMap(this.registry, this.templateKeys, immCopyOf_(tc_p_JSType, Collection(sliceViewP_(tc_p_JSType, extendedValues))), this.subMapStarts)
+	return new_TemplateTypeMap(this.registry, this.templateKeys, immCopySlice_(tc_p_JSType, *extendedValues), this.subMapStarts)
 }
 
 func (this *TemplateTypeMap) copyWithExtension(extension *TemplateTypeMap) *TemplateTypeMap {
@@ -103,15 +103,15 @@ func (this *TemplateTypeMap) copyWithExtension_3(keys *ImmutableList[*TemplateTy
 	}
 	var extendedKeys *ImmutableList[*TemplateType] = immutableListBuilder_(tc_p_TemplateType).addAllT(this.templateKeys).addAllT(keys).build()
 	var extendedValues *[]*JSType = &[]*JSType{}
-	sliceAddAll_(tc_p_JSType, extendedValues, sliceView_(tc_p_JSType, this.templateValues))
+	sliceAddSlice_(extendedValues, this.templateValues)
 	this.padToSameLength(this.templateKeys, extendedValues)
-	sliceAddAll_(tc_p_JSType, extendedValues, sliceView_(tc_p_JSType, values))
+	sliceAddSlice_(extendedValues, values)
 	var extendedsubMapStarts *BitSet = new_BitSet_int((keys.size() + this.templateKeys.size()))
 	extendedsubMapStarts.or(this.subMapStarts)
 	for i := int32(0); i < keys.size(); i++ {
 		extendedsubMapStarts.set_int_boolean((i + this.templateKeys.size()), newsubMapStarts.get(i))
 	}
-	return new_TemplateTypeMap(this.registry, extendedKeys, immCopyOf_(tc_p_JSType, Collection(sliceViewP_(tc_p_JSType, extendedValues))), extendedsubMapStarts)
+	return new_TemplateTypeMap(this.registry, extendedKeys, immCopySlice_(tc_p_JSType, *extendedValues), extendedsubMapStarts)
 }
 
 func (this *TemplateTypeMap) copyWithoutKeys(removals *TSet[*TemplateType]) *TemplateTypeMap {

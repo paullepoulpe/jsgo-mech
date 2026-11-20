@@ -88,5 +88,5 @@ func (this *FunctionParamBuilder) hasVarArgs() bool {
 }
 
 func (this *FunctionParamBuilder) build() *ImmutableList[*FunctionType_Parameter] {
-	return immutableListCopyOf_(tc_p_FunctionType_Parameter, Collection(this.parameters.asList()))
+	return tlistImmCopy_(tc_p_FunctionType_Parameter, this.parameters)
 }

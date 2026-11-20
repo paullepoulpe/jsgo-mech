@@ -92,7 +92,7 @@ func PureFunctionIdentifier_collectCallableLeaves(expr Node, astAnalyzer *AstAna
 	var allLegal bool = PureFunctionIdentifier_collectCallableLeavesInternal(expr, callables, astAnalyzer)
 	return func() *ImmutableList[Node] {
 		if allLegal {
-			return immutableListCopyOf_(tc_Node, Collection(callables.asList()))
+			return tlistImmCopy_(tc_Node, callables)
 		}
 		return nil
 	}()

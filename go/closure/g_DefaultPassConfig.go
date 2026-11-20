@@ -362,7 +362,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	}}).build()
 	this.analyzerChecks = PassFactory_builder().setName(PassNames_ANALYZER_CHECKS).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		var callbacks *ImmutableList[NodeTraversal_Callback] = immutableListOf_[NodeTraversal_Callback](tc_NodeTraversal_Callback, new_CheckArrayWithGoogObject(compiler), new_ImplicitNullabilityCheck(compiler), new_CheckNestedNames(compiler))
-		return DefaultPassConfig_combineChecks(compiler, sliceImm_(tc_NodeTraversal_Callback, callbacks.asImm()))
+		return DefaultPassConfig_combineChecks(compiler, tlistSlice_(tc_NodeTraversal_Callback, callbacks))
 	}}).build()
 	this.checkRequiresAndProvidesSorted = PassFactory_builder().setName("checkRequiresAndProvidesSorted").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return DefaultPassConfig_combineChecks(compiler, immutableListOf_[NodeTraversal_Callback](tc_NodeTraversal_Callback, new_CheckProvidesSorted(CheckProvidesSorted_Mode_COLLECT_AND_REPORT), new_CheckRequiresSorted(CheckRequiresSorted_Mode_COLLECT_AND_REPORT)).items)
@@ -1388,8 +1388,8 @@ func (this *DefaultPassConfig) runVariableRenaming(compiler *AbstractCompiler, p
 	if this.options_.getRenamePrefixNamespace() != nullstr_ {
 		reservedNames.Add(optstrGet_(this.options_.getRenamePrefixNamespace()))
 	}
-	reservedNames.asSet().addAll(Collection(compiler.getExportedNames().asSet()))
-	reservedNames.asSet().addAll(iup_Collection(ParserRunner_getReservedVars().asImm()))
+	tsetAddSet_(reservedNames, compiler.getExportedNames())
+	tsetAddSet_(reservedNames, ParserRunner_getReservedVars())
 	var rn *RenameVars = new_RenameVars(compiler, this.options_.getRenamePrefix(), (this.options_.getVariableRenaming() == VariableRenamingPolicy_LOCAL), this.options_.shouldGeneratePseudoNames(), this.options_.shouldPreferStableNames(), prevVariableMap, reservedChars, reservedNames, this.options_.getNameGenerator())
 	rn.process_2(externs, root)
 	return rn.getVariableMap()

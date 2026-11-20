@@ -471,11 +471,11 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) report_2(ignoredLevel 
 }
 
 func (this *ProcessCommonJSModules_FindImportsAndExports) getModuleExports() []*ProcessCommonJSModules_ExportInfo {
-	return immCopyOf_(tc_p_ProcessCommonJSModules_ExportInfo, Collection(sliceViewP_(tc_p_ProcessCommonJSModules_ExportInfo, this.moduleExports)))
+	return immCopySlice_(tc_p_ProcessCommonJSModules_ExportInfo, *(this.moduleExports))
 }
 
 func (this *ProcessCommonJSModules_FindImportsAndExports) getExports() []*ProcessCommonJSModules_ExportInfo {
-	return immCopyOf_(tc_p_ProcessCommonJSModules_ExportInfo, Collection(sliceViewP_(tc_p_ProcessCommonJSModules_ExportInfo, this.exports)))
+	return immCopySlice_(tc_p_ProcessCommonJSModules_ExportInfo, *(this.exports))
 }
 
 func (this *ProcessCommonJSModules_FindImportsAndExports) shouldTraverse(nodeTraversal *NodeTraversal, n Node, parent Node) bool {

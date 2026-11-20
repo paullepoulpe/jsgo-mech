@@ -47,7 +47,7 @@ func (this *UnionType) getAlternates() *ImmutableList[*JSType] {
 		var resolvedAlternates int32 = this.countResolvedAlternates()
 		if resolvedAlternates != this.resolvedAlternatesAtLastBuild {
 			this.resolvedAlternatesAtLastBuild = resolvedAlternates
-			var b *UnionType_Builder = new_UnionType_Builder(this, this.registry).addAlternates(sliceImm_(tc_p_JSType, this.alternates.asImm()))
+			var b *UnionType_Builder = new_UnionType_Builder(this, this.registry).addAlternates(tlistSlice_(tc_p_JSType, this.alternates))
 			if !this.isResolved() && !this.alternatesResolvedBeforeBuild {
 				b.build()
 				this.resolvedAlternatesAtLastBuild = this.countResolvedAlternates()
@@ -432,7 +432,7 @@ func (this *UnionType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSTyp
 	for i := int32(0); i < this.alternates.size(); i++ {
 		this.alternates.get(i).self().(JSType_as).as_JSType().resolve(reporter)
 	}
-	return new_UnionType_Builder(this, this.registry).addAlternates(sliceImm_(tc_p_JSType, this.alternates.asImm())).build()
+	return new_UnionType_Builder(this, this.registry).addAlternates(tlistSlice_(tc_p_JSType, this.alternates)).build()
 }
 
 func (this *UnionType) collapseUnion_impl() *JSType {
@@ -549,7 +549,7 @@ func (this *UnionType_Builder) addAlternates(list []*JSType) *UnionType_Builder 
 func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builder {
 	this.checkHasNotBuilt()
 	if alternate.isUnionType() {
-		this.addAlternates(sliceImm_(tc_p_JSType, alternate.toMaybeUnionType().getAlternates().asImm()))
+		this.addAlternates(tlistSlice_(tc_p_JSType, alternate.toMaybeUnionType().getAlternates()))
 		return this
 	}
 	if this.alternates.size() > UnionType_MAX_UNION_SIZE {
@@ -682,7 +682,7 @@ func (this *UnionType_Builder) buildInternal() *UnionType_Builder {
 	} else if this.alternates.size() > UnionType_MAX_UNION_SIZE {
 		this.finalAlternates = immutableListOf_(tc_p_JSType, this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE))
 	} else {
-		this.finalAlternates = immutableListCopyOf_(tc_p_JSType, Collection(this.alternates.asList()))
+		this.finalAlternates = tlistImmCopy_(tc_p_JSType, this.alternates)
 	}
 	if this.finalAlternates == nil {
 		panic(new_NullPointerException_0())

@@ -324,7 +324,7 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 	var statics *ImmutableMap_Builder[string, *PolyfillUsageFinder_Polyfill] = immutableMapBuilder_(tc_string, tc_p_PolyfillUsageFinder_Polyfill)
 	var byNativeVersion *SimpleListMultimap[any, *PolyfillUsageFinder_Polyfill] = SimpleListMultimap_create[any, *PolyfillUsageFinder_Polyfill]()
 	for line := range elemsBy_(Splitter_on('\n').omitEmptyStrings().split_s(table), str_) {
-		var tokens []string = sliceImm_(tc_string, Splitter_on(' ').omitEmptyStrings().splitToList_s(strings.Trim(line, javaSpace_)))
+		var tokens []string = Splitter_on(' ').omitEmptyStrings().splitStrs_(strings.Trim(line, javaSpace_))
 		if (int32(len(tokens)) == 1) && sliceAt_(tokens, 0) == "" {
 			continue
 		} else if int32(len(tokens)) < 3 {

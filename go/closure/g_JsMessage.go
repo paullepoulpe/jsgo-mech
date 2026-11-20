@@ -766,7 +766,7 @@ func (this *JsMessage_Builder) build() *JsMessage {
 		immutableGenderedPartsBuilder.put(obj_(entry.getKey()), obj_(ImmutableList_copyOf(Collection(entry.getValue()))))
 	}
 	var immutableGenderedMessageMap ImmutableMapOf[JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]] = immutableGenderedPartsBuilder.buildOrThrow()
-	return new_JsMessage(this.sourceName_, optstrGet_(this.key_), this.isAnonymous_, this.isExternal_, optstrGet_(this.id), immutableListCopyOf_(tc_JsMessage_Part, Collection(this.parts.asList())), immutableGenderedMessageMap, this.alternateId, this.desc, this.meaning, this.placeholderNameToExampleMap, this.placeholderNameToOriginalCodeMap, immutableSetCopyOf_(tc_string, Collection(this.jsPlaceholderNames_.asSet())), immutableSetCopyOf_(tc_string, Collection(this.canonicalPlaceholderNames_.asSet())))
+	return new_JsMessage(this.sourceName_, optstrGet_(this.key_), this.isAnonymous_, this.isExternal_, optstrGet_(this.id), tlistImmCopy_(tc_JsMessage_Part, this.parts), immutableGenderedMessageMap, this.alternateId, this.desc, this.meaning, this.placeholderNameToExampleMap, this.placeholderNameToOriginalCodeMap, immutableSetCopyOf_(tc_string, Collection(this.jsPlaceholderNames_.asSet())), immutableSetCopyOf_(tc_string, Collection(this.canonicalPlaceholderNames_.asSet())))
 }
 
 type JsMessage_Hash struct {

@@ -598,7 +598,7 @@ func (this *JSDocInfo) getSuppressions() SetOf[string] {
 	var names *TSet[string] = newTSet_(tc_string)
 	for _, el := range immElems_(nameSets) {
 		nameSet := icast_Set(el)
-		names.asSet().addAll(Collection(nameSet))
+		tsetAddAllOf_(names, Collection(nameSet))
 	}
 	return iup_Set(ImmutableSet_copyOf(Collection(names.asSet())))
 }

@@ -429,9 +429,9 @@ func (this *FunctionType) addRelatedInterfaces(instance *ObjectType, set *TSet[*
 func (this *FunctionType) getAncestorInterfaces() CollectionOf[*ObjectType] {
 	var result *TSet[*ObjectType] = newTSet_(tch_p_ObjectType)
 	if this.isConstructor() {
-		result.asSet().addAll(iup_Collection(this.getImplementedInterfaces().asImm()))
+		tsetAddList_(result, this.getImplementedInterfaces())
 	} else {
-		result.asSet().addAll(iup_Collection(this.getExtendedInterfaces().asImm()))
+		tsetAddList_(result, this.getExtendedInterfaces())
 	}
 	return Collection(result.asSet())
 }
@@ -463,7 +463,7 @@ func (this *FunctionType) setImplementedInterfaces(implementedInterfaces *TList[
 	if !this.isConstructor() {
 		panic(new_IllegalStateException_0())
 	}
-	this.implementedInterfaces = immutableListCopyOf_(tc_p_ObjectType, Collection(implementedInterfaces.asList()))
+	this.implementedInterfaces = tlistImmCopy_(tc_p_ObjectType, implementedInterfaces)
 	for type_ := range elemsBy_(implementedInterfaces.asList(), to_ObjectType) {
 		this.typeOfThis.mergeSupertypeTemplateTypes(type_)
 	}
@@ -481,7 +481,7 @@ func (this *FunctionType) setExtendedInterfaces(extendedInterfaces *TList[*Objec
 	if !this.isInterface() {
 		panic(new_IllegalStateException_0())
 	}
-	this.extendedInterfaces = immutableListCopyOf_(tc_p_ObjectType, Collection(extendedInterfaces.asList()))
+	this.extendedInterfaces = tlistImmCopy_(tc_p_ObjectType, extendedInterfaces)
 	for extendedInterface := range elemsBy_(extendedInterfaces.asList(), to_ObjectType) {
 		this.typeOfThis.mergeSupertypeTemplateTypes(extendedInterface)
 	}

@@ -992,7 +992,7 @@ func (this *Compiler) getDebugLogFilterList_impl() []string {
 	if this.getOptions().getDebugLogFilter() == nullstr_ {
 		return []string{}
 	}
-	return sliceImm_(tc_string, Splitter_on(',').omitEmptyStrings().splitToList_s(optstrGet_(this.getOptions().getDebugLogFilter())))
+	return Splitter_on(',').omitEmptyStrings().splitStrs_(optstrGet_(this.getOptions().getDebugLogFilter()))
 }
 
 func (this *Compiler) createOrReopenLog_impl(owner ClassOf[any], firstNamePart string, restNameParts []string) *LogFile {
@@ -2554,7 +2554,7 @@ func (this *Compiler) getInstrumentationMapping() *VariableMap {
 }
 
 func (this *Compiler) addExportedNames_impl(exportedNames *TSet[string]) {
-	this.exportedNames.asSet().addAll(Collection(exportedNames.asSet()))
+	tsetAddSet_(this.exportedNames, exportedNames)
 }
 
 func (this *Compiler) getExportedNames_impl() *TSet[string] {
@@ -3009,7 +3009,7 @@ func (this *Compiler) restoreFromState(compilerState *JSCompilerStateProto) {
 	this.uniqueNameId = compilerState.getUniqueNameId()
 	this.uniqueIdSupplier = UniqueIdSupplier_fromProto(compilerState.getUniqueIdSupplierList())
 	this.exportedNames.Clear()
-	this.exportedNames.asSet().addAll(Collection(compilerState.getExportedNamesList()))
+	tsetAddAllOf_(this.exportedNames, Collection(compilerState.getExportedNamesList()))
 	if compilerState.getHasCssNames() {
 		this.cssNames = tsetFrom_(tc_string, Collection(compilerState.getCssNamesList()), false)
 	} else {
@@ -3615,7 +3615,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 
 func (this *Compiler_ChunkGraphAwareLicenseTracker) emitLicenses() *ImmutableSet[string] {
 	var licensesNewInFile *ImmutableSet[string] = immutableSetCopyOf_(tc_string, Collection(this.licensesNewInCurrentFile.asSet()))
-	this.licensesNewInCurrentChunk.asSet().addAll(iup_Collection(licensesNewInFile.asImm()))
+	tsetAddSet_(this.licensesNewInCurrentChunk, licensesNewInFile)
 	this.licensesNewInCurrentFile.Clear()
 	return licensesNewInFile
 }

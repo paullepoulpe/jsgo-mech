@@ -113,7 +113,7 @@ func (this *JSChunk) removeAll() {
 }
 
 func (this *JSChunk) getDependencies() []*JSChunk {
-	return immCopyOf_(tc_p_JSChunk, Collection(sliceViewP_(tc_p_JSChunk, this.deps)))
+	return immCopySlice_(tc_p_JSChunk, *(this.deps))
 }
 
 func (this *JSChunk) getSortedDependencyNames() []string {
@@ -127,7 +127,7 @@ func (this *JSChunk) getSortedDependencyNames() []string {
 
 func (this *JSChunk) getAllDependencies() SetOf[*JSChunk] {
 	var allDeps *TSet[*JSChunk] = newTSet_(tc_p_JSChunk)
-	allDeps.asSet().addAll(Collection(sliceViewP_(tc_p_JSChunk, this.deps)))
+	tsetAddAllOf_(allDeps, Collection(sliceViewP_(tc_p_JSChunk, this.deps)))
 	var stack *TList[*JSChunk] = tlistFromRev_(tc_p_JSChunk, Collection(sliceViewP_(tc_p_JSChunk, this.deps)))
 	for !stack.isEmpty() {
 		var chunk *JSChunk = stack.pop_()

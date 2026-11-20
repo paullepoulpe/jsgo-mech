@@ -347,7 +347,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		for _, el4 := range input.getDynamicRequires().items {
 			require := el4
 			if has_(inputsByProvide, require) {
-				entryPointInputs.asSet().addAll(Collection(inputsByProvide[require]))
+				tsetAddAllOf_(entryPointInputs, Collection(inputsByProvide[require]))
 			}
 		}
 	}
@@ -355,7 +355,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		input := el5
 		for _, require := range input.getRequireDynamicImports() {
 			if has_(inputsByProvide, require) {
-				entryPointInputs.asSet().addAll(Collection(inputsByProvide[require]))
+				tsetAddAllOf_(entryPointInputs, Collection(inputsByProvide[require]))
 			}
 		}
 	}
@@ -442,7 +442,7 @@ func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, 
 		if has_(inputsByProvide, importedNamespace) {
 			for input := range elemsAs_[*CompilerInput](inputsByProvide[importedNamespace]) {
 				if has_(unreachedInputs, input) {
-					sliceAddAll_(tc_p_CompilerInput, &orderedInputs, Collection(sliceView_(tc_p_CompilerInput, this.getDepthFirstDependenciesOf(input, unreachedInputs, inputsByProvide))))
+					sliceAddSlice_(&orderedInputs, this.getDepthFirstDependenciesOf(input, unreachedInputs, inputsByProvide))
 				}
 			}
 		}

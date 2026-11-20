@@ -2484,13 +2484,13 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setChunkOutputPathPrefi
 
 func (this *AbstractCommandLineRunner_CommandLineConfig) setChunkOutputFiles(chunkOutputFiles []string) *AbstractCommandLineRunner_CommandLineConfig {
 	sliceClear_(this.chunkOutputFiles)
-	sliceAddAll_(tc_string, this.chunkOutputFiles, Collection(sliceView_(tc_string, chunkOutputFiles)))
+	sliceAddSlice_(this.chunkOutputFiles, chunkOutputFiles)
 	return this
 }
 
 func (this *AbstractCommandLineRunner_CommandLineConfig) setChunkConformanceFiles(chunkConformanceFiles []string) *AbstractCommandLineRunner_CommandLineConfig {
 	sliceClear_(this.chunkConformanceFiles)
-	sliceAddAll_(tc_string, this.chunkConformanceFiles, Collection(sliceView_(tc_string, chunkConformanceFiles)))
+	sliceAddSlice_(this.chunkConformanceFiles, chunkConformanceFiles)
 	return this
 }
 
@@ -2558,7 +2558,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setOutputManifest(outpu
 			this.outputManifests.add(manifestName)
 		}
 	}
-	this.outputManifests = immutableListCopyOf_(tc_string, Collection(this.outputManifests.asList()))
+	this.outputManifests = tlistImmCopy_(tc_string, this.outputManifests)
 	return this
 }
 

@@ -79,7 +79,7 @@ func (this *RenameVars) process_2(externs Node, root Node) {
 	this.externNames_ = NodeUtil_collectExternVariableNames(this.compiler_, externs)
 	clear(this.originalNameByNode)
 	NodeTraversal_traverse(this.compiler_, root, new_RenameVars_ProcessVars(this))
-	this.reservedNames.asSet().addAll(iup_Collection(this.externNames_.asImm()))
+	tsetAddSet_(this.reservedNames, this.externNames_)
 	var varsByFrequency SortedSetOf[*RenameVars_Assignment] = new_TreeSet_Comparator(&Comparator_tfn_RenameVars_Assignment_RenameVars_Assignment{func(p0 *RenameVars_Assignment, p1 *RenameVars_Assignment) int32 {
 		return RenameVars_frequencyComparator(p0, p1)
 	}})

@@ -140,7 +140,7 @@ func (this *CompilerInput) setCompiler(compiler *AbstractCompiler) {
 
 func (this *CompilerInput) getRequires() *ImmutableList[*DependencyInfo_Require] {
 	if this.hasFullParseDependencyInfo {
-		return immutableListCopyOf_(tc_p_DependencyInfo_Require, Collection(this.orderedRequires.asList()))
+		return tlistImmCopy_(tc_p_DependencyInfo_Require, this.orderedRequires)
 	}
 	return this.getDependencyInfo().getRequires()
 }
@@ -196,7 +196,7 @@ func (this *CompilerInput) addOrderedRequire(require *DependencyInfo_Require) bo
 }
 
 func (this *CompilerInput) getDynamicRequires() *ImmutableList[string] {
-	return immutableListCopyOf_(tc_string, Collection(this.dynamicRequires.asList()))
+	return tlistImmCopy_(tc_string, this.dynamicRequires)
 }
 
 func (this *CompilerInput) addDynamicRequire(require string) bool {
@@ -208,7 +208,7 @@ func (this *CompilerInput) addDynamicRequire(require string) bool {
 }
 
 func (this *CompilerInput) getRequireDynamicImports() []string {
-	return immCopyOf_(tc_string, Collection(sliceViewP_(tc_string, this.requireDynamicImports)))
+	return immCopySlice_(tc_string, *(this.requireDynamicImports))
 }
 
 func (this *CompilerInput) addRequireDynamicImports(require string) {
