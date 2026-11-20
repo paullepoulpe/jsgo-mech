@@ -83,7 +83,9 @@ func (this *TypedScope) typed_impl() *TypedScope {
 }
 
 func (this *TypedScope) validateCompletelyBuilt() {
-	Preconditions_checkState_boolean_String_Object_Object(this.reservedNames.isEmpty(), "Expected %s to have no reserved names, found: %s. This probably indicates a bug in TypedScopeCreator where it is failing to declare a variable.", this, this.reservedNames.asSet())
+	if ok_, a1_, a2_ := this.reservedNames.isEmpty(), this, this.reservedNames.asSet(); !ok_ {
+		Preconditions_checkState_boolean_String_Object_Object(false, "Expected %s to have no reserved names, found: %s. This probably indicates a bug in TypedScopeCreator where it is failing to declare a variable.", a1_, a2_)
+	}
 	this.reservedNames = jtsetEmptyImm_(jtc_string)
 }
 
@@ -285,7 +287,9 @@ func (this *TypedScope) undeclareInteral(var_ *TypedVar) {
 }
 
 func (this *TypedScope) declareInternal(name string, var_ *TypedVar) {
-	Preconditions_checkState_boolean_String_Object_H((this.hasOwnSlot(name) || this.canDeclare(name)), "Illegal shadow: %s", var_.getNode())
+	if ok_, a1_ := (this.hasOwnSlot(name) || this.canDeclare(name)), var_.getNode(); !ok_ {
+		Preconditions_checkState_boolean_String_Object_H(false, "Illegal shadow: %s", a1_)
+	}
 	var emptySentinel *JTMap[string, *TypedVar] = jtmapEmptyImm_(jtc_string, jtc_p_TypedVar)
 	if any(this.vars) == any(emptySentinel.asMap()) {
 		this.vars = LinkedHashMap_as_Map(Maps_newLinkedHashMapWithExpectedSize(1))
@@ -422,15 +426,21 @@ func (this *TypedScope) getClosestContainerScope_rTypedScope() *TypedScope {
 	var scope *TypedScope = this.getClosestHoistScope_rTypedScope()
 	if scope.isFunctionBlockScope() {
 		scope = scope.getParent_rTypedScope()
-		Preconditions_checkState_boolean_Object(!scope.isBlockScope(), scope)
+		if scope.isBlockScope() {
+			Preconditions_checkState_boolean_Object(false, scope)
+		}
 	}
 	return scope
 }
 
 func (this *TypedScope) checkChildScope(parent *TypedScope) {
 	Preconditions_checkNotNull_T(parent)
-	Preconditions_checkArgument_boolean_Object_H(NodeUtil_createsScope(this.rootNode_), this.rootNode_)
-	Preconditions_checkArgument_boolean_String_Object_H((this.rootNode_ != parent.getRootNode()), "rootNode should not be the parent's root node: %s", this.rootNode_)
+	if !NodeUtil_createsScope(this.rootNode_) {
+		Preconditions_checkArgument_boolean_Object_H(false, this.rootNode_)
+	}
+	if !(this.rootNode_ != parent.getRootNode()) {
+		Preconditions_checkArgument_boolean_String_Object_H(false, "rootNode should not be the parent's root node: %s", this.rootNode_)
+	}
 }
 
 func (this *TypedScope) getCommonParent(other *TypedScope) *TypedScope {
