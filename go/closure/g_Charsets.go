@@ -164,8 +164,8 @@ func Charsets_encodeUtf16(text string, canonical string) []int8 {
 		bytes[0] = -2
 		bytes[1] = -1
 	}
-	for i := int32(0); i < String_length(text); i++ {
-		var c uint16 = String_charAt(text, i)
+	for i, u_ := range stringUnits_(text) {
+		var c uint16 = u_
 		var firstOfPair bool = ((Character_isHighSurrogate(c) && ((i + 1) < String_length(text))) && Character_isLowSurrogate(String_charAt(text, (i+1))))
 		var secondOfPair bool = ((Character_isLowSurrogate(c) && (i > 0)) && Character_isHighSurrogate(String_charAt(text, (i-1))))
 		if (Character_isSurrogate(c) && !firstOfPair) && !secondOfPair {
