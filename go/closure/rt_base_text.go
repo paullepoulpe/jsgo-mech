@@ -212,6 +212,14 @@ func (this *Splitter) splitStrs_(s string) []string { return splitPieces_[string
 func splitPieces_[E any](this *Splitter, s string) []E {
 	var out []E
 	limit := this.limit_
+	// Room for every piece at once (one more than the separators, at most the limit), instead of
+	// growing the slice piece by piece.
+	if n := strings.Count(s, this.sep_); n > 0 && this.sep_ != "" {
+		if limit > 0 && n >= int(limit) {
+			n = int(limit) - 1
+		}
+		out = make([]E, 0, n+1)
+	}
 	offset := 0
 	for offset != -1 {
 		start := offset
