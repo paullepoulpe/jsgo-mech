@@ -81,7 +81,18 @@ func (s *TSet[K]) All() iter.Seq[K] { return s.TMap.Keys() }
 // collections in place, anything else through its iterator().
 func elems_(c any) iter.Seq[any] {
 	return func(yield func(any) bool) {
-		for e := foreach_(c); e.next(); {
+		e := foreach_(c)
+		if s := e.src; s != nil {
+			// a slice (ArrayList and the like): the cursor's own steps, written out here so that
+			// the loop is over the slice (its length read anew at each step, as each_.next reads it)
+			for i := 0; i < len(*s); i++ {
+				if !yield((*s)[i]) {
+					return
+				}
+			}
+			return
+		}
+		for e.next() {
 			if !yield(e.v) {
 				return
 			}
