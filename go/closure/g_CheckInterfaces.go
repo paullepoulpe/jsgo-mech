@@ -143,3 +143,14 @@ func CheckInterfaces_clinit() {
 	CheckInterfaces_INTERFACE_DEFINED_WITH_EXTENDS = DiagnosticType_disabled("JSC_INTERFACE_DEFINED_WITH_EXTENDS", "Interface/Record class should use the `@extends` annotation instead of extends keyword.")
 
 }
+
+// visit: an object that is exactly a CheckInterfaces calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckInterfaces) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

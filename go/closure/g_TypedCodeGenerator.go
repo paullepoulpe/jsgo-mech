@@ -342,3 +342,14 @@ func (this *TypedCodeGenerator) restrictByUndefined(type_ *JSType) *JSType {
 		return restricted
 	}()
 }
+
+// add_2: an object that is exactly a TypedCodeGenerator calls its add_2_impl directly (post-flip); others dispatch.
+func (this *TypedCodeGenerator) add_2(p0 Node, p1 *CodeGenerator_Context) {
+	if this.self_ == any(this) {
+		this.add_2_impl(p0, p1)
+		return
+	}
+	this.self_.(interface {
+		add_2_impl(Node, *CodeGenerator_Context)
+	}).add_2_impl(p0, p1)
+}

@@ -208,3 +208,91 @@ func TypedVar_clinit() {
 	TypedVar_NAME_NODE_TYPES = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_NAME.up_Enum(), []*Enum{Token_rhino_THIS.up_Enum(), Token_rhino_IMPORT_STAR.up_Enum(), Token_rhino_EXPR_RESULT.up_Enum(), Token_rhino_EXPORT.up_Enum(), Token_rhino_GETPROP.up_Enum(), Token_rhino_FUNCTION.up_Enum(), Token_rhino_STRING_KEY.up_Enum(), Token_rhino_SETTER_DEF.up_Enum(), Token_rhino_GETTER_DEF.up_Enum(), Token_rhino_MEMBER_FUNCTION_DEF.up_Enum(), Token_rhino_MODULE_BODY.up_Enum()}))
 
 }
+
+// getScopeRoot: an object that is exactly a TypedVar calls its getScopeRoot_impl directly (post-flip); others dispatch.
+func (this *TypedVar) getScopeRoot() Node {
+	if this.self_ == any(this) {
+		return this.getScopeRoot_impl()
+	}
+	return this.self_.(interface{ getScopeRoot_impl() Node }).getScopeRoot_impl()
+}
+
+// getSourceFile: an object that is exactly a TypedVar calls its getSourceFile_impl directly (post-flip); others dispatch.
+func (this *TypedVar) getSourceFile() StaticSourceFile {
+	if this.self_ == any(this) {
+		return this.getSourceFile_impl()
+	}
+	return this.self_.(interface{ getSourceFile_impl() StaticSourceFile }).getSourceFile_impl()
+}
+
+// isGlobal: an object that is exactly a TypedVar calls its isGlobal_impl directly (post-flip); others dispatch.
+func (this *TypedVar) isGlobal() bool {
+	if this.self_ == any(this) {
+		return this.isGlobal_impl()
+	}
+	return this.self_.(interface{ isGlobal_impl() bool }).isGlobal_impl()
+}
+
+// isLocal: an object that is exactly a TypedVar calls its isLocal_impl directly (post-flip); others dispatch.
+func (this *TypedVar) isLocal() bool {
+	if this.self_ == any(this) {
+		return this.isLocal_impl()
+	}
+	return this.self_.(interface{ isLocal_impl() bool }).isLocal_impl()
+}
+
+// isArguments: an object that is exactly a TypedVar calls its isArguments_impl directly (post-flip); others dispatch.
+func (this *TypedVar) isArguments() bool {
+	if this.self_ == any(this) {
+		return this.isArguments_impl()
+	}
+	return this.self_.(interface{ isArguments_impl() bool }).isArguments_impl()
+}
+
+// isGoogModuleExports: an object that is exactly a TypedVar calls its isGoogModuleExports_impl directly (post-flip); others dispatch.
+func (this *TypedVar) isGoogModuleExports() bool {
+	if this.self_ == any(this) {
+		return this.isGoogModuleExports_impl()
+	}
+	return this.self_.(interface{ isGoogModuleExports_impl() bool }).isGoogModuleExports_impl()
+}
+
+// isThis: an object that is exactly a TypedVar calls its isThis_impl directly (post-flip); others dispatch.
+func (this *TypedVar) isThis() bool {
+	if this.self_ == any(this) {
+		return this.isThis_impl()
+	}
+	return this.self_.(interface{ isThis_impl() bool }).isThis_impl()
+}
+
+// declarationType: an object that is exactly a TypedVar calls its declarationType_impl directly (post-flip); others dispatch.
+func (this *TypedVar) declarationType() *Token_rhino {
+	if this.self_ == any(this) {
+		return this.declarationType_impl()
+	}
+	return this.self_.(interface{ declarationType_impl() *Token_rhino }).declarationType_impl()
+}
+
+// getSymbol_rAbstractVar: an object that is exactly a TypedVar calls its getSymbol_rAbstractVar_impl directly (post-flip); others dispatch.
+func (this *TypedVar) getSymbol_rAbstractVar() *AbstractVar {
+	if this.self_ == any(this) {
+		return this.getSymbol_rAbstractVar_impl()
+	}
+	return this.self_.(interface{ getSymbol_rAbstractVar_impl() *AbstractVar }).getSymbol_rAbstractVar_impl()
+}
+
+// getDeclaration_rAbstractVar: an object that is exactly a TypedVar calls its getDeclaration_rAbstractVar_impl directly (post-flip); others dispatch.
+func (this *TypedVar) getDeclaration_rAbstractVar() *AbstractVar {
+	if this.self_ == any(this) {
+		return this.getDeclaration_rAbstractVar_impl()
+	}
+	return this.self_.(interface{ getDeclaration_rAbstractVar_impl() *AbstractVar }).getDeclaration_rAbstractVar_impl()
+}
+
+// getScope_rAbstractScope: an object that is exactly a TypedVar calls its getScope_rAbstractScope_impl directly (post-flip); others dispatch.
+func (this *TypedVar) getScope_rAbstractScope() *AbstractScope {
+	if this.self_ == any(this) {
+		return this.getScope_rAbstractScope_impl()
+	}
+	return this.self_.(interface{ getScope_rAbstractScope_impl() *AbstractScope }).getScope_rAbstractScope_impl()
+}
