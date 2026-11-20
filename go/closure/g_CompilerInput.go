@@ -454,7 +454,7 @@ func (this *CompilerInput_DepsFinder) visitEs6ModuleName(n Node, parent Node) {
 	}
 	var moduleName string = n.getString()
 	if strings.HasPrefix(moduleName, "goog:") {
-		this.requires.add(DependencyInfo_Require_googRequireSymbol(String_substring_int(moduleName, 5)))
+		this.requires.add(DependencyInfo_Require_googRequireSymbol(moduleName[5:]))
 		return
 	}
 	var importedModule *ModuleLoader_ModulePath = this.modulePath_.resolveJsModule(moduleName, Optional_of[string](this.modulePath_.toString()), n.getLineno(), n.getCharno())
