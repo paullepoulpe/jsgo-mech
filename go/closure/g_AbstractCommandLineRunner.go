@@ -416,7 +416,7 @@ func (this *AbstractCommandLineRunner) createInputs_4(files *TList[*AbstractComm
 	var inputs *TList[*SourceFile_jscomp] = newTListN_(tc_p_SourceFile_jscomp, files.size())
 	var usingStdin bool = false
 	var jsChunkIndex int32 = 0
-	var jsChunkSpec *AbstractCommandLineRunner_JsChunkSpec = cast_[*AbstractCommandLineRunner_JsChunkSpec](Iterables_getFirst(Iterable(sliceViewP_(tc_p_AbstractCommandLineRunner_JsChunkSpec, jsChunkSpecs)), nil))
+	var jsChunkSpec *AbstractCommandLineRunner_JsChunkSpec = sliceGetFirstT_(tc_p_AbstractCommandLineRunner_JsChunkSpec, *jsChunkSpecs, nil)
 	var cumulatedInputFilesExpected int32 = func() int32 {
 		if jsChunkSpec == nil {
 			return int32(2147483647)

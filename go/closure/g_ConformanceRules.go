@@ -3353,7 +3353,7 @@ func (this *ConformanceRules_BanCreateDom) getTagNames(tag Node) CollectionOf[st
 	}
 	var typeAsObj *ObjectType = type_.toMaybeObjectType()
 	if typeAsObj.getRawType().getDisplayName().get() == "goog.dom.TagName" {
-		var tagType *JSType = to_JSType(Iterables_getOnlyElement(Iterable(typeAsObj.getTemplateTypes().asList())))
+		var tagType *JSType = typeAsObj.getTemplateTypes().getOnlyElementT_()
 		return Collection(ConformanceRules_BanCreateDom_ELEMENT_TAG_NAMES.get_s(tagType.getDisplayName().orElse(nullstr_)))
 	}
 	return nil
