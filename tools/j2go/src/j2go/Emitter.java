@@ -106,7 +106,8 @@ final class Emitter extends StmtEmitter {
     StringBuilder sb = new StringBuilder("type " + n + tps + " interface {\n");
     for (TypeMirror st : te.getInterfaces()) {
       // (a library functional interface is a func type: the methods te adds are te's own)
-      if (cx.kind(st) == Ctx.K.IFACE && !cx.fn.is(st)) sb.append("\t").append(cx.goType(st)).append("\n");
+      // (an interface of rule "typed library interfaces": the erased one; a class under te is not native)
+      if (cx.kind(st) == Ctx.K.IFACE && !cx.fn.is(st)) sb.append("\t").append(cx.goType(cx.lg.is(cx.erase(st)) ? cx.types.erasure(st) : st)).append("\n");
     }
     for (Element e : te.getEnclosedElements()) {
       if (!Ctx.isInstanceMethod(e) || e.getModifiers().contains(Modifier.PRIVATE)) continue;
@@ -765,7 +766,13 @@ final class Emitter extends StmtEmitter {
     } else {
       ret = cx.groupReturn(e, te.asType());
       p = params(mt.getParameters(), cx.groupParams(e, te.asType()));
-      head = recv(te) + cx.implName(e, te) + "(" + p.decl + ")";
+      String mn = cx.implName(e, te);
+      if (cx.lg.typedAt(e, te.asType()) && cx.lg.renamed(cx.root(e))) {
+        // rule "typed library interfaces": the method at its Java types (next_t), and the bridge with the erased name and signature
+        mn = cx.lg.methodName(e, te.asType());
+        lgBridge(te, e, mn);
+      }
+      head = recv(te) + mn + "(" + p.decl + ")";
     }
     mc.isVoid = ret.getKind() == TypeKind.VOID;
     mc.ret = mc.isVoid ? null : ret;
@@ -780,8 +787,23 @@ final class Emitter extends StmtEmitter {
     TypeMirror own_ = cx.erase(cx.rtype(e));
     String rs = !mc.isVoid && cx.goType(own_).equals(cx.goType(ret)) ? " " + cx.declType(cx.rtype(e)) : retSuffix(ret);
     file.append(head).append(rs).append(" {\n").append(indent(own + guards() + finish(b.toString()), "\t")).append("\n}\n\n");
+    file.append(bridgesOut);
+    bridgesOut.setLength(0);
     mc = null;
   }
+
+  /** The bridge of class te for method m of a typed library interface: the erased method, which calls the typed one (typedName). */
+  void lgBridge(TypeElement te, ExecutableElement m, String typedName) {
+    List<TypeMirror> ps = cx.groupParams(m), tps = cx.groupParams(m, te.asType());
+    TypeMirror ret = cx.groupReturn(m), tret = cx.groupReturn(m, te.asType());
+    StringBuilder args = new StringBuilder();
+    for (int i = 0; i < ps.size(); i++) args.append(i > 0 ? ", " : "").append(cx.coerce("p" + i, ps.get(i), tps.get(i)));
+    String call = "this." + typedName + "(" + args + ")";
+    bridgesOut.append(recv(te)).append(cx.methodName(m)).append(paramList(ps)).append(retSuffix(ret)).append(" {\n\t")
+        .append(ret.getKind() == TypeKind.VOID ? call : "return " + cx.coerce(call, tret, ret)).append("\n}\n\n");
+  }
+
+  final StringBuilder bridgesOut = new StringBuilder();
 
   /** Whether the stub of root r on class te finds the implementation in a library superclass when no subclass overrides it. */
   boolean libraryImpl(TypeElement te, ExecutableElement r) {

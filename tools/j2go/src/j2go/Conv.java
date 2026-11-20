@@ -286,7 +286,7 @@ final class Conv {
   String objHelper(TypeMirror t0) {
     if (!TYPEDOBJ || t0 == null) return null;
     TypeMirror t = cx.erase(t0);
-    if (cx.isTypedColl(t) || cx.isValueLibType(t) || cx.fn.is(t)) return null;
+    if (cx.isTypedColl(t) || cx.isValueLibType(t) || cx.fn.is(t) || cx.lg.is(t)) return null;
     switch (cx.kind(t)) {
       case IFACE:
         return "";

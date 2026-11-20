@@ -224,6 +224,9 @@ final class Ctx {
   /** Rule "function types": library functional interfaces as Go func types. */
   final FnTypes fn = new FnTypes(this);
 
+  /** Rule "typed library interfaces": library collection interfaces with their typed methods. */
+  final LibGen lg = new LibGen(this);
+
   boolean isValueLib(TypeElement te) {
     return te != null && valueLibs.contains(te);
   }
@@ -597,6 +600,8 @@ final class Ctx {
     // a function: held as it is; it cannot be compared (FnTypes refuses one as a key)
     if (fn.isLib(ae)) return compared ? null : erase(a);
     if (!((DeclaredType) a).getTypeArguments().isEmpty() || !ae.getTypeParameters().isEmpty()) {
+      // (an interface of rule "typed library interfaces": an element is held erased, as before)
+      if (lg.isLib(ae)) return compared ? null : types.erasure(a);
       if (!simple || typedClasses.contains(ae) && !isSource(ae)) return null;
       if (isSource(ae)) {
         // a generic class of the program: the Go type it has (an instantiation of a Go generic
@@ -1516,6 +1521,8 @@ final class Ctx {
       default:
         // a library functional interface: at the type arguments its Go func type has (FnTypes.norm)
         if (fn.is(t)) return fn.norm(t);
+        // a library collection interface of rule "typed library interfaces": typed, or its erasure (LibGen.erase)
+        if (t.getKind() == TypeKind.DECLARED && lg.isLib(typeElement(t))) return lg.erase(t);
         // the types the Go code keeps: type variables of typed classes, their parameterized types
         if (typedVar(t) || typedDecl(t)) return t;
         if (t.getKind() == TypeKind.ARRAY) {
@@ -1583,7 +1590,9 @@ final class Ctx {
       case CLS:
         if (isValueLibType(t)) return className(typeElement(t)) + (typedDecl(t) ? typeArgsOf(t) : rawArgs(typeElement(t)));
         return typedDecl(t) ? "*" + className(typeElement(t)) + typeArgsOf(t) : ref(typeElement(t));
-      case IFACE: return typedDecl(t) ? className(typeElement(t)) + typeArgsOf(t) : className(typeElement(t));
+      case IFACE:
+        if (lg.is(t)) return lg.typedName(typeElement(t)) + typeArgsOf(t);
+        return typedDecl(t) ? className(typeElement(t)) + typeArgsOf(t) : className(typeElement(t));
       case TVAR: return tvName(t);
       case VOID: return "";
       default: return "any";
@@ -1601,6 +1610,10 @@ final class Ctx {
   String declType(TypeMirror t) {
     String g = goType(t);
     if (t == null || t.getKind() != TypeKind.DECLARED) return g;
+    if (lg.isLib(typeElement(t))) {
+      if (lg.is(erase(t))) return g;
+      lg.note("declarations of the erased interface (written by the translator: bridges, runtime signatures)", String.valueOf(t));
+    }
     List<? extends TypeMirror> args = ((DeclaredType) t).getTypeArguments();
     TypeElement te = typeElement(erase(t));
     K k = kind(erase(t));
@@ -1707,6 +1720,11 @@ final class Ctx {
     // A typed collection meets every other type as Java's List or Set, through its erased view
     // (the one object that erased code sees); nothing but a typed collection of the same type
     // becomes one.
+    if (isTypedColl(from) && lg.is(to)) {
+      // (a typed collection is an Iterable of its elements itself)
+      String r = lg.fromTypedColl(code, from, to);
+      if (r != null) return r;
+    }
     if (isTypedColl(from)) {
       if (isTypedColl(to)) throw new IllegalStateException("typed collections of two types: " + gf + " to " + gt);
       // a place of Guava's immutable class: the immutable collection's erased twin (rt_timm.go)
@@ -1731,6 +1749,11 @@ final class Ctx {
       String fn = "opt" + (className(typeElement(to)).equals("Optional") ? "" : className(typeElement(to)));
       if (isValueLibType(from) && typeElement(from).equals(typeElement(to))) return fn + "As_" + ta + "(" + code + ")";
       return fn + "Of_" + ta + "(" + coerce(code, from, object) + ")";
+    }
+    // A typed library interface: an erased value through xAs_, to erased code the object it knows (LibGen).
+    if (lg.is(from) || lg.is(to)) {
+      String r = lg.coerce(code, from, to);
+      if (r != null) return r;
     }
     // A function: another instantiation through a closure, an object through its method value,
     // Object through the box of its instantiation at `any` (FnTypes).
@@ -2063,6 +2086,11 @@ final class Ctx {
     ExecutableElement r = root(m);
     // (a functional interface without a site: at Object, the method a class of the runtime has)
     if (fn.isLib(ownerOf(r))) return groupParams(m, fn.raw(ownerOf(r).asType()));
+    if (lg.isLib(ownerOf(r))) {
+      List<TypeMirror> out = new ArrayList<>();
+      for (VariableElement p : r.getParameters()) out.add(lg.erasedOf(vtype(p), ownerOf(r)));
+      return out;
+    }
     List<TypeMirror> out = new ArrayList<>();
     for (VariableElement p : r.getParameters()) out.add(erase(vtype(p)));
     return out;
@@ -2070,6 +2098,7 @@ final class Ctx {
 
   TypeMirror groupReturn(ExecutableElement m) {
     if (fn.isLib(ownerOf(root(m)))) return groupReturn(m, fn.raw(ownerOf(root(m)).asType()));
+    if (lg.isLib(ownerOf(root(m)))) return lg.erasedOf(rtype(root(m)), ownerOf(root(m)));
     return erase(rtype(root(m)));
   }
 
@@ -2079,6 +2108,7 @@ final class Ctx {
    * (PMap.get(K) through a PMap<String, V> is get(string)); otherwise null (the erased signature).
    */
   boolean groupAt(ExecutableElement m, TypeMirror site) {
+    if (site != null && lg.isLib(ownerOf(root(m)))) return lg.typedAt(m, site);
     // (a class of the runtime that implements a functional interface has the erased method)
     if (site != null && fn.isLib(ownerOf(root(m))) && fn.erasedAt(erase(site), ownerOf(root(m)))) return false;
     return site != null && typedClasses.contains(ownerOf(root(m)));

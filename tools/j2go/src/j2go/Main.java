@@ -280,6 +280,12 @@ public final class Main {
     cx.findComparable(units);
     cx.registerValueLibs();
     cx.fn.register();
+    cx.lg.register();
+    for (CompilationUnitTree cu : units) cx.lg.check(trees, cu);
+    if (!cx.lg.refusals.isEmpty()) {
+      for (String r : cx.lg.refusals) System.err.println("typed library interfaces: refused: " + r);
+      System.exit(1);
+    }
     if (FnTypes.ON) {
       cx.fn.findKeyed(cx.source);
       for (CompilationUnitTree cu : units) cx.fn.check(trees, cu);
@@ -365,6 +371,7 @@ public final class Main {
     cx.conv.strSeqReport();
     cx.conv.boxReport();
     cx.fn.report();
+    cx.lg.report();
     for (String d : cx.tconvs.values()) cb.append("\n").append(d);
     if (!cx.collKinds.isEmpty() && !"1".equals(System.getenv("J2GO_NOCOMPARABLE"))) {
       // The classes whose Go == is Java's equals (Ctx.goEquals): a typed set or map whose element

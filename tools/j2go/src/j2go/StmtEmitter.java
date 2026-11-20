@@ -446,6 +446,7 @@ abstract class StmtEmitter extends ExprEmitter {
     TypeMirror et = cx.erase(typeOf(ex));
     String lab;
     String head, bind = "", cursor = "";
+    Object[] ll;
     if (et.getKind() == TypeKind.ARRAY) {
       TypeMirror comp = cx.erase(((ArrayType) et).getComponentType());
       String src = expr(ex);
@@ -477,13 +478,26 @@ abstract class StmtEmitter extends ExprEmitter {
       cursor = it + " := " + atomOrParen(expr(ex)) + ".each()\n";
       head = "for " + it + ".next() ";
       bind = "var " + name + " " + cx.goType(vt) + " = " + cx.coerce(it + ".v", comp, vt) + "\n";
+    } else if ((ll = lgLoop(ex, et)) != null) {
+      // Rule "typed library interfaces": a typed Iterable is read by a typed cursor (eachOf_).
+      String it = fresh("it");
+      lab = enter("loop");
+      cursor = it + " := eachOf_(" + ll[0] + ")\n";
+      head = "for " + it + ".next() ";
+      bind = "var " + name + " " + cx.goType(vt) + " = " + cx.coerce(it + ".v", (TypeMirror) ll[1], vt) + "\n";
     } else {
       TypeMirror iterable = cx.elems.getTypeElement("java.lang.Iterable").asType();
       String it = fresh("it");
       // Performance rule: the loop runs on a cursor that is a local struct (foreach_ in
       // rt_coll.go). It reads the runtime's slice-backed collections in place and holds an
       // Iterator only for other Iterables, so the common loop allocates nothing.
-      String src = Conv.implicit(cx.coerce(expr(ex), et, objectType()));
+      String src;
+      if (loopCall != null) {
+        src = Conv.implicit(cx.coerce(loopCall.code, loopCall.type, objectType()));
+        loopCall = null;
+      } else {
+        src = Conv.implicit(cx.coerce(expr(ex), et, objectType()));
+      }
       TypeElement itE = Ctx.typeElement(iterable), iterE = cx.elems.getTypeElement("java.util.Iterator");
       cx.noteMethodOn(itE, "iterator", List.of(), iterE.asType());
       cx.noteMethodOn(iterE, "hasNext", List.of(), prim(TypeKind.BOOLEAN));
@@ -501,6 +515,38 @@ abstract class StmtEmitter extends ExprEmitter {
     restorePre(held);
     return cursor + lab + head + "{\n" + indent(body, "\t") + "}";
   }
+
+  /**
+   * For a for-each loop over ex whose value is a typed Iterable (rule "typed library interfaces"):
+   * {its code, its element type}; null where the loop reads the erased collection as before (the
+   * result of an erased method is not wrapped for the loop).
+   */
+  Object[] lgLoop(ExpressionTree ex, TypeMirror et) {
+    TypeElement iterable = cx.elems.getTypeElement("java.lang.Iterable");
+    if (!cx.lg.isLib(iterable)) return null;
+    if (loopCall != null) return null;
+    String code;
+    TypeMirror ty = et;
+    if (strip(ex) instanceof MethodInvocationTree mi) {
+      CallResult r = invocation(mi);
+      ty = cx.erase(r.type);
+      if (!cx.lg.is(ty)) {
+        // the erased result: the loop below reads it (and converts each element, as before)
+        loopCall = r;
+        return null;
+      }
+      code = r.code;
+    } else {
+      if (!cx.lg.is(et)) return null;
+      code = expr(ex);
+    }
+    DeclaredType v = cx.superView(ty, iterable);
+    if (v == null || !cx.lg.is(cx.erase(v))) throw new IllegalStateException("typed library interfaces: no Iterable in " + ty);
+    return new Object[] {code, ((DeclaredType) cx.erase(v)).getTypeArguments().get(0)};
+  }
+
+  /** The call that lgLoop translated and left to the erased loop. */
+  CallResult loopCall;
 
   // ---- switch
 

@@ -938,6 +938,8 @@ abstract class ExprEmitter extends Base {
     }
     if (cx.isValueLibType(cx.erase(tl)) || cx.isValueLibType(cx.erase(tr))) throw unsupported(t, "identity of a value library class (" + tl + " " + op + " " + tr + ")");
     if (cx.fn.is(cx.erase(tl)) || cx.fn.is(cx.erase(tr))) throw unsupported(t, "identity of a functional value (" + tl + " " + op + " " + tr + ")");
+    // rule "typed library interfaces": the objects that erased code knows are compared
+    if (cx.lg.is(cx.erase(tl)) || cx.lg.is(cx.erase(tr))) return "(" + asAny(l) + " " + op + " " + asAny(r) + ")";
     if (kl == kr && cx.goType(tl).equals(cx.goType(tr))) {
       return "(" + expr(l) + " " + op + " " + expr(r) + ")";
     }
@@ -1198,7 +1200,9 @@ abstract class ExprEmitter extends Base {
 
   List<TypeMirror> ownParams(ExecutableElement e) {
     List<TypeMirror> out = new ArrayList<>();
-    for (VariableElement p : e.getParameters()) out.add(cx.erase(cx.vtype(p)));
+    boolean lib = !cx.isSource(cx.ownerOf(e)) && (!cx.typedClasses.contains(cx.ownerOf(e)) || cx.lg.isLib(cx.ownerOf(e)));
+    // (a library method: its signature as the runtime declares it, LibGen.rt)
+    for (VariableElement p : e.getParameters()) out.add(lib ? cx.lg.rt(cx.vtype(p)) : cx.erase(cx.vtype(p)));
     return out;
   }
 
@@ -1222,7 +1226,7 @@ abstract class ExprEmitter extends Base {
     if (isStatic) {
       touch(owner);
       List<TypeMirror> params = ownParams(e);
-      TypeMirror ret = cx.erase(cx.rtype(e));
+      TypeMirror ret = src ? cx.erase(cx.rtype(e)) : cx.lg.rt(cx.rtype(e));
       String name = cx.staticMethodName(e);
       if (!src) noteMethod("func " + name, e, params, ret, "static");
       if (!src) {
@@ -1346,7 +1350,7 @@ abstract class ExprEmitter extends Base {
           String a = args.get(i).as(pt);
           sb.append(", ").append(cx.goType(pt).equals("any") ? Conv.implicit(a) : a);
         }
-        return new CallResult(sb.append(")").toString(), cx.erase(re.getReturnType()));
+        return new CallResult(sb.append(")").toString(), cx.lg.rt(re.getReturnType()));
       }
     }
     if (!src && ok != Ctx.K.STR && re != e && !superCall
@@ -1378,7 +1382,7 @@ abstract class ExprEmitter extends Base {
     if (!src && (ok == Ctx.K.STR || ok == Ctx.K.ANY || owner.getKind().isInterface() && e.isDefault() && !cx.fn.isLib(owner))) {
       // Static-style helper taking the receiver first.
       List<TypeMirror> params = ownParams(e);
-      TypeMirror ret = cx.erase(e.getReturnType());
+      TypeMirror ret = cx.lg.rt(e.getReturnType());
       String name = cx.staticMethodName(e);
       String r = cx.coerce(recv.code, recv.type, owner.asType());
       if (ok == Ctx.K.ANY && cx.conv.anyParams(name)) r = Conv.implicit(r);
@@ -1397,8 +1401,21 @@ abstract class ExprEmitter extends Base {
     TypeMirror site = superCall ? cc().te.asType() : recv != null ? recv.type : null;
     List<TypeMirror> params = cx.groupParams(e, site);
     TypeMirror ret = cx.groupReturn(e, site);
+    if (!src && !cx.groupAt(e, site)) {
+      // a method of an erased library type: its signature as the runtime declares it
+      params = new ArrayList<>(params);
+      params.replaceAll(cx.lg::rt);
+      ret = cx.lg.rt(ret);
+    }
     String name = cx.methodName(e);
-    if (!src) noteMethod("method " + cx.className(cx.ownerOf(cx.root(e))) + "." + name, cx.root(e), params, ret, "method");
+    boolean lgTyped = cx.lg.typedAt(e, site);
+    if (lgTyped) {
+      // rule "typed library interfaces": the typed method (next_t), declared by the runtime
+      name = cx.lg.methodName(e, site);
+    } else if (recv != null && cx.isTypedColl(recv.type) && cx.lg.is(ret) && name.equals("iterator")) {
+      // the iterator of a typed collection, at its element type
+      name = "iterator_t";
+    } else if (!src) noteMethod("method " + cx.className(cx.ownerOf(cx.root(e))) + "." + name, cx.root(e), params, ret, "method");
     String strVariant = null;
     if (!src && !superCall && recv != null) {
       List<TypeMirror> sp = new ArrayList<>(params);
@@ -1810,6 +1827,8 @@ abstract class ExprEmitter extends Base {
   /** The lambda as a value of its own type, or (rule "function types") of function type target. */
   String lambda(LambdaExpressionTree t, TypeMirror target) {
     TypeMirror ft = target != null ? target : cx.erase(typeOf(t));
+    // rule "typed library interfaces": the erased adapter object, then as the typed interface
+    if (cx.lg.is(ft)) return cx.coerce(lambda(t, cx.types.erasure(ft)), cx.types.erasure(ft), ft);
     TypeElement fi = Ctx.typeElement(ft);
     ExecutableElement m = fi == null ? null : cx.functionalMethod(fi);
     if (m == null) throw unsupported(t, "lambda target " + ft);
@@ -1882,6 +1901,7 @@ abstract class ExprEmitter extends Base {
   String memberRef(MemberReferenceTree t, TypeMirror target) {
     TypeMirror ft = typeOf(t);
     TypeMirror eft = target != null ? target : cx.erase(ft);
+    if (cx.lg.is(eft)) return cx.coerce(memberRef(t, cx.types.erasure(eft)), cx.types.erasure(eft), eft);
     TypeElement fi = Ctx.typeElement(eft);
     ExecutableElement m = fi == null ? null : cx.functionalMethod(fi);
     if (m == null) throw unsupported(t, "method reference target " + ft);
