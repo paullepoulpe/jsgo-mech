@@ -2530,7 +2530,7 @@ func (this *IRFactory_TransformDispatcher) processPropertyNameAssignment(tree *P
 func (this *IRFactory_TransformDispatcher) checkParenthesizedExpression(exprNode *ParenExpressionTree) {
 	if exprNode.expression.type__ == ParseTreeType_COMMA_EXPRESSION {
 		var commaNodes *TList[*ParseTree] = exprNode.expression.asCommaExpression().expressions
-		var lastChild *ParseTree = to_ParseTree(Iterables_getLast(Iterable(commaNodes.asList())))
+		var lastChild *ParseTree = commaNodes.getLastT_()
 		if lastChild.type__ == ParseTreeType_ITER_REST {
 			this.outer_.errorReporter.error("A rest parameter must be in a parameter list.", this.outer_.sourceName_, IRFactory_lineno(lastChild), IRFactory_charnoParseTree(lastChild))
 		}

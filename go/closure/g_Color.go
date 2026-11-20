@@ -165,7 +165,7 @@ func Color_createUnion(elements *TSet[*Color]) *Color {
 	case 0:
 		panic(new_IllegalStateException_0())
 	case 1:
-		return cast_[*Color](Iterables_getOnlyElement(Iterable(elements.asSet())))
+		return elements.getOnlyElementT_()
 	default:
 	}
 	var instanceColors *ImmutableSet_Builder[*Color] = immutableSetBuilder_(tch_p_Color)
