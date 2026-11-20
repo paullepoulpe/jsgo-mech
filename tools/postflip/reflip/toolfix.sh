@@ -383,7 +383,38 @@ func boxed(e ast.Expr) ast.Expr {
 		}
 	}
 E17
-# 18. (fourth flip, in bounds) checks: the translator's rules P2 and P4 write a precondition whose checked value or one message
+# 20. (in-bounds line) generics -classes: the String variants of a generic class's methods (m_s: m with its key typed string, which
+#    the step strvar writes where the manual steps 29, 35 and 121 wrote them by hand) are no Java declarations, so their key is
+#    no type-variable slot, and a call x.m_s(s) said nothing about x's type argument: an object whose every keyed call had become a
+#    variant's (SimpleBiMap, a SimpleListMultimap, a SimpleSetMultimap) stayed erased, C[any, V]. x.m_s(s, ...) is x.m(strobj_(s), ...)
+#    by the convention of the variants (strkeys' rule 1 rewrites the one to the other on that ground), so the string is written to
+#    the slot of m's first parameter: evidence for that type argument like the boxed string it stands for.
+reflip_edit tools/postflip/generics/classes.go reflipSvar <<'E20'
+			case *ast.CallExpr:
+				if len(v.Args) == 1 {
+					if name, _ := rw.CallName(v); name != "" && unboxNames.MatchString(name) {
+=====
+			case *ast.CallExpr:
+				// reflipSvar: x.m_s(s, ...) is x.m(strobj_(s), ...): a string written to m's first slot
+				if sel, ok := v.Fun.(*ast.SelectorExpr); ok && strings.HasSuffix(sel.Sel.Name, "_s") && len(v.Args) > 0 {
+					if sn := rw.Info.Selections[sel]; sn != nil && sn.Kind() == types.MethodVal {
+						if at := rw.Info.Types[v.Args[0]].Type; at != nil && types.Identical(types.Unalias(at), types.Typ[types.String]) {
+							if mo, _, _ := types.LookupFieldOrMethod(sn.Recv(), true, rw.Pkg, strings.TrimSuffix(sel.Sel.Name, "_s")); mo != nil {
+								if mf, ok := mo.(*types.Func); ok {
+									if ms := mf.Type().(*types.Signature); ms.Params().Len() > 0 {
+										if tg := tagOf(ms.Params().At(0).Type()); tg != "" {
+											writeEv(tg, types.Typ[types.String], nil)
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				if len(v.Args) == 1 {
+					if name, _ := rw.CallName(v); name != "" && unboxNames.MatchString(name) {
+E20
+# 21. (fourth flip, in bounds) checks: the translator's rules P2 and P4 write a precondition whose checked value or one message
 #    argument has a known type as a typed variant of the runtime function: Preconditions_check..._H(c, [t,] n) takes a handle n and
 #    boxes it only when the check fails (n.box_()); Preconditions_checkNotNull..._T(v, ...) and ..._Str(v, ...) take the checked value
 #    at its own type (null is the zero value of T, nullstr_ of a String), return it typed, and take the message arguments as they
@@ -393,13 +424,13 @@ E17
 #    tool's own null test (_T, _Str); a single Object message read under the boxing canon_ gives it (a String strobj_, anything
 #    else canon_ itself, as the runtime function writes it). Every rewrite is then the tool's own, with the runtime function's exception and
 #    message.
-reflip_edit tools/postflip/checks/main.go reflip18 <<'E18'
+reflip_edit tools/postflip/checks/main.go reflip21 <<'E21'
 func unbox(e ast.Expr) (string, ast.Expr) {
 	e = rw.Unparen(e)
 =====
 func unbox(e ast.Expr) (string, ast.Expr) {
 	e = rw.Unparen(e)
-	if b, ok := reflipBox_[e]; ok { // reflip18: an argument a typed variant boxes itself
+	if b, ok := reflipBox_[e]; ok { // reflip21: an argument a typed variant boxes itself
 		return b, e
 	}
 -----
@@ -416,7 +447,7 @@ func unbox(e ast.Expr) (string, ast.Expr) {
 		if _, isIface := u.(*types.Interface); !isIface {
 =====
 	switch {
-	case box == "%s" && reflipChecked_[in]: // reflip18: the value of a typed checkNotNull, tested at its type
+	case box == "%s" && reflipChecked_[in]: // reflip21: the value of a typed checkNotNull, tested at its type
 		test, ok := nullTest(t, primary(in))
 		return test, in, ok
 	case box == "%s" || box == "any(%s)":
@@ -536,8 +567,8 @@ func reflipVariant1_(k check, variant string) bool {
 	}
 	return false
 }
-E18
-# 19. (fourth flip, in bounds) sbuild: two more forms of this translator that kept 41 StringBuilder slots (16 "passed to jtostr_",
+E21
+# 22. (fourth flip, in bounds) sbuild: two more forms of this translator that kept 41 StringBuilder slots (16 "passed to jtostr_",
 #    25 "returned as another type"; the third flip's tool fix e8c5ab2d on reflip2-bridge, which the lead line's tools never had
 #    because its translator wrote neither form):
 #    - jtostr_(sb), the translator's String.valueOf at the argument's type (rt_conv.go: objstr_(obj_(sb)), "null" for nil), is the
@@ -545,13 +576,13 @@ E18
 #    - StringBuilder_as_Appendable(sb), the nil-keeping upcast helper of g_0casts.go (rule "implicit conversions"), is where the
 #      erased output had the builder itself in an Appendable position: the helper's parameter is no slot, the argument is a builder
 #      passed as an Appendable (appendable_(sb), which keeps nil too) and the helper call around a converted builder is dropped.
-if [[ -f $bg ]] && ! grep -q 'reflip19' $bg && grep -q 'fn.Name() == "tostrR_")' $bg; then
+if [[ -f $bg ]] && ! grep -q 'reflip22' $bg && grep -q 'fn.Name() == "tostrR_")' $bg; then
   perl -pi -e 's/\|\| fn\.Name\(\) == "tostrR_"\) && len\(x\.Args\) == 1/|| fn.Name() == "tostrR_" || fn.Name() == "jtostr_") \&\& len(x.Args) == 1/' $bg
   grep -q '"jtostr_")' $bg || { echo "toolfix: sbuild: the tostr_ line was not found" >&2; exit 1; }
-  reflip_edit $bg reflip19 <<'E19'
+  reflip_edit $bg reflip22 <<'E22'
 func appendArg(k key, e ast.Expr, local bool, v *types.Var) {
 =====
-// reflipAsAppendable_ is the translator's upcast of a *StringBuilder to Appendable (reflip19); reflipUpcasts_ are its calls
+// reflipAsAppendable_ is the translator's upcast of a *StringBuilder to Appendable (reflip22); reflipUpcasts_ are its calls
 // around a builder of each class.
 const reflipAsAppendable_ = "StringBuilder_as_Appendable"
 
@@ -565,7 +596,7 @@ func appendArg(k key, e ast.Expr, local bool, v *types.Var) {
 =====
 				sig := fn.Type().(*types.Signature)
 				results[x] = sig
-				if x.Recv == nil && x.Name.Name == reflipAsAppendable_ { // reflip19: its parameter is no slot
+				if x.Recv == nil && x.Name.Name == reflipAsAppendable_ { // reflip22: its parameter is no slot
 					return true
 				}
 				fieldList(x.Type.Params, func(i int) *types.Var { return sig.Params().At(i) }, g, "")
@@ -574,7 +605,7 @@ func appendArg(k key, e ast.Expr, local bool, v *types.Var) {
 					if rw.Unparen(a) == e {
 						if pv := paramVar(fn, i); pv != nil && isSlot[pv] {
 =====
-				if fn.Name() == reflipAsAppendable_ && len(x.Args) == 1 && rw.Unparen(x.Args[0]) == e { // reflip19
+				if fn.Name() == reflipAsAppendable_ && len(x.Args) == 1 && rw.Unparen(x.Args[0]) == e { // reflip22
 					appendArg(k, e, local, v)
 					reflipUpcasts_[k] = append(reflipUpcasts_[k], x)
 					return
@@ -587,7 +618,7 @@ func appendArg(k key, e ast.Expr, local bool, v *types.Var) {
 		fmt.Fprintf(os.Stderr, "builders passed as an Appendable (appendable_): %d\n", nApp)
 	}
 =====
-	for k, cs := range reflipUpcasts_ { // reflip19: the upcast helper around a converted builder goes
+	for k, cs := range reflipUpcasts_ { // reflip22: the upcast helper around a converted builder goes
 		if !conv[k] {
 			continue
 		}
@@ -599,10 +630,10 @@ func appendArg(k key, e ast.Expr, local bool, v *types.Var) {
 	if nApp > 0 {
 		fmt.Fprintf(os.Stderr, "builders passed as an Appendable (appendable_): %d\n", nApp)
 	}
-E19
-  grep -q 'reflip19' $bg || echo '// reflip19: jtostr_ only (this version has no Appendable arguments)' >> $bg
+E22
+  grep -q 'reflip22' $bg || echo '// reflip22: jtostr_ only (this version has no Appendable arguments)' >> $bg
 fi
-# 20. (fourth flip, in bounds) eqhash: the translator's rules "typed Object methods" and "typed Object calls" write the protocol's
+# 23. (fourth flip, in bounds) eqhash: the translator's rules "typed Object methods" and "typed Object calls" write the protocol's
 #    calls on values held at their static type as generic helpers of rt_conv.go, each defined as the erased call the tool reads:
 #    equals_(a, b) = objequals_(obj_(a), obj_(b)), hash_(v) = objhash_(obj_(v)), equalsR_(a, B) = Object_equals(obj_(a), B),
 #    equalsRR_(a, b) = Object_equals(obj_(a), obj_(b)), hashR_(v) = Object_hashCode(obj_(v)), the H variants with box_() for
@@ -613,15 +644,15 @@ fi
 #    with the helper's boxing. A typed requireNonNull is its own unboxed value: as a statement or the value of an assignment it is
 #    the inline nil check; elsewhere it stays (it is already what requireNonNull_ is). A call the tool does not decide is untouched.
 eg=tools/postflip/eqhash/main.go
-if [[ -f $eg ]] && ! grep -q 'reflip20' $eg && grep -q 'case "Objects_requireNonNull", "Objects_requireNonNull_Object":' $eg; then
+if [[ -f $eg ]] && ! grep -q 'reflip23' $eg && grep -q 'case "Objects_requireNonNull", "Objects_requireNonNull_Object":' $eg; then
   perl -pi -e 's/rw\.Render\(B\)/reflipBoxed_(B)/g; s/\brender\(B\)/func() string { return reflipBoxed_(B) }/g' $eg
-  reflip_edit $eg reflip20 <<'E20'
+  reflip_edit $eg reflip23 <<'E23'
 func unbox(e ast.Expr) (boxed, bool) {
 	e = rw.Unparen(e)
 =====
 func unbox(e ast.Expr) (boxed, bool) {
 	e = rw.Unparen(e)
-	if via, ok := reflipVia_[e]; ok { // reflip20: an argument a typed helper boxes itself
+	if via, ok := reflipVia_[e]; ok { // reflip23: an argument a typed helper boxes itself
 		tv, ok := rw.Info.Types[e]
 		if !ok || tv.Type == nil {
 			return boxed{}, false
@@ -767,33 +798,33 @@ func reflipBoxed_(e ast.Expr) string {
 	}
 	return rw.Render(e)
 }
-E20
+E23
 fi
-# 21. (fourth flip, in bounds) rw.Unboxed: "the code storing boxed expression a (of type any) as a value of type t" drops a boxing
+# 24. (fourth flip, in bounds) rw.Unboxed: "the code storing boxed expression a (of type any) as a value of type t" drops a boxing
 #    call whose operand has type t (strobj_(x), obj_(x), ...); any other expression is unboxed by the type's conversion. The
 #    translator's rule P4 passes a String where an Object is taken as the string itself (put("CLASS_DECL", v), the erased output had
 #    strobj_("CLASS_DECL")), so the typed immutable builders of step 336 got their constant keys as str_("CLASS_DECL"): 236
 #    str_( of a string (third flip: the same 236; lead line: 0). A value whose static type is already the string type t is its own
 #    unboxing (str_ of a Go string in an `any` is the string).
-reflip_edit tools/postflip/rw/rw.go reflip21 <<'E21'
+reflip_edit tools/postflip/rw/rw.go reflip24 <<'E24'
 func Unboxed(cv Conv, t types.Type, a ast.Expr) string {
 	a = Unparen(a)
 =====
 func Unboxed(cv Conv, t types.Type, a ast.Expr) string {
 	a = Unparen(a)
-	if tv, ok := Info.Types[a]; ok && tv.Type != nil && types.Identical(tv.Type, t) { // reflip21: a String passed as itself
+	if tv, ok := Info.Types[a]; ok && tv.Type != nil && types.Identical(tv.Type, t) { // reflip24: a String passed as itself
 		if b, ok := t.Underlying().(*types.Basic); ok && b.Kind() == types.String {
 			return Render(a)
 		}
 	}
-E21
-# 22. (fourth flip, in bounds) funcparams: fix 17 reads the object under the upcast written as a conversion, I(o). The same rule of
+E24
+# 25. (fourth flip, in bounds) funcparams: fix 17 reads the object under the upcast written as a conversion, I(o). The same rule of
 #    the translator writes the upcast of a value that may be null as the nil-keeping helper C_as_I(o) of g_0casts.go
 #    (FunctionArgumentInjector_ReferencedAfterSideEffect_as_NodeUtil_Visitor(collector)); the tool took it for "another value" and
 #    kept every parameter such a call reaches an interface (NodeUtil.Visitor: 13 lambda objects &NodeUtil_Visitor_fn{func...} the
 #    lead line has as Go functions). The object of the helper is its operand; whether it is null is the tool's own question
 #    (nonNullLocal and the rest), as for the erased icast_I(obj_(o)).
-reflip_edit tools/postflip/funcparams/main.go reflip22 <<'E22'
+reflip_edit tools/postflip/funcparams/main.go reflip25 <<'E25'
 	if c, ok := e.(*ast.CallExpr); ok && len(c.Args) == 1 { // reflip17: the upcast written out, I(x)
 		if tv, ok := rw.Info.Types[c.Fun]; ok && tv.IsType() && types.IsInterface(tv.Type) {
 			e = rw.Unparen(c.Args[0])
@@ -803,37 +834,37 @@ reflip_edit tools/postflip/funcparams/main.go reflip22 <<'E22'
 	if c, ok := e.(*ast.CallExpr); ok && len(c.Args) == 1 { // reflip17: the upcast written out, I(x)
 		if tv, ok := rw.Info.Types[c.Fun]; ok && tv.IsType() && types.IsInterface(tv.Type) {
 			e = rw.Unparen(c.Args[0])
-		} else if id, ok := c.Fun.(*ast.Ident); ok && strings.Contains(id.Name, "_as_") { // reflip22: the nil-keeping upcast helper C_as_I(x)
+		} else if id, ok := c.Fun.(*ast.Ident); ok && strings.Contains(id.Name, "_as_") { // reflip25: the nil-keeping upcast helper C_as_I(x)
 			if fn, ok := rw.Info.Uses[id].(*types.Func); ok && strings.HasSuffix(rw.Fset.Position(fn.Pos()).Filename, "g_0casts.go") {
 				e = rw.Unparen(c.Args[0])
 			}
 		}
 	}
-E22
-# 23. (fourth flip, in bounds) exceptions: the translator's typed collection runtime (rt_jtimm.go, until step 402 unifies the
+E25
+# 26. (fourth flip, in bounds) exceptions: the translator's typed collection runtime (rt_jtimm.go, until step 402 unifies the
 #    families) panics with the value frozen_{} for a change to an immutable typed collection, and catch_ makes it Java's
 #    UnsupportedOperationException (rt_lang.go). The tool took it for a value of unknown class that every caller of a typed
 #    collection could throw and kept every catch clause such a call reaches ("it can throw a value of unknown class:
 #    computeIfAbsent: panic(frozen_{})"). The class is known (the third flip's tool fix 9cddf058 on reflip2-bridge).
-reflip_edit tools/postflip/exceptions/main.go reflip23 <<'E23'
+reflip_edit tools/postflip/exceptions/main.go reflip26 <<'E26'
 	if c, ok := x.(*ast.CallExpr); ok {
 		if id, ok := c.Fun.(*ast.Ident); ok {
 			if strings.HasPrefix(id.Name, "new_") {
 =====
-	if cl, ok := x.(*ast.CompositeLit); ok && len(cl.Elts) == 0 && rw.Text(cl.Type) == "frozen_" { // reflip23
+	if cl, ok := x.(*ast.CompositeLit); ok && len(cl.Elts) == 0 && rw.Text(cl.Type) == "frozen_" { // reflip26
 		return []string{"UnsupportedOperationException"}, true
 	}
 	if c, ok := x.(*ast.CallExpr); ok {
 		if id, ok := c.Fun.(*ast.Ident); ok {
 			if strings.HasPrefix(id.Name, "new_") {
-E23
-# 24. (fourth flip, in bounds) eqhash: Objects.requireNonNull(x, msg) of a typed collection is written by this translator with the
+E26
+# 27. (fourth flip, in bounds) eqhash: Objects.requireNonNull(x, msg) of a typed collection is written by this translator with the
 #    collection's erased view passed as it is, Objects_requireNonNull(names.asSet(), "names") (the erased output boxed the value:
 #    any(names)); the tool reads a boxing call only and left these 27 (lead line: 0). An interface value passed as it is is null
 #    exactly when it is the nil interface: as a statement the call is the inline check `if names.asSet() == nil { panic(NPE(msg)) }`
 #    (the form the third flip has). Other uses of the result stay.
-if [[ -f $eg ]] && ! grep -q 'reflip24' $eg && grep -q 'reflip20' $eg; then
-  reflip_edit $eg reflip24 <<'E24'
+if [[ -f $eg ]] && ! grep -q 'reflip27' $eg && grep -q 'reflip23' $eg; then
+  reflip_edit $eg reflip27 <<'E27'
 	ba, ok := unbox(c.Args[0])
 	if !ok {
 		return ""
@@ -841,7 +872,7 @@ if [[ -f $eg ]] && ! grep -q 'reflip24' $eg && grep -q 'reflip20' $eg; then
 	if b, isBasic := ba.t.(*types.Basic); isBasic && b.Kind() != types.String {
 =====
 	ba, ok := unbox(c.Args[0])
-	if !ok { // reflip24: an interface value passed as it is, checked as a statement
+	if !ok { // reflip27: an interface value passed as it is, checked as a statement
 		e := rw.Unparen(c.Args[0])
 		tv := rw.Info.Types[e]
 		if _, isStmt := rw.Up(c).(*ast.ExprStmt); !isStmt || tv.Type == nil || tv.IsNil() || !isIface(tv.Type) {
@@ -850,5 +881,5 @@ if [[ -f $eg ]] && ! grep -q 'reflip24' $eg && grep -q 'reflip20' $eg; then
 		ba = boxed{x: e, t: types.Unalias(tv.Type)}
 	}
 	if b, isBasic := ba.t.(*types.Basic); isBasic && b.Kind() != types.String {
-E24
+E27
 fi
