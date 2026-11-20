@@ -279,6 +279,16 @@ public final class Main {
     }
     cx.findComparable(units);
     cx.registerValueLibs();
+    cx.fn.register();
+    if (FnTypes.ON) {
+      cx.fn.findKeyed(cx.source);
+      for (CompilationUnitTree cu : units) cx.fn.check(trees, cu);
+      if (!cx.fn.refusals.isEmpty()) {
+        for (String r : cx.fn.refusals) System.err.println("function types: refused: " + r);
+        System.err.println("function types: " + cx.fn.refusals.size() + " uses of a functional value that a Go func value cannot serve (J2GO_NOFNTYPES=1 translates without the rule)");
+        System.exit(1);
+      }
+    }
     cx.registerTypedColls();
     if (System.getenv("J2GO_ERASED") == null) {
       Colls colls = new Colls(cx, trees);
@@ -354,6 +364,7 @@ public final class Main {
     for (String d : cx.conv.upcasts.values()) cb.append("\n").append(d);
     cx.conv.strSeqReport();
     cx.conv.boxReport();
+    cx.fn.report();
     for (String d : cx.tconvs.values()) cb.append("\n").append(d);
     if (!cx.collKinds.isEmpty() && !"1".equals(System.getenv("J2GO_NOCOMPARABLE"))) {
       // The classes whose Go == is Java's equals (Ctx.goEquals): a typed set or map whose element

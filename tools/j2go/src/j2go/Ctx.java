@@ -173,6 +173,8 @@ final class Ctx {
   TypeMirror atSite(TypeMirror t, TypeElement owner, TypeMirror site) {
     if (site == null || !typedClasses.contains(owner)) return t;
     DeclaredType v = superView(erase(site), owner);
+    // (a functional interface seen through an erased generic class: at Object)
+    if (v != null && v.getTypeArguments().isEmpty() && fn.isLib(owner)) v = (DeclaredType) fn.raw(v);
     if (v == null || v.getTypeArguments().isEmpty()) return t;
     Map<Element, TypeMirror> m = new HashMap<>();
     List<? extends TypeParameterElement> ps = owner.getTypeParameters();
@@ -218,6 +220,9 @@ final class Ctx {
    * by a conversion of its content (optAs_), where Java passes the same object.
    */
   final Set<TypeElement> valueLibs = new HashSet<>();
+
+  /** Rule "function types": library functional interfaces as Go func types. */
+  final FnTypes fn = new FnTypes(this);
 
   boolean isValueLib(TypeElement te) {
     return te != null && valueLibs.contains(te);
@@ -589,6 +594,8 @@ final class Ctx {
     if (k != K.STR && k != K.CLS && k != K.IFACE) return null;
     if (isSource(ae) && (ae.getNestingKind() == NestingKind.LOCAL || ae.getNestingKind() == NestingKind.ANONYMOUS)) return null;
     if (isValueLib(ae)) return null;
+    // a function: held as it is; it cannot be compared (FnTypes refuses one as a key)
+    if (fn.isLib(ae)) return compared ? null : erase(a);
     if (!((DeclaredType) a).getTypeArguments().isEmpty() || !ae.getTypeParameters().isEmpty()) {
       if (!simple || typedClasses.contains(ae) && !isSource(ae)) return null;
       if (isSource(ae)) {
@@ -836,7 +843,7 @@ final class Ctx {
         String guard = g.startsWith("*") ? "if v == nil {\n\t\t\t\t\treturn nil\n\t\t\t\t}\n\t\t\t\t" : "";
         tconvs.put(fn, "var " + fn + "_single_ singles_\n\nfunc " + fn + "[" + decl + "]() *tconv_[" + g + "] {\n\treturn single_(&" + fn + "_single_, func() *tconv_[" + g + "] {\n\t\treturn &tconv_["
             + g + "]{\n\t\t\tbox: func(v " + g + ") any {\n\t\t\t\t" + guard + "return " + coerce("v", elem, object) + "\n\t\t\t},\n\t\t\tunbox: func(v any) " + g + " { return "
-            + coerce("v", object, elem) + " },\n" + (eq ? "\t\t\tbyEquals: true,\n" : "") + "\t\t}\n\t})\n}\n");
+            + coerce("v", object, elem) + " },\n" + (eq ? "\t\t\tbyEquals: true,\n" : "") + (this.fn.is(elem) ? "\t\t\tisnull: func(v " + g + ") bool { return v == nil },\n" : "") + "\t\t}\n\t})\n}\n");
       }
       return fn + "[" + use + "]()";
     }
@@ -847,7 +854,7 @@ final class Ctx {
       tconvs.put(name, "");
       tconvs.put(name, "var " + name + " = &tconv_[" + g + "]{\n\tbox:   func(v " + g + ") any { return " + coerce("v", elem, object)
           + " },\n\tunbox: func(v any) " + g + " { return " + coerce("v", object, elem) + " },\n"
-          + (kind(elem) == K.STR ? "\tnull:  nullstr_,\n" : "") + (eq ? "\tbyEquals: true,\n" : "") + "}\n");
+          + (kind(elem) == K.STR ? "\tnull:  nullstr_,\n" : "") + (eq ? "\tbyEquals: true,\n" : "") + (fn.is(elem) ? "\tisnull: func(v " + g + ") bool { return v == nil },\n" : "") + "}\n");
     }
     return name;
   }
@@ -1507,6 +1514,8 @@ final class Ctx {
       case NULL, VOID, NONE, ERROR, PACKAGE, EXECUTABLE, OTHER, MODULE:
         return t;
       default:
+        // a library functional interface: at the type arguments its Go func type has (FnTypes.norm)
+        if (fn.is(t)) return fn.norm(t);
         // the types the Go code keeps: type variables of typed classes, their parameterized types
         if (typedVar(t) || typedDecl(t)) return t;
         if (t.getKind() == TypeKind.ARRAY) {
@@ -1595,7 +1604,7 @@ final class Ctx {
     List<? extends TypeMirror> args = ((DeclaredType) t).getTypeArguments();
     TypeElement te = typeElement(erase(t));
     K k = kind(erase(t));
-    if (args.isEmpty() || te == null || isSource(te) || isValueLib(te) || isTypedColl(t) || (k != K.CLS && k != K.IFACE)) return g;
+    if (args.isEmpty() || te == null || isSource(te) || isValueLib(te) || fn.isLib(te) || isTypedColl(t) || (k != K.CLS && k != K.IFACE)) return g;
     String alias = className(te) + "Of";
     StringBuilder ps = new StringBuilder(), as = new StringBuilder();
     for (int i = 0; i < args.size(); i++) {
@@ -1723,6 +1732,9 @@ final class Ctx {
       if (isValueLibType(from) && typeElement(from).equals(typeElement(to))) return fn + "As_" + ta + "(" + code + ")";
       return fn + "Of_" + ta + "(" + coerce(code, from, object) + ")";
     }
+    // A function: another instantiation through a closure, an object through its method value,
+    // Object through the box of its instantiation at `any` (FnTypes).
+    if (fn.is(from) || fn.is(to)) return fn.coerce(code, from, to);
     // A value of a type parameter meets another type through its box, as in the erased code.
     if (kf == K.TVAR && kt == K.ANY) conv.noteBox(from);
     if (kf == K.TVAR) return kt == K.ANY ? "boxT_(" + code + ")" : coerce("boxT_(" + code + ")", object, to);
@@ -2049,12 +2061,15 @@ final class Ctx {
   /** Erased parameter types of the group {@code m} belongs to. */
   List<TypeMirror> groupParams(ExecutableElement m) {
     ExecutableElement r = root(m);
+    // (a functional interface without a site: at Object, the method a class of the runtime has)
+    if (fn.isLib(ownerOf(r))) return groupParams(m, fn.raw(ownerOf(r).asType()));
     List<TypeMirror> out = new ArrayList<>();
     for (VariableElement p : r.getParameters()) out.add(erase(vtype(p)));
     return out;
   }
 
   TypeMirror groupReturn(ExecutableElement m) {
+    if (fn.isLib(ownerOf(root(m)))) return groupReturn(m, fn.raw(ownerOf(root(m)).asType()));
     return erase(rtype(root(m)));
   }
 
@@ -2064,6 +2079,8 @@ final class Ctx {
    * (PMap.get(K) through a PMap<String, V> is get(string)); otherwise null (the erased signature).
    */
   boolean groupAt(ExecutableElement m, TypeMirror site) {
+    // (a class of the runtime that implements a functional interface has the erased method)
+    if (site != null && fn.isLib(ownerOf(root(m))) && fn.erasedAt(erase(site), ownerOf(root(m)))) return false;
     return site != null && typedClasses.contains(ownerOf(root(m)));
   }
 
@@ -2072,7 +2089,9 @@ final class Ctx {
     if (!groupAt(m, site)) return groupParams(m);
     ExecutableElement r = root(m);
     List<TypeMirror> out = new ArrayList<>();
-    for (VariableElement p : r.getParameters()) out.add(erase(atSite(vtype(p), ownerOf(r), site)));
+    for (VariableElement p : r.getParameters()) {
+      out.add(erase(atSite(vtype(p), ownerOf(r), site)));
+    }
     return out;
   }
 
@@ -2353,7 +2372,7 @@ final class Ctx {
     if (te.getKind().isInterface()) all.add(te);
     all.addAll(allSupertypes(te));
     for (TypeElement st : all) {
-      if (isSource(st) || !st.getKind().isInterface() || kind(st.asType()) != K.IFACE) continue;
+      if (isSource(st) || !st.getKind().isInterface() || kind(st.asType()) != K.IFACE || fn.isLib(st)) continue;
       for (Element e : st.getEnclosedElements()) {
         if (!isInstanceMethod(e) || !((ExecutableElement) e).isDefault()) continue;
         ExecutableElement dm = (ExecutableElement) e, r = root(dm);

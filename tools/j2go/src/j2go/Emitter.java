@@ -105,7 +105,8 @@ final class Emitter extends StmtEmitter {
     String tps = tparams(te), tpu = cx.typedClasses.contains(te) ? cx.typeParamsUse(te.getTypeParameters()) : "";
     StringBuilder sb = new StringBuilder("type " + n + tps + " interface {\n");
     for (TypeMirror st : te.getInterfaces()) {
-      if (cx.kind(st) == Ctx.K.IFACE) sb.append("\t").append(cx.goType(st)).append("\n");
+      // (a library functional interface is a func type: the methods te adds are te's own)
+      if (cx.kind(st) == Ctx.K.IFACE && !cx.fn.is(st)) sb.append("\t").append(cx.goType(st)).append("\n");
     }
     for (Element e : te.getEnclosedElements()) {
       if (!Ctx.isInstanceMethod(e) || e.getModifiers().contains(Modifier.PRIVATE)) continue;

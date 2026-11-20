@@ -149,14 +149,19 @@ final class Conv {
    * @return the static type of the argument when the rule applies to a call of e (the type of
    *     the parameter and of the result of the Go function), else null
    */
+  /** Whether e is `<T> T checkNotNull(T, ...)` of Guava's Preconditions or `<T> T requireNonNull(T, ...)` of java.util.Objects. */
+  boolean isNonNullCheck(ExecutableElement e) {
+    String o = cx.ownerOf(e).getQualifiedName().toString(), n = e.getSimpleName().toString();
+    if (!(o.equals("com.google.common.base.Preconditions") && n.equals("checkNotNull") || o.equals("java.util.Objects") && n.equals("requireNonNull"))) return false;
+    return e.getReturnType().getKind() == TypeKind.TYPEVAR && e.getParameters().get(0).asType().getKind() == TypeKind.TYPEVAR;
+  }
+
   TypeMirror nonNull(ExecutableElement e, TypeMirror arg) {
     if (!NONNULL || arg == null) return null;
-    String o = cx.ownerOf(e).getQualifiedName().toString(), n = e.getSimpleName().toString();
-    if (!(o.equals("com.google.common.base.Preconditions") && n.equals("checkNotNull") || o.equals("java.util.Objects") && n.equals("requireNonNull"))) return null;
-    if (e.getReturnType().getKind() != TypeKind.TYPEVAR || e.getParameters().get(0).asType().getKind() != TypeKind.TYPEVAR) return null;
+    if (!isNonNullCheck(e)) return null;
     TypeMirror at = cx.erase(arg);
     Ctx.K k = cx.kind(at);
-    if (k != Ctx.K.CLS && k != Ctx.K.IFACE && k != Ctx.K.STR || cx.isTypedColl(at) || cx.isValueLibType(at)) return null;
+    if (k != Ctx.K.CLS && k != Ctx.K.IFACE && k != Ctx.K.STR || cx.isTypedColl(at) || cx.isValueLibType(at) || cx.fn.is(cx.erase(at))) return null;
     return at;
   }
 
@@ -281,7 +286,7 @@ final class Conv {
   String objHelper(TypeMirror t0) {
     if (!TYPEDOBJ || t0 == null) return null;
     TypeMirror t = cx.erase(t0);
-    if (cx.isTypedColl(t) || cx.isValueLibType(t)) return null;
+    if (cx.isTypedColl(t) || cx.isValueLibType(t) || cx.fn.is(t)) return null;
     switch (cx.kind(t)) {
       case IFACE:
         return "";
@@ -315,6 +320,8 @@ final class Conv {
 
   /** Objects.equals(a, b) of two values of static type t without a box, or null (as before). */
   String typedEquals(String a, String b, TypeMirror t) {
+    // rule "function types": a function has the identity of its closure (rt_fn.go)
+    if (cx.fn.is(cx.erase(t))) return "fnSame_(" + a + ", " + b + ")";
     if (!TYPEDOBJ) return null;
     TypeMirror et = cx.erase(t);
     if (cx.kind(et) == Ctx.K.CLS && !cx.isTypedColl(et) && identityEquals(Ctx.typeElement(et))) return a + " == " + b;
@@ -324,6 +331,7 @@ final class Conv {
 
   /** Objects.hashCode(v) (0 for null) of a value of static type t without a box, or null (as before). */
   String typedHash(String v, TypeMirror t) {
+    if (cx.fn.is(cx.erase(t))) return "fnHash_(" + v + ")";
     if (!TYPEDOBJ) return null;
     TypeMirror et = cx.erase(t);
     switch (cx.kind(et)) {
@@ -347,6 +355,7 @@ final class Conv {
 
   /** String.valueOf(v) ("null" for null) of an object of static type t without a box, or null (as before). */
   String typedStr(String v, TypeMirror t) {
+    if (cx.fn.is(cx.erase(t))) return "fnStr_(" + v + ")";
     String h = objHelper(t);
     return h == null ? null : "tostr" + h + "_(" + v + ")";
   }
