@@ -1993,17 +1993,7 @@ func TypeInference_clinit() {
 
 }
 
-type TypeInference_TypeDeclaringCallback interface {
-	declareTypeInScope(FlowScope, Node, *JSType) FlowScope
-}
-
-type TypeInference_TypeDeclaringCallback_fn struct {
-	f func(FlowScope, Node, *JSType) FlowScope
-}
-
-func (this *TypeInference_TypeDeclaringCallback_fn) declareTypeInScope(p0 FlowScope, p1 Node, p2 *JSType) FlowScope {
-	return this.f(p0, p1, p2)
-}
+type TypeInference_TypeDeclaringCallback = *funcObj_[func(FlowScope, Node, *JSType) FlowScope]
 
 type TypeInference_AssignmentType uint8
 
