@@ -92,6 +92,6 @@ func (this *LazyParsedDependencyInfo) getHasNoCompileAnnotation() bool {
 	return this.delegate.getHasNoCompileAnnotation()
 }
 
-func (this *LazyParsedDependencyInfo) getRequiredSymbols() *ImmutableList {
+func (this *LazyParsedDependencyInfo) getRequiredSymbols() *ErasedImmutableList {
 	return DependencyInfo__getRequiredSymbols_default(DependencyInfo_(this))
 }
