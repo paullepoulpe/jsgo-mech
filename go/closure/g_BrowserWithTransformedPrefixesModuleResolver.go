@@ -138,6 +138,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver_Factory) create(moduleP
 type BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement struct {
 	prefix_      string
 	replacement_ string
+	hashMemo_    int32 // hashCode, once computed, when it is not 0 (post-flip step hashmemo)
 }
 
 func (this *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) zero_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement() {
@@ -178,6 +179,16 @@ func (this *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) equa
 }
 
 func (this *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) hashCode() int32 {
+	if h := this.hashMemo_; h != 0 {
+		return h
+	}
+	h := this.hashCodeOnce_()
+	this.hashMemo_ = h
+	return h
+}
+
+// hashCodeOnce_ computes hashCode: a function of data that is final in the object (post-flip step hashmemo).
+func (this *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) hashCodeOnce_() int32 {
 	var h int32
 	h = h*31 + strhash_(this.prefix_)
 	h = h*31 + strhash_(this.replacement_)

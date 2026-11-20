@@ -371,6 +371,7 @@ type CheckRequiresSorted_DestructuringBinding struct {
 	exportedName_        string
 	localName_           string
 	isShorthandProperty_ bool
+	hashMemo_            int32 // hashCode, once computed, when it is not 0 (post-flip step hashmemo)
 }
 
 func (this *CheckRequiresSorted_DestructuringBinding) zero_CheckRequiresSorted_DestructuringBinding() {
@@ -442,6 +443,16 @@ func (this *CheckRequiresSorted_DestructuringBinding) equals(p0 any) bool {
 }
 
 func (this *CheckRequiresSorted_DestructuringBinding) hashCode() int32 {
+	if h := this.hashMemo_; h != 0 {
+		return h
+	}
+	h := this.hashCodeOnce_()
+	this.hashMemo_ = h
+	return h
+}
+
+// hashCodeOnce_ computes hashCode: a function of data that is final in the object (post-flip step hashmemo).
+func (this *CheckRequiresSorted_DestructuringBinding) hashCodeOnce_() int32 {
 	var h int32
 	h = h*31 + strhash_(this.exportedName_)
 	h = h*31 + strhash_(this.localName_)

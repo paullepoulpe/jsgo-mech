@@ -3,10 +3,11 @@
 package closure
 
 type SourceMapSection struct {
-	type__  SourceMapSection_SectionType
-	value_  string
-	line_   int32
-	column_ int32
+	type__    SourceMapSection_SectionType
+	value_    string
+	line_     int32
+	column_   int32
+	hashMemo_ int32 // hashCode, once computed, when it is not 0 (post-flip step hashmemo)
 }
 
 func (this *SourceMapSection) zero_SourceMapSection() {
@@ -76,6 +77,16 @@ func (this *SourceMapSection) equals(p0 any) bool {
 }
 
 func (this *SourceMapSection) hashCode() int32 {
+	if h := this.hashMemo_; h != 0 {
+		return h
+	}
+	h := this.hashCodeOnce_()
+	this.hashMemo_ = h
+	return h
+}
+
+// hashCodeOnce_ computes hashCode: a function of data that is final in the object (post-flip step hashmemo).
+func (this *SourceMapSection) hashCodeOnce_() int32 {
 	var h int32
 	h = h*31 + objhashId_(this.type__)
 	h = h*31 + strhash_(this.value_)
