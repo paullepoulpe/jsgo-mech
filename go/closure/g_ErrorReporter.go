@@ -20,14 +20,14 @@ func (this *ErrorReporter_util) init_ErrorReporter_util() {
 
 }
 
-func (this *ErrorReporter_util) reportError_3(location *SourcePosition_util, format string, arguments []any) {
+func (this *ErrorReporter_util) reportError_3(location *SourcePosition_util, format string, arguments ...any) {
 	this.hadErrorField = true
-	var message string = String_format(format, arguments)
+	var message string = String_format(format, arguments...)
 	this.reportError(location, message)
 }
 
-func (this *ErrorReporter_util) reportWarning_3(location *SourcePosition_util, format string, arguments []any) {
-	var message string = String_format(format, arguments)
+func (this *ErrorReporter_util) reportWarning_3(location *SourcePosition_util, format string, arguments ...any) {
+	var message string = String_format(format, arguments...)
 	this.reportWarning(location, message)
 }
 

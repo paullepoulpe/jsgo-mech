@@ -2040,7 +2040,7 @@ func NodeUtil_getFunctionBody(fn Node) Node {
 
 func NodeUtil_getCallTargetResolvingIndirectCalls(call Node) Node {
 	if !((call.isCall() || call.isNew()) || call.isTaggedTemplateLit()) {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("must be call, new or tagged-template-literal expression, got %s", []any{call.box_()})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("must be call, new or tagged-template-literal expression, got %s", call.box_())))
 	}
 	var target Node = call.getFirstChild()
 	if target.isComma() && target.getSecondChild().isQualifiedName() {
@@ -2807,7 +2807,7 @@ func NodeUtil_getRootOfQualifiedName(qName Node) Node {
 				return current
 			}
 			if !current.isGetProp() {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Not a getprop node:  (%s)", []any{current.box_()})))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Not a getprop node:  (%s)", current.box_())))
 			}
 		}
 	}
@@ -4273,7 +4273,7 @@ func NodeUtil_addFeatureToScript(scriptNode Node, feature FeatureSet_Feature, co
 	scriptNode.setFeatureSet(newFeatures)
 	if feature != FeatureSet_Feature_MODULES {
 		if !compiler.getAllowableFeatures().contains(feature) {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot add feature: %s. It is not supported in the output language, and either 1) its corresponding transpilation pass has already run or 2) transpilation of this feature is unsupported entirely", []any{feature})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot add feature: %s. It is not supported in the output language, and either 1) its corresponding transpilation pass has already run or 2) transpilation of this feature is unsupported entirely", feature)))
 		}
 	} else {
 		compiler.setAllowableFeatures(compiler.getAllowableFeatures().with(feature))
@@ -4379,7 +4379,7 @@ func NodeUtil_getGoogRequireInfoNode(nameNode Node) *NodeUtil_GoogRequire {
 		return nil
 	}
 	if !nameNode.isName() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("unexpected node type: %s", []any{nameNode.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("unexpected node type: %s", nameNode.box_())))
 	}
 	if NodeUtil_isNameDeclaration(nameNode.getParent()) {
 		var requireCall Node = nameNode.getFirstChild()

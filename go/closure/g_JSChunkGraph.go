@@ -42,7 +42,7 @@ func JSChunkGraph_create(chunksInDepOrder ListOf[*JSChunk]) *Outcome_base[*JSChu
 	for chunkIndex := int32(0); chunkIndex < int32(len(chunks)); chunkIndex++ {
 		var chunk *JSChunk = cast_[*JSChunk](chunksInDepOrder.get(chunkIndex))
 		if chunk.getIndex() != -1 {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Chunk index already set: %s", []any{chunk})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Chunk index already set: %s", chunk)))
 		}
 		chunk.setIndex(chunkIndex)
 		chunks[chunkIndex] = chunk
@@ -59,7 +59,7 @@ func JSChunkGraph_initChunksByDepth(chunks []*JSChunk) *Outcome_base[*TList[*TLi
 	for chunkIndex := int32(0); chunkIndex < int32(len(chunks)); chunkIndex++ {
 		var chunk *JSChunk = chunks[chunkIndex]
 		if chunk.getDepth() != -1 {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Chunk depth already set: %s", []any{chunk})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Chunk depth already set: %s", chunk)))
 		}
 		var depth int32 = 0
 		l_2 := chunk.getDependencies()
@@ -244,7 +244,7 @@ func (this *JSChunkGraph) getSmallestCoveringSubtree(parentTree *JSChunk, depend
 		candidates.and(this.selfPlusTransitiveDeps[dependentIndex])
 	}
 	if candidates.isEmpty() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("No common dependency found for %s", []any{dependentChunks})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("No common dependency found for %s", dependentChunks)))
 	}
 	var parentTreeIndex int32 = parentTree.getIndex()
 	var bestCandidateIndex int32 = parentTreeIndex

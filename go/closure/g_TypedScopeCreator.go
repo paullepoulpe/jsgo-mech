@@ -125,7 +125,7 @@ func (this *TypedScopeCreator) createScopeAbstractScope_Node_AbstractScope_rType
 
 func (this *TypedScopeCreator) createScopeInternal(root Node, typedParent *TypedScope) *TypedScope {
 	if !eqR_(this.stage, TypedScopeCreator_Stage_BUILDING) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot create scope for %s after TypedScopeCreator is frozen", []any{root.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot create scope for %s after TypedScopeCreator is frozen", root.box_())))
 	}
 	var newScope *TypedScope = nil
 	var scopeBuilder *TypedScopeCreator_AbstractScopeBuilder = nil
@@ -677,7 +677,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) initializeModuleScope(module
 			*this.outer_.weakImports = append(*this.outer_.weakImports, new_TypedScopeCreator_WeakModuleImport(this.outer_, entry.getKey(), entry.getValue(), this.currentScope))
 		}
 	default:
-		panic(new_IllegalStateException_String(String_format("Unexpected module type %s in module %s", []any{obj_(moduleType), obj_(this.getModule())})))
+		panic(new_IllegalStateException_String(String_format("Unexpected module type %s in module %s", obj_(moduleType), obj_(this.getModule()))))
 	}
 }
 
@@ -1052,7 +1052,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineDestructuringPatternIn
 		} else {
 			var name Node = target.getNode()
 			if !name.isName() {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("This method is only for declaring variables: %s", []any{name.box_()})))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("This method is only for declaring variables: %s", name.box_())))
 			}
 			var type_ *JSType = this.getDeclaredType(name.getJSDocInfo(), name, 0, typeSupplier)
 			if type_ == nil {
@@ -1359,7 +1359,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) createFunctionTypeFromNodes(
 		}
 		if ownerName.isPresent() && name.isPresent() {
 			if ok_, a1_, a2_ := strings.HasPrefix(name.get(), ownerName.get()), name.get(), ownerName.get(); !ok_ {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Expected \"%s\" to start with \"%s\"", []any{strobj_(a1_), strobj_(a2_)})))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Expected \"%s\" to start with \"%s\"", strobj_(a1_), strobj_(a2_))))
 			}
 			propName = Optional_of[string](String_substring_int(name.get(), (String_length(ownerName.get()) + 1)))
 		}
@@ -2119,7 +2119,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder_SlotDefiner) defineSlot() {
 		panic(new_NullPointerException_String("declarationNode not set"))
 	}
 	if !(((((this.declarationNode.isName() || this.declarationNode.isGetProp()) || NodeUtil_mayBeObjectLitKey(this.declarationNode)) || this.declarationNode.isModuleBody()) || this.declarationNode.isExport()) || (this.forGoogProvidedNameField && NodeUtil_isExprCall(this.declarationNode))) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("declaration node must be an lvalue or goog.provide call, found %s", []any{this.declarationNode.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("declaration node must be an lvalue or goog.provide call, found %s", this.declarationNode.box_())))
 	}
 	if !this.variableName.isPresent() {
 		panic(new_IllegalStateException_String(objstr_("variableName not set")))
@@ -2425,7 +2425,7 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareDestructuringParamete
 		} else {
 			var paramName Node = target.getNode()
 			if !paramName.isName() {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Expected all parameters to be names, got %s", []any{paramName.box_()})))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Expected all parameters to be names, got %s", paramName.box_())))
 			}
 			if (parameterType == nil) || parameterType.isUnknownType() {
 				var paramJSDoc *JSDocInfo = paramName.getJSDocInfo()

@@ -168,10 +168,10 @@ type CodingConvention_SubclassRelationship struct {
 
 func (this *CodingConvention_SubclassRelationship) init_CodingConvention_SubclassRelationship(type_ CodingConvention_SubclassType, subclassNode Node, superclassNode Node) {
 	if !subclassNode.isQualifiedName() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected qualified name, found: %s", []any{subclassNode.box_()})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected qualified name, found: %s", subclassNode.box_())))
 	}
 	if !superclassNode.isQualifiedName() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected qualified name, found: %s", []any{superclassNode.box_()})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected qualified name, found: %s", superclassNode.box_())))
 	}
 	this.type__ = type_
 	this.subclassName = Optional_of[string](subclassNode.getQualifiedName()).filterFn_(func(s string) bool {

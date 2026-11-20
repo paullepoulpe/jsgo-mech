@@ -94,7 +94,7 @@ func (this *OptimizeParameters) analyzeCandidateProperty(key string, refs ArrayL
 func (this *OptimizeParameters) analyzeCandidate(refKind string, key string, refs ArrayListOf[Node]) *OptimizeParameters_CandidateAnalysis {
 	var analysisBuilder *OptimizeParameters_CandidateAnalysisBuilder = new_OptimizeParameters_CandidateAnalysisBuilder(this)
 	if !OptimizeCalls_mayBeOptimizableName(this.compiler_, key) {
-		this.decisionsLog.log_2("%s\t%s\tnot an optimizable name", []any{strobj_(refKind), strobj_(key)})
+		this.decisionsLog.log_2("%s\t%s\tnot an optimizable name", strobj_(refKind), strobj_(key))
 		return analysisBuilder.setIsSafeToOptimize(false).build()
 	}
 	var definitions *[]Node = &[]Node{}
@@ -110,13 +110,13 @@ func (this *OptimizeParameters) analyzeCandidate(refKind string, key string, ref
 			*definitions = append(*definitions, n)
 		} else if !OptimizeCalls_isAllowedReference(n) {
 			if this.decisionsLog.isLogging() {
-				this.decisionsLog.log_2("%s\t%s\tnot an allowed reference: %s", []any{strobj_(refKind), strobj_(key), strobj_(n.getLocation())})
+				this.decisionsLog.log_2("%s\t%s\tnot an allowed reference: %s", strobj_(refKind), strobj_(key), strobj_(n.getLocation()))
 			}
 			return analysisBuilder.setIsSafeToOptimize(false).build()
 		}
 	}
 	if len(*definitions) == 0 {
-		this.decisionsLog.log_2("%s\t%s\tno definition found", []any{strobj_(refKind), strobj_(key)})
+		this.decisionsLog.log_2("%s\t%s\tno definition found", strobj_(refKind), strobj_(key))
 		return analysisBuilder.setIsSafeToOptimize(false).build()
 	}
 	if len(*analysisBuilder.taggedTemplateLiterals) != 0 {
@@ -126,15 +126,15 @@ func (this *OptimizeParameters) analyzeCandidate(refKind string, key string, ref
 			var functionNode Node = Node_of_(it_3.v)
 			var firstParam Node = NodeUtil_getFunctionParameters(functionNode).getFirstChild()
 			if (firstParam != 0) && !firstParam.isUnusedParameter() {
-				this.decisionsLog.log_2("%s\t%s\twill not optimize parameters for tagged template literals", []any{strobj_(refKind), strobj_(key)})
+				this.decisionsLog.log_2("%s\t%s\twill not optimize parameters for tagged template literals", strobj_(refKind), strobj_(key))
 				return analysisBuilder.setIsSafeToOptimize(false).build()
 			}
 		}
-		this.decisionsLog.log_2("%s\t%s\t%s", []any{strobj_(refKind), strobj_(key), "first param is unused, so we will convert tagged template literals to normal calls"})
+		this.decisionsLog.log_2("%s\t%s\t%s", strobj_(refKind), strobj_(key), "first param is unused, so we will convert tagged template literals to normal calls")
 		seenCandidateUse = true
 	}
 	if !seenCandidateUse {
-		this.decisionsLog.log_2("%s\t%s\tno usage found", []any{strobj_(refKind), strobj_(key)})
+		this.decisionsLog.log_2("%s\t%s\tno usage found", strobj_(refKind), strobj_(key))
 		return analysisBuilder.setIsSafeToOptimize(false).build()
 	}
 	return analysisBuilder.setIsSafeToOptimize(true).build()
@@ -669,7 +669,7 @@ func (this *OptimizeParameters) rewriteDestructuringPattern(destructuringPattern
 	}
 	NodeUtil_visitLhsNodesInDestructuringPattern(destructuringPattern, func(name Node) {
 		if !name.isName() {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("lhs in destructuring declaration should be a simple name. (%s)", []any{name.box_()})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("lhs in destructuring declaration should be a simple name. (%s)", name.box_())))
 		}
 		var newName Node = IR_name(name.getString()).srcref(name)
 		var newVar Node = IR_var_Node(newName).srcref(name)

@@ -19,14 +19,14 @@ func DefaultExterns_prepareExterns(env CompilerOptions_Environment, externs *TMa
 	var out *TList[*SourceFile_jscomp] = newTList_(tc_p_SourceFile_jscomp)
 	for key := range DefaultExterns_BUILTIN_LANG_EXTERNS.All() {
 		if !externs.Has(key) {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Externs must contain builtin: %s", []any{key})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Externs must contain builtin: %s", key)))
 		}
 		out.add(externs.Delete(key))
 	}
 	if env == CompilerOptions_Environment_BROWSER {
 		for key := range DefaultExterns_BROWSER_EXTERN_DEP_ORDER.All() {
 			if !externs.Has(key) {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Externs must contain builtin for env %s: %s", []any{env, key})))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Externs must contain builtin for env %s: %s", env, key)))
 			}
 			out.add(externs.Delete(key))
 		}

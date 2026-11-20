@@ -245,7 +245,7 @@ func CodePrinter_MappedCodePrinter_adjustEndPosition(lineLengths *TList[any], en
 		return endPosition
 	}
 	if ok_, a1_, a2_ := (endPosition.getColumn() <= unbox_[int32](lineLengths.get(line))), endPosition, lineLengths.get(line); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("End position %s points to a column larger than line length %s", []any{a1_, a2_})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("End position %s points to a column larger than line length %s", a1_, a2_)))
 	}
 	if endPosition.getColumn() == unbox_[int32](lineLengths.get(line)) {
 		return new_FilePosition((line + 1), 0)

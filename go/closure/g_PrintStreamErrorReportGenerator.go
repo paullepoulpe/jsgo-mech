@@ -34,7 +34,7 @@ func (this *PrintStreamErrorReportGenerator) println(level CheckLevel, error_ *J
 func (this *PrintStreamErrorReportGenerator) printSummary(manager ErrorManager) {
 	if ((this.summaryDetailLevel >= 3) || ((this.summaryDetailLevel >= 1) && ((manager.getErrorCount() + manager.getWarningCount()) > 0))) || ((this.summaryDetailLevel >= 2) && (manager.getTypedPercent() > 0.0)) {
 		if manager.getTypedPercent() > 0.0 {
-			this.stream.print(String_format("%d error(s), %d warning(s), %.1f%% typed\n", []any{int32(manager.getErrorCount()), int32(manager.getWarningCount()), float64(manager.getTypedPercent())}))
+			this.stream.print(String_format("%d error(s), %d warning(s), %.1f%% typed\n", int32(manager.getErrorCount()), int32(manager.getWarningCount()), float64(manager.getTypedPercent())))
 		} else {
 			this.stream.print((istr_(int64(int32(manager.getErrorCount()))) + " error(s), " + istr_(int64(int32(manager.getWarningCount()))) + " warning(s)\n"))
 		}

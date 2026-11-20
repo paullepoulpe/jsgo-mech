@@ -46,14 +46,14 @@ func Preconditions_checkNotNull_Object_Object_Str(v string, msg any) string {
 func Preconditions_checkNotNull_Object_String_Object_T[T comparable](v T, t string, p1 any) T {
 	var null T
 	if v == null {
-		nullFail_(Strings_lenientFormat(t, []any{p1}))
+		nullFail_(Strings_lenientFormat(t, p1))
 	}
 	return v
 }
 
 func Preconditions_checkNotNull_Object_String_Object_Str(v string, t string, p1 any) string {
 	if v == nullstr_ {
-		nullFail_(Strings_lenientFormat(t, []any{p1}))
+		nullFail_(Strings_lenientFormat(t, p1))
 	}
 	return v
 }
@@ -61,14 +61,14 @@ func Preconditions_checkNotNull_Object_String_Object_Str(v string, t string, p1 
 func Preconditions_checkNotNull_Object_String_Object_Object_T[T comparable](v T, t string, p1 any, p2 any) T {
 	var null T
 	if v == null {
-		nullFail_(Strings_lenientFormat(t, []any{p1, p2}))
+		nullFail_(Strings_lenientFormat(t, p1, p2))
 	}
 	return v
 }
 
 func Preconditions_checkNotNull_Object_String_Object_Object_Str(v string, t string, p1 any, p2 any) string {
 	if v == nullstr_ {
-		nullFail_(Strings_lenientFormat(t, []any{p1, p2}))
+		nullFail_(Strings_lenientFormat(t, p1, p2))
 	}
 	return v
 }
@@ -148,13 +148,13 @@ func Preconditions_checkArgument_boolean_Object_H[M handle_](b bool, msg M) {
 
 func Preconditions_checkState_boolean_String_Object_H[M handle_](b bool, t string, p1 M) {
 	if !b {
-		stateFail_(Strings_lenientFormat(t, []any{p1.box_()}))
+		stateFail_(Strings_lenientFormat(t, p1.box_()))
 	}
 }
 
 func Preconditions_checkArgument_boolean_String_Object_H[M handle_](b bool, t string, p1 M) {
 	if !b {
-		argFail_(Strings_lenientFormat(t, []any{p1.box_()}))
+		argFail_(Strings_lenientFormat(t, p1.box_()))
 	}
 }
 

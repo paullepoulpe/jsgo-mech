@@ -258,7 +258,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) scanVars(n Node, hoistScope *Sco
 
 func (this *SyntacticScopeCreator_ScopeScanner) declareVar(s *Scope, n Node) {
 	if !n.isName() && !n.isImportStar() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Invalid node for declareVar: %s", []any{n.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Invalid node for declareVar: %s", n.box_())))
 	}
 	var name string = n.getString()
 	var v *Var = s.getOwnSlot_String_rAbstractVar_rVar(name)

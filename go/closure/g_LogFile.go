@@ -16,7 +16,7 @@ type LogFile_I interface {
 	logJson_impl(func(*SimpleJsonWriter)) *LogFile
 	logObject_impl(any) *LogFile
 	logString_impl(string) *LogFile
-	log_2_impl(string, []any) *LogFile
+	log_2_impl(string, ...any) *LogFile
 	log_impl(Supplier) *LogFile
 }
 
@@ -53,8 +53,8 @@ func (this *LogFile) log(p0 Supplier) *LogFile {
 	return this.self_.log_impl(p0)
 }
 
-func (this *LogFile) log_2(p0 string, p1 []any) *LogFile {
-	return this.self_.log_2_impl(p0, p1)
+func (this *LogFile) log_2(p0 string, p1 ...any) *LogFile {
+	return this.self_.log_2_impl(p0, p1...)
 }
 
 func (this *LogFile) logJsonObject(p0 any) *LogFile {
