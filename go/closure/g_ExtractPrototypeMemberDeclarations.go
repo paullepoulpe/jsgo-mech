@@ -361,7 +361,7 @@ func new_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration(lhs Node,
 }
 
 func (this *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration) isSameClass(other *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration) bool {
-	return Object_equals(this.qualifiedClassName.box_(), other.qualifiedClassName.box_())
+	return optEquals_(this.qualifiedClassName, other.qualifiedClassName)
 }
 
 func ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_getPrototypeClassName(qName Node) Node {

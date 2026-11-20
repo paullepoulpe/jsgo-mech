@@ -92,20 +92,20 @@ func (this *Export) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.exportName_.box_(), o.exportName_.box_()) && Objects_equals(this.moduleRequest_.box_(), o.moduleRequest_.box_()) && Objects_equals(this.importName_.box_(), o.importName_.box_()) && Objects_equals(this.localName_.box_(), o.localName_.box_()) && this.modulePath_ == o.modulePath_ && this.exportNode_ == o.exportNode_ && this.nameNode_ == o.nameNode_ && equals_(this.moduleMetadata_, o.moduleMetadata_) && Objects_equals(this.closureNamespace_.box_(), o.closureNamespace_.box_()) && this.mutated_ == o.mutated_
+	return true && optEqualsNull_(this.exportName_, o.exportName_) && optEqualsNull_(this.moduleRequest_, o.moduleRequest_) && optEqualsNull_(this.importName_, o.importName_) && optEqualsNull_(this.localName_, o.localName_) && this.modulePath_ == o.modulePath_ && this.exportNode_ == o.exportNode_ && this.nameNode_ == o.nameNode_ && equals_(this.moduleMetadata_, o.moduleMetadata_) && optEqualsNull_(this.closureNamespace_, o.closureNamespace_) && this.mutated_ == o.mutated_
 }
 
 func (this *Export) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.exportName_.box_())
-	h = h*31 + Objects_hashCode(this.moduleRequest_.box_())
-	h = h*31 + Objects_hashCode(this.importName_.box_())
-	h = h*31 + Objects_hashCode(this.localName_.box_())
+	h = h*31 + optHash_(this.exportName_)
+	h = h*31 + optHash_(this.moduleRequest_)
+	h = h*31 + optHash_(this.importName_)
+	h = h*31 + optHash_(this.localName_)
 	h = h*31 + hash_(this.modulePath_)
 	h = h*31 + hashH_(this.exportNode_)
 	h = h*31 + hashH_(this.nameNode_)
 	h = h*31 + hash_(this.moduleMetadata_)
-	h = h*31 + Objects_hashCode(this.closureNamespace_.box_())
+	h = h*31 + optHash_(this.closureNamespace_)
 	h = h*31 + boolhash_(this.mutated_)
 	return h
 }

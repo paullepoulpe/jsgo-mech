@@ -367,7 +367,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolve_2_impl(moduleRequestRe
 		var localNameToLocalExport *TMap[string, *Export] = newTMap_(tc_string, tc_p_Export)
 		for e := range this.localExports.All() {
 			localNameToLocalExport.Put(e.localName().orElse(nullstr_), e)
-			if !Object_equals(Optional_of[string](Export_DEFAULT_EXPORT_NAME).box_(), e.localName().box_()) {
+			if !optEquals_(Optional_of[string](Export_DEFAULT_EXPORT_NAME), e.localName()) {
 				var b *ResolveExportResult = this.resolveExport(moduleRequestResolver, e.exportName())
 				if !b.resolved() {
 					panic(new_IllegalStateException_String(objstr_("Cannot have invalid missing own export!")))
@@ -516,7 +516,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolveExport_4(moduleRequestR
 	l_1 := this.localExports
 	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
 		var e *Export = l_1.items[i_1]
-		if Object_equals(exportName.box_(), e.exportName().box_()) {
+		if optEquals_(exportName, e.exportName()) {
 			var forSourceInfo Node = func() Node {
 				if e.nameNode() != 0 {
 					return e.nameNode()
@@ -529,7 +529,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolveExport_4(moduleRequestR
 	l_3 := this.indirectExports
 	for i_3 := 0; i_3 < len(l_3.items); i_3++ {
 		var e *Export = l_3.items[i_3]
-		if Object_equals(exportName.box_(), e.exportName().box_()) {
+		if optEquals_(exportName, e.exportName()) {
 			if e.localName().isPresent() && this.importsByLocalName.Has(e.localName().get()) {
 				return this.resolveImport_4(moduleRequestResolver, e.localName().orElse(nullstr_), resolveSet, exportStarSet).copy(e.nameNode(), Binding_CreatedBy_EXPORT)
 			} else {
@@ -549,7 +549,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolveExport_4(moduleRequestR
 			}
 		}
 	}
-	if Object_equals(Optional_of[string](Export_DEFAULT).box_(), exportName.box_()) {
+	if optEquals_(Optional_of[string](Export_DEFAULT), exportName) {
 		panic(new_IllegalStateException_String(objstr_("Default export cannot come from export *.")))
 	}
 	if has_(exportStarSet, this.up_UnresolvedModule()) {
