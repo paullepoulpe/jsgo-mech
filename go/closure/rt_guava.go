@@ -67,7 +67,7 @@ func comparatorOf_(v any) Comparator {
 		return x.cmp
 	case *ImmutableCollection:
 		return x.cmp
-	case *ImmutableMap:
+	case *ErasedImmutableMap:
 		return x.cmp
 	case interface{ comparator() Comparator }:
 		return x.comparator()
@@ -118,8 +118,8 @@ type ImmutableCollection struct {
 	jtyped_ any
 }
 
-type ImmutableList = ImmutableCollection
-type ImmutableSet = ImmutableCollection
+type ErasedImmutableList = ImmutableCollection
+type ErasedImmutableSet = ImmutableCollection
 type ImmutableSet_CachingAsList = ImmutableCollection
 type ImmutableSortedSet = ImmutableCollection
 type ImmutableMultiset = ImmutableCollection
@@ -128,7 +128,7 @@ type ImmutableMultisetGwtSerializationDependencies = ImmutableCollection
 func (this *ImmutableCollection) up_ImmutableCollection() *ImmutableCollection { return this }
 
 // immList_ makes an ImmutableList that owns items.
-func immList_(items []any) *ImmutableList {
+func immList_(items []any) *ErasedImmutableList {
 	if len(items) == 0 {
 		return emptyImmList_
 	}
@@ -137,7 +137,7 @@ func immList_(items []any) *ImmutableList {
 }
 
 // immSet_ makes an ImmutableSet of the distinct elements, in first-seen order.
-func immSet_(items []any) *ImmutableSet {
+func immSet_(items []any) *ErasedImmutableSet {
 	if len(items) == 0 {
 		return emptyImmSet_
 	}
@@ -322,7 +322,7 @@ func (this *ImmutableCollection) addAll(c Collection) bool    { throwUOE_(); ret
 func (this *ImmutableCollection) clear()                      { throwUOE_() }
 func (this *ImmutableCollection) removeAll(c Collection) bool { throwUOE_(); return false }
 func (this *ImmutableCollection) remove_Object(v any) bool    { throwUOE_(); return false }
-func (this *ImmutableCollection) asList() *ImmutableList {
+func (this *ImmutableCollection) asList() *ErasedImmutableList {
 	if this.kind == icList_ {
 		return this
 	}
@@ -384,7 +384,7 @@ func (this *ImmutableCollection) toString() string {
 
 // ---- ImmutableList
 
-func (this *ImmutableList) get(i int32) any {
+func (this *ErasedImmutableList) get(i int32) any {
 	s := this.elems_()
 	if i < 0 || int(i) >= len(s) {
 		panic(new_IndexOutOfBoundsException_String("Index " + istr_(int64(i)) + " out of bounds for length " + istr_(int64(len(s)))).self())
@@ -392,7 +392,7 @@ func (this *ImmutableList) get(i int32) any {
 	return s[i]
 }
 
-func (this *ImmutableList) indexOf(v any) int32 {
+func (this *ErasedImmutableList) indexOf(v any) int32 {
 	if v == nil {
 		return -1
 	}
@@ -404,7 +404,7 @@ func (this *ImmutableList) indexOf(v any) int32 {
 	return -1
 }
 
-func (this *ImmutableList) lastIndexOf(v any) int32 {
+func (this *ErasedImmutableList) lastIndexOf(v any) int32 {
 	if v == nil {
 		return -1
 	}
@@ -417,7 +417,7 @@ func (this *ImmutableList) lastIndexOf(v any) int32 {
 	return -1
 }
 
-func (this *ImmutableList) listIterator(i int32) ListIterator {
+func (this *ErasedImmutableList) listIterator(i int32) ListIterator {
 	s := this.elems_()
 	if i < 0 || int(i) > len(s) {
 		panic(new_IndexOutOfBoundsException_String("index (" + istr_(int64(i)) + ") must not be greater than size (" + istr_(int64(len(s))) + ")").self())
@@ -425,7 +425,7 @@ func (this *ImmutableList) listIterator(i int32) ListIterator {
 	return &sliceIter_{items: &s, i: int(i)}
 }
 
-func (this *ImmutableList) reverse() *ImmutableList {
+func (this *ErasedImmutableList) reverse() *ErasedImmutableList {
 	s := this.elems_()
 	out := make([]any, len(s))
 	for i, v := range s {
@@ -434,7 +434,7 @@ func (this *ImmutableList) reverse() *ImmutableList {
 	return &ImmutableCollection{kind: icList_, items: out}
 }
 
-func (this *ImmutableList) subList(a int32, b int32) List {
+func (this *ErasedImmutableList) subList(a int32, b int32) List {
 	s := this.elems_()
 	if a < 0 || int(b) > len(s) || a > b {
 		panic(new_IndexOutOfBoundsException_String("fromIndex: " + istr_(int64(a)) + ", toIndex: " + istr_(int64(b)) + ", size: " + istr_(int64(len(s)))).self())
@@ -445,74 +445,74 @@ func (this *ImmutableList) subList(a int32, b int32) List {
 	return &ImmutableCollection{kind: icList_, items: s[a:b:b]}
 }
 
-func (this *ImmutableList) add_int_Object(i int32, v any) { throwUOE_() }
-func (this *ImmutableList) remove(i int32) any            { throwUOE_(); return nil }
-func (this *ImmutableList) set(i int32, v any) any        { throwUOE_(); return nil }
+func (this *ErasedImmutableList) add_int_Object(i int32, v any) { throwUOE_() }
+func (this *ErasedImmutableList) remove(i int32) any            { throwUOE_(); return nil }
+func (this *ErasedImmutableList) set(i int32, v any) any        { throwUOE_(); return nil }
 
 // The empty immutable collections are singletons, as in Guava: translated code compares them by identity.
 var emptyImmList_ = &ImmutableCollection{kind: icList_}
 var emptyImmSet_ = &ImmutableCollection{kind: icSet_}
 var emptyImmSorted_ = &ImmutableCollection{kind: icSorted_}
 
-func ImmutableList_of() *ImmutableList { return emptyImmList_ }
+func ImmutableList_of() *ErasedImmutableList { return emptyImmList_ }
 
-func ImmutableList_of_Object(p0 any) *ImmutableList { return immList_([]any{p0}) }
+func ImmutableList_of_Object(p0 any) *ErasedImmutableList { return immList_([]any{p0}) }
 
-func ImmutableList_of_Object_Object(p0 any, p1 any) *ImmutableList {
+func ImmutableList_of_Object_Object(p0 any, p1 any) *ErasedImmutableList {
 	return immList_([]any{p0, p1})
 }
 
-func ImmutableList_of_Object_Object_Object(p0 any, p1 any, p2 any) *ImmutableList {
+func ImmutableList_of_Object_Object_Object(p0 any, p1 any, p2 any) *ErasedImmutableList {
 	return immList_([]any{p0, p1, p2})
 }
 
-func ImmutableList_of_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any) *ImmutableList {
+func ImmutableList_of_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any) *ErasedImmutableList {
 	return immList_([]any{p0, p1, p2, p3, p4})
 }
 
-func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any) *ImmutableList {
+func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any) *ErasedImmutableList {
 	return immList_([]any{p0, p1, p2, p3, p4, p5, p6})
 }
 
-func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any) *ImmutableList {
+func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any) *ErasedImmutableList {
 	return immList_([]any{p0, p1, p2, p3, p4, p5, p6, p7})
 }
 
-func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any) *ImmutableList {
+func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any) *ErasedImmutableList {
 	return immList_([]any{p0, p1, p2, p3, p4, p5, p6, p7, p8})
 }
 
-func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any, p9 any) *ImmutableList {
+func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any, p9 any) *ErasedImmutableList {
 	return immList_([]any{p0, p1, p2, p3, p4, p5, p6, p7, p8, p9})
 }
 
-func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any, p9 any, p10 any) *ImmutableList {
+func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any, p9 any, p10 any) *ErasedImmutableList {
 	return immList_([]any{p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10})
 }
 
-func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_ObjectArr(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any, p9 any, p10 any, p11 any, p12 []any) *ImmutableList {
+func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_ObjectArr(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any, p9 any, p10 any, p11 any, p12 []any) *ErasedImmutableList {
 	return immList_(append([]any{p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11}, p12...))
 }
 
-func ImmutableList_copyOf(p0 Collection) *ImmutableList {
+func ImmutableList_copyOf(p0 Collection) *ErasedImmutableList {
 	if c, ok := p0.(*ImmutableCollection); ok {
 		return c.asList()
 	}
 	return immList_(copySlice_(p0))
 }
 
-func ImmutableList_copyOf_Iterable(p0 Iterable) *ImmutableList {
+func ImmutableList_copyOf_Iterable(p0 Iterable) *ErasedImmutableList {
 	if c, ok := p0.(*ImmutableCollection); ok {
 		return c.asList()
 	}
 	return immList_(copySlice_(p0))
 }
 
-func ImmutableList_copyOf_ObjectArr(p0 []any) *ImmutableList {
+func ImmutableList_copyOf_ObjectArr(p0 []any) *ErasedImmutableList {
 	return immList_(append([]any(nil), p0...))
 }
 
-func ImmutableList_sortedCopyOf(p0 Comparator, p1 Iterable) *ImmutableList {
+func ImmutableList_sortedCopyOf(p0 Comparator, p1 Iterable) *ErasedImmutableList {
 	s := copySlice_(p1)
 	checkNoNulls_(s)
 	sortSlice_(s, p0)
@@ -521,31 +521,31 @@ func ImmutableList_sortedCopyOf(p0 Comparator, p1 Iterable) *ImmutableList {
 
 // ---- ImmutableSet
 
-func ImmutableSet_of() *ImmutableSet { return emptyImmSet_ }
+func ImmutableSet_of() *ErasedImmutableSet { return emptyImmSet_ }
 
-func ImmutableSet_of_Object(p0 any) *ImmutableSet { return immSet_([]any{p0}) }
+func ImmutableSet_of_Object(p0 any) *ErasedImmutableSet { return immSet_([]any{p0}) }
 
-func ImmutableSet_of_Object_Object(p0 any, p1 any) *ImmutableSet {
+func ImmutableSet_of_Object_Object(p0 any, p1 any) *ErasedImmutableSet {
 	return immSet_([]any{p0, p1})
 }
 
-func ImmutableSet_of_Object_Object_Object(p0 any, p1 any, p2 any) *ImmutableSet {
+func ImmutableSet_of_Object_Object_Object(p0 any, p1 any, p2 any) *ErasedImmutableSet {
 	return immSet_([]any{p0, p1, p2})
 }
 
-func ImmutableSet_of_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any) *ImmutableSet {
+func ImmutableSet_of_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any) *ErasedImmutableSet {
 	return immSet_([]any{p0, p1, p2, p3})
 }
 
-func ImmutableSet_of_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any) *ImmutableSet {
+func ImmutableSet_of_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any) *ErasedImmutableSet {
 	return immSet_([]any{p0, p1, p2, p3, p4})
 }
 
-func ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 []any) *ImmutableSet {
+func ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 []any) *ErasedImmutableSet {
 	return immSet_(append([]any{p0, p1, p2, p3, p4, p5}, p6...))
 }
 
-func ImmutableSet_copyOf(p0 Collection) *ImmutableSet {
+func ImmutableSet_copyOf(p0 Collection) *ErasedImmutableSet {
 	if c, ok := p0.(*ImmutableCollection); ok && c.kind == icSet_ {
 		return c
 	}
@@ -555,7 +555,7 @@ func ImmutableSet_copyOf(p0 Collection) *ImmutableSet {
 	return immSet_(copySlice_(p0))
 }
 
-func ImmutableSet_copyOf_Iterable(p0 Iterable) *ImmutableSet {
+func ImmutableSet_copyOf_Iterable(p0 Iterable) *ErasedImmutableSet {
 	if c, ok := p0.(*ImmutableCollection); ok && c.kind == icSet_ {
 		return c
 	}
@@ -567,13 +567,13 @@ func ImmutableSet_copyOf_Iterable(p0 Iterable) *ImmutableSet {
 
 // immEnumSet_ is Guava's copy of an EnumSet, an ImmutableEnumSet: the constants in ordinal order
 // (the EnumSet's iteration order), looked up by ordinal.
-func immEnumSet_(e *EnumSet) *ImmutableSet {
+func immEnumSet_(e *EnumSet) *ErasedImmutableSet {
 	return withOrdinals_(immSet_(e.items()))
 }
 
 // withOrdinals_ indexes a non-empty immutable set of enum constants of one enum by ordinal, for
 // contains and containsAll; the set is otherwise unchanged.
-func withOrdinals_(set *ImmutableSet) *ImmutableSet {
+func withOrdinals_(set *ErasedImmutableSet) *ErasedImmutableSet {
 	if len(set.items) == 0 {
 		return set // the shared empty set
 	}
@@ -588,7 +588,7 @@ func withOrdinals_(set *ImmutableSet) *ImmutableSet {
 	return set
 }
 
-func ImmutableSet_copyOf_ObjectArr(p0 []any) *ImmutableSet {
+func ImmutableSet_copyOf_ObjectArr(p0 []any) *ErasedImmutableSet {
 	return immSet_(append([]any(nil), p0...))
 }
 
@@ -647,23 +647,23 @@ type ImmutableCollection_Builder struct {
 	cmp   Comparator
 }
 
-type ImmutableList_Builder = ImmutableCollection_Builder
-type ImmutableSet_Builder = ImmutableCollection_Builder
+type ErasedImmutableList_Builder = ImmutableCollection_Builder
+type ErasedImmutableSet_Builder = ImmutableCollection_Builder
 type ImmutableSortedSet_Builder = ImmutableCollection_Builder
 type ImmutableMultiset_Builder = ImmutableCollection_Builder
 
-func new_ImmutableList_Builder() *ImmutableList_Builder {
+func new_ImmutableList_Builder() *ErasedImmutableList_Builder {
 	return &ImmutableCollection_Builder{kind: icList_}
 }
-func new_ImmutableSet_Builder() *ImmutableSet_Builder {
+func new_ImmutableSet_Builder() *ErasedImmutableSet_Builder {
 	return &ImmutableCollection_Builder{kind: icSet_}
 }
-func ImmutableList_builder() *ImmutableList_Builder { return new_ImmutableList_Builder() }
-func ImmutableList_builderWithExpectedSize(p0 int32) *ImmutableList_Builder {
+func ImmutableList_builder() *ErasedImmutableList_Builder { return new_ImmutableList_Builder() }
+func ImmutableList_builderWithExpectedSize(p0 int32) *ErasedImmutableList_Builder {
 	return &ImmutableCollection_Builder{kind: icList_, items: make([]any, 0, p0)}
 }
-func ImmutableSet_builder() *ImmutableSet_Builder { return new_ImmutableSet_Builder() }
-func ImmutableSet_builderWithExpectedSize(p0 int32) *ImmutableSet_Builder {
+func ImmutableSet_builder() *ErasedImmutableSet_Builder { return new_ImmutableSet_Builder() }
+func ImmutableSet_builderWithExpectedSize(p0 int32) *ErasedImmutableSet_Builder {
 	return &ImmutableCollection_Builder{kind: icSet_, items: make([]any, 0, p0)}
 }
 func ImmutableSortedSet_naturalOrder() *ImmutableSortedSet_Builder {
@@ -724,7 +724,7 @@ func (this *ImmutableCollection_Builder) build() *ImmutableCollection {
 // java.util.stream.Collector has no methods the translated code calls, so the
 // Go interface is empty; these collectors expose the Java accessor methods.
 
-func ImmutableList_of_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any) *ImmutableList {
+func ImmutableList_of_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any) *ErasedImmutableList {
 	return immList_([]any{p0, p1, p2, p3, p4, p5})
 }
 
