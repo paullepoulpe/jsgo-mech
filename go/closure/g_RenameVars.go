@@ -79,11 +79,11 @@ func (this *RenameVars) process_2(externs Node, root Node) {
 	this.externNames_ = NodeUtil_collectExternVariableNames(this.compiler_, externs)
 	clear(this.originalNameByNode)
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_RenameVars_ProcessVars(this)))
-	this.reservedNames.asSet().addAll(Collection(this.externNames_.asSet()))
+	tsetAddSet_(this.reservedNames, this.externNames_)
 	var varsByFrequency *TSet[*RenameVars_Assignment] = newTSortedSetC_(tc_p_RenameVars_Assignment, &Comparator_tfn_RenameVars_Assignment_RenameVars_Assignment{func(p0 *RenameVars_Assignment, p1 *RenameVars_Assignment) int32 {
 		return RenameVars_frequencyComparator(p0, p1)
 	}})
-	varsByFrequency.asSet().addAll(this.assignments.asMap().values())
+	tsetAddAllOf_(varsByFrequency, this.assignments.asMap().values())
 	if this.prevUsedRenameMap != nil {
 		this.reusePreviouslyUsedVariableMap(varsByFrequency)
 	}

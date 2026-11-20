@@ -519,7 +519,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineAliasIfPo
 				readNodes.Add(this.replaceAliasReference(alias, aliasRef))
 			}
 			this.replaceAliasingAssignment(alias, name, aliasLhsNode, newNodes)
-			newNodes.asSet().addAll(Collection(readNodes.asSet()))
+			tsetAddSet_(newNodes, readNodes)
 			namespace.scanNewNodes(newNodes)
 			return
 		}
@@ -569,7 +569,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) partiallyInline
 	if !foundNonReplaceableAlias {
 		this.replaceAliasingAssignment(alias, aliasingName, aliasLhsNode, newNodes)
 	}
-	newNodes.asSet().addAll(Collection(readNodes.asSet()))
+	tsetAddSet_(newNodes, readNodes)
 	if this.codeChanged {
 		namespace.scanNewNodes(newNodes)
 	}
@@ -661,7 +661,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineGlobalAli
 			this.codeChanged = true
 			name.removeRef(alias)
 		}
-		newNodes.asSet().addAll(Collection(readNodes.asSet()))
+		tsetAddSet_(newNodes, readNodes)
 		namespace.scanNewNodes(newNodes)
 	}
 }

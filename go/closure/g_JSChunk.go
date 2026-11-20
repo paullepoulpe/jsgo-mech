@@ -125,7 +125,7 @@ func (this *JSChunk) getSortedDependencyNames() []string {
 
 func (this *JSChunk) getAllDependencies() SetOf[*JSChunk] {
 	var allDeps *TSet[*JSChunk] = newTSet_(tc_p_JSChunk)
-	allDeps.asSet().addAll(Collection(this.deps.asList()))
+	tsetAddList_(allDeps, this.deps)
 	var stack *TList[*JSChunk] = tlistFromRev_(tc_p_JSChunk, Collection(this.deps.asList()))
 	for !stack.isEmpty() {
 		var chunk *JSChunk = stack.pop_()

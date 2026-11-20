@@ -98,7 +98,7 @@ func (this *JSTypeReconserializer) recordUnionType(type_ *UnionType) *JSTypeReco
 		if alt.unionMembers == nil {
 			altRecords.Add(alt)
 		} else {
-			altRecords.asSet().addAll(Collection(alt.unionMembers.asSet()))
+			tsetAddSet_(altRecords, alt.unionMembers)
 		}
 	}
 	if altRecords.Len() == 1 {
