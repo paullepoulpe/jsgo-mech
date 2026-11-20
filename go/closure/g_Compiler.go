@@ -2845,7 +2845,7 @@ func Compiler_toProto(stage AbstractCompiler_LifeCycleStage) LifeCycleStageProto
 func Compiler_toVariableMapEntries(map_ *VariableMap) *JTList[*VariableMapEntryProto] {
 	var entries *JTList[*VariableMapEntryProto] = jnewTList_(jtc_p_VariableMapEntryProto)
 	if map_ != nil {
-		for _, el := range immElems_(cast_[*ErasedImmutableSet](map_.getOriginalNameToNewNameMap().entrySet())) {
+		for _, el := range immElems_(cast_[*ErasedImmutableSet](map_.getOriginalNameToNewNameMap().asImm().entrySet())) {
 			entry := icast_Map_Entry(el)
 			entries.add(cast_[*VariableMapEntryProto](VariableMapEntryProto_newBuilder().setOriginalName(str_(entry.getKey())).setNewName(str_(entry.getValue())).build()))
 		}
