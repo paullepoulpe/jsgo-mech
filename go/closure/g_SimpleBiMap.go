@@ -57,8 +57,35 @@ func (this *SimpleBiMap) put(key any, value any) any {
 	return oldValue
 }
 
+// put_s is put for a string key that is not boxed (post-flip step strvar).
+func (this *SimpleBiMap) put_s(key string, value any) any {
+	var hadKey bool = Map_containsKey_s(this.forward, key)
+	var oldValue any = Map_get_s(this.forward, key)
+	if hadKey && Objects_equals(oldValue, value) {
+		return oldValue
+	}
+	Preconditions_checkArgument_boolean_String_Object(!this.backward.containsKey(value), "value already present: %s", value)
+	Map_put_s(this.forward, key, value)
+	if hadKey {
+		this.backward.clear()
+		it_1 := foreach_(this.forward.entrySet())
+		for it_1.next() {
+			var e Map_Entry = icast_Map_Entry(it_1.v)
+			this.backward.put(e.getValue(), e.getKey())
+		}
+	} else {
+		this.backward.put(value, strobj_(key))
+	}
+	return oldValue
+}
+
 func (this *SimpleBiMap) get(key any) any {
 	return this.forward.get(key)
+}
+
+// get_s is get for a string key that is not boxed (post-flip step strvar).
+func (this *SimpleBiMap) get_s(key string) any {
+	return Map_get_s(this.forward, key)
 }
 
 func (this *SimpleBiMap) clear() {
