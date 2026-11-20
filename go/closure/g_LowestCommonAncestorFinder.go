@@ -42,23 +42,23 @@ func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetOf[N]) ImmutableS
 			panic(new_NullPointerException_String(Strings_lenientFormat("Root not present in graph: %s", a1_)))
 		}
 		var color *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(bitForRoot)
-		Map_merge(this.searchColoring.asMap(), rootNode, obj_(color), &BiFunction_tfn_LowestCommonAncestorFinder_Color_LowestCommonAncestorFinder_Color_LowestCommonAncestorFinder_Color{func(p0 *LowestCommonAncestorFinder_Color, p1 *LowestCommonAncestorFinder_Color) *LowestCommonAncestorFinder_Color {
+		this.searchColoring.mergeT_(rootNode, color, func(p0 *LowestCommonAncestorFinder_Color, p1 *LowestCommonAncestorFinder_Color) *LowestCommonAncestorFinder_Color {
 			return p0.mix(p1)
-		}})
+		})
 		this.paintAncestors(rootNode, color)
 		bitForRoot = (bitForRoot << 1)
 	}
-	Map_forEach(this.searchColoring.asMap(), &BiConsumer_tfn[DiGraph_DiGraphNode[N, E], *LowestCommonAncestorFinder_Color]{func(node DiGraph_DiGraphNode[N, E], color *LowestCommonAncestorFinder_Color) {
+	this.searchColoring.forEachT_(func(node DiGraph_DiGraphNode[N, E], color *LowestCommonAncestorFinder_Color) {
 		if color.equals_LowestCommonAncestorFinder_Color(allColor) {
 			this.paintAncestors(node, LowestCommonAncestorFinder_Color_NOT_LOWEST)
 		}
-	}})
+	})
 	var results *ImmutableSet_Builder[N] = immutableSetBuilder_(tchT_[N]())
-	Map_forEach(this.searchColoring.asMap(), &BiConsumer_tfn[DiGraph_DiGraphNode[N, E], *LowestCommonAncestorFinder_Color]{func(node DiGraph_DiGraphNode[N, E], color *LowestCommonAncestorFinder_Color) {
+	this.searchColoring.forEachT_(func(node DiGraph_DiGraphNode[N, E], color *LowestCommonAncestorFinder_Color) {
 		if color.equals_LowestCommonAncestorFinder_Color(allColor) {
 			results.add(node.getValue())
 		}
-	}})
+	})
 	this.searchColoring.Clear()
 	this.searchQueue.clear()
 	return results.build().asImm()
