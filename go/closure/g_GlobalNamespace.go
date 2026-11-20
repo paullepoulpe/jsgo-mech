@@ -148,9 +148,7 @@ func (this *GlobalNamespace) getNameIndex() *TMap[string, *GlobalNamespace_Name]
 
 func (this *GlobalNamespace) scanNewNodes(newNodes *TSet[GlobalNamespace_AstChange]) {
 	var builder *GlobalNamespace_BuildGlobalNamespace = new_GlobalNamespace_BuildGlobalNamespace(this)
-	it_1 := newNodes.each()
-	for it_1.next() {
-		var info GlobalNamespace_AstChange = it_1.v
+	for info := range newNodes.All() {
 		if !info.node().isQualifiedName() && !NodeUtil_mayBeObjectLitKey(info.node()) {
 			continue
 		}

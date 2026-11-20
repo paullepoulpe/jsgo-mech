@@ -58,9 +58,7 @@ func (this *RewritePolyfills) process_2(externs Node, root Node) {
 	if this.injectPolyfillsNewerThan != 0 {
 		var polyfillsToInject *TList[*PolyfillUsageFinder_Polyfill] = this.polyfills.getPolyfillsNewerThan(this.injectPolyfillsNewerThan)
 		var librariesToInjectBuilder *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
-		it_1 := polyfillsToInject.each()
-		for it_1.next() {
-			var p *PolyfillUsageFinder_Polyfill = it_1.v
+		for p := range polyfillsToInject.All() {
 			if p.library != "" {
 				librariesToInjectBuilder.add(p.library)
 			}

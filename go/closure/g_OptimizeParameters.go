@@ -607,9 +607,7 @@ func (this *OptimizeParameters) insertStatements(function Node, stmts *TList[Nod
 }
 
 func (this *OptimizeParameters) addStatementsToBack(block Node, stmts *TList[Node]) {
-	it_1 := stmts.each()
-	for it_1.next() {
-		var stmt Node = it_1.v
+	for stmt := range stmts.All() {
 		block.addChildToBack(stmt)
 	}
 }

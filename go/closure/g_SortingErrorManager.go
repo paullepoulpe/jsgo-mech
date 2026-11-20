@@ -110,9 +110,7 @@ func (this *SortingErrorManager) getTypedPercent() float64 {
 
 func (this *SortingErrorManager) filterToListOf(level CheckLevel) *TList[*JSError] {
 	var result *ImmutableList_Builder[*JSError] = immutableListBuilder_(tc_p_JSError)
-	it_1 := this.messages.each()
-	for it_1.next() {
-		var e *SortingErrorManager_ErrorWithLevel = it_1.v
+	for e := range this.messages.All() {
 		if e.level_ == level {
 			result.add(e.error_)
 		}
@@ -121,9 +119,7 @@ func (this *SortingErrorManager) filterToListOf(level CheckLevel) *TList[*JSErro
 }
 
 func (this *SortingErrorManager) generateReport_impl() {
-	it_1 := this.errorReportGenerators.each()
-	for it_1.next() {
-		var generator SortingErrorManager_ErrorReportGenerator = it_1.v
+	for generator := range this.errorReportGenerators.All() {
 		generator.generateReport(this)
 	}
 }

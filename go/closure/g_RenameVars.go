@@ -142,9 +142,7 @@ func (this *RenameVars) reusePreviouslyUsedVariableMap(varsToRename *TSet[*Renam
 	if this.prevUsedRenameMap.getNewNameToOriginalNameMap().asMap() == nil {
 		panic(new_NullPointerException_0())
 	}
-	it_1 := varsToRename.each()
-	for it_1.next() {
-		var a *RenameVars_Assignment = it_1.v
+	for a := range varsToRename.All() {
 		var prevNewName Optional[string] = this.prevUsedRenameMap.lookupNewName(a.oldName)
 		if prevNewName.isEmpty() || this.reservedNames.Has(prevNewName.get()) {
 			continue
@@ -167,9 +165,7 @@ func (this *RenameVars) assignNames(varsToRename *TSet[*RenameVars_Assignment]) 
 	}()
 	var pendingAssignments []*RenameVars_Assignment = []*RenameVars_Assignment{}
 	var generatedNamesForAssignments []string = []string{}
-	it_1 := varsToRename.each()
-	for it_1.next() {
-		var a *RenameVars_Assignment = it_1.v
+	for a := range varsToRename.All() {
 		if a.newName.isPresent() {
 			continue
 		}
@@ -194,9 +190,7 @@ func (this *RenameVars) assignNames(varsToRename *TSet[*RenameVars_Assignment]) 
 		for j := int32(i); (j < numPendingAssignments) && (String_length(sliceAt_(generatedNamesForAssignments, j)) == len_); j++ {
 			varsByOrderOfOccurrence.Add(sliceAt_(pendingAssignments, j))
 		}
-		it_5 := varsByOrderOfOccurrence.each()
-		for it_5.next() {
-			var a *RenameVars_Assignment = it_5.v
+		for a := range varsByOrderOfOccurrence.All() {
 			this.finalizeNameAssignment(a, sliceAt_(generatedNamesForAssignments, i))
 			i++
 		}

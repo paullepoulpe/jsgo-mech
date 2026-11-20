@@ -20,9 +20,7 @@ func (this *FunctionRewriter) process_2(externs Node, root Node) {
 	var reducers *TList[*FunctionRewriter_Reducer] = immutableListOf_[*FunctionRewriter_Reducer](tc_p_FunctionRewriter_Reducer, new_FunctionRewriter_ReturnConstantReducer().up_FunctionRewriter_Reducer(), new_FunctionRewriter_GetterReducer().up_FunctionRewriter_Reducer(), new_FunctionRewriter_SetterReducer().up_FunctionRewriter_Reducer(), new_FunctionRewriter_EmptyFunctionReducer().up_FunctionRewriter_Reducer(), new_FunctionRewriter_IdentityReducer().up_FunctionRewriter_Reducer())
 	var reductionMap *SimpleSetMultimap[*FunctionRewriter_Reducer, *FunctionRewriter_Reduction] = SimpleSetMultimap_createInsertionOrdered[*FunctionRewriter_Reducer, *FunctionRewriter_Reduction]()
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_FunctionRewriter_ReductionGatherer(this, reducers, reductionMap)))
-	it_1 := reducers.each()
-	for it_1.next() {
-		var reducer *FunctionRewriter_Reducer = it_1.v
+	for reducer := range reducers.All() {
 		var reductions CollectionOf[*FunctionRewriter_Reduction] = Collection(reductionMap.get(reducer.self()))
 		if reductions.isEmpty() {
 			continue

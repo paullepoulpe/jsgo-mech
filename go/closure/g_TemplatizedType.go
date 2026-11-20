@@ -34,9 +34,7 @@ func (this *TemplatizedType) init_TemplatizedType(registry *JSTypeRegistry, obje
 	this.ProxyObjectType.init_ProxyObjectType_JSTypeRegistry_JSType_TemplateTypeMap(registry, objectType.up_JSType(), objectType.getTemplateTypeMap().copyFilledWithValues(templateTypes))
 	var builder *ImmutableList_Builder[*JSType] = immutableListBuilder_(tc_p_JSType)
 	var maybeIsSpecializedOnlyWithUnknown bool = true
-	it_1 := objectType.getTypeParameters().each()
-	for it_1.next() {
-		var newlyFilledTemplateKey *TemplateType = it_1.v
+	for newlyFilledTemplateKey := range objectType.getTypeParameters().All() {
 		var resolvedType *JSType = this.getTemplateTypeMap().getResolvedTemplateType(newlyFilledTemplateKey)
 		builder.add(resolvedType)
 		if maybeIsSpecializedOnlyWithUnknown {
