@@ -95,9 +95,7 @@ func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 	}
 	var edges *TList[GraphvizGraph_GraphvizEdge] = graph.getGraphvizEdges()
 	List_sort(edges.asList(), Comparator_thenComparing(Comparator_comparing(&Function_tfn_GraphvizGraph_GraphvizEdge_string{func(p0 GraphvizGraph_GraphvizEdge) string { return p0.getNode1Id() }}), &Function_tfn_GraphvizGraph_GraphvizEdge_string{func(p0 GraphvizGraph_GraphvizEdge) string { return p0.getNode2Id() }}))
-	it_5 := edges.each()
-	for it_5.next() {
-		var edge GraphvizGraph_GraphvizEdge = it_5.v
+	for edge := range edges.All() {
 		builder.append(DotFormatter_INDENT)
 		builder.append(edge.getNode1Id())
 		builder.append(edgeSymbol)

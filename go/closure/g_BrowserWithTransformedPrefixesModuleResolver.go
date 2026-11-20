@@ -34,9 +34,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransf
 	}})), &Function_tfn_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement_string{func(p0 *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) string { return p0.prefix() }}))
 	this.prefixReplacements = immutableSetCopyOf_(tch_p_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement, Collection(sortedReplacements.asList()))
 	var sortedPrefixes *TList[string] = newTList_(tc_string)
-	it_3 := this.prefixReplacements.each()
-	for it_3.next() {
-		var replacement *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement = it_3.v
+	for replacement := range this.prefixReplacements.All() {
 		sortedPrefixes.add(replacement.prefix())
 	}
 	Collections_sort(sortedPrefixes.asList())

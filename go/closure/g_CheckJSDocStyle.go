@@ -177,9 +177,8 @@ func (this *CheckJSDocStyle) checkParams(t *NodeTraversal, function Node, jsDoc 
 			return
 		}
 		var param Node = paramList.getFirstChild()
-		it_1 := paramsFromJsDoc.each()
-		for it_1.next() {
-			var s string = it_1.v
+		for i_1 := 0; i_1 < len(paramsFromJsDoc.items); i_1++ {
+			var s string = paramsFromJsDoc.items[i_1]
 			if param.getJSDocInfo() != nil {
 				t.report(param, CheckJSDocStyle_MIXED_PARAM_JSDOC_STYLES, []string{})
 			}

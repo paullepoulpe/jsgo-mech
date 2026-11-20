@@ -81,9 +81,12 @@ func (this *SuppressDocWarningsGuard) getCheckLevelFromAncestors(error_ *JSError
 }
 
 func (this *SuppressDocWarningsGuard) getCheckLevelFromInfo(error_ *JSError, info *JSDocInfo) CheckLevel {
-	it_1 := info.getSuppressions().each()
-	for it_1.next() {
-		var suppressor string = it_1.v
+	l_1 := info.getSuppressions()
+	for i_1 := l_1.first(); i_1 < len(l_1.keys); i_1++ {
+		if l_1.isDead(i_1) {
+			continue
+		}
+		var suppressor string = l_1.keys[i_1]
 		var group *DiagnosticGroup = this.suppressors.Get(suppressor)
 		if group == nil {
 			continue

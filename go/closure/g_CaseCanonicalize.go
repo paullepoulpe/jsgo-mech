@@ -50,9 +50,9 @@ func CaseCanonicalize_caseCanonicalize(ch uint16) uint16 {
 		}()
 	}
 	if CaseCanonicalize_CASE_SENSITIVE.contains(int32(ch)) {
-		it_1 := CaseCanonicalize_CANON_DELTA_SETS.each()
-		for it_1.next() {
-			var ds *CaseCanonicalize_DeltaSet = it_1.v
+		l_1 := CaseCanonicalize_CANON_DELTA_SETS
+		for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+			var ds *CaseCanonicalize_DeltaSet = l_1.items[i_1]
 			if ds.codeUnits.contains(int32(ch)) {
 				return uint16((int32(ch) - ds.delta))
 			}
@@ -67,9 +67,7 @@ func CaseCanonicalize_expandToAllMatched(ranges *CharRanges) *CharRanges {
 		return ranges
 	}
 	var expanded *CharRanges = CharRanges_EMPTY
-	it_1 := CaseCanonicalize_DELTA_SETS.each()
-	for it_1.next() {
-		var ds *CaseCanonicalize_DeltaSet = it_1.v
+	for ds := range CaseCanonicalize_DELTA_SETS.All() {
 		expanded = expanded.union(caseSensitive.intersection(ds.codeUnits).shift((-ds.delta)))
 	}
 	return ranges.union(expanded)
@@ -81,9 +79,7 @@ func CaseCanonicalize_reduceToMinimum(ranges *CharRanges) *CharRanges {
 		return ranges
 	}
 	var expanded *CharRanges = CharRanges_EMPTY
-	it_1 := CaseCanonicalize_CANON_DELTA_SETS.each()
-	for it_1.next() {
-		var ds *CaseCanonicalize_DeltaSet = it_1.v
+	for ds := range CaseCanonicalize_CANON_DELTA_SETS.All() {
 		expanded = expanded.union(caseSensitive.intersection(ds.codeUnits).shift((-ds.delta)))
 	}
 	expanded = expanded.difference(CaseCanonicalize_UCASE_ASCII_LETTERS).union(expanded.intersection(CaseCanonicalize_UCASE_ASCII_LETTERS).shift(32))

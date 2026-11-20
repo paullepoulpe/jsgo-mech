@@ -225,9 +225,7 @@ func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *
 		}
 	}
 	if requiresTempsUpToThisParameterName != "" {
-		it_4 := argMap.each()
-		for it_4.next() {
-			var parameterName string = it_4.k
+		for parameterName := range argMap.Keys() {
 			if (parameterName == FunctionArgumentInjector_THIS_MARKER) && (NodeUtil_isUndefined(argMap.Get(FunctionArgumentInjector_THIS_MARKER).arg()) || (fnNode.isArrowFunction() && argMap.Get(FunctionArgumentInjector_THIS_MARKER).arg().isThis())) {
 				continue
 			}
