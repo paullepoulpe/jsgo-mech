@@ -48,7 +48,7 @@ func (this *CheckTypeSummaryWarningsGuard) inTypeSummary(error_ *JSError) bool {
 }
 
 func (this *CheckTypeSummaryWarningsGuard) shouldDemoteIfTypeSummary(error_ *JSError) bool {
-	return !error_.type_().equals(obj_(ClosurePrimitiveErrors_DUPLICATE_NAMESPACE_AND_MODULE))
+	return !error_.type_().equals_DiagnosticType(ClosurePrimitiveErrors_DUPLICATE_NAMESPACE_AND_MODULE)
 }
 
 // level: an object that is exactly a CheckTypeSummaryWarningsGuard calls its level_impl directly (post-flip); others dispatch.

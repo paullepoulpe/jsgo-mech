@@ -114,7 +114,7 @@ func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent N
 	}
 	var coalescedVar *Var = this.colorings.peek().getPartitionSuperNode(var_)
 	if !this.usePseudoNames {
-		if vNode.getValue().equals(obj_(coalescedVar)) {
+		if vNode.getValue().equals_ScopedName(coalescedVar.up_ScopedName()) {
 			return
 		}
 		n.setString(coalescedVar.getName())
@@ -138,7 +138,7 @@ func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent N
 		}
 		n.setString(pseudoName)
 		this.compiler_.reportChangeToEnclosingScope(n)
-		if vNode.getValue().equals(obj_(coalescedVar)) {
+		if vNode.getValue().equals_ScopedName(coalescedVar.up_ScopedName()) {
 			return
 		}
 		this.updateDeclarationsPostCoalescing(n, coalescedVar, var_, parent)
