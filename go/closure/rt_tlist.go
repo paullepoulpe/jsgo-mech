@@ -129,7 +129,7 @@ func (l *TList[T]) removeAt(i int32) T {
 	}
 	old := l.get(i)
 	var z T
-	if i == 0 {
+	if i == 0 && len(l.items) > frontShift_ {
 		l.items[0] = z
 		l.items = l.items[1:]
 		return old
