@@ -61,7 +61,6 @@ func (this *PeepholeMinimizeConditions) optimizeSubtree_impl(node Node) Node {
 		default:
 			return node
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -168,7 +167,6 @@ func PeepholeMinimizeConditions_statementMustExitParent(n Node) bool {
 	default:
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *PeepholeMinimizeConditions) tryReplaceExitWithBreak(n Node) Node {
@@ -632,7 +630,6 @@ L_1:
 			return false
 		}
 	}
-	panic("unreachable")
 }
 
 func PeepholeMinimizeConditions_isLowerPrecedence(n Node, precedence int32) bool {
@@ -736,7 +733,6 @@ func (this *PeepholeMinimizeConditions) performConditionSubstitutions(n Node) No
 			}
 			return n
 		}
-		panic("unreachable")
 	}()
 }
 

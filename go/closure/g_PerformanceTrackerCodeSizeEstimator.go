@@ -85,7 +85,6 @@ func (this *PerformanceTrackerCodeSizeEstimator) getZippedCodeSize() int32 {
 	} else {
 		return 0
 	}
-	panic("unreachable")
 }
 
 // append: an object that is exactly a PerformanceTrackerCodeSizeEstimator calls its append_impl directly (post-flip); others dispatch.

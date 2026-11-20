@@ -272,7 +272,6 @@ func (this *PrototypeObjectType) getReferenceName_impl() Optional[string] {
 	} else {
 		return Optional_empty[string]()
 	}
-	panic("unreachable")
 }
 
 func (this *PrototypeObjectType) isAnonymous() bool {
@@ -363,7 +362,6 @@ func (this *PrototypeObjectType) recursionUnsafeHashCode_impl() int32 {
 	} else {
 		return System_identityHashCode(this.self())
 	}
-	panic("unreachable")
 }
 
 var PrototypeObjectType_TYPE_CLASS JSTypeClass
@@ -409,7 +407,6 @@ func PrototypeObjectType_clinit() {
 			}
 			panic("unreachable")
 		}()
-		panic("unreachable")
 	}}
 
 }

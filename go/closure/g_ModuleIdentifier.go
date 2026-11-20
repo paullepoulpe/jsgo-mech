@@ -74,7 +74,6 @@ func ModuleIdentifier_forFlagValue(flagValue string) *ModuleIdentifier {
 	} else {
 		return ModuleIdentifier_forFile(flagValue)
 	}
-	panic("unreachable")
 }
 
 func (this *ModuleIdentifier) name() string {

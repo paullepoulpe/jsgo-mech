@@ -61,10 +61,9 @@ func (this *CompilerExecutor) runInCompilerThread(callable func() any, dumpTrace
 			defer func() {
 				if r_ := recover(); r_ != nil {
 					ex_ := catch_(r_)
-					if is_InterruptedException(ex_) || is_TimeoutException(ex_) || is_ExecutionException(ex_) {
+					if is_ExecutionException(ex_) {
 						var e *Exception = to_Exception(ex_)
 						panic(new_RuntimeException_Throwable(e.up_Throwable()).self())
-						return
 					}
 					panic(r_)
 				}
@@ -96,13 +95,11 @@ func (this *CompilerExecutor) runInCompilerThread(callable func() any, dumpTrace
 					}
 					ret_2 = callable()
 					return 1
-					return 0
 				}()
 				if code_2 == 1 {
 					return ret_2
 				}
 				return nil
-				panic("unreachable")
 			}}
 			var future FutureOf[any] = executor.submit(bootCompilerThread)
 			if this.timeout > 0 {

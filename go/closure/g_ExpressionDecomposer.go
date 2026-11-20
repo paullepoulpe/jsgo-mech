@@ -293,7 +293,6 @@ func ExpressionDecomposer_buildResultExpression(expr Node, needResult bool, temp
 	} else {
 		return expr
 	}
-	panic("unreachable")
 }
 
 func (this *ExpressionDecomposer) isConstantNameNode(n Node) bool {
@@ -349,7 +348,6 @@ func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint No
 			default:
 				panic(new_IllegalStateException_String(("Unexpected parent of SPREAD:" + sstr_(parent.toStringTree()))).self())
 			}
-			panic("unreachable")
 		}()
 	} else {
 		expr.replaceWith(replacementValueNode)
@@ -465,7 +463,6 @@ func ExpressionDecomposer_isConditionalOp(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -573,7 +570,6 @@ func ExpressionDecomposer_getEvaluationDirection(node Node) ExpressionDecomposer
 	default:
 		return ExpressionDecomposer_EvaluationDirection_FORWARD
 	}
-	panic("unreachable")
 }
 
 func (this *ExpressionDecomposer) getFirstEvaluatedChild(parent Node, direction ExpressionDecomposer_EvaluationDirection) Node {
@@ -636,7 +632,6 @@ func (this *ExpressionDecomposer) isExpressionTreeUnsafe(tree Node, followingSid
 	} else {
 		return this.astAnalyzer.mayHaveSideEffects(tree)
 	}
-	panic("unreachable")
 }
 
 const ExpressionDecomposer_MAX_ITERATIONS int32 = 1000

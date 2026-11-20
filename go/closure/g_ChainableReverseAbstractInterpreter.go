@@ -123,7 +123,6 @@ func (this *ChainableReverseAbstractInterpreter) declareNameInScope(scope FlowSc
 		default:
 			panic(new_IllegalArgumentException_String(("Node cannot be refined. \n" + sstr_(node.toStringTree()))).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -168,7 +167,6 @@ func (this *ChainableReverseAbstractInterpreter) getNativeTypeForTypeOf(value st
 		default:
 			return nil
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -250,7 +248,6 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) c
 	} else {
 		return type_.self()
 	}
-	panic("unreachable")
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) caseTemplatizedType(type_ *TemplatizedType) any {

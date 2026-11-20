@@ -126,7 +126,6 @@ func (this *Compiler) finit_Compiler() {
 	this.resolvedSourceMap = new_Compiler_ResolvedSourceMap()
 	this.validityCheck = PassFactory_builder().setName("validityCheck").setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass { return CompilerPass(new_ValidityCheck(to_AbstractCompiler(p0))) }}).setCondition(&Function_tfn_CompilerOptions_any{func(o *CompilerOptions) any {
 		panic(new_IllegalStateException_String("Unexpected").self())
-		panic("unreachable")
 	}}).build()
 	this.currentPassIndex = -1
 	this.stage = AbstractCompiler_LifeCycleStage_RAW
@@ -410,7 +409,6 @@ func (this *Compiler) mergeAndDeserializeTypedAsts(requiredInputFiles *JTSet[*So
 			}()
 			ret_1 = TypedAstDeserializer_deserializeFullAst(this.up_AbstractCompiler(), this.SYNTHETIC_EXTERNS_FILE, requiredInputFiles, typedAstListStream, deserializeTypes, options.getResolveSourceMapAnnotations(), options.getParseInlineSourceMaps())
 			return 1
-			return 0
 		}()
 		if code_1 == 1 {
 			return ret_1
@@ -430,7 +428,6 @@ func (this *Compiler) mergeAndDeserializeTypedAsts(requiredInputFiles *JTSet[*So
 	this.runInCompilerThread(func() any {
 		this.parseForCompilationInternal()
 		return nil
-		panic("unreachable")
 	})
 }
 
@@ -667,7 +664,6 @@ func (this *Compiler) stage1Passes() {
 	this.runInCompilerThread(func() any {
 		this.performChecks()
 		return nil
-		panic("unreachable")
 	})
 }
 
@@ -701,7 +697,6 @@ func (this *Compiler) stage2Passes(segmentOfCompilationToRun CompilerOptions_Seg
 			this.performTranspilationAndOptimizations(segmentOfCompilationToRun)
 		}
 		return nil
-		panic("unreachable")
 	})
 }
 
@@ -720,7 +715,6 @@ func (this *Compiler) stage3Passes() {
 			this.performFinalizations()
 		}
 		return nil
-		panic("unreachable")
 	})
 }
 
@@ -751,7 +745,6 @@ func (this *Compiler) performPostCompilationTasks() {
 	this.runInCompilerThread(func() any {
 		this.performPostCompilationTasksInternal()
 		return nil
-		panic("unreachable")
 	})
 }
 
@@ -779,7 +772,6 @@ func (this *Compiler) performPostCompilationTasksInternal() {
 						if p, ok := ex_.(Exception_as); ok {
 							var e *Exception = p.as_Exception()
 							panic(new_RuntimeException_Throwable(e.up_Throwable()).self())
-							return
 						}
 						panic(r_)
 					}
@@ -812,7 +804,6 @@ func (this *Compiler) instrumentForCoverage() {
 			this.instrumentForCoverageInternal(this.options_.getInstrumentForCoverageOption())
 		}
 		return nil
-		panic("unreachable")
 	})
 }
 
@@ -829,7 +820,6 @@ func (this *Compiler) parseForCompilation() {
 	this.runInCompilerThread(func() any {
 		this.parseForCompilationInternal()
 		return nil
-		panic("unreachable")
 	})
 }
 
@@ -1215,7 +1205,6 @@ func (this *Compiler) getCurrentJsSource() string {
 				} else {
 					return false
 				}
-				panic("unreachable")
 			}}).apply, &Predicate_base_tfn_Node{func(node Node) bool {
 				return true
 			}}) {
@@ -1321,7 +1310,6 @@ func (this *Compiler) areNodesEqualForInlining_impl(n1 Node, n2 Node) bool {
 	} else {
 		return n1.isEquivalentTo(n2)
 	}
-	panic("unreachable")
 }
 
 func (this *Compiler) getInput_impl(id *InputId) *CompilerInput {
@@ -1664,7 +1652,6 @@ func (this *Compiler) parseInputs() Node {
 		}
 		ret_1 = this.externAndJsRoot
 		return 1
-		return 0
 	}()
 	if code_1 == 1 {
 		return ret_1
@@ -1691,7 +1678,6 @@ func (this *Compiler) orderInputsWithLargeStack() {
 			return 0
 		}()
 		return nil
-		panic("unreachable")
 	})
 }
 
@@ -2020,7 +2006,6 @@ func (this *Compiler) toSource_impl() string {
 			}
 			ret_1 = cb.toString()
 			return 1
-			return 0
 		}()
 		if code_1 == 1 {
 			return ret_1
@@ -2069,7 +2054,6 @@ func (this *Compiler) toSource_2(licenseTracker CodePrinter_LicenseTracker, chun
 			seq++
 		}
 		return cb.toString()
-		panic("unreachable")
 	}}).call))
 }
 
@@ -2128,7 +2112,6 @@ func (this *Compiler) toSource_4(cb *Compiler_CodeBuilder, licenseTracker CodePr
 			}
 		}
 		return nil
-		panic("unreachable")
 	})
 }
 
@@ -2190,7 +2173,6 @@ func (this *Compiler) toSourceArray(licenseTracker CodePrinter_LicenseTracker, c
 			sources[i] = cb.toString()
 		}
 		return sources
-		panic("unreachable")
 	}}).call))
 }
 
@@ -2241,7 +2223,6 @@ func (this *Compiler) getOptimizationPassesToRunInCurrentSegment(segmentOfCompil
 		default:
 			panic(new_IllegalArgumentException_String(("Unsupported segment of optimizations to run: " + jtostr_(segmentOfCompilationToRun))).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2371,7 +2352,6 @@ func (this *Compiler) getParserConfigLanguageMode(languageMode CompilerOptions_L
 		default:
 			panic(new_IllegalStateException_String(("Unexpected language mode: " + jtostr_(this.options_.getLanguageIn()))).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2716,7 +2696,6 @@ func (this *Compiler) getAstDotGraph() string {
 	} else {
 		return ""
 	}
-	panic("unreachable")
 }
 
 func (this *Compiler) getErrorManager_impl() ErrorManager {
@@ -3057,7 +3036,6 @@ func Compiler_fromProto(stage LifeCycleStageProto) AbstractCompiler_LifeCycleSta
 		default:
 			return AbstractCompiler_LifeCycleStage_RAW
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -3217,7 +3195,6 @@ func (this *Compiler) saveState() []int8 {
 			return cast_[[]int8](wrapper.apply(uncompressed))
 		}
 		return Io_gzip(uncompressed)
-		panic("unreachable")
 	}}).call))
 }
 
@@ -3248,7 +3225,6 @@ func (this *Compiler) restoreState(state []int8) *Outcome_base[any] {
 			this.deserializeCompilerState(uncompressed)
 			ret_1 = Outcome_base_ok_0()
 			return 1
-			return 0
 		}()
 		if code_1 == 1 {
 			return ret_1
@@ -3945,7 +3921,6 @@ func (this *Compiler_2) shouldTraverse_impl(t *NodeTraversal, n Node, parent Nod
 	} else {
 		return true
 	}
-	panic("unreachable")
 }
 
 // getTypedAstDeserializer: an object that is exactly a Compiler calls its getTypedAstDeserializer_impl directly (post-flip); others dispatch.

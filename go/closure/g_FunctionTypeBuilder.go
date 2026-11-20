@@ -922,7 +922,6 @@ func (this *FunctionTypeBuilder_ImplementedTypeValidator) apply_impl(type__ any)
 	} else {
 		return true
 	}
-	panic("unreachable")
 }
 
 type FunctionTypeBuilder_FunctionContents interface {
