@@ -148,7 +148,7 @@ func (this *SortingErrorManager) report_2(p0 CheckLevel, p1 *JSError) {
 	this.self_.report_2_impl(p0, p1)
 }
 
-func (this *SortingErrorManager) shouldReportConformanceViolation(p0 *Requirement, p1 *Optional_base, p2 *JSError, p3 *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, p4 bool) bool {
+func (this *SortingErrorManager) shouldReportConformanceViolation(p0 *Requirement, p1 *Optional_base, p2 *JSError, p3 ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, p4 bool) bool {
 	return ErrorManager_shouldReportConformanceViolation_default(icast_ErrorManager(this.self()), p0, p1, p2, p3, p4)
 }
 
