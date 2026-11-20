@@ -158,10 +158,11 @@ func (this *FileInstrumentationData_BranchIndexPair) equals(object any) bool {
 	_ = that
 	if func() bool {
 		v_ := object
-		if !is_[*FileInstrumentationData_BranchIndexPair](v_) {
+		p, ok := v_.(*FileInstrumentationData_BranchIndexPair)
+		if !ok {
 			return false
 		}
-		that = cast_[*FileInstrumentationData_BranchIndexPair](v_)
+		that = p
 		return true
 	}() {
 		return ((this.getLine() == that.getLine()) && (this.getBranch() == that.getBranch()))

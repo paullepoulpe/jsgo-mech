@@ -337,10 +337,11 @@ func (this *SubtypeChecker) isArrowTypeSubtype(subtype *ArrowType, nonArrowSuper
 	_ = supertype
 	if !(func() bool {
 		v_ := nonArrowSupertype.self()
-		if !is_[*ArrowType](v_) {
+		p, ok := v_.(*ArrowType)
+		if !ok {
 			return false
 		}
-		supertype = cast_[*ArrowType](v_)
+		supertype = p
 		return true
 	}()) {
 		return false

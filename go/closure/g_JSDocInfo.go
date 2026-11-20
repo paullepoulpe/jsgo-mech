@@ -784,10 +784,11 @@ func (this *JSDocInfo) getPropertyValueByIndex(index int32) any {
 	_ = array
 	if func() bool {
 		v_ := this.propertyValues
-		if !is_[[]any](v_) {
+		p, ok := v_.([]any)
+		if !ok {
 			return false
 		}
-		array = cast_[[]any](v_)
+		array = p
 		return true
 	}() {
 		return array[index]
@@ -2049,10 +2050,11 @@ func (this *JSDocInfo_TypePosition) isEquivalentTo_impl(that *SourcePosition_rhi
 	_ = typePosition
 	if ((!(func() bool {
 		v_ := that.self()
-		if !is_[*JSDocInfo_TypePosition](v_) {
+		p, ok := v_.(*JSDocInfo_TypePosition)
+		if !ok {
 			return false
 		}
-		typePosition = cast_[*JSDocInfo_TypePosition](v_)
+		typePosition = p
 		return true
 	}()) || !this.isSamePositionAs(that)) || (this.brackets != typePosition.brackets)) || ((Node_of_(this.getItem()) == 0) != (Node_of_(that.getItem()) == 0)) {
 		return false
