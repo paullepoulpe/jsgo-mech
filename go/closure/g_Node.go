@@ -3198,9 +3198,17 @@ func new_Node_TemplateLiteralSubstring(cooked Optional[string], raw string) *Nod
 }
 
 type Node_PropListItem struct {
-	self_    any
+	self_    Node_PropListItem_I
 	next_    *Node_PropListItem
 	propType int8
+}
+
+// Node_PropListItem_I holds the methods the dispatchers of Node_PropListItem's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type Node_PropListItem_I interface {
+	chain_impl(*Node_PropListItem) *Node_PropListItem
+	getIntValue_impl() int32
+	getObjectValue_impl() any
 }
 
 func (this *Node_PropListItem) as_Node_PropListItem() *Node_PropListItem { return this }
@@ -3230,17 +3238,15 @@ func (this *Node_PropListItem) init_Node_PropListItem(propType int8, next *Node_
 }
 
 func (this *Node_PropListItem) getIntValue() int32 {
-	return this.self_.(interface{ getIntValue_impl() int32 }).getIntValue_impl()
+	return this.self_.getIntValue_impl()
 }
 
 func (this *Node_PropListItem) getObjectValue() any {
-	return this.self_.(interface{ getObjectValue_impl() any }).getObjectValue_impl()
+	return this.self_.getObjectValue_impl()
 }
 
 func (this *Node_PropListItem) chain(p0 *Node_PropListItem) *Node_PropListItem {
-	return this.self_.(interface {
-		chain_impl(*Node_PropListItem) *Node_PropListItem
-	}).chain_impl(p0)
+	return this.self_.chain_impl(p0)
 }
 
 type Node_ObjectPropListItem struct {
@@ -3754,7 +3760,7 @@ func (this *Node_ObjectPropListItem) getIntValue() int32 {
 	if this.self_ == any(this) {
 		return this.getIntValue_impl()
 	}
-	return this.self_.(interface{ getIntValue_impl() int32 }).getIntValue_impl()
+	return this.self_.getIntValue_impl()
 }
 
 // getObjectValue: an object that is exactly a Node_ObjectPropListItem calls its getObjectValue_impl directly (post-flip); others dispatch.
@@ -3762,7 +3768,7 @@ func (this *Node_ObjectPropListItem) getObjectValue() any {
 	if this.self_ == any(this) {
 		return this.getObjectValue_impl()
 	}
-	return this.self_.(interface{ getObjectValue_impl() any }).getObjectValue_impl()
+	return this.self_.getObjectValue_impl()
 }
 
 // chain: an object that is exactly a Node_ObjectPropListItem calls its chain_impl directly (post-flip); others dispatch.
@@ -3770,9 +3776,7 @@ func (this *Node_ObjectPropListItem) chain(p0 *Node_PropListItem) *Node_PropList
 	if this.self_ == any(this) {
 		return this.chain_impl(p0)
 	}
-	return this.self_.(interface {
-		chain_impl(*Node_PropListItem) *Node_PropListItem
-	}).chain_impl(p0)
+	return this.self_.chain_impl(p0)
 }
 
 // getIntValue: an object that is exactly a Node_IntPropListItem calls its getIntValue_impl directly (post-flip); others dispatch.
@@ -3780,7 +3784,7 @@ func (this *Node_IntPropListItem) getIntValue() int32 {
 	if this.self_ == any(this) {
 		return this.getIntValue_impl()
 	}
-	return this.self_.(interface{ getIntValue_impl() int32 }).getIntValue_impl()
+	return this.self_.getIntValue_impl()
 }
 
 // getObjectValue: an object that is exactly a Node_IntPropListItem calls its getObjectValue_impl directly (post-flip); others dispatch.
@@ -3788,7 +3792,7 @@ func (this *Node_IntPropListItem) getObjectValue() any {
 	if this.self_ == any(this) {
 		return this.getObjectValue_impl()
 	}
-	return this.self_.(interface{ getObjectValue_impl() any }).getObjectValue_impl()
+	return this.self_.getObjectValue_impl()
 }
 
 // chain: an object that is exactly a Node_IntPropListItem calls its chain_impl directly (post-flip); others dispatch.
@@ -3796,7 +3800,5 @@ func (this *Node_IntPropListItem) chain(p0 *Node_PropListItem) *Node_PropListIte
 	if this.self_ == any(this) {
 		return this.chain_impl(p0)
 	}
-	return this.self_.(interface {
-		chain_impl(*Node_PropListItem) *Node_PropListItem
-	}).chain_impl(p0)
+	return this.self_.chain_impl(p0)
 }

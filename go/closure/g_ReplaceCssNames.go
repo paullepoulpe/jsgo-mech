@@ -490,7 +490,5 @@ func (this *ReplaceCssNames_FindSetCssNameTraversal) visit(p0 *NodeTraversal, p1
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

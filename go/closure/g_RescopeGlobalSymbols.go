@@ -402,9 +402,7 @@ func (this *RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssi
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a RescopeGlobalSymbols_FindCrossChunkNamesCallback calls its visit_impl directly (post-flip); others dispatch.
@@ -413,9 +411,7 @@ func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) visit(p0 *NodeTrav
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a RescopeGlobalSymbols_FindNamesReferencingThis calls its visit_impl directly (post-flip); others dispatch.
@@ -424,9 +420,7 @@ func (this *RescopeGlobalSymbols_FindNamesReferencingThis) visit(p0 *NodeTravers
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a RescopeGlobalSymbols_RemoveGlobalVarCallback calls its visit_impl directly (post-flip); others dispatch.
@@ -435,7 +429,5 @@ func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) visit(p0 *NodeTraversa
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

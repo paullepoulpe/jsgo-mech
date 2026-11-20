@@ -3,8 +3,41 @@
 package closure
 
 type AbstractScope struct {
-	self_     any
+	self_     AbstractScope_I
 	rootNode_ Node
+}
+
+// AbstractScope_I holds the methods the dispatchers of AbstractScope's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type AbstractScope_I interface {
+	canDeclare_impl(string) bool
+	clearVarsInternal_impl()
+	getAllAccessibleVariables_impl() Iterable
+	getAllSymbols_impl() Iterable
+	getArgumentsVar_impl() *AbstractVar
+	getClosestCfgRootScope_impl() *AbstractScope
+	getClosestContainerScope_impl() *AbstractScope
+	getClosestHoistScope_impl() *AbstractScope
+	getDepth_impl() int32
+	getGlobalScope_impl() *AbstractScope
+	getOwnSlot_String_impl(string) StaticSlot
+	getOwnSlot_String_rAbstractVar_impl(string) *AbstractVar
+	getParentScope_impl() StaticScope
+	getParentScope_rAbstractScope_impl() *AbstractScope
+	getParent_impl() *AbstractScope
+	getScopeOfThis_impl() *AbstractScope
+	getSlot_String_impl(string) StaticSlot
+	getSlot_String_rAbstractVar_impl(string) *AbstractVar
+	getTopmostScopeOfEventualDeclaration_impl(string) StaticScope
+	getVarCount_impl() int32
+	getVarIterable_impl() Iterable
+	getVar_String_impl(string) *AbstractVar
+	hasOwnImplicitSlot_impl(*AbstractScope_ImplicitVar) bool
+	hasOwnSlot_impl(string) bool
+	hasSlot_impl(string) bool
+	makeImplicitVar_ImplicitVar_impl(*AbstractScope_ImplicitVar) *AbstractVar
+	typed_impl() *TypedScope
+	untyped_impl() *Scope
 }
 
 func (this *AbstractScope) as_AbstractScope() *AbstractScope { return this }
@@ -105,119 +138,115 @@ func (this *AbstractScope) checkRootScope() {
 }
 
 func (this *AbstractScope) untyped() *Scope {
-	return this.self_.(interface{ untyped_impl() *Scope }).untyped_impl()
+	return this.self_.untyped_impl()
 }
 
 func (this *AbstractScope) getDepth() int32 {
-	return this.self_.(interface{ getDepth_impl() int32 }).getDepth_impl()
+	return this.self_.getDepth_impl()
 }
 
 func (this *AbstractScope) clearVarsInternal() {
-	this.self_.(interface{ clearVarsInternal_impl() }).clearVarsInternal_impl()
+	this.self_.clearVarsInternal_impl()
 }
 
 func (this *AbstractScope) hasOwnSlot(p0 string) bool {
-	return this.self_.(interface{ hasOwnSlot_impl(string) bool }).hasOwnSlot_impl(p0)
+	return this.self_.hasOwnSlot_impl(p0)
 }
 
 func (this *AbstractScope) hasSlot(p0 string) bool {
-	return this.self_.(interface{ hasSlot_impl(string) bool }).hasSlot_impl(p0)
+	return this.self_.hasSlot_impl(p0)
 }
 
 func (this *AbstractScope) canDeclare(p0 string) bool {
-	return this.self_.(interface{ canDeclare_impl(string) bool }).canDeclare_impl(p0)
+	return this.self_.canDeclare_impl(p0)
 }
 
 func (this *AbstractScope) getVarIterable() Iterable {
-	return this.self_.(interface{ getVarIterable_impl() Iterable }).getVarIterable_impl()
+	return this.self_.getVarIterable_impl()
 }
 
 func (this *AbstractScope) getAllAccessibleVariables() Iterable {
-	return this.self_.(interface{ getAllAccessibleVariables_impl() Iterable }).getAllAccessibleVariables_impl()
+	return this.self_.getAllAccessibleVariables_impl()
 }
 
 func (this *AbstractScope) getAllSymbols() Iterable {
-	return this.self_.(interface{ getAllSymbols_impl() Iterable }).getAllSymbols_impl()
+	return this.self_.getAllSymbols_impl()
 }
 
 func (this *AbstractScope) getVarCount() int32 {
-	return this.self_.(interface{ getVarCount_impl() int32 }).getVarCount_impl()
+	return this.self_.getVarCount_impl()
 }
 
 func (this *AbstractScope) getParent() *AbstractScope {
-	return this.self_.(interface{ getParent_impl() *AbstractScope }).getParent_impl()
+	return this.self_.getParent_impl()
 }
 
 func (this *AbstractScope) makeImplicitVar_ImplicitVar(p0 *AbstractScope_ImplicitVar) *AbstractVar {
-	return this.self_.(interface {
-		makeImplicitVar_ImplicitVar_impl(*AbstractScope_ImplicitVar) *AbstractVar
-	}).makeImplicitVar_ImplicitVar_impl(p0)
+	return this.self_.makeImplicitVar_ImplicitVar_impl(p0)
 }
 
 func (this *AbstractScope) getGlobalScope() *AbstractScope {
-	return this.self_.(interface{ getGlobalScope_impl() *AbstractScope }).getGlobalScope_impl()
+	return this.self_.getGlobalScope_impl()
 }
 
 func (this *AbstractScope) getParentScope_rAbstractScope() *AbstractScope {
-	return this.self_.(interface{ getParentScope_rAbstractScope_impl() *AbstractScope }).getParentScope_rAbstractScope_impl()
+	return this.self_.getParentScope_rAbstractScope_impl()
 }
 
 func (this *AbstractScope) getOwnSlot_String_rAbstractVar(p0 string) *AbstractVar {
-	return this.self_.(interface{ getOwnSlot_String_rAbstractVar_impl(string) *AbstractVar }).getOwnSlot_String_rAbstractVar_impl(p0)
+	return this.self_.getOwnSlot_String_rAbstractVar_impl(p0)
 }
 
 func (this *AbstractScope) getSlot_String_rAbstractVar(p0 string) *AbstractVar {
-	return this.self_.(interface{ getSlot_String_rAbstractVar_impl(string) *AbstractVar }).getSlot_String_rAbstractVar_impl(p0)
+	return this.self_.getSlot_String_rAbstractVar_impl(p0)
 }
 
 func (this *AbstractScope) getVar_String(p0 string) *AbstractVar {
-	return this.self_.(interface{ getVar_String_impl(string) *AbstractVar }).getVar_String_impl(p0)
+	return this.self_.getVar_String_impl(p0)
 }
 
 func (this *AbstractScope) getArgumentsVar() *AbstractVar {
-	return this.self_.(interface{ getArgumentsVar_impl() *AbstractVar }).getArgumentsVar_impl()
+	return this.self_.getArgumentsVar_impl()
 }
 
 func (this *AbstractScope) getClosestHoistScope() *AbstractScope {
-	return this.self_.(interface{ getClosestHoistScope_impl() *AbstractScope }).getClosestHoistScope_impl()
+	return this.self_.getClosestHoistScope_impl()
 }
 
 func (this *AbstractScope) getClosestCfgRootScope() *AbstractScope {
-	return this.self_.(interface{ getClosestCfgRootScope_impl() *AbstractScope }).getClosestCfgRootScope_impl()
+	return this.self_.getClosestCfgRootScope_impl()
 }
 
 func (this *AbstractScope) getClosestContainerScope() *AbstractScope {
-	return this.self_.(interface{ getClosestContainerScope_impl() *AbstractScope }).getClosestContainerScope_impl()
+	return this.self_.getClosestContainerScope_impl()
 }
 
 func (this *AbstractScope) getScopeOfThis() *AbstractScope {
-	return this.self_.(interface{ getScopeOfThis_impl() *AbstractScope }).getScopeOfThis_impl()
+	return this.self_.getScopeOfThis_impl()
 }
 
 func (this *AbstractScope) typed() *TypedScope {
-	return this.self_.(interface{ typed_impl() *TypedScope }).typed_impl()
+	return this.self_.typed_impl()
 }
 
 func (this *AbstractScope) hasOwnImplicitSlot(p0 *AbstractScope_ImplicitVar) bool {
-	return this.self_.(interface {
-		hasOwnImplicitSlot_impl(*AbstractScope_ImplicitVar) bool
-	}).hasOwnImplicitSlot_impl(p0)
+	return this.self_.hasOwnImplicitSlot_impl(p0)
 }
 
 func (this *AbstractScope) getTopmostScopeOfEventualDeclaration(p0 string) StaticScope {
-	return this.self_.(interface{ getTopmostScopeOfEventualDeclaration_impl(string) StaticScope }).getTopmostScopeOfEventualDeclaration_impl(p0)
+	return this.self_.getTopmostScopeOfEventualDeclaration_impl(p0)
 }
 
 func (this *AbstractScope) getParentScope() StaticScope {
-	return this.self_.(interface{ getParentScope_impl() StaticScope }).getParentScope_impl()
+	return this.self_.getParentScope_impl()
 }
 
 func (this *AbstractScope) getOwnSlot_String(p0 string) StaticSlot {
-	return this.self_.(interface{ getOwnSlot_String_impl(string) StaticSlot }).getOwnSlot_String_impl(p0)
+	return this.self_.getOwnSlot_String_impl(p0)
 }
 
 func (this *AbstractScope) getSlot_String(p0 string) StaticSlot {
-	return this.self_.(interface{ getSlot_String_impl(string) StaticSlot }).getSlot_String_impl(p0)
+	return this.self_.getSlot_String_impl(p0)
 }
 
 func (this *AbstractScope) getTopmostScopeOfEventualDeclaration_impl(p0 string) StaticScope {
