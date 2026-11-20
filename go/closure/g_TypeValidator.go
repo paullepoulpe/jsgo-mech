@@ -656,8 +656,8 @@ func TypeValidator_hasDuplicateDeclarationSuppression(compiler *AbstractCompiler
 }
 
 func (this *TypeValidator) expectWellFormedTemplatizedType(n Node) {
+	var verifier *TypeValidator_WellFormedTemplatizedTypeVerifier = new_TypeValidator_WellFormedTemplatizedTypeVerifier(this, n)
 	if n.getJSType() != nil {
-		var verifier *TypeValidator_WellFormedTemplatizedTypeVerifier = new_TypeValidator_WellFormedTemplatizedTypeVerifier(this, n)
 		JSType_visit(n.getJSType(), verifier)
 	}
 }
