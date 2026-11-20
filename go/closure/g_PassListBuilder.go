@@ -57,9 +57,9 @@ func (this *PassListBuilder) addAllUpTo(other *PassListBuilder, passName string)
 }
 
 func (this *PassListBuilder) findByName(name string) *PassFactory {
-	it_1 := this.passes.each()
-	for it_1.next() {
-		var pass *PassFactory = it_1.v
+	l_1 := this.passes
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var pass *PassFactory = l_1.items[i_1]
 		if pass.getName() == name {
 			return pass
 		}
@@ -90,9 +90,7 @@ func (this *PassListBuilder) contains(factory *PassFactory) bool {
 }
 
 func (this *PassListBuilder) assertAllOneTimePasses() {
-	it_1 := this.passes.each()
-	for it_1.next() {
-		var pass *PassFactory = it_1.v
+	for pass := range this.passes.All() {
 		if pass.isRunInFixedPointLoop() {
 			panic(new_IllegalStateException_0())
 		}
@@ -100,9 +98,7 @@ func (this *PassListBuilder) assertAllOneTimePasses() {
 }
 
 func (this *PassListBuilder) assertAllLoopablePasses() {
-	it_1 := this.passes.each()
-	for it_1.next() {
-		var pass *PassFactory = it_1.v
+	for pass := range this.passes.All() {
 		if !pass.isRunInFixedPointLoop() {
 			panic(new_IllegalStateException_0())
 		}

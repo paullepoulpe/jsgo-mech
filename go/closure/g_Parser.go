@@ -204,9 +204,7 @@ func (this *Parser) parseExportDeclaration() *ParseTree {
 		this.eatPredefinedString(PredefinedName_FROM)
 		moduleSpecifier = to_LiteralToken(this.eat(TokenType_STRING).self())
 	} else if isExportSpecifier {
-		it_2 := exportSpecifierList.each()
-		for it_2.next() {
-			var tree *ParseTree = it_2.v
+		for tree := range exportSpecifierList.All() {
 			var importedName *IdentifierToken = tree.asExportSpecifier().importedName
 			if importedName.isKeyword() {
 				this.reportError_3(importedName.up_Token_parser(), "cannot use keyword '%s' here.", []any{obj_(importedName)})
@@ -952,9 +950,7 @@ func (this *Parser) parseForAwaitOfStatement(start *SourcePosition_util, initial
 }
 
 func (this *Parser) checkVanillaForInitializers(variables *VariableDeclarationListTree) {
-	it_1 := variables.declarations.each()
-	for it_1.next() {
-		var declaration *VariableDeclarationTree = it_1.v
+	for declaration := range variables.declarations.All() {
 		if declaration.initializer == nil {
 			this.maybeReportNoInitializer(variables.declarationType_, declaration.lvalue)
 		}

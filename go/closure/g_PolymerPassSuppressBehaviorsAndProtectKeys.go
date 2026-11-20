@@ -81,17 +81,13 @@ func PolymerPassSuppressBehaviorsAndProtectKeys_isBehavior(value Node) bool {
 
 func (this *PolymerPassSuppressBehaviorsAndProtectKeys) stripPropertyTypes(behaviorValue Node) {
 	var properties *TList[*PolymerPass_MemberDefinition] = PolymerPassStaticUtils_extractProperties(behaviorValue, PolymerClassDefinition_DefinitionType_ObjectLiteral, this.compiler_, 0)
-	it_1 := properties.each()
-	for it_1.next() {
-		var property *PolymerPass_MemberDefinition = it_1.v
+	for property := range properties.All() {
 		property.name_.setJSDocInfo(nil)
 	}
 }
 
 func (this *PolymerPassSuppressBehaviorsAndProtectKeys) suppressDefaultValues(behaviorValue Node) {
-	it_1 := PolymerPassStaticUtils_extractProperties(behaviorValue, PolymerClassDefinition_DefinitionType_ObjectLiteral, this.compiler_, 0).each()
-	for it_1.next() {
-		var property *PolymerPass_MemberDefinition = it_1.v
+	for property := range PolymerPassStaticUtils_extractProperties(behaviorValue, PolymerClassDefinition_DefinitionType_ObjectLiteral, this.compiler_, 0).All() {
 		if !property.value_.isObjectLit() {
 			continue
 		}

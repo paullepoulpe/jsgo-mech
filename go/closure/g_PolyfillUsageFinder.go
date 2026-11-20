@@ -96,9 +96,12 @@ func (this *PolyfillUsageFinder) isPolyfillVisibleInScope(t *NodeTraversal, glob
 }
 
 func PolyfillUsageFinder_findGlobalPrefix(qualifiedName string) Optional[string] {
-	it_1 := PolyfillUsageFinder_GLOBAL_NAMES.each()
-	for it_1.next() {
-		var global string = it_1.v
+	l_1 := PolyfillUsageFinder_GLOBAL_NAMES
+	for i_1 := l_1.first(); i_1 < len(l_1.keys); i_1++ {
+		if l_1.isDead(i_1) {
+			continue
+		}
+		var global string = l_1.keys[i_1]
 		if strings.HasPrefix(qualifiedName, global) {
 			return Optional_of[string](global)
 		}
@@ -137,9 +140,12 @@ func (this *PolyfillUsageFinder) isDisjointFromIterator(receiver *Color) bool {
 		return false
 	}
 	if receiver.isUnion() {
-		it_1 := receiver.getUnionElements().each()
-		for it_1.next() {
-			var alt *Color = it_1.v
+		l_1 := receiver.getUnionElements()
+		for i_1 := l_1.first(); i_1 < len(l_1.keys); i_1++ {
+			if l_1.isDead(i_1) {
+				continue
+			}
+			var alt *Color = l_1.keys[i_1]
 			if !this.isDisjointFromIterator(alt) {
 				return false
 			}
@@ -169,9 +175,12 @@ func (this *PolyfillUsageFinder) hasInSupertypesList(subCtor *Color, superCtor *
 	for it_2.next() {
 		var immediateSupertype *Color = cast_[*Color](it_2.v)
 		if immediateSupertype.isUnion() {
-			it_4 := immediateSupertype.getUnionElements().each()
-			for it_4.next() {
-				var alt *Color = it_4.v
+			l_4 := immediateSupertype.getUnionElements()
+			for i_4 := l_4.first(); i_4 < len(l_4.keys); i_4++ {
+				if l_4.isDead(i_4) {
+					continue
+				}
+				var alt *Color = l_4.keys[i_4]
 				if this.hasInSupertypesList(alt, superCtor) {
 					return true
 				}
@@ -313,9 +322,7 @@ func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(me
 	this.statics = statics
 	this.byNativeVersion = byNativeVersion
 	var suffixList *TList[string] = newTList_(tc_string)
-	it_1 := statics.each()
-	for it_1.next() {
-		var arg string = it_1.k
+	for arg := range statics.Keys() {
 		suffixList.add(arg[strings.LastIndexByte(arg, '.')+1:])
 	}
 	this.suffixes = immutableSetCopyOf_(tc_string, Collection(suffixList.asList()))

@@ -133,9 +133,7 @@ func (this *SimpleSetMultimap[K, V]) putAll_2_s(key string, values IterableOf[an
 
 func (this *SimpleSetMultimap[K, V]) putAll(other *SimpleSetMultimap[any, any]) {
 	if other.entryOrder != nil {
-		it_1 := other.entryOrder.each()
-		for it_1.next() {
-			var e *SimpleSetMultimap_Entry[any, any] = it_1.v
+		for e := range other.entryOrder.All() {
 			this.put(unboxT_[K](e.key()), unboxT_[V](e.value()))
 		}
 	} else {

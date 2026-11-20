@@ -219,17 +219,13 @@ func (this *ColorPool_Builder) build() *ColorPool {
 			this.idToProto.put(id, shard, shard.typePool.getType(i))
 		}
 	}}).accept)
-	it_2 := StandardColors_AXIOMATIC_COLORS.each()
-	for it_2.next() {
-		var id *ColorId = it_2.k
+	for id := range StandardColors_AXIOMATIC_COLORS.Keys() {
 		MalformedTypedAstException_checkWellFormed_boolean_String_Object(!this.idToProto.containsRow(obj_(id)), "Found serialized definiton for axiomatic color", obj_(id))
 	}
 	for id := range elemsAs_[*ColorId](this.idToProto.rowKeySet()) {
 		this.lookupOrReconcileColor(id)
 	}
-	it_6 := ColorRegistry_REQUIRED_IDS.each()
-	for it_6.next() {
-		var colorId *ColorId = it_6.v
+	for colorId := range ColorRegistry_REQUIRED_IDS.All() {
 		this.registry.setNativeColor(this.idToColor.computeIfAbsent(colorId, &Function_tfn_ColorId_Color{func(unused *ColorId) *Color {
 			return Color_singleBuilder().setId(colorId).build()
 		}}))
