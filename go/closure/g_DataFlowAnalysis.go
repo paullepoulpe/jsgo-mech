@@ -89,15 +89,22 @@ func (this *DataFlowAnalysis[N, L]) analyze() {
 		}
 		this.joinInputs(curNode)
 		if this.flow(curNode) {
-			var nextNodes ListOf[DiGraph_DiGraphNode[N, ControlFlowGraph_Branch]] = func() List {
-				if this.isForward() {
-					return this.cfg.getDirectedSuccNodesDiGraphNode(curNode)
+			// The successors (forward) or predecessors of curNode, in edge order, from its edges
+			// instead of a list made of them (post-flip manual step: a list per flow step; the
+			// control-flow graph overrides neither method).
+			if this.isForward() {
+				for _, e := range toSlice_(curNode.getOutEdges()) {
+					var nextNode DiGraph_DiGraphNode[N, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphEdge[N, ControlFlowGraph_Branch]](e).getDestination()
+					if nextNode != this.cfg.getImplicitReturn() {
+						this.workQueue.add(nextNode)
+					}
 				}
-				return this.cfg.getDirectedPredNodesDiGraphNode(curNode)
-			}()
-			for nextNode := range elemsAs_[DiGraph_DiGraphNode[N, ControlFlowGraph_Branch]](nextNodes) {
-				if nextNode != this.cfg.getImplicitReturn() {
-					this.workQueue.add(nextNode)
+			} else {
+				for _, e := range toSlice_(curNode.getInEdges()) {
+					var nextNode DiGraph_DiGraphNode[N, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphEdge[N, ControlFlowGraph_Branch]](e).getSource()
+					if nextNode != this.cfg.getImplicitReturn() {
+						this.workQueue.add(nextNode)
+					}
 				}
 			}
 		}
