@@ -1225,11 +1225,11 @@ func (this *JSTypeRegistry) createTemplatizedTypeImmutableList(baseType *ObjectT
 
 func (this *JSTypeRegistry) createTemplatizedTypeMap(baseType *ObjectType, templatizedTypes *JTMap[*TemplateType, *JSType]) *TemplatizedType {
 	var unknownType *JSType = this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
-	return this.createTemplatizedTypeImmutableList(baseType, jtlistImm_(jtc_p_JSType, JSTypeIterations_mapTypesImmutableList(&Function_fn{func(key_ any) any {
+	return this.createTemplatizedTypeImmutableList(baseType, jtlistImm_(jtc_p_JSType, JSTypeIterations_mapTypesImmutableList(func(key_ any) any {
 		var key *JSType = to_JSType(key_)
 		_ = key
 		return Map_getOrDefault(templatizedTypes.asMap(), key.self(), unknownType.self())
-	}}, sliceImm_(tc_p_JSType, baseType.getTypeParameters().asImm()))))
+	}, sliceImm_(tc_p_JSType, baseType.getTypeParameters().asImm()))))
 }
 
 func (this *JSTypeRegistry) createTemplatizedType(baseType *ObjectType, templatizedTypes []*JSType) *TemplatizedType {
