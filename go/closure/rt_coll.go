@@ -743,10 +743,11 @@ type hindex_ struct {
 	// hash is beside keys once the table is indexed: the hash of each key (hashOf), so that
 	// growing or compacting the index never hashes a key again.
 	hash []uint32
-	// slots is an open-addressed table (linear probing, a power of two long): 1 + the position
-	// of a key, 0 for a free slot. A removed key keeps its slot (find skips removed positions)
-	// until the index is rebuilt.
-	slots []int32
+	// slots is an open-addressed table (linear probing, a power of two long): the hash of a key
+	// in the high 32 bits and 1 + its position in the low ones, 0 for a free slot, so that a
+	// probe reads one word. A removed key keeps its slot (find skips removed positions) until
+	// the index is rebuilt.
+	slots []uint64
 	ents  []*hmapEntry_ // beside keys once entrySet has handed out an entry; else nil
 }
 
@@ -797,10 +798,11 @@ func (t *htable_) find(k any) int {
 	if h, ok := t.customKey_(k); ok {
 		hv := hmix_(h.hashCode())
 		for j, m := hv&uint32(len(x.slots)-1), uint32(len(x.slots)-1); x.slots[j] != 0; j = (j + 1) & m {
-			i := x.slots[j] - 1
-			if x.hash[i] != hv {
+			sl := x.slots[j]
+			if uint32(sl>>32) != hv {
 				continue
 			}
+			i := int32(uint32(sl)) - 1
 			e := t.keys[i]
 			if e == k { // identity first, as java.util.HashMap
 				return int(i)
@@ -816,8 +818,10 @@ func (t *htable_) find(k any) int {
 	}
 	hv := uint32(maphash.Comparable(hseed_, k))
 	for j, m := hv&uint32(len(x.slots)-1), uint32(len(x.slots)-1); x.slots[j] != 0; j = (j + 1) & m {
-		if i := x.slots[j] - 1; x.hash[i] == hv && t.keys[i] == k {
-			return int(i)
+		if sl := x.slots[j]; uint32(sl>>32) == hv {
+			if i := int32(uint32(sl)) - 1; t.keys[i] == k {
+				return int(i)
+			}
 		}
 	}
 	return -1
@@ -836,9 +840,9 @@ func (t *htable_) findStr(s string) int {
 	x := t.x
 	hv := uint32(maphash.String(hseed_, s))
 	for j, m := hv&uint32(len(x.slots)-1), uint32(len(x.slots)-1); x.slots[j] != 0; j = (j + 1) & m {
-		if i := x.slots[j] - 1; x.hash[i] == hv {
-			if xs, ok := t.keys[i].(string); ok && xs == s {
-				return int(i)
+		if sl := x.slots[j]; uint32(sl>>32) == hv {
+			if xs, ok := t.keys[int32(uint32(sl))-1].(string); ok && xs == s {
+				return int(int32(uint32(sl)) - 1)
 			}
 		}
 	}
@@ -951,7 +955,7 @@ func (t *htable_) copyFrom(s *htable_, vals bool) bool {
 	}
 	t.live = s.live
 	if s.indexed {
-		t.x = &hindex_{hash: append(make([]uint32, 0, n), s.x.hash...), slots: append([]int32(nil), s.x.slots...)}
+		t.x = &hindex_{hash: append(make([]uint32, 0, n), s.x.hash...), slots: append([]uint64(nil), s.x.slots...)}
 		t.indexed = true
 	}
 	return true
@@ -982,7 +986,7 @@ func (t *htable_) rebuildSlots() {
 	if len(x.slots) == n {
 		clear(x.slots)
 	} else {
-		x.slots = make([]int32, n)
+		x.slots = make([]uint64, n)
 	}
 	for i, k := range t.keys {
 		if k != dead_ {
@@ -999,7 +1003,7 @@ func (t *htable_) place(hv uint32, i int32) {
 	for x.slots[j] != 0 {
 		j = (j + 1) & m
 	}
-	x.slots[j] = i + 1
+	x.slots[j] = uint64(hv)<<32 | uint64(uint32(i+1))
 }
 
 // index records that key k is at position i, the last one.
