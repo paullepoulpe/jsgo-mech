@@ -1080,15 +1080,15 @@ func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForName_3
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForName(name *GlobalNamespace_Name, message string) {
-	this.outer_.decisionsLog.log(&Supplier_tfn_string{func() string {
+	this.outer_.decisionsLog.log(func() string {
 		return (sstr_(name.getFullName()) + ": " + sstr_(message))
-	}})
+	})
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForNameSupplier(name *GlobalNamespace_Name, messageSupplier func() string) {
-	this.outer_.decisionsLog.log(&Supplier_tfn_string{func() string {
+	this.outer_.decisionsLog.log(func() string {
 		return (sstr_(name.getFullName()) + ": " + sstr_(messageSupplier()))
-	}})
+	})
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) flattenSimpleStubDeclaration(name *GlobalNamespace_Name, alias string) {
