@@ -2753,18 +2753,18 @@ func (this *RegExpTree_1Parser) parseRepetition(body *RegExpTree) *RegExpTree {
 		}
 		var counts string = String_substring(this.cap_pattern, start, end)
 		this.pos = (end + 1)
-		var comma int32 = String_indexOf(counts, 44)
+		var comma int32 = int32(strings.IndexByte(counts, ','))
 		var parsedMin any = JSCompStrings_parseIntOrNull(func() Optional[string] {
 			if comma >= 0 {
-				return Optional_of[string](String_substring(counts, 0, comma))
+				return Optional_of[string](counts[:comma])
 			}
 			return Optional_of[string](counts)
 		}())
 		var parsedMax any = func() any {
 			if comma >= 0 {
 				return func() any {
-					if (comma + 1) != String_length(counts) {
-						return JSCompStrings_parseIntOrNull(Optional_of[string](String_substring_int(counts, (comma + 1))))
+					if (comma + 1) != int32(len(counts)) {
+						return JSCompStrings_parseIntOrNull(Optional_of[string](counts[(comma + 1):]))
 					}
 					return any(int32(int32(2147483647)))
 				}()

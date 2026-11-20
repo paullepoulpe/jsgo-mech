@@ -48,8 +48,8 @@ func (this *ModuleResolver) resolveModuleAsPath_impl(scriptAddress string, modul
 	var path string = this.pathEscaper.escape(moduleAddress)
 	if ModuleLoader_isRelativeIdentifier(moduleAddress) {
 		var ourPath string = scriptAddress
-		var lastIndex int32 = String_lastIndexOf_String(ourPath, ModuleLoader_MODULE_SLASH)
-		path = ModuleNames_canonicalizePath((sstr_(String_substring(ourPath, 0, (lastIndex+int32(len(ModuleLoader_MODULE_SLASH))))) + sstr_(path)))
+		var lastIndex int32 = int32(strings.LastIndex(ourPath, ModuleLoader_MODULE_SLASH))
+		path = ModuleNames_canonicalizePath((sstr_(ourPath[:(lastIndex+int32(len(ModuleLoader_MODULE_SLASH)))]) + sstr_(path)))
 	}
 	return ModuleLoader_normalize(path, Iterable(this.moduleRootPaths.asList()))
 }
@@ -78,8 +78,8 @@ func (this *ModuleResolver) canonicalizePath(scriptAddress string, moduleAddress
 	var path string = this.pathEscaper.escape(moduleAddress)
 	if ModuleLoader_isRelativeIdentifier(moduleAddress) {
 		var ourPath string = scriptAddress
-		var lastIndex int32 = String_lastIndexOf_String(ourPath, ModuleLoader_MODULE_SLASH)
-		path = ModuleNames_canonicalizePath((sstr_(String_substring(ourPath, 0, (lastIndex+int32(len(ModuleLoader_MODULE_SLASH))))) + sstr_(path)))
+		var lastIndex int32 = int32(strings.LastIndex(ourPath, ModuleLoader_MODULE_SLASH))
+		path = ModuleNames_canonicalizePath((sstr_(ourPath[:(lastIndex+int32(len(ModuleLoader_MODULE_SLASH)))]) + sstr_(path)))
 	}
 	return path
 }
