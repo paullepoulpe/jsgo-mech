@@ -43,7 +43,8 @@ func (this *PruningAnalysis) calculateBottlenecks() *JTMap[string, any] {
 	var graph *DiGraph[string, string] = this.buildGraph()
 	var dominatorTree *DominatorTree[string] = DominatorTree_compute[string, string](graph, PruningAnalysis_VIRTUAL_ROOT)
 	var bottleneckBlame *JTMap[string, any] = jnewTMap_(jtc_string, tc_Integer)
-	for entry := range elemsBy_(obj_(cast_[*ImmutableSet](dominatorTree.getAllSubtreeSizes().entrySet())), icast_Map_Entry) {
+	for _, el := range immElems_(cast_[*ImmutableSet](dominatorTree.getAllSubtreeSizes().entrySet())) {
+		entry := icast_Map_Entry(el)
 		var node string = str_(entry.getKey())
 		var retainedCount int32 = unbox_[int32](entry.getValue())
 		if !(node == PruningAnalysis_VIRTUAL_ROOT) && (retainedCount > 1) {
@@ -76,7 +77,8 @@ func (this *PruningAnalysis) buildGraph() *DiGraph[string, string] {
 	for input := range elemsAs_[*CompilerInput](this.sorter_.getSortedList()) {
 		var name string = input.getName()
 		var depSymbols *JTSet[string] = jnewTSet_(jtc_string)
-		for req := range elemsAs_[*DependencyInfo_Require](obj_(input.getRequires())) {
+		for _, el := range immElems_(input.getRequires()) {
+			req := cast_[*DependencyInfo_Require](el)
 			depSymbols.add(req.getSymbol())
 		}
 		depSymbols.asSet().addAll(ImmutableList_as_Collection(input.getTypeRequires()))
