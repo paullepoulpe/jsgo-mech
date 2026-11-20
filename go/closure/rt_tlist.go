@@ -69,7 +69,7 @@ func immSlot_(from any) *immTyped_ {
 	switch x := from.(type) {
 	case *ImmutableCollection:
 		return &x.typed_
-	case *ImmutableMap:
+	case *ErasedImmutableMap:
 		return &x.typed_
 	}
 	return nil
