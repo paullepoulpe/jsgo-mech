@@ -53,7 +53,7 @@ func (this *FunctionInjector) doesFunctionMeetMinimumRequirements(fnName string,
 		}
 		return false
 	}}).apply
-	return (!referencesArguments && !NodeUtil_has(block, blocksInjection, Predicates_alwaysTrue()))
+	return (!referencesArguments && !NodeUtil_has(block, unboxedPred_[Node](blocksInjection), Predicates_alwaysTrue()))
 }
 
 func (this *FunctionInjector) canInlineReferenceToFunction(ref *FunctionInjector_Reference, fnNode Node, needAliases *TSet[string], referencesThis bool, containsClosures bool) FunctionInjector_CanInlineResult {
@@ -318,9 +318,9 @@ func (this *FunctionInjector) referencesEval(fn Node) bool {
 	if cached != nil {
 		return unbox_[bool](cached)
 	}
-	var result bool = NodeUtil_has(fn, (&Predicate_base_tfn_Node{func(n Node) bool {
+	var result bool = NodeUtil_has(fn, func(n Node) bool {
 		return (n.isName() && (n.getStringIs_(sid_eval)))
-	}}).apply, &Predicate_base_tfn_Node{func(n Node) bool {
+	}, &Predicate_base_tfn_Node{func(n Node) bool {
 		return (!n.isFunction() || equalsRRH_(n, fn))
 	}})
 	this.referencesEvalCache[fn] = bool(result)
@@ -359,7 +359,7 @@ func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 }
 
 func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *FunctionInjector_Reference, calleeFn Node, namesToAlias *TSet[string]) bool {
-	var calleeContainsVars bool = NodeUtil_has(NodeUtil_getFunctionBody(calleeFn), new_NodeUtil_MatchDeclaration().apply, new_NodeUtil_MatchShallowStatement())
+	var calleeContainsVars bool = NodeUtil_has(NodeUtil_getFunctionBody(calleeFn), unboxedPred_[Node](new_NodeUtil_MatchDeclaration().apply), new_NodeUtil_MatchShallowStatement())
 	var forbidTemps bool = false
 	if !callRef.scope_.getClosestHoistScope_rScope().isGlobal() {
 		var callerFn Node = callRef.scope_.getClosestHoistScope_rScope().getRootNode().getParent()

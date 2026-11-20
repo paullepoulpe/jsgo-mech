@@ -70,7 +70,7 @@ func (this *Es6RewriteBlockScopedDeclaration) visitBlockScopedNameDeclaration(de
 }
 
 func (this *Es6RewriteBlockScopedDeclaration) inLoop(n Node) bool {
-	var enclosingNode Node = NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return Es6RewriteBlockScopedDeclaration_isLoopOrFunction(p0) }}).apply)
+	var enclosingNode Node = NodeUtil_getEnclosingNode(n, func(p0 Node) bool { return Es6RewriteBlockScopedDeclaration_isLoopOrFunction(p0) })
 	return ((enclosingNode != 0) && !enclosingNode.isFunction())
 }
 
