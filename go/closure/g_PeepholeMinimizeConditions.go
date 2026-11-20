@@ -28,33 +28,33 @@ func new_PeepholeMinimizeConditions(late bool) *PeepholeMinimizeConditions {
 
 func (this *PeepholeMinimizeConditions) optimizeSubtree_impl(node Node) Node {
 	return func() Node {
-		switch node.getToken() {
-		case Token_rhino_THROW, Token_rhino_RETURN:
+		switch node.ns_().token {
+		case tokOrd1_THROW, tokOrd1_RETURN:
 			var result Node = this.tryRemoveRedundantExit(node)
 			if result != node {
 				return result
 			}
 			return this.tryReplaceExitWithBreak(node)
-		case Token_rhino_NOT:
+		case tokOrd1_NOT:
 			this.tryMinimizeCondition(node.getFirstChild())
 			return this.tryMinimizeNot(node)
-		case Token_rhino_IF:
+		case tokOrd1_IF:
 			this.performConditionSubstitutions(node.getFirstChild())
 			return this.tryMinimizeIf(node)
-		case Token_rhino_EXPR_RESULT:
+		case tokOrd1_EXPR_RESULT:
 			this.performConditionSubstitutions(node.getFirstChild())
 			return this.tryMinimizeExprResult(node)
-		case Token_rhino_HOOK:
+		case tokOrd1_HOOK:
 			this.performConditionSubstitutions(node.getFirstChild())
 			return this.tryMinimizeHook(node)
-		case Token_rhino_WHILE, Token_rhino_DO:
+		case tokOrd1_WHILE, tokOrd1_DO:
 			this.tryMinimizeCondition(NodeUtil_getConditionExpression(node))
 			return node
-		case Token_rhino_FOR:
+		case tokOrd1_FOR:
 			this.tryJoinForCondition(node)
 			this.tryMinimizeCondition(NodeUtil_getConditionExpression(node))
 			return node
-		case Token_rhino_BLOCK:
+		case tokOrd1_BLOCK:
 			return this.tryReplaceIf(node)
 		default:
 			return node
@@ -154,10 +154,10 @@ func (this *PeepholeMinimizeConditions) tryReplaceIf(n Node) Node {
 }
 
 func PeepholeMinimizeConditions_statementMustExitParent(n Node) bool {
-	switch n.getToken() {
-	case Token_rhino_THROW, Token_rhino_RETURN:
+	switch n.ns_().token {
+	case tokOrd1_THROW, tokOrd1_RETURN:
 		return true
-	case Token_rhino_BLOCK:
+	case tokOrd1_BLOCK:
 		if n.hasChildren() {
 			var child Node = n.getLastChild()
 			return PeepholeMinimizeConditions_statementMustExitParent(child)
@@ -251,16 +251,16 @@ func (this *PeepholeMinimizeConditions) tryMinimizeNot(n Node) Node {
 	var parent Node = n.getParent()
 	var notChild Node = n.getFirstChild()
 	var complementOperator *Token_rhino
-	switch notChild.getToken() {
-	case Token_rhino_EQ:
+	switch notChild.ns_().token {
+	case tokOrd1_EQ:
 		complementOperator = Token_rhino_NE
-	case Token_rhino_NE:
+	case tokOrd1_NE:
 		complementOperator = Token_rhino_EQ
-	case Token_rhino_SHEQ:
+	case tokOrd1_SHEQ:
 		complementOperator = Token_rhino_SHNE
-	case Token_rhino_SHNE:
+	case tokOrd1_SHNE:
 		complementOperator = Token_rhino_SHEQ
-	case Token_rhino_NOT:
+	case tokOrd1_NOT:
 		if NodeUtil_isBooleanResult(notChild.getFirstChild()) {
 			var expr Node = notChild.removeFirstChild()
 			n.replaceWith(expr)
@@ -590,20 +590,20 @@ func PeepholeMinimizeConditions_getBlockVar(n Node) Node {
 func PeepholeMinimizeConditions_consumesDanglingElse(n Node) bool {
 L_1:
 	for {
-		switch n.getToken() {
-		case Token_rhino_IF:
+		switch n.ns_().token {
+		case tokOrd1_IF:
 			if n.getChildCount() < 3 {
 				return true
 			}
 			n = n.getLastChild()
 			continue L_1
-		case Token_rhino_BLOCK:
+		case tokOrd1_BLOCK:
 			if !n.hasOneChild() {
 				return false
 			}
 			n = n.getLastChild()
 			continue L_1
-		case Token_rhino_WITH, Token_rhino_WHILE, Token_rhino_FOR, Token_rhino_FOR_IN:
+		case tokOrd1_WITH, tokOrd1_WHILE, tokOrd1_FOR, tokOrd1_FOR_IN:
 			n = n.getLastChild()
 			continue L_1
 		default:
@@ -642,8 +642,8 @@ func (this *PeepholeMinimizeConditions) replaceNode(original Node, measuredNodeR
 func (this *PeepholeMinimizeConditions) performConditionSubstitutions(n Node) Node {
 	var parent Node = n.getParent()
 	return func() Node {
-		switch n.getToken() {
-		case Token_rhino_OR, Token_rhino_AND:
+		switch n.ns_().token {
+		case tokOrd1_OR, tokOrd1_AND:
 			var left Node = n.getFirstChild()
 			var right Node = n.getLastChild()
 			left = this.performConditionSubstitutions(left)
@@ -669,7 +669,7 @@ func (this *PeepholeMinimizeConditions) performConditionSubstitutions(n Node) No
 				}
 			}
 			return n
-		case Token_rhino_HOOK:
+		case tokOrd1_HOOK:
 			var condition Node = n.getFirstChild()
 			var trueNode Node = n.getSecondChild()
 			var falseNode Node = n.getLastChild()

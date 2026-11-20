@@ -94,18 +94,18 @@ func (this *ControlFlowGraph[N]) getOptionalNodeComparator_impl(isForward bool) 
 func ControlFlowGraph_isEnteringNewCfgNode(n Node) bool {
 	var parent Node = n.getParent()
 	return func() bool {
-		switch parent.getToken() {
-		case Token_rhino_BLOCK, Token_rhino_ROOT, Token_rhino_SCRIPT, Token_rhino_TRY, Token_rhino_SWITCH_BODY:
+		switch parent.ns_().token {
+		case tokOrd1_BLOCK, tokOrd1_ROOT, tokOrd1_SCRIPT, tokOrd1_TRY, tokOrd1_SWITCH_BODY:
 			return true
-		case Token_rhino_FUNCTION:
+		case tokOrd1_FUNCTION:
 			return (n != parent.getSecondChild())
-		case Token_rhino_WHILE, Token_rhino_DO, Token_rhino_IF:
+		case tokOrd1_WHILE, tokOrd1_DO, tokOrd1_IF:
 			return (NodeUtil_getConditionExpression(parent) != n)
-		case Token_rhino_FOR:
+		case tokOrd1_FOR:
 			return (NodeUtil_getConditionExpression(parent) != n)
-		case Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
+		case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 			return (n != parent.getFirstChild())
-		case Token_rhino_CASE, Token_rhino_CATCH, Token_rhino_WITH:
+		case tokOrd1_CASE, tokOrd1_CATCH, tokOrd1_WITH:
 			return (n != parent.getFirstChild())
 		default:
 			return false

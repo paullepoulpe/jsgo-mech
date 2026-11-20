@@ -41,18 +41,18 @@ func (this *ColorFindPropertyReferences) getPropertyIndex() *JTMap[string, *Prop
 }
 
 func (this *ColorFindPropertyReferences) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP:
+	switch n.ns_().token {
+	case tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP:
 		this.registerPropertyUse(t, n, n.getFirstChild().getColor())
-	case Token_rhino_OBJECTLIT:
+	case tokOrd1_OBJECTLIT:
 		this.handleObjectLit(t, n)
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		this.handleCall(t, n)
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		this.handleClass(t, n)
-	case Token_rhino_OBJECT_PATTERN:
+	case tokOrd1_OBJECT_PATTERN:
 		this.handleObjectPattern(t, n)
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		this.handleFunction(n)
 	default:
 	}
@@ -155,10 +155,10 @@ func (this *ColorFindPropertyReferences) traverseObjectlitLike(t *NodeTraversal,
 		var child Node = n.getFirstChild()
 	L_1:
 		for ; child != 0; child = child.getNext() {
-			switch child.getToken() {
-			case Token_rhino_BLOCK, Token_rhino_COMPUTED_PROP, Token_rhino_COMPUTED_FIELD_DEF, Token_rhino_OBJECT_REST, Token_rhino_OBJECT_SPREAD:
+			switch child.ns_().token {
+			case tokOrd1_BLOCK, tokOrd1_COMPUTED_PROP, tokOrd1_COMPUTED_FIELD_DEF, tokOrd1_OBJECT_REST, tokOrd1_OBJECT_SPREAD:
 				continue L_1
-			case Token_rhino_STRING_KEY, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
+			case tokOrd1_STRING_KEY, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 				if child.isQuotedStringKey() {
 					continue L_1
 				}
