@@ -191,7 +191,7 @@ func (this *ColorPool_Builder) addShard(typePool *TypePool, stringPool *StringPo
 	}
 	var existing *ColorPool_ShardView = this.protoToShard.get(typePool)
 	if existing != nil {
-		if !JSCompObjects_identical(obj_(typePool), obj_(TypePool_getDefaultInstance())) {
+		if typePool != TypePool_getDefaultInstance() {
 			panic(new_IllegalStateException_String(objstr_(typePool)))
 		}
 		return existing
@@ -269,7 +269,7 @@ func (this *ColorPool_Builder) lookupOrReconcileColor(id *ColorId) (ret_1 *Color
 	}()
 	var existing *Color = this.idToColor.PutIfAbsent(id, ColorPool_PENDING_COLOR)
 	if existing != nil {
-		if JSCompObjects_identical(obj_(existing), obj_(ColorPool_PENDING_COLOR)) {
+		if existing == ColorPool_PENDING_COLOR {
 			panic(new_MalformedTypedAstException_Object(strobj_(("Cyclic Color structure detected: " + objstr_(this.reconcilationDebugStackProtos().asList())))))
 		}
 		return existing
