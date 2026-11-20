@@ -134,19 +134,19 @@ func (this *ChangeVerifier) getNameForNode(n Node) string {
 }
 
 func (this *ChangeVerifier) path(ancestor Node, child Node) string {
-	var childToAncestor *TList[string] = newTList_(tc_string)
+	var childToAncestor []string = []string{}
 	{
 		var current Node = child
 		for ; current != ancestor; current = current.getParent() {
-			childToAncestor.add(current.toString())
+			childToAncestor = append(childToAncestor, current.toString())
 		}
 	}
-	childToAncestor.add(ancestor.toString())
-	Collections_reverse(childToAncestor.asList())
+	childToAncestor = append(childToAncestor, ancestor.toString())
+	Collections_reverse(sliceView_(tc_string, childToAncestor))
 	var result *StringBuilder = new_StringBuilder()
-	for i := int32(0); i < childToAncestor.size(); i++ {
+	for i := int32(0); i < int32(len(childToAncestor)); i++ {
 		result.repeat_int_int(32, (i * 2))
-		result.append(childToAncestor.get(i))
+		result.append(sliceAt_(childToAncestor, i))
 		result.append("\n")
 	}
 	return tostrR_(result)

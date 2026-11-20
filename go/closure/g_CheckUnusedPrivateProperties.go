@@ -4,15 +4,15 @@ package closure
 
 type CheckUnusedPrivateProperties struct {
 	compiler_                 *AbstractCompiler
-	used                      *TSet[string]
-	candidates                *TList[Node]
-	constructorsAndInterfaces *TSet[string]
+	used                      map[string]struct{}
+	candidates                *[]Node
+	constructorsAndInterfaces map[string]struct{}
 }
 
 func (this *CheckUnusedPrivateProperties) finit_CheckUnusedPrivateProperties() {
-	this.used = newTSet_(tc_string)
-	this.candidates = newTList_(tc_Node)
-	this.constructorsAndInterfaces = newTSet_(tc_string)
+	this.used = map[string]struct{}{}
+	this.candidates = &[]Node{}
+	this.constructorsAndInterfaces = map[string]struct{}{}
 }
 
 func (this *CheckUnusedPrivateProperties) init_CheckUnusedPrivateProperties(compiler *AbstractCompiler) {
@@ -31,11 +31,9 @@ func (this *CheckUnusedPrivateProperties) process_2(externs Node, root Node) {
 }
 
 func (this *CheckUnusedPrivateProperties) reportUnused(t *NodeTraversal) {
-	it_1 := this.candidates.each()
-	for it_1.next() {
-		var n Node = it_1.v
+	for n := range sliceAll_(this.candidates) {
 		var propName string = this.getPropName(n)
-		if !this.used.Has(propName) {
+		if !has_(this.used, propName) {
 			t.report(n, CheckUnusedPrivateProperties_UNUSED_PRIVATE_PROPERTY, []string{propName})
 		}
 	}
@@ -52,9 +50,9 @@ func (this *CheckUnusedPrivateProperties) getPropName(n Node) string {
 
 func (this *CheckUnusedPrivateProperties) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	if n.isScript() {
-		this.used.Clear()
-		this.used.Add("constructor")
-		this.candidates.clear()
+		clear(this.used)
+		this.used["constructor"] = struct{}{}
+		sliceClear_(this.candidates)
 	}
 	return true
 }
@@ -66,22 +64,22 @@ func (this *CheckUnusedPrivateProperties) visit(t *NodeTraversal, n Node, parent
 	case tokOrd1_GETPROP:
 		var propName string = n.getString()
 		if CheckUnusedPrivateProperties_isPinningPropertyUse(n) || !this.isCandidatePropertyDefinition(n) {
-			this.used.Add(propName)
+			this.used[propName] = struct{}{}
 		} else {
 			if this.isCheckablePrivatePropDecl(n) {
-				this.candidates.add(n)
+				*this.candidates = append(*this.candidates, n)
 			}
 		}
 	case tokOrd1_MEMBER_FUNCTION_DEF:
 		if this.isCheckablePrivatePropDecl(n) {
-			this.candidates.add(n)
+			*this.candidates = append(*this.candidates, n)
 		}
 	case tokOrd1_OBJECTLIT:
 		{
 			var c Node = n.getFirstChild()
 			for ; c != 0; c = c.getNext() {
 				if ((c.isStringKey() || c.isGetterDef()) || c.isSetterDef()) || c.isMemberFunctionDef() {
-					this.used.Add(c.getString())
+					this.used[c.getString()] = struct{}{}
 				}
 			}
 		}
@@ -90,7 +88,7 @@ func (this *CheckUnusedPrivateProperties) visit(t *NodeTraversal, n Node, parent
 		if n.hasMoreThanOneChild() && this.compiler_.getCodingConvention().isPropertyRenameFunction(target) {
 			var propName Node = target.getNext()
 			if propName.isStringLit() {
-				this.used.Add(propName.getString())
+				this.used[propName.getString()] = struct{}{}
 			}
 		}
 	case tokOrd1_FUNCTION:
@@ -107,7 +105,7 @@ func (this *CheckUnusedPrivateProperties) visit(t *NodeTraversal, n Node, parent
 func (this *CheckUnusedPrivateProperties) recordConstructorOrInterface(n Node) {
 	var className Optional[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
 	if className.isPresent() {
-		this.constructorsAndInterfaces.Add(className.get())
+		this.constructorsAndInterfaces[className.get()] = struct{}{}
 	}
 }
 
@@ -126,7 +124,7 @@ func (this *CheckUnusedPrivateProperties) isCandidatePropertyDefinition(n Node) 
 		Preconditions_checkState_boolean_Object_H(false, n)
 	}
 	var target Node = n.getFirstChild()
-	return ((target.isThis() || this.constructorsAndInterfaces.Has(target.getQualifiedName())) || (target.isGetProp() && (target.getString() == "prototype")))
+	return ((target.isThis() || has_(this.constructorsAndInterfaces, target.getQualifiedName())) || (target.isGetProp() && (target.getString() == "prototype")))
 }
 
 func CheckUnusedPrivateProperties_isPinningPropertyUse(n Node) bool {
