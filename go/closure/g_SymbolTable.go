@@ -277,13 +277,13 @@ func (this *SymbolTable) getSymbolForTypeHelper(type_ *JSType, linkToCtor bool) 
 }
 
 func (this *SymbolTable) toDebugStringTree() string {
-	var childrenScopesBuilder *SimpleListMultimap = SimpleListMultimap_create()
+	var childrenScopesBuilder *SimpleListMultimap[*SymbolTable_SymbolScope, *SymbolTable_SymbolScope] = SimpleListMultimap_create[*SymbolTable_SymbolScope, *SymbolTable_SymbolScope]()
 	for scope := range elemsAs_[*SymbolTable_SymbolScope](this.getAllScopes()) {
 		if scope.getParentScope() != nil {
-			childrenScopesBuilder.put(obj_(scope.getParentScope()), obj_(scope))
+			childrenScopesBuilder.put(scope.getParentScope(), scope)
 		}
 	}
-	var childrenScopes *SimpleListMultimap = childrenScopesBuilder.immutableCopy()
+	var childrenScopes *SimpleListMultimap[*SymbolTable_SymbolScope, *SymbolTable_SymbolScope] = childrenScopesBuilder.immutableCopy()
 	var builder strBuilder_
 	for scope := range elemsAs_[*SymbolTable_SymbolScope](this.getAllScopes()) {
 		if scope.getParentScope() == nil {
@@ -303,7 +303,7 @@ func (this *SymbolTable) toDebugStringTree() string {
 	return builder.toString()
 }
 
-func (this *SymbolTable) toDebugStringTree_4(builder *strBuilder_, prefix string, scope *SymbolTable_SymbolScope, childrenScopes *SimpleListMultimap) {
+func (this *SymbolTable) toDebugStringTree_4(builder *strBuilder_, prefix string, scope *SymbolTable_SymbolScope, childrenScopes *SimpleListMultimap[*SymbolTable_SymbolScope, *SymbolTable_SymbolScope]) {
 	builder.append(prefix).append_Object(obj_(scope))
 	var childrenPrefix string = (sstr_(prefix) + "    ")
 	var printedSomething bool = false
