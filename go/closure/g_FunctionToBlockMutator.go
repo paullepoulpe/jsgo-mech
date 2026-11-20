@@ -177,7 +177,7 @@ func (this *FunctionToBlockMutator) makeLocalNamesUnique(fnNode Node, isCallInLo
 
 func (this *FunctionToBlockMutator) getLabelNameForFunction(fnName string) string {
 	var name string = func() string {
-		if String_isEmpty(fnName) {
+		if fnName == "" {
 			return "anon"
 		}
 		return fnName

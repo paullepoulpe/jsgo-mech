@@ -61,7 +61,7 @@ func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) *JTMap[strin
 		if mr.isSection() {
 			var sectionName Optional[string] = mr.getSection()
 			if !sectionNames.add(sectionName.orElse(nullstr_)) {
-				panic(new_IllegalArgumentException_String(String_format("Cannot parse id map: Duplicate section %s\n lineIndex: %d", []any{strobj_(sectionName.orElse("null")), int32(mr.getLineIndex())})).self())
+				panic(new_IllegalArgumentException_String(("Cannot parse id map: Duplicate section " + sstr_(sectionName.orElse("null")) + "\n lineIndex: " + istr_(int64(int32(mr.getLineIndex()))))).self())
 			}
 			currentSectionMap = SimpleBiMap_create()
 			resultMap.put(sectionName.orElse(nullstr_), currentSectionMap)
@@ -121,7 +121,7 @@ func (this *IdMappingUtil_MappingReader) next() bool {
 		line = this.lines.get(this.nextLine)
 		this.nextLine++
 		this.lineIndex++
-		if String_isEmpty(line) {
+		if line == "" {
 			continue
 		}
 		if String_charAt(line, 0) == '[' {
@@ -136,7 +136,7 @@ func (this *IdMappingUtil_MappingReader) next() bool {
 				this.currentValue = Optional_of[string](String_substring_int(line, (split + 1)))
 				return true
 			} else {
-				panic(new_IllegalArgumentException_String(String_format("Cannot parse id map.\n Line: %s, lineIndex: %d", []any{strobj_(line), int32(this.lineIndex)})).self())
+				panic(new_IllegalArgumentException_String(("Cannot parse id map.\n Line: " + sstr_(line) + ", lineIndex: " + istr_(int64(int32(this.lineIndex))))).self())
 			}
 		}
 	}

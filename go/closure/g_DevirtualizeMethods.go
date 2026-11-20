@@ -116,7 +116,7 @@ func DevirtualizeMethods_isPrototypeObjectLit(objectLit Node) bool {
 
 func (this *DevirtualizeMethods) isDefinitelyCtorOrInterface(receiver Node) bool {
 	var qname string = receiver.getQualifiedName()
-	if String_isEmpty(qname) {
+	if qname == "" {
 		return false
 	}
 	var var_ *Var = this.refMap.getGlobalScope().getVar_String_rVar(qname)

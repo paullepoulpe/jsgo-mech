@@ -359,7 +359,7 @@ func (this *TypeTransformationParser) isValidStringParam(expr Node) bool {
 		this.warnInvalid("string")
 		return false
 	}
-	if String_isEmpty(expr.getString()) {
+	if expr.getString() == "" {
 		this.warnInvalid("string parameter")
 		return false
 	}
@@ -643,7 +643,7 @@ func TypeTransformationParser_clinit() {
 		return
 	}
 	TypeTransformationParser_clinit_done = true
-	TypeTransformationParser_TTL_NODE_LENGTH = String_length("@template")
+	TypeTransformationParser_TTL_NODE_LENGTH = int32(len("@template"))
 
 }
 
