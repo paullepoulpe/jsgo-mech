@@ -39,27 +39,27 @@ func new_RescopeGlobalSymbolsInfo_String_ImmutableSet_ImmutableSet_ImmutableSet_
 	return this
 }
 
-func (this *RescopeGlobalSymbolsInfo) init_RescopeGlobalSymbolsInfo_String_Set_Set_Set_Set_Set_Set_Set_Set(globalSymbolNamespace string, externNames SetOf[string], crossChunkNames SetOf[string], crossChunkNamesWithWriteFromOtherChunk SetOf[string], crossChunkNamesUsedInNonDependentChunk SetOf[string], globalNamesWithReadInDefiningChunk SetOf[string], globalNamesWithInnerScopeWriteInDefiningChunk SetOf[string], globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk SetOf[string], maybeReferencesThis SetOf[string]) {
-	this.init_RescopeGlobalSymbolsInfo_String_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet(globalSymbolNamespace, immutableSetCopyOf_(tc_string, Collection(externNames)), immutableSetCopyOf_(tc_string, Collection(crossChunkNames)), immutableSetCopyOf_(tc_string, Collection(crossChunkNamesWithWriteFromOtherChunk)), immutableSetCopyOf_(tc_string, Collection(crossChunkNamesUsedInNonDependentChunk)), immutableSetCopyOf_(tc_string, Collection(globalNamesWithReadInDefiningChunk)), immutableSetCopyOf_(tc_string, Collection(globalNamesWithInnerScopeWriteInDefiningChunk)), immutableSetCopyOf_(tc_string, Collection(globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk)), immutableSetCopyOf_(tc_string, Collection(maybeReferencesThis)), RescopeGlobalSymbolsInfo_collectWrappedCrossChunkNames(externNames, crossChunkNames, crossChunkNamesWithWriteFromOtherChunk, crossChunkNamesUsedInNonDependentChunk, globalNamesWithInnerScopeWriteInDefiningChunk))
+func (this *RescopeGlobalSymbolsInfo) init_RescopeGlobalSymbolsInfo_String_Set_Set_Set_Set_Set_Set_Set_Set(globalSymbolNamespace string, externNames *TSet[string], crossChunkNames *TSet[string], crossChunkNamesWithWriteFromOtherChunk *TSet[string], crossChunkNamesUsedInNonDependentChunk *TSet[string], globalNamesWithReadInDefiningChunk *TSet[string], globalNamesWithInnerScopeWriteInDefiningChunk *TSet[string], globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk *TSet[string], maybeReferencesThis *TSet[string]) {
+	this.init_RescopeGlobalSymbolsInfo_String_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet_ImmutableSet(globalSymbolNamespace, immutableSetCopyOf_(tc_string, Collection(externNames.asSet())), immutableSetCopyOf_(tc_string, Collection(crossChunkNames.asSet())), immutableSetCopyOf_(tc_string, Collection(crossChunkNamesWithWriteFromOtherChunk.asSet())), immutableSetCopyOf_(tc_string, Collection(crossChunkNamesUsedInNonDependentChunk.asSet())), immutableSetCopyOf_(tc_string, Collection(globalNamesWithReadInDefiningChunk.asSet())), immutableSetCopyOf_(tc_string, Collection(globalNamesWithInnerScopeWriteInDefiningChunk.asSet())), immutableSetCopyOf_(tc_string, Collection(globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk.asSet())), immutableSetCopyOf_(tc_string, Collection(maybeReferencesThis.asSet())), RescopeGlobalSymbolsInfo_collectWrappedCrossChunkNames(externNames, crossChunkNames, crossChunkNamesWithWriteFromOtherChunk, crossChunkNamesUsedInNonDependentChunk, globalNamesWithInnerScopeWriteInDefiningChunk))
 }
 
-func new_RescopeGlobalSymbolsInfo_String_Set_Set_Set_Set_Set_Set_Set_Set(globalSymbolNamespace string, externNames SetOf[string], crossChunkNames SetOf[string], crossChunkNamesWithWriteFromOtherChunk SetOf[string], crossChunkNamesUsedInNonDependentChunk SetOf[string], globalNamesWithReadInDefiningChunk SetOf[string], globalNamesWithInnerScopeWriteInDefiningChunk SetOf[string], globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk SetOf[string], maybeReferencesThis SetOf[string]) *RescopeGlobalSymbolsInfo {
+func new_RescopeGlobalSymbolsInfo_String_Set_Set_Set_Set_Set_Set_Set_Set(globalSymbolNamespace string, externNames *TSet[string], crossChunkNames *TSet[string], crossChunkNamesWithWriteFromOtherChunk *TSet[string], crossChunkNamesUsedInNonDependentChunk *TSet[string], globalNamesWithReadInDefiningChunk *TSet[string], globalNamesWithInnerScopeWriteInDefiningChunk *TSet[string], globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk *TSet[string], maybeReferencesThis *TSet[string]) *RescopeGlobalSymbolsInfo {
 	this := &RescopeGlobalSymbolsInfo{}
 	this.zero_RescopeGlobalSymbolsInfo()
 	this.init_RescopeGlobalSymbolsInfo_String_Set_Set_Set_Set_Set_Set_Set_Set(globalSymbolNamespace, externNames, crossChunkNames, crossChunkNamesWithWriteFromOtherChunk, crossChunkNamesUsedInNonDependentChunk, globalNamesWithReadInDefiningChunk, globalNamesWithInnerScopeWriteInDefiningChunk, globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk, maybeReferencesThis)
 	return this
 }
 
-func RescopeGlobalSymbolsInfo_collectWrappedCrossChunkNames(externNames SetOf[string], crossChunkNames SetOf[string], crossChunkNamesWithWriteFromOtherChunk SetOf[string], crossChunkNamesUsedInNonDependentChunk SetOf[string], globalNamesWithInnerScopeWriteInDefiningChunk SetOf[string]) *TSet[string] {
+func RescopeGlobalSymbolsInfo_collectWrappedCrossChunkNames(externNames *TSet[string], crossChunkNames *TSet[string], crossChunkNamesWithWriteFromOtherChunk *TSet[string], crossChunkNamesUsedInNonDependentChunk *TSet[string], globalNamesWithInnerScopeWriteInDefiningChunk *TSet[string]) *TSet[string] {
 	var candidates *TSet[string] = newTSet_(tc_string)
-	candidates.asSet().addAll(Collection(crossChunkNamesWithWriteFromOtherChunk))
-	candidates.asSet().addAll(Collection(crossChunkNamesUsedInNonDependentChunk))
-	for name := range elemsBy_(globalNamesWithInnerScopeWriteInDefiningChunk, str_) {
-		if Collection_contains_s(crossChunkNames, name) {
+	candidates.asSet().addAll(Collection(crossChunkNamesWithWriteFromOtherChunk.asSet()))
+	candidates.asSet().addAll(Collection(crossChunkNamesUsedInNonDependentChunk.asSet()))
+	for name := range elemsBy_(globalNamesWithInnerScopeWriteInDefiningChunk.asSet(), str_) {
+		if crossChunkNames.Has(name) {
 			candidates.Add(name)
 		}
 	}
-	candidates.asSet().removeAll(Collection(externNames))
+	candidates.asSet().removeAll(Collection(externNames.asSet()))
 	return immutableSetCopyOfT_(tc_string, candidates)
 }
 

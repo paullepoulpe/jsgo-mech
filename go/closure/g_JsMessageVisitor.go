@@ -8,8 +8,8 @@ type JsMessageVisitor struct {
 	NodeTraversal_AbstractPostOrderCallback
 	idGenerator_    JsMessage_IdGenerator
 	compiler_       *AbstractCompiler
-	messageNames    *TMap[string, *JsMessageVisitor_MessageLocation]
-	unnamedMessages *TMap[*Var, *JsMessage]
+	messageNames    map[string]*JsMessageVisitor_MessageLocation
+	unnamedMessages map[varKey_]*JsMessage
 	googMsgNodes    *TSet[Node]
 }
 
@@ -30,8 +30,8 @@ func (this *JsMessageVisitor) up_NodeTraversal_AbstractPostOrderCallback() *Node
 }
 
 func (this *JsMessageVisitor) finit_JsMessageVisitor() {
-	this.messageNames = newTMap_(tc_string, tc_p_JsMessageVisitor_MessageLocation)
-	this.unnamedMessages = newTMap_(tch_p_Var, tc_p_JsMessage)
+	this.messageNames = map[string]*JsMessageVisitor_MessageLocation{}
+	this.unnamedMessages = map[varKey_]*JsMessage{}
 	this.googMsgNodes = newTSet_(tc_Node)
 }
 
@@ -263,13 +263,13 @@ func (this *JsMessageVisitor) collectGetMsgCall(traversal *NodeTraversal, call N
 
 func (this *JsMessageVisitor) trackNormalMessage(message *JsMessage, msgName string, msgNode Node) {
 	var location *JsMessageVisitor_MessageLocation = new_JsMessageVisitor_MessageLocation(message, msgNode)
-	this.messageNames.Put(msgName, location)
+	this.messageNames[msgName] = location
 }
 
 func (this *JsMessageVisitor) trackUnnamedMessage(t *NodeTraversal, message *JsMessage, msgNameInScope string) {
 	var var_ *Var = t.getScope().getVar_String_rVar(msgNameInScope)
 	if var_ != nil {
-		this.unnamedMessages.Put(var_, message)
+		this.unnamedMessages[vkey_(var_)] = message
 	}
 }
 
@@ -295,13 +295,13 @@ func JsMessageVisitor_isLegalMessageVarAlias(msgNode Node) bool {
 func (this *JsMessageVisitor) getTrackedUnnamedMessage(t *NodeTraversal, msgNameInScope string) *JsMessage {
 	var var_ *Var = t.getScope().getVar_String_rVar(msgNameInScope)
 	if var_ != nil {
-		return this.unnamedMessages.Get(var_)
+		return this.unnamedMessages[vkey_(var_)]
 	}
 	return nil
 }
 
 func (this *JsMessageVisitor) getTrackedNormalMessage(msgName string) *JsMessage {
-	var location *JsMessageVisitor_MessageLocation = this.messageNames.Get(msgName)
+	var location *JsMessageVisitor_MessageLocation = this.messageNames[msgName]
 	return func() *JsMessage {
 		if location == nil {
 			return nil
@@ -311,8 +311,8 @@ func (this *JsMessageVisitor) getTrackedNormalMessage(msgName string) *JsMessage
 }
 
 func (this *JsMessageVisitor) checkIfMessageDuplicated(msgName string, msgNode Node) {
-	if this.messageNames.Has(msgName) {
-		var location *JsMessageVisitor_MessageLocation = this.messageNames.Get(msgName)
+	if has_(this.messageNames, msgName) {
+		var location *JsMessageVisitor_MessageLocation = this.messageNames[msgName]
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(msgNode, JsMessageVisitor_MESSAGE_DUPLICATE_KEY, []string{msgName, location.messageNode_.getSourceFileName(), Integer_toString(location.messageNode_.getLineno())}))
 	}
 }

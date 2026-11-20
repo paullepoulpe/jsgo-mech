@@ -13,7 +13,7 @@ type NamedType struct {
 	resolutionKind        NamedType_ResolutionKind
 	resolutionScope       StaticTypedScope
 	validator             Predicate_baseOf[*JSType]
-	propertyContinuations *TList[*NamedType_PropertyContinuation]
+	propertyContinuations *[]*NamedType_PropertyContinuation
 	templateTypes         *TList[*JSType]
 	restrictByNull        bool
 }
@@ -112,9 +112,9 @@ func (this *NamedType) getTemplateTypes_impl() *TList[*JSType] {
 func (this *NamedType) defineProperty_impl(propertyName Property_Key, type_ *JSType, inferred bool, propertyNode Node) bool {
 	if !this.isResolved() {
 		if this.propertyContinuations == nil {
-			this.propertyContinuations = newTList_(tc_p_NamedType_PropertyContinuation)
+			this.propertyContinuations = &[]*NamedType_PropertyContinuation{}
 		}
-		this.propertyContinuations.add(new_NamedType_PropertyContinuation(propertyName, type_, inferred, propertyNode))
+		*this.propertyContinuations = append(*this.propertyContinuations, new_NamedType_PropertyContinuation(propertyName, type_, inferred, propertyNode))
 		return true
 	} else {
 		return this.ProxyObjectType.defineProperty_impl(propertyName, type_, inferred, propertyNode)
@@ -124,9 +124,7 @@ func (this *NamedType) defineProperty_impl(propertyName Property_Key, type_ *JST
 func (this *NamedType) finishPropertyContinuations() {
 	var referencedObjType *ObjectType = this.getReferencedObjTypeInternal()
 	if ((referencedObjType != nil) && !referencedObjType.isUnknownType()) && (this.propertyContinuations != nil) {
-		it_1 := this.propertyContinuations.each()
-		for it_1.next() {
-			var c *NamedType_PropertyContinuation = it_1.v
+		for c := range sliceAll_(this.propertyContinuations) {
 			c.commit(this.up_ObjectType())
 		}
 	}
@@ -173,11 +171,11 @@ func (this *NamedType) recursionUnsafeHashCode_impl() int32 {
 }
 
 func (this *NamedType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSType {
-	var resolvedTypeArgs *TList[*JSType] = tlistImm_(tc_p_JSType, JSTypeIterations_mapTypesImmutableList(func(t_ any) any {
+	var resolvedTypeArgs *TList[*JSType] = tlistImm_(tc_p_JSType, sliceView_(tc_any, JSTypeIterations_mapTypesImmutableList(func(t_ any) any {
 		var t *JSType = to_JSType(t_)
 		_ = t
 		return t.resolve(reporter).self()
-	}, sliceImm_(tc_p_JSType, this.templateTypes.asImm())))
+	}, sliceImm_(tc_p_JSType, this.templateTypes.asImm()))))
 	if eqR_(this.resolutionKind, NamedType_ResolutionKind_NONE) {
 		return this.ProxyObjectType.resolveInternal_impl(reporter)
 	}

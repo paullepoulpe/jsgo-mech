@@ -224,11 +224,11 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames_impl(
 	return tsetEmptyImm_(tc_string)
 }
 
-func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames_2_impl(moduleRequestResolver ModuleRequestResolver, visited *TSet[*UnresolvedModule]) *TSet[string] {
+func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames_2_impl(moduleRequestResolver ModuleRequestResolver, visited map[*UnresolvedModule]struct{}) *TSet[string] {
 	return tsetEmptyImm_(tc_string)
 }
 
-func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier Optional[string], exportName Optional[string], resolveSet *TSet[*ExportTrace], exportStarSet *TSet[*UnresolvedModule]) *ResolveExportResult {
+func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier Optional[string], exportName Optional[string], resolveSet map[exportTraceKey_]struct{}, exportStarSet map[*UnresolvedModule]struct{}) *ResolveExportResult {
 	return ResolveExportResult_of(Binding_from_Export_Node(Export_builder().localName(exportName).moduleMetadata(this.cap_metadata).modulePath(this.cap_path).closureNamespace(Optional_empty[string]()).build(), 0))
 }
 
@@ -266,7 +266,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames(p0 Mo
 }
 
 // getExportedNames_2: an object that is exactly a ModuleMapCreator_ModuleRequestResolverImpl_1 calls its getExportedNames_2_impl directly (post-flip); others dispatch.
-func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames_2(p0 ModuleRequestResolver, p1 *TSet[*UnresolvedModule]) *TSet[string] {
+func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames_2(p0 ModuleRequestResolver, p1 map[*UnresolvedModule]struct{}) *TSet[string] {
 	if p, _ := this.self_.(*ModuleMapCreator_ModuleRequestResolverImpl_1); p == this {
 		return this.getExportedNames_2_impl(p0, p1)
 	}
@@ -274,7 +274,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames_2(p0 
 }
 
 // resolveExport_5: an object that is exactly a ModuleMapCreator_ModuleRequestResolverImpl_1 calls its resolveExport_5_impl directly (post-flip); others dispatch.
-func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolveExport_5(p0 ModuleRequestResolver, p1 Optional[string], p2 Optional[string], p3 *TSet[*ExportTrace], p4 *TSet[*UnresolvedModule]) *ResolveExportResult {
+func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolveExport_5(p0 ModuleRequestResolver, p1 Optional[string], p2 Optional[string], p3 map[exportTraceKey_]struct{}, p4 map[*UnresolvedModule]struct{}) *ResolveExportResult {
 	if p, _ := this.self_.(*ModuleMapCreator_ModuleRequestResolverImpl_1); p == this {
 		return this.resolveExport_5_impl(p0, p1, p2, p3, p4)
 	}

@@ -18,15 +18,15 @@ func new_RefactoringDriver(inputs *TList[*SourceFile_jscomp], externs *TList[*So
 	return this
 }
 
-func (this *RefactoringDriver) drive_2(scanner *Scanner_refactoring, includeFilePattern *Pattern) *TList[*SuggestedFix] {
+func (this *RefactoringDriver) drive_2(scanner *Scanner_refactoring, includeFilePattern *Pattern) *[]*SuggestedFix {
 	var callback *JsFlumeCallback = new_JsFlumeCallback(scanner, includeFilePattern)
 	NodeTraversal_traverse(this.compiler_.up_AbstractCompiler(), this.rootNode_, JsFlumeCallback_as_NodeTraversal_Callback(callback))
-	var fixes *TList[*SuggestedFix] = callback.getFixes()
-	fixes.asList().addAll(Collection(scanner.processAllMatches(Collection(callback.getMatches().asList())).asList()))
+	var fixes *[]*SuggestedFix = callback.getFixes()
+	sliceAddAll_(tc_p_SuggestedFix, fixes, Collection(scanner.processAllMatches(Collection(slicePtrView_(tc_p_Match, callback.getMatches()))).asList()))
 	return fixes
 }
 
-func (this *RefactoringDriver) drive(scanner *Scanner_refactoring) *TList[*SuggestedFix] {
+func (this *RefactoringDriver) drive(scanner *Scanner_refactoring) *[]*SuggestedFix {
 	return this.drive_2(scanner, nil)
 }
 

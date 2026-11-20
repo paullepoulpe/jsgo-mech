@@ -26,9 +26,9 @@ func (this *NodeModuleResolver) up_ModuleResolver() *ModuleResolver {
 	return &this.ModuleResolver
 }
 
-func (this *NodeModuleResolver) init_NodeModuleResolver(modulePaths *TSet[string], moduleRootPaths *TList[string], packageJsonMainEntries *TMap[string, string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) {
+func (this *NodeModuleResolver) init_NodeModuleResolver(modulePaths *TSet[string], moduleRootPaths *[]string, packageJsonMainEntries *TMap[string, string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) {
 	this.ModuleResolver.init_ModuleResolver(modulePaths, moduleRootPaths, errorHandler, pathEscaper)
-	this.nodeModulesFolders = NodeModuleResolver_buildNodeModulesFoldersRegistry(Iterable(modulePaths.asSet()), Iterable(moduleRootPaths.asList()))
+	this.nodeModulesFolders = NodeModuleResolver_buildNodeModulesFoldersRegistry(Iterable(modulePaths.asSet()), Iterable(slicePtrView_(tc_string, moduleRootPaths)))
 	if packageJsonMainEntries == nil {
 		this.packageJsonMainEntries = tmapEmptyImm_(tc_string, tc_string)
 	} else {
@@ -36,7 +36,7 @@ func (this *NodeModuleResolver) init_NodeModuleResolver(modulePaths *TSet[string
 	}
 }
 
-func new_NodeModuleResolver(modulePaths *TSet[string], moduleRootPaths *TList[string], packageJsonMainEntries *TMap[string, string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *NodeModuleResolver {
+func new_NodeModuleResolver(modulePaths *TSet[string], moduleRootPaths *[]string, packageJsonMainEntries *TMap[string, string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *NodeModuleResolver {
 	this := &NodeModuleResolver{}
 	this.self_ = this
 	this.init_NodeModuleResolver(modulePaths, moduleRootPaths, packageJsonMainEntries, errorHandler, pathEscaper)
@@ -222,8 +222,8 @@ func new_NodeModuleResolver_Factory_Map(packageJsonMainEntries *TMap[string, str
 	return this
 }
 
-func (this *NodeModuleResolver_Factory) create(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *ModuleResolver {
-	return new_NodeModuleResolver(tsetImm_(tc_string, modulePaths), tlistImm_(tc_string, moduleRootPaths), this.packageJsonMainEntries, errorHandler, pathEscaper).up_ModuleResolver()
+func (this *NodeModuleResolver_Factory) create(modulePaths *ImmutableSet[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *ModuleResolver {
+	return new_NodeModuleResolver(tsetImm_(tc_string, modulePaths.asImm()), slicePtrImm_(tc_string, moduleRootPaths), this.packageJsonMainEntries, errorHandler, pathEscaper).up_ModuleResolver()
 }
 
 // getPackageJsonMainEntries: an object that is exactly a NodeModuleResolver calls its getPackageJsonMainEntries_impl directly (post-flip); others dispatch.

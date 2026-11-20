@@ -382,7 +382,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLCla
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLClassGetterSetters) visitClass(classNode Node) {
 	var className string = NodeUtil_getName(classNode)
 	var classMembers Node = NodeUtil_getClassMembers(classNode)
-	var setterDefByName *TMap[string, Node] = newTMap_(tc_string, tc_Node)
+	var setterDefByName map[string]Node = map[string]Node{}
 	var getterDefByName *TMap[string, Node] = newTMap_(tc_string, tc_Node)
 	{
 		var memberFunction Node = classMembers.getFirstChild()
@@ -394,7 +394,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLCla
 			case tokOrd1_GETTER_DEF:
 				getterDefByName.Put(memberFunction.getString(), memberFunction)
 			case tokOrd1_SETTER_DEF:
-				setterDefByName.Put(memberFunction.getString(), memberFunction)
+				setterDefByName[memberFunction.getString()] = memberFunction
 			default:
 			}
 		}
@@ -403,7 +403,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLCla
 	for it_3.next() {
 		var propertyName string = it_3.k
 		var getterDef Node = getterDefByName.Get(propertyName)
-		var setterDef Node = setterDefByName.Get(propertyName)
+		var setterDef Node = setterDefByName[propertyName]
 		if this.outer_.matchesJ2clGetKeySignature(className, getterDef) && ((setterDef == 0) || this.outer_.matchesJ2clSetKeySignature(className, setterDef)) {
 			this.j2clPropertiesByName.Put((sstr_(className) + "." + sstr_(propertyName)), new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6(this.outer_, getterDef, setterDef).up_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty())
 		}

@@ -11,8 +11,8 @@ type ReplaceCssNames struct {
 	compiler_                    *AbstractCompiler
 	astFactory_                  *AstFactory
 	cssNameCollector             func(string)
-	cssNamesBySymbol             *TMap[string, string]
-	classesObjectsQualifiedNames *TSet[string]
+	cssNamesBySymbol             map[string]string
+	classesObjectsQualifiedNames map[string]struct{}
 	symbolMap                    CssRenamingMap
 	skiplist                     *TSet[string]
 }
@@ -23,8 +23,8 @@ func (this *ReplaceCssNames) init_ReplaceCssNames(compiler *AbstractCompiler, sy
 	this.symbolMap = symbolMap
 	this.cssNameCollector = cssNameCollector
 	this.skiplist = skiplist
-	this.cssNamesBySymbol = newTMap_(tc_string, tc_string)
-	this.classesObjectsQualifiedNames = newTSet_(tc_string)
+	this.cssNamesBySymbol = map[string]string{}
+	this.classesObjectsQualifiedNames = map[string]struct{}{}
 }
 
 func new_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector func(string), skiplist *TSet[string]) *ReplaceCssNames {
@@ -35,14 +35,12 @@ func new_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, c
 
 func (this *ReplaceCssNames) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_ReplaceCssNames_FindSetCssNameTraversal(this)))
-	var getCssNameInstances *TList[*ReplaceCssNames_GetCssNameInstance] = this.gatherGetCssNameInstances(root)
-	it_1 := getCssNameInstances.each()
-	for it_1.next() {
-		var getCssNameInstance *ReplaceCssNames_GetCssNameInstance = it_1.v
+	var getCssNameInstances *[]*ReplaceCssNames_GetCssNameInstance = this.gatherGetCssNameInstances(root)
+	for getCssNameInstance := range sliceAll_(getCssNameInstances) {
 		var cssClassName Optional[string] = getCssNameInstance.getCssClassName()
 		if getCssNameInstance.isCssClosureFileClassesMember() {
-			this.cssNamesBySymbol.Put(getCssNameInstance.getCssClosureClassesMemberName().orElse(nullstr_), cssClassName.orElse(nullstr_))
-			this.classesObjectsQualifiedNames.Add(getCssNameInstance.getCssClosureClassesQualifiedName().orElseThrow())
+			this.cssNamesBySymbol[getCssNameInstance.getCssClosureClassesMemberName().orElse(nullstr_)] = cssClassName.orElse(nullstr_)
+			this.classesObjectsQualifiedNames[getCssNameInstance.getCssClosureClassesQualifiedName().orElseThrow()] = struct{}{}
 		} else {
 			this.cssNameCollector(cssClassName.orElse(nullstr_))
 		}
@@ -51,7 +49,7 @@ func (this *ReplaceCssNames) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_ReplaceCssNames_CountCssNamesBySymbol(this)))
 }
 
-func (this *ReplaceCssNames) gatherGetCssNameInstances(root Node) *TList[*ReplaceCssNames_GetCssNameInstance] {
+func (this *ReplaceCssNames) gatherGetCssNameInstances(root Node) *[]*ReplaceCssNames_GetCssNameInstance {
 	var gatherCssNamesTraversal *ReplaceCssNames_GatherCssNamesTraversal = new_ReplaceCssNames_GatherCssNamesTraversal(this)
 	NodeTraversal_traverse(this.compiler_, root, ReplaceCssNames_GatherCssNamesTraversal_as_NodeTraversal_Callback(gatherCssNamesTraversal))
 	return gatherCssNamesTraversal.listOfCssNameInstances
@@ -232,12 +230,12 @@ func (this *ReplaceCssNames_FindSetCssNameTraversal) visit_impl(t *NodeTraversal
 
 type ReplaceCssNames_GatherCssNamesTraversal struct {
 	outer_                 *ReplaceCssNames
-	listOfCssNameInstances *TList[*ReplaceCssNames_GetCssNameInstance]
+	listOfCssNameInstances *[]*ReplaceCssNames_GetCssNameInstance
 	traversalState         *ReplaceCssNames_GatherCssNamesTraversal_TraversalState
 }
 
 func (this *ReplaceCssNames_GatherCssNamesTraversal) finit_ReplaceCssNames_GatherCssNamesTraversal() {
-	this.listOfCssNameInstances = newTList_(tc_p_ReplaceCssNames_GetCssNameInstance)
+	this.listOfCssNameInstances = &[]*ReplaceCssNames_GetCssNameInstance{}
 	this.traversalState = new_ReplaceCssNames_GatherCssNamesTraversal_TraversalState()
 }
 
@@ -271,7 +269,7 @@ func (this *ReplaceCssNames_GatherCssNamesTraversal) visit(t *NodeTraversal, n N
 	if this.outer_.isGetCssNameCall(n) {
 		var getCssNameInstance *ReplaceCssNames_GetCssNameInstance = this.outer_.createGetCssNameInstance(n, this.traversalState.cssClosureClassesQualifiedName)
 		if getCssNameInstance.isValid() {
-			this.listOfCssNameInstances.add(getCssNameInstance)
+			*this.listOfCssNameInstances = append(*this.listOfCssNameInstances, getCssNameInstance)
 		} else {
 			this.outer_.compiler_.report(getCssNameInstance.getValidationError())
 		}
@@ -483,7 +481,7 @@ func (this *ReplaceCssNames_CountCssNamesBySymbol) shouldTraverse(t *NodeTravers
 
 func (this *ReplaceCssNames_CountCssNamesBySymbol) visit(t *NodeTraversal, n Node, parent Node) {
 	var classesObjectQualifiedName string = n.getQualifiedName()
-	if classesObjectQualifiedName == "" || !this.outer_.classesObjectsQualifiedNames.Has(classesObjectQualifiedName) {
+	if classesObjectQualifiedName == "" || !has_(this.outer_.classesObjectsQualifiedNames, classesObjectQualifiedName) {
 		return
 	}
 	var classNameNode Node = n.getParent()
@@ -492,11 +490,11 @@ func (this *ReplaceCssNames_CountCssNamesBySymbol) visit(t *NodeTraversal, n Nod
 		return
 	}
 	var classQualifiedName string = classNameNode.getQualifiedName()
-	if classQualifiedName == "" || !this.outer_.cssNamesBySymbol.Has(classQualifiedName) {
+	if classQualifiedName == "" || !has_(this.outer_.cssNamesBySymbol, classQualifiedName) {
 		this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceCssNames_UNKNOWN_SYMBOL_ERROR, []string{classNameNode.getString()}))
 		return
 	}
-	var className string = this.outer_.cssNamesBySymbol.Get(classQualifiedName)
+	var className string = mapStr_(this.outer_.cssNamesBySymbol, classQualifiedName)
 	this.outer_.cssNameCollector(className)
 }
 

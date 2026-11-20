@@ -242,7 +242,7 @@ func (this *Normalize_NormalizeStatements) splitExportDeclaration(n Node) {
 	if n.getBooleanProp(Node_EXPORT_DEFAULT) {
 		return
 	}
-	var destructuringLhsNodes *TList[Node] = newTList_(tc_Node)
+	var destructuringLhsNodes []Node = []Node{}
 	var c Node = n.getFirstChild()
 	if NodeUtil_isDeclaration(c) {
 		c.detach()
@@ -264,15 +264,13 @@ func (this *Normalize_NormalizeStatements) splitExportDeclaration(n Node) {
 					var newDeclaration Node = new_Node_Token_Node(c.getToken(), child).srcref(n)
 					newDeclaration.insertBefore(n)
 					if child.isDestructuringLhs() {
-						destructuringLhsNodes.add(child)
+						destructuringLhsNodes = append(destructuringLhsNodes, child)
 					}
 					child = next
 				}
 			}
 		}
-		it_2 := destructuringLhsNodes.each()
-		for it_2.next() {
-			var destructuringLhsNode Node = it_2.v
+		for _, destructuringLhsNode := range destructuringLhsNodes {
 			this.normalizeDestructuringLhs(destructuringLhsNode)
 		}
 		this.reportCodeChange("combined export and declaration", n.getParent())
@@ -525,11 +523,11 @@ func Normalize_NormalizeStatements_addToFront(parent Node, newChild Node, after 
 
 type Normalize_DuplicateDeclarationHandler struct {
 	outer_                    *Normalize
-	hasOkDuplicateDeclaration *TSet[*Var]
+	hasOkDuplicateDeclaration map[varKey_]struct{}
 }
 
 func (this *Normalize_DuplicateDeclarationHandler) finit_Normalize_DuplicateDeclarationHandler() {
-	this.hasOkDuplicateDeclaration = newTSet_(tch_p_Var)
+	this.hasOkDuplicateDeclaration = map[varKey_]struct{}{}
 }
 
 func (this *Normalize_DuplicateDeclarationHandler) init_Normalize_DuplicateDeclarationHandler() {
@@ -551,7 +549,7 @@ func (this *Normalize_DuplicateDeclarationHandler) onRedeclaration(s *Scope, nam
 	var v *Var = s.getVar_String_rVar(name)
 	if s.isGlobal() {
 		if v.isExtern() && !input.isExtern() {
-			if this.hasOkDuplicateDeclaration.Add(v) {
+			if setAdd_(this.hasOkDuplicateDeclaration, vkey_(v)) {
 				return
 			}
 		}

@@ -8,9 +8,9 @@ import (
 )
 
 type SourceMapGeneratorV3 struct {
-	mappings             *TList[*SourceMapGeneratorV3_Mapping]
+	mappings             *[]*SourceMapGeneratorV3_Mapping
 	sourceFileMap        *TMap[string, any]
-	sourceFileContentMap *TMap[string, string]
+	sourceFileContentMap map[string]string
 	originalNameMap      *TMap[string, any]
 	lastSourceFile       Optional[string]
 	lastSourceFileIndex  int32
@@ -22,9 +22,9 @@ type SourceMapGeneratorV3 struct {
 }
 
 func (this *SourceMapGeneratorV3) finit_SourceMapGeneratorV3() {
-	this.mappings = newTList_(tc_p_SourceMapGeneratorV3_Mapping)
+	this.mappings = &[]*SourceMapGeneratorV3_Mapping{}
 	this.sourceFileMap = newTMap_(tc_string, tc_Integer)
-	this.sourceFileContentMap = newTMap_(tc_string, tc_string)
+	this.sourceFileContentMap = map[string]string{}
 	this.originalNameMap = newTMap_(tc_string, tc_Integer)
 	this.lastSourceFile = Optional_empty[string]()
 	this.lastSourceFileIndex = -1
@@ -45,7 +45,7 @@ func new_SourceMapGeneratorV3() *SourceMapGeneratorV3 {
 }
 
 func (this *SourceMapGeneratorV3) reset() {
-	this.mappings.clear()
+	sliceClear_(this.mappings)
 	this.lastMapping = nil
 	this.sourceFileMap.Clear()
 	this.originalNameMap.Clear()
@@ -118,11 +118,11 @@ func (this *SourceMapGeneratorV3) addMapping(sourceName string, symbolName strin
 		}
 	}
 	this.lastMapping = mapping
-	this.mappings.add(mapping)
+	*this.mappings = append(*this.mappings, mapping)
 }
 
 func (this *SourceMapGeneratorV3) addSourcesContent(source string, content string) {
-	this.sourceFileContentMap.Put(source, content)
+	this.sourceFileContentMap[source] = content
 }
 
 func (this *SourceMapGeneratorV3) mergeMapSection(line int32, column int32, mapSectionContents string) *Outcome_base[any] {
@@ -239,8 +239,8 @@ func (this *SourceMapGeneratorV3) addSourceNameMap(out Appendable) {
 func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
 	var found bool = false
 	var size int32 = this.sourceFileMap.Len()
-	var contents *TList[string] = newTListN_(tc_string, size)
-	contents.asList().addAll(Collection(Collections_nCopies(size, "")))
+	var contents []string = make([]string, 0, size)
+	sliceAddAll_(tc_string, &contents, Collection(Collections_nCopies(size, "")))
 	it_1 := this.sourceFileMap.eachEntry()
 	for it_1.next() {
 		var entry *TEntry[string, any] = it_1.entry()
@@ -248,9 +248,9 @@ func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
 		if unbox_[int32](index) >= size {
 			panic(new_IllegalStateException_0())
 		}
-		var content Optional[string] = Optional_ofNullable[string](this.sourceFileContentMap.Get(entry.getKey()))
+		var content Optional[string] = Optional_ofNullable[string](mapStr_(this.sourceFileContentMap, entry.getKey()))
 		if content.isPresent() {
-			contents.set(unbox_[int32](index), content.get())
+			contents[unbox_[int32](index)] = content.get()
 			found = true
 		}
 	}
@@ -263,7 +263,7 @@ func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
 		if i != 0 {
 			Appendable_append_s(out, ",")
 		}
-		var sourceContent Optional[string] = Optional_ofNullable[string](contents.get(i))
+		var sourceContent Optional[string] = Optional_ofNullable[string](sliceAt_(contents, i))
 		Appendable_append_s(out, SourceMapGeneratorV3_escapeString(sourceContent.orElse("")))
 	}
 	Appendable_append_s(out, "]")
@@ -324,9 +324,7 @@ func (this *SourceMapGeneratorV3) prepMappings() int32 {
 	new_SourceMapGeneratorV3_MappingTraversal(this).traverse(new_SourceMapGeneratorV3_UsedMappingCheck().visit)
 	var id int32 = 0
 	var maxLine int32 = 0
-	it_1 := this.mappings.each()
-	for it_1.next() {
-		var m *SourceMapGeneratorV3_Mapping = it_1.v
+	for _, m := range *this.mappings {
 		if m.used {
 			m.id = id
 			id++
@@ -337,16 +335,14 @@ func (this *SourceMapGeneratorV3) prepMappings() int32 {
 	return (maxLine + this.prefixPosition.getLine())
 }
 
-func (this *SourceMapGeneratorV3) appendIndexMapTo(out Appendable, name string, sections *TList[*SourceMapSection]) {
+func (this *SourceMapGeneratorV3) appendIndexMapTo(out Appendable, name string, sections []*SourceMapSection) {
 	Appendable_append_s(out, "{\n")
 	SourceMapGeneratorV3_appendFirstField(out, "version", "3")
 	SourceMapGeneratorV3_appendField(out, "file", SourceMapGeneratorV3_escapeString(name))
 	SourceMapGeneratorV3_appendFieldStart_Appendable_String(out, "sections")
 	Appendable_append_s(out, "[\n")
 	var first bool = true
-	it_1 := sections.each()
-	for it_1.next() {
-		var section *SourceMapSection = it_1.v
+	for _, section := range sections {
 		if first {
 			first = false
 		} else {
@@ -507,9 +503,7 @@ func new_SourceMapGeneratorV3_MappingTraversal(outer_ *SourceMapGeneratorV3) *So
 
 func (this *SourceMapGeneratorV3_MappingTraversal) traverse(v func(*SourceMapGeneratorV3_Mapping, int32, int32, int32, int32)) {
 	var stack *TDeque[*SourceMapGeneratorV3_Mapping] = newTDeque_(tc_p_SourceMapGeneratorV3_Mapping)
-	it_1 := this.outer_.mappings.each()
-	for it_1.next() {
-		var m *SourceMapGeneratorV3_Mapping = it_1.v
+	for m := range sliceAll_(this.outer_.mappings) {
 		for !stack.isEmpty() && !this.isOverlapped(stack.peek(), m) {
 			var previous *SourceMapGeneratorV3_Mapping = stack.pop()
 			this.maybeVisit(v, previous)
