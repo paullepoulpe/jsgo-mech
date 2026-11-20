@@ -41,14 +41,14 @@ func JSTypeIterations_allTypesMatch(predicate PredicateOf[any], union *UnionType
 	return JSTypeIterations_allTypesMatchImmutableList(predicate, union.getAlternates())
 }
 
-func JSTypeIterations_mapTypesImmutableList(mapper FunctionOf[any, any], types ImmutableListOf[*JSType]) ImmutableListOf[any] {
+func JSTypeIterations_mapTypesImmutableList(mapper FunctionOf[any, any], types []*JSType) ImmutableListOf[any] {
 	var builder *TListBuilder[*JSType] = newTListBuilder_(jtc_p_JSType)
-	for i := int32(0); i < types.size(); i++ {
-		builder.add(to_JSType(mapper.apply(types.get(i))))
+	for i := int32(0); i < int32(len(types)); i++ {
+		builder.add(to_JSType(mapper.apply(sliceAt_(types, i).self())))
 	}
 	return builder.build().asImm()
 }
 
 func JSTypeIterations_mapTypes(mapper FunctionOf[any, *JSType], union *UnionType) *JSType {
-	return UnionType_builder(union.registry).addAlternates(jtlistImm_(jtc_p_JSType, JSTypeIterations_mapTypesImmutableList(mapper, union.getAlternates().asImm()))).build()
+	return UnionType_builder(union.registry).addAlternates(jtlistImm_(jtc_p_JSType, JSTypeIterations_mapTypesImmutableList(mapper, sliceImm_(tc_p_JSType, union.getAlternates().asImm())))).build()
 }
