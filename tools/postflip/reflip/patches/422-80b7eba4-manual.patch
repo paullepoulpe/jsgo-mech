@@ -1,8 +1,8 @@
 diff --git a/go/closure/g_CoalesceVariableNames.go b/go/closure/g_CoalesceVariableNames.go
-index f6792ad8..7b5cac16 100644
+index 64bbf15b..5dc67096 100644
 --- a/go/closure/g_CoalesceVariableNames.go
 +++ b/go/closure/g_CoalesceVariableNames.go
-@@ -198,14 +198,14 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
+@@ -202,14 +202,14 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
  		if cfg.isImplicitReturn(cfgNode) {
  			continue
  		}
@@ -20,12 +20,15 @@ index f6792ad8..7b5cac16 100644
  		for i := int32(liveout.nextSetBit(0)); i >= 0; i = liveout.nextSetBit((i + 1)) {
  			for j := int32(liveout.nextSetBit(i)); j >= 0; j = liveout.nextSetBit((j + 1)) {
  				interferenceBitSet[i].set(j)
-@@ -332,14 +332,14 @@ func (this *CoalesceVariableNames) isUninitializedLetNameInLoopBodyAndLive(nameN
- 	var letNode Node = nameNode.getParent()
- 	var cfg *ControlFlowGraph[Node] = this.liveness.getCfg()
- 	var cfgNode DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](Preconditions_checkNotNull_T(cfg.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(letNode)).self())
--	var state *DataFlowAnalysis_LinearFlowState[any] = Preconditions_checkNotNull_T(cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(cfgNode))))
-+	var state *DataFlowAnalysis_LinearFlowState[*LiveVariablesAnalysis_LiveVariableLattice] = Preconditions_checkNotNull_T(cast_[*DataFlowAnalysis_LinearFlowState[*LiveVariablesAnalysis_LiveVariableLattice]](Annotatable_getAnnotation(Annotatable(cfgNode))))
+@@ -343,17 +343,17 @@ func (this *CoalesceVariableNames) isUninitializedLetNameInLoopBodyAndLive(nameN
+ 		panic(new_NullPointerException_0())
+ 	}
+ 	var cfgNode DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](nn_.self())
+-	var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(cfgNode)))
++	var state *DataFlowAnalysis_LinearFlowState[*LiveVariablesAnalysis_LiveVariableLattice] = cast_[*DataFlowAnalysis_LinearFlowState[*LiveVariablesAnalysis_LiveVariableLattice]](Annotatable_getAnnotation(Annotatable(cfgNode)))
+ 	if state == nil {
+ 		panic(new_NullPointerException_0())
+ 	}
  	var varIndex int32 = this.liveness.getVarIndex(originalVar.getName())
 -	return ((varIndex >= 0) && state.getOut().(*LiveVariablesAnalysis_LiveVariableLattice).isLive(varIndex))
 +	return ((varIndex >= 0) && state.getOut().isLive(varIndex))
@@ -38,7 +41,7 @@ index f6792ad8..7b5cac16 100644
  	orderedVariables []*Var
  	isAssignToList   *[]any
  	isReadFromList   *[]any
-@@ -350,14 +350,14 @@ func (this *CoalesceVariableNames_LiveRangeChecker) finit_CoalesceVariableNames_
+@@ -364,14 +364,14 @@ func (this *CoalesceVariableNames_LiveRangeChecker) finit_CoalesceVariableNames_
  	this.isReadFromList = &[]any{}
  }
  
@@ -55,7 +58,7 @@ index f6792ad8..7b5cac16 100644
  	this := &CoalesceVariableNames_LiveRangeChecker{}
  	this.init_CoalesceVariableNames_LiveRangeChecker(root, orderedVariables, state)
  	return this
-@@ -390,7 +390,7 @@ func (this *CoalesceVariableNames_LiveRangeChecker) visit(n Node, parent Node) {
+@@ -404,7 +404,7 @@ func (this *CoalesceVariableNames_LiveRangeChecker) visit(n Node, parent Node) {
  	}
  	if len(*this.isAssignToList) != 0 {
  		for iVar := int32(0); iVar < int32(len(this.orderedVariables)); iVar++ {
@@ -202,10 +205,10 @@ index 3c86b19f..a520a2f8 100644
  }
  
 diff --git a/go/closure/g_DeadAssignmentsElimination.go b/go/closure/g_DeadAssignmentsElimination.go
-index 1f16523c..6dda411e 100644
+index 81c18899..3262ea9d 100644
 --- a/go/closure/g_DeadAssignmentsElimination.go
 +++ b/go/closure/g_DeadAssignmentsElimination.go
-@@ -101,7 +101,7 @@ func (this *DeadAssignmentsElimination) tryRemoveDeadAssignments(t *NodeTraversa
+@@ -105,7 +105,7 @@ func (this *DeadAssignmentsElimination) tryRemoveDeadAssignments(t *NodeTraversa
  	var nodes IterableOf[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]] = Iterable(cfg.getNodes())
  L_2:
  	for cfgNode := range elemsAs_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](nodes) {
@@ -214,7 +217,7 @@ index 1f16523c..6dda411e 100644
  		var n Node = cfgNode.getValue()
  		if n == 0 {
  			continue
-@@ -126,11 +126,11 @@ L_2:
+@@ -130,11 +130,11 @@ L_2:
  	}
  }
  
@@ -228,7 +231,7 @@ index 1f16523c..6dda411e 100644
  	var parent Node = n.getParent()
  	var isDeclarationNode bool = NodeUtil_isNameDeclaration(parent)
  	if ((NodeUtil_isAssignmentOp(n) || n.isInc()) || n.isDec()) || isDeclarationNode {
-@@ -176,10 +176,10 @@ func (this *DeadAssignmentsElimination) tryRemoveAssignment_5(t *NodeTraversal,
+@@ -180,10 +180,10 @@ func (this *DeadAssignmentsElimination) tryRemoveAssignment_5(t *NodeTraversal,
  			return
  		}
  		var index int32 = this.liveness.getVarIndex(var_.getName())
@@ -378,7 +381,7 @@ index 6bfc093c..b1d95679 100644
  	return v.(interface{ as_LinkedDirectedGraph_LinkedDiGraphEdge_() any }).as_LinkedDirectedGraph_LinkedDiGraphEdge_().(*LinkedDirectedGraph_LinkedDiGraphEdge[N, E])
  }
 diff --git a/go/closure/g_MaybeReachingVariableUse.go b/go/closure/g_MaybeReachingVariableUse.go
-index 12433909..decc5187 100644
+index d28a5eef..7e2d1ff7 100644
 --- a/go/closure/g_MaybeReachingVariableUse.go
 +++ b/go/closure/g_MaybeReachingVariableUse.go
 @@ -198,8 +198,8 @@ func (this *MaybeReachingVariableUse) getUses(name string, defNode Node) Iterabl
@@ -393,7 +396,7 @@ index 12433909..decc5187 100644
  
  type MaybeReachingVariableUse_ReachingUses struct {
 diff --git a/go/closure/g_MustBeReachingVariableDef.go b/go/closure/g_MustBeReachingVariableDef.go
-index 5752dce5..fd3a5ff7 100644
+index 00ea8a26..3ed509e8 100644
 --- a/go/closure/g_MustBeReachingVariableDef.go
 +++ b/go/closure/g_MustBeReachingVariableDef.go
 @@ -256,8 +256,8 @@ func (this *MustBeReachingVariableDef) getDef(name string, useNode Node) *MustBe
