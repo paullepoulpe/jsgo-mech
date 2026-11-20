@@ -72,7 +72,7 @@ func (this *LowestCommonAncestorFinder[N, E]) paintAncestors(root DiGraph_DiGrap
 	for !this.searchQueue.isEmpty() {
 		var curr DiGraph_DiGraphNode[N, E] = this.searchQueue.pop()
 		var parentEdges ListOf[DiGraph_DiGraphEdge[N, E]] = curr.getInEdges()
-		for parentEdge := range elemsAs_[DiGraph_DiGraphEdge[N, E]](parentEdges) {
+		for parentEdge := range elemsBy_(parentEdges, gcast_DiGraph_DiGraphEdge_N_E[N, E]) {
 			var parent DiGraph_DiGraphNode[N, E] = parentEdge.getSource()
 			if equalsId_(parent, root) {
 				continue
