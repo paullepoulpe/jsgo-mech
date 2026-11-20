@@ -544,7 +544,7 @@ func (this *PrototypeObjectType_PropertyForPrettyPrinting) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && objequalsVia_(this.key_, obj_(o.key_)) && objequalsBy_(this.type__, o.type__.self(), (*JSType).equals)
+	return true && objequalsVia_(this.key_, o.key_) && objequalsBy_(this.type__, o.type__.self(), (*JSType).equals)
 }
 
 func (this *PrototypeObjectType_PropertyForPrettyPrinting) hashCode() int32 {

@@ -232,7 +232,7 @@ func (this *SimpleMultiset) equals(o any) bool {
 		}
 		that = p
 		return true
-	}() && equalsDyn_(this.counts, obj_(that.counts)))
+	}() && equalsDyn_(this.counts, that.counts))
 }
 
 func (this *SimpleMultiset) hashCode() int32 {

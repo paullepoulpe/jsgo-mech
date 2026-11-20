@@ -273,7 +273,7 @@ func (this *SimpleSetMultimap) equals(o any) bool {
 		}
 		that = p
 		return true
-	}() && equalsDyn_(this.map__, obj_(that.map__)))
+	}() && equalsDyn_(this.map__, that.map__))
 }
 
 func (this *SimpleSetMultimap) hashCode() int32 {
