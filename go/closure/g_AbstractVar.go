@@ -14,7 +14,12 @@ type AbstractVar struct {
 func (this *AbstractVar) as_AbstractVar() *AbstractVar { return this }
 
 func to_AbstractVar(v any) *AbstractVar {
-	if v == nil {
+	switch p := v.(type) {
+	case *TypedVar:
+		return p.as_AbstractVar()
+	case *Var:
+		return p.as_AbstractVar()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_AbstractVar() *AbstractVar }).as_AbstractVar()
