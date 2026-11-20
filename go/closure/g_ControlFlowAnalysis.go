@@ -12,7 +12,7 @@ type ControlFlowAnalysis struct {
 	shouldTraverseFunctions bool
 	edgeAnnotations         bool
 	root                    Node
-	exceptionHandler        *TDeque[Node]
+	exceptionHandler        *[]Node
 	finallyMap              *SimpleSetMultimap[Node, Node]
 }
 
@@ -28,7 +28,7 @@ func (this *ControlFlowAnalysis) finit_ControlFlowAnalysis() {
 		}
 		return pos
 	})
-	this.exceptionHandler = newTDeque_(tc_Node)
+	this.exceptionHandler = &[]Node{}
 	this.finallyMap = SimpleSetMultimap_createInsertionOrdered[Node, Node]()
 }
 
@@ -117,12 +117,12 @@ func (this *ControlFlowAnalysis) shouldTraverseIntoChildren(n Node, parent Node)
 	switch n.ns_().token {
 	case tokOrd1_FUNCTION:
 		if this.shouldTraverseFunctions || (n == this.cfg.getEntry().getValue()) {
-			this.exceptionHandler.push(n)
+			*this.exceptionHandler = append(*this.exceptionHandler, n)
 			return true
 		}
 		return false
 	case tokOrd1_TRY:
-		this.exceptionHandler.push(n)
+		*this.exceptionHandler = append(*this.exceptionHandler, n)
 		return true
 	default:
 	}
@@ -147,10 +147,10 @@ func (this *ControlFlowAnalysis) shouldTraverseIntoChildren(n Node, parent Node)
 			return false
 		case tokOrd1_TRY:
 			if (!NodeUtil_hasFinally(parent) && (n == NodeUtil_getCatchBlock(parent))) || NodeUtil_isTryFinallyNode(parent, n) {
-				if this.exceptionHandler.peek() != parent {
+				if slicePeekTop_(tc_Node, *this.exceptionHandler) != parent {
 					panic(new_IllegalStateException_0())
 				}
-				this.exceptionHandler.pop()
+				slicePop_(tc_Node, this.exceptionHandler)
 			}
 		default:
 		}
@@ -348,10 +348,10 @@ func (this *ControlFlowAnalysis) handleFunction(node Node) {
 		panic(new_IllegalStateException_0())
 	}
 	this.createEdge(node, ControlFlowGraph_Branch_UNCOND, ControlFlowAnalysis_computeFallThrough(node.getLastChild()))
-	if this.exceptionHandler.peek() != node {
+	if slicePeekTop_(tc_Node, *this.exceptionHandler) != node {
 		panic(new_IllegalStateException_0())
 	}
-	this.exceptionHandler.pop()
+	slicePop_(tc_Node, this.exceptionHandler)
 }
 
 func (this *ControlFlowAnalysis) handleExpr(node Node) {
@@ -456,7 +456,7 @@ func (this *ControlFlowAnalysis) handleContinue(node Node) {
 
 func (this *ControlFlowAnalysis) handleReturn(node Node) {
 	var lastJump Node = 0
-	it_1 := this.exceptionHandler.each()
+	it_1 := eachRevOf_(this.exceptionHandler)
 	for it_1.next() {
 		var curHandler Node = it_1.v
 		if curHandler.isFunction() {
@@ -588,11 +588,11 @@ func (this *ControlFlowAnalysis) connectToPossibleExceptionHandler(cfgNode Node,
 }
 
 func (this *ControlFlowAnalysis) connectToPossibleExceptionHandlerUnconditionally(cfgNode Node) {
-	if this.exceptionHandler.isEmpty() {
+	if len(*this.exceptionHandler) == 0 {
 		return
 	}
 	var lastJump Node = cfgNode
-	it_1 := this.exceptionHandler.each()
+	it_1 := eachRevOf_(this.exceptionHandler)
 	for it_1.next() {
 		var handler Node = it_1.v
 		if handler.isFunction() {

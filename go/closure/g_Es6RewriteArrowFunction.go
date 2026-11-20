@@ -5,13 +5,13 @@ package closure
 type Es6RewriteArrowFunction struct {
 	compiler_    *AbstractCompiler
 	astFactory_  *AstFactory
-	contextStack *TDeque[*ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext]
+	contextStack *[]*ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext
 }
 
 func (this *Es6RewriteArrowFunction) init_Es6RewriteArrowFunction(compiler *AbstractCompiler) {
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
-	this.contextStack = newTDeque_(tc_p_ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext)
+	this.contextStack = &[]*ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext{}
 }
 
 func new_Es6RewriteArrowFunction(compiler *AbstractCompiler) *Es6RewriteArrowFunction {
@@ -28,13 +28,13 @@ func (this *Es6RewriteArrowFunction) process_2(externs Node, root Node) {
 func (this *Es6RewriteArrowFunction) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	switch n.ns_().token {
 	case tokOrd1_SCRIPT:
-		this.contextStack.push(this.contextForScript(n, t.getInput()))
+		*this.contextStack = append(*this.contextStack, this.contextForScript(n, t.getInput()))
 	case tokOrd1_FUNCTION:
 		if !n.isArrowFunction() {
-			this.contextStack.push(this.contextForFunction(n, t.getInput()))
+			*this.contextStack = append(*this.contextStack, this.contextForFunction(n, t.getInput()))
 		}
 	case tokOrd1_SUPER:
-		var context *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = Preconditions_checkNotNull_T(this.contextStack.peek())
+		var context *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = Preconditions_checkNotNull_T(slicePeekTop_(tc_p_ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext, *this.contextStack))
 		if (context.isConstructor_ && parent.isCall()) && (parent.getFirstChild() == n) {
 			context.lastSuperStatement = this.getEnclosingStatement(parent, context.scopeBody)
 		}
@@ -51,11 +51,11 @@ func (this *Es6RewriteArrowFunction) getEnclosingStatement(n Node, block Node) N
 }
 
 func (this *Es6RewriteArrowFunction) visit(t *NodeTraversal, n Node, parent Node) {
-	var context *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = this.contextStack.peek()
+	var context *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = slicePeekTop_(tc_p_ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext, *this.contextStack)
 	if n.isArrowFunction() {
 		this.visitArrowFunction(t, n, Preconditions_checkNotNull_T(context))
 	} else if (context != nil) && (context.scopeBody == n) {
-		this.contextStack.pop()
+		slicePop_(tc_p_ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext, this.contextStack)
 		context.addVarDeclarations(this.compiler_, this.astFactory_, t.getCurrentScript())
 	}
 }

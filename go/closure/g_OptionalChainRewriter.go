@@ -10,7 +10,7 @@ type OptionalChainRewriter struct {
 	chainParent       Node
 	wholeChain        Node
 	insertionPoint_   Node
-	deletesToDelete   *TDeque[Node]
+	deletesToDelete   *[]Node
 }
 
 func (this *OptionalChainRewriter) init_OptionalChainRewriter(builder *OptionalChainRewriter_Builder, wholeChain Node) {
@@ -32,7 +32,7 @@ func (this *OptionalChainRewriter) init_OptionalChainRewriter(builder *OptionalC
 	} else {
 		this.insertionPoint_ = enclosingStatement
 	}
-	this.deletesToDelete = newTDeque_(tc_Node)
+	this.deletesToDelete = &[]Node{}
 }
 
 func new_OptionalChainRewriter(builder *OptionalChainRewriter_Builder, wholeChain Node) *OptionalChainRewriter {
@@ -49,19 +49,19 @@ func (this *OptionalChainRewriter) rewrite() {
 	if !NodeUtil_isOptChainNode(this.wholeChain) {
 		Preconditions_checkState_boolean_String_Object_H(false, "already rewritten: %s", this.wholeChain)
 	}
-	var startNodeStack *TDeque[Node] = newTDeque_(tc_Node)
+	var startNodeStack []Node = []Node{}
 	var subchainEnd Node = this.wholeChain
 	for NodeUtil_isOptChainNode(subchainEnd) {
 		var subchainStart Node = NodeUtil_getStartOfOptChainSegment(subchainEnd)
-		startNodeStack.push(subchainStart)
+		startNodeStack = append(startNodeStack, subchainStart)
 		subchainEnd = subchainStart.getFirstChild()
 	}
-	if startNodeStack.isEmpty() {
+	if len(startNodeStack) == 0 {
 		panic(new_IllegalStateException_0())
 	}
-	var optChainReplacement Node = this.rewriteInitialSegment(startNodeStack.pop(), this.wholeChain)
-	for !startNodeStack.isEmpty() {
-		this.rewriteInitialSegment(startNodeStack.pop(), this.wholeChain)
+	var optChainReplacement Node = this.rewriteInitialSegment(slicePop_(tc_Node, &startNodeStack), this.wholeChain)
+	for len(startNodeStack) != 0 {
+		this.rewriteInitialSegment(slicePop_(tc_Node, &startNodeStack), this.wholeChain)
 	}
 	if ((this.chainParent.isCall() && !this.chainParent.getBooleanProp(Node_FREE_CALL)) && optChainReplacement.isFirstChildOf(this.chainParent)) && NodeUtil_isNormalGet(this.wholeChain) {
 		var thisValue Node = this.wholeChain.getFirstChild()
@@ -73,8 +73,8 @@ func (this *OptionalChainRewriter) rewrite() {
 	}
 	this.compiler_.reportChangeToEnclosingScope(this.chainParent)
 	if this.chainParent.isDelProp() {
-		for !this.deletesToDelete.isEmpty() {
-			var delete_ Node = this.deletesToDelete.pop()
+		for len(*this.deletesToDelete) != 0 {
+			var delete_ Node = slicePopFirst_(tc_Node, this.deletesToDelete)
 			if !delete_.getFirstChild().isHook() {
 				Preconditions_checkState_boolean_Object_H(false, delete_)
 			}
@@ -93,7 +93,7 @@ func (this *OptionalChainRewriter) rewriteInitialSegment(fullChainStart Node, fu
 	var initialChainEnd Node = NodeUtil_getEndOfOptChainSegment(fullChainStart)
 	var isBeingDeleted bool = fullChainEnd.getParent().isDelProp()
 	if isBeingDeleted {
-		this.deletesToDelete.add(fullChainEnd.getParent())
+		*this.deletesToDelete = append(*this.deletesToDelete, fullChainEnd.getParent())
 	}
 	if NodeUtil_isOptChainNode(receiverNode) {
 		Preconditions_checkArgument_boolean_Object_H(false, receiverNode)
