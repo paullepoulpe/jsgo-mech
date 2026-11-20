@@ -219,7 +219,7 @@ func Es6ConvertSuper_clinit() {
 
 // visit: an object that is exactly a Es6ConvertSuper calls its visit_impl directly (post-flip); others dispatch.
 func (this *Es6ConvertSuper) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Es6ConvertSuper); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

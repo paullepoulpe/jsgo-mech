@@ -87,7 +87,7 @@ func (this *OptimizeLetAndConstPeephole) isDirectlyInHoistScope(n Node) bool {
 
 // optimizeSubtree: an object that is exactly a OptimizeLetAndConstPeephole calls its optimizeSubtree_impl directly (post-flip); others dispatch.
 func (this *OptimizeLetAndConstPeephole) optimizeSubtree(p0 Node) Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*OptimizeLetAndConstPeephole); p == this {
 		return this.optimizeSubtree_impl(p0)
 	}
 	return this.self_.optimizeSubtree_impl(p0)

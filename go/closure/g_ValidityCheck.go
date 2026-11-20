@@ -162,7 +162,7 @@ func (this *ValidityCheck_VerifyConstants) visit_impl(t *NodeTraversal, n Node, 
 
 // visit: an object that is exactly a ValidityCheck_VerifyConstants calls its visit_impl directly (post-flip); others dispatch.
 func (this *ValidityCheck_VerifyConstants) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ValidityCheck_VerifyConstants); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

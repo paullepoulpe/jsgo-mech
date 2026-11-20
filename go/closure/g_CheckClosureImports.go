@@ -718,7 +718,7 @@ func CheckClosureImports_ClosureImport_4_clinit() {
 
 // enterModule: an object that is exactly a CheckClosureImports_Checker calls its enterModule_impl directly (post-flip); others dispatch.
 func (this *CheckClosureImports_Checker) enterModule(p0 *ModuleMetadataMap_ModuleMetadata, p1 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckClosureImports_Checker); p == this {
 		this.enterModule_impl(p0, p1)
 		return
 	}
@@ -727,7 +727,7 @@ func (this *CheckClosureImports_Checker) enterModule(p0 *ModuleMetadataMap_Modul
 
 // visit_4: an object that is exactly a CheckClosureImports_Checker calls its visit_4_impl directly (post-flip); others dispatch.
 func (this *CheckClosureImports_Checker) visit_4(p0 *NodeTraversal, p1 Node, p2 *ModuleMetadataMap_ModuleMetadata, p3 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckClosureImports_Checker); p == this {
 		this.visit_4_impl(p0, p1, p2, p3)
 		return
 	}
@@ -736,7 +736,7 @@ func (this *CheckClosureImports_Checker) visit_4(p0 *NodeTraversal, p1 Node, p2 
 
 // allowDestructuring: an object that is exactly a CheckClosureImports_ClosureImport_1 calls its allowDestructuring_impl directly (post-flip); others dispatch.
 func (this *CheckClosureImports_ClosureImport_1) allowDestructuring() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckClosureImports_ClosureImport_1); p == this {
 		return this.allowDestructuring_impl()
 	}
 	return this.selfI_.allowDestructuring_impl()
@@ -744,7 +744,7 @@ func (this *CheckClosureImports_ClosureImport_1) allowDestructuring() bool {
 
 // aliasMustBeConstant: an object that is exactly a CheckClosureImports_ClosureImport_1 calls its aliasMustBeConstant_impl directly (post-flip); others dispatch.
 func (this *CheckClosureImports_ClosureImport_1) aliasMustBeConstant() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckClosureImports_ClosureImport_1); p == this {
 		return this.aliasMustBeConstant_impl()
 	}
 	return this.selfI_.aliasMustBeConstant_impl()
@@ -752,7 +752,7 @@ func (this *CheckClosureImports_ClosureImport_1) aliasMustBeConstant() bool {
 
 // mustBeOrdered: an object that is exactly a CheckClosureImports_ClosureImport_1 calls its mustBeOrdered_impl directly (post-flip); others dispatch.
 func (this *CheckClosureImports_ClosureImport_1) mustBeOrdered() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckClosureImports_ClosureImport_1); p == this {
 		return this.mustBeOrdered_impl()
 	}
 	return this.selfI_.mustBeOrdered_impl()
@@ -760,7 +760,7 @@ func (this *CheckClosureImports_ClosureImport_1) mustBeOrdered() bool {
 
 // callName: an object that is exactly a CheckClosureImports_ClosureImport_1 calls its callName_impl directly (post-flip); others dispatch.
 func (this *CheckClosureImports_ClosureImport_1) callName() string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckClosureImports_ClosureImport_1); p == this {
 		return this.callName_impl()
 	}
 	return this.selfI_.callName_impl()
@@ -768,7 +768,7 @@ func (this *CheckClosureImports_ClosureImport_1) callName() string {
 
 // allowDestructuring: an object that is exactly a CheckClosureImports_ClosureImport_2 calls its allowDestructuring_impl directly (post-flip); others dispatch.
 func (this *CheckClosureImports_ClosureImport_2) allowDestructuring() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckClosureImports_ClosureImport_2); p == this {
 		return this.allowDestructuring_impl()
 	}
 	return this.selfI_.allowDestructuring_impl()
@@ -776,7 +776,7 @@ func (this *CheckClosureImports_ClosureImport_2) allowDestructuring() bool {
 
 // aliasMustBeConstant: an object that is exactly a CheckClosureImports_ClosureImport_2 calls its aliasMustBeConstant_impl directly (post-flip); others dispatch.
 func (this *CheckClosureImports_ClosureImport_2) aliasMustBeConstant() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckClosureImports_ClosureImport_2); p == this {
 		return this.aliasMustBeConstant_impl()
 	}
 	return this.selfI_.aliasMustBeConstant_impl()
@@ -784,7 +784,7 @@ func (this *CheckClosureImports_ClosureImport_2) aliasMustBeConstant() bool {
 
 // mustBeOrdered: an object that is exactly a CheckClosureImports_ClosureImport_2 calls its mustBeOrdered_impl directly (post-flip); others dispatch.
 func (this *CheckClosureImports_ClosureImport_2) mustBeOrdered() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckClosureImports_ClosureImport_2); p == this {
 		return this.mustBeOrdered_impl()
 	}
 	return this.selfI_.mustBeOrdered_impl()
@@ -792,7 +792,7 @@ func (this *CheckClosureImports_ClosureImport_2) mustBeOrdered() bool {
 
 // callName: an object that is exactly a CheckClosureImports_ClosureImport_2 calls its callName_impl directly (post-flip); others dispatch.
 func (this *CheckClosureImports_ClosureImport_2) callName() string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckClosureImports_ClosureImport_2); p == this {
 		return this.callName_impl()
 	}
 	return this.selfI_.callName_impl()
@@ -800,7 +800,7 @@ func (this *CheckClosureImports_ClosureImport_2) callName() string {
 
 // allowDestructuring: an object that is exactly a CheckClosureImports_ClosureImport_3 calls its allowDestructuring_impl directly (post-flip); others dispatch.
 func (this *CheckClosureImports_ClosureImport_3) allowDestructuring() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckClosureImports_ClosureImport_3); p == this {
 		return this.allowDestructuring_impl()
 	}
 	return this.selfI_.allowDestructuring_impl()
@@ -808,7 +808,7 @@ func (this *CheckClosureImports_ClosureImport_3) allowDestructuring() bool {
 
 // aliasMustBeConstant: an object that is exactly a CheckClosureImports_ClosureImport_3 calls its aliasMustBeConstant_impl directly (post-flip); others dispatch.
 func (this *CheckClosureImports_ClosureImport_3) aliasMustBeConstant() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckClosureImports_ClosureImport_3); p == this {
 		return this.aliasMustBeConstant_impl()
 	}
 	return this.selfI_.aliasMustBeConstant_impl()
@@ -816,7 +816,7 @@ func (this *CheckClosureImports_ClosureImport_3) aliasMustBeConstant() bool {
 
 // mustBeOrdered: an object that is exactly a CheckClosureImports_ClosureImport_3 calls its mustBeOrdered_impl directly (post-flip); others dispatch.
 func (this *CheckClosureImports_ClosureImport_3) mustBeOrdered() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckClosureImports_ClosureImport_3); p == this {
 		return this.mustBeOrdered_impl()
 	}
 	return this.selfI_.mustBeOrdered_impl()
@@ -824,7 +824,7 @@ func (this *CheckClosureImports_ClosureImport_3) mustBeOrdered() bool {
 
 // callName: an object that is exactly a CheckClosureImports_ClosureImport_3 calls its callName_impl directly (post-flip); others dispatch.
 func (this *CheckClosureImports_ClosureImport_3) callName() string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckClosureImports_ClosureImport_3); p == this {
 		return this.callName_impl()
 	}
 	return this.selfI_.callName_impl()
@@ -832,7 +832,7 @@ func (this *CheckClosureImports_ClosureImport_3) callName() string {
 
 // allowDestructuring: an object that is exactly a CheckClosureImports_ClosureImport_4 calls its allowDestructuring_impl directly (post-flip); others dispatch.
 func (this *CheckClosureImports_ClosureImport_4) allowDestructuring() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckClosureImports_ClosureImport_4); p == this {
 		return this.allowDestructuring_impl()
 	}
 	return this.selfI_.allowDestructuring_impl()
@@ -840,7 +840,7 @@ func (this *CheckClosureImports_ClosureImport_4) allowDestructuring() bool {
 
 // aliasMustBeConstant: an object that is exactly a CheckClosureImports_ClosureImport_4 calls its aliasMustBeConstant_impl directly (post-flip); others dispatch.
 func (this *CheckClosureImports_ClosureImport_4) aliasMustBeConstant() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckClosureImports_ClosureImport_4); p == this {
 		return this.aliasMustBeConstant_impl()
 	}
 	return this.selfI_.aliasMustBeConstant_impl()
@@ -848,7 +848,7 @@ func (this *CheckClosureImports_ClosureImport_4) aliasMustBeConstant() bool {
 
 // mustBeOrdered: an object that is exactly a CheckClosureImports_ClosureImport_4 calls its mustBeOrdered_impl directly (post-flip); others dispatch.
 func (this *CheckClosureImports_ClosureImport_4) mustBeOrdered() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckClosureImports_ClosureImport_4); p == this {
 		return this.mustBeOrdered_impl()
 	}
 	return this.selfI_.mustBeOrdered_impl()
@@ -856,7 +856,7 @@ func (this *CheckClosureImports_ClosureImport_4) mustBeOrdered() bool {
 
 // callName: an object that is exactly a CheckClosureImports_ClosureImport_4 calls its callName_impl directly (post-flip); others dispatch.
 func (this *CheckClosureImports_ClosureImport_4) callName() string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckClosureImports_ClosureImport_4); p == this {
 		return this.callName_impl()
 	}
 	return this.selfI_.callName_impl()

@@ -80,7 +80,7 @@ func (this *BooleanType) visitUntyped_impl(visitor Visitor) any {
 
 // getTypeClass: an object that is exactly a BooleanType calls its getTypeClass_impl directly (post-flip); others dispatch.
 func (this *BooleanType) getTypeClass() JSTypeClass {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BooleanType); p == this {
 		return this.getTypeClass_impl()
 	}
 	return this.self_.getTypeClass_impl()
@@ -88,7 +88,7 @@ func (this *BooleanType) getTypeClass() JSTypeClass {
 
 // testForEquality: an object that is exactly a BooleanType calls its testForEquality_impl directly (post-flip); others dispatch.
 func (this *BooleanType) testForEquality(p0 *JSType) Tri {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BooleanType); p == this {
 		return this.testForEquality_impl(p0)
 	}
 	return this.self_.testForEquality_impl(p0)
@@ -96,7 +96,7 @@ func (this *BooleanType) testForEquality(p0 *JSType) Tri {
 
 // isBooleanValueType: an object that is exactly a BooleanType calls its isBooleanValueType_impl directly (post-flip); others dispatch.
 func (this *BooleanType) isBooleanValueType() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BooleanType); p == this {
 		return this.isBooleanValueType_impl()
 	}
 	return this.self_.isBooleanValueType_impl()
@@ -104,7 +104,7 @@ func (this *BooleanType) isBooleanValueType() bool {
 
 // matchesNumberContext: an object that is exactly a BooleanType calls its matchesNumberContext_impl directly (post-flip); others dispatch.
 func (this *BooleanType) matchesNumberContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BooleanType); p == this {
 		return this.matchesNumberContext_impl()
 	}
 	return this.self_.matchesNumberContext_impl()
@@ -112,7 +112,7 @@ func (this *BooleanType) matchesNumberContext() bool {
 
 // matchesStringContext: an object that is exactly a BooleanType calls its matchesStringContext_impl directly (post-flip); others dispatch.
 func (this *BooleanType) matchesStringContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BooleanType); p == this {
 		return this.matchesStringContext_impl()
 	}
 	return this.self_.matchesStringContext_impl()
@@ -120,7 +120,7 @@ func (this *BooleanType) matchesStringContext() bool {
 
 // matchesObjectContext: an object that is exactly a BooleanType calls its matchesObjectContext_impl directly (post-flip); others dispatch.
 func (this *BooleanType) matchesObjectContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BooleanType); p == this {
 		return this.matchesObjectContext_impl()
 	}
 	return this.self_.matchesObjectContext_impl()
@@ -128,7 +128,7 @@ func (this *BooleanType) matchesObjectContext() bool {
 
 // autoboxesTo: an object that is exactly a BooleanType calls its autoboxesTo_impl directly (post-flip); others dispatch.
 func (this *BooleanType) autoboxesTo() *JSType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BooleanType); p == this {
 		return this.autoboxesTo_impl()
 	}
 	return this.self_.autoboxesTo_impl()
@@ -136,7 +136,7 @@ func (this *BooleanType) autoboxesTo() *JSType {
 
 // getDisplayName: an object that is exactly a BooleanType calls its getDisplayName_impl directly (post-flip); others dispatch.
 func (this *BooleanType) getDisplayName() Optional[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BooleanType); p == this {
 		return this.getDisplayName_impl()
 	}
 	return this.self_.getDisplayName_impl()
@@ -144,7 +144,7 @@ func (this *BooleanType) getDisplayName() Optional[string] {
 
 // getPossibleToBooleanOutcomes: an object that is exactly a BooleanType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
 func (this *BooleanType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BooleanType); p == this {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}
 	return this.self_.getPossibleToBooleanOutcomes_impl()
@@ -152,7 +152,7 @@ func (this *BooleanType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 
 // visitUntyped: an object that is exactly a BooleanType calls its visitUntyped_impl directly (post-flip); others dispatch.
 func (this *BooleanType) visitUntyped(p0 Visitor) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BooleanType); p == this {
 		return this.visitUntyped_impl(p0)
 	}
 	return this.self_.visitUntyped_impl(p0)

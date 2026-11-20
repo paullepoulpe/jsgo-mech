@@ -143,7 +143,7 @@ func DepsFileRegexParser_clinit() {
 
 // parseLine: an object that is exactly a DepsFileRegexParser calls its parseLine_impl directly (post-flip); others dispatch.
 func (this *DepsFileRegexParser) parseLine(p0 string) *Outcome_base[any] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*DepsFileRegexParser); p == this {
 		return this.parseLine_impl(p0)
 	}
 	return this.self_.parseLine_impl(p0)

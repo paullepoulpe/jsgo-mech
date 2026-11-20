@@ -1517,7 +1517,7 @@ func (this *FunctionType_Parameter) hashCode() int32 {
 
 // getTypeClass: an object that is exactly a FunctionType calls its getTypeClass_impl directly (post-flip); others dispatch.
 func (this *FunctionType) getTypeClass() JSTypeClass {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType); p == this {
 		return this.getTypeClass_impl()
 	}
 	return this.self_.getTypeClass_impl()
@@ -1525,7 +1525,7 @@ func (this *FunctionType) getTypeClass() JSTypeClass {
 
 // getConstructor: an object that is exactly a FunctionType calls its getConstructor_impl directly (post-flip); others dispatch.
 func (this *FunctionType) getConstructor() *FunctionType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType); p == this {
 		return this.getConstructor_impl()
 	}
 	return this.self_.getConstructor_impl()
@@ -1533,7 +1533,7 @@ func (this *FunctionType) getConstructor() *FunctionType {
 
 // isInstanceType: an object that is exactly a FunctionType calls its isInstanceType_impl directly (post-flip); others dispatch.
 func (this *FunctionType) isInstanceType() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType); p == this {
 		return this.isInstanceType_impl()
 	}
 	return this.self_.isInstanceType_impl()
@@ -1541,7 +1541,7 @@ func (this *FunctionType) isInstanceType() bool {
 
 // isConstructor: an object that is exactly a FunctionType calls its isConstructor_impl directly (post-flip); others dispatch.
 func (this *FunctionType) isConstructor() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType); p == this {
 		return this.isConstructor_impl()
 	}
 	return this.self_.isConstructor_impl()
@@ -1549,7 +1549,7 @@ func (this *FunctionType) isConstructor() bool {
 
 // isInterface: an object that is exactly a FunctionType calls its isInterface_impl directly (post-flip); others dispatch.
 func (this *FunctionType) isInterface() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType); p == this {
 		return this.isInterface_impl()
 	}
 	return this.self_.isInterface_impl()
@@ -1557,7 +1557,7 @@ func (this *FunctionType) isInterface() bool {
 
 // isOrdinaryFunction: an object that is exactly a FunctionType calls its isOrdinaryFunction_impl directly (post-flip); others dispatch.
 func (this *FunctionType) isOrdinaryFunction() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType); p == this {
 		return this.isOrdinaryFunction_impl()
 	}
 	return this.self_.isOrdinaryFunction_impl()
@@ -1565,7 +1565,7 @@ func (this *FunctionType) isOrdinaryFunction() bool {
 
 // toMaybeFunctionType: an object that is exactly a FunctionType calls its toMaybeFunctionType_impl directly (post-flip); others dispatch.
 func (this *FunctionType) toMaybeFunctionType() *FunctionType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType); p == this {
 		return this.toMaybeFunctionType_impl()
 	}
 	return this.self_.toMaybeFunctionType_impl()
@@ -1573,7 +1573,7 @@ func (this *FunctionType) toMaybeFunctionType() *FunctionType {
 
 // canBeCalled: an object that is exactly a FunctionType calls its canBeCalled_impl directly (post-flip); others dispatch.
 func (this *FunctionType) canBeCalled() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType); p == this {
 		return this.canBeCalled_impl()
 	}
 	return this.self_.canBeCalled_impl()
@@ -1581,7 +1581,7 @@ func (this *FunctionType) canBeCalled() bool {
 
 // getSlot: an object that is exactly a FunctionType calls its getSlot_impl directly (post-flip); others dispatch.
 func (this *FunctionType) getSlot(p0 Property_Key) *Property {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType); p == this {
 		return this.getSlot_impl(p0)
 	}
 	return this.self_.getSlot_impl(p0)
@@ -1589,7 +1589,7 @@ func (this *FunctionType) getSlot(p0 Property_Key) *Property {
 
 // getOwnPropertyNames: an object that is exactly a FunctionType calls its getOwnPropertyNames_impl directly (post-flip); others dispatch.
 func (this *FunctionType) getOwnPropertyNames() Set {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType); p == this {
 		return this.getOwnPropertyNames_impl()
 	}
 	return this.self_.getOwnPropertyNames_impl()
@@ -1597,7 +1597,7 @@ func (this *FunctionType) getOwnPropertyNames() Set {
 
 // getPropertyTypeKey: an object that is exactly a FunctionType calls its getPropertyTypeKey_impl directly (post-flip); others dispatch.
 func (this *FunctionType) getPropertyTypeKey(p0 Property_Key) *JSType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType); p == this {
 		return this.getPropertyTypeKey_impl(p0)
 	}
 	return this.self_.getPropertyTypeKey_impl(p0)
@@ -1605,7 +1605,7 @@ func (this *FunctionType) getPropertyTypeKey(p0 Property_Key) *JSType {
 
 // defineProperty: an object that is exactly a FunctionType calls its defineProperty_impl directly (post-flip); others dispatch.
 func (this *FunctionType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p3 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType); p == this {
 		return this.defineProperty_impl(p0, p1, p2, p3)
 	}
 	return this.self_.defineProperty_impl(p0, p1, p2, p3)
@@ -1613,7 +1613,7 @@ func (this *FunctionType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p
 
 // getSuperClassConstructor: an object that is exactly a FunctionType calls its getSuperClassConstructor_impl directly (post-flip); others dispatch.
 func (this *FunctionType) getSuperClassConstructor() *FunctionType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType); p == this {
 		return this.getSuperClassConstructor_impl()
 	}
 	return this.self_.getSuperClassConstructor_impl()
@@ -1621,7 +1621,7 @@ func (this *FunctionType) getSuperClassConstructor() *FunctionType {
 
 // recursionUnsafeHashCode: an object that is exactly a FunctionType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
 func (this *FunctionType) recursionUnsafeHashCode() int32 {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType); p == this {
 		return this.recursionUnsafeHashCode_impl()
 	}
 	return this.self_.recursionUnsafeHashCode_impl()
@@ -1629,7 +1629,7 @@ func (this *FunctionType) recursionUnsafeHashCode() int32 {
 
 // appendTo: an object that is exactly a FunctionType calls its appendTo_impl directly (post-flip); others dispatch.
 func (this *FunctionType) appendTo(p0 *TypeStringBuilder) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType); p == this {
 		this.appendTo_impl(p0)
 		return
 	}
@@ -1638,7 +1638,7 @@ func (this *FunctionType) appendTo(p0 *TypeStringBuilder) {
 
 // visitUntyped: an object that is exactly a FunctionType calls its visitUntyped_impl directly (post-flip); others dispatch.
 func (this *FunctionType) visitUntyped(p0 Visitor) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType); p == this {
 		return this.visitUntyped_impl(p0)
 	}
 	return this.self_.visitUntyped_impl(p0)
@@ -1646,7 +1646,7 @@ func (this *FunctionType) visitUntyped(p0 Visitor) any {
 
 // visitUntyped_2: an object that is exactly a FunctionType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
 func (this *FunctionType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType); p == this {
 		return this.visitUntyped_2_impl(p0, p1)
 	}
 	return this.self_.visitUntyped_2_impl(p0, p1)
@@ -1654,7 +1654,7 @@ func (this *FunctionType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any
 
 // getTypeOfThis: an object that is exactly a FunctionType calls its getTypeOfThis_impl directly (post-flip); others dispatch.
 func (this *FunctionType) getTypeOfThis() *JSType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType); p == this {
 		return this.getTypeOfThis_impl()
 	}
 	return this.self_.getTypeOfThis_impl()
@@ -1662,7 +1662,7 @@ func (this *FunctionType) getTypeOfThis() *JSType {
 
 // clearCachedValues: an object that is exactly a FunctionType calls its clearCachedValues_impl directly (post-flip); others dispatch.
 func (this *FunctionType) clearCachedValues() {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType); p == this {
 		this.clearCachedValues_impl()
 		return
 	}
@@ -1671,7 +1671,7 @@ func (this *FunctionType) clearCachedValues() {
 
 // hasCachedValues: an object that is exactly a FunctionType calls its hasCachedValues_impl directly (post-flip); others dispatch.
 func (this *FunctionType) hasCachedValues() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType); p == this {
 		return this.hasCachedValues_impl()
 	}
 	return this.self_.hasCachedValues_impl()
@@ -1679,7 +1679,7 @@ func (this *FunctionType) hasCachedValues() bool {
 
 // resolveInternal: an object that is exactly a FunctionType calls its resolveInternal_impl directly (post-flip); others dispatch.
 func (this *FunctionType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType); p == this {
 		return this.resolveInternal_impl(p0)
 	}
 	return this.self_.resolveInternal_impl(p0)
@@ -1687,7 +1687,7 @@ func (this *FunctionType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
 
 // hasAnyTemplateTypesInternal: an object that is exactly a FunctionType calls its hasAnyTemplateTypesInternal_impl directly (post-flip); others dispatch.
 func (this *FunctionType) hasAnyTemplateTypesInternal() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType); p == this {
 		return this.hasAnyTemplateTypesInternal_impl()
 	}
 	return this.self_.hasAnyTemplateTypesInternal_impl()
@@ -1695,7 +1695,7 @@ func (this *FunctionType) hasAnyTemplateTypesInternal() bool {
 
 // isStructuralInterface: an object that is exactly a FunctionType calls its isStructuralInterface_impl directly (post-flip); others dispatch.
 func (this *FunctionType) isStructuralInterface() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType); p == this {
 		return this.isStructuralInterface_impl()
 	}
 	return this.self_.isStructuralInterface_impl()
@@ -1703,7 +1703,7 @@ func (this *FunctionType) isStructuralInterface() bool {
 
 // getPropertyTypeMap: an object that is exactly a FunctionType calls its getPropertyTypeMap_impl directly (post-flip); others dispatch.
 func (this *FunctionType) getPropertyTypeMap() *JTMap[string, *JSType] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType); p == this {
 		return this.getPropertyTypeMap_impl()
 	}
 	return this.self_.getPropertyTypeMap_impl()
@@ -1711,7 +1711,7 @@ func (this *FunctionType) getPropertyTypeMap() *JTMap[string, *JSType] {
 
 // build: an object that is exactly a FunctionType_Builder calls its build_impl directly (post-flip); others dispatch.
 func (this *FunctionType_Builder) build() *PrototypeObjectType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionType_Builder); p == this {
 		return this.build_impl()
 	}
 	return this.self_.build_impl()
