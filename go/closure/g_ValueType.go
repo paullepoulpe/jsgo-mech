@@ -14,11 +14,6 @@ type ValueType_as interface {
 
 func (this *ValueType) as_ValueType() *ValueType { return this }
 
-func is_ValueType(v any) bool {
-	_, ok := v.(ValueType_as)
-	return ok
-}
-
 func (this *ValueType) self() any {
 	if this == nil {
 		return nil
