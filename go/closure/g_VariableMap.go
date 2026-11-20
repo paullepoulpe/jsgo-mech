@@ -49,7 +49,7 @@ func VariableMap_load(filename string) *Outcome_base[*VariableMap] {
 }
 
 func (this *VariableMap) toBytes() []int8 {
-	var writer *StringBuilder = new_StringBuilder()
+	var writer strBuilder_
 	it_1 := foreach_(obj_(ImmutableSortedSet_copyOf_Comparator_Collection(Map_Entry_comparingByKey(), Collection(this.map__.asMap().entrySet()))))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
@@ -58,7 +58,7 @@ func (this *VariableMap) toBytes() []int8 {
 		writer.append(VariableMap_escape(str_(entry.getValue())))
 		writer.append_char('\n')
 	}
-	return Io_utf8Bytes(tostrR_(writer))
+	return Io_utf8Bytes(writer.toString())
 }
 
 func VariableMap_fromBytes(bytes []int8) *Outcome_base[*VariableMap] {

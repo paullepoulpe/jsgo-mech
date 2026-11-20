@@ -315,7 +315,7 @@ func (this *CharRanges) shift(delta int32) *CharRanges {
 }
 
 func (this *CharRanges) toString() string {
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	sb.append_char('[')
 	for i := int32(0); i < int32(len(this.ranges_)); i++ {
 		if ((i & 1) != 0) && (this.ranges_[i] == (this.ranges_[(i-1)] + 1)) {
@@ -332,7 +332,7 @@ func (this *CharRanges) toString() string {
 		sb.append("0x").append(Integer_toString_int_int((this.ranges_[i] - (i & 1)), 16))
 	}
 	sb.append_char(']')
-	return tostrR_(sb)
+	return sb.toString()
 }
 
 func (this *CharRanges) equals(o any) bool {
