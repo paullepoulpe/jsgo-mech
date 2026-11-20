@@ -17,7 +17,7 @@ type RenameVars struct {
 	prefix_                        string
 	assignmentCount                int32
 	localBleedingFunctions         *JTSet[*Var]
-	localBleedingFunctionsPerScope *SimpleListMultimap
+	localBleedingFunctionsPerScope *SimpleListMultimap[*Scope, *Var]
 	assignments                    *JTMap[string, *RenameVars_Assignment]
 	localRenamingOnly              bool
 	preferStableNames              bool
@@ -36,7 +36,7 @@ func (this *RenameVars) finit_RenameVars() {
 	this.renameMap = jnewTMap_(jtc_string, jtc_string)
 	this.assignmentCount = 0
 	this.localBleedingFunctions = jnewTSet_(tce_p_Var)
-	this.localBleedingFunctionsPerScope = SimpleListMultimap_create()
+	this.localBleedingFunctionsPerScope = SimpleListMultimap_create[*Scope, *Var]()
 	this.assignments = jnewTMap_(jtc_string, jtc_p_RenameVars_Assignment)
 }
 
@@ -338,7 +338,7 @@ func (this *RenameVars_ProcessVars) enterScope(t *NodeTraversal) {
 	for current := range elemsAs_[*Var](scope.getVarIterable()) {
 		if current.isBleedingFunction() {
 			this.outer_.localBleedingFunctions.add(current)
-			this.outer_.localBleedingFunctionsPerScope.put(obj_(scope.getParent_rScope()), obj_(current))
+			this.outer_.localBleedingFunctionsPerScope.put(scope.getParent_rScope(), current)
 		}
 	}
 }

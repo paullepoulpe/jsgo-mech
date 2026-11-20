@@ -18,7 +18,7 @@ func new_FunctionRewriter(compiler *AbstractCompiler) *FunctionRewriter {
 
 func (this *FunctionRewriter) process_2(externs Node, root Node) {
 	var reducers *JTList[*FunctionRewriter_Reducer] = jimmutableListOf_[*FunctionRewriter_Reducer](jtc_p_FunctionRewriter_Reducer, new_FunctionRewriter_ReturnConstantReducer().up_FunctionRewriter_Reducer(), new_FunctionRewriter_GetterReducer().up_FunctionRewriter_Reducer(), new_FunctionRewriter_SetterReducer().up_FunctionRewriter_Reducer(), new_FunctionRewriter_EmptyFunctionReducer().up_FunctionRewriter_Reducer(), new_FunctionRewriter_IdentityReducer().up_FunctionRewriter_Reducer())
-	var reductionMap *SimpleSetMultimap = SimpleSetMultimap_createInsertionOrdered()
+	var reductionMap *SimpleSetMultimap[*FunctionRewriter_Reducer, *FunctionRewriter_Reduction] = SimpleSetMultimap_createInsertionOrdered[*FunctionRewriter_Reducer, *FunctionRewriter_Reduction]()
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_FunctionRewriter_ReductionGatherer(this, reducers, reductionMap)))
 	it_1 := reducers.each()
 	for it_1.next() {
@@ -96,15 +96,15 @@ func (this *FunctionRewriter_Reduction) estimateSavings() int32 {
 type FunctionRewriter_ReductionGatherer struct {
 	outer_     *FunctionRewriter
 	reducers   []*FunctionRewriter_Reducer
-	reductions *SimpleSetMultimap
+	reductions *SimpleSetMultimap[*FunctionRewriter_Reducer, *FunctionRewriter_Reduction]
 }
 
-func (this *FunctionRewriter_ReductionGatherer) init_FunctionRewriter_ReductionGatherer(reducers *JTList[*FunctionRewriter_Reducer], reductions *SimpleSetMultimap) {
+func (this *FunctionRewriter_ReductionGatherer) init_FunctionRewriter_ReductionGatherer(reducers *JTList[*FunctionRewriter_Reducer], reductions *SimpleSetMultimap[*FunctionRewriter_Reducer, *FunctionRewriter_Reduction]) {
 	this.reducers = arrmap_(reducers.asList().toArray(arrmap_(make([]*FunctionRewriter_Reducer, 0), func(v_ *FunctionRewriter_Reducer) any { return v_.self() })), func(v_ any) *FunctionRewriter_Reducer { return to_FunctionRewriter_Reducer(v_) })
 	this.reductions = reductions
 }
 
-func new_FunctionRewriter_ReductionGatherer(outer_ *FunctionRewriter, reducers *JTList[*FunctionRewriter_Reducer], reductions *SimpleSetMultimap) *FunctionRewriter_ReductionGatherer {
+func new_FunctionRewriter_ReductionGatherer(outer_ *FunctionRewriter, reducers *JTList[*FunctionRewriter_Reducer], reductions *SimpleSetMultimap[*FunctionRewriter_Reducer, *FunctionRewriter_Reduction]) *FunctionRewriter_ReductionGatherer {
 	this := &FunctionRewriter_ReductionGatherer{}
 	this.outer_ = outer_
 	this.init_FunctionRewriter_ReductionGatherer(reducers, reductions)
@@ -115,7 +115,7 @@ func (this *FunctionRewriter_ReductionGatherer) shouldTraverse(raversal *NodeTra
 	for _, reducer := range this.reducers {
 		var replacement Node = reducer.reduce(node)
 		if replacement != node {
-			this.reductions.put(reducer.self(), new_FunctionRewriter_Reduction(this.outer_, node, replacement))
+			this.reductions.put(reducer, new_FunctionRewriter_Reduction(this.outer_, node, replacement))
 			return false
 		}
 	}
