@@ -213,7 +213,7 @@ func TypedAstDeserializer_deserializeTypedAsts(typedAstsStream []int8, deseriali
 			panic(new_InvalidProtocolBufferException_String(("Unexpected field number " + istr_(int64(WireFormat_getTagFieldNumber(tag))) + " or wire type " + istr_(int64(WireFormat_getTagWireType(tag))))))
 		}
 		codedInput.readMessage(TypedAst_Builder_as_MessageLite_Builder(typedAstBuilder), ExtensionRegistry_getEmptyRegistry().up_ExtensionRegistryLite())
-		var typedAst *TypedAst = cast_[*TypedAst](typedAstBuilder.build())
+		var typedAst *TypedAst = typedAstBuilder.buildT_()
 		typedAstBuilder.clear()
 		codedInput.resetSizeCounter()
 		deserializer.deserializeTypedAst(typedAst, compiler, resolveSourceMapAnnotations, parseInlineSourceMaps)
