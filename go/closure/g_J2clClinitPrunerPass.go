@@ -37,8 +37,8 @@ func (this *J2clClinitPrunerPass) process_2(externs Node, root Node) {
 	}
 	var clinitReferences *SimpleSetMultimap[string, Node] = this.collectClinitReferences(root)
 	for do_2 := true; do_2; do_2 = !this.emptiedClinitMethods.IsEmpty() {
-		var newChangedScopes *TList[Node] = this.cleanEmptyClinitReferences(clinitReferences)
-		this.pruneEmptyClinits(root, newChangedScopes.asList())
+		var newChangedScopes *[]Node = this.cleanEmptyClinitReferences(clinitReferences)
+		this.pruneEmptyClinits(root, slicePtrView_(tc_Node, newChangedScopes))
 	}
 	new_PureFunctionIdentifier_Driver(this.compiler_).process_2(externs, root)
 }
@@ -91,8 +91,8 @@ func (this *J2clClinitPrunerPass) collectClinitReferences(root Node) *SimpleSetM
 	return clinitReferences
 }
 
-func (this *J2clClinitPrunerPass) cleanEmptyClinitReferences(clinitReferences *SimpleSetMultimap[string, Node]) *TList[Node] {
-	var newChangedScopes *TList[Node] = newTList_(tc_Node)
+func (this *J2clClinitPrunerPass) cleanEmptyClinitReferences(clinitReferences *SimpleSetMultimap[string, Node]) *[]Node {
+	var newChangedScopes *[]Node = &[]Node{}
 	it_1 := this.emptiedClinitMethods.eachEntry()
 	for it_1.next() {
 		var clinitReplacementEntry *TEntry[string, Node] = it_1.entry()
@@ -109,7 +109,7 @@ func (this *J2clClinitPrunerPass) cleanEmptyClinitReferences(clinitReferences *S
 				this.compiler_.reportChangeToChangeScope(changedScope)
 				clinitReferences.put_s(J2clClinitPrunerPass_getClinitMethodName(replacement).orElse(nullstr_), replacement)
 			}
-			newChangedScopes.add(changedScope)
+			*newChangedScopes = append(*newChangedScopes, changedScope)
 		}
 	}
 	return newChangedScopes

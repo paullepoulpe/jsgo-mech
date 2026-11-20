@@ -101,7 +101,7 @@ func (this *TemplateTypeMap) copyWithExtension_3(keys *TList[*TemplateType], val
 	if (this.numUnfilledTemplateKeys() == 0) && keys.isEmpty() {
 		return this
 	}
-	var extendedKeys *TList[*TemplateType] = tlistImm_(tc_p_TemplateType, ImmutableList_builder().addAll(Iterable(this.templateKeys.asList())).addAll(Iterable(keys.asList())).build())
+	var extendedKeys *TList[*TemplateType] = immutableListBuilder_(tc_p_TemplateType).addAllT(this.templateKeys).addAllT(keys).build()
 	var extendedValues *TList[*JSType] = newTList_(tc_p_JSType)
 	extendedValues.asList().addAll(Collection(this.templateValues.asList()))
 	this.padToSameLength(this.templateKeys, extendedValues)

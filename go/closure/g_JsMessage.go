@@ -78,8 +78,8 @@ func (this *JsMessage) getGenderedMessageParts(genderCase JsMessage_GrammaticalG
 	return tlistImm_(tc_JsMessage_Part, this.getGenderedMessagesMap().Get(genderCase))
 }
 
-func (this *JsMessage) getGenderedMessageVariants() *TList[JsMessage_GrammaticalGenderCase] {
-	return tlistImm_(tc_p_JsMessage_GrammaticalGenderCase, this.getGenderedMessagesMap().asImm().keySet().(*ErasedImmutableSet).asList())
+func (this *JsMessage) getGenderedMessageVariants() []JsMessage_GrammaticalGenderCase {
+	return sliceImm_(tc_p_JsMessage_GrammaticalGenderCase, this.getGenderedMessagesMap().asImm().keySet().(*ErasedImmutableSet).asList())
 }
 
 func (this *JsMessage) asJsMessageString() string {

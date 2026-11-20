@@ -6,12 +6,12 @@ type CheckConstantCaseNames struct {
 	compiler_             *AbstractCompiler
 	convention            CodingConvention
 	invalidNamesPerModule *TMap[string, Node]
-	reassignedNames       *TSet[string]
+	reassignedNames       map[string]struct{}
 }
 
 func (this *CheckConstantCaseNames) finit_CheckConstantCaseNames() {
 	this.invalidNamesPerModule = newTMap_(tc_string, tc_Node)
-	this.reassignedNames = newTSet_(tc_string)
+	this.reassignedNames = map[string]struct{}{}
 }
 
 func (this *CheckConstantCaseNames) init_CheckConstantCaseNames(compiler *AbstractCompiler) {
@@ -65,7 +65,7 @@ func (this *CheckConstantCaseNames) visit(t *NodeTraversal, n Node, parent Node)
 		}
 		var v *Var = t.getScope().getVar_String_rVar(n.getString())
 		if v.getScopeRoot().isModuleBody() {
-			this.reassignedNames.Add(n.getString())
+			this.reassignedNames[n.getString()] = struct{}{}
 		}
 	default:
 	}
@@ -76,14 +76,14 @@ func (this *CheckConstantCaseNames) reportWarningsAndClear() {
 	for it_1.next() {
 		var nameNode Node = it_1.v
 		var name string = nameNode.getString()
-		if this.reassignedNames.Has(name) {
+		if has_(this.reassignedNames, name) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(nameNode, CheckConstantCaseNames_REASSIGNED_CONSTANT_CASE_NAME, []string{name}))
 		} else {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(nameNode, CheckConstantCaseNames_MISSING_CONST_PROPERTY, []string{name}))
 		}
 	}
 	this.invalidNamesPerModule = newTMap_(tc_string, tc_Node)
-	this.reassignedNames = newTSet_(tc_string)
+	this.reassignedNames = map[string]struct{}{}
 }
 
 var CheckConstantCaseNames_MISSING_CONST_PROPERTY *DiagnosticType
