@@ -2087,3 +2087,13 @@ JSType hierarchy as an interface-to-interface assertion (toObjectType, self), th
 on setJSType, the Iterable result of getInvocationArgsAsIterable, the closure with a defer that
 the translation writes for try/finally in isSubtypeCaching (paid by inference and checking per
 call), per-message generated protobuf size and write code.
+
+Step 540 (d6407a3e; tool 0aa7a128): tryfn's third pattern. A try with a finally block and no
+catch clause that always returns leaves its function wherever it stands, so the function defers
+the finally block itself. 2 sites: SubtypeChecker.isSubtypeCaching, EqualityChecker (the
+recursion-depth counters; jsgo writes the same defer). 8 try literals are left, all of them
+tries whose completion code is read by code after them. Gate: runtime tests ok, four projects
+MATCH. Time, 18% subset, 2 alternating rounds against the tree before it
+(runs13/t10_gs3500.runs): 86.96 / 87.45 s before, 86.96 / 87.17 s after; CHECKS CPU 54.1 / 55.1 s
+before, 54.3 / 54.3 s after. No measurable gain: kept as the removal of a translation artefact,
+not as a speed step.

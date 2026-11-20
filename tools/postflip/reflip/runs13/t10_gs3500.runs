@@ -1,0 +1,16 @@
+  flags3500/CHECKS ulead18 wall=44.42 cpu=54.14 round=0 load=1.02 rss=2951M exit=0
+  flags3500/OPTIMIZATIONS ulead18 wall=34.32 cpu=37.48 round=0 load=1.01 rss=1774M exit=0
+  flags3500/FINALIZATIONS ulead18 wall=8.21 cpu=9.58 round=0 load=1.01 rss=502M exit=0
+  flags3500 ulead18 wall=86.96 cpu=101.20 round=0 load=1.01 sha=72b57cd286c9
+  flags3500/CHECKS ulead540 wall=44.50 cpu=54.25 round=0 load=2.06 rss=2933M exit=0
+  flags3500/OPTIMIZATIONS ulead540 wall=34.35 cpu=37.89 round=0 load=1.59 rss=1831M exit=0
+  flags3500/FINALIZATIONS ulead540 wall=8.11 cpu=9.67 round=0 load=1.50 rss=508M exit=0
+  flags3500 ulead540 wall=86.96 cpu=101.81 round=0 load=1.50 sha=72b57cd286c9
+  flags3500/CHECKS ulead540 wall=44.52 cpu=54.28 round=1 load=1.46 rss=2976M exit=0
+  flags3500/OPTIMIZATIONS ulead540 wall=34.67 cpu=38.06 round=1 load=1.25 rss=1763M exit=0
+  flags3500/FINALIZATIONS ulead540 wall=7.99 cpu=9.46 round=1 load=1.31 rss=472M exit=0
+  flags3500 ulead540 wall=87.17 cpu=101.80 round=1 load=1.29 sha=72b57cd286c9
+  flags3500/CHECKS ulead18 wall=45.12 cpu=55.06 round=1 load=1.13 rss=2992M exit=0
+  flags3500/OPTIMIZATIONS ulead18 wall=34.28 cpu=37.60 round=1 load=1.29 rss=1826M exit=0
+  flags3500/FINALIZATIONS ulead18 wall=8.05 cpu=9.59 round=1 load=1.24 rss=451M exit=0
+  flags3500 ulead18 wall=87.45 cpu=102.25 round=1 load=1.24 sha=72b57cd286c9
