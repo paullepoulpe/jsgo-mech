@@ -202,24 +202,6 @@ func (this *SimpleListMultimap[K, V]) isEmpty() bool {
 	return this.map__.isEmpty()
 }
 
-func (this *SimpleListMultimap[K, V]) equals(o any) bool {
-	var that *SimpleListMultimap[any, any]
-	_ = that
-	return (func() bool {
-		v_ := o
-		p, ok := v_.(*SimpleListMultimap[any, any])
-		if !ok {
-			return false
-		}
-		that = p
-		return true
-	}() && equalsBy_(this.map__, obj_(that.map__), (LinkedHashMapOf[any, ListOf[any]]).equals))
-}
-
-func (this *SimpleListMultimap[K, V]) hashCode() int32 {
-	return hashBy_(this.map__, (LinkedHashMapOf[any, ListOf[any]]).hashCode)
-}
-
 func (this *SimpleListMultimap[K, V]) toString() string {
 	return tostrR_(this.map__)
 }
