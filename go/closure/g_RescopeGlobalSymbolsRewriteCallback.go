@@ -62,14 +62,14 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visit(t *NodeTraversal, n Node,
 }
 
 func (this *RescopeGlobalSymbolsRewriteCallback) visitNameDeclaration(t *NodeTraversal, declaration Node) {
-	var allLhsNodes *TList[Node] = newTList_(tc_Node)
-	NodeUtil_visitLhsNodesInNode(declaration, (&Consumer_tfn_Node{func(p0 Node) { allLhsNodes.add(p0) }}).accept)
-	if allLhsNodes.isEmpty() {
+	var allLhsNodes *[]Node = &[]Node{}
+	NodeUtil_visitLhsNodesInNode(declaration, (&Consumer_tfn_Node{func(p0 Node) { *allLhsNodes = append(*allLhsNodes, p0) }}).accept)
+	if len(*allLhsNodes) == 0 {
 		return
 	}
 	var hasImportantName bool = false
-	var isGlobalDeclaration bool = t.getScope().getVar_String_rVar(allLhsNodes.get(0).getString()).isGlobal()
-	for lhs := range allLhsNodes.All() {
+	var isGlobalDeclaration bool = t.getScope().getVar_String_rVar(sliceAt_(*allLhsNodes, 0).getString()).isGlobal()
+	for lhs := range sliceAll_(allLhsNodes) {
 		if !lhs.isName() {
 			panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected lhs node %s, expected NAME", []any{lhs.box_()})))
 		}
@@ -102,7 +102,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) globalVarStaysLocalInDefiningCh
 	return (!this.symbolInfo.crossChunkNamesWithWriteFromOtherChunk().contains(name) && this.symbolInfo.globalNamesWithReadInDefiningChunk().contains(name))
 }
 
-func (this *RescopeGlobalSymbolsRewriteCallback) rewriteNameDeclaration(t *NodeTraversal, declaration Node, allLhsNodes *TList[Node], isGlobalDeclaration bool) {
+func (this *RescopeGlobalSymbolsRewriteCallback) rewriteNameDeclaration(t *NodeTraversal, declaration Node, allLhsNodes *[]Node, isGlobalDeclaration bool) {
 	if this.optimizeLocalAccess.shouldPreserveLocalVarDeclarations() && !NodeUtil_isAnyFor(declaration.getParent()) {
 		var changed bool = false
 		if (isGlobalDeclaration && !declaration.isVar()) && this.containsNonLocalOrInitializedVars(t, declaration, isGlobalDeclaration) {
@@ -144,7 +144,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) rewriteNameDeclaration(t *NodeT
 		return
 	}
 	if !this.optimizeLocalAccess.shouldOptimize() || this.containsNonLocalOrInitializedVars(t, declaration, isGlobalDeclaration) {
-		for lhs := range allLhsNodes.All() {
+		for lhs := range sliceAll_(allLhsNodes) {
 			this.maybeAddPreDeclaration(t, lhs, isGlobalDeclaration)
 		}
 	}
