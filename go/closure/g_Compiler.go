@@ -1138,9 +1138,9 @@ func (this *Compiler) getCurrentJsSource() string {
 				} else {
 					return false
 				}
-			}, &Predicate_base_tfn_Node{func(node Node) bool {
+			}, func(node Node) bool {
 				return true
-			}}) {
+			}) {
 				continue
 			}
 			builder.append(("// " + sstr_(statement.getLocation()) + "\n")).append(this.toSource_1(statement)).append("\n")

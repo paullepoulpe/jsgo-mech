@@ -143,7 +143,7 @@ func (this *InlineFunctions) updateFunctionStateForInlining(fn InlineFunctions_F
 			if NodeUtil_referencesEnclosingReceiver(block) {
 				functionState.setReferencesThis(true)
 			}
-			if NodeUtil_has(block, NodeUtil_isFunctionOrNonStaticClassFieldInitializer, Predicates_alwaysTrue()) {
+			if NodeUtil_has(block, NodeUtil_isFunctionOrNonStaticClassFieldInitializer, Predicates_alwaysTrueT_[Node]) {
 				functionState.setHasInnerClosures(true)
 				if InlineFunctions_hasLocalNames(fnNode) {
 					functionState.disallowInlining(this.compiler_, InlineFunctions_DisallowInliningReason_HAS_LOCAL_NAMES)
@@ -154,7 +154,7 @@ func (this *InlineFunctions) updateFunctionStateForInlining(fn InlineFunctions_F
 			var block Node = functionState.getFn().getDeclaringBlock()
 			if (block.isBlock() && !block.getParent().isFunction()) && NodeUtil_has(block, func(n Node) bool {
 				return (n.isLet() || n.isConst())
-			}, Predicates_alwaysTrue()) {
+			}, Predicates_alwaysTrueT_[Node]) {
 				functionState.disallowInlining(this.compiler_, InlineFunctions_DisallowInliningReason_CAPTURED_VARIABLE_NOT_IN_SCOPE)
 			}
 		}
@@ -184,7 +184,7 @@ func InlineFunctions_hasRequireInliningAnnotation(fnNode Node) bool {
 
 func InlineFunctions_hasLocalNames(fnNode Node) bool {
 	var block Node = NodeUtil_getFunctionBody(fnNode)
-	return (NodeUtil_getFunctionParameters(fnNode).hasChildren() || NodeUtil_has(block, new_NodeUtil_MatchDeclaration().applyT_, new_NodeUtil_MatchShallowStatement()))
+	return (NodeUtil_getFunctionParameters(fnNode).hasChildren() || NodeUtil_has(block, new_NodeUtil_MatchDeclaration().applyT_, new_NodeUtil_MatchShallowStatement().applyT_))
 }
 
 func (this *InlineFunctions) isCandidateFunction(fn InlineFunctions_Function) bool {
@@ -280,7 +280,7 @@ func InlineFunctions_hasNonInlinableParam(node Node) bool {
 	var pred func(any) bool = (&Predicate_base_tfn_Node{func(input Node) bool {
 		return (input.isDefaultValue() || input.isDestructuringPattern())
 	}}).apply
-	return NodeUtil_has(node, unboxedPred_[Node](pred), Predicates_alwaysTrue())
+	return NodeUtil_has(node, unboxedPred_[Node](pred), Predicates_alwaysTrueT_[Node])
 }
 
 func (this *InlineFunctions) resolveInlineConflictsForFunction(functionState *InlineFunctions_FunctionState) {

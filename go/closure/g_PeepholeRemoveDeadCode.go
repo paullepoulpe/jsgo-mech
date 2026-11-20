@@ -1199,13 +1199,13 @@ func (this *PeepholeRemoveDeadCode) isRemovableDestructuringTarget(destructrurin
 func PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue(n Node) bool {
 	return (NodeUtil_has(n, func(node Node) bool {
 		return (node.isBreak() && !node.hasChildren())
-	}, &Predicate_base_tfn_Node{func(node Node) bool {
+	}, func(node Node) bool {
 		return ((!IR_mayBeExpression(node) && !NodeUtil_isLoopStructure(node)) && !node.isSwitch())
-	}}) || NodeUtil_has(n, func(node Node) bool {
+	}) || NodeUtil_has(n, func(node Node) bool {
 		return (node.isContinue() && !node.hasChildren())
-	}, &Predicate_base_tfn_Node{func(node Node) bool {
+	}, func(node Node) bool {
 		return (!IR_mayBeExpression(node) && !NodeUtil_isLoopStructure(node))
-	}}))
+	}))
 }
 
 func (this *PeepholeRemoveDeadCode) tryFoldForCondition(forCondition Node) {

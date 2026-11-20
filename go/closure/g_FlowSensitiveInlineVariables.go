@@ -477,9 +477,9 @@ func (this *FlowSensitiveInlineVariables_Candidate) isRhsSafeToInline(usageScope
 		default:
 		}
 		return false
-	}, &Predicate_base_tfn_Node{func(input Node) bool {
+	}, func(input Node) bool {
 		return !input.isFunction()
-	}}) {
+	}) {
 		return false
 	}
 	if NodeUtil_has(this.def.getLastChild(), func(input Node) bool {
@@ -490,7 +490,7 @@ func (this *FlowSensitiveInlineVariables_Candidate) isRhsSafeToInline(usageScope
 			}
 		}
 		return false
-	}, Predicates_alwaysTrue()) {
+	}, Predicates_alwaysTrueT_[Node]) {
 		return false
 	}
 	return true
