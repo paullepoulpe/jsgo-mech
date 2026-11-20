@@ -149,7 +149,7 @@ func (this *GenerateExports) addExportMethod(exports *TMap[string, Node], export
 		var node Node = context.getFirstChild()
 		var ownerNode Node = node.getFirstChild()
 		methodOwnerName = ownerNode.getQualifiedName()
-		if ownerNode.isGetProp() && (ownerNode.getString() == GenerateExports_PROTOTYPE_PROPERTY) {
+		if ownerNode.isGetProp() && (ownerNode.getStringIs_(sid_prototype)) {
 			isEs5StylePrototypeAssignment = true
 		}
 		propertyName = Optional_of[string](node.getString())

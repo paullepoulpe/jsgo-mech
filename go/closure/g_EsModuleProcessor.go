@@ -234,7 +234,7 @@ func (this *EsModuleProcessor_FindMutableExports) visit_impl(t *NodeTraversal, n
 	if exports.isEmpty() {
 		return
 	}
-	var var_ *Var = scope.getVar_String_rVar(n.getString())
+	var var_ *Var = scope.getVarById_(n.getStringId_())
 	if (var_ == nil) || !var_.getScope_rAbstractScope_rScope().isModuleScope() {
 		return
 	}

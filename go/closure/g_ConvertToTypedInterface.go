@@ -75,7 +75,7 @@ func ConvertToTypedInterface_findNameDeclaration(scope *Scope, rhs Node) *Var {
 	if !rhs.isName() {
 		return nil
 	}
-	return scope.getVar_String_rVar(rhs.getString())
+	return scope.getVarById_(rhs.getStringId_())
 }
 
 func ConvertToTypedInterface_isSymbolProp(lhs Node) bool {

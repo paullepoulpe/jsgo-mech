@@ -319,7 +319,7 @@ func (this *Es6RewriteModules) rewriteRequires(script Node) {
 			}
 		}
 		if n.isName() && has_(this.namesToInlineByAlias, n.getString()) {
-			var v *Var = t.getScope().getVar_String_rVar(n.getString())
+			var v *Var = t.getScope().getVarById_(n.getStringId_())
 			if (v == nil) || (v.getNameNode() != n) {
 				var replacementName *ModuleRenaming_GlobalizedModuleName = mapAt_(this.namesToInlineByAlias, n.getString())
 				var replacement Node = replacementName.toQname(this.astFactory_).srcrefTree(n)

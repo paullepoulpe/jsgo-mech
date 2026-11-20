@@ -29,7 +29,7 @@ func ModuleImportResolver_isGoogModuleDependencyCall(value Node) bool {
 		return false
 	}
 	var owner Node = callee.getFirstChild()
-	return (((owner.isName() && (owner.getString() == ModuleImportResolver_GOOG)) && ModuleImportResolver_GOOG_DEPENDENCY_CALLS.Has(callee.getString())) || ModuleImportResolver_GOOG_MODULE_GET.matches(callee))
+	return (((owner.isName() && (owner.getStringIs_(sid_goog))) && ModuleImportResolver_GOOG_DEPENDENCY_CALLS.Has(callee.getString())) || ModuleImportResolver_GOOG_MODULE_GET.matches(callee))
 }
 
 func (this *ModuleImportResolver) getClosureNamespaceTypeFromCall(googRequire Node) *ScopedName {

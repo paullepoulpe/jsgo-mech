@@ -135,7 +135,7 @@ func (this *CrossChunkMethodMotion) movePrototypeObjectLiteralProperty(propName 
 		Preconditions_checkState_boolean_Object_H(false, assignNode)
 	}
 	var ownerDotPrototypeNode Node = assignNode.getFirstChild()
-	if !(ownerDotPrototypeNode.isQualifiedName() && (ownerDotPrototypeNode.getString() == "prototype")) {
+	if !(ownerDotPrototypeNode.isQualifiedName() && (ownerDotPrototypeNode.getStringIs_(sid_prototype))) {
 		Preconditions_checkState_boolean_Object_H(false, ownerDotPrototypeNode)
 	}
 	if this.noStubFunctions {
@@ -210,7 +210,7 @@ func (this *CrossChunkMethodMotion) movePrototypeObjectLiteralMethodShorthand(pr
 		Preconditions_checkState_boolean_Object_H(false, assignNode)
 	}
 	var ownerDotPrototypeNode Node = assignNode.getFirstChild()
-	if !(ownerDotPrototypeNode.isQualifiedName() && (ownerDotPrototypeNode.getString() == "prototype")) {
+	if !(ownerDotPrototypeNode.isQualifiedName() && (ownerDotPrototypeNode.getStringIs_(sid_prototype))) {
 		Preconditions_checkState_boolean_Object_H(false, ownerDotPrototypeNode)
 	}
 	var originalScript Node = NodeUtil_getEnclosingScript(memberFunctionDef)

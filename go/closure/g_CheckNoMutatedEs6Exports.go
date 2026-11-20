@@ -83,7 +83,7 @@ func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
 				return
 			}
 			var nameNode Node = declaration.getFirstChild()
-			if !nameNode.isEmpty() && nameNode.getString() != "" {
+			if !nameNode.isEmpty() && !nameNode.getStringIs_(sidx_) {
 				this.exportedLocalNames.Add(nameNode.getString())
 			}
 		} else {
@@ -99,7 +99,7 @@ func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
 func (this *CheckNoMutatedEs6Exports) visitName(t *NodeTraversal, name Node) {
 	var scope *Scope = t.getScope()
 	if NodeUtil_isLValue(name) && !scope.getClosestHoistScope_rScope().isModuleScope() {
-		var var_ *Var = scope.getVar_String_rVar(name.getString())
+		var var_ *Var = scope.getVarById_(name.getStringId_())
 		if (var_ != nil) && var_.getScope_rAbstractScope_rScope().isModuleScope() {
 			this.mutatedNames.put_s(name.getString(), name)
 		}

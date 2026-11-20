@@ -123,7 +123,7 @@ func (this *ValidityCheck_VerifyConstants) process_2(externs Node, root Node) {
 func (this *ValidityCheck_VerifyConstants) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isName() {
 		var name string = n.getString()
-		if n.getString() == "" {
+		if n.getStringIs_(sidx_) {
 			return
 		}
 		var isConst bool = n.getBooleanProp(Node_IS_CONSTANT_NAME)
@@ -135,7 +135,7 @@ func (this *ValidityCheck_VerifyConstants) visit_impl(t *NodeTraversal, n Node, 
 			} else {
 				expectedConst = false
 				var info *JSDocInfo = nil
-				var var_ *Var = t.getScope().getVar_String_rVar(n.getString())
+				var var_ *Var = t.getScope().getVarById_(n.getStringId_())
 				if var_ != nil {
 					info = var_.getJSDocInfo()
 				}

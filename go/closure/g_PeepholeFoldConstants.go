@@ -194,7 +194,7 @@ func (this *PeepholeFoldConstants) tryFoldTypeof(originalTypeofNode Node) Node {
 	case tokOrd1_VOID:
 		typeNameString = Optional_of[string]("undefined")
 	case tokOrd1_NAME:
-		if argumentNode.getString() == "undefined" {
+		if argumentNode.getStringIs_(sid_undefined) {
 			typeNameString = Optional_of[string]("undefined")
 		}
 	default:
@@ -244,7 +244,7 @@ func (this *PeepholeFoldConstants) tryFoldUnaryOperator(n Node) Node {
 			return n
 		case tokOrd1_NEG:
 			var result Node = 0
-			if left.isName() && (left.getString() == "NaN") {
+			if left.isName() && (left.getStringIs_(sid_NaN)) {
 				result = left.detach()
 			} else if left.isNeg() {
 				var leftLeft Node = left.getOnlyChild()
@@ -302,7 +302,7 @@ func (this *PeepholeFoldConstants) tryFoldInstanceof(n Node, left Node, right No
 			if !this.mayHaveSideEffects(left) {
 				replacementNode = IR_falseNode()
 			}
-		} else if right.isName() && ("Object" == right.getString()) {
+		} else if right.isName() && (right.getStringIs_(sid_Object)) {
 			replacementNode = IR_trueNode()
 		}
 		if replacementNode != 0 {
@@ -903,9 +903,9 @@ func (this *PeepholeFoldConstants) tryFoldAdd(node Node, left Node, right Node) 
 		}
 		if NodeUtil_isLiteralValue(left, false) && NodeUtil_isLiteralValue(right, false) {
 			return this.tryFoldAddConstantString(node, left, right)
-		} else if (left.isStringLit() && left.getString() == "") && this.isStringTyped(right) {
+		} else if (left.isStringLit() && left.getStringIs_(sidx_)) && this.isStringTyped(right) {
 			return this.replace(node, right.cloneTree_1(true))
-		} else if (right.isStringLit() && right.getString() == "") && this.isStringTyped(left) {
+		} else if (right.isStringLit() && right.getStringIs_(sidx_)) && this.isStringTyped(left) {
 			return this.replace(node, left.cloneTree_1(true))
 		} else {
 			return this.tryFoldAdjacentLiteralLeaves(node, left, right)
@@ -1022,7 +1022,7 @@ func PeepholeFoldConstants_tryAbstractRelationalComparison(peepholeOptimization 
 			} else {
 				return Tri_forBoolean((utf16Compare_(lvStr.get(), rvStr.get()) < 0))
 			}
-		} else if (((left.isTypeOf() && right.isTypeOf()) && left.getFirstChild().isName()) && right.getFirstChild().isName()) && (left.getFirstChild().getString() == right.getFirstChild().getString()) {
+		} else if (((left.isTypeOf() && right.isTypeOf()) && left.getFirstChild().isName()) && right.getFirstChild().isName()) && (left.getFirstChild().getStringId_() == right.getFirstChild().getStringId_()) {
 			return Tri_FALSE
 		}
 	}
@@ -1075,7 +1075,7 @@ func PeepholeFoldConstants_tryAbstractRelationalComparison(peepholeOptimization 
 		return PeepholeFoldConstants_bigintLessThanDouble(rvBig, unbox_[float64](lvNum), Tri_TRUE, willNegate)
 	}
 	if (!willNegate && left.isName()) && right.isName() {
-		if left.getString() == right.getString() {
+		if left.getStringId_() == right.getStringId_() {
 			return Tri_FALSE
 		}
 	}
@@ -1231,7 +1231,7 @@ func PeepholeFoldConstants_tryStrictEqualityComparison(peepholeOptimization *Abs
 						return Tri_FALSE
 					}()
 				}
-			} else if (((left.isTypeOf() && right.isTypeOf()) && left.getFirstChild().isName()) && right.getFirstChild().isName()) && (left.getFirstChild().getString() == right.getFirstChild().getString()) {
+			} else if (((left.isTypeOf() && right.isTypeOf()) && left.getFirstChild().isName()) && right.getFirstChild().isName()) && (left.getFirstChild().getStringId_() == right.getFirstChild().getStringId_()) {
 				return Tri_TRUE
 			}
 		case NodeUtil_ValueType_BOOLEAN:
@@ -1321,7 +1321,7 @@ func (this *PeepholeFoldConstants) tryFoldInForcedStringContext(n Node) Node {
 	if !objectType.isName() {
 		return n
 	}
-	if objectType.getString() == "String" {
+	if objectType.getStringIs_(sid_String) {
 		var value Node = objectType.getNext()
 		var stringValue Optional[string]
 		if value == 0 {

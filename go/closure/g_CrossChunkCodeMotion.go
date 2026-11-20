@@ -94,11 +94,11 @@ func (this *CrossChunkCodeMotion) isExistenceTypeofGuardFor(expression Node, ref
 	if expression.isNE() || expression.isSHNE() {
 		var undefinedString Node = expression.getFirstChild()
 		var typeofNode Node = expression.getLastChild()
-		return (((undefinedString.isStringLit() && (undefinedString.getString() == "undefined")) && typeofNode.isTypeOf()) && typeofNode.getFirstChild().isEquivalentTo(reference))
+		return (((undefinedString.isStringLit() && (undefinedString.getStringIs_(sid_undefined))) && typeofNode.isTypeOf()) && typeofNode.getFirstChild().isEquivalentTo(reference))
 	} else if expression.isEQ() || expression.isSHEQ() {
 		var functionString Node = expression.getFirstChild()
 		var typeofNode Node = expression.getLastChild()
-		return (((functionString.isStringLit() && (functionString.getString() == "function")) && typeofNode.isTypeOf()) && typeofNode.getFirstChild().isEquivalentTo(reference))
+		return (((functionString.isStringLit() && (functionString.getStringIs_(sid_function))) && typeofNode.isTypeOf()) && typeofNode.getFirstChild().isEquivalentTo(reference))
 	} else {
 		return false
 	}

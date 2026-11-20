@@ -225,10 +225,10 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyE
 
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5) init_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5(getKey Node, setKey Node) {
 	this.J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty.init_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty(getKey, setKey)
-	if !(getKey.isStringKey() && (getKey.getString() == "get")) {
+	if !(getKey.isStringKey() && (getKey.getStringIs_(sid_get))) {
 		Preconditions_checkArgument_boolean_Object_H(false, getKey)
 	}
-	if !((setKey == 0) || (setKey.isStringKey() && (setKey.getString() == "set"))) {
+	if !((setKey == 0) || (setKey.isStringKey() && (setKey.getStringIs_(sid_set)))) {
 		Preconditions_checkArgument_boolean_Object_H(false, setKey)
 	}
 }
