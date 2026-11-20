@@ -70,10 +70,6 @@ func (this *BigIntType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_BOTH
 }
 
-func (this *BigIntType) visitUntyped_impl(visitor Visitor) any {
-	return visitor.caseBigIntType()
-}
-
 func (this *BigIntType) autoboxesTo_impl() *JSType {
 	return this.getNativeType(JSTypeNative_BIGINT_OBJECT_TYPE)
 }
@@ -140,14 +136,6 @@ func (this *BigIntType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}
 	return this.self_.getPossibleToBooleanOutcomes_impl()
-}
-
-// visitUntyped: an object that is exactly a BigIntType calls its visitUntyped_impl directly (post-flip); others dispatch.
-func (this *BigIntType) visitUntyped(p0 Visitor) any {
-	if p, _ := this.self_.(*BigIntType); p == this {
-		return this.visitUntyped_impl(p0)
-	}
-	return this.self_.visitUntyped_impl(p0)
 }
 
 // autoboxesTo: an object that is exactly a BigIntType calls its autoboxesTo_impl directly (post-flip); others dispatch.

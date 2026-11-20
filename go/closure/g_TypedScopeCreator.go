@@ -1465,7 +1465,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) findOverriddenProperty(owner
 		}
 	}
 	if ((result != nil) && (typeMap != nil)) && !typeMap.isEmpty() {
-		result = to_JSType(result.visit(TemplateTypeReplacer_as_Visitor(TemplateTypeReplacer_forPartialReplacement(this.outer_.typeRegistry, typeMap))))
+		result = JSType_visit(result, TemplateTypeReplacer_as_Visitor(TemplateTypeReplacer_forPartialReplacement(this.outer_.typeRegistry, typeMap)))
 	}
 	return result
 }

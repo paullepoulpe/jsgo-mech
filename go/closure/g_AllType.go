@@ -57,14 +57,6 @@ func (this *AllType) hasDisplayName_impl() bool {
 	return true
 }
 
-func (this *AllType) visitUntyped_impl(visitor Visitor) any {
-	return visitor.caseAllType()
-}
-
-func (this *AllType) visitUntyped_2_impl(visitor RelationshipVisitor, that *JSType) any {
-	return visitor.caseAllType(that)
-}
-
 func (this *AllType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_BOTH
 }
@@ -148,22 +140,6 @@ func (this *AllType) hasDisplayName() bool {
 		return this.hasDisplayName_impl()
 	}
 	return this.self_.hasDisplayName_impl()
-}
-
-// visitUntyped: an object that is exactly a AllType calls its visitUntyped_impl directly (post-flip); others dispatch.
-func (this *AllType) visitUntyped(p0 Visitor) any {
-	if p, _ := this.self_.(*AllType); p == this {
-		return this.visitUntyped_impl(p0)
-	}
-	return this.self_.visitUntyped_impl(p0)
-}
-
-// visitUntyped_2: an object that is exactly a AllType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
-func (this *AllType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
-	if p, _ := this.self_.(*AllType); p == this {
-		return this.visitUntyped_2_impl(p0, p1)
-	}
-	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
 // getPossibleToBooleanOutcomes: an object that is exactly a AllType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.

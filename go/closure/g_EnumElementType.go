@@ -124,14 +124,6 @@ func (this *EnumElementType) getReferenceName_impl() Optional[string] {
 	return this.name_
 }
 
-func (this *EnumElementType) visitUntyped_impl(visitor Visitor) any {
-	return visitor.caseEnumElementType(this)
-}
-
-func (this *EnumElementType) visitUntyped_2_impl(visitor RelationshipVisitor, that *JSType) any {
-	return visitor.caseEnumElementType(this, that)
-}
-
 func (this *EnumElementType) defineProperty_impl(propertyName Property_Key, type_ *JSType, inferred bool, propertyNode Node) bool {
 	return true
 }
@@ -324,22 +316,6 @@ func (this *EnumElementType) getReferenceName() Optional[string] {
 		return this.getReferenceName_impl()
 	}
 	return this.self_.getReferenceName_impl()
-}
-
-// visitUntyped: an object that is exactly a EnumElementType calls its visitUntyped_impl directly (post-flip); others dispatch.
-func (this *EnumElementType) visitUntyped(p0 Visitor) any {
-	if p, _ := this.self_.(*EnumElementType); p == this {
-		return this.visitUntyped_impl(p0)
-	}
-	return this.self_.visitUntyped_impl(p0)
-}
-
-// visitUntyped_2: an object that is exactly a EnumElementType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
-func (this *EnumElementType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
-	if p, _ := this.self_.(*EnumElementType); p == this {
-		return this.visitUntyped_2_impl(p0, p1)
-	}
-	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
 // defineProperty: an object that is exactly a EnumElementType calls its defineProperty_impl directly (post-flip); others dispatch.

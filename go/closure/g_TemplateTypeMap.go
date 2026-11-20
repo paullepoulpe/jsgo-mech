@@ -37,7 +37,7 @@ func (this *TemplateTypeMap) init_TemplateTypeMap(registry *JSTypeRegistry, temp
 			var templateKey *TemplateType = this.templateKeys.get(i)
 			replacer.setKeyType(templateKey, nextSubMap)
 			var templateValue *JSType = this.templateValues.get(i)
-			resolvedValues[i] = to_JSType(templateValue.visit(TemplateTypeReplacer_as_Visitor(replacer)))
+			resolvedValues[i] = JSType_visit(templateValue, TemplateTypeReplacer_as_Visitor(replacer))
 		} else {
 			resolvedValues[i] = this.templateKeys.get(i).getBound()
 		}
