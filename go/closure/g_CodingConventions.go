@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type CodingConventions struct {
 }
 
@@ -342,7 +344,7 @@ func (this *CodingConventions_DefaultCodingConvention) isConstantKey(variableNam
 }
 
 func (this *CodingConventions_DefaultCodingConvention) isValidEnumKey(key Optional[string]) bool {
-	return (key.isPresent() && (String_length(key.get()) > 0))
+	return (key.isPresent() && (len(key.get()) != 0))
 }
 
 func (this *CodingConventions_DefaultCodingConvention) isOptionalParameter(parameter Node) bool {
@@ -363,17 +365,17 @@ func (this *CodingConventions_DefaultCodingConvention) isFunctionCallThatAlwaysT
 
 func (this *CodingConventions_DefaultCodingConvention) getPackageName(source StaticSourceFile) Optional[string] {
 	var name string = source.getName()
-	var lastSlash int32 = String_lastIndexOf(name, 47)
+	var lastSlash int32 = int32(strings.LastIndexByte(name, '/'))
 	return func() Optional[string] {
 		if lastSlash == -1 {
 			return Optional_of[string]("")
 		}
-		return Optional_of[string](String_substring(name, 0, lastSlash))
+		return Optional_of[string](name[:lastSlash])
 	}()
 }
 
 func (this *CodingConventions_DefaultCodingConvention) isExported_2(name string, local bool) bool {
-	return (local && String_startsWith(name, "$super"))
+	return (local && strings.HasPrefix(name, "$super"))
 }
 
 func (this *CodingConventions_DefaultCodingConvention) isExported(name string) bool {

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type GlobalNamespace struct {
 	compiler_                     *AbstractCompiler
 	enableImplicitlyAliasedValues bool
@@ -185,12 +187,12 @@ func (this *GlobalNamespace) process() {
 }
 
 func GlobalNamespace_getTopVarName(name string) string {
-	var firstDotIndex int32 = String_indexOf(name, 46)
+	var firstDotIndex int32 = int32(strings.IndexByte(name, '.'))
 	return func() string {
 		if firstDotIndex == -1 {
 			return name
 		}
-		return String_substring(name, 0, firstDotIndex)
+		return name[:firstDotIndex]
 	}()
 }
 
@@ -618,7 +620,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) collect(scope *Scope, chunk *J
 			return
 		}
 		name = Optional_of[string](n.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}})
 	case Token_rhino_CALL:
 		if (parent.isExprResult() && GlobalNamespace_GOOG_PROVIDE.matches(n.getFirstChild())) && n.getSecondChild().isStringLit() {
@@ -690,7 +692,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) createNamesFromProvide(namespa
 			}
 			return String_substring(namespace, 0, dot)
 		}()
-		if String_isEmpty(subNamespace) {
+		if subNamespace == "" {
 			panic(new_IllegalStateException_0().self())
 		}
 		name = this.getOrCreateName(subNamespace, nil)
@@ -903,7 +905,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) isClassDefiningCall(callNode N
 		return true
 	}
 	var className string = convention.getSingletonGetterClassName(callNode)
-	return !String_isEmpty(className)
+	return className != ""
 }
 
 func (this *GlobalNamespace_BuildGlobalNamespace) isObjectHasOwnPropertyCall(callNode Node) bool {
@@ -925,7 +927,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) isObjectHasOwnPropertyCall(cal
 func (this *GlobalNamespace_BuildGlobalNamespace) maybeHandlePrototypePrefix(chunk *JSChunk, scope *Scope, n Node, name string, metadata *ModuleMetadataMap_ModuleMetadata) bool {
 	var numLevelsToRemove int32
 	var prefix string
-	if String_endsWith(name, ".prototype") {
+	if strings.HasSuffix(name, ".prototype") {
 		numLevelsToRemove = 1
 		prefix = String_substring(name, 0, (String_length(name) - 10))
 	} else {
@@ -963,11 +965,11 @@ func (this *GlobalNamespace_BuildGlobalNamespace) getOrCreateName(name string, m
 		return this.outer_.nameMapByModule.get(obj_(metadata), strobj_(name))
 	}()
 	if node == nil {
-		var i int32 = String_lastIndexOf(name, 46)
+		var i int32 = int32(strings.LastIndexByte(name, '.'))
 		if i >= 0 {
-			var parentName string = String_substring(name, 0, i)
+			var parentName string = name[:i]
 			var parent *GlobalNamespace_Name = this.getOrCreateName(parentName, metadata)
-			node = parent.addProperty(String_substring_int(name, (i+1)), this.outer_.sourceKind)
+			node = parent.addProperty(name[i+1:], this.outer_.sourceKind)
 			if metadata == nil {
 				this.outer_.nameMap.put(name, node)
 			} else {
@@ -1750,7 +1752,7 @@ func (this *GlobalNamespace_Name) getUnsafeInlinabilityBasedOnDeclaredType() Glo
 	} else if this.getBooleanProperty(GlobalNamespace_NameProp_NOT_A_TYPE) {
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	}
-	panic(new_IllegalStateException_String(String_format("name missing declaredType value: %s", []any{this})).self())
+	panic(new_IllegalStateException_String(("name missing declaredType value: " + objstr_(this))).self())
 }
 
 func (this *GlobalNamespace_Name) referencesSuperOrInnerClassName() bool {
@@ -1813,17 +1815,17 @@ func (this *GlobalNamespace_Name) canCollapseOrInlineChildNames() GlobalNamespac
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	} else if this.globalSets != 1 {
 		this.logChildNamesDecisionSupplier(GlobalNamespace_Inlinability_DO_NOT_INLINE, (&Supplier_tfn_string{func() string {
-			return String_format("set %d times globally", []any{int32(this.globalSets)})
+			return ("set " + istr_(int64(int32(this.globalSets))) + " times globally")
 		}}).get)
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	} else if this.localSets != 0 {
 		this.logChildNamesDecisionSupplier(GlobalNamespace_Inlinability_DO_NOT_INLINE, (&Supplier_tfn_string{func() string {
-			return String_format("set %d times locally", []any{int32(this.localSets)})
+			return ("set " + istr_(int64(int32(this.localSets))) + " times locally")
 		}}).get)
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	} else if this.deleteProps != 0 {
 		this.logChildNamesDecisionSupplier(GlobalNamespace_Inlinability_DO_NOT_INLINE, (&Supplier_tfn_string{func() string {
-			return String_format("properties are deleted %d times", []any{int32(this.deleteProps)})
+			return ("properties are deleted " + istr_(int64(int32(this.deleteProps))) + " times")
 		}}).get)
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	}
@@ -1856,7 +1858,7 @@ func (this *GlobalNamespace_Name) canCollapseOrInlineChildNames() GlobalNamespac
 	if this.aliasingGets > 0 {
 		var unsafeInlinability GlobalNamespace_Inlinability = this.getUnsafeInlinabilityBasedOnDeclaredType()
 		this.logChildNamesDecisionSupplier(unsafeInlinability, (&Supplier_tfn_string{func() string {
-			return String_format("%d aliasing gets exist", []any{int32(this.aliasingGets)})
+			return (istr_(int64(int32(this.aliasingGets))) + " aliasing gets exist")
 		}}).get)
 		return unsafeInlinability
 	}

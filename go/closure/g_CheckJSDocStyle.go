@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type CheckJSDocStyle struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_ *AbstractCompiler
@@ -226,7 +228,7 @@ func (this *CheckJSDocStyle) checkParam(t *NodeTraversal, param Node, name Optio
 		nodeToCheck = param.getFirstChild()
 		nameOptional = true
 	} else if param.isName() {
-		nameOptional = String_startsWith(param.getString(), "opt_")
+		nameOptional = strings.HasPrefix(param.getString(), "opt_")
 	} else {
 		if !(param.isDestructuringPattern() || param.isRest()) {
 			Preconditions_checkState_boolean_Object_H(false, param)

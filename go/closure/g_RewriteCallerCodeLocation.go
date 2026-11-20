@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type RewriteCallerCodeLocation struct {
 	compiler_                   *AbstractCompiler
 	astFactory_                 *AstFactory
@@ -122,7 +124,7 @@ func (this *RewriteCallerCodeLocation_FindCallerLocationFunctions) visitParamLis
 					this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(c, RewriteCallerCodeLocation_JSC_CALLER_LOCATION_POSITION_ERROR, []string{}))
 				}
 				var functionName string = n.getParent().getFirstChild().getQualifiedName()
-				if String_isEmpty(functionName) {
+				if functionName == "" {
 					this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n.getParent().getFirstChild(), RewriteCallerCodeLocation_JSC_ANONYMOUS_FUNCTION_CODE_LOCATION_ERROR, []string{}))
 					return
 				}
@@ -165,11 +167,11 @@ func (this *RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls) visit_
 
 func (this *RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls) visitCallNodeAndRewrite(n Node, t *NodeTraversal) {
 	var firstChild Node = n.getFirstChild()
-	if ((firstChild == 0) || (!firstChild.isName() && !firstChild.isGetProp())) || String_isEmpty(firstChild.getQualifiedName()) {
+	if ((firstChild == 0) || (!firstChild.isName() && !firstChild.isGetProp())) || firstChild.getQualifiedName() == "" {
 		return
 	}
 	var name string = firstChild.getQualifiedName()
-	var moduleContentsName string = JString_replace_s(String_replace_char_char(name, '.', '_'), "module$exports$", "module$contents$")
+	var moduleContentsName string = JString_replace_s(strings.ReplaceAll(name, ".", "_"), "module$exports$", "module$contents$")
 	if !this.outer_.callerLocationFunctionNames.containsKey(moduleContentsName) {
 		return
 	}

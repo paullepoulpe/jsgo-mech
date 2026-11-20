@@ -169,7 +169,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 		multiline = true
 		parts.add(this.buildAnnotationWithType_3("return", info.getReturnType(), info.getReturnDescription()))
 	}
-	if !info.getThrowsAnnotations().isEmpty() && !String_isEmpty(str_(info.getThrowsAnnotations().get(0))) {
+	if !info.getThrowsAnnotations().isEmpty() && str_(info.getThrowsAnnotations().get(0)) != "" {
 		multiline = true
 		parts.add(("@throws " + sstr_(str_(info.getThrowsAnnotations().get(0)))))
 	}
@@ -238,7 +238,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 			var text string = str_(suppression.getValue())
 			var sb strBuilder_
 			sb.append("@suppress {").append(Joiner_on_char(',').join_ObjectArr(arrmap_(warnings, func(v_ string) any { return strobj_(v_) }))).append("}")
-			if !String_isEmpty(text) {
+			if text != "" {
 				sb.append(" ").append(text)
 			}
 			parts.add(sb.toString())
@@ -291,7 +291,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	}
 	if this.printDesc && info.getBlockDescription().isPresent() {
 		var cleaned string = JSDocInfoPrinter_DESCRIPTION_LINE_START_PATTERN.matcher_s(info.getBlockDescription().get()).replaceAll("\n")
-		if !String_isEmpty(cleaned) {
+		if cleaned != "" {
 			multiline = true
 			cleaned = String_trim(cleaned)
 			if parts.size() > 1 {
@@ -372,7 +372,7 @@ func (this *JSDocInfoPrinter) typeNode(typeNode Node) string {
 }
 
 func (this *JSDocInfoPrinter) appendTypeNode(sb *StringBuilder, typeNode Node) {
-	if this.useOriginalName && !String_isEmpty(typeNode.getOriginalName()) {
+	if this.useOriginalName && typeNode.getOriginalName() != "" {
 		sb.append(typeNode.getOriginalName())
 		return
 	}

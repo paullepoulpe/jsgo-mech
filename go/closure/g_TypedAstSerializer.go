@@ -98,7 +98,7 @@ func (this *TypedAstSerializer) serializeScriptNode(script Node) *LazyAst {
 	var scriptProto *AstNode = this.visit(script)
 	this.subtreeSourceFiles.clear()
 	var encodedSourceMap Optional[string] = this.compiler_.getBase64SourceMapContents(Optional_of[string](script.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}}))
 	var lazyAstBuilder *LazyAst_Builder = LazyAst_newBuilder().setScript(scriptProto.toByteString()).setSourceFile(sourceFile)
 	if encodedSourceMap.isPresent() {
@@ -195,7 +195,7 @@ func (this *TypedAstSerializer) valueTranslator(builder *AstNode_Builder, n Node
 
 func (this *TypedAstSerializer) setOriginalName(builder *AstNode_Builder, n Node) {
 	var originalName string = n.getOriginalName()
-	if String_isEmpty(originalName) {
+	if originalName == "" {
 		builder.setOriginalNamePointer(0)
 		return
 	}
