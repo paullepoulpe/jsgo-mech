@@ -1719,6 +1719,12 @@ func Map_get_s(m any, k string) any {
 		if x, ok := m.(interface{ get_s(string) any }); ok {
 			return x.get_s(k) // the erased view of a typed map (rt_tmap.go)
 		}
+		if tm, ok := m.(*TreeMap); ok && tm.strKeyed() {
+			if i, ok := tm.search_s(k); ok {
+				return tm.entries[i].val
+			}
+			return nil
+		}
 	}
 	return asMap_(m).get(strobj_(k))
 }
@@ -1733,6 +1739,10 @@ func Map_containsKey_s(m any, k string) bool {
 		}
 		if x, ok := m.(interface{ containsKey_s(string) bool }); ok {
 			return x.containsKey_s(k)
+		}
+		if tm, ok := m.(*TreeMap); ok && tm.strKeyed() {
+			_, ok := tm.search_s(k)
+			return ok
 		}
 	}
 	return asMap_(m).containsKey(strobj_(k))
