@@ -517,7 +517,12 @@ func (this *InlineFunctions_CallVisitor) as_InlineFunctions_CallVisitor() *Inlin
 }
 
 func to_InlineFunctions_CallVisitor(v any) *InlineFunctions_CallVisitor {
-	if v == nil {
+	switch p := v.(type) {
+	case *InlineFunctions_CallVisitor:
+		return p
+	case *InlineFunctions_FindCandidatesReferences:
+		return p.as_InlineFunctions_CallVisitor()
+	case nil:
 		return nil
 	}
 	return v.(interface {
