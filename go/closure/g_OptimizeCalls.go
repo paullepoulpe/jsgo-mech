@@ -173,9 +173,9 @@ func new_OptimizeCalls_ReferenceMap() *OptimizeCalls_ReferenceMap {
 }
 
 func (this *OptimizeCalls_ReferenceMap) addReference(data *TMap[string, *ArrayList], name string, n Node) {
-	var refs ArrayListOf[Node] = data.computeIfAbsent(name, &Function_tfn_string_any{func(k string) any {
+	var refs ArrayListOf[Node] = data.ComputeIfAbsentObj(name, func(k string) any {
 		return new_ArrayList_0().self()
-	}})
+	})
 	refs.add(n.box_())
 }
 
