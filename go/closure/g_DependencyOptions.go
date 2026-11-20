@@ -178,10 +178,6 @@ func (this DependencyOptions_DependencyMode) toString() string {
 	return this.enum_().name_
 }
 
-func (this DependencyOptions_DependencyMode) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this DependencyOptions_DependencyMode) self() any {
 	if this == 0 {
 		return nil

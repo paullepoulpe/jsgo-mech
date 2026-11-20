@@ -2650,10 +2650,6 @@ func (this AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) toStri
 	return this.enum_().name_
 }
 
-func (this AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) self() any {
 	if this == 0 {
 		return nil
@@ -2849,10 +2845,6 @@ func (this AbstractCommandLineRunner_JsSourceType) ordinal() int32 {
 
 func (this AbstractCommandLineRunner_JsSourceType) toString() string {
 	return this.enum_().name_
-}
-
-func (this AbstractCommandLineRunner_JsSourceType) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this AbstractCommandLineRunner_JsSourceType) self() any {

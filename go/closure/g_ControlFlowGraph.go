@@ -151,10 +151,6 @@ func (this ControlFlowGraph_Branch) toString() string {
 	return this.enum_().name_
 }
 
-func (this ControlFlowGraph_Branch) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this ControlFlowGraph_Branch) self() any {
 	if this == 0 {
 		return nil

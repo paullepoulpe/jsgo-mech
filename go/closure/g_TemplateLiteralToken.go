@@ -81,10 +81,6 @@ func (this TemplateLiteralToken_ErrorLevel) toString() string {
 	return this.enum_().name_
 }
 
-func (this TemplateLiteralToken_ErrorLevel) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this TemplateLiteralToken_ErrorLevel) self() any {
 	if this == 0 {
 		return nil

@@ -130,10 +130,6 @@ func (this CheckNestedNames_DeclarationKind) toString() string {
 	return this.enum_().name_
 }
 
-func (this CheckNestedNames_DeclarationKind) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this CheckNestedNames_DeclarationKind) self() any {
 	if this == 0 {
 		return nil

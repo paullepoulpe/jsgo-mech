@@ -194,10 +194,6 @@ func (this ScopedAliases_InvalidModuleGetHandling) toString() string {
 	return this.enum_().name_
 }
 
-func (this ScopedAliases_InvalidModuleGetHandling) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this ScopedAliases_InvalidModuleGetHandling) self() any {
 	if this == 0 {
 		return nil
