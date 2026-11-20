@@ -25,20 +25,17 @@ func (this *PrebuildDependencyInfo) prebuild(allInputs IterableOf[*CompilerInput
 		futureList.add(executorService.submit(&Callable_tfn_DependencyInfo_{func() DependencyInfo_ { return input.getDependencyInfo() }}))
 	}
 	poolExecutor.shutdown()
-	_ = func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if is_ExecutionException(ex_) {
-					var e *Exception = to_Exception(ex_)
-					panic(new_RuntimeException_Throwable(e.up_Throwable()))
-				}
-				panic(r_)
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if is_ExecutionException(ex_) {
+				var e *Exception = to_Exception(ex_)
+				panic(new_RuntimeException_Throwable(e.up_Throwable()))
 			}
-		}()
-		Futures_allAsList(Iterable(futureList.asList())).get()
-		return 0
+			panic(r_)
+		}
 	}()
+	Futures_allAsList(Iterable(futureList.asList())).get()
 }
 
 type PrebuildDependencyInfo_1 struct {

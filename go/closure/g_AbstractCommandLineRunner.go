@@ -338,7 +338,7 @@ func AbstractCommandLineRunner_getExternsInput() *Outcome_base[[]int8] {
 
 func (this *AbstractCommandLineRunner) run() {
 	var result int32
-	_ = func() (code_ int) {
+	func() {
 		defer func() {
 			if r_ := recover(); r_ != nil {
 				ex_ := catch_(r_)
@@ -388,7 +388,6 @@ func (this *AbstractCommandLineRunner) run() {
 		} else {
 			result = unbox_[int32](resultOutcome.get())
 		}
-		return 0
 	}()
 	this.exitCodeReceiver.apply(int32(result))
 }
@@ -1347,12 +1346,11 @@ func (this *AbstractCommandLineRunner) processResults(result *Result, chunks Lis
 			}
 			var eeOut *Output = eeOutOutcome.get()
 			var eeOutClosed *Outcome_base[any]
-			_ = func() (code_ int) {
+			func() {
 				defer func() {
 					eeOutClosed = AbstractCommandLineRunner_closeOutput(eeOut)
 				}()
 				eeOut.append_CharSequence_rOutput(strobj_(result.externExport.orElse(nullstr_)))
-				return 0
 			}()
 			if eeOutClosed.isErr() {
 				return Outcome_base_err[any](eeOutClosed.error())
@@ -1701,12 +1699,11 @@ func (this *AbstractCommandLineRunner) outputSourceMap(options *CompilerOptions,
 	}
 	var out *Output = outOutcome.get()
 	var outClosed *Outcome_base[any]
-	_ = func() (code_ int) {
+	func() {
 		defer func() {
 			outClosed = AbstractCommandLineRunner_closeOutput(out)
 		}()
 		this.compiler_.getSourceMap().appendTo(Output_as_Appendable(out), Optional_of[string](associatedName))
-		return 0
 	}()
 	if outClosed.isErr() {
 		return Outcome_base_err[any](outClosed.error())
@@ -1970,12 +1967,11 @@ func (this *AbstractCommandLineRunner) outputChunkGraphJson() *Outcome_base[any]
 		}
 		var out *Output = outOutcome.get()
 		var outClosed *Outcome_base[any]
-		_ = func() (code_ int) {
+		func() {
 			defer func() {
 				outClosed = AbstractCommandLineRunner_closeOutput(out)
 			}()
 			this.printChunkGraphJsonTo(Output_as_Appendable(out))
-			return 0
 		}()
 		if outClosed.isErr() {
 			return Outcome_base_err[any](outClosed.error())

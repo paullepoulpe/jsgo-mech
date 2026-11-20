@@ -54,7 +54,7 @@ func (this *CompilerExecutor) runInCompilerThread(callable func() any, dumpTrace
 		panic(new_IllegalStateException_String(objstr_("Please do not share the Compiler across threads")))
 	}
 	if this.useThreads && (this.compilerThread == nil) {
-		_ = func() (code_ int) {
+		func() {
 			defer func() {
 				executor.shutdown()
 			}()
@@ -107,10 +107,9 @@ func (this *CompilerExecutor) runInCompilerThread(callable func() any, dumpTrace
 			} else {
 				result = future.get()
 			}
-			return 0
 		}()
 	} else {
-		_ = func() (code_ int) {
+		func() {
 			defer func() {
 				if r_ := recover(); r_ != nil {
 					ex_ := catch_(r_)
@@ -123,7 +122,6 @@ func (this *CompilerExecutor) runInCompilerThread(callable func() any, dumpTrace
 				}
 			}()
 			result = callable()
-			return 0
 		}()
 	}
 	if exception[0] != nil {
