@@ -651,7 +651,10 @@ func (this ExpressionDecomposer_DecompositionType) name() string {
 }
 
 func (this ExpressionDecomposer_DecompositionType) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this ExpressionDecomposer_DecompositionType) toString() string {
@@ -719,7 +722,10 @@ func (this ExpressionDecomposer_Workaround) name() string {
 }
 
 func (this ExpressionDecomposer_Workaround) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this ExpressionDecomposer_Workaround) toString() string {
@@ -805,7 +811,10 @@ func (this ExpressionDecomposer_EvaluationDirection) name() string {
 }
 
 func (this ExpressionDecomposer_EvaluationDirection) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this ExpressionDecomposer_EvaluationDirection) toString() string {
