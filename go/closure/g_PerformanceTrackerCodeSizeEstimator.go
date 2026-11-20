@@ -68,16 +68,12 @@ func (this *PerformanceTrackerCodeSizeEstimator) getCodeSize() int32 {
 func (this *PerformanceTrackerCodeSizeEstimator) getZippedCodeSize() int32 {
 	if this.trackGzSize {
 		var length int32 = 0
-		it_1 := foreach_(this.output)
-		for it_1.next() {
-			var chunk []int8 = cast_[[]int8](it_1.v)
+		for chunk := range elemsAs_[[]int8](this.output) {
 			length += int32(len(chunk))
 		}
 		var bytes []int8 = make([]int8, length)
 		var offset int32 = 0
-		it_3 := foreach_(this.output)
-		for it_3.next() {
-			var chunk []int8 = cast_[[]int8](it_3.v)
+		for chunk := range elemsAs_[[]int8](this.output) {
 			System_arraycopy(chunk, 0, bytes, offset, int32(len(chunk)))
 			offset += int32(len(chunk))
 		}

@@ -91,9 +91,7 @@ func ProcessTweaks_clinit() {
 	ProcessTweaks_INVALID_TWEAK_ID_ERROR = DiagnosticType_error("JSC_INVALID_TWEAK_ID_ERROR", "tweak ID contains illegal characters. Only letters, numbers, _ and . are allowed")
 	{
 		ProcessTweaks_TWEAK_FUNCTIONS_MAP = jnewTMap_(jtc_string, tc_p_ProcessTweaks_TweakFunction)
-		it_1 := foreach_(obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.ProcessTweaks.TweakFunction"))))
-		for it_1.next() {
-			var func_ ProcessTweaks_TweakFunction = cast_[ProcessTweaks_TweakFunction](it_1.v)
+		for func_ := range elemsAs_[ProcessTweaks_TweakFunction](obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.ProcessTweaks.TweakFunction")))) {
 			ProcessTweaks_TWEAK_FUNCTIONS_MAP.put(func_.getName(), func_)
 		}
 	}
