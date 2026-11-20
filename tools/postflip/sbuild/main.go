@@ -466,6 +466,29 @@ func variant(c *ast.CallExpr) (string, int) {
 
 var variantCalls = map[key][]*ast.CallExpr{}
 
+// appendArgs are the builders passed to a parameter of type Appendable: a *strBuilder_ goes
+// as appendable_(b), whose Appendable methods append to it (rt_strbuf.go). Nothing in the
+// package asserts an Appendable to *StringBuilder, so the callee cannot tell them apart.
+var appendArgs = map[key][]appArg{}
+
+type appArg struct {
+	e     ast.Expr
+	local bool
+	v     *types.Var
+}
+
+func appendArg(k key, e ast.Expr, local bool, v *types.Var) {
+	appendArgs[k] = append(appendArgs[k], appArg{e, local, v})
+	if local {
+		argUses[v] = append(argUses[v], rootIdent(e))
+	}
+}
+
+func isAppendable(t types.Type) bool {
+	n, ok := t.(*types.Named)
+	return ok && n.Obj().Name() == "Appendable" && n.Obj().Pkg() == rw.Pkg
+}
+
 var newCtors = map[string]bool{"new_StringBuilder": true, "new_StringBuilder_int": true, "new_StringBuilder_String": true}
 
 // origin is what a builder expression is: a slot, a new builder (its call), nil, or unknown.
@@ -779,7 +802,19 @@ func context(k key, e ast.Expr) {
 							}
 							return
 						}
+						if pv := paramVar(fn, i); pv != nil && isAppendable(pv.Type()) {
+							appendArg(k, e, local, v)
+							return
+						}
 						block(k, "passed to "+fn.Name())
+						return
+					}
+				}
+			}
+			if sig, ok := rw.Info.Types[x.Fun].Type.(*types.Signature); ok && !sig.Variadic() {
+				for i, a := range x.Args {
+					if rw.Unparen(a) == e && i < sig.Params().Len() && isAppendable(sig.Params().At(i).Type()) {
+						appendArg(k, e, local, v)
 						return
 					}
 				}
@@ -1403,6 +1438,29 @@ func convert(report bool) {
 			id := id
 			rw.Rewrite[id] = func() string { return "&" + id.Name }
 		}
+	}
+	nApp := 0
+	for k, as := range appendArgs {
+		if !conv[k] {
+			continue
+		}
+		for _, a := range as {
+			a := a
+			prev := rw.Rewrite[a.e]
+			rw.Rewrite[a.e] = func() string {
+				inner := rw.Text(a.e)
+				if a.local && value[a.v] {
+					inner = "&" + inner
+				} else if prev != nil {
+					inner = prev()
+				}
+				return "appendable_(" + inner + ")"
+			}
+			nApp++
+		}
+	}
+	if nApp > 0 {
+		fmt.Fprintf(os.Stderr, "builders passed as an Appendable (appendable_): %d\n", nApp)
 	}
 	var ks []string
 	left := 0
