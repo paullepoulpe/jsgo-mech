@@ -149,14 +149,14 @@ func (this *LinkedDirectedGraph[N, E]) getOutEdges_impl(nodeValue N) ListOf[*Lin
 }
 
 func (this *LinkedDirectedGraph[N, E]) createNode_Object_rDiGraphNode_rLinkedDiGraphNode(nodeValue N) *LinkedDirectedGraph_LinkedDiGraphNode[N, E] {
-	return this.nodes_.computeIfAbsent(nodeValue, &Function_tfn[N, any]{func(k N) any {
+	return this.nodes_.ComputeIfAbsentObj(nodeValue, func(k N) any {
 		return func() any {
 			if this.useNodeAnnotations {
 				return obj_(new_LinkedDirectedGraph_AnnotatedLinkedDiGraphNode[N, E](k))
 			}
 			return new_LinkedDirectedGraph_LinkedDiGraphNode[N, E](k).self()
 		}()
-	}})
+	})
 }
 
 // nodeOrFail_ is getNodeOrFail(value) as the node of this class that it is (post-flip manual
