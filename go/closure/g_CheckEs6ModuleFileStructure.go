@@ -139,15 +139,15 @@ func (this CheckEs6ModuleFileStructure_OrderedStatement) enum_() *Enum {
 }
 
 func (this CheckEs6ModuleFileStructure_OrderedStatement) name() string {
-	return CheckEs6ModuleFileStructure_OrderedStatement_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CheckEs6ModuleFileStructure_OrderedStatement) ordinal() int32 {
-	return CheckEs6ModuleFileStructure_OrderedStatement_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CheckEs6ModuleFileStructure_OrderedStatement) compareTo(o any) int32 {
-	return CheckEs6ModuleFileStructure_OrderedStatement_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CheckEs6ModuleFileStructure_OrderedStatement) self() any {

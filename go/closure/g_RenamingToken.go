@@ -18,13 +18,13 @@ func (this RenamingToken) enum_() *Enum {
 	return &RenamingToken_enum_[this-1]
 }
 
-func (this RenamingToken) name() string { return RenamingToken_enum_[this-1].name_ }
+func (this RenamingToken) name() string { return this.enum_().name_ }
 
-func (this RenamingToken) ordinal() int32 { return RenamingToken_enum_[this-1].ordinal_ }
+func (this RenamingToken) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this RenamingToken) toString() string { return RenamingToken_enum_[this-1].name_ }
+func (this RenamingToken) toString() string { return this.enum_().name_ }
 
-func (this RenamingToken) compareTo(o any) int32 { return RenamingToken_enum_[this-1].compareTo(o) }
+func (this RenamingToken) compareTo(o any) int32 { return this.enum_().compareTo(o) }
 
 func (this RenamingToken) self() any {
 	if this == 0 {

@@ -97,13 +97,13 @@ func (this ParseTreeType) enum_() *Enum {
 	return &ParseTreeType_enum_[this-1]
 }
 
-func (this ParseTreeType) name() string { return ParseTreeType_enum_[this-1].name_ }
+func (this ParseTreeType) name() string { return this.enum_().name_ }
 
-func (this ParseTreeType) ordinal() int32 { return ParseTreeType_enum_[this-1].ordinal_ }
+func (this ParseTreeType) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this ParseTreeType) toString() string { return ParseTreeType_enum_[this-1].name_ }
+func (this ParseTreeType) toString() string { return this.enum_().name_ }
 
-func (this ParseTreeType) compareTo(o any) int32 { return ParseTreeType_enum_[this-1].compareTo(o) }
+func (this ParseTreeType) compareTo(o any) int32 { return this.enum_().compareTo(o) }
 
 func (this ParseTreeType) self() any {
 	if this == 0 {
