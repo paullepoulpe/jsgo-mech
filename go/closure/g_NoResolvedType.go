@@ -4,7 +4,7 @@ package closure
 
 type NoResolvedType struct {
 	ObjectType
-	referenceName Optional[string]
+	referenceName string
 	templateTypes *TList[*JSType]
 }
 
@@ -24,7 +24,7 @@ func (this *NoResolvedType) up_JSType() *JSType {
 
 func (this *NoResolvedType) init_NoResolvedType(registry *JSTypeRegistry, referenceName string, templateTypes *TList[*JSType]) {
 	this.ObjectType.init_ObjectType_JSTypeRegistry(registry)
-	this.referenceName = Optional_of[string](referenceName)
+	this.referenceName = optstrOf_(referenceName)
 	this.templateTypes = templateTypes
 	this.eagerlyResolveToSelf()
 }
@@ -40,7 +40,7 @@ func (this *NoResolvedType) getTypeClass_impl() JSTypeClass {
 	return JSTypeClass_NO_RESOLVED
 }
 
-func (this *NoResolvedType) getReferenceName_impl() Optional[string] {
+func (this *NoResolvedType) getReferenceName_impl() string {
 	return this.referenceName
 }
 
@@ -85,7 +85,7 @@ func (this *NoResolvedType) appendTo_impl(sb *TypeStringBuilder) {
 		if sb.isForAnnotations() {
 			return "?"
 		}
-		return ("NoResolvedType<" + sstr_(this.referenceName.orElse("null")) + ">")
+		return ("NoResolvedType<" + sstr_(optstrOr_(this.referenceName, "null")) + ">")
 	}())
 }
 
@@ -98,7 +98,7 @@ func (this *NoResolvedType) getTypeClass() JSTypeClass {
 }
 
 // getReferenceName: an object that is exactly a NoResolvedType calls its getReferenceName_impl directly (post-flip); others dispatch.
-func (this *NoResolvedType) getReferenceName() Optional[string] {
+func (this *NoResolvedType) getReferenceName() string {
 	if p, _ := this.self_.(*NoResolvedType); p == this {
 		return this.getReferenceName_impl()
 	}

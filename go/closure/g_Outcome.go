@@ -59,11 +59,11 @@ func (this *Outcome_base[T]) error() *Throwable {
 	return this.errorField
 }
 
-func (this *Outcome_base[T]) errorMessage() Optional[string] {
-	return func() Optional[string] {
+func (this *Outcome_base[T]) errorMessage() string {
+	return func() string {
 		if this.errorField == nil {
-			return Optional_empty[string]()
+			return nullstr_
 		}
-		return Optional_of[string](this.errorField.getMessage())
+		return optstrOf_(this.errorField.getMessage())
 	}()
 }

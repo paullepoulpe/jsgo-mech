@@ -6,14 +6,14 @@ type CompilerExecutor struct {
 	compilerThread *Thread
 	useThreads     bool
 	timeout        int32
-	debugMessage   Optional[string]
+	debugMessage   string
 }
 
 func (this *CompilerExecutor) finit_CompilerExecutor() {
 	this.compilerThread = nil
 	this.useThreads = true
 	this.timeout = 0
-	this.debugMessage = Optional_empty[string]()
+	this.debugMessage = nullstr_
 }
 
 func (this *CompilerExecutor) init_CompilerExecutor() {
@@ -43,7 +43,7 @@ func (this *CompilerExecutor) setTimeout(timeout int32) {
 }
 
 func (this *CompilerExecutor) setDebugMessage(debugMessage string) {
-	this.debugMessage = Optional_of[string](debugMessage)
+	this.debugMessage = optstrOf_(debugMessage)
 }
 
 func (this *CompilerExecutor) runInCompilerThread(callable func() any, dumpTraceReport bool) any {
@@ -125,8 +125,8 @@ func (this *CompilerExecutor) runInCompilerThread(callable func() any, dumpTrace
 		}()
 	}
 	if exception[0] != nil {
-		if this.debugMessage.isPresent() {
-			panic(new_RuntimeException_String_Throwable(("Exception during compilation: " + sstr_(this.debugMessage.get())), exception[0]))
+		if this.debugMessage != nullstr_ {
+			panic(new_RuntimeException_String_Throwable(("Exception during compilation: " + sstr_(optstrGet_(this.debugMessage))), exception[0]))
 		}
 		Throwables_throwIfUnchecked(exception[0])
 		panic(new_RuntimeException_Throwable(exception[0]))

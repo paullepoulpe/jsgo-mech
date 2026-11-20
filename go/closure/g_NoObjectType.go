@@ -76,8 +76,8 @@ func (this *NoObjectType) getImplicitPrototype_impl() *ObjectType {
 	return nil
 }
 
-func (this *NoObjectType) getReferenceName_impl() Optional[string] {
-	return Optional_empty[string]()
+func (this *NoObjectType) getReferenceName_impl() string {
+	return nullstr_
 }
 
 func (this *NoObjectType) matchesNumberContext_impl() bool {
@@ -158,7 +158,7 @@ func (this *NoObjectType) getImplicitPrototype() *ObjectType {
 }
 
 // getReferenceName: an object that is exactly a NoObjectType calls its getReferenceName_impl directly (post-flip); others dispatch.
-func (this *NoObjectType) getReferenceName() Optional[string] {
+func (this *NoObjectType) getReferenceName() string {
 	if p, _ := this.self_.(*NoObjectType); p == this {
 		return this.getReferenceName_impl()
 	}

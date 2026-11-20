@@ -85,7 +85,7 @@ func (this *LightweightMessageFormatter) formatWarning_impl(warning *JSError) st
 
 func (this *LightweightMessageFormatter) format(error_ *JSError, warning bool) string {
 	var source SourceExcerptProvider = this.getSource()
-	var sourceName Optional[string] = error_.sourceName()
+	var sourceName string = error_.sourceName()
 	var lineNumber int32 = error_.getLineNumber()
 	var charno int32 = error_.charno()
 	var b strBuilder_
@@ -99,7 +99,7 @@ func (this *LightweightMessageFormatter) format(error_ *JSError, warning bool) s
 	if this.includeLocation {
 		if mapping != nil {
 			LightweightMessageFormatter_appendPosition(&b, sourceName, lineNumber, charno)
-			sourceName = Optional_ofNullable[string](mapping.getOriginalFile())
+			sourceName = mapping.getOriginalFile()
 			lineNumber = mapping.getLineNumber()
 			charno = mapping.getColumnPosition()
 			b.append("\nOriginally at:\n")
@@ -120,14 +120,14 @@ func (this *LightweightMessageFormatter) format(error_ *JSError, warning bool) s
 	boldLine.append(error_.description())
 	b.append(this.maybeEmbolden(boldLine.toString()))
 	b.append_char('\n')
-	var sourceExcerptWithPosition Optional[string] = this.getExcerptWithPosition_5(error_, sourceName, lineNumber, charno, func() SourceExcerptProvider_SourceExcerpt {
+	var sourceExcerptWithPosition string = this.getExcerptWithPosition_5(error_, sourceName, lineNumber, charno, func() SourceExcerptProvider_SourceExcerpt {
 		if mapping != nil {
 			return SourceExcerptProvider_SourceExcerpt_LINE
 		}
 		return this.defaultFormat
 	}())
-	if sourceExcerptWithPosition.isPresent() {
-		b.append(sourceExcerptWithPosition.get())
+	if sourceExcerptWithPosition != nullstr_ {
+		b.append(optstrGet_(sourceExcerptWithPosition))
 	}
 	return b.toString()
 }
@@ -136,12 +136,12 @@ func (this *LightweightMessageFormatter) getExcerptWithPosition(error_ *JSError)
 	return this.getExcerptWithPosition_6(error_, error_.sourceName(), error_.getLineNumber(), error_.charno(), error_.length(), this.defaultFormat)
 }
 
-func (this *LightweightMessageFormatter) getExcerptWithPosition_5(error_ *JSError, sourceName Optional[string], lineNumber int32, charno int32, format SourceExcerptProvider_SourceExcerpt) Optional[string] {
+func (this *LightweightMessageFormatter) getExcerptWithPosition_5(error_ *JSError, sourceName string, lineNumber int32, charno int32, format SourceExcerptProvider_SourceExcerpt) string {
 	var nodeLength int32 = error_.length()
-	return Optional_of[string](this.getExcerptWithPosition_6(error_, sourceName, lineNumber, charno, nodeLength, format))
+	return optstrOf_(this.getExcerptWithPosition_6(error_, sourceName, lineNumber, charno, nodeLength, format))
 }
 
-func (this *LightweightMessageFormatter) getExcerptWithPosition_6(error_ *JSError, sourceName Optional[string], lineNumber int32, charno int32, length int32, format SourceExcerptProvider_SourceExcerpt) string {
+func (this *LightweightMessageFormatter) getExcerptWithPosition_6(error_ *JSError, sourceName string, lineNumber int32, charno int32, length int32, format SourceExcerptProvider_SourceExcerpt) string {
 	var b strBuilder_
 	var source SourceExcerptProvider = this.getSource()
 	var cookedLength int32 = func() int32 {
@@ -150,16 +150,16 @@ func (this *LightweightMessageFormatter) getExcerptWithPosition_6(error_ *JSErro
 		}
 		return -1
 	}()
-	var sourceExcerpt Optional[string] = func() Optional[string] {
+	var sourceExcerpt string = func() string {
 		if source == nil {
-			return Optional_empty[string]()
+			return nullstr_
 		}
 		return format.get_5(source, sourceName, lineNumber, cookedLength, LightweightMessageFormatter_excerptFormatter)
 	}()
-	if sourceExcerpt.isEmpty() {
+	if sourceExcerpt == nullstr_ {
 		return ""
 	}
-	var success bool = this.padSourceExcerpt(error_, sourceExcerpt.get(), charno, length, format, &b)
+	var success bool = this.padSourceExcerpt(error_, optstrGet_(sourceExcerpt), charno, length, format, &b)
 	if success {
 		return b.toString()
 	}
@@ -191,9 +191,9 @@ func (this *LightweightMessageFormatter) padSourceExcerpt(error_ *JSError, sourc
 	return true
 }
 
-func LightweightMessageFormatter_appendPosition(b *strBuilder_, sourceName Optional[string], lineNumber int32, charno int32) {
-	if sourceName.isPresent() {
-		b.append(sourceName.get())
+func LightweightMessageFormatter_appendPosition(b *strBuilder_, sourceName string, lineNumber int32, charno int32) {
+	if sourceName != nullstr_ {
+		b.append(optstrGet_(sourceName))
 		if lineNumber > 0 {
 			b.append_char(':').append_int(lineNumber)
 			if charno >= 0 {
@@ -292,17 +292,17 @@ func new_LightweightMessageFormatter_LineNumberingFormatter() *LightweightMessag
 	return this
 }
 
-func (this *LightweightMessageFormatter_LineNumberingFormatter) formatLine(line Optional[string], lineNumber int32) Optional[string] {
+func (this *LightweightMessageFormatter_LineNumberingFormatter) formatLine(line string, lineNumber int32) string {
 	return line
 }
 
-func (this *LightweightMessageFormatter_LineNumberingFormatter) formatRegion(region Region) Optional[string] {
+func (this *LightweightMessageFormatter_LineNumberingFormatter) formatRegion(region Region) string {
 	if region == nil {
-		return Optional_empty[string]()
+		return nullstr_
 	}
 	var code string = region.getSourceExcerpt()
 	if code == "" {
-		return Optional_empty[string]()
+		return nullstr_
 	}
 	var numberLength int32 = int32(len(Integer_toString(region.getEndingLineNumber())))
 	var builder strBuilder_
@@ -315,7 +315,7 @@ func (this *LightweightMessageFormatter_LineNumberingFormatter) formatRegion(reg
 		if end < 0 {
 			line = code[start:]
 			if line == "" {
-				return Optional_of[string](builder.substring(0, (builder.length() - 1)))
+				return optstrOf_(builder.substring(0, (builder.length() - 1)))
 			}
 		} else {
 			line = cutBytes_(code, start, end)
@@ -336,7 +336,7 @@ func (this *LightweightMessageFormatter_LineNumberingFormatter) formatRegion(reg
 			lineNumber++
 		}
 	}
-	return Optional_of[string](builder.toString())
+	return optstrOf_(builder.toString())
 }
 
 // formatError: an object that is exactly a LightweightMessageFormatter calls its formatError_impl directly (post-flip); others dispatch.

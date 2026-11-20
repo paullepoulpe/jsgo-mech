@@ -16,7 +16,7 @@ func new_DiagnosticGroups() *DiagnosticGroups {
 }
 
 func DiagnosticGroups_registerDeprecatedGroup(name string) *DiagnosticGroup {
-	return DiagnosticGroups_registerGroupDiagnosticGroup(name, new_DiagnosticGroup_Optional_DiagnosticTypeArr(Optional_of[string](name), []*DiagnosticType{DiagnosticGroups_UNUSED}))
+	return DiagnosticGroups_registerGroupDiagnosticGroup(name, new_DiagnosticGroup_Optional_DiagnosticTypeArr(optstrOf_(name), []*DiagnosticType{DiagnosticGroups_UNUSED}))
 }
 
 func DiagnosticGroups_registerUnsuppressibleGroup(types []*DiagnosticType) *DiagnosticGroup {
@@ -29,13 +29,13 @@ func DiagnosticGroups_registerGroupDiagnosticGroup(name string, group *Diagnosti
 }
 
 func DiagnosticGroups_registerGroup(name string, types []*DiagnosticType) *DiagnosticGroup {
-	var group *DiagnosticGroup = new_DiagnosticGroup_Optional_DiagnosticTypeArr(Optional_of[string](name), types)
+	var group *DiagnosticGroup = new_DiagnosticGroup_Optional_DiagnosticTypeArr(optstrOf_(name), types)
 	DiagnosticGroups_groupsByName.Put(name, group)
 	return group
 }
 
 func DiagnosticGroups_registerGroupDiagnosticGroupVarargs(name string, groups []*DiagnosticGroup) *DiagnosticGroup {
-	var group *DiagnosticGroup = DiagnosticGroup_createFromGroups_Optional_DiagnosticGroupArr(Optional_of[string](name), groups)
+	var group *DiagnosticGroup = DiagnosticGroup_createFromGroups_Optional_DiagnosticGroupArr(optstrOf_(name), groups)
 	DiagnosticGroups_groupsByName.Put(name, group)
 	return group
 }

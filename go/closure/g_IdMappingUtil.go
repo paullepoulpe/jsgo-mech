@@ -40,11 +40,11 @@ func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) 
 			if inSection {
 				break
 			}
-			if mr.getSection().get() == sectionFilter {
+			if optstrGet_(mr.getSection()) == sectionFilter {
 				inSection = true
 			}
 		} else if inSection {
-			mapBuilder.put(mr.getKey().get(), mr.getValue().get())
+			mapBuilder.put(optstrGet_(mr.getKey()), optstrGet_(mr.getValue()))
 		}
 	}
 	return mapBuilder.buildKeepingLast()
@@ -57,17 +57,17 @@ func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) *TMap[string
 	var sectionNames map[string]struct{} = map[string]struct{}{}
 	for mr.next() {
 		if mr.isSection() {
-			var sectionName Optional[string] = mr.getSection()
-			if !setAdd_(sectionNames, sectionName.orElse(nullstr_)) {
-				panic(new_IllegalArgumentException_String(("Cannot parse id map: Duplicate section " + sstr_(sectionName.orElse("null")) + "\n lineIndex: " + istr_(int64(int32(mr.getLineIndex()))))))
+			var sectionName string = mr.getSection()
+			if !setAdd_(sectionNames, sectionName) {
+				panic(new_IllegalArgumentException_String(("Cannot parse id map: Duplicate section " + sstr_(optstrOr_(sectionName, "null")) + "\n lineIndex: " + istr_(int64(int32(mr.getLineIndex()))))))
 			}
 			currentSectionMap = SimpleBiMap_create[any, string]()
-			resultMap.Put(sectionName.orElse(nullstr_), currentSectionMap)
+			resultMap.Put(sectionName, currentSectionMap)
 		} else {
 			if currentSectionMap == nil {
 				panic(new_IllegalArgumentException_String("Mapping entry outside of section"))
 			}
-			currentSectionMap.put_s(mr.getKey().orElse(nullstr_), mr.getValue().orElse(nullstr_))
+			currentSectionMap.put_s(mr.getKey(), mr.getValue())
 		}
 	}
 	return resultMap
@@ -85,17 +85,17 @@ const IdMappingUtil_NEW_LINE uint16 = '\n'
 type IdMappingUtil_MappingReader struct {
 	lines          *[]string
 	nextLine       int32
-	currentSection Optional[string]
-	currentKey     Optional[string]
-	currentValue   Optional[string]
+	currentSection string
+	currentKey     string
+	currentValue   string
 	lineIndex      int32
 }
 
 func (this *IdMappingUtil_MappingReader) finit_IdMappingUtil_MappingReader() {
 	this.nextLine = 0
-	this.currentSection = Optional_empty[string]()
-	this.currentKey = Optional_empty[string]()
-	this.currentValue = Optional_empty[string]()
+	this.currentSection = nullstr_
+	this.currentKey = nullstr_
+	this.currentValue = nullstr_
 	this.lineIndex = 0
 }
 
@@ -125,15 +125,15 @@ func (this *IdMappingUtil_MappingReader) next() bool {
 			continue
 		}
 		if line[0] == '[' {
-			this.currentSection = Optional_of[string](lineU16.substring(1, (lineU16.length() - 1)))
-			this.currentKey = Optional_empty[string]()
-			this.currentValue = Optional_empty[string]()
+			this.currentSection = optstrOf_(lineU16.substring(1, (lineU16.length() - 1)))
+			this.currentKey = nullstr_
+			this.currentValue = nullstr_
 			return true
 		} else {
 			var split int32 = lineU16.indexOf(58)
 			if split != -1 {
-				this.currentKey = Optional_of[string](lineU16.substring(0, split))
-				this.currentValue = Optional_of[string](lineU16.substring_int((split + 1)))
+				this.currentKey = optstrOf_(lineU16.substring(0, split))
+				this.currentValue = optstrOf_(lineU16.substring_int((split + 1)))
 				return true
 			} else {
 				panic(new_IllegalArgumentException_String(("Cannot parse id map.\n Line: " + sstr_(line) + ", lineIndex: " + istr_(int64(int32(this.lineIndex))))))
@@ -144,18 +144,18 @@ func (this *IdMappingUtil_MappingReader) next() bool {
 }
 
 func (this *IdMappingUtil_MappingReader) isSection() bool {
-	return this.currentKey.isEmpty()
+	return this.currentKey == nullstr_
 }
 
-func (this *IdMappingUtil_MappingReader) getSection() Optional[string] {
+func (this *IdMappingUtil_MappingReader) getSection() string {
 	return this.currentSection
 }
 
-func (this *IdMappingUtil_MappingReader) getKey() Optional[string] {
+func (this *IdMappingUtil_MappingReader) getKey() string {
 	return this.currentKey
 }
 
-func (this *IdMappingUtil_MappingReader) getValue() Optional[string] {
+func (this *IdMappingUtil_MappingReader) getValue() string {
 	return this.currentValue
 }
 

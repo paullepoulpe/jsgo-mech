@@ -271,11 +271,11 @@ func (this *Es6RewriteDestructuring) replacePattern(t *NodeTraversal, pattern No
 func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, objectPattern Node, rhs Node, parent Node, nodeToDetach Node) {
 	var tempVarName string = this.getTempVariableName()
 	var tempVarType AstFactory_Type = AstFactory_type_Node(objectPattern)
-	var restTempVarName Optional[string] = Optional_empty[string]()
+	var restTempVarName string = nullstr_
 	var propsToDeleteForRest *TList[Node] = nil
 	if objectPattern.hasChildren() && objectPattern.getLastChild().isRest() {
 		propsToDeleteForRest = newTList_(tc_Node)
-		restTempVarName = Optional_of[string](this.getTempVariableName())
+		restTempVarName = optstrOf_(this.getTempVariableName())
 	} else if this.rewriteMode == Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST {
 		if !slicePeekTop_(tc_p_Es6RewriteDestructuring_PatternNestingLevel, *this.patternNestingStack).hasNestedObjectRest {
 			this.destructuringVarCounter--
@@ -361,7 +361,7 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 					}
 					return this.astFactory_.createObjectDotAssignCall(this.namespace_, AstFactory_typeColor(StandardColors_TOP_OBJECT), []Node{this.astFactory_.createObjectLit([]Node{}), this.createTempVarNameNode(tempVarName, tempVarType)})
 				}()
-				var restTempDecl Node = IR_var_Node_Node(this.createTempVarNameNode(restTempVarName.get(), tempVarType), assignCall)
+				var restTempDecl Node = IR_var_Node_Node(this.createTempVarNameNode(optstrGet_(restTempVarName), tempVarType), assignCall)
 				restTempDecl.srcrefTreeIfMissing(objectPattern)
 				restTempDecl.insertBefore(nodeToDetach)
 				var restName Node = child.getOnlyChild()
@@ -373,7 +373,7 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 				} else {
 					newLHS = restName.detach()
 				}
-				newRHS = this.objectPatternRestRHS(objectPattern, child, restTempVarName.get(), propsToDeleteForRest)
+				newRHS = this.objectPatternRestRHS(objectPattern, child, optstrGet_(restTempVarName), propsToDeleteForRest)
 			} else {
 				panic(new_IllegalStateException_String("unexpected child"))
 			}

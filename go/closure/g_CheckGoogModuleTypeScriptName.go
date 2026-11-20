@@ -40,26 +40,26 @@ func (this *CheckGoogModuleTypeScriptName) visit(t *NodeTraversal, n Node, paren
 }
 
 func (this *CheckGoogModuleTypeScriptName) checkGoogModuleNamespace(t *NodeTraversal, n Node) {
-	var originalNamespace Optional[string] = Optional_of[string](n.getFirstChild().getSecondChild().getString())
-	var sourceName Optional[string] = t.getSourceName()
-	if originalNamespace.isEmpty() || sourceName.isEmpty() {
+	var originalNamespace string = optstrOf_(n.getFirstChild().getSecondChild().getString())
+	var sourceName string = t.getSourceName()
+	if originalNamespace == nullstr_ || sourceName == nullstr_ {
 		return
 	}
-	var google3Index int32 = int32(strings.Index(sourceName.get(), "google3"))
+	var google3Index int32 = int32(strings.Index(optstrGet_(sourceName), "google3"))
 	if google3Index == -1 {
-		sourceName = Optional_of[string](("google3/" + sstr_(sourceName.get())))
+		sourceName = optstrOf_(("google3/" + sstr_(optstrGet_(sourceName))))
 	} else if google3Index != 0 {
-		sourceName = Optional_of[string](sourceName.get()[google3Index:])
+		sourceName = optstrOf_(optstrGet_(sourceName)[google3Index:])
 	}
-	var replacementNamespace string = String_substring(strings.ReplaceAll(sourceName.get(), "/", "."), 0, (String_length(sourceName.get()) - int32(len(".js"))))
-	if !(originalNamespace.get() == replacementNamespace) {
+	var replacementNamespace string = String_substring(strings.ReplaceAll(optstrGet_(sourceName), "/", "."), 0, (String_length(optstrGet_(sourceName)) - int32(len(".js"))))
+	if !(optstrGet_(originalNamespace) == replacementNamespace) {
 		l_1 := CheckGoogModuleTypeScriptName_allowedDirectories
 		for i_1 := l_1.first(); i_1 < len(l_1.keys); i_1++ {
 			if l_1.isDead(i_1) {
 				continue
 			}
 			var allowedDirectory string = l_1.keys[i_1]
-			if strings.HasPrefix(sourceName.get(), allowedDirectory) {
+			if strings.HasPrefix(optstrGet_(sourceName), allowedDirectory) {
 				t.report(n, CheckGoogModuleTypeScriptName_MODULE_NAMESPACE_MISMATCHES_TYPESCRIPT_NAMESPACE, []string{replacementNamespace})
 				return
 			}
