@@ -195,11 +195,11 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
 		var convention CodingConvention = compiler.getCodingConvention()
-		var pass *GenerateExports = new_GenerateExports(compiler, this.options_.shouldExportLocalPropertyDefinitions(), Optional_of[string](convention.getExportSymbolFunction()).filter(&Predicate_tfn_string{func(s string) bool {
+		var pass *GenerateExports = new_GenerateExports(compiler, this.options_.shouldExportLocalPropertyDefinitions(), Optional_of[string](convention.getExportSymbolFunction()).filterFn_(func(s string) bool {
 			return s != ""
-		}}), Optional_of[string](convention.getExportPropertyFunction()).filter(&Predicate_tfn_string{func(s string) bool {
+		}), Optional_of[string](convention.getExportPropertyFunction()).filterFn_(func(s string) bool {
 			return s != ""
-		}}))
+		}))
 		return CompilerPass(new_DefaultPassConfig_1(this, pass, compiler))
 	}}).build()
 	this.generateIjs = PassFactory_builder().setName("generateIjs").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass { return CompilerPass(new_ConvertToTypedInterface(to_AbstractCompiler(p0))) }}).build()

@@ -842,15 +842,15 @@ func (this *IRFactory) setLengthFrom(node Node, ref Node) {
 func (this *IRFactory) reportErrorIfYieldOrAwaitInDefaultValue(defaultValueNode Node) {
 	var yieldNode Node = IRFactory_findNodeTypeInExpression(defaultValueNode, Token_rhino_YIELD)
 	if yieldNode != 0 {
-		this.errorReporter.error("`yield` is illegal in parameter default value.", Optional_of[string](yieldNode.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
+		this.errorReporter.error("`yield` is illegal in parameter default value.", Optional_of[string](yieldNode.getSourceFileName()).filterFn_(func(s string) bool {
 			return s != ""
-		}}), yieldNode.getLineno(), yieldNode.getCharno())
+		}), yieldNode.getLineno(), yieldNode.getCharno())
 	}
 	var awaitNode Node = IRFactory_findNodeTypeInExpression(defaultValueNode, Token_rhino_AWAIT)
 	if awaitNode != 0 {
-		this.errorReporter.error("`await` is illegal in parameter default value.", Optional_of[string](awaitNode.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
+		this.errorReporter.error("`await` is illegal in parameter default value.", Optional_of[string](awaitNode.getSourceFileName()).filterFn_(func(s string) bool {
 			return s != ""
-		}}), awaitNode.getLineno(), awaitNode.getCharno())
+		}), awaitNode.getLineno(), awaitNode.getCharno())
 	}
 }
 
@@ -1402,9 +1402,9 @@ func (this *IRFactory) newBigIntNode(value *BigInteger) Node {
 }
 
 func (this *IRFactory) error(rhinoNode Node, message string) {
-	this.errorReporter.error(message, Optional_of[string](rhinoNode.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
+	this.errorReporter.error(message, Optional_of[string](rhinoNode.getSourceFileName()).filterFn_(func(s string) bool {
 		return s != ""
-	}}), rhinoNode.getLineno(), rhinoNode.getCharno())
+	}), rhinoNode.getLineno(), rhinoNode.getCharno())
 }
 
 var IRFactory_CR_OR_CRLF_PATTERN *Pattern

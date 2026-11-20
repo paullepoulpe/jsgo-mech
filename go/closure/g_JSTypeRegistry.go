@@ -964,9 +964,9 @@ func (this *JSTypeRegistry) getReadableJSTypeName(n Node, dereference bool) Opti
 		}
 	}
 	if n.isQualifiedName() {
-		return Optional_of[string](n.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
+		return Optional_of[string](n.getQualifiedName()).filterFn_(func(s string) bool {
 			return s != ""
-		}})
+		})
 	} else if type_.isFunctionType() {
 		return Optional_of[string]("function")
 	} else {
@@ -1255,9 +1255,9 @@ func (this *JSTypeRegistry) isNonNullableName(scope StaticScope, name string) bo
 }
 
 func (this *JSTypeRegistry) evaluateTypeExpression(expr *JSTypeExpression, scope StaticTypedScope) *JSType {
-	return this.createTypeFromCommentNode_3(expr.getRoot(), Optional_of[string](expr.getSourceName()).filter(&Predicate_tfn_string{func(s string) bool {
+	return this.createTypeFromCommentNode_3(expr.getRoot(), Optional_of[string](expr.getSourceName()).filterFn_(func(s string) bool {
 		return s != ""
-	}}), scope)
+	}), scope)
 }
 
 func (this *JSTypeRegistry) createTypeFromCommentNode(n Node) *JSType {

@@ -209,9 +209,9 @@ func (this *ProcessClosureProvidesAndRequires) handleCandidateProvideDefinition(
 		case tokOrd1_EXPR_RESULT:
 			return func() Optional[string] {
 				if n.isAssign() {
-					return Optional_of[string](n.getFirstChild().getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
+					return Optional_of[string](n.getFirstChild().getQualifiedName()).filterFn_(func(s string) bool {
 						return s != ""
-					}})
+					})
 				}
 				return Optional_empty[string]()
 			}()

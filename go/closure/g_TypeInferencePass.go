@@ -90,9 +90,9 @@ func (this *TypeInferencePass) inferScope(n Node, scope *TypedScope) {
 				continue
 			}
 			var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(node)))
-			this.stepCountHistogram.computeIfAbsent(int32(state.getStepCount()), &Function_tfn_any_SimpleMultiset{func(k any) *SimpleMultiset[any] {
+			this.stepCountHistogram.ComputeIfAbsent(int32(state.getStepCount()), func(k any) *SimpleMultiset[any] {
 				return SimpleMultiset_create[any]()
-			}}).add(obj_(node.getValue().getToken()))
+			}).add(obj_(node.getValue().getToken()))
 		}
 	}
 }
