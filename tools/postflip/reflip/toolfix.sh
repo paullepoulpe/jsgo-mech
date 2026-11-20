@@ -383,3 +383,160 @@ func boxed(e ast.Expr) ast.Expr {
 		}
 	}
 E17
+# 18. (fourth flip, in bounds) checks: the translator's rules P2 and P4 write a precondition whose checked value or one message
+#    argument has a known type as a typed variant of the runtime function: Preconditions_check..._H(c, [t,] n) takes a handle n and
+#    boxes it only when the check fails (n.box_()); Preconditions_checkNotNull..._T(v, ...) and ..._Str(v, ...) take the checked value
+#    at its own type (null is the zero value of T, nullstr_ of a String), return it typed, and take the message arguments as they
+#    are (an Object message is String.valueOf(canon_(msg))). The tool read the erased names only, so it left all of these (1,044 of
+#    2,503 checks: the lead line's translator wrote none of them and its step made 2,497 of 2,501 inline). A typed variant is the
+#    erased check of the same name with: the handle read as boxed by box_() (_H); the checked value tested at its type by the
+#    tool's own null test (_T, _Str); a single Object message read under the boxing canon_ gives it (a String strobj_, a class
+#    pointer self(), anything else canon_ itself). Every rewrite is then the tool's own, with the runtime function's exception and
+#    message.
+reflip_edit tools/postflip/checks/main.go reflip18 <<'E18'
+func unbox(e ast.Expr) (string, ast.Expr) {
+	e = rw.Unparen(e)
+=====
+func unbox(e ast.Expr) (string, ast.Expr) {
+	e = rw.Unparen(e)
+	if b, ok := reflipBox_[e]; ok { // reflip18: an argument a typed variant boxes itself
+		return b, e
+	}
+-----
+		if box, inner := unbox(x); box != "%s" {
+			return late(inner)
+		}
+=====
+		if box, inner := unbox(x); box != "%s" && inner != ast.Expr(x) {
+			return late(inner)
+		}
+-----
+	switch {
+	case box == "%s" || box == "any(%s)":
+		if _, isIface := u.(*types.Interface); !isIface {
+=====
+	switch {
+	case box == "%s" && reflipChecked_[in]: // reflip18: the value of a typed checkNotNull, tested at its type
+		test, ok := nullTest(t, primary(in))
+		return test, in, ok
+	case box == "%s" || box == "any(%s)":
+		if _, isIface := u.(*types.Interface); !isIface {
+-----
+		case rw.HasMethod(t, "box_") && u.Info()&types.IsInteger != 0:
+			return v + " == 0", true
+=====
+		case rw.HasMethod(t, "box_") && u.Info()&types.IsInteger != 0:
+			return v + " == 0", true
+		case reflipTypedNull_ && rw.HasMethod(t, "enum_") && u.Info()&types.IsInteger != 0: // an enum constant: null is 0
+			return v + " == 0", true
+-----
+	parts := strings.Split(strings.TrimPrefix(id.Name, "Preconditions_check"), "_")
+	k := check{call: c, kind: parts[0]}
+=====
+	parts := strings.Split(strings.TrimPrefix(id.Name, "Preconditions_check"), "_")
+	variant := ""
+	if n := len(parts); n > 1 && (parts[n-1] == "H" || parts[n-1] == "T" || parts[n-1] == "Str") {
+		variant, parts = parts[n-1], parts[:n-1]
+	}
+	k := check{call: c, kind: parts[0]}
+-----
+	if len(k.sig) != len(c.Args)-1 {
+		return check{}, false
+	}
+	return k, true
+=====
+	if len(k.sig) != len(c.Args)-1 {
+		return check{}, false
+	}
+	if variant != "" && !reflipVariant_(k, variant) {
+		return check{}, false
+	}
+	return k, true
++++++
+
+// reflipBox_ gives the boxing (a format, as unbox returns) of a message argument that a typed
+// variant of a check boxes itself; reflipChecked_ are the values typed checkNotNulls check.
+var reflipBox_ = map[ast.Expr]string{}
+var reflipChecked_ = map[ast.Expr]bool{}
+var reflipSeen_ = map[*ast.CallExpr]bool{}
+
+// reflipTypedNull_: the null test of an enum value (0) is known; set once a typed variant is seen
+// (the erased forms never ask it: an enum constant is boxed by self()).
+var reflipTypedNull_ = true
+
+// reflipVariant_ reads the typed variant (_H, _T, _Str) of check k as the erased check of the
+// same name: it records how the runtime function boxes the arguments it takes typed. It is
+// false (the call is left, counted) for a form the tool has no exact rewrite of.
+func reflipVariant_(k check, variant string) bool {
+	c := k.call
+	if ok, seen := reflipSeen_[c]; seen {
+		return ok
+	}
+	ok := reflipVariant1_(k, variant)
+	reflipSeen_[c] = ok
+	if !ok {
+		leave("left: typed variant _"+variant+" in a form without a rewrite", c)
+	}
+	return ok
+}
+
+func reflipPrimary_(e ast.Expr) bool {
+	switch e.(type) {
+	case *ast.Ident, *ast.SelectorExpr, *ast.CallExpr, *ast.IndexExpr:
+		return true
+	}
+	return false
+}
+
+func reflipVariant1_(k check, variant string) bool {
+	c := k.call
+	switch variant {
+	case "H": // the last argument is a handle, boxed by box_() where the check fails
+		if k.kind == "NotNull" || len(c.Args) < 2 {
+			return false
+		}
+		a := rw.Unparen(c.Args[len(c.Args)-1])
+		t := rw.Info.Types[a].Type
+		if t == nil || !rw.HasMethod(t, "box_") || !reflipPrimary_(a) {
+			return false
+		}
+		reflipBox_[a] = "%s.box_()"
+		return true
+	case "T", "Str": // the checked value at its own type; message arguments as they are
+		if k.kind != "NotNull" {
+			return false
+		}
+		v := rw.Unparen(c.Args[0])
+		t := rw.Info.Types[v].Type
+		if t == nil {
+			return false
+		}
+		b, _ := t.Underlying().(*types.Basic)
+		if (b != nil && b.Kind() == types.String) != (variant == "Str") {
+			return false
+		}
+		if _, ok := nullTest(t, "v"); !ok {
+			return false
+		}
+		reflipChecked_[v] = true
+		if len(k.sig) == 1 { // one Object message: String.valueOf(canon_(msg))
+			a := rw.Unparen(c.Args[1])
+			at := rw.Info.Types[a].Type
+			if box, _ := unbox(a); box == "%s" && at != nil && !rw.Info.Types[a].IsNil() {
+				ab, _ := at.Underlying().(*types.Basic)
+				_, ptr := at.Underlying().(*types.Pointer)
+				switch {
+				case ab != nil && ab.Kind() == types.String:
+					reflipBox_[a] = "strobj_(%s)"
+				case ptr && rw.HasMethod(at, "self") && reflipPrimary_(a):
+					reflipBox_[a] = "%s.self()"
+				default:
+					reflipBox_[a] = "canon_(%s)"
+				}
+			}
+		}
+		return true
+	}
+	return false
+}
+E18
