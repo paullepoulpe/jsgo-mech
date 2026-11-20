@@ -793,3 +793,11 @@ e7442814 run t pblast && f
 43f5a0f0 patch 534-43f5a0f0-manual.patch
 # 535. postflip (runtime, re-flip): the shared property lists of nodes have a direct-mapped front, so reading a node's list is a comparison, not a map lookup
 036df818 patch 535-036df818-rt.patch
+# 520. postflip (runtime, re-flip): a key without equals/hashCode is hashed by its address
+67684f20 patch 520-67684f20-rt.patch
+# 521. postflip (runtime, re-flip): an erased lookup of an object by identity asks its type's questions once
+fb7f9349 patch 521-fb7f9349-rt.patch
+# 522. postflip (manual, re-flip): SourceFile.setCodeAndDoBookkeeping counts lines on the view it has
+f9699ae5 patch 522-f9699ae5-manual.patch
+# 523. postflip (manual, re-flip): a token's SourceRange and its two SourcePositions are one allocation
+444eac19 patch 523-444eac19-manual.patch
