@@ -8,23 +8,6 @@ type NoObjectType struct {
 
 func (this *NoObjectType) as_NoObjectType() *NoObjectType { return this }
 
-func to_NoObjectType(v any) *NoObjectType {
-	switch p := v.(type) {
-	case *NoObjectType:
-		return p
-	case *NoType:
-		return p.as_NoObjectType()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_NoObjectType() *NoObjectType }).as_NoObjectType()
-}
-
-func is_NoObjectType(v any) bool {
-	_, ok := v.(interface{ as_NoObjectType() *NoObjectType })
-	return ok
-}
-
 func (this *NoObjectType) self() any {
 	if this == nil {
 		return nil

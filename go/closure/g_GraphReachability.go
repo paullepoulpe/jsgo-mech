@@ -9,11 +9,6 @@ type GraphReachability[N comparable, E comparable] struct {
 
 func (this *GraphReachability[N, E]) isa_GraphReachability_() {}
 
-func is_GraphReachability(v any) bool {
-	_, ok := v.(interface{ isa_GraphReachability_() })
-	return ok
-}
-
 func (this *GraphReachability[N, E]) init_GraphReachability_DiGraph(graph *DiGraph[N, E]) {
 	this.init_GraphReachability_DiGraph_Predicate(graph, nil)
 }
@@ -88,11 +83,6 @@ type GraphReachability_EdgeTuple[N comparable, E comparable] struct {
 }
 
 func (this *GraphReachability_EdgeTuple[N, E]) isa_GraphReachability_EdgeTuple_() {}
-
-func is_GraphReachability_EdgeTuple(v any) bool {
-	_, ok := v.(interface{ isa_GraphReachability_EdgeTuple_() })
-	return ok
-}
 
 func (this *GraphReachability_EdgeTuple[N, E]) zero_GraphReachability_EdgeTuple() {
 	this.sourceNode_ = jnull_[N]()

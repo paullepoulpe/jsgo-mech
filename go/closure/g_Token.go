@@ -14,18 +14,19 @@ type Token_parser_I interface {
 	toString_impl() string
 }
 
+// Token_parser_as is implemented by Token_parser and the classes that extend it: a cast to Token_parser asserts to it
+// (post-flip).
+type Token_parser_as interface {
+	as_Token_parser() *Token_parser
+}
+
 func (this *Token_parser) as_Token_parser() *Token_parser { return this }
 
 func to_Token_parser(v any) *Token_parser {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_Token_parser() *Token_parser }).as_Token_parser()
-}
-
-func is_Token_parser(v any) bool {
-	_, ok := v.(interface{ as_Token_parser() *Token_parser })
-	return ok
+	return v.(Token_parser_as).as_Token_parser()
 }
 
 func (this *Token_parser) self() any {
