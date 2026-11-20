@@ -18,15 +18,15 @@ type Color struct {
 
 func (this *Color) init_Color(id *ColorId, prototypes *JTSet[*Color], instanceColors *JTSet[*Color], invalidating bool, propertiesKeepOriginalName bool, constructor bool, ownProperties *JTSet[string], boxId *ColorId, closureAssert bool, unionElements *JTSet[*Color]) {
 	this.id = Objects_requireNonNull_T(id, "id")
-	this.prototypes = tsetImm_(tce_p_Color, cast_[*ImmutableSet](Objects_requireNonNull(prototypes.asSet(), "prototypes")))
-	this.instanceColors = tsetImm_(tce_p_Color, cast_[*ImmutableSet](Objects_requireNonNull(instanceColors.asSet(), "instanceColors")))
+	this.prototypes = tsetImm_(tce_p_Color, cast_[*ErasedImmutableSet](Objects_requireNonNull(prototypes.asSet(), "prototypes")))
+	this.instanceColors = tsetImm_(tce_p_Color, cast_[*ErasedImmutableSet](Objects_requireNonNull(instanceColors.asSet(), "instanceColors")))
 	this.invalidating = invalidating
 	this.propertiesKeepOriginalName = propertiesKeepOriginalName
 	this.constructor_ = constructor
-	this.ownProperties = tsetImm_(jtc_string, cast_[*ImmutableSet](Objects_requireNonNull(ownProperties.asSet(), "ownProperties")))
+	this.ownProperties = tsetImm_(jtc_string, cast_[*ErasedImmutableSet](Objects_requireNonNull(ownProperties.asSet(), "ownProperties")))
 	this.boxId = boxId
 	this.closureAssert = closureAssert
-	this.unionElements = tsetImm_(tce_p_Color, cast_[*ImmutableSet](Objects_requireNonNull(unionElements.asSet(), "unionElements")))
+	this.unionElements = tsetImm_(tce_p_Color, cast_[*ErasedImmutableSet](Objects_requireNonNull(unionElements.asSet(), "unionElements")))
 }
 
 func new_Color(id *ColorId, prototypes *JTSet[*Color], instanceColors *JTSet[*Color], invalidating bool, propertiesKeepOriginalName bool, constructor bool, ownProperties *JTSet[string], boxId *ColorId, closureAssert bool, unionElements *JTSet[*Color]) *Color {

@@ -159,7 +159,7 @@ func (this *JSChunkGraph) initSubtreeSize() []int32 {
 }
 
 func (this *JSChunkGraph) getAllInputs() IterableOf[*CompilerInput] {
-	return Iterables_concat_Iterable(Iterables_transform(Iterable(Arrays_asList(arrmap_(this.chunks, func(v_ *JSChunk) any { return obj_(v_) }))), &Function_base_tfn_JSChunk_ImmutableList{func(p0 *JSChunk) *ImmutableList { return p0.getInputs() }}))
+	return Iterables_concat_Iterable(Iterables_transform(Iterable(Arrays_asList(arrmap_(this.chunks, func(v_ *JSChunk) any { return obj_(v_) }))), &Function_base_tfn_JSChunk_ImmutableList{func(p0 *JSChunk) *ErasedImmutableList { return p0.getInputs() }}))
 }
 
 func (this *JSChunkGraph) getInputCount() int32 {
