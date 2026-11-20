@@ -165,6 +165,12 @@ type EnumType_Builder struct {
 	elementType  *JSType
 }
 
+// setNameT_ is setName for a EnumType_Builder receiver: setName returns its receiver (Java's self type T = EnumType_Builder), so the result is this (selftype).
+func (this *EnumType_Builder) setNameT_(p0 Optional[string]) *EnumType_Builder {
+	this.setName(p0)
+	return this
+}
+
 func (this *EnumType_Builder) up_PrototypeObjectType_Builder() *PrototypeObjectType_Builder {
 	if this == nil {
 		return nil
