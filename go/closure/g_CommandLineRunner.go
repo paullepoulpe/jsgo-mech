@@ -625,7 +625,7 @@ func CommandLineRunner_matchPaths(pattern string, allJsInputs MapOf[string, stri
 		pattern = String_substring_int(pattern, 1)
 	}
 	var separator string = FilePaths_SEPARATOR
-	var patternParts []string = sliceImm_(tc_string, Splitter_on_String(FilePaths_SEPARATOR).splitToList_s(pattern))
+	var patternParts []string = Splitter_on_String(FilePaths_SEPARATOR).splitStrs_(pattern)
 	var prefix string = "."
 	for i := int32(0); i < int32(len(patternParts)); i++ {
 		if strings.Contains(sliceAt_(patternParts, i), "*") {
@@ -1633,7 +1633,7 @@ func (this *CommandLineRunner_Flags) splitPipeParts(input IterableOf[string], fl
 	it_1 := foreach_(input)
 	for it_1.next() {
 		var inputSourceMap string = str_(it_1.v)
-		var parts []string = sliceImm_(tc_string, splitter.splitToList_s(inputSourceMap))
+		var parts []string = splitter.splitStrs_(inputSourceMap)
 		if int32(len(parts)) != 2 {
 			return Outcome_base_err[*ErasedImmutableMap](new_CmdLineException_CmdLineParser_String(this.parser, ("Bad value for " + sstr_(flagName) + " (duplicate key): " + objstr_(input))).up_Throwable())
 		}
@@ -1643,7 +1643,7 @@ func (this *CommandLineRunner_Flags) splitPipeParts(input IterableOf[string], fl
 }
 
 func (this *CommandLineRunner_Flags) getPackageJsonEntryNames() []string {
-	return sliceImm_(tc_string, Splitter_on(',').splitToList_s(optstrGet_(this.packageJsonEntryNames)))
+	return Splitter_on(',').splitStrs_(optstrGet_(this.packageJsonEntryNames))
 }
 
 func CommandLineRunner_Flags_addMultiFlagValue(values *[]string, value string, flag any, entries *[]*AbstractCommandLineRunner_FlagEntry[any]) *[]string {

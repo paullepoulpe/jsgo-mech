@@ -27,7 +27,7 @@ func ReportDecoder_parseMappingFromFile(mappingFilePath string) *Outcome_base[*T
 
 func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[*TMap[string, *InstrumentationPoint]] {
 	var mapping *TMap[string, *InstrumentationPoint] = newTMap_(tc_string, tc_p_InstrumentationPoint)
-	var linesOfFile []string = sliceImm_(tc_string, Splitter_on('\n').omitEmptyStrings().splitToList_s(mappingFileContent))
+	var linesOfFile []string = Splitter_on('\n').omitEmptyStrings().splitStrs_(mappingFileContent)
 	if int32(len(linesOfFile)) < 3 {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Malformed report %s", sliceView_(tc_string, linesOfFile))))
 	}

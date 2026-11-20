@@ -960,7 +960,7 @@ func (this *RegExpTree_Alternation) up_RegExpTree() *RegExpTree {
 
 func (this *RegExpTree_Alternation) init_RegExpTree_Alternation(alternatives *TList[*RegExpTree]) {
 	this.RegExpTree.init_RegExpTree()
-	this.alternatives = immutableListCopyOf_(tc_p_RegExpTree, Collection(alternatives.asList()))
+	this.alternatives = tlistImmCopy_(tc_p_RegExpTree, alternatives)
 }
 
 func new_RegExpTree_Alternation(alternatives *TList[*RegExpTree]) *RegExpTree_Alternation {
@@ -1866,7 +1866,7 @@ func new_RegExpTree_Concatenation_RegExpTree_RegExpTree(a *RegExpTree, b *RegExp
 
 func (this *RegExpTree_Concatenation) init_RegExpTree_Concatenation_List(elements *TList[*RegExpTree]) {
 	this.RegExpTree.init_RegExpTree()
-	this.elements_ = immutableListCopyOf_(tc_p_RegExpTree, Collection(elements.asList()))
+	this.elements_ = tlistImmCopy_(tc_p_RegExpTree, elements)
 }
 
 func new_RegExpTree_Concatenation_List(elements *TList[*RegExpTree]) *RegExpTree_Concatenation {

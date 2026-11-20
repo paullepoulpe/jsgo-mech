@@ -338,7 +338,7 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 		if info == nil {
 			return newTSet_(tc_string)
 		}
-		return tsetFrom_(tc_string, Collection(info.getParameterNames().asSet()), false)
+		return tsetCopy_(tc_string, info.getParameterNames())
 	}()
 	var isVarArgs bool = false
 	var paramIndex int32 = 0
@@ -452,10 +452,10 @@ func (this *FunctionTypeBuilder) inferClosurePrimitive(info *JSDocInfo) *Functio
 
 func (this *FunctionTypeBuilder) setConstructorTemplateTypeNames(templates *TList[*TemplateType], ctor Node) {
 	if !templates.isEmpty() {
-		this.constructorTemplateTypeNames = immutableListCopyOf_(tc_p_TemplateType, Collection(templates.asList()))
+		this.constructorTemplateTypeNames = tlistImmCopy_(tc_p_TemplateType, templates)
 		this.templateTypeNames = func() *ImmutableList[*TemplateType] {
 			if this.templateTypeNames.isEmpty() {
-				return immutableListCopyOf_(tc_p_TemplateType, Collection(templates.asList()))
+				return tlistImmCopy_(tc_p_TemplateType, templates)
 			}
 			return immutableListBuilder_(tc_p_TemplateType).addAllT(this.templateTypeNames).addAllT(this.constructorTemplateTypeNames).build()
 		}()

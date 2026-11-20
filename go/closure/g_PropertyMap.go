@@ -172,7 +172,7 @@ func (this *PropertyMap) getAllKeys() *PropertyMap_AllKeys {
 			ancestor.cachedKeySet = nil
 			ancestor.cachedKnownSymbolsKeySet = nil
 			keys.asSet().addAll(Collection(ancestor.getOwnPropertyNames()))
-			knownSymbolsKeys.asSet().addAll(Collection(ancestor.getOwnKnownSymbols()))
+			tsetAddAllOf_(knownSymbolsKeys, Collection(ancestor.getOwnKnownSymbols()))
 		}
 		this.cachedKeySet = ImmutableSortedSet_copyOfSorted(keys.asSet())
 		this.cachedKnownSymbolsKeySet = immutableSetCopyOf_(tch_p_KnownSymbolType, Collection(knownSymbolsKeys.asSet()))

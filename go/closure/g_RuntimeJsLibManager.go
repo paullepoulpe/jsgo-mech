@@ -67,7 +67,7 @@ func (this *RuntimeJsLibManager) createField(fieldName string) *RuntimeJsLibMana
 	if fieldName == "" {
 		panic(new_IllegalArgumentException_String(sstr_(fieldName)))
 	}
-	var parts []string = sliceImm_(tc_string, Splitter_on('.').splitToList_s(fieldName))
+	var parts []string = Splitter_on('.').splitStrs_(fieldName)
 	if int32(len(parts)) < 2 {
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Field name must start with $jscomp., found %s", strobj_(fieldName))))
 	}
@@ -167,7 +167,7 @@ func (this *RuntimeJsLibManager) injectLibraryDependencies(ast Node, force bool)
 		var node Node = ast.getFirstChild()
 		for ; ((node != 0) && node.isExprResult()) && node.getFirstChild().isStringLit(); node = ast.getFirstChild() {
 			var directive string = node.getFirstChild().getString()
-			var words []string = sliceImm_(tc_string, Splitter_on(' ').limit(2).splitToList_s(directive))
+			var words []string = Splitter_on(' ').limit(2).splitStrs_(directive)
 			switch sliceAt_(words, 0) {
 			case "use":
 			case "require":
@@ -282,7 +282,7 @@ func RuntimeJsLibManager_FieldsTable_loadFields() *ImmutableMap[string, string] 
 	var transpilationLibsTxt string = ResourceLoader_loadTextResource((sstr_(ResourceLoader_JSCOMP) + "js/transpilation_libs.txt"))
 	var allFields *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	for line := range elemsBy_(Splitter_on('\n').omitEmptyStrings().split_s(transpilationLibsTxt), str_) {
-		var tokens []string = sliceImm_(tc_string, Splitter_on(',').limit(2).splitToList_s(line))
+		var tokens []string = Splitter_on(',').limit(2).splitStrs_(line)
 		if int32(len(tokens)) != 2 {
 			panic(new_IllegalStateException_String(objstr_(sliceView_(tc_string, tokens))))
 		}

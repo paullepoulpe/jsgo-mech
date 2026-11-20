@@ -22,7 +22,7 @@ func (this *ArrowType) init_ArrowType(registry *JSTypeRegistry, parameters *TLis
 		if parameters == nil {
 			return registry.createParametersWithVarArgs([]*JSType{this.getNativeType(JSTypeNative_UNKNOWN_TYPE)})
 		}
-		return immutableListCopyOf_(tc_p_FunctionType_Parameter, Collection(parameters.asList()))
+		return tlistImmCopy_(tc_p_FunctionType_Parameter, parameters)
 	}()
 	this.returnType = func() *JSType {
 		if returnType == nil {

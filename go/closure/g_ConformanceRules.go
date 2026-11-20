@@ -1429,7 +1429,7 @@ func ConformanceRules_ConformanceUtil_validateParameterList(compiler *AbstractCo
 }
 
 func ConformanceRules_ConformanceUtil_getPropertyFromDeclarationName(specName string) string {
-	var parts []string = sliceImm_(tc_string, ConformanceRules_ON_PROTOTYPE.splitToList_s(specName))
+	var parts []string = ConformanceRules_ON_PROTOTYPE.splitStrs_(specName)
 	if int32(len(parts)) != 1 && int32(len(parts)) != 2 {
 		panic(new_IllegalStateException_0())
 	}
@@ -1441,7 +1441,7 @@ func ConformanceRules_ConformanceUtil_getPropertyFromDeclarationName(specName st
 
 func ConformanceRules_ConformanceUtil_getClassFromDeclarationName(specName string) string {
 	var tmp string = specName
-	var parts []string = sliceImm_(tc_string, ConformanceRules_ON_PROTOTYPE.splitToList_s(tmp))
+	var parts []string = ConformanceRules_ON_PROTOTYPE.splitStrs_(tmp)
 	if int32(len(parts)) != 1 && int32(len(parts)) != 2 {
 		panic(new_IllegalStateException_0())
 	}
@@ -3244,7 +3244,7 @@ func (this *ConformanceRules_BanCreateDom) initBanCreateDom(compiler *AbstractCo
 	it_1 := foreach_(ProtocolStringList(requirement.getValueList()))
 	for it_1.next() {
 		var value string = str_(it_1.v)
-		var tagAttr []string = sliceImm_(tc_string, ConformanceRules_ON_DOT.splitToList_s(value))
+		var tagAttr []string = ConformanceRules_ON_DOT.splitStrs_(value)
 		if ((int32(len(tagAttr)) != 2) || sliceAt_(tagAttr, 0) == "") || sliceAt_(tagAttr, 1) == "" {
 			return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("Values must be in the format tagname.attribute.").up_Throwable())
 		}

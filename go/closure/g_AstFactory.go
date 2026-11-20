@@ -428,7 +428,7 @@ func (this *AstFactory) createQNameUsingJSTypeInfo(globalTypedScope *TypedScope,
 		panic(new_IllegalArgumentException_String(tostr_(globalTypedScope)))
 	}
 	this.assertNotAddingColors()
-	var nameParts []string = sliceImm_(tc_string, AstFactory_DOT_SPLITTER.splitToList_s(qname))
+	var nameParts []string = AstFactory_DOT_SPLITTER.splitStrs_(qname)
 	if len(nameParts) == 0 {
 		panic(new_IllegalStateException_0())
 	}

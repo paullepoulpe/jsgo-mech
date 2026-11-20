@@ -200,9 +200,26 @@ func (this *Splitter) trimResults() *Splitter {
 
 func wsRune_(r rune) bool { return r < 0x10000 && guavaWhitespace_(uint16(r)) }
 
-func (this *Splitter) splitAll_(s string) []any {
-	var out []any
+func (this *Splitter) splitAll_(s string) []any { return splitPieces_[any](this, s) }
+
+// splitStrs_ is the pieces of s as strings: what sliceImm_ makes of splitToList(s), without
+// the boxed pieces and their list in between (post-flip step trips). A null s throws
+// NullPointerException.
+func (this *Splitter) splitStrs_(s string) []string { return splitPieces_[string](this, csStr_(s)) }
+
+// splitPieces_ is the pieces the splitter cuts s into, as strings or as boxed strings
+// (E is string or any).
+func splitPieces_[E any](this *Splitter, s string) []E {
+	var out []E
 	limit := this.limit_
+	// Room for every piece at once (one more than the separators, at most the limit), instead of
+	// growing the slice piece by piece.
+	if n := strings.Count(s, this.sep_); n > 0 && this.sep_ != "" {
+		if limit > 0 && n >= int(limit) {
+			n = int(limit) - 1
+		}
+		out = make([]E, 0, n+1)
+	}
 	offset := 0
 	for offset != -1 {
 		start := offset
@@ -248,10 +265,10 @@ func (this *Splitter) splitAll_(s string) []any {
 		} else {
 			limit--
 		}
-		out = append(out, s[start:end])
+		out = append(out, any(s[start:end]).(E))
 	}
 	if out == nil {
-		out = []any{}
+		out = []E{}
 	}
 	return out
 }

@@ -19,7 +19,7 @@ func (this *GatherExternProperties) init_GatherExternProperties(compiler *Abstra
 	this.compiler_ = compiler
 	this.mode_ = mode
 	if compiler.getExternProperties() != nil {
-		this.externProperties.asSet().addAll(iup_Collection(compiler.getExternProperties().asImm()))
+		tsetAddSet_(this.externProperties, compiler.getExternProperties())
 	}
 }
 

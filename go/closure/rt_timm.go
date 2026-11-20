@@ -708,3 +708,124 @@ func (b *ImmutableMap_Builder[K, V]) buildOrThrowErased() *ErasedImmutableMap { 
 func (b *ImmutableMap_Builder[K, V]) buildKeepingLastErased() *ErasedImmutableMap {
 	return immMap_(imMap_, boxAll_(b.kc, b.keys), boxAll_(b.vc, b.vals), nil, true)
 }
+
+// ---- a typed collection through its erased form and back (post-flip step trips): what the
+// pair of conversions gave, without the erased view or twin in between. Where the shortcut
+// would not be what the conversions do (a list whose element conversion is another object
+// than the caller's, or whose twin has been given another typed copy), the helper does the
+// two conversions themselves.
+
+// tlistOwnTwin_ reports whether sliceImm_ and tlistImm_ of l.asImm() at conversion c find l
+// itself: l converts by c and its twin, if it has one yet, names l as its typed copy.
+func tlistOwnTwin_[T any](c *tconv_[T], l *TList[T]) bool {
+	if l.c != c {
+		return false
+	}
+	if l.view == nil || l.view.twin == nil {
+		return true // asImm makes the twin of l, with l as its typed copy
+	}
+	t := l.view.twin
+	return t.typed_.conv == any(c) && t.typed_.v == any(l)
+}
+
+// tlistSlice_ is sliceImm_(c, l.asImm()) of a typed list l: its elements as a slice that
+// nothing changes (nil for a nil list, an empty slice for an empty one).
+func tlistSlice_[T any](c *tconv_[T], l *TList[T]) []T {
+	if l == nil {
+		return nil
+	}
+	if len(l.items) == 0 {
+		return []T{}
+	}
+	if !tlistOwnTwin_(c, l) {
+		return sliceImm_(c, Collection(l.asImm()))
+	}
+	return l.items
+}
+
+// tlistImmCopy_ is ImmutableList.copyOf(l.asList()) of a typed list l: l itself when it is
+// immutable, else a null-checked copy.
+func tlistImmCopy_[T any](c *tconv_[T], l *TList[T]) *ImmutableList[T] {
+	if l.imm {
+		if len(l.items) == 0 {
+			return tlistEmptyImm_(c)
+		}
+		if tlistOwnTwin_(c, l) {
+			return l
+		}
+	} else if l.c == c {
+		return immutableListCopyOfArr_(c, l.items)
+	}
+	return immutableListCopyOf_(c, Collection(l.asList()))
+}
+
+// tsetAddAllOf_ is s.asSet().addAll(c): the elements of c, unboxed, added to s in c's order.
+func tsetAddAllOf_[K comparable](s *TSet[K], c Collection) bool {
+	if s.imm {
+		throwUOE_()
+	}
+	changed := false
+	for _, x := range toSlice_(c) {
+		if s.Add(s.kc.unbox(x)) {
+			changed = true
+		}
+	}
+	return changed
+}
+
+// tsetAddSet_ is s.asSet().addAll(t.asSet()) (or t.asImm()) of two typed sets.
+func tsetAddSet_[K comparable](s, t *TSet[K]) bool {
+	if s.imm {
+		throwUOE_()
+	}
+	return s.AddAll(t)
+}
+
+// tsetAddList_ is s.asSet().addAll(t.asList()) (or t.asImm()) of a typed set and a typed list.
+func tsetAddList_[K comparable](s *TSet[K], t *TList[K]) bool {
+	if s.imm {
+		throwUOE_()
+	}
+	changed := false
+	for _, k := range t.items {
+		if s.Add(k) {
+			changed = true
+		}
+	}
+	return changed
+}
+
+// sliceAddSlice_ is sliceAddAll_(c, p, sliceView_(c, xs)): the elements of xs appended to the
+// list p points to; a nil xs is a null list (NullPointerException, as its nil view gave).
+func sliceAddSlice_[T any](p *[]T, xs []T) bool {
+	if xs == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	if len(xs) == 0 {
+		return false
+	}
+	*p = append(*p, xs...)
+	return true
+}
+
+// sliceAddList_ is sliceAddAll_(c, p, l.asList()) (or l.asImm()) of a typed list l.
+func sliceAddList_[T any](p *[]T, l *TList[T]) bool {
+	xs := l.items
+	if len(xs) == 0 {
+		return false
+	}
+	*p = append(*p, xs...)
+	return true
+}
+
+// sliceSkip_ is ImmutableList.copyOf(Iterables.skip(list of s, n)) as a slice that nothing
+// changes: s without its first n elements.
+func sliceSkip_[T any](s []T, n int32) []T {
+	if n < 0 {
+		throwIAE_("number to skip cannot be negative")
+	}
+	if int(n) >= len(s) {
+		return []T{}
+	}
+	return s[n:len(s):len(s)]
+}

@@ -2870,7 +2870,7 @@ func NodeUtil_isValidQualifiedName(mode *FeatureSet, name string) bool {
 	if strings.HasSuffix(name, ".") || strings.HasPrefix(name, ".") {
 		return false
 	}
-	var parts []string = sliceImm_(tc_string, Splitter_on('.').splitToList_s(name))
+	var parts []string = Splitter_on('.').splitStrs_(name)
 	for _, part := range parts {
 		if !NodeUtil_isValidPropertyName(mode, part) {
 			return false
