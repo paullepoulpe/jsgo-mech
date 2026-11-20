@@ -16,7 +16,7 @@ func new_Base64() *Base64 {
 }
 
 func Base64_toBase64(value int32) uint16 {
-	return String_charAt(Base64_BASE64_MAP, value)
+	return asciiCharAt_(Base64_BASE64_MAP, value)
 }
 
 func Base64_fromBase64(c uint16) int32 {
@@ -47,8 +47,8 @@ func Base64_clinit() {
 	Base64_BASE64_DECODE_MAP = make([]int32, 256)
 	{
 		Arrays_fill(Base64_BASE64_DECODE_MAP, -1)
-		for i := int32(0); i < String_length(Base64_BASE64_MAP); i++ {
-			Base64_BASE64_DECODE_MAP[String_charAt(Base64_BASE64_MAP, i)] = i
+		for i, u_ := range stringUnits_(Base64_BASE64_MAP) {
+			Base64_BASE64_DECODE_MAP[u_] = i
 		}
 	}
 
