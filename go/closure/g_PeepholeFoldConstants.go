@@ -1225,7 +1225,7 @@ func PeepholeFoldConstants_tryStrictEqualityComparison(peepholeOptimization *Abs
 					return Tri_UNKNOWN
 				} else {
 					return func() Tri {
-						if Object_equals(lv.box_(), rv.box_()) {
+						if optEquals_(lv, rv) {
 							return Tri_TRUE
 						}
 						return Tri_FALSE

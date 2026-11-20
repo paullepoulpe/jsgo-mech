@@ -257,21 +257,21 @@ func (this *JsMessage) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.getSourceName_.box_(), o.getSourceName_.box_()) && this.getKey_ == o.getKey_ && this.isAnonymous_ == o.isAnonymous_ && this.isExternal_ == o.isExternal_ && this.getId_ == o.getId_ && Objects_equals(this.getParts_.asList(), o.getParts_.asList()) && Objects_equals(this.getGenderedMessagesMap_.asMap(), o.getGenderedMessagesMap_.asMap()) && Objects_equals(this.getAlternateId_.box_(), o.getAlternateId_.box_()) && Objects_equals(this.getDesc_.box_(), o.getDesc_.box_()) && Objects_equals(this.getMeaning_.box_(), o.getMeaning_.box_()) && Objects_equals(this.getPlaceholderNameToExampleMap_.asMap(), o.getPlaceholderNameToExampleMap_.asMap()) && Objects_equals(this.getPlaceholderNameToOriginalCodeMap_.asMap(), o.getPlaceholderNameToOriginalCodeMap_.asMap()) && Objects_equals(this.jsPlaceholderNames_.asSet(), o.jsPlaceholderNames_.asSet()) && Objects_equals(this.canonicalPlaceholderNames_.asSet(), o.canonicalPlaceholderNames_.asSet())
+	return true && optEqualsNull_(this.getSourceName_, o.getSourceName_) && this.getKey_ == o.getKey_ && this.isAnonymous_ == o.isAnonymous_ && this.isExternal_ == o.isExternal_ && this.getId_ == o.getId_ && Objects_equals(this.getParts_.asList(), o.getParts_.asList()) && Objects_equals(this.getGenderedMessagesMap_.asMap(), o.getGenderedMessagesMap_.asMap()) && optEqualsNull_(this.getAlternateId_, o.getAlternateId_) && optEqualsNull_(this.getDesc_, o.getDesc_) && optEqualsNull_(this.getMeaning_, o.getMeaning_) && Objects_equals(this.getPlaceholderNameToExampleMap_.asMap(), o.getPlaceholderNameToExampleMap_.asMap()) && Objects_equals(this.getPlaceholderNameToOriginalCodeMap_.asMap(), o.getPlaceholderNameToOriginalCodeMap_.asMap()) && Objects_equals(this.jsPlaceholderNames_.asSet(), o.jsPlaceholderNames_.asSet()) && Objects_equals(this.canonicalPlaceholderNames_.asSet(), o.canonicalPlaceholderNames_.asSet())
 }
 
 func (this *JsMessage) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.getSourceName_.box_())
+	h = h*31 + optHash_(this.getSourceName_)
 	h = h*31 + strhash_(this.getKey_)
 	h = h*31 + boolhash_(this.isAnonymous_)
 	h = h*31 + boolhash_(this.isExternal_)
 	h = h*31 + strhash_(this.getId_)
 	h = h*31 + objhashVia_(this.getParts_.asList())
 	h = h*31 + objhashDyn_(this.getGenderedMessagesMap_.asMap())
-	h = h*31 + Objects_hashCode(this.getAlternateId_.box_())
-	h = h*31 + Objects_hashCode(this.getDesc_.box_())
-	h = h*31 + Objects_hashCode(this.getMeaning_.box_())
+	h = h*31 + optHash_(this.getAlternateId_)
+	h = h*31 + optHash_(this.getDesc_)
+	h = h*31 + optHash_(this.getMeaning_)
 	h = h*31 + objhashDyn_(this.getPlaceholderNameToExampleMap_.asMap())
 	h = h*31 + objhashDyn_(this.getPlaceholderNameToOriginalCodeMap_.asMap())
 	h = h*31 + objhashDyn_(this.jsPlaceholderNames_.asSet())
@@ -749,7 +749,7 @@ func (this *JsMessage_Builder) build() *JsMessage {
 	if this.isExternal_ && this.isAnonymous_ {
 		panic(new_IllegalStateException_String(objstr_("a message cannot be both anonymous and external")))
 	}
-	if this.alternateId.isPresent() && Object_equals(this.alternateId.box_(), this.id.box_()) {
+	if this.alternateId.isPresent() && optEquals_(this.alternateId, this.id) {
 		this.alternateId = Optional_empty[string]()
 	}
 	var immutableGenderedPartsBuilder *ImmutableMap_Builder[JsMessage_GrammaticalGenderCase, *ErasedImmutableList] = immutableMapBuilder_(tc_p_JsMessage_GrammaticalGenderCase, tc_p_ImmutableList)
