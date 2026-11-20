@@ -89,18 +89,18 @@ func (this *CheckJSDoc) validateSuppress(n Node, info *JSDocInfo) {
 	if (info == nil) || info.getSuppressions().isEmpty() {
 		return
 	}
-	switch n.getToken() {
-	case Token_rhino_FUNCTION, Token_rhino_CLASS, Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST, Token_rhino_SCRIPT, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_FIELD_DEF:
+	switch n.ns_().token {
+	case tokOrd1_FUNCTION, tokOrd1_CLASS, tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST, tokOrd1_SCRIPT, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_COMPUTED_FIELD_DEF:
 		return
-	case Token_rhino_COMPUTED_PROP:
+	case tokOrd1_COMPUTED_PROP:
 		if n.getLastChild().isFunction() {
 			return
 		}
-	case Token_rhino_STRING_KEY:
+	case tokOrd1_STRING_KEY:
 		if n.getParent().isObjectLit() {
 			return
 		}
-	case Token_rhino_WITH:
+	case tokOrd1_WITH:
 		if CheckJSDoc_containsOnlySuppressionFor(info, "with") {
 			return
 		}
@@ -274,15 +274,15 @@ func (this *CheckJSDoc) validateFunctionJsDoc(n Node, info *JSDocInfo) {
 
 func (this *CheckJSDoc) isJSDocOnFunctionNode(n Node, info *JSDocInfo) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_FUNCTION, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_STRING_KEY, Token_rhino_COMPUTED_PROP, Token_rhino_EXPORT, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_FIELD_DEF:
+		switch n.ns_().token {
+		case tokOrd1_FUNCTION, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_STRING_KEY, tokOrd1_COMPUTED_PROP, tokOrd1_EXPORT, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_COMPUTED_FIELD_DEF:
 			return true
-		case Token_rhino_GETELEM, Token_rhino_GETPROP:
+		case tokOrd1_GETELEM, tokOrd1_GETPROP:
 			if n.getFirstChild().isQualifiedName() {
 				return true
 			}
 			return false
-		case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST, Token_rhino_ASSIGN:
+		case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST, tokOrd1_ASSIGN:
 			var lhs Node = n.getFirstChild()
 			var rhs Node = NodeUtil_getRValueOfLValue(lhs)
 			if ((rhs != 0) && this.isClass(rhs)) && !info.isConstructor() {
@@ -303,12 +303,12 @@ func (this *CheckJSDoc) validateMsgJsDoc(n Node, info *JSDocInfo) {
 	var hasNonDescMsgTag bool = (info.getMeaning().isPresent() || info.getAlternateMessageId().isPresent())
 	if hasNonDescMsgTag || (info.getDescription().isPresent() && !CheckJSDoc_isFromTs(n)) {
 		var descOkay bool = false
-		switch n.getToken() {
-		case Token_rhino_ASSIGN, Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+		switch n.ns_().token {
+		case tokOrd1_ASSIGN, tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 			descOkay = CheckJSDoc_isValidMsgName(n.getFirstChild())
-		case Token_rhino_STRING_KEY:
+		case tokOrd1_STRING_KEY:
 			descOkay = CheckJSDoc_isValidMsgName(n)
-		case Token_rhino_GETPROP:
+		case tokOrd1_GETPROP:
 			if n.isFromExterns() && n.isQualifiedName() {
 				descOkay = CheckJSDoc_isValidMsgName(n)
 			}
@@ -334,23 +334,23 @@ func CheckJSDoc_isValidMsgName(nameNode Node) bool {
 func (this *CheckJSDoc) validateTypeAnnotations(n Node, info *JSDocInfo) {
 	if (info != nil) && info.hasType() {
 		var valid bool = false
-		switch n.getToken() {
-		case Token_rhino_FUNCTION:
+		switch n.ns_().token {
+		case tokOrd1_FUNCTION:
 			valid = NodeUtil_isFunctionDeclaration(n)
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			valid = CheckJSDoc_isTypeAnnotationAllowedForName(n)
-		case Token_rhino_ARRAY_PATTERN, Token_rhino_OBJECT_PATTERN:
+		case tokOrd1_ARRAY_PATTERN, tokOrd1_OBJECT_PATTERN:
 			valid = n.getParent().isParamList()
-		case Token_rhino_CAST, Token_rhino_EXPORT, Token_rhino_STRING_KEY, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_FIELD_DEF:
+		case tokOrd1_CAST, tokOrd1_EXPORT, tokOrd1_STRING_KEY, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_COMPUTED_FIELD_DEF:
 			valid = true
-		case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+		case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 			valid = !NodeUtil_isDestructuringDeclaration(n)
-		case Token_rhino_ASSIGN:
+		case tokOrd1_ASSIGN:
 			var lvalue Node = n.getFirstChild()
 			valid = (n.getParent().isExprResult() && ((lvalue.isGetProp() || lvalue.isGetElem()) || lvalue.matchesName("exports")))
-		case Token_rhino_GETPROP:
+		case tokOrd1_GETPROP:
 			valid = (n.getParent().isExprResult() && n.isQualifiedName())
-		case Token_rhino_CALL:
+		case tokOrd1_CALL:
 			valid = info.isDefine()
 		default:
 		}
@@ -429,7 +429,7 @@ func (this *CheckJSDoc) validateDefaultValue(n Node) {
 			return
 		}
 		var typeNode Node = typeExpr.getRoot()
-		if typeNode.getToken() != Token_rhino_EQUALS {
+		if typeNode.ns_().token != tokOrd1_EQUALS {
 			this.report(typeNode, CheckJSDoc_DEFAULT_PARAM_MUST_BE_MARKED_OPTIONAL, []string{})
 		}
 	}

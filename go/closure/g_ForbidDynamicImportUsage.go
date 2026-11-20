@@ -41,8 +41,8 @@ func (this *ForbidDynamicImportUsage) getFeatureSetOfScript(n Node) *FeatureSet 
 }
 
 func (this *ForbidDynamicImportUsage) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_DYNAMIC_IMPORT:
+	switch n.ns_().token {
+	case tokOrd1_DYNAMIC_IMPORT:
 		t.report(n, ForbidDynamicImportUsage_DYNAMIC_IMPORT_USAGE, []string{})
 	default:
 	}

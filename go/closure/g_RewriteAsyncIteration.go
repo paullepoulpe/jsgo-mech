@@ -66,46 +66,46 @@ func (this *RewriteAsyncIteration) shouldTraverse(nodeTraversal *NodeTraversal, 
 
 func (this *RewriteAsyncIteration) visit(t *NodeTraversal, n Node, parent Node) {
 	var ctx *RewriteAsyncIteration_LexicalContext = cast_[*RewriteAsyncIteration_LexicalContext](SequencedCollection_getFirst(SequencedCollection(this.contextStack.asDeque())))
-	switch n.getToken() {
-	case Token_rhino_PARAM_LIST:
+	switch n.ns_().token {
+	case tokOrd1_PARAM_LIST:
 		Preconditions_checkState_boolean_Object_H(equalsRRH_(n, ctx.contextRoot), n)
 		this.contextStack.pop()
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		Preconditions_checkState(equalsRRH_(n, ctx.contextRoot))
 		if n.isAsyncGeneratorFunction() {
 			this.convertAsyncGenerator(n)
 			this.prependTempVarDeclarations(ctx, t)
 		}
 		this.contextStack.pop()
-	case Token_rhino_AWAIT:
+	case tokOrd1_AWAIT:
 		Preconditions_checkNotNull_T(ctx.function)
 		if ctx.function.isAsyncGeneratorFunction() {
 			this.convertAwaitOfAsyncGenerator(ctx, n)
 		}
-	case Token_rhino_YIELD:
+	case tokOrd1_YIELD:
 		Preconditions_checkNotNull_T(ctx.function)
 		if ctx.function.isAsyncGeneratorFunction() {
 			this.convertYieldOfAsyncGenerator(ctx, n)
 		}
-	case Token_rhino_RETURN:
+	case tokOrd1_RETURN:
 		Preconditions_checkNotNull_T(ctx.function)
 		if ctx.function.isAsyncGeneratorFunction() {
 			this.convertReturnOfAsyncGenerator(ctx, n)
 		}
-	case Token_rhino_FOR_AWAIT_OF:
+	case tokOrd1_FOR_AWAIT_OF:
 		Preconditions_checkNotNull_T(ctx.function)
 		Preconditions_checkState(ctx.function.isAsyncFunction())
 		this.replaceForAwaitOf(ctx, n)
 		NodeUtil_addFeatureToScript(t.getCurrentScript(), FeatureSet_Feature_CONST_DECLARATIONS, this.compiler_)
-	case Token_rhino_THIS:
+	case tokOrd1_THIS:
 		if ctx.mustReplaceThisSuperArgs() {
 			this.replaceThis(ctx, n)
 		}
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		if ctx.mustReplaceThisSuperArgs() && n.matchesName("arguments") {
 			this.replaceArguments(ctx, n)
 		}
-	case Token_rhino_SUPER:
+	case tokOrd1_SUPER:
 		if ctx.mustReplaceThisSuperArgs() {
 			this.replaceSuper(ctx, n, parent)
 		}
