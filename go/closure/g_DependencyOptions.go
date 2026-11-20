@@ -141,21 +141,6 @@ func (this *DependencyOptions) entryPoints() *TList[*ModuleIdentifier] {
 	return this.entryPoints_
 }
 
-func (this *DependencyOptions) equals(p0 any) bool {
-	o, ok := p0.(*DependencyOptions)
-	if !ok || o == nil {
-		return false
-	}
-	return true && this.mode_ == o.mode_ && Objects_equals(this.entryPoints_.asList(), o.entryPoints_.asList())
-}
-
-func (this *DependencyOptions) hashCode() int32 {
-	var h int32
-	h = h*31 + hash_(this.mode_)
-	h = h*31 + objhashVia_(this.entryPoints_.asList())
-	return h
-}
-
 func (this *DependencyOptions) toString() string {
 	return "DependencyOptions[" + "mode=" + jtostr_(this.mode_) + ", entryPoints=" + objstr_(this.entryPoints_.asList()) + "]"
 }

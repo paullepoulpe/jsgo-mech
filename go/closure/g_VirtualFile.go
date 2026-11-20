@@ -35,24 +35,3 @@ func (this *VirtualFile) getContent() string {
 func (this *VirtualFile) wasModified() bool {
 	return false
 }
-
-func (this *VirtualFile) hashCode() int32 {
-	return hashOf_(objhashStr_(this.name_), objhashStr_(this.code_))
-}
-
-func (this *VirtualFile) equals(o any) bool {
-	var vf *VirtualFile
-	_ = vf
-	if func() bool {
-		v_ := o
-		p, ok := v_.(*VirtualFile)
-		if !ok {
-			return false
-		}
-		vf = p
-		return true
-	}() {
-		return ((this.name_ == vf.name_) && (this.code_ == vf.code_))
-	}
-	return false
-}
