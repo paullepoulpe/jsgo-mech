@@ -46,10 +46,10 @@ func (this *AccessorSummary) toProto() *AccessorSummaryProto {
 	} else {
 		for i, entryKey := range this.accessors.keys {
 			entryValue := this.accessors.vals[i]
-			builder.addAccessors(AccessorSummaryEntryProto_newBuilder().setName(entryKey).setKind(AccessorSummary_toProto(entryValue)).buildT_())
+			builder.addAccessors(AccessorSummaryEntryProto_newBuilder().setName(entryKey).setKind(AccessorSummary_toProto(entryValue)).buildLastT_())
 		}
 	}
-	return builder.buildT_()
+	return builder.buildLastT_()
 }
 
 func AccessorSummary_toProto(kind AccessorSummary_PropertyAccessKind) PropertyAccessKindProto {

@@ -32,7 +32,7 @@ func (this *UniqueIdSupplier) getUniqueId(input *CompilerInput) string {
 func (this *UniqueIdSupplier) toProto() *TList[*UniqueIdProto] {
 	var result *TList[*UniqueIdProto] = newTList_(tc_p_UniqueIdProto)
 	for entry := range elemsBy_(this.counter.entrySet(), icast_Map_Entry) {
-		result.add(UniqueIdProto_newBuilder().setHash(unbox_[int32](entry.getKey())).setCounter(unbox_[int32](entry.getValue())).buildT_())
+		result.add(UniqueIdProto_newBuilder().setHash(unbox_[int32](entry.getKey())).setCounter(unbox_[int32](entry.getValue())).buildLastT_())
 	}
 	return result
 }
