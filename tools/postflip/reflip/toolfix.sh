@@ -194,3 +194,15 @@ func reflipNil_(e ast.Expr) bool {
 G
   [[ $(grep -c 'reflip11' $vg) == 6 ]] || { echo "toolfix: visit: anchors not found" >&2; exit 1; }
 fi
+# 12. (fourth flip) strids: the tool turns scope.getVar(n.getString()) into scope.getVarById_(n.getStringId_()) for the method
+#    getVar of AbstractScope or TypedScope. With the Java prep step "scope push-down" and the translator's rule "covariant
+#    overrides", getVar is declared on Scope and TypedScope and spelled with its result (getVar_String_rVar,
+#    getVar_String_rTypedVar): the call is rewritten for any spelling of getVar(String) on a scope class that has getVarById_.
+sg=tools/postflip/strids/main.go
+if [[ -f $sg ]] && ! grep -q 'reflip12' $sg && grep -q 'sel.Sel.Name != "getVar" || len(x.Args) != 1' $sg; then
+  perl -0pi -e '
+    s/if !ok \|\| sel\.Sel\.Name != "getVar" \|\| len\(x\.Args\) != 1 \{/if !ok || (sel.Sel.Name != "getVar" \&\& !strings.HasPrefix(sel.Sel.Name, "getVar_String_r")) || len(x.Args) != 1 { \/\/ reflip12/;
+    s/if !ok \|\| \(nt\.Obj\(\)\.Name\(\) != "AbstractScope" && nt\.Obj\(\)\.Name\(\) != "TypedScope"\) \{/if !ok || (nt.Obj().Name() != "AbstractScope" \&\& nt.Obj().Name() != "TypedScope" \&\& nt.Obj().Name() != "Scope") || !rw.HasMethod(types.NewPointer(nt), "getVarById_") { \/\/ reflip12/;
+  ' $sg
+  [[ $(grep -c 'reflip12' $sg) == 2 ]] || { echo "toolfix: strids: anchors not found" >&2; exit 1; }
+fi

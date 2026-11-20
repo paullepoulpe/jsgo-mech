@@ -232,12 +232,14 @@ b59b6a41 patch 105-b59b6a41-rt.patch
 f7247baa patch 108-f7247baa-rt.patch
 # 109. postflip (manual): AbstractScope.vars is a scopeVars_ table
 #=2 a3f0161d dropped (second trial): manual patch no longer applies to this flip's text
+#=4 a3f0161d re-made (fourth flip) in step 430 on Scope and TypedScope, where prep step 18 moved the members it edits
 #- a3f0161d patch 109-a3f0161d-manual.patch
 # 110. postflip (manual): a scope's implicit variables are an array indexed by ordinal
 #= 3a99f7ab dropped: manual patch no longer applies (1 files; conflicts in g_AbstractScope.go)
 #- 3a99f7ab patch 110-3a99f7ab-manual.patch
 # 111. postflip (manual): a variable lookup walks the scope chain hashing the name once
 #=2 6c2c7d00 dropped (second trial): the manual patch applies but the package no longer type-checks
+#=4 6c2c7d00 re-made (fourth flip) in step 430 on Scope and TypedScope, where prep step 18 moved the members it edits
 #- 6c2c7d00 patch 111-6c2c7d00-manual.patch
 # 112. postflip (manual): ReferenceCollector's block stack is a native slice
 #= 46de9ec8 dropped: manual patch no longer applies (1 files; conflicts in g_ReferenceCollector.go)
@@ -579,13 +581,19 @@ a5732999 patch 402-a5732999-rt.patch
 # 405. postflip (manual, re-flip): findModifiedParameters adds to one set (99c1ce0e re-made)
 67259c7a patch 405-67259c7a-manual.patch
 # 406. postflip (manual, re-flip): Var-keyed maps of RemoveUnusedCode and MustBeReachingVariableDef are varMap_ (8d8b945c, 3d4d3023 re-made)
-3da0ef84 patch 406-3da0ef84-manual.patch
+#=4 3da0ef84 adapted (fourth flip): redone against this flip's text as 6ecbb45e (tag flip4-redo-406): the same edit (Var-keyed maps of RemoveUnusedCode and MustBeReachingVariableDef are varMap_); the lines differ by this translator's spellings (getScope_rAbstractScope_rScope(), equalsR_/hashR_ for equalsDyn_/hashDyn_, GraphNode[Node, ControlFlowGraph_Branch])
+#- 3da0ef84 patch 406-3da0ef84-manual.patch
+6ecbb45e patch 406-6ecbb45e-manual.patch
 # 407. postflip (manual, re-flip): ReferenceCollector's map is a varMap_, its block stack a slice; a ReferenceCollection has room for four (3d0eda46, 46de9ec8, bdfed150 re-made)
 1dc40729 patch 407-1dc40729-manual.patch
 # 408. postflip (manual, re-flip): a graph node holds its two edge lists and their first edges; createNode and isConnectedInDirection without function objects (751c653e, 18181b92, a3cb96f9, ebd14889 re-made)
-42cfbc2c patch 408-42cfbc2c-manual.patch
+#=4 42cfbc2c adapted (fourth flip): redone against this flip's text as f801ab57 (tag flip4-redo-408): the same three edits on this translator's typed graph: createNode is getOrCreateNode_ on the typed node map (no Function object), isConnectedInDirection(source, edgeValue, dest) compares without a Predicate object (isConnectedTo_), and a node holds its two edge lists (TList[*LinkedDiGraphEdge] values, were ArrayList) with room for the first edge of each
+#- 42cfbc2c patch 408-42cfbc2c-manual.patch
+f801ab57 patch 408-f801ab57-manual.patch
 # 409. postflip (manual, re-flip): data-flow and CFG prioritization walk a node's edges instead of a list of its neighbours (eb573b66 re-made)
-dc3eb3ea patch 409-dc3eb3ea-manual.patch
+#=4 dc3eb3ea adapted (fourth flip): redone against this flip's text as f00c8616 (tag flip4-redo-409): the same two edits (prioritizeFromEntryNode and DataFlowAnalysis.analyze walk a node's edges instead of the list of its neighbours); the replaced lines spell the graph types with their edge parameter ([N, ControlFlowGraph_Branch])
+#- dc3eb3ea patch 409-dc3eb3ea-manual.patch
+f00c8616 patch 409-f00c8616-manual.patch
 # 410. postflip (manual, re-flip): RemoveUnusedCode builds a not-removable reason only for a log that records it (8f32a538, eecb7a60 re-made)
 144a1e01 patch 410-144a1e01-manual.patch
 # 411. postflip (manual, re-flip): InlineVariables' memo cells are part of the var expert that owns them (cba93024 re-made)
@@ -593,27 +601,43 @@ dc3eb3ea patch 409-dc3eb3ea-manual.patch
 # 412. postflip (manual, re-flip): getAstAnalyzer hands out the last analyzer while what it is made of is unchanged (03415e92 re-made)
 a18a5929 patch 412-a18a5929-manual.patch
 # 413. postflip (manual, re-flip): NodeTraversal's scope stack is a native slice of typed entries, held in the traversal with its default scope creator (0788ad44, 76f5ebbd, 5de844d3 re-made)
-32758f01 patch 413-32758f01-manual.patch
+#=4 32758f01 adapted (fourth flip): redone against this flip's text as abdc9998 (tag flip4-redo-413): the same edit, line for line; one replaced line differs (this translator writes the default scope creator as ScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(...)))
+#- 32758f01 patch 413-32758f01-manual.patch
+abdc9998 patch 413-abdc9998-manual.patch
 # 414. postflip (runtime, re-flip): TDeque.push writes into room at the head
 dbababe1 patch 414-dbababe1-rt.patch
 # 415. postflip (manual, re-flip): a scope's implicit variables are an array indexed by ordinal (3a99f7ab re-made)
-990c8909 patch 415-990c8909-manual.patch
+#=4 990c8909 adapted (fourth flip): redone against this flip's text as 4af52461 (tag flip4-redo-415): the same edit made where the field now is: prep step 18 (scope push-down) moved implicitVars and getOwnImplicitSlot from AbstractScope into Scope and TypedScope, so each gets the array by ordinal (*[4]*Var, *[4]*TypedVar), as fbound (464) later wrote them on the lead line
+#- 990c8909 patch 415-990c8909-manual.patch
+4af52461 patch 415-4af52461-manual.patch
 # 416. postflip (manual, re-flip): SerializeTypesToPointers looks a node's type up without a function object
 112242b3 patch 416-112242b3-manual.patch
 # 417. postflip step (re-flip): calls given a typed lambda adapter take the function
 ab26441f run t adapters && f
 # 418. postflip (manual, re-flip): the renaming inverter's variable sets are Go maps (35e845b7, 531be9bd re-made)
-43d498fa patch 418-43d498fa-manual.patch
+#=4 43d498fa adapted (fourth flip): redone against this flip's text as a2d3b002 (tag flip4-redo-418): the same edits (the two sets of VariableInfo are Go maps, referenceNodes a plain slice); the part that kept declaredVariableInfos a second time as a typed slice (declared_) is superseded: this translator's typed immutables make the field a *TList[*DeclaredVariableInfo] whose loops are typed already
+#- 43d498fa patch 418-43d498fa-manual.patch
+a2d3b002 patch 418-a2d3b002-manual.patch
 # 419. postflip (manual, re-flip): the data-flow node comparators call getPriority on the graph node directly (c81b9996 re-made)
-88f8ba50 patch 419-88f8ba50-manual.patch
+#=4 88f8ba50 adapted (fourth flip): redone against this flip's text as 5f35385a (tag flip4-redo-419): the same edit (nodePriority_ and Comparator_comparingInt_f in getOptionalNodeComparator); the replaced adapter is this translator's ToIntFunction_tfn_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch_
+#- 88f8ba50 patch 419-88f8ba50-manual.patch
+5f35385a patch 419-5f35385a-manual.patch
 # 420. postflip (manual, re-flip): ControlFlowAnalysis keeps AST positions in a Go map of ints (16e33273 re-made)
-ae56a16d patch 420-ae56a16d-manual.patch
+#=4 ae56a16d adapted (fourth flip): redone against this flip's text as 740d345a (tag flip4-redo-420): the same edit (astPosition is a map[Node]int32, the priority comparator holds the key function); the replaced lines differ by the adapter's name and put(n, int32(..)) for put(n, any(int32(..)))
+#- ae56a16d patch 420-ae56a16d-manual.patch
+740d345a patch 420-740d345a-manual.patch
 # 421. postflip (manual, re-flip): a data-flow work queue marks the graph nodes it holds instead of keeping them in a set (6073a778, 010746fe re-made)
-b4d1cfd0 patch 421-b4d1cfd0-manual.patch
+#=4 b4d1cfd0 adapted (fourth flip): redone against this flip's text as e718d7b6 (tag flip4-redo-421): the same edit (a UniqueQueue marks the graph nodes it holds in their queuedIn_ field); the fallback set is this flip's *TSet[T] (Len / Has / Add / Delete for isEmpty / contains / add / remove_Object of the erased set)
+#- b4d1cfd0 patch 421-b4d1cfd0-manual.patch
+e718d7b6 patch 421-e718d7b6-manual.patch
 # 422. postflip (manual, re-flip): the control-flow graph and the data-flow analysis read their nodes, edges and flow states as the classes they are (fbb901b4 re-made)
-e964d92f patch 422-e964d92f-manual.patch
+#=4 e964d92f adapted (fourth flip): redone against this flip's text as 5116eda7 (tag flip4-redo-422): the same edits on this translator's typed graph: flow states are LinearFlowState[L] (were [any]) in the analysis and its five users, the analysis reads a node's edges as LinkedDiGraphEdge (cfgEdge_), createEdge looks each node up once (getOrCreateNode_, isConnectedTo_ with the value, connectNodes_), nodeOrFail_, a node's di_ / diNode_ for getSource / getDestination, to_ of node and edge try the two classes first. Superseded parts: the comparable constraint on L and the typed node lookup node_ (the translator's getNode_Object_rDiGraphNode_rLinkedDiGraphNode) are written by prep 17 and the rule covariant overrides
+#- e964d92f patch 422-e964d92f-manual.patch
+5116eda7 patch 422-5116eda7-manual.patch
 # 423. postflip (manual, re-flip): Compiler.inputsById keyed by the id's string (13c7e5ba re-made)
-a97d418c patch 423-a97d418c-manual.patch
+#=4 a97d418c adapted (fourth flip): redone against this flip's text as 3c5d72ad (tag flip4-redo-423): the same edit (Compiler.inputsById is a map[string]*CompilerInput keyed by the id's string); two replaced lines differ by this translator's spellings (Map(new_ConcurrentHashMap()), get(new_InputId(..)) without obj_)
+#- a97d418c patch 423-a97d418c-manual.patch
+3c5d72ad patch 423-3c5d72ad-manual.patch
 # 424. postflip (runtime, re-flip): TMap.ComputeIfAbsentObj, computeIfAbsent with a typed function whose result is an Object
 0aa1c57d patch 424-0aa1c57d-rt.patch
 # 425. postflip step (re-flip): TMap.computeIfAbsent given a typed lambda whose result is an Object takes the function
@@ -623,11 +647,15 @@ a97d418c patch 423-a97d418c-manual.patch
 # 427. postflip (runtime, re-flip): objhashId_ and hashId_ of a Node hash the handle without boxing it
 938295dd patch 427-938295dd-rt.patch
 # 428. postflip (manual, re-flip): HamtPMap hashes a key without boxing it
-65fbff8a patch 428-65fbff8a-manual.patch
+#=4 65fbff8a adapted (fourth flip): redone against this flip's text as 67cd8cf2 (tag flip4-redo-428): the same edit (HamtPMap_hashOf_[K], the key hashed without boxing, at the six hash(boxT_(key)) sites); this translator writes get/plus/minus without the nil-keeping wrapper, so three replaced lines differ around the call
+#- 65fbff8a patch 428-65fbff8a-manual.patch
+67cd8cf2 patch 428-67cd8cf2-manual.patch
 # 429. postflip (runtime, re-flip): a scope's variables can be looked up by the string id of a name
 b6e39a43 patch 429-b6e39a43-rt.patch
 # 430. postflip (manual, re-flip): AbstractScope.getVarById_, getVar for the name a node holds
-84bcaeda patch 430-84bcaeda-manual.patch
+#=4 84bcaeda adapted (fourth flip): redone against this flip's text as 56cc0ae2 (tag flip4-redo-430): getVarById_ made where getVar now is (prep step 18 moved vars and getVar from AbstractScope into Scope and TypedScope): Scope.getVarById_ reads the tables by id, TypedScope.getVarById_ looks the id's string up. The edit needs the scope table of steps 109 (a3f0161d: vars is a scopeVars_ table, ownVar_, varValues_) and 111 (6c2c7d00: getVar walks the chain hashing the name once), which the second trial dropped as no longer applying; both are re-made here on Scope and TypedScope, with the table's erased *AbstractVar values cast back until step 463 spells the typed instantiation
+#- 84bcaeda patch 430-84bcaeda-manual.patch
+56cc0ae2 patch 430-56cc0ae2-manual.patch
 # 431. postflip step (re-flip): comparisons and scope lookups by the id of a node's string
 26118a47 run t strids && f
 # 432. postflip step (re-flip): casts to an instantiated generic interface outside generic code call named cast functions
@@ -779,3 +807,51 @@ d00b98f3 patch 489-d00b98f3-rt.patch
 ca2a6157 patch 491-ca2a6157-rt.patch
 # 492. postflip (runtime, re-flip): optstrGet_ inlines, its failure is a call of its own
 ad8c897b patch 492-ad8c897b-rt.patch
+
+# The lead line's later steps (reflip-trial-r18's steps.txt from step 493 on, in its order), appended for the fourth flip.
+# 493. postflip (runtime, re-flip): removing through a typed map's iterator is constant time, as LinkedHashMap's is
+34aca0ab patch 493-34aca0ab-rt.patch
+# 494. postflip (runtime, re-flip): test of removing through a typed set's iterator across the compactions it causes
+62aa65b3 patch 494-62aa65b3-rt.patch
+# 495. postflip (runtime, re-flip): subList of a typed list's erased view boxes its range, not the whole list
+75f0351d patch 495-75f0351d-rt.patch
+# 496. postflip (runtime, re-flip): a protobuf builder's build() gives the message the builder's storage (copied only if the builder changes afterwards), with a test
+265af42f patch 496-265af42f-rt.patch
+# 497. postflip (runtime, re-flip): protobuf fields are stored typed, in one struct per message written by tools/protogen, instead of boxed in a []any
+7be430ed patch 497-7be430ed-rt.patch
+# 510. postflip (runtime, re-flip): an erased immutable collection keeps what only multisets, sorted sets with a comparator, enum sets and asList() of a set use in a record of its own (80 bytes instead of 192)
+d791dde5 patch 510-d791dde5-rt.patch
+# 511. postflip (runtime, re-flip): helpers for a typed collection that goes through its erased form and straight back, with a test against the conversions they stand for
+68513bc0 patch 511-68513bc0-rt.patch
+# 512. postflip step (re-flip): trips, 88 round trips of a typed collection through its erased form become typed helper calls (tool a9769ba0, runtime 68513bc0)
+#: trips: 88 round trips through an erased collection rewritten; files changed: 47 (10 tsetAddAllOf_, 5 tsetAddList_, 13 tsetAddSet_, 7 immCopySlice_, 1 sliceSkip_ of splitStrs_, 15 tlistImmCopy_, 8 sliceAddSlice_, 1 sliceAddList_, 1 immCopyArr_, 5 tlistSlice_, 20 splitStrs_, 2 tsetCopy_; left 1 array boxed by a function literal)
+e9d53d6c run t trips && f
+# 513. postflip (runtime, re-flip): a Splitter makes the slice of its pieces once, at its final size
+4071b655 patch 513-4071b655-rt.patch
+# 530. postflip (manual, re-flip): a node's JSType is kept in the table of distinct values as the *JSType, so getJSType is one type comparison
+ec365959 patch 530-ec365959-manual.patch
+ec365959 patch 530-ec365959-rt.patch
+# 531. postflip (runtime, re-flip): buildLastT_ on every protobuf builder, a build that turns the builder's allocation into the message
+313c74a6 patch 531-313c74a6-rt.patch
+# 532. postflip step (re-flip): pblast, 29 last builds of a protobuf builder are buildLastT_() (tool 7db1e46c, runtime 313c74a6)
+e7442814 run t pblast && f
+#: pblast: 29 last builds of a protobuf builder are buildLastT_(): 20 of a fresh builder expression, 9 of an owned local variable in a return (117 generated builder methods checked to keep no reference, 6 parameters borrowed); left 8 buildT_() calls; 0 already buildLastT_(). f (gofmt of go1.27.3) also realigns g_0names.go, which the tree before was not formatted by.
+# 533. postflip (runtime, re-flip): the protobuf writer tests a field's presence in line and writes a repeated message field in its own loop
+2a0d8fa6 patch 533-2a0d8fa6-rt.patch
+# 534. postflip (manual, re-flip): expectWellFormedTemplatizedType makes its verifier only for a node that has a type
+#= 43f5a0f0 not taken (thirteenth session): a one-off hand edit of pass code, measured and gated on its branch; to come back as a tool or not at all
+#- 43f5a0f0 patch 534-43f5a0f0-manual.patch
+# 535. postflip (runtime, re-flip): the shared property lists of nodes have a direct-mapped front, so reading a node's list is a comparison, not a map lookup
+036df818 patch 535-036df818-rt.patch
+# 520. postflip (runtime, re-flip): a key without equals/hashCode is hashed by its address
+67684f20 patch 520-67684f20-rt.patch
+# 521. postflip (runtime, re-flip): an erased lookup of an object by identity asks its type's questions once
+fb7f9349 patch 521-fb7f9349-rt.patch
+# 522. postflip (manual, re-flip): SourceFile.setCodeAndDoBookkeeping counts lines on the view it has
+#= f9699ae5 not taken (thirteenth session): a one-off hand edit of pass code, measured and gated on its branch; to come back as a tool or not at all
+#- f9699ae5 patch 522-f9699ae5-manual.patch
+# 523. postflip (manual, re-flip): a token's SourceRange and its two SourcePositions are one allocation
+#= 444eac19 not taken (thirteenth session): a one-off hand edit of pass code, measured and gated on its branch; to come back as a tool or not at all
+#- 444eac19 patch 523-444eac19-manual.patch
+# 540. postflip step: tryfn re-run after its third pattern (tool 0aa7a128): 2 tries with a finally block that always return
+d6407a3e run t tryfn && f
