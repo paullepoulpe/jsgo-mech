@@ -33,7 +33,9 @@ func (this *TypeInference) finit_TypeInference() {
 func (this *TypeInference) init_TypeInference(compiler *AbstractCompiler, cfg *ControlFlowGraph[Node], reverseInterpreter ReverseAbstractInterpreter, syntacticScope *TypedScope, scopeCreator *TypedScopeCreator, assertionFunctionLookup *CodingConvention_AssertionFunctionLookup) {
 	this.DataFlowAnalysis.init_DataFlowAnalysis(cfg)
 	this.finit_TypeInference()
-	Preconditions_checkArgument_boolean_String_Object_Object((syntacticScope.getRootNode() == cfg.getEntry().getValue()), "Expected syntactic scope to be rooted at CFG root node of %s, but instead got syntactic scope root node of %s", cfg.getEntry(), syntacticScope.getRootNode().box_())
+	if ok_, a1_, a2_ := (syntacticScope.getRootNode() == cfg.getEntry().getValue()), cfg.getEntry(), syntacticScope.getRootNode(); !ok_ {
+		Preconditions_checkArgument_boolean_String_Object_Object(false, "Expected syntactic scope to be rooted at CFG root node of %s, but instead got syntactic scope root node of %s", a1_, a2_.box_())
+	}
 	this.compiler_ = Preconditions_checkNotNull_T(compiler)
 	this.registry = Preconditions_checkNotNull_T(compiler.getTypeRegistry())
 	this.reverseInterpreter = Preconditions_checkNotNull_T(reverseInterpreter)
@@ -216,7 +218,9 @@ func (this *TypeInference) updateModuleScope(module *Module, syntacticBlockScope
 		if rootNode.isModuleBody() {
 			rootNode.setJSType(exportsType)
 		} else {
-			Preconditions_checkState_boolean_Object_H(rootNode.isBlock(), rootNode)
+			if !rootNode.isBlock() {
+				Preconditions_checkState_boolean_Object_H(false, rootNode)
+			}
 			var paramList Node = NodeUtil_getFunctionParameters(rootNode.getParent())
 			paramList.getOnlyChild().setJSType(exportsType)
 		}
@@ -472,14 +476,18 @@ func (this *TypeInference) traverseAssignUnsignedRightShift(n Node, scope FlowSc
 }
 
 func (this *TypeInference) traverseCall(callNode Node, originalScope FlowScope) FlowScope {
-	Preconditions_checkArgument_boolean_Object_H((callNode.isCall() || callNode.isOptChainCall()), callNode)
+	if !(callNode.isCall() || callNode.isOptChainCall()) {
+		Preconditions_checkArgument_boolean_Object_H(false, callNode)
+	}
 	var scopeAfterChildren FlowScope = this.traverseChildren(callNode, originalScope)
 	var scopeAfterExecution FlowScope = this.setCallNodeTypeAfterChildrenTraversed(callNode, scopeAfterChildren)
 	return this.tightenTypesAfterAssertions(scopeAfterExecution, callNode)
 }
 
 func (this *TypeInference) traverseTaggedTemplateLit(tagTempLitNode Node, originalScope FlowScope) FlowScope {
-	Preconditions_checkArgument_boolean_Object_H(tagTempLitNode.isTaggedTemplateLit(), tagTempLitNode)
+	if !tagTempLitNode.isTaggedTemplateLit() {
+		Preconditions_checkArgument_boolean_Object_H(false, tagTempLitNode)
+	}
 	var scopeAfterChildren FlowScope = this.traverseChildren(tagTempLitNode, originalScope)
 	var scopeAfterExecution FlowScope = this.setCallNodeTypeAfterChildrenTraversed(tagTempLitNode, scopeAfterChildren)
 	if tagTempLitNode.getJSType() == nil {
@@ -579,7 +587,9 @@ func (this *TypeInference) traverseCatch(catchNode Node, scope FlowScope) FlowSc
 		var pattern Node = catchNode.getFirstChild()
 		return this.traverseDestructuringPattern(pattern, scope, this.unknownType.up_JSType(), TypeInference_AssignmentType_DECLARATION)
 	} else {
-		Preconditions_checkState_boolean_Object_H(catchTarget.isEmpty(), catchTarget)
+		if !catchTarget.isEmpty() {
+			Preconditions_checkState_boolean_Object_H(false, catchTarget)
+		}
 		return scope
 	}
 	panic("unreachable")
@@ -793,7 +803,9 @@ func (this *TypeInference) traverseDeclarationChild(n Node, scope FlowScope) Flo
 	if n.isName() {
 		return this.traverseName(n, scope)
 	}
-	Preconditions_checkState_boolean_Object_H(n.isDestructuringLhs(), n)
+	if !n.isDestructuringLhs() {
+		Preconditions_checkState_boolean_Object_H(false, n)
+	}
 	scope = this.traverse(n.getSecondChild(), scope)
 	return this.traverseDestructuringPattern(n.getFirstChild(), scope, this.getJSType(n.getSecondChild()), TypeInference_AssignmentType_DECLARATION)
 }
@@ -812,7 +824,9 @@ func (this *TypeInference) traverseDestructuringPattern(pattern Node, scope Flow
 }
 
 func (this *TypeInference) traverseDestructuringPatternHelper(pattern Node, scope FlowScope, patternType *JSType, declarer func(FlowScope, Node, *JSType) FlowScope) FlowScope {
-	Preconditions_checkArgument_boolean_Object_H(pattern.isDestructuringPattern(), pattern)
+	if !pattern.isDestructuringPattern() {
+		Preconditions_checkArgument_boolean_Object_H(false, pattern)
+	}
 	Preconditions_checkNotNull_T(patternType)
 	it_1 := DestructuredTarget_createAllNonEmptyTargetsInPattern(this.registry, patternType, pattern).each()
 	for it_1.next() {
@@ -1338,7 +1352,9 @@ func (this *TypeInference) updateBind(n Node) {
 }
 
 func (this *TypeInference) updateTypeOfArguments(n Node, fnType *FunctionType) {
-	Preconditions_checkState_boolean_Object_H(NodeUtil_isInvocation(n), n)
+	if !NodeUtil_isInvocation(n) {
+		Preconditions_checkState_boolean_Object_H(false, n)
+	}
 	var parameters IteratorOf[*FunctionType_Parameter] = fnType.getParameters().iterator()
 	if n.isTaggedTemplateLit() {
 		if !parameters.hasNext() {
@@ -1889,7 +1905,9 @@ func (this *TypeInference) newBooleanOutcomePair(jsType *JSType, flowScope FlowS
 }
 
 func (this *TypeInference) redeclareSimpleVar(scope FlowScope, nameNode Node, varType *JSType) FlowScope {
-	Preconditions_checkState_boolean_Object_H(nameNode.isName(), nameNode)
+	if !nameNode.isName() {
+		Preconditions_checkState_boolean_Object_H(false, nameNode)
+	}
 	var varName string = nameNode.getString()
 	if varType == nil {
 		varType = this.getNativeType(JSTypeNative_UNKNOWN_TYPE)

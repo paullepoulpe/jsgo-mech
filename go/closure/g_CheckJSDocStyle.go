@@ -228,7 +228,9 @@ func (this *CheckJSDocStyle) checkParam(t *NodeTraversal, param Node, name Optio
 	} else if param.isName() {
 		nameOptional = String_startsWith(param.getString(), "opt_")
 	} else {
-		Preconditions_checkState_boolean_Object_H((param.isDestructuringPattern() || param.isRest()), param)
+		if !(param.isDestructuringPattern() || param.isRest()) {
+			Preconditions_checkState_boolean_Object_H(false, param)
+		}
 		nameOptional = false
 	}
 	if name.isEmpty() || !nodeToCheck.isName() {

@@ -131,7 +131,9 @@ func (this *TypedCodeGenerator) getFunctionAnnotation(fnNode Node) string {
 }
 
 func (this *TypedCodeGenerator) getMemberFunctionAnnotation(fnNode Node) string {
-	Preconditions_checkState_boolean_Object_H((fnNode.isFunction() && fnNode.getParent().isMemberFunctionDef()), fnNode)
+	if !(fnNode.isFunction() && fnNode.getParent().isMemberFunctionDef()) {
+		Preconditions_checkState_boolean_Object_H(false, fnNode)
+	}
 	var type_ *JSType = fnNode.getJSType()
 	if (type_ == nil) || type_.isUnknownType() {
 		return ""
@@ -174,13 +176,17 @@ func (this *TypedCodeGenerator) getClassAnnotation(classType *JSType) string {
 	if (classType == nil) || classType.isUnknownType() {
 		return ""
 	}
-	Preconditions_checkState_boolean_Object(classType.isFunctionType(), classType)
+	if !classType.isFunctionType() {
+		Preconditions_checkState_boolean_Object(false, classType)
+	}
 	var funType *FunctionType = classType.toMaybeFunctionType()
 	var sb *StringBuilder = new_StringBuilder()
 	if funType.isInterface() {
 		this.appendInterfaceAnnotations(sb, funType)
 	} else {
-		Preconditions_checkState_boolean_Object(funType.isConstructor(), funType)
+		if !funType.isConstructor() {
+			Preconditions_checkState_boolean_Object(false, funType)
+		}
 		this.appendClassAnnotations(sb, funType)
 	}
 	this.appendTemplateAnnotations(sb, Collection(funType.getTypeParameters().asList()))
@@ -210,7 +216,9 @@ func (this *TypedCodeGenerator) appendTemplateAnnotations(sb *StringBuilder, typ
 func (this *TypedCodeGenerator) getParameterJSDocName(paramNode Node, paramIndex int32) string {
 	var nameNode Node = 0
 	if paramNode != 0 {
-		Preconditions_checkArgument_boolean_Object_H(paramNode.getParent().isParamList(), paramNode)
+		if !paramNode.getParent().isParamList() {
+			Preconditions_checkArgument_boolean_Object_H(false, paramNode)
+		}
 		if paramNode.isRest() {
 			paramNode = paramNode.getOnlyChild()
 		} else if paramNode.isDefaultValue() {
@@ -219,14 +227,18 @@ func (this *TypedCodeGenerator) getParameterJSDocName(paramNode Node, paramIndex
 		if paramNode.isName() {
 			nameNode = paramNode
 		} else {
-			Preconditions_checkState_boolean_Object_H((paramNode.isObjectPattern() || paramNode.isArrayPattern()), paramNode)
+			if !(paramNode.isObjectPattern() || paramNode.isArrayPattern()) {
+				Preconditions_checkState_boolean_Object_H(false, paramNode)
+			}
 			nameNode = 0
 		}
 	}
 	if nameNode == 0 {
 		return ("p" + istr_(int64(paramIndex)))
 	} else {
-		Preconditions_checkState_boolean_Object_H(nameNode.isName(), nameNode)
+		if !nameNode.isName() {
+			Preconditions_checkState_boolean_Object_H(false, nameNode)
+		}
 		return nameNode.getString()
 	}
 	panic("unreachable")

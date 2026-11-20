@@ -91,7 +91,9 @@ func (this *RewriteJsonToModule) visitScript(t *NodeTraversal, n Node) {
 					this.packageJsonMainEntries.put(inputPath, (sstr_(dirName) + sstr_(entry.getString())))
 					break
 				} else if entry.isObjectLit() {
-					Preconditions_checkState_boolean_Object((entryName == "browser"), entryName)
+					if !(entryName == "browser") {
+						Preconditions_checkState_boolean_Object(false, entryName)
+					}
 					this.processBrowserFieldAdvancedUsage(dirName, entry)
 				}
 			}
