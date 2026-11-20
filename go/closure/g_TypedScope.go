@@ -392,9 +392,7 @@ func (this *TypedScope) getAllAccessibleVariables_impl() IterableOf[*TypedVar] {
 	var accessibleVars *JTMap[string, *TypedVar] = jnewTMap_(jtc_string, jtc_p_TypedVar)
 	var s *TypedScope = this
 	for s != nil {
-		it_2 := foreach_(s.getVarIterable())
-		for it_2.next() {
-			var v *TypedVar = cast_[*TypedVar](it_2.v)
+		for v := range elemsAs_[*TypedVar](s.getVarIterable()) {
 			accessibleVars.putIfAbsent(v.getName(), v)
 		}
 		s = s.getParent_rTypedScope()

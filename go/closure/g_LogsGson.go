@@ -104,9 +104,7 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 								return true
 							}() {
 								out.beginObject()
-								it_2 := foreach_(map_.entrySet())
-								for it_2.next() {
-									var entry Map_Entry = icast_Map_Entry(it_2.v)
+								for entry := range elemsBy_(map_.entrySet(), icast_Map_Entry) {
 									out.name(objstr_(entry.getKey()))
 									LogsGson_write(out, entry.getValue())
 								}
@@ -124,9 +122,7 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 									return true
 								}() {
 									out.beginArray()
-									it_4 := foreach_(collection)
-									for it_4.next() {
-										var element any = it_4.v
+									for element := range elems_(collection) {
 										LogsGson_write(out, element)
 									}
 									out.endArray()

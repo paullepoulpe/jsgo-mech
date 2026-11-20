@@ -28,9 +28,7 @@ func SimpleBiMap_create() *SimpleBiMap {
 
 func SimpleBiMap_copyOf(map_ MapOf[any, any]) *SimpleBiMap {
 	var copy_ *SimpleBiMap = new_SimpleBiMap()
-	it_1 := foreach_(map_.entrySet())
-	for it_1.next() {
-		var e Map_Entry = icast_Map_Entry(it_1.v)
+	for e := range elemsBy_(map_.entrySet(), icast_Map_Entry) {
 		copy_.put(e.getKey(), e.getValue())
 	}
 	return copy_
@@ -48,9 +46,7 @@ func (this *SimpleBiMap) put(key any, value any) any {
 	this.forward.put(key, value)
 	if hadKey {
 		this.backward.clear()
-		it_1 := foreach_(this.forward.entrySet())
-		for it_1.next() {
-			var e Map_Entry = icast_Map_Entry(it_1.v)
+		for e := range elemsBy_(this.forward.entrySet(), icast_Map_Entry) {
 			this.backward.put(e.getValue(), e.getKey())
 		}
 	} else {
@@ -72,9 +68,7 @@ func (this *SimpleBiMap) put_s(key string, value any) any {
 	Map_put_s(this.forward, key, value)
 	if hadKey {
 		this.backward.clear()
-		it_1 := foreach_(this.forward.entrySet())
-		for it_1.next() {
-			var e Map_Entry = icast_Map_Entry(it_1.v)
+		for e := range elemsBy_(this.forward.entrySet(), icast_Map_Entry) {
 			this.backward.put(e.getValue(), e.getKey())
 		}
 	} else {

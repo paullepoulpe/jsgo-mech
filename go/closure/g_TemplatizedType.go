@@ -62,9 +62,7 @@ func (this *TemplatizedType) getTypeClass_impl() JSTypeClass {
 
 func (this *TemplatizedType) getCtorImplementedInterfaces_impl() IterableOf[*ObjectType] {
 	var resolvedImplementedInterfaces *JTSet[*ObjectType] = jnewTSet_(tce_p_ObjectType)
-	it_1 := foreach_(this.getReferencedObjTypeInternal().getCtorImplementedInterfaces())
-	for it_1.next() {
-		var obj *ObjectType = to_ObjectType(it_1.v)
+	for obj := range elemsBy_(this.getReferencedObjTypeInternal().getCtorImplementedInterfaces(), to_ObjectType) {
 		resolvedImplementedInterfaces.add(to_JSType(obj.visit(TemplateTypeReplacer_as_Visitor(this.replacer))).toObjectType())
 	}
 	return Iterable(resolvedImplementedInterfaces.asSet())
@@ -72,9 +70,7 @@ func (this *TemplatizedType) getCtorImplementedInterfaces_impl() IterableOf[*Obj
 
 func (this *TemplatizedType) getCtorExtendedInterfaces_impl() IterableOf[*ObjectType] {
 	var resolvedExtendedInterfaces *JTSet[*ObjectType] = jnewTSet_(tce_p_ObjectType)
-	it_1 := foreach_(this.getReferencedObjTypeInternal().getCtorExtendedInterfaces())
-	for it_1.next() {
-		var obj *ObjectType = to_ObjectType(it_1.v)
+	for obj := range elemsBy_(this.getReferencedObjTypeInternal().getCtorExtendedInterfaces(), to_ObjectType) {
 		resolvedExtendedInterfaces.add(to_JSType(obj.visit(TemplateTypeReplacer_as_Visitor(this.replacer))).toObjectType())
 	}
 	return Iterable(resolvedExtendedInterfaces.asSet())
@@ -167,9 +163,7 @@ func (this *TemplatizedType) resolveInternal_impl(reporter ErrorReporter_rhino) 
 	this.ProxyObjectType.resolveInternal_impl(reporter)
 	var rebuild bool = (baseTypeBefore != this.getReferencedType().up_JSType())
 	var builder *TListBuilder[*JSType] = newTListBuilder_(jtc_p_JSType)
-	it_1 := foreach_(obj_(this.templateTypes))
-	for it_1.next() {
-		var type_ *JSType = to_JSType(it_1.v)
+	for type_ := range elemsBy_(obj_(this.templateTypes), to_JSType) {
 		var resolved *JSType = type_.resolve(reporter)
 		rebuild = bor_(rebuild, !JSCompObjects_identical(resolved.self(), type_.self()))
 		builder.add(resolved)

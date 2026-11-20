@@ -192,9 +192,7 @@ func (this *PropertyMap) collectAllAncestors(ancestors *JTSet[*PropertyMap]) {
 	if primaryParent != nil {
 		primaryParent.collectAllAncestors(ancestors)
 	}
-	it_1 := foreach_(this.getSecondaryParentObjects())
-	for it_1.next() {
-		var parentType *ObjectType = to_ObjectType(it_1.v)
+	for parentType := range elemsBy_(this.getSecondaryParentObjects(), to_ObjectType) {
 		var parentMap *PropertyMap = parentType.getPropertyMap()
 		if parentMap != nil {
 			parentMap.collectAllAncestors(ancestors)

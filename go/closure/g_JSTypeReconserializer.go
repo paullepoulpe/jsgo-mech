@@ -128,9 +128,7 @@ func (this *JSTypeReconserializer) recordUnionType(type_ *UnionType) *JSTypeReco
 
 func JSTypeReconserializer_colorIdsOf(records CollectionOf[*JSTypeReconserializer_SeenTypeRecord]) *JTSet[*ColorId] {
 	var result *TSetBuilder[*ColorId] = newTSetBuilder_(tce_p_ColorId)
-	it_1 := foreach_(records)
-	for it_1.next() {
-		var r *JSTypeReconserializer_SeenTypeRecord = cast_[*JSTypeReconserializer_SeenTypeRecord](it_1.v)
+	for r := range elemsAs_[*JSTypeReconserializer_SeenTypeRecord](records) {
 		result.add(r.colorId)
 	}
 	return result.build()
@@ -183,9 +181,7 @@ func (this *JSTypeReconserializer) reconcileUnionTypes(seen *JSTypeReconserializ
 
 func JSTypeReconserializer_sortedPointersOf(records CollectionOf[*JSTypeReconserializer_SeenTypeRecord]) *JTList[any] {
 	var result *JTList[any] = jnewTList_(tc_Integer)
-	it_1 := foreach_(records)
-	for it_1.next() {
-		var r *JSTypeReconserializer_SeenTypeRecord = cast_[*JSTypeReconserializer_SeenTypeRecord](it_1.v)
+	for r := range elemsAs_[*JSTypeReconserializer_SeenTypeRecord](records) {
 		result.add(int32(r.pointer))
 	}
 	Collections_sort(result.asList())
@@ -194,9 +190,7 @@ func JSTypeReconserializer_sortedPointersOf(records CollectionOf[*JSTypeReconser
 
 func (this *JSTypeReconserializer) serializeInvolvedTypes(types CollectionOf[*JSType]) *JTList[any] {
 	var distinctPointers *JTSet[any] = jnewTSet_(tc_Integer)
-	it_1 := foreach_(types)
-	for it_1.next() {
-		var t *JSType = to_JSType(it_1.v)
+	for t := range elemsBy_(types, to_JSType) {
 		if t.isUnionType() {
 			panic(new_IllegalStateException_String(objstr_(t)).self())
 		}
@@ -231,9 +225,7 @@ func (this *JSTypeReconserializer) reconcileObjectTypes(seen *JSTypeReconseriali
 			}
 			isClosureAssert = bor_(isClosureAssert, JSTypeReconserializer_isClosureAssert(fnType.getClosurePrimitive()))
 		}
-		it_3 := foreach_(objType.getOwnPropertyNames())
-		for it_3.next() {
-			var ownProperty string = str_(it_3.v)
+		for ownProperty := range elemsBy_(objType.getOwnPropertyNames(), str_) {
 			if this.shouldPropagatePropertyName(strobj_(ownProperty)) {
 				ownProperties.add(int32(this.stringPoolBuilder.put(ownProperty)))
 			}
@@ -251,9 +243,7 @@ func (this *JSTypeReconserializer) ownAncestorInterfacesOf(type_ *ObjectType) *J
 		return jtlistEmptyImm_(tc_Integer)
 	}
 	var ancestors *TListBuilder[any] = newTListBuilder_(tc_Integer)
-	it_1 := foreach_(Iterables_concat(Iterable(ctorType.getExtendedInterfaces().asList()), Iterable(ctorType.getOwnImplementedInterfaces().asList())))
-	for it_1.next() {
-		var ancestor *JSType = to_JSType(it_1.v)
+	for ancestor := range elemsBy_(Iterables_concat(Iterable(ctorType.getExtendedInterfaces().asList()), Iterable(ctorType.getOwnImplementedInterfaces().asList())), to_JSType) {
 		ancestors.add(int32(this.serializeType(ancestor)))
 	}
 	return ancestors.build()
@@ -325,12 +315,8 @@ func (this *JSTypeReconserializer) generateTypePool() *TypePool {
 			return this.reconcileObjectTypes(seen)
 		}())
 	}
-	it_3 := foreach_(this.disambiguateEdges.keySet())
-	for it_3.next() {
-		var subtype any = it_3.v
-		it_5 := foreach_(this.disambiguateEdges.get(subtype))
-		for it_5.next() {
-			var supertype any = it_5.v
+	for subtype := range elems_(this.disambiguateEdges.keySet()) {
+		for supertype := range elems_(this.disambiguateEdges.get(subtype)) {
 			builder.addDisambiguationEdges(SubtypingEdge_newBuilder().setSubtype(unbox_[int32](subtype)).setSupertype(unbox_[int32](supertype)))
 		}
 	}
@@ -347,9 +333,7 @@ func (this *JSTypeReconserializer) getColorIdToJSTypeMapForDebugging() *SimpleLi
 		unordered.put_s(record.colorId.toString(), jstype.self())
 	}})
 	var colorIdToTypes *SimpleListMultimap = SimpleListMultimap_create()
-	it_1 := foreach_(obj_(ImmutableList_sortedCopyOf_Iterable(Iterable(unordered.keySet()))))
-	for it_1.next() {
-		var colorId string = str_(it_1.v)
+	for colorId := range elemsBy_(obj_(ImmutableList_sortedCopyOf_Iterable(Iterable(unordered.keySet()))), str_) {
 		colorIdToTypes.putAll_s(colorId, Iterable(unordered.get_s(colorId)))
 	}
 	return colorIdToTypes.immutableCopy()

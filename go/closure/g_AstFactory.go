@@ -471,9 +471,7 @@ func (this *AstFactory) createQName_3(scope StaticScope, baseName string, proper
 func (this *AstFactory) createQName_4(scope StaticScope, baseName string, baseNameNode Node, propertyNames IterableOf[string]) Node {
 	var qname Node = baseNameNode
 	var name string = baseName
-	it_1 := foreach_(propertyNames)
-	for it_1.next() {
-		var propertyName string = str_(it_1.v)
+	for propertyName := range elemsBy_(propertyNames, str_) {
 		name += sstr_(("." + sstr_(propertyName)))
 		var type_ AstFactory_Type = nil
 		if this.isAddingTypes() || this.isAddingColors() {
@@ -600,9 +598,7 @@ func (this *AstFactory) createGetProp(receiver Node, propertyName string, type_ 
 func (this *AstFactory) createGetPropsWithoutColors(receiver Node, propertyNames IterableOf[string]) Node {
 	this.assertNotAddingColors()
 	var result Node = receiver
-	it_1 := foreach_(propertyNames)
-	for it_1.next() {
-		var propertyName string = str_(it_1.v)
+	for propertyName := range elemsBy_(propertyNames, str_) {
 		result = this.createGetPropWithoutColor(result, propertyName)
 	}
 	return result
@@ -610,9 +606,7 @@ func (this *AstFactory) createGetPropsWithoutColors(receiver Node, propertyNames
 
 func (this *AstFactory) createGetPropsWithUnknownType(receiver Node, propertyNames IterableOf[string]) Node {
 	var result Node = receiver
-	it_1 := foreach_(propertyNames)
-	for it_1.next() {
-		var propertyName string = str_(it_1.v)
+	for propertyName := range elemsBy_(propertyNames, str_) {
 		result = this.createGetPropWithUnknownType(result, propertyName)
 	}
 	return result
