@@ -206,3 +206,162 @@ if [[ -f $sg ]] && ! grep -q 'reflip12' $sg && grep -q 'sel.Sel.Name != "getVar"
   ' $sg
   [[ $(grep -c 'reflip12' $sg) == 2 ]] || { echo "toolfix: strids: anchors not found" >&2; exit 1; }
 fi
+# reflip_edit FILE MARK <<pairs: exact-text edits of a tool source (python: each OLD must occur exactly once), skipped once MARK is in
+# the file. The pairs are separated by lines "=====" (between OLD and NEW) and "-----" (between edits); a line "+++++" starts text
+# appended to the file.
+reflip_edit() {
+  local f=$1 mark=$2
+  [[ -f $f ]] || { cat > /dev/null; return 0; }
+  if grep -q "$mark" "$f"; then cat > /dev/null; return 0; fi
+  python3 -c '
+import sys
+f, mark = sys.argv[1], sys.argv[2]
+s = open(f).read()
+spec = sys.stdin.read()
+spec, _, tail = spec.partition("\n+++++\n")
+for ed in spec.split("\n-----\n"):
+    old, sep, new = ed.partition("\n=====\n")
+    if not sep:
+        sys.exit("toolfix: bad edit spec for " + f)
+    old, new = old.strip("\n"), new.strip("\n")
+    if s.count(old) != 1:
+        sys.exit("toolfix: %s: anchor found %d times: %s" % (f, s.count(old), old[:90]))
+    s = s.replace(old, new)
+if mark not in s + tail:
+    sys.exit("toolfix: the edits of %s do not carry the mark %s" % (f, mark))
+open(f, "w").write(s + tail)
+' "$f" "$mark"
+}
+# 13. (fourth flip) enumin: a constant immutable enum set is now a typed immutable set (the translator's typed Guava immutables and step
+#    402): `var X *TSet[E]`, `X = tsetImm_(tc, Sets_immutableEnumSet(A.enum_(), []*Enum{...}))`, tested by `X.Has(x)` with the value
+#    bare. The tool read the erased forms only (X an *ImmutableCollection, X.contains(obj_(x))) and found no test. The typed set
+#    holds exactly the constants the erased one is built from and Has(x) is contains(x) (null, E's 0, is in no set), so the same
+#    switch stands for both.
+reflip_edit tools/postflip/enumin/main.go reflip13 <<'E13'
+			name, call := rw.CallName(as[0].Rhs[0])
+			if name != "Sets_immutableEnumSet" || len(call.Args) != 2 {
+=====
+			name, call := rw.CallName(as[0].Rhs[0])
+			if (name == "tsetImm_" || strings.HasPrefix(name, "tsetImm_[")) && len(call.Args) == 2 { // reflip13: the typed immutable set of the erased one
+				name, call = rw.CallName(call.Args[1])
+			}
+			if name != "Sets_immutableEnumSet" || len(call.Args) != 2 {
+-----
+			if !ok || sel.Sel.Name != "contains" {
+				return true
+			}
+			name, arg := rw.CallName(call.Args[0])
+			if arg == nil || (name != "obj_" && !strings.HasPrefix(name, "obj_[")) || len(arg.Args) != 1 {
+				return true
+			}
+			x := arg.Args[0]
+=====
+			if !ok || (sel.Sel.Name != "contains" && sel.Sel.Name != "Has") {
+				return true
+			}
+			var x ast.Expr
+			if reflipTSet_(rw.Info.Types[sel.X].Type) { // reflip13: a typed set takes the value bare
+				x = call.Args[0]
+			} else {
+				name, arg := rw.CallName(call.Args[0])
+				if sel.Sel.Name != "contains" || arg == nil || (name != "obj_" && !strings.HasPrefix(name, "obj_[")) || len(arg.Args) != 1 {
+					return true
+				}
+				x = arg.Args[0]
+			}
+-----
+			if t, ok := v.Type().(*types.Pointer); !ok || !isNamed(t.Elem(), "ImmutableCollection") {
+=====
+			if t, ok := v.Type().(*types.Pointer); (!ok || !isNamed(t.Elem(), "ImmutableCollection")) && !reflipTSet_(v.Type()) {
++++++
+
+// reflipTSet_ reports whether t is *TSet[E], the typed set.
+func reflipTSet_(t types.Type) bool {
+	p, ok := types.Unalias(t).(*types.Pointer)
+	if !ok {
+		return false
+	}
+	n, ok := types.Unalias(p.Elem()).(*types.Named)
+	return ok && n.Origin().Obj().Name() == "TSet"
+}
+E13
+# 14. (fourth flip) tfnparams: a named object given where a functional interface is taken (LogFile.log(new RemovalLogRecord(..)))
+#    was passed as the class pointer; the translator's rule "implicit conversions" now writes the Java upcast out, Supplier(new_C(..))
+#    or the nil-keeping helper C_as_Supplier(x) of g_0casts.go. The tool's "named object" is the operand of such an upcast (the
+#    object is never null, so both are the object), and the rewrite takes the typed method value of the operand.
+reflip_edit tools/postflip/tfnparams/main.go reflip14 <<'E14'
+func namedObj(e ast.Expr) *types.Named {
+	return namedObjN(e, 3)
+}
+=====
+func namedObj(e ast.Expr) *types.Named {
+	return namedObjN(reflipUnwrap_(e), 3) // reflip14
+}
+-----
+		rw.Rewrite[a] = func() string { return rw.RenderChildren(a) + "." + g.method + "T_" }
+=====
+		rw.Rewrite[a] = func() string {
+			if in := reflipUnwrap_(a); in != a {
+				return rw.Render(in) + "." + g.method + "T_"
+			}
+			return rw.RenderChildren(a) + "." + g.method + "T_"
+		}
++++++
+
+// reflipUnwrap_ is the operand x of an upcast I(x) to an interface type, or of a nil-keeping
+// upcast helper C_as_I(x) (`if v == nil { return nil }; return v`); else e.
+func reflipUnwrap_(e ast.Expr) ast.Expr {
+	c, ok := rw.Unparen(e).(*ast.CallExpr)
+	if !ok || len(c.Args) != 1 {
+		return e
+	}
+	id, ok := rw.Unparen(c.Fun).(*ast.Ident)
+	if !ok {
+		return e
+	}
+	switch o := rw.Info.Uses[id].(type) {
+	case *types.TypeName:
+		if types.IsInterface(o.Type()) {
+			return c.Args[0]
+		}
+	case *types.Func:
+		fd := declOf[o]
+		if fd == nil || fd.Body == nil || len(fd.Body.List) != 2 || !strings.Contains(o.Name(), "_as_") || len(fd.Type.Params.List) != 1 || len(fd.Type.Params.List[0].Names) != 1 {
+			return e
+		}
+		_, isIf := fd.Body.List[0].(*ast.IfStmt)
+		r, isRet := fd.Body.List[1].(*ast.ReturnStmt)
+		if !isIf || !isRet || len(r.Results) != 1 {
+			return e
+		}
+		if rid, ok := r.Results[0].(*ast.Ident); ok && rw.Info.Uses[rid] == rw.Info.Defs[fd.Type.Params.List[0].Names[0]] {
+			return c.Args[0]
+		}
+	}
+	return e
+}
+E14
+# 15. (fourth flip) optstr: the one erased map that holds Optional<String> values (ContextualRenamer.declarations) is "kept" when its
+#    only assignment is a new LinkedHashMap / HashMap; the translator's rule "implicit conversions" writes that assignment with the
+#    upcast, Map(new_LinkedHashMap()). The value assigned is the same new map: the proof reads the operand of the conversion.
+reflip_edit tools/postflip/optstr/proof.go reflip15 <<'E15'
+			if name, _ := rw.CallName(p.Rhs[0]); name != "new_LinkedHashMap" && name != "new_HashMap" {
+=====
+			rhs := p.Rhs[0]
+			if c, ok := rw.Unparen(rhs).(*ast.CallExpr); ok && len(c.Args) == 1 { // reflip15: Map(new_LinkedHashMap())
+				if tv, ok := rw.Info.Types[c.Fun]; ok && tv.IsType() && types.IsInterface(tv.Type) {
+					rhs = c.Args[0]
+				}
+			}
+			if name, _ := rw.CallName(rhs); name != "new_LinkedHashMap" && name != "new_HashMap" {
+E15
+# 16. (fourth flip) sbuild: the translator's rule "typed Object calls" writes sb.toString() of a StringBuilder as tostrR_(sb)
+#    (rt_conv.go: Object_toString(obj_(sb)), the form the tool knows, as one generic call). The tool took tostrR_ for an unknown
+#    function the builder is passed to and converted no builder at all (0 of 119 / 205 slots; the third flip: 39 builders, 41
+#    classes). tostrR_(sb) is read as the Object_toString(obj_(sb)) it is (first version of the tool) and as tostrNN_(sb), the
+#    tostr step's spelling of the same call (later versions).
+bg=tools/postflip/sbuild/main.go
+if [[ -f $bg ]] && ! grep -q 'reflip16' $bg; then
+  perl -pi -e 's/^(\s*)case "Object_toString", "String_valueOf_Object", "objstr_":$/$1case "Object_toString", "String_valueOf_Object", "objstr_", "tostrR_": \/\/ reflip16/; s/\(fn\.Name\(\) == "tostr_" \|\| fn\.Name\(\) == "tostrNN_"\)/(fn.Name() == "tostr_" || fn.Name() == "tostrNN_" || fn.Name() == "tostrR_")/' $bg
+  grep -q 'reflip16' $bg || { echo "toolfix: sbuild: anchors not found" >&2; exit 1; }
+fi
