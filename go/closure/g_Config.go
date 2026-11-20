@@ -112,9 +112,9 @@ func (this *Config) hashCode() int32 {
 	h = h*31 + hash_(this.strictMode_)
 	h = h*31 + hash_(this.jsDocParsingMode_)
 	h = h*31 + hash_(this.runMode_)
-	h = h*31 + Objects_hashCode(this.annotations_.asMap())
-	h = h*31 + Objects_hashCode(this.suppressionNames_.asSet())
-	h = h*31 + Objects_hashCode(this.closurePrimitiveNames_.asSet())
+	h = h*31 + objhashDyn_(this.annotations_.asMap())
+	h = h*31 + objhashDyn_(this.suppressionNames_.asSet())
+	h = h*31 + objhashDyn_(this.closurePrimitiveNames_.asSet())
 	h = h*31 + boolhash_(this.parseInlineSourceMaps_)
 	return h
 }

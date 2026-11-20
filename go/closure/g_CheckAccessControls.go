@@ -1103,14 +1103,14 @@ func (this *CheckAccessControls_PropertyReference) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.sourceNode_ == o.sourceNode_ && this.name_ == o.name_ && Objects_equals(this.receiverType_.self(), o.receiverType_.self()) && this.mutation_ == o.mutation_ && this.declaration_ == o.declaration_ && this.override_ == o.override_ && equals_(this.readableTypeName_, o.readableTypeName_)
+	return true && this.sourceNode_ == o.sourceNode_ && this.name_ == o.name_ && objequalsBy_(this.receiverType_, o.receiverType_.self(), (*ObjectType).equals) && this.mutation_ == o.mutation_ && this.declaration_ == o.declaration_ && this.override_ == o.override_ && equals_(this.readableTypeName_, o.readableTypeName_)
 }
 
 func (this *CheckAccessControls_PropertyReference) hashCode() int32 {
 	var h int32
 	h = h*31 + hashH_(this.sourceNode_)
 	h = h*31 + strhash_(this.name_)
-	h = h*31 + Objects_hashCode(this.receiverType_.self())
+	h = h*31 + objhashBy_(this.receiverType_, (*ObjectType).hashCode)
 	h = h*31 + boolhash_(this.mutation_)
 	h = h*31 + boolhash_(this.declaration_)
 	h = h*31 + boolhash_(this.override_)

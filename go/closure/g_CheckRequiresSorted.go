@@ -623,11 +623,11 @@ func (this *CheckRequiresSorted_ImportStatement) equals(p0 any) bool {
 
 func (this *CheckRequiresSorted_ImportStatement) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.nodes_.asList())
+	h = h*31 + objhashVia_(this.nodes_.asList())
 	h = h*31 + hash_(this.primitive_)
 	h = h*31 + strhash_(this.namespace_)
 	h = h*31 + Objects_hashCode(this.alias_.box_())
-	h = h*31 + Objects_hashCode(this.destructures_.asList())
+	h = h*31 + objhashVia_(this.destructures_.asList())
 	return h
 }
 

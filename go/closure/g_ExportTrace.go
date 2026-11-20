@@ -41,12 +41,12 @@ func (this *ExportTrace) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.module_.self(), o.module_.self()) && this.exportName_ == o.exportName_
+	return true && objequalsBy_(this.module_, o.module_.self(), (*UnresolvedModule).equals) && this.exportName_ == o.exportName_
 }
 
 func (this *ExportTrace) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.module_.self())
+	h = h*31 + objhashBy_(this.module_, (*UnresolvedModule).hashCode)
 	h = h*31 + strhash_(this.exportName_)
 	return h
 }
