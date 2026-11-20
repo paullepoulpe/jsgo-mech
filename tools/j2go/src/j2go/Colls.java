@@ -61,6 +61,7 @@ final class Colls {
     final List<Slot> taints = new ArrayList<>();  // erased if this one is
     boolean ended;  // of a builder chain: its collection or its builder enters a declaration
     List<Element> all;  // of a group of overriding methods: the declaration of each method (v is the first)
+    final Set<String> whys = new LinkedHashSet<>();  // every reason found (the report J2GO_COLLMAP; why is the first)
   }
 
   final Map<Element, Slot> slots = new LinkedHashMap<>();
@@ -105,6 +106,7 @@ final class Colls {
 
   void poison(Slot s, String why) {
     if (s.why == null) s.why = why;
+    s.whys.add(why);
   }
 
   static ExpressionTree strip(ExpressionTree t) {
@@ -952,10 +954,10 @@ final class Colls {
     // the program does not call, or calls with null) is typed like any other; an entry is one
     // only in a loop over a typed map.
     for (Slot s : slots.values()) {
-      if (s.why == null && !s.made && (s.kind == cx.entryKind || "1".equals(System.getenv("J2GO_COLLS_NOUNMADE")))) s.why = "no collection enters it";
+      if (s.why == null && !s.made && (s.kind == cx.entryKind || "1".equals(System.getenv("J2GO_COLLS_NOUNMADE")))) poison(s, "no collection enters it");
     }
     // a builder chain that ends nowhere (its last call is a statement, an argument of an erased method) stays erased
-    for (Slot s : chains.values()) if (s != null && s.why == null && !s.ended) s.why = "it ends in no declaration";
+    for (Slot s : chains.values()) if (s != null && s.why == null && !s.ended) poison(s, "it ends in no declaration");
     for (Slot s : slots.values()) if (s.why != null) work.add(s);
     for (Slot s : chains.values()) if (s != null && s.why != null) work.add(s);
     while (!work.isEmpty()) {

@@ -296,8 +296,9 @@ public final class Main {
       }
     }
     cx.registerTypedColls();
+    Colls colls = null;
     if (System.getenv("J2GO_ERASED") == null) {
-      Colls colls = new Colls(cx, trees);
+      colls = new Colls(cx, trees);
       for (CompilationUnitTree cu : units) colls.groups(cu);
       for (CompilationUnitTree cu : units) colls.candidates(cu);
       for (CompilationUnitTree cu : units) colls.flows(cu);
@@ -313,6 +314,13 @@ public final class Main {
       ValueScan.report(cx);
     }
     cx.analyzeMethods();
+    // Report only (J2GO_COLLMAP=dir): every declaration of a collection type and every expression
+    // that makes an erased collection, with what keeps it erased (docs/libgen/COLLECTIONS-PLAN.md).
+    if (System.getenv("J2GO_COLLMAP") != null && colls != null) {
+      CollMap cm = new CollMap(cx, trees, colls);
+      for (CompilationUnitTree cu : units) cm.scan(cu);
+      cm.write(Path.of(System.getenv("J2GO_COLLMAP")));
+    }
     Files.createDirectories(out);
     try (var old = Files.list(out)) {
       for (Path p : (Iterable<Path>) old::iterator) {

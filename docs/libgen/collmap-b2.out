@@ -1,0 +1,243 @@
+== 1. Declarations of a collection type: 3867
+type                                typed erased
+List                                  627    250
+Set                                   415    101
+ImmutableList                         458     30
+Map                                   367     89
+ImmutableSet                          339     11
+ImmutableMap                          224     20
+Map.Entry                              81     51
+ImmutableList.Builder                 122      3
+Collection                              0    119
+ArrayList                              73     38
+LinkedHashMap                          85     20
+Deque                                  72      5
+LinkedHashSet                          61      5
+ImmutableSet.Builder                   44      2
+ImmutableMap.Builder                   42      3
+ArrayDeque                             27      0
+EnumSet                                 0     16
+ImmutableSortedSet                      0     15
+TreeSet                                 7      0
+ConcurrentMap                           0      6
+SortedSet                               5      1
+ImmutableCollection                     0      5
+ImmutableSortedSet.Builder              0      5
+ImmutableSortedMap                      0      4
+ImmutableSortedMap.Builder              0      4
+TreeMap                                 0      4
+ConcurrentHashMap                       0      2
+Queue                                   1      1
+IdentityHashMap                         0      2
+SortedMap                               1      0
+PriorityQueue                           0      1
+RangeSet                                0      1
+EnumMap                                 0      1
+ProtocolStringList                      0      1
+TOTAL                                3051    816
+
+== 2. Erased declarations by first-level reason
+    3  1 constructor (a class or constructor the typed family lacks: )   [Set 3]
+    6  1 constructor (a class or constructor the typed family lacks: ConcurrentHashMap)   [Map 6]
+    1  1 constructor (a class or constructor the typed family lacks: CopyOnWriteArrayList)   [List 1]
+    2  1 constructor (a class or constructor the typed family lacks: EnumMap)   [Map 2]
+    1  1 constructor (a class or constructor the typed family lacks: LinkedList)   [Deque 1]
+    1  1 constructor (a class or constructor the typed family lacks: PriorityQueue)   [Queue 1]
+   29  2 entry not from a loop over a typed map   [Map.Entry 29]
+   16  2 view of a collection (map view)   [Set 16]
+    5  2 view of a collection (other view)   [List 4, Set 1]
+   38  3 runtime function (static)   [Set 16, List 10, Map 8, Map.Entry 2, SortedSet 1, ImmutableMap 1]
+    5  3 runtime method (instance)   [List 3, ImmutableMap 1, Map 1]
+   17  4 protobuf list   [List 17]
+   66  5 element of a collection or result of a function value (nested collection)   [ArrayList 18, Map 15, Set 14, List 13, Deque 4, ImmutableList 2]
+   45  6 a variable that is no declaration of the rule (another type, lambda parameter)   [List 32, Map 7, Set 6]
+  123  6 result of a method of the program (type-variable result, or not a declaration of the rule)   [List 70, Map 23, Set 12, LinkedHashMap 10, ArrayList 5, Map.Entry 3]
+    7  7 use: a method the view does not have (List.subList)   [List 6, ArrayList 1]
+    2  7 use: a method the view does not have (SequencedCollection.getFirst)   [LinkedHashSet 2]
+    1  7 use: a place of the class type (ArrayList)   [ArrayList 1]
+    2  7 use: a place of the class type (LinkedHashMap)   [LinkedHashMap 1, Map.Entry 1]
+    1  7 use: a place of the class type (void)   [ImmutableSet.Builder 1]
+   31  8 lambda / method reference   [ImmutableList 6, ImmutableSet 6, List 5, ArrayList 3, Set 3, LinkedHashSet 3]
+   17  9 generic class read at another instantiation   [Map 5, ImmutableList 4, List 3, Map.Entry 2, ImmutableSet 2, ImmutableMap 1]
+    3  a field read by a library / handle / record   [ImmutableMap 2, ImmutableSet 1]
+    1  b other (a variable argument of hash)   [ImmutableList 1]
+    3  b other (assigned a SWITCH_EXPRESSION)   [List 3]
+    4  b other (assigned a TYPE_CAST)   [Map 3, Map.Entry 1]
+    6  b other (used in CASE)   [List 5, ImmutableList 1]
+  193  no declaration of the rule: no kind for the type   [Collection 119, EnumSet 16, ImmutableSortedSet 15, Map.Entry 11, ConcurrentMap 6, ImmutableCollection 5]
+   16  no declaration of the rule: not a candidate: a method of a record, an annotation or a handle class   [ImmutableList 12, ImmutableMap 4]
+    1  no declaration of the rule: not a candidate: a method of an interface that nothing implements   [ImmutableList 1]
+   12  no declaration of the rule: not a candidate: a method with type parameters   [List 5, Map 3, ImmutableMap 2, ImmutableList 2]
+    8  no declaration of the rule: not a candidate: a method without a body, of a record, or main   [Set 8]
+   20  no declaration of the rule: not a candidate: a parameter of a lambda   [List 17, Map 1, ImmutableSet.Builder 1, Set 1]
+   53  no declaration of the rule: not a candidate: the methods of the group do not all have the same typed collection type there   [List 33, LinkedHashMap 9, ArrayList 7, Set 4]
+   38  no declaration of the rule: type arguments no typed collection holds   [Map: a wildcard key 7, ImmutableMap: key (compared) a type with type arguments 6, TreeMap: key (compared) a type with type arguments that is a class of the program 4, ImmutableMap: key Object 3, List: a wildcard element 2, List: an array as element 2]
+    4  several: 1   [Map 2, Map.Entry 2]
+    5  several: 2 + 9   [Set 5]
+    3  several: 3 + 5 + 6   [List 3]
+    9  several: 3 + 6   [Set 6, List 3]
+    6  several: 5 + 6   [List 6]
+    5  several: 5 + 9   [List 2, Set 2, Map 1]
+    1  several: 6   [List 1]
+    2  several: 6 + 8   [Set 2]
+    4  several: 6 + a   [List 4]
+
+== 3. Colls declarations (3423, of which typed 2954): typed after the reason classes are removed, cumulatively
+ 2995 (+  41; alone +  41)  3 runtime functions / methods give typed results
+ 3044 (+  49; alone +  49)  2 views of typed collections are typed (keySet, values, entrySet, subList, entries)
+ 3109 (+  65; alone +  65)  5 nested collections typed (element of a collection is a typed collection)
+ 3127 (+  18; alone +  18)  1 the constructors the typed family lacks
+ 3144 (+  17; alone +  17)  4 protobuf lists typed
+ 3329 (+ 185; alone + 169)  6 program results of type-variable type, non-rule variables
+ 3344 (+  15; alone +  15)  7 uses the view lacks
+ 3371 (+  27; alone +  25)  8 lambdas and method references
+ 3398 (+  27; alone +  17)  9 generic instantiations
+ 3407 (+   9; alone +   5)  a fields read by a library, handles, records
+ 3421 (+  14; alone +  14)  b other
+ 3423 (+   2; alone +   2)  c chains
+
+== 4. Direct reasons on Colls declarations (a declaration can have several)
+    4  1 constructor (a class or constructor the typed family lacks: ConcurrentHashMap)
+    2  1 constructor (a class or constructor the typed family lacks: EnumMap)
+    1  1 constructor (a class or constructor the typed family lacks: LinkedHashMap)
+    1  1 constructor (a class or constructor the typed family lacks: TreeMap)
+    1  1 constructor (a class or constructor the typed family lacks: PriorityQueue)
+    1  1 constructor (a class or constructor the typed family lacks: CopyOnWriteArrayList)
+    1  1 constructor (a class or constructor the typed family lacks: LinkedList)
+    1  1 constructor (a class or constructor the typed family lacks: )
+   29  2 entry not from a loop over a typed map
+   12  2 view of a collection (map view)
+    5  2 view of a collection (other view)
+   29  3 runtime function (static)
+    5  3 runtime method (instance)
+   21  4 protobuf list
+   54  5 element of a collection or result of a function value (nested collection)
+   83  6 result of a method of the program (type-variable result, or not a declaration of the rule)
+   30  6 a variable that is no declaration of the rule (another type, lambda parameter)
+    6  7 use: a method the view does not have (List.subList)
+    2  7 use: a method the view does not have (Builder.add)
+    1  7 use: a place of the class type (LinkedHashMap)
+    1  7 use: a place of the class type (void)
+    1  7 use: a method the view does not have (SequencedCollection.getFirst)
+    1  7 use: a place of the class type (ArrayList)
+   19  8 lambda / method reference
+   25  9 generic class read at another instantiation
+    7  a field read by a library / handle / record
+    4  b other (used in CASE)
+    2  b other (assigned a TYPE_CAST)
+    1  b other (assigned a SWITCH_EXPRESSION)
+    1  b other (a variable argument of hash)
+    2  c builder chain ends in an erased place
+
+== 5. Expressions that make a collection value (origins): 3808
+                                                                                      typed   loop erased
+(typed: the value enters a typed declaration or is one; loop: a for-each over a view of a typed map, which reads the map)
+1 new                                                                                  1045      0    117
+2 view of a collection (map view)                                                         4    152    169
+2 view of a collection (other view)                                                       8      0     12
+3 runtime function (static)                                                             742      0    319
+3 runtime method (instance)                                                             518      0     76
+4 protobuf list                                                                           0      0     89
+5 element of a collection or result of a function value (nested collection)             314      0    157
+6 program method with a type-variable result                                             13      0     67
+x cast                                                                                    0      0      6
+TOTAL                                                                                  2644    152   1012
+
+== 6. Erased origins by what makes them, with the place the value enters
+   44  1 ArrayList/0                                              decl:erased=39 lambda-return=3 libarg=2   args: ok=39 array=2 tvar-erased=1 tvar-kept=1
+   17  1 LinkedHashSet/0                                          lambda-return=10 decl:erased=5 libarg=2   args: ok=16 tvar-kept=1
+   15  1 LinkedHashMap/0                                          decl:erased=9 lambda-return=3 libarg=3   args: ok,ok=6 ok,nested-coll=2 tvar-kept,box=2 box,nested-coll=1
+    8  1 ArrayList/1                                              decl:erased=5 libarg=2 foreach=1   args: ok=7 tvar-kept=1
+    8  1 ConcurrentHashMap/0                                      decl:erased=8   args: ok,ok=5 ok,nested-coll=1 ok,box=1 ok,libgeneric=1
+    4  1 TreeMap/0                                                decl:erased=4   args: ok,object=2 tvar-kept,box=1 tvar-kept,nested-coll=1
+   35  2 Map.values/0 [on a typed map]                            libarg=25 decl:erased=8 receiver=2   args: ok=34 tvar-kept=1
+   27  2 Map.keySet/0 [on a typed map]                            libarg=14 decl:erased=9 receiver=4   args: ok=25 tvar-kept=2
+   23  2 Map.values/0                                             foreach=9 decl:erased=8 libarg=5 receiver=1   args: ok=18 nested-coll=5
+   22  2 Map.entrySet/0                                           foreach=19 decl:erased=2 libarg=1   args: nested-coll=22
+   10  2 ImmutableMap.keySet/0 [on a typed map]                   libarg=8 receiver=2   args: ok=10
+    9  2 LinkedHashMap.keySet/0 [on a typed map]                  libarg=8 receiver=1   args: ok=5 tvar-kept=3 box=1
+    7  2 Map.keySet/0                                             foreach=3 libarg=3 decl:erased=1   args: ok=5 tvar-kept=2
+    7  2 Map.entrySet/0 [on a typed map]                          receiver=5 libarg=2   args: nested-coll=7
+    6  2 List.subList/2                                           decl:erased=4 libarg=2   args: ok=6
+    5  2 LinkedHashMap.keySet/0                                   libarg=3 decl:erased=2   args: ok=5
+    4  2 ImmutableMap.values/0 [on a typed map]                   decl:erased=3 libarg=1   args: ok=4
+   32  3 ImmutableList.of/0                                       decl:erased=30 libarg=1 other=1   args: ok=30 tvar-kept=2
+   25  3 ImmutableList.copyOf/1                                   decl:erased=14 foreach=5 libarg=4 lambda-return=1 receiver=1   args: ok=23 tvar-kept=1 wild=1
+   24  3 Objects.requireNonNull/2                                 unused=23 decl:erased=1   args: ok=14 ok,ok=9 ok,libgeneric=1
+   22  3 ImmutableList.Builder.build/0 [on a typed listBuilder]   decl:erased=20 receiver=2   args: ok=17 tvar-kept=3 nested-coll=1 tvar-erased=1
+   20  3 ImmutableList.of/1                                       decl:erased=16 libarg=2 other=2   args: ok=19 nested-coll=1
+   19  3 Arrays.asList/1                                          decl:erased=11 libarg=6 receiver=2   args: ok=19
+   17  3 ImmutableSet.of/0                                        decl:erased=15 libarg=2   args: ok=15 tvar-kept=2
+   11  3 Collections.unmodifiableCollection/1                     decl:erased=11   args: ok=11
+   10  3 Preconditions.checkNotNull/1                             unused=10   args: ok=6 ok,ok=4
+   10  3 Collections.unmodifiableList/1                           decl:erased=10   args: ok=7 tvar-kept=3
+   10  3 ImmutableMap.of/0                                        decl:erased=9 libarg=1   args: ok,ok=8 tvar-kept,tvar-kept=1 nested-coll,ok=1
+    8  3 Collections.unmodifiableMap/1                            decl:erased=7 receiver=1   args: tvar-kept,tvar-kept=3 tvar-kept,nested-coll=2 tvar-kept,box=2 ok,ok=1
+    8  3 Collections.unmodifiableSet/1                            decl:erased=8   args: tvar-kept=8
+    6  3 Collections.emptyList/0                                  decl:erased=6   args: ok=3 tvar-kept=2 object=1
+    6  3 ImmutableSet.Builder.addAll/1                            receiver=6   args: ok=4 tvar-erased=2
+    6  3 ImmutableList.of/2                                       foreach=2 decl:erased=2 other=2   args: ok=6
+    6  3 ImmutableSet.Builder.build/0 [on a typed setBuilder]     decl:erased=4 other=1 receiver=1   args: ok=4 tvar-kept=2
+    6  3 Lists.reverse/1                                          decl:erased=4 foreach=2   args: ok=6
+    6  3 ImmutableSortedSet.Builder.build/0                       decl:erased=5 receiver=1   args: ok=6
+    5  3 Sets.union/2                                             libarg=3 decl:erased=2   args: ok=5
+    5  3 ImmutableMap.Builder.buildOrThrow/0                      decl:erased=5   args: object,ok=1 ok,ok=1 ok,tvar-erased=1 nested-coll,ok=1
+    5  3 ImmutableSet.of/1                                        decl:erased=4 libarg=1   args: ok=5
+    5  3 Sets.difference/2                                        receiver=4 decl:erased=1   args: ok=3 box=2
+    5  3 ImmutableSortedSet.Builder.add/1                         unused=5   args: ok=5
+    5  3 ImmutableSortedSet.naturalOrder/0                        decl:erased=4 receiver=1   args: ok=5
+    4  3 ImmutableSet.Builder.add/1                               receiver=2 lambda-return=2   args: ok=4
+    4  3 EnumSet.noneOf/1                                         decl:erased=4   args: ok=4
+    4  3 EnumSet.allOf/1                                          foreach=4   args: ok=4
+    4  3 Maps.newLinkedHashMapWithExpectedSize/1                  decl:erased=4   args: box,ok=2 ok,ok=2
+    4  3 ImmutableSortedMap.naturalOrder/0                        decl:erased=4   args: ok,ok=3 ok,object=1
+    4  3 ImmutableSortedMap.Builder.buildOrThrow/0                decl:erased=4   args: ok,ok=3 ok,object=1
+   21  4 Requirement.getValueList/0                               foreach=11 decl:erased=5 libarg=3 receiver=2   args: nongeneric=21
+    5  4 ConformanceConfig.getRequirementList/0                   foreach=5   args: ok=5
+    4  4 Requirement.getConfigFileList/0                          libarg=3 foreach=1   args: nongeneric=4
+   27  5 ImmutableMap.Builder.put/2                               receiver=25 unused=2   args: ok,libgeneric=15 ok,ok=9 object,ok=1 ok,tvar-erased=1
+   18  5 Map.Entry.getValue/0                                     decl:erased=11 libarg=4 foreach=3   args: ok=15 tvar-kept=3
+   12  5 Map.get/1 [on a typed map]                               decl:erased=7 receiver=3 libarg=1 foreach=1   args: ok=8 ok,ok=2 box,nested-coll=1 ok,nested-coll=1
+   12  5 LinkedHashMap.get/1 [on a typed map]                     decl:erased=8 receiver=2 libarg=2   args: tvar-kept,tvar-kept=5 ok=4 tvar-kept=3
+   10  5 Map.computeIfAbsent/2 [on a typed map]                   decl:erased=5 receiver=5   args: ok=7 ok,nested-coll=2 box,nested-coll=1
+    9  5 Supplier.get/0                                           decl:erased=7 lambda-return=2   args: ok=4 ok,ok=2 tvar-kept=1 tvar-erased=1
+    8  5 Map.Entry.getValue/0 [on a typed entry]                  libarg=4 receiver=3 foreach=1   args: ok=3 ok,ok=2 ok,nested-coll=1 tvar-kept=1
+    7  5 Map.get/1                                                decl:erased=7   args: tvar-kept=4 ok=3
+    6  5 Map.put/2 [on a typed map]                               unused=6   args: ok=3 ok,ok=3
+    5  5 Map.put/2                                                unused=5   args: ok=3 tvar-kept=2
+    5  5 Iterator.next/0                                          receiver=4 decl:erased=1   args: ok,ok=5
+    5  5 HashMap.computeIfAbsent/2 [on a typed map]               unused=2 decl:erased=2 receiver=1   args: ok=4 box=1
+    4  5 HashMap.put/2 [on a typed map]                           unused=4   args: tvar-kept=3 tvar-kept,tvar-kept=1
+    4  5 HashMap.remove/1 [on a typed map]                        unused=3 decl:erased=1   args: tvar-kept=3 tvar-kept,tvar-kept=1
+   32  6 Outcome.get/0                                            decl:erased=25 foreach=5 libarg=2   args: ok=24 ok,ok=6 nested-coll=1 ok,box=1
+   21  6 JSDocInfo.Property.get/1                                 decl:erased=20 other=1   args: ok,ok=10 ok=9 nested-coll,ok=2
+    7  6 JSDocInfo.Builder.getProp/1                              decl:erased=6 other=1   args: ok,ok=5 ok=1 nested-coll,ok=1
+    6  6 JSDocInfo.Builder.getPropWithDefault/2                   receiver=4 decl:erased=2   args: ok=5 tvar-erased,tvar-erased=1
+    6  x -                                                        decl:erased=2 receiver=2 libarg=2   args: wild=3 ok,ok=2 wild,wild=1
+
+== 7. Erased origins by the worst kind of type argument
+  795  ok
+  159  nested-coll
+   74  tvar-kept
+   51  nongeneric
+   29  box
+   20  libgeneric
+   13  object
+   11  tvar-erased
+    6  wild
+    5  array
+    1  optional
+
+== 8. Erased declarations by the worst kind of type argument
+  610  ok
+   55  tvar-kept
+   41  nested-coll
+   34  extends
+   29  box
+   14  wild
+   12  object
+    8  libgeneric
+    7  tvar-erased
+    4  array
+    1  optional
+    1  nongeneric
