@@ -29,7 +29,7 @@ func (this *ColorPool) getRegistry() *ColorRegistry {
 }
 
 func (this *ColorPool) getOnlyShardForTesting() *ColorPool_ShardView {
-	return cast_[*ColorPool_ShardView](Iterables_getOnlyElement(Iterable(sliceViewP_(tc_p_ColorPool_ShardView, this.shardViews))))
+	return sliceGetOnlyElementT_(tc_p_ColorPool_ShardView, *this.shardViews)
 }
 
 func ColorPool_builder() *ColorPool_Builder {
