@@ -920,8 +920,14 @@ func new_FunctionInjector_1(outer_ *FunctionInjector) *FunctionInjector_1 {
 	return this
 }
 
-func (this *FunctionInjector_1) get() any {
+// getT_ is get with the result type the class declares (implsplit).
+func (this *FunctionInjector_1) getT_() string {
 	var result string = strconv.Itoa(int(this.nextId))
 	this.nextId++
-	return strobj_(result)
+	return result
+}
+
+// get is the bridge of the interface's erased signature (javac's): it boxes the result of getT_.
+func (this *FunctionInjector_1) get() any {
+	return strobj_(this.getT_())
 }
