@@ -653,7 +653,9 @@ ab26441f run t adapters && f
 # 422. postflip (manual, re-flip): the control-flow graph and the data-flow analysis read their nodes, edges and flow states as the classes they are (fbb901b4 re-made)
 #=4 e964d92f adapted (fourth flip): redone against this flip's text as 5116eda7 (tag flip4-redo-422): the same edits on this translator's typed graph: flow states are LinearFlowState[L] (were [any]) in the analysis and its five users, the analysis reads a node's edges as LinkedDiGraphEdge (cfgEdge_), createEdge looks each node up once (getOrCreateNode_, isConnectedTo_ with the value, connectNodes_), nodeOrFail_, a node's di_ / diNode_ for getSource / getDestination, to_ of node and edge try the two classes first. Superseded parts: the comparable constraint on L and the typed node lookup node_ (the translator's getNode_Object_rDiGraphNode_rLinkedDiGraphNode) are written by prep 17 and the rule covariant overrides
 #- e964d92f patch 422-e964d92f-manual.patch
-5116eda7 patch 422-5116eda7-manual.patch
+#=4i 5116eda7 adapted (in-bounds variant): redone against this flip's text as 80b7eba4 (tag flip4i-redo-422): only the typed reads of step 422 are kept (flow states are LinearFlowState[L] in the analysis and its five users; the analysis reads edges as LinkedDiGraphEdge (cfgEdge_) in flow, joinInputs and getInputFromEdge; nodeOrFail_; to_ of node and edge try the two classes first). Out of bounds and left out: createEdge's single lookups with connectNodes_, the node's cached di_ / diNode_, isConnectedTo_ (they change what the pass code does or build on the dropped 408 / 409)
+#- 5116eda7 patch 422-5116eda7-manual.patch
+80b7eba4 patch 422-80b7eba4-manual.patch
 # 423. postflip (manual, re-flip): Compiler.inputsById keyed by the id's string (13c7e5ba re-made)
 #=4 a97d418c adapted (fourth flip): redone against this flip's text as 3c5d72ad (tag flip4-redo-423): the same edit (Compiler.inputsById is a map[string]*CompilerInput keyed by the id's string); two replaced lines differ by this translator's spellings (Map(new_ConcurrentHashMap()), get(new_InputId(..)) without obj_)
 #- a97d418c patch 423-a97d418c-manual.patch
