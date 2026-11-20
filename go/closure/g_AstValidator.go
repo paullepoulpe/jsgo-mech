@@ -389,7 +389,7 @@ func (this *AstValidator) expectSomeTypeInformation(n Node) {
 
 func (this *AstValidator) expectMatchingTypeInformation(n Node, expectedTypeI *JSType) {
 	var typeI *JSType = n.getJSType()
-	if !Objects_equals(expectedTypeI.self(), typeI.self()) {
+	if !objequalsBy_(expectedTypeI, typeI.self(), (*JSType).equals) {
 		this.violation(("Expected type: " + sstr_(AstValidator_getTypeAnnotationString(expectedTypeI)) + " Actual type: " + sstr_(AstValidator_getTypeAnnotationString(typeI))), n)
 	}
 }

@@ -365,8 +365,8 @@ func (this *FunctionArgumentInjector_SetContainer) equals(p0 any) bool {
 
 func (this *FunctionArgumentInjector_SetContainer) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.parametersReferencedAfterSideEffect_.asSet())
-	h = h*31 + Objects_hashCode(this.parametersWithNamesReferencedBeforeParameter_.asSet())
+	h = h*31 + objhashDyn_(this.parametersReferencedAfterSideEffect_.asSet())
+	h = h*31 + objhashDyn_(this.parametersWithNamesReferencedBeforeParameter_.asSet())
 	return h
 }
 

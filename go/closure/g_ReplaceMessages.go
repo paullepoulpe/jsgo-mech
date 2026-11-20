@@ -705,7 +705,7 @@ func (this *ReplaceMessages_FullReplacementMsgData) hashCode() int32 {
 	h = h*31 + hash_(this.message_)
 	h = h*31 + hashH_(this.messageNode_)
 	h = h*31 + hash_(this.messageOptions_)
-	h = h*31 + Objects_hashCode(this.placeholderValueMap_.asMap())
+	h = h*31 + objhashDyn_(this.placeholderValueMap_.asMap())
 	return h
 }
 
