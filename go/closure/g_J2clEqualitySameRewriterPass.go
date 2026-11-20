@@ -187,19 +187,19 @@ func (this J2clEqualitySameRewriterPass_NodeValue) enum_() *Enum {
 }
 
 func (this J2clEqualitySameRewriterPass_NodeValue) name() string {
-	return J2clEqualitySameRewriterPass_NodeValue_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this J2clEqualitySameRewriterPass_NodeValue) ordinal() int32 {
-	return J2clEqualitySameRewriterPass_NodeValue_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this J2clEqualitySameRewriterPass_NodeValue) toString() string {
-	return J2clEqualitySameRewriterPass_NodeValue_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this J2clEqualitySameRewriterPass_NodeValue) compareTo(o any) int32 {
-	return J2clEqualitySameRewriterPass_NodeValue_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this J2clEqualitySameRewriterPass_NodeValue) self() any {

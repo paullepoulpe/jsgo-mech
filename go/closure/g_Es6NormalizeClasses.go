@@ -1548,19 +1548,19 @@ func (this Es6NormalizeClasses_ClassRecord_PrivateMemberKind) enum_() *Enum {
 }
 
 func (this Es6NormalizeClasses_ClassRecord_PrivateMemberKind) name() string {
-	return Es6NormalizeClasses_ClassRecord_PrivateMemberKind_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this Es6NormalizeClasses_ClassRecord_PrivateMemberKind) ordinal() int32 {
-	return Es6NormalizeClasses_ClassRecord_PrivateMemberKind_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this Es6NormalizeClasses_ClassRecord_PrivateMemberKind) toString() string {
-	return Es6NormalizeClasses_ClassRecord_PrivateMemberKind_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this Es6NormalizeClasses_ClassRecord_PrivateMemberKind) compareTo(o any) int32 {
-	return Es6NormalizeClasses_ClassRecord_PrivateMemberKind_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this Es6NormalizeClasses_ClassRecord_PrivateMemberKind) self() any {

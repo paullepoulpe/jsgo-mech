@@ -25,14 +25,14 @@ func (this TypeMatchingStrategy) enum_() *Enum {
 	return &TypeMatchingStrategy_enum_[this-1]
 }
 
-func (this TypeMatchingStrategy) name() string { return TypeMatchingStrategy_enum_[this-1].name_ }
+func (this TypeMatchingStrategy) name() string { return this.enum_().name_ }
 
-func (this TypeMatchingStrategy) ordinal() int32 { return TypeMatchingStrategy_enum_[this-1].ordinal_ }
+func (this TypeMatchingStrategy) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this TypeMatchingStrategy) toString() string { return TypeMatchingStrategy_enum_[this-1].name_ }
+func (this TypeMatchingStrategy) toString() string { return this.enum_().name_ }
 
 func (this TypeMatchingStrategy) compareTo(o any) int32 {
-	return TypeMatchingStrategy_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this TypeMatchingStrategy) self() any {
@@ -134,19 +134,19 @@ func (this TypeMatchingStrategy_MatchResult) enum_() *Enum {
 }
 
 func (this TypeMatchingStrategy_MatchResult) name() string {
-	return TypeMatchingStrategy_MatchResult_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this TypeMatchingStrategy_MatchResult) ordinal() int32 {
-	return TypeMatchingStrategy_MatchResult_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this TypeMatchingStrategy_MatchResult) toString() string {
-	return TypeMatchingStrategy_MatchResult_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this TypeMatchingStrategy_MatchResult) compareTo(o any) int32 {
-	return TypeMatchingStrategy_MatchResult_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this TypeMatchingStrategy_MatchResult) self() any {
