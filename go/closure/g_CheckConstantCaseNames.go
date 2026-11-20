@@ -63,7 +63,7 @@ func (this *CheckConstantCaseNames) visit(t *NodeTraversal, n Node, parent Node)
 		if !NodeUtil_isLValue(n) {
 			return
 		}
-		var v *Var = t.getScope().getVar_String_rVar(n.getString())
+		var v *Var = t.getScope().getVarById_(n.getStringId_())
 		if v.getScopeRoot().isModuleBody() {
 			this.reassignedNames[n.getString()] = struct{}{}
 		}

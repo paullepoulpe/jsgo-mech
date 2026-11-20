@@ -146,7 +146,7 @@ func (this *TypeInference) inferParameters(entryFlowScope FlowScope) FlowScope {
 
 func (this *TypeInference) updateDestructuringParameter(pattern Node, inferredType *JSType, entryFlowScope FlowScope) FlowScope {
 	entryFlowScope = this.traverseDestructuringPatternHelper(pattern, entryFlowScope, inferredType, func(scope FlowScope, lvalue Node, type_ *JSType) FlowScope {
-		var var_ *TypedVar = this.containerScope.getVar_String_rTypedVar(lvalue.getString())
+		var var_ *TypedVar = this.containerScope.getVarById_(lvalue.getStringId_())
 		Preconditions_checkNotNull_T(var_)
 		if var_.isTypeInferred() {
 			var_.setType(type_)
@@ -161,7 +161,7 @@ func (this *TypeInference) updateDestructuringParameter(pattern Node, inferredTy
 }
 
 func (this *TypeInference) updateNamedParameter(paramName Node, hasDefaultValue bool, inferredType *JSType, entryFlowScope FlowScope) FlowScope {
-	var var_ *TypedVar = this.containerScope.getVar_String_rTypedVar(paramName.getString())
+	var var_ *TypedVar = this.containerScope.getVarById_(paramName.getStringId_())
 	Preconditions_checkNotNull_Object_String_Object_T(var_, "Missing var for parameter %s", paramName.box_())
 	paramName.setJSType(inferredType)
 	if var_.isTypeInferred() {

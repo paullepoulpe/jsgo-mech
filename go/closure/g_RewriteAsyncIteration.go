@@ -370,7 +370,7 @@ func (this *RewriteAsyncIteration) replaceThis(ctx *RewriteAsyncIteration_Lexica
 }
 
 func (this *RewriteAsyncIteration) replaceArguments(ctx *RewriteAsyncIteration_LexicalContext, n Node) {
-	if !n.isName() || "arguments" != n.getString() {
+	if !n.isName() || !n.getStringIs_(sid_arguments) {
 		panic(new_IllegalArgumentException_0())
 	}
 	if ctx == nil || !ctx.mustReplaceThisSuperArgs() {

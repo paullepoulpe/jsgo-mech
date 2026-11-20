@@ -357,6 +357,6 @@ func new_InlineObjectLiterals_InliningBehavior_1(outer_ *InlineObjectLiterals_In
 
 func (this *InlineObjectLiterals_InliningBehavior_1) visit(node Node) {
 	if node.isName() {
-		this.outer_.staleVars[vkey_(this.cap_scope.getVar_String_rVar(node.getString()))] = struct{}{}
+		this.outer_.staleVars[vkey_(this.cap_scope.getVarById_(node.getStringId_()))] = struct{}{}
 	}
 }

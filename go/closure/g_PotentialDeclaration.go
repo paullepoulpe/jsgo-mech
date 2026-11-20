@@ -88,7 +88,7 @@ func PotentialDeclaration_fromStringKey(stringKeyNode Node) *PotentialDeclaratio
 		panic(new_IllegalArgumentException_0())
 	}
 	var name string = ("this." + sstr_(stringKeyNode.getString()))
-	if stringKeyNode.getString() == "properties" {
+	if stringKeyNode.getStringIs_(sid_properties) {
 		var objLitJsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(stringKeyNode.getParent())
 		if (objLitJsDoc != nil) && objLitJsDoc.isPolymerBehavior() {
 			return new_PotentialDeclaration_PolymerBehaviorPropertiesDeclaration(name, stringKeyNode).up_PotentialDeclaration()
@@ -244,7 +244,7 @@ func PotentialDeclaration_isAliasDeclaration(lhs Node, rhs Node) bool {
 func PotentialDeclaration_isQualifiedAliasExpression(n Node) bool {
 	switch n.ns_().token {
 	case tokOrd1_NAME:
-		return n.getString() != ""
+		return !n.getStringIs_(sidx_)
 	case tokOrd1_THIS, tokOrd1_SUPER:
 		return true
 	case tokOrd1_GETPROP:
@@ -752,7 +752,7 @@ func (this *PotentialDeclaration_PolymerBehaviorPropertiesDeclaration) simplify_
 					var subProp Node = propDef.getFirstChild()
 					for subProp != 0 {
 						var next Node = subProp.getNext()
-						if !(subProp.getString() == "type") && !(subProp.getString() == "readOnly") {
+						if !(subProp.getStringIs_(sid_type)) && !(subProp.getStringIs_(sid_readOnly)) {
 							NodeUtil_deleteNode(subProp, compiler)
 						}
 						subProp = next

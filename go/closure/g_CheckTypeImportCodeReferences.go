@@ -34,7 +34,7 @@ func (this *CheckTypeImportCodeReferences) visit_impl(t *NodeTraversal, n Node, 
 	if !n.isName() {
 		return
 	}
-	var var_ *Var = t.getScope().getVar_String_rVar(n.getString())
+	var var_ *Var = t.getScope().getVarById_(n.getStringId_())
 	if var_ == nil {
 		return
 	}

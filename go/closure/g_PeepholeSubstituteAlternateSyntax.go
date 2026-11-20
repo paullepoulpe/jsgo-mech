@@ -82,7 +82,7 @@ func (this *PeepholeSubstituteAlternateSyntax) tryMinimizeWindowRefs(node Node) 
 	}
 	if node.getFirstChild().isName() {
 		var nameNode Node = node.getFirstChild()
-		if ("window" == nameNode.getString()) && PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS.Has(node.getString()) {
+		if (nameNode.getStringIs_(sid_window)) && PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS.Has(node.getString()) {
 			var newNameNode Node = IR_name(node.getString())
 			var parentNode Node = node.getParent()
 			newNameNode.srcref(node)

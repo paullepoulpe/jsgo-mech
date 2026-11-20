@@ -68,7 +68,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitNameDeclaration(t *NodeTra
 		return
 	}
 	var hasImportantName bool = false
-	var isGlobalDeclaration bool = t.getScope().getVar_String_rVar(sliceAt_(*allLhsNodes, 0).getString()).isGlobal()
+	var isGlobalDeclaration bool = t.getScope().getVarById_(sliceAt_(*allLhsNodes, 0).getStringId_()).isGlobal()
 	for lhs := range sliceAll_(allLhsNodes) {
 		if !lhs.isName() {
 			Preconditions_checkState_boolean_String_Object_H(false, "Unexpected lhs node %s, expected NAME", lhs)

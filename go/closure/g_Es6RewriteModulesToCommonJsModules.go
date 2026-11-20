@@ -210,7 +210,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) maybeGetNameOfImportedV
 	if !nameNode.isName() {
 		panic(new_IllegalStateException_0())
 	}
-	var var_ *Var = s.getVar_String_rVar(nameNode.getString())
+	var var_ *Var = s.getVarById_(nameNode.getStringId_())
 	if (((var_ != nil) && (var_.getNameNode() != 0)) && NodeUtil_isImportedName(var_.getNameNode())) && (nameNode != var_.getNameNode()) {
 		return Optional_of[string](this.getNameOfImportedValue(var_.getNameNode()))
 	}

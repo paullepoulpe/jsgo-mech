@@ -37,7 +37,7 @@ func (this *CheckNestedNames) visit(t *NodeTraversal, n Node, parent Node) {
 	var targetGetProp Node = CheckNestedNames_getTargetGetProp(n)
 	if ((parent.isAssign() || parent.isExprResult()) && n.isFirstChildOf(parent)) && !CheckNestedNames_isDotPrototype(targetGetProp) {
 		var owner Node = targetGetProp.getFirstChild()
-		if !owner.isName() || (owner.getString() == "exports") {
+		if !owner.isName() || (owner.getStringIs_(sid_exports)) {
 			return
 		}
 		var ownerName string = owner.getString()
@@ -60,7 +60,7 @@ func CheckNestedNames_getTargetGetProp(n Node) Node {
 }
 
 func CheckNestedNames_isDotPrototype(getProp Node) bool {
-	return (getProp.isGetProp() && (getProp.getString() == "prototype"))
+	return (getProp.isGetProp() && (getProp.getStringIs_(sid_prototype)))
 }
 
 func (this *CheckNestedNames) getNestedDeclarationKind(lhs Node, parent Node) CheckNestedNames_DeclarationKind {

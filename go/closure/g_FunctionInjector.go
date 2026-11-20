@@ -47,7 +47,7 @@ func (this *FunctionInjector) doesFunctionMeetMinimumRequirements(fnName string,
 	var referencesArguments bool = NodeUtil_isNameReferenced_Node_String_Predicate(block, "arguments", NodeUtil_MATCH_ANYTHING_BUT_NON_ARROW_FUNCTION)
 	var blocksInjection func(any) bool = (&Predicate_base_tfn_Node{func(n Node) bool {
 		if n.isName() {
-			return (((n.getString() == "eval") || (fnName != "" && (n.getString() == fnName))) || (fnRecursionName != "" && (n.getString() == fnRecursionName)))
+			return (((n.getStringIs_(sid_eval)) || (fnName != "" && (n.getString() == fnName))) || (fnRecursionName != "" && (n.getString() == fnRecursionName)))
 		} else if n.isSuper() || (n.ns_().token == tokOrd1_NEW_TARGET) {
 			return true
 		}
@@ -319,7 +319,7 @@ func (this *FunctionInjector) referencesEval(fn Node) bool {
 		return unbox_[bool](cached)
 	}
 	var result bool = NodeUtil_has(fn, (&Predicate_base_tfn_Node{func(n Node) bool {
-		return (n.isName() && (n.getString() == "eval"))
+		return (n.isName() && (n.getStringIs_(sid_eval)))
 	}}).apply, &Predicate_base_tfn_Node{func(n Node) bool {
 		return (!n.isFunction() || equalsRRH_(n, fn))
 	}})

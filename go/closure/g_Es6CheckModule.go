@@ -38,7 +38,7 @@ func (this *Es6CheckModule) visit_impl(t *NodeTraversal, n Node, parent Node) {
 		}
 	case tokOrd1_GETPROP, tokOrd1_GETELEM:
 		if (NodeUtil_isLValue(n) && !NodeUtil_isDeclarationLValue(n)) && n.getFirstChild().isName() {
-			var var_ *Var = t.getScope().getVar_String_rVar(n.getFirstChild().getString())
+			var var_ *Var = t.getScope().getVarById_(n.getFirstChild().getStringId_())
 			if var_ != nil {
 				var nameNode Node = var_.getNameNode()
 				if (nameNode != 0) && nameNode.isImportStar() {
@@ -48,7 +48,7 @@ func (this *Es6CheckModule) visit_impl(t *NodeTraversal, n Node, parent Node) {
 		}
 	case tokOrd1_NAME:
 		if NodeUtil_isLValue(n) && !NodeUtil_isDeclarationLValue(n) {
-			var var_ *Var = t.getScope().getVar_String_rVar(n.getString())
+			var var_ *Var = t.getScope().getVarById_(n.getStringId_())
 			if var_ != nil {
 				var nameNode Node = var_.getNameNode()
 				if (nameNode != 0) && (nameNode != n) {

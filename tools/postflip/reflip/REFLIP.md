@@ -306,3 +306,103 @@ both tasks, medians), mem.sh (JSGO_MEMSTATS, MEMPROF=1 for a profile), prof.sh/a
 (allocation profile by leaf and caller against round 8's), cpudiff.py (two `pprof -top`
 listings by category), tracer.py (per-pass times).
 
+## Third session: the gap to round 8 (2026-11-18)
+
+Steps 422-428 of steps.txt (patches/42x), appended to the replay as before; each is a commit
+that changes `go/` (a patch, or for 425 the tool run of its commit).
+
+Where the second session's tip stood against round 8, from CPU profiles of typed-full taken
+back to back (flat seconds, round 8 | tip): translated code 34.9 | 36.1, allocator 6.2 | 7.1,
+other runtime (maps, interface tables, stack walks) 8.4 | 10.0, collector 8.9 | 6.7. The
+data-flow framework itself was 0.2-0.4 s behind (not the 2 s the per-pass timers suggested);
+the rest was spread over building the control-flow graphs (createEdge's six lookups, 0.7 s),
+interface lookups of generic casts (0.5 s), the allocation sampler (0.65 s against round 8's
+0.34 s), getInput's hashing of InputIds (0.3 s) and the node store's string table (1.1 s,
+the price of an AST without Go pointers).
+
+| step | commit | what | measured (typed-full; bundle) |
+|---|---|---|---|
+| 422 | e964d92f | manual: the control-flow graph and the data-flow analysis read their nodes, edges and flow states as the classes they are: a graph node holds itself as a DiGraphNode (no cast per getSource/getDestination), the graph's own lookups take the node of its class, createEdge looks each node up once (fbb901b4 re-made), LinearFlowState[L] holds the lattices as L, the analysis reads edge lists as the control-flow graph's LinkedDiGraphEdges | cpu 57.38 -> 56.19 s (-2.1%), wall 48.41 -> 47.36; 26.38 -> 25.84 (-2.0%), wall 24.46 -> 23.88 (4 rounds) |
+| 423 | a97d418c | manual: Compiler.inputsById keyed by the id's string (13c7e5ba re-made) | within the noise of a host that had become noisy (63.94 -> 63.31; 25.54 -> 25.94, 3 rounds); profile: getInput_impl 0.28 s -> a Go map lookup |
+| 424-425 | 0aa1c57d, 69f97cf5, 97b8d1bf | runtime + tool + step: adapters, TMap.computeIfAbsent given a typed lambda whose result is an Object (`&Function_tfn_K_any{...}`) takes the function (ComputeIfAbsentObj): 4 calls, the four the first run left; OptimizeCalls' addReference made an adapter per reference | objects 190.5M -> 187.6M; cpu 63.04 -> 61.80 s; 26.96 -> 27.25 (4 rounds, noisy) |
+| 426 | 95b92033 | runtime: runtime.MemProfileRate = 0 unless JSGO_MEM_PROFILE asks for a profile (the runtime's allocation sampler walked the deep traversal stacks: 0.56-0.65 s of the compiler thread) | cpu 61.80 -> 61.13 s (-1.1%), wall 51.67 -> 50.81; 27.25 -> 26.70 (-2.0%), wall 25.07 -> 24.55 (4 rounds) |
+| 427 | 938295dd | runtime: objhashId_ / hashId_ of a Node hash the handle without boxing it (an allocation per hashCode of ScopedName and of the records with a Node field) | objects 187.6M -> 183.3M |
+| 428 | 65fbff8a | manual: HamtPMap hashes a key without boxing it (a String key was boxed at every get/plus/minus) | objects 183.3M -> 182.5M (bundle 89.6M -> 86.2M for the two); the two: cpu 60.93 -> 60.32 s; 26.47 -> 26.38 (3 rounds) |
+
+426 is a runtime setting, not a change of the translated program: round 8's binary would gain
+its own 0.34 s (0.6% of typed-full) from the same line; the comparison below is against round
+8 as built.
+
+Tried and not kept: a larger cache in front of the handle table (htabCache_ 1024 -> 16384
+entries: no gain, bundle slower within the noise); Node.getString written to be inlined (the
+exception path keeps it over the inliner's budget: cost 110 of 80); a tool `emptystr`
+(`n.getString() == ""` decided from the payload's code, 36 sites: no gain, the cost of
+isReferenceName is the read of the payload column, not of the string table).
+
+**Allocations** (JSGO_MEMSTATS, objects / bytes): bundle 86.2M / 6.02 GB, typed-full 182.5M /
+11.52 GB (second session's tip: 89.6M / 6.05 GB, 190.5M / 11.57 GB; round 8: 88.9M / 6.08 GB,
+186.0M / 11.54 GB).
+
+**Milestone run** at 65fbff8a (binary m_rfn8), interleaved with pre-flip Java and round 8
+(m_m8final), 6 rounds each, load 1.0-2.4, no PGO; stdout and stderr byte-identical with
+Java's. Medians:
+
+| | typed-full wall (cpu) | Java/Go | bundle wall (cpu) | Java/Go |
+|---|---:|---:|---:|---:|
+| pre-flip Java | 51.11 s (119.2) | | 26.48 s (62.8) | |
+| tip 65fbff8a | 47.84 s (56.8) | **1.068** | 22.84 s (24.7) | **1.159** |
+| round 8 | 46.66 s (57.3) | 1.095 | 22.66 s (26.9) | 1.168 |
+
+Against round 8: typed-full cpu -0.9% (second session: +2.5%), wall +2.5% (+6.0%); bundle
+cpu -7.9% (-4%), wall +0.8% (+5.7%). Allocations are below round 8's. The wall time is still
+round 8's to beat: the re-flip's compiler thread does about 1.2 s more on typed-full and
+0.2 s more on bundle, and its collector (which runs on the idle cores) 2.5-2.9 s less.
+
+**Where the compiler thread's extra time is** (profiles of 65fbff8a's parent against round 8,
+flat seconds, typed-full | bundle): the table of interned strings behind Node.getString
+(`(*idTable_[string]).at`: 1.1 | 0.6; round 8's node record held the string, at the cost of
+a pointer the collector followed); string hashing in Go maps and scope tables (+0.3 | +0.1);
+interface-table lookups of the remaining generic casts (0.25 | 0.07); typed lambda adapters
+on NodeUtil's predicates (0.15 | 0.15, the same work round 8's erased adapters did). The
+translated code as a whole is level with round 8's (flat 35.1 against 34.9 s on typed-full).
+
+## Handover after the third session
+
+1. **Casts to an instantiated generic interface outside generic code** (27 sites:
+   `cast_[DiGraph_DiGraphNode[Node]](x)`, `elemsAs_[DiGraph_DiGraphEdge[Node]](c)`, PMap[Node,
+   Node], ...). cast_ is itself generic, so even in non-generic code the assertion goes
+   through runtime.assertE2I -> getitab (the non-generic icast_X of g_0casts.go has the
+   per-site cache). A tool `icasts`: write `icast_DiGraph_DiGraphNode_Node` etc. into
+   g_0casts.go and call them (`elemsBy_(c, icast_...)`); 0.1-0.2 s on typed-full. In generic
+   code (LinkedUndirectedGraph: 12 casts to UndiGraphNode[N, E]; Graph, GraphColoring) do what
+   422 did for the directed graph: the node holds itself as the interface, the class's own
+   code works on the class.
+2. **The string table.** `n.getString() == "literal"` (106 sites) and getString() compared
+   between two nodes (16) can compare ids (the table holds each String once), and scope
+   lookups by a node's name could carry the id as the hash; `n.getString() == ""` alone was
+   tried (above) and does not pay: what costs is the first read of the payload column, which
+   an id comparison still makes. A real gain needs the callers that hash or copy the string
+   (ReferenceCollector.visit, ScopeScanner.declareVar: 0.23 s each on typed-full).
+3. **Typed lambda adapters** (716 `&X_tfn_Y{...}` left): by allocation, the Supplier_tfn_string
+   of the log calls in InlineAndCollapseProperties (logDecisionForName*: 1.5M objects on
+   typed-full) and RemoveUnusedCode, BiPredicate adapters of the lattice equals methods (0.4M),
+   Predicate_base_tfn_Node of NodeUtil.has / getEnclosingNode (CPU: 0.15 s per task).
+   funcparams/lambdas/passfn still expect the erased `&X_fn{...}`; adapters (417, 425) covers
+   Optional.filter and TMap.computeIfAbsent only. 6 Map_computeIfAbsent calls with a typed
+   adapter on an erased map are left, counted.
+4. **Generic classes outside the collection steps** (handover item 1 of the second session):
+   unchanged except the data-flow state (422). LinkedDirectedGraph.nodes_, UniqueQueue's
+   queue, SimpleSetMultimap (GuardedCallback.shouldTraverse: 0.19 s in containsKey of a Node
+   key), SimpleMultiset[*ScopedName], LinkedIdentityHashMap, StandardUnionFind stay erased
+   maps of boxes. Round 8 had the same maps (erased, non-generic), so this is gain beyond
+   round 8, not part of the gap.
+5. **TDeque** (94 mentions), **fbb901b4/13c7e5ba** (re-made: 422, 423), the thread/executor
+   emulation (25c89a69 and followers not re-made), plan hygiene (unify after post-flip step
+   5): as in the second session's list.
+6. Measuring: the host's speed drifted by 10% within an hour during this session (the same
+   binary 56-64 s on typed-full); steps under 1% were decided by allocation counts
+   (deterministic) and by the profile of the function changed, not by ABBA medians alone.
+
+Binaries: $S/proto/m_rfn8 (tip), m_m8final (round 8). Scripts: $S/rf/meas.sh, mem.sh, cum2.py
+(cumulative-time diff of two `pprof -top -cum` listings by name pattern), cpudiff.py, rec.sh
+(appends a commit to steps.txt with its patch); the milestone log is $S/rf/milestone4.log.

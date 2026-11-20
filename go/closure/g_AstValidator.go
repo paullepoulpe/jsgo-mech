@@ -830,13 +830,13 @@ func (this *AstValidator) validateLabelName(n Node) {
 }
 
 func (this *AstValidator) validateNonEmptyString(n Node) {
-	if this.validateNonNullString(n) && n.getString() == "" {
+	if this.validateNonNullString(n) && n.getStringIs_(sidx_) {
 		this.violation("Expected non-empty string.", n)
 	}
 }
 
 func (this *AstValidator) validateEmptyString(n Node) {
-	if this.validateNonNullString(n) && n.getString() != "" {
+	if this.validateNonNullString(n) && !n.getStringIs_(sidx_) {
 		this.violation("Expected empty string.", n)
 	}
 }
@@ -863,7 +863,7 @@ func (this *AstValidator) validateOptionalName(n Node) {
 	this.validateNonNullString(n)
 	this.validateProperties(n)
 	this.validateChildCount(n)
-	var isEmpty bool = n.getString() == ""
+	var isEmpty bool = n.getStringIs_(sidx_)
 	if !isEmpty {
 		this.validateTypeInformation(n)
 	}
@@ -1674,7 +1674,7 @@ func (this *AstValidator) validateObjectLitGetKey(n Node) {
 	this.validateObjectLiteralKeyName(n)
 	var function Node = n.getFirstChild()
 	this.validateFunctionExpression(function)
-	if function.getFirstChild().getString() != "" {
+	if !function.getFirstChild().getStringIs_(sidx_) {
 		this.violation("Expected unnamed function expression.", n)
 	}
 	var functionParams Node = function.getSecondChild()
@@ -1691,7 +1691,7 @@ func (this *AstValidator) validateObjectLitSetKey(n Node) {
 	this.validateObjectLiteralKeyName(n)
 	var function Node = n.getFirstChild()
 	this.validateFunctionExpression(function)
-	if function.getFirstChild().getString() != "" {
+	if !function.getFirstChild().getStringIs_(sidx_) {
 		this.violation("Expected unnamed function expression.", n)
 	}
 	var functionParams Node = function.getSecondChild()
@@ -1778,7 +1778,7 @@ func (this *AstValidator) validateObjectLitComputedPropGetKey(n Node) {
 	this.validateChildCount(n)
 	var function Node = n.getLastChild()
 	this.validateFunctionExpression(function)
-	if function.getFirstChild().getString() != "" {
+	if !function.getFirstChild().getStringIs_(sidx_) {
 		this.violation("Expected unnamed function expression.", n)
 	}
 	var functionParams Node = function.getSecondChild()
@@ -1795,7 +1795,7 @@ func (this *AstValidator) validateObjectLitComputedPropSetKey(n Node) {
 	this.validateChildCount(n)
 	var function Node = n.getLastChild()
 	this.validateFunctionExpression(function)
-	if function.getFirstChild().getString() != "" {
+	if !function.getFirstChild().getStringIs_(sidx_) {
 		this.violation("Expected unnamed function expression.", n)
 	}
 	var functionParams Node = function.getSecondChild()

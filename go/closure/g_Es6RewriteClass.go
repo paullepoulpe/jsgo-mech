@@ -205,7 +205,7 @@ func (this *Es6RewriteClass) addToDefinePropertiesObject(metadata *Es6RewriteCla
 	}
 	if prop == 0 {
 		prop = this.createPropertyDescriptor()
-		if member.getString() == "__proto__" {
+		if member.getStringIs_(sid___proto__) {
 			var stringKey Node = this.astFactory_.createComputedProperty(this.astFactory_.createString("__proto__"), prop)
 			obj.addChildToBack(stringKey)
 			var scriptNode Node = NodeUtil_getEnclosingScript(member)

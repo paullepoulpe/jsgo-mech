@@ -97,7 +97,7 @@ func InlineAndCollapseProperties_maybeGetInnerNameNode(maybeFunctionOrClassNode 
 			Preconditions_checkState_boolean_Object_H(false, nameNode)
 		}
 		return func() Node {
-			if nameNode.getString() == "" {
+			if nameNode.getStringIs_(sidx_) {
 				return 0
 			}
 			return nameNode

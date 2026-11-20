@@ -45,7 +45,7 @@ func (this *Reference) cloneWithNewScope(newScope *Scope) *Reference {
 }
 
 func (this *Reference) getSymbol_rVar() *Var {
-	return this.scope_.getVar_String_rVar(this.nameNode_.getString())
+	return this.scope_.getVarById_(this.nameNode_.getStringId_())
 }
 
 func (this *Reference) getNode() Node {

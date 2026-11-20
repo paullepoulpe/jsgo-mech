@@ -22,7 +22,7 @@ func PolymerPassStaticUtils_isPolymerCall(call Node) bool {
 		return false
 	}
 	var name Node = call.getFirstChild()
-	return ((name.matchesName("Polymer") || ("Polymer" == name.getOriginalQualifiedName())) || (name.isGetProp() && (name.getString() == "Polymer")))
+	return ((name.matchesName("Polymer") || ("Polymer" == name.getOriginalQualifiedName())) || (name.isGetProp() && (name.getStringIs_(sid_Polymer))))
 }
 
 func PolymerPassStaticUtils_isPolymerClass(cls Node) bool {
@@ -66,7 +66,7 @@ func PolymerPassStaticUtils_quoteListenerAndHostAttributeKeys(objLit Node, compi
 			if !keyNode.isStringKey() {
 				continue
 			}
-			if !(keyNode.getString() == "listeners") && !(keyNode.getString() == "hostAttributes") {
+			if !(keyNode.getStringIs_(sid_listeners)) && !(keyNode.getStringIs_(sid_hostAttributes)) {
 				continue
 			}
 			{
@@ -296,7 +296,7 @@ func (this *PolymerPassStaticUtils_1) visit(n Node) {
 		return
 	}
 	var dollarSign Node = n.getFirstChild()
-	if !dollarSign.isGetProp() || !(dollarSign.getString() == "$") {
+	if !dollarSign.isGetProp() || !(dollarSign.getStringIs_(sidx_24)) {
 		return
 	}
 	if n.getParent().isCall() && n.getParent().hasOneChild() {

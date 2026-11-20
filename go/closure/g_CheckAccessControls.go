@@ -195,7 +195,7 @@ func (this *CheckAccessControls) checkNameDeprecation(t *NodeTraversal, n Node) 
 	if !this.shouldEmitDeprecationWarning(t, n) {
 		return
 	}
-	var var_ *Var = t.getScope().getVar_String_rVar(n.getString())
+	var var_ *Var = t.getScope().getVarById_(n.getStringId_())
 	var docInfo *JSDocInfo = func() *JSDocInfo {
 		if var_ == nil {
 			return nil
@@ -236,7 +236,7 @@ func (this *CheckAccessControls) checkNameVisibility(scope *Scope, name Node) {
 	if !name.isName() {
 		return
 	}
-	var var_ *Var = scope.getVar_String_rVar(name.getString())
+	var var_ *Var = scope.getVarById_(name.getStringId_())
 	if var_ == nil {
 		return
 	}

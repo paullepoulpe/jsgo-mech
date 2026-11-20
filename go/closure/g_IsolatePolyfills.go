@@ -172,13 +172,13 @@ func (this *IsolatePolyfills) createPolyfillMethodLookup(receiver Node, methodNa
 func (this *IsolatePolyfills) cleanUpJscompLookupPolyfilledValue() {
 	var syntheticExternsRoot Node = this.compiler_.getSynthesizedExternsInput().getAstRoot(this.compiler_)
 	var syntheticExternsScope *Scope = new_SyntacticScopeCreator_AbstractCompiler(this.compiler_).createScope(syntheticExternsRoot, nil)
-	var externVar *Var = Preconditions_checkNotNull_Object_Object_T(syntheticExternsScope.getVar_String_rVar(this.jscompLookupMethod.getString()), "Failed to find synthetic $jscomp$lookupPolyfilledValue extern")
+	var externVar *Var = Preconditions_checkNotNull_Object_Object_T(syntheticExternsScope.getVarById_(this.jscompLookupMethod.getStringId_()), "Failed to find synthetic $jscomp$lookupPolyfilledValue extern")
 	NodeUtil_deleteNode(externVar.getParentNode(), this.compiler_)
 	if this.usedPolyfillMethodLookup {
 		return
 	}
 	var syntheticCodeScope *Scope = new_SyntacticScopeCreator_AbstractCompiler(this.compiler_).createScope(this.compiler_.getNodeForCodeInsertion(nil), nil)
-	var syntheticVar *Var = syntheticCodeScope.getVar_String_rVar(this.jscompLookupMethod.getString())
+	var syntheticVar *Var = syntheticCodeScope.getVarById_(this.jscompLookupMethod.getStringId_())
 	if syntheticVar != nil {
 		NodeUtil_deleteNode(syntheticVar.getParentNode(), this.compiler_)
 	}
