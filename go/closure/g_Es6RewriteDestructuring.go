@@ -112,7 +112,7 @@ func (this *Es6RewriteDestructuring) pullDestructuringOutOfParams(paramList Node
 				var isNoop bool = false
 				if !nameOrPattern.isName() {
 				} else if defaultValue.isName() {
-					isNoop = ("undefined" == defaultValue.getString())
+					isNoop = (defaultValue.getStringIs_(sid_undefined))
 				} else if defaultValue.isVoid() {
 					isNoop = NodeUtil_isImmutableValue(defaultValue.getFirstChild())
 				}

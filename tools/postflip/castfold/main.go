@@ -57,31 +57,12 @@
 // With -assert, a cast that cannot see null, or whose value is dereferenced at once, is a Go type
 // assertion; see assert.go.
 //
-// With -nilup, the upcasts left above for a pointer that may be nil are folded too, keeping
-// nil as nil:
-//
-//	icast_I(obj_(p))   p a pointer whose type implements I   ->  iup_I(p)
-//	to_X(obj_(p))      p a *Y, Y extends X, *Y has up_X      ->  p.up_X()
-//
-// iup_I (written to g_0iup.go, one per interface I) is
-//
-//	func iup_I[P interface{ comparable; I }](p P) I { var z P; if p == z { return nil }; return p }
-//
-// which is obj_ (nil for the zero value, else the value) followed by the assertion to I that
-// the static type proves: nil for a nil p, else I holding p, the value icast_I gives, with no
-// failure path in either. It costs a comparison where the cast cost an assertion to an
-// interface (runtime.assertE2I). up_X is the class's nil-safe upcast that j2go writes on the
-// class itself (`if this == nil { return nil }; return &this.<embedded path>`): nil for nil, else
-// the address to_X's as_X gives; a promoted up_X (declared on a class Y embeds) is not used, since
-// it would select the embedded field of a nil pointer.
-//
-// usage: castfold [-n] [-v] [-instof | -assert | -nilup] <dir of package closure>
+// usage: castfold [-n] [-v] [-instof | -assert] <dir of package closure>
 package main
 
 import (
 	"fmt"
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"os"
@@ -94,7 +75,6 @@ import (
 
 func main() {
 	dry, verbose, instofMode, assertMode := false, false, false, false
-	nilupMode := false
 	for _, a := range os.Args[1 : len(os.Args)-1] {
 		switch a {
 		case "-n":
@@ -105,8 +85,6 @@ func main() {
 			instofMode = true
 		case "-assert":
 			assertMode = true
-		case "-nilup":
-			nilupMode = true
 		}
 	}
 	rw.Load(os.Args[len(os.Args)-1])
@@ -120,7 +98,6 @@ func main() {
 		}
 	}
 	checkSelfInvariant()
-	nilup = nilupMode
 	if assertMode {
 		asserts(dry, verbose)
 		return
@@ -181,13 +158,7 @@ func main() {
 	print("casts folded", folded)
 	print("casts left", left)
 	if dry {
-		if nilup {
-			fmt.Fprintf(os.Stderr, "castfold: %d iup_ functions needed\n", len(iupNeed))
-		}
 		return
-	}
-	if nilup {
-		fmt.Fprintf(os.Stderr, "castfold: %d iup_ functions written\n", writeIup(filepath.Dir(rw.Fset.File(rw.Files[0].Pos()).Name())))
 	}
 	fmt.Fprintf(os.Stderr, "castfold: %d files written\n", rw.SaveChecked())
 }
@@ -383,11 +354,6 @@ func fold(c *ast.CallExpr, kind string, target types.Type, fn *ast.FuncDecl) (fu
 				return conv, "checkNotNull of a pointer that implements the target (" + wrap + ")"
 			}
 			if !nonNil(y, fn, 0) {
-				if nilup {
-					name := target.(*types.Named).Obj().Name()
-					iupNeed[name] = true
-					return func() string { return "iup_" + name + "(" + render() + ")" }, "pointer that may be nil -> iup_I (" + wrap + ")"
-				}
 				return nil, "pointer that may be nil (obj_ boxes a nil pointer as nil; an interface holding a nil pointer is not nil)"
 			}
 			return conv, "non-nil pointer that implements the target (" + wrap + ")"
@@ -420,12 +386,6 @@ func fold(c *ast.CallExpr, kind string, target types.Type, fn *ast.FuncDecl) (fu
 			return up, "upcast of checkNotNull of a pointer (" + wrap + ")"
 		}
 		if !nonNil(y, fn, 0) {
-			if nilup {
-				if !nilSafeUp(ty, x.Obj().Name()) {
-					return nil, "upcast of a pointer that may be nil (no nil-safe up_X declared on its class)"
-				}
-				return func() string { return paren() + ".up_" + x.Obj().Name() + "()" }, "upcast of a pointer that may be nil -> up_X (" + wrap + ")"
-			}
 			return nil, "upcast of a pointer that may be nil"
 		}
 		return up, "upcast of a non-nil pointer (" + wrap + ")"
@@ -960,70 +920,3 @@ func localNonNil(v *types.Var, d *ast.FuncDecl, depth int) bool {
 }
 
 var defOf = map[types.Object]*ast.Ident{}
-
-// nilup: -nilup; iupNeed: the interfaces whose iup_ the rewrites call.
-var (
-	nilup   bool
-	iupNeed = map[string]bool{}
-)
-
-const iupFile = "g_0iup.go"
-
-// nilSafeUp reports whether pointer type t has a method up_<x> declared on its own class (not
-// promoted) whose body starts with `if this == nil { return nil }`.
-func nilSafeUp(t types.Type, x string) bool {
-	o, idx, _ := types.LookupFieldOrMethod(t, true, rw.Pkg, "up_"+x)
-	f, ok := o.(*types.Func)
-	if !ok || len(idx) != 1 {
-		return false
-	}
-	fd := funcDecl(f)
-	if fd == nil || fd.Body == nil || len(fd.Body.List) != 2 {
-		return false
-	}
-	return strings.Join(strings.Fields(rw.Text(fd.Body.List[0])), " ") == "if this == nil { return nil }"
-}
-
-// writeIup adds the iup_ functions the rewrites call and the package does not declare yet: to
-// g_0iup.go, created if missing. It returns their number.
-func writeIup(dir string) int {
-	var names []string
-	for n := range iupNeed {
-		if rw.Pkg.Scope().Lookup("iup_"+n) == nil {
-			names = append(names, n)
-		}
-	}
-	sort.Strings(names)
-	var b strings.Builder
-	for _, n := range names {
-		fmt.Fprintf(&b, "\n// iup_%s converts a p whose type implements %s to it, nil to nil.\nfunc iup_%s[P interface {\n\tcomparable\n\t%s\n}](p P) %s {\n\tvar z P\n\tif p == z {\n\t\treturn nil\n\t}\n\treturn p\n}\n", n, n, n, n, n)
-	}
-	decls := b.String()
-	var outF *ast.File
-	for _, f := range rw.Files {
-		if filepath.Base(rw.Fset.File(f.Pos()).Name()) == iupFile {
-			outF = f
-		}
-	}
-	if len(names) == 0 {
-		return 0
-	}
-	if outF != nil {
-		last := outF.Decls[len(outF.Decls)-1]
-		rw.Rewrite[last] = func() string { return rw.RenderChildren(last) + "\n" + decls }
-		return len(names)
-	}
-	path := filepath.Join(dir, iupFile)
-	src := []byte("// Code generated by tools/postflip/castfold -nilup. DO NOT EDIT.\n\npackage closure\n\n" +
-		"// Upcasts to a Java interface of a pointer that may be nil: nil stays nil (castfold -nilup).\n" + decls)
-	if err := os.WriteFile(path, src, 0o644); err != nil {
-		panic(err)
-	}
-	f, err := parser.ParseFile(rw.Fset, path, src, parser.SkipObjectResolution)
-	if err != nil {
-		panic(err)
-	}
-	rw.Src[rw.Fset.File(f.Pos())] = src
-	rw.Files = append(rw.Files, f)
-	return len(names)
-}

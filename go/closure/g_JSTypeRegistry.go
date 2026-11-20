@@ -1492,7 +1492,7 @@ func (this *JSTypeRegistry) parseTemplateArgs(nominalType *JSType, typeNode Node
 			templateArgs.add(this.createTypeFromCommentNode_3(templateNode, sourceName, scope))
 		}
 	}
-	var isObject bool = ((typeNode.getString() == "Object") || (typeNode.getString() == "window.Object"))
+	var isObject bool = ((typeNode.getStringIs_(sid_Object)) || (typeNode.getStringIs_(sidx_77696e646f772e4f626a656374)))
 	if isObject && (templateArgs.size() == 1) {
 		templateArgs.insert(0, this.getNativeType(JSTypeNative_UNKNOWN_TYPE))
 	}

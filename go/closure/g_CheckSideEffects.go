@@ -175,7 +175,7 @@ func (this *CheckSideEffects_StripProtection) visit_impl(t *NodeTraversal, n Nod
 		if !target.isName() {
 			return
 		}
-		if target.getString() == CheckSideEffects_J2CL_PROTECTOR_FN {
+		if target.getStringIs_(sidx_244a32434c5f505245534552564524) {
 			if !J2clSourceUtils_isJ2clSourceString(Optional_of[string](n.getSourceFileName()).filterFn_(func(s string) bool {
 				return s != ""
 			})) {
@@ -184,7 +184,7 @@ func (this *CheckSideEffects_StripProtection) visit_impl(t *NodeTraversal, n Nod
 			NodeUtil_deleteFunctionCall(n, this.compiler_)
 			return
 		}
-		if target.getString() == CheckSideEffects_PROTECTOR_FN {
+		if target.getStringIs_(sid_JSCOMPILER_PRESERVE) {
 			var expr Node = n.getLastChild()
 			n.detachChildren()
 			n.replaceWith(expr)
@@ -225,7 +225,7 @@ func (this *CheckSideEffects_GetNoSideEffectExterns) visit_impl(t *NodeTraversal
 			this.outer_.noSideEffectExterns[name] = struct{}{}
 		}
 	}
-	if n.isName() && (CheckSideEffects_PROTECTOR_FN == n.getString()) {
+	if n.isName() && (n.getStringIs_(sid_JSCOMPILER_PRESERVE)) {
 		this.outer_.preserveFunctionInjected = true
 	}
 }

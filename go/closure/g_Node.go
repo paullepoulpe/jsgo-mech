@@ -1955,7 +1955,7 @@ func (this Node) getOriginalQualifiedName() string {
 func (this Node) isQualifiedName() bool {
 	switch this.ns_().token {
 	case tokOrd1_NAME:
-		return this.getString() != ""
+		return !this.getStringIs_(sidx_)
 	case tokOrd1_THIS, tokOrd1_SUPER:
 		return true
 	case tokOrd1_GETPROP:
@@ -2024,7 +2024,7 @@ func (this Node) isUnscopedQualifiedName() bool {
 	return func() bool {
 		switch this.ns_().token {
 		case tokOrd1_NAME:
-			return this.getString() != ""
+			return !this.getStringIs_(sidx_)
 		case tokOrd1_GETPROP:
 			return this.getFirstChild().isUnscopedQualifiedName()
 		default:

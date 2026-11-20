@@ -86,7 +86,7 @@ func (this *Denormalize) maybeCollapseIntoForStatements(n Node, parent Node) {
 		var forVar Node = forNode.getFirstChild()
 		if (forVar.isName() && n.isVar()) && n.hasOneChild() {
 			var name Node = n.getFirstChild()
-			if !name.hasChildren() && (forVar.getString() == name.getString()) {
+			if !name.hasChildren() && (forVar.getStringId_() == name.getStringId_()) {
 				n.detach()
 				forVar.replaceWith(n)
 				this.compiler_.reportChangeToEnclosingScope(parent)
@@ -120,7 +120,7 @@ func (this *Denormalize) maybeCollapseAssignShorthand(n Node, parent Node) {
 	}
 	var op Node = n.getLastChild()
 	var assignOp Token_rhino = this.getAssignOpFromOp(op)
-	if n.getFirstChild().getString() == op.getFirstChild().getString() {
+	if n.getFirstChild().getStringId_() == op.getFirstChild().getStringId_() {
 		op.setToken(assignOp)
 		var opDetached Node = op.detach()
 		opDetached.setJSDocInfo(n.getJSDocInfo())
@@ -135,7 +135,7 @@ func (this *Denormalize) maybeCollapseLogicalAssignShorthand(t *NodeTraversal, n
 	}
 	var op Node = n.getLastChild()
 	var assignOp Token_rhino = this.getAssignOpFromOp(n)
-	if n.getFirstChild().getString() == op.getFirstChild().getString() {
+	if n.getFirstChild().getStringId_() == op.getFirstChild().getStringId_() {
 		op.setToken(assignOp)
 		var opDetached Node = op.detach()
 		opDetached.setJSDocInfo(n.getJSDocInfo())
