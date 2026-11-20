@@ -161,11 +161,8 @@ func new_SortingErrorManager_LeveledJSErrorComparator() *SortingErrorManager_Lev
 	return this
 }
 
-func (this *SortingErrorManager_LeveledJSErrorComparator) compare(p1_ any, p2_ any) int32 {
-	var p1 *SortingErrorManager_ErrorWithLevel = cast_[*SortingErrorManager_ErrorWithLevel](p1_)
-	_ = p1
-	var p2 *SortingErrorManager_ErrorWithLevel = cast_[*SortingErrorManager_ErrorWithLevel](p2_)
-	_ = p2
+// compareT_ is compare with the parameter types the class declares (implsplit).
+func (this *SortingErrorManager_LeveledJSErrorComparator) compareT_(p1 *SortingErrorManager_ErrorWithLevel, p2 *SortingErrorManager_ErrorWithLevel) int32 {
 	if p2 == nil {
 		if p1 == nil {
 			return 0
@@ -207,6 +204,11 @@ func (this *SortingErrorManager_LeveledJSErrorComparator) compare(p1_ any, p2_ a
 		return SortingErrorManager_LeveledJSErrorComparator_P1_GT_P2
 	}
 	return utf16Compare_(p1.error_.description(), p2.error_.description())
+}
+
+// compare is the bridge of the interface's erased signature (javac's): it casts its arguments and calls compareT_.
+func (this *SortingErrorManager_LeveledJSErrorComparator) compare(p1_ any, p2_ any) int32 {
+	return this.compareT_(cast_[*SortingErrorManager_ErrorWithLevel](p1_), cast_[*SortingErrorManager_ErrorWithLevel](p2_))
 }
 
 const SortingErrorManager_LeveledJSErrorComparator_P1_LT_P2 int32 = -1

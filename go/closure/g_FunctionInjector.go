@@ -359,7 +359,7 @@ func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 }
 
 func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *FunctionInjector_Reference, calleeFn Node, namesToAlias *TSet[string]) bool {
-	var calleeContainsVars bool = NodeUtil_has(NodeUtil_getFunctionBody(calleeFn), unboxedPred_[Node](new_NodeUtil_MatchDeclaration().apply), new_NodeUtil_MatchShallowStatement())
+	var calleeContainsVars bool = NodeUtil_has(NodeUtil_getFunctionBody(calleeFn), new_NodeUtil_MatchDeclaration().applyT_, new_NodeUtil_MatchShallowStatement())
 	var forbidTemps bool = false
 	if !callRef.scope_.getClosestHoistScope_rScope().isGlobal() {
 		var callerFn Node = callRef.scope_.getClosestHoistScope_rScope().getRootNode().getParent()
