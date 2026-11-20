@@ -564,7 +564,7 @@ func (this *SuggestedFix_Builder) addImport(m *Match, namespace string, importTy
 				lastModuleOrProvideNode = grandchild
 			} else if Matchers_googRequirelike_0().matches(grandchild, metadata) {
 				lastGoogRequireNode = grandchild
-				if grandchild.getLastChild().isStringLit() && (String_compareTo(namespace, grandchild.getLastChild().getString()) < 0) {
+				if grandchild.getLastChild().isStringLit() && (utf16Compare_(namespace, grandchild.getLastChild().getString()) < 0) {
 					nodeToInsertBefore = child
 					break
 				}
@@ -576,7 +576,7 @@ func (this *SuggestedFix_Builder) addImport(m *Match, namespace string, importTy
 			if originalName != "" {
 				requireName = originalName
 			}
-			if String_compareTo(alias.get(), requireName) < 0 {
+			if utf16Compare_(alias.get(), requireName) < 0 {
 				nodeToInsertBefore = child
 				break
 			}

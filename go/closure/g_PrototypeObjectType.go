@@ -370,7 +370,7 @@ func PrototypeObjectType_clinit() {
 	PrototypeObjectType_TYPE_CLASS = JSTypeClass_PROTOTYPE_OBJECT
 	PrototypeObjectType_PROP_COMPARATOR = &Comparator_tfn_PrototypeObjectType_PropertyForPrettyPrinting_PrototypeObjectType_PropertyForPrettyPrinting{func(thisProp *PrototypeObjectType_PropertyForPrettyPrinting, otherProp *PrototypeObjectType_PropertyForPrettyPrinting) int32 {
 		if !(thisProp.key().humanReadableName() == otherProp.key().humanReadableName()) {
-			return String_compareTo(thisProp.key().humanReadableName(), otherProp.key().humanReadableName())
+			return utf16Compare_(thisProp.key().humanReadableName(), otherProp.key().humanReadableName())
 		}
 		return func() int32 {
 			switch thisProp.key().kind() {
@@ -378,7 +378,7 @@ func PrototypeObjectType_clinit() {
 				return func() int32 {
 					switch otherProp.key().kind() {
 					case Property_KeyKind_STRING:
-						return String_compareTo(thisProp.key().string(), otherProp.key().string())
+						return utf16Compare_(thisProp.key().string(), otherProp.key().string())
 					case Property_KeyKind_SYMBOL:
 						return -1
 					}
@@ -390,7 +390,7 @@ func PrototypeObjectType_clinit() {
 					case Property_KeyKind_STRING:
 						return 1
 					case Property_KeyKind_SYMBOL:
-						return String_compareTo(thisProp.type_().toString(), otherProp.type_().toString())
+						return utf16Compare_(thisProp.type_().toString(), otherProp.type_().toString())
 					}
 					panic("unreachable")
 				}()

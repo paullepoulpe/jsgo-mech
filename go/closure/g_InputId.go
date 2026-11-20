@@ -26,7 +26,7 @@ func (this *InputId) getIdName() string {
 }
 
 func (this *InputId) hashCode() int32 {
-	return String_hashCode(this.id)
+	return utf16Hash_(this.id)
 }
 
 func (this *InputId) equals(obj any) bool {
