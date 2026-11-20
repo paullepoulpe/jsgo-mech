@@ -2284,7 +2284,7 @@ func (this *IRFactory_TransformDispatcher) transformLhsOfBinaryTree(exprTree *Bi
 	var ret_1 Node
 	code_1 := func() (code_ int) {
 		var ignored IRFactory_TransformDispatcher_AutoDecrement = this.privateIdLhsOfInScope.maybeIncrement(lhsOfInIsPrivateId)
-		defer closeResource_(any(ignored))
+		defer closeResource_(ignored)
 		ret_1 = this.outer_.transform(exprTree.left)
 		return 1
 		return 0
@@ -2954,7 +2954,7 @@ func (this *IRFactory_TransformDispatcher) processClassDeclaration(tree *ClassDe
 	this.outer_.setSourceInfo(classMembers, tree.up_ParseTree())
 	_ = func() (code_ int) {
 		var ignored IRFactory_TransformDispatcher_AutoDecrement = this.classScope.increment()
-		defer closeResource_(any(ignored))
+		defer closeResource_(ignored)
 		var hasConstructor bool = false
 		it_2 := tree.elements_.each()
 		for it_2.next() {
