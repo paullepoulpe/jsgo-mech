@@ -1061,7 +1061,7 @@ func (this *Compiler) getCurrentJsSource() string {
 	var fileNameRegexList *JTList[string] = this.options_.getFilesToPrintAfterEachPassRegexList()
 	var chunkNameRegexList *JTList[string] = this.options_.getChunksToPrintAfterEachPassRegexList()
 	var qnameSet *JTSet[string] = jtsetFrom_(jtc_string, Collection(this.options_.getQnameUsesToPrintAfterEachPassList().asList()))
-	var builder *StringBuilder = new_StringBuilder()
+	var builder strBuilder_
 	if (fileNameRegexList.isEmpty() && chunkNameRegexList.isEmpty()) && qnameSet.isEmpty() {
 		return this.toSource()
 	}
@@ -1166,7 +1166,7 @@ func (this *Compiler) getCurrentJsSource() string {
 			builder.append(String_format("// %s\n", []any{strobj_(statement.getLocation())})).append(this.toSource_1(statement)).append("\n")
 		}
 	}
-	return tostrR_(builder)
+	return builder.toString()
 }
 
 func (this *Compiler) getTopLevelStatements(root Node) *JTList[Node] {
@@ -2041,7 +2041,7 @@ func (this *Compiler) toSource_4(cb *Compiler_CodeBuilder, licenseTracker CodePr
 
 func (this *Compiler) toSource_1_impl(n Node) string {
 	this.initCompilerOptionsIfTesting()
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	var lt *Compiler_ScriptNodeLicensesOnlyTracker = new_Compiler_ScriptNodeLicensesOnlyTracker(this.up_AbstractCompiler())
 	var code string = this.toSourceAndMappings(n, false, Compiler_ScriptNodeLicensesOnlyTracker_as_CodePrinter_LicenseTracker(lt)).source
 	it_1 := lt.emitLicenses().each()
@@ -2050,7 +2050,7 @@ func (this *Compiler) toSource_1_impl(n Node) string {
 		sb.append("/*\n").append(license).append("*/\n")
 	}
 	sb.append(code)
-	return tostrR_(sb)
+	return sb.toString()
 }
 
 func (this *Compiler) toSourceAndMappings(n Node, firstOutput bool, licenseTracker CodePrinter_LicenseTracker) *CodePrinter_SourceAndMappings {

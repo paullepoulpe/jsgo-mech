@@ -93,7 +93,7 @@ func (this *AllowlistWarningsGuard) formatWarning(error_ *JSError) string {
 }
 
 func (this *AllowlistWarningsGuard) formatWarning_2(error_ *JSError, withMetaData bool) string {
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	sb.append(this.normalizeSourceName(error_.sourceName()).orElse("null")).append(":")
 	if withMetaData {
 		sb.append_int(error_.getLineNumber())
@@ -106,7 +106,7 @@ func (this *AllowlistWarningsGuard) formatWarning_2(error_ *JSError, withMetaDat
 		}
 		sb.append("\n")
 	}
-	return tostrR_(sb)
+	return sb.toString()
 }
 
 func (this *AllowlistWarningsGuard) normalizeSourceName(sourceName Optional[string]) Optional[string] {
