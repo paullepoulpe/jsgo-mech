@@ -35,16 +35,16 @@ func SuppressDocWarningsGuard_createSuppressors(suppressors *JTMap[string, *Diag
 	return immutableMapCopyOfT_(jtc_string, jtc_p_DiagnosticGroup, builder)
 }
 
-func (this *SuppressDocWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
+func (this *SuppressDocWarningsGuard) level_impl(error_ *JSError) CheckLevel {
 	var node Node = error_.node()
 	if node == 0 {
 		node = this.getScriptNodeBySourceName(error_)
 	}
 	if node == 0 {
-		return nil
+		return 0
 	}
-	var level *CheckLevel = this.getCheckLevelFromAncestors(error_, node)
-	if level != nil {
+	var level CheckLevel = this.getCheckLevelFromAncestors(error_, node)
+	if level != 0 {
 		return level
 	}
 	var scriptNode Node = this.getScriptNodeBySourceName(error_)
@@ -54,10 +54,10 @@ func (this *SuppressDocWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
 			return this.getCheckLevelFromInfo(error_, info)
 		}
 	}
-	return nil
+	return 0
 }
 
-func (this *SuppressDocWarningsGuard) getCheckLevelFromAncestors(error_ *JSError, node Node) *CheckLevel {
+func (this *SuppressDocWarningsGuard) getCheckLevelFromAncestors(error_ *JSError, node Node) CheckLevel {
 	{
 		var current Node = node
 		for ; current != 0; current = current.getParent() {
@@ -70,17 +70,17 @@ func (this *SuppressDocWarningsGuard) getCheckLevelFromAncestors(error_ *JSError
 				info = NodeUtil_getBestJSDocInfo(current)
 			}
 			if info != nil {
-				var level *CheckLevel = this.getCheckLevelFromInfo(error_, info)
-				if level != nil {
+				var level CheckLevel = this.getCheckLevelFromInfo(error_, info)
+				if level != 0 {
 					return level
 				}
 			}
 		}
 	}
-	return nil
+	return 0
 }
 
-func (this *SuppressDocWarningsGuard) getCheckLevelFromInfo(error_ *JSError, info *JSDocInfo) *CheckLevel {
+func (this *SuppressDocWarningsGuard) getCheckLevelFromInfo(error_ *JSError, info *JSDocInfo) CheckLevel {
 	it_1 := info.getSuppressions().each()
 	for it_1.next() {
 		var suppressor string = it_1.v
@@ -92,7 +92,7 @@ func (this *SuppressDocWarningsGuard) getCheckLevelFromInfo(error_ *JSError, inf
 			return CheckLevel_OFF
 		}
 	}
-	return nil
+	return 0
 }
 
 func (this *SuppressDocWarningsGuard) getScriptNodeBySourceName(error_ *JSError) Node {
@@ -108,13 +108,13 @@ func (this *SuppressDocWarningsGuard) getScriptNodeBySourceName(error_ *JSError)
 }
 
 func (this *SuppressDocWarningsGuard) getPriority_impl() int32 {
-	return WarningsGuard_Priority_SUPPRESS_DOC.value_
+	return WarningsGuard_Priority_value__[WarningsGuard_Priority_SUPPRESS_DOC-1]
 }
 
 const SuppressDocWarningsGuard_serialVersionUID int64 = 1
 
 // level: an object that is exactly a SuppressDocWarningsGuard calls its level_impl directly (post-flip); others dispatch.
-func (this *SuppressDocWarningsGuard) level(p0 *JSError) *CheckLevel {
+func (this *SuppressDocWarningsGuard) level(p0 *JSError) CheckLevel {
 	if this.self_ == any(this) {
 		return this.level_impl(p0)
 	}

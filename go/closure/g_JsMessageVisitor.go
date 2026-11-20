@@ -745,7 +745,7 @@ func JsMessageVisitor_isUnnamedMessageName(identifier string) bool {
 	return JsMessageVisitor_MSG_UNNAMED_PATTERN.matcher_s(identifier).matches()
 }
 
-func (this *JsMessageVisitor) checkNode(node Node, type_ *Token_rhino) *Outcome_base[any] {
+func (this *JsMessageVisitor) checkNode(node Node, type_ Token_rhino) *Outcome_base[any] {
 	if node == 0 {
 		return Outcome_base_err[any](new_JsMessageVisitor_MalformedException(("Expected node type " + jtostr_(type_) + "; found: null"), node).up_Throwable())
 	}

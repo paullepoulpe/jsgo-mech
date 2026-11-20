@@ -88,7 +88,7 @@ func TemplateType_createFromTypeTransformation(registry *JSTypeRegistry, name st
 	return new_TemplateType_JSTypeRegistry_String_JSType_Node(registry, name, nil, typeTransformation)
 }
 
-func (this *TemplateType) getTypeClass_impl() *JSTypeClass {
+func (this *TemplateType) getTypeClass_impl() JSTypeClass {
 	return TemplateType_TYPE_CLASS_FIELD
 }
 
@@ -143,14 +143,14 @@ func (this *TemplateType) setValidator_impl(validator Predicate_baseOf[*JSType])
 
 func (this *TemplateType) containsCycle() bool {
 	var typeVisitor *ContainsUpperBoundSuperTypeVisitor = new_ContainsUpperBoundSuperTypeVisitor(nil)
-	return (cast_[*ContainsUpperBoundSuperTypeVisitor_Result](this.visit(ContainsUpperBoundSuperTypeVisitor_as_Visitor(typeVisitor))) == ContainsUpperBoundSuperTypeVisitor_Result_CYCLE)
+	return (cast_[ContainsUpperBoundSuperTypeVisitor_Result](this.visit(ContainsUpperBoundSuperTypeVisitor_as_Visitor(typeVisitor))) == ContainsUpperBoundSuperTypeVisitor_Result_CYCLE)
 }
 
 func (this *TemplateType) recursionUnsafeHashCode_impl() int32 {
 	return System_identityHashCode(obj_(this))
 }
 
-var TemplateType_TYPE_CLASS_FIELD *JSTypeClass
+var TemplateType_TYPE_CLASS_FIELD JSTypeClass
 
 var TemplateType_clinit_done bool
 
@@ -164,7 +164,7 @@ func TemplateType_clinit() {
 }
 
 // getTypeClass: an object that is exactly a TemplateType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *TemplateType) getTypeClass() *JSTypeClass {
+func (this *TemplateType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}

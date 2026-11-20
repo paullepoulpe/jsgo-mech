@@ -257,7 +257,7 @@ func (this *MustBeReachingVariableDef) computeDependence(def *MustBeReachingVari
 
 func (this *MustBeReachingVariableDef) getDef(name string, useNode Node) *MustBeReachingVariableDef_Definition {
 	Preconditions_checkArgument(this.getCfg().hasNode(useNode))
-	var n GraphNode[Node, *ControlFlowGraph_Branch] = cast_[GraphNode[Node, *ControlFlowGraph_Branch]](this.getCfg().getNode_Object_rDiGraphNode_rLinkedDiGraphNode(useNode).self())
+	var n GraphNode[Node, ControlFlowGraph_Branch] = cast_[GraphNode[Node, ControlFlowGraph_Branch]](this.getCfg().getNode_Object_rDiGraphNode_rLinkedDiGraphNode(useNode).self())
 	var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(n)))
 	return cast_[*MustBeReachingVariableDef_MustDef](state.getIn()).reachingDef.get(this.allVarsInFn.get(name))
 }

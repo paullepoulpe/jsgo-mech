@@ -105,7 +105,7 @@ func (this *CheckSuspiciousCode) checkLeftOperandOfLogicalOperator(t *NodeTraver
 			}
 			return "&&"
 		}()
-		var v *Tri = this.getBooleanValueWithTypes(n.getFirstChild())
+		var v Tri = this.getBooleanValueWithTypes(n.getFirstChild())
 		if v != Tri_UNKNOWN {
 			var result string = func() string {
 				if v == Tri_TRUE {
@@ -127,7 +127,7 @@ func CheckSuspiciousCode_checkSuspiciousBreakingOutOfOptionalChain(t *NodeTraver
 	}
 }
 
-func (this *CheckSuspiciousCode) getBooleanValueWithTypes(n Node) *Tri {
+func (this *CheckSuspiciousCode) getBooleanValueWithTypes(n Node) Tri {
 	switch n.ns_().token {
 	case tokOrd1_ASSIGN, tokOrd1_COMMA:
 		return this.getBooleanValueWithTypes(n.getLastChild())
@@ -138,9 +138,9 @@ func (this *CheckSuspiciousCode) getBooleanValueWithTypes(n Node) *Tri {
 	case tokOrd1_OR:
 		return Tri_UNKNOWN.or(this.getBooleanValueWithTypes(n.getLastChild()))
 	case tokOrd1_HOOK:
-		var trueValue *Tri = this.getBooleanValueWithTypes(n.getSecondChild())
-		var falseValue *Tri = this.getBooleanValueWithTypes(n.getLastChild())
-		return func() *Tri {
+		var trueValue Tri = this.getBooleanValueWithTypes(n.getSecondChild())
+		var falseValue Tri = this.getBooleanValueWithTypes(n.getLastChild())
+		return func() Tri {
 			if eqR_(trueValue, falseValue) {
 				return trueValue
 			}
@@ -154,7 +154,7 @@ func (this *CheckSuspiciousCode) getBooleanValueWithTypes(n Node) *Tri {
 		return Tri_UNKNOWN
 	default:
 	}
-	var literalValue *Tri = NodeUtil_getBooleanValue(n)
+	var literalValue Tri = NodeUtil_getBooleanValue(n)
 	if (literalValue != Tri_UNKNOWN) || n.isName() {
 		return literalValue
 	}

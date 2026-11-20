@@ -213,7 +213,7 @@ func (this *PeepholeFoldConstants) tryFoldUnaryOperator(n Node) Node {
 	if left == 0 {
 		return n
 	}
-	var leftVal *Tri = this.getSideEffectFreeBooleanValue(left)
+	var leftVal Tri = this.getSideEffectFreeBooleanValue(left)
 	if leftVal == Tri_UNKNOWN {
 		return n
 	}
@@ -314,8 +314,8 @@ func (this *PeepholeFoldConstants) tryFoldAssign(n Node, left Node, right Node) 
 	if !this.late {
 		return n
 	}
-	var operator *Token_rhino = right.getToken()
-	var newType *Token_rhino = func() *Token_rhino {
+	var operator Token_rhino = right.getToken()
+	var newType Token_rhino = func() Token_rhino {
 		switch operator {
 		case Token_rhino_ADD:
 			return Token_rhino_ASSIGN_ADD
@@ -342,11 +342,11 @@ func (this *PeepholeFoldConstants) tryFoldAssign(n Node, left Node, right Node) 
 		case Token_rhino_EXPONENT:
 			return Token_rhino_ASSIGN_EXPONENT
 		default:
-			return nil
+			return 0
 		}
 		panic("unreachable")
 	}()
-	if newType == nil {
+	if newType == 0 {
 		return n
 	}
 	if !right.hasChildren() || (right.getSecondChild() != right.getLastChild()) {
@@ -384,7 +384,7 @@ func (this *PeepholeFoldConstants) tryUnfoldAssignOp(n Node, left Node, right No
 	if this.mayHaveSideEffects(left) {
 		return n
 	}
-	var op *Token_rhino = NodeUtil_getOpFromAssignmentOp(n)
+	var op Token_rhino = NodeUtil_getOpFromAssignmentOp(n)
 	var replacement Node = IR_assign(left.detach(), new_Node_Token_Node_Node(op, left.cloneTree(), right.detach()).srcref(n))
 	n.replaceWith(replacement)
 	this.reportChangeToEnclosingScope(replacement)
@@ -395,8 +395,8 @@ func (this *PeepholeFoldConstants) tryFoldAndOr(n Node, left Node, right Node) N
 	var parent Node = n.getParent()
 	var result Node = 0
 	var dropped Node = 0
-	var type_ *Token_rhino = n.getToken()
-	var leftVal *Tri = NodeUtil_getBooleanValue(left)
+	var type_ Token_rhino = n.getToken()
+	var leftVal Tri = NodeUtil_getBooleanValue(left)
 	if leftVal != Tri_UNKNOWN {
 		var lval bool = leftVal.toBoolean(true)
 		if func() bool {
@@ -416,7 +416,7 @@ func (this *PeepholeFoldConstants) tryFoldAndOr(n Node, left Node, right Node) N
 			dropped = 0
 		}
 	} else if (parent.getToken() == type_) && (n == parent.getFirstChild()) {
-		var rightValue *Tri = NodeUtil_getBooleanValue(right)
+		var rightValue Tri = NodeUtil_getBooleanValue(right)
 		if !this.mayHaveSideEffects(right) {
 			if ((rightValue == Tri_FALSE) && (type_ == Token_rhino_OR)) || ((rightValue == Tri_TRUE) && (type_ == Token_rhino_AND)) {
 				result = left
@@ -440,7 +440,7 @@ func (this *PeepholeFoldConstants) tryFoldAndOr(n Node, left Node, right Node) N
 
 func (this *PeepholeFoldConstants) tryFoldCoalesce(n Node, left Node, right Node) Node {
 	var result Node = 0
-	var leftVal *NodeUtil_ValueType = NodeUtil_getKnownValueType(left)
+	var leftVal NodeUtil_ValueType = NodeUtil_getKnownValueType(left)
 	switch leftVal {
 	case NodeUtil_ValueType_NULL, NodeUtil_ValueType_VOID:
 		if !this.mayHaveSideEffects(left) {
@@ -731,7 +731,7 @@ func (this *PeepholeFoldConstants) maybeReplaceBinaryOpWithNumericResult(result 
 }
 
 func (this *PeepholeFoldConstants) tryFoldLeftChildOp(n Node, left Node, right Node) Node {
-	var opType *Token_rhino = n.getToken()
+	var opType Token_rhino = n.getToken()
 	Preconditions_checkState((NodeUtil_isAssociative(opType) && NodeUtil_isCommutative(opType)))
 	var rightValObj any = this.getSideEffectFreeNumberValue(right)
 	var rightBigInt *BigInteger = this.getSideEffectFreeBigIntValue(right)
@@ -990,7 +990,7 @@ func (this *PeepholeFoldConstants) tryFoldShift(n Node, left Node, right Node) N
 }
 
 func (this *PeepholeFoldConstants) tryFoldComparison(n Node, left Node, right Node) Node {
-	var result *Tri = PeepholeFoldConstants_evaluateComparison(this.up_AbstractPeepholeOptimization(), n.getToken(), left, right)
+	var result Tri = PeepholeFoldConstants_evaluateComparison(this.up_AbstractPeepholeOptimization(), n.getToken(), left, right)
 	if result == Tri_UNKNOWN {
 		return n
 	}
@@ -1001,9 +1001,9 @@ func (this *PeepholeFoldConstants) tryFoldComparison(n Node, left Node, right No
 	return newNode
 }
 
-func PeepholeFoldConstants_tryAbstractRelationalComparison(peepholeOptimization *AbstractPeepholeOptimization, left Node, right Node, willNegate bool) *Tri {
-	var leftValueType *NodeUtil_ValueType = NodeUtil_getKnownValueType(left)
-	var rightValueType *NodeUtil_ValueType = NodeUtil_getKnownValueType(right)
+func PeepholeFoldConstants_tryAbstractRelationalComparison(peepholeOptimization *AbstractPeepholeOptimization, left Node, right Node, willNegate bool) Tri {
+	var leftValueType NodeUtil_ValueType = NodeUtil_getKnownValueType(left)
+	var rightValueType NodeUtil_ValueType = NodeUtil_getKnownValueType(right)
 	if (leftValueType == NodeUtil_ValueType_STRING) && (rightValueType == NodeUtil_ValueType_STRING) {
 		var lvStr Optional[string] = peepholeOptimization.getSideEffectFreeStringValue(left)
 		var rvStr Optional[string] = peepholeOptimization.getSideEffectFreeStringValue(right)
@@ -1073,7 +1073,7 @@ func PeepholeFoldConstants_tryAbstractRelationalComparison(peepholeOptimization 
 	return Tri_UNKNOWN
 }
 
-func PeepholeFoldConstants_bigintLessThanDouble(bigint *BigInteger, number float64, invert *Tri, willNegate bool) *Tri {
+func PeepholeFoldConstants_bigintLessThanDouble(bigint *BigInteger, number float64, invert Tri, willNegate bool) Tri {
 	if Double_isNaN(number) {
 		return Tri_forBoolean(willNegate)
 	} else if number == posinf_ {
@@ -1097,9 +1097,9 @@ func PeepholeFoldConstants_bigintLessThanDouble(bigint *BigInteger, number float
 	panic("unreachable")
 }
 
-func PeepholeFoldConstants_tryAbstractEqualityComparison(peepholeOptimization *AbstractPeepholeOptimization, left Node, right Node) *Tri {
-	var leftValueType *NodeUtil_ValueType = NodeUtil_getKnownValueType(left)
-	var rightValueType *NodeUtil_ValueType = NodeUtil_getKnownValueType(right)
+func PeepholeFoldConstants_tryAbstractEqualityComparison(peepholeOptimization *AbstractPeepholeOptimization, left Node, right Node) Tri {
+	var leftValueType NodeUtil_ValueType = NodeUtil_getKnownValueType(left)
+	var rightValueType NodeUtil_ValueType = NodeUtil_getKnownValueType(right)
 	if (leftValueType != NodeUtil_ValueType_UNDETERMINED) && (rightValueType != NodeUtil_ValueType_UNDETERMINED) {
 		if leftValueType == rightValueType {
 			return PeepholeFoldConstants_tryStrictEqualityComparison(peepholeOptimization, left, right)
@@ -1109,7 +1109,7 @@ func PeepholeFoldConstants_tryAbstractEqualityComparison(peepholeOptimization *A
 		}
 		if ((leftValueType == NodeUtil_ValueType_NUMBER) && (rightValueType == NodeUtil_ValueType_STRING)) || (rightValueType == NodeUtil_ValueType_BOOLEAN) {
 			var rv any = peepholeOptimization.getSideEffectFreeNumberValue(right)
-			return func() *Tri {
+			return func() Tri {
 				if rv == nil {
 					return Tri_UNKNOWN
 				}
@@ -1118,7 +1118,7 @@ func PeepholeFoldConstants_tryAbstractEqualityComparison(peepholeOptimization *A
 		}
 		if ((leftValueType == NodeUtil_ValueType_STRING) && (rightValueType == NodeUtil_ValueType_NUMBER)) || (leftValueType == NodeUtil_ValueType_BOOLEAN) {
 			var lv any = peepholeOptimization.getSideEffectFreeNumberValue(left)
-			return func() *Tri {
+			return func() Tri {
 				if lv == nil {
 					return Tri_UNKNOWN
 				}
@@ -1133,7 +1133,7 @@ func PeepholeFoldConstants_tryAbstractEqualityComparison(peepholeOptimization *A
 					return Tri_FALSE
 				}
 				var lvBig *BigInteger = peepholeOptimization.getSideEffectFreeBigIntValue(left)
-				return func() *Tri {
+				return func() Tri {
 					if lvBig != nil {
 						return Tri_forBoolean(equalsRR_(lvBig, rvBig))
 					}
@@ -1150,7 +1150,7 @@ func PeepholeFoldConstants_tryAbstractEqualityComparison(peepholeOptimization *A
 					return Tri_FALSE
 				}
 				var rvBig *BigInteger = peepholeOptimization.getSideEffectFreeBigIntValue(right)
-				return func() *Tri {
+				return func() Tri {
 					if rvBig != nil {
 						return Tri_forBoolean(equalsRR_(lvBig, rvBig))
 					}
@@ -1187,9 +1187,9 @@ func PeepholeFoldConstants_tryAbstractEqualityComparison(peepholeOptimization *A
 	return Tri_UNKNOWN
 }
 
-func PeepholeFoldConstants_tryStrictEqualityComparison(peepholeOptimization *AbstractPeepholeOptimization, left Node, right Node) *Tri {
-	var leftValueType *NodeUtil_ValueType = NodeUtil_getKnownValueType(left)
-	var rightValueType *NodeUtil_ValueType = NodeUtil_getKnownValueType(right)
+func PeepholeFoldConstants_tryStrictEqualityComparison(peepholeOptimization *AbstractPeepholeOptimization, left Node, right Node) Tri {
+	var leftValueType NodeUtil_ValueType = NodeUtil_getKnownValueType(left)
+	var rightValueType NodeUtil_ValueType = NodeUtil_getKnownValueType(right)
 	if (leftValueType != NodeUtil_ValueType_UNDETERMINED) && (rightValueType != NodeUtil_ValueType_UNDETERMINED) {
 		if leftValueType != rightValueType {
 			return Tri_FALSE
@@ -1216,7 +1216,7 @@ func PeepholeFoldConstants_tryStrictEqualityComparison(peepholeOptimization *Abs
 				if (String_indexOf(lv.get(), 11) != -1) || (String_indexOf(rv.get(), 11) != -1) {
 					return Tri_UNKNOWN
 				} else {
-					return func() *Tri {
+					return func() Tri {
 						if Object_equals(lv.box_(), rv.box_()) {
 							return Tri_TRUE
 						}
@@ -1227,8 +1227,8 @@ func PeepholeFoldConstants_tryStrictEqualityComparison(peepholeOptimization *Abs
 				return Tri_TRUE
 			}
 		case NodeUtil_ValueType_BOOLEAN:
-			var lv *Tri = peepholeOptimization.getSideEffectFreeBooleanValue(left)
-			var rv *Tri = peepholeOptimization.getSideEffectFreeBooleanValue(right)
+			var lv Tri = peepholeOptimization.getSideEffectFreeBooleanValue(left)
+			var rv Tri = peepholeOptimization.getSideEffectFreeBooleanValue(right)
 			return lv.and(rv).or(lv.not().and(rv.not()))
 		case NodeUtil_ValueType_BIGINT:
 			var lv *BigInteger = peepholeOptimization.getSideEffectFreeBigIntValue(left)
@@ -1246,7 +1246,7 @@ func PeepholeFoldConstants_tryStrictEqualityComparison(peepholeOptimization *Abs
 	return Tri_UNKNOWN
 }
 
-func PeepholeFoldConstants_evaluateComparison(peepholeOptimization *AbstractPeepholeOptimization, op *Token_rhino, left Node, right Node) *Tri {
+func PeepholeFoldConstants_evaluateComparison(peepholeOptimization *AbstractPeepholeOptimization, op Token_rhino, left Node, right Node) Tri {
 	if peepholeOptimization.mayHaveSideEffects(left) || peepholeOptimization.mayHaveSideEffects(right) {
 		return Tri_UNKNOWN
 	}
