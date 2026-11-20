@@ -91,7 +91,10 @@ func (this SuggestedFix_ImportType) enum_() *Enum {
 func (this SuggestedFix_ImportType) name() string { return this.enum_().name_ }
 
 func (this SuggestedFix_ImportType) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this SuggestedFix_ImportType) toString() string {
