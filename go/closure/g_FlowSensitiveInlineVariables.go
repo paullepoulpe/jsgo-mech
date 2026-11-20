@@ -6,7 +6,7 @@ type FlowSensitiveInlineVariables struct {
 	compiler_           *AbstractCompiler
 	sideEffectPredicate *FlowSensitiveInlineVariables_SideEffectPredicate
 	cfg                 *ControlFlowGraph[Node]
-	candidates          *JTSet[*FlowSensitiveInlineVariables_Candidate]
+	candidates          *TSet[*FlowSensitiveInlineVariables_Candidate]
 	reachingDef         *MustBeReachingVariableDef
 	reachingUses        *MaybeReachingVariableUse
 }
@@ -50,39 +50,39 @@ func (this *FlowSensitiveInlineVariables) enterScope(t *NodeTraversal) {
 	}
 	var scopeCreator *SyntacticScopeCreator = cast_[*SyntacticScopeCreator](t.getScopeCreator())
 	this.cfg = ControlFlowAnalysis_builder().setCompiler(this.compiler_).setCfgRoot(functionScopeRoot).setIncludeEdgeAnnotations(true).computeCfg()
-	var escaped *JTSet[*Var] = jnewTSet_(tce_p_Var)
+	var escaped *TSet[*Var] = newTSet_(tch_p_Var)
 	var scope *Scope = t.getScope()
 	var allVarsDeclaredInFunction *NodeUtil_AllVarsDeclaredInFunction = NodeUtil_getAllVarsDeclaredInFunction(this.compiler_, SyntacticScopeCreator_as_ScopeCreator(scopeCreator), scope.getParent_rScope())
-	var allVarsInFn *JTMap[string, *Var] = allVarsDeclaredInFunction.getAllVariables()
+	var allVarsInFn *TMap[string, *Var] = allVarsDeclaredInFunction.getAllVariables()
 	DataFlowAnalysis_computeEscaped(scope.getParent_rScope(), escaped, this.compiler_, SyntacticScopeCreator_as_ScopeCreator(scopeCreator), allVarsInFn)
 	this.reachingDef = new_MustBeReachingVariableDef(this.cfg, this.compiler_, escaped, allVarsInFn)
 	this.reachingDef.analyze()
-	this.candidates = jnewTSet_(jtc_p_FlowSensitiveInlineVariables_Candidate)
+	this.candidates = newTSet_(tc_p_FlowSensitiveInlineVariables_Candidate)
 	NodeTraversal_traverse(this.compiler_, t.getScopeRoot(), NodeTraversal_Callback(new_FlowSensitiveInlineVariables_GatherCandidates(this)))
 	this.reachingUses = new_MaybeReachingVariableUse(this.cfg, escaped, allVarsInFn)
 	this.reachingUses.analyze()
-	for !this.candidates.isEmpty() {
+	for !this.candidates.IsEmpty() {
 		var c *FlowSensitiveInlineVariables_Candidate = cast_[*FlowSensitiveInlineVariables_Candidate](first_(this.candidates))
-		var candidateVar *Var = allVarsInFn.get(c.varName_)
+		var candidateVar *Var = allVarsInFn.Get(c.varName_)
 		if candidateVar == nil {
 			panic(new_NullPointerException_0())
 		}
 		if c.canInline(candidateVar.getScope_rAbstractScope_rScope()) {
 			c.inlineVariable()
-			this.candidates.remove(c)
-			if !c.defMetadata.depends.isEmpty() {
+			this.candidates.Delete(c)
+			if !c.defMetadata.depends.IsEmpty() {
 				{
 					var it IteratorOf[*FlowSensitiveInlineVariables_Candidate] = this.candidates.iterator()
 					for it.hasNext() {
 						var other *FlowSensitiveInlineVariables_Candidate = cast_[*FlowSensitiveInlineVariables_Candidate](it.next())
-						if other.defMetadata.depends.contains(t.getScope().getVar_String_rVar(c.varName_)) && !other.defMetadata.depends.asSet().containsAll(Collection(c.defMetadata.depends.asSet())) {
+						if other.defMetadata.depends.Has(t.getScope().getVar_String_rVar(c.varName_)) && !other.defMetadata.depends.asSet().containsAll(Collection(c.defMetadata.depends.asSet())) {
 							Iterator_remove(it)
 						}
 					}
 				}
 			}
 		} else {
-			this.candidates.remove(c)
+			this.candidates.Delete(c)
 		}
 	}
 }
@@ -176,7 +176,7 @@ func FlowSensitiveInlineVariables_checkPreExpressions(n Node, expressionRoot Nod
 
 type FlowSensitiveInlineVariables_SideEffectPredicate struct {
 	outer_       *FlowSensitiveInlineVariables
-	namesToCheck *JTSet[string]
+	namesToCheck *TSet[string]
 }
 
 func (this *FlowSensitiveInlineVariables_SideEffectPredicate) init_FlowSensitiveInlineVariables_SideEffectPredicate_0() {
@@ -190,11 +190,11 @@ func new_FlowSensitiveInlineVariables_SideEffectPredicate_0(outer_ *FlowSensitiv
 	return this
 }
 
-func (this *FlowSensitiveInlineVariables_SideEffectPredicate) init_FlowSensitiveInlineVariables_SideEffectPredicate_Set(names *JTSet[string]) {
+func (this *FlowSensitiveInlineVariables_SideEffectPredicate) init_FlowSensitiveInlineVariables_SideEffectPredicate_Set(names *TSet[string]) {
 	this.namesToCheck = names
 }
 
-func new_FlowSensitiveInlineVariables_SideEffectPredicate_Set(outer_ *FlowSensitiveInlineVariables, names *JTSet[string]) *FlowSensitiveInlineVariables_SideEffectPredicate {
+func new_FlowSensitiveInlineVariables_SideEffectPredicate_Set(outer_ *FlowSensitiveInlineVariables, names *TSet[string]) *FlowSensitiveInlineVariables_SideEffectPredicate {
 	this := &FlowSensitiveInlineVariables_SideEffectPredicate{}
 	this.outer_ = outer_
 	this.init_FlowSensitiveInlineVariables_SideEffectPredicate_Set(names)
@@ -207,7 +207,7 @@ func (this *FlowSensitiveInlineVariables_SideEffectPredicate) apply(n_ any) bool
 	if n == 0 {
 		return false
 	}
-	if (((this.namesToCheck != nil) && n.isName()) && this.namesToCheck.contains(n.getString())) && NodeUtil_isLValue(n) {
+	if (((this.namesToCheck != nil) && n.isName()) && this.namesToCheck.Has(n.getString())) && NodeUtil_isLValue(n) {
 		return !FlowSensitiveInlineVariables_isTopLevelAssignTarget(n)
 	}
 	var astAnalyzer *AstAnalyzer = this.outer_.compiler_.getAstAnalyzer()
@@ -286,7 +286,7 @@ func (this *FlowSensitiveInlineVariables_GatherCandidatesCfgNodeCallback) visit_
 		}
 		var def *MustBeReachingVariableDef_Definition = this.outer_.reachingDef.getDef(name, this.cfgNode)
 		if (def != nil) && !this.outer_.reachingDef.dependsOnOuterScopeVars(def) {
-			this.outer_.candidates.add(new_FlowSensitiveInlineVariables_Candidate(this.outer_, name, def, n, this.cfgNode))
+			this.outer_.candidates.Add(new_FlowSensitiveInlineVariables_Candidate(this.outer_, name, def, n, this.cfgNode))
 		}
 	}
 }
@@ -379,12 +379,12 @@ func (this *FlowSensitiveInlineVariables_Candidate) canInline(scope *Scope) bool
 	if this.def.isAssign() && !NodeUtil_isExprAssign(this.def.getParent()) {
 		return false
 	}
-	var namesToCheck *JTSet[string] = jnewTSet_(jtc_string)
+	var namesToCheck *TSet[string] = newTSet_(tc_string)
 	if this.defMetadata.depends != nil {
 		it_1 := this.defMetadata.depends.each()
 		for it_1.next() {
 			var var_ *Var = it_1.v
-			namesToCheck.add(var_.getName())
+			namesToCheck.Add(var_.getName())
 		}
 	}
 	var sideEffectPredicateWithNames *FlowSensitiveInlineVariables_SideEffectPredicate = new_FlowSensitiveInlineVariables_SideEffectPredicate_Set(this.outer_, namesToCheck)

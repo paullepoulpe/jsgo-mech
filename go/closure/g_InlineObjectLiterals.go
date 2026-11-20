@@ -28,11 +28,11 @@ const InlineObjectLiterals_STRING_KEY_IDENTIFIER string = "string_key"
 
 type InlineObjectLiterals_InliningBehavior struct {
 	outer_    *InlineObjectLiterals
-	staleVars *JTSet[*Var]
+	staleVars *TSet[*Var]
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) finit_InlineObjectLiterals_InliningBehavior() {
-	this.staleVars = jnewTSet_(tce_p_Var)
+	this.staleVars = newTSet_(tch_p_Var)
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) init_InlineObjectLiterals_InliningBehavior() {
@@ -56,7 +56,7 @@ func (this *InlineObjectLiterals_InliningBehavior) afterExitScope(t *NodeTravers
 			continue
 		}
 		if this.isInlinableObject(referenceInfo.references) {
-			this.staleVars.add(v)
+			this.staleVars.Add(v)
 			var init_ *Reference = referenceInfo.getInitializingReference()
 			this.splitObject(v, init_, referenceInfo)
 		}
@@ -68,12 +68,12 @@ func (this *InlineObjectLiterals_InliningBehavior) recordStaleVarReferencesInTre
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) isVarInlineForbidden(var_ *Var) bool {
-	return ((((var_.isGlobal() || var_.isExtern()) || this.outer_.compiler_.getCodingConvention().isExported_2(var_.getName(), true)) || this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(var_.getNameNode())) || this.staleVars.contains(var_))
+	return ((((var_.isGlobal() || var_.isExtern()) || this.outer_.compiler_.getCodingConvention().isExported_2(var_.getName(), true)) || this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(var_.getNameNode())) || this.staleVars.Has(var_))
 }
 
-func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *JTList[*Reference]) bool {
+func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *TList[*Reference]) bool {
 	var ret bool = false
-	var validProperties *JTSet[string] = jnewTSet_(jtc_string)
+	var validProperties *TSet[string] = newTSet_(tc_string)
 	it_1 := refs.each()
 	for it_1.next() {
 		var ref *Reference = it_1.v
@@ -91,9 +91,9 @@ func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *JTLis
 				return false
 			}
 			var propName string = parent.getString()
-			if !validProperties.contains(propName) {
+			if !validProperties.Has(propName) {
 				if NodeUtil_isNameDeclOrSimpleAssignLhs(parent, grandparent) {
-					validProperties.add(propName)
+					validProperties.Add(propName)
 				} else {
 					return false
 				}
@@ -123,7 +123,7 @@ func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *JTLis
 				default:
 					panic(new_IllegalStateException_String(("Unexpected child of OBJECTLIT: " + sstr_(child.toStringTree()))))
 				}
-				validProperties.add(child.getString())
+				validProperties.Add(child.getString())
 				var childVal Node = child.getFirstChild()
 				it_5 := refs.each()
 				for it_5.next() {
@@ -148,8 +148,8 @@ func (this *InlineObjectLiterals_InliningBehavior) isVarOrAssignExprLhs(n Node) 
 	return (NodeUtil_isNameDeclaration(parent) || ((parent.isAssign() && (parent.getFirstChild() == n)) && parent.getParent().isExprResult()))
 }
 
-func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo *ReferenceCollection) *JTMap[string, string] {
-	var varmap *JTMap[string, string] = jnewTMap_(jtc_string, jtc_string)
+func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo *ReferenceCollection) *TMap[string, string] {
+	var varmap *TMap[string, string] = newTMap_(tc_string, tc_string)
 	it_1 := referenceInfo.references.each()
 	for it_1.next() {
 		var ref *Reference = it_1.v
@@ -163,7 +163,7 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 					var child Node = val.getFirstChild()
 					for ; child != 0; child = child.getNext() {
 						var varname string = child.getString()
-						if varmap.containsKey(varname) {
+						if varmap.Has(varname) {
 							continue
 						}
 						var var_ string = varname
@@ -171,7 +171,7 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 							var_ = InlineObjectLiterals_STRING_KEY_IDENTIFIER
 						}
 						var_ = (sstr_(InlineObjectLiterals_VAR_PREFIX) + sstr_(var_) + "_" + sstr_(str_(this.outer_.safeNameIdSupplier_.get())))
-						varmap.put(varname, var_)
+						varmap.Put(varname, var_)
 					}
 				}
 			}
@@ -182,17 +182,17 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 				panic(new_IllegalStateException_String(tostr_(getprop)))
 			}
 			var varname string = getprop.getString()
-			if varmap.containsKey(varname) {
+			if varmap.Has(varname) {
 				continue
 			}
 			var var_ string = (sstr_(InlineObjectLiterals_VAR_PREFIX) + sstr_(varname) + "_" + sstr_(str_(this.outer_.safeNameIdSupplier_.get())))
-			varmap.put(varname, var_)
+			varmap.Put(varname, var_)
 		}
 	}
 	return varmap
 }
 
-func (this *InlineObjectLiterals_InliningBehavior) fillInitialValues(init_ *Reference, initvals *JTMap[string, Node]) {
+func (this *InlineObjectLiterals_InliningBehavior) fillInitialValues(init_ *Reference, initvals *TMap[string, Node]) {
 	var object Node = init_.getAssignedValue()
 	if !object.isObjectLit() {
 		panic(new_IllegalStateException_String(tostr_(object)))
@@ -200,32 +200,32 @@ func (this *InlineObjectLiterals_InliningBehavior) fillInitialValues(init_ *Refe
 	{
 		var key Node = object.getFirstChild()
 		for ; key != 0; key = key.getNext() {
-			initvals.put(key.getString(), key.removeFirstChild())
+			initvals.Put(key.getString(), key.removeFirstChild())
 		}
 	}
 }
 
-func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v *Var, ref *Reference, varmap *JTMap[string, string]) {
+func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v *Var, ref *Reference, varmap *TMap[string, string]) {
 	var nodes ListOf[Node] = new_ArrayList_0()
 	var val Node = ref.getAssignedValue()
 	this.recordStaleVarReferencesInTree(val, v.getScope_rAbstractScope_rScope())
 	if !val.isObjectLit() {
 		panic(new_IllegalStateException_String(tostr_(val)))
 	}
-	var all *JTSet[string] = jtsetFrom_(jtc_string, Collection(varmap.asMap().keySet()))
+	var all *TSet[string] = tsetFrom_(tc_string, Collection(varmap.asMap().keySet()), false)
 	{
 		var key Node = val.getFirstChild()
 		for ; key != 0; key = key.getNext() {
 			var var_ string = key.getString()
 			var value Node = key.removeFirstChild()
-			nodes.add(IR_assign(IR_name(varmap.get(var_)), value).box_())
-			all.remove(var_)
+			nodes.add(IR_assign(IR_name(varmap.Get(var_)), value).box_())
+			all.Delete(var_)
 		}
 	}
 	it_2 := all.each()
 	for it_2.next() {
 		var var_ string = it_2.v
-		nodes.add(IR_assign(IR_name(varmap.get(var_)), NodeUtil_newUndefinedNode(0)).box_())
+		nodes.add(IR_assign(IR_name(varmap.Get(var_)), NodeUtil_newUndefinedNode(0)).box_())
 	}
 	var replacement Node
 	if nodes.isEmpty() {
@@ -258,8 +258,8 @@ func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Reference, referenceInfo *ReferenceCollection) {
-	var varmap *JTMap[string, string] = this.computeVarList(referenceInfo)
-	var initvals *JTMap[string, Node] = jnewTMap_(jtc_string, jtc_Node)
+	var varmap *TMap[string, string] = this.computeVarList(referenceInfo)
+	var initvals *TMap[string, Node] = newTMap_(tc_string, tc_Node)
 	var vnode Node
 	var isBlockScoped bool = (v.isLet() || v.isConst())
 	var defined bool = (referenceInfo.isWellDefined() && NodeUtil_isNameDeclaration(init_.getParent()))
@@ -280,7 +280,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 	if !NodeUtil_isStatement(vnode) {
 		panic(new_IllegalStateException_String(tostr_(vnode)))
 	}
-	if isBlockScoped && !varmap.isEmpty() {
+	if isBlockScoped && !varmap.IsEmpty() {
 		var script Node = NodeUtil_getEnclosingScript(vnode)
 		if script != 0 {
 			NodeUtil_addFeatureToScript(script, FeatureSet_Feature_LET_DECLARATIONS, this.outer_.compiler_)
@@ -289,7 +289,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 	it_1 := varmap.eachEntry()
 	for it_1.next() {
 		var entry *TEntry[string, string] = it_1.entry()
-		var val Node = initvals.get(entry.getKey())
+		var val Node = initvals.Get(entry.getKey())
 		var lhs Node = IR_name(entry.getValue())
 		var declarationType Token_rhino = func() Token_rhino {
 			if isBlockScoped {
@@ -328,10 +328,10 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 				panic(new_IllegalStateException_String(tostr_(getprop)))
 			}
 			var var_ string = getprop.getString()
-			if !varmap.containsKey(var_) {
+			if !varmap.Has(var_) {
 				panic(new_IllegalStateException_0())
 			}
-			var replacement Node = IR_name(varmap.get(var_))
+			var replacement Node = IR_name(varmap.Get(var_))
 			replacement.srcrefIfMissing(getprop)
 			ref.getParent().replaceWith(replacement)
 		}
@@ -365,6 +365,6 @@ func new_InlineObjectLiterals_InliningBehavior_1(outer_ *InlineObjectLiterals_In
 
 func (this *InlineObjectLiterals_InliningBehavior_1) visit(node Node) {
 	if node.isName() {
-		this.outer_.staleVars.add(this.cap_scope.getVar_String_rVar(node.getString()))
+		this.outer_.staleVars.Add(this.cap_scope.getVar_String_rVar(node.getString()))
 	}
 }

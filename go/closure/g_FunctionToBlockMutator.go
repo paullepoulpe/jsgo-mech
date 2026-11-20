@@ -38,13 +38,13 @@ func (this *FunctionToBlockMutator) mutateInternal(fnName string, fnNode Node, c
 		this.makeLocalNamesUnique(newFnNode, isCallInLoop)
 		FunctionToBlockMutator_rewriteFunctionDeclarations(newFnNode.getLastChild())
 	}
-	var modifiedParameters *JTSet[string] = this.functionArgumentInjector_.findModifiedParameters(newFnNode)
-	var args *JTMap[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(newFnNode, callNode, this.safeNameIdSupplier_)
-	var hasArgs bool = !args.isEmpty()
-	var allNamesToAlias *JTSet[string] = jtsetEmptyImm_(jtc_string)
+	var modifiedParameters *TSet[string] = this.functionArgumentInjector_.findModifiedParameters(newFnNode)
+	var args *TMap[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(newFnNode, callNode, this.safeNameIdSupplier_)
+	var hasArgs bool = !args.IsEmpty()
+	var allNamesToAlias *TSet[string] = tsetEmptyImm_(tc_string)
 	if hasArgs {
-		var temps *JTSet[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, newFnNode, args, modifiedParameters, this.compiler_.getCodingConvention())
-		allNamesToAlias = tsetImm_(jtc_string, ImmutableSet_builder().addAll(Iterable(modifiedParameters.asSet())).addAll(Iterable(temps.asSet())).build())
+		var temps *TSet[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, newFnNode, args, modifiedParameters, this.compiler_.getCodingConvention())
+		allNamesToAlias = tsetImm_(tc_string, ImmutableSet_builder().addAll(Iterable(modifiedParameters.asSet())).addAll(Iterable(temps.asSet())).build())
 	}
 	var newBlock Node = NodeUtil_getFunctionBody(newFnNode)
 	newBlock.detach()
@@ -78,7 +78,7 @@ func FunctionToBlockMutator_rewriteFunctionDeclarations(n Node) Node {
 		}
 		return 0
 	}
-	var functionsToHoist *JTList[Node] = jnewTList_(jtc_Node)
+	var functionsToHoist *TList[Node] = newTList_(tc_Node)
 	{
 		var c Node = n.getFirstChild()
 		var next Node
@@ -189,13 +189,13 @@ func (this *FunctionToBlockMutator) getUniqueThisName() string {
 	return ("JSCompiler_inline_this_" + sstr_(str_(this.safeNameIdSupplier_.get())))
 }
 
-func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node, paramToArgMap *JTMap[string, *FunctionArgumentInjector_ParamArgPair], namesToAlias *JTSet[string]) Node {
-	if (namesToAlias == nil) || namesToAlias.isEmpty() {
-		var replacements *JTMap[string, Node] = jnewTMap_(jtc_string, jtc_Node)
+func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node, paramToArgMap *TMap[string, *FunctionArgumentInjector_ParamArgPair], namesToAlias *TSet[string]) Node {
+	if (namesToAlias == nil) || namesToAlias.IsEmpty() {
+		var replacements *TMap[string, Node] = newTMap_(tc_string, tc_Node)
 		it_1 := paramToArgMap.eachEntry()
 		for it_1.next() {
 			var entry *TEntry[string, *FunctionArgumentInjector_ParamArgPair] = it_1.entry()
-			replacements.put(entry.getKey(), entry.getValue().arg())
+			replacements.Put(entry.getKey(), entry.getValue().arg())
 		}
 		var result Node = this.functionArgumentInjector_.inject(this.compiler_, fnTemplateRoot, 0, replacements)
 		if result != fnTemplateRoot {
@@ -203,15 +203,15 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 		}
 		return result
 	} else {
-		var paramReplacements *JTMap[string, Node] = jnewTMap_(jtc_string, jtc_Node)
-		var newAliasesToAdd *JTList[Node] = jnewTList_(jtc_Node)
+		var paramReplacements *TMap[string, Node] = newTMap_(tc_string, tc_Node)
+		var newAliasesToAdd *TList[Node] = newTList_(tc_Node)
 		it_3 := paramToArgMap.eachEntry()
 		for it_3.next() {
 			var entry *TEntry[string, *FunctionArgumentInjector_ParamArgPair] = it_3.entry()
 			var name string = entry.getKey()
 			var arg *FunctionArgumentInjector_ParamArgPair = entry.getValue()
-			if !namesToAlias.contains(name) {
-				paramReplacements.put(name, arg.arg())
+			if !namesToAlias.Has(name) {
+				paramReplacements.Put(name, arg.arg())
 				continue
 			}
 			if name == FunctionArgumentInjector_THIS_MARKER {
@@ -225,7 +225,7 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 					newAliasesToAdd.insert(0, newNode)
 					replacement = IR_name(newName).srcrefTree(newValue)
 				}
-				paramReplacements.put(FunctionArgumentInjector_THIS_MARKER, replacement)
+				paramReplacements.Put(FunctionArgumentInjector_THIS_MARKER, replacement)
 			} else {
 				var newName Node = arg.paramNode().cloneNode()
 				var newValue Node = arg.arg().cloneTree()

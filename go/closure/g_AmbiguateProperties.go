@@ -4,26 +4,26 @@ package closure
 
 type AmbiguateProperties struct {
 	compiler_                  *AbstractCompiler
-	stringNodesToRename        *JTList[Node]
-	reservedFirstCharacters    *JTSet[any]
-	reservedNonFirstCharacters *JTSet[any]
-	propertyMap                *JTMap[string, *AmbiguateProperties_Property]
-	externedNames              *JTSet[string]
-	quotedNames                *JTSet[string]
+	stringNodesToRename        *TList[Node]
+	reservedFirstCharacters    *TSet[any]
+	reservedNonFirstCharacters *TSet[any]
+	propertyMap                *TMap[string, *AmbiguateProperties_Property]
+	externedNames              *TSet[string]
+	quotedNames                *TSet[string]
 	colorRegistry              *ColorRegistry
-	renamingMap                *JTMap[string, string]
+	renamingMap                *TMap[string, string]
 	graphNodeFactory           *ColorGraphNodeFactory
 }
 
 func (this *AmbiguateProperties) finit_AmbiguateProperties() {
-	this.stringNodesToRename = jnewTList_(jtc_Node)
-	this.propertyMap = jnewTMap_(jtc_string, jtc_p_AmbiguateProperties_Property)
-	this.quotedNames = jnewTSet_(jtc_string)
+	this.stringNodesToRename = newTList_(tc_Node)
+	this.propertyMap = newTMap_(tc_string, tc_p_AmbiguateProperties_Property)
+	this.quotedNames = newTSet_(tc_string)
 	this.renamingMap = nil
 	this.graphNodeFactory = nil
 }
 
-func (this *AmbiguateProperties) init_AmbiguateProperties(compiler *AbstractCompiler, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any], externProperties *JTSet[string]) {
+func (this *AmbiguateProperties) init_AmbiguateProperties(compiler *AbstractCompiler, reservedFirstCharacters *TSet[any], reservedNonFirstCharacters *TSet[any], externProperties *TSet[string]) {
 	this.finit_AmbiguateProperties()
 	if !compiler.getLifeCycleStage().isNormalized() {
 		panic(new_IllegalStateException_0())
@@ -31,23 +31,23 @@ func (this *AmbiguateProperties) init_AmbiguateProperties(compiler *AbstractComp
 	this.compiler_ = compiler
 	this.reservedFirstCharacters = reservedFirstCharacters
 	this.reservedNonFirstCharacters = reservedNonFirstCharacters
-	this.externedNames = tsetImm_(jtc_string, immutableSetBuilder_(tc_string).add("prototype").addAll(Iterable(externProperties.asSet())).buildErased())
+	this.externedNames = tsetImm_(tc_string, immutableSetBuilder_(tc_string).add("prototype").addAll(Iterable(externProperties.asSet())).buildErased())
 	this.colorRegistry = compiler.getColorRegistry()
 }
 
-func new_AmbiguateProperties(compiler *AbstractCompiler, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any], externProperties *JTSet[string]) *AmbiguateProperties {
+func new_AmbiguateProperties(compiler *AbstractCompiler, reservedFirstCharacters *TSet[any], reservedNonFirstCharacters *TSet[any], externProperties *TSet[string]) *AmbiguateProperties {
 	this := &AmbiguateProperties{}
 	this.init_AmbiguateProperties(compiler, reservedFirstCharacters, reservedNonFirstCharacters, externProperties)
 	return this
 }
 
-func AmbiguateProperties_makePassForTesting(compiler *AbstractCompiler, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any], externProperties *JTSet[string]) *AmbiguateProperties {
+func AmbiguateProperties_makePassForTesting(compiler *AbstractCompiler, reservedFirstCharacters *TSet[any], reservedNonFirstCharacters *TSet[any], externProperties *TSet[string]) *AmbiguateProperties {
 	var ap *AmbiguateProperties = new_AmbiguateProperties(compiler, reservedFirstCharacters, reservedNonFirstCharacters, externProperties)
-	ap.renamingMap = jnewTMap_(jtc_string, jtc_string)
+	ap.renamingMap = newTMap_(tc_string, tc_string)
 	return ap
 }
 
-func (this *AmbiguateProperties) getRenamingMap() *JTMap[string, string] {
+func (this *AmbiguateProperties) getRenamingMap() *TMap[string, string] {
 	if this.renamingMap.asMap() == nil {
 		panic(new_NullPointerException_0())
 	}
@@ -81,15 +81,15 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		supertype.getSubtypeIndices().or(subtype.getSubtypeIndices())
 		return (supertype.getSubtypeIndices().cardinality() > startSize)
 	}}).computeFixedPoint(colorGraph.up_DiGraph())
-	it_4 := this.propertyMap.eachValue()
+	it_4 := this.propertyMap.each()
 	for it_4.next() {
 		var prop *AmbiguateProperties_Property = it_4.v
 		if prop.relatedColorsSeeds == nil {
 			continue
 		}
-		it_6 := prop.relatedColorsSeeds.eachKey()
+		it_6 := prop.relatedColorsSeeds.each()
 		for it_6.next() {
-			var color *ColorGraphNode = it_6.v
+			var color *ColorGraphNode = it_6.k
 			prop.relatedColors.or(color.getSubtypeIndices())
 		}
 		prop.relatedColorsSeeds = nil
@@ -97,8 +97,8 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	var reservedNames ImmutableSet_BuilderOf[string] = ImmutableSet_builder().addAll(Iterable(this.externedNames.asSet())).addAll(Iterable(this.quotedNames.asSet()))
 	var numRenamedPropertyNames int32 = 0
 	var numSkippedPropertyNames int32 = 0
-	var nodes *JTList[*AmbiguateProperties_PropertyGraphNode] = jnewTListN_(jtc_p_AmbiguateProperties_PropertyGraphNode, this.propertyMap.size())
-	it_8 := this.propertyMap.eachValue()
+	var nodes *TList[*AmbiguateProperties_PropertyGraphNode] = newTListN_(tc_p_AmbiguateProperties_PropertyGraphNode, this.propertyMap.Len())
+	it_8 := this.propertyMap.each()
 	for it_8.next() {
 		var prop *AmbiguateProperties_Property = it_8.v
 		if prop.skipAmbiguating {
@@ -129,14 +129,14 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		var node *AmbiguateProperties_PropertyGraphNode = it_11.v
 		node.getValue().newName = Optional_of[string](colorMap[hashR_(Annotatable_getAnnotation(AmbiguateProperties_PropertyGraphNode_as_Annotatable(node)))])
 		if this.renamingMap != nil {
-			this.renamingMap.put(node.getValue().oldName, node.getValue().newName.orElse(nullstr_))
+			this.renamingMap.Put(node.getValue().oldName, node.getValue().newName.orElse(nullstr_))
 		}
 	}
 	it_13 := this.stringNodesToRename.each()
 	for it_13.next() {
 		var n Node = it_13.v
 		var oldName string = n.getString()
-		var p *AmbiguateProperties_Property = this.propertyMap.get(oldName)
+		var p *AmbiguateProperties_Property = this.propertyMap.Get(oldName)
 		if (p != nil) && p.newName.isPresent() {
 			if oldName != p.oldName {
 				panic(new_IllegalStateException_0())
@@ -191,20 +191,20 @@ func AmbiguateProperties_clinit() {
 }
 
 type AmbiguateProperties_PropertyGraph struct {
-	nodes_ *JTList[*AmbiguateProperties_PropertyGraphNode]
+	nodes_ *TList[*AmbiguateProperties_PropertyGraphNode]
 }
 
-func (this *AmbiguateProperties_PropertyGraph) init_AmbiguateProperties_PropertyGraph(nodes *JTList[*AmbiguateProperties_PropertyGraphNode]) {
+func (this *AmbiguateProperties_PropertyGraph) init_AmbiguateProperties_PropertyGraph(nodes *TList[*AmbiguateProperties_PropertyGraphNode]) {
 	this.nodes_ = nodes
 }
 
-func new_AmbiguateProperties_PropertyGraph(nodes *JTList[*AmbiguateProperties_PropertyGraphNode]) *AmbiguateProperties_PropertyGraph {
+func new_AmbiguateProperties_PropertyGraph(nodes *TList[*AmbiguateProperties_PropertyGraphNode]) *AmbiguateProperties_PropertyGraph {
 	this := &AmbiguateProperties_PropertyGraph{}
 	this.init_AmbiguateProperties_PropertyGraph(nodes)
 	return this
 }
 
-func (this *AmbiguateProperties_PropertyGraph) getNodes_rList() *JTList[*AmbiguateProperties_PropertyGraphNode] {
+func (this *AmbiguateProperties_PropertyGraph) getNodes_rList() *TList[*AmbiguateProperties_PropertyGraphNode] {
 	return this.nodes_
 }
 
@@ -387,11 +387,11 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processObjectP
 	switch key.ns_().token {
 	case tokOrd1_COMPUTED_PROP:
 		if key.getFirstChild().isStringLit() {
-			this.outer_.quotedNames.add(key.getFirstChild().getString())
+			this.outer_.quotedNames.Add(key.getFirstChild().getString())
 		}
 	case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_STRING_KEY:
 		if key.isQuotedStringKey() {
-			this.outer_.quotedNames.add(key.getString())
+			this.outer_.quotedNames.Add(key.getString())
 		} else {
 			this.maybeMarkCandidate(key, type_)
 		}
@@ -417,16 +417,16 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processObjectL
 func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processGetElem(n Node) {
 	var child Node = n.getLastChild()
 	if child.isStringLit() {
-		this.outer_.quotedNames.add(child.getString())
+		this.outer_.quotedNames.Add(child.getString())
 	}
 }
 
 func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processClass(classNode Node) {
 	var classConstructorType *Color = this.outer_.getColor(classNode)
 	this.outer_.graphNodeFactory.createNode(classConstructorType)
-	var possiblePrototypes *JTSet[*Color] = classConstructorType.getPrototypes()
+	var possiblePrototypes *TSet[*Color] = classConstructorType.getPrototypes()
 	var classPrototype *Color = func() *Color {
-		if possiblePrototypes.isEmpty() {
+		if possiblePrototypes.IsEmpty() {
 			return StandardColors_UNKNOWN
 		}
 		return Color_createUnion(possiblePrototypes)
@@ -435,11 +435,11 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processClass(c
 		var member Node = NodeUtil_getClassMembers(classNode).getFirstChild()
 		for ; member != 0; member = member.getNext() {
 			if member.isQuotedStringKey() {
-				this.outer_.quotedNames.add(member.getString())
+				this.outer_.quotedNames.Add(member.getString())
 				continue
 			} else if member.isComputedProp() || member.isComputedFieldDef() {
 				if member.getFirstChild().isStringLit() {
-					this.outer_.quotedNames.add(member.getFirstChild().getString())
+					this.outer_.quotedNames.Add(member.getFirstChild().getString())
 				}
 				continue
 			} else if NodeUtil_isEs6ConstructorMemberFunctionDef(member) {
@@ -451,9 +451,9 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processClass(c
 			if member.isStaticMember() {
 				memberOwnerColor = classConstructorType
 			} else if member.isMemberFieldDef() {
-				var possibleInstances *JTSet[*Color] = classConstructorType.getInstanceColors()
+				var possibleInstances *TSet[*Color] = classConstructorType.getInstanceColors()
 				memberOwnerColor = func() *Color {
-					if possibleInstances.isEmpty() {
+					if possibleInstances.IsEmpty() {
 						return StandardColors_UNKNOWN
 					}
 					return Color_createUnion(possibleInstances)
@@ -471,7 +471,7 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processClass(c
 
 func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) maybeMarkCandidate(n Node, type_ *Color) {
 	var name string = n.getString()
-	if !this.outer_.externedNames.contains(name) {
+	if !this.outer_.externedNames.Has(name) {
 		this.outer_.stringNodesToRename.add(n)
 		this.recordProperty(name, type_)
 	}
@@ -489,7 +489,7 @@ type AmbiguateProperties_Property struct {
 	newName            Optional[string]
 	numOccurrences     int32
 	skipAmbiguating    bool
-	relatedColorsSeeds *JTMap[*ColorGraphNode, any]
+	relatedColorsSeeds *TMap[*ColorGraphNode, any]
 	relatedColors      *BitSet
 }
 
@@ -526,10 +526,10 @@ func (this *AmbiguateProperties_Property) addRelatedColor(color *Color) {
 		return
 	}
 	if this.relatedColorsSeeds == nil {
-		this.relatedColorsSeeds = jnewTMap_(jtc_p_ColorGraphNode, tc_Integer)
+		this.relatedColorsSeeds = newTMap_(tc_p_ColorGraphNode, tc_Integer)
 	}
 	var newColorGraphNode *ColorGraphNode = this.outer_.graphNodeFactory.createNode(color)
-	this.relatedColorsSeeds.put(newColorGraphNode, int32(0))
+	this.relatedColorsSeeds.Put(newColorGraphNode, int32(0))
 }
 
 // visit: an object that is exactly a AmbiguateProperties_ProcessPropertiesAndConstructors calls its visit_impl directly (post-flip); others dispatch.

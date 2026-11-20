@@ -4,7 +4,7 @@ package closure
 
 type BlockTree struct {
 	ParseTree
-	statements *JTList[*ParseTree]
+	statements *TList[*ParseTree]
 }
 
 func (this *BlockTree) up_ParseTree() *ParseTree {
@@ -14,12 +14,12 @@ func (this *BlockTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *BlockTree) init_BlockTree(location *SourceRange, statements *JTList[*ParseTree]) {
+func (this *BlockTree) init_BlockTree(location *SourceRange, statements *TList[*ParseTree]) {
 	this.ParseTree.init_ParseTree(ParseTreeType_BLOCK, location)
 	this.statements = statements
 }
 
-func new_BlockTree(location *SourceRange, statements *JTList[*ParseTree]) *BlockTree {
+func new_BlockTree(location *SourceRange, statements *TList[*ParseTree]) *BlockTree {
 	this := &BlockTree{}
 	this.self_ = this
 	this.init_BlockTree(location, statements)

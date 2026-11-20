@@ -37,7 +37,7 @@ func (this *Tracer) init_Tracer_Optional_Optional(type_ Optional[string], commen
 		Tracer_logger.log(Level_WARNING, "Giant thread trace. Too many Tracers created. Clearing to avoid memory leak.", new_Throwable_String(trace.toString()))
 		trace.truncateEvents()
 	}
-	if trace.outstandingEvents.size() >= Tracer_MAX_TRACE_SIZE {
+	if trace.outstandingEvents.Len() >= Tracer_MAX_TRACE_SIZE {
 		Tracer_logger.log(Level_WARNING, "Too many outstanding Tracers. Tracer.stop() is missing or Tracer.stop() is not wrapped in a try/finally block. Clearing to avoid memory leak.", new_Throwable_String(trace.toString()))
 		trace.truncateOutstandingEvents()
 	}
@@ -230,7 +230,7 @@ func Tracer_getTypeToTimeMap() MapOf[string, BoxedOf[int64]] {
 }
 
 func Tracer_getStatsForType(type_ string) *Tracer_Stat {
-	var stat *Tracer_Stat = Tracer_getThreadTrace().stats.get(type_)
+	var stat *Tracer_Stat = Tracer_getThreadTrace().stats.Get(type_)
 	return func() *Tracer_Stat {
 		if stat != nil {
 			return stat
@@ -397,9 +397,9 @@ func (this *Tracer_Event) toString(prevEventTime int64, indent string, digitsCol
 
 type Tracer_ThreadTrace struct {
 	defaultSilenceThreshold      int32
-	events                       *JTList[*Tracer_Event]
-	outstandingEvents            *JTSet[*Tracer]
-	stats                        *JTMap[string, *Tracer_Stat]
+	events                       *TList[*Tracer_Event]
+	outstandingEvents            *TSet[*Tracer]
+	stats                        *TMap[string, *Tracer_Stat]
 	isOutstandingEventsTruncated bool
 	isEventsTruncated            bool
 	isInitializedField           bool
@@ -407,9 +407,9 @@ type Tracer_ThreadTrace struct {
 }
 
 func (this *Tracer_ThreadTrace) finit_Tracer_ThreadTrace() {
-	this.events = jnewTList_(jtc_p_Tracer_Event)
-	this.outstandingEvents = jnewTSet_(jtc_p_Tracer)
-	this.stats = jnewTMap_(jtc_string, jtc_p_Tracer_Stat)
+	this.events = newTList_(tc_p_Tracer_Event)
+	this.outstandingEvents = newTSet_(tc_p_Tracer)
+	this.stats = newTMap_(tc_string, tc_p_Tracer_Stat)
 	this.isOutstandingEventsTruncated = false
 	this.isEventsTruncated = false
 	this.isInitializedField = false
@@ -436,14 +436,14 @@ func (this *Tracer_ThreadTrace) isInitialized() bool {
 
 func (this *Tracer_ThreadTrace) startEvent(t *Tracer) {
 	this.events.add(new_Tracer_Event(true, t))
-	var notAlreadyOutstanding bool = this.outstandingEvents.add(t)
+	var notAlreadyOutstanding bool = this.outstandingEvents.Add(t)
 	if !notAlreadyOutstanding {
 		panic(new_IllegalStateException_0())
 	}
 }
 
 func (this *Tracer_ThreadTrace) endEvent(t *Tracer, silenceThreshold int32) {
-	var wasOutstanding bool = this.outstandingEvents.remove(t)
+	var wasOutstanding bool = this.outstandingEvents.Delete(t)
 	if !wasOutstanding {
 		if this.isOutstandingEventsTruncated {
 			Tracer_logger.log(Level_WARNING, "event not found, probably because the event stack overflowed and was truncated", new_Throwable_0())
@@ -475,13 +475,13 @@ func (this *Tracer_ThreadTrace) endEvent(t *Tracer, silenceThreshold int32) {
 		this.events.add(new_Tracer_Event(false, t))
 	}
 	if t.type__.isPresent() {
-		var stat *Tracer_Stat = this.stats.get(t.type__.get())
+		var stat *Tracer_Stat = this.stats.Get(t.type__.get())
 		if stat == nil {
 			stat = new_Tracer_Stat()
 			if !Tracer_extraTracingStatistics.isEmpty() {
 				stat.extraInfo = make([]int32, Tracer_extraTracingStatistics.size())
 			}
-			this.stats.put(t.type__.get(), stat)
+			this.stats.Put(t.type__.get(), stat)
 		}
 		stat.count_++
 		if Tracer_typeToCountMap != nil {
@@ -511,12 +511,12 @@ func (this *Tracer_ThreadTrace) endEvent(t *Tracer, silenceThreshold int32) {
 }
 
 func (this *Tracer_ThreadTrace) isEmpty() bool {
-	return (this.events.isEmpty() && this.outstandingEvents.isEmpty())
+	return (this.events.isEmpty() && this.outstandingEvents.IsEmpty())
 }
 
 func (this *Tracer_ThreadTrace) truncateOutstandingEvents() {
 	this.isOutstandingEventsTruncated = true
-	this.outstandingEvents.clear()
+	this.outstandingEvents.Clear()
 }
 
 func (this *Tracer_ThreadTrace) truncateEvents() {
@@ -530,7 +530,7 @@ func (this *Tracer_ThreadTrace) toString() string {
 	var etime int64 = -1
 	var indent *TDeque[string] = func() *TDeque[string] {
 		if this.prettyPrint {
-			return newTDeque_(jtc_string)
+			return newTDeque_(tc_string)
 		}
 		return nil
 	}()
@@ -552,7 +552,7 @@ func (this *Tracer_ThreadTrace) toString() string {
 			indent.push("|  ")
 		}
 	}
-	if !this.outstandingEvents.isEmpty() {
+	if !this.outstandingEvents.IsEmpty() {
 		var now int64 = Tracer_clock()
 		sb.append(" Unstopped timers:\n")
 		it_3 := this.outstandingEvents.each()

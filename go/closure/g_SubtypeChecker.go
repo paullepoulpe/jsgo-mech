@@ -8,7 +8,7 @@ type SubtypeChecker struct {
 	registry                *JSTypeRegistry
 	isUsingStructuralTyping any
 	subtypingMode           JSType_SubtypingMode
-	subtypeCache            *JTMap[*SubtypeChecker_CacheKey, JSType_MatchStatus]
+	subtypeCache            *TMap[*SubtypeChecker_CacheKey, JSType_MatchStatus]
 	hasRun                  bool
 	recursionDepth          int32
 }
@@ -95,7 +95,7 @@ func (this *SubtypeChecker) isSubtypeCaching(subtype *JSType, supertype *JSType)
 	}
 	if this.recursionDepth > SubtypeChecker_POTENTIALLY_CYCLIC_RECURSION_DEPTH {
 		if this.subtypeCache == nil {
-			this.subtypeCache = jnewTMap_(tce_p_SubtypeChecker_CacheKey, jtc_p_JSType_MatchStatus)
+			this.subtypeCache = newTMap_(tch_p_SubtypeChecker_CacheKey, tc_p_JSType_MatchStatus)
 		}
 	}
 	if this.subtypeCache == nil {
@@ -113,14 +113,14 @@ func (this *SubtypeChecker) isSubtypeCaching(subtype *JSType, supertype *JSType)
 		}
 	}
 	var key *SubtypeChecker_CacheKey = new_SubtypeChecker_CacheKey(subtype, supertype)
-	var cached JSType_MatchStatus = this.subtypeCache.putIfAbsent(key, JSType_MatchStatus_PROCESSING)
+	var cached JSType_MatchStatus = this.subtypeCache.PutIfAbsent(key, JSType_MatchStatus_PROCESSING)
 	if cached == 0 {
 		var result bool = this.isSubtypeDispatching(subtype, supertype)
-		this.subtypeCache.put(key, JSType_MatchStatus_valueOfBoolean(result))
+		this.subtypeCache.Put(key, JSType_MatchStatus_valueOfBoolean(result))
 		return result
 	}
 	if cached == JSType_MatchStatus_PROCESSING {
-		this.subtypeCache.put(key, JSType_MatchStatus_MATCH)
+		this.subtypeCache.Put(key, JSType_MatchStatus_MATCH)
 		return true
 	}
 	return cached.subtypeValue()
@@ -488,7 +488,7 @@ func (this *SubtypeChecker) meetVarianceConstraint(variance SubtypeChecker_Varia
 
 func SubtypeChecker_isBivariantType(type_ *JSType) bool {
 	var unwrapped *ObjectType = SubtypeChecker_getObjectTypeIfNative(type_)
-	return (((unwrapped != nil) && unwrapped.hasReferenceName()) && SubtypeChecker_BIVARIANT_TYPES.contains(unwrapped.getReferenceName().orElseThrow()))
+	return (((unwrapped != nil) && unwrapped.hasReferenceName()) && SubtypeChecker_BIVARIANT_TYPES.Has(unwrapped.getReferenceName().orElseThrow()))
 }
 
 func SubtypeChecker_getTemplateKeyIfCovariantType(type_ *JSType) *TemplateType {
@@ -563,7 +563,7 @@ func SubtypeChecker_getObjectTypeIfNative(type_ *JSType) *ObjectType {
 	}()
 }
 
-var SubtypeChecker_BIVARIANT_TYPES *JTSet[string]
+var SubtypeChecker_BIVARIANT_TYPES *TSet[string]
 
 const SubtypeChecker_POTENTIALLY_CYCLIC_RECURSION_DEPTH int32 = 20
 
@@ -574,7 +574,7 @@ func SubtypeChecker_clinit() {
 		return
 	}
 	SubtypeChecker_clinit_done = true
-	SubtypeChecker_BIVARIANT_TYPES = jimmutableSetOf_[string](jtc_string, "Object", "IArrayLike", "Array")
+	SubtypeChecker_BIVARIANT_TYPES = immutableSetOf_[string](tc_string, "Object", "IArrayLike", "Array")
 
 }
 

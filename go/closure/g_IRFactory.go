@@ -11,9 +11,9 @@ type IRFactory struct {
 	config                     *Config
 	errorReporter              ErrorReporter_rhino
 	transformDispatcher        *IRFactory_TransformDispatcher
-	reservedKeywords           *JTSet[string]
-	parsedComments             *JTSet[*Comment]
-	licenseBuilder             *JTSet[string]
+	reservedKeywords           *TSet[string]
+	parsedComments             *TSet[*Comment]
+	licenseBuilder             *TSet[string]
 	firstFileoverview          *JSDocInfo
 	templateNode               Node
 	defaultTemplateNode        Node
@@ -28,15 +28,15 @@ type IRFactory struct {
 }
 
 func (this *IRFactory) finit_IRFactory() {
-	this.parsedComments = jnewTSet_(jtc_p_Comment)
-	this.licenseBuilder = jnewTSet_(jtc_string)
+	this.parsedComments = newTSet_(tc_p_Comment)
+	this.licenseBuilder = newTSet_(tc_string)
 	this.firstFileoverview = nil
 	this.currentFileIsExterns = false
 	this.features_ = FeatureSet_BARE_MINIMUM
 	this.closureUnawareCodeRanges = TreeRangeSet_as_RangeSet(TreeRangeSet_create())
 }
 
-func (this *IRFactory) init_IRFactory(sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, comments *JTList[*Comment], fileWithContent *SourceFile_parser, jsDocSourceKind JsDocInfoParser_JsDocSourceKind) {
+func (this *IRFactory) init_IRFactory(sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, comments *TList[*Comment], fileWithContent *SourceFile_parser, jsDocSourceKind JsDocInfoParser_JsDocSourceKind) {
 	this.finit_IRFactory()
 	this.jsdocTracker = new_IRFactory_CommentTracker(comments, (&Predicate_tfn_Comment{func(c *Comment) bool {
 		return (c.type__ == Comment_Type_JSDOC)
@@ -68,7 +68,7 @@ func (this *IRFactory) init_IRFactory(sourceFile StaticSourceFile, config *Confi
 	this.jsDocSourceKind = jsDocSourceKind
 }
 
-func new_IRFactory(sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, comments *JTList[*Comment], fileWithContent *SourceFile_parser, jsDocSourceKind JsDocInfoParser_JsDocSourceKind) *IRFactory {
+func new_IRFactory(sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, comments *TList[*Comment], fileWithContent *SourceFile_parser, jsDocSourceKind JsDocInfoParser_JsDocSourceKind) *IRFactory {
 	this := &IRFactory{}
 	this.init_IRFactory(sourceFile, config, errorReporter, comments, fileWithContent, jsDocSourceKind)
 	return this
@@ -100,7 +100,7 @@ func IRFactory_transformTree(tree *ProgramTree, sourceFile StaticSourceFile, con
 		it_1 := tree.sourceComments.each()
 		for it_1.next() {
 			var comment *Comment = it_1.v
-			if ((comment.type__ == Comment_Type_JSDOC) || (comment.type__ == Comment_Type_IMPORTANT)) && !irFactory.parsedComments.contains(comment) {
+			if ((comment.type__ == Comment_Type_JSDOC) || (comment.type__ == Comment_Type_IMPORTANT)) && !irFactory.parsedComments.Has(comment) {
 				var useLicensesOnlyConfig bool = irFactory.withinClosureUnawareCodeRange(comment.location_.start_.line_, comment.location_.start_.column_)
 				irFactory.handlePossibleFileOverviewJsDoc_2(comment, useLicensesOnlyConfig)
 			}
@@ -128,7 +128,7 @@ func (this *IRFactory) getFeatures() *FeatureSet {
 }
 
 func (this *IRFactory) validateAll(n Node) {
-	var work *TDeque[Node] = newTDeque_(jtc_Node)
+	var work *TDeque[Node] = newTDeque_(tc_Node)
 	for n != 0 {
 		this.validate(n)
 		var nextSibling Node = n.getNext()
@@ -372,13 +372,13 @@ func (this *IRFactory) validateParameters(n Node) {
 	if !n.isParamList() {
 		return
 	}
-	var seenNames *JTSet[string] = jnewTSet_(jtc_string)
+	var seenNames *TSet[string] = newTSet_(tc_string)
 	{
 		var c Node = n.getFirstChild()
 		for ; c != 0; c = c.getNext() {
 			ParsingUtil_getParamOrPatternNames(c, (&Consumer_tfn_Node{func(param Node) {
 				var paramName string = param.getString()
-				if !seenNames.add(paramName) {
+				if !seenNames.Add(paramName) {
 					this.errorReporter.warning(("Duplicate parameter name \"" + sstr_(paramName) + "\""), this.sourceName_, param.getLineno(), param.getCharno())
 				}
 			}}).accept)
@@ -399,7 +399,7 @@ func (this *IRFactory) setFileOverviewJsDoc(irNode Node) {
 		}
 		return this.firstFileoverview.toBuilder()
 	}()
-	if !this.licenseBuilder.isEmpty() {
+	if !this.licenseBuilder.IsEmpty() {
 		fileoverview.recordLicense(JString_join_s("", Iterable(this.licenseBuilder.asSet())))
 	}
 	irNode.setJSDocInfo(fileoverview.build_1(false))
@@ -423,7 +423,7 @@ func (this *IRFactory) transformBlock(node *ParseTree) Node {
 
 func (this *IRFactory) handlePossibleFileOverviewJsDoc(jsDocParser *JsDocInfoParser) bool {
 	if jsDocParser.getLicenseText().isPresent() {
-		this.licenseBuilder.add(jsDocParser.getLicenseText().get())
+		this.licenseBuilder.Add(jsDocParser.getLicenseText().get())
 	}
 	var newFileoverview *JSDocInfo = jsDocParser.getFileOverviewJSDocInfo()
 	if JSCompObjects_identical(obj_(newFileoverview), obj_(this.firstFileoverview)) {
@@ -434,7 +434,7 @@ func (this *IRFactory) handlePossibleFileOverviewJsDoc(jsDocParser *JsDocInfoPar
 		this.currentFileIsExterns = newFileoverview.isExterns()
 	} else {
 		var merged *JSDocInfo_Builder = this.firstFileoverview.toBuilder()
-		if !newFileoverview.getSuppressions().isEmpty() {
+		if !newFileoverview.getSuppressions().IsEmpty() {
 			merged.recordSuppressions(newFileoverview.getSuppressions())
 		}
 		if newFileoverview.isExterns() {
@@ -454,7 +454,7 @@ func (this *IRFactory) handlePossibleFileOverviewJsDoc(jsDocParser *JsDocInfoPar
 
 func (this *IRFactory) handlePossibleFileOverviewJsDoc_2(comment *Comment, useLicensesOnlyConfig bool) {
 	var jsDocParser *JsDocInfoParser = this.createJsDocInfoParser_2(comment, useLicensesOnlyConfig)
-	this.parsedComments.add(comment)
+	this.parsedComments.Add(comment)
 	this.handlePossibleFileOverviewJsDoc(jsDocParser)
 }
 
@@ -476,7 +476,7 @@ func (this *IRFactory) parseJSDocInfoFrom(comment *Comment) *JSDocInfo {
 		return nil
 	}
 	var jsDocParser *JsDocInfoParser = this.createJsDocInfoParser(comment)
-	this.parsedComments.add(comment)
+	this.parsedComments.Add(comment)
 	if this.handlePossibleFileOverviewJsDoc(jsDocParser) {
 		return nil
 	}
@@ -550,7 +550,7 @@ func (this *IRFactory) parseNonJSDocCommentAt(pos *SourcePosition_util, isInline
 		result.append(currentComment.value_)
 		lastComment = currentComment
 		if commentFromJsdocTracker {
-			this.parsedComments.add(currentComment)
+			this.parsedComments.Add(currentComment)
 			this.jsdocTracker.advance()
 		} else {
 			this.nonJsdocTracker.advance()
@@ -857,7 +857,7 @@ func (this *IRFactory) reportErrorIfYieldOrAwaitInDefaultValue(defaultValueNode 
 }
 
 func IRFactory_findNodeTypeInExpression(expressionNode Node, token Token_rhino) Node {
-	var worklist *TDeque[Node] = newTDeque_(jtc_Node)
+	var worklist *TDeque[Node] = newTDeque_(tc_Node)
 	worklist.add(expressionNode)
 	for !worklist.isEmpty() {
 		var node Node = worklist.pop()
@@ -1431,8 +1431,8 @@ const IRFactory_UNEXPECTED_NEW_DOT_TARGET string = "new.target must be inside a 
 const IRFactory_NEW_DOT_TARGET_IN_CLASS_FIELD_OR_STATIC_BLOCK string = "new.target is not supported in class field initializers or static blocks"
 const IRFactory_UNDEFINED_LABEL string = "undefined label \"%s\""
 
-var IRFactory_ES5_RESERVED_KEYWORDS *JTSet[string]
-var IRFactory_ES5_STRICT_RESERVED_KEYWORDS *JTSet[string]
+var IRFactory_ES5_RESERVED_KEYWORDS *TSet[string]
+var IRFactory_ES5_STRICT_RESERVED_KEYWORDS *TSet[string]
 var IRFactory_COMMENT_START_POSITION_COMPARATOR Comparator
 
 const IRFactory_JSCOMP_CLOSURE_UNAWARE_CODE_SHADOW_HOST_NAME string = "$jscomp_wrap_closure_unaware_code"
@@ -1448,8 +1448,8 @@ func IRFactory_clinit() {
 	}
 	IRFactory_clinit_done = true
 	IRFactory_CR_OR_CRLF_PATTERN = Pattern_compile("\r\n?")
-	IRFactory_ES5_RESERVED_KEYWORDS = jimmutableSetOf_[string](jtc_string, "class", "const", "enum", "export", "extends", "import", "super")
-	IRFactory_ES5_STRICT_RESERVED_KEYWORDS = jimmutableSetOf_[string](jtc_string, "class", "const", "enum", "export", "extends", "import", "super", "implements", "interface", "let", "package", "private", "protected", "public", "static", "yield")
+	IRFactory_ES5_RESERVED_KEYWORDS = immutableSetOf_[string](tc_string, "class", "const", "enum", "export", "extends", "import", "super")
+	IRFactory_ES5_STRICT_RESERVED_KEYWORDS = immutableSetOf_[string](tc_string, "class", "const", "enum", "export", "extends", "import", "super", "implements", "interface", "let", "package", "private", "protected", "public", "static", "yield")
 	IRFactory_COMMENT_START_POSITION_COMPARATOR = Comparator_thenComparingInt(Comparator_comparingInt(&ToIntFunction_tfn_Comment{func(x *Comment) int32 {
 		return x.location_.start_.line_
 	}}), &ToIntFunction_tfn_Comment{func(x *Comment) int32 {
@@ -1513,7 +1513,7 @@ func (this *IRFactory_LineAndColumn) toString() string {
 }
 
 type IRFactory_CommentTracker struct {
-	source        *JTList[*Comment]
+	source        *TList[*Comment]
 	filter        func(any) bool
 	index_        int32
 	previousIndex int32
@@ -1524,14 +1524,14 @@ func (this *IRFactory_CommentTracker) finit_IRFactory_CommentTracker() {
 	this.previousIndex = -1
 }
 
-func (this *IRFactory_CommentTracker) init_IRFactory_CommentTracker(source *JTList[*Comment], filter func(any) bool) {
+func (this *IRFactory_CommentTracker) init_IRFactory_CommentTracker(source *TList[*Comment], filter func(any) bool) {
 	this.finit_IRFactory_CommentTracker()
 	this.source = source
 	this.filter = filter
 	this.advance()
 }
 
-func new_IRFactory_CommentTracker(source *JTList[*Comment], filter func(any) bool) *IRFactory_CommentTracker {
+func new_IRFactory_CommentTracker(source *TList[*Comment], filter func(any) bool) *IRFactory_CommentTracker {
 	this := &IRFactory_CommentTracker{}
 	this.init_IRFactory_CommentTracker(source, filter)
 	return this
@@ -1926,7 +1926,7 @@ func (this *IRFactory_TransformDispatcher) processFunctionCall(callNode *CallExp
 	var node Node = this.outer_.newNode_2(Token_rhino_CALL, this.outer_.transform(callNode.operand))
 	node.setTrailingComma(callNode.arguments.hasTrailingComma_)
 	var argumentsTree *ArgumentListTree = callNode.arguments
-	var zones *JTList[*SourcePosition_util] = this.getEndOfArgCommentZones(argumentsTree.arguments, argumentsTree.commaPositions, argumentsTree.location_.end_)
+	var zones *TList[*SourcePosition_util] = this.getEndOfArgCommentZones(argumentsTree.arguments, argumentsTree.commaPositions, argumentsTree.location_.end_)
 	var argCount int32 = 0
 	it_1 := callNode.arguments.arguments.each()
 	for it_1.next() {
@@ -1962,8 +1962,8 @@ func (this *IRFactory_TransformDispatcher) isNormalOrOptChainGet(n Node) bool {
 	return (((n.isGetProp() || n.isGetElem()) || n.isOptChainGetProp()) || n.isOptChainGetElem())
 }
 
-func (this *IRFactory_TransformDispatcher) getEndOfArgCommentZones(args *JTList[*ParseTree], commaPositions *JTList[*SourcePosition_util], argListEndPosition *SourcePosition_util) *JTList[*SourcePosition_util] {
-	var zones *TListBuilder[*SourcePosition_util] = newTListBuilder_(jtc_p_SourcePosition_util)
+func (this *IRFactory_TransformDispatcher) getEndOfArgCommentZones(args *TList[*ParseTree], commaPositions *TList[*SourcePosition_util], argListEndPosition *SourcePosition_util) *TList[*SourcePosition_util] {
+	var zones *ImmutableList_Builder[*SourcePosition_util] = immutableListBuilder_(tc_p_SourcePosition_util)
 	var commaCount int32 = 0
 	it_1 := args.each()
 	for it_1.next() {
@@ -2161,8 +2161,8 @@ func (this *IRFactory_TransformDispatcher) processFormalParameterList(tree *Form
 	if !this.checkParameters(tree) {
 		return params
 	}
-	var parameters *JTList[*ParseTree] = tree.parameters
-	var zones *JTList[*SourcePosition_util] = this.getEndOfArgCommentZones(parameters, tree.commaPositions, tree.location_.end_)
+	var parameters *TList[*ParseTree] = tree.parameters
+	var zones *TList[*SourcePosition_util] = this.getEndOfArgCommentZones(parameters, tree.commaPositions, tree.location_.end_)
 	var argCount int32 = 0
 	it_1 := tree.parameters.each()
 	for it_1.next() {
@@ -2399,7 +2399,7 @@ func (this *IRFactory_TransformDispatcher) maybeWarnReservedKeyword(token *Ident
 		this.outer_.features_ = this.outer_.features_.with(FeatureSet_Feature_ES3_KEYWORDS_AS_IDENTIFIERS)
 		isIdentifier = (this.outer_.config.languageMode() == Config_LanguageMode_ECMASCRIPT3)
 	}
-	if (this.outer_.reservedKeywords != nil) && this.outer_.reservedKeywords.contains(identifier) {
+	if (this.outer_.reservedKeywords != nil) && this.outer_.reservedKeywords.Has(identifier) {
 		this.outer_.features_ = this.outer_.features_.with(FeatureSet_Feature_KEYWORDS_AS_PROPERTIES)
 		isIdentifier = (this.outer_.config.languageMode() == Config_LanguageMode_ECMASCRIPT3)
 	}
@@ -2559,7 +2559,7 @@ func (this *IRFactory_TransformDispatcher) processPropertyNameAssignment(tree *P
 
 func (this *IRFactory_TransformDispatcher) checkParenthesizedExpression(exprNode *ParenExpressionTree) {
 	if exprNode.expression.type__ == ParseTreeType_COMMA_EXPRESSION {
-		var commaNodes *JTList[*ParseTree] = exprNode.expression.asCommaExpression().expressions
+		var commaNodes *TList[*ParseTree] = exprNode.expression.asCommaExpression().expressions
 		var lastChild *ParseTree = to_ParseTree(Iterables_getLast(Iterable(commaNodes.asList())))
 		if lastChild.type__ == ParseTreeType_ITER_REST {
 			this.outer_.errorReporter.error("A rest parameter must be in a parameter list.", this.outer_.sourceName_, IRFactory_lineno(lastChild), IRFactory_charnoParseTree(lastChild))
@@ -2987,18 +2987,18 @@ func (this *IRFactory_TransformDispatcher) processClassDeclaration(tree *ClassDe
 	return classNode
 }
 
-func (this *IRFactory_TransformDispatcher) validatePrivatePropertyUsage(privatePropNames *JTSet[string], classMembers Node) {
+func (this *IRFactory_TransformDispatcher) validatePrivatePropertyUsage(privatePropNames *TSet[string], classMembers Node) {
 	if !classMembers.isClassMembers() {
 		panic(new_IllegalStateException_0())
 	}
 	if !classMembers.hasChildren() {
 		return
 	}
-	var visitStack *TDeque[Node] = newTDeque_(jtc_Node)
+	var visitStack *TDeque[Node] = newTDeque_(tc_Node)
 	visitStack.add(classMembers.getFirstChild())
 	for !visitStack.isEmpty() {
 		var node Node = Node_of_(SequencedCollection_removeLast(SequencedCollection(visitStack.asDeque())))
-		if (node.isPrivateIdentifier() && ((node.isGetProp() || node.isOptChainGetProp()) || ((node.isName() && node.hasParent()) && node.getParent().isIn()))) && !privatePropNames.contains(node.getString()) {
+		if (node.isPrivateIdentifier() && ((node.isGetProp() || node.isOptChainGetProp()) || ((node.isName() && node.hasParent()) && node.getParent().isIn()))) && !privatePropNames.Has(node.getString()) {
 			var propType string = func() string {
 				if node.getParent().isCall() {
 					return "methods"
@@ -3017,7 +3017,7 @@ func (this *IRFactory_TransformDispatcher) validatePrivatePropertyUsage(privateP
 			}
 		}
 		if node.isClassMembers() {
-			var innerClassPrivatePropNames *JTSet[string] = this.getPrivatePropsAndValidateUniqueness(node)
+			var innerClassPrivatePropNames *TSet[string] = this.getPrivatePropsAndValidateUniqueness(node)
 			innerClassPrivatePropNames.asSet().addAll(Collection(privatePropNames.asSet()))
 			this.validatePrivatePropertyUsage(innerClassPrivatePropNames, node)
 		} else {
@@ -3031,13 +3031,13 @@ func (this *IRFactory_TransformDispatcher) validatePrivatePropertyUsage(privateP
 	}
 }
 
-func (this *IRFactory_TransformDispatcher) getPrivatePropsAndValidateUniqueness(classMembers Node) *JTSet[string] {
-	var privateGetterNames *JTSet[string] = newTSortedSet_(jtc_string)
-	var privateSetterNames *JTSet[string] = newTSortedSet_(jtc_string)
-	var privateStaticGetterNames *JTSet[string] = newTSortedSet_(jtc_string)
-	var privateStaticSetterNames *JTSet[string] = newTSortedSet_(jtc_string)
-	var privateFieldAndMethodNames *JTSet[string] = newTSortedSet_(jtc_string)
-	var privatePropNames *JTSet[string] = newTSortedSet_(jtc_string)
+func (this *IRFactory_TransformDispatcher) getPrivatePropsAndValidateUniqueness(classMembers Node) *TSet[string] {
+	var privateGetterNames *TSet[string] = newTSortedSet_(tc_string)
+	var privateSetterNames *TSet[string] = newTSortedSet_(tc_string)
+	var privateStaticGetterNames *TSet[string] = newTSortedSet_(tc_string)
+	var privateStaticSetterNames *TSet[string] = newTSortedSet_(tc_string)
+	var privateFieldAndMethodNames *TSet[string] = newTSortedSet_(tc_string)
+	var privatePropNames *TSet[string] = newTSortedSet_(tc_string)
 	{
 		var curNode Node = classMembers.getFirstChild()
 		for ; curNode != 0; curNode = curNode.getNext() {
@@ -3049,62 +3049,62 @@ func (this *IRFactory_TransformDispatcher) getPrivatePropsAndValidateUniqueness(
 				panic(new_IllegalStateException_String(Strings_lenientFormat("Private property '%s' has an unsupported token type: %s", []any{a1_, a2_})))
 			}
 			var isStatic bool = curNode.isStaticMember()
-			var alreadyDeclared bool = privatePropNames.contains(propName)
+			var alreadyDeclared bool = privatePropNames.Has(propName)
 			switch curNode.ns_().token {
 			case tokOrd1_GETTER_DEF:
 				if alreadyDeclared {
-					var alreadyDeclaredIsOtherThanItsSetter bool = (((privateFieldAndMethodNames.contains(propName) || privateGetterNames.contains(propName)) || privateStaticGetterNames.contains(propName)) || func() bool {
+					var alreadyDeclaredIsOtherThanItsSetter bool = (((privateFieldAndMethodNames.Has(propName) || privateGetterNames.Has(propName)) || privateStaticGetterNames.Has(propName)) || func() bool {
 						if isStatic {
-							return privateSetterNames.contains(propName)
+							return privateSetterNames.Has(propName)
 						}
-						return privateStaticSetterNames.contains(propName)
+						return privateStaticSetterNames.Has(propName)
 					}())
 					if !alreadyDeclaredIsOtherThanItsSetter && !func() bool {
 						if isStatic {
-							return privateStaticSetterNames.contains(propName)
+							return privateStaticSetterNames.Has(propName)
 						}
-						return privateSetterNames.contains(propName)
+						return privateSetterNames.Has(propName)
 					}() {
 						panic(new_IllegalStateException_0())
 					}
 					alreadyDeclared = alreadyDeclaredIsOtherThanItsSetter
 				}
 				if isStatic {
-					privateStaticGetterNames.add(propName)
+					privateStaticGetterNames.Add(propName)
 				} else {
-					privateGetterNames.add(propName)
+					privateGetterNames.Add(propName)
 				}
 			case tokOrd1_SETTER_DEF:
 				if alreadyDeclared {
-					var alreadyDeclaredIsOtherThanItsGetter bool = (((privateFieldAndMethodNames.contains(propName) || privateSetterNames.contains(propName)) || privateStaticSetterNames.contains(propName)) || func() bool {
+					var alreadyDeclaredIsOtherThanItsGetter bool = (((privateFieldAndMethodNames.Has(propName) || privateSetterNames.Has(propName)) || privateStaticSetterNames.Has(propName)) || func() bool {
 						if isStatic {
-							return privateGetterNames.contains(propName)
+							return privateGetterNames.Has(propName)
 						}
-						return privateStaticGetterNames.contains(propName)
+						return privateStaticGetterNames.Has(propName)
 					}())
 					if !alreadyDeclaredIsOtherThanItsGetter && !func() bool {
 						if isStatic {
-							return privateStaticGetterNames.contains(propName)
+							return privateStaticGetterNames.Has(propName)
 						}
-						return privateGetterNames.contains(propName)
+						return privateGetterNames.Has(propName)
 					}() {
 						panic(new_IllegalStateException_0())
 					}
 					alreadyDeclared = alreadyDeclaredIsOtherThanItsGetter
 				}
 				if curNode.isStaticMember() {
-					privateStaticSetterNames.add(propName)
+					privateStaticSetterNames.Add(propName)
 				} else {
-					privateSetterNames.add(propName)
+					privateSetterNames.Add(propName)
 				}
 			case tokOrd1_MEMBER_FIELD_DEF, tokOrd1_MEMBER_FUNCTION_DEF:
-				privateFieldAndMethodNames.add(propName)
+				privateFieldAndMethodNames.Add(propName)
 			default:
 			}
 			if alreadyDeclared {
 				this.outer_.errorReporter.error(("Identifier '" + sstr_(propName) + "' has already been declared"), this.outer_.sourceName_, curNode.getLineno(), curNode.getCharno())
 			}
-			privatePropNames.add(propName)
+			privatePropNames.Add(propName)
 		}
 	}
 	return privatePropNames
@@ -3254,7 +3254,7 @@ func (this *IRFactory_TransformDispatcher) processImportMeta(tree *ImportMetaExp
 }
 
 func (this *IRFactory_TransformDispatcher) checkParameters(tree *FormalParameterListTree) bool {
-	var params *JTList[*ParseTree] = tree.parameters
+	var params *TList[*ParseTree] = tree.parameters
 	var good bool = true
 	for i := int32(0); i < params.size(); i++ {
 		var param *ParseTree = params.get(i)
@@ -3271,7 +3271,7 @@ func (this *IRFactory_TransformDispatcher) checkParameters(tree *FormalParameter
 	return good
 }
 
-func (this *IRFactory_TransformDispatcher) transformList(type_ Token_rhino, list *JTList[*ParseTree]) Node {
+func (this *IRFactory_TransformDispatcher) transformList(type_ Token_rhino, list *TList[*ParseTree]) Node {
 	var n Node = this.outer_.newNode(type_)
 	it_1 := list.each()
 	for it_1.next() {
@@ -3281,7 +3281,7 @@ func (this *IRFactory_TransformDispatcher) transformList(type_ Token_rhino, list
 	return n
 }
 
-func (this *IRFactory_TransformDispatcher) transformListOrEmpty(type_ Token_rhino, list *JTList[*ParseTree]) Node {
+func (this *IRFactory_TransformDispatcher) transformListOrEmpty(type_ Token_rhino, list *TList[*ParseTree]) Node {
 	if (list == nil) || list.isEmpty() {
 		return this.outer_.newNode(Token_rhino_EMPTY)
 	} else {

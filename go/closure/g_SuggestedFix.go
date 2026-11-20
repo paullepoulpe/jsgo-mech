@@ -8,17 +8,17 @@ type SuggestedFix struct {
 	matchedNodeInfo *SuggestedFix_MatchedNodeInfo
 	replacements    *SimpleSetMultimap[any, any]
 	description_    Optional[string]
-	alternatives    *JTList[*SuggestedFix]
+	alternatives    *TList[*SuggestedFix]
 }
 
-func (this *SuggestedFix) init_SuggestedFix(matchedNodeInfo *SuggestedFix_MatchedNodeInfo, replacements *SimpleSetMultimap[any, any], description Optional[string], alternatives *JTList[*SuggestedFix]) {
+func (this *SuggestedFix) init_SuggestedFix(matchedNodeInfo *SuggestedFix_MatchedNodeInfo, replacements *SimpleSetMultimap[any, any], description Optional[string], alternatives *TList[*SuggestedFix]) {
 	this.matchedNodeInfo = matchedNodeInfo
 	this.replacements = replacements
 	this.description_ = description
-	this.alternatives = jtlistImm_(jtc_p_SuggestedFix, immutableListBuilder_(tc_p_SuggestedFix).add(cast_[*SuggestedFix](this)).addAll(Iterable(alternatives.asList())).buildErased())
+	this.alternatives = tlistImm_(tc_p_SuggestedFix, immutableListBuilder_(tc_p_SuggestedFix).add(cast_[*SuggestedFix](this)).addAll(Iterable(alternatives.asList())).buildErased())
 }
 
-func new_SuggestedFix(matchedNodeInfo *SuggestedFix_MatchedNodeInfo, replacements *SimpleSetMultimap[any, any], description Optional[string], alternatives *JTList[*SuggestedFix]) *SuggestedFix {
+func new_SuggestedFix(matchedNodeInfo *SuggestedFix_MatchedNodeInfo, replacements *SimpleSetMultimap[any, any], description Optional[string], alternatives *TList[*SuggestedFix]) *SuggestedFix {
 	this := &SuggestedFix{}
 	this.init_SuggestedFix(matchedNodeInfo, replacements, description, alternatives)
 	return this
@@ -36,12 +36,12 @@ func (this *SuggestedFix) getDescription() Optional[string] {
 	return this.description_
 }
 
-func (this *SuggestedFix) getAlternatives() *JTList[*SuggestedFix] {
+func (this *SuggestedFix) getAlternatives() *TList[*SuggestedFix] {
 	return this.alternatives
 }
 
-func (this *SuggestedFix) getNonDefaultAlternatives() *JTList[*SuggestedFix] {
-	return jtlistImm_(jtc_p_SuggestedFix, cast_[*ErasedImmutableList](this.alternatives.asImm().subList(1, this.alternatives.size())))
+func (this *SuggestedFix) getNonDefaultAlternatives() *TList[*SuggestedFix] {
+	return tlistImm_(tc_p_SuggestedFix, cast_[*ErasedImmutableList](this.alternatives.asImm().subList(1, this.alternatives.size())))
 }
 
 func (this *SuggestedFix) isNoOp() bool {
@@ -145,14 +145,14 @@ func SuggestedFix_ImportType_clinit() {
 type SuggestedFix_Builder struct {
 	matchedNodeInfo *SuggestedFix_MatchedNodeInfo
 	replacements    *SimpleSetMultimap[any, any]
-	alternatives    *TListBuilder[*SuggestedFix]
+	alternatives    *ImmutableList_Builder[*SuggestedFix]
 	description_    Optional[string]
 }
 
 func (this *SuggestedFix_Builder) finit_SuggestedFix_Builder() {
 	this.matchedNodeInfo = nil
 	this.replacements = SimpleSetMultimap_create[any, any]()
-	this.alternatives = newTListBuilder_(jtc_p_SuggestedFix)
+	this.alternatives = immutableListBuilder_(tc_p_SuggestedFix)
 	this.description_ = Optional_empty[string]()
 }
 

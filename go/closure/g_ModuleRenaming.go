@@ -61,8 +61,8 @@ func ModuleRenaming_getGlobalNameForJsDoc(moduleMap *ModuleMap, binding *Binding
 	for (binding.isModuleNamespace() && binding.metadata().isEs6Module()) && (prop < propertyChain.size()) {
 		var propertyName string = str_(propertyChain.get(prop))
 		var m *Module = moduleMap.getModule(binding.metadata().path())
-		if m.namespace().containsKey(propertyName) {
-			binding = m.namespace().get(propertyName)
+		if m.namespace().Has(propertyName) {
+			binding = m.namespace().Get(propertyName)
 		} else {
 			break
 		}

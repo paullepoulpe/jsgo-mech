@@ -53,13 +53,13 @@ func (this *ColorGraphBuilder) connectUnionWithAncestors(unionNode *LinkedDirect
 	if unionNode.getOutEdges().isEmpty() {
 		panic(new_IllegalStateException_0())
 	}
-	var graphNodesBuilder *TSetBuilder[*ColorGraphNode] = newTSetBuilder_(jtc_p_ColorGraphNode)
+	var graphNodesBuilder *ImmutableSet_Builder[*ColorGraphNode] = immutableSetBuilder_(tc_p_ColorGraphNode)
 	it_1 := flatUnion.getColor().getUnionElements().each()
 	for it_1.next() {
 		var element *Color = it_1.v
 		graphNodesBuilder.add(this.nodeFactory.createNode(element))
 	}
-	var graphNodes *JTSet[*ColorGraphNode] = graphNodesBuilder.build()
+	var graphNodes *TSet[*ColorGraphNode] = graphNodesBuilder.build()
 	for _, el := range immElems_(this.lcaFinder.findAll(graphNodes.asSet())) {
 		lca := cast_[*ColorGraphNode](el)
 		nn_ := this.colorHoldsInstanceGraph.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(lca)

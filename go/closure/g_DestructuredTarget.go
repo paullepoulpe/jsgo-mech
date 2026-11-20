@@ -111,17 +111,17 @@ func DestructuredTarget_createTarget(registry *JSTypeRegistry, destructuringPatt
 	return builder.build()
 }
 
-func DestructuredTarget_createAllNonEmptyTargetsInPattern(registry *JSTypeRegistry, patternType *JSType, pattern Node) *JTList[*DestructuredTarget] {
+func DestructuredTarget_createAllNonEmptyTargetsInPattern(registry *JSTypeRegistry, patternType *JSType, pattern Node) *TList[*DestructuredTarget] {
 	return DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(registry, func() any {
 		return patternType.self()
 	}, pattern)
 }
 
-func DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(registry *JSTypeRegistry, patternType func() any, pattern Node) *JTList[*DestructuredTarget] {
+func DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(registry *JSTypeRegistry, patternType func() any, pattern Node) *TList[*DestructuredTarget] {
 	if !pattern.isDestructuringPattern() {
 		panic(new_IllegalArgumentException_String(tostr_(pattern)))
 	}
-	var builder *TListBuilder[*DestructuredTarget] = newTListBuilder_(jtc_p_DestructuredTarget)
+	var builder *ImmutableList_Builder[*DestructuredTarget] = immutableListBuilder_(tc_p_DestructuredTarget)
 	{
 		var child Node = pattern.getFirstChild()
 		for ; child != 0; child = child.getNext() {

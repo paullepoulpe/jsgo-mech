@@ -4,7 +4,7 @@ package closure
 
 type DefaultClauseTree struct {
 	ParseTree
-	statements *JTList[*ParseTree]
+	statements *TList[*ParseTree]
 }
 
 func (this *DefaultClauseTree) up_ParseTree() *ParseTree {
@@ -14,12 +14,12 @@ func (this *DefaultClauseTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *DefaultClauseTree) init_DefaultClauseTree(location *SourceRange, statements *JTList[*ParseTree]) {
+func (this *DefaultClauseTree) init_DefaultClauseTree(location *SourceRange, statements *TList[*ParseTree]) {
 	this.ParseTree.init_ParseTree(ParseTreeType_DEFAULT_CLAUSE, location)
 	this.statements = statements
 }
 
-func new_DefaultClauseTree(location *SourceRange, statements *JTList[*ParseTree]) *DefaultClauseTree {
+func new_DefaultClauseTree(location *SourceRange, statements *TList[*ParseTree]) *DefaultClauseTree {
 	this := &DefaultClauseTree{}
 	this.self_ = this
 	this.init_DefaultClauseTree(location, statements)

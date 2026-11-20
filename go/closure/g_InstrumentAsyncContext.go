@@ -11,16 +11,16 @@ type InstrumentAsyncContext struct {
 	uniqueIdSupplier      *UniqueIdSupplier
 	shouldInstrumentAwait bool
 	tryFunctionStack      *TDeque[Node]
-	needsInstrumentation  *JTMap[Node, *InstrumentAsyncContext_FunctionContext]
-	alreadyInstrumented   *JTSet[Node]
-	hasSuper              *JTSet[Node]
+	needsInstrumentation  *TMap[Node, *InstrumentAsyncContext_FunctionContext]
+	alreadyInstrumented   *TSet[Node]
+	hasSuper              *TSet[Node]
 }
 
 func (this *InstrumentAsyncContext) finit_InstrumentAsyncContext() {
-	this.tryFunctionStack = newTDeque_(jtc_Node)
-	this.needsInstrumentation = jnewTMap_(jtc_Node, jtc_p_InstrumentAsyncContext_FunctionContext)
-	this.alreadyInstrumented = jnewTSet_(jtc_Node)
-	this.hasSuper = jnewTSet_(jtc_Node)
+	this.tryFunctionStack = newTDeque_(tc_Node)
+	this.needsInstrumentation = newTMap_(tc_Node, tc_p_InstrumentAsyncContext_FunctionContext)
+	this.alreadyInstrumented = newTSet_(tc_Node)
+	this.hasSuper = newTSet_(tc_Node)
 }
 
 func (this *InstrumentAsyncContext) init_InstrumentAsyncContext(compiler *AbstractCompiler, shouldInstrumentAwait bool) {
@@ -63,14 +63,14 @@ func (this *InstrumentAsyncContext) isReentrance(n Node) bool {
 
 func (this *InstrumentAsyncContext) visit(t *NodeTraversal, n Node, parent Node) {
 	if n.isName() && strings.HasPrefix(n.getString(), InstrumentAsyncContext_FACTORY) {
-		this.alreadyInstrumented.add(t.getEnclosingFunction())
+		this.alreadyInstrumented.Add(t.getEnclosingFunction())
 	} else if n.isSuper() {
-		this.hasSuper.add(t.getEnclosingFunction())
+		this.hasSuper.Add(t.getEnclosingFunction())
 	} else if this.isReentrance(n) {
 		this.instrumentReentrance(t, n, parent)
 	} else if equalsId_(n, this.tryFunctionStack.peek()) {
 		this.tryFunctionStack.pop()
-		if this.alreadyInstrumented.contains(n) {
+		if this.alreadyInstrumented.Has(n) {
 			return
 		}
 		var context *InstrumentAsyncContext_FunctionContext = func() *InstrumentAsyncContext_FunctionContext {
@@ -79,7 +79,7 @@ func (this *InstrumentAsyncContext) visit(t *NodeTraversal, n Node, parent Node)
 					return this.createNewFunctionContext(t.getInput())
 				}})
 			}
-			return this.needsInstrumentation.get(n)
+			return this.needsInstrumentation.Get(n)
 		}()
 		if context == nil {
 			return
@@ -105,7 +105,7 @@ func (this *InstrumentAsyncContext) instrumentReentrance(t *NodeTraversal, n Nod
 	var enclosingFunction Node = t.getEnclosingFunction()
 	if enclosingFunction == 0 {
 		return
-	} else if this.alreadyInstrumented.contains(enclosingFunction) {
+	} else if this.alreadyInstrumented.Has(enclosingFunction) {
 		return
 	} else if parent.isFunction() {
 		return
@@ -116,7 +116,7 @@ func (this *InstrumentAsyncContext) instrumentReentrance(t *NodeTraversal, n Nod
 		return this.createNewFunctionContext(t.getInput())
 	}})
 	if enclosingTry != 0 {
-		this.needsInstrumentation.put(enclosingTry, functionContext)
+		this.needsInstrumentation.Put(enclosingTry, functionContext)
 	}
 	if n.isForAwaitOf() {
 		this.instrumentForAwaitOf(t, n, parent, functionContext)
@@ -171,7 +171,7 @@ func (this *InstrumentAsyncContext) instrumentGeneratorFunction(t *NodeTraversal
 	if !f.getLastChild().hasChildren() {
 		return
 	}
-	if this.hasSuper.contains(f) {
+	if this.hasSuper.Has(f) {
 		this.instrumentGeneratorMethod(t, f, functionContext)
 		return
 	}

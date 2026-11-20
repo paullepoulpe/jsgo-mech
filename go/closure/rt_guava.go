@@ -113,9 +113,6 @@ type ImmutableCollection struct {
 	all_   []any     // multiset: the elements with repetition
 	typed_ immTyped_ // its typed copy (post-flip typed collections), made on first use
 	byOrd  []any     // immutable enum set: the element with ordinal i at i (nil where absent)
-	// jtyped_ is the typed list or set (*JTList[T], *JTSet[K]: rt_timm.go) that typed code sees
-	// this collection as, once it has reached a typed declaration: the same Java object.
-	jtyped_ any
 }
 
 type ErasedImmutableList = ImmutableCollection

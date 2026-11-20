@@ -10,7 +10,7 @@ type TypedScope struct {
 	depth         int32
 	module_       *Module
 	isBottomField bool
-	reservedNames *JTSet[string]
+	reservedNames *TSet[string]
 	vars          MapOf[string, *TypedVar]
 	implicitVars  MapOf[AbstractScope_ImplicitVar, *TypedVar]
 }
@@ -27,23 +27,23 @@ func (this *TypedScope) finit_TypedScope() {
 	this.implicitVars = ImmutableMap_as_Map(ImmutableMap_of())
 }
 
-func (this *TypedScope) init_TypedScope_TypedScope_Node_Set_Module(parent *TypedScope, rootNode Node, reservedNames *JTSet[string], module *Module) {
+func (this *TypedScope) init_TypedScope_TypedScope_Node_Set_Module(parent *TypedScope, rootNode Node, reservedNames *TSet[string], module *Module) {
 	this.AbstractScope.init_AbstractScope(rootNode)
 	this.finit_TypedScope()
 	this.checkChildScope(parent)
 	this.parent = parent
 	this.depth = (parent.depth + 1)
 	this.isBottomField = false
-	this.reservedNames = func() *JTSet[string] {
-		if reservedNames.isEmpty() {
-			return jtsetEmptyImm_(jtc_string)
+	this.reservedNames = func() *TSet[string] {
+		if reservedNames.IsEmpty() {
+			return tsetEmptyImm_(tc_string)
 		}
-		return tsetCopy_(jtc_string, reservedNames)
+		return tsetCopy_(tc_string, reservedNames)
 	}()
 	this.module_ = module
 }
 
-func new_TypedScope_TypedScope_Node_Set_Module(parent *TypedScope, rootNode Node, reservedNames *JTSet[string], module *Module) *TypedScope {
+func new_TypedScope_TypedScope_Node_Set_Module(parent *TypedScope, rootNode Node, reservedNames *TSet[string], module *Module) *TypedScope {
 	this := &TypedScope{}
 	this.self_ = this
 	this.init_TypedScope_TypedScope_Node_Set_Module(parent, rootNode, reservedNames, module)
@@ -57,7 +57,7 @@ func (this *TypedScope) init_TypedScope_Node_boolean(rootNode Node, isBottom boo
 	this.parent = nil
 	this.depth = 0
 	this.isBottomField = isBottom
-	this.reservedNames = jtsetEmptyImm_(jtc_string)
+	this.reservedNames = tsetEmptyImm_(tc_string)
 	this.module_ = nil
 }
 
@@ -69,7 +69,7 @@ func new_TypedScope_Node_boolean(rootNode Node, isBottom bool) *TypedScope {
 }
 
 func TypedScope_createFromParent(parent *TypedScope, rootNode Node) *TypedScope {
-	return new_TypedScope_TypedScope_Node_Set_Module(parent, rootNode, jnewTSet_(jtc_string), nil)
+	return new_TypedScope_TypedScope_Node_Set_Module(parent, rootNode, newTSet_(tc_string), nil)
 }
 
 func TypedScope_createGlobalScope(rootNode Node) *TypedScope {
@@ -85,10 +85,10 @@ func (this *TypedScope) typed_impl() *TypedScope {
 }
 
 func (this *TypedScope) validateCompletelyBuilt() {
-	if ok_, a1_, a2_ := this.reservedNames.isEmpty(), this, this.reservedNames.asSet(); !ok_ {
+	if ok_, a1_, a2_ := this.reservedNames.IsEmpty(), this, this.reservedNames.asSet(); !ok_ {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected %s to have no reserved names, found: %s. This probably indicates a bug in TypedScopeCreator where it is failing to declare a variable.", []any{a1_, a2_})))
 	}
-	this.reservedNames = jtsetEmptyImm_(jtc_string)
+	this.reservedNames = tsetEmptyImm_(tc_string)
 }
 
 func (this *TypedScope) isBottom() bool {
@@ -136,8 +136,8 @@ func (this *TypedScope) declare(name string, nameNode Node, type_ *JSType, input
 	if name == "" {
 		panic(new_IllegalStateException_0())
 	}
-	if !this.reservedNames.isEmpty() {
-		this.reservedNames.remove(name)
+	if !this.reservedNames.IsEmpty() {
+		this.reservedNames.Delete(name)
 	}
 	var var_ *TypedVar = new_TypedVar(inferred, name, nameNode, type_, this, this.getVarCount(), input)
 	this.declareInternal(name, var_)
@@ -244,7 +244,7 @@ func (this *TypedScope) getTypeThroughNamespace(moduleId string) *JSType {
 }
 
 func (this *TypedScope) getTopmostScopeOfEventualDeclaration_impl(name string) StaticScope {
-	if (this.getOwnSlot_String_rAbstractVar_rTypedVar(name) != nil) || this.reservedNames.contains(name) {
+	if (this.getOwnSlot_String_rAbstractVar_rTypedVar(name) != nil) || this.reservedNames.Has(name) {
 		return StaticScope(this)
 	} else if this.getParent_rTypedScope() == nil {
 		return nil
@@ -297,7 +297,7 @@ func (this *TypedScope) declareInternal(name string, var_ *TypedVar) {
 	if ok_, a1_ := (this.hasOwnSlot(name) || this.canDeclare(name)), var_.getNode(); !ok_ {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Illegal shadow: %s", []any{a1_.box_()})))
 	}
-	var emptySentinel *JTMap[string, *TypedVar] = jtmapEmptyImm_(jtc_string, jtc_p_TypedVar)
+	var emptySentinel *TMap[string, *TypedVar] = tmapEmptyImm_(tc_string, tc_p_TypedVar)
 	if this.vars == emptySentinel.asMap() {
 		this.vars = LinkedHashMap_as_Map(Maps_newLinkedHashMapWithExpectedSize(1))
 	}
@@ -330,7 +330,7 @@ func (this *TypedScope) getOwnImplicitSlot(name AbstractScope_ImplicitVar) *Type
 	if !this.hasOwnImplicitSlot(name) {
 		return nil
 	}
-	var emptySentinel *JTMap[AbstractScope_ImplicitVar, *TypedVar] = jtmapEmptyImm_(tc_p_AbstractScope_ImplicitVar, jtc_p_TypedVar)
+	var emptySentinel *TMap[AbstractScope_ImplicitVar, *TypedVar] = tmapEmptyImm_(tc_p_AbstractScope_ImplicitVar, tc_p_TypedVar)
 	if this.implicitVars == emptySentinel.asMap() {
 		this.implicitVars = Map(new_EnumMap(classOf_("com.google.javascript.jscomp.AbstractScope.ImplicitVar")))
 	}
@@ -389,11 +389,11 @@ func (this *TypedScope) getVarIterable_impl() IterableOf[*TypedVar] {
 }
 
 func (this *TypedScope) getAllAccessibleVariables_impl() IterableOf[*TypedVar] {
-	var accessibleVars *JTMap[string, *TypedVar] = jnewTMap_(jtc_string, jtc_p_TypedVar)
+	var accessibleVars *TMap[string, *TypedVar] = newTMap_(tc_string, tc_p_TypedVar)
 	var s *TypedScope = this
 	for s != nil {
 		for v := range elemsAs_[*TypedVar](s.getVarIterable()) {
-			accessibleVars.putIfAbsent(v.getName(), v)
+			accessibleVars.PutIfAbsent(v.getName(), v)
 		}
 		s = s.getParent_rTypedScope()
 	}
