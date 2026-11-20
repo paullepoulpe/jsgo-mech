@@ -207,6 +207,8 @@ func eachOf_[T any](x IterableT[T]) iterEach_[T] {
 		return iterEach_[T]{c: l.c, e: foreach_(l.Iterable)}
 	case *collectionAs[T]:
 		return iterEach_[T]{c: l.c, e: foreach_(l.Collection)}
+	case *listAs[T]:
+		return iterEach_[T]{c: l.c, e: foreach_(l.List)}
 	}
 	return iterEach_[T]{it: x.iterator_t()}
 }
@@ -375,3 +377,58 @@ func (m *TMap[K, V]) valuesT() CollectionT[V] {
 	return (*tmapValues_[K, V])(&m.view)
 }
 func (v *tmapValues_[K, V]) unwrap_() any { return v.m.asMap().values() }
+
+// ---- Kind `list`: java.util.List<T>. A typed List is the erased one, a typed Iterable, and
+// gives its elements at their type (get_t).
+
+type ListT[T any] interface {
+	List
+	iterator_t() IteratorT[T]
+	get_t(i int32) T
+}
+
+// List_un_ is typed value x as erased code knows it.
+func List_un_(x List) List {
+	if w, ok := x.(lgWrap_); ok {
+		u, _ := w.unwrap_().(List)
+		return u
+	}
+	return x
+}
+
+type listAs[T any] struct {
+	List
+	c *tconv_[T]
+}
+
+func (w *listAs[T]) iterator_t() IteratorT[T] { return iteratorAs_(w.c, w.List.iterator()) }
+func (w *listAs[T]) get_t(i int32) T          { return w.c.unbox(w.List.get(i)) }
+func (w *listAs[T]) unwrap_() any             { return w.List }
+
+// listAs_ is erased v as a List of T: v itself where its object is native (the view of a typed
+// list), the view of the typed list of an erased immutable list, else a wrapper.
+func listAs_[T any](c *tconv_[T], v List) ListT[T] {
+	if v == nil {
+		return nil
+	}
+	if t, ok := v.(ListT[T]); ok {
+		return t
+	}
+	if ic, ok := v.(*ImmutableCollection); ok {
+		if l, ok := ic.typed_.(*TList[T]); ok {
+			return &l.view
+		}
+	}
+	return &listAs[T]{v, c}
+}
+
+// asListT is a typed list as the List of its elements for typed code: its view, which is part
+// of it (nil for null).
+func (l *TList[T]) asListT() ListT[T] {
+	if l == nil {
+		return nil
+	}
+	return &l.view
+}
+
+func (v *tlistView_[T]) get_t(i int32) T { return v.l.get(i) }

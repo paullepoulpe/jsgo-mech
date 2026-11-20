@@ -50,6 +50,7 @@ final class LibGen {
   static {
     KINDS.put("iter", List.of("java.util.Iterator", "java.lang.Iterable"));
     KINDS.put("coll", List.of("java.util.Collection"));
+    KINDS.put("list", List.of("java.util.List"));
   }
 
   /**
@@ -59,7 +60,8 @@ final class LibGen {
    * parameter has one.) Collection has none of its own: it is a typed Iterable.
    */
   static final Map<String, Set<String>> TYPED_METHODS = Map.of(
-      "java.util.Collection", Set.of());
+      "java.util.Collection", Set.of(),
+      "java.util.List", Set.of("get/1"));
 
   /** Whether root method r of one of the interfaces has its typed signature on a typed receiver. */
   boolean typedMethod(ExecutableElement r) {
@@ -163,6 +165,11 @@ final class LibGen {
     return sb.toString();
   }
 
+  /** Whether lib is an interface of kind `iter`, whose typed methods classes of the program can have themselves. */
+  boolean nativeKind(TypeElement lib) {
+    return "iter".equals(kindOf(lib));
+  }
+
   boolean isLib(TypeElement te) {
     return te != null && libs.contains(te);
   }
@@ -201,6 +208,10 @@ final class LibGen {
     DeclaredType d = (DeclaredType) t;
     if (d.getTypeArguments().isEmpty()) return t;
     for (TypeMirror a : d.getTypeArguments()) if (ownVar(a)) return cx.types.erasure(t);
+    if (wildErased(t)) {
+      note("places left erased: a List with a wildcard (variance)", String.valueOf(t));
+      return cx.types.erasure(t);
+    }
     return norm(t);
   }
 
@@ -215,6 +226,25 @@ final class LibGen {
     for (TypeElement lib : libs) for (TypeParameterElement tp : lib.getTypeParameters()) m.put(tp, object());
     TypeMirror e = cx.erase(cx.subst(t, m, 0));
     return is(e) ? cx.types.erasure(e) : e;
+  }
+
+  /**
+   * Whether a use t of one of the interfaces stays the erased interface because of variance: a
+   * `List<? extends X>` or `List<?>`. A list of a narrower element type enters such a place (the
+   * graph classes' `List<LinkedDiGraphEdge>` where `List<? extends DiGraphEdge>` is declared),
+   * and as a typed List of the wider type it would need a second object per list: measured, one
+   * allocation per call of the graph nodes' getInEdges / getOutEdges, also when the object that
+   * has the list keeps the view (most lists are asked for once). Erased, the list enters as it
+   * is and the reader casts each element, as before the kind. The narrowing override itself is
+   * typed (piece `cov`), so a caller that has the narrowing class reads without a cast.
+   */
+  boolean wildErased(TypeMirror t) {
+    if (!"list".equals(kindOf(Ctx.typeElement(t)))) return false;
+    for (TypeMirror a : ((DeclaredType) t).getTypeArguments()) {
+      // (the type of an expression has the wildcard captured)
+      if (a.getKind() == TypeKind.WILDCARD || a.getKind() == TypeKind.TYPEVAR && a.toString().startsWith("capture")) return true;
+    }
+    return false;
   }
 
   /** Whether (erased) type t is a typed use of one of the interfaces. */
@@ -288,10 +318,11 @@ final class LibGen {
   String fromTypedColl(String code, TypeMirror from, TypeMirror to) {
     if (!is(to)) return null;
     String qn = Ctx.typeElement(to).getQualifiedName().toString();
-    String as = qn.equals("java.lang.Iterable") ? ".asIterable()" : qn.equals("java.util.Collection") ? ".asCollT()" : null;
+    String as = qn.equals("java.lang.Iterable") ? ".asIterable()" : qn.equals("java.util.Collection") ? ".asCollT()" : qn.equals("java.util.List") ? ".asListT()" : null;
     if (as == null) return null;
     Ctx.CollKind k = cx.typedColl(from);
     if (k == null || k.builds != null || k.pair()) return null;
+    if (qn.equals("java.util.List") && !k.name.equals("list")) return null;
     TypeMirror elem = ((DeclaredType) from).getTypeArguments().get(0);
     if (!cx.goTypeArg(elem).equals(cx.goTypeArg(((DeclaredType) to).getTypeArguments().get(0)))) return null;
     return ExprEmitter.atomOrParen(code) + as;

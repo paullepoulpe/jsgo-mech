@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.AbstractCollection;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
@@ -499,7 +500,154 @@ public class LibGen {
     return r;
   }
 
+  // ---- kind `list`, piece `place`
+
+  /** A list that one path makes with a runtime function, so that its declaration is no typed list of rule "typed collections". */
+  static List<String> pick(int how) {
+    List<String> r;
+    switch (how) {
+      case 0:
+        r = new ArrayList<>();
+        r.add("n");
+        r.add("m");
+        break;
+      case 1:
+        r = Arrays.asList("x", "y", "z");
+        break;
+      case 2:
+        r = ImmutableList.of("i", "j");
+        break;
+      case 3:
+        r = Collections.emptyList();
+        break;
+      case 4:
+        r = new ArrayList<>(Arrays.asList("s", "t", "u", "v")).subList(1, 3);
+        break;
+      default:
+        r = null;
+    }
+    return r;
+  }
+
+  static String show(List<String> l) {
+    String r = l.size() + "";
+    for (int i = 0; i < l.size(); i++) {
+      r += l.get(i);
+    }
+    for (String s : l) {
+      r += s + s.length();
+    }
+    return r + l + l.indexOf("y") + l.contains("j") + l.isEmpty();
+  }
+
+  static String firstName(List<? extends Animal> l) {
+    return l.isEmpty() ? "-" : l.get(0).name + l.size();
+  }
+
+  interface Source {
+    List<Animal> animals();
+  }
+
+  static final class DogSource implements Source {
+    final List<Animal> list = new ArrayList<>();
+
+    @Override
+    public List<Animal> animals() {
+      return list;
+    }
+  }
+
+  static final class FixedSource implements Source {
+    @Override
+    public List<Animal> animals() {
+      return ImmutableList.of(new Animal("cat"), new Dog("dog"));
+    }
+  }
+
+  static String lists() {
+    String r = "";
+    for (int i = 0; i < 5; i++) {
+      r += show(pick(i)) + ";";
+    }
+    List<String> a = pick(0);
+    a.add("o");
+    a.set(0, "N");
+    a.remove(1);
+    a.add(0, "first");
+    a.remove("o");
+    a.addAll(pick(1));
+    Collections.sort(a);
+    r += a + "" + a.hashCode() + a.equals(Arrays.asList("N", "first", "x", "y", "z")) + (a == pick(0)) + (pick(5) == null);
+    List<String> fixed = pick(1);
+    fixed.set(1, "Y");
+    r += fixed + show(fixed.subList(1, 3));
+    // (only the immutable list: the runtime's Arrays.asList and Collections.emptyList are lists that can grow)
+    for (int how = 2; how <= 2; how++) {
+      try {
+        pick(how).add("more");
+        r += "added";
+      } catch (UnsupportedOperationException e) {
+        r += "uoe";
+      }
+    }
+    try {
+      r += pick(2).get(2);
+    } catch (IndexOutOfBoundsException e) {
+      r += "ioobe";
+    }
+    try {
+      r += pick(5).get(0);
+    } catch (NullPointerException e) {
+      r += "npe";
+    }
+    DogSource ds = new DogSource();
+    ds.list.add(new Dog("d1"));
+    List<Source> srcs = new ArrayList<>();
+    srcs.add(ds);
+    srcs.add(new FixedSource());
+    for (Source src : srcs) {
+      List<Animal> as = src.animals();
+      r += "|" + firstName(as) + as.get(as.size() - 1) + names(as) + pets(as) + (as == src.animals()) + (as.equals(src.animals()));
+    }
+    List<Dog> dogs = new ArrayList<>();
+    dogs.add(new Dog("rex"));
+    r += firstName(dogs) + firstName(ImmutableList.of(new Dog("im"))) + firstName(Collections.unmodifiableList(dogs));
+    // collections of lists
+    Map<String, List<String>> byKey = new LinkedHashMap<>();
+    byKey.computeIfAbsent("k", k -> new ArrayList<>()).add("v1");
+    byKey.computeIfAbsent("k", k -> new ArrayList<>()).add("v2");
+    byKey.put("i", ImmutableList.of("w"));
+    List<String> got = byKey.get("k");
+    r += "|" + show(got) + (got == byKey.get("k")) + show(byKey.get("i")) + byKey;
+    for (Map.Entry<String, List<String>> e : byKey.entrySet()) {
+      List<String> v = e.getValue();
+      r += e.getKey() + v.get(0);
+    }
+    List<List<String>> ll = new ArrayList<>();
+    ll.add(got);
+    ll.add(pick(1));
+    for (List<String> x : ll) {
+      r += x.get(x.size() - 1);
+    }
+    // an unchecked cast: nothing fails until an element is read at its type
+    List<Object> mixed = new ArrayList<>();
+    mixed.add("s");
+    mixed.add(1);
+    Object o = mixed;
+    @SuppressWarnings("unchecked")
+    List<String> wrong = (List<String>) o;
+    r += wrong.size() + wrong.get(0);
+    try {
+      String s = wrong.get(1);
+      r += s;
+    } catch (ClassCastException e) {
+      r += "cce";
+    }
+    return r + (wrong == o) + (o instanceof List);
+  }
+
   public static String run() {
+    p(lists());
     p(colls());
     p(views());
     p(loops());

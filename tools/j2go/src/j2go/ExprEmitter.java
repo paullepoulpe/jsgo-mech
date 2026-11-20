@@ -191,6 +191,10 @@ abstract class ExprEmitter extends Base {
       if (made != null) return made;
       if (strip(t) instanceof MethodInvocationTree mi && Ctx.isUnmodifiable(elemOf(mi.getMethodSelect()), mi)) return exprAs(mi.getArguments().get(0), target);
     }
+    if (cx.lg.is(target)) {
+      String made = lgMade(strip(t), target);
+      if (made != null) return made;
+    }
     if (cx.lg.is(target) && strip(t) instanceof MethodInvocationTree mi && cx.lg.passes(elemOf(mi.getMethodSelect()), mi)) {
       // Collections.unmodifiableCollection(x) and its like where a typed interface is wanted: the
       // runtime's is its argument, so the value is x at that type (no detour through the erased form)
@@ -229,7 +233,10 @@ abstract class ExprEmitter extends Base {
     if (strip(t) instanceof MethodInvocationTree mi && cx.kind(target) != Ctx.K.PRIM && cx.kind(from) != Ctx.K.PRIM) {
       // Convert the call's declared result straight to the wanted type, without a detour through the
       // (possibly narrower) static type of the call expression.
+      // (a result that goes to an Object: javac casts nothing there, so the erased method gives it)
+      if (cx.kind(target) == Ctx.K.ANY) lgWantErased = mi;
       CallResult r = invocation(mi);
+      lgWantErased = null;
       if (r.type.getKind() != TypeKind.VOID) {
         // An array keeps its element representation ([]string is not []any), so a T[] result must
         // become its static array type before it is put into an Object.
@@ -246,6 +253,31 @@ abstract class ExprEmitter extends Base {
       return conditional(c, target);
     }
     return cx.coerce(expr(t), from, target);
+  }
+
+  /**
+   * Rule "typed library interfaces", piece `place` (J2GO_NOLIBGEN=place is the translation
+   * without it): a collection is made typed by the place it enters. Expression t that makes a
+   * new collection (`new ArrayList<>(..)`, `ImmutableList.of(..)`, `ImmutableList.copyOf(..)`,
+   * a runtime constructor of Ctx.TYPED_MAKERS) for a place of typed interface type target with
+   * the collection's own element type is the runtime's typed collection, which enters as its
+   * view (native: no wrapper, the elements as they are); null for any other expression, which
+   * enters through Ctx.coerce. A place of an erased type (Object, a library parameter) gets the
+   * erased collection as before.
+   */
+  String lgMade(ExpressionTree t, TypeMirror target) {
+    if (!LibGen.on("place") || !(t instanceof NewClassTree) && !(t instanceof MethodInvocationTree)) return null;
+    TypeMirror from = typeOf(t);
+    if (from == null || from.getKind() != TypeKind.DECLARED) return null;
+    Ctx.CollKind k = cx.collKindOf(from);
+    if (k == null || k.builds != null || k == cx.entryKind || k.pair()) return null;
+    List<TypeMirror> args = cx.typedArgs(k, from);
+    if (args == null) return null;
+    TypeMirror stub = cx.typedOf(k, args);
+    String probe = cx.lg.fromTypedColl("x", stub, target);
+    if (probe == null) return null;
+    String made = newTyped(t, stub);
+    return made == null ? null : cx.lg.fromTypedColl(made, stub, target);
   }
 
   /**
@@ -1425,9 +1457,23 @@ abstract class ExprEmitter extends Base {
     }
     String name = cx.methodName(e);
     boolean lgTyped = cx.lg.typedAt(e, site);
+    if (lgTyped && lgErasedNow && cx.lg.renamed(cx.root(e)) && cx.kind(cx.lg.rt(cx.groupReturn(e))) == Ctx.K.ANY) {
+      // the result enters an Object: the erased method, whose result is that Object
+      lgTyped = false;
+      params = new ArrayList<>(cx.groupParams(e));
+      params.replaceAll(cx.lg::rt);
+      ret = cx.lg.rt(cx.groupReturn(e));
+    }
+    lgErasedNow = false;
     if (lgTyped) {
       // rule "typed library interfaces": the typed method (next_t), declared by the runtime
       name = cx.lg.methodName(e, site);
+      if (!cx.lg.nativeKind(cx.ownerOf(cx.root(e)))) {
+        // (a collection kind: the erased interface, which the runtime's own code calls, keeps the erased method)
+        List<TypeMirror> ep = new ArrayList<>(cx.groupParams(e));
+        ep.replaceAll(cx.lg::rt);
+        noteMethod("method " + cx.className(cx.ownerOf(cx.root(e))) + "." + cx.methodName(e), cx.root(e), ep, cx.lg.rt(cx.groupReturn(e)), "method");
+      }
     } else if (recv != null && cx.isTypedColl(recv.type) && cx.lg.is(ret) && name.equals("iterator")) {
       // the iterator of a typed collection, at its element type
       name = "iterator_t";
@@ -1582,7 +1628,8 @@ abstract class ExprEmitter extends Base {
    */
   String stringKeyHelper(ExecutableElement re, Recv recv, List<Arg> args) {
     if (args.isEmpty() || args.size() != re.getParameters().size() || cx.kind(args.get(0).type) != Ctx.K.STR) return null;
-    TypeMirror p0 = cx.erase(re.getParameters().get(0).asType());
+    // (the parameter as the runtime declares it: the type parameter of a typed library interface is Object there)
+    TypeMirror p0 = cx.lg.rt(re.getParameters().get(0).asType());
     if (cx.kind(p0) != Ctx.K.ANY || p0.getKind() != TypeKind.DECLARED) return null;
     String owner = cx.ownerOf(re).getQualifiedName().toString(), name = re.getSimpleName().toString();
     if (owner.equals("java.util.Map")) {
@@ -1606,7 +1653,26 @@ abstract class ExprEmitter extends Base {
     return null;
   }
 
+  /**
+   * Rule "typed library interfaces": the call whose result enters a place of type Object (set by
+   * exprAs), and whether the call being translated is that one. Java casts the result of
+   * `list.get(i)` to the element type only where that type is wanted, so such a call is the
+   * erased method: an element of another class, which unchecked code put there, passes.
+   */
+  MethodInvocationTree lgWantErased;
+  boolean lgErasedNow;
+
   CallResult invocation(MethodInvocationTree t) {
+    boolean lgEr = t == lgWantErased;
+    lgWantErased = null;
+    try {
+      return invocation(t, lgEr);
+    } finally {
+      lgErasedNow = false;
+    }
+  }
+
+  CallResult invocation(MethodInvocationTree t, boolean lgEr) {
     ExpressionTree sel = t.getMethodSelect();
     Element el = elemOf(t);
     if (!(el instanceof ExecutableElement)) el = elemOf(sel);
@@ -1641,6 +1707,7 @@ abstract class ExprEmitter extends Base {
       String rcode = expr(q);
       curInst = typeOf(sel) instanceof ExecutableType et ? et : null;
       retOverride = e.getModifiers().contains(Modifier.STATIC) && !cx.isTypedColl(cx.refinedTrees.get(t)) ? cx.refinedTrees.get(t) : null;
+      lgErasedNow = lgEr;
       return special(e, new Recv(rcode, qt), as);
     }
     return special(e, null, as);

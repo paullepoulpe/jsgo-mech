@@ -537,7 +537,8 @@ abstract class StmtEmitter extends ExprEmitter {
       }
       code = r.code;
     } else {
-      if (!cx.lg.is(et)) return null;
+      // (a place that stays erased, a List with a wildcard: the erased loop)
+      if (!cx.lg.is(et) || !cx.lg.is(cx.erase(et))) return null;
       code = expr(ex);
     }
     DeclaredType v = cx.superView(ty, iterable);

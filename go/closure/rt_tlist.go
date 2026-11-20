@@ -342,7 +342,15 @@ func (v *tlistView_[T]) subList(a int32, b int32) List {
 	if a < 0 || b > v.l.size() || a > b {
 		panic(new_IndexOutOfBoundsException_String("fromIndex: " + istr_(int64(a)) + ", toIndex: " + istr_(int64(b)) + ", size: " + istr_(int64(len(v.l.items)))).self())
 	}
-	return listOf_(v.boxed()[a:b:b])
+	// as ArrayList.subList in rt_coll.go: a list on the same storage (set writes through, add
+	// does not), here on the typed items, so nothing is boxed and the result is a typed list too
+	s := &TList[T]{items: v.l.items[a:b:b], c: v.l.c}
+	s.view.l = s
+	if v.l.twin != nil {
+		// of a list that cannot be changed: one that cannot be changed
+		s.twin = unmodMark_
+	}
+	return &s.view
 }
 
 func (v *tlistView_[T]) toArray_0() []any      { return v.boxed() }

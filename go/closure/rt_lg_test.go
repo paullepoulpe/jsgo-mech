@@ -251,3 +251,79 @@ func TestLgValuesT(t *testing.T) {
 		(*TMap[string, string])(nil).valuesT()
 	}()
 }
+
+// Kind list: a typed list as a List is its view, with the elements at their type; an erased
+// list is wrapped; an erased immutable list gives the view of its typed list.
+func TestLgList(t *testing.T) {
+	l := newTList_(tc_string)
+	l.add("a")
+	l.add("b")
+	lt := l.asListT()
+	if (*TList[string])(nil).asListT() != nil || listAs_(tc_string, nil) != nil || List_un_(nil) != nil {
+		t.Fatal("null")
+	}
+	if List_un_(lt) != l.asList() || lgBox_(lt) != any(l.asList()) || listAs_(tc_string, l.asList()) != lt || CollectionT[string](lt) != l.asCollT() {
+		t.Fatal("the typed list as a List is not its view")
+	}
+	if lt.get_t(1) != "b" || lt.size() != 2 {
+		t.Fatal(lt.get_t(1))
+	}
+	il := immutableListOf_(tc_string, "p", "q")
+	it := il.asListT()
+	if List_un_(it) != List(il.asImm()) || listAs_(tc_string, List(il.asImm())) != it || it.get_t(0) != "p" {
+		t.Fatal("the immutable typed list as a List")
+	}
+	al := new_ArrayList_0()
+	al.add(strobj_("m"))
+	al.add(obj_(int32(1)))
+	w := listAs_(tc_string, List(al))
+	got := w.get_t(0)
+	for e := eachOf_[string](l.asListT()); e.next(); {
+		got += e.v
+	}
+	if got != "mab" || List_un_(w) != List(al) || lgBox_(w) != any(al) {
+		t.Fatal(got)
+	}
+	for _, f := range []func(){func() { lt.get_t(2) }, func() { w.get_t(1) }} {
+		func() {
+			defer func() {
+				if recover() == nil {
+					t.Fatal("get_t out of range, or of an element of another class, did not throw")
+				}
+			}()
+			f()
+		}()
+	}
+}
+
+// subList of the view of a typed list is a typed list on the same items, as the erased
+// ArrayList's is a list on the same boxes: set writes through, and nothing is boxed.
+func TestLgSubList(t *testing.T) {
+	l := newTList_(tc_string)
+	for _, x := range []string{"a", "b", "c", "d"} {
+		l.add(x)
+	}
+	s := listAs_(tc_string, l.asListT().subList(1, 3))
+	if _, wrapped := s.(*listAs[string]); wrapped || s.size() != 2 || s.get_t(0) != "b" || s.get_t(1) != "c" {
+		t.Fatal("subList of a typed list")
+	}
+	s.set(0, strobj_("B"))
+	if l.get(1) != "B" || tostr_(s) != "[B, c]" {
+		t.Fatal("set through the sublist", l.get(1))
+	}
+	im := immutableListOf_(tc_string, "p", "q", "r").asListT().subList(0, 2)
+	func() {
+		defer func() {
+			if recover() == nil {
+				t.Fatal("the sublist of an immutable list was changed")
+			}
+		}()
+		im.add(strobj_("x"))
+	}()
+	defer func() {
+		if recover() == nil {
+			t.Fatal("subList out of range did not throw")
+		}
+	}()
+	l.asListT().subList(2, 9)
+}
