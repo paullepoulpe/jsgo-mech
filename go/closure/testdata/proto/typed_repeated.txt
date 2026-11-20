@@ -1,0 +1,57 @@
+ints empty: 0 []
+ints: 5 [int32(1), int32(-1), int32(300), int32(0), int32(70000)] get(2)=300
+ints: builder {instance_type: 1; instance_type: -1; instance_type: 300; instance_type: 0; instance_type: 70000; prototype: 5}
+ints: 2a1101ffffffffffffffffff01ac0200f0a204320105 | {instance_type: 1; instance_type: -1; instance_type: 300; instance_type: 0; instance_type: 70000; prototype: 5} | hash -1465383396 | size 22
+ints set: builder {instance_type: 1; instance_type: 42; instance_type: 300; instance_type: 0; instance_type: -5; prototype: 5}
+ints set: 2a0f012aac0200fbffffffffffffffff01320105 | {instance_type: 1; instance_type: 42; instance_type: 300; instance_type: 0; instance_type: -5; prototype: 5} | hash 909403292 | size 20
+ints message: 5 [int32(1), int32(42), int32(300), int32(0), int32(-5)] get(4)=-5
+ints get -1: java.lang.IndexOutOfBoundsException: Index: -1, Size: 5
+ints get 5: java.lang.IndexOutOfBoundsException: Index: 5, Size: 5
+ints set 5: java.lang.IndexOutOfBoundsException: Index: 5, Size: 5
+ints addAll null: java.lang.NullPointerException: \x00\xff<null>\xff\x00
+ints addAll null element: java.lang.NullPointerException: \x00\xff<null>\xff\x00
+ints after errors: builder {instance_type: 1; instance_type: 42; instance_type: 300; instance_type: 0; instance_type: -5; instance_type: 1; prototype: 5}
+ints after errors: 2a10012aac0200fbffffffffffffffff0101320105 | {instance_type: 1; instance_type: 42; instance_type: 300; instance_type: 0; instance_type: -5; instance_type: 1; prototype: 5} | hash 406816027 | size 21
+ints cleared: 0 []
+ints cleared: builder {prototype: 5}
+ints cleared: 320105 | {prototype: 5} | hash 898013222 | size 3
+strings: 5 [string(a), string(), string(c), string(d\xc3\xa9), string(e)] get(3)="d\xc3\xa9" bytes(3)=64c3a9
+strings: builder {externs: "A"; externs: ""; externs: "c"; externs: "d\303\251"; externs: "e"}
+strings: 820101418201008201016382010364c3a982010165 | {externs: "A"; externs: ""; externs: "c"; externs: "d\303\251"; externs: "e"} | hash -2082960205 | size 21
+strings add null: java.lang.NullPointerException: \x00\xff<null>\xff\x00
+strings set null: java.lang.NullPointerException: \x00\xff<null>\xff\x00
+strings get 9: java.lang.IndexOutOfBoundsException: Index: 9, Size: 5
+strings bytes 9: java.lang.IndexOutOfBoundsException: Index: 9, Size: 5
+enums: 7 [closure.FeatureProto(2), closure.FeatureProto(61), closure.FeatureProto(1), closure.FeatureProto(3), closure.FeatureProto(4), closure.FeatureProto(8), closure.FeatureProto(61)] values [int32(1), int32(555), int32(0), int32(2), int32(3), int32(7), int32(8000)] get(1)=61 value(1)=555 get(0)=2
+enums: builder {allowable_features: FEATURE_KEYWORDS_AS_PROPERTIES; allowable_features: 555; allowable_features: FEATURE_ARRAY_PATTERN_REST; allowable_features: FEATURE_ES3_KEYWORDS_AS_IDENTIFIERS; allowable_features: FEATURE_GETTER; allowable_features: FEATURE_TRAILING_COMMA; allowable_features: 8000}
+enums: 0a0904ab0409020307c03e | {allowable_features: FEATURE_KEYWORDS_AS_PROPERTIES; allowable_features: 555; allowable_features: FEATURE_ARRAY_PATTERN_REST; allowable_features: FEATURE_ES3_KEYWORDS_AS_IDENTIFIERS; allowable_features: FEATURE_GETTER; allowable_features: FEATURE_TRAILING_COMMA; allowable_features: 8000} | hash 1838699472 | size 11
+enums message: 7 [closure.FeatureProto(5), closure.FeatureProto(61), closure.FeatureProto(10), closure.FeatureProto(3), closure.FeatureProto(4), closure.FeatureProto(8), closure.FeatureProto(61)] values [int32(4), int32(555), int32(9), int32(2), int32(3), int32(7), int32(8000)] get(1)=61 value(6)=8000
+enums get 7: java.lang.IndexOutOfBoundsException: Index: 7, Size: 7
+enums cleared: builder {}
+enums cleared:  | {} | hash 355893856 | size 0
+bytes: 4 [bytes(), bytes(7979), bytes(ff), bytes()] get(2)=ff
+bytes: builder {strings: ""; strings: "yy"; strings: "\377"; strings: ""}
+bytes: 0a000a0279790a01ff0a00 | {strings: ""; strings: "yy"; strings: "\377"; strings: ""} | hash -30870966 | size 11
+bytes add null: java.lang.NullPointerException: \x00\xff<null>\xff\x00
+bytes set null: java.lang.NullPointerException: \x00\xff<null>\xff\x00
+messages: 6 [{name: "c"}, {name: "a"}, {name: "b"}, {name: "d"}, {name: "e"}, {name: "f"}] get(2)={name: "b"}
+messages: builder {chunks {;   name: "c"; }; chunks {;   name: "a"; }; chunks {;   name: "b"; }; chunks {;   name: "d"; }; chunks {;   name: "e"; }; chunks {;   name: "f"; }}
+messages: 32030a016332030a016132030a016232030a016432030a016532030a0166 | {chunks {;   name: "c"; }; chunks {;   name: "a"; }; chunks {;   name: "b"; }; chunks {;   name: "d"; }; chunks {;   name: "e"; }; chunks {;   name: "f"; }} | hash 40081920 | size 30
+messages set and removed: builder {chunks {;   name: "A"; }; chunks {;   name: "b"; }; chunks {;   name: "d"; }; chunks {;   name: "e"; }}
+messages set and removed: 32030a014132030a016232030a016432030a0165 | {chunks {;   name: "A"; }; chunks {;   name: "b"; }; chunks {;   name: "d"; }; chunks {;   name: "e"; }} | hash 2112736993 | size 20
+messages with builders: 6 [{name: "h"}, {name: "A"}, {name: "b"; input_ids: "in"}, {name: "d"}, {name: "e"}, {name: "g"}] get(0)={name: "h"} builders=6
+messages with builders: builder {chunks {;   name: "h"; }; chunks {;   name: "A"; }; chunks {;   name: "b";   input_ids: "in"; }; chunks {;   name: "d"; }; chunks {;   name: "e"; }; chunks {;   name: "g"; }}
+messages with builders: 32030a016832030a014132070a01621a02696e32030a016432030a016532030a0167 | {chunks {;   name: "h"; }; chunks {;   name: "A"; }; chunks {;   name: "b";   input_ids: "in"; }; chunks {;   name: "d"; }; chunks {;   name: "e"; }; chunks {;   name: "g"; }} | hash 1525843137 | size 34
+messages message: 6 [{name: "h"}, {name: "A"}, {name: "via list"; input_ids: "in"}, {name: "d"}, {name: "e"}, {name: "g"}] get(2)={name: "via list"; input_ids: "in"} orBuilder={name: "h"}
+messages add null: java.lang.NullPointerException: \x00\xff<null>\xff\x00
+messages set null: java.lang.NullPointerException: \x00\xff<null>\xff\x00
+messages get 6: java.lang.IndexOutOfBoundsException: Index: 6, Size: 6
+messages builder get 6: java.lang.IndexOutOfBoundsException: Index: 6, Size: 6
+messages remove 6: java.lang.IndexOutOfBoundsException: Index: 6, Size: 6
+messages insert 7: java.lang.IndexOutOfBoundsException: Index: 7, Size: 6
+messages builder -1: java.lang.IndexOutOfBoundsException: Index: -1, Size: 6
+messages after errors: builder {chunks {;   name: "h"; }; chunks {;   name: "A"; }; chunks {;   name: "via list";   input_ids: "in"; }; chunks {;   name: "d"; }; chunks {;   name: "e"; }; chunks {;   name: "g"; }}
+messages after errors: 32030a016832030a0141320e0a08766961206c6973741a02696e32030a016432030a016532030a0167 | {chunks {;   name: "h"; }; chunks {;   name: "A"; }; chunks {;   name: "via list";   input_ids: "in"; }; chunks {;   name: "d"; }; chunks {;   name: "e"; }; chunks {;   name: "g"; }} | hash -891818045 | size 41
+messages cleared: 0
+messages cleared: builder {}
+messages cleared:  | {} | hash 355893856 | size 0

@@ -1,0 +1,36 @@
+diff --git a/go/closure/rt_iter.go b/go/closure/rt_iter.go
+index 68cdde9a..dcc3d81a 100644
+--- a/go/closure/rt_iter.go
++++ b/go/closure/rt_iter.go
+@@ -184,6 +184,31 @@ func (it *immCursor_) next() any {
+ // remove throws UnsupportedOperationException, as an immutable collection's iterator does.
+ func (it *immCursor_) remove() { throwUOE_() }
+ 
++// immCursorT_ is immCursor_ over a typed immutable list (post-flip step tviews):
++// immCursorTOf_(l) is immCursorOf_(l.asImm()), whose twin holds l's elements boxed in the same
++// order; next() gives the element itself instead of its box. A null l fails as l.asImm() of a
++// null list followed by iterator() did (a nil dereference).
++type immCursorT_[T any] struct {
++	items []T
++	i     int
++}
++
++func immCursorTOf_[T any](l *TList[T]) *immCursorT_[T] { return &immCursorT_[T]{items: l.items} }
++
++func (it *immCursorT_[T]) hasNext() bool { return it.i < len(it.items) }
++
++func (it *immCursorT_[T]) next() T {
++	if it.i >= len(it.items) {
++		panic(new_NoSuchElementException_0().self())
++	}
++	v := it.items[it.i]
++	it.i++
++	return v
++}
++
++// remove throws UnsupportedOperationException, as an immutable collection's iterator does.
++func (it *immCursorT_[T]) remove() { throwUOE_() }
++
+ // slicePtrElemsBy_ is elemsBy_ over the list p points to (a pointer to a slice seen as an
+ // erased List): each element boxed, then converted by f, reading the slice anew at every
+ // step as the list's iterator did.
