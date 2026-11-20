@@ -3,13 +3,13 @@
 package closure
 
 type ColorRegistry struct {
-	nativeColors                        *JTMap[*ColorId, *Color]
+	nativeColors                        *TMap[*ColorId, *Color]
 	colorToDisambiguationSupertypeGraph *SimpleSetMultimap[*Color, *Color]
 	mismatchLocations                   *SimpleSetMultimap[any, any]
 }
 
 func (this *ColorRegistry) init_ColorRegistry(builder *ColorRegistry_Builder) {
-	this.nativeColors = immutableMapCopyOfT_(tce_p_ColorId, jtc_p_Color, builder.nativeColors)
+	this.nativeColors = immutableMapCopyOfT_(tch_p_ColorId, tc_p_Color, builder.nativeColors)
 	this.colorToDisambiguationSupertypeGraph = builder.colorToDisambiguationSupertypeGraph.immutableCopy()
 	this.mismatchLocations = builder.mismatchLocations.immutableCopy()
 	if !equalsR_(cast_[*ErasedImmutableSet](this.nativeColors.asImm().keySet()), ColorRegistry_REQUIRED_IDS.asSet()) {
@@ -25,7 +25,7 @@ func new_ColorRegistry(builder *ColorRegistry_Builder) *ColorRegistry {
 
 func (this *ColorRegistry) get(id *ColorId) *Color {
 	Preconditions_checkNotNull_T(id)
-	return Preconditions_checkNotNull_Object_String_Object_T(this.nativeColors.get(id), "Missing Color for %s", id)
+	return Preconditions_checkNotNull_Object_String_Object_T(this.nativeColors.Get(id), "Missing Color for %s", id)
 }
 
 func (this *ColorRegistry) getDisambiguationSupertypes(x *Color) SetOf[*Color] {
@@ -40,7 +40,7 @@ func ColorRegistry_builder() *ColorRegistry_Builder {
 	return new_ColorRegistry_Builder()
 }
 
-var ColorRegistry_REQUIRED_IDS *JTSet[*ColorId]
+var ColorRegistry_REQUIRED_IDS *TSet[*ColorId]
 
 var ColorRegistry_clinit_done bool
 
@@ -54,13 +54,13 @@ func ColorRegistry_clinit() {
 }
 
 type ColorRegistry_Builder struct {
-	nativeColors                        *JTMap[*ColorId, *Color]
+	nativeColors                        *TMap[*ColorId, *Color]
 	colorToDisambiguationSupertypeGraph *SimpleSetMultimap[*Color, *Color]
 	mismatchLocations                   *SimpleSetMultimap[any, any]
 }
 
 func (this *ColorRegistry_Builder) finit_ColorRegistry_Builder() {
-	this.nativeColors = jnewTMap_(tce_p_ColorId, jtc_p_Color)
+	this.nativeColors = newTMap_(tch_p_ColorId, tc_p_Color)
 	this.colorToDisambiguationSupertypeGraph = SimpleSetMultimap_create[*Color, *Color]()
 	this.mismatchLocations = SimpleSetMultimap_create[any, any]()
 }
@@ -76,10 +76,10 @@ func new_ColorRegistry_Builder() *ColorRegistry_Builder {
 }
 
 func (this *ColorRegistry_Builder) setNativeColor(x *Color) *ColorRegistry_Builder {
-	if !ColorRegistry_REQUIRED_IDS.contains(x.getId()) {
+	if !ColorRegistry_REQUIRED_IDS.Has(x.getId()) {
 		panic(new_IllegalStateException_String(objstr_(x)))
 	}
-	this.nativeColors.put(x.getId(), x)
+	this.nativeColors.Put(x.getId(), x)
 	return this
 }
 

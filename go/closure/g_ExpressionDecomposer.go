@@ -9,7 +9,7 @@ type ExpressionDecomposer struct {
 	astAnalyzer            *AstAnalyzer
 	astFactory_            *AstFactory
 	safeNameIdSupplier_    SupplierOf[string]
-	knownConstantFunctions *JTSet[string]
+	knownConstantFunctions *TSet[string]
 	scope_                 *Scope
 	enabledWorkarounds     EnumSetOf[ExpressionDecomposer_Workaround]
 	unknownType            *JSType
@@ -27,7 +27,7 @@ func (this *ExpressionDecomposer) finit_ExpressionDecomposer() {
 	this.resultNamePrefix = "JSCompiler_inline_result"
 }
 
-func (this *ExpressionDecomposer) init_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string], constFunctionNames *JTSet[string], scope *Scope, enabledWorkarounds EnumSetOf[ExpressionDecomposer_Workaround]) {
+func (this *ExpressionDecomposer) init_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string], constFunctionNames *TSet[string], scope *Scope, enabledWorkarounds EnumSetOf[ExpressionDecomposer_Workaround]) {
 	this.finit_ExpressionDecomposer()
 	Preconditions_checkNotNull_T(compiler)
 	if safeNameIdSupplier == nil {
@@ -51,7 +51,7 @@ func (this *ExpressionDecomposer) init_ExpressionDecomposer(compiler *AbstractCo
 	}()
 }
 
-func new_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string], constFunctionNames *JTSet[string], scope *Scope, enabledWorkarounds EnumSetOf[ExpressionDecomposer_Workaround]) *ExpressionDecomposer {
+func new_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string], constFunctionNames *TSet[string], scope *Scope, enabledWorkarounds EnumSetOf[ExpressionDecomposer_Workaround]) *ExpressionDecomposer {
 	this := &ExpressionDecomposer{}
 	this.zero_ExpressionDecomposer()
 	this.init_ExpressionDecomposer(compiler, safeNameIdSupplier, constFunctionNames, scope, enabledWorkarounds)
@@ -137,7 +137,7 @@ func (this *ExpressionDecomposer) exposeExpression_2(expressionRoot Node, subExp
 
 func (this *ExpressionDecomposer) rewriteAllContainingOptionalChains(subExpression Node) {
 	var optChainRewriterBuilder *OptionalChainRewriter_Builder = OptionalChainRewriter_builder(this.compiler_).setTmpVarNameCreator(newFuncObj_(func() string { return this.getTempConstantValueName() })).setScope(this.scope_)
-	var rewriters *TDeque[*OptionalChainRewriter] = newTDeque_(jtc_p_OptionalChainRewriter)
+	var rewriters *TDeque[*OptionalChainRewriter] = newTDeque_(tc_p_OptionalChainRewriter)
 	{
 		var exprParent Node = subExpression.getParent()
 		for ; !NodeUtil_isStatement(exprParent); exprParent = exprParent.getParent() {
@@ -288,7 +288,7 @@ func ExpressionDecomposer_buildResultExpression(expr Node, needResult bool, temp
 }
 
 func (this *ExpressionDecomposer) isConstantNameNode(n Node) bool {
-	return (n.isName() && (NodeUtil_isConstantVar(n, this.scope_) || this.knownConstantFunctions.contains(n.getString())))
+	return (n.isName() && (NodeUtil_isConstantVar(n, this.scope_) || this.knownConstantFunctions.Has(n.getString())))
 }
 
 func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint Node) Node {
@@ -611,7 +611,7 @@ func (this *ExpressionDecomposer) isExpressionTreeUnsafe(tree Node, followingSid
 				}
 				return tree
 			}()
-			if tree.isFirstChildOf(parent) && (this.isTempConstantValueName(callee) || this.knownConstantFunctions.contains(callee.getQualifiedName())) {
+			if tree.isFirstChildOf(parent) && (this.isTempConstantValueName(callee) || this.knownConstantFunctions.Has(callee.getQualifiedName())) {
 				return false
 			}
 		}

@@ -14,14 +14,14 @@ type NodeTraversal struct {
 	currentFunction                                Node
 	currentScript                                  Node
 	currentChangeScope                             Node
-	scopes                                         *JTList[any]
+	scopes                                         *TList[any]
 	sourceName_                                    Optional[string]
 	inputId                                        *InputId
 	compilerInput                                  *CompilerInput
 }
 
 func (this *NodeTraversal) finit_NodeTraversal() {
-	this.scopes = jnewTList_(tc_Object)
+	this.scopes = newTList_(tc_Object)
 	this.sourceName_ = Optional_empty[string]()
 }
 
@@ -181,7 +181,7 @@ func (this *NodeTraversal) traverseAtScope(s *AbstractScope) {
 	var n Node = s.getRootNode()
 	this.initTraversal(n)
 	this.currentNode = n
-	var parentScopes *TDeque[*AbstractScope] = newTDeque_(jtc_p_AbstractScope)
+	var parentScopes *TDeque[*AbstractScope] = newTDeque_(tc_p_AbstractScope)
 	var temp *AbstractScope = s.getParent()
 	for temp != nil {
 		parentScopes.push(temp)
@@ -859,7 +859,7 @@ func (this *NodeTraversal) initTraversal(traversalRoot Node) {
 }
 
 func (this *NodeTraversal) initScopeRoots(n Node) {
-	var queuedScopeRoots *TDeque[Node] = newTDeque_(jtc_Node)
+	var queuedScopeRoots *TDeque[Node] = newTDeque_(tc_Node)
 	for n != 0 {
 		if this.isScopeRoot(n) {
 			queuedScopeRoots.push(n)
@@ -1321,7 +1321,7 @@ func (this *NodeTraversal_AbstractModuleCallback) exitModule_impl(oldModule *Mod
 func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	switch n.ns_().token {
 	case tokOrd1_SCRIPT:
-		this.currentModule = this.moduleMetadataMap.getModulesByPath().get(t.getInput().getPath().toString())
+		this.currentModule = this.moduleMetadataMap.getModulesByPath().Get(t.getInput().getPath().toString())
 		Preconditions_checkNotNull_T(this.currentModule)
 		this.scopeRoot = func() Node {
 			if n.hasChildren() && n.getFirstChild().isModuleBody() {
@@ -1337,7 +1337,7 @@ func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse(t *NodeTraversa
 		}
 	case tokOrd1_CALL:
 		if this.inLoadModule && NodeTraversal_AbstractModuleCallback_GOOG_MODULE.matches(n.getFirstChild()) {
-			var newModule *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMap.getModulesByGoogNamespace().get(n.getLastChild().getString())
+			var newModule *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMap.getModulesByGoogNamespace().Get(n.getLastChild().getString())
 			Preconditions_checkNotNull_T(newModule)
 			if !JSCompObjects_identical(obj_(newModule), obj_(this.currentModule)) {
 				this.currentModule = newModule
@@ -1366,7 +1366,7 @@ func (this *NodeTraversal_AbstractModuleCallback) visit(t *NodeTraversal, n Node
 			this.exitModule(this.currentModule, this.scopeRoot)
 			this.scopeRoot = n.getGrandparent().getGrandparent()
 			this.inLoadModule = false
-			this.currentModule = this.moduleMetadataMap.getModulesByPath().get(t.getInput().getPath().toString())
+			this.currentModule = this.moduleMetadataMap.getModulesByPath().Get(t.getInput().getPath().toString())
 			Preconditions_checkNotNull_T(this.currentModule)
 		}
 	default:

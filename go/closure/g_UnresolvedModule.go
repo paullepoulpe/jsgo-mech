@@ -9,11 +9,11 @@ type UnresolvedModule struct {
 // UnresolvedModule_I holds the methods the dispatchers of UnresolvedModule's hierarchy call on the most derived
 // object (self_); every class of the hierarchy implements them (post-flip).
 type UnresolvedModule_I interface {
-	getExportedNames_2_impl(ModuleRequestResolver, *JTSet[*UnresolvedModule]) *JTSet[string]
-	getExportedNames_impl(ModuleRequestResolver) *JTSet[string]
+	getExportedNames_2_impl(ModuleRequestResolver, *TSet[*UnresolvedModule]) *TSet[string]
+	getExportedNames_impl(ModuleRequestResolver) *TSet[string]
 	metadata_impl() *ModuleMetadataMap_ModuleMetadata
 	reset_impl()
-	resolveExport_5_impl(ModuleRequestResolver, Optional[string], Optional[string], *JTSet[*ExportTrace], *JTSet[*UnresolvedModule]) *ResolveExportResult
+	resolveExport_5_impl(ModuleRequestResolver, Optional[string], Optional[string], *TSet[*ExportTrace], *TSet[*UnresolvedModule]) *ResolveExportResult
 	resolveExport_impl(ModuleRequestResolver, Optional[string]) *ResolveExportResult
 	resolve_2_impl(ModuleRequestResolver, Optional[string]) *Module
 }
@@ -49,7 +49,7 @@ func (this *UnresolvedModule) resolve(moduleRequestResolver ModuleRequestResolve
 }
 
 func (this *UnresolvedModule) resolveExport_impl(moduleRequestResolver ModuleRequestResolver, exportName Optional[string]) *ResolveExportResult {
-	return this.resolveExport_5(moduleRequestResolver, Optional_empty[string](), exportName, jnewTSet_(tce_p_ExportTrace), jnewTSet_(tce_p_UnresolvedModule))
+	return this.resolveExport_5(moduleRequestResolver, Optional_empty[string](), exportName, newTSet_(tch_p_ExportTrace), newTSet_(tch_p_UnresolvedModule))
 }
 
 func (this *UnresolvedModule) equals(other any) bool {
@@ -64,7 +64,7 @@ func (this *UnresolvedModule) resolveExport(p0 ModuleRequestResolver, p1 Optiona
 	return this.self_.resolveExport_impl(p0, p1)
 }
 
-func (this *UnresolvedModule) resolveExport_5(p0 ModuleRequestResolver, p1 Optional[string], p2 Optional[string], p3 *JTSet[*ExportTrace], p4 *JTSet[*UnresolvedModule]) *ResolveExportResult {
+func (this *UnresolvedModule) resolveExport_5(p0 ModuleRequestResolver, p1 Optional[string], p2 Optional[string], p3 *TSet[*ExportTrace], p4 *TSet[*UnresolvedModule]) *ResolveExportResult {
 	return this.self_.resolveExport_5_impl(p0, p1, p2, p3, p4)
 }
 
@@ -76,11 +76,11 @@ func (this *UnresolvedModule) metadata() *ModuleMetadataMap_ModuleMetadata {
 	return this.self_.metadata_impl()
 }
 
-func (this *UnresolvedModule) getExportedNames(p0 ModuleRequestResolver) *JTSet[string] {
+func (this *UnresolvedModule) getExportedNames(p0 ModuleRequestResolver) *TSet[string] {
 	return this.self_.getExportedNames_impl(p0)
 }
 
-func (this *UnresolvedModule) getExportedNames_2(p0 ModuleRequestResolver, p1 *JTSet[*UnresolvedModule]) *JTSet[string] {
+func (this *UnresolvedModule) getExportedNames_2(p0 ModuleRequestResolver, p1 *TSet[*UnresolvedModule]) *TSet[string] {
 	return this.self_.getExportedNames_2_impl(p0, p1)
 }
 

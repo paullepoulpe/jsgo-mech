@@ -1,0 +1,265 @@
+diff --git a/go/closure/g_Node.go b/go/closure/g_Node.go
+index 82424290..aa97cba5 100644
+--- a/go/closure/g_Node.go
++++ b/go/closure/g_Node.go
+@@ -35,7 +35,6 @@ func (this Node) cs_() *Node_cs_ {
+ type Node_ps_ struct {
+ 	jstypeOrColor any
+ 	originalName  string
+-	propListHead  *Node_PropListItem
+ 	payload       any
+ }
+ 
+@@ -45,6 +44,16 @@ func (this Node) ps_() *Node_ps_ {
+ 	return &Node_ps_chunks_[this>>handleShift_][uint16(this)]
+ }
+ 
++// Node_props_chunks_ is the column of propListHead (post-flip manual step): a property lookup
++// reads only this word of the node, so it is kept apart from the 48-byte pointer record, as
++// payload's string slot is. In Java the field sits in the Node object next to the token and
++// links that a traversal has just read; here one load brings in the heads of eight nodes.
++var Node_props_chunks_ [handleChunks_]*[handleChunkSize_]*Node_PropListItem
++
++func (this Node) props_() **Node_PropListItem {
++	return &Node_props_chunks_[this>>handleShift_][uint16(this)]
++}
++
+ var Node_payload_s_chunks_ [handleChunks_]*[handleChunkSize_]string
+ 
+ func (this Node) payload_s_() *string {
+@@ -91,6 +100,7 @@ func Node_alloc_() Node {
+ 		Node_cs_chunks_[h>>handleShift_] = new([handleChunkSize_]Node_cs_)
+ 		Node_ps_chunks_[h>>handleShift_] = new([handleChunkSize_]Node_ps_)
+ 		Node_payload_s_chunks_[h>>handleShift_] = new([handleChunkSize_]string)
++		Node_props_chunks_[h>>handleShift_] = new([handleChunkSize_]*Node_PropListItem)
+ 	}
+ 	Node_count_ = h + 1
+ 	Node(h).cs_().self_ = h
+@@ -148,7 +158,7 @@ func init() {
+ 			if !(h.ps_().originalName == nullstr_ || h.ps_().originalName == "") {
+ 				c[8]++
+ 			}
+-			if !(h.ps_().propListHead == nil) {
++			if !((*h.props_()) == nil) {
+ 				c[9]++
+ 			}
+ 			if !(h.ps_().payload == nil) {
+@@ -396,7 +406,7 @@ func (this Node) getClosureUnawareShadow() Node {
+ }
+ 
+ func (this Node) setIsInClosureUnawareSubtree(value bool) {
+-	if ((this.ps_().propListHead == nil) || (int32(this.ps_().propListHead.propType) != Node_Prop_SOURCE_FILE.ordinal())) || (this.ps_().propListHead.next_ != nil) {
++	if (((*this.props_()) == nil) || (int32((*this.props_()).propType) != Node_Prop_SOURCE_FILE.ordinal())) || ((*this.props_()).next_ != nil) {
+ 		panic(new_IllegalArgumentException_String(String_format("Cannot set IS_IN_CLOSURE_UNAWARE_SUBTREE property on a node which proplist is not a single SOURCE_FILE prop: %s %s", []any{this.box_(), strobj_(this.getPropListDebugString())})).self())
+ 	}
+ 	this.putBooleanProp(Node_Prop_IS_IN_CLOSURE_UNAWARE_SUBTREE, value)
+@@ -654,7 +664,7 @@ func (this Node) detachChildren() {
+ 
+ func (this Node) lookupProperty(prop Node_Prop) *Node_PropListItem {
+ 	var propType int8 = int8(prop.ordinal())
+-	var x *Node_PropListItem = this.ps_().propListHead
++	var x *Node_PropListItem = (*this.props_())
+ 	for (x != nil) && (propType != x.propType) {
+ 		x = x.next_
+ 	}
+@@ -662,20 +672,20 @@ func (this Node) lookupProperty(prop Node_Prop) *Node_PropListItem {
+ }
+ 
+ func (this Node) clonePropsFrom(other Node) Node {
+-	Preconditions_checkState_boolean_Object((this.ps_().propListHead == nil), strobj_("Node has existing properties."))
+-	this.ps_().propListHead = other.ps_().propListHead
++	Preconditions_checkState_boolean_Object(((*this.props_()) == nil), strobj_("Node has existing properties."))
++	(*this.props_()) = (*other.props_())
+ 	return this
+ }
+ 
+ func (this Node) validateProperties(violationMessageConsumer func(any)) {
+-	if this.ps_().propListHead == nil {
++	if (*this.props_()) == nil {
+ 		return
+ 	}
+ 	if this.ns_().token == tokOrd1_ROOT {
+ 		violationMessageConsumer(strobj_("ROOT has properties"))
+ 	}
+ 	{
+-		var propListItem *Node_PropListItem = this.ps_().propListHead
++		var propListItem *Node_PropListItem = (*this.props_())
+ 		for ; propListItem != nil; propListItem = propListItem.next_ {
+ 			var prop Node_Prop = Node_propValues[propListItem.propType]
+ 			if !(prop.ordinal() == int32(propListItem.propType)) {
+@@ -763,9 +773,9 @@ func (this Node) getIntProp(propType Node_Prop) int32 {
+ }
+ 
+ func (this Node) putProp(prop Node_Prop, value any) {
+-	this.ps_().propListHead = Node_rebuildListWithoutProp(this.ps_().propListHead, prop)
++	(*this.props_()) = Node_rebuildListWithoutProp((*this.props_()), prop)
+ 	if value != nil {
+-		this.ps_().propListHead = new_Node_ObjectPropListItem(int8(prop.ordinal()), value, this.ps_().propListHead).up_Node_PropListItem()
++		(*this.props_()) = new_Node_ObjectPropListItem(int8(prop.ordinal()), value, (*this.props_())).up_Node_PropListItem()
+ 	}
+ }
+ 
+@@ -779,14 +789,14 @@ func (this Node) putBooleanProp(propType Node_Prop, value bool) {
+ }
+ 
+ func (this Node) putIntProp(prop Node_Prop, value int32) {
+-	this.ps_().propListHead = Node_rebuildListWithoutProp(this.ps_().propListHead, prop)
++	(*this.props_()) = Node_rebuildListWithoutProp((*this.props_()), prop)
+ 	if value != 0 {
+-		this.ps_().propListHead = new_Node_IntPropListItem(int8(prop.ordinal()), value, this.ps_().propListHead).up_Node_PropListItem()
++		(*this.props_()) = new_Node_IntPropListItem(int8(prop.ordinal()), value, (*this.props_())).up_Node_PropListItem()
+ 	}
+ }
+ 
+ func (this Node) removeProp(prop Node_Prop) {
+-	this.ps_().propListHead = Node_rebuildListWithoutProp(this.ps_().propListHead, prop)
++	(*this.props_()) = Node_rebuildListWithoutProp((*this.props_()), prop)
+ }
+ 
+ func Node_nodePropertyToBit(prop *NodeProperty) int64 {
+@@ -812,7 +822,7 @@ func Node_hasBitSet(bitset int64, bit int32) bool {
+ func (this Node) serializeProperties() int64 {
+ 	var propSet int64 = 0
+ 	{
+-		var propListItem *Node_PropListItem = this.ps_().propListHead
++		var propListItem *Node_PropListItem = (*this.props_())
+ 		for ; propListItem != nil; propListItem = propListItem.next_ {
+ 			var prop Node_Prop = Node_propValues[propListItem.propType]
+ 			switch prop {
+@@ -860,7 +870,7 @@ func (this Node) setNodePropertySideEffectFlags(propSet int64, sideEffectFlags i
+ }
+ 
+ func (this Node) getPropListDebugString() string {
+-	var propListItem *Node_PropListItem = this.ps_().propListHead
++	var propListItem *Node_PropListItem = (*this.props_())
+ 	var propListStrRepr *TList[string] = newTList_(tc_string)
+ 	for propListItem != nil {
+ 		propListStrRepr.add(Node_Prop_values()[propListItem.propType].name())
+@@ -872,7 +882,7 @@ func (this Node) getPropListDebugString() string {
+ 
+ func (this Node) deserializeProperties(propSet int64, isInClosureUnawareSubtree bool) {
+ 	if this.isRoot() {
+-		if ok_, a1_ := (this.ps_().propListHead == nil), this.ps_().propListHead; !ok_ {
++		if ok_, a1_ := ((*this.props_()) == nil), (*this.props_()); !ok_ {
+ 			Preconditions_checkState_boolean_Object(false, a1_.self())
+ 		}
+ 	} else {
+@@ -904,14 +914,14 @@ func (this Node) deserializeProperties(propSet int64, isInClosureUnawareSubtree
+ 			if prop == 0 {
+ 				panic(new_IllegalStateException_String(("Can not translate " + objstr_(obj_(nodeProperty)) + " to AST Prop")).self())
+ 			}
+-			this.ps_().propListHead = new_Node_IntPropListItem(int8(prop.ordinal()), 1, this.ps_().propListHead).up_Node_PropListItem()
++			(*this.props_()) = new_Node_IntPropListItem(int8(prop.ordinal()), 1, (*this.props_())).up_Node_PropListItem()
+ 		}
+ 	}
+ 	if constantVarFlags != 0 {
+-		this.ps_().propListHead = new_Node_IntPropListItem(int8(Node_Prop_CONSTANT_VAR_FLAGS.ordinal()), constantVarFlags, this.ps_().propListHead).up_Node_PropListItem()
++		(*this.props_()) = new_Node_IntPropListItem(int8(Node_Prop_CONSTANT_VAR_FLAGS.ordinal()), constantVarFlags, (*this.props_())).up_Node_PropListItem()
+ 	}
+ 	if sideEffectFlags != 0 {
+-		this.ps_().propListHead = new_Node_IntPropListItem(int8(Node_Prop_SIDE_EFFECT_FLAGS.ordinal()), sideEffectFlags, this.ps_().propListHead).up_Node_PropListItem()
++		(*this.props_()) = new_Node_IntPropListItem(int8(Node_Prop_SIDE_EFFECT_FLAGS.ordinal()), sideEffectFlags, (*this.props_())).up_Node_PropListItem()
+ 	}
+ 	this.validateProperties(func(errorMessage_ any) {
+ 		var errorMessage string = str_(errorMessage_)
+@@ -1000,14 +1010,14 @@ func (this Node) isColorFromTypeCast() bool {
+ func (this Node) getSortedPropTypes() []int8 {
+ 	var count int32 = 0
+ 	{
+-		var x *Node_PropListItem = this.ps_().propListHead
++		var x *Node_PropListItem = (*this.props_())
+ 		for ; x != nil; x = x.next_ {
+ 			count++
+ 		}
+ 	}
+ 	var keys []int8 = make([]int8, count)
+ 	{
+-		var x *Node_PropListItem = this.ps_().propListHead
++		var x *Node_PropListItem = (*this.props_())
+ 		for ; x != nil; x = x.next_ {
+ 			count--
+ 			keys[count] = x.propType
+@@ -1349,13 +1359,13 @@ func Node_toJsonTreeHelper(n Node, sb Appendable) {
+ }
+ 
+ func (this Node) setStaticSourceFileFrom(other Node) {
+-	if (other.ps_().propListHead != nil) && ((this.ps_().propListHead == nil) || ((int32(this.ps_().propListHead.propType) == Node_Prop_SOURCE_FILE.ordinal()) && (this.ps_().propListHead.next_ == nil))) {
+-		var tail *Node_PropListItem = other.ps_().propListHead
++	if ((*other.props_()) != nil) && (((*this.props_()) == nil) || ((int32((*this.props_()).propType) == Node_Prop_SOURCE_FILE.ordinal()) && ((*this.props_()).next_ == nil))) {
++		var tail *Node_PropListItem = (*other.props_())
+ 		for tail.next_ != nil {
+ 			tail = tail.next_
+ 		}
+ 		if int32(tail.propType) == Node_Prop_SOURCE_FILE.ordinal() {
+-			this.ps_().propListHead = tail
++			(*this.props_()) = tail
+ 			return
+ 		}
+ 	}
+@@ -1515,11 +1525,11 @@ func (this Node) children() IterableOf[Node] {
+ }
+ 
+ func (this Node) getPropListHeadForTesting() *Node_PropListItem {
+-	return this.ps_().propListHead
++	return (*this.props_())
+ }
+ 
+ func (this Node) setPropListHead(propListHead *Node_PropListItem) {
+-	this.ps_().propListHead = propListHead
++	(*this.props_()) = propListHead
+ }
+ 
+ func (this Node) getParent() Node {
+@@ -1649,7 +1659,7 @@ func (this Node) isEquivalentTo(node Node) bool {
+ }
+ 
+ func (this Node) getSecondToLastPropListItem() *Node_PropListItem {
+-	var propListItem *Node_PropListItem = this.ps_().propListHead
++	var propListItem *Node_PropListItem = (*this.props_())
+ 	if (propListItem == nil) || (propListItem.next_ == nil) {
+ 		return nil
+ 	}
+@@ -1660,7 +1670,7 @@ func (this Node) getSecondToLastPropListItem() *Node_PropListItem {
+ }
+ 
+ func (this Node) getLastPropListItem() *Node_PropListItem {
+-	var propListItem *Node_PropListItem = this.ps_().propListHead
++	var propListItem *Node_PropListItem = (*this.props_())
+ 	if propListItem == nil {
+ 		return nil
+ 	}
+@@ -1672,7 +1682,7 @@ func (this Node) getLastPropListItem() *Node_PropListItem {
+ 
+ func (this Node) validatePropListTailOrdering(shouldNodeBeClosureUnaware bool) bool {
+ 	var prev *Node_PropListItem = nil
+-	var curr *Node_PropListItem = this.ps_().propListHead
++	var curr *Node_PropListItem = (*this.props_())
+ 	if curr == nil {
+ 		return false
+ 	}
+@@ -1757,14 +1767,14 @@ func (this Node) isEquivalentTo_5(node Node, recursion Node_RecursionMode, typeC
+ 	}
+ 	var propSet EnumSetOf[Node_Prop] = EnumSet_noneOf(classOf_("com.google.javascript.rhino.Node.Prop"))
+ 	{
+-		var propListItem *Node_PropListItem = this.ps_().propListHead
++		var propListItem *Node_PropListItem = (*this.props_())
+ 		for ; propListItem != nil; propListItem = propListItem.next_ {
+ 			var prop Node_Prop = Node_propValues[propListItem.propType]
+ 			propSet.add(obj_(prop))
+ 		}
+ 	}
+ 	{
+-		var propListItem *Node_PropListItem = node.ps_().propListHead
++		var propListItem *Node_PropListItem = (*node.props_())
+ 		for ; propListItem != nil; propListItem = propListItem.next_ {
+ 			var prop Node_Prop = Node_propValues[propListItem.propType]
+ 			propSet.add(obj_(prop))
+@@ -2109,7 +2119,7 @@ func Node_copyBaseNodeFields(source Node, dest Node, cloneTypeExprs bool) {
+ 	dest.cs_().length_ = source.cs_().length_
+ 	dest.ps_().jstypeOrColor = source.ps_().jstypeOrColor
+ 	dest.ps_().originalName = source.ps_().originalName
+-	dest.ps_().propListHead = source.ps_().propListHead
++	(*dest.props_()) = (*source.props_())
+ 	if cloneTypeExprs {
+ 		var info *JSDocInfo = source.getJSDocInfo()
+ 		if info != nil {

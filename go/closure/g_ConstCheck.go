@@ -5,7 +5,7 @@ package closure
 type ConstCheck struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_            *AbstractCompiler
-	initializedConstants *JTSet[*Var]
+	initializedConstants *TSet[*Var]
 }
 
 func (this *ConstCheck) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -18,7 +18,7 @@ func (this *ConstCheck) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraver
 func (this *ConstCheck) init_ConstCheck(compiler *AbstractCompiler) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.compiler_ = compiler
-	this.initializedConstants = jnewTSet_(tce_p_Var)
+	this.initializedConstants = newTSet_(tch_p_Var)
 }
 
 func new_ConstCheck(compiler *AbstractCompiler) *ConstCheck {
@@ -40,9 +40,9 @@ func (this *ConstCheck) visit_impl(t *NodeTraversal, n Node, parent Node) {
 			var var_ *Var = t.getScope().getVar_String_rVar(name)
 			if this.isConstant(var_, n) {
 				if n.isFromExterns() {
-					this.initializedConstants.add(var_)
+					this.initializedConstants.Add(var_)
 				} else if n.hasChildren() {
-					if !this.initializedConstants.add(var_) {
+					if !this.initializedConstants.Add(var_) {
 						this.reportError(n, var_, name)
 					}
 				}
@@ -53,9 +53,9 @@ func (this *ConstCheck) visit_impl(t *NodeTraversal, n Node, parent Node) {
 		if lhs.isName() {
 			var name string = lhs.getString()
 			var var_ *Var = t.getScope().getVar_String_rVar(name)
-			if this.isConstant(var_, lhs) && !this.initializedConstants.add(var_) {
+			if this.isConstant(var_, lhs) && !this.initializedConstants.Add(var_) {
 				this.reportError(n, var_, name)
-			} else if ((var_ != nil) && var_.isGoogModuleExports()) && !this.initializedConstants.add(var_) {
+			} else if ((var_ != nil) && var_.isGoogModuleExports()) && !this.initializedConstants.Add(var_) {
 				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ConstCheck_CONST_REASSIGNED_VALUE_ERROR, []string{"exports", n.getSourceFileName()}))
 			}
 		}
@@ -79,7 +79,7 @@ func (this *ConstCheck) isConstant(var_ *Var, nameNode Node) bool {
 
 func (this *ConstCheck) reportError(n Node, var_ *Var, name string) {
 	var info *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
-	if (info == nil) || !info.getSuppressions().contains("const") {
+	if (info == nil) || !info.getSuppressions().Has("const") {
 		var declNode Node = var_.getNode()
 		var declaredPosition string = (sstr_(declNode.getSourceFileName()) + ":" + istr_(int64(declNode.getLineno())))
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ConstCheck_CONST_REASSIGNED_VALUE_ERROR, []string{name, declaredPosition}))

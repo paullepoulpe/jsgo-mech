@@ -50,7 +50,7 @@ func (this *AstAnalyzer) functionCallHasSideEffects(callNode Node) bool {
 	var callee Node = callNode.getFirstChild()
 	if callee.isName() {
 		var name string = callee.getString()
-		if this.assumeKnownBuiltinsArePure_ && AstAnalyzer_BUILTIN_FUNCTIONS_WITHOUT_SIDEEFFECTS.contains(name) {
+		if this.assumeKnownBuiltinsArePure_ && AstAnalyzer_BUILTIN_FUNCTIONS_WITHOUT_SIDEEFFECTS.Has(name) {
 			return false
 		}
 	} else if callee.isGetProp() || callee.isOptChainGetProp() {
@@ -76,19 +76,19 @@ func (this *AstAnalyzer) functionCallHasSideEffects(callNode Node) bool {
 			}
 		}
 		if !this.hasRegexpGlobalReferences_ && this.assumeKnownBuiltinsArePure_ {
-			if callee.getFirstChild().isRegExp() && AstAnalyzer_REGEXP_METHODS.contains(method) {
+			if callee.getFirstChild().isRegExp() && AstAnalyzer_REGEXP_METHODS.Has(method) {
 				return false
 			} else if this.isTypedAsString(callee.getFirstChild()) {
 				var param Node = callee.getNext()
 				if param != 0 {
 					if param.isStringLit() {
-						if AstAnalyzer_STRING_REGEXP_METHODS.contains(method) {
+						if AstAnalyzer_STRING_REGEXP_METHODS.Has(method) {
 							return false
 						}
 					} else if param.isRegExp() {
 						if "replace" == method {
 							return !param.getNext().isStringLit()
-						} else if AstAnalyzer_STRING_REGEXP_METHODS.contains(method) {
+						} else if AstAnalyzer_STRING_REGEXP_METHODS.Has(method) {
 							return false
 						}
 					}
@@ -234,7 +234,7 @@ func (this *AstAnalyzer) constructorCallHasSideEffects(newNode Node) bool {
 		return false
 	}
 	var nameNode Node = newNode.getFirstChild()
-	return ((!nameNode.isName() || !this.assumeKnownBuiltinsArePure_) || !AstAnalyzer_CONSTRUCTORS_WITHOUT_SIDE_EFFECTS.contains(nameNode.getString()))
+	return ((!nameNode.isName() || !this.assumeKnownBuiltinsArePure_) || !AstAnalyzer_CONSTRUCTORS_WITHOUT_SIDE_EFFECTS.Has(nameNode.getString()))
 }
 
 func (this *AstAnalyzer) nodeTypeMayHaveSideEffects(n Node) bool {
@@ -281,10 +281,10 @@ func (this *AstAnalyzer) getPropertyKind(name string) AccessorSummary_PropertyAc
 	}()
 }
 
-var AstAnalyzer_CONSTRUCTORS_WITHOUT_SIDE_EFFECTS *JTSet[string]
-var AstAnalyzer_BUILTIN_FUNCTIONS_WITHOUT_SIDEEFFECTS *JTSet[string]
-var AstAnalyzer_REGEXP_METHODS *JTSet[string]
-var AstAnalyzer_STRING_REGEXP_METHODS *JTSet[string]
+var AstAnalyzer_CONSTRUCTORS_WITHOUT_SIDE_EFFECTS *TSet[string]
+var AstAnalyzer_BUILTIN_FUNCTIONS_WITHOUT_SIDEEFFECTS *TSet[string]
+var AstAnalyzer_REGEXP_METHODS *TSet[string]
+var AstAnalyzer_STRING_REGEXP_METHODS *TSet[string]
 
 var AstAnalyzer_clinit_done bool
 
@@ -293,10 +293,10 @@ func AstAnalyzer_clinit() {
 		return
 	}
 	AstAnalyzer_clinit_done = true
-	AstAnalyzer_CONSTRUCTORS_WITHOUT_SIDE_EFFECTS = jimmutableSetOf_[string](jtc_string, "Array", "Date", "Error", "Object", "RegExp", "XMLHttpRequest")
-	AstAnalyzer_BUILTIN_FUNCTIONS_WITHOUT_SIDEEFFECTS = jimmutableSetOf_[string](jtc_string, "Object", "Array", "String", "Number", "BigInt", "Boolean", "RegExp", "Error", "Symbol")
-	AstAnalyzer_REGEXP_METHODS = jimmutableSetOf_[string](jtc_string, "test", "exec")
-	AstAnalyzer_STRING_REGEXP_METHODS = jimmutableSetOf_[string](jtc_string, "match", "replace", "search", "split")
+	AstAnalyzer_CONSTRUCTORS_WITHOUT_SIDE_EFFECTS = immutableSetOf_[string](tc_string, "Array", "Date", "Error", "Object", "RegExp", "XMLHttpRequest")
+	AstAnalyzer_BUILTIN_FUNCTIONS_WITHOUT_SIDEEFFECTS = immutableSetOf_[string](tc_string, "Object", "Array", "String", "Number", "BigInt", "Boolean", "RegExp", "Error", "Symbol")
+	AstAnalyzer_REGEXP_METHODS = immutableSetOf_[string](tc_string, "test", "exec")
+	AstAnalyzer_STRING_REGEXP_METHODS = immutableSetOf_[string](tc_string, "match", "replace", "search", "split")
 
 }
 
