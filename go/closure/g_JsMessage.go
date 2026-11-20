@@ -697,7 +697,7 @@ func (this *JsMessage_Builder) setIsAnonymous(isAnonymous bool) *JsMessage_Build
 }
 
 func (this *JsMessage_Builder) setId(id Optional[string]) *JsMessage_Builder {
-	Preconditions_checkState_boolean_String_Object_Object(this.id.isEmpty(), "id already set to '%s': cannot change it to '%s'", this.id.orElse("null"), id.orElse("null"))
+	Preconditions_checkState_boolean_String_Object_Object(this.id.isEmpty(), "id already set to '%s': cannot change it to '%s'", strobj_(this.id.orElse("null")), strobj_(id.orElse("null")))
 	this.id = id
 	return this
 }
