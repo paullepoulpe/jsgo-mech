@@ -112,20 +112,7 @@ func (this *BaseTranspiler_CompilerSupplier) compile(path string, code string) *
 	var source string = compiler.toSource()
 	var sourceMap *StringBuilder = new_StringBuilder()
 	if result.sourceMap_ != nil {
-		func() {
-			defer func() {
-				if r_ := recover(); r_ != nil {
-					ex_ := catch_(r_)
-					if p, ok := ex_.(IOException_as); ok {
-						var e *IOException = p.as_IOException()
-						_ = e
-						return
-					}
-					panic(r_)
-				}
-			}()
-			result.sourceMap_.appendTo(StringBuilder_as_Appendable(sourceMap), Optional_of[string](path))
-		}()
+		result.sourceMap_.appendTo(StringBuilder_as_Appendable(sourceMap), Optional_of[string](path))
 	}
 	var transpiled bool = result.transpiledFiles
 	if !result.errors_.isEmpty() {
