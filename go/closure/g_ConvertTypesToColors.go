@@ -159,7 +159,7 @@ func (this *ConvertTypesToColors_RemoveTypesAndApplyColors) visit_impl(t *NodeTr
 
 // visit: an object that is exactly a ConvertTypesToColors_RemoveTypes calls its visit_impl directly (post-flip); others dispatch.
 func (this *ConvertTypesToColors_RemoveTypes) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConvertTypesToColors_RemoveTypes); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -168,7 +168,7 @@ func (this *ConvertTypesToColors_RemoveTypes) visit(p0 *NodeTraversal, p1 Node, 
 
 // visit: an object that is exactly a ConvertTypesToColors_RemoveTypesAndApplyColors calls its visit_impl directly (post-flip); others dispatch.
 func (this *ConvertTypesToColors_RemoveTypesAndApplyColors) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConvertTypesToColors_RemoveTypesAndApplyColors); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

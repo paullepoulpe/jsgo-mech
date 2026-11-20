@@ -48,7 +48,7 @@ const RewriteCatchWithNoBinding_BINDING_NAME string = "$jscomp$unused$catch$"
 
 // getTranspiledAwayFeatures: an object that is exactly a RewriteCatchWithNoBinding calls its getTranspiledAwayFeatures_impl directly (post-flip); others dispatch.
 func (this *RewriteCatchWithNoBinding) getTranspiledAwayFeatures() *FeatureSet {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RewriteCatchWithNoBinding); p == this {
 		return this.getTranspiledAwayFeatures_impl()
 	}
 	return this.self_.getTranspiledAwayFeatures_impl()
@@ -56,7 +56,7 @@ func (this *RewriteCatchWithNoBinding) getTranspiledAwayFeatures() *FeatureSet {
 
 // transpileSubtree: an object that is exactly a RewriteCatchWithNoBinding calls its transpileSubtree_impl directly (post-flip); others dispatch.
 func (this *RewriteCatchWithNoBinding) transpileSubtree(p0 Node) Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RewriteCatchWithNoBinding); p == this {
 		return this.transpileSubtree_impl(p0)
 	}
 	return this.self_.transpileSubtree_impl(p0)

@@ -855,7 +855,7 @@ func (this *ScopedAliases_Traversal_1) visit_impl(t *NodeTraversal, n Node, pare
 
 // applyAlias: an object that is exactly a ScopedAliases_AliasedNode calls its applyAlias_impl directly (post-flip); others dispatch.
 func (this *ScopedAliases_AliasedNode) applyAlias(p0 *AbstractCompiler) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ScopedAliases_AliasedNode); p == this {
 		this.applyAlias_impl(p0)
 		return
 	}
@@ -864,7 +864,7 @@ func (this *ScopedAliases_AliasedNode) applyAlias(p0 *AbstractCompiler) {
 
 // applyAlias: an object that is exactly a ScopedAliases_AliasedTypeNode calls its applyAlias_impl directly (post-flip); others dispatch.
 func (this *ScopedAliases_AliasedTypeNode) applyAlias(p0 *AbstractCompiler) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ScopedAliases_AliasedTypeNode); p == this {
 		this.applyAlias_impl(p0)
 		return
 	}
@@ -873,7 +873,7 @@ func (this *ScopedAliases_AliasedTypeNode) applyAlias(p0 *AbstractCompiler) {
 
 // visit: an object that is exactly a ScopedAliases_Traversal calls its visit_impl directly (post-flip); others dispatch.
 func (this *ScopedAliases_Traversal) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ScopedAliases_Traversal); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -882,7 +882,7 @@ func (this *ScopedAliases_Traversal) visit(p0 *NodeTraversal, p1 Node, p2 Node) 
 
 // visit: an object that is exactly a ScopedAliases_Traversal_1 calls its visit_impl directly (post-flip); others dispatch.
 func (this *ScopedAliases_Traversal_1) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ScopedAliases_Traversal_1); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
