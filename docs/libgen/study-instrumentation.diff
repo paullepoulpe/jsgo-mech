@@ -1,0 +1,17 @@
+diff --git a/tools/j2go/src/j2go/Main.java b/tools/j2go/src/j2go/Main.java
+index a0a4efcf..972c73d8 100644
+--- a/tools/j2go/src/j2go/Main.java
++++ b/tools/j2go/src/j2go/Main.java
+@@ -297,6 +297,12 @@ public final class Main {
+       ValueScan.report(cx);
+     }
+     cx.analyzeMethods();
++    if (System.getenv("J2GO_LIBGEN") != null) {
++      LibGenScan lg = new LibGenScan(cx, trees);
++      for (CompilationUnitTree cu : units) lg.scan(cu);
++      lg.write(Path.of(System.getenv("J2GO_LIBGEN")));
++      System.exit(0);
++    }
+     Files.createDirectories(out);
+     try (var old = Files.list(out)) {
+       for (Path p : (Iterable<Path>) old::iterator) {

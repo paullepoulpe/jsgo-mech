@@ -1,0 +1,147 @@
+package main
+
+import "fmt"
+
+// --- stage F: functional interfaces as named generic func types with the interface's methods
+type Predicate[T any] func(T) bool
+
+func (f Predicate[T]) test(v T) bool  { return f(v) }
+func (f Predicate[T]) apply(v T) bool { return f(v) } // Guava's Predicate is the same Go type
+type Supplier[T any] func() T
+
+func (f Supplier[T]) get() T { return f() }
+
+type Function[T, R any] func(T) R
+
+func (f Function[T, R]) apply(v T) R { return f(v) }
+
+type Comparator[T any] func(a, b T) int32
+
+func (f Comparator[T]) compare(a, b T) int32 { return f(a, b) }
+func Comparator_comparingInt[T any](key func(T) int32) Comparator[T] {
+	return func(a, b T) int32 { return key(a) - key(b) }
+}
+
+// --- stages I and C: generic interfaces, the typed list implements them itself
+type Iterator[T any] interface {
+	hasNext() bool
+	next() T
+}
+type Iterable[T any] interface{ iterator() Iterator[T] }
+type Collection[T any] interface {
+	Iterable[T]
+	size() int32
+	add(T) bool
+	contains(T) bool
+	containsObj(any) bool // Java's contains(Object) for an argument that is not a T
+	anyColl() CollectionAny
+}
+type List[T any] interface {
+	Collection[T]
+	get(int32) T
+}
+
+// what a place of type Collection<?> / Iterable<?> sees: today's erased view, kept for `?`
+type CollectionAny interface {
+	size() int32
+	eachAny(func(any) bool)
+}
+
+type TList[T comparable] struct{ items []T }
+type tlistIter[T comparable] struct {
+	l *TList[T]
+	i int
+}
+
+func (it *tlistIter[T]) hasNext() bool { return it.i < len(it.l.items) }
+func (it *tlistIter[T]) next() T       { it.i++; return it.l.items[it.i-1] }
+func (l *TList[T]) iterator() Iterator[T] { return &tlistIter[T]{l: l} }
+func (l *TList[T]) size() int32           { return int32(len(l.items)) }
+func (l *TList[T]) add(v T) bool          { l.items = append(l.items, v); return true }
+func (l *TList[T]) get(i int32) T         { return l.items[i] }
+func (l *TList[T]) contains(v T) bool {
+	for _, x := range l.items {
+		if x == v {
+			return true
+		}
+	}
+	return false
+}
+func (l *TList[T]) containsObj(o any) bool { v, ok := o.(T); return ok && l.contains(v) }
+func (l *TList[T]) anyColl() CollectionAny { return l }
+func (l *TList[T]) eachAny(f func(any) bool) {
+	for _, x := range l.items {
+		if !f(x) {
+			return
+		}
+	}
+}
+
+// asList: the nil-keeping conversion (null stays the nil interface); no view object, no box
+func (l *TList[T]) asList() List[T] {
+	if l == nil {
+		return nil
+	}
+	return l
+}
+
+// --- variance: a read-only covariant view for `Iterable<? extends B>` given an Iterable<A>, A <: B
+type upIterable[A, B any] struct {
+	src Iterable[A]
+	up  func(A) B
+}
+type upIterator[A, B any] struct {
+	src Iterator[A]
+	up  func(A) B
+}
+
+func (u upIterable[A, B]) iterator() Iterator[B] { return upIterator[A, B]{u.src.iterator(), u.up} }
+func (u upIterator[A, B]) hasNext() bool         { return u.src.hasNext() }
+func (u upIterator[A, B]) next() B               { return u.up(u.src.next()) }
+func upIterable_[A, B any](src Iterable[A], up func(A) B) Iterable[B] {
+	if src == nil {
+		return nil
+	}
+	return upIterable[A, B]{src, up}
+}
+
+type JSType interface{ name() string }
+type TemplateType struct{ n string }
+
+func (t *TemplateType) name() string { return t.n }
+
+func printAll(ts Iterable[JSType]) {
+	for it := ts.iterator(); it.hasNext(); {
+		fmt.Println(it.next().name())
+	}
+}
+
+type MatchName struct{ want string }
+
+func (m *MatchName) apply(t *TemplateType) bool { return t.n == m.want }
+
+func has(l List[*TemplateType], p Predicate[*TemplateType]) bool {
+	for it := l.iterator(); it.hasNext(); {
+		if p.apply(it.next()) {
+			return true
+		}
+	}
+	return false
+}
+
+func main() {
+	l := &TList[*TemplateType]{}
+	a := &TemplateType{"A"}
+	l.add(a)
+	l.add(&TemplateType{"B"})
+	var li List[*TemplateType] = l.asList()
+	printAll(upIterable_[*TemplateType, JSType](li, func(t *TemplateType) JSType { return t }))
+	fmt.Println(has(li, func(t *TemplateType) bool { return t.n == "B" }), has(li, (&MatchName{"Z"}).apply), li.contains(a), li.containsObj("x"))
+	var o any = li
+	_, isList := o.(List[*TemplateType])
+	_, isAny := o.(interface{ anyColl() CollectionAny })
+	var nl *TList[*TemplateType]
+	fmt.Println(isList, isAny, nl.asList() == nil, li.anyColl().size())
+	cmp := Comparator_comparingInt(func(t *TemplateType) int32 { return int32(len(t.n)) })
+	fmt.Println(cmp.compare(a, a), Supplier[string](func() string { return "s" }).get())
+}
