@@ -69,10 +69,11 @@ func npe_(f func()) (npe bool) {
 // Rule "typed Object calls": the typed functions do what Object's methods do with the object
 // that the erased code passed, a null receiver included.
 func TestConvObjectCalls(t *testing.T) {
-	var nl *ImmutableList
+	l, m := ImmutableList_of_Object("a"), ImmutableList_of_Object("a")
+	nl := l // a null of the lists' type, without naming it: a post-flip step renames the type
+	nl = nil
 	var ni List
 	var nn Node
-	l, m := ImmutableList_of_Object("a"), ImmutableList_of_Object("a")
 	if !equalsRR_(l, m) || !equalsR_(l, obj_(m)) || equalsR_(l, nil) || equalsRR_(l, nl) || equalsR_(l, "a") {
 		t.Errorf("equalsR_ of two equal lists")
 	}
