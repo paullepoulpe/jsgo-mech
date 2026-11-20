@@ -153,11 +153,11 @@ func (this *SourceMapGeneratorV3) appendTo(out Appendable, name Optional[string]
 	Appendable_append_s(out, "{\n")
 	SourceMapGeneratorV3_appendFirstField(out, "version", "3")
 	if name.isPresent() {
-		SourceMapGeneratorV3_appendField(out, "file", strobj_(SourceMapGeneratorV3_escapeString(name.get())))
+		SourceMapGeneratorV3_appendField(out, "file", SourceMapGeneratorV3_escapeString(name.get()))
 	}
-	SourceMapGeneratorV3_appendField(out, "lineCount", strobj_(String_valueOf(maxLine)))
+	SourceMapGeneratorV3_appendField(out, "lineCount", String_valueOf(maxLine))
 	if this.sourceRootPath.isPresent() && !String_isEmpty(this.sourceRootPath.get()) {
-		SourceMapGeneratorV3_appendField(out, "sourceRoot", strobj_(SourceMapGeneratorV3_escapeString(this.sourceRootPath.get())))
+		SourceMapGeneratorV3_appendField(out, "sourceRoot", SourceMapGeneratorV3_escapeString(this.sourceRootPath.get()))
 	}
 	SourceMapGeneratorV3_appendFieldStart_Appendable_String(out, "mappings")
 	new_SourceMapGeneratorV3_LineMapper(this, out, maxLine).appendLineMappings()
@@ -192,7 +192,7 @@ func (this *SourceMapGeneratorV3) appendTo(out Appendable, name Optional[string]
 		} else {
 			value = Object_toString(objValue)
 		}
-		SourceMapGeneratorV3_appendField(out, key, strobj_(value))
+		SourceMapGeneratorV3_appendField(out, key, value)
 	}
 	Appendable_append_s(out, "\n}\n")
 }
@@ -286,9 +286,9 @@ func SourceMapGeneratorV3_appendFirstField(out Appendable, name string, value an
 	out.append_CharSequence(value)
 }
 
-func SourceMapGeneratorV3_appendField(out Appendable, name string, value any) {
+func SourceMapGeneratorV3_appendField(out Appendable, name string, value string) {
 	SourceMapGeneratorV3_appendFieldStart_Appendable_String_boolean(out, name, false)
-	out.append_CharSequence(value)
+	out.append_CharSequence(strobj_(value))
 }
 
 func SourceMapGeneratorV3_appendFieldStart_Appendable_String(out Appendable, name string) {
@@ -329,7 +329,7 @@ func (this *SourceMapGeneratorV3) prepMappings() int32 {
 func (this *SourceMapGeneratorV3) appendIndexMapTo(out Appendable, name string, sections *JTList[*SourceMapSection]) {
 	Appendable_append_s(out, "{\n")
 	SourceMapGeneratorV3_appendFirstField(out, "version", "3")
-	SourceMapGeneratorV3_appendField(out, "file", strobj_(SourceMapGeneratorV3_escapeString(name)))
+	SourceMapGeneratorV3_appendField(out, "file", SourceMapGeneratorV3_escapeString(name))
 	SourceMapGeneratorV3_appendFieldStart_Appendable_String(out, "sections")
 	Appendable_append_s(out, "[\n")
 	var first bool = true
@@ -345,9 +345,9 @@ func (this *SourceMapGeneratorV3) appendIndexMapTo(out Appendable, name string, 
 		SourceMapGeneratorV3_appendFieldStart_Appendable_String_boolean(out, "offset", true)
 		SourceMapGeneratorV3_appendOffsetValue(out, section.getLine(), section.getColumn())
 		if section.getSectionType() == SourceMapSection_SectionType_URL {
-			SourceMapGeneratorV3_appendField(out, "url", strobj_(SourceMapGeneratorV3_escapeString(section.getSectionValue())))
+			SourceMapGeneratorV3_appendField(out, "url", SourceMapGeneratorV3_escapeString(section.getSectionValue()))
 		} else if section.getSectionType() == SourceMapSection_SectionType_MAP {
-			SourceMapGeneratorV3_appendField(out, "map", strobj_(section.getSectionValue()))
+			SourceMapGeneratorV3_appendField(out, "map", section.getSectionValue())
 		} else {
 			panic(new_IOException_String("Unexpected section type").self())
 		}
@@ -361,7 +361,7 @@ func (this *SourceMapGeneratorV3) appendIndexMapTo(out Appendable, name string, 
 func SourceMapGeneratorV3_appendOffsetValue(out Appendable, line int32, column int32) {
 	Appendable_append_s(out, "{\n")
 	SourceMapGeneratorV3_appendFirstField(out, "line", strobj_(String_valueOf(line)))
-	SourceMapGeneratorV3_appendField(out, "column", strobj_(String_valueOf(column)))
+	SourceMapGeneratorV3_appendField(out, "column", String_valueOf(column))
 	Appendable_append_s(out, "\n}")
 }
 

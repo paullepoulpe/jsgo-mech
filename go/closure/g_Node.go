@@ -934,8 +934,8 @@ func (this Node) getFeatureSet() any {
 	return this.getProp(Node_Prop_FEATURE_SET)
 }
 
-func (this Node) setFeatureSet(featureSet any) {
-	this.putProp(Node_Prop_FEATURE_SET, featureSet)
+func (this Node) setFeatureSet(featureSet *FeatureSet) {
+	this.putProp(Node_Prop_FEATURE_SET, obj_(featureSet))
 }
 
 func (this Node) removeDirectEvalProp() {
