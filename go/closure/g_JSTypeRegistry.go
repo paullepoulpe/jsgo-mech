@@ -878,7 +878,9 @@ func (this *JSTypeRegistry) declareTypeForExactScope(scope StaticScope, name str
 }
 
 func (this *JSTypeRegistry) overwriteDeclaredType(scope StaticScope, name string, type_ *JSType) {
-	Preconditions_checkState_boolean_String_Object(this.isDeclaredForScope(scope, name), "missing name %s", name)
+	if !this.isDeclaredForScope(scope, name) {
+		Preconditions_checkState_boolean_String_Object(false, "missing name %s", name)
+	}
 	this.register(scope, type_, name)
 }
 
@@ -907,7 +909,9 @@ func JSTypeRegistry_getSimpleReadableJSTypeName(type_ *JSType) Optional[string] 
 		}
 		var source Node = type_.toObjectType().getConstructor().getSource()
 		if source != 0 {
-			Preconditions_checkState_boolean_Object_H((source.isFunction() || source.isClass()), source)
+			if !(source.isFunction() || source.isClass()) {
+				Preconditions_checkState_boolean_Object_H(false, source)
+			}
 			var readable string = source.getFirstChild().getOriginalName()
 			if !String_isEmpty(readable) {
 				return Optional_of[string](readable)
@@ -1022,7 +1026,9 @@ func (this *JSTypeRegistry) getType_5(scope StaticTypedScope, jsTypeName string,
 	if thisType != nil {
 		type_ = thisType.getTemplateTypeMap().getLastTemplateTypeKeyByName(jsTypeName).up_JSType()
 		if type_ != nil {
-			Preconditions_checkState_boolean_String_Object(type_.isTemplateType(), "expected:%s", type_)
+			if !type_.isTemplateType() {
+				Preconditions_checkState_boolean_String_Object(false, "expected:%s", type_)
+			}
 			return type_
 		}
 	}
@@ -1407,7 +1413,9 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 }
 
 func (this *JSTypeRegistry) addNullabilityBasedOnParseContext(n Node, type_ *JSType, scope StaticScope) *JSType {
-	Preconditions_checkState_boolean_Object_H((n.isName() || n.isStringLit()), n)
+	if !(n.isName() || n.isStringLit()) {
+		Preconditions_checkState_boolean_Object_H(false, n)
+	}
 	Preconditions_checkNotNull_T(type_)
 	if this.isNonNullableName(scope, n.getString()) {
 		return type_

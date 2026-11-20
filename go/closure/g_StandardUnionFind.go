@@ -77,7 +77,9 @@ func (this *StandardUnionFind[E]) union(a E, b E) E {
 }
 
 func (this *StandardUnionFind[E]) find(e E) E {
-	Preconditions_checkArgument_boolean_String_Object(this.elmap.containsKey(e), "Element does not exist: %s", boxT_(e))
+	if ok_, a1_ := this.elmap.containsKey(e), boxT_(e); !ok_ {
+		Preconditions_checkArgument_boolean_String_Object(false, "Element does not exist: %s", a1_)
+	}
 	return this.findRoot(this.elmap.get(e)).element
 }
 
@@ -137,7 +139,9 @@ func (this *StandardUnionFind[E]) findRoot(node *StandardUnionFind_Node[E]) *Sta
 }
 
 func (this *StandardUnionFind[E]) findAll(value E) SetOf[E] {
-	Preconditions_checkArgument_boolean_String_Object(this.elmap.containsKey(value), "Element does not exist: %s", boxT_(value))
+	if ok_, a1_ := this.elmap.containsKey(value), boxT_(value); !ok_ {
+		Preconditions_checkArgument_boolean_String_Object(false, "Element does not exist: %s", a1_)
+	}
 	var isSameRoot Predicate_baseOf[any] = icast_Predicate_base(obj_(new_StandardUnionFind_1[E](this, value)))
 	return icast_Set(obj_(new_StandardUnionFind_2[E](this, isSameRoot, value)))
 }
