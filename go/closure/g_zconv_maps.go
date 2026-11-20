@@ -4,8 +4,8 @@ package closure
 
 // Element conversions of the typed maps.
 
-var tc_ClassOf_any_ = &tconv_[ClassOf[any]]{box: func(v ClassOf[any]) any { return obj_(v) }, unbox: func(v any) ClassOf[any] { return cast_[*Class](v) }}
-var tc_IndexProvider = &tconv_[IndexProvider]{box: func(v IndexProvider) any { return v }, unbox: func(v any) IndexProvider { return icast_IndexProvider(v) }}
-var tc_p_TypedScope = &tconv_[*TypedScope]{box: func(v *TypedScope) any { return obj_(v) }, unbox: func(v any) *TypedScope { return cast_[*TypedScope](v) }}
+var tc_ClassOf_any_ = &tconv_[ClassOf[any]]{box: obj_[ClassOf[any]], unbox: cast_[*Class]}
+var tc_IndexProvider = &tconv_[IndexProvider]{box: func(v IndexProvider) any { return v }, unbox: icast_IndexProvider}
+var tc_p_TypedScope = &tconv_[*TypedScope]{box: obj_[*TypedScope], unbox: cast_[*TypedScope]}
 var tcv_p_TMap_string__any_ = tmapConv_[string, any]()
 var tcv_p_TMap_string__string_ = tmapConv_[string, string]()

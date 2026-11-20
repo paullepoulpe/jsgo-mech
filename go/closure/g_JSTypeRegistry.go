@@ -1088,7 +1088,7 @@ func (this *JSTypeRegistry) createNativeFunctionTypeWithVarArgs(returnType *JSTy
 }
 
 func (this *JSTypeRegistry) createFunctionTypeWithInstanceType(instanceType *ObjectType, returnType *JSType, parameterTypes []*JSType) *JSType {
-	var paramsNode *TList[*FunctionType_Parameter] = this.createParameters(arrmap_(sliceView_(tc_p_JSType, parameterTypes).toArray(arrmap_(make([]*JSType, 0), func(v_ *JSType) any { return v_.self() })), func(v_ any) *JSType { return to_JSType(v_) }))
+	var paramsNode *TList[*FunctionType_Parameter] = this.createParameters(arrmap_(sliceView_(tc_p_JSType, parameterTypes).toArray(arrmap_(make([]*JSType, 0), (*JSType).self)), to_JSType))
 	return FunctionType_builder(this).withParameters_1(paramsNode).withReturnType(returnType).withTypeOfThis(instanceType.up_JSType()).build_rFunctionType().up_JSType()
 }
 

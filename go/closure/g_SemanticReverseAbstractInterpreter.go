@@ -119,27 +119,27 @@ func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingCondition
 		}
 	case Token_rhino_EQ:
 		if outcome.isTruthy() {
-			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_eq(p0) }}).apply)
+			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{SemanticReverseAbstractInterpreter_eq}).apply)
 		} else {
-			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_ne(p0) }}).apply)
+			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{SemanticReverseAbstractInterpreter_ne}).apply)
 		}
 	case Token_rhino_NE:
 		if outcome.isTruthy() {
-			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_ne(p0) }}).apply)
+			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{SemanticReverseAbstractInterpreter_ne}).apply)
 		} else {
-			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_eq(p0) }}).apply)
+			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{SemanticReverseAbstractInterpreter_eq}).apply)
 		}
 	case Token_rhino_SHEQ:
 		if outcome.isTruthy() {
-			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_sheq(p0) }}).apply)
+			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{SemanticReverseAbstractInterpreter_sheq}).apply)
 		} else {
-			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_shne(p0) }}).apply)
+			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{SemanticReverseAbstractInterpreter_shne}).apply)
 		}
 	case Token_rhino_SHNE:
 		if outcome.isTruthy() {
-			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_shne(p0) }}).apply)
+			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{SemanticReverseAbstractInterpreter_shne}).apply)
 		} else {
-			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_sheq(p0) }}).apply)
+			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{SemanticReverseAbstractInterpreter_sheq}).apply)
 		}
 	case Token_rhino_NAME, Token_rhino_GETPROP:
 		return this.caseNameOrGetProp(condition, blindScope, outcome)
@@ -149,7 +149,7 @@ func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingCondition
 		return this.firstPreciserScopeKnowingConditionOutcome(condition.getFirstChild(), blindScope, outcome.not())
 	case Token_rhino_LE, Token_rhino_LT, Token_rhino_GE, Token_rhino_GT:
 		if outcome.isTruthy() {
-			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_ineq(p0) }}).apply)
+			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{SemanticReverseAbstractInterpreter_ineq}).apply)
 		}
 	case Token_rhino_INSTANCEOF:
 		return this.caseInstanceOf(condition.getFirstChild(), condition.getLastChild(), blindScope, outcome)
@@ -161,9 +161,9 @@ func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingCondition
 		var left Node = condition.getParent().getPrevious()
 		var right Node = condition.getFirstChild()
 		if outcome.isTruthy() {
-			return this.caseEquality_4(left, right, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_sheq(p0) }}).apply)
+			return this.caseEquality_4(left, right, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{SemanticReverseAbstractInterpreter_sheq}).apply)
 		} else {
-			return this.caseEquality_4(left, right, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_shne(p0) }}).apply)
+			return this.caseEquality_4(left, right, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{SemanticReverseAbstractInterpreter_shne}).apply)
 		}
 	case Token_rhino_CALL:
 		var left Node = condition.getFirstChild()
