@@ -104,7 +104,7 @@ func (this *J2clEqualitySameRewriterPass) canOnlyBeObject(n Node) bool {
 	if color.isUnion() {
 		color = color.subtractNullOrVoid()
 	}
-	return (((!color.isUnion() && !color.isPrimitive()) && !color.equals(obj_(StandardColors_UNKNOWN))) && !color.equals(obj_(StandardColors_TOP_OBJECT)))
+	return (((!color.isUnion() && !color.isPrimitive()) && !color.equals_Color(StandardColors_UNKNOWN)) && !color.equals_Color(StandardColors_TOP_OBJECT))
 }
 
 func (this *J2clEqualitySameRewriterPass) rewriteAsStrictEq(firstExpr Node, secondExpr Node) Node {
