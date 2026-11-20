@@ -199,17 +199,7 @@ func JsFileFullParser_FileInfo_ModuleType_clinit() {
 
 }
 
-type JsFileFullParser_Reporter interface {
-	report(bool, string, Optional[string], int32, int32)
-}
-
-type JsFileFullParser_Reporter_fn struct {
-	f func(bool, string, Optional[string], int32, int32)
-}
-
-func (this *JsFileFullParser_Reporter_fn) report(p0 bool, p1 string, p2 Optional[string], p3 int32, p4 int32) {
-	this.f(p0, p1, p2, p3, p4)
-}
+type JsFileFullParser_Reporter = *funcObj_[func(bool, string, Optional[string], int32, int32)]
 
 type JsFileFullParser_DelegatingReporter struct {
 	delegate  func(bool, string, Optional[string], int32, int32)
