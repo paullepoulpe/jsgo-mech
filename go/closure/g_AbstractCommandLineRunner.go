@@ -589,7 +589,8 @@ func (this *AbstractCommandLineRunner) createSourceInputs(jsChunkSpecs *JTList[*
 	if ijsErrors.isErr() {
 		return Outcome_base_err[List](ijsErrors.error())
 	}
-	for error_ := range elemsAs_[*JSError](obj_(ijsErrors.get())) {
+	for _, el := range immElems_(ijsErrors.get()) {
+		error_ := cast_[*JSError](el)
 		this.compiler_.report(error_)
 	}
 	var inputsRes *Outcome_base[List]
@@ -2020,7 +2021,8 @@ func (this *AbstractCommandLineRunner) printChunkGraphManifestOrBundleTo(graph *
 }
 
 func (this *AbstractCommandLineRunner) printManifestTo(chunk *JSChunk, out Appendable) {
-	for input := range elemsAs_[*CompilerInput](obj_(chunk.getInputs())) {
+	for _, el := range immElems_(chunk.getInputs()) {
+		input := cast_[*CompilerInput](el)
 		var name string = input.getName()
 		if AbstractCompiler_isFillFileName(name) {
 			continue

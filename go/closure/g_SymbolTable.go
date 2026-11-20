@@ -525,7 +525,8 @@ func (this *SymbolTable) removeSymbol(s *SymbolTable_Symbol) {
 		panic(new_IllegalStateException_String(("Symbol not found in table " + jtostr_(s))).self())
 	}
 	if (s.propertyScope != nil) && s.equals(obj_(s.propertyScope.getSymbolForScope())) {
-		for childSymbol := range elemsAs_[*SymbolTable_Symbol](obj_(ImmutableList_copyOf(s.propertyScope.ownSymbols.asMap().values()))) {
+		for _, el := range immElems_(ImmutableList_copyOf(s.propertyScope.ownSymbols.asMap().values())) {
+			childSymbol := cast_[*SymbolTable_Symbol](el)
 			this.removeSymbol(childSymbol)
 		}
 		this.scopes.remove(s.getDeclarationNode())
@@ -893,7 +894,8 @@ func (this *SymbolTable) flattenGoogModuleExports() {
 		if !moduleScope.isModuleScope() {
 			continue
 		}
-		for sym := range elemsAs_[*SymbolTable_Symbol](obj_(ImmutableList_copyOf(moduleScope.ownSymbols.asMap().values()))) {
+		for _, el := range immElems_(ImmutableList_copyOf(moduleScope.ownSymbols.asMap().values())) {
+			sym := cast_[*SymbolTable_Symbol](el)
 			if strings.HasPrefix(sym.getName(), "exports.") {
 				this.renameSymbol(moduleScope, sym, String_substring_int(sym.getName(), int32(len("exports."))))
 			}
@@ -913,7 +915,8 @@ func (this *SymbolTable) isSymbolDuplicatedExternOnWindow(symbol *SymbolTable_Sy
 
 func (this *SymbolTable) mergeExternSymbolsDuplicatedOnWindow() {
 	var externSymbols *SimpleTable[string, any, *SymbolTable_Symbol] = SimpleTable_create[string, any, *SymbolTable_Symbol]()
-	for symbol := range elemsAs_[*SymbolTable_Symbol](obj_(ImmutableList_copyOf_Iterable(this.symbols.values()))) {
+	for _, el := range immElems_(ImmutableList_copyOf_Iterable(this.symbols.values())) {
+		symbol := cast_[*SymbolTable_Symbol](el)
 		if ((symbol.getDeclarationNode() == 0) || (symbol.getDeclarationNode().getStaticSourceFile() == nil)) || !symbol.getDeclarationNode().getStaticSourceFile().isExtern() {
 			continue
 		}
@@ -934,7 +937,8 @@ func (this *SymbolTable) mergeExternSymbolsDuplicatedOnWindow() {
 }
 
 func (this *SymbolTable) removeGeneratedSymbols() {
-	for symbol := range elemsAs_[*SymbolTable_Symbol](obj_(ImmutableList_copyOf_Iterable(this.symbols.values()))) {
+	for _, el := range immElems_(ImmutableList_copyOf_Iterable(this.symbols.values())) {
+		symbol := cast_[*SymbolTable_Symbol](el)
 		if this.isSymbolAQuotedObjectKey(symbol) {
 			var symbolAlreadyRemoved bool = !this.getScope(symbol).ownSymbols.containsKey(symbol.getName())
 			if !symbolAlreadyRemoved {
