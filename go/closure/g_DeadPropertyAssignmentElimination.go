@@ -60,7 +60,7 @@ func (this *DeadPropertyAssignmentElimination_FunctionVisitor) enterChangedScope
 		return
 	}
 	var body Node = NodeUtil_getFunctionBody(root)
-	if (!body.hasChildren() || NodeUtil_has(body, &Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isFunctionOrNonStaticClassFieldInitializer(p0) }}, Predicates_alwaysTrue())) {
+	if !body.hasChildren() || NodeUtil_has(body, (&Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isFunctionOrNonStaticClassFieldInitializer(p0) }}).apply, Predicates_alwaysTrue()) {
 		return
 	}
 	var traversal *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal = new_DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal(this.skiplistedPropNames)

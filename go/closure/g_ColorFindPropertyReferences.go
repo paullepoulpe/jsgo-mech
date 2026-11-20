@@ -6,7 +6,7 @@ type ColorFindPropertyReferences struct {
 	NodeTraversal_AbstractPostOrderCallback
 	propIndex             *JTMap[string, *PropertyClustering]
 	colorGraphNodeFactory *ColorGraphNodeFactory
-	isPropertyReflector   ColorFindPropertyReferences_IsPropertyReflector
+	isPropertyReflector   func(Node) bool
 }
 
 func (this *ColorFindPropertyReferences) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -20,14 +20,14 @@ func (this *ColorFindPropertyReferences) finit_ColorFindPropertyReferences() {
 	this.propIndex = jnewTMap_(jtc_string, jtc_p_PropertyClustering)
 }
 
-func (this *ColorFindPropertyReferences) init_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactory, isPropertyReflector ColorFindPropertyReferences_IsPropertyReflector) {
+func (this *ColorFindPropertyReferences) init_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactory, isPropertyReflector func(Node) bool) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.finit_ColorFindPropertyReferences()
 	this.colorGraphNodeFactory = colorGraphNodeFactory
 	this.isPropertyReflector = isPropertyReflector
 }
 
-func new_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactory, isPropertyReflector ColorFindPropertyReferences_IsPropertyReflector) *ColorFindPropertyReferences {
+func new_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactory, isPropertyReflector func(Node) bool) *ColorFindPropertyReferences {
 	this := &ColorFindPropertyReferences{}
 	this.self_ = this
 	this.init_ColorFindPropertyReferences(colorGraphNodeFactory, isPropertyReflector)
@@ -63,9 +63,9 @@ func (this *ColorFindPropertyReferences) handleObjectLit(t *NodeTraversal, n Nod
 		return
 	}
 	var owner *Color = n.getColor()
-	this.traverseObjectlitLike(t, n, &Function_tfn_Node_Color{func(m Node) *Color {
+	this.traverseObjectlitLike(t, n, (&Function_tfn_Node_Color{func(m Node) *Color {
 		return owner
-	}})
+	}}).apply)
 }
 
 func (this *ColorFindPropertyReferences) handleCall(t *NodeTraversal, call Node) {
@@ -73,7 +73,7 @@ func (this *ColorFindPropertyReferences) handleCall(t *NodeTraversal, call Node)
 	if !target.isQualifiedName() {
 		return
 	}
-	if this.isPropertyReflector.test(target) {
+	if this.isPropertyReflector(target) {
 		this.handlePropertyReflectorCall(t, call)
 	} else if NodeUtil_isObjectDefinePropertiesDefinition(call) {
 		this.handleObjectDefineProperties(t, call)
@@ -82,7 +82,7 @@ func (this *ColorFindPropertyReferences) handleCall(t *NodeTraversal, call Node)
 
 func (this *ColorFindPropertyReferences) handleClass(t *NodeTraversal, classNode Node) {
 	var classType *Color = classNode.getColor()
-	this.traverseObjectlitLike(t, NodeUtil_getClassMembers(classNode), &Function_tfn_Node_Color{func(m Node) *Color {
+	this.traverseObjectlitLike(t, NodeUtil_getClassMembers(classNode), (&Function_tfn_Node_Color{func(m Node) *Color {
 		if m.isStaticMember() {
 			return classType
 		} else if m.isMemberFieldDef() {
@@ -106,7 +106,7 @@ func (this *ColorFindPropertyReferences) handleClass(t *NodeTraversal, classNode
 			}()
 		}
 		panic("unreachable")
-	}})
+	}}).apply)
 	this.colorGraphNodeFactory.createNode(classType)
 }
 
@@ -119,9 +119,9 @@ func (this *ColorFindPropertyReferences) handleFunction(fnNode Node) {
 
 func (this *ColorFindPropertyReferences) handleObjectPattern(t *NodeTraversal, pattern Node) {
 	var owner *Color = pattern.getColor()
-	this.traverseObjectlitLike(t, pattern, &Function_tfn_Node_Color{func(m Node) *Color {
+	this.traverseObjectlitLike(t, pattern, (&Function_tfn_Node_Color{func(m Node) *Color {
 		return owner
-	}})
+	}}).apply)
 }
 
 func (this *ColorFindPropertyReferences) handlePropertyReflectorCall(t *NodeTraversal, call Node) {
@@ -146,12 +146,12 @@ func (this *ColorFindPropertyReferences) handleObjectDefineProperties(t *NodeTra
 		return
 	}
 	var type_ *Color = typeObj.getColor()
-	this.traverseObjectlitLike(t, objectLiteral, &Function_tfn_Node_Color{func(m Node) *Color {
+	this.traverseObjectlitLike(t, objectLiteral, (&Function_tfn_Node_Color{func(m Node) *Color {
 		return type_
-	}})
+	}}).apply)
 }
 
-func (this *ColorFindPropertyReferences) traverseObjectlitLike(t *NodeTraversal, n Node, memberOwnerFn FunctionOf[Node, *Color]) {
+func (this *ColorFindPropertyReferences) traverseObjectlitLike(t *NodeTraversal, n Node, memberOwnerFn func(any) any) {
 	Preconditions_checkState(((n.isObjectLit() || n.isObjectPattern()) || n.isClassMembers()))
 	{
 		var child Node = n.getFirstChild()
@@ -164,7 +164,7 @@ func (this *ColorFindPropertyReferences) traverseObjectlitLike(t *NodeTraversal,
 				if child.isQuotedStringKey() {
 					continue L_1
 				}
-				this.registerPropertyUse(t, child, cast_[*Color](memberOwnerFn.apply(child.box_())))
+				this.registerPropertyUse(t, child, cast_[*Color](memberOwnerFn(child.box_())))
 			default:
 				panic(new_IllegalStateException_String(("Unexpected child of " + jtostr_(n.getToken()) + ": " + sstr_(child.toStringTree()))).self())
 			}

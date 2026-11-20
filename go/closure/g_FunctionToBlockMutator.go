@@ -165,7 +165,7 @@ func FunctionToBlockMutator_fixUninitializedVarDeclarations_Node_Node_boolean(n 
 func (this *FunctionToBlockMutator) makeLocalNamesUnique(fnNode Node, isCallInLoop bool) {
 	var idSupplier SupplierOf[string] = this.compiler_.getUniqueNameIdSupplier()
 	NodeTraversal_traverseScopeRoots(this.compiler_, ImmutableList_as_List(ImmutableList_of_Object(fnNode.box_())), MakeDeclaredNamesUnique_as_NodeTraversal_Callback(MakeDeclaredNamesUnique_builder().withRenamer(MakeDeclaredNamesUnique_Renamer(new_MakeDeclaredNamesUnique_InlineRenamer(this.compiler_.getCodingConvention(), idSupplier, "inline_", isCallInLoop, true, nil))).withMarkChanges(false).build()), true)
-	new_RenameLabels_AbstractCompiler_Supplier_boolean_boolean(this.compiler_, Supplier(new_FunctionToBlockMutator_LabelNameSupplier(idSupplier)), false, false).process_2(0, fnNode)
+	new_RenameLabels_AbstractCompiler_Supplier_boolean_boolean(this.compiler_, new_FunctionToBlockMutator_LabelNameSupplier(idSupplier).get, false, false).process_2(0, fnNode)
 }
 
 func (this *FunctionToBlockMutator) getLabelNameForFunction(fnName string) string {

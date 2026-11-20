@@ -4,19 +4,19 @@ package closure
 
 type MemoizedScopeCreator struct {
 	scopesByScopeRoot *JTMap[Node, *AbstractScope]
-	delegate          ScopeCreator
+	delegate          func(Node, *AbstractScope) *AbstractScope
 }
 
 func (this *MemoizedScopeCreator) finit_MemoizedScopeCreator() {
 	this.scopesByScopeRoot = jnewTMap_(jtc_Node, jtc_p_AbstractScope)
 }
 
-func (this *MemoizedScopeCreator) init_MemoizedScopeCreator(delegate ScopeCreator) {
+func (this *MemoizedScopeCreator) init_MemoizedScopeCreator(delegate func(Node, *AbstractScope) *AbstractScope) {
 	this.finit_MemoizedScopeCreator()
 	this.delegate = delegate
 }
 
-func new_MemoizedScopeCreator(delegate ScopeCreator) *MemoizedScopeCreator {
+func new_MemoizedScopeCreator(delegate func(Node, *AbstractScope) *AbstractScope) *MemoizedScopeCreator {
 	this := &MemoizedScopeCreator{}
 	this.init_MemoizedScopeCreator(delegate)
 	return this
@@ -25,7 +25,7 @@ func new_MemoizedScopeCreator(delegate ScopeCreator) *MemoizedScopeCreator {
 func (this *MemoizedScopeCreator) createScopeAbstractScope_Node_AbstractScope(n Node, parent *AbstractScope) *AbstractScope {
 	var scope *AbstractScope = this.scopesByScopeRoot.get(n)
 	if scope == nil {
-		scope = this.delegate.createScopeAbstractScope_Node_AbstractScope(n, parent)
+		scope = this.delegate(n, parent)
 		this.scopesByScopeRoot.put(n, scope)
 	} else {
 		Preconditions_checkState((parent == scope.getParent()))

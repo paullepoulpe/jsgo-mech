@@ -49,7 +49,7 @@ func (this *Es6ConvertSuper) visitSuper(node Node, parent Node) {
 	if exprRoot.getParent().isGetElem() || exprRoot.getParent().isGetProp() {
 		exprRoot = exprRoot.getParent()
 	}
-	var enclosingMemberDef Node = NodeUtil_getEnclosingNode(exprRoot, &Predicate_base_tfn_Node{func(n Node) bool {
+	var enclosingMemberDef Node = NodeUtil_getEnclosingNode(exprRoot, (&Predicate_base_tfn_Node{func(n Node) bool {
 		return func() bool {
 			switch n.ns_().token {
 			case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_COMPUTED_PROP:
@@ -59,7 +59,7 @@ func (this *Es6ConvertSuper) visitSuper(node Node, parent Node) {
 			}
 			panic("unreachable")
 		}()
-	}})
+	}}).apply)
 	if (enclosingMemberDef == 0) || enclosingMemberDef.getParent().isObjectLit() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, TranspilationUtil_CANNOT_CONVERT, []string{"super is not supported in object literal methods."}))
 		return

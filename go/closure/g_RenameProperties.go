@@ -15,7 +15,7 @@ type RenameProperties struct {
 	externedNames                   *JTSet[string]
 	quotedNames                     *JTSet[string]
 	nameGenerator                   NameGenerator
-	propertyRenameEligibilityFilter PredicateOf[Node]
+	propertyRenameEligibilityFilter func(any) bool
 	filteredOutNames                *JTSet[string]
 }
 
@@ -30,9 +30,9 @@ func (this *RenameProperties) finit_RenameProperties() {
 }
 
 func (this *RenameProperties) init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any], nameGenerator NameGenerator) {
-	this.init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler, generatePseudoNames, prevUsedPropertyMap, reservedFirstCharacters, reservedNonFirstCharacters, nameGenerator, &Predicate_tfn_Node{func(n Node) bool {
+	this.init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler, generatePseudoNames, prevUsedPropertyMap, reservedFirstCharacters, reservedNonFirstCharacters, nameGenerator, (&Predicate_tfn_Node{func(n Node) bool {
 		return true
-	}})
+	}}).test)
 }
 
 func new_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any], nameGenerator NameGenerator) *RenameProperties {
@@ -41,7 +41,7 @@ func new_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGener
 	return this
 }
 
-func (this *RenameProperties) init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any], nameGenerator NameGenerator, propertyRenameEligibilityFilter PredicateOf[Node]) {
+func (this *RenameProperties) init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any], nameGenerator NameGenerator, propertyRenameEligibilityFilter func(any) bool) {
 	this.finit_RenameProperties()
 	this.compiler_ = compiler
 	this.generatePseudoNames = generatePseudoNames
@@ -53,7 +53,7 @@ func (this *RenameProperties) init_RenameProperties_AbstractCompiler_boolean_Var
 	this.externedNames.asSet().addAll(Collection(compiler.getExternProperties().asSet()))
 }
 
-func new_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any], nameGenerator NameGenerator, propertyRenameEligibilityFilter PredicateOf[Node]) *RenameProperties {
+func new_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any], nameGenerator NameGenerator, propertyRenameEligibilityFilter func(any) bool) *RenameProperties {
 	this := &RenameProperties{}
 	this.init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler, generatePseudoNames, prevUsedPropertyMap, reservedFirstCharacters, reservedNonFirstCharacters, nameGenerator, propertyRenameEligibilityFilter)
 	return this
@@ -238,7 +238,7 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 			this.outer_.callNodeToParentMap.put(n, parent)
 			this.countCallCandidates(t, n)
 			var stringArgument Node = n.getSecondChild()
-			if !this.outer_.propertyRenameEligibilityFilter.test(n.box_()) {
+			if !this.outer_.propertyRenameEligibilityFilter(n.box_()) {
 				it_2 := foreach_(RenameProperties_DOT_SPLITTER.split_s(stringArgument.getString()))
 				for it_2.next() {
 					var name string = str_(it_2.v)
@@ -283,7 +283,7 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 func (this *RenameProperties_ProcessProperties) maybeMarkCandidate(n Node) {
 	var name string = n.getString()
 	if !this.outer_.externedNames.contains(name) {
-		if !this.outer_.propertyRenameEligibilityFilter.test(n.box_()) {
+		if !this.outer_.propertyRenameEligibilityFilter(n.box_()) {
 			this.outer_.filteredOutNames.add(n.getString())
 		}
 		this.outer_.stringNodesToRename.add(n)

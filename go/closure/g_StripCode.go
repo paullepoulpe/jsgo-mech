@@ -577,17 +577,17 @@ func (this *StripCode_Strip) isStripName(name string) bool {
 	var lcName string = String_toLowerCase(name, Locale_ROOT)
 	for _, stripName := range this.outer_.stripNamePrefixesLowerCaseList {
 		if String_startsWith(lcName, stripName) {
-			this.logStripNameSupplier(name, &Supplier_tfn_string{func() string {
+			this.logStripNameSupplier(name, (&Supplier_tfn_string{func() string {
 				return ("matches lc prefix: " + sstr_(stripName))
-			}})
+			}}).get)
 			return true
 		}
 	}
 	for _, stripName := range this.outer_.stripNameSuffixesLowerCaseList {
 		if String_endsWith(lcName, stripName) {
-			this.logStripNameSupplier(name, &Supplier_tfn_string{func() string {
+			this.logStripNameSupplier(name, (&Supplier_tfn_string{func() string {
 				return ("matches lc suffix: " + sstr_(stripName))
-			}})
+			}}).get)
 			return true
 		}
 	}
@@ -611,10 +611,10 @@ func (this *StripCode_Strip) logStripName(name Optional[string], reason string) 
 	}
 }
 
-func (this *StripCode_Strip) logStripNameSupplier(name string, reasonSupplier SupplierOf[string]) {
+func (this *StripCode_Strip) logStripNameSupplier(name string, reasonSupplier func() any) {
 	if this.decisionsLog.isLogging() {
 		this.decisionsLog.log(&Supplier_tfn_string{func() string {
-			return (sstr_(name) + "\tstrip name: " + sstr_(str_(reasonSupplier.get())))
+			return (sstr_(name) + "\tstrip name: " + sstr_(str_(reasonSupplier())))
 		}})
 	}
 }

@@ -247,11 +247,11 @@ func OptimizeParameters_mayReferenceParamBeforeBody(function Node) bool {
 		return false
 	}
 	var namesByNames *SimpleListMultimap = SimpleListMultimap_create()
-	NodeUtil_visitPostOrder_Node_Visitor(paramList, &NodeUtil_Visitor_fn{func(n Node) {
+	NodeUtil_visitPostOrder_Node_Visitor(paramList, func(n Node) {
 		if n.isName() {
 			namesByNames.put_s(n.getString(), n.box_())
 		}
-	}})
+	})
 	it_1 := foreach_(namesByNames.asMap().values())
 	for it_1.next() {
 		var names Collection = icast_Collection(it_1.v)
@@ -665,14 +665,14 @@ func (this *OptimizeParameters) eliminateParamsAfter(fnNode Node, formal Node) {
 func (this *OptimizeParameters) rewriteDestructuringPattern(destructuringPattern Node, value Node, stmts *JTList[Node]) {
 	Preconditions_checkState(destructuringPattern.isDestructuringPattern())
 	Preconditions_checkState_boolean_Object(!destructuringPattern.hasParent(), "Formal parameter must be detached for rewriting")
-	NodeUtil_visitLhsNodesInDestructuringPattern(destructuringPattern, &Consumer_tfn_Node{func(name Node) {
+	NodeUtil_visitLhsNodesInDestructuringPattern(destructuringPattern, (&Consumer_tfn_Node{func(name Node) {
 		if !name.isName() {
 			Preconditions_checkState_boolean_String_Object_H(false, "lhs in destructuring declaration should be a simple name. (%s)", name)
 		}
 		var newName Node = IR_name(name.getString()).srcref(name)
 		var newVar Node = IR_var_Node(newName).srcref(name)
 		stmts.add(newVar)
-	}})
+	}}).accept)
 	var expr Node = IR_exprResult(IR_assign(destructuringPattern, value).srcref(destructuringPattern)).srcref(destructuringPattern)
 	stmts.add(expr)
 }

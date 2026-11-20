@@ -304,14 +304,26 @@ func dropDeleted(s string) string {
 	return strings.Join(out, "")
 }
 
-// Save writes back every file that the registered rewrites change, and returns their number.
-func Save() int {
-	changed := 0
+// rendered is the source of every file with the registered rewrites applied, by file name.
+func rendered() map[string]string {
+	outs := map[string]string{}
 	for _, f := range Files {
 		tf := Fset.File(f.Pos())
 		// The file node starts at `package`; keep what precedes it.
-		out := dropDeleted(string(Src[tf][:tf.Offset(f.Pos())]) + RenderChildren(f) + string(Src[tf][tf.Offset(f.End()):]))
-		if out != string(Src[tf]) {
+		outs[tf.Name()] = dropDeleted(string(Src[tf][:tf.Offset(f.Pos())]) + RenderChildren(f) + string(Src[tf][tf.Offset(f.End()):]))
+	}
+	return outs
+}
+
+// Save writes back every file that the registered rewrites change, and returns their number.
+// All files are rendered before the first is written, so a failing rewrite leaves the
+// package as it was.
+func Save() int {
+	outs := rendered()
+	changed := 0
+	for _, f := range Files {
+		tf := Fset.File(f.Pos())
+		if out := outs[tf.Name()]; out != string(Src[tf]) {
 			if err := os.WriteFile(tf.Name(), []byte(out), 0o644); err != nil {
 				panic(err)
 			}
@@ -319,6 +331,38 @@ func Save() int {
 		}
 	}
 	return changed
+}
+
+// SaveChecked is Save, when the rewritten package type-checks; otherwise it prints the type
+// errors, writes nothing and exits with status 1.
+func SaveChecked() int {
+	outs := rendered()
+	fset := token.NewFileSet()
+	var files []*ast.File
+	names := make([]string, 0, len(outs))
+	for n := range outs {
+		names = append(names, n)
+	}
+	sort.Strings(names)
+	for _, n := range names {
+		f, err := parser.ParseFile(fset, n, outs[n], parser.SkipObjectResolution)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "rewritten source does not parse:", err)
+			os.Exit(1)
+		}
+		files = append(files, f)
+	}
+	nerr := 0
+	conf := types.Config{Importer: importer.ForCompiler(fset, "source", nil), Error: func(err error) {
+		if nerr++; nerr <= 20 {
+			fmt.Fprintln(os.Stderr, err)
+		}
+	}}
+	if _, err := conf.Check("closure", fset, files, nil); err != nil {
+		fmt.Fprintf(os.Stderr, "the rewritten package does not type-check (%d errors): nothing written\n", nerr)
+		os.Exit(1)
+	}
+	return Save()
 }
 
 // VarExpr is the expression naming a variable at use id: the identifier, or the selector whose

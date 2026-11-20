@@ -128,14 +128,14 @@ func (this *FlowSensitiveInlineVariables) visit(t *NodeTraversal, n Node, parent
 
 }
 
-func FlowSensitiveInlineVariables_checkPostExpressions(n Node, expressionRoot Node, predicate Predicate_baseOf[Node]) bool {
+func FlowSensitiveInlineVariables_checkPostExpressions(n Node, expressionRoot Node, predicate func(any) bool) bool {
 	{
 		var p Node = n
 		for ; p != expressionRoot; p = p.getParent() {
 			{
 				var cur Node = p.getNext()
 				for ; cur != 0; cur = cur.getNext() {
-					if predicate.apply(cur.box_()) {
+					if predicate(cur.box_()) {
 						return true
 					}
 				}
@@ -145,14 +145,14 @@ func FlowSensitiveInlineVariables_checkPostExpressions(n Node, expressionRoot No
 	return false
 }
 
-func FlowSensitiveInlineVariables_checkPreExpressions(n Node, expressionRoot Node, predicate Predicate_baseOf[Node]) bool {
+func FlowSensitiveInlineVariables_checkPreExpressions(n Node, expressionRoot Node, predicate func(any) bool) bool {
 	{
 		var p Node = n
 		for ; p != expressionRoot; p = p.getParent() {
 			var oldestSibling Node = p.getParent().getFirstChild()
 			if oldestSibling.isDestructuringPattern() {
 				if p.isDestructuringPattern() {
-					if (p.getNext() != 0) && predicate.apply(p.getNext().box_()) {
+					if (p.getNext() != 0) && predicate(p.getNext().box_()) {
 						return true
 					}
 				}
@@ -161,7 +161,7 @@ func FlowSensitiveInlineVariables_checkPreExpressions(n Node, expressionRoot Nod
 			{
 				var cur Node = oldestSibling
 				for ; cur != p; cur = cur.getNext() {
-					if predicate.apply(cur.box_()) {
+					if predicate(cur.box_()) {
 						return true
 					}
 				}
@@ -383,10 +383,10 @@ func (this *FlowSensitiveInlineVariables_Candidate) canInline(scope *Scope) bool
 		}
 	}
 	var sideEffectPredicateWithNames *FlowSensitiveInlineVariables_SideEffectPredicate = new_FlowSensitiveInlineVariables_SideEffectPredicate_Set(this.outer_, namesToCheck)
-	if FlowSensitiveInlineVariables_checkPostExpressions(this.def, this.getDefCfgNode(), icast_Predicate_base(obj_(sideEffectPredicateWithNames))) {
+	if FlowSensitiveInlineVariables_checkPostExpressions(this.def, this.getDefCfgNode(), sideEffectPredicateWithNames.apply) {
 		return false
 	}
-	if FlowSensitiveInlineVariables_checkPreExpressions(this.use, this.useCfgNode, icast_Predicate_base(obj_(sideEffectPredicateWithNames))) {
+	if FlowSensitiveInlineVariables_checkPreExpressions(this.use, this.useCfgNode, sideEffectPredicateWithNames.apply) {
 		return false
 	}
 	if this.outer_.compiler_.getAstAnalyzer().mayHaveSideEffects(this.def.getLastChild()) {
@@ -464,7 +464,7 @@ func (this *FlowSensitiveInlineVariables_Candidate) getNumUseInUseCfgNode(cfgNod
 }
 
 func (this *FlowSensitiveInlineVariables_Candidate) isRhsSafeToInline(usageScope *Scope) bool {
-	if NodeUtil_has(this.def.getLastChild(), &Predicate_base_tfn_Node{func(input Node) bool {
+	if NodeUtil_has(this.def.getLastChild(), (&Predicate_base_tfn_Node{func(input Node) bool {
 		switch input.ns_().token {
 		case tokOrd1_GETELEM, tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_CLASS, tokOrd1_ARRAYLIT, tokOrd1_OBJECTLIT, tokOrd1_REGEXP, tokOrd1_NEW:
 			return true
@@ -472,12 +472,12 @@ func (this *FlowSensitiveInlineVariables_Candidate) isRhsSafeToInline(usageScope
 		}
 		return false
 		panic("unreachable")
-	}}, &Predicate_base_tfn_Node{func(input Node) bool {
+	}}).apply, &Predicate_base_tfn_Node{func(input Node) bool {
 		return !input.isFunction()
 	}}) {
 		return false
 	}
-	if NodeUtil_has(this.def.getLastChild(), &Predicate_base_tfn_Node{func(input Node) bool {
+	if NodeUtil_has(this.def.getLastChild(), (&Predicate_base_tfn_Node{func(input Node) bool {
 		if input.isName() {
 			var name string = input.getString()
 			if !String_isEmpty(name) && !usageScope.hasSlot(name) {
@@ -486,7 +486,7 @@ func (this *FlowSensitiveInlineVariables_Candidate) isRhsSafeToInline(usageScope
 		}
 		return false
 		panic("unreachable")
-	}}, Predicates_alwaysTrue()) {
+	}}).apply, Predicates_alwaysTrue()) {
 		return false
 	}
 	return true

@@ -183,7 +183,7 @@ func (this *Es6RewriteDestructuring) rewriteVarDestructuringDeclaration(destruct
 	}
 	Preconditions_checkState_boolean_Object(!destructuringLhs.getGrandparent().isExport(), "Export destructuring declarations not expected inside a function body.")
 	var var_ Node = destructuringLhs.getParent()
-	NodeUtil_visitLhsNodesInNode(destructuringLhs, &Consumer_tfn_Node{func(name Node) {
+	NodeUtil_visitLhsNodesInNode(destructuringLhs, (&Consumer_tfn_Node{func(name Node) {
 		if !name.isName() {
 			Preconditions_checkState_boolean_String_Object_H(false, "lhs in destructuring declaration should be a simple name. (%s)", name)
 		}
@@ -193,7 +193,7 @@ func (this *Es6RewriteDestructuring) rewriteVarDestructuringDeclaration(destruct
 		}
 		var newVar Node = IR_var_Node(newName).srcref(name)
 		newVar.insertBefore(var_)
-	}})
+	}}).accept)
 	var destructuringPattern Node = destructuringLhs.removeFirstChild()
 	if ok_, a1_ := destructuringPattern.isDestructuringPattern(), destructuringPattern.toStringTree(); !ok_ {
 		Preconditions_checkState_boolean_String_Object(false, "Expected destructuring pattern but got %s", a1_)
@@ -507,9 +507,9 @@ func (this *Es6RewriteDestructuring) wrapAssignOrDestructuringInCallToArrow(t *N
 }
 
 func (this *Es6RewriteDestructuring) validateNoAwaitOrYieldInNestedAssignmentPattern(pattern Node) {
-	var hasAwaitOrYieldInLhs bool = (NodeUtil_findPreorder(pattern, &Predicate_base_tfn_Node{func(n Node) bool {
+	var hasAwaitOrYieldInLhs bool = (NodeUtil_findPreorder(pattern, (&Predicate_base_tfn_Node{func(n Node) bool {
 		return (n.isAwait() || n.isYield())
-	}}, NodeUtil_MATCH_NOT_FUNCTION) != 0)
+	}}).apply, NodeUtil_MATCH_NOT_FUNCTION) != 0)
 	if hasAwaitOrYieldInLhs {
 		Preconditions_checkState_boolean_String_Object_H(false, "Cannot transpile yet: destructuring assignment referencing await or yield in lhs, in nested sub-expression: %s", pattern)
 	}
@@ -551,9 +551,9 @@ func (this *Es6RewriteDestructuring) visitDestructuringPatternInVanillaForInnerV
 		}
 	case tokOrd1_LET:
 		{
-			ParsingUtil_getParamOrPatternNames(pattern, &Consumer_tfn_Node{func(name Node) {
+			ParsingUtil_getParamOrPatternNames(pattern, (&Consumer_tfn_Node{func(name Node) {
 				name.cloneNode().insertBefore(destructuringLhs)
-			}})
+			}}).accept)
 			var unusedVar Node = this.astFactory_.createNameWithUnknownType((sstr_(this.getTempVariableName()) + "$unused")).srcref(destructuringLhs)
 			destructuringLhs.replaceWith(unusedVar)
 			unusedVar.addChildToBack(destructuringLhs)
