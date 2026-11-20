@@ -64,9 +64,7 @@ func (this *TypeInference) inferDeclarativelyUnboundVarsWithoutTypes(flow FlowSc
 	if !this.inferredUnboundVars.add(scope) {
 		return flow
 	}
-	it_1 := foreach_(scope.getDeclarativelyUnboundVarsWithoutTypes())
-	for it_1.next() {
-		var var_ *TypedVar = cast_[*TypedVar](it_1.v)
+	for var_ := range elemsAs_[*TypedVar](scope.getDeclarativelyUnboundVarsWithoutTypes()) {
 		if this.isUnflowable(var_) {
 			continue
 		}
@@ -639,9 +637,7 @@ func TypeInference_addMissingInterfaceProperties(constructor *JSType) {
 	it_1 := f.getImplementedInterfaces().each()
 	for it_1.next() {
 		var interf *ObjectType = it_1.v
-		it_3 := foreach_(obj_(interf.getPropertyNames()))
-		for it_3.next() {
-			var pname string = str_(it_3.v)
+		for pname := range elemsBy_(obj_(interf.getPropertyNames()), str_) {
 			if !proto.hasProperty(pname) {
 				proto.defineDeclaredProperty(pname, interf.getPropertyType(pname), 0)
 			}
@@ -1590,9 +1586,7 @@ func (this *TypeInference) dereferenceKnownSymbolProp(obj *JSType, indexSymbol *
 		return ImmutableList_as_Collection(ImmutableList_of_Object(obj.self()))
 	}()
 	var key Property_Key = Property_Key(new_Property_SymbolKey(indexSymbol))
-	it_1 := foreach_(alternates)
-	for it_1.next() {
-		var option *JSType = to_JSType(it_1.v)
+	for option := range elemsBy_(alternates, to_JSType) {
 		if option.toMaybeObjectType() == nil {
 			argumentTypes = nil
 			break
@@ -1620,9 +1614,7 @@ func (this *TypeInference) dereferenceIndexSignature(obj *JSType) *JSType {
 		}
 		return ImmutableList_as_Collection(ImmutableList_of_Object(obj.self()))
 	}()
-	it_1 := foreach_(alternates)
-	for it_1.next() {
-		var option *JSType = to_JSType(it_1.v)
+	for option := range elemsBy_(alternates, to_JSType) {
 		var typeMap *TemplateTypeMap = option.getTemplateTypeMap()
 		if !typeMap.hasTemplateType(this.registry.getObjectElementKey()) {
 			argumentTypes = nil

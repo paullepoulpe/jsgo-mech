@@ -82,9 +82,7 @@ func (this *TypedScopeCreator) getScope_StaticSlot_rTypedScope(var_ *TypedVar) *
 
 func (this *TypedScopeCreator) getAllSymbols() IterableOf[*TypedVar] {
 	var vars *JTList[*TypedVar] = jnewTList_(jtc_p_TypedVar)
-	it_1 := this.memoized.each()
-	for it_1.next() {
-		var s *TypedScope = it_1.v
+	for s := range this.memoized.Values() {
 		Iterables_addAll(Collection(vars.asList()), s.getAllSymbols())
 	}
 	return Iterable(vars.asList())
@@ -306,12 +304,8 @@ func (this *TypedScopeCreator) finishAndFreeze() {
 		var resolved *JSType = node.getJSType().resolve(this.typeParsingErrorReporter)
 		node.setJSType(resolved)
 	}
-	it_3 := foreach_(this.getAllMemoizedScopes())
-	for it_3.next() {
-		var scope *TypedScope = cast_[*TypedScope](it_3.v)
-		it_5 := foreach_(scope.getVarIterable())
-		for it_5.next() {
-			var var_ *TypedVar = cast_[*TypedVar](it_5.v)
+	for scope := range elemsAs_[*TypedScope](this.getAllMemoizedScopes()) {
+		for var_ := range elemsAs_[*TypedVar](scope.getVarIterable()) {
 			var_.resolveType(this.typeParsingErrorReporter)
 		}
 		scope.validateCompletelyBuilt()
@@ -1461,9 +1455,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) findOverriddenProperty(owner
 	if (propType != nil) && !propType.isUnknownType() {
 		result = propType
 	} else {
-		it_1 := foreach_(ownerType.getCtorImplementedInterfaces())
-		for it_1.next() {
-			var iface *ObjectType = to_ObjectType(it_1.v)
+		for iface := range elemsBy_(ownerType.getCtorImplementedInterfaces(), to_ObjectType) {
 			propType = iface.getPropertyType(propName)
 			if (propType != nil) && !propType.isUnknownType() {
 				result = propType
@@ -2238,9 +2230,7 @@ func (this *TypedScopeCreator_NormalScopeBuilder) visitPostorder_impl(t *NodeTra
 	case tokOrd1_EXPR_RESULT:
 		var names CollectionOf[*ProcessClosureProvidesAndRequires_ProvidedName] = Collection(this.outer_.providedNamesFromCall.get(n.box_()))
 		if names != nil {
-			it_2 := foreach_(names)
-			for it_2.next() {
-				var name *ProcessClosureProvidesAndRequires_ProvidedName = cast_[*ProcessClosureProvidesAndRequires_ProvidedName](it_2.v)
+			for name := range elemsAs_[*ProcessClosureProvidesAndRequires_ProvidedName](names) {
 				this.declareProvidedNs(n, name)
 			}
 		}
@@ -2635,9 +2625,7 @@ func new_TypedScopeCreator_FirstOrderFunctionAnalyzer(outer_ *TypedScopeCreator)
 func (this *TypedScopeCreator_FirstOrderFunctionAnalyzer) enterScope_impl(t *NodeTraversal) {
 	var scope *Scope = t.getScope()
 	var root Node = scope.getRootNode()
-	it_1 := foreach_(scope.getVarIterable())
-	for it_1.next() {
-		var symbol *Var = cast_[*Var](it_1.v)
+	for symbol := range elemsAs_[*Var](scope.getVarIterable()) {
 		this.outer_.reservedNamesForScope.put(root.box_(), strobj_(symbol.getName()))
 	}
 }
