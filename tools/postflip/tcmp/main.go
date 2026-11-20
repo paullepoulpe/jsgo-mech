@@ -18,9 +18,12 @@
 // sort does), of a class with implsplit's typed compareToT_ and no subclass with that method
 // value. A typed list (L.asList() of a *TList) sorts with sortTListF_ (an immutable or nil list
 // goes through List_sort as before). The comparator is typed where it is an adapter literal &X{f} of the slice's element type (f)
-// or a never-null named comparator new_C(..) whose compare is implsplit's bridge of its typed
+// or a chain of the runtime's Comparator combinators (comparing, comparingInt, comparingLong,
+// reversed, thenComparing...) over typed adapters, which is the same chain of rt_tfn.go's typed
+// combinators (the key functions and comparators called in the same order; Comparator.comparing's
+// keys compared boxed by compareNatural_ as before), or a never-null named comparator new_C(..) whose compare is implsplit's bridge of its typed
 // compareT_ (the method value new_C(..).compareT_, evaluated where the argument was). Left,
-// counted: comparators from the runtime's combinators (Comparator.comparing, reversed,
+// counted: comparators from the runtime's combinators not over typed adapters (Comparator.comparing, reversed,
 // thenComparing...: erased functions of Objects), package variables, lists that are not slice
 // views. The sorted sets (TreeSet made with a Comparator) are colls': its -kind treeset report
 // counts them ("made with a Comparator"). A rerun changes nothing.
@@ -293,6 +296,137 @@ func cmpSig(t types.Type) *types.Signature {
 
 // typedCmp: the typed function of a comparator of elements of type t, or "".
 func typedCmp(e ast.Expr, t types.Type) string {
+	if s := combCmp(e, t); s != "" {
+		return s
+	}
+	return typedCmp1(e, t)
+}
+
+// tconvFor is the package's element conversion variable of type *tconv_[t], or "".
+func tconvFor(t types.Type) string {
+	for _, n := range rw.Pkg.Scope().Names() {
+		v, ok := rw.Pkg.Scope().Lookup(n).(*types.Var)
+		if !ok || !strings.HasPrefix(n, "tc") {
+			continue
+		}
+		p, ok := v.Type().(*types.Pointer)
+		if !ok {
+			continue
+		}
+		nt, ok := types.Unalias(p.Elem()).(*types.Named)
+		if ok && nt.Origin().Obj().Name() == "tconv_" && nt.TypeArgs().Len() == 1 && types.Identical(nt.TypeArgs().At(0), t) {
+			return n
+		}
+	}
+	return ""
+}
+
+// adapterFn returns f of a typed lambda adapter &X{f} whose function takes one t and returns a
+// value, and f's result type.
+func adapterFn(e ast.Expr, t types.Type) (string, types.Type) {
+	u, ok := rw.Unparen(e).(*ast.UnaryExpr)
+	if !ok {
+		return "", nil
+	}
+	cl, ok := u.X.(*ast.CompositeLit)
+	if !ok || len(cl.Elts) != 1 {
+		return "", nil
+	}
+	if id, ok := cl.Type.(*ast.Ident); !ok || !strings.Contains(id.Name, "_tfn") {
+		return "", nil
+	}
+	if _, ok := cl.Elts[0].(*ast.KeyValueExpr); ok {
+		return "", nil
+	}
+	sig, ok := types.Unalias(rw.Info.TypeOf(cl.Elts[0])).(*types.Signature)
+	if !ok || sig.Params().Len() != 1 || sig.Results().Len() != 1 || !types.Identical(sig.Params().At(0).Type(), t) {
+		return "", nil
+	}
+	return rw.Render(cl.Elts[0]), sig.Results().At(0).Type()
+}
+
+// combCmp: the typed comparator of a chain of the runtime's Comparator combinators over typed
+// adapters (rt_tfnapi.go's comparingT_ ... thenComparingT_, which call the key functions and
+// comparators in the combinators' order), or "".
+func combCmp(e ast.Expr, t types.Type) string {
+	name, c := rw.CallName(e)
+	if c == nil {
+		return ""
+	}
+	a := c.Args
+	key := func(i int, want types.Type) string {
+		f, r := adapterFn(a[i], t)
+		if f == "" || want != nil && !types.Identical(r, want) {
+			return ""
+		}
+		return f
+	}
+	natural := func(i int) string {
+		f, r := adapterFn(a[i], t)
+		if f == "" {
+			return ""
+		}
+		if tc := tconvFor(r); tc != "" {
+			return "comparingT_(" + tc + ", " + f + ")"
+		}
+		return ""
+	}
+	i32, i64 := types.Typ[types.Int32], types.Typ[types.Int64]
+	switch {
+	case name == "Comparator_comparingInt" && len(a) == 1:
+		if f := key(0, i32); f != "" {
+			return "comparingIntT_(" + f + ")"
+		}
+	case name == "Comparator_comparingLong" && len(a) == 1:
+		if f := key(0, i64); f != "" {
+			return "comparingLongT_(" + f + ")"
+		}
+	case name == "Comparator_comparing" && len(a) == 1:
+		return natural(0)
+	case name == "Comparator_comparing_Function_Comparator" && len(a) == 2:
+		if f, r := adapterFn(a[0], t); f != "" {
+			if d := typedCmp(a[1], r); d != "" {
+				return "comparingCmpT_(" + f + ", " + d + ")"
+			}
+		}
+	case name == "Comparator_reversed" && len(a) == 1:
+		if isNatural(a[0]) {
+			if n := naturalCmp(t); n != "" {
+				return "reversedT_(" + n + ")"
+			}
+			return ""
+		}
+		if d := typedCmp(a[0], t); d != "" {
+			return "reversedT_(" + d + ")"
+		}
+	case len(a) == 2 && strings.HasPrefix(name, "Comparator_thenComparing"):
+		first := typedCmp(a[0], t)
+		if first == "" {
+			return ""
+		}
+		var second string
+		switch name {
+		case "Comparator_thenComparing":
+			second = natural(1)
+		case "Comparator_thenComparingInt":
+			if f := key(1, i32); f != "" {
+				second = "comparingIntT_(" + f + ")"
+			}
+		case "Comparator_thenComparingLong":
+			if f := key(1, i64); f != "" {
+				second = "comparingLongT_(" + f + ")"
+			}
+		case "Comparator_thenComparing_Comparator":
+			second = typedCmp(a[1], t)
+		}
+		if second != "" {
+			return "thenComparingT_(" + first + ", " + second + ")"
+		}
+	}
+	return ""
+}
+
+func typedCmp1(e ast.Expr, t types.Type) string {
 	want := cmpSig(t)
 	// &X{f}: a typed lambda adapter
 	if u, ok := rw.Unparen(e).(*ast.UnaryExpr); ok {

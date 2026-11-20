@@ -212,9 +212,9 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitName(t *NodeTraversal, n N
 	}
 	var currentChunk *JSChunk = t.getChunk()
 	if this.optimizeLocalAccess.shouldWrapReassignableSymbols() {
-		mapComputeIfAbsent_(tc_string, tc_Set, this.chunksUsingCrossChunkSymbols, name, &Function_tfn_string_Set{func(k string) Set {
+		mapComputeIfAbsentT_(tc_Set, this.chunksUsingCrossChunkSymbols, name, func(k string) Set {
 			return Set(new_LinkedHashSet())
-		}}).add(obj_(currentChunk))
+		}).add(obj_(currentChunk))
 	}
 	if this.optimizeLocalAccess.shouldOptimize() && !this.symbolInfo.crossChunkNamesWithWriteFromOtherChunk().Has(name) {
 		var definingChunk *JSChunk = var_.getInput().getChunk()
@@ -233,9 +233,9 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitName(t *NodeTraversal, n N
 			}
 		} else if this.optimizeLocalAccess.shouldOptimizeAllChunks() && (!this.optimizeLocalAccess.shouldWrapReassignableSymbols() || !this.symbolInfo.wrappedCrossChunkNames().Has(name)) {
 			if !this.symbolInfo.globalNamesWithInnerScopeWriteInDefiningChunk().Has(name) && this.compiler_.getChunkGraph().dependsOn(currentChunk, definingChunk) {
-				Collection_add_s(mapComputeIfAbsent_(tc_p_JSChunk, tc_Set, this.localAliasesForUnwrappedCrossChunkNames, currentChunk, &Function_tfn_JSChunk_Set{func(k *JSChunk) Set {
+				Collection_add_s(mapComputeIfAbsentT_(tc_Set, this.localAliasesForUnwrappedCrossChunkNames, currentChunk, func(k *JSChunk) Set {
 					return Set(new_LinkedHashSet())
-				}}), name)
+				}), name)
 				return
 			}
 		}
@@ -248,12 +248,12 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitName(t *NodeTraversal, n N
 	if !this.symbolInfo.wrappedCrossChunkNames().Has(name) {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected unaliased cross-chunk symbol under ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS: %s", name)))
 	}
-	mapComputeIfAbsent_(tc_string, tc_Set, this.chunksUsingWrappedReassignableSymbols, name, &Function_tfn_string_Set{func(k string) Set {
+	mapComputeIfAbsentT_(tc_Set, this.chunksUsingWrappedReassignableSymbols, name, func(k string) Set {
 		return Set(new_LinkedHashSet())
-	}}).add(obj_(currentChunk))
-	mapComputeIfAbsent_(tc_string, tc_Set, this.chunksRequiringWrapperInitialization, name, &Function_tfn_string_Set{func(k string) Set {
+	}).add(obj_(currentChunk))
+	mapComputeIfAbsentT_(tc_Set, this.chunksRequiringWrapperInitialization, name, func(k string) Set {
 		return Set(new_LinkedHashSet())
-	}}).add(obj_(currentChunk))
+	}).add(obj_(currentChunk))
 	var replacement Node = IR_getprop_Node_String(IR_name(name), "_")
 	this.replaceSymbol(n, name, replacement)
 }
@@ -276,9 +276,9 @@ func (this *RescopeGlobalSymbolsRewriteCallback) addGlobalNamespaceAlias(n Node,
 	}
 	var globalTarget Node = IR_getprop_Node_String(IR_name(this.symbolInfo.globalSymbolNamespace()), name)
 	if this.optimizeLocalAccess.shouldWrapReassignableSymbols() && this.symbolInfo.wrappedCrossChunkNames().Has(name) {
-		mapComputeIfAbsent_(tc_string, tc_Set, this.chunksRequiringWrapperInitialization, name, &Function_tfn_string_Set{func(k string) Set {
+		mapComputeIfAbsentT_(tc_Set, this.chunksRequiringWrapperInitialization, name, func(k string) Set {
 			return Set(new_LinkedHashSet())
-		}}).add(obj_(currentChunk))
+		}).add(obj_(currentChunk))
 		globalTarget = IR_getprop_Node_String(globalTarget, "_")
 	}
 	var parent Node = n.getParent()
