@@ -43,12 +43,21 @@ func (this *Color) equals(o any) bool {
 	if o == any(this) {
 		return true
 	}
-	if that, ok := o.(*Color); ok {
-		return (((((((((this.id.equals(obj_(that.getId())) && equalsR_(this.prototypes.asImm(), that.getPrototypes().asSet())) && equalsR_(this.instanceColors.asImm(), that.getInstanceColors().asSet())) && (this.invalidating == that.isInvalidating())) && (this.propertiesKeepOriginalName == that.getPropertiesKeepOriginalName())) && (this.constructor_ == that.isConstructor())) && equalsR_(this.ownProperties.asImm(), that.getOwnProperties().asSet())) && func() bool {
+	p, ok := o.(*Color)
+	return ok && this.equals_Color(p)
+}
+
+// equals_Color is equals of a Color (post-flip step eqtyped).
+func (this *Color) equals_Color(that *Color) bool {
+	if that == this {
+		return true
+	}
+	if that != nil {
+		return (((((((((this.id.equals_ColorId(that.getId()) && equalsR_(this.prototypes.asImm(), that.getPrototypes().asSet())) && equalsR_(this.instanceColors.asImm(), that.getInstanceColors().asSet())) && (this.invalidating == that.isInvalidating())) && (this.propertiesKeepOriginalName == that.getPropertiesKeepOriginalName())) && (this.constructor_ == that.isConstructor())) && equalsR_(this.ownProperties.asImm(), that.getOwnProperties().asSet())) && func() bool {
 			if this.boxId == nil {
 				return (that.getBoxId() == nil)
 			}
-			return this.boxId.equals(obj_(that.getBoxId()))
+			return this.boxId.equals_ColorId(that.getBoxId())
 		}()) && (this.closureAssert == that.isClosureAssert())) && equalsR_(this.unionElements.asImm(), that.getUnionElements().asSet()))
 	}
 	return false

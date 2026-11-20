@@ -160,17 +160,13 @@ func (this *FeatureSet) getFeatures() *JTSet[FeatureSet_Feature] {
 }
 
 func (this *FeatureSet) equals(other any) bool {
-	var featureSet *FeatureSet
-	_ = featureSet
-	return (func() bool {
-		v_ := other
-		p, ok := v_.(*FeatureSet)
-		if !ok {
-			return false
-		}
-		featureSet = p
-		return true
-	}() && equalsR_(featureSet.features_.asImm(), this.features_.asSet()))
+	p, ok := other.(*FeatureSet)
+	return ok && this.equals_FeatureSet(p)
+}
+
+// equals_FeatureSet is equals of a FeatureSet (post-flip step eqtyped).
+func (this *FeatureSet) equals_FeatureSet(featureSet *FeatureSet) bool {
+	return ((featureSet != nil) && equalsR_(featureSet.features_.asImm(), this.features_.asSet()))
 }
 
 func (this *FeatureSet) hashCode() int32 {

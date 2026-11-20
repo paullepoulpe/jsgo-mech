@@ -93,7 +93,7 @@ func (this *RecordType) getGreatestSubtypeHelper(that *JSType) *JSType {
 			if thatRecord.hasProperty(property) {
 				var thatPropertyType *JSType = thatRecord.getPropertyType(property)
 				propType = thisPropertyType.getGreatestSubtype(thatPropertyType)
-				if propType.equals(noType.self()) {
+				if propType.equals_JSType(noType) {
 					return noType
 				}
 			} else {
@@ -116,7 +116,7 @@ func (this *RecordType) getGreatestSubtypeHelper(that *JSType) *JSType {
 			var builder *UnionType_Builder = UnionType_builder(this.registry)
 			for alt := range elemsBy_(this.registry.getEachReferenceTypeWithProperty(propName), to_ObjectType) {
 				var altPropType *JSType = alt.getPropertyType(propName)
-				if (((altPropType != nil) && !alt.equals(obj_(this))) && alt.isSubtypeOf(that)) && altPropType.isSubtypeOf(propType) {
+				if (((altPropType != nil) && !alt.equals_JSType(this.up_JSType())) && alt.isSubtypeOf(that)) && altPropType.isSubtypeOf(propType) {
 					builder.addAlternate(alt.up_JSType())
 				}
 			}

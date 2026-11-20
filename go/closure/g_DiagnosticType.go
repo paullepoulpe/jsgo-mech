@@ -47,17 +47,13 @@ func (this *DiagnosticType) format(arguments []string) string {
 }
 
 func (this *DiagnosticType) equals(type_ any) bool {
-	var diagnosticType *DiagnosticType
-	_ = diagnosticType
-	return (func() bool {
-		v_ := type_
-		p, ok := v_.(*DiagnosticType)
-		if !ok {
-			return false
-		}
-		diagnosticType = p
-		return true
-	}() && (diagnosticType.key_ == this.key_))
+	p, ok := type_.(*DiagnosticType)
+	return ok && this.equals_DiagnosticType(p)
+}
+
+// equals_DiagnosticType is equals of a DiagnosticType (post-flip step eqtyped).
+func (this *DiagnosticType) equals_DiagnosticType(diagnosticType *DiagnosticType) bool {
+	return ((diagnosticType != nil) && (diagnosticType.key_ == this.key_))
 }
 
 func (this *DiagnosticType) hashCode() int32 {

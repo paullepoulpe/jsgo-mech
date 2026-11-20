@@ -357,7 +357,7 @@ func (this *FunctionType) setPrototypeBasedOn_2(baseType *ObjectType, propertyNo
 		this.maybeLoosenTypecheckingDueToForwardReferencedSupertype(baseType.up_JSType())
 	}
 	if (baseType.hasReferenceName() || this.isNativeObjectType()) || baseType.isFunctionPrototypeType() {
-		if ((this.prototypeSlot != nil) && this.hasInstanceType()) && baseType.equals(this.getInstanceType().self()) {
+		if ((this.prototypeSlot != nil) && this.hasInstanceType()) && baseType.equals_JSType(this.getInstanceType().up_JSType()) {
 			return
 		}
 		baseType = PrototypeObjectType_builder(this.registry).setName(Optional_of[string]((sstr_(this.getReferenceName().orElse("null")) + ".prototype"))).setImplicitPrototype(baseType).build().up_ObjectType()
@@ -559,7 +559,7 @@ func (this *FunctionType) defineProperty_impl(name Property_Key, type_ *JSType, 
 	if name.matches("prototype") {
 		var objType *ObjectType = type_.toObjectType()
 		if objType != nil {
-			if (this.prototypeSlot != nil) && objType.equals(this.prototypeSlot.getType().self()) {
+			if (this.prototypeSlot != nil) && objType.equals_JSType(this.prototypeSlot.getType()) {
 				return true
 			}
 			this.setPrototypeBasedOn_2(objType, propertyNode)
@@ -573,7 +573,7 @@ func (this *FunctionType) defineProperty_impl(name Property_Key, type_ *JSType, 
 
 func (this *FunctionType) supAndInfHelper(that *FunctionType, leastSuper bool) *FunctionType {
 	Preconditions_checkNotNull_T(that)
-	if this.equals(that.self()) {
+	if this.equals_JSType(that.up_JSType()) {
 		return this
 	}
 	if ((this.isOrdinaryFunction() && that.isOrdinaryFunction()) && !this.call.hasUnknownParamsOrReturn()) && !that.call.hasUnknownParamsOrReturn() {
@@ -600,14 +600,14 @@ func (this *FunctionType) supAndInfHelper(that *FunctionType, leastSuper bool) *
 		}
 	}
 	var functionInstance *JSType = this.registry.getNativeType(JSTypeNative_FUNCTION_TYPE)
-	if functionInstance.equals(that.self()) {
+	if functionInstance.equals_JSType(that.up_JSType()) {
 		return func() *FunctionType {
 			if leastSuper {
 				return that
 			}
 			return this
 		}()
-	} else if functionInstance.equals(this.self()) {
+	} else if functionInstance.equals_JSType(this.up_JSType()) {
 		return func() *FunctionType {
 			if leastSuper {
 				return this

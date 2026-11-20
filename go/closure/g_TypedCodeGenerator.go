@@ -96,7 +96,7 @@ func (this *TypedCodeGenerator) getFunctionAnnotation(fnNode Node) string {
 		return ""
 	}
 	var funType *FunctionType = type_.toMaybeFunctionType()
-	if type_.equals(this.registry.getNativeType(JSTypeNative_FUNCTION_TYPE).self()) {
+	if type_.equals_JSType(this.registry.getNativeType(JSTypeNative_FUNCTION_TYPE)) {
 		return "/** @type {!Function} */\n"
 	}
 	var sb *StringBuilder = new_StringBuilder_String("/**\n")
@@ -119,7 +119,7 @@ func (this *TypedCodeGenerator) getFunctionAnnotation(fnNode Node) string {
 	} else {
 		var thisType *JSType = funType.getTypeOfThis()
 		if ((thisType != nil) && !thisType.isUnknownType()) && !thisType.isVoidType() {
-			if (fnNode == 0) || !thisType.equals(this.findMethodOwner(fnNode).self()) {
+			if (fnNode == 0) || !thisType.equals_JSType(this.findMethodOwner(fnNode).up_JSType()) {
 				sb.append(" * ")
 				TypedCodeGenerator_appendAnnotation(sb, "this", thisType.toAnnotationString(JSType_Nullability_EXPLICIT))
 				sb.append("\n")
