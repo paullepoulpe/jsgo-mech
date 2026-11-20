@@ -177,7 +177,7 @@ func ModuleLoader_clinit() {
 	ModuleLoader_MODULE_CONFLICT = DiagnosticType_warning("JSC_MODULE_CONFLICT", "File cannot be a combination of goog.provide, goog.module, and/or ES6 module: {0}")
 	ModuleLoader_LOAD_WARNING = DiagnosticType_error("JSC_JS_MODULE_LOAD_WARNING", "Failed to load module \"{0}\"")
 	ModuleLoader_INVALID_MODULE_PATH = DiagnosticType_error("JSC_INVALID_MODULE_PATH", "Invalid module path \"{0}\" for resolution mode \"{1}\"")
-	ModuleLoader_BEST_MATCH_PATH_ORDERING = Comparator_thenComparing_Comparator(Comparator_reversed(Comparator_comparingInt(&ToIntFunction_tfn_string{func(p0 string) int32 { return String_length(p0) }})), Comparator_naturalOrder())
+	ModuleLoader_BEST_MATCH_PATH_ORDERING = Comparator_thenComparing_Comparator(Comparator_reversed(Comparator_comparingInt(&ToIntFunction_tfn_string{String_length})), Comparator_naturalOrder())
 	ModuleLoader_NOOP_ERROR_HANDER = lambda_ModuleLoader_clinit_1_
 	ModuleLoader_EMPTY = ModuleLoader_builder().setModuleRoots(ImmutableList_as_Iterable(ImmutableList_of())).setInputs(ImmutableList_as_Iterable(ImmutableList_of())).setFactory(BrowserModuleResolver_FACTORY).build()
 

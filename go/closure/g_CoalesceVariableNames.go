@@ -167,12 +167,12 @@ func (this *CoalesceVariableNames) isNameInsideDestructuringAssignment(n Node) b
 
 func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *ControlFlowGraph[Node], escaped map[varKey_]struct{}) *UndiGraph[*Var, any] {
 	var interferenceGraph *UndiGraph[*Var, any] = LinkedUndirectedGraph_create[*Var, any]().up_UndiGraph()
-	var orderedVariables []*Var = arrmap_(sliceViewP_(tc_p_Var, this.liveness.getAllVariablesInOrder()).toArray(arrmap_(make([]*Var, 0), func(v_ *Var) any { return obj_(v_) })), func(v_ any) *Var { return cast_[*Var](v_) })
+	var orderedVariables []*Var = arrmap_(sliceViewP_(tc_p_Var, this.liveness.getAllVariablesInOrder()).toArray(arrmap_(make([]*Var, 0), obj_[*Var])), cast_[*Var])
 	var interferenceGraphNodes *BitSet = new_BitSet()
 	var interferenceBitSet []*BitSet = make([]*BitSet, int32(len(orderedVariables)))
 	func() {
 		arr_1 := interferenceBitSet
-		tmp_2 := arrmap_(arr_1, func(v_ *BitSet) any { return obj_(v_) })
+		tmp_2 := arrmap_(arr_1, obj_[*BitSet])
 		Arrays_setAll(tmp_2, &IntFunction_tfn_BitSet{func(i int32) *BitSet {
 			return new_BitSet()
 		}})
@@ -244,7 +244,7 @@ func (this *CoalesceVariableNames) isInMultipleLvalueDecl(v *Var) bool {
 	return func() bool {
 		switch declarationType {
 		case Token_rhino_LET, Token_rhino_CONST, Token_rhino_VAR:
-			var nameDecl Node = NodeUtil_getEnclosingNode(v.getNode(), func(p0 Node) bool { return NodeUtil_isNameDeclaration(p0) })
+			var nameDecl Node = NodeUtil_getEnclosingNode(v.getNode(), NodeUtil_isNameDeclaration)
 			var count []int32 = []int32{0}
 			NodeUtil_visitLhsNodesInNode(nameDecl, func(lhs Node) {
 				count[0]++
@@ -257,7 +257,7 @@ func (this *CoalesceVariableNames) isInMultipleLvalueDecl(v *Var) bool {
 }
 
 func (this *CoalesceVariableNames) removeVarDeclaration(name Node, originalVar *Var) {
-	var var_ Node = NodeUtil_getEnclosingNode(name, func(p0 Node) bool { return NodeUtil_isNameDeclaration(p0) })
+	var var_ Node = NodeUtil_getEnclosingNode(name, NodeUtil_isNameDeclaration)
 	var parent Node = var_.getParent()
 	if var_.getFirstChild().isDestructuringLhs() {
 		var destructuringLhs Node = var_.getFirstChild()
@@ -306,7 +306,7 @@ func (this *CoalesceVariableNames) makeDeclarationVar(coalescedName *Var) {
 			var undefinedValue Node = this.astFactory_.createUndefinedValue().srcrefTree(nameNode)
 			nameNode.addChildToFront(undefinedValue)
 		}
-		var declNode Node = NodeUtil_getEnclosingNode(nameNode.getParent(), func(p0 Node) bool { return NodeUtil_isNameDeclaration(p0) })
+		var declNode Node = NodeUtil_getEnclosingNode(nameNode.getParent(), NodeUtil_isNameDeclaration)
 		declNode.setToken(Token_rhino_VAR)
 	}
 }

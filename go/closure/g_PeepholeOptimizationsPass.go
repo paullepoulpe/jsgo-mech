@@ -16,7 +16,7 @@ func (this *PeepholeOptimizationsPass) zero_PeepholeOptimizationsPass() {
 func (this *PeepholeOptimizationsPass) init_PeepholeOptimizationsPass(compiler *AbstractCompiler, passName string, optimizations ListOf[*AbstractPeepholeOptimization]) {
 	this.compiler_ = compiler
 	this.passName = passName
-	this.peepholeOptimizations = arrmap_(optimizations.toArray(arrmap_(make([]*AbstractPeepholeOptimization, 0), func(v_ *AbstractPeepholeOptimization) any { return v_.self() })), func(v_ any) *AbstractPeepholeOptimization { return to_AbstractPeepholeOptimization(v_) })
+	this.peepholeOptimizations = arrmap_(optimizations.toArray(arrmap_(make([]*AbstractPeepholeOptimization, 0), (*AbstractPeepholeOptimization).self)), to_AbstractPeepholeOptimization)
 	this.retraverseOnChange = true
 }
 
@@ -28,7 +28,7 @@ func new_PeepholeOptimizationsPass(compiler *AbstractCompiler, passName string, 
 }
 
 func PeepholeOptimizationsPass_createFromOptimizations(compiler *AbstractCompiler, passName string, optimizations []*AbstractPeepholeOptimization) *PeepholeOptimizationsPass {
-	return new_PeepholeOptimizationsPass(compiler, passName, Arrays_asList(arrmap_(optimizations, func(v_ *AbstractPeepholeOptimization) any { return v_.self() })))
+	return new_PeepholeOptimizationsPass(compiler, passName, Arrays_asList(arrmap_(optimizations, (*AbstractPeepholeOptimization).self)))
 }
 
 func (this *PeepholeOptimizationsPass) setRetraverseOnChange(retraverse bool) {

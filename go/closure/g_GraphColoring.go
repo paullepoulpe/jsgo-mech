@@ -174,7 +174,7 @@ func (this *GraphColoring_GreedyGraphColoring[N, E]) color_impl() int32 {
 		}
 		count++
 	}
-	var map_ []N = arrmap_(make([]any, count), func(v_ any) N { return junboxT_[N](v_) })
+	var map_ []N = arrmap_(make([]any, count), junboxT_[N])
 	this.colorToNodeMap = map_
 	return count
 }
