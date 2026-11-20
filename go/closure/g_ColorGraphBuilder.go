@@ -108,13 +108,16 @@ func (this *ColorGraphBuilder) addInternalColorGraphNode(node *ColorGraphNode) *
 }
 
 func (this *ColorGraphBuilder) connectSourceToDest(source *LinkedDirectedGraph_LinkedDiGraphNode[*ColorGraphNode, any], reason *ColorGraphBuilder_EdgeReason, dest *LinkedDirectedGraph_LinkedDiGraphNode[*ColorGraphNode, any]) {
-	if (Object_equals(source.self(), dest.self()) || this.colorHoldsInstanceGraph.isConnectedInDirectionLinkedDiGraphNode(source, &Predicate_base_fn{func(t any) bool {
-		return true
-	}}, dest)) {
+	if Object_equals(source.self(), dest.self()) || this.colorHoldsInstanceGraph.isConnectedInDirectionLinkedDiGraphNode(source, lambda_ColorGraphBuilder_connectSourceToDest_1_, dest) {
 		return
 	}
 	this.colorHoldsInstanceGraph.connectDiGraphNode(cast_[DiGraph_DiGraphNode[*ColorGraphNode, any]](source.self()), obj_(reason), cast_[DiGraph_DiGraphNode[*ColorGraphNode, any]](dest.self()))
 }
+
+// lambda_ColorGraphBuilder_connectSourceToDest_1_ is a lambda of ColorGraphBuilder_connectSourceToDest that captures nothing (post-flip step lambdas).
+var lambda_ColorGraphBuilder_connectSourceToDest_1_ = &Predicate_base_fn{func(t any) bool {
+	return true
+}}
 
 type ColorGraphBuilder_EdgeReason struct {
 	Enum
