@@ -605,3 +605,170 @@ func appendArg(k key, e ast.Expr, local bool, v *types.Var) {
 E19
   grep -q 'reflip19' $bg || echo '// reflip19: jtostr_ only (this version has no Appendable arguments)' >> $bg
 fi
+# 20. (fourth flip, in bounds) eqhash: the translator's rules "typed Object methods" and "typed Object calls" write the protocol's
+#    calls on values held at their static type as generic helpers of rt_conv.go, each defined as the erased call the tool reads:
+#    equals_(a, b) = objequals_(obj_(a), obj_(b)), hash_(v) = objhash_(obj_(v)), equalsR_(a, B) = Object_equals(obj_(a), B),
+#    equalsRR_(a, b) = Object_equals(obj_(a), obj_(b)), hashR_(v) = Object_hashCode(obj_(v)), the H variants with box_() for
+#    obj_, and Objects_requireNonNull_T / _Str / _Object_T / _Object_Str, requireNonNull of a value at its type. The tool read the
+#    erased names only and left all of them (step 189: 80 calls rewritten; the third flip 294 changed lines in 92 files). A typed
+#    helper is read as its definition: the arguments it boxes are classified as obj_(x) / x.box_() of their static type (two
+#    arguments of one T must have one static type), and where the tool's rewrite passes the second operand on boxed it is written
+#    with the helper's boxing. A typed requireNonNull is its own unboxed value: as a statement or the value of an assignment it is
+#    the inline nil check; elsewhere it stays (it is already what requireNonNull_ is). A call the tool does not decide is untouched.
+eg=tools/postflip/eqhash/main.go
+if [[ -f $eg ]] && ! grep -q 'reflip20' $eg && grep -q 'case "Objects_requireNonNull", "Objects_requireNonNull_Object":' $eg; then
+  perl -pi -e 's/rw\.Render\(B\)/reflipBoxed_(B)/g; s/\brender\(B\)/func() string { return reflipBoxed_(B) }/g' $eg
+  reflip_edit $eg reflip20 <<'E20'
+func unbox(e ast.Expr) (boxed, bool) {
+	e = rw.Unparen(e)
+=====
+func unbox(e ast.Expr) (boxed, bool) {
+	e = rw.Unparen(e)
+	if via, ok := reflipVia_[e]; ok { // reflip20: an argument a typed helper boxes itself
+		tv, ok := rw.Info.Types[e]
+		if !ok || tv.Type == nil {
+			return boxed{}, false
+		}
+		if via == "strobj_" {
+			return boxed{x: e, t: types.Typ[types.String]}, true
+		}
+		return classify(e, types.Unalias(tv.Type), via)
+	}
+-----
+	k := ""
+	name := fnName(c)
+	switch name {
+=====
+	k := ""
+	name := reflipName_(c, fnName(c))
+	switch name {
+-----
+	if k != "" {
+		counts[name+": "+k]++
+	} else {
+=====
+	if o := fnName(c); o != name {
+		name = o + " (" + name + ")"
+	}
+	if k != "" {
+		counts[name+": "+k]++
+	} else {
+-----
+		if k == "" {
+			left[name+": "+why(c.Args[0])]++
+			return true
+		}
+=====
+		if k == "" {
+			if o := fnName(c); o != name {
+				name = o + " (" + name + ")"
+			}
+			left[name+": "+why(c.Args[0])]++
+			return true
+		}
+-----
+	if p, ok := rw.Up(c).(*ast.CallExpr); ok && len(p.Args) == 1 && rw.Unparen(p.Args[0]) == c {
+=====
+	if p, ok := rw.Up(c).(*ast.CallExpr); !reflipTypedRNN_[c] && ok && len(p.Args) == 1 && rw.Unparen(p.Args[0]) == c {
+-----
+	if top == ast.Expr(c) {
+		return ""
+	}
+=====
+	if top == ast.Expr(c) && !reflipTypedRNN_[c] {
+		return ""
+	}
+-----
+	if b, ok := ba.t.Underlying().(*types.Basic); ok && b.Kind() == types.String {
+		return ""
+	}
+	x := ba.x
+=====
+	if b, ok := ba.t.Underlying().(*types.Basic); ok && b.Kind() == types.String {
+		return ""
+	}
+	if reflipTypedRNN_[c] { // already the unboxed value
+		return ""
+	}
+	x := ba.x
++++++
+
+// reflipVia_ gives the boxing (obj_, box_, strobj_) that a typed helper of rt_conv.go applies to
+// an argument it takes at its static type; reflipTypedRNN_ are the typed requireNonNull calls.
+var reflipVia_ = map[ast.Expr]string{}
+var reflipTypedRNN_ = map[*ast.CallExpr]bool{}
+
+// reflipHelpers_: typed helper -> the erased function its body calls and the boxing of each
+// argument ("" for an argument passed on as it is).
+var reflipHelpers_ = map[string][]string{
+	"equals_":                          {"objequals_", "obj_", "obj_"},
+	"equalsH_":                         {"objequals_", "box_", "box_"},
+	"hash_":                            {"objhash_", "obj_"},
+	"hashH_":                           {"objhash_", "box_"},
+	"equalsR_":                         {"Object_equals", "obj_", ""},
+	"equalsRR_":                        {"Object_equals", "obj_", "obj_"},
+	"equalsRH_":                        {"Object_equals", "box_", ""},
+	"equalsRRH_":                       {"Object_equals", "box_", "box_"},
+	"hashR_":                           {"Object_hashCode", "obj_"},
+	"hashRH_":                          {"Object_hashCode", "box_"},
+	"Objects_requireNonNull_T":         {"Objects_requireNonNull", "obj_", ""},
+	"Objects_requireNonNull_Str":       {"Objects_requireNonNull", "strobj_", ""},
+	"Objects_requireNonNull_Object_T":  {"Objects_requireNonNull_Object", "obj_"},
+	"Objects_requireNonNull_Object_Str": {"Objects_requireNonNull_Object", "strobj_"},
+}
+
+// reflipName_ is the erased function that typed helper call c is, with the boxings of its
+// arguments recorded; name itself for any other call.
+func reflipName_(c *ast.CallExpr, name string) string {
+	h, ok := reflipHelpers_[name]
+	if !ok || len(c.Args) != len(h)-1 {
+		return name
+	}
+	if _, isFunc := rw.Info.Uses[c.Fun.(*ast.Ident)].(*types.Func); !isFunc {
+		return name
+	}
+	var first types.Type
+	for i, via := range h[1:] {
+		if via == "" {
+			continue
+		}
+		tv, ok := rw.Info.Types[rw.Unparen(c.Args[i])]
+		if !ok || tv.Type == nil || tv.IsNil() {
+			return name
+		}
+		if first == nil {
+			first = tv.Type
+		} else if !types.Identical(first, tv.Type) {
+			return name // one T for two static types: an implicit conversion the tool does not see
+		}
+	}
+	for i, via := range h[1:] {
+		if via != "" {
+			reflipVia_[rw.Unparen(c.Args[i])] = via
+		}
+	}
+	if strings.HasPrefix(name, "Objects_requireNonNull") {
+		reflipTypedRNN_[c] = true
+	}
+	return h[0]
+}
+
+// reflipBoxed_ renders operand e as the box the erased call was given: with the helper's boxing
+// when a typed helper took it at its static type.
+func reflipBoxed_(e ast.Expr) string {
+	switch reflipVia_[rw.Unparen(e)] {
+	case "obj_":
+		return "obj_(" + rw.Render(e) + ")"
+	case "strobj_":
+		return "strobj_(" + rw.Render(e) + ")"
+	case "box_":
+		switch rw.Unparen(e).(type) {
+		case *ast.Ident, *ast.SelectorExpr, *ast.CallExpr, *ast.IndexExpr:
+			return rw.Render(rw.Unparen(e)) + ".box_()"
+		}
+		return "(" + rw.Render(e) + ").box_()"
+	}
+	return rw.Render(e)
+}
+E20
+fi
