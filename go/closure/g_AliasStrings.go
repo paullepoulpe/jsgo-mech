@@ -57,7 +57,6 @@ func (this *AliasStrings) shouldTraverse(nodeTraversal *NodeTraversal, n Node, p
 		default:
 			return true
 		}
-		panic("unreachable")
 	}()
 }
 

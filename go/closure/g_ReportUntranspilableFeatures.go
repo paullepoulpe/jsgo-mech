@@ -60,7 +60,6 @@ func (this *ReportUntranspilableFeatures) checkForUntranspilable(root Node) {
 						this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(root, CheckRegExp_MALFORMED_REGEXP, []string{ex.getMessage()}))
 						code_ = 2
 						return
-						return
 					}
 					panic(r_)
 				}
