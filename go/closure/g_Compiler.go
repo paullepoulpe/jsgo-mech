@@ -2806,7 +2806,7 @@ func Compiler_toVariableMapEntries(map_ *VariableMap) *TList[*VariableMapEntryPr
 		m := map_.getOriginalNameToNewNameMap()
 		for i, entryKey := range m.keys {
 			entryValue := m.vals[i]
-			entries.add(VariableMapEntryProto_newBuilder().setOriginalName(entryKey).setNewName(entryValue).buildT_())
+			entries.add(VariableMapEntryProto_newBuilder().setOriginalName(entryKey).setNewName(entryValue).buildLastT_())
 		}
 	}
 	return entries
@@ -2972,7 +2972,7 @@ func (this *Compiler) restoreFromState(compilerState *JSCompilerStateProto) {
 func (this *Compiler) saveState() []int8 {
 	return Compiler_runInCompilerThreadT_(this, func() []int8 {
 		var tracer *Tracer = this.newTracer("serializeCompilerState")
-		var stateProto *JSCompilerStateProto = this.getCompilerStateProtoBuilder().buildT_()
+		var stateProto *JSCompilerStateProto = this.getCompilerStateProtoBuilder().buildLastT_()
 		this.stopTracer(tracer, "serializeCompilerState")
 		tracer = this.newTracer("serializeTypedAst")
 		var typedAstList ListOf[[]int8] = new_ArrayList_0()
