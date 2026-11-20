@@ -26,6 +26,17 @@
 //     returns x, the target is the bridge returning this.mT_(..).up_B(), and K(r.m(a).self())
 //     with K the cast to *T is r.mT_(a) (up_B and self() keep nil, the cast gives nil: x).
 //
+// A cross-cast icast_I(x.self()) of an object of a class X that something embeds to an interface
+// I that X implements (AbstractCompiler as its CompilerInputProvider: an upcast in Java) gives
+// the slot the most derived object, which is what an erased slot holds and identity compares;
+// x itself (iup_I(x), nil for nil as before) would hold X's part of it. The two answer every
+// method of I the same where each of X's methods of I dispatches to self_ or is not overridden
+// by a class embedding X, and the value is only called: the receiver of a method call, or an
+// argument of a parameter of a function of the package that its body only calls (or passes on
+// to another such parameter) and never assigns. Then the cast is iup_I(x) (castfold -nilup's
+// form; the iup_ added to g_0iup.go as castfold writes it). A value stored or compared keeps the
+// cast, counted.
+//
 // Left, counted: receivers of a class that something embeds (an override may run), methods that
 // neither return their receiver nor one covariant type, casts to another class. A rerun changes
 // nothing (the calls no longer cast).
@@ -59,7 +70,9 @@ var (
 	lefts     = map[string][]string{}
 	declOf    = map[*types.Func]*ast.FuncDecl{}
 	embedders = map[*types.Named]bool{}
+	embList   = map[*types.Named][]*types.Named{} // the classes that embed a class, transitively
 	specOf    = map[*types.Named]*ast.GenDecl{}
+	iupNeed   = map[string]bool{}
 )
 
 func left(why string, n ast.Node) {
@@ -120,15 +133,25 @@ func main() {
 		if !ok {
 			continue
 		}
-		if st, ok := nt.Underlying().(*types.Struct); ok {
+		var walk func(t *types.Named)
+		walk = func(t *types.Named) {
+			st, ok := t.Underlying().(*types.Struct)
+			if !ok {
+				return
+			}
 			for i := 0; i < st.NumFields(); i++ {
 				if f := st.Field(i); f.Embedded() {
 					if e, ok := types.Unalias(f.Type()).(*types.Named); ok {
-						embedders[e.Origin()] = true
+						if _, ok := e.Underlying().(*types.Struct); ok {
+							embedders[e.Origin()] = true
+							embList[e.Origin()] = append(embList[e.Origin()], nt)
+							walk(e)
+						}
 					}
 				}
 			}
 		}
+		walk(nt)
 	}
 	recvs := map[string]*recvM{}
 	covs := map[*ast.FuncDecl]*covM{}
@@ -141,6 +164,14 @@ func main() {
 			var t types.Type
 			var operand ast.Expr
 			assert := false
+			if x, ok := n.(*ast.CallExpr); ok {
+				if why, done := crossCast(x); done {
+					if why != "" {
+						left(why, x)
+					}
+					return true
+				}
+			}
 			switch x := n.(type) {
 			case *ast.CallExpr:
 				if t = castTo(x); t != nil {
@@ -361,6 +392,9 @@ func main() {
 	if report || len(counts) == 0 {
 		return
 	}
+	if n := writeIup(); n > 0 {
+		fmt.Fprintf(os.Stderr, "selftype: %d iup_ functions added to g_0iup.go\n", n)
+	}
 	fmt.Fprintf(os.Stderr, "selftype: files changed: %d\n", rw.SaveChecked())
 }
 
@@ -432,6 +466,10 @@ func intoRecv(e ast.Expr, recv types.Object) bool {
 
 // isSelf: e is this.self_ (the most derived object: S itself for a class nothing embeds).
 func isSelf(e ast.Expr, recv types.Object) bool {
+	if ta, ok := rw.Unparen(e).(*ast.TypeAssertExpr); ok && ta.Type != nil {
+		// this.self_.(*C): dispatch's single implementation (the dispatch step)
+		return isSelf(ta.X, recv)
+	}
 	x, ok := rw.Unparen(e).(*ast.SelectorExpr)
 	return ok && x.Sel.Name == "self_" && intoRecv(x.X, recv)
 }
@@ -635,4 +673,213 @@ func nonNil(e ast.Expr) bool {
 		return returnsRecv(declOf[ss.Obj().(*types.Func)], s, 8) && nonNil(sel.X)
 	}
 	return false
+}
+
+// crossCast: icast_I(x.self()); done reports that c is one (rewritten, or left with why).
+func crossCast(c *ast.CallExpr) (why string, done bool) {
+	name, _ := rw.CallName(c)
+	if !strings.HasPrefix(name, "icast_") || len(c.Args) != 1 {
+		return "", false
+	}
+	sc, ok := rw.Unparen(c.Args[0]).(*ast.CallExpr)
+	if !ok || len(sc.Args) != 0 {
+		return "", false
+	}
+	ss, ok := sc.Fun.(*ast.SelectorExpr)
+	if !ok || ss.Sel.Name != "self" {
+		return "", false
+	}
+	xt := rw.Info.TypeOf(ss.X)
+	x := ptrNamed(xt)
+	if x == nil {
+		return "", false
+	}
+	it, ok := types.Unalias(rw.Info.TypeOf(c)).(*types.Named)
+	if !ok {
+		return "", false
+	}
+	iface, ok := it.Underlying().(*types.Interface)
+	if !ok || !types.Implements(xt, iface) {
+		return "a cross-cast to an interface the class does not implement", true
+	}
+	if !embedders[x.Origin()] {
+		return "", false // castfold's (a class nothing embeds: x.self() is x)
+	}
+	for i := 0; i < iface.NumMethods(); i++ {
+		m := iface.Method(i).Name()
+		o, _, _ := types.LookupFieldOrMethod(xt, true, rw.Pkg, m)
+		fx, _ := o.(*types.Func)
+		if fx == nil {
+			return "a cross-cast to an interface whose method the class does not have", true
+		}
+		if dispatchesToSelf(declOf[fx]) {
+			continue
+		}
+		for _, e := range embList[x.Origin()] {
+			oe, _, _ := types.LookupFieldOrMethod(types.NewPointer(e), true, rw.Pkg, m)
+			if fe, _ := oe.(*types.Func); fe != nil && fe.Origin() != fx.Origin() {
+				return "a cross-cast to an interface whose method a class embedding the class overrides", true
+			}
+		}
+	}
+	if !onlyCalled(c, 4) {
+		return "a cross-cast whose value is stored, compared or given to code that is not only calling it (the slot holds the most derived object)", true
+	}
+	iupNeed[it.Obj().Name()] = true
+	counts["cross-casts icast_I(x.self()) to an interface the class implements, of a value only called, are iup_I(x)"]++
+	rw.Rewrite[c] = func() string { return "iup_" + it.Obj().Name() + "(" + rw.Render(ss.X) + ")" }
+	return "", true
+}
+
+// dispatchesToSelf: every statement of fd is a call of a method on this.self_ (or, under the
+// exact-class test, on this), returned or not: the method runs what the most derived object's
+// runs.
+func dispatchesToSelf(fd *ast.FuncDecl) bool {
+	if fd == nil || fd.Body == nil || len(fd.Body.List) == 0 {
+		return false
+	}
+	recv := recvObj(fd)
+	sawSelf := false
+	var stmt func(st ast.Stmt, exact bool) bool
+	stmt = func(st ast.Stmt, exact bool) bool {
+		var e ast.Expr
+		switch x := st.(type) {
+		case *ast.ReturnStmt:
+			if len(x.Results) == 0 {
+				return exact
+			}
+			if len(x.Results) != 1 {
+				return false
+			}
+			e = x.Results[0]
+		case *ast.ExprStmt:
+			e = x.X
+		case *ast.IfStmt:
+			if x.Else != nil || exact {
+				return false
+			}
+			for _, b := range x.Body.List {
+				if !stmt(b, true) {
+					return false
+				}
+			}
+			return true
+		default:
+			return false
+		}
+		c, ok := rw.Unparen(e).(*ast.CallExpr)
+		if !ok {
+			return false
+		}
+		sel, ok := c.Fun.(*ast.SelectorExpr)
+		if !ok {
+			return false
+		}
+		if isSelf(sel.X, recv) {
+			sawSelf = true
+			return true
+		}
+		return exact && intoRecv(sel.X, recv)
+	}
+	for _, st := range fd.Body.List {
+		if !stmt(st, false) {
+			return false
+		}
+	}
+	return sawSelf
+}
+
+// onlyCalled: the value of e is only the receiver of method calls: e is one, or an argument of
+// a parameter that its function only calls (or passes on to such a parameter) and never assigns.
+func onlyCalled(e ast.Expr, depth int) bool {
+	if depth == 0 {
+		return false
+	}
+	p := rw.Up(e)
+	if sel, ok := p.(*ast.SelectorExpr); ok && rw.Unparen(sel.X) == rw.Unparen(e) {
+		c, ok := rw.Parent[sel].(*ast.CallExpr)
+		return ok && c.Fun == sel
+	}
+	c, ok := p.(*ast.CallExpr)
+	if !ok {
+		return false
+	}
+	idx := -1
+	for i, a := range c.Args {
+		if rw.Unparen(a) == rw.Unparen(e) {
+			idx = i
+		}
+	}
+	if idx < 0 || c.Ellipsis.IsValid() {
+		return false
+	}
+	var fo *types.Func
+	switch f := rw.Unparen(c.Fun).(type) {
+	case *ast.Ident:
+		fo, _ = rw.Info.Uses[f].(*types.Func)
+	case *ast.SelectorExpr:
+		if s := rw.Info.Selections[f]; s != nil && s.Kind() == types.MethodVal {
+			if _, isIface := s.Recv().Underlying().(*types.Interface); isIface {
+				return false
+			}
+			fo, _ = s.Obj().(*types.Func)
+		}
+	}
+	if fo == nil {
+		return false
+	}
+	fd := declOf[fo]
+	if fd == nil || fd.Body == nil {
+		return false
+	}
+	sig := fo.Type().(*types.Signature)
+	if sig.Variadic() && idx >= sig.Params().Len()-1 {
+		return false
+	}
+	pv := sig.Params().At(idx)
+	var pobj types.Object
+	for _, fl := range fd.Type.Params.List {
+		for _, n := range fl.Names {
+			if o := rw.Info.Defs[n]; o != nil && o.Pos() == pv.Pos() {
+				pobj = o
+			}
+		}
+	}
+	if pobj == nil {
+		return false
+	}
+	for _, id := range rw.UsesOf[pobj] {
+		if !onlyCalled(id, depth-1) {
+			return false
+		}
+	}
+	return true
+}
+
+// writeIup adds the iup_ functions the rewrites call and the package does not declare yet to
+// g_0iup.go, as castfold -nilup writes them.
+func writeIup() int {
+	var names []string
+	for n := range iupNeed {
+		if rw.Pkg.Scope().Lookup("iup_"+n) == nil {
+			names = append(names, n)
+		}
+	}
+	if len(names) == 0 {
+		return 0
+	}
+	sort.Strings(names)
+	var b strings.Builder
+	for _, n := range names {
+		fmt.Fprintf(&b, "\n// iup_%s converts a p whose type implements %s to it, nil to nil.\nfunc iup_%s[P interface {\n\tcomparable\n\t%s\n}](p P) %s {\n\tvar z P\n\tif p == z {\n\t\treturn nil\n\t}\n\treturn p\n}\n", n, n, n, n, n)
+	}
+	decls := b.String()
+	for _, f := range rw.Files {
+		if filepath.Base(rw.Fset.File(f.Pos()).Name()) == "g_0iup.go" {
+			last := f.Decls[len(f.Decls)-1]
+			rw.Rewrite[last] = func() string { return rw.RenderChildren(last) + "\n" + decls }
+			return len(names)
+		}
+	}
+	panic("selftype: g_0iup.go not found")
 }
