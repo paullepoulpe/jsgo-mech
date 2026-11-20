@@ -93,7 +93,7 @@ func (this *Denormalize) maybeCollapseIntoForStatements(n Node, parent Node) {
 			}
 		}
 	} else if nextSibling.isVanillaFor() && nextSibling.getFirstChild().isEmpty() {
-		if NodeUtil_has(n, (Node).isIn, Predicates_alwaysTrue()) {
+		if NodeUtil_has(n, (Node).isIn, Predicates_alwaysTrueT_[Node]) {
 			return
 		}
 		var forNode Node = nextSibling
