@@ -154,7 +154,7 @@ func (this *InlineSimpleMethods) addSignature(name string, function Node) {
 	if this.nonInlineableProperties.contains(name) {
 		return
 	}
-	this.methodDefinitions.put(strobj_(name), function.box_())
+	this.methodDefinitions.put_s(name, function.box_())
 }
 
 func InlineSimpleMethods_getPropName(getPropElem Node) Optional[string] {
@@ -203,7 +203,7 @@ func (this *InlineSimpleMethods_InlineTrivialAccessors) visit_4_impl(t *NodeTrav
 	if this.outer_.nonInlineableProperties.contains(callName) {
 		return
 	}
-	var definitions SetOf[Node] = this.outer_.methodDefinitions.get(strobj_(callName))
+	var definitions SetOf[Node] = this.outer_.methodDefinitions.get_s(callName)
 	if (definitions == nil) || definitions.isEmpty() {
 		return
 	}

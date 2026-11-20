@@ -45,7 +45,7 @@ func (this *PreprocessorSymbolTable) getOwnSlot_String_rStaticTypedSlot_rSimpleS
 }
 
 func (this *PreprocessorSymbolTable) getReferences_StaticSlot(symbol *SimpleSlot) IterableOf[*PreprocessorSymbolTable_Reference] {
-	return Iterable(Collections_unmodifiableCollection(Collection(this.refs.get(strobj_(symbol.getName())))))
+	return Iterable(Collections_unmodifiableCollection(Collection(this.refs.get_s(symbol.getName()))))
 }
 
 func (this *PreprocessorSymbolTable) getAllSymbols() IterableOf[*SimpleSlot] {
@@ -64,7 +64,7 @@ func (this *PreprocessorSymbolTable) addReference_2(node Node, name string) {
 	this.symbols.computeIfAbsent(name, &Function_tfn_string_any{func(k string) any {
 		return new_SimpleSlot(k, nil, true).self()
 	}})
-	this.refs.put(strobj_(name), new_PreprocessorSymbolTable_Reference(this.symbols.get(name), node))
+	this.refs.put_s(name, new_PreprocessorSymbolTable_Reference(this.symbols.get(name), node))
 }
 
 func (this *PreprocessorSymbolTable) getQualifiedName(n Node) Optional[string] {

@@ -69,7 +69,7 @@ func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) *JTMap[strin
 			if currentSectionMap == nil {
 				panic(new_IllegalArgumentException_String("Mapping entry outside of section").self())
 			}
-			currentSectionMap.put(strobj_(mr.getKey().orElse(nullstr_)), strobj_(mr.getValue().orElse(nullstr_)))
+			currentSectionMap.put_s(mr.getKey().orElse(nullstr_), strobj_(mr.getValue().orElse(nullstr_)))
 		}
 	}
 	return resultMap
