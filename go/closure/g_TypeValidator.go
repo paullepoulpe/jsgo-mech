@@ -502,7 +502,7 @@ func (this *TypeValidator) checkPropertyType(n Node, instance *JSType, parent *O
 	var required *JSType = parent.getPropertyTypeKey(propertyName)
 	var typeMap *TemplateTypeMap = instance.getTemplateTypeMap()
 	if !typeMap.isEmpty() && required.hasAnyTemplateTypes() {
-		required = to_JSType(required.visit(TemplateTypeReplacer_as_Visitor(TemplateTypeReplacer_forPartialReplacement(this.typeRegistry, typeMap))))
+		required = JSType_visit(required, TemplateTypeReplacer_as_Visitor(TemplateTypeReplacer_forPartialReplacement(this.typeRegistry, typeMap)))
 	}
 	if found.isSubtypeOf_2(required, this.subtypingMode) {
 		return
@@ -652,7 +652,7 @@ func TypeValidator_hasDuplicateDeclarationSuppression(compiler *AbstractCompiler
 func (this *TypeValidator) expectWellFormedTemplatizedType(n Node) {
 	var verifier *TypeValidator_WellFormedTemplatizedTypeVerifier = new_TypeValidator_WellFormedTemplatizedTypeVerifier(this, n)
 	if n.getJSType() != nil {
-		n.getJSType().visit(TypeValidator_WellFormedTemplatizedTypeVerifier_as_Visitor(verifier))
+		JSType_visit(n.getJSType(), TypeValidator_WellFormedTemplatizedTypeVerifier_as_Visitor(verifier))
 	}
 }
 
@@ -699,12 +699,12 @@ func TypeValidator_clinit() {
 }
 
 type TypeValidator_WellFormedTemplatizedTypeVerifier struct {
-	Visitor_WithDefaultCase[any]
+	Visitor_WithDefaultCase[bool]
 	outer_ *TypeValidator
 	node_  Node
 }
 
-func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) up_Visitor_WithDefaultCase() *Visitor_WithDefaultCase[any] {
+func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) up_Visitor_WithDefaultCase() *Visitor_WithDefaultCase[bool] {
 	if this == nil {
 		return nil
 	}
@@ -725,42 +725,42 @@ func new_TypeValidator_WellFormedTemplatizedTypeVerifier(outer_ *TypeValidator, 
 	return this
 }
 
-func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseDefault_impl(type_ *JSType) any {
+func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseDefault_impl(type_ *JSType) bool {
 	return bool(true)
 }
 
-func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseEnumElementType_impl(type_ *EnumElementType) any {
-	return bool(((type_.getPrimitiveType() == nil) || unbox_[bool](type_.getPrimitiveType().visit(Visitor(this)))))
+func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseEnumElementType_impl(type_ *EnumElementType) bool {
+	return bool(((type_.getPrimitiveType() == nil) || JSType_visit(type_.getPrimitiveType(), Visitor[bool](this))))
 }
 
-func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseFunctionType_impl(type_ *FunctionType) any {
+func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseFunctionType_impl(type_ *FunctionType) bool {
 	l_1 := type_.getParameters()
 	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
 		var param *FunctionType_Parameter = l_1.items[i_1]
-		if !unbox_[bool](param.getJSType().visit(Visitor(this))) {
+		if !JSType_visit(param.getJSType(), Visitor[bool](this)) {
 			return bool(false)
 		}
 	}
-	return type_.getReturnType().visit(Visitor(this))
+	return JSType_visit(type_.getReturnType(), Visitor[bool](this))
 }
 
-func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseNamedType_impl(type_ *NamedType) any {
-	return type_.getReferencedType().visit(Visitor(this))
+func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseNamedType_impl(type_ *NamedType) bool {
+	return JSType_visit(type_.getReferencedType(), Visitor[bool](this))
 }
 
-func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseUnionType_impl(type_ *UnionType) any {
+func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseUnionType_impl(type_ *UnionType) bool {
 	var alternates *TList[*JSType] = type_.getAlternates()
 	var alternateCount int32 = alternates.size()
 	for i := int32(0); i < alternateCount; i++ {
 		var alternative *JSType = alternates.get(i)
-		if !unbox_[bool](alternative.visit(Visitor(this))) {
+		if !JSType_visit(alternative, Visitor[bool](this)) {
 			return bool(false)
 		}
 	}
 	return bool(true)
 }
 
-func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseTemplatizedType_impl(type_ *TemplatizedType) any {
+func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseTemplatizedType_impl(type_ *TemplatizedType) bool {
 	var referencedTemplates *TList[*TemplateType] = type_.getReferencedType().getTemplateTypeMap().getTemplateKeys()
 	for i := int32(0); i < type_.getTemplateTypes().size(); i++ {
 		var assignedType *JSType = type_.getTemplateTypes().get(i)
@@ -775,6 +775,6 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseTemplatizedType
 	return bool(true)
 }
 
-func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseTemplateType_impl(templateType *TemplateType) any {
-	return bool((!templateType.containsCycle() && unbox_[bool](templateType.getBound().visit(Visitor(this)))))
+func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseTemplateType_impl(templateType *TemplateType) bool {
+	return bool((!templateType.containsCycle() && JSType_visit(templateType.getBound(), Visitor[bool](this))))
 }

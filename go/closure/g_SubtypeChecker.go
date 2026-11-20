@@ -415,7 +415,7 @@ func (this *SubtypeChecker) isProxyObjectSubtype(subtype *ProxyObjectType, super
 
 func (this *SubtypeChecker) isTemplateSubtype(subtype *TemplateType, supertype *JSType) bool {
 	if (!subtype.getBound().isUnknownType() && supertype.isTemplateType()) && !supertype.toMaybeTemplateType().getBound().isUnknownType() {
-		return (cast_[ContainsUpperBoundSuperTypeVisitor_Result](subtype.visit(Visitor(new_ContainsUpperBoundSuperTypeVisitor(supertype)))) == ContainsUpperBoundSuperTypeVisitor_Result_PRESENT)
+		return (JSType_visit(subtype.up_JSType(), Visitor[ContainsUpperBoundSuperTypeVisitor_Result](new_ContainsUpperBoundSuperTypeVisitor(supertype))) == ContainsUpperBoundSuperTypeVisitor_Result_PRESENT)
 	} else {
 		return this.isProxyObjectSubtype(subtype.up_ProxyObjectType(), supertype)
 	}

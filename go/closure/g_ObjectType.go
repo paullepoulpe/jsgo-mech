@@ -472,14 +472,6 @@ func (this *ObjectType) getAllKeys() *PropertyMap_AllKeys {
 	return this.getPropertyMap().getAllKeys()
 }
 
-func (this *ObjectType) visitUntyped_impl(visitor Visitor) any {
-	return visitor.caseObjectType(this)
-}
-
-func (this *ObjectType) visitUntyped_2_impl(visitor RelationshipVisitor, that *JSType) any {
-	return visitor.caseObjectType(this, that)
-}
-
 func (this *ObjectType) isImplicitPrototypeOf(other *ObjectType) bool {
 	var unwrappedThis *ObjectType = ObjectType_deeplyUnwrap(this)
 	{
@@ -766,22 +758,6 @@ func (this *ObjectType) isStructuralType() bool {
 		return this.isStructuralType_impl()
 	}
 	return this.self_.isStructuralType_impl()
-}
-
-// visitUntyped: an object that is exactly a ObjectType calls its visitUntyped_impl directly (post-flip); others dispatch.
-func (this *ObjectType) visitUntyped(p0 Visitor) any {
-	if this.self_ == any(this) {
-		return this.visitUntyped_impl(p0)
-	}
-	return this.self_.visitUntyped_impl(p0)
-}
-
-// visitUntyped_2: an object that is exactly a ObjectType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
-func (this *ObjectType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
-	if this.self_ == any(this) {
-		return this.visitUntyped_2_impl(p0, p1)
-	}
-	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
 // getPossibleToBooleanOutcomes: an object that is exactly a ObjectType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.

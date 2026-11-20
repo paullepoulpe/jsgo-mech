@@ -4,8 +4,8 @@ package closure
 
 type ClosureReverseAbstractInterpreter struct {
 	ChainableReverseAbstractInterpreter
-	restrictToObjectVisitor    Visitor
-	restrictToNotObjectVisitor Visitor
+	restrictToObjectVisitor    Visitor[*JSType]
+	restrictToNotObjectVisitor Visitor[*JSType]
 	restricters                *TMap[string, Function_base]
 }
 
@@ -17,8 +17,8 @@ func (this *ClosureReverseAbstractInterpreter) up_ChainableReverseAbstractInterp
 }
 
 func (this *ClosureReverseAbstractInterpreter) finit_ClosureReverseAbstractInterpreter() {
-	this.restrictToObjectVisitor = Visitor(new_ClosureReverseAbstractInterpreter_1(this))
-	this.restrictToNotObjectVisitor = Visitor(new_ClosureReverseAbstractInterpreter_2(this))
+	this.restrictToObjectVisitor = Visitor[*JSType](new_ClosureReverseAbstractInterpreter_1(this))
+	this.restrictToNotObjectVisitor = Visitor[*JSType](new_ClosureReverseAbstractInterpreter_2(this))
 }
 
 func (this *ClosureReverseAbstractInterpreter) init_ClosureReverseAbstractInterpreter(typeRegistry *JSTypeRegistry) {
@@ -33,13 +33,13 @@ func (this *ClosureReverseAbstractInterpreter) init_ClosureReverseAbstractInterp
 				return nil
 			}()
 		}
-		var visitor Visitor = func() Visitor {
+		var visitor Visitor[*JSType] = func() Visitor[*JSType] {
 			if p.outcome {
 				return this.restrictToObjectVisitor
 			}
 			return this.restrictToNotObjectVisitor
 		}()
-		return p.type__.visit(visitor)
+		return JSType_visit(p.type__, visitor).self()
 	}})
 }
 
@@ -129,12 +129,12 @@ func (this *ClosureReverseAbstractInterpreter_1) caseTopType_impl(topType *JSTyp
 	return this.outer_.getNativeType(JSTypeNative_NO_OBJECT_TYPE)
 }
 
-func (this *ClosureReverseAbstractInterpreter_1) caseObjectType_impl(type_ *ObjectType) any {
-	return type_.self()
+func (this *ClosureReverseAbstractInterpreter_1) caseObjectType_impl(type_ *ObjectType) *JSType {
+	return type_.up_JSType()
 }
 
-func (this *ClosureReverseAbstractInterpreter_1) caseFunctionType_impl(type_ *FunctionType) any {
-	return type_.self()
+func (this *ClosureReverseAbstractInterpreter_1) caseFunctionType_impl(type_ *FunctionType) *JSType {
+	return type_.up_JSType()
 }
 
 type ClosureReverseAbstractInterpreter_2 struct {
@@ -169,11 +169,11 @@ func new_ClosureReverseAbstractInterpreter_2(outer_ *ClosureReverseAbstractInter
 	return this
 }
 
-func (this *ClosureReverseAbstractInterpreter_2) caseObjectType_impl(type_ *ObjectType) any {
+func (this *ClosureReverseAbstractInterpreter_2) caseObjectType_impl(type_ *ObjectType) *JSType {
 	return nil
 }
 
-func (this *ClosureReverseAbstractInterpreter_2) caseFunctionType_impl(type_ *FunctionType) any {
+func (this *ClosureReverseAbstractInterpreter_2) caseFunctionType_impl(type_ *FunctionType) *JSType {
 	return nil
 }
 
@@ -194,7 +194,7 @@ func (this *ClosureReverseAbstractInterpreter_1) caseTopType(p0 *JSType) *JSType
 }
 
 // caseObjectType: an object that is exactly a ClosureReverseAbstractInterpreter_1 calls its caseObjectType_impl directly (post-flip); others dispatch.
-func (this *ClosureReverseAbstractInterpreter_1) caseObjectType(p0 *ObjectType) any {
+func (this *ClosureReverseAbstractInterpreter_1) caseObjectType(p0 *ObjectType) *JSType {
 	if p, _ := this.self_.(*ClosureReverseAbstractInterpreter_1); p == this {
 		return this.caseObjectType_impl(p0)
 	}
@@ -202,7 +202,7 @@ func (this *ClosureReverseAbstractInterpreter_1) caseObjectType(p0 *ObjectType) 
 }
 
 // caseFunctionType: an object that is exactly a ClosureReverseAbstractInterpreter_1 calls its caseFunctionType_impl directly (post-flip); others dispatch.
-func (this *ClosureReverseAbstractInterpreter_1) caseFunctionType(p0 *FunctionType) any {
+func (this *ClosureReverseAbstractInterpreter_1) caseFunctionType(p0 *FunctionType) *JSType {
 	if p, _ := this.self_.(*ClosureReverseAbstractInterpreter_1); p == this {
 		return this.caseFunctionType_impl(p0)
 	}
@@ -210,7 +210,7 @@ func (this *ClosureReverseAbstractInterpreter_1) caseFunctionType(p0 *FunctionTy
 }
 
 // caseObjectType: an object that is exactly a ClosureReverseAbstractInterpreter_2 calls its caseObjectType_impl directly (post-flip); others dispatch.
-func (this *ClosureReverseAbstractInterpreter_2) caseObjectType(p0 *ObjectType) any {
+func (this *ClosureReverseAbstractInterpreter_2) caseObjectType(p0 *ObjectType) *JSType {
 	if p, _ := this.self_.(*ClosureReverseAbstractInterpreter_2); p == this {
 		return this.caseObjectType_impl(p0)
 	}
@@ -218,7 +218,7 @@ func (this *ClosureReverseAbstractInterpreter_2) caseObjectType(p0 *ObjectType) 
 }
 
 // caseFunctionType: an object that is exactly a ClosureReverseAbstractInterpreter_2 calls its caseFunctionType_impl directly (post-flip); others dispatch.
-func (this *ClosureReverseAbstractInterpreter_2) caseFunctionType(p0 *FunctionType) any {
+func (this *ClosureReverseAbstractInterpreter_2) caseFunctionType(p0 *FunctionType) *JSType {
 	if p, _ := this.self_.(*ClosureReverseAbstractInterpreter_2); p == this {
 		return this.caseFunctionType_impl(p0)
 	}
