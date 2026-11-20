@@ -1514,7 +1514,10 @@ func (this JSType_HasPropertyKind) enum_() *Enum {
 func (this JSType_HasPropertyKind) name() string { return this.enum_().name_ }
 
 func (this JSType_HasPropertyKind) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this JSType_HasPropertyKind) toString() string {
@@ -1589,7 +1592,12 @@ func (this JSType_SubtypingMode) enum_() *Enum {
 
 func (this JSType_SubtypingMode) name() string { return this.enum_().name_ }
 
-func (this JSType_SubtypingMode) ordinal() int32 { return this.enum_().ordinal_ }
+func (this JSType_SubtypingMode) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
 
 func (this JSType_SubtypingMode) toString() string { return this.enum_().name_ }
 
@@ -1675,7 +1683,12 @@ func (this JSType_MatchStatus) enum_() *Enum {
 
 func (this JSType_MatchStatus) name() string { return this.enum_().name_ }
 
-func (this JSType_MatchStatus) ordinal() int32 { return this.enum_().ordinal_ }
+func (this JSType_MatchStatus) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
 
 func (this JSType_MatchStatus) toString() string { return this.enum_().name_ }
 
@@ -1758,7 +1771,12 @@ func (this JSType_Nullability) enum_() *Enum {
 
 func (this JSType_Nullability) name() string { return this.enum_().name_ }
 
-func (this JSType_Nullability) ordinal() int32 { return this.enum_().ordinal_ }
+func (this JSType_Nullability) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
 
 func (this JSType_Nullability) toString() string { return this.enum_().name_ }
 
