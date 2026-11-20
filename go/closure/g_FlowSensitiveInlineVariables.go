@@ -408,7 +408,7 @@ func (this *FlowSensitiveInlineVariables_Candidate) canInline(scope *Scope) bool
 		return false
 	}
 	if NodeUtil_isStatementBlock(this.getDefCfgNode().getParent()) && (this.getDefCfgNode().getNext() != this.useCfgNode) {
-		var pathCheck *CheckPathsBetweenNodes[Node, ControlFlowGraph_Branch] = new_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate_boolean[Node, ControlFlowGraph_Branch](this.outer_.cfg.up_DiGraph(), icast_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch(this.outer_.cfg.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(this.getDefCfgNode()).self()), icast_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch(this.outer_.cfg.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(this.useCfgNode).self()), icast_Predicate_base(obj_(this.outer_.sideEffectPredicate)), Predicates_alwaysTrue(), false)
+		var pathCheck *CheckPathsBetweenNodes[Node, ControlFlowGraph_Branch] = new_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate_boolean[Node, ControlFlowGraph_Branch](this.outer_.cfg.up_DiGraph(), icast_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch(this.outer_.cfg.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(this.getDefCfgNode()).self()), icast_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch(this.outer_.cfg.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(this.useCfgNode).self()), iup_Predicate_base(this.outer_.sideEffectPredicate), Predicates_alwaysTrue(), false)
 		if pathCheck.somePathsSatisfyPredicate() {
 			return false
 		}

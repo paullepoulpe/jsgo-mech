@@ -225,7 +225,7 @@ func (this *FunctionTypeBuilder) inferInheritance(info *JSDocInfo, classExtendsT
 			if !FunctionTypeBuilder_areCompatibleExtendsTypes(infoBaseType.toMaybeObjectType(), classExtendsType) {
 				this.isKnownAmbiguous = true
 			}
-			if infoBaseType.setValidator(icast_Predicate_base(obj_(this.createExtendedTypeValidator()))) {
+			if infoBaseType.setValidator(iup_Predicate_base(this.createExtendedTypeValidator())) {
 				this.baseType = infoBaseType.toObjectType()
 			} else {
 				this.isKnownAmbiguous = true
@@ -242,7 +242,7 @@ func (this *FunctionTypeBuilder) inferInheritance(info *JSDocInfo, classExtendsT
 			this.implementedInterfaces = newTList_(tc_p_ObjectType)
 			for t := range elemsAs_[*JSTypeExpression](info.getImplementedInterfaces()) {
 				var maybeInterType *JSType = t.evaluate(this.templateScope, this.typeRegistry)
-				if maybeInterType.setValidator(icast_Predicate_base(obj_(this.createImplementedTypeValidator()))) {
+				if maybeInterType.setValidator(iup_Predicate_base(this.createImplementedTypeValidator())) {
 					this.implementedInterfaces.add(to_ObjectType(maybeInterType.self()))
 				}
 			}
@@ -258,7 +258,7 @@ func (this *FunctionTypeBuilder) inferInheritance(info *JSDocInfo, classExtendsT
 			for t := range elemsAs_[*JSTypeExpression](info.getExtendedInterfaces()) {
 				var maybeInterfaceType *JSType = t.evaluate(this.templateScope, this.typeRegistry)
 				if maybeInterfaceType != nil {
-					var isValid bool = maybeInterfaceType.setValidator(icast_Predicate_base(obj_(this.createExtendedTypeValidator())))
+					var isValid bool = maybeInterfaceType.setValidator(iup_Predicate_base(this.createExtendedTypeValidator()))
 					if isValid && (maybeInterfaceType.toMaybeObjectType() != nil) {
 						this.extendedInterfaces.add(maybeInterfaceType.toMaybeObjectType())
 					}
@@ -268,7 +268,7 @@ func (this *FunctionTypeBuilder) inferInheritance(info *JSDocInfo, classExtendsT
 				}
 			}
 		}
-		if (classExtendsType != nil) && classExtendsType.setValidator(icast_Predicate_base(obj_(this.createExtendedTypeValidator()))) {
+		if (classExtendsType != nil) && classExtendsType.setValidator(iup_Predicate_base(this.createExtendedTypeValidator())) {
 			this.extendedInterfaces.add(classExtendsType)
 		}
 	}
