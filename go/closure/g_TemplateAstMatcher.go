@@ -151,7 +151,9 @@ func (this *TemplateAstMatcher) isTemplateParameterStringLiteralNode(n Node) boo
 }
 
 func (this *TemplateAstMatcher) createTemplateParameterNode(index int32, type_ *JSType, isStringLiteral bool) Node {
-	Preconditions_checkState((index >= 0))
+	if index < 0 {
+		panic(new_IllegalStateException_0().self())
+	}
 	Preconditions_checkNotNull_T(type_)
 	var n Node = Node_newNumber(float64(index))
 	if isStringLiteral {
@@ -168,7 +170,9 @@ func (this *TemplateAstMatcher) isTemplateLocalNameNode(n Node) bool {
 }
 
 func (this *TemplateAstMatcher) createTemplateLocalNameNode(index int32) Node {
-	Preconditions_checkState((index >= 0))
+	if index < 0 {
+		panic(new_IllegalStateException_0().self())
+	}
 	var n Node = Node_newNumber(float64(index))
 	n.setToken(TemplateAstMatcher_TEMPLATE_LOCAL_NAME)
 	return n

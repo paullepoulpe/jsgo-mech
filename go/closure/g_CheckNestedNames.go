@@ -28,7 +28,9 @@ func (this *CheckNestedNames) shouldTraverse(nodeTraversal *NodeTraversal, n Nod
 }
 
 func (this *CheckNestedNames) visit(t *NodeTraversal, n Node, parent Node) {
-	Preconditions_checkArgument(t.inGlobalOrModuleScope())
+	if !t.inGlobalOrModuleScope() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if !n.isGetProp() || !n.isQualifiedName() {
 		return
 	}

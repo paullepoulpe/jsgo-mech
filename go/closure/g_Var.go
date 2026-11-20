@@ -124,7 +124,7 @@ func (this *Var) declarationType_impl() Token_rhino {
 		}
 	}
 	if ok_, a1_, a2_ := this.isImplicit(), this, AbstractVar_DECLARATION_TYPES.asSet(); !ok_ {
-		Preconditions_checkState_boolean_String_Object_Object(false, "The nameNode for %s must be a descendant of one of: %s", a1_, a2_)
+		panic(new_IllegalStateException_String(Strings_lenientFormat("The nameNode for %s must be a descendant of one of: %s", []any{a1_, a2_})).self())
 	}
 	return 0
 }

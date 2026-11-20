@@ -25,7 +25,9 @@ func (this *AliasStrings) init_AliasStrings(compiler *AbstractCompiler, chunkGra
 	this.compiler_ = compiler
 	this.chunkGraph = chunkGraph
 	this.outputStringUsageField = outputStringUsage
-	Preconditions_checkState((aliasStringsMode != CompilerOptions_AliasStringsMode_NONE))
+	if aliasStringsMode == CompilerOptions_AliasStringsMode_NONE {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.aliasStringsMode = aliasStringsMode
 }
 

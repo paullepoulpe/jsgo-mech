@@ -88,7 +88,9 @@ func (this *SyntacticScopeCreator_ScopeScanner) init_SyntacticScopeCreator_Scope
 	this.redeclarationHandler = redeclarationHandler
 	this.scope_ = scope
 	this.changeRootSet = changeRootSet
-	Preconditions_checkState(((changeRootSet == nil) || scope.isGlobal()))
+	if changeRootSet != nil && !scope.isGlobal() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.treatProvidesAsRedeclarations = treatProvidesAsRedeclarations
 }
 
@@ -105,7 +107,9 @@ func (this *SyntacticScopeCreator_ScopeScanner) populate() {
 	case tokOrd1_FUNCTION:
 		var fnNameNode Node = n.getFirstChild()
 		var args Node = fnNameNode.getNext()
-		Preconditions_checkState(args.isParamList())
+		if !args.isParamList() {
+			panic(new_IllegalStateException_0().self())
+		}
 		this.declareLHS(this.scope_, args)
 		var fnName string = fnNameNode.getString()
 		if !String_isEmpty(fnName) && NodeUtil_isFunctionExpression(n) {
@@ -120,7 +124,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) populate() {
 		return
 	case tokOrd1_ROOT, tokOrd1_SCRIPT:
 		if !this.scope_.isGlobal() {
-			Preconditions_checkState_boolean_Object(false, this.scope_)
+			panic(new_IllegalStateException_String(objstr_(this.scope_)).self())
 		}
 		this.scanVars(n, this.scope_, this.scope_)
 		return

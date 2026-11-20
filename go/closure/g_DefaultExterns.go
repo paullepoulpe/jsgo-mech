@@ -21,7 +21,7 @@ func DefaultExterns_prepareExterns(env CompilerOptions_Environment, externs *JTM
 	for it_1.next() {
 		var key string = it_1.v
 		if !externs.containsKey(key) {
-			Preconditions_checkState_boolean_String_Object(false, "Externs must contain builtin: %s", key)
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Externs must contain builtin: %s", []any{key})).self())
 		}
 		out.add(externs.remove(key))
 	}
@@ -30,7 +30,7 @@ func DefaultExterns_prepareExterns(env CompilerOptions_Environment, externs *JTM
 		for it_3.next() {
 			var key string = it_3.v
 			if !externs.containsKey(key) {
-				Preconditions_checkState_boolean_String_Object_Object(false, "Externs must contain builtin for env %s: %s", env, key)
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Externs must contain builtin for env %s: %s", []any{env, key})).self())
 			}
 			out.add(externs.remove(key))
 		}

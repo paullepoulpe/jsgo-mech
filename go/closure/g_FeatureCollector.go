@@ -43,7 +43,9 @@ func (this *FeatureCollector) visitRecursive(contextStack *JTList[FeatureCollect
 }
 
 func (this *FeatureCollector) visitSingleNode(contextStack *JTList[FeatureCollector_FeatureContext], node Node) FeatureCollector_FeatureContext {
-	Preconditions_checkState_boolean_Object((contextStack.size() >= 1), "The provided feature context stack was empty. It must have at least one element.")
+	if contextStack.size() < 1 {
+		panic(new_IllegalStateException_String(objstr_("The provided feature context stack was empty. It must have at least one element.")).self())
+	}
 	this.recordScriptFeatures(contextStack, node)
 	return FeatureCollector_contextFor(contextStack, node)
 }

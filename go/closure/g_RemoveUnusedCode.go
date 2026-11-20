@@ -67,7 +67,9 @@ func new_RemoveUnusedCode(builder *RemoveUnusedCode_Builder) *RemoveUnusedCode {
 }
 
 func (this *RemoveUnusedCode) process_2(externs Node, root Node) {
-	Preconditions_checkState(this.compiler_.getLifeCycleStage().isNormalized())
+	if !this.compiler_.getLifeCycleStage().isNormalized() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.pinnedPropertyNames.asSet().addAll(Collection(this.compiler_.getExternProperties().asSet()))
 	_ = func() (code_ int) {
 		defer func() {
@@ -176,15 +178,23 @@ func (this *RemoveUnusedCode) traverseNode(n Node, scope *Scope) {
 	case Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
 		this.traverseEnhancedFor(n, scope)
 	case Token_rhino_LET, Token_rhino_CONST, Token_rhino_VAR:
-		Preconditions_checkState(NodeUtil_isStatement(n))
+		if !NodeUtil_isStatement(n) {
+			panic(new_IllegalStateException_0().self())
+		}
 		this.traverseDeclarationStatement(n, scope)
 	case Token_rhino_INSTANCEOF:
 		this.traverseInstanceof(n, scope)
 	case Token_rhino_NAME:
-		Preconditions_checkState(!n.hasChildren())
+		if n.hasChildren() {
+			panic(new_IllegalStateException_0().self())
+		}
 		if !parent.isParamList() {
-			Preconditions_checkState(!NodeUtil_isNameDeclaration(parent))
-			Preconditions_checkState(!((parent.isFunction() || parent.isClass()) && (parent.getFirstChild() == n)))
+			if NodeUtil_isNameDeclaration(parent) {
+				panic(new_IllegalStateException_0().self())
+			}
+			if (parent.isFunction() || parent.isClass()) && (parent.getFirstChild() == n) {
+				panic(new_IllegalStateException_0().self())
+			}
 			this.traverseNameNode(n, scope).setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
 				return String_format("reference found: %s", []any{strobj_(n.getLocation())})
 			}}).get)
@@ -538,8 +548,12 @@ func (this *RemoveUnusedCode) traverseEnhancedFor(enhancedFor Node, scope *Scope
 		if declNode.isDestructuringLhs() {
 			this.traverseNode(declNode, forScope)
 		} else {
-			Preconditions_checkState(declNode.isName())
-			Preconditions_checkState(!declNode.hasChildren())
+			if !declNode.isName() {
+				panic(new_IllegalStateException_0().self())
+			}
+			if declNode.hasChildren() {
+				panic(new_IllegalStateException_0().self())
+			}
 			var varInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(declNode, forScope)
 			varInfo.setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
 				return "for-of or for-in loop variable"
@@ -617,7 +631,9 @@ func (this *RemoveUnusedCode) traverseDeclarationStatement(declarationStatement 
 }
 
 func (this *RemoveUnusedCode) traverseAssign(assignNode Node, scope *Scope) {
-	Preconditions_checkState(NodeUtil_isAssignmentOp(assignNode))
+	if !NodeUtil_isAssignmentOp(assignNode) {
+		panic(new_IllegalStateException_0().self())
+	}
 	var lhs Node = assignNode.getFirstChild()
 	var valueNode Node = assignNode.getLastChild()
 	if lhs.isName() {
@@ -785,7 +801,9 @@ func (this *RemoveUnusedCode) traverseChildren(n Node, scope *Scope) {
 }
 
 func (this *RemoveUnusedCode) traverseClass(classNode Node, scope *Scope) {
-	Preconditions_checkArgument(classNode.isClass())
+	if !classNode.isClass() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if NodeUtil_isClassDeclaration(classNode) {
 		this.traverseClassDeclaration(classNode, scope)
 	} else {
@@ -794,7 +812,9 @@ func (this *RemoveUnusedCode) traverseClass(classNode Node, scope *Scope) {
 }
 
 func (this *RemoveUnusedCode) traverseClassDeclaration(classNode Node, scope *Scope) {
-	Preconditions_checkArgument(classNode.isClass())
+	if !classNode.isClass() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var classNameNode Node = classNode.getFirstChild()
 	var baseClassExpression Node = classNameNode.getNext()
 	var classBodyNode Node = baseClassExpression.getNext()
@@ -825,7 +845,9 @@ func (this *RemoveUnusedCode) traverseClassDeclaration(classNode Node, scope *Sc
 }
 
 func (this *RemoveUnusedCode) traverseClassExpression(classNode Node, scope *Scope) {
-	Preconditions_checkArgument(classNode.isClass())
+	if !classNode.isClass() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var classNameNode Node = classNode.getFirstChild()
 	var baseClassExpression Node = classNameNode.getNext()
 	var classBodyNode Node = baseClassExpression.getNext()
@@ -898,7 +920,9 @@ func (this *RemoveUnusedCode) traverseFunction(function Node, parentScope *Scope
 }
 
 func (this *RemoveUnusedCode) canRemoveParameters(parameterList Node) bool {
-	Preconditions_checkState(parameterList.isParamList())
+	if !parameterList.isParamList() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var function Node = parameterList.getParent()
 	return (this.removeGlobals_ && !NodeUtil_isGetOrSetKey(function.getParent()))
 }
@@ -908,7 +932,9 @@ func (this *RemoveUnusedCode) removeUnreferencedFunctionArgs(fparamScope *Scope)
 		return
 	}
 	var function Node = fparamScope.getRootNode()
-	Preconditions_checkState(function.isFunction())
+	if !function.isFunction() {
+		panic(new_IllegalStateException_0().self())
+	}
 	if NodeUtil_isGetOrSetKey(function.getParent()) {
 		return
 	}
@@ -1194,7 +1220,9 @@ func RemoveUnusedCode_alreadyRemoved(n Node) bool {
 }
 
 func (this *RemoveUnusedCode) createPolyfillInfo(call Node, scope *Scope, name string) *RemoveUnusedCode_PolyfillInfo {
-	Preconditions_checkState(call.getParent().isExprResult())
+	if !call.getParent().isExprResult() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var builder *RemoveUnusedCode_RemovableBuilder = new_RemoveUnusedCode_RemovableBuilder(this)
 	{
 		var n Node = call.getFirstChild().getNext()
@@ -1352,8 +1380,14 @@ func (this *RemoveUnusedCode_RemovalLogRecord) zero_RemoveUnusedCode_RemovalLogR
 
 func (this *RemoveUnusedCode_RemovalLogRecord) init_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind string, nameSupplier SupplierOf[string], functionNameSupplier SupplierOf[string]) {
 	this.kind_ = kind
-	this.nameSupplier = Preconditions_checkNotNull_T(nameSupplier)
-	this.functionNameSupplier = Preconditions_checkNotNull_T(functionNameSupplier)
+	if nameSupplier == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.nameSupplier = nameSupplier
+	if functionNameSupplier == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.functionNameSupplier = functionNameSupplier
 }
 
 func new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind string, nameSupplier SupplierOf[string], functionNameSupplier SupplierOf[string]) *RemoveUnusedCode_RemovalLogRecord {
@@ -2056,7 +2090,9 @@ func (this *RemoveUnusedCode_IndirectAssign) removeRoot() {
 		}
 		this.outer_.compiler_.reportChangeToEnclosingScope(rootParent)
 		var name Node = this.root.getFirstChild()
-		Preconditions_checkState(name.isName())
+		if !name.isName() {
+			panic(new_IllegalStateException_0().self())
+		}
 		if ((this.root == rootParent.getLastChild()) && this.outer_.removeGlobals_) && this.outer_.canRemoveParameters(rootParent) {
 			this.root.detach()
 		} else {
@@ -2498,7 +2534,9 @@ func (this *RemoveUnusedCode_Assign) init_RemoveUnusedCode_Assign(builder *Remov
 			Preconditions_checkArgument_boolean_String_Object_H(false, "missing VarInfo for variable assignment: %s", propertyNode)
 		}
 	} else {
-		Preconditions_checkArgument_boolean_Object((propertyNode != 0), "missing property node")
+		if propertyNode == 0 {
+			panic(new_IllegalArgumentException_String(objstr_("missing property node")).self())
+		}
 		if kind == RemoveUnusedCode_Kind_NAMED_PROPERTY {
 			if !propertyNode.isGetProp() {
 				Preconditions_checkArgument_boolean_String_Object_H(false, "property name is not a GETPROP: %s", propertyNode)
@@ -2603,7 +2641,9 @@ func (this *RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign) up_RemoveUnu
 func (this *RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign) init_RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign(builder *RemoveUnusedCode_RemovableBuilder, assignNode Node) {
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(assignNode.getFirstChild(), builder)
-	Preconditions_checkState(builder.propertyName_.isPresent())
+	if !builder.propertyName_.isPresent() {
+		panic(new_IllegalStateException_0().self())
+	}
 	if !assignNode.isAssign() {
 		Preconditions_checkArgument_boolean_Object_H(false, assignNode)
 	}
@@ -2874,7 +2914,9 @@ func (this *RemoveUnusedCode_RealVarInfo) hasFunctionOrClassLiteralValue() bool 
 }
 
 func (this *RemoveUnusedCode_RealVarInfo) removeAllRemovables() {
-	Preconditions_checkState(this.isEntirelyRemovable)
+	if !this.isEntirelyRemovable {
+		panic(new_IllegalStateException_0().self())
+	}
 	it_1 := this.removables.each()
 	for it_1.next() {
 		var removable *RemoveUnusedCode_Removable = it_1.v

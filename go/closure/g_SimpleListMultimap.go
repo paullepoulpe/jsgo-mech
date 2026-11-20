@@ -38,7 +38,9 @@ func (this *SimpleListMultimap) immutableCopy() *SimpleListMultimap {
 }
 
 func (this *SimpleListMultimap) put(key any, value any) *SimpleListMultimap {
-	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
+	if this.frozen {
+		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+	}
 	var values ListOf[any] = icast_List(this.map__.get(key))
 	if values == nil {
 		values = new_ArrayList_0()
@@ -50,7 +52,9 @@ func (this *SimpleListMultimap) put(key any, value any) *SimpleListMultimap {
 
 // put_s is put for a string key that is not boxed (post-flip manual step).
 func (this *SimpleListMultimap) put_s(key string, value any) *SimpleListMultimap {
-	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
+	if this.frozen {
+		panic(new_IllegalStateException_String("immutable").self())
+	}
 	var values ListOf[any] = icast_List(Map_get_s(this.map__, key))
 	if values == nil {
 		values = new_ArrayList_0()
@@ -80,7 +84,9 @@ func (this *SimpleListMultimap) putAll_s(key string, values IterableOf[any]) *Si
 }
 
 func (this *SimpleListMultimap) replaceValues(key any, values IterableOf[any]) {
-	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
+	if this.frozen {
+		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+	}
 	var newValues *JTList[any] = jnewTList_(tc_Object)
 	Iterables_addAll(Collection(newValues.asList()), values)
 	if newValues.isEmpty() {
@@ -119,7 +125,9 @@ func (this *SimpleListMultimap) containsKey_s(key string) bool {
 }
 
 func (this *SimpleListMultimap) remove(key any, value any) bool {
-	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
+	if this.frozen {
+		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+	}
 	var values ListOf[any] = icast_List(this.map__.get(key))
 	if (values == nil) || !values.remove_Object(value) {
 		return false
@@ -131,7 +139,9 @@ func (this *SimpleListMultimap) remove(key any, value any) bool {
 }
 
 func (this *SimpleListMultimap) removeAll(key any) ListOf[any] {
-	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
+	if this.frozen {
+		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+	}
 	var values ListOf[any] = icast_List(this.map__.remove(key))
 	return func() List {
 		if values == nil {

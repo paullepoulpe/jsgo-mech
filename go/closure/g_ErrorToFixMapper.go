@@ -155,7 +155,7 @@ func (this *ErrorToFixMapper) getFixForReferenceToShortImportByLongName(error_ *
 	var scriptMetadata *ScriptMetadata = this.getMetadataForScript(script)
 	var fullNameMatcher *Matcher_re2j = ErrorToFixMapper_FULLY_QUALIFIED_NAME.matcher_s(error_.description())
 	if ok_, a1_ := fullNameMatcher.matches(), error_.description(); !ok_ {
-		Preconditions_checkState_boolean_Object(false, a1_)
+		panic(new_IllegalStateException_String(objstr_(a1_)).self())
 	}
 	var fullName string = fullNameMatcher.group(1)
 	var shortNameMatcher *Matcher_re2j = ErrorToFixMapper_USE_SHORT_NAME.matcher_s(error_.description())
@@ -235,7 +235,7 @@ func (this *ErrorToFixMapper) getFixForInexistentProperty(error_ *JSError) *Sugg
 func (this *ErrorToFixMapper) getFixForMissingRequire(error_ *JSError, importType SuggestedFix_ImportType) *SuggestedFix {
 	var regexMatcher *Matcher_re2j = ErrorToFixMapper_MISSING_REQUIRE.matcher_s(error_.description())
 	if ok_, a1_ := regexMatcher.matches(), error_.description(); !ok_ {
-		Preconditions_checkState_boolean_String_Object(false, "Unexpected error description: %s", a1_)
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected error description: %s", []any{a1_})).self())
 	}
 	var namespaceToRequire string = regexMatcher.group(1)
 	var qName Optional[string] = func() Optional[string] {
@@ -247,7 +247,7 @@ func (this *ErrorToFixMapper) getFixForMissingRequire(error_ *JSError, importTyp
 		return Optional_of[string](error_.node().getString())
 	}()
 	if ok_, a1_, a2_ := String_startsWith(qName.get(), namespaceToRequire), error_.node(), namespaceToRequire; !ok_ {
-		Preconditions_checkState_boolean_String_Object_Object(false, "Expected error location %s to start with namespace <%s>", a1_.box_(), a2_)
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected error location %s to start with namespace <%s>", []any{a1_.box_(), a2_})).self())
 	}
 	var script Node = this.compiler_.getScriptNode(error_.sourceName().orElseThrow())
 	var scriptMetadata *ScriptMetadata = this.getMetadataForScript(script)
@@ -326,7 +326,9 @@ func (this *ErrorToFixMapper) getFixForConstantCaseErrors(error_ *JSError) *Sugg
 }
 
 func (this *ErrorToFixMapper) getMetadataForScript(script Node) *ScriptMetadata {
-	Preconditions_checkArgument(script.isScript())
+	if !script.isScript() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	return this.metadataForEachScript.computeIfAbsent(script, &Function_tfn_Node_ScriptMetadata{func(s Node) *ScriptMetadata {
 		return ScriptMetadata_create(s, this.compiler_)
 	}})

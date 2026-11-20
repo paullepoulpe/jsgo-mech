@@ -501,14 +501,14 @@ func (this *JsMessage_PlaceholderReference) isCanonicalFormat() bool {
 
 func JsMessage_PlaceholderReference_createForJsName(name string) *JsMessage_PlaceholderReference {
 	if !JsMessage_isLowerCamelCaseWithNumericSuffixes(name) {
-		Preconditions_checkArgument_boolean_String_Object(false, "invalid JS placeholder name format: '%s'", name)
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("invalid JS placeholder name format: '%s'", []any{name})).self())
 	}
 	return new_JsMessage_PlaceholderReference(name, false)
 }
 
 func JsMessage_PlaceholderReference_createForCanonicalName(name string) *JsMessage_PlaceholderReference {
 	if !JsMessage_isCanonicalPlaceholderNameFormat(name) {
-		Preconditions_checkArgument_boolean_String_Object(false, "not a canonical placeholder name format: '%s'", name)
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("not a canonical placeholder name format: '%s'", []any{name})).self())
 	}
 	return new_JsMessage_PlaceholderReference(name, true)
 }
@@ -627,7 +627,9 @@ func (this *JsMessage_Builder) setSourceName(sourceName string) *JsMessage_Build
 }
 
 func (this *JsMessage_Builder) appendPart(part JsMessage_Part) *JsMessage_Builder {
-	Preconditions_checkNotNull_T(part)
+	if part == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	this.parts.add(part)
 	if part.isPlaceholder() {
 		this.jsPlaceholderNames_.add(part.getJsPlaceholderName())
@@ -720,7 +722,7 @@ func (this *JsMessage_Builder) setIsAnonymous(isAnonymous bool) *JsMessage_Build
 
 func (this *JsMessage_Builder) setId(id Optional[string]) *JsMessage_Builder {
 	if ok_, a1_, a2_ := this.id.isEmpty(), this.id.orElse("null"), id.orElse("null"); !ok_ {
-		Preconditions_checkState_boolean_String_Object_Object(false, "id already set to '%s': cannot change it to '%s'", strobj_(a1_), strobj_(a2_))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("id already set to '%s': cannot change it to '%s'", []any{strobj_(a1_), strobj_(a2_)})).self())
 	}
 	this.id = id
 	return this
@@ -744,9 +746,15 @@ func (this *JsMessage_Builder) getParts() *JTList[JsMessage_Part] {
 }
 
 func (this *JsMessage_Builder) build() *JsMessage {
-	Preconditions_checkState_boolean_Object(this.key_.isPresent(), "key has not been set")
-	Preconditions_checkState_boolean_Object(this.id.isPresent(), "id has not been set")
-	Preconditions_checkState_boolean_Object((!this.isExternal_ || !this.isAnonymous_), "a message cannot be both anonymous and external")
+	if !this.key_.isPresent() {
+		panic(new_IllegalStateException_String(objstr_("key has not been set")).self())
+	}
+	if !this.id.isPresent() {
+		panic(new_IllegalStateException_String(objstr_("id has not been set")).self())
+	}
+	if this.isExternal_ && this.isAnonymous_ {
+		panic(new_IllegalStateException_String(objstr_("a message cannot be both anonymous and external")).self())
+	}
 	if this.alternateId.isPresent() && Object_equals(this.alternateId.box_(), this.id.box_()) {
 		this.alternateId = Optional_empty[string]()
 	}

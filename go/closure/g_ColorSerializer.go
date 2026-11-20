@@ -65,7 +65,9 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func
 		}
 	}
 	if this.serializationMode.includeDebugInfo() {
-		Preconditions_checkNotNull_T(getMismatchSourceRefsFn)
+		if getMismatchSourceRefsFn == nil {
+			panic(new_NullPointerException_0().self())
+		}
 		var debugInfoBuilder *TypePool_DebugInfo_Builder = typePoolBuilder.getDebugInfoBuilder()
 		var srcRefToTypePointerList *JTMap[string, *ArrayList] = jnewTMap_(jtc_string, tc_p_ArrayList)
 		it_4 := this.colorsInSerializedOrder.each()

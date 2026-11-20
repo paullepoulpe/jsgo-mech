@@ -95,7 +95,9 @@ func (this *ProcessConstJsdocCallback) recordDeclaration(t *NodeTraversal, lhs N
 }
 
 func (this *ProcessConstJsdocCallback) recordNameDeclaration(lhs Node, rhs Node) {
-	Preconditions_checkArgument((NodeUtil_isNameDeclaration(lhs.getParent()) || lhs.getParent().isAssign()))
+	if !NodeUtil_isNameDeclaration(lhs.getParent()) && !lhs.getParent().isAssign() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var isImport bool = PotentialDeclaration_isImportRhs(rhs)
 	var isAlias bool = PotentialDeclaration_isAliasDeclaration(lhs, rhs)
 	NodeUtil_visitLhsNodesInNode(lhs.getParent(), (&Consumer_tfn_Node{func(name Node) {
