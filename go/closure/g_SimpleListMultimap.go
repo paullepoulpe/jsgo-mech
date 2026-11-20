@@ -41,7 +41,7 @@ func (this *SimpleListMultimap) put(key any, value any) *SimpleListMultimap {
 	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
 	var values ListOf[any] = icast_List(this.map__.get(key))
 	if values == nil {
-		values = icast_List(new_ArrayList_0().self())
+		values = new_ArrayList_0()
 		this.map__.put(key, values)
 	}
 	values.add(value)
@@ -53,7 +53,7 @@ func (this *SimpleListMultimap) put_s(key string, value any) *SimpleListMultimap
 	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
 	var values ListOf[any] = icast_List(Map_get_s(this.map__, key))
 	if values == nil {
-		values = icast_List(new_ArrayList_0().self())
+		values = new_ArrayList_0()
 		Map_put_s(this.map__, key, values)
 	}
 	values.add(value)
@@ -173,7 +173,7 @@ func (this *SimpleListMultimap) keySet() SetOf[any] {
 }
 
 func (this *SimpleListMultimap) values() CollectionOf[any] {
-	return icast_Collection(obj_(new_SimpleListMultimap_1(this)))
+	return new_SimpleListMultimap_1(this)
 }
 
 func (this *SimpleListMultimap) asMap() MapOf[any, ListOf[any]] {

@@ -62,7 +62,7 @@ func (this *InlineFunctions) process_2(externs Node, root Node) {
 	}
 	this.resolveInlineConflicts()
 	this.decomposeExpressions()
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(new_InlineFunctions_CallVisitor(this.fns, this.anonFns, new_InlineFunctions_Inline(this.injector).visitCallSite).self()))
+	NodeTraversal_traverse(this.compiler_, root, new_InlineFunctions_CallVisitor(this.fns, this.anonFns, new_InlineFunctions_Inline(this.injector).visitCallSite))
 	this.removeInlinedFunctions()
 }
 
@@ -170,7 +170,7 @@ func InlineFunctions_hasRequireInliningAnnotation(fnNode Node) bool {
 
 func InlineFunctions_hasLocalNames(fnNode Node) bool {
 	var block Node = NodeUtil_getFunctionBody(fnNode)
-	return (NodeUtil_getFunctionParameters(fnNode).hasChildren() || NodeUtil_has(block, new_NodeUtil_MatchDeclaration().apply, icast_Predicate_base(obj_(new_NodeUtil_MatchShallowStatement()))))
+	return (NodeUtil_getFunctionParameters(fnNode).hasChildren() || NodeUtil_has(block, new_NodeUtil_MatchDeclaration().apply, new_NodeUtil_MatchShallowStatement()))
 }
 
 func (this *InlineFunctions) isCandidateFunction(fn InlineFunctions_Function) bool {
