@@ -1346,7 +1346,7 @@ func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse(t *NodeTraversa
 			if newModule == nil {
 				panic(new_NullPointerException_0())
 			}
-			if !JSCompObjects_identical(obj_(newModule), obj_(this.currentModule)) {
+			if newModule != this.currentModule {
 				this.currentModule = newModule
 				this.enterModule(this.currentModule, this.scopeRoot)
 			}
