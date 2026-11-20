@@ -156,17 +156,17 @@ func (this *SubtypeChecker) isSubtypeHelper(subtype *JSType, supertype *JSType) 
 		return this.isSubtypeDispatching(subtype, supertype.toMaybeNamedType().getReferencedType())
 	}
 	if subtype.isUnionType() {
-		return JSTypeIterations_allTypesMatch(&Predicate_fn{func(sub_ any) bool {
+		return JSTypeIterations_allTypesMatch(func(sub_ any) bool {
 			var sub *JSType = to_JSType(sub_)
 			_ = sub
 			return this.isSubtypeCaching(sub, supertype)
-		}}, subtype.toMaybeUnionType())
+		}, subtype.toMaybeUnionType())
 	} else if supertype.isUnionType() {
-		return JSTypeIterations_anyTypeMatches(&Predicate_fn{func(sup_ any) bool {
+		return JSTypeIterations_anyTypeMatches(func(sup_ any) bool {
 			var sup *JSType = to_JSType(sup_)
 			_ = sup
 			return this.isSubtypeCaching(subtype, sup)
-		}}, supertype.toMaybeUnionType())
+		}, supertype.toMaybeUnionType())
 	}
 	if !subtype.isObjectType() || !supertype.isObjectType() {
 		return false
@@ -519,12 +519,12 @@ func (this *SubtypeChecker) shouldTreatThisTypesAsCovariant(subtype *FunctionTyp
 	if ((supertype.getTypeOfThis().toObjectType() != nil) && (supertype.getTypeOfThis().toObjectType().getConstructor() != nil)) && supertype.getTypeOfThis().toObjectType().getConstructor().isInterface() {
 		return true
 	}
-	return this.hackTemporarilyChangeSubtypingMode(JSType_SubtypingMode_NORMAL, &BooleanSupplier_fn{func() bool {
+	return this.hackTemporarilyChangeSubtypingMode(JSType_SubtypingMode_NORMAL, func() bool {
 		return (this.isSubtypeCaching(supertype.getTypeOfThis(), subtype.getTypeOfThis()) || this.isSubtypeCaching(subtype.getTypeOfThis(), supertype.getTypeOfThis()))
-	}})
+	})
 }
 
-func (this *SubtypeChecker) hackTemporarilyChangeSubtypingMode(tempMode *JSType_SubtypingMode, callback BooleanSupplier) bool {
+func (this *SubtypeChecker) hackTemporarilyChangeSubtypingMode(tempMode *JSType_SubtypingMode, callback func() bool) bool {
 	var originalMode *JSType_SubtypingMode = this.subtypingMode
 	var ret_1 bool
 	code_1 := func() (code_ int) {
@@ -532,7 +532,7 @@ func (this *SubtypeChecker) hackTemporarilyChangeSubtypingMode(tempMode *JSType_
 			this.subtypingMode = originalMode
 		}()
 		this.subtypingMode = tempMode
-		ret_1 = callback.getAsBoolean()
+		ret_1 = callback()
 		return 1
 		return 0
 	}()
