@@ -735,7 +735,7 @@ func (this *SymbolTable) fillJSDocInfo(externs Node, root Node) {
 func (this *SymbolTable) fillSymbolVisibility(externs Node, root Node) {
 	var collectPass *CollectFileOverviewVisibility = new_CollectFileOverviewVisibility(this.compiler_)
 	collectPass.process_2(externs, root)
-	var visibilityMap *JTMap[StaticSourceFile, *JSDocInfo_Visibility] = collectPass.getFileOverviewVisibilityMap()
+	var visibilityMap *JTMap[StaticSourceFile, JSDocInfo_Visibility] = collectPass.getFileOverviewVisibilityMap()
 	NodeTraversal_traverseRoots(this.compiler_, NodeTraversal_Callback(new_SymbolTable_VisibilityCollector(this, visibilityMap)), externs, root)
 }
 
@@ -840,9 +840,9 @@ func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes 
 	var require Node = n.getLastChild()
 	var moduleName string = require.getSecondChild().getString()
 	var module *Module = this.compiler_.getModuleMap().getClosureModule(moduleName)
-	var moduleType *ModuleMetadataMap_ModuleType = func() *ModuleMetadataMap_ModuleType {
+	var moduleType ModuleMetadataMap_ModuleType = func() ModuleMetadataMap_ModuleType {
 		if module == nil {
-			return nil
+			return 0
 		}
 		return module.metadata().moduleType()
 	}()
@@ -1083,7 +1083,7 @@ type SymbolTable_Symbol struct {
 	propertyScope *SymbolTable_SymbolScope
 	declaration_  *SymbolTable_Reference
 	docInfo       *JSDocInfo
-	visibility    *JSDocInfo_Visibility
+	visibility    JSDocInfo_Visibility
 	docScope      *SymbolTable_SymbolScope
 }
 
@@ -1103,7 +1103,7 @@ func (this *SymbolTable_Symbol) finit_SymbolTable_Symbol() {
 	this.propertyScope = nil
 	this.declaration_ = nil
 	this.docInfo = nil
-	this.visibility = nil
+	this.visibility = 0
 	this.docScope = nil
 }
 
@@ -1198,11 +1198,11 @@ func (this *SymbolTable_Symbol) setJSDocInfo(info *JSDocInfo) {
 	this.docInfo = info
 }
 
-func (this *SymbolTable_Symbol) getVisibility() *JSDocInfo_Visibility {
+func (this *SymbolTable_Symbol) getVisibility() JSDocInfo_Visibility {
 	return this.visibility
 }
 
-func (this *SymbolTable_Symbol) setVisibility(v *JSDocInfo_Visibility) {
+func (this *SymbolTable_Symbol) setVisibility(v JSDocInfo_Visibility) {
 	this.visibility = v
 }
 
@@ -1780,7 +1780,7 @@ func (this *SymbolTable_JSDocInfoCollector) lookupPossiblyDottedName(scope *Symb
 type SymbolTable_VisibilityCollector struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_            *SymbolTable
-	fileVisibilityMap *JTMap[StaticSourceFile, *JSDocInfo_Visibility]
+	fileVisibilityMap *JTMap[StaticSourceFile, JSDocInfo_Visibility]
 }
 
 func (this *SymbolTable_VisibilityCollector) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -1790,12 +1790,12 @@ func (this *SymbolTable_VisibilityCollector) up_NodeTraversal_AbstractPostOrderC
 	return &this.NodeTraversal_AbstractPostOrderCallback
 }
 
-func (this *SymbolTable_VisibilityCollector) init_SymbolTable_VisibilityCollector(fileVisibilityMap *JTMap[StaticSourceFile, *JSDocInfo_Visibility]) {
+func (this *SymbolTable_VisibilityCollector) init_SymbolTable_VisibilityCollector(fileVisibilityMap *JTMap[StaticSourceFile, JSDocInfo_Visibility]) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.fileVisibilityMap = fileVisibilityMap
 }
 
-func new_SymbolTable_VisibilityCollector(outer_ *SymbolTable, fileVisibilityMap *JTMap[StaticSourceFile, *JSDocInfo_Visibility]) *SymbolTable_VisibilityCollector {
+func new_SymbolTable_VisibilityCollector(outer_ *SymbolTable, fileVisibilityMap *JTMap[StaticSourceFile, JSDocInfo_Visibility]) *SymbolTable_VisibilityCollector {
 	this := &SymbolTable_VisibilityCollector{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -1816,15 +1816,15 @@ func (this *SymbolTable_VisibilityCollector) visitName(t *NodeTraversal, n Node)
 	if symbol == nil {
 		return
 	}
-	if symbol.getVisibility() != nil {
+	if symbol.getVisibility() != 0 {
 		return
 	}
 	var var_ *Var = t.getScope().getVar_String_rVar(n.getString())
 	if var_ == nil {
 		return
 	}
-	var v *JSDocInfo_Visibility = AccessControlUtils_getEffectiveNameVisibility(n, var_, this.fileVisibilityMap)
-	if v == nil {
+	var v JSDocInfo_Visibility = AccessControlUtils_getEffectiveNameVisibility(n, var_, this.fileVisibilityMap)
+	if v == 0 {
 		return
 	}
 	symbol.setVisibility(v)
@@ -1836,7 +1836,7 @@ func (this *SymbolTable_VisibilityCollector) visitProperty(getprop Node, parent 
 	if symbol == nil {
 		return
 	}
-	if symbol.getVisibility() != nil {
+	if symbol.getVisibility() != 0 {
 		return
 	}
 	var jsType *JSType = getprop.getFirstChild().getJSType()
@@ -1848,8 +1848,8 @@ func (this *SymbolTable_VisibilityCollector) visitProperty(getprop Node, parent 
 		symbol.setVisibility(JSDocInfo_Visibility_INHERITED)
 	} else {
 		var referenceType *ObjectType = ObjectType_cast(jsType.dereference().up_JSType())
-		var v *JSDocInfo_Visibility = AccessControlUtils_getEffectivePropertyVisibility(getprop, referenceType, this.fileVisibilityMap)
-		if v == nil {
+		var v JSDocInfo_Visibility = AccessControlUtils_getEffectivePropertyVisibility(getprop, referenceType, this.fileVisibilityMap)
+		if v == 0 {
 			return
 		}
 		symbol.setVisibility(v)

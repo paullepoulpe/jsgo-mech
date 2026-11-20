@@ -3,13 +3,13 @@
 package closure
 
 type ErrorHandler interface {
-	report_2(*CheckLevel, *JSError)
+	report_2(CheckLevel, *JSError)
 }
 
 type ErrorHandler_fn struct {
-	f func(*CheckLevel, *JSError)
+	f func(CheckLevel, *JSError)
 }
 
-func (this *ErrorHandler_fn) report_2(p0 *CheckLevel, p1 *JSError) {
+func (this *ErrorHandler_fn) report_2(p0 CheckLevel, p1 *JSError) {
 	this.f(p0, p1)
 }

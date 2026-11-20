@@ -83,7 +83,7 @@ func new_PrototypeObjectType(builder *PrototypeObjectType_Builder) *PrototypeObj
 	return this
 }
 
-func (this *PrototypeObjectType) getTypeClass_impl() *JSTypeClass {
+func (this *PrototypeObjectType) getTypeClass_impl() JSTypeClass {
 	return PrototypeObjectType_TYPE_CLASS
 }
 
@@ -355,7 +355,7 @@ func (this *PrototypeObjectType) recursionUnsafeHashCode_impl() int32 {
 	panic("unreachable")
 }
 
-var PrototypeObjectType_TYPE_CLASS *JSTypeClass
+var PrototypeObjectType_TYPE_CLASS JSTypeClass
 
 const PrototypeObjectType_MAX_PRETTY_PRINTED_PROPERTIES int32 = 10
 
@@ -567,7 +567,7 @@ func (this *PrototypeObjectType_PropertyForPrettyPrinting) toString() string {
 }
 
 // getTypeClass: an object that is exactly a PrototypeObjectType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *PrototypeObjectType) getTypeClass() *JSTypeClass {
+func (this *PrototypeObjectType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}

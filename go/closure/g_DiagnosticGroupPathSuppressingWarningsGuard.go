@@ -33,15 +33,15 @@ func new_DiagnosticGroupPathSuppressingWarningsGuard(group *DiagnosticGroup, par
 	return this
 }
 
-func (this *DiagnosticGroupPathSuppressingWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
+func (this *DiagnosticGroupPathSuppressingWarningsGuard) level_impl(error_ *JSError) CheckLevel {
 	if error_.sourceName().isEmpty() || !JString_contains_s(error_.sourceName().get(), this.part) {
-		return nil
+		return 0
 	}
-	return func() *CheckLevel {
+	return func() CheckLevel {
 		if this.group.matches(error_) {
 			return CheckLevel_OFF
 		}
-		return nil
+		return 0
 	}()
 }
 
@@ -50,7 +50,7 @@ func (this *DiagnosticGroupPathSuppressingWarningsGuard) toString() string {
 }
 
 // level: an object that is exactly a DiagnosticGroupPathSuppressingWarningsGuard calls its level_impl directly (post-flip); others dispatch.
-func (this *DiagnosticGroupPathSuppressingWarningsGuard) level(p0 *JSError) *CheckLevel {
+func (this *DiagnosticGroupPathSuppressingWarningsGuard) level(p0 *JSError) CheckLevel {
 	if this.self_ == any(this) {
 		return this.level_impl(p0)
 	}

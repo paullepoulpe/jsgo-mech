@@ -15,7 +15,7 @@ func new_SourceMapGeneratorFactory() *SourceMapGeneratorFactory {
 	return this
 }
 
-func SourceMapGeneratorFactory_getInstance(format *SourceMapFormat) SourceMapGenerator {
+func SourceMapGeneratorFactory_getInstance(format SourceMapFormat) SourceMapGenerator {
 	return func() SourceMapGenerator {
 		switch format {
 		case SourceMapFormat_DEFAULT, SourceMapFormat_V3:

@@ -6,7 +6,7 @@ type AbstractVar struct {
 	ScopedName
 	name_                         string
 	nameNode_                     Node
-	implicitGoogNamespaceStrength *StaticSourceFile_SourceKind
+	implicitGoogNamespaceStrength StaticSourceFile_SourceKind
 	input                         *CompilerInput
 	index_                        int32
 }
@@ -59,7 +59,7 @@ func (this *AbstractVar) init_AbstractVar(name string, nameNode Node, index int3
 		this.implicitGoogNamespaceStrength = AbstractVar_strengthOf(implicitGoogNamespaceDefinition)
 	} else {
 		this.nameNode_ = nameNode
-		this.implicitGoogNamespaceStrength = nil
+		this.implicitGoogNamespaceStrength = 0
 	}
 	this.index_ = index
 	this.input = input
@@ -168,7 +168,7 @@ func (this *AbstractVar) isImport() bool {
 }
 
 func (this *AbstractVar) isImplicitGoogNamespace() bool {
-	return (this.implicitGoogNamespaceStrength != nil)
+	return (this.implicitGoogNamespaceStrength != 0)
 }
 
 func (this *AbstractVar) addImplicitGoogNamespaceDefinition(definition Node) {
@@ -178,14 +178,14 @@ func (this *AbstractVar) addImplicitGoogNamespaceDefinition(definition Node) {
 	this.implicitGoogNamespaceStrength = AbstractVar_strongerOf(this.implicitGoogNamespaceStrength, AbstractVar_strengthOf(definition))
 }
 
-func (this *AbstractVar) getImplicitGoogNamespaceStrength() *StaticSourceFile_SourceKind {
+func (this *AbstractVar) getImplicitGoogNamespaceStrength() StaticSourceFile_SourceKind {
 	if !this.isImplicitGoogNamespace() {
 		Preconditions_checkState_boolean_Object(false, this)
 	}
 	return this.implicitGoogNamespaceStrength
 }
 
-func AbstractVar_strengthOf(n Node) *StaticSourceFile_SourceKind {
+func AbstractVar_strengthOf(n Node) StaticSourceFile_SourceKind {
 	var source StaticSourceFile = n.getStaticSourceFile()
 	if source == nil {
 		return StaticSourceFile_SourceKind_EXTERN
@@ -193,7 +193,7 @@ func AbstractVar_strengthOf(n Node) *StaticSourceFile_SourceKind {
 	return source.getKind()
 }
 
-func AbstractVar_strongerOf(left *StaticSourceFile_SourceKind, right *StaticSourceFile_SourceKind) *StaticSourceFile_SourceKind {
+func AbstractVar_strongerOf(left StaticSourceFile_SourceKind, right StaticSourceFile_SourceKind) StaticSourceFile_SourceKind {
 	if eqR_(left, StaticSourceFile_SourceKind_STRONG) || eqR_(right, StaticSourceFile_SourceKind_STRONG) {
 		return StaticSourceFile_SourceKind_STRONG
 	} else if eqR_(left, StaticSourceFile_SourceKind_EXTERN) || eqR_(right, StaticSourceFile_SourceKind_EXTERN) {
@@ -226,7 +226,7 @@ func (this *AbstractVar) isThis() bool {
 	return this.self_.isThis_impl()
 }
 
-func (this *AbstractVar) declarationType() *Token_rhino {
+func (this *AbstractVar) declarationType() Token_rhino {
 	return this.self_.declarationType_impl()
 }
 
@@ -266,7 +266,7 @@ func (this *AbstractVar) getScope_impl() StaticScope {
 	return icast_StaticScope(this.getScope_rAbstractScope().self())
 }
 
-var AbstractVar_DECLARATION_TYPES *JTSet[*Token_rhino]
+var AbstractVar_DECLARATION_TYPES *JTSet[Token_rhino]
 
 var AbstractVar_clinit_done bool
 
@@ -275,7 +275,7 @@ func AbstractVar_clinit() {
 		return
 	}
 	AbstractVar_clinit_done = true
-	AbstractVar_DECLARATION_TYPES = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_VAR.up_Enum(), []*Enum{Token_rhino_LET.up_Enum(), Token_rhino_CONST.up_Enum(), Token_rhino_FUNCTION.up_Enum(), Token_rhino_CLASS.up_Enum(), Token_rhino_CATCH.up_Enum(), Token_rhino_IMPORT.up_Enum(), Token_rhino_PARAM_LIST.up_Enum()}))
+	AbstractVar_DECLARATION_TYPES = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_VAR.enum_(), []*Enum{Token_rhino_LET.enum_(), Token_rhino_CONST.enum_(), Token_rhino_FUNCTION.enum_(), Token_rhino_CLASS.enum_(), Token_rhino_CATCH.enum_(), Token_rhino_IMPORT.enum_(), Token_rhino_PARAM_LIST.enum_()}))
 
 }
 

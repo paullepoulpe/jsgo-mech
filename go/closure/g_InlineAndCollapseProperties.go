@@ -4,10 +4,10 @@ package closure
 
 type InlineAndCollapseProperties struct {
 	compiler_                     *AbstractCompiler
-	propertyCollapseLevel         *CompilerOptions_PropertyCollapseLevel
-	chunkOutputType               *CompilerOptions_ChunkOutputType
+	propertyCollapseLevel         CompilerOptions_PropertyCollapseLevel
+	chunkOutputType               CompilerOptions_ChunkOutputType
 	haveModulesBeenRewritten      bool
-	moduleResolutionMode          *ModuleLoader_ResolutionMode
+	moduleResolutionMode          ModuleLoader_ResolutionMode
 	testAggressiveInliningOnly_   bool
 	optionalGlobalNamespaceTester Optional[Consumer]
 	decisionsLog                  *LogFile
@@ -269,10 +269,10 @@ func InlineAndCollapseProperties_clinit() {
 
 type InlineAndCollapseProperties_Builder struct {
 	compiler_                       *AbstractCompiler
-	propertyCollapseLevel           *CompilerOptions_PropertyCollapseLevel
-	chunkOutputType                 *CompilerOptions_ChunkOutputType
+	propertyCollapseLevel           CompilerOptions_PropertyCollapseLevel
+	chunkOutputType                 CompilerOptions_ChunkOutputType
 	haveModulesBeenRewritten        bool
-	moduleResolutionMode            *ModuleLoader_ResolutionMode
+	moduleResolutionMode            ModuleLoader_ResolutionMode
 	testAggressiveInliningOnlyField bool
 	optionalGlobalNamespaceTester   Optional[Consumer]
 }
@@ -293,12 +293,12 @@ func new_InlineAndCollapseProperties_Builder(compiler *AbstractCompiler) *Inline
 	return this
 }
 
-func (this *InlineAndCollapseProperties_Builder) setPropertyCollapseLevel(propertyCollapseLevel *CompilerOptions_PropertyCollapseLevel) *InlineAndCollapseProperties_Builder {
+func (this *InlineAndCollapseProperties_Builder) setPropertyCollapseLevel(propertyCollapseLevel CompilerOptions_PropertyCollapseLevel) *InlineAndCollapseProperties_Builder {
 	this.propertyCollapseLevel = propertyCollapseLevel
 	return this
 }
 
-func (this *InlineAndCollapseProperties_Builder) setChunkOutputType(chunkOutputType *CompilerOptions_ChunkOutputType) *InlineAndCollapseProperties_Builder {
+func (this *InlineAndCollapseProperties_Builder) setChunkOutputType(chunkOutputType CompilerOptions_ChunkOutputType) *InlineAndCollapseProperties_Builder {
 	this.chunkOutputType = chunkOutputType
 	return this
 }
@@ -308,7 +308,7 @@ func (this *InlineAndCollapseProperties_Builder) setHaveModulesBeenRewritten(hav
 	return this
 }
 
-func (this *InlineAndCollapseProperties_Builder) setModuleResolutionMode(moduleResolutionMode *ModuleLoader_ResolutionMode) *InlineAndCollapseProperties_Builder {
+func (this *InlineAndCollapseProperties_Builder) setModuleResolutionMode(moduleResolutionMode ModuleLoader_ResolutionMode) *InlineAndCollapseProperties_Builder {
 	this.moduleResolutionMode = moduleResolutionMode
 	return this
 }
@@ -647,7 +647,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineGlobalAli
 		if eqR_(name, aliasingName) && aliasParent.isAssign() {
 			return
 		}
-		var aliasInlinability *GlobalNamespace_Inlinability = aliasingName.calculateInlinability()
+		var aliasInlinability GlobalNamespace_Inlinability = aliasingName.calculateInlinability()
 		if !aliasInlinability.shouldInlineUsages() {
 			return
 		}
@@ -677,7 +677,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineGlobalAli
 	}
 }
 
-func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteAliasReferences(aliasingName *GlobalNamespace_Name, aliasingRef *GlobalNamespace_Ref, aliasInlinability *GlobalNamespace_Inlinability) *JTSet[GlobalNamespace_AstChange] {
+func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteAliasReferences(aliasingName *GlobalNamespace_Name, aliasingRef *GlobalNamespace_Ref, aliasInlinability GlobalNamespace_Inlinability) *JTSet[GlobalNamespace_AstChange] {
 	var newNodes *JTSet[GlobalNamespace_AstChange] = jnewTSet_(tce_GlobalNamespace_AstChange)
 	var refs *JTList[*GlobalNamespace_Ref] = jtlistFrom_(jtc_p_GlobalNamespace_Ref, aliasingName.getRefs())
 	var initializationChunk *JSChunk = func() *JSChunk {
@@ -924,7 +924,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) process_2(externs No
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) canCollapse(name *GlobalNamespace_Name) bool {
-	var inlinability *GlobalNamespace_Inlinability = name.canCollapseOrInline()
+	var inlinability GlobalNamespace_Inlinability = name.canCollapseOrInline()
 	if !inlinability.canCollapse() {
 		this.logDecisionForName_3(name, inlinability, "canCollapse() returns false")
 		return false
@@ -1057,7 +1057,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) flattenReferencesToC
 	for it_1.next() {
 		var p *GlobalNamespace_Name = it_1.v
 		var propAlias string = this.appendPropForAlias(alias, p.getBaseName())
-		var inlinability *GlobalNamespace_Inlinability = p.canCollapseOrInline()
+		var inlinability GlobalNamespace_Inlinability = p.canCollapseOrInline()
 		var isAllowedToCollapse bool = ((this.outer_.propertyCollapseLevel != CompilerOptions_PropertyCollapseLevel_MODULE_EXPORT) || p.isModuleExport())
 		if isAllowedToCollapse {
 			if inlinability.canCollapse() {
@@ -1076,7 +1076,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) flattenReferencesToC
 	}
 }
 
-func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForName_3(name *GlobalNamespace_Name, inlinability *GlobalNamespace_Inlinability, message string) {
+func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForName_3(name *GlobalNamespace_Name, inlinability GlobalNamespace_Inlinability, message string) {
 	this.logDecisionForNameSupplier(name, &Supplier_tfn_string{func() string {
 		return String_format("inlinability %s: %s", []any{obj_(inlinability), strobj_(message)})
 	}})
@@ -1167,7 +1167,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) flattenPrefixes(alia
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) flattenNameRefAtDepth(alias string, n Node, depth int32, originalName string, isConstantName bool) {
-	var nType *Token_rhino = n.getToken()
+	var nType Token_rhino = n.getToken()
 	var isQName bool = ((nType == Token_rhino_NAME) || (nType == Token_rhino_GETPROP))
 	var isObjKey bool = NodeUtil_mayBeObjectLitKey(n)
 	Preconditions_checkState((isObjKey || isQName))
@@ -1198,7 +1198,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) flattenNameRef(alias
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) collapseDeclarationOfNameAndDescendants(n *GlobalNamespace_Name, alias string, escaped *JTSet[*GlobalNamespace_Name]) {
-	var childNameInlinability *GlobalNamespace_Inlinability = n.canCollapseOrInlineChildNames()
+	var childNameInlinability GlobalNamespace_Inlinability = n.canCollapseOrInlineChildNames()
 	var canCollapseChildNames bool
 	if !childNameInlinability.canCollapse() {
 		this.logDecisionForNameSupplier(n, &Supplier_tfn_string{func() string {
@@ -1570,7 +1570,7 @@ type InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImportedModul
 	NodeTraversal_AbstractPostOrderCallback
 	outer_                 *InlineAndCollapseProperties_CollapseProperties
 	processCommonJSModules bool
-	moduleResolutionMode   *ModuleLoader_ResolutionMode
+	moduleResolutionMode   ModuleLoader_ResolutionMode
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImportedModules) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -1580,13 +1580,13 @@ func (this *InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImport
 	return &this.NodeTraversal_AbstractPostOrderCallback
 }
 
-func (this *InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImportedModules) init_InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImportedModules(processCommonJSModules bool, resolutionMode *ModuleLoader_ResolutionMode) {
+func (this *InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImportedModules) init_InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImportedModules(processCommonJSModules bool, resolutionMode ModuleLoader_ResolutionMode) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.processCommonJSModules = processCommonJSModules
 	this.moduleResolutionMode = resolutionMode
 }
 
-func new_InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImportedModules(outer_ *InlineAndCollapseProperties_CollapseProperties, processCommonJSModules bool, resolutionMode *ModuleLoader_ResolutionMode) *InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImportedModules {
+func new_InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImportedModules(outer_ *InlineAndCollapseProperties_CollapseProperties, processCommonJSModules bool, resolutionMode ModuleLoader_ResolutionMode) *InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImportedModules {
 	this := &InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImportedModules{}
 	this.self_ = this
 	this.outer_ = outer_

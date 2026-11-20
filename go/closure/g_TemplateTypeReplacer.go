@@ -308,7 +308,7 @@ func (this *TemplateTypeReplacer) caseTemplateType(type_ *TemplateType) any {
 	return visitedReplacement.self()
 }
 
-func (this *TemplateTypeReplacer) getNativeType(nativeType *JSTypeNative) *JSType {
+func (this *TemplateTypeReplacer) getNativeType(nativeType JSTypeNative) *JSType {
 	return this.registry.getNativeType(nativeType)
 }
 

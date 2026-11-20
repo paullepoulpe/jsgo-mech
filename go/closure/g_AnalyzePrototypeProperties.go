@@ -85,7 +85,7 @@ func (this *AnalyzePrototypeProperties) getAllNameInfo() CollectionOf[*AnalyzePr
 	return Collection(result.asList())
 }
 
-func (this *AnalyzePrototypeProperties) getNameInfoForName(name string, type_ *AnalyzePrototypeProperties_SymbolType) *AnalyzePrototypeProperties_NameInfo {
+func (this *AnalyzePrototypeProperties) getNameInfoForName(name string, type_ AnalyzePrototypeProperties_SymbolType) *AnalyzePrototypeProperties_NameInfo {
 	var map_ *JTMap[string, *AnalyzePrototypeProperties_NameInfo] = func() *JTMap[string, *AnalyzePrototypeProperties_NameInfo] {
 		if type_ == AnalyzePrototypeProperties_PROPERTY {
 			return this.propertyNameInfo
@@ -103,8 +103,8 @@ func (this *AnalyzePrototypeProperties) getNameInfoForName(name string, type_ *A
 	panic("unreachable")
 }
 
-var AnalyzePrototypeProperties_PROPERTY *AnalyzePrototypeProperties_SymbolType
-var AnalyzePrototypeProperties_VAR *AnalyzePrototypeProperties_SymbolType
+var AnalyzePrototypeProperties_PROPERTY AnalyzePrototypeProperties_SymbolType
+var AnalyzePrototypeProperties_VAR AnalyzePrototypeProperties_SymbolType
 var AnalyzePrototypeProperties_IMPLICITLY_USED_PROPERTIES *JTSet[string]
 
 var AnalyzePrototypeProperties_clinit_done bool
@@ -280,7 +280,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 	}
 }
 
-func (this *AnalyzePrototypeProperties_ProcessProperties) addSymbolUse(name string, chunk *JSChunk, type_ *AnalyzePrototypeProperties_SymbolType) {
+func (this *AnalyzePrototypeProperties_ProcessProperties) addSymbolUse(name string, chunk *JSChunk, type_ AnalyzePrototypeProperties_SymbolType) {
 	var info *AnalyzePrototypeProperties_NameInfo = this.outer_.getNameInfoForName(name, type_)
 	var def *AnalyzePrototypeProperties_NameInfo = nil
 	it_1 := this.symbolStack.each()
@@ -405,7 +405,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) maybeGetVar(t *NodeTra
 	}()
 }
 
-func (this *AnalyzePrototypeProperties_ProcessProperties) addGlobalUseOfSymbol(name string, chunk *JSChunk, type_ *AnalyzePrototypeProperties_SymbolType) {
+func (this *AnalyzePrototypeProperties_ProcessProperties) addGlobalUseOfSymbol(name string, chunk *JSChunk, type_ AnalyzePrototypeProperties_SymbolType) {
 	this.outer_.symbolGraph.connect(this.outer_.globalNode, chunk, this.outer_.getNameInfoForName(name, type_))
 }
 
@@ -473,44 +473,61 @@ type AnalyzePrototypeProperties_Symbol interface {
 	getChunk() *JSChunk
 }
 
-type AnalyzePrototypeProperties_SymbolType struct {
-	Enum
+type AnalyzePrototypeProperties_SymbolType uint8
+
+// AnalyzePrototypeProperties_SymbolType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var AnalyzePrototypeProperties_SymbolType_enum_ = [2]Enum{
+	{self_: AnalyzePrototypeProperties_SymbolType_PROPERTY, name_: "PROPERTY", ordinal_: 0},
+	{self_: AnalyzePrototypeProperties_SymbolType_VAR, name_: "VAR", ordinal_: 1},
 }
 
-func (this *AnalyzePrototypeProperties_SymbolType) up_Enum() *Enum {
-	if this == nil {
+func (this AnalyzePrototypeProperties_SymbolType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &AnalyzePrototypeProperties_SymbolType_enum_[this-1]
 }
 
-func (this *AnalyzePrototypeProperties_SymbolType) init_AnalyzePrototypeProperties_SymbolType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this AnalyzePrototypeProperties_SymbolType) name() string {
+	return AnalyzePrototypeProperties_SymbolType_enum_[this-1].name_
 }
 
-func new_AnalyzePrototypeProperties_SymbolType(name_ string, ordinal_ int32) *AnalyzePrototypeProperties_SymbolType {
-	this := &AnalyzePrototypeProperties_SymbolType{}
-	this.self_ = this
-	this.init_AnalyzePrototypeProperties_SymbolType(name_, ordinal_)
+func (this AnalyzePrototypeProperties_SymbolType) ordinal() int32 {
+	return AnalyzePrototypeProperties_SymbolType_enum_[this-1].ordinal_
+}
+
+func (this AnalyzePrototypeProperties_SymbolType) toString() string {
+	return AnalyzePrototypeProperties_SymbolType_enum_[this-1].name_
+}
+
+func (this AnalyzePrototypeProperties_SymbolType) compareTo(o any) int32 {
+	return AnalyzePrototypeProperties_SymbolType_enum_[this-1].compareTo(o)
+}
+
+func (this AnalyzePrototypeProperties_SymbolType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func AnalyzePrototypeProperties_SymbolType_values() []*AnalyzePrototypeProperties_SymbolType {
-	return append([]*AnalyzePrototypeProperties_SymbolType(nil), AnalyzePrototypeProperties_SymbolType_values_...)
+func AnalyzePrototypeProperties_SymbolType_values() []AnalyzePrototypeProperties_SymbolType {
+	return append([]AnalyzePrototypeProperties_SymbolType(nil), AnalyzePrototypeProperties_SymbolType_values_...)
 }
 
-func AnalyzePrototypeProperties_SymbolType_valueOf(name string) *AnalyzePrototypeProperties_SymbolType {
+func AnalyzePrototypeProperties_SymbolType_valueOf(name string) AnalyzePrototypeProperties_SymbolType {
 	for _, v := range AnalyzePrototypeProperties_SymbolType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("SymbolType", name))
 }
 
-var AnalyzePrototypeProperties_SymbolType_PROPERTY *AnalyzePrototypeProperties_SymbolType
-var AnalyzePrototypeProperties_SymbolType_VAR *AnalyzePrototypeProperties_SymbolType
-var AnalyzePrototypeProperties_SymbolType_values_ []*AnalyzePrototypeProperties_SymbolType
+const AnalyzePrototypeProperties_SymbolType_PROPERTY AnalyzePrototypeProperties_SymbolType = 1
+const AnalyzePrototypeProperties_SymbolType_VAR AnalyzePrototypeProperties_SymbolType = 2
+
+var AnalyzePrototypeProperties_SymbolType_values_ []AnalyzePrototypeProperties_SymbolType
 
 var AnalyzePrototypeProperties_SymbolType_clinit_done bool
 
@@ -519,9 +536,7 @@ func AnalyzePrototypeProperties_SymbolType_clinit() {
 		return
 	}
 	AnalyzePrototypeProperties_SymbolType_clinit_done = true
-	AnalyzePrototypeProperties_SymbolType_PROPERTY = new_AnalyzePrototypeProperties_SymbolType("PROPERTY", 0)
-	AnalyzePrototypeProperties_SymbolType_VAR = new_AnalyzePrototypeProperties_SymbolType("VAR", 1)
-	AnalyzePrototypeProperties_SymbolType_values_ = []*AnalyzePrototypeProperties_SymbolType{AnalyzePrototypeProperties_SymbolType_PROPERTY, AnalyzePrototypeProperties_SymbolType_VAR}
+	AnalyzePrototypeProperties_SymbolType_values_ = []AnalyzePrototypeProperties_SymbolType{AnalyzePrototypeProperties_SymbolType_PROPERTY, AnalyzePrototypeProperties_SymbolType_VAR}
 	registerEnum_("com.google.javascript.jscomp.AnalyzePrototypeProperties.SymbolType", enumValues_(AnalyzePrototypeProperties_SymbolType_values_))
 
 }

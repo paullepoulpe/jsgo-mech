@@ -55,7 +55,7 @@ func (this *ValueType) visitUntyped_2_impl(visitor RelationshipVisitor, that *JS
 	return visitor.caseValueType(this, that)
 }
 
-func (this *ValueType) getPropertyKind_2_impl(propertyName Property_Key, autobox bool) *JSType_HasPropertyKind {
+func (this *ValueType) getPropertyKind_2_impl(propertyName Property_Key, autobox bool) JSType_HasPropertyKind {
 	if autobox && this.isBoxableScalar() {
 		return this.autoboxesTo().getPropertyKind_2(propertyName, autobox)
 	} else {
@@ -102,7 +102,7 @@ func (this *ValueType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
 }
 
 // getPropertyKind_2: an object that is exactly a ValueType calls its getPropertyKind_2_impl directly (post-flip); others dispatch.
-func (this *ValueType) getPropertyKind_2(p0 Property_Key, p1 bool) *JSType_HasPropertyKind {
+func (this *ValueType) getPropertyKind_2(p0 Property_Key, p1 bool) JSType_HasPropertyKind {
 	if this.self_ == any(this) {
 		return this.getPropertyKind_2_impl(p0, p1)
 	}
