@@ -24,7 +24,7 @@ type Compiler struct {
 	externAndJsRoot                Node
 	lastJsSource                   Optional[string]
 	allowableFeatures              *FeatureSet
-	inputsById                     MapOf[*InputId, *CompilerInput]
+	inputsById                     map[string]*CompilerInput // keyed by InputId.id: InputId.equals compares that string
 	scriptNodeByFilename           MapOf[string, Node]
 	hoistedExternsByChunk          *SimpleSetMultimap[*JSChunk, *CompilerInput]
 	inputPathByWebpackId           *TMap[string, string]
@@ -102,7 +102,7 @@ func (this *Compiler) finit_Compiler() {
 	this.passes = nil
 	this.externs = newTList_(tc_p_CompilerInput)
 	this.lastJsSource = Optional_empty[string]()
-	this.inputsById = Map(new_ConcurrentHashMap())
+	this.inputsById = map[string]*CompilerInput{}
 	this.scriptNodeByFilename = Map(new_ConcurrentHashMap())
 	this.hoistedExternsByChunk = SimpleSetMultimap_createInsertionOrdered[*JSChunk, *CompilerInput]()
 	this.sourceMapOriginalSources = new_ConcurrentHashMap()
@@ -524,7 +524,7 @@ func (this *Compiler) rebuildInputsFromChunks() {
 }
 
 func (this *Compiler) initInputsByIdMap() {
-	this.inputsById.clear()
+	clear(this.inputsById)
 	for input := range this.externs.All() {
 		var previous *CompilerInput = this.putCompilerInput(input)
 		if previous != nil {
@@ -1249,12 +1249,15 @@ func (this *Compiler) getInput_impl(id *InputId) *CompilerInput {
 	if id == nil {
 		return nil
 	}
-	return cast_[*CompilerInput](this.inputsById.get(obj_(id)))
+	return this.inputsById[id.id]
 }
 
 func (this *Compiler) putCompilerInput(input *CompilerInput) *CompilerInput {
 	input.setCompiler(this.up_AbstractCompiler())
-	return cast_[*CompilerInput](this.inputsById.put(obj_(input.getInputId()), obj_(input)))
+	k := input.getInputId().id
+	old := this.inputsById[k]
+	this.inputsById[k] = input
+	return old
 }
 
 func (this *Compiler) getChunkGraph_impl() *JSChunkGraph {
@@ -2291,7 +2294,7 @@ func (this *Compiler) hasErrors() bool {
 
 func (this *Compiler) getSourceFileByName_impl(sourceName Optional[string]) *SourceFile_jscomp {
 	if sourceName.isPresent() {
-		var input *CompilerInput = cast_[*CompilerInput](this.inputsById.get(new_InputId(sourceName.get())))
+		var input *CompilerInput = this.inputsById[new_InputId(sourceName.get()).id]
 		if input != nil {
 			return input.getSourceFile()
 		}
@@ -2431,8 +2434,8 @@ func (this *Compiler) getSourceRegion_impl(sourceName Optional[string], lineNumb
 }
 
 func (this *Compiler) getNodeForCodeInsertion_impl(chunk *JSChunk) Node {
-	if this.inputsById.containsKey(obj_(Compiler_SYNTHETIC_CODE_INPUT_ID)) {
-		return cast_[*CompilerInput](this.inputsById.get(obj_(Compiler_SYNTHETIC_CODE_INPUT_ID))).getAstRoot(this.up_AbstractCompiler())
+	if has_(this.inputsById, Compiler_SYNTHETIC_CODE_INPUT_ID.id) {
+		return this.inputsById[Compiler_SYNTHETIC_CODE_INPUT_ID.id].getAstRoot(this.up_AbstractCompiler())
 	}
 	if chunk == nil {
 		var allInputs IterableOf[*CompilerInput] = this.chunkGraph.getAllInputs()
@@ -2562,10 +2565,6 @@ func (this *Compiler) getNumberOfInputs_impl() int32 {
 	}()
 }
 
-func (this *Compiler) getInputsById() MapOf[*InputId, *CompilerInput] {
-	return Collections_unmodifiableMap(this.inputsById)
-}
-
 func (this *Compiler) getExternsInOrder() *TList[*CompilerInput] {
 	return this.externs
 }
@@ -2640,11 +2639,11 @@ func (this *Compiler) getSyntheticCodeInputId_impl() *InputId {
 }
 
 func (this *Compiler) initializeSyntheticCodeInput_impl() {
-	if this.inputsById.containsKey(obj_(Compiler_SYNTHETIC_CODE_INPUT_ID)) {
+	if has_(this.inputsById, Compiler_SYNTHETIC_CODE_INPUT_ID.id) {
 		panic(new_IllegalStateException_String(objstr_("Already initialized synthetic input")))
 	}
 	var ast *CompilerInput = new_CompilerInput_SourceFile(SourceFile_jscomp_fromCode_String_String(Compiler_SYNTHETIC_CODE_INPUT_ID.getIdName(), ""))
-	if this.inputsById.containsKey(obj_(ast.getInputId())) {
+	if has_(this.inputsById, ast.getInputId().id) {
 		panic(new_IllegalStateException_String("Conflicting synthetic id name"))
 	}
 	this.jsRoot.addChildToFront(Preconditions_checkNotNull_T(ast.getAstRoot(this.up_AbstractCompiler())))
@@ -2667,10 +2666,10 @@ func (this *Compiler) mergeSyntheticCodeInput_impl() {
 }
 
 func (this *Compiler) removeSyntheticCodeInput_1(mergeContentIntoFirstInput bool) {
-	if !this.inputsById.containsKey(obj_(Compiler_SYNTHETIC_CODE_INPUT_ID)) {
+	if !has_(this.inputsById, Compiler_SYNTHETIC_CODE_INPUT_ID.id) {
 		panic(new_IllegalStateException_String(objstr_("Never initialized the synthetic input")))
 	}
-	var input *CompilerInput = cast_[*CompilerInput](this.inputsById.get(obj_(Compiler_SYNTHETIC_CODE_INPUT_ID)))
+	var input *CompilerInput = this.inputsById[Compiler_SYNTHETIC_CODE_INPUT_ID.id]
 	var astRoot Node = input.getAstRoot(this.up_AbstractCompiler())
 	if !astRoot.isFirstChildOf(this.jsRoot) {
 		panic(new_IllegalStateException_0())
@@ -2690,7 +2689,7 @@ func (this *Compiler) removeSyntheticCodeInput_1(mergeContentIntoFirstInput bool
 	astRoot.setDeleted(true)
 	NodeUtil_markFunctionsDeleted(astRoot, this.up_AbstractCompiler())
 	input.getChunk().remove(input)
-	this.inputsById.remove(obj_(input.getInputId()))
+	delete(this.inputsById, input.getInputId().id)
 }
 
 func (this *Compiler) getLastPassName_impl() string {
@@ -3082,7 +3081,7 @@ func (this *Compiler) deserializeCompilerState(state []int8) {
 	this.externAndJsRoot = IR_root([]Node{IR_root([]Node{}), IR_root([]Node{})})
 	this.externsRoot = this.externAndJsRoot.getFirstChild()
 	this.jsRoot = this.externAndJsRoot.getLastChild()
-	this.inputsById.clear()
+	clear(this.inputsById)
 	this.externs.clear()
 	this.colorRegistry = cast_[*ColorRegistry](deserializedAst.getColorRegistry().orNull())
 	this.typedAstFilesystem = deserializedAst.getFilesystem()
