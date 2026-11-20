@@ -376,7 +376,7 @@ func (this *Es6RewriteClass_ClassProperty) getDeclaration(astFactory *AstFactory
 		case Es6RewriteClass_ClassProperty_PropertyKind_NORMAL_PROPERTY:
 			return astFactory.createGetProp(toDeclareOn, this.propertyKey(), AstFactory_typeColor(this.propertyType()))
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 	decl.setJSDocInfo(this.jsDocInfo())
 	decl = astFactory.exprResult(decl)
