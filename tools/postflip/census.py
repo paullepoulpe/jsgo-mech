@@ -2,7 +2,7 @@
 # usage: cd go/closure && python3 ../../tools/postflip/census.py   (the rows of JAVAISMS.md)
 import re,glob,collections
 pats=[
- ("Java collections (erased): constructors", r"\bnew_(ArrayList|LinkedList|ArrayDeque|HashMap|LinkedHashMap|HashSet|LinkedHashSet|TreeMap|TreeSet|IdentityHashMap|LinkedIdentityHashMap|PriorityQueue|EnumMap|EnumSet|BitSet|Stack|Vector)\w*\("),
+ ("Java collections (erased): constructors", r"\bnew_(ArrayList|LinkedList|ArrayDeque|HashMap|LinkedHashMap|HashSet|LinkedHashSet|TreeMap|TreeSet|IdentityHashMap|LinkedIdentityHashMap|PriorityQueue|EnumMap|EnumSet|BitSet|Stack|Vector)(?!OverflowError)\w*\("),
  ("Java collections: typed TList/TMap/TSet constructors", r"\bnew(TList|TMap|TSet)\w*_?\("),
  ("Guava immutable collections / builders", r"\b(Immutable\w+_(of|copyOf|builder)\w*|new_Immutable\w+|immList_|immSet_|immMap_)\("),
  ("native Go slices made", r"\bmake\(\[\]"),
