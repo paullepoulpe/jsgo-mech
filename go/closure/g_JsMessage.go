@@ -69,7 +69,7 @@ func (this *JsMessage) getGenderedMessageParts(genderCase JsMessage_GrammaticalG
 }
 
 func (this *JsMessage) getGenderedMessageVariants() *JTList[JsMessage_GrammaticalGenderCase] {
-	return jtlistImm_(jtc_p_JsMessage_GrammaticalGenderCase, cast_[*ImmutableSet](this.getGenderedMessagesMap().asImm().keySet()).asList())
+	return jtlistImm_(jtc_p_JsMessage_GrammaticalGenderCase, this.getGenderedMessagesMap().asImm().keySet().(*ImmutableSet).asList())
 }
 
 func (this *JsMessage) asJsMessageString() string {

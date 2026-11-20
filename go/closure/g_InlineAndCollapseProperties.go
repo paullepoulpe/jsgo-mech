@@ -1314,7 +1314,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) moveDeclarationIntoH
 	if !varNode.isVar() {
 		Preconditions_checkState_boolean_String_Object_H(false, "Unexpected declaration %s", varNode)
 	}
-	var newRoot Node = cast_[*CompilerInput](commonAncestor.getInputs().get(0)).getAstRoot(this.outer_.compiler_)
+	var newRoot Node = commonAncestor.getInputs().get(0).(*CompilerInput).getAstRoot(this.outer_.compiler_)
 	if initializer == 0 {
 		newRoot.addChildToFront(varNode.detach())
 	} else {
