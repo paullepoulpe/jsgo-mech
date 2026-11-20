@@ -8,11 +8,6 @@ type StandardUnionFind[E comparable] struct {
 
 func (this *StandardUnionFind[E]) isa_StandardUnionFind_() {}
 
-func is_StandardUnionFind(v any) bool {
-	_, ok := v.(interface{ isa_StandardUnionFind_() })
-	return ok
-}
-
 func (this *StandardUnionFind[E]) finit_StandardUnionFind() {
 	this.elmap = jnewTMap_(tceT_[E](), tc_p_StandardUnionFind_Node_E_[E]())
 }
@@ -155,11 +150,6 @@ type StandardUnionFind_Node[E comparable] struct {
 
 func (this *StandardUnionFind_Node[E]) isa_StandardUnionFind_Node_() {}
 
-func is_StandardUnionFind_Node(v any) bool {
-	_, ok := v.(interface{ isa_StandardUnionFind_Node_() })
-	return ok
-}
-
 func (this *StandardUnionFind_Node[E]) zero_StandardUnionFind_Node() {
 	this.element = jnull_[E]()
 }
@@ -189,11 +179,6 @@ type StandardUnionFind_1[E comparable] struct {
 }
 
 func (this *StandardUnionFind_1[E]) isa_StandardUnionFind_1_() {}
-
-func is_StandardUnionFind_1(v any) bool {
-	_, ok := v.(interface{ isa_StandardUnionFind_1_() })
-	return ok
-}
 
 func (this *StandardUnionFind_1[E]) finit_StandardUnionFind_1() {
 	this.nodeForValue = this.outer_.elmap.get(this.cap_value)
@@ -235,11 +220,6 @@ type StandardUnionFind_2[E comparable] struct {
 }
 
 func (this *StandardUnionFind_2[E]) isa_StandardUnionFind_2_() {}
-
-func is_StandardUnionFind_2(v any) bool {
-	_, ok := v.(interface{ isa_StandardUnionFind_2_() })
-	return ok
-}
 
 func (this *StandardUnionFind_2[E]) up_AbstractSet() *AbstractSet {
 	if this == nil {

@@ -14,18 +14,19 @@ type WarningsGuard_I interface {
 	mustRunChecks_impl(*DiagnosticGroup) Tri
 }
 
+// WarningsGuard_as is implemented by WarningsGuard and the classes that extend it: a cast to WarningsGuard asserts to it
+// (post-flip).
+type WarningsGuard_as interface {
+	as_WarningsGuard() *WarningsGuard
+}
+
 func (this *WarningsGuard) as_WarningsGuard() *WarningsGuard { return this }
 
 func to_WarningsGuard(v any) *WarningsGuard {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_WarningsGuard() *WarningsGuard }).as_WarningsGuard()
-}
-
-func is_WarningsGuard(v any) bool {
-	_, ok := v.(interface{ as_WarningsGuard() *WarningsGuard })
-	return ok
+	return v.(WarningsGuard_as).as_WarningsGuard()
 }
 
 func (this *WarningsGuard) self() any {
