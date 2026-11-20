@@ -55,10 +55,10 @@ func (this *LateEs6ToEs3Converter) visit(t *NodeTraversal, n Node, parent Node) 
 			var qName *QualifiedName = QualifiedName_of("$jscomp.createTemplateTagFirstArgWithRaw")
 			if qName.matches(lhs) {
 				if n.getParent() == 0 {
-					panic(new_NullPointerException_String(tostr_(n)).self())
+					panic(new_NullPointerException_String(tostr_(n)))
 				}
 				if !n.getParent().isExprResult() {
-					panic(new_IllegalStateException_String(tostr_(n)).self())
+					panic(new_IllegalStateException_String(tostr_(n)))
 				}
 				this.templateLitInsertionPoint = n.getParent().getNext()
 			}
@@ -103,7 +103,7 @@ func (this *LateEs6ToEs3Converter) visitObject(t *NodeTraversal, obj Node) {
 
 func (this *LateEs6ToEs3Converter) visitObjectWithComputedProperty(t *NodeTraversal, obj Node) {
 	if !obj.isObjectLit() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var props ListOf[Node] = new_ArrayList_0()
 	var currElement Node = obj.getFirstChild()

@@ -17,7 +17,7 @@ func (this *ExportTestFunctions) zero_ExportTestFunctions() {
 
 func (this *ExportTestFunctions) init_ExportTestFunctions(compiler *AbstractCompiler, exportSymbolFunction string, exportPropertyFunction string) {
 	if compiler == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.compiler_ = compiler
 	this.exportSymbolFunction = exportSymbolFunction
@@ -50,7 +50,7 @@ func (this *ExportTestFunctions) exportTestFunctionAsSymbol(testFunctionName str
 
 func (this *ExportTestFunctions) exportTestFunctionAsProperty(fullyQualifiedFunctionName Node, node Node) {
 	if !fullyQualifiedFunctionName.isGetProp() {
-		panic(new_IllegalStateException_String(tostr_(fullyQualifiedFunctionName)).self())
+		panic(new_IllegalStateException_String(tostr_(fullyQualifiedFunctionName)))
 	}
 	var testFunctionName string = NodeUtil_getPrototypePropertyName(node.getFirstChild())
 	if strings.HasPrefix(node.getFirstChild().getQualifiedName(), "window.") {

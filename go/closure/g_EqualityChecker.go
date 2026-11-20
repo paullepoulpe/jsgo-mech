@@ -27,7 +27,7 @@ func new_EqualityChecker() *EqualityChecker {
 func (this *EqualityChecker) setEqMethod(x EqualityChecker_EqMethod) *EqualityChecker {
 	this.checkHasNotRun()
 	if this.eqMethod != 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.eqMethod = x
 	return this
@@ -35,7 +35,7 @@ func (this *EqualityChecker) setEqMethod(x EqualityChecker_EqMethod) *EqualityCh
 
 func (this *EqualityChecker) checkHasNotRun() {
 	if this.hasRun {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 }
 
@@ -152,7 +152,7 @@ func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool 
 		var leftUnwrapped *ObjectType = EqualityChecker_unwrapNominalTypeProxies(left.toObjectType())
 		var rightUnwrapped *ObjectType = EqualityChecker_unwrapNominalTypeProxies(right.toObjectType())
 		if !leftUnwrapped.isNominalType() || !rightUnwrapped.isNominalType() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		if left.isResolved() && right.isResolved() {
 			return JSCompObjects_identical(leftUnwrapped.self(), rightUnwrapped.self())
@@ -247,7 +247,7 @@ func (this *EqualityChecker) areFunctionEqual(left *FunctionType, right *Functio
 		case FunctionType_Kind_ORDINARY:
 			return ((this.areEqualCaching(left.getTypeOfThis(), right.getTypeOfThis()) && this.areEqualCaching(left.getInternalArrowType().up_JSType(), right.getInternalArrowType().up_JSType())) && (left.getClosurePrimitive() == right.getClosurePrimitive()))
 		default:
-			panic(new_AssertionError_0().self())
+			panic(new_AssertionError_0())
 		}
 	}()
 }

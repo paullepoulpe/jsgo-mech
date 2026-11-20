@@ -29,19 +29,19 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[Map] {
 	var mapping *JTMap[string, *InstrumentationPoint] = jnewTMap_(jtc_string, jtc_p_InstrumentationPoint)
 	var linesOfFile *JTList[string] = splitToListT_(jtc_string, Splitter_on('\n').omitEmptyStrings(), strobj_(mappingFileContent))
 	if ok_, a1_ := (linesOfFile.size() >= 3), linesOfFile.asList(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Malformed report %s", []any{a1_})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Malformed report %s", []any{a1_})))
 	}
 	var fileNamesLine string = strings.Trim(linesOfFile.get(0), javaSpace_)
 	var functionNamesLine string = strings.Trim(linesOfFile.get(1), javaSpace_)
 	var typesLine string = strings.Trim(linesOfFile.get(2), javaSpace_)
 	if !strings.HasPrefix(fileNamesLine, "FileNames:") {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !strings.HasPrefix(functionNamesLine, "FunctionNames:") {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !strings.HasPrefix(typesLine, "Types:") {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var fileNamesAsJsonArray string = String_substring_int(fileNamesLine, (String_indexOf_String(fileNamesLine, ":") + 1))
 	var functionNamesAsJsonArray string = String_substring_int(functionNamesLine, (String_indexOf_String(functionNamesLine, ":") + 1))

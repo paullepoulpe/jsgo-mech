@@ -52,7 +52,7 @@ func (this *Denormalize) afterExitScope(t *NodeTraversal, referenceMap Reference
 					assignNode.getParent().replaceWith(IR_var_Node_Node(lhs.detach(), rhs.detach()))
 					var var_ Node = declaration.getNode().getParent()
 					if !var_.isVar() {
-						panic(new_IllegalStateException_String(tostr_(var_)).self())
+						panic(new_IllegalStateException_String(tostr_(var_)))
 					}
 					NodeUtil_removeChild(var_, declaration.getNode())
 					changed = true
@@ -104,7 +104,7 @@ func (this *Denormalize) maybeCollapseIntoForStatements(n Node, parent Node) {
 			newInitializer = n
 		} else {
 			if !n.hasOneChild() {
-				panic(new_IllegalStateException_String(tostr_(n)).self())
+				panic(new_IllegalStateException_String(tostr_(n)))
 			}
 			newInitializer = n.getFirstChild()
 			newInitializer.detach()
@@ -187,7 +187,7 @@ func (this *Denormalize) getAssignOpFromOp(n Node) Token_rhino {
 		case tokOrd1_COALESCE:
 			return Token_rhino_ASSIGN_COALESCE
 		default:
-			panic(new_IllegalStateException_String(("Unexpected operator: " + tostrH_(n))).self())
+			panic(new_IllegalStateException_String(("Unexpected operator: " + tostrH_(n))))
 		}
 	}()
 }

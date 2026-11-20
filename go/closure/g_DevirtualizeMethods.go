@@ -19,7 +19,7 @@ func new_DevirtualizeMethods(compiler *AbstractCompiler) *DevirtualizeMethods {
 
 func (this *DevirtualizeMethods) process_3(externs Node, root Node, refMap *OptimizeCalls_ReferenceMap) {
 	if this.refMap != nil {
-		panic(new_IllegalStateException_String(objstr_("`process` should only be called once.")).self())
+		panic(new_IllegalStateException_String(objstr_("`process` should only be called once.")))
 	}
 	this.refMap = refMap
 	for referenceGroup := range elemsBy_(refMap.getPropReferences(), icast_Map_Entry) {
@@ -92,7 +92,7 @@ func (this *DevirtualizeMethods) isPrototypeOrStaticMethodDefinition(node Node) 
 			return false
 		case tokOrd1_STRING_KEY:
 			if !parent.isObjectLit() {
-				panic(new_IllegalArgumentException_String(tostr_(parent)).self())
+				panic(new_IllegalArgumentException_String(tostr_(parent)))
 			}
 			return (DevirtualizeMethods_isPrototypeObjectLit(parent) && node.getFirstChild().isFunction())
 		default:
@@ -103,7 +103,7 @@ func (this *DevirtualizeMethods) isPrototypeOrStaticMethodDefinition(node Node) 
 
 func DevirtualizeMethods_isPrototypeObjectLit(objectLit Node) bool {
 	if !objectLit.isObjectLit() {
-		panic(new_IllegalArgumentException_String(tostr_(objectLit)).self())
+		panic(new_IllegalArgumentException_String(tostr_(objectLit)))
 	}
 	var parent Node = objectLit.getParent()
 	return (objectLit.isSecondChildOf(parent) && NodeUtil_isPrototypeAssignment(parent.getFirstChild()))
@@ -167,7 +167,7 @@ func (this *DevirtualizeMethods) isEligibleDefinitionSite(name string, definitio
 	switch definitionSite.ns_().token {
 	case tokOrd1_GETPROP, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_STRING_KEY, tokOrd1_MEMBER_FIELD_DEF:
 	default:
-		panic(new_IllegalArgumentException_String(definitionSite.toString()).self())
+		panic(new_IllegalArgumentException_String(definitionSite.toString()))
 	}
 	var codingConvention CodingConvention = this.compiler_.getCodingConvention()
 	if codingConvention.isExported_2(name, false) {
@@ -181,7 +181,7 @@ func (this *DevirtualizeMethods) isEligibleDefinitionSite(name string, definitio
 
 func (this *DevirtualizeMethods) isEligibleDefinitionFunction(definitionFunction Node) bool {
 	if !definitionFunction.isFunction() {
-		panic(new_IllegalArgumentException_String(tostr_(definitionFunction)).self())
+		panic(new_IllegalArgumentException_String(tostr_(definitionFunction)))
 	}
 	if definitionFunction.isArrowFunction() {
 		return false
@@ -229,7 +229,7 @@ func (this *DevirtualizeMethods) allDefinitionsEquivalent(definitions Collection
 	}
 	var definition Node = Node_of_(Iterables_get(Iterable(definitions), 0))
 	if !definition.isFunction() {
-		panic(new_IllegalArgumentException_String(tostr_(definition)).self())
+		panic(new_IllegalArgumentException_String(tostr_(definition)))
 	}
 	it_1 := foreach_(definitions)
 	for it_1.next() {
@@ -243,11 +243,11 @@ func (this *DevirtualizeMethods) allDefinitionsEquivalent(definitions Collection
 
 func (this *DevirtualizeMethods) rewriteCall(getprop Node, newMethodName string, isConstantName bool) {
 	if !getprop.isGetProp() {
-		panic(new_IllegalArgumentException_String(tostr_(getprop)).self())
+		panic(new_IllegalArgumentException_String(tostr_(getprop)))
 	}
 	var call Node = getprop.getParent()
 	if !call.isCall() {
-		panic(new_IllegalArgumentException_String(tostr_(call)).self())
+		panic(new_IllegalArgumentException_String(tostr_(call)))
 	}
 	var receiver Node = getprop.getFirstChild()
 	receiver.detach()
@@ -278,7 +278,7 @@ func (this *DevirtualizeMethods) rewriteDefinition(definitionSite Node, newMetho
 		nameSource = definitionSite
 		subtreeToRemove = definitionSite
 	default:
-		panic(new_IllegalArgumentException_String(definitionSite.toString()).self())
+		panic(new_IllegalArgumentException_String(definitionSite.toString()))
 	}
 	var statement Node = NodeUtil_getEnclosingStatement(definitionSite)
 	var newNameNode Node = IR_name(newMethodName).srcrefIfMissing(nameSource)
@@ -350,7 +350,7 @@ func DevirtualizeMethods_isScopingOrBranchingConstruct(node Node) bool {
 
 func DevirtualizeMethods_localNameIsDeclaredByClass(clazz Node) bool {
 	if !clazz.isClass() {
-		panic(new_IllegalArgumentException_String(tostr_(clazz)).self())
+		panic(new_IllegalArgumentException_String(tostr_(clazz)))
 	}
 	if clazz.getFirstChild().isEmpty() {
 		return false

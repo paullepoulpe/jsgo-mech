@@ -30,7 +30,7 @@ func Normalize_builder(compiler *AbstractCompiler) *Normalize_Builder {
 
 func (this *Normalize) reportCodeChange(changeDescription string, n Node) {
 	if this.assertOnChange_ {
-		panic(new_IllegalStateException_String(("Normalize constraints violated:\n" + sstr_(changeDescription))).self())
+		panic(new_IllegalStateException_String(("Normalize constraints violated:\n" + sstr_(changeDescription))))
 	}
 	this.compiler_.reportChangeToEnclosingScope(n)
 }
@@ -128,7 +128,7 @@ func (this *Normalize_PropagateConstantPropertyOverVars) visit(t *NodeTraversal,
 	if shouldBeConstant && !isMarkedConstant {
 		if this.assertOnChange_ {
 			var name string = n.getString()
-			panic(new_IllegalStateException_String(("Should be const but not marked as const.\n  name: " + sstr_(name) + "\n  parent:" + sstr_(n.getParent().toStringTree()))).self())
+			panic(new_IllegalStateException_String(("Should be const but not marked as const.\n  name: " + sstr_(name) + "\n  parent:" + sstr_(n.getParent().toStringTree()))))
 		}
 		n.putBooleanProp(Node_IS_CONSTANT_NAME, true)
 	}
@@ -158,7 +158,7 @@ func new_Normalize_NormalizeStatements(compiler *AbstractCompiler, assertOnChang
 
 func (this *Normalize_NormalizeStatements) reportCodeChange(changeDescription string, n Node) {
 	if this.assertOnChange_ {
-		panic(new_IllegalStateException_String(("Normalize constraints violated:\n" + sstr_(changeDescription))).self())
+		panic(new_IllegalStateException_String(("Normalize constraints violated:\n" + sstr_(changeDescription))))
 	}
 	this.compiler_.reportChangeToEnclosingScope(n)
 }
@@ -183,7 +183,7 @@ func (this *Normalize_NormalizeStatements) shouldTraverse(t *NodeTraversal, n No
 	var oldParent Node = n.getParent()
 	this.doStatementNormalizations(n)
 	if n.getParent() != oldParent {
-		panic(new_IllegalStateException_String(objstr_("n's parent changed during normalization. It needs to stay the same so that we properly visit any added nodes.")).self())
+		panic(new_IllegalStateException_String(objstr_("n's parent changed during normalization. It needs to stay the same so that we properly visit any added nodes.")))
 	}
 	return true
 }
@@ -216,14 +216,14 @@ func (this *Normalize_NormalizeStatements) visit(t *NodeTraversal, n Node, paren
 
 func (this *Normalize_NormalizeStatements) annotateConstantsByConvention(n Node) {
 	if !n.isName() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if this.compiler_.getLifeCycleStage().isNormalizedObfuscated() {
 		return
 	}
 	if !n.getBooleanProp(Node_IS_CONSTANT_NAME) && NodeUtil_isConstantByConvention(this.compiler_.getCodingConvention(), n) {
 		if this.assertOnChange_ {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Not marked as constant when it should be: %s", []any{n.box_()})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Not marked as constant when it should be: %s", []any{n.box_()})))
 		}
 		n.putBooleanProp(Node_IS_CONSTANT_NAME, true)
 	}
@@ -231,7 +231,7 @@ func (this *Normalize_NormalizeStatements) annotateConstantsByConvention(n Node)
 
 func (this *Normalize_NormalizeStatements) annotateFunctionExpressionNameAsConstant(n Node) {
 	if ok_, a1_ := n.isName(), tostrR_(n.getToken()); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected NAME node but got %s", []any{a1_})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected NAME node but got %s", []any{a1_})))
 	}
 	if Normalize_isFunctionExpressionNameNode(n) {
 		n.putBooleanProp(Node_IS_CONSTANT_NAME, true)
@@ -288,7 +288,7 @@ func (this *Normalize_NormalizeStatements) addNameNodeToExportSpecs(exportSpecs 
 
 func (this *Normalize_NormalizeStatements) normalizeBlocklessFunction(n Node) {
 	if !n.isFunction() {
-		panic(new_IllegalStateException_String(tostr_(n)).self())
+		panic(new_IllegalStateException_String(tostr_(n)))
 	}
 	if !NodeUtil_getFunctionBody(n).isBlock() {
 		var returnValue Node = NodeUtil_getFunctionBody(n)
@@ -336,12 +336,12 @@ func (this *Normalize_NormalizeStatements) isVarDestructuringDeclaration(n Node)
 
 func (this *Normalize_NormalizeStatements) rewriteVarDestructuringDeclaration(destructuringLhs Node) {
 	if destructuringLhs.getGrandparent().isExport() {
-		panic(new_IllegalStateException_String(objstr_("Export destructuring declarations should be already handled in `splitExportDeclaration` during pre-order traversal.")).self())
+		panic(new_IllegalStateException_String(objstr_("Export destructuring declarations should be already handled in `splitExportDeclaration` during pre-order traversal.")))
 	}
 	var var_ Node = destructuringLhs.getParent()
 	NodeUtil_visitLhsNodesInNode(destructuringLhs, (&Consumer_tfn_Node{func(name Node) {
 		if !name.isName() {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("lhs in destructuring declaration should be a simple name. (%s)", []any{name.box_()})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("lhs in destructuring declaration should be a simple name. (%s)", []any{name.box_()})))
 		}
 		var newName Node = IR_name(name.getString()).srcref(name)
 		if name.getBooleanProp(Node_IS_CONSTANT_NAME) {
@@ -352,7 +352,7 @@ func (this *Normalize_NormalizeStatements) rewriteVarDestructuringDeclaration(de
 	}}).accept)
 	var destructuringPattern Node = destructuringLhs.removeFirstChild()
 	if !destructuringPattern.isDestructuringPattern() {
-		panic(new_IllegalStateException_String(objstr_("Expected destructuring pattern.")).self())
+		panic(new_IllegalStateException_String(objstr_("Expected destructuring pattern.")))
 	}
 	var rhs Node = destructuringLhs.removeFirstChild()
 	var assign Node = this.astFactory_.createAssign(destructuringPattern, rhs)
@@ -366,7 +366,7 @@ func (this *Normalize_NormalizeStatements) rewriteVarDestructuringDeclaration(de
 
 func (this *Normalize_NormalizeStatements) normalizeLabels(n Node) {
 	if !n.isLabel() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var last Node = n.getLastChild()
 	switch last.ns_().token {
@@ -411,7 +411,7 @@ func (this *Normalize_NormalizeStatements) extractForInitializer(n Node, before 
 					if lhs.isDestructuringLhs() {
 						NodeUtil_visitLhsNodesInNode(lhs, (&Consumer_tfn_Node{func(name Node) {
 							if !name.isName() {
-								panic(new_IllegalStateException_String(Strings_lenientFormat("lhs in destructuring declaration should be a simple name. (%s)", []any{name.box_()})).self())
+								panic(new_IllegalStateException_String(Strings_lenientFormat("lhs in destructuring declaration should be a simple name. (%s)", []any{name.box_()})))
 							}
 							var newName Node = IR_name(name.getString()).srcref(name)
 							var newVar Node = IR_var_Node(newName).srcref(name)
@@ -459,7 +459,7 @@ func (this *Normalize_NormalizeStatements) splitVarDeclarations(n Node) {
 			next = c.getNext()
 			if NodeUtil_isNameDeclaration(c) {
 				if this.assertOnChange_ && !c.hasChildren() {
-					panic(new_IllegalStateException_String("Empty VAR node.").self())
+					panic(new_IllegalStateException_String("Empty VAR node."))
 				}
 				for c.getFirstChild() != c.getLastChild() {
 					var name Node = c.getFirstChild()
@@ -475,7 +475,7 @@ func (this *Normalize_NormalizeStatements) splitVarDeclarations(n Node) {
 
 func (this *Normalize_NormalizeStatements) moveNamedFunctions(body Node) {
 	if !body.getParent().isFunction() && !NodeUtil_isClassStaticBlock(body) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var insertAfter Node = 0
 	var current Node = body.getFirstChild()
@@ -499,7 +499,7 @@ func (this *Normalize_NormalizeStatements) normalizeAssignShorthand(shorthand No
 		return
 	}
 	if !shorthand.hasTwoChildren() {
-		panic(new_IllegalArgumentException_String(objstr_("Expected two children for shorthand assignment.")).self())
+		panic(new_IllegalArgumentException_String(objstr_("Expected two children for shorthand assignment.")))
 	}
 	var lhs Node = shorthand.getFirstChild()
 	var rhs Node = shorthand.getSecondChild()
@@ -545,7 +545,7 @@ func new_Normalize_DuplicateDeclarationHandler(outer_ *Normalize) *Normalize_Dup
 
 func (this *Normalize_DuplicateDeclarationHandler) onRedeclaration(s *Scope, name string, n Node, input *CompilerInput) {
 	if !n.isName() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var parent Node = n.getParent()
 	var v *Var = s.getVar_String_rVar(name)
@@ -564,7 +564,7 @@ func (this *Normalize_DuplicateDeclarationHandler) onRedeclaration(s *Scope, nam
 		}
 	} else if parent.isVar() {
 		if !parent.hasOneChild() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		this.replaceVarWithAssignment(n, parent, parent.getParent())
 	}
@@ -583,7 +583,7 @@ func (this *Normalize_DuplicateDeclarationHandler) replaceVarWithAssignment(n No
 		this.outer_.reportCodeChange("Duplicate VAR declaration", statement)
 	} else {
 		if !NodeUtil_isStatementBlock(grandparent) {
-			panic(new_IllegalStateException_String(tostr_(grandparent)).self())
+			panic(new_IllegalStateException_String(tostr_(grandparent)))
 		}
 		parent.detach()
 		this.outer_.reportCodeChange("Duplicate VAR declaration", grandparent)

@@ -38,7 +38,7 @@ func (this *SimpleListMultimap[K, V]) immutableCopy() *SimpleListMultimap[K, V] 
 func (this *SimpleListMultimap[K, V]) put(key K, value V) *SimpleListMultimap[K, V] {
 	keyBox_ := boxNull_(key)
 	if this.frozen {
-		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
 	var values ListOf[any] = icast_List(this.map__.get(keyBox_))
 	if values == nil {
@@ -52,7 +52,7 @@ func (this *SimpleListMultimap[K, V]) put(key K, value V) *SimpleListMultimap[K,
 // put_s is put for a string key that is not boxed (post-flip step strvar).
 func (this *SimpleListMultimap[K, V]) put_s(key string, value V) *SimpleListMultimap[K, V] {
 	if this.frozen {
-		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
 	var values ListOf[any] = icast_List(Map_get_s(this.map__, key))
 	if values == nil {
@@ -81,7 +81,7 @@ func (this *SimpleListMultimap[K, V]) putAll_s(key string, values IterableOf[any
 func (this *SimpleListMultimap[K, V]) replaceValues(key K, values IterableOf[any]) {
 	keyBox_ := boxNull_(key)
 	if this.frozen {
-		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
 	var newValues *JTList[any] = jnewTList_(tc_Object)
 	Iterables_addAll(Collection(newValues.asList()), values)
@@ -95,7 +95,7 @@ func (this *SimpleListMultimap[K, V]) replaceValues(key K, values IterableOf[any
 // replaceValues_s is replaceValues for a string key that is not boxed (post-flip step strvar).
 func (this *SimpleListMultimap[K, V]) replaceValues_s(key string, values IterableOf[any]) {
 	if this.frozen {
-		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
 	var newValues *JTList[any] = jnewTList_(tc_Object)
 	Iterables_addAll(Collection(newValues.asList()), values)
@@ -138,7 +138,7 @@ func (this *SimpleListMultimap[K, V]) containsKey_s(key string) bool {
 
 func (this *SimpleListMultimap[K, V]) remove(key any, value any) bool {
 	if this.frozen {
-		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
 	var values ListOf[any] = icast_List(this.map__.get(key))
 	if (values == nil) || !values.remove_Object(value) {
@@ -153,7 +153,7 @@ func (this *SimpleListMultimap[K, V]) remove(key any, value any) bool {
 // remove_s is remove for a string key that is not boxed (post-flip step strvar).
 func (this *SimpleListMultimap[K, V]) remove_s(key string, value any) bool {
 	if this.frozen {
-		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
 	var values ListOf[any] = icast_List(Map_get_s(this.map__, key))
 	if (values == nil) || !values.remove_Object(value) {
@@ -167,7 +167,7 @@ func (this *SimpleListMultimap[K, V]) remove_s(key string, value any) bool {
 
 func (this *SimpleListMultimap[K, V]) removeAll(key any) ListOf[any] {
 	if this.frozen {
-		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
 	var values ListOf[any] = icast_List(this.map__.remove(key))
 	return func() List {

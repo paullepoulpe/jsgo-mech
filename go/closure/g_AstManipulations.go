@@ -17,10 +17,10 @@ func new_AstManipulations() *AstManipulations {
 
 func AstManipulations_fuseExpressions(exp1 Node, exp2 Node) Node {
 	if exp1.getParent() != 0 {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected detached node, got %s", []any{exp1.box_()})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected detached node, got %s", []any{exp1.box_()})))
 	}
 	if exp2.getParent() != 0 {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected detached node, got %s", []any{exp2.box_()})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected detached node, got %s", []any{exp2.box_()})))
 	}
 	if exp2.isEmpty() {
 		return exp1

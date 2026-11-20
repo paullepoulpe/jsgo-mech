@@ -183,7 +183,7 @@ func (this ProcessTweaks_TweakFunction) isValidNodeType(type_ Token_rhino) bool 
 
 func (this ProcessTweaks_TweakFunction) isCorrectRegisterFunction(registerFunction ProcessTweaks_TweakFunction) bool {
 	if registerFunction == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	return (ProcessTweaks_TweakFunction_registerFunction_[this-1] == registerFunction)
 }
@@ -210,7 +210,7 @@ func (this ProcessTweaks_TweakFunction) createDefaultValueNode() Node {
 		case ProcessTweaks_TweakFunction_REGISTER_STRING:
 			return IR_string("")
 		default:
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	}()
 }
@@ -434,7 +434,7 @@ func (this *ProcessTweaks_TweakInfo) isRegistered() bool {
 
 func (this *ProcessTweaks_TweakInfo) getDefaultValueNode() Node {
 	if !this.isRegistered() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if this.defaultValueNode != 0 {
 		return this.defaultValueNode

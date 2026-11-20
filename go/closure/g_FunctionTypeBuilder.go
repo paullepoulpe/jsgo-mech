@@ -67,7 +67,7 @@ func (this *FunctionTypeBuilder) finit_FunctionTypeBuilder() {
 func (this *FunctionTypeBuilder) init_FunctionTypeBuilder(fnName Optional[string], compiler *AbstractCompiler, errorRoot Node, scope *TypedScope) {
 	this.finit_FunctionTypeBuilder()
 	if errorRoot == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.fnName = fnName.orElse("")
 	this.codingConvention = compiler.getCodingConvention()
@@ -355,7 +355,7 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 			} else if param.isDefaultValue() {
 				paramLhs = param.getFirstChild()
 				if paramLhs == 0 {
-					panic(new_NullPointerException_String(tostr_(param)).self())
+					panic(new_NullPointerException_String(tostr_(param)))
 				}
 				isOptionalParam = true
 			} else {
@@ -368,7 +368,7 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 				paramName = Optional_of[string](paramLhs.getString())
 			} else {
 				if !paramLhs.isDestructuringPattern() {
-					panic(new_IllegalStateException_0().self())
+					panic(new_IllegalStateException_0())
 				}
 				if info != nil {
 					paramName = info.getParameterNameAt(paramIndex)
@@ -610,11 +610,11 @@ func (this *FunctionTypeBuilder) buildAndRegister() *FunctionType {
 	if this.returnType == nil {
 		this.provideDefaultReturnType()
 		if this.returnType == nil {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 	}
 	if this.parameters == nil {
-		panic(new_IllegalStateException_String("All Function types must have params and a return type").self())
+		panic(new_IllegalStateException_String("All Function types must have params and a return type"))
 	}
 	var fnType *FunctionType
 	if this.isConstructor_ {
@@ -722,7 +722,7 @@ func FunctionTypeBuilder_isFunctionTypeDeclaration(info *JSDocInfo) bool {
 
 func FunctionTypeBuilder_hasMoreTagsToResolve(objectType *ObjectType) bool {
 	if !objectType.isUnknownType() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var ctor *FunctionType = objectType.getConstructor()
 	if ctor != nil {

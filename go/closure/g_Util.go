@@ -77,7 +77,7 @@ func Util_appendHexJavaScriptRepresentation(sb *StringBuilder, c uint16) {
 				ex_ := catch_(r_)
 				if p, ok := ex_.(IOException_as); ok {
 					var ex *IOException = p.as_IOException()
-					panic(new_RuntimeException_Throwable(ex.up_Throwable()).self())
+					panic(new_RuntimeException_Throwable(ex.up_Throwable()))
 				}
 				panic(r_)
 			}
@@ -147,7 +147,7 @@ func (this *Util_1UnescapedRegion) incrementForNormalChar() {
 
 func (this *Util_1UnescapedRegion) incrementForEscapedChar() {
 	if this.unescapedRegionStart != this.unescapedRegionEnd {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.unescapedRegionStart++
 	this.unescapedRegionEnd++

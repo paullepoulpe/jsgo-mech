@@ -73,29 +73,29 @@ func (this *ChangeVerifier) verifyDeletedScopeNodes(passNameMsg string, deletedS
 		if currentNode.isDeleted() {
 			continue
 		}
-		panic(new_IllegalStateException_String((sstr_(passNameMsg) + "deleted scope was not reported:\n" + sstr_(currentNode.toStringTree()))).self())
+		panic(new_IllegalStateException_String((sstr_(passNameMsg) + "deleted scope was not reported:\n" + sstr_(currentNode.toStringTree()))))
 	}
 }
 
 func (this *ChangeVerifier) verifyNode(passNameMsg string, n Node) {
 	if n.isDeleted() {
-		panic(new_IllegalStateException_String((sstr_(passNameMsg) + "existing scope is improperly marked as deleted:\n" + sstr_(n.toStringTree()))).self())
+		panic(new_IllegalStateException_String((sstr_(passNameMsg) + "existing scope is improperly marked as deleted:\n" + sstr_(n.toStringTree()))))
 	}
 }
 
 func (this *ChangeVerifier) verifyNewNode(passNameMsg string, n Node) {
 	var changeTime int32 = n.getChangeTime()
 	if (changeTime == 0) || (changeTime < this.snapshotChange) {
-		panic(new_IllegalStateException_String((sstr_(passNameMsg) + "new scope not explicitly marked as changed:\n" + sstr_(n.toStringTree()))).self())
+		panic(new_IllegalStateException_String((sstr_(passNameMsg) + "new scope not explicitly marked as changed:\n" + sstr_(n.toStringTree()))))
 	}
 }
 
 func (this *ChangeVerifier) verifyRoot(root Node) {
 	if !root.isRoot() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if root.getChangeTime() != 0 {
-		panic(new_IllegalStateException_String("Root nodes should never be marked as changed.").self())
+		panic(new_IllegalStateException_String("Root nodes should never be marked as changed."))
 	}
 }
 
@@ -106,11 +106,11 @@ func (this *ChangeVerifier) verifyNodeChange(passNameMsg string, n Node, snapsho
 	var result *ChangeVerifier_EqualsResult = ChangeVerifier_getInequivalenceReasonExcludingFunctions(n, snapshot)
 	if n.getChangeTime() > snapshot.getChangeTime() {
 		if result.equals_0() {
-			panic(new_IllegalStateException_String((sstr_(passNameMsg) + "unchanged scope marked as changed: " + sstr_(this.getNameForNode(n)))).self())
+			panic(new_IllegalStateException_String((sstr_(passNameMsg) + "unchanged scope marked as changed: " + sstr_(this.getNameForNode(n)))))
 		}
 	} else {
 		if !result.equals_0() {
-			panic(new_IllegalStateException_String(String_format("\"%schanged scope not marked as changed: %s.\n%s\nAncestor nodes:\n%s\n", []any{strobj_(passNameMsg), strobj_(this.getNameForNode(n)), result.errorMessage_.get(), strobj_(this.path(n, result.errorNode()))})).self())
+			panic(new_IllegalStateException_String(String_format("\"%schanged scope not marked as changed: %s.\n%s\nAncestor nodes:\n%s\n", []any{strobj_(passNameMsg), strobj_(this.getNameForNode(n)), result.errorMessage_.get(), strobj_(this.path(n, result.errorNode()))})))
 		}
 	}
 }
@@ -128,7 +128,7 @@ func (this *ChangeVerifier) getNameForNode(n Node) string {
 			}
 			return ("FUNCTION: " + sstr_(fnName.orElse("null")) + " in " + sstr_(sourceName))
 		default:
-			panic(new_IllegalStateException_String("unexpected Node type").self())
+			panic(new_IllegalStateException_String("unexpected Node type"))
 		}
 	}()
 }
@@ -154,10 +154,10 @@ func (this *ChangeVerifier) path(ancestor Node, child Node) string {
 
 func ChangeVerifier_getInequivalenceReasonExcludingFunctions(thisNode Node, thatNode Node) *ChangeVerifier_EqualsResult {
 	if thisNode == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if thatNode == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if thisNode.getChildCount() != thatNode.getChildCount() {
 		return ChangeVerifier_EqualsResult_notEqual(thisNode, "differing child count", strobj_((tostrH_(thisNode) + ": " + istr_(int64(thisNode.getChildCount())))), strobj_((tostrH_(thatNode) + ": " + istr_(int64(thatNode.getChildCount())))))

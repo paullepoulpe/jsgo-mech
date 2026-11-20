@@ -21,7 +21,7 @@ func (this *WhitespaceWrapGoogModules) process_2(externs Node, root Node) {
 		var c Node = root.getFirstChild()
 		for ; c != 0; c = c.getNext() {
 			if !c.isScript() {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			this.visitScript(c)
 		}

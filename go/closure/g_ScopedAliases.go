@@ -115,14 +115,14 @@ func ScopedAliases_getAliasedNamespace(rhs Node) string {
 			return rhs.getString()
 		case tokOrd1_CALL:
 			if !NodeUtil_isCallToQualifiedName(rhs, ScopedAliases_GOOG_MODULE_GET) {
-				panic(new_IllegalStateException_String(tostr_(rhs)).self())
+				panic(new_IllegalStateException_String(tostr_(rhs)))
 			}
 			if !rhs.hasTwoChildren() {
-				panic(new_IllegalStateException_String(tostr_(rhs)).self())
+				panic(new_IllegalStateException_String(tostr_(rhs)))
 			}
 			return rhs.getLastChild().getString()
 		default:
-			panic(new_RuntimeException_String(("Invalid alias RHS:" + tostrH_(rhs))).self())
+			panic(new_RuntimeException_String(("Invalid alias RHS:" + tostrH_(rhs))))
 		}
 	}()
 }
@@ -419,7 +419,7 @@ func (this *ScopedAliases_AliasedTypeNode) applyAlias_impl(compiler *AbstractCom
 	}
 	var aliasExpanded string = ScopedAliases_getAliasedNamespace(aliasDefinition)
 	if !strings.HasPrefix(typeName, aliasName) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("%s must start with %s", []any{typeName, aliasName})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("%s must start with %s", []any{typeName, aliasName})))
 	}
 	var replacement string = (sstr_(aliasExpanded) + sstr_(typeName[len(aliasName):]))
 	this.aliasReference.setString(replacement)
@@ -662,7 +662,7 @@ func (this *ScopedAliases_Traversal) containsInvalidGoogModuleGet(expression Nod
 			var namespace string = expression.getSecondChild().getString()
 			return !this.outer_.closureNamespaces.contains(namespace)
 		default:
-			panic(new_IllegalStateException_String(("Unrecognized alias rhs " + tostrH_(expression))).self())
+			panic(new_IllegalStateException_String(("Unrecognized alias rhs " + tostrH_(expression))))
 		}
 	}()
 }
@@ -684,7 +684,7 @@ func (this *ScopedAliases_Traversal) findNamespaceShadows(t *NodeTraversal) {
 
 func (this *ScopedAliases_Traversal) renameNamespaceShadows(t *NodeTraversal) {
 	if ok_, a1_ := NodeUtil_isFunctionBlock(t.getScopeRoot()), t.getScopeRoot(); !ok_ {
-		panic(new_IllegalStateException_String(tostr_(a1_)).self())
+		panic(new_IllegalStateException_String(tostr_(a1_)))
 	}
 	if this.hasNamespaceShadows {
 		var renamer MakeDeclaredNamesUnique_Renamer = MakeDeclaredNamesUnique_Renamer(new_MakeDeclaredNamesUnique_TargettedRenamer(new_MakeDeclaredNamesUnique_ContextualRenamer_0(), this.forbiddenLocals))

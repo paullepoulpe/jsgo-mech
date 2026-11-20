@@ -67,7 +67,7 @@ func (this *Graph[N, E]) hasNode(n N) bool {
 func (this *Graph[N, E]) getNodeOrFail(val N) GraphNode[N, E] {
 	var node GraphNode[N, E] = this.getNode_Object(val)
 	if node == nil {
-		panic(new_IllegalArgumentException_String((objstr_(boxT_(val)) + " does not exist in graph")).self())
+		panic(new_IllegalArgumentException_String((objstr_(boxT_(val)) + " does not exist in graph")))
 	}
 	return node
 }
@@ -93,7 +93,7 @@ func (this *Graph[N, E]) pushNodeAnnotations() {
 
 func (this *Graph[N, E]) popNodeAnnotations() {
 	if this.nodeAnnotationStack.asDeque() == nil {
-		panic(new_NullPointerException_String(objstr_("Popping node annotations without pushing.")).self())
+		panic(new_NullPointerException_String(objstr_("Popping node annotations without pushing.")))
 	}
 	Graph_popAnnotations(this.nodeAnnotationStack)
 }
@@ -107,7 +107,7 @@ func (this *Graph[N, E]) pushEdgeAnnotations() {
 
 func (this *Graph[N, E]) popEdgeAnnotations() {
 	if this.edgeAnnotationStack.asDeque() == nil {
-		panic(new_NullPointerException_String(objstr_("Popping edge annotations without pushing.")).self())
+		panic(new_NullPointerException_String(objstr_("Popping edge annotations without pushing.")))
 	}
 	Graph_popAnnotations(this.edgeAnnotationStack)
 }

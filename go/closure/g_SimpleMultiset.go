@@ -65,10 +65,10 @@ func (this *SimpleMultiset[E]) add_s(element string) bool {
 func (this *SimpleMultiset[E]) add_2(element E, occurrences int32) int32 {
 	elementBox_ := boxNull_(element)
 	if this.frozen {
-		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
 	if occurrences < 0 {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var oldCount int32 = this.count(elementBox_)
 	if occurrences > 0 {
@@ -81,10 +81,10 @@ func (this *SimpleMultiset[E]) add_2(element E, occurrences int32) int32 {
 // add_2_s is add_2 for a string key that is not boxed (post-flip step strvar).
 func (this *SimpleMultiset[E]) add_2_s(element string, occurrences int32) int32 {
 	if this.frozen {
-		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
 	if occurrences < 0 {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var oldCount int32 = this.count_s(element)
 	if occurrences > 0 {
@@ -103,10 +103,10 @@ func (this *SimpleMultiset[E]) addAll(elements IterableOf[any]) {
 func (this *SimpleMultiset[E]) setCount(element E, expectedOldCount int32, newCount int32) bool {
 	elementBox_ := boxNull_(element)
 	if this.frozen {
-		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
 	if expectedOldCount < 0 || newCount < 0 {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if this.count(elementBox_) != expectedOldCount {
 		return false
@@ -123,10 +123,10 @@ func (this *SimpleMultiset[E]) setCount(element E, expectedOldCount int32, newCo
 // setCount_s is setCount for a string key that is not boxed (post-flip step strvar).
 func (this *SimpleMultiset[E]) setCount_s(element string, expectedOldCount int32, newCount int32) bool {
 	if this.frozen {
-		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
 	if expectedOldCount < 0 || newCount < 0 {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if this.count_s(element) != expectedOldCount {
 		return false
