@@ -6,7 +6,7 @@ type ControlFlowAnalysis struct {
 	compiler_               *AbstractCompiler
 	cfg                     *ControlFlowGraph[Node]
 	astPosition             *LinkedIdentityHashMap[Node, any]
-	priorityComparator      ComparatorOf[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]]
+	priorityComparator      ComparatorOf[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]]
 	astPositionCounter      int32
 	priorityCounter         int32
 	shouldTraverseFunctions bool
@@ -17,7 +17,7 @@ type ControlFlowAnalysis struct {
 }
 
 func (this *ControlFlowAnalysis) finit_ControlFlowAnalysis() {
-	this.priorityComparator = Comparator_comparingInt(&ToIntFunction_tfn_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch_{func(digraphNode DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]) int32 {
+	this.priorityComparator = Comparator_comparingInt(&ToIntFunction_tfn_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch_{func(digraphNode DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]) int32 {
 		return unbox_[int32](Preconditions_checkNotNull_Object_Object(this.astPosition.get(digraphNode.getValue()), digraphNode.getValue().box_()))
 	}})
 	this.exceptionHandler = newTDeque_(jtc_Node)
@@ -57,12 +57,12 @@ func (this *ControlFlowAnalysis) computeCfg(root Node) {
 	this.astPositionCounter++
 	this.astPosition.put(0, int32(this.astPositionCounter))
 	this.priorityCounter = 0
-	var entry DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch] = this.cfg.getEntry()
+	var entry DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = this.cfg.getEntry()
 	this.prioritizeFromEntryNode(entry)
 	if this.shouldTraverseFunctions {
 		it_1 := foreach_(this.cfg.getNodes())
 		for it_1.next() {
-			var candidate DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](it_1.v)
+			var candidate DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](it_1.v)
 			var value Node = candidate.getValue()
 			if (value != 0) && value.isFunction() {
 				this.prioritizeFromEntryNode(candidate)
@@ -72,7 +72,7 @@ func (this *ControlFlowAnalysis) computeCfg(root Node) {
 	this.astPosition = nil
 	it_3 := foreach_(this.cfg.getNodes())
 	for it_3.next() {
-		var candidate DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](it_3.v)
+		var candidate DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](it_3.v)
 		if !candidate.hasPriority() {
 			this.priorityCounter++
 			candidate.setPriority(this.priorityCounter)
@@ -82,17 +82,17 @@ func (this *ControlFlowAnalysis) computeCfg(root Node) {
 	this.cfg.getImplicitReturn().setPriority(this.priorityCounter)
 }
 
-func (this *ControlFlowAnalysis) prioritizeFromEntryNode(entry DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]) {
-	var worklist PriorityQueueOf[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]] = new_PriorityQueue_int_Comparator(10, this.priorityComparator)
+func (this *ControlFlowAnalysis) prioritizeFromEntryNode(entry DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]) {
+	var worklist PriorityQueueOf[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]] = new_PriorityQueue_int_Comparator(10, this.priorityComparator)
 	worklist.add(entry)
 	for !worklist.isEmpty() {
-		var current DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](worklist.remove_0())
+		var current DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](worklist.remove_0())
 		if current.hasPriority() {
 			continue
 		}
 		this.priorityCounter++
 		current.setPriority(this.priorityCounter)
-		var successors ListOf[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]] = this.cfg.getDirectedSuccNodesDiGraphNode(current)
+		var successors ListOf[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]] = this.cfg.getDirectedSuccNodesDiGraphNode(current)
 		worklist.addAll(Collection(successors))
 	}
 }
@@ -260,7 +260,7 @@ func (this *ControlFlowAnalysis) handleFor(forNode Node) {
 func (this *ControlFlowAnalysis) handleSwitch(node Node) {
 	var switchBody Node = node.getLastChild()
 	this.createEdge(node, ControlFlowGraph_Branch_UNCOND, switchBody)
-	var next Node = ControlFlowAnalysis_getNextSiblingOfType(switchBody.getFirstChild(), []*Token_rhino{Token_rhino_CASE, Token_rhino_EMPTY})
+	var next Node = ControlFlowAnalysis_getNextSiblingOfType(switchBody.getFirstChild(), []Token_rhino{Token_rhino_CASE, Token_rhino_EMPTY})
 	if next != 0 {
 		this.createEdge(switchBody, ControlFlowGraph_Branch_UNCOND, next)
 	} else {
@@ -275,13 +275,13 @@ func (this *ControlFlowAnalysis) handleSwitch(node Node) {
 
 func (this *ControlFlowAnalysis) handleCase(caseNode Node) {
 	this.createEdge(caseNode, ControlFlowGraph_Branch_ON_TRUE, caseNode.getSecondChild())
-	var next Node = ControlFlowAnalysis_getNextSiblingOfType(caseNode.getNext(), []*Token_rhino{Token_rhino_CASE})
+	var next Node = ControlFlowAnalysis_getNextSiblingOfType(caseNode.getNext(), []Token_rhino{Token_rhino_CASE})
 	if next != 0 {
 		Preconditions_checkState(next.isCase())
 		this.createEdge(caseNode, ControlFlowGraph_Branch_ON_FALSE, next)
 	} else {
 		var switchBody Node = caseNode.getParent()
-		var deflt Node = ControlFlowAnalysis_getNextSiblingOfType(switchBody.getFirstChild(), []*Token_rhino{Token_rhino_DEFAULT_CASE})
+		var deflt Node = ControlFlowAnalysis_getNextSiblingOfType(switchBody.getFirstChild(), []Token_rhino{Token_rhino_DEFAULT_CASE})
 		if deflt != 0 {
 			this.createEdge(caseNode, ControlFlowGraph_Branch_ON_FALSE, deflt)
 		} else {
@@ -553,7 +553,7 @@ func ControlFlowAnalysis_computeFallThrough(n Node) Node {
 	}()
 }
 
-func (this *ControlFlowAnalysis) createEdge(fromNode Node, branch *ControlFlowGraph_Branch, toNode Node) {
+func (this *ControlFlowAnalysis) createEdge(fromNode Node, branch ControlFlowGraph_Branch, toNode Node) {
 	this.cfg.createNode_Object_rDiGraphNode_rLinkedDiGraphNode(fromNode)
 	this.cfg.createNode_Object_rDiGraphNode_rLinkedDiGraphNode(toNode)
 	this.cfg.connectIfNotFound(fromNode, branch, toNode)
@@ -607,7 +607,7 @@ func (this *ControlFlowAnalysis) connectToPossibleExceptionHandlerUnconditionall
 	}
 }
 
-func ControlFlowAnalysis_getNextSiblingOfType(first Node, types []*Token_rhino) Node {
+func ControlFlowAnalysis_getNextSiblingOfType(first Node, types []Token_rhino) Node {
 	{
 		var c Node = first
 		for ; c != 0; c = c.getNext() {
@@ -763,21 +763,21 @@ func (this *ControlFlowAnalysis_AstControlFlowGraph) up_ControlFlowGraph() *Cont
 	return &this.ControlFlowGraph
 }
 
-func (this *ControlFlowAnalysis_AstControlFlowGraph) up_LinkedDirectedGraph() *LinkedDirectedGraph[Node, *ControlFlowGraph_Branch] {
+func (this *ControlFlowAnalysis_AstControlFlowGraph) up_LinkedDirectedGraph() *LinkedDirectedGraph[Node, ControlFlowGraph_Branch] {
 	if this == nil {
 		return nil
 	}
 	return &this.LinkedDirectedGraph
 }
 
-func (this *ControlFlowAnalysis_AstControlFlowGraph) up_DiGraph() *DiGraph[Node, *ControlFlowGraph_Branch] {
+func (this *ControlFlowAnalysis_AstControlFlowGraph) up_DiGraph() *DiGraph[Node, ControlFlowGraph_Branch] {
 	if this == nil {
 		return nil
 	}
 	return &this.DiGraph
 }
 
-func (this *ControlFlowAnalysis_AstControlFlowGraph) up_Graph() *Graph[Node, *ControlFlowGraph_Branch] {
+func (this *ControlFlowAnalysis_AstControlFlowGraph) up_Graph() *Graph[Node, ControlFlowGraph_Branch] {
 	if this == nil {
 		return nil
 	}
@@ -798,11 +798,11 @@ func new_ControlFlowAnalysis_AstControlFlowGraph(entry Node, edgeAnnotations boo
 	return this
 }
 
-func (this *ControlFlowAnalysis_AstControlFlowGraph) getOptionalNodeComparator_impl(isForward bool) ComparatorOf[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]] {
+func (this *ControlFlowAnalysis_AstControlFlowGraph) getOptionalNodeComparator_impl(isForward bool) ComparatorOf[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]] {
 	return func() Comparator {
 		if isForward {
-			return Comparator_comparingInt(&ToIntFunction_tfn_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch_{func(p0 DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]) int32 { return p0.getPriority() }})
+			return Comparator_comparingInt(&ToIntFunction_tfn_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch_{func(p0 DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]) int32 { return p0.getPriority() }})
 		}
-		return Comparator_reversed(Comparator_comparingInt(&ToIntFunction_tfn_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch_{func(p0 DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]) int32 { return p0.getPriority() }}))
+		return Comparator_reversed(Comparator_comparingInt(&ToIntFunction_tfn_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch_{func(p0 DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]) int32 { return p0.getPriority() }}))
 	}()
 }

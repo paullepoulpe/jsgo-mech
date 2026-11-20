@@ -6,7 +6,7 @@ type FindModuleDependencies struct {
 	compiler_               *AbstractCompiler
 	supportsEs6Modules      bool
 	supportsCommonJsModules bool
-	moduleType_             *CompilerInput_ModuleType
+	moduleType_             CompilerInput_ModuleType
 	dynamicImportScope      *Scope
 	inputPathByWebpackId    *JTMap[string, string]
 }
@@ -60,7 +60,7 @@ func (this *FindModuleDependencies) shouldTraverse(t *NodeTraversal, n Node, par
 }
 
 func (this *FindModuleDependencies) visit(t *NodeTraversal, n Node, parent Node) {
-	var resolutionMode *ModuleLoader_ResolutionMode = this.compiler_.getOptions().getModuleResolutionMode()
+	var resolutionMode ModuleLoader_ResolutionMode = this.compiler_.getOptions().getModuleResolutionMode()
 	if NodeUtil_isShallowStatementTree(parent) {
 		if n.isExprResult() {
 			var maybeGetProp Node = n.getFirstFirstChild()

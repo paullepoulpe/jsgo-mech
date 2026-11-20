@@ -325,7 +325,7 @@ func (this *PeepholeSubstituteAlternateSyntax) tryFoldLiteralConstructor(n Node)
 			newLiteralNode = IR_objectlit([]Node{})
 		} else if "Array" == className {
 			var arg0 Node = constructorNameNode.getNext()
-			var action *PeepholeSubstituteAlternateSyntax_FoldArrayAction = PeepholeSubstituteAlternateSyntax_isSafeToFoldArrayConstructor(arg0)
+			var action PeepholeSubstituteAlternateSyntax_FoldArrayAction = PeepholeSubstituteAlternateSyntax_isSafeToFoldArrayConstructor(arg0)
 			if (action == PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS) || (action == PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITHOUT_ARGS) {
 				newLiteralNode = IR_arraylit([]Node{})
 				n.removeFirstChild()
@@ -344,8 +344,8 @@ func (this *PeepholeSubstituteAlternateSyntax) tryFoldLiteralConstructor(n Node)
 	return n
 }
 
-func PeepholeSubstituteAlternateSyntax_isSafeToFoldArrayConstructor(arg Node) *PeepholeSubstituteAlternateSyntax_FoldArrayAction {
-	var action *PeepholeSubstituteAlternateSyntax_FoldArrayAction = PeepholeSubstituteAlternateSyntax_FoldArrayAction_NOT_SAFE_TO_FOLD
+func PeepholeSubstituteAlternateSyntax_isSafeToFoldArrayConstructor(arg Node) PeepholeSubstituteAlternateSyntax_FoldArrayAction {
+	var action PeepholeSubstituteAlternateSyntax_FoldArrayAction = PeepholeSubstituteAlternateSyntax_FoldArrayAction_NOT_SAFE_TO_FOLD
 	if arg == 0 {
 		action = PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITHOUT_ARGS
 	} else if arg.getNext() != 0 {
@@ -524,45 +524,63 @@ func PeepholeSubstituteAlternateSyntax_clinit() {
 
 }
 
-type PeepholeSubstituteAlternateSyntax_FoldArrayAction struct {
-	Enum
+type PeepholeSubstituteAlternateSyntax_FoldArrayAction uint8
+
+// PeepholeSubstituteAlternateSyntax_FoldArrayAction_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var PeepholeSubstituteAlternateSyntax_FoldArrayAction_enum_ = [3]Enum{
+	{self_: PeepholeSubstituteAlternateSyntax_FoldArrayAction_NOT_SAFE_TO_FOLD, name_: "NOT_SAFE_TO_FOLD", ordinal_: 0},
+	{self_: PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS, name_: "SAFE_TO_FOLD_WITH_ARGS", ordinal_: 1},
+	{self_: PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITHOUT_ARGS, name_: "SAFE_TO_FOLD_WITHOUT_ARGS", ordinal_: 2},
 }
 
-func (this *PeepholeSubstituteAlternateSyntax_FoldArrayAction) up_Enum() *Enum {
-	if this == nil {
+func (this PeepholeSubstituteAlternateSyntax_FoldArrayAction) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &PeepholeSubstituteAlternateSyntax_FoldArrayAction_enum_[this-1]
 }
 
-func (this *PeepholeSubstituteAlternateSyntax_FoldArrayAction) init_PeepholeSubstituteAlternateSyntax_FoldArrayAction(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this PeepholeSubstituteAlternateSyntax_FoldArrayAction) name() string {
+	return PeepholeSubstituteAlternateSyntax_FoldArrayAction_enum_[this-1].name_
 }
 
-func new_PeepholeSubstituteAlternateSyntax_FoldArrayAction(name_ string, ordinal_ int32) *PeepholeSubstituteAlternateSyntax_FoldArrayAction {
-	this := &PeepholeSubstituteAlternateSyntax_FoldArrayAction{}
-	this.self_ = this
-	this.init_PeepholeSubstituteAlternateSyntax_FoldArrayAction(name_, ordinal_)
+func (this PeepholeSubstituteAlternateSyntax_FoldArrayAction) ordinal() int32 {
+	return PeepholeSubstituteAlternateSyntax_FoldArrayAction_enum_[this-1].ordinal_
+}
+
+func (this PeepholeSubstituteAlternateSyntax_FoldArrayAction) toString() string {
+	return PeepholeSubstituteAlternateSyntax_FoldArrayAction_enum_[this-1].name_
+}
+
+func (this PeepholeSubstituteAlternateSyntax_FoldArrayAction) compareTo(o any) int32 {
+	return PeepholeSubstituteAlternateSyntax_FoldArrayAction_enum_[this-1].compareTo(o)
+}
+
+func (this PeepholeSubstituteAlternateSyntax_FoldArrayAction) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func PeepholeSubstituteAlternateSyntax_FoldArrayAction_values() []*PeepholeSubstituteAlternateSyntax_FoldArrayAction {
-	return append([]*PeepholeSubstituteAlternateSyntax_FoldArrayAction(nil), PeepholeSubstituteAlternateSyntax_FoldArrayAction_values_...)
+func PeepholeSubstituteAlternateSyntax_FoldArrayAction_values() []PeepholeSubstituteAlternateSyntax_FoldArrayAction {
+	return append([]PeepholeSubstituteAlternateSyntax_FoldArrayAction(nil), PeepholeSubstituteAlternateSyntax_FoldArrayAction_values_...)
 }
 
-func PeepholeSubstituteAlternateSyntax_FoldArrayAction_valueOf(name string) *PeepholeSubstituteAlternateSyntax_FoldArrayAction {
+func PeepholeSubstituteAlternateSyntax_FoldArrayAction_valueOf(name string) PeepholeSubstituteAlternateSyntax_FoldArrayAction {
 	for _, v := range PeepholeSubstituteAlternateSyntax_FoldArrayAction_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("FoldArrayAction", name))
 }
 
-var PeepholeSubstituteAlternateSyntax_FoldArrayAction_NOT_SAFE_TO_FOLD *PeepholeSubstituteAlternateSyntax_FoldArrayAction
-var PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS *PeepholeSubstituteAlternateSyntax_FoldArrayAction
-var PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITHOUT_ARGS *PeepholeSubstituteAlternateSyntax_FoldArrayAction
-var PeepholeSubstituteAlternateSyntax_FoldArrayAction_values_ []*PeepholeSubstituteAlternateSyntax_FoldArrayAction
+const PeepholeSubstituteAlternateSyntax_FoldArrayAction_NOT_SAFE_TO_FOLD PeepholeSubstituteAlternateSyntax_FoldArrayAction = 1
+const PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS PeepholeSubstituteAlternateSyntax_FoldArrayAction = 2
+const PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITHOUT_ARGS PeepholeSubstituteAlternateSyntax_FoldArrayAction = 3
+
+var PeepholeSubstituteAlternateSyntax_FoldArrayAction_values_ []PeepholeSubstituteAlternateSyntax_FoldArrayAction
 
 var PeepholeSubstituteAlternateSyntax_FoldArrayAction_clinit_done bool
 
@@ -571,10 +589,7 @@ func PeepholeSubstituteAlternateSyntax_FoldArrayAction_clinit() {
 		return
 	}
 	PeepholeSubstituteAlternateSyntax_FoldArrayAction_clinit_done = true
-	PeepholeSubstituteAlternateSyntax_FoldArrayAction_NOT_SAFE_TO_FOLD = new_PeepholeSubstituteAlternateSyntax_FoldArrayAction("NOT_SAFE_TO_FOLD", 0)
-	PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS = new_PeepholeSubstituteAlternateSyntax_FoldArrayAction("SAFE_TO_FOLD_WITH_ARGS", 1)
-	PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITHOUT_ARGS = new_PeepholeSubstituteAlternateSyntax_FoldArrayAction("SAFE_TO_FOLD_WITHOUT_ARGS", 2)
-	PeepholeSubstituteAlternateSyntax_FoldArrayAction_values_ = []*PeepholeSubstituteAlternateSyntax_FoldArrayAction{PeepholeSubstituteAlternateSyntax_FoldArrayAction_NOT_SAFE_TO_FOLD, PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS, PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITHOUT_ARGS}
+	PeepholeSubstituteAlternateSyntax_FoldArrayAction_values_ = []PeepholeSubstituteAlternateSyntax_FoldArrayAction{PeepholeSubstituteAlternateSyntax_FoldArrayAction_NOT_SAFE_TO_FOLD, PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS, PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITHOUT_ARGS}
 	registerEnum_("com.google.javascript.jscomp.PeepholeSubstituteAlternateSyntax.FoldArrayAction", enumValues_(PeepholeSubstituteAlternateSyntax_FoldArrayAction_values_))
 
 }

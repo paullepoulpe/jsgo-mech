@@ -105,7 +105,7 @@ func (this *LightweightMessageFormatter) format(error_ *JSError, warning bool) s
 		LightweightMessageFormatter_appendPosition(boldLine, sourceName, lineNumber, charno)
 	}
 	if this.includeLevel {
-		boldLine.append(this.getLevelName(func() *CheckLevel {
+		boldLine.append(this.getLevelName(func() CheckLevel {
 			if warning {
 				return CheckLevel_WARNING
 			}

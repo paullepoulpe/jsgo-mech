@@ -65,7 +65,7 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 		var hasDefaultBlock bool = false
 		it_1 := foreach_(cfg.getOutEdges(node))
 		for it_1.next() {
-			var outEdge DiGraph_DiGraphEdge[Node, *ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphEdge[Node, *ControlFlowGraph_Branch]](it_1.v)
+			var outEdge DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch]](it_1.v)
 			if outEdge.getValue() == ControlFlowGraph_Branch_ON_FALSE {
 				var destination Node = outEdge.getDestination().getValue()
 				if (((destination != 0) && destination.isBlock()) && (destination.getParent() != 0)) && destination.getParent().isIf() {
@@ -91,7 +91,7 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 		var cfg *ControlFlowGraph[Node] = this.getControlFlowGraph(this.compiler_)
 		it_3 := foreach_(cfg.getOutEdges(node))
 		for it_3.next() {
-			var outEdge DiGraph_DiGraphEdge[Node, *ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphEdge[Node, *ControlFlowGraph_Branch]](it_3.v)
+			var outEdge DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch]](it_3.v)
 			if outEdge.getValue() == ControlFlowGraph_Branch_ON_FALSE {
 				var destination Node = outEdge.getDestination().getValue()
 				if (destination != 0) && destination.isBlock() {
