@@ -1,0 +1,72 @@
+package closure
+
+import "strings"
+
+// String arguments of CharSequence parameters.
+//
+// Java's CharSequence parameters are `any` here, so a String argument is boxed (strobj_) and
+// taken out again (csString_). Each function below is the one of the same name without _s, for
+// an argument that is a String: its body is that function's, with csStr_ in place of
+// csString_(strobj_(...)), so a null String still throws NullPointerException where the boxed
+// one did. tools/postflip/charseq calls them where the argument is strobj_(s).
+
+// csStr_ is csString_(strobj_(s)): s itself, and a null String throws NullPointerException.
+func csStr_(s string) string {
+	if s == nullstr_ {
+		panic(new_NullPointerException_0().self())
+	}
+	return s
+}
+
+func Pattern_matches_s(regex string, input string) bool {
+	return Pattern_compile(regex).matcher_s(input).matches()
+}
+
+func String_contains_s(s string, sub string) bool { return strings.Contains(s, csStr_(sub)) }
+
+func String_replace_s(s string, a string, b string) string {
+	return strings.ReplaceAll(s, csStr_(a), csStr_(b))
+}
+
+func String_join_s(sep string, it Iterable) string {
+	var parts []string
+	for i := it.iterator(); i.hasNext(); {
+		parts = append(parts, objstr_(i.next()))
+	}
+	return strings.Join(parts, csStr_(sep))
+}
+
+func String_join_CharSequence_CharSequenceArr_s(sep string, vs []any) string {
+	parts := make([]string, len(vs))
+	for i, v := range vs {
+		parts[i] = objstr_(v)
+	}
+	return strings.Join(parts, csStr_(sep))
+}
+
+func (this *StringBuilder) append_CharSequence_s(v string) Appendable {
+	if v == nullstr_ {
+		return this.append("null")
+	}
+	return this.append(v)
+}
+
+func (this *StringBuilder) append_CharSequence_int_int_s(v string, a int32, b int32) Appendable {
+	return this.append(String_substring(csStr_(v), a, b))
+}
+
+func (this *CharMatcher) trimFrom_s(seq string) string {
+	s := csStr_(seq)
+	u := String_toCharArray(s)
+	a, b := 0, len(u)
+	for a < b && this.f(u[a]) {
+		a++
+	}
+	for b > a && this.f(u[b-1]) {
+		b--
+	}
+	if a == 0 && b == len(u) {
+		return s
+	}
+	return fromUnits_(u[a:b])
+}
