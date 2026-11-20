@@ -72,8 +72,12 @@ func (this *TypeCheck) process_2(externsRoot Node, jsRoot Node) {
 	Preconditions_checkNotNull_T(this.scopeCreator)
 	Preconditions_checkNotNull_T(this.topScope)
 	var externsAndJs Node = jsRoot.getParent()
-	Preconditions_checkState((externsAndJs != 0))
-	Preconditions_checkState(((externsRoot == 0) || externsAndJs.hasChild(externsRoot)))
+	if externsAndJs == 0 {
+		panic(new_IllegalStateException_0().self())
+	}
+	if externsRoot != 0 && !externsAndJs.hasChild(externsRoot) {
+		panic(new_IllegalStateException_0().self())
+	}
 	_ = func() (code_ int) {
 		var debugTypeLogger *TypeCheck_DebugTypeLogger = new_TypeCheck_DebugTypeLogger(this)
 		defer closeResource_(obj_(debugTypeLogger))
@@ -87,8 +91,12 @@ func (this *TypeCheck) process_2(externsRoot Node, jsRoot Node) {
 }
 
 func (this *TypeCheck) processForTesting(externsRoot Node, jsRoot Node) *TypedScope {
-	Preconditions_checkState((this.scopeCreator == nil))
-	Preconditions_checkState((this.topScope == nil))
+	if this.scopeCreator != nil {
+		panic(new_IllegalStateException_0().self())
+	}
+	if this.topScope != nil {
+		panic(new_IllegalStateException_0().self())
+	}
 	if !((externsRoot == 0) || externsRoot.isRoot()) {
 		Preconditions_checkArgument_boolean_Object_H(false, externsRoot)
 	}
@@ -98,7 +106,9 @@ func (this *TypeCheck) processForTesting(externsRoot Node, jsRoot Node) *TypedSc
 	if ok_, a1_ := (jsRoot.hasParent() && jsRoot.getParent().isRoot()), jsRoot.getParent(); !ok_ {
 		Preconditions_checkState_boolean_Object_H(false, a1_)
 	}
-	Preconditions_checkState_boolean_Object(((externsRoot == 0) || (externsRoot.getNext() == jsRoot)), "externs root must be the preceding sibling of the js root")
+	if externsRoot != 0 && externsRoot.getNext() != jsRoot {
+		panic(new_IllegalStateException_String(objstr_("externs root must be the preceding sibling of the js root")).self())
+	}
 	this.scopeCreator = new_TypedScopeCreator_AbstractCompiler(this.compiler_)
 	this.topScope = new_TypeInferencePass(this.compiler_, this.reverseInterpreter, this.scopeCreator).inferAllScopes(jsRoot.getParent())
 	this.process_2(externsRoot, jsRoot)
@@ -806,7 +816,7 @@ func (this *TypeCheck) checkDeclaredPropertyAgainstNominalInheritance(n Node, ct
 			continue
 		}
 		if !implementedInterface.isInstanceType() {
-			Preconditions_checkState_boolean_Object(false, implementedInterface)
+			panic(new_IllegalStateException_String(objstr_(implementedInterface)).self())
 		}
 		var propSlot *Property_OwnedProperty = implementedInterface.findClosestDefinition(propertyName)
 		var interfaceHasProperty bool = (propSlot != nil)
@@ -821,7 +831,9 @@ func (this *TypeCheck) checkDeclaredPropertyAgainstNominalInheritance(n Node, ct
 }
 
 func TypeCheck_isDeclaredLocally(ctorType *FunctionType, propertyName Property_Key) bool {
-	Preconditions_checkState(ctorType.isConstructor())
+	if !ctorType.isConstructor() {
+		panic(new_IllegalStateException_0().self())
+	}
 	return (ctorType.getPrototype().hasOwnPropertyKey(propertyName) || ctorType.getInstanceType().hasOwnPropertyKey(propertyName))
 }
 
@@ -861,8 +873,12 @@ func (this *TypeCheck) checkAbstractMethodInConcreteClass(n Node, ctorType *Func
 }
 
 func TypeCheck_hasUnknownOrEmptySupertype(ctor *FunctionType) bool {
-	Preconditions_checkArgument((ctor.isConstructor() || ctor.isInterface()))
-	Preconditions_checkArgument(!ctor.isUnknownType())
+	if !ctor.isConstructor() && !ctor.isInterface() {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if ctor.isUnknownType() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	for {
 		var maybeSuperInstanceType *ObjectType = ctor.getPrototype().getImplicitPrototype()
 		if maybeSuperInstanceType == nil {
@@ -875,7 +891,9 @@ func TypeCheck_hasUnknownOrEmptySupertype(ctor *FunctionType) bool {
 		if ctor == nil {
 			return false
 		}
-		Preconditions_checkState((ctor.isConstructor() || ctor.isInterface()))
+		if !ctor.isConstructor() && !ctor.isInterface() {
+			panic(new_IllegalStateException_0().self())
+		}
 	}
 	panic("unreachable")
 }
@@ -1406,7 +1424,9 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 }
 
 func (this *TypeCheck) getBestFunctionName(n Node) string {
-	Preconditions_checkState((n.isClass() || n.isFunction()))
+	if !n.isClass() && !n.isFunction() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var name Optional[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
 	return func() string {
 		if name.isPresent() {
@@ -1755,7 +1775,9 @@ func (this *TypeCheck) ensureTyped_2(n Node, type_ JSTypeNative) {
 }
 
 func (this *TypeCheck) ensureTypedJSType(n Node, type_ *JSType) {
-	Preconditions_checkState(((!n.isFunction() || type_.isFunctionType()) || type_.isUnknownType()))
+	if !((!n.isFunction() || type_.isFunctionType()) || type_.isUnknownType()) {
+		panic(new_IllegalStateException_0().self())
+	}
 	if n.getJSType() == nil {
 		n.setJSType(type_)
 	}

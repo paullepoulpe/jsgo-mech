@@ -33,8 +33,12 @@ func new_TypedAstSerializer(compiler *AbstractCompiler, serializationMode *Seria
 }
 
 func (this *TypedAstSerializer) serializeRoots(externsRoot Node, jsRoot Node) *TypedAst {
-	Preconditions_checkArgument(externsRoot.isRoot())
-	Preconditions_checkArgument(jsRoot.isRoot())
+	if !externsRoot.isRoot() {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if !jsRoot.isRoot() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if this.compiler_.hasOptimizationColors() {
 		this.typeSerializer = TypedAstSerializer_ColorTypeSerializer_as_TypedAstSerializer_TypeSerializer(this.createColorTypeSerializer(this.compiler_, this.serializationMode, this.stringPool))
 	} else if this.compiler_.hasTypeCheckingRun() {
@@ -85,7 +89,9 @@ func (this *TypedAstSerializer) sourceFileProtos() *JTList[*SourceFileProto] {
 }
 
 func (this *TypedAstSerializer) serializeScriptNode(script Node) *LazyAst {
-	Preconditions_checkState(script.isScript())
+	if !script.isScript() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.previousColumn = 0
 	this.previousLine = 0
 	var sourceFile int32 = this.getSourceFilePointer(script)
@@ -102,7 +108,9 @@ func (this *TypedAstSerializer) serializeScriptNode(script Node) *LazyAst {
 }
 
 func (this *TypedAstSerializer) createWithPositionInfo(n Node) *AstNode_Builder {
-	Preconditions_checkState((n.getLength() >= 0))
+	if n.getLength() < 0 {
+		panic(new_IllegalStateException_0().self())
+	}
 	var currentLine int32 = n.getLineno()
 	var currentColumn int32 = n.getCharno()
 	var builder *AstNode_Builder = AstNode_newBuilder().setRelativeLine((currentLine - this.previousLine)).setRelativeColumn((currentColumn - this.previousColumn))
@@ -144,7 +152,7 @@ func (this *TypedAstSerializer) getSourceFilePointer(n Node) int32 {
 	var sourceFile *SourceFile_jscomp = cast_[*SourceFile_jscomp](n.getStaticSourceFile())
 	if sourceFile == nil {
 		if ok_, a1_, a2_ := this.subtreeSourceFiles.peekLast().isExtern(), n.toStringTree(), n.getParent(); !ok_ {
-			Preconditions_checkState_boolean_String_Object_Object(false, "Unexpected null SourceFile for node %s with parent %s", a1_, a2_.box_())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected null SourceFile for node %s with parent %s", []any{a1_, a2_.box_()})).self())
 		}
 		return 0
 	}
@@ -559,7 +567,11 @@ func new_TypedAstSerializer_JSTypeSerializer(typesToPointers *LinkedIdentityHash
 func (this *TypedAstSerializer_JSTypeSerializer) addTypeForNode(node Node, astNodeBuilder *AstNode_Builder) {
 	var type_ *JSType = node.getJSType()
 	if type_ != nil {
-		astNodeBuilder.setType(unbox_[int32](Preconditions_checkNotNull_Object_String_Object(this.typesToPointers.get(type_), "cannot find pointer for %s", type_)))
+		nn_ := this.typesToPointers.get(type_)
+		if nn_ == nil {
+			panic(new_NullPointerException_String(Strings_lenientFormat("cannot find pointer for %s", []any{type_})).self())
+		}
+		astNodeBuilder.setType(unbox_[int32](nn_))
 	}
 }
 

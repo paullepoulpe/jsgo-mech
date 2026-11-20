@@ -205,7 +205,9 @@ func (this *AstValidator) validateStatement_2(n Node, isAmbient bool) {
 		this.violation(("Expected statement but was " + jtostr_(n.getToken()) + "."), n)
 	default:
 		if n.isModuleBody() && this.compiler_.getOptions().getSkipNonTranspilationPasses() {
-			Preconditions_checkState_boolean_Object(!this.compiler_.getOptions().shouldWrapGoogModulesForWhitespaceOnly(), "Modules can exist in transpiler only if setWrapGoogModulesForWhitespaceOnly is false")
+			if this.compiler_.getOptions().shouldWrapGoogModulesForWhitespaceOnly() {
+				panic(new_IllegalStateException_String(objstr_("Modules can exist in transpiler only if setWrapGoogModulesForWhitespaceOnly is false")).self())
+			}
 			this.validateModuleContents(n)
 			return
 		}

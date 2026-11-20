@@ -33,12 +33,16 @@ func (this *CrossChunkReferenceCollector) shouldCollectVar(v *Var) bool {
 }
 
 func (this *CrossChunkReferenceCollector) process_2(externs Node, root Node) {
-	Preconditions_checkState_boolean_Object(this.topLevelStatements.isEmpty(), "process() called more than once")
+	if !this.topLevelStatements.isEmpty() {
+		panic(new_IllegalStateException_String(objstr_("process() called more than once")).self())
+	}
 	this.referenceCollector.process_2(externs, root)
 }
 
 func (this *CrossChunkReferenceCollector) process(root Node) {
-	Preconditions_checkState_boolean_Object(this.topLevelStatements.isEmpty(), "process() called more than once")
+	if !this.topLevelStatements.isEmpty() {
+		panic(new_IllegalStateException_String(objstr_("process() called more than once")).self())
+	}
 	this.referenceCollector.process(root)
 }
 

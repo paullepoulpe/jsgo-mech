@@ -421,7 +421,7 @@ func (this *ScopedAliases_AliasedTypeNode) applyAlias_impl(compiler *AbstractCom
 	}
 	var aliasExpanded string = ScopedAliases_getAliasedNamespace(aliasDefinition)
 	if !String_startsWith(typeName, aliasName) {
-		Preconditions_checkState_boolean_String_Object_Object(false, "%s must start with %s", typeName, aliasName)
+		panic(new_IllegalStateException_String(Strings_lenientFormat("%s must start with %s", []any{typeName, aliasName})).self())
 	}
 	var replacement string = (sstr_(aliasExpanded) + sstr_(String_substring_int(typeName, String_length(aliasName))))
 	this.aliasReference.setString(replacement)

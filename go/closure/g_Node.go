@@ -279,7 +279,9 @@ func (this Node) setTrailingNonJSDocComment(comment *NonJSDocComment) Node {
 }
 
 func (this Node) setIsParenthesized(b bool) {
-	Preconditions_checkState(IR_mayBeExpression(this))
+	if !IR_mayBeExpression(this) {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.putBooleanProp(Node_Prop_IS_PARENTHESIZED, b)
 }
 
@@ -352,7 +354,9 @@ func (this Node) hasChildren() bool {
 }
 
 func (this Node) getOnlyChild() Node {
-	Preconditions_checkState(this.hasOneChild())
+	if !this.hasOneChild() {
+		panic(new_IllegalStateException_0().self())
+	}
 	return this.ns_().first
 }
 
@@ -391,8 +395,12 @@ func (this Node) getPrevious() Node {
 }
 
 func (this Node) setClosureUnawareShadow(shadowRoot Node) {
-	Preconditions_checkState_boolean_Object((this.ns_().first == 0), "Cannot set shadow root on a node with children")
-	Preconditions_checkState_boolean_Object((this.ns_().token == tokOrd1_NAME), "Only NAME nodes can be used as shadows")
+	if this.ns_().first != 0 {
+		panic(new_IllegalStateException_String(objstr_("Cannot set shadow root on a node with children")).self())
+	}
+	if this.ns_().token != tokOrd1_NAME {
+		panic(new_IllegalStateException_String(objstr_("Only NAME nodes can be used as shadows")).self())
+	}
 	this.putProp(Node_Prop_CLOSURE_UNAWARE_SHADOW, shadowRoot.box_())
 }
 
@@ -437,9 +445,15 @@ func (this Node) getIndexOfChild(child Node) int32 {
 }
 
 func (this Node) addChildToFront(child Node) {
-	Preconditions_checkArgument((child.ns_().parent == 0))
-	Preconditions_checkArgument((child.ns_().next_ == 0))
-	Preconditions_checkArgument((child.cs_().previous == 0))
+	if child.ns_().parent != 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if child.ns_().next_ != 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if child.cs_().previous != 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	child.ns_().parent = this
 	child.ns_().next_ = this.ns_().first
 	if this.ns_().first == 0 {
@@ -455,10 +469,14 @@ func (this Node) addChildToFront(child Node) {
 
 func (this Node) addChildToBack(child Node) {
 	if ok_, a1_, a2_, a3_ := (child.ns_().parent == 0), child, child.ns_().parent, this; !ok_ {
-		Preconditions_checkArgument_boolean_String_Object_Object_Object(false, "Cannot add already-owned child node.\nChild: %s\nExisting parent: %s\nNew parent: %s", a1_.box_(), a2_.box_(), a3_.box_())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Cannot add already-owned child node.\nChild: %s\nExisting parent: %s\nNew parent: %s", []any{a1_.box_(), a2_.box_(), a3_.box_()})).self())
 	}
-	Preconditions_checkArgument((child.ns_().next_ == 0))
-	Preconditions_checkArgument((child.cs_().previous == 0))
+	if child.ns_().next_ != 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if child.cs_().previous != 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if this.ns_().first == 0 {
 		child.cs_().previous = child
 		this.ns_().first = child
@@ -479,7 +497,9 @@ func (this Node) addChildrenToFront(children Node) {
 	{
 		var child Node = children
 		for ; child != 0; child = child.ns_().next_ {
-			Preconditions_checkArgument((child.ns_().parent == 0))
+			if child.ns_().parent != 0 {
+				panic(new_IllegalArgumentException_0().self())
+			}
 			child.ns_().parent = this
 		}
 	}
@@ -533,7 +553,9 @@ func (this Node) addChildrenAfter(children Node, node Node) {
 	if children == 0 {
 		return
 	}
-	Preconditions_checkArgument(((node == 0) || (node.ns_().parent == this)))
+	if node != 0 && node.ns_().parent != this {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	Preconditions_checkNotNull_Object_Object_T(children.cs_().previous, children.box_())
 	if node == 0 {
 		this.addChildrenToFront(children)
@@ -542,7 +564,9 @@ func (this Node) addChildrenAfter(children Node, node Node) {
 	{
 		var child Node = children
 		for ; child != 0; child = child.ns_().next_ {
-			Preconditions_checkArgument((child.ns_().parent == 0))
+			if child.ns_().parent != 0 {
+				panic(new_IllegalArgumentException_0().self())
+			}
 			child.ns_().parent = this
 		}
 	}
@@ -666,7 +690,9 @@ func (this Node) lookupProperty(prop *Node_Prop) *Node_PropListItem {
 }
 
 func (this Node) clonePropsFrom(other Node) Node {
-	Preconditions_checkState_boolean_Object(this.propListHead_isnull_(), "Node has existing properties.")
+	if !this.propListHead_isnull_() {
+		panic(new_IllegalStateException_String(objstr_("Node has existing properties.")).self())
+	}
 	this.propListHead_copy_(other)
 	return this
 }
@@ -682,8 +708,8 @@ func (this Node) validateProperties(violationMessageConsumer func(any)) {
 		var propListItem *Node_PropListItem = this.propListHead_get_()
 		for ; propListItem != nil; propListItem = propListItem.next_ {
 			var prop *Node_Prop = Node_propValues[propListItem.propType]
-			if !(prop.ordinal() == int32(propListItem.propType)) {
-				Preconditions_checkState_boolean_String_Object(false, "ordinal doesn't match: %s", prop)
+			if prop.ordinal() != int32(propListItem.propType) {
+				panic(new_IllegalStateException_String(Strings_lenientFormat("ordinal doesn't match: %s", []any{prop})).self())
 			}
 			switch prop {
 			case Node_Prop_IS_PARENTHESIZED:
@@ -839,10 +865,12 @@ func (this Node) getPropListDebugString() string {
 func (this Node) deserializeProperties(propSet int64, isInClosureUnawareSubtree bool) {
 	if this.isRoot() {
 		if ok_, a1_ := this.propListHead_isnull_(), this.propListHead_get_(); !ok_ {
-			Preconditions_checkState_boolean_Object(false, a1_)
+			panic(new_IllegalStateException_String(objstr_(a1_)).self())
 		}
 	} else {
-		Preconditions_checkState_boolean_Object(this.validatePropListTailOrdering(isInClosureUnawareSubtree), "Node not ready to receive properties")
+		if !this.validatePropListTailOrdering(isInClosureUnawareSubtree) {
+			panic(new_IllegalStateException_String(objstr_("Node not ready to receive properties")).self())
+		}
 	}
 	var constantVarFlags int32 = 0
 	var sideEffectFlags int32 = 0
@@ -953,7 +981,9 @@ func (this Node) getJSTypeBeforeCast() *JSType {
 }
 
 func (this Node) setColorFromTypeCast() {
-	Preconditions_checkState_boolean_Object((this.getColor() != nil), "Only use on nodes with colors present")
+	if this.getColor() == nil {
+		panic(new_IllegalStateException_String(objstr_("Only use on nodes with colors present")).self())
+	}
 	this.putBooleanProp(Node_Prop_COLOR_FROM_CAST, true)
 }
 
@@ -998,10 +1028,10 @@ func (this Node) getDouble() float64 {
 
 func (this Node) setDouble(x float64) {
 	if Double_isNaN(x) {
-		Preconditions_checkState_boolean_Object(false, float64(x))
+		panic(new_IllegalStateException_String(objstr_(float64(x))).self())
 	}
 	if !JSCompDoubles_isPositive(x) {
-		Preconditions_checkState_boolean_Object(false, float64(x))
+		panic(new_IllegalStateException_String(objstr_(float64(x))).self())
 	}
 	if !this.payload_isd_() {
 		panic(this.payloadKindMismatch("number").self())
@@ -1028,8 +1058,8 @@ func (this Node) getBigInt() *BigInteger {
 
 func (this Node) setBigInt(number *BigInteger) {
 	Preconditions_checkNotNull_T(number)
-	if !(number.signum() >= 0) {
-		Preconditions_checkState_boolean_Object(false, number)
+	if number.signum() < 0 {
+		panic(new_IllegalStateException_String(objstr_(number)).self())
 	}
 	if _, ok := this.payload_obj_().(*BigInteger); !ok {
 		panic(this.payloadKindMismatch("bigint").self())
@@ -1505,7 +1535,9 @@ func (this Node) getGrandparent() Node {
 }
 
 func (this Node) getAncestor(level int32) Node {
-	Preconditions_checkArgument((level >= 0))
+	if level < 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var node Node = this
 	for (node != 0) && (level > 0) {
 		level--
@@ -2252,7 +2284,9 @@ func (this Node) isOptionalEs6Typed() bool {
 }
 
 func (this Node) setIsSyntheticBlock(val bool) {
-	Preconditions_checkState((this.ns_().token == tokOrd1_BLOCK))
+	if this.ns_().token != tokOrd1_BLOCK {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.putBooleanProp(Node_Prop_SYNTHETIC, val)
 }
 
@@ -2320,7 +2354,9 @@ func (this Node) isGeneratorSafe() bool {
 }
 
 func (this Node) setIsOptionalChainStart(isOptionalChainStart bool) {
-	Preconditions_checkState_boolean_Object((((!isOptionalChainStart || this.isOptChainGetElem()) || this.isOptChainGetProp()) || this.isOptChainCall()), "cannot make a non-optional node the start of an optional chain.")
+	if !(((!isOptionalChainStart || this.isOptChainGetElem()) || this.isOptChainGetProp()) || this.isOptChainCall()) {
+		panic(new_IllegalStateException_String(objstr_("cannot make a non-optional node the start of an optional chain.")).self())
+	}
 	this.putBooleanProp(Node_Prop_START_OF_OPT_CHAIN, isOptionalChainStart)
 }
 
@@ -2329,7 +2365,9 @@ func (this Node) isOptionalChainStart() bool {
 }
 
 func (this Node) setIsArrowFunction(isArrow bool) {
-	Preconditions_checkState(this.isFunction())
+	if !this.isFunction() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.putBooleanProp(Node_Prop_ARROW_FN, isArrow)
 }
 
@@ -2338,7 +2376,9 @@ func (this Node) isArrowFunction() bool {
 }
 
 func (this Node) setIsAsyncFunction(isAsync bool) {
-	Preconditions_checkState(this.isFunction())
+	if !this.isFunction() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.putBooleanProp(Node_Prop_ASYNC_FN, isAsync)
 }
 
@@ -2472,7 +2512,9 @@ func (this Node) setPrivateIdentifier() {
 	if !this.payload_iss_() {
 		Preconditions_checkState_boolean_Object_H(false, this)
 	}
-	Preconditions_checkState(String_startsWith(this.getString(), "#"))
+	if !String_startsWith(this.getString(), "#") {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.putBooleanProp(Node_Prop_PRIVATE_IDENTIFIER, true)
 }
 
@@ -3297,7 +3339,10 @@ func (this *Node_ObjectPropListItem) up_Node_PropListItem() *Node_PropListItem {
 
 func (this *Node_ObjectPropListItem) init_Node_ObjectPropListItem(propType int8, objectValue any, next *Node_PropListItem) {
 	this.Node_PropListItem.init_Node_PropListItem(propType, next)
-	this.objectValue = Preconditions_checkNotNull(objectValue)
+	if objectValue == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.objectValue = objectValue
 }
 
 func new_Node_ObjectPropListItem(propType int8, objectValue any, next *Node_PropListItem) *Node_ObjectPropListItem {
@@ -3338,7 +3383,9 @@ func (this *Node_IntPropListItem) up_Node_PropListItem() *Node_PropListItem {
 func (this *Node_IntPropListItem) init_Node_IntPropListItem(propType int8, intValue int32, next *Node_PropListItem) {
 	this.Node_PropListItem.init_Node_PropListItem(propType, next)
 	this.intValue = intValue
-	Preconditions_checkState((this.intValue != 0))
+	if this.intValue == 0 {
+		panic(new_IllegalStateException_0().self())
+	}
 }
 
 func new_Node_IntPropListItem(propType int8, intValue int32, next *Node_PropListItem) *Node_IntPropListItem {

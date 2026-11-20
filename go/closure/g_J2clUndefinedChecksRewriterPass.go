@@ -46,7 +46,9 @@ func (this *J2clUndefinedChecksRewriterPass) optimizeSubtree_impl(subtree Node) 
 		replacement = J2clUndefinedChecksRewriterPass_maybeOptimizeCoerceToNullCall(subtree)
 	}
 	if replacement != 0 {
-		Preconditions_checkState((replacement != subtree))
+		if replacement == subtree {
+			panic(new_IllegalStateException_0().self())
+		}
 		replacement.srcrefTreeIfMissing(subtree)
 		subtree.replaceWith(replacement)
 		this.reportChangeToEnclosingScope(replacement)

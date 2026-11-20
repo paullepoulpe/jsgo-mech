@@ -34,7 +34,9 @@ func JSTypeResolver_create(registry *JSTypeRegistry) *JSTypeResolver {
 }
 
 func (this *JSTypeResolver) addUnresolved(captured *JSType) {
-	Preconditions_checkState(!captured.isResolved())
+	if captured.isResolved() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.captureStack.add(captured)
 }
 
@@ -44,7 +46,7 @@ func (this *JSTypeResolver) resolveIfClosed(captured *JSType, caller JSTypeClass
 	}
 	var expected *JSType = to_JSType(SequencedCollection_removeLast(SequencedCollection(this.captureStack.asDeque())))
 	if !JSCompObjects_identical(captured.self(), expected.self()) {
-		Preconditions_checkState_boolean_String_Object_Object(false, "Captured %s; Expected %s", captured, expected)
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Captured %s; Expected %s", []any{captured, expected})).self())
 	}
 	switch this.state {
 	case JSTypeResolver_State_CLOSED, JSTypeResolver_State_CLOSING:
@@ -55,15 +57,23 @@ func (this *JSTypeResolver) resolveIfClosed(captured *JSType, caller JSTypeClass
 }
 
 func (this *JSTypeResolver) openForDefinition() *JSTypeResolver_Closer {
-	Preconditions_checkState(eqR_(this.state, JSTypeResolver_State_CLOSED))
-	Preconditions_checkState(this.captureStack.isEmpty())
+	if !eqR_(this.state, JSTypeResolver_State_CLOSED) {
+		panic(new_IllegalStateException_0().self())
+	}
+	if !this.captureStack.isEmpty() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.state = JSTypeResolver_State_OPEN
 	return new_JSTypeResolver_Closer(this)
 }
 
 func (this *JSTypeResolver) resolveAll() {
-	Preconditions_checkState(eqR_(this.state, JSTypeResolver_State_OPEN))
-	Preconditions_checkState(this.captureStack.isEmpty())
+	if !eqR_(this.state, JSTypeResolver_State_OPEN) {
+		panic(new_IllegalStateException_0().self())
+	}
+	if !this.captureStack.isEmpty() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.state = JSTypeResolver_State_CLOSING
 	for !this.resolutionQueue.isEmpty() {
 		this.doResolve(this.resolutionQueue.pop())
@@ -87,7 +97,9 @@ func (this *JSTypeResolver) doResolve(type_ *JSType) {
 }
 
 func (this *JSTypeResolver) assertLegalToResolveTypes() {
-	Preconditions_checkState_boolean_Object(!eqR_(this.state, JSTypeResolver_State_OPEN), "Types cannot be resolved while the registry is open")
+	if eqR_(this.state, JSTypeResolver_State_OPEN) {
+		panic(new_IllegalStateException_String(objstr_("Types cannot be resolved while the registry is open")).self())
+	}
 }
 
 type JSTypeResolver_Closer struct {
@@ -111,7 +123,9 @@ func new_JSTypeResolver_Closer(outer_ *JSTypeResolver) *JSTypeResolver_Closer {
 }
 
 func (this *JSTypeResolver_Closer) close() {
-	Preconditions_checkState(!this.hasRun)
+	if this.hasRun {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.hasRun = true
 	this.outer_.resolveAll()
 }

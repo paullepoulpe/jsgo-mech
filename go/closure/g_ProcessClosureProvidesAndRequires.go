@@ -53,7 +53,9 @@ func (this *ProcessClosureProvidesAndRequires) collectProvidedNames(externs Node
 }
 
 func (this *ProcessClosureProvidesAndRequires) rewriteProvidesAndRequires(externs Node, root Node) {
-	Preconditions_checkState_boolean_Object(!this.hasRewritingOccurred, "Cannot call rewriteProvidesAndRequires twice per instance")
+	if this.hasRewritingOccurred {
+		panic(new_IllegalStateException_String(objstr_("Cannot call rewriteProvidesAndRequires twice per instance")).self())
+	}
 	this.hasRewritingOccurred = true
 	this.collectProvidedNames(externs, root)
 	it_1 := this.providedNames.eachValue()
@@ -125,7 +127,9 @@ func (this *ProcessClosureProvidesAndRequires) processLegacyModuleCall(namespace
 }
 
 func (this *ProcessClosureProvidesAndRequires) processProvideCall(t *NodeTraversal, call Node, parent Node) {
-	Preconditions_checkState(call.isCall())
+	if !call.isCall() {
+		panic(new_IllegalStateException_0().self())
+	}
 	if !this.verifyOnlyArgumentIsString(call) {
 		return
 	}
@@ -455,7 +459,9 @@ func new_ProcessClosureProvidesAndRequires_ProvidedName(builder *ProcessClosureP
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) addProvide(node Node, chunk *JSChunk, explicit bool, chunkGraph *JSChunkGraph) {
 	if explicit {
-		Preconditions_checkState((this.explicitNode == 0))
+		if this.explicitNode != 0 {
+			panic(new_IllegalStateException_0().self())
+		}
 		if !node.isExprResult() {
 			Preconditions_checkArgument_boolean_Object_H(false, node)
 		}
@@ -493,8 +499,12 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) getNamespace() strin
 }
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) addDefinition(node Node, chunk *JSChunk, chunkGraph *JSChunkGraph) {
-	Preconditions_checkArgument(((node.isExprResult() || node.isFunction()) || NodeUtil_isNameDeclaration(node)))
-	Preconditions_checkArgument((this.explicitNode != node))
+	if !((node.isExprResult() || node.isFunction()) || NodeUtil_isNameDeclaration(node)) {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if this.explicitNode == node {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if (this.candidateDefinition == 0) || !node.isExprResult() {
 		this.candidateDefinition = node
 		this.updateMinimumChunk(chunk, chunkGraph)
@@ -507,7 +517,9 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) updateMinimumChunk(n
 	} else if chunkGraph.getChunkCount() > 1 {
 		this.minimumChunk = chunkGraph.getDeepestCommonDependencyInclusive_2(this.minimumChunk, newChunk)
 	} else {
-		Preconditions_checkState_boolean_Object((newChunk == this.minimumChunk), "Missing chunk graph")
+		if newChunk != this.minimumChunk {
+			panic(new_IllegalStateException_String(objstr_("Missing chunk graph")).self())
+		}
 	}
 }
 
@@ -605,7 +617,9 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) makeVarDeclNode(valu
 	if !this.hasCandidateDefinition() {
 		decl.setJSDocInfo(NodeUtil_createConstantJsDoc())
 	}
-	Preconditions_checkState(ProcessClosureProvidesAndRequires_isNamespacePlaceholder(decl))
+	if !ProcessClosureProvidesAndRequires_isNamespacePlaceholder(decl) {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.setSourceInfo(decl)
 	return decl
 }
@@ -617,7 +631,9 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) makeAssignmentExprNo
 	if !this.hasCandidateDefinition() {
 		decl.getFirstChild().setJSDocInfo(NodeUtil_createConstantJsDoc())
 	}
-	Preconditions_checkState(ProcessClosureProvidesAndRequires_isNamespacePlaceholder(decl))
+	if !ProcessClosureProvidesAndRequires_isNamespacePlaceholder(decl) {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.setSourceInfo(decl)
 	lhs.getFirstChild().makeNonIndexableRecursive()
 	return decl
