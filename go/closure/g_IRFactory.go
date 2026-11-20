@@ -36,12 +36,12 @@ func (this *IRFactory) finit_IRFactory() {
 
 func (this *IRFactory) init_IRFactory(sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, comments *JTList[*Comment], fileWithContent *SourceFile_parser, jsDocSourceKind JsDocInfoParser_JsDocSourceKind) {
 	this.finit_IRFactory()
-	this.jsdocTracker = new_IRFactory_CommentTracker(comments, &Predicate_tfn_Comment{func(c *Comment) bool {
+	this.jsdocTracker = new_IRFactory_CommentTracker(comments, (&Predicate_tfn_Comment{func(c *Comment) bool {
 		return (c.type__ == Comment_Type_JSDOC)
-	}})
-	this.nonJsdocTracker = new_IRFactory_CommentTracker(comments, &Predicate_tfn_Comment{func(c *Comment) bool {
+	}}).test)
+	this.nonJsdocTracker = new_IRFactory_CommentTracker(comments, (&Predicate_tfn_Comment{func(c *Comment) bool {
 		return (c.type__ != Comment_Type_JSDOC)
-	}})
+	}}).test)
 	this.sourceFile = sourceFile
 	this.fileWithContent = fileWithContent
 	this.defaultTemplateNode = this.createTemplateNode()
@@ -374,12 +374,12 @@ func (this *IRFactory) validateParameters(n Node) {
 	{
 		var c Node = n.getFirstChild()
 		for ; c != 0; c = c.getNext() {
-			ParsingUtil_getParamOrPatternNames(c, &Consumer_tfn_Node{func(param Node) {
+			ParsingUtil_getParamOrPatternNames(c, (&Consumer_tfn_Node{func(param Node) {
 				var paramName string = param.getString()
 				if !seenNames.add(paramName) {
 					this.errorReporter.warning(String_format(IRFactory_DUPLICATE_PARAMETER, []any{strobj_(paramName)}), this.sourceName_, param.getLineno(), param.getCharno())
 				}
-			}})
+			}}).accept)
 		}
 	}
 }
@@ -1507,7 +1507,7 @@ func (this *IRFactory_LineAndColumn) toString() string {
 
 type IRFactory_CommentTracker struct {
 	source        *JTList[*Comment]
-	filter        PredicateOf[*Comment]
+	filter        func(any) bool
 	index_        int32
 	previousIndex int32
 }
@@ -1517,14 +1517,14 @@ func (this *IRFactory_CommentTracker) finit_IRFactory_CommentTracker() {
 	this.previousIndex = -1
 }
 
-func (this *IRFactory_CommentTracker) init_IRFactory_CommentTracker(source *JTList[*Comment], filter PredicateOf[*Comment]) {
+func (this *IRFactory_CommentTracker) init_IRFactory_CommentTracker(source *JTList[*Comment], filter func(any) bool) {
 	this.finit_IRFactory_CommentTracker()
 	this.source = source
 	this.filter = filter
 	this.advance()
 }
 
-func new_IRFactory_CommentTracker(source *JTList[*Comment], filter PredicateOf[*Comment]) *IRFactory_CommentTracker {
+func new_IRFactory_CommentTracker(source *JTList[*Comment], filter func(any) bool) *IRFactory_CommentTracker {
 	this := &IRFactory_CommentTracker{}
 	this.init_IRFactory_CommentTracker(source, filter)
 	return this
@@ -1544,7 +1544,7 @@ func (this *IRFactory_CommentTracker) advance() {
 	for {
 		this.index_++
 		var c *Comment = this.current()
-		if (c == nil) || this.filter.test(obj_(c)) {
+		if (c == nil) || this.filter(obj_(c)) {
 			break
 		}
 	}

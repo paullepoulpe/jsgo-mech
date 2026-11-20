@@ -31,7 +31,7 @@ func new_SerializeTypesToPointers(compiler *AbstractCompiler, jstypeReconseriali
 func SerializeTypesToPointers_create(compiler *AbstractCompiler, stringPoolBuilder *StringPool_Builder, serializationOptions *SerializationOptions) *SerializeTypesToPointers {
 	var invalidatingTypes *InvalidatingTypes = new_InvalidatingTypes_Builder(compiler.getTypeRegistry()).addAllTypeMismatches(compiler.getTypeMismatches()).build()
 	var propertiesReferencedInAst map[string]struct{} = map[string]struct{}{}
-	var jsTypeReconserializer *JSTypeReconserializer = JSTypeReconserializer_create(compiler.getTypeRegistry(), invalidatingTypes, stringPoolBuilder, &Predicate_tfn_string{func(p0 string) bool { return has_(propertiesReferencedInAst, p0) }}, serializationOptions)
+	var jsTypeReconserializer *JSTypeReconserializer = JSTypeReconserializer_create(compiler.getTypeRegistry(), invalidatingTypes, stringPoolBuilder, (&Predicate_tfn_string{func(p0 string) bool { return has_(propertiesReferencedInAst, p0) }}).test, serializationOptions)
 	return new_SerializeTypesToPointers(compiler, jsTypeReconserializer, propertiesReferencedInAst)
 }
 
@@ -63,7 +63,7 @@ func (this *SerializeTypesToPointers) logSerializationDebugInfo(serializer *JSTy
 		defer closeResource_(log.self())
 		if log.isLogging() {
 			var allSerializedTypes MapOf[string, ListOf[*JSType]] = serializer.getColorIdToJSTypeMapForDebugging().asMap()
-			log.logJson(LogFile_StreamedJsonProducer(new_SerializeTypesToPointers_StreamObjectUuidsJson(allSerializedTypes)))
+			log.logJson(new_SerializeTypesToPointers_StreamObjectUuidsJson(allSerializedTypes).writeJson)
 		}
 		return 0
 	}()
