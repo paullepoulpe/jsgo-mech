@@ -65,7 +65,7 @@ func (this *TypedAstSerializer) serializeRoots(externsRoot Node, jsRoot Node) *T
 			builder.addCodeAst(this.serializeScriptNode(script))
 		}
 	}
-	var sourceFiles *SourceFilePool = SourceFilePool_newBuilder().addAllSourceFile(Iterable(this.sourceFileProtos().asList())).buildT_()
+	var sourceFiles *SourceFilePool = SourceFilePool_newBuilder().addAllSourceFile(Iterable(this.sourceFileProtos().asList())).buildLastT_()
 	if this.compiler_.getExternProperties() != nil {
 		var externsSummary *ExternsSummary_Builder = ExternsSummary_newBuilder()
 		for prop := range this.compiler_.getExternProperties().All() {
@@ -73,7 +73,7 @@ func (this *TypedAstSerializer) serializeRoots(externsRoot Node, jsRoot Node) *T
 		}
 		builder.setExternsSummary(externsSummary)
 	}
-	return builder.addAllRuntimeLibraryToInject(Iterable(this.serializationMode.runtimeLibraries().asList())).setTypePool(this.typeSerializer.generateTypePool()).setStringPool(this.stringPool.build().toProto()).setSourceFilePool(sourceFiles).buildT_()
+	return builder.addAllRuntimeLibraryToInject(Iterable(this.serializationMode.runtimeLibraries().asList())).setTypePool(this.typeSerializer.generateTypePool()).setStringPool(this.stringPool.build().toProto()).setSourceFilePool(sourceFiles).buildLastT_()
 }
 
 func (this *TypedAstSerializer) sourceFileProtos() *TList[*SourceFileProto] {
@@ -100,7 +100,7 @@ func (this *TypedAstSerializer) serializeScriptNode(script Node) *LazyAst {
 	if encodedSourceMap.isPresent() {
 		lazyAstBuilder.setSourceMappingUrl(encodedSourceMap.get())
 	}
-	return lazyAstBuilder.buildT_()
+	return lazyAstBuilder.buildLastT_()
 }
 
 func (this *TypedAstSerializer) createWithPositionInfo(n Node) *AstNode_Builder {
@@ -141,7 +141,7 @@ func (this *TypedAstSerializer) visit(n Node) *AstNode {
 		slicePop_(tc_p_SourceFile_jscomp, this.subtreeSourceFiles)
 	}
 	this.setOriginalName(builder, n)
-	return builder.buildT_()
+	return builder.buildLastT_()
 }
 
 func (this *TypedAstSerializer) getSourceFilePointer(n Node) int32 {
@@ -176,7 +176,7 @@ func (this *TypedAstSerializer) valueTranslator(builder *AstNode_Builder, n Node
 				return -1
 			}
 			return this.stringPool.put(n.getCookedString().get())
-		}()).buildT_())
+		}()).buildLastT_())
 		return
 	case tokOrd1_NUMBER:
 		builder.setDoubleValue(n.getDouble())
