@@ -203,55 +203,55 @@ func AbstractVar_strongerOf(left *StaticSourceFile_SourceKind, right *StaticSour
 }
 
 func (this *AbstractVar) getSourceFile() StaticSourceFile {
-	return this.self_.(interface{ getSourceFile_impl() StaticSourceFile }).getSourceFile_impl()
+	return this.self_.getSourceFile_impl()
 }
 
 func (this *AbstractVar) isGlobal() bool {
-	return this.self_.(interface{ isGlobal_impl() bool }).isGlobal_impl()
+	return this.self_.isGlobal_impl()
 }
 
 func (this *AbstractVar) isLocal() bool {
-	return this.self_.(interface{ isLocal_impl() bool }).isLocal_impl()
+	return this.self_.isLocal_impl()
 }
 
 func (this *AbstractVar) isArguments() bool {
-	return this.self_.(interface{ isArguments_impl() bool }).isArguments_impl()
+	return this.self_.isArguments_impl()
 }
 
 func (this *AbstractVar) isGoogModuleExports() bool {
-	return this.self_.(interface{ isGoogModuleExports_impl() bool }).isGoogModuleExports_impl()
+	return this.self_.isGoogModuleExports_impl()
 }
 
 func (this *AbstractVar) isThis() bool {
-	return this.self_.(interface{ isThis_impl() bool }).isThis_impl()
+	return this.self_.isThis_impl()
 }
 
 func (this *AbstractVar) declarationType() *Token_rhino {
-	return this.self_.(interface{ declarationType_impl() *Token_rhino }).declarationType_impl()
+	return this.self_.declarationType_impl()
 }
 
 func (this *AbstractVar) getSymbol_rAbstractVar() *AbstractVar {
-	return this.self_.(interface{ getSymbol_rAbstractVar_impl() *AbstractVar }).getSymbol_rAbstractVar_impl()
+	return this.self_.getSymbol_rAbstractVar_impl()
 }
 
 func (this *AbstractVar) getDeclaration_rAbstractVar() *AbstractVar {
-	return this.self_.(interface{ getDeclaration_rAbstractVar_impl() *AbstractVar }).getDeclaration_rAbstractVar_impl()
+	return this.self_.getDeclaration_rAbstractVar_impl()
 }
 
 func (this *AbstractVar) getScope_rAbstractScope() *AbstractScope {
-	return this.self_.(interface{ getScope_rAbstractScope_impl() *AbstractScope }).getScope_rAbstractScope_impl()
+	return this.self_.getScope_rAbstractScope_impl()
 }
 
 func (this *AbstractVar) getSymbol() StaticSlot {
-	return this.self_.(interface{ getSymbol_impl() StaticSlot }).getSymbol_impl()
+	return this.self_.getSymbol_impl()
 }
 
 func (this *AbstractVar) getDeclaration() StaticRef {
-	return this.self_.(interface{ getDeclaration_impl() StaticRef }).getDeclaration_impl()
+	return this.self_.getDeclaration_impl()
 }
 
 func (this *AbstractVar) getScope() StaticScope {
-	return this.self_.(interface{ getScope_impl() StaticScope }).getScope_impl()
+	return this.self_.getScope_impl()
 }
 
 func (this *AbstractVar) getSymbol_impl() StaticSlot {
