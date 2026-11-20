@@ -22,9 +22,7 @@ func IdMappingUtil_generateSerializedIdMappings(idGeneratorMaps *JTMap[string, M
 		var replacements *TEntry[string, Map] = it_1.entry()
 		if !replacements.getValue().isEmpty() {
 			cast_[*StringBuilder](cast_[*StringBuilder](cast_[*StringBuilder](sb.append_char('[')).append(replacements.getKey()).append_char(']')).append_char(IdMappingUtil_NEW_LINE)).append_char(IdMappingUtil_NEW_LINE)
-			it_3 := foreach_(replacements.getValue().entrySet())
-			for it_3.next() {
-				var replacement Map_Entry = icast_Map_Entry(it_3.v)
+			for replacement := range elemsBy_(replacements.getValue().entrySet(), icast_Map_Entry) {
 				cast_[*StringBuilder](sb.append(str_(replacement.getKey())).append_char(':')).append(str_(replacement.getValue())).append_char(IdMappingUtil_NEW_LINE)
 			}
 			sb.append_char(IdMappingUtil_NEW_LINE)
