@@ -3419,7 +3419,12 @@ func (this *Compiler_SeenSetLicenseTracker) as_Compiler_SeenSetLicenseTracker() 
 }
 
 func to_Compiler_SeenSetLicenseTracker(v any) *Compiler_SeenSetLicenseTracker {
-	if v == nil {
+	switch p := v.(type) {
+	case *Compiler_ScriptNodeLicensesOnlyTracker:
+		return p.as_Compiler_SeenSetLicenseTracker()
+	case *Compiler_SingleBinaryLicenseTracker:
+		return p.as_Compiler_SeenSetLicenseTracker()
+	case nil:
 		return nil
 	}
 	return v.(interface {
