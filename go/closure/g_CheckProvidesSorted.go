@@ -3,7 +3,7 @@
 package closure
 
 type CheckProvidesSorted struct {
-	mode_            *CheckProvidesSorted_Mode
+	mode_            CheckProvidesSorted_Mode
 	originalProvides *JTList[string]
 	firstNode        Node
 	lastNode         Node
@@ -21,12 +21,12 @@ func (this *CheckProvidesSorted) finit_CheckProvidesSorted() {
 	this.needsFixField = false
 }
 
-func (this *CheckProvidesSorted) init_CheckProvidesSorted(mode *CheckProvidesSorted_Mode) {
+func (this *CheckProvidesSorted) init_CheckProvidesSorted(mode CheckProvidesSorted_Mode) {
 	this.finit_CheckProvidesSorted()
 	this.mode_ = mode
 }
 
-func new_CheckProvidesSorted(mode *CheckProvidesSorted_Mode) *CheckProvidesSorted {
+func new_CheckProvidesSorted(mode CheckProvidesSorted_Mode) *CheckProvidesSorted {
 	this := &CheckProvidesSorted{}
 	this.init_CheckProvidesSorted(mode)
 	return this
@@ -112,44 +112,61 @@ func CheckProvidesSorted_clinit() {
 
 }
 
-type CheckProvidesSorted_Mode struct {
-	Enum
+type CheckProvidesSorted_Mode uint8
+
+// CheckProvidesSorted_Mode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CheckProvidesSorted_Mode_enum_ = [2]Enum{
+	{self_: CheckProvidesSorted_Mode_COLLECT_ONLY, name_: "COLLECT_ONLY", ordinal_: 0},
+	{self_: CheckProvidesSorted_Mode_COLLECT_AND_REPORT, name_: "COLLECT_AND_REPORT", ordinal_: 1},
 }
 
-func (this *CheckProvidesSorted_Mode) up_Enum() *Enum {
-	if this == nil {
+func (this CheckProvidesSorted_Mode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CheckProvidesSorted_Mode_enum_[this-1]
 }
 
-func (this *CheckProvidesSorted_Mode) init_CheckProvidesSorted_Mode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CheckProvidesSorted_Mode) name() string {
+	return CheckProvidesSorted_Mode_enum_[this-1].name_
 }
 
-func new_CheckProvidesSorted_Mode(name_ string, ordinal_ int32) *CheckProvidesSorted_Mode {
-	this := &CheckProvidesSorted_Mode{}
-	this.self_ = this
-	this.init_CheckProvidesSorted_Mode(name_, ordinal_)
+func (this CheckProvidesSorted_Mode) ordinal() int32 {
+	return CheckProvidesSorted_Mode_enum_[this-1].ordinal_
+}
+
+func (this CheckProvidesSorted_Mode) toString() string {
+	return CheckProvidesSorted_Mode_enum_[this-1].name_
+}
+
+func (this CheckProvidesSorted_Mode) compareTo(o any) int32 {
+	return CheckProvidesSorted_Mode_enum_[this-1].compareTo(o)
+}
+
+func (this CheckProvidesSorted_Mode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CheckProvidesSorted_Mode_values() []*CheckProvidesSorted_Mode {
-	return append([]*CheckProvidesSorted_Mode(nil), CheckProvidesSorted_Mode_values_...)
+func CheckProvidesSorted_Mode_values() []CheckProvidesSorted_Mode {
+	return append([]CheckProvidesSorted_Mode(nil), CheckProvidesSorted_Mode_values_...)
 }
 
-func CheckProvidesSorted_Mode_valueOf(name string) *CheckProvidesSorted_Mode {
+func CheckProvidesSorted_Mode_valueOf(name string) CheckProvidesSorted_Mode {
 	for _, v := range CheckProvidesSorted_Mode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Mode", name))
 }
 
-var CheckProvidesSorted_Mode_COLLECT_ONLY *CheckProvidesSorted_Mode
-var CheckProvidesSorted_Mode_COLLECT_AND_REPORT *CheckProvidesSorted_Mode
-var CheckProvidesSorted_Mode_values_ []*CheckProvidesSorted_Mode
+const CheckProvidesSorted_Mode_COLLECT_ONLY CheckProvidesSorted_Mode = 1
+const CheckProvidesSorted_Mode_COLLECT_AND_REPORT CheckProvidesSorted_Mode = 2
+
+var CheckProvidesSorted_Mode_values_ []CheckProvidesSorted_Mode
 
 var CheckProvidesSorted_Mode_clinit_done bool
 
@@ -158,9 +175,7 @@ func CheckProvidesSorted_Mode_clinit() {
 		return
 	}
 	CheckProvidesSorted_Mode_clinit_done = true
-	CheckProvidesSorted_Mode_COLLECT_ONLY = new_CheckProvidesSorted_Mode("COLLECT_ONLY", 0)
-	CheckProvidesSorted_Mode_COLLECT_AND_REPORT = new_CheckProvidesSorted_Mode("COLLECT_AND_REPORT", 1)
-	CheckProvidesSorted_Mode_values_ = []*CheckProvidesSorted_Mode{CheckProvidesSorted_Mode_COLLECT_ONLY, CheckProvidesSorted_Mode_COLLECT_AND_REPORT}
+	CheckProvidesSorted_Mode_values_ = []CheckProvidesSorted_Mode{CheckProvidesSorted_Mode_COLLECT_ONLY, CheckProvidesSorted_Mode_COLLECT_AND_REPORT}
 	registerEnum_("com.google.javascript.jscomp.lint.CheckProvidesSorted.Mode", enumValues_(CheckProvidesSorted_Mode_values_))
 
 }

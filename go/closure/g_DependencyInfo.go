@@ -31,7 +31,7 @@ func DependencyInfo__isGoogModule_default(this DependencyInfo_) bool {
 type DependencyInfo_Require struct {
 	getSymbol_  string
 	getRawText_ string
-	getType_    *DependencyInfo_Require_Type
+	getType_    DependencyInfo_Require_Type
 }
 
 func (this *DependencyInfo_Require) zero_DependencyInfo_Require() {
@@ -39,14 +39,14 @@ func (this *DependencyInfo_Require) zero_DependencyInfo_Require() {
 	this.getRawText_ = nullstr_
 }
 
-func (this *DependencyInfo_Require) init_DependencyInfo_Require(getSymbol string, getRawText string, getType *DependencyInfo_Require_Type) {
+func (this *DependencyInfo_Require) init_DependencyInfo_Require(getSymbol string, getRawText string, getType DependencyInfo_Require_Type) {
 	Objects_requireNonNull_T(getType, "getType")
 	this.getSymbol_ = getSymbol
 	this.getRawText_ = getRawText
 	this.getType_ = getType
 }
 
-func new_DependencyInfo_Require(getSymbol string, getRawText string, getType *DependencyInfo_Require_Type) *DependencyInfo_Require {
+func new_DependencyInfo_Require(getSymbol string, getRawText string, getType DependencyInfo_Require_Type) *DependencyInfo_Require {
 	this := &DependencyInfo_Require{}
 	this.zero_DependencyInfo_Require()
 	this.init_DependencyInfo_Require(getSymbol, getRawText, getType)
@@ -107,7 +107,7 @@ func (this *DependencyInfo_Require) getRawText() string {
 	return this.getRawText_
 }
 
-func (this *DependencyInfo_Require) getType() *DependencyInfo_Require_Type {
+func (this *DependencyInfo_Require) getType() DependencyInfo_Require_Type {
 	return this.getType_
 }
 
@@ -140,47 +140,67 @@ func DependencyInfo_Require_clinit() {
 
 }
 
-type DependencyInfo_Require_Type struct {
-	Enum
+type DependencyInfo_Require_Type uint8
+
+// DependencyInfo_Require_Type_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var DependencyInfo_Require_Type_enum_ = [5]Enum{
+	{self_: DependencyInfo_Require_Type_GOOG_REQUIRE_SYMBOL, name_: "GOOG_REQUIRE_SYMBOL", ordinal_: 0},
+	{self_: DependencyInfo_Require_Type_ES6_IMPORT, name_: "ES6_IMPORT", ordinal_: 1},
+	{self_: DependencyInfo_Require_Type_PARSED_FROM_DEPS, name_: "PARSED_FROM_DEPS", ordinal_: 2},
+	{self_: DependencyInfo_Require_Type_COMMON_JS, name_: "COMMON_JS", ordinal_: 3},
+	{self_: DependencyInfo_Require_Type_COMPILER_CHUNK, name_: "COMPILER_CHUNK", ordinal_: 4},
 }
 
-func (this *DependencyInfo_Require_Type) up_Enum() *Enum {
-	if this == nil {
+func (this DependencyInfo_Require_Type) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &DependencyInfo_Require_Type_enum_[this-1]
 }
 
-func (this *DependencyInfo_Require_Type) init_DependencyInfo_Require_Type(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this DependencyInfo_Require_Type) name() string {
+	return DependencyInfo_Require_Type_enum_[this-1].name_
 }
 
-func new_DependencyInfo_Require_Type(name_ string, ordinal_ int32) *DependencyInfo_Require_Type {
-	this := &DependencyInfo_Require_Type{}
-	this.self_ = this
-	this.init_DependencyInfo_Require_Type(name_, ordinal_)
+func (this DependencyInfo_Require_Type) ordinal() int32 {
+	return DependencyInfo_Require_Type_enum_[this-1].ordinal_
+}
+
+func (this DependencyInfo_Require_Type) toString() string {
+	return DependencyInfo_Require_Type_enum_[this-1].name_
+}
+
+func (this DependencyInfo_Require_Type) compareTo(o any) int32 {
+	return DependencyInfo_Require_Type_enum_[this-1].compareTo(o)
+}
+
+func (this DependencyInfo_Require_Type) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func DependencyInfo_Require_Type_values() []*DependencyInfo_Require_Type {
-	return append([]*DependencyInfo_Require_Type(nil), DependencyInfo_Require_Type_values_...)
+func DependencyInfo_Require_Type_values() []DependencyInfo_Require_Type {
+	return append([]DependencyInfo_Require_Type(nil), DependencyInfo_Require_Type_values_...)
 }
 
-func DependencyInfo_Require_Type_valueOf(name string) *DependencyInfo_Require_Type {
+func DependencyInfo_Require_Type_valueOf(name string) DependencyInfo_Require_Type {
 	for _, v := range DependencyInfo_Require_Type_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Type", name))
 }
 
-var DependencyInfo_Require_Type_GOOG_REQUIRE_SYMBOL *DependencyInfo_Require_Type
-var DependencyInfo_Require_Type_ES6_IMPORT *DependencyInfo_Require_Type
-var DependencyInfo_Require_Type_PARSED_FROM_DEPS *DependencyInfo_Require_Type
-var DependencyInfo_Require_Type_COMMON_JS *DependencyInfo_Require_Type
-var DependencyInfo_Require_Type_COMPILER_CHUNK *DependencyInfo_Require_Type
-var DependencyInfo_Require_Type_values_ []*DependencyInfo_Require_Type
+const DependencyInfo_Require_Type_GOOG_REQUIRE_SYMBOL DependencyInfo_Require_Type = 1
+const DependencyInfo_Require_Type_ES6_IMPORT DependencyInfo_Require_Type = 2
+const DependencyInfo_Require_Type_PARSED_FROM_DEPS DependencyInfo_Require_Type = 3
+const DependencyInfo_Require_Type_COMMON_JS DependencyInfo_Require_Type = 4
+const DependencyInfo_Require_Type_COMPILER_CHUNK DependencyInfo_Require_Type = 5
+
+var DependencyInfo_Require_Type_values_ []DependencyInfo_Require_Type
 
 var DependencyInfo_Require_Type_clinit_done bool
 
@@ -189,12 +209,7 @@ func DependencyInfo_Require_Type_clinit() {
 		return
 	}
 	DependencyInfo_Require_Type_clinit_done = true
-	DependencyInfo_Require_Type_GOOG_REQUIRE_SYMBOL = new_DependencyInfo_Require_Type("GOOG_REQUIRE_SYMBOL", 0)
-	DependencyInfo_Require_Type_ES6_IMPORT = new_DependencyInfo_Require_Type("ES6_IMPORT", 1)
-	DependencyInfo_Require_Type_PARSED_FROM_DEPS = new_DependencyInfo_Require_Type("PARSED_FROM_DEPS", 2)
-	DependencyInfo_Require_Type_COMMON_JS = new_DependencyInfo_Require_Type("COMMON_JS", 3)
-	DependencyInfo_Require_Type_COMPILER_CHUNK = new_DependencyInfo_Require_Type("COMPILER_CHUNK", 4)
-	DependencyInfo_Require_Type_values_ = []*DependencyInfo_Require_Type{DependencyInfo_Require_Type_GOOG_REQUIRE_SYMBOL, DependencyInfo_Require_Type_ES6_IMPORT, DependencyInfo_Require_Type_PARSED_FROM_DEPS, DependencyInfo_Require_Type_COMMON_JS, DependencyInfo_Require_Type_COMPILER_CHUNK}
+	DependencyInfo_Require_Type_values_ = []DependencyInfo_Require_Type{DependencyInfo_Require_Type_GOOG_REQUIRE_SYMBOL, DependencyInfo_Require_Type_ES6_IMPORT, DependencyInfo_Require_Type_PARSED_FROM_DEPS, DependencyInfo_Require_Type_COMMON_JS, DependencyInfo_Require_Type_COMPILER_CHUNK}
 	registerEnum_("com.google.javascript.jscomp.deps.DependencyInfo.Require.Type", enumValues_(DependencyInfo_Require_Type_values_))
 
 }
@@ -202,7 +217,7 @@ func DependencyInfo_Require_Type_clinit() {
 type DependencyInfo_Require_Builder struct {
 	symbol_ Optional[string]
 	rawText Optional[string]
-	type__  *DependencyInfo_Require_Type
+	type__  DependencyInfo_Require_Type
 }
 
 func (this *DependencyInfo_Require_Builder) finit_DependencyInfo_Require_Builder() {
@@ -233,8 +248,8 @@ func new_DependencyInfo_Require_Builder_Require(source *DependencyInfo_Require) 
 	return this
 }
 
-func (this *DependencyInfo_Require_Builder) setType(value *DependencyInfo_Require_Type) *DependencyInfo_Require_Builder {
-	if value == nil {
+func (this *DependencyInfo_Require_Builder) setType(value DependencyInfo_Require_Type) *DependencyInfo_Require_Builder {
+	if value == 0 {
 		panic(new_NullPointerException_String("Null type").self())
 	}
 	this.type__ = value
@@ -252,7 +267,7 @@ func (this *DependencyInfo_Require_Builder) setSymbol(value string) *DependencyI
 }
 
 func (this *DependencyInfo_Require_Builder) build() *DependencyInfo_Require {
-	if (this.symbol_.isEmpty() || this.rawText.isEmpty()) || (this.type__ == nil) {
+	if (this.symbol_.isEmpty() || this.rawText.isEmpty()) || (this.type__ == 0) {
 		var missing *StringBuilder = new_StringBuilder()
 		if this.symbol_.isEmpty() {
 			missing.append(" symbol")
@@ -260,7 +275,7 @@ func (this *DependencyInfo_Require_Builder) build() *DependencyInfo_Require {
 		if this.rawText.isEmpty() {
 			missing.append(" rawText")
 		}
-		if this.type__ == nil {
+		if this.type__ == 0 {
 			missing.append(" type")
 		}
 		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())

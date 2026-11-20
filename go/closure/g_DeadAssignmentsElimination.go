@@ -92,11 +92,11 @@ func (this *DeadAssignmentsElimination) isRemovableAssign(n Node) bool {
 }
 
 func (this *DeadAssignmentsElimination) tryRemoveDeadAssignments(t *NodeTraversal, cfg *ControlFlowGraph[Node], allVarsInFn *JTMap[string, *Var]) {
-	var nodes IterableOf[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]] = Iterable(cfg.getNodes())
+	var nodes IterableOf[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]] = Iterable(cfg.getNodes())
 	it_1 := foreach_(nodes)
 L_2:
 	for it_1.next() {
-		var cfgNode DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](it_1.v)
+		var cfgNode DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](it_1.v)
 		var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(cfgNode)))
 		var n Node = cfgNode.getValue()
 		if n == 0 {
@@ -220,7 +220,7 @@ func (this *DeadAssignmentsElimination) tryRemoveAssignment_5(t *NodeTraversal, 
 
 func (this *DeadAssignmentsElimination) isVariableStillLiveWithinExpression(n Node, exprRoot Node, variable string) bool {
 	for n != exprRoot {
-		var state *DeadAssignmentsElimination_VariableLiveness = DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE
+		var state DeadAssignmentsElimination_VariableLiveness = DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE
 		switch n.getParent().ns_().token {
 		case tokOrd1_OR, tokOrd1_AND, tokOrd1_COALESCE, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_OPTCHAIN_CALL:
 			{
@@ -260,7 +260,7 @@ func (this *DeadAssignmentsElimination) isVariableStillLiveWithinExpression(n No
 	return false
 }
 
-func (this *DeadAssignmentsElimination) isVariableReadBeforeKill(n Node, variable string) *DeadAssignmentsElimination_VariableLiveness {
+func (this *DeadAssignmentsElimination) isVariableReadBeforeKill(n Node, variable string) DeadAssignmentsElimination_VariableLiveness {
 	if ControlFlowGraph_isEnteringNewCfgNode(n) {
 		return DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE
 	}
@@ -270,7 +270,7 @@ func (this *DeadAssignmentsElimination) isVariableReadBeforeKill(n Node, variabl
 				Preconditions_checkState_boolean_Object_H(false, a1_)
 			}
 			var rhs Node = n.getNext()
-			var state *DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(rhs, variable)
+			var state DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(rhs, variable)
 			if state == DeadAssignmentsElimination_VariableLiveness_READ {
 				return state
 			}
@@ -281,8 +281,8 @@ func (this *DeadAssignmentsElimination) isVariableReadBeforeKill(n Node, variabl
 	}
 	switch n.ns_().token {
 	case tokOrd1_OR, tokOrd1_AND, tokOrd1_COALESCE, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OPTCHAIN_GETELEM:
-		var v1 *DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(n.getFirstChild(), variable)
-		var v2 *DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(n.getLastChild(), variable)
+		var v1 DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(n.getFirstChild(), variable)
+		var v2 DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(n.getLastChild(), variable)
 		if v1 != DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE {
 			return v1
 		} else if v2 == DeadAssignmentsElimination_VariableLiveness_READ {
@@ -291,16 +291,16 @@ func (this *DeadAssignmentsElimination) isVariableReadBeforeKill(n Node, variabl
 			return DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE
 		}
 	case tokOrd1_OPTCHAIN_CALL:
-		var v1 *DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(n.getFirstChild(), variable)
+		var v1 DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(n.getFirstChild(), variable)
 		if v1 != DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE {
 			return v1
 		}
 		{
 			var c Node = n.getSecondChild()
 			for ; c != 0; c = c.getNext() {
-				var state *DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(c, variable)
+				var state DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(c, variable)
 				if state != DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE {
-					return func() *DeadAssignmentsElimination_VariableLiveness {
+					return func() DeadAssignmentsElimination_VariableLiveness {
 						if state == DeadAssignmentsElimination_VariableLiveness_READ {
 							return DeadAssignmentsElimination_VariableLiveness_READ
 						}
@@ -311,7 +311,7 @@ func (this *DeadAssignmentsElimination) isVariableReadBeforeKill(n Node, variabl
 		}
 		return DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE
 	case tokOrd1_HOOK:
-		var first *DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(n.getFirstChild(), variable)
+		var first DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(n.getFirstChild(), variable)
 		if first != DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE {
 			return first
 		}
@@ -320,7 +320,7 @@ func (this *DeadAssignmentsElimination) isVariableReadBeforeKill(n Node, variabl
 		{
 			var child Node = n.getFirstChild()
 			for ; child != 0; child = child.getNext() {
-				var state *DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(child, variable)
+				var state DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(child, variable)
 				if state != DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE {
 					return state
 				}
@@ -330,9 +330,9 @@ func (this *DeadAssignmentsElimination) isVariableReadBeforeKill(n Node, variabl
 	return DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE
 }
 
-func (this *DeadAssignmentsElimination) checkHookBranchReadBeforeKill(trueCase Node, falseCase Node, variable string) *DeadAssignmentsElimination_VariableLiveness {
-	var v1 *DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(trueCase, variable)
-	var v2 *DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(falseCase, variable)
+func (this *DeadAssignmentsElimination) checkHookBranchReadBeforeKill(trueCase Node, falseCase Node, variable string) DeadAssignmentsElimination_VariableLiveness {
+	var v1 DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(trueCase, variable)
+	var v2 DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(falseCase, variable)
 	if (v1 == DeadAssignmentsElimination_VariableLiveness_READ) || (v2 == DeadAssignmentsElimination_VariableLiveness_READ) {
 		return DeadAssignmentsElimination_VariableLiveness_READ
 	} else if (v1 == DeadAssignmentsElimination_VariableLiveness_KILL) && (v2 == DeadAssignmentsElimination_VariableLiveness_KILL) {
@@ -358,45 +358,63 @@ func new_DeadAssignmentsElimination_BailoutInformation() *DeadAssignmentsElimina
 	return this
 }
 
-type DeadAssignmentsElimination_VariableLiveness struct {
-	Enum
+type DeadAssignmentsElimination_VariableLiveness uint8
+
+// DeadAssignmentsElimination_VariableLiveness_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var DeadAssignmentsElimination_VariableLiveness_enum_ = [3]Enum{
+	{self_: DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE, name_: "MAYBE_LIVE", ordinal_: 0},
+	{self_: DeadAssignmentsElimination_VariableLiveness_READ, name_: "READ", ordinal_: 1},
+	{self_: DeadAssignmentsElimination_VariableLiveness_KILL, name_: "KILL", ordinal_: 2},
 }
 
-func (this *DeadAssignmentsElimination_VariableLiveness) up_Enum() *Enum {
-	if this == nil {
+func (this DeadAssignmentsElimination_VariableLiveness) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &DeadAssignmentsElimination_VariableLiveness_enum_[this-1]
 }
 
-func (this *DeadAssignmentsElimination_VariableLiveness) init_DeadAssignmentsElimination_VariableLiveness(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this DeadAssignmentsElimination_VariableLiveness) name() string {
+	return DeadAssignmentsElimination_VariableLiveness_enum_[this-1].name_
 }
 
-func new_DeadAssignmentsElimination_VariableLiveness(name_ string, ordinal_ int32) *DeadAssignmentsElimination_VariableLiveness {
-	this := &DeadAssignmentsElimination_VariableLiveness{}
-	this.self_ = this
-	this.init_DeadAssignmentsElimination_VariableLiveness(name_, ordinal_)
+func (this DeadAssignmentsElimination_VariableLiveness) ordinal() int32 {
+	return DeadAssignmentsElimination_VariableLiveness_enum_[this-1].ordinal_
+}
+
+func (this DeadAssignmentsElimination_VariableLiveness) toString() string {
+	return DeadAssignmentsElimination_VariableLiveness_enum_[this-1].name_
+}
+
+func (this DeadAssignmentsElimination_VariableLiveness) compareTo(o any) int32 {
+	return DeadAssignmentsElimination_VariableLiveness_enum_[this-1].compareTo(o)
+}
+
+func (this DeadAssignmentsElimination_VariableLiveness) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func DeadAssignmentsElimination_VariableLiveness_values() []*DeadAssignmentsElimination_VariableLiveness {
-	return append([]*DeadAssignmentsElimination_VariableLiveness(nil), DeadAssignmentsElimination_VariableLiveness_values_...)
+func DeadAssignmentsElimination_VariableLiveness_values() []DeadAssignmentsElimination_VariableLiveness {
+	return append([]DeadAssignmentsElimination_VariableLiveness(nil), DeadAssignmentsElimination_VariableLiveness_values_...)
 }
 
-func DeadAssignmentsElimination_VariableLiveness_valueOf(name string) *DeadAssignmentsElimination_VariableLiveness {
+func DeadAssignmentsElimination_VariableLiveness_valueOf(name string) DeadAssignmentsElimination_VariableLiveness {
 	for _, v := range DeadAssignmentsElimination_VariableLiveness_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("VariableLiveness", name))
 }
 
-var DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE *DeadAssignmentsElimination_VariableLiveness
-var DeadAssignmentsElimination_VariableLiveness_READ *DeadAssignmentsElimination_VariableLiveness
-var DeadAssignmentsElimination_VariableLiveness_KILL *DeadAssignmentsElimination_VariableLiveness
-var DeadAssignmentsElimination_VariableLiveness_values_ []*DeadAssignmentsElimination_VariableLiveness
+const DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE DeadAssignmentsElimination_VariableLiveness = 1
+const DeadAssignmentsElimination_VariableLiveness_READ DeadAssignmentsElimination_VariableLiveness = 2
+const DeadAssignmentsElimination_VariableLiveness_KILL DeadAssignmentsElimination_VariableLiveness = 3
+
+var DeadAssignmentsElimination_VariableLiveness_values_ []DeadAssignmentsElimination_VariableLiveness
 
 var DeadAssignmentsElimination_VariableLiveness_clinit_done bool
 
@@ -405,10 +423,7 @@ func DeadAssignmentsElimination_VariableLiveness_clinit() {
 		return
 	}
 	DeadAssignmentsElimination_VariableLiveness_clinit_done = true
-	DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE = new_DeadAssignmentsElimination_VariableLiveness("MAYBE_LIVE", 0)
-	DeadAssignmentsElimination_VariableLiveness_READ = new_DeadAssignmentsElimination_VariableLiveness("READ", 1)
-	DeadAssignmentsElimination_VariableLiveness_KILL = new_DeadAssignmentsElimination_VariableLiveness("KILL", 2)
-	DeadAssignmentsElimination_VariableLiveness_values_ = []*DeadAssignmentsElimination_VariableLiveness{DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE, DeadAssignmentsElimination_VariableLiveness_READ, DeadAssignmentsElimination_VariableLiveness_KILL}
+	DeadAssignmentsElimination_VariableLiveness_values_ = []DeadAssignmentsElimination_VariableLiveness{DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE, DeadAssignmentsElimination_VariableLiveness_READ, DeadAssignmentsElimination_VariableLiveness_KILL}
 	registerEnum_("com.google.javascript.jscomp.DeadAssignmentsElimination.VariableLiveness", enumValues_(DeadAssignmentsElimination_VariableLiveness_values_))
 
 }

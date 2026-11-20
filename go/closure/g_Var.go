@@ -107,13 +107,13 @@ func (this *Var) isImplicit() bool {
 	if this.isImplicitGoogNamespace() {
 		return true
 	}
-	var var_ *AbstractScope_ImplicitVar = AbstractScope_ImplicitVar_of(this.name_)
-	return ((var_ != nil) && var_.isMadeByScope(this.scope_.up_AbstractScope()))
+	var var_ AbstractScope_ImplicitVar = AbstractScope_ImplicitVar_of(this.name_)
+	return ((var_ != 0) && var_.isMadeByScope(this.scope_.up_AbstractScope()))
 }
 
-func (this *Var) declarationType_impl() *Token_rhino {
+func (this *Var) declarationType_impl() Token_rhino {
 	if this.isImplicitGoogNamespace() {
-		return nil
+		return 0
 	}
 	{
 		var current Node = this.getNode()
@@ -126,7 +126,7 @@ func (this *Var) declarationType_impl() *Token_rhino {
 	if ok_, a1_, a2_ := this.isImplicit(), this, AbstractVar_DECLARATION_TYPES.asSet(); !ok_ {
 		Preconditions_checkState_boolean_String_Object_Object(false, "The nameNode for %s must be a descendant of one of: %s", a1_, a2_)
 	}
-	return nil
+	return 0
 }
 
 func (this *Var) getSymbol_rAbstractVar_impl() *AbstractVar {
@@ -201,7 +201,7 @@ func (this *Var) isThis() bool {
 }
 
 // declarationType: an object that is exactly a Var calls its declarationType_impl directly (post-flip); others dispatch.
-func (this *Var) declarationType() *Token_rhino {
+func (this *Var) declarationType() Token_rhino {
 	if this.self_ == any(this) {
 		return this.declarationType_impl()
 	}

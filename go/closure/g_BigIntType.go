@@ -31,13 +31,13 @@ func new_BigIntType(registry *JSTypeRegistry) *BigIntType {
 	return this
 }
 
-func (this *BigIntType) getTypeClass_impl() *JSTypeClass {
+func (this *BigIntType) getTypeClass_impl() JSTypeClass {
 	return JSTypeClass_BIGINT
 }
 
-func (this *BigIntType) testForEquality_impl(that *JSType) *Tri {
-	var result *Tri = this.ValueType.testForEquality_impl(that)
-	if result != nil {
+func (this *BigIntType) testForEquality_impl(that *JSType) Tri {
+	var result Tri = this.ValueType.testForEquality_impl(that)
+	if result != 0 {
 		return result
 	}
 	if ((((that.isUnknownType() || that.isSubtypeOf(this.getNativeType(JSTypeNative_OBJECT_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_NUMBER_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_STRING_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_BOOLEAN_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_BIGINT_TYPE)) {
@@ -66,7 +66,7 @@ func (this *BigIntType) getDisplayName_impl() Optional[string] {
 	return Optional_of[string]("bigint")
 }
 
-func (this *BigIntType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
+func (this *BigIntType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_BOTH
 }
 
@@ -79,7 +79,7 @@ func (this *BigIntType) autoboxesTo_impl() *JSType {
 }
 
 // getTypeClass: an object that is exactly a BigIntType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *BigIntType) getTypeClass() *JSTypeClass {
+func (this *BigIntType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
@@ -87,7 +87,7 @@ func (this *BigIntType) getTypeClass() *JSTypeClass {
 }
 
 // testForEquality: an object that is exactly a BigIntType calls its testForEquality_impl directly (post-flip); others dispatch.
-func (this *BigIntType) testForEquality(p0 *JSType) *Tri {
+func (this *BigIntType) testForEquality(p0 *JSType) Tri {
 	if this.self_ == any(this) {
 		return this.testForEquality_impl(p0)
 	}
@@ -135,7 +135,7 @@ func (this *BigIntType) getDisplayName() Optional[string] {
 }
 
 // getPossibleToBooleanOutcomes: an object that is exactly a BigIntType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
-func (this *BigIntType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
+func (this *BigIntType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 	if this.self_ == any(this) {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}

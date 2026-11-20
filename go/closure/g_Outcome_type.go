@@ -10,7 +10,7 @@ type Outcome_type struct {
 // Outcome_type_I holds the methods the dispatchers of enum Outcome_type call on its
 // constant (selfI_, set with self_); every constant of the enum implements them (post-flip).
 type Outcome_type_I interface {
-	isNullish_impl() *Tri
+	isNullish_impl() Tri
 	isTruthy_impl() bool
 	not_impl() *Outcome_type
 }
@@ -65,7 +65,7 @@ func (this *Outcome_type) isTruthy() bool {
 	return this.selfI_.isTruthy_impl()
 }
 
-func (this *Outcome_type) isNullish() *Tri {
+func (this *Outcome_type) isNullish() Tri {
 	return this.selfI_.isNullish_impl()
 }
 
@@ -138,7 +138,7 @@ func (this *Outcome_1_type) isTruthy_impl() bool {
 	return true
 }
 
-func (this *Outcome_1_type) isNullish_impl() *Tri {
+func (this *Outcome_1_type) isNullish_impl() Tri {
 	return Tri_FALSE
 }
 
@@ -207,7 +207,7 @@ func (this *Outcome_2_type) isTruthy_impl() bool {
 	return false
 }
 
-func (this *Outcome_2_type) isNullish_impl() *Tri {
+func (this *Outcome_2_type) isNullish_impl() Tri {
 	return Tri_UNKNOWN
 }
 
@@ -251,7 +251,7 @@ func (this *Outcome_1_type) isTruthy() bool {
 }
 
 // isNullish: an object that is exactly a Outcome_1_type calls its isNullish_impl directly (post-flip); others dispatch.
-func (this *Outcome_1_type) isNullish() *Tri {
+func (this *Outcome_1_type) isNullish() Tri {
 	if this.self_ == any(this) {
 		return this.isNullish_impl()
 	}
@@ -275,7 +275,7 @@ func (this *Outcome_2_type) isTruthy() bool {
 }
 
 // isNullish: an object that is exactly a Outcome_2_type calls its isNullish_impl directly (post-flip); others dispatch.
-func (this *Outcome_2_type) isNullish() *Tri {
+func (this *Outcome_2_type) isNullish() Tri {
 	if this.self_ == any(this) {
 		return this.isNullish_impl()
 	}

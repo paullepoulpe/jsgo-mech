@@ -4,7 +4,7 @@ package closure
 
 type CheckTypeSummaryWarningsGuard struct {
 	WarningsGuard
-	levelField *CheckLevel
+	levelField CheckLevel
 }
 
 func (this *CheckTypeSummaryWarningsGuard) up_WarningsGuard() *WarningsGuard {
@@ -14,27 +14,27 @@ func (this *CheckTypeSummaryWarningsGuard) up_WarningsGuard() *WarningsGuard {
 	return &this.WarningsGuard
 }
 
-func (this *CheckTypeSummaryWarningsGuard) init_CheckTypeSummaryWarningsGuard(level *CheckLevel) {
+func (this *CheckTypeSummaryWarningsGuard) init_CheckTypeSummaryWarningsGuard(level CheckLevel) {
 	this.WarningsGuard.init_WarningsGuard()
 	this.levelField = level
 }
 
-func new_CheckTypeSummaryWarningsGuard(level *CheckLevel) *CheckTypeSummaryWarningsGuard {
+func new_CheckTypeSummaryWarningsGuard(level CheckLevel) *CheckTypeSummaryWarningsGuard {
 	this := &CheckTypeSummaryWarningsGuard{}
 	this.self_ = this
 	this.init_CheckTypeSummaryWarningsGuard(level)
 	return this
 }
 
-func (this *CheckTypeSummaryWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
+func (this *CheckTypeSummaryWarningsGuard) level_impl(error_ *JSError) CheckLevel {
 	Preconditions_checkNotNull_T(error_)
 	if !this.shouldDemoteIfTypeSummary(error_) {
-		return nil
+		return 0
 	}
 	if this.inTypeSummary(error_) {
 		return this.levelField
 	}
-	return nil
+	return 0
 }
 
 func (this *CheckTypeSummaryWarningsGuard) getPriority_impl() int32 {
@@ -50,7 +50,7 @@ func (this *CheckTypeSummaryWarningsGuard) shouldDemoteIfTypeSummary(error_ *JSE
 }
 
 // level: an object that is exactly a CheckTypeSummaryWarningsGuard calls its level_impl directly (post-flip); others dispatch.
-func (this *CheckTypeSummaryWarningsGuard) level(p0 *JSError) *CheckLevel {
+func (this *CheckTypeSummaryWarningsGuard) level(p0 *JSError) CheckLevel {
 	if this.self_ == any(this) {
 		return this.level_impl(p0)
 	}

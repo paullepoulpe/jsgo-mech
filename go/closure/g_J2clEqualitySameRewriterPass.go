@@ -55,7 +55,7 @@ func (this *J2clEqualitySameRewriterPass) optimizeSubtree_impl(node Node) Node {
 }
 
 func (this *J2clEqualitySameRewriterPass) trySubstituteStringEquals(callNode Node) Node {
-	var firstExprValue *J2clEqualitySameRewriterPass_NodeValue = J2clEqualitySameRewriterPass_getKnownLiteralValue(callNode.getSecondChild())
+	var firstExprValue J2clEqualitySameRewriterPass_NodeValue = J2clEqualitySameRewriterPass_getKnownLiteralValue(callNode.getSecondChild())
 	if (firstExprValue == J2clEqualitySameRewriterPass_NodeValue_UNKNOWN) || (firstExprValue == J2clEqualitySameRewriterPass_NodeValue_NULL_OR_UNDEFINED) {
 		return 0
 	}
@@ -64,9 +64,9 @@ func (this *J2clEqualitySameRewriterPass) trySubstituteStringEquals(callNode Nod
 
 func (this *J2clEqualitySameRewriterPass) trySubstituteEqualitySame(callNode Node) Node {
 	var firstExpr Node = callNode.getSecondChild()
-	var firstExprValue *J2clEqualitySameRewriterPass_NodeValue = J2clEqualitySameRewriterPass_getKnownLiteralValue(firstExpr)
+	var firstExprValue J2clEqualitySameRewriterPass_NodeValue = J2clEqualitySameRewriterPass_getKnownLiteralValue(firstExpr)
 	var secondExpr Node = callNode.getLastChild()
-	var secondExprValue *J2clEqualitySameRewriterPass_NodeValue = J2clEqualitySameRewriterPass_getKnownLiteralValue(secondExpr)
+	var secondExprValue J2clEqualitySameRewriterPass_NodeValue = J2clEqualitySameRewriterPass_getKnownLiteralValue(secondExpr)
 	if (firstExprValue == J2clEqualitySameRewriterPass_NodeValue_UNKNOWN) && (secondExprValue == J2clEqualitySameRewriterPass_NodeValue_UNKNOWN) {
 		return 0
 	}
@@ -130,11 +130,11 @@ func J2clEqualitySameRewriterPass_isSafeNumber(d any) bool {
 	return (((d != nil) && (unbox_[float64](d) != 0)) && !Double_isNaN_0(d))
 }
 
-func J2clEqualitySameRewriterPass_getKnownLiteralValue(n Node) *J2clEqualitySameRewriterPass_NodeValue {
-	return func() *J2clEqualitySameRewriterPass_NodeValue {
+func J2clEqualitySameRewriterPass_getKnownLiteralValue(n Node) J2clEqualitySameRewriterPass_NodeValue {
+	return func() J2clEqualitySameRewriterPass_NodeValue {
 		switch NodeUtil_getKnownValueType(n) {
 		case NodeUtil_ValueType_VOID:
-			return func() *J2clEqualitySameRewriterPass_NodeValue {
+			return func() J2clEqualitySameRewriterPass_NodeValue {
 				if NodeUtil_canBeSideEffected_Node(n) {
 					return J2clEqualitySameRewriterPass_NodeValue_UNKNOWN
 				}
@@ -169,46 +169,65 @@ func J2clEqualitySameRewriterPass_hasName(fnName Node, className string, methodN
 	return (String_endsWith(originalQname, methodName) && JString_contains_s(originalQname, className))
 }
 
-type J2clEqualitySameRewriterPass_NodeValue struct {
-	Enum
+type J2clEqualitySameRewriterPass_NodeValue uint8
+
+// J2clEqualitySameRewriterPass_NodeValue_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var J2clEqualitySameRewriterPass_NodeValue_enum_ = [4]Enum{
+	{self_: J2clEqualitySameRewriterPass_NodeValue_UNKNOWN, name_: "UNKNOWN", ordinal_: 0},
+	{self_: J2clEqualitySameRewriterPass_NodeValue_NULL_OR_UNDEFINED, name_: "NULL_OR_UNDEFINED", ordinal_: 1},
+	{self_: J2clEqualitySameRewriterPass_NodeValue_NUMBER, name_: "NUMBER", ordinal_: 2},
+	{self_: J2clEqualitySameRewriterPass_NodeValue_NON_NULL, name_: "NON_NULL", ordinal_: 3},
 }
 
-func (this *J2clEqualitySameRewriterPass_NodeValue) up_Enum() *Enum {
-	if this == nil {
+func (this J2clEqualitySameRewriterPass_NodeValue) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &J2clEqualitySameRewriterPass_NodeValue_enum_[this-1]
 }
 
-func (this *J2clEqualitySameRewriterPass_NodeValue) init_J2clEqualitySameRewriterPass_NodeValue(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this J2clEqualitySameRewriterPass_NodeValue) name() string {
+	return J2clEqualitySameRewriterPass_NodeValue_enum_[this-1].name_
 }
 
-func new_J2clEqualitySameRewriterPass_NodeValue(name_ string, ordinal_ int32) *J2clEqualitySameRewriterPass_NodeValue {
-	this := &J2clEqualitySameRewriterPass_NodeValue{}
-	this.self_ = this
-	this.init_J2clEqualitySameRewriterPass_NodeValue(name_, ordinal_)
+func (this J2clEqualitySameRewriterPass_NodeValue) ordinal() int32 {
+	return J2clEqualitySameRewriterPass_NodeValue_enum_[this-1].ordinal_
+}
+
+func (this J2clEqualitySameRewriterPass_NodeValue) toString() string {
+	return J2clEqualitySameRewriterPass_NodeValue_enum_[this-1].name_
+}
+
+func (this J2clEqualitySameRewriterPass_NodeValue) compareTo(o any) int32 {
+	return J2clEqualitySameRewriterPass_NodeValue_enum_[this-1].compareTo(o)
+}
+
+func (this J2clEqualitySameRewriterPass_NodeValue) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func J2clEqualitySameRewriterPass_NodeValue_values() []*J2clEqualitySameRewriterPass_NodeValue {
-	return append([]*J2clEqualitySameRewriterPass_NodeValue(nil), J2clEqualitySameRewriterPass_NodeValue_values_...)
+func J2clEqualitySameRewriterPass_NodeValue_values() []J2clEqualitySameRewriterPass_NodeValue {
+	return append([]J2clEqualitySameRewriterPass_NodeValue(nil), J2clEqualitySameRewriterPass_NodeValue_values_...)
 }
 
-func J2clEqualitySameRewriterPass_NodeValue_valueOf(name string) *J2clEqualitySameRewriterPass_NodeValue {
+func J2clEqualitySameRewriterPass_NodeValue_valueOf(name string) J2clEqualitySameRewriterPass_NodeValue {
 	for _, v := range J2clEqualitySameRewriterPass_NodeValue_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("NodeValue", name))
 }
 
-var J2clEqualitySameRewriterPass_NodeValue_UNKNOWN *J2clEqualitySameRewriterPass_NodeValue
-var J2clEqualitySameRewriterPass_NodeValue_NULL_OR_UNDEFINED *J2clEqualitySameRewriterPass_NodeValue
-var J2clEqualitySameRewriterPass_NodeValue_NUMBER *J2clEqualitySameRewriterPass_NodeValue
-var J2clEqualitySameRewriterPass_NodeValue_NON_NULL *J2clEqualitySameRewriterPass_NodeValue
-var J2clEqualitySameRewriterPass_NodeValue_values_ []*J2clEqualitySameRewriterPass_NodeValue
+const J2clEqualitySameRewriterPass_NodeValue_UNKNOWN J2clEqualitySameRewriterPass_NodeValue = 1
+const J2clEqualitySameRewriterPass_NodeValue_NULL_OR_UNDEFINED J2clEqualitySameRewriterPass_NodeValue = 2
+const J2clEqualitySameRewriterPass_NodeValue_NUMBER J2clEqualitySameRewriterPass_NodeValue = 3
+const J2clEqualitySameRewriterPass_NodeValue_NON_NULL J2clEqualitySameRewriterPass_NodeValue = 4
+
+var J2clEqualitySameRewriterPass_NodeValue_values_ []J2clEqualitySameRewriterPass_NodeValue
 
 var J2clEqualitySameRewriterPass_NodeValue_clinit_done bool
 
@@ -217,11 +236,7 @@ func J2clEqualitySameRewriterPass_NodeValue_clinit() {
 		return
 	}
 	J2clEqualitySameRewriterPass_NodeValue_clinit_done = true
-	J2clEqualitySameRewriterPass_NodeValue_UNKNOWN = new_J2clEqualitySameRewriterPass_NodeValue("UNKNOWN", 0)
-	J2clEqualitySameRewriterPass_NodeValue_NULL_OR_UNDEFINED = new_J2clEqualitySameRewriterPass_NodeValue("NULL_OR_UNDEFINED", 1)
-	J2clEqualitySameRewriterPass_NodeValue_NUMBER = new_J2clEqualitySameRewriterPass_NodeValue("NUMBER", 2)
-	J2clEqualitySameRewriterPass_NodeValue_NON_NULL = new_J2clEqualitySameRewriterPass_NodeValue("NON_NULL", 3)
-	J2clEqualitySameRewriterPass_NodeValue_values_ = []*J2clEqualitySameRewriterPass_NodeValue{J2clEqualitySameRewriterPass_NodeValue_UNKNOWN, J2clEqualitySameRewriterPass_NodeValue_NULL_OR_UNDEFINED, J2clEqualitySameRewriterPass_NodeValue_NUMBER, J2clEqualitySameRewriterPass_NodeValue_NON_NULL}
+	J2clEqualitySameRewriterPass_NodeValue_values_ = []J2clEqualitySameRewriterPass_NodeValue{J2clEqualitySameRewriterPass_NodeValue_UNKNOWN, J2clEqualitySameRewriterPass_NodeValue_NULL_OR_UNDEFINED, J2clEqualitySameRewriterPass_NodeValue_NUMBER, J2clEqualitySameRewriterPass_NodeValue_NON_NULL}
 	registerEnum_("com.google.javascript.jscomp.J2clEqualitySameRewriterPass.NodeValue", enumValues_(J2clEqualitySameRewriterPass_NodeValue_values_))
 
 }
