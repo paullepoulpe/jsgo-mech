@@ -5,7 +5,7 @@ package closure
 type TemplateLiteralToken struct {
 	LiteralToken
 	errorMessage_ string
-	errorPosition *SourcePosition_util
+	errorPosition SourcePosition_util
 	errorLevel    TemplateLiteralToken_ErrorLevel
 }
 
@@ -28,14 +28,14 @@ func (this *TemplateLiteralToken) zero_TemplateLiteralToken() {
 	this.errorMessage_ = nullstr_
 }
 
-func (this *TemplateLiteralToken) init_TemplateLiteralToken(type_ TokenType, value string, errorMsg string, errorLevel TemplateLiteralToken_ErrorLevel, position *SourcePosition_util, location *SourceRange) {
+func (this *TemplateLiteralToken) init_TemplateLiteralToken(type_ TokenType, value string, errorMsg string, errorLevel TemplateLiteralToken_ErrorLevel, position SourcePosition_util, location SourceRange) {
 	this.LiteralToken.init_LiteralToken(type_, value, location)
 	this.errorMessage_ = errorMsg
 	this.errorLevel = errorLevel
 	this.errorPosition = position
 }
 
-func new_TemplateLiteralToken(type_ TokenType, value string, errorMsg string, errorLevel TemplateLiteralToken_ErrorLevel, position *SourcePosition_util, location *SourceRange) *TemplateLiteralToken {
+func new_TemplateLiteralToken(type_ TokenType, value string, errorMsg string, errorLevel TemplateLiteralToken_ErrorLevel, position SourcePosition_util, location SourceRange) *TemplateLiteralToken {
 	this := &TemplateLiteralToken{}
 	this.self_ = this
 	this.zero_TemplateLiteralToken()

@@ -4,7 +4,7 @@ package closure
 
 type TypedAstSerializer struct {
 	compiler_          *AbstractCompiler
-	serializationMode  *SerializationOptions
+	serializationMode  SerializationOptions
 	stringPool         *StringPool_Builder
 	previousLine       int32
 	previousColumn     int32
@@ -20,13 +20,13 @@ func (this *TypedAstSerializer) finit_TypedAstSerializer() {
 	this.typeSerializer = nil
 }
 
-func (this *TypedAstSerializer) init_TypedAstSerializer(compiler *AbstractCompiler, serializationMode *SerializationOptions) {
+func (this *TypedAstSerializer) init_TypedAstSerializer(compiler *AbstractCompiler, serializationMode SerializationOptions) {
 	this.finit_TypedAstSerializer()
 	this.compiler_ = compiler
 	this.serializationMode = serializationMode
 }
 
-func new_TypedAstSerializer(compiler *AbstractCompiler, serializationMode *SerializationOptions) *TypedAstSerializer {
+func new_TypedAstSerializer(compiler *AbstractCompiler, serializationMode SerializationOptions) *TypedAstSerializer {
 	this := &TypedAstSerializer{}
 	this.init_TypedAstSerializer(compiler, serializationMode)
 	return this
@@ -500,13 +500,13 @@ func (this *TypedAstSerializer) kindTranslator(n Node) NodeKind {
 	panic(new_IllegalStateException_String(("Unserializable token for node: " + tostrH_(n))))
 }
 
-func TypedAstSerializer_createJSTypeSerializer(compiler *AbstractCompiler, serializationMode *SerializationOptions, stringPoolBuilder *StringPool_Builder) *TypedAstSerializer_JSTypeSerializer {
+func TypedAstSerializer_createJSTypeSerializer(compiler *AbstractCompiler, serializationMode SerializationOptions, stringPoolBuilder *StringPool_Builder) *TypedAstSerializer_JSTypeSerializer {
 	var serializeTypesToPointers *SerializeTypesToPointers = SerializeTypesToPointers_create(compiler, stringPoolBuilder, serializationMode)
 	serializeTypesToPointers.gatherTypesOnAst(compiler.getRoot())
 	return new_TypedAstSerializer_JSTypeSerializer(serializeTypesToPointers.getTypePointersByJstype(), serializeTypesToPointers.getTypePool())
 }
 
-func (this *TypedAstSerializer) createColorTypeSerializer(compiler *AbstractCompiler, serializationMode *SerializationOptions, stringPoolBuilder *StringPool_Builder) *TypedAstSerializer_ColorTypeSerializer {
+func (this *TypedAstSerializer) createColorTypeSerializer(compiler *AbstractCompiler, serializationMode SerializationOptions, stringPoolBuilder *StringPool_Builder) *TypedAstSerializer_ColorTypeSerializer {
 	var usedPropertyNames map[string]struct{} = setImm_(tc_string, TypedAstSerializer_collectUsedPropertyNames(compiler).asImm())
 	var colorSerializer *ColorSerializer = new_ColorSerializer(serializationMode, (&Function_tfn_string_any{func(p0 string) any { return any(int32(stringPoolBuilder.put(p0))) }}).apply, (&Predicate_tfn_string{func(p0 string) bool { return has_(usedPropertyNames, p0) }}).test)
 	return new_TypedAstSerializer_ColorTypeSerializer(colorSerializer, compiler.getColorRegistry())

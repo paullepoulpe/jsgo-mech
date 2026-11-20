@@ -16,14 +16,14 @@ func (this *OptionalMemberLookupExpressionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *OptionalMemberLookupExpressionTree) init_OptionalMemberLookupExpressionTree(location *SourceRange, operand *ParseTree, memberExpression *ParseTree, isStartOfOptionalChain bool) {
+func (this *OptionalMemberLookupExpressionTree) init_OptionalMemberLookupExpressionTree(location SourceRange, operand *ParseTree, memberExpression *ParseTree, isStartOfOptionalChain bool) {
 	this.ParseTree.init_ParseTree(ParseTreeType_OPT_CHAIN_MEMBER_LOOKUP_EXPRESSION, location)
 	this.operand = operand
 	this.memberExpression = memberExpression
 	this.isStartOfOptionalChain = isStartOfOptionalChain
 }
 
-func new_OptionalMemberLookupExpressionTree(location *SourceRange, operand *ParseTree, memberExpression *ParseTree, isStartOfOptionalChain bool) *OptionalMemberLookupExpressionTree {
+func new_OptionalMemberLookupExpressionTree(location SourceRange, operand *ParseTree, memberExpression *ParseTree, isStartOfOptionalChain bool) *OptionalMemberLookupExpressionTree {
 	this := &OptionalMemberLookupExpressionTree{}
 	this.self_ = this
 	this.init_OptionalMemberLookupExpressionTree(location, operand, memberExpression, isStartOfOptionalChain)

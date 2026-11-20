@@ -1657,7 +1657,7 @@ func (this *CodeGenerator) addAllSiblings(n Node) {
 
 func (this *CodeGenerator) addNonJsDocNonTrailing(node Node, nonJsDocComment *NonJSDocComment) {
 	var content string = nonJsDocComment.getCommentString()
-	var commentEndPosition *SourcePosition_util = nonJsDocComment.getEndPosition()
+	var commentEndPosition SourcePosition_util = nonJsDocComment.getEndPosition()
 	var nodeLineNumber int32 = (node.getLineno() - 1)
 	if nonJsDocComment.isEndingAsLineComment() {
 		if !this.gentsMode && commentEndPosition.line_ >= nodeLineNumber {

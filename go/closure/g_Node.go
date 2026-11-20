@@ -318,7 +318,7 @@ func Node_newString_Token_String(token Token_rhino, str string) Node {
 	return n
 }
 
-func Node_newString_Token_LazyInternedStringList_int(token Token_rhino, stringPool *RhinoStringPool_LazyInternedStringList, offset int32) Node {
+func Node_newString_Token_LazyInternedStringList_int(token Token_rhino, stringPool RhinoStringPool_LazyInternedStringList, offset int32) Node {
 	var n Node = new_Node_Token(token)
 	n.payload_sets_(stringPool.get(offset))
 	return n
@@ -335,7 +335,7 @@ func Node_newTemplateLitString_Optional_String(cooked string, raw string) Node {
 	return n
 }
 
-func Node_newTemplateLitString_LazyInternedStringList_int_int(stringPool *RhinoStringPool_LazyInternedStringList, cookedOffsetOrNegativeOne int32, rawOffset int32) Node {
+func Node_newTemplateLitString_LazyInternedStringList_int_int(stringPool RhinoStringPool_LazyInternedStringList, cookedOffsetOrNegativeOne int32, rawOffset int32) Node {
 	var n Node = new_Node_Token(Token_rhino_TEMPLATELIT_STRING)
 	n.payload_set_(obj_(new_Node_TemplateLiteralSubstring(func() string {
 		if cookedOffsetOrNegativeOne == -1 {
@@ -1088,7 +1088,7 @@ func (this Node) setString(str string) {
 	this.payload_sets_(RhinoStringPool_addOrGet(str))
 }
 
-func (this Node) setStringFromStringPool(stringPool *RhinoStringPool_LazyInternedStringList, offset int32) {
+func (this Node) setStringFromStringPool(stringPool RhinoStringPool_LazyInternedStringList, offset int32) {
 	if !this.payload_iss_() {
 		panic(this.payloadKindMismatch("string"))
 	}
@@ -1368,7 +1368,7 @@ func (this Node) setOriginalName(s string) {
 	}())
 }
 
-func (this Node) setOriginalNameFromStringPool(stringPool *RhinoStringPool_LazyInternedStringList, offset int32) {
+func (this Node) setOriginalNameFromStringPool(stringPool RhinoStringPool_LazyInternedStringList, offset int32) {
 	this.cs_().originalName = strid_(stringPool.get(offset))
 }
 

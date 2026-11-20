@@ -7,7 +7,7 @@ type Es6RewriteBlockScopedDeclaration struct {
 	compiler_        *AbstractCompiler
 	astFactory_      *AstFactory
 	letConsts        *TSet[Node]
-	uniqueIdSupplier *UniqueIdSupplier
+	uniqueIdSupplier UniqueIdSupplier
 }
 
 func (this *Es6RewriteBlockScopedDeclaration) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {

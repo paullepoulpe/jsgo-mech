@@ -4,7 +4,7 @@ package closure
 
 type ProcessConstJsdocCallback struct {
 	NodeTraversal_AbstractPostOrderCallback
-	currentFile *FileInfo
+	currentFile FileInfo
 }
 
 func (this *ProcessConstJsdocCallback) as_ProcessConstJsdocCallback() *ProcessConstJsdocCallback {
@@ -25,7 +25,7 @@ func (this *ProcessConstJsdocCallback) up_NodeTraversal_AbstractPostOrderCallbac
 	return &this.NodeTraversal_AbstractPostOrderCallback
 }
 
-func (this *ProcessConstJsdocCallback) init_ProcessConstJsdocCallback(currentFile *FileInfo) {
+func (this *ProcessConstJsdocCallback) init_ProcessConstJsdocCallback(currentFile FileInfo) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.currentFile = currentFile
 }

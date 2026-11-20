@@ -12,20 +12,20 @@ func (this *ProcessTweaks) init_ProcessTweaks(compiler *AbstractCompiler, stripT
 	this.stripTweaks = stripTweaks
 }
 
-func new_ProcessTweaks(compiler *AbstractCompiler, stripTweaks bool) *ProcessTweaks {
-	this := &ProcessTweaks{}
+func new_ProcessTweaks(compiler *AbstractCompiler, stripTweaks bool) ProcessTweaks {
+	this := ProcessTweaks{}
 	this.init_ProcessTweaks(compiler, stripTweaks)
 	return this
 }
 
-func (this *ProcessTweaks) process_2(externs Node, root Node) {
+func (this ProcessTweaks) process_2(externs Node, root Node) {
 	var result *ProcessTweaks_CollectTweaksResult = this.collectTweaks(root)
 	if this.stripTweaks {
 		this.stripAllCalls(result.tweakInfos)
 	}
 }
 
-func (this *ProcessTweaks) stripAllCalls(tweakInfos *TMap[string, *ProcessTweaks_TweakInfo]) {
+func (this ProcessTweaks) stripAllCalls(tweakInfos *TMap[string, *ProcessTweaks_TweakInfo]) {
 	for tweakInfo := range tweakInfos.Values() {
 		var isRegistered bool = tweakInfo.isRegistered()
 		for functionCall := range sliceAll_(tweakInfo.functionCalls) {
@@ -50,7 +50,7 @@ func (this *ProcessTweaks) stripAllCalls(tweakInfos *TMap[string, *ProcessTweaks
 	}
 }
 
-func (this *ProcessTweaks) collectTweaks(root Node) *ProcessTweaks_CollectTweaksResult {
+func (this ProcessTweaks) collectTweaks(root Node) *ProcessTweaks_CollectTweaksResult {
 	var pass *ProcessTweaks_CollectTweaks = new_ProcessTweaks_CollectTweaks(this)
 	NodeTraversal_traverse(this.compiler_, root, ProcessTweaks_CollectTweaks_as_NodeTraversal_Callback(pass))
 	var tweakInfos *TMap[string, *ProcessTweaks_TweakInfo] = pass.allTweaks
@@ -265,7 +265,7 @@ func new_ProcessTweaks_CollectTweaksResult(tweakInfos *TMap[string, *ProcessTwea
 
 type ProcessTweaks_CollectTweaks struct {
 	NodeTraversal_AbstractPostOrderCallback
-	outer_    *ProcessTweaks
+	outer_    ProcessTweaks
 	allTweaks *TMap[string, *ProcessTweaks_TweakInfo]
 }
 
@@ -285,7 +285,7 @@ func (this *ProcessTweaks_CollectTweaks) init_ProcessTweaks_CollectTweaks() {
 	this.finit_ProcessTweaks_CollectTweaks()
 }
 
-func new_ProcessTweaks_CollectTweaks(outer_ *ProcessTweaks) *ProcessTweaks_CollectTweaks {
+func new_ProcessTweaks_CollectTweaks(outer_ ProcessTweaks) *ProcessTweaks_CollectTweaks {
 	this := &ProcessTweaks_CollectTweaks{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -358,7 +358,7 @@ func new_ProcessTweaks_TweakFunctionCall_TweakFunction_Node_Node(tweakFunc Proce
 }
 
 type ProcessTweaks_TweakInfo struct {
-	outer_           *ProcessTweaks
+	outer_           ProcessTweaks
 	tweakId          string
 	functionCalls    *[]*ProcessTweaks_TweakFunctionCall
 	registerCall     *ProcessTweaks_TweakFunctionCall
@@ -374,7 +374,7 @@ func (this *ProcessTweaks_TweakInfo) init_ProcessTweaks_TweakInfo(tweakId string
 	this.functionCalls = &[]*ProcessTweaks_TweakFunctionCall{}
 }
 
-func new_ProcessTweaks_TweakInfo(outer_ *ProcessTweaks, tweakId string) *ProcessTweaks_TweakInfo {
+func new_ProcessTweaks_TweakInfo(outer_ ProcessTweaks, tweakId string) *ProcessTweaks_TweakInfo {
 	this := &ProcessTweaks_TweakInfo{}
 	this.zero_ProcessTweaks_TweakInfo()
 	this.outer_ = outer_

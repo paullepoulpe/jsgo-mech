@@ -38,7 +38,7 @@ func RhinoStringPool_clinit() {
 
 type RhinoStringPool_LazyInternedStringList struct {
 	pool       *TList[string]
-	isInterned *RhinoStringPool_WriteOnlyBitset
+	isInterned RhinoStringPool_WriteOnlyBitset
 }
 
 func (this *RhinoStringPool_LazyInternedStringList) init_RhinoStringPool_LazyInternedStringList(pool *TList[string]) {
@@ -46,13 +46,13 @@ func (this *RhinoStringPool_LazyInternedStringList) init_RhinoStringPool_LazyInt
 	this.isInterned = new_RhinoStringPool_WriteOnlyBitset(pool.size())
 }
 
-func new_RhinoStringPool_LazyInternedStringList(pool *TList[string]) *RhinoStringPool_LazyInternedStringList {
-	this := &RhinoStringPool_LazyInternedStringList{}
+func new_RhinoStringPool_LazyInternedStringList(pool *TList[string]) RhinoStringPool_LazyInternedStringList {
+	this := RhinoStringPool_LazyInternedStringList{}
 	this.init_RhinoStringPool_LazyInternedStringList(pool)
 	return this
 }
 
-func (this *RhinoStringPool_LazyInternedStringList) get(offset int32) string {
+func (this RhinoStringPool_LazyInternedStringList) get(offset int32) string {
 	if !this.isInterned.get(offset) {
 		var uninterned string = this.pool.get(offset)
 		var interned string = RhinoStringPool_addOrGet(uninterned)
@@ -63,7 +63,7 @@ func (this *RhinoStringPool_LazyInternedStringList) get(offset int32) string {
 	return this.pool.get(offset)
 }
 
-func (this *RhinoStringPool_LazyInternedStringList) asList() *TList[string] {
+func (this RhinoStringPool_LazyInternedStringList) asList() *TList[string] {
 	return this.pool
 }
 
@@ -75,20 +75,20 @@ func (this *RhinoStringPool_WriteOnlyBitset) init_RhinoStringPool_WriteOnlyBitse
 	this.bits = new_AtomicIntegerArray((RhinoStringPool_WriteOnlyBitset_wordIndex((size - 1)) + 1))
 }
 
-func new_RhinoStringPool_WriteOnlyBitset(size int32) *RhinoStringPool_WriteOnlyBitset {
-	this := &RhinoStringPool_WriteOnlyBitset{}
+func new_RhinoStringPool_WriteOnlyBitset(size int32) RhinoStringPool_WriteOnlyBitset {
+	this := RhinoStringPool_WriteOnlyBitset{}
 	this.init_RhinoStringPool_WriteOnlyBitset(size)
 	return this
 }
 
-func (this *RhinoStringPool_WriteOnlyBitset) set(offset int32) {
+func (this RhinoStringPool_WriteOnlyBitset) set(offset int32) {
 	var wordIndex int32 = RhinoStringPool_WriteOnlyBitset_wordIndex(offset)
 	this.bits.updateAndGet_f(wordIndex, func(prevValue int32) int32 {
 		return (prevValue | (int32(1) << (uint32(offset) & 31)))
 	})
 }
 
-func (this *RhinoStringPool_WriteOnlyBitset) get(offset int32) bool {
+func (this RhinoStringPool_WriteOnlyBitset) get(offset int32) bool {
 	var wordIndex int32 = RhinoStringPool_WriteOnlyBitset_wordIndex(offset)
 	return ((this.bits.get(wordIndex) & (int32(1) << (uint32(offset) & 31))) != 0)
 }

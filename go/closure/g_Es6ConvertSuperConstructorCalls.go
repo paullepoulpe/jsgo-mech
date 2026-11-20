@@ -10,7 +10,7 @@ type Es6ConvertSuperConstructorCalls struct {
 	astFactory_              *AstFactory
 	globalNamespace          *GlobalNamespace
 	transpilationNamespace   StaticScope
-	uniqueIdSupplier         *UniqueIdSupplier
+	uniqueIdSupplier         UniqueIdSupplier
 	es6SubclassTranspilation CompilerOptions_Es6SubclassTranspilation
 }
 

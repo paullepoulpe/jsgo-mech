@@ -15,13 +15,13 @@ func (this *WithStatementTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *WithStatementTree) init_WithStatementTree(location *SourceRange, expression *ParseTree, body *ParseTree) {
+func (this *WithStatementTree) init_WithStatementTree(location SourceRange, expression *ParseTree, body *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_WITH_STATEMENT, location)
 	this.expression = expression
 	this.body = body
 }
 
-func new_WithStatementTree(location *SourceRange, expression *ParseTree, body *ParseTree) *WithStatementTree {
+func new_WithStatementTree(location SourceRange, expression *ParseTree, body *ParseTree) *WithStatementTree {
 	this := &WithStatementTree{}
 	this.self_ = this
 	this.init_WithStatementTree(location, expression, body)

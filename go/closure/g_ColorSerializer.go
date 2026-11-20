@@ -3,7 +3,7 @@
 package closure
 
 type ColorSerializer struct {
-	serializationMode       *SerializationOptions
+	serializationMode       SerializationOptions
 	getStringPoolIndexFn    func(any) any
 	propertyFilter          func(any) bool
 	colorIdToTypePointer    *TMap[*ColorId, any]
@@ -15,7 +15,7 @@ func (this *ColorSerializer) finit_ColorSerializer() {
 	this.colorsInSerializedOrder = &[]*Color{}
 }
 
-func (this *ColorSerializer) init_ColorSerializer(serializationMode *SerializationOptions, stringPoolIndexFn func(any) any, propertyFilter func(any) bool) {
+func (this *ColorSerializer) init_ColorSerializer(serializationMode SerializationOptions, stringPoolIndexFn func(any) any, propertyFilter func(any) bool) {
 	this.finit_ColorSerializer()
 	this.serializationMode = serializationMode
 	this.getStringPoolIndexFn = stringPoolIndexFn
@@ -25,7 +25,7 @@ func (this *ColorSerializer) init_ColorSerializer(serializationMode *Serializati
 	}
 }
 
-func new_ColorSerializer(serializationMode *SerializationOptions, stringPoolIndexFn func(any) any, propertyFilter func(any) bool) *ColorSerializer {
+func new_ColorSerializer(serializationMode SerializationOptions, stringPoolIndexFn func(any) any, propertyFilter func(any) bool) *ColorSerializer {
 	this := &ColorSerializer{}
 	this.init_ColorSerializer(serializationMode, stringPoolIndexFn, propertyFilter)
 	return this

@@ -12,13 +12,13 @@ func (this *SynthesizeExplicitConstructors) init_SynthesizeExplicitConstructors(
 	this.astFactory_ = compiler.createAstFactory()
 }
 
-func new_SynthesizeExplicitConstructors(compiler *AbstractCompiler) *SynthesizeExplicitConstructors {
-	this := &SynthesizeExplicitConstructors{}
+func new_SynthesizeExplicitConstructors(compiler *AbstractCompiler) SynthesizeExplicitConstructors {
+	this := SynthesizeExplicitConstructors{}
 	this.init_SynthesizeExplicitConstructors(compiler)
 	return this
 }
 
-func (this *SynthesizeExplicitConstructors) synthesizeClassConstructorIfMissing(t *NodeTraversal, classNode Node) {
+func (this SynthesizeExplicitConstructors) synthesizeClassConstructorIfMissing(t *NodeTraversal, classNode Node) {
 	if !classNode.isClass() {
 		panic(new_IllegalArgumentException_0())
 	}
@@ -27,7 +27,7 @@ func (this *SynthesizeExplicitConstructors) synthesizeClassConstructorIfMissing(
 	}
 }
 
-func (this *SynthesizeExplicitConstructors) addSyntheticConstructor(t *NodeTraversal, classNode Node) {
+func (this SynthesizeExplicitConstructors) addSyntheticConstructor(t *NodeTraversal, classNode Node) {
 	var superClass Node = classNode.getSecondChild()
 	var classMembers Node = classNode.getLastChild()
 	var memberDef Node
@@ -57,7 +57,7 @@ func (this *SynthesizeExplicitConstructors) addSyntheticConstructor(t *NodeTrave
 	this.compiler_.reportChangeToEnclosingScope(memberDef)
 }
 
-func (this *SynthesizeExplicitConstructors) isInterface(classNode Node) bool {
+func (this SynthesizeExplicitConstructors) isInterface(classNode Node) bool {
 	var classJsDocInfo *JSDocInfo = NodeUtil_getBestJSDocInfo(classNode)
 	return ((classJsDocInfo != nil) && classJsDocInfo.isInterface())
 }

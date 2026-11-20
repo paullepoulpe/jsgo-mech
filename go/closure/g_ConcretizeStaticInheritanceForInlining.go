@@ -20,19 +20,19 @@ func (this *ConcretizeStaticInheritanceForInlining) init_ConcretizeStaticInherit
 	this.inherits = compiler.getRuntimeJsLibManager().getJsLibField("$jscomp.inherits")
 }
 
-func new_ConcretizeStaticInheritanceForInlining(compiler *AbstractCompiler) *ConcretizeStaticInheritanceForInlining {
-	this := &ConcretizeStaticInheritanceForInlining{}
+func new_ConcretizeStaticInheritanceForInlining(compiler *AbstractCompiler) ConcretizeStaticInheritanceForInlining {
+	this := ConcretizeStaticInheritanceForInlining{}
 	this.init_ConcretizeStaticInheritanceForInlining(compiler)
 	return this
 }
 
-func (this *ConcretizeStaticInheritanceForInlining) process_2(externs Node, root Node) {
+func (this ConcretizeStaticInheritanceForInlining) process_2(externs Node, root Node) {
 	var findStaticMembers *ConcretizeStaticInheritanceForInlining_FindStaticMembers = new_ConcretizeStaticInheritanceForInlining_FindStaticMembers(this)
 	NodeTraversal_traverse(this.compiler_, root, ConcretizeStaticInheritanceForInlining_FindStaticMembers_as_NodeTraversal_Callback(findStaticMembers))
 	this.processInherits(findStaticMembers)
 }
 
-func (this *ConcretizeStaticInheritanceForInlining) processInherits(findStaticMembers *ConcretizeStaticInheritanceForInlining_FindStaticMembers) {
+func (this ConcretizeStaticInheritanceForInlining) processInherits(findStaticMembers *ConcretizeStaticInheritanceForInlining_FindStaticMembers) {
 	for inheritsCall := range sliceAll_(findStaticMembers.inheritsCalls) {
 		var superclassNameNode Node = inheritsCall.getLastChild()
 		var superclassQname string = superclassNameNode.getQualifiedName()
@@ -51,7 +51,7 @@ func (this *ConcretizeStaticInheritanceForInlining) processInherits(findStaticMe
 	}
 }
 
-func (this *ConcretizeStaticInheritanceForInlining) copyStaticMembers(superClass *ConcretizeStaticInheritanceForInlining_JavascriptClass, subClass *ConcretizeStaticInheritanceForInlining_JavascriptClass, inheritsCall Node, findStaticMembers *ConcretizeStaticInheritanceForInlining_FindStaticMembers) {
+func (this ConcretizeStaticInheritanceForInlining) copyStaticMembers(superClass *ConcretizeStaticInheritanceForInlining_JavascriptClass, subClass *ConcretizeStaticInheritanceForInlining_JavascriptClass, inheritsCall Node, findStaticMembers *ConcretizeStaticInheritanceForInlining_FindStaticMembers) {
 	for staticMember := range superClass.staticMembers.All() {
 		if !staticMember.isAssign() {
 			Preconditions_checkState_boolean_Object_H(false, staticMember)
@@ -85,7 +85,7 @@ func (this *ConcretizeStaticInheritanceForInlining) copyStaticMembers(superClass
 	}
 }
 
-func (this *ConcretizeStaticInheritanceForInlining) isOverriden(subClass *ConcretizeStaticInheritanceForInlining_JavascriptClass, memberName string) bool {
+func (this ConcretizeStaticInheritanceForInlining) isOverriden(subClass *ConcretizeStaticInheritanceForInlining_JavascriptClass, memberName string) bool {
 	if has_(subClass.staticMemberNames, memberName) {
 		return true
 	}
@@ -95,7 +95,7 @@ func (this *ConcretizeStaticInheritanceForInlining) isOverriden(subClass *Concre
 	return false
 }
 
-func (this *ConcretizeStaticInheritanceForInlining) isReferenceToClass(t *NodeTraversal, n Node) bool {
+func (this ConcretizeStaticInheritanceForInlining) isReferenceToClass(t *NodeTraversal, n Node) bool {
 	var className string = n.getQualifiedName()
 	if !has_(this.classByAlias, className) {
 		return false
@@ -151,7 +151,7 @@ func (this *ConcretizeStaticInheritanceForInlining_JavascriptClass) addStaticMem
 
 type ConcretizeStaticInheritanceForInlining_FindStaticMembers struct {
 	NodeTraversal_AbstractPostOrderCallback
-	outer_        *ConcretizeStaticInheritanceForInlining
+	outer_        ConcretizeStaticInheritanceForInlining
 	inheritsCalls *[]Node
 	nodeOrder     map[Node]any
 }
@@ -173,7 +173,7 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) init_Concr
 	this.finit_ConcretizeStaticInheritanceForInlining_FindStaticMembers()
 }
 
-func new_ConcretizeStaticInheritanceForInlining_FindStaticMembers(outer_ *ConcretizeStaticInheritanceForInlining) *ConcretizeStaticInheritanceForInlining_FindStaticMembers {
+func new_ConcretizeStaticInheritanceForInlining_FindStaticMembers(outer_ ConcretizeStaticInheritanceForInlining) *ConcretizeStaticInheritanceForInlining_FindStaticMembers {
 	this := &ConcretizeStaticInheritanceForInlining_FindStaticMembers{}
 	this.self_ = this
 	this.outer_ = outer_

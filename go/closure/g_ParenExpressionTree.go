@@ -14,12 +14,12 @@ func (this *ParenExpressionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ParenExpressionTree) init_ParenExpressionTree(location *SourceRange, expression *ParseTree) {
+func (this *ParenExpressionTree) init_ParenExpressionTree(location SourceRange, expression *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_PAREN_EXPRESSION, location)
 	this.expression = expression
 }
 
-func new_ParenExpressionTree(location *SourceRange, expression *ParseTree) *ParenExpressionTree {
+func new_ParenExpressionTree(location SourceRange, expression *ParseTree) *ParenExpressionTree {
 	this := &ParenExpressionTree{}
 	this.self_ = this
 	this.init_ParenExpressionTree(location, expression)

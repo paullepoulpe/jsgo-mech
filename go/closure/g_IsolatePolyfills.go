@@ -6,7 +6,7 @@ import "strings"
 
 type IsolatePolyfills struct {
 	compiler_                *AbstractCompiler
-	polyfills                *PolyfillUsageFinder_Polyfills
+	polyfills                PolyfillUsageFinder_Polyfills
 	jscompPolyfillsObject    Node
 	jscompLookupMethod       Node
 	usedPolyfillMethodLookup bool
@@ -29,7 +29,7 @@ func new_IsolatePolyfills_AbstractCompiler(compiler *AbstractCompiler) *IsolateP
 	return this
 }
 
-func (this *IsolatePolyfills) init_IsolatePolyfills_AbstractCompiler_Polyfills(compiler *AbstractCompiler, polyfills *PolyfillUsageFinder_Polyfills) {
+func (this *IsolatePolyfills) init_IsolatePolyfills_AbstractCompiler_Polyfills(compiler *AbstractCompiler, polyfills PolyfillUsageFinder_Polyfills) {
 	this.finit_IsolatePolyfills()
 	this.compiler_ = compiler
 	this.polyfills = polyfills
@@ -42,7 +42,7 @@ func (this *IsolatePolyfills) init_IsolatePolyfills_AbstractCompiler_Polyfills(c
 	}()
 }
 
-func new_IsolatePolyfills_AbstractCompiler_Polyfills(compiler *AbstractCompiler, polyfills *PolyfillUsageFinder_Polyfills) *IsolatePolyfills {
+func new_IsolatePolyfills_AbstractCompiler_Polyfills(compiler *AbstractCompiler, polyfills PolyfillUsageFinder_Polyfills) *IsolatePolyfills {
 	this := &IsolatePolyfills{}
 	this.init_IsolatePolyfills_AbstractCompiler_Polyfills(compiler, polyfills)
 	return this

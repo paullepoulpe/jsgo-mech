@@ -16,13 +16,13 @@ func (this *JSTypeColorIdHasher) init_JSTypeColorIdHasher(registry *JSTypeRegist
 	this.standardColorObjectIds = standardColorObjectIdsBuilder.buildOrThrow()
 }
 
-func new_JSTypeColorIdHasher(registry *JSTypeRegistry) *JSTypeColorIdHasher {
-	this := &JSTypeColorIdHasher{}
+func new_JSTypeColorIdHasher(registry *JSTypeRegistry) JSTypeColorIdHasher {
+	this := JSTypeColorIdHasher{}
 	this.init_JSTypeColorIdHasher(registry)
 	return this
 }
 
-func (this *JSTypeColorIdHasher) hashObjectType(type_ *ObjectType) *ColorId {
+func (this JSTypeColorIdHasher) hashObjectType(type_ *ObjectType) *ColorId {
 	if !((((((type_ != nil) && !type_.isEnumElementType()) && !type_.isNoResolvedType()) && !type_.isTemplatizedType()) && !type_.isUnknownType()) && !type_.isTemplateType()) {
 		panic(new_IllegalStateException_String(objstr_(type_)))
 	}
@@ -47,7 +47,7 @@ func (this *JSTypeColorIdHasher) hashObjectType(type_ *ObjectType) *ColorId {
 	return ColorId_fromUnsignedLong(hasher.hash().asLong())
 }
 
-func (this *JSTypeColorIdHasher) putReferenceNameType(hasher Hasher, type_ *ObjectType) {
+func (this JSTypeColorIdHasher) putReferenceNameType(hasher Hasher, type_ *ObjectType) {
 	JSTypeColorIdHasher_putUtf8(hasher, optstrGet_(type_.getReferenceName()))
 	var sourceRef JSType_WithSourceRef = JSTypeColorIdHasher_sourceRefFor(type_)
 	if sourceRef == nil {

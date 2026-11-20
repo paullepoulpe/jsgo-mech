@@ -11,7 +11,7 @@ type Parser struct {
 	commentRecorder      *Parser_CommentRecorder
 	functionContextStack *[]Parser_FunctionFlavor
 	features_            *FeatureSet
-	lastSourcePosition   *SourcePosition_util
+	lastSourcePosition   SourcePosition_util
 	sourceMapURL         string
 }
 
@@ -65,7 +65,7 @@ func (this *Parser) parseProgram() (ret_1 *ProgramTree) {
 			panic(r_)
 		}
 	}()
-	var start *SourcePosition_util = this.lastSourcePosition
+	var start SourcePosition_util = this.lastSourcePosition
 	var sourceElements *TList[*ParseTree] = this.parseGlobalSourceElements()
 	this.eat(TokenType_END_OF_FILE)
 	return new_ProgramTree(this.getTreeLocation(start), sourceElements, this.commentRecorder.getComments())
@@ -94,7 +94,7 @@ func (this *Parser) peekImportDeclaration() bool {
 }
 
 func (this *Parser) parseImportDeclaration() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_IMPORT)
 	if this.peek(TokenType_STRING) {
 		var moduleSpecifier *LiteralToken = this.eat(TokenType_STRING).asLiteral()
@@ -151,7 +151,7 @@ func (this *Parser) parseImportSpecifierSet() *TList[*ParseTree] {
 }
 
 func (this *Parser) parseImportSpecifier() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var importedName *IdentifierToken = this.eatIdOrKeywordAsId()
 	var destinationName *IdentifierToken = nil
 	if this.peekPredefinedString(PredefinedName_AS) {
@@ -168,7 +168,7 @@ func (this *Parser) peekExportDeclaration() bool {
 }
 
 func (this *Parser) parseExportDeclaration() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var isDefault bool = false
 	var isExportAll bool = false
 	var isExportSpecifier bool = false
@@ -231,7 +231,7 @@ func (this *Parser) parseExportSpecifierSet() *TList[*ParseTree] {
 }
 
 func (this *Parser) parseExportSpecifier() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var importedName *IdentifierToken = this.eatIdOrKeywordAsId()
 	var destinationName *IdentifierToken = nil
 	if this.peekPredefinedString(PredefinedName_AS) {
@@ -254,7 +254,7 @@ func (this *Parser) parseClassExpression() *ParseTree {
 }
 
 func (this *Parser) parseClass(isExpression bool) *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_CLASS)
 	var name *IdentifierToken = nil
 	if !isExpression || this.peekId() {
@@ -518,7 +518,7 @@ func (this *Parser) peekFunction_1(index int32) bool {
 }
 
 func (this *Parser) parseFunctionDeclaration() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(Keywords_type___[Keywords_FUNCTION-1])
 	var isGenerator bool = (this.eatOpt(TokenType_STAR) != nil)
 	var builder *FunctionDeclarationTree_Builder = FunctionDeclarationTree_builder(FunctionDeclarationTree_Kind_DECLARATION).setName(this.eatId())
@@ -532,7 +532,7 @@ func (this *Parser) parseFunctionDeclaration() *ParseTree {
 }
 
 func (this *Parser) parseFunctionExpression() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(Keywords_type___[Keywords_FUNCTION-1])
 	var isGenerator bool = (this.eatOpt(TokenType_STAR) != nil)
 	var builder *FunctionDeclarationTree_Builder = FunctionDeclarationTree_builder(FunctionDeclarationTree_Kind_EXPRESSION).setName(this.eatIdOpt())
@@ -546,7 +546,7 @@ func (this *Parser) parseFunctionExpression() *ParseTree {
 }
 
 func (this *Parser) parseAsyncFunctionDeclaration() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eatAsyncFunctionStart()
 	var generator bool = this.peek(TokenType_STAR)
 	if generator {
@@ -563,7 +563,7 @@ func (this *Parser) parseAsyncFunctionDeclaration() *ParseTree {
 }
 
 func (this *Parser) parseAsyncFunctionExpression() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eatAsyncFunctionStart()
 	var generator bool = this.peek(TokenType_STAR)
 	if generator {
@@ -587,7 +587,7 @@ func (this *Parser) peekParameter() bool {
 }
 
 func (this *Parser) parseParameter() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var parameter *ParseTree = nil
 	if this.peek(TokenType_ELLIPSIS) {
 		parameter = this.parseIterRest(Parser_PatternKind_INITIALIZER)
@@ -607,11 +607,11 @@ func (this *Parser) parseParameter() *ParseTree {
 }
 
 func (this *Parser) parseFormalParameterList() *FormalParameterListTree {
-	var listStart *SourcePosition_util = this.getTreeStartLocation()
+	var listStart SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_OPEN_PAREN)
 	var result *ImmutableList_Builder[*ParseTree] = immutableListBuilder_(tc_p_ParseTree)
 	var trailingComma bool = false
-	var commaPositions *ImmutableList_Builder[*SourcePosition_util] = immutableListBuilder_(tc_p_SourcePosition_util)
+	var commaPositions *ImmutableList_Builder[SourcePosition_util] = immutableListBuilder_(tc_SourcePosition_util)
 	for this.peekParameter() {
 		result.add(this.parseParameter())
 		if !this.peek(TokenType_CLOSE_PAREN) {
@@ -648,7 +648,7 @@ func (this *Parser) parseSetterParameterList() *FormalParameterListTree {
 }
 
 func (this *Parser) parseFunctionBody() *BlockTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_OPEN_CURLY)
 	var result *TList[*ParseTree] = this.parseSourceElementList()
 	this.eat(TokenType_CLOSE_CURLY)
@@ -664,7 +664,7 @@ func (this *Parser) parseSourceElementList() *TList[*ParseTree] {
 }
 
 func (this *Parser) parseIterSpread() *IterSpreadTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_ELLIPSIS)
 	var operand *ParseTree = this.parseAssignmentExpression()
 	return new_IterSpreadTree(this.getTreeLocation(start), operand)
@@ -732,7 +732,7 @@ func (this *Parser) peekStatementStandard() bool {
 }
 
 func (this *Parser) parseBlock() *BlockTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_OPEN_CURLY)
 	var result *TList[*ParseTree] = this.parseSourceElementList()
 	this.eat(TokenType_CLOSE_CURLY)
@@ -748,7 +748,7 @@ func (this *Parser) parseStatementList() *TList[*ParseTree] {
 }
 
 func (this *Parser) parseVariableStatement() *VariableStatementTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var declarations *VariableDeclarationListTree = this.parseVariableDeclarationList()
 	this.eatPossiblyImplicitSemiColon()
 	return new_VariableStatementTree(this.getTreeLocation(start), declarations)
@@ -763,7 +763,7 @@ func (this *Parser) parseVariableDeclarationListNoIn() *VariableDeclarationListT
 }
 
 func (this *Parser) parseVariableDeclarationList_1(expressionIn Parser_Expression) *VariableDeclarationListTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var token TokenType = this.peekType()
 	switch token {
 	case TokenType_CONST, TokenType_LET, TokenType_VAR:
@@ -782,7 +782,7 @@ func (this *Parser) parseVariableDeclarationList_1(expressionIn Parser_Expressio
 }
 
 func (this *Parser) parseVariableDeclaration(binding TokenType, expressionIn Parser_Expression) *VariableDeclarationTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var lvalue *ParseTree
 	if this.peekPatternStart() {
 		lvalue = this.parsePattern(Parser_PatternKind_INITIALIZER)
@@ -804,20 +804,20 @@ func (this *Parser) parseInitializer(expressionIn Parser_Expression) *ParseTree 
 }
 
 func (this *Parser) parseEmptyStatement() *EmptyStatementTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_SEMI_COLON)
 	return new_EmptyStatementTree(this.getTreeLocation(start))
 }
 
 func (this *Parser) parseExpressionStatement() *ExpressionStatementTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var expression *ParseTree = this.parseExpression()
 	this.eatPossiblyImplicitSemiColon()
 	return new_ExpressionStatementTree(this.getTreeLocation(start), expression)
 }
 
 func (this *Parser) parseIfStatement() *IfStatementTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_IF)
 	this.eat(TokenType_OPEN_PAREN)
 	var condition *ParseTree = this.parseExpression()
@@ -832,7 +832,7 @@ func (this *Parser) parseIfStatement() *IfStatementTree {
 }
 
 func (this *Parser) parseDoWhileStatement() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_DO)
 	var body *ParseTree = this.parseStatement()
 	this.eat(TokenType_WHILE)
@@ -846,7 +846,7 @@ func (this *Parser) parseDoWhileStatement() *ParseTree {
 }
 
 func (this *Parser) parseWhileStatement() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_WHILE)
 	this.eat(TokenType_OPEN_PAREN)
 	var condition *ParseTree = this.parseExpression()
@@ -856,7 +856,7 @@ func (this *Parser) parseWhileStatement() *ParseTree {
 }
 
 func (this *Parser) parseForStatement() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_FOR)
 	var awaited bool = this.peekPredefinedString(Parser_AWAIT)
 	if awaited {
@@ -933,7 +933,7 @@ func (this *Parser) parseForStatement() *ParseTree {
 	return this.parseForStatement_2(start, initializer)
 }
 
-func (this *Parser) parseForOfStatement(start *SourcePosition_util, initializer *ParseTree) *ParseTree {
+func (this *Parser) parseForOfStatement(start SourcePosition_util, initializer *ParseTree) *ParseTree {
 	this.eatPredefinedString(PredefinedName_OF)
 	var collection *ParseTree = this.parseExpression()
 	this.eat(TokenType_CLOSE_PAREN)
@@ -941,7 +941,7 @@ func (this *Parser) parseForOfStatement(start *SourcePosition_util, initializer 
 	return new_ForOfStatementTree(this.getTreeLocation(start), initializer, collection, body).up_ParseTree()
 }
 
-func (this *Parser) parseForAwaitOfStatement(start *SourcePosition_util, initializer *ParseTree) *ParseTree {
+func (this *Parser) parseForAwaitOfStatement(start SourcePosition_util, initializer *ParseTree) *ParseTree {
 	this.eatPredefinedString(PredefinedName_OF)
 	var collection *ParseTree = this.parseExpression()
 	this.eat(TokenType_CLOSE_PAREN)
@@ -976,7 +976,7 @@ func (this *Parser) peekVariableDeclarationList() bool {
 	}()
 }
 
-func (this *Parser) parseForStatement_2(start *SourcePosition_util, initializer *ParseTree) *ParseTree {
+func (this *Parser) parseForStatement_2(start SourcePosition_util, initializer *ParseTree) *ParseTree {
 	if initializer == nil {
 		initializer = new_NullTree(new_SourceRange(this.getTreeEndLocation(), this.getTreeStartLocation())).up_ParseTree()
 	}
@@ -999,7 +999,7 @@ func (this *Parser) parseForStatement_2(start *SourcePosition_util, initializer 
 	return new_ForStatementTree(this.getTreeLocation(start), initializer, condition, increment, body).up_ParseTree()
 }
 
-func (this *Parser) parseForInStatement(start *SourcePosition_util, initializer *ParseTree) *ParseTree {
+func (this *Parser) parseForInStatement(start SourcePosition_util, initializer *ParseTree) *ParseTree {
 	this.eat(TokenType_IN)
 	var collection *ParseTree = this.parseExpression()
 	this.eat(TokenType_CLOSE_PAREN)
@@ -1008,7 +1008,7 @@ func (this *Parser) parseForInStatement(start *SourcePosition_util, initializer 
 }
 
 func (this *Parser) parseContinueStatement() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_CONTINUE)
 	var name *IdentifierToken = nil
 	if !this.peekImplicitSemiColon() {
@@ -1019,7 +1019,7 @@ func (this *Parser) parseContinueStatement() *ParseTree {
 }
 
 func (this *Parser) parseBreakStatement() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_BREAK)
 	var name *IdentifierToken = nil
 	if !this.peekImplicitSemiColon() {
@@ -1030,7 +1030,7 @@ func (this *Parser) parseBreakStatement() *ParseTree {
 }
 
 func (this *Parser) parseReturnStatement() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_RETURN)
 	var expression *ParseTree = nil
 	if !this.peekImplicitSemiColon() {
@@ -1041,7 +1041,7 @@ func (this *Parser) parseReturnStatement() *ParseTree {
 }
 
 func (this *Parser) parseWithStatement() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_WITH)
 	this.eat(TokenType_OPEN_PAREN)
 	var expression *ParseTree = this.parseExpression()
@@ -1051,7 +1051,7 @@ func (this *Parser) parseWithStatement() *ParseTree {
 }
 
 func (this *Parser) parseSwitchStatement() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_SWITCH)
 	this.eat(TokenType_OPEN_PAREN)
 	var expression *ParseTree = this.parseExpression()
@@ -1066,7 +1066,7 @@ func (this *Parser) parseCaseClauses() *TList[*ParseTree] {
 	var foundDefaultClause bool = false
 	var result *ImmutableList_Builder[*ParseTree] = immutableListBuilder_(tc_p_ParseTree)
 	for {
-		var start *SourcePosition_util = this.getTreeStartLocation()
+		var start SourcePosition_util = this.getTreeStartLocation()
 		switch this.peekType() {
 		case TokenType_CASE:
 			this.eat(TokenType_CASE)
@@ -1094,7 +1094,7 @@ func (this *Parser) parseCaseStatementsOpt() *TList[*ParseTree] {
 }
 
 func (this *Parser) parseLabelledStatement() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var name *IdentifierToken = this.eatId()
 	this.eat(TokenType_COLON)
 	return new_LabelledStatementTree(this.getTreeLocation(start), name, this.parseStatement()).up_ParseTree()
@@ -1105,7 +1105,7 @@ func (this *Parser) peekLabelledStatement() bool {
 }
 
 func (this *Parser) parseThrowStatement() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_THROW)
 	var value *ParseTree = nil
 	if this.peekImplicitSemiColon() {
@@ -1118,7 +1118,7 @@ func (this *Parser) parseThrowStatement() *ParseTree {
 }
 
 func (this *Parser) parseTryStatement() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_TRY)
 	var body *ParseTree = this.parseBlock().up_ParseTree()
 	var catchBlock *ParseTree = nil
@@ -1136,7 +1136,7 @@ func (this *Parser) parseTryStatement() *ParseTree {
 }
 
 func (this *Parser) parseCatch() *CatchTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_CATCH)
 	var exception *ParseTree = new_EmptyStatementTree(new_SourceRange(this.getTreeEndLocation(), this.getTreeStartLocation())).up_ParseTree()
 	if this.peekToken().type__ == TokenType_OPEN_PAREN {
@@ -1155,14 +1155,14 @@ func (this *Parser) parseCatch() *CatchTree {
 }
 
 func (this *Parser) parseFinallyBlock() *FinallyTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_FINALLY)
 	var finallyBlock *BlockTree = this.parseBlock()
 	return new_FinallyTree(this.getTreeLocation(start), finallyBlock.up_ParseTree())
 }
 
 func (this *Parser) parseDebuggerStatement() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_DEBUGGER)
 	this.eatPossiblyImplicitSemiColon()
 	return new_DebuggerStatementTree(this.getTreeLocation(start)).up_ParseTree()
@@ -1200,7 +1200,7 @@ func (this *Parser) parsePrimaryExpression() *ParseTree {
 }
 
 func (this *Parser) parseSuperExpression() *SuperExpressionTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_SUPER)
 	if this.peek(TokenType_QUESTION_DOT) {
 		this.reportError("Optional chaining is forbidden in super?.")
@@ -1209,13 +1209,13 @@ func (this *Parser) parseSuperExpression() *SuperExpressionTree {
 }
 
 func (this *Parser) parseThisExpression() *ThisExpressionTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_THIS)
 	return new_ThisExpressionTree(this.getTreeLocation(start))
 }
 
 func (this *Parser) parseDynamicImportExpression() *DynamicImportTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_IMPORT)
 	if this.peek(TokenType_QUESTION_DOT) {
 		this.reportError("Optional chaining is forbidden in import?.")
@@ -1228,13 +1228,13 @@ func (this *Parser) parseDynamicImportExpression() *DynamicImportTree {
 }
 
 func (this *Parser) parseIdentifierExpression() *IdentifierExpressionTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var identifier *IdentifierToken = this.eatId()
 	return new_IdentifierExpressionTree(this.getTreeLocation(start), identifier)
 }
 
 func (this *Parser) parseLiteralExpression() *LiteralExpressionTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var literal *Token_parser = this.nextLiteralToken()
 	if (literal.type__ == TokenType_STRING) && literal.self().(*StringLiteralToken).hasUnescapedUnicodeLineOrParagraphSeparator() {
 		this.recordFeatureUsed(FeatureSet_Feature_UNESCAPED_UNICODE_LINE_OR_PARAGRAPH_SEP)
@@ -1249,7 +1249,7 @@ func (this *Parser) parseLiteralExpression() *LiteralExpressionTree {
 }
 
 func (this *Parser) parseTemplateLiteral(operand *ParseTree) *TemplateLiteralExpressionTree {
-	var start *SourcePosition_util = func() *SourcePosition_util {
+	var start SourcePosition_util = func() SourcePosition_util {
 		if operand == nil {
 			return this.getTreeStartLocation()
 		}
@@ -1294,21 +1294,21 @@ func (this *Parser) nextLiteralToken() *Token_parser {
 }
 
 func (this *Parser) parseRegularExpressionLiteral() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var literal *LiteralToken = this.nextRegularExpressionLiteralToken()
 	this.recordFeatureUsed(FeatureSet_Feature_REGEXP_SYNTAX)
 	return new_LiteralExpressionTree(this.getTreeLocation(start), literal.up_Token_parser()).up_ParseTree()
 }
 
 func (this *Parser) parseArrayLiteral() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var elements *ImmutableList_Builder[*ParseTree] = immutableListBuilder_(tc_p_ParseTree)
 	this.eat(TokenType_OPEN_SQUARE)
 	var trailingCommaToken *Token_parser = nil
 	for (this.peek(TokenType_COMMA) || this.peek(TokenType_ELLIPSIS)) || this.peekAssignmentExpression() {
 		trailingCommaToken = nil
 		if this.peek(TokenType_COMMA) {
-			var commaStart *SourcePosition_util = this.getTreeStartLocation()
+			var commaStart SourcePosition_util = this.getTreeStartLocation()
 			trailingCommaToken = this.eat(TokenType_COMMA)
 			elements.add(new_NullTree(new_SourceRange(commaStart, commaStart)).up_ParseTree())
 		} else {
@@ -1329,7 +1329,7 @@ func (this *Parser) parseArrayLiteral() *ParseTree {
 }
 
 func (this *Parser) parseObjectLiteral() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var result *ImmutableList_Builder[*ParseTree] = immutableListBuilder_(tc_p_ParseTree)
 	this.eat(TokenType_OPEN_CURLY)
 	var commaToken *Token_parser = nil
@@ -1376,7 +1376,7 @@ func (this *Parser) parseObjectLiteralPropertyAssignment() *ParseTree {
 		return this.parseObjectLiteralPropertyAssignmentGenerator()
 	} else if type_ == TokenType_ELLIPSIS {
 		this.recordFeatureUsed(FeatureSet_Feature_OBJECT_LITERALS_WITH_SPREAD)
-		var start *SourcePosition_util = this.getTreeStartLocation()
+		var start SourcePosition_util = this.getTreeStartLocation()
 		this.eat(TokenType_ELLIPSIS)
 		var operand *ParseTree = this.parseAssignmentExpression()
 		return new_ObjectSpreadTree(this.getTreeLocation(start), operand).up_ParseTree()
@@ -1393,7 +1393,7 @@ func (this *Parser) parseObjectLiteralPropertyAssignment() *ParseTree {
 			return this.parseObjectLiteralPropertyNameAssignment()
 		}
 	} else if type_ == TokenType_OPEN_SQUARE {
-		var start *SourcePosition_util = this.getTreeStartLocation()
+		var start SourcePosition_util = this.getTreeStartLocation()
 		var name *ParseTree = this.parseComputedPropertyName()
 		if this.peek(TokenType_COLON) {
 			this.eat(TokenType_COLON)
@@ -1415,7 +1415,7 @@ func (this *Parser) parseObjectLiteralPropertyAssignmentGenerator() *ParseTree {
 	if (((type_ == TokenType_STRING) || (type_ == TokenType_NUMBER)) || (type_ == TokenType_IDENTIFIER)) || Keywords_isKeyword(type_) {
 		return this.parseObjectLiteralMethodDeclaration()
 	} else {
-		var start *SourcePosition_util = this.getTreeStartLocation()
+		var start SourcePosition_util = this.getTreeStartLocation()
 		this.eat(TokenType_STAR)
 		var name *ParseTree = this.parseComputedPropertyName()
 		var builder *FunctionDeclarationTree_Builder = FunctionDeclarationTree_builder(FunctionDeclarationTree_Kind_EXPRESSION)
@@ -1502,7 +1502,7 @@ func (this *Parser) parseSetAccessor(elementInfo *ClassOrObjectElementInfo) *Par
 }
 
 func (this *Parser) parseObjectLiteralPropertyNameAssignment() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var name *Token_parser = this.eatObjectLiteralPropertyName()
 	var colon *Token_parser = this.eatOpt(TokenType_COLON)
 	if colon == nil {
@@ -1527,12 +1527,12 @@ func (this *Parser) parseObjectLiteralPropertyNameAssignment() *ParseTree {
 }
 
 func (this *Parser) parseCoverParenthesizedExpressionAndArrowParameterList() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_OPEN_PAREN)
 	if this.peek(TokenType_CLOSE_PAREN) {
 		this.eat(TokenType_CLOSE_PAREN)
 		if this.peek(TokenType_ARROW) {
-			return new_FormalParameterListTree(this.getTreeLocation(start), tlistEmptyImm_(tc_p_ParseTree), false, tlistEmptyImm_(tc_p_SourcePosition_util)).up_ParseTree()
+			return new_FormalParameterListTree(this.getTreeLocation(start), tlistEmptyImm_(tc_p_ParseTree), false, tlistEmptyImm_(tc_SourcePosition_util)).up_ParseTree()
 		} else {
 			this.reportError("invalid parenthesized expression")
 			return new_MissingPrimaryExpressionTree(this.getTreeLocation(start)).up_ParseTree()
@@ -1542,7 +1542,7 @@ func (this *Parser) parseCoverParenthesizedExpressionAndArrowParameterList() *Pa
 		var params *TList[*ParseTree] = immutableListOf_[*ParseTree](tc_p_ParseTree, this.parseParameter())
 		this.eat(TokenType_CLOSE_PAREN)
 		if this.peek(TokenType_ARROW) {
-			return new_FormalParameterListTree(this.getTreeLocation(start), params, false, tlistEmptyImm_(tc_p_SourcePosition_util)).up_ParseTree()
+			return new_FormalParameterListTree(this.getTreeLocation(start), params, false, tlistEmptyImm_(tc_SourcePosition_util)).up_ParseTree()
 		} else {
 			this.reportError("invalid parenthesized expression")
 			return new_MissingPrimaryExpressionTree(this.getTreeLocation(start)).up_ParseTree()
@@ -1563,7 +1563,7 @@ func (this *Parser) parseCoverParenthesizedExpressionAndArrowParameterList() *Pa
 }
 
 func (this *Parser) parseMissingPrimaryExpression() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.nextToken()
 	this.reportError("primary expression expected")
 	return new_MissingPrimaryExpressionTree(this.getTreeLocation(start)).up_ParseTree()
@@ -1591,7 +1591,7 @@ func (this *Parser) peekExpression() bool {
 }
 
 func (this *Parser) parse(expressionIn Parser_Expression) *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var result *ParseTree = this.parseAssignment(expressionIn)
 	if (this.peek(TokenType_COMMA) && !this.peek_2(1, TokenType_ELLIPSIS)) && !this.peek_2(1, TokenType_CLOSE_PAREN) {
 		var exprs *ImmutableList_Builder[*ParseTree] = immutableListBuilder_(tc_p_ParseTree)
@@ -1617,7 +1617,7 @@ func (this *Parser) parseAssignment(expressionIn Parser_Expression) *ParseTree {
 	if this.peek(TokenType_YIELD) && this.inGeneratorContext() {
 		return this.parseYield(expressionIn)
 	}
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var left *ParseTree = this.parseConditional(expressionIn)
 	if this.isStartOfAsyncArrowFunction(left) {
 		this.resetScanner(left)
@@ -1684,7 +1684,7 @@ func (this *Parser) transformToArrowFormalParameters(leftOfArrow *ParseTree) *Fo
 	case ParseTreeType_FORMAL_PARAMETER_LIST:
 		arrowParameterList = leftOfArrow.asFormalParameterList()
 	case ParseTreeType_IDENTIFIER_EXPRESSION:
-		arrowParameterList = new_FormalParameterListTree(leftOfArrow.location_, immutableListOf_[*ParseTree](tc_p_ParseTree, leftOfArrow), false, tlistEmptyImm_(tc_p_SourcePosition_util))
+		arrowParameterList = new_FormalParameterListTree(leftOfArrow.location_, immutableListOf_[*ParseTree](tc_p_ParseTree, leftOfArrow), false, tlistEmptyImm_(tc_SourcePosition_util))
 	case ParseTreeType_ARGUMENT_LIST, ParseTreeType_PAREN_EXPRESSION:
 		this.resetScanner(leftOfArrow)
 		arrowParameterList = this.parseFormalParameterList()
@@ -1710,7 +1710,7 @@ func (this *Parser) completeAssignmentExpressionParseAtArrow(callExpression *Cal
 }
 
 func (this *Parser) parseAsyncArrowFunction(expressionIn Parser_Expression) *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eatPredefinedString(Parser_ASYNC)
 	if this.peekImplicitSemiColon() {
 		this.reportError("No newline allowed between `async` and arrow function parameter list")
@@ -1720,7 +1720,7 @@ func (this *Parser) parseAsyncArrowFunction(expressionIn Parser_Expression) *Par
 		arrowParameterList = this.parseFormalParameterList()
 	} else {
 		var singleParameter *IdentifierExpressionTree = this.parseIdentifierExpression()
-		arrowParameterList = new_FormalParameterListTree(singleParameter.location_, immutableListOf_[*ParseTree](tc_p_ParseTree, singleParameter.up_ParseTree()), false, tlistEmptyImm_(tc_p_SourcePosition_util))
+		arrowParameterList = new_FormalParameterListTree(singleParameter.location_, immutableListOf_[*ParseTree](tc_p_ParseTree, singleParameter.up_ParseTree()), false, tlistEmptyImm_(tc_SourcePosition_util))
 	}
 	if this.peekImplicitSemiColon() {
 		this.reportError("No newline allowed before '=>'")
@@ -1743,8 +1743,8 @@ func (this *Parser) parseArrowFunctionBody(expressionIn Parser_Expression, funct
 	return arrowFunctionBody
 }
 
-func Parser_newEmptyFormalParameterList(location *SourceRange) *FormalParameterListTree {
-	return new_FormalParameterListTree(location, tlistEmptyImm_(tc_p_ParseTree), false, tlistEmptyImm_(tc_p_SourcePosition_util))
+func Parser_newEmptyFormalParameterList(location SourceRange) *FormalParameterListTree {
+	return new_FormalParameterListTree(location, tlistEmptyImm_(tc_p_ParseTree), false, tlistEmptyImm_(tc_SourcePosition_util))
 }
 
 func (this *Parser) transformLeftHandSideExpression(tree *ParseTree) *ParseTree {
@@ -1763,7 +1763,7 @@ func (this *Parser) parseLeftHandSidePattern() *ParseTree {
 	return this.parsePattern(Parser_PatternKind_ANY)
 }
 
-func (this *Parser) resetScannerSourcePosition(start *SourcePosition_util) {
+func (this *Parser) resetScannerSourcePosition(start SourcePosition_util) {
 	this.lastSourcePosition = start
 	this.scanner.setPosition(this.lastSourcePosition)
 }
@@ -1793,7 +1793,7 @@ func (this *Parser) inGeneratorContext() bool {
 }
 
 func (this *Parser) parseYield(expressionIn Parser_Expression) *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_YIELD)
 	var isYieldAll bool = false
 	var expression *ParseTree = nil
@@ -1809,7 +1809,7 @@ func (this *Parser) parseYield(expressionIn Parser_Expression) *ParseTree {
 }
 
 func (this *Parser) parseConditional(expressionIn Parser_Expression) *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var condition *ParseTree = this.parseShortCircuit(expressionIn)
 	if this.peek(TokenType_QUESTION) {
 		this.eat(TokenType_QUESTION)
@@ -1822,7 +1822,7 @@ func (this *Parser) parseConditional(expressionIn Parser_Expression) *ParseTree 
 }
 
 func (this *Parser) parseShortCircuit(expressionIn Parser_Expression) *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var left *ParseTree = this.parseLogicalOR(expressionIn)
 	if this.peek(TokenType_QUESTION_QUESTION) {
 		if left.type__ == ParseTreeType_BINARY_OPERATOR {
@@ -1837,7 +1837,7 @@ func (this *Parser) parseShortCircuit(expressionIn Parser_Expression) *ParseTree
 	}
 }
 
-func (this *Parser) parseNullishCoalesce(expressionIn Parser_Expression, left *ParseTree, start *SourcePosition_util) *ParseTree {
+func (this *Parser) parseNullishCoalesce(expressionIn Parser_Expression, left *ParseTree, start SourcePosition_util) *ParseTree {
 	for this.peek(TokenType_QUESTION_QUESTION) {
 		var operator *Token_parser = this.eat(TokenType_QUESTION_QUESTION)
 		var right *ParseTree = this.parseBitwiseOR(expressionIn)
@@ -1850,7 +1850,7 @@ func (this *Parser) parseNullishCoalesce(expressionIn Parser_Expression, left *P
 }
 
 func (this *Parser) parseLogicalOR(expressionIn Parser_Expression) *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var left *ParseTree = this.parseLogicalAND(expressionIn)
 	for this.peek(TokenType_OR) {
 		var operator *Token_parser = this.eat(TokenType_OR)
@@ -1861,7 +1861,7 @@ func (this *Parser) parseLogicalOR(expressionIn Parser_Expression) *ParseTree {
 }
 
 func (this *Parser) parseLogicalAND(expressionIn Parser_Expression) *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var left *ParseTree = this.parseBitwiseOR(expressionIn)
 	for this.peek(TokenType_AND) {
 		var operator *Token_parser = this.eat(TokenType_AND)
@@ -1872,7 +1872,7 @@ func (this *Parser) parseLogicalAND(expressionIn Parser_Expression) *ParseTree {
 }
 
 func (this *Parser) parseBitwiseOR(expressionIn Parser_Expression) *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var left *ParseTree = this.parseBitwiseXOR(expressionIn)
 	for this.peek(TokenType_BAR) {
 		var operator *Token_parser = this.eat(TokenType_BAR)
@@ -1883,7 +1883,7 @@ func (this *Parser) parseBitwiseOR(expressionIn Parser_Expression) *ParseTree {
 }
 
 func (this *Parser) parseBitwiseXOR(expressionIn Parser_Expression) *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var left *ParseTree = this.parseBitwiseAND(expressionIn)
 	for this.peek(TokenType_CARET) {
 		var operator *Token_parser = this.eat(TokenType_CARET)
@@ -1894,7 +1894,7 @@ func (this *Parser) parseBitwiseXOR(expressionIn Parser_Expression) *ParseTree {
 }
 
 func (this *Parser) parseBitwiseAND(expressionIn Parser_Expression) *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var left *ParseTree = this.parseEquality(expressionIn)
 	for this.peek(TokenType_AMPERSAND) {
 		var operator *Token_parser = this.eat(TokenType_AMPERSAND)
@@ -1905,7 +1905,7 @@ func (this *Parser) parseBitwiseAND(expressionIn Parser_Expression) *ParseTree {
 }
 
 func (this *Parser) parseEquality(expressionIn Parser_Expression) *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var left *ParseTree = this.parseRelational(expressionIn)
 	for this.peekEqualityOperator() {
 		var operator *Token_parser = this.nextToken()
@@ -1927,7 +1927,7 @@ func (this *Parser) peekEqualityOperator() bool {
 }
 
 func (this *Parser) parseRelational(expressionIn Parser_Expression) *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var left *ParseTree = this.parseShiftExpression()
 	for this.peekRelationalOperator(expressionIn) {
 		var operator *Token_parser = this.nextToken()
@@ -1951,7 +1951,7 @@ func (this *Parser) peekRelationalOperator(expressionIn Parser_Expression) bool 
 }
 
 func (this *Parser) parseShiftExpression() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var left *ParseTree = this.parseAdditiveExpression()
 	for this.peekShiftOperator() {
 		var operator *Token_parser = this.nextToken()
@@ -1973,7 +1973,7 @@ func (this *Parser) peekShiftOperator() bool {
 }
 
 func (this *Parser) parseAdditiveExpression() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var left *ParseTree = this.parseMultiplicativeExpression()
 	for this.peekAdditiveOperator() {
 		var operator *Token_parser = this.nextToken()
@@ -1995,7 +1995,7 @@ func (this *Parser) peekAdditiveOperator() bool {
 }
 
 func (this *Parser) parseMultiplicativeExpression() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var left *ParseTree = this.parseExponentiationExpression()
 	for this.peekMultiplicativeOperator() {
 		var operator *Token_parser = this.nextToken()
@@ -2017,7 +2017,7 @@ func (this *Parser) peekMultiplicativeOperator() bool {
 }
 
 func (this *Parser) parseExponentiationExpression() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var left *ParseTree = this.parseUnaryExpression()
 	if this.peek(TokenType_STAR_STAR) {
 		if left.type__ == ParseTreeType_UNARY_EXPRESSION {
@@ -2034,7 +2034,7 @@ func (this *Parser) parseExponentiationExpression() *ParseTree {
 }
 
 func (this *Parser) parseUnaryExpression() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	if this.peekUnaryOperator() {
 		var operator *Token_parser = this.nextToken()
 		var operand *ParseTree = this.parseUnaryExpression()
@@ -2062,14 +2062,14 @@ func (this *Parser) peekAwaitExpression() bool {
 }
 
 func (this *Parser) parseAwaitExpression() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eatPredefinedString(Parser_AWAIT)
 	var expression *ParseTree = this.parseUnaryExpression()
 	return new_AwaitExpressionTree(this.getTreeLocation(start), expression).up_ParseTree()
 }
 
 func (this *Parser) parseUpdateExpression() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	if this.peekUpdateOperator() {
 		var operator *Token_parser = this.nextToken()
 		var operand *ParseTree = this.parseUnaryExpression()
@@ -2105,7 +2105,7 @@ func (this *Parser) peekImportDot() bool {
 }
 
 func (this *Parser) parseLeftHandSideExpression() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var operand *ParseTree = this.parseNewExpression()
 	if newExpressionTree, ok := operand.self().(*NewExpressionTree); !(ok) || (newExpressionTree.arguments != nil) {
 		for this.peekCallSuffix() {
@@ -2138,7 +2138,7 @@ func (this *Parser) peekCallSuffix() bool {
 }
 
 func (this *Parser) maybeParseOptionalExpression(operand *ParseTree) *ParseTree {
-	var start *SourcePosition_util = operand.location_.start_
+	var start SourcePosition_util = operand.location_.start_
 	for this.peek(TokenType_QUESTION_DOT) {
 		this.eat(TokenType_QUESTION_DOT)
 		switch this.peekType() {
@@ -2166,7 +2166,7 @@ func (this *Parser) maybeParseOptionalExpression(operand *ParseTree) *ParseTree 
 }
 
 func (this *Parser) parseRemainingOptionalChainSegment(optionalExpression *ParseTree) *ParseTree {
-	var start *SourcePosition_util = optionalExpression.location_.start_
+	var start SourcePosition_util = optionalExpression.location_.start_
 	for this.peekOptionalChainSuffix() {
 		if (this.peekType() == TokenType_NO_SUBSTITUTION_TEMPLATE) || (this.peekType() == TokenType_TEMPLATE_HEAD) {
 			this.reportError("template literal cannot be used within optional chaining")
@@ -2197,7 +2197,7 @@ func (this *Parser) peekOptionalChainSuffix() bool {
 }
 
 func (this *Parser) parseMemberExpressionNoNew() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var operand *ParseTree
 	if this.peekImportDot() {
 		operand = this.parseImportDotMeta()
@@ -2238,7 +2238,7 @@ func (this *Parser) parseNewExpression() *ParseTree {
 	} else if this.peek_2(1, TokenType_PERIOD) {
 		return this.parseNewDotSomething()
 	} else {
-		var start *SourcePosition_util = this.getTreeStartLocation()
+		var start SourcePosition_util = this.getTreeStartLocation()
 		this.eat(TokenType_NEW)
 		if this.peek(TokenType_QUESTION_DOT) {
 			this.reportError("Optional chaining is forbidden in `new?.target` contexts.")
@@ -2256,7 +2256,7 @@ func (this *Parser) parseNewExpression() *ParseTree {
 }
 
 func (this *Parser) parseNewDotSomething() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_NEW)
 	this.eat(TokenType_PERIOD)
 	this.eatPredefinedString("target")
@@ -2264,7 +2264,7 @@ func (this *Parser) parseNewDotSomething() *ParseTree {
 }
 
 func (this *Parser) parseImportDotMeta() *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_IMPORT)
 	this.eat(TokenType_PERIOD)
 	this.eatPredefinedString("meta")
@@ -2272,10 +2272,10 @@ func (this *Parser) parseImportDotMeta() *ParseTree {
 }
 
 func (this *Parser) parseArguments() *ArgumentListTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var arguments *ImmutableList_Builder[*ParseTree] = immutableListBuilder_(tc_p_ParseTree)
 	var trailingComma bool = false
-	var commaPositions *ImmutableList_Builder[*SourcePosition_util] = immutableListBuilder_(tc_p_SourcePosition_util)
+	var commaPositions *ImmutableList_Builder[SourcePosition_util] = immutableListBuilder_(tc_SourcePosition_util)
 	this.eat(TokenType_OPEN_PAREN)
 	for this.peekAssignmentOrSpread() {
 		arguments.add(this.parseAssignmentOrSpread())
@@ -2325,7 +2325,7 @@ func (this *Parser) peekArrayPatternElement() bool {
 }
 
 func (this *Parser) parseIterRest(patternKind Parser_PatternKind) *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_ELLIPSIS)
 	var patternAssignmentTarget *ParseTree = this.parseRestAssignmentTarget(patternKind)
 	return new_IterRestTree(this.getTreeLocation(start), patternAssignmentTarget).up_ParseTree()
@@ -2340,12 +2340,12 @@ func (this *Parser) parseRestAssignmentTarget(patternKind Parser_PatternKind) *P
 }
 
 func (this *Parser) parseArrayPattern(kind Parser_PatternKind) *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var elements *ImmutableList_Builder[*ParseTree] = immutableListBuilder_(tc_p_ParseTree)
 	this.eat(TokenType_OPEN_SQUARE)
 	for this.peek(TokenType_COMMA) || this.peekArrayPatternElement() {
 		if this.peek(TokenType_COMMA) {
-			var nullStart *SourcePosition_util = this.getTreeStartLocation()
+			var nullStart SourcePosition_util = this.getTreeStartLocation()
 			this.eat(TokenType_COMMA)
 			elements.add(new_NullTree(this.getTreeLocation(nullStart)).up_ParseTree())
 		} else {
@@ -2368,7 +2368,7 @@ func (this *Parser) parseArrayPattern(kind Parser_PatternKind) *ParseTree {
 }
 
 func (this *Parser) parseObjectPattern(kind Parser_PatternKind) *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var fields *ImmutableList_Builder[*ParseTree] = immutableListBuilder_(tc_p_ParseTree)
 	this.eat(TokenType_OPEN_CURLY)
 	for this.peekObjectPatternField() {
@@ -2381,7 +2381,7 @@ func (this *Parser) parseObjectPattern(kind Parser_PatternKind) *ParseTree {
 	}
 	if this.peek(TokenType_ELLIPSIS) {
 		this.recordFeatureUsed(FeatureSet_Feature_OBJECT_PATTERN_REST)
-		var restStart *SourcePosition_util = this.getTreeStartLocation()
+		var restStart SourcePosition_util = this.getTreeStartLocation()
 		this.eat(TokenType_ELLIPSIS)
 		var patternAssignmentTarget *ParseTree = this.parseRestAssignmentTarget(kind)
 		fields.add(new_ObjectRestTree(this.getTreeLocation(restStart), patternAssignmentTarget).up_ParseTree())
@@ -2395,7 +2395,7 @@ func (this *Parser) peekObjectPatternField() bool {
 }
 
 func (this *Parser) parseObjectPatternField(kind Parser_PatternKind) *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	if this.peekType() == TokenType_OPEN_SQUARE {
 		var key *ParseTree = this.parseComputedPropertyName()
 		this.eat(TokenType_COLON)
@@ -2427,7 +2427,7 @@ func (this *Parser) parseObjectPatternField(kind Parser_PatternKind) *ParseTree 
 }
 
 func (this *Parser) parsePatternAssignmentTarget(patternKind Parser_PatternKind) *ParseTree {
-	var start *SourcePosition_util = this.getTreeStartLocation()
+	var start SourcePosition_util = this.getTreeStartLocation()
 	var assignmentTarget *ParseTree
 	assignmentTarget = this.parsePatternAssignmentTargetNoDefault(patternKind)
 	if this.peek(TokenType_EQUAL) {
@@ -2582,15 +2582,15 @@ func (this *Parser) reportExpectedError(token *Token_parser, expected any) {
 	this.reportError_3(token, "'%s' expected", expected)
 }
 
-func (this *Parser) getTreeStartLocation() *SourcePosition_util {
+func (this *Parser) getTreeStartLocation() SourcePosition_util {
 	return this.peekToken().location_.start_
 }
 
-func (this *Parser) getTreeEndLocation() *SourcePosition_util {
+func (this *Parser) getTreeEndLocation() SourcePosition_util {
 	return this.lastSourcePosition
 }
 
-func (this *Parser) getTreeLocation(start *SourcePosition_util) *SourceRange {
+func (this *Parser) getTreeLocation(start SourcePosition_util) SourceRange {
 	return new_SourceRange(start, this.getTreeEndLocation())
 }
 
@@ -2656,7 +2656,7 @@ func (this *Parser) reportError(message string, arguments ...any) {
 	this.errorReporter.reportError_3(this.scanner.getPosition(), message, arguments...)
 }
 
-func (this *Parser) reportErrorSourcePosition(position *SourcePosition_util, message string, arguments ...any) {
+func (this *Parser) reportErrorSourcePosition(position SourcePosition_util, message string, arguments ...any) {
 	this.errorReporter.reportError_3(position, message, arguments...)
 }
 
@@ -2879,14 +2879,14 @@ func new_Parser_CommentRecorder(outer_ *Parser) *Parser_CommentRecorder {
 	return this
 }
 
-func (this *Parser_CommentRecorder) recordComment(type_ Comment_Type, range_ *SourceRange, value string) {
+func (this *Parser_CommentRecorder) recordComment(type_ Comment_Type, range_ SourceRange, value string) {
 	if (this.lastCommentEndPosition == nil) || (range_.end_.offset > this.lastCommentEndPosition.offset) {
 		value = strings.Trim(value, javaSpace_)
 		if strings.HasPrefix(value, Parser_SOURCE_MAPPING_URL_PREFIX) {
 			this.outer_.sourceMapURL = optstrOf_(value[len(Parser_SOURCE_MAPPING_URL_PREFIX):])
 		}
 		this.comments.add(new_Comment(value, range_, type_))
-		this.lastCommentEndPosition = range_.end_
+		this.lastCommentEndPosition = range_.end_.ref_()
 	}
 }
 

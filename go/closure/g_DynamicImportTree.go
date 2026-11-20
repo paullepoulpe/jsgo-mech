@@ -14,12 +14,12 @@ func (this *DynamicImportTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *DynamicImportTree) init_DynamicImportTree(location *SourceRange, argument *ParseTree) {
+func (this *DynamicImportTree) init_DynamicImportTree(location SourceRange, argument *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_DYNAMIC_IMPORT_EXPRESSION, location)
 	this.argument_ = argument
 }
 
-func new_DynamicImportTree(location *SourceRange, argument *ParseTree) *DynamicImportTree {
+func new_DynamicImportTree(location SourceRange, argument *ParseTree) *DynamicImportTree {
 	this := &DynamicImportTree{}
 	this.self_ = this
 	this.init_DynamicImportTree(location, argument)

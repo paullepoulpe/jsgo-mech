@@ -57,14 +57,14 @@ func (this *Scanner_parser) getOffset() int32 {
 	}()
 }
 
-func (this *Scanner_parser) setPosition(position *SourcePosition_util) {
+func (this *Scanner_parser) setPosition(position SourcePosition_util) {
 	this.lineNumberScanner.rewindTo(position)
 	sliceClear_(this.currentTokens)
 	this.index_ = position.offset
 }
 
-func (this *Scanner_parser) getPosition() *SourcePosition_util {
-	return func() *SourcePosition_util {
+func (this *Scanner_parser) getPosition() SourcePosition_util {
+	return func() SourcePosition_util {
 		if len(*this.currentTokens) == 0 {
 			return this.getPosition_1(this.index_)
 		}
@@ -72,15 +72,15 @@ func (this *Scanner_parser) getPosition() *SourcePosition_util {
 	}()
 }
 
-func (this *Scanner_parser) getPosition_1(offset int32) *SourcePosition_util {
+func (this *Scanner_parser) getPosition_1(offset int32) SourcePosition_util {
 	return this.lineNumberScanner.getSourcePosition(offset)
 }
 
-func (this *Scanner_parser) getTokenRange(startOffset int32) *SourceRange {
+func (this *Scanner_parser) getTokenRange(startOffset int32) SourceRange {
 	return this.lineNumberScanner.getSourceRange(startOffset, this.index_)
 }
 
-func (this *Scanner_parser) getTokenRangeSourcePosition(position *SourcePosition_util) *SourceRange {
+func (this *Scanner_parser) getTokenRangeSourcePosition(position SourcePosition_util) SourceRange {
 	this.lineNumberScanner.rewindTo(position)
 	return this.lineNumberScanner.getSourceRange(position.offset, this.index_)
 }
@@ -327,12 +327,12 @@ func (this *Scanner_parser) skipSingleLineComment_1(type_ Comment_Type) {
 	for !this.isAtEnd() && !Scanner_parser_isLineTerminator(this.peekChar()) {
 		this.nextChar()
 	}
-	var range_ *SourceRange = this.lineNumberScanner.getSourceRange(startOffset, this.index_)
+	var range_ SourceRange = this.lineNumberScanner.getSourceRange(startOffset, this.index_)
 	var value string = this.contentsU16.substring(startOffset, this.index_)
 	this.recordComment(type_, range_, value)
 }
 
-func (this *Scanner_parser) recordComment(type_ Comment_Type, range_ *SourceRange, value string) {
+func (this *Scanner_parser) recordComment(type_ Comment_Type, range_ SourceRange, value string) {
 	this.commentRecorder.recordComment(type_, range_, value)
 }
 
@@ -354,7 +354,7 @@ func (this *Scanner_parser) skipMultiLineComment() {
 				type_ = Comment_Type_IMPORTANT
 			}
 		}
-		var range_ *SourceRange = this.lineNumberScanner.getSourceRange(startOffset, this.index_)
+		var range_ SourceRange = this.lineNumberScanner.getSourceRange(startOffset, this.index_)
 		var value string = this.contentsU16.substring(startOffset, this.index_)
 		this.recordComment(type_, range_, value)
 	} else {
@@ -804,7 +804,7 @@ func Scanner_parser_processUnicodeEscapes(value string) string {
 }
 
 func (this *Scanner_parser) scanStringLiteral(beginIndex int32, terminator uint16) *Token_parser {
-	var startingPosition *SourcePosition_util = this.getPosition_1(beginIndex)
+	var startingPosition SourcePosition_util = this.getPosition_1(beginIndex)
 	var hasUnescapedUnicodeLineOrParagraphSeparator bool = false
 	for this.peekStringLiteralChar(terminator) {
 		var c uint16 = this.peekChar()
@@ -830,7 +830,7 @@ func (this *Scanner_parser) scanTemplateLiteral(beginIndex int32) *Token_parser 
 
 func (this *Scanner_parser) nextTemplateLiteralTokenShared(endType TokenType, middleType TokenType) *TemplateLiteralToken {
 	var beginIndex int32 = this.index_
-	var startingPosition *SourcePosition_util = this.getPosition_1(beginIndex)
+	var startingPosition SourcePosition_util = this.getPosition_1(beginIndex)
 	var skipTemplateCharactersResult *Scanner_SkipTemplateCharactersResult = this.skipTemplateCharacters()
 	if this.isAtEnd() {
 		this.reportError_3(startingPosition, "Unterminated template literal")
@@ -1189,7 +1189,7 @@ func (this *Scanner_parser) reportError(format string, arguments ...any) {
 	this.reportError_3(this.getPosition(), format, arguments...)
 }
 
-func (this *Scanner_parser) reportError_3(position *SourcePosition_util, format string, arguments ...any) {
+func (this *Scanner_parser) reportError_3(position SourcePosition_util, format string, arguments ...any) {
 	this.errorReporter.reportError_3(position, format, arguments...)
 }
 
@@ -1210,30 +1210,30 @@ func (this *Scanner_parser) createSkipTemplateCharactersResult(message string, e
 }
 
 type Scanner_CommentRecorder interface {
-	recordComment(Comment_Type, *SourceRange, string)
+	recordComment(Comment_Type, SourceRange, string)
 }
 
 type Scanner_CommentRecorder_fn struct {
-	f func(Comment_Type, *SourceRange, string)
+	f func(Comment_Type, SourceRange, string)
 }
 
-func (this *Scanner_CommentRecorder_fn) recordComment(p0 Comment_Type, p1 *SourceRange, p2 string) {
+func (this *Scanner_CommentRecorder_fn) recordComment(p0 Comment_Type, p1 SourceRange, p2 string) {
 	this.f(p0, p1, p2)
 }
 
 type Scanner_SkipTemplateCharactersResult struct {
 	errorMessage_ string
-	position      *SourcePosition_util
+	position      SourcePosition_util
 	errorLevel    TemplateLiteralToken_ErrorLevel
 }
 
-func (this *Scanner_SkipTemplateCharactersResult) init_Scanner_SkipTemplateCharactersResult(message string, errorLevel TemplateLiteralToken_ErrorLevel, position *SourcePosition_util) {
+func (this *Scanner_SkipTemplateCharactersResult) init_Scanner_SkipTemplateCharactersResult(message string, errorLevel TemplateLiteralToken_ErrorLevel, position SourcePosition_util) {
 	this.errorMessage_ = message
 	this.errorLevel = errorLevel
 	this.position = position
 }
 
-func new_Scanner_SkipTemplateCharactersResult(message string, errorLevel TemplateLiteralToken_ErrorLevel, position *SourcePosition_util) *Scanner_SkipTemplateCharactersResult {
+func new_Scanner_SkipTemplateCharactersResult(message string, errorLevel TemplateLiteralToken_ErrorLevel, position SourcePosition_util) *Scanner_SkipTemplateCharactersResult {
 	this := &Scanner_SkipTemplateCharactersResult{}
 	this.init_Scanner_SkipTemplateCharactersResult(message, errorLevel, position)
 	return this
@@ -1247,7 +1247,7 @@ func (this *Scanner_SkipTemplateCharactersResult) getErrorLevel() TemplateLitera
 	return this.errorLevel
 }
 
-func (this *Scanner_SkipTemplateCharactersResult) getPosition() *SourcePosition_util {
+func (this *Scanner_SkipTemplateCharactersResult) getPosition() SourcePosition_util {
 	return this.position
 }
 

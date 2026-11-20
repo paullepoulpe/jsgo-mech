@@ -104,7 +104,7 @@ func IRFactory_transformTree(tree *ProgramTree, sourceFile StaticSourceFile, con
 			}
 		}
 		if n.isScript() {
-			var endOfFilePos *SourcePosition_util = tree.location_.end_
+			var endOfFilePos SourcePosition_util = tree.location_.end_
 			var nonJSDocComment *NonJSDocComment = irFactory.parseNonJSDocCommentAt(endOfFilePos, false)
 			if nonJSDocComment != nil {
 				n.setTrailingNonJSDocComment(nonJSDocComment)
@@ -456,7 +456,7 @@ func (this *IRFactory) handlePossibleFileOverviewJsDoc_2(comment *Comment, useLi
 	this.handlePossibleFileOverviewJsDoc(jsDocParser)
 }
 
-func (this *IRFactory) getJSDocCommentAt(pos *SourcePosition_util) *Comment {
+func (this *IRFactory) getJSDocCommentAt(pos SourcePosition_util) *Comment {
 	var closestPreviousComment *Comment = nil
 	for this.jsdocTracker.hasPendingCommentBefore(pos) {
 		closestPreviousComment = this.jsdocTracker.current()
@@ -501,7 +501,7 @@ func (this *IRFactory) parseJSDocInfoOnToken(token *Token_parser) *JSDocInfo {
 	return this.parseJSDocInfoFrom(this.getJSDocCommentAt(token.getStart()))
 }
 
-func (this *IRFactory) parseInlineJSDocAt(pos *SourcePosition_util) *JSDocInfo {
+func (this *IRFactory) parseInlineJSDocAt(pos SourcePosition_util) *JSDocInfo {
 	if this.withinClosureUnawareCodeRange(pos.line_, pos.column_) {
 		return nil
 	}
@@ -514,11 +514,11 @@ func (this *IRFactory) parseInlineJSDocAt(pos *SourcePosition_util) *JSDocInfo {
 	}()
 }
 
-func (this *IRFactory) hasAnyPendingCommentBefore(pos *SourcePosition_util, withinClosureUnawareCodeRange bool) bool {
+func (this *IRFactory) hasAnyPendingCommentBefore(pos SourcePosition_util, withinClosureUnawareCodeRange bool) bool {
 	return (this.nonJsdocTracker.hasPendingCommentBefore(pos) || (withinClosureUnawareCodeRange && this.jsdocTracker.hasPendingCommentBefore(pos)))
 }
 
-func (this *IRFactory) parseNonJSDocCommentAt(pos *SourcePosition_util, isInline bool) *NonJSDocComment {
+func (this *IRFactory) parseNonJSDocCommentAt(pos SourcePosition_util, isInline bool) *NonJSDocComment {
 	var withinClosureUnawareCodeRange bool = this.withinClosureUnawareCodeRange(pos.line_, pos.column_)
 	var result strBuilder_
 	var firstComment *Comment = nil
@@ -566,7 +566,7 @@ func (this *IRFactory) parseNonJSDocCommentAt(pos *SourcePosition_util, isInline
 	return nonJSDocComment
 }
 
-func (this *IRFactory) parseTrailingNonJSDocCommentAt(tokenEnd *SourcePosition_util, possibleNextTokenStart *SourcePosition_util) *NonJSDocComment {
+func (this *IRFactory) parseTrailingNonJSDocCommentAt(tokenEnd SourcePosition_util, possibleNextTokenStart SourcePosition_util) *NonJSDocComment {
 	if this.config.jsDocParsingMode() != Config_JsDocParsing_INCLUDE_ALL_COMMENTS {
 		return nil
 	}
@@ -632,7 +632,7 @@ func (this *IRFactory) transform(tree *ParseTree) Node {
 	var isRootOfClosureUnawareSubTree bool = ((info != nil) && info.isClosureUnawareCode())
 	if isRootOfClosureUnawareSubTree {
 		this.templateNode = this.closureUnawareTemplateNode
-		var nextClosureUnawareRange *SourceRange = tree.location_
+		var nextClosureUnawareRange SourceRange = tree.location_
 		var nextClosureUnawareRangeStart *IRFactory_LineAndColumn = IRFactory_LineAndColumn_fromSourcePosition(nextClosureUnawareRange.start_)
 		var nextClosureUnawareRangeEnd *IRFactory_LineAndColumn = IRFactory_LineAndColumn_fromSourcePosition(nextClosureUnawareRange.end_)
 		this.closureUnawareCodeRanges.add(Range_closed(obj_(nextClosureUnawareRangeStart), obj_(nextClosureUnawareRangeEnd)))
@@ -712,7 +712,7 @@ func IRFactory_linenoToken(token *Token_parser) int32 {
 	return IRFactory_linenoSourcePosition(token.location_.start_)
 }
 
-func IRFactory_linenoSourcePosition(location *SourcePosition_util) int32 {
+func IRFactory_linenoSourcePosition(location SourcePosition_util) int32 {
 	return (location.line_ + 1)
 }
 
@@ -724,7 +724,7 @@ func IRFactory_charnoToken(token *Token_parser) int32 {
 	return IRFactory_charno(token.location_.start_)
 }
 
-func IRFactory_charno(location *SourcePosition_util) int32 {
+func IRFactory_charno(location SourcePosition_util) int32 {
 	return location.column_
 }
 
@@ -791,7 +791,7 @@ func (this *IRFactory) setSourceInfoToken(irNode Node, token *Token_parser) {
 	this.setSourceInfo_3(irNode, token.location_.start_, token.location_.end_)
 }
 
-func (this *IRFactory) setSourceInfo_3(node Node, start *SourcePosition_util, end *SourcePosition_util) {
+func (this *IRFactory) setSourceInfo_3(node Node, start SourcePosition_util, end SourcePosition_util) {
 	if node.getLineno() == -1 {
 		node.setLinenoCharno(IRFactory_linenoSourcePosition(start), IRFactory_charno(start))
 		this.setLength(node, start, end)
@@ -831,7 +831,7 @@ func (this *IRFactory) parseInlineTypeDoc(node *Comment) *JSDocInfo {
 	return parser.parseInlineTypeDoc()
 }
 
-func (this *IRFactory) setLength(node Node, start *SourcePosition_util, end *SourcePosition_util) {
+func (this *IRFactory) setLength(node Node, start SourcePosition_util, end SourcePosition_util) {
 	node.setLength((end.offset - start.offset))
 }
 
@@ -1020,7 +1020,7 @@ func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 		value = this.removeNumericSeparators(value, token)
 		valueU16 = utf16Of_(value)
 	}
-	var location *SourceRange = token.location_
+	var location SourceRange = token.location_
 	var length int32 = valueU16.length()
 	if length <= 0 {
 		panic(new_IllegalStateException_0())
@@ -1381,7 +1381,7 @@ func (this *IRFactory) newStringNode_2(type_ Token_rhino, value string) Node {
 	return Node_newString_Token_String(type_, value).clonePropsFrom(this.templateNode)
 }
 
-func (this *IRFactory) maybeAddNonJsDocComment(node Node, start *SourcePosition_util) Node {
+func (this *IRFactory) maybeAddNonJsDocComment(node Node, start SourcePosition_util) Node {
 	var comment *NonJSDocComment = this.parseNonJSDocCommentAt(start, false)
 	if comment != nil {
 		node.setNonJSDocComment(comment)
@@ -1473,7 +1473,7 @@ func new_IRFactory_LineAndColumn(lineNo int32, column int32) *IRFactory_LineAndC
 	return this
 }
 
-func IRFactory_LineAndColumn_fromSourcePosition(pos *SourcePosition_util) *IRFactory_LineAndColumn {
+func IRFactory_LineAndColumn_fromSourcePosition(pos SourcePosition_util) *IRFactory_LineAndColumn {
 	return new_IRFactory_LineAndColumn(pos.line_, pos.column_)
 }
 
@@ -1563,7 +1563,7 @@ func (this *IRFactory_CommentTracker) backtrack() {
 	this.index_ = this.previousIndex
 }
 
-func (this *IRFactory_CommentTracker) hasPendingCommentBefore(pos *SourcePosition_util) bool {
+func (this *IRFactory_CommentTracker) hasPendingCommentBefore(pos SourcePosition_util) bool {
 	var c *Comment = this.current()
 	return (((c != nil) && (c.location_.end_.line_ <= pos.line_)) && (c.location_.end_.offset <= pos.offset))
 }
@@ -1918,7 +1918,7 @@ func (this *IRFactory_TransformDispatcher) processFunctionCall(callNode *CallExp
 	var node Node = this.outer_.newNode_2(Token_rhino_CALL, this.outer_.transform(callNode.operand))
 	node.setTrailingComma(callNode.arguments.hasTrailingComma_)
 	var argumentsTree *ArgumentListTree = callNode.arguments
-	var zones *TList[*SourcePosition_util] = this.getEndOfArgCommentZones(argumentsTree.arguments, argumentsTree.commaPositions, argumentsTree.location_.end_)
+	var zones *TList[SourcePosition_util] = this.getEndOfArgCommentZones(argumentsTree.arguments, argumentsTree.commaPositions, argumentsTree.location_.end_)
 	var argCount int32 = 0
 	for child := range callNode.arguments.arguments.All() {
 		var childNode Node = this.outer_.transform(child)
@@ -1952,17 +1952,17 @@ func (this *IRFactory_TransformDispatcher) isNormalOrOptChainGet(n Node) bool {
 	return (((n.isGetProp() || n.isGetElem()) || n.isOptChainGetProp()) || n.isOptChainGetElem())
 }
 
-func (this *IRFactory_TransformDispatcher) getEndOfArgCommentZones(args *TList[*ParseTree], commaPositions *TList[*SourcePosition_util], argListEndPosition *SourcePosition_util) *TList[*SourcePosition_util] {
-	var zones *ImmutableList_Builder[*SourcePosition_util] = immutableListBuilder_(tc_p_SourcePosition_util)
+func (this *IRFactory_TransformDispatcher) getEndOfArgCommentZones(args *TList[*ParseTree], commaPositions *TList[SourcePosition_util], argListEndPosition SourcePosition_util) *TList[SourcePosition_util] {
+	var zones *ImmutableList_Builder[SourcePosition_util] = immutableListBuilder_(tc_SourcePosition_util)
 	var commaCount int32 = 0
 	for arg := range args.All() {
 		if args.size() > (commaCount + 1) {
 			var nextParam *ParseTree = args.get((commaCount + 1))
 			if nextParam.location_.start_.line_ > arg.location_.end_.line_ {
-				var tempSourcePos *SourcePosition_util = new_SourcePosition_util(nil, int32(2147483647), arg.location_.end_.line_, int32(2147483647))
+				var tempSourcePos SourcePosition_util = new_SourcePosition_util(nil, int32(2147483647), arg.location_.end_.line_, int32(2147483647))
 				zones.add(tempSourcePos)
 			} else {
-				var commaPosition *SourcePosition_util = commaPositions.get(commaCount)
+				var commaPosition SourcePosition_util = commaPositions.get(commaCount)
 				zones.add(commaPosition)
 			}
 		} else {
@@ -1973,7 +1973,7 @@ func (this *IRFactory_TransformDispatcher) getEndOfArgCommentZones(args *TList[*
 	return zones.build()
 }
 
-func (this *IRFactory_TransformDispatcher) attachPossibleTrailingCommentsForArg(paramNode Node, endZone *SourcePosition_util) {
+func (this *IRFactory_TransformDispatcher) attachPossibleTrailingCommentsForArg(paramNode Node, endZone SourcePosition_util) {
 	var trailingComment *NonJSDocComment = this.outer_.parseNonJSDocCommentAt(endZone, true)
 	if trailingComment == nil {
 		return
@@ -1981,8 +1981,8 @@ func (this *IRFactory_TransformDispatcher) attachPossibleTrailingCommentsForArg(
 	paramNode.setTrailingNonJSDocComment(trailingComment)
 }
 
-func (this *IRFactory_TransformDispatcher) attachPossibleTrailingComment(node Node, tokenEnd *SourcePosition_util) {
-	var nextLine *SourcePosition_util = new_SourcePosition_util(nil, int32(2147483647), (tokenEnd.line_ + 1), 0)
+func (this *IRFactory_TransformDispatcher) attachPossibleTrailingComment(node Node, tokenEnd SourcePosition_util) {
+	var nextLine SourcePosition_util = new_SourcePosition_util(nil, int32(2147483647), (tokenEnd.line_ + 1), 0)
 	var trailingComment *NonJSDocComment = this.outer_.parseTrailingNonJSDocCommentAt(tokenEnd, nextLine)
 	if trailingComment == nil {
 		return
@@ -2001,7 +2001,7 @@ func (this *IRFactory_TransformDispatcher) addExtraTrailingComment(node Node, la
 	var lastChild Node = node.getLastChild()
 	var currentComment *NonJSDocComment = lastChild.getTrailingNonJSDocComment()
 	if currentComment == nil {
-		var newStart *SourcePosition_util = new_SourcePosition_util(nil, (lastComment.getEndPosition().offset - 1), (lastComment.getEndPosition().line_ - 1), 0)
+		var newStart SourcePosition_util = new_SourcePosition_util(nil, (lastComment.getEndPosition().offset - 1), (lastComment.getEndPosition().line_ - 1), 0)
 		var newlineComment *NonJSDocComment = new_NonJSDocComment(newStart, lastComment.getEndPosition(), ("\n" + sstr_(lastComment.getCommentString())))
 		node.getLastChild().setTrailingNonJSDocComment(newlineComment)
 		return
@@ -2148,7 +2148,7 @@ func (this *IRFactory_TransformDispatcher) processFormalParameterList(tree *Form
 		return params
 	}
 	var parameters *TList[*ParseTree] = tree.parameters
-	var zones *TList[*SourcePosition_util] = this.getEndOfArgCommentZones(parameters, tree.commaPositions, tree.location_.end_)
+	var zones *TList[SourcePosition_util] = this.getEndOfArgCommentZones(parameters, tree.commaPositions, tree.location_.end_)
 	var argCount int32 = 0
 	for param := range tree.parameters.All() {
 		var paramNode Node
@@ -2891,8 +2891,8 @@ func (this *IRFactory_TransformDispatcher) processNull(unused *NullTree) Node {
 
 func (this *IRFactory_TransformDispatcher) processCommaExpression(tree *CommaExpressionTree) Node {
 	var root Node = this.outer_.newNode(Token_rhino_COMMA)
-	var start *SourcePosition_util = tree.expressions.get(0).location_.start_
-	var end *SourcePosition_util = tree.expressions.get(1).location_.end_
+	var start SourcePosition_util = tree.expressions.get(0).location_.start_
+	var end SourcePosition_util = tree.expressions.get(1).location_.end_
 	this.outer_.setSourceInfo_3(root, start, end)
 	for expr := range tree.expressions.All() {
 		var count int32 = root.getChildCount()

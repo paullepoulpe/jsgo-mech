@@ -19,7 +19,7 @@ type RemoveUnusedCode struct {
 	allFunctionParamScopes                         *[]*Scope
 	polyfills                                      *SimpleSetMultimap[any, *RemoveUnusedCode_PolyfillInfo]
 	guardedUsages                                  map[Node]struct{}
-	polyfillsFromTable                             *PolyfillUsageFinder_Polyfills
+	polyfillsFromTable                             PolyfillUsageFinder_Polyfills
 	polyfillUsageFinder                            *PolyfillUsageFinder
 	scopeCreator                                   *SyntacticScopeCreator
 	removeUnusedPrototypeProperties_               bool

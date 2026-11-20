@@ -17,7 +17,7 @@ func (this *GetAccessorTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *GetAccessorTree) init_GetAccessorTree(location *SourceRange, propertyName *Token_parser, isClassMember bool, isStatic bool, body *BlockTree) {
+func (this *GetAccessorTree) init_GetAccessorTree(location SourceRange, propertyName *Token_parser, isClassMember bool, isStatic bool, body *BlockTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_GET_ACCESSOR, location)
 	this.propertyName_ = propertyName
 	this.isClassMember = isClassMember
@@ -25,7 +25,7 @@ func (this *GetAccessorTree) init_GetAccessorTree(location *SourceRange, propert
 	this.body = body
 }
 
-func new_GetAccessorTree(location *SourceRange, propertyName *Token_parser, isClassMember bool, isStatic bool, body *BlockTree) *GetAccessorTree {
+func new_GetAccessorTree(location SourceRange, propertyName *Token_parser, isClassMember bool, isStatic bool, body *BlockTree) *GetAccessorTree {
 	this := &GetAccessorTree{}
 	this.self_ = this
 	this.init_GetAccessorTree(location, propertyName, isClassMember, isStatic, body)

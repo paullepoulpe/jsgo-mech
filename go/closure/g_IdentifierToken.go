@@ -21,13 +21,13 @@ func (this *IdentifierToken) zero_IdentifierToken() {
 	this.value_ = nullstr_
 }
 
-func (this *IdentifierToken) init_IdentifierToken(location *SourceRange, value string) {
+func (this *IdentifierToken) init_IdentifierToken(location SourceRange, value string) {
 	this.Token_parser.init_Token_parser(TokenType_IDENTIFIER, location)
 	this.value_ = value
 	this.privateIdentifier = strings.HasPrefix(value, "#")
 }
 
-func new_IdentifierToken(location *SourceRange, value string) *IdentifierToken {
+func new_IdentifierToken(location SourceRange, value string) *IdentifierToken {
 	this := &IdentifierToken{}
 	this.self_ = this
 	this.zero_IdentifierToken()

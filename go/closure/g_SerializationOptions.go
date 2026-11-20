@@ -15,8 +15,8 @@ func (this *SerializationOptions) init_SerializationOptions(includeDebugInfo boo
 	this.runtimeLibraries_ = runtimeLibraries
 }
 
-func new_SerializationOptions(includeDebugInfo bool, runValidation bool, runtimeLibraries *TList[string]) *SerializationOptions {
-	this := &SerializationOptions{}
+func new_SerializationOptions(includeDebugInfo bool, runValidation bool, runtimeLibraries *TList[string]) SerializationOptions {
+	this := SerializationOptions{}
 	this.init_SerializationOptions(includeDebugInfo, runValidation, runtimeLibraries)
 	return this
 }
@@ -25,19 +25,19 @@ func SerializationOptions_builder() *SerializationOptions_Builder {
 	return new_SerializationOptions_Builder().setRunValidation(false).setIncludeDebugInfo(false).setRuntimeLibraries(tlistEmptyImm_(tc_string))
 }
 
-func (this *SerializationOptions) includeDebugInfo() bool {
+func (this SerializationOptions) includeDebugInfo() bool {
 	return this.includeDebugInfo_
 }
 
-func (this *SerializationOptions) runValidation() bool {
+func (this SerializationOptions) runValidation() bool {
 	return this.runValidation_
 }
 
-func (this *SerializationOptions) runtimeLibraries() *TList[string] {
+func (this SerializationOptions) runtimeLibraries() *TList[string] {
 	return this.runtimeLibraries_
 }
 
-func (this *SerializationOptions) toString() string {
+func (this SerializationOptions) toString() string {
 	return "SerializationOptions[" + "includeDebugInfo=" + boolstr_(this.includeDebugInfo_) + ", runValidation=" + boolstr_(this.runValidation_) + ", runtimeLibraries=" + objstr_(this.runtimeLibraries_.asList()) + "]"
 }
 
@@ -78,7 +78,7 @@ func (this *SerializationOptions_Builder) setRuntimeLibraries(runtimeLibraries *
 	return this
 }
 
-func (this *SerializationOptions_Builder) build() *SerializationOptions {
+func (this *SerializationOptions_Builder) build() SerializationOptions {
 	if (int32(this.set0) != 3) || (this.runtimeLibraries_ == nil) {
 		var missing *StringBuilder = new_StringBuilder()
 		if (int32(this.set0) & 1) == 0 {

@@ -6,7 +6,7 @@ type RewriteCatchWithNoBinding struct {
 	AbstractPeepholeTranspilation
 	compiler_        *AbstractCompiler
 	astFactory_      *AstFactory
-	uniqueIdSupplier *UniqueIdSupplier
+	uniqueIdSupplier UniqueIdSupplier
 }
 
 func (this *RewriteCatchWithNoBinding) up_AbstractPeepholeTranspilation() *AbstractPeepholeTranspilation {

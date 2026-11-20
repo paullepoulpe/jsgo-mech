@@ -878,7 +878,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 			panic(new_IllegalStateException_String(objstr_("Found icu_placeholder_names for a message that is not an ICU template.")))
 		}
 		var icuMessageTemplateString *JsMessageVisitor_IcuMessageTemplateString = new_JsMessageVisitor_IcuMessageTemplateString(messageText)
-		var extractedIcuTemplateParts *JsMessageVisitor_ExtractedIcuTemplateParts = icuMessageTemplateString.extractParts(icuPlaceholderNames)
+		var extractedIcuTemplateParts JsMessageVisitor_ExtractedIcuTemplateParts = icuMessageTemplateString.extractParts(icuPlaceholderNames)
 		jsMessageBuilder.appendParts(extractedIcuTemplateParts.extractedParts)
 	} else {
 		var partsRes *Outcome_base[*ErasedImmutableList] = JsMessageVisitor_parseJsMessageTextIntoParts(messageText)

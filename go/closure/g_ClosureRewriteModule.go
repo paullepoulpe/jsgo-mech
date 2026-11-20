@@ -13,7 +13,7 @@ type ClosureRewriteModule struct {
 	globalScope                       *Scope
 	scriptStack                       *[]*ClosureRewriteModule_ScriptDescription
 	currentScript                     *ClosureRewriteModule_ScriptDescription
-	rewriteState                      *ClosureRewriteModule_GlobalRewriteState
+	rewriteState                      ClosureRewriteModule_GlobalRewriteState
 	legacyScriptNamespacesAndPrefixes map[string]struct{}
 	unrecognizedRequires              *[]*ClosureRewriteModule_UnrecognizedRequire
 	googModuleGetCalls                *TList[Node]
@@ -1803,24 +1803,24 @@ func (this *ClosureRewriteModule_GlobalRewriteState) init_ClosureRewriteModule_G
 	this.finit_ClosureRewriteModule_GlobalRewriteState()
 }
 
-func new_ClosureRewriteModule_GlobalRewriteState() *ClosureRewriteModule_GlobalRewriteState {
-	this := &ClosureRewriteModule_GlobalRewriteState{}
+func new_ClosureRewriteModule_GlobalRewriteState() ClosureRewriteModule_GlobalRewriteState {
+	this := ClosureRewriteModule_GlobalRewriteState{}
 	this.init_ClosureRewriteModule_GlobalRewriteState()
 	return this
 }
 
-func (this *ClosureRewriteModule_GlobalRewriteState) containsModule(namespaceId string) bool {
+func (this ClosureRewriteModule_GlobalRewriteState) containsModule(namespaceId string) bool {
 	return has_(this.scriptDescriptionsByGoogModuleNamespace, namespaceId)
 }
 
-func (this *ClosureRewriteModule_GlobalRewriteState) isLegacyModule(namespaceId string) bool {
+func (this ClosureRewriteModule_GlobalRewriteState) isLegacyModule(namespaceId string) bool {
 	if !this.containsModule(namespaceId) {
 		panic(new_IllegalArgumentException_0())
 	}
 	return this.scriptDescriptionsByGoogModuleNamespace[namespaceId].declareLegacyNamespace
 }
 
-func (this *ClosureRewriteModule_GlobalRewriteState) getBinaryNamespace(namespaceId string) string {
+func (this ClosureRewriteModule_GlobalRewriteState) getBinaryNamespace(namespaceId string) string {
 	var script *ClosureRewriteModule_ScriptDescription = this.scriptDescriptionsByGoogModuleNamespace[namespaceId]
 	return func() string {
 		if script == nil {
@@ -1830,7 +1830,7 @@ func (this *ClosureRewriteModule_GlobalRewriteState) getBinaryNamespace(namespac
 	}()
 }
 
-func (this *ClosureRewriteModule_GlobalRewriteState) getGoogModuleNamespaceType(namespaceId string) *JSType {
+func (this ClosureRewriteModule_GlobalRewriteState) getGoogModuleNamespaceType(namespaceId string) *JSType {
 	var googModule *ClosureRewriteModule_ScriptDescription = this.scriptDescriptionsByGoogModuleNamespace[namespaceId]
 	return func() *JSType {
 		if googModule == nil {
@@ -1840,7 +1840,7 @@ func (this *ClosureRewriteModule_GlobalRewriteState) getGoogModuleNamespaceType(
 	}()
 }
 
-func (this *ClosureRewriteModule_GlobalRewriteState) getExportedNamespaceOrScript(namespaceId string) string {
+func (this ClosureRewriteModule_GlobalRewriteState) getExportedNamespaceOrScript(namespaceId string) string {
 	if has_(this.providedNamespaces, namespaceId) {
 		return optstrOf_(namespaceId)
 	}
