@@ -1316,10 +1316,16 @@ func PeepholeReplaceKnownMethods_clinit() {
 }
 
 type PeepholeReplaceKnownMethods_ConcatFunctionCall struct {
-	self_             any
+	self_             PeepholeReplaceKnownMethods_ConcatFunctionCall_as
 	callNode_         Node
 	calleeNode        Node
 	firstArgumentNode Node
+}
+
+// PeepholeReplaceKnownMethods_ConcatFunctionCall_as is implemented by PeepholeReplaceKnownMethods_ConcatFunctionCall and the classes that extend it: a cast to PeepholeReplaceKnownMethods_ConcatFunctionCall asserts to it
+// (post-flip).
+type PeepholeReplaceKnownMethods_ConcatFunctionCall_as interface {
+	as_PeepholeReplaceKnownMethods_ConcatFunctionCall() *PeepholeReplaceKnownMethods_ConcatFunctionCall
 }
 
 func (this *PeepholeReplaceKnownMethods_ConcatFunctionCall) as_PeepholeReplaceKnownMethods_ConcatFunctionCall() *PeepholeReplaceKnownMethods_ConcatFunctionCall {

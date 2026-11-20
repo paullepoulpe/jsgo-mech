@@ -40,7 +40,6 @@ func new_LinkedUndirectedGraph[N comparable, E comparable](useNodeAnnotations bo
 	this := &LinkedUndirectedGraph[N, E]{}
 	this.self_ = this
 	this.vt_UndiGraph_ = this
-	this.vt_Graph_ = this
 	this.init_LinkedUndirectedGraph(useNodeAnnotations, useEdgeAnnotations)
 	return this
 }
@@ -233,10 +232,9 @@ func (this *LinkedUndirectedGraph[N, E]) getNodeDegree_impl(value N) int32 {
 }
 
 type LinkedUndirectedGraph_LinkedUndirectedGraphNode[N comparable, E comparable] struct {
-	self_                                               any
-	vt_LinkedUndirectedGraph_LinkedUndirectedGraphNode_ LinkedUndirectedGraph_LinkedUndirectedGraphNode_vt_[N, E]
-	neighborEdges                                       *TList[UndiGraph_UndiGraphEdge[N, E]]
-	value_                                              N
+	self_         LinkedUndirectedGraph_LinkedUndirectedGraphNode_vt_[N, E]
+	neighborEdges *TList[UndiGraph_UndiGraphEdge[N, E]]
+	value_        N
 }
 
 type LinkedUndirectedGraph_LinkedUndirectedGraphNode_vt_[N comparable, E comparable] interface {
@@ -247,11 +245,13 @@ type LinkedUndirectedGraph_LinkedUndirectedGraphNode_vt_[N comparable, E compara
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) isa_LinkedUndirectedGraph_LinkedUndirectedGraphNode_() {
 }
 
-func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) as_LinkedUndirectedGraph_LinkedUndirectedGraphNode() *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E] {
-	return this
+// LinkedUndirectedGraph_LinkedUndirectedGraphNode_as is implemented by LinkedUndirectedGraph_LinkedUndirectedGraphNode and the classes that extend it: a cast to LinkedUndirectedGraph_LinkedUndirectedGraphNode asserts to it
+// (post-flip).
+type LinkedUndirectedGraph_LinkedUndirectedGraphNode_as[N comparable, E comparable] interface {
+	as_LinkedUndirectedGraph_LinkedUndirectedGraphNode() *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]
 }
 
-func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) as_LinkedUndirectedGraph_LinkedUndirectedGraphNode_() any {
+func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) as_LinkedUndirectedGraph_LinkedUndirectedGraphNode() *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E] {
 	return this
 }
 
@@ -259,7 +259,7 @@ func to_LinkedUndirectedGraph_LinkedUndirectedGraphNode[N comparable, E comparab
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_LinkedUndirectedGraph_LinkedUndirectedGraphNode_() any }).as_LinkedUndirectedGraph_LinkedUndirectedGraphNode_().(*LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E])
+	return v.(LinkedUndirectedGraph_LinkedUndirectedGraphNode_as[N, E]).as_LinkedUndirectedGraph_LinkedUndirectedGraphNode()
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) self() any {
@@ -285,7 +285,6 @@ func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) init_LinkedUn
 func new_LinkedUndirectedGraph_LinkedUndirectedGraphNode[N comparable, E comparable](nodeValue N) *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E] {
 	this := &LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]{}
 	this.self_ = this
-	this.vt_LinkedUndirectedGraph_LinkedUndirectedGraphNode_ = this
 	this.zero_LinkedUndirectedGraph_LinkedUndirectedGraphNode()
 	this.init_LinkedUndirectedGraph_LinkedUndirectedGraphNode(nodeValue)
 	return this
@@ -336,11 +335,11 @@ func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) neighborList(
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) getAnnotationUntyped() Annotation_graph {
-	return this.vt_LinkedUndirectedGraph_LinkedUndirectedGraphNode_.getAnnotationUntyped_impl()
+	return this.self_.getAnnotationUntyped_impl()
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) setAnnotation(p0 Annotation_graph) {
-	this.vt_LinkedUndirectedGraph_LinkedUndirectedGraphNode_.setAnnotation_impl(p0)
+	this.self_.setAnnotation_impl(p0)
 }
 
 type LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode[N comparable, E comparable] struct {
@@ -369,7 +368,6 @@ func (this *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode[N, E]) init
 func new_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode[N comparable, E comparable](nodeValue N) *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode[N, E] {
 	this := &LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode[N, E]{}
 	this.self_ = this
-	this.vt_LinkedUndirectedGraph_LinkedUndirectedGraphNode_ = this
 	this.zero_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode()
 	this.init_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode(nodeValue)
 	return this
@@ -384,11 +382,10 @@ func (this *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode[N, E]) setA
 }
 
 type LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N comparable, E comparable] struct {
-	self_                                               any
-	vt_LinkedUndirectedGraph_LinkedUndirectedGraphEdge_ LinkedUndirectedGraph_LinkedUndirectedGraphEdge_vt_[N, E]
-	nodeA                                               UndiGraph_UndiGraphNode[N, E]
-	nodeB                                               UndiGraph_UndiGraphNode[N, E]
-	value_                                              E
+	self_  LinkedUndirectedGraph_LinkedUndirectedGraphEdge_vt_[N, E]
+	nodeA  UndiGraph_UndiGraphNode[N, E]
+	nodeB  UndiGraph_UndiGraphNode[N, E]
+	value_ E
 }
 
 type LinkedUndirectedGraph_LinkedUndirectedGraphEdge_vt_[N comparable, E comparable] interface {
@@ -399,11 +396,13 @@ type LinkedUndirectedGraph_LinkedUndirectedGraphEdge_vt_[N comparable, E compara
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E]) isa_LinkedUndirectedGraph_LinkedUndirectedGraphEdge_() {
 }
 
-func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E]) as_LinkedUndirectedGraph_LinkedUndirectedGraphEdge() *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E] {
-	return this
+// LinkedUndirectedGraph_LinkedUndirectedGraphEdge_as is implemented by LinkedUndirectedGraph_LinkedUndirectedGraphEdge and the classes that extend it: a cast to LinkedUndirectedGraph_LinkedUndirectedGraphEdge asserts to it
+// (post-flip).
+type LinkedUndirectedGraph_LinkedUndirectedGraphEdge_as[N comparable, E comparable] interface {
+	as_LinkedUndirectedGraph_LinkedUndirectedGraphEdge() *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E]
 }
 
-func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E]) as_LinkedUndirectedGraph_LinkedUndirectedGraphEdge_() any {
+func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E]) as_LinkedUndirectedGraph_LinkedUndirectedGraphEdge() *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E] {
 	return this
 }
 
@@ -411,7 +410,7 @@ func to_LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N comparable, E comparab
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_LinkedUndirectedGraph_LinkedUndirectedGraphEdge_() any }).as_LinkedUndirectedGraph_LinkedUndirectedGraphEdge_().(*LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E])
+	return v.(LinkedUndirectedGraph_LinkedUndirectedGraphEdge_as[N, E]).as_LinkedUndirectedGraph_LinkedUndirectedGraphEdge()
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E]) self() any {
@@ -434,7 +433,6 @@ func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E]) init_LinkedUn
 func new_LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N comparable, E comparable](nodeA UndiGraph_UndiGraphNode[N, E], edgeValue E, nodeB UndiGraph_UndiGraphNode[N, E]) *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E] {
 	this := &LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E]{}
 	this.self_ = this
-	this.vt_LinkedUndirectedGraph_LinkedUndirectedGraphEdge_ = this
 	this.zero_LinkedUndirectedGraph_LinkedUndirectedGraphEdge()
 	this.init_LinkedUndirectedGraph_LinkedUndirectedGraphEdge(nodeA, edgeValue, nodeB)
 	return this
@@ -481,11 +479,11 @@ func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E]) toString() st
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E]) getAnnotationUntyped() Annotation_graph {
-	return this.vt_LinkedUndirectedGraph_LinkedUndirectedGraphEdge_.getAnnotationUntyped_impl()
+	return this.self_.getAnnotationUntyped_impl()
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E]) setAnnotation(p0 Annotation_graph) {
-	this.vt_LinkedUndirectedGraph_LinkedUndirectedGraphEdge_.setAnnotation_impl(p0)
+	this.self_.setAnnotation_impl(p0)
 }
 
 type LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge[N comparable, E comparable] struct {
@@ -514,7 +512,6 @@ func (this *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge[N, E]) init
 func new_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge[N comparable, E comparable](nodeA UndiGraph_UndiGraphNode[N, E], edgeValue E, nodeB UndiGraph_UndiGraphNode[N, E]) *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge[N, E] {
 	this := &LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge[N, E]{}
 	this.self_ = this
-	this.vt_LinkedUndirectedGraph_LinkedUndirectedGraphEdge_ = this
 	this.zero_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge()
 	this.init_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge(nodeA, edgeValue, nodeB)
 	return this

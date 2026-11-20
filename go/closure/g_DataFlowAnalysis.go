@@ -6,10 +6,9 @@ type DataFlowAnalysis[N comparable, L interface {
 	LatticeElement
 	comparable
 }] struct {
-	self_                any
-	vt_DataFlowAnalysis_ DataFlowAnalysis_vt_[N, L]
-	cfg                  *ControlFlowGraph[N]
-	workQueue            *DataFlowAnalysis_UniqueQueue[DiGraph_DiGraphNode[N, ControlFlowGraph_Branch]]
+	self_     DataFlowAnalysis_vt_[N, L]
+	cfg       *ControlFlowGraph[N]
+	workQueue *DataFlowAnalysis_UniqueQueue[DiGraph_DiGraphNode[N, ControlFlowGraph_Branch]]
 }
 
 type DataFlowAnalysis_vt_[N comparable, L interface {
@@ -27,9 +26,16 @@ type DataFlowAnalysis_vt_[N comparable, L interface {
 
 func (this *DataFlowAnalysis[N, L]) isa_DataFlowAnalysis_() {}
 
-func (this *DataFlowAnalysis[N, L]) as_DataFlowAnalysis() *DataFlowAnalysis[N, L] { return this }
+// DataFlowAnalysis_as is implemented by DataFlowAnalysis and the classes that extend it: a cast to DataFlowAnalysis asserts to it
+// (post-flip).
+type DataFlowAnalysis_as[N comparable, L interface {
+	LatticeElement
+	comparable
+}] interface {
+	as_DataFlowAnalysis() *DataFlowAnalysis[N, L]
+}
 
-func (this *DataFlowAnalysis[N, L]) as_DataFlowAnalysis_() any { return this }
+func (this *DataFlowAnalysis[N, L]) as_DataFlowAnalysis() *DataFlowAnalysis[N, L] { return this }
 
 func to_DataFlowAnalysis[N comparable, L interface {
 	LatticeElement
@@ -38,7 +44,7 @@ func to_DataFlowAnalysis[N comparable, L interface {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_DataFlowAnalysis_() any }).as_DataFlowAnalysis_().(*DataFlowAnalysis[N, L])
+	return v.(DataFlowAnalysis_as[N, L]).as_DataFlowAnalysis()
 }
 
 func (this *DataFlowAnalysis[N, L]) self() any {
@@ -230,31 +236,31 @@ func DataFlowAnalysis_isReferencedInNonStaticClassField(refScope *Scope, targetS
 }
 
 func (this *DataFlowAnalysis[N, L]) isForward() bool {
-	return this.vt_DataFlowAnalysis_.isForward_impl()
+	return this.self_.isForward_impl()
 }
 
 func (this *DataFlowAnalysis[N, L]) createEntryLattice() L {
-	return this.vt_DataFlowAnalysis_.createEntryLattice_impl()
+	return this.self_.createEntryLattice_impl()
 }
 
 func (this *DataFlowAnalysis[N, L]) createInitialEstimateLattice() L {
-	return this.vt_DataFlowAnalysis_.createInitialEstimateLattice_impl()
+	return this.self_.createInitialEstimateLattice_impl()
 }
 
 func (this *DataFlowAnalysis[N, L]) createFlowJoiner() DataFlowAnalysis_FlowJoiner[L] {
-	return this.vt_DataFlowAnalysis_.createFlowJoiner_impl()
+	return this.self_.createFlowJoiner_impl()
 }
 
 func (this *DataFlowAnalysis[N, L]) flowThrough(p0 N, p1 L) L {
-	return this.vt_DataFlowAnalysis_.flowThrough_impl(p0, p1)
+	return this.self_.flowThrough_impl(p0, p1)
 }
 
 func (this *DataFlowAnalysis[N, L]) isBranched() bool {
-	return this.vt_DataFlowAnalysis_.isBranched_impl()
+	return this.self_.isBranched_impl()
 }
 
 func (this *DataFlowAnalysis[N, L]) createFlowBrancher(p0 N, p1 L) DataFlowAnalysis_FlowBrancher[L] {
-	return this.vt_DataFlowAnalysis_.createFlowBrancher_impl(p0, p1)
+	return this.self_.createFlowBrancher_impl(p0, p1)
 }
 
 const DataFlowAnalysis_MAX_STEPS_PER_NODE int32 = 20000

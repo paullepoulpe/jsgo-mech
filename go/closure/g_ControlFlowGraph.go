@@ -15,15 +15,19 @@ type ControlFlowGraph_vt_[N comparable] interface {
 
 func (this *ControlFlowGraph[N]) isa_ControlFlowGraph_() {}
 
-func (this *ControlFlowGraph[N]) as_ControlFlowGraph() *ControlFlowGraph[N] { return this }
+// ControlFlowGraph_as is implemented by ControlFlowGraph and the classes that extend it: a cast to ControlFlowGraph asserts to it
+// (post-flip).
+type ControlFlowGraph_as[N comparable] interface {
+	as_ControlFlowGraph() *ControlFlowGraph[N]
+}
 
-func (this *ControlFlowGraph[N]) as_ControlFlowGraph_() any { return this }
+func (this *ControlFlowGraph[N]) as_ControlFlowGraph() *ControlFlowGraph[N] { return this }
 
 func to_ControlFlowGraph[N comparable](v any) *ControlFlowGraph[N] {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ControlFlowGraph_() any }).as_ControlFlowGraph_().(*ControlFlowGraph[N])
+	return v.(ControlFlowGraph_as[N]).as_ControlFlowGraph()
 }
 
 func (this *ControlFlowGraph[N]) self() any {
@@ -65,7 +69,6 @@ func new_ControlFlowGraph[N comparable](entry N, nodeAnnotations bool, edgeAnnot
 	this.self_ = this
 	this.vt_ControlFlowGraph_ = this
 	this.vt_DiGraph_ = this
-	this.vt_Graph_ = this
 	this.init_ControlFlowGraph(entry, nodeAnnotations, edgeAnnotations)
 	return this
 }

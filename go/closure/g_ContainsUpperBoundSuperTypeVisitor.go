@@ -28,7 +28,6 @@ func (this *ContainsUpperBoundSuperTypeVisitor) init_ContainsUpperBoundSuperType
 func new_ContainsUpperBoundSuperTypeVisitor(target *JSType) *ContainsUpperBoundSuperTypeVisitor {
 	this := &ContainsUpperBoundSuperTypeVisitor{}
 	this.self_ = this
-	this.vt_Visitor_WithDefaultCase_ = this
 	this.init_ContainsUpperBoundSuperTypeVisitor(target)
 	return this
 }

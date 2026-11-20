@@ -25,8 +25,7 @@ type Visitor[T any] interface {
 }
 
 type Visitor_WithDefaultCase[T comparable] struct {
-	self_                       any
-	vt_Visitor_WithDefaultCase_ Visitor_WithDefaultCase_vt_[T]
+	self_ Visitor_WithDefaultCase_vt_[T]
 }
 
 type Visitor_WithDefaultCase_vt_[T comparable] interface {
@@ -41,17 +40,21 @@ type Visitor_WithDefaultCase_vt_[T comparable] interface {
 
 func (this *Visitor_WithDefaultCase[T]) isa_Visitor_WithDefaultCase_() {}
 
+// Visitor_WithDefaultCase_as is implemented by Visitor_WithDefaultCase and the classes that extend it: a cast to Visitor_WithDefaultCase asserts to it
+// (post-flip).
+type Visitor_WithDefaultCase_as[T comparable] interface {
+	as_Visitor_WithDefaultCase() *Visitor_WithDefaultCase[T]
+}
+
 func (this *Visitor_WithDefaultCase[T]) as_Visitor_WithDefaultCase() *Visitor_WithDefaultCase[T] {
 	return this
 }
-
-func (this *Visitor_WithDefaultCase[T]) as_Visitor_WithDefaultCase_() any { return this }
 
 func to_Visitor_WithDefaultCase[T comparable](v any) *Visitor_WithDefaultCase[T] {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_Visitor_WithDefaultCase_() any }).as_Visitor_WithDefaultCase_().(*Visitor_WithDefaultCase[T])
+	return v.(Visitor_WithDefaultCase_as[T]).as_Visitor_WithDefaultCase()
 }
 
 func (this *Visitor_WithDefaultCase[T]) self() any {
@@ -142,29 +145,29 @@ func (this *Visitor_WithDefaultCase[T]) caseTemplateType_impl(type_ *TemplateTyp
 }
 
 func (this *Visitor_WithDefaultCase[T]) caseDefault(p0 *JSType) T {
-	return this.vt_Visitor_WithDefaultCase_.caseDefault_impl(p0)
+	return this.self_.caseDefault_impl(p0)
 }
 
 func (this *Visitor_WithDefaultCase[T]) caseEnumElementType(p0 *EnumElementType) T {
-	return this.vt_Visitor_WithDefaultCase_.caseEnumElementType_impl(p0)
+	return this.self_.caseEnumElementType_impl(p0)
 }
 
 func (this *Visitor_WithDefaultCase[T]) caseFunctionType(p0 *FunctionType) T {
-	return this.vt_Visitor_WithDefaultCase_.caseFunctionType_impl(p0)
+	return this.self_.caseFunctionType_impl(p0)
 }
 
 func (this *Visitor_WithDefaultCase[T]) caseNamedType(p0 *NamedType) T {
-	return this.vt_Visitor_WithDefaultCase_.caseNamedType_impl(p0)
+	return this.self_.caseNamedType_impl(p0)
 }
 
 func (this *Visitor_WithDefaultCase[T]) caseUnionType(p0 *UnionType) T {
-	return this.vt_Visitor_WithDefaultCase_.caseUnionType_impl(p0)
+	return this.self_.caseUnionType_impl(p0)
 }
 
 func (this *Visitor_WithDefaultCase[T]) caseTemplatizedType(p0 *TemplatizedType) T {
-	return this.vt_Visitor_WithDefaultCase_.caseTemplatizedType_impl(p0)
+	return this.self_.caseTemplatizedType_impl(p0)
 }
 
 func (this *Visitor_WithDefaultCase[T]) caseTemplateType(p0 *TemplateType) T {
-	return this.vt_Visitor_WithDefaultCase_.caseTemplateType_impl(p0)
+	return this.self_.caseTemplateType_impl(p0)
 }

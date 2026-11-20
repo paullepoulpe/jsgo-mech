@@ -3,10 +3,9 @@
 package closure
 
 type GraphColoring[N comparable, E comparable] struct {
-	self_             any
-	vt_GraphColoring_ GraphColoring_vt_[N, E]
-	colorToNodeMap    []N
-	graph             AdjacencyGraph[N, E]
+	self_          GraphColoring_vt_[N, E]
+	colorToNodeMap []N
+	graph          AdjacencyGraph[N, E]
 }
 
 type GraphColoring_vt_[N comparable, E comparable] interface {
@@ -15,15 +14,19 @@ type GraphColoring_vt_[N comparable, E comparable] interface {
 
 func (this *GraphColoring[N, E]) isa_GraphColoring_() {}
 
-func (this *GraphColoring[N, E]) as_GraphColoring() *GraphColoring[N, E] { return this }
+// GraphColoring_as is implemented by GraphColoring and the classes that extend it: a cast to GraphColoring asserts to it
+// (post-flip).
+type GraphColoring_as[N comparable, E comparable] interface {
+	as_GraphColoring() *GraphColoring[N, E]
+}
 
-func (this *GraphColoring[N, E]) as_GraphColoring_() any { return this }
+func (this *GraphColoring[N, E]) as_GraphColoring() *GraphColoring[N, E] { return this }
 
 func to_GraphColoring[N comparable, E comparable](v any) *GraphColoring[N, E] {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_GraphColoring_() any }).as_GraphColoring_().(*GraphColoring[N, E])
+	return v.(GraphColoring_as[N, E]).as_GraphColoring()
 }
 
 func (this *GraphColoring[N, E]) self() any {
@@ -67,7 +70,7 @@ func (this *GraphColoring[N, E]) getGraph() AdjacencyGraph[N, E] {
 }
 
 func (this *GraphColoring[N, E]) color() int32 {
-	return this.vt_GraphColoring_.color_impl()
+	return this.self_.color_impl()
 }
 
 type GraphColoring_Color struct {
@@ -128,7 +131,6 @@ func (this *GraphColoring_GreedyGraphColoring[N, E]) init_GraphColoring_GreedyGr
 func new_GraphColoring_GreedyGraphColoring_AdjacencyGraph[N comparable, E comparable](graph AdjacencyGraph[N, E]) *GraphColoring_GreedyGraphColoring[N, E] {
 	this := &GraphColoring_GreedyGraphColoring[N, E]{}
 	this.self_ = this
-	this.vt_GraphColoring_ = this
 	this.init_GraphColoring_GreedyGraphColoring_AdjacencyGraph(graph)
 	return this
 }
@@ -141,7 +143,6 @@ func (this *GraphColoring_GreedyGraphColoring[N, E]) init_GraphColoring_GreedyGr
 func new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator[N comparable, E comparable](graph AdjacencyGraph[N, E], tieBreaker ComparatorOf[N]) *GraphColoring_GreedyGraphColoring[N, E] {
 	this := &GraphColoring_GreedyGraphColoring[N, E]{}
 	this.self_ = this
-	this.vt_GraphColoring_ = this
 	this.init_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator(graph, tieBreaker)
 	return this
 }

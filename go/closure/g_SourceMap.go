@@ -172,11 +172,16 @@ func (this SourceMap_Format) self() any {
 
 func (this SourceMap_Format) as_SourceMap_Format() SourceMap_Format { return this }
 
+// SourceMap_Format_as is what a cast to SourceMap_Format asserts to (post-flip).
+type SourceMap_Format_as interface {
+	as_SourceMap_Format() SourceMap_Format
+}
+
 func to_SourceMap_Format(v any) SourceMap_Format {
 	if v == nil {
 		return 0
 	}
-	return v.(interface{ as_SourceMap_Format() SourceMap_Format }).as_SourceMap_Format()
+	return v.(SourceMap_Format_as).as_SourceMap_Format()
 }
 
 func (this SourceMap_Format) getInstance() *SourceMap {

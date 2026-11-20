@@ -3,13 +3,12 @@
 package closure
 
 type GuardedCallback[T comparable] struct {
-	self_               any
-	vt_GuardedCallback_ GuardedCallback_vt_[T]
-	compiler_           *AbstractCompiler
-	registeredGuards    *SimpleSetMultimap[Node, any]
-	guarded             *SimpleMultiset[any]
-	installedGuards     *SimpleListMultimap[Node, any]
-	contextStack        *[]*GuardedCallback_Context
+	self_            GuardedCallback_vt_[T]
+	compiler_        *AbstractCompiler
+	registeredGuards *SimpleSetMultimap[Node, any]
+	guarded          *SimpleMultiset[any]
+	installedGuards  *SimpleListMultimap[Node, any]
+	contextStack     *[]*GuardedCallback_Context
 }
 
 type GuardedCallback_vt_[T comparable] interface {
@@ -18,15 +17,19 @@ type GuardedCallback_vt_[T comparable] interface {
 
 func (this *GuardedCallback[T]) isa_GuardedCallback_() {}
 
-func (this *GuardedCallback[T]) as_GuardedCallback() *GuardedCallback[T] { return this }
+// GuardedCallback_as is implemented by GuardedCallback and the classes that extend it: a cast to GuardedCallback asserts to it
+// (post-flip).
+type GuardedCallback_as[T comparable] interface {
+	as_GuardedCallback() *GuardedCallback[T]
+}
 
-func (this *GuardedCallback[T]) as_GuardedCallback_() any { return this }
+func (this *GuardedCallback[T]) as_GuardedCallback() *GuardedCallback[T] { return this }
 
 func to_GuardedCallback[T comparable](v any) *GuardedCallback[T] {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_GuardedCallback_() any }).as_GuardedCallback_().(*GuardedCallback[T])
+	return v.(GuardedCallback_as[T]).as_GuardedCallback()
 }
 
 func (this *GuardedCallback[T]) self() any {
@@ -119,7 +122,7 @@ func GuardedCallback_isPropertyTestFunction(compiler *AbstractCompiler, n Node) 
 }
 
 func (this *GuardedCallback[T]) visitGuarded(p0 *NodeTraversal, p1 Node, p2 Node) {
-	this.vt_GuardedCallback_.visitGuarded_impl(p0, p1, p2)
+	this.self_.visitGuarded_impl(p0, p1, p2)
 }
 
 var GuardedCallback_CAN_HAVE_GUARDS *TSet[Token_rhino]
