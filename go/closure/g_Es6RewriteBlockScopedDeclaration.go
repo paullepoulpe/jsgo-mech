@@ -293,9 +293,9 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) shouldTrave
 			return true
 		}
 		this.nodesHandledForLoopObjectClosure.put(nodeToWrapInClosure, name)
-		var object *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject = this.loopObjectMap.computeIfAbsent(loopNode, &Function_tfn_Node_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject{func(k Node) *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject {
+		var object *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject = this.loopObjectMap.ComputeIfAbsent(loopNode, func(k Node) *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject {
 			return new_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject(this.createUniqueObjectName(t.getInput()))
-		}})
+		})
 		object.vars.Add(var_)
 		this.nodesRequiringLoopObjectsClosureMap.put(nodeToWrapInClosure, object)
 	}

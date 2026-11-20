@@ -312,7 +312,7 @@ func (this *ProcessTweaks_CollectTweaks) visit_impl(t *NodeTraversal, n Node, pa
 		return
 	}
 	var tweakId string = tweakIdNode.getString()
-	var tweakInfo *ProcessTweaks_TweakInfo = this.allTweaks.computeIfAbsent(tweakId, &Function_tfn_string_ProcessTweaks_TweakInfo{func(p0 string) *ProcessTweaks_TweakInfo { return new_ProcessTweaks_TweakInfo(this.outer_, p0) }})
+	var tweakInfo *ProcessTweaks_TweakInfo = this.allTweaks.ComputeIfAbsent(tweakId, func(p0 string) *ProcessTweaks_TweakInfo { return new_ProcessTweaks_TweakInfo(this.outer_, p0) })
 	switch tweakFunc {
 	case ProcessTweaks_TweakFunction_REGISTER_BOOLEAN, ProcessTweaks_TweakFunction_REGISTER_NUMBER, ProcessTweaks_TweakFunction_REGISTER_STRING:
 		if !ProcessTweaks_ID_MATCHER.matchesAllOf_s(tweakId) {

@@ -1018,9 +1018,9 @@ func ClosureRewriteModule_updateSourceInfoForExportedTopLevelVariable(assign Nod
 	if !getProp.isGetProp() {
 		return
 	}
-	var name Optional[string] = Optional_of[string](sourceName.getOriginalName()).filter(&Predicate_tfn_string{func(s string) bool {
+	var name Optional[string] = Optional_of[string](sourceName.getOriginalName()).filterFn_(func(s string) bool {
 		return s != ""
-	}})
+	})
 	if name.isEmpty() {
 		name = Optional_of[string](sourceName.getString())
 	}
