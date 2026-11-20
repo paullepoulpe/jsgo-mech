@@ -3,7 +3,7 @@
 package closure
 
 type TypedAstDeserializer struct {
-	mode_                         *TypedAstDeserializer_Mode
+	mode_                         TypedAstDeserializer_Mode
 	syntheticExterns              *SourceFile_jscomp
 	colorPoolBuilder              Optional_baseOf[*ColorPool_Builder]
 	requiredInputFiles            Optional_baseOf[ImmutableSetOf[*SourceFile_jscomp]]
@@ -24,7 +24,7 @@ func (this *TypedAstDeserializer) finit_TypedAstDeserializer() {
 	this.syntheticExternsDeserializers = jnewTList_(jtc_p_ScriptNodeDeserializer)
 }
 
-func (this *TypedAstDeserializer) init_TypedAstDeserializer(syntheticExterns *SourceFile_jscomp, existingColorPool Optional_baseOf[*ColorPool_Builder], requiredInputFiles Optional_baseOf[ImmutableSetOf[*SourceFile_jscomp]], mode *TypedAstDeserializer_Mode, includeTypeInformation bool) {
+func (this *TypedAstDeserializer) init_TypedAstDeserializer(syntheticExterns *SourceFile_jscomp, existingColorPool Optional_baseOf[*ColorPool_Builder], requiredInputFiles Optional_baseOf[ImmutableSetOf[*SourceFile_jscomp]], mode TypedAstDeserializer_Mode, includeTypeInformation bool) {
 	this.finit_TypedAstDeserializer()
 	this.syntheticExterns = syntheticExterns
 	this.mode_ = mode
@@ -36,7 +36,7 @@ func (this *TypedAstDeserializer) init_TypedAstDeserializer(syntheticExterns *So
 	this.requiredInputFiles = requiredInputFiles
 }
 
-func new_TypedAstDeserializer(syntheticExterns *SourceFile_jscomp, existingColorPool Optional_baseOf[*ColorPool_Builder], requiredInputFiles Optional_baseOf[ImmutableSetOf[*SourceFile_jscomp]], mode *TypedAstDeserializer_Mode, includeTypeInformation bool) *TypedAstDeserializer {
+func new_TypedAstDeserializer(syntheticExterns *SourceFile_jscomp, existingColorPool Optional_baseOf[*ColorPool_Builder], requiredInputFiles Optional_baseOf[ImmutableSetOf[*SourceFile_jscomp]], mode TypedAstDeserializer_Mode, includeTypeInformation bool) *TypedAstDeserializer {
 	this := &TypedAstDeserializer{}
 	this.init_TypedAstDeserializer(syntheticExterns, existingColorPool, requiredInputFiles, mode, includeTypeInformation)
 	return this
@@ -57,7 +57,7 @@ func TypedAstDeserializer_deserializeRuntimeLibraries(compiler *AbstractCompiler
 	return TypedAstDeserializer_deserialize(compiler, syntheticExterns, Optional_base_absent(), jtmapEmptyImm_(jtc_string, jtc_p_SourceFile_jscomp), colorPool, typedAstsStream, TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY, colorPool.isPresent(), resolveSourceMapAnnotations, parseInlineSourceMaps)
 }
 
-func TypedAstDeserializer_deserialize(compiler *AbstractCompiler, syntheticExterns *SourceFile_jscomp, requiredInputFiles Optional_baseOf[ImmutableSetOf[*SourceFile_jscomp]], scriptSourceFiles *JTMap[string, *SourceFile_jscomp], colorPool Optional_baseOf[*ColorPool_Builder], typedAstStream []int8, mode *TypedAstDeserializer_Mode, includeTypeInformation bool, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) *TypedAstDeserializer_DeserializedAst {
+func TypedAstDeserializer_deserialize(compiler *AbstractCompiler, syntheticExterns *SourceFile_jscomp, requiredInputFiles Optional_baseOf[ImmutableSetOf[*SourceFile_jscomp]], scriptSourceFiles *JTMap[string, *SourceFile_jscomp], colorPool Optional_baseOf[*ColorPool_Builder], typedAstStream []int8, mode TypedAstDeserializer_Mode, includeTypeInformation bool, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) *TypedAstDeserializer_DeserializedAst {
 	Preconditions_checkArgument_boolean_Object((colorPool.isPresent() == (eqR_(mode, TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY) && includeTypeInformation)), "ColorPool.Builder required iff deserializing runtime libraries & including types")
 	var deserializer *TypedAstDeserializer = new_TypedAstDeserializer(syntheticExterns, colorPool, requiredInputFiles, mode, includeTypeInformation)
 	deserializer.addToFilePool(syntheticExterns.getName(), syntheticExterns)
@@ -230,44 +230,61 @@ func TypedAstDeserializer_deserializeTypedAsts(typedAstsStream []int8, deseriali
 	}()
 }
 
-type TypedAstDeserializer_Mode struct {
-	Enum
+type TypedAstDeserializer_Mode uint8
+
+// TypedAstDeserializer_Mode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var TypedAstDeserializer_Mode_enum_ = [2]Enum{
+	{self_: TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY, name_: "RUNTIME_LIBRARY_ONLY", ordinal_: 0},
+	{self_: TypedAstDeserializer_Mode_FULL_AST, name_: "FULL_AST", ordinal_: 1},
 }
 
-func (this *TypedAstDeserializer_Mode) up_Enum() *Enum {
-	if this == nil {
+func (this TypedAstDeserializer_Mode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &TypedAstDeserializer_Mode_enum_[this-1]
 }
 
-func (this *TypedAstDeserializer_Mode) init_TypedAstDeserializer_Mode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this TypedAstDeserializer_Mode) name() string {
+	return TypedAstDeserializer_Mode_enum_[this-1].name_
 }
 
-func new_TypedAstDeserializer_Mode(name_ string, ordinal_ int32) *TypedAstDeserializer_Mode {
-	this := &TypedAstDeserializer_Mode{}
-	this.self_ = this
-	this.init_TypedAstDeserializer_Mode(name_, ordinal_)
+func (this TypedAstDeserializer_Mode) ordinal() int32 {
+	return TypedAstDeserializer_Mode_enum_[this-1].ordinal_
+}
+
+func (this TypedAstDeserializer_Mode) toString() string {
+	return TypedAstDeserializer_Mode_enum_[this-1].name_
+}
+
+func (this TypedAstDeserializer_Mode) compareTo(o any) int32 {
+	return TypedAstDeserializer_Mode_enum_[this-1].compareTo(o)
+}
+
+func (this TypedAstDeserializer_Mode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func TypedAstDeserializer_Mode_values() []*TypedAstDeserializer_Mode {
-	return append([]*TypedAstDeserializer_Mode(nil), TypedAstDeserializer_Mode_values_...)
+func TypedAstDeserializer_Mode_values() []TypedAstDeserializer_Mode {
+	return append([]TypedAstDeserializer_Mode(nil), TypedAstDeserializer_Mode_values_...)
 }
 
-func TypedAstDeserializer_Mode_valueOf(name string) *TypedAstDeserializer_Mode {
+func TypedAstDeserializer_Mode_valueOf(name string) TypedAstDeserializer_Mode {
 	for _, v := range TypedAstDeserializer_Mode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Mode", name))
 }
 
-var TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY *TypedAstDeserializer_Mode
-var TypedAstDeserializer_Mode_FULL_AST *TypedAstDeserializer_Mode
-var TypedAstDeserializer_Mode_values_ []*TypedAstDeserializer_Mode
+const TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY TypedAstDeserializer_Mode = 1
+const TypedAstDeserializer_Mode_FULL_AST TypedAstDeserializer_Mode = 2
+
+var TypedAstDeserializer_Mode_values_ []TypedAstDeserializer_Mode
 
 var TypedAstDeserializer_Mode_clinit_done bool
 
@@ -276,9 +293,7 @@ func TypedAstDeserializer_Mode_clinit() {
 		return
 	}
 	TypedAstDeserializer_Mode_clinit_done = true
-	TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY = new_TypedAstDeserializer_Mode("RUNTIME_LIBRARY_ONLY", 0)
-	TypedAstDeserializer_Mode_FULL_AST = new_TypedAstDeserializer_Mode("FULL_AST", 1)
-	TypedAstDeserializer_Mode_values_ = []*TypedAstDeserializer_Mode{TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY, TypedAstDeserializer_Mode_FULL_AST}
+	TypedAstDeserializer_Mode_values_ = []TypedAstDeserializer_Mode{TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY, TypedAstDeserializer_Mode_FULL_AST}
 	registerEnum_("com.google.javascript.jscomp.serialization.TypedAstDeserializer.Mode", enumValues_(TypedAstDeserializer_Mode_values_))
 
 }

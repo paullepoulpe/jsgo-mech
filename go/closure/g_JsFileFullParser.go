@@ -85,7 +85,7 @@ func JsFileFullParser_recordModuleMetadata(info *JsFileFullParser_FileInfo, modu
 type JsFileFullParser_FileInfo struct {
 	goog              bool
 	testonly          bool
-	moduleType_       *JsFileFullParser_FileInfo_ModuleType
+	moduleType_       JsFileFullParser_FileInfo_ModuleType
 	isLegacyNamespace bool
 	importedModules   *JTSet[string]
 	dynamicRequires   *JTSet[string]
@@ -124,46 +124,65 @@ func new_JsFileFullParser_FileInfo() *JsFileFullParser_FileInfo {
 	return this
 }
 
-type JsFileFullParser_FileInfo_ModuleType struct {
-	Enum
+type JsFileFullParser_FileInfo_ModuleType uint8
+
+// JsFileFullParser_FileInfo_ModuleType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JsFileFullParser_FileInfo_ModuleType_enum_ = [4]Enum{
+	{self_: JsFileFullParser_FileInfo_ModuleType_UNKNOWN, name_: "UNKNOWN", ordinal_: 0},
+	{self_: JsFileFullParser_FileInfo_ModuleType_GOOG_PROVIDE, name_: "GOOG_PROVIDE", ordinal_: 1},
+	{self_: JsFileFullParser_FileInfo_ModuleType_GOOG_MODULE, name_: "GOOG_MODULE", ordinal_: 2},
+	{self_: JsFileFullParser_FileInfo_ModuleType_ES_MODULE, name_: "ES_MODULE", ordinal_: 3},
 }
 
-func (this *JsFileFullParser_FileInfo_ModuleType) up_Enum() *Enum {
-	if this == nil {
+func (this JsFileFullParser_FileInfo_ModuleType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JsFileFullParser_FileInfo_ModuleType_enum_[this-1]
 }
 
-func (this *JsFileFullParser_FileInfo_ModuleType) init_JsFileFullParser_FileInfo_ModuleType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this JsFileFullParser_FileInfo_ModuleType) name() string {
+	return JsFileFullParser_FileInfo_ModuleType_enum_[this-1].name_
 }
 
-func new_JsFileFullParser_FileInfo_ModuleType(name_ string, ordinal_ int32) *JsFileFullParser_FileInfo_ModuleType {
-	this := &JsFileFullParser_FileInfo_ModuleType{}
-	this.self_ = this
-	this.init_JsFileFullParser_FileInfo_ModuleType(name_, ordinal_)
+func (this JsFileFullParser_FileInfo_ModuleType) ordinal() int32 {
+	return JsFileFullParser_FileInfo_ModuleType_enum_[this-1].ordinal_
+}
+
+func (this JsFileFullParser_FileInfo_ModuleType) toString() string {
+	return JsFileFullParser_FileInfo_ModuleType_enum_[this-1].name_
+}
+
+func (this JsFileFullParser_FileInfo_ModuleType) compareTo(o any) int32 {
+	return JsFileFullParser_FileInfo_ModuleType_enum_[this-1].compareTo(o)
+}
+
+func (this JsFileFullParser_FileInfo_ModuleType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func JsFileFullParser_FileInfo_ModuleType_values() []*JsFileFullParser_FileInfo_ModuleType {
-	return append([]*JsFileFullParser_FileInfo_ModuleType(nil), JsFileFullParser_FileInfo_ModuleType_values_...)
+func JsFileFullParser_FileInfo_ModuleType_values() []JsFileFullParser_FileInfo_ModuleType {
+	return append([]JsFileFullParser_FileInfo_ModuleType(nil), JsFileFullParser_FileInfo_ModuleType_values_...)
 }
 
-func JsFileFullParser_FileInfo_ModuleType_valueOf(name string) *JsFileFullParser_FileInfo_ModuleType {
+func JsFileFullParser_FileInfo_ModuleType_valueOf(name string) JsFileFullParser_FileInfo_ModuleType {
 	for _, v := range JsFileFullParser_FileInfo_ModuleType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ModuleType", name))
 }
 
-var JsFileFullParser_FileInfo_ModuleType_UNKNOWN *JsFileFullParser_FileInfo_ModuleType
-var JsFileFullParser_FileInfo_ModuleType_GOOG_PROVIDE *JsFileFullParser_FileInfo_ModuleType
-var JsFileFullParser_FileInfo_ModuleType_GOOG_MODULE *JsFileFullParser_FileInfo_ModuleType
-var JsFileFullParser_FileInfo_ModuleType_ES_MODULE *JsFileFullParser_FileInfo_ModuleType
-var JsFileFullParser_FileInfo_ModuleType_values_ []*JsFileFullParser_FileInfo_ModuleType
+const JsFileFullParser_FileInfo_ModuleType_UNKNOWN JsFileFullParser_FileInfo_ModuleType = 1
+const JsFileFullParser_FileInfo_ModuleType_GOOG_PROVIDE JsFileFullParser_FileInfo_ModuleType = 2
+const JsFileFullParser_FileInfo_ModuleType_GOOG_MODULE JsFileFullParser_FileInfo_ModuleType = 3
+const JsFileFullParser_FileInfo_ModuleType_ES_MODULE JsFileFullParser_FileInfo_ModuleType = 4
+
+var JsFileFullParser_FileInfo_ModuleType_values_ []JsFileFullParser_FileInfo_ModuleType
 
 var JsFileFullParser_FileInfo_ModuleType_clinit_done bool
 
@@ -172,11 +191,7 @@ func JsFileFullParser_FileInfo_ModuleType_clinit() {
 		return
 	}
 	JsFileFullParser_FileInfo_ModuleType_clinit_done = true
-	JsFileFullParser_FileInfo_ModuleType_UNKNOWN = new_JsFileFullParser_FileInfo_ModuleType("UNKNOWN", 0)
-	JsFileFullParser_FileInfo_ModuleType_GOOG_PROVIDE = new_JsFileFullParser_FileInfo_ModuleType("GOOG_PROVIDE", 1)
-	JsFileFullParser_FileInfo_ModuleType_GOOG_MODULE = new_JsFileFullParser_FileInfo_ModuleType("GOOG_MODULE", 2)
-	JsFileFullParser_FileInfo_ModuleType_ES_MODULE = new_JsFileFullParser_FileInfo_ModuleType("ES_MODULE", 3)
-	JsFileFullParser_FileInfo_ModuleType_values_ = []*JsFileFullParser_FileInfo_ModuleType{JsFileFullParser_FileInfo_ModuleType_UNKNOWN, JsFileFullParser_FileInfo_ModuleType_GOOG_PROVIDE, JsFileFullParser_FileInfo_ModuleType_GOOG_MODULE, JsFileFullParser_FileInfo_ModuleType_ES_MODULE}
+	JsFileFullParser_FileInfo_ModuleType_values_ = []JsFileFullParser_FileInfo_ModuleType{JsFileFullParser_FileInfo_ModuleType_UNKNOWN, JsFileFullParser_FileInfo_ModuleType_GOOG_PROVIDE, JsFileFullParser_FileInfo_ModuleType_GOOG_MODULE, JsFileFullParser_FileInfo_ModuleType_ES_MODULE}
 	registerEnum_("com.google.javascript.jscomp.deps.JsFileFullParser.FileInfo.ModuleType", enumValues_(JsFileFullParser_FileInfo_ModuleType_values_))
 
 }
@@ -253,7 +268,7 @@ func new_JsFileFullParser_1(cap_errorReporter *JsFileFullParser_DelegatingReport
 	return this
 }
 
-func (this *JsFileFullParser_1) println_impl(level *CheckLevel, error_ *JSError) {
+func (this *JsFileFullParser_1) println_impl(level CheckLevel, error_ *JSError) {
 	if level == CheckLevel_ERROR {
 		this.cap_errorReporter.error(error_.description(), error_.sourceName(), error_.getLineNumber(), error_.charno())
 	} else if level == CheckLevel_WARNING {
@@ -266,7 +281,7 @@ func (this *JsFileFullParser_1) printSummary_impl() {
 }
 
 // println: an object that is exactly a JsFileFullParser_1 calls its println_impl directly (post-flip); others dispatch.
-func (this *JsFileFullParser_1) println(p0 *CheckLevel, p1 *JSError) {
+func (this *JsFileFullParser_1) println(p0 CheckLevel, p1 *JSError) {
 	if this.self_ == any(this) {
 		this.println_impl(p0, p1)
 		return

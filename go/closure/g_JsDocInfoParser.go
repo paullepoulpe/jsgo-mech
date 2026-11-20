@@ -6,18 +6,18 @@ type JsDocInfoParser struct {
 	stream                 *JsDocTokenStream
 	jsdocBuilder           *JSDocInfo_Builder
 	errorReporter          ErrorReporter_rhino
-	jsDocSourceKind        *JsDocInfoParser_JsDocSourceKind
+	jsDocSourceKind        JsDocInfoParser_JsDocSourceKind
 	templateNode           Node
 	fileOverviewJSDocInfo  *JSDocInfo
-	state                  *JsDocInfoParser_State
-	annotations_           *JTMap[string, *Annotation_parsing]
+	state                  JsDocInfoParser_State
+	annotations_           *JTMap[string, Annotation_parsing]
 	suppressionNames_      *JTSet[string]
 	closurePrimitiveNames_ *JTSet[string]
 	preserveWhitespace     bool
 	onlyParseLicenseJsDoc  bool
 	licenseText            Optional[string]
 	recordTsType_          bool
-	unreadToken            *JsDocToken
+	unreadToken            JsDocToken
 }
 
 func (this *JsDocInfoParser) finit_JsDocInfoParser() {
@@ -26,7 +26,7 @@ func (this *JsDocInfoParser) finit_JsDocInfoParser() {
 	this.unreadToken = JsDocInfoParser_NO_UNREAD_TOKEN
 }
 
-func (this *JsDocInfoParser) init_JsDocInfoParser(stream *JsDocTokenStream, comment Optional[string], commentPosition int32, templateNode Node, config *Config, jsDocSourceKind *JsDocInfoParser_JsDocSourceKind, errorReporter ErrorReporter_rhino) {
+func (this *JsDocInfoParser) init_JsDocInfoParser(stream *JsDocTokenStream, comment Optional[string], commentPosition int32, templateNode Node, config *Config, jsDocSourceKind JsDocInfoParser_JsDocSourceKind, errorReporter ErrorReporter_rhino) {
 	this.finit_JsDocInfoParser()
 	this.stream = stream
 	var parseDocumentation bool = config.jsDocParsingMode().shouldParseDescriptions()
@@ -54,41 +54,41 @@ func (this *JsDocInfoParser) init_JsDocInfoParser(stream *JsDocTokenStream, comm
 	}()
 }
 
-func new_JsDocInfoParser(stream *JsDocTokenStream, comment Optional[string], commentPosition int32, templateNode Node, config *Config, jsDocSourceKind *JsDocInfoParser_JsDocSourceKind, errorReporter ErrorReporter_rhino) *JsDocInfoParser {
+func new_JsDocInfoParser(stream *JsDocTokenStream, comment Optional[string], commentPosition int32, templateNode Node, config *Config, jsDocSourceKind JsDocInfoParser_JsDocSourceKind, errorReporter ErrorReporter_rhino) *JsDocInfoParser {
 	this := &JsDocInfoParser{}
 	this.init_JsDocInfoParser(stream, comment, commentPosition, templateNode, config, jsDocSourceKind, errorReporter)
 	return this
 }
 
-func (this *JsDocInfoParser) addParserWarning_2(msg *Msg, messageArg string) {
+func (this *JsDocInfoParser) addParserWarning_2(msg Msg, messageArg string) {
 	this.addParserWarning_4(msg, Optional_of[string](messageArg), this.stream.getLineno(), this.stream.getCharno())
 }
 
-func (this *JsDocInfoParser) addParserWarning_4(msg *Msg, messageArg Optional[string], lineno int32, charno int32) {
+func (this *JsDocInfoParser) addParserWarning_4(msg Msg, messageArg Optional[string], lineno int32, charno int32) {
 	this.errorReporter.warning(msg.format_1([]any{strobj_(messageArg.orElse(nullstr_))}), this.getSourceName(), lineno, charno)
 }
 
-func (this *JsDocInfoParser) addParserWarning(msg *Msg) {
+func (this *JsDocInfoParser) addParserWarning(msg Msg) {
 	this.addParserWarning_3(msg, this.stream.getLineno(), this.stream.getCharno())
 }
 
-func (this *JsDocInfoParser) addParserWarning_3(msg *Msg, lineno int32, charno int32) {
+func (this *JsDocInfoParser) addParserWarning_3(msg Msg, lineno int32, charno int32) {
 	this.errorReporter.warning(msg.format(), this.getSourceName(), lineno, charno)
 }
 
-func (this *JsDocInfoParser) addTypeWarning_2(msg *Msg, messageArg string) {
+func (this *JsDocInfoParser) addTypeWarning_2(msg Msg, messageArg string) {
 	this.addTypeWarning_4(msg, Optional_of[string](messageArg), this.stream.getLineno(), this.stream.getCharno())
 }
 
-func (this *JsDocInfoParser) addTypeWarning_4(msg *Msg, messageArg Optional[string], lineno int32, charno int32) {
+func (this *JsDocInfoParser) addTypeWarning_4(msg Msg, messageArg Optional[string], lineno int32, charno int32) {
 	this.errorReporter.warning(("Bad type annotation. " + sstr_(msg.format_1([]any{strobj_(messageArg.orElse(nullstr_))})) + sstr_(JsDocInfoParser_BAD_TYPE_WIKI_LINK)), this.getSourceName(), lineno, charno)
 }
 
-func (this *JsDocInfoParser) addTypeWarning(msg *Msg) {
+func (this *JsDocInfoParser) addTypeWarning(msg Msg) {
 	this.addTypeWarning_3(msg, this.stream.getLineno(), this.stream.getCharno())
 }
 
-func (this *JsDocInfoParser) addTypeWarning_3(msg *Msg, lineno int32, charno int32) {
+func (this *JsDocInfoParser) addTypeWarning_3(msg Msg, lineno int32, charno int32) {
 	this.errorReporter.warning(("Bad type annotation. " + sstr_(msg.format()) + sstr_(JsDocInfoParser_BAD_TYPE_WIKI_LINK)), this.getSourceName(), lineno, charno)
 }
 
@@ -125,7 +125,7 @@ func (this *JsDocInfoParser) getSourceName() Optional[string] {
 
 func (this *JsDocInfoParser) parseInlineTypeDoc() *JSDocInfo {
 	this.skipEOLs()
-	var token *JsDocToken = this.next()
+	var token JsDocToken = this.next()
 	var lineno int32 = this.stream.getLineno()
 	var startCharno int32 = this.stream.getCharno()
 	var typeAst Node = this.parseParamTypeExpression(token)
@@ -172,7 +172,7 @@ func JsDocInfoParser_getParser(toParse string) *JsDocInfoParser {
 func (this *JsDocInfoParser) parse() bool {
 	this.state = JsDocInfoParser_State_SEARCHING_ANNOTATION
 	this.skipEOLs()
-	var token *JsDocToken = this.next()
+	var token JsDocToken = this.next()
 	if this.jsdocBuilder.shouldParseDocumentation() {
 		var blockInfo *JsDocInfoParser_ExtractionInfo = this.extractBlockComment(token)
 		token = blockInfo.token
@@ -190,7 +190,7 @@ func (this *JsDocInfoParser) parse() bool {
 func (this *JsDocInfoParser) parseImportantComment() {
 	this.state = JsDocInfoParser_State_SEARCHING_ANNOTATION
 	this.skipEOLs()
-	var token *JsDocToken = this.next()
+	var token JsDocToken = this.next()
 	var info *JsDocInfoParser_ExtractionInfo = this.extractMultilineComment(token, JsDocInfoParser_WhitespaceOption_PRESERVE, false, true)
 	var license string = (" " + sstr_(info.string_))
 	this.setLicenseTextMonotonic(license)
@@ -201,7 +201,7 @@ func (this *JsDocInfoParser) parseImportantComment() {
 	}
 }
 
-func (this *JsDocInfoParser) parseHelperLoop(token *JsDocToken, extendedTypes *JTList[*JsDocInfoParser_ExtendedTypeInfo]) bool {
+func (this *JsDocInfoParser) parseHelperLoop(token JsDocToken, extendedTypes *JTList[*JsDocInfoParser_ExtendedTypeInfo]) bool {
 	for {
 		switch token {
 		case JsDocToken_ANNOTATION:
@@ -216,7 +216,7 @@ func (this *JsDocInfoParser) parseHelperLoop(token *JsDocToken, extendedTypes *J
 			this.checkExtendedTypes(extendedTypes)
 			if this.hasParsedFileOverviewDocInfo() {
 				this.fileOverviewJSDocInfo = this.retrieveAndResetParsedJSDocInfo()
-				var visibility *JSDocInfo_Visibility = this.fileOverviewJSDocInfo.getVisibility()
+				var visibility JSDocInfo_Visibility = this.fileOverviewJSDocInfo.getVisibility()
 				switch visibility {
 				case JSDocInfo_Visibility_PRIVATE, JSDocInfo_Visibility_PROTECTED:
 					this.addParserWarning_2(Msg_BAD_FILEOVERVIEW_VISIBIIITY_ANNOTATION, Ascii_toLowerCase(tostrR_(visibility)))
@@ -247,16 +247,16 @@ func (this *JsDocInfoParser) parseHelperLoop(token *JsDocToken, extendedTypes *J
 	panic("unreachable")
 }
 
-func (this *JsDocInfoParser) parseAnnotation(token *JsDocToken, extendedTypes *JTList[*JsDocInfoParser_ExtendedTypeInfo]) *JsDocToken {
+func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *JTList[*JsDocInfoParser_ExtendedTypeInfo]) JsDocToken {
 	var type_ *JSTypeExpression
 	var lineno int32 = this.stream.getLineno()
 	var charno int32 = this.stream.getCharno()
 	var annotationName string = this.stream.getString()
-	var annotation *Annotation_parsing = this.annotations_.get(annotationName)
+	var annotation Annotation_parsing = this.annotations_.get(annotationName)
 	if this.onlyParseLicenseJsDoc && !((annotation == Annotation_parsing_LICENSE) || (annotation == Annotation_parsing_PRESERVE)) {
 		return this.next()
 	}
-	if (annotation == nil) || String_isEmpty(annotationName) {
+	if (annotation == 0) || String_isEmpty(annotationName) {
 		this.addParserWarning_2(Msg_BAD_JSDOC_TAG, annotationName)
 	} else {
 		this.jsdocBuilder.markAnnotation(annotationName, lineno, charno)
@@ -984,7 +984,7 @@ func JsDocInfoParser_validTemplateTypeName(name Optional[string]) bool {
 	return ((name.isPresent() && !String_isEmpty(name.get())) && JsDocInfoParser_TEMPLATE_NAME_MATCHER.matchesAllOf_s(name.get()))
 }
 
-func (this *JsDocInfoParser) recordDescription(token *JsDocToken) *JsDocToken {
+func (this *JsDocInfoParser) recordDescription(token JsDocToken) JsDocToken {
 	if this.jsdocBuilder.shouldParseDocumentation() {
 		var descriptionInfo *JsDocInfoParser_ExtractionInfo = this.extractMultilineTextualBlock(token)
 		token = descriptionInfo.token
@@ -1019,7 +1019,7 @@ func (this *JsDocInfoParser) checkExtendedTypes(extendedTypes *JTList[*JsDocInfo
 	}
 }
 
-func (this *JsDocInfoParser) parseSuppressTag(token *JsDocToken) *JsDocToken {
+func (this *JsDocInfoParser) parseSuppressTag(token JsDocToken) JsDocToken {
 	if token != JsDocToken_LEFT_CURLY {
 		this.addParserWarning(Msg_JSDOC_SUPPRESS)
 		return token
@@ -1064,7 +1064,7 @@ func (this *JsDocInfoParser) parseSuppressTag(token *JsDocToken) *JsDocToken {
 	panic("unreachable")
 }
 
-func (this *JsDocInfoParser) parseModsTag(token *JsDocToken) *JsDocToken {
+func (this *JsDocInfoParser) parseModsTag(token JsDocToken) JsDocToken {
 	if token != JsDocToken_LEFT_CURLY {
 		this.addParserWarning(Msg_JSDOC_MODS)
 		return token
@@ -1084,7 +1084,7 @@ func (this *JsDocInfoParser) parseModsTag(token *JsDocToken) *JsDocToken {
 	return token
 }
 
-func (this *JsDocInfoParser) parseClosurePrimitiveTag(token *JsDocToken) *JsDocToken {
+func (this *JsDocInfoParser) parseClosurePrimitiveTag(token JsDocToken) JsDocToken {
 	if token != JsDocToken_LEFT_CURLY {
 		this.addParserWarning(Msg_JSDOC_MISSING_LC)
 		return token
@@ -1108,7 +1108,7 @@ func (this *JsDocInfoParser) parseClosurePrimitiveTag(token *JsDocToken) *JsDocT
 	return this.eatUntilEOLIfNotAnnotation()
 }
 
-func (this *JsDocInfoParser) parseModifiesTag(token *JsDocToken) *JsDocToken {
+func (this *JsDocInfoParser) parseModifiesTag(token JsDocToken) JsDocToken {
 	if token == JsDocToken_LEFT_CURLY {
 		var modifies *JTSet[string] = jnewTSet_(jtc_string)
 		for {
@@ -1143,7 +1143,7 @@ func (this *JsDocInfoParser) parseModifiesTag(token *JsDocToken) *JsDocToken {
 	return token
 }
 
-func (this *JsDocInfoParser) parseIdGeneratorTag(token *JsDocToken) *JsDocToken {
+func (this *JsDocInfoParser) parseIdGeneratorTag(token JsDocToken) JsDocToken {
 	var idgenKind string = "unique"
 	if token == JsDocToken_LEFT_CURLY {
 		if this.match(JsDocToken_STRING) {
@@ -1188,11 +1188,11 @@ func (this *JsDocInfoParser) parseIdGeneratorTag(token *JsDocToken) *JsDocToken 
 	return token
 }
 
-func (this *JsDocInfoParser) parseAndRecordTypeNode(token *JsDocToken) Node {
+func (this *JsDocInfoParser) parseAndRecordTypeNode(token JsDocToken) Node {
 	return this.parseAndRecordTypeNode_5(token, this.stream.getLineno(), this.stream.getCharno(), (token == JsDocToken_LEFT_CURLY), false)
 }
 
-func (this *JsDocInfoParser) parseAndRecordTypeNode_5(token *JsDocToken, lineno int32, startCharno int32, matchingLC bool, onlyParseSimpleNames bool) Node {
+func (this *JsDocInfoParser) parseAndRecordTypeNode_5(token JsDocToken, lineno int32, startCharno int32, matchingLC bool, onlyParseSimpleNames bool) Node {
 	var typeNode Node
 	if onlyParseSimpleNames {
 		typeNode = this.parseTypeNameAnnotation(token)
@@ -1203,11 +1203,11 @@ func (this *JsDocInfoParser) parseAndRecordTypeNode_5(token *JsDocToken, lineno 
 	return typeNode
 }
 
-func (this *JsDocInfoParser) parseAndRecordTypeNameNode(token *JsDocToken, lineno int32, startCharno int32, matchingLC bool) Node {
+func (this *JsDocInfoParser) parseAndRecordTypeNameNode(token JsDocToken, lineno int32, startCharno int32, matchingLC bool) Node {
 	return this.parseAndRecordTypeNode_5(token, lineno, startCharno, matchingLC, true)
 }
 
-func (this *JsDocInfoParser) parseAndRecordParamTypeNode(token *JsDocToken) Node {
+func (this *JsDocInfoParser) parseAndRecordParamTypeNode(token JsDocToken) Node {
 	Preconditions_checkArgument((token == JsDocToken_LEFT_CURLY))
 	var lineno int32 = this.stream.getLineno()
 	var startCharno int32 = this.stream.getCharno()
@@ -1216,7 +1216,7 @@ func (this *JsDocInfoParser) parseAndRecordParamTypeNode(token *JsDocToken) Node
 	return typeNode
 }
 
-func (this *JsDocInfoParser) toString(token *JsDocToken) string {
+func (this *JsDocInfoParser) toString(token JsDocToken) string {
 	return func() string {
 		switch token {
 		case JsDocToken_ANNOTATION:
@@ -1282,19 +1282,19 @@ func (this *JsDocInfoParser) extractSingleLineBlock() *JsDocInfoParser_Extractio
 	return new_JsDocInfoParser_ExtractionInfo(line, this.next())
 }
 
-func (this *JsDocInfoParser) extractMultilineTextualBlock(token *JsDocToken) *JsDocInfoParser_ExtractionInfo {
+func (this *JsDocInfoParser) extractMultilineTextualBlock(token JsDocToken) *JsDocInfoParser_ExtractionInfo {
 	return this.extractMultilineTextualBlock_3(token, this.getWhitespaceOption(JsDocInfoParser_WhitespaceOption_SINGLE_LINE), false)
 }
 
-func (this *JsDocInfoParser) extractMultilineTextualBlock_3(token *JsDocToken, option *JsDocInfoParser_WhitespaceOption, includeAnnotations bool) *JsDocInfoParser_ExtractionInfo {
+func (this *JsDocInfoParser) extractMultilineTextualBlock_3(token JsDocToken, option JsDocInfoParser_WhitespaceOption, includeAnnotations bool) *JsDocInfoParser_ExtractionInfo {
 	if ((token == JsDocToken_EOC) || (token == JsDocToken_EOL)) || (token == JsDocToken_EOF) {
 		return new_JsDocInfoParser_ExtractionInfo("", token)
 	}
 	return this.extractMultilineComment(token, option, true, includeAnnotations)
 }
 
-func (this *JsDocInfoParser) getWhitespaceOption(defaultValue *JsDocInfoParser_WhitespaceOption) *JsDocInfoParser_WhitespaceOption {
-	return func() *JsDocInfoParser_WhitespaceOption {
+func (this *JsDocInfoParser) getWhitespaceOption(defaultValue JsDocInfoParser_WhitespaceOption) JsDocInfoParser_WhitespaceOption {
+	return func() JsDocInfoParser_WhitespaceOption {
 		if this.preserveWhitespace {
 			return JsDocInfoParser_WhitespaceOption_PRESERVE
 		}
@@ -1302,11 +1302,11 @@ func (this *JsDocInfoParser) getWhitespaceOption(defaultValue *JsDocInfoParser_W
 	}()
 }
 
-func (this *JsDocInfoParser) extractBlockComment(token *JsDocToken) *JsDocInfoParser_ExtractionInfo {
+func (this *JsDocInfoParser) extractBlockComment(token JsDocToken) *JsDocInfoParser_ExtractionInfo {
 	return this.extractMultilineComment(token, this.getWhitespaceOption(JsDocInfoParser_WhitespaceOption_TRIM), false, false)
 }
 
-func (this *JsDocInfoParser) extractMultilineComment(token *JsDocToken, option *JsDocInfoParser_WhitespaceOption, isMarker bool, includeAnnotations bool) *JsDocInfoParser_ExtractionInfo {
+func (this *JsDocInfoParser) extractMultilineComment(token JsDocToken, option JsDocInfoParser_WhitespaceOption, isMarker bool, includeAnnotations bool) *JsDocInfoParser_ExtractionInfo {
 	var builder *StringBuilder = new_StringBuilder()
 	var startLineno int32 = -1
 	var startCharno int32 = -1
@@ -1386,7 +1386,7 @@ L_1:
 	panic("unreachable")
 }
 
-func (this *JsDocInfoParser) padLine(builder *StringBuilder, lineStartChar int32, option *JsDocInfoParser_WhitespaceOption) {
+func (this *JsDocInfoParser) padLine(builder *StringBuilder, lineStartChar int32, option JsDocInfoParser_WhitespaceOption) {
 	if (lineStartChar != -1) && (option == JsDocInfoParser_WhitespaceOption_PRESERVE) {
 		var numSpaces int32 = (this.stream.getCharno() - lineStartChar)
 		for i := int32(0); i < numSpaces; i++ {
@@ -1415,7 +1415,7 @@ func JsDocInfoParser_trimEnd(s string) string {
 	return String_substring(s, 0, (String_length(s) - trimCount))
 }
 
-func (this *JsDocInfoParser) parseTypeExpressionAnnotation(token *JsDocToken) Node {
+func (this *JsDocInfoParser) parseTypeExpressionAnnotation(token JsDocToken) Node {
 	if token == JsDocToken_LEFT_CURLY {
 		this.skipEOLs()
 		var typeNode Node = this.parseTopLevelTypeExpression(this.next())
@@ -1439,7 +1439,7 @@ func (this *JsDocInfoParser) parseTypeExpressionAnnotation(token *JsDocToken) No
 	panic("unreachable")
 }
 
-func (this *JsDocInfoParser) parseParamTypeExpression(token *JsDocToken) Node {
+func (this *JsDocInfoParser) parseParamTypeExpression(token JsDocToken) Node {
 	var restArg bool = false
 	if token == JsDocToken_ITER_REST {
 		token = this.next()
@@ -1463,7 +1463,7 @@ func (this *JsDocInfoParser) parseParamTypeExpression(token *JsDocToken) Node {
 	return typeNode
 }
 
-func (this *JsDocInfoParser) parseParamTypeExpressionAnnotation(token *JsDocToken) Node {
+func (this *JsDocInfoParser) parseParamTypeExpressionAnnotation(token JsDocToken) Node {
 	Preconditions_checkArgument((token == JsDocToken_LEFT_CURLY))
 	this.skipEOLs()
 	var typeNode Node = this.parseParamTypeExpression(this.next())
@@ -1477,7 +1477,7 @@ func (this *JsDocInfoParser) parseParamTypeExpressionAnnotation(token *JsDocToke
 	return typeNode
 }
 
-func (this *JsDocInfoParser) parseTypeNameAnnotation(token *JsDocToken) Node {
+func (this *JsDocInfoParser) parseTypeNameAnnotation(token JsDocToken) Node {
 	if token == JsDocToken_LEFT_CURLY {
 		this.skipEOLs()
 		var typeNode Node = this.parseTypeName(this.next())
@@ -1496,7 +1496,7 @@ func (this *JsDocInfoParser) parseTypeNameAnnotation(token *JsDocToken) Node {
 	panic("unreachable")
 }
 
-func (this *JsDocInfoParser) parseTopLevelTypeExpression(token *JsDocToken) Node {
+func (this *JsDocInfoParser) parseTopLevelTypeExpression(token JsDocToken) Node {
 	var typeExpr Node = this.parseTypeExpression(token)
 	if typeExpr != 0 {
 		if this.match(JsDocToken_PIPE) {
@@ -1509,7 +1509,7 @@ func (this *JsDocInfoParser) parseTopLevelTypeExpression(token *JsDocToken) Node
 	return typeExpr
 }
 
-func (this *JsDocInfoParser) parseTypeExpressionList(typeName string, token *JsDocToken) Node {
+func (this *JsDocInfoParser) parseTypeExpressionList(typeName string, token JsDocToken) Node {
 	var typeExpr Node = this.parseTopLevelTypeExpression(token)
 	if typeExpr == 0 {
 		return 0
@@ -1533,7 +1533,7 @@ func (this *JsDocInfoParser) parseTypeExpressionList(typeName string, token *JsD
 	return typeList
 }
 
-func (this *JsDocInfoParser) parseTypeExpression(token *JsDocToken) Node {
+func (this *JsDocInfoParser) parseTypeExpression(token JsDocToken) Node {
 	var lineno int32 = this.stream.getLineno()
 	var charno int32 = this.stream.getCharno()
 	return func() Node {
@@ -1566,7 +1566,7 @@ func (this *JsDocInfoParser) parseTypeExpression(token *JsDocToken) Node {
 	}()
 }
 
-func (this *JsDocInfoParser) parseContextTypeExpression(token *JsDocToken) Node {
+func (this *JsDocInfoParser) parseContextTypeExpression(token JsDocToken) Node {
 	if token == JsDocToken_QMARK {
 		return this.newNode(Token_rhino_QMARK)
 	} else {
@@ -1575,7 +1575,7 @@ func (this *JsDocInfoParser) parseContextTypeExpression(token *JsDocToken) Node 
 	panic("unreachable")
 }
 
-func (this *JsDocInfoParser) parseBasicTypeExpression(token *JsDocToken) Node {
+func (this *JsDocInfoParser) parseBasicTypeExpression(token JsDocToken) Node {
 	if token == JsDocToken_STAR {
 		return this.newNode(Token_rhino_STAR)
 	} else if token == JsDocToken_LEFT_CURLY {
@@ -1606,7 +1606,7 @@ func (this *JsDocInfoParser) parseBasicTypeExpression(token *JsDocToken) Node {
 	return this.reportGenericTypeSyntaxWarning()
 }
 
-func (this *JsDocInfoParser) parseNameExpression(token *JsDocToken) Node {
+func (this *JsDocInfoParser) parseNameExpression(token JsDocToken) Node {
 	if token != JsDocToken_STRING {
 		this.addParserWarning_3(Msg_JSDOC_NAME_SYNTAX, this.stream.getLineno(), this.stream.getCharno())
 		return 0
@@ -1630,7 +1630,7 @@ func (this *JsDocInfoParser) parseNameExpression(token *JsDocToken) Node {
 	return str
 }
 
-func (this *JsDocInfoParser) parseTypeName(token *JsDocToken) Node {
+func (this *JsDocInfoParser) parseTypeName(token JsDocToken) Node {
 	var typeNameNode Node = this.parseNameExpression(token)
 	if this.match(JsDocToken_LEFT_ANGLE) {
 		this.next()
@@ -1648,7 +1648,7 @@ func (this *JsDocInfoParser) parseTypeName(token *JsDocToken) Node {
 	return typeNameNode
 }
 
-func (this *JsDocInfoParser) parseTypeofType(token *JsDocToken) Node {
+func (this *JsDocInfoParser) parseTypeofType(token JsDocToken) Node {
 	if token == JsDocToken_LEFT_CURLY {
 		return this.reportTypeSyntaxWarning(Msg_JSDOC_UNNECESSARY_BRACES)
 	}
@@ -1662,7 +1662,7 @@ func (this *JsDocInfoParser) parseTypeofType(token *JsDocToken) Node {
 	return typeofType
 }
 
-func (this *JsDocInfoParser) parseFunctionType(token *JsDocToken) Node {
+func (this *JsDocInfoParser) parseFunctionType(token JsDocToken) Node {
 	if token != JsDocToken_LEFT_PAREN {
 		this.restoreLookAhead(token)
 		return this.reportTypeSyntaxWarning(Msg_JSDOC_MISSING_LP)
@@ -1681,7 +1681,7 @@ func (this *JsDocInfoParser) parseFunctionType(token *JsDocToken) Node {
 				if this.match(JsDocToken_COLON) {
 					this.next()
 					this.skipEOLs()
-					var contextType Node = this.wrapNode(func() *Token_rhino {
+					var contextType Node = this.wrapNode(func() Token_rhino {
 						if isThis {
 							return Token_rhino_THIS
 						}
@@ -1728,7 +1728,7 @@ func (this *JsDocInfoParser) parseFunctionType(token *JsDocToken) Node {
 	return functionType
 }
 
-func (this *JsDocInfoParser) parseParametersType(token *JsDocToken) Node {
+func (this *JsDocInfoParser) parseParametersType(token JsDocToken) Node {
 	var paramsType Node = this.newNode(Token_rhino_PARAM_LIST)
 	var isVarArgs bool = false
 	var paramType Node = 0
@@ -1788,11 +1788,11 @@ func (this *JsDocInfoParser) parseResultType() Node {
 	panic("unreachable")
 }
 
-func (this *JsDocInfoParser) parseUnionType(token *JsDocToken) Node {
+func (this *JsDocInfoParser) parseUnionType(token JsDocToken) Node {
 	return this.parseUnionTypeWithAlternate(token, 0)
 }
 
-func (this *JsDocInfoParser) parseUnionTypeWithAlternate(token *JsDocToken, alternate Node) Node {
+func (this *JsDocInfoParser) parseUnionTypeWithAlternate(token JsDocToken, alternate Node) Node {
 	var union Node = this.newNode(Token_rhino_PIPE)
 	if alternate != 0 {
 		union.addChildToBack(alternate)
@@ -1827,7 +1827,7 @@ func (this *JsDocInfoParser) parseUnionTypeWithAlternate(token *JsDocToken, alte
 	return union
 }
 
-func (this *JsDocInfoParser) parseRecordType(token *JsDocToken) Node {
+func (this *JsDocInfoParser) parseRecordType(token JsDocToken) Node {
 	var recordType Node = this.newNode(Token_rhino_LC)
 	var fieldTypeList Node = this.parseFieldTypeList(token)
 	if fieldTypeList == 0 {
@@ -1842,7 +1842,7 @@ func (this *JsDocInfoParser) parseRecordType(token *JsDocToken) Node {
 	return recordType
 }
 
-func (this *JsDocInfoParser) parseFieldTypeList(token *JsDocToken) Node {
+func (this *JsDocInfoParser) parseFieldTypeList(token JsDocToken) Node {
 	var fieldTypeList Node = this.newNode(Token_rhino_LB)
 	var names *JTSet[string] = jnewTSet_(jtc_string)
 	for do_2 := true; do_2; do_2 = true {
@@ -1875,7 +1875,7 @@ func (this *JsDocInfoParser) parseFieldTypeList(token *JsDocToken) Node {
 	return fieldTypeList
 }
 
-func (this *JsDocInfoParser) parseFieldType(token *JsDocToken) Node {
+func (this *JsDocInfoParser) parseFieldType(token JsDocToken) Node {
 	var fieldName Node = this.parseFieldName(token)
 	if fieldName == 0 {
 		return 0
@@ -1896,7 +1896,7 @@ func (this *JsDocInfoParser) parseFieldType(token *JsDocToken) Node {
 	return fieldType
 }
 
-func (this *JsDocInfoParser) parseFieldName(token *JsDocToken) Node {
+func (this *JsDocInfoParser) parseFieldName(token JsDocToken) Node {
 	if token != JsDocToken_STRING {
 		return 0
 	}
@@ -1906,7 +1906,7 @@ func (this *JsDocInfoParser) parseFieldName(token *JsDocToken) Node {
 	return n
 }
 
-func (this *JsDocInfoParser) wrapNode(type_ *Token_rhino, n Node) Node {
+func (this *JsDocInfoParser) wrapNode(type_ Token_rhino, n Node) Node {
 	return func() Node {
 		if n == 0 {
 			return 0
@@ -1915,7 +1915,7 @@ func (this *JsDocInfoParser) wrapNode(type_ *Token_rhino, n Node) Node {
 	}()
 }
 
-func (this *JsDocInfoParser) wrapNode_4(type_ *Token_rhino, n Node, lineno int32, charno int32) Node {
+func (this *JsDocInfoParser) wrapNode_4(type_ Token_rhino, n Node, lineno int32, charno int32) Node {
 	return func() Node {
 		if n == 0 {
 			return 0
@@ -1924,7 +1924,7 @@ func (this *JsDocInfoParser) wrapNode_4(type_ *Token_rhino, n Node, lineno int32
 	}()
 }
 
-func (this *JsDocInfoParser) newNode(type_ *Token_rhino) Node {
+func (this *JsDocInfoParser) newNode(type_ Token_rhino) Node {
 	return new_Node_Token(type_).setLinenoCharno(this.stream.getLineno(), this.stream.getCharno()).clonePropsFrom(this.templateNode)
 }
 
@@ -1934,7 +1934,7 @@ func (this *JsDocInfoParser) newStringNode(s string) Node {
 	return n
 }
 
-func (this *JsDocInfoParser) reportTypeSyntaxWarning(warning *Msg) Node {
+func (this *JsDocInfoParser) reportTypeSyntaxWarning(warning Msg) Node {
 	this.addTypeWarning_3(warning, this.stream.getLineno(), this.stream.getCharno())
 	return 0
 }
@@ -1943,11 +1943,11 @@ func (this *JsDocInfoParser) reportGenericTypeSyntaxWarning() Node {
 	return this.reportTypeSyntaxWarning(Msg_JSDOC_TYPE_SYNTAX)
 }
 
-func (this *JsDocInfoParser) eatUntilEOLIfNotAnnotation() *JsDocToken {
+func (this *JsDocInfoParser) eatUntilEOLIfNotAnnotation() JsDocToken {
 	return this.eatUntilEOLIfNotAnnotation_1(this.next())
 }
 
-func (this *JsDocInfoParser) eatUntilEOLIfNotAnnotation_1(token *JsDocToken) *JsDocToken {
+func (this *JsDocInfoParser) eatUntilEOLIfNotAnnotation_1(token JsDocToken) JsDocToken {
 	if token == JsDocToken_ANNOTATION {
 		this.state = JsDocInfoParser_State_SEARCHING_ANNOTATION
 		return token
@@ -1955,11 +1955,11 @@ func (this *JsDocInfoParser) eatUntilEOLIfNotAnnotation_1(token *JsDocToken) *Js
 	return this.eatTokensUntilEOL_1(token)
 }
 
-func (this *JsDocInfoParser) eatTokensUntilEOL() *JsDocToken {
+func (this *JsDocInfoParser) eatTokensUntilEOL() JsDocToken {
 	return this.eatTokensUntilEOL_1(this.next())
 }
 
-func (this *JsDocInfoParser) eatTokensUntilEOL_1(token *JsDocToken) *JsDocToken {
+func (this *JsDocInfoParser) eatTokensUntilEOL_1(token JsDocToken) JsDocToken {
 	for do_2 := true; do_2; do_2 = true {
 		if ((token == JsDocToken_EOL) || (token == JsDocToken_EOC)) || (token == JsDocToken_EOF) {
 			this.state = JsDocInfoParser_State_SEARCHING_ANNOTATION
@@ -1970,21 +1970,21 @@ func (this *JsDocInfoParser) eatTokensUntilEOL_1(token *JsDocToken) *JsDocToken 
 	panic("unreachable")
 }
 
-func (this *JsDocInfoParser) restoreLookAhead(token *JsDocToken) {
+func (this *JsDocInfoParser) restoreLookAhead(token JsDocToken) {
 	this.unreadToken = token
 }
 
-func (this *JsDocInfoParser) match(token *JsDocToken) bool {
+func (this *JsDocInfoParser) match(token JsDocToken) bool {
 	this.unreadToken = this.next()
 	return (this.unreadToken == token)
 }
 
-func (this *JsDocInfoParser) match_2(token1 *JsDocToken, token2 *JsDocToken) bool {
+func (this *JsDocInfoParser) match_2(token1 JsDocToken, token2 JsDocToken) bool {
 	this.unreadToken = this.next()
 	return ((this.unreadToken == token1) || (this.unreadToken == token2))
 }
 
-func (this *JsDocInfoParser) eatIfMatch(token *JsDocToken) bool {
+func (this *JsDocInfoParser) eatIfMatch(token JsDocToken) bool {
 	if this.match(token) {
 		this.next()
 		return true
@@ -1992,7 +1992,7 @@ func (this *JsDocInfoParser) eatIfMatch(token *JsDocToken) bool {
 	return false
 }
 
-func (this *JsDocInfoParser) next() *JsDocToken {
+func (this *JsDocInfoParser) next() JsDocToken {
 	if this.unreadToken == JsDocInfoParser_NO_UNREAD_TOKEN {
 		return this.stream.getJsDocToken()
 	} else {
@@ -2001,8 +2001,8 @@ func (this *JsDocInfoParser) next() *JsDocToken {
 	panic("unreachable")
 }
 
-func (this *JsDocInfoParser) current() *JsDocToken {
-	var t *JsDocToken = this.unreadToken
+func (this *JsDocInfoParser) current() JsDocToken {
+	var t JsDocToken = this.unreadToken
 	this.unreadToken = JsDocInfoParser_NO_UNREAD_TOKEN
 	return t
 }
@@ -2060,7 +2060,7 @@ func (this *JsDocInfoParser) lookAheadFor(expect uint16) bool {
 	return matched
 }
 
-func (this *JsDocInfoParser) parseClosureUnawareCode() *JsDocToken {
+func (this *JsDocInfoParser) parseClosureUnawareCode() JsDocToken {
 	this.addParserWarning(Msg_JSDOC_CLOSURE_UNAWARE_CODE_INVALID)
 	if !this.match(JsDocToken_LEFT_CURLY) {
 		if !this.jsdocBuilder.recordClosureUnawareCode() {
@@ -2068,10 +2068,10 @@ func (this *JsDocInfoParser) parseClosureUnawareCode() *JsDocToken {
 		}
 		return this.eatUntilEOLIfNotAnnotation_1(this.current())
 	}
-	var token *JsDocToken = this.next()
+	var token JsDocToken = this.next()
 	if this.match(JsDocToken_STRING) {
 		var value string = this.stream.getString()
-		var mode *JSDocInfo_PerFileClosureUnawareMode = func() *JSDocInfo_PerFileClosureUnawareMode {
+		var mode JSDocInfo_PerFileClosureUnawareMode = func() JSDocInfo_PerFileClosureUnawareMode {
 			switch value {
 			case "WHITESPACE":
 				return JSDocInfo_PerFileClosureUnawareMode_WHITESPACE
@@ -2102,7 +2102,7 @@ const JsDocInfoParser_TS_TYPE_PLACEHOLDER string = "JsDocInfoParser_tsType_Place
 var JsDocInfoParser_modifiesAnnotationKeywords *JTSet[string]
 var JsDocInfoParser_idGeneratorAnnotationKeywords *JTSet[string]
 var JsDocInfoParser_primitiveTypes *JTSet[string]
-var JsDocInfoParser_NO_UNREAD_TOKEN *JsDocToken
+var JsDocInfoParser_NO_UNREAD_TOKEN JsDocToken
 
 var JsDocInfoParser_clinit_done bool
 
@@ -2115,49 +2115,63 @@ func JsDocInfoParser_clinit() {
 	JsDocInfoParser_modifiesAnnotationKeywords = jimmutableSetOf_[string](jtc_string, "this", "arguments")
 	JsDocInfoParser_idGeneratorAnnotationKeywords = jimmutableSetOf_[string](jtc_string, "unique", "consistent", "stable", "mapped", "xid")
 	JsDocInfoParser_primitiveTypes = jimmutableSetOf_[string](jtc_string, "number", "string", "boolean", "symbol")
-	JsDocInfoParser_NO_UNREAD_TOKEN = nil
+	JsDocInfoParser_NO_UNREAD_TOKEN = 0
 
 }
 
-type JsDocInfoParser_State struct {
-	Enum
+type JsDocInfoParser_State uint8
+
+// JsDocInfoParser_State_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JsDocInfoParser_State_enum_ = [3]Enum{
+	{self_: JsDocInfoParser_State_SEARCHING_ANNOTATION, name_: "SEARCHING_ANNOTATION", ordinal_: 0},
+	{self_: JsDocInfoParser_State_SEARCHING_NEWLINE, name_: "SEARCHING_NEWLINE", ordinal_: 1},
+	{self_: JsDocInfoParser_State_NEXT_IS_ANNOTATION, name_: "NEXT_IS_ANNOTATION", ordinal_: 2},
 }
 
-func (this *JsDocInfoParser_State) up_Enum() *Enum {
-	if this == nil {
+func (this JsDocInfoParser_State) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JsDocInfoParser_State_enum_[this-1]
 }
 
-func (this *JsDocInfoParser_State) init_JsDocInfoParser_State(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this JsDocInfoParser_State) name() string { return JsDocInfoParser_State_enum_[this-1].name_ }
+
+func (this JsDocInfoParser_State) ordinal() int32 {
+	return JsDocInfoParser_State_enum_[this-1].ordinal_
 }
 
-func new_JsDocInfoParser_State(name_ string, ordinal_ int32) *JsDocInfoParser_State {
-	this := &JsDocInfoParser_State{}
-	this.self_ = this
-	this.init_JsDocInfoParser_State(name_, ordinal_)
+func (this JsDocInfoParser_State) toString() string { return JsDocInfoParser_State_enum_[this-1].name_ }
+
+func (this JsDocInfoParser_State) compareTo(o any) int32 {
+	return JsDocInfoParser_State_enum_[this-1].compareTo(o)
+}
+
+func (this JsDocInfoParser_State) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func JsDocInfoParser_State_values() []*JsDocInfoParser_State {
-	return append([]*JsDocInfoParser_State(nil), JsDocInfoParser_State_values_...)
+func JsDocInfoParser_State_values() []JsDocInfoParser_State {
+	return append([]JsDocInfoParser_State(nil), JsDocInfoParser_State_values_...)
 }
 
-func JsDocInfoParser_State_valueOf(name string) *JsDocInfoParser_State {
+func JsDocInfoParser_State_valueOf(name string) JsDocInfoParser_State {
 	for _, v := range JsDocInfoParser_State_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("State", name))
 }
 
-var JsDocInfoParser_State_SEARCHING_ANNOTATION *JsDocInfoParser_State
-var JsDocInfoParser_State_SEARCHING_NEWLINE *JsDocInfoParser_State
-var JsDocInfoParser_State_NEXT_IS_ANNOTATION *JsDocInfoParser_State
-var JsDocInfoParser_State_values_ []*JsDocInfoParser_State
+const JsDocInfoParser_State_SEARCHING_ANNOTATION JsDocInfoParser_State = 1
+const JsDocInfoParser_State_SEARCHING_NEWLINE JsDocInfoParser_State = 2
+const JsDocInfoParser_State_NEXT_IS_ANNOTATION JsDocInfoParser_State = 3
+
+var JsDocInfoParser_State_values_ []JsDocInfoParser_State
 
 var JsDocInfoParser_State_clinit_done bool
 
@@ -2166,52 +2180,66 @@ func JsDocInfoParser_State_clinit() {
 		return
 	}
 	JsDocInfoParser_State_clinit_done = true
-	JsDocInfoParser_State_SEARCHING_ANNOTATION = new_JsDocInfoParser_State("SEARCHING_ANNOTATION", 0)
-	JsDocInfoParser_State_SEARCHING_NEWLINE = new_JsDocInfoParser_State("SEARCHING_NEWLINE", 1)
-	JsDocInfoParser_State_NEXT_IS_ANNOTATION = new_JsDocInfoParser_State("NEXT_IS_ANNOTATION", 2)
-	JsDocInfoParser_State_values_ = []*JsDocInfoParser_State{JsDocInfoParser_State_SEARCHING_ANNOTATION, JsDocInfoParser_State_SEARCHING_NEWLINE, JsDocInfoParser_State_NEXT_IS_ANNOTATION}
+	JsDocInfoParser_State_values_ = []JsDocInfoParser_State{JsDocInfoParser_State_SEARCHING_ANNOTATION, JsDocInfoParser_State_SEARCHING_NEWLINE, JsDocInfoParser_State_NEXT_IS_ANNOTATION}
 	registerEnum_("com.google.javascript.jscomp.parsing.JsDocInfoParser.State", enumValues_(JsDocInfoParser_State_values_))
 
 }
 
-type JsDocInfoParser_JsDocSourceKind struct {
-	Enum
+type JsDocInfoParser_JsDocSourceKind uint8
+
+// JsDocInfoParser_JsDocSourceKind_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JsDocInfoParser_JsDocSourceKind_enum_ = [2]Enum{
+	{self_: JsDocInfoParser_JsDocSourceKind_NORMAL, name_: "NORMAL", ordinal_: 0},
+	{self_: JsDocInfoParser_JsDocSourceKind_TSICKLE, name_: "TSICKLE", ordinal_: 1},
 }
 
-func (this *JsDocInfoParser_JsDocSourceKind) up_Enum() *Enum {
-	if this == nil {
+func (this JsDocInfoParser_JsDocSourceKind) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JsDocInfoParser_JsDocSourceKind_enum_[this-1]
 }
 
-func (this *JsDocInfoParser_JsDocSourceKind) init_JsDocInfoParser_JsDocSourceKind(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this JsDocInfoParser_JsDocSourceKind) name() string {
+	return JsDocInfoParser_JsDocSourceKind_enum_[this-1].name_
 }
 
-func new_JsDocInfoParser_JsDocSourceKind(name_ string, ordinal_ int32) *JsDocInfoParser_JsDocSourceKind {
-	this := &JsDocInfoParser_JsDocSourceKind{}
-	this.self_ = this
-	this.init_JsDocInfoParser_JsDocSourceKind(name_, ordinal_)
+func (this JsDocInfoParser_JsDocSourceKind) ordinal() int32 {
+	return JsDocInfoParser_JsDocSourceKind_enum_[this-1].ordinal_
+}
+
+func (this JsDocInfoParser_JsDocSourceKind) toString() string {
+	return JsDocInfoParser_JsDocSourceKind_enum_[this-1].name_
+}
+
+func (this JsDocInfoParser_JsDocSourceKind) compareTo(o any) int32 {
+	return JsDocInfoParser_JsDocSourceKind_enum_[this-1].compareTo(o)
+}
+
+func (this JsDocInfoParser_JsDocSourceKind) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func JsDocInfoParser_JsDocSourceKind_values() []*JsDocInfoParser_JsDocSourceKind {
-	return append([]*JsDocInfoParser_JsDocSourceKind(nil), JsDocInfoParser_JsDocSourceKind_values_...)
+func JsDocInfoParser_JsDocSourceKind_values() []JsDocInfoParser_JsDocSourceKind {
+	return append([]JsDocInfoParser_JsDocSourceKind(nil), JsDocInfoParser_JsDocSourceKind_values_...)
 }
 
-func JsDocInfoParser_JsDocSourceKind_valueOf(name string) *JsDocInfoParser_JsDocSourceKind {
+func JsDocInfoParser_JsDocSourceKind_valueOf(name string) JsDocInfoParser_JsDocSourceKind {
 	for _, v := range JsDocInfoParser_JsDocSourceKind_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("JsDocSourceKind", name))
 }
 
-var JsDocInfoParser_JsDocSourceKind_NORMAL *JsDocInfoParser_JsDocSourceKind
-var JsDocInfoParser_JsDocSourceKind_TSICKLE *JsDocInfoParser_JsDocSourceKind
-var JsDocInfoParser_JsDocSourceKind_values_ []*JsDocInfoParser_JsDocSourceKind
+const JsDocInfoParser_JsDocSourceKind_NORMAL JsDocInfoParser_JsDocSourceKind = 1
+const JsDocInfoParser_JsDocSourceKind_TSICKLE JsDocInfoParser_JsDocSourceKind = 2
+
+var JsDocInfoParser_JsDocSourceKind_values_ []JsDocInfoParser_JsDocSourceKind
 
 var JsDocInfoParser_JsDocSourceKind_clinit_done bool
 
@@ -2220,28 +2248,26 @@ func JsDocInfoParser_JsDocSourceKind_clinit() {
 		return
 	}
 	JsDocInfoParser_JsDocSourceKind_clinit_done = true
-	JsDocInfoParser_JsDocSourceKind_NORMAL = new_JsDocInfoParser_JsDocSourceKind("NORMAL", 0)
-	JsDocInfoParser_JsDocSourceKind_TSICKLE = new_JsDocInfoParser_JsDocSourceKind("TSICKLE", 1)
-	JsDocInfoParser_JsDocSourceKind_values_ = []*JsDocInfoParser_JsDocSourceKind{JsDocInfoParser_JsDocSourceKind_NORMAL, JsDocInfoParser_JsDocSourceKind_TSICKLE}
+	JsDocInfoParser_JsDocSourceKind_values_ = []JsDocInfoParser_JsDocSourceKind{JsDocInfoParser_JsDocSourceKind_NORMAL, JsDocInfoParser_JsDocSourceKind_TSICKLE}
 	registerEnum_("com.google.javascript.jscomp.parsing.JsDocInfoParser.JsDocSourceKind", enumValues_(JsDocInfoParser_JsDocSourceKind_values_))
 
 }
 
 type JsDocInfoParser_ExtractionInfo struct {
 	string_ string
-	token   *JsDocToken
+	token   JsDocToken
 }
 
 func (this *JsDocInfoParser_ExtractionInfo) zero_JsDocInfoParser_ExtractionInfo() {
 	this.string_ = nullstr_
 }
 
-func (this *JsDocInfoParser_ExtractionInfo) init_JsDocInfoParser_ExtractionInfo(string_ string, token *JsDocToken) {
+func (this *JsDocInfoParser_ExtractionInfo) init_JsDocInfoParser_ExtractionInfo(string_ string, token JsDocToken) {
 	this.string_ = string_
 	this.token = token
 }
 
-func new_JsDocInfoParser_ExtractionInfo(string_ string, token *JsDocToken) *JsDocInfoParser_ExtractionInfo {
+func new_JsDocInfoParser_ExtractionInfo(string_ string, token JsDocToken) *JsDocInfoParser_ExtractionInfo {
 	this := &JsDocInfoParser_ExtractionInfo{}
 	this.zero_JsDocInfoParser_ExtractionInfo()
 	this.init_JsDocInfoParser_ExtractionInfo(string_, token)
@@ -2266,45 +2292,63 @@ func new_JsDocInfoParser_ExtendedTypeInfo(type_ *JSTypeExpression, lineno int32,
 	return this
 }
 
-type JsDocInfoParser_WhitespaceOption struct {
-	Enum
+type JsDocInfoParser_WhitespaceOption uint8
+
+// JsDocInfoParser_WhitespaceOption_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JsDocInfoParser_WhitespaceOption_enum_ = [3]Enum{
+	{self_: JsDocInfoParser_WhitespaceOption_PRESERVE, name_: "PRESERVE", ordinal_: 0},
+	{self_: JsDocInfoParser_WhitespaceOption_TRIM, name_: "TRIM", ordinal_: 1},
+	{self_: JsDocInfoParser_WhitespaceOption_SINGLE_LINE, name_: "SINGLE_LINE", ordinal_: 2},
 }
 
-func (this *JsDocInfoParser_WhitespaceOption) up_Enum() *Enum {
-	if this == nil {
+func (this JsDocInfoParser_WhitespaceOption) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JsDocInfoParser_WhitespaceOption_enum_[this-1]
 }
 
-func (this *JsDocInfoParser_WhitespaceOption) init_JsDocInfoParser_WhitespaceOption(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this JsDocInfoParser_WhitespaceOption) name() string {
+	return JsDocInfoParser_WhitespaceOption_enum_[this-1].name_
 }
 
-func new_JsDocInfoParser_WhitespaceOption(name_ string, ordinal_ int32) *JsDocInfoParser_WhitespaceOption {
-	this := &JsDocInfoParser_WhitespaceOption{}
-	this.self_ = this
-	this.init_JsDocInfoParser_WhitespaceOption(name_, ordinal_)
+func (this JsDocInfoParser_WhitespaceOption) ordinal() int32 {
+	return JsDocInfoParser_WhitespaceOption_enum_[this-1].ordinal_
+}
+
+func (this JsDocInfoParser_WhitespaceOption) toString() string {
+	return JsDocInfoParser_WhitespaceOption_enum_[this-1].name_
+}
+
+func (this JsDocInfoParser_WhitespaceOption) compareTo(o any) int32 {
+	return JsDocInfoParser_WhitespaceOption_enum_[this-1].compareTo(o)
+}
+
+func (this JsDocInfoParser_WhitespaceOption) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func JsDocInfoParser_WhitespaceOption_values() []*JsDocInfoParser_WhitespaceOption {
-	return append([]*JsDocInfoParser_WhitespaceOption(nil), JsDocInfoParser_WhitespaceOption_values_...)
+func JsDocInfoParser_WhitespaceOption_values() []JsDocInfoParser_WhitespaceOption {
+	return append([]JsDocInfoParser_WhitespaceOption(nil), JsDocInfoParser_WhitespaceOption_values_...)
 }
 
-func JsDocInfoParser_WhitespaceOption_valueOf(name string) *JsDocInfoParser_WhitespaceOption {
+func JsDocInfoParser_WhitespaceOption_valueOf(name string) JsDocInfoParser_WhitespaceOption {
 	for _, v := range JsDocInfoParser_WhitespaceOption_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("WhitespaceOption", name))
 }
 
-var JsDocInfoParser_WhitespaceOption_PRESERVE *JsDocInfoParser_WhitespaceOption
-var JsDocInfoParser_WhitespaceOption_TRIM *JsDocInfoParser_WhitespaceOption
-var JsDocInfoParser_WhitespaceOption_SINGLE_LINE *JsDocInfoParser_WhitespaceOption
-var JsDocInfoParser_WhitespaceOption_values_ []*JsDocInfoParser_WhitespaceOption
+const JsDocInfoParser_WhitespaceOption_PRESERVE JsDocInfoParser_WhitespaceOption = 1
+const JsDocInfoParser_WhitespaceOption_TRIM JsDocInfoParser_WhitespaceOption = 2
+const JsDocInfoParser_WhitespaceOption_SINGLE_LINE JsDocInfoParser_WhitespaceOption = 3
+
+var JsDocInfoParser_WhitespaceOption_values_ []JsDocInfoParser_WhitespaceOption
 
 var JsDocInfoParser_WhitespaceOption_clinit_done bool
 
@@ -2313,10 +2357,7 @@ func JsDocInfoParser_WhitespaceOption_clinit() {
 		return
 	}
 	JsDocInfoParser_WhitespaceOption_clinit_done = true
-	JsDocInfoParser_WhitespaceOption_PRESERVE = new_JsDocInfoParser_WhitespaceOption("PRESERVE", 0)
-	JsDocInfoParser_WhitespaceOption_TRIM = new_JsDocInfoParser_WhitespaceOption("TRIM", 1)
-	JsDocInfoParser_WhitespaceOption_SINGLE_LINE = new_JsDocInfoParser_WhitespaceOption("SINGLE_LINE", 2)
-	JsDocInfoParser_WhitespaceOption_values_ = []*JsDocInfoParser_WhitespaceOption{JsDocInfoParser_WhitespaceOption_PRESERVE, JsDocInfoParser_WhitespaceOption_TRIM, JsDocInfoParser_WhitespaceOption_SINGLE_LINE}
+	JsDocInfoParser_WhitespaceOption_values_ = []JsDocInfoParser_WhitespaceOption{JsDocInfoParser_WhitespaceOption_PRESERVE, JsDocInfoParser_WhitespaceOption_TRIM, JsDocInfoParser_WhitespaceOption_SINGLE_LINE}
 	registerEnum_("com.google.javascript.jscomp.parsing.JsDocInfoParser.WhitespaceOption", enumValues_(JsDocInfoParser_WhitespaceOption_values_))
 
 }

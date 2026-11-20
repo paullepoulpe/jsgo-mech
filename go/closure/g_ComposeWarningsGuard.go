@@ -74,22 +74,22 @@ func (this *ComposeWarningsGuard) addGuards(guards IterableOf[*WarningsGuard]) {
 	}
 }
 
-func (this *ComposeWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
+func (this *ComposeWarningsGuard) level_impl(error_ *JSError) CheckLevel {
 	it_1 := this.guards.each()
 	for it_1.next() {
 		var guard *WarningsGuard = it_1.v
-		var newLevel *CheckLevel = guard.level(error_)
-		if newLevel != nil {
+		var newLevel CheckLevel = guard.level(error_)
+		if newLevel != 0 {
 			if this.demoteErrors && (newLevel == CheckLevel_ERROR) {
 				return CheckLevel_WARNING
 			}
 			return newLevel
 		}
 	}
-	return nil
+	return 0
 }
 
-func (this *ComposeWarningsGuard) mustRunChecks_impl(group *DiagnosticGroup) *Tri {
+func (this *ComposeWarningsGuard) mustRunChecks_impl(group *DiagnosticGroup) Tri {
 	var enable bool = this.enables(group)
 	var disable bool = this.disables(group)
 	if !(!enable || !disable) {
@@ -181,7 +181,7 @@ func (this *ComposeWarningsGuard_GuardComparator) compare(a_ any, b_ any) int32 
 const ComposeWarningsGuard_GuardComparator_serialVersionUID int64 = 1
 
 // level: an object that is exactly a ComposeWarningsGuard calls its level_impl directly (post-flip); others dispatch.
-func (this *ComposeWarningsGuard) level(p0 *JSError) *CheckLevel {
+func (this *ComposeWarningsGuard) level(p0 *JSError) CheckLevel {
 	if this.self_ == any(this) {
 		return this.level_impl(p0)
 	}
@@ -189,7 +189,7 @@ func (this *ComposeWarningsGuard) level(p0 *JSError) *CheckLevel {
 }
 
 // mustRunChecks: an object that is exactly a ComposeWarningsGuard calls its mustRunChecks_impl directly (post-flip); others dispatch.
-func (this *ComposeWarningsGuard) mustRunChecks(p0 *DiagnosticGroup) *Tri {
+func (this *ComposeWarningsGuard) mustRunChecks(p0 *DiagnosticGroup) Tri {
 	if this.self_ == any(this) {
 		return this.mustRunChecks_impl(p0)
 	}

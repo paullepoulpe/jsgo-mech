@@ -65,7 +65,7 @@ func InvalidatingTypes_isAmbiguousOrStructuralType(type_ *ObjectType) bool {
 	return true
 }
 
-var InvalidatingTypes_ALWAYS_INVALIDATING_TYPES *JTList[*JSTypeNative]
+var InvalidatingTypes_ALWAYS_INVALIDATING_TYPES *JTList[JSTypeNative]
 var InvalidatingTypes_ALWAYS_INVALIDATING_LOCATION Node
 
 var InvalidatingTypes_clinit_done bool
@@ -75,7 +75,7 @@ func InvalidatingTypes_clinit() {
 		return
 	}
 	InvalidatingTypes_clinit_done = true
-	InvalidatingTypes_ALWAYS_INVALIDATING_TYPES = jimmutableListOf_[*JSTypeNative](tc_p_JSTypeNative, JSTypeNative_FUNCTION_FUNCTION_TYPE, JSTypeNative_FUNCTION_TYPE, JSTypeNative_FUNCTION_PROTOTYPE, JSTypeNative_FUNCTION_INSTANCE_PROTOTYPE, JSTypeNative_OBJECT_TYPE, JSTypeNative_OBJECT_PROTOTYPE, JSTypeNative_OBJECT_FUNCTION_TYPE)
+	InvalidatingTypes_ALWAYS_INVALIDATING_TYPES = jimmutableListOf_[JSTypeNative](tc_p_JSTypeNative, JSTypeNative_FUNCTION_FUNCTION_TYPE, JSTypeNative_FUNCTION_TYPE, JSTypeNative_FUNCTION_PROTOTYPE, JSTypeNative_FUNCTION_INSTANCE_PROTOTYPE, JSTypeNative_OBJECT_TYPE, JSTypeNative_OBJECT_PROTOTYPE, JSTypeNative_OBJECT_FUNCTION_TYPE)
 	InvalidatingTypes_ALWAYS_INVALIDATING_LOCATION = IR_name("alwaysInvalidatingLocation").setStaticSourceFile(SourceFile_jscomp_as_StaticSourceFile(SourceFile_jscomp_fromCode_String_String("InvalidatingTypes_alwaysInvalidatingLocation", "")))
 
 }
@@ -103,7 +103,7 @@ func new_InvalidatingTypes_Builder(registry *JSTypeRegistry) *InvalidatingTypes_
 func (this *InvalidatingTypes_Builder) build() *InvalidatingTypes {
 	it_1 := InvalidatingTypes_ALWAYS_INVALIDATING_TYPES.each()
 	for it_1.next() {
-		var t *JSTypeNative = it_1.v
+		var t JSTypeNative = it_1.v
 		this.typeToLocation.put(this.registry.getNativeType(t).self(), InvalidatingTypes_ALWAYS_INVALIDATING_LOCATION.box_())
 	}
 	return new_InvalidatingTypes(this.typeToLocation.immutableCopy())

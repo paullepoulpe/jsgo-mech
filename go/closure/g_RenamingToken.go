@@ -2,49 +2,59 @@
 
 package closure
 
-type RenamingToken struct {
-	Enum
+type RenamingToken uint8
+
+// RenamingToken_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var RenamingToken_enum_ = [3]Enum{
+	{self_: RenamingToken_INCONSISTENT, name_: "INCONSISTENT", ordinal_: 0},
+	{self_: RenamingToken_STABLE, name_: "STABLE", ordinal_: 1},
+	{self_: RenamingToken_DISABLE, name_: "DISABLE", ordinal_: 2},
 }
 
-func (this *RenamingToken) up_Enum() *Enum {
-	if this == nil {
+func (this RenamingToken) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &RenamingToken_enum_[this-1]
 }
 
-func (this *RenamingToken) init_RenamingToken(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-}
+func (this RenamingToken) name() string { return RenamingToken_enum_[this-1].name_ }
 
-func new_RenamingToken(name_ string, ordinal_ int32) *RenamingToken {
-	this := &RenamingToken{}
-	this.self_ = this
-	this.init_RenamingToken(name_, ordinal_)
+func (this RenamingToken) ordinal() int32 { return RenamingToken_enum_[this-1].ordinal_ }
+
+func (this RenamingToken) toString() string { return RenamingToken_enum_[this-1].name_ }
+
+func (this RenamingToken) compareTo(o any) int32 { return RenamingToken_enum_[this-1].compareTo(o) }
+
+func (this RenamingToken) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *RenamingToken) get(value string) Optional[string] {
+func (this RenamingToken) get(value string) Optional[string] {
 	return Optional_empty[string]()
 }
 
-func RenamingToken_values() []*RenamingToken {
-	return append([]*RenamingToken(nil), RenamingToken_values_...)
+func RenamingToken_values() []RenamingToken {
+	return append([]RenamingToken(nil), RenamingToken_values_...)
 }
 
-func RenamingToken_valueOf(name string) *RenamingToken {
+func RenamingToken_valueOf(name string) RenamingToken {
 	for _, v := range RenamingToken_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("RenamingToken", name))
 }
 
-var RenamingToken_INCONSISTENT *RenamingToken
-var RenamingToken_STABLE *RenamingToken
-var RenamingToken_DISABLE *RenamingToken
-var RenamingToken_values_ []*RenamingToken
+const RenamingToken_INCONSISTENT RenamingToken = 1
+const RenamingToken_STABLE RenamingToken = 2
+const RenamingToken_DISABLE RenamingToken = 3
+
+var RenamingToken_values_ []RenamingToken
 
 var RenamingToken_clinit_done bool
 
@@ -53,10 +63,7 @@ func RenamingToken_clinit() {
 		return
 	}
 	RenamingToken_clinit_done = true
-	RenamingToken_INCONSISTENT = new_RenamingToken("INCONSISTENT", 0)
-	RenamingToken_STABLE = new_RenamingToken("STABLE", 1)
-	RenamingToken_DISABLE = new_RenamingToken("DISABLE", 2)
-	RenamingToken_values_ = []*RenamingToken{RenamingToken_INCONSISTENT, RenamingToken_STABLE, RenamingToken_DISABLE}
+	RenamingToken_values_ = []RenamingToken{RenamingToken_INCONSISTENT, RenamingToken_STABLE, RenamingToken_DISABLE}
 	registerEnum_("com.google.javascript.jscomp.RenamingToken", enumValues_(RenamingToken_values_))
 
 }

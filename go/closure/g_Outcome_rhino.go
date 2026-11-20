@@ -10,7 +10,7 @@ type Outcome_rhino struct {
 // Outcome_rhino_I holds the methods the dispatchers of enum Outcome_rhino call on its
 // constant (selfI_, set with self_); every constant of the enum implements them (post-flip).
 type Outcome_rhino_I interface {
-	isNullish_impl() *Tri
+	isNullish_impl() Tri
 	isTruthy_impl() bool
 	not_impl() *Outcome_rhino
 }
@@ -60,7 +60,7 @@ func (this *Outcome_rhino) isTruthy() bool {
 	return this.selfI_.isTruthy_impl()
 }
 
-func (this *Outcome_rhino) isNullish() *Tri {
+func (this *Outcome_rhino) isNullish() Tri {
 	return this.selfI_.isNullish_impl()
 }
 
@@ -137,7 +137,7 @@ func (this *Outcome_1_rhino) isTruthy_impl() bool {
 	return true
 }
 
-func (this *Outcome_1_rhino) isNullish_impl() *Tri {
+func (this *Outcome_1_rhino) isNullish_impl() Tri {
 	return Tri_FALSE
 }
 
@@ -206,7 +206,7 @@ func (this *Outcome_2_rhino) isTruthy_impl() bool {
 	return false
 }
 
-func (this *Outcome_2_rhino) isNullish_impl() *Tri {
+func (this *Outcome_2_rhino) isNullish_impl() Tri {
 	return Tri_UNKNOWN
 }
 
@@ -275,7 +275,7 @@ func (this *Outcome_3) isTruthy_impl() bool {
 	return false
 }
 
-func (this *Outcome_3) isNullish_impl() *Tri {
+func (this *Outcome_3) isNullish_impl() Tri {
 	return Tri_FALSE
 }
 
@@ -344,7 +344,7 @@ func (this *Outcome_4) isTruthy_impl() bool {
 	return false
 }
 
-func (this *Outcome_4) isNullish_impl() *Tri {
+func (this *Outcome_4) isNullish_impl() Tri {
 	return Tri_TRUE
 }
 
@@ -388,7 +388,7 @@ func (this *Outcome_1_rhino) isTruthy() bool {
 }
 
 // isNullish: an object that is exactly a Outcome_1_rhino calls its isNullish_impl directly (post-flip); others dispatch.
-func (this *Outcome_1_rhino) isNullish() *Tri {
+func (this *Outcome_1_rhino) isNullish() Tri {
 	if this.self_ == any(this) {
 		return this.isNullish_impl()
 	}
@@ -412,7 +412,7 @@ func (this *Outcome_2_rhino) isTruthy() bool {
 }
 
 // isNullish: an object that is exactly a Outcome_2_rhino calls its isNullish_impl directly (post-flip); others dispatch.
-func (this *Outcome_2_rhino) isNullish() *Tri {
+func (this *Outcome_2_rhino) isNullish() Tri {
 	if this.self_ == any(this) {
 		return this.isNullish_impl()
 	}
@@ -436,7 +436,7 @@ func (this *Outcome_3) isTruthy() bool {
 }
 
 // isNullish: an object that is exactly a Outcome_3 calls its isNullish_impl directly (post-flip); others dispatch.
-func (this *Outcome_3) isNullish() *Tri {
+func (this *Outcome_3) isNullish() Tri {
 	if this.self_ == any(this) {
 		return this.isNullish_impl()
 	}
@@ -460,7 +460,7 @@ func (this *Outcome_4) isTruthy() bool {
 }
 
 // isNullish: an object that is exactly a Outcome_4 calls its isNullish_impl directly (post-flip); others dispatch.
-func (this *Outcome_4) isNullish() *Tri {
+func (this *Outcome_4) isNullish() Tri {
 	if this.self_ == any(this) {
 		return this.isNullish_impl()
 	}

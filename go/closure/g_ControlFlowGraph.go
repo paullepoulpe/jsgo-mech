@@ -3,10 +3,10 @@
 package closure
 
 type ControlFlowGraph[N comparable] struct {
-	LinkedDirectedGraph[N, *ControlFlowGraph_Branch]
+	LinkedDirectedGraph[N, ControlFlowGraph_Branch]
 	vt_ControlFlowGraph_ ControlFlowGraph_vt_[N]
-	implicitReturn       DiGraph_DiGraphNode[N, *ControlFlowGraph_Branch]
-	entry                DiGraph_DiGraphNode[N, *ControlFlowGraph_Branch]
+	implicitReturn       DiGraph_DiGraphNode[N, ControlFlowGraph_Branch]
+	entry                DiGraph_DiGraphNode[N, ControlFlowGraph_Branch]
 }
 
 type ControlFlowGraph_vt_[N comparable] interface {
@@ -38,21 +38,21 @@ func (this *ControlFlowGraph[N]) self() any {
 	return this.self_
 }
 
-func (this *ControlFlowGraph[N]) up_LinkedDirectedGraph() *LinkedDirectedGraph[N, *ControlFlowGraph_Branch] {
+func (this *ControlFlowGraph[N]) up_LinkedDirectedGraph() *LinkedDirectedGraph[N, ControlFlowGraph_Branch] {
 	if this == nil {
 		return nil
 	}
 	return &this.LinkedDirectedGraph
 }
 
-func (this *ControlFlowGraph[N]) up_DiGraph() *DiGraph[N, *ControlFlowGraph_Branch] {
+func (this *ControlFlowGraph[N]) up_DiGraph() *DiGraph[N, ControlFlowGraph_Branch] {
 	if this == nil {
 		return nil
 	}
 	return &this.DiGraph
 }
 
-func (this *ControlFlowGraph[N]) up_Graph() *Graph[N, *ControlFlowGraph_Branch] {
+func (this *ControlFlowGraph[N]) up_Graph() *Graph[N, ControlFlowGraph_Branch] {
 	if this == nil {
 		return nil
 	}
@@ -61,8 +61,8 @@ func (this *ControlFlowGraph[N]) up_Graph() *Graph[N, *ControlFlowGraph_Branch] 
 
 func (this *ControlFlowGraph[N]) init_ControlFlowGraph(entry N, nodeAnnotations bool, edgeAnnotations bool) {
 	this.LinkedDirectedGraph.init_LinkedDirectedGraph(nodeAnnotations, edgeAnnotations)
-	this.implicitReturn = cast_[DiGraph_DiGraphNode[N, *ControlFlowGraph_Branch]](this.createNode_Object_rDiGraphNode_rLinkedDiGraphNode(jnull_[N]()).self())
-	this.entry = cast_[DiGraph_DiGraphNode[N, *ControlFlowGraph_Branch]](this.createNode_Object_rDiGraphNode_rLinkedDiGraphNode(entry).self())
+	this.implicitReturn = cast_[DiGraph_DiGraphNode[N, ControlFlowGraph_Branch]](this.createNode_Object_rDiGraphNode_rLinkedDiGraphNode(jnull_[N]()).self())
+	this.entry = cast_[DiGraph_DiGraphNode[N, ControlFlowGraph_Branch]](this.createNode_Object_rDiGraphNode_rLinkedDiGraphNode(entry).self())
 }
 
 func new_ControlFlowGraph[N comparable](entry N, nodeAnnotations bool, edgeAnnotations bool) *ControlFlowGraph[N] {
@@ -75,19 +75,19 @@ func new_ControlFlowGraph[N comparable](entry N, nodeAnnotations bool, edgeAnnot
 	return this
 }
 
-func (this *ControlFlowGraph[N]) getImplicitReturn() DiGraph_DiGraphNode[N, *ControlFlowGraph_Branch] {
+func (this *ControlFlowGraph[N]) getImplicitReturn() DiGraph_DiGraphNode[N, ControlFlowGraph_Branch] {
 	return this.implicitReturn
 }
 
-func (this *ControlFlowGraph[N]) getEntry() DiGraph_DiGraphNode[N, *ControlFlowGraph_Branch] {
+func (this *ControlFlowGraph[N]) getEntry() DiGraph_DiGraphNode[N, ControlFlowGraph_Branch] {
 	return this.entry
 }
 
-func (this *ControlFlowGraph[N]) isImplicitReturn(node DiGraph_DiGraphNode[N, *ControlFlowGraph_Branch]) bool {
+func (this *ControlFlowGraph[N]) isImplicitReturn(node DiGraph_DiGraphNode[N, ControlFlowGraph_Branch]) bool {
 	return (node == this.implicitReturn)
 }
 
-func (this *ControlFlowGraph[N]) getOptionalNodeComparator_impl(isForward bool) ComparatorOf[DiGraph_DiGraphNode[N, *ControlFlowGraph_Branch]] {
+func (this *ControlFlowGraph[N]) getOptionalNodeComparator_impl(isForward bool) ComparatorOf[DiGraph_DiGraphNode[N, ControlFlowGraph_Branch]] {
 	return nil
 }
 
@@ -128,51 +128,69 @@ func (this *ControlFlowGraph[N]) getOptionalNodeComparator(p0 bool) Comparator {
 	return this.vt_ControlFlowGraph_.getOptionalNodeComparator_impl(p0)
 }
 
-type ControlFlowGraph_Branch struct {
-	Enum
+type ControlFlowGraph_Branch uint8
+
+// ControlFlowGraph_Branch_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ControlFlowGraph_Branch_enum_ = [5]Enum{
+	{self_: ControlFlowGraph_Branch_ON_TRUE, name_: "ON_TRUE", ordinal_: 0},
+	{self_: ControlFlowGraph_Branch_ON_FALSE, name_: "ON_FALSE", ordinal_: 1},
+	{self_: ControlFlowGraph_Branch_UNCOND, name_: "UNCOND", ordinal_: 2},
+	{self_: ControlFlowGraph_Branch_ON_EX, name_: "ON_EX", ordinal_: 3},
+	{self_: ControlFlowGraph_Branch_SYN_BLOCK, name_: "SYN_BLOCK", ordinal_: 4},
 }
 
-func (this *ControlFlowGraph_Branch) up_Enum() *Enum {
-	if this == nil {
+func (this ControlFlowGraph_Branch) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ControlFlowGraph_Branch_enum_[this-1]
 }
 
-func (this *ControlFlowGraph_Branch) init_ControlFlowGraph_Branch(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ControlFlowGraph_Branch) name() string { return ControlFlowGraph_Branch_enum_[this-1].name_ }
+
+func (this ControlFlowGraph_Branch) ordinal() int32 {
+	return ControlFlowGraph_Branch_enum_[this-1].ordinal_
 }
 
-func new_ControlFlowGraph_Branch(name_ string, ordinal_ int32) *ControlFlowGraph_Branch {
-	this := &ControlFlowGraph_Branch{}
-	this.self_ = this
-	this.init_ControlFlowGraph_Branch(name_, ordinal_)
+func (this ControlFlowGraph_Branch) toString() string {
+	return ControlFlowGraph_Branch_enum_[this-1].name_
+}
+
+func (this ControlFlowGraph_Branch) compareTo(o any) int32 {
+	return ControlFlowGraph_Branch_enum_[this-1].compareTo(o)
+}
+
+func (this ControlFlowGraph_Branch) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *ControlFlowGraph_Branch) isConditional() bool {
+func (this ControlFlowGraph_Branch) isConditional() bool {
 	return ((this == ControlFlowGraph_Branch_ON_TRUE) || (this == ControlFlowGraph_Branch_ON_FALSE))
 }
 
-func ControlFlowGraph_Branch_values() []*ControlFlowGraph_Branch {
-	return append([]*ControlFlowGraph_Branch(nil), ControlFlowGraph_Branch_values_...)
+func ControlFlowGraph_Branch_values() []ControlFlowGraph_Branch {
+	return append([]ControlFlowGraph_Branch(nil), ControlFlowGraph_Branch_values_...)
 }
 
-func ControlFlowGraph_Branch_valueOf(name string) *ControlFlowGraph_Branch {
+func ControlFlowGraph_Branch_valueOf(name string) ControlFlowGraph_Branch {
 	for _, v := range ControlFlowGraph_Branch_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Branch", name))
 }
 
-var ControlFlowGraph_Branch_ON_TRUE *ControlFlowGraph_Branch
-var ControlFlowGraph_Branch_ON_FALSE *ControlFlowGraph_Branch
-var ControlFlowGraph_Branch_UNCOND *ControlFlowGraph_Branch
-var ControlFlowGraph_Branch_ON_EX *ControlFlowGraph_Branch
-var ControlFlowGraph_Branch_SYN_BLOCK *ControlFlowGraph_Branch
-var ControlFlowGraph_Branch_values_ []*ControlFlowGraph_Branch
+const ControlFlowGraph_Branch_ON_TRUE ControlFlowGraph_Branch = 1
+const ControlFlowGraph_Branch_ON_FALSE ControlFlowGraph_Branch = 2
+const ControlFlowGraph_Branch_UNCOND ControlFlowGraph_Branch = 3
+const ControlFlowGraph_Branch_ON_EX ControlFlowGraph_Branch = 4
+const ControlFlowGraph_Branch_SYN_BLOCK ControlFlowGraph_Branch = 5
+
+var ControlFlowGraph_Branch_values_ []ControlFlowGraph_Branch
 
 var ControlFlowGraph_Branch_clinit_done bool
 
@@ -181,12 +199,7 @@ func ControlFlowGraph_Branch_clinit() {
 		return
 	}
 	ControlFlowGraph_Branch_clinit_done = true
-	ControlFlowGraph_Branch_ON_TRUE = new_ControlFlowGraph_Branch("ON_TRUE", 0)
-	ControlFlowGraph_Branch_ON_FALSE = new_ControlFlowGraph_Branch("ON_FALSE", 1)
-	ControlFlowGraph_Branch_UNCOND = new_ControlFlowGraph_Branch("UNCOND", 2)
-	ControlFlowGraph_Branch_ON_EX = new_ControlFlowGraph_Branch("ON_EX", 3)
-	ControlFlowGraph_Branch_SYN_BLOCK = new_ControlFlowGraph_Branch("SYN_BLOCK", 4)
-	ControlFlowGraph_Branch_values_ = []*ControlFlowGraph_Branch{ControlFlowGraph_Branch_ON_TRUE, ControlFlowGraph_Branch_ON_FALSE, ControlFlowGraph_Branch_UNCOND, ControlFlowGraph_Branch_ON_EX, ControlFlowGraph_Branch_SYN_BLOCK}
+	ControlFlowGraph_Branch_values_ = []ControlFlowGraph_Branch{ControlFlowGraph_Branch_ON_TRUE, ControlFlowGraph_Branch_ON_FALSE, ControlFlowGraph_Branch_UNCOND, ControlFlowGraph_Branch_ON_EX, ControlFlowGraph_Branch_SYN_BLOCK}
 	registerEnum_("com.google.javascript.jscomp.ControlFlowGraph.Branch", enumValues_(ControlFlowGraph_Branch_values_))
 
 }

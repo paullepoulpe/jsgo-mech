@@ -89,7 +89,7 @@ func (this *TypeInferencePass) inferScope(n Node, scope *TypedScope) {
 	if this.stepCountHistogram != nil {
 		it_1 := foreach_(cfg.getNodes())
 		for it_1.next() {
-			var node DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](it_1.v)
+			var node DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](it_1.v)
 			if node == cfg.getImplicitReturn() {
 				continue
 			}

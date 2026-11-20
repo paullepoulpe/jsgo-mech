@@ -4,16 +4,16 @@ package closure
 
 type ClosureRequireProcessor struct {
 	nameDeclaration Node
-	requireKind     *Binding_CreatedBy
+	requireKind     Binding_CreatedBy
 }
 
-func (this *ClosureRequireProcessor) init_ClosureRequireProcessor(nameDeclaration Node, requireKind *Binding_CreatedBy) {
+func (this *ClosureRequireProcessor) init_ClosureRequireProcessor(nameDeclaration Node, requireKind Binding_CreatedBy) {
 	Preconditions_checkArgument(NodeUtil_isNameDeclaration(nameDeclaration))
 	this.nameDeclaration = nameDeclaration
 	this.requireKind = requireKind
 }
 
-func new_ClosureRequireProcessor(nameDeclaration Node, requireKind *Binding_CreatedBy) *ClosureRequireProcessor {
+func new_ClosureRequireProcessor(nameDeclaration Node, requireKind Binding_CreatedBy) *ClosureRequireProcessor {
 	this := &ClosureRequireProcessor{}
 	this.init_ClosureRequireProcessor(nameDeclaration, requireKind)
 	return this
@@ -26,24 +26,24 @@ func ClosureRequireProcessor_getAllRequires(nameDeclaration Node) *JTList[*Closu
 		}
 		return nameDeclaration.getFirstFirstChild()
 	}()
-	var requireKind *Binding_CreatedBy = ClosureRequireProcessor_getModuleDependencyTypeFromRhs(rhs)
-	if requireKind == nil {
+	var requireKind Binding_CreatedBy = ClosureRequireProcessor_getModuleDependencyTypeFromRhs(rhs)
+	if requireKind == 0 {
 		return jtlistEmptyImm_(jtc_p_ClosureRequireProcessor_Require)
 	}
 	return new_ClosureRequireProcessor(nameDeclaration, requireKind).getAllRequiresInDeclaration()
 }
 
-func ClosureRequireProcessor_getModuleDependencyTypeFromRhs(value Node) *Binding_CreatedBy {
+func ClosureRequireProcessor_getModuleDependencyTypeFromRhs(value Node) Binding_CreatedBy {
 	if (((value == 0) || !value.isCall()) || !value.hasTwoChildren()) || !value.getSecondChild().isStringLit() {
-		return nil
+		return 0
 	}
 	var callee Node = value.getFirstChild()
 	if !callee.isGetProp() {
-		return nil
+		return 0
 	}
 	var owner Node = callee.getFirstChild()
 	if !owner.isName() || !(owner.getString() == "goog") {
-		return nil
+		return 0
 	}
 	return ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS.get(callee.getString())
 }
@@ -87,7 +87,7 @@ func (this *ClosureRequireProcessor) getAllRequiresFromDestructuring(objectPatte
 	return requireBuilder.build()
 }
 
-var ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS *JTMap[string, *Binding_CreatedBy]
+var ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS *JTMap[string, Binding_CreatedBy]
 
 var ClosureRequireProcessor_clinit_done bool
 
@@ -96,21 +96,21 @@ func ClosureRequireProcessor_clinit() {
 		return
 	}
 	ClosureRequireProcessor_clinit_done = true
-	ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS = immutableMapOf3_[string, *Binding_CreatedBy](jtc_string, tc_p_Binding_CreatedBy, "require", Binding_CreatedBy_GOOG_REQUIRE, "requireType", Binding_CreatedBy_GOOG_REQUIRE_TYPE, "forwardDeclare", Binding_CreatedBy_GOOG_FORWARD_DECLARE)
+	ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS = immutableMapOf3_[string, Binding_CreatedBy](jtc_string, tc_p_Binding_CreatedBy, "require", Binding_CreatedBy_GOOG_REQUIRE, "requireType", Binding_CreatedBy_GOOG_REQUIRE_TYPE, "forwardDeclare", Binding_CreatedBy_GOOG_FORWARD_DECLARE)
 
 }
 
 type ClosureRequireProcessor_Require struct {
 	localName_    string
 	importRecord_ *Import
-	createdBy_    *Binding_CreatedBy
+	createdBy_    Binding_CreatedBy
 }
 
 func (this *ClosureRequireProcessor_Require) zero_ClosureRequireProcessor_Require() {
 	this.localName_ = nullstr_
 }
 
-func (this *ClosureRequireProcessor_Require) init_ClosureRequireProcessor_Require(localName string, importRecord *Import, createdBy *Binding_CreatedBy) {
+func (this *ClosureRequireProcessor_Require) init_ClosureRequireProcessor_Require(localName string, importRecord *Import, createdBy Binding_CreatedBy) {
 	Objects_requireNonNull_T(importRecord, "importRecord")
 	Objects_requireNonNull_T(createdBy, "createdBy")
 	Preconditions_checkArgument(createdBy.isClosureImport())
@@ -119,14 +119,14 @@ func (this *ClosureRequireProcessor_Require) init_ClosureRequireProcessor_Requir
 	this.createdBy_ = createdBy
 }
 
-func new_ClosureRequireProcessor_Require(localName string, importRecord *Import, createdBy *Binding_CreatedBy) *ClosureRequireProcessor_Require {
+func new_ClosureRequireProcessor_Require(localName string, importRecord *Import, createdBy Binding_CreatedBy) *ClosureRequireProcessor_Require {
 	this := &ClosureRequireProcessor_Require{}
 	this.zero_ClosureRequireProcessor_Require()
 	this.init_ClosureRequireProcessor_Require(localName, importRecord, createdBy)
 	return this
 }
 
-func ClosureRequireProcessor_Require_create(localName string, importRecord *Import, createdBy *Binding_CreatedBy) *ClosureRequireProcessor_Require {
+func ClosureRequireProcessor_Require_create(localName string, importRecord *Import, createdBy Binding_CreatedBy) *ClosureRequireProcessor_Require {
 	return new_ClosureRequireProcessor_Require(localName, importRecord, createdBy)
 }
 
@@ -138,7 +138,7 @@ func (this *ClosureRequireProcessor_Require) importRecord() *Import {
 	return this.importRecord_
 }
 
-func (this *ClosureRequireProcessor_Require) createdBy() *Binding_CreatedBy {
+func (this *ClosureRequireProcessor_Require) createdBy() Binding_CreatedBy {
 	return this.createdBy_
 }
 

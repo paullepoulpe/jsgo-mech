@@ -9,7 +9,7 @@ type GlobalNamespace struct {
 	externsRoot                   Node
 	globalRoot                    Node
 	spreadSiblingCache            *JTMap[Node, any]
-	sourceKind                    *GlobalNamespace_SourceKind
+	sourceKind                    GlobalNamespace_SourceKind
 	generated                     bool
 	decisionsLog                  *LogFile
 	globalNames                   *JTList[*GlobalNamespace_Name]
@@ -274,29 +274,46 @@ func GlobalNamespace_clinit() {
 
 }
 
-type GlobalNamespace_SourceKind struct {
-	Enum
+type GlobalNamespace_SourceKind uint8
+
+// GlobalNamespace_SourceKind_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var GlobalNamespace_SourceKind_enum_ = [3]Enum{
+	{self_: GlobalNamespace_SourceKind_EXTERN, name_: "EXTERN", ordinal_: 0},
+	{self_: GlobalNamespace_SourceKind_TYPE_SUMMARY, name_: "TYPE_SUMMARY", ordinal_: 1},
+	{self_: GlobalNamespace_SourceKind_CODE, name_: "CODE", ordinal_: 2},
 }
 
-func (this *GlobalNamespace_SourceKind) up_Enum() *Enum {
-	if this == nil {
+func (this GlobalNamespace_SourceKind) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &GlobalNamespace_SourceKind_enum_[this-1]
 }
 
-func (this *GlobalNamespace_SourceKind) init_GlobalNamespace_SourceKind(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this GlobalNamespace_SourceKind) name() string {
+	return GlobalNamespace_SourceKind_enum_[this-1].name_
 }
 
-func new_GlobalNamespace_SourceKind(name_ string, ordinal_ int32) *GlobalNamespace_SourceKind {
-	this := &GlobalNamespace_SourceKind{}
-	this.self_ = this
-	this.init_GlobalNamespace_SourceKind(name_, ordinal_)
+func (this GlobalNamespace_SourceKind) ordinal() int32 {
+	return GlobalNamespace_SourceKind_enum_[this-1].ordinal_
+}
+
+func (this GlobalNamespace_SourceKind) toString() string {
+	return GlobalNamespace_SourceKind_enum_[this-1].name_
+}
+
+func (this GlobalNamespace_SourceKind) compareTo(o any) int32 {
+	return GlobalNamespace_SourceKind_enum_[this-1].compareTo(o)
+}
+
+func (this GlobalNamespace_SourceKind) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func GlobalNamespace_SourceKind_fromScriptNode(n Node) *GlobalNamespace_SourceKind {
+func GlobalNamespace_SourceKind_fromScriptNode(n Node) GlobalNamespace_SourceKind {
 	if !n.isFromExterns() {
 		return GlobalNamespace_SourceKind_CODE
 	} else if NodeUtil_isFromTypeSummary(n) {
@@ -307,23 +324,24 @@ func GlobalNamespace_SourceKind_fromScriptNode(n Node) *GlobalNamespace_SourceKi
 	panic("unreachable")
 }
 
-func GlobalNamespace_SourceKind_values() []*GlobalNamespace_SourceKind {
-	return append([]*GlobalNamespace_SourceKind(nil), GlobalNamespace_SourceKind_values_...)
+func GlobalNamespace_SourceKind_values() []GlobalNamespace_SourceKind {
+	return append([]GlobalNamespace_SourceKind(nil), GlobalNamespace_SourceKind_values_...)
 }
 
-func GlobalNamespace_SourceKind_valueOf(name string) *GlobalNamespace_SourceKind {
+func GlobalNamespace_SourceKind_valueOf(name string) GlobalNamespace_SourceKind {
 	for _, v := range GlobalNamespace_SourceKind_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("SourceKind", name))
 }
 
-var GlobalNamespace_SourceKind_EXTERN *GlobalNamespace_SourceKind
-var GlobalNamespace_SourceKind_TYPE_SUMMARY *GlobalNamespace_SourceKind
-var GlobalNamespace_SourceKind_CODE *GlobalNamespace_SourceKind
-var GlobalNamespace_SourceKind_values_ []*GlobalNamespace_SourceKind
+const GlobalNamespace_SourceKind_EXTERN GlobalNamespace_SourceKind = 1
+const GlobalNamespace_SourceKind_TYPE_SUMMARY GlobalNamespace_SourceKind = 2
+const GlobalNamespace_SourceKind_CODE GlobalNamespace_SourceKind = 3
+
+var GlobalNamespace_SourceKind_values_ []GlobalNamespace_SourceKind
 
 var GlobalNamespace_SourceKind_clinit_done bool
 
@@ -332,10 +350,7 @@ func GlobalNamespace_SourceKind_clinit() {
 		return
 	}
 	GlobalNamespace_SourceKind_clinit_done = true
-	GlobalNamespace_SourceKind_EXTERN = new_GlobalNamespace_SourceKind("EXTERN", 0)
-	GlobalNamespace_SourceKind_TYPE_SUMMARY = new_GlobalNamespace_SourceKind("TYPE_SUMMARY", 1)
-	GlobalNamespace_SourceKind_CODE = new_GlobalNamespace_SourceKind("CODE", 2)
-	GlobalNamespace_SourceKind_values_ = []*GlobalNamespace_SourceKind{GlobalNamespace_SourceKind_EXTERN, GlobalNamespace_SourceKind_TYPE_SUMMARY, GlobalNamespace_SourceKind_CODE}
+	GlobalNamespace_SourceKind_values_ = []GlobalNamespace_SourceKind{GlobalNamespace_SourceKind_EXTERN, GlobalNamespace_SourceKind_TYPE_SUMMARY, GlobalNamespace_SourceKind_CODE}
 	registerEnum_("com.google.javascript.jscomp.GlobalNamespace.SourceKind", enumValues_(GlobalNamespace_SourceKind_values_))
 
 }
@@ -514,7 +529,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) collect(scope *Scope, chunk *J
 	var parent Node = n.getParent()
 	var name Optional[string]
 	var isSet bool = false
-	var type_ *GlobalNamespace_NameProp = GlobalNamespace_NameProp_OTHER_OBJECT
+	var type_ GlobalNamespace_NameProp = GlobalNamespace_NameProp_OTHER_OBJECT
 	switch n.getToken() {
 	case Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF:
 		if parent.isClassMembers() && !n.isStaticMember() {
@@ -545,7 +560,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) collect(scope *Scope, chunk *J
 		case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 			isSet = true
 			var rvalue Node = n.getFirstChild()
-			type_ = func() *GlobalNamespace_NameProp {
+			type_ = func() GlobalNamespace_NameProp {
 				if rvalue == 0 {
 					return GlobalNamespace_NameProp_OTHER_OBJECT
 				}
@@ -707,7 +722,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) getNameForObjectPatternKey(str
 	panic("unreachable")
 }
 
-func (this *GlobalNamespace_BuildGlobalNamespace) getValueType(n Node) *GlobalNamespace_NameProp {
+func (this *GlobalNamespace_BuildGlobalNamespace) getValueType(n Node) GlobalNamespace_NameProp {
 	switch n.ns_().token {
 	case tokOrd1_CLASS:
 		return GlobalNamespace_NameProp_CLASS
@@ -719,7 +734,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) getValueType(n Node) *GlobalNa
 		return this.getValueType(n.getLastChild())
 	case tokOrd1_HOOK:
 		var second Node = n.getSecondChild()
-		var t *GlobalNamespace_NameProp = this.getValueType(second)
+		var t GlobalNamespace_NameProp = this.getValueType(second)
 		if t != GlobalNamespace_NameProp_OTHER_OBJECT {
 			return t
 		}
@@ -730,7 +745,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) getValueType(n Node) *GlobalNa
 	return GlobalNamespace_NameProp_OTHER_OBJECT
 }
 
-func (this *GlobalNamespace_BuildGlobalNamespace) handleSetFromGlobal(chunk *JSChunk, scope *Scope, n Node, name string, type_ *GlobalNamespace_NameProp, metadata *ModuleMetadataMap_ModuleMetadata) {
+func (this *GlobalNamespace_BuildGlobalNamespace) handleSetFromGlobal(chunk *JSChunk, scope *Scope, n Node, name string, type_ GlobalNamespace_NameProp, metadata *ModuleMetadataMap_ModuleMetadata) {
 	if this.maybeHandlePrototypePrefix(chunk, scope, n, name, metadata) {
 		return
 	}
@@ -742,7 +757,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) handleSetFromGlobal(chunk *JSC
 		nameObj.setBooleanProperty(GlobalNamespace_NameProp_IS_MODULE_PROP)
 	}
 	if this.isNestedAssign(n.getParent()) {
-		var refType *GlobalNamespace_Ref_Type = GlobalNamespace_Ref_Type_GET_AND_SET_FROM_GLOBAL
+		var refType GlobalNamespace_Ref_Type = GlobalNamespace_Ref_Type_GET_AND_SET_FROM_GLOBAL
 		this.addOrConfirmRef(nameObj, n, refType, scope, chunk)
 	} else {
 		this.addOrConfirmRef(nameObj, n, GlobalNamespace_Ref_Type_SET_FROM_GLOBAL, scope, chunk)
@@ -750,9 +765,9 @@ func (this *GlobalNamespace_BuildGlobalNamespace) handleSetFromGlobal(chunk *JSC
 	}
 }
 
-func (this *GlobalNamespace_BuildGlobalNamespace) getDeclaredTypeKind(n Node) *GlobalNamespace_NameProp {
+func (this *GlobalNamespace_BuildGlobalNamespace) getDeclaredTypeKind(n Node) GlobalNamespace_NameProp {
 	var valueNode Node = NodeUtil_getRValueOfLValue(n)
-	var kind *GlobalNamespace_NameProp
+	var kind GlobalNamespace_NameProp
 	if valueNode == 0 {
 		kind = GlobalNamespace_NameProp_NOT_A_TYPE
 	} else if valueNode.isClass() {
@@ -793,12 +808,12 @@ func (this *GlobalNamespace_BuildGlobalNamespace) handleGet(chunk *JSChunk, scop
 	if this.maybeHandlePrototypePrefix(chunk, scope, n, name, metadata) {
 		return
 	}
-	var type_ *GlobalNamespace_Ref_Type = this.determineRefTypeForGet(n, n, name)
+	var type_ GlobalNamespace_Ref_Type = this.determineRefTypeForGet(n, n, name)
 	this.addOrConfirmRef(this.getOrCreateName(name, metadata), n, type_, scope, chunk)
 }
 
-func (this *GlobalNamespace_BuildGlobalNamespace) determineRefTypeForGet(n Node, referenceNode Node, name string) *GlobalNamespace_Ref_Type {
-	var type_ *GlobalNamespace_Ref_Type
+func (this *GlobalNamespace_BuildGlobalNamespace) determineRefTypeForGet(n Node, referenceNode Node, name string) GlobalNamespace_Ref_Type {
+	var type_ GlobalNamespace_Ref_Type
 	var parent Node = n.getParent()
 	switch parent.getToken() {
 	case Token_rhino_EXPR_RESULT, Token_rhino_IF, Token_rhino_WHILE, Token_rhino_FOR, Token_rhino_INSTANCEOF, Token_rhino_TYPEOF, Token_rhino_VOID, Token_rhino_NOT, Token_rhino_BITNOT, Token_rhino_POS, Token_rhino_NEG, Token_rhino_SHEQ, Token_rhino_EQ, Token_rhino_SHNE, Token_rhino_NE, Token_rhino_LT, Token_rhino_LE, Token_rhino_GT, Token_rhino_GE, Token_rhino_ADD, Token_rhino_SUB, Token_rhino_MUL, Token_rhino_DIV, Token_rhino_MOD, Token_rhino_EXPONENT, Token_rhino_BITAND, Token_rhino_BITOR, Token_rhino_BITXOR, Token_rhino_LSH, Token_rhino_RSH, Token_rhino_URSH:
@@ -812,7 +827,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) determineRefTypeForGet(n Node,
 			type_ = GlobalNamespace_Ref_Type_ALIASING_GET
 		}
 	case Token_rhino_NEW:
-		type_ = func() *GlobalNamespace_Ref_Type {
+		type_ = func() GlobalNamespace_Ref_Type {
 			if n == parent.getFirstChild() {
 				return GlobalNamespace_Ref_Type_DIRECT_GET
 			}
@@ -862,12 +877,12 @@ func (this *GlobalNamespace_BuildGlobalNamespace) determineRefTypeForGet(n Node,
 	return type_
 }
 
-func (this *GlobalNamespace_BuildGlobalNamespace) addOrConfirmRef(nameObj *GlobalNamespace_Name, node Node, refType *GlobalNamespace_Ref_Type, scope *Scope, chunk *JSChunk) {
+func (this *GlobalNamespace_BuildGlobalNamespace) addOrConfirmRef(nameObj *GlobalNamespace_Name, node Node, refType GlobalNamespace_Ref_Type, scope *Scope, chunk *JSChunk) {
 	var existingRef *GlobalNamespace_Ref = nameObj.getRefForNode(node)
 	if existingRef == nil {
 		nameObj.addRef(chunk, scope, node, refType)
 	} else {
-		var existingRefType *GlobalNamespace_Ref_Type = existingRef.type__
+		var existingRefType GlobalNamespace_Ref_Type = existingRef.type__
 		if !(existingRefType == refType) {
 			Preconditions_checkState_boolean_String_Object_Object(false, "existing ref type: %s expected: %s", existingRefType, refType)
 		}
@@ -964,64 +979,89 @@ func (this *GlobalNamespace_BuildGlobalNamespace) getOrCreateName(name string, m
 	return node
 }
 
-type GlobalNamespace_Inlinability struct {
-	Enum
-	shouldInlineUsagesField      bool
-	shouldRemoveDeclarationField bool
-	canCollapseField             bool
+type GlobalNamespace_Inlinability uint8
+
+// GlobalNamespace_Inlinability_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var GlobalNamespace_Inlinability_enum_ = [4]Enum{
+	{self_: GlobalNamespace_Inlinability_INLINE_COMPLETELY, name_: "INLINE_COMPLETELY", ordinal_: 0},
+	{self_: GlobalNamespace_Inlinability_INLINE_BUT_KEEP_DECLARATION, name_: "INLINE_BUT_KEEP_DECLARATION", ordinal_: 1},
+	{self_: GlobalNamespace_Inlinability_INLINE_UNLESS_INVALID_CROSS_CHUNK_DEPENDENCY, name_: "INLINE_UNLESS_INVALID_CROSS_CHUNK_DEPENDENCY", ordinal_: 2},
+	{self_: GlobalNamespace_Inlinability_DO_NOT_INLINE, name_: "DO_NOT_INLINE", ordinal_: 3},
 }
 
-func (this *GlobalNamespace_Inlinability) up_Enum() *Enum {
-	if this == nil {
+var GlobalNamespace_Inlinability_shouldInlineUsagesField_ [4]bool
+
+var GlobalNamespace_Inlinability_shouldRemoveDeclarationField_ [4]bool
+
+var GlobalNamespace_Inlinability_canCollapseField_ [4]bool
+
+func (this GlobalNamespace_Inlinability) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &GlobalNamespace_Inlinability_enum_[this-1]
 }
 
-func (this *GlobalNamespace_Inlinability) init_GlobalNamespace_Inlinability(name_ string, ordinal_ int32, shouldInlineUsages bool, shouldRemoveDeclaration bool, canCollapse bool) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.shouldInlineUsagesField = shouldInlineUsages
-	this.shouldRemoveDeclarationField = shouldRemoveDeclaration
-	this.canCollapseField = canCollapse
+func (this GlobalNamespace_Inlinability) name() string {
+	return GlobalNamespace_Inlinability_enum_[this-1].name_
 }
 
-func new_GlobalNamespace_Inlinability(name_ string, ordinal_ int32, shouldInlineUsages bool, shouldRemoveDeclaration bool, canCollapse bool) *GlobalNamespace_Inlinability {
-	this := &GlobalNamespace_Inlinability{}
-	this.self_ = this
-	this.init_GlobalNamespace_Inlinability(name_, ordinal_, shouldInlineUsages, shouldRemoveDeclaration, canCollapse)
+func (this GlobalNamespace_Inlinability) ordinal() int32 {
+	return GlobalNamespace_Inlinability_enum_[this-1].ordinal_
+}
+
+func (this GlobalNamespace_Inlinability) toString() string {
+	return GlobalNamespace_Inlinability_enum_[this-1].name_
+}
+
+func (this GlobalNamespace_Inlinability) compareTo(o any) int32 {
+	return GlobalNamespace_Inlinability_enum_[this-1].compareTo(o)
+}
+
+func (this GlobalNamespace_Inlinability) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *GlobalNamespace_Inlinability) shouldInlineUsages() bool {
-	return this.shouldInlineUsagesField
+func (this GlobalNamespace_Inlinability) init_GlobalNamespace_Inlinability(shouldInlineUsages bool, shouldRemoveDeclaration bool, canCollapse bool) {
+	GlobalNamespace_Inlinability_shouldInlineUsagesField_[this-1] = shouldInlineUsages
+	GlobalNamespace_Inlinability_shouldRemoveDeclarationField_[this-1] = shouldRemoveDeclaration
+	GlobalNamespace_Inlinability_canCollapseField_[this-1] = canCollapse
 }
 
-func (this *GlobalNamespace_Inlinability) shouldRemoveDeclaration() bool {
-	return this.shouldRemoveDeclarationField
+func (this GlobalNamespace_Inlinability) shouldInlineUsages() bool {
+	return GlobalNamespace_Inlinability_shouldInlineUsagesField_[this-1]
 }
 
-func (this *GlobalNamespace_Inlinability) canCollapse() bool {
-	return this.canCollapseField
+func (this GlobalNamespace_Inlinability) shouldRemoveDeclaration() bool {
+	return GlobalNamespace_Inlinability_shouldRemoveDeclarationField_[this-1]
 }
 
-func GlobalNamespace_Inlinability_values() []*GlobalNamespace_Inlinability {
-	return append([]*GlobalNamespace_Inlinability(nil), GlobalNamespace_Inlinability_values_...)
+func (this GlobalNamespace_Inlinability) canCollapse() bool {
+	return GlobalNamespace_Inlinability_canCollapseField_[this-1]
 }
 
-func GlobalNamespace_Inlinability_valueOf(name string) *GlobalNamespace_Inlinability {
+func GlobalNamespace_Inlinability_values() []GlobalNamespace_Inlinability {
+	return append([]GlobalNamespace_Inlinability(nil), GlobalNamespace_Inlinability_values_...)
+}
+
+func GlobalNamespace_Inlinability_valueOf(name string) GlobalNamespace_Inlinability {
 	for _, v := range GlobalNamespace_Inlinability_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Inlinability", name))
 }
 
-var GlobalNamespace_Inlinability_INLINE_COMPLETELY *GlobalNamespace_Inlinability
-var GlobalNamespace_Inlinability_INLINE_BUT_KEEP_DECLARATION *GlobalNamespace_Inlinability
-var GlobalNamespace_Inlinability_INLINE_UNLESS_INVALID_CROSS_CHUNK_DEPENDENCY *GlobalNamespace_Inlinability
-var GlobalNamespace_Inlinability_DO_NOT_INLINE *GlobalNamespace_Inlinability
-var GlobalNamespace_Inlinability_values_ []*GlobalNamespace_Inlinability
+const GlobalNamespace_Inlinability_INLINE_COMPLETELY GlobalNamespace_Inlinability = 1
+const GlobalNamespace_Inlinability_INLINE_BUT_KEEP_DECLARATION GlobalNamespace_Inlinability = 2
+const GlobalNamespace_Inlinability_INLINE_UNLESS_INVALID_CROSS_CHUNK_DEPENDENCY GlobalNamespace_Inlinability = 3
+const GlobalNamespace_Inlinability_DO_NOT_INLINE GlobalNamespace_Inlinability = 4
+
+var GlobalNamespace_Inlinability_values_ []GlobalNamespace_Inlinability
 
 var GlobalNamespace_Inlinability_clinit_done bool
 
@@ -1030,11 +1070,11 @@ func GlobalNamespace_Inlinability_clinit() {
 		return
 	}
 	GlobalNamespace_Inlinability_clinit_done = true
-	GlobalNamespace_Inlinability_INLINE_COMPLETELY = new_GlobalNamespace_Inlinability("INLINE_COMPLETELY", 0, true, true, true)
-	GlobalNamespace_Inlinability_INLINE_BUT_KEEP_DECLARATION = new_GlobalNamespace_Inlinability("INLINE_BUT_KEEP_DECLARATION", 1, true, false, true)
-	GlobalNamespace_Inlinability_INLINE_UNLESS_INVALID_CROSS_CHUNK_DEPENDENCY = new_GlobalNamespace_Inlinability("INLINE_UNLESS_INVALID_CROSS_CHUNK_DEPENDENCY", 2, true, false, true)
-	GlobalNamespace_Inlinability_DO_NOT_INLINE = new_GlobalNamespace_Inlinability("DO_NOT_INLINE", 3, false, false, false)
-	GlobalNamespace_Inlinability_values_ = []*GlobalNamespace_Inlinability{GlobalNamespace_Inlinability_INLINE_COMPLETELY, GlobalNamespace_Inlinability_INLINE_BUT_KEEP_DECLARATION, GlobalNamespace_Inlinability_INLINE_UNLESS_INVALID_CROSS_CHUNK_DEPENDENCY, GlobalNamespace_Inlinability_DO_NOT_INLINE}
+	GlobalNamespace_Inlinability_INLINE_COMPLETELY.init_GlobalNamespace_Inlinability(true, true, true)
+	GlobalNamespace_Inlinability_INLINE_BUT_KEEP_DECLARATION.init_GlobalNamespace_Inlinability(true, false, true)
+	GlobalNamespace_Inlinability_INLINE_UNLESS_INVALID_CROSS_CHUNK_DEPENDENCY.init_GlobalNamespace_Inlinability(true, false, true)
+	GlobalNamespace_Inlinability_DO_NOT_INLINE.init_GlobalNamespace_Inlinability(false, false, false)
+	GlobalNamespace_Inlinability_values_ = []GlobalNamespace_Inlinability{GlobalNamespace_Inlinability_INLINE_COMPLETELY, GlobalNamespace_Inlinability_INLINE_BUT_KEEP_DECLARATION, GlobalNamespace_Inlinability_INLINE_UNLESS_INVALID_CROSS_CHUNK_DEPENDENCY, GlobalNamespace_Inlinability_DO_NOT_INLINE}
 	registerEnum_("com.google.javascript.jscomp.GlobalNamespace.Inlinability", enumValues_(GlobalNamespace_Inlinability_values_))
 
 }
@@ -1079,7 +1119,7 @@ func (this *GlobalNamespace_Name) finit_GlobalNamespace_Name() {
 	this.firstQnameDeclarationWithoutAssignmentJsDocInfo = nil
 }
 
-func (this *GlobalNamespace_Name) init_GlobalNamespace_Name(name string, parent *GlobalNamespace_Name, sourceKind *GlobalNamespace_SourceKind) {
+func (this *GlobalNamespace_Name) init_GlobalNamespace_Name(name string, parent *GlobalNamespace_Name, sourceKind GlobalNamespace_SourceKind) {
 	this.finit_GlobalNamespace_Name()
 	this.baseName = name
 	this.parent = parent
@@ -1090,7 +1130,7 @@ func (this *GlobalNamespace_Name) init_GlobalNamespace_Name(name string, parent 
 	}
 }
 
-func new_GlobalNamespace_Name(outer_ *GlobalNamespace, name string, parent *GlobalNamespace_Name, sourceKind *GlobalNamespace_SourceKind) *GlobalNamespace_Name {
+func new_GlobalNamespace_Name(outer_ *GlobalNamespace, name string, parent *GlobalNamespace_Name, sourceKind GlobalNamespace_SourceKind) *GlobalNamespace_Name {
 	this := &GlobalNamespace_Name{}
 	this.zero_GlobalNamespace_Name()
 	this.outer_ = outer_
@@ -1098,7 +1138,7 @@ func new_GlobalNamespace_Name(outer_ *GlobalNamespace, name string, parent *Glob
 	return this
 }
 
-func (this *GlobalNamespace_Name) addProperty(name string, sourceKind *GlobalNamespace_SourceKind) *GlobalNamespace_Name {
+func (this *GlobalNamespace_Name) addProperty(name string, sourceKind GlobalNamespace_SourceKind) *GlobalNamespace_Name {
 	if this.props == nil {
 		this.props = jnewTList_(jtc_p_GlobalNamespace_Name)
 	}
@@ -1207,15 +1247,15 @@ func (this *GlobalNamespace_Name) getScope() StaticScope {
 	panic(new_UnsupportedOperationException_0().self())
 }
 
-func (this *GlobalNamespace_Name) setBooleanProperty(property *GlobalNamespace_NameProp) {
-	this.propertyBitSet = (this.propertyBitSet | property.bit)
+func (this *GlobalNamespace_Name) setBooleanProperty(property GlobalNamespace_NameProp) {
+	this.propertyBitSet = (this.propertyBitSet | GlobalNamespace_NameProp_bit_[property-1])
 }
 
-func (this *GlobalNamespace_Name) getBooleanProperty(property *GlobalNamespace_NameProp) bool {
-	return ((this.propertyBitSet & property.bit) != 0)
+func (this *GlobalNamespace_Name) getBooleanProperty(property GlobalNamespace_NameProp) bool {
+	return ((this.propertyBitSet & GlobalNamespace_NameProp_bit_[property-1]) != 0)
 }
 
-func (this *GlobalNamespace_Name) addRef(chunk *JSChunk, scope *Scope, node Node, type_ *GlobalNamespace_Ref_Type) {
+func (this *GlobalNamespace_Name) addRef(chunk *JSChunk, scope *Scope, node Node, type_ GlobalNamespace_Ref_Type) {
 	this.checkNoExistingRefsForNode(node)
 	var ref *GlobalNamespace_Ref = this.createNewRef(chunk, scope, node, type_)
 	this.putRef(node, ref)
@@ -1251,7 +1291,7 @@ func (this *GlobalNamespace_Name) castRefsForNodeMap() MapOf[Node, *GlobalNamesp
 	return icast_Map(this.refsForNode)
 }
 
-func (this *GlobalNamespace_Name) createNewRef(chunk *JSChunk, scope *Scope, node Node, type_ *GlobalNamespace_Ref_Type) *GlobalNamespace_Ref {
+func (this *GlobalNamespace_Name) createNewRef(chunk *JSChunk, scope *Scope, node Node, type_ GlobalNamespace_Ref_Type) *GlobalNamespace_Ref {
 	return new_GlobalNamespace_Ref(chunk, Preconditions_checkNotNull_T(scope), Preconditions_checkNotNull_T(node), type_)
 }
 
@@ -1269,7 +1309,7 @@ func (this *GlobalNamespace_Name) putRef(node Node, ref *GlobalNamespace_Ref) {
 	this.castRefsForNodeMap().put(node.box_(), obj_(ref))
 }
 
-func (this *GlobalNamespace_Name) addSingleRefForTesting(node Node, type_ *GlobalNamespace_Ref_Type) *GlobalNamespace_Ref {
+func (this *GlobalNamespace_Name) addSingleRefForTesting(node Node, type_ GlobalNamespace_Ref_Type) *GlobalNamespace_Ref {
 	var ref *GlobalNamespace_Ref = new_GlobalNamespace_Ref(nil, nil, node, type_)
 	this.putRef(node, ref)
 	this.updateStateForAddedRef(ref)
@@ -1539,11 +1579,11 @@ func (this *GlobalNamespace_Name) isCollapsingExplicitlyDenied() bool {
 	return ((docInfo != nil) && docInfo.isNoCollapse())
 }
 
-func (this *GlobalNamespace_Name) calculateInlinability() *GlobalNamespace_Inlinability {
+func (this *GlobalNamespace_Name) calculateInlinability() GlobalNamespace_Inlinability {
 	if (this.inExterns() || !this.hasOneRealGlobalSet()) || (this.localSets != 0) {
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	}
-	var inlinability *GlobalNamespace_Inlinability = this.canCollapseOrInline()
+	var inlinability GlobalNamespace_Inlinability = this.canCollapseOrInline()
 	if !inlinability.shouldInlineUsages() {
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	}
@@ -1587,7 +1627,7 @@ func (this *GlobalNamespace_Name) canCollapse() bool {
 	return this.canCollapseOrInline().canCollapse()
 }
 
-func (this *GlobalNamespace_Name) canCollapseOrInline() *GlobalNamespace_Inlinability {
+func (this *GlobalNamespace_Name) canCollapseOrInline() GlobalNamespace_Inlinability {
 	if this.inExterns() {
 		this.logDecision(GlobalNamespace_Inlinability_DO_NOT_INLINE, "declared in externs")
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
@@ -1640,7 +1680,7 @@ func (this *GlobalNamespace_Name) canCollapseOrInline() *GlobalNamespace_Inlinab
 		}
 	}
 	var isUnchangedThroughFullName bool = ((((this.globalSets > 0) || (this.localSets > 0)) && (this.localSetsWithNoCollapse == 0)) && (this.deleteProps == 0))
-	var parentInlinability *GlobalNamespace_Inlinability = func() *GlobalNamespace_Inlinability {
+	var parentInlinability GlobalNamespace_Inlinability = func() GlobalNamespace_Inlinability {
 		if this.parent == nil {
 			return GlobalNamespace_Inlinability_INLINE_COMPLETELY
 		}
@@ -1652,13 +1692,13 @@ func (this *GlobalNamespace_Name) canCollapseOrInline() *GlobalNamespace_Inlinab
 			this.logDecision(GlobalNamespace_Inlinability_INLINE_COMPLETELY, "parent inlineable: unchanged through full name")
 			return GlobalNamespace_Inlinability_INLINE_COMPLETELY
 		} else {
-			var unsafeInlinablility *GlobalNamespace_Inlinability = this.getUnsafeInlinabilityBasedOnDeclaredType()
+			var unsafeInlinablility GlobalNamespace_Inlinability = this.getUnsafeInlinabilityBasedOnDeclaredType()
 			this.logDecision(unsafeInlinablility, "parent inlineable: changed through full name")
 			return unsafeInlinablility
 		}
 	case GlobalNamespace_Inlinability_INLINE_BUT_KEEP_DECLARATION, GlobalNamespace_Inlinability_INLINE_UNLESS_INVALID_CROSS_CHUNK_DEPENDENCY:
 		if this.isDeclaredType() {
-			var unsafeInlinability *GlobalNamespace_Inlinability = this.getUnsafeInlinabilityBasedOnDeclaredType()
+			var unsafeInlinability GlobalNamespace_Inlinability = this.getUnsafeInlinabilityBasedOnDeclaredType()
 			this.logDecision(unsafeInlinability, "parent unsafely inlineable & is declared type")
 			return unsafeInlinability
 		} else if isUnchangedThroughFullName {
@@ -1669,20 +1709,20 @@ func (this *GlobalNamespace_Name) canCollapseOrInline() *GlobalNamespace_Inlinab
 			return GlobalNamespace_Inlinability_DO_NOT_INLINE
 		}
 	case GlobalNamespace_Inlinability_DO_NOT_INLINE:
-		var unsafeInlinability *GlobalNamespace_Inlinability = this.getUnsafeInlinabilityBasedOnDeclaredType()
+		var unsafeInlinability GlobalNamespace_Inlinability = this.getUnsafeInlinabilityBasedOnDeclaredType()
 		this.logDecision(unsafeInlinability, "parent cannot be inlined")
 		return unsafeInlinability
 	}
 	panic(new_IllegalStateException_String(("unknown enum value " + jtostr_(parentInlinability))).self())
 }
 
-func (this *GlobalNamespace_Name) logDecision(inlinability *GlobalNamespace_Inlinability, reason string) {
+func (this *GlobalNamespace_Name) logDecision(inlinability GlobalNamespace_Inlinability, reason string) {
 	if (this.outer_.decisionsLog != nil) && this.outer_.decisionsLog.isLogging() {
 		this.outer_.decisionsLog.log_2("%s: %s: %s", []any{strobj_(this.getFullName()), obj_(inlinability), strobj_(reason)})
 	}
 }
 
-func (this *GlobalNamespace_Name) getUnsafeInlinabilityBasedOnDeclaredType() *GlobalNamespace_Inlinability {
+func (this *GlobalNamespace_Name) getUnsafeInlinabilityBasedOnDeclaredType() GlobalNamespace_Inlinability {
 	if this.getBooleanProperty(GlobalNamespace_NameProp_CONSTRUCTOR_TYPE) {
 		return GlobalNamespace_Inlinability_INLINE_BUT_KEEP_DECLARATION
 	} else if this.getBooleanProperty(GlobalNamespace_NameProp_INTERFACE_TYPE) {
@@ -1746,7 +1786,7 @@ func (this *GlobalNamespace_Name) isToStringValueOfInObjectLiteral() bool {
 	return (((this.isFunction() && (parent != nil)) && parent.isObjectLiteral()) && ((baseName == "toString") || (baseName == "valueOf")))
 }
 
-func (this *GlobalNamespace_Name) canCollapseOrInlineChildNames() *GlobalNamespace_Inlinability {
+func (this *GlobalNamespace_Name) canCollapseOrInlineChildNames() GlobalNamespace_Inlinability {
 	if this.getBooleanProperty(GlobalNamespace_NameProp_OTHER_OBJECT) {
 		this.logChildNamesDecision(GlobalNamespace_Inlinability_DO_NOT_INLINE, "NameProp.OTHER_OBJECT")
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
@@ -1791,12 +1831,12 @@ func (this *GlobalNamespace_Name) canCollapseOrInlineChildNames() *GlobalNamespa
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	}
 	if (this.parent != nil) && this.parent.shouldKeepKeys() {
-		var unsafeInlinability *GlobalNamespace_Inlinability = this.getUnsafeInlinabilityBasedOnDeclaredType()
+		var unsafeInlinability GlobalNamespace_Inlinability = this.getUnsafeInlinabilityBasedOnDeclaredType()
 		this.logChildNamesDecision(unsafeInlinability, "parent.shouldKeepKeys()")
 		return unsafeInlinability
 	}
 	if this.aliasingGets > 0 {
-		var unsafeInlinability *GlobalNamespace_Inlinability = this.getUnsafeInlinabilityBasedOnDeclaredType()
+		var unsafeInlinability GlobalNamespace_Inlinability = this.getUnsafeInlinabilityBasedOnDeclaredType()
 		this.logChildNamesDecisionSupplier(unsafeInlinability, &Supplier_tfn_string{func() string {
 			return String_format("%d aliasing gets exist", []any{int32(this.aliasingGets)})
 		}})
@@ -1806,9 +1846,9 @@ func (this *GlobalNamespace_Name) canCollapseOrInlineChildNames() *GlobalNamespa
 		this.logChildNamesDecision(GlobalNamespace_Inlinability_INLINE_COMPLETELY, "no reason not to inline")
 		return GlobalNamespace_Inlinability_INLINE_COMPLETELY
 	}
-	var parentInlinability *GlobalNamespace_Inlinability = this.parent.canCollapseOrInlineChildNames()
+	var parentInlinability GlobalNamespace_Inlinability = this.parent.canCollapseOrInlineChildNames()
 	if parentInlinability == GlobalNamespace_Inlinability_DO_NOT_INLINE {
-		var unsafeInlinability *GlobalNamespace_Inlinability = this.getUnsafeInlinabilityBasedOnDeclaredType()
+		var unsafeInlinability GlobalNamespace_Inlinability = this.getUnsafeInlinabilityBasedOnDeclaredType()
 		this.logChildNamesDecision(unsafeInlinability, "parent is not inlineable")
 		return unsafeInlinability
 	}
@@ -1816,13 +1856,13 @@ func (this *GlobalNamespace_Name) canCollapseOrInlineChildNames() *GlobalNamespa
 	return parentInlinability
 }
 
-func (this *GlobalNamespace_Name) logChildNamesDecision(inlinability *GlobalNamespace_Inlinability, reason string) {
+func (this *GlobalNamespace_Name) logChildNamesDecision(inlinability GlobalNamespace_Inlinability, reason string) {
 	if (this.outer_.decisionsLog != nil) && this.outer_.decisionsLog.isLogging() {
 		this.outer_.decisionsLog.log_2("%s: children: %s: %s", []any{strobj_(this.getFullName()), obj_(inlinability), strobj_(reason)})
 	}
 }
 
-func (this *GlobalNamespace_Name) logChildNamesDecisionSupplier(inlinability *GlobalNamespace_Inlinability, reasonSupplier SupplierOf[string]) {
+func (this *GlobalNamespace_Name) logChildNamesDecisionSupplier(inlinability GlobalNamespace_Inlinability, reasonSupplier SupplierOf[string]) {
 	if (this.outer_.decisionsLog != nil) && this.outer_.decisionsLog.isLogging() {
 		this.outer_.decisionsLog.log(&Supplier_tfn_string{func() string {
 			return String_format("%s: children: %s: %s", []any{strobj_(this.getFullName()), obj_(inlinability), reasonSupplier.get()})
@@ -1852,11 +1892,11 @@ func (this *GlobalNamespace_Name) needsToBeStubbed() bool {
 	return ((((this.globalSets == 0) && (this.localSets > 0)) && (this.localSetsWithNoCollapse == 0)) && !this.isCollapsingExplicitlyDenied())
 }
 
-func (this *GlobalNamespace_Name) setDeclaredTypeKind(declaredType *GlobalNamespace_NameProp) {
-	if !((declaredType.bit & GlobalNamespace_NameProp_DECLARED_TYPE_KIND_MASK) != 0) {
+func (this *GlobalNamespace_Name) setDeclaredTypeKind(declaredType GlobalNamespace_NameProp) {
+	if !((GlobalNamespace_NameProp_bit_[declaredType-1] & GlobalNamespace_NameProp_DECLARED_TYPE_KIND_MASK) != 0) {
 		Preconditions_checkArgument_boolean_String_Object(false, "Unexpected NameProp for declaredType %s", declaredType)
 	}
-	this.propertyBitSet = ((this.propertyBitSet & (^GlobalNamespace_NameProp_DECLARED_TYPE_KIND_MASK)) | declaredType.bit)
+	this.propertyBitSet = ((this.propertyBitSet & (^GlobalNamespace_NameProp_DECLARED_TYPE_KIND_MASK)) | GlobalNamespace_NameProp_bit_[declaredType-1])
 	if declaredType != GlobalNamespace_NameProp_NOT_A_TYPE {
 		{
 			var ancestor *GlobalNamespace_Name = this.parent
@@ -1867,11 +1907,11 @@ func (this *GlobalNamespace_Name) setDeclaredTypeKind(declaredType *GlobalNamesp
 	}
 }
 
-func (this *GlobalNamespace_Name) setNameType(type_ *GlobalNamespace_NameProp) {
-	if !((type_.bit & GlobalNamespace_NameProp_NAME_KIND_MASK) != 0) {
+func (this *GlobalNamespace_Name) setNameType(type_ GlobalNamespace_NameProp) {
+	if !((GlobalNamespace_NameProp_bit_[type_-1] & GlobalNamespace_NameProp_NAME_KIND_MASK) != 0) {
 		Preconditions_checkArgument_boolean_String_Object(false, "Unexpected NameProp for nameType %s", type_)
 	}
-	this.propertyBitSet = ((this.propertyBitSet & (^GlobalNamespace_NameProp_NAME_KIND_MASK)) | type_.bit)
+	this.propertyBitSet = ((this.propertyBitSet & (^GlobalNamespace_NameProp_NAME_KIND_MASK)) | GlobalNamespace_NameProp_bit_[type_-1])
 }
 
 func (this *GlobalNamespace_Name) isDeclaredType() bool {
@@ -1955,19 +1995,19 @@ func (this *GlobalNamespace_Name) getDeclaration() StaticRef {
 
 type GlobalNamespace_Ref struct {
 	node_  Node
-	type__ *GlobalNamespace_Ref_Type
+	type__ GlobalNamespace_Ref_Type
 	chunk_ *JSChunk
 	scope_ *Scope
 }
 
-func (this *GlobalNamespace_Ref) init_GlobalNamespace_Ref(chunk *JSChunk, scope *Scope, node Node, type_ *GlobalNamespace_Ref_Type) {
+func (this *GlobalNamespace_Ref) init_GlobalNamespace_Ref(chunk *JSChunk, scope *Scope, node Node, type_ GlobalNamespace_Ref_Type) {
 	this.chunk_ = chunk
 	this.node_ = node
 	this.type__ = type_
 	this.scope_ = scope
 }
 
-func new_GlobalNamespace_Ref(chunk *JSChunk, scope *Scope, node Node, type_ *GlobalNamespace_Ref_Type) *GlobalNamespace_Ref {
+func new_GlobalNamespace_Ref(chunk *JSChunk, scope *Scope, node Node, type_ GlobalNamespace_Ref_Type) *GlobalNamespace_Ref {
 	this := &GlobalNamespace_Ref{}
 	this.init_GlobalNamespace_Ref(chunk, scope, node, type_)
 	return this
@@ -2062,52 +2102,77 @@ func (this *GlobalNamespace_Ref) toString() string {
 	return tostrR_(MoreObjects_toStringHelper(this).omitNullValues().add("type", obj_(this.type__)).add("node", this.node_.box_()).add("scope", obj_(this.scope_)))
 }
 
-type GlobalNamespace_Ref_Type struct {
-	Enum
+type GlobalNamespace_Ref_Type uint8
+
+// GlobalNamespace_Ref_Type_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var GlobalNamespace_Ref_Type_enum_ = [10]Enum{
+	{self_: GlobalNamespace_Ref_Type_SET_FROM_GLOBAL, name_: "SET_FROM_GLOBAL", ordinal_: 0},
+	{self_: GlobalNamespace_Ref_Type_SET_FROM_LOCAL, name_: "SET_FROM_LOCAL", ordinal_: 1},
+	{self_: GlobalNamespace_Ref_Type_GET_AND_SET_FROM_GLOBAL, name_: "GET_AND_SET_FROM_GLOBAL", ordinal_: 2},
+	{self_: GlobalNamespace_Ref_Type_GET_AND_SET_FROM_LOCAL, name_: "GET_AND_SET_FROM_LOCAL", ordinal_: 3},
+	{self_: GlobalNamespace_Ref_Type_PROTOTYPE_GET, name_: "PROTOTYPE_GET", ordinal_: 4},
+	{self_: GlobalNamespace_Ref_Type_ALIASING_GET, name_: "ALIASING_GET", ordinal_: 5},
+	{self_: GlobalNamespace_Ref_Type_DIRECT_GET, name_: "DIRECT_GET", ordinal_: 6},
+	{self_: GlobalNamespace_Ref_Type_CALL_GET, name_: "CALL_GET", ordinal_: 7},
+	{self_: GlobalNamespace_Ref_Type_DELETE_PROP, name_: "DELETE_PROP", ordinal_: 8},
+	{self_: GlobalNamespace_Ref_Type_SUBCLASSING_GET, name_: "SUBCLASSING_GET", ordinal_: 9},
 }
 
-func (this *GlobalNamespace_Ref_Type) up_Enum() *Enum {
-	if this == nil {
+func (this GlobalNamespace_Ref_Type) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &GlobalNamespace_Ref_Type_enum_[this-1]
 }
 
-func (this *GlobalNamespace_Ref_Type) init_GlobalNamespace_Ref_Type(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this GlobalNamespace_Ref_Type) name() string {
+	return GlobalNamespace_Ref_Type_enum_[this-1].name_
 }
 
-func new_GlobalNamespace_Ref_Type(name_ string, ordinal_ int32) *GlobalNamespace_Ref_Type {
-	this := &GlobalNamespace_Ref_Type{}
-	this.self_ = this
-	this.init_GlobalNamespace_Ref_Type(name_, ordinal_)
+func (this GlobalNamespace_Ref_Type) ordinal() int32 {
+	return GlobalNamespace_Ref_Type_enum_[this-1].ordinal_
+}
+
+func (this GlobalNamespace_Ref_Type) toString() string {
+	return GlobalNamespace_Ref_Type_enum_[this-1].name_
+}
+
+func (this GlobalNamespace_Ref_Type) compareTo(o any) int32 {
+	return GlobalNamespace_Ref_Type_enum_[this-1].compareTo(o)
+}
+
+func (this GlobalNamespace_Ref_Type) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func GlobalNamespace_Ref_Type_values() []*GlobalNamespace_Ref_Type {
-	return append([]*GlobalNamespace_Ref_Type(nil), GlobalNamespace_Ref_Type_values_...)
+func GlobalNamespace_Ref_Type_values() []GlobalNamespace_Ref_Type {
+	return append([]GlobalNamespace_Ref_Type(nil), GlobalNamespace_Ref_Type_values_...)
 }
 
-func GlobalNamespace_Ref_Type_valueOf(name string) *GlobalNamespace_Ref_Type {
+func GlobalNamespace_Ref_Type_valueOf(name string) GlobalNamespace_Ref_Type {
 	for _, v := range GlobalNamespace_Ref_Type_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Type", name))
 }
 
-var GlobalNamespace_Ref_Type_SET_FROM_GLOBAL *GlobalNamespace_Ref_Type
-var GlobalNamespace_Ref_Type_SET_FROM_LOCAL *GlobalNamespace_Ref_Type
-var GlobalNamespace_Ref_Type_GET_AND_SET_FROM_GLOBAL *GlobalNamespace_Ref_Type
-var GlobalNamespace_Ref_Type_GET_AND_SET_FROM_LOCAL *GlobalNamespace_Ref_Type
-var GlobalNamespace_Ref_Type_PROTOTYPE_GET *GlobalNamespace_Ref_Type
-var GlobalNamespace_Ref_Type_ALIASING_GET *GlobalNamespace_Ref_Type
-var GlobalNamespace_Ref_Type_DIRECT_GET *GlobalNamespace_Ref_Type
-var GlobalNamespace_Ref_Type_CALL_GET *GlobalNamespace_Ref_Type
-var GlobalNamespace_Ref_Type_DELETE_PROP *GlobalNamespace_Ref_Type
-var GlobalNamespace_Ref_Type_SUBCLASSING_GET *GlobalNamespace_Ref_Type
-var GlobalNamespace_Ref_Type_values_ []*GlobalNamespace_Ref_Type
+const GlobalNamespace_Ref_Type_SET_FROM_GLOBAL GlobalNamespace_Ref_Type = 1
+const GlobalNamespace_Ref_Type_SET_FROM_LOCAL GlobalNamespace_Ref_Type = 2
+const GlobalNamespace_Ref_Type_GET_AND_SET_FROM_GLOBAL GlobalNamespace_Ref_Type = 3
+const GlobalNamespace_Ref_Type_GET_AND_SET_FROM_LOCAL GlobalNamespace_Ref_Type = 4
+const GlobalNamespace_Ref_Type_PROTOTYPE_GET GlobalNamespace_Ref_Type = 5
+const GlobalNamespace_Ref_Type_ALIASING_GET GlobalNamespace_Ref_Type = 6
+const GlobalNamespace_Ref_Type_DIRECT_GET GlobalNamespace_Ref_Type = 7
+const GlobalNamespace_Ref_Type_CALL_GET GlobalNamespace_Ref_Type = 8
+const GlobalNamespace_Ref_Type_DELETE_PROP GlobalNamespace_Ref_Type = 9
+const GlobalNamespace_Ref_Type_SUBCLASSING_GET GlobalNamespace_Ref_Type = 10
+
+var GlobalNamespace_Ref_Type_values_ []GlobalNamespace_Ref_Type
 
 var GlobalNamespace_Ref_Type_clinit_done bool
 
@@ -2116,73 +2181,96 @@ func GlobalNamespace_Ref_Type_clinit() {
 		return
 	}
 	GlobalNamespace_Ref_Type_clinit_done = true
-	GlobalNamespace_Ref_Type_SET_FROM_GLOBAL = new_GlobalNamespace_Ref_Type("SET_FROM_GLOBAL", 0)
-	GlobalNamespace_Ref_Type_SET_FROM_LOCAL = new_GlobalNamespace_Ref_Type("SET_FROM_LOCAL", 1)
-	GlobalNamespace_Ref_Type_GET_AND_SET_FROM_GLOBAL = new_GlobalNamespace_Ref_Type("GET_AND_SET_FROM_GLOBAL", 2)
-	GlobalNamespace_Ref_Type_GET_AND_SET_FROM_LOCAL = new_GlobalNamespace_Ref_Type("GET_AND_SET_FROM_LOCAL", 3)
-	GlobalNamespace_Ref_Type_PROTOTYPE_GET = new_GlobalNamespace_Ref_Type("PROTOTYPE_GET", 4)
-	GlobalNamespace_Ref_Type_ALIASING_GET = new_GlobalNamespace_Ref_Type("ALIASING_GET", 5)
-	GlobalNamespace_Ref_Type_DIRECT_GET = new_GlobalNamespace_Ref_Type("DIRECT_GET", 6)
-	GlobalNamespace_Ref_Type_CALL_GET = new_GlobalNamespace_Ref_Type("CALL_GET", 7)
-	GlobalNamespace_Ref_Type_DELETE_PROP = new_GlobalNamespace_Ref_Type("DELETE_PROP", 8)
-	GlobalNamespace_Ref_Type_SUBCLASSING_GET = new_GlobalNamespace_Ref_Type("SUBCLASSING_GET", 9)
-	GlobalNamespace_Ref_Type_values_ = []*GlobalNamespace_Ref_Type{GlobalNamespace_Ref_Type_SET_FROM_GLOBAL, GlobalNamespace_Ref_Type_SET_FROM_LOCAL, GlobalNamespace_Ref_Type_GET_AND_SET_FROM_GLOBAL, GlobalNamespace_Ref_Type_GET_AND_SET_FROM_LOCAL, GlobalNamespace_Ref_Type_PROTOTYPE_GET, GlobalNamespace_Ref_Type_ALIASING_GET, GlobalNamespace_Ref_Type_DIRECT_GET, GlobalNamespace_Ref_Type_CALL_GET, GlobalNamespace_Ref_Type_DELETE_PROP, GlobalNamespace_Ref_Type_SUBCLASSING_GET}
+	GlobalNamespace_Ref_Type_values_ = []GlobalNamespace_Ref_Type{GlobalNamespace_Ref_Type_SET_FROM_GLOBAL, GlobalNamespace_Ref_Type_SET_FROM_LOCAL, GlobalNamespace_Ref_Type_GET_AND_SET_FROM_GLOBAL, GlobalNamespace_Ref_Type_GET_AND_SET_FROM_LOCAL, GlobalNamespace_Ref_Type_PROTOTYPE_GET, GlobalNamespace_Ref_Type_ALIASING_GET, GlobalNamespace_Ref_Type_DIRECT_GET, GlobalNamespace_Ref_Type_CALL_GET, GlobalNamespace_Ref_Type_DELETE_PROP, GlobalNamespace_Ref_Type_SUBCLASSING_GET}
 	registerEnum_("com.google.javascript.jscomp.GlobalNamespace.Ref.Type", enumValues_(GlobalNamespace_Ref_Type_values_))
 
 }
 
-type GlobalNamespace_NameProp struct {
-	Enum
-	bit int32
+type GlobalNamespace_NameProp uint8
+
+// GlobalNamespace_NameProp_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var GlobalNamespace_NameProp_enum_ = [14]Enum{
+	{self_: GlobalNamespace_NameProp_IS_DECLARED, name_: "IS_DECLARED", ordinal_: 0},
+	{self_: GlobalNamespace_NameProp_IS_MODULE_PROP, name_: "IS_MODULE_PROP", ordinal_: 1},
+	{self_: GlobalNamespace_NameProp_IS_PROVIDED, name_: "IS_PROVIDED", ordinal_: 2},
+	{self_: GlobalNamespace_NameProp_IS_USED_HAS_OWN_PROPERTY, name_: "IS_USED_HAS_OWN_PROPERTY", ordinal_: 3},
+	{self_: GlobalNamespace_NameProp_IS_EXTERN, name_: "IS_EXTERN", ordinal_: 4},
+	{self_: GlobalNamespace_NameProp_CONSTRUCTOR_TYPE, name_: "CONSTRUCTOR_TYPE", ordinal_: 5},
+	{self_: GlobalNamespace_NameProp_INTERFACE_TYPE, name_: "INTERFACE_TYPE", ordinal_: 6},
+	{self_: GlobalNamespace_NameProp_ENUM_TYPE, name_: "ENUM_TYPE", ordinal_: 7},
+	{self_: GlobalNamespace_NameProp_NOT_A_TYPE, name_: "NOT_A_TYPE", ordinal_: 8},
+	{self_: GlobalNamespace_NameProp_CLASS, name_: "CLASS", ordinal_: 9},
+	{self_: GlobalNamespace_NameProp_OBJECTLIT, name_: "OBJECTLIT", ordinal_: 10},
+	{self_: GlobalNamespace_NameProp_FUNCTION, name_: "FUNCTION", ordinal_: 11},
+	{self_: GlobalNamespace_NameProp_GET_SET, name_: "GET_SET", ordinal_: 12},
+	{self_: GlobalNamespace_NameProp_OTHER_OBJECT, name_: "OTHER_OBJECT", ordinal_: 13},
 }
 
-func (this *GlobalNamespace_NameProp) up_Enum() *Enum {
-	if this == nil {
+var GlobalNamespace_NameProp_bit_ [14]int32
+
+func (this GlobalNamespace_NameProp) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &GlobalNamespace_NameProp_enum_[this-1]
 }
 
-func (this *GlobalNamespace_NameProp) init_GlobalNamespace_NameProp(name_ string, ordinal_ int32, index int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.bit = (int32(1) << (uint32(index) & 31))
+func (this GlobalNamespace_NameProp) name() string {
+	return GlobalNamespace_NameProp_enum_[this-1].name_
 }
 
-func new_GlobalNamespace_NameProp(name_ string, ordinal_ int32, index int32) *GlobalNamespace_NameProp {
-	this := &GlobalNamespace_NameProp{}
-	this.self_ = this
-	this.init_GlobalNamespace_NameProp(name_, ordinal_, index)
+func (this GlobalNamespace_NameProp) ordinal() int32 {
+	return GlobalNamespace_NameProp_enum_[this-1].ordinal_
+}
+
+func (this GlobalNamespace_NameProp) toString() string {
+	return GlobalNamespace_NameProp_enum_[this-1].name_
+}
+
+func (this GlobalNamespace_NameProp) compareTo(o any) int32 {
+	return GlobalNamespace_NameProp_enum_[this-1].compareTo(o)
+}
+
+func (this GlobalNamespace_NameProp) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func GlobalNamespace_NameProp_values() []*GlobalNamespace_NameProp {
-	return append([]*GlobalNamespace_NameProp(nil), GlobalNamespace_NameProp_values_...)
+func (this GlobalNamespace_NameProp) init_GlobalNamespace_NameProp(index int32) {
+	GlobalNamespace_NameProp_bit_[this-1] = (int32(1) << (uint32(index) & 31))
 }
 
-func GlobalNamespace_NameProp_valueOf(name string) *GlobalNamespace_NameProp {
+func GlobalNamespace_NameProp_values() []GlobalNamespace_NameProp {
+	return append([]GlobalNamespace_NameProp(nil), GlobalNamespace_NameProp_values_...)
+}
+
+func GlobalNamespace_NameProp_valueOf(name string) GlobalNamespace_NameProp {
 	for _, v := range GlobalNamespace_NameProp_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("NameProp", name))
 }
 
-var GlobalNamespace_NameProp_IS_DECLARED *GlobalNamespace_NameProp
-var GlobalNamespace_NameProp_IS_MODULE_PROP *GlobalNamespace_NameProp
-var GlobalNamespace_NameProp_IS_PROVIDED *GlobalNamespace_NameProp
-var GlobalNamespace_NameProp_IS_USED_HAS_OWN_PROPERTY *GlobalNamespace_NameProp
-var GlobalNamespace_NameProp_IS_EXTERN *GlobalNamespace_NameProp
-var GlobalNamespace_NameProp_CONSTRUCTOR_TYPE *GlobalNamespace_NameProp
-var GlobalNamespace_NameProp_INTERFACE_TYPE *GlobalNamespace_NameProp
-var GlobalNamespace_NameProp_ENUM_TYPE *GlobalNamespace_NameProp
-var GlobalNamespace_NameProp_NOT_A_TYPE *GlobalNamespace_NameProp
-var GlobalNamespace_NameProp_CLASS *GlobalNamespace_NameProp
-var GlobalNamespace_NameProp_OBJECTLIT *GlobalNamespace_NameProp
-var GlobalNamespace_NameProp_FUNCTION *GlobalNamespace_NameProp
-var GlobalNamespace_NameProp_GET_SET *GlobalNamespace_NameProp
-var GlobalNamespace_NameProp_OTHER_OBJECT *GlobalNamespace_NameProp
-var GlobalNamespace_NameProp_values_ []*GlobalNamespace_NameProp
+const GlobalNamespace_NameProp_IS_DECLARED GlobalNamespace_NameProp = 1
+const GlobalNamespace_NameProp_IS_MODULE_PROP GlobalNamespace_NameProp = 2
+const GlobalNamespace_NameProp_IS_PROVIDED GlobalNamespace_NameProp = 3
+const GlobalNamespace_NameProp_IS_USED_HAS_OWN_PROPERTY GlobalNamespace_NameProp = 4
+const GlobalNamespace_NameProp_IS_EXTERN GlobalNamespace_NameProp = 5
+const GlobalNamespace_NameProp_CONSTRUCTOR_TYPE GlobalNamespace_NameProp = 6
+const GlobalNamespace_NameProp_INTERFACE_TYPE GlobalNamespace_NameProp = 7
+const GlobalNamespace_NameProp_ENUM_TYPE GlobalNamespace_NameProp = 8
+const GlobalNamespace_NameProp_NOT_A_TYPE GlobalNamespace_NameProp = 9
+const GlobalNamespace_NameProp_CLASS GlobalNamespace_NameProp = 10
+const GlobalNamespace_NameProp_OBJECTLIT GlobalNamespace_NameProp = 11
+const GlobalNamespace_NameProp_FUNCTION GlobalNamespace_NameProp = 12
+const GlobalNamespace_NameProp_GET_SET GlobalNamespace_NameProp = 13
+const GlobalNamespace_NameProp_OTHER_OBJECT GlobalNamespace_NameProp = 14
+
+var GlobalNamespace_NameProp_values_ []GlobalNamespace_NameProp
 var GlobalNamespace_NameProp_DECLARED_TYPE_KIND_MASK int32
 var GlobalNamespace_NameProp_NAME_KIND_MASK int32
 
@@ -2193,38 +2281,38 @@ func GlobalNamespace_NameProp_clinit() {
 		return
 	}
 	GlobalNamespace_NameProp_clinit_done = true
-	GlobalNamespace_NameProp_IS_DECLARED = new_GlobalNamespace_NameProp("IS_DECLARED", 0, 0)
-	GlobalNamespace_NameProp_IS_MODULE_PROP = new_GlobalNamespace_NameProp("IS_MODULE_PROP", 1, 1)
-	GlobalNamespace_NameProp_IS_PROVIDED = new_GlobalNamespace_NameProp("IS_PROVIDED", 2, 2)
-	GlobalNamespace_NameProp_IS_USED_HAS_OWN_PROPERTY = new_GlobalNamespace_NameProp("IS_USED_HAS_OWN_PROPERTY", 3, 3)
-	GlobalNamespace_NameProp_IS_EXTERN = new_GlobalNamespace_NameProp("IS_EXTERN", 4, 4)
-	GlobalNamespace_NameProp_CONSTRUCTOR_TYPE = new_GlobalNamespace_NameProp("CONSTRUCTOR_TYPE", 5, 5)
-	GlobalNamespace_NameProp_INTERFACE_TYPE = new_GlobalNamespace_NameProp("INTERFACE_TYPE", 6, 6)
-	GlobalNamespace_NameProp_ENUM_TYPE = new_GlobalNamespace_NameProp("ENUM_TYPE", 7, 7)
-	GlobalNamespace_NameProp_NOT_A_TYPE = new_GlobalNamespace_NameProp("NOT_A_TYPE", 8, 8)
-	GlobalNamespace_NameProp_CLASS = new_GlobalNamespace_NameProp("CLASS", 9, 9)
-	GlobalNamespace_NameProp_OBJECTLIT = new_GlobalNamespace_NameProp("OBJECTLIT", 10, 10)
-	GlobalNamespace_NameProp_FUNCTION = new_GlobalNamespace_NameProp("FUNCTION", 11, 11)
-	GlobalNamespace_NameProp_GET_SET = new_GlobalNamespace_NameProp("GET_SET", 12, 12)
-	GlobalNamespace_NameProp_OTHER_OBJECT = new_GlobalNamespace_NameProp("OTHER_OBJECT", 13, 13)
-	GlobalNamespace_NameProp_values_ = []*GlobalNamespace_NameProp{GlobalNamespace_NameProp_IS_DECLARED, GlobalNamespace_NameProp_IS_MODULE_PROP, GlobalNamespace_NameProp_IS_PROVIDED, GlobalNamespace_NameProp_IS_USED_HAS_OWN_PROPERTY, GlobalNamespace_NameProp_IS_EXTERN, GlobalNamespace_NameProp_CONSTRUCTOR_TYPE, GlobalNamespace_NameProp_INTERFACE_TYPE, GlobalNamespace_NameProp_ENUM_TYPE, GlobalNamespace_NameProp_NOT_A_TYPE, GlobalNamespace_NameProp_CLASS, GlobalNamespace_NameProp_OBJECTLIT, GlobalNamespace_NameProp_FUNCTION, GlobalNamespace_NameProp_GET_SET, GlobalNamespace_NameProp_OTHER_OBJECT}
+	GlobalNamespace_NameProp_IS_DECLARED.init_GlobalNamespace_NameProp(0)
+	GlobalNamespace_NameProp_IS_MODULE_PROP.init_GlobalNamespace_NameProp(1)
+	GlobalNamespace_NameProp_IS_PROVIDED.init_GlobalNamespace_NameProp(2)
+	GlobalNamespace_NameProp_IS_USED_HAS_OWN_PROPERTY.init_GlobalNamespace_NameProp(3)
+	GlobalNamespace_NameProp_IS_EXTERN.init_GlobalNamespace_NameProp(4)
+	GlobalNamespace_NameProp_CONSTRUCTOR_TYPE.init_GlobalNamespace_NameProp(5)
+	GlobalNamespace_NameProp_INTERFACE_TYPE.init_GlobalNamespace_NameProp(6)
+	GlobalNamespace_NameProp_ENUM_TYPE.init_GlobalNamespace_NameProp(7)
+	GlobalNamespace_NameProp_NOT_A_TYPE.init_GlobalNamespace_NameProp(8)
+	GlobalNamespace_NameProp_CLASS.init_GlobalNamespace_NameProp(9)
+	GlobalNamespace_NameProp_OBJECTLIT.init_GlobalNamespace_NameProp(10)
+	GlobalNamespace_NameProp_FUNCTION.init_GlobalNamespace_NameProp(11)
+	GlobalNamespace_NameProp_GET_SET.init_GlobalNamespace_NameProp(12)
+	GlobalNamespace_NameProp_OTHER_OBJECT.init_GlobalNamespace_NameProp(13)
+	GlobalNamespace_NameProp_values_ = []GlobalNamespace_NameProp{GlobalNamespace_NameProp_IS_DECLARED, GlobalNamespace_NameProp_IS_MODULE_PROP, GlobalNamespace_NameProp_IS_PROVIDED, GlobalNamespace_NameProp_IS_USED_HAS_OWN_PROPERTY, GlobalNamespace_NameProp_IS_EXTERN, GlobalNamespace_NameProp_CONSTRUCTOR_TYPE, GlobalNamespace_NameProp_INTERFACE_TYPE, GlobalNamespace_NameProp_ENUM_TYPE, GlobalNamespace_NameProp_NOT_A_TYPE, GlobalNamespace_NameProp_CLASS, GlobalNamespace_NameProp_OBJECTLIT, GlobalNamespace_NameProp_FUNCTION, GlobalNamespace_NameProp_GET_SET, GlobalNamespace_NameProp_OTHER_OBJECT}
 	registerEnum_("com.google.javascript.jscomp.GlobalNamespace.NameProp", enumValues_(GlobalNamespace_NameProp_values_))
-	GlobalNamespace_NameProp_DECLARED_TYPE_KIND_MASK = (((GlobalNamespace_NameProp_CONSTRUCTOR_TYPE.bit | GlobalNamespace_NameProp_INTERFACE_TYPE.bit) | GlobalNamespace_NameProp_ENUM_TYPE.bit) | GlobalNamespace_NameProp_NOT_A_TYPE.bit)
-	GlobalNamespace_NameProp_NAME_KIND_MASK = ((((GlobalNamespace_NameProp_CLASS.bit | GlobalNamespace_NameProp_OBJECTLIT.bit) | GlobalNamespace_NameProp_FUNCTION.bit) | GlobalNamespace_NameProp_GET_SET.bit) | GlobalNamespace_NameProp_OTHER_OBJECT.bit)
+	GlobalNamespace_NameProp_DECLARED_TYPE_KIND_MASK = (((GlobalNamespace_NameProp_bit_[GlobalNamespace_NameProp_CONSTRUCTOR_TYPE-1] | GlobalNamespace_NameProp_bit_[GlobalNamespace_NameProp_INTERFACE_TYPE-1]) | GlobalNamespace_NameProp_bit_[GlobalNamespace_NameProp_ENUM_TYPE-1]) | GlobalNamespace_NameProp_bit_[GlobalNamespace_NameProp_NOT_A_TYPE-1])
+	GlobalNamespace_NameProp_NAME_KIND_MASK = ((((GlobalNamespace_NameProp_bit_[GlobalNamespace_NameProp_CLASS-1] | GlobalNamespace_NameProp_bit_[GlobalNamespace_NameProp_OBJECTLIT-1]) | GlobalNamespace_NameProp_bit_[GlobalNamespace_NameProp_FUNCTION-1]) | GlobalNamespace_NameProp_bit_[GlobalNamespace_NameProp_GET_SET-1]) | GlobalNamespace_NameProp_bit_[GlobalNamespace_NameProp_OTHER_OBJECT-1])
 
 }
 
 type GlobalNamespace_ObjLitStringKeyAnalysis struct {
 	nameString_ Optional[string]
-	nameType_   *GlobalNamespace_NameProp
+	nameType_   GlobalNamespace_NameProp
 }
 
-func (this *GlobalNamespace_ObjLitStringKeyAnalysis) init_GlobalNamespace_ObjLitStringKeyAnalysis(nameString Optional[string], nameType *GlobalNamespace_NameProp) {
+func (this *GlobalNamespace_ObjLitStringKeyAnalysis) init_GlobalNamespace_ObjLitStringKeyAnalysis(nameString Optional[string], nameType GlobalNamespace_NameProp) {
 	this.nameString_ = nameString
 	this.nameType_ = nameType
 }
 
-func new_GlobalNamespace_ObjLitStringKeyAnalysis(nameString Optional[string], nameType *GlobalNamespace_NameProp) *GlobalNamespace_ObjLitStringKeyAnalysis {
+func new_GlobalNamespace_ObjLitStringKeyAnalysis(nameString Optional[string], nameType GlobalNamespace_NameProp) *GlobalNamespace_ObjLitStringKeyAnalysis {
 	this := &GlobalNamespace_ObjLitStringKeyAnalysis{}
 	this.init_GlobalNamespace_ObjLitStringKeyAnalysis(nameString, nameType)
 	return this
@@ -2234,7 +2322,7 @@ func GlobalNamespace_ObjLitStringKeyAnalysis_forObjectDefineProperty(nameString 
 	return new_GlobalNamespace_ObjLitStringKeyAnalysis(Optional_of[string](nameString), GlobalNamespace_NameProp_GET_SET)
 }
 
-func GlobalNamespace_ObjLitStringKeyAnalysis_forObjLitAssignment(nameString string, nameType *GlobalNamespace_NameProp) *GlobalNamespace_ObjLitStringKeyAnalysis {
+func GlobalNamespace_ObjLitStringKeyAnalysis_forObjLitAssignment(nameString string, nameType GlobalNamespace_NameProp) *GlobalNamespace_ObjLitStringKeyAnalysis {
 	return new_GlobalNamespace_ObjLitStringKeyAnalysis(Optional_of[string](nameString), nameType)
 }
 
@@ -2246,7 +2334,7 @@ func (this *GlobalNamespace_ObjLitStringKeyAnalysis) nameString() Optional[strin
 	return this.nameString_
 }
 
-func (this *GlobalNamespace_ObjLitStringKeyAnalysis) nameType() *GlobalNamespace_NameProp {
+func (this *GlobalNamespace_ObjLitStringKeyAnalysis) nameType() GlobalNamespace_NameProp {
 	return this.nameType_
 }
 
