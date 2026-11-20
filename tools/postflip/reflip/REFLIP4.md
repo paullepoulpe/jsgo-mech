@@ -146,3 +146,52 @@ store accessors 2.0 s, other runtime 3.3 s. The main thread's time is about the 
 time. The profile is flat: no function of the translated code is above 2%. Both compilers run
 the passes on one thread (Java's numParallelThreads defaults to 1; its extra CPU is the JIT
 and a parallel collector).
+
+## Tool coverage against the lead line (2026-11-20, branch inb-toolgaps)
+
+The census of the in-bounds tree (inb-optstr, 684afd83) against the lead line (reflip-trial-r18)
+showed rows where the fourth flip's steps had done much less. Per-commit counts over the three
+histories (third flip's replay f52772d1, replay4i, the lead) place each difference at a step; the
+cause in every case is a spelling of this translator that the step's tool did not read. Seven
+tool fixes (toolfix.sh 21-27; made as 18-24, renumbered at the merge with the overlay's fix 20)
+and the replay with them (worktree replay4q):
+
+| row | in bounds before | with the fixes | lead line | step, fix |
+|---|---|---|---|---|
+| Preconditions_ calls | 1,047 | 6 | 6 | 182 checks, fix 21: the typed variants _H, _T, _Str (rules P2, P4) read as the erased checks they are: 2,506 of 2,510 inline (1,464 before) |
+| StringBuilder mentions | 78 | 5 | 3 | 207, 296 sbuild, fix 22 (the third flip's e8c5ab2d): jtostr_(sb), StringBuilder_as_Appendable(sb): 0 slots left (41) |
+| Objects_requireNonNull* | 81 | 6 | 0 | 189 eqhash, fixes 23 and 27: typed requireNonNull and an interface value passed as it is are inline nil checks |
+| equals_/hash_/equalsR_/equalsRR_/hashR_ and H variants | 150 | 1 | none written | 189 eqhash, fix 23: the typed helpers of rt_conv.go read as their definitions: 328 calls rewritten at the step (80 before) |
+| str_( | 390 | 154 | 156 | 336 colls (imm kinds), fix 24 (rw.Unboxed): a String passed as itself (rule P4) is its own unboxing: the 236 str_("constant") go |
+| lambda objects &X_fn{func | 51 | 45 | 45 | 136 funcparams, fix 25: the object under the nil-keeping upcast helper C_as_I(o) (NodeUtil.Visitor is func(Node)) |
+| catch_ / recover | 68 | 54 | 54 | 199, 240, 268, 282 exceptions, fix 26 (the third flip's 9cddf058): panic(frozen_{}) is an UnsupportedOperationException |
+| defer | 91 | 84 | 84 | the same steps |
+| instanceof is_X | 78 | 71 | 71 | follows from the catch clauses |
+
+Not a gap in the tools: eqR_ (126) is the translator's own decided identity equals, what the
+lead line's eqhash wrote as equalsId_ (142); the census row "Java equals/hashCode protocol"
+does not count either. The row "boxing to any" rises from 1,143 to 1,233: boxings that were
+inside the typed check helpers (n.box_() of a message argument) are now written in the failing
+branch of the inline check.
+
+Left open, with the cause:
+- explicit iterators (125 against 107): the lead line's iters and tviews steps read
+  immCursorOf_(L.asImm()); this translator writes L.iterator() on a typed list, whose static type
+  no longer says the list is immutable. 18 sites; needs a rule, not a spelling.
+- Objects_equals of two erased views of typed collections (27 against 11) and their hashes: the
+  lead line's colls (immEqHash) turns objequalsBy_(X, obj_(Y), F.equals) into tlistEq_ and the
+  like; here the calls are Objects_equals(a.asList(), b.asList()) on the unified family. Needs a
+  rule after step 402 with the proof that the view's equals is the typed one.
+- two new StringBuilders stored at once into Appendable slots (Appendable(new_StringBuilder())):
+  a manual step on the lead line (303), not made.
+- eqhash run again after step 402 would decide 66 more objequals_ / objhash_ calls in the key
+  conversions unify writes (g_0casts.go); the lead line has no such step.
+
+Dead runtime dropped from the in-bounds list: step 108 (scopeVars_, rt_scopevars.go and its
+test), steps 21-24 (varMap_); steps 315 and 429 keep what generated code uses (rt_varmap.go:
+varKey_, vkey_, exportTraceKey_, etkey_; rt_strid.go: getStringId_, getStringIs_, noString_).
+Still dead and kept (its patch also changes rt_tlist.go): lihmComputeIfAbsent_, lihmMerge_,
+lihmForEach_ (rt_idmap.go, step 212).
+
+Manual patch 422 was regenerated: one hunk's context changed with fix 21 (inline null checks in
+CoalesceVariableNames); the first replay stopped there, as the driver is meant to.
