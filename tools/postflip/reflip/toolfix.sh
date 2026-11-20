@@ -365,3 +365,19 @@ if [[ -f $bg ]] && ! grep -q 'reflip16' $bg; then
   perl -pi -e 's/^(\s*)case "Object_toString", "String_valueOf_Object", "objstr_":$/$1case "Object_toString", "String_valueOf_Object", "objstr_", "tostrR_": \/\/ reflip16/; s/\(fn\.Name\(\) == "tostr_" \|\| fn\.Name\(\) == "tostrNN_"\)/(fn.Name() == "tostr_" || fn.Name() == "tostrNN_" || fn.Name() == "tostrR_")/' $bg
   grep -q 'reflip16' $bg || { echo "toolfix: sbuild: anchors not found" >&2; exit 1; }
 fi
+# 17. (fourth flip) funcparams: an object certainly not null given where a function is now taken becomes its method value (o.m). The
+#    tool read the object under the erased upcast icast_I(obj_(o)); the translator's rule "implicit conversions" writes the upcast
+#    as the conversion I(o) (RhinoErrorReporter_forOldRhino(ErrorHandler(this))). The object of a conversion to an interface type is
+#    its operand.
+reflip_edit tools/postflip/funcparams/main.go reflip17 <<'E17'
+func boxed(e ast.Expr) ast.Expr {
+	e = rw.Unparen(e)
+=====
+func boxed(e ast.Expr) ast.Expr {
+	e = rw.Unparen(e)
+	if c, ok := e.(*ast.CallExpr); ok && len(c.Args) == 1 { // reflip17: the upcast written out, I(x)
+		if tv, ok := rw.Info.Types[c.Fun]; ok && tv.IsType() && types.IsInterface(tv.Type) {
+			e = rw.Unparen(c.Args[0])
+		}
+	}
+E17
