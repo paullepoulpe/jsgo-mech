@@ -173,15 +173,11 @@ func (this *SubtypeChecker) isSubtypeHelper(subtype *JSType, supertype *JSType) 
 		return this.isSubtypeDispatching(subtype, supertype.toMaybeNamedType().getReferencedType())
 	}
 	if subtype.isUnionType() {
-		return JSTypeIterations_allTypesMatch(func(sub_ any) bool {
-			var sub *JSType = to_JSType(sub_)
-			_ = sub
+		return JSTypeIterations_allTypesMatch(func(sub *JSType) bool {
 			return this.isSubtypeCaching(sub, supertype)
 		}, subtype.toMaybeUnionType())
 	} else if supertype.isUnionType() {
-		return JSTypeIterations_anyTypeMatches(func(sup_ any) bool {
-			var sup *JSType = to_JSType(sup_)
-			_ = sup
+		return JSTypeIterations_anyTypeMatches(func(sup *JSType) bool {
 			return this.isSubtypeCaching(subtype, sup)
 		}, supertype.toMaybeUnionType())
 	}

@@ -1237,8 +1237,8 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}}).accept)
 	this.parser.option("--remove_j2cl_asserts").hidden_1(true).usage("Remove calls to J2CL assertions.").flag(func() any {
 		return bool(this.removeJ2cLAsserts)
-	}, func(v any) {
-		this.removeJ2cLAsserts = unbox_[bool](v)
+	}, func(v bool) {
+		this.removeJ2cLAsserts = v
 	})
 	this.parser.option("--output_manifest").usage("Prints out a list of all the files in the compilation. If --dependency_mode=PRUNE or PRUNE_LEGACY is specified, this will not include files that got dropped because they were not required. The %outname% placeholder expands to the JS output file. If you're using modularization, using %outname% will create a manifest for each module.").string((&Supplier_tfn_string{func() string {
 		return this.outputManifest_
