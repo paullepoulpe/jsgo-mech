@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type Node uint32
 
 type Node_ns_ struct {
@@ -1835,13 +1837,7 @@ func (this Node) getQualifiedName() string {
 				return name
 			}()
 		case Token_rhino_GETPROP:
-			var builder *StringBuilder = this.getQualifiedNameForGetProp(0)
-			return func() string {
-				if builder != nil {
-					return tostrR_(builder)
-				}
-				return ""
-			}()
+			return this.qualifiedNameOfGetProp_()
 		case Token_rhino_THIS:
 			return "this"
 		case Token_rhino_SUPER:
@@ -1860,6 +1856,35 @@ func (this Node) getQualifiedNameObject() *QualifiedName {
 		}
 		return nil
 	}()
+}
+
+// qualifiedNameOfGetProp_ is getQualifiedNameForGetProp(0).toString(), or "" for null, built
+// in one string of the exact length (post-flip manual step: a StringBuilder, its buffer and
+// the copy toString makes were three allocations per qualified name).
+func (this Node) qualifiedNameOfGetProp_() string {
+	n, size := this, 0
+	for ; n.isGetProp(); n = n.ns_().first {
+		size += 1 + len(n.getString())
+	}
+	left := n.getQualifiedName()
+	if String_isEmpty(left) {
+		return ""
+	}
+	var b strings.Builder
+	b.Grow(len(left) + size)
+	b.WriteString(left)
+	this.appendGetPropNames_(&b)
+	return b.String()
+}
+
+// appendGetPropNames_ appends ".name" for each GETPROP of the chain that ends at this, outermost last.
+func (this Node) appendGetPropNames_(b *strings.Builder) {
+	if !this.isGetProp() {
+		return
+	}
+	this.ns_().first.appendGetPropNames_(b)
+	b.WriteByte('.')
+	b.WriteString(this.getString())
 }
 
 func (this Node) getQualifiedNameForGetProp(reserve int32) *StringBuilder {
