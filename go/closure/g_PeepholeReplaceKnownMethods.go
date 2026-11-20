@@ -1109,8 +1109,11 @@ func (this *PeepholeReplaceKnownMethods) jsSplit(stringValue string, separator O
 	}
 	var splitStrings *JTList[string] = jnewTList_(jtc_string)
 	if separator.get() == "" {
-		for i := int32(0); (i < String_length(stringValue)) && (i < limit); i++ {
-			splitStrings.add(String_substring(stringValue, i, (i + 1)))
+		for i, u_ := range stringUnits_(stringValue) {
+			if !(i < limit) {
+				break
+			}
+			splitStrings.add(chrstr_(u_))
 		}
 	} else {
 		var startIndex int32 = 0
