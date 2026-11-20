@@ -266,7 +266,7 @@ func NodeUtil_doGetNumberValue(n Node, numberConversions bool) any {
 			case Tri_UNKNOWN:
 				return nil
 			}
-			panic("unreachable")
+			panic(new_NullPointerException_0())
 		}()
 	case Token_rhino_TEMPLATELIT:
 		if !numberConversions {
@@ -396,7 +396,7 @@ func NodeUtil_getBigIntValue(n Node) *BigInteger {
 				case Tri_UNKNOWN:
 					return nil
 				}
-				panic("unreachable")
+				panic(new_NullPointerException_0())
 			}()
 		case Token_rhino_TEMPLATELIT:
 			var string_ Optional[string] = NodeUtil_getStringValue(n)
@@ -1264,7 +1264,7 @@ func NodeUtil_mayBeStringValueType(type_ NodeUtil_ValueType) bool {
 		case NodeUtil_ValueType_OBJECT, NodeUtil_ValueType_STRING, NodeUtil_ValueType_UNDETERMINED:
 			return true
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
@@ -1280,7 +1280,7 @@ func NodeUtil_mayBeObjectValueType(type_ NodeUtil_ValueType) bool {
 		case NodeUtil_ValueType_OBJECT, NodeUtil_ValueType_UNDETERMINED:
 			return true
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 

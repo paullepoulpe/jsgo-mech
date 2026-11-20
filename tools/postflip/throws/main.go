@@ -21,6 +21,14 @@
 // the same exception. A function f qualifies when every return statement of its body returns
 // such a new object directly.
 //
+// A Java switch expression over an enum's constants that j2go writes as a switch whose cases
+// all return, followed by panic("unreachable"), reaches the panic only for a value no case
+// names. For an integer enum (tools/postflip/enums) whose cases name every constant that value
+// is 0, Java's null, and Java's switch on a null enum throws NullPointerException; the panic
+// is that exception, panic(new_NullPointerException_0()), not a RuntimeException made of a
+// string. (A NullPointerException has no message in this port, as those of Go nil
+// dereferences, catch_.)
+//
 // Every other panic is left and counted by kind: rethrows of a caught value, throws of an
 // exception held in a variable (its self() is the most derived object, which a view such as
 // *Throwable is not), Enum.valueOf failures (enumValueOfFail_, typed by the runtime), and
@@ -61,6 +69,13 @@ func main() {
 			continue // the handwritten runtime is read, not rewritten
 		}
 		ast.Inspect(f, func(n ast.Node) bool {
+			if es, ok := n.(*ast.ExprStmt); ok && rw.Text(es) == `panic("unreachable")` {
+				if enumSwitchEnd(es) {
+					count[`exhaustive switch on an enum: panic("unreachable") -> panic(new_NullPointerException_0()), Java's switch on null`]++
+					rw.Rewrite[es] = func() string { return "panic(new_NullPointerException_0())" }
+					return false
+				}
+			}
 			c, ok := n.(*ast.CallExpr)
 			if !ok || len(c.Args) != 1 {
 				return true
@@ -125,7 +140,7 @@ func visit(arg ast.Expr) {
 	case text == "r_":
 		count["left: rethrow of the recovered value in a catch defer (panic(r_), the Go idiom for a recover that does not handle the value)"]++
 	case text == `"unreachable"`:
-		count[`left: panic("unreachable") ending a function after an emulated try (Go cannot prove its end unreachable)`]++
+		count[`left: panic("unreachable") `+unreachableKind(arg)]++
 	case strings.HasPrefix(text, "enumValueOfFail_("):
 		count["left: Enum.valueOf of an unknown name, panic(enumValueOfFail_(...)) of a new IllegalArgumentException (an error value)"]++
 	case isString(a):
@@ -259,4 +274,110 @@ func constructor(fd *ast.FuncDecl) bool {
 	m, _, _ := types.LookupFieldOrMethod(p, true, rw.Pkg, "as_Throwable")
 	_, ok = m.(*types.Func)
 	return ok
+}
+
+// enumSwitchEnd reports whether s, panic("unreachable"), follows a switch on a value of an integer
+// enum (tools/postflip/enums: 0 is null, constant k is ordinal k-1, T_enum_ holds the
+// constants) whose cases name every constant and all end in a return or a panic. j2go writes
+// that for a Java switch expression over the enum's constants: no case matches only a null,
+// and Java's switch on a null enum throws NullPointerException (the enum's ordinal() is read).
+func enumSwitchEnd(s *ast.ExprStmt) bool {
+	sw, ok := before(s).(*ast.SwitchStmt)
+	if !ok || sw.Init != nil || sw.Tag == nil {
+		return false
+	}
+	nt, ok := rw.Info.Types[sw.Tag].Type.(*types.Named)
+	if !ok {
+		return false
+	}
+	if b, ok := nt.Underlying().(*types.Basic); !ok || b.Info()&types.IsInteger == 0 {
+		return false
+	}
+	v, ok := rw.Pkg.Scope().Lookup(nt.Obj().Name() + "_enum_").(*types.Var)
+	if !ok {
+		return false
+	}
+	arr, ok := v.Type().(*types.Array)
+	if !ok {
+		return false
+	}
+	seen := map[int64]bool{}
+	for _, c := range sw.Body.List {
+		cc := c.(*ast.CaseClause)
+		if cc.List == nil || len(cc.Body) == 0 {
+			return false // default, or a case that falls out of the switch
+		}
+		switch last := cc.Body[len(cc.Body)-1].(type) {
+		case *ast.ReturnStmt:
+		case *ast.ExprStmt:
+			if !strings.HasPrefix(rw.Text(last), "panic(") {
+				return false
+			}
+		default:
+			return false
+		}
+		for _, e := range cc.List {
+			tv := rw.Info.Types[e]
+			if tv.Value == nil || !types.Identical(tv.Type, nt) {
+				return false
+			}
+			k, ok := constantInt(tv)
+			if !ok {
+				return false
+			}
+			seen[k] = true
+		}
+	}
+	for k := int64(1); k <= arr.Len(); k++ {
+		if !seen[k] {
+			return false
+		}
+	}
+	return len(seen) == int(arr.Len())
+}
+
+func constantInt(tv types.TypeAndValue) (int64, bool) {
+	return constantInt64(tv.Value.ExactString())
+}
+
+func constantInt64(s string) (int64, bool) {
+	var k int64
+	_, err := fmt.Sscan(s, &k)
+	return k, err == nil
+}
+
+// before is the statement right before s in its list, or nil.
+func before(s ast.Stmt) ast.Stmt {
+	var list []ast.Stmt
+	switch p := rw.Parent[s].(type) {
+	case *ast.BlockStmt:
+		list = p.List
+	case *ast.CaseClause:
+		list = p.Body
+	}
+	for i, x := range list {
+		if x == s && i > 0 {
+			return list[i-1]
+		}
+	}
+	return nil
+}
+
+// unreachableKind says what a panic("unreachable") that is left ends.
+func unreachableKind(arg ast.Expr) string {
+	s, _ := rw.Parent[rw.Parent[arg]].(*ast.ExprStmt)
+	if s == nil {
+		return "(other)"
+	}
+	switch p := before(s).(type) {
+	case *ast.IfStmt:
+		if strings.HasPrefix(rw.Text(p.Cond), "code_") {
+			return "after the code tests of an emulated try (the try block returns from inside a loop or branch)"
+		}
+	case *ast.SwitchStmt:
+		return "after a switch that Go cannot prove exhaustive (not every case returns, or not an enum: a string or int switch, a default-less switch)"
+	case *ast.ForStmt, *ast.RangeStmt:
+		return "after a loop that only a return leaves"
+	}
+	return "ending a function whose end Go cannot prove unreachable"
 }
