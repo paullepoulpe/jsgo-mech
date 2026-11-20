@@ -17,6 +17,19 @@ type SortingErrorManager struct {
 type SortingErrorManager_I interface {
 	generateReport_impl()
 	report_2_impl(*CheckLevel, *JSError)
+	printSummary_impl()
+	println_impl(*CheckLevel, *JSError)
+}
+
+// Bodies of the methods that only the subclasses of BasicErrorManager (2) implement. They put the
+// methods in SortingErrorManager_I, so that the dispatchers of those classes call them through self_ without
+// an assertion. They are never run (a dispatcher's object is of a subclass of its class,
+// which has the method) and panic where the assertion would have (post-flip).
+func (this *SortingErrorManager) printSummary_impl() {
+	panic("printSummary_impl called on a " + goTypeName_(this.self_))
+}
+func (this *SortingErrorManager) println_impl(*CheckLevel, *JSError) {
+	panic("println_impl called on a " + goTypeName_(this.self_))
 }
 
 func (this *SortingErrorManager) as_SortingErrorManager() *SortingErrorManager { return this }
