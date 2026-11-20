@@ -21,8 +21,36 @@ func (e *sliceEach_[T]) next() bool {
 	return false
 }
 
+// A Go map that is Java's null (tools/postflip/native): a nil map reads as an empty one in Go
+// (m[k] is the zero value, len 0, a range of no step, delete and clear do nothing) where
+// Java throws NullPointerException. The helpers below check for it (those that only store
+// need not: storing into a nil map panics, which catch_ reports as a NullPointerException),
+// and tools/postflip/nilmaps wraps the inline reads of a map that may be nil in mapNN_.
+
+// mapNN_ is m, which must not be Java's null.
+func mapNN_[M ~map[K]V, K comparable, V any](m M) M {
+	if m == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return m
+}
+
+// mapAt_ is m[k] of a map that may be null, for a key expression that calls something: Java
+// evaluates the key before it finds the map null.
+func mapAt_[K comparable, V any](m map[K]V, k K) V { return mapNN_(m)[k] }
+
+// mapAt2_ is mapAt_ for v, ok := m[k].
+func mapAt2_[K comparable, V any](m map[K]V, k K) (V, bool) {
+	v, ok := mapNN_(m)[k]
+	return v, ok
+}
+
+// mapDelete_ is delete(m, k) likewise.
+func mapDelete_[K comparable, V any](m map[K]V, k K) { delete(mapNN_(m), k) }
+
 // has_ reports whether m has key k (Map.containsKey, Set.contains).
 func has_[K comparable, V any](m map[K]V, k K) bool {
+	mapNN_(m)
 	_, ok := m[k]
 	return ok
 }
@@ -38,6 +66,7 @@ func setAdd_[K comparable](m map[K]struct{}, k K) bool {
 
 // mapStr_ is Map.get for String values: an absent key gives Java's null string.
 func mapStr_[K comparable](m map[K]string, k K) string {
+	mapNN_(m)
 	if v, ok := m[k]; ok {
 		return v
 	}
@@ -277,6 +306,7 @@ func mapPut_[K comparable, V any](c *tconv_[V], m map[K]V, k K, v V) V {
 
 // mapRemove_ is Map.remove used as a value: the value removed, or null.
 func mapRemove_[K comparable, V any](c *tconv_[V], m map[K]V, k K) V {
+	mapNN_(m)
 	old, ok := m[k]
 	if !ok {
 		return c.null
@@ -287,6 +317,7 @@ func mapRemove_[K comparable, V any](c *tconv_[V], m map[K]V, k K) V {
 
 // mapGetOr_ is Map.getOrDefault.
 func mapGetOr_[K comparable, V any](m map[K]V, k K, def V) V {
+	mapNN_(m)
 	if v, ok := m[k]; ok {
 		return v
 	}
@@ -308,6 +339,7 @@ func mapPutIfAbsent_[K comparable, V any](c *tconv_[V], m map[K]V, k K, v V) V {
 
 // mapComputeIfAbsent_ is Map.computeIfAbsent with an erased function.
 func mapComputeIfAbsent_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], m map[K]V, k K, f Function) V {
+	mapNN_(m)
 	if v, ok := m[k]; ok && !vc.isNull(v) {
 		return v
 	}
@@ -322,6 +354,7 @@ func mapComputeIfAbsent_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], m ma
 
 // mapComputeIfAbsent_f is mapComputeIfAbsent_ with the function as a Go func value.
 func mapComputeIfAbsent_f[K comparable, V any](kc *tconv_[K], vc *tconv_[V], m map[K]V, k K, f func(any) any) V {
+	mapNN_(m)
 	if v, ok := m[k]; ok && !vc.isNull(v) {
 		return v
 	}
@@ -336,6 +369,7 @@ func mapComputeIfAbsent_f[K comparable, V any](kc *tconv_[K], vc *tconv_[V], m m
 
 // setRemove_ is Set.remove used as a value: whether k was there.
 func setRemove_[K comparable](m map[K]struct{}, k K) bool {
+	mapNN_(m)
 	if _, ok := m[k]; !ok {
 		return false
 	}
@@ -345,6 +379,8 @@ func setRemove_[K comparable](m map[K]struct{}, k K) bool {
 
 // setAddAll_ is Set.addAll of another set: the result does not depend on either's order.
 func setAddAll_[K comparable](m, from map[K]struct{}) bool {
+	mapNN_(m)
+	mapNN_(from)
 	n := len(m)
 	for k := range from { // order-independent: only membership changes
 		m[k] = struct{}{}
@@ -411,6 +447,7 @@ func setImm_[K comparable](kc *tconv_[K], from Collection) map[K]struct{} {
 // mapComputeIfAbsentObj_ is Map_computeIfAbsent(m.asMap(), k, f) on a Go map: boxed key and
 // result, as through the typed map's view.
 func mapComputeIfAbsentObj_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], m map[K]V, k any, f Function) any {
+	mapNN_(m)
 	if kk, ok := kc.try(k); ok {
 		if old, ok := m[kk]; ok {
 			if b := vc.box(old); b != nil {
@@ -427,6 +464,7 @@ func mapComputeIfAbsentObj_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], m
 
 // mapComputeIfAbsentObj_f is mapComputeIfAbsentObj_ with the function as a Go func value.
 func mapComputeIfAbsentObj_f[K comparable, V any](kc *tconv_[K], vc *tconv_[V], m map[K]V, k any, f func(any) any) any {
+	mapNN_(m)
 	if kk, ok := kc.try(k); ok {
 		if old, ok := m[kk]; ok {
 			if b := vc.box(old); b != nil {
@@ -443,6 +481,7 @@ func mapComputeIfAbsentObj_f[K comparable, V any](kc *tconv_[K], vc *tconv_[V], 
 
 // setAddAllFrom_ is Set.addAll of an erased collection.
 func setAddAllFrom_[K comparable](kc *tconv_[K], m map[K]struct{}, from Collection) bool {
+	mapNN_(m)
 	changed := false
 	for _, x := range toSlice_(from) {
 		if setAdd_(m, kc.unbox(x)) {
@@ -664,6 +703,7 @@ func (it *slicePtrIterT_[T]) remove() { sliceIterRemove_(it.p, &it.i) }
 // mapGetOrObj_ is Map.getOrDefault(k, def) with an erased key, on a Go map: the value of a
 // key present (null included), else def.
 func mapGetOrObj_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], m map[K]V, k any, def any) any {
+	mapNN_(m)
 	if kk, ok := kc.try(k); ok {
 		if v, ok := m[kk]; ok {
 			return vc.box(v)
