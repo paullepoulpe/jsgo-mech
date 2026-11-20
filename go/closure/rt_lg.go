@@ -236,3 +236,59 @@ func (e *iterEach_[T]) next() bool {
 	}
 	return false
 }
+
+// ---- Views of a typed map (piece `views`): keySet() and values() of the erased view of a
+// *TMap[K, V] are native: an IterableT of the keys / of the values, read without a wrapper and
+// without a box (they are the map itself under another type, so they cost no object either).
+
+// tmapKeyIter_ / tmapValIter_ are the iterators of those views at the element type; next() and
+// remove() are the erased iterator's.
+type tmapKeyIter_[K comparable, V any] struct{ tmapIter_[K, V] }
+
+func (it *tmapKeyIter_[K, V]) next_t() K {
+	if !it.hasNext() {
+		panic(new_NoSuchElementException_0().self())
+	}
+	it.last = it.i
+	it.i++
+	return it.m.keys[it.last]
+}
+
+type tmapValIter_[K comparable, V any] struct{ tmapIter_[K, V] }
+
+func (it *tmapValIter_[K, V]) next_t() V {
+	if !it.hasNext() {
+		panic(new_NoSuchElementException_0().self())
+	}
+	it.last = it.i
+	it.i++
+	return it.m.vals[it.last]
+}
+
+func (v *tmapKeySet_[K, V]) iterator_t() IteratorT[K] {
+	return &tmapKeyIter_[K, V]{tmapIter_[K, V]{m: v.m, last: -1, mode: tkeys_}}
+}
+
+func (v *tmapKeySet_[K, V]) step_t(i int) (k K, next int, ok bool) {
+	m := v.m
+	for ; i < len(m.keys); i++ {
+		if !m.dead(i) {
+			return m.keys[i], i + 1, true
+		}
+	}
+	return k, i, false
+}
+
+func (v *tmapValues_[K, V]) iterator_t() IteratorT[V] {
+	return &tmapValIter_[K, V]{tmapIter_[K, V]{m: v.m, last: -1, mode: tvals_}}
+}
+
+func (v *tmapValues_[K, V]) step_t(i int) (x V, next int, ok bool) {
+	m := v.m
+	for ; i < len(m.keys); i++ {
+		if !m.dead(i) {
+			return m.vals[i], i + 1, true
+		}
+	}
+	return x, i, false
+}

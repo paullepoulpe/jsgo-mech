@@ -119,3 +119,45 @@ func TestLgTypedSetAndImmutable(t *testing.T) {
 		t.Fatal("the twin of an immutable typed list was wrapped")
 	}
 }
+
+// keySet() and values() of the erased view of a typed map are native Iterables of the keys and
+// of the values: no wrapper, the elements as they are, removed mappings skipped.
+func TestLgTypedMapViews(t *testing.T) {
+	m := newTMap_(tc_string, tc_string)
+	for _, k := range []string{"a", "b", "c", "d"} {
+		m.put(k, k+k)
+	}
+	m.remove("b")
+	ks, vs := Iterable(m.asMap().keySet()), Iterable(m.asMap().values())
+	kt, vt := iterableAs_(tc_string, ks), iterableAs_(tc_string, vs)
+	if any(kt) != any(ks) || any(vt) != any(vs) {
+		t.Fatal("a view of a typed map was wrapped")
+	}
+	got := ""
+	for e := eachOf_(kt); e.next(); {
+		got += e.v
+	}
+	for e := eachOf_(vt); e.next(); {
+		got += e.v
+	}
+	for i := kt.iterator_t(); i.hasNext(); {
+		got += i.next_t()
+	}
+	i := vt.iterator_t()
+	for i.hasNext() {
+		if v := i.next_t(); v == "cc" {
+			i.(interface{ remove() }).remove()
+		} else {
+			got += v
+		}
+	}
+	if got != "acd"+"aaccdd"+"acd"+"aadd" || m.size() != 2 || m.containsKey("c") {
+		t.Fatal(got, m.size())
+	}
+	defer func() {
+		if recover() == nil {
+			t.Fatal("next_t of an exhausted iterator did not throw")
+		}
+	}()
+	i.next_t()
+}
