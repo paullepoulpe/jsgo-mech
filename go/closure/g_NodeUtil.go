@@ -2876,7 +2876,7 @@ func NodeUtil_getVarsDeclaredInBranch(root Node) CollectionOf[Node] {
 	return collector.vars.asMap().values()
 }
 
-func NodeUtil_getLhsNodesHelper(n Node, consumer func(any)) {
+func NodeUtil_getLhsNodesHelper(n Node, consumer func(Node)) {
 	switch n.ns_().token {
 	case tokOrd1_IMPORT:
 		NodeUtil_getLhsNodesHelper(n.getFirstChild(), consumer)
@@ -2895,9 +2895,9 @@ func NodeUtil_getLhsNodesHelper(n Node, consumer func(any)) {
 	case tokOrd1_IMPORT_SPEC, tokOrd1_COMPUTED_PROP, tokOrd1_STRING_KEY:
 		NodeUtil_getLhsNodesHelper(n.getLastChild(), consumer)
 	case tokOrd1_NAME, tokOrd1_IMPORT_STAR:
-		consumer(n.box_())
+		consumer(n)
 	case tokOrd1_GETPROP, tokOrd1_GETELEM:
-		consumer(n.box_())
+		consumer(n)
 	case tokOrd1_EMPTY:
 	case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 		NodeUtil_getLhsNodesHelper(n.getFirstChild(), consumer)
@@ -2910,14 +2910,14 @@ func NodeUtil_getLhsNodesHelper(n Node, consumer func(any)) {
 	}
 }
 
-func NodeUtil_visitLhsNodesInNode(assigningParent Node, consumer func(any)) {
+func NodeUtil_visitLhsNodesInNode(assigningParent Node, consumer func(Node)) {
 	if !(((((((NodeUtil_isNameDeclaration(assigningParent) || assigningParent.isParamList()) || NodeUtil_isAssignmentOp(assigningParent)) || assigningParent.isCatch()) || assigningParent.isDestructuringLhs()) || assigningParent.isDefaultValue()) || assigningParent.isImport()) || NodeUtil_isEnhancedFor(assigningParent)) {
 		Preconditions_checkArgument_boolean_Object_H(false, assigningParent)
 	}
 	NodeUtil_getLhsNodesHelper(assigningParent, consumer)
 }
 
-func NodeUtil_visitLhsNodesInDestructuringPattern(destructuringPattern Node, consumer func(any)) {
+func NodeUtil_visitLhsNodesInDestructuringPattern(destructuringPattern Node, consumer func(Node)) {
 	if !destructuringPattern.isDestructuringPattern() {
 		panic(new_IllegalArgumentException_String(objstr_("Must be a destructuring pattern node.")))
 	}
@@ -4573,9 +4573,9 @@ func new_NodeUtil_VarCollector() *NodeUtil_VarCollector {
 
 func (this *NodeUtil_VarCollector) visit(n Node) {
 	if n.isVar() {
-		NodeUtil_visitLhsNodesInNode(n, (&Consumer_tfn_Node{func(name Node) {
+		NodeUtil_visitLhsNodesInNode(n, func(name Node) {
 			this.vars.PutIfAbsent(name.getString(), name)
-		}}).accept)
+		})
 	}
 }
 
