@@ -790,7 +790,8 @@ e7442814 run t pblast && f
 # 533. postflip (runtime, re-flip): the protobuf writer tests a field's presence in line and writes a repeated message field in its own loop
 2a0d8fa6 patch 533-2a0d8fa6-rt.patch
 # 534. postflip (manual, re-flip): expectWellFormedTemplatizedType makes its verifier only for a node that has a type
-43f5a0f0 patch 534-43f5a0f0-manual.patch
+#= 43f5a0f0 not taken (thirteenth session): a one-off hand edit of pass code, measured and gated on its branch; to come back as a tool or not at all
+#- 43f5a0f0 patch 534-43f5a0f0-manual.patch
 # 535. postflip (runtime, re-flip): the shared property lists of nodes have a direct-mapped front, so reading a node's list is a comparison, not a map lookup
 036df818 patch 535-036df818-rt.patch
 # 520. postflip (runtime, re-flip): a key without equals/hashCode is hashed by its address
@@ -798,6 +799,8 @@ e7442814 run t pblast && f
 # 521. postflip (runtime, re-flip): an erased lookup of an object by identity asks its type's questions once
 fb7f9349 patch 521-fb7f9349-rt.patch
 # 522. postflip (manual, re-flip): SourceFile.setCodeAndDoBookkeeping counts lines on the view it has
-f9699ae5 patch 522-f9699ae5-manual.patch
+#= f9699ae5 not taken (thirteenth session): a one-off hand edit of pass code, measured and gated on its branch; to come back as a tool or not at all
+#- f9699ae5 patch 522-f9699ae5-manual.patch
 # 523. postflip (manual, re-flip): a token's SourceRange and its two SourcePositions are one allocation
-444eac19 patch 523-444eac19-manual.patch
+#= 444eac19 not taken (thirteenth session): a one-off hand edit of pass code, measured and gated on its branch; to come back as a tool or not at all
+#- 444eac19 patch 523-444eac19-manual.patch
