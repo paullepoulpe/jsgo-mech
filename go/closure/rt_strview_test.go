@@ -40,7 +40,13 @@ func TestUtf16View(t *testing.T) {
 	var kept utf16_
 	for k, s := range subjects {
 		v := utf16Of_(s)
-		if k%2 == 0 {
+		if k%3 == 1 {
+			v = utf16Kept_(s)
+			if int(v.n) != len(String_toCharArray(s)) || v.u != nil && len(v.u) != int(v.n) {
+				t.Fatalf("%q: a kept view of %d units has %d", s, v.n, len(v.u))
+			}
+		}
+		if k%3 == 0 {
 			v = kept.of(s)
 			if w := kept.of(s); w.s != s || len(w.u) != len(v.u) {
 				t.Fatalf("%q: of gives the view of %q", s, w.s)
