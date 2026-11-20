@@ -88,16 +88,14 @@ func (this *Es6ForOfConverter) visitForOf(t *NodeTraversal, node Node) {
 	var newFor Node = IR_forNode(empty, cond, incr, newBody).srcrefTreeIfMissing(node)
 	var callIteratorClose Node = this.astFactory_.createJscompIteratorCloseCall(iterName.cloneTree(), iterResult.cloneTree(), this.namespace_).srcrefTreeIfMissing(node)
 	var finallyBlock Node = this.astFactory_.createBlock([]Node{this.astFactory_.exprResult(callIteratorClose)})
-	var labelNames *TList[Node] = newTList_(tc_Node)
+	var labelNames []Node = []Node{}
 	var insertionPoint Node = node
 	for (insertionPoint.getParent() != 0) && insertionPoint.getParent().isLabel() {
 		insertionPoint = insertionPoint.getParent()
-		labelNames.add(insertionPoint.getFirstChild().cloneNode())
+		labelNames = append(labelNames, insertionPoint.getFirstChild().cloneNode())
 	}
 	var innerLoop Node = newFor
-	it_2 := labelNames.each()
-	for it_2.next() {
-		var labelName Node = it_2.v
+	for _, labelName := range labelNames {
 		innerLoop = this.astFactory_.createLabel(labelName, innerLoop)
 	}
 	var tryBlock Node = this.astFactory_.createBlock([]Node{innerLoop})

@@ -8,12 +8,12 @@ type CheckConformance struct {
 	compiler_       *AbstractCompiler
 	categories      *TList[*CheckConformance_Category]
 	mergedBehaviors *TMap[*Requirement, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
-	ruleToBehavior  *TMap[CheckConformance_Rule, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
+	ruleToBehavior  map[CheckConformance_Rule]ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior
 }
 
 func (this *CheckConformance) finit_CheckConformance() {
 	this.mergedBehaviors = newTMap_(tch_p_Requirement, tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
-	this.ruleToBehavior = newTMap_(tch_CheckConformance_Rule, tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
+	this.ruleToBehavior = map[CheckConformance_Rule]ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior{}
 }
 
 func (this *CheckConformance) init_CheckConformance_AbstractCompiler(compiler *AbstractCompiler) {
@@ -58,7 +58,7 @@ func (this *CheckConformance) visit(t *NodeTraversal, n Node, parent Node) {
 		if category.precondition.shouldCheck(n) {
 			for r := int32((category.rules.size() - 1)); r >= 0; r-- {
 				var rule CheckConformance_Rule = category.rules.get(r)
-				var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = Preconditions_checkNotNull_T(this.ruleToBehavior.GetOr(rule, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED))
+				var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = Preconditions_checkNotNull_T(mapGetOr_(this.ruleToBehavior, rule, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED))
 				rule.check(t, n, behavior)
 			}
 		}
@@ -73,10 +73,8 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs *TLi
 			return tlistEmptyImm_(tc_p_CheckConformance_Category)
 		}
 	}
-	var mergedRequirements *TList[*Requirement] = this.mergeRequirements(compiler, configs, isLibraryLevelReportingMode)
-	it_1 := mergedRequirements.each()
-	for it_1.next() {
-		var requirement *Requirement = it_1.v
+	var mergedRequirements []*Requirement = this.mergeRequirements(compiler, configs, isLibraryLevelReportingMode)
+	for _, requirement := range mergedRequirements {
 		var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED
 		var rule CheckConformance_Rule = CheckConformance_initRule(compiler, requirement)
 		if rule != nil {
@@ -85,7 +83,7 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs *TLi
 				behavior = this.mergedBehaviors.Get(requirement)
 				Preconditions_checkNotNull_Object_Object_T(behavior, "The mergeBehaviors method inserted a null behavior in the mergedBehaviors map")
 			}
-			this.ruleToBehavior.Put(rule, behavior)
+			this.ruleToBehavior[rule] = behavior
 		}
 	}
 	var result *ImmutableList_Builder[*CheckConformance_Category] = immutableListBuilder_(tc_p_CheckConformance_Category)
@@ -99,7 +97,7 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 	if !eqR_(reportingMode, CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG) {
 		panic(new_IllegalStateException_0())
 	}
-	var baseRequirementBehaviors *TMap[string, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = newTMap_(tc_string, tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
+	var baseRequirementBehaviors map[string]ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = map[string]ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior{}
 	it_1 := configs.each()
 	for it_1.next() {
 		var config *ConformanceConfig = it_1.v
@@ -109,7 +107,7 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 		var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior()
 		for requirement := range elemsAs_[*Requirement](config.getRequirementList()) {
 			if requirement.hasRuleId() {
-				baseRequirementBehaviors.Put(requirement.getRuleId(), behavior)
+				baseRequirementBehaviors[requirement.getRuleId()] = behavior
 			}
 		}
 	}
@@ -125,8 +123,8 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 			if requirement.hasExtends() {
 				var extendingBehavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior()
 				var baseRuleId string = requirement.getExtends()
-				if baseRequirementBehaviors.Has(baseRuleId) {
-					var baseBehavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = baseRequirementBehaviors.Get(baseRuleId)
+				if has_(baseRequirementBehaviors, baseRuleId) {
+					var baseBehavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = baseRequirementBehaviors[baseRuleId]
 					if !equalsRR_(baseBehavior, extendingBehavior) {
 						CheckConformance_reportInvalidRequirement(compiler, requirement, "extending rule's config may not specify a different value of 'library_level_non_allowlisted_conformance_violations_behavior' than the base rule's config. Skipping all conformance checks.")
 						return false
@@ -138,9 +136,9 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 	return true
 }
 
-func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, configs *TList[*ConformanceConfig], isLibraryLevelConformanceReportingMode bool) *TList[*Requirement] {
+func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, configs *TList[*ConformanceConfig], isLibraryLevelConformanceReportingMode bool) []*Requirement {
 	var rootRequirements *TMap[*Requirement_Builder, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = newTMap_(tch_p_Requirement_Builder, tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
-	var extendable *TMap[string, *Requirement_Builder] = newTMap_(tc_string, tc_p_Requirement_Builder)
+	var extendable map[string]*Requirement_Builder = map[string]*Requirement_Builder{}
 	it_1 := configs.each()
 	for it_1.next() {
 		var config *ConformanceConfig = it_1.v
@@ -150,7 +148,7 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 				if !CheckConformance_validateExtendableRequirement(compiler, requirement, extendable) {
 					continue
 				}
-				extendable.Put(requirement.getRuleId(), builder)
+				extendable[requirement.getRuleId()] = builder
 			}
 			var hasBehavior bool = config.hasLibraryLevelNonAllowlistedConformanceViolationsBehavior()
 			var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior()
@@ -177,7 +175,7 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 		var config *ConformanceConfig = it_5.v
 		for requirement := range elemsAs_[*Requirement](config.getRequirementList()) {
 			if requirement.hasExtends() {
-				var extendableRequirement *Requirement_Builder = extendable.Get(requirement.getExtends())
+				var extendableRequirement *Requirement_Builder = extendable[requirement.getExtends()]
 				if !CheckConformance_validateExtendingRequirement(compiler, requirement, extendableRequirement) {
 					continue
 				}
@@ -188,7 +186,7 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 			}
 		}
 	}
-	var cleanedUpRootRequirements *TList[*Requirement] = newTListN_(tc_p_Requirement, rootRequirements.Len())
+	var cleanedUpRootRequirements []*Requirement = make([]*Requirement, 0, rootRequirements.Len())
 	it_9 := rootRequirements.eachEntry()
 	for it_9.next() {
 		var entry *TEntry[*Requirement_Builder, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = it_9.entry()
@@ -199,7 +197,7 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 		if (isLibraryLevelConformanceReportingMode && (behavior != 0)) && (behavior != ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED) {
 			this.mergedBehaviors.Put(requirement, behavior)
 		}
-		cleanedUpRootRequirements.add(requirement)
+		cleanedUpRootRequirements = append(cleanedUpRootRequirements, requirement)
 	}
 	return cleanedUpRootRequirements
 }
@@ -214,7 +212,7 @@ func CheckConformance_mergeExtendingRequirementIntoExtended(extendedRequirement 
 	}
 }
 
-func CheckConformance_validateExtendableRequirement(compiler *AbstractCompiler, requirement *Requirement, extendable *TMap[string, *Requirement_Builder]) bool {
+func CheckConformance_validateExtendableRequirement(compiler *AbstractCompiler, requirement *Requirement, extendable map[string]*Requirement_Builder) bool {
 	if !requirement.hasRuleId() {
 		panic(new_IllegalStateException_String(objstr_("Extendable requirement must have a rule_id")))
 	}
@@ -222,7 +220,7 @@ func CheckConformance_validateExtendableRequirement(compiler *AbstractCompiler, 
 		CheckConformance_reportInvalidRequirement(compiler, requirement, "empty rule_id")
 		return false
 	}
-	if extendable.Has(requirement.getRuleId()) {
+	if has_(extendable, requirement.getRuleId()) {
 		CheckConformance_reportInvalidRequirement(compiler, requirement, ("two requirements with the same rule_id: " + sstr_(requirement.getRuleId())))
 		return false
 	}

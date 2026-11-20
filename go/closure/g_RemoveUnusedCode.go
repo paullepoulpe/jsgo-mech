@@ -16,9 +16,9 @@ type RemoveUnusedCode struct {
 	pinnedPropertyNames                            *TSet[string]
 	removablesForPropertyNames                     *SimpleSetMultimap[any, *RemoveUnusedCode_Removable]
 	canonicalUnremovableVarInfo                    RemoveUnusedCode_VarInfo
-	allFunctionParamScopes                         *TList[*Scope]
+	allFunctionParamScopes                         *[]*Scope
 	polyfills                                      *SimpleSetMultimap[any, *RemoveUnusedCode_PolyfillInfo]
-	guardedUsages                                  *TSet[Node]
+	guardedUsages                                  map[Node]struct{}
 	polyfillsFromTable                             *PolyfillUsageFinder_Polyfills
 	polyfillUsageFinder                            *PolyfillUsageFinder
 	scopeCreator                                   *SyntacticScopeCreator
@@ -37,9 +37,9 @@ func (this *RemoveUnusedCode) finit_RemoveUnusedCode() {
 	this.varInfoMap = newTMap_(tch_p_Var, tc_RemoveUnusedCode_VarInfo)
 	this.pinnedPropertyNames = tsetCopy_(tc_string, RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES)
 	this.removablesForPropertyNames = SimpleSetMultimap_createInsertionOrdered[any, *RemoveUnusedCode_Removable]()
-	this.allFunctionParamScopes = newTList_(tc_p_Scope)
+	this.allFunctionParamScopes = &[]*Scope{}
 	this.polyfills = SimpleSetMultimap_createInsertionOrdered[any, *RemoveUnusedCode_PolyfillInfo]()
-	this.guardedUsages = newTSet_(tc_Node)
+	this.guardedUsages = map[Node]struct{}{}
 }
 
 func (this *RemoveUnusedCode) init_RemoveUnusedCode(builder *RemoveUnusedCode_Builder) {
@@ -99,15 +99,13 @@ func (this *RemoveUnusedCode) traverseAndRemoveUnusedReferences(root Node) {
 	}
 	this.removeUnreferencedVarsAndPolyfills()
 	this.removeIndependentlyRemovableProperties()
-	it_2 := this.allFunctionParamScopes.each()
-	for it_2.next() {
-		var fparamScope *Scope = it_2.v
+	for fparamScope := range sliceAll_(this.allFunctionParamScopes) {
 		this.removeUnreferencedFunctionArgs(fparamScope)
 	}
 }
 
 func (this *RemoveUnusedCode) storePolyfill(polyfillUsage *PolyfillUsageFinder_PolyfillUsage) {
-	this.guardedUsages.Add(polyfillUsage.node())
+	this.guardedUsages[polyfillUsage.node()] = struct{}{}
 }
 
 func (this *RemoveUnusedCode) removeIndependentlyRemovableProperties() {
@@ -906,7 +904,7 @@ func (this *RemoveUnusedCode) traverseFunction(function Node, parentScope *Scope
 	}
 	this.traverseNode(paramlist, fparamScope)
 	this.traverseChildren(body, fbodyScope)
-	this.allFunctionParamScopes.add(fparamScope)
+	*this.allFunctionParamScopes = append(*this.allFunctionParamScopes, fparamScope)
 }
 
 func (this *RemoveUnusedCode) canRemoveParameters(parameterList Node) bool {
@@ -1462,7 +1460,7 @@ func (this *RemoveUnusedCode_Continuation) apply() {
 type RemoveUnusedCode_Removable struct {
 	self_                                RemoveUnusedCode_Removable_I
 	outer_                               *RemoveUnusedCode
-	continuations                        *TList[*RemoveUnusedCode_Continuation]
+	continuations                        *[]*RemoveUnusedCode_Continuation
 	propertyName_                        Optional[string]
 	targetNode                           Node
 	isPrototypeDotPropertyReferenceField bool
@@ -1541,12 +1539,10 @@ func (this *RemoveUnusedCode_Removable) remove(compiler *AbstractCompiler) {
 func (this *RemoveUnusedCode_Removable) applyContinuations() {
 	if !this.continuationsAreApplied {
 		this.continuationsAreApplied = true
-		it_1 := this.continuations.each()
-		for it_1.next() {
-			var c *RemoveUnusedCode_Continuation = it_1.v
+		for _, c := range *this.continuations {
 			this.outer_.worklist.add(c)
 		}
-		this.continuations.clear()
+		sliceClear_(this.continuations)
 	}
 }
 
@@ -1656,14 +1652,14 @@ func (this *RemoveUnusedCode_Removable) isPrototypeProperty() bool {
 
 type RemoveUnusedCode_RemovableBuilder struct {
 	outer_                           *RemoveUnusedCode
-	continuations                    *TList[*RemoveUnusedCode_Continuation]
+	continuations                    *[]*RemoveUnusedCode_Continuation
 	propertyName_                    Optional[string]
 	isPrototypeDotPropertyReference_ bool
 	isThisDotPropertyReference_      bool
 }
 
 func (this *RemoveUnusedCode_RemovableBuilder) finit_RemoveUnusedCode_RemovableBuilder() {
-	this.continuations = newTList_(tc_p_RemoveUnusedCode_Continuation)
+	this.continuations = &[]*RemoveUnusedCode_Continuation{}
 	this.propertyName_ = Optional_empty[string]()
 	this.isPrototypeDotPropertyReference_ = false
 	this.isThisDotPropertyReference_ = false
@@ -1681,7 +1677,7 @@ func new_RemoveUnusedCode_RemovableBuilder(outer_ *RemoveUnusedCode) *RemoveUnus
 }
 
 func (this *RemoveUnusedCode_RemovableBuilder) addContinuation(continuation *RemoveUnusedCode_Continuation) *RemoveUnusedCode_RemovableBuilder {
-	this.continuations.add(continuation)
+	*this.continuations = append(*this.continuations, continuation)
 	return this
 }
 
@@ -2808,7 +2804,7 @@ func (this *RemoveUnusedCode_CanonicalUnremovableVarInfo) removeAllRemovables() 
 type RemoveUnusedCode_RealVarInfo struct {
 	outer_                              *RemoveUnusedCode
 	varName_                            string
-	removables                          *TList[*RemoveUnusedCode_Removable]
+	removables                          *[]*RemoveUnusedCode_Removable
 	isEntirelyRemovable                 bool
 	hasNonLocalOrNonLiteralValue        bool
 	hasFunctionOrClassLiteralValueField bool
@@ -2820,7 +2816,7 @@ func (this *RemoveUnusedCode_RealVarInfo) zero_RemoveUnusedCode_RealVarInfo() {
 }
 
 func (this *RemoveUnusedCode_RealVarInfo) finit_RemoveUnusedCode_RealVarInfo() {
-	this.removables = newTList_(tc_p_RemoveUnusedCode_Removable)
+	this.removables = &[]*RemoveUnusedCode_Removable{}
 	this.isEntirelyRemovable = true
 	this.hasNonLocalOrNonLiteralValue = false
 	this.hasFunctionOrClassLiteralValueField = false
@@ -2862,7 +2858,7 @@ func (this *RemoveUnusedCode_RealVarInfo) addRemovable(removable *RemoveUnusedCo
 		}}).get)
 	}
 	if this.isEntirelyRemovable {
-		this.removables.add(removable)
+		*this.removables = append(*this.removables, removable)
 	} else {
 		this.outer_.considerForIndependentRemoval(removable)
 	}
@@ -2876,12 +2872,10 @@ func (this *RemoveUnusedCode_RealVarInfo) setIsExplicitlyNotRemovable(reasonSupp
 	if this.isEntirelyRemovable {
 		this.isEntirelyRemovable = false
 		this.outer_.unremovableLog.logString((sstr_(this.varName_) + ": " + objstr_(reasonSupplier())))
-		it_1 := this.removables.each()
-		for it_1.next() {
-			var r *RemoveUnusedCode_Removable = it_1.v
+		for r := range sliceAll_(this.removables) {
 			this.outer_.considerForIndependentRemoval(r)
 		}
-		this.removables.clear()
+		sliceClear_(this.removables)
 	}
 }
 
@@ -2897,12 +2891,10 @@ func (this *RemoveUnusedCode_RealVarInfo) removeAllRemovables() {
 	if !this.isEntirelyRemovable {
 		panic(new_IllegalStateException_0())
 	}
-	it_1 := this.removables.each()
-	for it_1.next() {
-		var removable *RemoveUnusedCode_Removable = it_1.v
+	for removable := range sliceAll_(this.removables) {
 		removable.remove(this.outer_.compiler_)
 	}
-	this.removables.clear()
+	sliceClear_(this.removables)
 }
 
 type RemoveUnusedCode_PolyfillInfo struct {
@@ -2966,7 +2958,7 @@ func (this *RemoveUnusedCode_PolyfillInfo) init_RemoveUnusedCode_PolyfillInfo(re
 }
 
 func (this *RemoveUnusedCode_PolyfillInfo) considerPossibleReference(n Node) {
-	if this.isRemovable_ && (this.removable.isPatch || !this.outer_.guardedUsages.Has(n)) {
+	if this.isRemovable_ && (this.removable.isPatch || !has_(this.outer_.guardedUsages, n)) {
 		this.considerPossibleReferenceInternal(n)
 		if !this.isRemovable_ {
 			this.removable.applyContinuations()

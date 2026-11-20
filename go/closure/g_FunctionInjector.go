@@ -12,15 +12,15 @@ type FunctionInjector struct {
 	safeNameIdSupplier_       SupplierOf[string]
 	throwawayNameSupplier     SupplierOf[string]
 	functionArgumentInjector_ *FunctionArgumentInjector
-	referencesEvalCache       *TMap[Node, any]
-	innerFunctionCache        *TMap[Node, Node]
+	referencesEvalCache       map[Node]any
+	innerFunctionCache        map[Node]Node
 }
 
 func (this *FunctionInjector) finit_FunctionInjector() {
 	this.knownConstantFunctions = tsetEmptyImm_(tc_string)
 	this.throwawayNameSupplier = Supplier(new_FunctionInjector_1(this))
-	this.referencesEvalCache = newTMap_(tc_Node, tc_Boolean)
-	this.innerFunctionCache = newTMap_(tc_Node, tc_Node)
+	this.referencesEvalCache = map[Node]any{}
+	this.innerFunctionCache = map[Node]Node{}
 }
 
 func (this *FunctionInjector) init_FunctionInjector(builder *FunctionInjector_Builder) {
@@ -138,11 +138,11 @@ func (this *FunctionInjector) inlineReturnValue(ref *FunctionInjector_Reference,
 	var callNode Node = ref.callNode_
 	var block Node = fnNode.getLastChild()
 	var paramToArgMap *TMap[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(fnNode, callNode, this.safeNameIdSupplier_)
-	var paramReplacements *TMap[string, Node] = newTMap_(tc_string, tc_Node)
+	var paramReplacements map[string]Node = map[string]Node{}
 	it_1 := paramToArgMap.eachEntry()
 	for it_1.next() {
 		var entry *TEntry[string, *FunctionArgumentInjector_ParamArgPair] = it_1.entry()
-		paramReplacements.Put(entry.getKey(), entry.getValue().arg())
+		paramReplacements[entry.getKey()] = entry.getValue().arg()
 	}
 	var newExpression Node
 	if !block.hasChildren() {
@@ -314,7 +314,7 @@ func (this *FunctionInjector) referencesEval(fn Node) bool {
 	if !fn.isFunction() {
 		panic(new_IllegalStateException_0())
 	}
-	var cached any = this.referencesEvalCache.Get(fn)
+	var cached any = this.referencesEvalCache[fn]
 	if cached != nil {
 		return unbox_[bool](cached)
 	}
@@ -323,7 +323,7 @@ func (this *FunctionInjector) referencesEval(fn Node) bool {
 	}}).apply, &Predicate_base_tfn_Node{func(n Node) bool {
 		return (!n.isFunction() || equalsRRH_(n, fn))
 	}})
-	this.referencesEvalCache.Put(fn, bool(result))
+	this.referencesEvalCache[fn] = bool(result)
 	return result
 }
 
@@ -331,30 +331,30 @@ func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 	if !containerFn.isFunction() {
 		panic(new_IllegalStateException_0())
 	}
-	var cached Node = this.innerFunctionCache.Get(containerFn)
+	var cached Node = this.innerFunctionCache[containerFn]
 	if cached != 0 {
 		return cached
 	}
-	var innerFns *TList[Node] = newTList_(tc_Node)
+	var innerFns []Node = []Node{}
 	NodeUtil_visitPreOrder_Node_Visitor(containerFn, &NodeUtil_Visitor_fn{func(n Node) {
 		if equalsRRH_(n, containerFn) {
 			return
 		}
 		if NodeUtil_isFunctionOrNonStaticClassFieldInitializer(n) {
-			innerFns.add(n)
+			innerFns = append(innerFns, n)
 		}
 	}})
 	cached = func() Node {
-		switch innerFns.size() {
+		switch int32(len(innerFns)) {
 		case 0:
 			return FunctionInjector_NO_FUNCTIONS
 		case 1:
-			return innerFns.get(0)
+			return sliceAt_(innerFns, 0)
 		default:
 			return FunctionInjector_MULTIPLE_FUNCTIONS
 		}
 	}()
-	this.innerFunctionCache.Put(containerFn, cached)
+	this.innerFunctionCache[containerFn] = cached
 	return cached
 }
 

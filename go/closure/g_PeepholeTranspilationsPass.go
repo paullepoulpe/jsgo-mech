@@ -9,25 +9,23 @@ type PeepholeTranspilationsPass struct {
 	featureSetToRunOn                *FeatureSet
 }
 
-func (this *PeepholeTranspilationsPass) init_PeepholeTranspilationsPass(compiler *AbstractCompiler, transpilations *TList[*AbstractPeepholeTranspilation], featureSetToRunOn *FeatureSet, featureSetToMarkAsTranspiledAway *FeatureSet) {
+func (this *PeepholeTranspilationsPass) init_PeepholeTranspilationsPass(compiler *AbstractCompiler, transpilations []*AbstractPeepholeTranspilation, featureSetToRunOn *FeatureSet, featureSetToMarkAsTranspiledAway *FeatureSet) {
 	this.compiler_ = compiler
-	this.peepholeTranspilations = arrmap_(transpilations.asList().toArray(arrmap_(make([]*AbstractPeepholeTranspilation, 0), func(v_ *AbstractPeepholeTranspilation) any { return v_.self() })), func(v_ any) *AbstractPeepholeTranspilation { return to_AbstractPeepholeTranspilation(v_) })
+	this.peepholeTranspilations = arrmap_(sliceView_(tc_p_AbstractPeepholeTranspilation, transpilations).toArray(arrmap_(make([]*AbstractPeepholeTranspilation, 0), func(v_ *AbstractPeepholeTranspilation) any { return v_.self() })), func(v_ any) *AbstractPeepholeTranspilation { return to_AbstractPeepholeTranspilation(v_) })
 	this.featureSetToRunOn = featureSetToRunOn
 	this.featureSetToMarkAsTranspiledAway = featureSetToMarkAsTranspiledAway
 }
 
-func new_PeepholeTranspilationsPass(compiler *AbstractCompiler, transpilations *TList[*AbstractPeepholeTranspilation], featureSetToRunOn *FeatureSet, featureSetToMarkAsTranspiledAway *FeatureSet) *PeepholeTranspilationsPass {
+func new_PeepholeTranspilationsPass(compiler *AbstractCompiler, transpilations []*AbstractPeepholeTranspilation, featureSetToRunOn *FeatureSet, featureSetToMarkAsTranspiledAway *FeatureSet) *PeepholeTranspilationsPass {
 	this := &PeepholeTranspilationsPass{}
 	this.init_PeepholeTranspilationsPass(compiler, transpilations, featureSetToRunOn, featureSetToMarkAsTranspiledAway)
 	return this
 }
 
-func PeepholeTranspilationsPass_create(compiler *AbstractCompiler, transpilations *TList[*AbstractPeepholeTranspilation]) *PeepholeTranspilationsPass {
+func PeepholeTranspilationsPass_create(compiler *AbstractCompiler, transpilations []*AbstractPeepholeTranspilation) *PeepholeTranspilationsPass {
 	var featureSetToRunOn *FeatureSet = FeatureSet_BARE_MINIMUM
 	var featureSetToMarkAsTranspiledAway *FeatureSet = FeatureSet_BARE_MINIMUM
-	it_1 := transpilations.each()
-	for it_1.next() {
-		var transpilation *AbstractPeepholeTranspilation = it_1.v
+	for _, transpilation := range transpilations {
 		if ok_, a1_ := !transpilation.getAdditionalFeaturesToRunOn().containsAtLeastOneOf(transpilation.getTranspiledAwayFeatures()), Object_getClass(transpilation.self()).getSimpleName(); !ok_ {
 			panic(new_IllegalStateException_String(Strings_lenientFormat("Transpilation pass %s has getAdditionalFeaturesToRunOn() that contains features that it transpiles away.", []any{a1_})))
 		}

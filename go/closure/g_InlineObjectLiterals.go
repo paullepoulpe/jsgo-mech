@@ -28,11 +28,11 @@ const InlineObjectLiterals_STRING_KEY_IDENTIFIER string = "string_key"
 
 type InlineObjectLiterals_InliningBehavior struct {
 	outer_    *InlineObjectLiterals
-	staleVars *TSet[*Var]
+	staleVars map[varKey_]struct{}
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) finit_InlineObjectLiterals_InliningBehavior() {
-	this.staleVars = newTSet_(tch_p_Var)
+	this.staleVars = map[varKey_]struct{}{}
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) init_InlineObjectLiterals_InliningBehavior() {
@@ -56,7 +56,7 @@ func (this *InlineObjectLiterals_InliningBehavior) afterExitScope(t *NodeTravers
 			continue
 		}
 		if this.isInlinableObject(referenceInfo.references) {
-			this.staleVars.Add(v)
+			this.staleVars[vkey_(v)] = struct{}{}
 			var init_ *Reference = referenceInfo.getInitializingReference()
 			this.splitObject(v, init_, referenceInfo)
 		}
@@ -68,12 +68,12 @@ func (this *InlineObjectLiterals_InliningBehavior) recordStaleVarReferencesInTre
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) isVarInlineForbidden(var_ *Var) bool {
-	return ((((var_.isGlobal() || var_.isExtern()) || this.outer_.compiler_.getCodingConvention().isExported_2(var_.getName(), true)) || this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(var_.getNameNode())) || this.staleVars.Has(var_))
+	return ((((var_.isGlobal() || var_.isExtern()) || this.outer_.compiler_.getCodingConvention().isExported_2(var_.getName(), true)) || this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(var_.getNameNode())) || has_(this.staleVars, vkey_(var_)))
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *TList[*Reference]) bool {
 	var ret bool = false
-	var validProperties *TSet[string] = newTSet_(tc_string)
+	var validProperties map[string]struct{} = map[string]struct{}{}
 	it_1 := refs.each()
 	for it_1.next() {
 		var ref *Reference = it_1.v
@@ -91,9 +91,9 @@ func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *TList
 				return false
 			}
 			var propName string = parent.getString()
-			if !validProperties.Has(propName) {
+			if !has_(validProperties, propName) {
 				if NodeUtil_isNameDeclOrSimpleAssignLhs(parent, grandparent) {
-					validProperties.Add(propName)
+					validProperties[propName] = struct{}{}
 				} else {
 					return false
 				}
@@ -123,7 +123,7 @@ func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *TList
 				default:
 					panic(new_IllegalStateException_String(("Unexpected child of OBJECTLIT: " + sstr_(child.toStringTree()))))
 				}
-				validProperties.Add(child.getString())
+				validProperties[child.getString()] = struct{}{}
 				var childVal Node = child.getFirstChild()
 				it_5 := refs.each()
 				for it_5.next() {
@@ -192,7 +192,7 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 	return varmap
 }
 
-func (this *InlineObjectLiterals_InliningBehavior) fillInitialValues(init_ *Reference, initvals *TMap[string, Node]) {
+func (this *InlineObjectLiterals_InliningBehavior) fillInitialValues(init_ *Reference, initvals map[string]Node) {
 	var object Node = init_.getAssignedValue()
 	if !object.isObjectLit() {
 		Preconditions_checkState_boolean_Object_H(false, object)
@@ -200,7 +200,7 @@ func (this *InlineObjectLiterals_InliningBehavior) fillInitialValues(init_ *Refe
 	{
 		var key Node = object.getFirstChild()
 		for ; key != 0; key = key.getNext() {
-			initvals.Put(key.getString(), key.removeFirstChild())
+			initvals[key.getString()] = key.removeFirstChild()
 		}
 	}
 }
@@ -259,7 +259,7 @@ func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v
 
 func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Reference, referenceInfo *ReferenceCollection) {
 	var varmap *TMap[string, string] = this.computeVarList(referenceInfo)
-	var initvals *TMap[string, Node] = newTMap_(tc_string, tc_Node)
+	var initvals map[string]Node = map[string]Node{}
 	var vnode Node
 	var isBlockScoped bool = (v.isLet() || v.isConst())
 	var defined bool = (referenceInfo.isWellDefined() && NodeUtil_isNameDeclaration(init_.getParent()))
@@ -289,7 +289,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 	it_1 := varmap.eachEntry()
 	for it_1.next() {
 		var entry *TEntry[string, string] = it_1.entry()
-		var val Node = initvals.Get(entry.getKey())
+		var val Node = initvals[entry.getKey()]
 		var lhs Node = IR_name(entry.getValue())
 		var declarationType Token_rhino = func() Token_rhino {
 			if isBlockScoped {
@@ -365,6 +365,6 @@ func new_InlineObjectLiterals_InliningBehavior_1(outer_ *InlineObjectLiterals_In
 
 func (this *InlineObjectLiterals_InliningBehavior_1) visit(node Node) {
 	if node.isName() {
-		this.outer_.staleVars.Add(this.cap_scope.getVar_String_rVar(node.getString()))
+		this.outer_.staleVars[vkey_(this.cap_scope.getVar_String_rVar(node.getString()))] = struct{}{}
 	}
 }

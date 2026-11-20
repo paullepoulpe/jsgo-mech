@@ -11,11 +11,11 @@ type SourceMapObject struct {
 	sources        []string
 	sourcesContent []string
 	names_         []string
-	sections       *TList[*SourceMapSection]
+	sections       *[]*SourceMapSection
 	extensions     *TMap[string, any]
 }
 
-func (this *SourceMapObject) init_SourceMapObject(version int32, lineCount int32, sourceRoot Optional[string], file Optional[string], mappings Optional[string], sources []string, sourcesContent []string, names []string, sections *TList[*SourceMapSection], extensions *TMap[string, any]) {
+func (this *SourceMapObject) init_SourceMapObject(version int32, lineCount int32, sourceRoot Optional[string], file Optional[string], mappings Optional[string], sources []string, sourcesContent []string, names []string, sections *[]*SourceMapSection, extensions *TMap[string, any]) {
 	this.version_ = version
 	this.lineCount = lineCount
 	this.sourceRoot = sourceRoot
@@ -28,7 +28,7 @@ func (this *SourceMapObject) init_SourceMapObject(version int32, lineCount int32
 	this.extensions = extensions
 }
 
-func new_SourceMapObject(version int32, lineCount int32, sourceRoot Optional[string], file Optional[string], mappings Optional[string], sources []string, sourcesContent []string, names []string, sections *TList[*SourceMapSection], extensions *TMap[string, any]) *SourceMapObject {
+func new_SourceMapObject(version int32, lineCount int32, sourceRoot Optional[string], file Optional[string], mappings Optional[string], sources []string, sourcesContent []string, names []string, sections *[]*SourceMapSection, extensions *TMap[string, any]) *SourceMapObject {
 	this := &SourceMapObject{}
 	this.init_SourceMapObject(version, lineCount, sourceRoot, file, mappings, sources, sourcesContent, names, sections, extensions)
 	return this
@@ -66,7 +66,7 @@ func (this *SourceMapObject) getNames() []string {
 	return this.names_
 }
 
-func (this *SourceMapObject) getSections() *TList[*SourceMapSection] {
+func (this *SourceMapObject) getSections() *[]*SourceMapSection {
 	return this.sections
 }
 
@@ -87,7 +87,7 @@ type SourceMapObject_Builder struct {
 	sources        []string
 	sourcesContent []string
 	names_         []string
-	sections       *TList[*SourceMapSection]
+	sections       *[]*SourceMapSection
 	extensions     *TMap[string, any]
 }
 
@@ -147,7 +147,7 @@ func (this *SourceMapObject_Builder) setNames(names []string) *SourceMapObject_B
 	return this
 }
 
-func (this *SourceMapObject_Builder) setSections(sections *TList[*SourceMapSection]) *SourceMapObject_Builder {
+func (this *SourceMapObject_Builder) setSections(sections *[]*SourceMapSection) *SourceMapObject_Builder {
 	this.sections = sections
 	return this
 }

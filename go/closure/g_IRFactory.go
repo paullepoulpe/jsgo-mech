@@ -12,7 +12,7 @@ type IRFactory struct {
 	errorReporter              ErrorReporter_rhino
 	transformDispatcher        *IRFactory_TransformDispatcher
 	reservedKeywords           *TSet[string]
-	parsedComments             *TSet[*Comment]
+	parsedComments             map[*Comment]struct{}
 	licenseBuilder             *TSet[string]
 	firstFileoverview          *JSDocInfo
 	templateNode               Node
@@ -28,7 +28,7 @@ type IRFactory struct {
 }
 
 func (this *IRFactory) finit_IRFactory() {
-	this.parsedComments = newTSet_(tc_p_Comment)
+	this.parsedComments = map[*Comment]struct{}{}
 	this.licenseBuilder = newTSet_(tc_string)
 	this.firstFileoverview = nil
 	this.currentFileIsExterns = false
@@ -100,7 +100,7 @@ func IRFactory_transformTree(tree *ProgramTree, sourceFile StaticSourceFile, con
 		it_1 := tree.sourceComments.each()
 		for it_1.next() {
 			var comment *Comment = it_1.v
-			if ((comment.type__ == Comment_Type_JSDOC) || (comment.type__ == Comment_Type_IMPORTANT)) && !irFactory.parsedComments.Has(comment) {
+			if ((comment.type__ == Comment_Type_JSDOC) || (comment.type__ == Comment_Type_IMPORTANT)) && !has_(irFactory.parsedComments, comment) {
 				var useLicensesOnlyConfig bool = irFactory.withinClosureUnawareCodeRange(comment.location_.start_.line_, comment.location_.start_.column_)
 				irFactory.handlePossibleFileOverviewJsDoc_2(comment, useLicensesOnlyConfig)
 			}
@@ -372,13 +372,13 @@ func (this *IRFactory) validateParameters(n Node) {
 	if !n.isParamList() {
 		return
 	}
-	var seenNames *TSet[string] = newTSet_(tc_string)
+	var seenNames map[string]struct{} = map[string]struct{}{}
 	{
 		var c Node = n.getFirstChild()
 		for ; c != 0; c = c.getNext() {
 			ParsingUtil_getParamOrPatternNames(c, (&Consumer_tfn_Node{func(param Node) {
 				var paramName string = param.getString()
-				if !seenNames.Add(paramName) {
+				if !setAdd_(seenNames, paramName) {
 					this.errorReporter.warning(("Duplicate parameter name \"" + sstr_(paramName) + "\""), this.sourceName_, param.getLineno(), param.getCharno())
 				}
 			}}).accept)
@@ -454,7 +454,7 @@ func (this *IRFactory) handlePossibleFileOverviewJsDoc(jsDocParser *JsDocInfoPar
 
 func (this *IRFactory) handlePossibleFileOverviewJsDoc_2(comment *Comment, useLicensesOnlyConfig bool) {
 	var jsDocParser *JsDocInfoParser = this.createJsDocInfoParser_2(comment, useLicensesOnlyConfig)
-	this.parsedComments.Add(comment)
+	this.parsedComments[comment] = struct{}{}
 	this.handlePossibleFileOverviewJsDoc(jsDocParser)
 }
 
@@ -476,7 +476,7 @@ func (this *IRFactory) parseJSDocInfoFrom(comment *Comment) *JSDocInfo {
 		return nil
 	}
 	var jsDocParser *JsDocInfoParser = this.createJsDocInfoParser(comment)
-	this.parsedComments.Add(comment)
+	this.parsedComments[comment] = struct{}{}
 	if this.handlePossibleFileOverviewJsDoc(jsDocParser) {
 		return nil
 	}
@@ -551,7 +551,7 @@ func (this *IRFactory) parseNonJSDocCommentAt(pos *SourcePosition_util, isInline
 		result.append(currentComment.value_)
 		lastComment = currentComment
 		if commentFromJsdocTracker {
-			this.parsedComments.Add(currentComment)
+			this.parsedComments[currentComment] = struct{}{}
 			this.jsdocTracker.advance()
 		} else {
 			this.nonJsdocTracker.advance()

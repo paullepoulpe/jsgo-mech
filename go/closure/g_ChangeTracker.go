@@ -6,14 +6,14 @@ type ChangeTracker struct {
 	changeStamp        int32
 	changeTimeline     *Timeline[Node]
 	recentChange       *RecentChange
-	codeChangeHandlers *TList[CodeChangeHandler]
+	codeChangeHandlers *[]CodeChangeHandler
 }
 
 func (this *ChangeTracker) finit_ChangeTracker() {
 	this.changeStamp = 1
 	this.changeTimeline = new_Timeline[Node]()
 	this.recentChange = new_RecentChange()
-	this.codeChangeHandlers = newTList_(tc_CodeChangeHandler)
+	this.codeChangeHandlers = &[]CodeChangeHandler{}
 }
 
 func (this *ChangeTracker) init_ChangeTracker() {
@@ -27,11 +27,11 @@ func new_ChangeTracker() *ChangeTracker {
 }
 
 func (this *ChangeTracker) addChangeHandler(handler CodeChangeHandler) {
-	this.codeChangeHandlers.add(handler)
+	*this.codeChangeHandlers = append(*this.codeChangeHandlers, handler)
 }
 
 func (this *ChangeTracker) removeChangeHandler(handler CodeChangeHandler) {
-	this.codeChangeHandlers.asList().remove_Object(handler)
+	sliceRemoveObject_(tc_CodeChangeHandler, this.codeChangeHandlers, handler)
 }
 
 func (this *ChangeTracker) getRecentChange() *RecentChange {
@@ -101,9 +101,7 @@ func ChangeTracker_getEnclosingChangeScopeRoot(n Node) Node {
 }
 
 func (this *ChangeTracker) notifyChangeHandlers() {
-	it_1 := this.codeChangeHandlers.each()
-	for it_1.next() {
-		var handler CodeChangeHandler = it_1.v
+	for _, handler := range *this.codeChangeHandlers {
 		handler.reportChange()
 	}
 }
