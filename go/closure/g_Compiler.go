@@ -126,7 +126,7 @@ func (this *Compiler) finit_Compiler() {
 	this.accessorSummary = nil
 	this.changeTracker = new_ChangeTracker()
 	this.resolvedSourceMap = new_Compiler_ResolvedSourceMap()
-	this.validityCheck = PassFactory_builder().setName("validityCheck").setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass { return CompilerPass(new_ValidityCheck(to_AbstractCompiler(p0))) }}).setCondition(&Function_tfn_CompilerOptions_any{func(o *CompilerOptions) any {
+	this.validityCheck = PassFactory_builder().setName("validityCheck").setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_ValidityCheck(p0)) }}).setCondition(&Function_tfn_CompilerOptions_any{func(o *CompilerOptions) any {
 		panic(new_IllegalStateException_String("Unexpected"))
 	}}).build()
 	this.currentPassIndex = -1

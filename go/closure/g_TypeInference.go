@@ -1443,9 +1443,7 @@ func (this *TypeInference) inferTemplatedTypesForCall(n Node, fnType *FunctionTy
 	for key := range keys.All() {
 		inferred.Put(key, bindings.GetOr(key, this.unknownType.up_JSType()))
 	}
-	Map_replaceAll(inferred.asMap(), &BiFunction_tfn_TemplateType_any_any{func(k *TemplateType, v_ any) any {
-		var v *JSType = to_JSType(v_)
-		_ = v
+	Map_replaceAll(inferred.asMap(), &BiFunction_tfn_TemplateType_any_any_cx_JSType{func(k *TemplateType, v *JSType) any {
 		return func() any {
 			if v.isSubtypeOf(k.getBound()) {
 				return v.self()
