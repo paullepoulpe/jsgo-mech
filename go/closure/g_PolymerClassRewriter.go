@@ -127,7 +127,9 @@ func (this *PolymerClassRewriter) rewritePolymerCall(cls *PolymerClassDefinition
 		}
 		return callParent.getParent()
 	}()
-	Preconditions_checkState_boolean_Object_H(NodeUtil_isStatementParent(exprRoot.getParent()), exprRoot.getParent())
+	if ok_, a1_ := NodeUtil_isStatementParent(exprRoot.getParent()), exprRoot.getParent(); !ok_ {
+		Preconditions_checkState_boolean_Object_H(false, a1_)
+	}
 	var objLit Node = Preconditions_checkNotNull_T(cls.descriptor)
 	var objLitDoc *JSDocInfo_Builder = JSDocInfo_builder().parseDocumentation()
 	var jsTypeExpression *JSTypeExpression = new_JSTypeExpression(IR_string((sstr_(cls.target.getQualifiedName()) + ".prototype")).srcref(exprRoot), exprRoot.getSourceFileName())

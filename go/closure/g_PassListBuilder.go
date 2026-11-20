@@ -109,6 +109,8 @@ func (this *PassListBuilder) assertPassOrder(pass1 *PassFactory, pass2 *PassFact
 	var pass1Index int32 = this.passes.asList().indexOf(obj_(pass1))
 	var pass2Index int32 = this.passes.asList().indexOf(obj_(pass2))
 	if (pass1Index != -1) && (pass2Index != -1) {
-		Preconditions_checkState_boolean_Object((pass1Index < pass2Index), msg)
+		if !(pass1Index < pass2Index) {
+			Preconditions_checkState_boolean_Object(false, msg)
+		}
 	}
 }

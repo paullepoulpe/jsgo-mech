@@ -39,7 +39,9 @@ func (this *TypedVar) init_TypedVar(inferred bool, name string, nameNode Node, t
 	this.finit_TypedVar()
 	this.scope_ = scope
 	if nameNode != 0 {
-		Preconditions_checkArgument_boolean_String_Object(TypedVar_NAME_NODE_TYPES.contains(nameNode.getToken()), "Invalid name node token %s", nameNode.getToken())
+		if ok_, a1_ := TypedVar_NAME_NODE_TYPES.contains(nameNode.getToken()), nameNode.getToken(); !ok_ {
+			Preconditions_checkArgument_boolean_String_Object(false, "Invalid name node token %s", a1_)
+		}
 	}
 	this.type__ = type_
 	this.typeInferred = inferred
@@ -168,7 +170,9 @@ func (this *TypedVar) declarationType_impl() *Token_rhino {
 			}
 		}
 	}
-	Preconditions_checkState_boolean_String_Object_Object(this.isImplicit(), "The nameNode for %s must be a descendant of one of: %s", this, AbstractVar_DECLARATION_TYPES.asSet())
+	if ok_, a1_, a2_ := this.isImplicit(), this, AbstractVar_DECLARATION_TYPES.asSet(); !ok_ {
+		Preconditions_checkState_boolean_String_Object_Object(false, "The nameNode for %s must be a descendant of one of: %s", a1_, a2_)
+	}
 	return nil
 }
 

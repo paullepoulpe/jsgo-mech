@@ -130,8 +130,12 @@ func (this *GenerateExports) recordExportSymbol(qname string) {
 }
 
 func (this *GenerateExports) addExportForEs6Method(memberFunction Node, ownerName string) {
-	Preconditions_checkArgument_boolean_Object_H(memberFunction.isMemberFunctionDef(), memberFunction)
-	Preconditions_checkArgument_boolean_Object(!String_isEmpty(ownerName), ownerName)
+	if !memberFunction.isMemberFunctionDef() {
+		Preconditions_checkArgument_boolean_Object_H(false, memberFunction)
+	}
+	if String_isEmpty(ownerName) {
+		Preconditions_checkArgument_boolean_Object(false, ownerName)
+	}
 	var fullExport string = (sstr_(ownerName) + "." + sstr_(memberFunction.getString()))
 	this.addExportPropertyCall(ownerName, memberFunction, fullExport, memberFunction.getString())
 }

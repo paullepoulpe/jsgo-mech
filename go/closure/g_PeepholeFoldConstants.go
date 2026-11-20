@@ -205,7 +205,9 @@ func (this *PeepholeFoldConstants) tryFoldTypeof(originalTypeofNode Node) Node {
 }
 
 func (this *PeepholeFoldConstants) tryFoldUnaryOperator(n Node) Node {
-	Preconditions_checkState_boolean_Object_H(n.hasOneChild(), n)
+	if !n.hasOneChild() {
+		Preconditions_checkState_boolean_Object_H(false, n)
+	}
 	var left Node = n.getFirstChild()
 	var parent Node = n.getParent()
 	if left == 0 {

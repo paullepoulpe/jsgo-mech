@@ -28,7 +28,9 @@ func new_InlineSimpleMethods(compiler *AbstractCompiler) *InlineSimpleMethods {
 }
 
 func (this *InlineSimpleMethods) process_2(externs Node, root Node) {
-	Preconditions_checkState_boolean_Object(this.compiler_.getLifeCycleStage().isNormalized(), this.compiler_.getLifeCycleStage())
+	if ok_, a1_ := this.compiler_.getLifeCycleStage().isNormalized(), this.compiler_.getLifeCycleStage(); !ok_ {
+		Preconditions_checkState_boolean_Object(false, a1_)
+	}
 	Preconditions_checkState(this.methodDefinitions.isEmpty())
 	Preconditions_checkState((externs != 0))
 	NodeTraversal_traverseRoots(this.compiler_, NodeTraversal_Callback(new_InlineSimpleMethods_GatherSignatures(this)), externs, root)

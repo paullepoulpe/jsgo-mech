@@ -70,7 +70,9 @@ func CheckInterfaces_checkInterfaceConstructorArgs(t *NodeTraversal, funcNode No
 
 func CheckInterfaces_checkClassMethods(t *NodeTraversal, classNode Node, ctorDef Node) {
 	var classMembers Node = classNode.getLastChild()
-	Preconditions_checkState_boolean_Object_H(classMembers.isClassMembers(), classMembers)
+	if !classMembers.isClassMembers() {
+		Preconditions_checkState_boolean_Object_H(false, classMembers)
+	}
 	{
 		var memberFuncDef Node = classMembers.getFirstChild()
 		for ; memberFuncDef != 0; memberFuncDef = memberFuncDef.getNext() {
