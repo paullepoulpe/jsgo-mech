@@ -93,3 +93,14 @@ func J2clChecksPass_clinit() {
 	J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS = immutableMapOf3_[string, string](jtc_string, jtc_string, "java.lang.Integer", "java/lang/Integer.impl.java.js", "java.lang.Float", "java/lang/Float.impl.java.js", "goog.math.Long", "javascript/closure/math/long.js")
 
 }
+
+// visit: an object that is exactly a J2clChecksPass calls its visit_impl directly (post-flip); others dispatch.
+func (this *J2clChecksPass) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

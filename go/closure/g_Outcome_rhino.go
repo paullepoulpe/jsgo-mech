@@ -365,3 +365,99 @@ func Outcome_4_clinit() {
 	registerEnum_("<anonymous com.google.javascript.rhino.Outcome>", enumValues_(Outcome_4_values_))
 
 }
+
+// isTruthy: an object that is exactly a Outcome_1_rhino calls its isTruthy_impl directly (post-flip); others dispatch.
+func (this *Outcome_1_rhino) isTruthy() bool {
+	if this.self_ == any(this) {
+		return this.isTruthy_impl()
+	}
+	return this.self_.(interface{ isTruthy_impl() bool }).isTruthy_impl()
+}
+
+// isNullish: an object that is exactly a Outcome_1_rhino calls its isNullish_impl directly (post-flip); others dispatch.
+func (this *Outcome_1_rhino) isNullish() *Tri {
+	if this.self_ == any(this) {
+		return this.isNullish_impl()
+	}
+	return this.self_.(interface{ isNullish_impl() *Tri }).isNullish_impl()
+}
+
+// not: an object that is exactly a Outcome_1_rhino calls its not_impl directly (post-flip); others dispatch.
+func (this *Outcome_1_rhino) not() *Outcome_rhino {
+	if this.self_ == any(this) {
+		return this.not_impl()
+	}
+	return this.self_.(interface{ not_impl() *Outcome_rhino }).not_impl()
+}
+
+// isTruthy: an object that is exactly a Outcome_2_rhino calls its isTruthy_impl directly (post-flip); others dispatch.
+func (this *Outcome_2_rhino) isTruthy() bool {
+	if this.self_ == any(this) {
+		return this.isTruthy_impl()
+	}
+	return this.self_.(interface{ isTruthy_impl() bool }).isTruthy_impl()
+}
+
+// isNullish: an object that is exactly a Outcome_2_rhino calls its isNullish_impl directly (post-flip); others dispatch.
+func (this *Outcome_2_rhino) isNullish() *Tri {
+	if this.self_ == any(this) {
+		return this.isNullish_impl()
+	}
+	return this.self_.(interface{ isNullish_impl() *Tri }).isNullish_impl()
+}
+
+// not: an object that is exactly a Outcome_2_rhino calls its not_impl directly (post-flip); others dispatch.
+func (this *Outcome_2_rhino) not() *Outcome_rhino {
+	if this.self_ == any(this) {
+		return this.not_impl()
+	}
+	return this.self_.(interface{ not_impl() *Outcome_rhino }).not_impl()
+}
+
+// isTruthy: an object that is exactly a Outcome_3 calls its isTruthy_impl directly (post-flip); others dispatch.
+func (this *Outcome_3) isTruthy() bool {
+	if this.self_ == any(this) {
+		return this.isTruthy_impl()
+	}
+	return this.self_.(interface{ isTruthy_impl() bool }).isTruthy_impl()
+}
+
+// isNullish: an object that is exactly a Outcome_3 calls its isNullish_impl directly (post-flip); others dispatch.
+func (this *Outcome_3) isNullish() *Tri {
+	if this.self_ == any(this) {
+		return this.isNullish_impl()
+	}
+	return this.self_.(interface{ isNullish_impl() *Tri }).isNullish_impl()
+}
+
+// not: an object that is exactly a Outcome_3 calls its not_impl directly (post-flip); others dispatch.
+func (this *Outcome_3) not() *Outcome_rhino {
+	if this.self_ == any(this) {
+		return this.not_impl()
+	}
+	return this.self_.(interface{ not_impl() *Outcome_rhino }).not_impl()
+}
+
+// isTruthy: an object that is exactly a Outcome_4 calls its isTruthy_impl directly (post-flip); others dispatch.
+func (this *Outcome_4) isTruthy() bool {
+	if this.self_ == any(this) {
+		return this.isTruthy_impl()
+	}
+	return this.self_.(interface{ isTruthy_impl() bool }).isTruthy_impl()
+}
+
+// isNullish: an object that is exactly a Outcome_4 calls its isNullish_impl directly (post-flip); others dispatch.
+func (this *Outcome_4) isNullish() *Tri {
+	if this.self_ == any(this) {
+		return this.isNullish_impl()
+	}
+	return this.self_.(interface{ isNullish_impl() *Tri }).isNullish_impl()
+}
+
+// not: an object that is exactly a Outcome_4 calls its not_impl directly (post-flip); others dispatch.
+func (this *Outcome_4) not() *Outcome_rhino {
+	if this.self_ == any(this) {
+		return this.not_impl()
+	}
+	return this.self_.(interface{ not_impl() *Outcome_rhino }).not_impl()
+}

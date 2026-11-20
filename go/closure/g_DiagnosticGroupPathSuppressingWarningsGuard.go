@@ -48,3 +48,11 @@ func (this *DiagnosticGroupPathSuppressingWarningsGuard) level_impl(error_ *JSEr
 func (this *DiagnosticGroupPathSuppressingWarningsGuard) toString() string {
 	return (jtostr_(this.group) + "(" + sstr_(this.part) + ")")
 }
+
+// level: an object that is exactly a DiagnosticGroupPathSuppressingWarningsGuard calls its level_impl directly (post-flip); others dispatch.
+func (this *DiagnosticGroupPathSuppressingWarningsGuard) level(p0 *JSError) *CheckLevel {
+	if this.self_ == any(this) {
+		return this.level_impl(p0)
+	}
+	return this.self_.(interface{ level_impl(*JSError) *CheckLevel }).level_impl(p0)
+}

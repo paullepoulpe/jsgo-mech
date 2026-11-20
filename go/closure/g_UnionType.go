@@ -639,3 +639,297 @@ func (this *UnionType_Builder) getNativeWildcardType() *JSType {
 func (this *UnionType_Builder) checkHasNotBuilt() {
 	Preconditions_checkState_boolean_Object((this.finalAlternates == nil), "Cannot reuse a `UnionType.Builder` that has already built.")
 }
+
+// getTypeClass: an object that is exactly a UnionType calls its getTypeClass_impl directly (post-flip); others dispatch.
+func (this *UnionType) getTypeClass() *JSTypeClass {
+	if this.self_ == any(this) {
+		return this.getTypeClass_impl()
+	}
+	return this.self_.(interface{ getTypeClass_impl() *JSTypeClass }).getTypeClass_impl()
+}
+
+// matchesNumberContext: an object that is exactly a UnionType calls its matchesNumberContext_impl directly (post-flip); others dispatch.
+func (this *UnionType) matchesNumberContext() bool {
+	if this.self_ == any(this) {
+		return this.matchesNumberContext_impl()
+	}
+	return this.self_.(interface{ matchesNumberContext_impl() bool }).matchesNumberContext_impl()
+}
+
+// matchesStringContext: an object that is exactly a UnionType calls its matchesStringContext_impl directly (post-flip); others dispatch.
+func (this *UnionType) matchesStringContext() bool {
+	if this.self_ == any(this) {
+		return this.matchesStringContext_impl()
+	}
+	return this.self_.(interface{ matchesStringContext_impl() bool }).matchesStringContext_impl()
+}
+
+// matchesSymbolContext: an object that is exactly a UnionType calls its matchesSymbolContext_impl directly (post-flip); others dispatch.
+func (this *UnionType) matchesSymbolContext() bool {
+	if this.self_ == any(this) {
+		return this.matchesSymbolContext_impl()
+	}
+	return this.self_.(interface{ matchesSymbolContext_impl() bool }).matchesSymbolContext_impl()
+}
+
+// matchesObjectContext: an object that is exactly a UnionType calls its matchesObjectContext_impl directly (post-flip); others dispatch.
+func (this *UnionType) matchesObjectContext() bool {
+	if this.self_ == any(this) {
+		return this.matchesObjectContext_impl()
+	}
+	return this.self_.(interface{ matchesObjectContext_impl() bool }).matchesObjectContext_impl()
+}
+
+// findPropertyTypeWithoutConsideringTemplateTypes: an object that is exactly a UnionType calls its findPropertyTypeWithoutConsideringTemplateTypes_impl directly (post-flip); others dispatch.
+func (this *UnionType) findPropertyTypeWithoutConsideringTemplateTypes(p0 Property_Key) *JSType {
+	if this.self_ == any(this) {
+		return this.findPropertyTypeWithoutConsideringTemplateTypes_impl(p0)
+	}
+	return this.self_.(interface{ findPropertyTypeWithoutConsideringTemplateTypes_impl(Property_Key) *JSType }).findPropertyTypeWithoutConsideringTemplateTypes_impl(p0)
+}
+
+// canBeCalled: an object that is exactly a UnionType calls its canBeCalled_impl directly (post-flip); others dispatch.
+func (this *UnionType) canBeCalled() bool {
+	if this.self_ == any(this) {
+		return this.canBeCalled_impl()
+	}
+	return this.self_.(interface{ canBeCalled_impl() bool }).canBeCalled_impl()
+}
+
+// autobox: an object that is exactly a UnionType calls its autobox_impl directly (post-flip); others dispatch.
+func (this *UnionType) autobox() *JSType {
+	if this.self_ == any(this) {
+		return this.autobox_impl()
+	}
+	return this.self_.(interface{ autobox_impl() *JSType }).autobox_impl()
+}
+
+// restrictByNotNullOrUndefined: an object that is exactly a UnionType calls its restrictByNotNullOrUndefined_impl directly (post-flip); others dispatch.
+func (this *UnionType) restrictByNotNullOrUndefined() *JSType {
+	if this.self_ == any(this) {
+		return this.restrictByNotNullOrUndefined_impl()
+	}
+	return this.self_.(interface{ restrictByNotNullOrUndefined_impl() *JSType }).restrictByNotNullOrUndefined_impl()
+}
+
+// restrictByNotUndefined: an object that is exactly a UnionType calls its restrictByNotUndefined_impl directly (post-flip); others dispatch.
+func (this *UnionType) restrictByNotUndefined() *JSType {
+	if this.self_ == any(this) {
+		return this.restrictByNotUndefined_impl()
+	}
+	return this.self_.(interface{ restrictByNotUndefined_impl() *JSType }).restrictByNotUndefined_impl()
+}
+
+// restrictByNotNull: an object that is exactly a UnionType calls its restrictByNotNull_impl directly (post-flip); others dispatch.
+func (this *UnionType) restrictByNotNull() *JSType {
+	if this.self_ == any(this) {
+		return this.restrictByNotNull_impl()
+	}
+	return this.self_.(interface{ restrictByNotNull_impl() *JSType }).restrictByNotNull_impl()
+}
+
+// testForEquality: an object that is exactly a UnionType calls its testForEquality_impl directly (post-flip); others dispatch.
+func (this *UnionType) testForEquality(p0 *JSType) *Tri {
+	if this.self_ == any(this) {
+		return this.testForEquality_impl(p0)
+	}
+	return this.self_.(interface{ testForEquality_impl(*JSType) *Tri }).testForEquality_impl(p0)
+}
+
+// isNullable: an object that is exactly a UnionType calls its isNullable_impl directly (post-flip); others dispatch.
+func (this *UnionType) isNullable() bool {
+	if this.self_ == any(this) {
+		return this.isNullable_impl()
+	}
+	return this.self_.(interface{ isNullable_impl() bool }).isNullable_impl()
+}
+
+// isVoidable: an object that is exactly a UnionType calls its isVoidable_impl directly (post-flip); others dispatch.
+func (this *UnionType) isVoidable() bool {
+	if this.self_ == any(this) {
+		return this.isVoidable_impl()
+	}
+	return this.self_.(interface{ isVoidable_impl() bool }).isVoidable_impl()
+}
+
+// isExplicitlyVoidable: an object that is exactly a UnionType calls its isExplicitlyVoidable_impl directly (post-flip); others dispatch.
+func (this *UnionType) isExplicitlyVoidable() bool {
+	if this.self_ == any(this) {
+		return this.isExplicitlyVoidable_impl()
+	}
+	return this.self_.(interface{ isExplicitlyVoidable_impl() bool }).isExplicitlyVoidable_impl()
+}
+
+// isUnknownType: an object that is exactly a UnionType calls its isUnknownType_impl directly (post-flip); others dispatch.
+func (this *UnionType) isUnknownType() bool {
+	if this.self_ == any(this) {
+		return this.isUnknownType_impl()
+	}
+	return this.self_.(interface{ isUnknownType_impl() bool }).isUnknownType_impl()
+}
+
+// isStruct: an object that is exactly a UnionType calls its isStruct_impl directly (post-flip); others dispatch.
+func (this *UnionType) isStruct() bool {
+	if this.self_ == any(this) {
+		return this.isStruct_impl()
+	}
+	return this.self_.(interface{ isStruct_impl() bool }).isStruct_impl()
+}
+
+// isDict: an object that is exactly a UnionType calls its isDict_impl directly (post-flip); others dispatch.
+func (this *UnionType) isDict() bool {
+	if this.self_ == any(this) {
+		return this.isDict_impl()
+	}
+	return this.self_.(interface{ isDict_impl() bool }).isDict_impl()
+}
+
+// getLeastSupertype: an object that is exactly a UnionType calls its getLeastSupertype_impl directly (post-flip); others dispatch.
+func (this *UnionType) getLeastSupertype(p0 *JSType) *JSType {
+	if this.self_ == any(this) {
+		return this.getLeastSupertype_impl(p0)
+	}
+	return this.self_.(interface{ getLeastSupertype_impl(*JSType) *JSType }).getLeastSupertype_impl(p0)
+}
+
+// getPropertyKind_2: an object that is exactly a UnionType calls its getPropertyKind_2_impl directly (post-flip); others dispatch.
+func (this *UnionType) getPropertyKind_2(p0 Property_Key, p1 bool) *JSType_HasPropertyKind {
+	if this.self_ == any(this) {
+		return this.getPropertyKind_2_impl(p0, p1)
+	}
+	return this.self_.(interface {
+		getPropertyKind_2_impl(Property_Key, bool) *JSType_HasPropertyKind
+	}).getPropertyKind_2_impl(p0, p1)
+}
+
+// recursionUnsafeHashCode: an object that is exactly a UnionType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
+func (this *UnionType) recursionUnsafeHashCode() int32 {
+	if this.self_ == any(this) {
+		return this.recursionUnsafeHashCode_impl()
+	}
+	return this.self_.(interface{ recursionUnsafeHashCode_impl() int32 }).recursionUnsafeHashCode_impl()
+}
+
+// toMaybeUnionType: an object that is exactly a UnionType calls its toMaybeUnionType_impl directly (post-flip); others dispatch.
+func (this *UnionType) toMaybeUnionType() *UnionType {
+	if this.self_ == any(this) {
+		return this.toMaybeUnionType_impl()
+	}
+	return this.self_.(interface{ toMaybeUnionType_impl() *UnionType }).toMaybeUnionType_impl()
+}
+
+// isObject: an object that is exactly a UnionType calls its isObject_impl directly (post-flip); others dispatch.
+func (this *UnionType) isObject() bool {
+	if this.self_ == any(this) {
+		return this.isObject_impl()
+	}
+	return this.self_.(interface{ isObject_impl() bool }).isObject_impl()
+}
+
+// appendTo: an object that is exactly a UnionType calls its appendTo_impl directly (post-flip); others dispatch.
+func (this *UnionType) appendTo(p0 *TypeStringBuilder) {
+	if this.self_ == any(this) {
+		this.appendTo_impl(p0)
+		return
+	}
+	this.self_.(interface{ appendTo_impl(*TypeStringBuilder) }).appendTo_impl(p0)
+}
+
+// getRestrictedTypeGivenOutcome: an object that is exactly a UnionType calls its getRestrictedTypeGivenOutcome_impl directly (post-flip); others dispatch.
+func (this *UnionType) getRestrictedTypeGivenOutcome(p0 *Outcome_rhino) *JSType {
+	if this.self_ == any(this) {
+		return this.getRestrictedTypeGivenOutcome_impl(p0)
+	}
+	return this.self_.(interface{ getRestrictedTypeGivenOutcome_impl(*Outcome_rhino) *JSType }).getRestrictedTypeGivenOutcome_impl(p0)
+}
+
+// getPossibleToBooleanOutcomes: an object that is exactly a UnionType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
+func (this *UnionType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
+	if this.self_ == any(this) {
+		return this.getPossibleToBooleanOutcomes_impl()
+	}
+	return this.self_.(interface{ getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet }).getPossibleToBooleanOutcomes_impl()
+}
+
+// getTypesUnderEquality: an object that is exactly a UnionType calls its getTypesUnderEquality_impl directly (post-flip); others dispatch.
+func (this *UnionType) getTypesUnderEquality(p0 *JSType) *JSType_TypePair {
+	if this.self_ == any(this) {
+		return this.getTypesUnderEquality_impl(p0)
+	}
+	return this.self_.(interface {
+		getTypesUnderEquality_impl(*JSType) *JSType_TypePair
+	}).getTypesUnderEquality_impl(p0)
+}
+
+// getTypesUnderInequality: an object that is exactly a UnionType calls its getTypesUnderInequality_impl directly (post-flip); others dispatch.
+func (this *UnionType) getTypesUnderInequality(p0 *JSType) *JSType_TypePair {
+	if this.self_ == any(this) {
+		return this.getTypesUnderInequality_impl(p0)
+	}
+	return this.self_.(interface {
+		getTypesUnderInequality_impl(*JSType) *JSType_TypePair
+	}).getTypesUnderInequality_impl(p0)
+}
+
+// getTypesUnderShallowInequality: an object that is exactly a UnionType calls its getTypesUnderShallowInequality_impl directly (post-flip); others dispatch.
+func (this *UnionType) getTypesUnderShallowInequality(p0 *JSType) *JSType_TypePair {
+	if this.self_ == any(this) {
+		return this.getTypesUnderShallowInequality_impl(p0)
+	}
+	return this.self_.(interface {
+		getTypesUnderShallowInequality_impl(*JSType) *JSType_TypePair
+	}).getTypesUnderShallowInequality_impl(p0)
+}
+
+// visitUntyped: an object that is exactly a UnionType calls its visitUntyped_impl directly (post-flip); others dispatch.
+func (this *UnionType) visitUntyped(p0 Visitor) any {
+	if this.self_ == any(this) {
+		return this.visitUntyped_impl(p0)
+	}
+	return this.self_.(interface{ visitUntyped_impl(Visitor) any }).visitUntyped_impl(p0)
+}
+
+// visitUntyped_2: an object that is exactly a UnionType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
+func (this *UnionType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
+	if this.self_ == any(this) {
+		return this.visitUntyped_2_impl(p0, p1)
+	}
+	return this.self_.(interface {
+		visitUntyped_2_impl(RelationshipVisitor, *JSType) any
+	}).visitUntyped_2_impl(p0, p1)
+}
+
+// resolveInternal: an object that is exactly a UnionType calls its resolveInternal_impl directly (post-flip); others dispatch.
+func (this *UnionType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
+	if this.self_ == any(this) {
+		return this.resolveInternal_impl(p0)
+	}
+	return this.self_.(interface {
+		resolveInternal_impl(ErrorReporter_rhino) *JSType
+	}).resolveInternal_impl(p0)
+}
+
+// collapseUnion: an object that is exactly a UnionType calls its collapseUnion_impl directly (post-flip); others dispatch.
+func (this *UnionType) collapseUnion() *JSType {
+	if this.self_ == any(this) {
+		return this.collapseUnion_impl()
+	}
+	return this.self_.(interface{ collapseUnion_impl() *JSType }).collapseUnion_impl()
+}
+
+// matchConstraint: an object that is exactly a UnionType calls its matchConstraint_impl directly (post-flip); others dispatch.
+func (this *UnionType) matchConstraint(p0 *JSType) {
+	if this.self_ == any(this) {
+		this.matchConstraint_impl(p0)
+		return
+	}
+	this.self_.(interface{ matchConstraint_impl(*JSType) }).matchConstraint_impl(p0)
+}
+
+// hasAnyTemplateTypesInternal: an object that is exactly a UnionType calls its hasAnyTemplateTypesInternal_impl directly (post-flip); others dispatch.
+func (this *UnionType) hasAnyTemplateTypesInternal() bool {
+	if this.self_ == any(this) {
+		return this.hasAnyTemplateTypesInternal_impl()
+	}
+	return this.self_.(interface{ hasAnyTemplateTypesInternal_impl() bool }).hasAnyTemplateTypesInternal_impl()
+}

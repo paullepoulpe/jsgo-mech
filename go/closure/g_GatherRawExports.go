@@ -77,3 +77,14 @@ func GatherRawExports_clinit() {
 	GatherRawExports_GLOBAL_THIS_NAMES = []string{"window", "globalThis", "top", "self", "goog$global", "goog.global", "$jscomp.global", "$jscomp$global"}
 
 }
+
+// visit: an object that is exactly a GatherRawExports calls its visit_impl directly (post-flip); others dispatch.
+func (this *GatherRawExports) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

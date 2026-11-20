@@ -67,3 +67,20 @@ func J2clStringValueOfRewriterPass_isStringValueOfMethodName(fnName Node) bool {
 }
 
 const J2clStringValueOfRewriterPass_METHOD_NAME string = "module$exports$java$lang$String$impl.m_valueOf__java_lang_Object__java_lang_String"
+
+// beginTraversal: an object that is exactly a J2clStringValueOfRewriterPass calls its beginTraversal_impl directly (post-flip); others dispatch.
+func (this *J2clStringValueOfRewriterPass) beginTraversal(p0 *AbstractCompiler) {
+	if this.self_ == any(this) {
+		this.beginTraversal_impl(p0)
+		return
+	}
+	this.self_.(interface{ beginTraversal_impl(*AbstractCompiler) }).beginTraversal_impl(p0)
+}
+
+// optimizeSubtree: an object that is exactly a J2clStringValueOfRewriterPass calls its optimizeSubtree_impl directly (post-flip); others dispatch.
+func (this *J2clStringValueOfRewriterPass) optimizeSubtree(p0 Node) Node {
+	if this.self_ == any(this) {
+		return this.optimizeSubtree_impl(p0)
+	}
+	return this.self_.(interface{ optimizeSubtree_impl(Node) Node }).optimizeSubtree_impl(p0)
+}
