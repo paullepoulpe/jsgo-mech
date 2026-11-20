@@ -1865,7 +1865,7 @@ func (this *TypeInference) traverseDynamicImport(dynamicImport Node, scope FlowS
 			} else {
 				var moduleName Node = NodeUtil_findPreorder(scriptNode, func(node Node) bool {
 					return node.matchesQualifiedName(targetPath.toModuleName())
-				}, Predicates_alwaysTrue())
+				}, Predicates_alwaysTrueT_[Node])
 				if (moduleName != 0) && (moduleName.getJSType() != nil) {
 					templateType = moduleName.getJSType()
 				}
