@@ -7,7 +7,7 @@ type ReplacedStringsDecoder struct {
 }
 
 func (this *ReplacedStringsDecoder) init_ReplacedStringsDecoder(variableMap *VariableMap) {
-	this.originalToNewNameMap = tmapImm_(jtc_string, jtc_string, variableMap.getOriginalNameToNewNameMap())
+	this.originalToNewNameMap = tmapImm_(jtc_string, jtc_string, variableMap.getOriginalNameToNewNameMap().asImm())
 }
 
 func new_ReplacedStringsDecoder(variableMap *VariableMap) *ReplacedStringsDecoder {

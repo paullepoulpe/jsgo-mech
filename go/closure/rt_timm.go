@@ -235,7 +235,7 @@ func tsetMake_[K comparable](kc *tconv_[K], xs []K) *ImmutableSet[K] {
 	s.vals = make([]struct{}, 0, len(xs))
 	for _, x := range xs {
 		if s.find(x) < 0 {
-			s.put(x, struct{}{})
+			s.Put(x, struct{}{})
 		}
 	}
 	s.imm = true
@@ -376,12 +376,12 @@ func tmapMake_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], keys []K, vals
 			if last.find(keys[i]) >= 0 {
 				drop[i] = true
 			} else {
-				last.put(keys[i], struct{}{})
+				last.Put(keys[i], struct{}{})
 			}
 		}
 		for i := range keys {
 			if !drop[i] {
-				m.put(keys[i], vals[i])
+				m.Put(keys[i], vals[i])
 			}
 		}
 		m.imm = true
@@ -391,7 +391,7 @@ func tmapMake_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], keys []K, vals
 		if j := m.find(k); j >= 0 {
 			dupKey_(kc.box(k), vc.box(m.vals[j]), vc.box(vals[i]))
 		}
-		m.put(k, vals[i])
+		m.Put(k, vals[i])
 	}
 	m.imm = true
 	return m
@@ -523,7 +523,7 @@ func tsetCopyT_[K comparable](kc *tconv_[K], s *TSet[K]) *TSet[K] {
 	out := newTSet_(kc)
 	for i := s.first(); i < len(s.keys); i++ {
 		if !s.isDead(i) {
-			out.add(s.keys[i])
+			out.Add(s.keys[i])
 		}
 	}
 	return out
@@ -534,7 +534,7 @@ func tmapCopyT_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], m *TMap[K, V]
 	out := newTMap_(kc, vc)
 	for i := m.first(); i < len(m.keys); i++ {
 		if !m.isDead(i) {
-			out.put(m.keys[i], m.vals[i])
+			out.Put(m.keys[i], m.vals[i])
 		}
 	}
 	return out

@@ -77,7 +77,7 @@ func comps(t types.Type) []types.Type {
 func isOuter(t types.Type) bool { return outerDepth(t, 0) }
 
 func outerDepth(t types.Type, d int) bool {
-	if d > 4 {
+	if d > 4 || K.imm != "" { // the imm kinds (imm.go) convert at containers and type parameters instead
 		return false
 	}
 	for _, c := range comps(t) {
@@ -310,6 +310,9 @@ func link(a, b int) {
 // bind is the binding of the type parameters of the generic callee of call to slots, or nil
 // if the callee is not generic or nothing of the kind passes through it.
 func bind(call *ast.CallExpr) *callBind {
+	if K.imm != "" {
+		return nil // imm.go: a type parameter's value is converted where it is used (genericResult, genericParam)
+	}
 	if b, ok := binds[call]; ok {
 		return b
 	}
