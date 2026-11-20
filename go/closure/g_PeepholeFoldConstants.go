@@ -877,7 +877,7 @@ func (this *PeepholeFoldConstants) isRestrictedOctalEscape(prefixRaw string, suf
 		return false
 	}
 	if strings.HasSuffix(prefixRaw, "0") {
-		var beforeZero string = String_substring(prefixRaw, 0, (String_length(prefixRaw) - 1))
+		var beforeZero string = prefixRaw[:len(prefixRaw)-1]
 		return this.endsWithUnescapedBackslash(beforeZero)
 	}
 	return false

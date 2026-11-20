@@ -670,7 +670,7 @@ func (this *ClosureRewriteModule) maybeUpdateTopLevelName(t *NodeTraversal, name
 		var isModuleNamespace bool = ((inline.namespaceId.isPresent() && this.rewriteState.scriptDescriptionsByGoogModuleNamespace.containsKey(inline.namespaceId.get())) && !this.rewriteState.scriptDescriptionsByGoogModuleNamespace.get(inline.namespaceId.get()).willCreateExportsObject)
 		this.safeSetMaybeQualifiedString(nameNode, namespaceToInline, isModuleNamespace)
 		if strings.Contains(namespaceToInline, ".") {
-			var firstQualifiedName string = String_substring(namespaceToInline, 0, String_indexOf(namespaceToInline, 46))
+			var firstQualifiedName string = namespaceToInline[:strings.IndexByte(namespaceToInline, '.')]
 			var shadowedVar *Var = t.getScope().getVar_String_rVar(firstQualifiedName)
 			if ((shadowedVar == nil) || shadowedVar.isGlobal()) || shadowedVar.getScope_rAbstractScope_rScope().isModuleScope() {
 				return
