@@ -7,7 +7,7 @@ type Scope struct {
 	parent       *Scope
 	depth        int32
 	vars         MapOf[string, *Var]
-	implicitVars MapOf[AbstractScope_ImplicitVar, *Var]
+	implicitVars *[4]*Var // by ordinal; nil until the first (Java: an EnumMap made at the first)
 }
 
 func (this *Scope) up_AbstractScope() *AbstractScope {
@@ -19,7 +19,6 @@ func (this *Scope) up_AbstractScope() *AbstractScope {
 
 func (this *Scope) finit_Scope() {
 	this.vars = ImmutableMap_as_Map(ImmutableMap_of())
-	this.implicitVars = ImmutableMap_as_Map(ImmutableMap_of())
 }
 
 func (this *Scope) init_Scope_Scope_Node(parent *Scope, rootNode Node) {
@@ -179,11 +178,16 @@ func (this *Scope) getOwnImplicitSlot(name AbstractScope_ImplicitVar) *Var {
 	if !this.hasOwnImplicitSlot(name) {
 		return nil
 	}
-	var emptySentinel *TMap[AbstractScope_ImplicitVar, *Var] = tmapEmptyImm_(tc_p_AbstractScope_ImplicitVar, tc_p_Var)
-	if this.implicitVars == emptySentinel.asMap() {
-		this.implicitVars = Map(new_EnumMap(classOf_("com.google.javascript.jscomp.AbstractScope.ImplicitVar")))
+	// implicitVars.computeIfAbsent(name, this::makeImplicitVar) on an array indexed by the
+	// enum's ordinal, Java's EnumMap (post-flip manual step): a null result is not stored.
+	if this.implicitVars == nil {
+		this.implicitVars = new([4]*Var)
 	}
-	return cast_[*Var](Map_computeIfAbsent(this.implicitVars, obj_(name), &Function_tfn_AbstractScope_ImplicitVar_Var{func(p0 AbstractScope_ImplicitVar) *Var { return this.makeImplicitVar_ImplicitVar_rVar(p0) }}))
+	slot := &this.implicitVars[name.ordinal()]
+	if *slot == nil {
+		*slot = this.makeImplicitVar_ImplicitVar_rVar(name)
+	}
+	return *slot
 }
 
 func (this *Scope) getOwnSlot_String_rAbstractVar_rVar(name string) *Var {
