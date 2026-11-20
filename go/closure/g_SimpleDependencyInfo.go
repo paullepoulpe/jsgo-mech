@@ -176,7 +176,7 @@ func (this *SimpleDependencyInfo_Builder) setProvides(provides CollectionOf[stri
 }
 
 func (this *SimpleDependencyInfo_Builder) setProvidesStringVarargs(provides []string) *SimpleDependencyInfo_Builder {
-	return this.setProvides(ImmutableList_as_Collection(ImmutableList_copyOf_ObjectArr(arrmap_(provides, func(v_ string) any { return strobj_(v_) }))))
+	return this.setProvides(ImmutableList_as_Collection(ImmutableList_copyOf_ObjectArr(arrmap_(provides, strobj_))))
 }
 
 func (this *SimpleDependencyInfo_Builder) setRequires(requires CollectionOf[*DependencyInfo_Require]) *SimpleDependencyInfo_Builder {
@@ -185,7 +185,7 @@ func (this *SimpleDependencyInfo_Builder) setRequires(requires CollectionOf[*Dep
 }
 
 func (this *SimpleDependencyInfo_Builder) setRequiresRequireVarargs(requires []*DependencyInfo_Require) *SimpleDependencyInfo_Builder {
-	return this.setRequires(ImmutableList_as_Collection(ImmutableList_copyOf_ObjectArr(arrmap_(requires, func(v_ *DependencyInfo_Require) any { return obj_(v_) }))))
+	return this.setRequires(ImmutableList_as_Collection(ImmutableList_copyOf_ObjectArr(arrmap_(requires, obj_[*DependencyInfo_Require]))))
 }
 
 func (this *SimpleDependencyInfo_Builder) setTypeRequires(typeRequires CollectionOf[string]) *SimpleDependencyInfo_Builder {
@@ -194,7 +194,7 @@ func (this *SimpleDependencyInfo_Builder) setTypeRequires(typeRequires Collectio
 }
 
 func (this *SimpleDependencyInfo_Builder) setTypeRequiresStringVarargs(typeRequires []string) *SimpleDependencyInfo_Builder {
-	return this.setTypeRequires(ImmutableList_as_Collection(ImmutableList_copyOf_ObjectArr(arrmap_(typeRequires, func(v_ string) any { return strobj_(v_) }))))
+	return this.setTypeRequires(ImmutableList_as_Collection(ImmutableList_copyOf_ObjectArr(arrmap_(typeRequires, strobj_))))
 }
 
 func (this *SimpleDependencyInfo_Builder) setLoadFlags(loadFlags MapOf[string, string]) *SimpleDependencyInfo_Builder {

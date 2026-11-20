@@ -143,7 +143,7 @@ func (this *InlineFunctions) updateFunctionStateForInlining(fn InlineFunctions_F
 			if NodeUtil_referencesEnclosingReceiver(block) {
 				functionState.setReferencesThis(true)
 			}
-			if NodeUtil_has(block, func(p0 Node) bool { return NodeUtil_isFunctionOrNonStaticClassFieldInitializer(p0) }, Predicates_alwaysTrue()) {
+			if NodeUtil_has(block, NodeUtil_isFunctionOrNonStaticClassFieldInitializer, Predicates_alwaysTrue()) {
 				functionState.setHasInnerClosures(true)
 				if InlineFunctions_hasLocalNames(fnNode) {
 					functionState.disallowInlining(this.compiler_, InlineFunctions_DisallowInliningReason_HAS_LOCAL_NAMES)

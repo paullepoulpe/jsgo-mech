@@ -114,7 +114,7 @@ func InlineVariables_Mode_clinit() {
 	}
 	InlineVariables_Mode_clinit_done = true
 	InlineVariables_Mode_CONSTANTS_ONLY.init_InlineVariables_Mode(&Predicate_base_tfn_Var{func(p0 *Var) bool { return p0.isDeclaredOrInferredConst() }})
-	InlineVariables_Mode_LOCALS_ONLY.init_InlineVariables_Mode(&Predicate_base_tfn_Var{func(p0 *Var) bool { return p0.isLocal() }})
+	InlineVariables_Mode_LOCALS_ONLY.init_InlineVariables_Mode(&Predicate_base_tfn_Var{(*Var).isLocal})
 	InlineVariables_Mode_ALL.init_InlineVariables_Mode(Predicates_alwaysTrue())
 	InlineVariables_Mode_values_ = []InlineVariables_Mode{InlineVariables_Mode_CONSTANTS_ONLY, InlineVariables_Mode_LOCALS_ONLY, InlineVariables_Mode_ALL}
 	registerEnum_("com.google.javascript.jscomp.InlineVariables.Mode", enumValues_(InlineVariables_Mode_values_))
