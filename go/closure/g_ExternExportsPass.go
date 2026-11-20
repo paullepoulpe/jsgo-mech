@@ -96,7 +96,10 @@ func (this *ExternExportsPass) lookForQnameDefinition(n Node) {
 			this.definitionMap.put(lhs.getQualifiedName(), n.getLastChild())
 		}
 	} else if n.isName() {
-		var parent Node = Preconditions_checkNotNull_Object_Object_T(n.getParent(), n.box_())
+		var parent Node = n.getParent()
+		if parent == 0 {
+			panic(new_NullPointerException_String(objstr_(n.box_())).self())
+		}
 		if NodeUtil_isNameDeclaration(parent) {
 			var value Node = n.getFirstChild()
 			if value != 0 {
@@ -245,7 +248,10 @@ func (this *ExternExportsPass_Export) zero_ExternExportsPass_Export() {
 
 func (this *ExternExportsPass_Export) init_ExternExportsPass_Export(symbolName string, value Node) {
 	this.symbolName = symbolName
-	this.value_ = Preconditions_checkNotNull_T(value)
+	if value == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	this.value_ = value
 }
 
 func (this *ExternExportsPass_Export) generateExterns() {
@@ -276,7 +282,9 @@ func (this *ExternExportsPass_Export) appendExtern(path string, valueToExport No
 			} else if valueToExport.isClass() {
 				initializer = this.createExternFunctionForEs6Class(valueToExport)
 			} else {
-				Preconditions_checkState(valueToExport.isObjectLit())
+				if !valueToExport.isObjectLit() {
+					panic(new_IllegalStateException_0().self())
+				}
 				initializer = this.createExternObjectLit(valueToExport)
 			}
 		} else if !isCompletePathPrefix && exportedValueDefinesNewType {
@@ -310,7 +318,9 @@ func (this *ExternExportsPass_Export) appendPathDefinition(path string, initiali
 		if pathDefinition.isExprResult() {
 			pathDefinition.getFirstChild().setJSDocInfo(jsdoc)
 		} else {
-			Preconditions_checkState(pathDefinition.isVar())
+			if !pathDefinition.isVar() {
+				panic(new_IllegalStateException_0().self())
+			}
 			pathDefinition.setJSDocInfo(jsdoc)
 		}
 	}
@@ -378,7 +388,7 @@ func (this *ExternExportsPass_Export) getOriginalNameForParam(paramNode Node) st
 		}()
 	} else {
 		if !nameOrPatternNode.isDestructuringPattern() {
-			Preconditions_checkState_boolean_Object_H(false, nameOrPatternNode)
+			panic(new_IllegalStateException_String(objstr_(nameOrPatternNode.box_())).self())
 		}
 		return ""
 	}
@@ -521,7 +531,9 @@ func (this *ExternExportsPass_PropertyExport) getExportedPath_impl() string {
 	it_1 := foreach_(Lists_reverse(ExternExportsPass_computePathPrefixes(this.exportPath).asList()))
 	for it_1.next() {
 		var currentPath string = str_(it_1.v)
-		Preconditions_checkState((String_length(currentPath) > 0))
+		if String_length(currentPath) <= 0 {
+			panic(new_IllegalStateException_0().self())
+		}
 		var mappedPath Optional[string] = Optional_ofNullable[string](this.outer_.mappedPaths.get(currentPath))
 		if mappedPath.isEmpty() {
 			continue

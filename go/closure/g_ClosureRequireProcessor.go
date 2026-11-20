@@ -8,7 +8,9 @@ type ClosureRequireProcessor struct {
 }
 
 func (this *ClosureRequireProcessor) init_ClosureRequireProcessor(nameDeclaration Node, requireKind Binding_CreatedBy) {
-	Preconditions_checkArgument(NodeUtil_isNameDeclaration(nameDeclaration))
+	if !NodeUtil_isNameDeclaration(nameDeclaration) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	this.nameDeclaration = nameDeclaration
 	this.requireKind = requireKind
 }
@@ -113,7 +115,9 @@ func (this *ClosureRequireProcessor_Require) zero_ClosureRequireProcessor_Requir
 func (this *ClosureRequireProcessor_Require) init_ClosureRequireProcessor_Require(localName string, importRecord *Import, createdBy Binding_CreatedBy) {
 	Objects_requireNonNull_T(importRecord, "importRecord")
 	Objects_requireNonNull_T(createdBy, "createdBy")
-	Preconditions_checkArgument(createdBy.isClosureImport())
+	if !createdBy.isClosureImport() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	this.localName_ = localName
 	this.importRecord_ = importRecord
 	this.createdBy_ = createdBy

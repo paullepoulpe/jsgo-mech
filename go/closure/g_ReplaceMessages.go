@@ -452,7 +452,7 @@ func (this *ReplaceMessages_MsgProtectionPass) performMessageProtection(msgProte
 	var placeholdersNode Node = msgProtectionData.placeholderValuesNode()
 	var msgOptions *ReplaceMessages_MsgOptions = msgProtectionData.messageOptions()
 	if !callNode.isCall() {
-		Preconditions_checkState_boolean_Object_H(false, callNode)
+		panic(new_IllegalStateException_String(objstr_(callNode.box_())).self())
 	}
 	var googGetMsg Node = callNode.getFirstChild()
 	var protectionFunctionName string = ReplaceMessagesConstants_DEFINE_MSG_CALLEE
@@ -462,13 +462,13 @@ func (this *ReplaceMessages_MsgProtectionPass) performMessageProtection(msgProte
 	newCallNode.setSideEffectFlagsInt(Node_SideEffectFlags_NO_SIDE_EFFECTS)
 	if placeholdersNode != 0 {
 		if !placeholdersNode.isObjectLit() {
-			Preconditions_checkState_boolean_Object_H(false, placeholdersNode)
+			panic(new_IllegalStateException_String(objstr_(placeholdersNode.box_())).self())
 		}
 		{
 			var strKey Node = placeholdersNode.getFirstChild()
 			for ; strKey != 0; strKey = strKey.getNext() {
 				if !strKey.isStringKey() {
-					Preconditions_checkState_boolean_Object_H(false, strKey)
+					panic(new_IllegalStateException_String(objstr_(strKey.box_())).self())
 				}
 				strKey.setQuotedStringKey()
 			}
@@ -486,11 +486,20 @@ func (this *ReplaceMessages_MsgProtectionPass) createProtectionFunctionCallee(pr
 }
 
 func (this *ReplaceMessages_MsgProtectionPass) processMessageFallback_impl(callNode Node, message1 *JsMessage, message2 *JsMessage) {
-	var originalCallee Node = Preconditions_checkNotNull_Object_Object_T(callNode.getFirstChild(), callNode.box_())
+	var originalCallee Node = callNode.getFirstChild()
+	if originalCallee == 0 {
+		panic(new_NullPointerException_String(objstr_(callNode.box_())).self())
+	}
 	var fallbackCallee Node = this.createProtectionFunctionCallee(ReplaceMessagesConstants_FALLBACK_MSG_CALLEE).srcref(originalCallee)
-	var originalFirstArg Node = Preconditions_checkNotNull_Object_Object_T(originalCallee.getNext(), callNode.box_())
+	var originalFirstArg Node = originalCallee.getNext()
+	if originalFirstArg == 0 {
+		panic(new_NullPointerException_String(objstr_(callNode.box_())).self())
+	}
 	var firstMsgKey Node = this.outer_.astFactory_.createString(message1.getKey()).srcref(originalFirstArg)
-	var originalSecondArg Node = Preconditions_checkNotNull_Object_Object_T(originalFirstArg.getNext(), callNode.box_())
+	var originalSecondArg Node = originalFirstArg.getNext()
+	if originalSecondArg == 0 {
+		panic(new_NullPointerException_String(objstr_(callNode.box_())).self())
+	}
 	var secondMsgKey Node = this.outer_.astFactory_.createString(message2.getKey()).srcref(originalSecondArg)
 	var newCallNode Node = this.outer_.astFactory_.createCall(fallbackCallee, AstFactory_type_Node(callNode), []Node{firstMsgKey, originalFirstArg.detach(), secondMsgKey, originalSecondArg.detach()}).srcref(callNode)
 	newCallNode.setSideEffectFlagsInt(Node_SideEffectFlags_NO_SIDE_EFFECTS)
@@ -524,7 +533,7 @@ func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addString(key string, val
 
 func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addNode(key string, node Node) *ReplaceMessages_QuotedKeyObjectLitBuilder {
 	if this.keyToValueNodeMap.containsKey(key) {
-		Preconditions_checkState_boolean_String_Object(false, "repeated key: %s", key)
+		panic(new_IllegalStateException_String(Strings_lenientFormat("repeated key: %s", []any{key})).self())
 	}
 	this.keyToValueNodeMap.put(key, node)
 	return this
@@ -643,7 +652,7 @@ func ReplaceMessages_ProtectedMsgFallback_fromAstNode(n Node) *ReplaceMessages_P
 		return nil
 	}
 	if !n.hasXChildren(5) {
-		Preconditions_checkState_boolean_String_Object_H(false, "bad message fallback call: %s", n)
+		panic(new_IllegalStateException_String(Strings_lenientFormat("bad message fallback call: %s", []any{n.box_()})).self())
 	}
 	var firstMsgKeyNode Node = callee.getNext()
 	var firstMsgKey string = firstMsgKeyNode.getString()
@@ -886,18 +895,24 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 	if !node.isCall() {
 		return nil
 	}
-	var calleeNode Node = Preconditions_checkNotNull_Object_Object_T(node.getFirstChild(), node.box_())
+	var calleeNode Node = node.getFirstChild()
+	if calleeNode == 0 {
+		panic(new_NullPointerException_String(objstr_(node.box_())).self())
+	}
 	if !calleeNode.matchesName(ReplaceMessagesConstants_DEFINE_MSG_CALLEE) {
 		return nil
 	}
-	var propertiesNode Node = Preconditions_checkNotNull_Object_Object_T(calleeNode.getNext(), calleeNode.box_())
+	var propertiesNode Node = calleeNode.getNext()
+	if propertiesNode == 0 {
+		panic(new_NullPointerException_String(objstr_(calleeNode.box_())).self())
+	}
 	var substitutionsNode Node = propertiesNode.getNext()
 	var escapeLessThanOption bool = false
 	var unescapeHtmlEntitiesOption bool = false
 	var isIcuTemplate bool = false
 	var jsMessageBuilder *JsMessage_Builder = new_JsMessage_Builder()
 	if !propertiesNode.isObjectLit() {
-		Preconditions_checkState_boolean_Object_H(false, propertiesNode)
+		panic(new_IllegalStateException_String(objstr_(propertiesNode.box_())).self())
 	}
 	var msgKey Optional[string] = Optional_empty[string]()
 	var meaning Optional[string] = Optional_empty[string]()
@@ -908,12 +923,14 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 		var strKey Node = propertiesNode.getFirstChild()
 		for ; strKey != 0; strKey = strKey.getNext() {
 			if !strKey.isStringKey() {
-				Preconditions_checkState_boolean_Object_H(false, strKey)
+				panic(new_IllegalStateException_String(objstr_(strKey.box_())).self())
 			}
 			var key string = strKey.getString()
 			var valueNode Node = strKey.getOnlyChild()
 			if key == "icu_placeholder_names" {
-				Preconditions_checkState_boolean_Object(valueNode.isArrayLit(), "icu_placeholder_names must be an array")
+				if !valueNode.isArrayLit() {
+					panic(new_IllegalStateException_String(objstr_("icu_placeholder_names must be an array")).self())
+				}
 				it_2 := foreach_(valueNode.children())
 				for it_2.next() {
 					var valueNodeChild Node = Node_of_(it_2.v)
@@ -922,7 +939,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 				continue
 			}
 			if !valueNode.isStringLit() {
-				Preconditions_checkState_boolean_Object_H(false, valueNode)
+				panic(new_IllegalStateException_String(objstr_(valueNode.box_())).self())
 			}
 			var value string = valueNode.getString()
 			switch key {
@@ -949,7 +966,9 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 		}
 	}
 	if !icuPlaceholderNames.isEmpty() {
-		Preconditions_checkState_boolean_Object(isIcuTemplate, "Found icu_placeholder_names for a message that is not an ICU template.")
+		if !isIcuTemplate {
+			panic(new_IllegalStateException_String(objstr_("Found icu_placeholder_names for a message that is not an ICU template.")).self())
+		}
 		var icuMessageTemplateString *JsMessageVisitor_IcuMessageTemplateString = new_JsMessageVisitor_IcuMessageTemplateString(messageText.orElse(nullstr_))
 		var extractedIcuTemplateParts *JsMessageVisitor_ExtractedIcuTemplateParts = icuMessageTemplateString.extractParts(icuPlaceholderNames)
 		jsMessageBuilder.appendParts(extractedIcuTemplateParts.extractedParts)

@@ -22,7 +22,7 @@ func (this *LiveVariablesAnalysis) up_DataFlowAnalysis() *DataFlowAnalysis[Node,
 func (this *LiveVariablesAnalysis) init_LiveVariablesAnalysis(cfg *ControlFlowGraph[Node], jsScope *Scope, jsScopeChild *Scope, compiler *AbstractCompiler, scopeCreator ScopeCreator, allVarsDeclaredInFunction *NodeUtil_AllVarsDeclaredInFunction) {
 	this.DataFlowAnalysis.init_DataFlowAnalysis(cfg)
 	if !jsScope.isFunctionScope() {
-		Preconditions_checkState_boolean_Object(false, jsScope)
+		panic(new_IllegalStateException_String(objstr_(jsScope)).self())
 	}
 	this.jsScope = jsScope
 	this.jsScopeChild = jsScopeChild
@@ -135,7 +135,7 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 					}
 				} else {
 					if !c.isDestructuringLhs() {
-						Preconditions_checkState_boolean_Object_H(false, c)
+						panic(new_IllegalStateException_String(objstr_(c.box_())).self())
 					}
 					if !conditional {
 						NodeUtil_visitLhsNodesInNode(c, (&Consumer_tfn_Node{func(lhsNode Node) {
@@ -207,7 +207,7 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 
 func (this *LiveVariablesAnalysis) addToSetIfLocal(node Node, set *BitSet) {
 	if !node.isName() {
-		Preconditions_checkState_boolean_Object_H(false, node)
+		panic(new_IllegalStateException_String(objstr_(node.box_())).self())
 	}
 	var name string = node.getString()
 	var var_ *Var = this.allVarsInFn.get(name)
@@ -232,7 +232,9 @@ func (this *LiveVariablesAnalysis) addToSetIfLocal(node Node, set *BitSet) {
 }
 
 func LiveVariablesAnalysis_isDeclaredInFunctionBlockOrParameter(scope *Scope, name string) bool {
-	Preconditions_checkState(scope.isFunctionBlockScope())
+	if !scope.isFunctionBlockScope() {
+		panic(new_IllegalStateException_0().self())
+	}
 	return (scope.hasOwnSlot(name) || scope.getParent_rScope().hasOwnSlot(name))
 }
 
@@ -293,12 +295,16 @@ func new_LiveVariablesAnalysis_LiveVariableLattice(liveSet *BitSet) *LiveVariabl
 }
 
 func LiveVariablesAnalysis_LiveVariableLattice_createFromLattice(other *LiveVariablesAnalysis_LiveVariableLattice) *LiveVariablesAnalysis_LiveVariableLattice {
-	Preconditions_checkNotNull_T(other)
+	if other == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	return new_LiveVariablesAnalysis_LiveVariableLattice(cast_[*BitSet](Object_clone(obj_(other.liveSet))))
 }
 
 func (this *LiveVariablesAnalysis_LiveVariableLattice) equals(other any) bool {
-	Preconditions_checkNotNull(other)
+	if other == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var liveVariableLattice *LiveVariablesAnalysis_LiveVariableLattice
 	_ = liveVariableLattice
 	return (func() bool {

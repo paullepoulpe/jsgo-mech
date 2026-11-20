@@ -34,7 +34,7 @@ func Binding_from_Export_Node(boundExport *Export, sourceNode Node) *Binding {
 
 func Binding_from_ModuleMetadata_Node_String_CreatedBy(metadata *ModuleMetadataMap_ModuleMetadata, sourceNode Node, closureNamespace string, createdBy Binding_CreatedBy) *Binding {
 	if !createdBy.isClosureImport() {
-		Preconditions_checkArgument_boolean_String_Object(false, "Expected goog.require(Type) or goog.forwardDeclare, got %s", createdBy)
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected goog.require(Type) or goog.forwardDeclare, got %s", []any{createdBy})).self())
 	}
 	return new_Binding(metadata, sourceNode, nil, true, Optional_of[string](closureNamespace), createdBy)
 }
@@ -44,12 +44,16 @@ func Binding_from_ModuleMetadata_Optional_Node(metadataOfBoundModule *ModuleMeta
 }
 
 func (this *Binding) copy(sourceNode Node, createdBy Binding_CreatedBy) *Binding {
-	Preconditions_checkNotNull_T(sourceNode)
+	if sourceNode == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	return new_Binding(this.metadata(), sourceNode, this.originatingExport(), this.isModuleNamespace(), this.closureNamespace(), createdBy)
 }
 
 func (this *Binding) boundName() Optional[string] {
-	Preconditions_checkState(!this.isModuleNamespace())
+	if this.isModuleNamespace() {
+		panic(new_IllegalStateException_0().self())
+	}
 	return this.originatingExport().localName()
 }
 

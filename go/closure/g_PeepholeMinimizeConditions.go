@@ -238,8 +238,8 @@ func (this *PeepholeMinimizeConditions) areMatchingExits(nodeThis Node, nodeThat
 }
 
 func PeepholeMinimizeConditions_isExceptionPossible(n Node) bool {
-	if !(n.isReturn() || n.isThrow()) {
-		Preconditions_checkState_boolean_Object_H(false, n)
+	if !n.isReturn() && !n.isThrow() {
+		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
 	}
 	return (n.isThrow() || (n.hasChildren() && !NodeUtil_isLiteralValue(n.getLastChild(), true)))
 }
@@ -249,7 +249,9 @@ func PeepholeMinimizeConditions_getExceptionHandler(n Node) Node {
 }
 
 func (this *PeepholeMinimizeConditions) tryMinimizeNot(n Node) Node {
-	Preconditions_checkArgument(n.isNot())
+	if !n.isNot() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var parent Node = n.getParent()
 	var notChild Node = n.getFirstChild()
 	var complementOperator Token_rhino
@@ -452,7 +454,9 @@ func (this *PeepholeMinimizeConditions) tryMinimizeIf(n Node) Node {
 		var name1 Node = var_.getFirstChild()
 		var maybeName2 Node = elseAssign.getFirstChild()
 		if (name1.hasChildren() && maybeName2.isName()) && (name1.getString() == maybeName2.getString()) {
-			Preconditions_checkState(name1.hasOneChild())
+			if !name1.hasOneChild() {
+				panic(new_IllegalStateException_0().self())
+			}
 			var thenExpr Node = name1.removeFirstChild()
 			var elseExpr Node = elseAssign.getLastChild().detach()
 			var replacementCond Node = this.replaceNode(originalCond, shortCond).detach()
@@ -470,7 +474,9 @@ func (this *PeepholeMinimizeConditions) tryMinimizeIf(n Node) Node {
 		var name2 Node = var_.getFirstChild()
 		if (name2.hasChildren() && maybeName1.isName()) && (maybeName1.getString() == name2.getString()) {
 			var thenExpr Node = thenAssign.getLastChild().detach()
-			Preconditions_checkState(name2.hasOneChild())
+			if !name2.hasOneChild() {
+				panic(new_IllegalStateException_0().self())
+			}
 			var elseExpr Node = name2.removeFirstChild()
 			var replacementCond Node = this.replaceNode(originalCond, shortCond).detach()
 			var hookNode Node = IR_hook(replacementCond, thenExpr, elseExpr).srcref(n)
@@ -490,7 +496,7 @@ func (this *PeepholeMinimizeConditions) tryRemoveRepeatedStatements(n Node) {
 		return
 	}
 	if !n.isIf() {
-		Preconditions_checkState_boolean_Object_H(false, n)
+		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
 	}
 	var parent Node = n.getParent()
 	if !NodeUtil_isStatementBlock(parent) {
@@ -499,8 +505,12 @@ func (this *PeepholeMinimizeConditions) tryRemoveRepeatedStatements(n Node) {
 	var cond Node = n.getFirstChild()
 	var trueBranch Node = cond.getNext()
 	var falseBranch Node = trueBranch.getNext()
-	Preconditions_checkNotNull_T(trueBranch)
-	Preconditions_checkNotNull_T(falseBranch)
+	if trueBranch == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	if falseBranch == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	for {
 		var lastTrue Node = trueBranch.getLastChild()
 		var lastFalse Node = falseBranch.getLastChild()
@@ -536,7 +546,9 @@ func PeepholeMinimizeConditions_isFoldableExpressBlock(n Node) bool {
 }
 
 func PeepholeMinimizeConditions_getBlockExpression(n Node) Node {
-	Preconditions_checkState(PeepholeMinimizeConditions_isFoldableExpressBlock(n))
+	if !PeepholeMinimizeConditions_isFoldableExpressBlock(n) {
+		panic(new_IllegalStateException_0().self())
+	}
 	return n.getFirstChild()
 }
 
@@ -570,7 +582,9 @@ func PeepholeMinimizeConditions_isReturnExpression(n Node) bool {
 }
 
 func PeepholeMinimizeConditions_getBlockReturnExpression(n Node) Node {
-	Preconditions_checkState(PeepholeMinimizeConditions_isReturnExpressBlock(n))
+	if !PeepholeMinimizeConditions_isReturnExpressBlock(n) {
+		panic(new_IllegalStateException_0().self())
+	}
 	return n.getFirstFirstChild()
 }
 
@@ -587,7 +601,9 @@ func PeepholeMinimizeConditions_isVarBlock(n Node) bool {
 }
 
 func PeepholeMinimizeConditions_getBlockVar(n Node) Node {
-	Preconditions_checkState(PeepholeMinimizeConditions_isVarBlock(n))
+	if !PeepholeMinimizeConditions_isVarBlock(n) {
+		panic(new_IllegalStateException_0().self())
+	}
 	return n.getFirstChild()
 }
 

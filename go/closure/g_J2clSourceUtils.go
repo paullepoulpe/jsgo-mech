@@ -20,7 +20,9 @@ func J2clSourceUtils_isJ2clSourceString(sourceFileName Optional[string]) bool {
 }
 
 func J2clSourceUtils_isJ2clSource(scriptNode Node) bool {
-	Preconditions_checkArgument(scriptNode.isScript())
+	if !scriptNode.isScript() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	return J2clSourceUtils_isJ2clSourceString(Optional_of[string](scriptNode.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
 		return !String_isEmpty(s)
 	}}))

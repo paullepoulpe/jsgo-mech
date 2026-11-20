@@ -16,8 +16,14 @@ func (this *Property) finit_Property() {
 
 func (this *Property) init_Property(name any, type_ *JSType, inferred bool, propertyNode Node) {
 	this.finit_Property()
-	this.name_ = Preconditions_checkNotNull(name)
-	this.type__ = Preconditions_checkNotNull_Object_String_Object_T(type_, "Null type specified for %s", name)
+	if name == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.name_ = name
+	if type_ == nil {
+		panic(new_NullPointerException_String(Strings_lenientFormat("Null type specified for %s", []any{name})).self())
+	}
+	this.type__ = type_
 	this.inferred = inferred
 	this.propertyNode = propertyNode
 }
@@ -29,7 +35,9 @@ func new_Property(name any, type_ *JSType, inferred bool, propertyNode Node) *Pr
 }
 
 func Property_createFromKey(name Property_Key, type_ *JSType, inferred bool, propertyNode Node) *Property {
-	Preconditions_checkNotNull_T(name)
+	if name == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var nameObject any = func() any {
 		switch name.kind() {
 		case Property_KeyKind_STRING:
@@ -39,7 +47,9 @@ func Property_createFromKey(name Property_Key, type_ *JSType, inferred bool, pro
 		}
 		panic("unreachable")
 	}()
-	Preconditions_checkNotNull_Object_String_Object_T(type_, "Null type specified for %s", name)
+	if type_ == nil {
+		panic(new_NullPointerException_String(Strings_lenientFormat("Null type specified for %s", []any{name})).self())
+	}
 	return new_Property(nameObject, type_, inferred, propertyNode)
 }
 
@@ -107,7 +117,10 @@ func (this *Property) isFromExterns() bool {
 }
 
 func (this *Property) setType(type_ *JSType) {
-	this.type__ = Preconditions_checkNotNull_Object_String_Object_T(type_, "Null type specified for property %s", this.name_)
+	if type_ == nil {
+		panic(new_NullPointerException_String(Strings_lenientFormat("Null type specified for property %s", []any{this.name_})).self())
+	}
+	this.type__ = type_
 }
 
 func (this *Property) getJSDocInfo() *JSDocInfo {
@@ -297,7 +310,9 @@ type Property_SymbolKey struct {
 }
 
 func (this *Property_SymbolKey) init_Property_SymbolKey(symbol *KnownSymbolType) {
-	Preconditions_checkNotNull_T(symbol)
+	if symbol == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	this.symbol_ = symbol
 }
 

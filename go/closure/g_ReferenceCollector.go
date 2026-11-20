@@ -130,7 +130,7 @@ func (this *ReferenceCollector) pushNewBlock(root Node) {
 func (this *ReferenceCollector) popLastBlock(root Node) {
 	var last *BasicBlock = cast_[*BasicBlock](SequencedCollection_removeLast(SequencedCollection(this.blockStack.asDeque())))
 	if !JSCompObjects_identical(root.box_(), last.getRoot().box_()) {
-		Preconditions_checkState_boolean_Object_H(false, root)
+		panic(new_IllegalStateException_String(objstr_(root.box_())).self())
 	}
 }
 

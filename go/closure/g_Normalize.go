@@ -182,7 +182,9 @@ func (this *Normalize_NormalizeStatements) shouldTraverse(t *NodeTraversal, n No
 	}
 	var oldParent Node = n.getParent()
 	this.doStatementNormalizations(n)
-	Preconditions_checkState_boolean_Object((n.getParent() == oldParent), "n's parent changed during normalization. It needs to stay the same so that we properly visit any added nodes.")
+	if n.getParent() != oldParent {
+		panic(new_IllegalStateException_String(objstr_("n's parent changed during normalization. It needs to stay the same so that we properly visit any added nodes.")).self())
+	}
 	return true
 }
 
@@ -213,13 +215,15 @@ func (this *Normalize_NormalizeStatements) visit(t *NodeTraversal, n Node, paren
 }
 
 func (this *Normalize_NormalizeStatements) annotateConstantsByConvention(n Node) {
-	Preconditions_checkState(n.isName())
+	if !n.isName() {
+		panic(new_IllegalStateException_0().self())
+	}
 	if this.compiler_.getLifeCycleStage().isNormalizedObfuscated() {
 		return
 	}
 	if !n.getBooleanProp(Node_IS_CONSTANT_NAME) && NodeUtil_isConstantByConvention(this.compiler_.getCodingConvention(), n) {
 		if this.assertOnChange_ {
-			Preconditions_checkState_boolean_String_Object_H(false, "Not marked as constant when it should be: %s", n)
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Not marked as constant when it should be: %s", []any{n.box_()})).self())
 		}
 		n.putBooleanProp(Node_IS_CONSTANT_NAME, true)
 	}
@@ -227,7 +231,7 @@ func (this *Normalize_NormalizeStatements) annotateConstantsByConvention(n Node)
 
 func (this *Normalize_NormalizeStatements) annotateFunctionExpressionNameAsConstant(n Node) {
 	if ok_, a1_ := n.isName(), tostrR_(n.getToken()); !ok_ {
-		Preconditions_checkState_boolean_String_Object(false, "Expected NAME node but got %s", a1_)
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected NAME node but got %s", []any{a1_})).self())
 	}
 	if Normalize_isFunctionExpressionNameNode(n) {
 		n.putBooleanProp(Node_IS_CONSTANT_NAME, true)
@@ -284,7 +288,7 @@ func (this *Normalize_NormalizeStatements) addNameNodeToExportSpecs(exportSpecs 
 
 func (this *Normalize_NormalizeStatements) normalizeBlocklessFunction(n Node) {
 	if !n.isFunction() {
-		Preconditions_checkState_boolean_Object_H(false, n)
+		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
 	}
 	if !NodeUtil_getFunctionBody(n).isBlock() {
 		var returnValue Node = NodeUtil_getFunctionBody(n)
@@ -331,11 +335,13 @@ func (this *Normalize_NormalizeStatements) isVarDestructuringDeclaration(n Node)
 }
 
 func (this *Normalize_NormalizeStatements) rewriteVarDestructuringDeclaration(destructuringLhs Node) {
-	Preconditions_checkState_boolean_Object(!destructuringLhs.getGrandparent().isExport(), "Export destructuring declarations should be already handled in `splitExportDeclaration` during pre-order traversal.")
+	if destructuringLhs.getGrandparent().isExport() {
+		panic(new_IllegalStateException_String(objstr_("Export destructuring declarations should be already handled in `splitExportDeclaration` during pre-order traversal.")).self())
+	}
 	var var_ Node = destructuringLhs.getParent()
 	NodeUtil_visitLhsNodesInNode(destructuringLhs, (&Consumer_tfn_Node{func(name Node) {
 		if !name.isName() {
-			Preconditions_checkState_boolean_String_Object_H(false, "lhs in destructuring declaration should be a simple name. (%s)", name)
+			panic(new_IllegalStateException_String(Strings_lenientFormat("lhs in destructuring declaration should be a simple name. (%s)", []any{name.box_()})).self())
 		}
 		var newName Node = IR_name(name.getString()).srcref(name)
 		if name.getBooleanProp(Node_IS_CONSTANT_NAME) {
@@ -345,7 +351,9 @@ func (this *Normalize_NormalizeStatements) rewriteVarDestructuringDeclaration(de
 		newVar.insertBefore(var_)
 	}}).accept)
 	var destructuringPattern Node = destructuringLhs.removeFirstChild()
-	Preconditions_checkState_boolean_Object(destructuringPattern.isDestructuringPattern(), "Expected destructuring pattern.")
+	if !destructuringPattern.isDestructuringPattern() {
+		panic(new_IllegalStateException_String(objstr_("Expected destructuring pattern.")).self())
+	}
 	var rhs Node = destructuringLhs.removeFirstChild()
 	var assign Node = this.astFactory_.createAssign(destructuringPattern, rhs)
 	assign.srcref(var_)
@@ -357,7 +365,9 @@ func (this *Normalize_NormalizeStatements) rewriteVarDestructuringDeclaration(de
 }
 
 func (this *Normalize_NormalizeStatements) normalizeLabels(n Node) {
-	Preconditions_checkArgument(n.isLabel())
+	if !n.isLabel() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var last Node = n.getLastChild()
 	switch last.ns_().token {
 	case tokOrd1_LABEL, tokOrd1_BLOCK, tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_WHILE, tokOrd1_DO:
@@ -401,7 +411,7 @@ func (this *Normalize_NormalizeStatements) extractForInitializer(n Node, before 
 					if lhs.isDestructuringLhs() {
 						NodeUtil_visitLhsNodesInNode(lhs, (&Consumer_tfn_Node{func(name Node) {
 							if !name.isName() {
-								Preconditions_checkState_boolean_String_Object_H(false, "lhs in destructuring declaration should be a simple name. (%s)", name)
+								panic(new_IllegalStateException_String(Strings_lenientFormat("lhs in destructuring declaration should be a simple name. (%s)", []any{name.box_()})).self())
 							}
 							var newName Node = IR_name(name.getString()).srcref(name)
 							var newVar Node = IR_var_Node(newName).srcref(name)
@@ -464,7 +474,9 @@ func (this *Normalize_NormalizeStatements) splitVarDeclarations(n Node) {
 }
 
 func (this *Normalize_NormalizeStatements) moveNamedFunctions(body Node) {
-	Preconditions_checkState((body.getParent().isFunction() || NodeUtil_isClassStaticBlock(body)))
+	if !body.getParent().isFunction() && !NodeUtil_isClassStaticBlock(body) {
+		panic(new_IllegalStateException_0().self())
+	}
 	var insertAfter Node = 0
 	var current Node = body.getFirstChild()
 	for (current != 0) && NodeUtil_isFunctionDeclaration(current) {
@@ -486,7 +498,9 @@ func (this *Normalize_NormalizeStatements) normalizeAssignShorthand(shorthand No
 	if !shorthand.getFirstChild().isName() {
 		return
 	}
-	Preconditions_checkArgument_boolean_Object(shorthand.hasTwoChildren(), "Expected two children for shorthand assignment.")
+	if !shorthand.hasTwoChildren() {
+		panic(new_IllegalArgumentException_String(objstr_("Expected two children for shorthand assignment.")).self())
+	}
 	var lhs Node = shorthand.getFirstChild()
 	var rhs Node = shorthand.getSecondChild()
 	lhs.detach()
@@ -530,7 +544,9 @@ func new_Normalize_DuplicateDeclarationHandler(outer_ *Normalize) *Normalize_Dup
 }
 
 func (this *Normalize_DuplicateDeclarationHandler) onRedeclaration(s *Scope, name string, n Node, input *CompilerInput) {
-	Preconditions_checkState(n.isName())
+	if !n.isName() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var parent Node = n.getParent()
 	var v *Var = s.getVar_String_rVar(name)
 	if s.isGlobal() {
@@ -547,7 +563,9 @@ func (this *Normalize_DuplicateDeclarationHandler) onRedeclaration(s *Scope, nam
 			this.replaceVarWithAssignment(v.getNameNode(), v.getParentNode(), v.getParentNode().getParent())
 		}
 	} else if parent.isVar() {
-		Preconditions_checkState(parent.hasOneChild())
+		if !parent.hasOneChild() {
+			panic(new_IllegalStateException_0().self())
+		}
 		this.replaceVarWithAssignment(n, parent, parent.getParent())
 	}
 }
@@ -565,7 +583,7 @@ func (this *Normalize_DuplicateDeclarationHandler) replaceVarWithAssignment(n No
 		this.outer_.reportCodeChange("Duplicate VAR declaration", statement)
 	} else {
 		if !NodeUtil_isStatementBlock(grandparent) {
-			Preconditions_checkState_boolean_Object_H(false, grandparent)
+			panic(new_IllegalStateException_String(objstr_(grandparent.box_())).self())
 		}
 		parent.detach()
 		this.outer_.reportCodeChange("Duplicate VAR declaration", grandparent)

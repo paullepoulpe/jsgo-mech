@@ -19,8 +19,12 @@ func (this *ByPathWarningsGuard) up_WarningsGuard() *WarningsGuard {
 
 func (this *ByPathWarningsGuard) init_ByPathWarningsGuard(paths *JTList[string], include bool, level CheckLevel) {
 	this.WarningsGuard.init_WarningsGuard()
-	Preconditions_checkArgument((paths != nil))
-	Preconditions_checkArgument(((level == CheckLevel_OFF) || (level == CheckLevel_ERROR)))
+	if paths == nil {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if level != CheckLevel_OFF && level != CheckLevel_ERROR {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	this.paths = paths
 	this.include = include
 	this.levelField = level

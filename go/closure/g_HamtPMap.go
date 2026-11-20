@@ -34,9 +34,13 @@ func new_HamtPMap[K comparable, V comparable](key K, hash int32, value V, mask i
 }
 
 func (this *HamtPMap[K, V]) checkInvariants() {
-	Preconditions_checkState((Integer_bitCount(this.mask) == int32(len(this.children_))))
+	if Integer_bitCount(this.mask) != int32(len(this.children_)) {
+		panic(new_IllegalStateException_0().self())
+	}
 	for _, child := range this.children_ {
-		Preconditions_checkNotNull_T(child)
+		if child == nil {
+			panic(new_NullPointerException_0().self())
+		}
 	}
 }
 
@@ -116,7 +120,9 @@ func (this *HamtPMap[K, V]) get_2(key K, hash int32) V {
 }
 
 func (this *HamtPMap[K, V]) plus_Object_Object_rHamtPMap(key K, value V) *HamtPMap[K, V] {
-	Preconditions_checkNotNull(boxT_(value))
+	if boxT_(value) == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	return func() *HamtPMap[K, V] {
 		if !this.isEmpty() {
 			return this.plus_3(key, HamtPMap_hash(boxT_(key)), value)
@@ -225,7 +231,11 @@ func (this *HamtPMap[K, V]) reconcile_PMap_Reconciler_rHamtPMap(that PMap[K, V],
 		}
 		return nil
 	}(), &PMap_Reconciler_fn[K, V]{func(k K, v1 V, v2 V) V {
-		return junboxT_[V](Preconditions_checkNotNull(boxT_(joiner.merge(k, v1, v2))))
+		nn_ := boxT_(joiner.merge(k, v1, v2))
+		if nn_ == nil {
+			panic(new_NullPointerException_0().self())
+		}
+		return junboxT_[V](nn_)
 	}})
 	return func() *HamtPMap[K, V] {
 		if result != nil {

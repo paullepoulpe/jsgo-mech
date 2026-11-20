@@ -75,7 +75,9 @@ func (this *SimpleSetMultimap) inverse() *SimpleSetMultimap {
 }
 
 func (this *SimpleSetMultimap) put(key any, value any) bool {
-	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
+	if this.frozen {
+		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+	}
 	var values SetOf[any] = icast_Set(this.map__.get(key))
 	if values == nil {
 		values = func() Set {
@@ -97,7 +99,9 @@ func (this *SimpleSetMultimap) put(key any, value any) bool {
 
 // put_s is put for a string key that is not boxed (post-flip step strvar).
 func (this *SimpleSetMultimap) put_s(key string, value any) bool {
-	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
+	if this.frozen {
+		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+	}
 	var values SetOf[any] = icast_Set(Map_get_s(this.map__, key))
 	if values == nil {
 		values = func() Set {
@@ -186,7 +190,9 @@ func (this *SimpleSetMultimap) containsEntry(key any, value string) bool {
 }
 
 func (this *SimpleSetMultimap) removeAll(key any) SetOf[any] {
-	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
+	if this.frozen {
+		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+	}
 	var values SetOf[any] = icast_Set(this.map__.remove(key))
 	if values == nil {
 		return ImmutableSet_as_Set(ImmutableSet_of())
@@ -203,7 +209,9 @@ func (this *SimpleSetMultimap) removeAll(key any) SetOf[any] {
 
 // removeAll_s is removeAll for a string key that is not boxed (post-flip step strvar).
 func (this *SimpleSetMultimap) removeAll_s(key string) SetOf[any] {
-	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
+	if this.frozen {
+		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+	}
 	var values SetOf[any] = icast_Set(Map_remove_s(this.map__, key))
 	if values == nil {
 		return ImmutableSet_as_Set(ImmutableSet_of())
@@ -219,7 +227,9 @@ func (this *SimpleSetMultimap) removeAll_s(key string) SetOf[any] {
 }
 
 func (this *SimpleSetMultimap) clear() {
-	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
+	if this.frozen {
+		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+	}
 	this.map__.clear()
 	if this.entryOrder != nil {
 		this.entryOrder.clear()
@@ -349,7 +359,9 @@ func (this *SimpleSetMultimap_InsertionOrderedValuesIterator) next() any {
 }
 
 func (this *SimpleSetMultimap_InsertionOrderedValuesIterator) remove() {
-	Preconditions_checkState_boolean_Object(!this.outer_.frozen, "immutable")
+	if this.outer_.frozen {
+		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+	}
 	Iterator_remove(this.entries)
 	var values SetOf[any] = icast_Set(this.outer_.map__.get(this.last.key()))
 	values.remove_Object(this.last.value())
