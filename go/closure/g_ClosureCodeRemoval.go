@@ -6,15 +6,15 @@ type ClosureCodeRemoval struct {
 	compiler_                     *AbstractCompiler
 	removeAbstractMethods         bool
 	removeAssertionCalls          bool
-	abstractMethodAssignmentNodes *TList[*ClosureCodeRemoval_RemovableAssignment]
-	abstractMemberFunctionNodes   *TList[Node]
-	assertionCalls                *TList[Node]
+	abstractMethodAssignmentNodes *[]*ClosureCodeRemoval_RemovableAssignment
+	abstractMemberFunctionNodes   *[]Node
+	assertionCalls                *[]Node
 }
 
 func (this *ClosureCodeRemoval) finit_ClosureCodeRemoval() {
-	this.abstractMethodAssignmentNodes = newTList_(tc_p_ClosureCodeRemoval_RemovableAssignment)
-	this.abstractMemberFunctionNodes = newTList_(tc_Node)
-	this.assertionCalls = newTList_(tc_Node)
+	this.abstractMethodAssignmentNodes = &[]*ClosureCodeRemoval_RemovableAssignment{}
+	this.abstractMemberFunctionNodes = &[]Node{}
+	this.assertionCalls = &[]Node{}
 }
 
 func (this *ClosureCodeRemoval) init_ClosureCodeRemoval(compiler *AbstractCompiler, removeAbstractMethods bool, removeAssertionCalls bool) {
@@ -39,22 +39,16 @@ func (this *ClosureCodeRemoval) process_2(externs Node, root Node) {
 		passes.add(NodeTraversal_Callback(new_ClosureCodeRemoval_FindAssertionCalls(this)))
 	}
 	CombinedCompilerPass_traverse(this.compiler_, root, passes)
-	it_1 := this.abstractMethodAssignmentNodes.each()
-	for it_1.next() {
-		var assignment *ClosureCodeRemoval_RemovableAssignment = it_1.v
+	for assignment := range sliceAll_(this.abstractMethodAssignmentNodes) {
 		assignment.remove()
 	}
-	it_3 := this.abstractMemberFunctionNodes.each()
-	for it_3.next() {
-		var memberFunction Node = it_3.v
+	for memberFunction := range sliceAll_(this.abstractMemberFunctionNodes) {
 		this.compiler_.reportFunctionDeleted(memberFunction.getFirstChild())
 		var parent Node = memberFunction.getParent()
 		memberFunction.detach()
 		this.compiler_.reportChangeToEnclosingScope(parent)
 	}
-	it_5 := this.assertionCalls.each()
-	for it_5.next() {
-		var call Node = it_5.v
+	for call := range sliceAll_(this.assertionCalls) {
 		this.compiler_.reportChangeToEnclosingScope(call)
 		var parent Node = call.getParent()
 		if parent.isExprResult() {
@@ -80,12 +74,12 @@ type ClosureCodeRemoval_RemovableAssignment struct {
 	outer_          *ClosureCodeRemoval
 	node_           Node
 	parent          Node
-	assignAncestors *TList[Node]
+	assignAncestors *[]Node
 	lastAncestor    Node
 }
 
 func (this *ClosureCodeRemoval_RemovableAssignment) finit_ClosureCodeRemoval_RemovableAssignment() {
-	this.assignAncestors = newTList_(tc_Node)
+	this.assignAncestors = &[]Node{}
 }
 
 func (this *ClosureCodeRemoval_RemovableAssignment) init_ClosureCodeRemoval_RemovableAssignment(nameNode Node, assignNode Node) {
@@ -95,7 +89,7 @@ func (this *ClosureCodeRemoval_RemovableAssignment) init_ClosureCodeRemoval_Remo
 	var ancestor Node = assignNode
 	for do_2 := true; do_2; do_2 = (ancestor.isAssign() && ancestor.getFirstChild().isQualifiedName()) {
 		ancestor = ancestor.getParent()
-		this.assignAncestors.add(ancestor)
+		*this.assignAncestors = append(*this.assignAncestors, ancestor)
 	}
 	this.lastAncestor = ancestor.getParent()
 }
@@ -110,9 +104,7 @@ func new_ClosureCodeRemoval_RemovableAssignment(outer_ *ClosureCodeRemoval, name
 func (this *ClosureCodeRemoval_RemovableAssignment) remove() {
 	var rhs Node = this.node_.getNext()
 	var last Node = this.parent
-	it_1 := this.assignAncestors.each()
-	for it_1.next() {
-		var ancestor Node = it_1.v
+	for ancestor := range sliceAll_(this.assignAncestors) {
 		if ancestor.isExprResult() {
 			ancestor.detach()
 			NodeUtil_markFunctionsDeleted(ancestor, this.outer_.compiler_)
@@ -154,13 +146,13 @@ func (this *ClosureCodeRemoval_FindAbstractMethods) visit_impl(t *NodeTraversal,
 		var nameNode Node = n.getFirstChild()
 		var valueNode Node = n.getLastChild()
 		if (nameNode.isQualifiedName() && valueNode.isQualifiedName()) && valueNode.matchesQualifiedName(ClosureCodeRemoval_ABSTRACT_METHOD_NAME) {
-			this.outer_.abstractMethodAssignmentNodes.add(new_ClosureCodeRemoval_RemovableAssignment(this.outer_, n.getFirstChild(), n))
+			*this.outer_.abstractMethodAssignmentNodes = append(*this.outer_.abstractMethodAssignmentNodes, new_ClosureCodeRemoval_RemovableAssignment(this.outer_, n.getFirstChild(), n))
 		} else if (((n.getJSDocInfo() != nil) && n.getJSDocInfo().isAbstract()) && NodeUtil_isEmptyFunctionExpression(valueNode)) && !n.getJSDocInfo().isConstructor() {
-			this.outer_.abstractMethodAssignmentNodes.add(new_ClosureCodeRemoval_RemovableAssignment(this.outer_, n.getFirstChild(), n))
+			*this.outer_.abstractMethodAssignmentNodes = append(*this.outer_.abstractMethodAssignmentNodes, new_ClosureCodeRemoval_RemovableAssignment(this.outer_, n.getFirstChild(), n))
 		}
 	} else if n.isMemberFunctionDef() && parent.isClassMembers() {
 		if (n.getJSDocInfo() != nil) && n.getJSDocInfo().isAbstract() {
-			this.outer_.abstractMemberFunctionNodes.add(n)
+			*this.outer_.abstractMemberFunctionNodes = append(*this.outer_.abstractMemberFunctionNodes, n)
 		}
 	}
 }
@@ -197,7 +189,7 @@ func (this *ClosureCodeRemoval_FindAssertionCalls) visit_impl(t *NodeTraversal, 
 	}
 	var callee Node = n.getFirstChild()
 	if (this.assertionNames.lookupByCallee(callee) != nil) || ((callee.getColor() != nil) && callee.getColor().isClosureAssert()) {
-		this.outer_.assertionCalls.add(n)
+		*this.outer_.assertionCalls = append(*this.outer_.assertionCalls, n)
 	}
 }
 

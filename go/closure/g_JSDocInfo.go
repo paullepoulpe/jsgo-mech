@@ -10,7 +10,7 @@ type JSDocInfo struct {
 
 func (this *JSDocInfo) init_JSDocInfo(bits int64, props TreeMapOf[*JSDocInfo_Property, any]) {
 	var keys int64 = 0
-	var values *TList[any] = newTList_(tc_Object)
+	var values []any = []any{}
 	for entry := range elemsBy_(props.entrySet(), icast_Map_Entry) {
 		var prop *JSDocInfo_Property = to_JSDocInfo_Property(entry.getKey())
 		var value any = entry.getValue()
@@ -19,7 +19,7 @@ func (this *JSDocInfo) init_JSDocInfo(bits int64, props TreeMapOf[*JSDocInfo_Pro
 			if is_[[]any](value) || value == nil {
 				panic(new_IllegalStateException_0())
 			}
-			values.add(value)
+			values = append(values, value)
 		}
 	}
 	this.propertyBits = bits
@@ -73,7 +73,7 @@ func (this *JSDocInfo) clone_rJSDocInfo() *JSDocInfo {
 	return this.clone_1(false)
 }
 
-func (this *JSDocInfo) cloneAndReplaceTypeNames(names *TSet[string]) *JSDocInfo {
+func (this *JSDocInfo) cloneAndReplaceTypeNames(names map[string]struct{}) *JSDocInfo {
 	return this.toBuilder_1(func(type_ *JSTypeExpression) *JSTypeExpression {
 		return type_.replaceNamesWithUnknownType(names)
 	}).build()
@@ -792,16 +792,16 @@ func (this *JSDocInfo) getPropertyValueByIndex(index int32) any {
 	return this.propertyValues
 }
 
-func JSDocInfo_packPropertyValues(values *TList[any]) any {
+func JSDocInfo_packPropertyValues(values []any) any {
 	return func() any {
-		if values.isEmpty() {
+		if len(values) == 0 {
 			return nil
 		}
 		return func() any {
-			if values.size() == 1 {
-				return values.get(0)
+			if int32(len(values)) == 1 {
+				return sliceAt_(values, 0)
 			}
-			return any(values.asList().toArray_0())
+			return any(sliceView_(tc_any, values).toArray_0())
 		}()
 	}()
 }
@@ -2107,7 +2107,7 @@ type JSDocInfo_Builder struct {
 	bits          int64
 	populated     bool
 	currentMarker *JSDocInfo_Marker
-	licenseTexts  *TSet[string]
+	licenseTexts  map[string]struct{}
 }
 
 func (this *JSDocInfo_Builder) finit_JSDocInfo_Builder() {
@@ -2149,7 +2149,7 @@ func JSDocInfo_Builder_copyFromWithNewType(info *JSDocInfo, typeExpression *JSTy
 	return info.toBuilder().setType(typeExpression)
 }
 
-func JSDocInfo_Builder_maybeCopyFromAndReplaceNames(info *JSDocInfo, moduleLocalNamesToReplace *TSet[string]) *JSDocInfo_Builder {
+func JSDocInfo_Builder_maybeCopyFromAndReplaceNames(info *JSDocInfo, moduleLocalNamesToReplace map[string]struct{}) *JSDocInfo_Builder {
 	return func() *JSDocInfo_Builder {
 		if info != nil {
 			return JSDocInfo_Builder_copyFromAndReplaceNames(info, moduleLocalNamesToReplace)
@@ -2158,7 +2158,7 @@ func JSDocInfo_Builder_maybeCopyFromAndReplaceNames(info *JSDocInfo, moduleLocal
 	}()
 }
 
-func JSDocInfo_Builder_copyFromAndReplaceNames(info *JSDocInfo, oldNames *TSet[string]) *JSDocInfo_Builder {
+func JSDocInfo_Builder_copyFromAndReplaceNames(info *JSDocInfo, oldNames map[string]struct{}) *JSDocInfo_Builder {
 	return info.cloneAndReplaceTypeNames(oldNames).toBuilder()
 }
 
@@ -2552,9 +2552,9 @@ func (this *JSDocInfo_Builder) recordLicense(license string) bool {
 
 func (this *JSDocInfo_Builder) addLicense(license string) bool {
 	if this.licenseTexts == nil {
-		this.licenseTexts = newTSet_(tc_string)
+		this.licenseTexts = map[string]struct{}{}
 	}
-	if !this.licenseTexts.Add(license) {
+	if !setAdd_(this.licenseTexts, license) {
 		return false
 	}
 	var txt Optional[string] = Optional_ofNullable[string](str_(this.getProp(JSDocInfo_LICENSE)))

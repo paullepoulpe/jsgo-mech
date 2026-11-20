@@ -118,14 +118,14 @@ func (this *JSChunk) getDependencies() *TList[*JSChunk] {
 	return immutableListCopyOfT_(tc_p_JSChunk, this.deps)
 }
 
-func (this *JSChunk) getSortedDependencyNames() *TList[string] {
-	var names *TList[string] = newTList_(tc_string)
+func (this *JSChunk) getSortedDependencyNames() []string {
+	var names []string = []string{}
 	it_1 := this.getDependencies().each()
 	for it_1.next() {
 		var chunk *JSChunk = it_1.v
-		names.add(chunk.getName())
+		names = append(names, chunk.getName())
 	}
-	Collections_sort(names.asList())
+	Collections_sort(sliceView_(tc_string, names))
 	return names
 }
 

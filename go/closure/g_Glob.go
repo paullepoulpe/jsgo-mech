@@ -18,9 +18,7 @@ func new_Glob() *Glob {
 }
 
 func Glob_matches(glob string, path string) bool {
-	it_1 := Glob_expandBraces(glob).each()
-	for it_1.next() {
-		var alternative string = it_1.v
+	for _, alternative := range Glob_expandBraces(glob) {
 		if Glob_matchesWithoutBraces(alternative, path) {
 			return true
 		}
@@ -28,8 +26,8 @@ func Glob_matches(glob string, path string) bool {
 	return false
 }
 
-func Glob_expandBraces(glob string) *TList[string] {
-	var result *TList[string] = newTList_(tc_string)
+func Glob_expandBraces(glob string) []string {
+	var result []string = []string{}
 	var open int32 = -1
 	globU16 := utf16Of_(glob)
 	for i := int32(0); (i < globU16.length()) && (open < 0); i++ {
@@ -47,11 +45,11 @@ func Glob_expandBraces(glob string) *TList[string] {
 		return Glob_findUnescaped(glob, '}', (open + 1))
 	}()
 	if close_ < 0 {
-		result.add(glob)
+		result = append(result, glob)
 		return result
 	}
 	var head string = globU16.substring(0, open)
-	var tails *TList[string] = Glob_expandBraces(globU16.substring_int((close_ + 1)))
+	var tails []string = Glob_expandBraces(globU16.substring_int((close_ + 1)))
 	var start int32 = (open + 1)
 	for start <= close_ {
 		var comma int32 = Glob_findUnescaped(glob, ',', start)
@@ -61,10 +59,8 @@ func Glob_expandBraces(glob string) *TList[string] {
 			}
 			return comma
 		}()
-		it_3 := tails.each()
-		for it_3.next() {
-			var tail string = it_3.v
-			result.add((sstr_(head) + sstr_(globU16.substring(start, end)) + sstr_(tail)))
+		for _, tail := range tails {
+			result = append(result, (sstr_(head) + sstr_(globU16.substring(start, end)) + sstr_(tail)))
 		}
 		start = (end + 1)
 	}
