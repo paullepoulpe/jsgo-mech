@@ -110,7 +110,7 @@ func (this *CompilerBasedTransformer_CompilerSupplier) compile(path string, code
 	var source string = compiler.toSource()
 	var sourceMap *StringBuilder = new_StringBuilder()
 	if result.sourceMap_ != nil {
-		_ = func() (code_ int) {
+		func() {
 			defer func() {
 				if r_ := recover(); r_ != nil {
 					ex_ := catch_(r_)
@@ -123,7 +123,6 @@ func (this *CompilerBasedTransformer_CompilerSupplier) compile(path string, code
 				}
 			}()
 			result.sourceMap_.appendTo(StringBuilder_as_Appendable(sourceMap), Optional_of[string](path))
-			return 0
 		}()
 	}
 	var transformed bool = this.transformed(result)

@@ -530,21 +530,13 @@ func (this *SubtypeChecker) shouldTreatThisTypesAsCovariant(subtype *FunctionTyp
 	})
 }
 
-func (this *SubtypeChecker) hackTemporarilyChangeSubtypingMode(tempMode JSType_SubtypingMode, callback func() bool) bool {
+func (this *SubtypeChecker) hackTemporarilyChangeSubtypingMode(tempMode JSType_SubtypingMode, callback func() bool) (ret_1 bool) {
 	var originalMode JSType_SubtypingMode = this.subtypingMode
-	var ret_1 bool
-	code_1 := func() (code_ int) {
-		defer func() {
-			this.subtypingMode = originalMode
-		}()
-		this.subtypingMode = tempMode
-		ret_1 = callback()
-		return 1
+	defer func() {
+		this.subtypingMode = originalMode
 	}()
-	if code_1 == 1 {
-		return ret_1
-	}
-	panic("unreachable")
+	this.subtypingMode = tempMode
+	return callback()
 }
 
 func SubtypeChecker_getObjectTypeIfNative(type_ *JSType) *ObjectType {

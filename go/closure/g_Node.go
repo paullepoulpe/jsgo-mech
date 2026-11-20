@@ -1291,28 +1291,20 @@ func (this Node) toStringTree() string {
 	return this.toStringTreeImpl()
 }
 
-func (this Node) toStringTreeImpl() string {
-	var ret_1 string
-	code_1 := func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if p, ok := ex_.(IOException_as); ok {
-					var e *IOException = p.as_IOException()
-					panic(new_IllegalStateException_String(("Should not happen\n" + objstr_(e.self()))))
-				}
-				panic(r_)
+func (this Node) toStringTreeImpl() (ret_1 string) {
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if p, ok := ex_.(IOException_as); ok {
+				var e *IOException = p.as_IOException()
+				panic(new_IllegalStateException_String(("Should not happen\n" + objstr_(e.self()))))
 			}
-		}()
-		var s *StringBuilder = new_StringBuilder()
-		this.appendStringTree(StringBuilder_as_Appendable(s))
-		ret_1 = s.toString()
-		return 1
+			panic(r_)
+		}
 	}()
-	if code_1 == 1 {
-		return ret_1
-	}
-	panic("unreachable")
+	var s *StringBuilder = new_StringBuilder()
+	this.appendStringTree(StringBuilder_as_Appendable(s))
+	return s.toString()
 }
 
 func (this Node) appendStringTree(appendable Appendable) {
