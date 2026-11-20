@@ -170,7 +170,7 @@ func (this *NamedType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSTyp
 		var t *JSType = to_JSType(t_)
 		_ = t
 		return t.resolve(reporter).self()
-	}}, this.templateTypes.asImm()))
+	}}, sliceImm_(tc_p_JSType, this.templateTypes.asImm())))
 	if eqR_(this.resolutionKind, NamedType_ResolutionKind_NONE) {
 		return this.ProxyObjectType.resolveInternal_impl(reporter)
 	}

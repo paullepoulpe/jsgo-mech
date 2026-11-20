@@ -1229,7 +1229,7 @@ func (this *JSTypeRegistry) createTemplatizedTypeMap(baseType *ObjectType, templ
 		var key *JSType = to_JSType(key_)
 		_ = key
 		return Map_getOrDefault(templatizedTypes.asMap(), key.self(), unknownType.self())
-	}}, baseType.getTypeParameters().asImm())))
+	}}, sliceImm_(tc_p_JSType, baseType.getTypeParameters().asImm()))))
 }
 
 func (this *JSTypeRegistry) createTemplatizedType(baseType *ObjectType, templatizedTypes []*JSType) *TemplatizedType {
