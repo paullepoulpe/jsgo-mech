@@ -267,7 +267,7 @@ func (this *Compiler) initOptions(options *CompilerOptions) {
 
 func (this *Compiler) printConfig() {
 	if this.isDebugLoggingEnabled() {
-		this.logToFile("externs.log", &Supplier_tfn_string{func() string { return Object_toString(any(this.externs.asList())) }})
+		this.logToFile("externs.log", &Supplier_tfn_string{func() string { return Object_toString(this.externs.asList()) }})
 		this.logToFile("inputs.json", func() *Supplier_tfn_string {
 			recv_1 := Compiler_toPrettyJson(this.chunkGraph.toJson())
 			return &Supplier_tfn_string{func() string { return String_toString(recv_1) }}
@@ -281,7 +281,7 @@ func (this *Compiler) printConfig() {
 	} else {
 		var err *Output = Output_stderr()
 		err.println("==== Externs ====")
-		err.println(String_valueOf_Object(any(this.externs.asList())))
+		err.println(String_valueOf_Object(this.externs.asList()))
 		err.println("==== Inputs ====")
 		err.println(Compiler_toPrettyJson(this.chunkGraph.toJson()))
 		err.println("==== CompilerOptions ====")
