@@ -1339,7 +1339,7 @@ func (this *TypeCheck) visitClass(n Node) {
 
 func (this *TypeCheck) checkConstructor(n Node, functionType *FunctionType) {
 	var baseConstructor *FunctionType = functionType.getSuperClassConstructor()
-	if (!Objects_equals(baseConstructor.self(), this.getNativeType(JSTypeNative_OBJECT_FUNCTION_TYPE).self()) && (baseConstructor != nil)) && baseConstructor.isInterface() {
+	if (!objequalsBy_(baseConstructor, this.getNativeType(JSTypeNative_OBJECT_FUNCTION_TYPE).self(), (*FunctionType).equals) && (baseConstructor != nil)) && baseConstructor.isInterface() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_CONFLICTING_EXTENDED_TYPE, []string{"constructor", this.getBestFunctionName(n)}))
 	} else {
 		if (((n.isFunction() && (baseConstructor != nil)) && (baseConstructor.getSource() != 0)) && baseConstructor.getSource().isClass()) && !functionType.getSource().isClass() {

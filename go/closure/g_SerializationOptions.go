@@ -49,7 +49,7 @@ func (this *SerializationOptions) hashCode() int32 {
 	var h int32
 	h = h*31 + boolhash_(this.includeDebugInfo_)
 	h = h*31 + boolhash_(this.runValidation_)
-	h = h*31 + Objects_hashCode(this.runtimeLibraries_.asList())
+	h = h*31 + objhashVia_(this.runtimeLibraries_.asList())
 	return h
 }
 

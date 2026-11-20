@@ -74,9 +74,9 @@ func (this *Module) hashCode() int32 {
 	var h int32
 	h = h*31 + hash_(this.metadata_)
 	h = h*31 + hash_(this.path_)
-	h = h*31 + Objects_hashCode(this.namespace_.asMap())
-	h = h*31 + Objects_hashCode(this.boundNames_.asMap())
-	h = h*31 + Objects_hashCode(this.localNameToLocalExport_.asMap())
+	h = h*31 + objhashDyn_(this.namespace_.asMap())
+	h = h*31 + objhashDyn_(this.boundNames_.asMap())
+	h = h*31 + objhashDyn_(this.localNameToLocalExport_.asMap())
 	h = h*31 + Objects_hashCode(this.closureNamespace_.box_())
 	return h
 }

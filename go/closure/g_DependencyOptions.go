@@ -156,7 +156,7 @@ func (this *DependencyOptions) equals(p0 any) bool {
 func (this *DependencyOptions) hashCode() int32 {
 	var h int32
 	h = h*31 + hash_(this.mode_)
-	h = h*31 + Objects_hashCode(this.entryPoints_.asList())
+	h = h*31 + objhashVia_(this.entryPoints_.asList())
 	return h
 }
 

@@ -271,15 +271,15 @@ func (this *JsMessage) hashCode() int32 {
 	h = h*31 + boolhash_(this.isAnonymous_)
 	h = h*31 + boolhash_(this.isExternal_)
 	h = h*31 + strhash_(this.getId_)
-	h = h*31 + Objects_hashCode(this.getParts_.asList())
-	h = h*31 + Objects_hashCode(this.getGenderedMessagesMap_.asMap())
+	h = h*31 + objhashVia_(this.getParts_.asList())
+	h = h*31 + objhashDyn_(this.getGenderedMessagesMap_.asMap())
 	h = h*31 + Objects_hashCode(this.getAlternateId_.box_())
 	h = h*31 + Objects_hashCode(this.getDesc_.box_())
 	h = h*31 + Objects_hashCode(this.getMeaning_.box_())
-	h = h*31 + Objects_hashCode(this.getPlaceholderNameToExampleMap_.asMap())
-	h = h*31 + Objects_hashCode(this.getPlaceholderNameToOriginalCodeMap_.asMap())
-	h = h*31 + Objects_hashCode(this.jsPlaceholderNames_.asSet())
-	h = h*31 + Objects_hashCode(this.canonicalPlaceholderNames_.asSet())
+	h = h*31 + objhashDyn_(this.getPlaceholderNameToExampleMap_.asMap())
+	h = h*31 + objhashDyn_(this.getPlaceholderNameToOriginalCodeMap_.asMap())
+	h = h*31 + objhashDyn_(this.jsPlaceholderNames_.asSet())
+	h = h*31 + objhashDyn_(this.canonicalPlaceholderNames_.asSet())
 	return h
 }
 
