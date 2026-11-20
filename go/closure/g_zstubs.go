@@ -2645,36 +2645,12 @@ type XMLReader interface {
 	setEntityResolver(EntityResolver)
 }
 
-type Function_fn struct {
-	f func(any) any
-}
-
-func (this *Function_fn) apply(p0 any) any {
-	return this.f(p0)
-}
-
-type Predicate_fn struct {
-	f func(any) bool
-}
-
-func (this *Predicate_fn) test(p0 any) bool {
-	return this.f(p0)
-}
-
 type Supplier_base_fn struct {
 	f func() any
 }
 
 func (this *Supplier_base_fn) get() any {
 	return this.f()
-}
-
-type Consumer_fn struct {
-	f func(any)
-}
-
-func (this *Consumer_fn) accept(p0 any) {
-	this.f(p0)
 }
 
 type Supplier_fn struct {
@@ -2713,28 +2689,12 @@ func (this *ToIntFunction_fn) applyAsInt(p0 any) int32 {
 	return this.f(p0)
 }
 
-type IntFunction_fn struct {
-	f func(int32) any
-}
-
-func (this *IntFunction_fn) apply(p0 int32) any {
-	return this.f(p0)
-}
-
 type Callable_fn struct {
 	f func() any
 }
 
 func (this *Callable_fn) call() any {
 	return this.f()
-}
-
-type BiFunction_fn struct {
-	f func(any, any) any
-}
-
-func (this *BiFunction_fn) apply(p0 any, p1 any) any {
-	return this.f(p0, p1)
 }
 
 type Runnable_fn struct {
@@ -2745,28 +2705,12 @@ func (this *Runnable_fn) run() {
 	this.f()
 }
 
-type BiConsumer_fn struct {
-	f func(any, any)
-}
-
-func (this *BiConsumer_fn) accept(p0 any, p1 any) {
-	this.f(p0, p1)
-}
-
 type Function_base_fn struct {
 	f func(any) any
 }
 
 func (this *Function_base_fn) apply(p0 any) any {
 	return this.f(p0)
-}
-
-type BiPredicate_fn struct {
-	f func(any, any) bool
-}
-
-func (this *BiPredicate_fn) test(p0 any, p1 any) bool {
-	return this.f(p0, p1)
 }
 
 type Iterable_fn struct {
@@ -2777,27 +2721,11 @@ func (this *Iterable_fn) iterator() Iterator {
 	return this.f()
 }
 
-type ToLongFunction_fn struct {
-	f func(any) int64
-}
-
-func (this *ToLongFunction_fn) applyAsLong(p0 any) int64 {
-	return this.f(p0)
-}
-
 type ThreadFactory_fn struct {
 	f func(Runnable) *Thread
 }
 
 func (this *ThreadFactory_fn) newThread(p0 Runnable) *Thread {
-	return this.f(p0)
-}
-
-type IntUnaryOperator_fn struct {
-	f func(int32) int32
-}
-
-func (this *IntUnaryOperator_fn) applyAsInt(p0 int32) int32 {
 	return this.f(p0)
 }
 
@@ -2825,36 +2753,12 @@ func (this *BiConsumer_tfn_Node_Set) accept(p0 any, p1 any) {
 	this.f(Node_of_(p0), icast_Set(p1))
 }
 
-type BiConsumer_tfn_TemplateType_any struct {
-	f func(*TemplateType, any)
-}
-
-func (this *BiConsumer_tfn_TemplateType_any) accept(p0 any, p1 any) {
-	this.f(cast_[*TemplateType](p0), p1)
-}
-
 type BiConsumer_tfn_TypePool_ColorPool_ShardView struct {
 	f func(*TypePool, *ColorPool_ShardView)
 }
 
 func (this *BiConsumer_tfn_TypePool_ColorPool_ShardView) accept(p0 any, p1 any) {
 	this.f(cast_[*TypePool](p0), cast_[*ColorPool_ShardView](p1))
-}
-
-type BiConsumer_tfn_Var_MustBeReachingVariableDef_Definition struct {
-	f func(*Var, *MustBeReachingVariableDef_Definition)
-}
-
-func (this *BiConsumer_tfn_Var_MustBeReachingVariableDef_Definition) accept(p0 any, p1 any) {
-	this.f(cast_[*Var](p0), cast_[*MustBeReachingVariableDef_Definition](p1))
-}
-
-type BiConsumer_tfn_any_JSTypeReconserializer_SeenTypeRecord struct {
-	f func(any, *JSTypeReconserializer_SeenTypeRecord)
-}
-
-func (this *BiConsumer_tfn_any_JSTypeReconserializer_SeenTypeRecord) accept(p0 any, p1 any) {
-	this.f(p0, cast_[*JSTypeReconserializer_SeenTypeRecord](p1))
 }
 
 type BiConsumer_tfn_string_JSTypeExpression struct {
@@ -2911,14 +2815,6 @@ type BiFunction_tfn_LowestCommonAncestorFinder_Color_LowestCommonAncestorFinder_
 
 func (this *BiFunction_tfn_LowestCommonAncestorFinder_Color_LowestCommonAncestorFinder_Color_LowestCommonAncestorFinder_Color) apply(p0 any, p1 any) any {
 	return obj_(this.f(cast_[*LowestCommonAncestorFinder_Color](p0), cast_[*LowestCommonAncestorFinder_Color](p1)))
-}
-
-type BiFunction_tfn_TemplateType_any_any struct {
-	f func(*TemplateType, any) any
-}
-
-func (this *BiFunction_tfn_TemplateType_any_any) apply(p0 any, p1 any) any {
-	return this.f(cast_[*TemplateType](p0), p1)
 }
 
 type BiFunction_tfn_string_string_string struct {
@@ -3023,14 +2919,6 @@ type Comparator_tfn_AmbiguateProperties_Property_AmbiguateProperties_Property st
 
 func (this *Comparator_tfn_AmbiguateProperties_Property_AmbiguateProperties_Property) compare(p0 any, p1 any) int32 {
 	return this.f(cast_[*AmbiguateProperties_Property](p0), cast_[*AmbiguateProperties_Property](p1))
-}
-
-type Comparator_tfn_CmdLineParser_Option_CmdLineParser_Option struct {
-	f func(*CmdLineParser_Option, *CmdLineParser_Option) int32
-}
-
-func (this *Comparator_tfn_CmdLineParser_Option_CmdLineParser_Option) compare(p0 any, p1 any) int32 {
-	return this.f(cast_[*CmdLineParser_Option](p0), cast_[*CmdLineParser_Option](p1))
 }
 
 type Comparator_tfn_PrototypeObjectType_PropertyForPrettyPrinting_PrototypeObjectType_PropertyForPrettyPrinting struct {
@@ -3329,22 +3217,6 @@ func (this *Function_base_tfn_string_string) apply(p0 any) any {
 	return strobj_(this.f(str_(p0)))
 }
 
-type Function_tfn_AbstractScope_ImplicitVar_TypedVar struct {
-	f func(AbstractScope_ImplicitVar) *TypedVar
-}
-
-func (this *Function_tfn_AbstractScope_ImplicitVar_TypedVar) apply(p0 any) any {
-	return obj_(this.f(cast_[AbstractScope_ImplicitVar](p0)))
-}
-
-type Function_tfn_AbstractScope_ImplicitVar_Var struct {
-	f func(AbstractScope_ImplicitVar) *Var
-}
-
-func (this *Function_tfn_AbstractScope_ImplicitVar_Var) apply(p0 any) any {
-	return obj_(this.f(cast_[AbstractScope_ImplicitVar](p0)))
-}
-
 type Function_tfn_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement_string struct {
 	f func(*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) string
 }
@@ -3359,38 +3231,6 @@ type Function_tfn_CodeReplacement_string struct {
 
 func (this *Function_tfn_CodeReplacement_string) apply(p0 any) any {
 	return strobj_(this.f(cast_[*CodeReplacement](p0)))
-}
-
-type Function_tfn_ColorId_Color struct {
-	f func(*ColorId) *Color
-}
-
-func (this *Function_tfn_ColorId_Color) apply(p0 any) any {
-	return obj_(this.f(cast_[*ColorId](p0)))
-}
-
-type Function_tfn_ColorId_JSTypeReconserializer_SeenTypeRecord struct {
-	f func(*ColorId) *JSTypeReconserializer_SeenTypeRecord
-}
-
-func (this *Function_tfn_ColorId_JSTypeReconserializer_SeenTypeRecord) apply(p0 any) any {
-	return obj_(this.f(cast_[*ColorId](p0)))
-}
-
-type Function_tfn_ColorId_any struct {
-	f func(*ColorId) any
-}
-
-func (this *Function_tfn_ColorId_any) apply(p0 any) any {
-	return this.f(cast_[*ColorId](p0))
-}
-
-type Function_tfn_Color_ColorGraphNode struct {
-	f func(*Color) *ColorGraphNode
-}
-
-func (this *Function_tfn_Color_ColorGraphNode) apply(p0 any) any {
-	return obj_(this.f(cast_[*Color](p0)))
 }
 
 type Function_tfn_Color_Set struct {
@@ -3425,14 +3265,6 @@ func (this *Function_tfn_CompilerOptions_any) apply(p0 any) any {
 	return this.f(cast_[*CompilerOptions](p0))
 }
 
-type Function_tfn_DiagnosticType_DiagnosticGroup struct {
-	f func(*DiagnosticType) *DiagnosticGroup
-}
-
-func (this *Function_tfn_DiagnosticType_DiagnosticGroup) apply(p0 any) any {
-	return obj_(this.f(cast_[*DiagnosticType](p0)))
-}
-
 type Function_tfn_FileProfile_string struct {
 	f func(*FileProfile) string
 }
@@ -3455,22 +3287,6 @@ type Function_tfn_InstrumentationPointStats_string struct {
 
 func (this *Function_tfn_InstrumentationPointStats_string) apply(p0 any) any {
 	return strobj_(this.f(cast_[*InstrumentationPointStats](p0)))
-}
-
-type Function_tfn_JSChunk_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo struct {
-	f func(*JSChunk) *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo
-}
-
-func (this *Function_tfn_JSChunk_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo) apply(p0 any) any {
-	return obj_(this.f(cast_[*JSChunk](p0)))
-}
-
-type Function_tfn_JSChunk_Map struct {
-	f func(*JSChunk) Map
-}
-
-func (this *Function_tfn_JSChunk_Map) apply(p0 any) any {
-	return this.f(cast_[*JSChunk](p0))
 }
 
 type Function_tfn_JSChunk_Node struct {
@@ -3505,14 +3321,6 @@ func (this *Function_tfn_Node_Color) apply(p0 any) any {
 	return obj_(this.f(Node_of_(p0)))
 }
 
-type Function_tfn_Node_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject struct {
-	f func(Node) *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject
-}
-
-func (this *Function_tfn_Node_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject) apply(p0 any) any {
-	return obj_(this.f(Node_of_(p0)))
-}
-
 type Function_tfn_Node_InstrumentAsyncContext_FunctionContext struct {
 	f func(Node) *InstrumentAsyncContext_FunctionContext
 }
@@ -3534,14 +3342,6 @@ type Function_tfn_Node_ScriptMetadata struct {
 }
 
 func (this *Function_tfn_Node_ScriptMetadata) apply(p0 any) any {
-	return obj_(this.f(Node_of_(p0)))
-}
-
-type Function_tfn_Node_SymbolTable_Reference struct {
-	f func(Node) *SymbolTable_Reference
-}
-
-func (this *Function_tfn_Node_SymbolTable_Reference) apply(p0 any) any {
 	return obj_(this.f(Node_of_(p0)))
 }
 
@@ -3577,14 +3377,6 @@ func (this *Function_tfn_SourceFile_jscomp_Supplier) apply(p0 any) any {
 	return this.f(cast_[*SourceFile_jscomp](p0))
 }
 
-type Function_tfn_SourceFile_jscomp_any struct {
-	f func(*SourceFile_jscomp) any
-}
-
-func (this *Function_tfn_SourceFile_jscomp_any) apply(p0 any) any {
-	return this.f(cast_[*SourceFile_jscomp](p0))
-}
-
 type Function_tfn_Source_Source struct {
 	f func(*Source) *Source
 }
@@ -3609,67 +3401,11 @@ func (this *Function_tfn_UnionType_any) apply(p0 any) any {
 	return this.f(cast_[*UnionType](p0))
 }
 
-type Function_tfn_Var_ReferenceCollection struct {
-	f func(*Var) *ReferenceCollection
-}
-
-func (this *Function_tfn_Var_ReferenceCollection) apply(p0 any) any {
-	return obj_(this.f(cast_[*Var](p0)))
-}
-
-type Function_tfn_any_CompilerPass struct {
-	f func(any) CompilerPass
-}
-
-func (this *Function_tfn_any_CompilerPass) apply(p0 any) any {
-	return this.f(p0)
-}
-
-type Function_tfn_any_ConvertToTypedInterface_SimplifyDeclarations_TypingLevel struct {
-	f func(any) ConvertToTypedInterface_SimplifyDeclarations_TypingLevel
-}
-
-func (this *Function_tfn_any_ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) apply(p0 any) any {
-	return obj_(this.f(p0))
-}
-
-type Function_tfn_any_SimpleMultiset struct {
-	f func(any) *SimpleMultiset[any]
-}
-
-func (this *Function_tfn_any_SimpleMultiset) apply(p0 any) any {
-	return obj_(this.f(p0))
-}
-
-type Function_tfn_any_string struct {
-	f func(any) string
-}
-
-func (this *Function_tfn_any_string) apply(p0 any) any {
-	return strobj_(this.f(p0))
-}
-
-type Function_tfn_string_AmbiguateProperties_Property struct {
-	f func(string) *AmbiguateProperties_Property
-}
-
-func (this *Function_tfn_string_AmbiguateProperties_Property) apply(p0 any) any {
-	return obj_(this.f(str_(p0)))
-}
-
 type Function_tfn_string_ClosureExportTypeClassifier_NameInfo struct {
 	f func(string) *ClosureExportTypeClassifier_NameInfo
 }
 
 func (this *Function_tfn_string_ClosureExportTypeClassifier_NameInfo) apply(p0 any) any {
-	return obj_(this.f(str_(p0)))
-}
-
-type Function_tfn_string_DeadPropertyAssignmentElimination_Property struct {
-	f func(string) *DeadPropertyAssignmentElimination_Property
-}
-
-func (this *Function_tfn_string_DeadPropertyAssignmentElimination_Property) apply(p0 any) any {
 	return obj_(this.f(str_(p0)))
 }
 
@@ -3689,28 +3425,12 @@ func (this *Function_tfn_string_FileInstrumentationData) apply(p0 any) any {
 	return obj_(this.f(str_(p0)))
 }
 
-type Function_tfn_string_InlineFunctions_FunctionState struct {
-	f func(string) *InlineFunctions_FunctionState
-}
-
-func (this *Function_tfn_string_InlineFunctions_FunctionState) apply(p0 any) any {
-	return obj_(this.f(str_(p0)))
-}
-
 type Function_tfn_string_JsMessageVisitor_MalformedException struct {
 	f func(string) *JsMessageVisitor_MalformedException
 }
 
 func (this *Function_tfn_string_JsMessageVisitor_MalformedException) apply(p0 any) any {
 	return obj_(this.f(str_(p0)))
-}
-
-type Function_tfn_string_List struct {
-	f func(string) List
-}
-
-func (this *Function_tfn_string_List) apply(p0 any) any {
-	return this.f(str_(p0))
 }
 
 type Function_tfn_string_Map struct {
@@ -3721,67 +3441,11 @@ func (this *Function_tfn_string_Map) apply(p0 any) any {
 	return this.f(str_(p0))
 }
 
-type Function_tfn_string_PerformanceTracker_Stats struct {
-	f func(string) *PerformanceTracker_Stats
-}
-
-func (this *Function_tfn_string_PerformanceTracker_Stats) apply(p0 any) any {
-	return obj_(this.f(str_(p0)))
-}
-
-type Function_tfn_string_ProcessTweaks_TweakInfo struct {
-	f func(string) *ProcessTweaks_TweakInfo
-}
-
-func (this *Function_tfn_string_ProcessTweaks_TweakInfo) apply(p0 any) any {
-	return obj_(this.f(str_(p0)))
-}
-
-type Function_tfn_string_PropertyClustering struct {
-	f func(string) *PropertyClustering
-}
-
-func (this *Function_tfn_string_PropertyClustering) apply(p0 any) any {
-	return obj_(this.f(str_(p0)))
-}
-
-type Function_tfn_string_RenameProperties_Property struct {
-	f func(string) *RenameProperties_Property
-}
-
-func (this *Function_tfn_string_RenameProperties_Property) apply(p0 any) any {
-	return obj_(this.f(str_(p0)))
-}
-
-type Function_tfn_string_RenameVars_Assignment struct {
-	f func(string) *RenameVars_Assignment
-}
-
-func (this *Function_tfn_string_RenameVars_Assignment) apply(p0 any) any {
-	return obj_(this.f(str_(p0)))
-}
-
-type Function_tfn_string_RuntimeJsLibManager_InternalField struct {
-	f func(string) *RuntimeJsLibManager_InternalField
-}
-
-func (this *Function_tfn_string_RuntimeJsLibManager_InternalField) apply(p0 any) any {
-	return obj_(this.f(str_(p0)))
-}
-
 type Function_tfn_string_Set struct {
 	f func(string) Set
 }
 
 func (this *Function_tfn_string_Set) apply(p0 any) any {
-	return this.f(str_(p0))
-}
-
-type Function_tfn_string_Supplier struct {
-	f func(string) Supplier
-}
-
-func (this *Function_tfn_string_Supplier) apply(p0 any) any {
 	return this.f(str_(p0))
 }
 
@@ -4159,14 +3823,6 @@ type ToIntFunction_tfn_Comment struct {
 
 func (this *ToIntFunction_tfn_Comment) applyAsInt(p0 any) int32 {
 	return this.f(cast_[*Comment](p0))
-}
-
-type ToIntFunction_tfn_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch_ struct {
-	f func(DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]) int32
-}
-
-func (this *ToIntFunction_tfn_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch_) applyAsInt(p0 any) int32 {
-	return this.f(icast_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch(p0))
 }
 
 type ToIntFunction_tfn_DisambiguateProperties_TypeNodeJson struct {
