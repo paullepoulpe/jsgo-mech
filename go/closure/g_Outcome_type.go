@@ -9,7 +9,12 @@ type Outcome_type struct {
 func (this *Outcome_type) as_Outcome_type() *Outcome_type { return this }
 
 func to_Outcome_type(v any) *Outcome_type {
-	if v == nil {
+	switch p := v.(type) {
+	case *Outcome_1_type:
+		return p.as_Outcome_type()
+	case *Outcome_2_type:
+		return p.as_Outcome_type()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_Outcome_type() *Outcome_type }).as_Outcome_type()
