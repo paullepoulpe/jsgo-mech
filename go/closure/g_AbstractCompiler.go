@@ -155,7 +155,7 @@ func (this *AbstractCompiler) markFeatureSetNotAllowed(p0 *FeatureSet) {
 	this.self_.(*Compiler).markFeatureSetNotAllowed_impl(p0)
 }
 
-func (this *AbstractCompiler) getUniqueIdSupplier() *UniqueIdSupplier {
+func (this *AbstractCompiler) getUniqueIdSupplier() UniqueIdSupplier {
 	return this.self_.(*Compiler).getUniqueIdSupplier_impl()
 }
 

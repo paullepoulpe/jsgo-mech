@@ -14,12 +14,12 @@ func (this *AwaitExpressionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *AwaitExpressionTree) init_AwaitExpressionTree(location *SourceRange, expression *ParseTree) {
+func (this *AwaitExpressionTree) init_AwaitExpressionTree(location SourceRange, expression *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_AWAIT_EXPRESSION, location)
 	this.expression = expression
 }
 
-func new_AwaitExpressionTree(location *SourceRange, expression *ParseTree) *AwaitExpressionTree {
+func new_AwaitExpressionTree(location SourceRange, expression *ParseTree) *AwaitExpressionTree {
 	this := &AwaitExpressionTree{}
 	this.self_ = this
 	this.init_AwaitExpressionTree(location, expression)

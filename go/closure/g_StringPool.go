@@ -4,7 +4,7 @@ package closure
 
 type StringPool struct {
 	maxLength int32
-	pool      *RhinoStringPool_LazyInternedStringList
+	pool      RhinoStringPool_LazyInternedStringList
 }
 
 func (this *StringPool) init_StringPool(maxLength int32, pool *TList[string]) {
@@ -41,7 +41,7 @@ func (this *StringPool) get(offset int32) string {
 	return this.pool.get(offset)
 }
 
-func (this *StringPool) getInternedStrings() *RhinoStringPool_LazyInternedStringList {
+func (this *StringPool) getInternedStrings() RhinoStringPool_LazyInternedStringList {
 	return this.pool
 }
 

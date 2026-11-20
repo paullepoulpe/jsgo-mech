@@ -149,7 +149,7 @@ func (this *ColorPool_ShardView) updateStateAfterColorPoolIsBuilt(colorPool *Col
 type ColorPool_Builder struct {
 	protoToShard            *LinkedIdentityHashMap[*TypePool, *ColorPool_ShardView]
 	idToColor               *TMap[*ColorId, *Color]
-	registry                *ColorRegistry_Builder
+	registry                ColorRegistry_Builder
 	idToProto               *SimpleTable[*ColorId, *ColorPool_ShardView, *TypeProto]
 	forTestingField         bool
 	reconcilationDebugStack *[]*ColorId

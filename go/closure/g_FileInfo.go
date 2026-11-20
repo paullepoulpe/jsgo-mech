@@ -22,53 +22,53 @@ func (this *FileInfo) init_FileInfo(sourceFileName string) {
 	this.isFromTypeScriptField = strings.HasSuffix(sourceFileName, ".closure.js")
 }
 
-func new_FileInfo(sourceFileName string) *FileInfo {
-	this := &FileInfo{}
+func new_FileInfo(sourceFileName string) FileInfo {
+	this := FileInfo{}
 	this.init_FileInfo(sourceFileName)
 	return this
 }
 
-func (this *FileInfo) isFromTypeScript() bool {
+func (this FileInfo) isFromTypeScript() bool {
 	return this.isFromTypeScriptField
 }
 
-func (this *FileInfo) recordNameDeclaration(qualifiedNameNode Node) {
+func (this FileInfo) recordNameDeclaration(qualifiedNameNode Node) {
 	this.recordDeclaration(PotentialDeclaration_fromName(qualifiedNameNode))
 }
 
-func (this *FileInfo) recordMemberFieldDef(fieldNode Node) {
+func (this FileInfo) recordMemberFieldDef(fieldNode Node) {
 	this.recordDeclaration(PotentialDeclaration_fromMemberFieldDef(fieldNode))
 }
 
-func (this *FileInfo) recordMethod(functionNode Node) {
+func (this FileInfo) recordMethod(functionNode Node) {
 	this.recordDeclaration(PotentialDeclaration_fromMethod(functionNode))
 }
 
-func (this *FileInfo) recordStringKeyDeclaration(stringKeyNode Node) {
+func (this FileInfo) recordStringKeyDeclaration(stringKeyNode Node) {
 	this.recordDeclaration(PotentialDeclaration_fromStringKey(stringKeyNode))
 }
 
-func (this *FileInfo) recordDefine(callNode Node) {
+func (this FileInfo) recordDefine(callNode Node) {
 	this.recordDeclaration(PotentialDeclaration_fromDefine(callNode))
 }
 
-func (this *FileInfo) recordAliasDeclaration(nameNode Node) {
+func (this FileInfo) recordAliasDeclaration(nameNode Node) {
 	this.recordDeclaration(PotentialDeclaration_fromAlias(nameNode))
 }
 
-func (this *FileInfo) getDeclarations() *SimpleListMultimap[string, *PotentialDeclaration] {
+func (this FileInfo) getDeclarations() *SimpleListMultimap[string, *PotentialDeclaration] {
 	return this.declarations
 }
 
-func (this *FileInfo) recordDeclaration(decl *PotentialDeclaration) {
+func (this FileInfo) recordDeclaration(decl *PotentialDeclaration) {
 	this.declarations.put_s(decl.getFullyQualifiedName(), decl)
 }
 
-func (this *FileInfo) recordImport(localName string) {
+func (this FileInfo) recordImport(localName string) {
 	this.requiredLocalNames.Add(localName)
 }
 
-func (this *FileInfo) isNameDeclared(fullyQualifiedName string) bool {
+func (this FileInfo) isNameDeclared(fullyQualifiedName string) bool {
 	return this.declarations.containsKey_s(fullyQualifiedName)
 }
 
@@ -83,15 +83,15 @@ func FileInfo_containsPrefix(fullyQualifiedName string, prefixNamespaces Iterabl
 	return false
 }
 
-func (this *FileInfo) isPrefixProvided(fullyQualifiedName string) bool {
+func (this FileInfo) isPrefixProvided(fullyQualifiedName string) bool {
 	return FileInfo_containsPrefix(fullyQualifiedName, Iterable(this.providedNamespaces.asSet()))
 }
 
-func (this *FileInfo) isPrefixRequired(fullyQualifiedName string) bool {
+func (this FileInfo) isPrefixRequired(fullyQualifiedName string) bool {
 	return FileInfo_containsPrefix(fullyQualifiedName, Iterable(this.requiredLocalNames.asSet()))
 }
 
-func (this *FileInfo) isStrictPrefixDeclared(fullyQualifiedName string) bool {
+func (this FileInfo) isStrictPrefixDeclared(fullyQualifiedName string) bool {
 	it_1 := foreach_(this.declarations.keySet())
 	for it_1.next() {
 		var prefix string = str_(it_1.v)
@@ -102,6 +102,6 @@ func (this *FileInfo) isStrictPrefixDeclared(fullyQualifiedName string) bool {
 	return false
 }
 
-func (this *FileInfo) markProvided(providedName string) {
+func (this FileInfo) markProvided(providedName string) {
 	this.providedNamespaces.Add(providedName)
 }

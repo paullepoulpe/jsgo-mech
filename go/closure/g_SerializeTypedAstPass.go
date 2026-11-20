@@ -5,29 +5,29 @@ package closure
 type SerializeTypedAstPass struct {
 	compiler_            *AbstractCompiler
 	consumer             func(any)
-	serializationOptions *SerializationOptions
+	serializationOptions SerializationOptions
 }
 
-func (this *SerializeTypedAstPass) init_SerializeTypedAstPass(compiler *AbstractCompiler, astConsumer func(any), serializationOptions *SerializationOptions) {
+func (this *SerializeTypedAstPass) init_SerializeTypedAstPass(compiler *AbstractCompiler, astConsumer func(any), serializationOptions SerializationOptions) {
 	this.compiler_ = compiler
 	this.consumer = astConsumer
 	this.serializationOptions = serializationOptions
 }
 
-func new_SerializeTypedAstPass(compiler *AbstractCompiler, astConsumer func(any), serializationOptions *SerializationOptions) *SerializeTypedAstPass {
+func new_SerializeTypedAstPass(compiler *AbstractCompiler, astConsumer func(any), serializationOptions SerializationOptions) *SerializeTypedAstPass {
 	this := &SerializeTypedAstPass{}
 	this.init_SerializeTypedAstPass(compiler, astConsumer, serializationOptions)
 	return this
 }
 
-func SerializeTypedAstPass_createFromConsumer(c *AbstractCompiler, out func(any), serializationOptions *SerializationOptions) *SerializeTypedAstPass {
+func SerializeTypedAstPass_createFromConsumer(c *AbstractCompiler, out func(any), serializationOptions SerializationOptions) *SerializeTypedAstPass {
 	var toBytes func(any) = (&Consumer_tfn_TypedAst{func(ast *TypedAst) {
 		out(TypedAst_List_newBuilder().addTypedAsts(ast).buildLastT_().toByteArray())
 	}}).accept
 	return new_SerializeTypedAstPass(c, toBytes, serializationOptions)
 }
 
-func SerializeTypedAstPass_createFromPath(compiler *AbstractCompiler, outputPath string, serializationOptions *SerializationOptions) *SerializeTypedAstPass {
+func SerializeTypedAstPass_createFromPath(compiler *AbstractCompiler, outputPath string, serializationOptions SerializationOptions) *SerializeTypedAstPass {
 	var toPath func(any) = (&Consumer_tfn_TypedAst{func(ast *TypedAst) {
 		var written *Outcome_base[any] = Io_writeBytes(outputPath, Io_gzip(TypedAst_List_newBuilder().addTypedAsts(ast).buildLastT_().toByteArray()))
 		if written.isErr() {

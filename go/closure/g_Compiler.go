@@ -34,7 +34,7 @@ type Compiler struct {
 	sourceMap_                     *SourceMap
 	debugMessage                   string
 	externExports                  string
-	uniqueIdSupplier               *UniqueIdSupplier
+	uniqueIdSupplier               UniqueIdSupplier
 	uniqueNameId                   int32
 	hasRegExpGlobalReferencesField bool
 	runJ2clPassesField             bool
@@ -1216,7 +1216,7 @@ func (this *Compiler) markFeatureSetNotAllowed_impl(featureSet *FeatureSet) {
 	this.allowableFeatures = this.allowableFeatures.without(featureSet)
 }
 
-func (this *Compiler) getUniqueIdSupplier_impl() *UniqueIdSupplier {
+func (this *Compiler) getUniqueIdSupplier_impl() UniqueIdSupplier {
 	return this.uniqueIdSupplier
 }
 
@@ -3946,7 +3946,7 @@ func (this *Compiler) markFeatureSetNotAllowed(p0 *FeatureSet) {
 }
 
 // getUniqueIdSupplier: an object that is exactly a Compiler calls its getUniqueIdSupplier_impl directly (post-flip); others dispatch.
-func (this *Compiler) getUniqueIdSupplier() *UniqueIdSupplier {
+func (this *Compiler) getUniqueIdSupplier() UniqueIdSupplier {
 	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getUniqueIdSupplier_impl()
 	}

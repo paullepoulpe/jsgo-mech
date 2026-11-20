@@ -15,13 +15,13 @@ func (this *PropertyNameAssignmentTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *PropertyNameAssignmentTree) init_PropertyNameAssignmentTree(location *SourceRange, name *Token_parser, value *ParseTree) {
+func (this *PropertyNameAssignmentTree) init_PropertyNameAssignmentTree(location SourceRange, name *Token_parser, value *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_PROPERTY_NAME_ASSIGNMENT, location)
 	this.name_ = name
 	this.value_ = value
 }
 
-func new_PropertyNameAssignmentTree(location *SourceRange, name *Token_parser, value *ParseTree) *PropertyNameAssignmentTree {
+func new_PropertyNameAssignmentTree(location SourceRange, name *Token_parser, value *ParseTree) *PropertyNameAssignmentTree {
 	this := &PropertyNameAssignmentTree{}
 	this.self_ = this
 	this.init_PropertyNameAssignmentTree(location, name, value)

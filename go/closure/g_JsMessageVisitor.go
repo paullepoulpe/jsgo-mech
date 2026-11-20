@@ -449,7 +449,7 @@ func (this *JsMessageVisitor) extractIcuTemplateDefinition(msgNode Node, jsDocIn
 		return Outcome_base_err[IcuTemplateDefinition](icuTemplateOptionsOutcome.error())
 	}
 	var icuTemplateOptions JsMessageVisitor_IcuTemplateOptions = icuTemplateOptionsOutcome.get()
-	var extractedIcuTemplateParts *JsMessageVisitor_ExtractedIcuTemplateParts = icuMessageTemplateString.extractParts(icuTemplateOptions.getPlaceholderNames())
+	var extractedIcuTemplateParts JsMessageVisitor_ExtractedIcuTemplateParts = icuMessageTemplateString.extractParts(icuTemplateOptions.getPlaceholderNames())
 	var unknownPlaceholdersChecked *Outcome_base[any] = icuTemplateOptions.checkForUnknownPlaceholders(extractedIcuTemplateParts.extractedPlaceholderNames)
 	if unknownPlaceholdersChecked.isErr() {
 		return Outcome_base_err[IcuTemplateDefinition](unknownPlaceholdersChecked.error())
@@ -852,7 +852,7 @@ func new_JsMessageVisitor_IcuMessageTemplateString(template string) *JsMessageVi
 	return this
 }
 
-func (this *JsMessageVisitor_IcuMessageTemplateString) extractParts(placholderNamesToExtract *TSet[string]) *JsMessageVisitor_ExtractedIcuTemplateParts {
+func (this *JsMessageVisitor_IcuMessageTemplateString) extractParts(placholderNamesToExtract *TSet[string]) JsMessageVisitor_ExtractedIcuTemplateParts {
 	var extractedPlaceholderNames *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	var partsBuilder *ImmutableList_Builder[JsMessage_Part] = immutableListBuilder_(tc_JsMessage_Part)
 	var matcher *Matcher_re2j = JsMessageVisitor_ICU_PLACEHOLDER_RE.matcher_s(this.template)
@@ -885,8 +885,8 @@ func (this *JsMessageVisitor_ExtractedIcuTemplateParts) init_JsMessageVisitor_Ex
 	this.extractedParts = extractedParts
 }
 
-func new_JsMessageVisitor_ExtractedIcuTemplateParts(extractedPlaceholderNames *TSet[string], extractedParts *TList[JsMessage_Part]) *JsMessageVisitor_ExtractedIcuTemplateParts {
-	this := &JsMessageVisitor_ExtractedIcuTemplateParts{}
+func new_JsMessageVisitor_ExtractedIcuTemplateParts(extractedPlaceholderNames *TSet[string], extractedParts *TList[JsMessage_Part]) JsMessageVisitor_ExtractedIcuTemplateParts {
+	this := JsMessageVisitor_ExtractedIcuTemplateParts{}
 	this.init_JsMessageVisitor_ExtractedIcuTemplateParts(extractedPlaceholderNames, extractedParts)
 	return this
 }
@@ -1197,7 +1197,7 @@ type JsMessageVisitor_3 struct {
 	cap_messageKeyFromLhs         string
 	cap_sourceName                string
 	cap_icuMessageTemplateString  *JsMessageVisitor_IcuMessageTemplateString
-	cap_extractedIcuTemplateParts *JsMessageVisitor_ExtractedIcuTemplateParts
+	cap_extractedIcuTemplateParts JsMessageVisitor_ExtractedIcuTemplateParts
 	cap_icuTemplateOptions        JsMessageVisitor_IcuTemplateOptions
 }
 
@@ -1205,7 +1205,7 @@ func (this *JsMessageVisitor_3) init_JsMessageVisitor_3() {
 
 }
 
-func new_JsMessageVisitor_3(outer_ *JsMessageVisitor, cap_messageKeyFromLhs string, cap_sourceName string, cap_icuMessageTemplateString *JsMessageVisitor_IcuMessageTemplateString, cap_extractedIcuTemplateParts *JsMessageVisitor_ExtractedIcuTemplateParts, cap_icuTemplateOptions JsMessageVisitor_IcuTemplateOptions) *JsMessageVisitor_3 {
+func new_JsMessageVisitor_3(outer_ *JsMessageVisitor, cap_messageKeyFromLhs string, cap_sourceName string, cap_icuMessageTemplateString *JsMessageVisitor_IcuMessageTemplateString, cap_extractedIcuTemplateParts JsMessageVisitor_ExtractedIcuTemplateParts, cap_icuTemplateOptions JsMessageVisitor_IcuTemplateOptions) *JsMessageVisitor_3 {
 	this := &JsMessageVisitor_3{}
 	this.outer_ = outer_
 	this.cap_messageKeyFromLhs = cap_messageKeyFromLhs

@@ -12,7 +12,7 @@ type TypeValidator struct {
 	promiseOfUnknownType    *JSType
 	iterableOrAsyncIterable *JSType
 	subtypingMode           JSType_SubtypingMode
-	mismatches              *TypeMismatch_Accumulator
+	mismatches              TypeMismatch_Accumulator
 }
 
 func (this *TypeValidator) finit_TypeValidator() {

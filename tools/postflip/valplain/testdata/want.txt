@@ -1,0 +1,25 @@
+  field LateHolder.l stays a pointer: a constructor (init_LateHolder) does not assign it
+  kept *Pos: Holder.last: compared with nil
+  kept *Maybe: MaybeHolder.m: compared with nil
+  kept *Maybe: m (g_cases.go:216) <- m (g_cases.go:220) at g_cases.go:222: nil is stored in it
+  kept *Maybe: m (g_cases.go:220): nil is stored in it
+  kept *Late: LateHolder.l: a field not proved assigned by its constructors
+  value: Pos (1 words): 25 type spellings rewritten (3 fields), 5 ref_() copies; 1 kept *Pos: compared with nil
+  value: Span (2 words): 4 type spellings rewritten (1 fields), 0 ref_() copies
+  not a candidate:    3 a field is written outside its constructor
+        Counter Holder LateHolder
+  left:    1 an index or a key
+  left:    1 boxed (obj_) for more than printing
+  left:    1 compared (identity)
+  left:    6 does not pay: no field of a struct would hold it by value (only locals, parameters and results)
+  left: Boxed: boxed (obj_) for more than printing (1 places, first g_cases.go:155)
+  left: BoxedHolder: does not pay: no field of a struct would hold it by value (only locals, parameters and results) (1 places, first )
+  left: Ident: compared (identity) (2 places, first g_cases.go:130)
+  left: IdentHolder: does not pay: no field of a struct would hold it by value (only locals, parameters and results) (1 places, first )
+  left: Keyed: an index or a key (1 places, first g_cases.go:187)
+  left: KeyedHolder: does not pay: no field of a struct would hold it by value (only locals, parameters and results) (1 places, first )
+  left: Late: does not pay: no field of a struct would hold it by value (only locals, parameters and results) (1 places, first )
+  left: Maybe: does not pay: no field of a struct would hold it by value (only locals, parameters and results) (1 places, first )
+  left: MaybeHolder: does not pay: no field of a struct would hold it by value (only locals, parameters and results) (1 places, first )
+    14 classes without equals and hashCode; 11 immutable records; 2 are values: Pos Span
+valplain: files changed: 2

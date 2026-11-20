@@ -6,7 +6,7 @@ type Es6ConvertSuper struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_              *AbstractCompiler
 	astFactory_            *AstFactory
-	constructorSynthesizer *SynthesizeExplicitConstructors
+	constructorSynthesizer SynthesizeExplicitConstructors
 }
 
 func (this *Es6ConvertSuper) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {

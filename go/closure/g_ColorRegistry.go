@@ -8,7 +8,7 @@ type ColorRegistry struct {
 	mismatchLocations                   *SimpleSetMultimap[any, any]
 }
 
-func (this *ColorRegistry) init_ColorRegistry(builder *ColorRegistry_Builder) {
+func (this *ColorRegistry) init_ColorRegistry(builder ColorRegistry_Builder) {
 	this.nativeColors = immutableMapCopyOfT_(tch_p_ColorId, tc_p_Color, builder.nativeColors)
 	this.colorToDisambiguationSupertypeGraph = builder.colorToDisambiguationSupertypeGraph.immutableCopy()
 	this.mismatchLocations = builder.mismatchLocations.immutableCopy()
@@ -17,7 +17,7 @@ func (this *ColorRegistry) init_ColorRegistry(builder *ColorRegistry_Builder) {
 	}
 }
 
-func new_ColorRegistry(builder *ColorRegistry_Builder) *ColorRegistry {
+func new_ColorRegistry(builder ColorRegistry_Builder) *ColorRegistry {
 	this := &ColorRegistry{}
 	this.init_ColorRegistry(builder)
 	return this
@@ -42,7 +42,7 @@ func (this *ColorRegistry) getMismatchLocationsForDebugging() *SimpleSetMultimap
 	return this.mismatchLocations
 }
 
-func ColorRegistry_builder() *ColorRegistry_Builder {
+func ColorRegistry_builder() ColorRegistry_Builder {
 	return new_ColorRegistry_Builder()
 }
 
@@ -75,13 +75,13 @@ func (this *ColorRegistry_Builder) init_ColorRegistry_Builder() {
 	this.finit_ColorRegistry_Builder()
 }
 
-func new_ColorRegistry_Builder() *ColorRegistry_Builder {
-	this := &ColorRegistry_Builder{}
+func new_ColorRegistry_Builder() ColorRegistry_Builder {
+	this := ColorRegistry_Builder{}
 	this.init_ColorRegistry_Builder()
 	return this
 }
 
-func (this *ColorRegistry_Builder) setNativeColor(x *Color) *ColorRegistry_Builder {
+func (this ColorRegistry_Builder) setNativeColor(x *Color) ColorRegistry_Builder {
 	if !ColorRegistry_REQUIRED_IDS.Has(x.getId()) {
 		panic(new_IllegalStateException_String(objstr_(x)))
 	}
@@ -89,23 +89,23 @@ func (this *ColorRegistry_Builder) setNativeColor(x *Color) *ColorRegistry_Build
 	return this
 }
 
-func (this *ColorRegistry_Builder) addDisambiguationEdge(subtype *Color, supertype *Color) *ColorRegistry_Builder {
+func (this ColorRegistry_Builder) addDisambiguationEdge(subtype *Color, supertype *Color) ColorRegistry_Builder {
 	this.colorToDisambiguationSupertypeGraph.put(subtype, supertype)
 	return this
 }
 
-func (this *ColorRegistry_Builder) addMismatchLocation(id *ColorId, location string) *ColorRegistry_Builder {
+func (this ColorRegistry_Builder) addMismatchLocation(id *ColorId, location string) ColorRegistry_Builder {
 	this.mismatchLocations.put(obj_(id), strobj_(location))
 	return this
 }
 
-func (this *ColorRegistry_Builder) setDefaultNativeColorsForTesting() *ColorRegistry_Builder {
+func (this ColorRegistry_Builder) setDefaultNativeColorsForTesting() ColorRegistry_Builder {
 	for id := range ColorRegistry_REQUIRED_IDS.All() {
 		this.setNativeColor(Color_singleBuilder().setId(id).build())
 	}
 	return this
 }
 
-func (this *ColorRegistry_Builder) build() *ColorRegistry {
+func (this ColorRegistry_Builder) build() *ColorRegistry {
 	return new_ColorRegistry(this)
 }

@@ -303,7 +303,7 @@ func (this *PolymerClassDefinition) toString() string {
 	}()).omitNullValues())
 }
 
-func (this *PolymerClassDefinition) getInterfaceName(uniqueIdSupplier *UniqueIdSupplier) string {
+func (this *PolymerClassDefinition) getInterfaceName(uniqueIdSupplier UniqueIdSupplier) string {
 	if this.interfaceName == nullstr_ {
 		this.interfaceName = optstrOf_(("Polymer" + sstr_(strings.ReplaceAll(this.target.getQualifiedName(), ".", "_")) + "Interface$" + sstr_(uniqueIdSupplier.getUniqueId(this.input))))
 	}

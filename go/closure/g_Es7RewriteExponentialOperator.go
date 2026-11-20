@@ -5,7 +5,7 @@ package closure
 type Es7RewriteExponentialOperator struct {
 	compiler_        *AbstractCompiler
 	astFactory_      *AstFactory
-	uniqueIdSupplier *UniqueIdSupplier
+	uniqueIdSupplier UniqueIdSupplier
 	mathPowCall      SupplierOf[Node]
 }
 

@@ -3,30 +3,30 @@
 package closure
 
 type ClassOrObjectElementInfo struct {
-	start_        *SourcePosition_util
+	start_        SourcePosition_util
 	isClassMember bool
 	isStatic      bool
 	name_         *IdentifierToken
 	nameExpr      *ParseTree
 }
 
-func (this *ClassOrObjectElementInfo) init_ClassOrObjectElementInfo(start *SourcePosition_util, isClassMember bool, isStatic bool) {
+func (this *ClassOrObjectElementInfo) init_ClassOrObjectElementInfo(start SourcePosition_util, isClassMember bool, isStatic bool) {
 	this.start_ = start
 	this.isClassMember = isClassMember
 	this.isStatic = isStatic
 }
 
-func new_ClassOrObjectElementInfo(start *SourcePosition_util, isClassMember bool, isStatic bool) *ClassOrObjectElementInfo {
+func new_ClassOrObjectElementInfo(start SourcePosition_util, isClassMember bool, isStatic bool) *ClassOrObjectElementInfo {
 	this := &ClassOrObjectElementInfo{}
 	this.init_ClassOrObjectElementInfo(start, isClassMember, isStatic)
 	return this
 }
 
-func ClassOrObjectElementInfo_createClassMemberInfo(start *SourcePosition_util, isStatic bool) *ClassOrObjectElementInfo {
+func ClassOrObjectElementInfo_createClassMemberInfo(start SourcePosition_util, isStatic bool) *ClassOrObjectElementInfo {
 	return new_ClassOrObjectElementInfo(start, true, isStatic)
 }
 
-func ClassOrObjectElementInfo_createObjectLiteralElementInfo(start *SourcePosition_util) *ClassOrObjectElementInfo {
+func ClassOrObjectElementInfo_createObjectLiteralElementInfo(start SourcePosition_util) *ClassOrObjectElementInfo {
 	return new_ClassOrObjectElementInfo(start, false, false)
 }
 

@@ -139,7 +139,7 @@ type Normalize_NormalizeStatements struct {
 	astFactory_                             *AstFactory
 	assertOnChange_                         bool
 	makeDeclaredNamesUnique                 *MakeDeclaredNamesUnique
-	rewriteLogicalAssignmentOperatorsHelper *RewriteLogicalAssignmentOperatorsHelper
+	rewriteLogicalAssignmentOperatorsHelper RewriteLogicalAssignmentOperatorsHelper
 }
 
 func (this *Normalize_NormalizeStatements) init_Normalize_NormalizeStatements(compiler *AbstractCompiler, assertOnChange bool, makeDeclaredNamesUnique *MakeDeclaredNamesUnique) {
