@@ -32,18 +32,8 @@ func (this *NodeTraversal) init_NodeTraversal(builder *NodeTraversal_Builder) {
 		panic(new_NullPointerException_0())
 	}
 	this.callback = builder.callback
-	var scopedCallback NodeTraversal_ScopedCallback
-	_ = scopedCallback
 	this.scopeCallback = func() NodeTraversal_ScopedCallback {
-		if func() bool {
-			v_ := any(this.callback)
-			p, ok := v_.(NodeTraversal_ScopedCallback)
-			if !ok {
-				return false
-			}
-			scopedCallback = p
-			return true
-		}() {
+		if scopedCallback, ok := any(this.callback).(NodeTraversal_ScopedCallback); ok {
 			return scopedCallback
 		}
 		return nil

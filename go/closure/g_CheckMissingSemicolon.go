@@ -48,17 +48,7 @@ func (this *CheckMissingSemicolon) shouldHaveSemicolon(statement Node) bool {
 
 func (this *CheckMissingSemicolon) checkSemicolon(t *NodeTraversal, n Node) {
 	var staticSourceFile StaticSourceFile = n.getStaticSourceFile()
-	var sourceFile *SourceFile_jscomp
-	_ = sourceFile
-	if func() bool {
-		v_ := any(staticSourceFile)
-		p, ok := v_.(*SourceFile_jscomp)
-		if !ok {
-			return false
-		}
-		sourceFile = p
-		return true
-	}() {
+	if sourceFile, ok := any(staticSourceFile).(*SourceFile_jscomp); ok {
 		var codeRes *Outcome_base[string] = sourceFile.readCode()
 		if codeRes.isErr() {
 			return

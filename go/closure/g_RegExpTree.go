@@ -85,17 +85,8 @@ func RegExpTree_matchesWholeInput(t *RegExpTree, flags string) bool {
 	if strings.Contains(flags, "m") {
 		return false
 	}
-	var c *RegExpTree_Concatenation
-	_ = c
-	if !(func() bool {
-		v_ := t.self()
-		p, ok := v_.(*RegExpTree_Concatenation)
-		if !ok {
-			return false
-		}
-		c = p
-		return true
-	}()) {
+	c, ok := t.self().(*RegExpTree_Concatenation)
+	if !(ok) {
 		return false
 	}
 	if c.elements_.isEmpty() {
@@ -103,19 +94,10 @@ func RegExpTree_matchesWholeInput(t *RegExpTree, flags string) bool {
 	}
 	var first *RegExpTree = c.elements_.get(0)
 	var last *RegExpTree = to_RegExpTree(Iterables_getLast(Iterable(c.elements_.asList())))
-	var firstAnchor *RegExpTree_Anchor
-	_ = firstAnchor
 	var lastAnchor *RegExpTree_Anchor
 	_ = lastAnchor
-	if !(func() bool {
-		v_ := first.self()
-		p2, ok2 := v_.(*RegExpTree_Anchor)
-		if !ok2 {
-			return false
-		}
-		firstAnchor = p2
-		return true
-	}() && func() bool {
+	firstAnchor, ok2 := first.self().(*RegExpTree_Anchor)
+	if !(ok2 && func() bool {
 		v_ := last.self()
 		p3, ok3 := v_.(*RegExpTree_Anchor)
 		if !ok3 {
@@ -471,17 +453,8 @@ func (this *RegExpTree_Anchor) appendDebugInfo_impl(sb *strBuilder_) {
 }
 
 func (this *RegExpTree_Anchor) equals_impl(o any) bool {
-	var anchor *RegExpTree_Anchor
-	_ = anchor
-	return (func() bool {
-		v_ := o
-		p, ok := v_.(*RegExpTree_Anchor)
-		if !ok {
-			return false
-		}
-		anchor = p
-		return true
-	}() && (this.type__ == anchor.type__))
+	anchor, ok := o.(*RegExpTree_Anchor)
+	return (ok && (this.type__ == anchor.type__))
 }
 
 func (this *RegExpTree_Anchor) hashCode_impl() int32 {
@@ -532,17 +505,8 @@ func (this *RegExpTree_WordBoundary) appendDebugInfo_impl(sb *strBuilder_) {
 }
 
 func (this *RegExpTree_WordBoundary) equals_impl(o any) bool {
-	var wordBoundary *RegExpTree_WordBoundary
-	_ = wordBoundary
-	return (func() bool {
-		v_ := o
-		p, ok := v_.(*RegExpTree_WordBoundary)
-		if !ok {
-			return false
-		}
-		wordBoundary = p
-		return true
-	}() && (this.type__ == wordBoundary.type__))
+	wordBoundary, ok := o.(*RegExpTree_WordBoundary)
+	return (ok && (this.type__ == wordBoundary.type__))
 }
 
 func (this *RegExpTree_WordBoundary) hashCode_impl() int32 {
@@ -596,17 +560,8 @@ func (this *RegExpTree_BackReference) appendDebugInfo_impl(sb *strBuilder_) {
 }
 
 func (this *RegExpTree_BackReference) equals_impl(o any) bool {
-	var backReference *RegExpTree_BackReference
-	_ = backReference
-	return (func() bool {
-		v_ := o
-		p, ok := v_.(*RegExpTree_BackReference)
-		if !ok {
-			return false
-		}
-		backReference = p
-		return true
-	}() && (this.groupIndex == backReference.groupIndex))
+	backReference, ok := o.(*RegExpTree_BackReference)
+	return (ok && (this.groupIndex == backReference.groupIndex))
 }
 
 func (this *RegExpTree_BackReference) hashCode_impl() int32 {
@@ -662,17 +617,8 @@ func (this *RegExpTree_NamedBackReference) appendDebugInfo_impl(sb *strBuilder_)
 }
 
 func (this *RegExpTree_NamedBackReference) equals_impl(o any) bool {
-	var namedBackReference *RegExpTree_NamedBackReference
-	_ = namedBackReference
-	return (func() bool {
-		v_ := o
-		p, ok := v_.(*RegExpTree_NamedBackReference)
-		if !ok {
-			return false
-		}
-		namedBackReference = p
-		return true
-	}() && (this.groupName == namedBackReference.groupName))
+	namedBackReference, ok := o.(*RegExpTree_NamedBackReference)
+	return (ok && (this.groupName == namedBackReference.groupName))
 }
 
 func (this *RegExpTree_NamedBackReference) hashCode_impl() int32 {
@@ -779,17 +725,8 @@ func (this *RegExpTree_Text) appendDebugInfo_impl(sb *strBuilder_) {
 }
 
 func (this *RegExpTree_Text) equals_impl(o any) bool {
-	var text *RegExpTree_Text
-	_ = text
-	return (func() bool {
-		v_ := o
-		p, ok := v_.(*RegExpTree_Text)
-		if !ok {
-			return false
-		}
-		text = p
-		return true
-	}() && (this.text == text.text))
+	text, ok := o.(*RegExpTree_Text)
+	return (ok && (this.text == text.text))
 }
 
 func (this *RegExpTree_Text) hashCode_impl() int32 {
@@ -836,17 +773,7 @@ func (this *RegExpTree_Repetition) simplify_impl(flags string) *RegExpTree {
 	}
 	var min_ int32 = this.min
 	var max_ int32 = this.max
-	var rbody *RegExpTree_Repetition
-	_ = rbody
-	if func() bool {
-		v_ := body.self()
-		p, ok := v_.(*RegExpTree_Repetition)
-		if !ok {
-			return false
-		}
-		rbody = p
-		return true
-	}() {
+	if rbody, ok := body.self().(*RegExpTree_Repetition); ok {
 		if rbody.greedy == this.greedy {
 			var lmin int64 = (int64(min_) * int64(rbody.min))
 			var lmax int64 = (int64(max_) * int64(rbody.max))
@@ -1011,17 +938,8 @@ func (this *RegExpTree_Repetition) appendDebugInfo_impl(sb *strBuilder_) {
 }
 
 func (this *RegExpTree_Repetition) equals_impl(o any) bool {
-	var that *RegExpTree_Repetition
-	_ = that
-	if !(func() bool {
-		v_ := o
-		p, ok := v_.(*RegExpTree_Repetition)
-		if !ok {
-			return false
-		}
-		that = p
-		return true
-	}()) {
+	that, ok := o.(*RegExpTree_Repetition)
+	if !(ok) {
 		return false
 	}
 	return (((this.body.equals(that.body.self()) && (this.min == that.min)) && (this.max == that.max)) && (this.greedy == that.greedy))
@@ -1068,17 +986,7 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 	var alternatives ListOf[*RegExpTree] = new_ArrayList_0()
 	for alternative := range this.alternatives.All() {
 		alternative = alternative.simplify(flags)
-		var alternation *RegExpTree_Alternation
-		_ = alternation
-		if func() bool {
-			v_ := alternative.self()
-			p, ok := v_.(*RegExpTree_Alternation)
-			if !ok {
-				return false
-			}
-			alternation = p
-			return true
-		}() {
+		if alternation, ok := alternative.self().(*RegExpTree_Alternation); ok {
 			alternatives.addAll(Collection(alternation.alternatives.asList()))
 		} else {
 			alternatives.add(alternative.self())
@@ -1104,17 +1012,7 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 		var n int32 = alternatives.size()
 		for ; i < n; i++ {
 			var alternative *RegExpTree = to_RegExpTree(alternatives.get(i))
-			var text *RegExpTree_Text
-			_ = text
-			if (func() bool {
-				v_ := alternative.self()
-				p2, ok2 := v_.(*RegExpTree_Text)
-				if !ok2 {
-					return false
-				}
-				text = p2
-				return true
-			}() && (text.textU16.length() == 1)) || is_[*RegExpTree_Charset](alternative.self()) {
+			if text, ok2 := alternative.self().(*RegExpTree_Text); (ok2 && (text.textU16.length() == 1)) || is_[*RegExpTree_Charset](alternative.self()) {
 				var end int32 = i
 				var nCharsets int32 = 0
 				for end < n {
@@ -1122,17 +1020,7 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 					if _, ok3 := follower.self().(*RegExpTree_Charset); ok3 {
 						nCharsets++
 					} else {
-						var text_6 *RegExpTree_Text
-						_ = text_6
-						if !(func() bool {
-							v_ := follower.self()
-							p3, ok4 := v_.(*RegExpTree_Text)
-							if !ok4 {
-								return false
-							}
-							text_6 = p3
-							return true
-						}() && (text_6.textU16.length() == 1)) {
+						if text_6, ok4 := follower.self().(*RegExpTree_Text); !(ok4 && (text_6.textU16.length() == 1)) {
 							break
 						}
 					}
@@ -1145,17 +1033,7 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 					var ieExplicits *CharRanges = CharRanges_EMPTY
 					var charAlternatives ListOf[*RegExpTree] = alternatives.subList(i, end)
 					for charAlternative := range elemsBy_(charAlternatives, to_RegExpTree) {
-						var text_9 *RegExpTree_Text
-						_ = text_9
-						if func() bool {
-							v_ := charAlternative.self()
-							p4, ok5 := v_.(*RegExpTree_Text)
-							if !ok5 {
-								return false
-							}
-							text_9 = p4
-							return true
-						}() {
+						if text_9, ok5 := charAlternative.self().(*RegExpTree_Text); ok5 {
 							var ch uint16 = text_9.textU16.charAt(0)
 							members[memberIdx] = int32(ch)
 							memberIdx++
@@ -1163,17 +1041,7 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 								ieExplicits = ieExplicits.union(CharRanges_inclusive(int32(ch), int32(ch)))
 							}
 						} else {
-							var cs *RegExpTree_Charset
-							_ = cs
-							if func() bool {
-								v_ := charAlternative.self()
-								p5, ok6 := v_.(*RegExpTree_Charset)
-								if !ok6 {
-									return false
-								}
-								cs = p5
-								return true
-							}() {
+							if cs, ok6 := charAlternative.self().(*RegExpTree_Charset); ok6 {
 								chars = chars.union(cs.ranges_)
 								ieExplicits = ieExplicits.union(cs.ieExplicits)
 							}
@@ -1353,17 +1221,8 @@ func (this *RegExpTree_LookaheadAssertion) appendDebugInfo_impl(sb *strBuilder_)
 }
 
 func (this *RegExpTree_LookaheadAssertion) equals_impl(o any) bool {
-	var that *RegExpTree_LookaheadAssertion
-	_ = that
-	if !(func() bool {
-		v_ := o
-		p, ok := v_.(*RegExpTree_LookaheadAssertion)
-		if !ok {
-			return false
-		}
-		that = p
-		return true
-	}()) {
+	that, ok := o.(*RegExpTree_LookaheadAssertion)
+	if !(ok) {
 		return false
 	}
 	return ((this.positive == that.positive) && this.body.equals(that.body.self()))
@@ -1450,17 +1309,8 @@ func (this *RegExpTree_LookbehindAssertion) appendDebugInfo_impl(sb *strBuilder_
 }
 
 func (this *RegExpTree_LookbehindAssertion) equals_impl(o any) bool {
-	var that *RegExpTree_LookbehindAssertion
-	_ = that
-	if !(func() bool {
-		v_ := o
-		p, ok := v_.(*RegExpTree_LookbehindAssertion)
-		if !ok {
-			return false
-		}
-		that = p
-		return true
-	}()) {
+	that, ok := o.(*RegExpTree_LookbehindAssertion)
+	if !(ok) {
 		return false
 	}
 	return ((this.positive == that.positive) && this.body.equals(that.body.self()))
@@ -1529,17 +1379,8 @@ func (this *RegExpTree_CapturingGroup) appendDebugInfo_impl(sb *strBuilder_) {
 }
 
 func (this *RegExpTree_CapturingGroup) equals_impl(o any) bool {
-	var capturingGroup *RegExpTree_CapturingGroup
-	_ = capturingGroup
-	return (func() bool {
-		v_ := o
-		p, ok := v_.(*RegExpTree_CapturingGroup)
-		if !ok {
-			return false
-		}
-		capturingGroup = p
-		return true
-	}() && this.body.equals(capturingGroup.body.self()))
+	capturingGroup, ok := o.(*RegExpTree_CapturingGroup)
+	return (ok && this.body.equals(capturingGroup.body.self()))
 }
 
 func (this *RegExpTree_CapturingGroup) hashCode_impl() int32 {
@@ -1614,17 +1455,8 @@ func (this *RegExpTree_NamedCaptureGroup) appendDebugInfo_impl(sb *strBuilder_) 
 }
 
 func (this *RegExpTree_NamedCaptureGroup) equals_impl(o any) bool {
-	var namedCaptureGroup *RegExpTree_NamedCaptureGroup
-	_ = namedCaptureGroup
-	return ((func() bool {
-		v_ := o
-		p, ok := v_.(*RegExpTree_NamedCaptureGroup)
-		if !ok {
-			return false
-		}
-		namedCaptureGroup = p
-		return true
-	}() && (this.name_ == namedCaptureGroup.name_)) && this.body.equals(namedCaptureGroup.body.self()))
+	namedCaptureGroup, ok := o.(*RegExpTree_NamedCaptureGroup)
+	return ((ok && (this.name_ == namedCaptureGroup.name_)) && this.body.equals(namedCaptureGroup.body.self()))
 }
 
 func (this *RegExpTree_NamedCaptureGroup) hashCode_impl() int32 {
@@ -1705,17 +1537,8 @@ func (this *RegExpTree_UnicodePropertyEscape) appendDebugInfo_impl(sb *strBuilde
 }
 
 func (this *RegExpTree_UnicodePropertyEscape) equals_impl(o any) bool {
-	var unicodePropertyEscape *RegExpTree_UnicodePropertyEscape
-	_ = unicodePropertyEscape
-	return (((func() bool {
-		v_ := o
-		p, ok := v_.(*RegExpTree_UnicodePropertyEscape)
-		if !ok {
-			return false
-		}
-		unicodePropertyEscape = p
-		return true
-	}() && (this.negated == unicodePropertyEscape.negated)) && Object_equals(this.propertyName_.box_(), unicodePropertyEscape.propertyName_.box_())) && (this.propertyValue == unicodePropertyEscape.propertyValue))
+	unicodePropertyEscape, ok := o.(*RegExpTree_UnicodePropertyEscape)
+	return (((ok && (this.negated == unicodePropertyEscape.negated)) && Object_equals(this.propertyName_.box_(), unicodePropertyEscape.propertyName_.box_())) && (this.propertyValue == unicodePropertyEscape.propertyValue))
 }
 
 func (this *RegExpTree_UnicodePropertyEscape) hashCode_impl() int32 {
@@ -1874,17 +1697,8 @@ func (this *RegExpTree_Charset) appendDebugInfo_impl(sb *strBuilder_) {
 }
 
 func (this *RegExpTree_Charset) equals_impl(o any) bool {
-	var charset *RegExpTree_Charset
-	_ = charset
-	return (func() bool {
-		v_ := o
-		p, ok := v_.(*RegExpTree_Charset)
-		if !ok {
-			return false
-		}
-		charset = p
-		return true
-	}() && this.ranges_.equals_CharRanges(charset.ranges_))
+	charset, ok := o.(*RegExpTree_Charset)
+	return (ok && this.ranges_.equals_CharRanges(charset.ranges_))
 }
 
 func (this *RegExpTree_Charset) hashCode_impl() int32 {
@@ -2200,17 +2014,8 @@ func (this *RegExpTree_Concatenation) appendDebugInfo_impl(sb *strBuilder_) {
 }
 
 func (this *RegExpTree_Concatenation) equals_impl(o any) bool {
-	var concatenation *RegExpTree_Concatenation
-	_ = concatenation
-	return (func() bool {
-		v_ := o
-		p, ok := v_.(*RegExpTree_Concatenation)
-		if !ok {
-			return false
-		}
-		concatenation = p
-		return true
-	}() && equalsR_(this.elements_.asImm(), concatenation.elements_.asList()))
+	concatenation, ok := o.(*RegExpTree_Concatenation)
+	return (ok && equalsR_(this.elements_.asImm(), concatenation.elements_.asList()))
 }
 
 func (this *RegExpTree_Concatenation) hashCode_impl() int32 {
@@ -2796,17 +2601,7 @@ func new_RegExpTree_Concatenation_1Simplifier(outer_ *RegExpTree_Concatenation, 
 }
 
 func (this *RegExpTree_Concatenation_1Simplifier) simplify(t *RegExpTree) {
-	var concatenation *RegExpTree_Concatenation
-	_ = concatenation
-	if func() bool {
-		v_ := t.self()
-		p, ok := v_.(*RegExpTree_Concatenation)
-		if !ok {
-			return false
-		}
-		concatenation = p
-		return true
-	}() {
+	if concatenation, ok := t.self().(*RegExpTree_Concatenation); ok {
 		for child := range concatenation.elements_.All() {
 			this.simplify(child)
 		}
@@ -2825,19 +2620,9 @@ func (this *RegExpTree_Concatenation_1Simplifier) simplify(t *RegExpTree) {
 }
 
 func (this *RegExpTree_Concatenation_1Simplifier) simplifyPairwise(before *RegExpTree, after *RegExpTree) *RegExpTree {
-	var beforeText *RegExpTree_Text
-	_ = beforeText
 	var afterText *RegExpTree_Text
 	_ = afterText
-	if func() bool {
-		v_ := before.self()
-		p, ok := v_.(*RegExpTree_Text)
-		if !ok {
-			return false
-		}
-		beforeText = p
-		return true
-	}() && func() bool {
+	if beforeText, ok := before.self().(*RegExpTree_Text); ok && func() bool {
 		v_ := after.self()
 		p2, ok2 := v_.(*RegExpTree_Text)
 		if !ok2 {
@@ -2852,17 +2637,7 @@ func (this *RegExpTree_Concatenation_1Simplifier) simplifyPairwise(before *RegEx
 	var beforeMax int32 = 1
 	var beforeBody *RegExpTree = before
 	var beforeGreedy bool = false
-	var r *RegExpTree_Repetition
-	_ = r
-	if func() bool {
-		v_ := before.self()
-		p3, ok3 := v_.(*RegExpTree_Repetition)
-		if !ok3 {
-			return false
-		}
-		r = p3
-		return true
-	}() {
+	if r, ok2 := before.self().(*RegExpTree_Repetition); ok2 {
 		beforeMin = r.min
 		beforeMax = r.max
 		beforeBody = r.body
@@ -2872,17 +2647,7 @@ func (this *RegExpTree_Concatenation_1Simplifier) simplifyPairwise(before *RegEx
 	var afterMax int32 = 1
 	var afterBody *RegExpTree = after
 	var afterGreedy bool = false
-	var r_1 *RegExpTree_Repetition
-	_ = r_1
-	if func() bool {
-		v_ := after.self()
-		p4, ok4 := v_.(*RegExpTree_Repetition)
-		if !ok4 {
-			return false
-		}
-		r_1 = p4
-		return true
-	}() {
+	if r_1, ok3 := after.self().(*RegExpTree_Repetition); ok3 {
 		afterMin = r_1.min
 		afterMax = r_1.max
 		afterBody = r_1.body
