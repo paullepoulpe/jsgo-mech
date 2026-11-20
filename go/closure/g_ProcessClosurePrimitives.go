@@ -386,9 +386,10 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 	} else if style == CssRenamingMap_Style_BY_WHOLE {
 		var errors *JTList[string] = jnewTList_(jtc_string)
 		it_5 := cssNames.eachEntry()
+		var getKeyU16 utf16_
 		for it_5.next() {
 			var b *TEntry[string, string] = it_5.entry()
-			if String_length(b.getKey()) > 10 {
+			if getKeyU16.of(b.getKey()).length() > 10 {
 				continue
 			}
 			it_7 := cssNames.eachEntry()

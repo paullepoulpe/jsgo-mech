@@ -189,6 +189,7 @@ func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *
 	var namesAfterSideEffects *JTSet[string] = parametersThatMayNeedTemps.parametersReferencedAfterSideEffect()
 	var parametersWithNamesReferencedBefore *JTSet[string] = parametersThatMayNeedTemps.parametersWithNamesReferencedBeforeParameter()
 	it_1 := argMap.eachEntry()
+	var getStringU16 utf16_
 	for it_1.next() {
 		var entry *TEntry[string, *FunctionArgumentInjector_ParamArgPair] = it_1.entry()
 		var parameterName string = entry.getKey()
@@ -218,7 +219,7 @@ func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *
 			case tokOrd1_THIS:
 				requiresTemporary = false
 			case tokOrd1_STRINGLIT:
-				requiresTemporary = (String_length(cArg.getString()) >= 2)
+				requiresTemporary = (getStringU16.of(cArg.getString()).length() >= 2)
 			default:
 				requiresTemporary = !NodeUtil_isImmutableValue(cArg)
 			}
