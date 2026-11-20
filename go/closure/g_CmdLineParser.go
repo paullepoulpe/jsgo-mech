@@ -208,7 +208,7 @@ func (this *CmdLineParser) expandAtFiles(args []string) *Outcome_base[[]string] 
 	var result *JTList[string] = jnewTList_(jtc_string)
 	for _, arg := range args {
 		if strings.HasPrefix(arg, "@") {
-			var file string = FilePaths_clean(String_substring_int(arg, 1))
+			var file string = FilePaths_clean(arg[1:])
 			if !Io_exists(file) {
 				return Outcome_base_err[[]string](new_CmdLineException_CmdLineParser_String(this, ("No such file: " + sstr_(file))).up_Throwable())
 			}

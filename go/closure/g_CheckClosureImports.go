@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type CheckClosureImports struct {
 	compiler_      *AbstractCompiler
 	checker        *CheckClosureImports_Checker
@@ -376,7 +378,7 @@ func (this *CheckClosureImports_Checker) isValidDestructuringImport(destructurin
 
 func (this *CheckClosureImports_Checker) checkShortName(t *NodeTraversal, shortNameNode Node, namespace string) {
 	var shortName string = shortNameNode.getString()
-	var lastSegment string = String_substring_int(namespace, (String_lastIndexOf(namespace, 46) + 1))
+	var lastSegment string = namespace[strings.LastIndexByte(namespace, '.')+1:]
 	if (shortName == lastSegment) || lastSegment == "" {
 		return
 	}

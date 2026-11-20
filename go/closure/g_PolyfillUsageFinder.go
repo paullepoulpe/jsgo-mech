@@ -327,7 +327,7 @@ func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(me
 	it_1 := statics.eachKey()
 	for it_1.next() {
 		var arg string = it_1.v
-		suffixList.add(String_substring_int(arg, (String_lastIndexOf(arg, 46) + 1)))
+		suffixList.add(arg[strings.LastIndexByte(arg, '.')+1:])
 	}
 	this.suffixes = jimmutableSetCopyOf_(jtc_string, Collection(suffixList.asList()))
 }
