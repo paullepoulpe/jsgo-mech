@@ -254,7 +254,7 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncod
 				ex_ := catch_(r_)
 				if p, ok := ex_.(IOException_as); ok {
 					var e *IOException = p.as_IOException()
-					panic(new_AssertionError_Object(e.self()).self())
+					panic(new_AssertionError_Object(e.self()))
 				}
 				panic(r_)
 			}
@@ -270,7 +270,7 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncod
 	if !this.paramValueEncodings.containsKey(encodedParam) {
 		var uniqueIdentifier int64 = this.generateUniqueIdentifier()
 		if uniqueIdentifier > int64(int32(2147483647)) {
-			panic(new_ArithmeticException_String("Unique Identifier exceeds value of Integer.MAX_VALUE, could not encode with Base 64 VLQ").self())
+			panic(new_ArithmeticException_String("Unique Identifier exceeds value of Integer.MAX_VALUE, could not encode with Base 64 VLQ"))
 		}
 		sb = new_StringBuilder()
 		{

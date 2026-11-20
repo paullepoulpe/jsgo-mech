@@ -32,7 +32,7 @@ func ClassOrObjectElementInfo_createObjectLiteralElementInfo(start *SourcePositi
 
 func (this *ClassOrObjectElementInfo) setName(name *IdentifierToken) {
 	if this.nameExpr != nil {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.name_ = name
 }
@@ -47,7 +47,7 @@ func (this *ClassOrObjectElementInfo) getName() *IdentifierToken {
 
 func (this *ClassOrObjectElementInfo) setNameExpr(nameExpr *ParseTree) {
 	if this.name_ != nil {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.nameExpr = nameExpr
 }

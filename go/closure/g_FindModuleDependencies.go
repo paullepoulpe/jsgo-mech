@@ -34,7 +34,7 @@ func new_FindModuleDependencies(compiler *AbstractCompiler, supportsEs6Modules b
 
 func (this *FindModuleDependencies) process(root Node) {
 	if !root.isScript() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if Es6RewriteModules_isEs6ModuleRoot(root) {
 		this.moduleType_ = CompilerInput_ModuleType_ES6

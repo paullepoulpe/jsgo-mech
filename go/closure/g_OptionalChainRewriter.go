@@ -20,7 +20,7 @@ func (this *OptionalChainRewriter) init_OptionalChainRewriter(builder *OptionalC
 	this.compiler_ = builder.compiler_
 	this.astFactory_ = builder.astFactory_
 	if builder.tmpVarNameCreator == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.tmpVarNameCreator = builder.tmpVarNameCreator
 	this.scope_ = builder.scope_
@@ -57,7 +57,7 @@ func (this *OptionalChainRewriter) rewrite() {
 		subchainEnd = subchainStart.getFirstChild()
 	}
 	if startNodeStack.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var optChainReplacement Node = this.rewriteInitialSegment(startNodeStack.pop(), this.wholeChain)
 	for !startNodeStack.isEmpty() {
@@ -182,7 +182,7 @@ func new_OptionalChainRewriter_Builder(compiler *AbstractCompiler) *OptionalChai
 
 func (this *OptionalChainRewriter_Builder) setTmpVarNameCreator(tmpVarNameCreator OptionalChainRewriter_TmpVarNameCreator) *OptionalChainRewriter_Builder {
 	if tmpVarNameCreator == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.tmpVarNameCreator = tmpVarNameCreator
 	return this

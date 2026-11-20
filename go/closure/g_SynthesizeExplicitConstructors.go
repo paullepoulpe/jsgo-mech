@@ -20,7 +20,7 @@ func new_SynthesizeExplicitConstructors(compiler *AbstractCompiler) *SynthesizeE
 
 func (this *SynthesizeExplicitConstructors) synthesizeClassConstructorIfMissing(t *NodeTraversal, classNode Node) {
 	if !classNode.isClass() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if NodeUtil_getEs6ClassConstructorMemberFunctionDef(classNode) == 0 {
 		this.addSyntheticConstructor(t, classNode)

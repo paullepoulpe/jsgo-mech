@@ -64,7 +64,7 @@ func ParserRunner_parse(sourceFile StaticSourceFile, sourceString string, config
 				ex_ := catch_(r_)
 				if p2, ok := ex_.(Throwable_as); ok {
 					var t *Throwable = p2.as_Throwable()
-					panic(new_RuntimeException_String_Throwable(("Exception parsing \"" + sstr_(sourceName) + "\""), t).self())
+					panic(new_RuntimeException_String_Throwable(("Exception parsing \"" + sstr_(sourceName) + "\""), t))
 				}
 				panic(r_)
 			}

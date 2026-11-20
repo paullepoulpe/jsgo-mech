@@ -100,7 +100,7 @@ func Es6RewriteBlockScopedDeclaration_maybeAddConstJSDoc(srcDeclaration Node, sr
 func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationList(declarationList Node, parent Node) {
 	if declarationList.isVar() {
 		if declarationList.hasChildren() && !declarationList.hasOneChild() {
-			panic(new_IllegalStateException_String(objstr_("var declaration can have maximum one child post normalization.")).self())
+			panic(new_IllegalStateException_String(objstr_("var declaration can have maximum one child post normalization.")))
 		}
 		return
 	}
@@ -126,13 +126,13 @@ func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationList(decl
 
 func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationListInForInInitializer(declarationList Node, parent Node) {
 	if !parent.isForIn() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var first Node = declarationList
 	var lhs Node = first.getFirstChild()
 	var loopNode Node = parent
 	if lhs.isDestructuringLhs() {
-		panic(new_IllegalStateException_String(objstr_("Destructuring syntax is unsupported in ES6RewriteBlockScopedDeclarations pass")).self())
+		panic(new_IllegalStateException_String(objstr_("Destructuring syntax is unsupported in ES6RewriteBlockScopedDeclarations pass")))
 	} else {
 		var newStatement Node = first.cloneTree()
 		var name Node = newStatement.getFirstChild().cloneNode()
@@ -147,7 +147,7 @@ func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationListInFor
 
 func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationListInVanillaForInitializer(declarationList Node, parent Node) {
 	if !parent.isVanillaFor() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var insertSpot Node = this.getInsertSpotBeforeLoop(parent)
 	for declarationList.hasChildren() {
@@ -286,7 +286,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) shouldTrave
 		if enclosingFunction.getParent().isGetterDef() || enclosingFunction.getParent().isSetterDef() {
 			nodeToWrapInClosure = enclosingFunction.getGrandparent()
 			if !nodeToWrapInClosure.isObjectLit() {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 		} else {
 			nodeToWrapInClosure = enclosingFunction

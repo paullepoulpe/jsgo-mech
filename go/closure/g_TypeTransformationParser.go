@@ -338,7 +338,7 @@ func (this *TypeTransformationParser) validTypeExpression(expr Node) bool {
 		case TypeTransformationParser_Keywords_TYPEEXPR:
 			return this.validNativeTypeExpr(expr)
 		default:
-			panic(new_IllegalStateException_String("Invalid type expression").self())
+			panic(new_IllegalStateException_String("Invalid type expression"))
 		}
 	}()
 }
@@ -432,7 +432,7 @@ func (this *TypeTransformationParser) validBooleanExpression(expr Node) bool {
 		case TypeTransformationParser_OperationKind_TYPEVAR_PREDICATE:
 			return this.validTypevarPredicate(expr, this.getCallParamCount(expr))
 		default:
-			panic(new_IllegalStateException_String("Invalid boolean expression").self())
+			panic(new_IllegalStateException_String("Invalid boolean expression"))
 		}
 	}()
 }
@@ -597,7 +597,7 @@ func (this *TypeTransformationParser) validOperationExpression(expr Node) bool {
 		case TypeTransformationParser_Keywords_PROPTYPE:
 			return this.validPropTypeExpression(expr)
 		default:
-			panic(new_IllegalStateException_String("Invalid type transformation operation").self())
+			panic(new_IllegalStateException_String("Invalid type transformation operation"))
 		}
 	}()
 }
@@ -623,7 +623,7 @@ func (this *TypeTransformationParser) validTypeTransformationExpression(expr Nod
 		case TypeTransformationParser_OperationKind_OPERATION:
 			return this.validOperationExpression(expr)
 		default:
-			panic(new_IllegalStateException_String("Invalid type transformation expression").self())
+			panic(new_IllegalStateException_String("Invalid type transformation expression"))
 		}
 	}()
 }

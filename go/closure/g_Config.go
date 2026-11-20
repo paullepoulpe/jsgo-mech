@@ -248,7 +248,7 @@ func Config_LanguageMode_minimumRequiredFor(feature FeatureSet_Feature) Config_L
 			return mode
 		}
 	}
-	panic(new_IllegalStateException_String(("No input language mode supports feature: " + jtostr_(feature))).self())
+	panic(new_IllegalStateException_String(("No input language mode supports feature: " + jtostr_(feature))))
 }
 
 func Config_LanguageMode_minimumRequiredForSet(featureSet *FeatureSet) Config_LanguageMode {
@@ -257,7 +257,7 @@ func Config_LanguageMode_minimumRequiredForSet(featureSet *FeatureSet) Config_La
 			return mode
 		}
 	}
-	panic(new_IllegalStateException_String(("No input language mode supports feature set: " + jtostr_(featureSet))).self())
+	panic(new_IllegalStateException_String(("No input language mode supports feature set: " + jtostr_(featureSet))))
 }
 
 func Config_LanguageMode_latestEcmaScript() Config_LanguageMode {
@@ -506,7 +506,7 @@ func new_Config_Builder_Config(source *Config) *Config_Builder {
 
 func (this *Config_Builder) setLanguageMode(mode Config_LanguageMode) *Config_Builder {
 	if mode == 0 {
-		panic(new_NullPointerException_String("Null languageMode").self())
+		panic(new_NullPointerException_String("Null languageMode"))
 	}
 	this.languageMode_ = mode
 	return this
@@ -514,7 +514,7 @@ func (this *Config_Builder) setLanguageMode(mode Config_LanguageMode) *Config_Bu
 
 func (this *Config_Builder) setStrictMode(mode Config_StrictMode) *Config_Builder {
 	if mode == 0 {
-		panic(new_NullPointerException_String("Null strictMode").self())
+		panic(new_NullPointerException_String("Null strictMode"))
 	}
 	this.strictMode_ = mode
 	return this
@@ -522,7 +522,7 @@ func (this *Config_Builder) setStrictMode(mode Config_StrictMode) *Config_Builde
 
 func (this *Config_Builder) setJsDocParsingMode(mode Config_JsDocParsing) *Config_Builder {
 	if mode == 0 {
-		panic(new_NullPointerException_String("Null jsDocParsingMode").self())
+		panic(new_NullPointerException_String("Null jsDocParsingMode"))
 	}
 	this.jsDocParsingMode_ = mode
 	return this
@@ -530,7 +530,7 @@ func (this *Config_Builder) setJsDocParsingMode(mode Config_JsDocParsing) *Confi
 
 func (this *Config_Builder) setRunMode(mode Config_RunMode) *Config_Builder {
 	if mode == 0 {
-		panic(new_NullPointerException_String("Null runMode").self())
+		panic(new_NullPointerException_String("Null runMode"))
 	}
 	this.runMode_ = mode
 	return this
@@ -583,14 +583,14 @@ func (this *Config_Builder) build() *Config {
 		if (int32(this.set0) & 1) == 0 {
 			missing.append(" parseInlineSourceMaps")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))))
 	}
 	return new_Config(this.languageMode_, this.strictMode_, this.jsDocParsingMode_, this.runMode_, this.annotations_, this.suppressionNames_, this.closurePrimitiveNames_, this.parseInlineSourceMaps_)
 }
 
 func (this *Config_Builder) setAnnotations(names *JTMap[string, Annotation_parsing]) *Config_Builder {
 	if names == nil {
-		panic(new_NullPointerException_String("Null annotations").self())
+		panic(new_NullPointerException_String("Null annotations"))
 	}
 	this.annotations_ = names
 	return this

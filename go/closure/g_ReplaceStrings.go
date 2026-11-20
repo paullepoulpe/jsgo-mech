@@ -107,7 +107,7 @@ func (this *ReplaceStrings) doSubstitutions(t *NodeTraversal, config *ReplaceStr
 		return
 	}
 	if !n.isNew() && !n.isCall() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !config.isReplaceAll() {
 		it_1 := config.parameters.each()
@@ -152,7 +152,7 @@ func (this *ReplaceStrings) replaceExpression(t *NodeTraversal, expr Node) Node 
 		return expr
 	}
 	if !key.isPresent() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.recordReplacement(key.get())
 	replacement.srcrefTreeIfMissing(expr)
@@ -175,7 +175,7 @@ func (this *ReplaceStrings) getReplacement(key string) string {
 func (this *ReplaceStrings) recordReplacement(key string) {
 	var result *ReplaceStrings_Result = this.results.get(key)
 	if result == nil {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	result.didReplacement = true
 }
@@ -197,7 +197,7 @@ func (this *ReplaceStrings) buildReplacement(t *NodeTraversal, expr Node, prefix
 				case tokOrd1_TEMPLATELIT_SUB:
 					prefix = this.buildReplacement(t, child.getFirstChild(), prefix, keyBuilder)
 				default:
-					panic(new_IllegalStateException_String(("Unexpected TEMPLATELIT child: " + tostrH_(child))).self())
+					panic(new_IllegalStateException_String(("Unexpected TEMPLATELIT child: " + tostrH_(child))))
 				}
 			}
 		}
@@ -243,7 +243,7 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 	var last int32 = String_indexOf(function, 41)
 	var colon int32 = int32(strings.Index(function, ReplaceStrings_EXCLUSION_PREFIX))
 	if first == -1 || last == -1 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if JString_contains_s(function, ".prototype.") {
 		this.compiler_.report(JSError_make_DiagnosticType_StringArr(ReplaceStrings_BAD_REPLACEMENT_CONFIGURATION, []string{function, "Cannot replace strings passed to prototype methods."}))
@@ -260,22 +260,22 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 		paramCount++
 		if param == ReplaceStrings_REPLACE_ALL_MARKER {
 			if paramCount != 1 || parts.size() != 1 {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			replacementParameters.add(int32(ReplaceStrings_Config_REPLACE_ALL_VALUE))
 		} else if param == ReplaceStrings_REPLACE_ONE_MARKER {
 			if replacementParameters.asList().contains(int32(ReplaceStrings_Config_REPLACE_ALL_VALUE)) {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			replacementParameters.add(int32(paramCount))
 		} else {
 			if param != "" {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Unknown marker (%s)", []any{param})).self())
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Unknown marker (%s)", []any{param})))
 			}
 		}
 	}
 	if replacementParameters.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return new_ReplaceStrings_Config(name, replacementParameters, func() *JTSet[string] {
 		if colon == -1 {

@@ -89,7 +89,7 @@ func (this *PerformanceTracker) finit_PerformanceTracker() {
 func (this *PerformanceTracker) init_PerformanceTracker(externsRoot Node, jsRoot Node, mode CompilerOptions_TracerMode) {
 	this.finit_PerformanceTracker()
 	if mode == CompilerOptions_TracerMode_OFF {
-		panic(new_IllegalArgumentException_String(objstr_("PerformanceTracker can't work without tracer data.")).self())
+		panic(new_IllegalArgumentException_String(objstr_("PerformanceTracker can't work without tracer data.")))
 	}
 	this.startTime = System_currentTimeMillis()
 	this.externsRoot = externsRoot
@@ -141,7 +141,7 @@ func (this *PerformanceTracker) recordPassStop(passName string, runtime int64) {
 	var allocMem int32 = this.getAllocatedMegabytes()
 	var logStats *PerformanceTracker_Stats = this.currentPass.pop()
 	if passName != logStats.pass {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.log_.add(logStats)
 	logStats.runtime_ = runtime
@@ -319,13 +319,13 @@ func (this *PerformanceTracker) calcTotalStats() {
 		this.gzDiff += stats.gzDiff
 	}
 	if this.tracksAstSize() && this.initAstSize != (this.astDiff+this.astSize) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if this.tracksSize() && this.initCodeSize != (this.diff+this.codeSize) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if this.tracksGzSize() && this.initGzCodeSize != (this.gzDiff+this.gzCodeSize) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 }
 
