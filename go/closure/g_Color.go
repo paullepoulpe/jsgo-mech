@@ -340,7 +340,7 @@ func (this *Color_Builder) setInstanceColor(x *Color) *Color_Builder {
 
 func (this *Color_Builder) buildInternal() *Color {
 	if (((((int32(this.set0) != 15) || (this.id == nil)) || (this.prototypes == nil)) || (this.instanceColors == nil)) || (this.ownProperties == nil)) || (this.unionElements == nil) {
-		var missing *StringBuilder = new_StringBuilder()
+		var missing strBuilder_
 		if this.id == nil {
 			missing.append(" id")
 		}
@@ -368,7 +368,7 @@ func (this *Color_Builder) buildInternal() *Color {
 		if this.unionElements == nil {
 			missing.append(" unionElements")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())).self())
 	}
 	return new_Color(this.id, this.prototypes, this.instanceColors, this.invalidating, this.propertiesKeepOriginalName, this.constructor_, this.ownProperties, this.boxId, this.closureAssert, this.unionElements)
 }

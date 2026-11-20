@@ -3696,13 +3696,13 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) emitLicenses() *JTSet[string
 }
 
 type Compiler_CodeBuilder struct {
-	sb        *StringBuilder
+	sb        *strBuilder_
 	lineCount int32
 	colCount  int32
 }
 
 func (this *Compiler_CodeBuilder) finit_Compiler_CodeBuilder() {
-	this.sb = new_StringBuilder()
+	this.sb = &strBuilder_{}
 	this.lineCount = 0
 	this.colCount = 0
 }

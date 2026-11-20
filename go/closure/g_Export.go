@@ -229,14 +229,14 @@ func (this *Export_Builder) mutated(value bool) *Export_Builder {
 
 func (this *Export_Builder) autoBuild() *Export {
 	if (int32(this.set0) != 1) || (this.moduleMetadataField == nil) {
-		var missing *StringBuilder = new_StringBuilder()
+		var missing strBuilder_
 		if this.moduleMetadataField == nil {
 			missing.append(" moduleMetadata")
 		}
 		if (int32(this.set0) & 1) == 0 {
 			missing.append(" mutated")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())).self())
 	}
 	return new_Export(this.exportNameField, this.moduleRequestField, this.importNameField, this.localNameField, this.modulePathField, this.exportNodeField, this.nameNodeField, this.moduleMetadataField, this.closureNamespaceField, this.mutatedField)
 }

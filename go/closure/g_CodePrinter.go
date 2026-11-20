@@ -51,7 +51,7 @@ type CodePrinter_MappedCodePrinter struct {
 	createSrcMap                bool
 	sourceMapDetailLevel        SourceMap_DetailLevel
 	licenseTracker              CodePrinter_LicenseTracker
-	code_                       *StringBuilder
+	code_                       *strBuilder_
 	lineLengthThreshold         int32
 	lineLength                  int32
 	lineIndex                   int32
@@ -77,7 +77,7 @@ func (this *CodePrinter_MappedCodePrinter) up_CodeConsumer() *CodeConsumer {
 
 func (this *CodePrinter_MappedCodePrinter) finit_CodePrinter_MappedCodePrinter() {
 	this.firstCandidateMappingForCut = 0
-	this.code_ = new_StringBuilder_int(1024)
+	this.code_ = strBuilderCap_(1024)
 	this.lineLength = 0
 	this.lineIndex = 0
 }

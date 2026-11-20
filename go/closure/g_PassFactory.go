@@ -247,7 +247,7 @@ func (this *PassFactory_Builder) setInternalFactory(x FunctionOf[*AbstractCompil
 
 func (this *PassFactory_Builder) autoBuild() *PassFactory {
 	if ((((int32(this.set0) != 1) || this.name_.isEmpty()) || (this.condition == nil)) || (this.preconditionCheck == nil)) || (this.internalFactory == nil) {
-		var missing *StringBuilder = new_StringBuilder()
+		var missing strBuilder_
 		if this.name_.isEmpty() {
 			missing.append(" name")
 		}
@@ -263,7 +263,7 @@ func (this *PassFactory_Builder) autoBuild() *PassFactory {
 		if this.internalFactory == nil {
 			missing.append(" internalFactory")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())).self())
 	}
 	return new_PassFactory(this.name_.get(), this.condition, this.preconditionCheck, this.runInFixedPointLoop, this.internalFactory)
 }
