@@ -146,7 +146,5 @@ func (this *DepsFileRegexParser) parseLine(p0 string) *Outcome_base[any] {
 	if this.self_ == any(this) {
 		return this.parseLine_impl(p0)
 	}
-	return this.self_.(interface {
-		parseLine_impl(string) *Outcome_base[any]
-	}).parseLine_impl(p0)
+	return this.self_.parseLine_impl(p0)
 }
