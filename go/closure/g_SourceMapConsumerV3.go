@@ -565,13 +565,15 @@ func (this *SourceMapConsumerV3_MappingBuilder) nextValue() int32 {
 const SourceMapConsumerV3_MappingBuilder_MAX_ENTRY_VALUES int32 = 5
 
 type SourceMapConsumerV3_StringCharIterator struct {
-	content  string
-	length_  int32
-	current_ int32
+	content    string
+	contentU16 utf16_
+	length_    int32
+	current_   int32
 }
 
 func (this *SourceMapConsumerV3_StringCharIterator) zero_SourceMapConsumerV3_StringCharIterator() {
 	this.content = nullstr_
+	this.contentU16 = utf16Of_(this.content)
 }
 
 func (this *SourceMapConsumerV3_StringCharIterator) finit_SourceMapConsumerV3_StringCharIterator() {
@@ -581,6 +583,7 @@ func (this *SourceMapConsumerV3_StringCharIterator) finit_SourceMapConsumerV3_St
 func (this *SourceMapConsumerV3_StringCharIterator) init_SourceMapConsumerV3_StringCharIterator(content string) {
 	this.finit_SourceMapConsumerV3_StringCharIterator()
 	this.content = content
+	this.contentU16 = utf16Of_(this.content)
 	this.length_ = String_length(content)
 }
 
@@ -594,11 +597,11 @@ func new_SourceMapConsumerV3_StringCharIterator(content string) *SourceMapConsum
 func (this *SourceMapConsumerV3_StringCharIterator) next() uint16 {
 	var index int32 = this.current_
 	this.current_++
-	return String_charAt(this.content, index)
+	return this.contentU16.charAt(index)
 }
 
 func (this *SourceMapConsumerV3_StringCharIterator) peek() uint16 {
-	return String_charAt(this.content, this.current_)
+	return this.contentU16.charAt(this.current_)
 }
 
 func (this *SourceMapConsumerV3_StringCharIterator) hasNext() bool {

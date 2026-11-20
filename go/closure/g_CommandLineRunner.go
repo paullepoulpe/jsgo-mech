@@ -128,11 +128,12 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 	var escaped bool = false
 	var isFirstCharacter bool = true
 	var c int32
+	flagFileTextU16 := utf16Of_(flagFileText)
 	for {
-		if flagFileIndex == String_length(flagFileText) {
+		if flagFileIndex == flagFileTextU16.length() {
 			break
 		}
-		c = int32(String_charAt(flagFileText, flagFileIndex))
+		c = int32(flagFileTextU16.charAt(flagFileIndex))
 		flagFileIndex++
 		if isFirstCharacter {
 			isFirstCharacter = false
@@ -549,9 +550,10 @@ func CommandLineRunner_loadConformanceConfig(configFile string) *Outcome_base[*C
 		return Outcome_base_err[*ConformanceConfig](text.error())
 	}
 	var textProto string = text.get()
+	textProtoU16 := utf16Of_(textProto)
 	var builder *ConformanceConfig_Builder = ConformanceConfig_newBuilder()
-	if textProto != "" && (int32(String_charAt(textProto, 0)) == CommandLineRunner_UTF8_BOM_CODE) {
-		textProto = String_substring_int(textProto, 1)
+	if textProto != "" && (int32(textProtoU16.charAt(0)) == CommandLineRunner_UTF8_BOM_CODE) {
+		textProto = textProtoU16.substring_int(1)
 	}
 	func() {
 		defer func() {
@@ -1537,20 +1539,21 @@ func (this *CommandLineRunner_Flags) printCategoryUsage(categoryName string, opt
 }
 
 func (this *CommandLineRunner_Flags) printStringLineWrapped(input string, outputStream *StringBuilder) {
-	if String_length(input) < this.maxLineLength {
+	inputU16 := utf16Of_(input)
+	if inputU16.length() < this.maxLineLength {
 		outputStream.append(input)
 		return
 	}
 	var endIndex int32 = this.maxLineLength
-	var subString string = String_substring(input, 0, this.maxLineLength)
+	var subString string = inputU16.substring(0, this.maxLineLength)
 	var whitespaceMatcher *Matcher_re2j = CommandLineRunner_Flags_WHITESPACE_PATTERN.matcher_s(subString)
 	var foundMatch bool = false
 	for whitespaceMatcher.find() {
 		endIndex = whitespaceMatcher.start()
 		foundMatch = true
 	}
-	outputStream.append((sstr_(String_substring(input, 0, endIndex)) + "\n"))
-	this.printStringLineWrapped(("    " + sstr_(String_substring_int(input, func() int32 {
+	outputStream.append((sstr_(inputU16.substring(0, endIndex)) + "\n"))
+	this.printStringLineWrapped(("    " + sstr_(inputU16.substring_int(func() int32 {
 		if foundMatch {
 			return (endIndex + 1)
 		}
@@ -1569,12 +1572,13 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[List] {
 	var mixedSources *JTList[*AbstractCommandLineRunner_FlagEntry[any]] = jnewTList_(jtc_p_AbstractCommandLineRunner_FlagEntry)
 	var excludes *JTSet[string] = jnewTSet_(jtc_string)
 	it_1 := this.mixedJsSources.each()
+	var getValueU16 utf16_
 	for it_1.next() {
 		var source *AbstractCommandLineRunner_FlagEntry[any] = it_1.v
 		if strings.HasSuffix(source.getValue(), ".zip") {
 			mixedSources.add(source)
 		} else if strings.HasPrefix(source.getValue(), "!") {
-			var found *Outcome_base[List] = CommandLineRunner_findJsFiles_Collection(ImmutableList_as_Collection(ImmutableList_of_Object(strobj_(String_substring_int(source.getValue(), 1)))))
+			var found *Outcome_base[List] = CommandLineRunner_findJsFiles_Collection(ImmutableList_as_Collection(ImmutableList_of_Object(strobj_(getValueU16.of(source.getValue()).substring_int(1)))))
 			if found.isErr() {
 				return Outcome_base_err[List](found.error())
 			}
@@ -1647,8 +1651,9 @@ func (this *CommandLineRunner_Flags) getPackageJsonEntryNames() *JTList[string] 
 
 func CommandLineRunner_Flags_addMultiFlagValue(values *TList[string], value Optional[string], flag any, entries ListOf[*AbstractCommandLineRunner_FlagEntry[any]]) *TList[string] {
 	var normalizedValue Optional[string] = value
-	if ((value.isPresent() && (len(value.get()) != 0)) && ((String_substring(value.get(), 0, 1) == "'") || (String_substring(value.get(), 0, 1) == "\""))) && (String_substring_int(value.get(), (String_length(value.get())-1)) == String_substring(value.get(), 0, 1)) {
-		normalizedValue = Optional_of[string](String_substring(value.get(), 1, (String_length(value.get()) - 1)))
+	var valueU16 utf16_
+	if ((value.isPresent() && (len(value.get()) != 0)) && ((valueU16.of(value.get()).substring(0, 1) == "'") || (valueU16.of(value.get()).substring(0, 1) == "\""))) && (valueU16.of(value.get()).substring_int((valueU16.of(value.get()).length() - 1)) == valueU16.of(value.get()).substring(0, 1)) {
+		normalizedValue = Optional_of[string](valueU16.of(value.get()).substring(1, (valueU16.of(value.get()).length() - 1)))
 	}
 	if values == nil {
 		values = newTList_(tc_string)

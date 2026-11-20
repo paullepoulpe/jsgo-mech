@@ -18,9 +18,10 @@ func new_CaseCanonicalize() *CaseCanonicalize {
 func CaseCanonicalize_caseCanonicalizeString(s string) string {
 	{
 		var i int32 = 0
-		var n int32 = String_length(s)
+		sU16 := utf16Of_(s)
+		var n int32 = sU16.length()
 		for ; i < n; i++ {
-			var ch uint16 = String_charAt(s, i)
+			var ch uint16 = sU16.charAt(i)
 			var cu uint16 = CaseCanonicalize_caseCanonicalize(ch)
 			if cu != ch {
 				var sb *StringBuilder = new_StringBuilder_String(s)
@@ -30,7 +31,7 @@ func CaseCanonicalize_caseCanonicalizeString(s string) string {
 					if i >= n {
 						break
 					}
-					sb.setCharAt(i, CaseCanonicalize_caseCanonicalize(String_charAt(s, i)))
+					sb.setCharAt(i, CaseCanonicalize_caseCanonicalize(sU16.charAt(i)))
 				}
 				return tostrR_(sb)
 			}

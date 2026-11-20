@@ -584,7 +584,7 @@ func (this *IRFactory) parseTrailingNonJSDocCommentAt(tokenEnd *SourcePosition_u
 	if comment.location_.start_.offset <= tokenEnd.offset {
 		return nil
 	}
-	var preCommentText string = String_substring(this.fileWithContent.contents, (tokenEnd.offset + 1), comment.location_.start_.offset)
+	var preCommentText string = this.fileWithContent.contentsU16.substring((tokenEnd.offset + 1), comment.location_.start_.offset)
 	if strings.Trim(preCommentText, javaSpace_) != "" {
 		return nil
 	}
@@ -878,17 +878,18 @@ func IRFactory_findNodeTypeInExpression(expressionNode Node, token Token_rhino) 
 
 func (this *IRFactory) normalizeRegex(token *LiteralToken) string {
 	var value string = token.value_
-	var lastSlash int32 = String_lastIndexOf(value, 47)
-	var cur int32 = String_indexOf(value, 92)
+	valueU16 := utf16Of_(value)
+	var lastSlash int32 = valueU16.lastIndexOf(47)
+	var cur int32 = valueU16.indexOf(92)
 	if cur == -1 {
-		return String_substring(value, 1, lastSlash)
+		return valueU16.substring(1, lastSlash)
 	}
 	var result *StringBuilder = new_StringBuilder()
 	var start int32 = 1
 	for cur != -1 {
 		Appendable_append_s_int_int(result, value, start, cur)
 		cur++
-		var c uint16 = String_charAt(value, cur)
+		var c uint16 = valueU16.charAt(cur)
 		switch c {
 		case '^', '$', '\\', '/', '.', '*', '+', '?', '(', ')', '[', ']', '{', '}', '|', '-', 'b', 'B', 'c', 'd', 'D', 'f', 'n', 'k', 'p', 'P', 'r', 's', 'S', 't', 'u', 'v', 'w', 'W', 'x', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 			result.append_char('\\')
@@ -897,7 +898,7 @@ func (this *IRFactory) normalizeRegex(token *LiteralToken) string {
 			result.append_char(c)
 		}
 		start = (cur + 1)
-		cur = String_indexOf_int_int(value, 92, start)
+		cur = valueU16.indexOf_int_int(92, start)
 	}
 	Appendable_append_s_int_int(result, value, start, lastSlash)
 	return tostrR_(result)
@@ -905,8 +906,10 @@ func (this *IRFactory) normalizeRegex(token *LiteralToken) string {
 
 func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool) string {
 	var value string = token.value_
+	valueU16 := utf16Of_(value)
 	if strings.Contains(value, "\r") {
 		value = IRFactory_CR_OR_CRLF_PATTERN.matcher_s(value).replaceAll("\n")
+		valueU16 = utf16Of_(value)
 	}
 	var start int32 = func() int32 {
 		if templateLiteral {
@@ -914,20 +917,20 @@ func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool
 		}
 		return 1
 	}()
-	var cur int32 = String_indexOf(value, 92)
+	var cur int32 = valueU16.indexOf(92)
 	if cur == -1 {
 		return func() string {
 			if templateLiteral {
 				return value
 			}
-			return String_substring(value, 1, (String_length(value) - 1))
+			return valueU16.substring(1, (valueU16.length() - 1))
 		}()
 	}
 	var result *StringBuilder = new_StringBuilder()
 	for cur != -1 {
 		Appendable_append_s_int_int(result, value, start, cur)
 		cur += 1
-		var c uint16 = String_charAt(value, cur)
+		var c uint16 = valueU16.charAt(cur)
 		switch c {
 		case 'b':
 			result.append_char(0x0008)
@@ -946,8 +949,8 @@ func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool
 			this.errorReporter.warning(IRFactory_STRING_CONTINUATION_WARNING, this.sourceName_, IRFactory_linenoSourcePosition(token.location_.start_), IRFactory_charno(token.location_.start_))
 		case '0', '1', '2', '3', '4', '5', '6', '7':
 			var numDigits int32
-			if ((cur + 1) < String_length(value)) && IRFactory_isOctalDigit(String_charAt(value, (cur+1))) {
-				if ((int32(c) <= 51) && ((cur + 2) < String_length(value))) && IRFactory_isOctalDigit(String_charAt(value, (cur+2))) {
+			if ((cur + 1) < valueU16.length()) && IRFactory_isOctalDigit(valueU16.charAt((cur + 1))) {
+				if ((int32(c) <= 51) && ((cur + 2) < valueU16.length())) && IRFactory_isOctalDigit(valueU16.charAt((cur + 2))) {
 					numDigits = 3
 				} else {
 					numDigits = 2
@@ -961,23 +964,23 @@ func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool
 					this.errorReporter.warning(IRFactory_OCTAL_STRING_LITERAL_WARNING, this.sourceName_, IRFactory_linenoSourcePosition(token.location_.start_), IRFactory_charno(token.location_.start_))
 				}
 			}
-			result.append_char(uint16(Integer_parseInt(String_substring(value, cur, (cur+numDigits)), 8)))
+			result.append_char(uint16(Integer_parseInt(valueU16.substring(cur, (cur+numDigits)), 8)))
 			cur += (numDigits - 1)
 		case 'x':
-			result.append_char(uint16(((IRFactory_hexdigit(String_charAt(value, (cur+1))) * 16) + IRFactory_hexdigit(String_charAt(value, (cur+2))))))
+			result.append_char(uint16(((IRFactory_hexdigit(valueU16.charAt((cur + 1))) * 16) + IRFactory_hexdigit(valueU16.charAt((cur + 2))))))
 			cur += 2
 		case 'u':
 			var escapeEnd int32
 			var hexDigits string
-			if String_charAt(value, (cur+1)) != '{' {
+			if valueU16.charAt((cur + 1)) != '{' {
 				escapeEnd = (cur + 5)
-				hexDigits = String_substring(value, (cur + 1), escapeEnd)
+				hexDigits = valueU16.substring((cur + 1), escapeEnd)
 			} else {
 				escapeEnd = (cur + 2)
-				for Character_digit(String_charAt(value, escapeEnd), 16) >= 0 {
+				for Character_digit(valueU16.charAt(escapeEnd), 16) >= 0 {
 					escapeEnd++
 				}
-				hexDigits = String_substring(value, (cur + 2), escapeEnd)
+				hexDigits = valueU16.substring((cur + 2), escapeEnd)
 				escapeEnd++
 			}
 			var codePointValue int32 = Integer_parseInt(hexDigits, 16)
@@ -994,13 +997,13 @@ func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool
 			result.append_char(c)
 		}
 		start = (cur + 1)
-		cur = String_indexOf_int_int(value, 92, start)
+		cur = valueU16.indexOf_int_int(92, start)
 	}
 	Appendable_append_s_int_int(result, value, start, func() int32 {
 		if templateLiteral {
-			return String_length(value)
+			return valueU16.length()
 		}
-		return (String_length(value) - 1)
+		return (valueU16.length() - 1)
 	}())
 	return tostrR_(result)
 }
@@ -1015,22 +1018,24 @@ func (this *IRFactory) inStrictContext() bool {
 
 func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 	var value string = token.value_
+	valueU16 := utf16Of_(value)
 	if JString_contains_s(value, "_") {
 		value = this.removeNumericSeparators(value, token)
+		valueU16 = utf16Of_(value)
 	}
 	var location *SourceRange = token.location_
-	var length int32 = String_length(value)
+	var length int32 = valueU16.length()
 	if length <= 0 {
 		panic(new_IllegalStateException_0())
 	}
-	if String_charAt(value, 0) == '-' || String_charAt(value, 0) == '+' {
+	if valueU16.charAt(0) == '-' || valueU16.charAt(0) == '+' {
 		panic(new_IllegalStateException_0())
 	}
-	if String_charAt(value, 0) == '.' {
+	if valueU16.charAt(0) == '.' {
 		return Double_parseDouble(("0" + sstr_(value)))
-	} else if (String_charAt(value, 0) == '0') && (length > 1) {
+	} else if (valueU16.charAt(0) == '0') && (length > 1) {
 		return func() float64 {
-			switch String_charAt(value, 1) {
+			switch valueU16.charAt(1) {
 			case '.', 'e', 'E':
 				return Double_parseDouble(value)
 			case 'b', 'B':
@@ -1042,9 +1047,9 @@ func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 					if c >= length {
 						break
 					}
-					v = ((v * 2) + float64(IRFactory_binarydigit(String_charAt(value, c))))
+					v = ((v * 2) + float64(IRFactory_binarydigit(valueU16.charAt(c))))
 				}
-				return IRFactory_roundLargeRadixLiteral(v, String_substring_int(value, 2), 2)
+				return IRFactory_roundLargeRadixLiteral(v, valueU16.substring_int(2), 2)
 			case 'o', 'O':
 				this.maybeWarnForFeatureToken(token.up_Token_parser(), FeatureSet_Feature_OCTAL_LITERALS)
 				var v float64 = 0
@@ -1054,9 +1059,9 @@ func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 					if c >= length {
 						break
 					}
-					v = ((v * 8) + float64(IRFactory_octaldigit(String_charAt(value, c))))
+					v = ((v * 8) + float64(IRFactory_octaldigit(valueU16.charAt(c))))
 				}
-				return IRFactory_roundLargeRadixLiteral(v, String_substring_int(value, 2), 8)
+				return IRFactory_roundLargeRadixLiteral(v, valueU16.substring_int(2), 8)
 			case 'x', 'X':
 				var v float64 = 0
 				var c int32 = 1
@@ -1065,9 +1070,9 @@ func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 					if c >= length {
 						break
 					}
-					v = ((v * 16) + float64(IRFactory_hexdigit(String_charAt(value, c))))
+					v = ((v * 16) + float64(IRFactory_hexdigit(valueU16.charAt(c))))
 				}
-				return IRFactory_roundLargeRadixLiteral(v, String_substring_int(value, 2), 16)
+				return IRFactory_roundLargeRadixLiteral(v, valueU16.substring_int(2), 16)
 			case '0', '1', '2', '3', '4', '5', '6', '7':
 				var v float64 = 0
 				var c int32 = 0
@@ -1076,7 +1081,7 @@ func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 					if c >= length {
 						break
 					}
-					var digit uint16 = String_charAt(value, c)
+					var digit uint16 = valueU16.charAt(c)
 					if IRFactory_isOctalDigit(digit) {
 						v = ((v * 8) + float64(IRFactory_octaldigit(digit)))
 					} else {
@@ -1089,12 +1094,12 @@ func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 				} else {
 					this.errorReporter.warning(IRFactory_INVALID_ES5_STRICT_OCTAL, this.sourceName_, IRFactory_linenoSourcePosition(location.start_), IRFactory_charno(location.start_))
 				}
-				return IRFactory_roundLargeRadixLiteral(v, String_substring_int(value, 1), 8)
+				return IRFactory_roundLargeRadixLiteral(v, valueU16.substring_int(1), 8)
 			case '8', '9':
 				this.errorReporter.error(IRFactory_INVALID_OCTAL_DIGIT, this.sourceName_, IRFactory_linenoSourcePosition(location.start_), IRFactory_charno(location.start_))
 				return 0
 			default:
-				panic(new_IllegalStateException_String(("Unexpected character in number literal: " + chrstr_(String_charAt(value, 1)))))
+				panic(new_IllegalStateException_String(("Unexpected character in number literal: " + chrstr_(valueU16.charAt(1)))))
 			}
 		}()
 	} else {
@@ -1104,9 +1109,12 @@ func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 
 func (this *IRFactory) normalizeBigInt(token *LiteralToken) *BigInteger {
 	var value string = token.value_
+	valueU16 := utf16Of_(value)
 	value = cutBytes_(value, 0, int32(strings.IndexByte(value, 'n')))
+	valueU16 = utf16Of_(value)
 	if JString_contains_s(value, "_") {
 		value = this.removeNumericSeparators(value, token)
+		valueU16 = utf16Of_(value)
 	}
 	var length int32 = int32(len(value))
 	if length <= 0 {
@@ -1129,7 +1137,7 @@ func (this *IRFactory) normalizeBigInt(token *LiteralToken) *BigInteger {
 			case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 				panic(new_IllegalStateException_String("Nonzero BigInts can't have a leading zero"))
 			default:
-				panic(new_IllegalStateException_String(("Unexpected character in bigint literal: " + chrstr_(String_charAt(value, 1)))))
+				panic(new_IllegalStateException_String(("Unexpected character in bigint literal: " + chrstr_(valueU16.charAt(1)))))
 			}
 		}()
 	} else {
