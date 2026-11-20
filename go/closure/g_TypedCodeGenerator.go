@@ -261,9 +261,7 @@ func (this *TypedCodeGenerator) appendClassAnnotations(sb *strBuilder_, funType 
 	for interfaze := range elemsBy_(funType.getAncestorInterfaces(), to_ObjectType) {
 		interfaces.Add(interfaze.toAnnotationString(JSType_Nullability_IMPLICIT))
 	}
-	it_3 := interfaces.each()
-	for it_3.next() {
-		var interfaze string = it_3.v
+	for interfaze := range interfaces.All() {
 		sb.append(" * ")
 		TypedCodeGenerator_appendAnnotation(sb, "implements", interfaze)
 		sb.append("\n")
@@ -275,9 +273,7 @@ func (this *TypedCodeGenerator) appendInterfaceAnnotations(sb *strBuilder_, funT
 	for interfaceType := range elemsBy_(funType.getAncestorInterfaces(), to_ObjectType) {
 		interfaces.Add(interfaceType.toAnnotationString(JSType_Nullability_IMPLICIT))
 	}
-	it_3 := interfaces.each()
-	for it_3.next() {
-		var interfaze string = it_3.v
+	for interfaze := range interfaces.All() {
 		sb.append(" * ")
 		TypedCodeGenerator_appendAnnotation(sb, "extends", interfaze)
 		sb.append("\n")

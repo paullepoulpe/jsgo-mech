@@ -60,18 +60,14 @@ func (this *ProcessClosureProvidesAndRequires) rewriteProvidesAndRequires(extern
 	}
 	this.hasRewritingOccurred = true
 	this.collectProvidedNames(externs, root)
-	it_1 := this.providedNames.each()
-	for it_1.next() {
-		var pn *ProcessClosureProvidesAndRequires_ProvidedName = it_1.v
+	for pn := range this.providedNames.Values() {
 		pn.replace(this.preserveGoogProvidesAndRequires, this.providedNames)
 	}
 	for closureRequire := range sliceAll_(this.requiresToBeRemoved) {
 		this.compiler_.reportChangeToEnclosingScope(closureRequire)
 		closureRequire.detach()
 	}
-	it_5 := this.forwardDeclaresToRemove.each()
-	for it_5.next() {
-		var forwardDeclare Node = it_5.v
+	for forwardDeclare := range this.forwardDeclaresToRemove.All() {
 		NodeUtil_deleteNode(forwardDeclare, this.compiler_)
 	}
 }

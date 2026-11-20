@@ -41,9 +41,7 @@ func (this *GenerateExports) process_2(externs Node, root Node) {
 	var exports *TMap[string, Node] = findExportableNodes.getExports()
 	var es6Exports *TMap[Node, string] = findExportableNodes.getEs6ClassExports()
 	var localExports *TSet[string] = findExportableNodes.getLocalExports()
-	it_1 := localExports.each()
-	for it_1.next() {
-		var export string = it_1.v
+	for export := range localExports.All() {
 		this.addExtern(export)
 	}
 	if !exports.IsEmpty() || !es6Exports.IsEmpty() {

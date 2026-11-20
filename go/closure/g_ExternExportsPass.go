@@ -63,9 +63,7 @@ func (this *ExternExportsPass) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(this))
 	var sorted *TSet[*ExternExportsPass_Export] = newTSortedSetC_(tc_p_ExternExportsPass_Export, Comparator_comparing(&Function_tfn_any_string{func(p0 any) string { return to_ExternExportsPass_Export(p0).getExportedPath() }}))
 	sorted.asSet().addAll(Collection(sliceViewP_(tc_p_ExternExportsPass_Export, this.exports)))
-	it_1 := sorted.each()
-	for it_1.next() {
-		var export *ExternExportsPass_Export = it_1.v
+	for export := range sorted.All() {
 		export.generateExterns()
 	}
 	this.setGeneratedExternsOnCompiler()

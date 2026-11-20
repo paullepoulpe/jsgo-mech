@@ -147,9 +147,7 @@ func (this *PolymerPass) appendPolymerElementExterns(def *PolymerClassDefinition
 	baseDocs.changeBaseType(elementBaseType)
 	baseExterns.setJSDocInfo(baseDocs.build())
 	block.addChildToBack(baseExterns)
-	it_1 := this.polymerElementProps.each()
-	for it_1.next() {
-		var baseProp Node = it_1.v
+	for baseProp := range this.polymerElementProps.All() {
 		var newProp Node = baseProp.cloneTree()
 		var newPropRootName Node = NodeUtil_getRootOfQualifiedName(newProp.getFirstFirstChild())
 		newPropRootName.setString(polymerElementType)

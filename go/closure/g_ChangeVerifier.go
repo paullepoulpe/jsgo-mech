@@ -66,9 +66,7 @@ func (this *ChangeVerifier) verifyScopeChangesHaveBeenRecorded(passName string, 
 }
 
 func (this *ChangeVerifier) verifyDeletedScopeNodes(passNameMsg string, deletedScopeNodes *TSet[Node]) {
-	it_1 := deletedScopeNodes.each()
-	for it_1.next() {
-		var snapshotScopeNode Node = it_1.v
+	for snapshotScopeNode := range deletedScopeNodes.All() {
 		var currentNode Node = Node_of_(this.clonesByCurrent.inverse().get(snapshotScopeNode.box_()))
 		if currentNode.isDeleted() {
 			continue

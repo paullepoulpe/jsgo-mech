@@ -69,17 +69,13 @@ func (this *InvocationTemplateTypeMatcher) matchTemplateTypesRecursive(paramType
 	}
 	if paramType.isUnionType() {
 		var unionType *UnionType = paramType.toMaybeUnionType()
-		it_1 := unionType.getAlternates().each()
-		for it_1.next() {
-			var alternate *JSType = it_1.v
+		for alternate := range unionType.getAlternates().All() {
 			this.matchTemplateTypesRecursive(alternate, argType)
 		}
 		return
 	} else if argType.isUnionType() {
 		var unionType *UnionType = argType.toMaybeUnionType()
-		it_3 := unionType.getAlternates().each()
-		for it_3.next() {
-			var alternate *JSType = it_3.v
+		for alternate := range unionType.getAlternates().All() {
 			this.matchTemplateTypesRecursive(paramType, alternate)
 		}
 		return

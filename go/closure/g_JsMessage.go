@@ -77,9 +77,7 @@ func (this *JsMessage) asJsMessageString() string {
 		panic(new_UnsupportedOperationException_String("asJsMessageString() is not supported for messages with gendered variants. Please provide a grammatical gender case as an argument."))
 	}
 	var sb strBuilder_
-	it_1 := this.getParts().each()
-	for it_1.next() {
-		var p JsMessage_Part = it_1.v
+	for p := range this.getParts().All() {
 		if p.isPlaceholder() {
 			sb.append(JsMessage_PH_JS_PREFIX).append(p.getJsPlaceholderName()).append(JsMessage_PH_JS_SUFFIX)
 		} else {
@@ -110,9 +108,7 @@ func (this *JsMessage) asIcuMessageString() string {
 		panic(new_UnsupportedOperationException_String("asIcuMessageString() is not supported for messages with gendered variants. Please provide a grammatical gender case as an argument."))
 	}
 	var sb strBuilder_
-	it_1 := this.getParts().each()
-	for it_1.next() {
-		var p JsMessage_Part = it_1.v
+	for p := range this.getParts().All() {
 		if p.isPlaceholder() {
 			sb.append_char('{').append(p.getCanonicalPlaceholderName()).append_char('}')
 		} else {
@@ -140,17 +136,20 @@ func (this *JsMessage) asIcuMessageString_1(genderCase JsMessage_GrammaticalGend
 
 func (this *JsMessage) isEmpty() bool {
 	if this.getGenderedMessagesMap().IsEmpty() {
-		it_1 := this.getParts().each()
-		for it_1.next() {
-			var part JsMessage_Part = it_1.v
+		l_1 := this.getParts()
+		for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+			var part JsMessage_Part = l_1.items[i_1]
 			if part.isPlaceholder() || (len(part.getString()) != 0) {
 				return false
 			}
 		}
 	} else {
-		it_3 := this.getGenderedMessagesMap().each()
-		for it_3.next() {
-			var parts *ErasedImmutableList = it_3.v
+		l_3 := this.getGenderedMessagesMap()
+		for i_3 := l_3.first(); i_3 < len(l_3.keys); i_3++ {
+			if l_3.isDead(i_3) {
+				continue
+			}
+			var parts *ErasedImmutableList = l_3.vals[i_3]
 			for _, el_5 := range immElems_(parts) {
 				var part JsMessage_Part = icast_JsMessage_Part(el_5)
 				if part.isPlaceholder() || (len(part.getString()) != 0) {
@@ -636,9 +635,7 @@ func (this *JsMessage_Builder) appendPart(part JsMessage_Part) *JsMessage_Builde
 }
 
 func (this *JsMessage_Builder) appendParts(parts *TList[JsMessage_Part]) *JsMessage_Builder {
-	it_1 := parts.each()
-	for it_1.next() {
-		var part JsMessage_Part = it_1.v
+	for part := range parts.All() {
 		this.appendPart(part)
 	}
 	return this

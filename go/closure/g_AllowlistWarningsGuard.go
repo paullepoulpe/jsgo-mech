@@ -44,9 +44,7 @@ func new_AllowlistWarningsGuard_Set(allowlist *TSet[string]) *AllowlistWarningsG
 
 func AllowlistWarningsGuard_normalizeAllowlist(allowlist *TSet[string]) *TSet[string] {
 	var result *TSet[string] = newTSet_(tc_string)
-	it_1 := allowlist.each()
-	for it_1.next() {
-		var line string = it_1.v
+	for line := range allowlist.All() {
 		var trimmed string = strings.Trim(line, javaSpace_)
 		if trimmed == "" || (trimmed[0] == '#') {
 			continue
@@ -214,9 +212,7 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) appendAllowlist(out *Output
 		out.append_CharSequence_rOutput(strobj_(("#" + sstr_(Joiner_on("\n# ").join(Splitter_on('\n').split_s(this.headerNote.get()))) + "\n")))
 	}
 	var warningsByType *SimpleSetMultimap[*DiagnosticType, string] = SimpleSetMultimap_createSorted[*DiagnosticType, string]()
-	it_1 := this.warnings_.each()
-	for it_1.next() {
-		var warning *JSError = it_1.v
+	for warning := range this.warnings_.All() {
 		warningsByType.put(warning.type_(), this.outer_.formatWarning_2(warning, true))
 	}
 	for type_ := range elemsAs_[*DiagnosticType](warningsByType.keySet()) {

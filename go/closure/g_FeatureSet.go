@@ -83,9 +83,12 @@ func (this *FeatureSet) union(other *FeatureSet) *FeatureSet {
 }
 
 func (this *FeatureSet) containsAtLeastOneOf(other *FeatureSet) bool {
-	it_1 := other.features_.each()
-	for it_1.next() {
-		var otherFeature FeatureSet_Feature = it_1.v
+	l_1 := other.features_
+	for i_1 := l_1.first(); i_1 < len(l_1.keys); i_1++ {
+		if l_1.isDead(i_1) {
+			continue
+		}
+		var otherFeature FeatureSet_Feature = l_1.keys[i_1]
 		if this.features_.Has(otherFeature) {
 			return true
 		}

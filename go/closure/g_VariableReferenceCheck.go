@@ -29,9 +29,8 @@ func (this *VariableReferenceCheck) process_2(externs Node, root Node) {
 }
 
 func (this *VariableReferenceCheck) lookForHoistedFunction(references *TList[*Reference]) *Reference {
-	it_1 := references.each()
-	for it_1.next() {
-		var reference *Reference = it_1.v
+	for i_1 := 0; i_1 < len(references.items); i_1++ {
+		var reference *Reference = references.items[i_1]
 		if reference.isHoistedFunction() {
 			this.blocksWithDeclarations.Add(reference.getBasicBlock())
 			return reference
@@ -81,9 +80,12 @@ func (this *VariableReferenceCheck) checkRedeclaration(v *Var, reference *Refere
 }
 
 func (this *VariableReferenceCheck) isRedeclaration(newDeclaration *BasicBlock) bool {
-	it_1 := this.blocksWithDeclarations.each()
-	for it_1.next() {
-		var previousDeclaration *BasicBlock = it_1.v
+	l_1 := this.blocksWithDeclarations
+	for i_1 := l_1.first(); i_1 < len(l_1.keys); i_1++ {
+		if l_1.isDead(i_1) {
+			continue
+		}
+		var previousDeclaration *BasicBlock = l_1.keys[i_1]
 		if previousDeclaration.provablyExecutesBefore(newDeclaration) {
 			return true
 		}
@@ -250,9 +252,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkDefaultParam(
 func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkShadowParam(v *Var, functionScope *Scope, references *TList[*Reference]) {
 	var maybeParam *Var = functionScope.getVar_String_rVar(v.getName())
 	if ((maybeParam != nil) && maybeParam.isParam()) && (maybeParam.getScope_rAbstractScope_rScope() == functionScope) {
-		it_1 := references.each()
-		for it_1.next() {
-			var r *Reference = it_1.v
+		for r := range references.All() {
 			if (r.isVarDeclaration() || r.isHoistedFunction()) && (r.getNode() != v.getNameNode()) {
 				this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(r.getNode(), VariableReferenceCheck_REDECLARED_VARIABLE, []string{v.getName()}))
 			}
@@ -265,9 +265,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkGoogModuleExp
 	if (references == nil) || references.isNeverAssigned() {
 		return
 	}
-	it_1 := references.references.each()
-	for it_1.next() {
-		var reference *Reference = it_1.v
+	for reference := range references.references.All() {
 		if reference.isLvalue() {
 			break
 		}
@@ -285,9 +283,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkVar(v *Var, r
 	if hoistedFn != nil {
 		hasSeenDeclaration = true
 	}
-	it_1 := references.each()
-	for it_1.next() {
-		var reference *Reference = it_1.v
+	for reference := range references.All() {
 		if reference == hoistedFn {
 			continue
 		}
