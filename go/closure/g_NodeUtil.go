@@ -1785,7 +1785,7 @@ func NodeUtil_createsScope(n Node) bool {
 }
 
 func NodeUtil_isValidCfgRoot(n Node) bool {
-	return (NodeUtil_DEFINITE_CFG_ROOTS.Has(n.getToken()) || NodeUtil_isClassStaticBlock(n))
+	return (NodeUtil_DEFINITE_CFG_ROOTS_has_(n.getToken()) || NodeUtil_isClassStaticBlock(n))
 }
 
 func NodeUtil_isStatement(n Node) bool {
@@ -1793,7 +1793,7 @@ func NodeUtil_isStatement(n Node) bool {
 }
 
 func NodeUtil_isStatementParent(parent Node) bool {
-	return NodeUtil_IS_STATEMENT_PARENT.Has(parent.getToken())
+	return NodeUtil_IS_STATEMENT_PARENT_has_(parent.getToken())
 }
 
 func NodeUtil_isDeclarationParent(parent Node) bool {
