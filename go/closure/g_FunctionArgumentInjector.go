@@ -398,13 +398,17 @@ func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) getParametersWit
 	return immutableSetCopyOfT_(tc_string, this.parametersWithNamesReferencedBeforeParameter_)
 }
 
-func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) apply(node_ any) bool {
-	var node Node = Node_of_(node_)
-	_ = node
+// applyT_ is apply with the parameter types the class declares (implsplit).
+func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) applyT_(node Node) bool {
 	if NodeUtil_isLoopStructure(node) {
 		this.loopsEntered++
 	}
 	return !(this.sideEffectSeen && (this.parameters.Len() == this.parametersReferenced.Len()))
+}
+
+// apply is the bridge of the interface's erased signature (javac's): it casts its arguments and calls applyT_.
+func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) apply(node_ any) bool {
+	return this.applyT_(Node_of_(node_))
 }
 
 func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) inLoop() bool {

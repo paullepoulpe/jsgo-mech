@@ -1259,10 +1259,14 @@ func new_PeepholeRemoveDeadCode_MatchUnnamedBreak() *PeepholeRemoveDeadCode_Matc
 	return this
 }
 
-func (this *PeepholeRemoveDeadCode_MatchUnnamedBreak) apply(n_ any) bool {
-	var n Node = Node_of_(n_)
-	_ = n
+// applyT_ is apply with the parameter types the class declares (implsplit).
+func (this *PeepholeRemoveDeadCode_MatchUnnamedBreak) applyT_(n Node) bool {
 	return (n.isBreak() && !n.hasChildren())
+}
+
+// apply is the bridge of the interface's erased signature (javac's): it casts its arguments and calls applyT_.
+func (this *PeepholeRemoveDeadCode_MatchUnnamedBreak) apply(n_ any) bool {
+	return this.applyT_(Node_of_(n_))
 }
 
 func (this *PeepholeRemoveDeadCode_MatchUnnamedBreak) test(p0 any) bool {

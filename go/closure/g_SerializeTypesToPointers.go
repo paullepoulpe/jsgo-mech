@@ -253,8 +253,12 @@ func SerializeTypesToPointers_TypeMismatchJson_typePointerToId(poolOffset int32,
 	panic(new_AssertionError_Object(strobj_(("Unrecognized TypeProto " + jtostr_(typeProto)))))
 }
 
-func (this *SerializeTypesToPointers_TypeMismatchJson) compareTo(x_ any) int32 {
-	var x *SerializeTypesToPointers_TypeMismatchJson = cast_[*SerializeTypesToPointers_TypeMismatchJson](x_)
-	_ = x
+// compareToT_ is compareTo with the parameter types the class declares (implsplit).
+func (this *SerializeTypesToPointers_TypeMismatchJson) compareToT_(x *SerializeTypesToPointers_TypeMismatchJson) int32 {
 	return ComparisonChain_start().compare(strobj_(this.foundColorId), strobj_(x.foundColorId)).compare(strobj_(this.requiredColorId), strobj_(x.requiredColorId)).compare(strobj_(this.location_), strobj_(x.location_)).result()
+}
+
+// compareTo is the bridge of the interface's erased signature (javac's): it casts its arguments and calls compareToT_.
+func (this *SerializeTypesToPointers_TypeMismatchJson) compareTo(x_ any) int32 {
+	return this.compareToT_(cast_[*SerializeTypesToPointers_TypeMismatchJson](x_))
 }
