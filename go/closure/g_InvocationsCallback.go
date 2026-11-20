@@ -58,7 +58,7 @@ func (this *InvocationsCallback) visit_4(p0 *NodeTraversal, p1 Node, p2 Node, p3
 
 // visit: an object that is exactly a InvocationsCallback calls its visit_impl directly (post-flip); others dispatch.
 func (this *InvocationsCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*InvocationsCallback); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

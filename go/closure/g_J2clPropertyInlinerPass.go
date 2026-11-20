@@ -528,7 +528,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_InlinePropert
 
 // remove: an object that is exactly a J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5 calls its remove_impl directly (post-flip); others dispatch.
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5) remove() {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5); p == this {
 		this.remove_impl()
 		return
 	}
@@ -537,7 +537,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyE
 
 // remove: an object that is exactly a J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6 calls its remove_impl directly (post-flip); others dispatch.
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6) remove() {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6); p == this {
 		this.remove_impl()
 		return
 	}
@@ -546,7 +546,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyE
 
 // visit: an object that is exactly a J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLClassGetterSetters calls its visit_impl directly (post-flip); others dispatch.
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLClassGetterSetters) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLClassGetterSetters); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -555,7 +555,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLCla
 
 // visit: an object that is exactly a J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_DetermineInlinableProperties calls its visit_impl directly (post-flip); others dispatch.
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_DetermineInlinableProperties) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_DetermineInlinableProperties); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -564,7 +564,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_DetermineInli
 
 // visit: an object that is exactly a J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_InlinePropertiesPass calls its visit_impl directly (post-flip); others dispatch.
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_InlinePropertiesPass) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_InlinePropertiesPass); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

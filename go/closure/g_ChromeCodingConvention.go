@@ -64,7 +64,7 @@ func ChromeCodingConvention_clinit() {
 
 // getSingletonGetterClassName: an object that is exactly a ChromeCodingConvention calls its getSingletonGetterClassName_impl directly (post-flip); others dispatch.
 func (this *ChromeCodingConvention) getSingletonGetterClassName(p0 Node) string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ChromeCodingConvention); p == this {
 		return this.getSingletonGetterClassName_impl(p0)
 	}
 	return this.self_.getSingletonGetterClassName_impl(p0)
@@ -72,7 +72,7 @@ func (this *ChromeCodingConvention) getSingletonGetterClassName(p0 Node) string 
 
 // applySingletonGetter: an object that is exactly a ChromeCodingConvention calls its applySingletonGetter_impl directly (post-flip); others dispatch.
 func (this *ChromeCodingConvention) applySingletonGetter(p0 *NominalTypeBuilder, p1 *FunctionType) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ChromeCodingConvention); p == this {
 		this.applySingletonGetter_impl(p0, p1)
 		return
 	}
