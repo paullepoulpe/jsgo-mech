@@ -21,7 +21,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) zero_BrowserWithTransf
 	this.expectedPrefixes = nullstr_
 }
 
-func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransformedPrefixesModuleResolver(modulePaths *TSet[string], moduleRootPaths *TList[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper, prefixReplacements *TMap[string, string]) {
+func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransformedPrefixesModuleResolver(modulePaths *TSet[string], moduleRootPaths *[]string, errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper, prefixReplacements *TMap[string, string]) {
 	this.ModuleResolver.init_ModuleResolver(modulePaths, moduleRootPaths, errorHandler, pathEscaper)
 	var sortedReplacements *TList[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement] = newTList_(tc_p_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement)
 	it_1 := prefixReplacements.eachEntry()
@@ -43,7 +43,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransf
 	this.expectedPrefixes = JString_join_s(", ", Iterable(sortedPrefixes.asList()))
 }
 
-func new_BrowserWithTransformedPrefixesModuleResolver(modulePaths *TSet[string], moduleRootPaths *TList[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper, prefixReplacements *TMap[string, string]) *BrowserWithTransformedPrefixesModuleResolver {
+func new_BrowserWithTransformedPrefixesModuleResolver(modulePaths *TSet[string], moduleRootPaths *[]string, errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper, prefixReplacements *TMap[string, string]) *BrowserWithTransformedPrefixesModuleResolver {
 	this := &BrowserWithTransformedPrefixesModuleResolver{}
 	this.self_ = this
 	this.zero_BrowserWithTransformedPrefixesModuleResolver()
@@ -103,7 +103,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) resolveModuleAsPath_im
 			break
 		}
 	}
-	return ModuleLoader_normalize(transformedAddress, Iterable(this.moduleRootPaths.asList()))
+	return ModuleLoader_normalize(transformedAddress, Iterable(slicePtrView_(tc_string, this.moduleRootPaths)))
 }
 
 var BrowserWithTransformedPrefixesModuleResolver_INVALID_AMBIGUOUS_PATH *DiagnosticType
@@ -133,8 +133,8 @@ func new_BrowserWithTransformedPrefixesModuleResolver_Factory(prefixReplacements
 	return this
 }
 
-func (this *BrowserWithTransformedPrefixesModuleResolver_Factory) create(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *ModuleResolver {
-	return new_BrowserWithTransformedPrefixesModuleResolver(tsetImm_(tc_string, modulePaths), tlistImm_(tc_string, moduleRootPaths), errorHandler, pathEscaper, this.prefixReplacements).up_ModuleResolver()
+func (this *BrowserWithTransformedPrefixesModuleResolver_Factory) create(modulePaths *ImmutableSet[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *ModuleResolver {
+	return new_BrowserWithTransformedPrefixesModuleResolver(tsetImm_(tc_string, modulePaths.asImm()), slicePtrImm_(tc_string, moduleRootPaths), errorHandler, pathEscaper, this.prefixReplacements).up_ModuleResolver()
 }
 
 type BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement struct {

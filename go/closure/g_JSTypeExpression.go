@@ -30,14 +30,14 @@ func new_JSTypeExpression(root Node, sourceName string) *JSTypeExpression {
 	return this
 }
 
-func (this *JSTypeExpression) replaceNamesWithUnknownType(names *TSet[string]) *JSTypeExpression {
+func (this *JSTypeExpression) replaceNamesWithUnknownType(names map[string]struct{}) *JSTypeExpression {
 	var oldExprRoot Node = this.root.cloneTree()
 	var newExprRoot Node = JSTypeExpression_replaceNames(oldExprRoot, names)
 	var newTypeExpression *JSTypeExpression = new_JSTypeExpression(newExprRoot, this.sourceName_)
 	return newTypeExpression
 }
 
-func JSTypeExpression_replaceNames(n Node, names *TSet[string]) Node {
+func JSTypeExpression_replaceNames(n Node, names map[string]struct{}) Node {
 	if n == 0 {
 		return 0
 	}
@@ -49,7 +49,7 @@ func JSTypeExpression_replaceNames(n Node, names *TSet[string]) Node {
 			child = next
 		}
 	}
-	if n.isStringLit() && names.Has(JSTypeExpression_baseName(n.getString())) {
+	if n.isStringLit() && has_(names, JSTypeExpression_baseName(n.getString())) {
 		var qMark Node = new_Node_Token(Token_rhino_QMARK)
 		if n.hasChildren() && !n.getFirstChild().isBlock() {
 			qMark.addChildrenToBack(n.removeChildren())
@@ -72,10 +72,10 @@ func JSTypeExpression_baseName(name string) string {
 	}()
 }
 
-func (this *JSTypeExpression) getAllTypeNodes() *TList[Node] {
+func (this *JSTypeExpression) getAllTypeNodes() []Node {
 	var builder *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
 	JSTypeExpression_visitAllTypeNodes(this.root, (&Consumer_tfn_Node{func(p0 Node) { builder.add(p0) }}).accept)
-	return tlistImm_(tc_Node, builder.buildErased())
+	return sliceImm_(tc_Node, builder.buildErased())
 }
 
 func (this *JSTypeExpression) getAllTypeNames() *TSet[string] {

@@ -95,11 +95,11 @@ func TypeMismatch_clinit() {
 }
 
 type TypeMismatch_Accumulator struct {
-	mismatches *TList[*TypeMismatch]
+	mismatches *[]*TypeMismatch
 }
 
 func (this *TypeMismatch_Accumulator) finit_TypeMismatch_Accumulator() {
-	this.mismatches = newTList_(tc_p_TypeMismatch)
+	this.mismatches = &[]*TypeMismatch{}
 }
 
 func (this *TypeMismatch_Accumulator) init_TypeMismatch_Accumulator() {
@@ -128,7 +128,7 @@ func (this *TypeMismatch_Accumulator) registerMismatch(location Node, found *JST
 		}
 	}
 	if TypeMismatch_Accumulator_bothAreNotTemplateTypes(found, required) {
-		this.mismatches.add(TypeMismatch_create(found, required, location))
+		*this.mismatches = append(*this.mismatches, TypeMismatch_create(found, required, location))
 	}
 	if found.isFunctionType() && required.isFunctionType() {
 		var fnTypeA *FunctionType = found.toMaybeFunctionType()
@@ -143,7 +143,7 @@ func (this *TypeMismatch_Accumulator) registerMismatch(location Node, found *JST
 }
 
 func (this *TypeMismatch_Accumulator) getMismatches() ImmutableCollectionOf[*TypeMismatch] {
-	return ImmutableList_copyOf(Collection(this.mismatches.asList())).up_ImmutableCollection()
+	return ImmutableList_copyOf(Collection(sliceViewP_(tc_p_TypeMismatch, this.mismatches))).up_ImmutableCollection()
 }
 
 func (this *TypeMismatch_Accumulator) registerIfMismatch(location Node, found *JSType, required *JSType) {
