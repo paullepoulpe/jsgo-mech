@@ -55,7 +55,7 @@ func (this *GraphColoring[N, E]) haveSameColor(first N, second N) bool {
 	var colorSecond *GraphColoring_Color = cast_[*GraphColoring_Color](Annotatable_getAnnotation(Annotatable(this.graph.getNode_Object(second))))
 	Preconditions_checkNotNull_T(colorFirst)
 	Preconditions_checkNotNull_T(colorSecond)
-	return colorFirst.equals(obj_(colorSecond))
+	return colorFirst.equals_GraphColoring_Color(colorSecond)
 }
 
 func (this *GraphColoring[N, E]) getGraph() AdjacencyGraph[N, E] {
@@ -86,17 +86,13 @@ func new_GraphColoring_Color(value int32) *GraphColoring_Color {
 }
 
 func (this *GraphColoring_Color) equals(other any) bool {
-	var color *GraphColoring_Color
-	_ = color
-	if !(func() bool {
-		v_ := other
-		p, ok := v_.(*GraphColoring_Color)
-		if !ok {
-			return false
-		}
-		color = p
-		return true
-	}()) {
+	p, ok := other.(*GraphColoring_Color)
+	return ok && this.equals_GraphColoring_Color(p)
+}
+
+// equals_GraphColoring_Color is equals of a GraphColoring_Color (post-flip step eqtyped).
+func (this *GraphColoring_Color) equals_GraphColoring_Color(color *GraphColoring_Color) bool {
+	if !(color != nil) {
 		return false
 	} else {
 		return (this.value_ == color.value_)
