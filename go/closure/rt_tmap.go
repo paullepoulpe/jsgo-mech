@@ -89,7 +89,7 @@ func tmapFrom_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from Map, imm 
 	m := newTMap_(kc, vc)
 	for it := from.entrySet().iterator(); it.hasNext(); {
 		e := it.next().(Map_Entry)
-		m.put(kc.unbox(e.getKey()), vc.unbox(e.getValue()))
+		m.Put(kc.unbox(e.getKey()), vc.unbox(e.getValue()))
 	}
 	m.imm = imm
 	if slot != nil {
@@ -212,19 +212,19 @@ func (m *TMap[K, V]) reindexH() {
 	}
 }
 
-func (m *TMap[K, V]) size() int32   { return m.live }
-func (m *TMap[K, V]) isEmpty() bool { return m.live == 0 }
+func (m *TMap[K, V]) Len() int32    { return m.live }
+func (m *TMap[K, V]) IsEmpty() bool { return m.live == 0 }
 
-func (m *TMap[K, V]) get(k K) V {
+func (m *TMap[K, V]) Get(k K) V {
 	if i := m.find(k); i >= 0 {
 		return m.vals[i]
 	}
 	return m.vc.null
 }
 
-func (m *TMap[K, V]) containsKey(k K) bool { return m.find(k) >= 0 }
+func (m *TMap[K, V]) Has(k K) bool { return m.find(k) >= 0 }
 
-func (m *TMap[K, V]) getOrDefault(k K, def V) V {
+func (m *TMap[K, V]) GetOr(k K, def V) V {
 	if i := m.find(k); i >= 0 {
 		return m.vals[i]
 	}
@@ -232,7 +232,7 @@ func (m *TMap[K, V]) getOrDefault(k K, def V) V {
 }
 
 // put stores v under k and returns the previous value (null if there was none).
-func (m *TMap[K, V]) put(k K, v V) V {
+func (m *TMap[K, V]) Put(k K, v V) V {
 	if m.imm {
 		throwUOE_()
 	}
@@ -281,17 +281,17 @@ func (m *TMap[K, V]) reindex() {
 	}
 }
 
-func (m *TMap[K, V]) putIfAbsent(k K, v V) V {
+func (m *TMap[K, V]) PutIfAbsent(k K, v V) V {
 	if i := m.find(k); i >= 0 {
 		if old := m.vals[i]; !m.vc.isNull(old) {
 			return old
 		}
 	}
-	return m.put(k, v)
+	return m.Put(k, v)
 }
 
 // remove deletes the mapping of k and returns its value (null if there was none).
-func (m *TMap[K, V]) remove(k K) V {
+func (m *TMap[K, V]) Delete(k K) V {
 	if m.imm {
 		throwUOE_()
 	}
@@ -355,7 +355,7 @@ func (m *TMap[K, V]) compact() {
 	}
 }
 
-func (m *TMap[K, V]) clear() {
+func (m *TMap[K, V]) Clear() {
 	if m.imm {
 		throwUOE_()
 	}
@@ -379,7 +379,7 @@ func (m *TMap[K, V]) computeIfAbsent(k K, f Function) V {
 		return m.vc.null
 	}
 	v := m.vc.unbox(r)
-	m.put(k, v)
+	m.Put(k, v)
 	return v
 }
 
@@ -394,7 +394,7 @@ func (m *TMap[K, V]) computeIfAbsent_f(k K, f func(any) any) V {
 		return m.vc.null
 	}
 	v := m.vc.unbox(r)
-	m.put(k, v)
+	m.Put(k, v)
 	return v
 }
 
@@ -408,7 +408,7 @@ func (m *TMap[K, V]) ComputeIfAbsent(k K, f func(K) V) V {
 	if m.vc.isNull(v) {
 		return m.vc.null
 	}
-	m.put(k, v)
+	m.Put(k, v)
 	return v
 }
 
@@ -463,7 +463,7 @@ func tsetFrom_[K comparable](kc *tconv_[K], from Collection, imm bool) *TSet[K] 
 	}
 	s := newTSet_(kc)
 	for _, x := range toSlice_(from) {
-		s.add(kc.unbox(x))
+		s.Add(kc.unbox(x))
 	}
 	s.imm = imm
 	if slot != nil {
@@ -472,20 +472,20 @@ func tsetFrom_[K comparable](kc *tconv_[K], from Collection, imm bool) *TSet[K] 
 	return s
 }
 
-func (s *TSet[K]) add(k K) bool {
+func (s *TSet[K]) Add(k K) bool {
 	if s.imm {
 		throwUOE_()
 	}
 	if s.find(k) >= 0 {
 		return false
 	}
-	s.put(k, struct{}{})
+	s.Put(k, struct{}{})
 	return true
 }
 
-func (s *TSet[K]) contains(k K) bool { return s.find(k) >= 0 }
+func (s *TSet[K]) Has(k K) bool { return s.find(k) >= 0 }
 
-func (s *TSet[K]) remove(k K) bool {
+func (s *TSet[K]) Delete(k K) bool {
 	if s.imm {
 		throwUOE_()
 	}
@@ -573,7 +573,7 @@ func (v *tmapView_[K, V]) boxedKV_() (keys, vals []any) {
 func (v *tmapView_[K, V]) self() any     { return v }
 func (v *tmapView_[K, V]) size() int32   { return v.m.live }
 func (v *tmapView_[K, V]) isEmpty() bool { return v.m.live == 0 }
-func (v *tmapView_[K, V]) clear()        { v.m.clear() }
+func (v *tmapView_[K, V]) clear()        { v.m.Clear() }
 func (v *tmapView_[K, V]) get(k any) any {
 	if kk, ok := v.m.kc.try(k); ok {
 		if i := v.m.find(kk); i >= 0 {
@@ -595,7 +595,7 @@ func (v *tmapView_[K, V]) containsValue(x any) bool {
 	return false
 }
 func (v *tmapView_[K, V]) put(k any, x any) any {
-	return v.m.vc.box(v.m.put(v.m.kc.unbox(k), v.m.vc.unbox(x)))
+	return v.m.vc.box(v.m.Put(v.m.kc.unbox(k), v.m.vc.unbox(x)))
 }
 func (v *tmapView_[K, V]) putAll(o Map) {
 	for it := o.entrySet().iterator(); it.hasNext(); {
@@ -722,7 +722,7 @@ type tcollBase_[K comparable, V any] struct {
 
 func (v *tcollBase_[K, V]) size() int32   { return v.m.live }
 func (v *tcollBase_[K, V]) isEmpty() bool { return v.m.live == 0 }
-func (v *tcollBase_[K, V]) clear()        { v.m.clear() }
+func (v *tcollBase_[K, V]) clear()        { v.m.Clear() }
 func (v *tcollBase_[K, V]) iterator() Iterator {
 	return &tmapIter_[K, V]{m: v.m, i: v.m.first(), out: v.out}
 }
@@ -749,7 +749,7 @@ func (v *tkeysView_[K, V]) base() *tcollBase_[K, V] {
 func (v *tkeysView_[K, V]) self() any                { return v }
 func (v *tkeysView_[K, V]) size() int32              { return v.m.live }
 func (v *tkeysView_[K, V]) isEmpty() bool            { return v.m.live == 0 }
-func (v *tkeysView_[K, V]) clear()                   { v.m.clear() }
+func (v *tkeysView_[K, V]) clear()                   { v.m.Clear() }
 func (v *tkeysView_[K, V]) iterator() Iterator       { return v.base().iterator() }
 func (v *tkeysView_[K, V]) toArray_0() []any         { return v.base().toArray_0() }
 func (v *tkeysView_[K, V]) toArray(a []any) []any    { return v.base().toArray(a) }
@@ -785,7 +785,7 @@ func (v *tvalsView_[K, V]) base() *tcollBase_[K, V] {
 func (v *tvalsView_[K, V]) self() any                { return v }
 func (v *tvalsView_[K, V]) size() int32              { return v.m.live }
 func (v *tvalsView_[K, V]) isEmpty() bool            { return v.m.live == 0 }
-func (v *tvalsView_[K, V]) clear()                   { v.m.clear() }
+func (v *tvalsView_[K, V]) clear()                   { v.m.Clear() }
 func (v *tvalsView_[K, V]) iterator() Iterator       { return v.base().iterator() }
 func (v *tvalsView_[K, V]) toArray_0() []any         { return v.base().toArray_0() }
 func (v *tvalsView_[K, V]) toArray(a []any) []any    { return v.base().toArray(a) }
@@ -823,7 +823,7 @@ func (v *tentriesView_[K, V]) base() *tcollBase_[K, V] {
 func (v *tentriesView_[K, V]) self() any                { return v }
 func (v *tentriesView_[K, V]) size() int32              { return v.m.live }
 func (v *tentriesView_[K, V]) isEmpty() bool            { return v.m.live == 0 }
-func (v *tentriesView_[K, V]) clear()                   { v.m.clear() }
+func (v *tentriesView_[K, V]) clear()                   { v.m.Clear() }
 func (v *tentriesView_[K, V]) iterator() Iterator       { return v.base().iterator() }
 func (v *tentriesView_[K, V]) toArray_0() []any         { return v.base().toArray_0() }
 func (v *tentriesView_[K, V]) toArray(a []any) []any    { return v.base().toArray(a) }
@@ -846,7 +846,7 @@ func (v *tentriesView_[K, V]) remove_Object(x any) bool {
 		return false
 	}
 	k, _ := v.m.kc.try(x.(Map_Entry).getKey())
-	v.m.remove(k)
+	v.m.Delete(k)
 	return true
 }
 func (v *tentriesView_[K, V]) containsAll(c Collection) bool { return containsAll_(v, c) }
@@ -865,7 +865,7 @@ func (v *tsetView_[K]) keys() *tkeysView_[K, struct{}] { return &tkeysView_[K, s
 func (v *tsetView_[K]) self() any                      { return v }
 func (v *tsetView_[K]) size() int32                    { return v.m.live }
 func (v *tsetView_[K]) isEmpty() bool                  { return v.m.live == 0 }
-func (v *tsetView_[K]) clear()                         { v.m.clear() }
+func (v *tsetView_[K]) clear()                         { v.m.Clear() }
 func (v *tsetView_[K]) iterator() Iterator             { return v.keys().iterator() }
 func (v *tsetView_[K]) toArray_0() []any               { return v.keys().toArray_0() }
 func (v *tsetView_[K]) toArray(a []any) []any          { return v.keys().toArray(a) }
@@ -884,7 +884,7 @@ func (v *tsetView_[K]) add(x any) bool {
 	if v.m.find(k) >= 0 {
 		return false
 	}
-	v.m.put(k, struct{}{})
+	v.m.Put(k, struct{}{})
 	return true
 }
 func (v *tsetView_[K]) addAll(c Collection) bool {
@@ -907,10 +907,10 @@ var (
 )
 
 // addAllT is addAll from another typed set.
-func (s *TSet[K]) addAllT(o *TSet[K]) bool {
+func (s *TSet[K]) AddAll(o *TSet[K]) bool {
 	changed := false
 	for i, k := range o.keys {
-		if !o.isDead(i) && s.add(k) {
+		if !o.isDead(i) && s.Add(k) {
 			changed = true
 		}
 	}
