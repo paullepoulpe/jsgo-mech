@@ -31,10 +31,6 @@ func (this VariableRenamingPolicy) toString() string {
 	return this.enum_().name_
 }
 
-func (this VariableRenamingPolicy) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this VariableRenamingPolicy) self() any {
 	if this == 0 {
 		return nil

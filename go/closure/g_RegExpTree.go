@@ -250,10 +250,6 @@ func (this RegExpTree_ParentheticalType) toString() string {
 	return this.enum_().name_
 }
 
-func (this RegExpTree_ParentheticalType) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this RegExpTree_ParentheticalType) self() any {
 	if this == 0 {
 		return nil

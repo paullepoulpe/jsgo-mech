@@ -104,10 +104,6 @@ func (this ColorGraphNode_PropAssociation) toString() string {
 	return this.enum_().name_
 }
 
-func (this ColorGraphNode_PropAssociation) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this ColorGraphNode_PropAssociation) self() any {
 	if this == 0 {
 		return nil

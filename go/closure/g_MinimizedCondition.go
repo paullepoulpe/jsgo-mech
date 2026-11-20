@@ -139,10 +139,6 @@ func (this MinimizedCondition_MinimizationStyle) toString() string {
 	return this.enum_().name_
 }
 
-func (this MinimizedCondition_MinimizationStyle) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this MinimizedCondition_MinimizationStyle) self() any {
 	if this == 0 {
 		return nil

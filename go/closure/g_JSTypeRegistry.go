@@ -1585,10 +1585,6 @@ func (this JSTypeRegistry_PropDefinitionKind) toString() string {
 	return this.enum_().name_
 }
 
-func (this JSTypeRegistry_PropDefinitionKind) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this JSTypeRegistry_PropDefinitionKind) self() any {
 	if this == 0 {
 		return nil

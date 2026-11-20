@@ -1619,10 +1619,6 @@ func (this JSType_HasPropertyKind) toString() string {
 	return this.enum_().name_
 }
 
-func (this JSType_HasPropertyKind) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this JSType_HasPropertyKind) self() any {
 	if this == 0 {
 		return nil
@@ -1695,10 +1691,6 @@ func (this JSType_SubtypingMode) ordinal() int32 {
 }
 
 func (this JSType_SubtypingMode) toString() string { return this.enum_().name_ }
-
-func (this JSType_SubtypingMode) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
 
 func (this JSType_SubtypingMode) self() any {
 	if this == 0 {
@@ -1787,10 +1779,6 @@ func (this JSType_MatchStatus) ordinal() int32 {
 
 func (this JSType_MatchStatus) toString() string { return this.enum_().name_ }
 
-func (this JSType_MatchStatus) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this JSType_MatchStatus) self() any {
 	if this == 0 {
 		return nil
@@ -1874,10 +1862,6 @@ func (this JSType_Nullability) ordinal() int32 {
 }
 
 func (this JSType_Nullability) toString() string { return this.enum_().name_ }
-
-func (this JSType_Nullability) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
 
 func (this JSType_Nullability) self() any {
 	if this == 0 {

@@ -252,10 +252,6 @@ func (this ClosureExportTypeClassifier_Kind) toString() string {
 	return this.enum_().name_
 }
 
-func (this ClosureExportTypeClassifier_Kind) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this ClosureExportTypeClassifier_Kind) self() any {
 	if this == 0 {
 		return nil
@@ -341,10 +337,6 @@ func (this ClosureExportTypeClassifier_TsExportType) ordinal() int32 {
 
 func (this ClosureExportTypeClassifier_TsExportType) toString() string {
 	return this.enum_().name_
-}
-
-func (this ClosureExportTypeClassifier_TsExportType) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this ClosureExportTypeClassifier_TsExportType) self() any {
