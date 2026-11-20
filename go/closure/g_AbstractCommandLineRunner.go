@@ -2477,13 +2477,13 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setChunkOutputPathPrefi
 
 func (this *AbstractCommandLineRunner_CommandLineConfig) setChunkOutputFiles(chunkOutputFiles []string) *AbstractCommandLineRunner_CommandLineConfig {
 	sliceClear_(this.chunkOutputFiles)
-	sliceAddAll_(tc_string, this.chunkOutputFiles, Collection(sliceView_(tc_string, chunkOutputFiles)))
+	sliceAddSlice_(this.chunkOutputFiles, chunkOutputFiles)
 	return this
 }
 
 func (this *AbstractCommandLineRunner_CommandLineConfig) setChunkConformanceFiles(chunkConformanceFiles []string) *AbstractCommandLineRunner_CommandLineConfig {
 	sliceClear_(this.chunkConformanceFiles)
-	sliceAddAll_(tc_string, this.chunkConformanceFiles, Collection(sliceView_(tc_string, chunkConformanceFiles)))
+	sliceAddSlice_(this.chunkConformanceFiles, chunkConformanceFiles)
 	return this
 }
 
@@ -2503,7 +2503,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setSourceMapFormat(form
 }
 
 func (this *AbstractCommandLineRunner_CommandLineConfig) setSourceMapLocationMappings(locationMappings *TList[SourceMap_LocationMapping]) *AbstractCommandLineRunner_CommandLineConfig {
-	this.sourceMapLocationMappings = immutableListCopyOf_(tc_SourceMap_LocationMapping, Collection(locationMappings.asList()))
+	this.sourceMapLocationMappings = tlistImmCopy_(tc_SourceMap_LocationMapping, locationMappings)
 	return this
 }
 
@@ -2514,7 +2514,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setApplyInputSourceMaps
 
 func (this *AbstractCommandLineRunner_CommandLineConfig) setWarningGuards(warningGuards *TList[*AbstractCommandLineRunner_FlagEntry[any]]) *AbstractCommandLineRunner_CommandLineConfig {
 	sliceClear_(this.warningGuards)
-	sliceAddAll_(tc_p_AbstractCommandLineRunner_FlagEntry, this.warningGuards, Collection(warningGuards.asList()))
+	sliceAddList_(this.warningGuards, warningGuards)
 	return this
 }
 

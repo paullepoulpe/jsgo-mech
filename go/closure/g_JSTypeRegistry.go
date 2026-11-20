@@ -1403,11 +1403,11 @@ func (this *JSTypeRegistry) parseTemplateArgs(nominalType *JSType, typeNode Node
 		templateArgs.insert(0, this.getNativeType(JSTypeNative_UNKNOWN_TYPE))
 	}
 	if nominalType.isNamedType() && !nominalType.isResolved() {
-		return immutableListCopyOf_(tc_p_JSType, Collection(templateArgs.asList()))
+		return tlistImmCopy_(tc_p_JSType, templateArgs)
 	}
 	var requiredTemplateArgCount int32 = nominalType.getTemplateParamCount()
 	if templateArgs.size() <= requiredTemplateArgCount {
-		return immutableListCopyOf_(tc_p_JSType, Collection(templateArgs.asList()))
+		return tlistImmCopy_(tc_p_JSType, templateArgs)
 	}
 	if !nominalType.isUnknownType() && !this.isNonNullableName(StaticScope(scope), typeNode.getString()) {
 		var firstExtraTemplateParam Node = typeNode.getFirstChild().getChildAtIndex(requiredTemplateArgCount)

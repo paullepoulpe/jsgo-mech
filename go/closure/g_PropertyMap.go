@@ -171,8 +171,8 @@ func (this *PropertyMap) getAllKeys() *PropertyMap_AllKeys {
 			ancestor.cachedKeySetCounter = maxAncestorCounter
 			ancestor.cachedKeySet = nil
 			ancestor.cachedKnownSymbolsKeySet = nil
-			keys.asSet().addAll(Collection(ancestor.getOwnPropertyNames()))
-			knownSymbolsKeys.asSet().addAll(Collection(ancestor.getOwnKnownSymbols()))
+			tsetAddAllOf_(keys, Collection(ancestor.getOwnPropertyNames()))
+			tsetAddAllOf_(knownSymbolsKeys, Collection(ancestor.getOwnKnownSymbols()))
 		}
 		this.cachedKeySet = ImmutableSortedSet_copyOfSorted(keys.asSorted())
 		this.cachedKnownSymbolsKeySet = immutableSetCopyOfT_(tch_p_KnownSymbolType, knownSymbolsKeys)
