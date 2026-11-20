@@ -17,7 +17,7 @@ type LogFile_I interface {
 	logObject_impl(any) *LogFile
 	logString_impl(string) *LogFile
 	log_2_impl(string, ...any) *LogFile
-	log_impl(Supplier) *LogFile
+	log_impl(func() string) *LogFile
 }
 
 func (this *LogFile) as_LogFile() *LogFile { return this }
@@ -49,7 +49,7 @@ func (this *LogFile) logString(p0 string) *LogFile {
 	return this.self_.logString_impl(p0)
 }
 
-func (this *LogFile) log(p0 Supplier) *LogFile {
+func (this *LogFile) log(p0 func() string) *LogFile {
 	return this.self_.log_impl(p0)
 }
 

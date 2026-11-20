@@ -46,8 +46,8 @@ func (this *WritingLogFile) logString_impl(value string) *LogFile {
 	return this.logInternal(value)
 }
 
-func (this *WritingLogFile) log_impl(value SupplierOf[string]) *LogFile {
-	return this.logInternal(str_(value.get()))
+func (this *WritingLogFile) log_impl(value func() string) *LogFile {
+	return this.logInternal(value())
 }
 
 func (this *WritingLogFile) log_2_impl(template string, values ...any) *LogFile {
@@ -114,7 +114,7 @@ func (this *WritingLogFile) logString(p0 string) *LogFile {
 }
 
 // log: an object that is exactly a WritingLogFile calls its log_impl directly (post-flip); others dispatch.
-func (this *WritingLogFile) log(p0 Supplier) *LogFile {
+func (this *WritingLogFile) log(p0 func() string) *LogFile {
 	if p, _ := this.self_.(*WritingLogFile); p == this {
 		return this.log_impl(p0)
 	}

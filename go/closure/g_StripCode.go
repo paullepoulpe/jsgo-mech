@@ -91,7 +91,7 @@ func (this *StripCode) process_2(externs Node, root Node) {
 	}
 	var decisionsLog *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(this), "decisions.log", []string{})
 	defer closeResource_(decisionsLog.self())
-	decisionsLog.log(Supplier(new_StripCode_StripCodeConfigRecord(this)))
+	decisionsLog.log(new_StripCode_StripCodeConfigRecord(this).getT_)
 	decisionsLog.logString("\n=== decisions ===\n")
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_StripCode_Strip(this, decisionsLog)))
 }
@@ -177,9 +177,9 @@ func (this *StripCode_Strip) shouldTraverse(t *NodeTraversal, n Node, parent Nod
 	switch n.ns_().token {
 	case tokOrd1_CALL, tokOrd1_NEW:
 		if this.isMethodOrCtorCallThatTriggersRemoval(t, n, parent) {
-			this.decisionsLog.log(&Supplier_tfn_string{func() string {
+			this.decisionsLog.log(func() string {
 				return "removing function call"
-			}})
+			})
 			this.replaceHighestNestedCallWithNull(t, n, parent)
 			return false
 		} else {
@@ -231,9 +231,9 @@ func (this *StripCode_Strip) removeVarDeclarationsByNameOrRvalue(t *NodeTraversa
 			if (this.isStripName(possibleStripName) || this.qualifiedNameBeginsWithStripType(nameNode)) || this.isCallWhoseReturnValueShouldBeStripped(nameNode.getFirstChild()) {
 				this.outer_.varsToRemove.add(name)
 				if JString_contains_s(name, "$") {
-					this.decisionsLog.log(&Supplier_tfn_string{func() string {
+					this.decisionsLog.log(func() string {
 						return (sstr_(name) + ": initialize with null (" + sstr_(possibleStripName) + ")")
-					}})
+					})
 					if nameNode.hasChildren() {
 						this.replaceWithNull(nameNode.getOnlyChild())
 					} else {
@@ -241,9 +241,9 @@ func (this *StripCode_Strip) removeVarDeclarationsByNameOrRvalue(t *NodeTraversa
 					}
 					t.reportCodeChange()
 				} else {
-					this.decisionsLog.log(&Supplier_tfn_string{func() string {
+					this.decisionsLog.log(func() string {
 						return (sstr_(name) + ": removing declaration")
-					}})
+					})
 					nameNode.detach()
 					NodeUtil_markFunctionsDeleted(nameNode, this.outer_.compiler_)
 				}
@@ -261,18 +261,18 @@ func (this *StripCode_Strip) maybeRemoveReferenceToRemovedVariable(t *NodeTraver
 	case tokOrd1_VAR, tokOrd1_CONST, tokOrd1_LET:
 	case tokOrd1_GETPROP, tokOrd1_GETELEM:
 		if (parent.getFirstChild() == n) && this.isReferenceToRemovedVar(n) {
-			this.decisionsLog.log(&Supplier_tfn_string{func() string {
+			this.decisionsLog.log(func() string {
 				return (sstr_(n.getString()) + ": removing getelem/getprop/call chain")
-			}})
+			})
 			this.replaceHighestNestedCallWithNull(t, parent, parent.getParent())
 		}
 	case tokOrd1_ASSIGN, tokOrd1_ASSIGN_BITOR, tokOrd1_ASSIGN_BITXOR, tokOrd1_ASSIGN_BITAND, tokOrd1_ASSIGN_LSH, tokOrd1_ASSIGN_RSH, tokOrd1_ASSIGN_URSH, tokOrd1_ASSIGN_ADD, tokOrd1_ASSIGN_SUB, tokOrd1_ASSIGN_MUL, tokOrd1_ASSIGN_DIV, tokOrd1_ASSIGN_MOD:
 		if this.isReferenceToRemovedVar(n) {
 			if parent.getFirstChild() == n {
 				var grandparent Node = parent.getParent()
-				this.decisionsLog.log(&Supplier_tfn_string{func() string {
+				this.decisionsLog.log(func() string {
 					return (sstr_(n.getQualifiedName()) + ": removing assignment to stripped var")
-				}})
+				})
 				if grandparent.isExprResult() {
 					var greatGrandparent Node = grandparent.getParent()
 					this.replaceWithEmpty(grandparent, greatGrandparent)
@@ -284,18 +284,18 @@ func (this *StripCode_Strip) maybeRemoveReferenceToRemovedVariable(t *NodeTraver
 					t.reportCodeChange()
 				}
 			} else {
-				this.decisionsLog.log(&Supplier_tfn_string{func() string {
+				this.decisionsLog.log(func() string {
 					return (sstr_(n.getQualifiedName()) + ": replacing rhs reference with null")
-				}})
+				})
 				this.replaceWithNull(n)
 				t.reportCodeChange()
 			}
 		}
 	case tokOrd1_NEW, tokOrd1_CALL:
 		if !n.isFirstChildOf(parent) && this.isReferenceToRemovedVar(n) {
-			this.decisionsLog.log(&Supplier_tfn_string{func() string {
+			this.decisionsLog.log(func() string {
 				return (sstr_(n.getQualifiedName()) + ": replacing parameter reference with null")
-			}})
+			})
 			this.replaceWithNull(n)
 			t.reportCodeChange()
 		}
@@ -305,17 +305,17 @@ func (this *StripCode_Strip) maybeRemoveReferenceToRemovedVariable(t *NodeTraver
 		var parentIsCallee bool = ((grandparent.isCall() || grandparent.isNew()) && parent.isFirstChildOf(grandparent))
 		var isSafeToRemove bool = (!isLastChild || !parentIsCallee)
 		if isSafeToRemove && this.isReferenceToRemovedVar(n) {
-			this.decisionsLog.log(&Supplier_tfn_string{func() string {
+			this.decisionsLog.log(func() string {
 				return (sstr_(n.getQualifiedName()) + ": replacing reference in comma expr with null")
-			}})
+			})
 			this.replaceWithNull(n)
 			t.reportCodeChange()
 		}
 	default:
 		if this.isReferenceToRemovedVar(n) {
-			this.decisionsLog.log(&Supplier_tfn_string{func() string {
+			this.decisionsLog.log(func() string {
 				return (sstr_(n.getQualifiedName()) + ": replacing reference with null")
-			}})
+			})
 			this.replaceWithNull(n)
 			t.reportCodeChange()
 		}
@@ -357,9 +357,9 @@ func (this *StripCode_Strip) maybeEliminateAssignmentByLvalueName(t *NodeTravers
 	var lvalue Node = n.getFirstChild()
 	if this.nameIncludesFieldNameToStrip(lvalue) || this.qualifiedNameBeginsWithStripType(lvalue) {
 		if parent.isExprResult() {
-			this.decisionsLog.log(&Supplier_tfn_string{func() string {
+			this.decisionsLog.log(func() string {
 				return (sstr_(lvalue.getString()) + ": removing assignment statement")
-			}})
+			})
 			var grandparent Node = parent.getParent()
 			if grandparent != 0 {
 				this.replaceWithEmpty(parent, grandparent)
@@ -381,9 +381,9 @@ func (this *StripCode_Strip) maybeEliminateExpressionByName(n Node) {
 	}
 	var expression Node = n.getFirstChild()
 	if this.nameIncludesFieldNameToStrip(expression) || this.qualifiedNameBeginsWithStripType(expression) {
-		this.decisionsLog.log(&Supplier_tfn_string{func() string {
+		this.decisionsLog.log(func() string {
 			return (sstr_(expression.getString()) + ": removing property declaration statement")
-		}})
+		})
 		this.replaceWithEmpty(n, parent)
 		this.outer_.compiler_.reportChangeToEnclosingScope(parent)
 	}
@@ -417,9 +417,9 @@ func (this *StripCode_Strip) maybeEliminateClassByNameOrExtends(t *NodeTraversal
 		if this.qualifiedNameBeginsWithStripTypeString(Optional_of[string](className).filterFn_(func(s string) bool {
 			return s != ""
 		})) {
-			this.decisionsLog.log(&Supplier_tfn_string{func() string {
+			this.decisionsLog.log(func() string {
 				return (sstr_(className) + ": removing class")
-			}})
+			})
 			if NodeUtil_isStatementParent(parent) {
 				this.replaceWithEmpty(classNode, parent)
 			} else {
@@ -582,40 +582,40 @@ func (this *StripCode_Strip) isStripName(name string) bool {
 
 func (this *StripCode_Strip) logNotAStripName(name Optional[string], reason string) {
 	if this.decisionsLog.isLogging() {
-		this.decisionsLog.log(&Supplier_tfn_string{func() string {
+		this.decisionsLog.log(func() string {
 			return (sstr_(name.orElse("null")) + "\tnot a strip name: " + sstr_(reason))
-		}})
+		})
 	}
 }
 
 func (this *StripCode_Strip) logStripName(name Optional[string], reason string) {
 	if this.decisionsLog.isLogging() {
-		this.decisionsLog.log(&Supplier_tfn_string{func() string {
+		this.decisionsLog.log(func() string {
 			return (sstr_(name.orElse("null")) + "\tstrip name: " + sstr_(reason))
-		}})
+		})
 	}
 }
 
 func (this *StripCode_Strip) logStripNameSupplier(name string, reasonSupplier func() string) {
 	if this.decisionsLog.isLogging() {
-		this.decisionsLog.log(&Supplier_tfn_string{func() string {
+		this.decisionsLog.log(func() string {
 			return (sstr_(name) + "\tstrip name: " + sstr_(reasonSupplier()))
-		}})
+		})
 	}
 }
 
 func (this *StripCode_Strip) replaceWithNull(n Node) {
-	this.decisionsLog.log(&Supplier_tfn_string{func() string {
+	this.decisionsLog.log(func() string {
 		return ("replace with null: " + sstr_(n.getLocation()))
-	}})
+	})
 	n.replaceWith(IR_nullNode())
 	NodeUtil_markFunctionsDeleted(n, this.outer_.compiler_)
 }
 
 func (this *StripCode_Strip) replaceWithEmpty(n Node, parent Node) {
-	this.decisionsLog.log(&Supplier_tfn_string{func() string {
+	this.decisionsLog.log(func() string {
 		return ("replace with empty: " + sstr_(n.getLocation()))
-	}})
+	})
 	NodeUtil_removeChild(parent, n)
 	NodeUtil_markFunctionsDeleted(n, this.outer_.compiler_)
 }

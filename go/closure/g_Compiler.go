@@ -267,17 +267,17 @@ func (this *Compiler) initOptions(options *CompilerOptions) {
 
 func (this *Compiler) printConfig() {
 	if this.isDebugLoggingEnabled() {
-		this.logToFile("externs.log", &Supplier_tfn_string{func() string { return Object_toString(this.externs.asList()) }})
-		this.logToFile("inputs.json", func() *Supplier_tfn_string {
+		this.logToFile("externs.log", func() string { return Object_toString(this.externs.asList()) })
+		this.logToFile("inputs.json", func() func() string {
 			recv_1 := Compiler_toPrettyJson(this.chunkGraph.toJson())
-			return &Supplier_tfn_string{func() string { return recv_1 }}
+			return func() string { return recv_1 }
 		}())
-		this.logToFile("options.log", &Supplier_tfn_string{func() string {
+		this.logToFile("options.log", func() string {
 			return this.options_.toString()
-		}})
-		this.logToFile("warningsGuard.log", &Supplier_tfn_string{func() string {
+		})
+		this.logToFile("warningsGuard.log", func() string {
 			return Object_toString(this.warningsGuard.self())
-		}})
+		})
 	} else {
 		var err *Output = Output_stderr()
 		err.println("==== Externs ====")
@@ -302,14 +302,14 @@ func Compiler_toPrettyJson(element *SimpleJsonValue) string {
 
 func (this *Compiler) maybeLogPrunedInputs() {
 	if this.isDebugLoggingEnabled() {
-		this.logToFile("inputs_pruned.json", func() *Supplier_tfn_string {
+		this.logToFile("inputs_pruned.json", func() func() string {
 			recv_1 := Compiler_toPrettyJson(this.chunkGraph.toJson())
-			return &Supplier_tfn_string{func() string { return recv_1 }}
+			return func() string { return recv_1 }
 		}())
 	}
 }
 
-func (this *Compiler) logToFile(logFileName string, logStringSupplier SupplierOf[string]) {
+func (this *Compiler) logToFile(logFileName string, logStringSupplier func() string) {
 	var log *LogFile = this.createOrReopenLog(Object_getClass(obj_(this)), logFileName, []string{})
 	defer closeResource_(log.self())
 	log.log(logStringSupplier)
