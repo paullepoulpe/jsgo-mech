@@ -307,3 +307,109 @@ func (l *TList[T]) addAllT(o *TList[T]) bool {
 	l.items = append(l.items, o.items...)
 	return len(o.items) > 0
 }
+
+// ---- An ArrayDeque as a typed list (post-flip tool colls -kind deque). A deque used only at
+// its head keeps its head at the end of items, so that push and pop are an append and a
+// truncation (a for-each loop walks it with eachRev); any other keeps the deque's order, its
+// tail at the end of items, and works at its head at index 0 (popFirst_...). The methods
+// below work at the end of items: the head of the first kind, the tail of the second. A deque
+// pushed at its head and used at its tail, or seen as an erased collection, stays erased.
+
+// push_ is push / addFirst at the head, add / addLast / offer at the tail.
+func (l *TList[T]) push_(v T) { l.items = append(l.items, v) }
+
+// pop_ is pop / removeFirst (removeLast at the tail): NoSuchElementException when empty.
+func (l *TList[T]) pop_() T {
+	n := len(l.items)
+	if n == 0 {
+		panic(new_NoSuchElementException_0().self())
+	}
+	v := l.items[n-1]
+	var z T
+	l.items[n-1] = z
+	l.items = l.items[:n-1]
+	return v
+}
+
+// peekTop_ is peek / peekFirst (peekLast at the tail): null when empty.
+func (l *TList[T]) peekTop_() T {
+	if len(l.items) == 0 {
+		return l.c.null
+	}
+	return l.items[len(l.items)-1]
+}
+
+// pollTop_ is poll / pollFirst (pollLast at the tail): null when empty.
+func (l *TList[T]) pollTop_() T {
+	if len(l.items) == 0 {
+		return l.c.null
+	}
+	return l.pop_()
+}
+
+// getTop_ is getFirst / element (getLast at the tail): NoSuchElementException when empty.
+func (l *TList[T]) getTop_() T {
+	if len(l.items) == 0 {
+		panic(new_NoSuchElementException_0().self())
+	}
+	return l.items[len(l.items)-1]
+}
+
+// eachRev is the cursor of a for-each loop over a deque used at its head: from the head (the
+// end of items) to the tail, the k-th step reading the k-th item from the end anew, as the
+// deque's loop reads the k-th item from its head.
+func (l *TList[T]) eachRev() sliceEachRev_[T] { return sliceEachRev_[T]{src: &l.items} }
+
+type sliceEachRev_[T any] struct {
+	src *[]T
+	k   int
+	v   T
+}
+
+func (e *sliceEachRev_[T]) next() bool {
+	if s := *e.src; e.k < len(s) {
+		e.v = s[len(s)-1-e.k]
+		e.k++
+		return true
+	}
+	return false
+}
+
+// The head of a deque used at its tail as well (a queue), at index 0. pollFirst_ and popFirst_
+// drop the first item as ArrayDeque does, by moving the start of items.
+
+// popFirst_ is pop / removeFirst / remove(): NoSuchElementException when empty.
+func (l *TList[T]) popFirst_() T {
+	if len(l.items) == 0 {
+		panic(new_NoSuchElementException_0().self())
+	}
+	v := l.items[0]
+	var z T
+	l.items[0] = z
+	l.items = l.items[1:]
+	return v
+}
+
+// pollFirst_ is poll / pollFirst: null when empty.
+func (l *TList[T]) pollFirst_() T {
+	if len(l.items) == 0 {
+		return l.c.null
+	}
+	return l.popFirst_()
+}
+
+// peekFirst_ is peek / peekFirst: null when empty.
+func (l *TList[T]) peekFirst_() T {
+	if len(l.items) == 0 {
+		return l.c.null
+	}
+	return l.items[0]
+}
+
+// getFirst_ is getFirst / element: NoSuchElementException when empty.
+func (l *TList[T]) getFirst_() T {
+	if len(l.items) == 0 {
+		panic(new_NoSuchElementException_0().self())
+	}
+	return l.items[0]
+}
