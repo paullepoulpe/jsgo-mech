@@ -3,11 +3,11 @@
 package closure
 
 type ReplacedStringsDecoder struct {
-	originalToNewNameMap *JTMap[string, string]
+	originalToNewNameMap *TMap[string, string]
 }
 
 func (this *ReplacedStringsDecoder) init_ReplacedStringsDecoder(variableMap *VariableMap) {
-	this.originalToNewNameMap = tmapImm_(jtc_string, jtc_string, variableMap.getOriginalNameToNewNameMap().asImm())
+	this.originalToNewNameMap = tmapImm_(tc_string, tc_string, variableMap.getOriginalNameToNewNameMap().asImm())
 }
 
 func new_ReplacedStringsDecoder(variableMap *VariableMap) *ReplacedStringsDecoder {
@@ -18,7 +18,7 @@ func new_ReplacedStringsDecoder(variableMap *VariableMap) *ReplacedStringsDecode
 
 func (this *ReplacedStringsDecoder) decode(encodedStr string) string {
 	var suppliedBits []string = ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER_PATTERN.split_String_int(encodedStr, -1)
-	var originalStr Optional[string] = Optional_ofNullable[string](this.originalToNewNameMap.get(suppliedBits[0]))
+	var originalStr Optional[string] = Optional_ofNullable[string](this.originalToNewNameMap.Get(suppliedBits[0]))
 	if originalStr.isEmpty() {
 		return encodedStr
 	}
@@ -55,6 +55,6 @@ func ReplacedStringsDecoder_clinit() {
 	}
 	ReplacedStringsDecoder_clinit_done = true
 	ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER_PATTERN = Pattern_compile(ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER)
-	ReplacedStringsDecoder_NULL_DECODER = new_ReplacedStringsDecoder(VariableMap_fromMap(jtmapEmptyImm_(jtc_string, jtc_string)))
+	ReplacedStringsDecoder_NULL_DECODER = new_ReplacedStringsDecoder(VariableMap_fromMap(tmapEmptyImm_(tc_string, tc_string)))
 
 }

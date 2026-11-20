@@ -1,0 +1,215 @@
+diff --git a/go/closure/rt_native.go b/go/closure/rt_native.go
+index 59a7c1aa..cafca87a 100644
+--- a/go/closure/rt_native.go
++++ b/go/closure/rt_native.go
+@@ -356,3 +356,96 @@ func sliceObj_[T any](s []T) any {
+ 	}
+ 	return true
+ }
++
++// sliceNext_ is next() of ArrayList's iterator over a list that became slice s, with *i its
++// cursor: the element at the cursor, which then moves on; NoSuchElementException at the end.
++func sliceNext_[T any](s []T, i *int) T {
++	if *i >= len(s) {
++		panic(new_NoSuchElementException_0().self())
++	}
++	v := s[*i]
++	*i++
++	return v
++}
++
++// Deques (colls -kind deque) whose typed list became a slice, at the end of the slice (the
++// head of a deque used only at its head, else the tail; see rt_tlist.go).
++
++// slicePop_ is pop / removeFirst (removeLast at the tail): NoSuchElementException when empty.
++func slicePop_[T any](c *tconv_[T], s *[]T) T {
++	n := len(*s)
++	if n == 0 {
++		panic(new_NoSuchElementException_0().self())
++	}
++	v := (*s)[n-1]
++	var z T
++	(*s)[n-1] = z
++	*s = (*s)[:n-1]
++	return v
++}
++
++// slicePollTop_ is poll / pollFirst: null when empty.
++func slicePollTop_[T any](c *tconv_[T], s *[]T) T {
++	if len(*s) == 0 {
++		return c.null
++	}
++	return slicePop_(c, s)
++}
++
++// slicePeekTop_ is peek / peekFirst: null when empty.
++func slicePeekTop_[T any](c *tconv_[T], s []T) T {
++	if len(s) == 0 {
++		return c.null
++	}
++	return s[len(s)-1]
++}
++
++// sliceTop_ is getFirst / element: NoSuchElementException when empty.
++func sliceTop_[T any](c *tconv_[T], s []T) T {
++	if len(s) == 0 {
++		panic(new_NoSuchElementException_0().self())
++	}
++	return s[len(s)-1]
++}
++
++// eachRevOf_ is TList.eachRev over a slice: the k-th step reads the k-th item from the end.
++func eachRevOf_[T any](s *[]T) sliceEachRev_[T] { return sliceEachRev_[T]{src: s} }
++
++// The head of a deque used at its tail as well (a queue) is index 0; the first item is dropped
++// by moving the start of the slice, as ArrayDeque does.
++
++// slicePopFirst_ is pop / removeFirst / remove(): NoSuchElementException when empty.
++func slicePopFirst_[T any](c *tconv_[T], s *[]T) T {
++	if len(*s) == 0 {
++		panic(new_NoSuchElementException_0().self())
++	}
++	v := (*s)[0]
++	var z T
++	(*s)[0] = z
++	*s = (*s)[1:]
++	return v
++}
++
++// slicePollFirst_ is poll / pollFirst: null when empty.
++func slicePollFirst_[T any](c *tconv_[T], s *[]T) T {
++	if len(*s) == 0 {
++		return c.null
++	}
++	return slicePopFirst_(c, s)
++}
++
++// slicePeekFirst_ is peek / peekFirst: null when empty.
++func slicePeekFirst_[T any](c *tconv_[T], s []T) T {
++	if len(s) == 0 {
++		return c.null
++	}
++	return s[0]
++}
++
++// sliceFirst_ is getFirst / element: NoSuchElementException when empty.
++func sliceFirst_[T any](c *tconv_[T], s []T) T {
++	if len(s) == 0 {
++		panic(new_NoSuchElementException_0().self())
++	}
++	return s[0]
++}
+diff --git a/go/closure/rt_tlist.go b/go/closure/rt_tlist.go
+index 22871ac1..fec9f466 100644
+--- a/go/closure/rt_tlist.go
++++ b/go/closure/rt_tlist.go
+@@ -307,3 +307,109 @@ func (l *TList[T]) addAllT(o *TList[T]) bool {
+ 	l.items = append(l.items, o.items...)
+ 	return len(o.items) > 0
+ }
++
++// ---- An ArrayDeque as a typed list (post-flip tool colls -kind deque). A deque used only at
++// its head keeps its head at the end of items, so that push and pop are an append and a
++// truncation (a for-each loop walks it with eachRev); any other keeps the deque's order, its
++// tail at the end of items, and works at its head at index 0 (popFirst_...). The methods
++// below work at the end of items: the head of the first kind, the tail of the second. A deque
++// pushed at its head and used at its tail, or seen as an erased collection, stays erased.
++
++// push_ is push / addFirst at the head, add / addLast / offer at the tail.
++func (l *TList[T]) push_(v T) { l.items = append(l.items, v) }
++
++// pop_ is pop / removeFirst (removeLast at the tail): NoSuchElementException when empty.
++func (l *TList[T]) pop_() T {
++	n := len(l.items)
++	if n == 0 {
++		panic(new_NoSuchElementException_0().self())
++	}
++	v := l.items[n-1]
++	var z T
++	l.items[n-1] = z
++	l.items = l.items[:n-1]
++	return v
++}
++
++// peekTop_ is peek / peekFirst (peekLast at the tail): null when empty.
++func (l *TList[T]) peekTop_() T {
++	if len(l.items) == 0 {
++		return l.c.null
++	}
++	return l.items[len(l.items)-1]
++}
++
++// pollTop_ is poll / pollFirst (pollLast at the tail): null when empty.
++func (l *TList[T]) pollTop_() T {
++	if len(l.items) == 0 {
++		return l.c.null
++	}
++	return l.pop_()
++}
++
++// getTop_ is getFirst / element (getLast at the tail): NoSuchElementException when empty.
++func (l *TList[T]) getTop_() T {
++	if len(l.items) == 0 {
++		panic(new_NoSuchElementException_0().self())
++	}
++	return l.items[len(l.items)-1]
++}
++
++// eachRev is the cursor of a for-each loop over a deque used at its head: from the head (the
++// end of items) to the tail, the k-th step reading the k-th item from the end anew, as the
++// deque's loop reads the k-th item from its head.
++func (l *TList[T]) eachRev() sliceEachRev_[T] { return sliceEachRev_[T]{src: &l.items} }
++
++type sliceEachRev_[T any] struct {
++	src *[]T
++	k   int
++	v   T
++}
++
++func (e *sliceEachRev_[T]) next() bool {
++	if s := *e.src; e.k < len(s) {
++		e.v = s[len(s)-1-e.k]
++		e.k++
++		return true
++	}
++	return false
++}
++
++// The head of a deque used at its tail as well (a queue), at index 0. pollFirst_ and popFirst_
++// drop the first item as ArrayDeque does, by moving the start of items.
++
++// popFirst_ is pop / removeFirst / remove(): NoSuchElementException when empty.
++func (l *TList[T]) popFirst_() T {
++	if len(l.items) == 0 {
++		panic(new_NoSuchElementException_0().self())
++	}
++	v := l.items[0]
++	var z T
++	l.items[0] = z
++	l.items = l.items[1:]
++	return v
++}
++
++// pollFirst_ is poll / pollFirst: null when empty.
++func (l *TList[T]) pollFirst_() T {
++	if len(l.items) == 0 {
++		return l.c.null
++	}
++	return l.popFirst_()
++}
++
++// peekFirst_ is peek / peekFirst: null when empty.
++func (l *TList[T]) peekFirst_() T {
++	if len(l.items) == 0 {
++		return l.c.null
++	}
++	return l.items[0]
++}
++
++// getFirst_ is getFirst / element: NoSuchElementException when empty.
++func (l *TList[T]) getFirst_() T {
++	if len(l.items) == 0 {
++		panic(new_NoSuchElementException_0().self())
++	}
++	return l.items[0]
++}

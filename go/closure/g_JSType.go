@@ -112,11 +112,11 @@ type JSType_I interface {
 	getOwnerFunction_impl() *FunctionType
 	getPropertyMap_impl() *PropertyMap
 	getPropertyTypeKey_impl(Property_Key) *JSType
-	getPropertyTypeMap_impl() *JTMap[string, *JSType]
+	getPropertyTypeMap_impl() *TMap[string, *JSType]
 	getReferenceName_impl() Optional[string]
 	getSlot_impl(Property_Key) *Property
 	getSuperClassConstructor_impl() *FunctionType
-	getTemplateTypes_impl() *JTList[*JSType]
+	getTemplateTypes_impl() *TList[*JSType]
 	getTypeOfThis_impl() *JSType
 	hasCachedValues_impl() bool
 	setJSDocInfo_impl(*JSDocInfo)
@@ -162,7 +162,7 @@ func (this *JSType) getPropertyMap_impl() *PropertyMap {
 func (this *JSType) getPropertyTypeKey_impl(Property_Key) *JSType {
 	panic("getPropertyTypeKey_impl called on a " + goTypeName_(this.self_))
 }
-func (this *JSType) getPropertyTypeMap_impl() *JTMap[string, *JSType] {
+func (this *JSType) getPropertyTypeMap_impl() *TMap[string, *JSType] {
 	panic("getPropertyTypeMap_impl called on a " + goTypeName_(this.self_))
 }
 func (this *JSType) getReferenceName_impl() Optional[string] {
@@ -174,7 +174,7 @@ func (this *JSType) getSlot_impl(Property_Key) *Property {
 func (this *JSType) getSuperClassConstructor_impl() *FunctionType {
 	panic("getSuperClassConstructor_impl called on a " + goTypeName_(this.self_))
 }
-func (this *JSType) getTemplateTypes_impl() *JTList[*JSType] {
+func (this *JSType) getTemplateTypes_impl() *TList[*JSType] {
 	panic("getTemplateTypes_impl called on a " + goTypeName_(this.self_))
 }
 func (this *JSType) getTypeOfThis_impl() *JSType {
@@ -602,9 +602,9 @@ func (this *JSType) getTemplateTypeMap_impl() *TemplateTypeMap {
 	return this.templateTypeMap
 }
 
-func (this *JSType) getTypeParameters() *JTList[*TemplateType] {
+func (this *JSType) getTypeParameters() *TList[*TemplateType] {
 	var map_ *TemplateTypeMap = this.getTemplateTypeMap()
-	return jtlistImm_(jtc_p_TemplateType, cast_[*ErasedImmutableList](map_.getTemplateKeys().asImm().subList((map_.size()-this.getTemplateParamCount()), map_.size())))
+	return tlistImm_(tc_p_TemplateType, cast_[*ErasedImmutableList](map_.getTemplateKeys().asImm().subList((map_.size()-this.getTemplateParamCount()), map_.size())))
 }
 
 func (this *JSType) getTemplateParamCount_impl() int32 {
@@ -614,7 +614,7 @@ func (this *JSType) getTemplateParamCount_impl() int32 {
 func (this *JSType) mergeSupertypeTemplateTypes(other *ObjectType) {
 	this.maybeLoosenTypecheckingDueToForwardReferencedSupertype(other.up_JSType())
 	if other.isRawTypeOfTemplatizedType() {
-		other = this.registry.createTemplatizedTypeImmutableList(other, jtlistEmptyImm_(jtc_p_JSType)).up_ObjectType()
+		other = this.registry.createTemplatizedTypeImmutableList(other, tlistEmptyImm_(tc_p_JSType)).up_ObjectType()
 	}
 	this.templateTypeMap = other.getTemplateTypeMap().copyWithExtension(this.getTemplateTypeMap())
 }

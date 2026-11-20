@@ -1,0 +1,203 @@
+diff --git a/go/closure/rt_coll_test.go b/go/closure/rt_coll_test.go
+index 29869b4e..a3855eae 100644
+--- a/go/closure/rt_coll_test.go
++++ b/go/closure/rt_coll_test.go
+@@ -444,36 +444,69 @@ func TestTMapHashedKeysAgainstModel(t *testing.T) {
+ 	}
+ }
+ 
+-// A node handle has no equals or hashCode of its own: the tables find it by value (findNode).
+-func TestNodeKeyIsPlain(t *testing.T) {
+-	if _, ok := any(Node(1)).(hashed_); ok {
+-		t.Fatal("Node implements hashed_; htable_.findNode would not call its equals")
+-	}
+-}
+-
+-// TestTreeMapStringKeys drives a naturally ordered TreeMap with string keys through puts,
+-// removals and clears, and checks that search_s (which reads skeys) agrees with search.
+-func TestTreeMapStringKeys(t *testing.T) {
+-	r := rand.New(rand.NewSource(7))
+-	m := new_TreeMap()
+-	for step := 0; step < 20000; step++ {
+-		k := "p" + istr_(int64(r.Intn(60)))
+-		if r.Intn(9) == 0 {
+-			k = "é" + k
+-		}
+-		switch op := r.Intn(20); {
+-		case op < 11:
+-			m.put(k, int32(step))
+-		case op < 19:
+-			m.remove(k)
+-		default:
+-			m.clear()
++// TestTSetWorkQueueAgainstModel uses a typed set as FixedPointGraphTraversal uses its work set
++// (take the first, remove it, add others at the end), mixed with removals elsewhere, iterator
++// removals and clears, and compares getFirst, iteration order and the for-each cursor with the
++// model throughout, across compactions (the first-live hint).
++func TestTSetWorkQueueAgainstModel(t *testing.T) {
++	kc := &tconv_[int32]{box: func(v int32) any { return v }, unbox: func(v any) int32 { return v.(int32) }}
++	for seed := int64(1); seed <= 30; seed++ {
++		rnd := rand.New(rand.NewSource(seed))
++		span := []int{5, 30, 300}[seed%3]
++		s, ref := newTSet_(kc), &refMap_{}
++		check := func(what string) {
++			t.Helper()
++			var ks, its []any
++			for e := s.each(); e.next(); {
++				ks = append(ks, e.v)
++			}
++			for it := s.asSet().iterator(); it.hasNext(); {
++				its = append(its, it.next())
++			}
++			if int(s.size()) != len(ref.keys) || !sameSlice_(ks, ref.keys) || !sameSlice_(its, ref.keys) {
++				t.Fatalf("seed %d after %s: got %v / %v, want %v", seed, what, ks, its, ref.keys)
++			}
+ 		}
+-		q := "p" + istr_(int64(r.Intn(70)))
+-		i, ok := m.search(q)
+-		j, ok2 := m.search_s(q)
+-		if i != j || ok != ok2 || len(m.skeys) != len(m.entries) {
+-			t.Fatalf("step %d: search %d %v, search_s %d %v, %d skeys for %d entries", step, i, ok, j, ok2, len(m.skeys), len(m.entries))
++		for step := 0; step < 2000; step++ {
++			k := int32(rnd.Intn(span))
++			switch op := rnd.Intn(20); {
++			case op < 8:
++				if s.add(k) != (ref.find(k) < 0) {
++					t.Fatalf("seed %d: add(%d) disagrees", seed, k)
++				}
++				ref.put(k, nil)
++			case op < 15:
++				if len(ref.keys) == 0 {
++					continue
++				}
++				f := SequencedCollection_getFirst(icast_SequencedCollection(any(s.asSet())))
++				if !objequals_(f, ref.keys[0]) {
++					t.Fatalf("seed %d: getFirst = %v, want %v", seed, f, ref.keys[0])
++				}
++				s.remove(f.(int32))
++				ref.removeAt(0)
++			case op < 17:
++				if s.remove(k) != (ref.find(k) >= 0) {
++					t.Fatalf("seed %d: remove(%d) disagrees", seed, k)
++				}
++				if i := ref.find(k); i >= 0 {
++					ref.removeAt(i)
++				}
++			case op < 19:
++				for it := s.asSet().iterator(); it.hasNext(); {
++					if x := it.next(); objequals_(x, k) {
++						Iterator_remove(it)
++						ref.removeAt(ref.find(k))
++						break
++					}
++				}
++			default:
++				if rnd.Intn(10) == 0 {
++					s.clear()
++					ref.keys, ref.vals = nil, nil
++				}
++			}
++			check("step")
+ 		}
+ 	}
+ }
+diff --git a/go/closure/rt_tmap.go b/go/closure/rt_tmap.go
+index c5de0306..2bbda90e 100644
+--- a/go/closure/rt_tmap.go
++++ b/go/closure/rt_tmap.go
+@@ -29,6 +29,7 @@ type tmapExt_[K comparable, V any] struct {
+ 	dead  []bool // beside keys once something was removed; else nil
+ 	idx   map[K]int32
+ 	ndead int32
++	head  int32 // every position below head is a removed entry (with dead; a hint for first)
+ 	view  *tmapView_[K, V]
+ 	sview *tsetView_[K]
+ 	// Keys compared by equals (kc.hash != nil): each key's hash code, beside keys, and once the
+@@ -48,6 +49,25 @@ func (m *TMap[K, V]) ext() *tmapExt_[K, V] {
+ // isDead reports whether position i holds a removed entry.
+ func (m *TMap[K, V]) isDead(i int) bool { return m.x != nil && m.x.dead != nil && m.x.dead[i] }
+ 
++// first is the position iteration starts at: every position below it is a removed entry.
++// LinkedHashMap unlinks a removed entry, so its iteration starts at the first live one at once;
++// here the removed entries stay in place until the table compacts, and a map used as a work
++// queue (remove the first, add at the end) would skip a growing run of them on every
++// getFirst. Entries are only appended and a removed one never comes back, so the hint stays
++// right until keys is rebuilt (compact, clear), which drops dead and resets it.
++func (m *TMap[K, V]) first() int {
++	x := m.x
++	if x == nil || x.dead == nil {
++		return 0
++	}
++	i := int(x.head)
++	for i < len(m.keys) && x.dead[i] {
++		i++
++	}
++	x.head = int32(i)
++	return i
++}
++
+ func newTMap_[K comparable, V any](kc *tconv_[K], vc *tconv_[V]) *TMap[K, V] {
+ 	return &TMap[K, V]{kc: kc, vc: vc}
+ }
+@@ -292,6 +312,7 @@ func (m *TMap[K, V]) removeAt(i int32) V {
+ 	}
+ 	if x.dead == nil {
+ 		x.dead = make([]bool, len(m.keys), cap(m.keys))
++		x.head = 0
+ 	}
+ 	x.dead[i] = true
+ 	m.keys[i] = zk
+@@ -325,7 +346,7 @@ func (m *TMap[K, V]) compact() {
+ 		m.keys[i], m.vals[i] = zk, zv
+ 	}
+ 	m.keys, m.vals = m.keys[:j], m.vals[:j]
+-	m.x.dead, m.x.ndead = nil, 0
++	m.x.dead, m.x.ndead, m.x.head = nil, 0, 0
+ 	if m.x.idx != nil {
+ 		m.reindex()
+ 	}
+@@ -343,7 +364,7 @@ func (m *TMap[K, V]) clear() {
+ 	m.keys, m.vals = m.keys[:0], m.vals[:0]
+ 	m.live = 0
+ 	if m.x != nil {
+-		m.x.dead, m.x.idx, m.x.ndead = nil, nil, 0
++		m.x.dead, m.x.idx, m.x.ndead, m.x.head = nil, nil, 0, 0
+ 		m.x.hs, m.x.slots = m.x.hs[:0], nil
+ 	}
+ }
+@@ -378,7 +399,7 @@ func (m *TMap[K, V]) computeIfAbsent_f(k K, f func(any) any) V {
+ }
+ 
+ // each is the cursor of a for-each loop over the entries (keys, values) of the map.
+-func (m *TMap[K, V]) each() tmapEach_[K, V] { return tmapEach_[K, V]{m: m} }
++func (m *TMap[K, V]) each() tmapEach_[K, V] { return tmapEach_[K, V]{m: m, i: m.first()} }
+ 
+ type tmapEach_[K comparable, V any] struct {
+ 	m *TMap[K, V]
+@@ -462,7 +483,7 @@ func (s *TSet[K]) remove(k K) bool {
+ 	return true
+ }
+ 
+-func (s *TSet[K]) each() tsetEach_[K] { return tsetEach_[K]{m: &s.TMap} }
++func (s *TSet[K]) each() tsetEach_[K] { return tsetEach_[K]{m: &s.TMap, i: s.first()} }
+ 
+ type tsetEach_[K comparable] struct {
+ 	m *TMap[K, struct{}]
+@@ -602,7 +623,7 @@ func (it *tmapIter_[K, V]) remove() {
+ 	}
+ 	// Live positions before the removed one: where the next element is if the table compacts.
+ 	live := 0
+-	for j := 0; j < int(it.last); j++ {
++	for j := it.m.first(); j < int(it.last); j++ {
+ 		if !it.m.isDead(j) {
+ 			live++
+ 		}
+@@ -655,7 +676,7 @@ func (v *tcollBase_[K, V]) size() int32   { return v.m.live }
+ func (v *tcollBase_[K, V]) isEmpty() bool { return v.m.live == 0 }
+ func (v *tcollBase_[K, V]) clear()        { v.m.clear() }
+ func (v *tcollBase_[K, V]) iterator() Iterator {
+-	return &tmapIter_[K, V]{m: v.m, out: v.out}
++	return &tmapIter_[K, V]{m: v.m, i: v.m.first(), out: v.out}
+ }
+ func (v *tcollBase_[K, V]) toArray_0() []any {
+ 	out := make([]any, 0, v.m.live)

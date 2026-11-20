@@ -1,0 +1,133 @@
+diff --git a/go/closure/rt_guava.go b/go/closure/rt_guava.go
+index c2e8ad03..11eb43d7 100644
+--- a/go/closure/rt_guava.go
++++ b/go/closure/rt_guava.go
+@@ -115,6 +115,7 @@ type ImmutableCollection struct {
+ 	all_   []any // multiset: the elements with repetition
+ 	hash_  int32 // plain set: the hash code, once computed (Guava computes it at construction)
+ 	hashed bool
++	typed_ immTyped_ // its typed copy (post-flip typed collections), made on first use
+ 	byOrd  []any // immutable enum set: the element with ordinal i at i (nil where absent)
+ }
+ 
+diff --git a/go/closure/rt_guava_map.go b/go/closure/rt_guava_map.go
+index a0075180..a9b971e6 100644
+--- a/go/closure/rt_guava_map.go
++++ b/go/closure/rt_guava_map.go
+@@ -20,6 +20,7 @@ type ImmutableMap struct {
+ 	cmp      Comparator // sorted map (nil: natural ordering)
+ 	inv      *ImmutableMap
+ 	keySet_  *ImmutableCollection
++	typed_   immTyped_ // its typed copy (post-flip typed collections), made on first use
+ 	values_  *ImmutableCollection
+ 	entries_ *ImmutableCollection
+ }
+diff --git a/go/closure/rt_tlist.go b/go/closure/rt_tlist.go
+index 2b6da915..192a91b3 100644
+--- a/go/closure/rt_tlist.go
++++ b/go/closure/rt_tlist.go
+@@ -34,24 +34,35 @@ func tlistImm_[T any](c *tconv_[T], from Collection) *TList[T] {
+ 	if isNil_(from) {
+ 		return nil
+ 	}
+-	k := immKey_{from, c}
+-	if v, ok := immCache_[k]; ok {
+-		return v.(*TList[T])
++	slot := immSlot_(from)
++	if slot != nil && slot.conv == any(c) {
++		return slot.v.(*TList[T])
+ 	}
+ 	l := tlistFrom_(c, from)
+ 	l.imm = true
+-	immCache_[k] = l
++	if slot != nil {
++		*slot = immTyped_{c, l}
++	}
+ 	return l
+ }
+ 
+-// immCache_ holds the typed copy of each immutable collection that was converted: an
++// immTyped_ is the typed copy of an immutable collection, kept on the collection itself: an
+ // ImmutableList/Set/Map never changes, so a long-lived one (a constant passed on every call)
+ // is copied once, and the same object comes back each time, as the erased code shared it.
+-var immCache_ = map[immKey_]any{}
++type immTyped_ struct {
++	conv any // the element conversion of the copy (its element type)
++	v    any
++}
+ 
+-type immKey_ struct {
+-	from any // the erased immutable collection
+-	conv any // the element conversion (the typed copy's element type)
++// immSlot_ is where from keeps its typed copy, or nil if from is not a runtime immutable collection.
++func immSlot_(from any) *immTyped_ {
++	switch x := from.(type) {
++	case *ImmutableCollection:
++		return &x.typed_
++	case *ImmutableMap:
++		return &x.typed_
++	}
++	return nil
+ }
+ 
+ // tlistFrom_ is new ArrayList<>(from) as a typed list.
+diff --git a/go/closure/rt_tmap.go b/go/closure/rt_tmap.go
+index b0c0257a..c5871d05 100644
+--- a/go/closure/rt_tmap.go
++++ b/go/closure/rt_tmap.go
+@@ -50,10 +50,13 @@ func tmapFrom_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from Map, imm
+ 	if imm && isNil_(from) {
+ 		return nil
+ 	}
+-	k := immKey_{from, [2]any{kc, vc}}
++	var slot *immTyped_
+ 	if imm {
+-		if v, ok := immCache_[k]; ok {
+-			return v.(*TMap[K, V])
++		slot = immSlot_(from)
++		if slot != nil && slot.conv == any(vc) && slot.v != nil {
++			if m, ok := slot.v.(*TMap[K, V]); ok && m.kc == kc {
++				return m
++			}
+ 		}
+ 	}
+ 	m := newTMap_(kc, vc)
+@@ -62,8 +65,8 @@ func tmapFrom_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from Map, imm
+ 		m.put(kc.unbox(e.getKey()), vc.unbox(e.getValue()))
+ 	}
+ 	m.imm = imm
+-	if imm {
+-		immCache_[k] = m
++	if slot != nil {
++		*slot = immTyped_{vc, m}
+ 	}
+ 	return m
+ }
+@@ -283,10 +286,13 @@ func tsetFrom_[K comparable](kc *tconv_[K], from Collection, imm bool) *TSet[K]
+ 	if imm && isNil_(from) {
+ 		return nil
+ 	}
+-	k := immKey_{from, kc}
++	var slot *immTyped_
+ 	if imm {
+-		if v, ok := immCache_[k]; ok {
+-			return v.(*TSet[K])
++		slot = immSlot_(from)
++		if slot != nil && slot.conv == any(kc) {
++			if s, ok := slot.v.(*TSet[K]); ok {
++				return s
++			}
+ 		}
+ 	}
+ 	s := newTSet_(kc)
+@@ -294,8 +300,8 @@ func tsetFrom_[K comparable](kc *tconv_[K], from Collection, imm bool) *TSet[K]
+ 		s.add(kc.unbox(x))
+ 	}
+ 	s.imm = imm
+-	if imm {
+-		immCache_[k] = s
++	if slot != nil {
++		*slot = immTyped_{kc, s}
+ 	}
+ 	return s
+ }

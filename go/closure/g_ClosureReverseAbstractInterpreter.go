@@ -6,7 +6,7 @@ type ClosureReverseAbstractInterpreter struct {
 	ChainableReverseAbstractInterpreter
 	restrictToObjectVisitor    Visitor
 	restrictToNotObjectVisitor Visitor
-	restricters                *JTMap[string, Function_base]
+	restricters                *TMap[string, Function_base]
 }
 
 func (this *ClosureReverseAbstractInterpreter) up_ChainableReverseAbstractInterpreter() *ChainableReverseAbstractInterpreter {
@@ -24,7 +24,7 @@ func (this *ClosureReverseAbstractInterpreter) finit_ClosureReverseAbstractInter
 func (this *ClosureReverseAbstractInterpreter) init_ClosureReverseAbstractInterpreter(typeRegistry *JSTypeRegistry) {
 	this.ChainableReverseAbstractInterpreter.init_ChainableReverseAbstractInterpreter(typeRegistry)
 	this.finit_ClosureReverseAbstractInterpreter()
-	this.restricters = immutableMapOf1_[string, Function_base](jtc_string, tc_Function_base, "isObject", &Function_base_tfn_ClosureReverseAbstractInterpreter_TypeRestriction_any{func(p *ClosureReverseAbstractInterpreter_TypeRestriction) any {
+	this.restricters = immutableMapOf1_[string, Function_base](tc_string, tc_Function_base, "isObject", &Function_base_tfn_ClosureReverseAbstractInterpreter_TypeRestriction_any{func(p *ClosureReverseAbstractInterpreter_TypeRestriction) any {
 		if p.type__ == nil {
 			return func() any {
 				if p.outcome {
@@ -58,7 +58,7 @@ func (this *ClosureReverseAbstractInterpreter) getPreciserScopeKnowingConditionO
 			var paramType *JSType = this.getTypeIfRefinable(param, blindScope)
 			var receiver Node = callee.getFirstChild()
 			if receiver.isName() && ("goog" == receiver.getString()) {
-				var restricter Function_baseOf[*ClosureReverseAbstractInterpreter_TypeRestriction, *JSType] = this.restricters.get(callee.getString())
+				var restricter Function_baseOf[*ClosureReverseAbstractInterpreter_TypeRestriction, *JSType] = this.restricters.Get(callee.getString())
 				if restricter != nil {
 					return this.restrictParameter(param, paramType, blindScope, restricter, outcome.isTruthy())
 				}

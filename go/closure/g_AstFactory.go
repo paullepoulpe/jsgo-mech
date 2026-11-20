@@ -466,7 +466,7 @@ func (this *AstFactory) createQName_4(scope StaticScope, baseName string, baseNa
 
 func (this *AstFactory) createQName(scope StaticScope, field RuntimeJsLibManager_JsLibField) Node {
 	var qname string = field.assertInjected().qualifiedName()
-	var parts *JTList[string] = splitToListT_(jtc_string, AstFactory_DOT_SPLITTER, strobj_(qname))
+	var parts *TList[string] = splitToListT_(tc_string, AstFactory_DOT_SPLITTER, strobj_(qname))
 	var baseName string = Optional_ofNullable[string](str_(Iterables_getFirst(Iterable(parts.asList()), nil))).orElseThrow()
 	if !strings.HasPrefix(baseName, "$jscomp") {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected Field name %s", []any{baseName})))
@@ -489,7 +489,7 @@ func (this *AstFactory) createQNameWithUnknownType(qname string) Node {
 }
 
 func (this *AstFactory) createQNameWithUnknownTypeJsLibField(field RuntimeJsLibManager_JsLibField) Node {
-	var parts *JTList[string] = splitToListT_(jtc_string, AstFactory_DOT_SPLITTER, strobj_(field.assertInjected().qualifiedName()))
+	var parts *TList[string] = splitToListT_(tc_string, AstFactory_DOT_SPLITTER, strobj_(field.assertInjected().qualifiedName()))
 	var baseName string = Optional_ofNullable[string](str_(Iterables_getFirst(Iterable(parts.asList()), nil))).orElseThrow()
 	if !strings.HasPrefix(baseName, "$jscomp") {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected Field name %s", []any{baseName})))
@@ -534,9 +534,9 @@ func (this *AstFactory) createPrototypeAccess(receiver Node) Node {
 		result.setJSType(this.getJsTypeForProperty(receiver, "prototype"))
 	case AstFactory_TypeMode_COLOR:
 		Preconditions_checkNotNull_Object_String_Object_T(receiver.getColor(), "Missing color on %s", receiver.box_())
-		var possiblePrototypes *JTSet[*Color] = receiver.getColor().getPrototypes()
+		var possiblePrototypes *TSet[*Color] = receiver.getColor().getPrototypes()
 		result.setColor(func() *Color {
-			if possiblePrototypes.isEmpty() {
+			if possiblePrototypes.IsEmpty() {
 				return StandardColors_UNKNOWN
 			}
 			return Color_createUnion(possiblePrototypes)
@@ -691,7 +691,7 @@ func (this *AstFactory) createAnd(left Node, right Node) Node {
 	case AstFactory_TypeMode_COLOR:
 		var leftColor *Color = Preconditions_checkNotNull_Object_Object_T(left.getColor(), left.box_())
 		var rightColor *Color = Preconditions_checkNotNull_Object_Object_T(right.getColor(), right.box_())
-		result.setColor(Color_createUnion(jimmutableSetOf_[*Color](tce_p_Color, leftColor, rightColor)))
+		result.setColor(Color_createUnion(immutableSetOf_[*Color](tch_p_Color, leftColor, rightColor)))
 	case AstFactory_TypeMode_NONE:
 	}
 	return result
@@ -707,7 +707,7 @@ func (this *AstFactory) createOr(left Node, right Node) Node {
 	case AstFactory_TypeMode_COLOR:
 		var leftColor *Color = Preconditions_checkNotNull_Object_Object_T(left.getColor(), left.box_())
 		var rightColor *Color = Preconditions_checkNotNull_Object_Object_T(right.getColor(), right.box_())
-		result.setColor(Color_createUnion(jimmutableSetOf_[*Color](tce_p_Color, leftColor, rightColor)))
+		result.setColor(Color_createUnion(immutableSetOf_[*Color](tch_p_Color, leftColor, rightColor)))
 	case AstFactory_TypeMode_NONE:
 	}
 	return result
@@ -804,9 +804,9 @@ func (this *AstFactory) createNewNode(target Node, args []Node) Node {
 }
 
 func (this *AstFactory) getInstanceOfColor(color *Color) *Color {
-	var possibleInstanceColors *JTSet[*Color] = color.getInstanceColors()
+	var possibleInstanceColors *TSet[*Color] = color.getInstanceColors()
 	return func() *Color {
-		if possibleInstanceColors.isEmpty() {
+		if possibleInstanceColors.IsEmpty() {
 			return StandardColors_UNKNOWN
 		}
 		return Color_createUnion(possibleInstanceColors)
@@ -966,7 +966,7 @@ func (this *AstFactory) createHook(condition Node, expr1 Node, expr2 Node) Node 
 	case AstFactory_TypeMode_JSTYPE:
 		result.setJSType(this.registry.createUnionType([]*JSType{expr1.getJSType(), expr2.getJSType()}))
 	case AstFactory_TypeMode_COLOR:
-		result.setColor(Color_createUnion(jimmutableSetOf_[*Color](tce_p_Color, expr1.getColor(), expr2.getColor())))
+		result.setColor(Color_createUnion(immutableSetOf_[*Color](tch_p_Color, expr1.getColor(), expr2.getColor())))
 	case AstFactory_TypeMode_NONE:
 	}
 	return result
@@ -1001,7 +1001,7 @@ func (this *AstFactory) createJSCompMakeIteratorCall(iterable Node, scope Static
 	case AstFactory_TypeMode_JSTYPE:
 		var iterableType *JSType = iterable.getJSType().getTemplateTypeMap().getResolvedTemplateType(this.registry.getIterableValueTemplate())
 		var makeIteratorType *JSType = makeIteratorName.getJSType()
-		makeIteratorName.setJSType(this.replaceTemplate(makeIteratorType, jimmutableListOf_[*JSType](jtc_p_JSType, iterableType)))
+		makeIteratorName.setJSType(this.replaceTemplate(makeIteratorType, immutableListOf_[*JSType](tc_p_JSType, iterableType)))
 		type_ = AstFactory_typeJSType_JSType(makeIteratorName.getJSType().assertFunctionType().getReturnType())
 	case AstFactory_TypeMode_COLOR:
 		type_ = AstFactory_typeColor(this.colorRegistry.get(StandardColors_ITERATOR_ID))
@@ -1029,7 +1029,7 @@ func (this *AstFactory) createJscompArrayFromIteratorCall(iterator Node, scope S
 		case AstFactory_TypeMode_JSTYPE:
 			var iterableType *JSType = iterator.getJSType().getTemplateTypeMap().getResolvedTemplateType(this.registry.getIteratorValueTemplate())
 			var makeIteratorType *JSType = makeIteratorName.getJSType()
-			makeIteratorName.setJSType(this.replaceTemplate(makeIteratorType, jimmutableListOf_[*JSType](jtc_p_JSType, iterableType)))
+			makeIteratorName.setJSType(this.replaceTemplate(makeIteratorType, immutableListOf_[*JSType](tc_p_JSType, iterableType)))
 			return AstFactory_typeJSType_JSType(makeIteratorName.getJSType().assertFunctionType().getReturnType())
 		case AstFactory_TypeMode_COLOR:
 			return AstFactory_typeColor(this.colorRegistry.get(StandardColors_ARRAY_ID))
@@ -1051,7 +1051,7 @@ func (this *AstFactory) createJscompArrayFromIterableCall(iterable Node, scope S
 		case AstFactory_TypeMode_JSTYPE:
 			var iterableType *JSType = iterable.getJSType().getTemplateTypeMap().getResolvedTemplateType(this.registry.getIterableValueTemplate())
 			var makeIterableType *JSType = makeIterableName.getJSType()
-			makeIterableName.setJSType(this.replaceTemplate(makeIterableType, jimmutableListOf_[*JSType](jtc_p_JSType, iterableType)))
+			makeIterableName.setJSType(this.replaceTemplate(makeIterableType, immutableListOf_[*JSType](tc_p_JSType, iterableType)))
 			return AstFactory_typeJSType_JSType(makeIterableName.getJSType().assertFunctionType().getReturnType())
 		case AstFactory_TypeMode_COLOR:
 			return AstFactory_typeColor(this.colorRegistry.get(StandardColors_ARRAY_ID))
@@ -1073,7 +1073,7 @@ func (this *AstFactory) createJSCompMakeAsyncIteratorCall(iterable Node, scope S
 	case AstFactory_TypeMode_JSTYPE:
 		var asyncIterableType *JSType = JsIterables_maybeBoxIterableOrAsyncIterable(iterable.getJSType(), this.registry).orElse(this.unknownType)
 		var makeAsyncIteratorType *JSType = makeIteratorAsyncName.getJSType()
-		makeIteratorAsyncName.setJSType(this.replaceTemplate(makeAsyncIteratorType, jimmutableListOf_[*JSType](jtc_p_JSType, asyncIterableType)))
+		makeIteratorAsyncName.setJSType(this.replaceTemplate(makeAsyncIteratorType, immutableListOf_[*JSType](tc_p_JSType, asyncIterableType)))
 		resultType = AstFactory_typeJSType_JSType(makeIteratorAsyncName.getJSType().assertFunctionType().getReturnType())
 	case AstFactory_TypeMode_COLOR:
 		resultType = AstFactory_typeColor(this.colorRegistry.get(StandardColors_ASYNC_ITERATOR_ITERABLE_ID))
@@ -1087,7 +1087,7 @@ func (this *AstFactory) createJSCompMakeAsyncIteratorCall(iterable Node, scope S
 	return call
 }
 
-func (this *AstFactory) replaceTemplate(templatedType *JSType, templateTypes *JTList[*JSType]) *JSType {
+func (this *AstFactory) replaceTemplate(templatedType *JSType, templateTypes *TList[*JSType]) *JSType {
 	var typeMap *TemplateTypeMap = this.registry.getEmptyTemplateTypeMap().copyWithExtension_2(templatedType.getTemplateTypeMap().getTemplateKeys(), templateTypes)
 	var replacer *TemplateTypeReplacer = TemplateTypeReplacer_forPartialReplacement(this.registry, typeMap)
 	return to_JSType(templatedType.visit(TemplateTypeReplacer_as_Visitor(replacer)))
@@ -1097,7 +1097,7 @@ func (this *AstFactory) createEmptyAsyncGeneratorWrapperArgument(asyncGeneratorW
 	var generatorType AstFactory_Type = AstFactory_noTypeInformation()
 	if this.isAddingTypes() {
 		if asyncGeneratorWrapperType.isUnknownType() {
-			generatorType = AstFactory_typeJSType_JSType(this.registry.createFunctionType(this.replaceTemplate(this.getNativeType(JSTypeNative_GENERATOR_TYPE), jimmutableListOf_[*JSType](jtc_p_JSType, this.unknownType)), []*JSType{}).up_JSType())
+			generatorType = AstFactory_typeJSType_JSType(this.registry.createFunctionType(this.replaceTemplate(this.getNativeType(JSTypeNative_GENERATOR_TYPE), immutableListOf_[*JSType](tc_p_JSType, this.unknownType)), []*JSType{}).up_JSType())
 		} else {
 			var innerFunctionReturnType *JSType = Iterables_getOnlyElement(Iterable(asyncGeneratorWrapperType.toMaybeFunctionType().getParameters().asList())).(*FunctionType_Parameter).getJSType()
 			generatorType = AstFactory_typeJSType_JSType(this.registry.createFunctionType(innerFunctionReturnType, []*JSType{}).up_JSType())
@@ -1210,7 +1210,7 @@ func AstFactory_clinit() {
 	AstFactory_clinit_done = true
 	AstFactory_DOT_SPLITTER = Splitter_on_String(".")
 	AstFactory_bigintNumberStringColor = Supplier(Suppliers_memoize(&Supplier_base_tfn_Color{func() *Color {
-		return Color_createUnion(jimmutableSetOf_[*Color](tce_p_Color, StandardColors_BIGINT, StandardColors_STRING, StandardColors_NUMBER))
+		return Color_createUnion(immutableSetOf_[*Color](tch_p_Color, StandardColors_BIGINT, StandardColors_STRING, StandardColors_NUMBER))
 	}}))
 
 }
