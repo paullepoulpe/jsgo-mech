@@ -567,10 +567,6 @@ func (this PeepholeSubstituteAlternateSyntax_FoldArrayAction) toString() string 
 	return this.enum_().name_
 }
 
-func (this PeepholeSubstituteAlternateSyntax_FoldArrayAction) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this PeepholeSubstituteAlternateSyntax_FoldArrayAction) self() any {
 	if this == 0 {
 		return nil

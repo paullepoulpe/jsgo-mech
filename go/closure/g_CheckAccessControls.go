@@ -486,7 +486,7 @@ func (this *CheckAccessControls) checkPropertyOverrideVisibility(propRef *CheckA
 }
 
 func CheckAccessControls_canOverrideVisibility(superclassVisibility JSDocInfo_Visibility, subclassVisibility JSDocInfo_Visibility) bool {
-	return (superclassVisibility.compareTo(obj_(subclassVisibility)) <= 0)
+	return (superclassVisibility.enum_().compareTo(obj_(subclassVisibility)) <= 0)
 }
 
 func (this *CheckAccessControls) checkPropertyAccessVisibility(propRef *CheckAccessControls_PropertyReference, visibility JSDocInfo_Visibility, objectType *JSType, referenceSource StaticSourceFile, definingSource StaticSourceFile) {
@@ -834,10 +834,6 @@ func (this CheckAccessControls_Constancy) toString() string {
 	return this.enum_().name_
 }
 
-func (this CheckAccessControls_Constancy) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this CheckAccessControls_Constancy) self() any {
 	if this == 0 {
 		return nil
@@ -923,10 +919,6 @@ func (this CheckAccessControls_IdentifierBehaviour) ordinal() int32 {
 
 func (this CheckAccessControls_IdentifierBehaviour) toString() string {
 	return this.enum_().name_
-}
-
-func (this CheckAccessControls_IdentifierBehaviour) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this CheckAccessControls_IdentifierBehaviour) self() any {

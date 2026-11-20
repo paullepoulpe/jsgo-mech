@@ -28,10 +28,6 @@ func (this EquivalenceMethod) ordinal() int32 {
 
 func (this EquivalenceMethod) toString() string { return this.enum_().name_ }
 
-func (this EquivalenceMethod) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this EquivalenceMethod) self() any {
 	if this == 0 {
 		return nil

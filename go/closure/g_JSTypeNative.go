@@ -115,8 +115,6 @@ func (this JSTypeNative) ordinal() int32 {
 
 func (this JSTypeNative) toString() string { return this.enum_().name_ }
 
-func (this JSTypeNative) compareTo(o any) int32 { return this.enum_().compareTo(o) }
-
 func (this JSTypeNative) self() any {
 	if this == 0 {
 		return nil

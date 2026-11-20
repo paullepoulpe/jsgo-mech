@@ -2035,10 +2035,6 @@ func (this CodeGenerator_Context) ordinal() int32 {
 
 func (this CodeGenerator_Context) toString() string { return this.enum_().name_ }
 
-func (this CodeGenerator_Context) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this CodeGenerator_Context) self() any {
 	if this == 0 {
 		return nil

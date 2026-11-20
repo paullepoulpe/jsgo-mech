@@ -1571,10 +1571,6 @@ func (this Es6NormalizeClasses_ClassRecord_PrivateMemberKind) toString() string 
 	return this.enum_().name_
 }
 
-func (this Es6NormalizeClasses_ClassRecord_PrivateMemberKind) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this Es6NormalizeClasses_ClassRecord_PrivateMemberKind) self() any {
 	if this == 0 {
 		return nil

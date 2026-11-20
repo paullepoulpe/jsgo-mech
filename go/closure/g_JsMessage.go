@@ -333,10 +333,6 @@ func (this JsMessage_GrammaticalGenderCase) toString() string {
 	return this.enum_().name_
 }
 
-func (this JsMessage_GrammaticalGenderCase) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this JsMessage_GrammaticalGenderCase) self() any {
 	if this == 0 {
 		return nil
