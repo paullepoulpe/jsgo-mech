@@ -256,19 +256,19 @@ func (this PolyfillUsageFinder_Polyfill_Kind) enum_() *Enum {
 }
 
 func (this PolyfillUsageFinder_Polyfill_Kind) name() string {
-	return PolyfillUsageFinder_Polyfill_Kind_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this PolyfillUsageFinder_Polyfill_Kind) ordinal() int32 {
-	return PolyfillUsageFinder_Polyfill_Kind_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this PolyfillUsageFinder_Polyfill_Kind) toString() string {
-	return PolyfillUsageFinder_Polyfill_Kind_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this PolyfillUsageFinder_Polyfill_Kind) compareTo(o any) int32 {
-	return PolyfillUsageFinder_Polyfill_Kind_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this PolyfillUsageFinder_Polyfill_Kind) self() any {
@@ -475,19 +475,19 @@ func (this PolyfillUsageFinder_Guard) enum_() *Enum {
 }
 
 func (this PolyfillUsageFinder_Guard) name() string {
-	return PolyfillUsageFinder_Guard_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this PolyfillUsageFinder_Guard) ordinal() int32 {
-	return PolyfillUsageFinder_Guard_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this PolyfillUsageFinder_Guard) toString() string {
-	return PolyfillUsageFinder_Guard_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this PolyfillUsageFinder_Guard) compareTo(o any) int32 {
-	return PolyfillUsageFinder_Guard_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this PolyfillUsageFinder_Guard) self() any {

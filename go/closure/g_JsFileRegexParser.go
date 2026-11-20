@@ -273,19 +273,19 @@ func (this JsFileRegexParser_ModuleType) enum_() *Enum {
 }
 
 func (this JsFileRegexParser_ModuleType) name() string {
-	return JsFileRegexParser_ModuleType_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this JsFileRegexParser_ModuleType) ordinal() int32 {
-	return JsFileRegexParser_ModuleType_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this JsFileRegexParser_ModuleType) toString() string {
-	return JsFileRegexParser_ModuleType_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this JsFileRegexParser_ModuleType) compareTo(o any) int32 {
-	return JsFileRegexParser_ModuleType_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this JsFileRegexParser_ModuleType) self() any {
