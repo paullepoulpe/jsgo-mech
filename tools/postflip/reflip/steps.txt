@@ -243,7 +243,8 @@ b59b6a41 patch 105-b59b6a41-rt.patch
 #= 6073a778 dropped: manual patch no longer applies (1 files; conflicts in g_DataFlowAnalysis.go)
 #- 6073a778 patch 107-6073a778-manual.patch
 # 108. postflip (runtime): scopeVars_, the table of a scope's declared variables
-f7247baa patch 108-f7247baa-rt.patch
+#=4i f7247baa dropped (in-bounds variant): runtime that exists only for the dropped scope table: scopeVars_ (rt_scopevars.go, rt_scopevars_test.go) was made for step 109 (a3f0161d, re-made in 430, both out of bounds and dropped); no g_*.go and no other rt_*.go of the in-bounds tree names scopeVars_ (grep on the replayed tree)
+#- f7247baa patch 108-f7247baa-rt.patch
 # 109. postflip (manual): AbstractScope.vars is a scopeVars_ table
 #=2 a3f0161d dropped (second trial): manual patch no longer applies to this flip's text
 #=4 a3f0161d re-made (fourth flip) in step 430 on Scope and TypedScope, where prep step 18 moved the members it edits
@@ -689,7 +690,9 @@ ab26441f run t adapters && f
 67cd8cf2 tools bf820852
 67cd8cf2 run t strvar -rule C && f
 # 429. postflip (runtime, re-flip): a scope's variables can be looked up by the string id of a name
-b6e39a43 patch 429-b6e39a43-rt.patch
+#=4i b6e39a43 adapted (in-bounds variant): only what the strids step (431) uses: Node.getStringId_, getStringIs_ and noString_ (rt_strid.go). Left out with the dropped scope table: the id index of scopeVars_ (rt_scopevars.go and its test, step 108 dropped), nameId_ and AbstractScope_ImplicitVar_ofId_ (used only by the out-of-bounds getVarById_ of step 430 and by the scope table's test)
+#- b6e39a43 patch 429-b6e39a43-rt.patch
+b6e39a43 patch 429-b6e39a43-strid-rt.patch
 # 430. postflip (manual, re-flip): AbstractScope.getVarById_, getVar for the name a node holds
 #=4 84bcaeda adapted (fourth flip): redone against this flip's text as 56cc0ae2 (tag flip4-redo-430): getVarById_ made where getVar now is (prep step 18 moved vars and getVar from AbstractScope into Scope and TypedScope): Scope.getVarById_ reads the tables by id, TypedScope.getVarById_ looks the id's string up. The edit needs the scope table of steps 109 (a3f0161d: vars is a scopeVars_ table, ownVar_, varValues_) and 111 (6c2c7d00: getVar walks the chain hashing the name once), which the second trial dropped as no longer applying; both are re-made here on Scope and TypedScope, with the table's erased *AbstractVar values cast back until step 463 spells the typed instantiation
 #- 84bcaeda patch 430-84bcaeda-manual.patch
