@@ -186,7 +186,7 @@ func (this *TypeInference) flowThrough_impl(n Node, input FlowScope) FlowScope {
 		return input
 	}
 	var root Node = NodeUtil_getEnclosingScopeRoot(n)
-	var module *Module = ModuleImportResolver_getModuleFromScopeRoot(this.compiler_.getModuleMap(), icast_CompilerInputProvider(this.compiler_.self()), root)
+	var module *Module = ModuleImportResolver_getModuleFromScopeRoot(this.compiler_.getModuleMap(), iup_CompilerInputProvider(this.compiler_), root)
 	var syntacticBlockScope *TypedScope = this.scopeCreator.createScope(root)
 	if (module != nil) && module.metadata().isEs6Module() {
 		this.moduleImportResolver.declareEsModuleImports(module, syntacticBlockScope, this.compiler_.getInput(NodeUtil_getInputId(n)))

@@ -516,7 +516,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) setupModuleMetadata(moduleRoot
 		return
 	}
 	this.curModuleRoot = moduleRoot
-	this.curMetadata = Preconditions_checkNotNull_T(ModuleImportResolver_getModuleFromScopeRoot(moduleMap, icast_CompilerInputProvider(this.outer_.compiler_.self()), moduleRoot).metadata())
+	this.curMetadata = Preconditions_checkNotNull_T(ModuleImportResolver_getModuleFromScopeRoot(moduleMap, iup_CompilerInputProvider(this.outer_.compiler_), moduleRoot).metadata())
 	if this.curMetadata.isGoogModule() {
 		this.getOrCreateName("exports", this.curMetadata)
 	}
