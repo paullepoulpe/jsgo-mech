@@ -434,39 +434,63 @@ func (this *CodingConvention_AssertionFunctionSpec_Builder) build() *CodingConve
 	return spec
 }
 
+// CodingConvention_AssertionFunctionLookup is Java's ImmutableMap<Object, AssertionFunctionSpec>
+// keyed by AssertionFunctionSpec.getId(), which is a ClosurePrimitive or a String, as one map
+// per key type (post-flip manual step, as the hand port): a key of one type never equals a key
+// of the other, so each lookup reads the map of its key's type.
 type CodingConvention_AssertionFunctionLookup struct {
-	internal ImmutableMapOf[any, *CodingConvention_AssertionFunctionSpec]
-}
-
-func (this *CodingConvention_AssertionFunctionLookup) init_CodingConvention_AssertionFunctionLookup(internal ImmutableMapOf[any, *CodingConvention_AssertionFunctionSpec]) {
-	this.internal = internal
-}
-
-func new_CodingConvention_AssertionFunctionLookup(internal ImmutableMapOf[any, *CodingConvention_AssertionFunctionSpec]) *CodingConvention_AssertionFunctionLookup {
-	this := &CodingConvention_AssertionFunctionLookup{}
-	this.init_CodingConvention_AssertionFunctionLookup(internal)
-	return this
+	byPrimitive map[ClosurePrimitive]*CodingConvention_AssertionFunctionSpec
+	byName      map[string]*CodingConvention_AssertionFunctionSpec
 }
 
 func CodingConvention_AssertionFunctionLookup_of(specs CollectionOf[*CodingConvention_AssertionFunctionSpec]) *CodingConvention_AssertionFunctionLookup {
-	var idToSpecMapBuilder ImmutableMap_BuilderOf[any, *CodingConvention_AssertionFunctionSpec] = ImmutableMap_builder()
+	this := &CodingConvention_AssertionFunctionLookup{byPrimitive: map[ClosurePrimitive]*CodingConvention_AssertionFunctionSpec{}, byName: map[string]*CodingConvention_AssertionFunctionSpec{}}
 	for spec := range elemsAs_[*CodingConvention_AssertionFunctionSpec](specs) {
-		idToSpecMapBuilder.put(spec.getId(), obj_(spec))
+		if !this.put_(spec) {
+			// A null spec or id, or two specs with one id: Java's collector throws; the
+			// ImmutableMap builder of the translation throws the same, from the start.
+			var idToSpecMapBuilder ImmutableMap_BuilderOf[any, *CodingConvention_AssertionFunctionSpec] = ImmutableMap_builder()
+			for spec := range elemsAs_[*CodingConvention_AssertionFunctionSpec](specs) {
+				idToSpecMapBuilder.put(spec.getId(), obj_(spec))
+			}
+			idToSpecMapBuilder.buildOrThrow()
+			panic(new_IllegalStateException_String("AssertionFunctionLookup: the builder accepted what the lookup refused"))
+		}
 	}
-	var idToSpecMap ImmutableMapOf[any, *CodingConvention_AssertionFunctionSpec] = idToSpecMapBuilder.buildOrThrow()
-	return new_CodingConvention_AssertionFunctionLookup(idToSpecMap)
+	return this
+}
+
+// put_ maps spec's id to spec, as the map's builder did; false for a null spec or id and for an
+// id that is already mapped.
+func (this *CodingConvention_AssertionFunctionLookup) put_(spec *CodingConvention_AssertionFunctionSpec) bool {
+	if spec == nil {
+		return false
+	}
+	if p := spec.getClosurePrimitive(); p != 0 {
+		if _, dup := this.byPrimitive[p]; dup {
+			return false
+		}
+		this.byPrimitive[p] = spec
+		return true
+	}
+	name := spec.getFunctionName().orElse(nullstr_)
+	if _, dup := this.byName[name]; dup || name == nullstr_ {
+		return false
+	}
+	this.byName[name] = spec
+	return true
 }
 
 func (this *CodingConvention_AssertionFunctionLookup) lookupByCallee(callee Node) *CodingConvention_AssertionFunctionSpec {
 	var fnType *FunctionType = JSType_toMaybeFunctionType(callee.getJSType())
 	if (fnType != nil) && (fnType.getClosurePrimitive() != 0) {
-		var spec *CodingConvention_AssertionFunctionSpec = cast_[*CodingConvention_AssertionFunctionSpec](this.internal.get(obj_(fnType.getClosurePrimitive())))
+		var spec *CodingConvention_AssertionFunctionSpec = this.byPrimitive[fnType.getClosurePrimitive()]
 		if spec != nil {
 			return spec
 		}
 	}
 	if callee.isQualifiedName() {
-		return cast_[*CodingConvention_AssertionFunctionSpec](Map_get_s(this.internal, callee.getQualifiedName()))
+		return this.byName[callee.getQualifiedName()]
 	}
 	return nil
 }
