@@ -29,20 +29,17 @@ func (this *PrebuildAst) prebuild(allInputs IterableOf[*CompilerInput]) {
 		}}))
 	}
 	poolExecutor.shutdown()
-	_ = func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if is_InterruptedException(ex_) || is_ExecutionException(ex_) {
-					var e *Exception = to_Exception(ex_)
-					panic(new_RuntimeException_Throwable(e.up_Throwable()))
-				}
-				panic(r_)
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if is_InterruptedException(ex_) || is_ExecutionException(ex_) {
+				var e *Exception = to_Exception(ex_)
+				panic(new_RuntimeException_Throwable(e.up_Throwable()))
 			}
-		}()
-		Futures_allAsList(Iterable(futureList.asList())).get()
-		return 0
+			panic(r_)
+		}
 	}()
+	Futures_allAsList(Iterable(futureList.asList())).get()
 }
 
 // lambda_PrebuildAst_prebuild_1_ is a lambda of PrebuildAst_prebuild that captures nothing (post-flip step lambdas).
