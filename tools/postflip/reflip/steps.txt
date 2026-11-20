@@ -813,6 +813,7 @@ ad8c897b patch 492-ad8c897b-rt.patch
 
 # The lead line's later steps (reflip-trial-r18's steps.txt from step 493 on, in its order), appended for the fourth flip.
 # 493. postflip (runtime, re-flip): removing through a typed map's iterator is constant time, as LinkedHashMap's is
+#=4 34aca0ab adapted (fourth flip): the patch applies but this flip's typed map is also the sorted map (step 402's one family: removeAt of a sorted map closes the gap, no dead marks), which the constant-time iterator removal took for a compaction it had not foreseen (TestUnifiedFamily panicked); the iterator of a sorted map continues at the removed position, the rest is the lead's patch
 34aca0ab patch 493-34aca0ab-rt.patch
 # 494. postflip (runtime, re-flip): test of removing through a typed set's iterator across the compactions it causes
 62aa65b3 patch 494-62aa65b3-rt.patch
@@ -821,8 +822,11 @@ ad8c897b patch 492-ad8c897b-rt.patch
 # 496. postflip (runtime, re-flip): a protobuf builder's build() gives the message the builder's storage (copied only if the builder changes afterwards), with a test
 265af42f patch 496-265af42f-rt.patch
 # 497. postflip (runtime, re-flip): protobuf fields are stored typed, in one struct per message written by tools/protogen, instead of boxed in a []any
+#=4 7be430ed adapted (fourth flip): the step's record lacked the generator's sources (the lead commit changes tools/protogen/main.go beside go/); tools/protogen as of that commit is taken and go/closure/rt_proto_gen.go is written again by it from this flip's externals.tsv, g_0names.go and g_zstubs.go (the run line; replay-all commits go/ and tools/postflip, so the line stages tools/protogen itself)
 7be430ed patch 497-7be430ed-rt.patch
+7be430ed run git checkout -q 7be430ed -- tools/protogen && cp go/closure/rt_proto_gen.go .rt_proto_gen.patched && bash tools/protogen/run.sh && { cmp -s go/closure/rt_proto_gen.go .rt_proto_gen.patched && echo "protogen: rt_proto_gen.go regenerated, identical to the patch's" || echo "protogen: rt_proto_gen.go regenerated, DIFFERS from the patch's ($(diff go/closure/rt_proto_gen.go .rt_proto_gen.patched | grep -c '^[<>]') lines)"; }; rm -f .rt_proto_gen.patched; git add -A -f tools/protogen
 # 510. postflip (runtime, re-flip): an erased immutable collection keeps what only multisets, sorted sets with a comparator, enum sets and asList() of a set use in a record of its own (80 bytes instead of 192)
+#=4 d791dde5 adapted (fourth flip): runtime patch regenerated, one conflict resolved by hand (rt_guava.go: this flip's runtime declares ImmutableCollection.total at another place in the struct; both sides kept: the lead's 80-byte layout with total in immRare_, as its code reads it)
 d791dde5 patch 510-d791dde5-rt.patch
 # 511. postflip (runtime, re-flip): helpers for a typed collection that goes through its erased form and straight back, with a test against the conversions they stand for
 68513bc0 patch 511-68513bc0-rt.patch
