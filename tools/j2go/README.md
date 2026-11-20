@@ -179,6 +179,17 @@ type Predicate_base[T any] = Predicate[T]
   (`Comparator_comparingInt[*Node](..)`, `Predicates_alwaysTrue[Node]()`); the default methods
   of `Comparator` are methods of the func type.
 
+Records with function components: the `equals`, `hashCode` and `toString` that the translator
+generates for a record go over every component, so a record with a functional component
+(`PassFactory`, `CheckAccessControls.PropertyReference`, `ChangeVerifier.EqualsResult`) compares
+functions although no source line does. This is accepted, not refused: two components are equal
+when they are the same closure (`fnSame_`: a Go func value is one pointer to its closure, and
+the pointers are compared), which is what Java's reference comparison of the two lambda objects
+gives as long as the value is passed around at one type. A function that went through a
+converting closure (another instantiation, an erased collection) is another closure, as a
+re-evaluated lambda expression is another object in Java. `rt_fn_test.go` has a test that fails
+if a func value stops being one pointer (`TestFnValueIsOnePointer`).
+
 A Go func value has no identity and no `equals`. The translator stops, naming each place
 (`function types: refused: File.java:12: ...`), when the program compares two functional values
 with `==`, tests or casts one (`instanceof`, a cast of or to one that is not an upcast), calls
@@ -198,6 +209,47 @@ Not in the rule: `Comparable` (still `any`; a class's `compareTo` keeps the eras
 its bridge), the functional interfaces without type parameters (`Runnable`, `BooleanSupplier`:
 their adapters `Runnable_fn` have the Java types already), and the program's own functional
 interfaces (`CompilerPass`, `NodeUtil.Visitor`: adapters `I_fn`).
+
+**Typed library interfaces** (`LibGen`; `J2GO_NOLIBGEN=iter` turns the kind off, `all` every
+kind; `J2GO_LIBGEN=1` reports what the rule converts, `=2` by type). A place whose Java type is
+`Iterator<X>` or `Iterable<X>` (kind `iter`) holds the typed interface of the runtime
+(`rt_lg.go`): the erased interface plus the methods that give elements, at their Java type and
+under the name with the suffix `_t`, as a class file has a method and its bridge.
+
+```go
+type IteratorT[T any] interface { Iterator; next_t() T }
+type IterableT[T any] interface { Iterable; iterator_t() IteratorT[T] }
+
+var parameters IteratorT[*FunctionType_Parameter] = functionType.getParameters().iterator_t()
+parameter = parameters.next_t()                       // was cast_[*FunctionType_Parameter](parameters.next())
+it_1 := eachOf_(scope.getVarIterable())               // for (Var v : ...): it_1.v is a *Var
+```
+
+- A wildcard is its bound; `Iterable<?>` and `Iterable<Object>` are `IterableT[any]`. The
+  erased interface (`Iterable`, without type arguments) is what the runtime's own functions and
+  collections take and give (`LibGen.rt`): the signature of a library method is erased as before.
+- Every typed value is a value of the erased interface too, the same object, so it goes to
+  erased code as it is; where it may be a wrapper or a typed collection the object that erased
+  code knows is taken out first (`Iterable_un_`; `lgBox_` for `Object`, `==`, `instanceof`,
+  `equals`), so identity and the runtime's own type tests see what they saw before.
+- An erased value becomes a typed one through `iterableAs_(tc_X, v)` / `iteratorAs_`: `v` itself
+  where its object has the typed methods at that type, else a wrapper that unboxes each
+  element as the erased code cast it after the call. Nothing is checked before an element is
+  read, as with an unchecked cast in Java. Two instantiations (`Iterable<Dog>` for `Iterable<?
+  extends Animal>`) meet the same way.
+- Native objects, which need no wrapper: the typed collections (`*TList[T]`, `*TSet[T]`,
+  `*TDeque[T]` are `IterableT[T]` themselves, `l.asIterable()`; their iterators are
+  `IteratorT[T]`), their erased views, the typed list of an immutable list, and a class of the
+  program that names the interface among its interfaces and has no subclass: it has the method
+  with its Java types (`next_t() Node`) and the bridge with the erased name and signature. Any
+  other class of the program (one with subclasses, one under a library class such as
+  `AbstractIterator`, one that gets the interface through an interface of the program) keeps
+  the erased method and is wrapped where a typed value is wanted.
+- A for-each loop over a typed Iterable runs on the typed cursor `eachOf_` (over a typed list
+  it reads the slice in place); over the result of an erased method it is the erased loop as
+  before, not a wrapper.
+- A raw use of one of the interfaces is refused (`typed library interfaces: refused: ...`); the
+  tree has none.
 
 **`java.util.Optional` is a value.** The runtime's `Optional[T]` (`rt_base.go`) is a generic
 struct, not a heap object: `Optional<X>` is `Optional[X]`, its content held as an `X`, and
