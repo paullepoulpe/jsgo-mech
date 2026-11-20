@@ -772,3 +772,21 @@ func reflipBoxed_(e ast.Expr) string {
 }
 E20
 fi
+# 21. (fourth flip, in bounds) rw.Unboxed: "the code storing boxed expression a (of type any) as a value of type t" drops a boxing
+#    call whose operand has type t (strobj_(x), obj_(x), ...); any other expression is unboxed by the type's conversion. The
+#    translator's rule P4 passes a String where an Object is taken as the string itself (put("CLASS_DECL", v), the erased output had
+#    strobj_("CLASS_DECL")), so the typed immutable builders of step 336 got their constant keys as str_("CLASS_DECL"): 236
+#    str_( of a string (third flip: the same 236; lead line: 0). A value whose static type is already the string type t is its own
+#    unboxing (str_ of a Go string in an `any` is the string).
+reflip_edit tools/postflip/rw/rw.go reflip21 <<'E21'
+func Unboxed(cv Conv, t types.Type, a ast.Expr) string {
+	a = Unparen(a)
+=====
+func Unboxed(cv Conv, t types.Type, a ast.Expr) string {
+	a = Unparen(a)
+	if tv, ok := Info.Types[a]; ok && tv.Type != nil && types.Identical(tv.Type, t) { // reflip21: a String passed as itself
+		if b, ok := t.Underlying().(*types.Basic); ok && b.Kind() == types.String {
+			return Render(a)
+		}
+	}
+E21
