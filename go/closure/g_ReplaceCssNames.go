@@ -37,12 +37,12 @@ func (this *ReplaceCssNames) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_ReplaceCssNames_FindSetCssNameTraversal(this)))
 	var getCssNameInstances *[]*ReplaceCssNames_GetCssNameInstance = this.gatherGetCssNameInstances(root)
 	for getCssNameInstance := range sliceAll_(getCssNameInstances) {
-		var cssClassName Optional[string] = getCssNameInstance.getCssClassName()
+		var cssClassName string = getCssNameInstance.getCssClassName()
 		if getCssNameInstance.isCssClosureFileClassesMember() {
-			this.cssNamesBySymbol[getCssNameInstance.getCssClosureClassesMemberName().orElse(nullstr_)] = cssClassName.orElse(nullstr_)
-			this.classesObjectsQualifiedNames[getCssNameInstance.getCssClosureClassesQualifiedName().orElseThrow()] = struct{}{}
+			this.cssNamesBySymbol[getCssNameInstance.getCssClosureClassesMemberName()] = cssClassName
+			this.classesObjectsQualifiedNames[optstrGet_(getCssNameInstance.getCssClosureClassesQualifiedName())] = struct{}{}
 		} else {
-			this.cssNameCollector(cssClassName.orElse(nullstr_))
+			this.cssNameCollector(cssClassName)
 		}
 		getCssNameInstance.replaceWithExpression()
 	}
@@ -64,7 +64,7 @@ func (this *ReplaceCssNames) isGetCssNameCall(node Node) bool {
 	return (node.isCall() && node.getFirstChild().matchesQualifiedNameNode(ReplaceCssNames_GET_CSS_NAME_FUNCTION))
 }
 
-func (this *ReplaceCssNames) createGetCssNameInstance(n Node, cssClosureClassesQualifiedName Optional[string]) *ReplaceCssNames_GetCssNameInstance {
+func (this *ReplaceCssNames) createGetCssNameInstance(n Node, cssClosureClassesQualifiedName string) *ReplaceCssNames_GetCssNameInstance {
 	var validationError *JSError = this.validateGetCssNameCall(n)
 	return new_ReplaceCssNames_GetCssNameInstance(this, n, validationError, cssClosureClassesQualifiedName)
 }
@@ -113,10 +113,10 @@ func (this *ReplaceCssNames) processStringNode(n Node) {
 	}
 	var parts []string = ReplaceCssNames_DASH_PATTERN.split(name)
 	if this.symbolMap != nil {
-		var replacement Optional[string] = Optional_empty[string]()
+		var replacement string = nullstr_
 		if strings.HasPrefix(name, "--") {
 			replacement = this.symbolMap.get(name)
-			if replacement.isEmpty() {
+			if replacement == nullstr_ {
 				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceCssNames_UNKNOWN_SYMBOL_WARNING, []string{name, name}))
 				return
 			}
@@ -124,24 +124,24 @@ func (this *ReplaceCssNames) processStringNode(n Node) {
 			switch this.symbolMap.getStyle() {
 			case CssRenamingMap_Style_BY_WHOLE:
 				replacement = this.symbolMap.get(name)
-				if replacement.isEmpty() {
+				if replacement == nullstr_ {
 					this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceCssNames_UNKNOWN_SYMBOL_WARNING, []string{name, name}))
 					return
 				}
 			case CssRenamingMap_Style_BY_PART:
 				var replaced []string = newstrarr_(int32(len(parts)))
 				for i := int32(0); i < int32(len(parts)); i++ {
-					var part Optional[string] = this.symbolMap.get(parts[i])
-					if part.isEmpty() {
+					var part string = this.symbolMap.get(parts[i])
+					if part == nullstr_ {
 						this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceCssNames_UNKNOWN_SYMBOL_WARNING, []string{parts[i], name}))
 						return
 					}
-					replaced[i] = part.get()
+					replaced[i] = optstrGet_(part)
 				}
-				replacement = Optional_of[string](Joiner_on("-").join_ObjectArr(arrmap_(replaced, strobj_)))
+				replacement = optstrOf_(Joiner_on("-").join_ObjectArr(arrmap_(replaced, strobj_)))
 			}
 		}
-		n.setString(replacement.get())
+		n.setString(optstrGet_(replacement))
 	}
 }
 
@@ -258,9 +258,9 @@ func (this *ReplaceCssNames_GatherCssNamesTraversal) shouldTraverse(t *NodeTrave
 	}
 	if n.isScript() {
 		this.traversalState.inSassGeneratedCssTsScript = sassGeneratedCssTsExpert.hasSassGeneratedCssTsJsDoc
-		this.traversalState.cssClosureClassesQualifiedName = Optional_empty[string]()
+		this.traversalState.cssClosureClassesQualifiedName = nullstr_
 	} else if this.traversalState.inSassGeneratedCssTsScript && sassGeneratedCssTsExpert.isCssClosureClassesAssignment {
-		this.traversalState.cssClosureClassesQualifiedName = Optional_of[string](sassGeneratedCssTsExpert.cssClosureClassesQualifiedName)
+		this.traversalState.cssClosureClassesQualifiedName = optstrOf_(sassGeneratedCssTsExpert.cssClosureClassesQualifiedName)
 	}
 	return true
 }
@@ -319,11 +319,11 @@ func new_ReplaceCssNames_GatherCssNamesTraversal_SassGeneratedCssTsExpert(hasSas
 
 type ReplaceCssNames_GatherCssNamesTraversal_TraversalState struct {
 	inSassGeneratedCssTsScript     bool
-	cssClosureClassesQualifiedName Optional[string]
+	cssClosureClassesQualifiedName string
 }
 
 func (this *ReplaceCssNames_GatherCssNamesTraversal_TraversalState) finit_ReplaceCssNames_GatherCssNamesTraversal_TraversalState() {
-	this.cssClosureClassesQualifiedName = Optional_empty[string]()
+	this.cssClosureClassesQualifiedName = nullstr_
 }
 
 func (this *ReplaceCssNames_GatherCssNamesTraversal_TraversalState) init_ReplaceCssNames_GatherCssNamesTraversal_TraversalState() {
@@ -340,16 +340,16 @@ type ReplaceCssNames_GetCssNameInstance struct {
 	outer_                         *ReplaceCssNames
 	callNode_                      Node
 	validationError                *JSError
-	cssClosureClassesQualifiedName Optional[string]
+	cssClosureClassesQualifiedName string
 }
 
-func (this *ReplaceCssNames_GetCssNameInstance) init_ReplaceCssNames_GetCssNameInstance(callNode Node, validationError *JSError, cssClosureClassesQualifiedName Optional[string]) {
+func (this *ReplaceCssNames_GetCssNameInstance) init_ReplaceCssNames_GetCssNameInstance(callNode Node, validationError *JSError, cssClosureClassesQualifiedName string) {
 	this.callNode_ = callNode
 	this.validationError = validationError
 	this.cssClosureClassesQualifiedName = cssClosureClassesQualifiedName
 }
 
-func new_ReplaceCssNames_GetCssNameInstance(outer_ *ReplaceCssNames, callNode Node, validationError *JSError, cssClosureClassesQualifiedName Optional[string]) *ReplaceCssNames_GetCssNameInstance {
+func new_ReplaceCssNames_GetCssNameInstance(outer_ *ReplaceCssNames, callNode Node, validationError *JSError, cssClosureClassesQualifiedName string) *ReplaceCssNames_GetCssNameInstance {
 	this := &ReplaceCssNames_GetCssNameInstance{}
 	this.outer_ = outer_
 	this.init_ReplaceCssNames_GetCssNameInstance(callNode, validationError, cssClosureClassesQualifiedName)
@@ -405,18 +405,18 @@ func (this *ReplaceCssNames_GetCssNameInstance) replaceWithConcatenatedArgs() {
 }
 
 func (this *ReplaceCssNames_GetCssNameInstance) isCssClosureFileClassesMember() bool {
-	return this.cssClosureClassesQualifiedName.isPresent()
+	return this.cssClosureClassesQualifiedName != nullstr_
 }
 
-func (this *ReplaceCssNames_GetCssNameInstance) getCssClosureClassesQualifiedName() Optional[string] {
-	if !this.cssClosureClassesQualifiedName.isPresent() {
+func (this *ReplaceCssNames_GetCssNameInstance) getCssClosureClassesQualifiedName() string {
+	if this.cssClosureClassesQualifiedName == nullstr_ {
 		Preconditions_checkState_boolean_String_Object_H(false, "Not a css closure file classes object: %s", this.callNode_)
 	}
 	return this.cssClosureClassesQualifiedName
 }
 
-func (this *ReplaceCssNames_GetCssNameInstance) getCssClosureClassesMemberName() Optional[string] {
-	if !this.cssClosureClassesQualifiedName.isPresent() {
+func (this *ReplaceCssNames_GetCssNameInstance) getCssClosureClassesMemberName() string {
+	if this.cssClosureClassesQualifiedName == nullstr_ {
 		Preconditions_checkState_boolean_String_Object_H(false, "Not a css closure file classes object: %s", this.callNode_)
 	}
 	var ancestors *Node_AncestorIterable = this.callNode_.getAncestors()
@@ -424,32 +424,32 @@ func (this *ReplaceCssNames_GetCssNameInstance) getCssClosureClassesMemberName()
 	for it_1.next() {
 		var ancestor Node = Node_of_(it_1.v)
 		if ancestor.isStringKey() {
-			return Optional_of[string]((sstr_(this.cssClosureClassesQualifiedName.get()) + "." + sstr_(ancestor.getString())))
+			return optstrOf_((sstr_(optstrGet_(this.cssClosureClassesQualifiedName)) + "." + sstr_(ancestor.getString())))
 		}
 	}
 	panic(new_IllegalStateException_String(("No css closure classes member name found: " + tostr_(this.callNode_))))
 }
 
-func (this *ReplaceCssNames_GetCssNameInstance) getCssClassName() Optional[string] {
+func (this *ReplaceCssNames_GetCssNameInstance) getCssClassName() string {
 	if !this.isValid() {
 		Preconditions_checkState_boolean_String_Object_H(false, "not a valid goog.getCssName() call: %s", this.callNode_)
 	}
 	Preconditions_checkNotNull_Object_String_Object_T(this.callNode_.getParent(), "already replaced: %s", this.callNode_.box_())
 	var childCount int32 = this.callNode_.getChildCount()
 	var firstArg Node = Preconditions_checkNotNull_Object_Object_T(this.callNode_.getSecondChild(), this.callNode_.box_())
-	return func() Optional[string] {
+	return func() string {
 		switch childCount {
 		case 2:
 			if !firstArg.isStringLit() {
 				Preconditions_checkState_boolean_String_Object_H(false, "not a string literal: %s", firstArg)
 			}
-			return Optional_of[string](firstArg.getString())
+			return optstrOf_(firstArg.getString())
 		case 3:
 			var secondArg Node = Preconditions_checkNotNull_Object_Object_T(firstArg.getNext(), firstArg.box_())
 			if !secondArg.isStringLit() {
 				Preconditions_checkState_boolean_String_Object_H(false, "not a string literal: %s", secondArg)
 			}
-			return Optional_of[string](secondArg.getString())
+			return optstrOf_(secondArg.getString())
 		default:
 			panic(new_IllegalStateException_String(String_format("invalid number of children: %s for: %s", int32(childCount), this.callNode_.box_())))
 		}

@@ -1465,7 +1465,7 @@ func (this *RegExpTree_NamedCaptureGroup) children_impl() *TList[*RegExpTree] {
 
 type RegExpTree_UnicodePropertyEscape struct {
 	RegExpTree_RegExpTreeAtom
-	propertyName_ Optional[string]
+	propertyName_ string
 	propertyValue string
 	negated       bool
 }
@@ -1488,9 +1488,9 @@ func (this *RegExpTree_UnicodePropertyEscape) zero_RegExpTree_UnicodePropertyEsc
 	this.propertyValue = nullstr_
 }
 
-func (this *RegExpTree_UnicodePropertyEscape) init_RegExpTree_UnicodePropertyEscape(propertyName Optional[string], propertyValue string, negated bool) {
+func (this *RegExpTree_UnicodePropertyEscape) init_RegExpTree_UnicodePropertyEscape(propertyName string, propertyValue string, negated bool) {
 	this.RegExpTree_RegExpTreeAtom.init_RegExpTree_RegExpTreeAtom()
-	if !propertyName.isEmpty() && propertyName.get() == "" {
+	if propertyName != nullstr_ && optstrGet_(propertyName) == "" {
 		panic(new_IllegalArgumentException_String(objstr_("if '=' is present in a unicode property escape, the name cannot be empty")))
 	}
 	if propertyValue == "" {
@@ -1501,7 +1501,7 @@ func (this *RegExpTree_UnicodePropertyEscape) init_RegExpTree_UnicodePropertyEsc
 	this.negated = negated
 }
 
-func new_RegExpTree_UnicodePropertyEscape(propertyName Optional[string], propertyValue string, negated bool) *RegExpTree_UnicodePropertyEscape {
+func new_RegExpTree_UnicodePropertyEscape(propertyName string, propertyValue string, negated bool) *RegExpTree_UnicodePropertyEscape {
 	this := &RegExpTree_UnicodePropertyEscape{}
 	this.self_ = this
 	this.zero_RegExpTree_UnicodePropertyEscape()
@@ -1520,8 +1520,8 @@ func (this *RegExpTree_UnicodePropertyEscape) appendSourceCode_impl(sb *strBuild
 		}
 		return "\\p{"
 	}())
-	if this.propertyName_.isPresent() {
-		sb.append(this.propertyName_.get())
+	if this.propertyName_ != nullstr_ {
+		sb.append(optstrGet_(this.propertyName_))
 		sb.append_char('=')
 	}
 	sb.append(this.propertyValue)
@@ -1534,11 +1534,11 @@ func (this *RegExpTree_UnicodePropertyEscape) appendDebugInfo_impl(sb *strBuilde
 
 func (this *RegExpTree_UnicodePropertyEscape) equals_impl(o any) bool {
 	unicodePropertyEscape, ok := o.(*RegExpTree_UnicodePropertyEscape)
-	return (((ok && (this.negated == unicodePropertyEscape.negated)) && optEquals_(this.propertyName_, unicodePropertyEscape.propertyName_)) && (this.propertyValue == unicodePropertyEscape.propertyValue))
+	return (((ok && (this.negated == unicodePropertyEscape.negated)) && this.propertyName_ == unicodePropertyEscape.propertyName_) && (this.propertyValue == unicodePropertyEscape.propertyValue))
 }
 
 func (this *RegExpTree_UnicodePropertyEscape) hashCode_impl() int32 {
-	return Objects_hash(bool(this.negated), this.propertyName_.box_(), strobj_(this.propertyValue))
+	return Objects_hash(bool(this.negated), optstrBox_(this.propertyName_), strobj_(this.propertyValue))
 }
 
 type RegExpTree_Charset struct {
@@ -2146,7 +2146,7 @@ func (this *RegExpTree_1Parser) parseParenthetical() *RegExpTree {
 	var start int32 = this.pos
 	this.pos++
 	var type_ RegExpTree_ParentheticalType
-	var captureName Optional[string] = Optional_empty[string]()
+	var captureName string = nullstr_
 	if (this.pos < this.limit) && (this.cap_patternU16.charAt(this.pos) == '?') {
 		if (this.pos + 1) < this.limit {
 			var ch uint16 = this.cap_patternU16.charAt((this.pos + 1))
@@ -2169,8 +2169,8 @@ func (this *RegExpTree_1Parser) parseParenthetical() *RegExpTree {
 					type_ = RegExpTree_ParentheticalType_NEGATIVE_LOOKBEHIND
 				} else {
 					this.pos += 2
-					captureName = Optional_of[string](this.scanNamedGroupName())
-					this.capturingGroupNames[captureName.orElse(nullstr_)] = struct{}{}
+					captureName = optstrOf_(this.scanNamedGroupName())
+					this.capturingGroupNames[captureName] = struct{}{}
 					type_ = RegExpTree_ParentheticalType_NAMED_GROUPS
 				}
 			default:
@@ -2203,9 +2203,9 @@ func (this *RegExpTree_1Parser) parseParenthetical() *RegExpTree {
 	case RegExpTree_ParentheticalType_NEGATIVE_LOOKBEHIND:
 		return new_RegExpTree_LookbehindAssertion(body, false).up_RegExpTree()
 	case RegExpTree_ParentheticalType_NAMED_GROUPS:
-		if captureName.isPresent() {
+		if captureName != nullstr_ {
 			this.numCapturingGroups_++
-			return new_RegExpTree_NamedCaptureGroup(body, captureName.get()).up_RegExpTree()
+			return new_RegExpTree_NamedCaptureGroup(body, optstrGet_(captureName)).up_RegExpTree()
 		} else {
 			panic(new_IllegalArgumentException_String(("Malformed named capture group: " + sstr_(this.cap_patternU16.substring_int(start)))))
 		}
@@ -2375,7 +2375,7 @@ func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
 			}
 			if (this.pos < this.limit) && (ch == '}') {
 				this.pos++
-				return new_RegExpTree_UnicodePropertyEscape(Optional_empty[string](), lhs.toString(), negated).up_RegExpTree()
+				return new_RegExpTree_UnicodePropertyEscape(nullstr_, lhs.toString(), negated).up_RegExpTree()
 			} else if (this.pos < this.limit) && (ch == '=') {
 				var rhs strBuilder_
 				for {
@@ -2391,7 +2391,7 @@ func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
 				}
 				if (this.pos < this.limit) && (ch == '}') {
 					this.pos++
-					return new_RegExpTree_UnicodePropertyEscape(Optional_of[string](lhs.toString()), rhs.toString(), negated).up_RegExpTree()
+					return new_RegExpTree_UnicodePropertyEscape(optstrOf_(lhs.toString()), rhs.toString(), negated).up_RegExpTree()
 				} else {
 					panic(new_IllegalArgumentException_String(("Malformed Unicode Property Escape: expected '}' after " + sstr_(this.cap_patternU16.substring(start, this.pos)))))
 				}
@@ -2535,17 +2535,17 @@ func (this *RegExpTree_1Parser) parseRepetition(body *RegExpTree) *RegExpTree {
 		var counts string = this.cap_patternU16.substring(start, end)
 		this.pos = (end + 1)
 		var comma int32 = int32(strings.IndexByte(counts, ','))
-		var parsedMin any = JSCompStrings_parseIntOrNull(func() Optional[string] {
+		var parsedMin any = JSCompStrings_parseIntOrNull(func() string {
 			if comma >= 0 {
-				return Optional_of[string](counts[:comma])
+				return optstrOf_(counts[:comma])
 			}
-			return Optional_of[string](counts)
+			return optstrOf_(counts)
 		}())
 		var parsedMax any = func() any {
 			if comma >= 0 {
 				return func() any {
 					if (comma + 1) != int32(len(counts)) {
-						return JSCompStrings_parseIntOrNull(Optional_of[string](counts[(comma + 1):]))
+						return JSCompStrings_parseIntOrNull(optstrOf_(counts[(comma + 1):]))
 					}
 					return any(int32(int32(2147483647)))
 				}()

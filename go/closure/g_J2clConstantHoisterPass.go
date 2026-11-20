@@ -106,9 +106,9 @@ func J2clConstantHoisterPass_isClinitMethod(fnNode Node) bool {
 		return false
 	}
 	var fnName string = NodeUtil_getName(fnNode)
-	return (fnName != "" && J2clConstantHoisterPass_isClinitMethodName(Optional_of[string](fnName)))
+	return (fnName != "" && J2clConstantHoisterPass_isClinitMethodName(optstrOf_(fnName)))
 }
 
-func J2clConstantHoisterPass_isClinitMethodName(methodName Optional[string]) bool {
-	return (methodName.isPresent() && (strings.HasSuffix(methodName.get(), "$$0clinit") || strings.HasSuffix(methodName.get(), ".$clinit")))
+func J2clConstantHoisterPass_isClinitMethodName(methodName string) bool {
+	return (methodName != nullstr_ && (strings.HasSuffix(optstrGet_(methodName), "$$0clinit") || strings.HasSuffix(optstrGet_(methodName), ".$clinit")))
 }

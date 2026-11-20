@@ -80,14 +80,14 @@ func CheckInterfaces_checkClassMethods(t *NodeTraversal, classNode Node, ctorDef
 				continue
 			}
 			if memberFuncDef.isStaticMember() {
-				var className Optional[string] = Optional_of[string](NodeUtil_getName(classNode)).filterFn_(func(s string) bool {
+				var className string = optstrFilter_(optstrOf_(NodeUtil_getName(classNode)), func(s string) bool {
 					return s != ""
 				})
-				if className.isEmpty() {
-					className = Optional_of[string](CheckInterfaces_ANONYMOUS_CLASSNAME)
+				if className == nullstr_ {
+					className = optstrOf_(CheckInterfaces_ANONYMOUS_CLASSNAME)
 				}
 				var funcName string = memberFuncDef.getString()
-				t.report(memberFuncDef, CheckInterfaces_STATIC_MEMBER_FUNCTION_IN_INTERFACE_CLASS, []string{className.orElse("null"), funcName})
+				t.report(memberFuncDef, CheckInterfaces_STATIC_MEMBER_FUNCTION_IN_INTERFACE_CLASS, []string{optstrOr_(className, "null"), funcName})
 			} else {
 				var block Node = memberFuncDef.getLastChild().getLastChild()
 				if block.hasChildren() {

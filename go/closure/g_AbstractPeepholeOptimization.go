@@ -108,10 +108,10 @@ func (this *AbstractPeepholeOptimization) getSideEffectFreeBigIntValue(n Node) *
 	return value
 }
 
-func (this *AbstractPeepholeOptimization) getSideEffectFreeStringValue(n Node) Optional[string] {
-	var value Optional[string] = NodeUtil_getStringValue(n)
-	if value.isPresent() && this.astAnalyzer.mayHaveSideEffects(n) {
-		value = Optional_empty[string]()
+func (this *AbstractPeepholeOptimization) getSideEffectFreeStringValue(n Node) string {
+	var value string = NodeUtil_getStringValue(n)
+	if value != nullstr_ && this.astAnalyzer.mayHaveSideEffects(n) {
+		value = nullstr_
 	}
 	return value
 }

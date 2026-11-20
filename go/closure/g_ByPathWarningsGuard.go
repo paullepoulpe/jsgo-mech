@@ -52,12 +52,12 @@ func ByPathWarningsGuard_exceptPath(paths *TList[string], level CheckLevel) *ByP
 }
 
 func (this *ByPathWarningsGuard) level_impl(error_ *JSError) CheckLevel {
-	var errorPath Optional[string] = error_.sourceName()
+	var errorPath string = error_.sourceName()
 	var defaultLevel CheckLevel = error_.defaultLevel()
-	if (defaultLevel != CheckLevel_ERROR) && errorPath.isPresent() {
+	if (defaultLevel != CheckLevel_ERROR) && errorPath != nullstr_ {
 		var inPath bool = false
 		for path := range this.paths.All() {
-			inPath = bor_(inPath, JString_contains_s(errorPath.get(), path))
+			inPath = bor_(inPath, JString_contains_s(optstrGet_(errorPath), path))
 		}
 		if inPath == this.include {
 			return this.levelField

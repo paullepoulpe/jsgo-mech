@@ -105,7 +105,7 @@ func (this *TemplateAstMatcher) prepTemplatePlaceholders(fn Node) {
 		var paramNode Node = templateParametersNode.getFirstChild()
 		for ; paramNode != 0; paramNode = paramNode.getNext() {
 			var name string = paramNode.getString()
-			var expression *JSTypeExpression = info.getParameterType(Optional_of[string](name))
+			var expression *JSTypeExpression = info.getParameterType(optstrOf_(name))
 			Preconditions_checkNotNull_Object_String_Object_Object_T(expression, "Missing JSDoc for parameter %s of template function %s", name, fnName)
 			var type_ *JSType = this.typeRegistry.evaluateTypeExpression(expression, TypedScope_as_StaticTypedScope(this.topScope))
 			Preconditions_checkNotNull_T(type_)

@@ -98,14 +98,14 @@ func (this *AngularPass) visit_impl(unused *NodeTraversal, n Node, parent Node) 
 func (this *AngularPass) addNode(n Node) {
 	var injectAfter Node = 0
 	var fn Node = 0
-	var name Optional[string] = Optional_empty[string]()
+	var name string = nullstr_
 	switch n.ns_().token {
 	case tokOrd1_ASSIGN:
 		if !n.getFirstChild().isQualifiedName() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, AngularPass_INJECTED_FUNCTION_ON_NON_QNAME, []string{}))
 			return
 		}
-		name = Optional_of[string](n.getFirstChild().getQualifiedName()).filterFn_(func(s string) bool {
+		name = optstrFilter_(optstrOf_(n.getFirstChild().getQualifiedName()), func(s string) bool {
 			return s != ""
 		})
 		fn = n
@@ -114,7 +114,7 @@ func (this *AngularPass) addNode(n Node) {
 		}
 		injectAfter = n.getParent()
 	case tokOrd1_FUNCTION:
-		name = Optional_of[string](NodeUtil_getName(n)).filterFn_(func(s string) bool {
+		name = optstrFilter_(optstrOf_(NodeUtil_getName(n)), func(s string) bool {
 			return s != ""
 		})
 		fn = n
@@ -123,7 +123,7 @@ func (this *AngularPass) addNode(n Node) {
 			return
 		}
 	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
-		name = Optional_of[string](n.getFirstChild().getString())
+		name = optstrOf_(n.getFirstChild().getString())
 		fn = AngularPass_getDeclarationRValue(n)
 		injectAfter = n
 	case tokOrd1_MEMBER_FUNCTION_DEF:
@@ -136,9 +136,9 @@ func (this *AngularPass) addNode(n Node) {
 				}
 				return ".prototype."
 			}()
-			name = Optional_of[string]((sstr_(NodeUtil_getName(classNode)) + sstr_(midPart) + sstr_(n.getString())))
+			name = optstrOf_((sstr_(NodeUtil_getName(classNode)) + sstr_(midPart) + sstr_(n.getString())))
 			if NodeUtil_isEs6ConstructorMemberFunctionDef(n) {
-				name = Optional_of[string](NodeUtil_getName(classNode)).filterFn_(func(s string) bool {
+				name = optstrFilter_(optstrOf_(NodeUtil_getName(classNode)), func(s string) bool {
 					return s != ""
 				})
 			}
@@ -158,10 +158,10 @@ func (this *AngularPass) addNode(n Node) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, AngularPass_INJECT_IN_NON_GLOBAL_OR_BLOCK_ERROR, []string{}))
 		return
 	}
-	if !name.isPresent() {
+	if name == nullstr_ {
 		panic(new_IllegalStateException_0())
 	}
-	*this.injectables = append(*this.injectables, new_AngularPass_NodeContext(name.get(), n, fn, injectAfter))
+	*this.injectables = append(*this.injectables, new_AngularPass_NodeContext(optstrGet_(name), n, fn, injectAfter))
 }
 
 func AngularPass_getDeclarationRValue(n Node) Node {

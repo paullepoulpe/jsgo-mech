@@ -175,17 +175,17 @@ func (this *CheckAccessControls) checkTypeDeprecation(t *NodeTraversal, n Node) 
 		return
 	}
 	var instanceType *ObjectType = n.getJSType().toMaybeFunctionType().getInstanceType()
-	var deprecationInfo Optional[string] = CheckAccessControls_getTypeDeprecationInfo(instanceType.up_JSType())
-	if deprecationInfo.isEmpty() {
+	var deprecationInfo string = CheckAccessControls_getTypeDeprecationInfo(instanceType.up_JSType())
+	if deprecationInfo == nullstr_ {
 		return
 	}
 	var message *DiagnosticType = func() *DiagnosticType {
-		if deprecationInfo.get() == "" {
+		if optstrGet_(deprecationInfo) == "" {
 			return CheckAccessControls_DEPRECATED_CLASS
 		}
 		return CheckAccessControls_DEPRECATED_CLASS_REASON
 	}()
-	this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, message, []string{instanceType.toString(), deprecationInfo.get()}))
+	this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, message, []string{instanceType.toString(), optstrGet_(deprecationInfo)}))
 }
 
 func (this *CheckAccessControls) checkNameDeprecation(t *NodeTraversal, n Node) {
@@ -203,8 +203,8 @@ func (this *CheckAccessControls) checkNameDeprecation(t *NodeTraversal, n Node) 
 		return var_.getJSDocInfo()
 	}()
 	if (docInfo != nil) && docInfo.isDeprecated() {
-		if docInfo.getDeprecationReason().isPresent() {
-			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, CheckAccessControls_DEPRECATED_NAME_REASON, []string{n.getString(), docInfo.getDeprecationReason().get()}))
+		if docInfo.getDeprecationReason() != nullstr_ {
+			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, CheckAccessControls_DEPRECATED_NAME_REASON, []string{n.getString(), optstrGet_(docInfo.getDeprecationReason())}))
 		} else {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, CheckAccessControls_DEPRECATED_NAME, []string{n.getString()}))
 		}
@@ -221,10 +221,10 @@ func (this *CheckAccessControls) checkPropertyDeprecation(t *NodeTraversal, prop
 	var objectType *ObjectType = CheckAccessControls_castToObject(CheckAccessControls_dereference(propRef.receiverType().up_JSType()).up_JSType())
 	var propertyName string = propRef.name()
 	if objectType != nil {
-		var deprecationInfo Optional[string] = CheckAccessControls_getPropertyDeprecationInfo(objectType, propertyName)
-		if deprecationInfo.isPresent() {
-			if deprecationInfo.get() != "" {
-				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(propRef.sourceNode(), CheckAccessControls_DEPRECATED_PROP_REASON, []string{propertyName, propRef.getReadableTypeNameOrDefault(), deprecationInfo.get()}))
+		var deprecationInfo string = CheckAccessControls_getPropertyDeprecationInfo(objectType, propertyName)
+		if deprecationInfo != nullstr_ {
+			if optstrGet_(deprecationInfo) != "" {
+				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(propRef.sourceNode(), CheckAccessControls_DEPRECATED_PROP_REASON, []string{propertyName, propRef.getReadableTypeNameOrDefault(), optstrGet_(deprecationInfo)}))
 			} else {
 				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(propRef.sourceNode(), CheckAccessControls_DEPRECATED_PROP, []string{propertyName, propRef.getReadableTypeNameOrDefault()}))
 			}
@@ -267,9 +267,9 @@ func (this *CheckAccessControls) isPackageAccessAllowed(var_ *Var, name Node) bo
 		return false
 	}
 	var codingConvention CodingConvention = this.compiler_.getCodingConvention()
-	var srcPackage Optional[string] = codingConvention.getPackageName(varSrc)
-	var refPackage Optional[string] = codingConvention.getPackageName(refSrc)
-	return ((srcPackage.isPresent() && refPackage.isPresent()) && optEquals_(srcPackage, refPackage))
+	var srcPackage string = codingConvention.getPackageName(varSrc)
+	var refPackage string = codingConvention.getPackageName(refSrc)
+	return ((srcPackage != nullstr_ && refPackage != nullstr_) && srcPackage == refPackage)
 }
 
 func (this *CheckAccessControls) checkPropertyOverrideVisibilityIsSame(overriding JSDocInfo_Visibility, overridden JSDocInfo_Visibility, fileOverview JSDocInfo_Visibility, propRef *CheckAccessControls_PropertyReference) {
@@ -298,7 +298,7 @@ func (this *CheckAccessControls) checkFinalClassOverrides(ctor Node) {
 	}
 	var finalParentClass *ObjectType = CheckAccessControls_getSuperClassInstanceIfFinal(ctorType)
 	if finalParentClass != nil {
-		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(ctor, CheckAccessControls_EXTEND_FINAL_CLASS, []string{ctorType.getDisplayName().orElse("null"), finalParentClass.getDisplayName().orElse("null")}))
+		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(ctor, CheckAccessControls_EXTEND_FINAL_CLASS, []string{optstrOr_(ctorType.getDisplayName(), "null"), optstrOr_(finalParentClass.getDisplayName(), "null")}))
 	}
 }
 
@@ -507,9 +507,9 @@ func (this *CheckAccessControls) checkPropertyAccessVisibility(propRef *CheckAcc
 
 func (this *CheckAccessControls) checkPackagePropertyVisibility(propRef *CheckAccessControls_PropertyReference, referenceSource StaticSourceFile, definingSource StaticSourceFile) {
 	var codingConvention CodingConvention = this.compiler_.getCodingConvention()
-	var refPackage Optional[string] = codingConvention.getPackageName(referenceSource)
-	var defPackage Optional[string] = codingConvention.getPackageName(definingSource)
-	if (refPackage.isEmpty() || defPackage.isEmpty()) || !optEquals_(refPackage, defPackage) {
+	var refPackage string = codingConvention.getPackageName(referenceSource)
+	var defPackage string = codingConvention.getPackageName(definingSource)
+	if (refPackage == nullstr_ || defPackage == nullstr_) || refPackage != defPackage {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(propRef.sourceNode(), CheckAccessControls_BAD_PACKAGE_PROPERTY_ACCESS, []string{propRef.name(), propRef.getReadableTypeNameOrDefault()}))
 	}
 }
@@ -570,28 +570,28 @@ func (this *CheckAccessControls) canAccessDeprecatedTypes(t *NodeTraversal) bool
 		scopeRoot = scopeRoot.getParent()
 	}
 	var scopeRootParent Node = scopeRoot.getParent()
-	return (((this.deprecationDepth > 0) || CheckAccessControls_getTypeDeprecationInfo(this.getTypeOfThis(scopeRoot)).isPresent()) || (((scopeRootParent != 0) && scopeRootParent.isAssign()) && CheckAccessControls_getTypeDeprecationInfo(this.bestInstanceTypeForMethodOrCtor(scopeRoot).up_JSType()).isPresent()))
+	return (((this.deprecationDepth > 0) || CheckAccessControls_getTypeDeprecationInfo(this.getTypeOfThis(scopeRoot)) != nullstr_) || (((scopeRootParent != 0) && scopeRootParent.isAssign()) && CheckAccessControls_getTypeDeprecationInfo(this.bestInstanceTypeForMethodOrCtor(scopeRoot).up_JSType()) != nullstr_))
 }
 
 func CheckAccessControls_isMarkedDeprecated(n Node) bool {
-	return CheckAccessControls_getDeprecationReason(NodeUtil_getBestJSDocInfo(n)).isPresent()
+	return CheckAccessControls_getDeprecationReason(NodeUtil_getBestJSDocInfo(n)) != nullstr_
 }
 
-func CheckAccessControls_getTypeDeprecationInfo(type_ *JSType) Optional[string] {
+func CheckAccessControls_getTypeDeprecationInfo(type_ *JSType) string {
 	if type_ == nil {
-		return Optional_empty[string]()
+		return nullstr_
 	}
 	return CheckAccessControls_getDeprecationReason(type_.getJSDocInfo())
 }
 
-func CheckAccessControls_getDeprecationReason(info *JSDocInfo) Optional[string] {
+func CheckAccessControls_getDeprecationReason(info *JSDocInfo) string {
 	if (info != nil) && info.isDeprecated() {
-		if info.getDeprecationReason().isPresent() {
+		if info.getDeprecationReason() != nullstr_ {
 			return info.getDeprecationReason()
 		}
-		return Optional_of[string]("")
+		return ""
 	}
-	return Optional_empty[string]()
+	return nullstr_
 }
 
 func (this *CheckAccessControls) isPropertyDeclaredConstant(objectType *ObjectType, prop string) CheckAccessControls_Constancy {
@@ -608,16 +608,16 @@ func (this *CheckAccessControls) isPropertyDeclaredConstant(objectType *ObjectTy
 	return CheckAccessControls_Constancy_MUTABLE
 }
 
-func CheckAccessControls_getPropertyDeprecationInfo(type_ *ObjectType, prop string) Optional[string] {
-	var depReason Optional[string] = CheckAccessControls_getDeprecationReason(type_.getOwnPropertyJSDocInfo(prop))
-	if depReason.isPresent() {
+func CheckAccessControls_getPropertyDeprecationInfo(type_ *ObjectType, prop string) string {
+	var depReason string = CheckAccessControls_getDeprecationReason(type_.getOwnPropertyJSDocInfo(prop))
+	if depReason != nullstr_ {
 		return depReason
 	}
 	var implicitProto *ObjectType = type_.getImplicitPrototype()
 	if implicitProto != nil {
 		return CheckAccessControls_getPropertyDeprecationInfo(implicitProto, prop)
 	}
-	return Optional_empty[string]()
+	return nullstr_
 }
 
 func CheckAccessControls_getSuperClassInstanceIfFinal(subCtor *FunctionType) *ObjectType {
@@ -681,7 +681,7 @@ func (this *CheckAccessControls) createPropertyReference(sourceNode Node) *Check
 		{
 			var isLValue bool = NodeUtil_isLValue(sourceNode)
 			builder.setName(sourceNode.getString()).setReceiverType(this.boxedOrUnknown(sourceNode.getFirstChild().getJSType())).setMutation((isLValue || sourceNode.getParent().isDelProp())).setDeclaration((parent.isExprResult() || (((jsdoc != nil) && jsdoc.isConstant()) && isLValue))).setOverride(((jsdoc != nil) && isLValue)).setReadableTypeName(&Supplier_tfn_string{func() string {
-				return this.typeRegistry.getReadableTypeName(sourceNode.getFirstChild()).orElse(nullstr_)
+				return this.typeRegistry.getReadableTypeName(sourceNode.getFirstChild())
 			}})
 		}
 	case Token_rhino_STRING_KEY, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF:
@@ -692,11 +692,11 @@ func (this *CheckAccessControls) createPropertyReference(sourceNode Node) *Check
 					return nil
 				}
 				builder.setName(sourceNode.getString()).setReceiverType(this.typeOrUnknown(ObjectType_cast(parent.getJSType()))).setMutation(true).setDeclaration(true).setOverride(false).setReadableTypeName(&Supplier_tfn_string{func() string {
-					return this.typeRegistry.getReadableTypeName(parent).orElse(nullstr_)
+					return this.typeRegistry.getReadableTypeName(parent)
 				}})
 			case tokOrd1_OBJECT_PATTERN:
 				builder.setName(sourceNode.getString()).setReceiverType(this.typeOrUnknown(ObjectType_cast(parent.getJSType()))).setMutation(false).setDeclaration(false).setOverride(false).setReadableTypeName(&Supplier_tfn_string{func() string {
-					return this.typeRegistry.getReadableTypeName(parent).orElse(nullstr_)
+					return this.typeRegistry.getReadableTypeName(parent)
 				}})
 			case tokOrd1_CLASS_MEMBERS:
 				builder.setName(sourceNode.getString()).setReceiverType(this.typeRegistry.getNativeObjectType(JSTypeNative_UNKNOWN_TYPE)).setMutation(!(sourceNode.isMemberFieldDef() && !sourceNode.hasChildren())).setDeclaration(true).setOverride((jsdoc != nil)).setReadableTypeName(&Supplier_tfn_string{func() string {
@@ -1091,7 +1091,7 @@ func (this *CheckAccessControls_PropertyReference) toString() string {
 
 type CheckAccessControls_PropertyReference_Builder struct {
 	sourceNode_       Node
-	name_             Optional[string]
+	name_             string
 	receiverType_     *ObjectType
 	mutation_         bool
 	declaration_      bool
@@ -1101,7 +1101,7 @@ type CheckAccessControls_PropertyReference_Builder struct {
 }
 
 func (this *CheckAccessControls_PropertyReference_Builder) finit_CheckAccessControls_PropertyReference_Builder() {
-	this.name_ = Optional_empty[string]()
+	this.name_ = nullstr_
 }
 
 func (this *CheckAccessControls_PropertyReference_Builder) init_CheckAccessControls_PropertyReference_Builder() {
@@ -1123,7 +1123,7 @@ func (this *CheckAccessControls_PropertyReference_Builder) setSourceNode(node No
 }
 
 func (this *CheckAccessControls_PropertyReference_Builder) setName(name string) *CheckAccessControls_PropertyReference_Builder {
-	this.name_ = Optional_of[string](name)
+	this.name_ = optstrOf_(name)
 	return this
 }
 
@@ -1162,12 +1162,12 @@ func (this *CheckAccessControls_PropertyReference_Builder) setReadableTypeName(t
 }
 
 func (this *CheckAccessControls_PropertyReference_Builder) build() *CheckAccessControls_PropertyReference {
-	if ((((int32(this.set0) != 7) || (this.sourceNode_ == 0)) || this.name_.isEmpty()) || (this.receiverType_ == nil)) || (this.readableTypeName_ == nil) {
+	if ((((int32(this.set0) != 7) || (this.sourceNode_ == 0)) || this.name_ == nullstr_) || (this.receiverType_ == nil)) || (this.readableTypeName_ == nil) {
 		var missing *StringBuilder = new_StringBuilder()
 		if this.sourceNode_ == 0 {
 			missing.append(" sourceNode")
 		}
-		if this.name_.isEmpty() {
+		if this.name_ == nullstr_ {
 			missing.append(" name")
 		}
 		if this.receiverType_ == nil {
@@ -1187,5 +1187,5 @@ func (this *CheckAccessControls_PropertyReference_Builder) build() *CheckAccessC
 		}
 		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))))
 	}
-	return new_CheckAccessControls_PropertyReference(this.sourceNode_, this.name_.get(), this.receiverType_, this.mutation_, this.declaration_, this.override_, this.readableTypeName_)
+	return new_CheckAccessControls_PropertyReference(this.sourceNode_, optstrGet_(this.name_), this.receiverType_, this.mutation_, this.declaration_, this.override_, this.readableTypeName_)
 }

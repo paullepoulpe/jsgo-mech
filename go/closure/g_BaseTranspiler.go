@@ -121,7 +121,7 @@ func (this *BaseTranspiler_CompilerSupplier) compile(path string, code string) *
 					panic(r_)
 				}
 			}()
-			result.sourceMap_.appendTo(StringBuilder_as_Appendable(sourceMap), Optional_of[string](path))
+			result.sourceMap_.appendTo(StringBuilder_as_Appendable(sourceMap), optstrOf_(path))
 		}()
 	}
 	var transpiled bool = result.transpiledFiles
@@ -173,14 +173,14 @@ func (this *BaseTranspiler_CompilerSupplier) setOptions(options *CompilerOptions
 	options.setPathEscaper(ModuleLoader_PathEscaper_CANONICALIZE_ONLY)
 	options.setParseInlineSourceMaps(true)
 	options.setApplyInputSourceMaps(true)
-	options.setSourceMapOutputPath(Optional_of[string]("/dev/null"))
+	options.setSourceMapOutputPath("/dev/null")
 	options.setSourceMapIncludeSourcesContent(true)
 	options.setSourceMapLocationMappings(immutableListOf_[SourceMap_LocationMapping](tc_SourceMap_LocationMapping, lambda_BaseTranspiler_CompilerSupplier_setOptions_1_))
 }
 
 // lambda_BaseTranspiler_CompilerSupplier_setOptions_1_ is a lambda of BaseTranspiler_CompilerSupplier_setOptions that captures nothing (post-flip step lambdas).
-var lambda_BaseTranspiler_CompilerSupplier_setOptions_1_ = &SourceMap_LocationMapping_fn{func(location Optional[string]) Optional[string] {
-	if Uris_isValid(location.get()) && Uris_hasScheme(location.get()) {
+var lambda_BaseTranspiler_CompilerSupplier_setOptions_1_ = &SourceMap_LocationMapping_fn{func(location string) string {
+	if Uris_isValid(optstrGet_(location)) && Uris_hasScheme(optstrGet_(location)) {
 		return location
 	}
 	return new_SourceMap_PrefixLocationMapping("", "/").map_(location)

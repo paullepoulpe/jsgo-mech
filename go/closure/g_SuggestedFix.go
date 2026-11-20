@@ -7,18 +7,18 @@ import "strings"
 type SuggestedFix struct {
 	matchedNodeInfo *SuggestedFix_MatchedNodeInfo
 	replacements    *SimpleSetMultimap[any, any]
-	description_    Optional[string]
+	description_    string
 	alternatives    *TList[*SuggestedFix]
 }
 
-func (this *SuggestedFix) init_SuggestedFix(matchedNodeInfo *SuggestedFix_MatchedNodeInfo, replacements *SimpleSetMultimap[any, any], description Optional[string], alternatives *TList[*SuggestedFix]) {
+func (this *SuggestedFix) init_SuggestedFix(matchedNodeInfo *SuggestedFix_MatchedNodeInfo, replacements *SimpleSetMultimap[any, any], description string, alternatives *TList[*SuggestedFix]) {
 	this.matchedNodeInfo = matchedNodeInfo
 	this.replacements = replacements
 	this.description_ = description
 	this.alternatives = tlistImm_(tc_p_SuggestedFix, immutableListBuilder_(tc_p_SuggestedFix).add(this).addAll(Iterable(alternatives.asList())).buildErased())
 }
 
-func new_SuggestedFix(matchedNodeInfo *SuggestedFix_MatchedNodeInfo, replacements *SimpleSetMultimap[any, any], description Optional[string], alternatives *TList[*SuggestedFix]) *SuggestedFix {
+func new_SuggestedFix(matchedNodeInfo *SuggestedFix_MatchedNodeInfo, replacements *SimpleSetMultimap[any, any], description string, alternatives *TList[*SuggestedFix]) *SuggestedFix {
 	this := &SuggestedFix{}
 	this.init_SuggestedFix(matchedNodeInfo, replacements, description, alternatives)
 	return this
@@ -32,7 +32,7 @@ func (this *SuggestedFix) getReplacements() *SimpleSetMultimap[any, any] {
 	return this.replacements
 }
 
-func (this *SuggestedFix) getDescription() Optional[string] {
+func (this *SuggestedFix) getDescription() string {
 	return this.description_
 }
 
@@ -142,14 +142,14 @@ type SuggestedFix_Builder struct {
 	matchedNodeInfo *SuggestedFix_MatchedNodeInfo
 	replacements    *SimpleSetMultimap[any, any]
 	alternatives    *ImmutableList_Builder[*SuggestedFix]
-	description_    Optional[string]
+	description_    string
 }
 
 func (this *SuggestedFix_Builder) finit_SuggestedFix_Builder() {
 	this.matchedNodeInfo = nil
 	this.replacements = SimpleSetMultimap_create[any, any]()
 	this.alternatives = immutableListBuilder_(tc_p_SuggestedFix)
-	this.description_ = Optional_empty[string]()
+	this.description_ = nullstr_
 }
 
 func (this *SuggestedFix_Builder) init_SuggestedFix_Builder() {
@@ -377,7 +377,7 @@ func (this *SuggestedFix_Builder) addOrReplaceJsDoc(n Node, newJsDoc string) *Su
 	var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
 	if jsDoc != nil {
 		offset = jsDoc.getOriginalCommentPosition()
-		length = String_length(jsDoc.getOriginalCommentString().get())
+		length = String_length(optstrGet_(jsDoc.getOriginalCommentString()))
 	}
 	this.replacements.put_s(n.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(offset, length, newJsDoc)))
 	return this
@@ -399,10 +399,10 @@ func (this *SuggestedFix_Builder) changeJsDocType(n Node, compiler *AbstractComp
 func (this *SuggestedFix_Builder) replaceTypePattern(n Node, type_ string, pattern *Pattern) {
 	var info *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
 	Preconditions_checkNotNull_Object_String_Object_T(info, "Node %s does not have JS Doc associated with it.", n.box_())
-	var originalComment Optional[string] = info.getOriginalCommentString()
+	var originalComment string = info.getOriginalCommentString()
 	var originalPosition int32 = info.getOriginalCommentPosition()
-	if originalComment.isPresent() {
-		var m *Matcher_re2j = pattern.matcher_s(originalComment.get())
+	if originalComment != nullstr_ {
+		var m *Matcher_re2j = pattern.matcher_s(optstrGet_(originalComment))
 		for m.find() {
 			this.replacements.put_s(n.getSourceFileName(), obj_(CodeReplacement_create_int_int_String((originalPosition+m.start()), (m.end()-m.start()), ("@"+sstr_(m.group(1))+" {"+sstr_(type_)+"}"))))
 		}
@@ -475,7 +475,7 @@ func (this *SuggestedFix_Builder) deleteArgument(n Node, position int32) *Sugges
 	return this
 }
 
-func SuggestedFix_Builder_createImportNode(importType SuggestedFix_ImportType, alias Optional[string], namespace string) Node {
+func SuggestedFix_Builder_createImportNode(importType SuggestedFix_ImportType, alias string, namespace string) Node {
 	var requireFlavor string = func() string {
 		switch importType {
 		case SuggestedFix_ImportType_REQUIRE:
@@ -486,8 +486,8 @@ func SuggestedFix_Builder_createImportNode(importType SuggestedFix_ImportType, a
 		panic(new_NullPointerException_0())
 	}()
 	var callNode Node = IR_call(IR_getprop_Node_String(IR_name("goog"), requireFlavor), []Node{IR_string(namespace)})
-	if alias.isPresent() {
-		return IR_constNode(IR_name(alias.get()), callNode)
+	if alias != nullstr_ {
+		return IR_constNode(IR_name(optstrGet_(alias)), callNode)
 	} else {
 		return IR_exprResult(callNode)
 	}
@@ -513,32 +513,32 @@ func SuggestedFix_Builder_firstUnusedAlias(namespace string, scriptMetadata *Scr
 }
 
 func (this *SuggestedFix_Builder) addImport(m *Match, namespace string, importType SuggestedFix_ImportType, scriptMetadata *ScriptMetadata) *SuggestedFix_Builder {
-	var alias Optional[string]
+	var alias string
 	if scriptMetadata.supportsRequireAliases() {
-		var existingAlias Optional[string] = scriptMetadata.getAlias(namespace)
-		if existingAlias.isPresent() {
+		var existingAlias string = scriptMetadata.getAlias(namespace)
+		if existingAlias != nullstr_ {
 			alias = existingAlias
 		} else if !strings.Contains(namespace, ".") {
-			alias = Optional_of[string](namespace)
+			alias = optstrOf_(namespace)
 		} else {
-			alias = Optional_of[string](SuggestedFix_Builder_firstUnusedAlias(namespace, scriptMetadata))
+			alias = optstrOf_(SuggestedFix_Builder_firstUnusedAlias(namespace, scriptMetadata))
 		}
-		scriptMetadata.addAlias(namespace, alias.orElse(nullstr_))
+		scriptMetadata.addAlias(namespace, alias)
 	} else {
-		alias = Optional_empty[string]()
+		alias = nullstr_
 	}
 	var metadata *NodeMetadata = m.getMetadata()
 	var existingNode Node = SuggestedFix_Builder_findGoogRequireNode(m.getNode(), metadata, namespace)
 	if existingNode != 0 {
-		if existingNode.isExprResult() && alias.isPresent() {
+		if existingNode.isExprResult() && alias != nullstr_ {
 			var newNode Node
 			if NodeUtil_isCallTo(existingNode.getFirstChild(), "goog.forwardDeclare") {
 				newNode = SuggestedFix_Builder_createImportNode(importType, alias, namespace)
 			} else {
-				newNode = IR_constNode(IR_name(alias.get()), existingNode.getFirstChild().cloneTree())
+				newNode = IR_constNode(IR_name(optstrGet_(alias)), existingNode.getFirstChild().cloneTree())
 			}
 			this.replace(existingNode, newNode, m.getMetadata().getCompiler())
-			scriptMetadata.addAlias(namespace, alias.get())
+			scriptMetadata.addAlias(namespace, optstrGet_(alias))
 		}
 		return this
 	}
@@ -572,7 +572,7 @@ func (this *SuggestedFix_Builder) addImport(m *Match, namespace string, importTy
 			if originalName != "" {
 				requireName = originalName
 			}
-			if utf16Compare_(alias.get(), requireName) < 0 {
+			if utf16Compare_(optstrGet_(alias), requireName) < 0 {
 				nodeToInsertBefore = child
 				break
 			}
@@ -663,7 +663,7 @@ func (this *SuggestedFix_Builder) generateCode(compiler *AbstractCompiler, node 
 }
 
 func (this *SuggestedFix_Builder) setDescription(description string) *SuggestedFix_Builder {
-	this.description_ = Optional_of[string](description)
+	this.description_ = optstrOf_(description)
 	return this
 }
 

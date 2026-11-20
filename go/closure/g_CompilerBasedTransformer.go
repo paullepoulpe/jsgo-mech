@@ -10,7 +10,7 @@ type CompilerBasedTransformer struct {
 // CompilerBasedTransformer_I holds the methods the dispatchers of CompilerBasedTransformer's hierarchy call on the most derived
 // object (self_); every class of the hierarchy implements them (post-flip).
 type CompilerBasedTransformer_I interface {
-	getRuntime_impl() Optional[string]
+	getRuntime_impl() string
 	getTranformationName_impl() string
 }
 
@@ -43,13 +43,13 @@ func (this *CompilerBasedTransformer) transform(input *Source) *Source {
 		return input
 	}
 	var builder *Source_Builder = input.toBuilder().setCode(result.source).setSourceMap(result.sourceMap_)
-	if this.getRuntime().isPresent() {
-		builder.addRuntime([]string{this.compilerSupplierField.runtime(this.getRuntime().get())})
+	if this.getRuntime() != nullstr_ {
+		builder.addRuntime([]string{this.compilerSupplierField.runtime(optstrGet_(this.getRuntime()))})
 	}
 	return builder.build()
 }
 
-func (this *CompilerBasedTransformer) getRuntime() Optional[string] {
+func (this *CompilerBasedTransformer) getRuntime() string {
 	return this.self_.getRuntime_impl()
 }
 
@@ -120,7 +120,7 @@ func (this *CompilerBasedTransformer_CompilerSupplier) compile(path string, code
 					panic(r_)
 				}
 			}()
-			result.sourceMap_.appendTo(StringBuilder_as_Appendable(sourceMap), Optional_of[string](path))
+			result.sourceMap_.appendTo(StringBuilder_as_Appendable(sourceMap), optstrOf_(path))
 		}()
 	}
 	var transformed bool = this.transformed(result)
@@ -162,7 +162,7 @@ func (this *CompilerBasedTransformer_CompilerSupplier) setOptions_impl(options *
 	options.setPropertyRenaming(PropertyRenamingPolicy_OFF)
 	options.setWrapGoogModulesForWhitespaceOnly(false)
 	options.setPrettyPrint(true)
-	options.setSourceMapOutputPath(Optional_of[string]("/dev/null"))
+	options.setSourceMapOutputPath("/dev/null")
 	options.setSourceMapIncludeSourcesContent(true)
 	options.setWarningLevel(CompilerBasedTransformer_CompilerSupplier_ES5_WARNINGS, CheckLevel_OFF)
 }

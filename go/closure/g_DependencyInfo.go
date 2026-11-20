@@ -223,14 +223,14 @@ func DependencyInfo_Require_Type_clinit() {
 }
 
 type DependencyInfo_Require_Builder struct {
-	symbol_ Optional[string]
-	rawText Optional[string]
+	symbol_ string
+	rawText string
 	type__  DependencyInfo_Require_Type
 }
 
 func (this *DependencyInfo_Require_Builder) finit_DependencyInfo_Require_Builder() {
-	this.symbol_ = Optional_empty[string]()
-	this.rawText = Optional_empty[string]()
+	this.symbol_ = nullstr_
+	this.rawText = nullstr_
 }
 
 func (this *DependencyInfo_Require_Builder) init_DependencyInfo_Require_Builder_0() {
@@ -245,8 +245,8 @@ func new_DependencyInfo_Require_Builder_0() *DependencyInfo_Require_Builder {
 
 func (this *DependencyInfo_Require_Builder) init_DependencyInfo_Require_Builder_Require(source *DependencyInfo_Require) {
 	this.finit_DependencyInfo_Require_Builder()
-	this.symbol_ = Optional_of[string](source.getSymbol())
-	this.rawText = Optional_of[string](source.getRawText())
+	this.symbol_ = optstrOf_(source.getSymbol())
+	this.rawText = optstrOf_(source.getRawText())
 	this.type__ = source.getType()
 }
 
@@ -265,22 +265,22 @@ func (this *DependencyInfo_Require_Builder) setType(value DependencyInfo_Require
 }
 
 func (this *DependencyInfo_Require_Builder) setRawText(rawText string) *DependencyInfo_Require_Builder {
-	this.rawText = Optional_of[string](rawText)
+	this.rawText = optstrOf_(rawText)
 	return this
 }
 
 func (this *DependencyInfo_Require_Builder) setSymbol(value string) *DependencyInfo_Require_Builder {
-	this.symbol_ = Optional_of[string](value)
+	this.symbol_ = optstrOf_(value)
 	return this
 }
 
 func (this *DependencyInfo_Require_Builder) build() *DependencyInfo_Require {
-	if (this.symbol_.isEmpty() || this.rawText.isEmpty()) || (this.type__ == 0) {
+	if (this.symbol_ == nullstr_ || this.rawText == nullstr_) || (this.type__ == 0) {
 		var missing *StringBuilder = new_StringBuilder()
-		if this.symbol_.isEmpty() {
+		if this.symbol_ == nullstr_ {
 			missing.append(" symbol")
 		}
-		if this.rawText.isEmpty() {
+		if this.rawText == nullstr_ {
 			missing.append(" rawText")
 		}
 		if this.type__ == 0 {
@@ -288,7 +288,7 @@ func (this *DependencyInfo_Require_Builder) build() *DependencyInfo_Require {
 		}
 		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))))
 	}
-	return new_DependencyInfo_Require(this.symbol_.get(), this.rawText.get(), this.type__)
+	return new_DependencyInfo_Require(optstrGet_(this.symbol_), optstrGet_(this.rawText), this.type__)
 }
 
 type DependencyInfo_Util struct {

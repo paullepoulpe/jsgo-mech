@@ -250,7 +250,7 @@ func (this *PhaseOptimizer_NamedPass) process_2(externs Node, root Node) {
 	if this.outer_.tracker != nil {
 		this.outer_.tracker.recordPassStart(this.name_, !this.factory.isRunInFixedPointLoop())
 	}
-	this.tracer = new_Tracer_Optional_Optional(Optional_of[string]("Compiler"), Optional_of[string](this.name_))
+	this.tracer = new_Tracer_Optional_Optional("Compiler", optstrOf_(this.name_))
 	this.outer_.compiler_.beforePass(this.name_)
 	this.factory.create(this.outer_.compiler_).process_2(externs, root)
 	this.outer_.compiler_.afterPass(this.name_)

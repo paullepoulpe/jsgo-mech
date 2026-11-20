@@ -64,10 +64,10 @@ func (this *FunctionTypeBuilder) finit_FunctionTypeBuilder() {
 	this.declarationScope = nil
 }
 
-func (this *FunctionTypeBuilder) init_FunctionTypeBuilder(fnName Optional[string], compiler *AbstractCompiler, errorRoot Node, scope *TypedScope) {
+func (this *FunctionTypeBuilder) init_FunctionTypeBuilder(fnName string, compiler *AbstractCompiler, errorRoot Node, scope *TypedScope) {
 	this.finit_FunctionTypeBuilder()
 	Preconditions_checkNotNull_T(errorRoot)
-	this.fnName = fnName.orElse("")
+	this.fnName = optstrOr_(fnName, "")
 	this.codingConvention = compiler.getCodingConvention()
 	this.typeRegistry = compiler.getTypeRegistry()
 	this.errorRoot = errorRoot
@@ -75,7 +75,7 @@ func (this *FunctionTypeBuilder) init_FunctionTypeBuilder(fnName Optional[string
 	this.templateScope = TypedScope_as_StaticTypedScope(scope)
 }
 
-func new_FunctionTypeBuilder(fnName Optional[string], compiler *AbstractCompiler, errorRoot Node, scope *TypedScope) *FunctionTypeBuilder {
+func new_FunctionTypeBuilder(fnName string, compiler *AbstractCompiler, errorRoot Node, scope *TypedScope) *FunctionTypeBuilder {
 	this := &FunctionTypeBuilder{}
 	this.zero_FunctionTypeBuilder()
 	this.init_FunctionTypeBuilder(fnName, compiler, errorRoot, scope)
@@ -99,8 +99,8 @@ func (this *FunctionTypeBuilder) formatFnName() string {
 	}()
 }
 
-func (this *FunctionTypeBuilder) setSyntacticFunctionName(syntacticFnName Optional[string]) *FunctionTypeBuilder {
-	this.syntacticFnName = syntacticFnName.orElse("")
+func (this *FunctionTypeBuilder) setSyntacticFunctionName(syntacticFnName string) *FunctionTypeBuilder {
+	this.syntacticFnName = optstrOr_(syntacticFnName, "")
 	return this
 }
 
@@ -356,9 +356,9 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 				isOptionalParam = this.isOptionalParameterByConvention(param)
 				paramLhs = param
 			}
-			var paramName Optional[string] = Optional_empty[string]()
+			var paramName string = nullstr_
 			if paramLhs.isName() {
-				paramName = Optional_of[string](paramLhs.getString())
+				paramName = optstrOf_(paramLhs.getString())
 			} else {
 				if !paramLhs.isDestructuringPattern() {
 					panic(new_IllegalStateException_0())
@@ -367,8 +367,8 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 					paramName = info.getParameterNameAt(paramIndex)
 				}
 			}
-			if paramName.isPresent() {
-				allJsDocParams.Delete(paramName.get())
+			if paramName != nullstr_ {
+				allJsDocParams.Delete(optstrGet_(paramName))
 			}
 			var parameterType *JSType = nil
 			if (info != nil) && info.hasParameterType(paramName) {
@@ -520,7 +520,7 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 	var builtTemplates *TList[*TemplateType] = templates.build()
 	for template := range builtTemplates.All() {
 		if template.containsCycle() {
-			this.reportError(RhinoErrorReporter_CYCLIC_INHERITANCE_ERROR, []string{("Cycle detected in inheritance chain of type " + sstr_(template.getReferenceName().orElse("null")))})
+			this.reportError(RhinoErrorReporter_CYCLIC_INHERITANCE_ERROR, []string{("Cycle detected in inheritance chain of type " + sstr_(optstrOr_(template.getReferenceName(), "null")))})
 		}
 	}
 	return builtTemplates
@@ -631,7 +631,7 @@ func (this *FunctionTypeBuilder) maybeSetBaseType(fnType *FunctionType) {
 }
 
 func (this *FunctionTypeBuilder) createDefaultBuilder() *FunctionType_Builder {
-	return FunctionType_builder(this.typeRegistry).withName(Optional_of[string](this.fnName)).withSourceNode(this.contents.getSourceNode()).withTemplateKeysImmutableList(this.templateTypeNames).setIsKnownAmbiguous(this.isKnownAmbiguous).setGoogModuleId(TypedScopeCreator_containingGoogModuleIdOf(this.declarationScope).orElse(""))
+	return FunctionType_builder(this.typeRegistry).withName(optstrOf_(this.fnName)).withSourceNode(this.contents.getSourceNode()).withTemplateKeysImmutableList(this.templateTypeNames).setIsKnownAmbiguous(this.isKnownAmbiguous).setGoogModuleId(optstrOr_(TypedScopeCreator_containingGoogModuleIdOf(this.declarationScope), ""))
 }
 
 func (this *FunctionTypeBuilder) getOrCreateConstructor() *FunctionType {

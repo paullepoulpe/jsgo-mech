@@ -6,18 +6,18 @@ type SourceMapConsumerV3 struct {
 	sources              []string
 	sourcesContent       []string
 	names_               []string
-	file                 Optional[string]
+	file                 string
 	lineCount            int32
 	mappings             *SourceMapConsumerV3_Mappings
 	reverseSourceMapping map[string]Map
-	sourceRoot           Optional[string]
+	sourceRoot           string
 	extensions           *TMap[string, any]
 }
 
 func (this *SourceMapConsumerV3) finit_SourceMapConsumerV3() {
-	this.file = Optional_empty[string]()
+	this.file = nullstr_
 	this.mappings = nil
-	this.sourceRoot = Optional_empty[string]()
+	this.sourceRoot = nullstr_
 	this.extensions = newTMap_(tc_string, tc_Object)
 }
 
@@ -44,7 +44,7 @@ func (this *SourceMapConsumerV3) parse_2(sourceMapObject *SourceMapObject, secti
 		return Outcome_base_err[any](new_SourceMapParseException(("Unknown version: " + istr_(int64(sourceMapObject.getVersion())))).up_Throwable())
 	}
 	this.file = sourceMapObject.getFile()
-	if this.file.isPresent() && this.file.get() == "" {
+	if this.file != nullstr_ && optstrGet_(this.file) == "" {
 		return Outcome_base_err[any](new_SourceMapParseException("File entry is empty").up_Throwable())
 	}
 	if sourceMapObject.getSections() != nil {
@@ -62,11 +62,11 @@ func (this *SourceMapConsumerV3) parse_2(sourceMapObject *SourceMapObject, secti
 		}
 		return 1000
 	}()
-	if sourceMapObject.getMappings().isPresent() {
-		estimatedEntries = Math_max(estimatedEntries, (String_length(sourceMapObject.getMappings().get()) / 6))
+	if sourceMapObject.getMappings() != nullstr_ {
+		estimatedEntries = Math_max(estimatedEntries, (String_length(optstrGet_(sourceMapObject.getMappings())) / 6))
 	}
 	this.extensions.asMap().putAll(sourceMapObject.getExtensions().asMap())
-	var built *Outcome_base[*SourceMapConsumerV3_Mappings] = new_SourceMapConsumerV3_MappingBuilder(this, sourceMapObject.getMappings().get(), this.lineCount, useCompactMappings, estimatedEntries).build()
+	var built *Outcome_base[*SourceMapConsumerV3_Mappings] = new_SourceMapConsumerV3_MappingBuilder(this, optstrGet_(sourceMapObject.getMappings()), this.lineCount, useCompactMappings, estimatedEntries).build()
 	if built.isErr() {
 		return Outcome_base_err[any](built.error())
 	}
@@ -89,19 +89,19 @@ func (this *SourceMapConsumerV3) parseMetaMap(sourceMapObject *SourceMapObject, 
 			panic(r_)
 		}
 	}()
-	if (((sourceMapObject.getLineCount() >= 0) || sourceMapObject.getMappings().isPresent()) || ((sourceMapObject.getSources() != nil) && (int32(len(sourceMapObject.getSources())) > 0))) || (sourceMapObject.getNames() != nil) {
+	if (((sourceMapObject.getLineCount() >= 0) || sourceMapObject.getMappings() != nullstr_) || ((sourceMapObject.getSources() != nil) && (int32(len(sourceMapObject.getSources())) > 0))) || (sourceMapObject.getNames() != nil) {
 		return Outcome_base_err[any](new_SourceMapParseException("Invalid map format").up_Throwable())
 	}
 	var generator *SourceMapGeneratorV3 = new_SourceMapGeneratorV3()
 	for _, section := range *sourceMapObject.getSections() {
-		var mapSectionContents Optional[string] = Optional_of[string](section.getSectionValue())
+		var mapSectionContents string = optstrOf_(section.getSectionValue())
 		if section.getSectionType() == SourceMapSection_SectionType_URL {
 			mapSectionContents = sectionSupplier.getSourceMap(section.getSectionValue())
 		}
-		if mapSectionContents.isEmpty() {
+		if mapSectionContents == nullstr_ {
 			return Outcome_base_err[any](new_SourceMapParseException(("Unable to retrieve: " + sstr_(section.getSectionValue()))).up_Throwable())
 		}
-		var merged *Outcome_base[any] = generator.mergeMapSection(section.getLine(), section.getColumn(), mapSectionContents.get())
+		var merged *Outcome_base[any] = generator.mergeMapSection(section.getLine(), section.getColumn(), optstrGet_(mapSectionContents))
 		if merged.isErr() {
 			return Outcome_base_err[any](merged.error())
 		}
@@ -149,7 +149,7 @@ func (this *SourceMapConsumerV3) getOriginalNames() ListOf[string] {
 	return Arrays_asList(arrmap_(this.names_, strobj_))
 }
 
-func (this *SourceMapConsumerV3) getFile() Optional[string] {
+func (this *SourceMapConsumerV3) getFile() string {
 	return this.file
 }
 
@@ -174,7 +174,7 @@ func (this *SourceMapConsumerV3) getReverseMapping(originalFile string, line int
 	}
 }
 
-func (this *SourceMapConsumerV3) getSourceRoot() Optional[string] {
+func (this *SourceMapConsumerV3) getSourceRoot() string {
 	return this.sourceRoot
 }
 
@@ -254,8 +254,8 @@ func (this *SourceMapConsumerV3) createReverseMapping() {
 
 func (this *SourceMapConsumerV3) visitMappings(visitor func(string, string, *FilePosition, *FilePosition, *FilePosition)) {
 	var pending bool = false
-	var sourceName Optional[string] = Optional_empty[string]()
-	var symbolName Optional[string] = Optional_empty[string]()
+	var sourceName string = nullstr_
+	var symbolName string = nullstr_
 	var sourceStartPosition *FilePosition = nil
 	var startPosition *FilePosition = nil
 	for i := int32(0); i < this.mappings.getParsedLineCount(); i++ {
@@ -265,19 +265,19 @@ func (this *SourceMapConsumerV3) visitMappings(visitor func(string, string, *Fil
 			for j := int32(start); j < end; j += this.mappings.getEntrySize() {
 				if pending {
 					var endPosition *FilePosition = new_FilePosition(i, this.mappings.getGeneratedColumn(j))
-					visitor(sourceName.orElse(""), symbolName.orElse(""), sourceStartPosition, startPosition, endPosition)
+					visitor(optstrOr_(sourceName, ""), optstrOr_(symbolName, ""), sourceStartPosition, startPosition, endPosition)
 					pending = false
 				}
 				var sourceFileId int32 = this.mappings.getSourceFileId(j)
 				if sourceFileId != SourceMapConsumerV3_UNMAPPED {
 					pending = true
-					sourceName = Optional_of[string](this.sources[sourceFileId])
+					sourceName = optstrOf_(this.sources[sourceFileId])
 					var nameId int32 = this.mappings.getNameId(j)
-					symbolName = func() Optional[string] {
+					symbolName = func() string {
 						if nameId != SourceMapConsumerV3_UNMAPPED {
-							return Optional_of[string](this.names_[nameId])
+							return optstrOf_(this.names_[nameId])
 						}
-						return Optional_empty[string]()
+						return nullstr_
 					}()
 					sourceStartPosition = new_FilePosition(this.mappings.getSourceLine(j), this.mappings.getSourceColumn(j))
 					startPosition = new_FilePosition(i, this.mappings.getGeneratedColumn(j))
@@ -287,7 +287,7 @@ func (this *SourceMapConsumerV3) visitMappings(visitor func(string, string, *Fil
 	}
 	if pending {
 		var endPosition *FilePosition = new_FilePosition(startPosition.getLine(), (startPosition.getColumn() + 1))
-		visitor(sourceName.orElse(""), symbolName.orElse(""), sourceStartPosition, startPosition, endPosition)
+		visitor(optstrOr_(sourceName, ""), optstrOr_(symbolName, ""), sourceStartPosition, startPosition, endPosition)
 	}
 }
 
@@ -306,8 +306,8 @@ func new_SourceMapConsumerV3_DefaultSourceMapSupplier() *SourceMapConsumerV3_Def
 	return this
 }
 
-func (this *SourceMapConsumerV3_DefaultSourceMapSupplier) getSourceMap(url string) Optional[string] {
-	return Optional_empty[string]()
+func (this *SourceMapConsumerV3_DefaultSourceMapSupplier) getSourceMap(url string) string {
+	return nullstr_
 }
 
 type SourceMapConsumerV3_MappingBuilder struct {

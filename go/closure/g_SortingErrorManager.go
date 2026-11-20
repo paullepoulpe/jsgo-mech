@@ -173,16 +173,16 @@ func (this *SortingErrorManager_LeveledJSErrorComparator) compareT_(p1 *SortingE
 	if p1.level_ != p2.level_ {
 		return p2.level_.enum_().compareTo(obj_(p1.level_))
 	}
-	var source1 Optional[string] = p1.error_.sourceName()
-	var source2 Optional[string] = p2.error_.sourceName()
-	if source1.isPresent() && source2.isPresent() {
-		var sourceCompare int32 = utf16Compare_(source1.get(), source2.get())
+	var source1 string = p1.error_.sourceName()
+	var source2 string = p2.error_.sourceName()
+	if source1 != nullstr_ && source2 != nullstr_ {
+		var sourceCompare int32 = utf16Compare_(optstrGet_(source1), optstrGet_(source2))
 		if sourceCompare != 0 {
 			return sourceCompare
 		}
-	} else if source1.isEmpty() && source2.isPresent() {
+	} else if source1 == nullstr_ && source2 != nullstr_ {
 		return SortingErrorManager_LeveledJSErrorComparator_P1_LT_P2
-	} else if source1.isPresent() && source2.isEmpty() {
+	} else if source1 != nullstr_ && source2 == nullstr_ {
 		return SortingErrorManager_LeveledJSErrorComparator_P1_GT_P2
 	}
 	var lineno1 int32 = p1.error_.getLineNumber()
@@ -231,7 +231,7 @@ func new_SortingErrorManager_ErrorWithLevel(error_ *JSError, level CheckLevel) *
 }
 
 func (this *SortingErrorManager_ErrorWithLevel) hashCode() int32 {
-	return Objects_hash(obj_(this.level_), strobj_(this.error_.description()), this.error_.sourceName().box_(), int32(this.error_.getLineNumber()), int32(this.error_.charno()))
+	return Objects_hash(obj_(this.level_), strobj_(this.error_.description()), optstrBox_(this.error_.sourceName()), int32(this.error_.getLineNumber()), int32(this.error_.charno()))
 }
 
 func (this *SortingErrorManager_ErrorWithLevel) equals(obj any) bool {
@@ -239,5 +239,5 @@ func (this *SortingErrorManager_ErrorWithLevel) equals(obj any) bool {
 	if !(ok) {
 		return false
 	}
-	return (((((this.level_ == e.level_) && (this.error_.description() == e.error_.description())) && optEquals_(this.error_.sourceName(), e.error_.sourceName())) && (this.error_.getLineNumber() == e.error_.getLineNumber())) && (this.error_.charno() == e.error_.charno()))
+	return (((((this.level_ == e.level_) && (this.error_.description() == e.error_.description())) && this.error_.sourceName() == e.error_.sourceName()) && (this.error_.getLineNumber() == e.error_.getLineNumber())) && (this.error_.charno() == e.error_.charno()))
 }

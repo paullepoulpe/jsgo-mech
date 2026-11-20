@@ -123,29 +123,29 @@ func (this *ObjectType) detectInheritanceCycle() bool {
 }
 
 func (this *ObjectType) hasReferenceName() bool {
-	return this.getReferenceName().isPresent()
+	return this.getReferenceName() != nullstr_
 }
 
-func (this *ObjectType) getNormalizedReferenceName() Optional[string] {
-	var name Optional[string] = this.getReferenceName()
-	if name.isPresent() {
+func (this *ObjectType) getNormalizedReferenceName() string {
+	var name string = this.getReferenceName()
+	if name != nullstr_ {
 		var nameU16 utf16_
-		var start int32 = nameU16.of(name.get()).indexOf(40)
+		var start int32 = nameU16.of(optstrGet_(name)).indexOf(40)
 		if start != -1 {
-			var end int32 = nameU16.of(name.get()).lastIndexOf(41)
-			var prefix string = nameU16.of(name.get()).substring(0, start)
-			return func() Optional[string] {
-				if (end + (1 % nameU16.of(name.get()).length())) == 0 {
-					return Optional_of[string](prefix)
+			var end int32 = nameU16.of(optstrGet_(name)).lastIndexOf(41)
+			var prefix string = nameU16.of(optstrGet_(name)).substring(0, start)
+			return func() string {
+				if (end + (1 % nameU16.of(optstrGet_(name)).length())) == 0 {
+					return optstrOf_(prefix)
 				}
-				return Optional_of[string]((sstr_(prefix) + sstr_(nameU16.of(name.get()).substring_int((end + 1)))))
+				return optstrOf_((sstr_(prefix) + sstr_(nameU16.of(optstrGet_(name)).substring_int((end + 1)))))
 			}()
 		}
 	}
 	return name
 }
 
-func (this *ObjectType) getDisplayName_impl() Optional[string] {
+func (this *ObjectType) getDisplayName_impl() string {
 	return this.getNormalizedReferenceName()
 }
 
@@ -586,7 +586,7 @@ func (this *ObjectType) getPropertyMap() *PropertyMap {
 	return this.self_.getPropertyMap_impl()
 }
 
-func (this *ObjectType) getReferenceName() Optional[string] {
+func (this *ObjectType) getReferenceName() string {
 	return this.self_.getReferenceName_impl()
 }
 
@@ -721,7 +721,7 @@ func (this *ObjectType) getJSDocInfo() *JSDocInfo {
 }
 
 // getDisplayName: an object that is exactly a ObjectType calls its getDisplayName_impl directly (post-flip); others dispatch.
-func (this *ObjectType) getDisplayName() Optional[string] {
+func (this *ObjectType) getDisplayName() string {
 	if this.self_ == any(this) {
 		return this.getDisplayName_impl()
 	}

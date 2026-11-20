@@ -227,13 +227,13 @@ func (this *TypeInference) updateModuleScope(module *Module, syntacticBlockScope
 		if !module.metadata().isLegacyGoogModule() || (exportsVar.getType() == nil) {
 			break
 		}
-		var moduleId Optional[string] = module.closureNamespace()
+		var moduleId string = module.closureNamespace()
 		var globalScope *TypedScope = syntacticBlockScope.getGlobalScope_rTypedScope()
-		var globalVar *TypedVar = globalScope.getVar_String_rTypedVar(moduleId.get())
+		var globalVar *TypedVar = globalScope.getVar_String_rTypedVar(optstrGet_(moduleId))
 		if globalVar.isTypeInferred() {
 			globalVar.setType(exportsType)
 		}
-		var moduleQname *QualifiedName = QualifiedName_of(moduleId.get())
+		var moduleQname *QualifiedName = QualifiedName_of(optstrGet_(moduleId))
 		if !moduleQname.isSimple() {
 			var parentType *JSType = globalScope.lookupQualifiedName(moduleQname.getOwner())
 			var parentObjectType *ObjectType = func() *ObjectType {
@@ -1067,7 +1067,7 @@ func (this *TypeInference) traverseObjectLiteral(n Node, scope FlowScope) FlowSc
 	if ((objectType == nil) || n.getBooleanProp(Node_REFLECTED_OBJECT)) || objectType.isEnumType() {
 		return scope
 	}
-	var qObjName Optional[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
+	var qObjName string = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
 	{
 		var key Node = n.getFirstChild()
 		for ; key != 0; key = key.getNext() {
@@ -1078,18 +1078,18 @@ func (this *TypeInference) traverseObjectLiteral(n Node, scope FlowScope) FlowSc
 				n.setJSType(this.registry.getNativeType(JSTypeNative_OBJECT_TYPE))
 				break
 			}
-			var memberName Optional[string] = NodeUtil_getObjectOrClassLitKeyName(key)
-			if memberName.isPresent() {
+			var memberName string = NodeUtil_getObjectOrClassLitKeyName(key)
+			if memberName != nullstr_ {
 				var rawValueType *JSType = key.getFirstChild().getJSType()
 				var valueType *JSType = TypeCheck_getObjectLitKeyTypeFromValueType(key, rawValueType)
 				if valueType == nil {
 					valueType = this.unknownType.up_JSType()
 				}
 				if !spreadOperatorSeen || !n.getJSType().isNativeObjectType() {
-					objectType.defineInferredProperty(memberName.get(), valueType, key)
+					objectType.defineInferredProperty(optstrGet_(memberName), valueType, key)
 				}
-				if qObjName.isPresent() && key.isStringKey() {
-					var qKeyName string = (sstr_(qObjName.get()) + "." + sstr_(memberName.get()))
+				if qObjName != nullstr_ && key.isStringKey() {
+					var qKeyName string = (sstr_(optstrGet_(qObjName)) + "." + sstr_(optstrGet_(memberName)))
 					var var_ *TypedVar = TypeInference_getDeclaredVar(scope, qKeyName)
 					var oldType *JSType = func() *JSType {
 						if var_ == nil {
@@ -1408,7 +1408,7 @@ func (this *TypeInference) buildTypeVariables(inferredTypes *TMap[*TemplateType,
 	for it_1.next() {
 		var e *TEntry[*TemplateType, *JSType] = it_1.entry()
 		if !e.getKey().isTypeTransformation() {
-			typeVars.Put(e.getKey().getReferenceName().orElseThrow(), e.getValue())
+			typeVars.Put(optstrGet_(e.getKey().getReferenceName()), e.getValue())
 		}
 	}
 	return typeVars
@@ -1427,7 +1427,7 @@ func (this *TypeInference) evaluateTypeTransformations(templateTypes *TList[*Tem
 			}
 			var transformedType *JSType = ttlObj.eval(type_.getTypeTransformation(), immutableMapCopyOfT_(tc_string, tc_p_JSType, typeVars))
 			result.Put(type_, transformedType)
-			typeVars.Put(type_.getReferenceName().orElse(nullstr_), transformedType)
+			typeVars.Put(type_.getReferenceName(), transformedType)
 		}
 	}
 	return result
@@ -1841,7 +1841,7 @@ func (this *TypeInference) traverseDynamicImport(dynamicImport Node, scope FlowS
 	var importSpecifier Node = dynamicImport.getFirstChild()
 	var input *CompilerInput = this.compiler_.getInput(NodeUtil_getInputId(dynamicImport))
 	if (importSpecifier.isStringLit() && (moduleMap != nil)) && (input != nil) {
-		var targetPath *ModuleLoader_ModulePath = input.getPath().resolveJsModule(importSpecifier.getString(), Optional_of[string](importSpecifier.getSourceFileName()).filterFn_(func(s string) bool {
+		var targetPath *ModuleLoader_ModulePath = input.getPath().resolveJsModule(importSpecifier.getString(), optstrFilter_(optstrOf_(importSpecifier.getSourceFileName()), func(s string) bool {
 			return s != ""
 		}), importSpecifier.getLineno(), importSpecifier.getCharno())
 		var targetModule *Module = func() *Module {

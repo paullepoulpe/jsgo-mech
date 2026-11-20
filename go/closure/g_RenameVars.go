@@ -40,10 +40,10 @@ func (this *RenameVars) finit_RenameVars() {
 	this.assignments = newTMap_(tc_string, tc_p_RenameVars_Assignment)
 }
 
-func (this *RenameVars) init_RenameVars(compiler *AbstractCompiler, prefix Optional[string], localRenamingOnly bool, generatePseudoNames bool, preferStableNames bool, prevUsedRenameMap *VariableMap, reservedCharacters *TSet[any], reservedNames *TSet[string], nameGenerator NameGenerator) {
+func (this *RenameVars) init_RenameVars(compiler *AbstractCompiler, prefix string, localRenamingOnly bool, generatePseudoNames bool, preferStableNames bool, prevUsedRenameMap *VariableMap, reservedCharacters *TSet[any], reservedNames *TSet[string], nameGenerator NameGenerator) {
 	this.finit_RenameVars()
 	this.compiler_ = compiler
-	this.prefix_ = prefix.orElse("")
+	this.prefix_ = optstrOr_(prefix, "")
 	this.localRenamingOnly = localRenamingOnly
 	if generatePseudoNames {
 		this.pseudoNameMap = map[Node]string{}
@@ -61,7 +61,7 @@ func (this *RenameVars) init_RenameVars(compiler *AbstractCompiler, prefix Optio
 	this.nameGenerator = nameGenerator
 }
 
-func new_RenameVars(compiler *AbstractCompiler, prefix Optional[string], localRenamingOnly bool, generatePseudoNames bool, preferStableNames bool, prevUsedRenameMap *VariableMap, reservedCharacters *TSet[any], reservedNames *TSet[string], nameGenerator NameGenerator) *RenameVars {
+func new_RenameVars(compiler *AbstractCompiler, prefix string, localRenamingOnly bool, generatePseudoNames bool, preferStableNames bool, prevUsedRenameMap *VariableMap, reservedCharacters *TSet[any], reservedNames *TSet[string], nameGenerator NameGenerator) *RenameVars {
 	this := &RenameVars{}
 	this.zero_RenameVars()
 	this.init_RenameVars(compiler, prefix, localRenamingOnly, generatePseudoNames, preferStableNames, prevUsedRenameMap, reservedCharacters, reservedNames, nameGenerator)
@@ -96,10 +96,10 @@ func (this *RenameVars) process_2(externs Node, root Node) {
 	}
 }
 
-func (this *RenameVars) setNameAndReport(n Node, newName Optional[string]) {
-	if newName.isPresent() && !(newName.get() == n.getString()) {
-		n.setString(newName.get())
-		if !(newName.get() == mapStr_(this.originalNameByNode, n)) {
+func (this *RenameVars) setNameAndReport(n Node, newName string) {
+	if newName != nullstr_ && !(optstrGet_(newName) == n.getString()) {
+		n.setString(optstrGet_(newName))
+		if !(optstrGet_(newName) == mapStr_(this.originalNameByNode, n)) {
 			this.compiler_.reportChangeToEnclosingScope(n)
 			var parent Node = n.getParent()
 			if parent.isFunction() && NodeUtil_isFunctionDeclaration(parent) {
@@ -109,29 +109,29 @@ func (this *RenameVars) setNameAndReport(n Node, newName Optional[string]) {
 	}
 }
 
-func (this *RenameVars) getNewGlobalName(n Node) Optional[string] {
+func (this *RenameVars) getNewGlobalName(n Node) string {
 	var oldName string = n.getString()
 	var a *RenameVars_Assignment = this.assignments.Get(oldName)
-	if a.newName.isPresent() && !(a.newName.get() == oldName) {
+	if a.newName != nullstr_ && !(optstrGet_(a.newName) == oldName) {
 		if this.pseudoNameMap != nil {
-			return Optional_ofNullable[string](mapStr_(this.pseudoNameMap, n))
+			return mapStr_(this.pseudoNameMap, n)
 		}
 		return a.newName
 	} else {
-		return Optional_empty[string]()
+		return nullstr_
 	}
 }
 
-func (this *RenameVars) getNewLocalName(n Node) Optional[string] {
+func (this *RenameVars) getNewLocalName(n Node) string {
 	var oldTempName string = n.getString()
 	var a *RenameVars_Assignment = this.assignments.Get(oldTempName)
-	if !(a.newName.get() == oldTempName) {
+	if !(optstrGet_(a.newName) == oldTempName) {
 		if this.pseudoNameMap != nil {
-			return Optional_ofNullable[string](mapStr_(this.pseudoNameMap, n))
+			return mapStr_(this.pseudoNameMap, n)
 		}
 		return a.newName
 	}
-	return Optional_empty[string]()
+	return nullstr_
 }
 
 func (this *RenameVars) recordPseudoName(n Node) {
@@ -143,13 +143,13 @@ func (this *RenameVars) reusePreviouslyUsedVariableMap(varsToRename *TSet[*Renam
 		panic(new_NullPointerException_0())
 	}
 	for a := range varsToRename.All() {
-		var prevNewName Optional[string] = this.prevUsedRenameMap.lookupNewName(a.oldName)
-		if prevNewName.isEmpty() || this.reservedNames.Has(prevNewName.get()) {
+		var prevNewName string = this.prevUsedRenameMap.lookupNewName(a.oldName)
+		if prevNewName == nullstr_ || this.reservedNames.Has(optstrGet_(prevNewName)) {
 			continue
 		}
-		if a.isLocal_ || (!this.externNames_.Has(a.oldName) && strings.HasPrefix(prevNewName.get(), this.prefix_)) {
-			this.reservedNames.Add(prevNewName.get())
-			this.finalizeNameAssignment(a, prevNewName.get())
+		if a.isLocal_ || (!this.externNames_.Has(a.oldName) && strings.HasPrefix(optstrGet_(prevNewName), this.prefix_)) {
+			this.reservedNames.Add(optstrGet_(prevNewName))
+			this.finalizeNameAssignment(a, optstrGet_(prevNewName))
 		}
 	}
 }
@@ -166,7 +166,7 @@ func (this *RenameVars) assignNames(varsToRename *TSet[*RenameVars_Assignment]) 
 	var pendingAssignments []*RenameVars_Assignment = []*RenameVars_Assignment{}
 	var generatedNamesForAssignments []string = []string{}
 	for a := range varsToRename.All() {
-		if a.newName.isPresent() {
+		if a.newName != nullstr_ {
 			continue
 		}
 		if this.externNames_.Has(a.oldName) {
@@ -259,7 +259,7 @@ type RenameVars_Assignment struct {
 	isLocal_          bool
 	oldName           string
 	orderOfOccurrence int32
-	newName           Optional[string]
+	newName           string
 	count_            int32
 }
 
@@ -268,14 +268,14 @@ func (this *RenameVars_Assignment) zero_RenameVars_Assignment() {
 }
 
 func (this *RenameVars_Assignment) finit_RenameVars_Assignment() {
-	this.newName = Optional_empty[string]()
+	this.newName = nullstr_
 }
 
 func (this *RenameVars_Assignment) init_RenameVars_Assignment(name string) {
 	this.finit_RenameVars_Assignment()
 	this.isLocal_ = strings.HasPrefix(name, RenameVars_LOCAL_VAR_PREFIX)
 	this.oldName = name
-	this.newName = Optional_empty[string]()
+	this.newName = nullstr_
 	this.count_ = 0
 	this.orderOfOccurrence = this.outer_.assignmentCount
 	this.outer_.assignmentCount++
@@ -290,10 +290,10 @@ func new_RenameVars_Assignment(outer_ *RenameVars, name string) *RenameVars_Assi
 }
 
 func (this *RenameVars_Assignment) setNewName(newName string) {
-	if !this.newName.isEmpty() {
+	if this.newName != nullstr_ {
 		panic(new_IllegalStateException_0())
 	}
-	this.newName = Optional_of[string](newName)
+	this.newName = optstrOf_(newName)
 }
 
 type RenameVars_ProcessVars struct {

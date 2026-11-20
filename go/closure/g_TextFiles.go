@@ -28,11 +28,11 @@ func TextFiles_readStrict(path string, charset string) *Outcome_base[string] {
 	if bytes.isErr() {
 		return Outcome_base_err[string](bytes.error())
 	}
-	var text Optional[string] = Charsets_decodeStrict(bytes.get(), charset)
-	if text.isEmpty() {
+	var text string = Charsets_decodeStrict(bytes.get(), charset)
+	if text == nullstr_ {
 		return Outcome_base_err[string](new_TextFiles_DecodingException(("Failed to read: " + sstr_(path) + ", is this input UTF-8 encoded?")).up_Throwable())
 	}
-	return Outcome_base_ok_Object[string](text.get())
+	return Outcome_base_ok_Object[string](optstrGet_(text))
 }
 
 func TextFiles_isDecodingError(error_ *Throwable) bool {

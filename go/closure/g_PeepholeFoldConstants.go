@@ -179,28 +179,28 @@ func (this *PeepholeFoldConstants) tryFoldTypeof(originalTypeofNode Node) Node {
 	if (argumentNode == 0) || !NodeUtil_isLiteralValue(argumentNode, true) {
 		return originalTypeofNode
 	}
-	var typeNameString Optional[string] = Optional_empty[string]()
+	var typeNameString string = nullstr_
 	switch argumentNode.ns_().token {
 	case tokOrd1_FUNCTION:
-		typeNameString = Optional_of[string]("function")
+		typeNameString = "function"
 	case tokOrd1_STRINGLIT:
-		typeNameString = Optional_of[string]("string")
+		typeNameString = "string"
 	case tokOrd1_NUMBER:
-		typeNameString = Optional_of[string]("number")
+		typeNameString = "number"
 	case tokOrd1_TRUE, tokOrd1_FALSE:
-		typeNameString = Optional_of[string]("boolean")
+		typeNameString = "boolean"
 	case tokOrd1_NULL, tokOrd1_OBJECTLIT, tokOrd1_ARRAYLIT:
-		typeNameString = Optional_of[string]("object")
+		typeNameString = "object"
 	case tokOrd1_VOID:
-		typeNameString = Optional_of[string]("undefined")
+		typeNameString = "undefined"
 	case tokOrd1_NAME:
 		if argumentNode.getStringIs_(sid_undefined) {
-			typeNameString = Optional_of[string]("undefined")
+			typeNameString = "undefined"
 		}
 	default:
 	}
-	if typeNameString.isPresent() {
-		var newNode Node = IR_string(typeNameString.get())
+	if typeNameString != nullstr_ {
+		var newNode Node = IR_string(optstrGet_(typeNameString))
 		this.reportChangeToEnclosingScope(originalTypeofNode)
 		originalTypeofNode.replaceWith(newNode)
 		this.markFunctionsDeleted(originalTypeofNode)
@@ -487,7 +487,7 @@ func (this *PeepholeFoldConstants) tryFoldAdjacentLiteralLeaves(n Node, left Nod
 		var rr Node = right.getNext()
 		var foldIsTypeSafe bool = ((((rr != 0) && NodeUtil_isStringResult(rr)) || (((((rr != 0) && right.isStringLit()) && (rightGrandparent != 0)) && rightGrandparent.isAdd()) && NodeUtil_isStringResult(rightGrandparent.getSecondChild()))) || (rr == 0))
 		if foldIsTypeSafe {
-			var result string = (sstr_(left.getString()) + sstr_(NodeUtil_getStringValue(right).orElse("null")))
+			var result string = (sstr_(left.getString()) + sstr_(optstrOr_(NodeUtil_getStringValue(right), "null")))
 			if equalsRRH_(rightParent.getSecondChild(), right) {
 				left.replaceWith(IR_string(result))
 				this.replace(rightParent, rightParent.getFirstChild().cloneTree_1(true))
@@ -502,10 +502,10 @@ func (this *PeepholeFoldConstants) tryFoldAdjacentLiteralLeaves(n Node, left Nod
 
 func (this *PeepholeFoldConstants) tryFoldAddConstantString(n Node, left Node, right Node) Node {
 	if ((left.isStringLit() || right.isStringLit()) || left.isArrayLit()) || right.isArrayLit() {
-		var leftString Optional[string] = this.getSideEffectFreeStringValue(left)
-		var rightString Optional[string] = this.getSideEffectFreeStringValue(right)
-		if leftString.isPresent() && rightString.isPresent() {
-			var newStringNode Node = IR_string((sstr_(leftString.get()) + sstr_(rightString.get())))
+		var leftString string = this.getSideEffectFreeStringValue(left)
+		var rightString string = this.getSideEffectFreeStringValue(right)
+		if leftString != nullstr_ && rightString != nullstr_ {
+			var newStringNode Node = IR_string((sstr_(optstrGet_(leftString)) + sstr_(optstrGet_(rightString))))
 			n.replaceWith(newStringNode)
 			this.reportChangeToEnclosingScope(newStringNode)
 			return newStringNode
@@ -767,7 +767,7 @@ func (this *PeepholeFoldConstants) foldAddTemplateLiterals(oldNode Node, left No
 	if this.endsWithUnescapedDollar(lastLeft.getRawString()) && strings.HasPrefix(firstRight.getRawString(), "{") {
 		return oldNode
 	}
-	var mergeNode Node = IR_templateLiteralString(Optional_of[string]((sstr_(lastLeft.getCookedString().orElse("null")) + sstr_(firstRight.getCookedString().orElse("null")))), (sstr_(lastLeft.getRawString()) + sstr_(firstRight.getRawString())))
+	var mergeNode Node = IR_templateLiteralString(optstrOf_((sstr_(optstrOr_(lastLeft.getCookedString(), "null")) + sstr_(optstrOr_(firstRight.getCookedString(), "null")))), (sstr_(lastLeft.getRawString()) + sstr_(firstRight.getRawString())))
 	mergeNode.srcrefTreeIfMissing(lastLeft)
 	lastLeft.detach()
 	firstRight.detach()
@@ -832,23 +832,23 @@ func (this *PeepholeFoldConstants) tryFoldTemplateLiteralSubstitutions(n Node) N
 		if cur.isTemplateLitString() && next.isTemplateLitSub() {
 			var expr Node = next.getFirstChild()
 			if (expr != 0) && (((expr.isStringLit() || expr.isNumber()) || expr.isTrue()) || expr.isFalse()) {
-				var strValue Optional[string] = this.getSideEffectFreeStringValue(expr)
-				if strValue.isPresent() && this.isSimpleTemplateStringValue(strValue.get()) {
+				var strValue string = this.getSideEffectFreeStringValue(expr)
+				if strValue != nullstr_ && this.isSimpleTemplateStringValue(optstrGet_(strValue)) {
 					var nextNext Node = next.getNext()
 					if (nextNext != 0) && nextNext.isTemplateLitString() {
-						var curCooked Optional[string] = cur.getCookedString()
-						var nextNextCooked Optional[string] = nextNext.getCookedString()
-						if (strValue.get() == "" && this.endsWithUnescapedDollar(cur.getRawString())) && strings.HasPrefix(nextNext.getRawString(), "{") {
+						var curCooked string = cur.getCookedString()
+						var nextNextCooked string = nextNext.getCookedString()
+						if (optstrGet_(strValue) == "" && this.endsWithUnescapedDollar(cur.getRawString())) && strings.HasPrefix(nextNext.getRawString(), "{") {
 							cur = next
 							continue
 						}
-						var combinedCooked string = (sstr_(curCooked.orElse("null")) + sstr_(strValue.get()) + sstr_(nextNextCooked.orElse("null")))
-						var combinedRaw string = (sstr_(cur.getRawString()) + sstr_(strValue.get()) + sstr_(nextNext.getRawString()))
-						if this.isRestrictedOctalEscape(cur.getRawString(), strValue.get()) || this.isRestrictedOctalEscape((sstr_(cur.getRawString())+sstr_(strValue.get())), nextNext.getRawString()) {
+						var combinedCooked string = (sstr_(optstrOr_(curCooked, "null")) + sstr_(optstrGet_(strValue)) + sstr_(optstrOr_(nextNextCooked, "null")))
+						var combinedRaw string = (sstr_(cur.getRawString()) + sstr_(optstrGet_(strValue)) + sstr_(nextNext.getRawString()))
+						if this.isRestrictedOctalEscape(cur.getRawString(), optstrGet_(strValue)) || this.isRestrictedOctalEscape((sstr_(cur.getRawString())+sstr_(optstrGet_(strValue))), nextNext.getRawString()) {
 							cur = next
 							continue
 						}
-						var newStringNode Node = IR_templateLiteralString(Optional_of[string](combinedCooked), combinedRaw)
+						var newStringNode Node = IR_templateLiteralString(optstrOf_(combinedCooked), combinedRaw)
 						newStringNode.srcrefTree(cur)
 						cur.replaceWith(newStringNode)
 						next.detach()
@@ -891,14 +891,14 @@ func (this *PeepholeFoldConstants) tryFoldAdd(node Node, left Node, right Node) 
 		if left.isTemplateLit() && right.isTemplateLit() {
 			return this.foldAddTemplateLiterals(node, left, right)
 		} else if left.isTemplateLit() {
-			var rightStr Optional[string] = this.getSideEffectFreeStringValue(right)
-			if rightStr.isPresent() && this.isSimpleTemplateStringValue(rightStr.get()) {
-				return this.foldTemplateLiteralAndConstant(node, left, rightStr.get())
+			var rightStr string = this.getSideEffectFreeStringValue(right)
+			if rightStr != nullstr_ && this.isSimpleTemplateStringValue(optstrGet_(rightStr)) {
+				return this.foldTemplateLiteralAndConstant(node, left, optstrGet_(rightStr))
 			}
 		} else if right.isTemplateLit() {
-			var leftStr Optional[string] = this.getSideEffectFreeStringValue(left)
-			if leftStr.isPresent() && this.isSimpleTemplateStringValue(leftStr.get()) {
-				return this.foldConstantAndTemplateLiteral(node, leftStr.get(), right)
+			var leftStr string = this.getSideEffectFreeStringValue(left)
+			if leftStr != nullstr_ && this.isSimpleTemplateStringValue(optstrGet_(leftStr)) {
+				return this.foldConstantAndTemplateLiteral(node, optstrGet_(leftStr), right)
 			}
 		}
 		if NodeUtil_isLiteralValue(left, false) && NodeUtil_isLiteralValue(right, false) {
@@ -923,7 +923,7 @@ func (this *PeepholeFoldConstants) foldTemplateLiteralAndConstant(oldNode Node, 
 	if this.isRestrictedOctalEscape(lastLeft.getRawString(), rightStr) {
 		return oldNode
 	}
-	var mergeNode Node = IR_templateLiteralString(Optional_of[string]((sstr_(lastLeft.getCookedString().orElse("null")) + sstr_(rightStr))), (sstr_(lastLeft.getRawString()) + sstr_(rightStr)))
+	var mergeNode Node = IR_templateLiteralString(optstrOf_((sstr_(optstrOr_(lastLeft.getCookedString(), "null")) + sstr_(rightStr))), (sstr_(lastLeft.getRawString()) + sstr_(rightStr)))
 	mergeNode.srcrefTreeIfMissing(lastLeft)
 	lastLeft.replaceWith(mergeNode)
 	left.detach()
@@ -938,7 +938,7 @@ func (this *PeepholeFoldConstants) foldConstantAndTemplateLiteral(oldNode Node, 
 	if this.isRestrictedOctalEscape(leftStr, firstRight.getRawString()) {
 		return oldNode
 	}
-	var mergeNode Node = IR_templateLiteralString(Optional_of[string]((sstr_(leftStr) + sstr_(firstRight.getCookedString().orElse("null")))), (sstr_(leftStr) + sstr_(firstRight.getRawString())))
+	var mergeNode Node = IR_templateLiteralString(optstrOf_((sstr_(leftStr) + sstr_(optstrOr_(firstRight.getCookedString(), "null")))), (sstr_(leftStr) + sstr_(firstRight.getRawString())))
 	mergeNode.srcrefTreeIfMissing(firstRight)
 	firstRight.replaceWith(mergeNode)
 	right.detach()
@@ -1014,22 +1014,22 @@ func PeepholeFoldConstants_tryAbstractRelationalComparison(peepholeOptimization 
 	var leftValueType NodeUtil_ValueType = NodeUtil_getKnownValueType(left)
 	var rightValueType NodeUtil_ValueType = NodeUtil_getKnownValueType(right)
 	if (leftValueType == NodeUtil_ValueType_STRING) && (rightValueType == NodeUtil_ValueType_STRING) {
-		var lvStr Optional[string] = peepholeOptimization.getSideEffectFreeStringValue(left)
-		var rvStr Optional[string] = peepholeOptimization.getSideEffectFreeStringValue(right)
-		if lvStr.isPresent() && rvStr.isPresent() {
-			if (strings.Contains(lvStr.get(), "\v")) || (strings.Contains(rvStr.get(), "\v")) {
+		var lvStr string = peepholeOptimization.getSideEffectFreeStringValue(left)
+		var rvStr string = peepholeOptimization.getSideEffectFreeStringValue(right)
+		if lvStr != nullstr_ && rvStr != nullstr_ {
+			if (strings.Contains(optstrGet_(lvStr), "\v")) || (strings.Contains(optstrGet_(rvStr), "\v")) {
 				return Tri_UNKNOWN
 			} else {
-				return Tri_forBoolean((utf16Compare_(lvStr.get(), rvStr.get()) < 0))
+				return Tri_forBoolean((utf16Compare_(optstrGet_(lvStr), optstrGet_(rvStr)) < 0))
 			}
 		} else if (((left.isTypeOf() && right.isTypeOf()) && left.getFirstChild().isName()) && right.getFirstChild().isName()) && (left.getFirstChild().getStringId_() == right.getFirstChild().getStringId_()) {
 			return Tri_FALSE
 		}
 	}
 	if (leftValueType == NodeUtil_ValueType_BIGINT) && (rightValueType == NodeUtil_ValueType_STRING) {
-		var rvStr Optional[string] = peepholeOptimization.getSideEffectFreeStringValue(right)
-		if rvStr.isPresent() {
-			var rvBig *BigInteger = NodeUtil_getStringBigIntValue(rvStr.get())
+		var rvStr string = peepholeOptimization.getSideEffectFreeStringValue(right)
+		if rvStr != nullstr_ {
+			var rvBig *BigInteger = NodeUtil_getStringBigIntValue(optstrGet_(rvStr))
 			if rvBig == nil {
 				return Tri_forBoolean(willNegate)
 			}
@@ -1041,9 +1041,9 @@ func PeepholeFoldConstants_tryAbstractRelationalComparison(peepholeOptimization 
 		return Tri_UNKNOWN
 	}
 	if (leftValueType == NodeUtil_ValueType_STRING) && (rightValueType == NodeUtil_ValueType_BIGINT) {
-		var lvStr Optional[string] = peepholeOptimization.getSideEffectFreeStringValue(left)
-		if lvStr.isPresent() {
-			var lvBig *BigInteger = NodeUtil_getStringBigIntValue(lvStr.get())
+		var lvStr string = peepholeOptimization.getSideEffectFreeStringValue(left)
+		if lvStr != nullstr_ {
+			var lvBig *BigInteger = NodeUtil_getStringBigIntValue(optstrGet_(lvStr))
 			if lvBig == nil {
 				return Tri_forBoolean(willNegate)
 			}
@@ -1134,9 +1134,9 @@ func PeepholeFoldConstants_tryAbstractEqualityComparison(peepholeOptimization *A
 			}()
 		}
 		if (leftValueType == NodeUtil_ValueType_BIGINT) && (rightValueType == NodeUtil_ValueType_STRING) {
-			var rvStr Optional[string] = peepholeOptimization.getSideEffectFreeStringValue(right)
-			if rvStr.isPresent() {
-				var rvBig *BigInteger = NodeUtil_getStringBigIntValue(rvStr.get())
+			var rvStr string = peepholeOptimization.getSideEffectFreeStringValue(right)
+			if rvStr != nullstr_ {
+				var rvBig *BigInteger = NodeUtil_getStringBigIntValue(optstrGet_(rvStr))
 				if rvBig == nil {
 					return Tri_FALSE
 				}
@@ -1151,9 +1151,9 @@ func PeepholeFoldConstants_tryAbstractEqualityComparison(peepholeOptimization *A
 			return Tri_UNKNOWN
 		}
 		if (leftValueType == NodeUtil_ValueType_STRING) && (rightValueType == NodeUtil_ValueType_BIGINT) {
-			var lvStr Optional[string] = peepholeOptimization.getSideEffectFreeStringValue(left)
-			if lvStr.isPresent() {
-				var lvBig *BigInteger = NodeUtil_getStringBigIntValue(lvStr.get())
+			var lvStr string = peepholeOptimization.getSideEffectFreeStringValue(left)
+			if lvStr != nullstr_ {
+				var lvBig *BigInteger = NodeUtil_getStringBigIntValue(optstrGet_(lvStr))
 				if lvBig == nil {
 					return Tri_FALSE
 				}
@@ -1176,10 +1176,10 @@ func PeepholeFoldConstants_tryAbstractEqualityComparison(peepholeOptimization *A
 			if (((leftValueType == NodeUtil_ValueType_NULL) || (leftValueType == NodeUtil_ValueType_VOID)) || (rightValueType == NodeUtil_ValueType_NULL)) || (rightValueType == NodeUtil_ValueType_VOID) {
 				return Tri_FALSE
 			}
-			if ((leftValueType == NodeUtil_ValueType_STRING) && peepholeOptimization.getSideEffectFreeStringValue(left).isPresent()) && (lv == nil) {
+			if ((leftValueType == NodeUtil_ValueType_STRING) && peepholeOptimization.getSideEffectFreeStringValue(left) != nullstr_) && (lv == nil) {
 				return Tri_FALSE
 			}
-			if ((rightValueType == NodeUtil_ValueType_STRING) && peepholeOptimization.getSideEffectFreeStringValue(right).isPresent()) && (rv == nil) {
+			if ((rightValueType == NodeUtil_ValueType_STRING) && peepholeOptimization.getSideEffectFreeStringValue(right) != nullstr_) && (rv == nil) {
 				return Tri_FALSE
 			}
 			return Tri_UNKNOWN
@@ -1218,14 +1218,14 @@ func PeepholeFoldConstants_tryStrictEqualityComparison(peepholeOptimization *Abs
 				return Tri_forBoolean((Double_doubleValue(lv) == Double_doubleValue(rv)))
 			}
 		case NodeUtil_ValueType_STRING:
-			var lv Optional[string] = peepholeOptimization.getSideEffectFreeStringValue(left)
-			var rv Optional[string] = peepholeOptimization.getSideEffectFreeStringValue(right)
-			if lv.isPresent() && rv.isPresent() {
-				if (strings.Contains(lv.get(), "\v")) || (strings.Contains(rv.get(), "\v")) {
+			var lv string = peepholeOptimization.getSideEffectFreeStringValue(left)
+			var rv string = peepholeOptimization.getSideEffectFreeStringValue(right)
+			if lv != nullstr_ && rv != nullstr_ {
+				if (strings.Contains(optstrGet_(lv), "\v")) || (strings.Contains(optstrGet_(rv), "\v")) {
 					return Tri_UNKNOWN
 				} else {
 					return func() Tri {
-						if optEquals_(lv, rv) {
+						if lv == rv {
 							return Tri_TRUE
 						}
 						return Tri_FALSE
@@ -1323,17 +1323,17 @@ func (this *PeepholeFoldConstants) tryFoldInForcedStringContext(n Node) Node {
 	}
 	if objectType.getStringIs_(sid_String) {
 		var value Node = objectType.getNext()
-		var stringValue Optional[string]
+		var stringValue string
 		if value == 0 {
-			stringValue = Optional_of[string]("")
+			stringValue = ""
 		} else {
 			stringValue = this.getSideEffectFreeStringValue(value)
 		}
-		if stringValue.isEmpty() {
+		if stringValue == nullstr_ {
 			return n
 		}
 		var parent Node = n.getParent()
-		var newString Node = IR_string(stringValue.get())
+		var newString Node = IR_string(optstrGet_(stringValue))
 		n.replaceWith(newString)
 		newString.srcrefIfMissing(parent)
 		this.reportChangeToEnclosingScope(parent)

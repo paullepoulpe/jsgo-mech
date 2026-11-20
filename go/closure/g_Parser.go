@@ -12,14 +12,14 @@ type Parser struct {
 	functionContextStack *[]Parser_FunctionFlavor
 	features_            *FeatureSet
 	lastSourcePosition   *SourcePosition_util
-	sourceMapURL         Optional[string]
+	sourceMapURL         string
 }
 
 func (this *Parser) finit_Parser() {
 	this.commentRecorder = new_Parser_CommentRecorder(this)
 	this.functionContextStack = &[]Parser_FunctionFlavor{}
 	this.features_ = FeatureSet_BARE_MINIMUM
-	this.sourceMapURL = Optional_empty[string]()
+	this.sourceMapURL = nullstr_
 }
 
 func (this *Parser) init_Parser(config *Parser_Config, errorReporter *ErrorReporter_util, source *SourceFile_parser) {
@@ -45,7 +45,7 @@ func (this *Parser) getFeatures() *FeatureSet {
 	return this.features_
 }
 
-func (this *Parser) getSourceMapURL() Optional[string] {
+func (this *Parser) getSourceMapURL() string {
 	return this.sourceMapURL
 }
 
@@ -2883,7 +2883,7 @@ func (this *Parser_CommentRecorder) recordComment(type_ Comment_Type, range_ *So
 	if (this.lastCommentEndPosition == nil) || (range_.end_.offset > this.lastCommentEndPosition.offset) {
 		value = strings.Trim(value, javaSpace_)
 		if strings.HasPrefix(value, Parser_SOURCE_MAPPING_URL_PREFIX) {
-			this.outer_.sourceMapURL = Optional_of[string](value[len(Parser_SOURCE_MAPPING_URL_PREFIX):])
+			this.outer_.sourceMapURL = optstrOf_(value[len(Parser_SOURCE_MAPPING_URL_PREFIX):])
 		}
 		this.comments.add(new_Comment(value, range_, type_))
 		this.lastCommentEndPosition = range_.end_

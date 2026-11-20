@@ -83,7 +83,7 @@ func NamedType_nominalHashCode(type_ *ObjectType) int32 {
 	if !type_.hasReferenceName() {
 		panic(new_IllegalStateException_0())
 	}
-	var name string = type_.getReferenceName().orElseThrow()
+	var name string = optstrGet_(type_.getReferenceName())
 	return utf16Hash_(name)
 }
 
@@ -135,14 +135,14 @@ func (this *NamedType) getReferencedType() *JSType {
 	return this.getReferencedTypeInternal()
 }
 
-func (this *NamedType) getReferenceName_impl() Optional[string] {
-	return Optional_of[string](this.reference)
+func (this *NamedType) getReferenceName_impl() string {
+	return optstrOf_(this.reference)
 }
 
 func (this *NamedType) appendTo_impl(sb *TypeStringBuilder) {
 	var type_ *JSType = this.getReferencedType()
 	if !this.isResolved() || type_.isNoResolvedType() {
-		sb.append(this.getReferenceName().orElseThrow())
+		sb.append(optstrGet_(this.getReferenceName()))
 	} else {
 		sb.appendJSType(type_)
 	}
@@ -228,7 +228,7 @@ func (this *NamedType) resolveTypeof(reporter ErrorReporter_rhino) bool {
 	var type_ *JSType = this.resolutionScope.lookupQualifiedName(QualifiedName_of(scopeName))
 	if (type_ == nil) || type_.isUnknownType() {
 		if this.registry.isForwardDeclaredType(scopeName) {
-			this.setReferencedType(new_NoResolvedType(this.registry, this.getReferenceName().orElseThrow(), this.getTemplateTypes()).up_JSType())
+			this.setReferencedType(new_NoResolvedType(this.registry, optstrGet_(this.getReferenceName()), this.getTemplateTypes()).up_JSType())
 			if this.validator != nil {
 				var unused bool = this.validator.apply(this.getReferencedType().self())
 				_ = unused
@@ -240,7 +240,7 @@ func (this *NamedType) resolveTypeof(reporter ErrorReporter_rhino) bool {
 	} else {
 		if type_.isLiteralObject() {
 			var objlit *JSType = type_
-			type_ = NamedType_builder(this.registry, this.getReferenceName().orElseThrow()).setResolutionKind(NamedType_ResolutionKind_NONE).setReferencedType(objlit).build().up_JSType()
+			type_ = NamedType_builder(this.registry, optstrGet_(this.getReferenceName())).setResolutionKind(NamedType_ResolutionKind_NONE).setReferencedType(objlit).build().up_JSType()
 		}
 		this.setReferencedAndResolvedType(type_, reporter)
 	}
@@ -297,7 +297,7 @@ func (this *NamedType) handleUnresolvedType(reporter ErrorReporter_rhino) {
 		}
 		this.warning(reporter, msg)
 	} else {
-		this.setReferencedType(new_NoResolvedType(this.registry, this.getReferenceName().orElseThrow(), this.getTemplateTypes()).up_JSType())
+		this.setReferencedType(new_NoResolvedType(this.registry, optstrGet_(this.getReferenceName()), this.getTemplateTypes()).up_JSType())
 		if this.validator != nil {
 			var unused bool = this.validator.apply(this.getReferencedType().self())
 			_ = unused
@@ -328,7 +328,7 @@ func (this *NamedType) setValidator_impl(validator Predicate_baseOf[*JSType]) bo
 }
 
 func (this *NamedType) warning(reporter ErrorReporter_rhino, message string) {
-	reporter.warning(message, Optional_of[string](this.sourceName_).filterFn_(func(s string) bool {
+	reporter.warning(message, optstrFilter_(optstrOf_(this.sourceName_), func(s string) bool {
 		return s != ""
 	}), this.lineno_, this.charno_)
 }
@@ -562,7 +562,7 @@ func (this *NamedType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p3 N
 }
 
 // getReferenceName: an object that is exactly a NamedType calls its getReferenceName_impl directly (post-flip); others dispatch.
-func (this *NamedType) getReferenceName() Optional[string] {
+func (this *NamedType) getReferenceName() string {
 	if p, _ := this.self_.(*NamedType); p == this {
 		return this.getReferenceName_impl()
 	}

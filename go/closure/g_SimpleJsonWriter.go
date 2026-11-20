@@ -8,7 +8,7 @@ type SimpleJsonWriter struct {
 	indent_        string
 	htmlSafe       bool
 	serializeNulls bool
-	deferredName   Optional[string]
+	deferredName   string
 	sink           func(any)
 }
 
@@ -22,7 +22,7 @@ func (this *SimpleJsonWriter) finit_SimpleJsonWriter() {
 	this.indent_ = ""
 	this.htmlSafe = false
 	this.serializeNulls = true
-	this.deferredName = Optional_empty[string]()
+	this.deferredName = nullstr_
 	this.sink = nil
 }
 
@@ -75,34 +75,34 @@ func (this *SimpleJsonWriter) endObject() *SimpleJsonWriter {
 }
 
 func (this *SimpleJsonWriter) name(name string) *SimpleJsonWriter {
-	if this.deferredName.isPresent() {
+	if this.deferredName != nullstr_ {
 		panic(new_IllegalStateException_0())
 	}
-	this.deferredName = Optional_of[string](name)
+	this.deferredName = optstrOf_(name)
 	return this
 }
 
-func (this *SimpleJsonWriter) stringValue(value Optional[string]) *SimpleJsonWriter {
-	if value.isEmpty() {
+func (this *SimpleJsonWriter) stringValue(value string) *SimpleJsonWriter {
+	if value == nullstr_ {
 		return this.nullValue()
 	}
 	this.beforeValue()
-	this.string(value.get())
+	this.string(optstrGet_(value))
 	return this
 }
 
-func (this *SimpleJsonWriter) rawValue(json Optional[string]) *SimpleJsonWriter {
-	if json.isEmpty() {
+func (this *SimpleJsonWriter) rawValue(json string) *SimpleJsonWriter {
+	if json == nullstr_ {
 		return this.nullValue()
 	}
 	this.beforeValue()
-	this.out.append(json.get())
+	this.out.append(optstrGet_(json))
 	return this
 }
 
 func (this *SimpleJsonWriter) nullValue() *SimpleJsonWriter {
-	if this.deferredName.isPresent() && !this.serializeNulls {
-		this.deferredName = Optional_empty[string]()
+	if this.deferredName != nullstr_ && !this.serializeNulls {
+		this.deferredName = nullstr_
 		return this
 	}
 	this.beforeValue()
@@ -153,8 +153,8 @@ func (this *SimpleJsonWriter) close(empty int32, nonempty int32, closeBracket ui
 	if (context != nonempty) && (context != empty) {
 		panic(new_IllegalStateException_String("Nesting problem."))
 	}
-	if this.deferredName.isPresent() {
-		panic(new_IllegalStateException_String(("Dangling name: " + sstr_(this.deferredName.get()))))
+	if this.deferredName != nullstr_ {
+		panic(new_IllegalStateException_String(("Dangling name: " + sstr_(optstrGet_(this.deferredName)))))
 	}
 	sliceRemoveAt_(this.stack, (int32(len(*this.stack)) - 1))
 	if context == nonempty {
@@ -170,15 +170,15 @@ func (this *SimpleJsonWriter) beforeValue() {
 	}
 	var top int32 = (int32(len(*this.stack)) - 1)
 	var context int32 = unbox_[int32](sliceAt_(*this.stack, top))
-	if this.deferredName.isPresent() {
+	if this.deferredName != nullstr_ {
 		if context == SimpleJsonWriter_NONEMPTY_OBJECT {
 			this.out.append_char(',')
 		} else if context != SimpleJsonWriter_EMPTY_OBJECT {
 			panic(new_IllegalStateException_String("Nesting problem."))
 		}
 		this.newline()
-		this.string(this.deferredName.get())
-		this.deferredName = Optional_empty[string]()
+		this.string(optstrGet_(this.deferredName))
+		this.deferredName = nullstr_
 		this.out.append(func() string {
 			if this.indent_ == "" {
 				return ":"

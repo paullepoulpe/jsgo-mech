@@ -355,9 +355,9 @@ func (this *CheckSuper_MethodContext) visitSuperPropertyAccess_impl(t *NodeTrave
 
 func (this *CheckSuper_MethodContext) visitSuperConstructorCall_impl(t *NodeTraversal, superNode Node) {
 	if this.isClassMethod {
-		var propName Optional[string] = this.getPropertyName()
-		if propName.isPresent() {
-			t.report(superNode, CheckSuper_INVALID_SUPER_CALL_WITH_SUGGESTION, []string{propName.get()})
+		var propName string = this.getPropertyName()
+		if propName != nullstr_ {
+			t.report(superNode, CheckSuper_INVALID_SUPER_CALL_WITH_SUGGESTION, []string{optstrGet_(propName)})
 		} else {
 			t.report(superNode, CheckSuper_INVALID_SUPER_CALL, []string{})
 		}
@@ -366,12 +366,12 @@ func (this *CheckSuper_MethodContext) visitSuperConstructorCall_impl(t *NodeTrav
 	}
 }
 
-func (this *CheckSuper_MethodContext) getPropertyName() Optional[string] {
+func (this *CheckSuper_MethodContext) getPropertyName() string {
 	var parent Node = Preconditions_checkNotNull_T(this.getContextNode().getParent())
 	if (parent.isMemberFunctionDef() || parent.isGetterDef()) || parent.isSetterDef() {
-		return Optional_of[string](parent.getString())
+		return optstrOf_(parent.getString())
 	} else {
-		return Optional_empty[string]()
+		return nullstr_
 	}
 }
 

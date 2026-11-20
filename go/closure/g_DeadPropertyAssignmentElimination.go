@@ -155,7 +155,7 @@ func (this *DeadPropertyAssignmentElimination_Property) toString() string {
 type DeadPropertyAssignmentElimination_PropertyWrite struct {
 	assignedAt     Node
 	isRead         bool
-	qualifiedName_ Optional[string]
+	qualifiedName_ string
 }
 
 func (this *DeadPropertyAssignmentElimination_PropertyWrite) finit_DeadPropertyAssignmentElimination_PropertyWrite() {
@@ -168,7 +168,7 @@ func (this *DeadPropertyAssignmentElimination_PropertyWrite) init_DeadPropertyAs
 		panic(new_IllegalArgumentException_0())
 	}
 	this.assignedAt = assignedAt
-	this.qualifiedName_ = Optional_of[string](assignedAt.getQualifiedName()).filterFn_(func(s string) bool {
+	this.qualifiedName_ = optstrFilter_(optstrOf_(assignedAt.getQualifiedName()), func(s string) bool {
 		return s != ""
 	})
 }
@@ -180,7 +180,7 @@ func new_DeadPropertyAssignmentElimination_PropertyWrite(assignedAt Node) *DeadP
 }
 
 func (this *DeadPropertyAssignmentElimination_PropertyWrite) isSafeToRemove(nextWrite *DeadPropertyAssignmentElimination_PropertyWrite) bool {
-	return ((!this.isRead && (nextWrite != nil)) && optEquals_(this.qualifiedName_, nextWrite.qualifiedName_))
+	return ((!this.isRead && (nextWrite != nil)) && this.qualifiedName_ == nextWrite.qualifiedName_)
 }
 
 func (this *DeadPropertyAssignmentElimination_PropertyWrite) markRead() {
@@ -211,15 +211,15 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 	if !propNode.isQualifiedName() {
 		return nil
 	}
-	var propName Optional[string] = func() Optional[string] {
+	var propName string = func() string {
 		if propNode.isGetProp() {
-			return Optional_of[string](propNode.getString())
+			return optstrOf_(propNode.getString())
 		}
-		return Optional_of[string](propNode.getQualifiedName()).filterFn_(func(s string) bool {
+		return optstrFilter_(optstrOf_(propNode.getQualifiedName()), func(s string) bool {
 			return s != ""
 		})
 	}()
-	var property *DeadPropertyAssignmentElimination_Property = this.propertyMap.ComputeIfAbsent(propName.orElse(nullstr_), new_DeadPropertyAssignmentElimination_Property)
+	var property *DeadPropertyAssignmentElimination_Property = this.propertyMap.ComputeIfAbsent(propName, new_DeadPropertyAssignmentElimination_Property)
 	if propNode.isGetProp() {
 		var parentProperty *DeadPropertyAssignmentElimination_Property = this.getOrCreateProperty(propNode.getFirstChild())
 		if parentProperty != nil {

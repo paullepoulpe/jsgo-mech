@@ -564,24 +564,24 @@ func (this *InlineFunctions_CallVisitor) visit_impl(t *NodeTraversal, n Node, pa
 	switch n.ns_().token {
 	case tokOrd1_OPTCHAIN_CALL, tokOrd1_CALL:
 		var child Node = n.getFirstChild()
-		var name Optional[string] = Optional_empty[string]()
+		var name string = nullstr_
 		if child.isName() {
-			name = Optional_of[string](child.getString())
+			name = optstrOf_(child.getString())
 		} else if child.isFunction() {
-			name = Optional_ofNullable[string](mapStr_(this.anonFunctionMap, child))
+			name = mapStr_(this.anonFunctionMap, child)
 		} else if NodeUtil_isFunctionObjectCall(n) {
 			if !NodeUtil_isNormalOrOptChainGet(child) {
 				panic(new_IllegalStateException_0())
 			}
 			var fnIdentifyingNode Node = child.getFirstChild()
 			if fnIdentifyingNode.isName() {
-				name = Optional_of[string](fnIdentifyingNode.getString())
+				name = optstrOf_(fnIdentifyingNode.getString())
 			} else if fnIdentifyingNode.isFunction() {
-				name = Optional_ofNullable[string](mapStr_(this.anonFunctionMap, fnIdentifyingNode))
+				name = mapStr_(this.anonFunctionMap, fnIdentifyingNode)
 			}
 		}
-		if name.isPresent() {
-			var functionState *InlineFunctions_FunctionState = this.functionMap.Get(name.get())
+		if name != nullstr_ {
+			var functionState *InlineFunctions_FunctionState = this.functionMap.Get(optstrGet_(name))
 			if functionState != nil {
 				this.callback(t, n, functionState)
 			}
@@ -719,7 +719,7 @@ func (this *InlineFunctions_Inline) inlineFunction(t *NodeTraversal, ref *Inline
 	var fn InlineFunctions_Function = functionState.getFn()
 	var fnName string = fn.getName()
 	var fnNode Node = functionState.getSafeFnNode()
-	var newExpr Node = this.injector.inline(ref.up_FunctionInjector_Reference(), Optional_of[string](fnName), fnNode)
+	var newExpr Node = this.injector.inline(ref.up_FunctionInjector_Reference(), optstrOf_(fnName), fnNode)
 	if !equalsRRH_(newExpr, ref.callNode_) {
 		t.getCompiler().reportChangeToEnclosingScope(newExpr)
 	}

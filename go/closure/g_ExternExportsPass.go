@@ -104,9 +104,9 @@ func (this *ExternExportsPass) lookForQnameDefinition(n Node) {
 			}
 		}
 	} else if n.isMemberFunctionDef() {
-		var lvalueName Optional[string] = NodeUtil_getBestLValueName(n)
-		if lvalueName.isPresent() {
-			this.definitionMap[lvalueName.get()] = n.getOnlyChild()
+		var lvalueName string = NodeUtil_getBestLValueName(n)
+		if lvalueName != nullstr_ {
+			this.definitionMap[optstrGet_(lvalueName)] = n.getOnlyChild()
 		}
 	}
 }
@@ -524,12 +524,12 @@ func (this *ExternExportsPass_PropertyExport) getExportedPath_impl() string {
 		if len(currentPath) == 0 {
 			panic(new_IllegalStateException_0())
 		}
-		var mappedPath Optional[string] = Optional_ofNullable[string](mapStr_(this.outer_.mappedPaths, currentPath))
-		if mappedPath.isEmpty() {
+		var mappedPath string = mapStr_(this.outer_.mappedPaths, currentPath)
+		if mappedPath == nullstr_ {
 			continue
 		}
-		mappedPath = Optional_of[string]((sstr_(mappedPath.get()) + sstr_(exportPathU16.substring_int(String_length(currentPath)))))
-		return ExternExportsPass_Q_NAME_JOINER.join_Object_Object_ObjectArr(strobj_(mappedPath.get()), strobj_(this.symbolName), []any{}...)
+		mappedPath = optstrOf_((sstr_(optstrGet_(mappedPath)) + sstr_(exportPathU16.substring_int(String_length(currentPath)))))
+		return ExternExportsPass_Q_NAME_JOINER.join_Object_Object_ObjectArr(strobj_(optstrGet_(mappedPath)), strobj_(this.symbolName), []any{}...)
 	}
 	return ExternExportsPass_Q_NAME_JOINER.join_Object_Object_ObjectArr(strobj_(this.exportPath), strobj_(this.symbolName), []any{}...)
 }

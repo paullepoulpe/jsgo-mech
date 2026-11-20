@@ -6,7 +6,7 @@ type EnumElementType struct {
 	ObjectType
 	primitiveType       *JSType
 	primitiveObjectType *ObjectType
-	name_               Optional[string]
+	name_               string
 	enumType            *EnumType
 }
 
@@ -24,7 +24,7 @@ func (this *EnumElementType) up_JSType() *JSType {
 	return &this.JSType
 }
 
-func (this *EnumElementType) init_EnumElementType(registry *JSTypeRegistry, elementType *JSType, name Optional[string], enumType *EnumType) {
+func (this *EnumElementType) init_EnumElementType(registry *JSTypeRegistry, elementType *JSType, name string, enumType *EnumType) {
 	this.ObjectType.init_ObjectType_JSTypeRegistry(registry)
 	this.primitiveType = elementType
 	this.primitiveObjectType = elementType.toObjectType()
@@ -33,7 +33,7 @@ func (this *EnumElementType) init_EnumElementType(registry *JSTypeRegistry, elem
 	registry.getResolver().resolveIfClosed(this.up_JSType(), EnumElementType_TYPE_CLASS)
 }
 
-func new_EnumElementType(registry *JSTypeRegistry, elementType *JSType, name Optional[string], enumType *EnumType) *EnumElementType {
+func new_EnumElementType(registry *JSTypeRegistry, elementType *JSType, name string, enumType *EnumType) *EnumElementType {
 	this := &EnumElementType{}
 	this.self_ = this
 	this.init_EnumElementType(registry, elementType, name, enumType)
@@ -116,11 +116,11 @@ func (this *EnumElementType) appendTo_impl(sb *TypeStringBuilder) {
 	if sb.isForAnnotations() {
 		sb.appendJSType(this.primitiveType)
 	} else {
-		sb.append(this.getReferenceName().orElse(nullstr_)).append("<").appendJSType(this.primitiveType).append(">")
+		sb.append(this.getReferenceName()).append("<").appendJSType(this.primitiveType).append(">")
 	}
 }
 
-func (this *EnumElementType) getReferenceName_impl() Optional[string] {
+func (this *EnumElementType) getReferenceName_impl() string {
 	return this.name_
 }
 
@@ -311,7 +311,7 @@ func (this *EnumElementType) appendTo(p0 *TypeStringBuilder) {
 }
 
 // getReferenceName: an object that is exactly a EnumElementType calls its getReferenceName_impl directly (post-flip); others dispatch.
-func (this *EnumElementType) getReferenceName() Optional[string] {
+func (this *EnumElementType) getReferenceName() string {
 	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.getReferenceName_impl()
 	}

@@ -98,18 +98,18 @@ func (this *Import) toString() string {
 }
 
 type Import_Builder struct {
-	moduleRequestField Optional[string]
-	importNameField    Optional[string]
-	localNameField     Optional[string]
+	moduleRequestField string
+	importNameField    string
+	localNameField     string
 	modulePathField    *ModuleLoader_ModulePath
 	importNodeField    Node
 	nameNodeField      Node
 }
 
 func (this *Import_Builder) finit_Import_Builder() {
-	this.moduleRequestField = Optional_empty[string]()
-	this.importNameField = Optional_empty[string]()
-	this.localNameField = Optional_empty[string]()
+	this.moduleRequestField = nullstr_
+	this.importNameField = nullstr_
+	this.localNameField = nullstr_
 }
 
 func (this *Import_Builder) init_Import_Builder() {
@@ -123,17 +123,17 @@ func new_Import_Builder() *Import_Builder {
 }
 
 func (this *Import_Builder) moduleRequest(value string) *Import_Builder {
-	this.moduleRequestField = Optional_of[string](value)
+	this.moduleRequestField = optstrOf_(value)
 	return this
 }
 
 func (this *Import_Builder) importName(value string) *Import_Builder {
-	this.importNameField = Optional_of[string](value)
+	this.importNameField = optstrOf_(value)
 	return this
 }
 
 func (this *Import_Builder) localName(value string) *Import_Builder {
-	this.localNameField = Optional_of[string](value)
+	this.localNameField = optstrOf_(value)
 	return this
 }
 
@@ -159,15 +159,15 @@ func (this *Import_Builder) nameNode(value Node) *Import_Builder {
 }
 
 func (this *Import_Builder) build() *Import {
-	if (((this.moduleRequestField.isEmpty() || this.importNameField.isEmpty()) || this.localNameField.isEmpty()) || (this.importNodeField == 0)) || (this.nameNodeField == 0) {
+	if (((this.moduleRequestField == nullstr_ || this.importNameField == nullstr_) || this.localNameField == nullstr_) || (this.importNodeField == 0)) || (this.nameNodeField == 0) {
 		var missing *StringBuilder = new_StringBuilder()
-		if this.moduleRequestField.isEmpty() {
+		if this.moduleRequestField == nullstr_ {
 			missing.append(" moduleRequest")
 		}
-		if this.importNameField.isEmpty() {
+		if this.importNameField == nullstr_ {
 			missing.append(" importName")
 		}
-		if this.localNameField.isEmpty() {
+		if this.localNameField == nullstr_ {
 			missing.append(" localName")
 		}
 		if this.importNodeField == 0 {
@@ -178,5 +178,5 @@ func (this *Import_Builder) build() *Import {
 		}
 		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))))
 	}
-	return new_Import(this.moduleRequestField.get(), this.importNameField.get(), this.localNameField.get(), this.modulePathField, this.importNodeField, this.nameNodeField)
+	return new_Import(optstrGet_(this.moduleRequestField), optstrGet_(this.importNameField), optstrGet_(this.localNameField), this.modulePathField, this.importNodeField, this.nameNodeField)
 }

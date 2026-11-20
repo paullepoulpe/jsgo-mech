@@ -5,21 +5,21 @@ package closure
 import "strconv"
 
 type GoogleJsMessageIdGenerator struct {
-	projectId Optional[string]
+	projectId string
 }
 
-func (this *GoogleJsMessageIdGenerator) init_GoogleJsMessageIdGenerator(projectId Optional[string]) {
+func (this *GoogleJsMessageIdGenerator) init_GoogleJsMessageIdGenerator(projectId string) {
 	this.projectId = projectId
 }
 
-func new_GoogleJsMessageIdGenerator(projectId Optional[string]) *GoogleJsMessageIdGenerator {
+func new_GoogleJsMessageIdGenerator(projectId string) *GoogleJsMessageIdGenerator {
 	this := &GoogleJsMessageIdGenerator{}
 	this.init_GoogleJsMessageIdGenerator(projectId)
 	return this
 }
 
-func (this *GoogleJsMessageIdGenerator) generateId(meaning Optional[string], messageParts *TList[JsMessage_Part]) string {
-	if !meaning.isPresent() {
+func (this *GoogleJsMessageIdGenerator) generateId(meaning string, messageParts *TList[JsMessage_Part]) string {
+	if meaning == nullstr_ {
 		panic(new_IllegalStateException_0())
 	}
 	var sb strBuilder_
@@ -32,12 +32,12 @@ func (this *GoogleJsMessageIdGenerator) generateId(meaning Optional[string], mes
 	}
 	var tcValue string = sb.toString()
 	var projectScopedMeaning string = (sstr_(func() string {
-		if this.projectId.orElse("") == "" {
+		if optstrOr_(this.projectId, "") == "" {
 			return ""
 		}
-		return (sstr_(this.projectId.get()) + ": ")
-	}()) + sstr_(meaning.get()))
-	return strconv.FormatInt(GoogleJsMessageIdGenerator_MessageId_generateId(tcValue, Optional_of[string](projectScopedMeaning)), 10)
+		return (sstr_(optstrGet_(this.projectId)) + ": ")
+	}()) + sstr_(optstrGet_(meaning)))
+	return strconv.FormatInt(GoogleJsMessageIdGenerator_MessageId_generateId(tcValue, optstrOf_(projectScopedMeaning)), 10)
 }
 
 type GoogleJsMessageIdGenerator_FP struct {
@@ -185,10 +185,10 @@ func new_GoogleJsMessageIdGenerator_MessageId() *GoogleJsMessageIdGenerator_Mess
 	return this
 }
 
-func GoogleJsMessageIdGenerator_MessageId_generateId(message string, meaning Optional[string]) int64 {
+func GoogleJsMessageIdGenerator_MessageId_generateId(message string, meaning string) int64 {
 	var fp int64 = GoogleJsMessageIdGenerator_FP_fingerprint_String(message)
-	if meaning.isPresent() && (len(meaning.get()) != 0) {
-		var fp2 int64 = GoogleJsMessageIdGenerator_FP_fingerprint_String(meaning.get())
+	if meaning != nullstr_ && (len(optstrGet_(meaning)) != 0) {
+		var fp2 int64 = GoogleJsMessageIdGenerator_FP_fingerprint_String(optstrGet_(meaning))
 		fp = ((fp2 + (fp << 1)) + int64(func() int32 {
 			if fp < 0 {
 				return 1
