@@ -71,6 +71,8 @@ func simple(e ast.Expr) bool { // a variable, or a field of this
 	return false
 }
 
+func zv0(t types.Type) string { z, _ := zero(t); return z }
+
 func zero(t types.Type) (string, bool) {
 	switch u := t.Underlying().(type) {
 	case *types.Pointer, *types.Interface, *types.Map, *types.Slice, *types.Chan, *types.Signature:
@@ -93,6 +95,8 @@ func throwOf(variant string, msg []ast.Expr) (string, bool) {
 		return "panic(new_NullPointerException_0().self())", true
 	case "_Object":
 		return "nullFail_(objstr_(" + rw.Render(msg[0]) + "))", true
+	case "_ofNullable": // Optional.ofNullable(v).orElseThrow() / .get()
+		return "panic(new_NoSuchElementException_String(\"No value present\").self())", true
 	case "_String_Object", "_String_Object_Object":
 		ps := []string{}
 		for _, a := range msg[1:] {
@@ -346,8 +350,21 @@ func tempName(n ast.Node) string {
 func hoist(c ast.Expr, v ast.Expr, msg []ast.Expr, variant string) string {
 	v = rw.Unparen(v)
 	t := rw.Info.Types[c].Type
-	zv, ok := zero(t)
-	if !ok {
+	isNull := func(name string) string { return name + " == " + zv0(t) }
+	if variant == "_ofNullable" { // Optional.ofNullable's test: isnull_
+		switch u := t.Underlying().(type) {
+		case *types.Interface:
+			isNull = func(name string) string { return "isnull_(" + name + ")" }
+		case *types.Pointer:
+		case *types.Basic:
+			if u.Info()&types.IsString == 0 {
+				return "Optional.ofNullable of a value that is not an object"
+			}
+			isNull = func(name string) string { return name + " == nullstr_" }
+		default:
+			return "Optional.ofNullable of a value that is not an object"
+		}
+	} else if _, ok := zero(t); !ok {
 		return "checked value is a string or a struct (not the helper's nil test)"
 	}
 	for _, a := range msg {
@@ -377,7 +394,7 @@ func hoist(c ast.Expr, v ast.Expr, msg []ast.Expr, variant string) string {
 		}
 		return "var " + name + " " + types.TypeString(t, types.RelativeTo(rw.Pkg)) + " = " + vs + "\n"
 	}
-	test := func(name string) string { return "if " + name + " == " + zv + " {\n" + throw + "\n}\n" }
+	test := func(name string) string { return "if " + isNull(name) + " {\n" + throw + "\n}\n" }
 	switch s := p.(type) {
 	case *ast.ExprStmt:
 		stmt, root = s, s.X
@@ -556,4 +573,62 @@ func nested(c *ast.CallExpr) bool {
 		})
 	}
 	return found
+}
+
+// optional rewrites the java.util.Optional made only to test its content for null:
+//
+//	Optional_ofNullable(v).isPresent()        !isnull_(v) (v of interface type), v != nil,
+//	                                          s != nullstr_ (v = strobj_(s))
+//	Optional_ofNullable(v).orElseThrow()      (.get() too) the check of v with Optional.get's
+//	                                          NoSuchElementException, moved before the
+//	                                          statement as the checks are (hoist)
+//
+// Optional_ofNullable's own test is isnull_(v); for a pointer it is v == nil, for a String
+// v == nullstr_; strobj_(s) is null iff s is nullstr_. The Optional is not seen elsewhere.
+func optional(c *ast.CallExpr) (string, bool) {
+	sel, ok := c.Fun.(*ast.SelectorExpr)
+	if !ok || len(c.Args) != 0 {
+		return "", false
+	}
+	inner, ok := rw.Unparen(sel.X).(*ast.CallExpr)
+	if !ok || len(inner.Args) != 1 {
+		return "", false
+	}
+	if name, _ := rw.CallName(inner); name != "Optional_ofNullable" {
+		return "", false
+	}
+	v := rw.Unparen(inner.Args[0])
+	switch sel.Sel.Name {
+	case "isPresent":
+		t := rw.Info.Types[v].Type
+		var text string
+		if b, ok := v.(*ast.CallExpr); ok && rw.Text(b.Fun) == "strobj_" && len(b.Args) == 1 {
+			text = "(" + rw.Render(b.Args[0]) + " != nullstr_)"
+		} else {
+			switch u := t.Underlying().(type) {
+			case *types.Interface:
+				text = "!isnull_(" + rw.Render(v) + ")"
+			case *types.Pointer:
+				text = "(" + rw.Render(v) + " != nil)"
+			case *types.Basic:
+				if u.Info()&types.IsString == 0 {
+					return "Optional.ofNullable of a value that is not an object", true
+				}
+				text = "(" + rw.Render(v) + " != nullstr_)"
+			default:
+				return "Optional.ofNullable of a value that is not an object", true
+			}
+		}
+		rw.Rewrite[c] = func() string { return text }
+		return "", true
+	case "orElseThrow", "get":
+		// str_(Optional_ofNullable(strobj_(s)).orElseThrow()) is the check of s.
+		if u, ok := rw.Up(c).(*ast.CallExpr); ok && rw.Text(u.Fun) == "str_" && len(u.Args) == 1 {
+			if b, ok := v.(*ast.CallExpr); ok && rw.Text(b.Fun) == "strobj_" && len(b.Args) == 1 {
+				return hoist(u, b.Args[0], nil, "_ofNullable"), true
+			}
+		}
+		return hoist(c, v, nil, "_ofNullable"), true
+	}
+	return "", false
 }
