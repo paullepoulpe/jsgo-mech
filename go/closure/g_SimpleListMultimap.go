@@ -54,7 +54,7 @@ func (this *SimpleListMultimap) put_s(key string, value any) *SimpleListMultimap
 	var values ListOf[any] = icast_List(Map_get_s(this.map__, key))
 	if values == nil {
 		values = new_ArrayList_0()
-		Map_put_s(this.map__, key, any(values))
+		Map_put_s(this.map__, key, values)
 	}
 	values.add(value)
 	return this
