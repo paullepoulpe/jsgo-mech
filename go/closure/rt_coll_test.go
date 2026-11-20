@@ -510,3 +510,58 @@ func TestTSetWorkQueueAgainstModel(t *testing.T) {
 		}
 	}
 }
+
+// TestTDequePush checks a typed deque used at both ends against a plain slice (head first).
+func TestTDequePush(t *testing.T) {
+	d := newTDeque_(tc_string)
+	var want []string
+	check := func(step string) {
+		if len(d.items) != len(want) {
+			t.Fatalf("%s: %v, want %v", step, d.items, want)
+		}
+		for i := range want {
+			if d.items[i] != want[i] {
+				t.Fatalf("%s: %v, want %v", step, d.items, want)
+			}
+		}
+	}
+	for round := 0; round < 40; round++ {
+		for i := 0; i <= round%7; i++ {
+			v := istr_(int64(round*10 + i))
+			d.push(v)
+			want = append([]string{v}, want...)
+			check("push")
+			if i%3 == 2 {
+				d.add("t" + v)
+				want = append(want, "t"+v)
+				check("add")
+			}
+		}
+		for i := 0; i < round%5 && len(want) > 0; i++ {
+			if got := d.poll(); got != want[0] {
+				t.Fatalf("poll: %q, want %q", got, want[0])
+			}
+			want = want[1:]
+			check("poll")
+		}
+		if round%11 == 10 {
+			d.clear()
+			want = nil
+			check("clear")
+		}
+		if round%13 == 12 && len(want) > 1 {
+			d.removeAt(0)
+			want = want[1:]
+			check("removeAt")
+		}
+	}
+	for len(want) > 0 {
+		if got := d.pop(); got != want[0] {
+			t.Fatalf("pop: %q, want %q", got, want[0])
+		}
+		want = want[1:]
+	}
+	if d.peek() != nullstr_ || d.poll() != nullstr_ {
+		t.Fatalf("an empty deque's head is not null")
+	}
+}
