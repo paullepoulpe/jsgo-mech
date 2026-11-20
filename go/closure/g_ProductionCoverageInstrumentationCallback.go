@@ -248,7 +248,7 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncod
 	this.functionNameToIndex.putIfAbsent(functionName, int32(this.functionNameToIndex.size()))
 	this.typeToIndex.putIfAbsent(type_.name(), int32(this.typeToIndex.size()))
 	var sb *StringBuilder = new_StringBuilder()
-	_ = func() (code_ int) {
+	func() {
 		defer func() {
 			if r_ := recover(); r_ != nil {
 				ex_ := catch_(r_)
@@ -264,7 +264,6 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncod
 		Base64VLQ_encode(StringBuilder_as_Appendable(sb), unbox_[int32](this.typeToIndex.get(type_.name())))
 		Base64VLQ_encode(StringBuilder_as_Appendable(sb), lineNo)
 		Base64VLQ_encode(StringBuilder_as_Appendable(sb), colNo)
-		return 0
 	}()
 	var encodedParam string = sb.toString()
 	if !this.paramValueEncodings.containsKey(encodedParam) {
