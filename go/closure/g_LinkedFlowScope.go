@@ -134,7 +134,7 @@ func (this *LinkedFlowScope) getSlot_String_rStaticTypedSlot(name string) Static
 		if scope != nil {
 			return scope.getSlot(name)
 		}
-		return icast_StaticTypedSlot(obj_(var_))
+		return iup_StaticTypedSlot(var_)
 	}()
 }
 
@@ -482,7 +482,7 @@ func (this *LinkedFlowScope_OverlayScope) getSlot(name string) StaticTypedSlot {
 		if slot != nil {
 			return LinkedFlowScope_OverlaySlot_as_StaticTypedSlot(slot)
 		}
-		return icast_StaticTypedSlot(obj_(this.scope_.getSlot_String_rAbstractVar_rTypedVar(name)))
+		return iup_StaticTypedSlot(this.scope_.getSlot_String_rAbstractVar_rTypedVar(name))
 	}()
 }
 
