@@ -157,8 +157,11 @@ func (this *InvocationTemplateTypeMatcher) recordTemplateMatch(template *Templat
 	if match.isUnknownType() {
 		return
 	}
-	this.matchedTypes.merge(template, match, &BiFunction_fn{func(p0 any, p1 any) any { return to_JSType(p0).getLeastSupertype(to_JSType(p1)).self() }})
+	this.matchedTypes.merge(template, match, lambda_InvocationTemplateTypeMatcher_recordTemplateMatch_1_)
 }
+
+// lambda_InvocationTemplateTypeMatcher_recordTemplateMatch_1_ is a lambda of InvocationTemplateTypeMatcher_recordTemplateMatch that captures nothing (post-flip step lambdas).
+var lambda_InvocationTemplateTypeMatcher_recordTemplateMatch_1_ = &BiFunction_fn{func(p0 any, p1 any) any { return to_JSType(p0).getLeastSupertype(to_JSType(p1)).self() }}
 
 func (this *InvocationTemplateTypeMatcher) copyMatchedTypes() *JTMap[*TemplateType, *JSType] {
 	var builder ImmutableMap_BuilderOf[*TemplateType, *JSType] = ImmutableMap_builder()
