@@ -9,7 +9,7 @@ type GuardedCallback[T comparable] struct {
 	registeredGuards    *SimpleSetMultimap[Node, any]
 	guarded             *SimpleMultiset[any]
 	installedGuards     *SimpleListMultimap[Node, any]
-	contextStack        *TDeque[*GuardedCallback_Context]
+	contextStack        *[]*GuardedCallback_Context
 }
 
 type GuardedCallback_vt_[T comparable] interface {
@@ -40,7 +40,7 @@ func (this *GuardedCallback[T]) finit_GuardedCallback() {
 	this.registeredGuards = SimpleSetMultimap_create[Node, any]()
 	this.guarded = SimpleMultiset_create[any]()
 	this.installedGuards = SimpleListMultimap_create[Node, any]()
-	this.contextStack = newTDeque_(tc_p_GuardedCallback_Context)
+	this.contextStack = &[]*GuardedCallback_Context{}
 }
 
 func (this *GuardedCallback[T]) init_GuardedCallback(compiler *AbstractCompiler) {
@@ -50,9 +50,9 @@ func (this *GuardedCallback[T]) init_GuardedCallback(compiler *AbstractCompiler)
 
 func (this *GuardedCallback[T]) shouldTraverse(traversal *NodeTraversal, n Node, parent Node) bool {
 	if parent == 0 {
-		this.contextStack.push(GuardedCallback_Context_EMPTY)
+		*this.contextStack = append(*this.contextStack, GuardedCallback_Context_EMPTY)
 	} else {
-		this.contextStack.push(this.contextStack.peek().descend(this.compiler_, parent, n))
+		*this.contextStack = append(*this.contextStack, slicePeekTop_(tc_p_GuardedCallback_Context, *this.contextStack).descend(this.compiler_, parent, n))
 		if ((parent != 0) && GuardedCallback_CAN_HAVE_GUARDS.Has(parent.getToken())) && this.registeredGuards.containsKey(parent.box_()) {
 			for el_1 := range elems_(this.registeredGuards.removeAll(parent.box_())) {
 				var resource T = junboxT_[T](el_1)
@@ -72,7 +72,7 @@ func (this *GuardedCallback[T]) visit(traversal *NodeTraversal, n Node, parent N
 		this.promoteAbruptReturns(parent)
 	}
 	this.visitGuarded(traversal, n, parent)
-	this.contextStack.pop()
+	slicePop_(tc_p_GuardedCallback_Context, this.contextStack)
 }
 
 func (this *GuardedCallback[T]) promoteAbruptReturns(parent Node) {
@@ -91,7 +91,7 @@ func (this *GuardedCallback[T]) isGuarded(resource T) bool {
 	if this.guarded.contains(boxT_(resource)) {
 		return true
 	}
-	var context *GuardedCallback_Context = this.contextStack.peek()
+	var context *GuardedCallback_Context = slicePeekTop_(tc_p_GuardedCallback_Context, *this.contextStack)
 	if !context.safe {
 		return false
 	}
