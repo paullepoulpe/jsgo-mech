@@ -118,3 +118,31 @@ before, 105.04 / 105.01 s after (-2.4%); CPU 129.6 / 128.7 -> 126.2 / 126.3 s; O
 through the driver has not been run; the tool has no test of its own.
 
 In bounds after 552: 105.0 s against pre-flip Java's 94.3 s (t12): Java/Go about 0.90.
+
+553, optstr (the lead line's 490, which did not prove on this flip; tool 48db3634, step
+684afd83 on branch inb-optstr): the tool's call graph had an edge from a function to every
+function literal it makes, so building an empty typed collection "reached" the hash and
+compare closures it only creates. The analysis now reaches a function value only where it can
+be run (a call through a func-typed expression, matched by signature at every generic
+instantiation; a func-typed field's stores when they are all known; the typed-lambda adapter
+and tostr idioms of this translator). It adds edges the old one missed (TMap.findH -> a
+conversion's hash) as well as removing false ones. No field or class is named. Counts as on
+the lead line: 177 fields proved, 1,378 type spellings, 3,429 calls (lead 3,430). Gate: four
+MATCH. Time, 2 alternating rounds with Java in the run (runs14/t14_gs3500.runs): before
+104.64 / 105.80 s, after 105.95 / 105.23 s; CPU 125.0 / 126.3 -> 127.1 / 127.6 s. NEUTRAL in
+time: active as the removal of a Java-ism (Optional<String> objects), not as a speed step.
+Open for 552 and 553: replay through the driver not run; no tool tests; the closed-world
+premises of 553 (no func value run through reflection or unsafe) are argued, not checked.
+
+Standing after 553, 18% subset (t14): pre-flip Java 95.5 / 95.2 s (CHECKS 40.8 / 40.6, OPT
+42.6 / 42.6, FIN 12.1 / 12.0); in bounds 105.9 / 105.2 s (CHECKS 53.8 / 53.5, OPT 42.1 / 41.8,
+FIN 10.1 / 10.0). Java/Go 0.90. The whole deficit is CHECKS (0.76); the two later stages are
+level or ahead.
+
+CHECKS CPU of the in-bounds tree by category (profile of 553's binary, 65.8 s): translated
+compiler code 31.6 s (48%), collector background marking and sweeping 12.5 s (19%, off the
+main thread), runtime collections 5.5 s, allocation 5.0 s, Go maps and hashing 4.6 s, node
+store accessors 2.0 s, other runtime 3.3 s. The main thread's time is about the stage's wall
+time. The profile is flat: no function of the translated code is above 2%. Both compilers run
+the passes on one thread (Java's numParallelThreads defaults to 1; its extra CPU is the JIT
+and a parallel collector).
