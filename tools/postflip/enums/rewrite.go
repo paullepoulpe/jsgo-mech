@@ -67,12 +67,12 @@ func rewrite(conv []*enumInfo) stats {
 			}
 			T := e.name
 			fmt.Fprintf(&b, "\nfunc (this %s) enum_() *Enum {\n\tif this == 0 {\n\t\treturn nil\n\t}\n\treturn &%s_enum_[this-1]\n}\n", T, T)
-			fmt.Fprintf(&b, "\nfunc (this %s) name() string { return %s_enum_[this-1].name_ }\n", T, T)
-			fmt.Fprintf(&b, "\nfunc (this %s) ordinal() int32 { return %s_enum_[this-1].ordinal_ }\n", T, T)
+			fmt.Fprintf(&b, "\nfunc (this %s) name() string { return this.enum_().name_ }\n", T)
+			fmt.Fprintf(&b, "\nfunc (this %s) ordinal() int32 { return this.enum_().ordinal_ }\n", T)
 			if !e.ownMethods["toString"] {
-				fmt.Fprintf(&b, "\nfunc (this %s) toString() string { return %s_enum_[this-1].name_ }\n", T, T)
+				fmt.Fprintf(&b, "\nfunc (this %s) toString() string { return this.enum_().name_ }\n", T)
 			}
-			fmt.Fprintf(&b, "\nfunc (this %s) compareTo(o any) int32 { return %s_enum_[this-1].compareTo(o) }\n", T, T)
+			fmt.Fprintf(&b, "\nfunc (this %s) compareTo(o any) int32 { return this.enum_().compareTo(o) }\n", T)
 			fmt.Fprintf(&b, "\nfunc (this %s) self() any {\n\tif this == 0 {\n\t\treturn nil\n\t}\n\treturn this\n}", T)
 			return b.String()
 		}

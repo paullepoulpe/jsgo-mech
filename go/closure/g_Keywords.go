@@ -64,11 +64,11 @@ func (this Keywords) enum_() *Enum {
 	return &Keywords_enum_[this-1]
 }
 
-func (this Keywords) name() string { return Keywords_enum_[this-1].name_ }
+func (this Keywords) name() string { return this.enum_().name_ }
 
-func (this Keywords) ordinal() int32 { return Keywords_enum_[this-1].ordinal_ }
+func (this Keywords) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this Keywords) compareTo(o any) int32 { return Keywords_enum_[this-1].compareTo(o) }
+func (this Keywords) compareTo(o any) int32 { return this.enum_().compareTo(o) }
 
 func (this Keywords) self() any {
 	if this == 0 {

@@ -153,19 +153,19 @@ func (this ReplaceIdGenerators_RenameStrategy) enum_() *Enum {
 }
 
 func (this ReplaceIdGenerators_RenameStrategy) name() string {
-	return ReplaceIdGenerators_RenameStrategy_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this ReplaceIdGenerators_RenameStrategy) ordinal() int32 {
-	return ReplaceIdGenerators_RenameStrategy_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this ReplaceIdGenerators_RenameStrategy) toString() string {
-	return ReplaceIdGenerators_RenameStrategy_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this ReplaceIdGenerators_RenameStrategy) compareTo(o any) int32 {
-	return ReplaceIdGenerators_RenameStrategy_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this ReplaceIdGenerators_RenameStrategy) self() any {
