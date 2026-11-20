@@ -153,17 +153,7 @@ func (this *FileInstrumentationData_BranchIndexPair) hashCode() int32 {
 }
 
 func (this *FileInstrumentationData_BranchIndexPair) equals(object any) bool {
-	var that *FileInstrumentationData_BranchIndexPair
-	_ = that
-	if func() bool {
-		v_ := object
-		p, ok := v_.(*FileInstrumentationData_BranchIndexPair)
-		if !ok {
-			return false
-		}
-		that = p
-		return true
-	}() {
+	if that, ok := object.(*FileInstrumentationData_BranchIndexPair); ok {
 		return ((this.getLine() == that.getLine()) && (this.getBranch() == that.getBranch()))
 	}
 	return false

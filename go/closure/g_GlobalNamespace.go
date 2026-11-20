@@ -1270,17 +1270,7 @@ func (this *GlobalNamespace_Name) checkNoExistingRefsForNode(node Node) {
 	if this.refsForNode == nil {
 		return
 	}
-	var ref *GlobalNamespace_Ref
-	_ = ref
-	if func() bool {
-		v_ := this.refsForNode
-		p, ok := v_.(*GlobalNamespace_Ref)
-		if !ok {
-			return false
-		}
-		ref = p
-		return true
-	}() {
+	if ref, ok := this.refsForNode.(*GlobalNamespace_Ref); ok {
 		if ref.node_ == node {
 			panic(new_IllegalStateException_String(Strings_lenientFormat("Ref already exists for node: %s", []any{this.refsForNode})))
 		}
@@ -1496,17 +1486,7 @@ func (this *GlobalNamespace_Name) getRefs() CollectionOf[*GlobalNamespace_Ref] {
 	if this.refsForNode == nil {
 		return ImmutableSet_as_Collection(ImmutableSet_of())
 	}
-	var ref *GlobalNamespace_Ref
-	_ = ref
-	if func() bool {
-		v_ := this.refsForNode
-		p, ok := v_.(*GlobalNamespace_Ref)
-		if !ok {
-			return false
-		}
-		ref = p
-		return true
-	}() {
+	if ref, ok := this.refsForNode.(*GlobalNamespace_Ref); ok {
 		return ImmutableSet_as_Collection(ImmutableSet_of_Object(obj_(ref)))
 	}
 	return this.castRefsForNodeMap().values()
@@ -1517,17 +1497,7 @@ func (this *GlobalNamespace_Name) getRefForNode(node Node) *GlobalNamespace_Ref 
 	if this.refsForNode == nil {
 		return nil
 	}
-	var ref *GlobalNamespace_Ref
-	_ = ref
-	if func() bool {
-		v_ := this.refsForNode
-		p, ok := v_.(*GlobalNamespace_Ref)
-		if !ok {
-			return false
-		}
-		ref = p
-		return true
-	}() {
+	if ref, ok := this.refsForNode.(*GlobalNamespace_Ref); ok {
 		return func() *GlobalNamespace_Ref {
 			if ref.getNode() == node {
 				return ref
@@ -1542,17 +1512,7 @@ func (this *GlobalNamespace_Name) getFirstRef() *GlobalNamespace_Ref {
 	if this.refsForNode == nil {
 		panic(new_NullPointerException_String(objstr_("no first Ref to get")))
 	}
-	var ref *GlobalNamespace_Ref
-	_ = ref
-	if func() bool {
-		v_ := this.refsForNode
-		p, ok := v_.(*GlobalNamespace_Ref)
-		if !ok {
-			return false
-		}
-		ref = p
-		return true
-	}() {
+	if ref, ok := this.refsForNode.(*GlobalNamespace_Ref); ok {
 		return ref
 	}
 	return cast_[*GlobalNamespace_Ref](first_(this.castRefsForNodeMap().values()))

@@ -458,17 +458,8 @@ func CodePrinter_PrettyCodePrinter_getNumberFromSource(n Node) Optional[string] 
 		return Optional_empty[string]()
 	}
 	var staticSrc StaticSourceFile = NodeUtil_getSourceFile(n)
-	var src *SourceFile_jscomp
-	_ = src
-	if !(func() bool {
-		v_ := any(staticSrc)
-		p, ok := v_.(*SourceFile_jscomp)
-		if !ok {
-			return false
-		}
-		src = p
-		return true
-	}()) {
+	src, ok := any(staticSrc).(*SourceFile_jscomp)
+	if !(ok) {
 		return Optional_empty[string]()
 	}
 	if src.isStubSourceFileForAlreadyProvidedInput() {
