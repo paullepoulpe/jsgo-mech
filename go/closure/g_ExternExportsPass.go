@@ -537,7 +537,7 @@ func (this *ExternExportsPass_PropertyExport) getExportedPath_impl() string {
 
 // visit: an object that is exactly a ExternExportsPass calls its visit_impl directly (post-flip); others dispatch.
 func (this *ExternExportsPass) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ExternExportsPass); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -546,7 +546,7 @@ func (this *ExternExportsPass) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 
 // getExportedPath: an object that is exactly a ExternExportsPass_SymbolExport calls its getExportedPath_impl directly (post-flip); others dispatch.
 func (this *ExternExportsPass_SymbolExport) getExportedPath() string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ExternExportsPass_SymbolExport); p == this {
 		return this.getExportedPath_impl()
 	}
 	return this.self_.getExportedPath_impl()
@@ -554,7 +554,7 @@ func (this *ExternExportsPass_SymbolExport) getExportedPath() string {
 
 // getExportedPath: an object that is exactly a ExternExportsPass_PropertyExport calls its getExportedPath_impl directly (post-flip); others dispatch.
 func (this *ExternExportsPass_PropertyExport) getExportedPath() string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ExternExportsPass_PropertyExport); p == this {
 		return this.getExportedPath_impl()
 	}
 	return this.self_.getExportedPath_impl()

@@ -37,7 +37,7 @@ func (this *Es6NormalizeShorthandProperties) getTranspiledAwayFeatures_impl() *F
 
 // transpileSubtree: an object that is exactly a Es6NormalizeShorthandProperties calls its transpileSubtree_impl directly (post-flip); others dispatch.
 func (this *Es6NormalizeShorthandProperties) transpileSubtree(p0 Node) Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Es6NormalizeShorthandProperties); p == this {
 		return this.transpileSubtree_impl(p0)
 	}
 	return this.self_.transpileSubtree_impl(p0)
@@ -45,7 +45,7 @@ func (this *Es6NormalizeShorthandProperties) transpileSubtree(p0 Node) Node {
 
 // getTranspiledAwayFeatures: an object that is exactly a Es6NormalizeShorthandProperties calls its getTranspiledAwayFeatures_impl directly (post-flip); others dispatch.
 func (this *Es6NormalizeShorthandProperties) getTranspiledAwayFeatures() *FeatureSet {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Es6NormalizeShorthandProperties); p == this {
 		return this.getTranspiledAwayFeatures_impl()
 	}
 	return this.self_.getTranspiledAwayFeatures_impl()

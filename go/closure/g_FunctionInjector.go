@@ -1282,7 +1282,7 @@ func FunctionInjector_CallSiteType_6_clinit() {
 
 // prepare: an object that is exactly a FunctionInjector_CallSiteType_1 calls its prepare_impl directly (post-flip); others dispatch.
 func (this *FunctionInjector_CallSiteType_1) prepare(p0 *FunctionInjector, p1 *FunctionInjector_Reference) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionInjector_CallSiteType_1); p == this {
 		this.prepare_impl(p0, p1)
 		return
 	}
@@ -1291,7 +1291,7 @@ func (this *FunctionInjector_CallSiteType_1) prepare(p0 *FunctionInjector, p1 *F
 
 // prepare: an object that is exactly a FunctionInjector_CallSiteType_2 calls its prepare_impl directly (post-flip); others dispatch.
 func (this *FunctionInjector_CallSiteType_2) prepare(p0 *FunctionInjector, p1 *FunctionInjector_Reference) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionInjector_CallSiteType_2); p == this {
 		this.prepare_impl(p0, p1)
 		return
 	}
@@ -1300,7 +1300,7 @@ func (this *FunctionInjector_CallSiteType_2) prepare(p0 *FunctionInjector, p1 *F
 
 // prepare: an object that is exactly a FunctionInjector_CallSiteType_3 calls its prepare_impl directly (post-flip); others dispatch.
 func (this *FunctionInjector_CallSiteType_3) prepare(p0 *FunctionInjector, p1 *FunctionInjector_Reference) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionInjector_CallSiteType_3); p == this {
 		this.prepare_impl(p0, p1)
 		return
 	}
@@ -1309,7 +1309,7 @@ func (this *FunctionInjector_CallSiteType_3) prepare(p0 *FunctionInjector, p1 *F
 
 // prepare: an object that is exactly a FunctionInjector_CallSiteType_4 calls its prepare_impl directly (post-flip); others dispatch.
 func (this *FunctionInjector_CallSiteType_4) prepare(p0 *FunctionInjector, p1 *FunctionInjector_Reference) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionInjector_CallSiteType_4); p == this {
 		this.prepare_impl(p0, p1)
 		return
 	}
@@ -1318,7 +1318,7 @@ func (this *FunctionInjector_CallSiteType_4) prepare(p0 *FunctionInjector, p1 *F
 
 // prepare: an object that is exactly a FunctionInjector_CallSiteType_5 calls its prepare_impl directly (post-flip); others dispatch.
 func (this *FunctionInjector_CallSiteType_5) prepare(p0 *FunctionInjector, p1 *FunctionInjector_Reference) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionInjector_CallSiteType_5); p == this {
 		this.prepare_impl(p0, p1)
 		return
 	}
@@ -1327,7 +1327,7 @@ func (this *FunctionInjector_CallSiteType_5) prepare(p0 *FunctionInjector, p1 *F
 
 // prepare: an object that is exactly a FunctionInjector_CallSiteType_6 calls its prepare_impl directly (post-flip); others dispatch.
 func (this *FunctionInjector_CallSiteType_6) prepare(p0 *FunctionInjector, p1 *FunctionInjector_Reference) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionInjector_CallSiteType_6); p == this {
 		this.prepare_impl(p0, p1)
 		return
 	}

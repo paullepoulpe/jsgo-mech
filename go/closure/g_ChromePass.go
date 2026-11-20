@@ -326,7 +326,7 @@ func (this *ChromePass_RenameInternalsToExternalsCallback) buildQualifiedName(in
 
 // visit: an object that is exactly a ChromePass calls its visit_impl directly (post-flip); others dispatch.
 func (this *ChromePass) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ChromePass); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -335,7 +335,7 @@ func (this *ChromePass) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 
 // visit: an object that is exactly a ChromePass_RenameInternalsToExternalsCallback calls its visit_impl directly (post-flip); others dispatch.
 func (this *ChromePass_RenameInternalsToExternalsCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ChromePass_RenameInternalsToExternalsCallback); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
