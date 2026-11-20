@@ -224,7 +224,7 @@ func (this *SourceMapConsumerV3) getOriginalMappingForEntry(index int32, precisi
 		if nameId != SourceMapConsumerV3_UNMAPPED {
 			x.setIdentifier(this.names_[nameId])
 		}
-		return cast_[*Mapping_OriginalMapping](x.build())
+		return x.buildT_()
 	}
 }
 

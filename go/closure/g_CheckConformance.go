@@ -186,7 +186,7 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 		var builder *Requirement_Builder = entry.getKey()
 		var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = entry.getValue()
 		CheckConformance_removeDuplicates(builder)
-		var requirement *Requirement = cast_[*Requirement](builder.build())
+		var requirement *Requirement = builder.buildT_()
 		if (isLibraryLevelConformanceReportingMode && (behavior != 0)) && (behavior != ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED) {
 			this.mergedBehaviors.Put(requirement, behavior)
 		}
