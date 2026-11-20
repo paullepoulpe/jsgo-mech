@@ -215,7 +215,8 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	}
 	var suppressions ImmutableMapOf[ImmutableSetOf[string], string] = info.getSuppressionsAndTheirDescription()
 	if !suppressions.isEmpty() {
-		for suppression := range elemsBy_(obj_(cast_[*ImmutableSet](suppressions.entrySet())), icast_Map_Entry) {
+		for _, el := range immElems_(cast_[*ImmutableSet](suppressions.entrySet())) {
+			suppression := icast_Map_Entry(el)
 			var warnings []string = arrmap_(cast_[*ImmutableSet](suppression.getKey()).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 			func() {
 				arr_15 := warnings

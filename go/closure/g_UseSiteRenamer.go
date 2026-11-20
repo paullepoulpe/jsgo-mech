@@ -53,7 +53,8 @@ func (this *UseSiteRenamer) getRenamingIndex() *SimpleSetMultimap {
 
 func UseSiteRenamer_createAllClusterNames(prop *PropertyClustering) *JTMap[*ColorGraphNode, string] {
 	var result *TMapBuilder[*ColorGraphNode, string] = newTMapBuilder_(jtc_p_ColorGraphNode, jtc_string)
-	for r := range elemsAs_[*ColorGraphNode](obj_(prop.getClusters().allRepresentatives())) {
+	for _, el := range immElems_(prop.getClusters().allRepresentatives()) {
+		r := cast_[*ColorGraphNode](el)
 		result.put(r, UseSiteRenamer_createClusterName(prop, r))
 	}
 	return result.buildOrThrow()
