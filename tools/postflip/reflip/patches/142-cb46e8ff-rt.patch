@@ -1,0 +1,102 @@
+diff --git a/go/closure/rt_coll2.go b/go/closure/rt_coll2.go
+index 48771fbe486c604e256e267b640f445ad2a58edf..ec2db162 100644
+--- a/go/closure/rt_coll2.go
++++ b/go/closure/rt_coll2.go
+@@ -13,6 +13,11 @@ import (
+ type TreeMap struct {
+ 	cmp     Comparator_e
+ 	entries []*hentry_
++	// skeys holds the keys of entries, in the same order, while the map orders its keys
++	// naturally and every key is a string (len(skeys) == len(entries)); search_s then reads a
++	// key with one load instead of three (entry, boxed string, bytes). Otherwise it is shorter
++	// than entries and unused.
++	skeys []string
+ }
+ 
+ func new_TreeMap() *TreeMap { return &TreeMap{} }
+@@ -44,6 +49,18 @@ func (this *TreeMap) strKeyed() bool {
+ 
+ // search_s is search for a string key of a strKeyed map (String.compareTo order).
+ func (this *TreeMap) search_s(k string) (int, bool) {
++	if sk := this.skeys; len(sk) == len(this.entries) {
++		lo, hi := 0, len(sk)
++		for lo < hi {
++			m := int(uint(lo+hi) >> 1)
++			if String_compareTo(sk[m], k) < 0 {
++				lo = m + 1
++			} else {
++				hi = m
++			}
++		}
++		return lo, lo < len(sk) && sk[lo] == k
++	}
+ 	e := this.entries
+ 	lo, hi := 0, len(e)
+ 	for lo < hi {
+@@ -59,7 +76,7 @@ func (this *TreeMap) search_s(k string) (int, bool) {
+ 
+ func (this *TreeMap) size() int32   { return int32(len(this.entries)) }
+ func (this *TreeMap) isEmpty() bool { return len(this.entries) == 0 }
+-func (this *TreeMap) clear()        { this.entries = nil }
++func (this *TreeMap) clear()        { this.entries, this.skeys = nil, nil }
+ 
+ func (this *TreeMap) get(k any) any {
+ 	if i, ok := this.search(k); ok {
+@@ -86,6 +103,13 @@ func (this *TreeMap) put(k any, v any) any {
+ 		this.entries[i].val = v
+ 		return old
+ 	}
++	if s, isStr := k.(string); !isStr || this.cmp != nil {
++		this.skeys = nil // shorter than entries from now on, until the map is empty again
++	} else if len(this.skeys) == len(this.entries) {
++		this.skeys = append(this.skeys, "")
++		copy(this.skeys[i+1:], this.skeys[i:])
++		this.skeys[i] = s
++	}
+ 	this.entries = append(this.entries, nil)
+ 	copy(this.entries[i+1:], this.entries[i:])
+ 	this.entries[i] = &hentry_{key: k, val: v}
+@@ -105,6 +129,9 @@ func (this *TreeMap) remove(k any) any {
+ 		return nil
+ 	}
+ 	old := this.entries[i].val
++	if len(this.skeys) == len(this.entries) {
++		this.skeys = append(this.skeys[:i], this.skeys[i+1:]...)
++	}
+ 	this.entries = append(this.entries[:i], this.entries[i+1:]...)
+ 	return old
+ }
+diff --git a/go/closure/rt_coll_test.go b/go/closure/rt_coll_test.go
+index 18ed9acd7394c9ca2ae07b83f4d651189aec34e1..39cde5ff 100644
+--- a/go/closure/rt_coll_test.go
++++ b/go/closure/rt_coll_test.go
+@@ -450,3 +450,29 @@ func TestNodeKeyIsPlain(t *testing.T) {
+ 		t.Fatal("Node implements hashed_; htable_.findNode would not call its equals")
+ 	}
+ }
++// TestTreeMapStringKeys drives a naturally ordered TreeMap with string keys through puts,
++// removals and clears, and checks that search_s (which reads skeys) agrees with search.
++func TestTreeMapStringKeys(t *testing.T) {
++	r := rand.New(rand.NewSource(7))
++	m := new_TreeMap()
++	for step := 0; step < 20000; step++ {
++		k := "p" + istr_(int64(r.Intn(60)))
++		if r.Intn(9) == 0 {
++			k = "é" + k
++		}
++		switch op := r.Intn(20); {
++		case op < 11:
++			m.put(k, int32(step))
++		case op < 19:
++			m.remove(k)
++		default:
++			m.clear()
++		}
++		q := "p" + istr_(int64(r.Intn(70)))
++		i, ok := m.search(q)
++		j, ok2 := m.search_s(q)
++		if i != j || ok != ok2 || len(m.skeys) != len(m.entries) {
++			t.Fatalf("step %d: search %d %v, search_s %d %v, %d skeys for %d entries", step, i, ok, j, ok2, len(m.skeys), len(m.entries))
++		}
++	}
++}

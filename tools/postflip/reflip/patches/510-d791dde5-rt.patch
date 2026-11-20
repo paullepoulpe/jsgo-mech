@@ -1,5 +1,5 @@
 diff --git a/go/closure/rt_coll.go b/go/closure/rt_coll.go
-index d3eda78b..dbb19017 100644
+index 802eeed35775edb034b8411b9d535e4683de72e2..dbb19017 100644
 --- a/go/closure/rt_coll.go
 +++ b/go/closure/rt_coll.go
 @@ -85,7 +85,7 @@ func foreach_(c any) each_ {
@@ -12,7 +12,7 @@ index d3eda78b..dbb19017 100644
  		return each_{src: &x.items}
  	case *LinkedHashSet:
 diff --git a/go/closure/rt_guava.go b/go/closure/rt_guava.go
-index 6aeb1ef9..cf4f4a45 100644
+index 39eb52e7573fede21a66ad31509530a180ddc383..cf4f4a45 100644
 --- a/go/closure/rt_guava.go
 +++ b/go/closure/rt_guava.go
 @@ -66,7 +66,7 @@ func comparatorOf_(v any) Comparator {
@@ -23,7 +23,7 @@ index 6aeb1ef9..cf4f4a45 100644
 +		return x.cmp_()
  	case *ErasedImmutableMap:
  		return x.cmp
- 	case interface{ comparator() Comparator }:
+ 	case interface{ comparator() Comparator_e }:
 @@ -103,16 +103,57 @@ const (
  type ImmutableCollection struct {
  	kind   int8
@@ -46,7 +46,7 @@ index 6aeb1ef9..cf4f4a45 100644
 +type immRare_ struct {
  	counts []int32    // multiset: occurrences of items[i]
 +	total  int32      // multiset: size
- 	cmp    Comparator // sorted set (nil: natural ordering)
+ 	cmp    Comparator_e // sorted set (nil: natural ordering)
  	list_  *ImmutableCollection
 -	all_   []any     // multiset: the elements with repetition
 -	typed_ immTyped_ // its typed copy (post-flip typed collections), made on first use
@@ -64,7 +64,7 @@ index 6aeb1ef9..cf4f4a45 100644
 +}
 +
 +// cmp_ is the comparator of a sorted set (nil: natural ordering).
-+func (this *ImmutableCollection) cmp_() Comparator {
++func (this *ImmutableCollection) cmp_() Comparator_e {
 +	if this.rare == nil {
 +		return nil
 +	}
@@ -80,7 +80,7 @@ index 6aeb1ef9..cf4f4a45 100644
 +}
 +
 +// immSortedOf_ is a sorted set of items (in order) under cmp.
-+func immSortedOf_(items []any, cmp Comparator) *ImmutableCollection {
++func immSortedOf_(items []any, cmp Comparator_e) *ImmutableCollection {
 +	this := &ImmutableCollection{kind: icSorted_, items: items}
 +	if cmp != nil {
 +		this.rare = &immRare_{cmp: cmp}
@@ -240,8 +240,8 @@ index 6aeb1ef9..cf4f4a45 100644
  	return immSorted_(toSlice_(p0), comparatorOf_(p0))
  }
  
--func (this *ImmutableSortedSet) comparator() Comparator { return cmpOrNatural_(this.cmp) }
-+func (this *ImmutableSortedSet) comparator() Comparator { return cmpOrNatural_(this.cmp_()) }
+-func (this *ImmutableSortedSet) comparator() Comparator_e { return cmpOrNatural_(this.cmp) }
++func (this *ImmutableSortedSet) comparator() Comparator_e { return cmpOrNatural_(this.cmp_()) }
  
  func (this *ImmutableSortedSet) descendingSet() NavigableSet {
  	out := make([]any, len(this.items))
@@ -278,7 +278,7 @@ index 6aeb1ef9..cf4f4a45 100644
  		r := c.compare(this.items[i], v)
  		if inclusive {
 diff --git a/go/closure/rt_guava_map.go b/go/closure/rt_guava_map.go
-index c0b9d4fe..4a0f8421 100644
+index 068466319f6339ac4a9054ba7f32f435ce0d7b82..4a0f8421 100644
 --- a/go/closure/rt_guava_map.go
 +++ b/go/closure/rt_guava_map.go
 @@ -205,7 +205,7 @@ func (this *ErasedImmutableMap) containsValue(v any) bool {
@@ -291,7 +291,7 @@ index c0b9d4fe..4a0f8421 100644
  			this.keySet_ = &ImmutableCollection{kind: icSet_, items: this.keys, idx: this.index_()}
  		}
 diff --git a/go/closure/rt_guava_test.go b/go/closure/rt_guava_test.go
-index 6d646ba6..2dfb5b3f 100644
+index 6d7e270901276476943c9b10238dc2fe29e8d73c..2dfb5b3f 100644
 --- a/go/closure/rt_guava_test.go
 +++ b/go/closure/rt_guava_test.go
 @@ -2,6 +2,7 @@ package closure
@@ -351,7 +351,7 @@ index 6d646ba6..2dfb5b3f 100644
 +	guavaEq_(t, len(immMultiset_(nil).elems_()), 0)
 +}
 diff --git a/go/closure/rt_timm.go b/go/closure/rt_timm.go
-index 5e73161e..acfbe96d 100644
+index 5e73161e7ec76cb9498504e16c57ee3155ef5829..acfbe96d 100644
 --- a/go/closure/rt_timm.go
 +++ b/go/closure/rt_timm.go
 @@ -800,7 +800,7 @@ func tsetImm_[K comparable](kc *tconv_[K], ic *ImmutableCollection) *ImmutableSe

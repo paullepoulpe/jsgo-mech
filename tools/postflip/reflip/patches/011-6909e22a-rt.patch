@@ -1,10 +1,10 @@
 diff --git a/go/closure/rt_guava.go b/go/closure/rt_guava.go
-index 81d12344..9cfc4f42 100644
+index 5ad318da..453018dc 100644
 --- a/go/closure/rt_guava.go
 +++ b/go/closure/rt_guava.go
 @@ -114,8 +114,9 @@ type ImmutableCollection struct {
- 	counts []int32    // multiset: occurrences of items[i]
- 	cmp    Comparator // sorted set (nil: natural ordering)
+ 	counts []int32      // multiset: occurrences of items[i]
+ 	cmp    Comparator_e // sorted set (nil: natural ordering)
  	list_  *ImmutableCollection
 -	all_   []any // multiset: the elements with repetition
 -	byOrd  []any // immutable enum set: the element with ordinal i at i (nil where absent)
@@ -15,11 +15,11 @@ index 81d12344..9cfc4f42 100644
  	// this collection as, once it has reached a typed declaration: the same Java object.
  	jtyped_ any
 diff --git a/go/closure/rt_guava_map.go b/go/closure/rt_guava_map.go
-index efc68b9c..0d1c4ef3 100644
+index 90b41d3e..c08bbb07 100644
 --- a/go/closure/rt_guava_map.go
 +++ b/go/closure/rt_guava_map.go
 @@ -20,6 +20,7 @@ type ImmutableMap struct {
- 	cmp      Comparator // sorted map (nil: natural ordering)
+ 	cmp      Comparator_e // sorted map (nil: natural ordering)
  	inv      *ImmutableMap
  	keySet_  *ImmutableCollection
 +	typed_   immTyped_ // its typed copy (post-flip typed collections), made on first use
@@ -76,7 +76,7 @@ index 2b6da915..192a91b3 100644
  
  // tlistFrom_ is new ArrayList<>(from) as a typed list.
 diff --git a/go/closure/rt_tmap.go b/go/closure/rt_tmap.go
-index b0c0257a..c5871d05 100644
+index f21d7ce4..d1c5ca10 100644
 --- a/go/closure/rt_tmap.go
 +++ b/go/closure/rt_tmap.go
 @@ -50,10 +50,13 @@ func tmapFrom_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from Map, imm

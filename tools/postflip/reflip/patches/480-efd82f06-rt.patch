@@ -1,5 +1,5 @@
 diff --git a/go/closure/rt_native.go b/go/closure/rt_native.go
-index 718a1414..f13e784a 100644
+index fba12ede43f5d7552ff4c0efdd6558a9f7fe5c98..f13e784a 100644
 --- a/go/closure/rt_native.go
 +++ b/go/closure/rt_native.go
 @@ -670,6 +670,44 @@ func sortSliceF_[T any](s []T, cmp func(a, b T) int32) {
@@ -14,7 +14,7 @@ index 718a1414..f13e784a 100644
 +// over the unboxed elements.
 +func sortTListF_[T any](l *TList[T], cmp func(a, b T) int32) {
 +	if l == nil || l.imm {
-+		var c Comparator
++		var c Comparator_e
 +		if l != nil {
 +			c = &cmpFunc_{func(a, b any) int32 { return cmp(l.c.unbox(a), l.c.unbox(b)) }}
 +		}

@@ -1,10 +1,10 @@
 diff --git a/go/closure/rt_base.go b/go/closure/rt_base.go
-index 45e0a13c..930894e4 100644
+index 21cb83da59b07a0748e681a57fed8f9ca12f947c..930894e4 100644
 --- a/go/closure/rt_base.go
 +++ b/go/closure/rt_base.go
 @@ -829,6 +829,11 @@ var alwaysTrue_ Predicate_base = alwaysTruePredicate_{}
  
- func Predicates_alwaysTrue() Predicate_base { return alwaysTrue_ }
+ func Predicates_alwaysTrue() Predicate_base_e { return alwaysTrue_ }
  
 +// Predicates_alwaysTrueT_ is Predicates.alwaysTrue() where the predicate's parameter is typed (a
 +// func(T) bool, tools/postflip/tfnparams): it is called and never compared, so the singleton's
@@ -15,7 +15,7 @@ index 45e0a13c..930894e4 100644
  
  func (isNullPredicate_) apply(v any) bool { return v == nil }
 diff --git a/go/closure/rt_native.go b/go/closure/rt_native.go
-index d00a8ae3..718a1414 100644
+index ab75203d7f4191ec16c7ba47bd228d4d12e81892..718a1414 100644
 --- a/go/closure/rt_native.go
 +++ b/go/closure/rt_native.go
 @@ -2,6 +2,8 @@ package closure
