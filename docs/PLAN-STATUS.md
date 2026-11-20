@@ -63,6 +63,24 @@ are their own views (neutral; CHECKS peak memory -3%), and seven tool fixes that
 coverage of existing steps on this translator's output (Preconditions calls 1,047 to 6,
 StringBuilder 78 to 5, requireNonNull 81 to 6, str_( 390 to 154).
 
+## Since the standing above (2026-11-20, later)
+
+- Post-flip steps 557 (eqhash re-run at the end of the list: 66 hash and equality functions of
+  typed key conversions decided statically; CPU neutral) and 558 (vdispatch -rest: self_ typed in
+  the 16 classes where it was `any`, 16 anonymous-interface conversions gone; CPU -0.6% on the
+  subset). The in-bounds line ends at step 558 (main-r11-flip4-inbounds 02da66e7, tree
+  inb-selfgen 6525013f), gated.
+- The Java-ism accounting of the in-bounds tree is JAVAISMS4.md on main-r11-flip4-inbounds. Its
+  largest item: Java's library generics are still erased in the Go (about 2,020 sites). The
+  study and plan for emitting them typed from the translator is docs/libgen/LIBGEN-STUDY.md.
+- Translator rule "function types" (stage 1 of that plan; switch J2GO_NOFNTYPES): 15 library
+  functional interfaces are Go func types. On the translator's output: typed adapter literals
+  862 to 0, adapter types 200 to 5, CHECKS heap objects -17.4% on the subset; 18% subset
+  139.1 / 142.3 s to 135.5 / 135.9 s (pre-flip tree, idle host, same output). Gated with the
+  rule on and off.
+- In progress: stage 2, typed collection and iteration interfaces; then the fifth flip (the
+  step list replayed on the new translator output), which gives the next standing.
+
 ## Open
 
 - Speed: not met in bounds (0.78 on the full benchmark).
