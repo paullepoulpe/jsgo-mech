@@ -595,3 +595,212 @@ b4d1cfd0 patch 421-b4d1cfd0-manual.patch
 e964d92f patch 422-e964d92f-manual.patch
 # 423. postflip (manual, re-flip): Compiler.inputsById keyed by the id's string (13c7e5ba re-made)
 a97d418c patch 423-a97d418c-manual.patch
+# 424. postflip (runtime, re-flip): TMap.ComputeIfAbsentObj, computeIfAbsent with a typed function whose result is an Object
+0aa1c57d patch 424-0aa1c57d-rt.patch
+# 425. postflip step (re-flip): TMap.computeIfAbsent given a typed lambda whose result is an Object takes the function
+97b8d1bf run t adapters && f
+# 426. postflip (runtime, re-flip): no allocation sampling unless a heap profile is asked for
+95b92033 patch 426-95b92033-rt.patch
+# 427. postflip (runtime, re-flip): objhashId_ and hashId_ of a Node hash the handle without boxing it
+938295dd patch 427-938295dd-rt.patch
+# 428. postflip (manual, re-flip): HamtPMap hashes a key without boxing it
+65fbff8a patch 428-65fbff8a-manual.patch
+# 429. postflip (runtime, re-flip): a scope's variables can be looked up by the string id of a name
+b6e39a43 patch 429-b6e39a43-rt.patch
+# 430. postflip (manual, re-flip): AbstractScope.getVarById_, getVar for the name a node holds
+84bcaeda patch 430-84bcaeda-manual.patch
+# 431. postflip step (re-flip): comparisons and scope lookups by the id of a node's string
+26118a47 run t strids && f
+# 432. postflip step (re-flip): casts to an instantiated generic interface outside generic code call named cast functions
+28eb1868 run t icasts && f
+# 433. postflip (runtime, re-flip): unboxedPred_, unboxedCons_, an erased function given where a typed one of a handle is taken
+2bd6d6b2 patch 433-2bd6d6b2-rt.patch
+# 434. postflip step (re-flip): parameters always given the method of a typed lambda adapter take the typed function
+8571bed2 run t tfnargs && f
+# 435. postflip (manual, re-flip): InlineAndCollapseProperties makes a decision's message only for a log that records
+4e0d485a patch 435-4e0d485a-manual.patch
+# 436. postflip (manual, re-flip): a string stored in a node is interned once, by the node store
+3798ad00 patch 436-3798ad00-manual.patch
+# 437. postflip step (re-flip): tfnargs re-run, parameters that pass the function on take the typed function too
+fec23265 run t tfnargs && f
+# 438. postflip step (re-flip): equals and hashCode methods that nothing can call are deleted (86dbb30a of reflip-javaisms, re-run; tool 63e6ad9d)
+6dcd650f run t deadeq && f
+# 439. postflip step (re-flip): binding instanceof patterns are comma-ok type assertions (0ada6163 of reflip-javaisms, re-run; tool 12b3337c)
+96bc7cac run t patinst && f
+# 440. postflip step (re-flip): Java varargs are Go variadic parameters, called with the values bare (24f0ea99 of reflip-javaisms, re-run; tool 28ef509d)
+bccfa30b run t varargs && fa
+# 441. postflip step (re-flip): instanceof tests of a local variable inside && / || are comma-ok assertions before the condition (7a93c38f of reflip-javaisms, re-run; tool d65cc397)
+e19b8f97 run t instof && f
+# 442. postflip step (re-flip): casts to an interface that mentions a type parameter try the classes of the code's type parameters first (icasts' 63 left; tool d4c32151)
+34f27fc5 run t gcasts && f
+# 443. postflip step (re-flip): JSCompObjects.identical of two values of one type boxed only to be compared is == (tool 1451a6cf)
+0a3d07cd run t ident && f
+# 444. postflip step (re-flip): the membership test of an enum value in a constant immutable enum set is a switch on the value (tool ee20e0fe)
+17eaf110 run t enumin && f
+# 445. postflip (manual, re-flip): AssertionFunctionLookup keeps one map per key type instead of the map keyed by Object
+64aeed2f patch 445-64aeed2f-manual.patch
+# 446. postflip (runtime, re-flip): optEquals_, optEqualsNull_, optHash_, equals and hashCode of Optionals of a type compared by ==
+d7ca4e2e patch 446-d7ca4e2e-rt.patch
+# 447. postflip step (re-flip): equals and hashCode of Optionals compared by value are computed on the Optionals (tool b468e727)
+3fd072c4 run t opteq && f
+# 448. postflip step (re-flip): an if / else-if chain of tests of one value's class is a type switch (tool 65e033b7)
+f8f365f2 run t tswitch && f
+# 449. postflip step (re-flip): JSType.visit is a generic function with a type switch, the visitors return their own type (tool 8ee3d6fd)
+c44d5926 run t visit && f
+# 450. postflip step (re-flip): value classes are comparable structs used by value, without equals and hashCode (tool c932f0a6)
+036a41a1 run t valcls && f
+# 451. postflip step (re-flip): typed deques used at one end are stacks or queues of typed lists, then slices (tool aceba30d)
+235bd03d run t tdeque && t native -kind list && f
+# 452. postflip (runtime, re-flip): tconvT_, tconvIdT_, the typed containers' conversion of a type parameter's values, once per instantiation
+594a08ff patch 452-594a08ff-rt.patch
+# 453. postflip step (re-flip): erased maps and sets keyed by a generic class's type parameter are typed (tool 731cbe88)
+2cd604d6 run t gmaps && f
+# 454. postflip step (re-flip): ranges -loops re-run, loops from the head of the stacks of 451 are range loops
+52b78402 run t ranges -loops && f
+# 455. postflip step (re-flip): castfold re-run, 20 casts the operand's static type decides are folded
+3caf4058 run t castfold && f
+#: castfold: 20 folded (9 icast of a non-nil pointer, 6 upcasts of a constructor's result, 3 icast of an operand of the target type, 1 interface operand, 1 pointer boxed by any()); left 2,197 by castfold's reasons (as below)
+# 456. postflip step (re-flip): castfold -nilup, 451 upcasts of a pointer that may be nil keep nil without a cast (tool 0084ef60)
+c15b748c run t castfold -nilup && f
+#: castfold -nilup: 432 icast_I(obj_(p)) -> iup_I(p) (44 iup_ in g_0iup.go), 19 to_X upcasts -> p.up_X(); left 1,746: 307 + 181 downcasts (class pointer / interface value), 35 icast of self() of an extended class, 20 casts between Java interfaces, 1,146 operands of type any (func literal parameters 490, erased results 358, any parameters 162, locals 68, for-each elements 42, catches 12, fields 9, []any elements 5), 3 not pointers, 54 instanceof
+# 457. postflip step (re-flip): lamparams, 183 lambda parameters cast on entry take the cast's type, 8 adapters cast (tool 7e230b12)
+5ca2e382 run t lamparams && f
+#: lamparams: 183 parameters of 182 lambdas (105 `var v T = K(p)` first, 78 method references), 8 adapter types in g_0lamparams.go (175 lambdas Function_tfn_any_CompilerPass); left 396: 393 func literals that are not an adapter's function (tconv_ box/unbox, func-typed parameters), 2 unused, 1 used twice
+# 458. postflip (runtime, re-flip): compareNatural_ compares a value with an enum record by java.lang.Enum's compareTo
+0fd07836 patch 458-0fd07836-rt.patch
+#: runtime test TestCompareNaturalEnum (53 Test functions)
+# 459. postflip step (re-flip): enumcmp, the 204 per-enum compareTo forwarders go, 2 callers call Enum's (tool 3505d404, runtime 0fd07836)
+42867771 run t enumcmp && f
+#: enumcmp: 204 forwarders deleted, 2 calls x.enum_().compareTo; left none (11 compareTo(x any) of classes: their own Comparable)
+# 460. postflip step (re-flip): covret, 3 covariant returns split into the typed method and the bridge, 29 casts of their results are calls (tool 97994470)
+f68d5564 run t covret && f
+#: covret: 3 methods split (GlobalNamespace.Name.getDeclaration 20 casts, GlobalNamespace.getOwnSlot 6, JSDocInfo.clone 3); left 431 casts of results: 307 self() of an extended class (AbstractVar 156, AbstractScope 62, ...: the erased S and V of AbstractScope<S, V> / AbstractVar<S, V>), 59 the scope protocol (AbstractVar.getScope 32, getSlot / getOwnSlot 20, ...), 54 JSDocInfo's property bag (Property<T> erased), 11 others
+# 461. postflip step (re-flip): etaconv, 741 func literals that only pass their parameter on are the function they call (tool 11c88e09)
+c0e9eb59 run t etaconv && f
+#: etaconv: 741 literals (563 tconv_ box/unbox, 178 elsewhere); left 135 other calls, 76 signatures that differ, 62 parameters used otherwise, 10 not functions of the package, 2 promoted methods. census.py's cast/box rows move by spelling only (reflip/fnvals.py counts the function values)
+# 462. postflip (runtime, re-flip): scopeVarsOf_[V], the scope's variable table generic in the variable type
+84fd3438 patch 462-84fd3438-rt.patch
+# 463. postflip (manual, re-flip): AbstractScope.vars spells the table's instantiation, scopeVarsOf_[*AbstractVar]
+48b1b012 patch 463-48b1b012-manual.patch
+# 464. postflip step (re-flip): fbound, AbstractScope / AbstractVar written out for Scope / Var and TypedScope / TypedVar; 268 casts and 48 assertions of S and V are the typed values (tool 6dfcbbe6)
+96047e68 run t fbound && f
+#: fbound: fields moved vars, implicitVars (AbstractScope), scope_ (AbstractVar); 58 methods written out per subclass, 6 split into <name>T_ + bridge; the base keeps getParent (bridged) and isGlobal for AbstractScope<?, ?> receivers; 212 cast_[T](x.m().self()) and 53 casts of T_ results are calls, 24 + 24 assertions dereferenced at once dropped, 2 iup_I, 1 up_B, 24 up_B() given to typed slots dropped, 3 up_B() added for erased slots, 3 super calls; left 9 assertions where the method called hands its receiver on first (getClosestHoistScope 5, getClosestCfgRootScope, getClosestContainerScope, getGlobalScope, getVar)
+# 465. postflip step (re-flip): jsdocprops, 80 reads of JSDocInfo's property bag are typed, the constants carry their T (tool 559568f0)
+9394ca60 run t jsdocprops && f
+#: jsdocprops: 23 constants Property<X> -> JSDocInfo_PropertyOf_[X], 12 constants of TypeProperty / TypeListProperty / TypeMapProperty / NodeMapProperty (valueT_ / getT_ on the class); 57 P.get(info), 19 Builder.getProp(P), 4 getPropWithDefault(P) cast to P's T are typed reads (4 of them iup_I); left 1 constant no read casts (ORIGINAL_COMMENT_POSITION, Property<Integer>), the bag's erased loops (asMap, toBuilder's clone, equality, isPropEmpty / addUnique of a Property<?>)
+# 466. postflip step (re-flip): jsdocprops re-run, the property helpers return null first and the subclasses use j2go's own casts (tool fc1d5137)
+cb1d01e7 run t jsdocprops && f
+#: jsdocprops: nothing new typed; g_0jsdocprops.go written again (PropertyOf_[T].valueT_ returns jnull_[T]() first; TypeProperty / TypeListProperty / TypeMapProperty / NodeMapProperty valueT_ = cast_[*JSTypeExpression] / to_ArrayList / cast_[*LinkedHashMap]); left 1 constant no read casts (ORIGINAL_COMMENT_POSITION)
+# 467. postflip step (re-flip): implsplit, 23 methods of named classes implementing erased library interfaces are their typed method and javac's bridge (tool df2b3b2a)
+8cb67888 run t implsplit && f
+#: implsplit: 23 methods split (compareTo 10, compare 6, apply 7) into <name>T_ + the erased bridge; 3 unboxedPred_[Node](x.apply) -> x.applyT_, 1 call on the class typed; left 12 methods not starting with their parameters' casts (Guava test -> apply, FunctionTypeBuilder validators), 1 class with subclasses (JSDocInfo.Property.compareTo); the bridges stay erased (the runtime calls them through the erased interface)
+# 468. postflip step (re-flip): implsplit re-run, 5 suppliers' get is their typed getT_ and javac's bridge (tool acc9d534)
+90bf3805 run t implsplit && f
+#: implsplit: 5 methods of no parameters split into getT_ (the result type the class declares) and the bridge get() any (FunctionInjector.1, FunctionToBlockMutator.LabelNameSupplier, RemoveUnusedCode.RemovalLogRecord, RenameLabels.DefaultNameSupplier, StripCode.StripCodeConfigRecord); left 3 results not one boxing of one type (Source.Lazy<T>, generic), 12 methods not starting with their parameters' casts, 1 class with subclasses (JSDocInfo.Property.compareTo)
+# 469. postflip step (re-flip): tfnparams, LogFile.log and Compiler.logToFile take a func() string; 36 calls give it the function, the named records their typed getT_ (tool acc9d534)
+da83c1be run t tfnparams && f
+#: tfnparams: 1 group, 7 parameters (LogFile.log / log_impl / LogFile_I, the dispatchers, Compiler.logToFile) take func() string: 27 adapters, 2 adapters of immediately called literals, 7 named objects (RemovalLogRecord.forX(..).getT_ 6, StripCodeConfigRecord 1), 1 str_(p.get()) -> p(); left (groups) 153 given another value than a typed adapter, 23 never given an adapter, 5 parameter used other than by calling it, 4 listed by a Java interface, 2 listed by an interface with another signature
+# 470. postflip (runtime, re-flip): Predicates_alwaysTrueT_[T], and sortSliceF_ / sortSlicePF_, the typed sort of a slice view
+338f093c patch 470-338f093c-rt.patch
+# 471. postflip step (re-flip): tfnparams, NodeUtil's traverseChildrenPred parameters take a func(Node) bool; alwaysTrue, MATCH_NOT_FUNCTION and the named predicates are typed functions (tool f0a747ba, runtime 338f093c)
+12d555a3 run t tfnparams && f
+#: tfnparams: 2 groups, 6 parameters (NodeUtil.has / findPreorder / isNameReferenced / visitPreOrder sharing MATCH_NOT_FUNCTION and MATCH_ANYTHING_BUT_NON_ARROW_FUNCTION; getCount / getNodeTypeReferenceCount) take func(Node) bool: 10 adapters, 13 Predicates.alwaysTrue() -> Predicates_alwaysTrueT_[Node], 4 named objects (MatchShallowStatement.applyT_), 2 package variables and their 2 initializers, 4 p.apply(n.box_()) -> p(n); left (groups) 145 given another value, 23 never given an adapter, 7 parameter used other than by calling it (stored: PreOrderIterator, InlineVariables.Mode), 1 package variable used otherwise, 4 Java interface, 2 interface with another signature
+# 472. postflip step (re-flip): tcmp, the sort of CmdLineParser's options is the typed sort of the slice with the comparator's function (tool f0a747ba, runtime 338f093c)
+d2350734 run t tcmp && f
+#: tcmp: 1 sort of a typed slice view with a typed comparator -> sortSlicePF_ (CmdLineParser); left 6 comparators of the runtime's combinators, 2 package variables holding them, 7 lists that are not slice views; TreeSets made with a Comparator: colls -kind treeset (9 "made with a Comparator")
+# 473. postflip step (re-flip): selftype, 51 casts of the self-typed builders' and covariant build() results through self() are the typed calls (tool cf2529b9)
+bfbfa030 run t selftype && f
+#: selftype: 11 receiver-returning builder methods get mT_ (FunctionType.Builder 4, InstanceObjectType.Builder 6, EnumType.Builder 1), 14 casts + 2 assertions through self() are r.mT_(a); 3 covariant results split (FunctionType.Builder.build_impl 31 casts, EnumType.Builder.build_impl 1, TypedScopeCreator.createScopeAbstractScope 3), 35 casts are calls of mT_; left 9 methods neither receiver-returning nor covariant (real downcasts), 4 assertions of other results, 1 receiver of an embedded class
+# 474. postflip step (re-flip): covret re-run, Reference.getSymbol returns its *Var (StaticRef's covariant result, typed by fbound's scope); 3 casts are calls of getSymbolT_ (tool 97994470)
+3c54674c run t covret && f
+#: covret: 1 method split (Reference.getSymbol -> *Var), 3 casts are getSymbolT_(); left 62 casts whose method returns a value not boxed by iup_ or obj_
+# 475. postflip step (re-flip): selftype re-run, 9 cross-casts of self() to an interface the class implements are iup_I of the object, the value only called (tool 6f89c79d)
+80ba05c0 run t selftype && f
+#: selftype: 9 cross-casts icast_I(x.self()) of a value only called are iup_I(x) (AbstractCompiler -> CompilerInputProvider 6, LinkedDirectedGraph -> GraphvizGraph 2, SortingErrorManager -> ErrorManager 1), 3 iup_ added to g_0iup.go; left 17 cross-casts whose value is stored, compared or handed on, 11 to an interface a subclass overrides a method of without dispatching (ArrayList 9, Ordering 2), 9 real downcasts, 4 assertions of other results, 1 receiver of an embedded class
+# 476. postflip step (re-flip): nnassert, 21 assertions of bridges' results and of self() are the typed results, 9 with requireNonNull0_ where the method hands its receiver on (tool 7e31b84d)
+20561916 run t nnassert && f
+#: nnassert: 11 assertions of a bridge's result dereferenced by a field read are the typed result, 7 are requireNonNull0_ of it (fbound's kept scope assertions: getClosestHoistScope 4, getClosestCfgRootScope, getClosestContainerScope, getVar), 1 + 2 x.self().(*T) of a *T are x / requireNonNull0_(x); left 57 assertions of results of methods that are not a typed bridge (real downcasts of Object results), 10 assertions of self() to another class
+# 477. postflip step (re-flip): deadtfn, 41 lambda adapter types that no code names any more are deleted (tool cf61b99f)
+41bd143c run t deadtfn && f
+#: deadtfn: 41 lambda adapter types no code names deleted with their 41 methods (32 X_tfn_.., 9 X_fn); left 165 adapter types named by code (Comparator_fn kept: rt_cmp_test.go names it)
+# 478. postflip (runtime, re-flip): immCursorT_[T], the explicit iterator over a typed immutable list
+832baf5b patch 478-832baf5b-rt.patch
+# 479. postflip step (re-flip): tviews, 27 loops, 5 get(k) and 15 cursors read typed immutable collections instead of their erased twins; 80 casts go (tool 53e47ae7, runtime 832baf5b)
+dcb42e76 run t tviews && f
+#: tviews: 19 entrySet loops (range M.keys, M.vals[i]), 7 keySet loops, 1 values loop, 5 get(k) -> M.Get(k), 15 cursor slots immCursorT_ (14 immCursorOf_ -> immCursorTOf_, 21 next() reads typed); left none
+# 480. postflip (runtime, re-flip): sortTListF_, sortArrF_ and compareStrNat_, the typed sorts of a typed list and an array and strings' natural order
+efd82f06 patch 480-efd82f06-rt.patch
+# 481. postflip step (re-flip): tcmp, 13 natural-order sorts of typed lists and arrays are typed sorts; deadbridge, 1 dead bridge (tool 4bc85f06, runtime efd82f06)
+af12fcda run t tcmp && t deadbridge && f
+#: tcmp: 8 natural-order sorts of typed lists (6 strings compareStrNat_, 2 compareToT_), 5 Arrays.sort of typed arrays -> sortArrF_; left 9 combinators, 3 package variables, 1 other comparator, 2 natural sorts of Objects, 2 not slice views; deadbridge: 1 bridge (+1 forwarder) deleted; left 22 (6 generic functions, 4 assigned to interfaces, 3 interface arguments, 3 element conversions used, 3 bridges named, 2 interface-returning methods, 1 conversion)
+# 482. postflip step (re-flip): fntypes, 11 func-typed parameters in 8 groups take the type their 33 functions cast the erased argument to; deadbridge, 2 more dead bridges (tool e1d08abd)
+bf31fa79 run t fntypes && t deadbridge && f
+#: fntypes: 8 groups, 11 parameters typed (JSTypeIterations 6 -> func(*JSType), NodeUtil.getCount, FlowSensitiveInlineVariables 2 -> func(Node) bool, ReportUntranspilableFeatures -> func(*RegExpTree) bool, CmdLineParser flag setter -> func(bool)); 9 literals, 20 package functions, 4 bridge method values -> mT_, 8 params renamed; left (groups) 17 other values, 6 used otherwise, 2 interface methods, 2 never given a function, 1 non-box argument, 1 boxed read without conversion; deadbridge: 2 bridges (+2 forwarders); left 20
+# 483. postflip (runtime, re-flip): buildT_ on every protobuf builder, build() with its message class
+d25606db patch 483-d25606db-rt.patch
+# 484. postflip step (re-flip): pbbuild, 37 casts of a protobuf builder's build() are buildT_() (tool bc6d5d8f, runtime d25606db)
+c8aa053b run t pbbuild && f
+#: pbbuild: 37 casts of a protobuf builder's build() -> buildT_(); left 1 build() given to an erased collection uncast
+# 485. postflip (runtime, re-flip): typed variants of the runtime's functional APIs and Comparator combinators
+ffe13e81 patch 485-ffe13e81-rt.patch
+# 486. postflip step (re-flip): tfnapi, 32 adapters given to the runtime's functional APIs are typed calls; tcmp, 8 sorts with Comparator combinator chains are typed sorts; deadtfn, 25 adapter types go (tool d445a0b8, runtime ffe13e81)
+f9d61144 run t tfnapi && t tcmp && t deadtfn && f
+#: tfnapi: 20 mapComputeIfAbsentT_, 7 forEachT_, 3 mergeT_, 2 computeT_; left 5 computeIfAbsent of erased maps, 1 type-parameter map, 7 forEach of erased collections/maps; tcmp: 8 combinator sorts typed; left 1 combinator over Objects, 3 package variables, 1 other comparator, 2 natural sorts of Objects, 2 not slice views; deadtfn: 25 adapter types deleted, 140 stay
+# 487. postflip (runtime, re-flip): typed forms of Iterables.getOnlyElement / getFirst / getLast and Compiler.runInCompilerThread
+45d25830 patch 487-45d25830-rt.patch
+# 488. postflip step (re-flip): tgeneric, 25 Iterables.getOnlyElement / getFirst / getLast of typed collections and 6 runInCompilerThread calls are typed (tool 38b7e1d0, runtime 45d25830)
+78fc86ad run t tgeneric && f
+#: tgeneric: 12 getOnlyElement, 5 getFirst, 8 getLast of typed lists/sets/slice views, 6 runInCompilerThread -> typed forms; left 17 calls on erased collections, 10 runInCompilerThread with erased callables (result unused)
+# 489. postflip (runtime, re-flip): the methods of a non-null Optional<String> written as a string
+d00b98f3 patch 489-d00b98f3-rt.patch
+# 490. postflip step (re-flip): optstr, Optional<String> is a string with nullstr_ for the empty Optional: 1,378 type spellings and 3,430 calls (tool 20d40522, runtime d00b98f3)
+39f1014c run t optstr && f
+#: optstr: proved no Optional<String> is null: 177 fields (171 assigned before the object can be reached, 3 where it escapes but no code it can reach reads the field (call graph), 2 where it escapes only into a field of its own, 1 erased map kept), 1 package variable, 2 enum field arrays, 18 locals without a value (17 definitely assigned, 1 try temp), 355 locals with a value, 391 parameters, 11 func-typed slots, 1 cast of an Object; rewrote 1,378 type spellings, 428 empty, 99 ofNullable, 913 of (251 literals), 382 isPresent, 240 isEmpty, 880 get/orElseThrow, 303 orElse (113 of nullstr_), 102 filterFn_, 46 equals, 15 hashCode, 20 box_, 1 optOf_, 1 runtime Optional; left 1 type spelling (MakeDeclaredNamesUnique's declarations map keeps Optional objects: its toString prints them)
+# 491. postflip (runtime, re-flip): optstrBox_ of the empty Optional is one object
+ca2a6157 patch 491-ca2a6157-rt.patch
+# 492. postflip (runtime, re-flip): optstrGet_ inlines, its failure is a call of its own
+ad8c897b patch 492-ad8c897b-rt.patch
+# 493. postflip (runtime, re-flip): removing through a typed map's iterator is constant time, as LinkedHashMap's is
+34aca0ab patch 493-34aca0ab-rt.patch
+# 494. postflip (runtime, re-flip): test of removing through a typed set's iterator across the compactions it causes
+62aa65b3 patch 494-62aa65b3-rt.patch
+# 495. postflip (runtime, re-flip): subList of a typed list's erased view boxes its range, not the whole list
+75f0351d patch 495-75f0351d-rt.patch
+# 496. postflip (runtime, re-flip): a protobuf builder's build() gives the message the builder's storage (copied only if the builder changes afterwards), with a test
+265af42f patch 496-265af42f-rt.patch
+# 497. postflip (runtime, re-flip): protobuf fields are stored typed, in one struct per message written by tools/protogen, instead of boxed in a []any
+7be430ed patch 497-7be430ed-rt.patch
+# 510. postflip (runtime, re-flip): an erased immutable collection keeps what only multisets, sorted sets with a comparator, enum sets and asList() of a set use in a record of its own (80 bytes instead of 192)
+d791dde5 patch 510-d791dde5-rt.patch
+# 511. postflip (runtime, re-flip): helpers for a typed collection that goes through its erased form and straight back, with a test against the conversions they stand for
+68513bc0 patch 511-68513bc0-rt.patch
+# 512. postflip step (re-flip): trips, 88 round trips of a typed collection through its erased form become typed helper calls (tool a9769ba0, runtime 68513bc0)
+#: trips: 88 round trips through an erased collection rewritten; files changed: 47 (10 tsetAddAllOf_, 5 tsetAddList_, 13 tsetAddSet_, 7 immCopySlice_, 1 sliceSkip_ of splitStrs_, 15 tlistImmCopy_, 8 sliceAddSlice_, 1 sliceAddList_, 1 immCopyArr_, 5 tlistSlice_, 20 splitStrs_, 2 tsetCopy_; left 1 array boxed by a function literal)
+e9d53d6c run t trips && f
+# 513. postflip (runtime, re-flip): a Splitter makes the slice of its pieces once, at its final size
+4071b655 patch 513-4071b655-rt.patch
+# 530. postflip (manual, re-flip): a node's JSType is kept in the table of distinct values as the *JSType, so getJSType is one type comparison
+ec365959 patch 530-ec365959-manual.patch
+ec365959 patch 530-ec365959-rt.patch
+# 531. postflip (runtime, re-flip): buildLastT_ on every protobuf builder, a build that turns the builder's allocation into the message
+313c74a6 patch 531-313c74a6-rt.patch
+# 532. postflip step (re-flip): pblast, 29 last builds of a protobuf builder are buildLastT_() (tool 7db1e46c, runtime 313c74a6)
+e7442814 run t pblast && f
+#: pblast: 29 last builds of a protobuf builder are buildLastT_(): 20 of a fresh builder expression, 9 of an owned local variable in a return (117 generated builder methods checked to keep no reference, 6 parameters borrowed); left 8 buildT_() calls; 0 already buildLastT_(). f (gofmt of go1.27.3) also realigns g_0names.go, which the tree before was not formatted by.
+# 533. postflip (runtime, re-flip): the protobuf writer tests a field's presence in line and writes a repeated message field in its own loop
+2a0d8fa6 patch 533-2a0d8fa6-rt.patch
+# 534. postflip (manual, re-flip): expectWellFormedTemplatizedType makes its verifier only for a node that has a type
+#= 43f5a0f0 not taken (thirteenth session): a one-off hand edit of pass code, measured and gated on its branch; to come back as a tool or not at all
+#- 43f5a0f0 patch 534-43f5a0f0-manual.patch
+# 535. postflip (runtime, re-flip): the shared property lists of nodes have a direct-mapped front, so reading a node's list is a comparison, not a map lookup
+036df818 patch 535-036df818-rt.patch
+# 520. postflip (runtime, re-flip): a key without equals/hashCode is hashed by its address
+67684f20 patch 520-67684f20-rt.patch
+# 521. postflip (runtime, re-flip): an erased lookup of an object by identity asks its type's questions once
+fb7f9349 patch 521-fb7f9349-rt.patch
+# 522. postflip (manual, re-flip): SourceFile.setCodeAndDoBookkeeping counts lines on the view it has
+#= f9699ae5 not taken (thirteenth session): a one-off hand edit of pass code, measured and gated on its branch; to come back as a tool or not at all
+#- f9699ae5 patch 522-f9699ae5-manual.patch
+# 523. postflip (manual, re-flip): a token's SourceRange and its two SourcePositions are one allocation
+#= 444eac19 not taken (thirteenth session): a one-off hand edit of pass code, measured and gated on its branch; to come back as a tool or not at all
+#- 444eac19 patch 523-444eac19-manual.patch
