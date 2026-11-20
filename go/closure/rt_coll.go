@@ -762,6 +762,15 @@ func (t *htable_) hashOf(k any) uint32 {
 	if h, ok := t.customKey_(k); ok {
 		return hmix_(h.hashCode())
 	}
+	return primHash_(k)
+}
+
+// primHash_ is the hash of a key compared by Go equality: a Node handle hashes as its value
+// (most such keys are nodes), anything else by Go's hash of the interface value.
+func primHash_(k any) uint32 {
+	if n, ok := k.(Node); ok {
+		return hmix_(int32(n))
+	}
 	return uint32(maphash.Comparable(hseed_, k))
 }
 
@@ -816,7 +825,7 @@ func (t *htable_) find(k any) int {
 		}
 		return -1
 	}
-	hv := uint32(maphash.Comparable(hseed_, k))
+	hv := primHash_(k)
 	for j, m := hv&uint32(len(x.slots)-1), uint32(len(x.slots)-1); x.slots[j] != 0; j = (j + 1) & m {
 		if sl := x.slots[j]; uint32(sl>>32) == hv {
 			if i := int32(uint32(sl)) - 1; t.keys[i] == k {
