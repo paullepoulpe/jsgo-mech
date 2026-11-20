@@ -29,14 +29,14 @@ func (this *ErrorToFixMapper) getFixesForJsError(error_ *JSError) *JTList[*Sugge
 	if fix != nil {
 		return jimmutableListOf_[*SuggestedFix](jtc_p_SuggestedFix, fix)
 	}
-	return jtlistImm_(jtc_p_SuggestedFix, func() *ErasedImmutableList {
+	return jtlistImm_(jtc_p_SuggestedFix, func() *ImmutableList[*SuggestedFix] {
 		switch error_.type_().key_ {
 		case "JSC_IMPLICITLY_NONNULL_JSDOC", "JSC_IMPLICITLY_NULLABLE_JSDOC", "JSC_MISSING_NULLABILITY_MODIFIER_JSDOC", "JSC_NULL_MISSING_NULLABILITY_MODIFIER_JSDOC":
 			return this.getFixesForImplicitNullabilityErrors(error_)
 		default:
-			return ImmutableList_of()
+			return immutableListOf_(tc_p_SuggestedFix)
 		}
-	}())
+	}().asImm())
 }
 
 func (this *ErrorToFixMapper) getFixForJsError(error_ *JSError) *SuggestedFix {
@@ -177,22 +177,22 @@ func (this *ErrorToFixMapper) getFixForReferenceToShortImportByLongName(error_ *
 	return fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, JString_replace_s(oldName.get(), fullName, shortName.get())), this.compiler_).build()
 }
 
-func (this *ErrorToFixMapper) getFixesForImplicitNullabilityErrors(error_ *JSError) ImmutableListOf[*SuggestedFix] {
+func (this *ErrorToFixMapper) getFixesForImplicitNullabilityErrors(error_ *JSError) *ImmutableList[*SuggestedFix] {
 	if error_.node().getSourceFileName() == "" {
-		return ImmutableList_of()
+		return immutableListOf_(tc_p_SuggestedFix)
 	}
 	var qmark *SuggestedFix = new_SuggestedFix_Builder().attachMatchedNodeInfo(error_.node(), this.compiler_).insertBefore(error_.node(), "?").setDescription("Make nullability explicit").build()
 	var bang *SuggestedFix = new_SuggestedFix_Builder().attachMatchedNodeInfo(error_.node(), this.compiler_).insertBefore(error_.node(), "!").setDescription("Make type non-nullable").build()
-	return func() *ErasedImmutableList {
+	return func() *ImmutableList[*SuggestedFix] {
 		switch error_.type_().key_ {
 		case "JSC_NULL_MISSING_NULLABILITY_MODIFIER_JSDOC":
-			return ImmutableList_of_Object(obj_(qmark))
+			return immutableListOf_(tc_p_SuggestedFix, qmark)
 		case "JSC_MISSING_NULLABILITY_MODIFIER_JSDOC":
-			return ImmutableList_of_Object_Object(obj_(bang), obj_(qmark))
+			return immutableListOf_(tc_p_SuggestedFix, bang, qmark)
 		case "JSC_IMPLICITLY_NULLABLE_JSDOC":
-			return ImmutableList_of_Object_Object(obj_(qmark), obj_(bang))
+			return immutableListOf_(tc_p_SuggestedFix, qmark, bang)
 		case "JSC_IMPLICITLY_NONNULL_JSDOC":
-			return ImmutableList_of_Object(obj_(bang))
+			return immutableListOf_(tc_p_SuggestedFix, bang)
 		default:
 			panic(new_IllegalArgumentException_String(("Unexpected JSError Type: " + sstr_(error_.type_().key_))))
 		}
