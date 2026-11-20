@@ -574,7 +574,7 @@ func (this *IRFactory) parseTrailingNonJSDocCommentAt(tokenEnd *SourcePosition_u
 	if !this.nonJsdocTracker.hasPendingCommentBefore(possibleNextTokenStart) {
 		return nil
 	}
-	var result *StringBuilder = new_StringBuilder()
+	var result strBuilder_
 	var comment *Comment = this.nonJsdocTracker.current()
 	if tokenEnd.line_ != comment.location_.start_.line_ {
 		return nil
@@ -588,7 +588,7 @@ func (this *IRFactory) parseTrailingNonJSDocCommentAt(tokenEnd *SourcePosition_u
 	}
 	result.append(comment.value_)
 	this.nonJsdocTracker.advance()
-	var nonJSDocComment *NonJSDocComment = new_NonJSDocComment(comment.location_.start_, comment.location_.end_, tostrR_(result))
+	var nonJSDocComment *NonJSDocComment = new_NonJSDocComment(comment.location_.start_, comment.location_.end_, result.toString())
 	nonJSDocComment.setEndsAsLineComment((comment.type__ == Comment_Type_LINE))
 	return nonJSDocComment
 }
