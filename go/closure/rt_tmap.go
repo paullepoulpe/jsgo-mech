@@ -1,8 +1,10 @@
 package closure
 
 // Typed maps and sets (post-flip step 4): LinkedHashMap<K, V> and LinkedHashSet<K> with
-// unboxed keys and values, for keys whose Java equality is Go's == (strings, handles, classes
-// without equals of their own).
+// unboxed keys and values. Keys whose Java equality is Go's == (strings, handles, classes
+// without equals of their own) are found by ==; keys of a class with its own equals and
+// hashCode (the key conversion has hash and eq) as java.util.HashMap finds them: by the hash
+// code each key had when it was put, then by identity or equals.
 //
 // Insertion order is kept as in LinkedHashMap: keys and values in slices, removed positions
 // marked dead, a Go map from key to position once the table has more than tsmall_ entries.
@@ -29,6 +31,11 @@ type tmapExt_[K comparable, V any] struct {
 	ndead int32
 	view  *tmapView_[K, V]
 	sview *tsetView_[K]
+	// Keys compared by equals (kc.hash != nil): each key's hash code, beside keys, and once the
+	// map has more than tsmall_ entries an open-addressed index of them (hindex_'s layout:
+	// the mixed hash in the high 32 bits, 1 + the position in the low ones, 0 for free).
+	hs    []int32
+	slots []uint64
 }
 
 func (m *TMap[K, V]) ext() *tmapExt_[K, V] {
@@ -72,6 +79,9 @@ func tmapFrom_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from Map, imm 
 }
 
 func (m *TMap[K, V]) find(k K) int32 {
+	if m.kc.hash != nil {
+		return m.findH(k)
+	}
 	if m.x != nil {
 		if m.x.idx != nil {
 			if i, ok := m.x.idx[k]; ok {
@@ -92,6 +102,94 @@ func (m *TMap[K, V]) find(k K) int32 {
 		}
 	}
 	return -1
+}
+
+// hashOf is the hash code java.util.HashMap gives key k: 0 for null.
+func (m *TMap[K, V]) hashOf(k K) int32 {
+	var zk K
+	if k == zk {
+		return 0
+	}
+	return m.kc.hash(k)
+}
+
+// findH is find for keys compared by equals: a key is found at a live position whose key had
+// the same hash code and is the same object, or equals it (k.equals(key), as HashMap.getNode).
+func (m *TMap[K, V]) findH(k K) int32 {
+	x := m.x
+	if x == nil || len(x.hs) == 0 {
+		return -1
+	}
+	h := m.hashOf(k)
+	var zk K
+	match := func(i int32) bool {
+		if m.isDead(int(i)) {
+			return false
+		}
+		e := m.keys[i]
+		return e == k || (k != zk && m.kc.eq(k, e))
+	}
+	if x.slots == nil {
+		for i, eh := range x.hs {
+			if eh == h && match(int32(i)) {
+				return int32(i)
+			}
+		}
+		return -1
+	}
+	hv := hmix_(h)
+	mask := uint32(len(x.slots) - 1)
+	for j := hv & mask; x.slots[j] != 0; j = (j + 1) & mask {
+		if sl := x.slots[j]; uint32(sl>>32) == hv {
+			if i := int32(uint32(sl)) - 1; match(i) {
+				return i
+			}
+		}
+	}
+	return -1
+}
+
+// putH records the hash code of the key just appended at position n (keys compared by equals).
+func (m *TMap[K, V]) putH(n int32) {
+	x := m.ext()
+	h := m.hashOf(m.keys[n])
+	x.hs = append(x.hs, h)
+	if x.slots == nil {
+		if len(m.keys) > tsmall_ {
+			m.reindexH()
+		}
+		return
+	}
+	if 2*len(m.keys) > len(x.slots) {
+		m.reindexH()
+		return
+	}
+	m.placeH(hmix_(h), n)
+}
+
+func (m *TMap[K, V]) placeH(hv uint32, i int32) {
+	x := m.x
+	mask := uint32(len(x.slots) - 1)
+	j := hv & mask
+	for x.slots[j] != 0 {
+		j = (j + 1) & mask
+	}
+	x.slots[j] = uint64(hv)<<32 | uint64(uint32(i+1))
+}
+
+// reindexH builds the index of the live keys from their recorded hash codes.
+func (m *TMap[K, V]) reindexH() {
+	x := m.x
+	n := 16
+	for n < 4*len(m.keys) {
+		n *= 2
+	}
+	x.slots = make([]uint64, n)
+	for i, h := range x.hs {
+		if !m.isDead(i) {
+			m.placeH(hmix_(h), int32(i))
+		}
+	}
 }
 
 func (m *TMap[K, V]) size() int32   { return m.live }
@@ -131,6 +229,13 @@ func (m *TMap[K, V]) put(k K, v V) V {
 	m.vals = append(m.vals, v)
 	n := int32(len(m.keys) - 1)
 	m.live++
+	if m.kc.hash != nil {
+		if x := m.x; x != nil && x.dead != nil {
+			x.dead = append(x.dead, false)
+		}
+		m.putH(n)
+		return m.vc.null
+	}
 	if x := m.x; x != nil {
 		if x.dead != nil {
 			x.dead = append(x.dead, false)
@@ -201,11 +306,18 @@ func (m *TMap[K, V]) removeAt(i int32) V {
 
 func (m *TMap[K, V]) compact() {
 	j := 0
+	hs := m.x.hs
 	for i := range m.keys {
 		if !m.isDead(i) {
 			m.keys[j], m.vals[j] = m.keys[i], m.vals[i]
+			if hs != nil {
+				hs[j] = hs[i]
+			}
 			j++
 		}
+	}
+	if hs != nil {
+		m.x.hs = hs[:j]
 	}
 	var zk K
 	var zv V
@@ -216,6 +328,9 @@ func (m *TMap[K, V]) compact() {
 	m.x.dead, m.x.ndead = nil, 0
 	if m.x.idx != nil {
 		m.reindex()
+	}
+	if m.x.slots != nil {
+		m.reindexH()
 	}
 }
 
@@ -229,6 +344,7 @@ func (m *TMap[K, V]) clear() {
 	m.live = 0
 	if m.x != nil {
 		m.x.dead, m.x.idx, m.x.ndead = nil, nil, 0
+		m.x.hs, m.x.slots = m.x.hs[:0], nil
 	}
 }
 
