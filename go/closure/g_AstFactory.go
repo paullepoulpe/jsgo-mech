@@ -1145,7 +1145,7 @@ func (this *AstFactory) createJSCompMakeAsyncIteratorCall(iterable Node, scope S
 func (this *AstFactory) replaceTemplate(templatedType *JSType, templateTypes *TList[*JSType]) *JSType {
 	var typeMap *TemplateTypeMap = this.registry.getEmptyTemplateTypeMap().copyWithExtension_2(templatedType.getTemplateTypeMap().getTemplateKeys(), templateTypes)
 	var replacer *TemplateTypeReplacer = TemplateTypeReplacer_forPartialReplacement(this.registry, typeMap)
-	return to_JSType(templatedType.visit(TemplateTypeReplacer_as_Visitor(replacer)))
+	return JSType_visit(templatedType, TemplateTypeReplacer_as_Visitor(replacer))
 }
 
 func (this *AstFactory) createEmptyAsyncGeneratorWrapperArgument(asyncGeneratorWrapperType *JSType) Node {

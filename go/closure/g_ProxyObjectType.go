@@ -349,16 +349,8 @@ func (this *ProxyObjectType) getTemplateParamCount_impl() int32 {
 	return this.referencedType.getTemplateParamCount()
 }
 
-func (this *ProxyObjectType) visitReferenceType(visitor Visitor) any {
-	return this.referencedType.visit(visitor)
-}
-
-func (this *ProxyObjectType) visitUntyped_impl(visitor Visitor) any {
-	return visitor.caseProxyObjectType(this)
-}
-
-func (this *ProxyObjectType) visitUntyped_2_impl(visitor RelationshipVisitor, that *JSType) any {
-	return this.referencedType.visit_2(visitor, that)
+func (this *ProxyObjectType) visitReferenceType(visitor Visitor[*JSType]) *JSType {
+	return JSType_visit(this.referencedType, visitor)
 }
 
 func (this *ProxyObjectType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSType {
@@ -806,22 +798,6 @@ func (this *ProxyObjectType) getTemplateParamCount() int32 {
 		return this.getTemplateParamCount_impl()
 	}
 	return this.self_.getTemplateParamCount_impl()
-}
-
-// visitUntyped: an object that is exactly a ProxyObjectType calls its visitUntyped_impl directly (post-flip); others dispatch.
-func (this *ProxyObjectType) visitUntyped(p0 Visitor) any {
-	if p, _ := this.self_.(*ProxyObjectType); p == this {
-		return this.visitUntyped_impl(p0)
-	}
-	return this.self_.visitUntyped_impl(p0)
-}
-
-// visitUntyped_2: an object that is exactly a ProxyObjectType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
-func (this *ProxyObjectType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
-	if p, _ := this.self_.(*ProxyObjectType); p == this {
-		return this.visitUntyped_2_impl(p0, p1)
-	}
-	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
 // resolveInternal: an object that is exactly a ProxyObjectType calls its resolveInternal_impl directly (post-flip); others dispatch.

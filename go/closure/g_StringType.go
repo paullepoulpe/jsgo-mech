@@ -74,10 +74,6 @@ func (this *StringType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_BOTH
 }
 
-func (this *StringType) visitUntyped_impl(visitor Visitor) any {
-	return visitor.caseStringType()
-}
-
 // getTypeClass: an object that is exactly a StringType calls its getTypeClass_impl directly (post-flip); others dispatch.
 func (this *StringType) getTypeClass() JSTypeClass {
 	if p, _ := this.self_.(*StringType); p == this {
@@ -148,12 +144,4 @@ func (this *StringType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}
 	return this.self_.getPossibleToBooleanOutcomes_impl()
-}
-
-// visitUntyped: an object that is exactly a StringType calls its visitUntyped_impl directly (post-flip); others dispatch.
-func (this *StringType) visitUntyped(p0 Visitor) any {
-	if p, _ := this.self_.(*StringType); p == this {
-		return this.visitUntyped_impl(p0)
-	}
-	return this.self_.visitUntyped_impl(p0)
 }
