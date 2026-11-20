@@ -78,6 +78,15 @@ func (this *SimpleListMultimap) get(key any) ListOf[any] {
 	}()
 }
 
+// get_s is get for a string key that is not boxed (post-flip manual step).
+func (this *SimpleListMultimap) get_s(key string) ListOf[any] {
+	var values ListOf[any] = icast_List(Map_get_s(this.map__, key))
+	if values == nil {
+		return icast_List(obj_(ImmutableList_of()))
+	}
+	return Collections_unmodifiableList(values)
+}
+
 func (this *SimpleListMultimap) containsKey(key any) bool {
 	return this.map__.containsKey(key)
 }
