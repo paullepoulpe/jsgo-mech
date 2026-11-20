@@ -1877,9 +1877,9 @@ func (this *TypeInference) traverseDynamicImport(dynamicImport Node, scope FlowS
 	var importSpecifier Node = dynamicImport.getFirstChild()
 	var input *CompilerInput = this.compiler_.getInput(NodeUtil_getInputId(dynamicImport))
 	if (importSpecifier.isStringLit() && (moduleMap != nil)) && (input != nil) {
-		var targetPath *ModuleLoader_ModulePath = input.getPath().resolveJsModule(importSpecifier.getString(), Optional_of[string](importSpecifier.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
+		var targetPath *ModuleLoader_ModulePath = input.getPath().resolveJsModule(importSpecifier.getString(), Optional_of[string](importSpecifier.getSourceFileName()).filterFn_(func(s string) bool {
 			return s != ""
-		}}), importSpecifier.getLineno(), importSpecifier.getCharno())
+		}), importSpecifier.getLineno(), importSpecifier.getCharno())
 		var targetModule *Module = func() *Module {
 			if targetPath != nil {
 				return moduleMap.getModule(targetPath)

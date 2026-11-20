@@ -218,9 +218,9 @@ func (this *ClosureCodingConvention) getObjectLiteralCast_impl(callNode Node) *C
 	if !objectNode.isObjectLit() {
 		return new_CodingConvention_ObjectLiteralCast(Optional_empty[string](), 0, ClosureCodingConvention_OBJECTLIT_EXPECTED)
 	}
-	return new_CodingConvention_ObjectLiteralCast(Optional_of[string](typeNode.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
+	return new_CodingConvention_ObjectLiteralCast(Optional_of[string](typeNode.getQualifiedName()).filterFn_(func(s string) bool {
 		return s != ""
-	}}), typeNode.getNext(), nil)
+	}), typeNode.getNext(), nil)
 }
 
 func (this *ClosureCodingConvention) getAssertionFunctions_rImmutableSet() *TSet[*CodingConvention_AssertionFunctionSpec] {

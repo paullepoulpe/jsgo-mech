@@ -842,9 +842,9 @@ func (this *FunctionType) resolveTypeListHelper(list *TList[*ObjectType], report
 	for type_ := range list.All() {
 		var rt *JSType = type_.resolve(reporter)
 		if !rt.isObjectType() {
-			reporter.warning(("not an object type: " + objstr_(rt.self()) + " (at " + sstr_(this.toString()) + ")"), Optional_of[string](this.source.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
+			reporter.warning(("not an object type: " + objstr_(rt.self()) + " (at " + sstr_(this.toString()) + ")"), Optional_of[string](this.source.getSourceFileName()).filterFn_(func(s string) bool {
 				return s != ""
-			}}), this.source.getLineno(), this.source.getCharno())
+			}), this.source.getLineno(), this.source.getCharno())
 			continue
 		}
 		var resolved *ObjectType = rt.toObjectType()

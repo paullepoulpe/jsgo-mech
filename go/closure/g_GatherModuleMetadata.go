@@ -476,9 +476,9 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 		var existingModule *ModuleMetadataMap_ModuleMetadata = this.outer_.modulesByGoogNamespace.Get(namespace)
 		if existingModule != nil {
 			existingType = existingModule.moduleType()
-			existingFileSource = Optional_of[string](existingModule.rootNode().getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
+			existingFileSource = Optional_of[string](existingModule.rootNode().getSourceFileName()).filterFn_(func(s string) bool {
 				return s != ""
-			}})
+			})
 		}
 	}
 	this.outer_.currentModule.googNamespaces_.add_s(namespace)

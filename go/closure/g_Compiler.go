@@ -423,9 +423,9 @@ func (this *Compiler) initRuntimeLibraryTypedAsts_impl(colorPoolBuilder Optional
 	var astData *TypedAstDeserializer_DeserializedAst = TypedAstDeserializer_deserializeRuntimeLibraries(this.up_AbstractCompiler(), this.SYNTHETIC_EXTERNS_FILE, colorPoolBuilder, typedAsts.get(), this.getOptions().getResolveSourceMapAnnotations(), this.getOptions().getParseInlineSourceMaps())
 	var runtimeLibraryTypedAsts *TMap[string, Supplier] = newTMap_(tc_string, tc_Supplier)
 	for library := range elemsBy_(astData.getFilesystem().entrySet(), icast_Map_Entry) {
-		runtimeLibraryTypedAsts.computeIfAbsent(library.getKey().(*SourceFile_jscomp).getName(), &Function_tfn_string_Supplier{func(f string) Supplier {
+		runtimeLibraryTypedAsts.ComputeIfAbsent(library.getKey().(*SourceFile_jscomp).getName(), func(f string) Supplier {
 			return icast_Supplier(library.getValue())
-		}})
+		})
 	}
 	this.runtimeLibraryTypedAsts = immutableMapCopyOfT_(tc_string, tc_Supplier, runtimeLibraryTypedAsts)
 }
@@ -3572,9 +3572,9 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 		}
 		this.haveInitializedCurrentChunkLicenses = true
 	}
-	var license Optional[string] = Compiler_getLicenseForFile(this.compiler_, Optional_of[string](node.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
+	var license Optional[string] = Compiler_getLicenseForFile(this.compiler_, Optional_of[string](node.getSourceFileName()).filterFn_(func(s string) bool {
 		return s != ""
-	}}))
+	}))
 	if license.isEmpty() {
 		return
 	}
