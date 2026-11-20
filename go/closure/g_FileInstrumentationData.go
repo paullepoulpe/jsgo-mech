@@ -8,7 +8,7 @@ type FileInstrumentationData struct {
 	fileName         string
 	branchPresent    *BitSet
 	branchesInLine   *TMap[any, any]
-	branchNodes      *TMap[*FileInstrumentationData_BranchIndexPair, Node]
+	branchNodes      *TMap[FileInstrumentationData_BranchIndexPair, Node]
 }
 
 func (this *FileInstrumentationData) zero_FileInstrumentationData() {
@@ -22,7 +22,7 @@ func (this *FileInstrumentationData) init_FileInstrumentationData(fileName strin
 	this.instrumentedBits = new_BitSet()
 	this.branchPresent = new_BitSet()
 	this.branchesInLine = newTMap_(tc_Integer, tc_Integer)
-	this.branchNodes = newTMap_(tch_p_FileInstrumentationData_BranchIndexPair, tc_Node)
+	this.branchNodes = newTMap_(tc_FileInstrumentationData_BranchIndexPair, tc_Node)
 }
 
 func new_FileInstrumentationData(fileName string, arrayName string) *FileInstrumentationData {
@@ -130,31 +130,20 @@ func (this *FileInstrumentationData_BranchIndexPair) init_FileInstrumentationDat
 	this.branch = branch
 }
 
-func new_FileInstrumentationData_BranchIndexPair(line int32, branch int32) *FileInstrumentationData_BranchIndexPair {
-	this := &FileInstrumentationData_BranchIndexPair{}
+func new_FileInstrumentationData_BranchIndexPair(line int32, branch int32) FileInstrumentationData_BranchIndexPair {
+	this := FileInstrumentationData_BranchIndexPair{}
 	this.init_FileInstrumentationData_BranchIndexPair(line, branch)
 	return this
 }
 
-func (this *FileInstrumentationData_BranchIndexPair) getLine() int32 {
+func (this FileInstrumentationData_BranchIndexPair) getLine() int32 {
 	return this.line_
 }
 
-func (this *FileInstrumentationData_BranchIndexPair) getBranch() int32 {
+func (this FileInstrumentationData_BranchIndexPair) getBranch() int32 {
 	return this.branch
 }
 
-func FileInstrumentationData_BranchIndexPair_of(line int32, branch int32) *FileInstrumentationData_BranchIndexPair {
+func FileInstrumentationData_BranchIndexPair_of(line int32, branch int32) FileInstrumentationData_BranchIndexPair {
 	return new_FileInstrumentationData_BranchIndexPair(line, branch)
-}
-
-func (this *FileInstrumentationData_BranchIndexPair) hashCode() int32 {
-	return ((31 * this.line_) + this.branch)
-}
-
-func (this *FileInstrumentationData_BranchIndexPair) equals(object any) bool {
-	if that, ok := object.(*FileInstrumentationData_BranchIndexPair); ok {
-		return ((this.getLine() == that.getLine()) && (this.getBranch() == that.getBranch()))
-	}
-	return false
 }
