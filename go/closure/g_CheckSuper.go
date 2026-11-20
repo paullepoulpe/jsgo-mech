@@ -173,18 +173,19 @@ type CheckSuper_Context_I interface {
 	visitThis_impl(*NodeTraversal, Node)
 }
 
+// CheckSuper_Context_as is implemented by CheckSuper_Context and the classes that extend it: a cast to CheckSuper_Context asserts to it
+// (post-flip).
+type CheckSuper_Context_as interface {
+	as_CheckSuper_Context() *CheckSuper_Context
+}
+
 func (this *CheckSuper_Context) as_CheckSuper_Context() *CheckSuper_Context { return this }
 
 func to_CheckSuper_Context(v any) *CheckSuper_Context {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_CheckSuper_Context() *CheckSuper_Context }).as_CheckSuper_Context()
-}
-
-func is_CheckSuper_Context(v any) bool {
-	_, ok := v.(interface{ as_CheckSuper_Context() *CheckSuper_Context })
-	return ok
+	return v.(CheckSuper_Context_as).as_CheckSuper_Context()
 }
 
 func (this *CheckSuper_Context) self() any {

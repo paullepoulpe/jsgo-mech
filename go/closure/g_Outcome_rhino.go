@@ -41,18 +41,6 @@ func (this Outcome_rhino) self() any {
 
 func (this Outcome_rhino) as_Outcome_rhino() Outcome_rhino { return this }
 
-func to_Outcome_rhino(v any) Outcome_rhino {
-	if v == nil {
-		return 0
-	}
-	return v.(interface{ as_Outcome_rhino() Outcome_rhino }).as_Outcome_rhino()
-}
-
-func is_Outcome_rhino(v any) bool {
-	_, ok := v.(interface{ as_Outcome_rhino() Outcome_rhino })
-	return ok
-}
-
 func Outcome_rhino_forBoolean(val bool) Outcome_rhino {
 	return func() Outcome_rhino {
 		if val {

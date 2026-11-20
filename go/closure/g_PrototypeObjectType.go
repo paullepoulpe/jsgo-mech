@@ -14,17 +14,23 @@ type PrototypeObjectType struct {
 	prettyPrint               bool
 }
 
+// PrototypeObjectType_as is implemented by PrototypeObjectType and the classes that extend it: a cast to PrototypeObjectType asserts to it
+// (post-flip).
+type PrototypeObjectType_as interface {
+	as_PrototypeObjectType() *PrototypeObjectType
+}
+
 func (this *PrototypeObjectType) as_PrototypeObjectType() *PrototypeObjectType { return this }
 
 func to_PrototypeObjectType(v any) *PrototypeObjectType {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_PrototypeObjectType() *PrototypeObjectType }).as_PrototypeObjectType()
+	return v.(PrototypeObjectType_as).as_PrototypeObjectType()
 }
 
 func is_PrototypeObjectType(v any) bool {
-	_, ok := v.(interface{ as_PrototypeObjectType() *PrototypeObjectType })
+	_, ok := v.(PrototypeObjectType_as)
 	return ok
 }
 
@@ -423,22 +429,6 @@ type PrototypeObjectType_Builder_I interface {
 
 func (this *PrototypeObjectType_Builder) as_PrototypeObjectType_Builder() *PrototypeObjectType_Builder {
 	return this
-}
-
-func to_PrototypeObjectType_Builder(v any) *PrototypeObjectType_Builder {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_PrototypeObjectType_Builder() *PrototypeObjectType_Builder
-	}).as_PrototypeObjectType_Builder()
-}
-
-func is_PrototypeObjectType_Builder(v any) bool {
-	_, ok := v.(interface {
-		as_PrototypeObjectType_Builder() *PrototypeObjectType_Builder
-	})
-	return ok
 }
 
 func (this *PrototypeObjectType_Builder) self() any {
