@@ -1254,7 +1254,7 @@ func (this *JSTypeRegistry) identifyNonNullableName(scope StaticScope, name stri
 
 func (this *JSTypeRegistry) isNonNullableName(scope StaticScope, name string) bool {
 	scope = JSTypeRegistry_getLookupScope(scope, name)
-	return this.nonNullableTypeNames.containsEntry(this.getRootNodeForScope(scope).box_(), strobj_(name))
+	return this.nonNullableTypeNames.containsEntry(this.getRootNodeForScope(scope).box_(), name)
 }
 
 func (this *JSTypeRegistry) evaluateTypeExpression(expr *JSTypeExpression, scope StaticTypedScope) *JSType {
