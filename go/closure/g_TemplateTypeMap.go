@@ -57,7 +57,9 @@ func (this *TemplateTypeMap) nextSubMapStart(index int32) int32 {
 
 func (this *TemplateTypeMap) copyFilledWithValues(values *JTList[*JSType]) *TemplateTypeMap {
 	var requiredUnknownCount int32 = (this.numUnfilledTemplateKeys() - values.size())
-	Preconditions_checkArgument_boolean_Object((requiredUnknownCount >= 0), int32(requiredUnknownCount))
+	if !(requiredUnknownCount >= 0) {
+		Preconditions_checkArgument_boolean_Object(false, int32(requiredUnknownCount))
+	}
 	if this.numUnfilledTemplateKeys() == 0 {
 		return this
 	}
@@ -83,7 +85,9 @@ func (this *TemplateTypeMap) copyWithExtension_2(keys *JTList[*TemplateType], va
 
 func (this *TemplateTypeMap) copyWithExtension_3(keys *JTList[*TemplateType], values *JTList[*JSType], newsubMapStarts *BitSet) *TemplateTypeMap {
 	var extendedUnfilledCount int32 = (keys.size() - values.size())
-	Preconditions_checkArgument_boolean_Object((extendedUnfilledCount >= 0), int32(extendedUnfilledCount))
+	if !(extendedUnfilledCount >= 0) {
+		Preconditions_checkArgument_boolean_Object(false, int32(extendedUnfilledCount))
+	}
 	if (this.numUnfilledTemplateKeys() == 0) && keys.isEmpty() {
 		return this
 	}

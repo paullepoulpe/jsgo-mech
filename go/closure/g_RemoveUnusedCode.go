@@ -197,7 +197,9 @@ func (this *RemoveUnusedCode) traverseNode(n Node, scope *Scope) {
 }
 
 func (this *RemoveUnusedCode) traverseInstanceof(instanceofNode Node, scope *Scope) {
-	Preconditions_checkArgument_boolean_Object_H(instanceofNode.isInstanceOf(), instanceofNode)
+	if !instanceofNode.isInstanceOf() {
+		Preconditions_checkArgument_boolean_Object_H(false, instanceofNode)
+	}
 	var lhs Node = instanceofNode.getFirstChild()
 	var rhs Node = lhs.getNext()
 	this.traverseNode(lhs, scope)
@@ -211,7 +213,9 @@ func (this *RemoveUnusedCode) traverseInstanceof(instanceofNode Node, scope *Sco
 }
 
 func (this *RemoveUnusedCode) traverseNormalOrOptChainGetProp(getProp Node, scope *Scope) {
-	Preconditions_checkState_boolean_Object_H(NodeUtil_isNormalOrOptChainGetProp(getProp), getProp)
+	if !NodeUtil_isNormalOrOptChainGetProp(getProp) {
+		Preconditions_checkState_boolean_Object_H(false, getProp)
+	}
 	var objectNode Node = getProp.getFirstChild()
 	var propertyName string = getProp.getString()
 	if this.polyfills.containsKey(strobj_(propertyName)) {
@@ -250,7 +254,9 @@ func (this *RemoveUnusedCode) traverseNormalOrOptChainGetProp(getProp Node, scop
 }
 
 func (this *RemoveUnusedCode) traverseIncrementOrDecrementOp(incOrDecOp Node, scope *Scope) {
-	Preconditions_checkArgument_boolean_Object_H((incOrDecOp.isInc() || incOrDecOp.isDec()), incOrDecOp)
+	if !(incOrDecOp.isInc() || incOrDecOp.isDec()) {
+		Preconditions_checkArgument_boolean_Object_H(false, incOrDecOp)
+	}
 	var arg Node = incOrDecOp.getOnlyChild()
 	if NodeUtil_isExpressionResultUsed(incOrDecOp) {
 		this.traverseNode(arg, scope)
@@ -446,7 +452,9 @@ func (this *RemoveUnusedCode) getVarForNameNode(nameNode Node, scope *Scope) *Va
 }
 
 func (this *RemoveUnusedCode) traverseObjectLiteral(objectLiteral Node, scope *Scope) {
-	Preconditions_checkArgument_boolean_Object_H(objectLiteral.isObjectLit(), objectLiteral)
+	if !objectLiteral.isObjectLit() {
+		Preconditions_checkArgument_boolean_Object_H(false, objectLiteral)
+	}
 	if this.isAssignmentToPrototype(objectLiteral.getParent()) {
 		this.traversePrototypeLiteral(objectLiteral, scope)
 	} else if this.isObjectDefinePropertiesSecondArgument(objectLiteral) {
@@ -700,7 +708,9 @@ func (this *RemoveUnusedCode) isNameDotPrototype(n Node) bool {
 }
 
 func (this *RemoveUnusedCode) traverseObjectPattern(pattern Node, scope *Scope) {
-	Preconditions_checkState_boolean_Object_H(pattern.isObjectPattern(), pattern)
+	if !pattern.isObjectPattern() {
+		Preconditions_checkState_boolean_Object_H(false, pattern)
+	}
 	{
 		var elem Node = pattern.getFirstChild()
 		for ; elem != 0; elem = elem.getNext() {
@@ -722,7 +732,9 @@ func (this *RemoveUnusedCode) traverseObjectPattern(pattern Node, scope *Scope) 
 }
 
 func (this *RemoveUnusedCode) traverseIndirectAssignmentList(list Node, scope *Scope) {
-	Preconditions_checkState_boolean_Object_H((list.isArrayPattern() || list.isParamList()), list)
+	if !(list.isArrayPattern() || list.isParamList()) {
+		Preconditions_checkState_boolean_Object_H(false, list)
+	}
 	{
 		var elem Node = list.getFirstChild()
 		for ; elem != 0; elem = elem.getNext() {
@@ -741,7 +753,9 @@ func (this *RemoveUnusedCode) traverseIndirectAssignmentList(list Node, scope *S
 
 func (this *RemoveUnusedCode) traverseIndirectAssignment(root Node, target Node, scope *Scope) {
 	var rootParent Node = root.getParent()
-	Preconditions_checkArgument_boolean_Object_H((rootParent.isDestructuringPattern() || rootParent.isParamList()), rootParent)
+	if !(rootParent.isDestructuringPattern() || rootParent.isParamList()) {
+		Preconditions_checkArgument_boolean_Object_H(false, rootParent)
+	}
 	if target.isDefaultValue() {
 		target = target.getFirstChild()
 	}
@@ -826,7 +840,9 @@ func (this *RemoveUnusedCode) traverseClassExpression(classNode Node, scope *Sco
 }
 
 func (this *RemoveUnusedCode) traverseClassMembers(node Node, scope *Scope) {
-	Preconditions_checkArgument_boolean_Object_H(node.isClassMembers(), node)
+	if !node.isClassMembers() {
+		Preconditions_checkArgument_boolean_Object_H(false, node)
+	}
 	if !this.removeUnusedPrototypeProperties_ {
 		this.traverseChildren(node, scope)
 		return
@@ -856,11 +872,17 @@ func (this *RemoveUnusedCode) traverseClassMembers(node Node, scope *Scope) {
 }
 
 func (this *RemoveUnusedCode) traverseFunction(function Node, parentScope *Scope) {
-	Preconditions_checkState_boolean_Object_H(function.hasXChildren(3), function)
-	Preconditions_checkState_boolean_Object_H(function.isFunction(), function)
+	if !function.hasXChildren(3) {
+		Preconditions_checkState_boolean_Object_H(false, function)
+	}
+	if !function.isFunction() {
+		Preconditions_checkState_boolean_Object_H(false, function)
+	}
 	var paramlist Node = NodeUtil_getFunctionParameters(function)
 	var body Node = function.getLastChild()
-	Preconditions_checkState_boolean_Object_H(((body.getNext() == 0) && body.isBlock()), body)
+	if !((body.getNext() == 0) && body.isBlock()) {
+		Preconditions_checkState_boolean_Object_H(false, body)
+	}
 	var fparamScope *Scope = this.scopeCreator.createScope(function, parentScope)
 	var fbodyScope *Scope = this.scopeCreator.createScope(body, fparamScope)
 	var nameNode Node = function.getFirstChild()
@@ -922,7 +944,9 @@ func (this *RemoveUnusedCode) considerForIndependentRemoval(removable *RemoveUnu
 }
 
 func (this *RemoveUnusedCode) considerForAccessorSideEffects(getprop Node, usage *AccessorSummary_PropertyAccessKind) bool {
-	Preconditions_checkState_boolean_Object_H(NodeUtil_isNormalOrOptChainGetProp(getprop), getprop)
+	if !NodeUtil_isNormalOrOptChainGetProp(getprop) {
+		Preconditions_checkState_boolean_Object_H(false, getprop)
+	}
 	var propName string = getprop.getString()
 	var recorded *AccessorSummary_PropertyAccessKind = this.compiler_.getAccessorSummary().getKind(propName)
 	if ((recorded.hasGetter() && usage.hasGetter()) && !this.assumeGettersArePure_) || (recorded.hasSetter() && usage.hasSetter()) {
@@ -948,7 +972,9 @@ func (this *RemoveUnusedCode) isIndependentlyRemovable(removable *RemoveUnusedCo
 }
 
 func (this *RemoveUnusedCode) markUnusedParameters(paramList Node, fparamScope *Scope) {
-	Preconditions_checkArgument_boolean_Object_H(paramList.isParamList(), paramList)
+	if !paramList.isParamList() {
+		Preconditions_checkArgument_boolean_Object_H(false, paramList)
+	}
 	{
 		var param Node = paramList.getFirstChild()
 		for ; param != 0; param = param.getNext() {
@@ -970,7 +996,9 @@ func (this *RemoveUnusedCode) markUnusedParameters(paramList Node, fparamScope *
 }
 
 func (this *RemoveUnusedCode) maybeRemoveUnusedTrailingParameters(argList Node, fparamScope *Scope) {
-	Preconditions_checkArgument_boolean_Object_H(argList.isParamList(), argList)
+	if !argList.isParamList() {
+		Preconditions_checkArgument_boolean_Object_H(false, argList)
+	}
 	var lastArg Node
 	for {
 		lastArg = argList.getLastChild()
@@ -1107,7 +1135,9 @@ func (this *RemoveUnusedCode) removeUnreferencedVarsAndPolyfills() {
 				fnNameNode.setString("")
 			}
 		} else {
-			Preconditions_checkState_boolean_String_Object_H((toRemove.isParamList() || (toRemove.getParent().isParamList() && (toRemove.isDefaultValue() || toRemove.isRest()))), "unremoved code: %s", toRemove)
+			if !(toRemove.isParamList() || (toRemove.getParent().isParamList() && (toRemove.isDefaultValue() || toRemove.isRest()))) {
+				Preconditions_checkState_boolean_String_Object_H(false, "unremoved code: %s", toRemove)
+			}
 		}
 	}
 	var iter IteratorOf[*RemoveUnusedCode_PolyfillInfo] = this.polyfills.values().iterator()
@@ -1187,7 +1217,9 @@ func (this *RemoveUnusedCode) createPolyfillInfo(call Node, scope *Scope, name s
 }
 
 func (this *RemoveUnusedCode) removeExpressionCompletely(expression Node) {
-	Preconditions_checkState_boolean_Object_H(!NodeUtil_isExpressionResultUsed(expression), expression)
+	if NodeUtil_isExpressionResultUsed(expression) {
+		Preconditions_checkState_boolean_Object_H(false, expression)
+	}
 	var parent Node = expression.getParent()
 	if parent.isExprResult() {
 		NodeUtil_deleteNode(parent, this.compiler_)
@@ -1666,7 +1698,9 @@ func (this *RemoveUnusedCode_RemovableBuilder) buildNamedClassExpression(classNo
 }
 
 func (this *RemoveUnusedCode_RemovableBuilder) buildClassOrPrototypeNamedProperty(propertyNode Node) *RemoveUnusedCode_ClassOrPrototypeNamedProperty {
-	Preconditions_checkArgument_boolean_Object_H((((propertyNode.isMemberFunctionDef() || propertyNode.isMemberFieldDef()) || NodeUtil_isGetOrSetKey(propertyNode)) || (propertyNode.isStringKey() && !propertyNode.isQuotedStringKey())), propertyNode)
+	if !(((propertyNode.isMemberFunctionDef() || propertyNode.isMemberFieldDef()) || NodeUtil_isGetOrSetKey(propertyNode)) || (propertyNode.isStringKey() && !propertyNode.isQuotedStringKey())) {
+		Preconditions_checkArgument_boolean_Object_H(false, propertyNode)
+	}
 	this.propertyName_ = Optional_of[string](propertyNode.getString())
 	return new_RemoveUnusedCode_ClassOrPrototypeNamedProperty(this.outer_, this, propertyNode)
 }
@@ -1752,7 +1786,9 @@ func (this *RemoveUnusedCode_UnusedReadReference) up_RemoveUnusedCode_Removable(
 func (this *RemoveUnusedCode_UnusedReadReference) init_RemoveUnusedCode_UnusedReadReference(builder *RemoveUnusedCode_RemovableBuilder, referenceNode Node) {
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(0, builder)
-	Preconditions_checkState_boolean_Object_H((RemoveUnusedCode_isThisDotProperty(referenceNode) || RemoveUnusedCode_isDotPrototypeDotProperty(referenceNode)), referenceNode)
+	if !(RemoveUnusedCode_isThisDotProperty(referenceNode) || RemoveUnusedCode_isDotPrototypeDotProperty(referenceNode)) {
+		Preconditions_checkState_boolean_Object_H(false, referenceNode)
+	}
 	this.referenceNode = referenceNode
 }
 
@@ -1769,7 +1805,9 @@ func (this *RemoveUnusedCode_UnusedReadReference) removeInternal_impl(compiler *
 		if RemoveUnusedCode_isThisDotProperty(this.referenceNode) {
 			this.outer_.removeExpressionCompletely(this.referenceNode)
 		} else {
-			Preconditions_checkState_boolean_Object_H(RemoveUnusedCode_isDotPrototypeDotProperty(this.referenceNode), this.referenceNode)
+			if !RemoveUnusedCode_isDotPrototypeDotProperty(this.referenceNode) {
+				Preconditions_checkState_boolean_Object_H(false, this.referenceNode)
+			}
 			var objExpression Node = this.referenceNode.getFirstFirstChild()
 			if this.outer_.mayHaveSideEffects(objExpression) {
 				this.outer_.replaceNodeWith(this.referenceNode, objExpression.detach())
@@ -1800,7 +1838,9 @@ func (this *RemoveUnusedCode_InstanceofName) up_RemoveUnusedCode_Removable() *Re
 func (this *RemoveUnusedCode_InstanceofName) init_RemoveUnusedCode_InstanceofName(builder *RemoveUnusedCode_RemovableBuilder, instanceofNode Node) {
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(0, builder)
-	Preconditions_checkArgument_boolean_Object_H(instanceofNode.isInstanceOf(), instanceofNode)
+	if !instanceofNode.isInstanceOf() {
+		Preconditions_checkArgument_boolean_Object_H(false, instanceofNode)
+	}
 	this.instanceofNode = instanceofNode
 }
 
@@ -1848,7 +1888,9 @@ func (this *RemoveUnusedCode_WeakUsageCall) up_RemoveUnusedCode_Removable() *Rem
 func (this *RemoveUnusedCode_WeakUsageCall) init_RemoveUnusedCode_WeakUsageCall(builder *RemoveUnusedCode_RemovableBuilder, weakCallNode Node) {
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(0, builder)
-	Preconditions_checkArgument_boolean_Object_H(weakCallNode.isCall(), weakCallNode)
+	if !weakCallNode.isCall() {
+		Preconditions_checkArgument_boolean_Object_H(false, weakCallNode)
+	}
 	this.weakCallNode = weakCallNode
 }
 
@@ -1888,9 +1930,13 @@ func (this *RemoveUnusedCode_IncOrDecOp) up_RemoveUnusedCode_Removable() *Remove
 func (this *RemoveUnusedCode_IncOrDecOp) init_RemoveUnusedCode_IncOrDecOp(builder *RemoveUnusedCode_RemovableBuilder, incOrDecNode Node, toPreserve Node) {
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(incOrDecNode.getOnlyChild(), builder)
-	Preconditions_checkArgument_boolean_Object_H((incOrDecNode.isInc() || incOrDecNode.isDec()), incOrDecNode)
+	if !(incOrDecNode.isInc() || incOrDecNode.isDec()) {
+		Preconditions_checkArgument_boolean_Object_H(false, incOrDecNode)
+	}
 	var arg Node = incOrDecNode.getOnlyChild()
-	Preconditions_checkState_boolean_Object_H((RemoveUnusedCode_isThisDotProperty(arg) || RemoveUnusedCode_isDotPrototypeDotProperty(arg)), arg)
+	if !(RemoveUnusedCode_isThisDotProperty(arg) || RemoveUnusedCode_isDotPrototypeDotProperty(arg)) {
+		Preconditions_checkState_boolean_Object_H(false, arg)
+	}
 	this.incOrDecNode = incOrDecNode
 	this.toPreserve = toPreserve
 }
@@ -1908,7 +1954,9 @@ func (this *RemoveUnusedCode_IncOrDecOp) removeInternal_impl(compiler *AbstractC
 		return
 	}
 	var arg Node = this.incOrDecNode.getOnlyChild()
-	Preconditions_checkState_boolean_Object_H(arg.isGetProp(), arg)
+	if !arg.isGetProp() {
+		Preconditions_checkState_boolean_Object_H(false, arg)
+	}
 	if this.toPreserve == 0 {
 		this.outer_.removeExpressionCompletely(this.incOrDecNode)
 	} else {
@@ -1937,8 +1985,12 @@ func (this *RemoveUnusedCode_IndirectAssign) init_RemoveUnusedCode_IndirectAssig
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(targetNode, builder)
 	var rootParent Node = root.getParent()
-	Preconditions_checkState_boolean_Object_H((rootParent.isDestructuringPattern() || rootParent.isParamList()), rootParent)
-	Preconditions_checkState_boolean_Object_H((targetNode.isName() || targetNode.isGetProp()), targetNode)
+	if !(rootParent.isDestructuringPattern() || rootParent.isParamList()) {
+		Preconditions_checkState_boolean_Object_H(false, rootParent)
+	}
+	if !(targetNode.isName() || targetNode.isGetProp()) {
+		Preconditions_checkState_boolean_Object_H(false, targetNode)
+	}
 	this.root = root
 }
 
@@ -1977,7 +2029,9 @@ func (this *RemoveUnusedCode_IndirectAssign) isNamedPropertyAssignment_impl() bo
 }
 
 func (this *RemoveUnusedCode_IndirectAssign) getPropertyName_impl() string {
-	Preconditions_checkState_boolean_Object_H(this.targetNode.isGetProp(), this.targetNode)
+	if !this.targetNode.isGetProp() {
+		Preconditions_checkState_boolean_Object_H(false, this.targetNode)
+	}
 	return this.targetNode.getString()
 }
 
@@ -2290,7 +2344,9 @@ func (this *RemoveUnusedCode_NameDeclarationStatement) up_RemoveUnusedCode_Remov
 func (this *RemoveUnusedCode_NameDeclarationStatement) init_RemoveUnusedCode_NameDeclarationStatement(builder *RemoveUnusedCode_RemovableBuilder, declarationStatement Node) {
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(declarationStatement.getOnlyChild(), builder)
-	Preconditions_checkArgument_boolean_Object_H(NodeUtil_isNameDeclaration(declarationStatement), declarationStatement)
+	if !NodeUtil_isNameDeclaration(declarationStatement) {
+		Preconditions_checkArgument_boolean_Object_H(false, declarationStatement)
+	}
 	this.declarationStatement = declarationStatement
 }
 
@@ -2420,14 +2476,22 @@ func (this *RemoveUnusedCode_Assign) up_RemoveUnusedCode_Removable() *RemoveUnus
 func (this *RemoveUnusedCode_Assign) init_RemoveUnusedCode_Assign(builder *RemoveUnusedCode_RemovableBuilder, assignNode Node, kind *RemoveUnusedCode_Kind, propertyNode Node, varInfo RemoveUnusedCode_VarInfo) {
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(assignNode.getFirstChild(), builder)
-	Preconditions_checkArgument_boolean_Object_H(NodeUtil_isAssignmentOp(assignNode), assignNode)
+	if !NodeUtil_isAssignmentOp(assignNode) {
+		Preconditions_checkArgument_boolean_Object_H(false, assignNode)
+	}
 	if kind == RemoveUnusedCode_Kind_VARIABLE {
-		Preconditions_checkArgument_boolean_String_Object_H((propertyNode == 0), "got property node for simple variable assignment: %s", propertyNode)
-		Preconditions_checkArgument_boolean_String_Object_H((varInfo != nil), "missing VarInfo for variable assignment: %s", propertyNode)
+		if !(propertyNode == 0) {
+			Preconditions_checkArgument_boolean_String_Object_H(false, "got property node for simple variable assignment: %s", propertyNode)
+		}
+		if !(varInfo != nil) {
+			Preconditions_checkArgument_boolean_String_Object_H(false, "missing VarInfo for variable assignment: %s", propertyNode)
+		}
 	} else {
 		Preconditions_checkArgument_boolean_Object((propertyNode != 0), "missing property node")
 		if kind == RemoveUnusedCode_Kind_NAMED_PROPERTY {
-			Preconditions_checkArgument_boolean_String_Object_H(propertyNode.isGetProp(), "property name is not a GETPROP: %s", propertyNode)
+			if !propertyNode.isGetProp() {
+				Preconditions_checkArgument_boolean_String_Object_H(false, "property name is not a GETPROP: %s", propertyNode)
+			}
 		}
 	}
 	this.assignNode = assignNode
@@ -2529,7 +2593,9 @@ func (this *RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign) init_RemoveU
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(assignNode.getFirstChild(), builder)
 	Preconditions_checkState(builder.propertyName_.isPresent())
-	Preconditions_checkArgument_boolean_Object_H(assignNode.isAssign(), assignNode)
+	if !assignNode.isAssign() {
+		Preconditions_checkArgument_boolean_Object_H(false, assignNode)
+	}
 	this.assignNode = assignNode
 }
 
@@ -2549,11 +2615,17 @@ func (this *RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign) removeIntern
 	compiler.reportChangeToEnclosingScope(parent)
 	var lhs Node = this.assignNode.getFirstChild()
 	var rhs Node = this.assignNode.getLastChild()
-	Preconditions_checkState_boolean_Object_H(lhs.isGetProp(), lhs)
+	if !lhs.isGetProp() {
+		Preconditions_checkState_boolean_Object_H(false, lhs)
+	}
 	var objDotPrototype Node = lhs.getFirstChild()
-	Preconditions_checkState_boolean_Object_H(objDotPrototype.isGetProp(), objDotPrototype)
+	if !objDotPrototype.isGetProp() {
+		Preconditions_checkState_boolean_Object_H(false, objDotPrototype)
+	}
 	var objExpression Node = objDotPrototype.getFirstChild()
-	Preconditions_checkState_boolean_Object_H((objDotPrototype.getString() == "prototype"), objDotPrototype)
+	if !(objDotPrototype.getString() == "prototype") {
+		Preconditions_checkState_boolean_Object_H(false, objDotPrototype)
+	}
 	var mustPreserveRhs bool = (this.outer_.mayHaveSideEffects(rhs) || NodeUtil_isExpressionResultUsed(this.assignNode))
 	var mustPreserveObjExpression bool = this.outer_.mayHaveSideEffects(objExpression)
 	if mustPreserveRhs && mustPreserveObjExpression {
