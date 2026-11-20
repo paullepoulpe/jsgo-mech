@@ -2397,7 +2397,7 @@ func (this *Compiler) getSourceMapping_Optional_int_int_impl(sourceName Optional
 			this.resolvedSourceMap.relativePath = relativePath
 		}
 	}
-	return cast_[*Mapping_OriginalMapping](result.toBuilder().(*Mapping_OriginalMapping_Builder).setOriginalFile(relativePath).setColumnPosition((result.getColumnPosition() - 1)).build())
+	return result.toBuilder().(*Mapping_OriginalMapping_Builder).setOriginalFile(relativePath).setColumnPosition((result.getColumnPosition() - 1)).buildT_()
 }
 
 func (this *Compiler) getSourceLine_impl(sourceName Optional[string], lineNumber int32) Optional[string] {
@@ -2820,7 +2820,7 @@ func Compiler_toVariableMapEntries(map_ *VariableMap) *TList[*VariableMapEntryPr
 		m := map_.getOriginalNameToNewNameMap()
 		for i, entryKey := range m.keys {
 			entryValue := m.vals[i]
-			entries.add(cast_[*VariableMapEntryProto](VariableMapEntryProto_newBuilder().setOriginalName(entryKey).setNewName(entryValue).build()))
+			entries.add(VariableMapEntryProto_newBuilder().setOriginalName(entryKey).setNewName(entryValue).buildT_())
 		}
 	}
 	return entries
@@ -2893,7 +2893,7 @@ func (this *Compiler) getCompilerStateProtoBuilder() *JSCompilerStateProto_Build
 			input := cast_[*CompilerInput](el)
 			chunkBuilder.addInputIds(input.getInputId().getIdName())
 		}
-		builder.addChunks(cast_[*ChunkProto](chunkBuilder.build()))
+		builder.addChunks(chunkBuilder.buildT_())
 	}
 	builder.setUniqueNameId(this.uniqueNameId).addAllUniqueIdSupplier(Iterable(this.uniqueIdSupplier.toProto().asList())).addAllExportedNames(Iterable(this.exportedNames.asSet()))
 	builder.setHasCssNames((this.cssNames != nil))
@@ -2986,7 +2986,7 @@ func (this *Compiler) restoreFromState(compilerState *JSCompilerStateProto) {
 func (this *Compiler) saveState() []int8 {
 	return cast_[[]int8](this.runInCompilerThread((&Callable_tfn_s_int8{func() []int8 {
 		var tracer *Tracer = this.newTracer("serializeCompilerState")
-		var stateProto *JSCompilerStateProto = cast_[*JSCompilerStateProto](this.getCompilerStateProtoBuilder().build())
+		var stateProto *JSCompilerStateProto = this.getCompilerStateProtoBuilder().buildT_()
 		this.stopTracer(tracer, "serializeCompilerState")
 		tracer = this.newTracer("serializeTypedAst")
 		var typedAstList ListOf[[]int8] = new_ArrayList_0()

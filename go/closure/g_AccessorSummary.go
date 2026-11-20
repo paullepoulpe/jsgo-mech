@@ -47,10 +47,10 @@ func (this *AccessorSummary) toProto() *AccessorSummaryProto {
 		it_1 := this.accessors.eachEntry()
 		for it_1.next() {
 			var entry *TEntry[string, AccessorSummary_PropertyAccessKind] = it_1.entry()
-			builder.addAccessors(cast_[*AccessorSummaryEntryProto](AccessorSummaryEntryProto_newBuilder().setName(entry.getKey()).setKind(AccessorSummary_toProto(entry.getValue())).build()))
+			builder.addAccessors(AccessorSummaryEntryProto_newBuilder().setName(entry.getKey()).setKind(AccessorSummary_toProto(entry.getValue())).buildT_())
 		}
 	}
-	return cast_[*AccessorSummaryProto](builder.build())
+	return builder.buildT_()
 }
 
 func AccessorSummary_toProto(kind AccessorSummary_PropertyAccessKind) PropertyAccessKindProto {
