@@ -31,7 +31,7 @@ func (this *AmbiguateProperties) init_AmbiguateProperties(compiler *AbstractComp
 	this.compiler_ = compiler
 	this.reservedFirstCharacters = reservedFirstCharacters
 	this.reservedNonFirstCharacters = reservedNonFirstCharacters
-	this.externedNames = tsetImm_(jtc_string, ImmutableSet_builder().add("prototype").addAll(Iterable(externProperties.asSet())).build())
+	this.externedNames = tsetImm_(jtc_string, immutableSetBuilder_(tc_string).add("prototype").addAll(Iterable(externProperties.asSet())).buildErased())
 	this.colorRegistry = compiler.getColorRegistry()
 }
 

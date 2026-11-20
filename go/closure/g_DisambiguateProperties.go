@@ -89,7 +89,7 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 	}
 	this.compiler_.reportDisambiguatePropertiesSummary((&Supplier_tfn_string{func() string { return trackerSummaryGenerator.buildSummaryString() }}).get)
 	this.logForDiagnostics("renaming_index", &Supplier_base_fn{func() any {
-		return obj_(DisambiguateProperties_buildRenamingIndex(propIndex, renamer))
+		return obj_(DisambiguateProperties_buildRenamingIndex(propIndex, renamer).asImm())
 	}})
 	this.logForDiagnostics("mismatches", func() *Supplier_base_fn {
 		recv_9 := this.registry.getMismatchLocationsForDebugging()
@@ -103,7 +103,7 @@ func (this *DisambiguateProperties) createInvalidationError(prop *PropertyCluste
 	return JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_empty[string](), -1, -1, DisambiguateProperties_PROPERTY_INVALIDATION, []string{prop.getName(), additionalContext})
 }
 
-func DisambiguateProperties_buildRenamingIndex(props *JTMap[string, *PropertyClustering], renamer *UseSiteRenamer) ImmutableMapOf[string, any] {
+func DisambiguateProperties_buildRenamingIndex(props *JTMap[string, *PropertyClustering], renamer *UseSiteRenamer) *ImmutableMap[string, any] {
 	var newNames *SimpleSetMultimap[any, string] = renamer.getRenamingIndex()
 	var result ImmutableSortedMap_BuilderOf[string, any] = ImmutableSortedMap_naturalOrder()
 	it_1 := props.eachValue()
@@ -116,7 +116,7 @@ func DisambiguateProperties_buildRenamingIndex(props *JTMap[string, *PropertyClu
 			return obj_(ImmutableSortedSet_copyOf(Collection(newNames.get_s(prop.getName()))))
 		}())
 	}
-	return result.buildOrThrow()
+	return tmapFrom_(tc_string, tc_any, result.buildOrThrow(), true)
 }
 
 func DisambiguateProperties_invalidateWellKnownProperties(propIndex *JTMap[string, *PropertyClustering]) {

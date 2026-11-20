@@ -1045,11 +1045,11 @@ func ImmutableSet_as_Collection(v *ErasedImmutableSet) Collection {
 	return v
 }
 
-func ImmutableSet_as_Iterable(v *ErasedImmutableSet) Iterable {
+func ImmutableSet_as_Iterable(v *ImmutableSet[string]) Iterable {
 	if v == nil {
 		return nil
 	}
-	return v
+	return v.asImm()
 }
 
 func ImmutableSet_as_Set(v *ErasedImmutableSet) Set {

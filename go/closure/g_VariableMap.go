@@ -24,8 +24,8 @@ func (this *VariableMap) lookupSourceName(newName Optional[string]) string {
 	return str_(Map_get_s(this.map__.inverse(), newName.orElse(nullstr_)))
 }
 
-func (this *VariableMap) getOriginalNameToNewNameMap() ImmutableMapOf[string, string] {
-	return ImmutableSortedMap_copyOf(this.map__.asMap()).up_ImmutableMap()
+func (this *VariableMap) getOriginalNameToNewNameMap() *ImmutableMap[string, string] {
+	return tmapFrom_(tc_string, tc_string, ImmutableSortedMap_copyOf(this.map__.asMap()).up_ImmutableMap(), true)
 }
 
 func (this *VariableMap) getNewNameToOriginalNameMap() *JTMap[string, string] {
