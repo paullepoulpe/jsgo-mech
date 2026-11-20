@@ -159,7 +159,7 @@ func SimpleDependencyInfo_Builder_from(copy_ DependencyInfo_) *SimpleDependencyI
 
 func (this *SimpleDependencyInfo_Builder) setName(name Optional[string]) *SimpleDependencyInfo_Builder {
 	if name.isEmpty() {
-		panic(new_NullPointerException_String("Null name").self())
+		panic(new_NullPointerException_String("Null name"))
 	}
 	this.name_ = name
 	return this
@@ -250,7 +250,7 @@ func (this *SimpleDependencyInfo_Builder) build() *SimpleDependencyInfo {
 		if (int32(this.set0) & 2) == 0 {
 			missing.append(" hasNoCompileAnnotation")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))))
 	}
 	return new_SimpleDependencyInfo(this.name_.get(), this.pathRelativeToClosureBase.get(), this.provides, this.requires, this.typeRequires, this.loadFlags_, this.hasExternsAnnotation, this.hasNoCompileAnnotation)
 }

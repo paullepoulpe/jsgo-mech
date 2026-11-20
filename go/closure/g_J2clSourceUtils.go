@@ -23,7 +23,7 @@ func J2clSourceUtils_isJ2clSourceString(sourceFileName Optional[string]) bool {
 
 func J2clSourceUtils_isJ2clSource(scriptNode Node) bool {
 	if !scriptNode.isScript() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	return J2clSourceUtils_isJ2clSourceString(Optional_of[string](scriptNode.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
 		return s != ""

@@ -208,7 +208,7 @@ func (this ProcessTweaks_TweakFunction) createDefaultValueNode() Node {
 		case ProcessTweaks_TweakFunction_REGISTER_STRING:
 			return IR_string("")
 		default:
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	}()
 }
@@ -432,7 +432,7 @@ func (this *ProcessTweaks_TweakInfo) isRegistered() bool {
 
 func (this *ProcessTweaks_TweakInfo) getDefaultValueNode() Node {
 	if !this.isRegistered() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if this.defaultValueNode != 0 {
 		return this.defaultValueNode

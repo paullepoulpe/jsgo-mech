@@ -70,7 +70,7 @@ func (this *AllType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 }
 
 func (this *AllType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSType {
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 func (this *AllType) recursionUnsafeHashCode_impl() int32 {

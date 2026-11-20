@@ -115,7 +115,7 @@ func Tracer_clearTracingStatisticsTestingOnly() {
 
 func (this *Tracer) stop_1(silenceThreshold int32) int64 {
 	if Thread_currentThread() != this.startThread {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var trace *Tracer_ThreadTrace = Tracer_getThreadTrace()
 	if !trace.isInitialized() {
@@ -437,7 +437,7 @@ func (this *Tracer_ThreadTrace) startEvent(t *Tracer) {
 	this.events.add(new_Tracer_Event(true, t))
 	var notAlreadyOutstanding bool = this.outstandingEvents.add(t)
 	if !notAlreadyOutstanding {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 }
 
@@ -447,7 +447,7 @@ func (this *Tracer_ThreadTrace) endEvent(t *Tracer, silenceThreshold int32) {
 		if this.isOutstandingEventsTruncated {
 			Tracer_logger.log(Level_WARNING, "event not found, probably because the event stack overflowed and was truncated", new_Throwable_0())
 		} else {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	}
 	var elapsed int64 = (t.stopTimeMs - t.startTimeMs)
@@ -460,7 +460,7 @@ func (this *Tracer_ThreadTrace) endEvent(t *Tracer, silenceThreshold int32) {
 			var e *Tracer_Event = this.events.get(i)
 			if e.tracer == t {
 				if !e.isStart {
-					panic(new_IllegalStateException_0().self())
+					panic(new_IllegalStateException_0())
 				}
 				this.events.removeAt(i)
 				removed = true
@@ -468,7 +468,7 @@ func (this *Tracer_ThreadTrace) endEvent(t *Tracer, silenceThreshold int32) {
 			}
 		}
 		if !removed && !this.isEventsTruncated {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	} else {
 		this.events.add(new_Tracer_Event(false, t))

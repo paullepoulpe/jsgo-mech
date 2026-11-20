@@ -347,7 +347,7 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 		if (tokens.size() == 1) && tokens.get(0) == "" {
 			continue
 		} else if tokens.size() < 3 {
-			panic(new_IllegalArgumentException_String(("Invalid table: too few tokens on line: " + sstr_(line))).self())
+			panic(new_IllegalArgumentException_String(("Invalid table: too few tokens on line: " + sstr_(line))))
 		}
 		var symbol string = tokens.get(0)
 		var isPrototypeMethod bool = JString_contains_s(symbol, ".prototype.")

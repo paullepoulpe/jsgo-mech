@@ -70,7 +70,7 @@ func new_RemoveUnusedCode(builder *RemoveUnusedCode_Builder) *RemoveUnusedCode {
 
 func (this *RemoveUnusedCode) process_2(externs Node, root Node) {
 	if !this.compiler_.getLifeCycleStage().isNormalized() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.pinnedPropertyNames.asSet().addAll(Collection(this.compiler_.getExternProperties().asSet()))
 	_ = func() (code_ int) {
@@ -177,21 +177,21 @@ func (this *RemoveUnusedCode) traverseNode(n Node, scope *Scope) {
 		this.traverseEnhancedFor(n, scope)
 	case Token_rhino_LET, Token_rhino_CONST, Token_rhino_VAR:
 		if !NodeUtil_isStatement(n) {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		this.traverseDeclarationStatement(n, scope)
 	case Token_rhino_INSTANCEOF:
 		this.traverseInstanceof(n, scope)
 	case Token_rhino_NAME:
 		if n.hasChildren() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		if !parent.isParamList() {
 			if NodeUtil_isNameDeclaration(parent) {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			if (parent.isFunction() || parent.isClass()) && (parent.getFirstChild() == n) {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			this.traverseNameNode(n, scope).setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
 				return ("reference found: " + sstr_(n.getLocation()))
@@ -542,10 +542,10 @@ func (this *RemoveUnusedCode) traverseEnhancedFor(enhancedFor Node, scope *Scope
 			this.traverseNode(declNode, forScope)
 		} else {
 			if !declNode.isName() {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			if declNode.hasChildren() {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			var varInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(declNode, forScope)
 			varInfo.setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
@@ -625,7 +625,7 @@ func (this *RemoveUnusedCode) traverseDeclarationStatement(declarationStatement 
 
 func (this *RemoveUnusedCode) traverseAssign(assignNode Node, scope *Scope) {
 	if !NodeUtil_isAssignmentOp(assignNode) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var lhs Node = assignNode.getFirstChild()
 	var valueNode Node = assignNode.getLastChild()
@@ -734,7 +734,7 @@ func (this *RemoveUnusedCode) traverseObjectPattern(pattern Node, scope *Scope) 
 			case tokOrd1_ITER_REST, tokOrd1_OBJECT_REST:
 				this.traverseIndirectAssignment(elem, elem.getOnlyChild(), scope)
 			default:
-				panic(new_IllegalStateException_String(("Unexpected child of " + jtostr_(pattern.getToken()) + ": " + sstr_(elem.toStringTree()))).self())
+				panic(new_IllegalStateException_String(("Unexpected child of " + jtostr_(pattern.getToken()) + ": " + sstr_(elem.toStringTree()))))
 			}
 		}
 	}
@@ -754,7 +754,7 @@ func (this *RemoveUnusedCode) traverseIndirectAssignmentList(list Node, scope *S
 			case tokOrd1_ITER_REST, tokOrd1_OBJECT_REST:
 				this.traverseIndirectAssignment(elem, elem.getOnlyChild(), scope)
 			default:
-				panic(new_IllegalStateException_String(("Unexpected child of " + jtostr_(list.getToken()) + ": " + sstr_(elem.toStringTree()))).self())
+				panic(new_IllegalStateException_String(("Unexpected child of " + jtostr_(list.getToken()) + ": " + sstr_(elem.toStringTree()))))
 			}
 		}
 	}
@@ -795,7 +795,7 @@ func (this *RemoveUnusedCode) traverseChildren(n Node, scope *Scope) {
 
 func (this *RemoveUnusedCode) traverseClass(classNode Node, scope *Scope) {
 	if !classNode.isClass() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if NodeUtil_isClassDeclaration(classNode) {
 		this.traverseClassDeclaration(classNode, scope)
@@ -806,7 +806,7 @@ func (this *RemoveUnusedCode) traverseClass(classNode Node, scope *Scope) {
 
 func (this *RemoveUnusedCode) traverseClassDeclaration(classNode Node, scope *Scope) {
 	if !classNode.isClass() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var classNameNode Node = classNode.getFirstChild()
 	var baseClassExpression Node = classNameNode.getNext()
@@ -839,7 +839,7 @@ func (this *RemoveUnusedCode) traverseClassDeclaration(classNode Node, scope *Sc
 
 func (this *RemoveUnusedCode) traverseClassExpression(classNode Node, scope *Scope) {
 	if !classNode.isClass() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var classNameNode Node = classNode.getFirstChild()
 	var baseClassExpression Node = classNameNode.getNext()
@@ -880,7 +880,7 @@ func (this *RemoveUnusedCode) traverseClassMembers(node Node, scope *Scope) {
 			case tokOrd1_BLOCK:
 				this.traverseChildren(member, this.scopeCreator.createScope(member, scope))
 			default:
-				panic(new_IllegalStateException_String(("Unexpected child of CLASS_MEMBERS: " + sstr_(member.toStringTree()))).self())
+				panic(new_IllegalStateException_String(("Unexpected child of CLASS_MEMBERS: " + sstr_(member.toStringTree()))))
 			}
 		}
 	}
@@ -914,7 +914,7 @@ func (this *RemoveUnusedCode) traverseFunction(function Node, parentScope *Scope
 
 func (this *RemoveUnusedCode) canRemoveParameters(parameterList Node) bool {
 	if !parameterList.isParamList() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var function Node = parameterList.getParent()
 	return (this.removeGlobals_ && !NodeUtil_isGetOrSetKey(function.getParent()))
@@ -926,7 +926,7 @@ func (this *RemoveUnusedCode) removeUnreferencedFunctionArgs(fparamScope *Scope)
 	}
 	var function Node = fparamScope.getRootNode()
 	if !function.isFunction() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if NodeUtil_isGetOrSetKey(function.getParent()) {
 		return
@@ -1085,7 +1085,7 @@ func RemoveUnusedCode_nameOfParam(param Node) Node {
 		case tokOrd1_ARRAY_PATTERN, tokOrd1_OBJECT_PATTERN:
 			return 0
 		default:
-			panic(new_IllegalStateException_String(("Unexpected child of PARAM_LIST: " + sstr_(param.toStringTree()))).self())
+			panic(new_IllegalStateException_String(("Unexpected child of PARAM_LIST: " + sstr_(param.toStringTree()))))
 		}
 	}()
 }
@@ -1208,7 +1208,7 @@ func RemoveUnusedCode_alreadyRemoved(n Node) bool {
 
 func (this *RemoveUnusedCode) createPolyfillInfo(call Node, scope *Scope, name string) *RemoveUnusedCode_PolyfillInfo {
 	if !call.getParent().isExprResult() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var builder *RemoveUnusedCode_RemovableBuilder = new_RemoveUnusedCode_RemovableBuilder(this)
 	{
@@ -1368,11 +1368,11 @@ func (this *RemoveUnusedCode_RemovalLogRecord) zero_RemoveUnusedCode_RemovalLogR
 func (this *RemoveUnusedCode_RemovalLogRecord) init_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind string, nameSupplier func() any, functionNameSupplier SupplierOf[string]) {
 	this.kind_ = kind
 	if nameSupplier == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.nameSupplier = nameSupplier
 	if functionNameSupplier == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.functionNameSupplier = functionNameSupplier
 }
@@ -2076,7 +2076,7 @@ func (this *RemoveUnusedCode_IndirectAssign) removeRoot() {
 		this.outer_.compiler_.reportChangeToEnclosingScope(rootParent)
 		var name Node = this.root.getFirstChild()
 		if !name.isName() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		if ((this.root == rootParent.getLastChild()) && this.outer_.removeGlobals_) && this.outer_.canRemoveParameters(rootParent) {
 			this.root.detach()
@@ -2087,7 +2087,7 @@ func (this *RemoveUnusedCode_IndirectAssign) removeRoot() {
 	case tokOrd1_OBJECT_PATTERN:
 		NodeUtil_deleteNode(this.root, this.outer_.compiler_)
 	default:
-		panic(new_IllegalStateException_String(("Unexpected parent of indirect assignment: " + sstr_(rootParent.toStringTree()))).self())
+		panic(new_IllegalStateException_String(("Unexpected parent of indirect assignment: " + sstr_(rootParent.toStringTree()))))
 	}
 }
 
@@ -2520,7 +2520,7 @@ func (this *RemoveUnusedCode_Assign) init_RemoveUnusedCode_Assign(builder *Remov
 		}
 	} else {
 		if propertyNode == 0 {
-			panic(new_IllegalArgumentException_String(objstr_("missing property node")).self())
+			panic(new_IllegalArgumentException_String(objstr_("missing property node")))
 		}
 		if kind == RemoveUnusedCode_Kind_NAMED_PROPERTY {
 			if !propertyNode.isGetProp() {
@@ -2625,7 +2625,7 @@ func (this *RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign) init_RemoveU
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(assignNode.getFirstChild(), builder)
 	if !builder.propertyName_.isPresent() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !assignNode.isAssign() {
 		Preconditions_checkArgument_boolean_Object_H(false, assignNode)
@@ -2898,7 +2898,7 @@ func (this *RemoveUnusedCode_RealVarInfo) hasFunctionOrClassLiteralValue() bool 
 
 func (this *RemoveUnusedCode_RealVarInfo) removeAllRemovables() {
 	if !this.isEntirelyRemovable {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	it_1 := this.removables.each()
 	for it_1.next() {

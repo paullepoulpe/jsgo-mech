@@ -29,7 +29,7 @@ func (this *NodeTraversal) init_NodeTraversal(builder *NodeTraversal_Builder) {
 	this.finit_NodeTraversal()
 	this.compiler_ = Preconditions_checkNotNull_T(builder.compiler_)
 	if builder.callback == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.callback = builder.callback
 	var scopedCallback NodeTraversal_ScopedCallback
@@ -135,7 +135,7 @@ func (this *NodeTraversal) traverseRoots(externs Node, root Node) {
 		this.pushScope(scopeRoot)
 		this.traverseBranch(externs, scopeRoot)
 		if root.getParent() != scopeRoot {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		this.traverseBranch(root, scopeRoot)
 		this.popScope()
@@ -163,7 +163,7 @@ func (this *NodeTraversal) formatNodePosition(n Node) string {
 
 func (this *NodeTraversal) traverseWithScope(root Node, s *AbstractScope) {
 	if !s.isGlobal() && !s.isModuleScope() {
-		panic(new_IllegalStateException_String(objstr_(s)).self())
+		panic(new_IllegalStateException_String(objstr_(s)))
 	}
 	_ = func() (code_ int) {
 		defer func() {
@@ -261,7 +261,7 @@ func (this *NodeTraversal) traverseAtScope(s *AbstractScope) {
 		}
 	default:
 		if !s.isGlobal() && !s.isModuleScope() {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Expected global or module scope. Got: (%s)", []any{s})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Expected global or module scope. Got: (%s)", []any{s})))
 		}
 		this.traverseWithScope(n, s)
 	}
@@ -343,7 +343,7 @@ func (this *NodeTraversal) getCurrentNode() Node {
 
 func (this *NodeTraversal) handleScript(n Node, parent Node) {
 	if Platform_isThreadInterrupted() {
-		panic(new_RuntimeException_Throwable(new_InterruptedException_0().up_Throwable()).self())
+		panic(new_RuntimeException_Throwable(new_InterruptedException_0().up_Throwable()))
 	}
 	this.setChangeScope(n)
 	this.currentNode = n
@@ -562,7 +562,7 @@ func (this *NodeTraversal) handleClassMembers(n Node, parent Node) {
 			case tokOrd1_BLOCK, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_VARIABLE_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 				this.traverseBranch(child, n)
 			default:
-				panic(new_IllegalStateException_String(("Invalid class member: " + jtostr_(child.getToken()))).self())
+				panic(new_IllegalStateException_String(("Invalid class member: " + jtostr_(child.getToken()))))
 			}
 			child = next
 		}
@@ -657,7 +657,7 @@ func (this *NodeTraversal) getScopeRoot() Node {
 func (this *NodeTraversal) getScopeDepth() int32 {
 	var depth int32 = this.scopes.size()
 	if depth <= 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return (depth - 1)
 }
@@ -829,7 +829,7 @@ func (this *NodeTraversal) reportCodeChange_1(n Node) {
 
 func (this *NodeTraversal) getCurrentScript() Node {
 	if this.currentScript == 0 {
-		panic(new_UnsupportedOperationException_String("getCurrentScript not supported").self())
+		panic(new_UnsupportedOperationException_String("getCurrentScript not supported"))
 	}
 	return this.currentScript
 }
@@ -847,7 +847,7 @@ func (this *NodeTraversal) getEnclosingScript(n Node) Node {
 
 func (this *NodeTraversal) initTraversal(traversalRoot Node) {
 	if Platform_isThreadInterrupted() {
-		panic(new_RuntimeException_Throwable(new_InterruptedException_0().up_Throwable()).self())
+		panic(new_RuntimeException_Throwable(new_InterruptedException_0().up_Throwable()))
 	}
 	var hoistScopeRoot Node = NodeUtil_getEnclosingHoistScopeRoot(traversalRoot)
 	this.currentHoistScopeRoot = hoistScopeRoot
@@ -1153,7 +1153,7 @@ func (this *NodeTraversal_AbstractCfgCallback) getControlFlowGraph(compiler *Abs
 	var result *ControlFlowGraph[Node]
 	var o any = this.cfgs.peek()
 	if o == nil {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var cfgRoot Node
 	_ = cfgRoot

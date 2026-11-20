@@ -100,7 +100,7 @@ func (this *JsDocInfoParser) addMissingTypeWarning(lineno int32, charno int32) {
 
 func (this *JsDocInfoParser) setLicenseTextMonotonic(x string) {
 	if !this.licenseText.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.licenseText = Optional_of[string](x)
 }
@@ -462,7 +462,7 @@ func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *JT
 					extendedTypes.add(new_JsDocInfoParser_ExtendedTypeInfo(type_, this.stream.getLineno(), this.stream.getCharno()))
 				} else {
 					if annotation != Annotation_parsing_IMPLEMENTS {
-						panic(new_IllegalStateException_0().self())
+						panic(new_IllegalStateException_0())
 					}
 					if !this.jsdocBuilder.recordImplementedInterface(type_) {
 						this.addTypeWarning_3(Msg_JSDOC_IMPLEMENTS_DUPLICATE, lineno, charno)
@@ -1006,7 +1006,7 @@ func (this *JsDocInfoParser) checkExtendedTypes(extendedTypes *JTList[*JsDocInfo
 		if !isInterface && isFromTsickle {
 			var result bool = this.jsdocBuilder.recordBaseType(this.createJSTypeExpression(this.wrapNode(Token_rhino_BANG, this.newStringNode(JsDocInfoParser_TSICKLE_MISSING_TYPE_PLACEHOLDER)).srcrefTree(extendedTypes.get(0).type__.getRoot())))
 			if !result {
-				panic(new_IllegalStateException_String(objstr_("Unexpected failure to record base type")).self())
+				panic(new_IllegalStateException_String(objstr_("Unexpected failure to record base type")))
 			}
 			return
 		}
@@ -1215,7 +1215,7 @@ func (this *JsDocInfoParser) parseAndRecordTypeNameNode(token JsDocToken, lineno
 
 func (this *JsDocInfoParser) parseAndRecordParamTypeNode(token JsDocToken) Node {
 	if token != JsDocToken_LEFT_CURLY {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var lineno int32 = this.stream.getLineno()
 	var startCharno int32 = this.stream.getCharno()
@@ -1264,7 +1264,7 @@ func (this *JsDocInfoParser) toString(token JsDocToken) string {
 		case JsDocToken_STRING:
 			return this.stream.getString()
 		default:
-			panic(new_IllegalStateException_String(tostrR_(token)).self())
+			panic(new_IllegalStateException_String(tostrR_(token)))
 		}
 	}()
 }
@@ -1471,7 +1471,7 @@ func (this *JsDocInfoParser) parseParamTypeExpression(token JsDocToken) Node {
 
 func (this *JsDocInfoParser) parseParamTypeExpressionAnnotation(token JsDocToken) Node {
 	if token != JsDocToken_LEFT_CURLY {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	this.skipEOLs()
 	var typeNode Node = this.parseParamTypeExpression(this.next())
@@ -1806,7 +1806,7 @@ func (this *JsDocInfoParser) parseUnionTypeWithAlternate(token JsDocToken, alter
 			this.skipEOLs()
 			token = this.next()
 			if token != JsDocToken_PIPE {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			this.skipEOLs()
 			token = this.next()

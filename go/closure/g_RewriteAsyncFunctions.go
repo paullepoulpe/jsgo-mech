@@ -13,7 +13,7 @@ func (this *RewriteAsyncFunctions) init_RewriteAsyncFunctions(compiler *Abstract
 	this.compiler_ = Preconditions_checkNotNull_T(compiler)
 	this.astFactory_ = Preconditions_checkNotNull_T(astFactory)
 	if namespace == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.namespace_ = namespace
 	this.contextStack = newTDeque_(jtc_p_RewriteAsyncFunctions_LexicalContext)
@@ -39,7 +39,7 @@ func (this *RewriteAsyncFunctions) process_2(externs Node, root Node) {
 func (this *RewriteAsyncFunctions) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	if parent == 0 {
 		if !this.contextStack.isEmpty() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		var uniqueId string = this.compiler_.getUniqueIdSupplier().getUniqueId(t.getInput())
 		this.contextStack.push(new_RewriteAsyncFunctions_RootContext(this, n, uniqueId).up_RewriteAsyncFunctions_LexicalContext())
@@ -196,7 +196,7 @@ func (this *RewriteAsyncFunctions_SuperPropertyWrappers) getOrCreateSuperPropert
 		superPropertyWrapperInfo = this.propertyNameToTypeMap.get(propertyName)
 		var existingColor *Color = superPropertyWrapperInfo.getPropertyType()
 		if !equals_(existingColor, propertyType) {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Previous reference type: %s differs from current reference type: %s", []any{existingColor, propertyType})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Previous reference type: %s differs from current reference type: %s", []any{existingColor, propertyType})))
 		}
 	} else {
 		superPropertyWrapperInfo = this.createNewInfo(superDotPropertyNode)

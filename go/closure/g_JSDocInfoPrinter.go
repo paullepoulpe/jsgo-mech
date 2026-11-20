@@ -445,7 +445,7 @@ func (this *JSDocInfoPrinter) appendTypeNode(sb *StringBuilder, typeNode Node) {
 			this.appendTypeNode(sb, typeNode.getOnlyChild())
 		}
 	default:
-		panic(new_IllegalStateException_String(("Unexpected typeNode: " + tostrH_(typeNode))).self())
+		panic(new_IllegalStateException_String(("Unexpected typeNode: " + tostrH_(typeNode))))
 	}
 }
 

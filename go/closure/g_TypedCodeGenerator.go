@@ -90,7 +90,7 @@ func (this *TypedCodeGenerator) getTypeAnnotation(node Node) string {
 func (this *TypedCodeGenerator) getFunctionAnnotation(fnNode Node) string {
 	var type_ *JSType = fnNode.getJSType()
 	if !fnNode.isFunction() && !type_.isFunctionType() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if (type_ == nil) || type_.isUnknownType() {
 		return ""
@@ -178,7 +178,7 @@ func (this *TypedCodeGenerator) getClassAnnotation(classType *JSType) string {
 		return ""
 	}
 	if !classType.isFunctionType() {
-		panic(new_IllegalStateException_String(objstr_(classType)).self())
+		panic(new_IllegalStateException_String(objstr_(classType)))
 	}
 	var funType *FunctionType = classType.toMaybeFunctionType()
 	var sb *StringBuilder = new_StringBuilder()
@@ -186,7 +186,7 @@ func (this *TypedCodeGenerator) getClassAnnotation(classType *JSType) string {
 		this.appendInterfaceAnnotations(sb, funType)
 	} else {
 		if !funType.isConstructor() {
-			panic(new_IllegalStateException_String(objstr_(funType)).self())
+			panic(new_IllegalStateException_String(objstr_(funType)))
 		}
 		this.appendClassAnnotations(sb, funType)
 	}

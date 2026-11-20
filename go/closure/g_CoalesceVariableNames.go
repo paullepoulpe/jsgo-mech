@@ -33,7 +33,7 @@ func (this *CoalesceVariableNames) init_CoalesceVariableNames(compiler *Abstract
 	this.NodeTraversal_AbstractCfgCallback.init_NodeTraversal_AbstractCfgCallback()
 	this.finit_CoalesceVariableNames()
 	if !compiler.getLifeCycleStage().isNormalized() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.compiler_ = compiler
 	this.colorings = newTDeque_(tc_p_GraphColoring_p_Var__any_)
@@ -76,7 +76,7 @@ func (this *CoalesceVariableNames) enterScopeWithCfg_impl(t *NodeTraversal) {
 	this.shouldOptimizeScopeStack.push(bool(true))
 	var scope *Scope = t.getScope()
 	if !scope.isFunctionScope() {
-		panic(new_IllegalStateException_String(objstr_(scope)).self())
+		panic(new_IllegalStateException_String(objstr_(scope)))
 	}
 	var cfg *ControlFlowGraph[Node] = this.getControlFlowGraph(this.compiler_)
 	this.liveness = new_LiveVariablesAnalysis(cfg, scope, nil, this.compiler_, MemoizedScopeCreator_as_ScopeCreator(this.scopeCreator), allVarsDeclaredInFunction)
@@ -147,7 +147,7 @@ func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent N
 
 func (this *CoalesceVariableNames) updateDeclarationsPostCoalescing(n Node, coalescedVar *Var, originalVar *Var, parent Node) {
 	if !n.isName() {
-		panic(new_IllegalStateException_String(objstr_("trying to update the declaration of a non-name node")).self())
+		panic(new_IllegalStateException_String(objstr_("trying to update the declaration of a non-name node")))
 	}
 	if NodeUtil_isNameDeclaration(parent) || (((NodeUtil_getEnclosingType(n, Token_rhino_DESTRUCTURING_LHS) != 0) && NodeUtil_isLhsByDestructuring(n)) && !this.isNameInsideDestructuringAssignment(n)) {
 		this.makeDeclarationVar(coalescedVar)
@@ -329,7 +329,7 @@ func (this *CoalesceVariableNames) isUninitializedLetNameInLoopBodyAndLive(nameN
 		return false
 	}
 	if this.liveness == nil {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var letNode Node = nameNode.getParent()
 	var cfg *ControlFlowGraph[Node] = this.liveness.getCfg()

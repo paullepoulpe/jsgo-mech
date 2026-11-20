@@ -84,7 +84,7 @@ func (this *DeadPropertyAssignmentElimination_FunctionVisitor) enterChangedScope
 					compiler.reportChangeToEnclosingScope(rhs)
 				} else {
 					if !NodeUtil_isAssignmentOp(assignNode) {
-						panic(new_IllegalStateException_0().self())
+						panic(new_IllegalStateException_0())
 					}
 					var opType Token_rhino = NodeUtil_getOpFromAssignmentOp(assignNode)
 					assignNode.setToken(opType)
@@ -147,7 +147,7 @@ func (this *DeadPropertyAssignmentElimination_Property) markChildrenRead() {
 
 func (this *DeadPropertyAssignmentElimination_Property) addWrite(lhs Node) {
 	if !lhs.isQualifiedName() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	this.writes.add(new_DeadPropertyAssignmentElimination_PropertyWrite(lhs))
 }
@@ -169,7 +169,7 @@ func (this *DeadPropertyAssignmentElimination_PropertyWrite) finit_DeadPropertyA
 func (this *DeadPropertyAssignmentElimination_PropertyWrite) init_DeadPropertyAssignmentElimination_PropertyWrite(assignedAt Node) {
 	this.finit_DeadPropertyAssignmentElimination_PropertyWrite()
 	if !assignedAt.isQualifiedName() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	this.assignedAt = assignedAt
 	this.qualifiedName_ = Optional_of[string](assignedAt.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
@@ -253,7 +253,7 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 
 func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) visitBlock(blockNode Node) {
 	if !blockNode.isBlock() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if blockNode.hasChildren() {
 		this.markAllPropsRead()

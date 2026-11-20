@@ -33,6 +33,6 @@ func ParsingUtil_getParamOrPatternNames(n Node, cb func(any)) {
 			}
 		}
 	default:
-		panic(new_IllegalStateException_String("Unexpected parameter structure").self())
+		panic(new_IllegalStateException_String("Unexpected parameter structure"))
 	}
 }

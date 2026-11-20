@@ -88,7 +88,7 @@ func (this *SerializationOptions_Builder) setRunValidation(runValidation bool) *
 
 func (this *SerializationOptions_Builder) setRuntimeLibraries(runtimeLibraries *JTList[string]) *SerializationOptions_Builder {
 	if runtimeLibraries == nil {
-		panic(new_NullPointerException_String("Null runtimeLibraries").self())
+		panic(new_NullPointerException_String("Null runtimeLibraries"))
 	}
 	this.runtimeLibraries_ = runtimeLibraries
 	return this
@@ -106,7 +106,7 @@ func (this *SerializationOptions_Builder) build() *SerializationOptions {
 		if this.runtimeLibraries_ == nil {
 			missing.append(" runtimeLibraries")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))))
 	}
 	return new_SerializationOptions(this.includeDebugInfo_, this.runValidation_, this.runtimeLibraries_)
 }
