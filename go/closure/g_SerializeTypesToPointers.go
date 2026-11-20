@@ -68,9 +68,9 @@ func (this *SerializeTypesToPointers) logSerializationDebugInfo(serializer *JSTy
 	}()
 	var log *LogFile = this.compiler_.createOrReopenLog(Object_getClass(this), "mismatches.log", []string{})
 	defer closeResource_(log.self())
-	log.log(&Supplier_tfn_string{func() string {
+	log.log(func() string {
 		return SerializeTypesToPointers_typeMismatchesToJson(this.logTypeMismatches(this.compiler_.getTypeMismatches(), serializer, typePool))
-	}})
+	})
 }
 
 func (this *SerializeTypesToPointers) logTypeMismatches(typeMismatches IterableOf[*TypeMismatch], serializer *JSTypeReconserializer, typePool *TypePool) ImmutableSortedSetOf[*SerializeTypesToPointers_TypeMismatchJson] {

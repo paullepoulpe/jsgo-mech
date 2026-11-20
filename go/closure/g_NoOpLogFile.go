@@ -32,7 +32,7 @@ func (this *NoOpLogFile) logString_impl(value string) *LogFile {
 	return this.up_LogFile()
 }
 
-func (this *NoOpLogFile) log_impl(value SupplierOf[string]) *LogFile {
+func (this *NoOpLogFile) log_impl(value func() string) *LogFile {
 	return this.up_LogFile()
 }
 
@@ -77,7 +77,7 @@ func (this *NoOpLogFile) logString(p0 string) *LogFile {
 }
 
 // log: an object that is exactly a NoOpLogFile calls its log_impl directly (post-flip); others dispatch.
-func (this *NoOpLogFile) log(p0 Supplier) *LogFile {
+func (this *NoOpLogFile) log(p0 func() string) *LogFile {
 	if p, _ := this.self_.(*NoOpLogFile); p == this {
 		return this.log_impl(p0)
 	}
