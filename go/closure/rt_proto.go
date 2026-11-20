@@ -27,6 +27,7 @@ package closure
 import (
 	"bytes"
 	"math"
+	"math/bits"
 	"slices"
 	"sort"
 	"unicode/utf8"
@@ -107,7 +108,21 @@ type pbField_ struct {
 	hOff    uintptr // offset in the allocation of the pbHas_ word of the presence bit
 	hMask   uint32  // the presence bit in that word, 0 if none
 	tagSize int     // size of the tag on the wire
+	tag     uint64  // the tag on the wire (of one element, for a repeated field that is not packed)
+	pm      uint8   // how the storage says that the field is set (hasF_)
 }
+
+// The presence modes of a field.
+const (
+	pbPRep_   uint8 = iota + 1 // repeated: it has elements
+	pbPBit_                    // a presence bit
+	pbP32_                     // a 4-byte value that is not zero
+	pbP64_                     // an 8-byte value that is not zero
+	pbPBool_                   // true
+	pbPStr_                    // a string that is not empty
+	pbPBytes_                  // bytes that are not empty
+	pbPPtr_                    // a message that is not nil
+)
 
 type pbDesc_ struct {
 	name   string // full proto name
@@ -189,6 +204,25 @@ func (d *pbDesc_) init_() {
 		if f.hb != 0 {
 			f.hOff = d.xoff + d.hoff + uintptr((f.hb-1)>>5)*4
 			f.hMask = 1 << uint((f.hb-1)&31)
+		}
+		f.tag = uint64(f.num)<<3 | uint64(pbWire_[f.kind])
+		switch {
+		case f.rep:
+			f.pm = pbPRep_
+		case f.hMask != 0:
+			f.pm = pbPBit_
+		case f.cls == pbCI32_ || f.cls == pbCF32_:
+			f.pm = pbP32_
+		case f.cls == pbCI64_ || f.cls == pbCF64_:
+			f.pm = pbP64_
+		case f.cls == pbCBool_:
+			f.pm = pbPBool_
+		case f.cls == pbCStr_:
+			f.pm = pbPStr_
+		case f.cls == pbCBytes_:
+			f.pm = pbPBytes_
+		default:
+			f.pm = pbPPtr_
 		}
 		if f.pres != (!f.rep && (f.hb != 0 || f.kind == pbMessage_)) || f.oneof != 0 && !f.pres {
 			panic("protobuf: presence bit of " + d.name + "." + f.name)
@@ -430,22 +464,20 @@ func pbBuiltP_(p unsafe.Pointer) unsafe.Pointer {
 // hasF_ says whether field f is set (a repeated field: has elements).
 func (this *pbData_) hasF_(f *pbField_) bool {
 	p := this.fp_(f)
-	if f.rep {
+	switch f.pm {
+	case pbPRep_:
 		return (*pbSlice_)(p).n != 0
-	}
-	if f.hMask != 0 {
+	case pbPBit_:
 		return *this.hasWord_(f)&f.hMask != 0
-	}
-	switch f.cls {
-	case pbCI32_, pbCF32_:
+	case pbP32_:
 		return *(*uint32)(p) != 0
-	case pbCI64_, pbCF64_:
+	case pbP64_:
 		return *(*uint64)(p) != 0
-	case pbCBool_:
+	case pbPBool_:
 		return *(*bool)(p)
-	case pbCStr_:
+	case pbPStr_:
 		return *(*string)(p) != ""
-	case pbCBytes_:
+	case pbPBytes_:
 		b := *(**ByteString)(p)
 		return b != nil && len(b.b_) != 0
 	}
@@ -1094,15 +1126,20 @@ func pbParseCoded_(d *pbDesc_, in *CodedInputStream) any {
 // ---------------------------------------------------------------- wire format: sizes and writing
 
 func pbVarintSize_(v uint64) int {
-	n := 1
-	for v >= 0x80 {
-		v >>= 7
-		n++
+	if v < 0x80 {
+		return 1
 	}
-	return n
+	return (bits.Len64(v) + 6) / 7
 }
 
 func pbAppendVarint_(b []byte, v uint64) []byte {
+	if v < 0x80 {
+		return append(b, byte(v))
+	}
+	return pbAppendVarintLong_(b, v)
+}
+
+func pbAppendVarintLong_(b []byte, v uint64) []byte {
 	for v >= 0x80 {
 		b = append(b, byte(v)|0x80)
 		v >>= 7
@@ -1124,25 +1161,52 @@ func pbSizeOf_(m *pbData_) int {
 	}
 	n := 0
 	for _, f := range m.d_.sorted {
-		p := m.fp_(f)
-		if !f.rep {
-			if m.hasF_(f) {
-				n += f.tagSize + pbValueSize_(f, p)
+		p := unsafe.Add(unsafe.Pointer(m), f.off)
+		// the cases of hasF_, in line: this loop and pbAppendMsg_'s run once per field of
+		// every message written
+		switch f.pm {
+		case pbPRep_:
+			s := (*pbSlice_)(p)
+			if s.n == 0 {
+				continue
+			}
+			e := pbElemsSize_(f, s)
+			if f.packed {
+				n += f.tagSize + pbVarintSize_(uint64(e)) + e
+			} else {
+				n += e + f.tagSize*s.n
 			}
 			continue
+		case pbPBit_:
+			if *(*uint32)(unsafe.Add(unsafe.Pointer(m), f.hOff))&f.hMask == 0 {
+				continue
+			}
+		case pbP32_:
+			if *(*uint32)(p) == 0 {
+				continue
+			}
+		case pbP64_:
+			if *(*uint64)(p) == 0 {
+				continue
+			}
+		case pbPBool_:
+			if !*(*bool)(p) {
+				continue
+			}
+		case pbPPtr_:
+			if *(*unsafe.Pointer)(p) == nil {
+				continue
+			}
+		default:
+			if !m.hasF_(f) {
+				continue
+			}
 		}
-		s := (*pbSlice_)(p)
-		if s.n == 0 {
-			continue
-		}
-		e := pbElemsSize_(f, s)
-		if f.packed {
-			n += f.tagSize + pbVarintSize_(uint64(e)) + e
-		} else {
-			n += e + f.tagSize*s.n
-		}
+		n += f.tagSize + pbValueSize_(f, p)
 	}
-	n += len(m.unkBytes_())
+	if m.unk_ != nil {
+		n += len(*m.unk_)
+	}
 	if m.size_ == 0 {
 		m.size_ = int32(n + 1)
 	}
@@ -1152,6 +1216,13 @@ func pbSizeOf_(m *pbData_) int {
 // pbElemsSize_ is the size of the elements of a repeated field, without tags.
 func pbElemsSize_(f *pbField_, s *pbSlice_) int {
 	n := 0
+	if f.kind == pbMessage_ {
+		for _, e := range unsafe.Slice((**pbData_)(s.p), s.n) {
+			c := pbSizeOf_(e)
+			n += pbVarintSize_(uint64(c)) + c
+		}
+		return n
+	}
 	for i := 0; i < s.n; i++ {
 		n += pbValueSize_(f, unsafe.Add(s.p, uintptr(i)*f.esz))
 	}
@@ -1204,33 +1275,65 @@ var pbGoNaN_ = math.Float64bits(math.NaN())
 
 func pbAppendMsg_(b []byte, m *pbData_) []byte {
 	for _, f := range m.d_.sorted {
-		p := m.fp_(f)
-		tag := uint64(f.num)<<3 | uint64(pbWire_[f.kind])
-		if !f.rep {
-			if m.hasF_(f) {
-				b = pbAppendVarint_(b, tag)
-				b = pbAppendValue_(b, f, p)
+		p := unsafe.Add(unsafe.Pointer(m), f.off)
+		switch f.pm {
+		case pbPRep_:
+			s := (*pbSlice_)(p)
+			if s.n == 0 {
+				continue
+			}
+			switch {
+			case f.packed:
+				b = pbAppendVarint_(b, uint64(f.num)<<3|2)
+				b = pbAppendVarint_(b, uint64(pbElemsSize_(f, s)))
+				for i := 0; i < s.n; i++ {
+					b = pbAppendValue_(b, f, unsafe.Add(s.p, uintptr(i)*f.esz))
+				}
+			case f.kind == pbMessage_:
+				for _, e := range unsafe.Slice((**pbData_)(s.p), s.n) {
+					b = pbAppendVarint_(b, f.tag)
+					b = pbAppendVarint_(b, uint64(pbSizeOf_(e)))
+					b = pbAppendMsg_(b, e)
+				}
+			default:
+				for i := 0; i < s.n; i++ {
+					b = pbAppendVarint_(b, f.tag)
+					b = pbAppendValue_(b, f, unsafe.Add(s.p, uintptr(i)*f.esz))
+				}
 			}
 			continue
-		}
-		s := (*pbSlice_)(p)
-		if s.n == 0 {
-			continue
-		}
-		if f.packed {
-			b = pbAppendVarint_(b, uint64(f.num)<<3|2)
-			b = pbAppendVarint_(b, uint64(pbElemsSize_(f, s)))
-			for i := 0; i < s.n; i++ {
-				b = pbAppendValue_(b, f, unsafe.Add(s.p, uintptr(i)*f.esz))
+		case pbPBit_:
+			if *(*uint32)(unsafe.Add(unsafe.Pointer(m), f.hOff))&f.hMask == 0 {
+				continue
 			}
-			continue
+		case pbP32_:
+			if *(*uint32)(p) == 0 {
+				continue
+			}
+		case pbP64_:
+			if *(*uint64)(p) == 0 {
+				continue
+			}
+		case pbPBool_:
+			if !*(*bool)(p) {
+				continue
+			}
+		case pbPPtr_:
+			if *(*unsafe.Pointer)(p) == nil {
+				continue
+			}
+		default:
+			if !m.hasF_(f) {
+				continue
+			}
 		}
-		for i := 0; i < s.n; i++ {
-			b = pbAppendVarint_(b, tag)
-			b = pbAppendValue_(b, f, unsafe.Add(s.p, uintptr(i)*f.esz))
-		}
+		b = pbAppendVarint_(b, f.tag)
+		b = pbAppendValue_(b, f, p)
 	}
-	return append(b, m.unkBytes_()...)
+	if m.unk_ != nil {
+		b = append(b, *m.unk_...)
+	}
+	return b
 }
 
 // pbAppendValue_ writes the stored value at p.
