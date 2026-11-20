@@ -48,8 +48,9 @@
 // nil or passes it to a converted parameter.
 //
 // The handwritten runtime offers variants taking a func value for its functions of this kind:
-// X_f beside X (Map_computeIfAbsent_f, TMap.computeIfAbsent_f, ...), with the function-
-// interface parameters as Go function types. A call of X whose function-interface arguments
+// X_f beside X (Map_computeIfAbsent_f, TMap.computeIfAbsent_f; for a helper named X_,
+// mapComputeIfAbsent_f beside mapComputeIfAbsent_), with the function-interface parameters as
+// Go function types. A call of X whose function-interface arguments
 // are all lambda literals or package-level lambdas becomes a call of X_f.
 //
 // A package-level lambda (the lambdas step) whose every use is now its function becomes a
@@ -984,7 +985,8 @@ func variantOf(fn *types.Func) *variant {
 		return nil
 	}
 	sig := fn.Type().(*types.Signature)
-	name := fn.Name() + "_f"
+	// X_f, or for a runtime helper named X_ (mapComputeIfAbsent_), X_f too
+	name := strings.TrimSuffix(fn.Name(), "_") + "_f"
 	var vf *types.Func
 	if r := sig.Recv(); r != nil {
 		o, _, _ := types.LookupFieldOrMethod(r.Type(), true, rw.Pkg, name)
