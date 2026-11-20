@@ -6,8 +6,8 @@ type Scope struct {
 	AbstractScope
 	parent       *Scope
 	depth        int32
-	vars         *scopeVars_ // nil until the first declaration (Java: an empty ImmutableMap)
-	implicitVars *[4]*Var    // by ordinal; nil until the first (Java: an EnumMap made at the first)
+	vars         *scopeVarsOf_[*Var] // nil until the first declaration (Java: an empty ImmutableMap)
+	implicitVars *[4]*Var            // by ordinal; nil until the first (Java: an EnumMap made at the first)
 }
 
 func (this *Scope) up_AbstractScope() *AbstractScope {
@@ -147,11 +147,11 @@ func (this *Scope) declareInternal(name string, var_ *Var) {
 		Preconditions_checkState_boolean_String_Object_H(false, "Illegal shadow: %s", a1_)
 	}
 	if this.vars == nil {
-		this.vars = newScopeVars_()
+		this.vars = newScopeVarsOf_[*Var]()
 	}
 	// vars.put(name, var_), with the id of the name for the lookups by id (post-flip manual
 	// step, tools/postflip/strids).
-	this.vars.putId(name, nameId_(name, var_.getNode()), var_.up_AbstractVar())
+	this.vars.putId(name, nameId_(name, var_.getNode()), var_)
 }
 
 func (this *Scope) clearVarsInternal_impl() {
@@ -214,7 +214,7 @@ func (this *Scope) getVar_String_rVar(name string) *Var {
 		var scope *Scope = this
 		for ; scope != nil; scope = scope.getParent_rScope() {
 			if var_ := scope.vars.lookup(name, &h); var_ != nil {
-				return cast_[*Var](var_.self())
+				return var_
 			}
 			if imp != 0 {
 				if var_ := scope.getOwnImplicitSlot(imp); var_ != nil {
@@ -235,7 +235,7 @@ func (this *Scope) getVarById_(id uint32) *Var {
 		var scope *Scope = this
 		for ; scope != nil; scope = scope.getParent_rScope() {
 			if var_ := scope.vars.lookupId(id); var_ != nil {
-				return cast_[*Var](var_.self())
+				return var_
 			}
 			if imp != 0 {
 				if var_ := scope.getOwnImplicitSlot(imp); var_ != nil {
@@ -295,7 +295,7 @@ func (this *Scope) getVarCount_impl() int32 {
 
 // ownVar_ is vars.get(name), nil if the scope declares no such variable.
 func (this *Scope) ownVar_(name string) *Var {
-	return cast_[*Var](this.vars.get(name).self())
+	return this.vars.get(name)
 }
 
 // varValues_ is vars.values() as an erased collection, in declaration order.

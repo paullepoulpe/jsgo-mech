@@ -11,8 +11,8 @@ type TypedScope struct {
 	module_       *Module
 	isBottomField bool
 	reservedNames *TSet[string]
-	vars          *scopeVars_   // nil until the first declaration (Java: an empty ImmutableMap)
-	implicitVars  *[4]*TypedVar // by ordinal; nil until the first (Java: an EnumMap made at the first)
+	vars          *scopeVarsOf_[*TypedVar] // nil until the first declaration (Java: an empty ImmutableMap)
+	implicitVars  *[4]*TypedVar            // by ordinal; nil until the first (Java: an EnumMap made at the first)
 }
 
 func (this *TypedScope) up_AbstractScope() *AbstractScope {
@@ -295,11 +295,11 @@ func (this *TypedScope) declareInternal(name string, var_ *TypedVar) {
 		Preconditions_checkState_boolean_String_Object_H(false, "Illegal shadow: %s", a1_)
 	}
 	if this.vars == nil {
-		this.vars = newScopeVars_()
+		this.vars = newScopeVarsOf_[*TypedVar]()
 	}
 	// vars.put(name, var_). A typed scope is not looked up by id (getVarById_) and declares
 	// qualified names, which no node holds (post-flip manual step, tools/postflip/strids).
-	this.vars.put(name, var_.up_AbstractVar())
+	this.vars.put(name, var_)
 }
 
 func (this *TypedScope) clearVarsInternal_impl() {
@@ -362,7 +362,7 @@ func (this *TypedScope) getVarSuper(name string) *TypedVar {
 		var scope *TypedScope = this
 		for ; scope != nil; scope = scope.getParent_rTypedScope() {
 			if var_ := scope.vars.lookup(name, &h); var_ != nil {
-				return cast_[*TypedVar](var_.self())
+				return var_
 			}
 			if imp != 0 {
 				if var_ := scope.getOwnImplicitSlot(imp); var_ != nil {
@@ -428,7 +428,7 @@ func (this *TypedScope) getVarCount_impl() int32 {
 
 // ownVar_ is vars.get(name), nil if the scope declares no such variable.
 func (this *TypedScope) ownVar_(name string) *TypedVar {
-	return cast_[*TypedVar](this.vars.get(name).self())
+	return this.vars.get(name)
 }
 
 // varValues_ is vars.values() as an erased collection, in declaration order.
