@@ -340,10 +340,11 @@ func (this *CharRanges) equals(o any) bool {
 	_ = charRanges
 	if !(func() bool {
 		v_ := o
-		if !is_[*CharRanges](v_) {
+		p, ok := v_.(*CharRanges)
+		if !ok {
 			return false
 		}
-		charRanges = cast_[*CharRanges](v_)
+		charRanges = p
 		return true
 	}()) {
 		return false

@@ -43,8 +43,7 @@ func (this *Color) equals(o any) bool {
 	if o == any(this) {
 		return true
 	}
-	if is_[*Color](o) {
-		var that *Color = cast_[*Color](o)
+	if that, ok := o.(*Color); ok {
 		return (((((((((this.id.equals(obj_(that.getId())) && equalsR_(this.prototypes.asImm(), that.getPrototypes().asSet())) && equalsR_(this.instanceColors.asImm(), that.getInstanceColors().asSet())) && (this.invalidating == that.isInvalidating())) && (this.propertiesKeepOriginalName == that.getPropertiesKeepOriginalName())) && (this.constructor_ == that.isConstructor())) && equalsR_(this.ownProperties.asImm(), that.getOwnProperties().asSet())) && func() bool {
 			if this.boxId == nil {
 				return (that.getBoxId() == nil)
