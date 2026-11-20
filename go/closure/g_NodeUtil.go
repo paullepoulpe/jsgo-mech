@@ -306,7 +306,8 @@ func NodeUtil_getStringNumberValue(rawJsString string) any {
 	if s == "" {
 		return float64(0.0)
 	}
-	if (String_length(s) >= 2) && (s[0] == '0') {
+	sU16 := utf16Of_(s)
+	if (sU16.length() >= 2) && (s[0] == '0') {
 		var radix int32 = 0
 		var prefix uint16 = uint16(byteAt_(s, 1))
 		if (prefix == 'x') || (prefix == 'X') {
@@ -317,7 +318,7 @@ func NodeUtil_getStringNumberValue(rawJsString string) any {
 			radix = 8
 		}
 		if radix != 0 {
-			var digits string = String_substring_int(s, 2)
+			var digits string = sU16.substring_int(2)
 			if digits == "" {
 				return float64(nan_)
 			}
@@ -333,7 +334,7 @@ func NodeUtil_getStringNumberValue(rawJsString string) any {
 			}
 		}
 	}
-	if (((String_length(s) > 3) && ((s[0] == '-') || (s[0] == '+'))) && (s[1] == '0')) && ((byteAt_(s, 2) == 'x') || (byteAt_(s, 2) == 'X')) {
+	if (((sU16.length() > 3) && ((s[0] == '-') || (s[0] == '+'))) && (s[1] == '0')) && ((byteAt_(s, 2) == 'x') || (byteAt_(s, 2) == 'X')) {
 		return nil
 	}
 	if ((s == "infinity") || (s == "-infinity")) || (s == "+infinity") {
@@ -446,7 +447,8 @@ func NodeUtil_getStringBigIntValue(rawJsString string) *BigInteger {
 	if s == "" {
 		return BigInteger_ZERO
 	}
-	if (String_length(s) > 2) && (s[0] == '0') {
+	sU16 := utf16Of_(s)
+	if (sU16.length() > 2) && (s[0] == '0') {
 		var radix int32 = func() int32 {
 			switch byteAt_(s, 1) {
 			case 'x', 'X':
@@ -460,10 +462,10 @@ func NodeUtil_getStringBigIntValue(rawJsString string) *BigInteger {
 			}
 		}()
 		if radix != 0 {
-			if !NodeUtil_isParsableBigInteger(String_substring_int(s, 2), radix) {
+			if !NodeUtil_isParsableBigInteger(sU16.substring_int(2), radix) {
 				return nil
 			}
-			return new_BigInteger(String_substring_int(s, 2), radix)
+			return new_BigInteger(sU16.substring_int(2), radix)
 		}
 	}
 	if !NodeUtil_isParsableBigInteger(s, 10) {
@@ -492,14 +494,15 @@ func NodeUtil_isParsableBigInteger(s string, radix int32) bool {
 
 func NodeUtil_trimJsWhiteSpace(s string) string {
 	var start int32 = 0
-	var end int32 = String_length(s)
-	for (end > 0) && (TokenUtil_isStrWhiteSpaceChar(int32(String_charAt(s, (end-1)))) == Tri_TRUE) {
+	sU16 := utf16Of_(s)
+	var end int32 = sU16.length()
+	for (end > 0) && (TokenUtil_isStrWhiteSpaceChar(int32(sU16.charAt((end - 1)))) == Tri_TRUE) {
 		end--
 	}
-	for (start < end) && (TokenUtil_isStrWhiteSpaceChar(int32(String_charAt(s, start))) == Tri_TRUE) {
+	for (start < end) && (TokenUtil_isStrWhiteSpaceChar(int32(sU16.charAt(start))) == Tri_TRUE) {
 		start++
 	}
-	return String_substring(s, start, end)
+	return sU16.substring(start, end)
 }
 
 func NodeUtil_getName(n Node) string {
@@ -2681,12 +2684,13 @@ func NodeUtil_newQName_AbstractCompiler_String(compiler *AbstractCompiler, name 
 }
 
 func NodeUtil_newQNameCodingConvention_CodingConvention_String(convention CodingConvention, name string) Node {
-	var endPos int32 = String_indexOf(name, 46)
+	nameU16 := utf16Of_(name)
+	var endPos int32 = nameU16.indexOf(46)
 	if endPos == -1 {
-		endPos = String_length(name)
+		endPos = nameU16.length()
 	}
 	var qname Node
-	var nodeName string = String_substring(name, 0, endPos)
+	var nodeName string = nameU16.substring(0, endPos)
 	if "this" == nodeName {
 		qname = IR_thisNode()
 	} else if "super" == nodeName {
@@ -2695,12 +2699,12 @@ func NodeUtil_newQNameCodingConvention_CodingConvention_String(convention Coding
 		qname = NodeUtil_newName_CodingConvention_String(convention, nodeName)
 	}
 	qname.setLength(endPos)
-	for startPos := int32((endPos + 1)); endPos < String_length(name); startPos = (endPos + 1) {
-		endPos = String_indexOf_int_int(name, 46, startPos)
+	for startPos := int32((endPos + 1)); endPos < nameU16.length(); startPos = (endPos + 1) {
+		endPos = nameU16.indexOf_int_int(46, startPos)
 		if endPos == -1 {
-			endPos = String_length(name)
+			endPos = nameU16.length()
 		}
-		var part string = String_substring(name, startPos, endPos)
+		var part string = nameU16.substring(startPos, endPos)
 		qname = IR_getprop_Node_String(qname, part)
 		if convention.isConstantKey(part) {
 			qname.putBooleanProp(Node_IS_CONSTANT_NAME, true)
@@ -3077,9 +3081,10 @@ func NodeUtil_getPrototypeClassName(qName Node) Node {
 
 func NodeUtil_getPrototypePropertyName(qName Node) string {
 	var qNameStr string = qName.getQualifiedName()
-	var prototypeIdx int32 = String_lastIndexOf_String(qNameStr, ".prototype.")
+	qNameStrU16 := utf16Of_(qNameStr)
+	var prototypeIdx int32 = qNameStrU16.lastIndexOf_String(".prototype.")
 	var memberIndex int32 = ((prototypeIdx + int32(len(".prototype"))) + 1)
-	return String_substring_int(qNameStr, memberIndex)
+	return qNameStrU16.substring_int(memberIndex)
 }
 
 func NodeUtil_newUndefinedNode(srcReferenceNode Node) Node {

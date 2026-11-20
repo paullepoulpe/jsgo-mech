@@ -20,12 +20,13 @@ func Util_escapeString(s string) string {
 	var doublequoteEscape string = "\\\""
 	var singlequoteEscape string = "'"
 	var backslashEscape string = "\\\\"
-	var sb *StringBuilder = new_StringBuilder_int((String_length(s) + 2))
+	sU16 := utf16Of_(s)
+	var sb *StringBuilder = new_StringBuilder_int((sU16.length() + 2))
 	sb.append_char(quote)
 	var region *Util_1UnescapedRegion = new_Util_1UnescapedRegion(sb, s)
-	var length int32 = String_length(s)
+	var length int32 = sU16.length()
 	for i := int32(0); i < length; i++ {
-		var c uint16 = String_charAt(s, i)
+		var c uint16 = sU16.charAt(i)
 		switch c {
 		case '\n':
 			region.appendForEscapedChar("\\n")
@@ -40,7 +41,7 @@ func Util_escapeString(s string) string {
 		case '\'':
 			region.appendForEscapedChar(singlequoteEscape)
 		case '>':
-			if (i >= 2) && (((String_charAt(s, (i-1)) == '-') && (String_charAt(s, (i-2)) == '-')) || ((String_charAt(s, (i-1)) == ']') && (String_charAt(s, (i-2)) == ']'))) {
+			if (i >= 2) && (((sU16.charAt((i - 1)) == '-') && (sU16.charAt((i - 2)) == '-')) || ((sU16.charAt((i - 1)) == ']') && (sU16.charAt((i - 2)) == ']'))) {
 				region.appendForEscapedChar("\\u003e")
 			} else {
 				region.incrementForNormalChar()
@@ -48,9 +49,9 @@ func Util_escapeString(s string) string {
 		case '<':
 			var END_SCRIPT string = "/script"
 			var START_COMMENT string = "!--"
-			if String_regionMatches(s, true, (i + 1), END_SCRIPT, 0, int32(len(END_SCRIPT))) {
+			if sU16.regionMatches(true, (i + 1), END_SCRIPT, 0, int32(len(END_SCRIPT))) {
 				region.appendForEscapedChar("\\u003c")
-			} else if String_regionMatches(s, false, (i + 1), START_COMMENT, 0, int32(len(START_COMMENT))) {
+			} else if sU16.regionMatches(false, (i + 1), START_COMMENT, 0, int32(len(START_COMMENT))) {
 				region.appendForEscapedChar("\\u003c")
 			} else {
 				region.incrementForNormalChar()
