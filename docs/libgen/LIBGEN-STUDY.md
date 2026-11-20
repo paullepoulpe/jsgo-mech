@@ -762,3 +762,198 @@ view object per call. Which is faster there is a measurement, not something I ca
 | `out/` | today's translator output (814 generated files; not built) |
 | `lint.txt` | javac `-Xlint:rawtypes,unchecked` over the 809 files (no warnings) |
 | `proto/p.go` | the Go shapes, compiled and run |
+
+## 7. B1 as built (2026-11-20, branch main-libgen-b1)
+
+Rule "function types" of the translator: `tools/j2go/src/j2go/FnTypes.java` and its hooks, the
+func types in `g_zstubs.go` (`Stubs.fnTypes`), the runtime's `rt_fn.go`. Described in
+`tools/j2go/README.md` ("Function types"). Switch: `J2GO_NOFNTYPES=1` (default: on); report of
+what still converts: `J2GO_FNTYPES=1` (`=2` by type).
+
+### What is emitted
+
+As section 4.1 (1) and (2), with these names:
+
+```go
+type Predicate[T any] func(T) bool                    // g_zstubs.go, one per interface
+func (f Predicate[T]) box_() any       { return fnBox_(f) }
+func (f Predicate[T]) test(p0 T) bool  { return f(p0) }
+func (f Predicate[T]) apply(p0 T) bool { return f(p0) }
+type Predicate_base[T any] = Predicate[T]             // Guava's
+
+func NodeUtil_has(node Node, pred Predicate_base[Node], traverseChildrenPred Predicate_base[Node]) bool {
+	if pred.apply(node) {
+...
+if NodeUtil_has(n, Predicate_base[Node](func(p0 Node) bool { return p0.isIn() }), Predicates_alwaysTrue[Node]()) {
+func (this *NodeUtil_MatchNodeType) apply(n Node) bool {      // was apply(p0 any) with a cast
+inferred.asMap() ... // unchanged: the receiver of replaceAll is the erased view until the collection stage
+```
+
+15 interfaces: `java.util.function`'s Supplier, Function, Predicate, Consumer, BiFunction,
+BiConsumer, BiPredicate, ToIntFunction, ToLongFunction, IntFunction; Guava's Supplier, Function,
+Predicate (aliases of the former); `java.util.Comparator`; `java.util.concurrent.Callable`.
+
+### Counts, translator output of main before and after
+
+`docs/libgen/baseline.sh` (the files `g_[A-Z]*.go`), and the same spellings over every generated
+file (the adapter types were in `g_zstubs.go`, which baseline.sh does not read):
+
+| spelling | `g_[A-Z]*.go` before | after | all generated files before | after |
+|---|---:|---:|---:|---:|
+| typed adapter literals `&X_tfn..{` | 862 | 0 | | |
+| adapter literals `&X_fn{` | 250 | 116 | | |
+| adapter types | | | 200 | 5 |
+| `cast_[` | 984 | 1,029 | 1,332 | 1,275 |
+| `icast_X(` | 370 | 332 | 483 | 426 |
+| `to_X(` | | | 636 | 427 |
+| `str_(` | 269 | 259 | 302 | 260 |
+| `Node_of_(` | 149 | 154 | 166 | 156 |
+| `obj_(` | 614 | 581 | 913 | 822 |
+| `strobj_(` | 401 | 402 | 417 | 403 |
+| `.self()` | | | 1,378 | 1,348 |
+| `any(` | | | 185 | 159 |
+| `boxT_(` | 119 | 100 | | |
+| `XOf[` alias uses / aliases | 1,419 / 52 | 1,063 / 40 | | |
+| generated lines (`g_zstubs.go`) | | | 241,106 (4,649) | 239,356 (3,211) |
+
+Unchanged, as expected of this stage: collection views 1,198, `foreach_` 624, `tc_` uses 2,249,
+`unbox_[` 254. In `g_[A-Z]*.go` the casts rise by 45 because conversions that the adapter types
+made in `g_zstubs.go` are now written in the 56 converting closures (below); over all generated
+files every row falls.
+
+The 116 adapter literals left: 103 of the program's own functional interfaces
+(`ConformanceRules...CustomRuleFactory` 29, `NodeUtil.Visitor` 13, `CompilerPass` 13,
+`CmdLineParser.Handler` 9, 21 others) and 13 of library interfaces outside the rule (`Runnable`
+6, `Iterable` 4, `ThreadFactory`, `IntUnaryOperator`, `BooleanSupplier` 1 each).
+
+Allocation, CHECKS of the 18% subset (`--flagfile=$B/gasub/flags3500.txt
+--num_parallel_threads=1 --segment_of_compilation_to_run=CHECKS`, `JSGO_MEM_PROFILE`, one run
+each, the two binaries of the two gated translations; the saved state is byte-identical, sha256
+1cb35c70ccb88501): `alloc_objects` 439.8 M without the rule, 363.2 M with it (-17.4%);
+`alloc_space` 19.87 GB to 18.46 GB (-7.1%). Largest falls: `LinkedDirectedGraph.createNode`
+-14.2 M, `StringPool.Builder.put` -10.5 M, `SerializeTypesToPointers.TypeSearchCallback.visit`
+-9.8 M, `UnionType.isUnknownType` -7.3 M, `SubtypeChecker.isSubtypeHelper` -5.9 M objects. No time
+was measured.
+
+### What stays converted (`J2GO_FNTYPES=2`, whole tree)
+
+| | count | what |
+|---|---:|---|
+| lambdas and method references written at a place of another instantiation | 68 | by the place's type: `BiConsumer[any, any]` 9, `Callable[any]` 8, `Consumer[any]` 7, `Function_base[any, any]` 7, `BiFunction[any, any, any]` 6, `Function[any, any]` 6, `Supplier[any]` 6, `IntFunction[any]` 3, `Comparator[any]` 3, `Predicate_base[any]` 3, `Function[X, any]` 5 (58 at `any`: arguments of erased collections' methods and of runtime functions over them, `computeIfAbsent`, `merge`, `forEach`, `replaceAll`, `List.sort`, `Iterables.transform`, and erased type variables of the program's generic methods, `runInCompilerThread`, `CmdLineParser.Option.addValue`), and `Function[*JSType, *JSType]` 5 (a method reference of a subclass, `FunctionType::..`, where the parameter is a JSType: variance). The literal is written at the place's type and converts on entry as the erased lambda did; no closure is added |
+| closures converting a function value between two instantiations | 56 | a value (not a literal) given to such a place: to the `any` form 51: `Comparator` 25 (sorted collections and sorts of the erased runtime), `Function` 15 (`Node`'s `ImmutableMap<Prop, Function<Node, Object>>`, an erased builder chain), suppliers, predicates and Guava functions 11; back from `any` 5 |
+| functions boxed / unboxed | 20 / 5 | values of erased collections and builders (the 15 above, `Supplier[Node]` 4, one `Function_base`) |
+| objects given as a function (method values) | 35 | the 20 program classes implementing one of the interfaces, 2 `Ordering` |
+| null checks of a function | 12 | `checkNotNull` / `requireNonNull`: the box is tested, the function returned as it is |
+
+The flows the study counted as variance (section 2.3): the contravariant and covariant function
+flows are closures or literals written at the place's type (the 5 `Function[*JSType, *JSType]`
+above); none stays an erased interface. The 61 flows into erased
+program type variables are `X[any]`, as designed.
+
+### Refusals implemented (`FnTypes.check`; the translation stops, exit 1, nothing written)
+
+`==` / `!=` between two functional values; `instanceof` of or to one; a cast of or to one that
+is not an upcast; `equals` / `hashCode` / `toString` of `Object` called on one; one as a key of a
+map or an element of a set (JDK and Guava maps, sets, multimaps, multisets, tables, caches, and
+type parameters of the program's classes whose fields name them at such a position, found to a
+fixed point); one given where `Object` is declared (initializer, assignment, returned value,
+argument including varargs, array element, result of a lambda). The tree has 0 of each.
+`tools/j2go/selftest/refused/Refused.java` has 14 such uses and the self-test requires all 14 to
+be reported.
+
+### Deviations from the study's design, and why
+
+1. **Identity is not only what the source writes.** The study measured no identity use of a
+   functional value. Implementing found three that javac's flows do not show, because the
+   translator generates them: records with function components (`PassFactory`: 3 components;
+   `CheckAccessControls.PropertyReference`, `ChangeVerifier.EqualsResult`: 1 each) get `equals`,
+   `hashCode` and `toString` over the components. Refusing would have stopped the translation of
+   the tree. They are kept exact instead: a Go func value is one pointer to its closure, and
+   `fnSame_` / `fnHash_` compare and hash that pointer (5 uses each), which is the identity the
+   Java lambda object has while the value is passed around at one type. `fnStr_` (5 uses: the 2
+   generated `toString`, 3 string concatenations in `PassFactory.toString`) prints
+   `lambda@<hex>` where Java prints a synthetic class name and identity hash; neither is stable
+   across runs.
+2. **The box of a function is that pointer** at a type of its own (`*fnref_[F]`, `rt_fn.go`,
+   `unsafe`), not the func in an `any`: a func in an interface is not comparable in Go, and the
+   first gate run failed on exactly that (`comparing uncomparable type` in a typed map's null
+   test). The box costs no allocation and is comparable; `tconv_.isnull` lets a typed
+   collection test a function for null. This relies on the gc compiler's representation of func
+   values.
+3. **Typed collections may hold functions** (3 declarations: `TMap[string, Function_base[..]]`,
+   2 of `Supplier`); a function is never a key (refused).
+4. **One runtime, two translations.** So that `J2GO_NOFNTYPES=1` still builds and gates, the
+   runtime names the erased shape through `X_e` / `X_of_`, which `g_zstubs.go` declares either
+   way, and the functions whose signature changes exist twice (`rt_fn.go`, and `rt_fn_erased.go`
+   under build tag `j2go_nofntypes`: 175 lines, moved, not rewritten). Without the rule the
+   generated files are byte-identical to main's except for those declarations in `g_zstubs.go`.
+5. **Requirement "typed form for the 51 library methods"**: done where the receiver or owner is
+   typed: `Optional.filter` / `ifPresent`, the typed map's `computeIfAbsent`, `Comparator`'s 5
+   statics and 5 defaults, `Predicates.alwaysTrue` / `equalTo`, `Suppliers.memoize`,
+   `Functions.identity`, `Escaper.asFunction`, `Map.Entry.comparingByKey`. The others are methods
+   of erased collections or functions over them (`Map.computeIfAbsent` on an erased map, `merge`,
+   `forEach`, `replaceAll`, `List.sort`, `Iterables.transform` / `filter`, `TreeSet(Comparator)`,
+   `CacheLoader.from`, `ImmutableMap.Builder.put`, executors): their functions are at `any` until
+   the collection stage; no per-type variants were added.
+6. **Inference.** `Comparator.comparing(Export::getPath)` as the argument of a diamond
+   constructor leaves the key type to the enclosing inference in javac's recorded type; such a
+   type parameter is its erasure (`any`), and type parameters are bound through `? super T` /
+   `? extends U` of a functional parameter (`ExprEmitter.unify`, only with the rule on).
+7. **Not done: `Comparable`** (the study's K, about 45 sites). `Comparable` is `any` in the
+   translator because String, the boxes and enums implement it without a Go method; typing
+   `compareTo` of the 11 classes needs javac's bridge kept for the runtime's natural-order
+   callers, which is what post-flip step 467 (`implsplit`) does. Left for a rule of its own.
+   **Not done: the library functional interfaces without type parameters** (`Runnable`,
+   `BooleanSupplier`, `IntUnaryOperator`, `ThreadFactory`: 9 adapter literals; their adapters
+   already have the Java types), and `Iterable` used as a lambda target (4).
+
+### Gate
+
+`tools/prune/verify.sh` on the worktree, default translation and `J2GO_NOFNTYPES=1`: self-test
+PASS (with `lang/FnTypes.java` and the refusal check), runtime tests ok, checks / bundle /
+downlevel / advanced MATCH in both. `$B/gate.sh agW libgen_b1`: GATE OK. No Java was changed.
+
+### Post-flip steps: what to expect at a fifth flip (not run; from the emitted text)
+
+Lose their subject (0 `&X_tfn` literals and 5 adapter types are left; library functional
+parameters are func types already):
+
+- `adapters` (417, 425), `tfnargs` (434, 437), `tfnapi` (486), `deadtfn` (477, 486): they read
+  `&X_tfn_Y{f}` literals and the adapter types.
+- `tfnparams` (469, 471), `fntypes` (482): `LogFile.log`, `NodeUtil`'s predicates and the
+  func-typed parameters are `Supplier[string]`, `Predicate_base[Node]` from the translator.
+- `passfn` (254, already dropped), and the library half of `funcparams` (76, 136, 173, 255,
+  277, 285), `fnobj` (279) and `lambdas` (69): a library lambda is a func literal, which Go does
+  not allocate when it captures nothing.
+- runtime patches 252 (`funcObj_`), 276 and 284 (`_f` variants), 433, 470: they add what
+  `rt_fn.go` now has in another form, and they patch text this branch moved (`rt_base.go`,
+  `rt_coll.go`); they will not apply.
+
+Need adapting:
+
+- `funcparams`, `fnobj`, `lambdas` for the program's own functional interfaces (103 `&I_fn{`
+  literals, unchanged text) should run as before, but their runs were recorded with the library
+  cases mixed in; the step counts change.
+- `implsplit` (467, 468): the classes implementing Predicate, Supplier, Function and Comparator
+  have typed methods already; left for it are `Comparable.compareTo` (11) and the iteration
+  interfaces. `deadbridge` (481, 482) likewise.
+- `lamparams` (457): the lambdas with a cast on entry are now the 68 written at an `any` place,
+  inside a conversion `X[any](func(..) {..})` instead of an adapter literal.
+- `tcmp` (472, 481, 486): a sort of a typed list is still `List_sort(l.asList(), <closure to
+  Comparator[any]>)`; the subject is there, the text is new.
+- `etaconv` (461): its func literals are now the operand of a conversion
+  (`Predicate_base[Node](func(p0 Node) bool { return p0.isIn() })`).
+- Every tool that reads a functional parameter's calls sees `pred.apply(x)` on a func type
+  where it saw an interface call.
+
+### Not verified
+
+- No time measurement (by instruction); the allocation numbers are one run each.
+- No post-flip tool was run on the new output.
+- `fnBox_` / `fnSame_` rest on the gc compiler's func value being one pointer; a unit test
+  checks the behaviour, nothing checks the assumption against another toolchain.
+- The refusal for keys reaches the program's classes through their fields only (not through
+  locals of their methods), and `equals` of an erased collection that holds function boxes is
+  not refused: it compares the boxes by closure identity.
+- The translation without the rule was gated once, on this tree; the two builds are kept in
+  step only by that gate.
