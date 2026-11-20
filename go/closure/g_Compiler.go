@@ -8,6 +8,8 @@ import (
 )
 
 type Compiler struct {
+	astAnalyzer_    *AstAnalyzer // the last getAstAnalyzer result, made of astAnalyzerKey_
+	astAnalyzerKey_ astAnalyzerKey_
 	AbstractCompiler
 	options_                       *CompilerOptions
 	passes                         *PassConfig
@@ -944,8 +946,21 @@ func (this *Compiler) createAstFactoryWithoutTypes_impl() *AstFactory {
 
 func (this *Compiler) getAstAnalyzer_impl() *AstAnalyzer {
 	var options *CompilerOptions = this.getOptions()
-	var analysisSettings *AstAnalyzer_Options = AstAnalyzer_Options_builder().setUseTypesForLocalOptimization(options.shouldUseTypesForLocalOptimization()).setAssumeGettersArePure(options.getAssumeGettersArePure()).setHasRegexpGlobalReferences(this.hasRegExpGlobalReferences()).setAssumeKnownBuiltinsArePure(options.getAssumePropertiesAreStaticallyAnalyzable()).build()
-	return new_AstAnalyzer(analysisSettings, this.typeRegistry, this.getAccessorSummary())
+	// An AstAnalyzer is immutable: the last one made is handed out again while everything it is
+	// made of is unchanged (post-flip manual step; bundle: 1.1M analyzers, each with its options).
+	k := astAnalyzerKey_{options.shouldUseTypesForLocalOptimization(), options.getAssumeGettersArePure(), this.hasRegExpGlobalReferences(), options.getAssumePropertiesAreStaticallyAnalyzable(), this.typeRegistry, this.getAccessorSummary()}
+	if this.astAnalyzer_ != nil && this.astAnalyzerKey_ == k {
+		return this.astAnalyzer_
+	}
+	var analysisSettings *AstAnalyzer_Options = AstAnalyzer_Options_builder().setUseTypesForLocalOptimization(k.useTypes).setAssumeGettersArePure(k.gettersPure).setHasRegexpGlobalReferences(k.regexpGlobals).setAssumeKnownBuiltinsArePure(k.builtinsPure).build()
+	this.astAnalyzer_, this.astAnalyzerKey_ = new_AstAnalyzer(analysisSettings, k.registry, k.accessors), k
+	return this.astAnalyzer_
+}
+
+type astAnalyzerKey_ struct {
+	useTypes, gettersPure, regexpGlobals, builtinsPure bool
+	registry                                           *JSTypeRegistry
+	accessors                                          *AccessorSummary
 }
 
 func (this *Compiler) createDefaultExpressionDecomposer_impl() *ExpressionDecomposer {
