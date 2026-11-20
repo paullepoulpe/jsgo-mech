@@ -1,20 +1,30 @@
 diff --git a/go/closure/rt_base_text.go b/go/closure/rt_base_text.go
-index f2d3a7ac..110a1aef 100644
+index f782350f..6cade990 100644
 --- a/go/closure/rt_base_text.go
 +++ b/go/closure/rt_base_text.go
-@@ -200,8 +200,17 @@ func (this *Splitter) trimResults() *Splitter {
+@@ -206,19 +206,17 @@ func (this *Splitter) trimResults() *Splitter {
  
  func wsRune_(r rune) bool { return r < 0x10000 && guavaWhitespace_(uint16(r)) }
  
+-// splitAll_ is the parts of s, boxed (for an erased list).
 -func (this *Splitter) splitAll_(s string) []any {
--	var out []any
+-	parts := this.splitStrs_(s)
+-	out := make([]any, len(parts))
+-	for i, p := range parts {
+-		out[i] = p
+-	}
+-	return out
+-}
 +func (this *Splitter) splitAll_(s string) []any { return splitPieces_[any](this, s) }
 +
 +// splitStrs_ is the pieces of s as strings: what sliceImm_ makes of splitToList(s), without
 +// the boxed pieces and their list in between (post-flip step trips). A null s throws
 +// NullPointerException.
 +func (this *Splitter) splitStrs_(s string) []string { return splitPieces_[string](this, csStr_(s)) }
-+
+ 
+-// splitStrs_ is the parts of s.
+-func (this *Splitter) splitStrs_(s string) []string {
+-	var out []string
 +// splitPieces_ is the pieces the splitter cuts s into, as strings or as boxed strings
 +// (E is string or any).
 +func splitPieces_[E any](this *Splitter, s string) []E {
@@ -22,26 +32,25 @@ index f2d3a7ac..110a1aef 100644
  	limit := this.limit_
  	offset := 0
  	for offset != -1 {
-@@ -248,10 +257,10 @@ func (this *Splitter) splitAll_(s string) []any {
+@@ -265,7 +263,10 @@ func (this *Splitter) splitStrs_(s string) []string {
  		} else {
  			limit--
  		}
 -		out = append(out, s[start:end])
 +		out = append(out, any(s[start:end]).(E))
- 	}
- 	if out == nil {
--		out = []any{}
++	}
++	if out == nil {
 +		out = []E{}
  	}
  	return out
  }
 diff --git a/go/closure/rt_timm.go b/go/closure/rt_timm.go
-index 26224e29..9e701a2d 100644
+index acfbe96d..46fab0d9 100644
 --- a/go/closure/rt_timm.go
 +++ b/go/closure/rt_timm.go
-@@ -708,3 +708,124 @@ func (b *ImmutableMap_Builder[K, V]) buildOrThrowErased() *ErasedImmutableMap {
- func (b *ImmutableMap_Builder[K, V]) buildKeepingLastErased() *ErasedImmutableMap {
- 	return immMap_(imMap_, boxAll_(b.kc, b.keys), boxAll_(b.vc, b.vals), nil, true)
+@@ -868,3 +868,124 @@ func (m *TMap[K, V]) keySetImm() *ImmutableSet[K] {
+ 	}
+ 	return x.keySet
  }
 +
 +// ---- a typed collection through its erased form and back (post-flip step trips): what the
@@ -165,7 +174,7 @@ index 26224e29..9e701a2d 100644
 +	return s[n:len(s):len(s)]
 +}
 diff --git a/go/closure/rt_timm_test.go b/go/closure/rt_timm_test.go
-index b89ab0b9..d6d58b22 100644
+index 1380f0b1..c82c23c9 100644
 --- a/go/closure/rt_timm_test.go
 +++ b/go/closure/rt_timm_test.go
 @@ -98,3 +98,188 @@ func TestTypedImmutableEqHash(t *testing.T) {
@@ -240,7 +249,7 @@ index b89ab0b9..d6d58b22 100644
 +		a, b, c := []string{"z"}, []string{"z"}, []string{"z"}
 +		l := immutableListCopyOfArr_(timmStr_, xs)
 +		ra, rb, rc := sliceAddAll_(timmStr_, &a, sliceView_(timmStr_, xs)), sliceAddSlice_(&b, xs), sliceAddList_(&c, l)
-+		rl := sliceAddAll_(timmStr_, &a, iup_Collection(l.asImm()))
++		rl := sliceAddAll_(timmStr_, &a, Collection(l.asImm()))
 +		sliceAddSlice_(&b, xs)
 +		same("sliceAddSlice_", b, a)
 +		same("sliceAddList_", append(c, xs...), a)

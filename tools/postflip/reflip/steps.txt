@@ -829,6 +829,7 @@ ad8c897b patch 492-ad8c897b-rt.patch
 #=4 d791dde5 adapted (fourth flip): runtime patch regenerated, one conflict resolved by hand (rt_guava.go: this flip's runtime declares ImmutableCollection.total at another place in the struct; both sides kept: the lead's 80-byte layout with total in immRare_, as its code reads it)
 d791dde5 patch 510-d791dde5-rt.patch
 # 511. postflip (runtime, re-flip): helpers for a typed collection that goes through its erased form and straight back, with a test against the conversions they stand for
+#=4 68513bc0 adapted (fourth flip): runtime patch regenerated, conflicts resolved by hand: rt_timm.go (both sides add helpers at the same place: the translator's typed-declaration helpers and the trips helpers, both kept), rt_base_text.go (the Splitter: the lead's generic splitPieces_ taken, it gives this flip's splitStrs_ and splitAll_ too), rt_timm_test.go (the test named iup_Collection, a helper castfold -nilup generated on the lead line and not here: the conversion Collection(l.asImm()) of a non-nil list)
 68513bc0 patch 511-68513bc0-rt.patch
 # 512. postflip step (re-flip): trips, 88 round trips of a typed collection through its erased form become typed helper calls (tool a9769ba0, runtime 68513bc0)
 #: trips: 88 round trips through an erased collection rewritten; files changed: 47 (10 tsetAddAllOf_, 5 tsetAddList_, 13 tsetAddSet_, 7 immCopySlice_, 1 sliceSkip_ of splitStrs_, 15 tlistImmCopy_, 8 sliceAddSlice_, 1 sliceAddList_, 1 immCopyArr_, 5 tlistSlice_, 20 splitStrs_, 2 tsetCopy_; left 1 array boxed by a function literal)
