@@ -830,3 +830,28 @@ reflip_edit tools/postflip/exceptions/main.go reflip23 <<'E23'
 		if id, ok := c.Fun.(*ast.Ident); ok {
 			if strings.HasPrefix(id.Name, "new_") {
 E23
+# 24. (fourth flip, in bounds) eqhash: Objects.requireNonNull(x, msg) of a typed collection is written by this translator with the
+#    collection's erased view passed as it is, Objects_requireNonNull(names.asSet(), "names") (the erased output boxed the value:
+#    any(names)); the tool reads a boxing call only and left these 27 (lead line: 0). An interface value passed as it is is null
+#    exactly when it is the nil interface: as a statement the call is the inline check `if names.asSet() == nil { panic(NPE(msg)) }`
+#    (the form the third flip has). Other uses of the result stay.
+if [[ -f $eg ]] && ! grep -q 'reflip24' $eg && grep -q 'reflip20' $eg; then
+  reflip_edit $eg reflip24 <<'E24'
+	ba, ok := unbox(c.Args[0])
+	if !ok {
+		return ""
+	}
+	if b, isBasic := ba.t.(*types.Basic); isBasic && b.Kind() != types.String {
+=====
+	ba, ok := unbox(c.Args[0])
+	if !ok { // reflip24: an interface value passed as it is, checked as a statement
+		e := rw.Unparen(c.Args[0])
+		tv := rw.Info.Types[e]
+		if _, isStmt := rw.Up(c).(*ast.ExprStmt); !isStmt || tv.Type == nil || tv.IsNil() || !isIface(tv.Type) {
+			return ""
+		}
+		ba = boxed{x: e, t: types.Unalias(tv.Type)}
+	}
+	if b, isBasic := ba.t.(*types.Basic); isBasic && b.Kind() != types.String {
+E24
+fi
