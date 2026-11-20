@@ -171,7 +171,7 @@ func (this *Reference) getScope() *Scope {
 }
 
 func (this *Reference) getSymbol() StaticSlot {
-	return icast_StaticSlot(obj_(this.getSymbol_rVar()))
+	return iup_StaticSlot(this.getSymbol_rVar())
 }
 
 var Reference_DECLARATION_PARENTS *TSet[Token_rhino]
