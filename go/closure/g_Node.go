@@ -3006,25 +3006,25 @@ func Node_clinit() {
 	Node_ES6_MODULE = Node_Prop_ES6_MODULE
 	Node_NUMBER_PAYLOAD_UNSET = any(float64(0.0))
 	Node_BIGINT_PAYLOAD_UNSET = BigInteger_ZERO
-	Node_PROP_MAP_FOR_EQUALITY = immutableMapBuilder_(tc_p_Node_Prop, tc_p_Function_tfn_Node_any).put(Node_Prop_ARROW_FN, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isArrowFunction())) }})).put(Node_Prop_ASYNC_FN, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isAsyncFunction())) }})).put(Node_Prop_GENERATOR_FN, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isGeneratorFunction())) }})).put(Node_Prop_START_OF_OPT_CHAIN, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isOptionalChainStart())) }})).put(Node_Prop_STATIC_MEMBER, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isStaticMember())) }})).put(Node_Prop_YIELD_ALL, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isYieldAll())) }})).put(Node_Prop_EXPORT_DEFAULT, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(n Node) any {
+	Node_PROP_MAP_FOR_EQUALITY = immutableMapBuilder_(tc_p_Node_Prop, tc_p_Function_tfn_Node_any).put(Node_Prop_ARROW_FN, &Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isArrowFunction())) }}).put(Node_Prop_ASYNC_FN, &Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isAsyncFunction())) }}).put(Node_Prop_GENERATOR_FN, &Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isGeneratorFunction())) }}).put(Node_Prop_START_OF_OPT_CHAIN, &Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isOptionalChainStart())) }}).put(Node_Prop_STATIC_MEMBER, &Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isStaticMember())) }}).put(Node_Prop_YIELD_ALL, &Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isYieldAll())) }}).put(Node_Prop_EXPORT_DEFAULT, &Function_tfn_Node_any{func(n Node) any {
 		return int32(n.getIntProp(Node_Prop_EXPORT_DEFAULT))
-	}})).put(Node_Prop_EXPORT_ALL_FROM, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(n Node) any {
+	}}).put(Node_Prop_EXPORT_ALL_FROM, &Function_tfn_Node_any{func(n Node) any {
 		return int32(n.getIntProp(Node_Prop_EXPORT_ALL_FROM))
-	}})).put(Node_Prop_INCRDECR, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(n Node) any {
+	}}).put(Node_Prop_INCRDECR, &Function_tfn_Node_any{func(n Node) any {
 		return int32(n.getIntProp(Node_Prop_INCRDECR))
-	}})).put(Node_Prop_QUOTED, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(n Node) any {
+	}}).put(Node_Prop_QUOTED, &Function_tfn_Node_any{func(n Node) any {
 		return int32(n.getIntProp(Node_Prop_QUOTED))
-	}})).put(Node_Prop_FREE_CALL, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(n Node) any {
+	}}).put(Node_Prop_FREE_CALL, &Function_tfn_Node_any{func(n Node) any {
 		return bool(n.getBooleanProp(Node_Prop_FREE_CALL))
-	}})).put(Node_Prop_DIRECT_EVAL, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(n Node) any {
+	}}).put(Node_Prop_DIRECT_EVAL, &Function_tfn_Node_any{func(n Node) any {
 		return bool(n.getBooleanProp(Node_Prop_DIRECT_EVAL))
-	}})).put(Node_Prop_COMPUTED_PROP_METHOD, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(n Node) any {
+	}}).put(Node_Prop_COMPUTED_PROP_METHOD, &Function_tfn_Node_any{func(n Node) any {
 		return bool(n.getBooleanProp(Node_Prop_COMPUTED_PROP_METHOD))
-	}})).put(Node_Prop_COMPUTED_PROP_GETTER, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(n Node) any {
+	}}).put(Node_Prop_COMPUTED_PROP_GETTER, &Function_tfn_Node_any{func(n Node) any {
 		return bool(n.getBooleanProp(Node_Prop_COMPUTED_PROP_GETTER))
-	}})).put(Node_Prop_COMPUTED_PROP_SETTER, cast_[*Function_tfn_Node_any](&Function_tfn_Node_any{func(n Node) any {
+	}}).put(Node_Prop_COMPUTED_PROP_SETTER, &Function_tfn_Node_any{func(n Node) any {
 		return bool(n.getBooleanProp(Node_Prop_COMPUTED_PROP_SETTER))
-	}})).buildOrThrowErased()
+	}}).buildOrThrowErased()
 	Node_propMapForEqualityKeys = EnumSet_copyOf(Collection(Node_PROP_MAP_FOR_EQUALITY.keySet()))
 
 }
