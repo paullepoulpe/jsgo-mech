@@ -790,3 +790,26 @@ func Unboxed(cv Conv, t types.Type, a ast.Expr) string {
 		}
 	}
 E21
+# 22. (fourth flip, in bounds) funcparams: fix 17 reads the object under the upcast written as a conversion, I(o). The same rule of
+#    the translator writes the upcast of a value that may be null as the nil-keeping helper C_as_I(o) of g_0casts.go
+#    (FunctionArgumentInjector_ReferencedAfterSideEffect_as_NodeUtil_Visitor(collector)); the tool took it for "another value" and
+#    kept every parameter such a call reaches an interface (NodeUtil.Visitor: 13 lambda objects &NodeUtil_Visitor_fn{func...} the
+#    lead line has as Go functions). The object of the helper is its operand; whether it is null is the tool's own question
+#    (nonNullLocal and the rest), as for the erased icast_I(obj_(o)).
+reflip_edit tools/postflip/funcparams/main.go reflip22 <<'E22'
+	if c, ok := e.(*ast.CallExpr); ok && len(c.Args) == 1 { // reflip17: the upcast written out, I(x)
+		if tv, ok := rw.Info.Types[c.Fun]; ok && tv.IsType() && types.IsInterface(tv.Type) {
+			e = rw.Unparen(c.Args[0])
+		}
+	}
+=====
+	if c, ok := e.(*ast.CallExpr); ok && len(c.Args) == 1 { // reflip17: the upcast written out, I(x)
+		if tv, ok := rw.Info.Types[c.Fun]; ok && tv.IsType() && types.IsInterface(tv.Type) {
+			e = rw.Unparen(c.Args[0])
+		} else if id, ok := c.Fun.(*ast.Ident); ok && strings.Contains(id.Name, "_as_") { // reflip22: the nil-keeping upcast helper C_as_I(x)
+			if fn, ok := rw.Info.Uses[id].(*types.Func); ok && strings.HasSuffix(rw.Fset.Position(fn.Pos()).Filename, "g_0casts.go") {
+				e = rw.Unparen(c.Args[0])
+			}
+		}
+	}
+E22
