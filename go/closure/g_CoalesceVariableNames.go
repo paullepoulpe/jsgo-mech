@@ -200,9 +200,7 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
 		interferenceGraph.createNode_Object(v)
 		interferenceGraphNodes.set(vIndex)
 	}
-	it_4 := foreach_(cfg.getNodes())
-	for it_4.next() {
-		var cfgNode DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](it_4.v)
+	for cfgNode := range elemsAs_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](cfg.getNodes()) {
 		if cfg.isImplicitReturn(cfgNode) {
 			continue
 		}

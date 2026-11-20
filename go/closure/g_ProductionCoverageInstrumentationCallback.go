@@ -313,9 +313,7 @@ func ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(stri
 	writer.setHtmlSafe(false)
 	writer.setSerializeNulls(false)
 	writer.beginArray()
-	it_1 := foreach_(strings)
-	for it_1.next() {
-		var string_ string = str_(it_1.v)
+	for string_ := range elemsBy_(strings, str_) {
 		writer.stringValue(Optional_of[string](string_))
 	}
 	writer.endArray()

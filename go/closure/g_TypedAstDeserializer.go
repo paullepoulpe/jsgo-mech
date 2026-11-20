@@ -89,9 +89,7 @@ func (this *TypedAstDeserializer) deserializeTypedAst(typedAstProto *TypedAst, c
 	var fileShard *JTList[*SourceFile_jscomp] = this.toFileShard(typedAstProto)
 	if eqR_(this.mode_, TypedAstDeserializer_Mode_FULL_AST) {
 		var containsRequiredInput bool = false
-		it_1 := foreach_(Iterables_concat(Iterable(typedAstProto.getExternAstList()), Iterable(typedAstProto.getCodeAstList())))
-		for it_1.next() {
-			var lazyAst *LazyAst = cast_[*LazyAst](it_1.v)
+		for lazyAst := range elemsAs_[*LazyAst](Iterables_concat(Iterable(typedAstProto.getExternAstList()), Iterable(typedAstProto.getCodeAstList()))) {
 			var file *SourceFile_jscomp = fileShard.get((lazyAst.getSourceFile() - 1))
 			if cast_[*ImmutableSet](this.requiredInputFiles.get()).contains(obj_(file)) {
 				containsRequiredInput = true
@@ -110,14 +108,11 @@ func (this *TypedAstDeserializer) deserializeTypedAst(typedAstProto *TypedAst, c
 	var colorShard Optional_baseOf[*ColorPool_ShardView] = this.colorPoolBuilder.transform(&Function_base_tfn_ColorPool_Builder_ColorPool_ShardView{func(builder *ColorPool_Builder) *ColorPool_ShardView {
 		return builder.addShard(typedAstProto.getTypePool(), stringShard)
 	}})
-	it_4 := foreach_(typedAstProto.getExternsSummary().getPropNamePtrList())
-	for it_4.next() {
-		var x int32 = unbox_[int32](it_4.v)
+	for el_4 := range elems_(typedAstProto.getExternsSummary().getPropNamePtrList()) {
+		var x int32 = unbox_[int32](el_4)
 		this.externProperties.add(stringShard.get(x))
 	}
-	it_6 := foreach_(Iterables_concat(Iterable(typedAstProto.getExternAstList()), Iterable(typedAstProto.getCodeAstList())))
-	for it_6.next() {
-		var lazyAst *LazyAst = cast_[*LazyAst](it_6.v)
+	for lazyAst := range elemsAs_[*LazyAst](Iterables_concat(Iterable(typedAstProto.getExternAstList()), Iterable(typedAstProto.getCodeAstList()))) {
 		this.initLazyAstDeserializer(lazyAst, fileShard, colorShard, stringShard, compiler, resolveSourceMapAnnotations, parseInlineSourceMaps)
 	}
 }

@@ -37,9 +37,7 @@ func (this *DefaultDependencyResolver) getDependencies_Collection_Set_rList(symb
 		var depsFile *DependencyFile = it_1.v
 		depsFile.ensureUpToDate()
 	}
-	it_3 := foreach_(symbols)
-	for it_3.next() {
-		var symbol string = str_(it_3.v)
+	for symbol := range elemsBy_(symbols, str_) {
 		this.addDependency(symbol, seen, list)
 	}
 	return list
@@ -53,9 +51,7 @@ func (this *DefaultDependencyResolver) addDependency(symbol string, seen *JTSet[
 		}
 	} else if !seen.asSet().containsAll(ImmutableList_as_Collection(dependency.getProvides())) {
 		seen.asSet().addAll(ImmutableList_as_Collection(dependency.getProvides()))
-		it_1 := foreach_(obj_(dependency.getRequiredSymbols()))
-		for it_1.next() {
-			var require string = str_(it_1.v)
+		for require := range elemsBy_(obj_(dependency.getRequiredSymbols()), str_) {
 			this.addDependency(require, seen, list)
 		}
 		list.add(dependency.getPathRelativeToClosureBase())

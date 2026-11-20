@@ -422,9 +422,7 @@ func (this *FunctionType) addRelatedInterfaces(instance *ObjectType, set *JTSet[
 		if !set.add(instance) {
 			return
 		}
-		it_1 := foreach_(instance.getCtorExtendedInterfaces())
-		for it_1.next() {
-			var interfaceType *ObjectType = to_ObjectType(it_1.v)
+		for interfaceType := range elemsBy_(instance.getCtorExtendedInterfaces(), to_ObjectType) {
 			this.addRelatedInterfaces(interfaceType, set)
 		}
 	}
@@ -907,9 +905,7 @@ func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap *JTMap[
 	var prototype *ObjectType = type_.getPrototype()
 	if prototype != nil {
 		var propNames SetOf[string] = prototype.getOwnPropertyNames()
-		it_1 := foreach_(propNames)
-		for it_1.next() {
-			var name string = str_(it_1.v)
+		for name := range elemsBy_(propNames, str_) {
 			if !propTypeMap.containsKey(name) {
 				var propType *JSType = prototype.getPropertyType(name)
 				propTypeMap.put(name, propType)

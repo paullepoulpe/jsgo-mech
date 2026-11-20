@@ -3644,9 +3644,7 @@ func (this CompilerOptions_LanguageMode) isDefaultStrict() bool {
 
 func CompilerOptions_LanguageMode_validCommandLineNames() *JTList[string] {
 	var names *JTList[string] = jnewTList_(jtc_string)
-	it_1 := foreach_(obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.CompilerOptions.LanguageMode"))))
-	for it_1.next() {
-		var mode CompilerOptions_LanguageMode = cast_[CompilerOptions_LanguageMode](it_1.v)
+	for mode := range elemsAs_[CompilerOptions_LanguageMode](obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.CompilerOptions.LanguageMode")))) {
 		if mode != CompilerOptions_LanguageMode_UNSUPPORTED {
 			names.add(mode.name())
 			if strings.HasPrefix(mode.name(), "ECMASCRIPT") {

@@ -72,9 +72,7 @@ func ModuleLoader_isPathIdentifier(name string) bool {
 
 func (this *ModuleLoader) createRootPaths(roots IterableOf[string]) *JTList[string] {
 	var result ImmutableSortedSet_BuilderOf[string] = new_ImmutableSortedSet_Builder(ModuleLoader_BEST_MATCH_PATH_ORDERING)
-	it_1 := foreach_(roots)
-	for it_1.next() {
-		var root string = str_(it_1.v)
+	for root := range elemsBy_(roots, str_) {
 		var n string = this.pathEscaper.escape(str_(this.pathResolver.apply(strobj_(root))))
 		result.add(func() any {
 			if ModuleLoader_isAmbiguousIdentifier(n) {
@@ -88,9 +86,7 @@ func (this *ModuleLoader) createRootPaths(roots IterableOf[string]) *JTList[stri
 
 func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo_]) *JTSet[string] {
 	var sortedModulePaths *JTList[string] = jnewTList_(jtc_string)
-	it_1 := foreach_(inputs)
-	for it_1.next() {
-		var input DependencyInfo_ = icast_DependencyInfo_(it_1.v)
+	for input := range elemsBy_(inputs, icast_DependencyInfo_) {
 		var p string = this.pathEscaper.escape(str_(this.pathResolver.apply(strobj_(input.getName()))))
 		var n string = ModuleLoader_normalize(p, Iterable(this.moduleRootPaths.asList()))
 		sortedModulePaths.add(func() string {
