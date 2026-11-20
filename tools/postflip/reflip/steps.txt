@@ -770,3 +770,11 @@ ad8c897b patch 492-ad8c897b-rt.patch
 265af42f patch 496-265af42f-rt.patch
 # 497. postflip (runtime, re-flip): protobuf fields are stored typed, in one struct per message written by tools/protogen, instead of boxed in a []any
 7be430ed patch 497-7be430ed-rt.patch
+# 520. postflip (runtime, re-flip): a key without equals/hashCode is hashed by its address
+67684f20 patch 520-67684f20-rt.patch
+# 521. postflip (runtime, re-flip): an erased lookup of an object by identity asks its type's questions once
+fb7f9349 patch 521-fb7f9349-rt.patch
+# 522. postflip (manual, re-flip): SourceFile.setCodeAndDoBookkeeping counts lines on the view it has
+f9699ae5 patch 522-f9699ae5-manual.patch
+# 523. postflip (manual, re-flip): a token's SourceRange and its two SourcePositions are one allocation
+444eac19 patch 523-444eac19-manual.patch
