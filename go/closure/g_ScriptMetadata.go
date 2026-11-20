@@ -159,7 +159,7 @@ func (this *ScriptMetadata_FillerCallback) maybeCollectNames(n Node) {
 			it_3 := expr.getAllTypeNames().each()
 			for it_3.next() {
 				var type_ string = it_3.v
-				this.toFill.namesInUse.add(str_(ScriptMetadata_DOT_SPLITTER.split_s(type_).iterator().next()))
+				this.toFill.namesInUse.add(str_(first_(ScriptMetadata_DOT_SPLITTER.split_s(type_))))
 			}
 		}
 	}
