@@ -457,17 +457,8 @@ func (this *JSType) containsReferenceAncestor(target *JSType) bool {
 }
 
 func (this *JSType) isLiteralObject() bool {
-	var prototypeObjectType *PrototypeObjectType
-	_ = prototypeObjectType
-	if func() bool {
-		v_ := this.self()
-		p, ok := v_.(PrototypeObjectType_as)
-		if !ok {
-			return false
-		}
-		prototypeObjectType = p.as_PrototypeObjectType()
-		return true
-	}() {
+	if p, ok := this.self().(PrototypeObjectType_as); ok {
+		prototypeObjectType := p.as_PrototypeObjectType()
 		return prototypeObjectType.isAnonymous()
 	}
 	return false
@@ -776,18 +767,9 @@ func (this *JSType) isBoxableScalar() bool {
 }
 
 func (this *JSType) toObjectType() *ObjectType {
-	var objectType *ObjectType
-	_ = objectType
 	return func() *ObjectType {
-		if func() bool {
-			v_ := this.self()
-			p, ok := v_.(ObjectType_as)
-			if !ok {
-				return false
-			}
-			objectType = p.as_ObjectType()
-			return true
-		}() {
+		if p, ok := this.self().(ObjectType_as); ok {
+			objectType := p.as_ObjectType()
 			return objectType
 		}
 		return nil

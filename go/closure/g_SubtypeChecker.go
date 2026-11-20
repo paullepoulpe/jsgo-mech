@@ -345,17 +345,8 @@ func (this *SubtypeChecker) isVariousBottomsSubtype(subtype *JSType, supertype *
 }
 
 func (this *SubtypeChecker) isArrowTypeSubtype(subtype *ArrowType, nonArrowSupertype *JSType) bool {
-	var supertype *ArrowType
-	_ = supertype
-	if !(func() bool {
-		v_ := nonArrowSupertype.self()
-		p, ok := v_.(*ArrowType)
-		if !ok {
-			return false
-		}
-		supertype = p
-		return true
-	}()) {
+	supertype, ok := nonArrowSupertype.self().(*ArrowType)
+	if !(ok) {
 		return false
 	}
 	if !this.isSubtypeCaching(subtype.getReturnType(), supertype.getReturnType()) {

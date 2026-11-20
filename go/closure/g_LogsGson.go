@@ -27,82 +27,22 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 	if value == nil {
 		out.nullValue()
 	} else {
-		var able LogsGson_Able
-		_ = able
-		if func() bool {
-			v_ := value
-			p, ok := v_.(LogsGson_Able)
-			if !ok {
-				return false
-			}
-			able = p
-			return true
-		}() {
+		if able, ok := value.(LogsGson_Able); ok {
 			out.rawValue(Optional_of[string](LogsGson_toJson(able.toLogsGson())))
 		} else {
-			var multimap *SimpleListMultimap[any, any]
-			_ = multimap
-			if func() bool {
-				v_ := value
-				p2, ok2 := v_.(*SimpleListMultimap[any, any])
-				if !ok2 {
-					return false
-				}
-				multimap = p2
-				return true
-			}() {
+			if multimap, ok2 := value.(*SimpleListMultimap[any, any]); ok2 {
 				out.rawValue(Optional_of[string](LogsGson_toJson(multimap.asMap())))
 			} else {
-				var multimap_1 *SimpleSetMultimap[any, any]
-				_ = multimap_1
-				if func() bool {
-					v_ := value
-					p3, ok3 := v_.(*SimpleSetMultimap[any, any])
-					if !ok3 {
-						return false
-					}
-					multimap_1 = p3
-					return true
-				}() {
+				if multimap_1, ok3 := value.(*SimpleSetMultimap[any, any]); ok3 {
 					out.rawValue(Optional_of[string](LogsGson_toJson(multimap_1.asMap())))
 				} else {
-					var bimap *SimpleBiMap[any, string]
-					_ = bimap
-					if func() bool {
-						v_ := value
-						p4, ok4 := v_.(*SimpleBiMap[any, string])
-						if !ok4 {
-							return false
-						}
-						bimap = p4
-						return true
-					}() {
+					if bimap, ok4 := value.(*SimpleBiMap[any, string]); ok4 {
 						out.rawValue(Optional_of[string](LogsGson_toJson(bimap.asMap())))
 					} else {
-						var multiset *SimpleMultiset[any]
-						_ = multiset
-						if func() bool {
-							v_ := value
-							p5, ok5 := v_.(*SimpleMultiset[any])
-							if !ok5 {
-								return false
-							}
-							multiset = p5
-							return true
-						}() {
+						if multiset, ok5 := value.(*SimpleMultiset[any]); ok5 {
 							out.rawValue(Optional_of[string](LogsGson_toJson(multiset.asList().asList())))
 						} else {
-							var map_ Map
-							_ = map_
-							if func() bool {
-								v_ := value
-								p6, ok6 := v_.(Map)
-								if !ok6 {
-									return false
-								}
-								map_ = p6
-								return true
-							}() {
+							if map_, ok6 := value.(Map); ok6 {
 								out.beginObject()
 								for entry := range elemsBy_(map_.entrySet(), icast_Map_Entry) {
 									out.name(objstr_(entry.getKey()))
@@ -110,17 +50,7 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 								}
 								out.endObject()
 							} else {
-								var collection Collection
-								_ = collection
-								if func() bool {
-									v_ := value
-									p7, ok7 := v_.(Collection)
-									if !ok7 {
-										return false
-									}
-									collection = p7
-									return true
-								}() {
+								if collection, ok7 := value.(Collection); ok7 {
 									out.beginArray()
 									for element := range elems_(collection) {
 										LogsGson_write(out, element)

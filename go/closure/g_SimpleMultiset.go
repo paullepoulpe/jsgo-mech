@@ -218,17 +218,8 @@ func (this *SimpleMultiset[E]) iterator() IteratorOf[any] {
 }
 
 func (this *SimpleMultiset[E]) equals(o any) bool {
-	var that *SimpleMultiset[any]
-	_ = that
-	return (func() bool {
-		v_ := o
-		p, ok := v_.(*SimpleMultiset[any])
-		if !ok {
-			return false
-		}
-		that = p
-		return true
-	}() && equalsDyn_(this.counts, that.counts))
+	that, ok := o.(*SimpleMultiset[any])
+	return (ok && equalsDyn_(this.counts, that.counts))
 }
 
 func (this *SimpleMultiset[E]) hashCode() int32 {

@@ -246,17 +246,8 @@ func (this *SimpleSetMultimap[K, V]) isEmpty() bool {
 }
 
 func (this *SimpleSetMultimap[K, V]) equals(o any) bool {
-	var that *SimpleSetMultimap[any, any]
-	_ = that
-	return (func() bool {
-		v_ := o
-		p, ok := v_.(*SimpleSetMultimap[any, any])
-		if !ok {
-			return false
-		}
-		that = p
-		return true
-	}() && equalsDyn_(this.map__, that.map__))
+	that, ok := o.(*SimpleSetMultimap[any, any])
+	return (ok && equalsDyn_(this.map__, that.map__))
 }
 
 func (this *SimpleSetMultimap[K, V]) hashCode() int32 {
