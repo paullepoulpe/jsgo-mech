@@ -491,7 +491,7 @@ func SuggestedFix_Builder_createImportNode(importType SuggestedFix_ImportType, a
 		case SuggestedFix_ImportType_REQUIRE_TYPE:
 			return "requireType"
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 	var callNode Node = IR_call(IR_getprop_Node_String(IR_name("goog"), requireFlavor), []Node{IR_string(namespace)})
 	if alias.isPresent() {

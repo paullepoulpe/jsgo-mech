@@ -298,7 +298,7 @@ func CheckConformance_initRule(compiler *AbstractCompiler, requirement *Requirem
 		case Requirement_Type_BANNED_STRING_REGEX:
 			return ConformanceRules_BannedStringRegex_create(compiler, requirement)
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 	if rule.isErr() {
 		var e *CheckConformance_InvalidRequirementSpec = cast_[*CheckConformance_InvalidRequirementSpec](rule.error().self())
