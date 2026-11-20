@@ -111,3 +111,72 @@ func TestImmutableCopyOfEnumSet(t *testing.T) {
 		t.Fatal("copy of an empty EnumSet is not the empty set")
 	}
 }
+
+// TestEnumMapAgainstTreeMap checks EnumMap against the ordinal-ordered TreeMap it replaces, and
+// Java's null semantics (null values are kept; null and foreign keys are not keys).
+func TestEnumMapAgainstTreeMap(t *testing.T) {
+	vs, other := tenums_()
+	r := rand.New(rand.NewSource(5))
+	for round := 0; round < 200; round++ {
+		var e *EnumMap
+		if round%2 == 0 {
+			e = new_EnumMap(classOf_("test.TEnum"))
+		} else {
+			e = new_EnumMap(classOf_("test.NotRegistered")) // the enum is taken from the first key
+		}
+		m := &TreeMap{cmp: ordinalCmp_()}
+		for op := 0; op < 60; op++ {
+			k := any(vs[r.Intn(len(vs))])
+			var v any
+			if r.Intn(4) > 0 {
+				v = strobj_(istr_(int64(r.Intn(5))))
+			}
+			switch r.Intn(5) {
+			case 0, 1:
+				if a, b := e.put(k, v), m.put(k, v); !objequals_(a, b) {
+					t.Fatalf("put %v: %v vs %v", k, a, b)
+				}
+			case 2:
+				if a, b := e.remove(k), m.remove(k); !objequals_(a, b) {
+					t.Fatalf("remove %v", k)
+				}
+			case 3:
+				for it := e.entrySet().iterator(); it.hasNext(); {
+					x := it.next().(Map_Entry)
+					if r.Intn(3) == 0 {
+						x.setValue(v)
+						m.put(x.getKey(), v)
+					}
+				}
+			case 4:
+				if e.containsValue(v) != m.containsValue(v) || !objequals_(e.get(k), m.get(k)) || e.containsKey(k) != m.containsKey(k) {
+					t.Fatalf("lookup %v", k)
+				}
+			}
+			if e.size() != m.size() || e.isEmpty() != m.isEmpty() || e.toString() != m.toString() || e.hashCode() != m.hashCode() {
+				t.Fatalf("round %d: %s vs %s", round, e.toString(), m.toString())
+			}
+			if !e.equals(m) || !m.equals(e) || collToString_(e.keySet()) != collToString_(m.keySet()) || collToString_(e.values()) != collToString_(m.values()) {
+				t.Fatalf("round %d: views", round)
+			}
+			if e.containsKey(other) || e.containsKey(nil) || e.containsKey("C1") || e.get(nil) != nil || e.remove(other) != nil {
+				t.Fatalf("round %d: foreign keys", round)
+			}
+		}
+	}
+	e := new_EnumMap(classOf_("test.TEnum"))
+	e.put(vs[3], nil)
+	if !e.containsKey(vs[3]) || e.get(vs[3]) != nil || e.size() != 1 || !e.containsValue(nil) || e.toString() != "{C3=null}" {
+		t.Fatalf("a null value is a mapping: %s", e.toString())
+	}
+	for _, bad := range []any{nil, other} {
+		func() {
+			defer func() {
+				if recover() == nil {
+					t.Fatalf("put of %v does not throw", bad)
+				}
+			}()
+			e.put(bad, nil)
+		}()
+	}
+}
