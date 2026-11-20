@@ -175,7 +175,7 @@ func (this *ApplySuggestedFixes_ReplacementMap) canPut(fix *SuggestedFix) bool {
 	it_1 := foreach_(fix.getReplacements().keySet())
 	for it_1.next() {
 		var filename string = str_(it_1.v)
-		var replacements ImmutableSortedSetOf[*CodeReplacement] = ImmutableSortedSet_naturalOrder().addAll(Iterable(this.map__.get(strobj_(filename)))).addAll(Iterable(fix.getReplacements().get(strobj_(filename)))).build()
+		var replacements ImmutableSortedSetOf[*CodeReplacement] = ImmutableSortedSet_naturalOrder().addAll(Iterable(this.map__.get_s(filename))).addAll(Iterable(fix.getReplacements().get_s(filename))).build()
 		if ApplySuggestedFixes_containsOverlaps(replacements) {
 			return false
 		}
