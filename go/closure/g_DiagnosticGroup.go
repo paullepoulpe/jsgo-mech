@@ -45,7 +45,7 @@ func DiagnosticGroup_createFromGroups_Optional_DiagnosticGroupArr(name Optional[
 }
 
 func DiagnosticGroup_forType(type_ *DiagnosticType) *DiagnosticGroup {
-	DiagnosticGroup_singletons.computeIfAbsent(type_, &Function_tfn_DiagnosticType_DiagnosticGroup{func(p0 *DiagnosticType) *DiagnosticGroup { return DiagnosticGroup_createFromType(p0) }})
+	DiagnosticGroup_singletons.ComputeIfAbsent(type_, func(p0 *DiagnosticType) *DiagnosticGroup { return DiagnosticGroup_createFromType(p0) })
 	return DiagnosticGroup_singletons.Get(type_)
 }
 

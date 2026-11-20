@@ -408,9 +408,9 @@ func (this *StripCode_Strip) maybeEliminateClassByNameOrExtends(t *NodeTraversal
 	var className string
 	if (nameNode != 0) && nameNode.isQualifiedName() {
 		className = nameNode.getQualifiedName()
-		if this.qualifiedNameBeginsWithStripTypeString(Optional_of[string](className).filter(&Predicate_tfn_string{func(s string) bool {
+		if this.qualifiedNameBeginsWithStripTypeString(Optional_of[string](className).filterFn_(func(s string) bool {
 			return s != ""
-		}})) {
+		})) {
 			this.decisionsLog.log(&Supplier_tfn_string{func() string {
 				return (sstr_(className) + ": removing class")
 			}})
@@ -428,9 +428,9 @@ func (this *StripCode_Strip) maybeEliminateClassByNameOrExtends(t *NodeTraversal
 	var superclassNode Node = classNode.getSecondChild()
 	if (superclassNode != 0) && superclassNode.isQualifiedName() {
 		var superclassName string = superclassNode.getQualifiedName()
-		if this.qualifiedNameBeginsWithStripTypeString(Optional_of[string](superclassName).filter(&Predicate_tfn_string{func(s string) bool {
+		if this.qualifiedNameBeginsWithStripTypeString(Optional_of[string](superclassName).filterFn_(func(s string) bool {
 			return s != ""
-		}})) {
+		})) {
 			t.report(classNode, StripCode_STRIP_TYPE_INHERIT_ERROR, []string{className, superclassName})
 		}
 	}
@@ -446,9 +446,9 @@ func (this *StripCode_Strip) isCallWhoseReturnValueShouldBeStripped(n Node) bool
 
 func (this *StripCode_Strip) qualifiedNameBeginsWithStripType(n Node) bool {
 	var name string = n.getQualifiedName()
-	return this.qualifiedNameBeginsWithStripTypeString(Optional_of[string](name).filter(&Predicate_tfn_string{func(s string) bool {
+	return this.qualifiedNameBeginsWithStripTypeString(Optional_of[string](name).filterFn_(func(s string) bool {
 		return s != ""
-	}}))
+	}))
 }
 
 func (this *StripCode_Strip) qualifiedNameBeginsWithStripTypeString(name Optional[string]) bool {

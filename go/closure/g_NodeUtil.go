@@ -3750,9 +3750,9 @@ func NodeUtil_getBestLValueName(lValue Node) Optional[string] {
 		}
 		return Optional_empty[string]()
 	}
-	return Optional_of[string](lValue.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
+	return Optional_of[string](lValue.getQualifiedName()).filterFn_(func(s string) bool {
 		return s != ""
-	}})
+	})
 }
 
 func NodeUtil_getBestLValueRoot(lValue Node) Node {

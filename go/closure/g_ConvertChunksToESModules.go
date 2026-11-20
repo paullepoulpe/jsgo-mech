@@ -251,13 +251,13 @@ func (this *ConvertChunksToESModules) visitName(t *NodeTraversal, nameNode Node,
 		if NodeUtil_isLhsOfAssign(nameNode) {
 			t.report(nameNode, ConvertChunksToESModules_ASSIGNMENT_TO_IMPORT, []string{nameNode.getString(), ConvertChunksToESModules_getChunkName(referencingChunk), ConvertChunksToESModules_getChunkName(definingChunk)})
 		}
-		var namesToExport SetOf[string] = this.crossChunkExports.computeIfAbsent(definingChunk, &Function_tfn_JSChunk_Set{func(k *JSChunk) Set {
+		var namesToExport SetOf[string] = this.crossChunkExports.ComputeIfAbsent(definingChunk, func(k *JSChunk) Set {
 			return Set(new_LinkedHashSet())
-		}})
+		})
 		Collection_add_s(namesToExport, name)
-		var namesToImportByChunk MapOf[*JSChunk, SetOf[string]] = this.crossChunkImports.computeIfAbsent(referencingChunk, &Function_tfn_JSChunk_Map{func(k *JSChunk) Map {
+		var namesToImportByChunk MapOf[*JSChunk, SetOf[string]] = this.crossChunkImports.ComputeIfAbsent(referencingChunk, func(k *JSChunk) Map {
 			return Map(new_LinkedHashMap())
-		}})
+		})
 		if importType == ConvertChunksToESModules_ImportType_STATIC {
 			var importsForChunk SetOf[string] = icast_Set(Map_computeIfAbsent(namesToImportByChunk, obj_(definingChunk), &Function_tfn_JSChunk_Set{func(k *JSChunk) Set {
 				return Set(new_LinkedHashSet())
@@ -403,9 +403,9 @@ func (this *ConvertChunksToESModules_FindCrossChunkReferences) visitScript(t *No
 	var chunkDependencies *TList[*JSChunk] = chunk.getDependencies()
 	this.outer_.crossChunkExports.PutIfAbsent(chunk, Set(new_LinkedHashSet()))
 	if !chunkDependencies.isEmpty() {
-		var namesToImportByChunk MapOf[*JSChunk, SetOf[string]] = this.outer_.crossChunkImports.computeIfAbsent(chunk, &Function_tfn_JSChunk_Map{func(k *JSChunk) Map {
+		var namesToImportByChunk MapOf[*JSChunk, SetOf[string]] = this.outer_.crossChunkImports.ComputeIfAbsent(chunk, func(k *JSChunk) Map {
 			return Map(new_LinkedHashMap())
-		}})
+		})
 		for dependency := range chunkDependencies.All() {
 			Map_computeIfAbsent(namesToImportByChunk, obj_(dependency), &Function_tfn_JSChunk_Set{func(k *JSChunk) Set {
 				return Set(new_LinkedHashSet())

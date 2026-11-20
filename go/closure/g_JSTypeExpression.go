@@ -130,9 +130,9 @@ func (this *JSTypeExpression) isVarArgs() bool {
 }
 
 func (this *JSTypeExpression) evaluate(scope StaticTypedScope, registry *JSTypeRegistry) *JSType {
-	var type_ *JSType = registry.createTypeFromCommentNode_3(this.root, Optional_of[string](this.sourceName_).filter(&Predicate_tfn_string{func(s string) bool {
+	var type_ *JSType = registry.createTypeFromCommentNode_3(this.root, Optional_of[string](this.sourceName_).filterFn_(func(s string) bool {
 		return s != ""
-	}}), scope)
+	}), scope)
 	this.root.setJSType(type_)
 	return type_
 }

@@ -132,25 +132,25 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit_impl(t *NodeTrav
 	if parent.isScript() || parent.isModuleBody() {
 		if NodeUtil_isFunctionDeclaration(n) {
 			var functionName string = NodeUtil_getName(n)
-			if ExportTestFunctions_isTestFunction(Optional_of[string](functionName).filter(&Predicate_tfn_string{func(s string) bool {
+			if ExportTestFunctions_isTestFunction(Optional_of[string](functionName).filterFn_(func(s string) bool {
 				return s != ""
-			}})) {
+			})) {
 				this.outer_.exportTestFunctionAsSymbol(functionName, n)
 			}
 		} else if this.isNameDeclaredFunction(n) {
 			var functionNode Node = n.getFirstFirstChild()
 			var functionName string = NodeUtil_getName(functionNode)
-			if ExportTestFunctions_isTestFunction(Optional_of[string](functionName).filter(&Predicate_tfn_string{func(s string) bool {
+			if ExportTestFunctions_isTestFunction(Optional_of[string](functionName).filterFn_(func(s string) bool {
 				return s != ""
-			}})) {
+			})) {
 				this.outer_.exportTestFunctionAsSymbol(functionName, n)
 			}
 		} else if this.isNameDeclaredClass(n) {
 			var classNode Node = n.getFirstFirstChild()
 			var className string = NodeUtil_getName(classNode)
-			this.exportClass_3(classNode, Optional_of[string](className).filter(&Predicate_tfn_string{func(s string) bool {
+			this.exportClass_3(classNode, Optional_of[string](className).filterFn_(func(s string) bool {
 				return s != ""
-			}}), n)
+			}), n)
 		} else if n.isClass() {
 			this.exportClass(n)
 		}
@@ -161,9 +161,9 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit_impl(t *NodeTrav
 			var lastChild Node = n.getLastChild()
 			var nodeName string = firstChild.getQualifiedName()
 			if lastChild.isFunction() {
-				if ExportTestFunctions_isTestFunction(Optional_of[string](nodeName).filter(&Predicate_tfn_string{func(s string) bool {
+				if ExportTestFunctions_isTestFunction(Optional_of[string](nodeName).filterFn_(func(s string) bool {
 					return s != ""
-				}})) {
+				})) {
 					if n.getFirstChild().isName() {
 						this.outer_.exportTestFunctionAsSymbol(nodeName, parent)
 					} else {
@@ -171,9 +171,9 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit_impl(t *NodeTrav
 					}
 				}
 			} else if lastChild.isClass() {
-				this.exportClass_3(lastChild, Optional_of[string](nodeName).filter(&Predicate_tfn_string{func(s string) bool {
+				this.exportClass_3(lastChild, Optional_of[string](nodeName).filterFn_(func(s string) bool {
 					return s != ""
-				}}), parent)
+				}), parent)
 			}
 		}
 	} else if ExportTestFunctions_isTestSuiteArgument(n, t) {
@@ -195,9 +195,9 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit_impl(t *NodeTrav
 
 func (this *ExportTestFunctions_ExportTestFunctionsNodes) exportClass(classNode Node) {
 	var className string = NodeUtil_getName(classNode)
-	this.exportClass_3(classNode, Optional_of[string](className).filter(&Predicate_tfn_string{func(s string) bool {
+	this.exportClass_3(classNode, Optional_of[string](className).filterFn_(func(s string) bool {
 		return s != ""
-	}}), classNode)
+	}), classNode)
 }
 
 func (this *ExportTestFunctions_ExportTestFunctionsNodes) exportClass_3(classNode Node, className Optional[string], addAfter Node) {
