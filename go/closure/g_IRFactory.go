@@ -1477,10 +1477,14 @@ func IRFactory_LineAndColumn_fromSourcePosition(pos *SourcePosition_util) *IRFac
 	return new_IRFactory_LineAndColumn(pos.line_, pos.column_)
 }
 
-func (this *IRFactory_LineAndColumn) compareTo(o_ any) int32 {
-	var o *IRFactory_LineAndColumn = cast_[*IRFactory_LineAndColumn](o_)
-	_ = o
+// compareToT_ is compareTo with the parameter types the class declares (implsplit).
+func (this *IRFactory_LineAndColumn) compareToT_(o *IRFactory_LineAndColumn) int32 {
 	return Comparator_thenComparingInt(Comparator_comparingInt(&ToIntFunction_tfn_IRFactory_LineAndColumn{(*IRFactory_LineAndColumn).lineNo}), &ToIntFunction_tfn_IRFactory_LineAndColumn{(*IRFactory_LineAndColumn).column}).compare(this, obj_(o))
+}
+
+// compareTo is the bridge of the interface's erased signature (javac's): it casts its arguments and calls compareToT_.
+func (this *IRFactory_LineAndColumn) compareTo(o_ any) int32 {
+	return this.compareToT_(cast_[*IRFactory_LineAndColumn](o_))
 }
 
 func (this *IRFactory_LineAndColumn) lineNo() int32 {
