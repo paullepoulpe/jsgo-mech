@@ -380,6 +380,7 @@ type LinkedDirectedGraph_LinkedDiGraphNode[N comparable, E comparable] struct {
 	// appending past capacity does).
 	inEdges_, outEdges_ TList[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]]
 	inEdge1_, outEdge1_ [1]*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]
+	queuedIn_           any // the data-flow UniqueQueue the node is in, or nil (post-flip manual step)
 	value_              N
 	priority            int32
 }
@@ -438,6 +439,9 @@ func new_LinkedDirectedGraph_LinkedDiGraphNode[N comparable, E comparable](nodeV
 	this.init_LinkedDirectedGraph_LinkedDiGraphNode(nodeValue)
 	return this
 }
+
+// queueMark_ is where the node holds the UniqueQueue it is in (DataFlowAnalysis).
+func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) queueMark_() *any { return &this.queuedIn_ }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) getValue() N {
 	return this.value_
