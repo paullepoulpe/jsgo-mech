@@ -48,9 +48,7 @@ func (this *CrossChunkCodeMotion) process_2(externs Node, root Node) {
 
 func (this *CrossChunkCodeMotion) addInstanceofGuards(globalSymbols CollectionOf[*CrossChunkCodeMotion_GlobalSymbol]) {
 	for globalSymbol := range elemsAs_[*CrossChunkCodeMotion_GlobalSymbol](globalSymbols) {
-		it_3 := eachRevOf_(globalSymbol.instanceofReferencesToGuard)
-		for it_3.next() {
-			var instanceofReference CrossChunkCodeMotion_InstanceofReference = it_3.v
+		for instanceofReference := range sliceAllRev_(globalSymbol.instanceofReferencesToGuard) {
 			if !globalSymbol.declarationsCoverChunk(instanceofReference.getChunk()) {
 				this.addGuardToInstanceofReference(instanceofReference.getReference().getNode())
 			}
