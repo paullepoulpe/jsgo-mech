@@ -207,7 +207,7 @@ if [[ -f $sg ]] && ! grep -q 'reflip12' $sg && grep -q 'sel.Sel.Name != "getVar"
   [[ $(grep -c 'reflip12' $sg) == 2 ]] || { echo "toolfix: strids: anchors not found" >&2; exit 1; }
 fi
 # reflip_edit FILE MARK <<pairs: exact-text edits of a tool source (python: each OLD must occur exactly once), skipped once MARK is in
-# the file. The pairs are separated by lines "=====" (between OLD and NEW) and "-----" (between edits); a line "+++++" starts text
+# the file, and when the first OLD is not in the file at all (an earlier version of the tool). The pairs are separated by lines "=====" (between OLD and NEW) and "-----" (between edits); a line "+++++" starts text
 # appended to the file.
 reflip_edit() {
   local f=$1 mark=$2
@@ -219,8 +219,10 @@ f, mark = sys.argv[1], sys.argv[2]
 s = open(f).read()
 spec = sys.stdin.read()
 spec, _, tail = spec.partition("\n+++++\n")
-for ed in spec.split("\n-----\n"):
+for n, ed in enumerate(spec.split("\n-----\n")):
     old, sep, new = ed.partition("\n=====\n")
+    if n == 0 and sep and s.count(old.strip("\n")) == 0:
+        sys.exit(0)  # a version of the tool without the code the fix is for (the step that needs it has it)
     if not sep:
         sys.exit("toolfix: bad edit spec for " + f)
     old, new = old.strip("\n"), new.strip("\n")
