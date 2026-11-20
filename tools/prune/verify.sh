@@ -12,8 +12,11 @@ bash tools/j2go/selftest/run.sh 2>&1 | tail -1
 cd go
 python3 ../tools/prune/dropbroken.py --tests | tail -3
 "$gobin/goimports" -w closure/rt_*_test.go 2>/dev/null
-go test ./closure 2>&1 | grep -v "Fatal Error" | cut -c1-200 | tail -4
-go build -o "$bin/mech" ./cmd/mech || exit 1
+# (J2GO_NOFNTYPES=1: the tree was translated without rule "function types"; tools/j2go/README.md)
+tags=()
+[[ ${J2GO_NOFNTYPES:-} == 1 ]] && tags=(-tags j2go_nofntypes)
+go test "${tags[@]}" ./closure 2>&1 | grep -v "Fatal Error" | cut -c1-200 | tail -4
+go build "${tags[@]}" -o "$bin/mech" ./cmd/mech || exit 1
 # The wrapper keeps a runaway compile from taking the machine down.
 printf '#!/bin/sh\nulimit -v 9000000\nexport GOMEMLIMIT=6GiB\nexec timeout 900 %s "$@"\n' "$bin/mech" >"$bin/mechsafe"
 chmod +x "$bin/mechsafe"

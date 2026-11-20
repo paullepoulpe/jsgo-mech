@@ -8,7 +8,7 @@ t=.cache/j2go-selftest
 rm -rf "$t" && mkdir -p "$t/java" "$t/go/closure" "$t/go/cmd/t"
 # lang/Imm.java uses Guava (typed immutable collections).
 javac -nowarn -cp .cache/build/stock-libs.jar -d "$t/java" tools/j2go/selftest/lang/*.java
-for c in Lang Lang2 Handles Generics Generics2 Generics3 Colls Imm Unboxed Covariant CovariantIface Layout; do env -u JAVA_TOOL_OPTIONS java -Dstdout.encoding=UTF-8 -cp "$t/java:.cache/build/stock-libs.jar" lang.$c; done >"$t/expected.txt"
+for c in Lang Lang2 Handles Generics Generics2 Generics3 Colls Imm Unboxed Covariant CovariantIface Layout FnTypes; do env -u JAVA_TOOL_OPTIONS java -Dstdout.encoding=UTF-8 -cp "$t/java:.cache/build/stock-libs.jar" lang.$c; done >"$t/expected.txt"
 # The test class is translated together with the whole tree, so that the runtime it needs is all there.
 cp go/go.mod "$t/go/" && cp go/closure/rt_*.go tools/j2go/selftest/rt_*.go "$t/go/closure/" && rm -f "$t"/go/closure/*_test.go
 [[ -d go/closure/resources ]] && cp -r go/closure/resources "$t/go/closure/"
@@ -41,7 +41,7 @@ import (
 	"unsafe"
 )
 
-func SelfTest() string { return Lang_run() + Lang2_run() + Handles_run() + Generics_run() + Generics2_run() + Generics3_run() + Colls_run() + Imm_run() + Unboxed_run() + Covariant_run() + CovariantIface_run() + Layout_run() }
+func SelfTest() string { return Lang_run() + Lang2_run() + Handles_run() + Generics_run() + Generics2_run() + Generics3_run() + Colls_run() + Imm_run() + Unboxed_run() + Covariant_run() + CovariantIface_run() + Layout_run() + FnTypes_run() }
 
 // SelfTestSizes: the sizes of the structs of lang/Layout.java.
 func SelfTestSizes() string {
@@ -49,10 +49,20 @@ func SelfTestSizes() string {
 		unsafe.Sizeof(Layout_Slot[string, *Handles_Tag]{}), unsafe.Sizeof(Layout_Rec{}), unsafe.Sizeof(Layout_Inner{}), unsafe.Sizeof(Layout_1Local{}))
 }
 EOF
-(cd "$t/go" && gofmt -w closure/g_*.go && go build -o ../t ./cmd/t)
+# Rule "function types" off (J2GO_NOFNTYPES=1): the runtime's erased forms (rt_fn_erased.go).
+tags=()
+[[ ${J2GO_NOFNTYPES:-} == 1 ]] && tags=(-tags j2go_nofntypes)
+(cd "$t/go" && gofmt -w closure/g_*.go && go build "${tags[@]}" -o ../t ./cmd/t)
 "$t/t" >"$t/actual.txt" || true
 # Rule "field layout" (lang/Layout.java): the structs have no padding but at their end.
 sizes="Mixed=136 Sub=168 Slot=40 Rec=48 Inner=24 Local=40"
 [[ ${J2GO_NOLAYOUT:-} == 1 ]] && sizes="Mixed=168 Sub=208 Slot=56 Rec=72 Inner=32 Local=48"
 echo "$sizes" >>"$t/expected.txt" && "$t/t" sizes >>"$t/actual.txt"
-if diff "$t/expected.txt" "$t/actual.txt"; then echo "selftest: PASS"; else echo "selftest: FAIL"; exit 1; fi
+if ! diff "$t/expected.txt" "$t/actual.txt"; then echo "selftest: FAIL"; exit 1; fi
+if [[ ${J2GO_NOFNTYPES:-} != 1 ]]; then
+  # Rule "function types": the translator must refuse every use in refused/Refused.java (14) and write nothing.
+  mkdir -p "$t/refused" && { cat "$t/files.txt"; echo tools/j2go/selftest/refused/Refused.java; } >"$t/refused/files.txt"
+  n=$(java -Xss64m -Xmx8g --add-modules jdk.compiler -cp "${J2GO_CLASSES:-.cache/j2go}" j2go.Main ".cache/build/stock-libs.jar:.cache/build/main:$(ls .cache/deps/auto-value-annotations-*.jar)" "$t/refused" - @"$t/refused/files.txt" 2>&1 | grep -c '^function types: refused: Refused.java' || true)
+  if [[ $n != 14 ]] || ls "$t/refused" | grep -q '^g_'; then echo "selftest: FAIL (function types: $n of 14 uses refused)"; exit 1; fi
+fi
+echo "selftest: PASS"

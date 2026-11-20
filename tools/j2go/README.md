@@ -132,6 +132,73 @@ with the conversions the erased code makes for those types (`Node_of_`, `str_`, 
 adapter whose types name a type variable is generic (`Function_tfn[N, any]`, converting with
 `unboxT_`/`boxT_`).
 
+**Function types** (`FnTypes`; `J2GO_NOFNTYPES=1` is the translation without the rule,
+`J2GO_FNTYPES=1` reports what it still converts, `=2` by type). A library functional interface
+of the list `FnTypes.LIBS` (`java.util.function`'s `Supplier`, `Function`, `Predicate`,
+`Consumer`, `BiFunction`, `BiConsumer`, `BiPredicate`, `ToIntFunction`, `ToLongFunction`,
+`IntFunction`; Guava's `Supplier`, `Function`, `Predicate`; `java.util.Comparator`;
+`java.util.concurrent.Callable`) is a named Go func type of its Java type arguments, with the
+interface's method declared on it (`g_zstubs.go`):
+
+```go
+type Predicate[T any] func(T) bool
+func (f Predicate[T]) test(p0 T) bool  { return f(p0) }
+func (f Predicate[T]) apply(p0 T) bool { return f(p0) }   // Guava's Predicate is the same type
+type Predicate_base[T any] = Predicate[T]
+```
+
+- Types: these interfaces are typed declarations as `java.util.Optional` is. A wildcard is its
+  bound (`? super X` and `? extends X` are X, `?` is `any`); an erased type variable is what the
+  erased code has for it (its bound); `Object` and a boxed primitive are `any` (`FnTypes.norm`,
+  applied by `Ctx.erase`).
+- A lambda or a method reference is the func literal at the type of the place it goes to
+  (`Predicate_base[Node](func(p0 Node) bool { return p0.isIn() })`); there is no adapter object.
+- A call of the interface's method is the method of the func type (`pred.apply(n)`), which Go
+  calls statically. Null is nil; calling it is the nil dereference that the runtime reports as
+  a `NullPointerException`.
+- A class of the program that implements the interface has the method with its Java types
+  (`apply(n Node) bool`) and no bridge with the erased signature. An object of it given where
+  the interface is wanted is its method value, nil for null. A class of the runtime, and a
+  class of the program under one (`extends Ordering<X>`), keeps the erased method
+  (`FnTypes.erasedAt`): the runtime calls it.
+- A function meets another instantiation of its interface through a closure that converts the
+  arguments and the result as the erased code converted them (`FnTypes.between`): variance
+  (`Predicate<Object>` for `Predicate<? super Node>`), an erased type variable of a generic
+  method (`Callable<T>` is `Callable[any]`), the erased signature of a runtime function
+  (`Iterables.filter` takes a `Predicate_base[any]`). A lambda written at such a place is
+  written at the place's type and needs no closure.
+- A function meets `Object` (an element of an erased collection, a type variable) at its
+  instantiation at `any`, in a box that is the closure's pointer at a type of its own
+  (`f.box_()`, `fnUnbox_`; `rt_fn.go`): no allocation, nil for null, comparable, and two boxes
+  are equal exactly when they box the same closure.
+- `Preconditions.checkNotNull(f, ...)` / `Objects.requireNonNull(f, ...)` of a function test its
+  box and give the function. The members that the translator generates for a record compare,
+  hash and print a function component by its closure (`fnSame_`, `fnHash_`, `fnStr_`).
+- The static generic methods of these interfaces and of Guava's `Predicates`, `Suppliers` and
+  `Functions` are Go generic functions of the runtime, called with javac's type arguments
+  (`Comparator_comparingInt[*Node](..)`, `Predicates_alwaysTrue[Node]()`); the default methods
+  of `Comparator` are methods of the func type.
+
+A Go func value has no identity and no `equals`. The translator stops, naming each place
+(`function types: refused: File.java:12: ...`), when the program compares two functional values
+with `==`, tests or casts one (`instanceof`, a cast of or to one that is not an upcast), calls
+`equals` / `hashCode` / `toString` of `Object` on one, uses one as the key of a map or an element
+of a set (also through the type parameters of the program's own classes whose fields are such
+maps and sets), or gives one where `Object` is declared (`FnTypes.check`). None of these
+occurs in the tree.
+
+The runtime is one for both translations: its code takes and gives functions at `any` through
+names that `g_zstubs.go` declares either way (`Function_e`, `Comparator_e`, ... and
+`Function_of_(func)`), and the functions whose signature differs are in `rt_fn.go` (the rule) and
+`rt_fn_erased.go` (build tag `j2go_nofntypes`). So the translation without the rule is
+`J2GO_NOFNTYPES=1 tools/j2go/run.sh` and `go build -tags j2go_nofntypes`;
+`J2GO_NOFNTYPES=1 tools/prune/verify.sh` and the self-test pass the tag.
+
+Not in the rule: `Comparable` (still `any`; a class's `compareTo` keeps the erased signature and
+its bridge), the functional interfaces without type parameters (`Runnable`, `BooleanSupplier`:
+their adapters `Runnable_fn` have the Java types already), and the program's own functional
+interfaces (`CompilerPass`, `NodeUtil.Visitor`: adapters `I_fn`).
+
 **`java.util.Optional` is a value.** The runtime's `Optional[T]` (`rt_base.go`) is a generic
 struct, not a heap object: `Optional<X>` is `Optional[X]`, its content held as an `X`, and
 `Optional.of`/`empty`/`ofNullable` are generic functions that allocate nothing. Its zero value
