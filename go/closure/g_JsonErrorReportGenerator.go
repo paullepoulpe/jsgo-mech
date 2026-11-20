@@ -41,7 +41,7 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 				jsonWriter.name("requirement").beginObject()
 				jsonWriter.name("ruleId").stringValue(Optional_ofNullable[string](message.error_.requirement().getRuleId()))
 				jsonWriter.name("configFiles").beginArray()
-				it_3 := foreach_(icast_ProtocolStringList(message.error_.requirement().getConfigFileList()))
+				it_3 := foreach_(ProtocolStringList(message.error_.requirement().getConfigFileList()))
 				for it_3.next() {
 					var configFile string = str_(it_3.v)
 					jsonWriter.stringValue(Optional_of[string](configFile))

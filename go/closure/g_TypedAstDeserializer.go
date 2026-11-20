@@ -100,7 +100,7 @@ func (this *TypedAstDeserializer) deserializeTypedAst(typedAstProto *TypedAst, c
 			return
 		}
 	}
-	var runtimeLibraryList ProtocolStringList = icast_ProtocolStringList(typedAstProto.getRuntimeLibraryToInjectList())
+	var runtimeLibraryList ProtocolStringList = typedAstProto.getRuntimeLibraryToInjectList()
 	for i := int32(0); i < runtimeLibraryList.size(); i++ {
 		this.runtimeLibraries_.add(str_(runtimeLibraryList.get(i)))
 	}
