@@ -658,7 +658,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getModule() *Module {
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) build() {
 	this.initializeModuleScope(this.currentScope.getRootNode())
-	NodeTraversal_builder().setCompiler(this.outer_.compiler_).setCallback(icast_NodeTraversal_Callback(this.self())).setScopeCreator(ScopeCreator_ASSERT_NO_SCOPES_CREATED).traverseAtScope(this.currentScope.up_AbstractScope())
+	NodeTraversal_builder().setCompiler(this.outer_.compiler_).setCallback(this.self().(NodeTraversal_Callback)).setScopeCreator(ScopeCreator_ASSERT_NO_SCOPES_CREATED).traverseAtScope(this.currentScope.up_AbstractScope())
 	this.finishDeclaringGoogModule()
 }
 
@@ -1039,7 +1039,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) inferTypeForDestructuredTarg
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) defineDestructuringPatternInVarDeclaration(pattern Node, scope *TypedScope, patternTypeSupplier func() any) {
 	it_1 := DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(this.outer_.typeRegistry, func() any {
-		return cast_[*TypedScopeCreator_RValueInfo](patternTypeSupplier()).type__.self()
+		return patternTypeSupplier().(*TypedScopeCreator_RValueInfo).type__.self()
 	}, pattern).each()
 	for it_1.next() {
 		var target *DestructuredTarget = it_1.v

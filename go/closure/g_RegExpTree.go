@@ -524,7 +524,7 @@ func (this *RegExpTree_WordBoundary) simplify_impl(flags string) *RegExpTree {
 }
 
 func (this *RegExpTree_WordBoundary) appendSourceCode_impl(sb *StringBuilder) {
-	cast_[*StringBuilder](sb.append_char('\\')).append_char(this.type__)
+	sb.append_char('\\').(*StringBuilder).append_char(this.type__)
 }
 
 func (this *RegExpTree_WordBoundary) appendDebugInfo_impl(sb *strBuilder_) {
@@ -588,7 +588,7 @@ func (this *RegExpTree_BackReference) simplify_impl(flags string) *RegExpTree {
 }
 
 func (this *RegExpTree_BackReference) appendSourceCode_impl(sb *StringBuilder) {
-	cast_[*StringBuilder](sb.append_char('\\')).append_int(this.groupIndex)
+	sb.append_char('\\').(*StringBuilder).append_int(this.groupIndex)
 }
 
 func (this *RegExpTree_BackReference) appendDebugInfo_impl(sb *strBuilder_) {
@@ -718,7 +718,7 @@ func new_RegExpTree_Text(text string) *RegExpTree_Text {
 func RegExpTree_Text_escapeRegularCharOnto(ch uint16, next int32, sb *StringBuilder) {
 	switch ch {
 	case '$', '^', '*', '(', ')', '+', '[', '|', '.', '/', '?':
-		cast_[*StringBuilder](sb.append_char('\\')).append_char(ch)
+		sb.append_char('\\').(*StringBuilder).append_char(ch)
 	case '{':
 		if (48 <= next) && (next <= 57) {
 			sb.append_char('\\')
@@ -984,16 +984,16 @@ func (this *RegExpTree_Repetition) appendSourceCode_impl(sb *StringBuilder) {
 		case 1:
 			sb.append_char('+')
 		default:
-			cast_[*StringBuilder](sb.append_char('{')).append_int(min_).append(",}")
+			sb.append_char('{').(*StringBuilder).append_int(min_).append(",}")
 		}
 	} else if (min_ == 0) && (max_ == 1) {
 		sb.append_char('?')
 	} else if min_ == max_ {
 		if min_ != 1 {
-			cast_[*StringBuilder](sb.append_char('{')).append_int(min_).append_char('}')
+			sb.append_char('{').(*StringBuilder).append_int(min_).append_char('}')
 		}
 	} else {
-		cast_[*StringBuilder](cast_[*StringBuilder](sb.append_char('{')).append_int(min_).append_char(',')).append_int(max_).append_char('}')
+		sb.append_char('{').(*StringBuilder).append_int(min_).append_char(',').(*StringBuilder).append_int(max_).append_char('}')
 	}
 	if !this.greedy {
 		sb.append_char('?')
@@ -1836,7 +1836,7 @@ func (this *RegExpTree_Charset) decompose_2(ranges *CharRanges, inverted bool) *
 			}
 		}
 		if simplest != nil {
-			cast_[*StringBuilder](namedGroups.append_char('\\')).append_char(groupName)
+			namedGroups.append_char('\\').(*StringBuilder).append_char(groupName)
 			ranges = simplest
 		} else {
 			break
@@ -1996,7 +1996,7 @@ func RegExpTree_DecomposedCharset_escapeRangeCharOnto(ch uint16, startIsFlush bo
 			return "\\-"
 		}())
 	case '\\', ']':
-		cast_[*StringBuilder](sb.append_char('\\')).append_char(ch)
+		sb.append_char('\\').(*StringBuilder).append_char(ch)
 	default:
 		RegExpTree_escapeCharOnto(ch, sb)
 	}
