@@ -143,7 +143,7 @@ func new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator[N comparabl
 }
 
 func (this *GraphColoring_GreedyGraphColoring[N, E]) color_impl() int32 {
-	var worklist *JTList[GraphNode[N, E]] = jtlistFrom_(tc_GraphNode_N__E_[N, E](), this.graph.getNodes())
+	var worklist *TList[GraphNode[N, E]] = tlistFrom_(tc_GraphNode_N__E_[N, E](), this.graph.getNodes())
 	Collections_sort_List_Comparator(worklist.asList(), Comparator_comparing_Function_Comparator(&Function_tfn[GraphNode[N, E], any]{func(p0 GraphNode[N, E]) any { return boxT_(p0.getValue()) }}, &Comparator_tfn[N, N]{func(leftProperty N, rightProperty N) int32 {
 		var result int32 = (this.graph.getWeight(rightProperty) - this.graph.getWeight(leftProperty))
 		return func() int32 {

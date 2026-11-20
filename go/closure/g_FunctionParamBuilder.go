@@ -4,12 +4,12 @@ package closure
 
 type FunctionParamBuilder struct {
 	registry   *JSTypeRegistry
-	parameters *JTList[*FunctionType_Parameter]
+	parameters *TList[*FunctionType_Parameter]
 }
 
 func (this *FunctionParamBuilder) init_FunctionParamBuilder_JSTypeRegistry(registry *JSTypeRegistry) {
 	this.registry = registry
-	this.parameters = jnewTList_(jtc_p_FunctionType_Parameter)
+	this.parameters = newTList_(tc_p_FunctionType_Parameter)
 }
 
 func new_FunctionParamBuilder_JSTypeRegistry(registry *JSTypeRegistry) *FunctionParamBuilder {
@@ -20,7 +20,7 @@ func new_FunctionParamBuilder_JSTypeRegistry(registry *JSTypeRegistry) *Function
 
 func (this *FunctionParamBuilder) init_FunctionParamBuilder_JSTypeRegistry_int(registry *JSTypeRegistry, initialParameterCapacity int32) {
 	this.registry = registry
-	this.parameters = jnewTListN_(jtc_p_FunctionType_Parameter, initialParameterCapacity)
+	this.parameters = newTListN_(tc_p_FunctionType_Parameter, initialParameterCapacity)
 }
 
 func new_FunctionParamBuilder_JSTypeRegistry_int(registry *JSTypeRegistry, initialParameterCapacity int32) *FunctionParamBuilder {
@@ -87,6 +87,6 @@ func (this *FunctionParamBuilder) hasVarArgs() bool {
 	return (!this.parameters.isEmpty() && Iterables_getLast(Iterable(this.parameters.asList())).(*FunctionType_Parameter).isVariadic())
 }
 
-func (this *FunctionParamBuilder) build() *JTList[*FunctionType_Parameter] {
-	return immutableListCopyOfT_(jtc_p_FunctionType_Parameter, this.parameters)
+func (this *FunctionParamBuilder) build() *TList[*FunctionType_Parameter] {
+	return immutableListCopyOfT_(tc_p_FunctionType_Parameter, this.parameters)
 }

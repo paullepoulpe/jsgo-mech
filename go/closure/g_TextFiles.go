@@ -44,8 +44,8 @@ func TextFiles_write(path string, charset string, text string) *Outcome_base[any
 	return Io_writeBytes(path, Charsets_encode(text, charset))
 }
 
-func TextFiles_splitLines(text string) *JTList[string] {
-	var lines *JTList[string] = jnewTList_(jtc_string)
+func TextFiles_splitLines(text string) *TList[string] {
+	var lines *TList[string] = newTList_(tc_string)
 	var start int32 = 0
 	for i := int32(0); i < int32(len(text)); i++ {
 		var c uint16 = uint16(text[i])

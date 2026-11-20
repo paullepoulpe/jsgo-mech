@@ -82,7 +82,7 @@ func (this *PeepholeSubstituteAlternateSyntax) tryMinimizeWindowRefs(node Node) 
 	}
 	if node.getFirstChild().isName() {
 		var nameNode Node = node.getFirstChild()
-		if ("window" == nameNode.getString()) && PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS.contains(node.getString()) {
+		if ("window" == nameNode.getString()) && PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS.Has(node.getString()) {
 			var newNameNode Node = IR_name(node.getString())
 			var parentNode Node = node.getParent()
 			newNameNode.srcref(node)
@@ -313,7 +313,7 @@ func (this *PeepholeSubstituteAlternateSyntax) tryFoldStandardConstructors(n Nod
 func (this *PeepholeSubstituteAlternateSyntax) canFoldStandardConstructors(n Node) bool {
 	if this.isASTNormalized() && n.getFirstChild().isName() {
 		var className string = n.getFirstChild().getString()
-		if PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS.contains(className) {
+		if PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS.Has(className) {
 			return true
 		}
 		if "RegExp" == className {
@@ -520,8 +520,8 @@ NEXT_DELIMITER_:
 }
 
 var PeepholeSubstituteAlternateSyntax_STRING_SPLIT_OVERHEAD int32
-var PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS *JTSet[string]
-var PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS *JTSet[string]
+var PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS *TSet[string]
+var PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS *TSet[string]
 
 var PeepholeSubstituteAlternateSyntax_clinit_done bool
 
@@ -531,8 +531,8 @@ func PeepholeSubstituteAlternateSyntax_clinit() {
 	}
 	PeepholeSubstituteAlternateSyntax_clinit_done = true
 	PeepholeSubstituteAlternateSyntax_STRING_SPLIT_OVERHEAD = int32(len(".split('.')"))
-	PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS = jimmutableSetOf_[string](jtc_string, "Object", "Array", "Error", "RegExp", "Math")
-	PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS = jimmutableSetOf_[string](jtc_string, "Object", "Array", "Error")
+	PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS = immutableSetOf_[string](tc_string, "Object", "Array", "Error", "RegExp", "Math")
+	PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS = immutableSetOf_[string](tc_string, "Object", "Array", "Error")
 
 }
 

@@ -4,7 +4,7 @@ package closure
 
 type ByPathWarningsGuard struct {
 	WarningsGuard
-	paths      *JTList[string]
+	paths      *TList[string]
 	include    bool
 	priority   int32
 	levelField CheckLevel
@@ -17,7 +17,7 @@ func (this *ByPathWarningsGuard) up_WarningsGuard() *WarningsGuard {
 	return &this.WarningsGuard
 }
 
-func (this *ByPathWarningsGuard) init_ByPathWarningsGuard(paths *JTList[string], include bool, level CheckLevel) {
+func (this *ByPathWarningsGuard) init_ByPathWarningsGuard(paths *TList[string], include bool, level CheckLevel) {
 	this.WarningsGuard.init_WarningsGuard()
 	if paths == nil {
 		panic(new_IllegalArgumentException_0())
@@ -36,18 +36,18 @@ func (this *ByPathWarningsGuard) init_ByPathWarningsGuard(paths *JTList[string],
 	}()
 }
 
-func new_ByPathWarningsGuard(paths *JTList[string], include bool, level CheckLevel) *ByPathWarningsGuard {
+func new_ByPathWarningsGuard(paths *TList[string], include bool, level CheckLevel) *ByPathWarningsGuard {
 	this := &ByPathWarningsGuard{}
 	this.self_ = this
 	this.init_ByPathWarningsGuard(paths, include, level)
 	return this
 }
 
-func ByPathWarningsGuard_forPath(paths *JTList[string], level CheckLevel) *ByPathWarningsGuard {
+func ByPathWarningsGuard_forPath(paths *TList[string], level CheckLevel) *ByPathWarningsGuard {
 	return new_ByPathWarningsGuard(paths, true, level)
 }
 
-func ByPathWarningsGuard_exceptPath(paths *JTList[string], level CheckLevel) *ByPathWarningsGuard {
+func ByPathWarningsGuard_exceptPath(paths *TList[string], level CheckLevel) *ByPathWarningsGuard {
 	return new_ByPathWarningsGuard(paths, false, level)
 }
 

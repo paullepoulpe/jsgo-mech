@@ -32,9 +32,9 @@ func new_InvocationTemplateTypeMatcher(registry *JSTypeRegistry, calleeType *Fun
 	return this
 }
 
-func (this *InvocationTemplateTypeMatcher) match() *JTMap[*TemplateType, *JSType] {
+func (this *InvocationTemplateTypeMatcher) match() *TMap[*TemplateType, *JSType] {
 	if this.calleeType.getTemplateTypeMap().isEmpty() {
-		return jtmapEmptyImm_(tce_p_TemplateType, jtc_p_JSType)
+		return tmapEmptyImm_(tch_p_TemplateType, tc_p_JSType)
 	}
 	var target Node = this.invocation.getFirstChild()
 	if NodeUtil_isNormalGet(target) {
@@ -115,7 +115,7 @@ func (this *InvocationTemplateTypeMatcher) matchTemplateTypesRecursive(paramType
 		}
 		var argObjectType *JSType = argType.restrictByNotNullOrUndefined().collapseUnion()
 		var paramTypeMap *TemplateTypeMap = paramType.getTemplateTypeMap()
-		var keys *JTList[*TemplateType] = paramTypeMap.getTemplateKeys()
+		var keys *TList[*TemplateType] = paramTypeMap.getTemplateKeys()
 		var argTypeMap *TemplateTypeMap = argObjectType.getTemplateTypeMap()
 		for index := int32((keys.size() - keyCount)); index < keys.size(); index++ {
 			var key *TemplateType = keys.get(index)
@@ -162,10 +162,10 @@ func (this *InvocationTemplateTypeMatcher) recordTemplateMatch(template *Templat
 // lambda_InvocationTemplateTypeMatcher_recordTemplateMatch_1_ is a lambda of InvocationTemplateTypeMatcher_recordTemplateMatch that captures nothing (post-flip step lambdas).
 var lambda_InvocationTemplateTypeMatcher_recordTemplateMatch_1_ = &BiFunction_fn{func(p0 any, p1 any) any { return to_JSType(p0).getLeastSupertype(to_JSType(p1)).self() }}
 
-func (this *InvocationTemplateTypeMatcher) copyMatchedTypes() *JTMap[*TemplateType, *JSType] {
+func (this *InvocationTemplateTypeMatcher) copyMatchedTypes() *TMap[*TemplateType, *JSType] {
 	var builder *ImmutableMap_Builder[*TemplateType, *JSType] = immutableMapBuilder_(tc_p_TemplateType, tc_p_JSType)
 	this.matchedTypes.forEach(&BiConsumer_tfn_TemplateType_any{func(p0 *TemplateType, p1 any) { builder.put(p0, to_JSType(p1)) }})
-	return tmapImm_(tce_p_TemplateType, jtc_p_JSType, builder.buildOrThrowErased())
+	return tmapImm_(tch_p_TemplateType, tc_p_JSType, builder.buildOrThrowErased())
 }
 
 func (this *InvocationTemplateTypeMatcher) getTypeOrUnknown(n Node) *JSType {

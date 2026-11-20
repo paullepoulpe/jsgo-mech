@@ -6,10 +6,10 @@ type LiveVariablesAnalysis struct {
 	DataFlowAnalysis[Node, *LiveVariablesAnalysis_LiveVariableLattice]
 	jsScope        *Scope
 	jsScopeChild   *Scope
-	escaped        *JTSet[*Var]
-	scopeVariables *JTMap[string, any]
-	orderedVars    *JTList[*Var]
-	allVarsInFn    *JTMap[string, *Var]
+	escaped        *TSet[*Var]
+	scopeVariables *TMap[string, any]
+	orderedVars    *TList[*Var]
+	allVarsInFn    *TMap[string, *Var]
 }
 
 func (this *LiveVariablesAnalysis) up_DataFlowAnalysis() *DataFlowAnalysis[Node, *LiveVariablesAnalysis_LiveVariableLattice] {
@@ -26,8 +26,8 @@ func (this *LiveVariablesAnalysis) init_LiveVariablesAnalysis(cfg *ControlFlowGr
 	}
 	this.jsScope = jsScope
 	this.jsScopeChild = jsScopeChild
-	this.escaped = jnewTSet_(tce_p_Var)
-	this.scopeVariables = jnewTMap_(jtc_string, tc_Integer)
+	this.escaped = newTSet_(tch_p_Var)
+	this.scopeVariables = newTMap_(tc_string, tc_Integer)
 	this.orderedVars = allVarsDeclaredInFunction.getAllVariablesInOrder()
 	this.allVarsInFn = allVarsDeclaredInFunction.getAllVariables()
 	DataFlowAnalysis_computeEscaped(jsScope, this.escaped, compiler, scopeCreator, this.allVarsInFn)
@@ -47,25 +47,25 @@ func (this *LiveVariablesAnalysis) addScopeVariables() {
 	it_1 := this.orderedVars.each()
 	for it_1.next() {
 		var v *Var = it_1.v
-		this.scopeVariables.put(v.getName(), int32(num))
+		this.scopeVariables.Put(v.getName(), int32(num))
 		num++
 	}
 }
 
-func (this *LiveVariablesAnalysis) getEscapedLocals() *JTSet[*Var] {
+func (this *LiveVariablesAnalysis) getEscapedLocals() *TSet[*Var] {
 	return this.escaped
 }
 
-func (this *LiveVariablesAnalysis) getAllVariables() *JTMap[string, *Var] {
+func (this *LiveVariablesAnalysis) getAllVariables() *TMap[string, *Var] {
 	return this.allVarsInFn
 }
 
-func (this *LiveVariablesAnalysis) getAllVariablesInOrder() *JTList[*Var] {
+func (this *LiveVariablesAnalysis) getAllVariablesInOrder() *TList[*Var] {
 	return this.orderedVars
 }
 
 func (this *LiveVariablesAnalysis) getVarIndex(var_ string) int32 {
-	return unbox_[int32](this.scopeVariables.get(var_))
+	return unbox_[int32](this.scopeVariables.Get(var_))
 }
 
 func (this *LiveVariablesAnalysis) isForward_impl() bool {
@@ -208,7 +208,7 @@ func (this *LiveVariablesAnalysis) addToSetIfLocal(node Node, set *BitSet) {
 		Preconditions_checkState_boolean_Object_H(false, node)
 	}
 	var name string = node.getString()
-	var var_ *Var = this.allVarsInFn.get(name)
+	var var_ *Var = this.allVarsInFn.Get(name)
 	if var_ == nil {
 		return
 	}
@@ -224,7 +224,7 @@ func (this *LiveVariablesAnalysis) addToSetIfLocal(node Node, set *BitSet) {
 	if !local {
 		return
 	}
-	if !this.escaped.contains(var_) {
+	if !this.escaped.Has(var_) {
 		set.set(this.getVarIndex(var_.getName()))
 	}
 }
@@ -242,7 +242,7 @@ func (this *LiveVariablesAnalysis) markAllParametersEscaped() {
 		var param Node = paramList.getFirstChild()
 		for ; param != 0; param = param.getNext() {
 			if param.isName() {
-				this.escaped.add(this.jsScope.getVar_String_rVar(param.getString()))
+				this.escaped.Add(this.jsScope.getVar_String_rVar(param.getString()))
 			}
 		}
 	}
