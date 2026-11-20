@@ -221,7 +221,7 @@ func (this *SubtypeChecker) isObjectSubtypeHelper(subtype *ObjectType, supertype
 		return SubtypeChecker_getTemplateKeyIfCovariantType(supertype.up_JSType())
 	}()
 	if (!subAndSuperAreSameBaseType && unbox_[bool](this.isUsingStructuralTyping)) && supertype.isStructuralType() {
-		if JSCompObjects_identical(obj_(covariantKey), obj_(this.registry.getReadonlyArrayElementKey())) && this.isNativeArrayType(subtype) {
+		if (covariantKey == this.registry.getReadonlyArrayElementKey()) && this.isNativeArrayType(subtype) {
 			var thisElement *JSType = subtypeParams.getResolvedTemplateType(covariantKey)
 			var thatElement *JSType = supertypeParams.getResolvedTemplateType(covariantKey)
 			return this.meetVarianceConstraint(SubtypeChecker_Variance_COVARIANT, thisElement, thatElement)
@@ -408,7 +408,7 @@ func (this *SubtypeChecker) isEnumSubtype(subtype *EnumType, supertype *JSType) 
 }
 
 func (this *SubtypeChecker) isEnumElementSubtype(subtype *EnumElementType, supertype *JSType) bool {
-	if supertype.isEnumElementType() && JSCompObjects_identical(obj_(subtype.getEnumType()), obj_(supertype.toMaybeEnumElementType().getEnumType())) {
+	if supertype.isEnumElementType() && (subtype.getEnumType() == supertype.toMaybeEnumElementType().getEnumType()) {
 		return this.isSubtypeCaching(subtype.getPrimitiveType(), supertype.toMaybeEnumElementType().getPrimitiveType())
 	}
 	if this.isSubtypeHelper(subtype.up_JSType(), supertype) {
