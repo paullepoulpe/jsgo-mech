@@ -48,7 +48,7 @@ func (this *EqualityChecker) check(left *JSType, right *JSType) bool {
 func (this *EqualityChecker) checkParameters(left *ArrowType, right *ArrowType) bool {
 	this.checkHasNotRun()
 	this.hasRun = true
-	return (JSCompObjects_identical(obj_(left), obj_(right)) || this.areArrowParameterEqual(left, right))
+	return ((left == right) || this.areArrowParameterEqual(left, right))
 }
 
 func (this *EqualityChecker) areEqualCaching(left *JSType, right *JSType) bool {
@@ -292,7 +292,7 @@ outer_:
 	inner_:
 		for j := int32(0); j < rightKeys.size(); j++ {
 			var rightKey *TemplateType = rightKeys.get(j)
-			if !JSCompObjects_identical(obj_(leftKey), obj_(rightKey)) {
+			if leftKey != rightKey {
 				continue inner_
 			}
 			var leftValue *JSType = func() *JSType {

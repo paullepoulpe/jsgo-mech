@@ -120,7 +120,7 @@ func (this *ReferenceCollector) maybeJumpToHoistedFunction(var_ *Var, t *NodeTra
 }
 
 func ReferenceCollector_isNonLocalModuleSpecifierName(n Node, parent Node) bool {
-	return ((parent.isImportSpec() && !JSCompObjects_identical(n.box_(), parent.getLastChild().box_())) || (parent.isExportSpec() && !JSCompObjects_identical(n.box_(), parent.getFirstChild().box_())))
+	return ((parent.isImportSpec() && (n != parent.getLastChild())) || (parent.isExportSpec() && (n != parent.getFirstChild())))
 }
 
 func (this *ReferenceCollector) pushNewBlock(root Node) {
@@ -129,7 +129,7 @@ func (this *ReferenceCollector) pushNewBlock(root Node) {
 
 func (this *ReferenceCollector) popLastBlock(root Node) {
 	var last *BasicBlock = cast_[*BasicBlock](SequencedCollection_removeLast(SequencedCollection(this.blockStack.asDeque())))
-	if !JSCompObjects_identical(root.box_(), last.getRoot().box_()) {
+	if root != last.getRoot() {
 		panic(new_IllegalStateException_String(tostr_(root)))
 	}
 }
