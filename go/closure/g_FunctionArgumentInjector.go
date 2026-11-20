@@ -24,7 +24,9 @@ func (this *FunctionArgumentInjector) inject_5(compiler *AbstractCompiler, node 
 	if node.isName() {
 		var replacementTemplate Node = replacements.get(node.getString())
 		if replacementTemplate != 0 {
-			Preconditions_checkState_boolean_Object_H(!((parent.isFunction() || parent.isVar()) || parent.isCatch()), parent)
+			if (parent.isFunction() || parent.isVar()) || parent.isCatch() {
+				Preconditions_checkState_boolean_Object_H(false, parent)
+			}
 			var replacement Node = replacementTemplate.cloneTree()
 			node.replaceWith(replacement)
 			return replacement
@@ -75,7 +77,9 @@ func (this *FunctionArgumentInjector) getFunctionCallParameterMap(fnNode Node, c
 		}
 		cArg = cArg.getNext()
 	} else {
-		Preconditions_checkState_boolean_Object_H(!NodeUtil_isFunctionObjectApply(callNode), callNode)
+		if NodeUtil_isFunctionObjectApply(callNode) {
+			Preconditions_checkState_boolean_Object_H(false, callNode)
+		}
 		argMap.put(FunctionArgumentInjector_THIS_MARKER, new_FunctionArgumentInjector_ParamArgPair(FunctionArgumentInjector_THIS_MARKER_NODE, NodeUtil_newUndefinedNode(callNode)))
 	}
 	{
@@ -83,7 +87,9 @@ func (this *FunctionArgumentInjector) getFunctionCallParameterMap(fnNode Node, c
 		for ; fnParam != 0; fnParam = fnParam.getNext() {
 			if cArg != 0 {
 				if fnParam.isRest() {
-					Preconditions_checkState_boolean_Object_H(fnParam.getOnlyChild().isName(), fnParam.getOnlyChild())
+					if ok_, a1_ := fnParam.getOnlyChild().isName(), fnParam.getOnlyChild(); !ok_ {
+						Preconditions_checkState_boolean_Object_H(false, a1_)
+					}
 					var array Node = IR_arraylit([]Node{})
 					array.srcrefTreeIfMissing(cArg)
 					for cArg != 0 {
@@ -92,17 +98,23 @@ func (this *FunctionArgumentInjector) getFunctionCallParameterMap(fnNode Node, c
 					}
 					return argMap.put(fnParam.getOnlyChild().getString(), new_FunctionArgumentInjector_ParamArgPair(fnParam.getOnlyChild(), array)).buildOrThrow()
 				} else {
-					Preconditions_checkState_boolean_Object_H(fnParam.isName(), fnParam)
+					if !fnParam.isName() {
+						Preconditions_checkState_boolean_Object_H(false, fnParam)
+					}
 					argMap.put(fnParam.getString(), new_FunctionArgumentInjector_ParamArgPair(fnParam, cArg))
 				}
 				cArg = cArg.getNext()
 			} else {
 				if fnParam.isRest() {
-					Preconditions_checkState_boolean_Object_H(fnParam.getOnlyChild().isName(), fnParam)
+					if !fnParam.getOnlyChild().isName() {
+						Preconditions_checkState_boolean_Object_H(false, fnParam)
+					}
 					var array Node = IR_arraylit([]Node{}).srcref(fnParam)
 					argMap.put(fnParam.getOnlyChild().getString(), new_FunctionArgumentInjector_ParamArgPair(fnParam.getOnlyChild(), array))
 				} else {
-					Preconditions_checkState_boolean_Object_H(fnParam.isName(), fnParam)
+					if !fnParam.isName() {
+						Preconditions_checkState_boolean_Object_H(false, fnParam)
+					}
 					var srcLocation Node = callNode
 					argMap.put(fnParam.getString(), new_FunctionArgumentInjector_ParamArgPair(fnParam, NodeUtil_newUndefinedNode(srcLocation)))
 				}
@@ -157,7 +169,9 @@ func FunctionArgumentInjector_canNameValueChange(n Node) bool {
 }
 
 func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *AbstractCompiler, fnNode Node, argMap *JTMap[string, *FunctionArgumentInjector_ParamArgPair], modifiedParameters *JTSet[string], convention CodingConvention) *JTSet[string] {
-	Preconditions_checkArgument_boolean_Object_H(fnNode.isFunction(), fnNode)
+	if !fnNode.isFunction() {
+		Preconditions_checkArgument_boolean_Object_H(false, fnNode)
+	}
 	if argMap.isEmpty() {
 		return modifiedParameters
 	}

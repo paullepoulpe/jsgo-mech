@@ -110,22 +110,34 @@ func (this *CrossChunkMethodMotion) tryToMovePrototypeMethod(nameInfo *AnalyzePr
 		} else if valueParent.isStringKey() {
 			this.movePrototypeObjectLiteralProperty(nameInfo.name_, destParent, value)
 		} else {
-			Preconditions_checkState_boolean_Object_H(valueParent.isAssign(), valueParent)
+			if !valueParent.isAssign() {
+				Preconditions_checkState_boolean_Object_H(false, valueParent)
+			}
 			this.movePrototypeDotMethodAssignment(destParent, value)
 		}
 	}
 }
 
 func (this *CrossChunkMethodMotion) movePrototypeObjectLiteralProperty(propName string, destParent Node, functionNode Node) {
-	Preconditions_checkState_boolean_Object_H(functionNode.isFunction(), functionNode)
+	if !functionNode.isFunction() {
+		Preconditions_checkState_boolean_Object_H(false, functionNode)
+	}
 	var stringKey Node = functionNode.getParent()
-	Preconditions_checkState_boolean_Object_H(stringKey.isStringKey(), stringKey)
+	if !stringKey.isStringKey() {
+		Preconditions_checkState_boolean_Object_H(false, stringKey)
+	}
 	var prototypeObjectLiteral Node = stringKey.getParent()
-	Preconditions_checkState_boolean_Object_H(prototypeObjectLiteral.isObjectLit(), prototypeObjectLiteral)
+	if !prototypeObjectLiteral.isObjectLit() {
+		Preconditions_checkState_boolean_Object_H(false, prototypeObjectLiteral)
+	}
 	var assignNode Node = prototypeObjectLiteral.getParent()
-	Preconditions_checkState_boolean_Object_H((assignNode.isAssign() && prototypeObjectLiteral.isSecondChildOf(assignNode)), assignNode)
+	if !(assignNode.isAssign() && prototypeObjectLiteral.isSecondChildOf(assignNode)) {
+		Preconditions_checkState_boolean_Object_H(false, assignNode)
+	}
 	var ownerDotPrototypeNode Node = assignNode.getFirstChild()
-	Preconditions_checkState_boolean_Object_H((ownerDotPrototypeNode.isQualifiedName() && (ownerDotPrototypeNode.getString() == "prototype")), ownerDotPrototypeNode)
+	if !(ownerDotPrototypeNode.isQualifiedName() && (ownerDotPrototypeNode.getString() == "prototype")) {
+		Preconditions_checkState_boolean_Object_H(false, ownerDotPrototypeNode)
+	}
 	if this.noStubFunctions {
 		stringKey.detach()
 		this.compiler_.reportChangeToEnclosingScope(prototypeObjectLiteral)
@@ -148,11 +160,17 @@ func (this *CrossChunkMethodMotion) movePrototypeObjectLiteralProperty(propName 
 }
 
 func (this *CrossChunkMethodMotion) movePrototypeDotMethodAssignment(destParent Node, functionNode Node) {
-	Preconditions_checkState_boolean_Object_H(functionNode.isFunction(), functionNode)
+	if !functionNode.isFunction() {
+		Preconditions_checkState_boolean_Object_H(false, functionNode)
+	}
 	var assignNode Node = functionNode.getParent()
-	Preconditions_checkState_boolean_Object_H((assignNode.isAssign() && functionNode.isSecondChildOf(assignNode)), assignNode)
+	if !(assignNode.isAssign() && functionNode.isSecondChildOf(assignNode)) {
+		Preconditions_checkState_boolean_Object_H(false, assignNode)
+	}
 	var definitionStatement Node = assignNode.getParent()
-	Preconditions_checkState_boolean_Object_H(definitionStatement.isExprResult(), assignNode)
+	if !definitionStatement.isExprResult() {
+		Preconditions_checkState_boolean_Object_H(false, assignNode)
+	}
 	if this.noStubFunctions {
 		var assignStatementParent Node = definitionStatement.getParent()
 		definitionStatement.detach()
@@ -176,15 +194,25 @@ func (this *CrossChunkMethodMotion) movePrototypeDotMethodAssignment(destParent 
 }
 
 func (this *CrossChunkMethodMotion) movePrototypeObjectLiteralMethodShorthand(propName string, destParent Node, functionNode Node) {
-	Preconditions_checkState_boolean_Object_H(functionNode.isFunction(), functionNode)
+	if !functionNode.isFunction() {
+		Preconditions_checkState_boolean_Object_H(false, functionNode)
+	}
 	var memberFunctionDef Node = functionNode.getParent()
-	Preconditions_checkState_boolean_Object_H(memberFunctionDef.isMemberFunctionDef(), memberFunctionDef)
+	if !memberFunctionDef.isMemberFunctionDef() {
+		Preconditions_checkState_boolean_Object_H(false, memberFunctionDef)
+	}
 	var prototypeObjectLiteral Node = memberFunctionDef.getParent()
-	Preconditions_checkState_boolean_Object_H(prototypeObjectLiteral.isObjectLit(), prototypeObjectLiteral)
+	if !prototypeObjectLiteral.isObjectLit() {
+		Preconditions_checkState_boolean_Object_H(false, prototypeObjectLiteral)
+	}
 	var assignNode Node = prototypeObjectLiteral.getParent()
-	Preconditions_checkState_boolean_Object_H((assignNode.isAssign() && prototypeObjectLiteral.isSecondChildOf(assignNode)), assignNode)
+	if !(assignNode.isAssign() && prototypeObjectLiteral.isSecondChildOf(assignNode)) {
+		Preconditions_checkState_boolean_Object_H(false, assignNode)
+	}
 	var ownerDotPrototypeNode Node = assignNode.getFirstChild()
-	Preconditions_checkState_boolean_Object_H((ownerDotPrototypeNode.isQualifiedName() && (ownerDotPrototypeNode.getString() == "prototype")), ownerDotPrototypeNode)
+	if !(ownerDotPrototypeNode.isQualifiedName() && (ownerDotPrototypeNode.getString() == "prototype")) {
+		Preconditions_checkState_boolean_Object_H(false, ownerDotPrototypeNode)
+	}
 	var originalScript Node = NodeUtil_getEnclosingScript(memberFunctionDef)
 	if this.noStubFunctions {
 		memberFunctionDef.detach()
@@ -246,11 +274,17 @@ func (this *CrossChunkMethodMotion) tryToMoveMemberFunction(nameInfo *AnalyzePro
 }
 
 func (this *CrossChunkMethodMotion) moveClassInstanceMethodWithoutStub(classNameNode Node, methodDefinition Node, destinationParent Node) {
-	Preconditions_checkArgument_boolean_Object_H(methodDefinition.isMemberFunctionDef(), methodDefinition)
+	if !methodDefinition.isMemberFunctionDef() {
+		Preconditions_checkArgument_boolean_Object_H(false, methodDefinition)
+	}
 	var classMembers Node = Preconditions_checkNotNull_T(methodDefinition.getParent())
-	Preconditions_checkState_boolean_Object_H(classMembers.isClassMembers(), classMembers)
+	if !classMembers.isClassMembers() {
+		Preconditions_checkState_boolean_Object_H(false, classMembers)
+	}
 	var classNode Node = classMembers.getParent()
-	Preconditions_checkState_boolean_Object_H(classNode.isClass(), classNode)
+	if !classNode.isClass() {
+		Preconditions_checkState_boolean_Object_H(false, classNode)
+	}
 	var originalScript Node = NodeUtil_getEnclosingScript(methodDefinition)
 	methodDefinition.detach()
 	this.compiler_.reportChangeToEnclosingScope(classMembers)
@@ -265,11 +299,17 @@ func (this *CrossChunkMethodMotion) moveClassInstanceMethodWithoutStub(className
 }
 
 func (this *CrossChunkMethodMotion) moveClassInstanceMethodWithStub(classNameNode Node, methodDefinition Node, destinationParent Node) {
-	Preconditions_checkArgument_boolean_Object_H(methodDefinition.isMemberFunctionDef(), methodDefinition)
+	if !methodDefinition.isMemberFunctionDef() {
+		Preconditions_checkArgument_boolean_Object_H(false, methodDefinition)
+	}
 	var classMembers Node = Preconditions_checkNotNull_T(methodDefinition.getParent())
-	Preconditions_checkState_boolean_Object_H(classMembers.isClassMembers(), classMembers)
+	if !classMembers.isClassMembers() {
+		Preconditions_checkState_boolean_Object_H(false, classMembers)
+	}
 	var classNode Node = classMembers.getParent()
-	Preconditions_checkState_boolean_Object_H(classNode.isClass(), classNode)
+	if !classNode.isClass() {
+		Preconditions_checkState_boolean_Object_H(false, classNode)
+	}
 	var stubId int32 = this.idGenerator_.newId()
 	var clonedNameNode Node = classNameNode.cloneNode().copyTypeFrom(classNode)
 	var classNameDotPrototypeDotPropName Node = this.astFactory_.createGetProp(this.astFactory_.createPrototypeAccess(clonedNameNode), methodDefinition.getString(), AstFactory_type_Node(methodDefinition))

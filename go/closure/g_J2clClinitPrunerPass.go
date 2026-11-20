@@ -146,7 +146,9 @@ func J2clClinitPrunerPass_isClinitMethodName(fnName Optional[string]) bool {
 }
 
 func J2clClinitPrunerPass_getQualifiedNameOfFunction(function Node) Optional[string] {
-	Preconditions_checkArgument_boolean_Object_H(function.isFunction(), function)
+	if !function.isFunction() {
+		Preconditions_checkArgument_boolean_Object_H(false, function)
+	}
 	var lValue Node = NodeUtil_getBestLValue(function)
 	return NodeUtil_getBestLValueName(lValue)
 }
@@ -387,7 +389,9 @@ func (this *J2clClinitPrunerPass_EmptyClinitPruner) isAssignToEmptyFn(node Node,
 	if lhs.isGetElem() {
 		return false
 	}
-	Preconditions_checkState_boolean_Object_H((lhs.isName() || lhs.isGetProp()), lhs)
+	if !(lhs.isName() || lhs.isGetProp()) {
+		Preconditions_checkState_boolean_Object_H(false, lhs)
+	}
 	var rhs Node = node.getFirstChild().getLastChild()
 	return (NodeUtil_isEmptyFunctionExpression(rhs) && Object_equals(NodeUtil_getBestLValueName(lhs).box_(), Optional_of[string](enclosingFnName).box_()))
 }
