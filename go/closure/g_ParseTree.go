@@ -8,18 +8,19 @@ type ParseTree struct {
 	location_ *SourceRange
 }
 
+// ParseTree_as is implemented by ParseTree and the classes that extend it: a cast to ParseTree asserts to it
+// (post-flip).
+type ParseTree_as interface {
+	as_ParseTree() *ParseTree
+}
+
 func (this *ParseTree) as_ParseTree() *ParseTree { return this }
 
 func to_ParseTree(v any) *ParseTree {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ParseTree() *ParseTree }).as_ParseTree()
-}
-
-func is_ParseTree(v any) bool {
-	_, ok := v.(interface{ as_ParseTree() *ParseTree })
-	return ok
+	return v.(ParseTree_as).as_ParseTree()
 }
 
 func (this *ParseTree) self() any {

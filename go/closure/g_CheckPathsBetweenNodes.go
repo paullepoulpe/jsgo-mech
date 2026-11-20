@@ -13,11 +13,6 @@ type CheckPathsBetweenNodes[N comparable, E comparable] struct {
 
 func (this *CheckPathsBetweenNodes[N, E]) isa_CheckPathsBetweenNodes_() {}
 
-func is_CheckPathsBetweenNodes(v any) bool {
-	_, ok := v.(interface{ isa_CheckPathsBetweenNodes_() })
-	return ok
-}
-
 func (this *CheckPathsBetweenNodes[N, E]) init_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate_boolean(graph *DiGraph[N, E], a DiGraph_DiGraphNode[N, E], b DiGraph_DiGraphNode[N, E], nodePredicate Predicate_baseOf[N], edgePredicate Predicate_baseOf[DiGraph_DiGraphEdge[N, E]], inclusive bool) {
 	this.graph = graph
 	this.start_ = a
