@@ -122,17 +122,7 @@ func new_Timeline_Time(name string) *Timeline_Time {
 }
 
 func (this *Timeline_Time) equals(anObject any) bool {
-	var time *Timeline_Time
-	_ = time
-	if func() bool {
-		v_ := anObject
-		p, ok := v_.(*Timeline_Time)
-		if !ok {
-			return false
-		}
-		time = p
-		return true
-	}() {
+	if time, ok := anObject.(*Timeline_Time); ok {
 		return (this.name_ == time.name_)
 	}
 	return false

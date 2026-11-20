@@ -87,17 +87,7 @@ func TranspilationException_format(source SourceExcerptProvider, errors *TList[*
 }
 
 func TranspilationException_tryCastToTranspilationException(t *Throwable) *TranspilationException {
-	var transpilationException *TranspilationException
-	_ = transpilationException
-	if func() bool {
-		v_ := t.self()
-		p, ok := v_.(*TranspilationException)
-		if !ok {
-			return false
-		}
-		transpilationException = p
-		return true
-	}() {
+	if transpilationException, ok := t.self().(*TranspilationException); ok {
 		return transpilationException
 	}
 	return nil
