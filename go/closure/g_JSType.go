@@ -99,8 +99,6 @@ type JSType_I interface {
 	toMaybeTemplatizedType_impl() *TemplatizedType
 	toMaybeUnionType_impl() *UnionType
 	toString_impl() string
-	visitUntyped_2_impl(RelationshipVisitor, *JSType) any
-	visitUntyped_impl(Visitor) any
 	clearCachedValues_impl()
 	defineProperty_impl(Property_Key, *JSType, bool, Node) bool
 	getConstructor_impl() *FunctionType
@@ -453,7 +451,7 @@ func (this *JSType) isDict_impl() bool {
 
 func (this *JSType) containsReferenceAncestor(target *JSType) bool {
 	var visitor *ContainsUpperBoundSuperTypeVisitor = new_ContainsUpperBoundSuperTypeVisitor(target)
-	return (cast_[ContainsUpperBoundSuperTypeVisitor_Result](this.visit(ContainsUpperBoundSuperTypeVisitor_as_Visitor(visitor))) == ContainsUpperBoundSuperTypeVisitor_Result_PRESENT)
+	return (JSType_visit(this, ContainsUpperBoundSuperTypeVisitor_as_Visitor(visitor)) == ContainsUpperBoundSuperTypeVisitor_Result_PRESENT)
 }
 
 func (this *JSType) isLiteralObject() bool {
@@ -729,7 +727,7 @@ func (this *JSType) findPropertyTypeKey(propertyName Property_Key) *JSType {
 	}
 	var typeMap *TemplateTypeMap = this.getTemplateTypeMap()
 	var replacer *TemplateTypeReplacer = TemplateTypeReplacer_forPartialReplacement(this.registry, typeMap)
-	return to_JSType(propertyType.visit(TemplateTypeReplacer_as_Visitor(replacer)))
+	return JSType_visit(propertyType, TemplateTypeReplacer_as_Visitor(replacer))
 }
 
 func (this *JSType) findPropertyType(propertyName string) *JSType {
@@ -749,7 +747,7 @@ func (this *JSType) canBeCalled_impl() bool {
 }
 
 func (this *JSType) canCastTo(that *JSType) bool {
-	return unbox_[bool](this.visit_2(CanCastToVisitor_as_RelationshipVisitor(JSType_CAN_CAST_TO_VISITOR), that))
+	return JSType_visit_2(this, CanCastToVisitor_as_RelationshipVisitor(JSType_CAN_CAST_TO_VISITOR), that)
 }
 
 func (this *JSType) autoboxesTo_impl() *JSType {
@@ -1056,12 +1054,120 @@ func (this *JSType) isSubtypeOf_2(supertype *JSType, mode JSType_SubtypingMode) 
 	return this.registry.subtypeChecker_().setSubtype(this).setSupertype(supertype).setUsingStructuralSubtyping(true).setSubtypingMode(mode).checkAndRelease_()
 }
 
-func (this *JSType) visit(visitor Visitor) any {
-	return this.visitUntyped(visitor)
+// JSType_visit is JSType.visit: the class's visitUntyped override, chosen by a type switch on the most
+// derived object (post-flip: visit).
+func JSType_visit[T any](this *JSType, visitor Visitor[T]) T {
+	switch this := this.self_.(type) {
+	case *AllType:
+		return visitor.caseAllType()
+	case *ArrowType:
+		panic(new_UnsupportedOperationException_0())
+	case *BigIntType:
+		return visitor.caseBigIntType()
+	case *BooleanType:
+		return visitor.caseBooleanType()
+	case *EnumElementType:
+		return visitor.caseEnumElementType(this)
+	case *EnumType:
+		return visitor.caseObjectType(this.up_ObjectType())
+	case *FunctionType:
+		return visitor.caseFunctionType(this)
+	case *InstanceObjectType:
+		return visitor.caseObjectType(this.up_ObjectType())
+	case *KnownSymbolType:
+		return visitor.caseSymbolType(this.up_SymbolType())
+	case *NamedType:
+		return visitor.caseNamedType(this)
+	case *NoObjectType:
+		return visitor.caseNoObjectType()
+	case *NoResolvedType:
+		return visitor.caseObjectType(this.up_ObjectType())
+	case *NoType:
+		return visitor.caseNoType(this)
+	case *NullType:
+		return visitor.caseNullType()
+	case *NumberType:
+		return visitor.caseNumberType()
+	case *PrototypeObjectType:
+		return visitor.caseObjectType(this.up_ObjectType())
+	case *ProxyObjectType:
+		return visitor.caseProxyObjectType(this)
+	case *RecordType:
+		return visitor.caseObjectType(this.up_ObjectType())
+	case *StringType:
+		return visitor.caseStringType()
+	case *SymbolType:
+		return visitor.caseSymbolType(this)
+	case *TemplateType:
+		return visitor.caseTemplateType(this)
+	case *TemplatizedType:
+		return visitor.caseTemplatizedType(this)
+	case *UnionType:
+		return visitor.caseUnionType(this)
+	case *UnknownType:
+		return visitor.caseUnknownType()
+	case *VoidType:
+		return visitor.caseVoidType()
+	}
+	panic(new_NullPointerException_0()) // self_ is nil
 }
 
-func (this *JSType) visit_2(visitor RelationshipVisitor, that *JSType) any {
-	return this.visitUntyped_2(visitor, that)
+// JSType_visit_2 is JSType.visit_2: the class's visitUntyped_2 override, chosen by a type switch on the most
+// derived object (post-flip: visit).
+func JSType_visit_2[T any](this *JSType, visitor RelationshipVisitor[T], that *JSType) T {
+	switch this := this.self_.(type) {
+	case *AllType:
+		return visitor.caseAllType(that)
+	case *ArrowType:
+		panic(new_UnsupportedOperationException_0())
+	case *BigIntType:
+		return visitor.caseValueType(this.up_ValueType(), that)
+	case *BooleanType:
+		return visitor.caseValueType(this.up_ValueType(), that)
+	case *EnumElementType:
+		return visitor.caseEnumElementType(this, that)
+	case *EnumType:
+		return visitor.caseObjectType(this.up_ObjectType(), that)
+	case *FunctionType:
+		return visitor.caseFunctionType(this, that)
+	case *InstanceObjectType:
+		return visitor.caseObjectType(this.up_ObjectType(), that)
+	case *KnownSymbolType:
+		return visitor.caseValueType(this.up_ValueType(), that)
+	case *NamedType:
+		return JSType_visit_2(this.referencedType, visitor, that)
+	case *NoObjectType:
+		return visitor.caseNoObjectType(that)
+	case *NoResolvedType:
+		return visitor.caseObjectType(this.up_ObjectType(), that)
+	case *NoType:
+		return visitor.caseNoType(that)
+	case *NullType:
+		return visitor.caseValueType(this.up_ValueType(), that)
+	case *NumberType:
+		return visitor.caseValueType(this.up_ValueType(), that)
+	case *PrototypeObjectType:
+		return visitor.caseObjectType(this.up_ObjectType(), that)
+	case *ProxyObjectType:
+		return JSType_visit_2(this.referencedType, visitor, that)
+	case *RecordType:
+		return visitor.caseObjectType(this.up_ObjectType(), that)
+	case *StringType:
+		return visitor.caseValueType(this.up_ValueType(), that)
+	case *SymbolType:
+		return visitor.caseValueType(this.up_ValueType(), that)
+	case *TemplateType:
+		return visitor.caseTemplateType(this, that)
+	case *TemplatizedType:
+		return visitor.caseTemplatizedType(this, that)
+	case *UnionType:
+		return visitor.caseUnionType(this, that)
+	case *UnknownType:
+		return visitor.caseUnknownType(this.up_JSType(), that)
+	case *VoidType:
+		return visitor.caseValueType(this.up_ValueType(), that)
+	}
+	panic(new_NullPointerException_0()) // self_ is nil
 }
 
 func (this *JSType) resolve(reporter ErrorReporter_rhino) *JSType {
@@ -1161,14 +1267,6 @@ func (this *JSType) getDisplayName() Optional[string] {
 
 func (this *JSType) hasDisplayName() bool {
 	return this.self_.hasDisplayName_impl()
-}
-
-func (this *JSType) visitUntyped(p0 Visitor) any {
-	return this.self_.visitUntyped_impl(p0)
-}
-
-func (this *JSType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
-	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
 func (this *JSType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
