@@ -16,7 +16,7 @@ type RandomNameGenerator struct {
 
 func (this *RandomNameGenerator) zero_RandomNameGenerator() {
 	this.prefix_ = nullstr_
-	this.prefix_U16 = utf16Of_(this.prefix_)
+	this.prefix_U16 = utf16Kept_(this.prefix_)
 	this.shuffledFirst = nullstr_
 }
 
@@ -63,7 +63,7 @@ func (this *RandomNameGenerator) reset(reservedNames SetOf[string], prefix strin
 func (this *RandomNameGenerator) reset_4(reservedNames SetOf[string], prefix string, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any]) {
 	this.reservedNames = jimmutableSetCopyOf_(jtc_string, Collection(reservedNames))
 	this.prefix_ = prefix
-	this.prefix_U16 = utf16Of_(this.prefix_)
+	this.prefix_U16 = utf16Kept_(this.prefix_)
 	this.nameCount = 0
 	this.firstChars = tsetImm_(tc_Character, Sets_difference(RandomNameGenerator_FIRST_CHAR.asSet(), reservedFirstCharacters.asSet()).immutableCopy())
 	this.nonFirstChars = tsetImm_(tc_Character, Sets_difference(RandomNameGenerator_NONFIRST_CHAR.asSet(), reservedNonFirstCharacters.asSet()).immutableCopy())

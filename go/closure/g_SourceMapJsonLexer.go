@@ -11,7 +11,7 @@ type SourceMapJsonLexer struct {
 
 func (this *SourceMapJsonLexer) zero_SourceMapJsonLexer() {
 	this.json = nullstr_
-	this.jsonU16 = utf16Of_(this.json)
+	this.jsonU16 = utf16Kept_(this.json)
 }
 
 func (this *SourceMapJsonLexer) finit_SourceMapJsonLexer() {
@@ -21,7 +21,7 @@ func (this *SourceMapJsonLexer) finit_SourceMapJsonLexer() {
 func (this *SourceMapJsonLexer) init_SourceMapJsonLexer(json string) {
 	this.finit_SourceMapJsonLexer()
 	this.json = json
-	this.jsonU16 = utf16Of_(this.json)
+	this.jsonU16 = utf16Kept_(this.json)
 	this.length_ = String_length(json)
 }
 
