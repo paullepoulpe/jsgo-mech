@@ -81,14 +81,14 @@ func (this *LinkedUndirectedGraph[N, E]) disconnect_impl(srcValue N, destValue N
 }
 
 func (this *LinkedUndirectedGraph[N, E]) createUndirectedGraphNode_impl(nodeValue N) UndiGraph_UndiGraphNode[N, E] {
-	return cast_[UndiGraph_UndiGraphNode[N, E]](this.nodes_.computeIfAbsent(nodeValue, &Function_tfn[N, any]{func(k N) any {
+	return cast_[UndiGraph_UndiGraphNode[N, E]](this.nodes_.ComputeIfAbsentObj(nodeValue, func(k N) any {
 		return func() any {
 			if this.useNodeAnnotations {
 				return obj_(new_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode[N, E](k))
 			}
 			return new_LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E](k).self()
 		}()
-	}}).self())
+	}).self())
 }
 
 func (this *LinkedUndirectedGraph[N, E]) getNeighborNodes_impl(value N) ListOf[GraphNode[N, E]] {

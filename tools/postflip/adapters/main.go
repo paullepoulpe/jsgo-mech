@@ -4,6 +4,8 @@
 //	o.filter(&Predicate_tfn_string{func(s string) bool { ... }})      ->  o.filterFn_(func(s string) bool { ... })
 //	m.computeIfAbsent(k, &Function_tfn_string_Foo{func(k string) *Foo { ... }})
 //	                                                                  ->  m.ComputeIfAbsent(k, func(k string) *Foo { ... })
+//	m.computeIfAbsent(k, &Function_tfn_string_any{func(k string) any { ... }})
+//	                                                                  ->  m.ComputeIfAbsentObj(k, func(k string) any { ... })
 //	Map_computeIfAbsent(m, k, &Function_fn{func(k any) any { ... }})   ->  Map_computeIfAbsent_f(m, k, func(k any) any { ... })
 //
 // The typed translator writes a Java lambda passed as a Predicate<T> or Function<K, V> as an
@@ -17,6 +19,8 @@
 //   - (*TMap[K, V]).computeIfAbsent: ComputeIfAbsent (rt_tmap.go, tools/postflip/tnames) calls
 //     the function with the key as it is and stores its result unless it is null, as
 //     computeIfAbsent does through the adapter. The function must be a func(K) V.
+//     A func(K) any (the lambda's result is an Object: X_tfn_K_any) goes to ComputeIfAbsentObj,
+//     which unboxes the result as computeIfAbsent unboxes what the adapter returns.
 //   - Map_computeIfAbsent with an erased wrapper &Function_fn{func(any) any}:
 //     Map_computeIfAbsent_f (rt_coll.go) is the same function with the func value.
 //
@@ -137,7 +141,13 @@ func main() {
 					return true
 				}
 				if !sigIs(fl, []types.Type{nt.TypeArgs().At(0)}, nt.TypeArgs().At(1)) {
-					left[rule+": the function is not a func(K) V of the map's types"]++
+					if sigIs(fl, []types.Type{nt.TypeArgs().At(0)}, anyT) {
+						done[rule+" -> ComputeIfAbsentObj"]++
+						rw.Rewrite[sel.Sel] = func() string { return "ComputeIfAbsentObj" }
+						rw.Rewrite[call.Args[1]] = func() string { return rw.Render(fl) }
+						return true
+					}
+					left[rule+": the function is neither a func(K) V of the map's types nor a func(K) any"]++
 					return true
 				}
 				done[rule+" -> ComputeIfAbsent"]++
