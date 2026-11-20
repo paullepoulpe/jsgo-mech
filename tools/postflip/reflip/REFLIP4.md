@@ -201,3 +201,19 @@ dead runtime patches dropped, steps 554a, 554b and 555 of inb-stepper appended):
 replay4q, one run from the flip base without a stop, 273 commits, tip add052af (go/ tree
 2af55fe7). Gate on branch inb-toolgaps-tree: ok jsgomech/closure; checks, bundle, downlevel,
 advanced MATCH. The driver takes the overlay worktree from REFLIP_OVERLAY.
+
+## The final list replayed from start to finish (2026-11-20)
+
+`REFLIP_OVERLAY=<this overlay> bash tools/postflip/reflip/replay4i.sh replay4r`, unattended, on
+the list through step 556: `REPLAY DONE`, 274 commits, go/ tree 4fa1f1ee, the same tree as the
+gated one (inb-toolgaps-tree b59f6ea1: runtime tests ok; checks, bundle, downlevel, advanced
+MATCH).
+
+Timing of that tree on an idle host, same output as Java: the full googleapis-bench 585.5 s
+against pre-flip Java's 454.1 s (0.78; CHECKS 309.3 / 213.9, OPTIMIZATIONS 226.3 / 199.6,
+FINALIZATIONS 49.9 / 40.7; peak memory 17.5 / 14.3 GB); the 18% subset 100.7 / 101.0 s against
+94.1 / 95.5 s (0.94). The subset is for comparing steps; the full benchmark is the standing.
+
+The Java-ism accounting of this tree is JAVAISMS4.md beside this file (scripts in javaisms4/,
+the per-site classifier in tools/postflip/jclass). Its largest item: Java's library generics
+are still erased (the 52 XOf aliases), about 2,020 sites.
