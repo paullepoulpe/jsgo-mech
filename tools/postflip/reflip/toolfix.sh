@@ -148,3 +148,49 @@ if [[ -f $ng ]] && ! grep -q 'reflip10' $ng && grep -q 'reflip: generic instance
   perl -0pi -e 's/(\t\t\t\tflow\(resultNode\(g, i\), e, true\)\n)/\t\t\t\tif rw.ReflipGeneric_(resultType(x, i), false) { \/\/ reflip10\n\t\t\t\t\tpoison(resultNode(g, i), "result of a type parameter\x27s type")\n\t\t\t\t}\n$1/' $ng
   perl -0pi -e 's/(\tif f\.Origin\(\) != f \{ \/\/ reflip: generic instance\n\t\tpoison\(paramNode\(groupOf\(f\), i\), "argument of a method of a generic type"\))/\tif rw.ReflipGeneric_(sig.Params().At(i).Type(), false) { \/\/ reflip10\n\t\tpoison(paramNode(groupOf(f), i), "parameter of a type parameter\x27s type")\n\t}\n$1/' $ng
 fi
+# 11. (fourth flip) visit: the translator's rule "implicit conversions" writes a Java upcast of a visitor to its interface as a Go
+#    conversion, Visitor(this), and the nil-keeping upcast helpers X_as_Visitor(v *X) Visitor { if v == nil { return nil }; return v }
+#    (g_0casts.go); the erased output had icast_Visitor(obj_(this)) there. The tool follows visitor values through classes, slots
+#    and assertions: a conversion to a visitor interface is the value of its operand, the type name it spells is a slot of that
+#    value's class (it becomes Visitor[T](x)), and a nil stored, passed or returned as a visitor is no value of any class.
+vg=tools/postflip/visit/main.go
+if [[ -f $vg ]] && ! grep -q 'reflip11' $vg; then
+  perl -0pi -e '
+    s/(func valueNode\(e ast\.Expr\) any \{\n\te = rw\.Unparen\(e\)\n)/$1\tif a := reflipConvArg_(e); a != nil { \/\/ reflip11\n\t\treturn valueNode(a)\n\t}\n/;
+    s/(\tcase \*ast\.TypeAssertExpr:\n\t\treturn x\n\t\}\n\treturn nil\n\}\n\n\/\/ ---- rewriting)/\tcase *ast.CallExpr: \/\/ reflip11: the type name of a conversion Visitor(x)\n\t\tif reflipConvArg_(x) != nil \&\& rw.Unparen(x.Fun) == ast.Expr(id) {\n\t\t\treturn x\n\t\t}\n$1/;
+    s/(\t\t\tcase \*ast\.CallExpr:\n)(\t\t\t\tfn := calledFunc\(n\)\n\t\t\t\tif fn == nil \{\n\t\t\t\t\treturn true\n\t\t\t\t\}\n\t\t\t\tsig, ok := fn\.Type\(\)\.\(\*types\.Signature\)\n\t\t\t\tif !ok \|\| sig\.Variadic\(\))/$1\t\t\t\tif a := reflipConvArg_(n); a != nil { \/\/ reflip11\n\t\t\t\t\tif vn := valueNode(a); vn != nil {\n\t\t\t\t\t\tunion(n, vn)\n\t\t\t\t\t} else if !reflipNil_(a) {\n\t\t\t\t\t\tfail(a, "a value %s converted to a visitor that is not a visitor class or slot", rw.Text(a))\n\t\t\t\t\t}\n\t\t\t\t\treturn true\n\t\t\t\t}\n$2/;
+    s/(\t\t\t\t\t\tif vn := valueNode\(a\); vn != nil \{\n\t\t\t\t\t\t\tunion\(p\.Origin\(\), vn\)\n\t\t\t\t\t\t\} else) \{/$1 if !reflipNil_(a) { \/\/ reflip11/;
+    s/(\t\t\t\t\tif vn := valueNode\(n\.Results\[0\]\); vn != nil \{\n\t\t\t\t\t\tunion\(ft, vn\)\n\t\t\t\t\t\} else) \{/$1 if !reflipNil_(n.Results[0]) { \/\/ reflip11/;
+    s/(\tif lt == nil \|\| !isVisitorType\(lt\)) \{/$1 || reflipNil_(r) { \/\/ reflip11/;
+  ' $vg
+  cat >> $vg <<'G'
+
+// reflipConvArg_ is the operand x of a conversion I(x) to a visitor interface I, or nil.
+func reflipConvArg_(e ast.Expr) ast.Expr {
+	c, ok := rw.Unparen(e).(*ast.CallExpr)
+	if !ok || len(c.Args) != 1 {
+		return nil
+	}
+	id, ok := rw.Unparen(c.Fun).(*ast.Ident)
+	if !ok {
+		return nil
+	}
+	tn, ok := rw.Info.Uses[id].(*types.TypeName)
+	if !ok || !isVisitorType(tn.Type()) {
+		return nil
+	}
+	return c.Args[0]
+}
+
+// reflipNil_ reports whether e is the predeclared nil.
+func reflipNil_(e ast.Expr) bool {
+	id, ok := rw.Unparen(e).(*ast.Ident)
+	if !ok {
+		return false
+	}
+	_, isNil := rw.Info.Uses[id].(*types.Nil)
+	return isNil
+}
+G
+  [[ $(grep -c 'reflip11' $vg) == 6 ]] || { echo "toolfix: visit: anchors not found" >&2; exit 1; }
+fi
