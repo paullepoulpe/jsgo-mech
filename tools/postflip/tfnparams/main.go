@@ -29,11 +29,16 @@
 // of a method X has (with arguments that compute nothing when there are several) or such a
 // forwarding. Everything else is left and counted. A rerun changes nothing.
 //
-// At the re-flip's tip (after fbound, jsdocprops, implsplit) no parameter qualifies: -n -v lists
-// every parameter of a functional interface type by the reason it stays (given a named object
-// such as RemoveUnusedCode's RemovalLogRecord suppliers, a runtime value such as
-// Predicates.alwaysTrue(), an adapter made in an immediately called literal; stored in a field;
-// listed by a Java interface).
+// Two more arguments are accepted besides the adapter literal. An adapter made by an immediately
+// called literal (func() *X { ...; return &X{f} }()) is the literal returning f (result type X's
+// function type). A named object of a class C that has the typed method mT_ of the adapter's
+// method m (implsplit: javac's typed method, m its bridge boxing mT_'s result as the adapter's m
+// boxes f's) is the method value o.mT_, where o is never null: a constructor call new_C(..), or a
+// call of a function whose body only returns such a call (RemoveUnusedCode's RemovalLogRecord
+// factories). The method value evaluates o where the argument was evaluated, and a call of it
+// is the call of the bridge with the boxing undone, as for the adapter. -n -v lists every other
+// parameter of a functional interface type by the reason it stays (a runtime value such as
+// Predicates.alwaysTrue(); stored in a field; listed by a Java interface).
 //
 // usage: tfnparams [-n] [-v] <dir of package closure>
 package main
@@ -73,6 +78,8 @@ type group struct {
 	ftype   *types.Signature      // X's function type
 	why     string
 	uses    []*ast.Ident
+	named   []ast.Expr // arguments that are named objects with the typed method <method>T_
+	method  string     // the adapter's method
 }
 
 var (
@@ -418,8 +425,14 @@ func analyse(g *group) {
 		}
 		x, _ := adapterOf(a)
 		if x == nil {
-			g.why = "given another value than a typed lambda adapter"
-			return
+			if x, _ = iifeOf(a); x == nil {
+				if namedObj(a) != nil {
+					g.named = append(g.named, a)
+					continue
+				}
+				g.why = "given another value than a typed lambda adapter"
+				return
+			}
 		}
 		if g.adapter == nil {
 			g.adapter = x
@@ -433,6 +446,21 @@ func analyse(g *group) {
 		return
 	}
 	g.ftype = g.adapter.Underlying().(*types.Struct).Field(0).Type().(*types.Signature)
+	// the named objects: a class with the typed method of the adapter's method and its bridge
+	if len(g.named) > 0 {
+		ms := types.NewMethodSet(types.NewPointer(g.adapter))
+		if ms.Len() != 1 {
+			g.why = "given a named object and the adapter has several methods"
+			return
+		}
+		g.method = ms.At(0).Obj().Name()
+		for _, a := range g.named {
+			if why := typedMethodOf(g, namedObj(a)); why != "" {
+				g.why = why
+				return
+			}
+		}
+	}
 	// the uses of the parameter
 	for i, fd := range g.decls {
 		p := g.params[i]
@@ -663,6 +691,25 @@ func rewrite(g *group) {
 		if _, fl := adapterOf(a); fl != nil {
 			counts["adapter objects given to them are their functions"]++
 			rw.Rewrite[a] = func() string { return rw.Render(fl) }
+			continue
+		}
+		if _, lit := iifeOf(a); lit != nil {
+			counts["adapters made by an immediately called literal are their functions"]++
+			rw.Rewrite[lit.Type.Results.List[0].Type] = func() string { return ft }
+			for _, r := range returnsOf(lit) {
+				_, fl := adapterOf(r.Results[0])
+				rw.Rewrite[r.Results[0]] = func() string { return rw.Render(fl) }
+			}
+		}
+	}
+	for _, a := range g.named {
+		a := a
+		counts["named objects given to them are their typed method values"]++
+		rw.Rewrite[a] = func() string {
+			if in := reflipUnwrap_(a); in != a {
+				return rw.Render(in) + "." + g.method + "T_"
+			}
+			return rw.RenderChildren(a) + "." + g.method + "T_"
 		}
 	}
 	// the calls of the parameter
@@ -758,4 +805,187 @@ func renderWith(n ast.Node, subst map[ast.Node]string) string {
 		}
 	}
 	return s
+}
+
+// returnsOf: the return statements of a function literal (not of literals inside it).
+func returnsOf(fl *ast.FuncLit) []*ast.ReturnStmt {
+	var out []*ast.ReturnStmt
+	ast.Inspect(fl.Body, func(n ast.Node) bool {
+		switch x := n.(type) {
+		case *ast.FuncLit:
+			return false
+		case *ast.ReturnStmt:
+			out = append(out, x)
+		}
+		return true
+	})
+	return out
+}
+
+// iifeOf: func() *X { ...; return &X{f} }() with every return an adapter literal of X.
+func iifeOf(e ast.Expr) (*types.Named, *ast.FuncLit) {
+	c, ok := rw.Unparen(e).(*ast.CallExpr)
+	if !ok || len(c.Args) != 0 {
+		return nil, nil
+	}
+	lit, ok := rw.Unparen(c.Fun).(*ast.FuncLit)
+	if !ok || lit.Type.Params.NumFields() != 0 || lit.Type.Results == nil || len(lit.Type.Results.List) != 1 || len(lit.Type.Results.List[0].Names) != 0 {
+		return nil, nil
+	}
+	var x *types.Named
+	rets := returnsOf(lit)
+	if len(rets) == 0 {
+		return nil, nil
+	}
+	for _, r := range rets {
+		if len(r.Results) != 1 {
+			return nil, nil
+		}
+		rx, _ := adapterOf(r.Results[0])
+		if rx == nil || (x != nil && rx != x) {
+			return nil, nil
+		}
+		x = rx
+	}
+	if !types.Identical(rw.Info.TypeOf(lit.Type.Results.List[0].Type), types.NewPointer(x)) {
+		return nil, nil
+	}
+	return x, lit
+}
+
+// namedObj: the class C of an argument that is a never-null object of a named class: a
+// constructor call new_C(..) (j2go's constructors return the object they make), or a call of a
+// package function whose body is only `return E` with E such a call.
+func namedObj(e ast.Expr) *types.Named {
+	return namedObjN(reflipUnwrap_(e), 3) // reflip14
+}
+
+func namedObjN(e ast.Expr, depth int) *types.Named {
+	if depth == 0 {
+		return nil
+	}
+	c, ok := rw.Unparen(e).(*ast.CallExpr)
+	if !ok {
+		return nil
+	}
+	id, ok := rw.Unparen(c.Fun).(*ast.Ident)
+	if !ok {
+		return nil
+	}
+	fo, ok := rw.Info.Uses[id].(*types.Func)
+	if !ok || fo.Pkg() != rw.Pkg {
+		return nil
+	}
+	pt, ok := types.Unalias(rw.Info.TypeOf(e)).(*types.Pointer)
+	if !ok {
+		return nil
+	}
+	nt, ok := types.Unalias(pt.Elem()).(*types.Named)
+	if !ok || nt.Obj().Pkg() != rw.Pkg || nt.TypeParams().Len() > 0 {
+		return nil
+	}
+	if fo.Name() == "new_"+nt.Obj().Name() || strings.HasPrefix(fo.Name(), "new_"+nt.Obj().Name()+"_") {
+		return nt
+	}
+	fd := declOf[fo]
+	if fd == nil || fd.Body == nil || len(fd.Body.List) != 1 {
+		return nil
+	}
+	r, ok := fd.Body.List[0].(*ast.ReturnStmt)
+	if !ok || len(r.Results) != 1 {
+		return nil
+	}
+	if namedObjN(r.Results[0], depth-1) != nt {
+		return nil
+	}
+	return nt
+}
+
+// typedMethodOf: C has mT_ of the group's function type, and C's m is its bridge: m's body is
+// the adapter's m with this.f in place of this.mT_.
+func typedMethodOf(g *group, c *types.Named) string {
+	o, _, _ := types.LookupFieldOrMethod(types.NewPointer(c), true, rw.Pkg, g.method+"T_")
+	tm, ok := o.(*types.Func)
+	if !ok {
+		return "given a named object without the typed method " + g.method + "T_"
+	}
+	sig := tm.Type().(*types.Signature)
+	if !types.Identical(types.NewSignatureType(nil, nil, nil, sig.Params(), sig.Results(), sig.Variadic()), g.ftype) {
+		return "given a named object whose typed method has another signature"
+	}
+	bd := methodDecl(c, g.method)
+	ad := methodDecl(g.adapter, g.method)
+	if bd == nil || ad == nil || shape(ad, "f") == "" || shape(ad, "f") != shape(bd, g.method+"T_") {
+		return "given a named object whose method is not the bridge of its typed method"
+	}
+	return ""
+}
+
+// shape: the single statement of a method, with this.<fn> and the parameters renamed.
+func shape(fd *ast.FuncDecl, fn string) string {
+	recv := rw.Info.Defs[fd.Recv.List[0].Names[0]]
+	subst := map[ast.Node]string{}
+	i := 0
+	params := map[types.Object]string{}
+	for _, f := range fd.Type.Params.List {
+		for _, n := range f.Names {
+			params[rw.Info.Defs[n]] = fmt.Sprintf("P%d", i)
+			i++
+		}
+	}
+	ok := true
+	ast.Inspect(fd.Body, func(n ast.Node) bool {
+		switch x := n.(type) {
+		case *ast.SelectorExpr:
+			if id, isId := x.X.(*ast.Ident); isId && rw.Info.Uses[id] == recv {
+				if x.Sel.Name != fn {
+					ok = false
+				}
+				subst[x] = "F"
+				return false
+			}
+		case *ast.Ident:
+			if p, isP := params[rw.Info.Uses[x]]; isP {
+				subst[x] = p
+			}
+		}
+		return true
+	})
+	if !ok {
+		return ""
+	}
+	return renderWith(fd.Body.List[0], subst)
+}
+
+// reflipUnwrap_ is the operand x of an upcast I(x) to an interface type, or of a nil-keeping
+// upcast helper C_as_I(x) (`if v == nil { return nil }; return v`); else e.
+func reflipUnwrap_(e ast.Expr) ast.Expr {
+	c, ok := rw.Unparen(e).(*ast.CallExpr)
+	if !ok || len(c.Args) != 1 {
+		return e
+	}
+	id, ok := rw.Unparen(c.Fun).(*ast.Ident)
+	if !ok {
+		return e
+	}
+	switch o := rw.Info.Uses[id].(type) {
+	case *types.TypeName:
+		if types.IsInterface(o.Type()) {
+			return c.Args[0]
+		}
+	case *types.Func:
+		fd := declOf[o]
+		if fd == nil || fd.Body == nil || len(fd.Body.List) != 2 || !strings.Contains(o.Name(), "_as_") || len(fd.Type.Params.List) != 1 || len(fd.Type.Params.List[0].Names) != 1 {
+			return e
+		}
+		_, isIf := fd.Body.List[0].(*ast.IfStmt)
+		r, isRet := fd.Body.List[1].(*ast.ReturnStmt)
+		if !isIf || !isRet || len(r.Results) != 1 {
+			return e
+		}
+		if rid, ok := r.Results[0].(*ast.Ident); ok && rw.Info.Uses[rid] == rw.Info.Defs[fd.Type.Params.List[0].Names[0]] {
+			return c.Args[0]
+		}
+	}
+	return e
 }

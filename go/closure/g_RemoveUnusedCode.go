@@ -1392,8 +1392,14 @@ func new_RemoveUnusedCode_RemovalLogRecord_String_Supplier(kind string, nameSupp
 	return this
 }
 
+// getT_ is get with the result type the class declares (implsplit).
+func (this *RemoveUnusedCode_RemovalLogRecord) getT_() string {
+	return String_join_CharSequence_CharSequenceArr("\t", []any{strobj_(this.kind_), this.nameSupplier(), this.functionNameSupplier.get()})
+}
+
+// get is the bridge of the interface's erased signature (javac's): it boxes the result of getT_.
 func (this *RemoveUnusedCode_RemovalLogRecord) get() any {
-	return strobj_(String_join_CharSequence_CharSequenceArr("\t", []any{strobj_(this.kind_), this.nameSupplier(), this.functionNameSupplier.get()}))
+	return strobj_(this.getT_())
 }
 
 func RemoveUnusedCode_RemovalLogRecord_forProperty(propName string) *RemoveUnusedCode_RemovalLogRecord {
