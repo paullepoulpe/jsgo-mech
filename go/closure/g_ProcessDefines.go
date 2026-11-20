@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ProcessDefines struct {
 	compiler_                           *AbstractCompiler
 	registry                            *JSTypeRegistry
@@ -128,7 +130,7 @@ func ProcessDefines_getGlobalDefineAlias(defineName string) string {
 	if ProcessDefines_KNOWN_DEFINES.contains(defineName) || (defineName == "goog.LOCALE") {
 		return defineName
 	}
-	return ("jscomp$defines$" + sstr_(String_replace_char_char(defineName, '.', '$')))
+	return ("jscomp$defines$" + sstr_(strings.ReplaceAll(defineName, ".", "$")))
 }
 
 func (this *ProcessDefines) getReplacementForDefine(define *ProcessDefines_Define) Node {
@@ -303,7 +305,7 @@ func (this *ProcessDefines) validateDefineDeclarations() {
 	for it_1.next() {
 		var define *ProcessDefines_Define = it_1.v
 		var declarationNode Node = define.declaration_.getNode()
-		if (!this.isGoogDefineCall(define.value_) && !ProcessDefines_KNOWN_DEFINES.contains(define.defineName_)) && !String_startsWith(define.defineName_, "$jscomp.") {
+		if (!this.isGoogDefineCall(define.value_) && !ProcessDefines_KNOWN_DEFINES.contains(define.defineName_)) && !strings.HasPrefix(define.defineName_, "$jscomp.") {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(Node_of_(MoreObjects_firstNonNull(define.value_.box_(), MoreObjects_firstNonNull(define.valueParent.box_(), declarationNode.box_()))), ProcessDefines_DEFINE_WITHOUT_GOOG_DEFINE, []string{define.defineName_, "go/js-practices/locals#defines"}))
 		}
 		if !this.hasValidValue(define) {
@@ -746,7 +748,7 @@ func (this *ProcessDefines_ClosureDefinesCollector) shouldTraverse(t *NodeTraver
 func (this *ProcessDefines_ClosureDefinesCollector) visit(t *NodeTraversal, n Node, parent Node) {
 	if n.isScript() && (this.outer_.zoneInputPattern != nil) {
 		var source string = n.getSourceFileName()
-		if !String_isEmpty(source) && this.outer_.zoneInputPattern.matcher_s(source).matches() {
+		if source != "" && this.outer_.zoneInputPattern.matcher_s(source).matches() {
 			this.outer_.hasZoneInput = true
 		}
 	}

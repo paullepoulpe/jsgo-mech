@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type PolymerPassStaticUtils struct {
 }
 
@@ -150,10 +152,10 @@ func PolymerPassStaticUtils_addPropertyMethodsToProtect(behaviorObjLit Node) *JT
 }
 
 func PolymerPassStaticUtils_extractMethodName(signature string) Optional[string] {
-	var openParenIndex int32 = String_indexOf(signature, 40)
+	var openParenIndex int32 = int32(strings.IndexByte(signature, '('))
 	return func() Optional[string] {
 		if openParenIndex > 0 {
-			return Optional_of[string](String_trim(String_substring(signature, 0, openParenIndex)))
+			return Optional_of[string](String_trim(signature[:openParenIndex]))
 		}
 		return Optional_empty[string]()
 	}()
@@ -258,7 +260,7 @@ func PolymerPassStaticUtils_getPolymerElementType(cls *PolymerClassDefinition) s
 		}
 		return CaseFormat_LOWER_HYPHEN.to(CaseFormat_UPPER_CAMEL, cls.nativeBaseElement.get())
 	}()
-	return String_format("Polymer%sElement", []any{strobj_(nativeElementName)})
+	return ("Polymer" + sstr_(nativeElementName) + "Element")
 }
 
 const PolymerPassStaticUtils_VIRTUAL_FILE string = "<PolymerPassStaticUtils.java>"

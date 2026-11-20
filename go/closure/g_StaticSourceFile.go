@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type StaticSourceFile interface {
 	getName() string
 	getKind() StaticSourceFile_SourceKind
@@ -34,7 +36,7 @@ func StaticSourceFile_isNonCode_default(this StaticSourceFile) bool {
 
 func StaticSourceFile_isTypeScriptSource_default(this StaticSourceFile) bool {
 	var sourceName string = this.getName()
-	return (String_endsWith(sourceName, ".closure.js") || String_endsWith(sourceName, ".tsx.cl.js"))
+	return (strings.HasSuffix(sourceName, ".closure.js") || strings.HasSuffix(sourceName, ".tsx.cl.js"))
 }
 
 type StaticSourceFile_SourceKind uint8

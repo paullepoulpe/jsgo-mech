@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type NamedType struct {
 	ProxyObjectType
 	reference             string
@@ -56,7 +58,7 @@ func (this *NamedType) init_NamedType(builder *NamedType_Builder) {
 		panic(new_NullPointerException_0().self())
 	}
 	if eqR_(builder.resolutionKind, NamedType_ResolutionKind_TYPEOF) {
-		if !String_startsWith(builder.referenceName, "typeof ") {
+		if !strings.HasPrefix(builder.referenceName, "typeof ") {
 			panic(new_IllegalStateException_0().self())
 		}
 	}
@@ -229,7 +231,7 @@ func (this *NamedType) resolveTypeof(reporter ErrorReporter_rhino) bool {
 	if !eqR_(this.resolutionKind, NamedType_ResolutionKind_TYPEOF) {
 		return false
 	}
-	var scopeName string = String_substring_int(this.reference, String_length("typeof "))
+	var scopeName string = String_substring_int(this.reference, int32(len("typeof ")))
 	var type_ *JSType = this.resolutionScope.lookupQualifiedName(QualifiedName_of(scopeName))
 	if (type_ == nil) || type_.isUnknownType() {
 		if this.registry.isForwardDeclaredType(scopeName) {
@@ -346,7 +348,7 @@ func (this *NamedType) setValidator_impl(validator Predicate_baseOf[*JSType]) bo
 
 func (this *NamedType) warning(reporter ErrorReporter_rhino, message string) {
 	reporter.warning(message, Optional_of[string](this.sourceName_).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}}), this.lineno_, this.charno_)
 }
 

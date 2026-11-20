@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type PolyfillUsageFinder struct {
 	compiler_                  *AbstractCompiler
 	polyfills                  *PolyfillUsageFinder_Polyfills
@@ -97,7 +99,7 @@ func PolyfillUsageFinder_findGlobalPrefix(qualifiedName string) Optional[string]
 	it_1 := PolyfillUsageFinder_GLOBAL_NAMES.each()
 	for it_1.next() {
 		var global string = it_1.v
-		if String_startsWith(qualifiedName, global) {
+		if strings.HasPrefix(qualifiedName, global) {
 			return Optional_of[string](global)
 		}
 	}
@@ -105,9 +107,9 @@ func PolyfillUsageFinder_findGlobalPrefix(qualifiedName string) Optional[string]
 }
 
 func PolyfillUsageFinder_getMethodOwner(nativeSymbol string) Optional[string] {
-	var protoIdx int32 = String_indexOf_String(nativeSymbol, ".prototype.")
+	var protoIdx int32 = int32(strings.Index(nativeSymbol, ".prototype."))
 	if protoIdx != -1 {
-		return Optional_of[string](String_substring(nativeSymbol, 0, protoIdx))
+		return Optional_of[string](nativeSymbol[:protoIdx])
 	}
 	return Optional_empty[string]()
 }
@@ -345,7 +347,7 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 	for it_1.next() {
 		var line string = str_(it_1.v)
 		var tokens *JTList[string] = splitToListT_(jtc_string, Splitter_on(' ').omitEmptyStrings(), strobj_(String_trim(line)))
-		if (tokens.size() == 1) && String_isEmpty(tokens.get(0)) {
+		if (tokens.size() == 1) && tokens.get(0) == "" {
 			continue
 		} else if tokens.size() < 3 {
 			panic(new_IllegalArgumentException_String(("Invalid table: too few tokens on line: " + sstr_(line))).self())

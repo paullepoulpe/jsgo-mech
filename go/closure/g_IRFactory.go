@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type IRFactory struct {
 	sourceFile                 StaticSourceFile
 	sourceName_                Optional[string]
@@ -293,7 +295,7 @@ func (this *IRFactory) validateBreakContinue(n Node) {
 		var parent Node = n.getParent()
 		for !parent.isLabel() || !IRFactory_labelsMatch(parent, labelName) {
 			if (parent.isFunction() || parent.isScript()) || parent.isClassMembers() {
-				this.errorReporter.error(String_format(IRFactory_UNDEFINED_LABEL, []any{strobj_(labelName.getString())}), this.sourceName_, n.getLineno(), n.getCharno())
+				this.errorReporter.error(("undefined label \"" + sstr_(labelName.getString()) + "\""), this.sourceName_, n.getLineno(), n.getCharno())
 				break
 			}
 			parent = parent.getParent()
@@ -361,7 +363,7 @@ func (this *IRFactory) validateLabel(n Node) {
 		var parent Node = n.getParent()
 		for ; (parent != 0) && !parent.isFunction(); parent = parent.getParent() {
 			if parent.isLabel() && IRFactory_labelsMatch(parent, labelName) {
-				this.errorReporter.error(String_format(IRFactory_DUPLICATE_LABEL, []any{strobj_(labelName.getString())}), this.sourceName_, n.getLineno(), n.getCharno())
+				this.errorReporter.error(("Duplicate label \"" + sstr_(labelName.getString()) + "\""), this.sourceName_, n.getLineno(), n.getCharno())
 				break
 			}
 		}
@@ -379,7 +381,7 @@ func (this *IRFactory) validateParameters(n Node) {
 			ParsingUtil_getParamOrPatternNames(c, (&Consumer_tfn_Node{func(param Node) {
 				var paramName string = param.getString()
 				if !seenNames.add(paramName) {
-					this.errorReporter.warning(String_format(IRFactory_DUPLICATE_PARAMETER, []any{strobj_(paramName)}), this.sourceName_, param.getLineno(), param.getCharno())
+					this.errorReporter.warning(("Duplicate parameter name \"" + sstr_(paramName) + "\""), this.sourceName_, param.getLineno(), param.getCharno())
 				}
 			}}).accept)
 		}
@@ -584,7 +586,7 @@ func (this *IRFactory) parseTrailingNonJSDocCommentAt(tokenEnd *SourcePosition_u
 		return nil
 	}
 	var preCommentText string = String_substring(this.fileWithContent.contents, (tokenEnd.offset + 1), comment.location_.start_.offset)
-	if !String_isEmpty(String_trim(preCommentText)) {
+	if String_trim(preCommentText) != "" {
 		return nil
 	}
 	result.append(comment.value_)
@@ -818,7 +820,7 @@ func (this *IRFactory) createJsDocInfoParser_2(node *Comment, useLicensesOnlyCon
 	var numOpeningChars int32 = 3
 	var jsdocParser *JsDocInfoParser = new_JsDocInfoParser(new_JsDocTokenStream_String_int_int(String_substring_int(comment, numOpeningChars), lineno, (charno+numOpeningChars)), Optional_of[string](comment), position, this.templateNode, config, this.jsDocSourceKind, this.errorReporter)
 	jsdocParser.setFileOverviewJSDocInfo(this.firstFileoverview)
-	if (node.type__ == Comment_Type_IMPORTANT) && (String_length(node.value_) > 0) {
+	if (node.type__ == Comment_Type_IMPORTANT) && (len(node.value_) != 0) {
 		jsdocParser.parseImportantComment()
 	} else {
 		jsdocParser.parse()
@@ -847,13 +849,13 @@ func (this *IRFactory) reportErrorIfYieldOrAwaitInDefaultValue(defaultValueNode 
 	var yieldNode Node = IRFactory_findNodeTypeInExpression(defaultValueNode, Token_rhino_YIELD)
 	if yieldNode != 0 {
 		this.errorReporter.error("`yield` is illegal in parameter default value.", Optional_of[string](yieldNode.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}}), yieldNode.getLineno(), yieldNode.getCharno())
 	}
 	var awaitNode Node = IRFactory_findNodeTypeInExpression(defaultValueNode, Token_rhino_AWAIT)
 	if awaitNode != 0 {
 		this.errorReporter.error("`await` is illegal in parameter default value.", Optional_of[string](awaitNode.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}}), awaitNode.getLineno(), awaitNode.getCharno())
 	}
 }
@@ -906,7 +908,7 @@ func (this *IRFactory) normalizeRegex(token *LiteralToken) string {
 
 func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool) string {
 	var value string = token.value_
-	if String_indexOf(value, 13) >= 0 {
+	if strings.Contains(value, "\r") {
 		value = IRFactory_CR_OR_CRLF_PATTERN.matcher_s(value).replaceAll("\n")
 	}
 	var start int32 = func() int32 {
@@ -1408,7 +1410,7 @@ func (this *IRFactory) newBigIntNode(value *BigInteger) Node {
 
 func (this *IRFactory) error(rhinoNode Node, message string) {
 	this.errorReporter.error(message, Optional_of[string](rhinoNode.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}}), rhinoNode.getLineno(), rhinoNode.getCharno())
 }
 
@@ -2641,7 +2643,7 @@ func (this *IRFactory_TransformDispatcher) processRegExpLiteral(literalTree *Lit
 		flags = String_substring_int(rawRegex, (lastSlash + 1))
 	}
 	this.validateRegExpFlags(literalTree, flags)
-	if !String_isEmpty(flags) {
+	if flags != "" {
 		var flagsNode Node = this.outer_.newStringNode(flags)
 		this.outer_.setSourceInfoToken(flagsNode, token.up_Token_parser())
 		node.addChildToBack(flagsNode)

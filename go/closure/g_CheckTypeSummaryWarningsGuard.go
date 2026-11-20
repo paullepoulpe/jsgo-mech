@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type CheckTypeSummaryWarningsGuard struct {
 	WarningsGuard
 	levelField CheckLevel
@@ -44,7 +46,7 @@ func (this *CheckTypeSummaryWarningsGuard) getPriority_impl() int32 {
 }
 
 func (this *CheckTypeSummaryWarningsGuard) inTypeSummary(error_ *JSError) bool {
-	return (error_.sourceName().isPresent() && String_endsWith(error_.sourceName().get(), ".i.js"))
+	return (error_.sourceName().isPresent() && strings.HasSuffix(error_.sourceName().get(), ".i.js"))
 }
 
 func (this *CheckTypeSummaryWarningsGuard) shouldDemoteIfTypeSummary(error_ *JSError) bool {
