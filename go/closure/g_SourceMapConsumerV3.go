@@ -238,9 +238,9 @@ func (this *SourceMapConsumerV3) createReverseMapping() {
 			var sourceLine int32 = this.mappings.getSourceLine(i)
 			if (sourceFileId != SourceMapConsumerV3_UNMAPPED) && (sourceLine != SourceMapConsumerV3_UNMAPPED) {
 				var originalFile string = this.sources[sourceFileId]
-				var lineToCollectionMap MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] = mapComputeIfAbsent_(tc_string, tc_Map, this.reverseSourceMapping, originalFile, &Function_tfn_string_Map{func(k string) Map {
+				var lineToCollectionMap MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] = mapComputeIfAbsentT_(tc_Map, this.reverseSourceMapping, originalFile, func(k string) Map {
 					return Map(new_LinkedHashMap())
-				}})
+				})
 				if !lineToCollectionMap.containsKey(int32(sourceLine)) {
 					lineToCollectionMap.put(int32(sourceLine), new_ArrayList_int(1).self())
 				}
