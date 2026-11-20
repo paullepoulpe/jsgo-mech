@@ -79,3 +79,35 @@ func TestEnumSetAgainstTreeSet(t *testing.T) {
 		t.Fatalf("empty sets of two enums are equal")
 	}
 }
+
+// TestImmutableCopyOfEnumSet checks ImmutableSet.copyOf of an EnumSet (indexed by ordinal) against
+// the copy of the same constants from a list.
+func TestImmutableCopyOfEnumSet(t *testing.T) {
+	vs, other := tenums_()
+	r := rand.New(rand.NewSource(5))
+	for round := 0; round < 100; round++ {
+		s := EnumSet_noneOf(classOf_("test.TEnum"))
+		for i := r.Intn(20); i > 0; i-- {
+			s.add(any(vs[r.Intn(len(vs))]))
+		}
+		got, want := ImmutableSet_copyOf(s), immSet_(copySlice_(new_ArrayList_Collection(s)))
+		if got.toString() != want.toString() || got.hashCode() != want.hashCode() || !got.equals(want) {
+			t.Fatalf("round %d: %s vs %s", round, got.toString(), want.toString())
+		}
+		probe := EnumSet_noneOf(classOf_("test.TEnum"))
+		for i := r.Intn(3); i > 0; i-- {
+			probe.add(any(vs[r.Intn(len(vs))]))
+		}
+		for _, v := range append([]any{other, "C1"}, enumValues_(vs)...) {
+			if got.contains(v) != want.contains(v) {
+				t.Fatalf("round %d: contains %v", round, v)
+			}
+		}
+		if got.containsAll(probe) != want.containsAll(probe) {
+			t.Fatalf("round %d: containsAll %s in %s", round, probe.toString(), got.toString())
+		}
+	}
+	if ImmutableSet_copyOf(EnumSet_noneOf(nil)) != emptyImmSet_ {
+		t.Fatal("copy of an empty EnumSet is not the empty set")
+	}
+}
