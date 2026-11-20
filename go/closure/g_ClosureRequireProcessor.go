@@ -105,6 +105,7 @@ type ClosureRequireProcessor_Require struct {
 	localName_    string
 	importRecord_ *Import
 	createdBy_    Binding_CreatedBy
+	hashMemo_     int32 // hashCode, once computed, when it is not 0 (post-flip step hashmemo)
 }
 
 func (this *ClosureRequireProcessor_Require) zero_ClosureRequireProcessor_Require() {
@@ -154,6 +155,16 @@ func (this *ClosureRequireProcessor_Require) equals(p0 any) bool {
 }
 
 func (this *ClosureRequireProcessor_Require) hashCode() int32 {
+	if h := this.hashMemo_; h != 0 {
+		return h
+	}
+	h := this.hashCodeOnce_()
+	this.hashMemo_ = h
+	return h
+}
+
+// hashCodeOnce_ computes hashCode: a function of data that is final in the object (post-flip step hashmemo).
+func (this *ClosureRequireProcessor_Require) hashCodeOnce_() int32 {
 	var h int32
 	h = h*31 + strhash_(this.localName_)
 	h = h*31 + hash_(this.importRecord_)

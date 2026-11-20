@@ -9,6 +9,7 @@ type Import struct {
 	modulePath_    *ModuleLoader_ModulePath
 	importNode_    Node
 	nameNode_      Node
+	hashMemo_      int32 // hashCode, once computed, when it is not 0 (post-flip step hashmemo)
 }
 
 func (this *Import) zero_Import() {
@@ -72,6 +73,16 @@ func (this *Import) equals(p0 any) bool {
 }
 
 func (this *Import) hashCode() int32 {
+	if h := this.hashMemo_; h != 0 {
+		return h
+	}
+	h := this.hashCodeOnce_()
+	this.hashMemo_ = h
+	return h
+}
+
+// hashCodeOnce_ computes hashCode: a function of data that is final in the object (post-flip step hashmemo).
+func (this *Import) hashCodeOnce_() int32 {
 	var h int32
 	h = h*31 + strhash_(this.moduleRequest_)
 	h = h*31 + strhash_(this.importName_)

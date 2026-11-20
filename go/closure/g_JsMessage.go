@@ -402,7 +402,8 @@ type JsMessage_Part interface {
 }
 
 type JsMessage_StringPart struct {
-	string_ string
+	string_   string
+	hashMemo_ int32 // hashCode, once computed, when it is not 0 (post-flip step hashmemo)
 }
 
 func (this *JsMessage_StringPart) zero_JsMessage_StringPart() {
@@ -453,6 +454,16 @@ func (this *JsMessage_StringPart) equals(p0 any) bool {
 }
 
 func (this *JsMessage_StringPart) hashCode() int32 {
+	if h := this.hashMemo_; h != 0 {
+		return h
+	}
+	h := this.hashCodeOnce_()
+	this.hashMemo_ = h
+	return h
+}
+
+// hashCodeOnce_ computes hashCode: a function of data that is final in the object (post-flip step hashmemo).
+func (this *JsMessage_StringPart) hashCodeOnce_() int32 {
 	var h int32
 	h = h*31 + strhash_(this.string_)
 	return h
@@ -465,6 +476,7 @@ func (this *JsMessage_StringPart) toString() string {
 type JsMessage_PlaceholderReference struct {
 	storedPlaceholderName_ string
 	canonicalFormat_       bool
+	hashMemo_              int32 // hashCode, once computed, when it is not 0 (post-flip step hashmemo)
 }
 
 func (this *JsMessage_PlaceholderReference) zero_JsMessage_PlaceholderReference() {
@@ -550,6 +562,16 @@ func (this *JsMessage_PlaceholderReference) equals(p0 any) bool {
 }
 
 func (this *JsMessage_PlaceholderReference) hashCode() int32 {
+	if h := this.hashMemo_; h != 0 {
+		return h
+	}
+	h := this.hashCodeOnce_()
+	this.hashMemo_ = h
+	return h
+}
+
+// hashCodeOnce_ computes hashCode: a function of data that is final in the object (post-flip step hashmemo).
+func (this *JsMessage_PlaceholderReference) hashCodeOnce_() int32 {
 	var h int32
 	h = h*31 + strhash_(this.storedPlaceholderName_)
 	h = h*31 + boolhash_(this.canonicalFormat_)

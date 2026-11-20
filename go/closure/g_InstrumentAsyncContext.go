@@ -407,6 +407,7 @@ type InstrumentAsyncContext_FunctionContext struct {
 	resumeName_   Node
 	factoryName_  Node
 	astFactory_   *AstFactory
+	hashMemo_     int32 // hashCode, once computed, when it is not 0 (post-flip step hashmemo)
 }
 
 func (this *InstrumentAsyncContext_FunctionContext) zero_InstrumentAsyncContext_FunctionContext() {
@@ -473,6 +474,16 @@ func (this *InstrumentAsyncContext_FunctionContext) equals(p0 any) bool {
 }
 
 func (this *InstrumentAsyncContext_FunctionContext) hashCode() int32 {
+	if h := this.hashMemo_; h != 0 {
+		return h
+	}
+	h := this.hashCodeOnce_()
+	this.hashMemo_ = h
+	return h
+}
+
+// hashCodeOnce_ computes hashCode: a function of data that is final in the object (post-flip step hashmemo).
+func (this *InstrumentAsyncContext_FunctionContext) hashCodeOnce_() int32 {
 	var h int32
 	h = h*31 + strhash_(this.uniqueSuffix_)
 	h = h*31 + hashH_(this.suspendName_)

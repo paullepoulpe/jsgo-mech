@@ -207,6 +207,7 @@ type CodingConvention_AssertionFunctionSpec struct {
 	getClosurePrimitive_ ClosurePrimitive
 	getAssertionKind_    CodingConvention_AssertionFunctionSpec_AssertionKind
 	getParamIndex_       int32
+	hashMemo_            int32 // hashCode, once computed, when it is not 0 (post-flip step hashmemo)
 }
 
 func (this *CodingConvention_AssertionFunctionSpec) init_CodingConvention_AssertionFunctionSpec(getFunctionName Optional[string], getClosurePrimitive ClosurePrimitive, getAssertionKind CodingConvention_AssertionFunctionSpec_AssertionKind, getParamIndex int32) {
@@ -283,6 +284,16 @@ func (this *CodingConvention_AssertionFunctionSpec) equals(p0 any) bool {
 }
 
 func (this *CodingConvention_AssertionFunctionSpec) hashCode() int32 {
+	if h := this.hashMemo_; h != 0 {
+		return h
+	}
+	h := this.hashCodeOnce_()
+	this.hashMemo_ = h
+	return h
+}
+
+// hashCodeOnce_ computes hashCode: a function of data that is final in the object (post-flip step hashmemo).
+func (this *CodingConvention_AssertionFunctionSpec) hashCodeOnce_() int32 {
 	var h int32
 	h = h*31 + optHash_(this.getFunctionName_)
 	h = h*31 + hash_(this.getClosurePrimitive_)

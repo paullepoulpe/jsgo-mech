@@ -5,6 +5,7 @@ package closure
 type ExportTrace struct {
 	module_     *UnresolvedModule
 	exportName_ string
+	hashMemo_   int32 // hashCode, once computed, when it is not 0 (post-flip step hashmemo)
 }
 
 func (this *ExportTrace) zero_ExportTrace() {
@@ -45,6 +46,16 @@ func (this *ExportTrace) equals(p0 any) bool {
 }
 
 func (this *ExportTrace) hashCode() int32 {
+	if h := this.hashMemo_; h != 0 {
+		return h
+	}
+	h := this.hashCodeOnce_()
+	this.hashMemo_ = h
+	return h
+}
+
+// hashCodeOnce_ computes hashCode: a function of data that is final in the object (post-flip step hashmemo).
+func (this *ExportTrace) hashCodeOnce_() int32 {
 	var h int32
 	h = h*31 + objhashBy_(this.module_, (*UnresolvedModule).hashCode)
 	h = h*31 + strhash_(this.exportName_)
