@@ -386,7 +386,7 @@ func (this *PeepholeRemoveDeadCode) tryRemoveSwitchWithSingleCase(switchNode Nod
 	var switchBody Node = switchNode.getSecondChild()
 	var caseBlock Node = switchBody.getOnlyChild().getLastChild()
 	this.removeIfUnnamedBreak(caseBlock.getLastChild())
-	if NodeUtil_has(caseBlock, PeepholeRemoveDeadCode_MATCH_UNNAMED_BREAK, NodeUtil_MATCH_NOT_FUNCTION) {
+	if NodeUtil_has(caseBlock, unboxedPred_[Node](PeepholeRemoveDeadCode_MATCH_UNNAMED_BREAK), NodeUtil_MATCH_NOT_FUNCTION) {
 		return switchNode
 	}
 	if shouldHoistCondition {
@@ -1197,13 +1197,13 @@ func (this *PeepholeRemoveDeadCode) isRemovableDestructuringTarget(destructrurin
 }
 
 func PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue(n Node) bool {
-	return (NodeUtil_has(n, (&Predicate_base_tfn_Node{func(node Node) bool {
+	return (NodeUtil_has(n, func(node Node) bool {
 		return (node.isBreak() && !node.hasChildren())
-	}}).apply, &Predicate_base_tfn_Node{func(node Node) bool {
+	}, &Predicate_base_tfn_Node{func(node Node) bool {
 		return ((!IR_mayBeExpression(node) && !NodeUtil_isLoopStructure(node)) && !node.isSwitch())
-	}}) || NodeUtil_has(n, (&Predicate_base_tfn_Node{func(node Node) bool {
+	}}) || NodeUtil_has(n, func(node Node) bool {
 		return (node.isContinue() && !node.hasChildren())
-	}}).apply, &Predicate_base_tfn_Node{func(node Node) bool {
+	}, &Predicate_base_tfn_Node{func(node Node) bool {
 		return (!IR_mayBeExpression(node) && !NodeUtil_isLoopStructure(node))
 	}}))
 }

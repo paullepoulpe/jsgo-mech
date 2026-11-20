@@ -556,17 +556,17 @@ func (this *StripCode_Strip) isStripName(name string) bool {
 	var lcName string = strings.ToLower(name)
 	for _, stripName := range this.outer_.stripNamePrefixesLowerCaseList {
 		if strings.HasPrefix(lcName, stripName) {
-			this.logStripNameSupplier(name, (&Supplier_tfn_string{func() string {
+			this.logStripNameSupplier(name, func() string {
 				return ("matches lc prefix: " + sstr_(stripName))
-			}}).get)
+			})
 			return true
 		}
 	}
 	for _, stripName := range this.outer_.stripNameSuffixesLowerCaseList {
 		if strings.HasSuffix(lcName, stripName) {
-			this.logStripNameSupplier(name, (&Supplier_tfn_string{func() string {
+			this.logStripNameSupplier(name, func() string {
 				return ("matches lc suffix: " + sstr_(stripName))
-			}}).get)
+			})
 			return true
 		}
 	}
@@ -590,10 +590,10 @@ func (this *StripCode_Strip) logStripName(name Optional[string], reason string) 
 	}
 }
 
-func (this *StripCode_Strip) logStripNameSupplier(name string, reasonSupplier func() any) {
+func (this *StripCode_Strip) logStripNameSupplier(name string, reasonSupplier func() string) {
 	if this.decisionsLog.isLogging() {
 		this.decisionsLog.log(&Supplier_tfn_string{func() string {
-			return (sstr_(name) + "\tstrip name: " + sstr_(str_(reasonSupplier())))
+			return (sstr_(name) + "\tstrip name: " + sstr_(reasonSupplier()))
 		}})
 	}
 }
