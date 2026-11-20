@@ -3150,7 +3150,7 @@ func NodeUtil_getNodeTypeReferenceCount(node Node, type_ Token_rhino, traverseCh
 }
 
 func NodeUtil_isNameReferenced_Node_String_Predicate(node Node, name string, traverseChildrenPred Predicate_baseOf[Node]) bool {
-	return NodeUtil_has(node, unboxedPred_[Node](new_NodeUtil_MatchNameNode(name).apply), traverseChildrenPred)
+	return NodeUtil_has(node, new_NodeUtil_MatchNameNode(name).applyT_, traverseChildrenPred)
 }
 
 func NodeUtil_isNameReferenced_Node_String(node Node, name string) bool {
@@ -4616,10 +4616,14 @@ func new_NodeUtil_MatchNameNode(name string) *NodeUtil_MatchNameNode {
 	return this
 }
 
-func (this *NodeUtil_MatchNameNode) apply(n_ any) bool {
-	var n Node = Node_of_(n_)
-	_ = n
+// applyT_ is apply with the parameter types the class declares (implsplit).
+func (this *NodeUtil_MatchNameNode) applyT_(n Node) bool {
 	return (n.isName() && (n.getString() == this.name_))
+}
+
+// apply is the bridge of the interface's erased signature (javac's): it casts its arguments and calls applyT_.
+func (this *NodeUtil_MatchNameNode) apply(n_ any) bool {
+	return this.applyT_(Node_of_(n_))
 }
 
 func (this *NodeUtil_MatchNameNode) test(p0 any) bool {
@@ -4640,10 +4644,14 @@ func new_NodeUtil_MatchNodeType(type_ Token_rhino) *NodeUtil_MatchNodeType {
 	return this
 }
 
-func (this *NodeUtil_MatchNodeType) apply(n_ any) bool {
-	var n Node = Node_of_(n_)
-	_ = n
+// applyT_ is apply with the parameter types the class declares (implsplit).
+func (this *NodeUtil_MatchNodeType) applyT_(n Node) bool {
 	return (n.getToken() == this.type__)
+}
+
+// apply is the bridge of the interface's erased signature (javac's): it casts its arguments and calls applyT_.
+func (this *NodeUtil_MatchNodeType) apply(n_ any) bool {
+	return this.applyT_(Node_of_(n_))
 }
 
 func (this *NodeUtil_MatchNodeType) test(p0 any) bool {
@@ -4663,10 +4671,14 @@ func new_NodeUtil_MatchDeclaration() *NodeUtil_MatchDeclaration {
 	return this
 }
 
-func (this *NodeUtil_MatchDeclaration) apply(n_ any) bool {
-	var n Node = Node_of_(n_)
-	_ = n
+// applyT_ is apply with the parameter types the class declares (implsplit).
+func (this *NodeUtil_MatchDeclaration) applyT_(n Node) bool {
 	return NodeUtil_isDeclaration(n)
+}
+
+// apply is the bridge of the interface's erased signature (javac's): it casts its arguments and calls applyT_.
+func (this *NodeUtil_MatchDeclaration) apply(n_ any) bool {
+	return this.applyT_(Node_of_(n_))
 }
 
 func (this *NodeUtil_MatchDeclaration) test(p0 any) bool {
@@ -4686,11 +4698,15 @@ func new_NodeUtil_MatchShallowStatement() *NodeUtil_MatchShallowStatement {
 	return this
 }
 
-func (this *NodeUtil_MatchShallowStatement) apply(n_ any) bool {
-	var n Node = Node_of_(n_)
-	_ = n
+// applyT_ is apply with the parameter types the class declares (implsplit).
+func (this *NodeUtil_MatchShallowStatement) applyT_(n Node) bool {
 	var parent Node = n.getParent()
 	return ((n.isRoot() || n.isBlock()) || (!n.isFunction() && NodeUtil_isShallowStatementTree(parent)))
+}
+
+// apply is the bridge of the interface's erased signature (javac's): it casts its arguments and calls applyT_.
+func (this *NodeUtil_MatchShallowStatement) apply(n_ any) bool {
+	return this.applyT_(Node_of_(n_))
 }
 
 func (this *NodeUtil_MatchShallowStatement) test(p0 any) bool {

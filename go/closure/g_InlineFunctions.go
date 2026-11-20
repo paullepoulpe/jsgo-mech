@@ -184,7 +184,7 @@ func InlineFunctions_hasRequireInliningAnnotation(fnNode Node) bool {
 
 func InlineFunctions_hasLocalNames(fnNode Node) bool {
 	var block Node = NodeUtil_getFunctionBody(fnNode)
-	return (NodeUtil_getFunctionParameters(fnNode).hasChildren() || NodeUtil_has(block, unboxedPred_[Node](new_NodeUtil_MatchDeclaration().apply), new_NodeUtil_MatchShallowStatement()))
+	return (NodeUtil_getFunctionParameters(fnNode).hasChildren() || NodeUtil_has(block, new_NodeUtil_MatchDeclaration().applyT_, new_NodeUtil_MatchShallowStatement()))
 }
 
 func (this *InlineFunctions) isCandidateFunction(fn InlineFunctions_Function) bool {
