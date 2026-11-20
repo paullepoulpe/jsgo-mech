@@ -374,12 +374,12 @@ func (this *IRFactory) validateParameters(n Node) {
 	{
 		var c Node = n.getFirstChild()
 		for ; c != 0; c = c.getNext() {
-			ParsingUtil_getParamOrPatternNames(c, (&Consumer_tfn_Node{func(param Node) {
+			ParsingUtil_getParamOrPatternNames(c, func(param Node) {
 				var paramName string = param.getString()
 				if !setAdd_(seenNames, paramName) {
 					this.errorReporter.warning(("Duplicate parameter name \"" + sstr_(paramName) + "\""), this.sourceName_, param.getLineno(), param.getCharno())
 				}
-			}}).accept)
+			})
 		}
 	}
 }

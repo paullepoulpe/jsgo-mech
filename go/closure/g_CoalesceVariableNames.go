@@ -244,7 +244,7 @@ func (this *CoalesceVariableNames) isInMultipleLvalueDecl(v *Var) bool {
 	return func() bool {
 		switch declarationType {
 		case Token_rhino_LET, Token_rhino_CONST, Token_rhino_VAR:
-			var nameDecl Node = NodeUtil_getEnclosingNode(v.getNode(), (&Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isNameDeclaration(p0) }}).apply)
+			var nameDecl Node = NodeUtil_getEnclosingNode(v.getNode(), func(p0 Node) bool { return NodeUtil_isNameDeclaration(p0) })
 			var count []int32 = []int32{0}
 			NodeUtil_visitLhsNodesInNode(nameDecl, (&Consumer_tfn_Node{func(lhs Node) {
 				count[0]++
@@ -257,7 +257,7 @@ func (this *CoalesceVariableNames) isInMultipleLvalueDecl(v *Var) bool {
 }
 
 func (this *CoalesceVariableNames) removeVarDeclaration(name Node, originalVar *Var) {
-	var var_ Node = NodeUtil_getEnclosingNode(name, (&Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isNameDeclaration(p0) }}).apply)
+	var var_ Node = NodeUtil_getEnclosingNode(name, func(p0 Node) bool { return NodeUtil_isNameDeclaration(p0) })
 	var parent Node = var_.getParent()
 	if var_.getFirstChild().isDestructuringLhs() {
 		var destructuringLhs Node = var_.getFirstChild()
@@ -306,7 +306,7 @@ func (this *CoalesceVariableNames) makeDeclarationVar(coalescedName *Var) {
 			var undefinedValue Node = this.astFactory_.createUndefinedValue().srcrefTree(nameNode)
 			nameNode.addChildToFront(undefinedValue)
 		}
-		var declNode Node = NodeUtil_getEnclosingNode(nameNode.getParent(), (&Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isNameDeclaration(p0) }}).apply)
+		var declNode Node = NodeUtil_getEnclosingNode(nameNode.getParent(), func(p0 Node) bool { return NodeUtil_isNameDeclaration(p0) })
 		declNode.setToken(Token_rhino_VAR)
 	}
 }

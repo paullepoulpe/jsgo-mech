@@ -74,19 +74,19 @@ func JSTypeExpression_baseName(name string) string {
 
 func (this *JSTypeExpression) getAllTypeNodes() []Node {
 	var builder *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
-	JSTypeExpression_visitAllTypeNodes(this.root, (&Consumer_tfn_Node{func(p0 Node) { builder.add(p0) }}).accept)
+	JSTypeExpression_visitAllTypeNodes(this.root, func(p0 Node) { builder.add(p0) })
 	return sliceImm_(tc_Node, builder.buildErased())
 }
 
 func (this *JSTypeExpression) getAllTypeNames() *TSet[string] {
 	var builder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
-	JSTypeExpression_visitAllTypeNodes(this.root, (&Consumer_tfn_Node{func(n Node) {
+	JSTypeExpression_visitAllTypeNodes(this.root, func(n Node) {
 		builder.add(n.getString())
-	}}).accept)
+	})
 	return tsetImm_(tc_string, builder.buildErased())
 }
 
-func JSTypeExpression_visitAllTypeNodes(n Node, visitor func(any)) {
+func JSTypeExpression_visitAllTypeNodes(n Node, visitor func(Node)) {
 	if n == 0 {
 		return
 	}
@@ -97,7 +97,7 @@ func JSTypeExpression_visitAllTypeNodes(n Node, visitor func(any)) {
 		}
 	}
 	if n.isStringLit() {
-		visitor(n.box_())
+		visitor(n)
 	}
 }
 
