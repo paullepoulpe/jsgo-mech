@@ -242,9 +242,9 @@ func (this *CoalesceVariableNames) isInMultipleLvalueDecl(v *Var) bool {
 		case Token_rhino_LET, Token_rhino_CONST, Token_rhino_VAR:
 			var nameDecl Node = NodeUtil_getEnclosingNode(v.getNode(), func(p0 Node) bool { return NodeUtil_isNameDeclaration(p0) })
 			var count []int32 = []int32{0}
-			NodeUtil_visitLhsNodesInNode(nameDecl, (&Consumer_tfn_Node{func(lhs Node) {
+			NodeUtil_visitLhsNodesInNode(nameDecl, func(lhs Node) {
 				count[0]++
-			}}).accept)
+			})
 			return (count[0] > 1)
 		default:
 			return false

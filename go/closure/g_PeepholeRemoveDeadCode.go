@@ -786,11 +786,11 @@ func (this *PeepholeRemoveDeadCode) redeclareIfBlockScopedVar(decl Node, parent 
 	if decl.isClass() {
 		blockScopedVars = append(blockScopedVars, decl.getFirstChild())
 	} else {
-		NodeUtil_visitLhsNodesInNode(decl, (&Consumer_tfn_Node{func(n Node) {
+		NodeUtil_visitLhsNodesInNode(decl, func(n Node) {
 			if n.isName() {
 				blockScopedVars = append(blockScopedVars, n)
 			}
-		}}).accept)
+		})
 	}
 	var addBefore Node = NodeUtil_getInsertionPointAfterAllInnerFunctionDeclarations(parent)
 	for nameNode := range sliceAll_(&blockScopedVars) {

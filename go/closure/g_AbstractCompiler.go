@@ -295,7 +295,7 @@ func (this *AbstractCompiler) reportFunctionDeleted(p0 Node) {
 	this.self_.(*Compiler).reportFunctionDeleted_impl(p0)
 }
 
-func (this *AbstractCompiler) reportDisambiguatePropertiesSummary(p0 func() any) {
+func (this *AbstractCompiler) reportDisambiguatePropertiesSummary(p0 func() string) {
 	this.self_.(*Compiler).reportDisambiguatePropertiesSummary_impl(p0)
 }
 
