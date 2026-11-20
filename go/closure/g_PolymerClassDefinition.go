@@ -12,20 +12,20 @@ type PolymerClassDefinition struct {
 	hasGeneratedLhs   bool
 	descriptor        Node
 	constructor_      *PolymerPass_MemberDefinition
-	nativeBaseElement Optional[string]
+	nativeBaseElement string
 	props             *TList[*PolymerPass_MemberDefinition]
 	behaviorProps     *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]
 	methods           *[]*PolymerPass_MemberDefinition
 	behaviors         *TList[*PolymerBehaviorExtractor_BehaviorDefinition]
 	features_         *FeatureSet
-	interfaceName     Optional[string]
+	interfaceName     string
 }
 
 func (this *PolymerClassDefinition) finit_PolymerClassDefinition() {
-	this.interfaceName = Optional_empty[string]()
+	this.interfaceName = nullstr_
 }
 
-func (this *PolymerClassDefinition) init_PolymerClassDefinition(defType PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement Optional[string], props *TList[*PolymerPass_MemberDefinition], behaviorProps *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *[]*PolymerPass_MemberDefinition, behaviors *TList[*PolymerBehaviorExtractor_BehaviorDefinition], features *FeatureSet, input *CompilerInput) {
+func (this *PolymerClassDefinition) init_PolymerClassDefinition(defType PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement string, props *TList[*PolymerPass_MemberDefinition], behaviorProps *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *[]*PolymerPass_MemberDefinition, behaviors *TList[*PolymerBehaviorExtractor_BehaviorDefinition], features *FeatureSet, input *CompilerInput) {
 	this.finit_PolymerClassDefinition()
 	this.defType = defType
 	this.definition = definition
@@ -45,7 +45,7 @@ func (this *PolymerClassDefinition) init_PolymerClassDefinition(defType PolymerC
 	this.input = input
 }
 
-func new_PolymerClassDefinition(defType PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement Optional[string], props *TList[*PolymerPass_MemberDefinition], behaviorProps *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *[]*PolymerPass_MemberDefinition, behaviors *TList[*PolymerBehaviorExtractor_BehaviorDefinition], features *FeatureSet, input *CompilerInput) *PolymerClassDefinition {
+func new_PolymerClassDefinition(defType PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement string, props *TList[*PolymerPass_MemberDefinition], behaviorProps *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *[]*PolymerPass_MemberDefinition, behaviors *TList[*PolymerBehaviorExtractor_BehaviorDefinition], features *FeatureSet, input *CompilerInput) *PolymerClassDefinition {
 	this := &PolymerClassDefinition{}
 	this.init_PolymerClassDefinition(defType, definition, target, hasGeneratedLhs, descriptor, classInfo, constructor, nativeBaseElement, props, behaviorProps, methods, behaviors, features, input)
 	return this
@@ -101,11 +101,11 @@ func PolymerClassDefinition_extractFromCallNode(callNode Node, compiler *Abstrac
 		ctorInfo = NodeUtil_getBestJSDocInfo(constructor)
 	}
 	var baseClass Node = NodeUtil_getFirstPropMatchingKey(descriptor, "extends")
-	var nativeBaseElement Optional[string] = func() Optional[string] {
+	var nativeBaseElement string = func() string {
 		if baseClass == 0 {
-			return Optional_empty[string]()
+			return nullstr_
 		}
-		return Optional_of[string](baseClass.getString())
+		return optstrOf_(baseClass.getString())
 	}()
 	var behaviorArray Node = NodeUtil_getFirstPropMatchingKey(descriptor, "behaviors")
 	var behaviors *TList[*PolymerBehaviorExtractor_BehaviorDefinition] = behaviorExtractor.extractBehaviors(behaviorArray, moduleMetadata)
@@ -208,7 +208,7 @@ func PolymerClassDefinition_extractFromClassNode(classNode Node, compiler *Abstr
 		PolymerClassDefinition_addFunctionAssignmentsFromConstructor(constructor, enclosingModule, methods)
 	}
 	var input *CompilerInput = compiler.getInput(NodeUtil_getEnclosingScript(classNode).getInputId())
-	return new_PolymerClassDefinition(PolymerClassDefinition_DefinitionType_ES6Class, classNode, target, false, propertiesDescriptor, classInfo, new_PolymerPass_MemberDefinition(ctorInfo, 0, constructor, enclosingModule), Optional_empty[string](), properties, nil, methods, nil, nil, input)
+	return new_PolymerClassDefinition(PolymerClassDefinition_DefinitionType_ES6Class, classNode, target, false, propertiesDescriptor, classInfo, new_PolymerPass_MemberDefinition(ctorInfo, 0, constructor, enclosingModule), nullstr_, properties, nil, methods, nil, nil, input)
 }
 
 func PolymerClassDefinition_extractClassMethods(classNode Node, enclosingModule Node) *[]*PolymerPass_MemberDefinition {
@@ -296,16 +296,16 @@ func PolymerClassDefinition_removeBehaviorPropsOverlappingWithElementProps(behav
 
 func (this *PolymerClassDefinition) toString() string {
 	return tostrR_(MoreObjects_toStringHelper(this).add("defType", obj_(this.defType)).add("definition", this.definition.box_()).add("target", this.target.box_()).add("nativeBaseElement", func() any {
-		if this.nativeBaseElement.isPresent() {
-			return strobj_(this.nativeBaseElement.get())
+		if this.nativeBaseElement != nullstr_ {
+			return strobj_(optstrGet_(this.nativeBaseElement))
 		}
 		return nil
 	}()).omitNullValues())
 }
 
-func (this *PolymerClassDefinition) getInterfaceName(uniqueIdSupplier *UniqueIdSupplier) Optional[string] {
-	if this.interfaceName.isEmpty() {
-		this.interfaceName = Optional_of[string](("Polymer" + sstr_(strings.ReplaceAll(this.target.getQualifiedName(), ".", "_")) + "Interface$" + sstr_(uniqueIdSupplier.getUniqueId(this.input))))
+func (this *PolymerClassDefinition) getInterfaceName(uniqueIdSupplier *UniqueIdSupplier) string {
+	if this.interfaceName == nullstr_ {
+		this.interfaceName = optstrOf_(("Polymer" + sstr_(strings.ReplaceAll(this.target.getQualifiedName(), ".", "_")) + "Interface$" + sstr_(uniqueIdSupplier.getUniqueId(this.input))))
 	}
 	return this.interfaceName
 }

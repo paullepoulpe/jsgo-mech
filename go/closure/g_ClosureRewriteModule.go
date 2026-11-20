@@ -163,7 +163,7 @@ func (this *ClosureRewriteModule) recordGoogModule(t *NodeTraversal, call Node) 
 		return
 	}
 	var namespaceId string = namespaceIdNode.getString()
-	this.currentScript.namespaceId = Optional_of[string](namespaceId)
+	this.currentScript.namespaceId = optstrOf_(namespaceId)
 	this.currentScript.contentsPrefix = ClosureRewriteModule_toModuleContentsPrefix(namespaceId)
 	var scriptNode Node = NodeUtil_getEnclosingScript(this.currentScript.rootNode_)
 	this.rewriteState.scriptDescriptionsByGoogModuleNamespace[namespaceId] = this.currentScript
@@ -172,7 +172,7 @@ func (this *ClosureRewriteModule) recordGoogModule(t *NodeTraversal, call Node) 
 
 func (this *ClosureRewriteModule) recordGoogDeclareLegacyNamespace() {
 	this.currentScript.declareLegacyNamespace = true
-	this.updateLegacyScriptNamespacesAndPrefixes(this.currentScript.namespaceId.get())
+	this.updateLegacyScriptNamespacesAndPrefixes(optstrGet_(this.currentScript.namespaceId))
 }
 
 func (this *ClosureRewriteModule) updateLegacyScriptNamespacesAndPrefixes(namespace string) {
@@ -298,11 +298,11 @@ func (this *ClosureRewriteModule) maybeRecordExportDeclaration(t *NodeTraversal,
 	}
 	if this.currentScript.defaultExport != nil {
 		var previousExport *ClosureRewriteModule_ExportDefinition = this.currentScript.defaultExport
-		var localName Optional[string] = previousExport.getLocalName()
-		if localName.isPresent() && has_(this.currentScript.namesToInlineByAlias, localName.get()) {
-			delete(this.currentScript.namesToInlineByAlias, localName.get())
+		var localName string = previousExport.getLocalName()
+		if localName != nullstr_ && has_(this.currentScript.namesToInlineByAlias, optstrGet_(localName)) {
+			delete(this.currentScript.namesToInlineByAlias, optstrGet_(localName))
 		}
-		this.currentScript.defaultExportLocalName = Optional_empty[string]()
+		this.currentScript.defaultExportLocalName = nullstr_
 	}
 	var exportRhs Node = n.getNext()
 	if NodeUtil_isNamedExportsLiteral(exportRhs) {
@@ -312,7 +312,7 @@ func (this *ClosureRewriteModule) maybeRecordExportDeclaration(t *NodeTraversal,
 	var defaultExport *ClosureRewriteModule_ExportDefinition = ClosureRewriteModule_ExportDefinition_newDefaultExport(t, exportRhs)
 	this.currentScript.defaultExport = defaultExport
 	if !this.currentScript.declareLegacyNamespace && defaultExport.hasInlinableName(this.currentScript.exportsToInline.asMap().keySet()) {
-		var localName Optional[string] = defaultExport.getLocalName()
+		var localName string = defaultExport.getLocalName()
 		this.currentScript.defaultExportLocalName = localName
 		this.recordExportToInline(defaultExport)
 	}
@@ -365,11 +365,11 @@ func (this *ClosureRewriteModule) updateGoogRequire(t *NodeTraversal, call Node)
 	var requireDirectlyStoredInAlias bool = NodeUtil_isNameDeclaration(call.getGrandparent())
 	if (currentScriptIsAModule && requireDirectlyStoredInAlias) && this.isTopLevel(t, statementNode, ClosureRewriteModule_ScopeType_EXEC_CONTEXT) {
 		var lhs Node = call.getParent()
-		var exportedNamespace Optional[string] = this.rewriteState.getExportedNamespaceOrScript(namespaceId)
-		if exportedNamespace.isEmpty() {
+		var exportedNamespace string = this.rewriteState.getExportedNamespaceOrScript(namespaceId)
+		if exportedNamespace == nullstr_ {
 		} else if lhs.isName() {
 			var aliasName string = statementNode.getFirstChild().getString()
-			this.recordNameToInline(aliasName, exportedNamespace.get(), Optional_of[string](namespaceId))
+			this.recordNameToInline(aliasName, optstrGet_(exportedNamespace), optstrOf_(namespaceId))
 			this.maybeAddAliasToSymbolTable(statementNode.getFirstChild(), this.currentScript.namespaceId)
 		} else if lhs.isDestructuringLhs() && lhs.getFirstChild().isObjectPattern() {
 			this.maybeWarnForInvalidDestructuring(t, lhs.getParent(), namespaceId)
@@ -382,8 +382,8 @@ func (this *ClosureRewriteModule) updateGoogRequire(t *NodeTraversal, call Node)
 					var importedProperty string = importSpec.getString()
 					var aliasNode Node = importSpec.getFirstChild()
 					var aliasName string = aliasNode.getString()
-					var fullName string = (sstr_(exportedNamespace.get()) + "." + sstr_(importedProperty))
-					this.recordNameToInline(aliasName, fullName, Optional_empty[string]())
+					var fullName string = (sstr_(optstrGet_(exportedNamespace)) + "." + sstr_(importedProperty))
+					this.recordNameToInline(aliasName, fullName, nullstr_)
 					this.maybeAddAliasToSymbolTable(aliasNode, this.currentScript.namespaceId)
 					this.safeSetString(aliasNode, (sstr_(this.currentScript.contentsPrefix) + sstr_(aliasName)))
 				}
@@ -468,8 +468,8 @@ func (this *ClosureRewriteModule) updateGoogRequireDynamicCall(call Node) {
 func (this *ClosureRewriteModule) updateGoogRequireDynamicCallInThen(call Node) {
 	var namespaceIdNode Node = call.getSecondChild()
 	var namespaceId string = namespaceIdNode.getString()
-	var exportedNamespace Optional[string] = this.rewriteState.getExportedNamespaceOrScript(namespaceId)
-	if !exportedNamespace.isPresent() {
+	var exportedNamespace string = this.rewriteState.getExportedNamespaceOrScript(namespaceId)
+	if exportedNamespace == nullstr_ {
 		panic(new_IllegalStateException_String(objstr_("Exported namespace for goog.requireDynamic() canot be null")))
 	}
 	var getProp Node = call.getParent()
@@ -484,7 +484,7 @@ func (this *ClosureRewriteModule) updateGoogRequireDynamicCallInThen(call Node) 
 		panic(new_IllegalStateException_String(tostr_(calleeNode)))
 	}
 	calleeNode.setString(ClosureRewriteModule_IMPORT_HANDLER_NAME)
-	var exportedNamespaceNameNode Node = this.astFactory_.createNameStaticScope(TypedScope_as_StaticScope(this.globalTypedScope), exportedNamespace.get()).srcrefTree(call)
+	var exportedNamespaceNameNode Node = this.astFactory_.createNameStaticScope(TypedScope_as_StaticScope(this.globalTypedScope), optstrGet_(exportedNamespace)).srcrefTree(call)
 	exportedNamespaceNameNode.setOriginalName(namespaceId)
 	var functionNode Node = thenCallNode.getSecondChild()
 	if functionNode == 0 || !functionNode.isFunction() {
@@ -529,8 +529,8 @@ func (this *ClosureRewriteModule) updateGoogRequireDynamicCallInThen(call Node) 
 func (this *ClosureRewriteModule) updateGoogRequireDynamicCallInAwait(call Node) {
 	var namespaceIdNode Node = call.getSecondChild()
 	var namespaceId string = namespaceIdNode.getString()
-	var exportedNamespace Optional[string] = this.rewriteState.getExportedNamespaceOrScript(namespaceId)
-	if !exportedNamespace.isPresent() {
+	var exportedNamespace string = this.rewriteState.getExportedNamespaceOrScript(namespaceId)
+	if exportedNamespace == nullstr_ {
 		panic(new_IllegalStateException_String(objstr_("Exported namespace for goog.requireDynamic() cannot be null")))
 	}
 	var existingAwait Node = call.getParent()
@@ -545,7 +545,7 @@ func (this *ClosureRewriteModule) updateGoogRequireDynamicCallInAwait(call Node)
 	if !NodeUtil_isNameDeclaration(declarationStatement) || !NodeUtil_isStatement(declarationStatement) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, ClosureRewriteModule_ILLEGAL_STMT_OF_GOOG_REQUIRE_DYNAMIC_IN_AWAIT, []string{}))
 	}
-	var exportedNamespaceNameNode Node = this.astFactory_.createQNameUsingJSTypeInfo(this.globalTypedScope, exportedNamespace.get()).srcrefTree(call)
+	var exportedNamespaceNameNode Node = this.astFactory_.createQNameUsingJSTypeInfo(this.globalTypedScope, optstrGet_(exportedNamespace)).srcrefTree(call)
 	exportedNamespaceNameNode.setJSType(this.rewriteState.getGoogModuleNamespaceType(namespaceId))
 	exportedNamespaceNameNode.setOriginalName(namespaceId)
 	var argNode Node = this.astFactory_.createString(this.namespaceIdToXid(namespaceId)).srcref(namespaceIdNode)
@@ -582,10 +582,10 @@ func (this *ClosureRewriteModule) updateGoogModuleGetCall(call Node) {
 		call.replaceWith(nullNode)
 		return
 	}
-	var exportedNamespace Optional[string] = this.rewriteState.getExportedNamespaceOrScript(namespaceId)
-	if exportedNamespace.isPresent() {
+	var exportedNamespace string = this.rewriteState.getExportedNamespaceOrScript(namespaceId)
+	if exportedNamespace != nullstr_ {
 		this.compiler_.reportChangeToEnclosingScope(call)
-		var exportedNamespaceName Node = this.astFactory_.createQNameUsingJSTypeInfo(this.globalTypedScope, exportedNamespace.get()).srcrefTree(call)
+		var exportedNamespaceName Node = this.astFactory_.createQNameUsingJSTypeInfo(this.globalTypedScope, optstrGet_(exportedNamespace)).srcrefTree(call)
 		exportedNamespaceName.setJSType(this.rewriteState.getGoogModuleNamespaceType(namespaceId))
 		exportedNamespaceName.setOriginalName(namespaceId)
 		call.replaceWith(exportedNamespaceName)
@@ -608,7 +608,7 @@ func (this *ClosureRewriteModule) recordExportsPropertyAssignment(t *NodeTravers
 		var exportName string = getpropNode.getString()
 		this.currentScript.namedExports[exportName] = struct{}{}
 		var exportRhs Node = getpropNode.getNext()
-		var namedExport *ClosureRewriteModule_ExportDefinition = ClosureRewriteModule_ExportDefinition_newNamedExport(t, Optional_of[string](exportName), exportRhs)
+		var namedExport *ClosureRewriteModule_ExportDefinition = ClosureRewriteModule_ExportDefinition_newNamedExport(t, optstrOf_(exportName), exportRhs)
 		if (!this.currentScript.declareLegacyNamespace && (this.currentScript.defaultExport == nil)) && namedExport.hasInlinableName(this.currentScript.exportsToInline.asMap().keySet()) {
 			this.recordExportToInline(namedExport)
 			parent.getParent().detach()
@@ -628,8 +628,8 @@ func (this *ClosureRewriteModule) updateExportsPropertyAssignment(getpropNode No
 	if !exportsNameNode.getStringIs_(sid_exports) {
 		panic(new_IllegalStateException_0())
 	}
-	var exportedNamespace Optional[string] = this.currentScript.getExportedNamespace()
-	this.safeSetMaybeQualifiedString(exportsNameNode, exportedNamespace.get(), false)
+	var exportedNamespace string = this.currentScript.getExportedNamespace()
+	this.safeSetMaybeQualifiedString(exportsNameNode, optstrGet_(exportedNamespace), false)
 	var jsdocNode Node = func() Node {
 		if parent.isAssign() {
 			return parent
@@ -662,10 +662,10 @@ func (this *ClosureRewriteModule) maybeUpdateTopLevelName(t *NodeTraversal, name
 		this.maybeAddAliasToSymbolTable(nameNode, this.currentScript.namespaceId)
 		var inline *ClosureRewriteModule_AliasName = this.currentScript.namesToInlineByAlias[name]
 		var namespaceToInline string = inline.newName
-		if optEquals_(Optional_of[string](namespaceToInline), this.currentScript.getBinaryNamespace()) {
+		if optstrOf_(namespaceToInline) == this.currentScript.getBinaryNamespace() {
 			this.currentScript.hasCreatedExportObject = true
 		}
-		var isModuleNamespace bool = ((inline.namespaceId.isPresent() && has_(this.rewriteState.scriptDescriptionsByGoogModuleNamespace, inline.namespaceId.get())) && !this.rewriteState.scriptDescriptionsByGoogModuleNamespace[inline.namespaceId.get()].willCreateExportsObject)
+		var isModuleNamespace bool = ((inline.namespaceId != nullstr_ && has_(this.rewriteState.scriptDescriptionsByGoogModuleNamespace, optstrGet_(inline.namespaceId))) && !this.rewriteState.scriptDescriptionsByGoogModuleNamespace[optstrGet_(inline.namespaceId)].willCreateExportsObject)
 		this.safeSetMaybeQualifiedString(nameNode, namespaceToInline, isModuleNamespace)
 		if strings.Contains(namespaceToInline, ".") {
 			var firstQualifiedName string = namespaceToInline[:strings.IndexByte(namespaceToInline, '.')]
@@ -733,22 +733,22 @@ func (this *ClosureRewriteModule) maybeUpdateExportDeclaration(t *NodeTraversal,
 		assignNode.replaceWith(rhs.detach())
 		return
 	}
-	if !this.currentScript.declareLegacyNamespace && this.currentScript.defaultExportLocalName.isPresent() {
+	if !this.currentScript.declareLegacyNamespace && this.currentScript.defaultExportLocalName != nullstr_ {
 		assignNode.getParent().detach()
-		var binaryNamespaceName Node = this.astFactory_.createName(this.currentScript.getBinaryNamespace().get(), AstFactory_type_Node(n))
+		var binaryNamespaceName Node = this.astFactory_.createName(optstrGet_(this.currentScript.getBinaryNamespace()), AstFactory_type_Node(n))
 		this.declareGlobalVariable(binaryNamespaceName, t)
 		return
 	}
 	var jsdocNode Node
 	if this.currentScript.declareLegacyNamespace {
-		var legacyQname Node = this.astFactory_.createQNameUsingJSTypeInfo(this.globalTypedScope, this.currentScript.namespaceId.get()).srcrefTree(n)
+		var legacyQname Node = this.astFactory_.createQNameUsingJSTypeInfo(this.globalTypedScope, optstrGet_(this.currentScript.namespaceId)).srcrefTree(n)
 		legacyQname.setJSType(n.getJSType())
 		n.replaceWith(legacyQname)
 		jsdocNode = assignNode
 	} else {
 		rhs.detach()
 		var exprResultNode Node = assignNode.getParent()
-		var binaryNamespaceName Node = this.astFactory_.createName(this.currentScript.getBinaryNamespace().get(), AstFactory_type_Node(n))
+		var binaryNamespaceName Node = this.astFactory_.createName(optstrGet_(this.currentScript.getBinaryNamespace()), AstFactory_type_Node(n))
 		binaryNamespaceName.setOriginalName("exports")
 		this.declareGlobalVariable(binaryNamespaceName, t)
 		var exportsObjectCreationNode Node = IR_var_Node_Node(binaryNamespaceName, rhs)
@@ -771,13 +771,13 @@ func (this *ClosureRewriteModule) maybeUpdateExportNameRef(t *NodeTraversal, n N
 		return
 	}
 	if this.currentScript.declareLegacyNamespace {
-		var legacyQname Node = this.astFactory_.createQNameUsingJSTypeInfo(this.globalTypedScope, this.currentScript.namespaceId.get()).srcrefTree(n)
+		var legacyQname Node = this.astFactory_.createQNameUsingJSTypeInfo(this.globalTypedScope, optstrGet_(this.currentScript.namespaceId)).srcrefTree(n)
 		legacyQname.setJSType(n.getJSType())
 		n.replaceWith(legacyQname)
 		this.compiler_.reportChangeToEnclosingScope(legacyQname)
 		return
 	}
-	this.safeSetString(n, this.currentScript.getBinaryNamespace().get())
+	this.safeSetString(n, optstrGet_(this.currentScript.getBinaryNamespace()))
 	if !this.currentScript.willCreateExportsObject && !this.currentScript.hasCreatedExportObject {
 		panic(new_IllegalStateException_0())
 	}
@@ -791,7 +791,7 @@ func (this *ClosureRewriteModule) updateModuleBody(moduleBody Node) {
 	NodeUtil_tryMergeBlock(moduleBody, true)
 	for export := range this.currentScript.exportsToInline.Values() {
 		var nameNode Node = export.nameDecl.getNameNode()
-		this.safeSetMaybeQualifiedString(nameNode, (sstr_(this.currentScript.getBinaryNamespace().orElse("null")) + sstr_(export.getExportPostfix())), false)
+		this.safeSetMaybeQualifiedString(nameNode, (sstr_(optstrOr_(this.currentScript.getBinaryNamespace(), "null")) + sstr_(export.getExportPostfix())), false)
 	}
 	if !this.currentScript.isModule_ {
 		panic(new_IllegalStateException_String(objstr_(this.currentScript)))
@@ -820,10 +820,10 @@ func (this *ClosureRewriteModule) exportTheEmptyBinaryNamespaceAt(atNode Node, a
 	if this.currentScript.declareLegacyNamespace {
 		return
 	}
-	var binaryNamespaceString Optional[string] = this.currentScript.getBinaryNamespace()
+	var binaryNamespaceString string = this.currentScript.getBinaryNamespace()
 	var moduleType AstFactory_Type = AstFactory_type_Node(this.currentScript.rootNode_)
-	var binaryNamespaceName Node = this.astFactory_.createName(binaryNamespaceString.get(), moduleType)
-	binaryNamespaceName.setOriginalName(this.currentScript.namespaceId.orElse(""))
+	var binaryNamespaceName Node = this.astFactory_.createName(optstrGet_(binaryNamespaceString), moduleType)
+	binaryNamespaceName.setOriginalName(optstrOr_(this.currentScript.namespaceId, ""))
 	this.declareGlobalVariable(binaryNamespaceName, t)
 	var binaryNamespaceExportNode Node = IR_var_Node_Node(binaryNamespaceName, this.astFactory_.createObjectLit([]Node{}))
 	if addAt == ClosureRewriteModule_AddAt_BEFORE {
@@ -880,12 +880,12 @@ func (this *ClosureRewriteModule) recordExportToInline(exportDefinition *Closure
 	if ok_, a1_ := (this.currentScript.exportsToInline.Put(exportDefinition.nameDecl, exportDefinition) == nil), exportDefinition.nameDecl; !ok_ {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Already found a mapping for inlining export: %s", a1_)))
 	}
-	var localName Optional[string] = exportDefinition.getLocalName()
-	var fullExportedName string = (sstr_(this.currentScript.getBinaryNamespace().orElse("null")) + sstr_(exportDefinition.getExportPostfix()))
-	this.recordNameToInline(localName.orElseThrow(), fullExportedName, Optional_empty[string]())
+	var localName string = exportDefinition.getLocalName()
+	var fullExportedName string = (sstr_(optstrOr_(this.currentScript.getBinaryNamespace(), "null")) + sstr_(exportDefinition.getExportPostfix()))
+	this.recordNameToInline(optstrGet_(localName), fullExportedName, nullstr_)
 }
 
-func (this *ClosureRewriteModule) recordNameToInline(aliasName string, newName string, namespaceId Optional[string]) {
+func (this *ClosureRewriteModule) recordNameToInline(aliasName string, newName string, namespaceId string) {
 	this.currentScript.namesToInlineByAlias[aliasName] = new_ClosureRewriteModule_AliasName(newName, namespaceId)
 }
 
@@ -1018,14 +1018,14 @@ func ClosureRewriteModule_updateSourceInfoForExportedTopLevelVariable(assign Nod
 	if !getProp.isGetProp() {
 		return
 	}
-	var name Optional[string] = Optional_of[string](sourceName.getOriginalName()).filterFn_(func(s string) bool {
+	var name string = optstrFilter_(optstrOf_(sourceName.getOriginalName()), func(s string) bool {
 		return s != ""
 	})
-	if name.isEmpty() {
-		name = Optional_of[string](sourceName.getString())
+	if name == nullstr_ {
+		name = optstrOf_(sourceName.getString())
 	}
 	sourceName = sourceName.cloneNode()
-	sourceName.setLength(String_length(name.get()))
+	sourceName.setLength(String_length(optstrGet_(name)))
 	getProp.srcrefTree(sourceName)
 }
 
@@ -1072,16 +1072,16 @@ func ClosureRewriteModule_isTypedefTarget(n Node) bool {
 	return (parent.isExprResult() && (parent.getFirstChild() == n))
 }
 
-func (this *ClosureRewriteModule) maybeAddAliasToSymbolTable(n Node, module Optional[string]) {
+func (this *ClosureRewriteModule) maybeAddAliasToSymbolTable(n Node, module string) {
 	if this.preprocessorSymbolTable != nil {
 		n.putBooleanProp(Node_MODULE_ALIAS, true)
-		var nodeName Optional[string] = func() Optional[string] {
+		var nodeName string = func() string {
 			if n.isStringLit() {
-				return Optional_of[string](n.getString())
+				return optstrOf_(n.getString())
 			}
 			return this.preprocessorSymbolTable.getQualifiedName(n)
 		}()
-		var name string = ("alias_" + sstr_(module.orElse("null")) + "_" + sstr_(nodeName.orElse("null")))
+		var name string = ("alias_" + sstr_(optstrOr_(module, "null")) + "_" + sstr_(optstrOr_(nodeName, "null")))
 		this.preprocessorSymbolTable.addReference_2(n, name)
 	}
 }
@@ -1329,13 +1329,13 @@ func new_ClosureRewriteModule_UnrecognizedRequire(requireNode Node, namespaceId 
 }
 
 type ClosureRewriteModule_ExportDefinition struct {
-	exportName_ Optional[string]
+	exportName_ string
 	rhs         Node
 	nameDecl    *Var
 }
 
 func (this *ClosureRewriteModule_ExportDefinition) finit_ClosureRewriteModule_ExportDefinition() {
-	this.exportName_ = Optional_empty[string]()
+	this.exportName_ = nullstr_
 }
 
 func (this *ClosureRewriteModule_ExportDefinition) init_ClosureRewriteModule_ExportDefinition() {
@@ -1350,18 +1350,18 @@ func new_ClosureRewriteModule_ExportDefinition() *ClosureRewriteModule_ExportDef
 
 func (this *ClosureRewriteModule_ExportDefinition) toString() string {
 	return tostrR_(MoreObjects_toStringHelper(this).add("exportName", func() any {
-		if this.exportName_.isPresent() {
-			return strobj_(this.exportName_.get())
+		if this.exportName_ != nullstr_ {
+			return strobj_(optstrGet_(this.exportName_))
 		}
 		return nil
 	}()).add("rhs", this.rhs.box_()).add("nameDecl", obj_(this.nameDecl)).omitNullValues())
 }
 
 func ClosureRewriteModule_ExportDefinition_newDefaultExport(t *NodeTraversal, rhs Node) *ClosureRewriteModule_ExportDefinition {
-	return ClosureRewriteModule_ExportDefinition_newNamedExport(t, Optional_empty[string](), rhs)
+	return ClosureRewriteModule_ExportDefinition_newNamedExport(t, nullstr_, rhs)
 }
 
-func ClosureRewriteModule_ExportDefinition_newNamedExport(t *NodeTraversal, name Optional[string], rhs Node) *ClosureRewriteModule_ExportDefinition {
+func ClosureRewriteModule_ExportDefinition_newNamedExport(t *NodeTraversal, name string, rhs Node) *ClosureRewriteModule_ExportDefinition {
 	var newExport *ClosureRewriteModule_ExportDefinition = new_ClosureRewriteModule_ExportDefinition()
 	newExport.exportName_ = name
 	newExport.rhs = rhs
@@ -1372,10 +1372,10 @@ func ClosureRewriteModule_ExportDefinition_newNamedExport(t *NodeTraversal, name
 }
 
 func (this *ClosureRewriteModule_ExportDefinition) getExportPostfix() string {
-	if this.exportName_.isEmpty() {
+	if this.exportName_ == nullstr_ {
 		return ""
 	}
-	return ("." + sstr_(this.exportName_.get()))
+	return ("." + sstr_(optstrGet_(this.exportName_)))
 }
 
 func (this *ClosureRewriteModule_ExportDefinition) hasInlinableName(exportedNames SetOf[*Var]) bool {
@@ -1398,12 +1398,12 @@ func (this *ClosureRewriteModule_ExportDefinition) hasInlinableName(exportedName
 	return ((!(name == "require") && !(name == "forwardDeclare")) && !(name == "getMsg"))
 }
 
-func (this *ClosureRewriteModule_ExportDefinition) getLocalName() Optional[string] {
-	return func() Optional[string] {
+func (this *ClosureRewriteModule_ExportDefinition) getLocalName() string {
+	return func() string {
 		if this.nameDecl != nil {
-			return Optional_of[string](this.nameDecl.getName())
+			return optstrOf_(this.nameDecl.getName())
 		}
-		return Optional_empty[string]()
+		return nullstr_
 	}()
 }
 
@@ -1422,19 +1422,19 @@ func ClosureRewriteModule_ExportDefinition_clinit() {
 
 type ClosureRewriteModule_AliasName struct {
 	newName     string
-	namespaceId Optional[string]
+	namespaceId string
 }
 
 func (this *ClosureRewriteModule_AliasName) zero_ClosureRewriteModule_AliasName() {
 	this.newName = nullstr_
 }
 
-func (this *ClosureRewriteModule_AliasName) init_ClosureRewriteModule_AliasName(newName string, namespaceId Optional[string]) {
+func (this *ClosureRewriteModule_AliasName) init_ClosureRewriteModule_AliasName(newName string, namespaceId string) {
 	this.newName = newName
 	this.namespaceId = namespaceId
 }
 
-func new_ClosureRewriteModule_AliasName(newName string, namespaceId Optional[string]) *ClosureRewriteModule_AliasName {
+func new_ClosureRewriteModule_AliasName(newName string, namespaceId string) *ClosureRewriteModule_AliasName {
 	this := &ClosureRewriteModule_AliasName{}
 	this.zero_ClosureRewriteModule_AliasName()
 	this.init_ClosureRewriteModule_AliasName(newName, namespaceId)
@@ -1444,7 +1444,7 @@ func new_ClosureRewriteModule_AliasName(newName string, namespaceId Optional[str
 type ClosureRewriteModule_ScriptDescription struct {
 	isModule_               bool
 	declareLegacyNamespace  bool
-	namespaceId             Optional[string]
+	namespaceId             string
 	contentsPrefix          string
 	topLevelNames           map[string]struct{}
 	childScripts            *[]*ClosureRewriteModule_ScriptDescription
@@ -1452,7 +1452,7 @@ type ClosureRewriteModule_ScriptDescription struct {
 	willCreateExportsObject bool
 	hasCreatedExportObject  bool
 	defaultExport           *ClosureRewriteModule_ExportDefinition
-	defaultExportLocalName  Optional[string]
+	defaultExportLocalName  string
 	namedExports            map[string]struct{}
 	exportsToInline         *TMap[*Var, *ClosureRewriteModule_ExportDefinition]
 	rootNode_               Node
@@ -1463,11 +1463,11 @@ func (this *ClosureRewriteModule_ScriptDescription) zero_ClosureRewriteModule_Sc
 }
 
 func (this *ClosureRewriteModule_ScriptDescription) finit_ClosureRewriteModule_ScriptDescription() {
-	this.namespaceId = Optional_empty[string]()
+	this.namespaceId = nullstr_
 	this.topLevelNames = map[string]struct{}{}
 	this.childScripts = &[]*ClosureRewriteModule_ScriptDescription{}
 	this.namesToInlineByAlias = map[string]*ClosureRewriteModule_AliasName{}
-	this.defaultExportLocalName = Optional_empty[string]()
+	this.defaultExportLocalName = nullstr_
 	this.namedExports = map[string]struct{}{}
 	this.exportsToInline = newTMap_(tch_p_Var, tc_p_ClosureRewriteModule_ExportDefinition)
 }
@@ -1491,14 +1491,14 @@ func (this *ClosureRewriteModule_ScriptDescription) removeFirstChildScript() *Cl
 	return slicePopFirst_(tc_p_ClosureRewriteModule_ScriptDescription, this.childScripts)
 }
 
-func (this *ClosureRewriteModule_ScriptDescription) getBinaryNamespace() Optional[string] {
+func (this *ClosureRewriteModule_ScriptDescription) getBinaryNamespace() string {
 	if !this.isModule_ || this.declareLegacyNamespace {
-		return Optional_empty[string]()
+		return nullstr_
 	}
-	return Optional_of[string](ClosureRewriteModule_getBinaryModuleNamespace(this.namespaceId.get()))
+	return optstrOf_(ClosureRewriteModule_getBinaryModuleNamespace(optstrGet_(this.namespaceId)))
 }
 
-func (this *ClosureRewriteModule_ScriptDescription) getExportedNamespace() Optional[string] {
+func (this *ClosureRewriteModule_ScriptDescription) getExportedNamespace() string {
 	if this.declareLegacyNamespace {
 		return this.namespaceId
 	}
@@ -1755,14 +1755,14 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) visit(typeRefNode Node) {
 	} else if this.outer_.currentScript.isModule_ && has_(this.outer_.currentScript.topLevelNames, rootOfType) {
 		this.outer_.safeSetString(typeRefNode, (sstr_(this.outer_.currentScript.contentsPrefix) + sstr_(typeName)))
 	} else if this.outer_.currentScript.isModule_ && (rootOfType == "exports") {
-		var namespace Optional[string] = this.outer_.currentScript.getBinaryNamespace()
+		var namespace string = this.outer_.currentScript.getBinaryNamespace()
 		var remainder string = func() string {
 			if dot == -1 {
 				return ""
 			}
 			return typeName[dot:]
 		}()
-		this.outer_.safeSetString(typeRefNode, (sstr_(namespace.orElse("null")) + sstr_(remainder)))
+		this.outer_.safeSetString(typeRefNode, (sstr_(optstrOr_(namespace, "null")) + sstr_(remainder)))
 	} else {
 		this.rewriteIfClosureNamespaceRef(typeName, typeRefNode)
 	}
@@ -1773,12 +1773,12 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) rewriteIfClosureNamespaceRef(
 	var suffix string = ""
 	typeNameU16 := utf16Of_(typeName)
 	for {
-		var binaryNamespaceIfModule Optional[string] = this.outer_.rewriteState.getBinaryNamespace(prefixTypeName)
-		if has_(this.outer_.legacyScriptNamespacesAndPrefixes, prefixTypeName) && binaryNamespaceIfModule.isEmpty() {
+		var binaryNamespaceIfModule string = this.outer_.rewriteState.getBinaryNamespace(prefixTypeName)
+		if has_(this.outer_.legacyScriptNamespacesAndPrefixes, prefixTypeName) && binaryNamespaceIfModule == nullstr_ {
 			return
 		}
-		if binaryNamespaceIfModule.isPresent() {
-			this.outer_.safeSetString(typeRefNode, (sstr_(binaryNamespaceIfModule.get()) + sstr_(suffix)))
+		if binaryNamespaceIfModule != nullstr_ {
+			this.outer_.safeSetString(typeRefNode, (sstr_(optstrGet_(binaryNamespaceIfModule)) + sstr_(suffix)))
 			return
 		}
 		if JString_contains_s(prefixTypeName, ".") {
@@ -1823,11 +1823,11 @@ func (this *ClosureRewriteModule_GlobalRewriteState) isLegacyModule(namespaceId 
 	return this.scriptDescriptionsByGoogModuleNamespace[namespaceId].declareLegacyNamespace
 }
 
-func (this *ClosureRewriteModule_GlobalRewriteState) getBinaryNamespace(namespaceId string) Optional[string] {
+func (this *ClosureRewriteModule_GlobalRewriteState) getBinaryNamespace(namespaceId string) string {
 	var script *ClosureRewriteModule_ScriptDescription = this.scriptDescriptionsByGoogModuleNamespace[namespaceId]
-	return func() Optional[string] {
+	return func() string {
 		if script == nil {
-			return Optional_empty[string]()
+			return nullstr_
 		}
 		return script.getBinaryNamespace()
 	}()
@@ -1843,14 +1843,14 @@ func (this *ClosureRewriteModule_GlobalRewriteState) getGoogModuleNamespaceType(
 	}()
 }
 
-func (this *ClosureRewriteModule_GlobalRewriteState) getExportedNamespaceOrScript(namespaceId string) Optional[string] {
+func (this *ClosureRewriteModule_GlobalRewriteState) getExportedNamespaceOrScript(namespaceId string) string {
 	if has_(this.providedNamespaces, namespaceId) {
-		return Optional_of[string](namespaceId)
+		return optstrOf_(namespaceId)
 	}
 	var script *ClosureRewriteModule_ScriptDescription = this.scriptDescriptionsByGoogModuleNamespace[namespaceId]
-	return func() Optional[string] {
+	return func() string {
 		if script == nil {
-			return Optional_empty[string]()
+			return nullstr_
 		}
 		return script.getExportedNamespace()
 	}()

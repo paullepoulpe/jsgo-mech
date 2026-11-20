@@ -11,7 +11,7 @@ type ProcessDefines struct {
 	mode_                               ProcessDefines_Mode
 	namespaceSupplier                   func() any
 	recognizeClosureDefines             bool
-	enableZonesDefineName               Optional[string]
+	enableZonesDefineName               string
 	zoneInputPattern                    *Pattern
 	unknownDefinesToIgnore              *TSet[string]
 	knownDefineJsdocs                   map[*JSDocInfo]struct{}
@@ -130,7 +130,7 @@ func ProcessDefines_getGlobalDefineAlias(defineName string) string {
 }
 
 func (this *ProcessDefines) getReplacementForDefine(define *ProcessDefines_Define) Node {
-	var replacement Node = this.getReplacementForDefineName(Optional_of[string](define.defineName_))
+	var replacement Node = this.getReplacementForDefineName(optstrOf_(define.defineName_))
 	if replacement != 0 {
 		return replacement
 	}
@@ -140,10 +140,10 @@ func (this *ProcessDefines) getReplacementForDefine(define *ProcessDefines_Defin
 	return 0
 }
 
-func (this *ProcessDefines) getReplacementForDefineName(defineName Optional[string]) Node {
+func (this *ProcessDefines) getReplacementForDefineName(defineName string) Node {
 	var replacementFromFlags Node = func() Node {
-		if defineName.isPresent() {
-			return this.replacementValuesFromFlags.Get(defineName.get())
+		if defineName != nullstr_ {
+			return this.replacementValuesFromFlags.Get(optstrGet_(defineName))
 		}
 		return 0
 	}()
@@ -151,8 +151,8 @@ func (this *ProcessDefines) getReplacementForDefineName(defineName Optional[stri
 		return replacementFromFlags
 	}
 	var replacementFromClosureDefines Node = func() Node {
-		if defineName.isPresent() {
-			return this.replacementValuesFromClosureDefines.Get(defineName.get())
+		if defineName != nullstr_ {
+			return this.replacementValuesFromClosureDefines.Get(optstrGet_(defineName))
 		}
 		return 0
 	}()
@@ -637,7 +637,7 @@ type ProcessDefines_Builder struct {
 	mode_                   ProcessDefines_Mode
 	namespaceSupplier       func() any
 	recognizeClosureDefines bool
-	enableZonesDefineName   Optional[string]
+	enableZonesDefineName   string
 	zoneInputPattern        *Pattern
 	unknownDefinesToIgnore  *TList[string]
 }
@@ -645,7 +645,7 @@ type ProcessDefines_Builder struct {
 func (this *ProcessDefines_Builder) finit_ProcessDefines_Builder() {
 	this.replacementValues = newTMap_(tc_string, tc_Node)
 	this.recognizeClosureDefines = true
-	this.enableZonesDefineName = Optional_empty[string]()
+	this.enableZonesDefineName = nullstr_
 	this.zoneInputPattern = nil
 	this.unknownDefinesToIgnore = tlistEmptyImm_(tc_string)
 }
@@ -686,7 +686,7 @@ func (this *ProcessDefines_Builder) setRecognizeClosureDefines(recognizeClosureD
 	return this
 }
 
-func (this *ProcessDefines_Builder) setEnableZonesDefineName(enableZonesDefineName Optional[string]) *ProcessDefines_Builder {
+func (this *ProcessDefines_Builder) setEnableZonesDefineName(enableZonesDefineName string) *ProcessDefines_Builder {
 	this.enableZonesDefineName = enableZonesDefineName
 	return this
 }

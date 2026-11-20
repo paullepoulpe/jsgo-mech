@@ -62,8 +62,8 @@ func (this *NumberType) matchesObjectContext_impl() bool {
 	return true
 }
 
-func (this *NumberType) getDisplayName_impl() Optional[string] {
-	return Optional_of[string]("number")
+func (this *NumberType) getDisplayName_impl() string {
+	return "number"
 }
 
 func (this *NumberType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
@@ -123,7 +123,7 @@ func (this *NumberType) matchesObjectContext() bool {
 }
 
 // getDisplayName: an object that is exactly a NumberType calls its getDisplayName_impl directly (post-flip); others dispatch.
-func (this *NumberType) getDisplayName() Optional[string] {
+func (this *NumberType) getDisplayName() string {
 	if p, _ := this.self_.(*NumberType); p == this {
 		return this.getDisplayName_impl()
 	}
