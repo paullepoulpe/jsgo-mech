@@ -12,7 +12,10 @@ func (this *ProcessConstJsdocCallback) as_ProcessConstJsdocCallback() *ProcessCo
 }
 
 func to_ProcessConstJsdocCallback(v any) *ProcessConstJsdocCallback {
-	if v == nil {
+	switch p := v.(type) {
+	case *ConvertToTypedInterface_PropagateConstJsdoc:
+		return p.as_ProcessConstJsdocCallback()
+	case nil:
 		return nil
 	}
 	return v.(interface {

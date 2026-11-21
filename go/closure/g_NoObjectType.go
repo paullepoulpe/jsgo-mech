@@ -9,7 +9,12 @@ type NoObjectType struct {
 func (this *NoObjectType) as_NoObjectType() *NoObjectType { return this }
 
 func to_NoObjectType(v any) *NoObjectType {
-	if v == nil {
+	switch p := v.(type) {
+	case *NoObjectType:
+		return p
+	case *NoType:
+		return p.as_NoObjectType()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_NoObjectType() *NoObjectType }).as_NoObjectType()

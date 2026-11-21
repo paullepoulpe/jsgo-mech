@@ -23,7 +23,14 @@ type FunctionType struct {
 func (this *FunctionType) as_FunctionType() *FunctionType { return this }
 
 func to_FunctionType(v any) *FunctionType {
-	if v == nil {
+	switch p := v.(type) {
+	case *FunctionType:
+		return p
+	case *NoObjectType:
+		return p.as_FunctionType()
+	case *NoType:
+		return p.as_FunctionType()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_FunctionType() *FunctionType }).as_FunctionType()

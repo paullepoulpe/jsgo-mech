@@ -223,7 +223,12 @@ func (this *ExternExportsPass_Export) as_ExternExportsPass_Export() *ExternExpor
 }
 
 func to_ExternExportsPass_Export(v any) *ExternExportsPass_Export {
-	if v == nil {
+	switch p := v.(type) {
+	case *ExternExportsPass_PropertyExport:
+		return p.as_ExternExportsPass_Export()
+	case *ExternExportsPass_SymbolExport:
+		return p.as_ExternExportsPass_Export()
+	case nil:
 		return nil
 	}
 	return v.(interface {
