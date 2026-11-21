@@ -197,6 +197,7 @@ type Enum struct {
 	self_    any
 	name_    string
 	ordinal_ int32
+	values_  []any // the constants of its enum by ordinal, set by registerEnum_ (for EnumSet)
 }
 
 func (this *Enum) init_Enum(name string, ordinal int32) {
@@ -204,6 +205,7 @@ func (this *Enum) init_Enum(name string, ordinal int32) {
 	this.ordinal_ = ordinal
 }
 
+func (this *Enum) enum_() *Enum     { return this }
 func (this *Enum) name() string     { return this.name_ }
 func (this *Enum) ordinal() int32   { return this.ordinal_ }
 func (this *Enum) toString() string { return this.name_ }

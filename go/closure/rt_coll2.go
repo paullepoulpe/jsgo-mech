@@ -367,25 +367,255 @@ func new_LinkedBlockingQueue() *LinkedBlockingQueue {
 	return this
 }
 
-// ---- EnumMap, EnumSet: ordered by ordinal
+// ---- EnumMap, EnumSet
 
-func ordinalCmp_() Comparator_e {
-	return Comparator_of_(func(a, b any) int32 {
-		return a.(interface{ ordinal() int32 }).ordinal() - b.(interface{ ordinal() int32 }).ordinal()
-	})
-}
+// ordinalCmp_ orders enum constants by ordinal. It holds no state, so there is one.
+func ordinalCmp_() Comparator_e { return ordinalCmpOne_ }
 
+var ordinalCmpOne_ Comparator_e = Comparator_of_(func(a, b any) int32 {
+	return a.(interface{ ordinal() int32 }).ordinal() - b.(interface{ ordinal() int32 }).ordinal()
+})
+
+// EnumMap is a TreeMap ordered by ordinal.
 type EnumMap struct{ TreeMap }
 
 func new_EnumMap(c *Class) *EnumMap { return &EnumMap{TreeMap{cmp: ordinalCmp_()}} }
 
-type EnumSet struct{ TreeSet }
+// EnumSet is java.util.EnumSet: a bit set over the constants of one enum, which iterates in
+// ordinal order. univ is that enum's constants by ordinal (Enum.values_), taken from the first
+// constant the set sees; an element is in the set when its bit is set and it is a constant of
+// univ (Java's EnumSet holds the constants of one enum type and contains nothing else).
+type EnumSet struct {
+	univ []any
+	w    uint64   // ordinals 0-63
+	more []uint64 // ordinals from 64 on
+}
 
-func EnumSet_noneOf(c *Class) *EnumSet { return &EnumSet{TreeSet{cmp: ordinalCmp_()}} }
+var _ Set = (*EnumSet)(nil)
+
+// enumConst_ is an enum constant: every enum class embeds Enum.
+type enumConst_ interface{ enum_() *Enum }
+
+// of_ takes the enum of constant e as the set's when it has none yet, and otherwise checks that
+// e belongs to it (Java: a ClassCastException for a constant of another enum).
+func (s *EnumSet) of_(e *Enum) {
+	if len(e.values_) == 0 {
+		panic("EnumSet: enum not registered: " + e.name_)
+	}
+	if s.univ == nil {
+		s.univ = e.values_
+	} else if &s.univ[0] != &e.values_[0] {
+		panic(new_ClassCastException_String(goTypeName_(e.self_) + " is not an enum of this EnumSet").self())
+	}
+}
+
+// member returns the constant e of k, if k is a constant of this set's enum.
+func (s *EnumSet) member(k any) (*Enum, bool) {
+	c, ok := k.(enumConst_)
+	if !ok || s.univ == nil {
+		return nil, false
+	}
+	e := c.enum_()
+	return e, len(e.values_) > 0 && &e.values_[0] == &s.univ[0]
+}
+
+func (s *EnumSet) word(i int) *uint64 {
+	if i == 0 {
+		return &s.w
+	}
+	for len(s.more) < i {
+		s.more = append(s.more, 0)
+	}
+	return &s.more[i-1]
+}
+
+func (s *EnumSet) has(o int32) bool {
+	if o < 64 {
+		return s.w&(1<<uint(o)) != 0
+	}
+	i := int(o>>6) - 1
+	return i < len(s.more) && s.more[i]&(1<<uint(o&63)) != 0
+}
+
+func (s *EnumSet) size() int32 {
+	n := bits.OnesCount64(s.w)
+	for _, x := range s.more {
+		n += bits.OnesCount64(x)
+	}
+	return int32(n)
+}
+
+func (s *EnumSet) isEmpty() bool { return s.size() == 0 }
+
+func (s *EnumSet) clear() { s.w, s.more = 0, nil }
+
+func (s *EnumSet) contains(k any) bool {
+	e, ok := s.member(k)
+	return ok && s.has(e.ordinal_)
+}
+
+func (s *EnumSet) add(k any) bool {
+	if k == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	e := k.(enumConst_).enum_()
+	s.of_(e)
+	w, b := s.word(int(e.ordinal_>>6)), uint64(1)<<uint(e.ordinal_&63)
+	if *w&b != 0 {
+		return false
+	}
+	*w |= b
+	return true
+}
+
+func (s *EnumSet) remove_Object(k any) bool {
+	e, ok := s.member(k)
+	if !ok || !s.has(e.ordinal_) {
+		return false
+	}
+	*s.word(int(e.ordinal_ >> 6)) &^= 1 << uint(e.ordinal_&63)
+	return true
+}
+
+// same reports whether c is an EnumSet over the same enum as s (both have seen a constant).
+func (s *EnumSet) same(c Collection) (*EnumSet, bool) {
+	t, ok := c.(*EnumSet)
+	return t, ok && s.univ != nil && t.univ != nil && &s.univ[0] == &t.univ[0]
+}
+
+func (s *EnumSet) addAll(c Collection) bool {
+	if t, ok := c.(*EnumSet); ok && (t.univ == nil || s.univ == nil || &s.univ[0] == &t.univ[0]) {
+		if t.univ == nil {
+			return false
+		}
+		s.univ = t.univ
+		changed := s.w|t.w != s.w
+		s.w |= t.w
+		for i, x := range t.more {
+			w := s.word(i + 1)
+			changed = changed || *w|x != *w
+			*w |= x
+		}
+		return changed
+	}
+	changed := false
+	for it := c.iterator(); it.hasNext(); {
+		if s.add(it.next()) {
+			changed = true
+		}
+	}
+	return changed
+}
+
+func (s *EnumSet) containsAll(c Collection) bool {
+	if t, ok := s.same(c); ok {
+		if t.w&^s.w != 0 {
+			return false
+		}
+		for i, x := range t.more {
+			if i >= len(s.more) {
+				if x != 0 {
+					return false
+				}
+			} else if x&^s.more[i] != 0 {
+				return false
+			}
+		}
+		return true
+	}
+	return containsAll_(s, c)
+}
+
+func (s *EnumSet) removeAll(c Collection) bool { return removeAll_(s, c) }
+
+func (s *EnumSet) items() []any {
+	out := make([]any, 0, s.size())
+	for it := s.iter(); it.hasNext(); {
+		out = append(out, it.next())
+	}
+	return out
+}
+
+func (s *EnumSet) toArray_0() []any      { return s.items() }
+func (s *EnumSet) toArray(a []any) []any { return fillArray_(s.items(), a) }
+
+func (s *EnumSet) equals(o any) bool {
+	if t, ok := o.(*EnumSet); ok {
+		if t, ok := s.same(t); ok {
+			if s.w != t.w {
+				return false
+			}
+			for i := 0; i < max(len(s.more), len(t.more)); i++ {
+				var x, y uint64
+				if i < len(s.more) {
+					x = s.more[i]
+				}
+				if i < len(t.more) {
+					y = t.more[i]
+				}
+				if x != y {
+					return false
+				}
+			}
+			return true
+		}
+	}
+	return setEquals_(s, o)
+}
+
+func (s *EnumSet) hashCode() int32  { return setHash_(s) }
+func (s *EnumSet) toString() string { return collToString_(s) }
+
+func (s *EnumSet) iterator() Iterator { return s.iter() }
+
+func (s *EnumSet) iter() *enumSetIter_ { return &enumSetIter_{s: s, unseen: s.w, last: -1} }
+
+// enumSetIter_ walks the set in ordinal order as Java's does: it takes a copy of one word of
+// bits at a time (all of them for an enum of up to 64 constants), so additions to a word it is
+// in are not seen, and remove() clears the constant it returned last.
+type enumSetIter_ struct {
+	s      *EnumSet
+	unseen uint64
+	wi     int // index of the word unseen was taken from
+	last   int32
+}
+
+func (it *enumSetIter_) hasNext() bool {
+	for it.unseen == 0 {
+		if it.wi >= len(it.s.more) {
+			return false
+		}
+		it.unseen = it.s.more[it.wi]
+		it.wi++
+	}
+	return true
+}
+
+func (it *enumSetIter_) next() any {
+	if !it.hasNext() {
+		panic(new_NoSuchElementException_0().self())
+	}
+	b := bits.TrailingZeros64(it.unseen)
+	it.unseen &= it.unseen - 1
+	it.last = int32(it.wi*64 + b)
+	return it.s.univ[it.last]
+}
+
+func (it *enumSetIter_) remove() {
+	if it.last < 0 {
+		panic(new_IllegalStateException_0().self())
+	}
+	*it.s.word(int(it.last >> 6)) &^= 1 << uint(it.last&63)
+	it.last = -1
+}
+
+func EnumSet_noneOf(c *Class) *EnumSet { return &EnumSet{} }
 
 func EnumSet_allOf(c *Class) *EnumSet {
 	s := EnumSet_noneOf(c)
-	s.items = append(s.items, enumRegistry_[c.name_]...)
+	for _, v := range enumRegistry_[c.name_] {
+		s.add(v)
+	}
 	return s
 }
 
