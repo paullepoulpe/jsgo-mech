@@ -800,7 +800,7 @@ func tsetImm_[K comparable](kc *tconv_[K], ic *ImmutableCollection) *ImmutableSe
 			return s
 		}
 	}
-	s := newTSortedSetC_(kc, ic.cmp)
+	s := newTSortedSetC_(kc, ic.cmp_())
 	s.keys = unboxAll_(kc, ic.items)
 	s.vals = make([]struct{}, len(s.keys))
 	s.live = int32(len(s.keys))
