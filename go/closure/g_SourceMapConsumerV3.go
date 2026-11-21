@@ -74,55 +74,43 @@ func (this *SourceMapConsumerV3) parse_2(sourceMapObject *SourceMapObject, secti
 	return Outcome_base_ok_0()
 }
 
-func (this *SourceMapConsumerV3) parseMetaMap(sourceMapObject *SourceMapObject, sectionSupplier SourceMapSupplier) *Outcome_base[any] {
+func (this *SourceMapConsumerV3) parseMetaMap(sourceMapObject *SourceMapObject, sectionSupplier SourceMapSupplier) (ret_1 *Outcome_base[any]) {
 	if sectionSupplier == nil {
 		sectionSupplier = SourceMapSupplier(new_SourceMapConsumerV3_DefaultSourceMapSupplier())
 	}
-	var ret_1 *Outcome_base[any]
-	code_1 := func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if p, ok := ex_.(IOException_as); ok {
-					var ex *IOException = p.as_IOException()
-					ret_1 = Outcome_base_err[any](new_SourceMapParseException(("IO exception: " + objstr_(ex.self()))).up_Throwable())
-					code_ = 1
-					return
-				}
-				panic(r_)
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if p, ok := ex_.(IOException_as); ok {
+				var ex *IOException = p.as_IOException()
+				ret_1 = Outcome_base_err[any](new_SourceMapParseException(("IO exception: " + objstr_(ex.self()))).up_Throwable())
+				return
 			}
-		}()
-		if (((sourceMapObject.getLineCount() >= 0) || sourceMapObject.getMappings().isPresent()) || ((sourceMapObject.getSources() != nil) && (int32(len(sourceMapObject.getSources())) > 0))) || (sourceMapObject.getNames() != nil) {
-			ret_1 = Outcome_base_err[any](new_SourceMapParseException("Invalid map format").up_Throwable())
-			return 1
+			panic(r_)
 		}
-		var generator *SourceMapGeneratorV3 = new_SourceMapGeneratorV3()
-		it_2 := sourceMapObject.getSections().each()
-		for it_2.next() {
-			var section *SourceMapSection = it_2.v
-			var mapSectionContents Optional[string] = Optional_of[string](section.getSectionValue())
-			if section.getSectionType() == SourceMapSection_SectionType_URL {
-				mapSectionContents = sectionSupplier.getSourceMap(section.getSectionValue())
-			}
-			if mapSectionContents.isEmpty() {
-				ret_1 = Outcome_base_err[any](new_SourceMapParseException(("Unable to retrieve: " + sstr_(section.getSectionValue()))).up_Throwable())
-				return 1
-			}
-			var merged *Outcome_base[any] = generator.mergeMapSection(section.getLine(), section.getColumn(), mapSectionContents.get())
-			if merged.isErr() {
-				ret_1 = Outcome_base_err[any](merged.error())
-				return 1
-			}
-		}
-		var sb *StringBuilder = new_StringBuilder()
-		generator.appendTo(StringBuilder_as_Appendable(sb), sourceMapObject.getFile())
-		ret_1 = this.parse(sb.toString())
-		return 1
 	}()
-	if code_1 == 1 {
-		return ret_1
+	if (((sourceMapObject.getLineCount() >= 0) || sourceMapObject.getMappings().isPresent()) || ((sourceMapObject.getSources() != nil) && (int32(len(sourceMapObject.getSources())) > 0))) || (sourceMapObject.getNames() != nil) {
+		return Outcome_base_err[any](new_SourceMapParseException("Invalid map format").up_Throwable())
 	}
-	panic("unreachable")
+	var generator *SourceMapGeneratorV3 = new_SourceMapGeneratorV3()
+	it_2 := sourceMapObject.getSections().each()
+	for it_2.next() {
+		var section *SourceMapSection = it_2.v
+		var mapSectionContents Optional[string] = Optional_of[string](section.getSectionValue())
+		if section.getSectionType() == SourceMapSection_SectionType_URL {
+			mapSectionContents = sectionSupplier.getSourceMap(section.getSectionValue())
+		}
+		if mapSectionContents.isEmpty() {
+			return Outcome_base_err[any](new_SourceMapParseException(("Unable to retrieve: " + sstr_(section.getSectionValue()))).up_Throwable())
+		}
+		var merged *Outcome_base[any] = generator.mergeMapSection(section.getLine(), section.getColumn(), mapSectionContents.get())
+		if merged.isErr() {
+			return Outcome_base_err[any](merged.error())
+		}
+	}
+	var sb *StringBuilder = new_StringBuilder()
+	generator.appendTo(StringBuilder_as_Appendable(sb), sourceMapObject.getFile())
+	return this.parse(sb.toString())
 }
 
 func (this *SourceMapConsumerV3) getMappingForLine(lineNumber int32, column int32) *Mapping_OriginalMapping {

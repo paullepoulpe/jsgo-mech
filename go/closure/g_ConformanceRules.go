@@ -17,26 +17,18 @@ func new_ConformanceRules() *ConformanceRules {
 	return this
 }
 
-func ConformanceRules_createTsAllowlist() *ConformanceRules_AllowList {
-	var ret_1 *ConformanceRules_AllowList
-	code_1 := func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if p, ok := ex_.(Throwable_as); ok {
-					var t *Throwable = p.as_Throwable()
-					panic(new_AssertionError_Object(t.self()))
-				}
-				panic(r_)
+func ConformanceRules_createTsAllowlist() (ret_1 *ConformanceRules_AllowList) {
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if p, ok := ex_.(Throwable_as); ok {
+				var t *Throwable = p.as_Throwable()
+				panic(new_AssertionError_Object(t.self()))
 			}
-		}()
-		ret_1 = ConformanceRules_AllowList_create(ImmutableList_as_List(ImmutableList_of()), ImmutableList_as_List(ImmutableList_of_Object_Object(".*\\.closure\\.js", ".*\\.tsx\\.cl\\.js"))).get()
-		return 1
+			panic(r_)
+		}
 	}()
-	if code_1 == 1 {
-		return ret_1
-	}
-	panic("unreachable")
+	return ConformanceRules_AllowList_create(ImmutableList_as_List(ImmutableList_of()), ImmutableList_as_List(ImmutableList_of_Object_Object(".*\\.closure\\.js", ".*\\.tsx\\.cl\\.js"))).get()
 }
 
 func ConformanceRules_buildPattern(reqPatterns ListOf[string]) *Outcome_base[*Pattern] {
@@ -67,7 +59,7 @@ func ConformanceRules_buildPattern(reqPatterns ListOf[string]) *Outcome_base[*Pa
 		}
 	}
 	var pattern *Pattern = nil
-	_ = func() (code_ int) {
+	func() {
 		defer func() {
 			if r_ := recover(); r_ != nil {
 				ex_ := catch_(r_)
@@ -79,7 +71,6 @@ func ConformanceRules_buildPattern(reqPatterns ListOf[string]) *Outcome_base[*Pa
 		}()
 		var jointRegExp string = ("(" + sstr_(Joiner_on("|").join(Iterable(reqPatterns))) + ")")
 		pattern = Pattern_compile(jointRegExp)
-		return 0
 	}()
 	return Outcome_base_ok_Object[*Pattern](pattern)
 }
