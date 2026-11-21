@@ -6,7 +6,7 @@ type ColorFindPropertyReferences struct {
 	NodeTraversal_AbstractPostOrderCallback
 	propIndex             *JTMap[string, *PropertyClustering]
 	colorGraphNodeFactory *ColorGraphNodeFactory
-	isPropertyReflector   ColorFindPropertyReferences_IsPropertyReflector
+	isPropertyReflector   func(Node) bool
 }
 
 func (this *ColorFindPropertyReferences) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -20,14 +20,14 @@ func (this *ColorFindPropertyReferences) finit_ColorFindPropertyReferences() {
 	this.propIndex = jnewTMap_(jtc_string, jtc_p_PropertyClustering)
 }
 
-func (this *ColorFindPropertyReferences) init_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactory, isPropertyReflector ColorFindPropertyReferences_IsPropertyReflector) {
+func (this *ColorFindPropertyReferences) init_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactory, isPropertyReflector func(Node) bool) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.finit_ColorFindPropertyReferences()
 	this.colorGraphNodeFactory = colorGraphNodeFactory
 	this.isPropertyReflector = isPropertyReflector
 }
 
-func new_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactory, isPropertyReflector ColorFindPropertyReferences_IsPropertyReflector) *ColorFindPropertyReferences {
+func new_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactory, isPropertyReflector func(Node) bool) *ColorFindPropertyReferences {
 	this := &ColorFindPropertyReferences{}
 	this.self_ = this
 	this.init_ColorFindPropertyReferences(colorGraphNodeFactory, isPropertyReflector)
@@ -73,7 +73,7 @@ func (this *ColorFindPropertyReferences) handleCall(t *NodeTraversal, call Node)
 	if !target.isQualifiedName() {
 		return
 	}
-	if this.isPropertyReflector.test(target) {
+	if this.isPropertyReflector(target) {
 		this.handlePropertyReflectorCall(t, call)
 	} else if NodeUtil_isObjectDefinePropertiesDefinition(call) {
 		this.handleObjectDefineProperties(t, call)

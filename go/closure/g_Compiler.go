@@ -113,7 +113,7 @@ func (this *Compiler) finit_Compiler() {
 	this.phaseOptimizer = nil
 	this.forwardDeclaredTypes = Set(new_LinkedHashSet())
 	this.typeCheckingHasRun = false
-	this.oldErrorReporter = RhinoErrorReporter_forOldRhino(ErrorHandler(this))
+	this.oldErrorReporter = RhinoErrorReporter_forOldRhino(this.report_2)
 	this.compilerExecutor = this.createCompilerExecutor()
 	this.externProperties = nil
 	this.accessorSummary = nil
@@ -499,7 +499,7 @@ func (this *Compiler) initChunks(externs ListOf[*SourceFile_jscomp], chunks List
 		chunkGraphLog.logString(DotFormatter_toDot_GraphvizGraph(icast_GraphvizGraph(this.chunkGraph.toGraphvizGraph().self())))
 		return 0
 	}()
-	this.runtimeJsLibManager = RuntimeJsLibManager_create(options.getRuntimeLibraryMode(), &RuntimeJsLibManager_ResourceProvider_fn{func(p0 string, p1 string) Node { return this.loadResourceContents(p0, p1) }}, this.changeTracker, func() Supplier[Node] {
+	this.runtimeJsLibManager = RuntimeJsLibManager_create(options.getRuntimeLibraryMode(), func(p0 string, p1 string) Node { return this.loadResourceContents(p0, p1) }, this.changeTracker, func() Supplier[Node] {
 		if options.getRuntimeLibraryMode() == RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES {
 			return Supplier[Node](func() Node { return this.getSynthesizedExternsRoot() })
 		}
@@ -517,7 +517,7 @@ func (this *Compiler) initBasedOnOptions() {
 		this.sourceMap_ = this.options_.getSourceMapFormat().getInstance()
 		this.sourceMap_.setPrefixMappings(this.options_.getSourceMapLocationMappings())
 		if this.options_.getApplyInputSourceMaps() {
-			this.sourceMap_.setSourceFileMapping(icast_SourceFileMapping(obj_(this)))
+			this.sourceMap_.setSourceFileMapping(this.getSourceMapping_Optional_int_int)
 			if this.options_.getSourceMapIncludeSourcesContent() {
 				it_1 := foreach_(obj_(cast_[*ImmutableCollection](ImmutableSortedMap_copyOf(ConcurrentHashMap_as_Map(this.inputSourceMaps)).values())))
 				for it_1.next() {

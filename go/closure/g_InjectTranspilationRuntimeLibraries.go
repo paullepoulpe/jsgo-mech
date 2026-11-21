@@ -42,7 +42,7 @@ func (this *InjectTranspilationRuntimeLibraries) process_2(externs Node, root No
 	}
 	var outputFeatures *FeatureSet = this.compiler_.getOptions().getOutputFeatureSet()
 	if !outputFeatures.containsFeatureSet(used) {
-		NodeUtil_visitPostOrder_Node_Visitor_Predicate(root, &NodeUtil_Visitor_fn{func(p0 Node) { this.checkForClassExtends(p0) }}, Predicate_base[Node](func(unused Node) bool {
+		NodeUtil_visitPostOrder_Node_Visitor_Predicate(root, func(p0 Node) { this.checkForClassExtends(p0) }, Predicate_base[Node](func(unused Node) bool {
 			return !this.injectedClassExtendsLibraries
 		}))
 	}

@@ -268,7 +268,7 @@ func ClosureBundler_EvalMode_clinit() {
 
 type ClosureBundler_EscapeMode struct {
 	Enum
-	selfI_ ClosureBundler_EscapeMode_I
+	selfI_ func(string, Appendable)
 }
 
 // ClosureBundler_EscapeMode_I holds the methods the dispatchers of enum ClosureBundler_EscapeMode call on its
@@ -321,7 +321,7 @@ func (this *ClosureBundler_EscapeMode) init_ClosureBundler_EscapeMode(name_ stri
 }
 
 func (this *ClosureBundler_EscapeMode) append(p0 string, p1 Appendable) {
-	this.selfI_.append_impl(p0, p1)
+	this.selfI_(p0, p1)
 }
 
 func ClosureBundler_EscapeMode_values() []*ClosureBundler_EscapeMode {
@@ -520,7 +520,7 @@ func (this *ClosureBundler_EscapeMode_1) init_ClosureBundler_EscapeMode_1(name_ 
 func new_ClosureBundler_EscapeMode_1(name_ string, ordinal_ int32) *ClosureBundler_EscapeMode_1 {
 	this := &ClosureBundler_EscapeMode_1{}
 	this.self_ = this
-	this.selfI_ = this
+	this.selfI_ = this.append_impl
 	this.init_ClosureBundler_EscapeMode_1(name_, ordinal_)
 	return this
 }
@@ -581,7 +581,7 @@ func (this *ClosureBundler_EscapeMode_2) init_ClosureBundler_EscapeMode_2(name_ 
 func new_ClosureBundler_EscapeMode_2(name_ string, ordinal_ int32) *ClosureBundler_EscapeMode_2 {
 	this := &ClosureBundler_EscapeMode_2{}
 	this.self_ = this
-	this.selfI_ = this
+	this.selfI_ = this.append_impl
 	this.init_ClosureBundler_EscapeMode_2(name_, ordinal_)
 	return this
 }
@@ -659,7 +659,7 @@ func (this *ClosureBundler_EscapeMode_1) append(p0 string, p1 Appendable) {
 		this.append_impl(p0, p1)
 		return
 	}
-	this.selfI_.append_impl(p0, p1)
+	this.selfI_(p0, p1)
 }
 
 // append: an object that is exactly a ClosureBundler_EscapeMode_2 calls its append_impl directly (post-flip); others dispatch.
@@ -668,5 +668,5 @@ func (this *ClosureBundler_EscapeMode_2) append(p0 string, p1 Appendable) {
 		this.append_impl(p0, p1)
 		return
 	}
-	this.selfI_.append_impl(p0, p1)
+	this.selfI_(p0, p1)
 }
