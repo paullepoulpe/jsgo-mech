@@ -288,6 +288,27 @@ func findTry(d *ast.DeferStmt) (*ast.IfStmt, bool) {
 	return is, true
 }
 
+// assertClauseType is the class of a catch clause that castfold -instof wrote as a comma-ok
+// assertion: `if e, ok := ex_.(*X); ok {` or `if p, ok := ex_.(X_as); ok {`.
+func assertClauseType(ci *ast.IfStmt) ([]string, bool) {
+	as, ok := ci.Init.(*ast.AssignStmt)
+	if !ok || as.Tok != token.DEFINE || len(as.Lhs) != 2 || len(as.Rhs) != 1 {
+		return nil, false
+	}
+	ta, ok := as.Rhs[0].(*ast.TypeAssertExpr)
+	if !ok || ta.Type == nil || rw.Text(ta.X) != "ex_" || rw.Text(ci.Cond) != rw.Text(as.Lhs[1]) {
+		return nil, false
+	}
+	t := rw.Text(ta.Type)
+	switch {
+	case strings.HasPrefix(t, "*"):
+		return []string{t[1:]}, true
+	case strings.HasSuffix(t, "_as"):
+		return []string{strings.TrimSuffix(t, "_as")}, true
+	}
+	return nil, false
+}
+
 // clauseTypes are the classes a catch clause tests: is_X(ex_) or is_[*X](ex_), joined by ||.
 func clauseTypes(e ast.Expr) ([]string, bool) {
 	e = rw.Unparen(e)
@@ -365,11 +386,16 @@ func analyse(lit *ast.FuncLit, d *ast.DeferStmt, is *ast.IfStmt) {
 	var dead []*ast.IfStmt
 	for _, c := range clauses {
 		ci, ok := c.(*ast.IfStmt)
-		if !ok || ci.Init != nil || ci.Else != nil {
+		if !ok || ci.Else != nil {
 			note("left: catch block of an unknown shape", c)
 			return
 		}
-		ts, ok := clauseTypes(ci.Cond)
+		var ts []string
+		if ci.Init != nil {
+			ts, ok = assertClauseType(ci)
+		} else {
+			ts, ok = clauseTypes(ci.Cond)
+		}
 		if !ok {
 			note("left: catch block of an unknown shape", c)
 			return
