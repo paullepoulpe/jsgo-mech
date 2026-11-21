@@ -62,7 +62,7 @@ func (this *InlineFunctions) process_2(externs Node, root Node) {
 	}
 	this.resolveInlineConflicts()
 	this.decomposeExpressions()
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(new_InlineFunctions_CallVisitor(this.fns, this.anonFns, InlineFunctions_CallVisitorCallback(new_InlineFunctions_Inline(this.injector))).self()))
+	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(new_InlineFunctions_CallVisitor(this.fns, this.anonFns, new_InlineFunctions_Inline(this.injector).visitCallSite).self()))
 	this.removeInlinedFunctions()
 }
 
@@ -521,7 +521,7 @@ func (this *InlineFunctions_CallVisitorCallback_fn) visitCallSite(p0 *NodeTraver
 
 type InlineFunctions_CallVisitor struct {
 	NodeTraversal_AbstractPostOrderCallback
-	callback        InlineFunctions_CallVisitorCallback
+	callback        func(*NodeTraversal, Node, *InlineFunctions_FunctionState)
 	functionMap     *JTMap[string, *InlineFunctions_FunctionState]
 	anonFunctionMap *JTMap[Node, string]
 }
@@ -565,14 +565,14 @@ func (this *InlineFunctions_CallVisitor) up_NodeTraversal_AbstractPostOrderCallb
 	return &this.NodeTraversal_AbstractPostOrderCallback
 }
 
-func (this *InlineFunctions_CallVisitor) init_InlineFunctions_CallVisitor(fns *JTMap[string, *InlineFunctions_FunctionState], anonFns *JTMap[Node, string], callback InlineFunctions_CallVisitorCallback) {
+func (this *InlineFunctions_CallVisitor) init_InlineFunctions_CallVisitor(fns *JTMap[string, *InlineFunctions_FunctionState], anonFns *JTMap[Node, string], callback func(*NodeTraversal, Node, *InlineFunctions_FunctionState)) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.functionMap = fns
 	this.anonFunctionMap = anonFns
 	this.callback = callback
 }
 
-func new_InlineFunctions_CallVisitor(fns *JTMap[string, *InlineFunctions_FunctionState], anonFns *JTMap[Node, string], callback InlineFunctions_CallVisitorCallback) *InlineFunctions_CallVisitor {
+func new_InlineFunctions_CallVisitor(fns *JTMap[string, *InlineFunctions_FunctionState], anonFns *JTMap[Node, string], callback func(*NodeTraversal, Node, *InlineFunctions_FunctionState)) *InlineFunctions_CallVisitor {
 	this := &InlineFunctions_CallVisitor{}
 	this.self_ = this
 	this.init_InlineFunctions_CallVisitor(fns, anonFns, callback)
@@ -600,7 +600,7 @@ func (this *InlineFunctions_CallVisitor) visit_impl(t *NodeTraversal, n Node, pa
 		if name.isPresent() {
 			var functionState *InlineFunctions_FunctionState = this.functionMap.get(name.get())
 			if functionState != nil {
-				this.callback.visitCallSite(t, n, functionState)
+				this.callback(t, n, functionState)
 			}
 		}
 	default:
@@ -628,7 +628,7 @@ func (this *InlineFunctions_FindCandidatesReferences) up_NodeTraversal_AbstractP
 
 func (this *InlineFunctions_FindCandidatesReferences) init_InlineFunctions_FindCandidatesReferences(fns *JTMap[string, *InlineFunctions_FunctionState], anonFns *JTMap[Node, string]) {
 	this.InlineFunctions_CallVisitor.init_InlineFunctions_CallVisitor(fns, anonFns, nil)
-	this.callback = InlineFunctions_CallVisitorCallback(this)
+	this.callback = this.visitCallSite
 }
 
 func new_InlineFunctions_FindCandidatesReferences(outer_ *InlineFunctions, fns *JTMap[string, *InlineFunctions_FunctionState], anonFns *JTMap[Node, string]) *InlineFunctions_FindCandidatesReferences {
