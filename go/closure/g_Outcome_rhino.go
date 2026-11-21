@@ -30,8 +30,6 @@ func (this Outcome_rhino) ordinal() int32 {
 
 func (this Outcome_rhino) toString() string { return this.enum_().name_ }
 
-func (this Outcome_rhino) compareTo(o any) int32 { return this.enum_().compareTo(o) }
-
 func (this Outcome_rhino) self() any {
 	if this == 0 {
 		return nil

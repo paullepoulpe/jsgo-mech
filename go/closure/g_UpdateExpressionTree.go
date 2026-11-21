@@ -68,10 +68,6 @@ func (this UpdateExpressionTree_OperatorPosition) toString() string {
 	return this.enum_().name_
 }
 
-func (this UpdateExpressionTree_OperatorPosition) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this UpdateExpressionTree_OperatorPosition) self() any {
 	if this == 0 {
 		return nil

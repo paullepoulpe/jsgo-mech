@@ -3529,10 +3529,6 @@ func (this Node_RecursionMode) ordinal() int32 {
 
 func (this Node_RecursionMode) toString() string { return this.enum_().name_ }
 
-func (this Node_RecursionMode) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this Node_RecursionMode) self() any {
 	if this == 0 {
 		return nil
@@ -3605,10 +3601,6 @@ func (this Node_TypeComparison) ordinal() int32 {
 
 func (this Node_TypeComparison) toString() string { return this.enum_().name_ }
 
-func (this Node_TypeComparison) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this Node_TypeComparison) self() any {
 	if this == 0 {
 		return nil
@@ -3671,10 +3663,6 @@ func (this Node_JsDocComparison) ordinal() int32 {
 }
 
 func (this Node_JsDocComparison) toString() string { return this.enum_().name_ }
-
-func (this Node_JsDocComparison) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
 
 func (this Node_JsDocComparison) self() any {
 	if this == 0 {
@@ -3741,10 +3729,6 @@ func (this Node_SideEffectComparison) ordinal() int32 {
 
 func (this Node_SideEffectComparison) toString() string {
 	return this.enum_().name_
-}
-
-func (this Node_SideEffectComparison) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this Node_SideEffectComparison) self() any {

@@ -136,10 +136,6 @@ func (this Config_StrictMode) ordinal() int32 {
 
 func (this Config_StrictMode) toString() string { return this.enum_().name_ }
 
-func (this Config_StrictMode) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this Config_StrictMode) self() any {
 	if this == 0 {
 		return nil
@@ -219,10 +215,6 @@ func (this Config_LanguageMode) ordinal() int32 {
 }
 
 func (this Config_LanguageMode) toString() string { return this.enum_().name_ }
-
-func (this Config_LanguageMode) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
 
 func (this Config_LanguageMode) self() any {
 	if this == 0 {
@@ -340,10 +332,6 @@ func (this Config_JsDocParsing) ordinal() int32 {
 
 func (this Config_JsDocParsing) toString() string { return this.enum_().name_ }
 
-func (this Config_JsDocParsing) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this Config_JsDocParsing) self() any {
 	if this == 0 {
 		return nil
@@ -417,8 +405,6 @@ func (this Config_RunMode) ordinal() int32 {
 }
 
 func (this Config_RunMode) toString() string { return this.enum_().name_ }
-
-func (this Config_RunMode) compareTo(o any) int32 { return this.enum_().compareTo(o) }
 
 func (this Config_RunMode) self() any {
 	if this == 0 {

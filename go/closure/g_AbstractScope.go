@@ -310,10 +310,6 @@ func (this AbstractScope_ImplicitVar) toString() string {
 	return this.enum_().name_
 }
 
-func (this AbstractScope_ImplicitVar) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this AbstractScope_ImplicitVar) self() any {
 	if this == 0 {
 		return nil

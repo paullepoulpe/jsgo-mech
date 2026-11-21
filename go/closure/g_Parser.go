@@ -2714,10 +2714,6 @@ func (this Parser_FunctionFlavor) ordinal() int32 {
 
 func (this Parser_FunctionFlavor) toString() string { return this.enum_().name_ }
 
-func (this Parser_FunctionFlavor) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this Parser_FunctionFlavor) self() any {
 	if this == 0 {
 		return nil
@@ -2823,10 +2819,6 @@ func (this Parser_Config_Mode) ordinal() int32 {
 
 func (this Parser_Config_Mode) toString() string { return this.enum_().name_ }
 
-func (this Parser_Config_Mode) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this Parser_Config_Mode) self() any {
 	if this == 0 {
 		return nil
@@ -2928,10 +2920,6 @@ func (this Parser_Expression) ordinal() int32 {
 
 func (this Parser_Expression) toString() string { return this.enum_().name_ }
 
-func (this Parser_Expression) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this Parser_Expression) self() any {
 	if this == 0 {
 		return nil
@@ -2994,10 +2982,6 @@ func (this Parser_PatternKind) ordinal() int32 {
 }
 
 func (this Parser_PatternKind) toString() string { return this.enum_().name_ }
-
-func (this Parser_PatternKind) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
 
 func (this Parser_PatternKind) self() any {
 	if this == 0 {
