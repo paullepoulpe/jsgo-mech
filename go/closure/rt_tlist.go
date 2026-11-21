@@ -1,6 +1,9 @@
 package closure
 
-import "reflect"
+import (
+	"reflect"
+	"slices"
+)
 
 // Typed lists (post-flip step 3): ArrayList<T> as a slice of T.
 //
@@ -75,6 +78,14 @@ func immSlot_(from any) *immTyped_ {
 // tlistFrom_ is new ArrayList<>(from) as a typed list.
 func tlistFrom_[T any](c *tconv_[T], from Collection) *TList[T] {
 	return &TList[T]{c: c, items: unboxAll_(c, readSlice_(from))}
+}
+
+// tlistFromRev_ is new ArrayDeque(from) as a deque whose head is the end of the list (colls
+// -kind deque, a deque used at its head): from's elements in reverse order.
+func tlistFromRev_[T any](c *tconv_[T], from Collection) *TList[T] {
+	l := tlistFrom_(c, from)
+	slices.Reverse(l.items)
+	return l
 }
 
 // readSlice_ is the elements of c for a caller that only reads them: those of an immutable
