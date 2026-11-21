@@ -48,6 +48,7 @@ import (
 	"go/types"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -147,6 +148,8 @@ func ascii(e ast.Expr) bool {
 	switch x := e.(type) {
 	case *ast.BinaryExpr:
 		return x.Op == token.ADD && ascii(x.X) && ascii(x.Y)
+	case *ast.SliceExpr:
+		return isString(rw.Info.Types[x.X].Type) && ascii(x.X)
 	case *ast.Ident:
 		o := rw.Info.Uses[x]
 		return o != nil && asciiObj[o]
@@ -162,12 +165,23 @@ func ascii(e ast.Expr) bool {
 		switch name {
 		case "istr_", "String_valueOf", "String_valueOf_long", "boolstr_", "String_valueOf_boolean":
 			return true
+		case "Double_toString", "String_valueOf_double":
+			return true // digits, '.', '-', 'E', "Infinity", "NaN"
 		case "String_substring", "String_substring_int", "String_trim", "asciiLower_", "asciiUpper_", "String_toLowerCase", "String_toUpperCase", "sstr_":
 			return len(x.Args) > 0 && ascii(x.Args[0])
 		}
 		if s, ok := x.Fun.(*ast.SelectorExpr); ok && s.X != nil {
 			if p, ok := s.X.(*ast.Ident); ok && p.Name == "strconv" {
 				return s.Sel.Name == "Itoa" || s.Sel.Name == "FormatInt" || s.Sel.Name == "FormatBool"
+			}
+			if p, ok := s.X.(*ast.Ident); ok && p.Name == "strings" && len(x.Args) > 0 {
+				switch s.Sel.Name {
+				case "Trim", "TrimSpace", "ToLower", "ToUpper", "TrimPrefix", "TrimSuffix", "Repeat":
+					// ASCII stays ASCII (Go's case mapping keeps ASCII in ASCII)
+					return ascii(x.Args[0])
+				case "ReplaceAll":
+					return len(x.Args) == 3 && ascii(x.Args[0]) && ascii(x.Args[2])
+				}
 			}
 		}
 		if id, ok := x.Fun.(*ast.Ident); ok {
@@ -182,6 +196,7 @@ func ascii(e ast.Expr) bool {
 // collect records the values of the string-typed local variables, fields and package-level
 // variables, and of the single string results of package-level functions.
 func collect() {
+	findDirect()
 	unknown := func(o types.Object) { values[o] = append(values[o], nil) }
 	add := func(o types.Object, e ast.Expr) {
 		if o != nil && isString(o.Type()) {
@@ -245,15 +260,30 @@ func collect() {
 					}
 				}
 			case *ast.FuncType:
-				// Parameters and named results start with a value from the caller.
+				// Parameters and named results start with a value from the caller: the
+				// arguments of its calls for a function only called directly (see
+				// directParams), else unknown.
+				_, direct := directParams[x]
 				for _, fl := range []*ast.FieldList{x.Params, x.Results} {
 					if fl == nil {
 						continue
 					}
 					for _, fd := range fl.List {
 						for _, id := range fd.Names {
-							if o := rw.Info.Defs[id]; o != nil {
+							if o := rw.Info.Defs[id]; o != nil && !(direct && fl == x.Params) {
 								unknown(o)
+							}
+						}
+					}
+				}
+			case *ast.CallExpr:
+				if ps := callParams(x); ps != nil {
+					for i, p := range ps {
+						if p != nil && isString(p.Type()) {
+							if i < len(x.Args) {
+								add(p, x.Args[i])
+							} else {
+								unknown(p)
 							}
 						}
 					}
@@ -345,6 +375,97 @@ func collect() {
 			}
 		}
 	}
+}
+
+// directParams holds the signatures of the functions and methods that are only called directly
+// (every use of the function is the callee of a call, never a value, and no interface of the
+// package has a method of a method's name, so no call reaches it through an interface), with
+// their parameters: the values of such a parameter are the arguments of the calls.
+var directParams = map[*ast.FuncType][]*types.Var{}
+
+var directFuncs = map[*types.Func][]*types.Var{}
+
+func findDirect() {
+	ifaceMethods := map[string]bool{}
+	for _, n := range rw.Pkg.Scope().Names() {
+		if t, ok := rw.Pkg.Scope().Lookup(n).(*types.TypeName); ok {
+			if it, ok := t.Type().Underlying().(*types.Interface); ok {
+				for i := 0; i < it.NumMethods(); i++ {
+					ifaceMethods[it.Method(i).Name()] = true
+				}
+			}
+		}
+	}
+	// Anonymous interfaces (assertions, parameter types) name methods too.
+	for _, tv := range rw.Info.Types {
+		if tv.Type == nil {
+			continue
+		}
+		if it, ok := tv.Type.(*types.Interface); ok {
+			for i := 0; i < it.NumMethods(); i++ {
+				ifaceMethods[it.Method(i).Name()] = true
+			}
+		}
+	}
+	for _, f := range rw.Files {
+		for _, d := range f.Decls {
+			fd, ok := d.(*ast.FuncDecl)
+			if !ok || fd.Body == nil {
+				continue
+			}
+			fn, ok := rw.Info.Defs[fd.Name].(*types.Func)
+			if !ok {
+				continue
+			}
+			sig := fn.Type().(*types.Signature)
+			if sig.Variadic() || sig.TypeParams() != nil || sig.RecvTypeParams() != nil {
+				continue
+			}
+			if fd.Recv != nil && ifaceMethods[fn.Name()] {
+				continue
+			}
+			direct := len(rw.UsesOf[fn]) > 0
+			for _, u := range rw.UsesOf[fn] {
+				var callee ast.Expr = u
+				if s, ok := rw.Parent[u].(*ast.SelectorExpr); ok && s.Sel == u {
+					callee = s
+					if sel := rw.Info.Selections[s]; sel != nil && sel.Kind() == types.MethodExpr {
+						direct = false // T.m(recv, args): the arguments are shifted
+					}
+				}
+				if c, ok := rw.Parent[callee].(*ast.CallExpr); !ok || c.Fun != callee {
+					direct = false
+				}
+			}
+			if !direct {
+				continue
+			}
+			var ps []*types.Var
+			for i := 0; i < sig.Params().Len(); i++ {
+				ps = append(ps, sig.Params().At(i))
+			}
+			directParams[fd.Type] = ps
+			directFuncs[fn] = ps
+		}
+	}
+}
+
+// callParams returns the parameters of the function a direct call calls, or nil.
+func callParams(c *ast.CallExpr) []*types.Var {
+	var id *ast.Ident
+	switch f := c.Fun.(type) {
+	case *ast.Ident:
+		id = f
+	case *ast.SelectorExpr:
+		id = f.Sel
+	default:
+		return nil
+	}
+	fn, ok := rw.Info.Uses[id].(*types.Func)
+	if !ok {
+		return nil
+	}
+	return directFuncs[fn]
 }
 
 // asciiVal is ascii for a recorded value, which may be a synthetic s += e.
@@ -696,7 +817,7 @@ func call(name string, c *ast.CallExpr) {
 		})
 	case "String_charAt":
 		if ascii(a[0]) {
-			leave("charAt of an ASCII string (s[i] would throw Go's index error, not StringIndexOutOfBoundsException)", c)
+			did("charAt of an ASCII string: asciiCharAt_ (byte i)", func() string { return "asciiCharAt_(" + r(0) + ", " + r(1) + ")" })
 			return
 		}
 		leave("charAt (a UTF-16 unit) of a string not known to be ASCII", c)
@@ -707,21 +828,49 @@ func call(name string, c *ast.CallExpr) {
 		}
 		leave("substring (unit indexes) of a string not known to be ASCII", c)
 	case "String_format":
-		if why := format(c); why != "" {
+		why := format(c)
+		if strings.HasPrefix(why, "conversion other than") {
+			why = formatf(c, why)
+		}
+		if why != "" {
 			leave("format: "+why, c)
 		}
 	case "String_trim":
-		leave("trim: Java trims chars <= U+0020, not Unicode spaces (strings.TrimSpace)", c)
+		if !pkgCall(c, "strings") {
+			return
+		}
+		did("trim: strings.Trim(s, javaSpace_)", func() string { return "strings.Trim(" + r(0) + ", javaSpace_)" })
 	case "String_hashCode":
-		leave("hashCode: Java's hash over UTF-16 units", c)
+		did("hashCode: utf16Hash_ (Java's hash over UTF-16 units)", func() string { return "utf16Hash_(" + r(0) + ")" })
 	case "String_compareTo":
-		leave("compareTo: UTF-16 unit order and differences, not byte order", c)
-	case "String_toLowerCase", "String_toUpperCase", "String_equalsIgnoreCase":
-		leave(strings.TrimPrefix(name, "String_")+": Java's Unicode case mapping per UTF-16 unit", c)
+		did("compareTo: utf16Compare_ (UTF-16 unit order)", func() string { return "utf16Compare_(" + r(0) + ", " + r(1) + ")" })
+	case "String_toLowerCase", "String_toUpperCase":
+		// The runtime maps case with strings.ToLower / ToUpper and ignores the Locale; an
+		// argument with no effect (a Locale constant) is dropped.
+		if !rw.Pure(a[1]) {
+			leave(name[7:]+" with a Locale argument that may have an effect", c)
+			return
+		}
+		if !pkgCall(c, "strings") {
+			return
+		}
+		fn := map[string]string{"String_toLowerCase": "ToLower", "String_toUpperCase": "ToUpper"}[name]
+		did(name[7:]+": strings."+fn, func() string { return "strings." + fn + "(" + r(0) + ")" })
+	case "String_equalsIgnoreCase":
+		if cs, ok := constString(a[1]); !ok || cs == nullstr {
+			leave("equalsIgnoreCase of a String that may be null (false for null)", c)
+			return
+		}
+		if !pkgCall(c, "strings") {
+			return
+		}
+		did("equalsIgnoreCase of a constant: strings.EqualFold", func() string { return "strings.EqualFold(" + r(0) + ", " + r(1) + ")" })
 	case "String_toCharArray", "String_codePointAt", "String_codePointCount", "String_indexOf_int_int", "String_indexOf_String_int", "String_lastIndexOf_int_int", "String_lastIndexOf_String_int", "String_startsWith_String_int", "String_regionMatches", "String_regionMatches_int_String_int_int", "String_valueOf_charArr_int_int":
 		leave(strings.TrimPrefix(name, "String_")+": takes or returns UTF-16 units or unit indexes", c)
 	case "String_join_s", "String_join_CharSequence_CharSequenceArr_s":
-		leave("join over an Iterable / CharSequence[] of Objects (String.valueOf of each)", c)
+		if why := join(name, c); why != "" {
+			leave("join: "+why, c)
+		}
 	case "String_repeat":
 		leave("repeat: Java throws IllegalArgumentException for a negative count", c)
 	default:
@@ -1098,6 +1247,9 @@ func format(c *ast.CallExpr) string {
 				return "%d of an enum value"
 			}
 			parts[i] = func() string { return "istr_(int64(" + rw.Render(in) + "))" }
+		case box == "any" && isInteger(it):
+			// %s of an Integer / Long: String.valueOf, the decimal form
+			parts[i] = func() string { return "istr_(int64(" + rw.Render(in) + "))" }
 		case isString(it) && box == "strobj_":
 			if cs, ok := constString(in); ok && cs != nullstr {
 				parts[i] = func() string { return rw.Render(in) }
@@ -1183,4 +1335,169 @@ func emptinessTest(e ast.Expr) bool {
 		return (x.Op == token.EQL || x.Op == token.NEQ) && ok && s == "" && rw.Pure(x.X)
 	}
 	return false
+}
+
+// ---- String.join of Strings
+
+// join rewrites String.join(sep, elements) whose elements are Strings: of a native list of
+// Strings seen as an Iterable (sliceView_(tc_string, xs)) it is joinStrings_(xs, sep), which
+// is strings.Join with Java's null handling; of an array literal of Strings and a constant
+// separator it is the concatenation of the elements (String.valueOf of each: sstr_) with the
+// separator between them. Java evaluates the separator and every element before joining;
+// joining Strings runs no program code, and the separator is a constant or a variable, so
+// evaluating the elements in order around it is the same.
+func join(name string, c *ast.CallExpr) string {
+	sep := c.Args[0]
+	sepConst := false
+	if cs, ok := constString(sep); ok && cs != nullstr {
+		sepConst = true
+	} else if _, ok := rw.Unparen(sep).(*ast.Ident); !ok {
+		return "the separator is not a constant or a variable"
+	}
+	if name == "String_join_s" {
+		arg := rw.Unparen(c.Args[1])
+		if conv, ok := arg.(*ast.CallExpr); ok && len(conv.Args) == 1 {
+			if id, ok := conv.Fun.(*ast.Ident); ok && id.Name == "Iterable" {
+				arg = rw.Unparen(conv.Args[0])
+			}
+		}
+		n, sv := rw.CallName(arg)
+		if n != "sliceView_" || len(sv.Args) != 2 || rw.Text(sv.Args[0]) != "tc_string" {
+			return "over an Iterable that is not a native list of Strings (String.valueOf of each element)"
+		}
+		xs := sv.Args[1]
+		count["join of a native list of Strings: joinStrings_"]++
+		rw.Rewrite[c] = func() string { return "joinStrings_(" + rw.Render(xs) + ", " + rw.Render(sep) + ")" }
+		return ""
+	}
+	cl, ok := rw.Unparen(c.Args[1]).(*ast.CompositeLit)
+	if !ok {
+		return "of an array that is not an array literal (a null array is joined as empty by the runtime)"
+	}
+	if !sepConst {
+		return "of an array literal with a separator that is not a constant"
+	}
+	var elems []ast.Expr
+	for _, e := range cl.Elts {
+		box, in := unboxArg(e)
+		if box != "strobj_" || !isString(rw.Info.Types[in].Type) {
+			return "of an array literal with an element that is not a String"
+		}
+		elems = append(elems, in)
+	}
+	if len(elems) == 0 {
+		return "of an empty array"
+	}
+	count["join of an array literal of Strings: concatenation"]++
+	rw.Rewrite[c] = func() string {
+		var out []string
+		for i, e := range elems {
+			if i > 0 && constant.StringVal(rw.Info.Types[sep].Value) != "" {
+				out = append(out, rw.Render(sep))
+			}
+			if cs, ok := constString(e); ok && cs != nullstr {
+				out = append(out, rw.Render(e))
+			} else {
+				out = append(out, "sstr_("+rw.Render(e)+")")
+			}
+		}
+		if len(out) == 1 {
+			return out[0]
+		}
+		return "(" + strings.Join(out, " + ") + ")"
+	}
+	return ""
+}
+
+func isInteger(t types.Type) bool {
+	if _, named := t.(*types.Named); named {
+		return false // an enum
+	}
+	b, ok := t.Underlying().(*types.Basic)
+	return ok && (b.Kind() == types.Int32 || b.Kind() == types.Int64 || b.Kind() == types.Int16 || b.Kind() == types.Int8)
+}
+
+var widthRx = regexp.MustCompile(`^%(-|0)?([1-9][0-9]*)d`)
+
+// formatf rewrites String.format of a constant template whose conversions are %d with a width
+// (and the flag - or 0), %d, %s of a String, %n and %% into fmt.Sprintf: for a Java int or long
+// Go's %d, %5d, %-5d and %05d write what Java's do (the sign before zero padding, no grouping),
+// %s of a String (sstr_: null is "null") writes the String, %n is "\n" in Java's Formatter
+// here and %% is %. The arguments are the unboxed values, in order.
+func formatf(c *ast.CallExpr, why string) string {
+	t, _ := constString(c.Args[0])
+	cl, ok := rw.Unparen(c.Args[1]).(*ast.CompositeLit)
+	if !ok {
+		return why
+	}
+	var goFmt strings.Builder
+	var args []func() string
+	k, widths := 0, 0
+	for i := 0; i < len(t); i++ {
+		if t[i] != '%' {
+			goFmt.WriteByte(t[i])
+			continue
+		}
+		rest := t[i:]
+		switch {
+		case strings.HasPrefix(rest, "%n"):
+			goFmt.WriteString("\n")
+			i++
+			continue
+		case strings.HasPrefix(rest, "%%"):
+			goFmt.WriteString("%%")
+			i++
+			continue
+		}
+		var conv string
+		if m := widthRx.FindString(rest); m != "" {
+			conv = m
+			widths++
+		} else if strings.HasPrefix(rest, "%d") || strings.HasPrefix(rest, "%s") {
+			conv = rest[:2]
+		} else {
+			return why
+		}
+		if k >= len(cl.Elts) {
+			return "the number of arguments is not the number of conversions"
+		}
+		box, in := unboxArg(cl.Elts[k])
+		k++
+		it := rw.Info.Types[in].Type
+		if it == nil {
+			return "argument of unknown type"
+		}
+		switch {
+		case conv[len(conv)-1] == 'd':
+			if box != "any" || !isInteger(it) {
+				return "%d of something other than a Java int, long, short or byte"
+			}
+			args = append(args, func() string { return rw.Render(in) })
+		case box == "strobj_" && isString(it):
+			args = append(args, func() string { return "sstr_(" + rw.Render(in) + ")" })
+		default:
+			return "%s of an Object among conversions with a width"
+		}
+		goFmt.WriteString(conv)
+		i += len(conv) - 1
+	}
+	if k != len(cl.Elts) {
+		return "the number of arguments is not the number of conversions"
+	}
+	if widths == 0 {
+		return why
+	}
+	if !pkgCall(c, "fmt") {
+		return ""
+	}
+	f := goFmt.String()
+	count["format with %d widths: fmt.Sprintf"]++
+	rw.Rewrite[c] = func() string {
+		out := []string{strconv.Quote(f)}
+		for _, a := range args {
+			out = append(out, a())
+		}
+		return "fmt.Sprintf(" + strings.Join(out, ", ") + ")"
+	}
+	return ""
 }

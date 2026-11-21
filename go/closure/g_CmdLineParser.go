@@ -59,7 +59,7 @@ func (this *CmdLineParser) sortedOptions() *JTList[*CmdLineParser_Option] {
 			_ = o1
 			var o2 *CmdLineParser_Option = cast_[*CmdLineParser_Option](o2_)
 			_ = o2
-			return String_compareTo(o1.toString(), o2.toString())
+			return utf16Compare_(o1.toString(), o2.toString())
 		}))
 		this.optionsSorted = true
 	}
@@ -149,7 +149,7 @@ func CmdLineParser_wrapLines(line string, maxLength int32) *JTList[string] {
 				lineLength = maxLength
 			}
 			rv.add(String_substring(restOfLine, 0, lineLength))
-			restOfLine = String_trim(String_substring_int(restOfLine, lineLength))
+			restOfLine = strings.Trim(String_substring_int(restOfLine, lineLength), javaSpace_)
 		}
 		rv.add(restOfLine)
 	}
