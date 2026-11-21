@@ -36,8 +36,8 @@ type tconv_[T any] struct {
 type TList[T any] struct {
 	items []T
 	c     *tconv_[T]
-	view  *tlistView_[T]
-	imm   bool // an ImmutableList: every change throws UnsupportedOperationException
+	twin  *ImmutableCollection // of an immutable list: the ImmutableList erased code sees (rt_timm.go)
+	imm   bool                 // an ImmutableList: every change throws UnsupportedOperationException
 	// unmod (with imm): the list cannot be changed but is no ImmutableList
 	// (Collections.unmodifiableList of a private list, splitToListT_): erased code sees its
 	// view, and ImmutableList.copyOf copies it.
@@ -71,7 +71,7 @@ func tlistImm_[T any](c *tconv_[T], from Collection) *TList[T] {
 	}
 	if ic, ok := from.(*ImmutableCollection); ok && ic.kind == icList_ {
 		// The list is the immutable list itself for erased code (asList): its identity.
-		l.view = &tlistView_[T]{l: l, twin: ic}
+		l.twin = ic
 	}
 	return l
 }
@@ -221,52 +221,51 @@ func (l *TList[T]) asList() List {
 	if l.imm && !l.unmod {
 		return l.asImm()
 	}
-	if l.view == nil {
-		l.view = &tlistView_[T]{l: l}
-	}
-	return l.view
+	return (*tlistView_[T])(l)
 }
 
-// tlistView_ is a TList seen as an erased List. Of an immutable list it holds the
-// ImmutableList erased code sees instead (twin, rt_timm.go).
-type tlistView_[T any] struct {
-	l    *TList[T]
-	twin *ImmutableCollection
-}
+// tlistView_ is a TList seen as an erased List: the list itself under the type that has List's
+// methods, so that handing a typed list to erased code makes no object (its identity for
+// erased code is the list's).
+type tlistView_[T any] TList[T]
+
+func (v *tlistView_[T]) tl() *TList[T] { return (*TList[T])(v) }
 
 func (v *tlistView_[T]) boxed() []any {
-	out := make([]any, len(v.l.items))
-	for i, x := range v.l.items {
-		out[i] = v.l.c.box(x)
+	out := make([]any, len(v.tl().items))
+	for i, x := range v.tl().items {
+		out[i] = v.tl().c.box(x)
 	}
 	return out
 }
 
-func (v *tlistView_[T]) self() any                     { return v }
-func (v *tlistView_[T]) size() int32                   { return v.l.size() }
-func (v *tlistView_[T]) isEmpty() bool                 { return v.l.isEmpty() }
-func (v *tlistView_[T]) get(i int32) any               { return v.l.c.box(v.l.get(i)) }
-func (v *tlistView_[T]) set(i int32, x any) any        { return v.l.c.box(v.l.set(i, v.l.c.unbox(x))) }
-func (v *tlistView_[T]) add(x any) bool                { return v.l.add(v.l.c.unbox(x)) }
-func (v *tlistView_[T]) add_int_Object(i int32, x any) { v.l.insert(i, v.l.c.unbox(x)) }
-func (v *tlistView_[T]) remove(i int32) any            { return v.l.c.box(v.l.removeAt(i)) }
-func (v *tlistView_[T]) clear()                        { v.l.clear() }
+func (v *tlistView_[T]) self() any       { return v }
+func (v *tlistView_[T]) size() int32     { return v.tl().size() }
+func (v *tlistView_[T]) isEmpty() bool   { return v.tl().isEmpty() }
+func (v *tlistView_[T]) get(i int32) any { return v.tl().c.box(v.tl().get(i)) }
+func (v *tlistView_[T]) set(i int32, x any) any {
+	return v.tl().c.box(v.tl().set(i, v.tl().c.unbox(x)))
+}
+func (v *tlistView_[T]) add(x any) bool                { return v.tl().add(v.tl().c.unbox(x)) }
+func (v *tlistView_[T]) add_int_Object(i int32, x any) { v.tl().insert(i, v.tl().c.unbox(x)) }
+func (v *tlistView_[T]) remove(i int32) any            { return v.tl().c.box(v.tl().removeAt(i)) }
+func (v *tlistView_[T]) clear()                        { v.tl().clear() }
 func (v *tlistView_[T]) trimToSize()                   {}
 
 func (v *tlistView_[T]) addAll(c Collection) bool {
-	if v.l.imm {
+	if v.tl().imm {
 		throwUOE_()
 	}
 	src := toSlice_(c)
 	for _, x := range src {
-		v.l.items = append(v.l.items, v.l.c.unbox(x))
+		v.tl().items = append(v.tl().items, v.tl().c.unbox(x))
 	}
 	return len(src) > 0
 }
 
 func (v *tlistView_[T]) indexOf(x any) int32 {
-	for i, y := range v.l.items {
-		if objequals_(x, v.l.c.box(y)) {
+	for i, y := range v.tl().items {
+		if objequals_(x, v.tl().c.box(y)) {
 			return int32(i)
 		}
 	}
@@ -274,8 +273,8 @@ func (v *tlistView_[T]) indexOf(x any) int32 {
 }
 
 func (v *tlistView_[T]) lastIndexOf(x any) int32 {
-	for i := len(v.l.items) - 1; i >= 0; i-- {
-		if objequals_(x, v.l.c.box(v.l.items[i])) {
+	for i := len(v.tl().items) - 1; i >= 0; i-- {
+		if objequals_(x, v.tl().c.box(v.tl().items[i])) {
 			return int32(i)
 		}
 	}
@@ -298,12 +297,12 @@ func (v *tlistView_[T]) remove_Object(x any) bool {
 	if i < 0 {
 		return false
 	}
-	v.l.removeAt(i)
+	v.tl().removeAt(i)
 	return true
 }
 
 func (v *tlistView_[T]) removeAll(c Collection) bool {
-	l := v.l
+	l := v.tl()
 	if l.imm {
 		throwUOE_()
 	}
@@ -319,17 +318,19 @@ func (v *tlistView_[T]) removeAll(c Collection) bool {
 	return changed
 }
 
-func (v *tlistView_[T]) iterator() Iterator                { return &tlistIter_[T]{l: v.l} }
-func (v *tlistView_[T]) listIterator(i int32) ListIterator { return &tlistIter_[T]{l: v.l, i: int(i)} }
+func (v *tlistView_[T]) iterator() Iterator { return &tlistIter_[T]{l: v.tl()} }
+func (v *tlistView_[T]) listIterator(i int32) ListIterator {
+	return &tlistIter_[T]{l: v.tl(), i: int(i)}
+}
 
 func (v *tlistView_[T]) subList(a int32, b int32) List {
-	if a < 0 || b > v.l.size() || a > b {
-		panic(new_IndexOutOfBoundsException_String("fromIndex: " + istr_(int64(a)) + ", toIndex: " + istr_(int64(b)) + ", size: " + istr_(int64(len(v.l.items)))).self())
+	if a < 0 || b > v.tl().size() || a > b {
+		panic(new_IndexOutOfBoundsException_String("fromIndex: " + istr_(int64(a)) + ", toIndex: " + istr_(int64(b)) + ", size: " + istr_(int64(len(v.tl().items)))).self())
 	}
 	// Only the range is boxed (the whole list was, once per call).
 	out := make([]any, b-a)
-	for i, x := range v.l.items[a:b] {
-		out[i] = v.l.c.box(x)
+	for i, x := range v.tl().items[a:b] {
+		out[i] = v.tl().c.box(x)
 	}
 	return listOf_(out)
 }

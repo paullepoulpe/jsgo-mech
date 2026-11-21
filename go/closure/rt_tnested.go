@@ -25,7 +25,7 @@ func tlistOf_[T any](v any) *TList[T] {
 			return l
 		}
 	}
-	return v.(*tlistView_[T]).l
+	return v.(*tlistView_[T]).tl()
 }
 
 // tmapOf_ is the typed map whose view v is, or whose twin v is.
