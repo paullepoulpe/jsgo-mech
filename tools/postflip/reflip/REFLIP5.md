@@ -82,6 +82,112 @@ git grep at the commit before the step)
   the field's known stores when x is such a field); the method value x.m is x; a literal of
   generic code is reached per instantiation.
 
+## Steps that run and find nothing, or less: their subject is in the translator's output
+
+Counted with git grep at the commit before the step, and from the tools' own reports (the
+replay log, $B/wt/replay5/.replay.log, against the fourth flip's $B/wt/replay4r/.replay.log).
+`&X_tfn` literals: 0 in the base and before step 417 (fourth flip: 861). Adapter type
+declarations in the base: 59 (fourth flip's base: 253).
+
+| step | tool | fourth flip | here | why |
+|---|---|---|---|---|
+| 29, 35, 121 | strvar -rule A | 18 string variants of Simple* methods | 0 | prep 19/20: the Simple* collections are generic with typed keys from the translator |
+| 122 | strkeys | 100 calls pass the string key to a helper | 0 | the same |
+| 69 | lambdas | 64 lambdas hoisted | 41 | a library lambda is a func literal; the 41 are the program's own interfaces |
+| 76, 136, 255, 277 | funcparams | 17 / 133 / 8 / 2 parameters | 4 / 50 / 3 / 0 | the library half is func types already; 277: 1 runtime call to a _f variant (updateAndGet_f) |
+| 257 | generics -classes | 11 classes made generic | 4 | the Simple* classes are generic from the translator |
+| 425 | adapters (second run) | 6 TMap.computeIfAbsent -> ComputeIfAbsentObj | 0 | see open items |
+| 434, 437 | tfnargs | 62 + 30 arguments | 0 + 0 | the parameters are Predicate_base[Node], Consumer[Node], Supplier[string] from the translator |
+| 443 | ident | 19 comparisons (60 JSCompObjects_identical left) | 0 (1 mention left: the declaration) | rule "identity functions" |
+| 457 | lamparams | 183 lambda parameters, 8 adapter types | 0 | no adapter objects. The lambdas at an erased place are written at the place's type and convert on entry (147 literals X[any..](func..) in the final tree); moving the cast into an adapter, as the fourth flip's step did, would add an object and a call |
+| 467, 468 | implsplit | 23 + 5 methods split | 14 + 0 | the classes implementing a library functional interface have typed methods |
+| 469, 471 | tfnparams | 7 + 6 parameters | 0 + 0 | LogFile.log takes Supplier[string]; NodeUtil's predicates Predicate_base[Node] |
+| 477, 486 | deadtfn | 39 + 28 adapter types deleted (140 stay) | 1 + 0 (3 stay) | there are no library adapter types |
+| 482 | fntypes | 8 groups, 11 parameters | 0 | open item |
+
+## Census against the fourth flip's final tree (inb-selfgen, 6525013f)
+
+tools/postflip/census.py on both go/closure trees (fourth | fifth); rows that differ:
+
+| row | fourth | fifth | |
+|---|---|---|---|
+| Java collections (erased): constructors | 120 | 114 | better |
+| typed TList/TMap/TSet constructors | 448 | 464 | see the map item below |
+| Guava immutable collections / builders | 155 | 113 | better (typed builder chains) |
+| anonymous interface assertions .(interface{ | 0 | 6 | WORSE, explained below |
+| interface casts icast_X( | 207 | 176 | better |
+| class casts to_X( / cast_[T]( | 769 | 740 | better |
+| instanceof is_X( | 71 | 78 | WORSE, explained below |
+| type assertions x.(T) | 2,118 | 2,110 | better |
+| type switches | 27 | 26 | better |
+| boxing to any | 1,182 | 1,016 | better |
+| unboxing from any | 256 | 235 | better |
+| lambda objects &X_fn{func | 45 | 37 | better |
+| lambda adapter literals (all adapter values) | 587 | 39 | better |
+| throw as panic( | 3,528 | 3,518 | |
+| Java equals/hashCode protocol | 77 | 76 | better |
+| String_* UTF-16 helpers | 122 | 121 | better |
+| threads/executors emulation | 56 | 53 | better |
+| fields/params declared any (approx) | 680 | 629 | better |
+| ... Object slots only | 526 | 479 | better |
+
+Equal: native slices 100, native maps 0, foreach_ 105, explicit iterators 125, streams 0, self_
+dispatch 0, Optional 73, catch_/recover 54, defer 84, StringBuilder 5, enum objects 1 / 1,
+Preconditions_ 6, reflect 5, unsafe 1. Generated lines 262,788 -> 261,915; runtime lines (without
+tests) 43,105 -> 42,925; runtime Test functions 78 -> 82.
+
+The two rows that are worse have one cause, and it is not rule "function types": the Simple*
+collections are generic classes from the translator (prep 19), and the translator writes
+`instanceof` of a generic class as a marker-interface test, is_X(v) with
+`_, ok := v.(interface{ isa_X_() })`. 4 such helpers (SimpleBiMap, SimpleListMultimap,
+SimpleMultiset, SimpleSetMultimap), their 3 calls, and 2 assertions written in place = 6
+anonymous interface assertions and 7 is_X mentions. On the fourth flip those classes were erased
+at the flip and made generic by step 257, after the instanceof steps had run. No post-flip tool
+names an isa_X_ marker interface (step 558 names `interface{ as_X() *X }` only: 15 of 15 here).
+Not fixed.
+
+## Coverage that the census does not count: typed variants of functional APIs (OPEN)
+
+The fourth flip's later steps gave typed lambda adapters to typed variants of runtime functions.
+Those steps read the adapter literal `&X_tfn_T{f}`; on this flip the same lambda is a function
+literal at the erased place's type with its conversions on entry, `X[any..](func(p0 any..) {
+var v T = K(p0); .. })`, or, for a function value, the translator's converting closure
+`func() X[any] { f_ := E; ..; return func(p0 any..) R { return f_(K(p0)..) } }()`. The tools do
+not read either form, so these calls stay on the erased API (final trees, fourth | fifth):
+
+| | fourth | fifth | step |
+|---|---|---|---|
+| Go maps with mapComputeIfAbsentT_ | 20 | 0 | 403 native + 486 tfnapi: on this flip the call is TMap.ComputeIfAbsent from step 402 on (toolfix 29), which native does not take as a map operation, so those maps stay TMaps: .ComputeIfAbsent( 27 -> 53, map[..] type mentions 530 -> 495, typed constructors 448 -> 464 |
+| forEachT_ (typed list / map) | 8 | 0 | 486 tfnapi: Map_forEach 3 -> 9, Iterable_forEach 4 -> 7 |
+| mergeT_ / computeT_ | 3 / 2 | 0 / 0 | 486 tfnapi: Map_merge 0 -> 3, Map_compute 0 -> 2 |
+| typed sorts (sortSliceF_, sortSlicePF_, sortTListF_, sortArrF_) | 23 | 12 | 472, 481, 486 tcmp: List_sort / Collections_sort 6 -> 16. Of the 10, 8 have the typed comparator at hand in the converting closure (the combinators are typed now, which the fourth flip's tcmp had to leave: "a comparator from the runtime's combinators") |
+| Compiler_runInCompilerThreadT_ | 6 | 0 | 488 tgeneric: runInCompilerThread 11 -> 17 |
+| ComputeIfAbsentObj | 6 | 0 | 425 adapters (second run) |
+| fntypes groups | 8 | 0 | 482: "10 groups: used other than by calling it or passing it to the group"; not looked into |
+
+What a fix needs (not made): one reader shared by tfnapi, tcmp, tgeneric and adapters that gives
+the typed function of the two forms above (for the literal: parameters typed and the entry
+statements `var v T = K(p)` dropped when K is the unboxing of the wanted type, which is
+lamparams' analysis; for the converting closure: E when E cannot be null), and native taking
+TMap.ComputeIfAbsent as mapComputeIfAbsentT_ (whose runtime function arrives only with patch 485).
+Each changes the tree from its step on (425 at the earliest), so it needs a replay from there.
+
+## Other open items
+
+- PERFORMANCE, NOT MEASURED (no timing was run): steps 105, 147 and 419 are dropped. On the fourth
+  flip the data-flow work queue's PriorityQueue called an int-key comparator object directly
+  (intKeyCmp_ holding nodePriority_). Here a comparison goes through the translator's conversion
+  closure (two junboxT_ assertions), the comparingInt closure and two interface calls of
+  getPriority. The typed PriorityQueue that would remove this is the collection stage's.
+- tconv_.isNull has one more nil test (the isnull hook of reflip5-fnconv-rt.patch) on every null
+  test of a typed collection's element. Not measured.
+- The _f variants left by 125 (Iterables_filter_f, mapComputeIfAbsent_f, mapComputeIfAbsentObj_f)
+  and funcObj_ (252) were kept as the fourth flip had them; whether generated code still uses each
+  was not checked one by one (Map_computeIfAbsent_f has 6 calls from step 417).
+- The `#=5` notes for the steps of the table "run and find nothing" were added to steps.txt after
+  the unattended replay (comment lines only; the replay does not read them).
+- gate.sh's header prints GATE FAILED for a post-flip tree (the j2go self-test line), as before.
+
 ## Where this stands
 
-(to be completed)
+(filled in at the end)

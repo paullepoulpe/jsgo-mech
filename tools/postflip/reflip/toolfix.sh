@@ -1149,3 +1149,20 @@ func instLitOf_(lit *ast.FuncLit, tps []*types.TypeParam, m map[*types.TypeParam
 }
 E31
 fi
+# 32. (fifth flip) colls: the translator's nil-keeping upcast helpers of g_0casts.go (ImmutableList_as_List(v *ErasedImmutableList)
+#    List: rule "implicit conversions") are functions of generated code, so the tool made their parameter a slot like any other:
+#    one class with every argument given to the helper anywhere, whatever its element type. On the fourth flip no slot of that
+#    class stated an element type and it stayed erased. On this flip one declaration of the class states *CompilerInput, and step
+#    336 typed the class: 35 constructors given to ImmutableList_as_List became immutableListOf_(tc_p_CompilerInput,
+#    cast_[*CompilerInput](strobj_(..))), lists of strings and Nodes among them; the type check passes (cast_ of an `any`) and the
+#    compiler failed at start (the first gate of this flip: ClassCastException in CommandLineConfig's initializer). A value passes
+#    through such a helper unchanged whatever it holds: its signature is fixed, as the runtime's are.
+reflip_edit tools/postflip/colls/main.go reflip32 <<'E32'
+					declare(groupOf(o), x.Type, !generated(x.Pos()), "signature of the runtime")
+=====
+					if x.Recv == nil && strings.Contains(x.Name.Name, "_as_") && filepath.Base(rw.Fset.Position(x.Pos()).Filename) == "g_0casts.go" { // reflip32
+						declare(groupOf(o), x.Type, true, "an upcast helper of the translator (values of every element type pass through it)")
+					} else {
+						declare(groupOf(o), x.Type, !generated(x.Pos()), "signature of the runtime")
+					}
+E32
