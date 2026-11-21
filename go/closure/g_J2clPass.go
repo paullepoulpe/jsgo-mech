@@ -69,22 +69,6 @@ func (this *J2clPass_InlineSpec) inliningMode() FunctionInjector_InliningMode {
 	return this.inliningMode_
 }
 
-func (this *J2clPass_InlineSpec) equals(p0 any) bool {
-	o, ok := p0.(*J2clPass_InlineSpec)
-	if !ok || o == nil {
-		return false
-	}
-	return true && this.classFileName_ == o.classFileName_ && Objects_equals(this.fnNamesToInline_.asSet(), o.fnNamesToInline_.asSet()) && this.inliningMode_ == o.inliningMode_
-}
-
-func (this *J2clPass_InlineSpec) hashCode() int32 {
-	var h int32
-	h = h*31 + strhash_(this.classFileName_)
-	h = h*31 + objhashDyn_(this.fnNamesToInline_.asSet())
-	h = h*31 + objhashId_(this.inliningMode_)
-	return h
-}
-
 func (this *J2clPass_InlineSpec) toString() string {
 	return "InlineSpec[" + "classFileName=" + sstr_(this.classFileName_) + ", fnNamesToInline=" + objstr_(this.fnNamesToInline_.asSet()) + ", inliningMode=" + jtostr_(this.inliningMode_) + "]"
 }
@@ -160,21 +144,6 @@ func (this *J2clPass_ClassStaticFunctionsInliner_InlinableFunction) impl() Node 
 
 func (this *J2clPass_ClassStaticFunctionsInliner_InlinableFunction) inliningMode() FunctionInjector_InliningMode {
 	return this.inliningMode_
-}
-
-func (this *J2clPass_ClassStaticFunctionsInliner_InlinableFunction) equals(p0 any) bool {
-	o, ok := p0.(*J2clPass_ClassStaticFunctionsInliner_InlinableFunction)
-	if !ok || o == nil {
-		return false
-	}
-	return true && this.impl_ == o.impl_ && this.inliningMode_ == o.inliningMode_
-}
-
-func (this *J2clPass_ClassStaticFunctionsInliner_InlinableFunction) hashCode() int32 {
-	var h int32
-	h = h*31 + objhashId_(this.impl_)
-	h = h*31 + objhashId_(this.inliningMode_)
-	return h
 }
 
 func (this *J2clPass_ClassStaticFunctionsInliner_InlinableFunction) toString() string {

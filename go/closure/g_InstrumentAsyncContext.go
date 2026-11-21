@@ -464,24 +464,6 @@ func (this *InstrumentAsyncContext_FunctionContext) astFactory() *AstFactory {
 	return this.astFactory_
 }
 
-func (this *InstrumentAsyncContext_FunctionContext) equals(p0 any) bool {
-	o, ok := p0.(*InstrumentAsyncContext_FunctionContext)
-	if !ok || o == nil {
-		return false
-	}
-	return true && this.uniqueSuffix_ == o.uniqueSuffix_ && this.suspendName_ == o.suspendName_ && this.resumeName_ == o.resumeName_ && this.factoryName_ == o.factoryName_ && this.astFactory_ == o.astFactory_
-}
-
-func (this *InstrumentAsyncContext_FunctionContext) hashCode() int32 {
-	var h int32
-	h = h*31 + strhash_(this.uniqueSuffix_)
-	h = h*31 + objhashId_(this.suspendName_)
-	h = h*31 + objhashId_(this.resumeName_)
-	h = h*31 + objhashId_(this.factoryName_)
-	h = h*31 + objhashId_(this.astFactory_)
-	return h
-}
-
 func (this *InstrumentAsyncContext_FunctionContext) toString() string {
 	return "FunctionContext[" + "uniqueSuffix=" + sstr_(this.uniqueSuffix_) + ", suspendName=" + tostrH_(this.suspendName_) + ", resumeName=" + tostrH_(this.resumeName_) + ", factoryName=" + tostrH_(this.factoryName_) + ", astFactory=" + jtostr_(this.astFactory_) + "]"
 }

@@ -4857,22 +4857,6 @@ func (this *NodeUtil_GoogRequire) isStrongRequire() bool {
 	return this.isStrongRequire_
 }
 
-func (this *NodeUtil_GoogRequire) equals(p0 any) bool {
-	o, ok := p0.(*NodeUtil_GoogRequire)
-	if !ok || o == nil {
-		return false
-	}
-	return true && this.namespace_ == o.namespace_ && Objects_equals(this.property_.box_(), o.property_.box_()) && this.isStrongRequire_ == o.isStrongRequire_
-}
-
-func (this *NodeUtil_GoogRequire) hashCode() int32 {
-	var h int32
-	h = h*31 + strhash_(this.namespace_)
-	h = h*31 + Objects_hashCode(this.property_.box_())
-	h = h*31 + boolhash_(this.isStrongRequire_)
-	return h
-}
-
 func (this *NodeUtil_GoogRequire) toString() string {
 	return "GoogRequire[" + "namespace=" + sstr_(this.namespace_) + ", property=" + objstr_(this.property_.box_()) + ", isStrongRequire=" + boolstr_(this.isStrongRequire_) + "]"
 }
