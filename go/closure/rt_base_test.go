@@ -233,3 +233,39 @@ func TestCatchAssertion(t *testing.T) {
 		t.Errorf("assertion of another type: %T, want ClassCastException", ex)
 	}
 }
+
+// TestOptEquals checks optEquals_, optEqualsNull_ and optHash_ (tools/postflip/opteq) against
+// the dynamic protocol they replace, on null, empty and present Optionals.
+func TestOptEquals(t *testing.T) {
+	strs := []Optional[string]{{}, Optional_empty[string](), Optional_of("a"), Optional_of("b"), Optional_of("")}
+	ints := []Optional[int32]{{}, Optional_empty[int32](), Optional_of[int32](0), Optional_of[int32](7)}
+	try := func(f func() bool) string {
+		return baseTry_(func() string { return strconv.FormatBool(f()) })
+	}
+	for _, a := range strs {
+		for _, b := range strs {
+			if g, w := try(func() bool { return optEquals_(a, b) }), try(func() bool { return Object_equals(a.box_(), b.box_()) }); g != w {
+				t.Errorf("optEquals_(%v, %v) = %s, Object_equals %s", a, b, g, w)
+			}
+			if g, w := optEqualsNull_(a, b), Objects_equals(a.box_(), b.box_()); g != w {
+				t.Errorf("optEqualsNull_(%v, %v) = %v, Objects_equals %v", a, b, g, w)
+			}
+		}
+		if g, w := optHash_(a), Objects_hashCode(a.box_()); g != w {
+			t.Errorf("optHash_(%v) = %d, Objects_hashCode %d", a, g, w)
+		}
+	}
+	for _, a := range ints {
+		for _, b := range ints {
+			if g, w := try(func() bool { return optEquals_(a, b) }), try(func() bool { return Object_equals(a.box_(), b.box_()) }); g != w {
+				t.Errorf("optEquals_(%v, %v) = %s, Object_equals %s", a, b, g, w)
+			}
+			if g, w := optEqualsNull_(a, b), Objects_equals(a.box_(), b.box_()); g != w {
+				t.Errorf("optEqualsNull_(%v, %v) = %v, Objects_equals %v", a, b, g, w)
+			}
+		}
+		if g, w := optHash_(a), Objects_hashCode(a.box_()); g != w {
+			t.Errorf("optHash_(%v) = %d, Objects_hashCode %d", a, g, w)
+		}
+	}
+}
