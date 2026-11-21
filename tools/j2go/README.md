@@ -338,7 +338,31 @@ type Map_EntryT[K any, V any] interface { Map_Entry; getKey_t() K; getValue_t() 
   wrapper. (`Collection<Object>` and `? extends V` at V = Object stay typed at `any`: that is
   also what a member of a Go generic class has at that instantiation.)
 
-Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide`
+- Piece `nncoll`: `checkNotNull(x)` / `requireNonNull(x)` of a typed collection is the typed
+  check of the collection itself (`Preconditions_checkNotNull_T(x)`: a pointer test). As an
+  `Object` it was the collection's erased view, which for an immutable collection is its twin,
+  made and boxed for the check alone.
+
+Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is written):
+
+- a raw use of one of the interfaces;
+- an unchecked cast to a use of one of them (`(List<String>) object`, `(Map<String, X>)
+  mapOfOther`), unless the method it is in is listed in `tools/j2go/unchecked-casts.txt` (2
+  methods of the tree, each read; `J2GO_UNCHECKED_CASTS=file:file` names other lists, as the
+  self-test does). A collection made for a typed place holds its elements at their Go type and
+  refuses an element of another type when it is added, where Java's erased collection takes
+  it and fails at a later read; an unchecked cast is where such an element could come from.
+  A cast to `List<?>` claims nothing and passes;
+- `instanceof` of, or a cast to, one of the collection classes that the typed collections stand
+  for (`ArrayList`, `HashSet`, `LinkedHashSet`, `HashMap`, `LinkedHashMap`, `TreeSet`, `TreeMap`,
+  `ArrayDeque`: `LibGen.CONCRETE`): a collection made for a typed place is the typed
+  collection's view, no object of that class. The tree has none. (The immutable classes are
+  not refused: erased code sees an immutable typed collection as its twin, Guava's object.)
+
+`tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (6); the self-test
+fails unless the translator refuses exactly those and writes nothing.
+
+Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll`
 (`all`: every one).
 
 **`java.util.Optional` is a value.** The runtime's `Optional[T]` (`rt_base.go`) is a generic

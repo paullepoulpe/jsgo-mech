@@ -1745,7 +1745,8 @@ final class Ctx {
       // a place of type SortedSet / NavigableSet: the sorted collection's erased view
       if (to.getKind() == TypeKind.DECLARED && typedColl(from).sortedType(typeElement(to))) return code + ".asSorted()";
       if (typedColl(from).view == null) throw new IllegalStateException("a typed builder (" + gf + ") reaches a place of type " + gt);
-      return coerce(code + "." + typedColl(from).view + "()", typedView(from), to);
+      // (the view is the object erased code knows: its type is the erased interface)
+      return coerce(code + "." + typedColl(from).view + "()", types.erasure(typedView(from)), to);
     }
     if (isTypedColl(to)) {
       // An immutable collection that erased code made (an expression of the static type

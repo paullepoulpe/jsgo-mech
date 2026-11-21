@@ -469,7 +469,36 @@ final class LibGen {
 
   final List<String> refusals = new ArrayList<>();
 
-  /** A raw use of one of the interfaces has no element type to give the typed methods: refused (the tree has none). */
+  /**
+   * The collection classes that the typed collections stand for where a collection is made for a
+   * typed place (piece `place`, and rule "typed collections"): such a collection is the typed
+   * one's view, no object of the class, so a test for the class or a cast to it is refused. (The
+   * immutable classes are not among them: erased code sees an immutable typed collection as its
+   * twin, an object of Guava's class.)
+   */
+  static final Set<String> CONCRETE = Set.of("java.util.ArrayList", "java.util.HashSet", "java.util.LinkedHashSet", "java.util.HashMap",
+      "java.util.LinkedHashMap", "java.util.TreeSet", "java.util.TreeMap", "java.util.ArrayDeque");
+
+  /** The methods ("Outer.Inner.method") whose unchecked casts to a typed library interface were read and are safe: tools/j2go/unchecked-casts.txt. */
+  final Set<String> uncheckedOk = new HashSet<>();
+
+  void readUncheckedOk(String file) {
+    try {
+      for (String l : java.nio.file.Files.readAllLines(java.nio.file.Path.of(file))) {
+        l = l.replaceAll("#.*", "").trim();
+        if (!l.isEmpty()) uncheckedOk.add(l);
+      }
+    } catch (java.io.IOException e) {
+      throw new java.io.UncheckedIOException(e);
+    }
+  }
+
+  /**
+   * Refused (the translation stops): a raw use of one of the interfaces, which has no element
+   * type to give the typed methods; an unchecked cast to a use of one of them outside the
+   * methods listed in tools/j2go/unchecked-casts.txt; `instanceof` of or a cast to one of the
+   * classes CONCRETE.
+   */
   void check(Trees trees, CompilationUnitTree cu) {
     if (libs.isEmpty()) return;
     String file = new java.io.File(cu.getSourceFile().getName()).getName();
@@ -502,10 +531,52 @@ final class LibGen {
         return super.visitMethod(t, v);
       }
 
+      /** "Outer.Inner.method" of the method (or the class) that the current tree is in. */
+      String where() {
+        String m = "";
+        for (TreePath p = getCurrentPath(); p != null; p = p.getParentPath()) {
+          if (p.getLeaf() instanceof MethodTree mt && m.isEmpty()) m = "." + mt.getName();
+          if (p.getLeaf() instanceof ClassTree && trees.getElement(p) instanceof TypeElement te) {
+            String c = "";
+            for (Element x = te; x instanceof TypeElement; x = x.getEnclosingElement()) c = x.getSimpleName() + (c.isEmpty() ? "" : "." + c);
+            return c + m;
+          }
+        }
+        return m;
+      }
+
+      void refuse(Tree at, String what) {
+        long p = trees.getSourcePositions().getStartPosition(cu, at);
+        refusals.add(file + ":" + (p < 0 ? 0 : cu.getLineMap().getLineNumber(p)) + ": " + what + ": " + at.toString().replace('\n', ' ').replaceAll("\\s+", " "));
+      }
+
+      /** A test for or a cast to a collection class whose objects the typed collections replace. */
+      void concrete(Tree at, TypeMirror target, String what) {
+        if (target == null || target.getKind() != TypeKind.DECLARED || !on("place")) return;
+        String qn = Ctx.typeElement(target).getQualifiedName().toString();
+        if (CONCRETE.contains(qn)) refuse(at, what + " " + qn + " (a collection made for a typed place is no object of that class)");
+      }
+
       @Override
       public Void visitTypeCast(TypeCastTree t, Void v) {
-        raw(t, trees.getTypeMirror(new TreePath(getCurrentPath(), t.getType())), 0);
+        TypeMirror target = trees.getTypeMirror(new TreePath(getCurrentPath(), t.getType()));
+        raw(t, target, 0);
+        concrete(t, target, "cast to");
+        TypeMirror from = trees.getTypeMirror(new TreePath(getCurrentPath(), t.getExpression()));
+        if (target != null && from != null && target.getKind() == TypeKind.DECLARED && isLib(Ctx.typeElement(target)) && is(cx.erase(target))
+            && from.getKind() != TypeKind.NULL && !cx.types.isSubtype(from, target) && !uncheckedOk.contains(where())) {
+          // an unchecked cast: the object may be a collection of other elements (a typed collection
+          // made for another place, which refuses an element that Java's would take)
+          refuse(t, "unchecked cast in " + where() + " (not in tools/j2go/unchecked-casts.txt)");
+        }
         return super.visitTypeCast(t, v);
+      }
+
+      @Override
+      public Void visitInstanceOf(InstanceOfTree t, Void v) {
+        Tree ty = t.getType() != null ? t.getType() : t.getPattern() instanceof BindingPatternTree b ? b.getVariable().getType() : null;
+        if (ty != null) concrete(t, trees.getTypeMirror(new TreePath(getCurrentPath(), ty)), "instanceof");
+        return super.visitInstanceOf(t, v);
       }
 
       @Override

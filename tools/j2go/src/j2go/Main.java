@@ -281,6 +281,9 @@ public final class Main {
     cx.registerValueLibs();
     cx.fn.register();
     cx.lg.register();
+    // (J2GO_UNCHECKED_CASTS: the lists of methods whose unchecked casts were read, separated by ':')
+    String uc = System.getenv("J2GO_UNCHECKED_CASTS") != null ? System.getenv("J2GO_UNCHECKED_CASTS") : "tools/j2go/unchecked-casts.txt";
+    for (String f : uc.split(":")) if (new java.io.File(f).exists()) cx.lg.readUncheckedOk(f);
     for (CompilationUnitTree cu : units) cx.lg.check(trees, cu);
     if (!cx.lg.refusals.isEmpty()) {
       for (String r : cx.lg.refusals) System.err.println("typed library interfaces: refused: " + r);

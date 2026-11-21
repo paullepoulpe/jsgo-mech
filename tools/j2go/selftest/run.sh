@@ -4,6 +4,8 @@
 # classes listed in selftest/handles.txt are plain classes on the JVM and handles in Go.
 set -euo pipefail
 cd "$(dirname "$0")/../../.."
+# the methods of the self-test programs whose unchecked casts rule "typed library interfaces" lets pass
+export J2GO_UNCHECKED_CASTS=tools/j2go/unchecked-casts.txt:tools/j2go/selftest/unchecked-casts.txt
 t=.cache/j2go-selftest
 rm -rf "$t" && mkdir -p "$t/java" "$t/go/closure" "$t/go/cmd/t"
 # lang/Imm.java uses Guava (typed immutable collections).
@@ -64,5 +66,11 @@ if [[ ${J2GO_NOFNTYPES:-} != 1 ]]; then
   mkdir -p "$t/refused" && { cat "$t/files.txt"; echo tools/j2go/selftest/refused/Refused.java; } >"$t/refused/files.txt"
   n=$(java -Xss64m -Xmx8g --add-modules jdk.compiler -cp "${J2GO_CLASSES:-.cache/j2go}" j2go.Main ".cache/build/stock-libs.jar:.cache/build/main:$(ls .cache/deps/auto-value-annotations-*.jar)" "$t/refused" - @"$t/refused/files.txt" 2>&1 | grep -c '^function types: refused: Refused.java' || true)
   if [[ $n != 14 ]] || ls "$t/refused" | grep -q '^g_'; then echo "selftest: FAIL (function types: $n of 14 uses refused)"; exit 1; fi
+fi
+if [[ -z ${J2GO_NOLIBGEN:-} ]]; then
+  # Rule "typed library interfaces" (every kind and piece on): the translator must refuse every marked use in refused/RefusedLib.java (6) and write nothing.
+  mkdir -p "$t/refusedlib" && { cat .cache/j2go/files.txt; echo tools/j2go/selftest/refused/RefusedLib.java; } >"$t/refusedlib/files.txt"
+  n=$(java -Xss64m -Xmx8g --add-modules jdk.compiler -cp "${J2GO_CLASSES:-.cache/j2go}" j2go.Main ".cache/build/stock-libs.jar:.cache/build/main:$(ls .cache/deps/auto-value-annotations-*.jar)" "$t/refusedlib" - @"$t/refusedlib/files.txt" 2>&1 | grep -c '^typed library interfaces: refused: RefusedLib.java' || true)
+  if [[ $n != 6 ]] || ls "$t/refusedlib" | grep -q '^g_'; then echo "selftest: FAIL (typed library interfaces: $n of 6 uses refused)"; exit 1; fi
 fi
 echo "selftest: PASS"
