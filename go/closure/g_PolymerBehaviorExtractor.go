@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type PolymerBehaviorExtractor struct {
 	compiler_             *AbstractCompiler
 	globalNames           *GlobalNamespace
@@ -230,12 +232,12 @@ func (this *PolymerBehaviorExtractor) getNameIfModuleImport(name string, metadat
 	if module == nil {
 		panic(new_NullPointerException_String(objstr_(canon_(metadata))).self())
 	}
-	var dot int32 = String_indexOf(name, 46)
+	var dot int32 = int32(strings.IndexByte(name, '.'))
 	var root string = func() string {
 		if dot == -1 {
 			return name
 		}
-		return String_substring(name, 0, dot)
+		return name[:dot]
 	}()
 	var b *Binding = module.boundNames().get(root)
 	if (b == nil) || !b.isSomeImport() {
@@ -245,7 +247,7 @@ func (this *PolymerBehaviorExtractor) getNameIfModuleImport(name string, metadat
 		if dot == -1 {
 			return ""
 		}
-		return String_substring_int(name, dot)
+		return name[dot:]
 	}()
 	if b.isModuleNamespace() {
 		return this.resolveModuleNamespaceBinding(b, rest)
@@ -274,7 +276,7 @@ func (this *PolymerBehaviorExtractor) resolveModuleNamespaceBinding(b *Binding, 
 	if !b.metadata().isEs6Module() {
 		panic(new_IllegalStateException_0().self())
 	}
-	if String_isEmpty(rest) {
+	if rest == "" {
 		return PolymerBehaviorExtractor_FAILED_RESOLVE_RESULT
 	}
 	rest = String_substring_int(rest, 1)
@@ -320,7 +322,7 @@ func PolymerBehaviorExtractor_getQualifiedNameThroughCast(node Node) Optional[st
 	if node.isName() {
 		var name string = node.getString()
 		return func() Optional[string] {
-			if String_isEmpty(name) {
+			if name == "" {
 				return Optional_empty[string]()
 			}
 			return Optional_of[string](name)

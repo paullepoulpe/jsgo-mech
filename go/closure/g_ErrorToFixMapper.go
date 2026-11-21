@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ErrorToFixMapper struct {
 	compiler_             *AbstractCompiler
 	metadataForEachScript *JTMap[Node, *ScriptMetadata]
@@ -169,7 +171,7 @@ func (this *ErrorToFixMapper) getFixForReferenceToShortImportByLongName(error_ *
 	var oldName Optional[string] = func() Optional[string] {
 		if error_.node().isQualifiedName() {
 			return Optional_of[string](error_.node().getQualifiedName()).filter(Predicate[string](func(s string) bool {
-				return !String_isEmpty(s)
+				return s != ""
 			}))
 		}
 		return Optional_of[string](error_.node().getString())
@@ -178,7 +180,7 @@ func (this *ErrorToFixMapper) getFixForReferenceToShortImportByLongName(error_ *
 }
 
 func (this *ErrorToFixMapper) getFixesForImplicitNullabilityErrors(error_ *JSError) ImmutableListOf[*SuggestedFix] {
-	if String_isEmpty(error_.node().getSourceFileName()) {
+	if error_.node().getSourceFileName() == "" {
 		return ImmutableList_of()
 	}
 	var qmark *SuggestedFix = new_SuggestedFix_Builder().attachMatchedNodeInfo(error_.node(), this.compiler_).insertBefore(error_.node(), "?").setDescription("Make nullability explicit").build()
@@ -241,12 +243,12 @@ func (this *ErrorToFixMapper) getFixForMissingRequire(error_ *JSError, importTyp
 	var qName Optional[string] = func() Optional[string] {
 		if error_.node().isQualifiedName() {
 			return Optional_of[string](error_.node().getQualifiedName()).filter(Predicate[string](func(s string) bool {
-				return !String_isEmpty(s)
+				return s != ""
 			}))
 		}
 		return Optional_of[string](error_.node().getString())
 	}()
-	if ok_, a1_, a2_ := String_startsWith(qName.get(), namespaceToRequire), error_.node(), namespaceToRequire; !ok_ {
+	if ok_, a1_, a2_ := strings.HasPrefix(qName.get(), namespaceToRequire), error_.node(), namespaceToRequire; !ok_ {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected error location %s to start with namespace <%s>", []any{a1_.box_(), a2_})).self())
 	}
 	var script Node = this.compiler_.getScriptNode(error_.sourceName().orElseThrow())

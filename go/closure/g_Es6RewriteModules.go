@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type Es6RewriteModules struct {
 	compiler_               *AbstractCompiler
 	astFactory_             *AstFactory
@@ -119,9 +121,9 @@ func (this *Es6RewriteModules) visitImport(t *NodeTraversal, importDecl Node, pa
 		panic(new_IllegalArgumentException_String(objstr_(parent.box_())).self())
 	}
 	var importName string = importDecl.getLastChild().getString()
-	var isNamespaceImport bool = String_startsWith(importName, "goog:")
+	var isNamespaceImport bool = strings.HasPrefix(importName, "goog:")
 	if isNamespaceImport {
-		var namespace string = String_substring_int(importName, String_length("goog:"))
+		var namespace string = String_substring_int(importName, int32(len("goog:")))
 		var m *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMap.getModulesByGoogNamespace().get(namespace)
 		if m == nil {
 			t.report(importDecl, ClosurePrimitiveErrors_MISSING_MODULE_OR_PROVIDE, []string{namespace})
@@ -132,7 +134,7 @@ func (this *Es6RewriteModules) visitImport(t *NodeTraversal, importDecl Node, pa
 		}
 	} else {
 		var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importName, Optional_of[string](importDecl.getSourceFileName()).filter(Predicate[string](func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		})), importDecl.getLineno(), importDecl.getCharno())
 		if modulePath == nil {
 			modulePath = t.getInput().getPath().resolveModuleAsPath(importName)
@@ -171,7 +173,7 @@ func (this *Es6RewriteModules) visitExport(t *NodeTraversal, export Node, parent
 		if child.isFunction() || child.isClass() {
 			name = NodeUtil_getName(child)
 		}
-		if !String_isEmpty(name) {
+		if name != "" {
 			var decl Node = child.detach()
 			export.replaceWith(decl)
 		} else {

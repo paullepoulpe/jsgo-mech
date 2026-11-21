@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type AnalyzePrototypeProperties struct {
 	compiler_              *AbstractCompiler
 	chunkGraph             *JSChunkGraph
@@ -221,7 +223,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 		this.addSymbolUse(propName, t.getChunk(), AnalyzePrototypeProperties_PROPERTY)
 	case Token_rhino_OBJECTLIT:
 		var lValueName Optional[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
-		if lValueName.isPresent() && String_endsWith(lValueName.get(), ".prototype") {
+		if lValueName.isPresent() && strings.HasSuffix(lValueName.get(), ".prototype") {
 			return
 		}
 		fallthrough
@@ -330,7 +332,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) getPrototypePropertyNa
 		return Optional_empty[string]()
 	}
 	var firstPart string = String_substring(lValueName.get(), 0, lastDot)
-	if !String_endsWith(firstPart, ".prototype") {
+	if !strings.HasSuffix(firstPart, ".prototype") {
 		return Optional_empty[string]()
 	}
 	return Optional_of[string](String_substring_int(lValueName.get(), (lastDot + 1)))

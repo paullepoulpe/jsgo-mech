@@ -175,10 +175,10 @@ func (this *CodingConvention_SubclassRelationship) init_CodingConvention_Subclas
 	}
 	this.type__ = type_
 	this.subclassName = Optional_of[string](subclassNode.getQualifiedName()).filter(Predicate[string](func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}))
 	this.superclassName = Optional_of[string](superclassNode.getQualifiedName()).filter(Predicate[string](func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}))
 }
 

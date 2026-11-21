@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type J2clPass struct {
 	compiler_           *AbstractCompiler
 	safeNameIdSupplier_ Supplier[string]
@@ -135,7 +137,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner) findMatchingSpecsForFile(sourc
 	it_1 := this.inlineSpecs.each()
 	for it_1.next() {
 		var inlineSpec *J2clPass_InlineSpec = it_1.v
-		if (inlineSpec.classFileName_ == J2clPass_ALL_CLASS_FILE_NAMES) || String_endsWith(sourceFileName, inlineSpec.classFileName_) {
+		if (inlineSpec.classFileName_ == J2clPass_ALL_CLASS_FILE_NAMES) || strings.HasSuffix(sourceFileName, inlineSpec.classFileName_) {
 			matchingSpecs.add(inlineSpec)
 		}
 	}
@@ -237,7 +239,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) visit(t 
 			switch n.ns_().token {
 			case tokOrd1_ASSIGN:
 				return Optional_of[string](n.getFirstChild().getQualifiedName()).filter(Predicate[string](func(s string) bool {
-					return !String_isEmpty(s)
+					return s != ""
 				}))
 			case tokOrd1_MEMBER_FUNCTION_DEF:
 				return NodeUtil_getBestLValueName(n)

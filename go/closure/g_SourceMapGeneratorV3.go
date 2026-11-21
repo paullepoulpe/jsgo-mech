@@ -2,6 +2,11 @@
 
 package closure
 
+import (
+	"strconv"
+	"strings"
+)
+
 type SourceMapGeneratorV3 struct {
 	mappings             *JTList[*SourceMapGeneratorV3_Mapping]
 	sourceFileMap        *JTMap[string, any]
@@ -79,7 +84,7 @@ func (this *SourceMapGeneratorV3) setStartingPosition(offsetLine int32, offsetIn
 }
 
 func (this *SourceMapGeneratorV3) addMapping(sourceName string, symbolName string, sourceStartPosition *FilePosition, startPosition *FilePosition, endPosition *FilePosition) {
-	if String_isEmpty(sourceName) || (sourceStartPosition.getLine() < 0) {
+	if sourceName == "" || (sourceStartPosition.getLine() < 0) {
 		return
 	}
 	var adjustedStart *FilePosition = startPosition
@@ -159,8 +164,8 @@ func (this *SourceMapGeneratorV3) appendTo(out Appendable, name Optional[string]
 	if name.isPresent() {
 		SourceMapGeneratorV3_appendField(out, "file", SourceMapGeneratorV3_escapeString(name.get()))
 	}
-	SourceMapGeneratorV3_appendField(out, "lineCount", String_valueOf(maxLine))
-	if this.sourceRootPath.isPresent() && !String_isEmpty(this.sourceRootPath.get()) {
+	SourceMapGeneratorV3_appendField(out, "lineCount", strconv.Itoa(int(maxLine)))
+	if this.sourceRootPath.isPresent() && this.sourceRootPath.get() != "" {
 		SourceMapGeneratorV3_appendField(out, "sourceRoot", SourceMapGeneratorV3_escapeString(this.sourceRootPath.get()))
 	}
 	SourceMapGeneratorV3_appendFieldStart_Appendable_String(out, "mappings")
@@ -206,7 +211,7 @@ func (this *SourceMapGeneratorV3) setSourceRoot(path string) {
 }
 
 func (this *SourceMapGeneratorV3) addExtension(name string, object any) *Outcome_base[any] {
-	if !String_startsWith(name, "x_") {
+	if !strings.HasPrefix(name, "x_") {
 		return Outcome_base_err[any](new_SourceMapParseException(("Extension '" + sstr_(name) + "' must start with 'x_'")).up_Throwable())
 	}
 	this.extensions.put(name, object)
@@ -366,8 +371,8 @@ func (this *SourceMapGeneratorV3) appendIndexMapTo(out Appendable, name string, 
 
 func SourceMapGeneratorV3_appendOffsetValue(out Appendable, line int32, column int32) {
 	Appendable_append_s(out, "{\n")
-	SourceMapGeneratorV3_appendFirstField(out, "line", strobj_(String_valueOf(line)))
-	SourceMapGeneratorV3_appendField(out, "column", String_valueOf(column))
+	SourceMapGeneratorV3_appendFirstField(out, "line", strobj_(strconv.Itoa(int(line))))
+	SourceMapGeneratorV3_appendField(out, "column", strconv.Itoa(int(column)))
 	Appendable_append_s(out, "\n}")
 }
 
@@ -656,7 +661,7 @@ func (this *SourceMapGeneratorV3_LineMapper) writeEntry(m *SourceMapGeneratorV3_
 		this.previousSourceLine = srcline
 		Base64VLQ_encode(this.out, (srcColumn - this.previousSourceColumn))
 		this.previousSourceColumn = srcColumn
-		if !String_isEmpty(m.originalName) {
+		if m.originalName != "" {
 			var nameId int32 = this.outer_.getNameId(m.originalName)
 			Base64VLQ_encode(this.out, (nameId - this.previousNameId))
 			this.previousNameId = nameId

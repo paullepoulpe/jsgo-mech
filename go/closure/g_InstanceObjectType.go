@@ -81,7 +81,7 @@ func (this *InstanceObjectType) appendTo_impl(sb *TypeStringBuilder) {
 		return
 	}
 	var name Optional[string] = this.constructor_.getReferenceName()
-	if String_isEmpty(name.get()) {
+	if name.get() == "" {
 		var n Node = this.constructor_.getSource()
 		sb.append("<anonymous@").append(func() string {
 			if n != 0 {

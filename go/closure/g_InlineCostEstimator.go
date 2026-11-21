@@ -36,7 +36,7 @@ func InlineCostEstimator_clinit() {
 		return
 	}
 	InlineCostEstimator_clinit_done = true
-	InlineCostEstimator_ESTIMATED_IDENTIFIER_COST = String_length(InlineCostEstimator_ESTIMATED_IDENTIFIER)
+	InlineCostEstimator_ESTIMATED_IDENTIFIER_COST = int32(len(InlineCostEstimator_ESTIMATED_IDENTIFIER))
 
 }
 
