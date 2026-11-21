@@ -502,7 +502,7 @@ func (this *JsMessageVisitor) extractJsMessageOptions(optionsBag Node) *Outcome_
 		return Outcome_base_err[JsMessageVisitor_JsMessageOptions](exampleObjectLiteralMapOutcome.error())
 	}
 	var exampleObjectLiteralMap JsMessageVisitor_ObjectLiteralMap = exampleObjectLiteralMapOutcome.get()
-	var placeholderExamplesMapOutcome *Outcome_base[*ImmutableMap] = exampleObjectLiteralMap.extractAsStringToStringMap()
+	var placeholderExamplesMapOutcome *Outcome_base[*ErasedImmutableMap] = exampleObjectLiteralMap.extractAsStringToStringMap()
 	if placeholderExamplesMapOutcome.isErr() {
 		return Outcome_base_err[JsMessageVisitor_JsMessageOptions](placeholderExamplesMapOutcome.error())
 	}
@@ -513,7 +513,7 @@ func (this *JsMessageVisitor) extractJsMessageOptions(optionsBag Node) *Outcome_
 		return Outcome_base_err[JsMessageVisitor_JsMessageOptions](originalCodeObjectLiteralMapOutcome.error())
 	}
 	var originalCodeObjectLiteralMap JsMessageVisitor_ObjectLiteralMap = originalCodeObjectLiteralMapOutcome.get()
-	var placeholderOriginalCodeMapOutcome *Outcome_base[*ImmutableMap] = originalCodeObjectLiteralMap.extractAsStringToStringMap()
+	var placeholderOriginalCodeMapOutcome *Outcome_base[*ErasedImmutableMap] = originalCodeObjectLiteralMap.extractAsStringToStringMap()
 	if placeholderOriginalCodeMapOutcome.isErr() {
 		return Outcome_base_err[JsMessageVisitor_JsMessageOptions](placeholderOriginalCodeMapOutcome.error())
 	}
@@ -571,7 +571,7 @@ func (this *JsMessageVisitor) extractIcuTemplateOptions(optionsBag Node) *Outcom
 		return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](exampleObjectLiteralMapOutcome.error())
 	}
 	var exampleObjectLiteralMap JsMessageVisitor_ObjectLiteralMap = exampleObjectLiteralMapOutcome.get()
-	var placeholderExamplesMapOutcome *Outcome_base[*ImmutableMap] = exampleObjectLiteralMap.extractAsStringToStringMap()
+	var placeholderExamplesMapOutcome *Outcome_base[*ErasedImmutableMap] = exampleObjectLiteralMap.extractAsStringToStringMap()
 	if placeholderExamplesMapOutcome.isErr() {
 		return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](placeholderExamplesMapOutcome.error())
 	}
@@ -582,7 +582,7 @@ func (this *JsMessageVisitor) extractIcuTemplateOptions(optionsBag Node) *Outcom
 		return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](originalCodeObjectLiteralMapOutcome.error())
 	}
 	var originalCodeObjectLiteralMap JsMessageVisitor_ObjectLiteralMap = originalCodeObjectLiteralMapOutcome.get()
-	var placeholderOriginalCodeMapOutcome *Outcome_base[*ImmutableMap] = originalCodeObjectLiteralMap.extractAsStringToStringMap()
+	var placeholderOriginalCodeMapOutcome *Outcome_base[*ErasedImmutableMap] = originalCodeObjectLiteralMap.extractAsStringToStringMap()
 	if placeholderOriginalCodeMapOutcome.isErr() {
 		return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](placeholderOriginalCodeMapOutcome.error())
 	}
@@ -638,13 +638,13 @@ func JsMessageVisitor_extractObjectLiteralMap(objLit Node) *Outcome_base[JsMessa
 	return Outcome_base_ok_Object[JsMessageVisitor_ObjectLiteralMap](JsMessageVisitor_ObjectLiteralMap(new_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap)))
 }
 
-func JsMessageVisitor_parseJsMessageTextIntoParts(originalMsgText string) *Outcome_base[*ImmutableList] {
+func JsMessageVisitor_parseJsMessageTextIntoParts(originalMsgText string) *Outcome_base[*ErasedImmutableList] {
 	var googGetMsgParsedTextRes *Outcome_base[JsMessageVisitor_GoogGetMsgParsedText] = JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText)
 	if googGetMsgParsedTextRes.isErr() {
-		return Outcome_base_err[*ImmutableList](googGetMsgParsedTextRes.error())
+		return Outcome_base_err[*ErasedImmutableList](googGetMsgParsedTextRes.error())
 	}
 	var googGetMsgParsedText JsMessageVisitor_GoogGetMsgParsedText = googGetMsgParsedTextRes.get()
-	return Outcome_base_ok_Object[*ImmutableList](googGetMsgParsedText.getParts().asImm())
+	return Outcome_base_ok_Object[*ErasedImmutableList](googGetMsgParsedText.getParts().asImm())
 }
 
 func JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText string) *Outcome_base[JsMessageVisitor_GoogGetMsgParsedText] {
@@ -912,7 +912,7 @@ type JsMessageVisitor_IcuTemplateOptions interface {
 type JsMessageVisitor_ObjectLiteralMap interface {
 	getBooleanValueOrFalse(string) *Outcome_base[any]
 	extractAsValueMap() *JTMap[string, Node]
-	extractAsStringToStringMap() *Outcome_base[*ImmutableMap]
+	extractAsStringToStringMap() *Outcome_base[*ErasedImmutableMap]
 	getValueNode(string) Node
 	checkForUnexpectedKeys(*JTSet[string], Function[string, string]) *Outcome_base[any]
 	checkForRequiredKeys(*JTSet[string], Function[string, *JsMessageVisitor_MalformedException]) *Outcome_base[any]
@@ -968,7 +968,7 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsValueMap() *JTMap[st
 	return this.valueMap
 }
 
-func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsStringToStringMap() *Outcome_base[*ImmutableMap] {
+func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsStringToStringMap() *Outcome_base[*ErasedImmutableMap] {
 	if this.stringMap == nil {
 		var builder *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
 		it_1 := this.stringToStringKeyMap.eachEntry()
@@ -976,13 +976,13 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsStringToStringMap() 
 			var entry *TEntry[string, Node] = it_1.entry()
 			var value *Outcome_base[string] = JsMessageVisitor_extractStringFromStringExprNode(entry.getValue().getOnlyChild())
 			if value.isErr() {
-				return Outcome_base_err[*ImmutableMap](value.error())
+				return Outcome_base_err[*ErasedImmutableMap](value.error())
 			}
 			builder.put(entry.getKey(), value.get())
 		}
 		this.stringMap = builder.buildOrThrow()
 	}
-	return Outcome_base_ok_Object[*ImmutableMap](this.stringMap.asImm())
+	return Outcome_base_ok_Object[*ErasedImmutableMap](this.stringMap.asImm())
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForUnexpectedKeys(expectedKeys *JTSet[string], createErrorMessage Function[string, string]) *Outcome_base[any] {

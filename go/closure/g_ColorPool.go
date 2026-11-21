@@ -256,8 +256,8 @@ func (this *ColorPool_Builder) forEachShard(fn Consumer[*ColorPool_ShardView]) {
 	}))
 }
 
-func (this *ColorPool_Builder) reconcilationDebugStackProtos() *JTList[*ImmutableMap] {
-	var result *TListBuilder[*ImmutableMap] = newTListBuilder_(tc_p_ImmutableMap)
+func (this *ColorPool_Builder) reconcilationDebugStackProtos() *JTList[*ErasedImmutableMap] {
+	var result *TListBuilder[*ErasedImmutableMap] = newTListBuilder_(tc_p_ImmutableMap)
 	it_1 := this.reconcilationDebugStack.each()
 	for it_1.next() {
 		var stackId *ColorId = it_1.v

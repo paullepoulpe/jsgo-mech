@@ -59,7 +59,7 @@ func BrowserModuleResolver_clinit() {
 }
 
 // lambda_BrowserModuleResolver_clinit_1_ is a lambda of BrowserModuleResolver_clinit that captures nothing (post-flip step lambdas).
-var lambda_BrowserModuleResolver_clinit_1_ = &ModuleLoader_ModuleResolverFactory_fn{func(p0 *ImmutableSet, p1 *ImmutableList, p2 ErrorHandler, p3 ModuleLoader_PathEscaper) *ModuleResolver {
+var lambda_BrowserModuleResolver_clinit_1_ = &ModuleLoader_ModuleResolverFactory_fn{func(p0 *ErasedImmutableSet, p1 *ErasedImmutableList, p2 ErrorHandler, p3 ModuleLoader_PathEscaper) *ModuleResolver {
 	return new_BrowserModuleResolver(p0, p1, p2, p3).up_ModuleResolver()
 }}
 

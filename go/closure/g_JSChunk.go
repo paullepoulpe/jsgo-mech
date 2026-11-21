@@ -232,7 +232,7 @@ func (this *JSChunk) readObject(in *ObjectInputStream) {
 	this.inputs = jnewTMap_(jtc_string, jtc_p_CompilerInput)
 }
 
-func (this *JSChunk) getRequiredSymbols() *ImmutableList {
+func (this *JSChunk) getRequiredSymbols() *ErasedImmutableList {
 	return DependencyInfo__getRequiredSymbols_default(DependencyInfo_(this))
 }
 
