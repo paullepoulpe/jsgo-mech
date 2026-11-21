@@ -121,7 +121,7 @@ func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output
 	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		var varName Node = n.getFirstChild()
 		if !n.hasChildren() {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("AST should be normalized (%s)", []any{n.box_()})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("AST should be normalized (%s)", n.box_())))
 		}
 		if varName.isDestructuringLhs() {
 			this.computeMayUse(varName.getFirstChild(), cfgNode, output, conditional)

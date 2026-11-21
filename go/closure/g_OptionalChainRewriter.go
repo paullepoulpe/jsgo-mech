@@ -51,7 +51,7 @@ func OptionalChainRewriter_builder(compiler *AbstractCompiler) *OptionalChainRew
 
 func (this *OptionalChainRewriter) rewrite() {
 	if !NodeUtil_isOptChainNode(this.wholeChain) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("already rewritten: %s", []any{this.wholeChain.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("already rewritten: %s", this.wholeChain.box_())))
 	}
 	var startNodeStack *TDeque[Node] = newTDeque_(tc_Node)
 	var subchainEnd Node = this.wholeChain

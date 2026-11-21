@@ -33,7 +33,7 @@ func (this *OptimizeReturns) process_3(externs Node, root Node, definitions *Opt
 		var key string = str_(entry.getKey())
 		var refs ArrayListOf[Node] = to_ArrayList(entry.getValue())
 		if this.isCandidate(key, icast_List(refs.self())) {
-			this.decisionsLog.log_2("name %s\tremoving return value", []any{strobj_(key)})
+			this.decisionsLog.log_2("name %s\tremoving return value", strobj_(key))
 			toOptimize = append(toOptimize, refs)
 		}
 	}
@@ -41,7 +41,7 @@ func (this *OptimizeReturns) process_3(externs Node, root Node, definitions *Opt
 		var key string = str_(entry.getKey())
 		var refs ArrayListOf[Node] = to_ArrayList(entry.getValue())
 		if this.isCandidate(key, icast_List(refs.self())) {
-			this.decisionsLog.log_2("property %s\tremoving return value", []any{strobj_(key)})
+			this.decisionsLog.log_2("property %s\tremoving return value", strobj_(key))
 			toOptimize = append(toOptimize, refs)
 		}
 	}
@@ -54,7 +54,7 @@ func (this *OptimizeReturns) process_3(externs Node, root Node, definitions *Opt
 
 func (this *OptimizeReturns) isCandidate(name string, refs ListOf[Node]) bool {
 	if !OptimizeCalls_mayBeOptimizableName(this.compiler_, name) {
-		this.decisionsLog.log_2("%s\tnot an optimizable name", []any{strobj_(name)})
+		this.decisionsLog.log_2("%s\tnot an optimizable name", strobj_(name))
 		return false
 	}
 	var seenCandidateDefiniton bool = false
@@ -66,7 +66,7 @@ func (this *OptimizeReturns) isCandidate(name string, refs ListOf[Node]) bool {
 			var callNode Node = OptimizeCalls_ReferenceMap_getCallOrNewNodeForTarget(n)
 			if NodeUtil_isExpressionResultUsed(callNode) {
 				if this.decisionsLog.isLogging() {
-					this.decisionsLog.log_2("%s\treturn value used: %s", []any{strobj_(name), strobj_(callNode.getLocation())})
+					this.decisionsLog.log_2("%s\treturn value used: %s", strobj_(name), strobj_(callNode.getLocation()))
 				}
 				return false
 			}
@@ -76,18 +76,18 @@ func (this *OptimizeReturns) isCandidate(name string, refs ListOf[Node]) bool {
 		} else {
 			if !OptimizeCalls_isAllowedReference(n) {
 				if this.decisionsLog.isLogging() {
-					this.decisionsLog.log_2("%s\tdisallowed reference: %s", []any{strobj_(name), strobj_(n.getLocation())})
+					this.decisionsLog.log_2("%s\tdisallowed reference: %s", strobj_(name), strobj_(n.getLocation()))
 				}
 				return false
 			}
 		}
 	}
 	if !seenUse {
-		this.decisionsLog.log_2("%s\tno usage seen", []any{strobj_(name)})
+		this.decisionsLog.log_2("%s\tno usage seen", strobj_(name))
 		return false
 	}
 	if !seenCandidateDefiniton {
-		this.decisionsLog.log_2("%s\tno definition seen", []any{strobj_(name)})
+		this.decisionsLog.log_2("%s\tno definition seen", strobj_(name))
 		return false
 	}
 	return true

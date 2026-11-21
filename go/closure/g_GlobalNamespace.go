@@ -893,7 +893,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) addOrConfirmRef(nameObj *Globa
 	} else {
 		var existingRefType GlobalNamespace_Ref_Type = existingRef.type__
 		if existingRefType != refType {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("existing ref type: %s expected: %s", []any{existingRefType, refType})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("existing ref type: %s expected: %s", existingRefType, refType)))
 		}
 	}
 }
@@ -1278,13 +1278,13 @@ func (this *GlobalNamespace_Name) checkNoExistingRefsForNode(node Node) {
 	}
 	if ref, ok := this.refsForNode.(*GlobalNamespace_Ref); ok {
 		if ref.node_ == node {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Ref already exists for node: %s", []any{this.refsForNode})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Ref already exists for node: %s", this.refsForNode)))
 		}
 		return
 	}
 	var refForNode *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](this.castRefsForNodeMap().get(node.box_()))
 	if refForNode != nil {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Ref already exists for node: %s", []any{refForNode})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Ref already exists for node: %s", refForNode)))
 	}
 }
 
@@ -1385,11 +1385,11 @@ func (this *GlobalNamespace_Name) updateStateForAddedRef(ref *GlobalNamespace_Re
 
 func (this *GlobalNamespace_Name) updateRefNode(ref *GlobalNamespace_Ref, newNode Node) {
 	if ref.node_ == newNode {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("redundant update to Ref node: %s", []any{ref})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("redundant update to Ref node: %s", ref)))
 	}
 	var oldNode Node = ref.getNode()
 	if oldNode == 0 {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Ref's node is already null: %s", []any{ref})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Ref's node is already null: %s", ref)))
 	}
 	ref.node_ = newNode
 	if this.refsForNode == nil {
@@ -1404,7 +1404,7 @@ func (this *GlobalNamespace_Name) updateRefNode(ref *GlobalNamespace_Ref, newNod
 		if newNode != 0 {
 			var existingRefForNewNode *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](refsForNodeMap.get(newNode.box_()))
 			if existingRefForNewNode != nil {
-				panic(new_IllegalArgumentException_String(Strings_lenientFormat("refs already exist: %s", []any{existingRefForNewNode})))
+				panic(new_IllegalArgumentException_String(Strings_lenientFormat("refs already exist: %s", existingRefForNewNode)))
 			}
 			refsForNodeMap.put(newNode.box_(), obj_(ref))
 		}
@@ -1413,16 +1413,16 @@ func (this *GlobalNamespace_Name) updateRefNode(ref *GlobalNamespace_Ref, newNod
 
 func (this *GlobalNamespace_Name) removeRef(ref *GlobalNamespace_Ref) {
 	if this.refsForNode == nil {
-		panic(new_NullPointerException_String(Strings_lenientFormat("removeRef(%s): unknown ref", []any{ref})))
+		panic(new_NullPointerException_String(Strings_lenientFormat("removeRef(%s): unknown ref", ref)))
 	}
 	if _, ok := this.refsForNode.(*GlobalNamespace_Ref); ok {
 		if this.refsForNode != obj_(ref) {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("removeRef(%s): unknown ref", []any{ref})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("removeRef(%s): unknown ref", ref)))
 		}
 		this.refsForNode = nil
 	} else {
 		if !this.castRefsForNodeMap().containsKey(ref.getNode().box_()) {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("removeRef(%s): unknown ref", []any{ref})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("removeRef(%s): unknown ref", ref)))
 		}
 		var refNode Node = ref.getNode()
 		if refNode != 0 {
@@ -1487,14 +1487,14 @@ func (this *GlobalNamespace_Name) removeRefFromNodeMap(ref *GlobalNamespace_Ref)
 		panic(new_NullPointerException_String(objstr_(canon_(ref))))
 	}
 	if this.refsForNode == nil {
-		panic(new_NullPointerException_String(Strings_lenientFormat("Missing ref when trying to remove it: %s", []any{ref})))
+		panic(new_NullPointerException_String(Strings_lenientFormat("Missing ref when trying to remove it: %s", ref)))
 	}
 	if _, ok := this.refsForNode.(*GlobalNamespace_Ref); ok {
 		this.refsForNode = nil
 	} else {
 		var refsForNode *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](this.castRefsForNodeMap().get(refNode.box_()))
 		if refsForNode != ref {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected Refs for Node: %s: when removing Ref: %s", []any{refsForNode, ref})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected Refs for Node: %s: when removing Ref: %s", refsForNode, ref)))
 		}
 		this.castRefsForNodeMap().remove(refNode.box_())
 	}
@@ -1706,7 +1706,7 @@ func (this *GlobalNamespace_Name) canCollapseOrInline() GlobalNamespace_Inlinabi
 
 func (this *GlobalNamespace_Name) logDecision(inlinability GlobalNamespace_Inlinability, reason string) {
 	if (this.outer_.decisionsLog != nil) && this.outer_.decisionsLog.isLogging() {
-		this.outer_.decisionsLog.log_2("%s: %s: %s", []any{strobj_(this.getFullName()), obj_(inlinability), strobj_(reason)})
+		this.outer_.decisionsLog.log_2("%s: %s: %s", strobj_(this.getFullName()), obj_(inlinability), strobj_(reason))
 	}
 }
 
@@ -1848,14 +1848,14 @@ func (this *GlobalNamespace_Name) canCollapseOrInlineChildNames() GlobalNamespac
 
 func (this *GlobalNamespace_Name) logChildNamesDecision(inlinability GlobalNamespace_Inlinability, reason string) {
 	if (this.outer_.decisionsLog != nil) && this.outer_.decisionsLog.isLogging() {
-		this.outer_.decisionsLog.log_2("%s: children: %s: %s", []any{strobj_(this.getFullName()), obj_(inlinability), strobj_(reason)})
+		this.outer_.decisionsLog.log_2("%s: children: %s: %s", strobj_(this.getFullName()), obj_(inlinability), strobj_(reason))
 	}
 }
 
 func (this *GlobalNamespace_Name) logChildNamesDecisionSupplier(inlinability GlobalNamespace_Inlinability, reasonSupplier Supplier[string]) {
 	if (this.outer_.decisionsLog != nil) && this.outer_.decisionsLog.isLogging() {
 		this.outer_.decisionsLog.log(Supplier[string](func() string {
-			return String_format("%s: children: %s: %s", []any{strobj_(this.getFullName()), obj_(inlinability), strobj_(reasonSupplier.get())})
+			return String_format("%s: children: %s: %s", strobj_(this.getFullName()), obj_(inlinability), strobj_(reasonSupplier.get()))
 		}))
 	}
 }
@@ -1884,7 +1884,7 @@ func (this *GlobalNamespace_Name) needsToBeStubbed() bool {
 
 func (this *GlobalNamespace_Name) setDeclaredTypeKind(declaredType GlobalNamespace_NameProp) {
 	if (GlobalNamespace_NameProp_bit_[declaredType-1] & GlobalNamespace_NameProp_DECLARED_TYPE_KIND_MASK) == 0 {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected NameProp for declaredType %s", []any{declaredType})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected NameProp for declaredType %s", declaredType)))
 	}
 	this.propertyBitSet = ((this.propertyBitSet & (^GlobalNamespace_NameProp_DECLARED_TYPE_KIND_MASK)) | GlobalNamespace_NameProp_bit_[declaredType-1])
 	if declaredType != GlobalNamespace_NameProp_NOT_A_TYPE {
@@ -1899,7 +1899,7 @@ func (this *GlobalNamespace_Name) setDeclaredTypeKind(declaredType GlobalNamespa
 
 func (this *GlobalNamespace_Name) setNameType(type_ GlobalNamespace_NameProp) {
 	if (GlobalNamespace_NameProp_bit_[type_-1] & GlobalNamespace_NameProp_NAME_KIND_MASK) == 0 {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected NameProp for nameType %s", []any{type_})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected NameProp for nameType %s", type_)))
 	}
 	this.propertyBitSet = ((this.propertyBitSet & (^GlobalNamespace_NameProp_NAME_KIND_MASK)) | GlobalNamespace_NameProp_bit_[type_-1])
 }
@@ -1939,7 +1939,7 @@ func (this *GlobalNamespace_Name) getTypeDebugString() string {
 }
 
 func (this *GlobalNamespace_Name) toString() string {
-	return (sstr_(this.getFullName()) + " (" + sstr_(this.getTypeDebugString()) + "): " + sstr_(Joiner_on(", ").join_Object_Object_ObjectArr(strobj_(("globalSets="+istr_(int64(this.globalSets)))), strobj_(("localSets="+istr_(int64(this.localSets)))), []any{strobj_(("totalGets=" + istr_(int64(this.totalGets)))), strobj_(("aliasingGets=" + istr_(int64(this.aliasingGets)))), strobj_(("callGets=" + istr_(int64(this.callGets)))), strobj_(("subclassingGets=" + istr_(int64(this.subclassingGets))))})))
+	return (sstr_(this.getFullName()) + " (" + sstr_(this.getTypeDebugString()) + "): " + sstr_(Joiner_on(", ").join_Object_Object_ObjectArr(strobj_(("globalSets="+istr_(int64(this.globalSets)))), strobj_(("localSets="+istr_(int64(this.localSets)))), strobj_(("totalGets="+istr_(int64(this.totalGets)))), strobj_(("aliasingGets="+istr_(int64(this.aliasingGets)))), strobj_(("callGets="+istr_(int64(this.callGets)))), strobj_(("subclassingGets="+istr_(int64(this.subclassingGets)))))))
 }
 
 func (this *GlobalNamespace_Name) getJSDocInfo() *JSDocInfo {

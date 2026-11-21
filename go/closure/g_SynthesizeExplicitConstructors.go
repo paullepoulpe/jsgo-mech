@@ -37,7 +37,7 @@ func (this *SynthesizeExplicitConstructors) addSyntheticConstructor(t *NodeTrave
 		memberDef = this.astFactory_.createMemberFunctionDef("constructor", function)
 	} else {
 		if !superClass.isQualifiedName() {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Expected Es6NormalizeClasses to make all extends clauses into qualified names, found %s", []any{superClass.box_()})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Expected Es6NormalizeClasses to make all extends clauses into qualified names, found %s", superClass.box_())))
 		}
 		var body Node = IR_block_0()
 		if !classNode.isFromExterns() && !this.isInterface(classNode) {
