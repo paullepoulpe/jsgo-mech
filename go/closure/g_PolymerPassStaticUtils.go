@@ -46,7 +46,7 @@ func PolymerPassStaticUtils_switchDollarSignPropsToBrackets(def Node, compiler *
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
 			var value Node = keyNode.getFirstChild()
 			if (value != 0) && value.isFunction() {
-				NodeUtil_visitPostOrder_Node_Visitor(value.getLastChild(), NodeUtil_Visitor(new_PolymerPassStaticUtils_1(compiler)))
+				NodeUtil_visitPostOrder_Node_Visitor(value.getLastChild(), new_PolymerPassStaticUtils_1(compiler).visit)
 			}
 		}
 	}

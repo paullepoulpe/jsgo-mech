@@ -587,14 +587,14 @@ func (this *Es6NormalizeClasses) rewriteThisToThisDotSelf(fn Node) bool {
 		return false
 	}
 	var hasThis []bool = make([]bool, 1)
-	NodeUtil_visitPostOrder_Node_Visitor_Predicate(fnBody, &NodeUtil_Visitor_fn{func(n Node) {
+	NodeUtil_visitPostOrder_Node_Visitor_Predicate(fnBody, func(n Node) {
 		if n.isThis() {
 			hasThis[0] = true
 			var target Node = this.astFactory_.createGetPropWithUnknownType(this.astFactory_.createThis(AstFactory_typeColor(StandardColors_UNKNOWN)), "$self").srcref(n)
 			n.replaceWith(target)
 			this.compiler_.reportChangeToEnclosingScope(target)
 		}
-	}}, Predicate_base[Node](func(n Node) bool {
+	}, Predicate_base[Node](func(n Node) bool {
 		return (!n.isClass() && (!n.isFunction() || n.isArrowFunction()))
 	}))
 	return hasThis[0]
@@ -606,11 +606,11 @@ func (this *Es6NormalizeClasses) hasThisReference(fn Node) bool {
 		return false
 	}
 	var hasThis []bool = make([]bool, 1)
-	NodeUtil_visitPostOrder_Node_Visitor_Predicate(fnBody, &NodeUtil_Visitor_fn{func(n Node) {
+	NodeUtil_visitPostOrder_Node_Visitor_Predicate(fnBody, func(n Node) {
 		if n.isThis() {
 			hasThis[0] = true
 		}
-	}}, Predicate_base[Node](func(n Node) bool {
+	}, Predicate_base[Node](func(n Node) bool {
 		return (!n.isClass() && (!n.isFunction() || n.isArrowFunction()))
 	}))
 	return hasThis[0]
@@ -626,7 +626,7 @@ func (this *Es6NormalizeClasses) rewriteSuperReferencesInPrivateMember(memberNod
 		return
 	}
 	var isStatic bool = memberNode.isStaticMember()
-	NodeUtil_visitPostOrder_Node_Visitor_Predicate(fnBody, &NodeUtil_Visitor_fn{func(n Node) {
+	NodeUtil_visitPostOrder_Node_Visitor_Predicate(fnBody, func(n Node) {
 		if n.isSuper() {
 			var parent Node = n.getParent()
 			if parent.isGetProp() || parent.isGetElem() {
@@ -668,7 +668,7 @@ func (this *Es6NormalizeClasses) rewriteSuperReferencesInPrivateMember(memberNod
 				this.compiler_.reportChangeToEnclosingScope(fnBody)
 			}
 		}
-	}}, Predicate_base[Node](func(n Node) bool {
+	}, Predicate_base[Node](func(n Node) bool {
 		return !n.isClass()
 	}))
 }

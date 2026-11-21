@@ -22,14 +22,14 @@ func (this *J2clConstantHoisterPass) process_2(externs Node, root Node) {
 	}
 	var fieldAssignments *SimpleListMultimap[string, Node] = SimpleListMultimap_create[string, Node]()
 	var hoistableFunctions *JTSet[Node] = jnewTSet_(jtc_Node)
-	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(&NodeTraversal_AbstractPostOrderCallbackInterface_fn{func(t *NodeTraversal, node Node, parent Node) {
+	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(func(t *NodeTraversal, node Node, parent Node) {
 		if (parent != 0) && NodeUtil_isLValue(node) {
 			fieldAssignments.put(node.getQualifiedName(), parent)
 		}
 		if J2clConstantHoisterPass_isHoistableFunction(t, node) {
 			hoistableFunctions.add(node)
 		}
-	}}).traverse(root)
+	}).traverse(root)
 	it_1 := foreach_(fieldAssignments.asMap().values())
 	for it_1.next() {
 		var assignments Collection = icast_Collection(it_1.v)

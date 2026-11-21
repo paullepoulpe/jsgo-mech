@@ -62,7 +62,7 @@ func (this *WritingLogFile) logJsonSupplier_impl(value Supplier[any]) *LogFile {
 	return this.logInternal(LogsGson_toJson(value.get()))
 }
 
-func (this *WritingLogFile) logJson_impl(producer LogFile_StreamedJsonProducer) *LogFile {
+func (this *WritingLogFile) logJson_impl(producer func(*SimpleJsonWriter)) *LogFile {
 	var jsonWriter *SimpleJsonWriter = new_SimpleJsonWriter()
 	jsonWriter.setSink(Consumer[string](func(text string) {
 		this.writer.print(text)
@@ -73,7 +73,7 @@ func (this *WritingLogFile) logJson_impl(producer LogFile_StreamedJsonProducer) 
 			this.writer.print(jsonWriter.takeText())
 			closed = this.writer.close()
 		}()
-		producer.writeJson(jsonWriter)
+		producer(jsonWriter)
 		return 0
 	}()
 	if closed.isErr() {
@@ -147,7 +147,7 @@ func (this *WritingLogFile) logJsonSupplier(p0 Supplier[any]) *LogFile {
 }
 
 // logJson: an object that is exactly a WritingLogFile calls its logJson_impl directly (post-flip); others dispatch.
-func (this *WritingLogFile) logJson(p0 LogFile_StreamedJsonProducer) *LogFile {
+func (this *WritingLogFile) logJson(p0 func(*SimpleJsonWriter)) *LogFile {
 	if this.self_ == any(this) {
 		return this.logJson_impl(p0)
 	}
