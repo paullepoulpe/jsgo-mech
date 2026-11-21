@@ -184,6 +184,47 @@ func Preconditions_checkNotNull_Object_String_Object_Object(v any, t string, p1 
 	return v
 }
 
+// Preconditions_checkNotNullT is Preconditions.checkNotNull for a value v of a pointer or
+// interface type, which is Java null when it is nil: the same NullPointerException when v is
+// nil, else v, with no boxing (post-flip: a cast of the erased checkNotNull's result back to the
+// type of its argument is this call). Not for strings (null is nullstr_, not "").
+func Preconditions_checkNotNullT[T comparable](v T) T {
+	var zero T
+	if v == zero {
+		panic(new_NullPointerException_0().self())
+	}
+	return v
+}
+
+// Preconditions_checkNotNullT_Object is Preconditions_checkNotNull_Object_Object, typed.
+func Preconditions_checkNotNullT_Object[T comparable](v T, msg any) T {
+	var zero T
+	if v == zero {
+		nullFail_(objstr_(msg))
+	}
+	return v
+}
+
+// Preconditions_checkNotNullT_String_Object is Preconditions_checkNotNull_Object_String_Object,
+// typed.
+func Preconditions_checkNotNullT_String_Object[T comparable](v T, t string, p1 any) T {
+	var zero T
+	if v == zero {
+		nullFail_(Strings_lenientFormat(t, []any{p1}))
+	}
+	return v
+}
+
+// Preconditions_checkNotNullT_String_Object_Object is
+// Preconditions_checkNotNull_Object_String_Object_Object, typed.
+func Preconditions_checkNotNullT_String_Object_Object[T comparable](v T, t string, p1 any, p2 any) T {
+	var zero T
+	if v == zero {
+		nullFail_(Strings_lenientFormat(t, []any{p1, p2}))
+	}
+	return v
+}
+
 func Preconditions_checkState(b bool) {
 	if !b {
 		panic(new_IllegalStateException_0().self())
