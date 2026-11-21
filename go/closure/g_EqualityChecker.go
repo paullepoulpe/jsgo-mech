@@ -58,18 +58,11 @@ func (this *EqualityChecker) areEqualCaching(left *JSType, right *JSType) bool {
 		}
 	}
 	if this.eqCache == nil {
-		var ret_1 bool
-		code_1 := func() (code_ int) {
-			defer func() {
-				this.recursionDepth--
-			}()
-			this.recursionDepth++
-			ret_1 = this.areEqualInternal(left, right)
-			return 1
+		defer func() {
+			this.recursionDepth--
 		}()
-		if code_1 == 1 {
-			return ret_1
-		}
+		this.recursionDepth++
+		return this.areEqualInternal(left, right)
 	}
 	var key *EqualityChecker_CacheKey = new_EqualityChecker_CacheKey(left, right)
 	var cached JSType_MatchStatus = this.eqCache.PutIfAbsent(key, JSType_MatchStatus_PROCESSING)

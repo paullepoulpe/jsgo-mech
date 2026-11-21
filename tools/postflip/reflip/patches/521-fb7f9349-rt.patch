@@ -1,0 +1,280 @@
+diff --git a/go/closure/rt_coll.go b/go/closure/rt_coll.go
+index 59773e9e..021f44bb 100644
+--- a/go/closure/rt_coll.go
++++ b/go/closure/rt_coll.go
+@@ -11,6 +11,7 @@ import (
+ 	"reflect"
+ 	"sort"
+ 	"strings"
++	"sync/atomic"
+ 	"unsafe"
+ )
+ 
+@@ -797,11 +798,21 @@ func primHash_(k any) uint32 {
+ 		return hmix_(int32(n))
+ 	}
+ 	if k != nil && reflect.TypeOf(k).Kind() == reflect.Pointer {
+-		return uint32((uint64(uintptr((*eface_)(unsafe.Pointer(&k)).data)) * 0x9E3779B97F4A7C15) >> 32)
++		return ptrHash_((*eface_)(unsafe.Pointer(&k)).data)
+ 	}
+ 	return uint32(maphash.Comparable(hseed_, k))
+ }
+ 
++func ptrHash_(p unsafe.Pointer) uint32 {
++	return uint32((uint64(uintptr(p)) * 0x9E3779B97F4A7C15) >> 32)
++}
++
++// identKey_ is the pointer type that find last met as a key without equals/hashCode of its
++// own: the next key of that type (a loop's lookups of objects of one class) is hashed by its
++// address at once. The answer depends on the type alone, so a stale or lost store only costs
++// asking again.
++var identKey_ unsafe.Pointer
++
+ func hmix_(hc int32) uint32 { return uint32((uint64(uint32(hc)) * 0x9E3779B97F4A7C15) >> 32) }
+ 
+ // customKey_ returns k as a key with its own hashCode/equals, if the table should use them.
+@@ -835,28 +846,38 @@ func (t *htable_) find(k any) int {
+ 		return -1
+ 	}
+ 	x := t.x
+-	if h, ok := t.customKey_(k); ok {
+-		hv := hmix_(h.hashCode())
+-		for j, m := hv&uint32(len(x.slots)-1), uint32(len(x.slots)-1); x.slots[j] != 0; j = (j + 1) & m {
+-			sl := x.slots[j]
+-			if uint32(sl>>32) != hv {
+-				continue
+-			}
+-			i := int32(uint32(sl)) - 1
+-			e := t.keys[i]
+-			if e == k { // identity first, as java.util.HashMap
+-				return int(i)
+-			}
+-			if _, isStr := e.(string); isStr || e == dead_ {
+-				continue
+-			}
+-			if _, c := t.customKey_(e); c && h.equals(e) {
+-				return int(i)
++	var hv uint32
++	if ke := (*eface_)(unsafe.Pointer(&k)); ke.typ != nil && ke.typ == atomic.LoadPointer(&identKey_) {
++		hv = ptrHash_(ke.data) // what primHash_ gives, without asking the type again
++	} else {
++		if h, ok := t.customKey_(k); ok {
++			hv := hmix_(h.hashCode())
++			for j, m := hv&uint32(len(x.slots)-1), uint32(len(x.slots)-1); x.slots[j] != 0; j = (j + 1) & m {
++				sl := x.slots[j]
++				if uint32(sl>>32) != hv {
++					continue
++				}
++				i := int32(uint32(sl)) - 1
++				e := t.keys[i]
++				if e == k { // identity first, as java.util.HashMap
++					return int(i)
++				}
++				if _, isStr := e.(string); isStr || e == dead_ {
++					continue
++				}
++				if _, c := t.customKey_(e); c && h.equals(e) {
++					return int(i)
++				}
+ 			}
++			return -1
++		}
++		hv = primHash_(k)
++		if !t.identity && k != nil && reflect.TypeOf(k).Kind() == reflect.Pointer {
++			// not a key with its own equals/hashCode in a table that would use them: no
++			// value of this type is, in any table
++			atomic.StorePointer(&identKey_, ke.typ)
+ 		}
+-		return -1
+ 	}
+-	hv := primHash_(k)
+ 	for j, m := hv&uint32(len(x.slots)-1), uint32(len(x.slots)-1); x.slots[j] != 0; j = (j + 1) & m {
+ 		if sl := x.slots[j]; uint32(sl>>32) == hv {
+ 			if i := int32(uint32(sl)) - 1; t.keys[i] == k {
+diff --git a/go/closure/rt_generic.go b/go/closure/rt_generic.go
+index 758ad3bd..cc051965 100644
+--- a/go/closure/rt_generic.go
++++ b/go/closure/rt_generic.go
+@@ -59,11 +59,15 @@ func boxT_[T any](v T) any {
+ 		return *p
+ 	}
+ 	x := any(v)
+-	if x == nil || (*eface_)(unsafe.Pointer(&x)).data == nil {
++	e := (*eface_)(unsafe.Pointer(&x))
++	if x == nil || e.data == nil {
+ 		// null: a nil interface, or a nil pointer (whose self() a superclass would promote and
+ 		// dereference); a pointer-shaped value is the interface's data word itself
+ 		return nil
+ 	}
++	if e.typ == atomic.LoadPointer(&boxPlain_) {
++		return x
++	}
+ 	if s, ok := x.(interface{ self() any }); ok {
+ 		return s.self()
+ 	}
+@@ -80,10 +84,20 @@ func boxT_[T any](v T) any {
+ 		if r.IsNil() {
+ 			return nil
+ 		}
++		return x
+ 	}
++	// A type without self() and box_() that is not a slice: every value of it that got here
++	// (not nil) is its own box.
++	atomic.StorePointer(&boxPlain_, e.typ)
+ 	return x
+ }
+ 
++// boxPlain_ is the type that boxT_ last found to be its own box whatever the value (no self(),
++// no box_(), not a slice): a loop that boxes values of one such type asks the two interface
++// questions once. The answer depends on the type alone, so a stale or lost store only costs
++// the questions again.
++var boxPlain_ unsafe.Pointer
++
+ // junboxT_ is an Object as a value of type parameter T, as the erased code's cast of it to T's Java
+ // type: nil is Java null; a most derived object gives its view of the class T points to (to_X); a
+ // value of another type is the ClassCastException of the cast.
+diff --git a/go/closure/rt_iter.go b/go/closure/rt_iter.go
+index dcc3d81a..8460e7bf 100644
+--- a/go/closure/rt_iter.go
++++ b/go/closure/rt_iter.go
+@@ -81,7 +81,18 @@ func (s *TSet[K]) All() iter.Seq[K] { return s.TMap.Keys() }
+ // collections in place, anything else through its iterator().
+ func elems_(c any) iter.Seq[any] {
+ 	return func(yield func(any) bool) {
+-		for e := foreach_(c); e.next(); {
++		e := foreach_(c)
++		if s := e.src; s != nil {
++			// a slice (ArrayList and the like): the cursor's own steps, written out here so that
++			// the loop is over the slice (its length read anew at each step, as each_.next reads it)
++			for i := 0; i < len(*s); i++ {
++				if !yield((*s)[i]) {
++					return
++				}
++			}
++			return
++		}
++		for e.next() {
+ 			if !yield(e.v) {
+ 				return
+ 			}
+diff --git a/go/closure/rt_ptrkey_test.go b/go/closure/rt_ptrkey_test.go
+index bf6ada27..e1dece90 100644
+--- a/go/closure/rt_ptrkey_test.go
++++ b/go/closure/rt_ptrkey_test.go
+@@ -86,3 +86,116 @@ func BenchmarkErasedListContains(b *testing.B) {
+ 		b.Fatal(n)
+ 	}
+ }
++
++type plainObj_ struct{ a int64 }
++
++type selfObj_ struct{ self_ any }
++
++func (o *selfObj_) self() any { return o.self_ }
++
++// find remembers the last pointer type that has no equals/hashCode, and boxT_ the last type
++// that is its own box. Keys and values of other types in between, in tables of both kinds,
++// must get what they got before.
++func TestTypeMemos(t *testing.T) {
++	set := new_LinkedHashSet() // uses equals/hashCode where a key has them
++	ident := identitySet_()    // never does
++	var plains []*plainObj_
++	var keys []*tkey_
++	for i := 0; i < 300; i++ {
++		p, k := &plainObj_{}, &tkey_{n: int32(i)}
++		plains, keys = append(plains, p), append(keys, k)
++		if i%2 == 0 {
++			set.add(p)
++			set.add(k)
++			ident.add(p)
++			ident.add(k)
++		}
++	}
++	for round := 0; round < 3; round++ {
++		for i := range plains {
++			in := i%2 == 0
++			if set.contains(plains[i]) != in || ident.contains(plains[i]) != in {
++				t.Fatalf("plain %d", i)
++			}
++			// an equal key that is another object: found by equals, not by identity
++			eq := &tkey_{n: int32(i)}
++			if set.contains(keys[i]) != in || set.contains(eq) != in {
++				t.Fatalf("key %d in the hashing set", i)
++			}
++			if ident.contains(keys[i]) != in || ident.contains(eq) {
++				t.Fatalf("key %d in the identity set", i)
++			}
++			if round == 1 {
++				// the identity table first: it must not make find take tkey_ for a type
++				// without equals/hashCode
++				if ident.contains(eq) || set.contains(eq) != in {
++					t.Fatalf("key %d after the identity set", i)
++				}
++			}
++		}
++	}
++
++	p := &plainObj_{}
++	real := &plainObj_{}
++	s := &selfObj_{self_: real}
++	var nilp *plainObj_
++	var nils []int32
++	some := []int32{1}
++	for round := 0; round < 3; round++ {
++		if boxT_(p) != any(p) || boxT_(nilp) != nil {
++			t.Fatal("a pointer is its own box, a nil pointer is null")
++		}
++		if boxT_(s) != any(real) {
++			t.Fatal("an object with self() boxes as its most derived object")
++		}
++		if boxT_(nils) != nil || boxT_(some) == nil {
++			t.Fatal("a nil slice is null, another slice is not")
++		}
++		if boxT_(int32(3)) != any(int32(3)) || boxT_("x") != any("x") {
++			t.Fatal("values")
++		}
++		if boxT_[any](p) != any(p) || boxT_[any](nil) != nil {
++			t.Fatal("an Object")
++		}
++	}
++}
++
++// elems_ over a list reads the list's current length at each step, as the cursor does: what
++// the body appends is visited, what it removes is not.
++func TestElemsOfAGrowingList(t *testing.T) {
++	list := new_ArrayList_0()
++	for i := 0; i < 5; i++ {
++		list.add(int32(i))
++	}
++	var got []int32
++	for el := range elems_(list) {
++		v := el.(int32)
++		got = append(got, v)
++		if v == 1 {
++			list.add(int32(10))
++		}
++		if v == 3 {
++			list.remove(list.size() - 1)
++			list.remove(list.size() - 1)
++		}
++	}
++	want := []int32{0, 1, 2, 3}
++	if len(got) != len(want) {
++		t.Fatalf("got %v, want %v", got, want)
++	}
++	for i := range want {
++		if got[i] != want[i] {
++			t.Fatalf("got %v, want %v", got, want)
++		}
++	}
++	n := 0
++	for range elems_(list) {
++		n++
++		if n == 2 {
++			break
++		}
++	}
++	if n != 2 {
++		t.Fatal("break")
++	}
++}

@@ -99,18 +99,11 @@ func (this *SubtypeChecker) isSubtypeCaching(subtype *JSType, supertype *JSType)
 		}
 	}
 	if this.subtypeCache == nil {
-		var ret_1 bool
-		code_1 := func() (code_ int) {
-			defer func() {
-				this.recursionDepth--
-			}()
-			this.recursionDepth++
-			ret_1 = this.isSubtypeDispatching(subtype, supertype)
-			return 1
+		defer func() {
+			this.recursionDepth--
 		}()
-		if code_1 == 1 {
-			return ret_1
-		}
+		this.recursionDepth++
+		return this.isSubtypeDispatching(subtype, supertype)
 	}
 	var key *SubtypeChecker_CacheKey = new_SubtypeChecker_CacheKey(subtype, supertype)
 	var cached JSType_MatchStatus = this.subtypeCache.PutIfAbsent(key, JSType_MatchStatus_PROCESSING)
