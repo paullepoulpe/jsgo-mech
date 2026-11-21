@@ -56,7 +56,7 @@ func (this *ProcessClosureProvidesAndRequires) collectProvidedNames(externs Node
 
 func (this *ProcessClosureProvidesAndRequires) rewriteProvidesAndRequires(externs Node, root Node) {
 	if this.hasRewritingOccurred {
-		panic(new_IllegalStateException_String(objstr_("Cannot call rewriteProvidesAndRequires twice per instance")).self())
+		panic(new_IllegalStateException_String(objstr_("Cannot call rewriteProvidesAndRequires twice per instance")))
 	}
 	this.hasRewritingOccurred = true
 	this.collectProvidedNames(externs, root)
@@ -130,7 +130,7 @@ func (this *ProcessClosureProvidesAndRequires) processLegacyModuleCall(namespace
 
 func (this *ProcessClosureProvidesAndRequires) processProvideCall(t *NodeTraversal, call Node, parent Node) {
 	if !call.isCall() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !this.verifyOnlyArgumentIsString(call) {
 		return
@@ -441,7 +441,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) init_ProcessClosureP
 	this.astFactory_ = astFactory
 	var node Node = builder.node_
 	if !(((node == 0) || NodeUtil_isExprCall(node)) || (!builder.explicit && ((NodeUtil_isExprAssign(node) || NodeUtil_isNameDeclaration(node)) || (node.isExprResult() && node.getFirstChild().isQualifiedName())))) {
-		panic(new_IllegalArgumentException_String(tostr_(node)).self())
+		panic(new_IllegalArgumentException_String(tostr_(node)))
 	}
 	this.namespace_ = builder.namespace_
 	this.firstNode = builder.node_
@@ -461,10 +461,10 @@ func new_ProcessClosureProvidesAndRequires_ProvidedName(builder *ProcessClosureP
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) addProvide(node Node, chunk *JSChunk, explicit bool, chunkGraph *JSChunkGraph) {
 	if explicit {
 		if this.explicitNode != 0 {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		if !node.isExprResult() {
-			panic(new_IllegalArgumentException_String(tostr_(node)).self())
+			panic(new_IllegalArgumentException_String(tostr_(node)))
 		}
 		this.explicitNode = node
 	}
@@ -501,10 +501,10 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) getNamespace() strin
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) addDefinition(node Node, chunk *JSChunk, chunkGraph *JSChunkGraph) {
 	if !((node.isExprResult() || node.isFunction()) || NodeUtil_isNameDeclaration(node)) {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if this.explicitNode == node {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if (this.candidateDefinition == 0) || !node.isExprResult() {
 		this.candidateDefinition = node
@@ -519,14 +519,14 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) updateMinimumChunk(n
 		this.minimumChunk = chunkGraph.getDeepestCommonDependencyInclusive_2(this.minimumChunk, newChunk)
 	} else {
 		if newChunk != this.minimumChunk {
-			panic(new_IllegalStateException_String(objstr_("Missing chunk graph")).self())
+			panic(new_IllegalStateException_String(objstr_("Missing chunk graph")))
 		}
 	}
 }
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) replace(preserveGoogProvidesAndRequires bool, providedNames *JTMap[string, *ProcessClosureProvidesAndRequires_ProvidedName]) {
 	if this.isFromLegacyModule() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot rewrite provides without having rewritten goog.modules, found %s", []any{this.firstNode.box_()})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot rewrite provides without having rewritten goog.modules, found %s", []any{this.firstNode.box_()})))
 	}
 	if this.firstNode == 0 {
 		this.replacementNode = this.candidateDefinition
@@ -561,10 +561,10 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) replace(preserveGoog
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) convertProvideAssignmentToVarDeclaration(assignNode Node, nameNode Node) {
 	if !assignNode.isAssign() {
-		panic(new_IllegalArgumentException_String(tostr_(assignNode)).self())
+		panic(new_IllegalArgumentException_String(tostr_(assignNode)))
 	}
 	if !nameNode.isName() {
-		panic(new_IllegalArgumentException_String(tostr_(nameNode)).self())
+		panic(new_IllegalArgumentException_String(tostr_(nameNode)))
 	}
 	var valueNode Node = nameNode.getNext()
 	nameNode.detach()
@@ -588,10 +588,10 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) createNamespaceIniti
 		} else {
 			var parentName *ProcessClosureProvidesAndRequires_ProvidedName = providedNames.get(String_substring(this.namespace_, 0, indexOfDot))
 			if parentName == nil {
-				panic(new_NullPointerException_0().self())
+				panic(new_NullPointerException_0())
 			}
 			if parentName.replacementNode == 0 {
-				panic(new_NullPointerException_0().self())
+				panic(new_NullPointerException_0())
 			}
 			this.replacementNode.insertAfter(parentName.replacementNode)
 		}
@@ -601,7 +601,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) createNamespaceIniti
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) createDeclarationNode(value Node) Node {
 	if !value.isObjectLit() && !value.isCast() {
-		panic(new_IllegalArgumentException_String(tostr_(value)).self())
+		panic(new_IllegalArgumentException_String(tostr_(value)))
 	}
 	if !strings.Contains(this.namespace_, ".") {
 		return this.makeVarDeclNode(value)
@@ -622,7 +622,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) makeVarDeclNode(valu
 		decl.setJSDocInfo(NodeUtil_createConstantJsDoc())
 	}
 	if !ProcessClosureProvidesAndRequires_isNamespacePlaceholder(decl) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.setSourceInfo(decl)
 	return decl
@@ -636,7 +636,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) makeAssignmentExprNo
 		decl.getFirstChild().setJSDocInfo(NodeUtil_createConstantJsDoc())
 	}
 	if !ProcessClosureProvidesAndRequires_isNamespacePlaceholder(decl) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.setSourceInfo(decl)
 	lhs.getFirstChild().makeNonIndexableRecursive()

@@ -66,7 +66,7 @@ func new_AnalyzePrototypeProperties(compiler *AbstractCompiler, chunkGraph *JSCh
 
 func (this *AnalyzePrototypeProperties) process_2(externRoot Node, root Node) {
 	if !this.compiler_.getLifeCycleStage().isNormalized() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !this.canModifyExterns {
 		NodeTraversal_traverse(this.compiler_, externRoot, NodeTraversal_Callback(new_AnalyzePrototypeProperties_ProcessExternProperties(this)))
@@ -165,7 +165,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) enterScope(t *NodeTrav
 		this.symbolStack.push(new_AnalyzePrototypeProperties_NameContext(this.outer_.globalNode, scope))
 	} else {
 		if !(((NodeUtil_createsBlockScope(root) || root.isModuleBody()) || root.isComputedFieldDef()) || root.isMemberFieldDef()) {
-			panic(new_IllegalStateException_String(objstr_(scope)).self())
+			panic(new_IllegalStateException_String(objstr_(scope)))
 		}
 		this.symbolStack.push(new_AnalyzePrototypeProperties_NameContext(this.outer_.anonymousNode, scope))
 	}
@@ -235,7 +235,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 						this.addSymbolUse(propNode.getString(), t.getChunk(), AnalyzePrototypeProperties_PROPERTY)
 					}
 				default:
-					panic(new_IllegalStateException_String(("Unexpected child of " + jtostr_(n.getToken()) + ": " + sstr_(propNode.toStringTree()))).self())
+					panic(new_IllegalStateException_String(("Unexpected child of " + jtostr_(n.getToken()) + ": " + sstr_(propNode.toStringTree()))))
 				}
 			}
 		}
@@ -383,7 +383,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) handlePossibleAssignme
 
 func (this *AnalyzePrototypeProperties_ProcessProperties) processMemberDef(t *NodeTraversal, n Node) {
 	if !((n.isMemberFunctionDef() || n.isGetterDef()) || n.isSetterDef()) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var name string = n.getString()
 	if NodeUtil_isEs6ConstructorMemberFunctionDef(n) || n.isStaticMember() {
@@ -555,7 +555,7 @@ type AnalyzePrototypeProperties_GlobalFunction struct {
 func (this *AnalyzePrototypeProperties_GlobalFunction) init_AnalyzePrototypeProperties_GlobalFunction(nameNode Node, var_ *Var, chunk *JSChunk) {
 	var parent Node = nameNode.getParent()
 	if !((NodeUtil_isNameDeclaration(parent) && var_.isGlobal()) || NodeUtil_isFunctionDeclaration(parent)) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.var_ = var_
 	this.chunk_ = chunk
@@ -587,10 +587,10 @@ type AnalyzePrototypeProperties_ClassMemberFunction struct {
 
 func (this *AnalyzePrototypeProperties_ClassMemberFunction) init_AnalyzePrototypeProperties_ClassMemberFunction(node Node, var_ *Var, chunk *JSChunk) {
 	if !node.getParent().isClassMembers() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !((node.isMemberFunctionDef() || node.isSetterDef()) || node.isGetterDef()) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.node_ = node
 	this.var_ = var_

@@ -18,7 +18,7 @@ func new_CharRanges(ranges []int32) *CharRanges {
 
 func CharRanges_inclusive(start int32, end int32) *CharRanges {
 	if start > end {
-		panic(new_IndexOutOfBoundsException_String((istr_(int64(start)) + " > " + istr_(int64(end)))).self())
+		panic(new_IndexOutOfBoundsException_String((istr_(int64(start)) + " > " + istr_(int64(end)))))
 	}
 	return new_CharRanges([]int32{start, (end + 1)})
 }
@@ -29,11 +29,11 @@ func CharRanges_withMembers(members []int32) *CharRanges {
 
 func CharRanges_withRanges(ranges []int32) *CharRanges {
 	if (int32(len(ranges)) & 1) != 0 {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	for i := int32(1); i < int32(len(ranges)); i++ {
 		if ranges[i] <= ranges[(i-1)] {
-			panic(new_IllegalArgumentException_String((istr_(int64(ranges[i])) + " > " + istr_(int64(ranges[(i-1)])))).self())
+			panic(new_IllegalArgumentException_String((istr_(int64(ranges[i])) + " > " + istr_(int64(ranges[(i-1)])))))
 		}
 	}
 	return new_CharRanges(ranges)
@@ -299,12 +299,12 @@ func (this *CharRanges) shift(delta int32) *CharRanges {
 	if delta < 0 {
 		var lmin int64 = int64((this.ranges_[0] + delta))
 		if lmin < int64(int32(-2147483648)) {
-			panic(new_IndexOutOfBoundsException_0().self())
+			panic(new_IndexOutOfBoundsException_0())
 		}
 	} else {
 		var lmax int64 = int64((this.ranges_[(n-1)] + delta))
 		if lmax > int64(int32(2147483647)) {
-			panic(new_IndexOutOfBoundsException_0().self())
+			panic(new_IndexOutOfBoundsException_0())
 		}
 	}
 	var shiftedRanges []int32 = make([]int32, n)

@@ -146,7 +146,7 @@ func (this *InlineProperties_GatherCandidates) visit_impl(t *NodeTraversal, n No
 
 func (this *InlineProperties_GatherCandidates) maybeRecordCandidateClassFieldDefinition(n Node) bool {
 	if !n.isMemberFieldDef() {
-		panic(new_IllegalStateException_String(tostr_(n)).self())
+		panic(new_IllegalStateException_String(tostr_(n)))
 	}
 	var value Node = n.getFirstChild()
 	var propName string = n.getString()
@@ -168,7 +168,7 @@ func (this *InlineProperties_GatherCandidates) maybeRecordCandidateClassFieldDef
 
 func (this *InlineProperties_GatherCandidates) maybeRecordCandidateGetpropDefinition(t *NodeTraversal, n Node, parent Node) bool {
 	if !n.isGetProp() || !parent.isAssign() {
-		panic(new_IllegalStateException_String(tostr_(n)).self())
+		panic(new_IllegalStateException_String(tostr_(n)))
 	}
 	var src Node = n.getFirstChild()
 	var propName string = n.getString()
@@ -196,7 +196,7 @@ func (this *InlineProperties_GatherCandidates) invalidateProperty(propName strin
 
 func (this *InlineProperties_GatherCandidates) maybeStoreCandidateValue(color *Color, propName string, value Node) bool {
 	if value == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if ((!this.outer_.props.containsKey(propName) && !color.isInvalidating()) && NodeUtil_isImmutableValue(value)) && NodeUtil_isExecutedExactlyOnce(value) {
 		this.outer_.props.put(propName, new_InlineProperties_PropertyInfo(color, value))

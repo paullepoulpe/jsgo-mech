@@ -252,7 +252,7 @@ func (this *PropertyMap) incrementCachedKeySetCounter() {
 	this.cachedKeySetCounter++
 	this.cachedKeySet = nil
 	if this.cachedKeySetCounter < 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 }
 

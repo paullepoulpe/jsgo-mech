@@ -78,7 +78,7 @@ func (this *SimpleSetMultimap[K, V]) inverse() *SimpleSetMultimap[V, K] {
 
 func (this *SimpleSetMultimap[K, V]) put(key K, value V) bool {
 	if this.frozen {
-		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
 	var values SetOf[V] = icast_Set(this.map__.get(boxT_(key)))
 	if values == nil {
@@ -141,7 +141,7 @@ func (this *SimpleSetMultimap[K, V]) containsEntry(key K, value V) bool {
 
 func (this *SimpleSetMultimap[K, V]) removeAll(key K) SetOf[V] {
 	if this.frozen {
-		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
 	var values SetOf[V] = icast_Set(this.map__.remove(boxT_(key)))
 	if values == nil {
@@ -158,7 +158,7 @@ func (this *SimpleSetMultimap[K, V]) removeAll(key K) SetOf[V] {
 
 func (this *SimpleSetMultimap[K, V]) clear() {
 	if this.frozen {
-		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
 	this.map__.clear()
 	if this.entryOrder != nil {
@@ -285,7 +285,7 @@ func (this *SimpleSetMultimap_1InsertionOrderedValuesIterator[K, V]) next() any 
 
 func (this *SimpleSetMultimap_1InsertionOrderedValuesIterator[K, V]) remove() {
 	if this.outer_.frozen {
-		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
 	Iterator_remove(this.entries)
 	var values SetOf[V] = icast_Set(this.outer_.map__.get(this.last.key()))

@@ -19,10 +19,10 @@ func (this *ReportUntranspilableFeatures) up_AbstractPeepholeTranspilation() *Ab
 func (this *ReportUntranspilableFeatures) init_ReportUntranspilableFeatures(compiler *AbstractCompiler, browserFeatureSetYear CompilerOptions_BrowserFeaturesetYear, outputFeatures *FeatureSet) {
 	this.AbstractPeepholeTranspilation.init_AbstractPeepholeTranspilation()
 	if compiler == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if outputFeatures == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.compiler_ = compiler
 	this.browserFeatureSetYear = browserFeatureSetYear
@@ -134,7 +134,7 @@ func (this *ReportUntranspilableFeatures) reportUntranspilable(feature FeatureSe
 
 func (this *ReportUntranspilableFeatures) checkForRegExpSFlag(regexpNode Node) {
 	if !regexpNode.isRegExp() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var flags string = func() string {
 		if regexpNode.hasTwoChildren() {
@@ -149,7 +149,7 @@ func (this *ReportUntranspilableFeatures) checkForRegExpSFlag(regexpNode Node) {
 
 func (this *ReportUntranspilableFeatures) checkForLookbehind(regexpNode Node, tree *RegExpTree) {
 	if regexpNode == 0 {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, Predicate[*RegExpTree](func(t *RegExpTree) bool {
 		_, ok := t.self().(*RegExpTree_LookbehindAssertion)
@@ -161,7 +161,7 @@ func (this *ReportUntranspilableFeatures) checkForLookbehind(regexpNode Node, tr
 
 func (this *ReportUntranspilableFeatures) checkForNamedGroups(regexpNode Node, tree *RegExpTree) {
 	if regexpNode == 0 {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, Predicate[*RegExpTree](func(t *RegExpTree) bool {
 		_, ok := t.self().(*RegExpTree_NamedCaptureGroup)
@@ -173,7 +173,7 @@ func (this *ReportUntranspilableFeatures) checkForNamedGroups(regexpNode Node, t
 
 func (this *ReportUntranspilableFeatures) checkForUnicodePropertyEscape(regexpNode Node, tree *RegExpTree) {
 	if regexpNode == 0 {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, Predicate[*RegExpTree](func(t *RegExpTree) bool {
 		_, ok := t.self().(*RegExpTree_UnicodePropertyEscape)
@@ -185,7 +185,7 @@ func (this *ReportUntranspilableFeatures) checkForUnicodePropertyEscape(regexpNo
 
 func (this *ReportUntranspilableFeatures) checkForRegExpDFlag(regexpNode Node) {
 	if !regexpNode.isRegExp() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var flags string = func() string {
 		if regexpNode.hasTwoChildren() {
@@ -200,11 +200,11 @@ func (this *ReportUntranspilableFeatures) checkForRegExpDFlag(regexpNode Node) {
 
 func (this *ReportUntranspilableFeatures) checkForTopLevelAwait(awaitNode Node) {
 	if !awaitNode.isAwait() && !awaitNode.isForAwaitOf() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if NodeUtil_getEnclosingFunction(awaitNode) == 0 {
 		if !NodeUtil_getEnclosingScript(awaitNode).getBooleanProp(Node_ES6_MODULE) {
-			panic(new_IllegalArgumentException_String(objstr_("Top-level await is only allowed in ES module sources")).self())
+			panic(new_IllegalArgumentException_String(objstr_("Top-level await is only allowed in ES module sources")))
 		}
 		this.reportUntranspilable(FeatureSet_Feature_TOP_LEVEL_AWAIT, awaitNode)
 	}

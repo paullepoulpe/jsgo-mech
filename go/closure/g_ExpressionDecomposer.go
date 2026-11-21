@@ -30,17 +30,17 @@ func (this *ExpressionDecomposer) finit_ExpressionDecomposer() {
 func (this *ExpressionDecomposer) init_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier Supplier[string], constFunctionNames *JTSet[string], scope *Scope, enabledWorkarounds EnumSetOf[ExpressionDecomposer_Workaround]) {
 	this.finit_ExpressionDecomposer()
 	if compiler == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	func() Supplier[string] {
 		f_ := safeNameIdSupplier
 		if f_ == nil {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		return f_
 	}()
 	if constFunctionNames.asSet() == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.compiler_ = compiler
 	this.astAnalyzer = compiler.getAstAnalyzer()
@@ -68,11 +68,11 @@ func (this *ExpressionDecomposer) maybeExposeExpression(expression Node) {
 	var i int32 = 0
 	for ExpressionDecomposer_DecompositionType_DECOMPOSABLE == this.canExposeExpression(expression) {
 		if !this.exposeExpression(expression) {
-			panic(new_IllegalStateException_String(("exposeExpression exposed nothing for:\n" + sstr_(expression.toStringTree()))).self())
+			panic(new_IllegalStateException_String(("exposeExpression exposed nothing for:\n" + sstr_(expression.toStringTree()))))
 		}
 		i++
 		if i > ExpressionDecomposer_MAX_ITERATIONS {
-			panic(new_IllegalStateException_String(("exposeExpression depth exceeded on:\n" + sstr_(expression.toStringTree()))).self())
+			panic(new_IllegalStateException_String(("exposeExpression depth exceeded on:\n" + sstr_(expression.toStringTree()))))
 		}
 	}
 }
@@ -81,10 +81,10 @@ func (this *ExpressionDecomposer) exposeExpression(expression Node) bool {
 	this.rewriteAllContainingOptionalChains(expression)
 	var expressionRoot Node = ExpressionDecomposer_findExpressionRoot(expression)
 	if expressionRoot == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if !NodeUtil_isStatement(expressionRoot) {
-		panic(new_IllegalStateException_String(tostr_(expressionRoot)).self())
+		panic(new_IllegalStateException_String(tostr_(expressionRoot)))
 	}
 	return this.exposeExpression_2(expressionRoot, expression)
 }
@@ -102,7 +102,7 @@ func (this *ExpressionDecomposer) exposeExpression_2(expressionRoot Node, subExp
 	var expressionParent Node = expressionToExpose.getParent()
 	for expressionParent != expressionRoot {
 		if ExpressionDecomposer_isConditionalOp(expressionParent) && !expressionToExpose.isFirstChildOf(expressionParent) {
-			panic(new_IllegalStateException_String(tostr_(expressionParent)).self())
+			panic(new_IllegalStateException_String(tostr_(expressionParent)))
 		}
 		if expressionParent.isAssign() {
 			if this.isSafeAssign(expressionParent, state.sideEffects) {
@@ -113,7 +113,7 @@ func (this *ExpressionDecomposer) exposeExpression_2(expressionRoot Node, subExp
 				case tokOrd1_GETELEM, tokOrd1_GETPROP:
 					exposedSomething = (this.decomposeSubExpressions(left.getFirstChild(), 0, state) || exposedSomething)
 				default:
-					panic(new_IllegalStateException_String(("Expected a property access or destructuring pattern: " + sstr_(left.toStringTree()))).self())
+					panic(new_IllegalStateException_String(("Expected a property access or destructuring pattern: " + sstr_(left.toStringTree()))))
 				}
 			}
 		} else if expressionParent.isCall() && NodeUtil_isNormalGet(expressionParent.getFirstChild()) {
@@ -170,14 +170,14 @@ func (this *ExpressionDecomposer) moveExpression(expression Node) {
 	var resultName string = this.getResultValueName()
 	var injectionPoint Node = ExpressionDecomposer_findInjectionPoint(expression)
 	if injectionPoint == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var injectionPointParent Node = injectionPoint.getParent()
 	if injectionPointParent == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if !NodeUtil_isStatementBlock(injectionPointParent) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	expression.replaceWith(IR_name(resultName).copyTypeFrom(expression))
 	var newExpressionRoot Node = NodeUtil_newVarNode(resultName, expression)
@@ -267,7 +267,7 @@ func (this *ExpressionDecomposer) extractConditional(expr Node, injectionPoint N
 		trueExpr.addChildToFront(this.astFactory_.exprResult(ExpressionDecomposer_buildResultExpression(this.astFactory_.createName(tempNameAssign, AstFactory_type_Node(first)).srcref(expr), needResult, tempName)))
 		falseExpr.addChildToFront(this.astFactory_.exprResult(ExpressionDecomposer_buildResultExpression(last, needResult, tempName)))
 	default:
-		panic(new_IllegalStateException_String(("Unexpected expression: " + tostrH_(expr))).self())
+		panic(new_IllegalStateException_String(("Unexpected expression: " + tostrH_(expr))))
 	}
 	var ifNode Node
 	if falseExpr.hasChildren() {
@@ -284,7 +284,7 @@ func (this *ExpressionDecomposer) extractConditional(expr Node, injectionPoint N
 		expr.replaceWith(replacementValueNode)
 	} else {
 		if !parent.isExprResult() {
-			panic(new_IllegalArgumentException_0().self())
+			panic(new_IllegalArgumentException_0())
 		}
 		parent.replaceWith(ifNode)
 	}
@@ -305,7 +305,7 @@ func (this *ExpressionDecomposer) isConstantNameNode(n Node) bool {
 
 func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint Node) Node {
 	if NodeUtil_isLogicalAssignmentOp(expr) {
-		panic(new_IllegalStateException_String(tostr_(expr)).self())
+		panic(new_IllegalStateException_String(tostr_(expr)))
 	}
 	var parent Node = expr.getParent()
 	var isLhsOfAssignOp bool = ((NodeUtil_isAssignmentOp(parent) && !parent.isAssign()) && expr.isFirstChildOf(parent))
@@ -330,7 +330,7 @@ func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint No
 	var tempNameValue Node
 	if isLhsOfAssignOp {
 		if !expr.isName() && !NodeUtil_isNormalGet(expr) {
-			panic(new_IllegalStateException_String(tostr_(expr)).self())
+			panic(new_IllegalStateException_String(tostr_(expr)))
 		}
 		var opNode Node = new_Node_Token(NodeUtil_getOpFromAssignmentOp(parent)).copyTypeFrom(parent).srcrefIfMissing(parent)
 		var rightOperand Node = parent.getLastChild()
@@ -350,7 +350,7 @@ func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint No
 			case tokOrd1_OBJECTLIT:
 				return this.astFactory_.createObjectLit([]Node{expr}).srcref(expr.getOnlyChild())
 			default:
-				panic(new_IllegalStateException_String(("Unexpected parent of SPREAD:" + sstr_(parent.toStringTree()))).self())
+				panic(new_IllegalStateException_String(("Unexpected parent of SPREAD:" + sstr_(parent.toStringTree()))))
 			}
 		}()
 	} else {
@@ -367,18 +367,18 @@ func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint No
 		firstExtractedNode = tempVarNode
 	}
 	if !firstExtractedNode.isVar() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return firstExtractedNode
 }
 
 func (this *ExpressionDecomposer) rewriteCallExpression(call Node, state *ExpressionDecomposer_DecompositionState) {
 	if !call.isCall() {
-		panic(new_IllegalArgumentException_String(tostr_(call)).self())
+		panic(new_IllegalArgumentException_String(tostr_(call)))
 	}
 	var first Node = call.getFirstChild()
 	if !NodeUtil_isNormalGet(first) {
-		panic(new_IllegalArgumentException_String(tostr_(first)).self())
+		panic(new_IllegalArgumentException_String(tostr_(first)))
 	}
 	var fnCallType *JSType = nil
 	if this.astFactory_.isAddingTypes() {
@@ -399,7 +399,7 @@ func (this *ExpressionDecomposer) rewriteCallExpression(call Node, state *Expres
 	}
 	var getExprNode Node = getVarNode.getFirstFirstChild()
 	if !NodeUtil_isNormalGet(getExprNode) {
-		panic(new_IllegalArgumentException_String(tostr_(getExprNode)).self())
+		panic(new_IllegalArgumentException_String(tostr_(getExprNode)))
 	}
 	var origThisValue Node = getExprNode.getFirstChild()
 	var receiverNode Node
@@ -445,7 +445,7 @@ func (this *ExpressionDecomposer) isTempConstantValueName(name Node) bool {
 func ExpressionDecomposer_findInjectionPoint(subExpression Node) Node {
 	var expressionRoot Node = ExpressionDecomposer_findExpressionRoot(subExpression)
 	if expressionRoot == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var injectionPoint Node = expressionRoot
 	var parent Node = injectionPoint.getParent()
@@ -454,7 +454,7 @@ func ExpressionDecomposer_findInjectionPoint(subExpression Node) Node {
 		parent = injectionPoint.getParent()
 	}
 	if !NodeUtil_isStatementBlock(parent) {
-		panic(new_IllegalStateException_String(tostr_(parent)).self())
+		panic(new_IllegalStateException_String(tostr_(parent)))
 	}
 	return injectionPoint
 }
@@ -479,7 +479,7 @@ func ExpressionDecomposer_findExpressionRoot(subExpression Node) Node {
 		switch current.ns_().token {
 		case tokOrd1_EXPR_RESULT, tokOrd1_IF, tokOrd1_SWITCH, tokOrd1_RETURN, tokOrd1_THROW:
 			if !child.isFirstChildOf(current) {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			return current
 		case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
@@ -498,7 +498,7 @@ func ExpressionDecomposer_findExpressionRoot(subExpression Node) Node {
 		}
 		child = current
 	}
-	panic(new_IllegalStateException_String("Unexpected AST structure.").self())
+	panic(new_IllegalStateException_String("Unexpected AST structure."))
 }
 
 func (this *ExpressionDecomposer) canExposeExpression(subExpression Node) ExpressionDecomposer_DecompositionType {
@@ -561,7 +561,7 @@ func (this *ExpressionDecomposer) isSubexpressionMovable(expressionRoot Node, su
 		}
 		child = parent
 	}
-	panic(new_IllegalStateException_String("Unexpected.").self())
+	panic(new_IllegalStateException_String("Unexpected."))
 }
 
 func ExpressionDecomposer_getEvaluationDirection(node Node) ExpressionDecomposer_EvaluationDirection {

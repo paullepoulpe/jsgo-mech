@@ -18,21 +18,21 @@ func (this *PassFactory) init_PassFactory(getName string, getCondition Function[
 	func() Function[*CompilerOptions, any] {
 		f_ := getCondition
 		if f_.box_() == nil {
-			panic(new_NullPointerException_String("getCondition").self())
+			panic(new_NullPointerException_String("getCondition"))
 		}
 		return f_
 	}()
 	func() Function[*CompilerOptions, *PassFactory_PreconditionResult] {
 		f_ := getPreconditionCheck
 		if f_.box_() == nil {
-			panic(new_NullPointerException_String("getPreconditionCheck").self())
+			panic(new_NullPointerException_String("getPreconditionCheck"))
 		}
 		return f_
 	}()
 	func() Function[*AbstractCompiler, CompilerPass] {
 		f_ := getInternalFactory
 		if f_.box_() == nil {
-			panic(new_NullPointerException_String("getInternalFactory").self())
+			panic(new_NullPointerException_String("getInternalFactory"))
 		}
 		return f_
 	}()
@@ -69,7 +69,7 @@ func PassFactory_builder() *PassFactory_Builder {
 func (this *PassFactory) validatePreconditions(options *CompilerOptions) {
 	var canRun *PassFactory_PreconditionResult = this.getPreconditionCheck().apply(options)
 	if !canRun.success_ {
-		panic(new_IllegalArgumentException_String(("Precondition for pass " + sstr_(this.getName()) + " failed: " + sstr_(canRun.message().orElse("null")))).self())
+		panic(new_IllegalArgumentException_String(("Precondition for pass " + sstr_(this.getName()) + " failed: " + sstr_(canRun.message().orElse("null")))))
 	}
 }
 
@@ -233,7 +233,7 @@ func (this *PassFactory_Builder) setRunInFixedPointLoop(b bool) *PassFactory_Bui
 
 func (this *PassFactory_Builder) setCondition(cond Function[*CompilerOptions, any]) *PassFactory_Builder {
 	if cond == nil {
-		panic(new_NullPointerException_String("Null condition").self())
+		panic(new_NullPointerException_String("Null condition"))
 	}
 	this.condition = cond
 	return this
@@ -241,7 +241,7 @@ func (this *PassFactory_Builder) setCondition(cond Function[*CompilerOptions, an
 
 func (this *PassFactory_Builder) setPreconditionCheck(assertion Function[*CompilerOptions, *PassFactory_PreconditionResult]) *PassFactory_Builder {
 	if assertion == nil {
-		panic(new_NullPointerException_String("Null preconditionCheck").self())
+		panic(new_NullPointerException_String("Null preconditionCheck"))
 	}
 	this.preconditionCheck = assertion
 	return this
@@ -249,7 +249,7 @@ func (this *PassFactory_Builder) setPreconditionCheck(assertion Function[*Compil
 
 func (this *PassFactory_Builder) setInternalFactory(x Function[*AbstractCompiler, CompilerPass]) *PassFactory_Builder {
 	if x == nil {
-		panic(new_NullPointerException_String("Null internalFactory").self())
+		panic(new_NullPointerException_String("Null internalFactory"))
 	}
 	this.internalFactory = x
 	return this
@@ -273,7 +273,7 @@ func (this *PassFactory_Builder) autoBuild() *PassFactory {
 		if this.internalFactory == nil {
 			missing.append(" internalFactory")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())))
 	}
 	return new_PassFactory(this.name_.get(), this.condition, this.preconditionCheck, this.runInFixedPointLoop, this.internalFactory)
 }
@@ -281,7 +281,7 @@ func (this *PassFactory_Builder) autoBuild() *PassFactory {
 func (this *PassFactory_Builder) build() *PassFactory {
 	var result *PassFactory = this.autoBuild()
 	if result.getName() == "" {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return result
 }

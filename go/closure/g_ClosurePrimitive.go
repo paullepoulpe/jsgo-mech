@@ -46,7 +46,7 @@ func ClosurePrimitive_fromStringId(id Optional[string]) ClosurePrimitive {
 	}
 	var primitive ClosurePrimitive = ClosurePrimitive_ID_TO_ENUM.get(id.get())
 	if primitive == 0 {
-		panic(new_IllegalArgumentException_String(("String id " + sstr_(id.get()) + " does not match any ClosurePrimitive")).self())
+		panic(new_IllegalArgumentException_String(("String id " + sstr_(id.get()) + " does not match any ClosurePrimitive")))
 	}
 	return primitive
 }

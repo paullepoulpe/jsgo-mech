@@ -174,7 +174,7 @@ func (this *IsolatePolyfills) cleanUpJscompLookupPolyfilledValue() {
 	var syntheticExternsScope *Scope = new_SyntacticScopeCreator_AbstractCompiler(this.compiler_).createScope(syntheticExternsRoot, nil)
 	var externVar *Var = syntheticExternsScope.getVar_String_rVar(this.jscompLookupMethod.getString())
 	if externVar == nil {
-		panic(new_NullPointerException_String("Failed to find synthetic $jscomp$lookupPolyfilledValue extern").self())
+		panic(new_NullPointerException_String("Failed to find synthetic $jscomp$lookupPolyfilledValue extern"))
 	}
 	NodeUtil_deleteNode(externVar.getParentNode(), this.compiler_)
 	if this.usedPolyfillMethodLookup {

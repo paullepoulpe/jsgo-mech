@@ -13,7 +13,7 @@ type AstAnalyzer struct {
 
 func (this *AstAnalyzer) init_AstAnalyzer(options *AstAnalyzer_Options, typeRegistry *JSTypeRegistry, accessorSummary *AccessorSummary) {
 	if !options.assumeGettersArePure_ && accessorSummary == nil {
-		panic(new_IllegalArgumentException_String(objstr_("accessorSummary must be provided if assumeGettersArePure is false")).self())
+		panic(new_IllegalArgumentException_String(objstr_("accessorSummary must be provided if assumeGettersArePure is false")))
 	}
 	this.typeRegistry = typeRegistry
 	this.accessorSummary = accessorSummary
@@ -39,7 +39,7 @@ func (this *AstAnalyzer) mayHaveSideEffects(n Node) bool {
 
 func (this *AstAnalyzer) functionCallHasSideEffects(callNode Node) bool {
 	if !((callNode.isCall() || callNode.isTaggedTemplateLit()) || callNode.isOptChainCall()) {
-		panic(new_IllegalStateException_String(tostr_(callNode)).self())
+		panic(new_IllegalStateException_String(tostr_(callNode)))
 	}
 	if callNode.isNoSideEffectsCall() {
 		return false
@@ -149,7 +149,7 @@ func (this *AstAnalyzer) checkForStateChangeHelper(n Node, checkForNewObjects bo
 				case tokOrd1_OBJECTLIT:
 					return this.checkForChangeStateInChildren(n, checkForNewObjects)
 				default:
-					panic(new_IllegalStateException_String(("Illegal COMPUTED_PROP parent " + tostrH_(parent))).self())
+					panic(new_IllegalStateException_String(("Illegal COMPUTED_PROP parent " + tostrH_(parent))))
 				}
 			}()
 		case Token_rhino_MEMBER_FIELD_DEF:
@@ -225,7 +225,7 @@ func (this *AstAnalyzer) checkAssignmentForChangeState(assignOp Node, checkForNe
 
 func (this *AstAnalyzer) constructorCallHasSideEffects(newNode Node) bool {
 	if ok_, a1_ := newNode.isNew(), newNode.getToken(); !ok_ {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected NEW node, got %s", []any{a1_})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected NEW node, got %s", []any{a1_})))
 	}
 	if newNode.isNoSideEffectsCall() {
 		return false
@@ -418,7 +418,7 @@ func (this *AstAnalyzer_Options_Builder) build() *AstAnalyzer_Options {
 		if (int32(this.set0) & 8) == 0 {
 			missing.append(" assumeKnownBuiltinsArePure")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())))
 	}
 	return new_AstAnalyzer_Options(this.useTypesForLocalOptimization_, this.assumeGettersArePure_, this.hasRegexpGlobalReferences_, this.assumeKnownBuiltinsArePure_)
 }

@@ -45,7 +45,7 @@ func (this *SimpleSourceFile) getLineOfOffset(offset int32) int32 {
 
 func (this *SimpleSourceFile) getLineOffset(line int32) int32 {
 	if line < 1 {
-		panic(new_IllegalStateException_String(("Should not call getLineOffset with line number " + istr_(int64(line)))).self())
+		panic(new_IllegalStateException_String(("Should not call getLineOffset with line number " + istr_(int64(line)))))
 	}
 	return int32(-2147483648)
 }
