@@ -23,7 +23,12 @@ type LogFile_I interface {
 func (this *LogFile) as_LogFile() *LogFile { return this }
 
 func to_LogFile(v any) *LogFile {
-	if v == nil {
+	switch p := v.(type) {
+	case *NoOpLogFile:
+		return p.as_LogFile()
+	case *WritingLogFile:
+		return p.as_LogFile()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_LogFile() *LogFile }).as_LogFile()
