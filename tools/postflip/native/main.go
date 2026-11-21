@@ -51,13 +51,47 @@
 // (rw.ReadOnlySink: equals, toString, a Preconditions message...) gets a view for it. The
 // stack and queue methods of a deque's typed list (colls -kind deque) are slice helpers.
 //
+// A nil []T reads as an empty list (len 0, a range of no step), where Java's null list throws
+// NullPointerException: a class whose lists may be null (nil enters a slot, a variable starts
+// as its zero value, or a slot is a field or package variable) is never a plain slice; it
+// becomes pointers to slices, whose nil pointer throws on every operation as the typed list.
+//
+// Shared lists: a class whose only obstacles are that a list may be held by two places while
+// one of them changes it (the flows above), that it is changed through an expression that is
+// not a variable, compared by identity, walked by a cursor or a kept Iterator, or held by
+// value in a field, becomes pointers to slices (*[]T): one slice header per list, held by
+// every place that held the typed list, so sharing, identity and null (a nil pointer) are the
+// typed list's. new ArrayList is &[]T{}, a copy sliceRef_(sliceFrom_(...)), an ImmutableList
+// slicePtrImm_ (only where no slot it may reach is changed, as the immutable list would
+// throw, and the class compares no lists: each conversion is a new pointer); operations go
+// through *p, helpers take p. A for-each or All() loop over such a list is a range loop over
+// *p when nothing its body can run changes a list of the class (fieldLoops' call graph,
+// with the class's changing calls as its interest), else ranges over sliceAll_(p), which
+// reads the slice anew at every step as the typed list's cursor did. An iterator (asList().
+// iterator() or the cursor() of tools/postflip/iters, with hasNext, next/nextT and remove)
+// becomes an int index read against *p at every use (sliceCursor_ throws for a null list as
+// cursor() did; a list expression that may name another list later is copied to a local at
+// the declaration); one kept or passed on is slicePtrIter_, which reads *p anew too. A field
+// declared TList[T] (a manual step's in-node edge list, used only as &x.f) holds the slice.
+// A view passed to a function of the package whose parameter is only read during the call
+// (readParams: reading methods, iteration in place, runtime readers, nil tests, or such a
+// parameter of another function; never kept, compared, assigned or captured), or to a runtime
+// function that changes the list through it without keeping it (changers), is a live view of
+// the pointer (slicePtrView_, reading the slice at every operation as the typed list's view);
+// such a class becomes pointers to slices.
+//
 // -kind map, -kind set: *TMap[K, V] to map[K]V and *TSet[K] to map[K]struct{}, when keys
 // compare in Go as in Java (rw.KeyMode; a typed map whose keys compare by hashCode/equals
 // stays one). A Go map is a reference, like the typed
 // map, so no flow analysis is needed; but its order is not the insertion order, so a class
 // converts only when nothing iterates it, nothing sees it as an erased Map or Set (except
-// Map.computeIfAbsent through the view, and Set.addAll, which do not depend on order), and
-// an immutable map is never changed (it would throw).
+// Map.computeIfAbsent and getOrDefault through the view, and Set.addAll, which do not depend
+// on order), and no slot an immutable map may reach is changed (it would throw). Keys of a
+// class whose equals compares a few fields fixed at construction (valueKeys: Var by name and
+// scope root, ExportTrace by module identity and name) key the Go map by those fields
+// (vkey_, etkey_), when only lookups, puts and removals use the key. A map or set
+// that stays typed is the ordered map of rt_tmap.go: its order is observable, or its keys
+// compare by equals.
 //
 // -kind imm: an ImmutableList<T> (an *ImmutableCollection declared ImmutableListOf[T]) to []T.
 // It never changes, so sharing is harmless; a class converts when every slot of it is declared
@@ -69,7 +103,9 @@
 //
 // usage: native -kind list|map|set|imm [-n] [-v] <dir of package closure>
 //
-//	(-n: report only; -v: list the classes)
+//	(-n: report only; -v: list the classes; NATIVE_ALL=1 prints every reason of each class
+//	that stays, NATIVE_WHY=1 why slots are shared and loops read anew, NATIVE_TRACE2=<func>
+//	the call chain that makes a function change anything)
 package main
 
 import (
@@ -91,6 +127,8 @@ import (
 type node struct {
 	key     string
 	v       *types.Var // a variable or field; nil for a group's parameter or result
+	byValue bool       // a field holding a TList[T] itself (kind list): its address is the list
+	null    bool       // may hold Java's null: nil enters it, or it starts as its zero value
 	local   bool       // a local variable or parameter
 	fn      ast.Node   // the function declaring a local
 	mutated string     // the first operation through it that changes the list, if any
@@ -117,10 +155,18 @@ type class struct {
 	cv       rw.Conv
 	tc       string
 	poison   []string
-	typeExpr []ast.Expr
-	edits    []rw.Edit
-	nodes    []*node
-	decls    int
+	// alias: why the list may be held by two places while one changes it (kind list). A class
+	// with only such reasons becomes pointers to slices (ptr): one slice header per list,
+	// shared as the typed list was.
+	alias []string
+	ptr   bool
+	// unknownMut: a list of the class may change where mutSites do not show (an Iterator
+	// kept, whose remove erased code may call).
+	unknownMut bool
+	typeExpr   []ast.Expr
+	edits      []rw.Edit
+	nodes      []*node
+	decls      int
 }
 
 var (
@@ -158,6 +204,8 @@ func union(a, b *node) {
 	da.poison = append(da.poison, db.poison...)
 	da.typeExpr = append(da.typeExpr, db.typeExpr...)
 	da.edits = append(da.edits, db.edits...)
+	da.alias = append(da.alias, db.alias...)
+	da.unknownMut = da.unknownMut || db.unknownMut
 	da.nodes = append(da.nodes, db.nodes...)
 	delete(data, b)
 }
@@ -174,6 +222,117 @@ func poison(n *node, why string) {
 		p := rw.Fset.Position(curPos)
 		poisonAt[why] = fmt.Sprintf("%s:%d", filepath.Base(p.Filename), p.Line)
 	}
+}
+
+// share notes why the lists of n's class may be shared while they change: a reason for a
+// pointer to a slice, not for the typed list.
+func share(n *node, why string) {
+	c := cls(n)
+	c.alias = append(c.alias, why)
+	if _, ok := poisonAt[why]; !ok && curPos.IsValid() {
+		p := rw.Fset.Position(curPos)
+		poisonAt[why] = fmt.Sprintf("%s:%d", filepath.Base(p.Filename), p.Line)
+	}
+}
+
+// mayBeNull reports whether a list of the class may be Java's null: nil enters a slot of it,
+// a variable starts as its zero value, or it has a field or package variable (which hold null
+// until assigned).
+func (c *class) mayBeNull() bool {
+	for _, m := range c.nodes {
+		if m.null || m.v != nil && (m.v.IsField() || m.v.Parent() == rw.Pkg.Scope()) {
+			return true
+		}
+	}
+	return false
+}
+
+// mutSites are the calls that change a list (kind list), with the slot of the list: what a
+// loop over a pointer to a slice must not reach to be a plain range loop.
+var mutSites = map[ast.Node]*node{}
+
+// mutated reports whether any list of the class changes length or contents through it.
+func (c *class) mutated() bool {
+	for _, m := range c.nodes {
+		if m.mutated != "" {
+			return true
+		}
+	}
+	return false
+}
+
+// holdsImm reports whether an ImmutableList enters the class.
+func (c *class) holdsImm() bool {
+	for _, m := range c.nodes {
+		for _, e := range m.in {
+			if e.imm {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// immChanged reports whether a list changes through a slot an ImmutableList may reach (along
+// the flows from the slots it enters).
+func (c *class) immChanged() bool {
+	seen := map[*node]bool{}
+	var q []*node
+	for _, m := range c.nodes {
+		for _, e := range m.in {
+			if e.imm && !seen[m] {
+				seen[m] = true
+				q = append(q, m)
+			}
+		}
+	}
+	for len(q) > 0 {
+		m := q[0]
+		q = q[1:]
+		if m.mutated != "" {
+			return true
+		}
+		for _, e := range m.out {
+			if !seen[e.to] {
+				seen[e.to] = true
+				q = append(q, e.to)
+			}
+		}
+	}
+	return false
+}
+
+// stableLocal reports whether e is a local variable that nothing assigns after its
+// declaration, takes the address of, or uses from a function literal: it names the same
+// list wherever it is used.
+func stableLocal(e ast.Expr) bool {
+	id, ok := rw.Unparen(e).(*ast.Ident)
+	if !ok {
+		return false
+	}
+	v, ok := rw.Info.Uses[id].(*types.Var)
+	if !ok || v.IsField() || v.Parent() == rw.Pkg.Scope() {
+		return false
+	}
+	fn := funcAt(v.Pos())
+	for _, u := range rw.UsesOf[v] {
+		if enclosingFn(u) != fn {
+			return false
+		}
+		switch p := rw.Parent[u].(type) {
+		case *ast.AssignStmt:
+			for _, l := range p.Lhs {
+				if l == u {
+					return false
+				}
+			}
+		case *ast.UnaryExpr:
+			if p.Op == token.AND {
+				return false
+			}
+		}
+	}
+	return true
 }
 
 func edit(n *node, at ast.Node, gen func() string) {
@@ -241,12 +400,28 @@ func tstr(t types.Type) string { return types.TypeString(t, func(*types.Package)
 func goType(t types.Type) string {
 	as := typeArgs(t)
 	switch kind {
-	case "map":
-		return "map[" + tstr(as[0]) + "]" + tstr(as[1])
-	case "set":
-		return "map[" + tstr(as[0]) + "]struct{}"
+	case "map", "set":
+		k := tstr(as[0])
+		if kt, _, ok := valueKey(as[0]); ok {
+			k = kt
+		}
+		if kind == "set" {
+			return "map[" + k + "]struct{}"
+		}
+		return "map[" + k + "]" + tstr(as[1])
 	}
 	return "[]" + tstr(as[0])
+}
+
+// goTypeOf is goType for a declaration of class c: a pointer to the slice for shared lists.
+func goTypeOf(c *class, t types.Type) string {
+	if et := valueListElem(t); et != nil {
+		return "[]" + tstr(et) // a field holding the list itself holds the slice
+	}
+	if c.ptr {
+		return "*" + goType(t)
+	}
+	return goType(t)
 }
 
 func typeOf(e ast.Expr) types.Type {
@@ -621,6 +796,9 @@ func valueOf(e ast.Expr) value {
 			return value{kind: vSlot, n: resultNode(litGroup(fl), 0)}
 		}
 		if f := calleeFunc(x); f != nil && f.Type().(*types.Signature).Results().Len() == 1 {
+			if typeArgSlot(f, false, 0) {
+				return value{kind: vForeign, why: "result of a generic " + f.Name() + " (a type argument)"}
+			}
 			if !generated(f.Pos()) {
 				return value{kind: vForeign, why: "result of the runtime's " + f.Name()}
 			}
@@ -639,6 +817,14 @@ func valueOf(e ast.Expr) value {
 	if v, id := varOf(e); v != nil {
 		return value{kind: vSlot, n: varNode(v), use: id}
 	}
+	if u, ok := e.(*ast.UnaryExpr); ok && u.Op == token.AND {
+		if v, _ := varOf(u.X); v != nil {
+			if k, ok := nodes[fmt.Sprintf("v|%d", v.Pos())]; ok && k.byValue {
+				return value{kind: vSlot, n: k} // &x.f: the list the field holds
+			}
+		}
+		return value{kind: vForeign, why: "the address of a typed list held by value"}
+	}
 	return value{kind: vForeign, why: fmt.Sprintf("value of a %T", e)}
 }
 
@@ -647,6 +833,7 @@ func flow(dest *node, src ast.Expr, inReturn bool) {
 	v := valueOf(src)
 	switch v.kind {
 	case vNil:
+		dest.null = true
 	case vForeign:
 		poison(dest, v.why)
 	case vNew:
@@ -696,6 +883,10 @@ func newValue(n *node, call *ast.CallExpr) {
 	et := elemText(typeOf(call))
 	A := func(i int) string { return rw.Render(call.Args[i]) }
 	gt := goType(typeOf(call))
+	if as := typeArgs(typeOf(call)); (kind == "map" || kind == "set") && as != nil && isVarKey(as[0]) && name != "newTMap_" && name != "newTSet_" {
+		poison(n, "keyed by equals of a few fields, and copied from an erased collection")
+		return
+	}
 	switch name {
 	case "newTMap_", "newTSet_":
 		edit(n, call, func() string { return gt + "{}" })
@@ -714,13 +905,33 @@ func newValue(n *node, call *ast.CallExpr) {
 			return "setFrom_(" + A(0) + ", " + A(1) + ")"
 		})
 	case "newTList_":
-		edit(n, call, func() string { return "[]" + et + "{}" })
+		edit(n, call, func() string {
+			if cls(n).ptr {
+				return "&[]" + et + "{}"
+			}
+			return "[]" + et + "{}"
+		})
 	case "newTListN_":
-		edit(n, call, func() string { return "make([]" + et + ", 0, " + rw.Render(call.Args[1]) + ")" })
+		edit(n, call, func() string {
+			if cls(n).ptr {
+				return "sliceRef_(make([]" + et + ", 0, " + rw.Render(call.Args[1]) + "))"
+			}
+			return "make([]" + et + ", 0, " + rw.Render(call.Args[1]) + ")"
+		})
 	case "tlistFrom_":
-		edit(n, call, func() string { return "sliceFrom_(" + rw.Render(call.Args[0]) + ", " + rw.Render(call.Args[1]) + ")" })
+		edit(n, call, func() string {
+			if cls(n).ptr {
+				return "sliceRef_(sliceFrom_(" + rw.Render(call.Args[0]) + ", " + rw.Render(call.Args[1]) + "))"
+			}
+			return "sliceFrom_(" + rw.Render(call.Args[0]) + ", " + rw.Render(call.Args[1]) + ")"
+		})
 	case "tlistImm_":
-		edit(n, call, func() string { return "sliceImm_(" + rw.Render(call.Args[0]) + ", " + rw.Render(call.Args[1]) + ")" })
+		edit(n, call, func() string {
+			if cls(n).ptr {
+				return "slicePtrImm_(" + rw.Render(call.Args[0]) + ", " + rw.Render(call.Args[1]) + ")"
+			}
+			return "sliceImm_(" + rw.Render(call.Args[0]) + ", " + rw.Render(call.Args[1]) + ")"
+		})
 	}
 }
 
@@ -739,7 +950,7 @@ func paramFor(c *ast.CallExpr, i int) (*node, bool) {
 	if sig.Variadic() && i >= sig.Params().Len()-1 {
 		return nil, false
 	}
-	if i >= sig.Params().Len() || !isList(sig.Params().At(i).Type()) {
+	if i >= sig.Params().Len() || !isList(sig.Params().At(i).Type()) || typeArgSlot(f, true, i) {
 		return nil, false
 	}
 	if rw.ReflipGeneric_(sig.Params().At(i).Type(), false) { // reflip10
@@ -750,6 +961,21 @@ func paramFor(c *ast.CallExpr, i int) (*node, bool) {
 		poison(paramNode(groupOf(f.Origin()), i), "argument of a method of a generic type")
 	}
 	return paramNode(groupOf(f), i), true
+}
+
+// typeArgSlot reports whether parameter (param) or result i of f, an instance of a generic
+// function or of a generic class's method, is declared as a type parameter there: its slot
+// in the generic declaration holds every type argument, so the value is not this class's.
+func typeArgSlot(f *types.Func, param bool, i int) bool {
+	o := f.Origin()
+	if o == f {
+		return false
+	}
+	os, fs := o.Type().(*types.Signature), f.Type().(*types.Signature)
+	if param {
+		return !types.Identical(os.Params().At(i).Type(), fs.Params().At(i).Type())
+	}
+	return !types.Identical(os.Results().At(i).Type(), fs.Results().At(i).Type())
 }
 
 // handle classifies one occurrence of list-valued expression e.
@@ -789,7 +1015,16 @@ func handle(e ast.Expr) {
 				bad("assigned to _")
 				return
 			}
-			if !isList(typeOf(x.Lhs[i])) {
+			lt := typeOf(x.Lhs[i])
+			if id, ok := x.Lhs[i].(*ast.Ident); ok && lt == nil {
+				if d, ok := rw.Info.Defs[id].(*types.Var); ok {
+					lt = d.Type() // x := v declares x
+				}
+			}
+			if !isList(lt) {
+				if os.Getenv("NATIVE_ALL") != "" {
+					fmt.Fprintf(os.Stderr, "stored: %s: %s\n", rw.Fset.Position(x.Pos()), rw.Text(x))
+				}
 				bad("stored as another type")
 				return
 			}
@@ -852,7 +1087,7 @@ func handle(e ast.Expr) {
 				if nm == "obj_" || nm == "any" {
 					if fe, ok := rw.Up(x).(*ast.CallExpr); ok && len(fe.Args) == 1 {
 						if n2, _ := rw.CallName(fe); n2 == "foreach_" {
-							if as, ok := rw.Parent[fe].(*ast.AssignStmt); ok && as.Tok == token.DEFINE && len(as.Lhs) == 1 && rangeLoopConv(as, e, nil, nil, false) {
+							if as, ok := rw.Parent[fe].(*ast.AssignStmt); ok && as.Tok == token.DEFINE && len(as.Lhs) == 1 && rangeLoopConv(as, e, nil, nil, false, overSlice) {
 								immLoops = append(immLoops, immLoop{src, as, e})
 								return
 							}
@@ -912,7 +1147,29 @@ func handle(e ast.Expr) {
 		}
 		if x.Sel.Name == "items" && v.kind == vSlot {
 			// l.items, the typed list's slice (a manual step reads it): the slice itself.
-			edit(v.n, x, func() string { return rw.Render(e) })
+			n := v.n
+			if itemsWritten(x) {
+				if n.mutated == "" {
+					n.mutated = "items"
+				}
+				mutSites[x] = n
+			}
+			inLen := false // len(l.items), range l.items: no parentheses needed
+			switch p := rw.Up(x).(type) {
+			case *ast.CallExpr:
+				inLen = true
+			case *ast.RangeStmt:
+				inLen = rw.Unparen(p.X) == x
+			}
+			edit(n, x, func() string {
+				if cls(n).ptr && inLen {
+					return "*" + rw.Render(e)
+				}
+				if cls(n).ptr {
+					return "(*" + rw.Render(e) + ")"
+				}
+				return rw.Render(e)
+			})
 			return
 		}
 		bad("method value or field of the list taken")
@@ -924,6 +1181,12 @@ func handle(e ast.Expr) {
 				other = x.Y
 			}
 			if id, ok := rw.Unparen(other).(*ast.Ident); ok && id.Name == "nil" {
+				return
+			}
+			// Two lists compared by identity: pointers to slices compare as the typed lists did.
+			if ov := valueOf(other); kind == "list" && src != nil && ov.kind == vSlot && isList(typeOf(other)) {
+				union(src, ov.n)
+				share(src, "compared with another list (identity)")
 				return
 			}
 		}
@@ -952,21 +1215,59 @@ func isStmt(call ast.Expr) bool { _, ok := rw.Up(call).(*ast.ExprStmt); return o
 
 // use handles the call of method m on list expression recv, the value of slot n.
 func use(n *node, recv ast.Expr, m string, call *ast.CallExpr) {
-	R := func() string { return rw.Render(recv) }
+	// The slice (R), the slice to index (RI) and its address (P): for a class of pointers to
+	// slices (shared lists), the pointer is recv itself.
+	Rx := func() string { return rw.Render(recv) }
+	ptr := func() bool { return cls(n).ptr }
+	R := func() string {
+		if ptr() {
+			return "*" + Rx()
+		}
+		return Rx()
+	}
+	RI := func() string {
+		if ptr() {
+			return "(*" + Rx() + ")"
+		}
+		return Rx()
+	}
+	P := func() string {
+		if ptr() {
+			return Rx()
+		}
+		return "&" + Rx()
+	}
 	_, isVar := varOf(recv)
 	addr := isVar != nil && rw.Pure(recv)
+	pure := rw.Pure(recv)
 	args := call.Args
 	A := func(i int) string { return rw.Render(args[i]) }
+	// AS is argument i, a list of the same class, as a slice.
+	AS := func(i int) string {
+		if ptr() {
+			return "*" + A(i)
+		}
+		return A(i)
+	}
 	stmt := isStmt(call)
 	mut := func() bool {
 		if n.mutated == "" {
 			n.mutated = m
 		}
+		mutSites[call] = n
 		if !addr {
-			poison(n, "changed through an expression that is not a variable")
-			return false
+			// A pointer to the slice is changed through whatever expression yields it.
+			share(n, "changed through an expression that is not a variable")
 		}
 		return true
+	}
+	// app appends (the slice expression x...) to the list: through a helper when the
+	// pointer comes from an expression that must be evaluated once.
+	app := func(x string) string {
+		if ptr() && !pure {
+			return "sliceAppend_(" + Rx() + ", " + x + ")"
+		}
+		return R() + " = append(" + R() + ", " + x + ")"
 	}
 	switch {
 	case m == "size" && len(args) == 0:
@@ -977,34 +1278,34 @@ func use(n *node, recv ast.Expr, m string, call *ast.CallExpr) {
 		edit(n, call, func() string { return "sliceAt_(" + R() + ", " + A(0) + ")" })
 	case m == "set" && len(args) == 2 && stmt:
 		if mut() {
-			edit(n, call, func() string { return R() + "[" + A(0) + "] = " + A(1) })
+			edit(n, call, func() string { return RI() + "[" + A(0) + "] = " + A(1) })
 		}
 	case m == "add" && len(args) == 1 && stmt:
 		if mut() {
-			edit(n, call, func() string { return R() + " = append(" + R() + ", " + A(0) + ")" })
+			edit(n, call, func() string { return app(A(0)) })
 		}
 	case m == "addAllT" && len(args) == 1 && stmt:
 		if mut() {
-			edit(n, call, func() string { return R() + " = append(" + R() + ", " + A(0) + "...)" })
+			edit(n, call, func() string { return app(AS(0) + "...") })
 		}
 	case m == "insert" && len(args) == 2 && stmt:
 		if mut() {
-			edit(n, call, func() string { return "sliceInsert_(&" + R() + ", " + A(0) + ", " + A(1) + ")" })
+			edit(n, call, func() string { return "sliceInsert_(" + P() + ", " + A(0) + ", " + A(1) + ")" })
 		}
 	case m == "removeAt" && len(args) == 1:
 		if mut() {
-			edit(n, call, func() string { return "sliceRemoveAt_(&" + R() + ", " + A(0) + ")" })
+			edit(n, call, func() string { return "sliceRemoveAt_(" + P() + ", " + A(0) + ")" })
 		}
 	case m == "clear" && len(args) == 0 && stmt:
 		if mut() {
-			edit(n, call, func() string { return "sliceClear_(&" + R() + ")" })
+			edit(n, call, func() string { return "sliceClear_(" + P() + ")" })
 		}
 	case (m == "trimToSize" && len(args) == 0 || m == "ensureCapacity" && len(args) == 1) && stmt && rw.Pure(recv):
 		edit(n, rw.Up(call), func() string { return rw.Del })
 	case m == "push_" && len(args) == 1 && stmt:
 		// A deque used as a stack (colls -kind deque): its head is the end of the slice.
 		if mut() {
-			edit(n, call, func() string { return R() + " = append(" + R() + ", " + A(0) + ")" })
+			edit(n, call, func() string { return app(A(0)) })
 		}
 	case (m == "pop_" || m == "pollTop_" || m == "popFirst_" || m == "pollFirst_") && len(args) == 0:
 		tc := tcName(elemOf(typeOf(recv)))
@@ -1012,7 +1313,7 @@ func use(n *node, recv ast.Expr, m string, call *ast.CallExpr) {
 			poison(n, "no element conversion for "+m)
 		} else if mut() {
 			h := map[string]string{"pop_": "slicePop_", "pollTop_": "slicePollTop_", "popFirst_": "slicePopFirst_", "pollFirst_": "slicePollFirst_"}[m]
-			edit(n, call, func() string { return h + "(" + tc + ", &" + R() + ")" })
+			edit(n, call, func() string { return h + "(" + tc + ", " + P() + ")" })
 		}
 	case (m == "peekTop_" || m == "getTop_" || m == "peekFirst_" || m == "getFirst_") && len(args) == 0:
 		tc := tcName(elemOf(typeOf(recv)))
@@ -1022,8 +1323,11 @@ func use(n *node, recv ast.Expr, m string, call *ast.CallExpr) {
 			h := map[string]string{"peekTop_": "slicePeekTop_", "getTop_": "sliceTop_", "peekFirst_": "slicePeekFirst_", "getFirst_": "sliceFirst_"}[m]
 			edit(n, call, func() string { return h + "(" + tc + ", " + R() + ")" })
 		}
-	case m == "eachRev" && len(args) == 0 && addr:
+	case m == "eachRev" && len(args) == 0:
 		// From the end of the slice, reading it anew at every step (as the typed list did).
+		if !addr {
+			share(n, "walked backwards through an expression that is not a variable")
+		}
 		before := len(loops)
 		loop(n, recv, call)
 		loops = loops[:before] // not a forward loop: it stays a cursor
@@ -1031,25 +1335,28 @@ func use(n *node, recv ast.Expr, m string, call *ast.CallExpr) {
 			if b := loopBody(as); b != nil {
 				n.loops = append(n.loops, b)
 			} else {
-				poison(n, "for-each cursor not followed by its loop")
+				share(n, "for-each cursor not followed by its loop")
 			}
 		}
-		edit(n, call, func() string { return "eachRevOf_(&" + R() + ")" })
+		edit(n, call, func() string { return "eachRevOf_(" + P() + ")" })
 	case m == "each" && len(args) == 0:
 		loop(n, recv, call)
 		if as, ok := rw.Parent[call].(*ast.AssignStmt); ok && n.local {
 			if b := loopBody(as); b != nil {
 				n.loops = append(n.loops, b)
 			} else {
-				poison(n, "for-each cursor not followed by its loop")
+				share(n, "for-each cursor not followed by its loop")
 			}
 		}
 	case (m == "All" || m == "AllRev") && len(args) == 0:
 		// for x := range X.All() (tools/postflip/ranges -loops): over the slice.
 		rs, ok := rw.Parent[call].(*ast.RangeStmt)
-		if !ok || rs.X != call || m == "AllRev" && !addr {
+		if !ok || rs.X != call {
 			poison(n, "method "+m)
 			return
+		}
+		if m == "AllRev" && !addr {
+			share(n, "walked backwards through an expression that is not a variable")
 		}
 		if n.local {
 			n.loops = append(n.loops, rs.Body)
@@ -1057,6 +1364,7 @@ func use(n *node, recv ast.Expr, m string, call *ast.CallExpr) {
 		rloops = append(rloops, rloopSite{n, recv, call, rs, m == "AllRev"})
 	case m == "asList" && len(args) == 0:
 		view(n, recv, call)
+	case m == "cursor" && len(args) == 0 && cursorSite(n, recv, call):
 	default:
 		what := "method " + m
 		if !stmt && (m == "add" || m == "set" || m == "clear" || m == "insert" || m == "addAllT") {
@@ -1076,9 +1384,14 @@ var readers = map[string]bool{
 	"ImmutableList_copyOf": true, "ImmutableList_copyOf_Iterable": true, "ImmutableSet_copyOf": true, "ImmutableSet_copyOf_Iterable": true,
 	"Iterables_getOnlyElement": true, "Iterables_getFirst": true, "Iterables_getLast": true, "Iterables_size": true,
 	"Collection_contains_s": true, "String_join": true, "new_ArrayList_Collection": true, "new_LinkedHashSet_Collection": true,
-	"new_ArrayDeque_Collection": true, "tlistFrom_": true, "sliceFrom_": true, "tsetFrom_": true,
+	"new_ArrayDeque_Collection": true, "tlistFrom_": true, "sliceFrom_": true, "tsetFrom_": true, "tlistFromRev_": true,
 	"ImmutableList_copyOf_Collection": true, "ImmutableSet_copyOf_Collection": true,
+	"immCopyOf_": true, "objstr_": true, "Object_toString": true,
+	"SequencedCollection_getFirst": true, "SequencedCollection_getLast": true,
 }
+
+// changers change the list given first through its List methods and do not keep it.
+var changers = map[string]bool{"SequencedCollection_removeLast": true, "SequencedCollection_removeFirst": true, "Collections_fill": true}
 
 // sorters change the list in place, keeping its length.
 var sorters = map[string]bool{"List_sort": true, "Collections_sort": true, "Collections_sort_List_Comparator": true, "Collections_reverse": true}
@@ -1087,15 +1400,44 @@ var sorters = map[string]bool{"List_sort": true, "Collections_sort": true, "Coll
 // takes the view as an argument.
 var readMethods = map[string]bool{"toArray": true, "toArray_0": true, "contains": true, "containsAll": true, "indexOf": true,
 	"lastIndexOf": true, "subList": true, "get": true, "size": true, "isEmpty": true, "toString": true, "hashCode": true, "equals": true}
-var readerMethods = map[string]bool{"addAll": true, "containsAll": true, "removeAll": true, "retainAll": true}
+var readerMethods = map[string]bool{"addAll": true, "containsAll": true, "removeAll": true, "retainAll": true, "join": true}
 
 func tcName(t types.Type) string {
 	text := types.TypeString(t, func(*types.Package) string { return "" })
 	n := "tc_" + nonIdent.ReplaceAllString(strings.ReplaceAll(text, "*", "p_"), "_")
 	if rw.Pkg.Scope().Lookup(n) == nil {
-		return ""
+		return tcByType(t)
 	}
 	return n
+}
+
+var tcIndex map[string]string
+
+// tcByType is a package-level conversion variable (tc_...) of element type t under another
+// name (a generic class's instance: tc_p_X for *X[any]), the first by name; "" if none.
+func tcByType(t types.Type) string {
+	if tcIndex == nil {
+		tcIndex = map[string]string{}
+		for _, nm := range rw.Pkg.Scope().Names() { // sorted
+			v, ok := rw.Pkg.Scope().Lookup(nm).(*types.Var)
+			if !ok || !strings.HasPrefix(nm, "tc_") {
+				continue
+			}
+			p, ok := types.Unalias(v.Type()).(*types.Pointer)
+			if !ok {
+				continue
+			}
+			nt, ok := types.Unalias(p.Elem()).(*types.Named)
+			if !ok || nt.Obj().Name() != "tconv_" || nt.TypeArgs().Len() != 1 {
+				continue
+			}
+			k := types.TypeString(nt.TypeArgs().At(0), nil)
+			if _, dup := tcIndex[k]; !dup {
+				tcIndex[k] = nm
+			}
+		}
+	}
+	return tcIndex[types.TypeString(t, nil)]
 }
 
 var nonIdent = regexp.MustCompile(`[^A-Za-z0-9_]`)
@@ -1113,6 +1455,13 @@ func erasedRuntime(t types.Type) bool {
 // view handles recv.asList(), a list of slot n seen as an erased List.
 func view(n *node, recv ast.Expr, call *ast.CallExpr) {
 	R := func() string { return rw.Render(recv) }
+	ptr := func() bool { return cls(n).ptr }
+	P := func() string {
+		if ptr() {
+			return R()
+		}
+		return "&" + R()
+	}
 	tc := tcName(elemOf(typeOf(recv)))
 	if tc == "" {
 		poison(n, "no element conversion for a view")
@@ -1121,7 +1470,7 @@ func view(n *node, recv ast.Expr, call *ast.CallExpr) {
 	top := ast.Node(call)
 	for {
 		if c, ok := rw.Up(top).(*ast.CallExpr); ok && len(c.Args) == 1 && rw.Unparen(c.Args[0]) == top {
-			if nm, _ := rw.CallName(c); nm == "Collection" || nm == "Iterable" || nm == "List" {
+			if nm, _ := rw.CallName(c); nm == "Collection" || nm == "Iterable" || nm == "List" || nm == "SequencedCollection" {
 				top = c
 				continue
 			}
@@ -1137,7 +1486,12 @@ func view(n *node, recv ast.Expr, call *ast.CallExpr) {
 		}
 		break
 	}
-	viewCode := func() string { return "sliceView_(" + tc + ", " + R() + ")" }
+	viewCode := func() string {
+		if ptr() {
+			return "sliceViewP_(" + tc + ", " + R() + ")" // nil for a nil pointer, as asList()
+		}
+		return "sliceView_(" + tc + ", " + R() + ")"
+	}
 	switch p := rw.Up(top).(type) {
 	case *ast.SelectorExpr: // recv.asList().m(...)
 		c, ok := rw.Up(p).(*ast.CallExpr)
@@ -1150,15 +1504,30 @@ func view(n *node, recv ast.Expr, call *ast.CallExpr) {
 		switch m := p.Sel.Name; {
 		case m == "iterator" && len(c.Args) == 0 && iterSite(n, recv, c):
 			return
+		case m == "iterator" && len(c.Args) == 0 && tc != "":
+			// An Iterator kept or passed on: over a pointer to the slice, reading it anew at
+			// every step as the typed list's did (its remove changes the list: the class is
+			// changed where this tool cannot see).
+			share(n, "iterated by an Iterator that is kept")
+			cls(n).unknownMut = true
+			if n.mutated == "" {
+				n.mutated = "iterator"
+			}
+			edit(n, c, func() string { return "slicePtrIter_(" + tc + ", " + R() + ")" })
+			return
 		case readMethods[m]:
 			edit(n, call, viewCode)
 			return
-		case (m == "addAll" || m == "remove_Object" || m == "removeAll") && len(c.Args) == 1 && addr:
+		case (m == "addAll" || m == "remove_Object" || m == "removeAll") && len(c.Args) == 1:
 			if n.mutated == "" {
 				n.mutated = m
 			}
+			mutSites[c] = n
+			if !addr {
+				share(n, "changed through an expression that is not a variable")
+			}
 			helper := map[string]string{"addAll": "sliceAddAll_", "remove_Object": "sliceRemoveObject_", "removeAll": "sliceRemoveAll_"}[m]
-			edit(n, c, func() string { return helper + "(" + tc + ", &" + R() + ", " + A() + ")" })
+			edit(n, c, func() string { return helper + "(" + tc + ", " + P() + ", " + A() + ")" })
 			return
 		}
 		poison(n, "a view for ."+p.Sel.Name)
@@ -1170,9 +1539,61 @@ func view(n *node, recv ast.Expr, call *ast.CallExpr) {
 			edit(n, call, viewCode)
 			return
 		}
+		if nm == "equalsVia_" && len(p.Args) == 2 && (rw.Unparen(p.Args[1]) == top && isListView(p.Args[0]) || rw.Unparen(p.Args[0]) == top && isListView(p.Args[1])) {
+			// One list view compared with another: List.equals reads both.
+			edit(n, call, viewCode)
+			return
+		}
+		if nm == "SequencedCollection_addLast" && len(p.Args) == 2 && rw.Unparen(p.Args[0]) == top && isStmt(p) {
+			// addLast through the view: an add of the unboxed element.
+			if n.mutated == "" {
+				n.mutated = "addLast"
+			}
+			mutSites[p] = n
+			_, isVar := varOf(recv)
+			if isVar == nil || !rw.Pure(recv) {
+				share(n, "changed through an expression that is not a variable")
+			}
+			pure := rw.Pure(recv)
+			edit(n, p, func() string {
+				x := tc + ".unbox(" + rw.Render(p.Args[1]) + ")"
+				if ptr() && !pure {
+					return "sliceAppend_(" + R() + ", " + x + ")"
+				}
+				S := R()
+				if ptr() {
+					S = "*" + R()
+				}
+				return S + " = append(" + S + ", " + x + ")"
+			})
+			return
+		}
+		if nm == "elemsBy_" && len(p.Args) == 2 && rw.Unparen(p.Args[0]) == top {
+			if rs, ok := rw.Up(p).(*ast.RangeStmt); ok && rs.X == p {
+				// for x := range elemsBy_(l.asList(), f): over the pointer to the slice,
+				// reading it anew at every step as the view's iterator did.
+				share(n, "walked through a view")
+				edit(n, p, func() string { return "slicePtrElemsBy_(" + tc + ", " + P() + ", " + rw.Render(p.Args[1]) + ")" })
+				return
+			}
+		}
+		if changers[nm] && len(p.Args) >= 1 && rw.Unparen(p.Args[0]) == top {
+			// A runtime function that changes the list through the view and does not keep
+			// it: a live view of the pointer (slicePtrView_), which stores the change back.
+			if n.mutated == "" {
+				n.mutated = nm
+			}
+			mutSites[p] = n
+			share(n, "changed through a view by the runtime")
+			edit(n, call, func() string { return "slicePtrView_(" + tc + ", " + R() + ")" })
+			return
+		}
 		if readers[nm] || sorters[nm] {
 			if sorters[nm] && n.mutated == "" {
 				n.mutated = nm
+			}
+			if sorters[nm] {
+				mutSites[p] = n
 			}
 			edit(n, call, viewCode)
 			return
@@ -1184,6 +1605,15 @@ func view(n *node, recv ast.Expr, call *ast.CallExpr) {
 		if nm == "" {
 			if s, ok := p.Fun.(*ast.SelectorExpr); ok {
 				nm = "." + s.Sel.Name
+			}
+		}
+		if f := calleeFunc(p); f != nil && generated(f.Pos()) && kind == "list" {
+			// A function of the package: decided once its parameters are known (readCalls).
+			for i, a := range p.Args {
+				if rw.Unparen(a) == top {
+					readCalls = append(readCalls, readCall{n: n, call: call, recv: recv, tc: tc, group: groupOf(f), i: i, what: "a view passed to " + nm})
+					return
+				}
 			}
 		}
 		poison(n, "a view passed to "+nm)
@@ -1203,10 +1633,12 @@ func view(n *node, recv ast.Expr, call *ast.CallExpr) {
 // change while the iterator is in use (decided with the classes), so that Java's iterator
 // could not have thrown ConcurrentModificationException either.
 type iterSiteT struct {
-	n    *node
-	decl ast.Node // the statement declaring the iterator
-	last ast.Node // the last use of the iterator
-	rng  bool     // the loop became a range loop
+	n      *node
+	decl   ast.Node     // the statement declaring the iterator
+	last   ast.Node     // the last use of the iterator
+	rng    bool         // the loop became a range loop
+	stable bool         // recv names the same list at every use (a local never assigned again)
+	fs     *ast.ForStmt // the canonical loop (rng)
 }
 
 var iterSites []iterSiteT
@@ -1277,19 +1709,32 @@ func iterSite(n *node, recv ast.Expr, call *ast.CallExpr) bool {
 	if us := rw.UsesOf[it]; len(us) > 0 {
 		last = us[len(us)-1]
 	}
-	iterSites = append(iterSites, iterSiteT{n: n, decl: decl, last: last})
+	iterSites = append(iterSites, iterSiteT{n: n, decl: decl, last: last, stable: stableLocal(recv)})
 	st := &iterSites[len(iterSites)-1]
-	R := func() string { return rw.Render(recv) }
+	Rx := func() string { return rw.Render(recv) }
+	R := func() string {
+		if cls(n).ptr {
+			return "*" + Rx()
+		}
+		return Rx()
+	}
 	name := itID.Name
 	// The canonical loop: the declaration, then `for it.hasNext() { var x T = it.next(); ... }`
-	// and no other use: a range loop.
+	// and no other use: a range loop. Over a pointer to a slice that may change, it reads the
+	// slice anew at every step (sliceAll_), as the typed list's iterator did.
 	if fs, first := iterLoop(decl, hasNext, next, elem); fs != nil {
 		vs := first.Decl.(*ast.GenDecl).Specs[0].(*ast.ValueSpec)
 		x := vs.Names[0].Name
 		edit(n, decl, func() string { return rw.Del })
 		edit(n, first, func() string { return rw.Del })
-		edit(n, fs.Cond, func() string { return "_, " + x + " := range " + R() })
+		edit(n, fs.Cond, func() string {
+			if c := cls(n); c.ptr && c.mutated() && !ptrRange[fs] {
+				return x + " := range sliceAll_(" + Rx() + ")"
+			}
+			return "_, " + x + " := range " + R()
+		})
 		st.rng = true
+		st.fs = fs
 		return true
 	}
 	if ds, ok := decl.(*ast.DeclStmt); ok {
@@ -1298,7 +1743,13 @@ func iterSite(n *node, recv ast.Expr, call *ast.CallExpr) bool {
 		edit(n, call, func() string { return "0" })
 	}
 	for _, c := range hasNext {
-		edit(n, c, func() string { return "(" + name + " < len(" + R() + "))" })
+		_, cond := rw.Up(c).(*ast.ForStmt)
+		edit(n, c, func() string {
+			if cond {
+				return name + " < len(" + R() + ")"
+			}
+			return "(" + name + " < len(" + R() + "))"
+		})
 	}
 	for _, c := range next {
 		e := rw.Read(cv, c, func() string { return "sliceNext_(" + R() + ", &" + name + ")" })
@@ -1419,12 +1870,23 @@ func loop(n *node, recv ast.Expr, call *ast.CallExpr) {
 // rangeLoop rewrites `it := X.each(); for it.next() { ... it.v ... }` (or the same over
 // eachOf_(&X)) into `for _, it := range X { ... it ... }`, folding a first statement
 // `var x T = it.v` into the loop variable. It reports false when the shape is not that.
-func rangeLoop(as *ast.AssignStmt, x ast.Expr) bool { return rangeLoopConv(as, x, nil, nil, true) }
+func rangeLoop(as *ast.AssignStmt, x ast.Expr) bool {
+	return rangeLoopConv(as, x, nil, nil, true, overSlice)
+}
+
+// The forms of rangeLoopConv's range expression x: the slice, the slice pointer x points to,
+// or sliceAll_(x) of pointer x (a range-over-func loop that reads the slice anew at every
+// step, as each() did).
+const (
+	overSlice = iota
+	overPtr
+	overAll
+)
 
 // rangeLoopConv is rangeLoop over a loop whose cursor yields boxed elements (cv non-nil, the
 // slice's elements are elem): reads are unboxed where the code unboxes them. With apply
 // false it only checks the shape.
-func rangeLoopConv(as *ast.AssignStmt, x ast.Expr, cv *rw.Conv, elem types.Type, apply bool) bool {
+func rangeLoopConv(as *ast.AssignStmt, x ast.Expr, cv *rw.Conv, elem types.Type, apply bool, over int) bool {
 	list := stmtList(rw.Parent[as])
 	var next ast.Stmt
 	for i, s := range list {
@@ -1493,11 +1955,25 @@ func rangeLoopConv(as *ast.AssignStmt, x ast.Expr, cv *rw.Conv, elem types.Type,
 		}
 	}
 	rw.Rewrite[as] = func() string { return rw.Del }
-	header := "_, " + name + " := range " + rw.Render(x)
-	if name == itID.Name && len(reads) == 0 {
-		header = "range " + rw.Render(x)
+	X := func() string {
+		switch over {
+		case overPtr:
+			return "*" + rw.Render(x)
+		case overAll:
+			return "sliceAll_(" + rw.Render(x) + ")"
+		}
+		return rw.Render(x)
 	}
-	rw.Rewrite[cond] = func() string { return header }
+	header := func() string {
+		switch {
+		case name == itID.Name && len(reads) == 0:
+			return "range " + X()
+		case over == overAll:
+			return name + " := range " + X()
+		}
+		return "_, " + name + " := range " + X()
+	}
+	rw.Rewrite[cond] = header
 	for _, s := range reads {
 		if cv != nil {
 			e := rw.Read(*cv, s, func() string { return name })
@@ -1628,6 +2104,13 @@ func main() {
 						poison(get(fmt.Sprintf("embedded|%d", x.Pos())), "embedded")
 					}
 				}
+				if _, inStruct := rw.Parent[rw.Parent[x]].(*ast.StructType); inStruct && kind == "list" && valueListElem(typeOf(x.Type)) != nil && generated(x.Pos()) {
+					for _, id := range x.Names {
+						if v, ok := rw.Info.Defs[id].(*types.Var); ok {
+							byValueField(varNode(v), x.Type)
+						}
+					}
+				}
 			case *ast.ValueSpec:
 				if x.Type != nil && isList(typeOf(x.Type)) {
 					for _, id := range x.Names {
@@ -1635,6 +2118,9 @@ func main() {
 							k := varNode(v)
 							if generated(x.Pos()) {
 								declareType(k, x.Type)
+							}
+							if len(x.Values) == 0 {
+								k.null = true // var x T: null until assigned
 							}
 						}
 					}
@@ -1713,8 +2199,12 @@ func main() {
 			if !ok {
 				return true
 			}
-			switch e.(type) {
+			switch x := e.(type) {
 			case *ast.Ident, *ast.SelectorExpr, *ast.CallExpr, *ast.IndexExpr, *ast.TypeAssertExpr, *ast.StarExpr:
+			case *ast.UnaryExpr:
+				if x.Op != token.AND {
+					return true
+				}
 			default:
 				return true
 			}
@@ -1737,6 +2227,7 @@ func main() {
 			return true
 		})
 	}
+	decideReadCalls()
 
 	if kind == "imm" {
 		decideImm()
@@ -1781,12 +2272,9 @@ func main() {
 		if kind == "list" || n.mutated == "" {
 			continue
 		}
-		for _, m := range cls(n).nodes {
-			for _, e := range m.in {
-				if e.imm {
-					poison(n, "changed ("+n.mutated+") and holds an immutable "+kind)
-				}
-			}
+		// An immutable map or set throws when changed: none may reach a slot it changes through.
+		if c := cls(n); c.holdsImm() && c.immChanged() {
+			poison(n, "changed ("+n.mutated+") and holds an immutable "+kind)
 		}
 	}
 	for _, n := range all {
@@ -1797,7 +2285,7 @@ func main() {
 			curPos = n.v.Pos()
 		}
 		if !n.unique {
-			poison(n, "changed ("+n.mutated+") while another slot may hold the same list")
+			share(n, "changed ("+n.mutated+") while another slot may hold the same list")
 			if os.Getenv("NATIVE_WHY") != "" {
 				fmt.Fprintf(os.Stderr, "why: %s %s not unique\n", n.key, where(n))
 				for _, e := range n.in {
@@ -1809,7 +2297,7 @@ func main() {
 			continue
 		}
 		if n.v != nil && !n.isRes && len(n.out) > 0 && !term[n] {
-			poison(n, "changed ("+n.mutated+"), and passed on while still in use")
+			share(n, "changed ("+n.mutated+"), and passed on while still in use")
 			if os.Getenv("NATIVE_WHY") != "" {
 				fmt.Fprintf(os.Stderr, "why: %s %s passed on\n", n.key, where(n))
 			}
@@ -1826,11 +2314,11 @@ func main() {
 			continue
 		}
 		curPos = st.decl.Pos()
-		poison(n, "iterated explicitly, and changed ("+n.mutated+")")
+		share(n, "iterated explicitly, and changed ("+n.mutated+")")
 	}
 	reasons := map[string]int{}
 	var good []*class
-	nGood := 0
+	nGood, nPtr, nPtrC := 0, 0, 0
 	conv := map[*class]bool{}
 	for r, c := range data {
 		if find(r) != r || len(c.typeExpr) == 0 {
@@ -1840,25 +2328,75 @@ func main() {
 			// Keys of a class with its own equals and hashCode stay in the typed map, which
 			// compares them as Java does; a Go map would compare them by ==.
 			for _, te := range c.typeExpr {
-				if as := typeArgs(typeOf(te)); as != nil && rw.KeyMode(as[0]) != rw.KeyEq {
+				if as := typeArgs(typeOf(te)); as != nil && rw.KeyMode(as[0]) != rw.KeyEq && !isVarKey(as[0]) {
 					c.poison = append([]string{"keys compared by equals"}, c.poison...)
 					break
 				}
 			}
 		}
+		if kind == "list" && len(c.poison) == 0 && len(c.alias) == 0 && c.mayBeNull() {
+			// A nil slice reads as an empty list (len 0, a range that runs no step), where
+			// Java's null list throws NullPointerException: a list that may be null is a
+			// pointer to a slice, whose nil throws on every operation as the typed list did.
+			c.alias = append(c.alias, "may hold null")
+		}
+		if len(c.poison) == 0 && len(c.alias) > 0 {
+			// Shared lists: pointers to slices, unless an ImmutableList (which throws when
+			// changed, and is one object however often it is converted) enters a class that
+			// changes or compares its lists, or an iterator's list expression may name another
+			// list at a later use (the typed list's iterator stayed with its list).
+			compared := false
+			for _, a := range c.alias {
+				compared = compared || strings.HasPrefix(a, "compared")
+			}
+			if c.holdsImm() && (compared || c.immChanged()) {
+				c.poison = append(c.poison, "shared, and holds an ImmutableList (which throws when changed)")
+			}
+			for _, st := range iterSites {
+				if cls(st.n) == c && !st.rng && !st.stable {
+					c.poison = append(c.poison, "shared, and iterated through an expression that may name another list later")
+				}
+			}
+			if len(c.poison) == 0 {
+				c.ptr = true
+			}
+		}
 		if len(c.poison) > 0 {
 			reasons[c.poison[0]] += len(c.typeExpr)
+			if os.Getenv("NATIVE_ALL") != "" {
+				seen := map[string]bool{}
+				var ws []string
+				for _, w := range append(append([]string{}, c.poison...), c.alias...) {
+					if strings.HasPrefix(w, "changed") {
+						w = regexp.MustCompile(`\(([a-zA-Z_]+)\)`).ReplaceAllString(w, "(.)")
+					}
+					if !seen[w] {
+						seen[w] = true
+						ws = append(ws, w)
+					}
+				}
+				sort.Strings(ws)
+				p := rw.Fset.Position(c.typeExpr[0].Pos())
+				fmt.Printf("stays\t%d\t%s:%d\t%s\n", len(c.typeExpr), filepath.Base(p.Filename), p.Line, strings.Join(ws, " | "))
+			}
 			continue
 		}
 		good = append(good, c)
 		conv[c] = true
 		nGood += len(c.typeExpr)
+		if c.ptr {
+			nPtr += len(c.typeExpr)
+			nPtrC++
+		}
 	}
 	total := nGood
 	for _, n := range reasons {
 		total += n
 	}
 	fmt.Fprintf(os.Stderr, "%s declarations: %d; become Go %ss: %d (%d classes)\n", map[string]string{"list": "typed list", "map": "typed map", "set": "typed set", "imm": "ImmutableCollection"}[kind], total, map[string]string{"list": "slice", "map": "map", "set": "map", "imm": "slice"}[kind], nGood, len(good))
+	if kind == "list" {
+		fmt.Fprintf(os.Stderr, "  of which pointers to slices (lists shared while they change): %d (%d classes)\n", nPtr, nPtrC)
+	}
 	var rs []string
 	for r := range reasons {
 		rs = append(rs, r)
@@ -1867,7 +2405,7 @@ func main() {
 		return reasons[rs[i]] > reasons[rs[j]] || reasons[rs[i]] == reasons[rs[j]] && rs[i] < rs[j]
 	})
 	for i, r := range rs {
-		if i >= 30 {
+		if i >= 30 && os.Getenv("NATIVE_ALL") == "" {
 			break
 		}
 		fmt.Fprintf(os.Stderr, "  stays (%d declarations): %s  [%s]\n", reasons[r], r, poisonAt[r])
@@ -1890,7 +2428,7 @@ func main() {
 				if kind == "imm" {
 					return "[]" + c.elemText
 				}
-				return goType(typeOf(te))
+				return goTypeOf(c, typeOf(te))
 			}
 		}
 		for _, e := range c.edits {
@@ -1907,6 +2445,26 @@ func main() {
 			continue
 		}
 		as := rw.Parent[l.call].(*ast.AssignStmt)
+		if c.ptr {
+			// A shared list: a range loop when no list of the class ever changes, else the
+			// cursor over the pointer, which reads the slice anew at every step as each() did,
+			// unless nothing the loop body can run changes one (decided with fieldLoops).
+			if !c.mutated() && rangeLoopConv(as, l.recv, nil, nil, true, overPtr) {
+				nRange++
+				continue
+			}
+			recv, call := l.recv, l.call
+			ptrLoops = append(ptrLoops, ptrLoop{c, loopBody(as), func(rng bool) bool {
+				if rng && rangeLoopConv(as, recv, nil, nil, true, overPtr) {
+					return true
+				}
+				if !rangeLoopConv(as, recv, nil, nil, true, overAll) {
+					rw.Rewrite[call] = func() string { return "eachOf_(" + rw.Render(recv) + ")" }
+				}
+				return false
+			}})
+			continue
+		}
 		exact := true // the loop cannot change the slice's length
 		if l.n.mutated != "" {
 			exact = false
@@ -1940,16 +2498,43 @@ func main() {
 		}
 		recv, rs := l.recv, l.rs
 		exact := !l.rev
-		if exact && l.n.mutated != "" {
+		if c.ptr {
+			exact = exact && !c.mutated()
+		} else if exact && l.n.mutated != "" {
 			exact = l.n.local && !changedIn(l.n.v, rs.Body) && !capturedAnywhere(l.n)
 		}
 		if exact {
 			if rs.Key != nil {
 				key := rs.Key
-				rw.Rewrite[rs.Key] = func() string { return "_, " + rw.Render(key) }
+				rw.Rewrite[rs.Key] = func() string { return "_, " + rw.RenderChildren(key) }
 			}
-			rw.Rewrite[l.call] = func() string { return rw.Render(recv) }
+			star := ""
+			if c.ptr {
+				star = "*"
+			}
+			rw.Rewrite[l.call] = func() string { return star + rw.Render(recv) }
 			nRange++
+			continue
+		}
+		if c.ptr {
+			call := l.call
+			if l.rev {
+				rw.Rewrite[call] = func() string { return "sliceAllRev_(" + rw.Render(recv) + ")" }
+				nEach++
+				continue
+			}
+			ptrLoops = append(ptrLoops, ptrLoop{c, rs.Body, func(rng bool) bool {
+				if rng {
+					if rs.Key != nil {
+						key := rs.Key
+						rw.Rewrite[rs.Key] = func() string { return "_, " + rw.RenderChildren(key) }
+					}
+					rw.Rewrite[call] = func() string { return "*" + rw.Render(recv) }
+					return true
+				}
+				rw.Rewrite[call] = func() string { return "sliceAll_(" + rw.Render(recv) + ")" }
+				return false
+			}})
 			continue
 		}
 		if v, _ := varOf(recv); v == nil {
@@ -1972,7 +2557,7 @@ func main() {
 	}
 	for _, l := range immLoops {
 		if c := cls(l.n); conv[c] {
-			rangeLoopConv(l.as, l.x, &c.cv, c.elem, true)
+			rangeLoopConv(l.as, l.x, &c.cv, c.elem, true, overSlice)
 			nRange++
 		}
 	}
@@ -2047,8 +2632,15 @@ func main() {
 			return true
 		})
 	}
+	for _, st := range iterSites {
+		if c := cls(st.n); conv[c] && c.ptr && c.mutated() && st.rng {
+			fs := st.fs
+			ptrLoops = append(ptrLoops, ptrLoop{c, fs.Body, func(rng bool) bool { ptrRange[fs] = rng; return rng }})
+		}
+	}
 	nf := fieldLoops()
 	fmt.Fprintf(os.Stderr, "for-each loops: %d range, %d eachOf_; step 1 loops to range: %d; eachOf_ loops over fields to range: %d\n", nRange, nEach, n1, nf)
+	fmt.Fprintf(os.Stderr, "loops over pointers to slices that change: %d range, %d read the slice at every step\n", ptrRanged, ptrCursors)
 	nIterRange, nIterIndex := 0, 0
 	for _, st := range iterSites {
 		if conv[cls(st.n)] {
@@ -2104,6 +2696,24 @@ func mapUse(n *node, recv ast.Expr, m string, call *ast.CallExpr) {
 			n.mutated = m
 		}
 	}
+	// A Var key: a Go map keyed by what Var.equals compares (vkey_: the name and the scope
+	// root, never changing); the operations that hand the key back need the Var itself.
+	vk := isVarKey(as[0])
+	if vk {
+		A = func(i int) string {
+			if i == 0 && m != "addAllT" {
+				_, kf, _ := valueKey(as[0])
+				return kf + "(" + rw.Render(args[0]) + ")"
+			}
+			return rw.Render(args[i])
+		}
+		switch m {
+		case "size", "isEmpty", "clear", "get", "containsKey", "contains", "put", "remove", "getOrDefault", "putIfAbsent", "add", "addAllT":
+		default:
+			poison(n, "keyed by equals of a few fields, and method "+m)
+			return
+		}
+	}
 	strVal := !set && isString(as[1])
 	switch {
 	case m == "size" && len(args) == 0:
@@ -2141,10 +2751,11 @@ func mapUse(n *node, recv ast.Expr, m string, call *ast.CallExpr) {
 	case !set && m == "putIfAbsent" && len(args) == 2:
 		changes()
 		edit(n, call, func() string { return "mapPutIfAbsent_(" + vc + ", " + R() + ", " + A(0) + ", " + A(1) + ")" })
-	case !set && m == "computeIfAbsent" && len(args) == 2 && kc != "":
+	case !set && (m == "computeIfAbsent" || m == "computeIfAbsent_f") && len(args) == 2 && kc != "":
 		changes()
+		h := map[string]string{"computeIfAbsent": "mapComputeIfAbsent_(", "computeIfAbsent_f": "mapComputeIfAbsent_f("}[m]
 		edit(n, call, func() string {
-			return "mapComputeIfAbsent_(" + kc + ", " + vc + ", " + R() + ", " + A(0) + ", " + A(1) + ")"
+			return h + kc + ", " + vc + ", " + R() + ", " + A(0) + ", " + A(1) + ")"
 		})
 	case set && m == "add" && len(args) == 1:
 		changes()
@@ -2168,16 +2779,20 @@ func mapUse(n *node, recv ast.Expr, m string, call *ast.CallExpr) {
 		poison(n, "iterated (insertion order)")
 	case m == "asMap" && len(args) == 0 && kc != "":
 		// Map_computeIfAbsent(m.asMap(), k, f), with a key that is boxed.
+		// Map_getOrDefault(m.asMap(), k, d): a lookup, whatever the order.
 		if p, ok := rw.Up(call).(*ast.CallExpr); ok && len(p.Args) == 3 && rw.Unparen(p.Args[0]) == call {
-			if nm, _ := rw.CallName(p); nm == "Map_computeIfAbsent" {
-				changes()
+			if nm, _ := rw.CallName(p); nm == "Map_computeIfAbsent" || nm == "Map_computeIfAbsent_f" || nm == "Map_getOrDefault" {
+				h := map[string]string{"Map_computeIfAbsent": "mapComputeIfAbsentObj_(", "Map_computeIfAbsent_f": "mapComputeIfAbsentObj_f(", "Map_getOrDefault": "mapGetOrObj_("}[nm]
+				if nm != "Map_getOrDefault" {
+					changes()
+				}
 				edit(n, p, func() string {
-					return "mapComputeIfAbsentObj_(" + kc + ", " + vc + ", " + R() + ", " + rw.Render(p.Args[1]) + ", " + rw.Render(p.Args[2]) + ")"
+					return h + kc + ", " + vc + ", " + R() + ", " + rw.Render(p.Args[1]) + ", " + rw.Render(p.Args[2]) + ")"
 				})
 				return
 			}
 		}
-		poison(n, "seen as an erased Map")
+		poison(n, "seen as an erased Map"+consumer(call))
 	case m == "asSet" && len(args) == 0 && kc != "":
 		// s.asSet().addAll(c): adding to a set does not depend on the order of c.
 		if p, ok := rw.Up(call).(*ast.SelectorExpr); ok && p.Sel.Name == "addAll" {
@@ -2187,13 +2802,39 @@ func mapUse(n *node, recv ast.Expr, m string, call *ast.CallExpr) {
 				return
 			}
 		}
-		poison(n, "seen as an erased Set")
+		poison(n, "seen as an erased Set"+consumer(call))
 	case m == "asMap" || m == "asSet":
-		poison(n, "seen as an erased "+map[bool]string{true: "Set", false: "Map"}[set])
+		poison(n, "seen as an erased "+map[bool]string{true: "Set", false: "Map"}[set]+consumer(call))
 	default:
 		poison(n, "method "+m)
 	}
 }
+
+// valueKeys are the key classes whose equals and hashCode compare a few fields that never
+// change after construction, with the comparable Go key of those fields (rt_varmap.go): a Go
+// map keyed by it finds what a HashMap finds. Var (ScopedName's equals): the name and the
+// scope root. ExportTrace (an AutoValue): the module (identity) and the export name.
+var valueKeys = map[string][2]string{
+	"Var":         {"varKey_", "vkey_"},
+	"ExportTrace": {"exportTraceKey_", "etkey_"},
+}
+
+// valueKey is the Go key type and key function of key type t, if t is a pointer to one of
+// valueKeys.
+func valueKey(t types.Type) (string, string, bool) {
+	p, ok := types.Unalias(t).(*types.Pointer)
+	if !ok {
+		return "", "", false
+	}
+	nt, ok := types.Unalias(p.Elem()).(*types.Named)
+	if !ok || nt.Obj().Pkg() != rw.Pkg {
+		return "", "", false
+	}
+	k, ok := valueKeys[nt.Obj().Name()]
+	return k[0], k[1], ok
+}
+
+func isVarKey(t types.Type) bool { _, _, ok := valueKey(t); return ok }
 
 func isString(t types.Type) bool {
 	b, ok := types.Unalias(t).(*types.Basic)
@@ -2486,8 +3127,15 @@ func fieldLoops() int {
 			return true
 		})
 	}
-	if len(sites) == 0 {
+	if len(sites) == 0 && len(ptrLoops) == 0 {
 		return 0
+	}
+	// Classes of pointers to slices that loops walk: interests after the fields.
+	ptrIDs := map[*class]int{}
+	for _, pl := range ptrLoops {
+		if _, ok := ptrIDs[pl.c]; !ok {
+			ptrIDs[pl.c] = len(fields) + len(ptrIDs)
+		}
 	}
 	// Per function (a declaration or a function literal): the fields of interest it changes,
 	// the functions it calls (a key of a pool for a call of a function value). A function value is a
@@ -2719,6 +3367,11 @@ func fieldLoops() int {
 	}
 	scan := func(body ast.Node, fi *fnInfo) {
 		ast.Inspect(body, func(n ast.Node) bool {
+			if m, ok := mutSites[n]; ok {
+				if id, ok := ptrIDs[cls(m)]; ok {
+					fi.mut[id] = true // a list of the class changes
+				}
+			}
 			switch x := n.(type) {
 			case *ast.AssignStmt:
 				for _, l := range x.Lhs {
@@ -2951,6 +3604,11 @@ func fieldLoops() int {
 		if k, ok := f.(string); ok && (strings.HasPrefix(k, "fv") || strings.HasPrefix(k, "hold:")) {
 			return &eff{mut: map[int]bool{}} // no function value of the signature exists
 		}
+		if lf, ok := f.(*types.Func); ok && lf.Pkg() != rw.Pkg && !callsBack(lf) {
+			// A library function used as a value that is given nothing it could call back
+			// into this package with (reflect.TypeFor[T]).
+			return &eff{mut: map[int]bool{}}
+		}
 		return &eff{all: true} // no body here (a library interface method without one)
 	}
 	for changed := true; changed; {
@@ -2971,6 +3629,42 @@ func fieldLoops() int {
 						e.mut[i], changed = true, true
 					}
 				}
+			}
+		}
+	}
+	if tr := os.Getenv("NATIVE_TRACE2"); tr != "" {
+		name := func(c any) string {
+			switch f := c.(type) {
+			case *types.Func:
+				return f.FullName()
+			case *ast.FuncLit:
+				return rw.Fset.Position(f.Pos()).String()
+			}
+			return fmt.Sprint(c)
+		}
+		for f := range infos {
+			if name(f) != tr {
+				continue
+			}
+			cur := f
+			for d := 0; d < 30; d++ {
+				fi := infos[cur]
+				if fi == nil {
+					fmt.Fprintf(os.Stderr, "trace2: %s has no body\n", name(cur))
+					break
+				}
+				var next any
+				for c := range fi.calls {
+					if callee(c).all {
+						next = c
+						break
+					}
+				}
+				fmt.Fprintf(os.Stderr, "trace2: %s -> %v\n", name(cur), name(next))
+				if next == nil {
+					break
+				}
+				cur = next
 			}
 		}
 	}
@@ -3047,8 +3741,59 @@ func fieldLoops() int {
 			n++
 		}
 	}
+	// Loops over pointers to slices: a plain range loop when nothing the body can run
+	// changes a list of the class.
+	for _, pl := range ptrLoops {
+		fi := &fnInfo{mut: map[int]bool{}, calls: map[any]bool{}}
+		scan(pl.body, fi)
+		i := ptrIDs[pl.c]
+		ok := !fi.mut[i] && !pl.c.unknownMut
+		for c := range fi.calls {
+			if ce := callee(c); ce.all || ce.mut[i] {
+				ok = false
+				break
+			}
+		}
+		if os.Getenv("NATIVE_WHY") != "" && !ok {
+			var by []string
+			for c := range fi.calls {
+				if ce := callee(c); ce.all || ce.mut[i] {
+					switch f := c.(type) {
+					case *types.Func:
+						by = append(by, f.FullName())
+					case *ast.FuncLit:
+						by = append(by, rw.Fset.Position(f.Pos()).String())
+					default:
+						by = append(by, fmt.Sprint(f))
+					}
+				}
+			}
+			sort.Strings(by)
+			fmt.Fprintf(os.Stderr, "why: loop at %s reads anew: %v %v\n", rw.Fset.Position(pl.body.Pos()), fi.mut[i], by)
+		}
+		if pl.apply(ok) {
+			ptrRanged++
+		} else {
+			ptrCursors++
+		}
+	}
 	return n
 }
+
+// ptrLoops are loops over pointers to slices of classes that change: apply(rng) writes the
+// loop as a plain range loop when rng (and reports whether it did), else as one that reads
+// the slice anew at every step.
+type ptrLoop struct {
+	c     *class
+	body  ast.Node
+	apply func(rng bool) bool
+}
+
+var (
+	ptrLoops              []ptrLoop
+	ptrRanged, ptrCursors int
+	ptrRange              = map[*ast.ForStmt]bool{} // canonical iterator loops that range over the slice
+)
 
 // hasTypeParam reports whether signature sig mentions a type parameter.
 func hasTypeParam(sig *types.Signature) bool {
@@ -3092,4 +3837,489 @@ func hasTypeParam(sig *types.Signature) bool {
 		return false
 	}
 	return has(sig)
+}
+
+// consumer names what takes a view (diagnostics, NATIVE_ALL).
+func consumer(call ast.Expr) string {
+	if os.Getenv("NATIVE_ALL") == "" {
+		return ""
+	}
+	for x := rw.Up(call); x != nil; x = rw.Up(x) {
+		switch p := x.(type) {
+		case *ast.SelectorExpr:
+			return " (." + p.Sel.Name + ")"
+		case *ast.CallExpr:
+			n, _ := rw.CallName(p)
+			if n == "Collection" || n == "Iterable" || n == "obj_" || n == "any" || strings.HasPrefix(n, "icast_") {
+				continue
+			}
+			if n == "" {
+				if s, ok := rw.Unparen(p.Fun).(*ast.SelectorExpr); ok {
+					n = "." + s.Sel.Name
+				}
+			}
+			return " (" + n + ")"
+		default:
+			return fmt.Sprintf(" (%T)", x)
+		}
+	}
+	return ""
+}
+
+// itemsWritten reports whether l.items (x) is assigned, has an element assigned, or has its
+// address taken.
+func itemsWritten(x ast.Expr) bool {
+	e := ast.Expr(x)
+	if ix, ok := rw.Up(e).(*ast.IndexExpr); ok && ix.X == e {
+		e = ix
+	}
+	switch p := rw.Up(e).(type) {
+	case *ast.AssignStmt:
+		for _, l := range p.Lhs {
+			if l == e {
+				return true
+			}
+		}
+	case *ast.UnaryExpr:
+		return p.Op == token.AND
+	case *ast.IncDecStmt:
+		return true
+	}
+	return false
+}
+
+// callsBack reports whether library function f takes something it could call back into this
+// package with: a function, or an interface value (whose methods it may call).
+func callsBack(f *types.Func) bool {
+	sig := f.Type().(*types.Signature)
+	if sig.Recv() != nil {
+		return true
+	}
+	for i := 0; i < sig.Params().Len(); i++ {
+		switch types.Unalias(sig.Params().At(i).Type()).Underlying().(type) {
+		case *types.Signature, *types.Interface:
+			return true
+		}
+		if sl, ok := types.Unalias(sig.Params().At(i).Type()).Underlying().(*types.Slice); ok {
+			switch sl.Elem().Underlying().(type) {
+			case *types.Signature, *types.Interface:
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// cursorSite handles call, recv.cursor() (a typed iterator of tools/postflip/iters), if the
+// cursor is a local used only for hasNext(), nextT() and remove() in the function declaring
+// it, and reports whether it did. The class becomes pointers to slices; the cursor an int
+// index into the slice the pointer points to, read anew at every use as the typed list's
+// iterator read its list (sliceCursor_ throws NullPointerException for a null list where
+// cursor() did). A canonical loop without remove is a range loop as in iterSite.
+func cursorSite(n *node, recv ast.Expr, call *ast.CallExpr) bool {
+	var itID *ast.Ident
+	var decl ast.Stmt
+	switch d := rw.Up(call).(type) {
+	case *ast.ValueSpec:
+		if len(d.Names) != 1 || len(d.Values) != 1 {
+			return false
+		}
+		gd, _ := rw.Parent[d].(*ast.GenDecl)
+		if gd == nil || len(gd.Specs) != 1 {
+			return false
+		}
+		ds, _ := rw.Parent[gd].(*ast.DeclStmt)
+		if ds == nil {
+			return false
+		}
+		itID, decl = d.Names[0], ds
+	case *ast.AssignStmt:
+		if d.Tok != token.DEFINE || len(d.Lhs) != 1 || len(d.Rhs) != 1 {
+			return false
+		}
+		itID, _ = d.Lhs[0].(*ast.Ident)
+		decl = d
+	}
+	if itID == nil || !rw.Pure(recv) {
+		return false
+	}
+	it, _ := rw.Info.Defs[itID].(*types.Var)
+	if it == nil {
+		return false
+	}
+	if _, ok := stmtListOf(decl); !ok {
+		return false
+	}
+	fn := enclosingFn(decl)
+	var hasNext, next, remove []*ast.CallExpr
+	for _, u := range rw.UsesOf[it] {
+		s, ok := rw.Parent[u].(*ast.SelectorExpr)
+		if !ok || enclosingFn(u) != fn {
+			return false
+		}
+		c, ok := rw.Parent[s].(*ast.CallExpr)
+		if !ok || c.Fun != s || len(c.Args) != 0 {
+			return false
+		}
+		switch s.Sel.Name {
+		case "hasNext":
+			hasNext = append(hasNext, c)
+		case "nextT":
+			next = append(next, c)
+		case "remove":
+			if !isStmt(c) {
+				return false
+			}
+			remove = append(remove, c)
+		default:
+			return false
+		}
+	}
+	elem := elemOf(typeOf(recv))
+	share(n, "walked by a cursor")
+	for _, c := range remove {
+		if n.mutated == "" {
+			n.mutated = "remove"
+		}
+		mutSites[c] = n
+	}
+	iterSites = append(iterSites, iterSiteT{n: n, decl: decl, stable: true})
+	st := &iterSites[len(iterSites)-1]
+	Rx := func() string { return rw.Render(recv) }
+	name := itID.Name
+	if len(remove) == 0 {
+		if fs, first := iterLoop(decl, hasNext, next, elem); fs != nil {
+			vs := first.Decl.(*ast.GenDecl).Specs[0].(*ast.ValueSpec)
+			x := vs.Names[0].Name
+			edit(n, decl, func() string { return rw.Del })
+			edit(n, first, func() string { return rw.Del })
+			edit(n, fs.Cond, func() string {
+				if c := cls(n); c.mutated() && !ptrRange[fs] {
+					return x + " := range sliceAll_(" + Rx() + ")"
+				}
+				return "_, " + x + " := range *" + Rx()
+			})
+			st.rng, st.fs = true, fs
+			return true
+		}
+	}
+	// The list the cursor walks: recv itself when it names the same list at every use, else
+	// a local holding the pointer from the declaration on.
+	L := Rx
+	if !stableLocal(recv) {
+		ln := name + "_s"
+		if _, o := rw.Pkg.Scope().Innermost(decl.Pos()).LookupParent(ln, decl.Pos()); o != nil {
+			return false
+		}
+		L = func() string { return ln }
+		edit(n, decl, func() string { return ln + ", " + name + " := " + Rx() + ", sliceCursor_(" + Rx() + ")" })
+	} else if ds, ok := decl.(*ast.DeclStmt); ok {
+		edit(n, ds, func() string { return "var " + name + " int = sliceCursor_(" + Rx() + ")" })
+	} else {
+		edit(n, call, func() string { return "sliceCursor_(" + Rx() + ")" })
+	}
+	for _, c := range hasNext {
+		_, cond := rw.Up(c).(*ast.ForStmt)
+		edit(n, c, func() string {
+			if cond {
+				return name + " < len(*" + L() + ")"
+			}
+			return "(" + name + " < len(*" + L() + "))"
+		})
+	}
+	for _, c := range next {
+		edit(n, c, func() string { return "sliceNext_(*" + L() + ", &" + name + ")" })
+	}
+	for _, c := range remove {
+		edit(n, c, func() string { return "sliceIterRemove_(" + L() + ", &" + name + ")" })
+	}
+	return true
+}
+
+// stmtListOf is the statement list that statement s is in.
+func stmtListOf(s ast.Stmt) ([]ast.Stmt, bool) {
+	l := stmtList(rw.Parent[s])
+	return l, l != nil
+}
+
+// isListView reports whether e is a list seen as an erased List: a view of a slice or of a
+// typed list (whose equals reads it).
+func isListView(e ast.Expr) bool {
+	c, ok := rw.Unparen(e).(*ast.CallExpr)
+	if !ok {
+		return false
+	}
+	if nm, _ := rw.CallName(c); nm == "sliceView_" || nm == "sliceViewP_" {
+		return true
+	}
+	s, ok := rw.Unparen(c.Fun).(*ast.SelectorExpr)
+	if !ok || s.Sel.Name != "asList" || len(c.Args) != 0 {
+		return false
+	}
+	t := typeOf(s.X)
+	if p, ok := types.Unalias(t).(*types.Pointer); ok {
+		if nt, ok := types.Unalias(p.Elem()).(*types.Named); ok && nt.Obj().Name() == "TList" {
+			return true
+		}
+	}
+	return false
+}
+
+// valueListElem is T of TList[T] (the list itself, not a pointer to it), else nil.
+func valueListElem(t types.Type) types.Type {
+	if t == nil {
+		return nil
+	}
+	n, ok := types.Unalias(t).(*types.Named)
+	if !ok || n.Obj().Name() != "TList" || n.Obj().Pkg() != rw.Pkg || n.TypeArgs().Len() != 1 {
+		return nil
+	}
+	return n.TypeArgs().At(0)
+}
+
+// byValueField registers field slot k declared TList[T] (a manual step keeps a node's edge
+// list in the node, its items in an array beside it). Its address is the list: as a pointer
+// to a slice the field holds the slice. Its uses must be &x.f (a value of the class) and
+// x.f = TList[T]{c: tc, items: s} (the field holds s).
+func byValueField(k *node, te ast.Expr) {
+	k.byValue = true
+	declareType(k, te)
+	share(k, "a typed list held by value")
+	for _, u := range rw.UsesOf[k.v] {
+		e := rw.VarExpr(u)
+		curPos = e.Pos()
+		switch p := rw.Up(e).(type) {
+		case *ast.UnaryExpr:
+			if p.Op == token.AND {
+				continue // handled as a value
+			}
+		case *ast.AssignStmt:
+			if len(p.Lhs) == 1 && len(p.Rhs) == 1 && p.Lhs[0] == e {
+				if cl, ok := rw.Unparen(p.Rhs[0]).(*ast.CompositeLit); ok {
+					var items ast.Expr
+					for _, el := range cl.Elts {
+						if kv, ok := el.(*ast.KeyValueExpr); ok {
+							if id, ok := kv.Key.(*ast.Ident); ok && id.Name == "items" {
+								items = kv.Value
+							}
+						}
+					}
+					if items != nil {
+						edit(k, cl, func() string { return rw.Render(items) })
+						if k.mutated == "" {
+							k.mutated = "assigned"
+						}
+						mutSites[p] = k
+						continue
+					}
+				}
+			}
+		}
+		poison(k, "a typed list held by value, used otherwise")
+	}
+}
+
+// ---- views read by functions of the package
+
+// readCall is a view of slot n's list (call, recv.asList()) passed as argument i of a call of
+// group's functions. If each of them only reads that parameter during the call (readParams)
+// the list becomes a pointer to a slice and the argument a live view of it (slicePtrView_,
+// which reads the slice at every operation as the typed list's view did); the view is made
+// for the call, so its identity is not seen: the parameter is not kept, compared or returned.
+type readCall struct {
+	n     *node
+	call  *ast.CallExpr
+	recv  ast.Expr
+	tc    string
+	group string
+	i     int
+	what  string
+}
+
+var readCalls []readCall
+
+// erasedColl reports whether t is the package's List, Collection, Iterable or
+// SequencedCollection interface (or an alias of one).
+func erasedColl(t types.Type) bool {
+	nt, ok := types.Unalias(t).(*types.Named)
+	if !ok || nt.Obj().Pkg() != rw.Pkg {
+		return false
+	}
+	switch nt.Obj().Name() {
+	case "List", "Collection", "Iterable", "SequencedCollection":
+		return true
+	}
+	return false
+}
+
+// viewReadMethods are the methods of an erased collection that read it during the call.
+var viewReadMethods = map[string]bool{"size": true, "isEmpty": true, "get": true, "contains": true, "containsAll": true,
+	"indexOf": true, "lastIndexOf": true, "toArray": true, "toArray_0": true, "equals": true, "hashCode": true, "toString": true}
+
+// iterFns iterate a collection in place when their result is the range expression (or, for
+// foreach_, a cursor of the function).
+var iterFns = map[string]bool{"elems_": true, "elemsBy_": true, "foreach_": true}
+
+// readParams returns the parameters ("group:i") of erased collection type that every function
+// of the group only reads during the call: each use is a reading method, an iteration in
+// place, a runtime reader, a nil test, or an argument for such a parameter (a fixpoint), never
+// in a function literal, never assigned.
+func readParams() map[string]bool {
+	type param struct {
+		key string
+		v   *types.Var
+		fn  *ast.FuncDecl
+	}
+	var ps []param
+	bad := map[string]bool{}
+	for _, f := range rw.Files {
+		for _, d := range f.Decls {
+			fd, ok := d.(*ast.FuncDecl)
+			if !ok || fd.Body == nil {
+				continue
+			}
+			o, ok := rw.Info.Defs[fd.Name].(*types.Func)
+			if !ok {
+				continue
+			}
+			g := groupOf(o)
+			sig := o.Type().(*types.Signature)
+			for i := 0; i < sig.Params().Len(); i++ {
+				v := sig.Params().At(i)
+				if !erasedColl(v.Type()) {
+					continue
+				}
+				k := fmt.Sprintf("%s:%d", g, i)
+				if !generated(fd.Pos()) || sig.Variadic() && i == sig.Params().Len()-1 {
+					bad[k] = true
+					continue
+				}
+				ps = append(ps, param{k, v, fd})
+			}
+		}
+	}
+	// Methods and functions used as values may be called from anywhere, but that does not
+	// change what they do with the parameter: only the bodies matter.
+	ok := func(p param, cur map[string]bool) bool {
+		for _, u := range rw.UsesOf[p.v] {
+			if enclosingFn(u) != p.fn {
+				return false // in a function literal
+			}
+			top := ast.Expr(u)
+			for {
+				c, ok := rw.Up(top).(*ast.CallExpr)
+				if !ok || len(c.Args) != 1 || rw.Unparen(c.Args[0]) != top {
+					break
+				}
+				nm, _ := rw.CallName(c)
+				if nm != "Collection" && nm != "Iterable" && nm != "List" && nm != "SequencedCollection" && nm != "icast_Collection" && nm != "icast_Iterable" && nm != "icast_List" {
+					break
+				}
+				top = c
+			}
+			switch x := rw.Up(top).(type) {
+			case *ast.SelectorExpr:
+				c, isCall := rw.Up(x).(*ast.CallExpr)
+				if !isCall || c.Fun != x || !viewReadMethods[x.Sel.Name] {
+					return false
+				}
+			case *ast.BinaryExpr:
+				other := x.X
+				if other == top {
+					other = x.Y
+				}
+				if id, ok := rw.Unparen(other).(*ast.Ident); !ok || id.Name != "nil" || x.Op != token.EQL && x.Op != token.NEQ {
+					return false
+				}
+			case *ast.CallExpr:
+				idx := -1
+				for i, a := range x.Args {
+					if rw.Unparen(a) == top {
+						idx = i
+					}
+				}
+				if idx < 0 {
+					return false
+				}
+				nm, _ := rw.CallName(x)
+				base := nm
+				if j := strings.IndexByte(base, '['); j >= 0 {
+					base = base[:j]
+				}
+				switch {
+				case iterFns[base] && idx == 0:
+					switch y := rw.Up(x).(type) {
+					case *ast.RangeStmt:
+						if y.X != x {
+							return false
+						}
+					case *ast.AssignStmt:
+						if base != "foreach_" || y.Tok != token.DEFINE || len(y.Lhs) != 1 {
+							return false
+						}
+						cv, _ := rw.Info.Defs[y.Lhs[0].(*ast.Ident)].(*types.Var)
+						for _, cu := range rw.UsesOf[cv] {
+							if enclosingFn(cu) != p.fn {
+								return false
+							}
+						}
+					default:
+						return false
+					}
+				case readers[nm], nm == "isNil_" && idx == 0:
+				default:
+					if s, ok := rw.Unparen(x.Fun).(*ast.SelectorExpr); ok && readerMethods[s.Sel.Name] && erasedRuntime(typeOf(s.X)) {
+						break
+					}
+					f := calleeFunc(x)
+					if f == nil || !generated(f.Pos()) {
+						return false
+					}
+					if sig := f.Type().(*types.Signature); sig.Variadic() && idx >= sig.Params().Len()-1 {
+						return false
+					}
+					if !cur[fmt.Sprintf("%s:%d", groupOf(f), idx)] {
+						return false
+					}
+				}
+			default:
+				return false
+			}
+		}
+		return true
+	}
+	cur := map[string]bool{}
+	for _, p := range ps {
+		if !bad[p.key] {
+			cur[p.key] = true
+		}
+	}
+	for changed := true; changed; {
+		changed = false
+		for _, p := range ps {
+			if cur[p.key] && !ok(p, cur) {
+				cur[p.key] = false
+				changed = true
+			}
+		}
+	}
+	return cur
+}
+
+// decideReadCalls makes each pending readCall a live view or poisons its class.
+func decideReadCalls() {
+	if len(readCalls) == 0 {
+		return
+	}
+	rp := readParams()
+	for _, rc := range readCalls {
+		curPos = rc.call.Pos()
+		if !rp[fmt.Sprintf("%s:%d", rc.group, rc.i)] {
+			poison(rc.n, rc.what)
+			continue
+		}
+		rc := rc
+		share(rc.n, "read through a view by a call")
+		edit(rc.n, rc.call, func() string { return "slicePtrView_(" + rc.tc + ", " + rw.Render(rc.recv) + ")" })
+	}
 }
