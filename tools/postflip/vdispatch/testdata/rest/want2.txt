@@ -1,0 +1,7 @@
+left alone: Copied: self_ copied at g_cases.go:210
+left alone: Foreign: self_ set at g_cases.go:254 to a value that is no Foreign_as of the object
+left alone: Unpaired: self_ set at g_cases.go:240 without vt_Unpaired_ set to the same object after it
+cast left: to_Listed: an interface of the package lists as_Listed or as_Listed_
+roots with self_ any: 3 in generated code (1 in the runtime, not looked at); typed: 0 with the type of their vt field (0 reads of it read self_, 0 assignments and 0 fields deleted), 0 with X_as; left: 3
+casts to_X through an anonymous interface: 1; generic, now one assertion to X_as[P...]: 0 (0 as_X_ methods deleted); named: 0; left: 1; X_as interfaces declared: 0
+files changed: 0

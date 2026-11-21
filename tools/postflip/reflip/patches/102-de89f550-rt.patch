@@ -1,0 +1,211 @@
+diff --git a/go/closure/rt_guava.go b/go/closure/rt_guava.go
+index ae1245c9..859813f9 100644
+--- a/go/closure/rt_guava.go
++++ b/go/closure/rt_guava.go
+@@ -639,6 +639,9 @@ func (this *ImmutableCollection_Builder) add(p0 any) *ImmutableCollection_Builde
+ 	if p0 == nil {
+ 		panic(new_NullPointerException_0().self())
+ 	}
++	if cap(this.items) == 0 {
++		this.items = make([]any, 0, 4) // as Guava's builder starts
++	}
+ 	this.items = append(this.items, p0)
+ 	return this
+ }
+@@ -656,14 +659,16 @@ func (this *ImmutableCollection_Builder) add_ObjectArr(p0 []any) *ImmutableColle
+ }
+ 
+ func (this *ImmutableCollection_Builder) addAll(p0 Iterable) *ImmutableCollection_Builder {
+-	for _, v := range toSlice_(p0) {
++	for _, v := range readSlice_(p0) {
+ 		this.add(v)
+ 	}
+ 	return this
+ }
+ 
++// build shares the elements so far with the collection built, as Guava's builder does: the
++// builder only appends, and the capacity is cut so that later adds never reach it.
+ func (this *ImmutableCollection_Builder) build() *ImmutableCollection {
+-	items := append([]any(nil), this.items...)
++	items := this.items[:len(this.items):len(this.items)]
+ 	switch this.kind {
+ 	case icSet_:
+ 		return immSet_(items)
+diff --git a/go/closure/rt_native.go b/go/closure/rt_native.go
+index cafca87a..7a51e27e 100644
+--- a/go/closure/rt_native.go
++++ b/go/closure/rt_native.go
+@@ -92,15 +92,130 @@ func sliceClear_[T any](s *[]T) {
+ }
+ 
+ // sliceFrom_ is new ArrayList<>(from) as a slice.
+-func sliceFrom_[T any](c *tconv_[T], from Collection) []T { return tlistFrom_(c, from).items }
++func sliceFrom_[T any](c *tconv_[T], from Collection) []T { return unboxAll_(c, readSlice_(from)) }
+ 
+-// sliceImm_ is an ImmutableList (or nil) as a slice: the items of its typed copy, which nothing
+-// changes.
++// sliceImm_ is an ImmutableList (or nil) as a slice, which nothing changes. The typed copy is
++// kept on an immutable list from its second conversion to T on (the first one only notes T):
++// a list made to be converted once is copied once, a long-lived one is copied twice at most.
++// An empty list is an empty slice, not nil (Java's null).
+ func sliceImm_[T any](c *tconv_[T], from Collection) []T {
+-	if l := tlistImm_(c, from); l != nil {
+-		return l.items
++	ic, ok := from.(*ImmutableCollection)
++	if !ok || ic == nil {
++		if l := tlistImm_(c, from); l != nil {
++			return l.items
++		}
++		return nil
++	}
++	slot := &ic.typed_
++	seen := slot.conv == any(c)
++	if seen {
++		if l, ok := slot.v.(*TList[T]); ok {
++			return l.items
++		}
++	}
++	src := ic.elems_()
++	if len(src) == 0 {
++		return []T{}
++	}
++	s := unboxAll_(c, src)
++	if seen {
++		*slot = immTyped_{c, &TList[T]{items: s, c: c, imm: true}}
++	} else {
++		*slot = immTyped_{conv: c}
++	}
++	return s
++}
++
++// unboxAll_ is a new slice of the unboxed elements of src.
++func unboxAll_[T any](c *tconv_[T], src []any) []T {
++	s := make([]T, len(src))
++	for i, x := range src {
++		s[i] = c.unbox(x)
++	}
++	return s
++}
++
++// ---- ImmutableList.Builder as the slice it builds (step immbuild)
++
++// immAdd_ is ImmutableList.Builder.add(x) on a builder kept as the slice it builds: a null
++// element throws NullPointerException as the builder does. The first element makes room for
++// four, as Guava's builder starts.
++func immAdd_[T any](c *tconv_[T], s []T, x T) []T {
++	if c.box(x) == nil {
++		throwNPE_("at index " + istr_(int64(len(s))))
++	}
++	if cap(s) == 0 {
++		s = make([]T, 0, 4)
++	}
++	return append(s, x)
++}
++
++// immAddObj_ is immAdd_ of a boxed element.
++func immAddObj_[T any](c *tconv_[T], s []T, x any) []T {
++	if x == nil {
++		throwNPE_("at index " + istr_(int64(len(s))))
++	}
++	if cap(s) == 0 {
++		s = make([]T, 0, 4)
++	}
++	return append(s, c.unbox(x))
++}
++
++// immAddAll_ is ImmutableList.Builder.addAll(from): each element is added as by add.
++func immAddAll_[T any](c *tconv_[T], s []T, from Iterable) []T {
++	for _, x := range readSlice_(from) {
++		s = immAddObj_(c, s, x)
++	}
++	return s
++}
++
++// immBuilt_ is ImmutableList.Builder.build() of a builder kept as the slice s: the elements so
++// far, with the capacity cut to them so that later adds to the builder never reach the list
++// built. An empty list is an empty slice, not nil (Java's null).
++func immBuilt_[T any](s []T) []T {
++	if s == nil {
++		return []T{}
++	}
++	return s[:len(s):len(s)]
++}
++
++// immCopyOf_ is ImmutableList.copyOf(from) as a slice: an immutable collection is converted as
++// sliceImm_ converts its asList(); any other is copied, and a null element throws
++// NullPointerException as copyOf does.
++func immCopyOf_[T any](c *tconv_[T], from Iterable) []T {
++	if ic, ok := from.(*ImmutableCollection); ok {
++		return sliceImm_(c, Collection(ic.asList()))
++	}
++	src := toSlice_(from)
++	if len(src) == 0 {
++		return []T{}
++	}
++	checkNoNulls_(src)
++	return unboxAll_(c, src)
++}
++
++// immCopySlice_ is ImmutableList.copyOf(sliceView_(c, s)) of a slice s seen as a list: a null
++// list throws NullPointerException, as its view did; the elements are checked and copied.
++func immCopySlice_[T any](c *tconv_[T], s []T) []T {
++	if s == nil {
++		panic(new_NullPointerException_0().self())
++	}
++	return immCopyArr_(c, s)
++}
++
++// immCopyArr_ is ImmutableList.copyOf(a) of an array a as a slice: the elements, checked for
++// null as copyOf does, are copied (the array can change later). An empty or null array is an
++// empty list, as ImmutableList_copyOf_ObjectArr makes it.
++func immCopyArr_[T any](c *tconv_[T], a []T) []T {
++	if len(a) == 0 {
++		return []T{}
++	}
++	for i, x := range a {
++		if c.box(x) == nil {
++			throwNPE_("at index " + istr_(int64(i)))
++		}
+ 	}
+-	return nil
++	return append([]T(nil), a...)
+ }
+ 
+ // sliceView_ is s as an erased List for one call that reads it, or sorts it in place: a typed
+diff --git a/go/closure/rt_tlist.go b/go/closure/rt_tlist.go
+index fec9f466..482cebb3 100644
+--- a/go/closure/rt_tlist.go
++++ b/go/closure/rt_tlist.go
+@@ -41,7 +41,9 @@ func tlistImm_[T any](c *tconv_[T], from Collection) *TList[T] {
+ 	}
+ 	slot := immSlot_(from)
+ 	if slot != nil && slot.conv == any(c) {
+-		return slot.v.(*TList[T])
++		if l, ok := slot.v.(*TList[T]); ok {
++			return l
++		}
+ 	}
+ 	l := tlistFrom_(c, from)
+ 	l.imm = true
+@@ -72,12 +74,16 @@ func immSlot_(from any) *immTyped_ {
+ 
+ // tlistFrom_ is new ArrayList<>(from) as a typed list.
+ func tlistFrom_[T any](c *tconv_[T], from Collection) *TList[T] {
+-	src := toSlice_(from)
+-	l := &TList[T]{c: c, items: make([]T, len(src))}
+-	for i, x := range src {
+-		l.items[i] = c.unbox(x)
++	return &TList[T]{c: c, items: unboxAll_(c, readSlice_(from))}
++}
++
++// readSlice_ is the elements of c for a caller that only reads them: those of an immutable
++// collection are not copied.
++func readSlice_(c Iterable) []any {
++	if ic, ok := c.(*ImmutableCollection); ok && ic != nil {
++		return ic.elems_()
+ 	}
+-	return l
++	return toSlice_(c)
+ }
+ 
+ func (l *TList[T]) size() int32   { return int32(len(l.items)) }

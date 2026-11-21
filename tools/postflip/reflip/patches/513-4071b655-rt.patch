@@ -1,0 +1,33 @@
+diff --git a/go/closure/rt_base_text.go b/go/closure/rt_base_text.go
+index 110a1aef..18c8ea5f 100644
+--- a/go/closure/rt_base_text.go
++++ b/go/closure/rt_base_text.go
+@@ -212,6 +212,14 @@ func (this *Splitter) splitStrs_(s string) []string { return splitPieces_[string
+ func splitPieces_[E any](this *Splitter, s string) []E {
+ 	var out []E
+ 	limit := this.limit_
++	// Room for every piece at once (one more than the separators, at most the limit), instead of
++	// growing the slice piece by piece.
++	if n := strings.Count(s, this.sep_); n > 0 && this.sep_ != "" {
++		if limit > 0 && n >= int(limit) {
++			n = int(limit) - 1
++		}
++		out = make([]E, 0, n+1)
++	}
+ 	offset := 0
+ 	for offset != -1 {
+ 		start := offset
+diff --git a/go/closure/rt_timm_test.go b/go/closure/rt_timm_test.go
+index d6d58b22..63c41f96 100644
+--- a/go/closure/rt_timm_test.go
++++ b/go/closure/rt_timm_test.go
+@@ -195,7 +195,8 @@ func TestTypedRoundTrips(t *testing.T) {
+ 	guavaThrew_(t, "NullPointerException", func() { Splitter_on('.').splitToList_s(nullstr_) })
+ 	guavaThrew_(t, "IllegalArgumentException", func() { sliceSkip_([]string{"a"}, -1) })
+ 	guavaThrew_(t, "IllegalArgumentException", func() { Iterables_skip(Splitter_on('.').split_s("a"), -1) })
+-	if n := testing.AllocsPerRun(100, func() { Splitter_on('.').splitStrs_("a.b.c.d") }); n > 5 {
++	// (the splitter itself, and the pieces' slice made once at its final size)
++	if n := testing.AllocsPerRun(100, func() { Splitter_on('.').splitStrs_("a.b.c.d") }); n > 2 {
+ 		t.Errorf("splitStrs_ allocates %v times for four pieces", n)
+ 	}
+ 	// immCopyArr_(c, a) is sliceImm_(c, ImmutableList.copyOf(a))
