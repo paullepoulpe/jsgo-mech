@@ -3,7 +3,8 @@
 package closure
 
 type InputId struct {
-	id string
+	id        string
+	hashMemo_ int32 // hashCode, once computed, when it is not 0 (post-flip step hashmemo)
 }
 
 func (this *InputId) zero_InputId() {
@@ -26,6 +27,16 @@ func (this *InputId) getIdName() string {
 }
 
 func (this *InputId) hashCode() int32 {
+	if h := this.hashMemo_; h != 0 {
+		return h
+	}
+	h := this.hashCodeOnce_()
+	this.hashMemo_ = h
+	return h
+}
+
+// hashCodeOnce_ computes hashCode: a function of data that is final in the object (post-flip step hashmemo).
+func (this *InputId) hashCodeOnce_() int32 {
 	return utf16Hash_(this.id)
 }
 
