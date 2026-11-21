@@ -53,7 +53,7 @@ func (this *GuardedCallback[T]) shouldTraverse(traversal *NodeTraversal, n Node,
 		this.contextStack.push(GuardedCallback_Context_EMPTY)
 	} else {
 		this.contextStack.push(this.contextStack.peek().descend(this.compiler_, parent, n))
-		if ((parent != 0) && GuardedCallback_CAN_HAVE_GUARDS.Has(parent.getToken())) && this.registeredGuards.containsKey(parent) {
+		if ((parent != 0) && GuardedCallback_CAN_HAVE_GUARDS_has_(parent.getToken())) && this.registeredGuards.containsKey(parent) {
 			for el_1 := range elems_(this.registeredGuards.removeAll(parent)) {
 				var resource T = junboxT_[T](el_1)
 				this.guarded.add(resource)
@@ -65,7 +65,7 @@ func (this *GuardedCallback[T]) shouldTraverse(traversal *NodeTraversal, n Node,
 }
 
 func (this *GuardedCallback[T]) visit(traversal *NodeTraversal, n Node, parent Node) {
-	if ((parent != 0) && GuardedCallback_CAN_HAVE_GUARDS.Has(n.getToken())) && this.installedGuards.containsKey(n) {
+	if ((parent != 0) && GuardedCallback_CAN_HAVE_GUARDS_has_(n.getToken())) && this.installedGuards.containsKey(n) {
 		this.guarded.removeAll(Iterable(this.installedGuards.removeAll(n)))
 	}
 	if GuardedCallback_isAbrupt(n) {
