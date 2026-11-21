@@ -282,10 +282,11 @@ func (this *MaybeReachingVariableUse_ReachingUses) equals(other any) bool {
 	_ = reachingUses
 	return (func() bool {
 		v_ := other
-		if !is_[*MaybeReachingVariableUse_ReachingUses](v_) {
+		p, ok := v_.(*MaybeReachingVariableUse_ReachingUses)
+		if !ok {
 			return false
 		}
-		reachingUses = cast_[*MaybeReachingVariableUse_ReachingUses](v_)
+		reachingUses = p
 		return true
 	}() && reachingUses.mayUsePMap.equivalent(this.mayUsePMap, BiPredicate[PMap[Node, Node], PMap[Node, Node]](func(p0 PMap[Node, Node], p1 PMap[Node, Node]) bool {
 		return MaybeReachingVariableUse_ReachingUses_equalMaps(p0, p1)

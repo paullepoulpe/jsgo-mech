@@ -303,10 +303,11 @@ func (this *LiveVariablesAnalysis_LiveVariableLattice) equals(other any) bool {
 	_ = liveVariableLattice
 	return (func() bool {
 		v_ := other
-		if !is_[*LiveVariablesAnalysis_LiveVariableLattice](v_) {
+		p, ok := v_.(*LiveVariablesAnalysis_LiveVariableLattice)
+		if !ok {
 			return false
 		}
-		liveVariableLattice = cast_[*LiveVariablesAnalysis_LiveVariableLattice](v_)
+		liveVariableLattice = p
 		return true
 	}() && equalsRR_(this.liveSet, liveVariableLattice.liveSet))
 }

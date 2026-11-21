@@ -80,8 +80,8 @@ func (this *CompilerExecutor) runInCompilerThread(callable Callable[any], dumpTr
 					defer func() {
 						if r_ := recover(); r_ != nil {
 							ex_ := catch_(r_)
-							if is_Throwable(ex_) {
-								var e *Throwable = to_Throwable(ex_)
+							if p, ok := ex_.(Throwable_as); ok {
+								var e *Throwable = p.as_Throwable()
 								exception[0] = e
 								return
 							}
@@ -115,8 +115,8 @@ func (this *CompilerExecutor) runInCompilerThread(callable Callable[any], dumpTr
 			defer func() {
 				if r_ := recover(); r_ != nil {
 					ex_ := catch_(r_)
-					if is_Exception(ex_) {
-						var e *Exception = to_Exception(ex_)
+					if p2, ok2 := ex_.(Exception_as); ok2 {
+						var e *Exception = p2.as_Exception()
 						exception[0] = e.up_Throwable()
 						return
 					}
