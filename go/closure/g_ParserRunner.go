@@ -218,3 +218,21 @@ func new_ParserRunner_ParseResult_Node_List_ImmutableList_FeatureSet_Optional(as
 	this.init_ParserRunner_ParseResult_Node_List_ImmutableList_FeatureSet_Optional(ast, comments, topLevelStatementRanges, features, sourceMapURL)
 	return this
 }
+
+// reportError: an object that is exactly a ParserRunner_Es6ErrorReporter calls its reportError_impl directly (post-flip); others dispatch.
+func (this *ParserRunner_Es6ErrorReporter) reportError(p0 *SourcePosition_util, p1 string) {
+	if this.self_ == any(this) {
+		this.reportError_impl(p0, p1)
+		return
+	}
+	this.self_.(*ParserRunner_Es6ErrorReporter).reportError_impl(p0, p1)
+}
+
+// reportWarning: an object that is exactly a ParserRunner_Es6ErrorReporter calls its reportWarning_impl directly (post-flip); others dispatch.
+func (this *ParserRunner_Es6ErrorReporter) reportWarning(p0 *SourcePosition_util, p1 string) {
+	if this.self_ == any(this) {
+		this.reportWarning_impl(p0, p1)
+		return
+	}
+	this.self_.(*ParserRunner_Es6ErrorReporter).reportWarning_impl(p0, p1)
+}

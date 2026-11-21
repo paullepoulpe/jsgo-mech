@@ -795,3 +795,163 @@ func (this *PotentialDeclaration_AliasDeclaration) isDefiniteDeclaration_impl(co
 func (this *PotentialDeclaration_AliasDeclaration) shouldPreserve_impl() bool {
 	return true
 }
+
+// simplify: an object that is exactly a PotentialDeclaration_NameDeclaration calls its simplify_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_NameDeclaration) simplify(p0 *AbstractCompiler) {
+	if this.self_ == any(this) {
+		this.simplify_impl(p0)
+		return
+	}
+	this.self_.(interface{ simplify_impl(*AbstractCompiler) }).simplify_impl(p0)
+}
+
+// breakDownDestructure: an object that is exactly a PotentialDeclaration_NameDeclaration calls its breakDownDestructure_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_NameDeclaration) breakDownDestructure(p0 *AbstractCompiler) bool {
+	if this.self_ == any(this) {
+		return this.breakDownDestructure_impl(p0)
+	}
+	return this.self_.(interface{ breakDownDestructure_impl(*AbstractCompiler) bool }).breakDownDestructure_impl(p0)
+}
+
+// shouldPreserve: an object that is exactly a PotentialDeclaration_NameDeclaration calls its shouldPreserve_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_NameDeclaration) shouldPreserve() bool {
+	if this.self_ == any(this) {
+		return this.shouldPreserve_impl()
+	}
+	return this.self_.(interface{ shouldPreserve_impl() bool }).shouldPreserve_impl()
+}
+
+// simplify: an object that is exactly a PotentialDeclaration_ThisPropDeclaration calls its simplify_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_ThisPropDeclaration) simplify(p0 *AbstractCompiler) {
+	if this.self_ == any(this) {
+		this.simplify_impl(p0)
+		return
+	}
+	this.self_.(interface{ simplify_impl(*AbstractCompiler) }).simplify_impl(p0)
+}
+
+// simplify: an object that is exactly a PotentialDeclaration_DefineDeclaration calls its simplify_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_DefineDeclaration) simplify(p0 *AbstractCompiler) {
+	if this.self_ == any(this) {
+		this.simplify_impl(p0)
+		return
+	}
+	this.self_.(interface{ simplify_impl(*AbstractCompiler) }).simplify_impl(p0)
+}
+
+// simplify: an object that is exactly a PotentialDeclaration_MethodDeclaration calls its simplify_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_MethodDeclaration) simplify(p0 *AbstractCompiler) {
+	if this.self_ == any(this) {
+		this.simplify_impl(p0)
+		return
+	}
+	this.self_.(interface{ simplify_impl(*AbstractCompiler) }).simplify_impl(p0)
+}
+
+// getRemovableNode: an object that is exactly a PotentialDeclaration_MethodDeclaration calls its getRemovableNode_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_MethodDeclaration) getRemovableNode() Node {
+	if this.self_ == any(this) {
+		return this.getRemovableNode_impl()
+	}
+	return this.self_.(interface{ getRemovableNode_impl() Node }).getRemovableNode_impl()
+}
+
+// simplify: an object that is exactly a PotentialDeclaration_MemberFieldDeclaration calls its simplify_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_MemberFieldDeclaration) simplify(p0 *AbstractCompiler) {
+	if this.self_ == any(this) {
+		this.simplify_impl(p0)
+		return
+	}
+	this.self_.(interface{ simplify_impl(*AbstractCompiler) }).simplify_impl(p0)
+}
+
+// getRemovableNode: an object that is exactly a PotentialDeclaration_MemberFieldDeclaration calls its getRemovableNode_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_MemberFieldDeclaration) getRemovableNode() Node {
+	if this.self_ == any(this) {
+		return this.getRemovableNode_impl()
+	}
+	return this.self_.(interface{ getRemovableNode_impl() Node }).getRemovableNode_impl()
+}
+
+// simplify: an object that is exactly a PotentialDeclaration_StringKeyDeclaration calls its simplify_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_StringKeyDeclaration) simplify(p0 *AbstractCompiler) {
+	if this.self_ == any(this) {
+		this.simplify_impl(p0)
+		return
+	}
+	this.self_.(interface{ simplify_impl(*AbstractCompiler) }).simplify_impl(p0)
+}
+
+// shouldPreserve: an object that is exactly a PotentialDeclaration_StringKeyDeclaration calls its shouldPreserve_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_StringKeyDeclaration) shouldPreserve() bool {
+	if this.self_ == any(this) {
+		return this.shouldPreserve_impl()
+	}
+	return this.self_.(interface{ shouldPreserve_impl() bool }).shouldPreserve_impl()
+}
+
+// getRemovableNode: an object that is exactly a PotentialDeclaration_StringKeyDeclaration calls its getRemovableNode_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_StringKeyDeclaration) getRemovableNode() Node {
+	if this.self_ == any(this) {
+		return this.getRemovableNode_impl()
+	}
+	return this.self_.(interface{ getRemovableNode_impl() Node }).getRemovableNode_impl()
+}
+
+// simplify: an object that is exactly a PotentialDeclaration_PolymerBehaviorPropertiesDeclaration calls its simplify_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_PolymerBehaviorPropertiesDeclaration) simplify(p0 *AbstractCompiler) {
+	if this.self_ == any(this) {
+		this.simplify_impl(p0)
+		return
+	}
+	this.self_.(interface{ simplify_impl(*AbstractCompiler) }).simplify_impl(p0)
+}
+
+// shouldPreserve: an object that is exactly a PotentialDeclaration_PolymerBehaviorPropertiesDeclaration calls its shouldPreserve_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_PolymerBehaviorPropertiesDeclaration) shouldPreserve() bool {
+	if this.self_ == any(this) {
+		return this.shouldPreserve_impl()
+	}
+	return this.self_.(interface{ shouldPreserve_impl() bool }).shouldPreserve_impl()
+}
+
+// getRemovableNode: an object that is exactly a PotentialDeclaration_PolymerBehaviorPropertiesDeclaration calls its getRemovableNode_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_PolymerBehaviorPropertiesDeclaration) getRemovableNode() Node {
+	if this.self_ == any(this) {
+		return this.getRemovableNode_impl()
+	}
+	return this.self_.(interface{ getRemovableNode_impl() Node }).getRemovableNode_impl()
+}
+
+// simplify: an object that is exactly a PotentialDeclaration_AliasDeclaration calls its simplify_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_AliasDeclaration) simplify(p0 *AbstractCompiler) {
+	if this.self_ == any(this) {
+		this.simplify_impl(p0)
+		return
+	}
+	this.self_.(interface{ simplify_impl(*AbstractCompiler) }).simplify_impl(p0)
+}
+
+// getRemovableNode: an object that is exactly a PotentialDeclaration_AliasDeclaration calls its getRemovableNode_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_AliasDeclaration) getRemovableNode() Node {
+	if this.self_ == any(this) {
+		return this.getRemovableNode_impl()
+	}
+	return this.self_.(interface{ getRemovableNode_impl() Node }).getRemovableNode_impl()
+}
+
+// isDefiniteDeclaration: an object that is exactly a PotentialDeclaration_AliasDeclaration calls its isDefiniteDeclaration_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_AliasDeclaration) isDefiniteDeclaration(p0 *AbstractCompiler) bool {
+	if this.self_ == any(this) {
+		return this.isDefiniteDeclaration_impl(p0)
+	}
+	return this.self_.(interface{ isDefiniteDeclaration_impl(*AbstractCompiler) bool }).isDefiniteDeclaration_impl(p0)
+}
+
+// shouldPreserve: an object that is exactly a PotentialDeclaration_AliasDeclaration calls its shouldPreserve_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_AliasDeclaration) shouldPreserve() bool {
+	if this.self_ == any(this) {
+		return this.shouldPreserve_impl()
+	}
+	return this.self_.(interface{ shouldPreserve_impl() bool }).shouldPreserve_impl()
+}

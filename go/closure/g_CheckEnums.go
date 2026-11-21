@@ -135,3 +135,14 @@ func CheckEnums_clinit() {
 	CheckEnums_NON_STATIC_INITIALIZER_STRING_VALUE_IN_ENUM = DiagnosticType_disabled("JSC_NON_STATIC_INITIALIZER_STRING_VALUE_IN_ENUM", "Enum string values must be statically initialized as per the style guide.")
 
 }
+
+// visit: an object that is exactly a CheckEnums calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckEnums) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

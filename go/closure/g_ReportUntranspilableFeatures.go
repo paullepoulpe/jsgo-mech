@@ -235,3 +235,27 @@ func ReportUntranspilableFeatures_clinit() {
 	ReportUntranspilableFeatures_ALL_UNTRANSPILABLE_FEATURES = FeatureSet_BARE_MINIMUM.union(ReportUntranspilableFeatures_UNTRANSPILABLE_ES5_FEATURES).union(ReportUntranspilableFeatures_UNTRANSPILABLE_2018_FEATURES).union(ReportUntranspilableFeatures_UNTRANSPILABLE_2019_FEATURES).union(ReportUntranspilableFeatures_UNTRANSPILABLE_2022_FEATURES).union(ReportUntranspilableFeatures_UNTRANSPILABLE_2020_FEATURES)
 
 }
+
+// getTranspiledAwayFeatures: an object that is exactly a ReportUntranspilableFeatures calls its getTranspiledAwayFeatures_impl directly (post-flip); others dispatch.
+func (this *ReportUntranspilableFeatures) getTranspiledAwayFeatures() *FeatureSet {
+	if this.self_ == any(this) {
+		return this.getTranspiledAwayFeatures_impl()
+	}
+	return this.self_.(interface{ getTranspiledAwayFeatures_impl() *FeatureSet }).getTranspiledAwayFeatures_impl()
+}
+
+// getAdditionalFeaturesToRunOn: an object that is exactly a ReportUntranspilableFeatures calls its getAdditionalFeaturesToRunOn_impl directly (post-flip); others dispatch.
+func (this *ReportUntranspilableFeatures) getAdditionalFeaturesToRunOn() *FeatureSet {
+	if this.self_ == any(this) {
+		return this.getAdditionalFeaturesToRunOn_impl()
+	}
+	return this.self_.(interface{ getAdditionalFeaturesToRunOn_impl() *FeatureSet }).getAdditionalFeaturesToRunOn_impl()
+}
+
+// transpileSubtree: an object that is exactly a ReportUntranspilableFeatures calls its transpileSubtree_impl directly (post-flip); others dispatch.
+func (this *ReportUntranspilableFeatures) transpileSubtree(p0 Node) Node {
+	if this.self_ == any(this) {
+		return this.transpileSubtree_impl(p0)
+	}
+	return this.self_.(interface{ transpileSubtree_impl(Node) Node }).transpileSubtree_impl(p0)
+}

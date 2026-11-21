@@ -59,3 +59,80 @@ func (this *NoOpLogFile) close_impl() {
 func (this *NoOpLogFile) isLogging_impl() bool {
 	return false
 }
+
+// logObject: an object that is exactly a NoOpLogFile calls its logObject_impl directly (post-flip); others dispatch.
+func (this *NoOpLogFile) logObject(p0 any) *LogFile {
+	if this.self_ == any(this) {
+		return this.logObject_impl(p0)
+	}
+	return this.self_.(interface{ logObject_impl(any) *LogFile }).logObject_impl(p0)
+}
+
+// logString: an object that is exactly a NoOpLogFile calls its logString_impl directly (post-flip); others dispatch.
+func (this *NoOpLogFile) logString(p0 string) *LogFile {
+	if this.self_ == any(this) {
+		return this.logString_impl(p0)
+	}
+	return this.self_.(interface{ logString_impl(string) *LogFile }).logString_impl(p0)
+}
+
+// log: an object that is exactly a NoOpLogFile calls its log_impl directly (post-flip); others dispatch.
+func (this *NoOpLogFile) log(p0 Supplier[string]) *LogFile {
+	if this.self_ == any(this) {
+		return this.log_impl(p0)
+	}
+	return this.self_.(interface {
+		log_impl(Supplier[string]) *LogFile
+	}).log_impl(p0)
+}
+
+// log_2: an object that is exactly a NoOpLogFile calls its log_2_impl directly (post-flip); others dispatch.
+func (this *NoOpLogFile) log_2(p0 string, p1 []any) *LogFile {
+	if this.self_ == any(this) {
+		return this.log_2_impl(p0, p1)
+	}
+	return this.self_.(interface{ log_2_impl(string, []any) *LogFile }).log_2_impl(p0, p1)
+}
+
+// logJsonObject: an object that is exactly a NoOpLogFile calls its logJsonObject_impl directly (post-flip); others dispatch.
+func (this *NoOpLogFile) logJsonObject(p0 any) *LogFile {
+	if this.self_ == any(this) {
+		return this.logJsonObject_impl(p0)
+	}
+	return this.self_.(interface{ logJsonObject_impl(any) *LogFile }).logJsonObject_impl(p0)
+}
+
+// logJsonSupplier: an object that is exactly a NoOpLogFile calls its logJsonSupplier_impl directly (post-flip); others dispatch.
+func (this *NoOpLogFile) logJsonSupplier(p0 Supplier[any]) *LogFile {
+	if this.self_ == any(this) {
+		return this.logJsonSupplier_impl(p0)
+	}
+	return this.self_.(interface{ logJsonSupplier_impl(Supplier[any]) *LogFile }).logJsonSupplier_impl(p0)
+}
+
+// logJson: an object that is exactly a NoOpLogFile calls its logJson_impl directly (post-flip); others dispatch.
+func (this *NoOpLogFile) logJson(p0 LogFile_StreamedJsonProducer) *LogFile {
+	if this.self_ == any(this) {
+		return this.logJson_impl(p0)
+	}
+	return this.self_.(interface {
+		logJson_impl(LogFile_StreamedJsonProducer) *LogFile
+	}).logJson_impl(p0)
+}
+
+// close: an object that is exactly a NoOpLogFile calls its close_impl directly (post-flip); others dispatch.
+func (this *NoOpLogFile) close() {
+	if this.self_ == any(this) {
+		this.close_impl()
+		return
+	}
+	this.self_.(interface{ close_impl() }).close_impl()
+}
+
+// isLogging: an object that is exactly a NoOpLogFile calls its isLogging_impl directly (post-flip); others dispatch.
+func (this *NoOpLogFile) isLogging() bool {
+	if this.self_ == any(this) {
+		return this.isLogging_impl()
+	}
+	return this.self_.(interface{ isLogging_impl() bool }).isLogging_impl()
+}

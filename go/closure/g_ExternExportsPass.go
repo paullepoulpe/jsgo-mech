@@ -529,3 +529,30 @@ func (this *ExternExportsPass_PropertyExport) getExportedPath_impl() string {
 	}
 	return ExternExportsPass_Q_NAME_JOINER.join_Object_Object_ObjectArr(strobj_(this.exportPath), strobj_(this.symbolName), []any{})
 }
+
+// visit: an object that is exactly a ExternExportsPass calls its visit_impl directly (post-flip); others dispatch.
+func (this *ExternExportsPass) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}
+
+// getExportedPath: an object that is exactly a ExternExportsPass_SymbolExport calls its getExportedPath_impl directly (post-flip); others dispatch.
+func (this *ExternExportsPass_SymbolExport) getExportedPath() string {
+	if this.self_ == any(this) {
+		return this.getExportedPath_impl()
+	}
+	return this.self_.(interface{ getExportedPath_impl() string }).getExportedPath_impl()
+}
+
+// getExportedPath: an object that is exactly a ExternExportsPass_PropertyExport calls its getExportedPath_impl directly (post-flip); others dispatch.
+func (this *ExternExportsPass_PropertyExport) getExportedPath() string {
+	if this.self_ == any(this) {
+		return this.getExportedPath_impl()
+	}
+	return this.self_.(interface{ getExportedPath_impl() string }).getExportedPath_impl()
+}

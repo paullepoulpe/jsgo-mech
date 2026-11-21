@@ -192,3 +192,14 @@ func CheckNullabilityModifiers_clinit() {
 	CheckNullabilityModifiers_PRIMITIVE_TYPE_NAMES = jimmutableSetOf_[string](jtc_string, "boolean", "number", "bigint", "string", "symbol", "undefined", "void", "null")
 
 }
+
+// visit: an object that is exactly a CheckNullabilityModifiers calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckNullabilityModifiers) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}
