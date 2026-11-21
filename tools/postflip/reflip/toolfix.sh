@@ -927,3 +927,16 @@ reflip_edit tools/postflip/native/main.go reflip28 <<'E28'
 		}
 		immConvs[n] = fmt.Sprintf(
 E28
+# 29. (fifth flip) unify: the translator's rule "function types" gives its typed map a typed Map.computeIfAbsent,
+#    m.computeIfAbsent(k, Function[K, V](func(k K) V {..})) (rt_fn.go; 53 calls where the fourth flip had the erased
+#    computeIfAbsent(k, &Function_tfn_K_V{..}) that steps 434-437 tfnargs then made ComputeIfAbsent). The post-flip family's method
+#    of that name takes an erased function, and its method for a typed one is ComputeIfAbsent(k, func(K) V) (tnames): the
+#    translator's call is that method, as containsKey is Has. A Function[K, V] is assignable to func(K) V. The runtime side (the
+#    translator's method leaves rt_fn.go with its family; ComputeIfAbsent throws for an immutable map as it did) is in this flip's
+#    402 runtime patch.
+reflip_edit tools/postflip/unify/main.go reflip29 <<'E29'
+		"putIfAbsent": "PutIfAbsent", "remove": "Delete", "clear": "Clear", "eachKey": "each", "eachValue": "each"},
+=====
+		"putIfAbsent": "PutIfAbsent", "remove": "Delete", "clear": "Clear", "eachKey": "each", "eachValue": "each",
+		"computeIfAbsent": "ComputeIfAbsent"}, // reflip29
+E29

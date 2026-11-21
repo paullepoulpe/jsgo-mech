@@ -609,6 +609,7 @@ f7492025 run bash tools/postflip/colls/run.sh
 #=4 e69c634a adapted (fourth flip): unify extended to the typed immutables, builders and sorted collections this translator emits, with this flip's runtime patch (reflip/402-fourth-flip.txt; tool 4bf127e2 on flip4-unify)
 #- e69c634a run t unify && f
 #- e69c634a patch 402-e69c634a-rt.patch
+#=5 a5732999 adapted (fifth flip): toolfix 29 (unify: the translator's typed m.computeIfAbsent(k, Function[K, V](..)) of a typed map is the post-flip family's ComputeIfAbsent(k, func(K) V): 53 calls; unify 7,409 rewrites, 442 files; fourth flip 7,294, 439) and this flip's runtime patch regenerated: the four files of the translator's family that main changed for rule "function types" (rt_jtimm.go, rt_jtlist.go, rt_jtmap.go, rt_jtsorted.go) are deleted as they are now; the translator's JTMap.computeIfAbsent leaves rt_fn.go with its family; ComputeIfAbsent throws UnsupportedOperationException for an immutable map as that method did; the sorted view's reversed comparator and the tests' comparators and functions are made with Comparator_of_ / cmpReversed_ / Function_of_ (no cmpFunc_, no adapter object). The other 14 file sections are the fourth flip's (fnpatch.py). Runtime tests ok after the step (TestUnifiedFamily's golden trace unchanged)
 a5732999 run t unify && f
 a5732999 patch 402-a5732999-rt.patch
 # 403. postflip step (re-flip): the collection steps on the unified typed collections

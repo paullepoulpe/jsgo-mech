@@ -1,5 +1,5 @@
 diff --git a/go/closure/rt_base_text.go b/go/closure/rt_base_text.go
-index a53dd91a2e8ba051b60976e4bc7c622594400181..ab6025f1 100644
+index a19a4ccaa..524f95f88 100644
 --- a/go/closure/rt_base_text.go
 +++ b/go/closure/rt_base_text.go
 @@ -278,9 +278,7 @@ func (this *Splitter) splitToList(seq any) List { return listOf_(this.splitAll_(
@@ -13,8 +13,35 @@ index a53dd91a2e8ba051b60976e4bc7c622594400181..ab6025f1 100644
  }
  
  // ---- Joiner
+diff --git a/go/closure/rt_fn.go b/go/closure/rt_fn.go
+index efea87a1e..b07760c4a 100644
+--- a/go/closure/rt_fn.go
++++ b/go/closure/rt_fn.go
+@@ -70,22 +70,6 @@ func Suppliers_memoize[T any](s Supplier_base[T]) Supplier_base[T] {
+ 	}
+ }
+ 
+-// computeIfAbsent returns the value of key k if it has one that is not null; else the value f
+-// makes for the key, which becomes the key's value unless it is null.
+-func (m *TMap[K, V]) computeIfAbsent(k K, f Function[K, V]) V {
+-	if m.imm != nil && m.imm != sortedMapMark_ {
+-		panic(frozen_{})
+-	}
+-	if i := m.find(k); i >= 0 && !m.isNull(m.vals[i]) {
+-		return m.vals[i]
+-	}
+-	v := f(k)
+-	if !m.isNull(v) {
+-		m.Put(k, v)
+-	}
+-	return v
+-}
+-
+ // asFunction is the escaper as a function of strings.
+ func (this *Escaper) asFunction() Function_base[string, string] {
+ 	return this.escape
 diff --git a/go/closure/rt_guava.go b/go/closure/rt_guava.go
-index e47906857c2098373889045324db669159c75d4a..17f8f9f5 100644
+index 46386b0fc..42fd4371d 100644
 --- a/go/closure/rt_guava.go
 +++ b/go/closure/rt_guava.go
 @@ -113,9 +113,6 @@ type ImmutableCollection struct {
@@ -28,7 +55,7 @@ index e47906857c2098373889045324db669159c75d4a..17f8f9f5 100644
  
  type ErasedImmutableList = ImmutableCollection
 diff --git a/go/closure/rt_guava_map.go b/go/closure/rt_guava_map.go
-index f87c463a5a6d3c44c41101beb9a9b7f68307f9ad..c0b9d4fe 100644
+index 5a30f13e3..6e04d0720 100644
 --- a/go/closure/rt_guava_map.go
 +++ b/go/closure/rt_guava_map.go
 @@ -23,7 +23,6 @@ type ErasedImmutableMap struct {
@@ -39,134 +66,12 @@ index f87c463a5a6d3c44c41101beb9a9b7f68307f9ad..c0b9d4fe 100644
  }
  
  type ImmutableBiMap = ErasedImmutableMap
-diff --git a/go/closure/rt_jtdeque.go b/go/closure/rt_jtdeque.go
-deleted file mode 100644
-index 79c3a6e82239f2371768e860d740ddcfc8a9d22a..00000000
---- a/go/closure/rt_jtdeque.go
-+++ /dev/null
-@@ -1,116 +0,0 @@
--package closure
--
--// Typed deques (j2go rule "typed collections"): an ArrayDeque<T> that the translator finds
--// typable is a *TDeque[T]: a typed list whose first item is the deque's head, as the erased
--// ArrayDeque in rt_coll.go is an ArrayList whose first item is its head. Erased code sees it
--// through asDeque(), its one view (see JTList).
--
--type TDeque[T any] struct {
--	JTList[T]
--	dview jtdequeView_[T] // the deque as erased code sees it (asDeque): part of the deque
--}
--
--// newTDeque_ is new ArrayDeque<>().
--func newTDeque_[T any](c *jtconv_[T]) *TDeque[T] {
--	d := &TDeque[T]{}
--	d.c = c
--	d.view.l = &d.JTList
--	d.dview.l = &d.JTList
--	d.dview.d = d
--	return d
--}
--
--// newTDequeN_ is new ArrayDeque<>(n): the capacity is not used.
--func newTDequeN_[T any](c *jtconv_[T], n int32) *TDeque[T] { return newTDeque_(c) }
--
--// tdequeFrom_ is new ArrayDeque<>(from): from's first element is the head.
--func tdequeFrom_[T any](c *jtconv_[T], from Collection) *TDeque[T] {
--	d := newTDeque_(c)
--	src := toSlice_(from)
--	d.items = make([]T, len(src))
--	for i, x := range src {
--		d.items[i] = c.unbox(x)
--	}
--	return d
--}
--
--// tdequeCopy_ is new ArrayDeque<>(from) of another typed deque of the same element type.
--func tdequeCopy_[T any](c *jtconv_[T], from *TDeque[T]) *TDeque[T] {
--	d := newTDeque_(c)
--	d.items = append([]T(nil), from.items...)
--	return d
--}
--
--// push is push and addFirst: v is the new head.
--func (d *TDeque[T]) push(v T) { d.insert(0, v) }
--
--// poll is poll and pollFirst: the head, removed; null when the deque is empty.
--func (d *TDeque[T]) poll() T {
--	if len(d.items) == 0 {
--		return d.c.null
--	}
--	v := d.items[0]
--	var z T
--	d.items[0] = z
--	d.items = d.items[1:]
--	return v
--}
--
--// pop is pop, remove() and removeFirst: NoSuchElementException when the deque is empty.
--func (d *TDeque[T]) pop() T {
--	if len(d.items) == 0 {
--		panic(new_NoSuchElementException_0().self())
--	}
--	return d.poll()
--}
--
--// peek is peek and peekFirst: the head, or null when the deque is empty.
--func (d *TDeque[T]) peek() T {
--	if len(d.items) == 0 {
--		return d.c.null
--	}
--	return d.items[0]
--}
--
--// peekLast is the tail, or null when the deque is empty.
--func (d *TDeque[T]) peekLast() T {
--	if len(d.items) == 0 {
--		return d.c.null
--	}
--	return d.items[len(d.items)-1]
--}
--
--// asDeque is the deque as an erased Deque (nil for null): one view per deque, its identity for
--// erased code.
--func (d *TDeque[T]) asDeque() Deque {
--	if d == nil {
--		return nil
--	}
--	return &d.dview
--}
--
--// jtdequeView_ is a TDeque seen as an erased Deque: the list view of its items, and the
--// operations at its ends as ArrayDeque in rt_coll.go has them.
--type jtdequeView_[T any] struct {
--	jtlistView_[T]
--	d *TDeque[T]
--}
--
--func (v *jtdequeView_[T]) self() any       { return v }
--func (v *jtdequeView_[T]) goName_() string { return "ArrayDeque" }
--func (v *jtdequeView_[T]) peek() any       { return v.d.c.box(v.d.peek()) }
--func (v *jtdequeView_[T]) peekFirst() any  { return v.d.c.box(v.d.peek()) }
--func (v *jtdequeView_[T]) peekLast() any   { return v.d.c.box(v.d.peekLast()) }
--func (v *jtdequeView_[T]) poll() any       { return v.d.c.box(v.d.poll()) }
--func (v *jtdequeView_[T]) pollFirst() any  { return v.d.c.box(v.d.poll()) }
--func (v *jtdequeView_[T]) pop() any        { return v.d.c.box(v.d.pop()) }
--func (v *jtdequeView_[T]) remove_0() any   { return v.d.c.box(v.d.pop()) }
--func (v *jtdequeView_[T]) push(x any)      { v.d.push(v.d.c.unbox(x)) }
--
--func (v *jtdequeView_[T]) descendingIterator() Iterator {
--	rev := make([]any, len(v.d.items))
--	for i, x := range v.d.items {
--		rev[len(rev)-1-i] = v.d.c.box(x)
--	}
--	return &sliceIter_{items: &rev}
--}
 diff --git a/go/closure/rt_jtimm.go b/go/closure/rt_jtimm.go
 deleted file mode 100644
-index 15fd29fa227086cc2b5f7e955473abb84701ea02..00000000
+index d4e09188e..000000000
 --- a/go/closure/rt_jtimm.go
 +++ /dev/null
-@@ -1,826 +0,0 @@
+@@ -1,831 +0,0 @@
 -package closure
 -
 -import "sync"
@@ -211,7 +116,12 @@ index 15fd29fa227086cc2b5f7e955473abb84701ea02..00000000
 -var immPendingMap_ = &timmMap_{}
 -
 -// jimmNull_ reports whether x is Java's null.
--func jimmNull_[T any](c *jtconv_[T], x T) bool { return any(x) == any(c.null) }
+-func jimmNull_[T any](c *jtconv_[T], x T) bool {
+-	if c.isnull != nil {
+-		return c.isnull(x)
+-	}
+-	return any(x) == any(c.null)
+-}
 -
 -func jboxAll_[T any](c *jtconv_[T], s []T) []any {
 -	out := make([]any, len(s))
@@ -995,10 +905,10 @@ index 15fd29fa227086cc2b5f7e955473abb84701ea02..00000000
 -}
 diff --git a/go/closure/rt_jtlist.go b/go/closure/rt_jtlist.go
 deleted file mode 100644
-index f2ad0b985e9ba96791a221bae02258d0d7e0b674..00000000
+index 2a932a608..000000000
 --- a/go/closure/rt_jtlist.go
 +++ /dev/null
-@@ -1,419 +0,0 @@
+@@ -1,421 +0,0 @@
 -package closure
 -
 -import "unsafe"
@@ -1019,6 +929,8 @@ index f2ad0b985e9ba96791a221bae02258d0d7e0b674..00000000
 -	box   func(T) any
 -	unbox func(any) T
 -	null  T // Java's null as a T (the null string for a String, else the zero value)
+-	// isnull: set for an element type that Go cannot compare (a func type): whether v is null
+-	isnull func(T) bool
 -	// byEquals: a set or a map compares elements of this type by equals and hashCode (through
 -	// their boxes), not by Go's == (a class with its own equals, an interface, a library class).
 -	byEquals bool
@@ -1420,10 +1332,10 @@ index f2ad0b985e9ba96791a221bae02258d0d7e0b674..00000000
 -}
 diff --git a/go/closure/rt_jtmap.go b/go/closure/rt_jtmap.go
 deleted file mode 100644
-index e2b7aa17015141c30e3c1fbb27214b1853841948..00000000
+index 94a43335c..000000000
 --- a/go/closure/rt_jtmap.go
 +++ /dev/null
-@@ -1,782 +0,0 @@
+@@ -1,766 +0,0 @@
 -package closure
 -
 -// Typed maps (j2go rule "typed collections"): a LinkedHashMap<K, V> that the translator finds
@@ -1602,7 +1514,7 @@ index e2b7aa17015141c30e3c1fbb27214b1853841948..00000000
 -}
 -
 -// isNull reports whether v is Java's null.
--func (m *JTMap[K, V]) isNull(v V) bool { return any(v) == any(m.vc.null) }
+-func (m *JTMap[K, V]) isNull(v V) bool { return jimmNull_(m.vc, v) }
 -
 -// putIfAbsent maps k to v unless k has a value that is not null, which it returns.
 -func (m *JTMap[K, V]) putIfAbsent(k K, v V) V {
@@ -1619,22 +1531,6 @@ index e2b7aa17015141c30e3c1fbb27214b1853841948..00000000
 -	}
 -	m.append(k, v, h)
 -	return m.vc.null
--}
--
--// computeIfAbsent returns the value of key k if it has one that is not null; else the value f
--// makes for the key, which becomes the key's value unless it is null.
--func (m *JTMap[K, V]) computeIfAbsent(k K, f Function_e) V {
--	if m.imm != nil && m.imm != sortedMapMark_ {
--		panic(frozen_{})
--	}
--	if i := m.find(k); i >= 0 && !m.isNull(m.vals[i]) {
--		return m.vals[i]
--	}
--	v := m.vc.unbox(f.apply(m.kc.box(k)))
--	if !m.isNull(v) {
--		m.put(k, v)
--	}
--	return v
 -}
 -
 -// del is remove(key): the value the key had, or null.
@@ -2208,7 +2104,7 @@ index e2b7aa17015141c30e3c1fbb27214b1853841948..00000000
 -func (v *tmapEntrySet_[K, V]) step_(i int) (any, int)        { return v.m.step(i, tentries_) }
 diff --git a/go/closure/rt_jtset.go b/go/closure/rt_jtset.go
 deleted file mode 100644
-index f57c4fd5602e12e143ffefabe0ec44f8de1da2c4..00000000
+index f57c4fd56..000000000
 --- a/go/closure/rt_jtset.go
 +++ /dev/null
 @@ -1,511 +0,0 @@
@@ -2725,7 +2621,7 @@ index f57c4fd5602e12e143ffefabe0ec44f8de1da2c4..00000000
 -}
 diff --git a/go/closure/rt_jtsorted.go b/go/closure/rt_jtsorted.go
 deleted file mode 100644
-index cdfa45c02d6469cac267cbc4c08486ca3868e6db..00000000
+index a209eaa15..000000000
 --- a/go/closure/rt_jtsorted.go
 +++ /dev/null
 @@ -1,294 +0,0 @@
@@ -2891,9 +2787,9 @@ index cdfa45c02d6469cac267cbc4c08486ca3868e6db..00000000
 -// are now.
 -func (v *tsortedSetView_[K]) descendingSet() NavigableSet {
 -	s := v.s
--	out := &TreeSet{cmp: Comparator_reversed(&cmpFunc_{func(a, b any) int32 {
+-	out := &TreeSet{cmp: cmpReversed_(Comparator_of_(func(a, b any) int32 {
 -		return tsortCmp_(s.eq, s.c, s.c.unbox(a), s.c.unbox(b))
--	}})}
+-	}))}
 -	for i := len(s.keys) - 1; i >= 0; i-- {
 -		if !s.dead(i) {
 -			out.items = append(out.items, s.c.box(s.keys[i]))
@@ -3024,7 +2920,7 @@ index cdfa45c02d6469cac267cbc4c08486ca3868e6db..00000000
 -func (v *tsortedMapView_[K, V]) hashCode() int32        { return mapHash_(v) }
 -func (v *tsortedMapView_[K, V]) toString() string       { return mapToString_(v) }
 diff --git a/go/closure/rt_lang.go b/go/closure/rt_lang.go
-index 43928840d113ef9dd0838cd298e23b64e743120d..2f55c0f7 100644
+index 43928840d..2f55c0f72 100644
 --- a/go/closure/rt_lang.go
 +++ b/go/closure/rt_lang.go
 @@ -82,9 +82,6 @@ func catch_(r any) any {
@@ -3037,113 +2933,91 @@ index 43928840d113ef9dd0838cd298e23b64e743120d..2f55c0f7 100644
  	case error:
  		return new_RuntimeException_String(e.Error()).self()
  	case string:
-diff --git a/go/closure/rt_tdeque.go b/go/closure/rt_tdeque.go
-new file mode 100644
-index 00000000..21de472d
---- /dev/null
+diff --git a/go/closure/rt_jtdeque.go b/go/closure/rt_tdeque.go
+similarity index 59%
+rename from go/closure/rt_jtdeque.go
+rename to go/closure/rt_tdeque.go
+index 79c3a6e82..21de472dd 100644
+--- a/go/closure/rt_jtdeque.go
 +++ b/go/closure/rt_tdeque.go
-@@ -0,0 +1,119 @@
-+package closure
-+
-+// Typed deques (j2go rule "typed collections"): an ArrayDeque<T> that the translator finds
-+// typable is a *TDeque[T]: a typed list whose first item is the deque's head, as the erased
-+// ArrayDeque in rt_coll.go is an ArrayList whose first item is its head. Erased code sees it
+@@ -3,28 +3,26 @@ package closure
+ // Typed deques (j2go rule "typed collections"): an ArrayDeque<T> that the translator finds
+ // typable is a *TDeque[T]: a typed list whose first item is the deque's head, as the erased
+ // ArrayDeque in rt_coll.go is an ArrayList whose first item is its head. Erased code sees it
+-// through asDeque(), its one view (see JTList).
 +// through asDeque(), its one view (see TList). (The deques that post-flip step colls -kind
 +// deque types are TLists whose last item is the head: rt_tlist.go push_, pop_.)
-+
-+type TDeque[T any] struct {
+ 
+ type TDeque[T any] struct {
+-	JTList[T]
+-	dview jtdequeView_[T] // the deque as erased code sees it (asDeque): part of the deque
 +	TList[T]
 +	dview *tdequeFace_[T]
-+}
-+
-+// newTDeque_ is new ArrayDeque<>().
+ }
+ 
+ // newTDeque_ is new ArrayDeque<>().
+-func newTDeque_[T any](c *jtconv_[T]) *TDeque[T] {
 +func newTDeque_[T any](c *tconv_[T]) *TDeque[T] {
-+	d := &TDeque[T]{}
-+	d.c = c
-+	return d
-+}
-+
-+// newTDequeN_ is new ArrayDeque<>(n): the capacity is not used.
+ 	d := &TDeque[T]{}
+ 	d.c = c
+-	d.view.l = &d.JTList
+-	d.dview.l = &d.JTList
+-	d.dview.d = d
+ 	return d
+ }
+ 
+ // newTDequeN_ is new ArrayDeque<>(n): the capacity is not used.
+-func newTDequeN_[T any](c *jtconv_[T], n int32) *TDeque[T] { return newTDeque_(c) }
 +func newTDequeN_[T any](c *tconv_[T], n int32) *TDeque[T] { return newTDeque_(c) }
-+
-+// tdequeFrom_ is new ArrayDeque<>(from): from's first element is the head.
+ 
+ // tdequeFrom_ is new ArrayDeque<>(from): from's first element is the head.
+-func tdequeFrom_[T any](c *jtconv_[T], from Collection) *TDeque[T] {
 +func tdequeFrom_[T any](c *tconv_[T], from Collection) *TDeque[T] {
-+	d := newTDeque_(c)
-+	src := toSlice_(from)
-+	d.items = make([]T, len(src))
-+	for i, x := range src {
-+		d.items[i] = c.unbox(x)
-+	}
-+	return d
-+}
-+
-+// tdequeCopy_ is new ArrayDeque<>(from) of another typed deque of the same element type.
+ 	d := newTDeque_(c)
+ 	src := toSlice_(from)
+ 	d.items = make([]T, len(src))
+@@ -35,7 +33,7 @@ func tdequeFrom_[T any](c *jtconv_[T], from Collection) *TDeque[T] {
+ }
+ 
+ // tdequeCopy_ is new ArrayDeque<>(from) of another typed deque of the same element type.
+-func tdequeCopy_[T any](c *jtconv_[T], from *TDeque[T]) *TDeque[T] {
 +func tdequeCopy_[T any](c *tconv_[T], from *TDeque[T]) *TDeque[T] {
-+	d := newTDeque_(c)
-+	d.items = append([]T(nil), from.items...)
-+	return d
-+}
-+
-+// push is push and addFirst: v is the new head.
-+func (d *TDeque[T]) push(v T) { d.insert(0, v) }
-+
-+// poll is poll and pollFirst: the head, removed; null when the deque is empty.
-+func (d *TDeque[T]) poll() T {
-+	if len(d.items) == 0 {
-+		return d.c.null
-+	}
-+	v := d.items[0]
-+	var z T
-+	d.items[0] = z
-+	d.items = d.items[1:]
-+	return v
-+}
-+
-+// pop is pop, remove() and removeFirst: NoSuchElementException when the deque is empty.
-+func (d *TDeque[T]) pop() T {
-+	if len(d.items) == 0 {
-+		panic(new_NoSuchElementException_0().self())
-+	}
-+	return d.poll()
-+}
-+
-+// peek is peek and peekFirst: the head, or null when the deque is empty.
-+func (d *TDeque[T]) peek() T {
-+	if len(d.items) == 0 {
-+		return d.c.null
-+	}
-+	return d.items[0]
-+}
-+
-+// peekLast is the tail, or null when the deque is empty.
-+func (d *TDeque[T]) peekLast() T {
-+	if len(d.items) == 0 {
-+		return d.c.null
-+	}
-+	return d.items[len(d.items)-1]
-+}
-+
-+// asDeque is the deque as an erased Deque (nil for null): one view per deque, its identity for
-+// erased code.
-+func (d *TDeque[T]) asDeque() Deque {
-+	if d == nil {
-+		return nil
-+	}
+ 	d := newTDeque_(c)
+ 	d.items = append([]T(nil), from.items...)
+ 	return d
+@@ -86,28 +84,33 @@ func (d *TDeque[T]) asDeque() Deque {
+ 	if d == nil {
+ 		return nil
+ 	}
+-	return &d.dview
 +	if d.dview == nil {
 +		v := &tdequeFace_[T]{d: d}
 +		v.l = &d.TList
 +		d.dview = v
 +	}
 +	return d.dview
-+}
-+
+ }
+ 
+-// jtdequeView_ is a TDeque seen as an erased Deque: the list view of its items, and the
 +// tdequeFace_ is a TDeque seen as an erased Deque: the list view of its items, and the
-+// operations at its ends as ArrayDeque in rt_coll.go has them.
+ // operations at its ends as ArrayDeque in rt_coll.go has them.
+-type jtdequeView_[T any] struct {
+-	jtlistView_[T]
 +type tdequeFace_[T any] struct {
 +	tlistView_[T]
-+	d *TDeque[T]
-+}
-+
+ 	d *TDeque[T]
+ }
+ 
+-func (v *jtdequeView_[T]) self() any       { return v }
+-func (v *jtdequeView_[T]) goName_() string { return "ArrayDeque" }
+-func (v *jtdequeView_[T]) peek() any       { return v.d.c.box(v.d.peek()) }
+-func (v *jtdequeView_[T]) peekFirst() any  { return v.d.c.box(v.d.peek()) }
+-func (v *jtdequeView_[T]) peekLast() any   { return v.d.c.box(v.d.peekLast()) }
+-func (v *jtdequeView_[T]) poll() any       { return v.d.c.box(v.d.poll()) }
+-func (v *jtdequeView_[T]) pollFirst() any  { return v.d.c.box(v.d.poll()) }
+-func (v *jtdequeView_[T]) pop() any        { return v.d.c.box(v.d.pop()) }
+-func (v *jtdequeView_[T]) remove_0() any   { return v.d.c.box(v.d.pop()) }
+-func (v *jtdequeView_[T]) push(x any)      { v.d.push(v.d.c.unbox(x)) }
 +func (v *tdequeFace_[T]) self() any       { return v }
 +func (v *tdequeFace_[T]) goName_() string { return "ArrayDeque" }
 +func (v *tdequeFace_[T]) peek() any       { return v.d.c.box(v.d.peek()) }
@@ -3154,16 +3028,14 @@ index 00000000..21de472d
 +func (v *tdequeFace_[T]) pop() any        { return v.d.c.box(v.d.pop()) }
 +func (v *tdequeFace_[T]) remove_0() any   { return v.d.c.box(v.d.pop()) }
 +func (v *tdequeFace_[T]) push(x any)      { v.d.push(v.d.c.unbox(x)) }
-+
+ 
+-func (v *jtdequeView_[T]) descendingIterator() Iterator {
 +func (v *tdequeFace_[T]) descendingIterator() Iterator {
-+	rev := make([]any, len(v.d.items))
-+	for i, x := range v.d.items {
-+		rev[len(rev)-1-i] = v.d.c.box(x)
-+	}
-+	return &sliceIter_{items: &rev}
-+}
+ 	rev := make([]any, len(v.d.items))
+ 	for i, x := range v.d.items {
+ 		rev[len(rev)-1-i] = v.d.c.box(x)
 diff --git a/go/closure/rt_timm.go b/go/closure/rt_timm.go
-index 26224e29f6d0c9dcda479ab8202aa07579eabf61..5e73161e 100644
+index 26224e29f..5e73161e7 100644
 --- a/go/closure/rt_timm.go
 +++ b/go/closure/rt_timm.go
 @@ -1,5 +1,7 @@
@@ -3487,7 +3359,7 @@ index 26224e29f6d0c9dcda479ab8202aa07579eabf61..5e73161e 100644
 +	return x.keySet
 +}
 diff --git a/go/closure/rt_timm_test.go b/go/closure/rt_timm_test.go
-index b89ab0b91cf929b28bae0edc4b384ba127f8dbcb..1380f0b1 100644
+index b89ab0b91..1380f0b12 100644
 --- a/go/closure/rt_timm_test.go
 +++ b/go/closure/rt_timm_test.go
 @@ -73,7 +73,7 @@ func TestTypedImmutables(t *testing.T) {
@@ -3500,7 +3372,7 @@ index b89ab0b91cf929b28bae0edc4b384ba127f8dbcb..1380f0b1 100644
  	if ImmutableMap_copyOf(m.asMap()) != m.asImm() {
  		t.Error("ImmutableMap.copyOf of the twin")
 diff --git a/go/closure/rt_tlist.go b/go/closure/rt_tlist.go
-index ec758dce2244b875555ec301c86d738c9d61f9c4..1934306e 100644
+index f262cdd3c..a0986b817 100644
 --- a/go/closure/rt_tlist.go
 +++ b/go/closure/rt_tlist.go
 @@ -3,6 +3,7 @@ package closure
@@ -3511,7 +3383,7 @@ index ec758dce2244b875555ec301c86d738c9d61f9c4..1934306e 100644
  )
  
  // Typed lists (post-flip step 3): ArrayList<T> as a slice of T.
-@@ -34,6 +35,10 @@ type TList[T any] struct {
+@@ -37,6 +38,10 @@ type TList[T any] struct {
  	c     *tconv_[T]
  	view  *tlistView_[T]
  	imm   bool // an ImmutableList: every change throws UnsupportedOperationException
@@ -3522,7 +3394,7 @@ index ec758dce2244b875555ec301c86d738c9d61f9c4..1934306e 100644
  }
  
  func newTList_[T any](c *tconv_[T]) *TList[T] { return &TList[T]{c: c} }
-@@ -92,6 +97,11 @@ func tlistFrom_[T any](c *tconv_[T], from Collection) *TList[T] {
+@@ -95,6 +100,11 @@ func tlistFrom_[T any](c *tconv_[T], from Collection) *TList[T] {
  	return &TList[T]{c: c, items: unboxAll_(c, readSlice_(from))}
  }
  
@@ -3534,7 +3406,7 @@ index ec758dce2244b875555ec301c86d738c9d61f9c4..1934306e 100644
  // tlistFromRev_ is new ArrayDeque(from) as a deque whose head is the end of the list (colls
  // -kind deque, a deque used at its head): from's elements in reverse order.
  func tlistFromRev_[T any](c *tconv_[T], from Collection) *TList[T] {
-@@ -181,13 +191,31 @@ func (l *TList[T]) ensureCapacity(n int32) {}
+@@ -184,13 +194,31 @@ func (l *TList[T]) ensureCapacity(n int32) {}
  // slice is read anew at every step).
  func (l *TList[T]) each() sliceEach_[T] { return sliceEach_[T]{src: &l.items} }
  
@@ -3567,7 +3439,7 @@ index ec758dce2244b875555ec301c86d738c9d61f9c4..1934306e 100644
  		return l.asImm()
  	}
  	if l.view == nil {
-@@ -470,3 +498,57 @@ func (l *TList[T]) getFirst_() T {
+@@ -473,3 +501,57 @@ func (l *TList[T]) getFirst_() T {
  	}
  	return l.items[0]
  }
@@ -3626,7 +3498,7 @@ index ec758dce2244b875555ec301c86d738c9d61f9c4..1934306e 100644
 +	return z != nil && ok
 +}
 diff --git a/go/closure/rt_tmap.go b/go/closure/rt_tmap.go
-index f5bb64f1487bb95bc4c5bf1a9c8c9cdd2b4eaa12..fd5b8d8c2f 100644
+index b7454e410..844e49f3f 100644
 --- a/go/closure/rt_tmap.go
 +++ b/go/closure/rt_tmap.go
 @@ -42,6 +42,12 @@ type tmapExt_[K comparable, V any] struct {
@@ -3746,7 +3618,20 @@ index f5bb64f1487bb95bc4c5bf1a9c8c9cdd2b4eaa12..fd5b8d8c2f 100644
  	if i := m.find(k); i >= 0 && !m.vc.isNull(m.vals[i]) {
  		return m.vals[i]
  	}
-@@ -443,6 +504,99 @@ func (e *tmapEach_[K, V]) next() bool {
+@@ -408,7 +469,12 @@ func (m *TMap[K, V]) computeIfAbsent_f(k K, f func(any) any) V {
+ 
+ // ComputeIfAbsent is Map.computeIfAbsent with a typed function (tools/postflip/tnames): the
+ // value of k if it has one that is not null; else f(k), stored unless it is null.
++// An immutable map throws also where nothing would change, as the erased one does (it is the
++// translator's typed computeIfAbsent of rule "function types": step 402 of the fifth flip).
+ func (m *TMap[K, V]) ComputeIfAbsent(k K, f func(K) V) V {
++	if m.imm {
++		throwUOE_()
++	}
+ 	if i := m.find(k); i >= 0 && !m.vc.isNull(m.vals[i]) {
+ 		return m.vals[i]
+ 	}
+@@ -443,6 +509,99 @@ func (e *tmapEach_[K, V]) next() bool {
  	return false
  }
  
@@ -3846,7 +3731,7 @@ index f5bb64f1487bb95bc4c5bf1a9c8c9cdd2b4eaa12..fd5b8d8c2f 100644
  // ---- sets
  
  type TSet[K comparable] struct {
-@@ -455,6 +609,35 @@ func newTSet_[K comparable](kc *tconv_[K]) *TSet[K] {
+@@ -455,6 +614,35 @@ func newTSet_[K comparable](kc *tconv_[K]) *TSet[K] {
  	return &TSet[K]{TMap: TMap[K, struct{}]{kc: kc, vc: tunit_}}
  }
  
@@ -3882,7 +3767,7 @@ index f5bb64f1487bb95bc4c5bf1a9c8c9cdd2b4eaa12..fd5b8d8c2f 100644
  // tsetFrom_ is new LinkedHashSet<>(from) (or an ImmutableSet, imm) as a typed set.
  func tsetFrom_[K comparable](kc *tconv_[K], from Collection, imm bool) *TSet[K] {
  	if imm && isNil_(from) {
-@@ -551,6 +734,9 @@ func (m *TMap[K, V]) asMap() Map {
+@@ -556,6 +744,9 @@ func (m *TMap[K, V]) asMap() Map {
  		return m.asImm()
  	}
  	x := m.ext()
@@ -3892,7 +3777,7 @@ index f5bb64f1487bb95bc4c5bf1a9c8c9cdd2b4eaa12..fd5b8d8c2f 100644
  	if x.view == nil {
  		x.view = &tmapView_[K, V]{m: m}
  	}
-@@ -565,6 +751,9 @@ func (s *TSet[K]) asSet() Set {
+@@ -570,6 +761,9 @@ func (s *TSet[K]) asSet() Set {
  		return s.asImm()
  	}
  	x := s.ext()
@@ -3902,7 +3787,7 @@ index f5bb64f1487bb95bc4c5bf1a9c8c9cdd2b4eaa12..fd5b8d8c2f 100644
  	if x.sview == nil {
  		x.sview = &tsetView_[K]{m: &s.TMap, s: s}
  	}
-@@ -573,6 +762,11 @@ func (s *TSet[K]) asSet() Set {
+@@ -578,6 +772,11 @@ func (s *TSet[K]) asSet() Set {
  
  type tmapView_[K comparable, V any] struct{ m *TMap[K, V] }
  
@@ -3914,7 +3799,7 @@ index f5bb64f1487bb95bc4c5bf1a9c8c9cdd2b4eaa12..fd5b8d8c2f 100644
  // boxedKV_ is the keys and values of the map, boxed, in the order its entry set's iterator
  // gives them (from the first live position, skipping removed ones), without the iterator and
  // an entry object per element (mapKV_: ImmutableMap.copyOf of a typed map's view).
-@@ -925,6 +1119,9 @@ var (
+@@ -930,6 +1129,9 @@ var (
  
  // addAllT is addAll from another typed set.
  func (s *TSet[K]) AddAll(o *TSet[K]) bool {
@@ -3926,7 +3811,7 @@ index f5bb64f1487bb95bc4c5bf1a9c8c9cdd2b4eaa12..fd5b8d8c2f 100644
  		if !o.isDead(i) && s.Add(k) {
 diff --git a/go/closure/rt_tsorted.go b/go/closure/rt_tsorted.go
 new file mode 100644
-index 00000000..9e56c9a3
+index 000000000..848573111
 --- /dev/null
 +++ b/go/closure/rt_tsorted.go
 @@ -0,0 +1,209 @@
@@ -3954,7 +3839,7 @@ index 00000000..9e56c9a3
 +
 +// tsort_ is what a sorted typed map or set has beside its mappings (tmapExt_.sort).
 +type tsort_[K any] struct {
-+	ecmp Comparator_e         // the comparator given; nil: natural ordering
++	ecmp Comparator_e       // the comparator given; nil: natural ordering
 +	cmp  func(a, b K) int32 // the comparison of two keys (ttreeCmp_)
 +	view any                // the collection as erased code sees it (sortedView), once that is needed
 +}
@@ -4079,9 +3964,9 @@ index 00000000..9e56c9a3
 +// are now.
 +func (v *tsortedSetView_[K]) descendingSet() NavigableSet {
 +	m := v.m
-+	out := &TreeSet{cmp: Comparator_reversed(&cmpFunc_{func(a, b any) int32 {
++	out := &TreeSet{cmp: cmpReversed_(Comparator_of_(func(a, b any) int32 {
 +		return m.x.sort.cmp(m.kc.unbox(a), m.kc.unbox(b))
-+	}})}
++	}))}
 +	for i := len(m.keys) - 1; i >= 0; i-- {
 +		out.items = append(out.items, m.kc.box(m.keys[i]))
 +	}
@@ -4141,7 +4026,7 @@ index 00000000..9e56c9a3
 +)
 diff --git a/go/closure/rt_tunify_golden_test.go b/go/closure/rt_tunify_golden_test.go
 new file mode 100644
-index 00000000..43350c40
+index 000000000..43350c401
 --- /dev/null
 +++ b/go/closure/rt_tunify_golden_test.go
 @@ -0,0 +1,496 @@
@@ -4643,10 +4528,10 @@ index 00000000..43350c40
 +}
 diff --git a/go/closure/rt_tunify_test.go b/go/closure/rt_tunify_test.go
 new file mode 100644
-index 00000000..da632821
+index 000000000..d2850fde5
 --- /dev/null
 +++ b/go/closure/rt_tunify_test.go
-@@ -0,0 +1,1138 @@
+@@ -0,0 +1,1134 @@
 +package closure
 +
 +// The typed collections after tools/postflip/unify (one family) behave as the translator's
@@ -5237,10 +5122,6 @@ index 00000000..da632821
 +	buildKeepingLast func() M
 +}
 +
-+type ufn_ struct{ f func(any) any }
-+
-+func (f *ufn_) apply(x any) any { return f.f(x) }
-+
 +func uerasedMap_(kv ...any) *LinkedHashMap {
 +	m := new_LinkedHashMap()
 +	for i := 0; i < len(kv); i += 2 {
@@ -5314,8 +5195,8 @@ index 00000000..da632821
 +	t.try("mutable: view", func() any { return f.asMap(mm) == f.asMap(mm) && goTypeName_(f.asMap(mm)) == "LinkedHashMap" })
 +	t.try("mutable: putIfAbsent, computeIfAbsent", func() any {
 +		calls := 0
-+		fn := &ufn_{func(x any) any { calls++; return "made" }}
-+		none := &ufn_{func(x any) any { calls++; return nil }}
++		fn := Function_of_(func(x any) any { calls++; return "made" })
++		none := Function_of_(func(x any) any { calls++; return nil })
 +		f.put(mm, ks[2], nullstr_)
 +		r := fmt.Sprint(ufmt_(f.putIfAbs(mm, ks[1], "pia")), f.putIfAbs(mm, ks[1], "pia2"), ufmt_(f.putIfAbs(mm, ks[2], "wasnull")),
 +			f.compute(mm, ks[0], fn), ufmt_(f.compute(mm, ks[1], fn)))
@@ -5369,7 +5250,7 @@ index 00000000..da632821
 +		t.run(imm.name+": del", func() { f.del(x, ks[0]) })
 +		t.run(imm.name+": clear", func() { f.clear(x) })
 +		t.run(imm.name+": putIfAbsent", func() { f.putIfAbs(x, ks[0], "z") })
-+		t.run(imm.name+": computeIfAbsent", func() { f.compute(x, ks[0], &ufn_{func(any) any { return "z" }}) })
++		t.run(imm.name+": computeIfAbsent", func() { f.compute(x, ks[0], Function_of_(func(any) any { return "z" })) })
 +		t.run(imm.name+": putAll", func() { f.putAll(x, mm) })
 +		t.run(imm.name+": putAll of nothing", func() { f.putAll(x, f.newMap()) })
 +		t.run(imm.name+": entry setValue", func() {
@@ -5413,7 +5294,7 @@ index 00000000..da632821
 +		t.try("sorted: order", func() any { return ufmt_(f.asMap(sm)) + umapKV_(f, sm) })
 +		t.try("sorted: contents", func() any {
 +			return fmt.Sprint(f.size(sm), f.get(sm, ks[2]), f.put(sm, ks[2], "S2"), f.del(sm, ks[4]), ufmt_(f.del(sm, ks[4])), f.has(sm, ks[4]), ufmt_(f.get(sm, ks[4])),
-+				f.getOr(sm, ks[4], "def"), ufmt_(f.putIfAbs(sm, ks[4], "back")), f.compute(sm, ks[0], &ufn_{func(any) any { return "no" }})) + umapKV_(f, sm)
++				f.getOr(sm, ks[4], "def"), ufmt_(f.putIfAbs(sm, ks[4], "back")), f.compute(sm, ks[0], Function_of_(func(any) any { return "no" }))) + umapKV_(f, sm)
 +		})
 +		t.try("sorted: view", func() any { v := f.asMap(sm); return v == f.asMap(sm) && goTypeName_(v) == "TreeMap" })
 +		t.try("sorted: erased lookups of another class", func() any { return f.asMap(sm).containsKey(other) })
@@ -5525,10 +5406,10 @@ index 00000000..da632821
 +	uanyKeys_ = []any{&ukey_{4, 0}, &ukey_{2, 0}, &ukey_{6, 0}, &ukey_{1, 0}, &ukey_{5, 0}, &ukey_{3, 0}}
 +	uanyDup_  = any(&ukey_{4, 1})
 +	// the comparators: strings without regard to case, descending; keys by their number
-+	ustrCmp_ Comparator_e = &cmpFunc_{func(a, b any) int32 {
++	ustrCmp_ Comparator_e = Comparator_of_(func(a, b any) int32 {
 +		return String_compareTo(strings.ToLower(str_(b)), strings.ToLower(str_(a)))
-+	}}
-+	uanyCmp_ Comparator_e = &cmpFunc_{func(a, b any) int32 {
++	})
++	uanyCmp_ Comparator_e = Comparator_of_(func(a, b any) int32 {
 +		if a == nil || b == nil {
 +			if a == nil && b == nil {
 +				return 0
@@ -5539,7 +5420,7 @@ index 00000000..da632821
 +			return 1
 +		}
 +		return Integer_compare(a.(*ukey_).a, b.(*ukey_).a)
-+	}}
++	})
 +)
 +
 +// uTraces_ runs every scenario on the functions of one family and returns the trace: lines
