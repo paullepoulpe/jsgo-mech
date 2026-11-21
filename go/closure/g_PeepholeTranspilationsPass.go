@@ -29,7 +29,7 @@ func PeepholeTranspilationsPass_create(compiler *AbstractCompiler, transpilation
 	for it_1.next() {
 		var transpilation *AbstractPeepholeTranspilation = it_1.v
 		if ok_, a1_ := !transpilation.getAdditionalFeaturesToRunOn().containsAtLeastOneOf(transpilation.getTranspiledAwayFeatures()), Object_getClass(transpilation.self()).getSimpleName(); !ok_ {
-			Preconditions_checkState_boolean_String_Object(false, "Transpilation pass %s has getAdditionalFeaturesToRunOn() that contains features that it transpiles away.", a1_)
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Transpilation pass %s has getAdditionalFeaturesToRunOn() that contains features that it transpiles away.", []any{a1_})).self())
 		}
 		featureSetToRunOn = featureSetToRunOn.withFeatureSet(transpilation.getTranspiledAwayFeatures())
 		featureSetToRunOn = featureSetToRunOn.withFeatureSet(transpilation.getAdditionalFeaturesToRunOn())

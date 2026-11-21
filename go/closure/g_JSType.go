@@ -490,12 +490,18 @@ func (this *JSType) toMaybeFunctionType_impl() *FunctionType {
 }
 
 func (this *JSType) assertFunctionType() *FunctionType {
-	var result *FunctionType = Preconditions_checkNotNull_Object_String_Object_T(this.toMaybeFunctionType(), "not a FunctionType: %s", this)
+	var result *FunctionType = this.toMaybeFunctionType()
+	if result == nil {
+		panic(new_NullPointerException_String(Strings_lenientFormat("not a FunctionType: %s", []any{this})).self())
+	}
 	return result
 }
 
 func (this *JSType) assertObjectType() *ObjectType {
-	var result *ObjectType = Preconditions_checkNotNull_Object_String_Object_T(this.toMaybeObjectType(), "Not an ObjectType: %s", this)
+	var result *ObjectType = this.toMaybeObjectType()
+	if result == nil {
+		panic(new_NullPointerException_String(Strings_lenientFormat("Not an ObjectType: %s", []any{this})).self())
+	}
 	return result
 }
 
@@ -1089,14 +1095,16 @@ func (this *JSType) resolve(reporter ErrorReporter_rhino) *JSType {
 	if !this.isResolved() {
 		this.resolveResult = this
 		this.resolveResult = this.resolveInternal(reporter)
-		Preconditions_checkState(this.isResolved())
+		if !this.isResolved() {
+			panic(new_IllegalStateException_0().self())
+		}
 	}
 	return this.resolveResult
 }
 
 func (this *JSType) eagerlyResolveToSelf() {
 	if this.isResolved() {
-		Preconditions_checkState_boolean_Object(false, this)
+		panic(new_IllegalStateException_String(objstr_(this)).self())
 	}
 	this.resolveResult = this
 	this.registry.getResolver().resolveIfClosed(this, this.getTypeClass())

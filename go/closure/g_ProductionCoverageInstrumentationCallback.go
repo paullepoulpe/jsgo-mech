@@ -103,7 +103,9 @@ func (this *ProductionCoverageInstrumentationCallback) visit(traversal *NodeTrav
 	default:
 		if NodeUtil_isLoopStructure(node) {
 			var blockNode Node = NodeUtil_getLoopCodeBlock(node)
-			Preconditions_checkNotNull_T(blockNode)
+			if blockNode == 0 {
+				panic(new_NullPointerException_0().self())
+			}
 			this.instrumentBlockNode(blockNode, sourceFileName, functionName, ProductionCoverageInstrumentationCallback_Type_BRANCH)
 		}
 	}

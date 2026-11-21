@@ -45,7 +45,9 @@ func (this *SimpleListMultimap[K, V]) immutableCopy() *SimpleListMultimap[K, V] 
 }
 
 func (this *SimpleListMultimap[K, V]) put(key K, value V) *SimpleListMultimap[K, V] {
-	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
+	if this.frozen {
+		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+	}
 	var values ListOf[V] = this.map__.get(key)
 	if values == nil {
 		values = new_ArrayList_0()
@@ -65,7 +67,9 @@ func (this *SimpleListMultimap[K, V]) putAll(key K, values IterableOf[V]) *Simpl
 }
 
 func (this *SimpleListMultimap[K, V]) replaceValues(key K, values IterableOf[V]) {
-	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
+	if this.frozen {
+		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+	}
 	var newValues *JTList[V] = jnewTList_(tcT_[V]())
 	Iterables_addAll(Collection(newValues.asList()), values)
 	if newValues.isEmpty() {
@@ -90,7 +94,9 @@ func (this *SimpleListMultimap[K, V]) containsKey(key K) bool {
 }
 
 func (this *SimpleListMultimap[K, V]) remove(key K, value V) bool {
-	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
+	if this.frozen {
+		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+	}
 	var values ListOf[V] = this.map__.get(key)
 	if (values == nil) || !values.remove_Object(boxT_(value)) {
 		return false
@@ -102,7 +108,9 @@ func (this *SimpleListMultimap[K, V]) remove(key K, value V) bool {
 }
 
 func (this *SimpleListMultimap[K, V]) removeAll(key K) ListOf[V] {
-	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
+	if this.frozen {
+		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+	}
 	var values ListOf[V] = this.map__.remove(key)
 	return func() List {
 		if values == nil {

@@ -456,7 +456,10 @@ type LinkedFlowScope_OverlayScope struct {
 }
 
 func (this *LinkedFlowScope_OverlayScope) init_LinkedFlowScope_OverlayScope_TypedScope(scope *TypedScope) {
-	this.scope_ = Preconditions_checkNotNull_T(scope)
+	if scope == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.scope_ = scope
 	this.slots = LinkedFlowScope_EMPTY_SLOTS
 }
 
@@ -467,7 +470,10 @@ func new_LinkedFlowScope_OverlayScope_TypedScope(scope *TypedScope) *LinkedFlowS
 }
 
 func (this *LinkedFlowScope_OverlayScope) init_LinkedFlowScope_OverlayScope_TypedScope_PMap(scope *TypedScope, slots PMap[string, *LinkedFlowScope_OverlaySlot]) {
-	this.scope_ = Preconditions_checkNotNull_T(scope)
+	if scope == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.scope_ = scope
 	this.slots = slots
 }
 

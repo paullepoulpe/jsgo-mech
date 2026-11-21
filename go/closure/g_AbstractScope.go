@@ -68,7 +68,10 @@ func (this *AbstractScope) self() any {
 }
 
 func (this *AbstractScope) init_AbstractScope(rootNode Node) {
-	this.rootNode_ = Preconditions_checkNotNull_T(rootNode)
+	if rootNode == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	this.rootNode_ = rootNode
 }
 
 func (this *AbstractScope) toString() string {
@@ -141,7 +144,7 @@ func (this *AbstractScope) isHoistScope() bool {
 
 func (this *AbstractScope) checkRootScope() {
 	if !((NodeUtil_createsScope(this.rootNode_) || this.rootNode_.isScript()) || this.rootNode_.isRoot()) {
-		Preconditions_checkArgument_boolean_Object_H(false, this.rootNode_)
+		panic(new_IllegalArgumentException_String(objstr_(this.rootNode_.box_())).self())
 	}
 }
 

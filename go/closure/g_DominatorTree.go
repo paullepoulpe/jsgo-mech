@@ -21,7 +21,9 @@ func new_DominatorTree[N comparable](idoms MapOf[N, N], subtreeSizes MapOf[N, Bo
 }
 
 func DominatorTree_compute[N comparable, E comparable](graph *DiGraph[N, E], entry N) *DominatorTree[N] {
-	Preconditions_checkNotNull_Object_Object_T(graph.getNode_Object_rDiGraphNode(entry), "Entry node not in graph")
+	if graph.getNode_Object_rDiGraphNode(entry) == nil {
+		panic(new_NullPointerException_String("Entry node not in graph").self())
+	}
 	var postOrder *JTList[N] = jnewTList_(tcT_[N]())
 	var postOrderIndex *JTMap[N, any] = jnewTMap_(tceT_[N](), tc_Integer)
 	DominatorTree_buildPostOrder[N, E](graph, entry, postOrder.asList(), Map(new_LinkedHashMap()))

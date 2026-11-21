@@ -28,7 +28,9 @@ func (this *MemoizedScopeCreator) createScopeAbstractScope_Node_AbstractScope(n 
 		scope = this.delegate(n, parent)
 		this.scopesByScopeRoot.put(n, scope)
 	} else {
-		Preconditions_checkState((parent == scope.getParent()))
+		if parent != scope.getParent() {
+			panic(new_IllegalStateException_0().self())
+		}
 	}
 	return scope
 }

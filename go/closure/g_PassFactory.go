@@ -274,6 +274,8 @@ func (this *PassFactory_Builder) autoBuild() *PassFactory {
 
 func (this *PassFactory_Builder) build() *PassFactory {
 	var result *PassFactory = this.autoBuild()
-	Preconditions_checkState(!String_isEmpty(result.getName()))
+	if String_isEmpty(result.getName()) {
+		panic(new_IllegalStateException_0().self())
+	}
 	return result
 }
