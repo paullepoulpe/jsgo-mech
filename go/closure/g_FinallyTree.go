@@ -14,12 +14,12 @@ func (this *FinallyTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *FinallyTree) init_FinallyTree(location *SourceRange, block *ParseTree) {
+func (this *FinallyTree) init_FinallyTree(location SourceRange, block *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_FINALLY, location)
 	this.block = block
 }
 
-func new_FinallyTree(location *SourceRange, block *ParseTree) *FinallyTree {
+func new_FinallyTree(location SourceRange, block *ParseTree) *FinallyTree {
 	this := &FinallyTree{}
 	this.self_ = this
 	this.init_FinallyTree(location, block)

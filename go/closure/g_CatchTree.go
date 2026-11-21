@@ -15,13 +15,13 @@ func (this *CatchTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *CatchTree) init_CatchTree(location *SourceRange, exception *ParseTree, catchBody *ParseTree) {
+func (this *CatchTree) init_CatchTree(location SourceRange, exception *ParseTree, catchBody *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_CATCH, location)
 	this.exception = exception
 	this.catchBody = catchBody
 }
 
-func new_CatchTree(location *SourceRange, exception *ParseTree, catchBody *ParseTree) *CatchTree {
+func new_CatchTree(location SourceRange, exception *ParseTree, catchBody *ParseTree) *CatchTree {
 	this := &CatchTree{}
 	this.self_ = this
 	this.init_CatchTree(location, exception, catchBody)

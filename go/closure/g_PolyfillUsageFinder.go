@@ -6,7 +6,7 @@ import "strings"
 
 type PolyfillUsageFinder struct {
 	compiler_                  *AbstractCompiler
-	polyfills                  *PolyfillUsageFinder_Polyfills
+	polyfills                  PolyfillUsageFinder_Polyfills
 	registry                   *ColorRegistry
 	hasInSupertypesListSeenSet *TSet[*Color]
 	disambiguateProperties_    bool
@@ -16,7 +16,7 @@ func (this *PolyfillUsageFinder) finit_PolyfillUsageFinder() {
 	this.hasInSupertypesListSeenSet = newTSet_(tch_p_Color)
 }
 
-func (this *PolyfillUsageFinder) init_PolyfillUsageFinder(compiler *AbstractCompiler, polyfills *PolyfillUsageFinder_Polyfills, disambiguateProperties bool) {
+func (this *PolyfillUsageFinder) init_PolyfillUsageFinder(compiler *AbstractCompiler, polyfills PolyfillUsageFinder_Polyfills, disambiguateProperties bool) {
 	this.finit_PolyfillUsageFinder()
 	this.polyfills = polyfills
 	this.compiler_ = compiler
@@ -29,7 +29,7 @@ func (this *PolyfillUsageFinder) init_PolyfillUsageFinder(compiler *AbstractComp
 	}()
 }
 
-func new_PolyfillUsageFinder(compiler *AbstractCompiler, polyfills *PolyfillUsageFinder_Polyfills, disambiguateProperties bool) *PolyfillUsageFinder {
+func new_PolyfillUsageFinder(compiler *AbstractCompiler, polyfills PolyfillUsageFinder_Polyfills, disambiguateProperties bool) *PolyfillUsageFinder {
 	this := &PolyfillUsageFinder{}
 	this.init_PolyfillUsageFinder(compiler, polyfills, disambiguateProperties)
 	return this
@@ -324,13 +324,13 @@ func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(me
 	this.suffixes = immutableSetCopyOf_(tc_string, Collection(suffixList.asList()))
 }
 
-func new_PolyfillUsageFinder_Polyfills(methods *SimpleListMultimap[string, *PolyfillUsageFinder_Polyfill], statics *TMap[string, *PolyfillUsageFinder_Polyfill], byNativeVersion *SimpleListMultimap[string, *PolyfillUsageFinder_Polyfill]) *PolyfillUsageFinder_Polyfills {
-	this := &PolyfillUsageFinder_Polyfills{}
+func new_PolyfillUsageFinder_Polyfills(methods *SimpleListMultimap[string, *PolyfillUsageFinder_Polyfill], statics *TMap[string, *PolyfillUsageFinder_Polyfill], byNativeVersion *SimpleListMultimap[string, *PolyfillUsageFinder_Polyfill]) PolyfillUsageFinder_Polyfills {
+	this := PolyfillUsageFinder_Polyfills{}
 	this.init_PolyfillUsageFinder_Polyfills(methods, statics, byNativeVersion)
 	return this
 }
 
-func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_Polyfills {
+func PolyfillUsageFinder_Polyfills_fromTable(table string) PolyfillUsageFinder_Polyfills {
 	var methods *SimpleListMultimap[string, *PolyfillUsageFinder_Polyfill] = SimpleListMultimap_create[string, *PolyfillUsageFinder_Polyfill]()
 	var statics *ImmutableMap_Builder[string, *PolyfillUsageFinder_Polyfill] = immutableMapBuilder_(tc_string, tc_p_PolyfillUsageFinder_Polyfill)
 	var byNativeVersion *SimpleListMultimap[string, *PolyfillUsageFinder_Polyfill] = SimpleListMultimap_create[string, *PolyfillUsageFinder_Polyfill]()
@@ -366,7 +366,7 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 	return new_PolyfillUsageFinder_Polyfills(methods.immutableCopy(), statics.buildOrThrow(), byNativeVersion.immutableCopy())
 }
 
-func (this *PolyfillUsageFinder_Polyfills) getPolyfillsNewerThan(languageMode CompilerOptions_LanguageMode) *TList[*PolyfillUsageFinder_Polyfill] {
+func (this PolyfillUsageFinder_Polyfills) getPolyfillsNewerThan(languageMode CompilerOptions_LanguageMode) *TList[*PolyfillUsageFinder_Polyfill] {
 	var featureSet *FeatureSet = languageMode.toFeatureSet()
 	var result *ImmutableList_Builder[*PolyfillUsageFinder_Polyfill] = immutableListBuilder_(tc_p_PolyfillUsageFinder_Polyfill)
 	for nativeVersionStr := range elemsBy_(this.byNativeVersion.keySet(), str_) {

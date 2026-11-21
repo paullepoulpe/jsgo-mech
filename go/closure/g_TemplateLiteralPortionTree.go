@@ -14,12 +14,12 @@ func (this *TemplateLiteralPortionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *TemplateLiteralPortionTree) init_TemplateLiteralPortionTree(location *SourceRange, value *Token_parser) {
+func (this *TemplateLiteralPortionTree) init_TemplateLiteralPortionTree(location SourceRange, value *Token_parser) {
 	this.ParseTree.init_ParseTree(ParseTreeType_TEMPLATE_LITERAL_PORTION, location)
 	this.value_ = value
 }
 
-func new_TemplateLiteralPortionTree(location *SourceRange, value *Token_parser) *TemplateLiteralPortionTree {
+func new_TemplateLiteralPortionTree(location SourceRange, value *Token_parser) *TemplateLiteralPortionTree {
 	this := &TemplateLiteralPortionTree{}
 	this.self_ = this
 	this.init_TemplateLiteralPortionTree(location, value)

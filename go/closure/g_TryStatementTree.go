@@ -16,14 +16,14 @@ func (this *TryStatementTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *TryStatementTree) init_TryStatementTree(location *SourceRange, body *ParseTree, catchBlock *ParseTree, finallyBlock *ParseTree) {
+func (this *TryStatementTree) init_TryStatementTree(location SourceRange, body *ParseTree, catchBlock *ParseTree, finallyBlock *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_TRY_STATEMENT, location)
 	this.body = body
 	this.catchBlock = catchBlock
 	this.finallyBlock = finallyBlock
 }
 
-func new_TryStatementTree(location *SourceRange, body *ParseTree, catchBlock *ParseTree, finallyBlock *ParseTree) *TryStatementTree {
+func new_TryStatementTree(location SourceRange, body *ParseTree, catchBlock *ParseTree, finallyBlock *ParseTree) *TryStatementTree {
 	this := &TryStatementTree{}
 	this.self_ = this
 	this.init_TryStatementTree(location, body, catchBlock, finallyBlock)

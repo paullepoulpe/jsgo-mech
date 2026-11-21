@@ -15,13 +15,13 @@ func (this *DoWhileStatementTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *DoWhileStatementTree) init_DoWhileStatementTree(location *SourceRange, body *ParseTree, condition *ParseTree) {
+func (this *DoWhileStatementTree) init_DoWhileStatementTree(location SourceRange, body *ParseTree, condition *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_DO_WHILE_STATEMENT, location)
 	this.body = body
 	this.condition = condition
 }
 
-func new_DoWhileStatementTree(location *SourceRange, body *ParseTree, condition *ParseTree) *DoWhileStatementTree {
+func new_DoWhileStatementTree(location SourceRange, body *ParseTree, condition *ParseTree) *DoWhileStatementTree {
 	this := &DoWhileStatementTree{}
 	this.self_ = this
 	this.init_DoWhileStatementTree(location, body, condition)

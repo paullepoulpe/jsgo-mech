@@ -3,14 +3,14 @@
 package closure
 
 type NonJSDocComment struct {
-	startPosition     *SourcePosition_util
-	endPosition       *SourcePosition_util
+	startPosition     SourcePosition_util
+	endPosition       SourcePosition_util
 	contents          string
 	endsAsLineComment bool
 	isInlineField     bool
 }
 
-func (this *NonJSDocComment) init_NonJSDocComment(start *SourcePosition_util, end *SourcePosition_util, s string) {
+func (this *NonJSDocComment) init_NonJSDocComment(start SourcePosition_util, end SourcePosition_util, s string) {
 	this.startPosition = start
 	this.endPosition = end
 	this.contents = optstrOf_(s)
@@ -18,7 +18,7 @@ func (this *NonJSDocComment) init_NonJSDocComment(start *SourcePosition_util, en
 	this.isInlineField = false
 }
 
-func new_NonJSDocComment(start *SourcePosition_util, end *SourcePosition_util, s string) *NonJSDocComment {
+func new_NonJSDocComment(start SourcePosition_util, end SourcePosition_util, s string) *NonJSDocComment {
 	this := &NonJSDocComment{}
 	this.init_NonJSDocComment(start, end, s)
 	return this
@@ -31,11 +31,11 @@ func (this *NonJSDocComment) getCommentString() string {
 	return optstrGet_(this.contents)
 }
 
-func (this *NonJSDocComment) getStartPosition() *SourcePosition_util {
+func (this *NonJSDocComment) getStartPosition() SourcePosition_util {
 	return this.startPosition
 }
 
-func (this *NonJSDocComment) getEndPosition() *SourcePosition_util {
+func (this *NonJSDocComment) getEndPosition() SourcePosition_util {
 	return this.endPosition
 }
 

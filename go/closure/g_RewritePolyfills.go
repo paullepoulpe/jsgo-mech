@@ -5,7 +5,7 @@ package closure
 type RewritePolyfills struct {
 	compiler_                *AbstractCompiler
 	runtimeJsLibManager      *RuntimeJsLibManager
-	polyfills                *PolyfillUsageFinder_Polyfills
+	polyfills                PolyfillUsageFinder_Polyfills
 	libraries                *TSet[string]
 	injectPolyfillsNewerThan CompilerOptions_LanguageMode
 	injectPolyfills          bool
@@ -23,7 +23,7 @@ func new_RewritePolyfills_AbstractCompiler_boolean_boolean_LanguageMode_boolean(
 	return this
 }
 
-func (this *RewritePolyfills) init_RewritePolyfills_AbstractCompiler_RuntimeJsLibManager_Polyfills_boolean_boolean_LanguageMode_boolean(compiler *AbstractCompiler, runtimeJsLibManager *RuntimeJsLibManager, polyfills *PolyfillUsageFinder_Polyfills, injectPolyfills bool, isolatePolyfills bool, injectPolyfillsNewerThan CompilerOptions_LanguageMode, disambiguateProperties bool) {
+func (this *RewritePolyfills) init_RewritePolyfills_AbstractCompiler_RuntimeJsLibManager_Polyfills_boolean_boolean_LanguageMode_boolean(compiler *AbstractCompiler, runtimeJsLibManager *RuntimeJsLibManager, polyfills PolyfillUsageFinder_Polyfills, injectPolyfills bool, isolatePolyfills bool, injectPolyfillsNewerThan CompilerOptions_LanguageMode, disambiguateProperties bool) {
 	this.compiler_ = compiler
 	this.runtimeJsLibManager = runtimeJsLibManager
 	this.polyfills = polyfills
@@ -33,7 +33,7 @@ func (this *RewritePolyfills) init_RewritePolyfills_AbstractCompiler_RuntimeJsLi
 	this.disambiguateProperties_ = disambiguateProperties
 }
 
-func new_RewritePolyfills_AbstractCompiler_RuntimeJsLibManager_Polyfills_boolean_boolean_LanguageMode_boolean(compiler *AbstractCompiler, runtimeJsLibManager *RuntimeJsLibManager, polyfills *PolyfillUsageFinder_Polyfills, injectPolyfills bool, isolatePolyfills bool, injectPolyfillsNewerThan CompilerOptions_LanguageMode, disambiguateProperties bool) *RewritePolyfills {
+func new_RewritePolyfills_AbstractCompiler_RuntimeJsLibManager_Polyfills_boolean_boolean_LanguageMode_boolean(compiler *AbstractCompiler, runtimeJsLibManager *RuntimeJsLibManager, polyfills PolyfillUsageFinder_Polyfills, injectPolyfills bool, isolatePolyfills bool, injectPolyfillsNewerThan CompilerOptions_LanguageMode, disambiguateProperties bool) *RewritePolyfills {
 	this := &RewritePolyfills{}
 	this.init_RewritePolyfills_AbstractCompiler_RuntimeJsLibManager_Polyfills_boolean_boolean_LanguageMode_boolean(compiler, runtimeJsLibManager, polyfills, injectPolyfills, isolatePolyfills, injectPolyfillsNewerThan, disambiguateProperties)
 	return this

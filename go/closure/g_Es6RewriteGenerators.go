@@ -15,7 +15,7 @@ type Es6RewriteGenerators struct {
 	nullableStringType         *Color
 	generatorContextType       Supplier_base[AstFactory_Type]
 	propertyIteratorType       AstFactory_Type
-	uniqueIdSupplier           *UniqueIdSupplier
+	uniqueIdSupplier           UniqueIdSupplier
 }
 
 func (this *Es6RewriteGenerators) init_Es6RewriteGenerators(compiler *AbstractCompiler) {
