@@ -20,7 +20,8 @@ import javax.lang.model.type.*;
  *   type IterableT[T any] interface { Iterable; iterator_t() IteratorT[T] }
  * </pre>
  *
- * Kinds: `iter` (java.util.Iterator, java.lang.Iterable).
+ * Kinds: `iter` (java.util.Iterator, java.lang.Iterable), `coll` (java.util.Collection), `list`
+ * (java.util.List), `set` (java.util.Set).
  *
  * - Types: the interfaces of an enabled kind are typed declarations (Ctx.typedClasses).
  *   `Iterator<Node>` is `IteratorT[Node]`. A wildcard is its bound, an erased type variable what
@@ -51,6 +52,7 @@ final class LibGen {
     KINDS.put("iter", List.of("java.util.Iterator", "java.lang.Iterable"));
     KINDS.put("coll", List.of("java.util.Collection"));
     KINDS.put("list", List.of("java.util.List"));
+    KINDS.put("set", List.of("java.util.Set"));
   }
 
   /**
@@ -61,7 +63,8 @@ final class LibGen {
    */
   static final Map<String, Set<String>> TYPED_METHODS = Map.of(
       "java.util.Collection", Set.of(),
-      "java.util.List", Set.of("get/1"));
+      "java.util.List", Set.of("get/1"),
+      "java.util.Set", Set.of());
 
   /** Whether root method r of one of the interfaces has its typed signature on a typed receiver. */
   boolean typedMethod(ExecutableElement r) {
@@ -318,11 +321,11 @@ final class LibGen {
   String fromTypedColl(String code, TypeMirror from, TypeMirror to) {
     if (!is(to)) return null;
     String qn = Ctx.typeElement(to).getQualifiedName().toString();
-    String as = qn.equals("java.lang.Iterable") ? ".asIterable()" : qn.equals("java.util.Collection") ? ".asCollT()" : qn.equals("java.util.List") ? ".asListT()" : null;
+    String as = qn.equals("java.lang.Iterable") ? ".asIterable()" : qn.equals("java.util.Collection") ? ".asCollT()" : qn.equals("java.util.List") ? ".asListT()" : qn.equals("java.util.Set") ? ".asSetT()" : null;
     if (as == null) return null;
     Ctx.CollKind k = cx.typedColl(from);
     if (k == null || k.builds != null || k.pair()) return null;
-    if (qn.equals("java.util.List") && !k.name.equals("list")) return null;
+    if (qn.equals("java.util.List") && !k.name.equals("list") || qn.equals("java.util.Set") && !k.name.equals("set")) return null;
     TypeMirror elem = ((DeclaredType) from).getTypeArguments().get(0);
     if (!cx.goTypeArg(elem).equals(cx.goTypeArg(((DeclaredType) to).getTypeArguments().get(0)))) return null;
     return ExprEmitter.atomOrParen(code) + as;
@@ -367,18 +370,25 @@ final class LibGen {
     return cx.coerce("lgBox_(" + code + ")", object(), to);
   }
 
+  /** A typed view of a typed map: the method of the runtime's typed map that gives it, and its type. */
+  record View(String method, TypeMirror type) {}
+
   /**
-   * Piece `views` (J2GO_NOLIBGEN=views is the translation without it): the type of the typed
-   * view that call m (with nargs arguments) on a typed map of type recv gives, or null where the
-   * erased view serves the call: `values()` declared with result java.util.Collection, where
-   * Collection is a typed interface, is the Collection of the map's values.
+   * Piece `views` (J2GO_NOLIBGEN=views is the translation without it): the typed view that call
+   * m (with nargs arguments) on a typed map of type recv gives, or null where the erased view
+   * serves the call: `values()` declared with result java.util.Collection, where Collection is a
+   * typed interface, is the Collection of the map's values (valuesT), `keySet()` the Set of its
+   * keys (keySetT).
    */
-  TypeMirror mapValues(Ctx.CollKind rk, TypeMirror recv, ExecutableElement m, int nargs) {
-    if (!on("views") || !rk.name.equals("map") || nargs != 0 || !m.getSimpleName().contentEquals("values")) return null;
-    TypeElement coll = cx.elems.getTypeElement("java.util.Collection");
+  View mapView(Ctx.CollKind rk, TypeMirror recv, ExecutableElement m, int nargs) {
+    if (!on("views") || !rk.name.equals("map") || nargs != 0) return null;
+    String n = m.getSimpleName().toString();
+    boolean vals = n.equals("values");
+    if (!vals && !n.equals("keySet")) return null;
+    TypeElement coll = cx.elems.getTypeElement(vals ? "java.util.Collection" : "java.util.Set");
     if (!isLib(coll) || !coll.equals(Ctx.typeElement(cx.types.erasure(m.getReturnType())))) return null;
-    TypeMirror t = cx.erase(cx.types.getDeclaredType(coll, ((DeclaredType) recv).getTypeArguments().get(1)));
-    return is(t) ? t : null;
+    TypeMirror t = cx.erase(cx.types.getDeclaredType(coll, ((DeclaredType) recv).getTypeArguments().get(vals ? 1 : 0)));
+    return is(t) ? new View(vals ? "valuesT" : "keySetT", t) : null;
   }
 
   /**

@@ -327,3 +327,88 @@ func TestLgSubList(t *testing.T) {
 	}()
 	l.asListT().subList(2, 9)
 }
+
+func TestLgSet(t *testing.T) {
+	s := newTSet_(tc_string)
+	s.add("a")
+	st := s.asSetT()
+	if (*TSet[string])(nil).asSetT() != nil {
+		t.Fatal("null as a Set is not nil")
+	}
+	if Set_un_(st) != s.asSet() || lgBox_(st) != any(s.asSet()) || setAs_(tc_string, s.asSet()) != st || CollectionT[string](st) != s.asCollT() {
+		t.Fatal("the typed set as a Set is not its view")
+	}
+	st.add("b") // the erased method, through the view
+	st.add("a")
+	if s.size() != 2 || st.iterator_t().next_t() != "a" || !st.contains("b") || st.contains(nil) {
+		t.Fatal(s.size())
+	}
+	// an immutable typed set: the view for typed code, the twin for erased code, found from the twin
+	is := immutableSetOf_(tc_string, "p", "q", "p")
+	it := is.asSetT()
+	if Set_un_(it) != Set(is.asImm()) || setAs_(tc_string, Set(is.asImm())) != it || collectionAs_(tc_string, Collection(is.asImm())) != CollectionT[string](it) {
+		t.Fatal("the immutable typed set as a Set")
+	}
+	if iterableAs_(tc_string, Iterable(is.asImm())) != IterableT[string](is) {
+		t.Fatal("the immutable typed set as an Iterable")
+	}
+	got := ""
+	for e := eachOf_[string](it); e.next(); {
+		got += e.v
+	}
+	// an erased set: a wrapper that unboxes; erased code gets the set back
+	hs := new_LinkedHashSet()
+	hs.add("x")
+	hs.add("y")
+	w := setAs_(tc_string, Set(hs))
+	if Set_un_(w) != Set(hs) || lgBox_(w) != any(hs) || w.size() != 2 {
+		t.Fatal("a wrapped erased set")
+	}
+	for e := eachOf_[string](w); e.next(); {
+		got += e.v
+	}
+	for i := w.iterator_t(); i.hasNext(); {
+		got += i.next_t()
+	}
+	if got != "pqxyxy" {
+		t.Fatal(got)
+	}
+	if setAs_(tc_string, nil) != nil {
+		t.Fatal("null")
+	}
+}
+
+func TestLgKeySetT(t *testing.T) {
+	m := newTMap_(tc_string, tc_string)
+	m.put("a", "1")
+	m.put("b", "2")
+	ks := m.keySetT()
+	if Set_un_(ks) != m.asMap().keySet() || lgBox_(ks) != any(m.asMap().keySet()) || setAs_(tc_string, m.asMap().keySet()) != ks {
+		t.Fatal("keySetT of a map that can change is not the erased view's key set")
+	}
+	m.put("c", "3")
+	got := ""
+	for e := eachOf_[string](ks); e.next(); {
+		got += e.v
+	}
+	it := ks.iterator_t()
+	it.next_t()
+	Iterator_remove(it)
+	if got != "abc" || m.size() != 2 || ks.contains("a") || !ks.contains("b") || !ks.remove_Object("c") || m.size() != 1 {
+		t.Fatal(got, m.size())
+	}
+	// an immutable map: the typed view reads the map; erased code gets the twin's key set
+	im := immutableMapOf1_(tc_string, tc_string, "k", "w")
+	iks := im.keySetT()
+	if iks.size() != 1 || iks.iterator_t().next_t() != "k" || !Set_un_(iks).contains("k") {
+		t.Fatal("keySetT of an immutable map")
+	}
+	func() {
+		defer func() {
+			if recover() == nil {
+				t.Fatal("clear of the key set of an immutable map did not throw")
+			}
+		}()
+		iks.clear()
+	}()
+}

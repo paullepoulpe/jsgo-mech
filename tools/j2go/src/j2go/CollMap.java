@@ -121,7 +121,10 @@ final class CollMap {
         : ck == null ? "no kind for the type"
         : cx.typedArgs(ck, t) == null ? "type arguments: " + colls.whyNot(ck, t)
         : noSlotWhy;
-    decls.add(String.join("\t", kind, where(e), qn(t), clean(t), argCats(t), state(e), s == null ? "-" : "" + slotIds.get(s), ck == null ? "-" : ck.name, clean(why)));
+    // (last column: the form of an erased declaration under rule "typed library interfaces": L2 a typed interface, L3 erased)
+    String st = state(e);
+    String form = st.equals("typed") ? "L1" : cx.lg.is(cx.erase(t)) ? "L2" : "L3";
+    decls.add(String.join("\t", kind, where(e), qn(t), clean(t), argCats(t), st, s == null ? "-" : "" + slotIds.get(s), ck == null ? "-" : ck.name, clean(why), form));
   }
 
   int line(CompilationUnitTree cu, Tree t) {

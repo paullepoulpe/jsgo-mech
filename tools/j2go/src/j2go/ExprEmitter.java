@@ -1350,10 +1350,10 @@ abstract class ExprEmitter extends Base {
         src = false;
       } else {
         Ctx.CollKind rk = cx.typedColl(recv.type);
-        TypeMirror vt = cx.lg.mapValues(rk, recv.type, e, args.size());
+        LibGen.View vt = cx.lg.mapView(rk, recv.type, e, args.size());
         if (vt != null) {
-          // values() of a typed map where Collection is a typed interface: the map's typed view (piece `views`)
-          return new CallResult(atomOrParen(recv.code) + ".valuesT()", vt);
+          // values() / keySet() of a typed map where Collection / Set is a typed interface: the map's typed view (piece `views`)
+          return new CallResult(atomOrParen(recv.code) + "." + vt.method() + "()", vt.type());
         }
         if (owner.getQualifiedName().contentEquals(String.valueOf(rk.sortedClass))) {
           // a method that javac finds in TreeSet / TreeMap: the method of the interface it implements

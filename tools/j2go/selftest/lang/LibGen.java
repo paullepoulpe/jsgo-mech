@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Rule "typed library interfaces" (j2go.LibGen): Iterator and Iterable with their typed methods.
@@ -356,6 +357,196 @@ public class LibGen {
     return r;
   }
 
+  // ---- kind `set`
+
+  static String each(Set<String> c) {
+    String r = c.size() + ":";
+    for (String s : c) {
+      r += s;
+    }
+    Iterator<String> it = c.iterator();
+    while (it.hasNext()) {
+      r += it.next().length();
+    }
+    return r + c.contains("b") + c.isEmpty() + c;
+  }
+
+  static String petSet(Set<? extends Animal> c) {
+    String r = "";
+    for (Animal a : c) {
+      r += a.name;
+    }
+    return r + c.size();
+  }
+
+  static int anySet(Set<?> c) {
+    int n = 0;
+    for (Object o : c) {
+      n += o == null ? 100 : 1;
+    }
+    return n + c.size();
+  }
+
+  static Set<String> pickSet(int how) {
+    switch (how) {
+      case 0:
+        return new LinkedHashSet<>();
+      case 1:
+        return ImmutableSet.of("b", "a");
+      case 2:
+        return ImmutableSet.copyOf(Arrays.asList("c", "b", "c"));
+      case 3:
+        return ImmutableSet.of();
+      case 4:
+        return new TreeSet<>(Arrays.asList("z", "b", "m"));
+      case 5:
+        return Sets.newLinkedHashSetWithExpectedSize(4);
+      default:
+        return new LinkedHashSet<>(Arrays.asList("u", "b"));
+    }
+  }
+
+  /** A key with equals of its own: looked up by equals and hashCode, not by identity. */
+  static final class Key {
+    final String k;
+
+    Key(String k) {
+      this.k = k;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      return o instanceof Key && ((Key) o).k.equals(k);
+    }
+
+    @Override
+    public int hashCode() {
+      return k.hashCode();
+    }
+
+    @Override
+    public String toString() {
+      return "K" + k;
+    }
+  }
+
+  static final class Registry {
+    Map<String, Dog> byName = ImmutableMap.of();
+    final Map<Key, Integer> byKey = new LinkedHashMap<>();
+    Set<Key> seen = new LinkedHashSet<>();
+
+    Set<String> names() {
+      return byName.keySet();
+    }
+
+    Set<Key> keys() {
+      return byKey.keySet();
+    }
+
+    Set<Key> seen() {
+      return seen;
+    }
+  }
+
+  static String sets() {
+    String r = "";
+    for (int i = 0; i < 7; i++) {
+      Set<String> s = pickSet(i);
+      r += each(s) + anySet(s);
+      try {
+        r += s.add("b");
+        r += s.add("n") + "" + s.remove("n") + s.remove("nope");
+      } catch (UnsupportedOperationException e) {
+        r += "uoe";
+      }
+      r += s + ";";
+    }
+    Set<String> a = pickSet(0);
+    a.add("b");
+    a.add("a");
+    a.add(null);
+    Set<String> b = pickSet(1);
+    r += "|" + a.equals(b) + a.contains(null) + anySet(a) + a.remove(null) + a.equals(b) + b.equals(a) + (a.hashCode() == b.hashCode()) + (a == (Object) b);
+    Object o = a;
+    Collection<String> c = a;
+    Iterable<String> it = a;
+    r += (o == c) + "" + (c == (Object) it) + (o instanceof Set) + ((Set<?>) o).size() + all(c);
+    Set<String> nul = null;
+    r += (nul == null);
+    try {
+      each(nul);
+      r += "no";
+    } catch (NullPointerException e) {
+      r += "npe";
+    }
+    // keySet() of a map that is immutable at first, then one that can change
+    Registry g = new Registry();
+    r += "|" + each(g.names());
+    try {
+      g.names().clear();
+      r += "cleared";
+    } catch (UnsupportedOperationException e) {
+      r += "uoe";
+    }
+    try {
+      g.names().iterator().next();
+      r += "no";
+    } catch (NoSuchElementException e) {
+      r += "nse";
+    }
+    g.byName = new LinkedHashMap<>();
+    g.byName.put("rex", new Dog("rex"));
+    g.byName.put("b", new Dog("b"));
+    Set<String> ns = g.names();
+    g.byName.put("ace", new Dog("ace"));
+    r += each(ns) + (ns == g.names()) + (ns.equals(g.byName.keySet()));
+    try {
+      ns.add("x");
+      r += "no";
+    } catch (UnsupportedOperationException e) {
+      r += "uoe";
+    }
+    Iterator<String> ni = ns.iterator();
+    ni.next();
+    ni.remove();
+    ns.remove("ace");
+    r += g.byName.size() + "" + ns + g.byName.containsKey("b");
+    // keys with equals: found by equals, kept in insertion order, the first key object stays
+    Key k1 = new Key("x");
+    Key k2 = new Key("x");
+    g.byKey.put(k1, 1);
+    g.byKey.put(new Key("y"), 2);
+    g.byKey.put(k2, 3);
+    Set<Key> ks = g.keys();
+    r += "|" + ks + ks.contains(new Key("y")) + ks.contains(new Key("q")) + (ks.iterator().next() == k1) + ks.size();
+    Set<Key> seen = g.seen();
+    r += seen.add(k1) + "" + seen.add(k2) + seen.contains(k2) + seen + seen.equals(ImmutableSet.of(new Key("x")));
+    r += petSet(ImmutableSet.of(new Dog("d1"), new Dog("d2"))) + petSet(new LinkedHashSet<Animal>());
+    // sets of sets and an unchecked cast: nothing is checked until an element is read
+    List<Set<String>> nested = new ArrayList<>();
+    nested.add(a);
+    nested.add(b);
+    Map<String, Set<String>> bySet = new LinkedHashMap<>();
+    bySet.computeIfAbsent("k", k -> new LinkedHashSet<>()).add("v1");
+    bySet.computeIfAbsent("k", k -> new LinkedHashSet<>()).add("v2");
+    for (Set<String> x : nested) {
+      r += each(x);
+    }
+    r += bySet + each(bySet.get("k")) + (bySet.get("k") == bySet.get("k"));
+    Set<Object> raw = new LinkedHashSet<>();
+    raw.add(7);
+    @SuppressWarnings("unchecked")
+    Set<String> wrong = (Set<String>) (Set<?>) raw;
+    r += wrong.size() + "" + anySet(wrong) + (wrong == (Object) raw);
+    try {
+      r += each(wrong);
+      r += "no";
+    } catch (ClassCastException e) {
+      r += "cce";
+    }
+    return r;
+  }
+
   // ---- kind `coll`
 
   static String all(Collection<String> c) {
@@ -647,6 +838,7 @@ public class LibGen {
   }
 
   public static String run() {
+    p(sets());
     p(lists());
     p(colls());
     p(views());

@@ -94,7 +94,7 @@ func iterableAs_[T any](c *tconv_[T], v Iterable) IterableT[T] {
 		return t
 	}
 	if ic, ok := v.(*ImmutableCollection); ok {
-		if l, ok := ic.typed_.(*TList[T]); ok {
+		if l, ok := ic.typed_.(IterableT[T]); ok {
 			return l
 		}
 	}
@@ -209,6 +209,8 @@ func eachOf_[T any](x IterableT[T]) iterEach_[T] {
 		return iterEach_[T]{c: l.c, e: foreach_(l.Collection)}
 	case *listAs[T]:
 		return iterEach_[T]{c: l.c, e: foreach_(l.List)}
+	case *setAs[T]:
+		return iterEach_[T]{c: l.c, e: foreach_(l.Set)}
 	}
 	return iterEach_[T]{it: x.iterator_t()}
 }
@@ -322,9 +324,12 @@ type collectionAs[T any] struct {
 func (w *collectionAs[T]) iterator_t() IteratorT[T] { return iteratorAs_(w.c, w.Collection.iterator()) }
 func (w *collectionAs[T]) unwrap_() any             { return w.Collection }
 
+// asCollT_ is what a typed list or set has for typed code: itself as the Collection of its elements.
+type asCollT_[T any] interface{ asCollT() CollectionT[T] }
+
 // collectionAs_ is erased v as a Collection of T: v itself where its object is native (the
 // view of a typed collection, a view of a typed map), the view of the typed collection of an
-// erased immutable collection, else a wrapper.
+// erased immutable list or set, else a wrapper.
 func collectionAs_[T any](c *tconv_[T], v Collection) CollectionT[T] {
 	if v == nil {
 		return nil
@@ -333,8 +338,8 @@ func collectionAs_[T any](c *tconv_[T], v Collection) CollectionT[T] {
 		return t
 	}
 	if ic, ok := v.(*ImmutableCollection); ok {
-		if l, ok := ic.typed_.(*TList[T]); ok {
-			return &l.view
+		if l, ok := ic.typed_.(asCollT_[T]); ok {
+			return l.asCollT()
 		}
 	}
 	return &collectionAs[T]{v, c}
@@ -432,3 +437,67 @@ func (l *TList[T]) asListT() ListT[T] {
 }
 
 func (v *tlistView_[T]) get_t(i int32) T { return v.l.get(i) }
+
+// ---- Kind `set`: java.util.Set<T>. A typed Set is the erased one that is also a typed
+// Iterable (the methods that take elements are the erased ones).
+
+type SetT[T any] interface {
+	Set
+	iterator_t() IteratorT[T]
+}
+
+// Set_un_ is typed value x as erased code knows it.
+func Set_un_(x Set) Set {
+	if w, ok := x.(lgWrap_); ok {
+		u, _ := w.unwrap_().(Set)
+		return u
+	}
+	return x
+}
+
+type setAs[T any] struct {
+	Set
+	c *tconv_[T]
+}
+
+func (w *setAs[T]) iterator_t() IteratorT[T] { return iteratorAs_(w.c, w.Set.iterator()) }
+func (w *setAs[T]) unwrap_() any             { return w.Set }
+
+// asSetT_ is what a typed set has for typed code: itself as the Set of its elements.
+type asSetT_[T any] interface{ asSetT() SetT[T] }
+
+// setAs_ is erased v as a Set of T: v itself where its object is native (the view of a typed
+// set, the key set of a typed map), the view of the typed set of an erased immutable set, else
+// a wrapper.
+func setAs_[T any](c *tconv_[T], v Set) SetT[T] {
+	if v == nil {
+		return nil
+	}
+	if t, ok := v.(SetT[T]); ok {
+		return t
+	}
+	if ic, ok := v.(*ImmutableCollection); ok {
+		if s, ok := ic.typed_.(asSetT_[T]); ok {
+			return s.asSetT()
+		}
+	}
+	return &setAs[T]{v, c}
+}
+
+// asSetT is a typed set as the Set of its elements for typed code: its view, which is part of
+// it (nil for null).
+func (s *TSet[K]) asSetT() SetT[K] {
+	if s == nil {
+		return nil
+	}
+	return &s.view
+}
+
+// keySetT is keySet() of a typed map for typed code: the Set of its keys, which is the map
+// itself under another type (no object, no box; live). As valuesT, it serves an immutable map
+// too, and erased code and Object get what the erased map's keySet() gives (unwrap_).
+func (m *TMap[K, V]) keySetT() SetT[K] {
+	_ = m.live
+	return (*tmapKeySet_[K, V])(&m.view)
+}
+func (v *tmapKeySet_[K, V]) unwrap_() any { return v.m.asMap().keySet() }

@@ -251,13 +251,15 @@ it_1 := eachOf_(scope.getVarIterable())               // for (Var v : ...): it_1
 - A raw use of one of the interfaces is refused (`typed library interfaces: refused: ...`); the
   tree has none.
 
-The collection kinds (`coll`: `java.util.Collection`; `list`: `java.util.List`) have the same
-form. A place of type `Collection<X>` / `List<X>` that rule "typed collections" does not make a
-concrete typed collection holds `CollectionT[X]` / `ListT[X]`:
+The collection kinds (`coll`: `java.util.Collection`; `list`: `java.util.List`; `set`:
+`java.util.Set`) have the same form. A place of type `Collection<X>` / `List<X>` / `Set<X>` that
+rule "typed collections" does not make a concrete typed collection holds `CollectionT[X]` /
+`ListT[X]` / `SetT[X]`:
 
 ```go
 type CollectionT[T any] interface { Collection; iterator_t() IteratorT[T] }
 type ListT[T any] interface { List; iterator_t() IteratorT[T]; get_t(i int32) T }
+type SetT[T any] interface { Set; iterator_t() IteratorT[T] }
 ```
 
 - Which methods have a typed form is a table (`LibGen.TYPED_METHODS`: `List.get`); every other
@@ -265,7 +267,7 @@ type ListT[T any] interface { List; iterator_t() IteratorT[T]; get_t(i int32) T 
   signature (`l.add(obj)`, `l.addAll(Collection_un_(c))`), so the coverage can grow method by
   method without touching the places.
 - A typed collection of rule "typed collections" enters as its view, which is part of it and
-  has the typed methods: `l.asListT()`, `l.asCollT()` (a list, a set, a deque). The view serves
+  has the typed methods: `l.asListT()`, `s.asSetT()`, `l.asCollT()` (a list, a set, a deque). The view serves
   an immutable typed collection too; erased code and `Object` get the object they knew
   (`List_un_`, `lgBox_`: the view of a collection that can change, the twin of an immutable one).
 - **Typed by place** (piece `place`): an expression that makes a new collection for a place of a
@@ -276,7 +278,8 @@ type ListT[T any] interface { List; iterator_t() IteratorT[T]; get_t(i int32) T 
   parameter of a runtime function) the expression makes the erased collection as before, which
   is the cheapest form for erased readers.
 - Piece `views`: `values()` of a typed map is `m.valuesT()`, the map itself as
-  `CollectionT[V]` (no object, no box; also of an immutable map), and `keySet()` / `values()`
+  `CollectionT[V]` (no object, no box; also of an immutable map), `keySet()` is `m.keySetT()`
+  (`SetT[K]`, the same way), and `keySet()` / `values()`
   of the erased view of a typed map are native Iterables. `Collections.unmodifiableX(x)` where a
   typed interface is wanted is `x` at that type (the runtime's is its argument).
 - Piece `makers`: Guava's constructors with an expected size are the runtime's typed
@@ -306,7 +309,7 @@ type ListT[T any] interface { List; iterator_t() IteratorT[T]; get_t(i int32) T 
   the view of the typed list of an erased immutable list, else a wrapper (one allocation).
   `J2GO_LIBGEN=1` counts these sites, `=2` lists them by type.
 
-Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,makers,views,place,cov`
+Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,makers,views,place,cov`
 (`all`: every one).
 
 **`java.util.Optional` is a value.** The runtime's `Optional[T]` (`rt_base.go`) is a generic
