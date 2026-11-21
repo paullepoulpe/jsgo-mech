@@ -46,12 +46,12 @@ func new_DepsFileRegexParser_Function_ErrorManager(pathTranslator Function_base[
 	return this
 }
 
-func (this *DepsFileRegexParser) parseFile(filePath string) *Outcome_base[List] {
+func (this *DepsFileRegexParser) parseFile(filePath string) *Outcome_base[*TList[DependencyInfo_]] {
 	var fileContents *Outcome_base[string] = TextFiles_read(filePath, Charsets_UTF_8)
 	if fileContents.isErr() {
-		return Outcome_base_err[List](fileContents.error())
+		return Outcome_base_err[*TList[DependencyInfo_]](fileContents.error())
 	}
-	return Outcome_base_ok_Object[List](this.parseFile_2(filePath, fileContents.get()).asList())
+	return Outcome_base_ok_Object[*TList[DependencyInfo_]](this.parseFile_2(filePath, fileContents.get()))
 }
 
 func (this *DepsFileRegexParser) parseFile_2(filePath string, fileContents string) *TList[DependencyInfo_] {
@@ -80,24 +80,24 @@ func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base[any] 
 			}
 			var relativePath string = relativePathOutcome.get()
 			var path string = this.pathTranslator.apply(relativePath)
-			var providesOutcome *Outcome_base[List] = this.parseJsStringArray(this.depArgsMatch.group(2))
+			var providesOutcome *Outcome_base[*TList[string]] = this.parseJsStringArray(this.depArgsMatch.group(2))
 			if providesOutcome.isErr() {
 				return Outcome_base_err[any](providesOutcome.error())
 			}
-			var provides ListOf[string] = providesOutcome.get()
+			var provides *TList[string] = providesOutcome.get()
 			var loadFlagsOutcome *Outcome_base[Map] = this.parseLoadFlags(Optional_ofNullable[string](this.depArgsMatch.group(4)))
 			if loadFlagsOutcome.isErr() {
 				return Outcome_base_err[any](loadFlagsOutcome.error())
 			}
 			var loadFlags MapOf[string, string] = loadFlagsOutcome.get()
 			if "es6" == str_(Map_get_s(loadFlags, "module")) {
-				provides.add(strobj_(relativePath))
+				provides.add(relativePath)
 			}
-			var requiresOutcome *Outcome_base[List] = this.parseJsStringArray(this.depArgsMatch.group(3))
+			var requiresOutcome *Outcome_base[*TList[string]] = this.parseJsStringArray(this.depArgsMatch.group(3))
 			if requiresOutcome.isErr() {
 				return Outcome_base_err[any](requiresOutcome.error())
 			}
-			var depInfo DependencyInfo_ = SimpleDependencyInfo_as_DependencyInfo_(SimpleDependencyInfo_builder(path, this.filePath).setProvides(Collection(provides)).setRequires(Collection(DepsFileRegexParser_requiresParsedFromDeps(requiresOutcome.get()).asList())).setLoadFlags(loadFlags).build())
+			var depInfo DependencyInfo_ = SimpleDependencyInfo_as_DependencyInfo_(SimpleDependencyInfo_builder(path, this.filePath).setProvides(Collection(provides.asList())).setRequires(Collection(DepsFileRegexParser_requiresParsedFromDeps(requiresOutcome.get()).asList())).setLoadFlags(loadFlags).build())
 			if DepsFileRegexParser_logger.isLoggable(Level_FINE) {
 				DepsFileRegexParser_logger.fine(("Found dep: " + jtostr_(depInfo)))
 			}
@@ -107,9 +107,9 @@ func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base[any] 
 	return Outcome_base_ok_Object[any](bool(((!this.shortcutMode || hasDependencies) || CharMatcher_whitespace().matchesAllOf_s(line))))
 }
 
-func DepsFileRegexParser_requiresParsedFromDeps(symbols ListOf[string]) *TList[*DependencyInfo_Require] {
+func DepsFileRegexParser_requiresParsedFromDeps(symbols *TList[string]) *TList[*DependencyInfo_Require] {
 	var result *ImmutableList_Builder[*DependencyInfo_Require] = immutableListBuilder_(tc_p_DependencyInfo_Require)
-	for symbol := range elemsBy_(symbols, str_) {
+	for symbol := range elemsBy_(symbols.asList(), str_) {
 		result.add(DependencyInfo_Require_parsedFromDeps(symbol))
 	}
 	return result.build()

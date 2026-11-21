@@ -7,12 +7,12 @@ type ColorSerializer struct {
 	getStringPoolIndexFn    Function[string, any]
 	propertyFilter          Predicate[string]
 	colorIdToTypePointer    *TMap[*ColorId, any]
-	colorsInSerializedOrder *TList[*Color]
+	colorsInSerializedOrder *[]*Color
 }
 
 func (this *ColorSerializer) finit_ColorSerializer() {
 	this.colorIdToTypePointer = newTMap_(tch_p_ColorId, tc_Integer)
-	this.colorsInSerializedOrder = newTList_(tc_p_Color)
+	this.colorsInSerializedOrder = &[]*Color{}
 }
 
 func (this *ColorSerializer) init_ColorSerializer(serializationMode *SerializationOptions, stringPoolIndexFn Function[string, any], propertyFilter Predicate[string]) {
@@ -43,16 +43,16 @@ func (this *ColorSerializer) addColors(colors CollectionOf[*Color]) *TList[any] 
 
 func (this *ColorSerializer) addColor(color *Color) int32 {
 	return unbox_[int32](this.colorIdToTypePointer.ComputeIfAbsent(color.getId(), Function[*ColorId, any](func(unusedKey *ColorId) any {
-		var index int32 = this.colorsInSerializedOrder.size()
-		this.colorsInSerializedOrder.add(color)
+		var index int32 = int32(len(*this.colorsInSerializedOrder))
+		*this.colorsInSerializedOrder = append(*this.colorsInSerializedOrder, color)
 		return int32(index)
 	})))
 }
 
 func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn Function[*Color, Set], getMismatchSourceRefsFn Function[*Color, Set]) *TypePool {
 	var typePoolBuilder *TypePool_Builder = TypePool_newBuilder()
-	for i := int32(TypePointers_untrimOffset(0)); i < this.colorsInSerializedOrder.size(); i++ {
-		var color *Color = this.colorsInSerializedOrder.get(i)
+	for i := int32(TypePointers_untrimOffset(0)); i < int32(len(*this.colorsInSerializedOrder)); i++ {
+		var color *Color = sliceAt_(*this.colorsInSerializedOrder, i)
 		var typePointer any = this.colorIdToTypePointer.Get(color.getId())
 		typePoolBuilder.addType(this.generateTypeProto(color))
 		for supertype := range elemsAs_[*Color](getDisambiguationSupertypesFn.apply(color)) {
@@ -69,9 +69,7 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn Func
 		}()
 		var debugInfoBuilder *TypePool_DebugInfo_Builder = typePoolBuilder.getDebugInfoBuilder()
 		var srcRefToTypePointerList *TMap[string, *ArrayList] = newTMap_(tc_string, tc_p_ArrayList)
-		it_4 := this.colorsInSerializedOrder.each()
-		for it_4.next() {
-			var color *Color = it_4.v
+		for color := range sliceAll_(this.colorsInSerializedOrder) {
 			var typePointer any = this.colorIdToTypePointer.Get(color.getId())
 			for srcRef := range elemsBy_(getMismatchSourceRefsFn.apply(color), str_) {
 				var typePointerList ArrayListOf[BoxedOf[int32]] = srcRefToTypePointerList.ComputeIfAbsent(srcRef, Function[string, *ArrayList](func(key string) *ArrayList {

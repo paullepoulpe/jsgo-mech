@@ -57,7 +57,7 @@ func (this *RescopeGlobalSymbols) process_2(externs Node, root Node) {
 	var findNamesReferencingThis *RescopeGlobalSymbols_FindNamesReferencingThis = new_RescopeGlobalSymbols_FindNamesReferencingThis()
 	CombinedCompilerPass_traverse(this.compiler_, root, immutableListOf_[NodeTraversal_Callback](tc_NodeTraversal_Callback, RescopeGlobalSymbols_FindCrossChunkNamesCallback_as_NodeTraversal_Callback(findCrossChunkNames), RescopeGlobalSymbols_FindNamesReferencingThis_as_NodeTraversal_Callback(findNamesReferencingThis)))
 	var externNames *TSet[string] = NodeUtil_collectExternVariableNames(this.compiler_, externs)
-	var symbolInfo *RescopeGlobalSymbolsInfo = new_RescopeGlobalSymbolsInfo_String_Set_Set_Set_Set_Set_Set_Set_Set(this.globalSymbolNamespace_, externNames.asSet(), findCrossChunkNames.crossChunkNames_.asSet(), findCrossChunkNames.crossChunkNamesWithWriteFromOtherChunk_.asSet(), findCrossChunkNames.crossChunkNamesUsedInNonDependentChunk_.asSet(), findCrossChunkNames.globalNamesWithReadInDefiningChunk_.asSet(), findCrossChunkNames.globalNamesWithInnerScopeWriteInDefiningChunk_.asSet(), findCrossChunkNames.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_.asSet(), findNamesReferencingThis.maybeReferencesThis_.asSet())
+	var symbolInfo *RescopeGlobalSymbolsInfo = new_RescopeGlobalSymbolsInfo_String_Set_Set_Set_Set_Set_Set_Set_Set(this.globalSymbolNamespace_, externNames, findCrossChunkNames.crossChunkNames_, findCrossChunkNames.crossChunkNamesWithWriteFromOtherChunk_, findCrossChunkNames.crossChunkNamesUsedInNonDependentChunk_, findCrossChunkNames.globalNamesWithReadInDefiningChunk_, findCrossChunkNames.globalNamesWithInnerScopeWriteInDefiningChunk_, findCrossChunkNames.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_, findNamesReferencingThis.maybeReferencesThis_)
 	var renameHelper *RescopeGlobalSymbolsRenameHelper = renameHelperBuilder.build(symbolInfo)
 	var rewriteScope *RescopeGlobalSymbolsRewriteCallback = new_RescopeGlobalSymbolsRewriteCallback(this.compiler_, this.optimizeLocalAccess, symbolInfo, renameHelper)
 	NodeTraversal_traverse(this.compiler_, root, RescopeGlobalSymbolsRewriteCallback_as_NodeTraversal_Callback(rewriteScope))
@@ -329,14 +329,14 @@ func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) visit_impl(t *NodeTrav
 		return
 	}
 	if NodeUtil_isAnyFor(parent) && (parent.getFirstChild() == n) {
-		var commas *TList[Node] = newTList_(tc_Node)
+		var commas []Node = []Node{}
 		{
 			var c Node = n.getFirstChild()
 			for ; c != 0; c = c.getNext() {
-				commas.add(c.cloneTree())
+				commas = append(commas, c.cloneTree())
 			}
 		}
-		if !commas.isEmpty() {
+		if len(commas) != 0 {
 			var comma Node = this.joinOnComma(commas, n)
 			comma.insertBefore(n)
 		}
@@ -388,10 +388,10 @@ func RescopeGlobalSymbols_RemoveGlobalVarCallback_hasOnlyNameOrDestructuringChil
 	return n.hasChildren()
 }
 
-func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) joinOnComma(commas *TList[Node], source Node) Node {
-	var comma Node = commas.get(0)
-	for i := int32(1); i < commas.size(); i++ {
-		var nextComma Node = IR_comma(comma, commas.get(i))
+func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) joinOnComma(commas []Node, source Node) Node {
+	var comma Node = sliceAt_(commas, 0)
+	for i := int32(1); i < int32(len(commas)); i++ {
+		var nextComma Node = IR_comma(comma, sliceAt_(commas, i))
 		nextComma.srcrefIfMissing(source)
 		comma = nextComma
 	}

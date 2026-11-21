@@ -511,8 +511,8 @@ func TypedAstSerializer_createJSTypeSerializer(compiler *AbstractCompiler, seria
 }
 
 func (this *TypedAstSerializer) createColorTypeSerializer(compiler *AbstractCompiler, serializationMode *SerializationOptions, stringPoolBuilder *StringPool_Builder) *TypedAstSerializer_ColorTypeSerializer {
-	var usedPropertyNames ImmutableSetOf[string] = TypedAstSerializer_collectUsedPropertyNames(compiler).asImm()
-	var colorSerializer *ColorSerializer = new_ColorSerializer(serializationMode, Function[string, any](func(p0 string) any { return any(int32(stringPoolBuilder.put(p0))) }), Predicate[string](func(p0 string) bool { return Collection_contains_s(usedPropertyNames, p0) }))
+	var usedPropertyNames map[string]struct{} = setImm_(tc_string, TypedAstSerializer_collectUsedPropertyNames(compiler).asImm())
+	var colorSerializer *ColorSerializer = new_ColorSerializer(serializationMode, Function[string, any](func(p0 string) any { return any(int32(stringPoolBuilder.put(p0))) }), Predicate[string](func(p0 string) bool { return has_(usedPropertyNames, p0) }))
 	return new_TypedAstSerializer_ColorTypeSerializer(colorSerializer, compiler.getColorRegistry())
 }
 

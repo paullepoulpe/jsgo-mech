@@ -44,13 +44,13 @@ func TextFiles_write(path string, charset string, text string) *Outcome_base[any
 	return Io_writeBytes(path, Charsets_encode(text, charset))
 }
 
-func TextFiles_splitLines(text string) *TList[string] {
-	var lines *TList[string] = newTList_(tc_string)
+func TextFiles_splitLines(text string) *[]string {
+	var lines *[]string = &[]string{}
 	var start int32 = 0
 	for i := int32(0); i < int32(len(text)); i++ {
 		var c uint16 = uint16(text[i])
 		if (c == '\n') || (c == '\r') {
-			lines.add(cutBytes_(text, start, i))
+			*lines = append(*lines, cutBytes_(text, start, i))
 			if ((c == '\r') && ((i + 1) < int32(len(text)))) && (byteAt_(text, (i+1)) == '\n') {
 				i++
 			}
@@ -58,7 +58,7 @@ func TextFiles_splitLines(text string) *TList[string] {
 		}
 	}
 	if start < int32(len(text)) {
-		lines.add(text[start:])
+		*lines = append(*lines, text[start:])
 	}
 	return lines
 }

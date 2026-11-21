@@ -33,7 +33,7 @@ func (this *ModuleLoader) init_ModuleLoader(builder *ModuleLoader_Builder) {
 		panic(new_NullPointerException_0())
 	}
 	var modulePaths *TSet[string] = this.resolvePaths(builder.inputs)
-	this.moduleResolver = builder.factory.create(modulePaths.asImm(), this.moduleRootPaths.asImm(), this.errorHandler, this.pathEscaper)
+	this.moduleResolver = builder.factory.create(tsetFrom_(tc_string, modulePaths.asImm(), true), this.moduleRootPaths.asImm(), this.errorHandler, this.pathEscaper)
 }
 
 func new_ModuleLoader(builder *ModuleLoader_Builder) *ModuleLoader {
@@ -91,25 +91,25 @@ func (this *ModuleLoader) createRootPaths(roots IterableOf[string]) *TList[strin
 }
 
 func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo_]) *TSet[string] {
-	var sortedModulePaths *TList[string] = newTList_(tc_string)
+	var sortedModulePaths *[]string = &[]string{}
 	for input := range elemsBy_(inputs, icast_DependencyInfo_) {
 		var p string = this.pathEscaper.escape(this.pathResolver.apply(input.getName()))
 		var n string = ModuleLoader_normalize(p, Iterable(this.moduleRootPaths.asList()))
-		sortedModulePaths.add(func() string {
+		*sortedModulePaths = append(*sortedModulePaths, func() string {
 			if ModuleLoader_isAmbiguousIdentifier(n) {
 				return (sstr_(ModuleLoader_MODULE_SLASH) + sstr_(n))
 			}
 			return n
 		}())
 	}
-	List_sort(sortedModulePaths.asList(), func() Comparator[any] {
+	List_sort(sliceViewP_(tc_string, sortedModulePaths), func() Comparator[any] {
 		f_ := ModuleLoader_BEST_MATCH_PATH_ORDERING
 		if f_ == nil {
 			return nil
 		}
 		return func(p0 any, p1 any) int32 { return f_(str_(p0), str_(p1)) }
 	}())
-	var dupeModulePaths *SimpleMultiset[string] = SimpleMultiset_copyOf[string](Iterable(sortedModulePaths.asList()))
+	var dupeModulePaths *SimpleMultiset[string] = SimpleMultiset_copyOf[string](Iterable(slicePtrView_(tc_string, sortedModulePaths)))
 	if dupeModulePaths.size() != dupeModulePaths.elementSet().size() {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Duplicate module paths after resolving: %s", []any{dupeModulePaths})))
 	}
@@ -474,15 +474,15 @@ func ModuleLoader_PathResolver_clinit() {
 }
 
 type ModuleLoader_ModuleResolverFactory interface {
-	create(*ErasedImmutableSet, *ErasedImmutableList, ErrorHandler, ModuleLoader_PathEscaper) *ModuleResolver
+	create(*ImmutableSet[string], *ErasedImmutableList, ErrorHandler, ModuleLoader_PathEscaper) *ModuleResolver
 }
 
 type ModuleLoader_ModuleResolverFactory_fn struct {
 	f func(*ErasedImmutableSet, *ErasedImmutableList, ErrorHandler, ModuleLoader_PathEscaper) *ModuleResolver
 }
 
-func (this *ModuleLoader_ModuleResolverFactory_fn) create(p0 *ErasedImmutableSet, p1 *ErasedImmutableList, p2 ErrorHandler, p3 ModuleLoader_PathEscaper) *ModuleResolver {
-	return this.f(p0, p1, p2, p3)
+func (this *ModuleLoader_ModuleResolverFactory_fn) create(p0 *ImmutableSet[string], p1 *ErasedImmutableList, p2 ErrorHandler, p3 ModuleLoader_PathEscaper) *ModuleResolver {
+	return this.f(p0.asImm(), p1, p2, p3)
 }
 
 type ModuleLoader_ResolutionMode uint8

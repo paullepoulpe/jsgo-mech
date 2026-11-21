@@ -9,7 +9,7 @@ type ProcessClosureProvidesAndRequires struct {
 	chunkGraph                      *JSChunkGraph
 	providedNames                   *TMap[string, *ProcessClosureProvidesAndRequires_ProvidedName]
 	exportedVariables               *TSet[string]
-	requiresToBeRemoved             *TList[Node]
+	requiresToBeRemoved             *[]Node
 	forwardDeclaresToRemove         *TSet[Node]
 	astFactory_                     *AstFactory
 	preserveGoogProvidesAndRequires bool
@@ -19,7 +19,7 @@ type ProcessClosureProvidesAndRequires struct {
 func (this *ProcessClosureProvidesAndRequires) finit_ProcessClosureProvidesAndRequires() {
 	this.providedNames = newTMap_(tc_string, tc_p_ProcessClosureProvidesAndRequires_ProvidedName)
 	this.exportedVariables = newTSet_(tc_string)
-	this.requiresToBeRemoved = newTList_(tc_Node)
+	this.requiresToBeRemoved = &[]Node{}
 	this.hasRewritingOccurred = false
 	this.forwardDeclaresToRemove = newTSet_(tc_Node)
 }
@@ -65,9 +65,7 @@ func (this *ProcessClosureProvidesAndRequires) rewriteProvidesAndRequires(extern
 		var pn *ProcessClosureProvidesAndRequires_ProvidedName = it_1.v
 		pn.replace(this.preserveGoogProvidesAndRequires, this.providedNames)
 	}
-	it_3 := this.requiresToBeRemoved.each()
-	for it_3.next() {
-		var closureRequire Node = it_3.v
+	for closureRequire := range sliceAll_(this.requiresToBeRemoved) {
 		this.compiler_.reportChangeToEnclosingScope(closureRequire)
 		closureRequire.detach()
 	}
@@ -119,7 +117,7 @@ func (this *ProcessClosureProvidesAndRequires) processRequireCall(call Node, par
 		return
 	}
 	if !this.preserveGoogProvidesAndRequires {
-		this.requiresToBeRemoved.add(parent)
+		*this.requiresToBeRemoved = append(*this.requiresToBeRemoved, parent)
 	}
 }
 

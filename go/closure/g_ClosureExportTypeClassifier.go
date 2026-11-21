@@ -4,12 +4,12 @@ package closure
 
 type ClosureExportTypeClassifier struct {
 	topLevelNames     *TMap[string, *ClosureExportTypeClassifier_NameInfo]
-	forcedNamedExport *TSet[string]
+	forcedNamedExport map[string]struct{}
 }
 
 func (this *ClosureExportTypeClassifier) finit_ClosureExportTypeClassifier() {
 	this.topLevelNames = newTMap_(tc_string, tc_p_ClosureExportTypeClassifier_NameInfo)
-	this.forcedNamedExport = newTSet_(tc_string)
+	this.forcedNamedExport = map[string]struct{}{}
 }
 
 func (this *ClosureExportTypeClassifier) init_ClosureExportTypeClassifier() {
@@ -27,7 +27,7 @@ func ClosureExportTypeClassifier_classify(moduleRoot Node, googNamespace string)
 	classifier.addGoogModuleExports()
 	ClosureExportTypeClassifier_forEachTopLevelStatement(moduleRoot, Consumer[Node](func(p0 Node) { classifier.visitStatement(p0) }))
 	var info *ClosureExportTypeClassifier_NameInfo = classifier.topLevelNames.Get(ClosureExportTypeClassifier_EXPORTS)
-	if classifier.forcedNamedExport.Has(googNamespace) || (classifier.kindOfName(info, 0) == ClosureExportTypeClassifier_Kind_NAMESPACE) {
+	if has_(classifier.forcedNamedExport, googNamespace) || (classifier.kindOfName(info, 0) == ClosureExportTypeClassifier_Kind_NAMESPACE) {
 		return ClosureExportTypeClassifier_TsExportType_NAMED
 	}
 	return ClosureExportTypeClassifier_TsExportType_DEFAULT
@@ -76,7 +76,7 @@ func (this *ClosureExportTypeClassifier) maybeRecordLegacyNamedTsExport(statemen
 	if (jsdoc == nil) || !jsdoc.isLegacyNamedTsExport() {
 		return
 	}
-	this.forcedNamedExport.Add(call.getSecondChild().getString())
+	this.forcedNamedExport[call.getSecondChild().getString()] = struct{}{}
 }
 
 func (this *ClosureExportTypeClassifier) visitNameDeclaration(declaration Node) {
