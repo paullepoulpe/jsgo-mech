@@ -168,9 +168,8 @@ func (this *NodeModuleResolver) resolveJsModuleFromRegistry(scriptAddress string
 		}
 		return ""
 	}()) + sstr_(scriptAddress))
-	it_1 := foreach_(obj_(this.nodeModulesFolders))
-	for it_1.next() {
-		var nodeModulesFolder string = str_(it_1.v)
+	for _, el_1 := range immElems_(this.nodeModulesFolders) {
+		var nodeModulesFolder string = str_(el_1)
 		if !strings.HasPrefix(normalizedScriptAddress, nodeModulesFolder) {
 			continue
 		}

@@ -163,7 +163,8 @@ func (this *TemplatizedType) resolveInternal_impl(reporter ErrorReporter_rhino) 
 	this.ProxyObjectType.resolveInternal_impl(reporter)
 	var rebuild bool = (baseTypeBefore != this.getReferencedType().up_JSType())
 	var builder *TListBuilder[*JSType] = newTListBuilder_(jtc_p_JSType)
-	for type_ := range elemsBy_(obj_(this.templateTypes), to_JSType) {
+	for _, el := range immElems_(this.templateTypes) {
+		type_ := to_JSType(el)
 		var resolved *JSType = type_.resolve(reporter)
 		rebuild = bor_(rebuild, !(resolved == type_))
 		builder.add(resolved)

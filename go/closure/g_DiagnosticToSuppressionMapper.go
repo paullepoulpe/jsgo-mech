@@ -71,7 +71,8 @@ func DiagnosticToSuppressionMapper_printAsJson(diagnosticToSuppression Immutable
 	writer.setHtmlSafe(true)
 	writer.setSerializeNulls(false)
 	writer.beginObject()
-	for entry := range elemsBy_(obj_(cast_[*ImmutableSet](diagnosticToSuppression.entrySet())), icast_Map_Entry) {
+	for _, el := range immElems_(cast_[*ImmutableSet](diagnosticToSuppression.entrySet())) {
+		entry := icast_Map_Entry(el)
 		writer.name(str_(entry.getKey())).stringValue(Optional_ofNullable[string](str_(entry.getValue())))
 	}
 	writer.endObject()
@@ -81,7 +82,8 @@ func DiagnosticToSuppressionMapper_printAsJson(diagnosticToSuppression Immutable
 func DiagnosticToSuppressionMapper_printAsMarkdown(diagnosticToSuppression ImmutableSortedMapOf[string, string]) {
 	Output_stdout().println("| Error | Suppression tag |")
 	Output_stdout().println("|---|---|")
-	for e := range elemsBy_(obj_(cast_[*ImmutableSet](diagnosticToSuppression.entrySet())), icast_Map_Entry) {
+	for _, el := range immElems_(cast_[*ImmutableSet](diagnosticToSuppression.entrySet())) {
+		e := icast_Map_Entry(el)
 		Output_stdout().println(String_format("|%s|%s|", []any{e.getKey(), e.getValue()}))
 	}
 }
