@@ -274,9 +274,7 @@ func (this *InlineVariables_InliningBehavior) afterExitScope(t *NodeTraversal, r
 func (this *InlineVariables_InliningBehavior) doInlinesForScope(t *NodeTraversal, referenceMap ReferenceMap) {
 	this.currentScopeHandledVarAnalysesMap.clear()
 	var mayBeAParameterModifiedViaArguments bool = this.varsInThisScopeMayBeModifiedUsingArguments(t.getScope(), referenceMap)
-	it_1 := foreach_(t.getScope().getVarIterable())
-	for it_1.next() {
-		var v *Var = cast_[*Var](it_1.v)
+	for v := range elemsAs_[*Var](t.getScope().getVarIterable()) {
 		var referenceInfo *ReferenceCollection = referenceMap.getReferences_Var(v)
 		var expert *InlineVariables_VarExpert = this.createVarExpert(v, referenceInfo, mayBeAParameterModifiedViaArguments)
 		var analysis *InlineVariables_InlineVarAnalysis = expert.analyze()
@@ -317,9 +315,7 @@ func (this *InlineVariables_InliningBehavior) varsInThisScopeMayBeModifiedUsingA
 }
 
 func (this *InlineVariables_InliningBehavior) retryAliases(aliasedVar *Var, aliasedVarAnalysis *InlineVariables_InlineVarAnalysis) {
-	it_1 := foreach_(this.varToAliasRetryHandlersMap.removeAll(aliasedVar))
-	for it_1.next() {
-		var aliasInlineRetryHandler *InlineVariables_InliningBehavior_AliasInlineRetryHandler = cast_[*InlineVariables_InliningBehavior_AliasInlineRetryHandler](it_1.v)
+	for aliasInlineRetryHandler := range elemsAs_[*InlineVariables_InliningBehavior_AliasInlineRetryHandler](this.varToAliasRetryHandlersMap.removeAll(aliasedVar)) {
 		aliasInlineRetryHandler.handleAliasedVarCompletion(aliasedVar, aliasedVarAnalysis)
 	}
 }

@@ -58,9 +58,8 @@ func (this *SimpleListMultimap[K, V]) put(key K, value V) *SimpleListMultimap[K,
 }
 
 func (this *SimpleListMultimap[K, V]) putAll(key K, values IterableOf[V]) *SimpleListMultimap[K, V] {
-	it_1 := foreach_(values)
-	for it_1.next() {
-		var value V = junboxT_[V](it_1.v)
+	for el_1 := range elems_(values) {
+		var value V = junboxT_[V](el_1)
 		this.put(key, value)
 	}
 	return this

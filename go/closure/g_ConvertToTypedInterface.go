@@ -395,9 +395,7 @@ func ConvertToTypedInterface_SimplifyDeclarations_countDots(name string) int32 {
 }
 
 func (this *ConvertToTypedInterface_SimplifyDeclarations) removeDuplicateDeclarations() {
-	it_1 := foreach_(this.currentFile.getDeclarations().keySet())
-	for it_1.next() {
-		var name string = str_(it_1.v)
+	for name := range elemsBy_(this.currentFile.getDeclarations().keySet(), str_) {
 		if strings.HasPrefix(name, "this.") {
 			continue
 		}
@@ -429,9 +427,7 @@ func (this *ConvertToTypedInterface_SimplifyDeclarations) simplifyAll() {
 	it_1 := seenNames.each()
 	for it_1.next() {
 		var name string = it_1.v
-		it_3 := foreach_(this.currentFile.getDeclarations().get(name))
-		for it_3.next() {
-			var decl *PotentialDeclaration = to_PotentialDeclaration(it_3.v)
+		for decl := range elemsBy_(this.currentFile.getDeclarations().get(name), to_PotentialDeclaration) {
 			this.processDeclaration(name, decl)
 		}
 	}

@@ -124,9 +124,7 @@ func (this *LinkedDirectedGraph[N, E]) disconnect_impl(n1 N, n2 N) {
 func (this *LinkedDirectedGraph[N, E]) disconnectInDirection_impl(srcValue N, destValue N) {
 	var src *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(srcValue))
 	var dest *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(destValue))
-	it_1 := foreach_(this.getEdgesInDirection(srcValue, destValue))
-	for it_1.next() {
-		var edge DiGraph_DiGraphEdge[N, E] = cast_[DiGraph_DiGraphEdge[N, E]](it_1.v)
+	for edge := range elemsAs_[DiGraph_DiGraphEdge[N, E]](this.getEdgesInDirection(srcValue, destValue)) {
 		src.getOutEdges().remove_Object(edge)
 		dest.getInEdges().remove_Object(edge)
 	}
@@ -205,9 +203,8 @@ func (this *LinkedDirectedGraph[N, E]) getEdgesInDirection_impl(n1 N, n2 N) List
 	var dNode1 *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(n1))
 	var dNode2 *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(n2))
 	var edges *JTList[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] = jnewTList_(tc_p_LinkedDirectedGraph_LinkedDiGraphEdge_N__E_[N, E]())
-	it_1 := foreach_(dNode1.getOutEdges())
-	for it_1.next() {
-		var outEdge *LinkedDirectedGraph_LinkedDiGraphEdge[N, E] = to_LinkedDirectedGraph_LinkedDiGraphEdge[N, E](it_1.v)
+	for el_1 := range elems_(dNode1.getOutEdges()) {
+		var outEdge *LinkedDirectedGraph_LinkedDiGraphEdge[N, E] = to_LinkedDirectedGraph_LinkedDiGraphEdge[N, E](el_1)
 		if outEdge.getDestination_rLinkedDiGraphNode() == dNode2 {
 			edges.add(outEdge)
 		}
@@ -264,9 +261,8 @@ func (this *LinkedDirectedGraph[N, E]) getDirectedPredNodesDiGraphNode_impl(dNod
 	}
 	var lNode *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](dNode)
 	var nodeList *JTList[*LinkedDirectedGraph_LinkedDiGraphNode[N, E]] = jnewTListN_(tc_p_LinkedDirectedGraph_LinkedDiGraphNode_N__E_[N, E](), lNode.getInEdges().size())
-	it_1 := foreach_(lNode.getInEdges())
-	for it_1.next() {
-		var edge *LinkedDirectedGraph_LinkedDiGraphEdge[N, E] = to_LinkedDirectedGraph_LinkedDiGraphEdge[N, E](it_1.v)
+	for el_1 := range elems_(lNode.getInEdges()) {
+		var edge *LinkedDirectedGraph_LinkedDiGraphEdge[N, E] = to_LinkedDirectedGraph_LinkedDiGraphEdge[N, E](el_1)
 		nodeList.add(edge.getSource_rLinkedDiGraphNode())
 	}
 	return nodeList.asList()
@@ -282,9 +278,8 @@ func (this *LinkedDirectedGraph[N, E]) getDirectedSuccNodesDiGraphNode_impl(dNod
 	}
 	var lNode *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](dNode)
 	var nodeList *JTList[*LinkedDirectedGraph_LinkedDiGraphNode[N, E]] = jnewTListN_(tc_p_LinkedDirectedGraph_LinkedDiGraphNode_N__E_[N, E](), lNode.getOutEdges().size())
-	it_1 := foreach_(lNode.getOutEdges())
-	for it_1.next() {
-		var edge *LinkedDirectedGraph_LinkedDiGraphEdge[N, E] = to_LinkedDirectedGraph_LinkedDiGraphEdge[N, E](it_1.v)
+	for el_1 := range elems_(lNode.getOutEdges()) {
+		var edge *LinkedDirectedGraph_LinkedDiGraphEdge[N, E] = to_LinkedDirectedGraph_LinkedDiGraphEdge[N, E](el_1)
 		nodeList.add(edge.getDestination_rLinkedDiGraphNode())
 	}
 	return nodeList.asList()
@@ -295,9 +290,7 @@ func (this *LinkedDirectedGraph[N, E]) getGraphvizEdges() *JTList[GraphvizGraph_
 	it_1 := this.nodes_.eachValue()
 	for it_1.next() {
 		var node *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = it_1.v
-		it_3 := foreach_(node.getOutEdges())
-		for it_3.next() {
-			var edge DiGraph_DiGraphEdge[N, E] = cast_[DiGraph_DiGraphEdge[N, E]](it_3.v)
+		for edge := range elemsAs_[DiGraph_DiGraphEdge[N, E]](node.getOutEdges()) {
 			edgeList.add(icast_GraphvizGraph_GraphvizEdge(to_LinkedDirectedGraph_LinkedDiGraphEdge[N, E](edge).self()))
 		}
 	}
@@ -329,14 +322,10 @@ func (this *LinkedDirectedGraph[N, E]) getNodeCount_impl() int32 {
 func (this *LinkedDirectedGraph[N, E]) getNeighborNodes_impl(value N) ListOf[GraphNode[N, E]] {
 	var node *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(value)
 	var result *JTList[GraphNode[N, E]] = jnewTListN_(tc_GraphNode_N__E_[N, E](), (node.getInEdges().size() + node.getOutEdges().size()))
-	it_1 := foreach_(node.getInEdges())
-	for it_1.next() {
-		var inEdge DiGraph_DiGraphEdge[N, E] = cast_[DiGraph_DiGraphEdge[N, E]](it_1.v)
+	for inEdge := range elemsAs_[DiGraph_DiGraphEdge[N, E]](node.getInEdges()) {
 		result.add(GraphNode[N, E](inEdge.getSource()))
 	}
-	it_3 := foreach_(node.getOutEdges())
-	for it_3.next() {
-		var outEdge DiGraph_DiGraphEdge[N, E] = cast_[DiGraph_DiGraphEdge[N, E]](it_3.v)
+	for outEdge := range elemsAs_[DiGraph_DiGraphEdge[N, E]](node.getOutEdges()) {
 		result.add(GraphNode[N, E](outEdge.getDestination()))
 	}
 	return result.asList()

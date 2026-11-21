@@ -82,9 +82,7 @@ func JSChunkGraph_initChunksByDepth(chunks []*JSChunk) *Outcome_base[List] {
 
 func JSChunkGraph_makeWeakChunk(chunksInDepOrder ListOf[*JSChunk]) ListOf[*JSChunk] {
 	var hasWeakChunk bool = false
-	it_1 := foreach_(chunksInDepOrder)
-	for it_1.next() {
-		var chunk *JSChunk = cast_[*JSChunk](it_1.v)
+	for chunk := range elemsAs_[*JSChunk](chunksInDepOrder) {
 		if chunk.getName() == JSChunk_WEAK_CHUNK_NAME {
 			hasWeakChunk = true
 			var allOtherChunks *JTSet[*JSChunk] = jtsetFrom_(jtc_p_JSChunk, Collection(chunksInDepOrder))
@@ -101,13 +99,9 @@ func JSChunkGraph_makeWeakChunk(chunksInDepOrder ListOf[*JSChunk]) ListOf[*JSChu
 	if hasWeakChunk {
 		var misplacedWeakFiles *JTList[string] = jnewTList_(jtc_string)
 		var misplacedStrongFiles *JTList[string] = jnewTList_(jtc_string)
-		it_3 := foreach_(chunksInDepOrder)
-		for it_3.next() {
-			var chunk *JSChunk = cast_[*JSChunk](it_3.v)
+		for chunk := range elemsAs_[*JSChunk](chunksInDepOrder) {
 			var isWeakChunk bool = (chunk.getName() == JSChunk_WEAK_CHUNK_NAME)
-			it_5 := foreach_(obj_(chunk.getInputs()))
-			for it_5.next() {
-				var input *CompilerInput = cast_[*CompilerInput](it_5.v)
+			for input := range elemsAs_[*CompilerInput](obj_(chunk.getInputs())) {
 				if isWeakChunk && !input.getSourceFile().isWeak() {
 					misplacedStrongFiles.add(input.getSourceFile().getName())
 				} else if !isWeakChunk && input.getSourceFile().isWeak() {
@@ -128,9 +122,7 @@ func JSChunkGraph_makeWeakChunk(chunksInDepOrder ListOf[*JSChunk]) ListOf[*JSChu
 		}
 	} else {
 		var weakChunk *JSChunk = new_JSChunk(JSChunk_WEAK_CHUNK_NAME)
-		it_7 := foreach_(chunksInDepOrder)
-		for it_7.next() {
-			var chunk *JSChunk = cast_[*JSChunk](it_7.v)
+		for chunk := range elemsAs_[*JSChunk](chunksInDepOrder) {
 			weakChunk.addDependency(chunk)
 		}
 		chunksInDepOrder = icast_List(new_ArrayList_Collection(Collection(chunksInDepOrder)).self())
@@ -213,9 +205,7 @@ func (this *JSChunkGraph) getRootChunk() *JSChunk {
 
 func (this *JSChunkGraph) toJson() *SimpleJsonValue {
 	var chunks *SimpleJsonValue = SimpleJsonValue_newArray()
-	it_1 := foreach_(this.getAllChunks())
-	for it_1.next() {
-		var chunk *JSChunk = cast_[*JSChunk](it_1.v)
+	for chunk := range elemsAs_[*JSChunk](this.getAllChunks()) {
 		var node *SimpleJsonValue = SimpleJsonValue_newObject()
 		node.members().put("name", SimpleJsonValue_ofString(chunk.getName()))
 		var deps *SimpleJsonValue = SimpleJsonValue_newArray()
@@ -227,16 +217,12 @@ func (this *JSChunkGraph) toJson() *SimpleJsonValue {
 		}
 		var transitiveDeps *SimpleJsonValue = SimpleJsonValue_newArray()
 		node.members().put("transitive-dependencies", transitiveDeps)
-		it_5 := foreach_(this.getTransitiveDepsDeepestFirst(chunk))
-		for it_5.next() {
-			var m *JSChunk = cast_[*JSChunk](it_5.v)
+		for m := range elemsAs_[*JSChunk](this.getTransitiveDepsDeepestFirst(chunk)) {
 			transitiveDeps.elements().add(SimpleJsonValue_ofString(m.getName()))
 		}
 		var inputs *SimpleJsonValue = SimpleJsonValue_newArray()
 		node.members().put("inputs", inputs)
-		it_7 := foreach_(obj_(chunk.getInputs()))
-		for it_7.next() {
-			var input *CompilerInput = cast_[*CompilerInput](it_7.v)
+		for input := range elemsAs_[*CompilerInput](obj_(chunk.getInputs())) {
 			inputs.elements().add(SimpleJsonValue_ofString(input.getSourceFile().getName()))
 		}
 		chunks.elements().add(node)
@@ -350,9 +336,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 	it_1 := originalInputs.each()
 	for it_1.next() {
 		var input *CompilerInput = it_1.v
-		it_3 := foreach_(obj_(input.getKnownProvides()))
-		for it_3.next() {
-			var provide string = str_(it_3.v)
+		for provide := range elemsBy_(obj_(input.getKnownProvides()), str_) {
 			inputsByProvide.computeIfAbsent(provide, Function[string, Set](func(k string) Set {
 				return Set(new_LinkedHashSet())
 			}))
@@ -388,18 +372,14 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 	}
 	var absoluteOrder *JTList[*CompilerInput] = jtlistImm_(jtc_p_CompilerInput, sorter.getStrongDependenciesOf(originalInputs.asList(), dependencyOptions.shouldSort()))
 	var entryPointInputsPerChunk *SimpleListMultimap[*JSChunk, *CompilerInput] = SimpleListMultimap_create[*JSChunk, *CompilerInput]()
-	it_13 := foreach_(entryPointInputs)
-	for it_13.next() {
-		var input *CompilerInput = cast_[*CompilerInput](it_13.v)
+	for input := range elemsAs_[*CompilerInput](entryPointInputs) {
 		var chunk *JSChunk = input.getChunk()
 		if chunk == nil {
 			panic(new_NullPointerException_0().self())
 		}
 		entryPointInputsPerChunk.put(chunk, input)
 	}
-	it_15 := foreach_(this.getAllChunks())
-	for it_15.next() {
-		var chunk *JSChunk = cast_[*JSChunk](it_15.v)
+	for chunk := range elemsAs_[*JSChunk](this.getAllChunks()) {
 		chunk.removeAll()
 	}
 	var orderedInputs *JTList[*CompilerInput] = jnewTList_(jtc_p_CompilerInput)
@@ -409,9 +389,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		if dependencyOptions.shouldSort() && dependencyOptions.shouldPrune() {
 			transitiveClosure = jnewTList_(jtc_p_CompilerInput)
 			var inputsNotYetReached *JTSet[*CompilerInput] = jtsetFrom_(jtc_p_CompilerInput, Collection(originalInputs.asList()))
-			it_18 := foreach_(entryPointInputsPerChunk.get(chunk))
-			for it_18.next() {
-				var entryPoint *CompilerInput = cast_[*CompilerInput](it_18.v)
+			for entryPoint := range elemsAs_[*CompilerInput](entryPointInputsPerChunk.get(chunk)) {
 				transitiveClosure.asList().addAll(Collection(this.getDepthFirstDependenciesOf(entryPoint, inputsNotYetReached, inputsByProvide).asList()))
 			}
 			it_20 := transitiveClosure.each()
@@ -477,13 +455,9 @@ func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, 
 	if !unreachedInputs.remove(rootInput) {
 		return orderedInputs
 	}
-	it_1 := foreach_(obj_(rootInput.getRequiredSymbols()))
-	for it_1.next() {
-		var importedNamespace string = str_(it_1.v)
+	for importedNamespace := range elemsBy_(obj_(rootInput.getRequiredSymbols()), str_) {
 		if inputsByProvide.containsKey(importedNamespace) {
-			it_3 := foreach_(inputsByProvide.get(importedNamespace))
-			for it_3.next() {
-				var input *CompilerInput = cast_[*CompilerInput](it_3.v)
+			for input := range elemsAs_[*CompilerInput](inputsByProvide.get(importedNamespace)) {
 				if unreachedInputs.contains(input) {
 					orderedInputs.asList().addAll(Collection(this.getDepthFirstDependenciesOf(input, unreachedInputs, inputsByProvide).asList()))
 				}
@@ -503,9 +477,7 @@ func (this *JSChunkGraph) createEntryPointInputs(compiler *AbstractCompiler, dep
 			entryPointInputs.add(baseJs)
 		}
 		if !dependencyOptions.shouldDropMoochers() {
-			it_1 := foreach_(obj_(sorter.getInputsWithoutProvides()))
-			for it_1.next() {
-				var entryPointInput *CompilerInput = cast_[*CompilerInput](it_1.v)
+			for entryPointInput := range elemsAs_[*CompilerInput](obj_(sorter.getInputsWithoutProvides())) {
 				if entryPointInput.getSourceFile().isWeak() {
 					compiler.report(JSError_make_DiagnosticType_StringArr(JSChunkGraph_IMPLICIT_WEAK_ENTRY_POINT_ERROR, []string{entryPointInput.getSourceFile().getName()}))
 				} else {
@@ -553,9 +525,7 @@ func (this *JSChunkGraph) createEntryPointInputs(compiler *AbstractCompiler, dep
 
 func (this *JSChunkGraph) toGraphvizGraph() *LinkedDirectedGraph[*JSChunk, string] {
 	var graphViz *LinkedDirectedGraph[*JSChunk, string] = LinkedDirectedGraph_create[*JSChunk, string]()
-	it_1 := foreach_(this.getAllChunks())
-	for it_1.next() {
-		var chunk *JSChunk = cast_[*JSChunk](it_1.v)
+	for chunk := range elemsAs_[*JSChunk](this.getAllChunks()) {
 		graphViz.createNode_Object_rDiGraphNode_rLinkedDiGraphNode(chunk)
 		it_3 := chunk.getDependencies().each()
 		for it_3.next() {

@@ -124,28 +124,20 @@ func (this *CheckRequiresSorted) checkCanonical(t *NodeTraversal) {
 
 func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMultimap[string, *CheckRequiresSorted_ImportStatement]) *JTList[*CheckRequiresSorted_ImportStatement] {
 	var canonicalImports *JTList[*CheckRequiresSorted_ImportStatement] = jnewTList_(jtc_p_CheckRequiresSorted_ImportStatement)
-	it_1 := foreach_(importsByNamespace.keySet())
-	for it_1.next() {
-		var namespace string = str_(it_1.v)
+	for namespace := range elemsBy_(importsByNamespace.keySet(), str_) {
 		var allImports CollectionOf[*CheckRequiresSorted_ImportStatement] = Collection(importsByNamespace.get(namespace))
 		var strongestPrimitive CheckRequiresSorted_ImportPrimitive = CheckRequiresSorted_ImportPrimitive_WEAKEST
-		it_3 := foreach_(allImports)
-		for it_3.next() {
-			var i *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_3.v)
+		for i := range elemsAs_[*CheckRequiresSorted_ImportStatement](allImports) {
 			strongestPrimitive = CheckRequiresSorted_ImportPrimitive_stronger(strongestPrimitive, i.primitive())
 		}
 		var hasAliasing bool = false
-		it_5 := foreach_(Iterables_filter(Iterable(allImports), Predicate_base[any](func(p0 any) bool { return cast_[*CheckRequiresSorted_ImportStatement](p0).isAliasing() })))
-		for it_5.next() {
-			var stmt *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_5.v)
+		for stmt := range elemsAs_[*CheckRequiresSorted_ImportStatement](Iterables_filter(Iterable(allImports), Predicate_base[any](func(p0 any) bool { return cast_[*CheckRequiresSorted_ImportStatement](p0).isAliasing() }))) {
 			canonicalImports.add(stmt.upgrade(strongestPrimitive))
 			hasAliasing = true
 		}
 		var hasDestructuring bool = false
 		var destructuringNodesBuilder *TListBuilder[Node] = newTListBuilder_(jtc_Node)
-		it_7 := foreach_(allImports)
-		for it_7.next() {
-			var i *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_7.v)
+		for i := range elemsAs_[*CheckRequiresSorted_ImportStatement](allImports) {
 			if i.isDestructuring() {
 				it_9 := i.nodes().each()
 				for it_9.next() {
@@ -156,9 +148,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 		}
 		var destructuringNodes *JTList[Node] = destructuringNodesBuilder.build()
 		var sortedDestructures *JTList[*CheckRequiresSorted_DestructuringBinding] = jnewTList_(jtc_p_CheckRequiresSorted_DestructuringBinding)
-		it_11 := foreach_(allImports)
-		for it_11.next() {
-			var i *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_11.v)
+		for i := range elemsAs_[*CheckRequiresSorted_ImportStatement](allImports) {
 			if i.isDestructuring() {
 				it_13 := i.destructures().each()
 				for it_13.next() {
@@ -175,9 +165,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 		}
 		if !hasAliasing && !hasDestructuring {
 			var standaloneNodesBuilder *TListBuilder[Node] = newTListBuilder_(jtc_Node)
-			it_15 := foreach_(allImports)
-			for it_15.next() {
-				var i *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_15.v)
+			for i := range elemsAs_[*CheckRequiresSorted_ImportStatement](allImports) {
 				if i.isStandalone() {
 					it_17 := i.nodes().each()
 					for it_17.next() {

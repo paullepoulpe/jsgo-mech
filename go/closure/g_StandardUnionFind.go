@@ -24,9 +24,8 @@ func new_StandardUnionFind_0[E comparable]() *StandardUnionFind[E] {
 
 func (this *StandardUnionFind[E]) init_StandardUnionFind_UnionFind(other UnionFind[E]) {
 	this.finit_StandardUnionFind()
-	it_1 := foreach_(other.elements())
-	for it_1.next() {
-		var elem E = junboxT_[E](it_1.v)
+	for el_1 := range elems_(other.elements()) {
+		var elem E = junboxT_[E](el_1)
 		this.union(other.find(elem), elem)
 	}
 }
@@ -42,9 +41,8 @@ func (this *StandardUnionFind[E]) add(e E) {
 }
 
 func (this *StandardUnionFind[E]) addAll(es IterableOf[E]) {
-	it_1 := foreach_(es)
-	for it_1.next() {
-		var e E = junboxT_[E](it_1.v)
+	for el_1 := range elems_(es) {
+		var e E = junboxT_[E](el_1)
 		this.add(e)
 	}
 }
@@ -96,9 +94,7 @@ func (this *StandardUnionFind[E]) allEquivalenceClasses() *JTList[*ImmutableSet]
 		groupsTmp.put(this.findRoot(elem), elem.element)
 	}
 	var result *TListBuilder[*ImmutableSet] = newTListBuilder_(tc_p_ImmutableSet)
-	it_3 := foreach_(groupsTmp.asMap().values())
-	for it_3.next() {
-		var group Set = icast_Set(it_3.v)
+	for group := range elemsBy_(groupsTmp.asMap().values(), icast_Set) {
 		result.add(ImmutableSet_copyOf(Collection(group)))
 	}
 	return result.build()

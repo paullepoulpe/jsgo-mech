@@ -195,9 +195,7 @@ func (this *ExtraRequireRemover) maybeAddJsDocUsages(n Node) {
 	if info == nil {
 		return
 	}
-	it_1 := foreach_(info.getTypeExpressions())
-	for it_1.next() {
-		var e *JSTypeExpression = cast_[*JSTypeExpression](it_1.v)
+	for e := range elemsAs_[*JSTypeExpression](info.getTypeExpressions()) {
 		it_3 := e.getAllTypeNames().each()
 		for it_3.next() {
 			var typeName string = it_3.v

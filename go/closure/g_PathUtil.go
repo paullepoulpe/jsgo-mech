@@ -23,9 +23,7 @@ func PathUtil_collapseDots(path string) string {
 		return path
 	}
 	var dstFragments *JTList[string] = jnewTList_(jtc_string)
-	it_1 := foreach_(Splitter_on('/').split_s(path))
-	for it_1.next() {
-		var fragment string = str_(it_1.v)
+	for fragment := range elemsBy_(Splitter_on('/').split_s(path), str_) {
 		if fragment == ".." {
 			if !dstFragments.isEmpty() {
 				dstFragments.removeAt((dstFragments.size() - 1))
