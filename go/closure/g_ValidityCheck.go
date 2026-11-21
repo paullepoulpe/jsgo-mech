@@ -45,8 +45,8 @@ func (this *ValidityCheck) checkNormalization(externs Node, root Node) {
 		Normalize_builder(this.compiler_).assertOnChange(true).build().process_2(externs, root)
 		if this.compiler_.getLifeCycleStage().isNormalizedUnobfuscated() {
 			var checkUserDeclarations bool = true
-			var pass CompilerPass = CompilerPass(new_ValidityCheck_VerifyConstants(this.compiler_, checkUserDeclarations))
-			pass.process_2(externs, root)
+			var pass func(Node, Node) = new_ValidityCheck_VerifyConstants(this.compiler_, checkUserDeclarations).process_2
+			pass(externs, root)
 		}
 	}
 	this.changeTracker.removeChangeHandler(handler)

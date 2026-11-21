@@ -38,7 +38,7 @@ func (this *CoalesceVariableNames) init_CoalesceVariableNames(compiler *Abstract
 	this.liveAnalyses = newTDeque_(jtc_p_LiveVariablesAnalysis)
 	this.usePseudoNames = usePseudoNames
 	this.astFactory_ = compiler.createAstFactory()
-	this.scopeCreator = new_MemoizedScopeCreator(ScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(compiler)))
+	this.scopeCreator = new_MemoizedScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(compiler).createScopeAbstractScope_Node_AbstractScope)
 }
 
 func new_CoalesceVariableNames(compiler *AbstractCompiler, usePseudoNames bool) *CoalesceVariableNames {
