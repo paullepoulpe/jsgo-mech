@@ -58,7 +58,7 @@ func NodeModuleResolver_buildNodeModulesFoldersRegistry(modulePaths IterableOf[s
 	for modulePath := range elemsBy_(modulePaths, str_) {
 		for moduleRootPath := range elemsBy_(moduleRootPaths, str_) {
 			if strings.HasPrefix(modulePath, moduleRootPath) {
-				modulePath = String_substring_int(modulePath, String_length(moduleRootPath))
+				modulePath = modulePath[len(moduleRootPath):]
 				break
 			}
 		}
@@ -144,7 +144,7 @@ func (this *NodeModuleResolver) resolveJsModuleNodeFileOrDirectory(scriptAddress
 
 func (this *NodeModuleResolver) resolveJsModuleNodeDirectory(scriptAddress string, moduleAddress string) Optional[string] {
 	if strings.HasSuffix(moduleAddress, ModuleLoader_MODULE_SLASH) {
-		moduleAddress = String_substring(moduleAddress, 0, (String_length(moduleAddress) - 1))
+		moduleAddress = moduleAddress[:len(moduleAddress)-1]
 	}
 	for i := int32(0); i < int32(len(NodeModuleResolver_FILES_TO_SEARCH)); i++ {
 		var loadAddress Optional[string] = this.locate(scriptAddress, (sstr_(moduleAddress) + sstr_(NodeModuleResolver_FILES_TO_SEARCH[i])))
