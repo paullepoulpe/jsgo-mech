@@ -21,23 +21,6 @@ type JsFileLineParser_I interface {
 
 func (this *JsFileLineParser) as_JsFileLineParser() *JsFileLineParser { return this }
 
-func to_JsFileLineParser(v any) *JsFileLineParser {
-	switch p := v.(type) {
-	case *DepsFileRegexParser:
-		return p.as_JsFileLineParser()
-	case *JsFileRegexParser:
-		return p.as_JsFileLineParser()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_JsFileLineParser() *JsFileLineParser }).as_JsFileLineParser()
-}
-
-func is_JsFileLineParser(v any) bool {
-	_, ok := v.(interface{ as_JsFileLineParser() *JsFileLineParser })
-	return ok
-}
-
 func (this *JsFileLineParser) self() any {
 	if this == nil {
 		return nil

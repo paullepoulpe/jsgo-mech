@@ -8,21 +8,6 @@ type InvocationsCallback struct {
 
 func (this *InvocationsCallback) as_InvocationsCallback() *InvocationsCallback { return this }
 
-func to_InvocationsCallback(v any) *InvocationsCallback {
-	switch p := v.(type) {
-	case *InlineSimpleMethods_InlineTrivialAccessors:
-		return p.as_InvocationsCallback()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_InvocationsCallback() *InvocationsCallback }).as_InvocationsCallback()
-}
-
-func is_InvocationsCallback(v any) bool {
-	_, ok := v.(interface{ as_InvocationsCallback() *InvocationsCallback })
-	return ok
-}
-
 func (this *InvocationsCallback) self() any {
 	if this == nil {
 		return nil

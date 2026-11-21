@@ -218,6 +218,12 @@ type ExternExportsPass_Export_I interface {
 	getExportedPath_impl() string
 }
 
+// ExternExportsPass_Export_as is implemented by ExternExportsPass_Export and the classes that extend it: a cast to ExternExportsPass_Export asserts to it
+// (post-flip).
+type ExternExportsPass_Export_as interface {
+	as_ExternExportsPass_Export() *ExternExportsPass_Export
+}
+
 func (this *ExternExportsPass_Export) as_ExternExportsPass_Export() *ExternExportsPass_Export {
 	return this
 }
@@ -231,16 +237,7 @@ func to_ExternExportsPass_Export(v any) *ExternExportsPass_Export {
 	case nil:
 		return nil
 	}
-	return v.(interface {
-		as_ExternExportsPass_Export() *ExternExportsPass_Export
-	}).as_ExternExportsPass_Export()
-}
-
-func is_ExternExportsPass_Export(v any) bool {
-	_, ok := v.(interface {
-		as_ExternExportsPass_Export() *ExternExportsPass_Export
-	})
-	return ok
+	return v.(ExternExportsPass_Export_as).as_ExternExportsPass_Export()
 }
 
 func (this *ExternExportsPass_Export) self() any {

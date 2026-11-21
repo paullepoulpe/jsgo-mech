@@ -174,18 +174,6 @@ func (this SourceMap_Format) self() any {
 
 func (this SourceMap_Format) as_SourceMap_Format() SourceMap_Format { return this }
 
-func to_SourceMap_Format(v any) SourceMap_Format {
-	if v == nil {
-		return 0
-	}
-	return v.(interface{ as_SourceMap_Format() SourceMap_Format }).as_SourceMap_Format()
-}
-
-func is_SourceMap_Format(v any) bool {
-	_, ok := v.(interface{ as_SourceMap_Format() SourceMap_Format })
-	return ok
-}
-
 func (this SourceMap_Format) getInstance() *SourceMap {
 	switch this {
 	case SourceMap_Format_DEFAULT:
@@ -263,18 +251,6 @@ func (this SourceMap_DetailLevel) self() any {
 }
 
 func (this SourceMap_DetailLevel) as_SourceMap_DetailLevel() SourceMap_DetailLevel { return this }
-
-func to_SourceMap_DetailLevel(v any) SourceMap_DetailLevel {
-	if v == nil {
-		return 0
-	}
-	return v.(interface{ as_SourceMap_DetailLevel() SourceMap_DetailLevel }).as_SourceMap_DetailLevel()
-}
-
-func is_SourceMap_DetailLevel(v any) bool {
-	_, ok := v.(interface{ as_SourceMap_DetailLevel() SourceMap_DetailLevel })
-	return ok
-}
 
 func (this SourceMap_DetailLevel) apply(node Node) bool {
 	switch this {

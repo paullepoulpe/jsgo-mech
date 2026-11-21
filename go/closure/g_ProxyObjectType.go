@@ -8,6 +8,12 @@ type ProxyObjectType struct {
 	referencedObjType *ObjectType
 }
 
+// ProxyObjectType_as is implemented by ProxyObjectType and the classes that extend it: a cast to ProxyObjectType asserts to it
+// (post-flip).
+type ProxyObjectType_as interface {
+	as_ProxyObjectType() *ProxyObjectType
+}
+
 func (this *ProxyObjectType) as_ProxyObjectType() *ProxyObjectType { return this }
 
 func to_ProxyObjectType(v any) *ProxyObjectType {
@@ -21,11 +27,11 @@ func to_ProxyObjectType(v any) *ProxyObjectType {
 	case nil:
 		return nil
 	}
-	return v.(interface{ as_ProxyObjectType() *ProxyObjectType }).as_ProxyObjectType()
+	return v.(ProxyObjectType_as).as_ProxyObjectType()
 }
 
 func is_ProxyObjectType(v any) bool {
-	_, ok := v.(interface{ as_ProxyObjectType() *ProxyObjectType })
+	_, ok := v.(ProxyObjectType_as)
 	return ok
 }
 

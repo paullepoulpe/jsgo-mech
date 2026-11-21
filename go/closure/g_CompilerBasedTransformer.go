@@ -18,27 +18,6 @@ func (this *CompilerBasedTransformer) as_CompilerBasedTransformer() *CompilerBas
 	return this
 }
 
-func to_CompilerBasedTransformer(v any) *CompilerBasedTransformer {
-	switch p := v.(type) {
-	case *CoverageInstrumenter:
-		return p.as_CompilerBasedTransformer()
-	case *Transpiler_bundle:
-		return p.as_CompilerBasedTransformer()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_CompilerBasedTransformer() *CompilerBasedTransformer
-	}).as_CompilerBasedTransformer()
-}
-
-func is_CompilerBasedTransformer(v any) bool {
-	_, ok := v.(interface {
-		as_CompilerBasedTransformer() *CompilerBasedTransformer
-	})
-	return ok
-}
-
 func (this *CompilerBasedTransformer) self() any {
 	if this == nil {
 		return nil
@@ -105,27 +84,6 @@ type CompilerBasedTransformer_CompilerSupplier_I interface {
 
 func (this *CompilerBasedTransformer_CompilerSupplier) as_CompilerBasedTransformer_CompilerSupplier() *CompilerBasedTransformer_CompilerSupplier {
 	return this
-}
-
-func to_CompilerBasedTransformer_CompilerSupplier(v any) *CompilerBasedTransformer_CompilerSupplier {
-	switch p := v.(type) {
-	case *CompilerBasedTransformer_CompilerSupplier:
-		return p
-	case *CoverageInstrumenter_CompilerSupplier:
-		return p.as_CompilerBasedTransformer_CompilerSupplier()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_CompilerBasedTransformer_CompilerSupplier() *CompilerBasedTransformer_CompilerSupplier
-	}).as_CompilerBasedTransformer_CompilerSupplier()
-}
-
-func is_CompilerBasedTransformer_CompilerSupplier(v any) bool {
-	_, ok := v.(interface {
-		as_CompilerBasedTransformer_CompilerSupplier() *CompilerBasedTransformer_CompilerSupplier
-	})
-	return ok
 }
 
 func (this *CompilerBasedTransformer_CompilerSupplier) self() any {

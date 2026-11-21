@@ -966,22 +966,6 @@ func (this *NodeTraversal_AbstractPostOrderCallback) as_NodeTraversal_AbstractPo
 	return this
 }
 
-func to_NodeTraversal_AbstractPostOrderCallback(v any) *NodeTraversal_AbstractPostOrderCallback {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback
-	}).as_NodeTraversal_AbstractPostOrderCallback()
-}
-
-func is_NodeTraversal_AbstractPostOrderCallback(v any) bool {
-	_, ok := v.(interface {
-		as_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback
-	})
-	return ok
-}
-
 func (this *NodeTraversal_AbstractPostOrderCallback) self() any {
 	if this == nil {
 		return nil
@@ -1013,22 +997,6 @@ type NodeTraversal_ExternsSkippingCallback_I interface {
 
 func (this *NodeTraversal_ExternsSkippingCallback) as_NodeTraversal_ExternsSkippingCallback() *NodeTraversal_ExternsSkippingCallback {
 	return this
-}
-
-func to_NodeTraversal_ExternsSkippingCallback(v any) *NodeTraversal_ExternsSkippingCallback {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_NodeTraversal_ExternsSkippingCallback() *NodeTraversal_ExternsSkippingCallback
-	}).as_NodeTraversal_ExternsSkippingCallback()
-}
-
-func is_NodeTraversal_ExternsSkippingCallback(v any) bool {
-	_, ok := v.(interface {
-		as_NodeTraversal_ExternsSkippingCallback() *NodeTraversal_ExternsSkippingCallback
-	})
-	return ok
 }
 
 func (this *NodeTraversal_ExternsSkippingCallback) self() any {
@@ -1076,22 +1044,6 @@ func (this *NodeTraversal_AbstractPreOrderCallback) as_NodeTraversal_AbstractPre
 	return this
 }
 
-func to_NodeTraversal_AbstractPreOrderCallback(v any) *NodeTraversal_AbstractPreOrderCallback {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_NodeTraversal_AbstractPreOrderCallback() *NodeTraversal_AbstractPreOrderCallback
-	}).as_NodeTraversal_AbstractPreOrderCallback()
-}
-
-func is_NodeTraversal_AbstractPreOrderCallback(v any) bool {
-	_, ok := v.(interface {
-		as_NodeTraversal_AbstractPreOrderCallback() *NodeTraversal_AbstractPreOrderCallback
-	})
-	return ok
-}
-
 func (this *NodeTraversal_AbstractPreOrderCallback) self() any {
 	if this == nil {
 		return nil
@@ -1125,22 +1077,6 @@ type NodeTraversal_AbstractScopedCallback_I interface {
 
 func (this *NodeTraversal_AbstractScopedCallback) as_NodeTraversal_AbstractScopedCallback() *NodeTraversal_AbstractScopedCallback {
 	return this
-}
-
-func to_NodeTraversal_AbstractScopedCallback(v any) *NodeTraversal_AbstractScopedCallback {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_NodeTraversal_AbstractScopedCallback() *NodeTraversal_AbstractScopedCallback
-	}).as_NodeTraversal_AbstractScopedCallback()
-}
-
-func is_NodeTraversal_AbstractScopedCallback(v any) bool {
-	_, ok := v.(interface {
-		as_NodeTraversal_AbstractScopedCallback() *NodeTraversal_AbstractScopedCallback
-	})
-	return ok
 }
 
 func (this *NodeTraversal_AbstractScopedCallback) self() any {
@@ -1194,22 +1130,6 @@ type NodeTraversal_AbstractCfgCallback_I interface {
 
 func (this *NodeTraversal_AbstractCfgCallback) as_NodeTraversal_AbstractCfgCallback() *NodeTraversal_AbstractCfgCallback {
 	return this
-}
-
-func to_NodeTraversal_AbstractCfgCallback(v any) *NodeTraversal_AbstractCfgCallback {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_NodeTraversal_AbstractCfgCallback() *NodeTraversal_AbstractCfgCallback
-	}).as_NodeTraversal_AbstractCfgCallback()
-}
-
-func is_NodeTraversal_AbstractCfgCallback(v any) bool {
-	_, ok := v.(interface {
-		as_NodeTraversal_AbstractCfgCallback() *NodeTraversal_AbstractCfgCallback
-	})
-	return ok
 }
 
 func (this *NodeTraversal_AbstractCfgCallback) self() any {
@@ -1312,22 +1232,6 @@ func (this *NodeTraversal_AbstractShallowCallback) as_NodeTraversal_AbstractShal
 	return this
 }
 
-func to_NodeTraversal_AbstractShallowCallback(v any) *NodeTraversal_AbstractShallowCallback {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_NodeTraversal_AbstractShallowCallback() *NodeTraversal_AbstractShallowCallback
-	}).as_NodeTraversal_AbstractShallowCallback()
-}
-
-func is_NodeTraversal_AbstractShallowCallback(v any) bool {
-	_, ok := v.(interface {
-		as_NodeTraversal_AbstractShallowCallback() *NodeTraversal_AbstractShallowCallback
-	})
-	return ok
-}
-
 func (this *NodeTraversal_AbstractShallowCallback) self() any {
 	if this == nil {
 		return nil
@@ -1359,29 +1263,6 @@ type NodeTraversal_AbstractShallowStatementCallback_I interface {
 
 func (this *NodeTraversal_AbstractShallowStatementCallback) as_NodeTraversal_AbstractShallowStatementCallback() *NodeTraversal_AbstractShallowStatementCallback {
 	return this
-}
-
-func to_NodeTraversal_AbstractShallowStatementCallback(v any) *NodeTraversal_AbstractShallowStatementCallback {
-	switch p := v.(type) {
-	case *DeclaredGlobalExternsOnWindow:
-		return p.as_NodeTraversal_AbstractShallowStatementCallback()
-	case *RescopeGlobalSymbols_RemoveGlobalVarCallback:
-		return p.as_NodeTraversal_AbstractShallowStatementCallback()
-	case *RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssignmentsCallback:
-		return p.as_NodeTraversal_AbstractShallowStatementCallback()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_NodeTraversal_AbstractShallowStatementCallback() *NodeTraversal_AbstractShallowStatementCallback
-	}).as_NodeTraversal_AbstractShallowStatementCallback()
-}
-
-func is_NodeTraversal_AbstractShallowStatementCallback(v any) bool {
-	_, ok := v.(interface {
-		as_NodeTraversal_AbstractShallowStatementCallback() *NodeTraversal_AbstractShallowStatementCallback
-	})
-	return ok
 }
 
 func (this *NodeTraversal_AbstractShallowStatementCallback) self() any {
@@ -1423,29 +1304,6 @@ type NodeTraversal_AbstractModuleCallback_I interface {
 
 func (this *NodeTraversal_AbstractModuleCallback) as_NodeTraversal_AbstractModuleCallback() *NodeTraversal_AbstractModuleCallback {
 	return this
-}
-
-func to_NodeTraversal_AbstractModuleCallback(v any) *NodeTraversal_AbstractModuleCallback {
-	switch p := v.(type) {
-	case *CheckClosureImports_Checker:
-		return p.as_NodeTraversal_AbstractModuleCallback()
-	case *CheckMissingRequires:
-		return p.as_NodeTraversal_AbstractModuleCallback()
-	case *ClosureCheckModule:
-		return p.as_NodeTraversal_AbstractModuleCallback()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_NodeTraversal_AbstractModuleCallback() *NodeTraversal_AbstractModuleCallback
-	}).as_NodeTraversal_AbstractModuleCallback()
-}
-
-func is_NodeTraversal_AbstractModuleCallback(v any) bool {
-	_, ok := v.(interface {
-		as_NodeTraversal_AbstractModuleCallback() *NodeTraversal_AbstractModuleCallback
-	})
-	return ok
 }
 
 func (this *NodeTraversal_AbstractModuleCallback) self() any {
@@ -1563,25 +1421,6 @@ type NodeTraversal_AbstractChangedScopeCallback struct {
 
 func (this *NodeTraversal_AbstractChangedScopeCallback) as_NodeTraversal_AbstractChangedScopeCallback() *NodeTraversal_AbstractChangedScopeCallback {
 	return this
-}
-
-func to_NodeTraversal_AbstractChangedScopeCallback(v any) *NodeTraversal_AbstractChangedScopeCallback {
-	switch p := v.(type) {
-	case *DeadPropertyAssignmentElimination_FunctionVisitor:
-		return p.as_NodeTraversal_AbstractChangedScopeCallback()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_NodeTraversal_AbstractChangedScopeCallback() *NodeTraversal_AbstractChangedScopeCallback
-	}).as_NodeTraversal_AbstractChangedScopeCallback()
-}
-
-func is_NodeTraversal_AbstractChangedScopeCallback(v any) bool {
-	_, ok := v.(interface {
-		as_NodeTraversal_AbstractChangedScopeCallback() *NodeTraversal_AbstractChangedScopeCallback
-	})
-	return ok
 }
 
 func (this *NodeTraversal_AbstractChangedScopeCallback) self() any {
