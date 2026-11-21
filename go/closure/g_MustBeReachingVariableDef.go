@@ -480,7 +480,7 @@ func (this *MustBeReachingVariableDef_1) visit_impl(t *NodeTraversal, n Node, pa
 
 // visit: an object that is exactly a MustBeReachingVariableDef_1 calls its visit_impl directly (post-flip); others dispatch.
 func (this *MustBeReachingVariableDef_1) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*MustBeReachingVariableDef_1); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

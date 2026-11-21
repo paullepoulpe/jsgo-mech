@@ -45,7 +45,7 @@ func (this *CheckExtraRequiresPassConfig) getOptimizations_impl() *PassListBuild
 
 // getChecks: an object that is exactly a CheckExtraRequiresPassConfig calls its getChecks_impl directly (post-flip); others dispatch.
 func (this *CheckExtraRequiresPassConfig) getChecks() *PassListBuilder {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckExtraRequiresPassConfig); p == this {
 		return this.getChecks_impl()
 	}
 	return this.self_.getChecks_impl()
@@ -53,7 +53,7 @@ func (this *CheckExtraRequiresPassConfig) getChecks() *PassListBuilder {
 
 // getOptimizations: an object that is exactly a CheckExtraRequiresPassConfig calls its getOptimizations_impl directly (post-flip); others dispatch.
 func (this *CheckExtraRequiresPassConfig) getOptimizations() *PassListBuilder {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckExtraRequiresPassConfig); p == this {
 		return this.getOptimizations_impl()
 	}
 	return this.self_.getOptimizations_impl()

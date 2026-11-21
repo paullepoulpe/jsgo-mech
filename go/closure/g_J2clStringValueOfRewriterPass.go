@@ -70,7 +70,7 @@ const J2clStringValueOfRewriterPass_METHOD_NAME string = "module$exports$java$la
 
 // beginTraversal: an object that is exactly a J2clStringValueOfRewriterPass calls its beginTraversal_impl directly (post-flip); others dispatch.
 func (this *J2clStringValueOfRewriterPass) beginTraversal(p0 *AbstractCompiler) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*J2clStringValueOfRewriterPass); p == this {
 		this.beginTraversal_impl(p0)
 		return
 	}
@@ -79,7 +79,7 @@ func (this *J2clStringValueOfRewriterPass) beginTraversal(p0 *AbstractCompiler) 
 
 // optimizeSubtree: an object that is exactly a J2clStringValueOfRewriterPass calls its optimizeSubtree_impl directly (post-flip); others dispatch.
 func (this *J2clStringValueOfRewriterPass) optimizeSubtree(p0 Node) Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*J2clStringValueOfRewriterPass); p == this {
 		return this.optimizeSubtree_impl(p0)
 	}
 	return this.self_.optimizeSubtree_impl(p0)

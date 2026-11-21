@@ -112,7 +112,7 @@ func (this *CollapseVariableDeclarations_GatherCollapses) visit_impl(t *NodeTrav
 
 // visit: an object that is exactly a CollapseVariableDeclarations_GatherCollapses calls its visit_impl directly (post-flip); others dispatch.
 func (this *CollapseVariableDeclarations_GatherCollapses) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CollapseVariableDeclarations_GatherCollapses); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

@@ -124,7 +124,7 @@ func TemplateLiteralToken_ErrorLevel_clinit() {
 
 // toString: an object that is exactly a TemplateLiteralToken calls its toString_impl directly (post-flip); others dispatch.
 func (this *TemplateLiteralToken) toString() string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TemplateLiteralToken); p == this {
 		return this.toString_impl()
 	}
 	return this.self_.toString_impl()

@@ -773,7 +773,7 @@ func (this *Es6RewriteModules_RenameGlobalVars) maybeSetNewName(t *NodeTraversal
 
 // visit: an object that is exactly a Es6RewriteModules_RewriteRequiresForEs6Modules calls its visit_impl directly (post-flip); others dispatch.
 func (this *Es6RewriteModules_RewriteRequiresForEs6Modules) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Es6RewriteModules_RewriteRequiresForEs6Modules); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -782,7 +782,7 @@ func (this *Es6RewriteModules_RewriteRequiresForEs6Modules) visit(p0 *NodeTraver
 
 // visit: an object that is exactly a Es6RewriteModules_RenameGlobalVars calls its visit_impl directly (post-flip); others dispatch.
 func (this *Es6RewriteModules_RenameGlobalVars) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Es6RewriteModules_RenameGlobalVars); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

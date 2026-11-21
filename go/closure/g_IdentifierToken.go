@@ -60,7 +60,7 @@ func (this *IdentifierToken) isPrivateIdentifier() bool {
 
 // toString: an object that is exactly a IdentifierToken calls its toString_impl directly (post-flip); others dispatch.
 func (this *IdentifierToken) toString() string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*IdentifierToken); p == this {
 		return this.toString_impl()
 	}
 	return this.self_.toString_impl()

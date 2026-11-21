@@ -411,7 +411,7 @@ func ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_extractDeclar
 
 // visit: an object that is exactly a ExtractPrototypeMemberDeclarations_GatherExtractionInfo calls its visit_impl directly (post-flip); others dispatch.
 func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ExtractPrototypeMemberDeclarations_GatherExtractionInfo); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
