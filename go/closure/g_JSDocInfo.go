@@ -1398,7 +1398,12 @@ func (this JSDocInfo_Bit) enum_() *Enum {
 
 func (this JSDocInfo_Bit) name() string { return this.enum_().name_ }
 
-func (this JSDocInfo_Bit) ordinal() int32 { return this.enum_().ordinal_ }
+func (this JSDocInfo_Bit) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
 
 func (this JSDocInfo_Bit) toString() string { return this.enum_().name_ }
 
@@ -1621,7 +1626,12 @@ func (this JSDocInfo_Visibility) enum_() *Enum {
 
 func (this JSDocInfo_Visibility) name() string { return this.enum_().name_ }
 
-func (this JSDocInfo_Visibility) ordinal() int32 { return this.enum_().ordinal_ }
+func (this JSDocInfo_Visibility) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
 
 func (this JSDocInfo_Visibility) toString() string { return this.enum_().name_ }
 
@@ -1690,7 +1700,10 @@ func (this JSDocInfo_IdGenerator) enum_() *Enum {
 func (this JSDocInfo_IdGenerator) name() string { return this.enum_().name_ }
 
 func (this JSDocInfo_IdGenerator) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this JSDocInfo_IdGenerator) toString() string { return this.enum_().name_ }
@@ -1760,7 +1773,10 @@ func (this JSDocInfo_PerFileClosureUnawareMode) name() string {
 }
 
 func (this JSDocInfo_PerFileClosureUnawareMode) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this JSDocInfo_PerFileClosureUnawareMode) toString() string {

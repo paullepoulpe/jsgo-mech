@@ -2499,7 +2499,10 @@ func (this CompilerOptions_Reach) enum_() *Enum {
 func (this CompilerOptions_Reach) name() string { return this.enum_().name_ }
 
 func (this CompilerOptions_Reach) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CompilerOptions_Reach) toString() string { return this.enum_().name_ }
@@ -2575,7 +2578,10 @@ func (this CompilerOptions_PropertyCollapseLevel) name() string {
 }
 
 func (this CompilerOptions_PropertyCollapseLevel) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CompilerOptions_PropertyCollapseLevel) toString() string {
@@ -2656,7 +2662,10 @@ func (this CompilerOptions_BrowserFeaturesetYear) name() string {
 }
 
 func (this CompilerOptions_BrowserFeaturesetYear) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CompilerOptions_BrowserFeaturesetYear) toString() string {
@@ -2793,7 +2802,10 @@ func (this CompilerOptions_IncrementalCheckMode) name() string {
 }
 
 func (this CompilerOptions_IncrementalCheckMode) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CompilerOptions_IncrementalCheckMode) toString() string {
@@ -2863,7 +2875,10 @@ func (this CompilerOptions_ExtractPrototypeMemberDeclarationsMode) name() string
 }
 
 func (this CompilerOptions_ExtractPrototypeMemberDeclarationsMode) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CompilerOptions_ExtractPrototypeMemberDeclarationsMode) toString() string {
@@ -2934,7 +2949,10 @@ func (this CompilerOptions_OutputJs) name() string {
 }
 
 func (this CompilerOptions_OutputJs) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CompilerOptions_OutputJs) toString() string {
@@ -3003,7 +3021,10 @@ func (this CompilerOptions_ConformanceReportingMode) name() string {
 }
 
 func (this CompilerOptions_ConformanceReportingMode) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CompilerOptions_ConformanceReportingMode) toString() string {
@@ -3071,7 +3092,10 @@ func (this CompilerOptions_ExperimentalOutputFeatureSet) name() string {
 }
 
 func (this CompilerOptions_ExperimentalOutputFeatureSet) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CompilerOptions_ExperimentalOutputFeatureSet) toString() string {
@@ -3141,7 +3165,10 @@ func (this CompilerOptions_Es6ModuleTranspilation) name() string {
 }
 
 func (this CompilerOptions_Es6ModuleTranspilation) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CompilerOptions_Es6ModuleTranspilation) toString() string {
@@ -3211,7 +3238,10 @@ func (this CompilerOptions_Es6SubclassTranspilation) name() string {
 }
 
 func (this CompilerOptions_Es6SubclassTranspilation) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CompilerOptions_Es6SubclassTranspilation) toString() string {
@@ -3281,7 +3311,10 @@ func (this CompilerOptions_InstrumentOption) name() string {
 }
 
 func (this CompilerOptions_InstrumentOption) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CompilerOptions_InstrumentOption) toString() string {
@@ -3372,7 +3405,10 @@ func (this CompilerOptions_ChunkOutputType) name() string {
 }
 
 func (this CompilerOptions_ChunkOutputType) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CompilerOptions_ChunkOutputType) toString() string {
@@ -3444,7 +3480,10 @@ func (this CompilerOptions_OptimizeLocalAccess) name() string {
 }
 
 func (this CompilerOptions_OptimizeLocalAccess) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CompilerOptions_OptimizeLocalAccess) toString() string {
@@ -3558,7 +3597,10 @@ func (this CompilerOptions_LanguageMode) name() string {
 }
 
 func (this CompilerOptions_LanguageMode) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CompilerOptions_LanguageMode) toString() string {
@@ -3727,7 +3769,10 @@ func (this CompilerOptions_DevMode) enum_() *Enum {
 func (this CompilerOptions_DevMode) name() string { return this.enum_().name_ }
 
 func (this CompilerOptions_DevMode) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CompilerOptions_DevMode) toString() string {
@@ -3801,7 +3846,10 @@ func (this CompilerOptions_TracerMode) name() string {
 }
 
 func (this CompilerOptions_TracerMode) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CompilerOptions_TracerMode) toString() string {
@@ -3882,7 +3930,10 @@ func (this CompilerOptions_TweakProcessing) name() string {
 }
 
 func (this CompilerOptions_TweakProcessing) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CompilerOptions_TweakProcessing) toString() string {
@@ -3959,7 +4010,10 @@ func (this CompilerOptions_IsolationMode) name() string {
 }
 
 func (this CompilerOptions_IsolationMode) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CompilerOptions_IsolationMode) toString() string {
@@ -4032,7 +4086,10 @@ func (this CompilerOptions_SegmentOfCompilationToRun) name() string {
 }
 
 func (this CompilerOptions_SegmentOfCompilationToRun) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CompilerOptions_SegmentOfCompilationToRun) toString() string {
@@ -4107,7 +4164,10 @@ func (this CompilerOptions_AliasStringsMode) name() string {
 }
 
 func (this CompilerOptions_AliasStringsMode) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CompilerOptions_AliasStringsMode) toString() string {
@@ -4177,7 +4237,10 @@ func (this CompilerOptions_Environment) name() string {
 }
 
 func (this CompilerOptions_Environment) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CompilerOptions_Environment) toString() string {
@@ -4247,7 +4310,10 @@ func (this CompilerOptions_JsonStreamMode) name() string {
 }
 
 func (this CompilerOptions_JsonStreamMode) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CompilerOptions_JsonStreamMode) toString() string {
@@ -4317,7 +4383,10 @@ func (this CompilerOptions_J2clPassMode) name() string {
 }
 
 func (this CompilerOptions_J2clPassMode) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CompilerOptions_J2clPassMode) toString() string {

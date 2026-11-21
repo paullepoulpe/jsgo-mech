@@ -2139,7 +2139,10 @@ func (this JsDocInfoParser_State) enum_() *Enum {
 func (this JsDocInfoParser_State) name() string { return this.enum_().name_ }
 
 func (this JsDocInfoParser_State) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this JsDocInfoParser_State) toString() string { return this.enum_().name_ }
@@ -2206,7 +2209,10 @@ func (this JsDocInfoParser_JsDocSourceKind) name() string {
 }
 
 func (this JsDocInfoParser_JsDocSourceKind) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this JsDocInfoParser_JsDocSourceKind) toString() string {
@@ -2314,7 +2320,10 @@ func (this JsDocInfoParser_WhitespaceOption) name() string {
 }
 
 func (this JsDocInfoParser_WhitespaceOption) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this JsDocInfoParser_WhitespaceOption) toString() string {
