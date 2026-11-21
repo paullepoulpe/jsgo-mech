@@ -111,12 +111,8 @@ func PolymerClassDefinition_extractFromCallNode(callNode Node, compiler *Abstrac
 	var behaviors *TList[*PolymerBehaviorExtractor_BehaviorDefinition] = behaviorExtractor.extractBehaviors(behaviorArray, moduleMetadata)
 	var properties *TList[*PolymerPass_MemberDefinition] = newTList_(tc_p_PolymerPass_MemberDefinition)
 	var behaviorProps *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition] = newTMap_(tc_p_PolymerPass_MemberDefinition, tc_p_PolymerBehaviorExtractor_BehaviorDefinition)
-	it_1 := behaviors.each()
-	for it_1.next() {
-		var behavior *PolymerBehaviorExtractor_BehaviorDefinition = it_1.v
-		it_3 := behavior.props.each()
-		for it_3.next() {
-			var prop *PolymerPass_MemberDefinition = it_3.v
+	for behavior := range behaviors.All() {
+		for prop := range behavior.props.All() {
 			behaviorProps.Put(prop, behavior)
 		}
 	}
@@ -255,12 +251,8 @@ func PolymerClassDefinition_addFunctionAssignmentsFromConstructor(constructor No
 }
 
 func PolymerClassDefinition_overwriteMembersIfPresent(list *TList[*PolymerPass_MemberDefinition], newMembers *TList[*PolymerPass_MemberDefinition]) {
-	it_1 := newMembers.each()
-	for it_1.next() {
-		var newMember *PolymerPass_MemberDefinition = it_1.v
-		it_3 := list.each()
-		for it_3.next() {
-			var member *PolymerPass_MemberDefinition = it_3.v
+	for newMember := range newMembers.All() {
+		for member := range list.All() {
 			if member.name_.getString() == newMember.name_.getString() {
 				list.asList().remove_Object(obj_(member))
 				break
@@ -290,9 +282,7 @@ func PolymerClassDefinition_removeBehaviorPropsOverlappingWithElementProps(behav
 		return
 	}
 	var elementPropNames map[string]struct{} = map[string]struct{}{}
-	it_1 := polymerElementProps.each()
-	for it_1.next() {
-		var x *PolymerPass_MemberDefinition = it_1.v
+	for x := range polymerElementProps.All() {
 		elementPropNames[x.name_.getString()] = struct{}{}
 	}
 	var behaviorsItr IteratorOf[Map_EntryOf[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]] = behaviorProps.asMap().entrySet().iterator()

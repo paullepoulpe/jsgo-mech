@@ -86,9 +86,12 @@ func (this *ComposeWarningsGuard) addGuards(guards IterableOf[*WarningsGuard]) {
 }
 
 func (this *ComposeWarningsGuard) level_impl(error_ *JSError) CheckLevel {
-	it_1 := this.guards.each()
-	for it_1.next() {
-		var guard *WarningsGuard = it_1.v
+	l_1 := this.guards
+	for i_1 := l_1.first(); i_1 < len(l_1.keys); i_1++ {
+		if l_1.isDead(i_1) {
+			continue
+		}
+		var guard *WarningsGuard = l_1.keys[i_1]
 		var newLevel CheckLevel = guard.level(error_)
 		if newLevel != 0 {
 			if this.demoteErrors && (newLevel == CheckLevel_ERROR) {
@@ -116,14 +119,20 @@ func (this *ComposeWarningsGuard) mustRunChecks_impl(group *DiagnosticGroup) Tri
 }
 
 func (this *ComposeWarningsGuard) disables(group *DiagnosticGroup) bool {
-	it_1 := group.getTypes().each()
+	l_1 := group.getTypes()
 nextSingleton_:
-	for it_1.next() {
-		var type_ *DiagnosticType = it_1.v
+	for i_1 := l_1.first(); i_1 < len(l_1.keys); i_1++ {
+		if l_1.isDead(i_1) {
+			continue
+		}
+		var type_ *DiagnosticType = l_1.keys[i_1]
 		var singleton *DiagnosticGroup = DiagnosticGroup_forType(type_)
-		it_2 := this.guards.each()
-		for it_2.next() {
-			var guard *WarningsGuard = it_2.v
+		l_2 := this.guards
+		for i_2 := l_2.first(); i_2 < len(l_2.keys); i_2++ {
+			if l_2.isDead(i_2) {
+				continue
+			}
+			var guard *WarningsGuard = l_2.keys[i_2]
 			switch guard.mustRunChecks(singleton) {
 			case Tri_TRUE:
 				return false
@@ -138,9 +147,12 @@ nextSingleton_:
 }
 
 func (this *ComposeWarningsGuard) enables(group *DiagnosticGroup) bool {
-	it_1 := this.guards.each()
-	for it_1.next() {
-		var guard *WarningsGuard = it_1.v
+	l_1 := this.guards
+	for i_1 := l_1.first(); i_1 < len(l_1.keys); i_1++ {
+		if l_1.isDead(i_1) {
+			continue
+		}
+		var guard *WarningsGuard = l_1.keys[i_1]
 		switch guard.mustRunChecks(group) {
 		case Tri_TRUE:
 			return true

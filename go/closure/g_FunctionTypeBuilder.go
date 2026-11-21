@@ -329,9 +329,7 @@ func (this *FunctionTypeBuilder) inferThisType(info *JSDocInfo) *FunctionTypeBui
 
 func (this *FunctionTypeBuilder) inferParameterTypes(info *JSDocInfo) *FunctionTypeBuilder {
 	var lp Node = IR_paramList([]Node{})
-	it_1 := info.getParameterNames().each()
-	for it_1.next() {
-		var name string = it_1.v
+	for name := range info.getParameterNames().All() {
 		lp.addChildToBack(IR_name(name))
 	}
 	return this.inferParameterTypes_2(lp, info)
@@ -440,9 +438,7 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 			}()
 		}
 	}
-	it_3 := allJsDocParams.each()
-	for it_3.next() {
-		var inexistentName string = it_3.v
+	for inexistentName := range allJsDocParams.All() {
 		this.reportWarning(FunctionTypeBuilder_INEXISTENT_PARAM, []string{inexistentName, this.formatFnName()})
 	}
 	this.parameters = builder.build()
@@ -512,9 +508,7 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 		return tlistEmptyImm_(tc_p_TemplateType)
 	}
 	var unboundedTemplates *TList[*TemplateType] = newTList_(tc_p_TemplateType)
-	it_1 := infoTypeKeys.each()
-	for it_1.next() {
-		var templateKey string = it_1.k
+	for templateKey := range infoTypeKeys.Keys() {
 		unboundedTemplates.add(this.typeRegistry.createTemplateType(templateKey))
 	}
 	this.templateScope = this.typeRegistry.createScopeWithTemplates(this.templateScope, Iterable(unboundedTemplates.asList()))
@@ -553,9 +547,7 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 		}
 	}
 	var builtTemplates *TList[*TemplateType] = templates.build()
-	it_9 := builtTemplates.each()
-	for it_9.next() {
-		var template *TemplateType = it_9.v
+	for template := range builtTemplates.All() {
 		if template.containsCycle() {
 			this.reportError(RhinoErrorReporter_CYCLIC_INHERITANCE_ERROR, []string{("Cycle detected in inheritance chain of type " + sstr_(template.getReferenceName().orElse("null")))})
 		}
@@ -750,9 +742,9 @@ func FunctionTypeBuilder_hasMoreTagsToResolve(objectType *ObjectType) bool {
 	}
 	var ctor *FunctionType = objectType.getConstructor()
 	if ctor != nil {
-		it_1 := ctor.getExtendedInterfaces().each()
-		for it_1.next() {
-			var interfaceType *ObjectType = it_1.v
+		l_1 := ctor.getExtendedInterfaces()
+		for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+			var interfaceType *ObjectType = l_1.items[i_1]
 			if !interfaceType.isResolved() {
 				return true
 			}
