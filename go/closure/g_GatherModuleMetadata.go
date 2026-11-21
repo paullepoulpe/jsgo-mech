@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type GatherModuleMetadata struct {
 	modulesByPath          *JTMap[string, *ModuleMetadataMap_ModuleMetadata]
 	modulesByGoogNamespace *JTMap[string, *ModuleMetadataMap_ModuleMetadata]
@@ -41,7 +43,7 @@ func GatherModuleMetadata_isValidModuleId(id string) bool {
 	it_1 := foreach_(GatherModuleMetadata_DOT_SPLITTER.split_s(id))
 	for it_1.next() {
 		var segment string = str_(it_1.v)
-		if String_isEmpty(segment) {
+		if segment == "" {
 			return false
 		}
 		for _, u_ := range stringUnits_(segment) {
@@ -309,7 +311,7 @@ func (this *GatherModuleMetadata_Finder) visit(t *NodeTraversal, n Node, parent 
 
 func (this *GatherModuleMetadata_Finder) isFromGoogImport(goog *Var) bool {
 	var nameNode Node = goog.getNameNode()
-	return (((((nameNode != 0) && nameNode.isImportStar()) && (nameNode.getString() == "goog")) && nameNode.getParent().getFirstChild().isEmpty()) && String_endsWith(nameNode.getParent().getLastChild().getString(), "/goog.js"))
+	return (((((nameNode != 0) && nameNode.isImportStar()) && (nameNode.getString() == "goog")) && nameNode.getParent().getFirstChild().isEmpty()) && strings.HasSuffix(nameNode.getParent().getLastChild().getString(), "/goog.js"))
 }
 
 func (this *GatherModuleMetadata_Finder) visitName(t *NodeTraversal, n Node) {
@@ -376,7 +378,7 @@ func (this *GatherModuleMetadata_Finder) visitGoogCall(t *NodeTraversal, n Node)
 			this.outer_.currentModule.metadataBuilder.usesClosure(false)
 		}
 	} else if getprop.matchesQualifiedNameNode(GatherModuleMetadata_GOOG_MODULE_GET) {
-		if (!n.hasTwoChildren() || !n.getLastChild().isStringLit()) || !String_endsWith(n.getLastChild().getString(), "$2etoggles") {
+		if (!n.hasTwoChildren() || !n.getLastChild().isStringLit()) || !strings.HasSuffix(n.getLastChild().getString(), "$2etoggles") {
 			return
 		}
 		var parent Node = n.getParent()
@@ -402,7 +404,7 @@ func (this *GatherModuleMetadata_Finder) visitGoogCall(t *NodeTraversal, n Node)
 		if n.hasTwoChildren() && n.getLastChild().isStringLit() {
 			var namespace string = n.getLastChild().getString()
 			this.outer_.currentModule.metadataBuilder.stronglyRequiredGoogNamespacesBuilder().add(namespace)
-			if String_endsWith(namespace, "$2etoggles") {
+			if strings.HasSuffix(namespace, "$2etoggles") {
 				var callParent Node = n.getParent()
 				var lhs Node = callParent.getFirstChild()
 				if callParent.isDestructuringLhs() {
@@ -455,8 +457,8 @@ func (this *GatherModuleMetadata_Finder) visitGoogCall(t *NodeTraversal, n Node)
 }
 
 func (this *GatherModuleMetadata_Finder) addToggle(t *NodeTraversal, n Node, name string) {
-	if String_startsWith(name, GatherModuleMetadata_TOGGLE_NAME_PREFIX) {
-		var toggleName string = String_substring_int(name, String_length(GatherModuleMetadata_TOGGLE_NAME_PREFIX))
+	if strings.HasPrefix(name, GatherModuleMetadata_TOGGLE_NAME_PREFIX) {
+		var toggleName string = String_substring_int(name, int32(len(GatherModuleMetadata_TOGGLE_NAME_PREFIX)))
 		this.outer_.currentModule.metadataBuilder.readTogglesBuilder().add(toggleName)
 	} else {
 		t.report(n, GatherModuleMetadata_INVALID_TOGGLE_USAGE, []string{"all toggle names must start with `TOGGLE_`"})
@@ -484,7 +486,7 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 		if existingModule != nil {
 			existingType = existingModule.moduleType()
 			existingFileSource = Optional_of[string](existingModule.rootNode().getSourceFileName()).filter(Predicate[string](func(s string) bool {
-				return !String_isEmpty(s)
+				return s != ""
 			}))
 		}
 	}

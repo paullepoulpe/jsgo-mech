@@ -2,6 +2,8 @@
 
 package closure
 
+import "strconv"
+
 type ProfilingReport struct {
 }
 
@@ -67,7 +69,7 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 	it_11 := result.each()
 	for it_11.next() {
 		var entry Map_EntryT[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = it_11.v
-		output.add(jimmutableListOf_[string](jtc_string, entry.getKey_t().getFileName(), entry.getKey_t().getFunctionName(), String_valueOf(entry.getKey_t().getLineNumber()), entry.getKey_t().getType().name(), String_valueOf_long(entry.getValue_t().totalTimesExecuted), String_valueOf(entry.getValue_t().numberOfReports)).asListT())
+		output.add(jimmutableListOf_[string](jtc_string, entry.getKey_t().getFileName(), entry.getKey_t().getFunctionName(), strconv.Itoa(int(entry.getKey_t().getLineNumber())), entry.getKey_t().getType().name(), strconv.FormatInt(entry.getValue_t().totalTimesExecuted, 10), strconv.Itoa(int(entry.getValue_t().numberOfReports))).asListT())
 	}
 	var rows *JTList[string] = jnewTList_(jtc_string)
 	it_13 := output.each()

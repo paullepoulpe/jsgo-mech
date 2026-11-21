@@ -145,7 +145,7 @@ func (this *DefaultNameGenerator) reserveCharacters(chars []uint16, reservedChar
 }
 
 func (this *DefaultNameGenerator) checkPrefix(prefix string) {
-	if String_length(prefix) > 0 {
+	if len(prefix) != 0 {
 		if !DefaultNameGenerator_contains(this.firstChars, String_charAt(prefix, 0)) {
 			var chars []uint16 = make([]uint16, int32(len(this.firstChars)))
 			for i := int32(0); i < int32(len(chars)); i++ {
@@ -179,7 +179,7 @@ func (this *DefaultNameGenerator) generateNextName() string {
 	for do_2 := true; do_2; do_2 = ((TokenStream_isKeyword(name) || Collection_contains_s(Collection(Set_un_(this.reservedNames)), name)) || DefaultNameGenerator_isBadName(name)) {
 		var sb strBuilder_
 		var i int32 = this.nameCount
-		if !String_isEmpty(this.prefix_) {
+		if this.prefix_ != "" {
 			sb.append(this.prefix_)
 		}
 		if sb.length() == 0 {

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ProcessClosureProvidesAndRequires struct {
 	compiler_                       *AbstractCompiler
 	chunkGraph                      *JSChunkGraph
@@ -172,7 +174,7 @@ func (this *ProcessClosureProvidesAndRequires) handleStubDefinition(t *NodeTrave
 
 func (this *ProcessClosureProvidesAndRequires) checkNestedTypedefProvide(exprResult Node) {
 	var name string = exprResult.getFirstChild().getQualifiedName()
-	if String_isEmpty(name) || !JString_contains_s(name, ".") {
+	if name == "" || !JString_contains_s(name, ".") {
 		return
 	}
 	if !this.providedNames.containsKey(name) {
@@ -214,7 +216,7 @@ func (this *ProcessClosureProvidesAndRequires) handleCandidateProvideDefinition(
 			return func() Optional[string] {
 				if n.isAssign() {
 					return Optional_of[string](n.getFirstChild().getQualifiedName()).filter(Predicate[string](func(s string) bool {
-						return !String_isEmpty(s)
+						return s != ""
 					}))
 				}
 				return Optional_empty[string]()
@@ -602,7 +604,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) createDeclarationNod
 	if !value.isObjectLit() && !value.isCast() {
 		panic(new_IllegalArgumentException_String(objstr_(value.box_())).self())
 	}
-	if String_indexOf(this.namespace_, 46) == -1 {
+	if !strings.Contains(this.namespace_, ".") {
 		return this.makeVarDeclNode(value)
 	} else {
 		return this.makeAssignmentExprNode(value)
@@ -671,5 +673,5 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) toString() string {
 		}
 		return "implicit"
 	}()
-	return String_format("ProvidedName: %s, %s", []any{strobj_(this.namespace_), strobj_(explicitOrImplicit)})
+	return ("ProvidedName: " + sstr_(this.namespace_) + ", " + sstr_(explicitOrImplicit))
 }

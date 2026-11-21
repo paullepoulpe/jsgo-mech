@@ -10,7 +10,7 @@ type StringPool struct {
 func (this *StringPool) init_StringPool(maxLength int32, pool *JTList[string]) {
 	this.maxLength = maxLength
 	this.pool = new_RhinoStringPool_LazyInternedStringList(pool)
-	if !String_isEmpty(pool.get(0)) {
+	if pool.get(0) != "" {
 		panic(new_IllegalStateException_0().self())
 	}
 }

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type PathUtil struct {
 }
 
@@ -32,14 +34,14 @@ func PathUtil_collapseDots(path string) string {
 			dstFragments.add(fragment)
 		}
 	}
-	if (dstFragments.size() == 1) && String_isEmpty(dstFragments.get(0)) {
+	if (dstFragments.size() == 1) && dstFragments.get(0) == "" {
 		return "/"
 	}
 	return Joiner_on("/").join(Iterable(dstFragments.asList()))
 }
 
 func PathUtil_isAbsolute(path string) bool {
-	return String_startsWith(path, "/")
+	return strings.HasPrefix(path, "/")
 }
 
 func PathUtil_removeExtraneousSlashes(s string) string {

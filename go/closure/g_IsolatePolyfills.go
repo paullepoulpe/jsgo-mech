@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type IsolatePolyfills struct {
 	compiler_                *AbstractCompiler
 	polyfills                *PolyfillUsageFinder_Polyfills
@@ -67,7 +69,7 @@ func (this *IsolatePolyfills) process_2(externs Node, root Node) {
 	it_1 := jeachOf_(polyfillUsages)
 	for it_1.next() {
 		var usage *PolyfillUsageFinder_PolyfillUsage = it_1.v
-		if (visitedNodes.contains(usage.node()) || String_isEmpty(usage.polyfill().library)) || !injectedPolyfills.contains(usage.polyfill().nativeSymbol) {
+		if (visitedNodes.contains(usage.node()) || usage.polyfill().library == "") || !injectedPolyfills.contains(usage.polyfill().nativeSymbol) {
 			continue
 		}
 		this.rewritePolyfill(usage)
@@ -110,7 +112,7 @@ func (this *IsolatePolyfills) rewritePolyfill(polyfillUsage *PolyfillUsageFinder
 		return
 	}
 	var name string = polyfillUsage.name()
-	var isGlobalClass bool = ((String_indexOf(name, 46) == -1) && eqR_(polyfill.kind_, PolyfillUsageFinder_Polyfill_Kind_STATIC))
+	var isGlobalClass bool = ((!strings.Contains(name, ".")) && eqR_(polyfill.kind_, PolyfillUsageFinder_Polyfill_Kind_STATIC))
 	if isGlobalClass {
 		polyfillAccess.replaceWith(IR_getelem(this.jscompPolyfillsObject.cloneTree(), IR_string(name)).srcrefTree(polyfillAccess))
 	} else if (parent.isCall() || parent.isOptChainCall()) && polyfillAccess.isFirstChildOf(parent) {

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ModuleLoader struct {
 	errorHandler    ErrorHandler
 	moduleRootPaths *JTList[string]
@@ -53,11 +55,11 @@ func (this *ModuleLoader) resolve(path string) *ModuleLoader_ModulePath {
 }
 
 func ModuleLoader_isRelativeIdentifier(name string) bool {
-	return (((String_startsWith(name, ("."+sstr_(ModuleLoader_MODULE_SLASH))) || String_startsWith(name, (".."+sstr_(ModuleLoader_MODULE_SLASH)))) || (name == ".")) || (name == ".."))
+	return (((strings.HasPrefix(name, ("."+sstr_(ModuleLoader_MODULE_SLASH))) || strings.HasPrefix(name, (".."+sstr_(ModuleLoader_MODULE_SLASH)))) || (name == ".")) || (name == ".."))
 }
 
 func ModuleLoader_isAbsoluteIdentifier(name string) bool {
-	return String_startsWith(name, ModuleLoader_MODULE_SLASH)
+	return strings.HasPrefix(name, ModuleLoader_MODULE_SLASH)
 }
 
 func ModuleLoader_isAmbiguousIdentifier(name string) bool {
@@ -126,10 +128,10 @@ func ModuleLoader_normalize(path string, moduleRootPaths IterableT[string]) stri
 	it_1 := jeachOf_(moduleRootPaths)
 	for it_1.next() {
 		var moduleRoot string = it_1.v
-		if String_startsWith(normalizedPath, moduleRoot) {
+		if strings.HasPrefix(normalizedPath, moduleRoot) {
 			var trailing string = String_substring_int(normalizedPath, String_length(moduleRoot))
-			if String_startsWith(trailing, ModuleLoader_MODULE_SLASH) {
-				return String_substring_int(trailing, String_length(ModuleLoader_MODULE_SLASH))
+			if strings.HasPrefix(trailing, ModuleLoader_MODULE_SLASH) {
+				return String_substring_int(trailing, int32(len(ModuleLoader_MODULE_SLASH)))
 			}
 		}
 	}
@@ -141,7 +143,7 @@ func ModuleLoader_relativePathFrom(fromUriPath string, toUriPath string) *Outcom
 	var fromFolder Optional[string] = FilePaths_parent(fromUriPath)
 	if fromFolder.isEmpty() && FilePaths_parent(toUriPath).isEmpty() {
 		return Outcome_base_ok_Object[string](("./" + sstr_(toUriPath)))
-	} else if fromFolder.isEmpty() && ((String_startsWith(toUriPath, ".") || String_startsWith(toPath, "/")) || String_startsWith(toPath, "\\")) {
+	} else if fromFolder.isEmpty() && ((strings.HasPrefix(toUriPath, ".") || strings.HasPrefix(toPath, "/")) || strings.HasPrefix(toPath, "\\")) {
 		return Outcome_base_ok_Object[string](toUriPath)
 	} else if fromFolder.isEmpty() {
 		return Outcome_base_err[string](new_IllegalArgumentException_String("Relative path between URIs cannot be calculated").up_Throwable())
@@ -150,7 +152,7 @@ func ModuleLoader_relativePathFrom(fromUriPath string, toUriPath string) *Outcom
 	if calculatedPath.isEmpty() {
 		return Outcome_base_err[string](new_IllegalArgumentException_String("Relative path between URIs cannot be calculated").up_Throwable())
 	}
-	if String_startsWith(calculatedPath.get(), ".") || String_startsWith(calculatedPath.get(), "/") {
+	if strings.HasPrefix(calculatedPath.get(), ".") || strings.HasPrefix(calculatedPath.get(), "/") {
 		return Outcome_base_ok_Object[string](calculatedPath.get())
 	}
 	return Outcome_base_ok_Object[string](("./" + sstr_(calculatedPath.get())))
