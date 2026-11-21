@@ -104,7 +104,9 @@ func (this *SourceMapGeneratorV3) addMapping(sourceName string, symbolName strin
 		var lastColumn int32 = this.lastMapping.startPosition.getColumn()
 		var nextLine int32 = mapping.startPosition.getLine()
 		var nextColumn int32 = mapping.startPosition.getColumn()
-		Preconditions_checkState_boolean_String_Object_Object_Object_Object(((nextLine > lastLine) || ((nextLine == lastLine) && (nextColumn >= lastColumn))), "Incorrect source mappings order, previous : (%s,%s)\nnew : (%s,%s)", int32(lastLine), int32(lastColumn), int32(nextLine), int32(nextColumn))
+		if !((nextLine > lastLine) || ((nextLine == lastLine) && (nextColumn >= lastColumn))) {
+			Preconditions_checkState_boolean_String_Object_Object_Object_Object(false, "Incorrect source mappings order, previous : (%s,%s)\nnew : (%s,%s)", int32(lastLine), int32(lastColumn), int32(nextLine), int32(nextColumn))
+		}
 	}
 	this.lastMapping = mapping
 	this.mappings.add(mapping)
