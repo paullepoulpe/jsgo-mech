@@ -226,11 +226,11 @@ func (this *Source_Builder) setCodeFromSupplier(code Supplier_base[string]) *Sou
 }
 
 func (this *Source_Builder) setCode(code string) *Source_Builder {
-	return this.setCodeSupplier(Source_Lazy_ofInstance(strobj_(code)))
+	return this.setCodeSupplier(Source_Lazy_ofInstance(code))
 }
 
 func (this *Source_Builder) setOriginalCode(code string) *Source_Builder {
-	return this.setOriginalCodeSupplier(Source_Lazy_ofInstance(strobj_(code)))
+	return this.setOriginalCodeSupplier(Source_Lazy_ofInstance(code))
 }
 
 func (this *Source_Builder) addRuntime(runtimes []string) *Source_Builder {
@@ -417,8 +417,8 @@ func (this *Source_Lazy) hashCode() int32 {
 	return Objects_hashCode(this.get())
 }
 
-func Source_Lazy_ofInstance(instance any) *Source_Lazy {
-	return new_Source_Lazy_1(instance).up_Source_Lazy()
+func Source_Lazy_ofInstance(instance string) *Source_Lazy {
+	return new_Source_Lazy_1(strobj_(instance)).up_Source_Lazy()
 }
 
 func Source_Lazy_memoize(supplier Supplier_base[any]) *Source_Lazy {
