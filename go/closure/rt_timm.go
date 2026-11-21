@@ -65,7 +65,7 @@ func boxAll_[T any](c *tconv_[T], s []T) []any {
 func tlistEmptyImm_[T any](c *tconv_[T]) *ImmutableList[T] {
 	if c.emptyL == nil {
 		l := &TList[T]{items: []T{}, c: c, imm: true}
-		l.view = &tlistView_[T]{l: l, twin: emptyImmList_}
+		l.twin = emptyImmList_
 		c.emptyL = l
 	}
 	return c.emptyL
@@ -91,8 +91,8 @@ func immutableListCopyOf_[T any](c *tconv_[T], from Iterable) *ImmutableList[T] 
 	if ic, ok := from.(*ImmutableCollection); ok {
 		return tlistImm_(c, Collection(ic.asList()))
 	}
-	if v, ok := from.(*tlistView_[T]); ok && v.l.c == c {
-		return immutableListCopyOfArr_(c, v.l.items)
+	if v, ok := from.(*tlistView_[T]); ok && v.c == c {
+		return immutableListCopyOfArr_(c, v.items)
 	}
 	src := copySlice_(from)
 	if len(src) == 0 {
@@ -125,19 +125,15 @@ func (l *TList[T]) asImm() *ErasedImmutableList {
 		// a list that cannot be changed and is no ImmutableList
 		classCastImm_("java.util.ArrayList", "com.google.common.collect.ErasedImmutableList")
 	}
-	if l.view == nil {
-		l.view = &tlistView_[T]{l: l}
-	}
-	v := l.view
-	if v.twin == nil {
+	if l.twin == nil {
 		if len(l.items) == 0 {
-			v.twin = emptyImmList_
+			l.twin = emptyImmList_
 		} else {
-			v.twin = &ImmutableCollection{kind: icList_, items: boxAll_(l.c, l.items)}
-			v.twin.typed_ = immTyped_{l.c, l}
+			l.twin = &ImmutableCollection{kind: icList_, items: boxAll_(l.c, l.items)}
+			l.twin.typed_ = immTyped_{l.c, l}
 		}
 	}
-	return v.twin
+	return l.twin
 }
 
 // ImmutableList_Builder is ImmutableList.Builder<T> with unboxed elements. build() shares the elements
@@ -170,8 +166,8 @@ func (b *ImmutableList_Builder[T]) add(x T) *ImmutableList_Builder[T] {
 
 // addAll adds each element of an erased Iterable as add does.
 func (b *ImmutableList_Builder[T]) addAll(from Iterable) *ImmutableList_Builder[T] {
-	if v, ok := from.(*tlistView_[T]); ok && v.l.c == b.c {
-		return b.addAllT(v.l)
+	if v, ok := from.(*tlistView_[T]); ok && v.c == b.c {
+		return b.addAllT(v.tl())
 	}
 	if ic, ok := from.(*ImmutableCollection); ok && ic != nil {
 		if l, ok := ic.typed_.v.(*ImmutableList[T]); ok && ic.typed_.conv == any(b.c) {
@@ -881,10 +877,10 @@ func tlistOwnTwin_[T any](c *tconv_[T], l *TList[T]) bool {
 	if l.c != c {
 		return false
 	}
-	if l.view == nil || l.view.twin == nil {
+	if l.twin == nil {
 		return true // asImm makes the twin of l, with l as its typed copy
 	}
-	t := l.view.twin
+	t := l.twin
 	return t.typed_.conv == any(c) && t.typed_.v == any(l)
 }
 

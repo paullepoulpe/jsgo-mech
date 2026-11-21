@@ -107,3 +107,35 @@ func TestTypedViewSteppers(t *testing.T) {
 		}
 	}
 }
+
+// A typed list is its own erased view: asList makes no object, gives the same List each time,
+// and a for-each loop over it makes none either.
+func TestTypedListViewIsTheList(t *testing.T) {
+	l := newTList_(tc_string)
+	l.add("a")
+	l.add("b")
+	if l.asList() != l.asList() {
+		t.Error("two views of one list")
+	}
+	var sink List
+	if n := testing.AllocsPerRun(100, func() { sink = l.asList() }); n != 0 {
+		t.Errorf("asList allocates %v objects", n)
+	}
+	// (a list of pointers: boxing an element makes no object)
+	pl := newTList_(tchT_[*ukey_]())
+	pl.add(&ukey_{})
+	pl.add(&ukey_{})
+	pv := pl.asList()
+	count := 0
+	if n := testing.AllocsPerRun(100, func() {
+		for e := foreach_(pv); e.next(); {
+			count++
+		}
+	}); n != 0 || count == 0 {
+		t.Errorf("a for-each loop over the view allocates %v objects", n)
+	}
+	sink.add(strobj_("c"))
+	if l.size() != 3 || l.get(2) != "c" || str_(sink.get(0)) != "a" {
+		t.Error("the view and the list differ")
+	}
+}

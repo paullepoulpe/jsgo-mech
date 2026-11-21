@@ -795,11 +795,11 @@ func slicePtrView_[T any](c *tconv_[T], p *[]T) List {
 
 // tl is a typed list's view over the items, for an operation written once in rt_tlist.go.
 func (v *slicePtrList_[T]) tl() *tlistView_[T] {
-	return &tlistView_[T]{l: &TList[T]{items: *v.p, c: v.c}}
+	return (*tlistView_[T])(&TList[T]{items: *v.p, c: v.c})
 }
 
 // back stores the items of t (made by tl) back as the slice.
-func (v *slicePtrList_[T]) back(t *tlistView_[T]) { *v.p = t.l.items }
+func (v *slicePtrList_[T]) back(t *tlistView_[T]) { *v.p = t.items }
 
 func (v *slicePtrList_[T]) self() any                     { return v }
 func (v *slicePtrList_[T]) boxed() []any                  { return v.tl().boxed() }
