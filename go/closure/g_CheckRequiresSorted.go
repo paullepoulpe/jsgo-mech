@@ -85,9 +85,9 @@ func CheckRequiresSorted_isValidImportCall(n Node) bool {
 }
 
 func CheckRequiresSorted_parseImport(callNode Node) *CheckRequiresSorted_ImportStatement {
-	var primitive CheckRequiresSorted_ImportPrimitive = CheckRequiresSorted_ImportPrimitive_fromName(Optional_of[string](callNode.getFirstChild().getQualifiedName()).filter(Predicate[string](func(s string) bool {
+	var primitive CheckRequiresSorted_ImportPrimitive = CheckRequiresSorted_ImportPrimitive_fromName(Optional_of[string](callNode.getFirstChild().getQualifiedName()).filterFn_(func(s string) bool {
 		return s != ""
-	})))
+	}))
 	var namespace string = callNode.getSecondChild().getString()
 	var parent Node = callNode.getParent()
 	if parent.isExprResult() {

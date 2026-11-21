@@ -55,9 +55,9 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 	switch n.ns_().token {
 	case tokOrd1_FUNCTION, tokOrd1_CLASS:
 		if parent.isScript() {
-			export = Optional_of[string](NodeUtil_getName(n)).filter(Predicate[string](func(s string) bool {
+			export = Optional_of[string](NodeUtil_getName(n)).filterFn_(func(s string) bool {
 				return s != ""
-			}))
+			})
 			context = n
 			mode = FindExportableNodes_Mode_EXPORT
 		}
@@ -66,9 +66,9 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 		var child Node = n.getFirstChild()
 		if parent.isExprResult() && !n.getLastChild().isAssign() {
 			if ((grandparent != 0) && grandparent.isScript()) && child.isQualifiedName() {
-				export = Optional_of[string](child.getQualifiedName()).filter(Predicate[string](func(s string) bool {
+				export = Optional_of[string](child.getQualifiedName()).filterFn_(func(s string) bool {
 					return s != ""
-				}))
+				})
 				context = n
 				mode = FindExportableNodes_Mode_EXPORT
 			} else if this.allowLocalExports && child.isGetProp() {

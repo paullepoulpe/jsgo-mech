@@ -364,9 +364,9 @@ func (this *RemoveUnusedCode) traverseCall(callNode Node, scope *Scope) {
 				classVarName = subclassRelationship.subclassName
 				classDefiningCall = true
 			} else {
-				classVarName = Optional_of[string](this.codingConvention.getSingletonGetterClassName(callNode)).filter(Predicate[string](func(s string) bool {
+				classVarName = Optional_of[string](this.codingConvention.getSingletonGetterClassName(callNode)).filterFn_(func(s string) bool {
 					return s != ""
-				}))
+				})
 			}
 		}
 		var classVar *Var = nil

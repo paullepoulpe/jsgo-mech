@@ -164,9 +164,9 @@ func (this *ErrorToFixMapper) getFixForReferenceToShortImportByLongName(error_ *
 	}
 	var oldName Optional[string] = func() Optional[string] {
 		if error_.node().isQualifiedName() {
-			return Optional_of[string](error_.node().getQualifiedName()).filter(Predicate[string](func(s string) bool {
+			return Optional_of[string](error_.node().getQualifiedName()).filterFn_(func(s string) bool {
 				return s != ""
-			}))
+			})
 		}
 		return Optional_of[string](error_.node().getString())
 	}()
@@ -235,9 +235,9 @@ func (this *ErrorToFixMapper) getFixForMissingRequire(error_ *JSError, importTyp
 	var namespaceToRequire string = regexMatcher.group(1)
 	var qName Optional[string] = func() Optional[string] {
 		if error_.node().isQualifiedName() {
-			return Optional_of[string](error_.node().getQualifiedName()).filter(Predicate[string](func(s string) bool {
+			return Optional_of[string](error_.node().getQualifiedName()).filterFn_(func(s string) bool {
 				return s != ""
-			}))
+			})
 		}
 		return Optional_of[string](error_.node().getString())
 	}()

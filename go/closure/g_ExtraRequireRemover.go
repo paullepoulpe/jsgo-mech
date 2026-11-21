@@ -102,9 +102,9 @@ func (this *ExtraRequireRemover) removeExtraRequire(call Node, require string) {
 		return
 	}
 	if call.getParent().isExprResult() {
-		if !call.getGrandparent().isModuleBody() || J2clSourceUtils_isJ2clHeaderSource(Optional_of[string](call.getSourceFileName()).filter(Predicate[string](func(s string) bool {
+		if !call.getGrandparent().isModuleBody() || J2clSourceUtils_isJ2clHeaderSource(Optional_of[string](call.getSourceFileName()).filterFn_(func(s string) bool {
 			return s != ""
-		}))) {
+		})) {
 			this.compiler_.reportChangeToEnclosingScope(call.getParent())
 			call.getParent().detach()
 		}

@@ -319,9 +319,9 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportDefault(t *N
 	var child Node = export.getFirstChild()
 	var name Optional[string] = Optional_empty[string]()
 	if child.isFunction() || child.isClass() {
-		name = Optional_of[string](NodeUtil_getName(child)).filter(Predicate[string](func(s string) bool {
+		name = Optional_of[string](NodeUtil_getName(child)).filterFn_(func(s string) bool {
 			return s != ""
-		}))
+		})
 	}
 	if name.isPresent() {
 		var decl Node = child.detach()
