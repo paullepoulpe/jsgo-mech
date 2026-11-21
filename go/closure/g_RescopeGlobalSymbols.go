@@ -5,7 +5,7 @@ package closure
 type RescopeGlobalSymbols struct {
 	compiler_              *AbstractCompiler
 	globalSymbolNamespace_ string
-	optimizeLocalAccess    *CompilerOptions_OptimizeLocalAccess
+	optimizeLocalAccess    CompilerOptions_OptimizeLocalAccess
 	addExtern_             bool
 	assumeCrossChunkNames  bool
 }
@@ -14,18 +14,18 @@ func (this *RescopeGlobalSymbols) zero_RescopeGlobalSymbols() {
 	this.globalSymbolNamespace_ = nullstr_
 }
 
-func (this *RescopeGlobalSymbols) init_RescopeGlobalSymbols_AbstractCompiler_String_boolean_OptimizeLocalAccess(compiler *AbstractCompiler, globalSymbolNamespace string, assumeCrossChunkNames bool, optimizeLocalAccess *CompilerOptions_OptimizeLocalAccess) {
+func (this *RescopeGlobalSymbols) init_RescopeGlobalSymbols_AbstractCompiler_String_boolean_OptimizeLocalAccess(compiler *AbstractCompiler, globalSymbolNamespace string, assumeCrossChunkNames bool, optimizeLocalAccess CompilerOptions_OptimizeLocalAccess) {
 	this.init_RescopeGlobalSymbols_AbstractCompiler_String_boolean_boolean_OptimizeLocalAccess(compiler, globalSymbolNamespace, true, assumeCrossChunkNames, optimizeLocalAccess)
 }
 
-func new_RescopeGlobalSymbols_AbstractCompiler_String_boolean_OptimizeLocalAccess(compiler *AbstractCompiler, globalSymbolNamespace string, assumeCrossChunkNames bool, optimizeLocalAccess *CompilerOptions_OptimizeLocalAccess) *RescopeGlobalSymbols {
+func new_RescopeGlobalSymbols_AbstractCompiler_String_boolean_OptimizeLocalAccess(compiler *AbstractCompiler, globalSymbolNamespace string, assumeCrossChunkNames bool, optimizeLocalAccess CompilerOptions_OptimizeLocalAccess) *RescopeGlobalSymbols {
 	this := &RescopeGlobalSymbols{}
 	this.zero_RescopeGlobalSymbols()
 	this.init_RescopeGlobalSymbols_AbstractCompiler_String_boolean_OptimizeLocalAccess(compiler, globalSymbolNamespace, assumeCrossChunkNames, optimizeLocalAccess)
 	return this
 }
 
-func (this *RescopeGlobalSymbols) init_RescopeGlobalSymbols_AbstractCompiler_String_boolean_boolean_OptimizeLocalAccess(compiler *AbstractCompiler, globalSymbolNamespace string, addExtern bool, assumeCrossChunkNames bool, optimizeLocalAccess *CompilerOptions_OptimizeLocalAccess) {
+func (this *RescopeGlobalSymbols) init_RescopeGlobalSymbols_AbstractCompiler_String_boolean_boolean_OptimizeLocalAccess(compiler *AbstractCompiler, globalSymbolNamespace string, addExtern bool, assumeCrossChunkNames bool, optimizeLocalAccess CompilerOptions_OptimizeLocalAccess) {
 	this.compiler_ = compiler
 	this.globalSymbolNamespace_ = globalSymbolNamespace
 	this.addExtern_ = addExtern
@@ -33,7 +33,7 @@ func (this *RescopeGlobalSymbols) init_RescopeGlobalSymbols_AbstractCompiler_Str
 	this.optimizeLocalAccess = optimizeLocalAccess
 }
 
-func new_RescopeGlobalSymbols_AbstractCompiler_String_boolean_boolean_OptimizeLocalAccess(compiler *AbstractCompiler, globalSymbolNamespace string, addExtern bool, assumeCrossChunkNames bool, optimizeLocalAccess *CompilerOptions_OptimizeLocalAccess) *RescopeGlobalSymbols {
+func new_RescopeGlobalSymbols_AbstractCompiler_String_boolean_boolean_OptimizeLocalAccess(compiler *AbstractCompiler, globalSymbolNamespace string, addExtern bool, assumeCrossChunkNames bool, optimizeLocalAccess CompilerOptions_OptimizeLocalAccess) *RescopeGlobalSymbols {
 	this := &RescopeGlobalSymbols{}
 	this.zero_RescopeGlobalSymbols()
 	this.init_RescopeGlobalSymbols_AbstractCompiler_String_boolean_boolean_OptimizeLocalAccess(compiler, globalSymbolNamespace, addExtern, assumeCrossChunkNames, optimizeLocalAccess)

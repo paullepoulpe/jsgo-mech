@@ -3,7 +3,7 @@
 package closure
 
 type SourceMapSection struct {
-	type__  *SourceMapSection_SectionType
+	type__  SourceMapSection_SectionType
 	value_  string
 	line_   int32
 	column_ int32
@@ -13,14 +13,14 @@ func (this *SourceMapSection) zero_SourceMapSection() {
 	this.value_ = nullstr_
 }
 
-func (this *SourceMapSection) init_SourceMapSection(type_ *SourceMapSection_SectionType, value string, line int32, column int32) {
+func (this *SourceMapSection) init_SourceMapSection(type_ SourceMapSection_SectionType, value string, line int32, column int32) {
 	this.type__ = type_
 	this.value_ = value
 	this.line_ = line
 	this.column_ = column
 }
 
-func new_SourceMapSection(type_ *SourceMapSection_SectionType, value string, line int32, column int32) *SourceMapSection {
+func new_SourceMapSection(type_ SourceMapSection_SectionType, value string, line int32, column int32) *SourceMapSection {
 	this := &SourceMapSection{}
 	this.zero_SourceMapSection()
 	this.init_SourceMapSection(type_, value, line, column)
@@ -35,7 +35,7 @@ func SourceMapSection_forURL(value string, line int32, column int32) *SourceMapS
 	return new_SourceMapSection(SourceMapSection_SectionType_URL, value, line, column)
 }
 
-func (this *SourceMapSection) getSectionType() *SourceMapSection_SectionType {
+func (this *SourceMapSection) getSectionType() SourceMapSection_SectionType {
 	return this.type__
 }
 
@@ -51,7 +51,7 @@ func (this *SourceMapSection) getColumn() int32 {
 	return this.column_
 }
 
-func (this *SourceMapSection) type_() *SourceMapSection_SectionType {
+func (this *SourceMapSection) type_() SourceMapSection_SectionType {
 	return this.type__
 }
 
@@ -88,44 +88,61 @@ func (this *SourceMapSection) toString() string {
 	return "SourceMapSection[" + "type=" + jtostr_(this.type__) + ", value=" + sstr_(this.value_) + ", line=" + istr_(int64(this.line_)) + ", column=" + istr_(int64(this.column_)) + "]"
 }
 
-type SourceMapSection_SectionType struct {
-	Enum
+type SourceMapSection_SectionType uint8
+
+// SourceMapSection_SectionType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var SourceMapSection_SectionType_enum_ = [2]Enum{
+	{self_: SourceMapSection_SectionType_URL, name_: "URL", ordinal_: 0},
+	{self_: SourceMapSection_SectionType_MAP, name_: "MAP", ordinal_: 1},
 }
 
-func (this *SourceMapSection_SectionType) up_Enum() *Enum {
-	if this == nil {
+func (this SourceMapSection_SectionType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &SourceMapSection_SectionType_enum_[this-1]
 }
 
-func (this *SourceMapSection_SectionType) init_SourceMapSection_SectionType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this SourceMapSection_SectionType) name() string {
+	return SourceMapSection_SectionType_enum_[this-1].name_
 }
 
-func new_SourceMapSection_SectionType(name_ string, ordinal_ int32) *SourceMapSection_SectionType {
-	this := &SourceMapSection_SectionType{}
-	this.self_ = this
-	this.init_SourceMapSection_SectionType(name_, ordinal_)
+func (this SourceMapSection_SectionType) ordinal() int32 {
+	return SourceMapSection_SectionType_enum_[this-1].ordinal_
+}
+
+func (this SourceMapSection_SectionType) toString() string {
+	return SourceMapSection_SectionType_enum_[this-1].name_
+}
+
+func (this SourceMapSection_SectionType) compareTo(o any) int32 {
+	return SourceMapSection_SectionType_enum_[this-1].compareTo(o)
+}
+
+func (this SourceMapSection_SectionType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func SourceMapSection_SectionType_values() []*SourceMapSection_SectionType {
-	return append([]*SourceMapSection_SectionType(nil), SourceMapSection_SectionType_values_...)
+func SourceMapSection_SectionType_values() []SourceMapSection_SectionType {
+	return append([]SourceMapSection_SectionType(nil), SourceMapSection_SectionType_values_...)
 }
 
-func SourceMapSection_SectionType_valueOf(name string) *SourceMapSection_SectionType {
+func SourceMapSection_SectionType_valueOf(name string) SourceMapSection_SectionType {
 	for _, v := range SourceMapSection_SectionType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("SectionType", name))
 }
 
-var SourceMapSection_SectionType_URL *SourceMapSection_SectionType
-var SourceMapSection_SectionType_MAP *SourceMapSection_SectionType
-var SourceMapSection_SectionType_values_ []*SourceMapSection_SectionType
+const SourceMapSection_SectionType_URL SourceMapSection_SectionType = 1
+const SourceMapSection_SectionType_MAP SourceMapSection_SectionType = 2
+
+var SourceMapSection_SectionType_values_ []SourceMapSection_SectionType
 
 var SourceMapSection_SectionType_clinit_done bool
 
@@ -134,9 +151,7 @@ func SourceMapSection_SectionType_clinit() {
 		return
 	}
 	SourceMapSection_SectionType_clinit_done = true
-	SourceMapSection_SectionType_URL = new_SourceMapSection_SectionType("URL", 0)
-	SourceMapSection_SectionType_MAP = new_SourceMapSection_SectionType("MAP", 1)
-	SourceMapSection_SectionType_values_ = []*SourceMapSection_SectionType{SourceMapSection_SectionType_URL, SourceMapSection_SectionType_MAP}
+	SourceMapSection_SectionType_values_ = []SourceMapSection_SectionType{SourceMapSection_SectionType_URL, SourceMapSection_SectionType_MAP}
 	registerEnum_("com.google.debugging.sourcemap.SourceMapSection.SectionType", enumValues_(SourceMapSection_SectionType_values_))
 
 }

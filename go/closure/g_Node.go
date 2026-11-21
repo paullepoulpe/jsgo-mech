@@ -181,18 +181,18 @@ func (this Node) finit_Node() {
 	this.cs_().originalName = strid_("")
 }
 
-func (this Node) init_Node_Token(token *Token_rhino) {
+func (this Node) init_Node_Token(token Token_rhino) {
 	this.finit_Node()
-	this.ns_().token = Token_rhino_ord1_(token)
+	this.ns_().token = uint8(token)
 }
 
-func new_Node_Token(token *Token_rhino) Node {
+func new_Node_Token(token Token_rhino) Node {
 	this := Node_alloc_()
 	this.init_Node_Token(token)
 	return this
 }
 
-func (this Node) init_Node_Token_Node(token *Token_rhino, child Node) {
+func (this Node) init_Node_Token_Node(token Token_rhino, child Node) {
 	this.init_Node_Token(token)
 	this.ns_().first = child
 	child.checkDetached()
@@ -200,13 +200,13 @@ func (this Node) init_Node_Token_Node(token *Token_rhino, child Node) {
 	child.ns_().parent = this
 }
 
-func new_Node_Token_Node(token *Token_rhino, child Node) Node {
+func new_Node_Token_Node(token Token_rhino, child Node) Node {
 	this := Node_alloc_()
 	this.init_Node_Token_Node(token, child)
 	return this
 }
 
-func (this Node) init_Node_Token_Node_Node(token *Token_rhino, left Node, right Node) {
+func (this Node) init_Node_Token_Node_Node(token Token_rhino, left Node, right Node) {
 	this.init_Node_Token(token)
 	this.ns_().first = left
 	left.checkDetached()
@@ -218,13 +218,13 @@ func (this Node) init_Node_Token_Node_Node(token *Token_rhino, left Node, right 
 	right.ns_().parent = this
 }
 
-func new_Node_Token_Node_Node(token *Token_rhino, left Node, right Node) Node {
+func new_Node_Token_Node_Node(token Token_rhino, left Node, right Node) Node {
 	this := Node_alloc_()
 	this.init_Node_Token_Node_Node(token, left, right)
 	return this
 }
 
-func (this Node) init_Node_Token_Node_Node_Node(token *Token_rhino, left Node, mid Node, right Node) {
+func (this Node) init_Node_Token_Node_Node_Node(token Token_rhino, left Node, mid Node, right Node) {
 	this.init_Node_Token(token)
 	this.ns_().first = left
 	left.checkDetached()
@@ -240,7 +240,7 @@ func (this Node) init_Node_Token_Node_Node_Node(token *Token_rhino, left Node, m
 	right.ns_().parent = this
 }
 
-func new_Node_Token_Node_Node_Node(token *Token_rhino, left Node, mid Node, right Node) Node {
+func new_Node_Token_Node_Node_Node(token Token_rhino, left Node, mid Node, right Node) Node {
 	this := Node_alloc_()
 	this.init_Node_Token_Node_Node_Node(token, left, mid, right)
 	return this
@@ -305,13 +305,13 @@ func Node_newString_String(str string) Node {
 	return Node_newString_Token_String(Token_rhino_STRINGLIT, str)
 }
 
-func Node_newString_Token_String(token *Token_rhino, str string) Node {
+func Node_newString_Token_String(token Token_rhino, str string) Node {
 	var n Node = new_Node_Token(token)
 	n.payload_sets_(RhinoStringPool_addOrGet(str))
 	return n
 }
 
-func Node_newString_Token_LazyInternedStringList_int(token *Token_rhino, stringPool *RhinoStringPool_LazyInternedStringList, offset int32) Node {
+func Node_newString_Token_LazyInternedStringList_int(token Token_rhino, stringPool *RhinoStringPool_LazyInternedStringList, offset int32) Node {
 	var n Node = new_Node_Token(token)
 	n.payload_sets_(stringPool.get(offset))
 	return n
@@ -339,12 +339,12 @@ func Node_newTemplateLitString_LazyInternedStringList_int_int(stringPool *RhinoS
 	return n
 }
 
-func (this Node) getToken() *Token_rhino {
-	return Token_rhino_byOrd1_[this.ns_().token]
+func (this Node) getToken() Token_rhino {
+	return Token_rhino(this.ns_().token)
 }
 
-func (this Node) setToken(token *Token_rhino) {
-	this.ns_().token = Token_rhino_ord1_(token)
+func (this Node) setToken(token Token_rhino) {
+	this.ns_().token = uint8(token)
 }
 
 func (this Node) hasChildren() bool {
@@ -920,11 +920,11 @@ func (this Node) setConstructSignature(value bool) {
 	this.putBooleanProp(Node_Prop_CONSTRUCT_SIGNATURE, value)
 }
 
-func (this Node) getAccessModifier() *JSDocInfo_Visibility {
-	return cast_[*JSDocInfo_Visibility](this.getProp(Node_Prop_ACCESS_MODIFIER))
+func (this Node) getAccessModifier() JSDocInfo_Visibility {
+	return cast_[JSDocInfo_Visibility](this.getProp(Node_Prop_ACCESS_MODIFIER))
 }
 
-func (this Node) setAccessModifier(visibility *JSDocInfo_Visibility) {
+func (this Node) setAccessModifier(visibility JSDocInfo_Visibility) {
 	this.putProp(Node_Prop_ACCESS_MODIFIER, obj_(visibility))
 }
 
@@ -1102,7 +1102,7 @@ func (this Node) getCookedString() Optional[string] {
 }
 
 func (this Node) payloadKindMismatch(wanted string) *ClassCastException {
-	return new_ClassCastException_String((jtostr_(Token_rhino_byOrd1_[this.ns_().token]) + " node is not a " + sstr_(wanted) + " node"))
+	return new_ClassCastException_String((jtostr_(Token_rhino(this.ns_().token)) + " node is not a " + sstr_(wanted) + " node"))
 }
 
 func (this Node) toString() string {
@@ -1116,13 +1116,13 @@ func (this Node) toString_3(printSource bool, printAnnotations bool, printType b
 }
 
 func (this Node) toString_4(sb *StringBuilder, printSource bool, printAnnotations bool, printType bool) {
-	sb.append_Object(obj_(Token_rhino_byOrd1_[this.ns_().token]))
+	sb.append_Object(obj_(Token_rhino(this.ns_().token)))
 	if this.payload_iss_() {
 		sb.append_char(' ')
 		sb.append(this.getString())
 	} else if this.ns_().token == tokOrd1_FUNCTION {
 		sb.append_char(' ')
-		if (this.ns_().first == 0) || (Token_rhino_byOrd1_[this.ns_().first.ns_().token] != Token_rhino_NAME) {
+		if (this.ns_().first == 0) || (Token_rhino(this.ns_().first.ns_().token) != Token_rhino_NAME) {
 			sb.append("<invalid>")
 		} else {
 			sb.append(this.ns_().first.getString())
@@ -1183,13 +1183,13 @@ func Node_createJsonPairRawValue(name string, value string) string {
 
 func (this Node) toJson(sb Appendable) {
 	sb.append_char('{')
-	Appendable_append_s(sb, Node_createJsonPair("token", tostrR_(Token_rhino_byOrd1_[this.ns_().token])))
+	Appendable_append_s(sb, Node_createJsonPair("token", tostrR_(Token_rhino(this.ns_().token))))
 	if this.payload_iss_() {
 		sb.append_char(',')
 		Appendable_append_s(sb, Node_createJsonPair("string", this.getString()))
 	} else if this.ns_().token == tokOrd1_FUNCTION {
 		sb.append_char(',')
-		if (this.ns_().first == 0) || (Token_rhino_byOrd1_[this.ns_().first.ns_().token] != Token_rhino_NAME) {
+		if (this.ns_().first == 0) || (Token_rhino(this.ns_().first.ns_().token) != Token_rhino_NAME) {
 			Appendable_append_s(sb, Node_createJsonPair("functionName", "<invalid>"))
 		} else {
 			Appendable_append_s(sb, Node_createJsonPair("functionName", this.ns_().first.getString()))
@@ -1676,22 +1676,22 @@ func (this Node) isEquivalentTo_4(node Node, compareType bool, recurse bool, jsD
 }
 
 func (this Node) isEquivalentToBoolean(node Node, compareType bool, recurse bool, jsDoc bool, sideEffect bool) bool {
-	return this.isEquivalentTo_5(node, func() *Node_RecursionMode {
+	return this.isEquivalentTo_5(node, func() Node_RecursionMode {
 		if recurse {
 			return Node_RecursionMode_DEEP
 		}
 		return Node_RecursionMode_SHALLOW
-	}(), func() *Node_TypeComparison {
+	}(), func() Node_TypeComparison {
 		if compareType {
 			return Node_TypeComparison_COMPARE
 		}
 		return Node_TypeComparison_IGNORE
-	}(), func() *Node_JsDocComparison {
+	}(), func() Node_JsDocComparison {
 		if jsDoc {
 			return Node_JsDocComparison_COMPARE
 		}
 		return Node_JsDocComparison_IGNORE
-	}(), func() *Node_SideEffectComparison {
+	}(), func() Node_SideEffectComparison {
 		if sideEffect {
 			return Node_SideEffectComparison_COMPARE
 		}
@@ -1699,8 +1699,8 @@ func (this Node) isEquivalentToBoolean(node Node, compareType bool, recurse bool
 	}())
 }
 
-func (this Node) isEquivalentTo_5(node Node, recursion *Node_RecursionMode, typeConfig *Node_TypeComparison, jsDocConfig *Node_JsDocComparison, sideEffectConfig *Node_SideEffectComparison) bool {
-	if ((Token_rhino_byOrd1_[this.ns_().token] != Token_rhino_byOrd1_[node.ns_().token]) || (this.getChildCount() != node.getChildCount())) || (Node_payloadClass(this.payload_get_()) != Node_payloadClass(node.payload_get_())) {
+func (this Node) isEquivalentTo_5(node Node, recursion Node_RecursionMode, typeConfig Node_TypeComparison, jsDocConfig Node_JsDocComparison, sideEffectConfig Node_SideEffectComparison) bool {
+	if ((Token_rhino(this.ns_().token) != Token_rhino(node.ns_().token)) || (this.getChildCount() != node.getChildCount())) || (Node_payloadClass(this.payload_get_()) != Node_payloadClass(node.payload_get_())) {
 		return false
 	}
 	if (typeConfig == Node_TypeComparison_COMPARE) && !Objects_equals(this.jstypeOrColor_get_(), node.jstypeOrColor_get_()) {
@@ -1851,7 +1851,7 @@ func Node_payloadClass(payload any) ClassOf[any] {
 
 func (this Node) getQualifiedName() string {
 	return func() string {
-		switch Token_rhino_byOrd1_[this.ns_().token] {
+		switch Token_rhino(this.ns_().token) {
 		case Token_rhino_NAME:
 			var name string = this.getString()
 			return func() string {
@@ -1990,10 +1990,10 @@ func (this Node) matchesQualifiedName_2(qname string, endIndex int32) bool {
 }
 
 func (this Node) matchesQualifiedNameNode(n Node) bool {
-	if Token_rhino_byOrd1_[n.ns_().token] != Token_rhino_byOrd1_[this.ns_().token] {
+	if Token_rhino(n.ns_().token) != Token_rhino(this.ns_().token) {
 		return false
 	}
-	switch Token_rhino_byOrd1_[this.ns_().token] {
+	switch Token_rhino(this.ns_().token) {
 	case Token_rhino_NAME:
 		return this.matchesNameNode(n)
 	case Token_rhino_THIS, Token_rhino_SUPER:
@@ -2041,7 +2041,7 @@ func (this Node) cloneNode() Node {
 }
 
 func (this Node) cloneNode_1(cloneTypeExprs bool) Node {
-	var clone Node = new_Node_Token(Token_rhino_byOrd1_[this.ns_().token])
+	var clone Node = new_Node_Token(Token_rhino(this.ns_().token))
 	Node_copyBaseNodeFields(this, clone, cloneTypeExprs)
 	clone.payload_copy_(this)
 	return clone
@@ -3538,53 +3538,65 @@ func (this *Node_AncestorIterable) iterator() IteratorOf[Node] {
 	return Iterator(new_Node_AncestorIterable_1(this))
 }
 
-type Node_RecursionMode struct {
-	Enum
+type Node_RecursionMode uint8
+
+// Node_RecursionMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Node_RecursionMode_enum_ = [3]Enum{
+	{self_: Node_RecursionMode_SHALLOW, name_: "SHALLOW", ordinal_: 0},
+	{self_: Node_RecursionMode_DEEP_NO_SHADOW, name_: "DEEP_NO_SHADOW", ordinal_: 1},
+	{self_: Node_RecursionMode_DEEP, name_: "DEEP", ordinal_: 2},
 }
 
-func (this *Node_RecursionMode) up_Enum() *Enum {
-	if this == nil {
+func (this Node_RecursionMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Node_RecursionMode_enum_[this-1]
 }
 
-func (this *Node_RecursionMode) init_Node_RecursionMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Node_RecursionMode) name() string { return Node_RecursionMode_enum_[this-1].name_ }
+
+func (this Node_RecursionMode) ordinal() int32 { return Node_RecursionMode_enum_[this-1].ordinal_ }
+
+func (this Node_RecursionMode) toString() string { return Node_RecursionMode_enum_[this-1].name_ }
+
+func (this Node_RecursionMode) compareTo(o any) int32 {
+	return Node_RecursionMode_enum_[this-1].compareTo(o)
 }
 
-func new_Node_RecursionMode(name_ string, ordinal_ int32) *Node_RecursionMode {
-	this := &Node_RecursionMode{}
-	this.self_ = this
-	this.init_Node_RecursionMode(name_, ordinal_)
+func (this Node_RecursionMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *Node_RecursionMode) recurseShadowAst() bool {
+func (this Node_RecursionMode) recurseShadowAst() bool {
 	return (this == Node_RecursionMode_DEEP)
 }
 
-func (this *Node_RecursionMode) recurseChildren() bool {
+func (this Node_RecursionMode) recurseChildren() bool {
 	return ((this == Node_RecursionMode_DEEP) || (this == Node_RecursionMode_DEEP_NO_SHADOW))
 }
 
-func Node_RecursionMode_values() []*Node_RecursionMode {
-	return append([]*Node_RecursionMode(nil), Node_RecursionMode_values_...)
+func Node_RecursionMode_values() []Node_RecursionMode {
+	return append([]Node_RecursionMode(nil), Node_RecursionMode_values_...)
 }
 
-func Node_RecursionMode_valueOf(name string) *Node_RecursionMode {
+func Node_RecursionMode_valueOf(name string) Node_RecursionMode {
 	for _, v := range Node_RecursionMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("RecursionMode", name))
 }
 
-var Node_RecursionMode_SHALLOW *Node_RecursionMode
-var Node_RecursionMode_DEEP_NO_SHADOW *Node_RecursionMode
-var Node_RecursionMode_DEEP *Node_RecursionMode
-var Node_RecursionMode_values_ []*Node_RecursionMode
+const Node_RecursionMode_SHALLOW Node_RecursionMode = 1
+const Node_RecursionMode_DEEP_NO_SHADOW Node_RecursionMode = 2
+const Node_RecursionMode_DEEP Node_RecursionMode = 3
+
+var Node_RecursionMode_values_ []Node_RecursionMode
 
 var Node_RecursionMode_clinit_done bool
 
@@ -3593,52 +3605,60 @@ func Node_RecursionMode_clinit() {
 		return
 	}
 	Node_RecursionMode_clinit_done = true
-	Node_RecursionMode_SHALLOW = new_Node_RecursionMode("SHALLOW", 0)
-	Node_RecursionMode_DEEP_NO_SHADOW = new_Node_RecursionMode("DEEP_NO_SHADOW", 1)
-	Node_RecursionMode_DEEP = new_Node_RecursionMode("DEEP", 2)
-	Node_RecursionMode_values_ = []*Node_RecursionMode{Node_RecursionMode_SHALLOW, Node_RecursionMode_DEEP_NO_SHADOW, Node_RecursionMode_DEEP}
+	Node_RecursionMode_values_ = []Node_RecursionMode{Node_RecursionMode_SHALLOW, Node_RecursionMode_DEEP_NO_SHADOW, Node_RecursionMode_DEEP}
 	registerEnum_("com.google.javascript.rhino.Node.RecursionMode", enumValues_(Node_RecursionMode_values_))
 
 }
 
-type Node_TypeComparison struct {
-	Enum
+type Node_TypeComparison uint8
+
+// Node_TypeComparison_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Node_TypeComparison_enum_ = [2]Enum{
+	{self_: Node_TypeComparison_IGNORE, name_: "IGNORE", ordinal_: 0},
+	{self_: Node_TypeComparison_COMPARE, name_: "COMPARE", ordinal_: 1},
 }
 
-func (this *Node_TypeComparison) up_Enum() *Enum {
-	if this == nil {
+func (this Node_TypeComparison) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Node_TypeComparison_enum_[this-1]
 }
 
-func (this *Node_TypeComparison) init_Node_TypeComparison(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Node_TypeComparison) name() string { return Node_TypeComparison_enum_[this-1].name_ }
+
+func (this Node_TypeComparison) ordinal() int32 { return Node_TypeComparison_enum_[this-1].ordinal_ }
+
+func (this Node_TypeComparison) toString() string { return Node_TypeComparison_enum_[this-1].name_ }
+
+func (this Node_TypeComparison) compareTo(o any) int32 {
+	return Node_TypeComparison_enum_[this-1].compareTo(o)
 }
 
-func new_Node_TypeComparison(name_ string, ordinal_ int32) *Node_TypeComparison {
-	this := &Node_TypeComparison{}
-	this.self_ = this
-	this.init_Node_TypeComparison(name_, ordinal_)
+func (this Node_TypeComparison) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Node_TypeComparison_values() []*Node_TypeComparison {
-	return append([]*Node_TypeComparison(nil), Node_TypeComparison_values_...)
+func Node_TypeComparison_values() []Node_TypeComparison {
+	return append([]Node_TypeComparison(nil), Node_TypeComparison_values_...)
 }
 
-func Node_TypeComparison_valueOf(name string) *Node_TypeComparison {
+func Node_TypeComparison_valueOf(name string) Node_TypeComparison {
 	for _, v := range Node_TypeComparison_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("TypeComparison", name))
 }
 
-var Node_TypeComparison_IGNORE *Node_TypeComparison
-var Node_TypeComparison_COMPARE *Node_TypeComparison
-var Node_TypeComparison_values_ []*Node_TypeComparison
+const Node_TypeComparison_IGNORE Node_TypeComparison = 1
+const Node_TypeComparison_COMPARE Node_TypeComparison = 2
+
+var Node_TypeComparison_values_ []Node_TypeComparison
 
 var Node_TypeComparison_clinit_done bool
 
@@ -3647,51 +3667,60 @@ func Node_TypeComparison_clinit() {
 		return
 	}
 	Node_TypeComparison_clinit_done = true
-	Node_TypeComparison_IGNORE = new_Node_TypeComparison("IGNORE", 0)
-	Node_TypeComparison_COMPARE = new_Node_TypeComparison("COMPARE", 1)
-	Node_TypeComparison_values_ = []*Node_TypeComparison{Node_TypeComparison_IGNORE, Node_TypeComparison_COMPARE}
+	Node_TypeComparison_values_ = []Node_TypeComparison{Node_TypeComparison_IGNORE, Node_TypeComparison_COMPARE}
 	registerEnum_("com.google.javascript.rhino.Node.TypeComparison", enumValues_(Node_TypeComparison_values_))
 
 }
 
-type Node_JsDocComparison struct {
-	Enum
+type Node_JsDocComparison uint8
+
+// Node_JsDocComparison_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Node_JsDocComparison_enum_ = [2]Enum{
+	{self_: Node_JsDocComparison_IGNORE, name_: "IGNORE", ordinal_: 0},
+	{self_: Node_JsDocComparison_COMPARE, name_: "COMPARE", ordinal_: 1},
 }
 
-func (this *Node_JsDocComparison) up_Enum() *Enum {
-	if this == nil {
+func (this Node_JsDocComparison) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Node_JsDocComparison_enum_[this-1]
 }
 
-func (this *Node_JsDocComparison) init_Node_JsDocComparison(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Node_JsDocComparison) name() string { return Node_JsDocComparison_enum_[this-1].name_ }
+
+func (this Node_JsDocComparison) ordinal() int32 { return Node_JsDocComparison_enum_[this-1].ordinal_ }
+
+func (this Node_JsDocComparison) toString() string { return Node_JsDocComparison_enum_[this-1].name_ }
+
+func (this Node_JsDocComparison) compareTo(o any) int32 {
+	return Node_JsDocComparison_enum_[this-1].compareTo(o)
 }
 
-func new_Node_JsDocComparison(name_ string, ordinal_ int32) *Node_JsDocComparison {
-	this := &Node_JsDocComparison{}
-	this.self_ = this
-	this.init_Node_JsDocComparison(name_, ordinal_)
+func (this Node_JsDocComparison) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Node_JsDocComparison_values() []*Node_JsDocComparison {
-	return append([]*Node_JsDocComparison(nil), Node_JsDocComparison_values_...)
+func Node_JsDocComparison_values() []Node_JsDocComparison {
+	return append([]Node_JsDocComparison(nil), Node_JsDocComparison_values_...)
 }
 
-func Node_JsDocComparison_valueOf(name string) *Node_JsDocComparison {
+func Node_JsDocComparison_valueOf(name string) Node_JsDocComparison {
 	for _, v := range Node_JsDocComparison_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("JsDocComparison", name))
 }
 
-var Node_JsDocComparison_IGNORE *Node_JsDocComparison
-var Node_JsDocComparison_COMPARE *Node_JsDocComparison
-var Node_JsDocComparison_values_ []*Node_JsDocComparison
+const Node_JsDocComparison_IGNORE Node_JsDocComparison = 1
+const Node_JsDocComparison_COMPARE Node_JsDocComparison = 2
+
+var Node_JsDocComparison_values_ []Node_JsDocComparison
 
 var Node_JsDocComparison_clinit_done bool
 
@@ -3700,51 +3729,66 @@ func Node_JsDocComparison_clinit() {
 		return
 	}
 	Node_JsDocComparison_clinit_done = true
-	Node_JsDocComparison_IGNORE = new_Node_JsDocComparison("IGNORE", 0)
-	Node_JsDocComparison_COMPARE = new_Node_JsDocComparison("COMPARE", 1)
-	Node_JsDocComparison_values_ = []*Node_JsDocComparison{Node_JsDocComparison_IGNORE, Node_JsDocComparison_COMPARE}
+	Node_JsDocComparison_values_ = []Node_JsDocComparison{Node_JsDocComparison_IGNORE, Node_JsDocComparison_COMPARE}
 	registerEnum_("com.google.javascript.rhino.Node.JsDocComparison", enumValues_(Node_JsDocComparison_values_))
 
 }
 
-type Node_SideEffectComparison struct {
-	Enum
+type Node_SideEffectComparison uint8
+
+// Node_SideEffectComparison_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Node_SideEffectComparison_enum_ = [2]Enum{
+	{self_: Node_SideEffectComparison_IGNORE, name_: "IGNORE", ordinal_: 0},
+	{self_: Node_SideEffectComparison_COMPARE, name_: "COMPARE", ordinal_: 1},
 }
 
-func (this *Node_SideEffectComparison) up_Enum() *Enum {
-	if this == nil {
+func (this Node_SideEffectComparison) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Node_SideEffectComparison_enum_[this-1]
 }
 
-func (this *Node_SideEffectComparison) init_Node_SideEffectComparison(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Node_SideEffectComparison) name() string {
+	return Node_SideEffectComparison_enum_[this-1].name_
 }
 
-func new_Node_SideEffectComparison(name_ string, ordinal_ int32) *Node_SideEffectComparison {
-	this := &Node_SideEffectComparison{}
-	this.self_ = this
-	this.init_Node_SideEffectComparison(name_, ordinal_)
+func (this Node_SideEffectComparison) ordinal() int32 {
+	return Node_SideEffectComparison_enum_[this-1].ordinal_
+}
+
+func (this Node_SideEffectComparison) toString() string {
+	return Node_SideEffectComparison_enum_[this-1].name_
+}
+
+func (this Node_SideEffectComparison) compareTo(o any) int32 {
+	return Node_SideEffectComparison_enum_[this-1].compareTo(o)
+}
+
+func (this Node_SideEffectComparison) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Node_SideEffectComparison_values() []*Node_SideEffectComparison {
-	return append([]*Node_SideEffectComparison(nil), Node_SideEffectComparison_values_...)
+func Node_SideEffectComparison_values() []Node_SideEffectComparison {
+	return append([]Node_SideEffectComparison(nil), Node_SideEffectComparison_values_...)
 }
 
-func Node_SideEffectComparison_valueOf(name string) *Node_SideEffectComparison {
+func Node_SideEffectComparison_valueOf(name string) Node_SideEffectComparison {
 	for _, v := range Node_SideEffectComparison_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("SideEffectComparison", name))
 }
 
-var Node_SideEffectComparison_IGNORE *Node_SideEffectComparison
-var Node_SideEffectComparison_COMPARE *Node_SideEffectComparison
-var Node_SideEffectComparison_values_ []*Node_SideEffectComparison
+const Node_SideEffectComparison_IGNORE Node_SideEffectComparison = 1
+const Node_SideEffectComparison_COMPARE Node_SideEffectComparison = 2
+
+var Node_SideEffectComparison_values_ []Node_SideEffectComparison
 
 var Node_SideEffectComparison_clinit_done bool
 
@@ -3753,9 +3797,7 @@ func Node_SideEffectComparison_clinit() {
 		return
 	}
 	Node_SideEffectComparison_clinit_done = true
-	Node_SideEffectComparison_IGNORE = new_Node_SideEffectComparison("IGNORE", 0)
-	Node_SideEffectComparison_COMPARE = new_Node_SideEffectComparison("COMPARE", 1)
-	Node_SideEffectComparison_values_ = []*Node_SideEffectComparison{Node_SideEffectComparison_IGNORE, Node_SideEffectComparison_COMPARE}
+	Node_SideEffectComparison_values_ = []Node_SideEffectComparison{Node_SideEffectComparison_IGNORE, Node_SideEffectComparison_COMPARE}
 	registerEnum_("com.google.javascript.rhino.Node.SideEffectComparison", enumValues_(Node_SideEffectComparison_values_))
 
 }

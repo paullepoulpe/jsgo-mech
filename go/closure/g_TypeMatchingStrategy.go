@@ -2,48 +2,66 @@
 
 package closure
 
-type TypeMatchingStrategy struct {
-	Enum
-	allowSubtypes     bool
-	ignoreNullability bool
-	allowLooseMatches bool
+type TypeMatchingStrategy uint8
+
+// TypeMatchingStrategy_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var TypeMatchingStrategy_enum_ = [4]Enum{
+	{self_: TypeMatchingStrategy_LOOSE, name_: "LOOSE", ordinal_: 0},
+	{self_: TypeMatchingStrategy_STRICT_NULLABILITY, name_: "STRICT_NULLABILITY", ordinal_: 1},
+	{self_: TypeMatchingStrategy_SUBTYPES, name_: "SUBTYPES", ordinal_: 2},
+	{self_: TypeMatchingStrategy_EXACT, name_: "EXACT", ordinal_: 3},
 }
 
-func (this *TypeMatchingStrategy) up_Enum() *Enum {
-	if this == nil {
+var TypeMatchingStrategy_allowSubtypes_ [4]bool
+
+var TypeMatchingStrategy_ignoreNullability_ [4]bool
+
+var TypeMatchingStrategy_allowLooseMatches_ [4]bool
+
+func (this TypeMatchingStrategy) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &TypeMatchingStrategy_enum_[this-1]
 }
 
-func (this *TypeMatchingStrategy) init_TypeMatchingStrategy(name_ string, ordinal_ int32, allowSubtypes bool, ignoreNullability bool, allowLooseMatches bool) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.allowSubtypes = allowSubtypes
-	this.ignoreNullability = ignoreNullability
-	this.allowLooseMatches = allowLooseMatches
+func (this TypeMatchingStrategy) name() string { return TypeMatchingStrategy_enum_[this-1].name_ }
+
+func (this TypeMatchingStrategy) ordinal() int32 { return TypeMatchingStrategy_enum_[this-1].ordinal_ }
+
+func (this TypeMatchingStrategy) toString() string { return TypeMatchingStrategy_enum_[this-1].name_ }
+
+func (this TypeMatchingStrategy) compareTo(o any) int32 {
+	return TypeMatchingStrategy_enum_[this-1].compareTo(o)
 }
 
-func new_TypeMatchingStrategy(name_ string, ordinal_ int32, allowSubtypes bool, ignoreNullability bool, allowLooseMatches bool) *TypeMatchingStrategy {
-	this := &TypeMatchingStrategy{}
-	this.self_ = this
-	this.init_TypeMatchingStrategy(name_, ordinal_, allowSubtypes, ignoreNullability, allowLooseMatches)
+func (this TypeMatchingStrategy) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *TypeMatchingStrategy) match(templateType *JSType, type_ *JSType) *TypeMatchingStrategy_MatchResult {
+func (this TypeMatchingStrategy) init_TypeMatchingStrategy(allowSubtypes bool, ignoreNullability bool, allowLooseMatches bool) {
+	TypeMatchingStrategy_allowSubtypes_[this-1] = allowSubtypes
+	TypeMatchingStrategy_ignoreNullability_[this-1] = ignoreNullability
+	TypeMatchingStrategy_allowLooseMatches_[this-1] = allowLooseMatches
+}
+
+func (this TypeMatchingStrategy) match(templateType *JSType, type_ *JSType) TypeMatchingStrategy_MatchResult {
 	if templateType.isUnknownType() {
 		return TypeMatchingStrategy_MatchResult_MATCH
 	}
 	if ((type_ == nil) || type_.isUnknownType()) || type_.isAllType() {
-		return func() *TypeMatchingStrategy_MatchResult {
-			if this.allowLooseMatches {
+		return func() TypeMatchingStrategy_MatchResult {
+			if TypeMatchingStrategy_allowLooseMatches_[this-1] {
 				return TypeMatchingStrategy_MatchResult_LOOSE_MATCH
 			}
 			return TypeMatchingStrategy_MatchResult_NO_MATCH
 		}()
 	}
-	if this.allowSubtypes {
-		if this.ignoreNullability {
+	if TypeMatchingStrategy_allowSubtypes_[this-1] {
+		if TypeMatchingStrategy_ignoreNullability_[this-1] {
 			type_ = type_.restrictByNotNullOrUndefined()
 		}
 		if type_.isSubtypeOf(templateType) {
@@ -52,10 +70,10 @@ func (this *TypeMatchingStrategy) match(templateType *JSType, type_ *JSType) *Ty
 	}
 	var nullableMismatch bool = (templateType.isNullable() != type_.isNullable())
 	var voidableMismatch bool = (templateType.isVoidable() != type_.isVoidable())
-	if !this.ignoreNullability && (nullableMismatch || voidableMismatch) {
+	if !TypeMatchingStrategy_ignoreNullability_[this-1] && (nullableMismatch || voidableMismatch) {
 		return TypeMatchingStrategy_MatchResult_NO_MATCH
 	}
-	return func() *TypeMatchingStrategy_MatchResult {
+	return func() TypeMatchingStrategy_MatchResult {
 		if type_.equals(templateType.self()) {
 			return TypeMatchingStrategy_MatchResult_MATCH
 		}
@@ -63,24 +81,25 @@ func (this *TypeMatchingStrategy) match(templateType *JSType, type_ *JSType) *Ty
 	}()
 }
 
-func TypeMatchingStrategy_values() []*TypeMatchingStrategy {
-	return append([]*TypeMatchingStrategy(nil), TypeMatchingStrategy_values_...)
+func TypeMatchingStrategy_values() []TypeMatchingStrategy {
+	return append([]TypeMatchingStrategy(nil), TypeMatchingStrategy_values_...)
 }
 
-func TypeMatchingStrategy_valueOf(name string) *TypeMatchingStrategy {
+func TypeMatchingStrategy_valueOf(name string) TypeMatchingStrategy {
 	for _, v := range TypeMatchingStrategy_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("TypeMatchingStrategy", name))
 }
 
-var TypeMatchingStrategy_LOOSE *TypeMatchingStrategy
-var TypeMatchingStrategy_STRICT_NULLABILITY *TypeMatchingStrategy
-var TypeMatchingStrategy_SUBTYPES *TypeMatchingStrategy
-var TypeMatchingStrategy_EXACT *TypeMatchingStrategy
-var TypeMatchingStrategy_values_ []*TypeMatchingStrategy
+const TypeMatchingStrategy_LOOSE TypeMatchingStrategy = 1
+const TypeMatchingStrategy_STRICT_NULLABILITY TypeMatchingStrategy = 2
+const TypeMatchingStrategy_SUBTYPES TypeMatchingStrategy = 3
+const TypeMatchingStrategy_EXACT TypeMatchingStrategy = 4
+
+var TypeMatchingStrategy_values_ []TypeMatchingStrategy
 
 var TypeMatchingStrategy_clinit_done bool
 
@@ -89,62 +108,80 @@ func TypeMatchingStrategy_clinit() {
 		return
 	}
 	TypeMatchingStrategy_clinit_done = true
-	TypeMatchingStrategy_LOOSE = new_TypeMatchingStrategy("LOOSE", 0, true, true, true)
-	TypeMatchingStrategy_STRICT_NULLABILITY = new_TypeMatchingStrategy("STRICT_NULLABILITY", 1, true, false, true)
-	TypeMatchingStrategy_SUBTYPES = new_TypeMatchingStrategy("SUBTYPES", 2, true, false, false)
-	TypeMatchingStrategy_EXACT = new_TypeMatchingStrategy("EXACT", 3, false, false, false)
-	TypeMatchingStrategy_values_ = []*TypeMatchingStrategy{TypeMatchingStrategy_LOOSE, TypeMatchingStrategy_STRICT_NULLABILITY, TypeMatchingStrategy_SUBTYPES, TypeMatchingStrategy_EXACT}
+	TypeMatchingStrategy_LOOSE.init_TypeMatchingStrategy(true, true, true)
+	TypeMatchingStrategy_STRICT_NULLABILITY.init_TypeMatchingStrategy(true, false, true)
+	TypeMatchingStrategy_SUBTYPES.init_TypeMatchingStrategy(true, false, false)
+	TypeMatchingStrategy_EXACT.init_TypeMatchingStrategy(false, false, false)
+	TypeMatchingStrategy_values_ = []TypeMatchingStrategy{TypeMatchingStrategy_LOOSE, TypeMatchingStrategy_STRICT_NULLABILITY, TypeMatchingStrategy_SUBTYPES, TypeMatchingStrategy_EXACT}
 	registerEnum_("com.google.javascript.jscomp.TypeMatchingStrategy", enumValues_(TypeMatchingStrategy_values_))
 
 }
 
-type TypeMatchingStrategy_MatchResult struct {
-	Enum
+type TypeMatchingStrategy_MatchResult uint8
+
+// TypeMatchingStrategy_MatchResult_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var TypeMatchingStrategy_MatchResult_enum_ = [3]Enum{
+	{self_: TypeMatchingStrategy_MatchResult_MATCH, name_: "MATCH", ordinal_: 0},
+	{self_: TypeMatchingStrategy_MatchResult_NO_MATCH, name_: "NO_MATCH", ordinal_: 1},
+	{self_: TypeMatchingStrategy_MatchResult_LOOSE_MATCH, name_: "LOOSE_MATCH", ordinal_: 2},
 }
 
-func (this *TypeMatchingStrategy_MatchResult) up_Enum() *Enum {
-	if this == nil {
+func (this TypeMatchingStrategy_MatchResult) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &TypeMatchingStrategy_MatchResult_enum_[this-1]
 }
 
-func (this *TypeMatchingStrategy_MatchResult) init_TypeMatchingStrategy_MatchResult(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this TypeMatchingStrategy_MatchResult) name() string {
+	return TypeMatchingStrategy_MatchResult_enum_[this-1].name_
 }
 
-func new_TypeMatchingStrategy_MatchResult(name_ string, ordinal_ int32) *TypeMatchingStrategy_MatchResult {
-	this := &TypeMatchingStrategy_MatchResult{}
-	this.self_ = this
-	this.init_TypeMatchingStrategy_MatchResult(name_, ordinal_)
+func (this TypeMatchingStrategy_MatchResult) ordinal() int32 {
+	return TypeMatchingStrategy_MatchResult_enum_[this-1].ordinal_
+}
+
+func (this TypeMatchingStrategy_MatchResult) toString() string {
+	return TypeMatchingStrategy_MatchResult_enum_[this-1].name_
+}
+
+func (this TypeMatchingStrategy_MatchResult) compareTo(o any) int32 {
+	return TypeMatchingStrategy_MatchResult_enum_[this-1].compareTo(o)
+}
+
+func (this TypeMatchingStrategy_MatchResult) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *TypeMatchingStrategy_MatchResult) isMatch() bool {
+func (this TypeMatchingStrategy_MatchResult) isMatch() bool {
 	return (this != TypeMatchingStrategy_MatchResult_NO_MATCH)
 }
 
-func (this *TypeMatchingStrategy_MatchResult) isLooseMatch() bool {
+func (this TypeMatchingStrategy_MatchResult) isLooseMatch() bool {
 	return (this == TypeMatchingStrategy_MatchResult_LOOSE_MATCH)
 }
 
-func TypeMatchingStrategy_MatchResult_values() []*TypeMatchingStrategy_MatchResult {
-	return append([]*TypeMatchingStrategy_MatchResult(nil), TypeMatchingStrategy_MatchResult_values_...)
+func TypeMatchingStrategy_MatchResult_values() []TypeMatchingStrategy_MatchResult {
+	return append([]TypeMatchingStrategy_MatchResult(nil), TypeMatchingStrategy_MatchResult_values_...)
 }
 
-func TypeMatchingStrategy_MatchResult_valueOf(name string) *TypeMatchingStrategy_MatchResult {
+func TypeMatchingStrategy_MatchResult_valueOf(name string) TypeMatchingStrategy_MatchResult {
 	for _, v := range TypeMatchingStrategy_MatchResult_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("MatchResult", name))
 }
 
-var TypeMatchingStrategy_MatchResult_MATCH *TypeMatchingStrategy_MatchResult
-var TypeMatchingStrategy_MatchResult_NO_MATCH *TypeMatchingStrategy_MatchResult
-var TypeMatchingStrategy_MatchResult_LOOSE_MATCH *TypeMatchingStrategy_MatchResult
-var TypeMatchingStrategy_MatchResult_values_ []*TypeMatchingStrategy_MatchResult
+const TypeMatchingStrategy_MatchResult_MATCH TypeMatchingStrategy_MatchResult = 1
+const TypeMatchingStrategy_MatchResult_NO_MATCH TypeMatchingStrategy_MatchResult = 2
+const TypeMatchingStrategy_MatchResult_LOOSE_MATCH TypeMatchingStrategy_MatchResult = 3
+
+var TypeMatchingStrategy_MatchResult_values_ []TypeMatchingStrategy_MatchResult
 
 var TypeMatchingStrategy_MatchResult_clinit_done bool
 
@@ -153,10 +190,7 @@ func TypeMatchingStrategy_MatchResult_clinit() {
 		return
 	}
 	TypeMatchingStrategy_MatchResult_clinit_done = true
-	TypeMatchingStrategy_MatchResult_MATCH = new_TypeMatchingStrategy_MatchResult("MATCH", 0)
-	TypeMatchingStrategy_MatchResult_NO_MATCH = new_TypeMatchingStrategy_MatchResult("NO_MATCH", 1)
-	TypeMatchingStrategy_MatchResult_LOOSE_MATCH = new_TypeMatchingStrategy_MatchResult("LOOSE_MATCH", 2)
-	TypeMatchingStrategy_MatchResult_values_ = []*TypeMatchingStrategy_MatchResult{TypeMatchingStrategy_MatchResult_MATCH, TypeMatchingStrategy_MatchResult_NO_MATCH, TypeMatchingStrategy_MatchResult_LOOSE_MATCH}
+	TypeMatchingStrategy_MatchResult_values_ = []TypeMatchingStrategy_MatchResult{TypeMatchingStrategy_MatchResult_MATCH, TypeMatchingStrategy_MatchResult_NO_MATCH, TypeMatchingStrategy_MatchResult_LOOSE_MATCH}
 	registerEnum_("com.google.javascript.jscomp.TypeMatchingStrategy.MatchResult", enumValues_(TypeMatchingStrategy_MatchResult_values_))
 
 }

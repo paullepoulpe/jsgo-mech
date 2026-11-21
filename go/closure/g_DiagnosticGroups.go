@@ -48,7 +48,7 @@ func DiagnosticGroups_forName(name string) *DiagnosticGroup {
 	return DiagnosticGroups_groupsByName.get(name)
 }
 
-func (this *DiagnosticGroups) setWarningLevel(options *CompilerOptions, name string, level *CheckLevel) {
+func (this *DiagnosticGroups) setWarningLevel(options *CompilerOptions, name string, level CheckLevel) {
 	var group *DiagnosticGroup = DiagnosticGroups_forName(name)
 	Preconditions_checkNotNull_Object_String_Object_T(group, "No warning class for name: %s", name)
 	options.setWarningLevel(group, level)

@@ -62,7 +62,7 @@ func (this *FunctionInjector) doesFunctionMeetMinimumRequirements(fnName string,
 	return (!referencesArguments && !NodeUtil_has(block, blocksInjection, Predicates_alwaysTrue[Node]()))
 }
 
-func (this *FunctionInjector) canInlineReferenceToFunction(ref *FunctionInjector_Reference, fnNode Node, needAliases *JTSet[string], referencesThis bool, containsClosures bool) *FunctionInjector_CanInlineResult {
+func (this *FunctionInjector) canInlineReferenceToFunction(ref *FunctionInjector_Reference, fnNode Node, needAliases *JTSet[string], referencesThis bool, containsClosures bool) FunctionInjector_CanInlineResult {
 	var callNode Node = ref.callNode_
 	if !this.isSupportedCallType(callNode, fnNode) {
 		return FunctionInjector_CanInlineResult_NO
@@ -287,7 +287,7 @@ func FunctionInjector_isDirectCallNodeReplacementPossible(fnNode Node) bool {
 	return false
 }
 
-func (this *FunctionInjector) canInlineReferenceAsStatementBlock(ref *FunctionInjector_Reference, fnNode Node, namesToAlias *JTSet[string]) *FunctionInjector_CanInlineResult {
+func (this *FunctionInjector) canInlineReferenceAsStatementBlock(ref *FunctionInjector_Reference, fnNode Node, namesToAlias *JTSet[string]) FunctionInjector_CanInlineResult {
 	var callSiteType *FunctionInjector_CallSiteType = this.classifyCallSite(ref)
 	if callSiteType == FunctionInjector_CallSiteType_UNSUPPORTED {
 		return FunctionInjector_CanInlineResult_NO
@@ -395,7 +395,7 @@ func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *Functi
 	return true
 }
 
-func (this *FunctionInjector) canInlineReferenceDirectly(ref *FunctionInjector_Reference, fnNode Node, namesToAlias *JTSet[string]) *FunctionInjector_CanInlineResult {
+func (this *FunctionInjector) canInlineReferenceDirectly(ref *FunctionInjector_Reference, fnNode Node, namesToAlias *JTSet[string]) FunctionInjector_CanInlineResult {
 	if !FunctionInjector_isDirectCallNodeReplacementPossible(fnNode) {
 		return FunctionInjector_CanInlineResult_NO
 	}
@@ -487,7 +487,7 @@ func FunctionInjector_estimateCallCost(fnNode Node, referencesThis bool) int32 {
 	return callCost
 }
 
-func FunctionInjector_inlineCostDelta(fnNode Node, namesToAlias *JTSet[string], mode *FunctionInjector_InliningMode) int32 {
+func FunctionInjector_inlineCostDelta(fnNode Node, namesToAlias *JTSet[string], mode FunctionInjector_InliningMode) int32 {
 	var paramCount int32 = NodeUtil_getFunctionParameters(fnNode).getChildCount()
 	var commaCount int32 = func() int32 {
 		if paramCount > 1 {
@@ -614,44 +614,61 @@ func (this *FunctionInjector_Builder) build() *FunctionInjector {
 	return new_FunctionInjector(this)
 }
 
-type FunctionInjector_InliningMode struct {
-	Enum
+type FunctionInjector_InliningMode uint8
+
+// FunctionInjector_InliningMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var FunctionInjector_InliningMode_enum_ = [2]Enum{
+	{self_: FunctionInjector_InliningMode_DIRECT, name_: "DIRECT", ordinal_: 0},
+	{self_: FunctionInjector_InliningMode_BLOCK, name_: "BLOCK", ordinal_: 1},
 }
 
-func (this *FunctionInjector_InliningMode) up_Enum() *Enum {
-	if this == nil {
+func (this FunctionInjector_InliningMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &FunctionInjector_InliningMode_enum_[this-1]
 }
 
-func (this *FunctionInjector_InliningMode) init_FunctionInjector_InliningMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this FunctionInjector_InliningMode) name() string {
+	return FunctionInjector_InliningMode_enum_[this-1].name_
 }
 
-func new_FunctionInjector_InliningMode(name_ string, ordinal_ int32) *FunctionInjector_InliningMode {
-	this := &FunctionInjector_InliningMode{}
-	this.self_ = this
-	this.init_FunctionInjector_InliningMode(name_, ordinal_)
+func (this FunctionInjector_InliningMode) ordinal() int32 {
+	return FunctionInjector_InliningMode_enum_[this-1].ordinal_
+}
+
+func (this FunctionInjector_InliningMode) toString() string {
+	return FunctionInjector_InliningMode_enum_[this-1].name_
+}
+
+func (this FunctionInjector_InliningMode) compareTo(o any) int32 {
+	return FunctionInjector_InliningMode_enum_[this-1].compareTo(o)
+}
+
+func (this FunctionInjector_InliningMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func FunctionInjector_InliningMode_values() []*FunctionInjector_InliningMode {
-	return append([]*FunctionInjector_InliningMode(nil), FunctionInjector_InliningMode_values_...)
+func FunctionInjector_InliningMode_values() []FunctionInjector_InliningMode {
+	return append([]FunctionInjector_InliningMode(nil), FunctionInjector_InliningMode_values_...)
 }
 
-func FunctionInjector_InliningMode_valueOf(name string) *FunctionInjector_InliningMode {
+func FunctionInjector_InliningMode_valueOf(name string) FunctionInjector_InliningMode {
 	for _, v := range FunctionInjector_InliningMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("InliningMode", name))
 }
 
-var FunctionInjector_InliningMode_DIRECT *FunctionInjector_InliningMode
-var FunctionInjector_InliningMode_BLOCK *FunctionInjector_InliningMode
-var FunctionInjector_InliningMode_values_ []*FunctionInjector_InliningMode
+const FunctionInjector_InliningMode_DIRECT FunctionInjector_InliningMode = 1
+const FunctionInjector_InliningMode_BLOCK FunctionInjector_InliningMode = 2
+
+var FunctionInjector_InliningMode_values_ []FunctionInjector_InliningMode
 
 var FunctionInjector_InliningMode_clinit_done bool
 
@@ -660,9 +677,7 @@ func FunctionInjector_InliningMode_clinit() {
 		return
 	}
 	FunctionInjector_InliningMode_clinit_done = true
-	FunctionInjector_InliningMode_DIRECT = new_FunctionInjector_InliningMode("DIRECT", 0)
-	FunctionInjector_InliningMode_BLOCK = new_FunctionInjector_InliningMode("BLOCK", 1)
-	FunctionInjector_InliningMode_values_ = []*FunctionInjector_InliningMode{FunctionInjector_InliningMode_DIRECT, FunctionInjector_InliningMode_BLOCK}
+	FunctionInjector_InliningMode_values_ = []FunctionInjector_InliningMode{FunctionInjector_InliningMode_DIRECT, FunctionInjector_InliningMode_BLOCK}
 	registerEnum_("com.google.javascript.jscomp.FunctionInjector.InliningMode", enumValues_(FunctionInjector_InliningMode_values_))
 
 }
@@ -671,7 +686,7 @@ type FunctionInjector_Reference struct {
 	self_     any
 	scope_    *Scope
 	chunk_    *JSChunk
-	mode_     *FunctionInjector_InliningMode
+	mode_     FunctionInjector_InliningMode
 	callNode_ Node
 }
 
@@ -707,14 +722,14 @@ func (this *FunctionInjector_Reference) self() any {
 	return this.self_
 }
 
-func (this *FunctionInjector_Reference) init_FunctionInjector_Reference(callNode Node, scope *Scope, chunk *JSChunk, mode *FunctionInjector_InliningMode) {
+func (this *FunctionInjector_Reference) init_FunctionInjector_Reference(callNode Node, scope *Scope, chunk *JSChunk, mode FunctionInjector_InliningMode) {
 	this.callNode_ = callNode
 	this.scope_ = scope
 	this.chunk_ = chunk
 	this.mode_ = mode
 }
 
-func new_FunctionInjector_Reference(callNode Node, scope *Scope, chunk *JSChunk, mode *FunctionInjector_InliningMode) *FunctionInjector_Reference {
+func new_FunctionInjector_Reference(callNode Node, scope *Scope, chunk *JSChunk, mode FunctionInjector_InliningMode) *FunctionInjector_Reference {
 	this := &FunctionInjector_Reference{}
 	this.self_ = this
 	this.init_FunctionInjector_Reference(callNode, scope, chunk, mode)
@@ -817,45 +832,63 @@ func FunctionInjector_CallSiteType_clinit() {
 
 }
 
-type FunctionInjector_CanInlineResult struct {
-	Enum
+type FunctionInjector_CanInlineResult uint8
+
+// FunctionInjector_CanInlineResult_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var FunctionInjector_CanInlineResult_enum_ = [3]Enum{
+	{self_: FunctionInjector_CanInlineResult_YES, name_: "YES", ordinal_: 0},
+	{self_: FunctionInjector_CanInlineResult_AFTER_PREPARATION, name_: "AFTER_PREPARATION", ordinal_: 1},
+	{self_: FunctionInjector_CanInlineResult_NO, name_: "NO", ordinal_: 2},
 }
 
-func (this *FunctionInjector_CanInlineResult) up_Enum() *Enum {
-	if this == nil {
+func (this FunctionInjector_CanInlineResult) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &FunctionInjector_CanInlineResult_enum_[this-1]
 }
 
-func (this *FunctionInjector_CanInlineResult) init_FunctionInjector_CanInlineResult(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this FunctionInjector_CanInlineResult) name() string {
+	return FunctionInjector_CanInlineResult_enum_[this-1].name_
 }
 
-func new_FunctionInjector_CanInlineResult(name_ string, ordinal_ int32) *FunctionInjector_CanInlineResult {
-	this := &FunctionInjector_CanInlineResult{}
-	this.self_ = this
-	this.init_FunctionInjector_CanInlineResult(name_, ordinal_)
+func (this FunctionInjector_CanInlineResult) ordinal() int32 {
+	return FunctionInjector_CanInlineResult_enum_[this-1].ordinal_
+}
+
+func (this FunctionInjector_CanInlineResult) toString() string {
+	return FunctionInjector_CanInlineResult_enum_[this-1].name_
+}
+
+func (this FunctionInjector_CanInlineResult) compareTo(o any) int32 {
+	return FunctionInjector_CanInlineResult_enum_[this-1].compareTo(o)
+}
+
+func (this FunctionInjector_CanInlineResult) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func FunctionInjector_CanInlineResult_values() []*FunctionInjector_CanInlineResult {
-	return append([]*FunctionInjector_CanInlineResult(nil), FunctionInjector_CanInlineResult_values_...)
+func FunctionInjector_CanInlineResult_values() []FunctionInjector_CanInlineResult {
+	return append([]FunctionInjector_CanInlineResult(nil), FunctionInjector_CanInlineResult_values_...)
 }
 
-func FunctionInjector_CanInlineResult_valueOf(name string) *FunctionInjector_CanInlineResult {
+func FunctionInjector_CanInlineResult_valueOf(name string) FunctionInjector_CanInlineResult {
 	for _, v := range FunctionInjector_CanInlineResult_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("CanInlineResult", name))
 }
 
-var FunctionInjector_CanInlineResult_YES *FunctionInjector_CanInlineResult
-var FunctionInjector_CanInlineResult_AFTER_PREPARATION *FunctionInjector_CanInlineResult
-var FunctionInjector_CanInlineResult_NO *FunctionInjector_CanInlineResult
-var FunctionInjector_CanInlineResult_values_ []*FunctionInjector_CanInlineResult
+const FunctionInjector_CanInlineResult_YES FunctionInjector_CanInlineResult = 1
+const FunctionInjector_CanInlineResult_AFTER_PREPARATION FunctionInjector_CanInlineResult = 2
+const FunctionInjector_CanInlineResult_NO FunctionInjector_CanInlineResult = 3
+
+var FunctionInjector_CanInlineResult_values_ []FunctionInjector_CanInlineResult
 
 var FunctionInjector_CanInlineResult_clinit_done bool
 
@@ -864,10 +897,7 @@ func FunctionInjector_CanInlineResult_clinit() {
 		return
 	}
 	FunctionInjector_CanInlineResult_clinit_done = true
-	FunctionInjector_CanInlineResult_YES = new_FunctionInjector_CanInlineResult("YES", 0)
-	FunctionInjector_CanInlineResult_AFTER_PREPARATION = new_FunctionInjector_CanInlineResult("AFTER_PREPARATION", 1)
-	FunctionInjector_CanInlineResult_NO = new_FunctionInjector_CanInlineResult("NO", 2)
-	FunctionInjector_CanInlineResult_values_ = []*FunctionInjector_CanInlineResult{FunctionInjector_CanInlineResult_YES, FunctionInjector_CanInlineResult_AFTER_PREPARATION, FunctionInjector_CanInlineResult_NO}
+	FunctionInjector_CanInlineResult_values_ = []FunctionInjector_CanInlineResult{FunctionInjector_CanInlineResult_YES, FunctionInjector_CanInlineResult_AFTER_PREPARATION, FunctionInjector_CanInlineResult_NO}
 	registerEnum_("com.google.javascript.jscomp.FunctionInjector.CanInlineResult", enumValues_(FunctionInjector_CanInlineResult_values_))
 
 }

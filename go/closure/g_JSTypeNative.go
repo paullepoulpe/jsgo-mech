@@ -2,131 +2,227 @@
 
 package closure
 
-type JSTypeNative struct {
-	Enum
+type JSTypeNative uint8
+
+// JSTypeNative_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JSTypeNative_enum_ = [89]Enum{
+	{self_: JSTypeNative_ARGUMENTS_TYPE, name_: "ARGUMENTS_TYPE", ordinal_: 0},
+	{self_: JSTypeNative_ARGUMENTS_FUNCTION_TYPE, name_: "ARGUMENTS_FUNCTION_TYPE", ordinal_: 1},
+	{self_: JSTypeNative_ARRAY_TYPE, name_: "ARRAY_TYPE", ordinal_: 2},
+	{self_: JSTypeNative_ARRAY_FUNCTION_TYPE, name_: "ARRAY_FUNCTION_TYPE", ordinal_: 3},
+	{self_: JSTypeNative_ASYNC_ITERABLE_FUNCTION_TYPE, name_: "ASYNC_ITERABLE_FUNCTION_TYPE", ordinal_: 4},
+	{self_: JSTypeNative_ASYNC_ITERABLE_TYPE, name_: "ASYNC_ITERABLE_TYPE", ordinal_: 5},
+	{self_: JSTypeNative_ASYNC_ITERATOR_FUNCTION_TYPE, name_: "ASYNC_ITERATOR_FUNCTION_TYPE", ordinal_: 6},
+	{self_: JSTypeNative_ASYNC_ITERATOR_TYPE, name_: "ASYNC_ITERATOR_TYPE", ordinal_: 7},
+	{self_: JSTypeNative_ASYNC_ITERATOR_ITERABLE_FUNCTION_TYPE, name_: "ASYNC_ITERATOR_ITERABLE_FUNCTION_TYPE", ordinal_: 8},
+	{self_: JSTypeNative_ASYNC_ITERATOR_ITERABLE_TYPE, name_: "ASYNC_ITERATOR_ITERABLE_TYPE", ordinal_: 9},
+	{self_: JSTypeNative_ASYNC_GENERATOR_FUNCTION_TYPE, name_: "ASYNC_GENERATOR_FUNCTION_TYPE", ordinal_: 10},
+	{self_: JSTypeNative_ASYNC_GENERATOR_TYPE, name_: "ASYNC_GENERATOR_TYPE", ordinal_: 11},
+	{self_: JSTypeNative_BIGINT_TYPE, name_: "BIGINT_TYPE", ordinal_: 12},
+	{self_: JSTypeNative_BIGINT_OBJECT_TYPE, name_: "BIGINT_OBJECT_TYPE", ordinal_: 13},
+	{self_: JSTypeNative_BIGINT_OBJECT_FUNCTION_TYPE, name_: "BIGINT_OBJECT_FUNCTION_TYPE", ordinal_: 14},
+	{self_: JSTypeNative_BOOLEAN_TYPE, name_: "BOOLEAN_TYPE", ordinal_: 15},
+	{self_: JSTypeNative_BOOLEAN_OBJECT_TYPE, name_: "BOOLEAN_OBJECT_TYPE", ordinal_: 16},
+	{self_: JSTypeNative_BOOLEAN_OBJECT_FUNCTION_TYPE, name_: "BOOLEAN_OBJECT_FUNCTION_TYPE", ordinal_: 17},
+	{self_: JSTypeNative_CHECKED_UNKNOWN_TYPE, name_: "CHECKED_UNKNOWN_TYPE", ordinal_: 18},
+	{self_: JSTypeNative_DATE_TYPE, name_: "DATE_TYPE", ordinal_: 19},
+	{self_: JSTypeNative_DATE_FUNCTION_TYPE, name_: "DATE_FUNCTION_TYPE", ordinal_: 20},
+	{self_: JSTypeNative_FUNCTION_TYPE, name_: "FUNCTION_TYPE", ordinal_: 21},
+	{self_: JSTypeNative_FUNCTION_FUNCTION_TYPE, name_: "FUNCTION_FUNCTION_TYPE", ordinal_: 22},
+	{self_: JSTypeNative_FUNCTION_PROTOTYPE, name_: "FUNCTION_PROTOTYPE", ordinal_: 23},
+	{self_: JSTypeNative_FUNCTION_INSTANCE_PROTOTYPE, name_: "FUNCTION_INSTANCE_PROTOTYPE", ordinal_: 24},
+	{self_: JSTypeNative_GBIGINT_TYPE, name_: "GBIGINT_TYPE", ordinal_: 25},
+	{self_: JSTypeNative_GENERATOR_FUNCTION_TYPE, name_: "GENERATOR_FUNCTION_TYPE", ordinal_: 26},
+	{self_: JSTypeNative_GENERATOR_TYPE, name_: "GENERATOR_TYPE", ordinal_: 27},
+	{self_: JSTypeNative_I_ITERABLE_RESULT_FUNCTION_TYPE, name_: "I_ITERABLE_RESULT_FUNCTION_TYPE", ordinal_: 28},
+	{self_: JSTypeNative_I_ITERABLE_RESULT_TYPE, name_: "I_ITERABLE_RESULT_TYPE", ordinal_: 29},
+	{self_: JSTypeNative_ITERABLE_FUNCTION_TYPE, name_: "ITERABLE_FUNCTION_TYPE", ordinal_: 30},
+	{self_: JSTypeNative_ITERABLE_TYPE, name_: "ITERABLE_TYPE", ordinal_: 31},
+	{self_: JSTypeNative_ITERATOR_LIKE_FUNCTION_TYPE, name_: "ITERATOR_LIKE_FUNCTION_TYPE", ordinal_: 32},
+	{self_: JSTypeNative_ITERATOR_LIKE_TYPE, name_: "ITERATOR_LIKE_TYPE", ordinal_: 33},
+	{self_: JSTypeNative_ITERATOR_FUNCTION_TYPE, name_: "ITERATOR_FUNCTION_TYPE", ordinal_: 34},
+	{self_: JSTypeNative_ITERATOR_TYPE, name_: "ITERATOR_TYPE", ordinal_: 35},
+	{self_: JSTypeNative_ITERATOR_ITERABLE_FUNCTION_TYPE, name_: "ITERATOR_ITERABLE_FUNCTION_TYPE", ordinal_: 36},
+	{self_: JSTypeNative_ITERATOR_ITERABLE_TYPE, name_: "ITERATOR_ITERABLE_TYPE", ordinal_: 37},
+	{self_: JSTypeNative_I_ARRAY_LIKE_FUNCTION_TYPE, name_: "I_ARRAY_LIKE_FUNCTION_TYPE", ordinal_: 38},
+	{self_: JSTypeNative_I_ARRAY_LIKE_TYPE, name_: "I_ARRAY_LIKE_TYPE", ordinal_: 39},
+	{self_: JSTypeNative_I_TEMPLATE_ARRAY_TYPE, name_: "I_TEMPLATE_ARRAY_TYPE", ordinal_: 40},
+	{self_: JSTypeNative_I_OBJECT_FUNCTION_TYPE, name_: "I_OBJECT_FUNCTION_TYPE", ordinal_: 41},
+	{self_: JSTypeNative_I_OBJECT_TYPE, name_: "I_OBJECT_TYPE", ordinal_: 42},
+	{self_: JSTypeNative_I_THENABLE_FUNCTION_TYPE, name_: "I_THENABLE_FUNCTION_TYPE", ordinal_: 43},
+	{self_: JSTypeNative_I_THENABLE_TYPE, name_: "I_THENABLE_TYPE", ordinal_: 44},
+	{self_: JSTypeNative_NULL_TYPE, name_: "NULL_TYPE", ordinal_: 45},
+	{self_: JSTypeNative_NUMBER_TYPE, name_: "NUMBER_TYPE", ordinal_: 46},
+	{self_: JSTypeNative_NUMBER_OBJECT_TYPE, name_: "NUMBER_OBJECT_TYPE", ordinal_: 47},
+	{self_: JSTypeNative_NUMBER_OBJECT_FUNCTION_TYPE, name_: "NUMBER_OBJECT_FUNCTION_TYPE", ordinal_: 48},
+	{self_: JSTypeNative_PROMISE_TYPE, name_: "PROMISE_TYPE", ordinal_: 49},
+	{self_: JSTypeNative_PROMISE_FUNCTION_TYPE, name_: "PROMISE_FUNCTION_TYPE", ordinal_: 50},
+	{self_: JSTypeNative_OBJECT_TYPE, name_: "OBJECT_TYPE", ordinal_: 51},
+	{self_: JSTypeNative_OBJECT_FUNCTION_TYPE, name_: "OBJECT_FUNCTION_TYPE", ordinal_: 52},
+	{self_: JSTypeNative_OBJECT_PROTOTYPE, name_: "OBJECT_PROTOTYPE", ordinal_: 53},
+	{self_: JSTypeNative_READONLY_ARRAY_TYPE, name_: "READONLY_ARRAY_TYPE", ordinal_: 54},
+	{self_: JSTypeNative_READONLY_ARRAY_FUNCTION_TYPE, name_: "READONLY_ARRAY_FUNCTION_TYPE", ordinal_: 55},
+	{self_: JSTypeNative_READONLY_MAP_TYPE, name_: "READONLY_MAP_TYPE", ordinal_: 56},
+	{self_: JSTypeNative_READONLY_MAP_FUNCTION_TYPE, name_: "READONLY_MAP_FUNCTION_TYPE", ordinal_: 57},
+	{self_: JSTypeNative_MAP_TYPE, name_: "MAP_TYPE", ordinal_: 58},
+	{self_: JSTypeNative_MAP_FUNCTION_TYPE, name_: "MAP_FUNCTION_TYPE", ordinal_: 59},
+	{self_: JSTypeNative_REGEXP_TYPE, name_: "REGEXP_TYPE", ordinal_: 60},
+	{self_: JSTypeNative_REGEXP_FUNCTION_TYPE, name_: "REGEXP_FUNCTION_TYPE", ordinal_: 61},
+	{self_: JSTypeNative_STRING_OBJECT_TYPE, name_: "STRING_OBJECT_TYPE", ordinal_: 62},
+	{self_: JSTypeNative_STRING_OBJECT_FUNCTION_TYPE, name_: "STRING_OBJECT_FUNCTION_TYPE", ordinal_: 63},
+	{self_: JSTypeNative_STRING_TYPE, name_: "STRING_TYPE", ordinal_: 64},
+	{self_: JSTypeNative_SYMBOL_OBJECT_TYPE, name_: "SYMBOL_OBJECT_TYPE", ordinal_: 65},
+	{self_: JSTypeNative_SYMBOL_OBJECT_FUNCTION_TYPE, name_: "SYMBOL_OBJECT_FUNCTION_TYPE", ordinal_: 66},
+	{self_: JSTypeNative_SYMBOL_TYPE, name_: "SYMBOL_TYPE", ordinal_: 67},
+	{self_: JSTypeNative_THENABLE_TYPE, name_: "THENABLE_TYPE", ordinal_: 68},
+	{self_: JSTypeNative_UNKNOWN_TYPE, name_: "UNKNOWN_TYPE", ordinal_: 69},
+	{self_: JSTypeNative_VOID_TYPE, name_: "VOID_TYPE", ordinal_: 70},
+	{self_: JSTypeNative_ALL_TYPE, name_: "ALL_TYPE", ordinal_: 71},
+	{self_: JSTypeNative_NO_TYPE, name_: "NO_TYPE", ordinal_: 72},
+	{self_: JSTypeNative_NO_OBJECT_TYPE, name_: "NO_OBJECT_TYPE", ordinal_: 73},
+	{self_: JSTypeNative_GLOBAL_THIS, name_: "GLOBAL_THIS", ordinal_: 74},
+	{self_: JSTypeNative_LEAST_FUNCTION_TYPE, name_: "LEAST_FUNCTION_TYPE", ordinal_: 75},
+	{self_: JSTypeNative_GREATEST_FUNCTION_TYPE, name_: "GREATEST_FUNCTION_TYPE", ordinal_: 76},
+	{self_: JSTypeNative_NULL_VOID, name_: "NULL_VOID", ordinal_: 77},
+	{self_: JSTypeNative_NUMBER_STRING_BOOLEAN, name_: "NUMBER_STRING_BOOLEAN", ordinal_: 78},
+	{self_: JSTypeNative_VALUE_TYPES, name_: "VALUE_TYPES", ordinal_: 79},
+	{self_: JSTypeNative_NUMBER_SYMBOL, name_: "NUMBER_SYMBOL", ordinal_: 80},
+	{self_: JSTypeNative_STRING_SYMBOL, name_: "STRING_SYMBOL", ordinal_: 81},
+	{self_: JSTypeNative_NUMBER_STRING, name_: "NUMBER_STRING", ordinal_: 82},
+	{self_: JSTypeNative_NUMBER_STRING_SYMBOL, name_: "NUMBER_STRING_SYMBOL", ordinal_: 83},
+	{self_: JSTypeNative_BIGINT_NUMBER, name_: "BIGINT_NUMBER", ordinal_: 84},
+	{self_: JSTypeNative_BIGINT_NUMBER_OBJECT, name_: "BIGINT_NUMBER_OBJECT", ordinal_: 85},
+	{self_: JSTypeNative_BIGINT_NUMBER_STRING, name_: "BIGINT_NUMBER_STRING", ordinal_: 86},
+	{self_: JSTypeNative_BIGINT_NUMBER_STRING_OBJECT, name_: "BIGINT_NUMBER_STRING_OBJECT", ordinal_: 87},
+	{self_: JSTypeNative_NUMBER_ADDITION_SUPERTYPE, name_: "NUMBER_ADDITION_SUPERTYPE", ordinal_: 88},
 }
 
-func (this *JSTypeNative) up_Enum() *Enum {
-	if this == nil {
+func (this JSTypeNative) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JSTypeNative_enum_[this-1]
 }
 
-func (this *JSTypeNative) init_JSTypeNative(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-}
+func (this JSTypeNative) name() string { return JSTypeNative_enum_[this-1].name_ }
 
-func new_JSTypeNative(name_ string, ordinal_ int32) *JSTypeNative {
-	this := &JSTypeNative{}
-	this.self_ = this
-	this.init_JSTypeNative(name_, ordinal_)
+func (this JSTypeNative) ordinal() int32 { return JSTypeNative_enum_[this-1].ordinal_ }
+
+func (this JSTypeNative) toString() string { return JSTypeNative_enum_[this-1].name_ }
+
+func (this JSTypeNative) compareTo(o any) int32 { return JSTypeNative_enum_[this-1].compareTo(o) }
+
+func (this JSTypeNative) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func JSTypeNative_values() []*JSTypeNative {
-	return append([]*JSTypeNative(nil), JSTypeNative_values_...)
+func JSTypeNative_values() []JSTypeNative {
+	return append([]JSTypeNative(nil), JSTypeNative_values_...)
 }
 
-func JSTypeNative_valueOf(name string) *JSTypeNative {
+func JSTypeNative_valueOf(name string) JSTypeNative {
 	for _, v := range JSTypeNative_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("JSTypeNative", name))
 }
 
-var JSTypeNative_ARGUMENTS_TYPE *JSTypeNative
-var JSTypeNative_ARGUMENTS_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_ARRAY_TYPE *JSTypeNative
-var JSTypeNative_ARRAY_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_ASYNC_ITERABLE_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_ASYNC_ITERABLE_TYPE *JSTypeNative
-var JSTypeNative_ASYNC_ITERATOR_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_ASYNC_ITERATOR_TYPE *JSTypeNative
-var JSTypeNative_ASYNC_ITERATOR_ITERABLE_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_ASYNC_ITERATOR_ITERABLE_TYPE *JSTypeNative
-var JSTypeNative_ASYNC_GENERATOR_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_ASYNC_GENERATOR_TYPE *JSTypeNative
-var JSTypeNative_BIGINT_TYPE *JSTypeNative
-var JSTypeNative_BIGINT_OBJECT_TYPE *JSTypeNative
-var JSTypeNative_BIGINT_OBJECT_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_BOOLEAN_TYPE *JSTypeNative
-var JSTypeNative_BOOLEAN_OBJECT_TYPE *JSTypeNative
-var JSTypeNative_BOOLEAN_OBJECT_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_CHECKED_UNKNOWN_TYPE *JSTypeNative
-var JSTypeNative_DATE_TYPE *JSTypeNative
-var JSTypeNative_DATE_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_FUNCTION_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_FUNCTION_PROTOTYPE *JSTypeNative
-var JSTypeNative_FUNCTION_INSTANCE_PROTOTYPE *JSTypeNative
-var JSTypeNative_GBIGINT_TYPE *JSTypeNative
-var JSTypeNative_GENERATOR_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_GENERATOR_TYPE *JSTypeNative
-var JSTypeNative_I_ITERABLE_RESULT_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_I_ITERABLE_RESULT_TYPE *JSTypeNative
-var JSTypeNative_ITERABLE_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_ITERABLE_TYPE *JSTypeNative
-var JSTypeNative_ITERATOR_LIKE_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_ITERATOR_LIKE_TYPE *JSTypeNative
-var JSTypeNative_ITERATOR_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_ITERATOR_TYPE *JSTypeNative
-var JSTypeNative_ITERATOR_ITERABLE_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_ITERATOR_ITERABLE_TYPE *JSTypeNative
-var JSTypeNative_I_ARRAY_LIKE_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_I_ARRAY_LIKE_TYPE *JSTypeNative
-var JSTypeNative_I_TEMPLATE_ARRAY_TYPE *JSTypeNative
-var JSTypeNative_I_OBJECT_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_I_OBJECT_TYPE *JSTypeNative
-var JSTypeNative_I_THENABLE_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_I_THENABLE_TYPE *JSTypeNative
-var JSTypeNative_NULL_TYPE *JSTypeNative
-var JSTypeNative_NUMBER_TYPE *JSTypeNative
-var JSTypeNative_NUMBER_OBJECT_TYPE *JSTypeNative
-var JSTypeNative_NUMBER_OBJECT_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_PROMISE_TYPE *JSTypeNative
-var JSTypeNative_PROMISE_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_OBJECT_TYPE *JSTypeNative
-var JSTypeNative_OBJECT_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_OBJECT_PROTOTYPE *JSTypeNative
-var JSTypeNative_READONLY_ARRAY_TYPE *JSTypeNative
-var JSTypeNative_READONLY_ARRAY_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_READONLY_MAP_TYPE *JSTypeNative
-var JSTypeNative_READONLY_MAP_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_MAP_TYPE *JSTypeNative
-var JSTypeNative_MAP_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_REGEXP_TYPE *JSTypeNative
-var JSTypeNative_REGEXP_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_STRING_OBJECT_TYPE *JSTypeNative
-var JSTypeNative_STRING_OBJECT_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_STRING_TYPE *JSTypeNative
-var JSTypeNative_SYMBOL_OBJECT_TYPE *JSTypeNative
-var JSTypeNative_SYMBOL_OBJECT_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_SYMBOL_TYPE *JSTypeNative
-var JSTypeNative_THENABLE_TYPE *JSTypeNative
-var JSTypeNative_UNKNOWN_TYPE *JSTypeNative
-var JSTypeNative_VOID_TYPE *JSTypeNative
-var JSTypeNative_ALL_TYPE *JSTypeNative
-var JSTypeNative_NO_TYPE *JSTypeNative
-var JSTypeNative_NO_OBJECT_TYPE *JSTypeNative
-var JSTypeNative_GLOBAL_THIS *JSTypeNative
-var JSTypeNative_LEAST_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_GREATEST_FUNCTION_TYPE *JSTypeNative
-var JSTypeNative_NULL_VOID *JSTypeNative
-var JSTypeNative_NUMBER_STRING_BOOLEAN *JSTypeNative
-var JSTypeNative_VALUE_TYPES *JSTypeNative
-var JSTypeNative_NUMBER_SYMBOL *JSTypeNative
-var JSTypeNative_STRING_SYMBOL *JSTypeNative
-var JSTypeNative_NUMBER_STRING *JSTypeNative
-var JSTypeNative_NUMBER_STRING_SYMBOL *JSTypeNative
-var JSTypeNative_BIGINT_NUMBER *JSTypeNative
-var JSTypeNative_BIGINT_NUMBER_OBJECT *JSTypeNative
-var JSTypeNative_BIGINT_NUMBER_STRING *JSTypeNative
-var JSTypeNative_BIGINT_NUMBER_STRING_OBJECT *JSTypeNative
-var JSTypeNative_NUMBER_ADDITION_SUPERTYPE *JSTypeNative
-var JSTypeNative_values_ []*JSTypeNative
+const JSTypeNative_ARGUMENTS_TYPE JSTypeNative = 1
+const JSTypeNative_ARGUMENTS_FUNCTION_TYPE JSTypeNative = 2
+const JSTypeNative_ARRAY_TYPE JSTypeNative = 3
+const JSTypeNative_ARRAY_FUNCTION_TYPE JSTypeNative = 4
+const JSTypeNative_ASYNC_ITERABLE_FUNCTION_TYPE JSTypeNative = 5
+const JSTypeNative_ASYNC_ITERABLE_TYPE JSTypeNative = 6
+const JSTypeNative_ASYNC_ITERATOR_FUNCTION_TYPE JSTypeNative = 7
+const JSTypeNative_ASYNC_ITERATOR_TYPE JSTypeNative = 8
+const JSTypeNative_ASYNC_ITERATOR_ITERABLE_FUNCTION_TYPE JSTypeNative = 9
+const JSTypeNative_ASYNC_ITERATOR_ITERABLE_TYPE JSTypeNative = 10
+const JSTypeNative_ASYNC_GENERATOR_FUNCTION_TYPE JSTypeNative = 11
+const JSTypeNative_ASYNC_GENERATOR_TYPE JSTypeNative = 12
+const JSTypeNative_BIGINT_TYPE JSTypeNative = 13
+const JSTypeNative_BIGINT_OBJECT_TYPE JSTypeNative = 14
+const JSTypeNative_BIGINT_OBJECT_FUNCTION_TYPE JSTypeNative = 15
+const JSTypeNative_BOOLEAN_TYPE JSTypeNative = 16
+const JSTypeNative_BOOLEAN_OBJECT_TYPE JSTypeNative = 17
+const JSTypeNative_BOOLEAN_OBJECT_FUNCTION_TYPE JSTypeNative = 18
+const JSTypeNative_CHECKED_UNKNOWN_TYPE JSTypeNative = 19
+const JSTypeNative_DATE_TYPE JSTypeNative = 20
+const JSTypeNative_DATE_FUNCTION_TYPE JSTypeNative = 21
+const JSTypeNative_FUNCTION_TYPE JSTypeNative = 22
+const JSTypeNative_FUNCTION_FUNCTION_TYPE JSTypeNative = 23
+const JSTypeNative_FUNCTION_PROTOTYPE JSTypeNative = 24
+const JSTypeNative_FUNCTION_INSTANCE_PROTOTYPE JSTypeNative = 25
+const JSTypeNative_GBIGINT_TYPE JSTypeNative = 26
+const JSTypeNative_GENERATOR_FUNCTION_TYPE JSTypeNative = 27
+const JSTypeNative_GENERATOR_TYPE JSTypeNative = 28
+const JSTypeNative_I_ITERABLE_RESULT_FUNCTION_TYPE JSTypeNative = 29
+const JSTypeNative_I_ITERABLE_RESULT_TYPE JSTypeNative = 30
+const JSTypeNative_ITERABLE_FUNCTION_TYPE JSTypeNative = 31
+const JSTypeNative_ITERABLE_TYPE JSTypeNative = 32
+const JSTypeNative_ITERATOR_LIKE_FUNCTION_TYPE JSTypeNative = 33
+const JSTypeNative_ITERATOR_LIKE_TYPE JSTypeNative = 34
+const JSTypeNative_ITERATOR_FUNCTION_TYPE JSTypeNative = 35
+const JSTypeNative_ITERATOR_TYPE JSTypeNative = 36
+const JSTypeNative_ITERATOR_ITERABLE_FUNCTION_TYPE JSTypeNative = 37
+const JSTypeNative_ITERATOR_ITERABLE_TYPE JSTypeNative = 38
+const JSTypeNative_I_ARRAY_LIKE_FUNCTION_TYPE JSTypeNative = 39
+const JSTypeNative_I_ARRAY_LIKE_TYPE JSTypeNative = 40
+const JSTypeNative_I_TEMPLATE_ARRAY_TYPE JSTypeNative = 41
+const JSTypeNative_I_OBJECT_FUNCTION_TYPE JSTypeNative = 42
+const JSTypeNative_I_OBJECT_TYPE JSTypeNative = 43
+const JSTypeNative_I_THENABLE_FUNCTION_TYPE JSTypeNative = 44
+const JSTypeNative_I_THENABLE_TYPE JSTypeNative = 45
+const JSTypeNative_NULL_TYPE JSTypeNative = 46
+const JSTypeNative_NUMBER_TYPE JSTypeNative = 47
+const JSTypeNative_NUMBER_OBJECT_TYPE JSTypeNative = 48
+const JSTypeNative_NUMBER_OBJECT_FUNCTION_TYPE JSTypeNative = 49
+const JSTypeNative_PROMISE_TYPE JSTypeNative = 50
+const JSTypeNative_PROMISE_FUNCTION_TYPE JSTypeNative = 51
+const JSTypeNative_OBJECT_TYPE JSTypeNative = 52
+const JSTypeNative_OBJECT_FUNCTION_TYPE JSTypeNative = 53
+const JSTypeNative_OBJECT_PROTOTYPE JSTypeNative = 54
+const JSTypeNative_READONLY_ARRAY_TYPE JSTypeNative = 55
+const JSTypeNative_READONLY_ARRAY_FUNCTION_TYPE JSTypeNative = 56
+const JSTypeNative_READONLY_MAP_TYPE JSTypeNative = 57
+const JSTypeNative_READONLY_MAP_FUNCTION_TYPE JSTypeNative = 58
+const JSTypeNative_MAP_TYPE JSTypeNative = 59
+const JSTypeNative_MAP_FUNCTION_TYPE JSTypeNative = 60
+const JSTypeNative_REGEXP_TYPE JSTypeNative = 61
+const JSTypeNative_REGEXP_FUNCTION_TYPE JSTypeNative = 62
+const JSTypeNative_STRING_OBJECT_TYPE JSTypeNative = 63
+const JSTypeNative_STRING_OBJECT_FUNCTION_TYPE JSTypeNative = 64
+const JSTypeNative_STRING_TYPE JSTypeNative = 65
+const JSTypeNative_SYMBOL_OBJECT_TYPE JSTypeNative = 66
+const JSTypeNative_SYMBOL_OBJECT_FUNCTION_TYPE JSTypeNative = 67
+const JSTypeNative_SYMBOL_TYPE JSTypeNative = 68
+const JSTypeNative_THENABLE_TYPE JSTypeNative = 69
+const JSTypeNative_UNKNOWN_TYPE JSTypeNative = 70
+const JSTypeNative_VOID_TYPE JSTypeNative = 71
+const JSTypeNative_ALL_TYPE JSTypeNative = 72
+const JSTypeNative_NO_TYPE JSTypeNative = 73
+const JSTypeNative_NO_OBJECT_TYPE JSTypeNative = 74
+const JSTypeNative_GLOBAL_THIS JSTypeNative = 75
+const JSTypeNative_LEAST_FUNCTION_TYPE JSTypeNative = 76
+const JSTypeNative_GREATEST_FUNCTION_TYPE JSTypeNative = 77
+const JSTypeNative_NULL_VOID JSTypeNative = 78
+const JSTypeNative_NUMBER_STRING_BOOLEAN JSTypeNative = 79
+const JSTypeNative_VALUE_TYPES JSTypeNative = 80
+const JSTypeNative_NUMBER_SYMBOL JSTypeNative = 81
+const JSTypeNative_STRING_SYMBOL JSTypeNative = 82
+const JSTypeNative_NUMBER_STRING JSTypeNative = 83
+const JSTypeNative_NUMBER_STRING_SYMBOL JSTypeNative = 84
+const JSTypeNative_BIGINT_NUMBER JSTypeNative = 85
+const JSTypeNative_BIGINT_NUMBER_OBJECT JSTypeNative = 86
+const JSTypeNative_BIGINT_NUMBER_STRING JSTypeNative = 87
+const JSTypeNative_BIGINT_NUMBER_STRING_OBJECT JSTypeNative = 88
+const JSTypeNative_NUMBER_ADDITION_SUPERTYPE JSTypeNative = 89
+
+var JSTypeNative_values_ []JSTypeNative
 
 var JSTypeNative_clinit_done bool
 
@@ -135,96 +231,7 @@ func JSTypeNative_clinit() {
 		return
 	}
 	JSTypeNative_clinit_done = true
-	JSTypeNative_ARGUMENTS_TYPE = new_JSTypeNative("ARGUMENTS_TYPE", 0)
-	JSTypeNative_ARGUMENTS_FUNCTION_TYPE = new_JSTypeNative("ARGUMENTS_FUNCTION_TYPE", 1)
-	JSTypeNative_ARRAY_TYPE = new_JSTypeNative("ARRAY_TYPE", 2)
-	JSTypeNative_ARRAY_FUNCTION_TYPE = new_JSTypeNative("ARRAY_FUNCTION_TYPE", 3)
-	JSTypeNative_ASYNC_ITERABLE_FUNCTION_TYPE = new_JSTypeNative("ASYNC_ITERABLE_FUNCTION_TYPE", 4)
-	JSTypeNative_ASYNC_ITERABLE_TYPE = new_JSTypeNative("ASYNC_ITERABLE_TYPE", 5)
-	JSTypeNative_ASYNC_ITERATOR_FUNCTION_TYPE = new_JSTypeNative("ASYNC_ITERATOR_FUNCTION_TYPE", 6)
-	JSTypeNative_ASYNC_ITERATOR_TYPE = new_JSTypeNative("ASYNC_ITERATOR_TYPE", 7)
-	JSTypeNative_ASYNC_ITERATOR_ITERABLE_FUNCTION_TYPE = new_JSTypeNative("ASYNC_ITERATOR_ITERABLE_FUNCTION_TYPE", 8)
-	JSTypeNative_ASYNC_ITERATOR_ITERABLE_TYPE = new_JSTypeNative("ASYNC_ITERATOR_ITERABLE_TYPE", 9)
-	JSTypeNative_ASYNC_GENERATOR_FUNCTION_TYPE = new_JSTypeNative("ASYNC_GENERATOR_FUNCTION_TYPE", 10)
-	JSTypeNative_ASYNC_GENERATOR_TYPE = new_JSTypeNative("ASYNC_GENERATOR_TYPE", 11)
-	JSTypeNative_BIGINT_TYPE = new_JSTypeNative("BIGINT_TYPE", 12)
-	JSTypeNative_BIGINT_OBJECT_TYPE = new_JSTypeNative("BIGINT_OBJECT_TYPE", 13)
-	JSTypeNative_BIGINT_OBJECT_FUNCTION_TYPE = new_JSTypeNative("BIGINT_OBJECT_FUNCTION_TYPE", 14)
-	JSTypeNative_BOOLEAN_TYPE = new_JSTypeNative("BOOLEAN_TYPE", 15)
-	JSTypeNative_BOOLEAN_OBJECT_TYPE = new_JSTypeNative("BOOLEAN_OBJECT_TYPE", 16)
-	JSTypeNative_BOOLEAN_OBJECT_FUNCTION_TYPE = new_JSTypeNative("BOOLEAN_OBJECT_FUNCTION_TYPE", 17)
-	JSTypeNative_CHECKED_UNKNOWN_TYPE = new_JSTypeNative("CHECKED_UNKNOWN_TYPE", 18)
-	JSTypeNative_DATE_TYPE = new_JSTypeNative("DATE_TYPE", 19)
-	JSTypeNative_DATE_FUNCTION_TYPE = new_JSTypeNative("DATE_FUNCTION_TYPE", 20)
-	JSTypeNative_FUNCTION_TYPE = new_JSTypeNative("FUNCTION_TYPE", 21)
-	JSTypeNative_FUNCTION_FUNCTION_TYPE = new_JSTypeNative("FUNCTION_FUNCTION_TYPE", 22)
-	JSTypeNative_FUNCTION_PROTOTYPE = new_JSTypeNative("FUNCTION_PROTOTYPE", 23)
-	JSTypeNative_FUNCTION_INSTANCE_PROTOTYPE = new_JSTypeNative("FUNCTION_INSTANCE_PROTOTYPE", 24)
-	JSTypeNative_GBIGINT_TYPE = new_JSTypeNative("GBIGINT_TYPE", 25)
-	JSTypeNative_GENERATOR_FUNCTION_TYPE = new_JSTypeNative("GENERATOR_FUNCTION_TYPE", 26)
-	JSTypeNative_GENERATOR_TYPE = new_JSTypeNative("GENERATOR_TYPE", 27)
-	JSTypeNative_I_ITERABLE_RESULT_FUNCTION_TYPE = new_JSTypeNative("I_ITERABLE_RESULT_FUNCTION_TYPE", 28)
-	JSTypeNative_I_ITERABLE_RESULT_TYPE = new_JSTypeNative("I_ITERABLE_RESULT_TYPE", 29)
-	JSTypeNative_ITERABLE_FUNCTION_TYPE = new_JSTypeNative("ITERABLE_FUNCTION_TYPE", 30)
-	JSTypeNative_ITERABLE_TYPE = new_JSTypeNative("ITERABLE_TYPE", 31)
-	JSTypeNative_ITERATOR_LIKE_FUNCTION_TYPE = new_JSTypeNative("ITERATOR_LIKE_FUNCTION_TYPE", 32)
-	JSTypeNative_ITERATOR_LIKE_TYPE = new_JSTypeNative("ITERATOR_LIKE_TYPE", 33)
-	JSTypeNative_ITERATOR_FUNCTION_TYPE = new_JSTypeNative("ITERATOR_FUNCTION_TYPE", 34)
-	JSTypeNative_ITERATOR_TYPE = new_JSTypeNative("ITERATOR_TYPE", 35)
-	JSTypeNative_ITERATOR_ITERABLE_FUNCTION_TYPE = new_JSTypeNative("ITERATOR_ITERABLE_FUNCTION_TYPE", 36)
-	JSTypeNative_ITERATOR_ITERABLE_TYPE = new_JSTypeNative("ITERATOR_ITERABLE_TYPE", 37)
-	JSTypeNative_I_ARRAY_LIKE_FUNCTION_TYPE = new_JSTypeNative("I_ARRAY_LIKE_FUNCTION_TYPE", 38)
-	JSTypeNative_I_ARRAY_LIKE_TYPE = new_JSTypeNative("I_ARRAY_LIKE_TYPE", 39)
-	JSTypeNative_I_TEMPLATE_ARRAY_TYPE = new_JSTypeNative("I_TEMPLATE_ARRAY_TYPE", 40)
-	JSTypeNative_I_OBJECT_FUNCTION_TYPE = new_JSTypeNative("I_OBJECT_FUNCTION_TYPE", 41)
-	JSTypeNative_I_OBJECT_TYPE = new_JSTypeNative("I_OBJECT_TYPE", 42)
-	JSTypeNative_I_THENABLE_FUNCTION_TYPE = new_JSTypeNative("I_THENABLE_FUNCTION_TYPE", 43)
-	JSTypeNative_I_THENABLE_TYPE = new_JSTypeNative("I_THENABLE_TYPE", 44)
-	JSTypeNative_NULL_TYPE = new_JSTypeNative("NULL_TYPE", 45)
-	JSTypeNative_NUMBER_TYPE = new_JSTypeNative("NUMBER_TYPE", 46)
-	JSTypeNative_NUMBER_OBJECT_TYPE = new_JSTypeNative("NUMBER_OBJECT_TYPE", 47)
-	JSTypeNative_NUMBER_OBJECT_FUNCTION_TYPE = new_JSTypeNative("NUMBER_OBJECT_FUNCTION_TYPE", 48)
-	JSTypeNative_PROMISE_TYPE = new_JSTypeNative("PROMISE_TYPE", 49)
-	JSTypeNative_PROMISE_FUNCTION_TYPE = new_JSTypeNative("PROMISE_FUNCTION_TYPE", 50)
-	JSTypeNative_OBJECT_TYPE = new_JSTypeNative("OBJECT_TYPE", 51)
-	JSTypeNative_OBJECT_FUNCTION_TYPE = new_JSTypeNative("OBJECT_FUNCTION_TYPE", 52)
-	JSTypeNative_OBJECT_PROTOTYPE = new_JSTypeNative("OBJECT_PROTOTYPE", 53)
-	JSTypeNative_READONLY_ARRAY_TYPE = new_JSTypeNative("READONLY_ARRAY_TYPE", 54)
-	JSTypeNative_READONLY_ARRAY_FUNCTION_TYPE = new_JSTypeNative("READONLY_ARRAY_FUNCTION_TYPE", 55)
-	JSTypeNative_READONLY_MAP_TYPE = new_JSTypeNative("READONLY_MAP_TYPE", 56)
-	JSTypeNative_READONLY_MAP_FUNCTION_TYPE = new_JSTypeNative("READONLY_MAP_FUNCTION_TYPE", 57)
-	JSTypeNative_MAP_TYPE = new_JSTypeNative("MAP_TYPE", 58)
-	JSTypeNative_MAP_FUNCTION_TYPE = new_JSTypeNative("MAP_FUNCTION_TYPE", 59)
-	JSTypeNative_REGEXP_TYPE = new_JSTypeNative("REGEXP_TYPE", 60)
-	JSTypeNative_REGEXP_FUNCTION_TYPE = new_JSTypeNative("REGEXP_FUNCTION_TYPE", 61)
-	JSTypeNative_STRING_OBJECT_TYPE = new_JSTypeNative("STRING_OBJECT_TYPE", 62)
-	JSTypeNative_STRING_OBJECT_FUNCTION_TYPE = new_JSTypeNative("STRING_OBJECT_FUNCTION_TYPE", 63)
-	JSTypeNative_STRING_TYPE = new_JSTypeNative("STRING_TYPE", 64)
-	JSTypeNative_SYMBOL_OBJECT_TYPE = new_JSTypeNative("SYMBOL_OBJECT_TYPE", 65)
-	JSTypeNative_SYMBOL_OBJECT_FUNCTION_TYPE = new_JSTypeNative("SYMBOL_OBJECT_FUNCTION_TYPE", 66)
-	JSTypeNative_SYMBOL_TYPE = new_JSTypeNative("SYMBOL_TYPE", 67)
-	JSTypeNative_THENABLE_TYPE = new_JSTypeNative("THENABLE_TYPE", 68)
-	JSTypeNative_UNKNOWN_TYPE = new_JSTypeNative("UNKNOWN_TYPE", 69)
-	JSTypeNative_VOID_TYPE = new_JSTypeNative("VOID_TYPE", 70)
-	JSTypeNative_ALL_TYPE = new_JSTypeNative("ALL_TYPE", 71)
-	JSTypeNative_NO_TYPE = new_JSTypeNative("NO_TYPE", 72)
-	JSTypeNative_NO_OBJECT_TYPE = new_JSTypeNative("NO_OBJECT_TYPE", 73)
-	JSTypeNative_GLOBAL_THIS = new_JSTypeNative("GLOBAL_THIS", 74)
-	JSTypeNative_LEAST_FUNCTION_TYPE = new_JSTypeNative("LEAST_FUNCTION_TYPE", 75)
-	JSTypeNative_GREATEST_FUNCTION_TYPE = new_JSTypeNative("GREATEST_FUNCTION_TYPE", 76)
-	JSTypeNative_NULL_VOID = new_JSTypeNative("NULL_VOID", 77)
-	JSTypeNative_NUMBER_STRING_BOOLEAN = new_JSTypeNative("NUMBER_STRING_BOOLEAN", 78)
-	JSTypeNative_VALUE_TYPES = new_JSTypeNative("VALUE_TYPES", 79)
-	JSTypeNative_NUMBER_SYMBOL = new_JSTypeNative("NUMBER_SYMBOL", 80)
-	JSTypeNative_STRING_SYMBOL = new_JSTypeNative("STRING_SYMBOL", 81)
-	JSTypeNative_NUMBER_STRING = new_JSTypeNative("NUMBER_STRING", 82)
-	JSTypeNative_NUMBER_STRING_SYMBOL = new_JSTypeNative("NUMBER_STRING_SYMBOL", 83)
-	JSTypeNative_BIGINT_NUMBER = new_JSTypeNative("BIGINT_NUMBER", 84)
-	JSTypeNative_BIGINT_NUMBER_OBJECT = new_JSTypeNative("BIGINT_NUMBER_OBJECT", 85)
-	JSTypeNative_BIGINT_NUMBER_STRING = new_JSTypeNative("BIGINT_NUMBER_STRING", 86)
-	JSTypeNative_BIGINT_NUMBER_STRING_OBJECT = new_JSTypeNative("BIGINT_NUMBER_STRING_OBJECT", 87)
-	JSTypeNative_NUMBER_ADDITION_SUPERTYPE = new_JSTypeNative("NUMBER_ADDITION_SUPERTYPE", 88)
-	JSTypeNative_values_ = []*JSTypeNative{JSTypeNative_ARGUMENTS_TYPE, JSTypeNative_ARGUMENTS_FUNCTION_TYPE, JSTypeNative_ARRAY_TYPE, JSTypeNative_ARRAY_FUNCTION_TYPE, JSTypeNative_ASYNC_ITERABLE_FUNCTION_TYPE, JSTypeNative_ASYNC_ITERABLE_TYPE, JSTypeNative_ASYNC_ITERATOR_FUNCTION_TYPE, JSTypeNative_ASYNC_ITERATOR_TYPE, JSTypeNative_ASYNC_ITERATOR_ITERABLE_FUNCTION_TYPE, JSTypeNative_ASYNC_ITERATOR_ITERABLE_TYPE, JSTypeNative_ASYNC_GENERATOR_FUNCTION_TYPE, JSTypeNative_ASYNC_GENERATOR_TYPE, JSTypeNative_BIGINT_TYPE, JSTypeNative_BIGINT_OBJECT_TYPE, JSTypeNative_BIGINT_OBJECT_FUNCTION_TYPE, JSTypeNative_BOOLEAN_TYPE, JSTypeNative_BOOLEAN_OBJECT_TYPE, JSTypeNative_BOOLEAN_OBJECT_FUNCTION_TYPE, JSTypeNative_CHECKED_UNKNOWN_TYPE, JSTypeNative_DATE_TYPE, JSTypeNative_DATE_FUNCTION_TYPE, JSTypeNative_FUNCTION_TYPE, JSTypeNative_FUNCTION_FUNCTION_TYPE, JSTypeNative_FUNCTION_PROTOTYPE, JSTypeNative_FUNCTION_INSTANCE_PROTOTYPE, JSTypeNative_GBIGINT_TYPE, JSTypeNative_GENERATOR_FUNCTION_TYPE, JSTypeNative_GENERATOR_TYPE, JSTypeNative_I_ITERABLE_RESULT_FUNCTION_TYPE, JSTypeNative_I_ITERABLE_RESULT_TYPE, JSTypeNative_ITERABLE_FUNCTION_TYPE, JSTypeNative_ITERABLE_TYPE, JSTypeNative_ITERATOR_LIKE_FUNCTION_TYPE, JSTypeNative_ITERATOR_LIKE_TYPE, JSTypeNative_ITERATOR_FUNCTION_TYPE, JSTypeNative_ITERATOR_TYPE, JSTypeNative_ITERATOR_ITERABLE_FUNCTION_TYPE, JSTypeNative_ITERATOR_ITERABLE_TYPE, JSTypeNative_I_ARRAY_LIKE_FUNCTION_TYPE, JSTypeNative_I_ARRAY_LIKE_TYPE, JSTypeNative_I_TEMPLATE_ARRAY_TYPE, JSTypeNative_I_OBJECT_FUNCTION_TYPE, JSTypeNative_I_OBJECT_TYPE, JSTypeNative_I_THENABLE_FUNCTION_TYPE, JSTypeNative_I_THENABLE_TYPE, JSTypeNative_NULL_TYPE, JSTypeNative_NUMBER_TYPE, JSTypeNative_NUMBER_OBJECT_TYPE, JSTypeNative_NUMBER_OBJECT_FUNCTION_TYPE, JSTypeNative_PROMISE_TYPE, JSTypeNative_PROMISE_FUNCTION_TYPE, JSTypeNative_OBJECT_TYPE, JSTypeNative_OBJECT_FUNCTION_TYPE, JSTypeNative_OBJECT_PROTOTYPE, JSTypeNative_READONLY_ARRAY_TYPE, JSTypeNative_READONLY_ARRAY_FUNCTION_TYPE, JSTypeNative_READONLY_MAP_TYPE, JSTypeNative_READONLY_MAP_FUNCTION_TYPE, JSTypeNative_MAP_TYPE, JSTypeNative_MAP_FUNCTION_TYPE, JSTypeNative_REGEXP_TYPE, JSTypeNative_REGEXP_FUNCTION_TYPE, JSTypeNative_STRING_OBJECT_TYPE, JSTypeNative_STRING_OBJECT_FUNCTION_TYPE, JSTypeNative_STRING_TYPE, JSTypeNative_SYMBOL_OBJECT_TYPE, JSTypeNative_SYMBOL_OBJECT_FUNCTION_TYPE, JSTypeNative_SYMBOL_TYPE, JSTypeNative_THENABLE_TYPE, JSTypeNative_UNKNOWN_TYPE, JSTypeNative_VOID_TYPE, JSTypeNative_ALL_TYPE, JSTypeNative_NO_TYPE, JSTypeNative_NO_OBJECT_TYPE, JSTypeNative_GLOBAL_THIS, JSTypeNative_LEAST_FUNCTION_TYPE, JSTypeNative_GREATEST_FUNCTION_TYPE, JSTypeNative_NULL_VOID, JSTypeNative_NUMBER_STRING_BOOLEAN, JSTypeNative_VALUE_TYPES, JSTypeNative_NUMBER_SYMBOL, JSTypeNative_STRING_SYMBOL, JSTypeNative_NUMBER_STRING, JSTypeNative_NUMBER_STRING_SYMBOL, JSTypeNative_BIGINT_NUMBER, JSTypeNative_BIGINT_NUMBER_OBJECT, JSTypeNative_BIGINT_NUMBER_STRING, JSTypeNative_BIGINT_NUMBER_STRING_OBJECT, JSTypeNative_NUMBER_ADDITION_SUPERTYPE}
+	JSTypeNative_values_ = []JSTypeNative{JSTypeNative_ARGUMENTS_TYPE, JSTypeNative_ARGUMENTS_FUNCTION_TYPE, JSTypeNative_ARRAY_TYPE, JSTypeNative_ARRAY_FUNCTION_TYPE, JSTypeNative_ASYNC_ITERABLE_FUNCTION_TYPE, JSTypeNative_ASYNC_ITERABLE_TYPE, JSTypeNative_ASYNC_ITERATOR_FUNCTION_TYPE, JSTypeNative_ASYNC_ITERATOR_TYPE, JSTypeNative_ASYNC_ITERATOR_ITERABLE_FUNCTION_TYPE, JSTypeNative_ASYNC_ITERATOR_ITERABLE_TYPE, JSTypeNative_ASYNC_GENERATOR_FUNCTION_TYPE, JSTypeNative_ASYNC_GENERATOR_TYPE, JSTypeNative_BIGINT_TYPE, JSTypeNative_BIGINT_OBJECT_TYPE, JSTypeNative_BIGINT_OBJECT_FUNCTION_TYPE, JSTypeNative_BOOLEAN_TYPE, JSTypeNative_BOOLEAN_OBJECT_TYPE, JSTypeNative_BOOLEAN_OBJECT_FUNCTION_TYPE, JSTypeNative_CHECKED_UNKNOWN_TYPE, JSTypeNative_DATE_TYPE, JSTypeNative_DATE_FUNCTION_TYPE, JSTypeNative_FUNCTION_TYPE, JSTypeNative_FUNCTION_FUNCTION_TYPE, JSTypeNative_FUNCTION_PROTOTYPE, JSTypeNative_FUNCTION_INSTANCE_PROTOTYPE, JSTypeNative_GBIGINT_TYPE, JSTypeNative_GENERATOR_FUNCTION_TYPE, JSTypeNative_GENERATOR_TYPE, JSTypeNative_I_ITERABLE_RESULT_FUNCTION_TYPE, JSTypeNative_I_ITERABLE_RESULT_TYPE, JSTypeNative_ITERABLE_FUNCTION_TYPE, JSTypeNative_ITERABLE_TYPE, JSTypeNative_ITERATOR_LIKE_FUNCTION_TYPE, JSTypeNative_ITERATOR_LIKE_TYPE, JSTypeNative_ITERATOR_FUNCTION_TYPE, JSTypeNative_ITERATOR_TYPE, JSTypeNative_ITERATOR_ITERABLE_FUNCTION_TYPE, JSTypeNative_ITERATOR_ITERABLE_TYPE, JSTypeNative_I_ARRAY_LIKE_FUNCTION_TYPE, JSTypeNative_I_ARRAY_LIKE_TYPE, JSTypeNative_I_TEMPLATE_ARRAY_TYPE, JSTypeNative_I_OBJECT_FUNCTION_TYPE, JSTypeNative_I_OBJECT_TYPE, JSTypeNative_I_THENABLE_FUNCTION_TYPE, JSTypeNative_I_THENABLE_TYPE, JSTypeNative_NULL_TYPE, JSTypeNative_NUMBER_TYPE, JSTypeNative_NUMBER_OBJECT_TYPE, JSTypeNative_NUMBER_OBJECT_FUNCTION_TYPE, JSTypeNative_PROMISE_TYPE, JSTypeNative_PROMISE_FUNCTION_TYPE, JSTypeNative_OBJECT_TYPE, JSTypeNative_OBJECT_FUNCTION_TYPE, JSTypeNative_OBJECT_PROTOTYPE, JSTypeNative_READONLY_ARRAY_TYPE, JSTypeNative_READONLY_ARRAY_FUNCTION_TYPE, JSTypeNative_READONLY_MAP_TYPE, JSTypeNative_READONLY_MAP_FUNCTION_TYPE, JSTypeNative_MAP_TYPE, JSTypeNative_MAP_FUNCTION_TYPE, JSTypeNative_REGEXP_TYPE, JSTypeNative_REGEXP_FUNCTION_TYPE, JSTypeNative_STRING_OBJECT_TYPE, JSTypeNative_STRING_OBJECT_FUNCTION_TYPE, JSTypeNative_STRING_TYPE, JSTypeNative_SYMBOL_OBJECT_TYPE, JSTypeNative_SYMBOL_OBJECT_FUNCTION_TYPE, JSTypeNative_SYMBOL_TYPE, JSTypeNative_THENABLE_TYPE, JSTypeNative_UNKNOWN_TYPE, JSTypeNative_VOID_TYPE, JSTypeNative_ALL_TYPE, JSTypeNative_NO_TYPE, JSTypeNative_NO_OBJECT_TYPE, JSTypeNative_GLOBAL_THIS, JSTypeNative_LEAST_FUNCTION_TYPE, JSTypeNative_GREATEST_FUNCTION_TYPE, JSTypeNative_NULL_VOID, JSTypeNative_NUMBER_STRING_BOOLEAN, JSTypeNative_VALUE_TYPES, JSTypeNative_NUMBER_SYMBOL, JSTypeNative_STRING_SYMBOL, JSTypeNative_NUMBER_STRING, JSTypeNative_NUMBER_STRING_SYMBOL, JSTypeNative_BIGINT_NUMBER, JSTypeNative_BIGINT_NUMBER_OBJECT, JSTypeNative_BIGINT_NUMBER_STRING, JSTypeNative_BIGINT_NUMBER_STRING_OBJECT, JSTypeNative_NUMBER_ADDITION_SUPERTYPE}
 	registerEnum_("com.google.javascript.rhino.jstype.JSTypeNative", enumValues_(JSTypeNative_values_))
 
 }
