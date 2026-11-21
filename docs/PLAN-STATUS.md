@@ -81,9 +81,47 @@ StringBuilder 78 to 5, requireNonNull 81 to 6, str_( 390 to 154).
 - In progress: stage 2, typed collection and iteration interfaces; then the fifth flip (the
   step list replayed on the new translator output), which gives the next standing.
 
+## The fifth flip (2026-11-21)
+
+The in-bounds step list replayed on main's translator output with rule "function types"
+(overlay main-r12-flip5 a8761c89, record tools/postflip/reflip/REFLIP5.md; gated tree flip5-tree
+aa141ba3). Two unattended replays from the flip base give the same tree (270 commits); runtime
+tests ok; checks, bundle, downlevel, advanced MATCH. 1 manual patch is left (422; 416 and 419
+lost their subject), 7 steps dropped and 20 that find nothing or less, 5 tool fixes (28-32).
+
+Correction: the fourth flip's base froze main at prep 18, not prep 20 as recorded; the fifth
+flip is the first to carry prep 19 and 20 through the post-flip steps.
+
+Idle host, same output as Java, 2026-11-21:
+
+| tree | full benchmark | CHECKS | OPTIMIZATIONS | FINALIZATIONS | 18% subset |
+|---|---|---|---|---|---|
+| pre-flip Java | 452.1 s | 214.7 | 198.5 | 38.9 | 90.5 / 91.0 s |
+| fourth flip, through step 558 | (585.5 s through 556, the day before) | | | | 97.7 / 97.9 s |
+| fifth flip | 572.1 s | 304.1 | 218.7 | 49.3 | 97.5 / 97.8 s |
+
+Java/Go 0.79 on the full benchmark (0.93 on the subset). The fifth flip is level with the
+fourth in time: the rule's -4% on the translator's output had already been recovered post-flip
+by the lambda tools. Its gain is in what the translator emits and in the census: adapter
+literals 587 to 39, boxing 1,182 to 1,017, class casts 769 to 728, `any` slots 526 to 479.
+
+Not recovered in the fifth flip (later tools do not read the new lambda form): 20 maps that
+were native Go maps, typed forEach / merge / compute, 11 typed sorts, the data-flow work queue's
+direct comparator. Two census rows are worse (instanceof helpers 71 to 78, anonymous interface
+assertions 0 to 6: instanceof of the now-generic Simple* classes).
+
+Translator, not yet flipped (branches main-libgen-b2, -b3, -b4; each gated on, all off, and the
+newer switches off one by one): rule "typed library interfaces", kinds iter, coll, list, set,
+map/entry. Erased collection declarations 816 to 242 (133 class-typed ones are the next piece);
+on the translator's output cast_[ 1,029 to 723, erased views 1,198 to 572. CPU on the subset,
+each stage against the one before: iter +1%, coll and list -2%, set and map neutral. The
+runtime has not shrunk (20,241 lines against 19,832).
+
 ## Open
 
-- Speed: not met in bounds (0.78 on the full benchmark).
+- Speed: not met in bounds (0.79 on the full benchmark). No in-bounds step so far has moved the
+  full benchmark by more than about 2%; CHECKS (0.71) is where Go is behind, and its cost is
+  spread thin with the collector at 30%.
 - A start-to-finish unattended replay of the final list (the list grew while its last replay
   ran, and step 556 was applied on top by hand).
 - 3 manual patches (416, 419, 422).
