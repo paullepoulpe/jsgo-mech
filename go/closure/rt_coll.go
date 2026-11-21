@@ -76,6 +76,12 @@ func foreach_(c any) each_ {
 	switch x := c.(type) {
 	case *ArrayList:
 		return each_{src: &x.items}
+	case *ArrayDeque: // these iterate with ArrayList's iterator, a cursor over items
+		return each_{src: &x.items}
+	case *LinkedList:
+		return each_{src: &x.items}
+	case *PriorityQueue:
+		return each_{src: &x.items}
 	case *ImmutableCollection:
 		if x.kind == icMultiset_ {
 			x.elems_()
