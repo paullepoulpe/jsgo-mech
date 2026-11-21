@@ -232,7 +232,7 @@ func (this *SourceMapConsumerV3) getPreviousMapping(lineNumber int32) *Mapping_O
 	return this.getOriginalMappingForEntry(index, Mapping_OriginalMapping_Precision_APPROXIMATE_LINE)
 }
 
-func (this *SourceMapConsumerV3) getOriginalMappingForEntry(index int32, precision *Mapping_OriginalMapping_Precision) *Mapping_OriginalMapping {
+func (this *SourceMapConsumerV3) getOriginalMappingForEntry(index int32, precision Mapping_OriginalMapping_Precision) *Mapping_OriginalMapping {
 	var sourceFileId int32 = this.mappings.getSourceFileId(index)
 	if sourceFileId == SourceMapConsumerV3_UNMAPPED {
 		return nil

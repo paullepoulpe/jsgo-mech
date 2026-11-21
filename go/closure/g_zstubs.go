@@ -263,7 +263,7 @@ func (this *AbstractSet) self() any {
 
 type AccessorSummaryEntryProtoOrBuilder interface {
 	MessageOrBuilder
-	getKind() *PropertyAccessKindProto
+	getKind() PropertyAccessKindProto
 	getName() string
 }
 
@@ -483,7 +483,7 @@ type AstNodeOrBuilder interface {
 	getChildCount() int32
 	getDoubleValue() float64
 	getJsdoc() *OptimizationJsdoc
-	getKind() *NodeKind
+	getKind() NodeKind
 	getOriginalNamePointer() int32
 	getRelativeColumn() int32
 	getRelativeLine() int32
@@ -781,7 +781,7 @@ func new_ConcurrentModificationException_String_Throwable(p0 string, p1 *Throwab
 
 type ConformanceConfigOrBuilder interface {
 	MessageOrBuilder
-	getLibraryLevelNonAllowlistedConformanceViolationsBehavior() *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior
+	getLibraryLevelNonAllowlistedConformanceViolationsBehavior() ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior
 	getRequirementList() List
 	hasLibraryLevelNonAllowlistedConformanceViolationsBehavior() bool
 }
@@ -1144,7 +1144,7 @@ type Flushable interface {
 
 type Future interface {
 	get() any
-	get_long_TimeUnit(int64, *TimeUnit) any
+	get_long_TimeUnit(int64, TimeUnit) any
 }
 
 type GarbageCollectorMXBean interface {
@@ -1512,13 +1512,13 @@ type InstrumentationPointOrBuilder interface {
 	getFileName() string
 	getFunctionName() string
 	getLineNumber() int32
-	getType() *InstrumentationPoint_Type
+	getType() InstrumentationPoint_Type
 }
 
 type InstrumentationPointStatsOrBuilder interface {
 	MessageOrBuilder
 	getPoint() *InstrumentationPoint
-	getPointPresence() *InstrumentationPointStats_Presence
+	getPointPresence() InstrumentationPointStats_Presence
 	getTimesExecuted() int64
 }
 
@@ -1677,7 +1677,7 @@ type JSCompilerStateProtoOrBuilder interface {
 	getInjectedLibrariesList() List
 	getInstrumentationMappingList() List
 	getLastInjectedLibraryIndexInFirstScript() int32
-	getLifeCycleStage() *LifeCycleStageProto
+	getLifeCycleStage() LifeCycleStageProto
 	getMergedPrecompiledLibraries() bool
 	getRunJ2ClPasses() bool
 	getStringMapList() List
@@ -2372,9 +2372,9 @@ type RequirementOrBuilder interface {
 	getOnlyApplyToRegexpList() List
 	getReportLooseTypeViolations() bool
 	getRuleId() string
-	getSeverity() *Requirement_Severity
-	getType() *Requirement_Type
-	getTypeMatchingStrategy() *Requirement_TypeMatchingStrategy
+	getSeverity() Requirement_Severity
+	getType() Requirement_Type
+	getTypeMatchingStrategy() Requirement_TypeMatchingStrategy
 	getValueCount() int32
 	getValueList() List
 	getWhitelistCount() int32
@@ -2542,11 +2542,11 @@ type SourceFileProtoOrBuilder interface {
 	getFileOnDisk() *SourceFileProto_FileOnDisk
 	getFilename() string
 	getIsClosureUnawareCode() bool
-	getLoaderCase() *SourceFileProto_LoaderCase
+	getLoaderCase() SourceFileProto_LoaderCase
 	getNumBytesPlusOne() int32
 	getNumLinesPlusOne() int32
 	getPreloadedContents() string
-	getSourceKind() *SourceFileProto_SourceKind
+	getSourceKind() SourceFileProto_SourceKind
 	getZipEntry() *SourceFileProto_ZipEntryOnDisk
 }
 
@@ -2841,7 +2841,7 @@ type TypePool_DebugInfo_MismatchOrBuilder interface {
 
 type TypeProtoOrBuilder interface {
 	MessageOrBuilder
-	getKindCase() *TypeProto_KindCase
+	getKindCase() TypeProto_KindCase
 	getObject() *ObjectTypeProto
 	getUnion() *UnionTypeProto
 	hasObject() bool

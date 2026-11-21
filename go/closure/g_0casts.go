@@ -2262,10 +2262,10 @@ var jtc_p_ConformanceConfig = &jtconv_[*ConformanceConfig]{
 	unbox: func(v any) *ConformanceConfig { return cast_[*ConformanceConfig](v) },
 }
 
-var jtc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = &jtconv_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]{
-	box: func(v *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) any { return obj_(v) },
-	unbox: func(v any) *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior {
-		return cast_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](v)
+var jtc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = &jtconv_[ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]{
+	box: func(v ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) any { return obj_(v) },
+	unbox: func(v any) ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior {
+		return cast_[ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](v)
 	},
 }
 
@@ -2650,14 +2650,14 @@ var jtc_p_InstrumentationPointStats = &jtconv_[*InstrumentationPointStats]{
 	unbox: func(v any) *InstrumentationPointStats { return cast_[*InstrumentationPointStats](v) },
 }
 
-var jtc_p_InstrumentationPointStats_Presence = &jtconv_[*InstrumentationPointStats_Presence]{
-	box:   func(v *InstrumentationPointStats_Presence) any { return obj_(v) },
-	unbox: func(v any) *InstrumentationPointStats_Presence { return cast_[*InstrumentationPointStats_Presence](v) },
+var jtc_p_InstrumentationPointStats_Presence = &jtconv_[InstrumentationPointStats_Presence]{
+	box:   func(v InstrumentationPointStats_Presence) any { return obj_(v) },
+	unbox: func(v any) InstrumentationPointStats_Presence { return cast_[InstrumentationPointStats_Presence](v) },
 }
 
-var tc_p_InstrumentationPoint_Type = &jtconv_[*InstrumentationPoint_Type]{
-	box:   func(v *InstrumentationPoint_Type) any { return obj_(v) },
-	unbox: func(v any) *InstrumentationPoint_Type { return cast_[*InstrumentationPoint_Type](v) },
+var tc_p_InstrumentationPoint_Type = &jtconv_[InstrumentationPoint_Type]{
+	box:   func(v InstrumentationPoint_Type) any { return obj_(v) },
+	unbox: func(v any) InstrumentationPoint_Type { return cast_[InstrumentationPoint_Type](v) },
 }
 
 var tc_p_J2clClinitPrunerPass_HierarchicalSet_string_ = &jtconv_[*J2clClinitPrunerPass_HierarchicalSet[string]]{
