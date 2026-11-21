@@ -1150,18 +1150,19 @@ public class LibGen {
         r += x;
       }
     }
-    // a list made for a place of the class, through an Object and back
-    ArrayList<String> al = new ArrayList<>();
+    // a list made for a place of the class, through an Object and back. (It is made where
+    // only a type variable is declared: with piece `cls` off, rule "typed collections" would
+    // type a list made here and the read through the type variable would cast it to ArrayList.)
+    ArrayList<String> al = propOr("l", ArrayList::new);
     al.add("p");
-    props.put("l", al);
     ArrayList<String> back = prop("l");
     back.add("q");
     r += al + "" + (back == al) + grow(back).size();
     al.trimToSize();
     ArrayList<?> wild = prop("l");
     r += wild.size() + "" + (wild == al) + wild.get(0);
-    LinkedHashMap<String, Dog> lm = dogs(new LinkedHashMap<>());
-    props.put("m", lm);
+    LinkedHashMap<String, Dog> lm0 = propOr("m", LinkedHashMap::new);
+    LinkedHashMap<String, Dog> lm = dogs(lm0);
     LinkedHashMap<String, Dog> lm2 = prop("m");
     r += lm2.get("x") + "" + lm2.keySet() + (lm2 == lm) + lm2.containsKey("x") + lm2.get("none");
     LinkedHashSet<String> ls = new LinkedHashSet<>();
