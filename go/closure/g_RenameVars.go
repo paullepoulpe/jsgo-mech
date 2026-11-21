@@ -401,3 +401,14 @@ func (this *RenameVars_ProcessVars) incCount(name string) {
 	var s *RenameVars_Assignment = this.outer_.assignments.computeIfAbsent(name, Function[string, *RenameVars_Assignment](func(p0 string) *RenameVars_Assignment { return new_RenameVars_Assignment(this.outer_, p0) }))
 	s.count_++
 }
+
+// visit: an object that is exactly a RenameVars_ProcessVars calls its visit_impl directly (post-flip); others dispatch.
+func (this *RenameVars_ProcessVars) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}
