@@ -104,7 +104,7 @@ func NodeUtil_getStringValue(n Node) Optional[string] {
 		case tokOrd1_STRINGLIT, tokOrd1_STRING_KEY:
 			return Optional_of[string](n.getString())
 		case tokOrd1_TEMPLATELIT:
-			var string_ *StringBuilder = new_StringBuilder()
+			var string_ strBuilder_
 			{
 				var child Node = n.getFirstChild()
 				for ; child != 0; child = child.getNext() {
@@ -119,7 +119,7 @@ func NodeUtil_getStringValue(n Node) Optional[string] {
 					string_.append(expressionString.orElse("null"))
 				}
 			}
-			return Optional_of[string](tostrR_(string_))
+			return Optional_of[string](string_.toString())
 		case tokOrd1_TEMPLATELIT_STRING:
 			return n.getCookedString()
 		case tokOrd1_NAME:
@@ -182,7 +182,7 @@ func NodeUtil_getArrayElementStringValue(n Node) Optional[string] {
 
 func NodeUtil_arrayToString(literal Node) Optional[string] {
 	var first Node = literal.getFirstChild()
-	var result *StringBuilder = new_StringBuilder()
+	var result strBuilder_
 	{
 		var n Node = first
 		for ; n != 0; n = n.getNext() {
@@ -196,7 +196,7 @@ func NodeUtil_arrayToString(literal Node) Optional[string] {
 			result.append(childValue.get())
 		}
 	}
-	return Optional_of[string](tostrR_(result))
+	return Optional_of[string](result.toString())
 }
 
 func NodeUtil_getNumberValue(n Node) any {

@@ -150,7 +150,7 @@ func new_StripCode_StripCodeConfigRecord(outer_ *StripCode) *StripCode_StripCode
 }
 
 func (this *StripCode_StripCodeConfigRecord) get() string {
-	var builder *StringBuilder = new_StringBuilder()
+	var builder strBuilder_
 	builder.append("=== stripNameSuffixes ===\n")
 	it_1 := this.outer_.stripNameSuffixes.each()
 	for it_1.next() {
@@ -175,7 +175,7 @@ func (this *StripCode_StripCodeConfigRecord) get() string {
 		builder.append(stripNamePrefix).append("\n")
 	}
 	builder.append("\n")
-	return tostrR_(builder)
+	return builder.toString()
 }
 
 type StripCode_Strip struct {
