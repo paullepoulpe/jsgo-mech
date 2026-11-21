@@ -83,7 +83,7 @@ func (this *PruningAnalysis) buildGraph() *DiGraph[string, string] {
 			req := cast_[*DependencyInfo_Require](el)
 			depSymbols.Add(req.getSymbol())
 		}
-		depSymbols.asSet().addAll(ImmutableList_as_Collection(input.getTypeRequires()))
+		tsetAddAllOf_(depSymbols, ImmutableList_as_Collection(input.getTypeRequires()))
 		for symbol := range depSymbols.All() {
 			var depRes *Outcome_base[*CompilerInput] = this.sorter_.getInputProviding(symbol)
 			if depRes.isErr() {

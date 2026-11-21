@@ -48,7 +48,7 @@ func (this *DefaultDependencyResolver) addDependency(symbol string, seen *TSet[s
 			panic(new_ServiceException(("Unknown require of " + sstr_(symbol))))
 		}
 	} else if !seen.asSet().containsAll(ImmutableList_as_Collection(dependency.getProvides())) {
-		seen.asSet().addAll(ImmutableList_as_Collection(dependency.getProvides()))
+		tsetAddAllOf_(seen, ImmutableList_as_Collection(dependency.getProvides()))
 		for _, el := range immElems_(dependency.getRequiredSymbols()) {
 			require := str_(el)
 			this.addDependency(require, seen, list)
