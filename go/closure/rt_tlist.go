@@ -22,6 +22,11 @@ type tconv_[T any] struct {
 	// a.equals(b) for a non-null a. Nil for keys compared by ==.
 	hash func(T) int32
 	eq   func(a, b T) bool
+	// The empty immutable list, set and map of this element type (of a map: of this value
+	// type), made on first use (rt_timm.go): ImmutableList.of() is one object in Guava.
+	emptyL *TList[T]
+	emptyS any
+	emptyM any
 }
 
 type TList[T any] struct {
@@ -42,6 +47,9 @@ func tlistImm_[T any](c *tconv_[T], from Collection) *TList[T] {
 	if isNil_(from) {
 		return nil
 	}
+	if from == Collection(emptyImmList_) {
+		return tlistEmptyImm_(c) // ImmutableList.of(), one object as in Guava
+	}
 	slot := immSlot_(from)
 	if slot != nil && slot.conv == any(c) {
 		if l, ok := slot.v.(*TList[T]); ok {
@@ -52,6 +60,10 @@ func tlistImm_[T any](c *tconv_[T], from Collection) *TList[T] {
 	l.imm = true
 	if slot != nil {
 		*slot = immTyped_{c, l}
+	}
+	if ic, ok := from.(*ImmutableCollection); ok && ic.kind == icList_ {
+		// The list is the immutable list itself for erased code (asList): its identity.
+		l.view = &tlistView_[T]{l: l, twin: ic}
 	}
 	return l
 }
@@ -169,10 +181,14 @@ func (l *TList[T]) ensureCapacity(n int32) {}
 // slice is read anew at every step).
 func (l *TList[T]) each() sliceEach_[T] { return sliceEach_[T]{src: &l.items} }
 
-// asList is the list as an erased List (nil for a nil list).
+// asList is the list as an erased List (nil for a nil list); an immutable list is its
+// ImmutableList (asImm).
 func (l *TList[T]) asList() List {
 	if l == nil {
 		return nil
+	}
+	if l.imm {
+		return l.asImm()
 	}
 	if l.view == nil {
 		l.view = &tlistView_[T]{l: l}
@@ -180,8 +196,12 @@ func (l *TList[T]) asList() List {
 	return l.view
 }
 
-// tlistView_ is a TList seen as an erased List.
-type tlistView_[T any] struct{ l *TList[T] }
+// tlistView_ is a TList seen as an erased List. Of an immutable list it holds the
+// ImmutableList erased code sees instead (twin, rt_timm.go).
+type tlistView_[T any] struct {
+	l    *TList[T]
+	twin *ImmutableCollection
+}
 
 func (v *tlistView_[T]) boxed() []any {
 	out := make([]any, len(v.l.items))
