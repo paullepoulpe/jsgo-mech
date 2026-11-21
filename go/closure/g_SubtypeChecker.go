@@ -515,12 +515,12 @@ func (this *SubtypeChecker) shouldTreatThisTypesAsCovariant(subtype *FunctionTyp
 	if ((supertype.getTypeOfThis().toObjectType() != nil) && (supertype.getTypeOfThis().toObjectType().getConstructor() != nil)) && supertype.getTypeOfThis().toObjectType().getConstructor().isInterface() {
 		return true
 	}
-	return this.hackTemporarilyChangeSubtypingMode(JSType_SubtypingMode_NORMAL, &BooleanSupplier_fn{func() bool {
+	return this.hackTemporarilyChangeSubtypingMode(JSType_SubtypingMode_NORMAL, func() bool {
 		return (this.isSubtypeCaching(supertype.getTypeOfThis(), subtype.getTypeOfThis()) || this.isSubtypeCaching(subtype.getTypeOfThis(), supertype.getTypeOfThis()))
-	}})
+	})
 }
 
-func (this *SubtypeChecker) hackTemporarilyChangeSubtypingMode(tempMode *JSType_SubtypingMode, callback BooleanSupplier) bool {
+func (this *SubtypeChecker) hackTemporarilyChangeSubtypingMode(tempMode *JSType_SubtypingMode, callback func() bool) bool {
 	var originalMode *JSType_SubtypingMode = this.subtypingMode
 	var ret_1 bool
 	code_1 := func() (code_ int) {
@@ -528,7 +528,7 @@ func (this *SubtypeChecker) hackTemporarilyChangeSubtypingMode(tempMode *JSType_
 			this.subtypingMode = originalMode
 		}()
 		this.subtypingMode = tempMode
-		ret_1 = callback.getAsBoolean()
+		ret_1 = callback()
 		return 1
 		return 0
 	}()
