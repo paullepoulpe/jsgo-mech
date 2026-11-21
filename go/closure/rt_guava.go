@@ -453,30 +453,6 @@ func ImmutableList_of_Object_Object(p0 any, p1 any) *ImmutableList {
 	return immList_([]any{p0, p1})
 }
 
-func ImmutableList_of_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any) *ImmutableList {
-	return immList_([]any{p0, p1, p2, p3, p4})
-}
-
-func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any) *ImmutableList {
-	return immList_([]any{p0, p1, p2, p3, p4, p5, p6})
-}
-
-func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any) *ImmutableList {
-	return immList_([]any{p0, p1, p2, p3, p4, p5, p6, p7})
-}
-
-func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any) *ImmutableList {
-	return immList_([]any{p0, p1, p2, p3, p4, p5, p6, p7, p8})
-}
-
-func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any, p9 any) *ImmutableList {
-	return immList_([]any{p0, p1, p2, p3, p4, p5, p6, p7, p8, p9})
-}
-
-func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any, p9 any, p10 any) *ImmutableList {
-	return immList_([]any{p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10})
-}
-
 func ImmutableList_copyOf(p0 Collection) *ImmutableList {
 	if c, ok := p0.(*ImmutableCollection); ok {
 		return c.asList()
@@ -489,10 +465,6 @@ func ImmutableList_copyOf_Iterable(p0 Iterable) *ImmutableList {
 		return c.asList()
 	}
 	return immList_(copySlice_(p0))
-}
-
-func ImmutableList_copyOf_ObjectArr(p0 []any) *ImmutableList {
-	return immList_(append([]any(nil), p0...))
 }
 
 func ImmutableList_sortedCopyOf(p0 Comparator_e, p1 Iterable) *ImmutableList {
@@ -514,10 +486,6 @@ func ImmutableSet_of_Object_Object(p0 any, p1 any) *ImmutableSet {
 
 func ImmutableSet_of_Object_Object_Object(p0 any, p1 any, p2 any) *ImmutableSet {
 	return immSet_([]any{p0, p1, p2})
-}
-
-func ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 []any) *ImmutableSet {
-	return immSet_(append([]any{p0, p1, p2, p3, p4, p5}, p6...))
 }
 
 func ImmutableSet_copyOf(p0 Collection) *ImmutableSet {
@@ -651,10 +619,6 @@ func (this *ImmutableCollection_Builder) build() *ImmutableCollection {
 //
 // java.util.stream.Collector has no methods the translated code calls, so the
 // Go interface is empty; these collectors expose the Java accessor methods.
-
-func ImmutableList_of_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any) *ImmutableList {
-	return immList_([]any{p0, p1, p2, p3, p4, p5})
-}
 
 func (this *ImmutableCollection) equals(o any) bool {
 	if o == nil {

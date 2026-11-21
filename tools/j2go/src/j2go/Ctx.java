@@ -504,6 +504,7 @@ final class Ctx {
    * constructors with an expected size, which are the runtime's typed constructors.
    */
   static final Map<String, String[]> TYPED_MAKERS = Map.of(
+      "com.google.common.collect.Sets.newIdentityHashSet", new String[] {"newTSet_", "set", null},
       "com.google.common.base.Splitter.splitToList", new String[] {"splitToListT_", "list", "java.lang.String"},
       "com.google.common.collect.Maps.newLinkedHashMapWithExpectedSize", new String[] {"newTMapN_", "map", null},
       "com.google.common.collect.Maps.newHashMapWithExpectedSize", new String[] {"newTMapN_", "map", null},
@@ -517,8 +518,23 @@ final class Ctx {
     if (!(m instanceof ExecutableElement me) || "1".equals(System.getenv("J2GO_COLLS_NOMAKERS"))) return null;
     String[] tm = TYPED_MAKERS.get(((TypeElement) me.getEnclosingElement()).getQualifiedName() + "." + me.getSimpleName());
     if (tm == null || !k.name.equals(tm[1])) return null;
+    if (identityMaker(m)) {
+      // Sets.newIdentityHashSet() (piece `idset`; J2GO_NOLIBGEN=idset is the translation without
+      // it): the typed set that compares with Go's ==, which is identity for a class or an
+      // interface of the program (the object's one pointer, a handle's number); not for a String,
+      // a box or a value of a type parameter
+      if (!LibGen.on("idset") || !LibGen.on("makers") || args.size() != 1 || args.get(0).getKind() != TypeKind.DECLARED) return null;
+      K ek = kind(args.get(0));
+      return (ek == K.CLS || ek == K.IFACE) && isSource(typeElement(erase(args.get(0)))) && ((DeclaredType) erase(args.get(0))).getTypeArguments().isEmpty() ? tm : null;
+    }
     if (tm[2] == null) return LibGen.on("makers") ? tm : null;
     return args.size() == 1 && types.isSameType(args.get(0), elems.getTypeElement(tm[2]).asType()) ? tm : null;
+  }
+
+  /** Whether m is Guava's Sets.newIdentityHashSet. */
+  static boolean identityMaker(Element m) {
+    return m instanceof ExecutableElement me && me.getSimpleName().contentEquals("newIdentityHashSet")
+        && ((TypeElement) me.getEnclosingElement()).getQualifiedName().contentEquals("com.google.common.collect.Sets");
   }
 
   /** The kind of typed collection that type t (TList<X>, TSet<X>) is, or null. */
@@ -615,6 +631,9 @@ final class Ctx {
       // an interface of rule "typed library interfaces": an element is held at the typed
       // interface (piece `elems`; J2GO_NOLIBGEN=elems: erased, as before)
       if (lg.isLib(ae)) return compared ? null : LibGen.on("elems") ? erase(a) : types.erasure(a);
+      // a collection class whose places hold a typed interface (LibGen.cls): as that interface
+      // (elems off: erased; a class of LibGen.CONCRETE as the erased interface, since a collection made for a typed place of it is no object of the class)
+      if (lg.isCls(a)) return compared ? null : LibGen.on("elems") ? erase(a) : lg.concrete(a) ? types.erasure(erase(a)) : types.erasure(a);
       if (!simple || typedClasses.contains(ae) && !isSource(ae)) return null;
       if (isSource(ae)) {
         // a generic class of the program: the Go type it has (an instantiation of a Go generic
@@ -624,6 +643,8 @@ final class Ctx {
       }
       // a library type: erased whatever its type arguments are
       if (compared) return null;
+      // (asked while a type is being decided, LibGen.cls: no Go type may be named yet)
+      if (lg.deciding > 0) return null;
       if (!goType(a).equals(goType(types.erasure(a)))) return null;
       return types.erasure(a);
     }
@@ -1536,6 +1557,11 @@ final class Ctx {
         if (fn.is(t)) return fn.norm(t);
         // a library collection interface of rule "typed library interfaces": typed, or its erasure (LibGen.erase)
         if (t.getKind() == TypeKind.DECLARED && lg.isLib(typeElement(t))) return lg.erase(t);
+        // a collection class at the typed interface of its collection interface (LibGen.cls)
+        if (t.getKind() == TypeKind.DECLARED) {
+          TypeMirror c = lg.cls(t);
+          if (c != null) return c;
+        }
         // the types the Go code keeps: type variables of typed classes, their parameterized types
         if (typedVar(t) || typedDecl(t)) return t;
         if (t.getKind() == TypeKind.ARRAY) {
@@ -1627,6 +1653,7 @@ final class Ctx {
       if (lg.is(erase(t))) return g;
       lg.note("declarations of the erased interface (written by the translator: bridges, runtime signatures)", String.valueOf(t));
     }
+    if (lg.is(erase(t))) return g;
     List<? extends TypeMirror> args = ((DeclaredType) t).getTypeArguments();
     TypeElement te = typeElement(erase(t));
     K k = kind(erase(t));
@@ -1754,6 +1781,8 @@ final class Ctx {
       CollKind ck = typedColl(to);
       if (ck.immClass == null) throw new IllegalStateException("a value of type " + from + " cannot become the typed collection " + gt);
       TypeMirror ic = types.erasure(elems.getTypeElement(ck.immClass).asType());
+      // (from a place of the immutable class that holds the typed interface, LibGen.cls: the typed collection whose view the value is)
+      if (lg.is(from)) return "t" + ck.name + "OfT_(" + tconvsOf(to) + ", " + code + ")";
       return "t" + ck.name + "Imm_(" + tconvsOf(to) + ", " + coerce(code, from, ic) + ")";
     }
     // A value library class: between two instantiations the content is converted; from an

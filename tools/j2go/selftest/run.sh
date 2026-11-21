@@ -54,6 +54,8 @@ EOF
 # Rule "function types" off (J2GO_NOFNTYPES=1): the runtime's erased forms (rt_fn_erased.go).
 tags=()
 [[ ${J2GO_NOFNTYPES:-} == 1 ]] && tags=(-tags j2go_nofntypes)
+# A piece of rule "typed library interfaces" off (J2GO_NOLIBGEN=...): the erased functions only such a translation names (rt_lg_erased.go).
+[[ -n ${J2GO_NOLIBGEN:-} ]] && tags=(-tags "${tags[1]:+${tags[1]},}j2go_nolibgen")
 (cd "$t/go" && gofmt -w closure/g_*.go && go build "${tags[@]}" -o ../t ./cmd/t)
 "$t/t" >"$t/actual.txt" || true
 # Rule "field layout" (lang/Layout.java): the structs have no padding but at their end.
@@ -68,9 +70,9 @@ if [[ ${J2GO_NOFNTYPES:-} != 1 ]]; then
   if [[ $n != 14 ]] || ls "$t/refused" | grep -q '^g_'; then echo "selftest: FAIL (function types: $n of 14 uses refused)"; exit 1; fi
 fi
 if [[ -z ${J2GO_NOLIBGEN:-} ]]; then
-  # Rule "typed library interfaces" (every kind and piece on): the translator must refuse every marked use in refused/RefusedLib.java (6) and write nothing.
+  # Rule "typed library interfaces" (every kind and piece on): the translator must refuse every marked use in refused/RefusedLib.java (7) and write nothing.
   mkdir -p "$t/refusedlib" && { cat .cache/j2go/files.txt; echo tools/j2go/selftest/refused/RefusedLib.java; } >"$t/refusedlib/files.txt"
   n=$(java -Xss64m -Xmx8g --add-modules jdk.compiler -cp "${J2GO_CLASSES:-.cache/j2go}" j2go.Main ".cache/build/stock-libs.jar:.cache/build/main:$(ls .cache/deps/auto-value-annotations-*.jar)" "$t/refusedlib" - @"$t/refusedlib/files.txt" 2>&1 | grep -c '^typed library interfaces: refused: RefusedLib.java' || true)
-  if [[ $n != 6 ]] || ls "$t/refusedlib" | grep -q '^g_'; then echo "selftest: FAIL (typed library interfaces: $n of 6 uses refused)"; exit 1; fi
+  if [[ $n != 7 ]] || ls "$t/refusedlib" | grep -q '^g_'; then echo "selftest: FAIL (typed library interfaces: $n of 7 uses refused)"; exit 1; fi
 fi
 echo "selftest: PASS"

@@ -483,3 +483,131 @@ func TestLgMap(t *testing.T) {
 		t.Fatal("null as an entry is not nil")
 	}
 }
+
+// Piece `cls`: the value of a place of an immutable class entering a typed declaration is the
+// typed collection whose view it is; a collection that is not immutable fails as the cast does.
+func TestLgCls(t *testing.T) {
+	il := immutableListOf_(tc_string, "p", "q")
+	if tlistOfT_(tc_string, il.asListT()) != il || tlistOfT_(tc_string, il.asCollT()) != il || tlistOfT_(tc_string, nil) != nil {
+		t.Fatal("the typed list of its view")
+	}
+	if il.twin != immPending_ {
+		t.Fatal("the twin of an immutable list was made although only typed code read it")
+	}
+	// an erased immutable list in a wrapper: the typed list of that object, made once
+	el := ImmutableList_of_Object_Object(strobj_("a"), strobj_("b"))
+	w := listAs_(tc_string, List(el))
+	tl := tlistOfT_(tc_string, w)
+	if tl.get(1) != "b" || tlistOfT_(tc_string, w) != tl || tl.asImm() != el {
+		t.Fatal("the typed list of an erased immutable list")
+	}
+	is := immutableSetOf_(tc_string, "x")
+	if tsetOfT_(tc_string, is.asSetT()) != is || tsetOfT_(tc_string, nil) != nil {
+		t.Fatal("the typed set of its view")
+	}
+	im := immutableMapOf1_(tc_string, tc_string, "k", "v")
+	if tmapOfT_(tc_string, tc_string, im.asMapT()) != im || tmapOfT_(tc_string, tc_string, nil) != nil {
+		t.Fatal("the typed map of its view")
+	}
+	ml := newTList_(tc_string)
+	ms := newTSet_(tc_string)
+	mm := newTMap_(tc_string, tc_string)
+	for i, f := range []func(){func() { tlistOfT_(tc_string, ml.asListT()) }, func() { tsetOfT_(tc_string, ms.asSetT()) }, func() { tmapOfT_(tc_string, tc_string, mm.asMapT()) }} {
+		func() {
+			defer func() {
+				if recover() == nil {
+					t.Fatal("a collection that can change entered a place of an immutable class", i)
+				}
+			}()
+			f()
+		}()
+	}
+	// ArrayList's own method on the view of a list made for a typed place
+	cast_[interface{ trimToSize() }](lgBox_(ml.asListT())).trimToSize()
+}
+
+// An erased LinkedHashMap keeps the wrapper typed code reads it through; the wrapper keeps its
+// typed key set and values (live views).
+func TestLgMapWrapperKept(t *testing.T) {
+	m := new_LinkedHashMap()
+	m.put(strobj_("a"), strobj_("x"))
+	w := mapAs_(tc_string, tc_string, Map(m))
+	if mapAs_(tc_string, tc_string, Map(m)) != w || Map_un_(w) != Map(m) || lgBox_(w) != any(m) {
+		t.Fatal("the wrapper of an erased map is not kept, or is not the map for erased code")
+	}
+	ks, vs := w.keySet_t(), w.values_t()
+	if w.keySet_t() != ks || w.values_t() != vs {
+		t.Fatal("the typed views of a wrapper are not kept")
+	}
+	m.put(strobj_("b"), strobj_("y"))
+	got := ""
+	for e := eachOf_[string](ks); e.next(); {
+		got += e.v
+	}
+	for e := eachOf_[string](vs); e.next(); {
+		got += e.v
+	}
+	if got != "abxy" || w.get_t(strobj_("b")) != "y" {
+		t.Fatal(got)
+	}
+	// another instantiation, and another map, get wrappers of their own
+	w2 := mapAs_(tc_string, tc_Object, Map(m))
+	if any(w2) == any(w) || w2.get_t(strobj_("a")) != any("x") {
+		t.Fatal("a wrapper of another instantiation")
+	}
+	m2 := new_LinkedHashMap_Map(Map(m))
+	if any(mapAs_(tc_string, tc_Object, Map(m2))) == any(w2) || Map_un_(mapAs_(tc_string, tc_Object, Map(m2))) != Map(m2) {
+		t.Fatal("the wrapper of a copy is the original's")
+	}
+}
+
+// Piece `meth`: the methods that take an element at its type, on views and on wrappers.
+func TestLgMeth(t *testing.T) {
+	l := newTList_(tc_string)
+	lt := l.asListT()
+	al := new_ArrayList_0()
+	wl := listAs_(tc_string, List(al))
+	for _, x := range []ListT[string]{lt, wl} {
+		if !x.add_t("a") || !CollectionT[string](x).add_t("b") || x.set_t(0, "c") != "a" || x.remove_t(1) != "b" || x.size() != 1 || x.get_t(0) != "c" {
+			t.Fatal("add_t / set_t / remove_t of a list")
+		}
+	}
+	if l.get(0) != "c" || str_(al.get(0)) != "c" {
+		t.Fatal("the typed methods did not write the list itself")
+	}
+	s := newTSet_(tc_string)
+	hs := new_LinkedHashSet()
+	for _, x := range []SetT[string]{s.asSetT(), setAs_(tc_string, Set(hs))} {
+		if !x.add_t("a") || x.add_t("a") || x.size() != 1 {
+			t.Fatal("add_t of a set")
+		}
+	}
+	m := newTMap_(tc_string, tc_string)
+	hm := new_LinkedHashMap()
+	for _, x := range []MapT[string, string]{m.asMapT(), mapAs_(tc_string, tc_string, Map(hm))} {
+		if x.put_t("k", "v") != nullstr_ || x.put_t("k", "w") != "v" || x.get_t(strobj_("k")) != "w" {
+			t.Fatal("put_t")
+		}
+		for e := eachOf_[Map_EntryT[string, string]](x.entrySet_t()); e.next(); {
+			if e.v.setValue_t("z") != "w" || e.v.getValue_t() != "z" {
+				t.Fatal("setValue_t")
+			}
+		}
+		if x.remove_t(obj_(int32(1))) != nullstr_ || x.remove_t(strobj_("k")) != "z" || x.remove_t(strobj_("k")) != nullstr_ || x.size() != 0 {
+			t.Fatal("remove_t of a map")
+		}
+	}
+	il := immutableListOf_(tc_string, "p")
+	im := immutableMapOf1_(tc_string, tc_string, "k", "v")
+	for i, f := range []func(){func() { il.asListT().add_t("x") }, func() { il.asListT().set_t(0, "x") }, func() { il.asListT().remove_t(0) },
+		func() { im.asMapT().put_t("a", "b") }, func() { im.asMapT().remove_t(strobj_("k")) }, func() { m.keySetT().add_t("x") }, func() { m.valuesT().add_t("x") }} {
+		func() {
+			defer func() {
+				if recover() == nil {
+					t.Fatal("a typed method changed an immutable collection or a view of a map", i)
+				}
+			}()
+			f()
+		}()
+	}
+}

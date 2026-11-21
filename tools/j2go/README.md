@@ -349,6 +349,57 @@ type Map_EntryT[K any, V any] interface { Map_Entry; getKey_t() K; getValue_t() 
   (`x.asListT()`), which is part of it; as any other erased argument an immutable typed
   collection is its twin, made with every element boxed for that one read.
 
+- Piece `cls`: a place whose type is one of the collection classes that the typed collections
+  stand for, with type arguments (`LibGen.CLASSES`: `ArrayList`, `LinkedHashSet`, `HashSet`,
+  `LinkedHashMap`, `HashMap`, `ImmutableList`, `ImmutableSet`, `ImmutableCollection`,
+  `ImmutableMap`), and that rule "typed collections" does not make a concrete typed collection
+  (a method of a record, a lambda, a result read through a type variable), holds the typed
+  interface of the class's collection interface: `ImmutableList<X>` and `ArrayList<X>` are
+  `ListT[X]`, `ImmutableMap<K, V>` is `MapT[K, V]`, `ImmutableCollection<X>` is
+  `CollectionT[X]`. What is made for the place is typed by it as for the interface
+  (`ImmutableList.of(..)`, `new ArrayList<>()`, a typed builder's `build()`: the typed
+  collection's view), so a typed immutable list is no longer turned into its erased twin for
+  such a result and found again by the caller.
+  - Only where the typed family can hold the elements (`Ctx.typedArgs`): `ImmutableMap<Object,
+    X>`, `ArrayList<LocalClass>`, `ImmutableList<String[]>`, a key with type arguments, an erased
+    type variable or a wildcard keep the class (`*ImmutableList`), because everything entering
+    would need a wrapper. A wide use of a class of `LibGen.CONCRETE` (`ArrayList<?>`) is the
+    erased interface (`List`): a list made for a typed place of the class is no `*ArrayList`.
+  - The signatures of the runtime keep the class (`LibGen.rt`); an object of the class enters
+    through `listAs_` (the view of the typed collection of an erased immutable one).
+  - A method that only the class has is called on the object erased code knows:
+    `names.reverse()` is `cast_[*ImmutableList](lgBox_(names)).reverse()` (the twin). A method
+    of another interface (`SequencedCollection.getFirst`) gets the object as any erased
+    parameter does. Of the methods that a class of `CONCRETE` declares itself only those of
+    `LibGen.OWN` (`ArrayList.trimToSize`), which the view has too, are translated, through the
+    interface of that one method; any other is refused.
+  - A value of such a place entering a declaration of rule "typed collections" is the typed
+    collection whose view it is (`tlistOfT_`, `tsetOfT_`, `tmapOfT_`), without the twin.
+  - A cast to the class is the cast to the class first (`ClassCastException` as in Java), then
+    the place's type.
+  - A new collection of a class of `CONCRETE` whose own type is such a place, entering an
+    `Object` or an erased type variable (`return new LinkedHashMap<>(arg)` where the group's
+    result is a type variable; `ArrayList::new` for a `Supplier<T>` at `T` = `List<X>` or
+    `ArrayList<X>`), is made typed by its own type: the place of the class that reads it back
+    gets a native value, not a wrapper per read. (An immutable one stays erased there: for
+    `Object` it would be its twin.)
+  - An erased `LinkedHashMap` that typed code reads (made where its key and value types are
+    erased type variables, as the maps of `JSDocInfo`'s properties) keeps the wrapper made for
+    it, and the wrapper its typed key set and values (`mapAs_`, `rt_lg.go`): one wrapper per
+    map, not one per read.
+- Piece `meth`: the methods that take an element at its type have a typed form too
+  (`LibGen.TYPED_METHODS2`: `Collection.add` is `add_t(x T) bool`, `List.set` / `remove(int)`,
+  `Map.put` / `remove`, `Map.Entry.setValue`): no box of a String or of a value of a type
+  parameter for the argument, no cast of the result. Methods whose parameters are all `Object`
+  (`contains`, `containsKey`, `remove(Object)`, `indexOf`) have nothing to type and stay the
+  erased ones (a String key goes through the helpers `Map_get_s`...). `J2GO_LIBGEN=1` counts
+  the erased methods still called on a typed receiver, and those of them that box an argument
+  or give an element as `Object`.
+- Piece `idset`: `Sets.newIdentityHashSet()` made for a set of a class or an interface of the
+  program is the typed set that compares with Go's `==`, which is identity there (the object's
+  one pointer; a handle's number), whatever `equals` the class has (`newTSet_(tc_p_JSType)`,
+  not `tce_`).
+
 Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is written):
 
 - a raw use of one of the interfaces;
@@ -365,11 +416,18 @@ Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is wr
   collection's view, no object of that class. The tree has none. (The immutable classes are
   not refused: erased code sees an immutable typed collection as its twin, Guava's object.)
 
-`tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (6); the self-test
+- a method that a class of `LibGen.CONCRETE` declares itself (no method of an interface or of
+  `Object`: `ArrayList.ensureCapacity`), called on a receiver of the class with type arguments,
+  unless `LibGen.OWN` lists it (piece `cls`; the tree has none).
+
+`tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (7); the self-test
 fails unless the translator refuses exactly those and writes nothing.
 
-Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers`
-(`all`: every one).
+Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,idset`
+(`all`: every one). A translation with any of them off is built with `-tags j2go_nolibgen`
+(`tools/prune/verify.sh` and the self-test do that when `J2GO_NOLIBGEN` is set): the erased
+factories that only such a translation names are in `go/closure/rt_lg_erased.go`, outside the
+default build, as `rt_fn_erased.go` is for rule "function types".
 
 **`java.util.Optional` is a value.** The runtime's `Optional[T]` (`rt_base.go`) is a generic
 struct, not a heap object: `Optional<X>` is `Optional[X]`, its content held as an `X`, and

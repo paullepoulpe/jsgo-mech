@@ -1,5 +1,6 @@
 package lang;
 
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
@@ -1062,7 +1063,273 @@ public class LibGen {
     return r + (wrong == o) + (o instanceof List);
   }
 
+  /** Piece `cls`: declarations of the collection classes themselves (ImmutableList<X>, ArrayList<X>, ...). */
+  record Rec(ImmutableList<String> names, ImmutableMap<String, Integer> ages, ImmutableSet<String> tags) {}
+
+  interface Info {
+    ImmutableList<String> provides();
+
+    /** A default method with a class-typed result. */
+    default ImmutableList<String> symbols() {
+      ImmutableList.Builder<String> b = ImmutableList.builder();
+      for (String s : provides()) {
+        b.add(s + "!");
+      }
+      return b.build();
+    }
+  }
+
+  static final class InfoA implements Info {
+    @Override
+    public ImmutableList<String> provides() {
+      return ImmutableList.of("a", "b");
+    }
+  }
+
+  static final class InfoB implements Info {
+    final ArrayList<String> own = new ArrayList<>();
+
+    @Override
+    public ImmutableList<String> provides() {
+      return ImmutableList.copyOf(own);
+    }
+  }
+
+  /** Erased storage of typed values, read back at their type through a type variable. */
+  static final Map<String, Object> props = new LinkedHashMap<>();
+
+  @SuppressWarnings("unchecked")
+  static <T> T prop(String k) {
+    return (T) props.get(k);
+  }
+
+  @SuppressWarnings("unchecked")
+  static <T> T propOr(String k, java.util.function.Supplier<T> s) {
+    return (T) props.computeIfAbsent(k, x -> s.get());
+  }
+
+  /** As JSDocInfo.Builder.putPropEntry: the map is made where its key and value types are type variables. */
+  static <K, V> boolean putEntry(String prop, K key, V value) {
+    LinkedHashMap<K, V> m = propOr(prop, LinkedHashMap::new);
+    return m.putIfAbsent(key, value) == null;
+  }
+
+  static ArrayList<String> grow(ArrayList<String> in) {
+    in.add("g");
+    return in;
+  }
+
+  static LinkedHashMap<String, Dog> dogs(LinkedHashMap<String, Dog> m) {
+    m.put("x", new Dog("x"));
+    return m;
+  }
+
+  static String classes() {
+    String r = "";
+    Rec rec = new Rec(ImmutableList.of("n1", "n2"), ImmutableMap.of("a", 1), ImmutableSet.of("t"));
+    Rec rec2 = new Rec(ImmutableList.of("n1", "n2"), ImmutableMap.of("a", 1), ImmutableSet.of("t"));
+    r += rec.names().get(1) + rec.ages().get("a") + rec.tags().contains("t") + rec.equals(rec2) + (rec.hashCode() == rec2.hashCode()) + rec;
+    ImmutableList<String> names = rec.names();
+    r += (names == rec.names());
+    try {
+      names.add("x");
+      r += "added";
+    } catch (UnsupportedOperationException e) {
+      r += "uoe";
+    }
+    // the class's own methods
+    r += names.reverse() + "" + rec.tags().asList() + names.subList(0, 1);
+    Object o = names;
+    r += (o instanceof ImmutableList) + "" + (o instanceof List) + (o == rec.names()) + o.equals(Arrays.asList("n1", "n2")) + (o.hashCode() == Arrays.asList("n1", "n2").hashCode());
+    InfoB ib = new InfoB();
+    ib.own.add("o1");
+    for (Info i : new Info[] {new InfoA(), ib}) {
+      ImmutableList<String> s = i.symbols();
+      r += s.size() + "" + s;
+      for (String x : i.provides()) {
+        r += x;
+      }
+    }
+    // a list made for a place of the class, through an Object and back
+    ArrayList<String> al = new ArrayList<>();
+    al.add("p");
+    props.put("l", al);
+    ArrayList<String> back = prop("l");
+    back.add("q");
+    r += al + "" + (back == al) + grow(back).size();
+    al.trimToSize();
+    ArrayList<?> wild = prop("l");
+    r += wild.size() + "" + (wild == al) + wild.get(0);
+    LinkedHashMap<String, Dog> lm = dogs(new LinkedHashMap<>());
+    props.put("m", lm);
+    LinkedHashMap<String, Dog> lm2 = prop("m");
+    r += lm2.get("x") + "" + lm2.keySet() + (lm2 == lm) + lm2.containsKey("x") + lm2.get("none");
+    LinkedHashSet<String> ls = new LinkedHashSet<>();
+    ls.add("z");
+    ls.add("y");
+    ls.add("z");
+    r += ls.getFirst() + ls + ls.contains("y") + ls.remove("z") + ls;
+    // lambdas with class-typed parameters and results
+    java.util.function.Function<ImmutableList<String>, ImmutableSet<String>> f = l -> ImmutableSet.copyOf(l);
+    r += f.apply(names);
+    java.util.function.Supplier<ArrayList<Dog>> sup = () -> new ArrayList<>();
+    ArrayList<Dog> ds = sup.get();
+    ds.add(new Dog("d"));
+    r += ds.get(0).name + ds.size() + ds.indexOf(ds.get(0)) + ds.contains(null);
+    ds.add(null);
+    r += ds.contains(null) + "" + ds.get(1);
+    // null
+    ImmutableList<String> nul = null;
+    r += (nul == null);
+    try {
+      r += nul.size();
+    } catch (NullPointerException e) {
+      r += "npe";
+    }
+    ImmutableCollection<String> ic = rec.tags();
+    r += ic.size() + "" + ic.asList() + ic.contains("t") + (ic == rec.tags());
+    ImmutableMap<String, Integer> ages = rec.ages();
+    r += ages.keySet() + "" + ages.values() + ages.entrySet() + ages.get("zz");
+    try {
+      ages.put("b", 2);
+      r += "put";
+    } catch (UnsupportedOperationException e) {
+      r += "uoe";
+    }
+    // a cast to the class: checked as in Java
+    Object ob = rec.names();
+    ImmutableList<?> il = (ImmutableList<?>) ob;
+    r += il.size();
+    try {
+      Object bad = new ArrayList<String>();
+      ImmutableList<?> x = (ImmutableList<?>) bad;
+      r += x.size();
+    } catch (ClassCastException e) {
+      r += "cce";
+    }
+    // collections made where only a type variable or Object is declared, read back at the class
+    ArrayList<String> viaRef = propOr("r", ArrayList::new);
+    viaRef.add("v");
+    ArrayList<String> again = propOr("r", ArrayList::new);
+    r += again + "" + (again == viaRef) + (props.get("r") == viaRef);
+    r += putEntry("e", "k1", new Dog("e1")) + "" + putEntry("e", "k1", new Dog("e2")) + putEntry("e", "k2", new Dog("e3"));
+    LinkedHashMap<String, Dog> entries = prop("e");
+    LinkedHashMap<String, Dog> entries2 = prop("e");
+    r += entries.get("k1") + "" + entries.keySet() + entries2.values() + (entries == entries2) + (props.get("e") == entries) + entries.size();
+    entries.put("k3", new Dog("e4"));
+    r += entries2.keySet() + "" + entries2.get("k3").name;
+    Object fresh = new LinkedHashMap<String, Dog>(entries);
+    props.put("f", fresh);
+    LinkedHashMap<String, Dog> freshMap = prop("f");
+    r += freshMap.size() + "" + (freshMap == fresh) + (fresh == entries) + fresh.equals(entries) + (fresh instanceof Map);
+    // collections of class-typed collections
+    Map<String, ImmutableList<String>> byName = new LinkedHashMap<>();
+    byName.put("k", names);
+    ImmutableList<String> gotNames = byName.get("k");
+    r += gotNames.get(0) + (gotNames == names) + byName;
+    List<ArrayList<String>> lists = new ArrayList<>();
+    lists.add(al);
+    r += lists.get(0).get(0) + (lists.get(0) == al);
+    return r;
+  }
+
+  /** A class with equals of its own: an identity set must not use it. */
+  static final class Eq {
+    final String k;
+
+    Eq(String k) {
+      this.k = k;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      return o instanceof Eq e && e.k.equals(k);
+    }
+
+    @Override
+    public int hashCode() {
+      return k.hashCode();
+    }
+
+    @Override
+    public String toString() {
+      return k;
+    }
+  }
+
+  static List<String> erasedList() {
+    return Arrays.asList("e1", "e2");
+  }
+
+  static <T> boolean addTo(Collection<T> c, T x) {
+    return c.add(x);
+  }
+
+  /** Pieces `meth` and `idset`: the methods that take an element, on views, wrappers and immutables. */
+  static String methods() {
+    String r = "";
+    List<String> view = new ArrayList<>();
+    Collection<String> asColl = view;
+    r += view.add("a") + "" + asColl.add("b") + view.set(0, "c") + view.remove(1) + view + addTo(view, "d") + view.add(null) + view;
+    List<String> wrapped = erasedList();
+    r += wrapped.set(1, "w") + wrapped.get(1) + wrapped;
+    List<String> imm = ImmutableList.of("i");
+    for (int i = 0; i < 3; i++) {
+      try {
+        if (i == 0) {
+          imm.add("x");
+        } else if (i == 1) {
+          imm.set(0, "x");
+        } else {
+          imm.remove(0);
+        }
+        r += "changed";
+      } catch (UnsupportedOperationException e) {
+        r += "uoe" + i;
+      }
+    }
+    Set<String> set = new LinkedHashSet<>();
+    r += set.add("s") + "" + set.add("s") + set.add(null) + set.add(null) + set;
+    Map<String, Dog> m = new LinkedHashMap<>();
+    r += m.put("k", new Dog("d1")) + "" + m.put("k", new Dog("d2")) + m.remove("k") + m.remove("k") + m.remove(1) + m.size();
+    m.put("z", new Dog("d3"));
+    for (Map.Entry<String, Dog> e : m.entrySet()) {
+      r += e.setValue(new Dog("d4")) + "" + e.getValue();
+    }
+    r += m;
+    try {
+      m.keySet().add("q");
+      r += "added";
+    } catch (UnsupportedOperationException e) {
+      r += "uoe";
+    }
+    Map<String, Dog> immMap = ImmutableMap.of("a", new Dog("ia"));
+    try {
+      immMap.put("b", new Dog("ib"));
+      r += "put";
+    } catch (UnsupportedOperationException e) {
+      r += "uoe";
+    }
+    try {
+      immMap.remove("a");
+      r += "removed";
+    } catch (UnsupportedOperationException e) {
+      r += "uoe";
+    }
+    Map<Integer, List<String>> nested = new LinkedHashMap<>();
+    r += nested.put(1, view) + "" + (nested.put(1, wrapped) == view) + nested.remove(1).size();
+    // an identity set of a class with equals
+    Set<Eq> ids = Sets.newIdentityHashSet();
+    Eq e1 = new Eq("q"), e2 = new Eq("q");
+    r += ids.add(e1) + "" + ids.add(e2) + ids.add(e1) + ids.size() + ids.contains(e2) + ids.contains(new Eq("q")) + ids.remove(e1) + ids.size() + e1.equals(e2);
+    Set<Eq> byEquals = new LinkedHashSet<>();
+    r += byEquals.add(e1) + "" + byEquals.add(e2) + byEquals.contains(new Eq("q"));
+    return r;
+  }
+
   public static String run() {
+    p(classes());
+    p(methods());
     p(maps());
     p(sets());
     p(lists());

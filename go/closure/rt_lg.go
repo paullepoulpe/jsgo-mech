@@ -1,5 +1,7 @@
 package closure
 
+import "sync/atomic"
+
 // Rule "typed library interfaces" (tools/j2go, LibGen): a place whose Java type is a library
 // collection interface with type arguments holds the typed interface, which is the erased one
 // plus the methods that give or take elements at their Java type (suffix _t), as javac's
@@ -305,6 +307,7 @@ func (v *tmapValues_[K, V]) step_t(i int) (x V, next int, ok bool) {
 type CollectionT[T any] interface {
 	Collection
 	iterator_t() IteratorT[T]
+	add_t(x T) bool
 }
 
 // Collection_un_ is typed value x as erased code knows it.
@@ -322,6 +325,7 @@ type collectionAs[T any] struct {
 }
 
 func (w *collectionAs[T]) iterator_t() IteratorT[T] { return iteratorAs_(w.c, w.Collection.iterator()) }
+func (w *collectionAs[T]) add_t(x T) bool           { return w.Collection.add(w.c.box(x)) }
 func (w *collectionAs[T]) unwrap_() any             { return w.Collection }
 
 // asCollT_ is what a typed list or set has for typed code: itself as the Collection of its elements.
@@ -389,7 +393,10 @@ func (v *tmapValues_[K, V]) unwrap_() any { return v.m.asMap().values() }
 type ListT[T any] interface {
 	List
 	iterator_t() IteratorT[T]
+	add_t(x T) bool
 	get_t(i int32) T
+	set_t(i int32, x T) T
+	remove_t(i int32) T
 }
 
 // List_un_ is typed value x as erased code knows it.
@@ -408,7 +415,17 @@ type listAs[T any] struct {
 
 func (w *listAs[T]) iterator_t() IteratorT[T] { return iteratorAs_(w.c, w.List.iterator()) }
 func (w *listAs[T]) get_t(i int32) T          { return w.c.unbox(w.List.get(i)) }
-func (w *listAs[T]) unwrap_() any             { return w.List }
+
+// (the methods that take an element call the erased object through the interface of the one
+// method: the erased interfaces of a translation have only the methods some call names)
+func (w *listAs[T]) add_t(x T) bool { return w.List.add(w.c.box(x)) }
+func (w *listAs[T]) set_t(i int32, x T) T {
+	return w.c.unbox(w.List.(interface{ set(int32, any) any }).set(i, w.c.box(x)))
+}
+func (w *listAs[T]) remove_t(i int32) T {
+	return w.c.unbox(w.List.(interface{ remove(int32) any }).remove(i))
+}
+func (w *listAs[T]) unwrap_() any { return w.List }
 
 // listAs_ is erased v as a List of T: v itself where its object is native (the view of a typed
 // list), the view of the typed list of an erased immutable list, else a wrapper.
@@ -436,7 +453,19 @@ func (l *TList[T]) asListT() ListT[T] {
 	return &l.view
 }
 
-func (v *tlistView_[T]) get_t(i int32) T { return v.l.get(i) }
+func (v *tlistView_[T]) get_t(i int32) T      { return v.l.get(i) }
+func (v *tlistView_[T]) add_t(x T) bool       { return v.l.add(x) }
+func (v *tlistView_[T]) set_t(i int32, x T) T { return v.l.set(i, x) }
+func (v *tlistView_[T]) remove_t(i int32) T   { return v.l.removeAt(i) }
+func (v *tsetView_[K]) add_t(x K) bool        { return v.s.add(x) }
+
+// (the views of a map take no element, as in Java)
+func (v *tmapKeySet_[K, V]) add_t(x K) bool                  { return v.add(nil) }
+func (v *tmapValues_[K, V]) add_t(x V) bool                  { return v.add(nil) }
+func (v *tmapEntrySet_[K, V]) add_t(x Map_EntryT[K, V]) bool { return v.add(nil) }
+
+// trimToSize is ArrayList's own method on a list made for a typed place of the class (piece `cls`).
+func (v *tlistView_[T]) trimToSize() {}
 
 // ---- Kind `set`: java.util.Set<T>. A typed Set is the erased one that is also a typed
 // Iterable (the methods that take elements are the erased ones).
@@ -444,6 +473,7 @@ func (v *tlistView_[T]) get_t(i int32) T { return v.l.get(i) }
 type SetT[T any] interface {
 	Set
 	iterator_t() IteratorT[T]
+	add_t(x T) bool
 }
 
 // Set_un_ is typed value x as erased code knows it.
@@ -461,6 +491,7 @@ type setAs[T any] struct {
 }
 
 func (w *setAs[T]) iterator_t() IteratorT[T] { return iteratorAs_(w.c, w.Set.iterator()) }
+func (w *setAs[T]) add_t(x T) bool           { return w.Set.add(w.c.box(x)) }
 func (w *setAs[T]) unwrap_() any             { return w.Set }
 
 // asSetT_ is what a typed set has for typed code: itself as the Set of its elements.
@@ -508,6 +539,8 @@ func (v *tmapKeySet_[K, V]) unwrap_() any { return v.m.asMap().keySet() }
 type MapT[K any, V any] interface {
 	Map
 	get_t(k any) V
+	put_t(k K, x V) V
+	remove_t(k any) V
 	keySet_t() SetT[K]
 	values_t() CollectionT[V]
 	entrySet_t() SetT[Map_EntryT[K, V]]
@@ -517,6 +550,7 @@ type Map_EntryT[K any, V any] interface {
 	Map_Entry
 	getKey_t() K
 	getValue_t() V
+	setValue_t(x V) V
 }
 
 // Map_un_ / Map_Entry_un_ are typed value x as erased code knows it.
@@ -538,13 +572,34 @@ func Map_Entry_un_(x Map_Entry) Map_Entry {
 
 type mapAs[K any, V any] struct {
 	Map
-	kc *tconv_[K]
-	vc *tconv_[V]
+	kc     *tconv_[K]
+	vc     *tconv_[V]
+	ks, vs atomic.Pointer[any] // the typed key set and values, once asked for (the views are live)
 }
 
-func (w *mapAs[K, V]) get_t(k any) V            { return w.vc.unbox(w.Map.get(k)) }
-func (w *mapAs[K, V]) keySet_t() SetT[K]        { return setAs_(w.kc, w.Map.keySet()) }
-func (w *mapAs[K, V]) values_t() CollectionT[V] { return collectionAs_(w.vc, w.Map.values()) }
+func (w *mapAs[K, V]) get_t(k any) V { return w.vc.unbox(w.Map.get(k)) }
+func (w *mapAs[K, V]) put_t(k K, x V) V {
+	return w.vc.unbox(w.Map.(interface{ put(any, any) any }).put(w.kc.box(k), w.vc.box(x)))
+}
+func (w *mapAs[K, V]) remove_t(k any) V {
+	return w.vc.unbox(w.Map.(interface{ remove(any) any }).remove(k))
+}
+func (w *mapAs[K, V]) keySet_t() SetT[K] {
+	if p := w.ks.Load(); p != nil {
+		return (*p).(SetT[K])
+	}
+	var s any = setAs_(w.kc, w.Map.keySet())
+	w.ks.Store(&s)
+	return s.(SetT[K])
+}
+func (w *mapAs[K, V]) values_t() CollectionT[V] {
+	if p := w.vs.Load(); p != nil {
+		return (*p).(CollectionT[V])
+	}
+	var s any = collectionAs_(w.vc, w.Map.values())
+	w.vs.Store(&s)
+	return s.(CollectionT[V])
+}
 func (w *mapAs[K, V]) entrySet_t() SetT[Map_EntryT[K, V]] {
 	return setAs_(entryConv_(w.kc, w.vc), w.Map.entrySet())
 }
@@ -580,7 +635,19 @@ func mapAs_[K any, V any](kc *tconv_[K], vc *tconv_[V], v Map) MapT[K, V] {
 			return m.asMapT()
 		}
 	}
-	return &mapAs[K, V]{v, kc, vc}
+	if lm, ok := v.(*LinkedHashMap); ok {
+		// an erased LinkedHashMap keeps the wrapper made for it: a map that erased code made
+		// (for a type variable) and that is read at a typed place on every lookup
+		if p := lm.typed_.Load(); p != nil {
+			if w, ok := (*p).(*mapAs[K, V]); ok && w.kc == kc && w.vc == vc && w.Map == v {
+				return w
+			}
+		}
+		var w any = &mapAs[K, V]{Map: v, kc: kc, vc: vc}
+		lm.typed_.Store(&w)
+		return w.(*mapAs[K, V])
+	}
+	return &mapAs[K, V]{Map: v, kc: kc, vc: vc}
 }
 
 type map_EntryAs[K any, V any] struct {
@@ -591,7 +658,10 @@ type map_EntryAs[K any, V any] struct {
 
 func (w *map_EntryAs[K, V]) getKey_t() K   { return w.kc.unbox(w.Map_Entry.getKey()) }
 func (w *map_EntryAs[K, V]) getValue_t() V { return w.vc.unbox(w.Map_Entry.getValue()) }
-func (w *map_EntryAs[K, V]) unwrap_() any  { return w.Map_Entry }
+func (w *map_EntryAs[K, V]) setValue_t(x V) V {
+	return w.vc.unbox(w.Map_Entry.(interface{ setValue(any) any }).setValue(w.vc.box(x)))
+}
+func (w *map_EntryAs[K, V]) unwrap_() any { return w.Map_Entry }
 
 // map_EntryAs_ is erased v as an entry of K and V: v itself where its object is native (an
 // entry of a typed map), else a wrapper.
@@ -621,6 +691,13 @@ func (v *tmapView_[K, V]) get_t(x any) V {
 		if i := v.m.find(k); i >= 0 {
 			return v.m.vals[i]
 		}
+	}
+	return v.m.vc.null
+}
+func (v *tmapView_[K, V]) put_t(k K, x V) V { return v.m.put(k, x) }
+func (v *tmapView_[K, V]) remove_t(x any) V {
+	if k, ok := v.key(x); ok {
+		return v.m.remove(k)
 	}
 	return v.m.vc.null
 }
@@ -670,8 +747,9 @@ func (v *tmapEntrySet_[K, V]) step_t(i int) (e Map_EntryT[K, V], next int, ok bo
 	return nil, i, false
 }
 
-func (v *tentryView_[K, V]) getKey_t() K   { return v.e.k }
-func (v *tentryView_[K, V]) getValue_t() V { return v.e.getValue() }
+func (v *tentryView_[K, V]) getKey_t() K      { return v.e.k }
+func (v *tentryView_[K, V]) getValue_t() V    { return v.e.getValue() }
+func (v *tentryView_[K, V]) setValue_t(x V) V { return v.e.setValue(x) }
 
 // asEntryT is an entry of a typed map (the variable of a loop over its entries) as a typed
 // entry: its erased view, which has the typed methods.
@@ -680,4 +758,32 @@ func (e *TEntry[K, V]) asEntryT() Map_EntryT[K, V] {
 		return nil
 	}
 	return &tentryView_[K, V]{e: e}
+}
+
+// ---- Piece `cls`: a place of a collection class (ImmutableList<X>) holds the typed interface.
+
+// tlistOfT_ is the value of a place of class ImmutableList / ImmutableCollection entering a
+// declaration of rule "typed collections": the immutable typed list whose view it is, else
+// tlistImm_ of the object erased code knows (which fails as a cast to the class does).
+func tlistOfT_[T any](c *tconv_[T], x Collection) *TList[T] {
+	if v, ok := x.(*tlistView_[T]); ok && v.l.twin != nil && v.l.twin != unmodMark_ {
+		return v.l
+	}
+	return tlistImm_(c, cast_[*ImmutableCollection](lgBox_(x)))
+}
+
+// tsetOfT_ is tlistOfT_ for a set.
+func tsetOfT_[K comparable](c *tconv_[K], x Collection) *TSet[K] {
+	if v, ok := x.(*tsetView_[K]); ok && v.s.twin != nil && v.s.twin != sortedMark_ {
+		return v.s
+	}
+	return tsetImm_(c, cast_[*ImmutableCollection](lgBox_(x)))
+}
+
+// tmapOfT_ is tlistOfT_ for a map.
+func tmapOfT_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], x Map) *TMap[K, V] {
+	if v, ok := x.(*tmapView_[K, V]); ok && v.m.imm != nil && v.m.imm != sortedMapMark_ {
+		return v.m
+	}
+	return tmapImm_(kc, vc, cast_[*ImmutableMap](lgBox_(x)))
 }

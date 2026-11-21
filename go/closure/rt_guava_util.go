@@ -365,12 +365,6 @@ func Sets_immutableEnumSet(p0 *Enum, p1 []*Enum) *ImmutableSet {
 	return set
 }
 
-func Sets_newIdentityHashSet() Set { return identitySet_() }
-
-func Sets_newLinkedHashSetWithExpectedSize(p0 int32) *LinkedHashSet { return new_LinkedHashSet() }
-
-func Maps_newLinkedHashMapWithExpectedSize(p0 int32) *LinkedHashMap { return new_LinkedHashMap() }
-
 // ---- Ordering (translated classes extend it and override compare)
 
 type Ordering struct {

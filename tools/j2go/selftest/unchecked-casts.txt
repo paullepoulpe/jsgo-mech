@@ -6,6 +6,8 @@ LibGen.sets
 LibGen.maps
 LibGen.last
 LibGen.identity
+LibGen.prop
+LibGen.propOr
 # older self-tests: an Object that was made as a collection of that type is cast back, or a
 # typed list is written through an unchecked alias on purpose
 Colls.addErased

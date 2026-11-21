@@ -69,10 +69,130 @@ final class LibGen {
       "java.util.Map", Set.of("get/1", "keySet/0", "values/0", "entrySet/0"),
       "java.util.Map.Entry", Set.of("getKey/0", "getValue/0"));
 
+  /**
+   * Piece `meth` (J2GO_NOLIBGEN=meth is the translation without it): the methods that take or
+   * give an element and have a typed form in addition to TYPED_METHODS: the argument enters at
+   * its type (no box of a String or of a value of a type parameter), the result needs no cast.
+   * (`List.remove/1` is remove(int); methods whose parameters are all Object, as contains and
+   * containsKey, have nothing to type.)
+   */
+  static final Map<String, Set<String>> TYPED_METHODS2 = Map.of(
+      "java.util.Collection", Set.of("add/1"),
+      "java.util.List", Set.of("set/2", "remove/1"),
+      "java.util.Map", Set.of("put/2", "remove/1"),
+      "java.util.Map.Entry", Set.of("setValue/1"));
+
+  /**
+   * Piece `cls` (J2GO_NOLIBGEN=cls is the translation without it): a place whose Java type is
+   * one of the collection classes that the typed collections stand for (the key), with type
+   * arguments, holds the typed interface of the class's collection interface (the value):
+   * `ImmutableList<X>` and `ArrayList<X>` are `ListT[X]`. What enters is typed by the place as
+   * for the interface (`new ArrayList<>()`, `ImmutableList.of(..)`: the typed collection's
+   * view). The class's own methods (ImmutableList.reverse) are called on the object erased code
+   * knows (the twin of an immutable collection); the signatures of the runtime keep the class.
+   */
+  static final Map<String, String> CLASSES = Map.ofEntries(
+      Map.entry("java.util.ArrayList", "java.util.List"),
+      Map.entry("java.util.LinkedHashSet", "java.util.Set"),
+      Map.entry("java.util.HashSet", "java.util.Set"),
+      Map.entry("java.util.LinkedHashMap", "java.util.Map"),
+      Map.entry("java.util.HashMap", "java.util.Map"),
+      Map.entry("com.google.common.collect.ImmutableList", "java.util.List"),
+      Map.entry("com.google.common.collect.ImmutableSet", "java.util.Set"),
+      Map.entry("com.google.common.collect.ImmutableCollection", "java.util.Collection"),
+      Map.entry("com.google.common.collect.ImmutableMap", "java.util.Map"));
+
+  /** Above 0 while a type is erased as the runtime declares it (rt): a collection class stays the class. */
+  int rtDepth;
+  /** Above 0 while cls decides a type: Go type names are given in the order of their first use, so none may be asked for. */
+  int deciding;
+
+  /**
+   * Ctx.erase of a use t of a class of CLASSES (piece `cls`), or null where the class itself is
+   * the type: the typed interface where the interface's use is typed and the typed family can
+   * hold the elements (so that what is made for the place is typed: Ctx.typedArgs). A use of a
+   * class of CONCRETE that stays erased (`ArrayList<?>`) is the erased interface: a collection
+   * made for a typed place of the class is no object of the class.
+   */
+  TypeMirror cls(TypeMirror t) {
+    if (rtDepth > 0 || !on("cls") || libs.isEmpty() || t.getKind() != TypeKind.DECLARED) return null;
+    DeclaredType d = (DeclaredType) t;
+    if (d.getTypeArguments().isEmpty()) return null;
+    String qn = Ctx.typeElement(t).getQualifiedName().toString();
+    String iq = CLASSES.get(qn);
+    if (iq == null) return null;
+    TypeElement lib = cx.elems.getTypeElement(iq);
+    if (!isLib(lib)) return null;
+    DeclaredType v = cx.superView(t, lib);
+    TypeMirror r = null;
+    if (v != null) {
+      TypeMirror n = erase(v);
+      Ctx.CollKind ck = cx.collKindOf(t);
+      if (qn.endsWith(".ImmutableCollection")) ck = cx.collKindOf(cx.types.getDeclaredType(cx.elems.getTypeElement("java.util.List"), d.getTypeArguments().toArray(new TypeMirror[0])));
+      deciding++;
+      boolean holds = ck != null && cx.typedArgs(ck, t) != null;
+      deciding--;
+      if (is(n) && holds) r = n;
+      else if (CONCRETE.contains(qn) && wideUse(d)) r = cx.types.erasure(v);
+    }
+    return r;
+  }
+
+  /** Whether use d has a wildcard or an erased type variable among its type arguments (a collection of any element type enters it). */
+  private boolean wideUse(DeclaredType d) {
+    for (TypeMirror a : d.getTypeArguments()) {
+      if (a.getKind() == TypeKind.WILDCARD || FnTypes.captured(a) || a.getKind() == TypeKind.TYPEVAR && !cx.typedVar(a)) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Whether method e, called on a receiver of collection class type site (isCls), is a method
+   * that the place's interface has: its root is declared by the interface or by one above it
+   * (or by Object).
+   */
+  boolean served(ExecutableElement e, TypeMirror site) {
+    TypeElement ro = cx.ownerOf(cx.root(e));
+    // (a method of Object; a method of another interface, SequencedCollection.getFirst: the object is converted as any value of the place's interface)
+    if (ro.getQualifiedName().contentEquals("java.lang.Object") || ro.getKind().isInterface() && !isLib(ro)) return true;
+    TypeMirror c = cls(site);
+    return c != null && cx.types.isSubtype(cx.types.erasure(c), cx.types.erasure(ro.asType()));
+  }
+
+  /**
+   * The methods that a class of CONCRETE declares itself (no method of an interface) and that
+   * the typed collection's view has too, each with the Go interface of that one method: a call
+   * on a place of the class goes through it, on the object erased code knows (an ArrayList, or
+   * the view of a list made for a typed place). Any other such method is refused (check).
+   */
+  static final Map<String, String> OWN = Map.of("java.util.ArrayList.trimToSize", "interface{ trimToSize() }");
+
+  /** The entry of OWN for method e called on a receiver of collection class type site, or null. */
+  String own(ExecutableElement e, TypeMirror site) {
+    TypeElement o = cx.ownerOf(cx.root(e));
+    return CONCRETE.contains(Ctx.typeElement(site).getQualifiedName().toString()) ? OWN.get(o.getQualifiedName() + "." + e.getSimpleName()) : null;
+  }
+
+  /** Whether t is a use of a class of CONCRETE: a collection made typed for it is its own view for erased code too (no twin). */
+  boolean concrete(TypeMirror t) {
+    return t != null && t.getKind() == TypeKind.DECLARED && CONCRETE.contains(Ctx.typeElement(t).getQualifiedName().toString());
+  }
+
+  /** Whether Java type t is a use of a collection class whose place holds an interface (cls). */
+  boolean isCls(TypeMirror t) {
+    return t != null && t.getKind() == TypeKind.DECLARED && cls(t) != null;
+  }
+
+  /** The Go-level type of an expression that makes or gives an object of the class of t itself (`new ArrayList<>()`, the result of a runtime function): the erased class. */
+  TypeMirror made(TypeMirror t) {
+    return isCls(t) ? cx.types.erasure(t) : cx.erase(t);
+  }
+
   /** Whether root method r of one of the interfaces has its typed signature on a typed receiver. */
   boolean typedMethod(ExecutableElement r) {
-    Set<String> ms = TYPED_METHODS.get(cx.ownerOf(r).getQualifiedName().toString());
-    if (ms != null && !ms.contains(r.getSimpleName() + "/" + r.getParameters().size())) return false;
+    String oq = cx.ownerOf(r).getQualifiedName().toString(), sig = r.getSimpleName() + "/" + r.getParameters().size();
+    Set<String> ms = TYPED_METHODS.get(oq);
+    if (ms != null && !ms.contains(sig) && !(on("meth") && TYPED_METHODS2.getOrDefault(oq, Set.of()).contains(sig))) return false;
     // (a result that is an interface of a kind which is off: the runtime's typed method gives the
     // typed interface, which the translation does not name, so the erased method serves the call)
     TypeMirror rt = r.getReturnType();
@@ -297,10 +417,16 @@ final class LibGen {
    */
   TypeMirror rt(TypeMirror t) {
     if (libs.isEmpty() || t == null) return cx.erase(t);
+    if (t.getKind().isPrimitive() || t.getKind() == TypeKind.VOID) return t;
     Map<Element, TypeMirror> m = new HashMap<>();
     for (TypeElement lib : libs) for (TypeParameterElement tp : lib.getTypeParameters()) m.put(tp, object());
-    TypeMirror e = cx.erase(cx.subst(t, m, 0));
-    return is(e) ? cx.types.erasure(e) : e;
+    rtDepth++;
+    try {
+      TypeMirror e = cx.erase(cx.subst(t, m, 0));
+      return is(e) ? cx.types.erasure(e) : e;
+    } finally {
+      rtDepth--;
+    }
   }
 
   /**
@@ -607,6 +733,45 @@ final class LibGen {
         Tree ty = t.getType() != null ? t.getType() : t.getPattern() instanceof BindingPatternTree b ? b.getVariable().getType() : null;
         if (ty != null) concrete(t, trees.getTypeMirror(new TreePath(getCurrentPath(), ty)), "instanceof");
         return super.visitInstanceOf(t, v);
+      }
+
+      @Override
+      public Void visitMethodInvocation(MethodInvocationTree t, Void v) {
+        // a method that a class of CONCRETE declares itself, on a receiver of the class with type
+        // arguments (whose place holds the typed interface, piece `cls`): the view of a
+        // collection made for the place has only the methods of OWN
+        if (on("cls") && t.getMethodSelect() instanceof MemberSelectTree ms && trees.getElement(new TreePath(getCurrentPath(), ms)) instanceof ExecutableElement m
+            && !m.getModifiers().contains(Modifier.STATIC)) {
+          TypeMirror rt = trees.getTypeMirror(new TreePath(new TreePath(getCurrentPath(), ms), ms.getExpression()));
+          String qn = rt != null && rt.getKind() == TypeKind.DECLARED && !((DeclaredType) rt).getTypeArguments().isEmpty() ? Ctx.typeElement(rt).getQualifiedName().toString() : "";
+          if (CONCRETE.contains(qn) && CLASSES.containsKey(qn) && isLib(cx.elems.getTypeElement(CLASSES.get(qn))) && ownMethod(m, Ctx.typeElement(rt))) {
+            if (!OWN.containsKey(((TypeElement) m.getEnclosingElement()).getQualifiedName() + "." + m.getSimpleName())) {
+              refuse(t, "method " + m.getSimpleName() + " of the collection class " + qn + " (the view of a typed collection does not have it; LibGen.OWN)");
+            }
+          }
+        }
+        return super.visitMethodInvocation(t, v);
+      }
+
+      /** Whether m, found in collection class c, overrides no method of an interface or of Object (javac's types alone). */
+      boolean ownMethod(ExecutableElement m, TypeElement c) {
+        TypeElement o = (TypeElement) m.getEnclosingElement();
+        if (o.getKind().isInterface() || o.getQualifiedName().contentEquals("java.lang.Object")) return false;
+        for (Element x : cx.elems.getAllMembers(c)) {
+          if (x instanceof ExecutableElement y && y != m && y.getSimpleName().equals(m.getSimpleName()) && cx.elems.overrides(m, y, c)) return false;
+        }
+        Deque<TypeMirror> todo = new ArrayDeque<>(cx.types.directSupertypes(c.asType()));
+        Set<String> seen = new HashSet<>();
+        while (!todo.isEmpty()) {
+          TypeMirror st = todo.pop();
+          TypeElement se = Ctx.typeElement(st);
+          if (se == null || !seen.add(se.getQualifiedName().toString())) continue;
+          for (Element x : se.getEnclosedElements()) {
+            if (x instanceof ExecutableElement y && y.getSimpleName().equals(m.getSimpleName()) && (se.getKind().isInterface() || se.getQualifiedName().contentEquals("java.lang.Object")) && cx.elems.overrides(m, y, c)) return false;
+          }
+          todo.addAll(cx.types.directSupertypes(st));
+        }
+        return true;
       }
 
       @Override
