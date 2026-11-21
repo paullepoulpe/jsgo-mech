@@ -47,8 +47,8 @@ func CheckEnums_checkEnumTypeAndInitializerValues(t *NodeTraversal, n Node, jsDo
 	}
 	var enumTypeExpr *JSTypeExpression = jsDocInfo.getEnumParameterType()
 	var enumType Node = enumTypeExpr.getRoot()
-	var isStringEnum bool = (enumType.isStringLit() && (enumType.getString() == "string"))
-	var isNumberEnum bool = (enumType.isStringLit() && (enumType.getString() == "number"))
+	var isStringEnum bool = (enumType.isStringLit() && (enumType.getStringIs_(sid_string)))
+	var isNumberEnum bool = (enumType.isStringLit() && (enumType.getStringIs_(sid_number)))
 	if !isStringEnum && !isNumberEnum {
 		t.report(n, CheckEnums_ENUM_TYPE_NOT_STRING_OR_NUMBER, []string{})
 	}

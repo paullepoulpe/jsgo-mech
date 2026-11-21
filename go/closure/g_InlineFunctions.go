@@ -222,7 +222,7 @@ func InlineFunctions_isCandidateUsage(name Node) bool {
 	if NodeUtil_isNormalOrOptChainCall(parent) && (parent.getFirstChild() == name) {
 		return true
 	}
-	if (((parent.isGetElem() && (name == parent.getFirstChild())) && parent.getSecondChild().isStringLit()) && (parent.getSecondChild().getString() == "call")) || (parent.isGetProp() && (parent.getString() == "call")) {
+	if (((parent.isGetElem() && (name == parent.getFirstChild())) && parent.getSecondChild().isStringLit()) && (parent.getSecondChild().getStringIs_(sid_call))) || (parent.isGetProp() && (parent.getStringIs_(sid_call))) {
 		var grandparent Node = name.getAncestor(2)
 		if grandparent.isCall() && (grandparent.getFirstChild() == parent) {
 			return true

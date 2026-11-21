@@ -110,9 +110,9 @@ func (this *GatherGetterAndSetterProperties_GatherCallback) visitDescriptor(prop
 		var key Node = descriptor.getFirstChild()
 		for ; key != 0; key = key.getNext() {
 			if key.isStringKey() || key.isMemberFunctionDef() {
-				if "get" == key.getString() {
+				if key.getStringIs_(sid_get) {
 					this.record(propertyName, AccessorSummary_PropertyAccessKind_GETTER_ONLY)
-				} else if "set" == key.getString() {
+				} else if key.getStringIs_(sid_set) {
 					this.record(propertyName, AccessorSummary_PropertyAccessKind_SETTER_ONLY)
 				}
 			}

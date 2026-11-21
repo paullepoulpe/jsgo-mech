@@ -135,7 +135,7 @@ func (this *CrossChunkMethodMotion) movePrototypeObjectLiteralProperty(propName 
 		panic(new_IllegalStateException_String(tostr_(assignNode)))
 	}
 	var ownerDotPrototypeNode Node = assignNode.getFirstChild()
-	if !ownerDotPrototypeNode.isQualifiedName() || ownerDotPrototypeNode.getString() != "prototype" {
+	if !ownerDotPrototypeNode.isQualifiedName() || !ownerDotPrototypeNode.getStringIs_(sid_prototype) {
 		panic(new_IllegalStateException_String(tostr_(ownerDotPrototypeNode)))
 	}
 	if this.noStubFunctions {
@@ -210,7 +210,7 @@ func (this *CrossChunkMethodMotion) movePrototypeObjectLiteralMethodShorthand(pr
 		panic(new_IllegalStateException_String(tostr_(assignNode)))
 	}
 	var ownerDotPrototypeNode Node = assignNode.getFirstChild()
-	if !ownerDotPrototypeNode.isQualifiedName() || ownerDotPrototypeNode.getString() != "prototype" {
+	if !ownerDotPrototypeNode.isQualifiedName() || !ownerDotPrototypeNode.getStringIs_(sid_prototype) {
 		panic(new_IllegalStateException_String(tostr_(ownerDotPrototypeNode)))
 	}
 	var originalScript Node = NodeUtil_getEnclosingScript(memberFunctionDef)

@@ -71,11 +71,11 @@ func (this *CheckGlobalThis) shouldTraverse(t *NodeTraversal, n Node, parent Nod
 			}
 		} else {
 			if NodeUtil_isNormalGet(lhs) {
-				if lhs.isGetProp() && (lhs.getString() == "prototype") {
+				if lhs.isGetProp() && (lhs.getStringIs_(sid_prototype)) {
 					return false
 				}
 				var llhs Node = lhs.getFirstChild()
-				if llhs.isGetProp() && (llhs.getString() == "prototype") {
+				if llhs.isGetProp() && (llhs.getStringIs_(sid_prototype)) {
 					return false
 				}
 			}
