@@ -85,10 +85,6 @@ func (this *NullType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_FALSE
 }
 
-func (this *NullType) visitUntyped_impl(visitor Visitor) any {
-	return visitor.caseNullType()
-}
-
 // getTypeClass: an object that is exactly a NullType calls its getTypeClass_impl directly (post-flip); others dispatch.
 func (this *NullType) getTypeClass() JSTypeClass {
 	if p, _ := this.self_.(*NullType); p == this {
@@ -175,12 +171,4 @@ func (this *NullType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}
 	return this.self_.getPossibleToBooleanOutcomes_impl()
-}
-
-// visitUntyped: an object that is exactly a NullType calls its visitUntyped_impl directly (post-flip); others dispatch.
-func (this *NullType) visitUntyped(p0 Visitor) any {
-	if p, _ := this.self_.(*NullType); p == this {
-		return this.visitUntyped_impl(p0)
-	}
-	return this.self_.visitUntyped_impl(p0)
 }
