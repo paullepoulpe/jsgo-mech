@@ -139,7 +139,7 @@ func JSDocSerializer_serializeJsdoc(jsdoc *JSDocInfo, stringPool *StringPool_Bui
 	return Preconditions_checkNotNull_T(result)
 }
 
-func JSDocSerializer_serializeIdGenerator(doc *JSDocInfo) *JsdocTag {
+func JSDocSerializer_serializeIdGenerator(doc *JSDocInfo) JsdocTag {
 	if doc.isConsistentIdGenerator() {
 		return JsdocTag_JSDOC_ID_GENERATOR_CONSISTENT
 	} else if doc.isStableIdGenerator() {
@@ -186,7 +186,7 @@ func JSDocSerializer_deserializeJsdoc(serializedJsdoc *OptimizationJsdoc, string
 	var suppressions *JTSet[string] = nil
 L_1:
 	for i := int32(0); i < serializedJsdoc.getKindCount(); i++ {
-		var tag *JsdocTag = cast_[*JsdocTag](serializedJsdoc.getKindList().get(i))
+		var tag JsdocTag = cast_[JsdocTag](serializedJsdoc.getKindList().get(i))
 		switch tag {
 		case JsdocTag_JSDOC_CONST:
 			builder.recordConstancy()
