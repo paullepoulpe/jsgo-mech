@@ -199,7 +199,7 @@ func (this *JSChunkGraph) getChunkCount() int32 {
 }
 
 func (this *JSChunkGraph) getRootChunk() *JSChunk {
-	return cast_[*JSChunk](Iterables_getOnlyElement(icast_Iterable(any(this.chunksByDepth.get(0).asList()))))
+	return cast_[*JSChunk](Iterables_getOnlyElement(this.chunksByDepth.get(0).asList()))
 }
 
 func (this *JSChunkGraph) toJson() *SimpleJsonValue {

@@ -810,3 +810,244 @@ $S/rf/tracer_tr9e*.txt / tracer_tm8*.txt (per-pass times), cpu_*_tf_1.prof (prof
 m81-2, tip1-2), $S/rf/gate_r10*.log (gates). Scripts: $S/r10/meas.sh, milestone.sh, prof2.sh,
 tr.sh; $S/rf/gatew.sh, vstep.sh (now `git add -A -f`, as replay-all.sh: g_0enumin.go is a new
 ignored file), rec.sh, pairs.py.
+
+## Seventh session: the whole replay in one run, visit, valcls, tdeque, gmaps, what stays (2026-11-19)
+
+Steps 449-454 of steps.txt.
+
+**The replay from the flip to the tip in one run** (task 1 of the session). replay-all.sh gains
+`-verifyin RANGE` (ef15b3de): the steps whose commit is in RANGE (the re-flip branch's own
+commits, 40caeeed..tip) are compared with their commit's go/ byte for byte; the steps of the
+old history, replayed on the new flip's text, cannot match their (postflip5) commits and are not
+compared. Run, from a worktree frozen at ef15b3de:
+
+    tools/postflip/replay-all.sh -w $S/rpw -base 40caeeed -noverify -trim -verifyin 40caeeed..05648df8 \
+      -steps tools/postflip/reflip/steps.txt -overlay tools/postflip/reflip/patches \
+      -toolfix tools/postflip/reflip/toolfix.sh -check '<tc> go/closure'
+
+It replays 252 commits (the 199 of the old history, through 72b0f693, then the 53 of the
+re-flip branch that change go/), type-checking go/closure after each (reflip/tc). Each of the 53,
+from e69c634a (402) to 52b78402 (454), gives its commit's go/ byte for byte; the tree after the
+old history is 4c78626f, the one aa029acd recorded; and the run ends at go/ 5c845fc1 / go/closure
+6643c9df, the tip's (d4ab93ce). 53 min for the old history, 18 min for the re-flip steps (4
+cores). One resume: the first run's build at the end of colls/run.sh (72b0f693) was killed for
+memory while a gate built the binary beside it; replay-all.sh resumed after the last replayed
+commit. The first run was frozen at ef15b3de (steps through 448), the resume read d4ab93ce's
+steps.txt, so the comparison covers 449-454 too.
+
+| step | commits (tool, step) | command | counts |
+|---|---|---|---|
+| 449 | 8ee3d6fd, c44d5926 | `t visit && f` | 2 visit methods -> generic functions JSType_visit / JSType_visit_2 (25 cases each), 35 overrides moved into the switches, 37 dispatchers deleted; Visitor / RelationshipVisitor generic; 173 + 18 case methods, 1 forwarder, 1 helper return T; 113 returned boxes are the values, 35 unboxings dropped; left 3 icast_Visitor[*JSType](obj_(this.replacer)) |
+| 450 | c932f0a6, 036a41a1 | `t valcls && f` | 104 classes with equals and hashCode, 2 values (ModuleRequest, BranchIndexPair) -> comparable structs; left 102 by the first property that fails |
+| 451 | aceba30d, 235bd03d | `t tdeque && t native -kind list && f` | 58 deque classes (37 stacks, 21 queues), 69 declarations; native: 70 slices (58 classes); left 12 classes given to erased code, 1 iterator |
+| 452 | 594a08ff (runtime) | patch | tconvT_, tconvIdT_ (rt_generic.go), TestTconvT |
+| 453 | 731cbe88, 2cd604d6 | `t gmaps && f` | 11 fields typed, 30 type parameters declared comparable; left 4 Object keys, 1 interface-constrained key, 1 given to tostrNN_ |
+| 454 | 52b78402 | `t ranges -loops && f` | 8 eachRevOf_ cursors over the new stacks -> range loops over sliceAllRev_ |
+
+**visit** (tools/postflip/visit; POSTFLIP.md's translator rule, done as a post-flip tool: the
+tool has the whole program and the gate checks it, and a j2go rule would have needed a new
+flip). Java's `public final <T> T visit(Visitor<T>)` calls the virtual `Object
+visitUntyped(Visitor<?>)` that every class overrides with one line. Go has no generic methods:
+`JSType_visit[T any](this *JSType, visitor Visitor[T]) T` (and JSType_visit_2 for the
+RelationshipVisitor) switches on `this.self_` over every class whose pointer implements
+JSType_I (the classes self_ can hold: 25), each case the body of the override Java's dispatch
+picks for that class, the receiver given as `this.up_X()` where the class inherits it (a
+promoted field or method that reaches the same object stays `this.f`). The fall-through (a nil
+self_, which no constructed object has) throws Java's NullPointerException as the dispatch
+through a nil interface did. The hand port does the same per visitor (jsgo:
+TemplateTypeReplacer.visitJSType's type switch); here the switch is the one generic function
+and the visitors keep their Java case methods, so the code reads next to the Java. Visitor and
+RelationshipVisitor get their type parameter; each visitor class's T comes from what it
+returns, what its callers unbox and the Visitor-typed slots it reaches (union-find over the
+class hierarchy and the slots): TemplateTypeReplacer and the ReverseAbstractInterpreter
+visitors `*JSType`, ContainsUpperBoundSuperTypeVisitor its Result, CanCastToVisitor and
+TypeValidator's verifier `bool` (Visitor.WithDefaultCase<Boolean> was instantiated with `any`;
+no case returns null). The returned boxes are the values (obj_(x), x.self() of a subclass ->
+x.up_JSType()), any(bool(e)) is e; the callers' to_JSType / unbox_[bool] / cast_[R] go. Two
+results asserted `.(JSType_as).as_JSType()` and then given to the nil-safe toObjectType keep
+the NullPointerException of a null result with Preconditions_checkNotNullT (TypeInference's
+toMaybeFunctionType dereferences at once: no check). Left: 3 `icast_Visitor[*JSType]
+(obj_(this.replacer))` in TemplatizedType: the field is assigned in the constructor after other
+calls, so it is not proved non-null, and a nil pointer inside a Visitor[T] would run the case
+where Java threw.
+
+**valcls** (tools/postflip/valcls; the sixth session's handover item 3). A class is converted
+when the tool proves it all-field (equals asserts its argument and returns the conjunction of
+`this.f == that.f` over every field once, each field of a type whose Go == is Java's equals),
+immutable (no superclass, no subclass, no self_, fields written only by the constructor that
+only new_ runs) and identity-free and never null (every *C value comes from a call returning
+*C, a local, a parameter or a range key of a typed container; it is only a receiver of its
+methods, a container key, stored in a local, passed or returned; no nil, comparison, box,
+field of another class or erased view). ModuleRequest (a record of two strings in a
+LinkedHashSet) and BranchIndexPair (two ints, LinkedHashMap keys) qualify and are structs used
+by value with their equals and hashCode gone, as jsgo has them (es6CommonJsModuleRequest,
+BranchIndexPair). The other 102: 44 a field whose == is not equals (a class with its own
+equals, Optional, a slice, an interface), 29 in a class hierarchy (16 + 13), 12 equals not all
+fields by == (FeatureSet, CachingTranspiler.Key, ColorId, DiagnosticType...), 11 boxed or put
+in an erased collection, 6 others (returned or stored as an Object, a field of another class,
+a value from a func value or another class's method, equals called directly).
+
+**tdeque** (tools/postflip/tdeque, then native; task 4's TDeque). j2go types ArrayDeque<T> as
+*TDeque[T] (head first; push into room in front); colls -kind deque types the erased deques as
+TLists with the head at the end for a stack (push_, pop_, peekTop_) or at the start for a
+queue, which native makes slices. The deques that exchange values form classes; a class whose
+values are new deques and whose uses are push / pop / poll / peek, add / peekLast,
+getFirst / getLast / removeLast through asDeque, size / isEmpty / clear, a loop from the head,
+nil tests and flows within the class becomes the stack (it pushes) or queue form, each
+operation keeping its empty-deque result and the order from the head. 58 classes (37 stacks,
+21 queues, 69 declarations); native then makes 70 lists slices (58 classes, 61 of them
+pointers to slices: fields, which may be null). GuardedCallback's context stack is now
+`*[]*GuardedCallback_Context` with append / slicePeekTop_ / slicePop_. Left: 12 classes given
+to erased code through asDeque (addAll of one deque into another, a Joiner, a precondition
+message, a loop over the view, a returned Collection), 1 through iterator. Step 454 re-runs
+ranges -loops: the 8 eachRevOf_ cursors over the new stacks are range loops over sliceAllRev_.
+
+**gmaps** (tools/postflip/gmaps, runtime 452; task 4's erased maps in generic classes). A
+typed map needs its key's conversion, a package variable per type (tc_X); a collection keyed
+by a generic class's type parameter had none and stayed an erased LinkedHashMap of boxes.
+tconvT_[T]() gives it from the instantiation, once per type: boxes as the erased code boxed,
+compares by Go == where that is Java's equals (strings, handles, enums, pointers to classes
+without equals), else by the hashCode / equals the erased table used (an interface type,
+whose values may be of any class); tconvIdT_ is the IdentityHashMap's. The fields (11:
+LinkedDirectedGraph.nodes, LinkedUndirectedGraph.nodes, StandardUnionFind.elmap, Timeline's
+two maps, LinkedIdentityHashMap.innerMap, the data-flow UniqueQueue's seenSet,
+J2clClinitPrunerPass.HierarchicalSet, LowestCommonAncestorFinder.searchColoring,
+SortedDependencies' two String-keyed maps) are *TMap / *TSet; get / containsKey / put /
+remove / add / contains / size / isEmpty / clear with a boxed key are the typed methods, loops
+over values() iterate the map, the rest goes through the map's view (asMap/asSet, one per map,
+same identity). A typed map needs a comparable key: 30 type parameters are declared
+comparable (the keys' and every one that instantiates them; jsgo declares
+`LinkedDirectedGraph[N, E comparable]`). Left: 4 maps keyed by Object (SimpleMultiset,
+SimpleBiMap and the two multimaps: j2go erased their keys), SortedDependencies'
+completedInputs (InputT is constrained by the DependencyInfo interface), SimpleTable.rows
+(given to tostrNN_, whose constraint the view would not meet). boxT_ in g_*.go 172 -> 156.
+
+**Gate** after every step (gatew.sh, a worktree at the commit): runtime tests ok (51 Test
+functions through 451, 52 from 452 with TestTconvT), checks/bundle/downlevel/advanced MATCH.
+**Replay** of each run line on its commit's parent with the tools of the commit (vstep.sh):
+go/ identical for 449, 450, 451, 453, 454; and the whole chain above.
+
+**Census** (census.py), f8f365f2 (448) -> 52b78402 (454), the rows that move:
+
+```
+ 186 ->  175  Java collections (erased): constructors          (gmaps)
+ 375 ->  385  typed TList/TMap/TSet constructors               (gmaps 11, tdeque/native -1)
+ 102 ->  103  native Go slices made                             (tdeque/native; &[]T{} is not counted)
+ 133 ->  108  for-each via iterator objects                     (tdeque/native)
+ 788 ->  778  interface casts icast_X(                          (visit, gmaps)
+1586 -> 1540  class casts to_X( / cast_[T](                     (visit 25, valcls 2, tdeque 11, gmaps 8)
+2787 -> 2728  boxing to any                                     (visit 43, valcls 8, gmaps 8)
+ 371 ->  370  unboxing from any                                 (tdeque)
+3478 -> 3480  throw as panic(                                   (visit: the switches' nil fall-through)
+  98 ->   94  Java equals/hashCode protocol                     (valcls)
+   4 ->    6  Preconditions_ checks                             (visit: 2 NullPointerExceptions kept)
+1713 -> 1675  fields/params declared any (approx)               (visit 24, valcls 2, gmaps 12)
+```
+
+Not counted by census.py: TDeque in g_*.go 93 -> 24 mentions (newTDeque_ 71 -> 14); boxT_ 172 ->
+156; the visitors' Object results (173 + 18 methods now typed).
+
+**Measurements** (fb.py, ABBA, under gate.lock, no PGO; medians of per-round ratios; outputs
+byte-identical: ident.sh and the gate). Per step: 448 (m_r10f), 449, 450, 451, 453, 454 (452 is
+runtime only), 4 rounds of each task, idle host (load 1.9-2.7: the compile's own threads).
+Allocations by j2mem.py (JSGO_MEMSTATS), one run each.
+
+| step | typed-full cpu | wall | bundle cpu | wall | allocations typed-full; bundle |
+|---|---:|---:|---:|---:|---|
+| 449 visit | -0.4% (-2.6..+2.2) | -0.2% | -0.4% (-2.1..+2.0) | -0.4% | unchanged (180.72M, 11.47 GB; 86.11M, 6.02 GB) |
+| 450 valcls | -0.5% (-2.1..+0.8) | -0.8% | +0.8% (-1.9..+5.5) | +1.5% | unchanged |
+| 451 tdeque | -0.5% (-2.1..+2.8) | -0.4% | -0.8% (-5.5..+2.0) | -1.8% | 180.55M, 11.44 GB; 86.14M, 6.01 GB |
+| 452-453 gmaps | +0.3% (-2.6..+1.0) | -0.4% | +1.6% (+0.5..+5.4) | +1.8% | 181.64M, 11.33 GB; 86.97M, 5.96 GB |
+| 454 ranges | +1.7% (-0.1..+4.5) | +1.9% | -0.5% (-1.1..-0.0) | +0.8% | unchanged |
+| **449-454 vs 448** | +0.5% (56.25 -> 56.77 s; -1.4..+3.2) | +1.0% | +2.3% (24.82 -> 25.25 s; -2.2..+3.2) | +2.9% | +0.92M objects, -0.14 GB; +0.86M, -0.05 GB |
+
+The per-step run resolves no step above the noise of 4 rounds (a round's spread is +-2-5%);
+452-453 moved bundle +1.6% in every round of that run, but the milestone's 6 rounds below put
+the whole session at +0.5% (-1.8..+3.1) in bundle cpu and -0.9% (-2.0..+1.4) in typed-full cpu
+against 448: no change that 6 rounds resolve. Two single-run CPU profiles of bundle (451 and
+453) show no new hot function: hashCodeT_ 0.12 s (StandardUnionFind of *Var, whose equals Java
+uses), TMap find/Get of the graphs' node maps 0.25 s in place of htable_.find. gmaps' typed
+maps allocate +0.9M objects (TMap headers, keys and values slices) and 45-110 MB less. The
+binary grew 3.3 MB at 453: a type parameter declared comparable gets one instantiation per
+pointer type instead of the shared *uint8 shape (LinkedDirectedGraph, LowestCommonAncestorFinder,
+LinkedUndirectedGraph per node class).
+
+**Milestone run** at the tip 52b78402 (m_r11e), interleaved with pre-flip Java, round 8
+(m_m8final) and step 448 (m_r10f), 6 rounds each, idle host (load 2.0-3.4: the runs' own
+threads), no PGO; stdout, stderr, out.js (and out.js.map) byte-identical with Java's for every
+binary (ident.sh). Medians:
+
+| | typed-full wall (cpu) | Java/Go | bundle wall (cpu) | Java/Go |
+|---|---:|---:|---:|---:|
+| pre-flip Java | 54.66 s (124.3) | | 29.41 s (66.2) | |
+| tip 52b78402 | 48.55 s (55.3) | **1.132** | 24.19 s (25.8) | **1.209** |
+| step 448 (f8f365f2) | 48.58 s (55.5) | 1.130 | 24.02 s (25.5) | 1.224 |
+| round 8 | 49.27 s (57.9) | 1.115 | 25.16 s (28.4) | 1.171 |
+
+(Java/Go is the median of the per-round ratios.) Against round 8, per round: typed-full wall
+-2.2%, cpu -4.8% (-8.1..-2.2); bundle wall -3.2%, cpu -9.3% (-10.5..-7.3). Against 448:
+typed-full wall -0.2%, cpu -0.9%; bundle wall +1.0%, cpu +0.5% (-1.8..+3.1).
+
+## What stays (census rows at the tip, against jsgo)
+
+Every census.py row with a count left, at the tip (52b78402: 259,377 lines of g_*.go),
+against the same Java-ism counted in the hand port jsgo (`python3
+tools/postflip/reflip/jsgocensus.py`: non-test files under jsgo/internal, 402,963 lines, by the
+idiom jsgo writes for it). The reasons are the counted left reasons of the tools that own the
+row (the command is given); "jsgo" says how the hand port handled the same sites.
+
+| row | tip | jsgo | what stays, counted (command) | jsgo at the same spot |
+|---|---:|---:|---|---|
+| erased collections (constructors) | 175 | 22 jutil.New* | colls -n (list / map / set / treeset / treemap): the collection meets code that is not typed: results of generic-type methods (92 list, 45 set, 10 map), function values whose element type is the functional interface's (86 list, 21 set, 12 map), Suppliers and getValue() of erased runtime APIs (66 + 17 + 18 list), boxed-primitive sets fed from erased collections (52), TreeMap/TreeSet with a Comparator or natural order of Objects (11 + 5), JSDocInfo property-bag values (19 map declarations, cast_ of the bag's Object) | jsgo changed the signatures by hand (slices, map[K]V, its own LinkedHashMap[K,V]); the same sites are API boundaries there too |
+| typed TList/TMap/TSet constructors | 385 | 557 make(map) + its LinkedHashMap types | not a Java-ism to remove: insertion order (LinkedHashMap/LinkedHashSet iterated into output), Java null for a missing key, and lists shared while they change (native's left: pointers to slices) | jsgo keeps an ordered map type for the same iterated maps |
+| Guava immutables / builders | 210 | 213 Immutable | the immutability contract (UnsupportedOperationException on change) of fields and results; the typed ImmutableList[T]/Set/Map runtime has no boxing | same (jsgo has its own Immutable types) |
+| for-each via iterator objects / explicit Iterator | 108 / 107 | 16 Iterator/HasNext | ranges -loops -n: 105 loops whose body returns or branches to an outer label (a range-over-func loop is slower there; the cursor keeps Java's re-read of the list), 5 iterators used for more than the loop; iters -n: 29 iterators that enter erased code | jsgo rewrote those loops by hand over slices it owns |
+| anonymous interface assertions | 16 | 0 | 16 to_X helpers of generic classes (`v.(interface{ as_X_() any })`): the class cast of a generic class from an Object, one per generic class | jsgo has no Object slots for them |
+| casts icast_ / to_ / cast_ and is_ | 778 / 1540 / 71 | 648 assertions + 78 type switches | castcensus: of 2,262 casts, 843 cross-casts of a value boxed on the spot (an upcast through Object), 750 of variables/parameters declared Object, 234 Object results of program methods (Var.getScope 22, getDeclaration 20, JSDoc property getters 50), 202 Object results of the runtime (erased collections' elements, Optional), 133 through program interfaces (Map.Entry 55, Iterator 16), 53 Object fields, 19 function values, 18 Java-interface variables; is_: 27 inside && / ||, 21 multi-catch tests, 17 helper declarations, 3 for conditions, 3 other | jsgo keeps 648 comma-ok/direct assertions and 78 type switches for real downcasts; the rest it removed by retyping the Object declarations by hand |
+| boxing to any / fields-params declared any | 2728 / 1675 | 281 any declarations | objslots -n: 590 parameters and 505 results of methods an interface lists (overrides share one signature: self(), compareTo(any) (205 methods), equals(any), the functional interfaces), 579 func-literal parameters (the functional interface's type), 169 slots that receive a value that is not a box, 145 cast helpers, 133 range variables, 115 that no box is stored into, 67 + 36 of generic functions, 27 used as a value, 7 boxes of two types | jsgo writes each comparator/override with its concrete type; equals(any) stays on 66 classes there |
+| unboxing str_ / Node_of_ / .(T) | 370 | (in the assertions) | the reads of the Object slots above | |
+| lambda objects &X_fn{func | 47 | 0 (func values) | excensus: 21 capturing lambdas returned as an interface value, 13 passed to a parameter that is stored or handed on, 2 stored, 11 non-capturing package-level lambdas with identity | jsgo passes func values; the 47 are interface values stored by the callee |
+| Optional | 1448 | 57 | j2go's Optional[T] is a value (no allocation, no box); the count is its spellings in signatures and records (getDisplayName, Binding, Export...) | jsgo dropped Optional<String> for "" / (v, ok) by changing the signatures |
+| try/catch: recover / catch_ | 27 / 27 | 58 recover | excensus: 13 boundary catch-alls (runner, executor, wrap and rethrow), 14 typed catches of failures raised in callees (parsers, number formats, IO) | jsgo 58 recovers at the same boundaries |
+| panic( | 3480 | 1724 panic + 1882 jutil.Check* | excensus: Java's unchecked throws (IllegalStateException 1737, NullPointerException 656, IllegalArgumentException 580, UnsupportedOperationException 66, AssertionError 71 ...: Preconditions inlined as if !c { panic }), 205 Enum.valueOf, 52 abstract-method fallbacks, 27 rethrows in catch defers, 16 throws in catch clauses, 2 from the visitor switches (a nil self_) | jsgo: 1724 panics plus 1882 jutil.CheckState/CheckNotNull calls that panic: 3606 |
+| defer | 84 | 304 | excensus: 36 finally blocks, 21 try-with-resources closes, 27 catch defers | jsgo 304 |
+| equals / hashCode protocol | 94 | 351 (66 Equals methods) | 46 hash/eq of typed containers keyed by classes with value equality (g_0casts.go 30, g_zconv 16: JSType, ScopedName, JSError, Module, DiagnosticType, Color...), 48 calls of structural equality (RegExpTree, JSType, FunctionType, Color, Property: 15 hashCode, 12 equals, 11 Objects.equals, 4 Objects.hash, 3 Object.equals, 3 Objects.hashCode); valcls: 102 of 104 classes with equals fail a property (44 a field whose == is not equals, 29 in a class hierarchy, 12 equals is not all fields, 17 seen as an Object or erased) | jsgo keeps Equals/HashCode on the same value classes (66) |
+| String_* UTF-16 helpers | 127 | 560 jutil.String* | the UTF-16 semantics of charAt / substring / indexOf on non-ASCII (strunits, strnative left them where the string may not be ASCII) | jsgo 560 calls of its own Java-string helpers |
+| StringBuilder | 3 | 279 strings.Builder | none real: TypeStringBuilder names and a comment (census regex) | |
+| enum objects (Enum struct, .Enum.x()) | 1 / 1 | | Node.Prop, an enum j2go keeps as objects (constants looked up by name) | |
+| Preconditions_ | 6 | 1882 jutil.Check* | 4 checkNotNull inside expressions (AstValidator, CodeGenerator, ColorGraphBuilder, Es6RewriteArrowFunction: no statement to put the check before), 2 from visit (a visitor result given to a nil-safe method: Java's NullPointerException) | jsgo keeps 1882 checks |
+| threads / executors | 52 | 98 sync / go | CompilerExecutor's thread and timeout, the parallel compilations: 7 files | jsgo 98 |
+| reflect / unsafe | 5 / 1 | 166 / 3 | none real: Java names in g_0names.go, goog.reflect strings, a variable named unsafe | |
+
+## Handover after the seventh session
+
+1. **The replay runs from the flip to the tip in one go** (71 min on this host) with every
+   re-flip step compared: `replay-all.sh -verifyin 40caeeed..<tip>` (command above). Run it
+   alone: its colls/run.sh builds the package and a parallel gate's build can exhaust memory
+   (it resumes after the last replayed commit).
+2. **What stays** (table above): every row has its counted reason. The large ones are the
+   Object protocol of overriding methods (590 + 505 any slots, 750 + 843 casts), the erased
+   API boundaries (generic-type results, function values, suppliers), Java's unchecked throws
+   (jsgo has as many, as panics plus jutil.Check*), Optional[T] spellings (a value; jsgo
+   changed the signatures), the typed containers keyed by value-equality classes.
+3. **visit's 3 left** need TemplatizedType.replacer proved non-null: assigned in the
+   constructor after the base constructor and other calls; a tool that checks that nothing
+   the constructor calls before the assignment can reach a method reading the field.
+4. **gmaps' 6 left**: the four Object-keyed classes (SimpleMultiset, SimpleBiMap and the
+   multimaps) need j2go to keep their key type (it erased it); SortedDependencies'
+   InputT needs `interface{ DependencyInfo; comparable }` as its constraint; SimpleTable.rows
+   needs tostrNN_ to take a view. boxT_ (156) is now mostly HamtPMap (25), SortedDependencies
+   (33), DominatorTree (18) and the graphs' annotations.
+5. **tdeque's 13 left** give a deque to erased code (addAll of one deque into another, a
+   Joiner, a message); a view of a stack in head-first order would take them.
+6. **valcls**: 12 classes fail only "equals is not all fields by ==" (FeatureSet,
+   CachingTranspiler.Key, ColorId...): their equals compares a field through equals or with a
+   projection; a key projection (jsgo's SortingErrorManager) is the next step there.
+7. Step 426 (MemProfileRate) still needs the decision of the fourth session's handover item 4.
+
+Binaries: $S/proto/m_r11a (449), m_r11b (450), m_r11c (451), m_r11d (452-453), m_r11e (454);
+m_r10f (448), m_m8final (round 8). Logs: $S/r11/meas.log (per step), mem.log (allocations),
+milestone.log, gate outputs gate_r11a..e.out ($S/rf/gate_r11*.log), the replay $S/rprun.log and
+rprun2.log ($S/rpw/.replay.log), cpu_p451_b_1.prof / cpu_p453_b_1.prof. Scripts:
+$S/r11/meas.sh, milestone.sh, prof2.sh; $S/rprun.sh, rprun2.sh; $S/rf/gatew.sh, vstep.sh,
+rec.sh, pairs.py, ident.sh.
