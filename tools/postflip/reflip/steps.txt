@@ -659,7 +659,8 @@ dbababe1 patch 414-dbababe1-rt.patch
 #=4i 4af52461 out of bounds: hand-written change of data structure/algorithm in pass code
 #- 4af52461 patch 415-4af52461-manual.patch
 # 416. postflip (manual, re-flip): SerializeTypesToPointers looks a node's type up without a function object
-112242b3 patch 416-112242b3-manual.patch
+#=5 112242b3 dropped (fifth flip): the manual patch replaced typePointersByJstype.computeIfAbsent(type_, &Function_fn{func(p0 any) any {..}}) by a get and a put, to make no function object and no closure per node. Its subject is gone: the translator writes the argument as a Go func, Function[*JSType, any](func(p0 *JSType) any {..}), and the compiler keeps it on the stack (go build -gcflags=-m at the commit before this step: "g_SerializeTypesToPointers.go:153:82: func literal does not escape"); 0 &Function_fn{ literals in the tree. The call is the Java source line as translated
+#- 112242b3 patch 416-112242b3-manual.patch
 # 417. postflip step (re-flip): calls given a typed lambda adapter take the function
 ab26441f run t adapters && f
 # 418. postflip (manual, re-flip): the renaming inverter's variable sets are Go maps (35e845b7, 531be9bd re-made)
@@ -670,7 +671,8 @@ ab26441f run t adapters && f
 # 419. postflip (manual, re-flip): the data-flow node comparators call getPriority on the graph node directly (c81b9996 re-made)
 #=4 88f8ba50 adapted (fourth flip): redone against this flip's text as 5f35385a (tag flip4-redo-419): the same edit (nodePriority_ and Comparator_comparingInt_f in getOptionalNodeComparator); the replaced adapter is this translator's ToIntFunction_tfn_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch_
 #- 88f8ba50 patch 419-88f8ba50-manual.patch
-5f35385a patch 419-5f35385a-manual.patch
+#=5 5f35385a dropped (fifth flip): the manual patch replaced the adapter object of the two data-flow node comparators (&ToIntFunction_tfn_DiGraph_DiGraphNode_..{func(p0) int32 { return p0.getPriority() }}, which cast each node to the DiGraphNode interface) by nodePriority_ given to Comparator_comparingInt_f. Its subject is gone from getOptionalNodeComparator: the translator writes Comparator_comparingInt[DiGraph_DiGraphNode[..]](ToIntFunction[..](func(p0 DiGraph_DiGraphNode[..]) int32 { return p0.getPriority() })), a typed Go func with no adapter object and no cast in it (0 &ToIntFunction_tfn literals in the tree), and Comparator_comparingInt_f is not made on this flip (125, 147). NOT the same as the fourth flip on the path of a comparison, and not measured: the erased PriorityQueue of DataFlowAnalysis.UniqueQueue calls the comparator through the translator conversion closure func(p0, p1 any) int32 { return f_(junboxT_[T](p0), junboxT_[T](p1)) } (two assertions to the interface per comparison, then the comparingInt closure, then getPriority through the interface twice), where the fourth flip had the int-key comparator object of step 105 that the PriorityQueue called directly (see REFLIP5.md, open items)
+#- 5f35385a patch 419-5f35385a-manual.patch
 # 420. postflip (manual, re-flip): ControlFlowAnalysis keeps AST positions in a Go map of ints (16e33273 re-made)
 #=4 ae56a16d adapted (fourth flip): redone against this flip's text as 740d345a (tag flip4-redo-420): the same edit (astPosition is a map[Node]int32, the priority comparator holds the key function); the replaced lines differ by the adapter's name and put(n, int32(..)) for put(n, any(int32(..)))
 #- ae56a16d patch 420-ae56a16d-manual.patch
@@ -687,6 +689,7 @@ ab26441f run t adapters && f
 #=4i 5116eda7 adapted (in-bounds variant): redone against this flip's text as 80b7eba4 (tag flip4i-redo-422): only the typed reads of step 422 are kept (flow states are LinearFlowState[L] in the analysis and its five users; the analysis reads edges as LinkedDiGraphEdge (cfgEdge_) in flow, joinInputs and getInputFromEdge; nodeOrFail_; to_ of node and edge try the two classes first). Out of bounds and left out: createEdge's single lookups with connectNodes_, the node's cached di_ / diNode_, isConnectedTo_ (they change what the pass code does or build on the dropped 408 / 409)
 #- 5116eda7 patch 422-5116eda7-manual.patch
 #=4i 80b7eba4 patch regenerated (toolfix 21): g_CoalesceVariableNames.go's isUninitializedLetNameInLoopBodyAndLive now has the inline null checks where the patch's context had Preconditions_checkNotNull_T; the 3-way merge conflicted in that one hunk, resolved as the patch's own edit there (the substitution LinearFlowState[any] -> LinearFlowState[*LiveVariablesAnalysis_LiveVariableLattice] and the dropped assertion of getOut()); the other 6 files merged cleanly
+#=5 80b7eba4 patch regenerated (fifth flip): three hunks whose context this translator writes differently, each resolved as the patch own substitution on the new text: g_CoalesceVariableNames.go, the field state of LiveRangeChecker is LinearFlowState[*LiveVariablesAnalysis_LiveVariableLattice] (rule "field layout" put the field elsewhere in the struct); g_LinkedDirectedGraph.go, isConnectedInDirectionPredicate reads its two nodes with nodeOrFail_ (the parameter is Predicate_base[E], was Predicate_baseOf[E]); g_TypeInferencePass.go, the state is LinearFlowState[FlowScope] (the next lines are the typed ComputeIfAbsent of this flip). The other 4 files merged cleanly
 80b7eba4 patch 422-80b7eba4-manual.patch
 # 423. postflip (manual, re-flip): Compiler.inputsById keyed by the id's string (13c7e5ba re-made)
 #=4 a97d418c adapted (fourth flip): redone against this flip's text as 3c5d72ad (tag flip4-redo-423): the same edit (Compiler.inputsById is a map[string]*CompilerInput keyed by the id's string); two replaced lines differ by this translator's spellings (Map(new_ConcurrentHashMap()), get(new_InputId(..)) without obj_)
@@ -723,7 +726,8 @@ b6e39a43 patch 429-b6e39a43-strid-rt.patch
 # 432. postflip step (re-flip): casts to an instantiated generic interface outside generic code call named cast functions
 28eb1868 run t icasts && f
 # 433. postflip (runtime, re-flip): unboxedPred_, unboxedCons_, an erased function given where a typed one of a handle is taken
-2bd6d6b2 patch 433-2bd6d6b2-rt.patch
+#=5 2bd6d6b2 dropped (fifth flip): unboxedPred_ and unboxedCons_ (rt_tfn.go) wrap an erased function where step 434 tfnargs made a parameter typed; tfnargs has no subject on this flip (434 and 437: 0 arguments; the parameters are func types from the translator) and nothing names the two wrappers (0 uses in generated code at the end of the fourth-flip list replayed here). Never instantiated, their generic closures also read as callable anywhere in the call graph of step 553
+#- 2bd6d6b2 patch 433-2bd6d6b2-rt.patch
 # 434. postflip step (re-flip): parameters always given the method of a typed lambda adapter take the typed function
 8571bed2 run t tfnargs && f
 # 435. postflip (manual, re-flip): InlineAndCollapseProperties makes a decision's message only for a log that records
@@ -783,6 +787,7 @@ c15b748c run t castfold -nilup && f
 5ca2e382 run t lamparams && f
 #: lamparams: 183 parameters of 182 lambdas (105 `var v T = K(p)` first, 78 method references), 8 adapter types in g_0lamparams.go (175 lambdas Function_tfn_any_CompilerPass); left 396: 393 func literals that are not an adapter's function (tconv_ box/unbox, func-typed parameters), 2 unused, 1 used twice
 # 458. postflip (runtime, re-flip): compareNatural_ compares a value with an enum record by java.lang.Enum's compareTo
+#=5 0fd07836 adapted (fifth flip): the test TestCompareNaturalEnum is added as the new file rt_cmp_test.go (the patch appended it to that file, which step 105, dropped on this flip, created); the change of compareNatural_ applies as it is
 0fd07836 patch 458-0fd07836-rt.patch
 #: runtime test TestCompareNaturalEnum (53 Test functions)
 # 459. postflip step (re-flip): enumcmp, the 204 per-enum compareTo forwarders go, 2 callers call Enum's (tool 3505d404, runtime 0fd07836)
@@ -825,6 +830,7 @@ cb1d01e7 run t jsdocprops && f
 da83c1be run t tfnparams && f
 #: tfnparams: 1 group, 7 parameters (LogFile.log / log_impl / LogFile_I, the dispatchers, Compiler.logToFile) take func() string: 27 adapters, 2 adapters of immediately called literals, 7 named objects (RemovalLogRecord.forX(..).getT_ 6, StripCodeConfigRecord 1), 1 str_(p.get()) -> p(); left (groups) 153 given another value than a typed adapter, 23 never given an adapter, 5 parameter used other than by calling it, 4 listed by a Java interface, 2 listed by an interface with another signature
 # 470. postflip (runtime, re-flip): Predicates_alwaysTrueT_[T], and sortSliceF_ / sortSlicePF_, the typed sort of a slice view
+#=5 338f093c adapted (fifth flip): regenerated with sortSliceF_ / sortSlicePF_ (rt_native.go) alone. Predicates_alwaysTrueT_[T] (rt_base.go) is dropped: the translator runtime has it as alwaysTrueT_[T], which Predicates_alwaysTrue[T]() returns (rt_fn.go), and the 13 calls step 471 rewrote to it are Predicates_alwaysTrue[Node]() from the translator
 338f093c patch 470-338f093c-rt.patch
 # 471. postflip step (re-flip): tfnparams, NodeUtil's traverseChildrenPred parameters take a func(Node) bool; alwaysTrue, MATCH_NOT_FUNCTION and the named predicates are typed functions (tool f0a747ba, runtime 338f093c)
 12d555a3 run t tfnparams && f
@@ -856,6 +862,7 @@ bfbfa030 run t selftype && f
 dcb42e76 run t tviews && f
 #: tviews: 19 entrySet loops (range M.keys, M.vals[i]), 7 keySet loops, 1 values loop, 5 get(k) -> M.Get(k), 15 cursor slots immCursorT_ (14 immCursorOf_ -> immCursorTOf_, 21 next() reads typed); left none
 # 480. postflip (runtime, re-flip): sortTListF_, sortArrF_ and compareStrNat_, the typed sorts of a typed list and an array and strings' natural order
+#=5 efd82f06 adapted (fifth flip): fnpatch.py; sortTListF_ makes the erased comparator of a typed one with Comparator_of_ (no cmpFunc_ in the translator runtime)
 efd82f06 patch 480-efd82f06-rt.patch
 # 481. postflip step (re-flip): tcmp, 13 natural-order sorts of typed lists and arrays are typed sorts; deadbridge, 1 dead bridge (tool 4bc85f06, runtime efd82f06)
 af12fcda run t tcmp && t deadbridge && f
@@ -905,6 +912,7 @@ ad8c897b patch 492-ad8c897b-rt.patch
 7be430ed run git checkout -q 7be430ed -- tools/protogen && cp go/closure/rt_proto_gen.go .rt_proto_gen.patched && bash tools/protogen/run.sh && { cmp -s go/closure/rt_proto_gen.go .rt_proto_gen.patched && echo "protogen: rt_proto_gen.go regenerated, identical to the patch's" || echo "protogen: rt_proto_gen.go regenerated, DIFFERS from the patch's ($(diff go/closure/rt_proto_gen.go .rt_proto_gen.patched | grep -c '^[<>]') lines)"; }; rm -f .rt_proto_gen.patched; git add -A -f tools/protogen
 # 510. postflip (runtime, re-flip): an erased immutable collection keeps what only multisets, sorted sets with a comparator, enum sets and asList() of a set use in a record of its own (80 bytes instead of 192)
 #=4 d791dde5 adapted (fourth flip): runtime patch regenerated, one conflict resolved by hand (rt_guava.go: this flip's runtime declares ImmutableCollection.total at another place in the struct; both sides kept: the lead's 80-byte layout with total in immRare_, as its code reads it)
+#=5 d791dde5 patch regenerated (fifth flip): fnpatch.py and two conflicts in rt_guava.go resolved as the patch has them (the struct layout with immRare_; descendingSet builds with immSortedOf_), with the reversed comparator made by cmpReversed_ (no Comparator_reversed in the translator runtime)
 d791dde5 patch 510-d791dde5-rt.patch
 # 511. postflip (runtime, re-flip): helpers for a typed collection that goes through its erased form and straight back, with a test against the conversions they stand for
 #=4 68513bc0 adapted (fourth flip): runtime patch regenerated, conflicts resolved by hand: rt_timm.go (both sides add helpers at the same place: the translator's typed-declaration helpers and the trips helpers, both kept), rt_base_text.go (the Splitter: the lead's generic splitPieces_ taken, it gives this flip's splitStrs_ and splitAll_ too), rt_timm_test.go (the test named iup_Collection, a helper castfold -nilup generated on the lead line and not here: the conversion Collection(l.asImm()) of a non-nil list)

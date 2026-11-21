@@ -1,5 +1,5 @@
 diff --git a/go/closure/rt_coll.go b/go/closure/rt_coll.go
-index 802eeed35775edb034b8411b9d535e4683de72e2..dbb19017 100644
+index e60effba6..5e37af029 100644
 --- a/go/closure/rt_coll.go
 +++ b/go/closure/rt_coll.go
 @@ -85,7 +85,7 @@ func foreach_(c any) each_ {
@@ -12,10 +12,10 @@ index 802eeed35775edb034b8411b9d535e4683de72e2..dbb19017 100644
  		return each_{src: &x.items}
  	case *LinkedHashSet:
 diff --git a/go/closure/rt_guava.go b/go/closure/rt_guava.go
-index 39eb52e7573fede21a66ad31509530a180ddc383..cf4f4a45 100644
+index b1adccb7d..e20b8ba55 100644
 --- a/go/closure/rt_guava.go
 +++ b/go/closure/rt_guava.go
-@@ -66,7 +66,7 @@ func comparatorOf_(v any) Comparator {
+@@ -66,7 +66,7 @@ func comparatorOf_(v any) Comparator_e {
  	case *TreeMap:
  		return x.cmp
  	case *ImmutableCollection:
@@ -28,10 +28,10 @@ index 39eb52e7573fede21a66ad31509530a180ddc383..cf4f4a45 100644
  type ImmutableCollection struct {
  	kind   int8
  	hashed bool
--	total  int32      // multiset: size
--	hash_  int32      // plain set: the hash code, once computed (Guava computes it at construction)
--	items  []any      // list: the elements; otherwise the distinct elements in iteration order
--	idx    *htable_   // set, multiset: element -> position in items (built on demand)
+-	total  int32        // multiset: size
+-	hash_  int32        // plain set: the hash code, once computed (Guava computes it at construction)
+-	items  []any        // list: the elements; otherwise the distinct elements in iteration order
+-	idx    *htable_     // set, multiset: element -> position in items (built on demand)
 +	hash_  int32     // plain set: the hash code, once computed (Guava computes it at construction)
 +	items  []any     // list: the elements; otherwise the distinct elements in iteration order
 +	idx    *htable_  // set, multiset: element -> position in items (built on demand)
@@ -44,8 +44,8 @@ index 39eb52e7573fede21a66ad31509530a180ddc383..cf4f4a45 100644
 +// immRare_ holds the fields of an ImmutableCollection that a list or a plain set does not use
 +// (a set only once its asList() is asked for).
 +type immRare_ struct {
- 	counts []int32    // multiset: occurrences of items[i]
-+	total  int32      // multiset: size
+ 	counts []int32      // multiset: occurrences of items[i]
++	total  int32        // multiset: size
  	cmp    Comparator_e // sorted set (nil: natural ordering)
  	list_  *ImmutableCollection
 -	all_   []any     // multiset: the elements with repetition
@@ -89,7 +89,7 @@ index 39eb52e7573fede21a66ad31509530a180ddc383..cf4f4a45 100644
  }
  
  type ErasedImmutableList = ImmutableCollection
-@@ -164,22 +205,22 @@ func immSorted_(items []any, cmp Comparator) *ImmutableSortedSet {
+@@ -164,22 +205,22 @@ func immSorted_(items []any, cmp Comparator_e) *ImmutableSortedSet {
  			out = append(out, v)
  		}
  	}
@@ -248,8 +248,8 @@ index 39eb52e7573fede21a66ad31509530a180ddc383..cf4f4a45 100644
  	for i, v := range this.items {
  		out[len(out)-1-i] = v
  	}
--	return &ImmutableCollection{kind: icSorted_, items: out, cmp: Comparator_reversed(cmpOrNatural_(this.cmp))}
-+	return immSortedOf_(out, Comparator_reversed(cmpOrNatural_(this.cmp_())))
+-	return &ImmutableCollection{kind: icSorted_, items: out, cmp: cmpReversed_(cmpOrNatural_(this.cmp))}
++	return immSortedOf_(out, cmpReversed_(cmpOrNatural_(this.cmp_())))
  }
  
  func (this *ImmutableSortedSet) tailSet(from any, inclusive bool) NavigableSet {
@@ -278,7 +278,7 @@ index 39eb52e7573fede21a66ad31509530a180ddc383..cf4f4a45 100644
  		r := c.compare(this.items[i], v)
  		if inclusive {
 diff --git a/go/closure/rt_guava_map.go b/go/closure/rt_guava_map.go
-index 068466319f6339ac4a9054ba7f32f435ce0d7b82..4a0f8421 100644
+index 6e04d0720..bb0eaa392 100644
 --- a/go/closure/rt_guava_map.go
 +++ b/go/closure/rt_guava_map.go
 @@ -205,7 +205,7 @@ func (this *ErasedImmutableMap) containsValue(v any) bool {
@@ -291,7 +291,7 @@ index 068466319f6339ac4a9054ba7f32f435ce0d7b82..4a0f8421 100644
  			this.keySet_ = &ImmutableCollection{kind: icSet_, items: this.keys, idx: this.index_()}
  		}
 diff --git a/go/closure/rt_guava_test.go b/go/closure/rt_guava_test.go
-index 6d7e270901276476943c9b10238dc2fe29e8d73c..2dfb5b3f 100644
+index 22eb05c39..7fa91d097 100644
 --- a/go/closure/rt_guava_test.go
 +++ b/go/closure/rt_guava_test.go
 @@ -2,6 +2,7 @@ package closure
@@ -351,7 +351,7 @@ index 6d7e270901276476943c9b10238dc2fe29e8d73c..2dfb5b3f 100644
 +	guavaEq_(t, len(immMultiset_(nil).elems_()), 0)
 +}
 diff --git a/go/closure/rt_timm.go b/go/closure/rt_timm.go
-index 5e73161e7ec76cb9498504e16c57ee3155ef5829..acfbe96d 100644
+index 5e73161e7..acfbe96d3 100644
 --- a/go/closure/rt_timm.go
 +++ b/go/closure/rt_timm.go
 @@ -800,7 +800,7 @@ func tsetImm_[K comparable](kc *tconv_[K], ic *ImmutableCollection) *ImmutableSe

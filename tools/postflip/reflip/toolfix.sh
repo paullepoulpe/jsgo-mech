@@ -940,3 +940,209 @@ reflip_edit tools/postflip/unify/main.go reflip29 <<'E29'
 		"putIfAbsent": "PutIfAbsent", "remove": "Delete", "clear": "Clear", "eachKey": "each", "eachValue": "each",
 		"computeIfAbsent": "ComputeIfAbsent"}, // reflip29
 E29
+# 30. (fifth flip) adapters: a typed lambda given to a library method is no adapter object &X_tfn_T{func..} on this translator
+#    (rule "function types") but the function literal converted to the parameter's function type, Predicate[string](func(s string)
+#    bool {..}). The tool's rule is about the literal: "the argument must be ... one function literal of the type named"; the
+#    conversion of a function literal is that literal (never null, as the adapter literal was). Read so, Optional[T].filter of a
+#    literal is filterFn_ again (102 calls: the form step 553 optstr reads; filter itself differs from filterFn_ only by the null
+#    check of the predicate) and Map_computeIfAbsent of a func(any) any literal is Map_computeIfAbsent_f.
+reflip_edit tools/postflip/adapters/main.go reflip30 <<'E30'
+	funcOf := func(arg ast.Expr, erased bool) (*ast.FuncLit, string) {
+		u, ok := arg.(*ast.UnaryExpr)
+=====
+	funcOf := func(arg ast.Expr, erased bool) (*ast.FuncLit, string) {
+		if c, ok := arg.(*ast.CallExpr); ok && len(c.Args) == 1 { // reflip30: a function literal converted to a function type
+			if tv, ok := rw.Info.Types[c.Fun]; ok && tv.IsType() {
+				if _, isFn := tv.Type.Underlying().(*types.Signature); isFn {
+					if fl, ok := rw.Unparen(c.Args[0]).(*ast.FuncLit); ok {
+						return fl, ""
+					}
+				}
+			}
+		}
+		u, ok := arg.(*ast.UnaryExpr)
+E30
+# 31. (fifth flip) optstr, call graph (cha.go): the translator's rule "function types" gives each function type the interface's
+#    method as a forwarder, func (f Supplier[T]) get() T { return f() } (g_zstubs.go), and writes a call of a functional parameter
+#    as that method, s.get(). The call graph took s.get() for a call of the generic method and its body's f() for a call of a func
+#    value of signature func() T with T standing for any type: every func() X of the program, so that building an empty typed
+#    collection (tchT_ -> single_ -> mk()) "reached" Callable.call and through it a lambda of Compiler.saveState that reads
+#    Compiler.idGeneratorMap; the proof of that field failed (the fourth flip's step 553 proved it). A call x.m(..) of such a
+#    forwarder runs the func value x and nothing else: it has the edges of the call x(..), at x's own type; and the method value
+#    x.m is the value x, which is listed where it was made. Sound for the same closed world as before (a func value runs only
+#    where a callee has func type); forwarders are recognised by their body, a single call of the receiver with the parameters.
+reflip_edit tools/postflip/optstr/cha.go reflip31 <<'E31'
+				fd := funcDecls[fn.Origin()]
+				if fd == nil || fd.Body == nil {
+					return true
+				}
+				sig := fn.Type().(*types.Signature)
+=====
+				fd := funcDecls[fn.Origin()]
+				if fd == nil || fd.Body == nil {
+					return true
+				}
+				if fnForwarder_(fn) { // reflip31: the method value x.m of a function type is the value x
+					return true
+				}
+				sig := fn.Type().(*types.Signature)
+-----
+			if fn != nil {
+				if tgt, ok := objCallEdges(x, fn); ok {
+=====
+			if fn != nil {
+				if fs, ok := fun.(*ast.SelectorExpr); ok && fnForwarder_(fn) { // reflip31: x.m(..) of a function type is x(..)
+					if xs, ok := rw.Unparen(fs.X).(*ast.SelectorExpr); ok && fieldCalled(xs, root, &out) {
+						return true // a func-typed field whose stores are all known (fieldfuncs.go)
+					}
+					if sig, ok := types.Unalias(rw.Info.TypeOf(fs.X)).Underlying().(*types.Signature); ok {
+						out = append(out, valueCallees(sig, x)...)
+						return true
+					}
+				}
+				if tgt, ok := objCallEdges(x, fn); ok {
+-----
+	var out []ast.Node
+	for _, v := range valueFuncs {
+		for _, vs := range v.sigs() {
+=====
+	var out []ast.Node
+	for _, v := range valueFuncs {
+		if lit, ok := v.node.(*ast.FuncLit); ok && mentionsTP(v.sig) { // reflip31: a literal of generic code, per instantiation
+			if tps, tuples, ok := contextOf(v.site); ok && len(tuples) > 0 {
+				for _, tu := range tuples {
+					m := map[*types.TypeParam]types.Type{}
+					for i, tp := range tps {
+						m[tp] = tu[i]
+					}
+					if sameSig(subst(v.sig, m).(*types.Signature), sig) {
+						out = append(out, instLitOf_(lit, tps, m))
+					}
+				}
+				continue
+			}
+		}
+		for _, vs := range v.sigs() {
+-----
+	tps, tuples, ok := contextOf(site)
+	if !ok || len(tuples) == 0 {
+		return matching(sig)
+	}
+	seen := map[ast.Node]bool{}
+=====
+	tps, tuples, ok := contextOf(site)
+	if !ok || len(tuples) == 0 {
+		return matching(sig)
+	}
+	if curInst_ != nil { // reflip31: inside a literal reached at one instantiation of its generic code
+		all := true
+		for _, tp := range tps {
+			if _, ok := curInst_[tp]; !ok {
+				all = false
+			}
+		}
+		if all {
+			return matching(subst(sig, curInst_).(*types.Signature))
+		}
+	}
+	seen := map[ast.Node]bool{}
+-----
+		chaDone[n] = true
+		out, reads := edges(bodyOf(n), n)
+=====
+		chaDone[n] = true
+		if il, ok := n.(*instLit_); ok { // reflip31
+			curInst_ = il.m
+		}
+		out, reads := edges(bodyOf(n), n)
+		curInst_ = nil
+-----
+	case *boundFn:
+		return x.Body
+	}
+	return nil
+=====
+	case *boundFn:
+		return x.Body
+	case *instLit_: // reflip31
+		return x.Body
+	}
+	return nil
++++++
+
+// fnForwarder_ (reflip31) reports whether fn is a method of a named function type whose body only calls the receiver with
+// the method's parameters: the methods the translator's rule "function types" gives its function types (f.apply(x) is f(x)).
+func fnForwarder_(fn *types.Func) bool {
+	fn = fn.Origin()
+	sig, ok := fn.Type().(*types.Signature)
+	if !ok || sig.Recv() == nil {
+		return false
+	}
+	if _, ok := types.Unalias(sig.Recv().Type()).Underlying().(*types.Signature); !ok {
+		return false
+	}
+	fd := funcDecls[fn]
+	if fd == nil || fd.Body == nil || len(fd.Body.List) != 1 || fd.Recv == nil || len(fd.Recv.List) != 1 || len(fd.Recv.List[0].Names) != 1 {
+		return false
+	}
+	var e ast.Expr
+	switch s := fd.Body.List[0].(type) {
+	case *ast.ReturnStmt:
+		if len(s.Results) != 1 {
+			return false
+		}
+		e = s.Results[0]
+	case *ast.ExprStmt:
+		e = s.X
+	default:
+		return false
+	}
+	c, ok := e.(*ast.CallExpr)
+	if !ok {
+		return false
+	}
+	id, ok := c.Fun.(*ast.Ident)
+	if !ok || id.Name != fd.Recv.List[0].Names[0].Name {
+		return false
+	}
+	n := 0
+	for _, p := range fd.Type.Params.List {
+		for _, pn := range p.Names {
+			if n >= len(c.Args) {
+				return false
+			}
+			if a, ok := c.Args[n].(*ast.Ident); !ok || a.Name != pn.Name {
+				return false
+			}
+			n++
+		}
+	}
+	return n == len(c.Args)
+}
+
+// instLit_ (reflip31) is a function literal written in generic code, as reached at one instantiation of that code (the type
+// arguments m): a call of a func value inside it whose type is written with the code's type parameters has that instantiation's
+// signature, not every instantiation's. Suppliers.memoize's closure reached as a func() string calls its s as a func() string.
+type instLit_ struct {
+	*ast.FuncLit
+	m map[*types.TypeParam]types.Type
+}
+
+var (
+	instLits_ = map[string]*instLit_{}
+	curInst_  map[*types.TypeParam]types.Type
+)
+
+func instLitOf_(lit *ast.FuncLit, tps []*types.TypeParam, m map[*types.TypeParam]types.Type) *instLit_ {
+	key := fmt.Sprint(lit.Pos())
+	for _, tp := range tps {
+		key += "|" + types.TypeString(m[tp], nil)
+	}
+	if il, ok := instLits_[key]; ok {
+		return il
+	}
+	il := &instLit_{FuncLit: lit, m: m}
+	instLits_[key] = il
+	return il
+}
+E31

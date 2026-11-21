@@ -1,5 +1,5 @@
 diff --git a/go/closure/g_CoalesceVariableNames.go b/go/closure/g_CoalesceVariableNames.go
-index 64bbf15b..5dc67096 100644
+index 6f188d1c5..40fab2514 100644
 --- a/go/closure/g_CoalesceVariableNames.go
 +++ b/go/closure/g_CoalesceVariableNames.go
 @@ -202,14 +202,14 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
@@ -20,7 +20,7 @@ index 64bbf15b..5dc67096 100644
  		for i := int32(liveout.nextSetBit(0)); i >= 0; i = liveout.nextSetBit((i + 1)) {
  			for j := int32(liveout.nextSetBit(i)); j >= 0; j = liveout.nextSetBit((j + 1)) {
  				interferenceBitSet[i].set(j)
-@@ -343,17 +343,17 @@ func (this *CoalesceVariableNames) isUninitializedLetNameInLoopBodyAndLive(nameN
+@@ -343,16 +343,16 @@ func (this *CoalesceVariableNames) isUninitializedLetNameInLoopBodyAndLive(nameN
  		panic(new_NullPointerException_0())
  	}
  	var cfgNode DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](nn_.self())
@@ -35,7 +35,6 @@ index 64bbf15b..5dc67096 100644
  }
  
  type CoalesceVariableNames_LiveRangeChecker struct {
- 	root             Node
 -	state            *DataFlowAnalysis_LinearFlowState[any]
 +	state            *DataFlowAnalysis_LinearFlowState[*LiveVariablesAnalysis_LiveVariableLattice]
  	orderedVariables []*Var
@@ -68,7 +67,7 @@ index 64bbf15b..5dc67096 100644
  				*this.isReadFromList = append(*this.isReadFromList, int32(iVar))
  			}
 diff --git a/go/closure/g_DataFlowAnalysis.go b/go/closure/g_DataFlowAnalysis.go
-index 3c86b19f..a520a2f8 100644
+index c4df11c7f..3024fcca1 100644
 --- a/go/closure/g_DataFlowAnalysis.go
 +++ b/go/closure/g_DataFlowAnalysis.go
 @@ -81,7 +81,7 @@ func (this *DataFlowAnalysis[N, L]) analyze() {
@@ -205,7 +204,7 @@ index 3c86b19f..a520a2f8 100644
  }
  
 diff --git a/go/closure/g_DeadAssignmentsElimination.go b/go/closure/g_DeadAssignmentsElimination.go
-index 81c18899..3262ea9d 100644
+index 81c188992..3262ea9d7 100644
 --- a/go/closure/g_DeadAssignmentsElimination.go
 +++ b/go/closure/g_DeadAssignmentsElimination.go
 @@ -105,7 +105,7 @@ func (this *DeadAssignmentsElimination) tryRemoveDeadAssignments(t *NodeTraversa
@@ -245,7 +244,7 @@ index 81c18899..3262ea9d 100644
  		}
  		if n.isAssign() {
 diff --git a/go/closure/g_LinkedDirectedGraph.go b/go/closure/g_LinkedDirectedGraph.go
-index 6bfc093c..b1d95679 100644
+index 84a2e959c..e7d186c79 100644
 --- a/go/closure/g_LinkedDirectedGraph.go
 +++ b/go/closure/g_LinkedDirectedGraph.go
 @@ -83,8 +83,8 @@ func LinkedDirectedGraph_create[N comparable, E comparable]() *LinkedDirectedGra
@@ -286,7 +285,7 @@ index 6bfc093c..b1d95679 100644
  }
  
 @@ -159,6 +159,17 @@ func (this *LinkedDirectedGraph[N, E]) createNode_Object_rDiGraphNode_rLinkedDiG
- 	}})
+ 	}))
  }
  
 +// nodeOrFail_ is getNodeOrFail(value) as the node of this class that it is (post-flip manual
@@ -328,7 +327,7 @@ index 6bfc093c..b1d95679 100644
 @@ -244,8 +255,8 @@ func (this *LinkedDirectedGraph[N, E]) isConnectedInDirectionLinkedDiGraphNode(s
  }
  
- func (this *LinkedDirectedGraph[N, E]) isConnectedInDirectionPredicate(n1 N, edgeMatcher Predicate_baseOf[E], n2 N) bool {
+ func (this *LinkedDirectedGraph[N, E]) isConnectedInDirectionPredicate(n1 N, edgeMatcher Predicate_base[E], n2 N) bool {
 -	var dNode1 *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(n1))
 -	var dNode2 *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(n2))
 +	var dNode1 *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.nodeOrFail_(n1)
@@ -381,7 +380,7 @@ index 6bfc093c..b1d95679 100644
  	return v.(interface{ as_LinkedDirectedGraph_LinkedDiGraphEdge_() any }).as_LinkedDirectedGraph_LinkedDiGraphEdge_().(*LinkedDirectedGraph_LinkedDiGraphEdge[N, E])
  }
 diff --git a/go/closure/g_MaybeReachingVariableUse.go b/go/closure/g_MaybeReachingVariableUse.go
-index d28a5eef..7e2d1ff7 100644
+index eb6135b5b..7a79d534d 100644
 --- a/go/closure/g_MaybeReachingVariableUse.go
 +++ b/go/closure/g_MaybeReachingVariableUse.go
 @@ -198,8 +198,8 @@ func (this *MaybeReachingVariableUse) getUses(name string, defNode Node) Iterabl
@@ -396,7 +395,7 @@ index d28a5eef..7e2d1ff7 100644
  
  type MaybeReachingVariableUse_ReachingUses struct {
 diff --git a/go/closure/g_MustBeReachingVariableDef.go b/go/closure/g_MustBeReachingVariableDef.go
-index 00ea8a26..3ed509e8 100644
+index bf0548fbb..ce06fa07b 100644
 --- a/go/closure/g_MustBeReachingVariableDef.go
 +++ b/go/closure/g_MustBeReachingVariableDef.go
 @@ -256,8 +256,8 @@ func (this *MustBeReachingVariableDef) getDef(name string, useNode Node) *MustBe
@@ -411,15 +410,15 @@ index 00ea8a26..3ed509e8 100644
  
  func (this *MustBeReachingVariableDef) getDefNode(name string, useNode Node) Node {
 diff --git a/go/closure/g_TypeInferencePass.go b/go/closure/g_TypeInferencePass.go
-index 60dd9d56..a63a057d 100644
+index 8edcf3f0f..bc90a6f1c 100644
 --- a/go/closure/g_TypeInferencePass.go
 +++ b/go/closure/g_TypeInferencePass.go
-@@ -89,7 +89,7 @@ func (this *TypeInferencePass) inferScope(n Node, scope *TypedScope) {
+@@ -95,7 +95,7 @@ func (this *TypeInferencePass) inferScope(n Node, scope *TypedScope) {
  			if node == cfg.getImplicitReturn() {
  				continue
  			}
 -			var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(node)))
 +			var state *DataFlowAnalysis_LinearFlowState[FlowScope] = cast_[*DataFlowAnalysis_LinearFlowState[FlowScope]](Annotatable_getAnnotation(Annotatable(node)))
- 			this.stepCountHistogram.ComputeIfAbsent(int32(state.getStepCount()), func(k any) *SimpleMultiset[any] {
- 				return SimpleMultiset_create[any]()
- 			}).add(obj_(node.getValue().getToken()))
+ 			this.stepCountHistogram.ComputeIfAbsent(int32(state.getStepCount()), Function[any, *SimpleMultiset[Token_rhino]](func(k any) *SimpleMultiset[Token_rhino] {
+ 				return SimpleMultiset_create[Token_rhino]()
+ 			})).add(node.getValue().getToken())
