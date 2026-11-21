@@ -3,7 +3,7 @@
 package closure
 
 type JSType struct {
-	self_                                                  any
+	self_                                                  JSType_I
 	resolveResult                                          *JSType
 	templateTypeMap                                        *TemplateTypeMap
 	templateCheckResult                                    any
@@ -11,6 +11,96 @@ type JSType struct {
 	loosenTypecheckingDueToForwardReferencedSupertypeField bool
 	hashCodeInProgress                                     bool
 	inTemplatedCheckVisit                                  bool
+}
+
+// JSType_I holds the methods the dispatchers of JSType's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type JSType_I interface {
+	appendTo_impl(*TypeStringBuilder)
+	autobox_impl() *JSType
+	autoboxesTo_impl() *JSType
+	canBeCalled_impl() bool
+	collapseUnion_impl() *JSType
+	findPropertyTypeWithoutConsideringTemplateTypes_impl(Property_Key) *JSType
+	getDisplayName_impl() Optional[string]
+	getGreatestSubtype_impl(*JSType) *JSType
+	getJSDocInfo_impl() *JSDocInfo
+	getLeastSupertype_impl(*JSType) *JSType
+	getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet
+	getPropertyKind_2_impl(Property_Key, bool) *JSType_HasPropertyKind
+	getRestrictedTypeGivenOutcome_impl(*Outcome_rhino) *JSType
+	getTemplateParamCount_impl() int32
+	getTemplateTypeMap_impl() *TemplateTypeMap
+	getTypeClass_impl() *JSTypeClass
+	getTypesUnderEquality_impl(*JSType) *JSType_TypePair
+	getTypesUnderInequality_impl(*JSType) *JSType_TypePair
+	getTypesUnderShallowInequality_impl(*JSType) *JSType_TypePair
+	hasAnyTemplateTypesInternal_impl() bool
+	hasDisplayName_impl() bool
+	isAllType_impl() bool
+	isArrayType_impl() bool
+	isBigIntObjectType_impl() bool
+	isBigIntValueType_impl() bool
+	isBooleanObjectType_impl() bool
+	isBooleanValueType_impl() bool
+	isCheckedUnknownType_impl() bool
+	isConstructor_impl() bool
+	isDateType_impl() bool
+	isDict_impl() bool
+	isExplicitlyVoidable_impl() bool
+	isFunctionPrototypeType_impl() bool
+	isInstanceType_impl() bool
+	isInterface_impl() bool
+	isKnownSymbolValueType_impl() bool
+	isNativeObjectType_impl() bool
+	isNoObjectType_impl() bool
+	isNoResolvedType_impl() bool
+	isNoType_impl() bool
+	isNominalType_impl() bool
+	isNullType_impl() bool
+	isNullable_impl() bool
+	isNumberObjectType_impl() bool
+	isNumberValueType_impl() bool
+	isObject_impl() bool
+	isOrdinaryFunction_impl() bool
+	isReadonlyArrayType_impl() bool
+	isRegexpType_impl() bool
+	isStringObjectType_impl() bool
+	isStringValueType_impl() bool
+	isStruct_impl() bool
+	isStructuralInterface_impl() bool
+	isStructuralType_impl() bool
+	isSymbolObjectType_impl() bool
+	isSymbolValueType_impl() bool
+	isTheObjectType_impl() bool
+	isUnknownType_impl() bool
+	isVoidType_impl() bool
+	isVoidable_impl() bool
+	loosenTypecheckingDueToForwardReferencedSupertype_impl() bool
+	matchConstraint_impl(*JSType)
+	matchesNumberContext_impl() bool
+	matchesObjectContext_impl() bool
+	matchesStringContext_impl() bool
+	matchesSymbolContext_impl() bool
+	recursionUnsafeHashCode_impl() int32
+	resolveInternal_impl(ErrorReporter_rhino) *JSType
+	restrictByNotNullOrUndefined_impl() *JSType
+	restrictByNotNull_impl() *JSType
+	restrictByNotUndefined_impl() *JSType
+	setValidator_impl(Predicate_base[*JSType]) bool
+	testForEquality_impl(*JSType) *Tri
+	toMaybeEnumElementType_impl() *EnumElementType
+	toMaybeEnumType_impl() *EnumType
+	toMaybeFunctionType_impl() *FunctionType
+	toMaybeKnownSymbolType_impl() *KnownSymbolType
+	toMaybeNamedType_impl() *NamedType
+	toMaybeRecordType_impl() *RecordType
+	toMaybeTemplateType_impl() *TemplateType
+	toMaybeTemplatizedType_impl() *TemplatizedType
+	toMaybeUnionType_impl() *UnionType
+	toString_impl() string
+	visitUntyped_2_impl(RelationshipVisitor, *JSType) any
+	visitUntyped_impl(Visitor) any
 }
 
 func (this *JSType) as_JSType() *JSType { return this }
@@ -956,357 +1046,343 @@ func (this *JSType) toMaybeObjectType() *ObjectType {
 }
 
 func (this *JSType) getTypeClass() *JSTypeClass {
-	return this.self_.(interface{ getTypeClass_impl() *JSTypeClass }).getTypeClass_impl()
+	return this.self_.getTypeClass_impl()
 }
 
 func (this *JSType) isAllType() bool {
-	return this.self_.(interface{ isAllType_impl() bool }).isAllType_impl()
+	return this.self_.isAllType_impl()
 }
 
 func (this *JSType) matchesStringContext() bool {
-	return this.self_.(interface{ matchesStringContext_impl() bool }).matchesStringContext_impl()
+	return this.self_.matchesStringContext_impl()
 }
 
 func (this *JSType) matchesObjectContext() bool {
-	return this.self_.(interface{ matchesObjectContext_impl() bool }).matchesObjectContext_impl()
+	return this.self_.matchesObjectContext_impl()
 }
 
 func (this *JSType) testForEquality(p0 *JSType) *Tri {
-	return this.self_.(interface{ testForEquality_impl(*JSType) *Tri }).testForEquality_impl(p0)
+	return this.self_.testForEquality_impl(p0)
 }
 
 func (this *JSType) appendTo(p0 *TypeStringBuilder) {
-	this.self_.(interface{ appendTo_impl(*TypeStringBuilder) }).appendTo_impl(p0)
+	this.self_.appendTo_impl(p0)
 }
 
 func (this *JSType) getDisplayName() Optional[string] {
-	return this.self_.(interface{ getDisplayName_impl() Optional[string] }).getDisplayName_impl()
+	return this.self_.getDisplayName_impl()
 }
 
 func (this *JSType) hasDisplayName() bool {
-	return this.self_.(interface{ hasDisplayName_impl() bool }).hasDisplayName_impl()
+	return this.self_.hasDisplayName_impl()
 }
 
 func (this *JSType) visitUntyped(p0 Visitor) any {
-	return this.self_.(interface{ visitUntyped_impl(Visitor) any }).visitUntyped_impl(p0)
+	return this.self_.visitUntyped_impl(p0)
 }
 
 func (this *JSType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
-	return this.self_.(interface {
-		visitUntyped_2_impl(RelationshipVisitor, *JSType) any
-	}).visitUntyped_2_impl(p0, p1)
+	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
 func (this *JSType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
-	return this.self_.(interface{ getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet }).getPossibleToBooleanOutcomes_impl()
+	return this.self_.getPossibleToBooleanOutcomes_impl()
 }
 
 func (this *JSType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
-	return this.self_.(interface {
-		resolveInternal_impl(ErrorReporter_rhino) *JSType
-	}).resolveInternal_impl(p0)
+	return this.self_.resolveInternal_impl(p0)
 }
 
 func (this *JSType) recursionUnsafeHashCode() int32 {
-	return this.self_.(interface{ recursionUnsafeHashCode_impl() int32 }).recursionUnsafeHashCode_impl()
+	return this.self_.recursionUnsafeHashCode_impl()
 }
 
 func (this *JSType) isNullable() bool {
-	return this.self_.(interface{ isNullable_impl() bool }).isNullable_impl()
+	return this.self_.isNullable_impl()
 }
 
 func (this *JSType) isVoidable() bool {
-	return this.self_.(interface{ isVoidable_impl() bool }).isVoidable_impl()
+	return this.self_.isVoidable_impl()
 }
 
 func (this *JSType) getLeastSupertype(p0 *JSType) *JSType {
-	return this.self_.(interface{ getLeastSupertype_impl(*JSType) *JSType }).getLeastSupertype_impl(p0)
+	return this.self_.getLeastSupertype_impl(p0)
 }
 
 func (this *JSType) getGreatestSubtype(p0 *JSType) *JSType {
-	return this.self_.(interface{ getGreatestSubtype_impl(*JSType) *JSType }).getGreatestSubtype_impl(p0)
+	return this.self_.getGreatestSubtype_impl(p0)
 }
 
 func (this *JSType) hasAnyTemplateTypesInternal() bool {
-	return this.self_.(interface{ hasAnyTemplateTypesInternal_impl() bool }).hasAnyTemplateTypesInternal_impl()
+	return this.self_.hasAnyTemplateTypesInternal_impl()
 }
 
 func (this *JSType) toString() string {
-	return this.self_.(interface{ toString_impl() string }).toString_impl()
+	return this.self_.toString_impl()
 }
 
 func (this *JSType) isBigIntValueType() bool {
-	return this.self_.(interface{ isBigIntValueType_impl() bool }).isBigIntValueType_impl()
+	return this.self_.isBigIntValueType_impl()
 }
 
 func (this *JSType) matchesNumberContext() bool {
-	return this.self_.(interface{ matchesNumberContext_impl() bool }).matchesNumberContext_impl()
+	return this.self_.matchesNumberContext_impl()
 }
 
 func (this *JSType) autoboxesTo() *JSType {
-	return this.self_.(interface{ autoboxesTo_impl() *JSType }).autoboxesTo_impl()
+	return this.self_.autoboxesTo_impl()
 }
 
 func (this *JSType) isBooleanValueType() bool {
-	return this.self_.(interface{ isBooleanValueType_impl() bool }).isBooleanValueType_impl()
+	return this.self_.isBooleanValueType_impl()
 }
 
 func (this *JSType) getPropertyKind_2(p0 Property_Key, p1 bool) *JSType_HasPropertyKind {
-	return this.self_.(interface {
-		getPropertyKind_2_impl(Property_Key, bool) *JSType_HasPropertyKind
-	}).getPropertyKind_2_impl(p0, p1)
+	return this.self_.getPropertyKind_2_impl(p0, p1)
 }
 
 func (this *JSType) toMaybeEnumElementType() *EnumElementType {
-	return this.self_.(interface{ toMaybeEnumElementType_impl() *EnumElementType }).toMaybeEnumElementType_impl()
+	return this.self_.toMaybeEnumElementType_impl()
 }
 
 func (this *JSType) matchesSymbolContext() bool {
-	return this.self_.(interface{ matchesSymbolContext_impl() bool }).matchesSymbolContext_impl()
+	return this.self_.matchesSymbolContext_impl()
 }
 
 func (this *JSType) canBeCalled() bool {
-	return this.self_.(interface{ canBeCalled_impl() bool }).canBeCalled_impl()
+	return this.self_.canBeCalled_impl()
 }
 
 func (this *JSType) isObject() bool {
-	return this.self_.(interface{ isObject_impl() bool }).isObject_impl()
+	return this.self_.isObject_impl()
 }
 
 func (this *JSType) isNominalType() bool {
-	return this.self_.(interface{ isNominalType_impl() bool }).isNominalType_impl()
+	return this.self_.isNominalType_impl()
 }
 
 func (this *JSType) findPropertyTypeWithoutConsideringTemplateTypes(p0 Property_Key) *JSType {
-	return this.self_.(interface{ findPropertyTypeWithoutConsideringTemplateTypes_impl(Property_Key) *JSType }).findPropertyTypeWithoutConsideringTemplateTypes_impl(p0)
+	return this.self_.findPropertyTypeWithoutConsideringTemplateTypes_impl(p0)
 }
 
 func (this *JSType) toMaybeEnumType() *EnumType {
-	return this.self_.(interface{ toMaybeEnumType_impl() *EnumType }).toMaybeEnumType_impl()
+	return this.self_.toMaybeEnumType_impl()
 }
 
 func (this *JSType) isInstanceType() bool {
-	return this.self_.(interface{ isInstanceType_impl() bool }).isInstanceType_impl()
+	return this.self_.isInstanceType_impl()
 }
 
 func (this *JSType) isConstructor() bool {
-	return this.self_.(interface{ isConstructor_impl() bool }).isConstructor_impl()
+	return this.self_.isConstructor_impl()
 }
 
 func (this *JSType) isInterface() bool {
-	return this.self_.(interface{ isInterface_impl() bool }).isInterface_impl()
+	return this.self_.isInterface_impl()
 }
 
 func (this *JSType) isOrdinaryFunction() bool {
-	return this.self_.(interface{ isOrdinaryFunction_impl() bool }).isOrdinaryFunction_impl()
+	return this.self_.isOrdinaryFunction_impl()
 }
 
 func (this *JSType) toMaybeFunctionType() *FunctionType {
-	return this.self_.(interface{ toMaybeFunctionType_impl() *FunctionType }).toMaybeFunctionType_impl()
+	return this.self_.toMaybeFunctionType_impl()
 }
 
 func (this *JSType) isStructuralInterface() bool {
-	return this.self_.(interface{ isStructuralInterface_impl() bool }).isStructuralInterface_impl()
+	return this.self_.isStructuralInterface_impl()
 }
 
 func (this *JSType) isTheObjectType() bool {
-	return this.self_.(interface{ isTheObjectType_impl() bool }).isTheObjectType_impl()
+	return this.self_.isTheObjectType_impl()
 }
 
 func (this *JSType) isArrayType() bool {
-	return this.self_.(interface{ isArrayType_impl() bool }).isArrayType_impl()
+	return this.self_.isArrayType_impl()
 }
 
 func (this *JSType) isReadonlyArrayType() bool {
-	return this.self_.(interface{ isReadonlyArrayType_impl() bool }).isReadonlyArrayType_impl()
+	return this.self_.isReadonlyArrayType_impl()
 }
 
 func (this *JSType) isBigIntObjectType() bool {
-	return this.self_.(interface{ isBigIntObjectType_impl() bool }).isBigIntObjectType_impl()
+	return this.self_.isBigIntObjectType_impl()
 }
 
 func (this *JSType) isStringObjectType() bool {
-	return this.self_.(interface{ isStringObjectType_impl() bool }).isStringObjectType_impl()
+	return this.self_.isStringObjectType_impl()
 }
 
 func (this *JSType) isSymbolObjectType() bool {
-	return this.self_.(interface{ isSymbolObjectType_impl() bool }).isSymbolObjectType_impl()
+	return this.self_.isSymbolObjectType_impl()
 }
 
 func (this *JSType) isBooleanObjectType() bool {
-	return this.self_.(interface{ isBooleanObjectType_impl() bool }).isBooleanObjectType_impl()
+	return this.self_.isBooleanObjectType_impl()
 }
 
 func (this *JSType) isNumberObjectType() bool {
-	return this.self_.(interface{ isNumberObjectType_impl() bool }).isNumberObjectType_impl()
+	return this.self_.isNumberObjectType_impl()
 }
 
 func (this *JSType) isDateType() bool {
-	return this.self_.(interface{ isDateType_impl() bool }).isDateType_impl()
+	return this.self_.isDateType_impl()
 }
 
 func (this *JSType) isRegexpType() bool {
-	return this.self_.(interface{ isRegexpType_impl() bool }).isRegexpType_impl()
+	return this.self_.isRegexpType_impl()
 }
 
 func (this *JSType) isKnownSymbolValueType() bool {
-	return this.self_.(interface{ isKnownSymbolValueType_impl() bool }).isKnownSymbolValueType_impl()
+	return this.self_.isKnownSymbolValueType_impl()
 }
 
 func (this *JSType) toMaybeKnownSymbolType() *KnownSymbolType {
-	return this.self_.(interface{ toMaybeKnownSymbolType_impl() *KnownSymbolType }).toMaybeKnownSymbolType_impl()
+	return this.self_.toMaybeKnownSymbolType_impl()
 }
 
 func (this *JSType) toMaybeNamedType() *NamedType {
-	return this.self_.(interface{ toMaybeNamedType_impl() *NamedType }).toMaybeNamedType_impl()
+	return this.self_.toMaybeNamedType_impl()
 }
 
 func (this *JSType) setValidator(p0 Predicate_base[*JSType]) bool {
-	return this.self_.(interface {
-		setValidator_impl(Predicate_base[*JSType]) bool
-	}).setValidator_impl(p0)
+	return this.self_.setValidator_impl(p0)
 }
 
 func (this *JSType) isNoObjectType() bool {
-	return this.self_.(interface{ isNoObjectType_impl() bool }).isNoObjectType_impl()
+	return this.self_.isNoObjectType_impl()
 }
 
 func (this *JSType) isNoResolvedType() bool {
-	return this.self_.(interface{ isNoResolvedType_impl() bool }).isNoResolvedType_impl()
+	return this.self_.isNoResolvedType_impl()
 }
 
 func (this *JSType) isNoType() bool {
-	return this.self_.(interface{ isNoType_impl() bool }).isNoType_impl()
+	return this.self_.isNoType_impl()
 }
 
 func (this *JSType) isNullType() bool {
-	return this.self_.(interface{ isNullType_impl() bool }).isNullType_impl()
+	return this.self_.isNullType_impl()
 }
 
 func (this *JSType) restrictByNotNullOrUndefined() *JSType {
-	return this.self_.(interface{ restrictByNotNullOrUndefined_impl() *JSType }).restrictByNotNullOrUndefined_impl()
+	return this.self_.restrictByNotNullOrUndefined_impl()
 }
 
 func (this *JSType) restrictByNotNull() *JSType {
-	return this.self_.(interface{ restrictByNotNull_impl() *JSType }).restrictByNotNull_impl()
+	return this.self_.restrictByNotNull_impl()
 }
 
 func (this *JSType) isNumberValueType() bool {
-	return this.self_.(interface{ isNumberValueType_impl() bool }).isNumberValueType_impl()
+	return this.self_.isNumberValueType_impl()
 }
 
 func (this *JSType) getJSDocInfo() *JSDocInfo {
-	return this.self_.(interface{ getJSDocInfo_impl() *JSDocInfo }).getJSDocInfo_impl()
+	return this.self_.getJSDocInfo_impl()
 }
 
 func (this *JSType) isStructuralType() bool {
-	return this.self_.(interface{ isStructuralType_impl() bool }).isStructuralType_impl()
+	return this.self_.isStructuralType_impl()
 }
 
 func (this *JSType) isUnknownType() bool {
-	return this.self_.(interface{ isUnknownType_impl() bool }).isUnknownType_impl()
+	return this.self_.isUnknownType_impl()
 }
 
 func (this *JSType) isNativeObjectType() bool {
-	return this.self_.(interface{ isNativeObjectType_impl() bool }).isNativeObjectType_impl()
+	return this.self_.isNativeObjectType_impl()
 }
 
 func (this *JSType) isFunctionPrototypeType() bool {
-	return this.self_.(interface{ isFunctionPrototypeType_impl() bool }).isFunctionPrototypeType_impl()
+	return this.self_.isFunctionPrototypeType_impl()
 }
 
 func (this *JSType) getTemplateParamCount() int32 {
-	return this.self_.(interface{ getTemplateParamCount_impl() int32 }).getTemplateParamCount_impl()
+	return this.self_.getTemplateParamCount_impl()
 }
 
 func (this *JSType) matchConstraint(p0 *JSType) {
-	this.self_.(interface{ matchConstraint_impl(*JSType) }).matchConstraint_impl(p0)
+	this.self_.matchConstraint_impl(p0)
 }
 
 func (this *JSType) loosenTypecheckingDueToForwardReferencedSupertype() bool {
-	return this.self_.(interface{ loosenTypecheckingDueToForwardReferencedSupertype_impl() bool }).loosenTypecheckingDueToForwardReferencedSupertype_impl()
+	return this.self_.loosenTypecheckingDueToForwardReferencedSupertype_impl()
 }
 
 func (this *JSType) isCheckedUnknownType() bool {
-	return this.self_.(interface{ isCheckedUnknownType_impl() bool }).isCheckedUnknownType_impl()
+	return this.self_.isCheckedUnknownType_impl()
 }
 
 func (this *JSType) isStruct() bool {
-	return this.self_.(interface{ isStruct_impl() bool }).isStruct_impl()
+	return this.self_.isStruct_impl()
 }
 
 func (this *JSType) isDict() bool {
-	return this.self_.(interface{ isDict_impl() bool }).isDict_impl()
+	return this.self_.isDict_impl()
 }
 
 func (this *JSType) toMaybeRecordType() *RecordType {
-	return this.self_.(interface{ toMaybeRecordType_impl() *RecordType }).toMaybeRecordType_impl()
+	return this.self_.toMaybeRecordType_impl()
 }
 
 func (this *JSType) toMaybeUnionType() *UnionType {
-	return this.self_.(interface{ toMaybeUnionType_impl() *UnionType }).toMaybeUnionType_impl()
+	return this.self_.toMaybeUnionType_impl()
 }
 
 func (this *JSType) collapseUnion() *JSType {
-	return this.self_.(interface{ collapseUnion_impl() *JSType }).collapseUnion_impl()
+	return this.self_.collapseUnion_impl()
 }
 
 func (this *JSType) toMaybeTemplatizedType() *TemplatizedType {
-	return this.self_.(interface{ toMaybeTemplatizedType_impl() *TemplatizedType }).toMaybeTemplatizedType_impl()
+	return this.self_.toMaybeTemplatizedType_impl()
 }
 
 func (this *JSType) toMaybeTemplateType() *TemplateType {
-	return this.self_.(interface{ toMaybeTemplateType_impl() *TemplateType }).toMaybeTemplateType_impl()
+	return this.self_.toMaybeTemplateType_impl()
 }
 
 func (this *JSType) getTemplateTypeMap() *TemplateTypeMap {
-	return this.self_.(interface{ getTemplateTypeMap_impl() *TemplateTypeMap }).getTemplateTypeMap_impl()
+	return this.self_.getTemplateTypeMap_impl()
 }
 
 func (this *JSType) isStringValueType() bool {
-	return this.self_.(interface{ isStringValueType_impl() bool }).isStringValueType_impl()
+	return this.self_.isStringValueType_impl()
 }
 
 func (this *JSType) isSymbolValueType() bool {
-	return this.self_.(interface{ isSymbolValueType_impl() bool }).isSymbolValueType_impl()
+	return this.self_.isSymbolValueType_impl()
 }
 
 func (this *JSType) autobox() *JSType {
-	return this.self_.(interface{ autobox_impl() *JSType }).autobox_impl()
+	return this.self_.autobox_impl()
 }
 
 func (this *JSType) restrictByNotUndefined() *JSType {
-	return this.self_.(interface{ restrictByNotUndefined_impl() *JSType }).restrictByNotUndefined_impl()
+	return this.self_.restrictByNotUndefined_impl()
 }
 
 func (this *JSType) isExplicitlyVoidable() bool {
-	return this.self_.(interface{ isExplicitlyVoidable_impl() bool }).isExplicitlyVoidable_impl()
+	return this.self_.isExplicitlyVoidable_impl()
 }
 
 func (this *JSType) getRestrictedTypeGivenOutcome(p0 *Outcome_rhino) *JSType {
-	return this.self_.(interface{ getRestrictedTypeGivenOutcome_impl(*Outcome_rhino) *JSType }).getRestrictedTypeGivenOutcome_impl(p0)
+	return this.self_.getRestrictedTypeGivenOutcome_impl(p0)
 }
 
 func (this *JSType) getTypesUnderEquality(p0 *JSType) *JSType_TypePair {
-	return this.self_.(interface {
-		getTypesUnderEquality_impl(*JSType) *JSType_TypePair
-	}).getTypesUnderEquality_impl(p0)
+	return this.self_.getTypesUnderEquality_impl(p0)
 }
 
 func (this *JSType) getTypesUnderInequality(p0 *JSType) *JSType_TypePair {
-	return this.self_.(interface {
-		getTypesUnderInequality_impl(*JSType) *JSType_TypePair
-	}).getTypesUnderInequality_impl(p0)
+	return this.self_.getTypesUnderInequality_impl(p0)
 }
 
 func (this *JSType) getTypesUnderShallowInequality(p0 *JSType) *JSType_TypePair {
-	return this.self_.(interface {
-		getTypesUnderShallowInequality_impl(*JSType) *JSType_TypePair
-	}).getTypesUnderShallowInequality_impl(p0)
+	return this.self_.getTypesUnderShallowInequality_impl(p0)
 }
 
 func (this *JSType) isVoidType() bool {
-	return this.self_.(interface{ isVoidType_impl() bool }).isVoidType_impl()
+	return this.self_.isVoidType_impl()
 }
 
 const JSType_serialVersionUID int64 = 1

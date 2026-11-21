@@ -63,5 +63,5 @@ func (this *IdentifierToken) toString() string {
 	if this.self_ == any(this) {
 		return this.toString_impl()
 	}
-	return this.self_.(interface{ toString_impl() string }).toString_impl()
+	return this.self_.toString_impl()
 }

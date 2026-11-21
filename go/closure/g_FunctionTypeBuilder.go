@@ -789,9 +789,15 @@ func FunctionTypeBuilder_clinit() {
 }
 
 type FunctionTypeBuilder_ValidatorBase struct {
-	self_     any
+	self_     FunctionTypeBuilder_ValidatorBase_I
 	compiler_ *AbstractCompiler
 	errorRoot Node
+}
+
+// FunctionTypeBuilder_ValidatorBase_I holds the methods the dispatchers of FunctionTypeBuilder_ValidatorBase's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type FunctionTypeBuilder_ValidatorBase_I interface {
+	apply_impl(*JSType) bool
 }
 
 func (this *FunctionTypeBuilder_ValidatorBase) as_FunctionTypeBuilder_ValidatorBase() *FunctionTypeBuilder_ValidatorBase {
@@ -835,7 +841,7 @@ func (this *FunctionTypeBuilder_ValidatorBase) reportError(error_ *DiagnosticTyp
 }
 
 func (this *FunctionTypeBuilder_ValidatorBase) apply(p0 *JSType) bool {
-	return this.self_.(interface{ apply_impl(*JSType) bool }).apply_impl(p0)
+	return this.self_.apply_impl(p0)
 }
 
 type FunctionTypeBuilder_ExtendedTypeValidator struct {
@@ -1037,7 +1043,7 @@ func (this *FunctionTypeBuilder_ExtendedTypeValidator) apply(p0 *JSType) bool {
 	if this.self_ == any(this) {
 		return this.apply_impl(p0)
 	}
-	return this.self_.(interface{ apply_impl(*JSType) bool }).apply_impl(p0)
+	return this.self_.apply_impl(p0)
 }
 
 // apply: an object that is exactly a FunctionTypeBuilder_ImplementedTypeValidator calls its apply_impl directly (post-flip); others dispatch.
@@ -1045,5 +1051,5 @@ func (this *FunctionTypeBuilder_ImplementedTypeValidator) apply(p0 *JSType) bool
 	if this.self_ == any(this) {
 		return this.apply_impl(p0)
 	}
-	return this.self_.(interface{ apply_impl(*JSType) bool }).apply_impl(p0)
+	return this.self_.apply_impl(p0)
 }
