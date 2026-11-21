@@ -832,6 +832,27 @@ func (this *pbData_) build_() *pbData_ {
 	m.d_ = d
 	d.cp(unsafe.Pointer(m), unsafe.Pointer(this))
 	m.unk_ = this.unk_
+	if m.seal_() {
+		this.size_ = pbShared_
+	}
+	return m
+}
+
+// buildLast_ is build_ for a builder that nothing uses afterwards (post-flip step pblast
+// shows that of the calls it rewrites): the builder's allocation becomes the message, which a
+// message and its builder allow by having one layout (pbDesc_.asM). The message is the one
+// build_ would have copied out of it.
+func (this *pbData_) buildLast_() *pbData_ {
+	this.size_ = 0
+	this.seal_()
+	return this
+}
+
+// seal_ finishes the fields of a new message that were copied from a builder: the repeated
+// fields' slices stay those of the builder, except where an element is a builder, which is
+// built for the message; it says whether a slice is still the builder's.
+func (m *pbData_) seal_() bool {
+	d := m.d_
 	shared := false
 	for _, f := range d.reps {
 		s := (*pbSlice_)(m.fp_(f))
@@ -868,10 +889,7 @@ func (this *pbData_) build_() *pbData_ {
 			*pp = unsafe.Pointer((*pbData_)(e).build_())
 		}
 	}
-	if shared {
-		this.size_ = pbShared_
-	}
-	return m
+	return shared
 }
 
 // toBuilder_ is a builder with the fields of a message.
