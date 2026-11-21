@@ -402,10 +402,200 @@ var ordinalCmpOne_ Comparator_e = Comparator_of_(func(a, b any) int32 {
 	return a.(interface{ ordinal() int32 }).ordinal() - b.(interface{ ordinal() int32 }).ordinal()
 })
 
-// EnumMap is a TreeMap ordered by ordinal.
-type EnumMap struct{ TreeMap }
+// EnumMap is java.util.EnumMap: the value of each constant of one enum in an array indexed by
+// ordinal, iterated in ordinal order. univ is the enum's constants by ordinal (Enum.values_):
+// those registered under the key class's name, or, when the class is not registered yet, those of
+// the first key put (as EnumSet takes them). vals[o] is nil while constant o is absent and
+// enumMapNull_ while it is mapped to null (Java's EnumMap.NULL). As in Java, get, containsKey and
+// remove of anything but a constant of the enum (null included) find nothing; put of null throws
+// NullPointerException and put of another enum's constant ClassCastException. The key set,
+// values and entry set are snapshots in ordinal order, as TreeMap's are; an entry writes through.
+type EnumMap struct {
+	univ []any
+	vals []any
+	n    int32
+}
 
-func new_EnumMap(c *Class) *EnumMap { return &EnumMap{TreeMap{cmp: ordinalCmp_()}} }
+var _ Map = (*EnumMap)(nil)
+
+// enumMapNull_ stands for a null value (a unique pointer: nothing else is equal to it).
+var enumMapNull_ any = new(byte)
+
+func new_EnumMap(c *Class) *EnumMap {
+	m := &EnumMap{}
+	if c != nil {
+		if u := enumRegistry_[c.name_]; len(u) > 0 {
+			u = u[0].(enumConst_).enum_().values_ // the slice its constants hold, as slot compares
+			m.univ, m.vals = u, make([]any, len(u))
+		}
+	}
+	return m
+}
+
+// slot is the ordinal of k, when k is a constant of this map's enum.
+func (m *EnumMap) slot(k any) (int32, bool) {
+	c, ok := k.(enumConst_)
+	if !ok || m.univ == nil {
+		return 0, false
+	}
+	e := c.enum_()
+	if e == nil || len(e.values_) == 0 || &e.values_[0] != &m.univ[0] {
+		return 0, false
+	}
+	return e.ordinal_, true
+}
+
+func enumMapUnmask_(v any) any {
+	if v == enumMapNull_ {
+		return nil
+	}
+	return v
+}
+
+func (m *EnumMap) size() int32   { return m.n }
+func (m *EnumMap) isEmpty() bool { return m.n == 0 }
+
+func (m *EnumMap) clear() {
+	clear(m.vals)
+	m.n = 0
+}
+
+func (m *EnumMap) get(k any) any {
+	if o, ok := m.slot(k); ok {
+		return enumMapUnmask_(m.vals[o])
+	}
+	return nil
+}
+
+func (m *EnumMap) containsKey(k any) bool {
+	o, ok := m.slot(k)
+	return ok && m.vals[o] != nil
+}
+
+func (m *EnumMap) containsValue(v any) bool {
+	if v == nil {
+		v = enumMapNull_
+	}
+	for _, x := range m.vals {
+		if x != nil && (x == v || x != enumMapNull_ && objequals_(v, x)) {
+			return true
+		}
+	}
+	return false
+}
+
+func (m *EnumMap) put(k any, v any) any {
+	if k == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	e := k.(enumConst_).enum_()
+	if e == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	if m.univ == nil {
+		if len(e.values_) == 0 {
+			panic("EnumMap: enum not registered: " + e.name_)
+		}
+		m.univ, m.vals = e.values_, make([]any, len(e.values_))
+	} else if len(e.values_) == 0 || &e.values_[0] != &m.univ[0] {
+		panic(new_ClassCastException_String(goTypeName_(k) + " != the key type of this EnumMap").self())
+	}
+	if v == nil {
+		v = enumMapNull_
+	}
+	old := m.vals[e.ordinal_]
+	m.vals[e.ordinal_] = v
+	if old == nil {
+		m.n++
+	}
+	return enumMapUnmask_(old)
+}
+
+func (m *EnumMap) putAll(o Map) {
+	for it := o.entrySet().iterator(); it.hasNext(); {
+		e := it.next().(Map_Entry)
+		m.put(e.getKey(), e.getValue())
+	}
+}
+
+func (m *EnumMap) remove(k any) any {
+	o, ok := m.slot(k)
+	if !ok || m.vals[o] == nil {
+		return nil
+	}
+	old := m.vals[o]
+	m.vals[o] = nil
+	m.n--
+	return enumMapUnmask_(old)
+}
+
+func (m *EnumMap) keySet() Set {
+	s := new_LinkedHashSet()
+	for o, v := range m.vals {
+		if v != nil {
+			s.add(m.univ[o])
+		}
+	}
+	return s
+}
+
+func (m *EnumMap) values() Collection {
+	out := make([]any, 0, m.n)
+	for _, v := range m.vals {
+		if v != nil {
+			out = append(out, enumMapUnmask_(v))
+		}
+	}
+	return listOf_(out)
+}
+
+func (m *EnumMap) entrySet() Set {
+	s := new_LinkedHashSet()
+	s.identity = true
+	for o, v := range m.vals {
+		if v != nil {
+			s.add(&enumMapEntry_{m: m, o: int32(o)})
+		}
+	}
+	return s
+}
+
+func (m *EnumMap) equals(o any) bool { return mapEquals_(m, o) }
+func (m *EnumMap) hashCode() int32   { return mapHash_(m) }
+func (m *EnumMap) toString() string  { return mapToString_(m) }
+
+// enumMapEntry_ is the mapping of constant o in m: it reads and writes the map's slot, and, as
+// Java's, cannot be used once the mapping is removed.
+type enumMapEntry_ struct {
+	m *EnumMap
+	o int32
+}
+
+func (e *enumMapEntry_) live() {
+	if e.m.vals[e.o] == nil {
+		panic(new_IllegalStateException_String("Entry was removed").self())
+	}
+}
+
+func (e *enumMapEntry_) getKey() any   { e.live(); return e.m.univ[e.o] }
+func (e *enumMapEntry_) getValue() any { e.live(); return enumMapUnmask_(e.m.vals[e.o]) }
+
+func (e *enumMapEntry_) setValue(v any) any {
+	e.live()
+	old := e.m.vals[e.o]
+	if v == nil {
+		v = enumMapNull_
+	}
+	e.m.vals[e.o] = v
+	return enumMapUnmask_(old)
+}
+
+func (e *enumMapEntry_) equals(o any) bool {
+	x, ok := o.(Map_Entry)
+	return ok && x != nil && objequals_(e.getKey(), x.getKey()) && objequals_(e.getValue(), x.getValue())
+}
+func (e *enumMapEntry_) hashCode() int32  { return objhash_(e.getKey()) ^ objhash_(e.getValue()) }
+func (e *enumMapEntry_) toString() string { return objstr_(e.getKey()) + "=" + objstr_(e.getValue()) }
 
 // EnumSet is java.util.EnumSet: a bit set over the constants of one enum, which iterates in
 // ordinal order. univ is that enum's constants by ordinal (Enum.values_), taken from the first
