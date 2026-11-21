@@ -289,21 +289,6 @@ func (this *PropertyMap_AllKeys) knownSymbolKeys() *TSet[*KnownSymbolType] {
 	return this.knownSymbolKeys_
 }
 
-func (this *PropertyMap_AllKeys) equals(p0 any) bool {
-	o, ok := p0.(*PropertyMap_AllKeys)
-	if !ok || o == nil {
-		return false
-	}
-	return true && objequalsBy_(this.stringKeys_, obj_(o.stringKeys_), (ImmutableSortedSetOf[string]).equals) && Objects_equals(this.knownSymbolKeys_.asSet(), o.knownSymbolKeys_.asSet())
-}
-
-func (this *PropertyMap_AllKeys) hashCode() int32 {
-	var h int32
-	h = h*31 + objhashBy_(this.stringKeys_, (ImmutableSortedSetOf[string]).hashCode)
-	h = h*31 + objhashDyn_(this.knownSymbolKeys_.asSet())
-	return h
-}
-
 func (this *PropertyMap_AllKeys) toString() string {
 	return "AllKeys[" + "stringKeys=" + jtostr_(this.stringKeys_) + ", knownSymbolKeys=" + objstr_(this.knownSymbolKeys_.asSet()) + "]"
 }
