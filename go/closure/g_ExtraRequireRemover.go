@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ExtraRequireRemover struct {
 	compiler_ *AbstractCompiler
 	requires  *JTMap[string, Node]
@@ -101,7 +103,7 @@ func (this *ExtraRequireRemover) removeExtraRequire(call Node, require string) {
 	}
 	if call.getParent().isExprResult() {
 		if !call.getGrandparent().isModuleBody() || J2clSourceUtils_isJ2clHeaderSource(Optional_of[string](call.getSourceFileName()).filter(Predicate[string](func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}))) {
 			this.compiler_.reportChangeToEnclosingScope(call.getParent())
 			call.getParent().detach()
@@ -205,11 +207,11 @@ func (this *ExtraRequireRemover) maybeAddJsDocUsages(n Node) {
 }
 
 func ExtraRequireRemover_isTsickleProtoCall(call Node) bool {
-	if !call.isCall() || !String_endsWith(call.getSourceFileName(), ".closure.js") {
+	if !call.isCall() || !strings.HasSuffix(call.getSourceFileName(), ".closure.js") {
 		return false
 	}
 	var moduleId Node = call.getSecondChild()
-	return (((moduleId != 0) && moduleId.isStringLit()) && String_startsWith(moduleId.getString(), "proto."))
+	return (((moduleId != 0) && moduleId.isStringLit()) && strings.HasPrefix(moduleId.getString(), "proto."))
 }
 
 var ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES *JTSet[string]

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type SourceFile_jscomp struct {
 	fileName                                     string
 	kind_                                        StaticSourceFile_SourceKind
@@ -167,7 +169,7 @@ func (this *SourceFile_jscomp) setCodeAndDoBookkeeping(sourceCode Optional[strin
 	this.code_ = Optional_empty[string]()
 	this.lineOffsets = nil
 	if sourceCode.isPresent() {
-		if String_startsWith(sourceCode.get(), SourceFile_jscomp_UTF8_BOM) {
+		if strings.HasPrefix(sourceCode.get(), SourceFile_jscomp_UTF8_BOM) {
 			sourceCode = Optional_of[string](String_substring_int(sourceCode.get(), String_length(SourceFile_jscomp_UTF8_BOM)))
 		}
 		this.numBytes = String_length(sourceCode.get())
@@ -386,7 +388,7 @@ func SourceFile_jscomp_fromZipEntryNames(zipName string, entryNames *JTList[stri
 	it_1 := entryNames.each()
 	for it_1.next() {
 		var entryName string = it_1.v
-		if !String_endsWith(entryName, ".js") {
+		if !strings.HasSuffix(entryName, ".js") {
 			continue
 		}
 		sourceFiles.add(SourceFile_jscomp_builder().withCharset(inputCharset).withOriginalPath((sstr_(zipName) + sstr_(SourceFile_jscomp_BANG_SLASH) + sstr_(entryName))).withZipEntryPath(absoluteZipPath, entryName).build())
@@ -415,13 +417,13 @@ func SourceFile_jscomp_stubSourceFile(fileName string, kind StaticSourceFile_Sou
 }
 
 func SourceFile_jscomp_stripConfigSegment(path string) string {
-	if String_startsWith(path, "bin/") {
+	if strings.HasPrefix(path, "bin/") {
 		return String_substring_int(path, 4)
 	}
-	if String_startsWith(path, "genfiles/") {
+	if strings.HasPrefix(path, "genfiles/") {
 		return String_substring_int(path, 9)
 	}
-	if String_startsWith(path, "testlogs/") {
+	if strings.HasPrefix(path, "testlogs/") {
 		return String_substring_int(path, 9)
 	}
 	var blazeOutIdx int32 = String_indexOf_String(path, "blaze-out/")
@@ -506,7 +508,7 @@ func SourceFile_jscomp_fromProto_SourceFileProto_SourceKind(protoSourceFile *Sou
 		return SourceFile_jscomp_fromCode_String_String_SourceKind(protoSourceFile.getFilename(), protoSourceFile.getPreloadedContents(), sourceKind)
 	case SourceFileProto_LoaderCase_FILE_ON_DISK:
 		var pathOnDisk string = func() string {
-			if String_isEmpty(protoSourceFile.getFileOnDisk().getActualPath()) {
+			if protoSourceFile.getFileOnDisk().getActualPath() == "" {
 				return protoSourceFile.getFilename()
 			}
 			return protoSourceFile.getFileOnDisk().getActualPath()
@@ -537,7 +539,7 @@ func SourceFile_jscomp_getSourceKindFromProto(protoSourceFile *SourceFileProto) 
 }
 
 func SourceFile_jscomp_toCharset(protoCharset string) string {
-	if String_isEmpty(protoCharset) {
+	if protoCharset == "" {
 		return Charsets_UTF_8
 	}
 	return protoCharset
@@ -652,7 +654,7 @@ func (this *SourceFile_Builder) withPath(path string) *SourceFile_Builder {
 }
 
 func (this *SourceFile_Builder) withContent(x string) *SourceFile_Builder {
-	this.lazyContent = Supplier[string](func() string { return String_toString(x) })
+	this.lazyContent = Supplier[string](func() string { return x })
 	return this
 }
 
@@ -702,8 +704,8 @@ func (this *SourceFile_Builder) withPathInternal(path string) *SourceFile_Builde
 	var bangSlashIndex int32 = String_indexOf_String(path, SourceFile_jscomp_BANG_SLASH)
 	if bangSlashIndex >= 0 {
 		var zipPath string = String_substring(path, 0, bangSlashIndex)
-		var entryPath string = String_substring_int(path, (bangSlashIndex + String_length(SourceFile_jscomp_BANG_SLASH)))
-		if String_endsWith(zipPath, ".zip") && (String_endsWith(entryPath, ".js") || String_endsWith(entryPath, ".js.map")) {
+		var entryPath string = String_substring_int(path, (bangSlashIndex + int32(len(SourceFile_jscomp_BANG_SLASH))))
+		if strings.HasSuffix(zipPath, ".zip") && (strings.HasSuffix(entryPath, ".js") || strings.HasSuffix(entryPath, ".js.map")) {
 			return this.withZipEntryPath(zipPath, entryPath)
 		}
 	}

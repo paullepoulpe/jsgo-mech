@@ -738,7 +738,7 @@ func (this *MakeDeclaredNamesUnique_InlineRenamer) init_MakeDeclaredNamesUnique_
 	this.finit_MakeDeclaredNamesUnique_InlineRenamer()
 	this.convention = convention
 	this.uniqueIdSupplier = uniqueIdSupplier
-	if String_isEmpty(idPrefix) {
+	if idPrefix == "" {
 		panic(new_IllegalArgumentException_0().self())
 	}
 	this.idPrefix = idPrefix
@@ -769,7 +769,7 @@ func (this *MakeDeclaredNamesUnique_InlineRenamer) addDeclaredName(name string, 
 }
 
 func (this *MakeDeclaredNamesUnique_InlineRenamer) getUniqueName(name string) string {
-	if String_isEmpty(name) {
+	if name == "" {
 		return name
 	}
 	if JString_contains_s(name, MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR) {

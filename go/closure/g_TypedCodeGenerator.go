@@ -195,7 +195,7 @@ func (this *TypedCodeGenerator) getClassAnnotation(classType *JSType) string {
 	}
 	this.appendTemplateAnnotations(sb, Collection(funType.getTypeParameters().asList()))
 	var jsdocContent string = tostrR_(sb)
-	if String_isEmpty(jsdocContent) {
+	if jsdocContent == "" {
 		return jsdocContent
 	} else {
 		return ("/**\n" + sstr_(jsdocContent) + " */\n")

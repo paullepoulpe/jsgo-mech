@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type Glob struct {
 }
 
@@ -135,7 +137,7 @@ func Glob_matchesWithoutBraces(glob string, path string) bool {
 }
 
 func Glob_classHas(body string, c uint16) bool {
-	var negated bool = String_startsWith(body, "!")
+	var negated bool = strings.HasPrefix(body, "!")
 	var found bool = false
 	var i int32 = func() int32 {
 		if negated {

@@ -183,9 +183,9 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.generateExports = PassFactory_builder().setName(PassNames_GENERATE_EXPORTS).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		var convention CodingConvention = compiler.getCodingConvention()
 		var pass *GenerateExports = new_GenerateExports(compiler, this.options_.shouldExportLocalPropertyDefinitions(), Optional_of[string](convention.getExportSymbolFunction()).filter(Predicate[string](func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		})), Optional_of[string](convention.getExportPropertyFunction()).filter(Predicate[string](func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		})))
 		return CompilerPass(new_DefaultPassConfig_1(this, pass, compiler))
 		panic("unreachable")
@@ -194,7 +194,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.removeExtraRequires = PassFactory_builder().setName("removeExtraRequires").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_ExtraRequireRemover(p0)) })).build()
 	this.exportTestFunctions = PassFactory_builder().setName(PassNames_EXPORT_TEST_FUNCTIONS).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		var convention CodingConvention = compiler.getCodingConvention()
-		if !String_isEmpty(convention.getExportSymbolFunction()) {
+		if convention.getExportSymbolFunction() != "" {
 			return CompilerPass(new_ExportTestFunctions(compiler, convention.getExportSymbolFunction(), convention.getExportPropertyFunction()))
 		} else {
 			return ErrorPass_as_CompilerPass(ErrorPass_createFromDiagnosticType(compiler, DefaultPassConfig_GENERATE_EXPORTS_ERROR))

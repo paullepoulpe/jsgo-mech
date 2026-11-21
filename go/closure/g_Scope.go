@@ -73,7 +73,7 @@ func (this *Scope) getParent_rScope() *Scope {
 }
 
 func (this *Scope) declare(name string, nameNode Node, input *CompilerInput) *Var {
-	if String_isEmpty(name) {
+	if name == "" {
 		panic(new_IllegalArgumentException_0().self())
 	}
 	if this.getOwnSlot_String_rAbstractVar_rVar(name) != nil {
@@ -85,7 +85,7 @@ func (this *Scope) declare(name string, nameNode Node, input *CompilerInput) *Va
 }
 
 func (this *Scope) declareImplicitGoogNamespaceIfAbsent(name string, definition Node) *Var {
-	if String_isEmpty(name) {
+	if name == "" {
 		panic(new_IllegalArgumentException_0().self())
 	}
 	if !this.isGlobal() {

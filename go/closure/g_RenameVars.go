@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type RenameVars struct {
 	compiler_                      *AbstractCompiler
 	globalNameNodes                *JTList[Node]
@@ -152,7 +154,7 @@ func (this *RenameVars) reusePreviouslyUsedVariableMap(varsToRename *JTSet[*Rena
 		if prevNewName.isEmpty() || this.reservedNames.contains(prevNewName.get()) {
 			continue
 		}
-		if a.isLocal_ || (!this.externNames_.contains(a.oldName) && String_startsWith(prevNewName.get(), this.prefix_)) {
+		if a.isLocal_ || (!this.externNames_.contains(a.oldName) && strings.HasPrefix(prevNewName.get(), this.prefix_)) {
 			this.reservedNames.add(prevNewName.get())
 			this.finalizeNameAssignment(a, prevNewName.get())
 		}
@@ -163,7 +165,7 @@ func (this *RenameVars) assignNames(varsToRename *JTSet[*RenameVars_Assignment])
 	this.nameGenerator.reset(this.reservedNames.asSet(), this.prefix_, this.reservedCharacters)
 	var globalNameGenerator NameGenerator = this.nameGenerator
 	var localNameGenerator NameGenerator = func() NameGenerator {
-		if String_isEmpty(this.prefix_) {
+		if this.prefix_ == "" {
 			return globalNameGenerator
 		}
 		return this.nameGenerator.clone(this.reservedNames, "", this.reservedCharacters)
@@ -290,7 +292,7 @@ func (this *RenameVars_Assignment) finit_RenameVars_Assignment() {
 
 func (this *RenameVars_Assignment) init_RenameVars_Assignment(name string) {
 	this.finit_RenameVars_Assignment()
-	this.isLocal_ = String_startsWith(name, RenameVars_LOCAL_VAR_PREFIX)
+	this.isLocal_ = strings.HasPrefix(name, RenameVars_LOCAL_VAR_PREFIX)
 	this.oldName = name
 	this.newName = Optional_empty[string]()
 	this.count_ = 0
@@ -361,7 +363,7 @@ func (this *RenameVars_ProcessVars) visit_impl(t *NodeTraversal, n Node, parent 
 		return
 	}
 	var name string = n.getString()
-	if String_isEmpty(name) {
+	if name == "" {
 		return
 	}
 	if (parent.isImportSpec() && parent.hasTwoChildren()) && (parent.getFirstChild() == n) {

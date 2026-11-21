@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ReplaceStrings struct {
 	NodeTraversal_AbstractPostOrderCallback
 	placeholderToken string
@@ -32,7 +34,7 @@ func (this *ReplaceStrings) init_ReplaceStrings(compiler *AbstractCompiler, plac
 	this.finit_ReplaceStrings()
 	this.compiler_ = compiler
 	this.placeholderToken = func() string {
-		if String_isEmpty(placeholderToken) {
+		if placeholderToken == "" {
 			return ReplaceStrings_DEFAULT_PLACEHOLDER_TOKEN
 		}
 		return placeholderToken
@@ -84,7 +86,7 @@ func (this *ReplaceStrings) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	case tokOrd1_NEW, tokOrd1_CALL, tokOrd1_TAGGED_TEMPLATELIT:
 		var calledFn Node = n.getFirstChild()
 		var name string = calledFn.getOriginalQualifiedName()
-		if !String_isEmpty(name) {
+		if name != "" {
 			var config *ReplaceStrings_Config = this.findMatching(name, n.getSourceFileName())
 			if config != nil {
 				this.doSubstitutions(t, config, n)
@@ -98,14 +100,14 @@ func (this *ReplaceStrings) visit_impl(t *NodeTraversal, n Node, parent Node) {
 func (this *ReplaceStrings) findMatching(name string, callsiteSourceFileName string) *ReplaceStrings_Config {
 	var config *ReplaceStrings_Config = this.functions.get(name)
 	if config == nil {
-		name = String_replace_char_char(name, '$', '.')
+		name = strings.ReplaceAll(name, "$", ".")
 		config = this.functions.get(name)
 	}
 	if config != nil {
 		it_1 := config.excludedFilenameSuffixes.each()
 		for it_1.next() {
 			var excludedSuffix string = it_1.v
-			if String_endsWith(callsiteSourceFileName, excludedSuffix) {
+			if strings.HasSuffix(callsiteSourceFileName, excludedSuffix) {
 				return nil
 			}
 		}
@@ -254,7 +256,7 @@ func (this *ReplaceStrings) parseConfigurationList(functionsToInspect *JTList[st
 func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_Config {
 	var first int32 = String_indexOf(function, 40)
 	var last int32 = String_indexOf(function, 41)
-	var colon int32 = String_indexOf_String(function, ReplaceStrings_EXCLUSION_PREFIX)
+	var colon int32 = int32(strings.Index(function, ReplaceStrings_EXCLUSION_PREFIX))
 	if first == -1 || last == -1 {
 		panic(new_IllegalStateException_0().self())
 	}
@@ -282,7 +284,7 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 			}
 			replacementParameters.add(int32(paramCount))
 		} else {
-			if !String_isEmpty(param) {
+			if param != "" {
 				panic(new_IllegalStateException_String(Strings_lenientFormat("Unknown marker (%s)", []any{param})).self())
 			}
 		}
@@ -294,7 +296,7 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 		if colon == -1 {
 			return jtsetEmptyImm_(jtc_string)
 		}
-		return tsetImm_(jtc_string, ImmutableSet_copyOf_ObjectArr(arrmap_(ReplaceStrings_COMMA_PATTERN.split(String_substring_int(function, (colon+String_length(ReplaceStrings_EXCLUSION_PREFIX)))), func(v_ string) any { return strobj_(v_) })))
+		return tsetImm_(jtc_string, ImmutableSet_copyOf_ObjectArr(arrmap_(ReplaceStrings_COMMA_PATTERN.split(function[colon+int32(len(ReplaceStrings_EXCLUSION_PREFIX)):]), func(v_ string) any { return strobj_(v_) })))
 	}())
 }
 

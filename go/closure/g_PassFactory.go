@@ -63,7 +63,7 @@ func PassFactory_builder() *PassFactory_Builder {
 func (this *PassFactory) validatePreconditions(options *CompilerOptions) {
 	var canRun *PassFactory_PreconditionResult = this.getPreconditionCheck().apply(options)
 	if !canRun.success_ {
-		panic(new_IllegalArgumentException_String(String_format("Precondition for pass %s failed: %s", []any{strobj_(this.getName()), strobj_(canRun.message().orElse("null"))})).self())
+		panic(new_IllegalArgumentException_String(("Precondition for pass " + sstr_(this.getName()) + " failed: " + sstr_(canRun.message().orElse("null")))).self())
 	}
 }
 
@@ -274,7 +274,7 @@ func (this *PassFactory_Builder) autoBuild() *PassFactory {
 
 func (this *PassFactory_Builder) build() *PassFactory {
 	var result *PassFactory = this.autoBuild()
-	if String_isEmpty(result.getName()) {
+	if result.getName() == "" {
 		panic(new_IllegalStateException_0().self())
 	}
 	return result
