@@ -77,14 +77,10 @@ func TranspilationException_format(source SourceExcerptProvider, errors *TList[*
 		}
 		return ErrorFormat_SOURCELESS.toFormatter(source, false)
 	}()
-	it_1 := errors.each()
-	for it_1.next() {
-		var error_ *JSError = it_1.v
+	for error_ := range errors.All() {
 		sb.append("\n").append(formatter.formatError(error_))
 	}
-	it_3 := warnings.each()
-	for it_3.next() {
-		var warning *JSError = it_3.v
+	for warning := range warnings.All() {
 		sb.append("\n").append(formatter.formatError(warning))
 	}
 	return sb.toString()

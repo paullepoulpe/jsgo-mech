@@ -175,9 +175,7 @@ func (this *SimpleJsonValue) writeTo(writer *SimpleJsonWriter) {
 		writer.endObject()
 	case SimpleJsonValue_Kind_ARRAY:
 		writer.beginArray()
-		it_4 := this.items.each()
-		for it_4.next() {
-			var item *SimpleJsonValue = it_4.v
+		for item := range this.items.All() {
 			item.writeTo(writer)
 		}
 		writer.endArray()

@@ -445,9 +445,9 @@ func (this *SubtypeChecker) isTypeMapSubmap(subtype *ObjectType, supertype *Obje
 	}
 	var submap *TemplateTypeMap = subtype.getTemplateTypeMap()
 	var supermap *TemplateTypeMap = supertype.getTemplateTypeMap()
-	it_1 := supermap.getTemplateKeys().each()
-	for it_1.next() {
-		var key *TemplateType = it_1.v
+	l_1 := supermap.getTemplateKeys()
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var key *TemplateType = l_1.items[i_1]
 		var keyCount int32 = submap.getTemplateKeyCountThisShouldAlwaysBeOneOrZeroButIsnt(key)
 		if keyCount == 0 {
 			if subtype.loosenTypecheckingDueToForwardReferencedSupertype() {

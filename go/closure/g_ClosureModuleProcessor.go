@@ -119,9 +119,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolve_2_impl(moduleRe
 
 func (this *ClosureModuleProcessor_UnresolvedGoogModule) getAllResolvedImports(moduleRequestResolver ModuleRequestResolver) *TMap[string, *Binding] {
 	var imports *TMap[string, *Binding] = newTMap_(tc_string, tc_p_Binding)
-	it_1 := this.requiresByLocalName.each()
-	for it_1.next() {
-		var name string = it_1.k
+	for name := range this.requiresByLocalName.Keys() {
 		var b *ResolveExportResult = this.resolveImport(moduleRequestResolver, name)
 		if b.resolved() {
 			imports.Put(name, b.getBinding())
@@ -301,9 +299,7 @@ func (this *ClosureModuleProcessor_ModuleProcessingCallback) addPropertyExport(e
 }
 
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) maybeInitializeRequire(nameDeclaration Node) {
-	it_1 := ClosureRequireProcessor_getAllRequires(nameDeclaration).each()
-	for it_1.next() {
-		var require *ClosureRequireProcessor_Require = it_1.v
+	for require := range ClosureRequireProcessor_getAllRequires(nameDeclaration).All() {
 		this.requiresByLocalName.PutIfAbsent(require.localName(), require)
 	}
 }

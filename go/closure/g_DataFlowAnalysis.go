@@ -200,9 +200,7 @@ func DataFlowAnalysis_computeEscaped(jsScope *Scope, escaped map[varKey_]struct{
 	}
 	var finder *NodeTraversal_AbstractPostOrderCallback = new_DataFlowAnalysis_1(jsScope, escaped).up_NodeTraversal_AbstractPostOrderCallback()
 	NodeTraversal_builder().setCompiler(compiler).setCallback(icast_NodeTraversal_Callback(finder.self())).setScopeCreator(scopeCreator).traverseAtScope(jsScope.up_AbstractScope())
-	it_1 := allVarsInFn.each()
-	for it_1.next() {
-		var var_ *Var = it_1.v
+	for var_ := range allVarsInFn.Values() {
 		if var_.getParentNode().isCatch() || compiler.getCodingConvention().isExported(var_.getName()) {
 			escaped[vkey_(var_)] = struct{}{}
 		}
