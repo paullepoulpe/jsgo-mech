@@ -295,6 +295,7 @@ de89f550 patch 102-de89f550-rt.patch
 256d25dd patch 124-256d25dd-rt.patch
 # 125. postflip (runtime): _f variants of Iterables.filter, Comparator.comparingInt and the Go-map computeIfAbsent helpers
 #=5 d963159f adapted (fifth flip): fnpatch.py; regenerated without Comparator_comparingInt_f (rt_coll.go): the function it is the func form of, Comparator_comparingInt, takes a Go func from the translator (rt_fn.go, ToIntFunction[T]); Iterables_filter_f, mapComputeIfAbsent_f and mapComputeIfAbsentObj_f are added as before
+#=5 d963159f adapted (fifth flip, second part): regenerated without Iterables_filter_f too: dead runtime on this flip. No g_*.go names it at any commit of the replay (git log -S over replay5c: only the commit of this patch), no other rt_*.go and no tool source does (funcparams writes a _f name only for a call it finds; Iterables_filter takes a Predicate func from the translator). mapComputeIfAbsent_f and mapComputeIfAbsentObj_f stay: no generated code calls them on this flip either, but native, funcparams and colls name them (they write them for a computeIfAbsent_f call) and rt_nulllist_test.go tests the first. funcObj_ (252) has 12 users (the func-object aliases of the program's own functional interfaces)
 d963159f patch 125-d963159f-rt.patch
 # 127. postflip (runtime): helpers for equals and hashCode calls whose types are known (rt_eqhash.go)
 38546a94 patch 127-38546a94-rt.patch
@@ -620,6 +621,8 @@ f7492025 run bash tools/postflip/colls/run.sh
 a5732999 run t unify && f
 a5732999 patch 402-a5732999-rt.patch
 # 403. postflip step (re-flip): the collection steps on the unified typed collections
+#=5 8c9c3988 adapted (fifth flip, second part): toolfix 34 (native: a typed map's m.ComputeIfAbsent(k, f), the translator's typed computeIfAbsent since step 402, is the map operation mapComputeIfAbsentT_(vc, m, k, f)) and a runtime patch added before the run: mapComputeIfAbsentT_ (rt_tfnapi.go), the first function of patch 485, which is regenerated without it. Without the fix the maps given a computeIfAbsent stayed TMaps (fourth flip: 20 Go maps through the erased computeIfAbsent of an adapter and step 486)
+8c9c3988 patch reflip5-ciat-rt.patch
 8c9c3988 run bash tools/postflip/colls/run.sh
 # 404. postflip step (re-flip): ranges and iters on the unified typed collections
 3b887150 run t ranges && t ranges -loops && t ranges -index && t ranges -entries && t iters && f
@@ -999,3 +1002,10 @@ c6da7700 run bash tools/postflip/eqhash/run.sh
 # 558. postflip step (in-bounds line): vdispatch -rest (tool 8388514a on branch inb-selfgen, ac8009aa here; step commit 6525013f on inb-selfgen): self_ of the roots that -retype (step 71) left `any` is typed with the hierarchy's interface, and the casts to_X through an anonymous interface assert to a named X_as (rule R6 of JAVAISMS4.md)
 #: -retype types a root only where a dispatcher asserts self_ to an anonymous interface; generic classes dispatch through a vt_R_ field j2go writes, and classes without an overridden method or with one implementation (step 6's concrete assertion) have no such site. vdispatch -rest: roots with self_ any: 16 in generated code (14 in the runtime, not looked at); typed: 9 with the type of their vt field (DataFlowAnalysis, Graph, GraphColoring, GuardedCallback, the four LinkedDirectedGraph / LinkedUndirectedGraph node and edge classes, Visitor_WithDefaultCase: 39 reads of it read self_, 21 assignments and 9 fields deleted, 16 bytes less per object), 7 with X_as (AbstractMap, ErrorReporter_util, FunctionInjector_Reference, ParseTree, PeepholeReplaceKnownMethods_ConcatFunctionCall, RhinoErrorReporter, SimpleReference[T]); left: 0. casts to_X through an anonymous interface: 16; generic, now one assertion to X_as[P...]: 15 (15 as_X_ methods deleted); named: 1 (the enum SourceMap_Format); left: 0; X_as interfaces declared: 20. 27 files. Left as they are: the vt_C_ fields of the 4 generic classes below a root (DiGraph, UndiGraph, ControlFlowGraph, JSDocInfo_ComparableSourcePosition). No timing was taken.
 6525013f run t vdispatch -rest && f
+# 559. postflip step (fifth flip, second part): tcmp re-run with toolfix 35 and the runtime's typed side of the PriorityQueue (rt_pqt.go): a PriorityQueue made with the converting closure of a typed comparator, new_PriorityQueue(func() Comparator[any] { f_ := E; ..; return func(p0 any, p1 any) int32 { return f_(K(p0), K(p1)) } }()), is newPriorityQueueT_(E, K): the same heap with the same erased comparator, which keeps K(x) beside each element once computed and compares those with E. It stands where the fourth flip had steps 105, 147 and the manual 419 for the data-flow work queue (dropped on this flip: a Comparator is a Go func, and the heap called the converting closure, two junboxT_ and the comparator's closures per comparison). Rule and proof obligation: toolfix.sh 35 and the head of rt_pqt.go; no timing was run
+159ecd15 tools 6525013f
+159ecd15 patch reflip5-pqt-rt.patch
+159ecd15 run t tcmp && f
+# 560. postflip step (fifth flip, second part): isanames, tswitch, isanames (toolfix 36): the anonymous marker interface of an instanceof test of a generic class, interface{ isa_X_() }, is the named X_isa; an else-if link that is a disjunction of instanceof tests of the chain's value is a case with several types; the is_X helpers of markers left without callers are deleted. Census rows "anonymous interface assertions" and "instanceof is_X" back to the fourth flip's (0 and 71)
+754b8407 tools 6525013f
+754b8407 run t isanames && t tswitch && t isanames && f

@@ -1166,3 +1166,1347 @@ reflip_edit tools/postflip/colls/main.go reflip32 <<'E32'
 						declare(groupOf(o), x.Type, !generated(x.Pos()), "signature of the runtime")
 					}
 E32
+# 33. (fifth flip, second part) rw.TypedFn, one reader for tfnapi, tcmp and tgeneric: the typed function of an argument at an erased
+#    functional place. The tools read the typed lambda adapter &X_tfn_T{f} and gave f to the runtime's typed variant. Rule "function
+#    types" of the translator writes no adapter object: the lambda is a function literal at the erased place's type that converts on
+#    entry, X[any..](func(p_ any) { var p T = K(p_); .. }) or X[any..](func(p0 any) { m(K(p0)) }), and a function value given to an
+#    erased place is the converting closure func() X[any] { f_ := E; if f_ == nil { return nil }; return func(p0 any) R { return
+#    f_(K(p0)) } }(). The tools read neither, so no call reached forEachT_ / mergeT_ / computeT_, the typed sorts of comparator
+#    chains or Compiler_runInCompilerThreadT_ (fourth flip: 8 / 3 / 2, 23, 6). The reader, its rules and its proof obligation
+#    (K(box(x)) == x for the type's own conversion tconv_[T]{box, unbox}; E never null) are at the head of rw/typedfn.go below.
+#    It answers for the adapter literal as the tools did, so the tools work on both forms (a later flip may change which one the
+#    translator writes). Only the tool versions from tcmp's first step (472) on get the file.
+if [[ -d tools/postflip/rw && ! -f tools/postflip/rw/typedfn.go ]] && [[ -d tools/postflip/tcmp || -d tools/postflip/tfnapi || -d tools/postflip/tgeneric ]]; then
+cat > tools/postflip/rw/typedfn.go <<'E33'
+package rw
+
+// reflip33 (fifth flip): the typed function of an argument at an erased functional place.
+//
+// The post-flip tools tfnapi, tcmp and tgeneric give the runtime's typed variants the function f
+// of a typed lambda adapter &X_tfn_T{f}. The translator's rule "function types" writes no
+// adapter object: the same lambda is a function literal at the erased place's type that
+// converts its arguments itself,
+//
+//	X[any, any](func(a_ any, b any) any { var a T = K(a_); _ = a; ..; return B(r) })
+//	X[any](func(p0 any) { this.m(K(p0)) })
+//
+// and a function value given to an erased place is the translator's converting closure
+//
+//	func() X[any] { f_ := E; if f_ == nil { return nil }; return func(p0 any) R { return f_(K(p0)) } }()
+//
+// TypedFn reads the three forms (and a literal that already has the wanted signature, with or
+// without a conversion to a function type) and gives the code of the function of signature
+// want:
+//   - the adapter's f, when f has the signature;
+//   - E of a converting closure, when E has the signature, cannot be null (a function literal,
+//     a method or function name, a conversion of one, or a call of a function all of whose
+//     returns are such expressions: the runtime's Comparator combinators), and each argument of
+//     f_ is the parameter at its position under the unboxing of its type;
+//   - the literal with its parameters and result typed: a parameter p of type any whose wanted
+//     type is T takes T when every use of p is the operand of an unboxing K(p) of T; K(p) is
+//     then p (for `var v T = K(p)` at the head of the body: the parameter is v and the
+//     statement, with its `_ = v`, goes). A result of type any whose wanted type is R is R
+//     when every return of the literal returns B(e), B the boxing of R and e an R (then e), or
+//     nil for a pointer or interface R, or a call of a parameterless literal whose returns
+//     qualify (the translation of a conditional expression).
+//
+// Proof obligation. The typed variant calls the function with the collection's values where the
+// erased API called it with their boxes, and reads its result where the erased API unboxed
+// it. So for every x of T: K(box(x)) == x, and for every e of R: unbox(B(e)) == e, null
+// included. K and B qualify when they are the unbox and box functions of the package's own
+// conversions of that type, the tconv_[T]{box: B, unbox: K} values every typed collection of T
+// is made with (all conversions of the type must agree), or the unboxing rw.ConvFor names for
+// the type. With raw (the consumer is a plain cast_[R] of the result) a return may also give
+// any(e) or e itself: cast_[R] of an interface value holding e is e.
+//
+// The function is robust to both forms: on a tree with adapter objects it answers as the
+// tools' own readers did.
+
+import (
+	"go/ast"
+	"go/token"
+	"go/types"
+	"strings"
+)
+
+type tfConv struct {
+	unbox map[types.Object]bool // the functions the conversions of the type unbox with
+	box   map[types.Object]bool // the functions or methods they box with
+	raw   bool                  // a conversion boxes with func(v T) any { return v }
+	mixed bool                  // a conversion whose box or unbox is not one of the forms above
+	elem  types.Type
+}
+
+var tfConvs []*tfConv
+var tfConvsDone bool
+
+func tfBase(e ast.Expr) types.Object {
+	switch f := Unparen(e).(type) {
+	case *ast.Ident:
+		return Info.Uses[f]
+	case *ast.IndexExpr:
+		return tfBase(f.X)
+	case *ast.IndexListExpr:
+		return tfBase(f.X)
+	case *ast.SelectorExpr:
+		return Info.Uses[f.Sel]
+	}
+	return nil
+}
+
+func tfIsAny(t types.Type) bool {
+	if t == nil {
+		return false
+	}
+	if _, ok := types.Unalias(t).(*types.TypeParam); ok {
+		return false
+	}
+	it, ok := t.Underlying().(*types.Interface)
+	return ok && it.Empty()
+}
+
+// tfTable lists the package's conversions: every composite literal tconv_[T]{..}.
+func tfTable() {
+	if tfConvsDone {
+		return
+	}
+	tfConvsDone = true
+	for _, f := range Files {
+		ast.Inspect(f, func(n ast.Node) bool {
+			cl, ok := n.(*ast.CompositeLit)
+			if !ok {
+				return true
+			}
+			nt, ok := types.Unalias(Info.TypeOf(cl)).(*types.Named)
+			if !ok || nt.Origin().Obj().Name() != "tconv_" || nt.Obj().Pkg() != Pkg || nt.TypeArgs().Len() != 1 {
+				return true
+			}
+			c := &tfConv{unbox: map[types.Object]bool{}, box: map[types.Object]bool{}, elem: nt.TypeArgs().At(0)}
+			for _, el := range cl.Elts {
+				kv, ok := el.(*ast.KeyValueExpr)
+				if !ok {
+					c.mixed = true
+					continue
+				}
+				key, _ := kv.Key.(*ast.Ident)
+				if key == nil || key.Name != "box" && key.Name != "unbox" {
+					continue
+				}
+				v := Unparen(kv.Value)
+				if fl, ok := v.(*ast.FuncLit); ok {
+					// func(v any) T { return K(v) } / func(v T) any { return v } / { return B(v) }
+					var ret ast.Expr
+					if len(fl.Body.List) == 1 && fl.Type.Params.NumFields() == 1 && len(fl.Type.Params.List[0].Names) == 1 {
+						if rs, ok := fl.Body.List[0].(*ast.ReturnStmt); ok && len(rs.Results) == 1 {
+							ret = Unparen(rs.Results[0])
+						}
+					}
+					p := ""
+					if ret != nil {
+						p = fl.Type.Params.List[0].Names[0].Name
+					}
+					if id, ok := ret.(*ast.Ident); ok && key.Name == "box" && id.Name == p {
+						c.raw = true
+						continue
+					}
+					if call, ok := ret.(*ast.CallExpr); ok && len(call.Args) == 1 {
+						if id, ok := Unparen(call.Args[0]).(*ast.Ident); ok && id.Name == p {
+							if o := tfBase(call.Fun); o != nil {
+								if key.Name == "box" {
+									c.box[o] = true
+								} else {
+									c.unbox[o] = true
+								}
+								continue
+							}
+						}
+					}
+					c.mixed = true
+					continue
+				}
+				o := tfBase(v)
+				if _, isFn := o.(*types.Func); !isFn {
+					c.mixed = true
+					continue
+				}
+				if key.Name == "box" {
+					c.box[o] = true
+				} else {
+					c.unbox[o] = true
+				}
+			}
+			tfConvs = append(tfConvs, c)
+			return true
+		})
+	}
+}
+
+// tfSame: the conversion's element type is t (for a conversion made by a generic function: the
+// same generic type at the function's own type parameters).
+func tfSame(elem, t types.Type) bool {
+	if types.Identical(elem, t) {
+		return true
+	}
+	a, b := types.Unalias(elem), types.Unalias(t)
+	if pa, ok := a.(*types.Pointer); ok {
+		pb, ok := b.(*types.Pointer)
+		if !ok {
+			return false
+		}
+		a, b = types.Unalias(pa.Elem()), types.Unalias(pb.Elem())
+	}
+	na, ok1 := a.(*types.Named)
+	nb, ok2 := b.(*types.Named)
+	if !ok1 || !ok2 || na.Origin() != nb.Origin() || na.TypeArgs().Len() == 0 || na.TypeArgs().Len() != nb.TypeArgs().Len() {
+		return false
+	}
+	seen := map[types.Type]bool{}
+	for i := 0; i < na.TypeArgs().Len(); i++ {
+		tp, ok := types.Unalias(na.TypeArgs().At(i)).(*types.TypeParam)
+		if !ok || seen[tp] {
+			return false
+		}
+		seen[tp] = true
+	}
+	return true
+}
+
+// tfConvOf: what the conversions of t agree on (nil: none, or they differ).
+func tfConvOf(t types.Type) *tfConv {
+	tfTable()
+	var all *tfConv
+	for _, c := range tfConvs {
+		if !tfSame(c.elem, t) {
+			continue
+		}
+		if c.mixed {
+			return nil
+		}
+		if all == nil {
+			all = c
+			continue
+		}
+		if c.raw != all.raw || len(c.box) != len(all.box) || len(c.unbox) != len(all.unbox) {
+			return nil
+		}
+		for o := range c.box {
+			if !all.box[o] {
+				return nil
+			}
+		}
+		for o := range c.unbox {
+			if !all.unbox[o] {
+				return nil
+			}
+		}
+	}
+	return all
+}
+
+// IsUnboxOf reports whether k is K(x) with K the unboxing of t.
+func IsUnboxOf(k *ast.CallExpr, t types.Type) bool {
+	if len(k.Args) != 1 || !types.Identical(Info.TypeOf(k), t) || !tfIsAny(Info.TypeOf(k.Args[0])) {
+		return false
+	}
+	if tv, ok := Info.Types[k.Fun]; ok && tv.IsType() {
+		return false
+	}
+	if c := tfConvOf(t); c != nil && len(c.unbox) == 1 {
+		if o := tfBase(k.Fun); o != nil && c.unbox[o] {
+			return true
+		}
+	}
+	cv := ConvFor(t)
+	name, _ := CallName(k)
+	return cv.OK && name != "" && cv.IsUnbox(name)
+}
+
+// boxedAs returns e's operand when e is B(x) / x.B() with B the boxing of t and x a t.
+func tfBoxed(e ast.Expr, t types.Type, raw bool) (ast.Expr, bool) {
+	e = Unparen(e)
+	if raw {
+		if tv, ok := Info.Types[e]; ok && tv.Type != nil && !tv.IsNil() && types.Identical(tv.Type, t) {
+			return e, true
+		}
+	}
+	call, ok := e.(*ast.CallExpr)
+	if !ok {
+		return nil, false
+	}
+	var inner ast.Expr
+	var fn types.Object
+	isAnyConv := false
+	if tv, ok := Info.Types[call.Fun]; ok && tv.IsType() {
+		if !tfIsAny(tv.Type) || len(call.Args) != 1 {
+			return nil, false
+		}
+		inner, isAnyConv = call.Args[0], true
+	} else if s, ok := call.Fun.(*ast.SelectorExpr); ok && len(call.Args) == 0 && Info.Selections[s] != nil {
+		inner, fn = s.X, Info.Uses[s.Sel]
+	} else if len(call.Args) == 1 {
+		inner, fn = call.Args[0], tfBase(call.Fun)
+	}
+	if inner == nil || !types.Identical(Info.TypeOf(inner), t) {
+		return nil, false
+	}
+	c := tfConvOf(t)
+	if isAnyConv {
+		return inner, raw || c != nil && c.raw && len(c.box) == 0
+	}
+	if c != nil && len(c.box) == 1 && !c.raw && fn != nil && c.box[fn] {
+		return inner, true
+	}
+	if c == nil {
+		// no conversion of the type in the package: the boxing rw.Unboxed reads
+		cv := ConvFor(t)
+		if id, ok := call.Fun.(*ast.Ident); ok && cv.OK && (id.Name == "obj_" || id.Name == "strobj_") {
+			return inner, true
+		}
+		if s, ok := call.Fun.(*ast.SelectorExpr); ok && cv.OK && (s.Sel.Name == "self" || s.Sel.Name == "box_") {
+			return inner, true
+		}
+	}
+	return nil, false
+}
+
+func tfSig(e ast.Expr) *types.Signature {
+	t := Info.TypeOf(e)
+	if t == nil {
+		return nil
+	}
+	s, _ := types.Unalias(t).Underlying().(*types.Signature)
+	return s
+}
+
+func tfSameSig(a, b *types.Signature) bool {
+	if a == nil || b == nil || a.Variadic() || b.Variadic() || a.TypeParams().Len() > 0 {
+		return false
+	}
+	return types.Identical(types.NewSignatureType(nil, nil, nil, a.Params(), a.Results(), false), types.NewSignatureType(nil, nil, nil, b.Params(), b.Results(), false))
+}
+
+func tfTypeText(t types.Type) string {
+	return types.TypeString(t, func(p *types.Package) string {
+		if p == Pkg {
+			return ""
+		}
+		return p.Name()
+	})
+}
+
+var tfDecls map[types.Object]*ast.FuncDecl
+var tfNever = map[types.Object]int{} // 1: being decided, 2: never returns nil, 3: may
+
+// NonNullFn reports whether the function-typed expression e cannot be nil.
+func NonNullFn(e ast.Expr) bool {
+	e = Unparen(e)
+	switch x := e.(type) {
+	case *ast.FuncLit:
+		return true
+	case *ast.Ident:
+		_, ok := Info.Uses[x].(*types.Func)
+		return ok
+	case *ast.SelectorExpr:
+		_, ok := Info.Uses[x.Sel].(*types.Func)
+		return ok
+	case *ast.IndexExpr, *ast.IndexListExpr:
+		_, ok := tfBase(e).(*types.Func)
+		return ok
+	case *ast.CallExpr:
+		if tv, ok := Info.Types[x.Fun]; ok && tv.IsType() {
+			return len(x.Args) == 1 && NonNullFn(x.Args[0])
+		}
+		fn, ok := tfBase(x.Fun).(*types.Func)
+		if !ok {
+			return false
+		}
+		if tfDecls == nil {
+			tfDecls = map[types.Object]*ast.FuncDecl{}
+			for _, f := range Files {
+				for _, d := range f.Decls {
+					if fd, ok := d.(*ast.FuncDecl); ok && fd.Body != nil {
+						tfDecls[Info.Defs[fd.Name]] = fd
+					}
+				}
+			}
+		}
+		fn = fn.Origin()
+		switch tfNever[fn] {
+		case 1, 3:
+			return false
+		case 2:
+			return true
+		}
+		tfNever[fn] = 1
+		fd := tfDecls[fn]
+		ok = fd != nil && fd.Type.Results != nil && fd.Type.Results.NumFields() == 1 && len(fd.Type.Results.List[0].Names) == 0
+		n := 0
+		if ok {
+			for _, rs := range tfReturns(fd.Body) {
+				n++
+				if len(rs.Results) != 1 || !NonNullFn(rs.Results[0]) {
+					ok = false
+				}
+			}
+		}
+		ok = ok && n > 0
+		tfNever[fn] = 3
+		if ok {
+			tfNever[fn] = 2
+		}
+		return ok
+	}
+	return false
+}
+
+// tfReturns: the return statements of a function body (not those of literals inside it).
+func tfReturns(b *ast.BlockStmt) []*ast.ReturnStmt {
+	var out []*ast.ReturnStmt
+	ast.Inspect(b, func(n ast.Node) bool {
+		switch x := n.(type) {
+		case *ast.FuncLit:
+			return false
+		case *ast.ReturnStmt:
+			out = append(out, x)
+		}
+		return true
+	})
+	return out
+}
+
+func tfAdapter(e ast.Expr) ast.Expr {
+	u, ok := Unparen(e).(*ast.UnaryExpr)
+	if !ok || u.Op != token.AND {
+		return nil
+	}
+	cl, ok := u.X.(*ast.CompositeLit)
+	if !ok || len(cl.Elts) != 1 {
+		return nil
+	}
+	var name string
+	switch t := cl.Type.(type) {
+	case *ast.Ident:
+		name = t.Name
+	case *ast.IndexExpr:
+		if id, ok := t.X.(*ast.Ident); ok {
+			name = id.Name
+		}
+	case *ast.IndexListExpr:
+		if id, ok := t.X.(*ast.Ident); ok {
+			name = id.Name
+		}
+	}
+	if !strings.Contains(name, "_tfn") {
+		return nil
+	}
+	if _, ok := cl.Elts[0].(*ast.KeyValueExpr); ok {
+		return nil
+	}
+	return cl.Elts[0]
+}
+
+// tfClosure returns E of the translator's converting closure when it stands for a function of
+// signature want.
+func tfClosure(e ast.Expr, want *types.Signature) ast.Expr {
+	E, _ := tfClosureX(e, want, IsUnboxOf, true)
+	return E
+}
+
+// ClosureOf returns E and the calls K(p) of the translator's converting closure over a function
+// value E (which may be null: the closure is then null), each K accepted by okK for the type of
+// E's parameter at its position.
+func ClosureOf(e ast.Expr, okK func(k *ast.CallExpr, t types.Type) bool) (ast.Expr, []*ast.CallExpr) {
+	return tfClosureX(e, nil, okK, false)
+}
+
+func tfClosureX(e ast.Expr, want *types.Signature, okK func(k *ast.CallExpr, t types.Type) bool, nonNull bool) (ast.Expr, []*ast.CallExpr) {
+	E, ks := tfClosure1(e, want, okK, nonNull)
+	if E == nil {
+		return nil, nil
+	}
+	return E, ks
+}
+
+func tfClosure1(e ast.Expr, want *types.Signature, okK func(k *ast.CallExpr, t types.Type) bool, nonNull bool) (ast.Expr, []*ast.CallExpr) {
+	var ks []*ast.CallExpr
+	call, ok := Unparen(e).(*ast.CallExpr)
+	if !ok || len(call.Args) != 0 {
+		return nil, nil
+	}
+	fl, ok := call.Fun.(*ast.FuncLit)
+	if !ok || fl.Type.Params.NumFields() != 0 || len(fl.Body.List) != 3 {
+		return nil, nil
+	}
+	as, ok := fl.Body.List[0].(*ast.AssignStmt)
+	if !ok || as.Tok != token.DEFINE || len(as.Lhs) != 1 || len(as.Rhs) != 1 {
+		return nil, nil
+	}
+	fid, ok := as.Lhs[0].(*ast.Ident)
+	if !ok {
+		return nil, nil
+	}
+	fobj := Info.Defs[fid]
+	is, ok := fl.Body.List[1].(*ast.IfStmt)
+	if !ok || is.Init != nil || is.Else != nil || len(is.Body.List) != 1 {
+		return nil, nil
+	}
+	if be, ok := Unparen(is.Cond).(*ast.BinaryExpr); !ok || be.Op != token.EQL || Text(be.X) != fid.Name || Text(be.Y) != "nil" {
+		return nil, nil
+	}
+	if rs, ok := is.Body.List[0].(*ast.ReturnStmt); !ok || len(rs.Results) != 1 || Text(rs.Results[0]) != "nil" {
+		return nil, nil
+	}
+	rs, ok := fl.Body.List[2].(*ast.ReturnStmt)
+	if !ok || len(rs.Results) != 1 {
+		return nil, nil
+	}
+	g, ok := Unparen(rs.Results[0]).(*ast.FuncLit)
+	if !ok || len(g.Body.List) != 1 {
+		return nil, nil
+	}
+	E := as.Rhs[0]
+	if want == nil {
+		want = tfSig(E)
+		if want == nil || want.Variadic() {
+			return nil, nil
+		}
+	}
+	if !tfSameSig(tfSig(E), want) || nonNull && !NonNullFn(E) {
+		return nil, nil
+	}
+	gs := tfSig(g)
+	if gs == nil || gs.Params().Len() != want.Params().Len() || gs.Results().Len() != want.Results().Len() {
+		return nil, nil
+	}
+	var inner ast.Expr
+	switch st := g.Body.List[0].(type) {
+	case *ast.ReturnStmt:
+		if len(st.Results) != 1 || want.Results().Len() != 1 {
+			return nil, nil
+		}
+		inner = Unparen(st.Results[0])
+		if !types.Identical(gs.Results().At(0).Type(), want.Results().At(0).Type()) {
+			x, ok := tfBoxed(inner, want.Results().At(0).Type(), false)
+			if !ok || !tfIsAny(gs.Results().At(0).Type()) {
+				return nil, nil
+			}
+			inner = Unparen(x)
+		}
+	case *ast.ExprStmt:
+		if want.Results().Len() != 0 {
+			return nil, nil
+		}
+		inner = Unparen(st.X)
+	default:
+		return nil, nil
+	}
+	fc, ok := inner.(*ast.CallExpr)
+	if !ok || len(fc.Args) != want.Params().Len() {
+		return nil, nil
+	}
+	if id, ok := Unparen(fc.Fun).(*ast.Ident); !ok || Info.Uses[id] != fobj {
+		return nil, nil
+	}
+	if len(UsesOf[fobj]) != 2 {
+		return nil, nil
+	}
+	var params []types.Object
+	for _, f := range g.Type.Params.List {
+		if len(f.Names) == 0 {
+			return nil, nil
+		}
+		for _, n := range f.Names {
+			params = append(params, Info.Defs[n])
+		}
+	}
+	for i, a := range fc.Args {
+		a = Unparen(a)
+		t := want.Params().At(i).Type()
+		if types.Identical(gs.Params().At(i).Type(), t) {
+			if id, ok := a.(*ast.Ident); !ok || Info.Uses[id] != params[i] {
+				return nil, nil
+			}
+			continue
+		}
+		k, ok := a.(*ast.CallExpr)
+		if !ok || len(k.Args) != 1 || !types.Identical(Info.TypeOf(k), t) || !okK(k, t) {
+			return nil, nil
+		}
+		ks = append(ks, k)
+		if id, ok := Unparen(k.Args[0]).(*ast.Ident); !ok || Info.Uses[id] != params[i] {
+			return nil, nil
+		}
+	}
+	return E, ks
+}
+
+type tfEdits map[ast.Node]func() string
+
+func tfLine(p token.Pos) int { return Fset.Position(p).Line }
+
+// tfRetype collects the edits that give lit the signature want.
+func tfRetype(lit *ast.FuncLit, want *types.Signature, raw bool, ed tfEdits) bool {
+	got := tfSig(lit)
+	if got == nil || got.Variadic() || got.Params().Len() != want.Params().Len() || got.Results().Len() != want.Results().Len() {
+		return false
+	}
+	type entry struct {
+		stmt *ast.DeclStmt
+		name *ast.Ident
+		v    *ast.Ident
+		typ  types.Type
+		k    *ast.CallExpr
+		fld  *ast.Field
+	}
+	var entries []entry
+	i := 0
+	for _, fld := range lit.Type.Params.List {
+		n := len(fld.Names)
+		if n == 0 {
+			n = 1
+		}
+		for j := 0; j < n; j++ {
+			t := want.Params().At(i).Type()
+			pt := got.Params().At(i).Type()
+			i++
+			if types.Identical(pt, t) {
+				continue
+			}
+			if !tfIsAny(pt) || len(fld.Names) > 1 {
+				return false
+			}
+			txt := tfTypeText(t)
+			ed[fld.Type] = func() string { return txt }
+			if len(fld.Names) == 0 || fld.Names[0].Name == "_" {
+				continue
+			}
+			name := fld.Names[0]
+			uses := UsesOf[Info.Defs[name]]
+			for _, u := range uses {
+				k, ok := Up(u).(*ast.CallExpr)
+				if !ok || len(k.Args) != 1 || Unparen(k.Args[0]) != ast.Expr(u) || !IsUnboxOf(k, t) {
+					return false
+				}
+				pn := name.Name
+				ed[k] = func() string { return pn }
+			}
+			if len(uses) == 1 {
+				k := Up(uses[0]).(*ast.CallExpr)
+				if vs, ok := Up(k).(*ast.ValueSpec); ok && len(vs.Names) == 1 && len(vs.Values) == 1 && vs.Names[0].Name != "_" {
+					if gd, ok := Parent[vs].(*ast.GenDecl); ok && len(gd.Specs) == 1 {
+						if ds, ok := Parent[gd].(*ast.DeclStmt); ok && Parent[ds] == ast.Node(lit.Body) {
+							if o := Info.Defs[vs.Names[0]]; o != nil && types.Identical(o.Type(), t) {
+								entries = append(entries, entry{ds, name, vs.Names[0], t, k, fld})
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	// `var v T = K(p)` at the head of the body: the parameter is v. The statements must be the
+	// body's first (with their `_ = v`), each on lines of its own.
+	isEntry := map[ast.Stmt]*entry{}
+	for i := range entries {
+		isEntry[entries[i].stmt] = &entries[i]
+	}
+	blank := func(s ast.Stmt) string {
+		as, ok := s.(*ast.AssignStmt)
+		if !ok || as.Tok != token.ASSIGN || len(as.Lhs) != 1 || len(as.Rhs) != 1 || Text(as.Lhs[0]) != "_" {
+			return ""
+		}
+		if id, ok := as.Rhs[0].(*ast.Ident); ok {
+			return id.Name
+		}
+		return ""
+	}
+	ownLines := func(idx int) bool {
+		l := lit.Body.List
+		before, after := tfLine(lit.Body.Lbrace), tfLine(lit.Body.Rbrace)
+		if idx > 0 {
+			before = tfLine(l[idx-1].End())
+		}
+		if idx+1 < len(l) {
+			after = tfLine(l[idx+1].Pos())
+		}
+		return before < tfLine(l[idx].Pos()) && tfLine(l[idx].End()) < after
+	}
+	declared := map[string]bool{}
+	for idx, s := range lit.Body.List {
+		if e := isEntry[s]; e != nil && ownLines(idx) {
+			declared[e.v.Name] = true
+			v := e.v.Name
+			delete(ed, e.k)
+			ed[e.name] = func() string { return v }
+			ed[s] = func() string { return Del }
+			continue
+		}
+		if b := blank(s); b != "" && declared[b] && ownLines(idx) {
+			ed[s] = func() string { return Del }
+			continue
+		}
+		break
+	}
+	if want.Results().Len() == 1 && !types.Identical(got.Results().At(0).Type(), want.Results().At(0).Type()) {
+		return tfResult(lit, want.Results().At(0).Type(), raw, ed)
+	}
+	return true
+}
+
+// tfResult: lit's result (any) becomes r.
+func tfResult(lit *ast.FuncLit, r types.Type, raw bool, ed tfEdits) bool {
+	if lit.Type.Results == nil || len(lit.Type.Results.List) != 1 {
+		return false
+	}
+	fld := lit.Type.Results.List[0]
+	if !tfIsAny(Info.TypeOf(fld.Type)) || len(fld.Names) > 1 {
+		return false
+	}
+	if len(fld.Names) == 1 && len(UsesOf[Info.Defs[fld.Names[0]]]) > 0 {
+		return false
+	}
+	txt := tfTypeText(r)
+	ed[fld.Type] = func() string { return txt }
+	rets := tfReturns(lit.Body)
+	if len(rets) == 0 {
+		return false
+	}
+	for _, rs := range rets {
+		if len(rs.Results) != 1 {
+			return false
+		}
+		e := Unparen(rs.Results[0])
+		if tv, ok := Info.Types[e]; ok && tv.IsNil() {
+			switch r.Underlying().(type) {
+			case *types.Pointer, *types.Interface:
+				continue
+			case *types.Slice, *types.Map:
+				if raw {
+					continue
+				}
+			}
+			return false
+		}
+		if c, ok := e.(*ast.CallExpr); ok && len(c.Args) == 0 {
+			if fl, ok := c.Fun.(*ast.FuncLit); ok && fl.Type.Params.NumFields() == 0 {
+				if s := tfSig(fl); s != nil && s.Results().Len() == 1 && tfIsAny(s.Results().At(0).Type()) {
+					if !tfResult(fl, r, raw, ed) {
+						return false
+					}
+					continue
+				}
+			}
+		}
+		inner, ok := tfBoxed(e, r, raw)
+		if !ok {
+			return false
+		}
+		if inner != e {
+			in, at := inner, rs.Results[0]
+			ed[at] = func() string { return Render(in) }
+		}
+	}
+	return true
+}
+
+// TypedFn: the code of the function of signature want that arg stands for (see the head of the
+// file); false when arg has none of the forms.
+func TypedFn(arg ast.Expr, want *types.Signature, raw bool) (func() string, bool) {
+	arg = Unparen(arg)
+	if f := tfAdapter(arg); f != nil {
+		if !tfSameSig(tfSig(f), want) {
+			return nil, false
+		}
+		return func() string { return Render(f) }, true
+	}
+	if E := tfClosure(arg, want); E != nil {
+		return func() string { return Render(E) }, true
+	}
+	if c, ok := arg.(*ast.CallExpr); ok && len(c.Args) == 1 {
+		if tv, ok := Info.Types[c.Fun]; ok && tv.IsType() {
+			if _, isFn := tv.Type.Underlying().(*types.Signature); isFn {
+				arg = Unparen(c.Args[0])
+			}
+		}
+	}
+	lit, ok := arg.(*ast.FuncLit)
+	if !ok {
+		return nil, false
+	}
+	if tfSameSig(tfSig(lit), want) {
+		return func() string { return Render(lit) }, true
+	}
+	ed := tfEdits{}
+	if !tfRetype(lit, want, raw, ed) {
+		return nil, false
+	}
+	return func() string {
+		for n, g := range ed {
+			if _, dup := Rewrite[n]; dup {
+				panic("TypedFn: a node of the literal is rewritten twice: " + Text(n))
+			}
+			Rewrite[n] = g
+		}
+		s := Render(lit)
+		for n := range ed {
+			delete(Rewrite, n)
+		}
+		return s
+	}, true
+}
+E33
+fi
+#    tfnapi: fnOf is the reader.
+tf=tools/postflip/tfnapi/main.go
+if [[ -f $tf ]] && ! grep -q reflip33 $tf; then
+  python3 - "$tf" <<'P33'
+import sys
+p = sys.argv[1]; s = open(p).read()
+a, b = s.index('// fnOf returns f when'), s.index('// listOf returns L')
+new = """// fnOf returns the code of the typed function a stands for (reflip33: rw.TypedFn reads the adapter
+// literal, the translator's function literal at the erased type and its converting closure).
+func fnOf(a ast.Expr, want *types.Signature) func() string {
+	f, ok := rw.TypedFn(a, want, false)
+	if !ok {
+		return nil
+	}
+	return f
+}
+
+"""
+if s.count('rw.Render(f)') != 6:
+    sys.exit("toolfix: tfnapi: rw.Render(f) found %d times" % s.count('rw.Render(f)'))
+s = (s[:a] + new + s[b:]).replace('rw.Render(f)', 'f()')
+open(p, 'w').write(s)
+P33
+fi
+#    tcmp: a comparator that is none of the tool's own forms is asked of the reader (the converting closure of a chain of the
+#    translator runtime's typed Comparator combinators, which never return null: every return of rt_fn.go's combinators is a
+#    function literal or such a call; a literal typed on entry).
+reflip_edit tools/postflip/tcmp/main.go reflip33 <<'E33b'
+	want := cmpSig(t)
+	// &X{f}: a typed lambda adapter
+=====
+	want := cmpSig(t)
+	if g, ok := rw.TypedFn(e, want, false); ok { // reflip33
+		return g()
+	}
+	// &X{f}: a typed lambda adapter
+E33b
+#    tgeneric: K(c.runInCompilerThread(X)) with X any of the reader's forms of a func() T, T the type K unboxes to. With K a plain
+#    cast_[T] a return of the callable may give the T itself (cast_[T] of an interface value holding e is e).
+reflip_edit tools/postflip/tgeneric/main.go reflip33 <<'E33c'
+	mv, ok := rw.Unparen(c.Args[0]).(*ast.SelectorExpr)
+	if !ok || mv.Sel.Name != "call" {
+=====
+	if p, ok := rw.Up(c).(*ast.CallExpr); ok && len(p.Args) == 1 && rw.Unparen(p.Args[0]) == ast.Expr(c) { // reflip33
+		if tv, isT := rw.Info.Types[p.Fun]; !(isT && tv.IsType()) && rw.Info.TypeOf(p) != nil {
+			rt := rw.Info.TypeOf(p)
+			pname, _ := rw.CallName(p)
+			want := types.NewSignatureType(nil, nil, nil, nil, types.NewTuple(types.NewParam(0, nil, "", rt)), false)
+			if g, ok := rw.TypedFn(c.Args[0], want, strings.HasPrefix(pname, "cast_[")); ok {
+				x := s.X
+				if e, ok := read(rt, c, func() string { return "Compiler_runInCompilerThreadT_(" + rw.Render(x) + ", " + g() + ")" }); ok && e.Node == ast.Node(p) {
+					rw.Rewrite[e.Node] = e.Gen
+					done["Compiler.runInCompilerThread of a typed callable, cast back: Compiler_runInCompilerThreadT_"]++
+					return
+				}
+			}
+		}
+	}
+	mv, ok := rw.Unparen(c.Args[0]).(*ast.SelectorExpr)
+	if !ok || mv.Sel.Name != "call" {
+E33c
+# 34. (fifth flip, second part) native: a typed map's m.ComputeIfAbsent(k, f) is a map operation. On the fourth flip the call a
+#    native map kind met was the erased m.computeIfAbsent(k, &Function_tfn_K_V{f}), which it wrote as mapComputeIfAbsent_ and
+#    step 486 tfnapi as mapComputeIfAbsentT_(vc, m, k, f): 20 calls, 20 Go maps. On this flip the translator's typed
+#    computeIfAbsent is TMap.ComputeIfAbsent(k, func(K) V) from step 402 on (toolfix 29), which native took for an unknown
+#    method: those maps stayed TMaps. ComputeIfAbsent and mapComputeIfAbsentT_ are the same function of the map's contents: the
+#    value of k if there is one that is not null, else f(k), stored unless null (rt_tmap.go, rt_tfnapi.go); it does not depend on
+#    the order. A conversion of a function literal to a function type is the literal. The rule applies when the runtime has
+#    mapComputeIfAbsentT_ (this flip's reflip5-ciat-rt.patch at step 403; patch 485 has the rest of rt_tfnapi.go).
+reflip_edit tools/postflip/native/main.go reflip34 <<'E34'
+	case !set && (m == "computeIfAbsent" || m == "computeIfAbsent_f") && len(args) == 2 && kc != "":
+=====
+	case !set && m == "ComputeIfAbsent" && len(args) == 2 && rw.HasFunc("mapComputeIfAbsentT_"): // reflip34
+		changes()
+		fn := args[1]
+		if c, ok := rw.Unparen(fn).(*ast.CallExpr); ok && len(c.Args) == 1 {
+			if tv, ok := rw.Info.Types[c.Fun]; ok && tv.IsType() {
+				if fl, ok := rw.Unparen(c.Args[0]).(*ast.FuncLit); ok {
+					fn = fl
+				}
+			}
+		}
+		edit(n, call, func() string {
+			return "mapComputeIfAbsentT_(" + vc + ", " + R() + ", " + A(0) + ", " + rw.Render(fn) + ")"
+		})
+	case !set && (m == "computeIfAbsent" || m == "computeIfAbsent_f") && len(args) == 2 && kc != "":
+E34
+# 35. (fifth flip, second part) tcmp: a PriorityQueue made with the converting closure of a typed comparator keeps its elements
+#    unboxed (the data-flow work queue; the fourth flip's steps 105, 147 and the manual 419 gave that queue an int-key comparator
+#    object the heap called directly; a Comparator is a Go func on this flip and the heap called the converting closure, two
+#    junboxT_ and the comparator's own closures per comparison).
+#      new_PriorityQueue(func() Comparator[any] { f_ := E; if f_ == nil { return nil }; return func(p0 any, p1 any) int32 { return f_(K(p0), K(p1)) } }())
+#        ->  newPriorityQueueT_(E, K)                     (also new_PriorityQueue_int_Comparator(n, ..) with a constant n)
+#    The runtime function (rt_pqt.go, step 559's patch) makes the same queue with the same erased comparator and keeps K(x)
+#    beside each element once computed. Proof obligation: K is a pure cast, the same result or the same exception for the same
+#    interface value and no effect, so that a repeated K(x) can be skipped: K is one of the cast and unboxing functions by name
+#    (cast_, junboxT_, str_, to_X, icast_X, gcast_X, X_of_: a list of names) with the signature func(any) T, the same K for both
+#    arguments, T the comparator's parameter type. E is evaluated once where the closure evaluated it; a null E gives the
+#    natural-order queue in the runtime function, as the null closure did. The heap's part of the proof (same comparisons in the
+#    same order, K first evaluated at the same call) is at the head of rt_pqt.go and in its test. Applies when the runtime has
+#    newPriorityQueueT_.
+reflip_edit tools/postflip/tcmp/main.go reflip35 <<'E35'
+			c, ok := n.(*ast.CallExpr)
+			if !ok {
+				return true
+			}
+			name, _ := rw.CallName(c)
+=====
+			c, ok := n.(*ast.CallExpr)
+			if !ok {
+				return true
+			}
+			if pqueue35(c) { // reflip35
+				return true
+			}
+			name, _ := rw.CallName(c)
++++++
+
+// pqueue35 (reflip35): new_PriorityQueue(C), C the converting closure of a typed comparator E with the pure cast K, is
+// newPriorityQueueT_(E, K).
+func pqueue35(c *ast.CallExpr) bool {
+	name, _ := rw.CallName(c)
+	var arg ast.Expr
+	switch {
+	case name == "new_PriorityQueue" && len(c.Args) == 1:
+		arg = c.Args[0]
+	case name == "new_PriorityQueue_int_Comparator" && len(c.Args) == 2 && rw.Info.Types[c.Args[0]].Value != nil:
+		arg = c.Args[1]
+	default:
+		return false
+	}
+	if !rw.HasFunc("newPriorityQueueT_") {
+		return false
+	}
+	if id, ok := rw.Unparen(arg).(*ast.Ident); ok && id.Name == "nil" {
+		return false
+	}
+	pure := func(k *ast.CallExpr, t types.Type) bool {
+		var id *ast.Ident
+		switch f := k.Fun.(type) {
+		case *ast.Ident:
+			id = f
+		case *ast.IndexExpr:
+			id, _ = f.X.(*ast.Ident)
+		case *ast.IndexListExpr:
+			id, _ = f.X.(*ast.Ident)
+		}
+		if id == nil {
+			return false
+		}
+		if fn, ok := rw.Info.Uses[id].(*types.Func); !ok || fn.Pkg() != rw.Pkg || fn.Parent() != rw.Pkg.Scope() {
+			return false
+		}
+		sig, ok := rw.Info.TypeOf(k.Fun).(*types.Signature)
+		if !ok || sig.Params().Len() != 1 || sig.Results().Len() != 1 || !types.Identical(sig.Results().At(0).Type(), t) {
+			return false
+		}
+		if it, ok := sig.Params().At(0).Type().Underlying().(*types.Interface); !ok || !it.Empty() {
+			return false
+		}
+		n := id.Name
+		return n == "cast_" || n == "junboxT_" || n == "str_" || strings.HasPrefix(n, "to_") || strings.HasPrefix(n, "icast_") || strings.HasPrefix(n, "gcast_") || strings.HasSuffix(n, "_of_")
+	}
+	E, ks := rw.ClosureOf(arg, pure)
+	if E == nil || len(ks) != 2 || rw.Text(ks[0].Fun) != rw.Text(ks[1].Fun) {
+		left("a PriorityQueue whose comparator is not the converting closure of a typed comparator with a pure cast", c)
+		return false
+	}
+	k := ks[0].Fun
+	rw.Rewrite[c] = func() string { return "newPriorityQueueT_(" + rw.Render(E) + ", " + rw.Text(k) + ")" }
+	counts["PriorityQueues made with the converting closure of a typed comparator keep their elements unboxed"]++
+	return true
+}
+E35
+# 36. (fifth flip, second part) the instanceof tests of generic classes: tswitch reads a disjunction of tests, and a new tool
+#    isanames names the marker interfaces. The translator writes `v instanceof X` of a generic class as the assertion
+#    v.(interface{ isa_X_() }) (in place, or in a helper is_X): the Simple* collections are generic from the translator on this
+#    flip (prep 19) and their instanceof tests reach the end of the list as 4 helpers, 3 calls of them in one condition and 2
+#    assertions in place (census: anonymous interface assertions 0 -> 6, is_X 71 -> 78). (a) tswitch: a link of an if / else-if
+#    chain may be `if is_A(S) || is_B(S) ..`, instanceof tests of the chain's value alone; it is the case `case A, B:` (taken
+#    when one assertion succeeds, as the disjunction is true; no name bound). (b) isanames (written here; its rule and why the
+#    named interface is the same test are at the head of the file): interface{ isa_X_() } is X_isa, declared where X's marker
+#    method is; an is_X helper of a marker that nothing calls any more is deleted. Both only in the tool versions that have
+#    vdispatch -rest (step 558 on): they run in step 560.
+ts=tools/postflip/tswitch/main.go
+if [[ -f $ts && -f tools/postflip/vdispatch/rest.go ]] && ! grep -q 'func orTests' $ts; then
+  patch -s -p1 --no-backup-if-mismatch <<'E36' || { echo "toolfix: tswitch: the edits of fix 36 do not apply" >&2; exit 1; }
+diff --git a/tools/postflip/tswitch/main.go b/tools/postflip/tswitch/main.go
+index a5499c7aa..817c22f6e 100644
+--- a/tools/postflip/tswitch/main.go
++++ b/tools/postflip/tswitch/main.go
+@@ -25,6 +25,11 @@
+ // level deeper than the chain has it. S is evaluated once instead of once per
+ // test, which is the same because it is pure.
+ //
++// A link may also be `if is_[A](S) || is_B(S) ...`, a disjunction of instanceof tests of S
++// alone (the generic is_[T], or a generated helper is_X whose body is the assertion to a named
++// type): it is the case `case A, B:`, taken when the value's type is one of them, as the
++// disjunction is true when one of the assertions succeeds. It binds no name.
++//
+ // The switch binds one name: links that bind must bind the same name, and a link that does not,
+ // and the default, must not mention that name (the switch would shadow it there). The ok
+ // variables are not used anywhere else. Left, counted: chains that do not meet these. A rerun
+@@ -52,6 +57,95 @@ type link struct {
+ 	ok   *ast.Ident
+ 	typ  ast.Expr
+ 	subj ast.Expr
++	// typs: the types of a link whose condition is a disjunction of instanceof tests of one
++	// value (is_[A](v) || is_B(v) ...): a case with several types. Such a link binds nothing
++	// and has no ok variable.
++	typs []ast.Expr
++}
++
++// isTest returns the tested value and type when e is is_[T](v), or is_X(v) of a generated
++// helper without type parameters whose body is `_, ok := v.(T); return ok`.
++func isTest(e ast.Expr) (ast.Expr, ast.Expr) {
++	c, ok := rw.Unparen(e).(*ast.CallExpr)
++	if !ok || len(c.Args) != 1 {
++		return nil, nil
++	}
++	switch f := c.Fun.(type) {
++	case *ast.IndexExpr:
++		if id, ok := f.X.(*ast.Ident); ok && id.Name == "is_" {
++			if fn, ok := rw.Info.Uses[id].(*types.Func); ok && fn.Pkg() == rw.Pkg && fn.Parent() == rw.Pkg.Scope() {
++				return c.Args[0], f.Index
++			}
++		}
++	case *ast.Ident:
++		fn, ok := rw.Info.Uses[f].(*types.Func)
++		if !ok || !strings.HasPrefix(f.Name, "is_") || fn.Pkg() != rw.Pkg || fn.Parent() != rw.Pkg.Scope() {
++			return nil, nil
++		}
++		if t := helperType(fn); t != nil {
++			return c.Args[0], t
++		}
++	}
++	return nil, nil
++}
++
++var helperDecls map[types.Object]*ast.FuncDecl
++
++// helperType is T of func is_X(v any) bool { _, ok := v.(T); return ok }, T a named type.
++func helperType(fn *types.Func) ast.Expr {
++	if helperDecls == nil {
++		helperDecls = map[types.Object]*ast.FuncDecl{}
++		for _, f := range rw.Files {
++			for _, d := range f.Decls {
++				if fd, ok := d.(*ast.FuncDecl); ok && fd.Recv == nil && fd.Body != nil {
++					helperDecls[rw.Info.Defs[fd.Name]] = fd
++				}
++			}
++		}
++	}
++	fd := helperDecls[fn]
++	if fd == nil || fd.Type.TypeParams != nil || fd.Type.Params.NumFields() != 1 || len(fd.Type.Params.List[0].Names) != 1 || len(fd.Body.List) != 2 {
++		return nil
++	}
++	as, ok := fd.Body.List[0].(*ast.AssignStmt)
++	if !ok || as.Tok != token.DEFINE || len(as.Lhs) != 2 || len(as.Rhs) != 1 || rw.Text(as.Lhs[0]) != "_" {
++		return nil
++	}
++	ta, ok := as.Rhs[0].(*ast.TypeAssertExpr)
++	if !ok || ta.Type == nil || rw.Text(ta.X) != fd.Type.Params.List[0].Names[0].Name {
++		return nil
++	}
++	rs, ok := fd.Body.List[1].(*ast.ReturnStmt)
++	if !ok || len(rs.Results) != 1 || rw.Text(rs.Results[0]) != rw.Text(as.Lhs[1]) {
++		return nil
++	}
++	switch t := ta.Type.(type) {
++	case *ast.Ident:
++		return t
++	case *ast.StarExpr:
++		if _, ok := t.X.(*ast.Ident); ok {
++			return t
++		}
++	}
++	return nil
++}
++
++// orTests: the tests of a disjunction a || b || ..., each an instanceof test of the same value.
++func orTests(e ast.Expr) (subj ast.Expr, typs []ast.Expr) {
++	e = rw.Unparen(e)
++	if b, ok := e.(*ast.BinaryExpr); ok && b.Op == token.LOR {
++		s1, t1 := orTests(b.X)
++		s2, t2 := orTests(b.Y)
++		if s1 == nil || s2 == nil || rw.Text(s1) != rw.Text(s2) {
++			return nil, nil
++		}
++		return s1, append(t1, t2...)
++	}
++	s, t := isTest(e)
++	if s == nil {
++		return nil, nil
++	}
++	return s, []ast.Expr{t}
+ }
+ 
+ func main() {
+@@ -83,6 +177,12 @@ func main() {
+ 	}
+ 	// asLink is ifs as a link, or nil.
+ 	asLink := func(ifs *ast.IfStmt) *link {
++		if ifs.Init == nil {
++			if subj, typs := orTests(ifs.Cond); len(typs) >= 2 {
++				return &link{ifs: ifs, subj: subj, typs: typs}
++			}
++			return nil
++		}
+ 		as, ok := ifs.Init.(*ast.AssignStmt)
+ 		if !ok || as.Tok != token.DEFINE || len(as.Lhs) != 2 || len(as.Rhs) != 1 {
+ 			return nil
+@@ -97,7 +197,7 @@ func main() {
+ 		if !ok1 || !ok2 || !ok3 || okId.Name == "_" || cond.Name != okId.Name {
+ 			return nil
+ 		}
+-		l := &link{ifs: ifs, ok: okId, typ: ta.Type, subj: ta.X}
++		l := &link{ifs: ifs, ok: okId, typ: ta.Type, subj: ta.X, typs: []ast.Expr{ta.Type}}
+ 		if v.Name != "_" {
+ 			l.bind = v
+ 		}
+@@ -120,6 +220,9 @@ func main() {
+ 	}
+ 	// usedOnlyAsCond: the ok variable is read only by its if's condition.
+ 	usedOnlyAsCond := func(l *link) bool {
++		if l.ok == nil {
++			return true
++		}
+ 		obj := rw.Info.Defs[l.ok]
+ 		for _, u := range rw.UsesOf[obj] {
+ 			if u != l.ifs.Cond {
+@@ -199,12 +302,14 @@ func main() {
+ 			// The cases' types must be distinct (Go rejects a duplicate case).
+ 			seen := map[string]bool{}
+ 			for _, l := range chain {
+-				t := types.TypeString(rw.Info.Types[l.typ].Type, nil)
+-				if seen[t] {
+-					skip("two links test one type", ifs)
+-					return true
++				for _, typ := range l.typs {
++					t := types.TypeString(rw.Info.Types[typ].Type, nil)
++					if seen[t] {
++						skip("two links test one type", ifs)
++						return true
++					}
++					seen[t] = true
+ 				}
+-				seen[t] = true
+ 			}
+ 			done[fmt.Sprintf("if/else-if chain of %d type tests -> type switch", len(chain))]++
+ 			rw.Rewrite[ifs] = func() string {
+@@ -215,7 +320,11 @@ func main() {
+ 				}
+ 				b.WriteString(rw.Render(first.subj) + ".(type) {\n")
+ 				for _, l := range chain {
+-					b.WriteString("case " + rw.Render(l.typ) + ":\n")
++					var ts []string
++					for _, typ := range l.typs {
++						ts = append(ts, rw.Render(typ))
++					}
++					b.WriteString("case " + strings.Join(ts, ", ") + ":\n")
+ 					b.WriteString(blockBody(rw.RenderChildren(l.ifs.Body)))
+ 				}
+ 				if rest != nil {
+E36
+fi
+if [[ -f tools/postflip/vdispatch/rest.go && ! -f tools/postflip/isanames/main.go ]]; then
+mkdir -p tools/postflip/isanames
+cat > tools/postflip/isanames/main.go <<'E36b'
+// Command isanames is a post-flip step (fifth flip): the marker interface of an instanceof test
+// of a generic class gets a name.
+//
+//	_, ok := v.(interface{ isa_X_() })      ->  _, ok := v.(X_isa)
+//	type X_isa interface{ isa_X_() }            (declared after the marker method of X)
+//
+// The translator writes `v instanceof X` of a generic class X (any type arguments: Java tests
+// the erased class) as an assertion to the anonymous interface of X's marker method
+// func (this *X[P...]) isa_X_() {}, which X and the classes that embed it have. The named
+// interface has the same method set, so every assertion, type switch case and helper is_X
+// gives the same result. X_isa is declared once, where the marker method is, when the name is
+// free in the package.
+//
+// A generated helper func is_X(v any) bool { _, ok := v.(X_isa); return ok } that no code
+// calls is deleted (tswitch and instof write its callers as assertions and cases).
+//
+// A rerun changes nothing.
+//
+// usage: isanames [-n] <dir of package closure>
+package main
+
+import (
+	"fmt"
+	"go/ast"
+	"go/token"
+	"go/types"
+	"os"
+	"path/filepath"
+	"sort"
+	"strings"
+
+	"postflip/rw"
+)
+
+// marker returns the method name when t is interface{ isa_X_() }.
+func marker(t ast.Expr) string {
+	it, ok := t.(*ast.InterfaceType)
+	if !ok || it.Methods == nil || len(it.Methods.List) != 1 {
+		return ""
+	}
+	f := it.Methods.List[0]
+	ft, ok := f.Type.(*ast.FuncType)
+	if !ok || len(f.Names) != 1 || ft.Params.NumFields() != 0 || ft.Results.NumFields() != 0 || ft.TypeParams != nil {
+		return ""
+	}
+	if n := f.Names[0].Name; strings.HasPrefix(n, "isa_") && strings.HasSuffix(n, "_") && len(n) > 5 {
+		return n
+	}
+	return ""
+}
+
+func main() {
+	report := false
+	for _, a := range os.Args[1 : len(os.Args)-1] {
+		report = report || a == "-n"
+	}
+	rw.Load(os.Args[len(os.Args)-1])
+	gen := func(n ast.Node) bool {
+		return strings.HasPrefix(filepath.Base(rw.Fset.Position(n.Pos()).Filename), "g_")
+	}
+	// the marker methods, and the names already declared for them
+	methods := map[string]*ast.FuncDecl{}
+	declared := map[string]bool{}
+	for _, f := range rw.Files {
+		for _, d := range f.Decls {
+			switch x := d.(type) {
+			case *ast.FuncDecl:
+				if gen(x) && x.Recv != nil && x.Body != nil && len(x.Body.List) == 0 && x.Type.Params.NumFields() == 0 && x.Type.Results.NumFields() == 0 &&
+					strings.HasPrefix(x.Name.Name, "isa_") && strings.HasSuffix(x.Name.Name, "_") {
+					methods[x.Name.Name] = x
+				}
+			case *ast.GenDecl:
+				if x.Tok != token.TYPE {
+					continue
+				}
+				for _, s := range x.Specs {
+					ts := s.(*ast.TypeSpec)
+					if m := marker(ts.Type); m != "" && ts.TypeParams == nil && ts.Name.Name == strings.TrimSuffix(strings.TrimPrefix(m, "isa_"), "_")+"_isa" {
+						declared[m] = true
+					}
+				}
+			}
+		}
+	}
+	named, taken := map[string]int{}, map[string]int{}
+	for _, f := range rw.Files {
+		if !gen(f) {
+			continue
+		}
+		ast.Inspect(f, func(n ast.Node) bool {
+			it, ok := n.(*ast.InterfaceType)
+			if !ok {
+				return true
+			}
+			m := marker(it)
+			if m == "" || methods[m] == nil {
+				return true
+			}
+			if ts, ok := rw.Parent[it].(*ast.TypeSpec); ok && ts.Type == ast.Expr(it) {
+				return true // a declaration
+			}
+			name := strings.TrimSuffix(strings.TrimPrefix(m, "isa_"), "_") + "_isa"
+			if !declared[m] && rw.Pkg.Scope().Lookup(name) != nil {
+				taken[name]++
+				return true
+			}
+			named[m]++
+			rw.Rewrite[it] = func() string { return name }
+			return true
+		})
+	}
+	var ms []string
+	for m := range named {
+		ms = append(ms, m)
+	}
+	sort.Strings(ms)
+	ndecl := 0
+	for _, m := range ms {
+		if declared[m] {
+			continue
+		}
+		ndecl++
+		fd := methods[m]
+		x := strings.TrimSuffix(strings.TrimPrefix(m, "isa_"), "_")
+		rw.Rewrite[fd] = func() string {
+			return rw.RenderChildren(fd) + "\n\n// " + x + "_isa is implemented by " + x + ", at any type arguments, and by the classes that extend it:\n// `instanceof " + x + "` asserts to it (post-flip).\ntype " + x + "_isa interface{ " + m + "() }"
+		}
+	}
+	// helpers is_X of a marker interface that nothing calls
+	ndead := 0
+	for _, f := range rw.Files {
+		if !gen(f) {
+			continue
+		}
+		for _, d := range f.Decls {
+			fd, ok := d.(*ast.FuncDecl)
+			if !ok || fd.Recv != nil || fd.Body == nil || !strings.HasPrefix(fd.Name.Name, "is_") || len(fd.Body.List) != 2 || fd.Type.Params.NumFields() != 1 {
+				continue
+			}
+			as, ok := fd.Body.List[0].(*ast.AssignStmt)
+			if !ok || as.Tok != token.DEFINE || len(as.Lhs) != 2 || len(as.Rhs) != 1 {
+				continue
+			}
+			ta, ok := as.Rhs[0].(*ast.TypeAssertExpr)
+			if !ok || ta.Type == nil {
+				continue
+			}
+			rs, ok := fd.Body.List[1].(*ast.ReturnStmt)
+			if !ok || len(rs.Results) != 1 || rw.Text(rs.Results[0]) != rw.Text(as.Lhs[1]) {
+				continue
+			}
+			m := marker(ta.Type)
+			if m == "" {
+				if tv, ok := rw.Info.Types[ta.Type]; ok {
+					if nt, ok := types.Unalias(tv.Type).(*types.Named); ok && strings.HasSuffix(nt.Obj().Name(), "_isa") {
+						if it, ok := nt.Underlying().(*types.Interface); ok && it.NumMethods() == 1 && it.Method(0).Name() == "isa_"+strings.TrimSuffix(nt.Obj().Name(), "_isa")+"_" {
+							m = it.Method(0).Name()
+						}
+					}
+				}
+			}
+			if m == "" || methods[m] == nil || len(rw.UsesOf[rw.Info.Defs[fd.Name]]) != 0 {
+				continue
+			}
+			ndead++
+			rw.Rewrite[fd] = func() string { return rw.DelDoc }
+		}
+	}
+	total := 0
+	for _, n := range named {
+		total += n
+	}
+	var tk []string
+	for n, c := range taken {
+		tk = append(tk, fmt.Sprintf("%s (%d)", n, c))
+	}
+	sort.Strings(tk)
+	fmt.Fprintf(os.Stderr, "isanames: %d anonymous marker interfaces named (%d classes, %d X_isa declared); %d uncalled is_X helpers of a marker deleted; left: %d names taken %v\n", total, len(named), ndecl, ndead, len(taken), tk)
+	if report || total+ndead == 0 {
+		return
+	}
+	fmt.Fprintf(os.Stderr, "isanames: files changed: %d\n", rw.SaveChecked())
+}
+E36b
+fi
