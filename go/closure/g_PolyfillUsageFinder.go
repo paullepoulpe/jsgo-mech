@@ -503,7 +503,7 @@ func (this PolyfillUsageFinder_Guard) shouldInclude(isGuarded bool) bool {
 		case PolyfillUsageFinder_Guard_ONLY_UNGUARDED:
 			return !isGuarded
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
