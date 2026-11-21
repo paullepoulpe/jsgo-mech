@@ -660,7 +660,8 @@ func TypeInference_addMissingInterfaceProperties(constructor *JSType) {
 	it_1 := f.getImplementedInterfaces().each()
 	for it_1.next() {
 		var interf *ObjectType = it_1.v
-		for pname := range elemsBy_(obj_(interf.getPropertyNames()), str_) {
+		for _, el := range immElems_(interf.getPropertyNames()) {
+			pname := str_(el)
 			if !proto.hasProperty(pname) {
 				proto.defineDeclaredProperty(pname, interf.getPropertyType(pname), 0)
 			}
