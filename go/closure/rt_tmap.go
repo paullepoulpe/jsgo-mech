@@ -29,6 +29,7 @@ type tmapExt_[K comparable, V any] struct {
 	dead  []bool // beside keys once something was removed; else nil
 	idx   map[K]int32
 	ndead int32
+	head  int32 // every position below head is a removed entry (with dead; a hint for first)
 	view  *tmapView_[K, V]
 	sview *tsetView_[K]
 	// Keys compared by equals (kc.hash != nil): each key's hash code, beside keys, and once the
@@ -47,6 +48,25 @@ func (m *TMap[K, V]) ext() *tmapExt_[K, V] {
 
 // isDead reports whether position i holds a removed entry.
 func (m *TMap[K, V]) isDead(i int) bool { return m.x != nil && m.x.dead != nil && m.x.dead[i] }
+
+// first is the position iteration starts at: every position below it is a removed entry.
+// LinkedHashMap unlinks a removed entry, so its iteration starts at the first live one at once;
+// here the removed entries stay in place until the table compacts, and a map used as a work
+// queue (remove the first, add at the end) would skip a growing run of them on every
+// getFirst. Entries are only appended and a removed one never comes back, so the hint stays
+// right until keys is rebuilt (compact, clear), which drops dead and resets it.
+func (m *TMap[K, V]) first() int {
+	x := m.x
+	if x == nil || x.dead == nil {
+		return 0
+	}
+	i := int(x.head)
+	for i < len(m.keys) && x.dead[i] {
+		i++
+	}
+	x.head = int32(i)
+	return i
+}
 
 func newTMap_[K comparable, V any](kc *tconv_[K], vc *tconv_[V]) *TMap[K, V] {
 	return &TMap[K, V]{kc: kc, vc: vc}
@@ -292,6 +312,7 @@ func (m *TMap[K, V]) removeAt(i int32) V {
 	}
 	if x.dead == nil {
 		x.dead = make([]bool, len(m.keys), cap(m.keys))
+		x.head = 0
 	}
 	x.dead[i] = true
 	m.keys[i] = zk
@@ -325,7 +346,7 @@ func (m *TMap[K, V]) compact() {
 		m.keys[i], m.vals[i] = zk, zv
 	}
 	m.keys, m.vals = m.keys[:j], m.vals[:j]
-	m.x.dead, m.x.ndead = nil, 0
+	m.x.dead, m.x.ndead, m.x.head = nil, 0, 0
 	if m.x.idx != nil {
 		m.reindex()
 	}
@@ -343,7 +364,7 @@ func (m *TMap[K, V]) clear() {
 	m.keys, m.vals = m.keys[:0], m.vals[:0]
 	m.live = 0
 	if m.x != nil {
-		m.x.dead, m.x.idx, m.x.ndead = nil, nil, 0
+		m.x.dead, m.x.idx, m.x.ndead, m.x.head = nil, nil, 0, 0
 		m.x.hs, m.x.slots = m.x.hs[:0], nil
 	}
 }
@@ -378,7 +399,7 @@ func (m *TMap[K, V]) computeIfAbsent_f(k K, f func(any) any) V {
 }
 
 // each is the cursor of a for-each loop over the entries (keys, values) of the map.
-func (m *TMap[K, V]) each() tmapEach_[K, V] { return tmapEach_[K, V]{m: m} }
+func (m *TMap[K, V]) each() tmapEach_[K, V] { return tmapEach_[K, V]{m: m, i: m.first()} }
 
 type tmapEach_[K comparable, V any] struct {
 	m *TMap[K, V]
@@ -462,7 +483,7 @@ func (s *TSet[K]) remove(k K) bool {
 	return true
 }
 
-func (s *TSet[K]) each() tsetEach_[K] { return tsetEach_[K]{m: &s.TMap} }
+func (s *TSet[K]) each() tsetEach_[K] { return tsetEach_[K]{m: &s.TMap, i: s.first()} }
 
 type tsetEach_[K comparable] struct {
 	m *TMap[K, struct{}]
@@ -602,7 +623,7 @@ func (it *tmapIter_[K, V]) remove() {
 	}
 	// Live positions before the removed one: where the next element is if the table compacts.
 	live := 0
-	for j := 0; j < int(it.last); j++ {
+	for j := it.m.first(); j < int(it.last); j++ {
 		if !it.m.isDead(j) {
 			live++
 		}
@@ -655,7 +676,7 @@ func (v *tcollBase_[K, V]) size() int32   { return v.m.live }
 func (v *tcollBase_[K, V]) isEmpty() bool { return v.m.live == 0 }
 func (v *tcollBase_[K, V]) clear()        { v.m.clear() }
 func (v *tcollBase_[K, V]) iterator() Iterator {
-	return &tmapIter_[K, V]{m: v.m, out: v.out}
+	return &tmapIter_[K, V]{m: v.m, i: v.m.first(), out: v.out}
 }
 func (v *tcollBase_[K, V]) toArray_0() []any {
 	out := make([]any, 0, v.m.live)
