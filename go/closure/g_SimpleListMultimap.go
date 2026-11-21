@@ -48,7 +48,7 @@ func (this *SimpleListMultimap[K, V]) put(key K, value V) *SimpleListMultimap[K,
 	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
 	var values ListOf[V] = this.map__.get(key)
 	if values == nil {
-		values = icast_List(new_ArrayList_0().self())
+		values = new_ArrayList_0()
 		this.map__.put(key, values)
 	}
 	values.add(boxT_(value))

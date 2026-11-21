@@ -178,7 +178,7 @@ func Compiler_createFromErrorManager(errorManager ErrorManager) *Compiler {
 
 func (this *Compiler) setErrorManager(errorManager ErrorManager) {
 	Preconditions_checkNotNull_Object_Object_T(errorManager, "the error manager cannot be null")
-	this.errorManager = icast_ErrorManager(new_ThreadSafeDelegatingErrorManager(errorManager).self())
+	this.errorManager = new_ThreadSafeDelegatingErrorManager(errorManager)
 }
 
 func (this *Compiler) createMessageFormatter() MessageFormatter {
@@ -211,7 +211,7 @@ func (this *Compiler) initOptions(options *CompilerOptions) {
 		} else {
 			var builder *TSetBuilder[SortingErrorManager_ErrorReportGenerator] = newTSetBuilder_(tce_SortingErrorManager_ErrorReportGenerator)
 			builder.add(SortingErrorManager_ErrorReportGenerator(new_PrintStreamErrorReportGenerator(this.createMessageFormatter(), this.outStream, options.getSummaryDetailLevel()))).addAll(Iterable(options.getExtraReportGenerators().asList()))
-			this.setErrorManager(icast_ErrorManager(new_SortingErrorManager(builder.build()).self()))
+			this.setErrorManager(new_SortingErrorManager(builder.build()))
 		}
 	}
 	if options.getSkipNonTranspilationPasses() {
@@ -234,7 +234,7 @@ func (this *Compiler) initOptions(options *CompilerOptions) {
 		options.setUseTypesForOptimization(false)
 	}
 	if options.assumeForwardDeclaredForMissingTypes() {
-		this.forwardDeclaredTypes = icast_Set(obj_(new_Compiler_1(this)))
+		this.forwardDeclaredTypes = new_Compiler_1(this)
 	}
 	this.initWarningsGuard(options.getWarningsGuard())
 	if this.isDebugLoggingEnabled() {
@@ -476,7 +476,7 @@ func (this *Compiler) initChunks(externs ListOf[*SourceFile_jscomp], chunks List
 	it_1 := foreach_(externs)
 	for it_1.next() {
 		var file *SourceFile_jscomp = cast_[*SourceFile_jscomp](it_1.v)
-		this.externs.add(cast_[*CompilerInput](new_CompilerInput_SourceFile_boolean(file, true)))
+		this.externs.add(new_CompilerInput_SourceFile_boolean(file, true))
 	}
 	var chunkGraphOutcome *Outcome_base[*JSChunkGraph] = JSChunkGraph_create(chunks)
 	if chunkGraphOutcome.isErr() {
@@ -1497,7 +1497,7 @@ func (this *Compiler) parseInputs() Node {
 			this.stopTracer(tracer, PassNames_PARSE_INPUTS)
 		}()
 		if this.options_.getNumParallelThreads() > 1 {
-			new_PrebuildAst(this.up_AbstractCompiler(), this.options_.getNumParallelThreads()).prebuild(icast_Iterable(any(this.externs.asList())))
+			new_PrebuildAst(this.up_AbstractCompiler(), this.options_.getNumParallelThreads()).prebuild(this.externs.asList())
 		}
 		it_2 := this.externs.each()
 		for it_2.next() {
@@ -1634,7 +1634,7 @@ func (this *Compiler) orderInputs() {
 	this.maybeDoThreadedParsing()
 	var originalInputs *JTList[*CompilerInput] = jimmutableListCopyOf_(jtc_p_CompilerInput, this.chunkGraph.getAllInputs())
 	if this.tracker != nil {
-		this.tracker.recordPrePruningInputCount(Iterable(originalInputs.asList()), icast_Iterable(any(this.externs.asList())))
+		this.tracker.recordPrePruningInputCount(Iterable(originalInputs.asList()), this.externs.asList())
 	}
 	this.markExterns(originalInputs)
 	var staleInputs bool = false
@@ -2197,7 +2197,7 @@ func (this *Compiler) getChangeTracker_impl() *ChangeTracker {
 
 func (this *Compiler) addIndexProvider_impl(indexProvider IndexProvider) {
 	var type_ ClassOf[any] = indexProvider.getType()
-	if mapPut_(tc_IndexProvider, this.indexProvidersByType, type_, icast_IndexProvider(indexProvider)) != nil {
+	if mapPut_(tc_IndexProvider, this.indexProvidersByType, type_, indexProvider) != nil {
 		panic(new_IllegalStateException_String(("A provider is already registered for index of type " + sstr_(type_.getSimpleName()))).self())
 	}
 }
@@ -3034,7 +3034,7 @@ func (this *Compiler) restoreFromState(compilerState *JSCompilerStateProto) {
 	this.typeCheckingHasRun = compilerState.getTypeCheckingHasRun()
 	this.scriptNodeByFilename.clear()
 	this.hasRegExpGlobalReferencesField = compilerState.getHasRegExpGlobalReferences()
-	it_1 := foreach_(icast_ProtocolStringList(compilerState.getInjectedLibrariesList()))
+	it_1 := foreach_(ProtocolStringList(compilerState.getInjectedLibrariesList()))
 	for it_1.next() {
 		var library string = str_(it_1.v)
 		this.getRuntimeJsLibManager().recordLibraryInjected(library)
@@ -3091,7 +3091,7 @@ func (this *Compiler) saveState() []int8 {
 		var stateProto *JSCompilerStateProto = cast_[*JSCompilerStateProto](this.getCompilerStateProtoBuilder().build())
 		this.stopTracer(tracer, "serializeCompilerState")
 		tracer = this.newTracer("serializeTypedAst")
-		var typedAstList ListOf[[]int8] = icast_List(new_ArrayList_0().self())
+		var typedAstList ListOf[[]int8] = new_ArrayList_0()
 		SerializeTypedAstPass_createFromConsumer(this.up_AbstractCompiler(), Consumer[[]int8](func(p0 []int8) { typedAstList.add(p0) }), SerializationOptions_builder().setRuntimeLibraries(jtlistEmptyImm_(jtc_string)).setIncludeDebugInfo(this.getOptions().shouldSerializeExtraDebugInfo()).build()).process_2(this.externsRoot, this.jsRoot)
 		this.stopTracer(tracer, "serializeTypedAst")
 		var typedAsts []int8 = cast_[[]int8](Iterables_getOnlyElement(Iterable(typedAstList)))
@@ -3208,7 +3208,7 @@ func (this *Compiler) deserializeCompilerState(state []int8) {
 	this.typedAstFilesystem = deserializedAst.getFilesystem()
 	var externFiles *JTMap[string, *SourceFile_jscomp] = externFilesBuilder.buildOrThrow()
 	var codeFiles *JTMap[string, *SourceFile_jscomp] = codeFilesBuilder.buildOrThrow()
-	it_10 := foreach_(icast_ProtocolStringList(stateProto.getExternsList()))
+	it_10 := foreach_(ProtocolStringList(stateProto.getExternsList()))
 	for it_10.next() {
 		var externName string = str_(it_10.v)
 		if externName == this.SYNTHETIC_EXTERNS_FILE.getName() {
@@ -3228,7 +3228,7 @@ func (this *Compiler) deserializeCompilerState(state []int8) {
 	}
 	for i := int32(0); i < chunks.size(); i++ {
 		var chunkProto *ChunkProto = stateProto.getChunks(i)
-		it_13 := foreach_(icast_ProtocolStringList(chunkProto.getInputIdsList()))
+		it_13 := foreach_(ProtocolStringList(chunkProto.getInputIdsList()))
 		for it_13.next() {
 			var inputId string = str_(it_13.v)
 			var src *SourceFile_jscomp = codeFiles.get(inputId)
