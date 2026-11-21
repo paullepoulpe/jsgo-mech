@@ -191,13 +191,13 @@ func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode N
 		{
 			var child Node = valueNode.getFirstChild()
 			for ; child != 0; child = child.getNext() {
-				switch child.getToken() {
-				case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
-				case Token_rhino_COMPUTED_PROP:
+				switch child.ns_().token {
+				case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
+				case tokOrd1_COMPUTED_PROP:
 					if !this.canMoveValue(scope, child.getFirstChild()) || !this.canMoveValue(scope, child.getLastChild()) {
 						return false
 					}
-				case Token_rhino_STRING_KEY, Token_rhino_OBJECT_SPREAD:
+				case tokOrd1_STRING_KEY, tokOrd1_OBJECT_SPREAD:
 					if !this.canMoveValue(scope, child.getOnlyChild()) {
 						return false
 					}

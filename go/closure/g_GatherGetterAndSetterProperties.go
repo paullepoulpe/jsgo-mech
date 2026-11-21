@@ -72,12 +72,12 @@ func (this *GatherGetterAndSetterProperties_GatherCallback) record(property stri
 }
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_GETTER_DEF:
+	switch n.ns_().token {
+	case tokOrd1_GETTER_DEF:
 		this.recordGetterDef(n)
-	case Token_rhino_SETTER_DEF:
+	case tokOrd1_SETTER_DEF:
 		this.recordSetterDef(n)
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		if NodeUtil_isObjectDefinePropertyDefinition(n) {
 			this.visitDefineProperty(n)
 		} else if NodeUtil_isObjectDefinePropertiesDefinition(n) || NodeUtil_isObjectCreateWithPropertiesDefinition(n) {

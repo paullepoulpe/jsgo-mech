@@ -52,8 +52,8 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 	var mode *FindExportableNodes_Mode = nil
 	var export Optional[string] = Optional_empty[string]()
 	var context Node = 0
-	switch n.getToken() {
-	case Token_rhino_FUNCTION, Token_rhino_CLASS:
+	switch n.ns_().token {
+	case tokOrd1_FUNCTION, tokOrd1_CLASS:
 		if parent.isScript() {
 			export = Optional_of[string](NodeUtil_getName(n)).filter(Predicate[string](func(s string) bool {
 				return !String_isEmpty(s)
@@ -61,7 +61,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 			context = n
 			mode = FindExportableNodes_Mode_EXPORT
 		}
-	case Token_rhino_ASSIGN:
+	case tokOrd1_ASSIGN:
 		var grandparent Node = parent.getParent()
 		var child Node = n.getFirstChild()
 		if parent.isExprResult() && !n.getLastChild().isAssign() {
@@ -76,7 +76,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 				mode = FindExportableNodes_Mode_EXTERN
 			}
 		}
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		if parent.isScript() {
 			if n.getFirstChild().hasChildren() && !n.getFirstFirstChild().isAssign() {
 				export = Optional_of[string](n.getFirstChild().getString())
@@ -84,7 +84,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 				mode = FindExportableNodes_Mode_EXPORT
 			}
 		}
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		{
 			if this.allowLocalExports && parent.isExprResult() {
 				export = Optional_of[string](n.getString())
@@ -92,7 +92,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 			}
 			break
 		}
-	case Token_rhino_MEMBER_FIELD_DEF:
+	case tokOrd1_MEMBER_FIELD_DEF:
 		if n.isStaticMember() {
 			var classNode Node = parent.getParent()
 			var className string = NodeUtil_getName(classNode)
@@ -107,7 +107,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 			export = Optional_of[string](n.getString())
 			mode = FindExportableNodes_Mode_EXTERN
 		}
-	case Token_rhino_MEMBER_FUNCTION_DEF:
+	case tokOrd1_MEMBER_FUNCTION_DEF:
 		if parent.getParent().isClass() {
 			var methodOwnerName Optional[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(parent.getParent()))
 			if methodOwnerName.isEmpty() {
@@ -123,7 +123,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 			return
 		}
 		fallthrough
-	case Token_rhino_STRING_KEY, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
+	case tokOrd1_STRING_KEY, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 		if this.allowLocalExports {
 			export = Optional_of[string](n.getString())
 			mode = FindExportableNodes_Mode_EXTERN

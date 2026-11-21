@@ -28,39 +28,39 @@ func new_PeepholeSubstituteAlternateSyntax(late bool) *PeepholeSubstituteAlterna
 
 func (this *PeepholeSubstituteAlternateSyntax) optimizeSubtree_impl(node Node) Node {
 	return func() Node {
-		switch node.getToken() {
-		case Token_rhino_ASSIGN_SUB:
+		switch node.ns_().token {
+		case tokOrd1_ASSIGN_SUB:
 			return this.reduceSubstractionAssignment(node)
-		case Token_rhino_TRUE, Token_rhino_FALSE:
+		case tokOrd1_TRUE, tokOrd1_FALSE:
 			return this.reduceTrueFalse(node)
-		case Token_rhino_NEW:
+		case tokOrd1_NEW:
 			var result Node = this.tryFoldStandardConstructors(node)
 			if !result.isCall() {
 				return result
 			}
 			return this.tryReduceCall(result)
-		case Token_rhino_CALL:
+		case tokOrd1_CALL:
 			return this.tryReduceCall(node)
-		case Token_rhino_RETURN:
+		case tokOrd1_RETURN:
 			return this.tryReduceReturn(node)
-		case Token_rhino_EXPR_RESULT:
+		case tokOrd1_EXPR_RESULT:
 			return func() Node {
 				if node.getFirstChild().isComma() {
 					return this.trySplitComma(node)
 				}
 				return node
 			}()
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			return this.tryReplaceUndefined(node)
-		case Token_rhino_ARRAYLIT:
+		case tokOrd1_ARRAYLIT:
 			return this.tryMinimizeArrayLiteral(node)
-		case Token_rhino_GETPROP:
+		case tokOrd1_GETPROP:
 			return this.tryMinimizeWindowRefs(node)
-		case Token_rhino_TEMPLATELIT:
+		case tokOrd1_TEMPLATELIT:
 			return this.tryTurnTemplateStringsToStrings(node)
-		case Token_rhino_AND, Token_rhino_OR, Token_rhino_BITOR, Token_rhino_BITXOR, Token_rhino_BITAND, Token_rhino_COALESCE:
+		case tokOrd1_AND, tokOrd1_OR, tokOrd1_BITOR, tokOrd1_BITXOR, tokOrd1_BITAND, tokOrd1_COALESCE:
 			return this.tryRotateAssociativeOperator(node)
-		case Token_rhino_MUL:
+		case tokOrd1_MUL:
 			return func() Node {
 				if this.mayHaveSideEffects(node) {
 					return node
@@ -268,14 +268,14 @@ func (this *PeepholeSubstituteAlternateSyntax) tryReduceCall(node Node) Node {
 func (this *PeepholeSubstituteAlternateSyntax) tryReduceReturn(n Node) Node {
 	var result Node = n.getFirstChild()
 	if result != 0 {
-		switch result.getToken() {
-		case Token_rhino_VOID:
+		switch result.ns_().token {
+		case tokOrd1_VOID:
 			var operand Node = result.getFirstChild()
 			if !this.mayHaveSideEffects(operand) {
 				n.removeFirstChild()
 				this.reportChangeToEnclosingScope(n)
 			}
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			var name string = result.getString()
 			if name == "undefined" {
 				n.removeFirstChild()
@@ -349,14 +349,14 @@ func PeepholeSubstituteAlternateSyntax_isSafeToFoldArrayConstructor(arg Node) *P
 	} else if arg.getNext() != 0 {
 		action = PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS
 	} else {
-		switch arg.getToken() {
-		case Token_rhino_STRINGLIT:
+		switch arg.ns_().token {
+		case tokOrd1_STRINGLIT:
 			action = PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS
-		case Token_rhino_NUMBER:
+		case tokOrd1_NUMBER:
 			if arg.getDouble() == 0 {
 				action = PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITHOUT_ARGS
 			}
-		case Token_rhino_ARRAYLIT:
+		case tokOrd1_ARRAYLIT:
 			action = PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS
 		default:
 		}
@@ -388,8 +388,8 @@ func (this *PeepholeSubstituteAlternateSyntax) reduceSubstractionAssignment(n No
 
 func (this *PeepholeSubstituteAlternateSyntax) reduceTrueFalse(n Node) Node {
 	if this.late {
-		switch n.getParent().getToken() {
-		case Token_rhino_EQ, Token_rhino_GT, Token_rhino_GE, Token_rhino_LE, Token_rhino_LT, Token_rhino_NE:
+		switch n.getParent().ns_().token {
+		case tokOrd1_EQ, tokOrd1_GT, tokOrd1_GE, tokOrd1_LE, tokOrd1_LT, tokOrd1_NE:
 			var number Node = IR_number(float64(func() int32 {
 				if n.isTrue() {
 					return 1
