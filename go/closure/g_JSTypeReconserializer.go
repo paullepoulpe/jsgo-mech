@@ -95,9 +95,7 @@ func (this *JSTypeReconserializer) recordUnionType(type_ *UnionType) *JSTypeReco
 		panic(new_NullPointerException_0())
 	}
 	var altRecords *TSet[*JSTypeReconserializer_SeenTypeRecord] = newTSet_(tc_p_JSTypeReconserializer_SeenTypeRecord)
-	it_1 := type_.getAlternates().each()
-	for it_1.next() {
-		var altType *JSType = it_1.v
+	for altType := range type_.getAlternates().All() {
 		var alt *JSTypeReconserializer_SeenTypeRecord = this.recordType(altType)
 		if alt.unionMembers == nil {
 			altRecords.Add(alt)
@@ -109,9 +107,7 @@ func (this *JSTypeReconserializer) recordUnionType(type_ *UnionType) *JSTypeReco
 		return cast_[*JSTypeReconserializer_SeenTypeRecord](Iterables_getOnlyElement(Iterable(altRecords.asSet())))
 	}
 	var alternateIds *ImmutableSet_Builder[*ColorId] = immutableSetBuilder_(tch_p_ColorId)
-	it_3 := altRecords.each()
-	for it_3.next() {
-		var altRecord *JSTypeReconserializer_SeenTypeRecord = it_3.v
+	for altRecord := range altRecords.All() {
 		alternateIds.add(altRecord.colorId)
 	}
 	var unionId *ColorId = ColorId_union(alternateIds.build())
@@ -251,9 +247,7 @@ func (this *JSTypeReconserializer) seedCachesWithAxiomaticTypes() {
 	if !this.seenTypeRecords.IsEmpty() {
 		panic(new_IllegalStateException_0())
 	}
-	it_1 := TypePointers_OFFSET_TO_AXIOMATIC_COLOR.each()
-	for it_1.next() {
-		var axiomatic *Color = it_1.v
+	for axiomatic := range TypePointers_OFFSET_TO_AXIOMATIC_COLOR.All() {
 		var index int32 = this.seenTypeRecords.Len()
 		var record *JSTypeReconserializer_SeenTypeRecord = new_JSTypeReconserializer_SeenTypeRecord(axiomatic.getId(), index)
 		this.seenTypeRecords.Put(axiomatic.getId(), record)
@@ -275,9 +269,7 @@ func (this *JSTypeReconserializer) checkValidLinearTime() {
 		return
 	}
 	var totalTypeCount int32 = this.seenTypeRecords.Len()
-	it_1 := this.seenTypeRecords.each()
-	for it_1.next() {
-		var seen *JSTypeReconserializer_SeenTypeRecord = it_1.v
+	for seen := range this.seenTypeRecords.Values() {
 		var offset int32 = seen.pointer
 		if offset < 0 {
 			panic(new_IllegalStateException_0())
@@ -305,9 +297,7 @@ func (this *JSTypeReconserializer) generateTypePool() *TypePool {
 		}))
 	}
 	this.state = JSTypeReconserializer_State_GENERATING_POOL
-	it_1 := this.seenTypeRecords.each()
-	for it_1.next() {
-		var seen *JSTypeReconserializer_SeenTypeRecord = it_1.v
+	for seen := range this.seenTypeRecords.Values() {
 		if StandardColors_AXIOMATIC_COLORS.Has(seen.colorId) {
 			if !TypePointers_isAxiomatic(seen.pointer) {
 				panic(new_IllegalStateException_String(Strings_lenientFormat("Missing .type for SeenTypeRecord %s", []any{seen})))

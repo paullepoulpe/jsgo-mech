@@ -71,9 +71,7 @@ func (this *ExternExportsPass) process_2(externs Node, root Node) {
 		}
 	}())
 	sorted.asSet().addAll(Collection(sliceViewP_(tc_p_ExternExportsPass_Export, this.exports)))
-	it_1 := sorted.each()
-	for it_1.next() {
-		var export *ExternExportsPass_Export = it_1.v
+	for export := range sorted.All() {
 		export.generateExterns()
 	}
 	this.setGeneratedExternsOnCompiler()

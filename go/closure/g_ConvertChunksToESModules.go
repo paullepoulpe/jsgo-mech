@@ -408,9 +408,7 @@ func (this *ConvertChunksToESModules_FindCrossChunkReferences) visitScript(t *No
 		var namesToImportByChunk MapOf[*JSChunk, SetOf[string]] = this.outer_.crossChunkImports.ComputeIfAbsent(chunk, Function[*JSChunk, Map](func(k *JSChunk) Map {
 			return Map(new_LinkedHashMap())
 		}))
-		it_1 := chunkDependencies.each()
-		for it_1.next() {
-			var dependency *JSChunk = it_1.v
+		for dependency := range chunkDependencies.All() {
 			Map_computeIfAbsent(namesToImportByChunk, obj_(dependency), Function[any, any](func(k_ any) any {
 				var k *JSChunk = cast_[*JSChunk](k_)
 				_ = k

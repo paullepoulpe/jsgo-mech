@@ -171,9 +171,7 @@ func (this *LinkedDirectedGraph[N, E]) getEdges_2_impl(n1 N, n2 N) ListOf[*Linke
 
 func (this *LinkedDirectedGraph[N, E]) getEdges_impl() ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] {
 	var result *TList[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] = newTList_(tc_p_LinkedDirectedGraph_LinkedDiGraphEdge_N__E_[N, E]())
-	it_1 := this.nodes_.each()
-	for it_1.next() {
-		var node *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = it_1.v
+	for node := range this.nodes_.Values() {
 		result.asList().addAll(Collection(node.getOutEdges()))
 	}
 	return Collections_unmodifiableList(result.asList())
@@ -287,9 +285,7 @@ func (this *LinkedDirectedGraph[N, E]) getDirectedSuccNodesDiGraphNode_impl(dNod
 
 func (this *LinkedDirectedGraph[N, E]) getGraphvizEdges() *TList[GraphvizGraph_GraphvizEdge] {
 	var edgeList *TList[GraphvizGraph_GraphvizEdge] = newTList_(tc_GraphvizGraph_GraphvizEdge)
-	it_1 := this.nodes_.each()
-	for it_1.next() {
-		var node *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = it_1.v
+	for node := range this.nodes_.Values() {
 		for edge := range elemsAs_[DiGraph_DiGraphEdge[N, E]](node.getOutEdges()) {
 			edgeList.add(icast_GraphvizGraph_GraphvizEdge(to_LinkedDirectedGraph_LinkedDiGraphEdge[N, E](edge).self()))
 		}
@@ -299,9 +295,7 @@ func (this *LinkedDirectedGraph[N, E]) getGraphvizEdges() *TList[GraphvizGraph_G
 
 func (this *LinkedDirectedGraph[N, E]) getGraphvizNodes() []GraphvizGraph_GraphvizNode {
 	var nodeList []GraphvizGraph_GraphvizNode = make([]GraphvizGraph_GraphvizNode, 0, this.nodes_.Len())
-	it_1 := this.nodes_.each()
-	for it_1.next() {
-		var node *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = it_1.v
+	for node := range this.nodes_.Values() {
 		nodeList = append(nodeList, icast_GraphvizGraph_GraphvizNode(node.self()))
 	}
 	return nodeList

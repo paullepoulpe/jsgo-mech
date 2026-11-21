@@ -39,9 +39,7 @@ func (this *ReplaceMessages) createMsgPropertiesNode(message *JsMessage, msgOpti
 	msgPropsBuilder.addString("key", message.getKey())
 	if msgOptions.isIcuTemplate() && !message.canonicalPlaceholderNames().IsEmpty() {
 		var namesArrayLit Node = this.astFactory_.createArraylit([]Node{})
-		it_1 := message.canonicalPlaceholderNames().each()
-		for it_1.next() {
-			var name string = it_1.v
+		for name := range message.canonicalPlaceholderNames().All() {
 			namesArrayLit.addChildToBack(this.astFactory_.createString(name))
 		}
 		msgPropsBuilder.addNode("icu_placeholder_names", namesArrayLit)
@@ -115,9 +113,7 @@ func (this *ReplaceMessages) createNodeForGenderedMsgString(message *JsMessage, 
 	var type_ AstFactory_Type = AstFactory_type_Node(nodeToReplace)
 	var uniqueId string = this.compiler_.getUniqueIdSupplier().getUniqueId(this.compiler_.getInput(NodeUtil_getInputId(nodeToReplace)))
 	var placeholderMapIds map[string]string = map[string]string{}
-	it_1 := placeholderMap.each()
-	for it_1.next() {
-		var placeholderName string = it_1.k
+	for placeholderName := range placeholderMap.Keys() {
 		var placeholderId string = (sstr_(placeholderName) + sstr_(uniqueId))
 		paramList.addChildToBack(this.astFactory_.createName(placeholderId, type_))
 		placeholderMapIds[placeholderName] = placeholderId
@@ -134,9 +130,7 @@ func (this *ReplaceMessages) createNodeForGenderedMsgString(message *JsMessage, 
 	function.setColor(nodeToReplace.getColor())
 	this.compiler_.reportChangeToChangeScope(function)
 	var callNode Node = this.astFactory_.createCall(function, type_, []Node{})
-	it_3 := placeholderMap.each()
-	for it_3.next() {
-		var node Node = it_3.v
+	for node := range placeholderMap.Values() {
 		callNode.addChildToBack(node.cloneTree())
 	}
 	return Outcome_base_ok_Object[Node](callNode)
@@ -279,9 +273,7 @@ func (this *ReplaceMessages) createNodeForMsgString(options *ReplaceMessages_Msg
 
 func ReplaceMessages_mergeStringParts(parts *TList[JsMessage_Part]) *[]JsMessage_Part {
 	var result *[]JsMessage_Part = &[]JsMessage_Part{}
-	it_1 := parts.each()
-	for it_1.next() {
-		var part JsMessage_Part = it_1.v
+	for part := range parts.All() {
 		if part.isPlaceholder() {
 			*result = append(*result, part)
 		} else {
