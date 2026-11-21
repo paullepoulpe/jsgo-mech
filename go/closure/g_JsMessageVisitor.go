@@ -94,7 +94,9 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 		if (node.isQuotedStringKey() || !node.hasChildren()) || parent.isObjectPattern() {
 			return
 		}
-		Preconditions_checkState_boolean_Object_H(parent.isObjectLit(), parent)
+		if !parent.isObjectLit() {
+			Preconditions_checkState_boolean_Object_H(false, parent)
+		}
 		possiblyObfuscatedMessageKey = node.getString()
 		originalMessageKey = node.getOriginalName()
 		msgNode = node.getFirstChild()

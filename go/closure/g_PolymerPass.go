@@ -201,7 +201,9 @@ func PolymerPass_maybeGetTsicklePropTypesIfBlock(node Node) Node {
 		return 0
 	}
 	var block Node = condition.getNext()
-	Preconditions_checkState_boolean_String_Object_H(((block != 0) && block.isBlock()), "Expected block but got %s", block)
+	if !((block != 0) && block.isBlock()) {
+		Preconditions_checkState_boolean_String_Object_H(false, "Expected block but got %s", block)
+	}
 	return block
 }
 

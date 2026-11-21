@@ -192,7 +192,9 @@ func Color_createUnion(elements *JTSet[*Color]) *Color {
 }
 
 func (this *Color) isPrimitive() bool {
-	Preconditions_checkState_boolean_Object(!this.isUnion(), this)
+	if this.isUnion() {
+		Preconditions_checkState_boolean_Object(false, this)
+	}
 	return StandardColors_PRIMITIVE_COLORS.containsKey(this.getId())
 }
 
@@ -369,22 +371,34 @@ func (this *Color_Builder) buildInternal() *Color {
 
 func (this *Color_Builder) build() *Color {
 	var result *Color = this.buildInternal()
-	Preconditions_checkState_boolean_Object(result.getUnionElements().isEmpty(), result)
-	Preconditions_checkState_boolean_Object((result.getBoxId() == nil), result)
-	Preconditions_checkState_boolean_Object(!StandardColors_AXIOMATIC_COLORS.containsKey(result.getId()), result)
+	if !result.getUnionElements().isEmpty() {
+		Preconditions_checkState_boolean_Object(false, result)
+	}
+	if !(result.getBoxId() == nil) {
+		Preconditions_checkState_boolean_Object(false, result)
+	}
+	if StandardColors_AXIOMATIC_COLORS.containsKey(result.getId()) {
+		Preconditions_checkState_boolean_Object(false, result)
+	}
 	return result
 }
 
 func (this *Color_Builder) buildUnion() *Color {
 	var result *Color = this.buildInternal()
-	Preconditions_checkState_boolean_Object((result.getUnionElements().size() > 1), result)
-	Preconditions_checkState_boolean_Object((result.getBoxId() == nil), result)
+	if !(result.getUnionElements().size() > 1) {
+		Preconditions_checkState_boolean_Object(false, result)
+	}
+	if !(result.getBoxId() == nil) {
+		Preconditions_checkState_boolean_Object(false, result)
+	}
 	return result
 }
 
 func (this *Color_Builder) buildAxiomatic() *Color {
 	Preconditions_checkState_boolean_Object((StandardColors_AXIOMATIC_COLORS == nil), "StandardColors are all defined")
 	var result *Color = this.buildInternal()
-	Preconditions_checkState_boolean_Object(result.getUnionElements().isEmpty(), result)
+	if !result.getUnionElements().isEmpty() {
+		Preconditions_checkState_boolean_Object(false, result)
+	}
 	return result
 }

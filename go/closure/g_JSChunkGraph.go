@@ -39,7 +39,9 @@ func JSChunkGraph_create(chunksInDepOrder ListT[*JSChunk]) *Outcome_base[*JSChun
 	var chunks []*JSChunk = make([]*JSChunk, chunksInDepOrder.size())
 	for chunkIndex := int32(0); chunkIndex < int32(len(chunks)); chunkIndex++ {
 		var chunk *JSChunk = chunksInDepOrder.get_t(chunkIndex)
-		Preconditions_checkState_boolean_String_Object((chunk.getIndex() == -1), "Chunk index already set: %s", chunk)
+		if !(chunk.getIndex() == -1) {
+			Preconditions_checkState_boolean_String_Object(false, "Chunk index already set: %s", chunk)
+		}
 		chunk.setIndex(chunkIndex)
 		chunks[chunkIndex] = chunk
 	}
@@ -54,7 +56,9 @@ func JSChunkGraph_initChunksByDepth(chunks []*JSChunk) *Outcome_base[ListT[ListT
 	var tmpChunksByDepth *JTList[ListT[*JSChunk]] = jnewTList_(tc_ListT_p_JSChunk_)
 	for chunkIndex := int32(0); chunkIndex < int32(len(chunks)); chunkIndex++ {
 		var chunk *JSChunk = chunks[chunkIndex]
-		Preconditions_checkState_boolean_String_Object((chunk.getDepth() == -1), "Chunk depth already set: %s", chunk)
+		if !(chunk.getDepth() == -1) {
+			Preconditions_checkState_boolean_String_Object(false, "Chunk depth already set: %s", chunk)
+		}
 		var depth int32 = 0
 		it_2 := chunk.getDependencies().each()
 		for it_2.next() {
@@ -246,7 +250,9 @@ func (this *JSChunkGraph) getSmallestCoveringSubtree(parentTree *JSChunk, depend
 		minDependentChunkIndex = Math_min(minDependentChunkIndex, dependentIndex)
 		candidates.and(this.selfPlusTransitiveDeps[dependentIndex])
 	}
-	Preconditions_checkState_boolean_String_Object(!candidates.isEmpty(), "No common dependency found for %s", dependentChunks)
+	if candidates.isEmpty() {
+		Preconditions_checkState_boolean_String_Object(false, "No common dependency found for %s", dependentChunks)
+	}
 	var parentTreeIndex int32 = parentTree.getIndex()
 	var bestCandidateIndex int32 = parentTreeIndex
 	for candidateIndex := int32(candidates.previousSetBit(minDependentChunkIndex)); candidateIndex >= 0; candidateIndex = candidates.previousSetBit((candidateIndex - 1)) {

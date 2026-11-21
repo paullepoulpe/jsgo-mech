@@ -57,7 +57,9 @@ func (this *ConcretizeStaticInheritanceForInlining) copyStaticMembers(superClass
 	it_1 := superClass.staticMembers.each()
 	for it_1.next() {
 		var staticMember Node = it_1.v
-		Preconditions_checkState_boolean_Object_H(staticMember.isAssign(), staticMember)
+		if !staticMember.isAssign() {
+			Preconditions_checkState_boolean_Object_H(false, staticMember)
+		}
 		var memberName string = staticMember.getFirstChild().getString()
 		if superClass.definedProperties.contains(memberName) {
 			continue

@@ -21,7 +21,9 @@ func (this *LiveVariablesAnalysis) up_DataFlowAnalysis() *DataFlowAnalysis[Node,
 
 func (this *LiveVariablesAnalysis) init_LiveVariablesAnalysis(cfg *ControlFlowGraph[Node], jsScope *Scope, jsScopeChild *Scope, compiler *AbstractCompiler, scopeCreator ScopeCreator, allVarsDeclaredInFunction *NodeUtil_AllVarsDeclaredInFunction) {
 	this.DataFlowAnalysis.init_DataFlowAnalysis(cfg)
-	Preconditions_checkState_boolean_Object(jsScope.isFunctionScope(), jsScope)
+	if !jsScope.isFunctionScope() {
+		Preconditions_checkState_boolean_Object(false, jsScope)
+	}
 	this.jsScope = jsScope
 	this.jsScopeChild = jsScopeChild
 	this.escaped = jnewTSet_(tce_p_Var)
@@ -132,7 +134,9 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 						}
 					}
 				} else {
-					Preconditions_checkState_boolean_Object_H(c.isDestructuringLhs(), c)
+					if !c.isDestructuringLhs() {
+						Preconditions_checkState_boolean_Object_H(false, c)
+					}
 					if !conditional {
 						NodeUtil_visitLhsNodesInNode(c, Consumer[Node](func(lhsNode Node) {
 							this.addToSetIfLocal(lhsNode, kill)
@@ -202,7 +206,9 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 }
 
 func (this *LiveVariablesAnalysis) addToSetIfLocal(node Node, set *BitSet) {
-	Preconditions_checkState_boolean_Object_H(node.isName(), node)
+	if !node.isName() {
+		Preconditions_checkState_boolean_Object_H(false, node)
+	}
 	var name string = node.getString()
 	var var_ *Var = this.allVarsInFn.get(name)
 	if var_ == nil {

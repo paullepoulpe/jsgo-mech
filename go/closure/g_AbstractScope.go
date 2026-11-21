@@ -139,7 +139,9 @@ func (this *AbstractScope) isHoistScope() bool {
 }
 
 func (this *AbstractScope) checkRootScope() {
-	Preconditions_checkArgument_boolean_Object_H(((NodeUtil_createsScope(this.rootNode_) || this.rootNode_.isScript()) || this.rootNode_.isRoot()), this.rootNode_)
+	if !((NodeUtil_createsScope(this.rootNode_) || this.rootNode_.isScript()) || this.rootNode_.isRoot()) {
+		Preconditions_checkArgument_boolean_Object_H(false, this.rootNode_)
+	}
 }
 
 func (this *AbstractScope) untyped() *Scope {
