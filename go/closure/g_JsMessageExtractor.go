@@ -121,7 +121,7 @@ func (this *JsMessageExtractor_ExtractMessagesVisitor) processJsMessageDefinitio
 		this.processJsMessageDefinition_impl(p0)
 		return
 	}
-	this.self_.(interface{ processJsMessageDefinition_impl(JsMessageDefinition) }).processJsMessageDefinition_impl(p0)
+	this.self_.processJsMessageDefinition_impl(p0)
 }
 
 // processIcuTemplateDefinition: an object that is exactly a JsMessageExtractor_ExtractMessagesVisitor calls its processIcuTemplateDefinition_impl directly (post-flip); others dispatch.
@@ -130,5 +130,5 @@ func (this *JsMessageExtractor_ExtractMessagesVisitor) processIcuTemplateDefinit
 		this.processIcuTemplateDefinition_impl(p0)
 		return
 	}
-	this.self_.(interface{ processIcuTemplateDefinition_impl(IcuTemplateDefinition) }).processIcuTemplateDefinition_impl(p0)
+	this.self_.processIcuTemplateDefinition_impl(p0)
 }
