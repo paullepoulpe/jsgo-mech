@@ -938,7 +938,7 @@ func (this *SourceFile_CodeLoader_AtZip) toProtoLocationBuilder_impl(fileName st
 			return ""
 		}
 		return this.serializableCharset
-	}()).buildT_())
+	}()).buildLastT_())
 }
 
 const SourceFile_CodeLoader_AtZip_serialVersionUID int64 = 1
