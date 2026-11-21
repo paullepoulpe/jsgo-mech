@@ -1260,7 +1260,7 @@ func (this *JSDocInfo_TypeMapProperty) equalValues_impl(left_ any, right_ any) b
 	_ = right
 	var leftKeys SetOf[string] = left.keySet()
 	var rightKeys SetOf[string] = right.keySet()
-	if !equalsRR_(leftKeys, rightKeys) {
+	if !equalsDyn_(leftKeys, obj_(rightKeys)) {
 		return false
 	}
 	it_1 := foreach_(leftKeys)

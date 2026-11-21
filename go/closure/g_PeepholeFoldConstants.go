@@ -494,7 +494,7 @@ func (this *PeepholeFoldConstants) tryFoldAdjacentLiteralLeaves(n Node, left Nod
 		var foldIsTypeSafe bool = ((((rr != 0) && NodeUtil_isStringResult(rr)) || (((((rr != 0) && right.isStringLit()) && (rightGrandparent != 0)) && rightGrandparent.isAdd()) && NodeUtil_isStringResult(rightGrandparent.getSecondChild()))) || (rr == 0))
 		if foldIsTypeSafe {
 			var result string = (sstr_(left.getString()) + sstr_(NodeUtil_getStringValue(right).orElse("null")))
-			if equalsRRH_(rightParent.getSecondChild(), right) {
+			if equalsId_(rightParent.getSecondChild(), right) {
 				left.replaceWith(IR_string(result))
 				this.replace(rightParent, rightParent.getFirstChild().cloneTree_1(true))
 			} else {
@@ -634,7 +634,7 @@ func (this *PeepholeFoldConstants) performBigIntArithmeticOp(n Node, left Node, 
 		case tokOrd1_MUL:
 			return PeepholeFoldConstants_bigintNode(lVal.multiply(rVal), n)
 		case tokOrd1_DIV:
-			if !equalsRR_(rVal, BigInteger_ZERO) {
+			if !equalsBy_(rVal, obj_(BigInteger_ZERO), (*BigInteger).equals) {
 				return PeepholeFoldConstants_bigintNode(lVal.divide(rVal), n)
 			} else {
 				return 0
@@ -663,7 +663,7 @@ func (this *PeepholeFoldConstants) performBigIntArithmeticOp(n Node, left Node, 
 				return ret_2
 			}
 		case tokOrd1_MOD:
-			if !equalsRR_(rVal, BigInteger_ZERO) {
+			if !equalsBy_(rVal, obj_(BigInteger_ZERO), (*BigInteger).equals) {
 				return PeepholeFoldConstants_bigintNode(lVal.remainder(rVal), n)
 			} else {
 				return 0
@@ -681,28 +681,28 @@ func (this *PeepholeFoldConstants) performBigIntArithmeticOp(n Node, left Node, 
 	return func() Node {
 		switch n.ns_().token {
 		case tokOrd1_ADD:
-			if (lVal != nil) && equalsRR_(lVal, BigInteger_ZERO) {
+			if (lVal != nil) && equalsBy_(lVal, obj_(BigInteger_ZERO), (*BigInteger).equals) {
 				return right.cloneTree_1(true)
-			} else if (rVal != nil) && equalsRR_(rVal, BigInteger_ZERO) {
+			} else if (rVal != nil) && equalsBy_(rVal, obj_(BigInteger_ZERO), (*BigInteger).equals) {
 				return left.cloneTree_1(true)
 			}
 			return 0
 		case tokOrd1_SUB:
-			if (lVal != nil) && equalsRR_(lVal, BigInteger_ZERO) {
+			if (lVal != nil) && equalsBy_(lVal, obj_(BigInteger_ZERO), (*BigInteger).equals) {
 				return IR_neg(right.cloneTree_1(true))
-			} else if (rVal != nil) && equalsRR_(rVal, BigInteger_ZERO) {
+			} else if (rVal != nil) && equalsBy_(rVal, obj_(BigInteger_ZERO), (*BigInteger).equals) {
 				return left.cloneTree_1(true)
 			}
 			return 0
 		case tokOrd1_MUL:
-			if (lVal != nil) && equalsRR_(lVal, BigInteger_ONE) {
+			if (lVal != nil) && equalsBy_(lVal, obj_(BigInteger_ONE), (*BigInteger).equals) {
 				return right.cloneTree_1(true)
-			} else if (rVal != nil) && equalsRR_(rVal, BigInteger_ONE) {
+			} else if (rVal != nil) && equalsBy_(rVal, obj_(BigInteger_ONE), (*BigInteger).equals) {
 				return left.cloneTree_1(true)
 			}
 			return 0
 		case tokOrd1_DIV:
-			if (rVal != nil) && equalsRR_(rVal, BigInteger_ONE) {
+			if (rVal != nil) && equalsBy_(rVal, obj_(BigInteger_ONE), (*BigInteger).equals) {
 				return left.cloneTree_1(true)
 			}
 			return 0
@@ -1155,7 +1155,7 @@ func PeepholeFoldConstants_tryAbstractEqualityComparison(peepholeOptimization *A
 				var lvBig *BigInteger = peepholeOptimization.getSideEffectFreeBigIntValue(left)
 				return func() Tri {
 					if lvBig != nil {
-						return Tri_forBoolean(equalsRR_(lvBig, rvBig))
+						return Tri_forBoolean(equalsBy_(lvBig, obj_(rvBig), (*BigInteger).equals))
 					}
 					return Tri_UNKNOWN
 				}()
@@ -1172,7 +1172,7 @@ func PeepholeFoldConstants_tryAbstractEqualityComparison(peepholeOptimization *A
 				var rvBig *BigInteger = peepholeOptimization.getSideEffectFreeBigIntValue(right)
 				return func() Tri {
 					if rvBig != nil {
-						return Tri_forBoolean(equalsRR_(lvBig, rvBig))
+						return Tri_forBoolean(equalsBy_(lvBig, obj_(rvBig), (*BigInteger).equals))
 					}
 					return Tri_UNKNOWN
 				}()
@@ -1183,7 +1183,7 @@ func PeepholeFoldConstants_tryAbstractEqualityComparison(peepholeOptimization *A
 			var lv *BigInteger = peepholeOptimization.getSideEffectFreeBigIntValue(left)
 			var rv *BigInteger = peepholeOptimization.getSideEffectFreeBigIntValue(right)
 			if (lv != nil) && (rv != nil) {
-				return Tri_forBoolean(equalsRR_(lv, rv))
+				return Tri_forBoolean(equalsBy_(lv, obj_(rv), (*BigInteger).equals))
 			}
 			if (((leftValueType == NodeUtil_ValueType_NULL) || (leftValueType == NodeUtil_ValueType_VOID)) || (rightValueType == NodeUtil_ValueType_NULL)) || (rightValueType == NodeUtil_ValueType_VOID) {
 				return Tri_FALSE
@@ -1254,7 +1254,7 @@ func PeepholeFoldConstants_tryStrictEqualityComparison(peepholeOptimization *Abs
 			var lv *BigInteger = peepholeOptimization.getSideEffectFreeBigIntValue(left)
 			var rv *BigInteger = peepholeOptimization.getSideEffectFreeBigIntValue(right)
 			if (lv != nil) && (rv != nil) {
-				return Tri_forBoolean(equalsRR_(lv, rv))
+				return Tri_forBoolean(equalsBy_(lv, obj_(rv), (*BigInteger).equals))
 			}
 		default:
 			return Tri_UNKNOWN

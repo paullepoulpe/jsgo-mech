@@ -643,9 +643,9 @@ func (this *JSChunkGraph_DependencyManagementResult) equals(p0 any) bool {
 
 func (this *JSChunkGraph_DependencyManagementResult) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.orderedInputs_.asList())
-	h = h*31 + hash_(this.sorter_)
-	h = h*31 + Objects_hashCode(this.entryPointInputs_.asSet())
+	h = h*31 + objhashVia_(this.orderedInputs_.asList())
+	h = h*31 + objhashId_(this.sorter_)
+	h = h*31 + objhashDyn_(this.entryPointInputs_.asSet())
 	return h
 }
 
