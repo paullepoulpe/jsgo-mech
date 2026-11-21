@@ -179,8 +179,8 @@ func (this *ClosureRewriteModule) recordGoogDeclareLegacyNamespace() {
 
 func (this *ClosureRewriteModule) updateLegacyScriptNamespacesAndPrefixes(namespace string) {
 	this.legacyScriptNamespacesAndPrefixes.add(namespace)
-	for dot := int32(String_lastIndexOf(namespace, 46)); dot != -1; dot = String_lastIndexOf(namespace, 46) {
-		namespace = String_substring(namespace, 0, dot)
+	for dot := int32(strings.LastIndexByte(namespace, '.')); dot != -1; dot = int32(strings.LastIndexByte(namespace, '.')) {
+		namespace = namespace[:dot]
 		this.legacyScriptNamespacesAndPrefixes.add(namespace)
 	}
 }
@@ -1795,7 +1795,7 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) rewriteIfClosureNamespaceRef(
 			return
 		}
 		if JString_contains_s(prefixTypeName, ".") {
-			prefixTypeName = String_substring(prefixTypeName, 0, String_lastIndexOf(prefixTypeName, 46))
+			prefixTypeName = cutBytes_(prefixTypeName, 0, int32(strings.LastIndexByte(prefixTypeName, '.')))
 			suffix = String_substring_int(typeName, String_length(prefixTypeName))
 		} else {
 			break

@@ -32,12 +32,12 @@ func (this *Es6RewriteModulesToCommonJsModules) process_2(externs Node, root Nod
 }
 
 func Es6RewriteModulesToCommonJsModules_normalizePath(path string) string {
-	var indexOfProtocol int32 = String_indexOf_String(path, "://")
+	var indexOfProtocol int32 = int32(strings.Index(path, "://"))
 	if indexOfProtocol > -1 {
-		path = String_substring_int(path, (indexOfProtocol + 3))
-		var indexOfSlash int32 = String_indexOf(path, 47)
+		path = path[(indexOfProtocol + 3):]
+		var indexOfSlash int32 = int32(strings.IndexByte(path, '/'))
 		if indexOfSlash > -1 {
-			path = String_substring_int(path, (indexOfSlash + 1))
+			path = path[(indexOfSlash + 1):]
 		}
 	} else if strings.HasPrefix(path, "/") {
 		path = path[1:]
