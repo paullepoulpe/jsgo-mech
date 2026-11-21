@@ -173,7 +173,7 @@ func (this *GatherModuleMetadata_ModuleMetadataBuilder) isScript() bool {
 }
 
 func (this *GatherModuleMetadata_ModuleMetadataBuilder) build() *ModuleMetadataMap_ModuleMetadata {
-	this.metadataBuilder.googNamespacesBuilder().addAll(icast_Iterable(obj_(this.googNamespaces_)))
+	this.metadataBuilder.googNamespacesBuilder().addAll(iup_Iterable(this.googNamespaces_))
 	if !this.ambiguous {
 		if this.hasModuleBody && (this.metadataBuilder.moduleType() == ModuleMetadataMap_ModuleType_SCRIPT) {
 			this.metadataBuilder.moduleType_1(ModuleMetadataMap_ModuleType_ES6_MODULE)

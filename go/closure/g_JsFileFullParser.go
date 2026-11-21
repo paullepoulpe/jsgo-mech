@@ -67,12 +67,12 @@ func JsFileFullParser_parse(code string, filename string, reporter func(bool, st
 func JsFileFullParser_recordModuleMetadata(info *JsFileFullParser_FileInfo, module *ModuleMetadataMap_ModuleMetadata) {
 	setAddAllFrom_(tc_string, info.importedModules, Collection(module.es6ImportSpecifiers().elementSet()))
 	if module.usesClosure() {
-		info.provides.addAll(icast_Iterable(obj_(module.googNamespaces())))
-		info.requires.addAll(icast_Iterable(obj_(module.stronglyRequiredGoogNamespaces())))
-		info.maybeRequires.addAll(icast_Iterable(obj_(module.maybeRequiredGoogNamespaces())))
+		info.provides.addAll(iup_Iterable(module.googNamespaces()))
+		info.requires.addAll(iup_Iterable(module.stronglyRequiredGoogNamespaces()))
+		info.maybeRequires.addAll(iup_Iterable(module.maybeRequiredGoogNamespaces()))
 		setAddAllFrom_(tc_string, info.dynamicRequires, Collection(module.dynamicallyRequiredGoogNamespaces().elementSet()))
 		setAddAllFrom_(tc_string, info.readToggles_, Collection(module.readToggles().elementSet()))
-		info.typeRequires.addAll(icast_Iterable(obj_(module.weaklyRequiredGoogNamespaces())))
+		info.typeRequires.addAll(iup_Iterable(module.weaklyRequiredGoogNamespaces()))
 		info.testonly = module.isTestOnly()
 	}
 	for nested := range module.nestedModules().All() {

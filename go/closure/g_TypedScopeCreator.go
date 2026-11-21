@@ -342,7 +342,7 @@ func TypedScopeCreator_containingGoogModuleIdOf(scope *TypedScope) Optional[stri
 	if !metadata.isModule() {
 		panic(new_IllegalStateException_String(objstr_(metadata)))
 	}
-	return Optional_ofNullable[string](str_(Iterables_getFirst(icast_Iterable(obj_(metadata.googNamespaces())), nil)))
+	return Optional_ofNullable[string](str_(Iterables_getFirst(iup_Iterable(metadata.googNamespaces()), nil)))
 }
 
 func TypedScopeCreator_extractKnownSymbolKey(currentScope *TypedScope, key Node) *KnownSymbolType {
