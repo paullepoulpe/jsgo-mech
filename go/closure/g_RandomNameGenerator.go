@@ -128,7 +128,7 @@ func (this *RandomNameGenerator) getNameLength(position int32, nameIdx int32) in
 }
 
 func (this *RandomNameGenerator) generateSuffix(position int32, nameIdx int32) string {
-	var name *StringBuilder = new_StringBuilder()
+	var name strBuilder_
 	var length int32 = this.getNameLength(position, nameIdx)
 	nameIdx++
 	for do_2 := true; do_2; do_2 = (nameIdx > 0) {
@@ -139,7 +139,7 @@ func (this *RandomNameGenerator) generateSuffix(position int32, nameIdx int32) s
 		} else {
 			var hasher Hasher = Hashing_murmur3_128().newHasher()
 			hasher.putInt(length)
-			hasher.putUnencodedChars(obj_(name))
+			hasher.putUnencodedChars(obj_(&name))
 			var alphabetIdx int32 = ((hasher.hash().asInt() & 2147483647) % RandomNameGenerator_NUM_SHUFFLES)
 			alphabet = this.shuffledNonFirst.get(alphabetIdx)
 		}
@@ -149,7 +149,7 @@ func (this *RandomNameGenerator) generateSuffix(position int32, nameIdx int32) s
 		nameIdx /= alphabetSize
 		position++
 	}
-	return tostrR_(name)
+	return name.toString()
 }
 
 func (this *RandomNameGenerator) generateNextName() string {

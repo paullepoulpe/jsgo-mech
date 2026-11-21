@@ -143,13 +143,13 @@ func (this *ChangeVerifier) path(ancestor Node, child Node) string {
 	}
 	childToAncestor.add(ancestor.toString())
 	Collections_reverse(childToAncestor.asList())
-	var result *StringBuilder = new_StringBuilder()
+	var result strBuilder_
 	for i := int32(0); i < childToAncestor.size(); i++ {
 		result.repeat_int_int(32, (i * 2))
 		result.append(childToAncestor.get(i))
 		result.append("\n")
 	}
-	return tostrR_(result)
+	return result.toString()
 }
 
 func ChangeVerifier_getInequivalenceReasonExcludingFunctions(thisNode Node, thatNode Node) *ChangeVerifier_EqualsResult {
