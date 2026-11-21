@@ -108,7 +108,7 @@ func (this *ColorGraphBuilder) connectSourceToDest(source *LinkedDirectedGraph_L
 	}), dest) {
 		return
 	}
-	this.colorHoldsInstanceGraph.connectDiGraphNode(cast_[DiGraph_DiGraphNode[*ColorGraphNode, any]](source.self()), obj_(reason), cast_[DiGraph_DiGraphNode[*ColorGraphNode, any]](dest.self()))
+	this.colorHoldsInstanceGraph.connectDiGraphNode(icast_DiGraph_DiGraphNode_ColorGraphNode_any(source.self()), obj_(reason), icast_DiGraph_DiGraphNode_ColorGraphNode_any(dest.self()))
 }
 
 type ColorGraphBuilder_EdgeReason uint8
