@@ -3421,13 +3421,11 @@ var tch_p_EqualityChecker_CacheKey = &tconv_[*EqualityChecker_CacheKey]{
 	eq:    func(a, b *EqualityChecker_CacheKey) bool { return objequals_(obj_(a), obj_(b)) },
 }
 
-var tch_p_Es6RewriteModulesToCommonJsModules_ModuleRequest = &tconv_[*Es6RewriteModulesToCommonJsModules_ModuleRequest]{
-	box: func(v *Es6RewriteModulesToCommonJsModules_ModuleRequest) any { return obj_(v) },
-	unbox: func(v any) *Es6RewriteModulesToCommonJsModules_ModuleRequest {
-		return cast_[*Es6RewriteModulesToCommonJsModules_ModuleRequest](v)
+var tc_Es6RewriteModulesToCommonJsModules_ModuleRequest = &tconv_[Es6RewriteModulesToCommonJsModules_ModuleRequest]{
+	box: func(v Es6RewriteModulesToCommonJsModules_ModuleRequest) any { return v },
+	unbox: func(v any) Es6RewriteModulesToCommonJsModules_ModuleRequest {
+		return v.(Es6RewriteModulesToCommonJsModules_ModuleRequest)
 	},
-	hash: func(v *Es6RewriteModulesToCommonJsModules_ModuleRequest) int32 { return objhash_(obj_(v)) },
-	eq:   func(a, b *Es6RewriteModulesToCommonJsModules_ModuleRequest) bool { return objequals_(obj_(a), obj_(b)) },
 }
 
 var tch_p_ExportTrace = &tconv_[*ExportTrace]{
@@ -3437,13 +3435,11 @@ var tch_p_ExportTrace = &tconv_[*ExportTrace]{
 	eq:    func(a, b *ExportTrace) bool { return objequals_(obj_(a), obj_(b)) },
 }
 
-var tch_p_FileInstrumentationData_BranchIndexPair = &tconv_[*FileInstrumentationData_BranchIndexPair]{
-	box: func(v *FileInstrumentationData_BranchIndexPair) any { return obj_(v) },
-	unbox: func(v any) *FileInstrumentationData_BranchIndexPair {
-		return cast_[*FileInstrumentationData_BranchIndexPair](v)
+var tc_FileInstrumentationData_BranchIndexPair = &tconv_[FileInstrumentationData_BranchIndexPair]{
+	box: func(v FileInstrumentationData_BranchIndexPair) any { return v },
+	unbox: func(v any) FileInstrumentationData_BranchIndexPair {
+		return v.(FileInstrumentationData_BranchIndexPair)
 	},
-	hash: func(v *FileInstrumentationData_BranchIndexPair) int32 { return objhash_(obj_(v)) },
-	eq:   func(a, b *FileInstrumentationData_BranchIndexPair) bool { return objequals_(obj_(a), obj_(b)) },
 }
 
 var tch_p_FunctionType = &tconv_[*FunctionType]{
