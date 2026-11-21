@@ -63,8 +63,6 @@ func comparatorOf_(v any) Comparator_e {
 	switch x := v.(type) {
 	case *TreeSet:
 		return x.cmp
-	case *EnumSet:
-		return x.cmp
 	case *TreeMap:
 		return x.cmp
 	case *EnumMap:
