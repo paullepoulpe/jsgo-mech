@@ -190,7 +190,7 @@ func ReportDecoder_createReportProfile(instrumentationPoints *JTList[*Instrument
 	for it_1.next() {
 		var pointStats *InstrumentationPointStats = it_1.v
 		pointsByFileName.computeIfAbsent(pointStats.getPoint().getFileName(), Function[string, List](func(k string) List {
-			return icast_List(new_ArrayList_0().self())
+			return new_ArrayList_0()
 		})).add(obj_(pointStats))
 	}
 	var fileProfiles *JTList[*FileProfile] = jnewTList_(jtc_p_FileProfile)

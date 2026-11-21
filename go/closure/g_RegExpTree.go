@@ -1062,7 +1062,7 @@ func new_RegExpTree_Alternation(alternatives ListOf[*RegExpTree]) *RegExpTree_Al
 }
 
 func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
-	var alternatives ListOf[*RegExpTree] = icast_List(new_ArrayList_0().self())
+	var alternatives ListOf[*RegExpTree] = new_ArrayList_0()
 	it_1 := this.alternatives.each()
 	for it_1.next() {
 		var alternative *RegExpTree = it_1.v
