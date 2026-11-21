@@ -425,12 +425,18 @@ protobuf lists and item 7 (wide side of the graph family) are NOT built.** Reaso
 | f170a5e8 | each switch of the stage off alone translates and passes (three fixes found by those gates, 4.7) | |
 | 62ebd50a | deletion of the 14 runtime functions that no translation names (4.5) | |
 
-With `J2GO_NOLIBGEN=set,map,elems,wide,nncoll,readers` the generated files were compared with
-the b3 tip's for `set` alone (byte-identical, `out0b` against `out0`); the later pieces were
-gated off one by one (4.7), not compared byte by byte. Not behind a switch: `LibGen.rt` for the
-parameters of the runtime's typed factories and of the String-key helpers (identical text with
-every kind off), `instanceof` of a typed interface testing the erased one, the erased type of
-`x.asList()`, the runtime changes (`tmapEmptyImm_`, `TMap.entryAt`, the new methods).
+Byte comparisons of the generated files (`scratchpad/b4/`): with everything off
+(`J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all`, `outOff`) they are identical to the b3 tip's with
+everything off (`../b3/outOff`), all 814 files. With `set` off at commit 185c0254 they were
+identical to the b3 tip's default translation (`out0b` against `out0`). **With the six switches
+of this stage off (`set,map,elems,wide,nncoll,readers`, `outNew6off`) the final translator's
+output is not the b3 tip's: 107 of 814 files differ, 274 lines**, because four corrections to
+the kinds of the stages before are not behind a switch of their own: the parameters of the
+runtime's typed factories and of the String-key helpers have the runtime's type (`LibGen.rt`:
+no `collectionAs_(tc_Object, ..)` wrapper per call), the helpers get `X_un_(x)`, `instanceof`
+of a typed interface tests the erased one, and the erased view `x.asList()` has the erased
+type (no `lgBox_`). Also not behind a switch: the runtime changes (`tmapEmptyImm_`,
+`TMap.entryAt`, the new methods).
 
 ### 4.2 Counts
 
