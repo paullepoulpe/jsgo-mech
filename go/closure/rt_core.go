@@ -55,7 +55,8 @@ func strobj_(s string) any {
 
 // isnull_ is `v == null` for a value of a type argument, as the erased code would see it once
 // boxed: a String is null when it is nullstr_, a class pointer, handle or interface when it is
-// nil (obj_ and box_ make those nil); arrays and numbers box to non-null objects.
+// nil (obj_ and box_ make those nil), an enum constant when it is 0; arrays and numbers box to
+// non-null objects.
 func isnull_[T any](v T) bool {
 	if p, ok := any(&v).(*string); ok {
 		return *p == nullstr_
@@ -68,7 +69,14 @@ func isnull_[T any](v T) bool {
 		return h.box_() == nil
 	}
 	r := reflect.ValueOf(x)
-	return r.Kind() == reflect.Pointer && r.IsNil()
+	if r.Kind() == reflect.Pointer {
+		return r.IsNil()
+	}
+	// an enum that is an integer type: 0 is null
+	if e, ok := x.(enumConst_); ok {
+		return e.enum_() == nil
+	}
+	return false
 }
 
 // boxValue_ is a value of a type argument boxed as the erased code boxes it: the most derived
