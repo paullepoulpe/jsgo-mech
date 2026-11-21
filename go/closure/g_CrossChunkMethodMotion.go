@@ -56,10 +56,11 @@ func (this *CrossChunkMethodMotion) moveMethods(allNameInfo CollectionOf[*Analyz
 			_ = prototypeProperty
 			if func() bool {
 				v_ := any(symbol)
-				if !is_[AnalyzePrototypeProperties_PrototypeProperty](v_) {
+				p, ok := v_.(AnalyzePrototypeProperties_PrototypeProperty)
+				if !ok {
 					return false
 				}
-				prototypeProperty = icast_AnalyzePrototypeProperties_PrototypeProperty(v_)
+				prototypeProperty = p
 				return true
 			}() {
 				this.tryToMovePrototypeMethod(nameInfo, deepestCommonChunkRef, prototypeProperty)
@@ -68,10 +69,11 @@ func (this *CrossChunkMethodMotion) moveMethods(allNameInfo CollectionOf[*Analyz
 				_ = classMemberFunction
 				if func() bool {
 					v_ := any(symbol)
-					if !is_[*AnalyzePrototypeProperties_ClassMemberFunction](v_) {
+					p2, ok2 := v_.(*AnalyzePrototypeProperties_ClassMemberFunction)
+					if !ok2 {
 						return false
 					}
-					classMemberFunction = cast_[*AnalyzePrototypeProperties_ClassMemberFunction](v_)
+					classMemberFunction = p2
 					return true
 				}() {
 					this.tryToMoveMemberFunction(nameInfo, deepestCommonChunkRef, classMemberFunction)
@@ -338,10 +340,11 @@ func CrossChunkMethodMotion_hasUnmovableRedeclaration(nameInfo *AnalyzePrototype
 		_ = otherProp
 		if func() bool {
 			v_ := any(symbol)
-			if !is_[AnalyzePrototypeProperties_Property](v_) {
+			p, ok := v_.(AnalyzePrototypeProperties_Property)
+			if !ok {
 				return false
 			}
-			otherProp = icast_AnalyzePrototypeProperties_Property(v_)
+			otherProp = p
 			return true
 		}() {
 			if ((prop != otherProp) && (prop.getRootVar() == otherProp.getRootVar())) && (prop.getChunk() != otherProp.getChunk()) {

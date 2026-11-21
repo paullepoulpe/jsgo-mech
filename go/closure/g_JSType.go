@@ -461,10 +461,11 @@ func (this *JSType) isLiteralObject() bool {
 	_ = prototypeObjectType
 	if func() bool {
 		v_ := this.self()
-		if !is_PrototypeObjectType(v_) {
+		p, ok := v_.(PrototypeObjectType_as)
+		if !ok {
 			return false
 		}
-		prototypeObjectType = to_PrototypeObjectType(v_)
+		prototypeObjectType = p.as_PrototypeObjectType()
 		return true
 	}() {
 		return prototypeObjectType.isAnonymous()
@@ -682,10 +683,11 @@ func (this *JSType) equals(other any) bool {
 	_ = jSType
 	return (func() bool {
 		v_ := other
-		if !is_JSType(v_) {
+		p, ok := v_.(JSType_as)
+		if !ok {
 			return false
 		}
-		jSType = to_JSType(v_)
+		jSType = p.as_JSType()
 		return true
 	}() && new_EqualityChecker().setEqMethod(EqualityChecker_EqMethod_IDENTITY).check(this, jSType))
 }
@@ -774,10 +776,11 @@ func (this *JSType) toObjectType() *ObjectType {
 	return func() *ObjectType {
 		if func() bool {
 			v_ := this.self()
-			if !is_ObjectType(v_) {
+			p, ok := v_.(ObjectType_as)
+			if !ok {
 				return false
 			}
-			objectType = to_ObjectType(v_)
+			objectType = p.as_ObjectType()
 			return true
 		}() {
 			return objectType

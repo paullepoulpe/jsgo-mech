@@ -1030,10 +1030,11 @@ func (this *SymbolTable) getType(sym StaticSlot) *JSType {
 	_ = staticTypedSlot
 	if func() bool {
 		v_ := any(sym)
-		if !is_[StaticTypedSlot](v_) {
+		p, ok := v_.(StaticTypedSlot)
+		if !ok {
 			return false
 		}
-		staticTypedSlot = icast_StaticTypedSlot(v_)
+		staticTypedSlot = p
 		return true
 	}() {
 		return staticTypedSlot.getType()
@@ -1046,10 +1047,11 @@ func (this *SymbolTable) getTypeOfThis(s StaticScope) *JSType {
 	_ = staticTypedScope
 	if func() bool {
 		v_ := any(s)
-		if !is_[StaticTypedScope](v_) {
+		p, ok := v_.(StaticTypedScope)
+		if !ok {
 			return false
 		}
-		staticTypedScope = icast_StaticTypedScope(v_)
+		staticTypedScope = p
 		return true
 	}() {
 		return staticTypedScope.getTypeOfThis()
@@ -1062,10 +1064,11 @@ func (this *SymbolTable) isTypeInferred(sym StaticSlot) bool {
 	_ = staticTypedSlot
 	if func() bool {
 		v_ := any(sym)
-		if !is_[StaticTypedSlot](v_) {
+		p, ok := v_.(StaticTypedSlot)
+		if !ok {
 			return false
 		}
-		staticTypedSlot = icast_StaticTypedSlot(v_)
+		staticTypedSlot = p
 		return true
 	}() {
 		return staticTypedSlot.isTypeInferred()
@@ -1138,10 +1141,11 @@ func (this *SymbolTable_Symbol) equals(o any) bool {
 	_ = other
 	if !(func() bool {
 		v_ := o
-		if !is_[*SymbolTable_Symbol](v_) {
+		p, ok := v_.(*SymbolTable_Symbol)
+		if !ok {
 			return false
 		}
-		other = cast_[*SymbolTable_Symbol](v_)
+		other = p
 		return true
 	}()) {
 		return false
