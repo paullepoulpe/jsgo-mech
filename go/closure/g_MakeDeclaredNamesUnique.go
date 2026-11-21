@@ -6,7 +6,7 @@ import "strings"
 
 type MakeDeclaredNamesUnique struct {
 	NodeTraversal_AbstractScopedCallback
-	renamerStack    *TDeque[MakeDeclaredNamesUnique_Renamer]
+	renamerStack    *[]MakeDeclaredNamesUnique_Renamer
 	rootRenamer     MakeDeclaredNamesUnique_Renamer
 	markChanges     bool
 	assertOnChange_ bool
@@ -20,7 +20,7 @@ func (this *MakeDeclaredNamesUnique) up_NodeTraversal_AbstractScopedCallback() *
 }
 
 func (this *MakeDeclaredNamesUnique) finit_MakeDeclaredNamesUnique() {
-	this.renamerStack = newTDeque_(tc_MakeDeclaredNamesUnique_Renamer)
+	this.renamerStack = &[]MakeDeclaredNamesUnique_Renamer{}
 }
 
 func (this *MakeDeclaredNamesUnique) init_MakeDeclaredNamesUnique(renamer MakeDeclaredNamesUnique_Renamer, markChanges bool, assertOnChange bool) {
@@ -49,22 +49,22 @@ func MakeDeclaredNamesUnique_getContextualRenameInverter(compiler *AbstractCompi
 func (this *MakeDeclaredNamesUnique) enterScope_impl(t *NodeTraversal) {
 	var declarationRoot Node = t.getScopeRoot()
 	var renamer MakeDeclaredNamesUnique_Renamer
-	if this.renamerStack.isEmpty() {
+	if len(*this.renamerStack) == 0 {
 		if declarationRoot.isFunction() && is_MakeDeclaredNamesUnique_ContextualRenamer(this.rootRenamer) {
 			panic(new_IllegalStateException_0())
 		}
 		renamer = this.rootRenamer
 	} else {
 		var hoist bool = (!declarationRoot.isFunction() && !NodeUtil_createsBlockScope(declarationRoot))
-		renamer = this.renamerStack.peek().createForChildScope(t.getScopeRoot(), hoist)
+		renamer = slicePeekTop_(tc_MakeDeclaredNamesUnique_Renamer, *this.renamerStack).createForChildScope(t.getScopeRoot(), hoist)
 	}
-	this.renamerStack.push(renamer)
+	*this.renamerStack = append(*this.renamerStack, renamer)
 	this.findDeclaredNames(t, declarationRoot)
 }
 
 func (this *MakeDeclaredNamesUnique) exitScope_impl(t *NodeTraversal) {
 	if !t.inGlobalScope() {
-		this.renamerStack.pop()
+		slicePop_(tc_MakeDeclaredNamesUnique_Renamer, this.renamerStack)
 	}
 }
 
@@ -87,7 +87,7 @@ func (this *MakeDeclaredNamesUnique) visitNameOrImportStar(t *NodeTraversal, n N
 	if this.assertOnChange_ {
 		panic(new_IllegalStateException_String(("Unexpected renaming in MakeDeclaredNamesUnique. new name: " + sstr_(newName.get()) + " for " + tostrH_(n))))
 	}
-	var renamer MakeDeclaredNamesUnique_Renamer = this.renamerStack.peek()
+	var renamer MakeDeclaredNamesUnique_Renamer = slicePeekTop_(tc_MakeDeclaredNamesUnique_Renamer, *this.renamerStack)
 	if renamer.stripConstIfReplaced() {
 		n.putBooleanProp(Node_IS_CONSTANT_NAME, false)
 		var jsDocInfoNode Node = NodeUtil_getBestJSDocInfoNode(n)
@@ -107,7 +107,7 @@ func (this *MakeDeclaredNamesUnique) visitNameOrImportStar(t *NodeTraversal, n N
 }
 
 func (this *MakeDeclaredNamesUnique) getReplacementName(oldName string) Optional[string] {
-	it_1 := this.renamerStack.each()
+	it_1 := eachRevOf_(this.renamerStack)
 	for it_1.next() {
 		var renamer MakeDeclaredNamesUnique_Renamer = it_1.v
 		var newName Optional[string] = renamer.getReplacementName(oldName)
@@ -123,7 +123,7 @@ func (this *MakeDeclaredNamesUnique) findDeclaredNames(t *NodeTraversal, n Node)
 		panic(new_IllegalStateException_String(tostr_(n)))
 	}
 	for v := range elemsAs_[*Var](t.getScope().getVarIterable()) {
-		this.renamerStack.peek().addDeclaredName(v.getName(), false)
+		slicePeekTop_(tc_MakeDeclaredNamesUnique_Renamer, *this.renamerStack).addDeclaredName(v.getName(), false)
 	}
 }
 
@@ -182,12 +182,12 @@ type MakeDeclaredNamesUnique_Renamer interface {
 
 type MakeDeclaredNamesUnique_ContextualRenameInverter struct {
 	compiler_              *AbstractCompiler
-	scopeContextStack      *TDeque[*MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext]
+	scopeContextStack      *[]*MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext
 	variablesStackedByName *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) finit_MakeDeclaredNamesUnique_ContextualRenameInverter() {
-	this.scopeContextStack = newTDeque_(tc_p_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext)
+	this.scopeContextStack = &[]*MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext{}
 	this.variablesStackedByName = new_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap(this)
 }
 
@@ -232,8 +232,8 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) enterScope(t *Node
 		declaredVariablesBuilder.add(variableInfo)
 		this.variablesStackedByName.pushVariableInfo(MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo_as_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(variableInfo))
 	}
-	var parent *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext = this.scopeContextStack.peek()
-	this.scopeContextStack.push(new_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope, declaredVariablesBuilder.build(), parent))
+	var parent *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext = slicePeekTop_(tc_p_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext, *this.scopeContextStack)
+	*this.scopeContextStack = append(*this.scopeContextStack, new_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope, declaredVariablesBuilder.build(), parent))
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) createDeclaredVariableInfo(var_ *Var) *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo {
@@ -253,7 +253,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) exitScope(t *NodeT
 	if t.inGlobalScope() {
 		return
 	}
-	var scopeContext *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext = this.scopeContextStack.pop()
+	var scopeContext *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext = slicePop_(tc_p_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext, this.scopeContextStack)
 	if scopeContext == nil {
 		panic(new_NullPointerException_0())
 	}
@@ -268,7 +268,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) exitScope(t *NodeT
 		}
 		declaredVariableInfo.tryToInvertName()
 	}
-	if this.scopeContextStack.isEmpty() {
+	if len(*this.scopeContextStack) == 0 {
 		this.variablesStackedByName.clear()
 	}
 }
@@ -278,7 +278,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) shouldTraverse(t *
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) visit(t *NodeTraversal, node Node, parent Node) {
-	var scopeContext *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext = this.scopeContextStack.peek()
+	var scopeContext *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext = slicePeekTop_(tc_p_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext, *this.scopeContextStack)
 	if scopeContext != nil {
 		if NodeUtil_isReferenceName(node) || node.isImportStar() {
 			var name string = node.getString()

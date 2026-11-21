@@ -9,7 +9,7 @@ type InstrumentAsyncContext struct {
 	compiler_             *AbstractCompiler
 	astFactory_           *AstFactory
 	uniqueIdSupplier      *UniqueIdSupplier
-	tryFunctionStack      *TDeque[Node]
+	tryFunctionStack      *[]Node
 	needsInstrumentation  *TMap[Node, *InstrumentAsyncContext_FunctionContext]
 	alreadyInstrumented   map[Node]struct{}
 	hasSuper              map[Node]struct{}
@@ -17,7 +17,7 @@ type InstrumentAsyncContext struct {
 }
 
 func (this *InstrumentAsyncContext) finit_InstrumentAsyncContext() {
-	this.tryFunctionStack = newTDeque_(tc_Node)
+	this.tryFunctionStack = &[]Node{}
 	this.needsInstrumentation = newTMap_(tc_Node, tc_p_InstrumentAsyncContext_FunctionContext)
 	this.alreadyInstrumented = map[Node]struct{}{}
 	this.hasSuper = map[Node]struct{}{}
@@ -47,7 +47,7 @@ func (this *InstrumentAsyncContext) process_2(externs Node, root Node) {
 
 func (this *InstrumentAsyncContext) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	if n.isTry() || n.isFunction() {
-		this.tryFunctionStack.push(n)
+		*this.tryFunctionStack = append(*this.tryFunctionStack, n)
 	}
 	return true
 }
@@ -68,8 +68,8 @@ func (this *InstrumentAsyncContext) visit(t *NodeTraversal, n Node, parent Node)
 		this.hasSuper[t.getEnclosingFunction()] = struct{}{}
 	} else if this.isReentrance(n) {
 		this.instrumentReentrance(t, n, parent)
-	} else if equalsId_(n, this.tryFunctionStack.peek()) {
-		this.tryFunctionStack.pop()
+	} else if equalsId_(n, slicePeekTop_(tc_Node, *this.tryFunctionStack)) {
+		slicePop_(tc_Node, this.tryFunctionStack)
 		if has_(this.alreadyInstrumented, n) {
 			return
 		}
@@ -98,7 +98,7 @@ func (this *InstrumentAsyncContext) visit(t *NodeTraversal, n Node, parent Node)
 }
 
 func (this *InstrumentAsyncContext) instrumentReentrance(t *NodeTraversal, n Node, parent Node) {
-	var enclosingTry Node = this.tryFunctionStack.peek()
+	var enclosingTry Node = slicePeekTop_(tc_Node, *this.tryFunctionStack)
 	if (enclosingTry != 0) && !enclosingTry.isTry() {
 		enclosingTry = 0
 	}
