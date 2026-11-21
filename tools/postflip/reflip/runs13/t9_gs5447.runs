@@ -1,0 +1,16 @@
+  flags5447/CHECKS yjava wall=106.96 cpu=180.71 round=0 load=1.59 rss=7559M exit=0
+  flags5447/OPTIMIZATIONS yjava wall=105.30 cpu=181.54 round=0 load=1.50 rss=11609M exit=0
+  flags5447/FINALIZATIONS yjava wall=21.98 cpu=50.47 round=0 load=1.36 rss=4020M exit=0
+  flags5447 yjava wall=234.24 cpu=412.72 round=0 load=1.36 sha=2043969e874d
+  flags5447/CHECKS ylead18 wall=129.22 cpu=160.17 round=0 load=1.09 rss=8124M exit=0
+  flags5447/OPTIMIZATIONS ylead18 wall=97.11 cpu=107.40 round=0 load=1.07 rss=5162M exit=0
+  flags5447/FINALIZATIONS ylead18 wall=19.61 cpu=23.58 round=0 load=1.62 rss=1201M exit=0
+  flags5447 ylead18 wall=245.94 cpu=291.15 round=0 load=1.62 sha=2043969e874d
+  flags5447/CHECKS ylead18 wall=129.99 cpu=158.61 round=1 load=1.19 rss=8307M exit=0
+  flags5447/OPTIMIZATIONS ylead18 wall=96.94 cpu=106.72 round=1 load=1.04 rss=5125M exit=0
+  flags5447/FINALIZATIONS ylead18 wall=19.81 cpu=23.58 round=1 load=1.11 rss=1216M exit=0
+  flags5447 ylead18 wall=246.74 cpu=288.91 round=1 load=1.18 sha=2043969e874d
+  flags5447/CHECKS yjava wall=105.88 cpu=187.89 round=1 load=1.53 rss=8183M exit=0
+  flags5447/OPTIMIZATIONS yjava wall=104.45 cpu=181.88 round=1 load=1.30 rss=11307M exit=0
+  flags5447/FINALIZATIONS yjava wall=21.95 cpu=50.41 round=1 load=1.37 rss=4028M exit=0
+  flags5447 yjava wall=232.28 cpu=420.18 round=1 load=1.37 sha=2043969e874d
