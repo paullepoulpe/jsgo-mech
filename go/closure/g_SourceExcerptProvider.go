@@ -278,3 +278,33 @@ func SourceExcerptProvider_SourceExcerpt_3_clinit() {
 	registerEnum_("<anonymous com.google.javascript.jscomp.SourceExcerptProvider.SourceExcerpt>", enumValues_(SourceExcerptProvider_SourceExcerpt_3_values_))
 
 }
+
+// get_5: an object that is exactly a SourceExcerptProvider_SourceExcerpt_1 calls its get_5_impl directly (post-flip); others dispatch.
+func (this *SourceExcerptProvider_SourceExcerpt_1) get_5(p0 SourceExcerptProvider, p1 Optional[string], p2 int32, p3 int32, p4 SourceExcerptProvider_ExcerptFormatter) Optional[string] {
+	if this.self_ == any(this) {
+		return this.get_5_impl(p0, p1, p2, p3, p4)
+	}
+	return this.self_.(interface {
+		get_5_impl(SourceExcerptProvider, Optional[string], int32, int32, SourceExcerptProvider_ExcerptFormatter) Optional[string]
+	}).get_5_impl(p0, p1, p2, p3, p4)
+}
+
+// get_5: an object that is exactly a SourceExcerptProvider_SourceExcerpt_2 calls its get_5_impl directly (post-flip); others dispatch.
+func (this *SourceExcerptProvider_SourceExcerpt_2) get_5(p0 SourceExcerptProvider, p1 Optional[string], p2 int32, p3 int32, p4 SourceExcerptProvider_ExcerptFormatter) Optional[string] {
+	if this.self_ == any(this) {
+		return this.get_5_impl(p0, p1, p2, p3, p4)
+	}
+	return this.self_.(interface {
+		get_5_impl(SourceExcerptProvider, Optional[string], int32, int32, SourceExcerptProvider_ExcerptFormatter) Optional[string]
+	}).get_5_impl(p0, p1, p2, p3, p4)
+}
+
+// get_5: an object that is exactly a SourceExcerptProvider_SourceExcerpt_3 calls its get_5_impl directly (post-flip); others dispatch.
+func (this *SourceExcerptProvider_SourceExcerpt_3) get_5(p0 SourceExcerptProvider, p1 Optional[string], p2 int32, p3 int32, p4 SourceExcerptProvider_ExcerptFormatter) Optional[string] {
+	if this.self_ == any(this) {
+		return this.get_5_impl(p0, p1, p2, p3, p4)
+	}
+	return this.self_.(interface {
+		get_5_impl(SourceExcerptProvider, Optional[string], int32, int32, SourceExcerptProvider_ExcerptFormatter) Optional[string]
+	}).get_5_impl(p0, p1, p2, p3, p4)
+}

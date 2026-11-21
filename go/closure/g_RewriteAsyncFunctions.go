@@ -546,3 +546,60 @@ func (this *RewriteAsyncFunctions_FunctionContext) visit_impl(t *NodeTraversal, 
 		}
 	}
 }
+
+// getContextForNode: an object that is exactly a RewriteAsyncFunctions_RootContext calls its getContextForNode_impl directly (post-flip); others dispatch.
+func (this *RewriteAsyncFunctions_RootContext) getContextForNode(p0 *NodeTraversal, p1 Node) *RewriteAsyncFunctions_LexicalContext {
+	if this.self_ == any(this) {
+		return this.getContextForNode_impl(p0, p1)
+	}
+	return this.self_.(interface {
+		getContextForNode_impl(*NodeTraversal, Node) *RewriteAsyncFunctions_LexicalContext
+	}).getContextForNode_impl(p0, p1)
+}
+
+// visit: an object that is exactly a RewriteAsyncFunctions_RootContext calls its visit_impl directly (post-flip); others dispatch.
+func (this *RewriteAsyncFunctions_RootContext) visit(p0 *NodeTraversal, p1 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1)
+		return
+	}
+	this.self_.(interface{ visit_impl(*NodeTraversal, Node) }).visit_impl(p0, p1)
+}
+
+// getContextForNode: an object that is exactly a RewriteAsyncFunctions_ParameterListContext calls its getContextForNode_impl directly (post-flip); others dispatch.
+func (this *RewriteAsyncFunctions_ParameterListContext) getContextForNode(p0 *NodeTraversal, p1 Node) *RewriteAsyncFunctions_LexicalContext {
+	if this.self_ == any(this) {
+		return this.getContextForNode_impl(p0, p1)
+	}
+	return this.self_.(interface {
+		getContextForNode_impl(*NodeTraversal, Node) *RewriteAsyncFunctions_LexicalContext
+	}).getContextForNode_impl(p0, p1)
+}
+
+// visit: an object that is exactly a RewriteAsyncFunctions_ParameterListContext calls its visit_impl directly (post-flip); others dispatch.
+func (this *RewriteAsyncFunctions_ParameterListContext) visit(p0 *NodeTraversal, p1 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1)
+		return
+	}
+	this.self_.(interface{ visit_impl(*NodeTraversal, Node) }).visit_impl(p0, p1)
+}
+
+// getContextForNode: an object that is exactly a RewriteAsyncFunctions_FunctionContext calls its getContextForNode_impl directly (post-flip); others dispatch.
+func (this *RewriteAsyncFunctions_FunctionContext) getContextForNode(p0 *NodeTraversal, p1 Node) *RewriteAsyncFunctions_LexicalContext {
+	if this.self_ == any(this) {
+		return this.getContextForNode_impl(p0, p1)
+	}
+	return this.self_.(interface {
+		getContextForNode_impl(*NodeTraversal, Node) *RewriteAsyncFunctions_LexicalContext
+	}).getContextForNode_impl(p0, p1)
+}
+
+// visit: an object that is exactly a RewriteAsyncFunctions_FunctionContext calls its visit_impl directly (post-flip); others dispatch.
+func (this *RewriteAsyncFunctions_FunctionContext) visit(p0 *NodeTraversal, p1 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1)
+		return
+	}
+	this.self_.(interface{ visit_impl(*NodeTraversal, Node) }).visit_impl(p0, p1)
+}

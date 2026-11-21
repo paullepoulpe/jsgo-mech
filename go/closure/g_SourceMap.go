@@ -605,3 +605,35 @@ func SourceMap_DetailLevel_2_clinit() {
 	registerEnum_("<anonymous com.google.javascript.jscomp.SourceMap.DetailLevel>", enumValues_(SourceMap_DetailLevel_2_values_))
 
 }
+
+// getInstance: an object that is exactly a SourceMap_Format_1 calls its getInstance_impl directly (post-flip); others dispatch.
+func (this *SourceMap_Format_1) getInstance() *SourceMap {
+	if this.self_ == any(this) {
+		return this.getInstance_impl()
+	}
+	return this.self_.(interface{ getInstance_impl() *SourceMap }).getInstance_impl()
+}
+
+// getInstance: an object that is exactly a SourceMap_Format_2 calls its getInstance_impl directly (post-flip); others dispatch.
+func (this *SourceMap_Format_2) getInstance() *SourceMap {
+	if this.self_ == any(this) {
+		return this.getInstance_impl()
+	}
+	return this.self_.(interface{ getInstance_impl() *SourceMap }).getInstance_impl()
+}
+
+// apply: an object that is exactly a SourceMap_DetailLevel_1 calls its apply_impl directly (post-flip); others dispatch.
+func (this *SourceMap_DetailLevel_1) apply(p0 Node) bool {
+	if this.self_ == any(this) {
+		return this.apply_impl(p0)
+	}
+	return this.self_.(interface{ apply_impl(Node) bool }).apply_impl(p0)
+}
+
+// apply: an object that is exactly a SourceMap_DetailLevel_2 calls its apply_impl directly (post-flip); others dispatch.
+func (this *SourceMap_DetailLevel_2) apply(p0 Node) bool {
+	if this.self_ == any(this) {
+		return this.apply_impl(p0)
+	}
+	return this.self_.(interface{ apply_impl(Node) bool }).apply_impl(p0)
+}
