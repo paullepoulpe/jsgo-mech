@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type J2clSourceUtils struct {
 }
 
@@ -16,7 +18,7 @@ func new_J2clSourceUtils() *J2clSourceUtils {
 }
 
 func J2clSourceUtils_isJ2clSourceString(sourceFileName Optional[string]) bool {
-	return (sourceFileName.isPresent() && String_endsWith(sourceFileName.get(), ".java.js"))
+	return (sourceFileName.isPresent() && strings.HasSuffix(sourceFileName.get(), ".java.js"))
 }
 
 func J2clSourceUtils_isJ2clSource(scriptNode Node) bool {
@@ -24,7 +26,7 @@ func J2clSourceUtils_isJ2clSource(scriptNode Node) bool {
 		panic(new_IllegalArgumentException_0().self())
 	}
 	return J2clSourceUtils_isJ2clSourceString(Optional_of[string](scriptNode.getSourceFileName()).filter(Predicate[string](func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	})))
 }
 
@@ -42,5 +44,5 @@ func J2clSourceUtils_isInsideJ2clSource(node Node) bool {
 }
 
 func J2clSourceUtils_isJ2clHeaderSource(sourceFileName Optional[string]) bool {
-	return ((sourceFileName.isPresent() && String_endsWith(sourceFileName.get(), ".java.js")) && !String_endsWith(sourceFileName.get(), ".impl.java.js"))
+	return ((sourceFileName.isPresent() && strings.HasSuffix(sourceFileName.get(), ".java.js")) && !strings.HasSuffix(sourceFileName.get(), ".impl.java.js"))
 }

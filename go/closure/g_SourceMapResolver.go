@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type SourceMapResolver struct {
 }
 
@@ -16,7 +18,7 @@ func new_SourceMapResolver() *SourceMapResolver {
 }
 
 func SourceMapResolver_extractSourceMap(jsFile *SourceFile_jscomp, sourceMapURL string, parseInlineSourceMaps bool) *SourceFile_jscomp {
-	if parseInlineSourceMaps && String_startsWith(sourceMapURL, SourceMapResolver_BASE64_URL_PREFIX) {
+	if parseInlineSourceMaps && strings.HasPrefix(sourceMapURL, SourceMapResolver_BASE64_URL_PREFIX) {
 		var extractedString Optional[string] = SourceMapResolver_extractBase64String(sourceMapURL)
 		if extractedString.isPresent() {
 			return SourceFile_jscomp_fromCode_String_String_SourceKind((sstr_(jsFile.getName()) + ".inline.map"), extractedString.get(), StaticSourceFile_SourceKind_NON_CODE)
@@ -30,11 +32,11 @@ func SourceMapResolver_extractSourceMap(jsFile *SourceFile_jscomp, sourceMapURL 
 }
 
 func SourceMapResolver_extractBase64String(url string) Optional[string] {
-	if String_startsWith(url, SourceMapResolver_BASE64_URL_PREFIX) && JString_contains_s(url, SourceMapResolver_BASE64_START) {
+	if strings.HasPrefix(url, SourceMapResolver_BASE64_URL_PREFIX) && JString_contains_s(url, SourceMapResolver_BASE64_START) {
 		var base64StartIndex int32 = String_indexOf_String(url, SourceMapResolver_BASE64_START)
-		var mediaType string = String_substring(url, String_length(SourceMapResolver_BASE64_URL_PREFIX), base64StartIndex)
+		var mediaType string = String_substring(url, int32(len(SourceMapResolver_BASE64_URL_PREFIX)), base64StartIndex)
 		if SourceMapResolver_ACCEPTED_MEDIA_TYPES.contains(mediaType) {
-			var data []int8 = Io_base64Decode(String_substring_int(url, (base64StartIndex + String_length(SourceMapResolver_BASE64_START))))
+			var data []int8 = Io_base64Decode(String_substring_int(url, (base64StartIndex + int32(len(SourceMapResolver_BASE64_START)))))
 			return Optional_of[string](Io_utf8String(data))
 		}
 	}
@@ -45,7 +47,7 @@ func SourceMapResolver_isAbsolute(url string) bool {
 	if !Uris_isValid(url) {
 		panic(new_RuntimeException_String(("Sourcemap url was invalid: " + sstr_(url))).self())
 	}
-	return (Uris_hasScheme(url) || String_startsWith(url, "/"))
+	return (Uris_hasScheme(url) || strings.HasPrefix(url, "/"))
 }
 
 func SourceMapResolver_getRelativePath(baseFilePath string, relativePath string) *SourceFile_jscomp {

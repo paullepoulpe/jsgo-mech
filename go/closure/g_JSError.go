@@ -2,6 +2,8 @@
 
 package closure
 
+import "strconv"
+
 type JSError struct {
 	type__        *DiagnosticType
 	description_  string
@@ -101,20 +103,20 @@ func JSError_builder(type_ *DiagnosticType, arguments []string) *JSError_Builder
 
 func (this *JSError) toString() string {
 	var sourceName string = func() string {
-		if String_isEmpty(this.sourceName().orElse("")) {
+		if this.sourceName().orElse("") == "" {
 			return "(unknown source)"
 		}
 		return this.sourceName().get()
 	}()
 	var lineno string = func() string {
 		if this.lineno() != JSError_DEFAULT_LINENO {
-			return String_valueOf(this.lineno())
+			return strconv.Itoa(int(this.lineno()))
 		}
 		return "(unknown line)"
 	}()
 	var charno string = func() string {
 		if this.charno() != JSError_DEFAULT_CHARNO {
-			return String_valueOf(this.charno())
+			return strconv.Itoa(int(this.charno()))
 		}
 		return "(unknown column)"
 	}()
@@ -267,7 +269,7 @@ func (this *JSError_Builder) setNode(n Node) *JSError_Builder {
 	}
 	this.n = n
 	this.sourceName_ = Optional_of[string](n.getSourceFileName()).filter(Predicate[string](func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}))
 	this.lineno_ = n.getLineno()
 	this.charno_ = n.getCharno()
@@ -281,7 +283,7 @@ func (this *JSError_Builder) setNodeRange(start Node, end Node) *JSError_Builder
 	}
 	this.n = start
 	this.sourceName_ = Optional_of[string](this.n.getSourceFileName()).filter(Predicate[string](func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}))
 	this.lineno_ = this.n.getLineno()
 	this.charno_ = this.n.getCharno()

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strconv"
+
 type TypeValidator struct {
 	compiler_               *AbstractCompiler
 	typeRegistry            *JSTypeRegistry
@@ -433,9 +435,9 @@ func (this *TypeValidator) expectUndeclaredVariable(sourceName Optional[string],
 			var allowDupe bool = TypeValidator_hasDuplicateDeclarationSuppression(this.compiler_, var_.getNameNode())
 			if !allowDupe {
 				if !newType.equals(varType.self()) {
-					this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeValidator_DUP_VAR_DECLARATION_TYPE_MISMATCH, []string{variableName, newType.toString(), var_.getInputName(), String_valueOf(var_.getNameNode().getLineno()), varType.toString()}))
+					this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeValidator_DUP_VAR_DECLARATION_TYPE_MISMATCH, []string{variableName, newType.toString(), var_.getInputName(), strconv.Itoa(int(var_.getNameNode().getLineno())), varType.toString()}))
 				} else if !var_.getParentNode().isExprResult() {
-					this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeValidator_DUP_VAR_DECLARATION, []string{variableName, var_.getInputName(), String_valueOf(var_.getNameNode().getLineno())}))
+					this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeValidator_DUP_VAR_DECLARATION, []string{variableName, var_.getInputName(), strconv.Itoa(int(var_.getNameNode().getLineno()))}))
 				}
 			}
 		}
@@ -638,7 +640,7 @@ func TypeValidator_formatFoundRequired(description string, found *JSType, requir
 	if (mismatch != nil) && !mismatch.isEmpty() {
 		mismatchStr = Joiner_on(",").join(Iterable(mismatch.asSet()))
 	}
-	if (String_length(missingStr) > 0) || (String_length(mismatchStr) > 0) {
+	if (len(missingStr) != 0) || (len(mismatchStr) != 0) {
 		return Platform_formatMessage(TypeValidator_FOUND_REQUIRED_MISSING, []string{description, foundStr, requiredStr, missingStr, mismatchStr})
 	} else {
 		return Platform_formatMessage(TypeValidator_FOUND_REQUIRED, []string{description, foundStr, requiredStr})

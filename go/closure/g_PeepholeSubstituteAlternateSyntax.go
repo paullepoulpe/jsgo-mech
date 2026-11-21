@@ -532,7 +532,7 @@ func PeepholeSubstituteAlternateSyntax_clinit() {
 		return
 	}
 	PeepholeSubstituteAlternateSyntax_clinit_done = true
-	PeepholeSubstituteAlternateSyntax_STRING_SPLIT_OVERHEAD = String_length(".split('.')")
+	PeepholeSubstituteAlternateSyntax_STRING_SPLIT_OVERHEAD = int32(len(".split('.')"))
 	PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS = jimmutableSetOf_[string](jtc_string, "Object", "Array", "Error", "RegExp", "Math")
 	PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS = jimmutableSetOf_[string](jtc_string, "Object", "Array", "Error")
 

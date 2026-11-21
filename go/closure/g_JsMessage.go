@@ -145,7 +145,7 @@ func (this *JsMessage) isEmpty() bool {
 		it_1 := this.getParts().each()
 		for it_1.next() {
 			var part JsMessage_Part = it_1.v
-			if part.isPlaceholder() || (String_length(part.getString()) > 0) {
+			if part.isPlaceholder() || (len(part.getString()) != 0) {
 				return false
 			}
 		}
@@ -156,7 +156,7 @@ func (this *JsMessage) isEmpty() bool {
 			it_5 := foreach_(obj_(parts))
 			for it_5.next() {
 				var part JsMessage_Part = icast_JsMessage_Part(it_5.v)
-				if part.isPlaceholder() || (String_length(part.getString()) > 0) {
+				if part.isPlaceholder() || (len(part.getString()) != 0) {
 					return false
 				}
 			}
@@ -441,11 +441,11 @@ func (this *JsMessage_StringPart) isPlaceholder() bool {
 }
 
 func (this *JsMessage_StringPart) getJsPlaceholderName() string {
-	panic(new_UnsupportedOperationException_String(String_format("not a placeholder: '%s'", []any{strobj_(this.string())})).self())
+	panic(new_UnsupportedOperationException_String(("not a placeholder: '" + sstr_(this.string()) + "'")).self())
 }
 
 func (this *JsMessage_StringPart) getCanonicalPlaceholderName() string {
-	panic(new_UnsupportedOperationException_String(String_format("not a placeholder: '%s'", []any{strobj_(this.string())})).self())
+	panic(new_UnsupportedOperationException_String(("not a placeholder: '" + sstr_(this.string()) + "'")).self())
 }
 
 func (this *JsMessage_StringPart) string() string {
@@ -538,7 +538,7 @@ func (this *JsMessage_PlaceholderReference) getCanonicalPlaceholderName() string
 }
 
 func (this *JsMessage_PlaceholderReference) getString() string {
-	panic(new_UnsupportedOperationException_String(String_format("not a string part: '%s'", []any{strobj_(this.getJsPlaceholderName())})).self())
+	panic(new_UnsupportedOperationException_String(("not a string part: '" + sstr_(this.getJsPlaceholderName()) + "'")).self())
 }
 
 func (this *JsMessage_PlaceholderReference) storedPlaceholderName() string {

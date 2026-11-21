@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type FunctionType struct {
 	PrototypeObjectType
 	constructorAmbiguity       FunctionType_ConstructorAmbiguity
@@ -856,7 +858,7 @@ func (this *FunctionType) resolveTypeListHelper(list *JTList[*ObjectType], repor
 		var rt *JSType = type_.resolve(reporter)
 		if !rt.isObjectType() {
 			reporter.warning(("not an object type: " + objstr_(rt.self()) + " (at " + sstr_(this.toString()) + ")"), Optional_of[string](this.source.getSourceFileName()).filter(Predicate[string](func(s string) bool {
-				return !String_isEmpty(s)
+				return s != ""
 			})), this.source.getLineno(), this.source.getCharno())
 			continue
 		}
@@ -1034,7 +1036,7 @@ func (this *FunctionType) calculateConstructorAmbiguity() FunctionType_Construct
 }
 
 func (this *FunctionType) isDelegateProxy() bool {
-	return (this.hasReferenceName() && String_endsWith(this.getReferenceName().get(), FunctionType_DELEGATE_SUFFIX))
+	return (this.hasReferenceName() && strings.HasSuffix(this.getReferenceName().get(), FunctionType_DELEGATE_SUFFIX))
 }
 
 func (this *FunctionType) getClosurePrimitive() ClosurePrimitive {
