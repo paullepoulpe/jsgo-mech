@@ -1,13 +1,17 @@
 # The fifth flip (2026-11-21): the in-bounds list on main's translator with rule "function types"
 
-STATUS: IN PROGRESS. See "Where this stands" at the end; everything above it is what was done.
+STATUS: the list replays unattended from the base to a gated tree (four MATCH). Coverage against the
+fourth flip: the census is better or equal in every row but two (explained); typed variants of
+functional APIs that the census does not count are OPEN (table below). See "Where this stands".
 
 What this is: main at 024a9c5f flipped (the translator with rule "function types" on, the Java
 tree through prep 20) and the in-bounds step list of the fourth flip (steps.txt of
 main-r11-flip4-inbounds, 02da66e7, through step 558) replayed on it.
 
     overlay branch   main-r12-flip5        worktree $B/wt/flip5
-    replay worktree  $B/wt/replay5         (per-step commits, detached)
+    replay worktrees $B/wt/replay5c        (the replay of the final list, per-step commits, detached)
+                     $B/wt/replay5b        (the second unattended replay of it)
+                     $B/wt/replay5         (the first pass, made with stops and without toolfix 32: not a result)
     driver           tools/postflip/reflip/replay5.sh [NAME]   (REFLIP_OVERLAY as before)
     scratch          $B/wt/replay5x        (detached; tool experiments, not part of the result)
 
@@ -60,7 +64,7 @@ git grep at the commit before the step)
 | 283 | rt | adapted | without Optional_base.transform_f |
 | 284 | rt | dropped | four _f variants of functions that take a Go func; step 285 was a no-op already |
 | 330 | rt (test) | dropped | reflip4-289a33a9-tests-rt.patch is main's 60a9e130, in the base |
-| 336 | tool + rt | adapted | toolfix 28 and reflip5-fnconv-rt.patch: a function type as an element of a typed collection (Node.PROP_MAP_FOR_EQUALITY) |
+| 336 | tool + rt | adapted | toolfix 28 and reflip5-fnconv-rt.patch: a function type as an element of a typed collection (Node.PROP_MAP_FOR_EQUALITY); toolfix 32: an upcast helper's parameter is no slot (see "The first complete pass") |
 | 402 | tool + rt | adapted | toolfix 29 (53 typed computeIfAbsent calls are ComputeIfAbsent); runtime patch regenerated: the four J-family files main changed are deleted as they are; JTMap.computeIfAbsent leaves rt_fn.go; ComputeIfAbsent throws for an immutable map; Comparator_of_ / Function_of_ in the sorted view and the tests. unify 7,409 rewrites (fourth flip 7,294). Runtime tests ok, TestUnifiedFamily's golden trace unchanged |
 | 416 | manual | dropped | subject gone: the lambda is a Go func the compiler keeps on the stack ("func literal does not escape", go build -gcflags=-m); 0 &Function_fn{ |
 | 417 | tool | adapted | toolfix 30: adapters reads a converted function literal (102 Optional.filter -> filterFn_, 6 Map_computeIfAbsent -> _f) |
@@ -71,16 +75,21 @@ git grep at the commit before the step)
 | 470 | rt | adapted | sortSliceF_ / sortSlicePF_ alone; Predicates_alwaysTrueT_ is rt_fn.go's alwaysTrueT_ |
 | 480 | rt | adapted | Comparator_of_ for cmpFunc_ |
 | 510 | rt | regenerated | two conflicts in rt_guava.go; cmpReversed_ |
+| 556 | rt | regenerated | one conflict in rt_tsorted.go (the line 402 changed) |
 | 553 | tool | adapted | toolfix 31 (optstr's call graph: forwarder methods of function types, generic literals per instantiation) |
 
-## Tool fixes added (toolfix.sh 28-31; each has its reasoning in the script)
+## Tool fixes added (toolfix.sh 28-32; each has its reasoning in the script)
 
 - 28 rw.ConvFor, colls, native: a function type as an element (box_(), fnUnbox_[F], isnull).
 - 29 unify: the translator's typed computeIfAbsent is ComputeIfAbsent.
 - 30 adapters: a function literal converted to a function type is the typed lambda.
 - 31 optstr (cha.go): x.m(..) of a function type's forwarder method is the call x(..) (through
   the field's known stores when x is such a field); the method value x.m is x; a literal of
-  generic code is reached per instantiation.
+  generic code is reached per instantiation. Only for the tool version of step 553.
+- 32 colls: the translator's upcast helpers X_as_Y (g_0casts.go) have fixed signatures.
+
+The list: 270 commits replayed (fourth flip: 276), 163 with tool runs, 117 runtime patches (121),
+1 manual patch (3). 41 `#=5` notes in steps.txt.
 
 ## Steps that run and find nothing, or less: their subject is in the translator's output
 
@@ -107,20 +116,22 @@ declarations in the base: 59 (fourth flip's base: 253).
 
 ## Census against the fourth flip's final tree (inb-selfgen, 6525013f)
 
-tools/postflip/census.py on both go/closure trees (fourth | fifth); rows that differ:
+tools/postflip/census.py on both go/closure trees (fourth | fifth: the gated tree of replay5c,
+go/ 6b6d5eac; the two outputs are $B/runs/census_flip4_selfgen_final.txt and
+$B/runs/census_flip5_final.txt); rows that differ:
 
 | row | fourth | fifth | |
 |---|---|---|---|
 | Java collections (erased): constructors | 120 | 114 | better |
 | typed TList/TMap/TSet constructors | 448 | 464 | see the map item below |
-| Guava immutable collections / builders | 155 | 113 | better (typed builder chains) |
+| Guava immutable collections / builders | 155 | 149 | better (typed builder chains) |
 | anonymous interface assertions .(interface{ | 0 | 6 | WORSE, explained below |
 | interface casts icast_X( | 207 | 176 | better |
-| class casts to_X( / cast_[T]( | 769 | 740 | better |
+| class casts to_X( / cast_[T]( | 769 | 728 | better |
 | instanceof is_X( | 71 | 78 | WORSE, explained below |
 | type assertions x.(T) | 2,118 | 2,110 | better |
 | type switches | 27 | 26 | better |
-| boxing to any | 1,182 | 1,016 | better |
+| boxing to any | 1,182 | 1,017 | better |
 | unboxing from any | 256 | 235 | better |
 | lambda objects &X_fn{func | 45 | 37 | better |
 | lambda adapter literals (all adapter values) | 587 | 39 | better |
@@ -184,8 +195,11 @@ Each changes the tree from its step on (425 at the earliest), so it needs a repl
 - The _f variants left by 125 (Iterables_filter_f, mapComputeIfAbsent_f, mapComputeIfAbsentObj_f)
   and funcObj_ (252) were kept as the fourth flip had them; whether generated code still uses each
   was not checked one by one (Map_computeIfAbsent_f has 6 calls from step 417).
-- The `#=5` notes for the steps of the table "run and find nothing" were added to steps.txt after
-  the unattended replay (comment lines only; the replay does not read them).
+- The `#=5` notes for the steps of the table "run and find nothing", and the note of toolfix 32
+  at step 336, were added to steps.txt after the replay of replay5c (comment lines only); the
+  second replay (replay5b) ran with them.
+- $B/gocache was full (47 MB free on /mnt/data) when this work began: files of the shared Go build
+  cache not used for 12 hours (later 8 to 10) were deleted three times to go on.
 - gate.sh's header prints GATE FAILED for a post-flip tree (the j2go self-test line), as before.
 
 ## The first complete pass and its gate: FAILED, one tool hole (toolfix 32)
@@ -202,26 +216,45 @@ toolfix 32 fixes the tool (helper signatures are fixed); with it the immlist kin
 the fourth flip's did (6 constructors in typed classes, 3 declarations typed, 1 class). The fix
 applies to every colls run from step 3 on, so the whole list is replayed again.
 
-THE CENSUS AND THE COUNTS OF "COVERAGE THAT THE CENSUS DOES NOT COUNT" ABOVE ARE OF THAT FIRST
-PASS (tree c6ec0c7e) AND MUST BE TAKEN AGAIN on the tree of the replay with toolfix 32.
+The census and the counts of "coverage that the census does not count" above were taken again on
+the tree of the replay with toolfix 32 (against the first pass: Guava immutables 113 -> 149, the 35
+constructors that were wrongly typed; class casts 740 -> 728; boxing 1,016 -> 1,017; the open-item
+counts are the same).
 
 ## Where this stands
 
-(see the end of the file; filled in at the end of the work)
+Done and seen:
 
-### State at the time of writing (update or delete when the work goes on)
+- The final list (steps.txt with 41 `#=5` notes, toolfix.sh 7, 9-32, the overlay patches) replayed
+  from the base 4b50a363 in one unattended run, twice, each in a worktree reset to the base:
+  `bash tools/postflip/reflip/replay5.sh replay5c`: `REPLAY DONE`, 270 commits, tip aa141ba3,
+  go/ tree 6b6d5eac6a137659576d95791d7bdb70843a0f25 (no patch regenerated on the way);
+  `bash tools/postflip/reflip/replay5.sh replay5b` (after the comment notes were added): `REPLAY
+  DONE`, 270 commits, tip 2860300a (tag flip5-replay5b), the same go/ tree 6b6d5eac.
+- The gate of that tree: branch flip5-tree (worktree $B/wt/tree5, at aa141ba3),
+  `$B/gate.sh tree5 flip5`, log $B/logs/gate-flip5.log:
 
-- Overlay main-r12-flip5 is committed with toolfix 28-32, the regenerated patches and the `#=5`
-  notes for every dropped or adapted step.
-- Running: `bash tools/postflip/reflip/replay5.sh replay5c` (a full replay from the base 4b50a363
-  into $B/wt/replay5c, log $B/logs/replay5c.log, driver output $B/logs/replay5c.out). If it
-  stops, fix as before and rerun the same command (it resumes).
-- Then: (1) gate the tip: `$B/mkwt.sh <name> <tip> <branch>`, `$B/gate.sh <name> <label>`: wanted
-  `ok jsgomech/closure` and four MATCH. Run the gate while no replay runs: two compiles of
-  go/closure at once do not fit in this host's memory (the first gate took an hour that way).
-  (2) a second replay from the base in a fresh worktree (`replay5.sh replay5b` after
-  `git -C $B/wt/replay5b reset --hard 4b50a363`: that worktree holds a stale partial replay made
-  before toolfix 32), `REPLAY DONE`, and `git rev-parse HEAD:go` equal in both. (3) census.py on
-  the tip against inb-selfgen, and the counts of the open-items table, again. (4) the `#=5` notes
-  for the steps of the table "run and find nothing" are not in steps.txt yet.
-- $B/wt/replay5 (first pass, without toolfix 32) and $B/wt/replay5x (scratch) are not results.
+      GATE FAILED flip5        (the header: the j2go self-test line, as for every post-flip tree)
+      tests before: 82
+      lstat closure/g_*.go: no such file or directory
+      removed 0 declarations in 0 rounds
+      ok  	jsgomech/closure	3.649s
+      checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+      bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+      downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+      advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+      tests after: 82
+
+Not done:
+
+- The typed variants of functional APIs (the OPEN table): 20 Go maps, 13 forEachT_ / mergeT_ /
+  computeT_ calls, 11 typed sorts, 6 runInCompilerThreadT_, 6 ComputeIfAbsentObj, fntypes' 8
+  groups. The tools were not adapted; what an adaptation needs is written under the table.
+- No time or allocation was measured. Two things may cost time against the fourth flip and were
+  not looked at with a profile: the data-flow queue's comparator path (105, 147, 419 dropped) and
+  the erased API calls of the OPEN table.
+- The per-step census of both histories (census.py at every replay commit) was made for the
+  fourth flip only, and not used: the comparison here is of the final trees, the tools' reports
+  per step (the two .replay.log files) and git grep counts at the steps named.
+- Nothing on main was changed. REFLIP4.md's first paragraph (which prep steps its base has) is as
+  it was.
