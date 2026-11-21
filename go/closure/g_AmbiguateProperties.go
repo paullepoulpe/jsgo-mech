@@ -117,20 +117,20 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		colorMap[i] = nameGen.generateNextName()
 	}
 	for node := range propertyGraph.getNodes_rList().All() {
-		node.getValue().newName = Optional_of[string](colorMap[hashR_(Annotatable_getAnnotation(AmbiguateProperties_PropertyGraphNode_as_Annotatable(node)))])
+		node.getValue().newName = optstrOf_(colorMap[hashR_(Annotatable_getAnnotation(AmbiguateProperties_PropertyGraphNode_as_Annotatable(node)))])
 		if this.renamingMap != nil {
-			this.renamingMap.Put(node.getValue().oldName, node.getValue().newName.orElse(nullstr_))
+			this.renamingMap.Put(node.getValue().oldName, node.getValue().newName)
 		}
 	}
 	for n := range sliceAll_(this.stringNodesToRename) {
 		var oldName string = n.getString()
 		var p *AmbiguateProperties_Property = this.propertyMap.Get(oldName)
-		if (p != nil) && p.newName.isPresent() {
+		if (p != nil) && p.newName != nullstr_ {
 			if oldName != p.oldName {
 				panic(new_IllegalStateException_0())
 			}
-			if !(p.newName.get() == oldName) {
-				n.setString(p.newName.get())
+			if !(optstrGet_(p.newName) == oldName) {
+				n.setString(optstrGet_(p.newName))
 				this.compiler_.reportChangeToEnclosingScope(n)
 			}
 		}
@@ -474,7 +474,7 @@ type AmbiguateProperties_Property struct {
 	oldName            string
 	relatedColorsSeeds *TMap[*ColorGraphNode, any]
 	relatedColors      *BitSet
-	newName            Optional[string]
+	newName            string
 	numOccurrences     int32
 	skipAmbiguating    bool
 }
@@ -484,7 +484,7 @@ func (this *AmbiguateProperties_Property) zero_AmbiguateProperties_Property() {
 }
 
 func (this *AmbiguateProperties_Property) finit_AmbiguateProperties_Property() {
-	this.newName = Optional_empty[string]()
+	this.newName = nullstr_
 	this.relatedColorsSeeds = nil
 	this.relatedColors = new_BitSet()
 }

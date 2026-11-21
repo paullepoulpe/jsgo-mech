@@ -99,10 +99,10 @@ func (this *SuppressDocWarningsGuard) getCheckLevelFromInfo(error_ *JSError, inf
 }
 
 func (this *SuppressDocWarningsGuard) getScriptNodeBySourceName(error_ *JSError) Node {
-	if error_.sourceName().isEmpty() {
+	if error_.sourceName() == nullstr_ {
 		return 0
 	}
-	var scriptNode Node = this.compiler_.getScriptNode(error_.sourceName().get())
+	var scriptNode Node = this.compiler_.getScriptNode(optstrGet_(error_.sourceName()))
 	if scriptNode == 0 {
 		return 0
 	}

@@ -324,24 +324,24 @@ func Node_newString_Token_LazyInternedStringList_int(token Token_rhino, stringPo
 	return n
 }
 
-func Node_newTemplateLitString_Optional_String(cooked Optional[string], raw string) Node {
+func Node_newTemplateLitString_Optional_String(cooked string, raw string) Node {
 	var n Node = new_Node_Token(Token_rhino_TEMPLATELIT_STRING)
-	n.payload_set_(obj_(new_Node_TemplateLiteralSubstring(func() Optional[string] {
-		if cooked.isEmpty() {
-			return Optional_empty[string]()
+	n.payload_set_(obj_(new_Node_TemplateLiteralSubstring(func() string {
+		if cooked == nullstr_ {
+			return nullstr_
 		}
-		return Optional_of[string](RhinoStringPool_addOrGet(cooked.get()))
+		return optstrOf_(RhinoStringPool_addOrGet(optstrGet_(cooked)))
 	}(), RhinoStringPool_addOrGet(raw))))
 	return n
 }
 
 func Node_newTemplateLitString_LazyInternedStringList_int_int(stringPool *RhinoStringPool_LazyInternedStringList, cookedOffsetOrNegativeOne int32, rawOffset int32) Node {
 	var n Node = new_Node_Token(Token_rhino_TEMPLATELIT_STRING)
-	n.payload_set_(obj_(new_Node_TemplateLiteralSubstring(func() Optional[string] {
+	n.payload_set_(obj_(new_Node_TemplateLiteralSubstring(func() string {
 		if cookedOffsetOrNegativeOne == -1 {
-			return Optional_empty[string]()
+			return nullstr_
 		}
-		return Optional_of[string](stringPool.get(cookedOffsetOrNegativeOne))
+		return optstrOf_(stringPool.get(cookedOffsetOrNegativeOne))
 	}(), stringPool.get(rawOffset))))
 	return n
 }
@@ -1109,7 +1109,7 @@ func (this Node) getRawString() string {
 	return substring.raw
 }
 
-func (this Node) getCookedString() Optional[string] {
+func (this Node) getCookedString() string {
 	substring, ok := this.payload_obj_().(*Node_TemplateLiteralSubstring)
 	if !(ok) {
 		panic(this.payloadKindMismatch("template literal string"))
@@ -1809,7 +1809,7 @@ func (this Node) isEquivalentTo_5(node Node, recursion Node_RecursionMode, typeC
 			} else {
 				if substring, ok2 := this.payload_obj_().(*Node_TemplateLiteralSubstring); ok2 {
 					var other *Node_TemplateLiteralSubstring = cast_[*Node_TemplateLiteralSubstring](node.payload_get_())
-					return (RhinoStringPool_uncheckedEquals(substring.raw, other.raw) && optEquals_(substring.cooked, other.cooked))
+					return (RhinoStringPool_uncheckedEquals(substring.raw, other.raw) && substring.cooked == other.cooked)
 				}
 			}
 		}
@@ -3290,19 +3290,19 @@ func Node_Prop_clinit() {
 
 type Node_TemplateLiteralSubstring struct {
 	raw    string
-	cooked Optional[string]
+	cooked string
 }
 
 func (this *Node_TemplateLiteralSubstring) zero_Node_TemplateLiteralSubstring() {
 	this.raw = nullstr_
 }
 
-func (this *Node_TemplateLiteralSubstring) init_Node_TemplateLiteralSubstring(cooked Optional[string], raw string) {
+func (this *Node_TemplateLiteralSubstring) init_Node_TemplateLiteralSubstring(cooked string, raw string) {
 	this.cooked = cooked
 	this.raw = raw
 }
 
-func new_Node_TemplateLiteralSubstring(cooked Optional[string], raw string) *Node_TemplateLiteralSubstring {
+func new_Node_TemplateLiteralSubstring(cooked string, raw string) *Node_TemplateLiteralSubstring {
 	this := &Node_TemplateLiteralSubstring{}
 	this.zero_Node_TemplateLiteralSubstring()
 	this.init_Node_TemplateLiteralSubstring(cooked, raw)

@@ -93,11 +93,11 @@ func new_ClosureModuleProcessor_UnresolvedGoogModule(metadata *ModuleMetadataMap
 	return this
 }
 
-func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport_impl(moduleRequestResolver ModuleRequestResolver, exportName Optional[string]) *ResolveExportResult {
-	if exportName.isPresent() && this.namespace_.Has(exportName.get()) {
+func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport_impl(moduleRequestResolver ModuleRequestResolver, exportName string) *ResolveExportResult {
+	if exportName != nullstr_ && this.namespace_.Has(optstrGet_(exportName)) {
 		return ResolveExportResult_of(func() *Binding {
-			if exportName.isPresent() {
-				return this.namespace_.Get(exportName.get())
+			if exportName != nullstr_ {
+				return this.namespace_.Get(optstrGet_(exportName))
 			}
 			return nil
 		}())
@@ -105,14 +105,14 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport_impl(modu
 	return ResolveExportResult_NOT_FOUND
 }
 
-func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier Optional[string], exportName Optional[string], resolveSet map[exportTraceKey_]struct{}, exportStarSet map[*UnresolvedModule]struct{}) *ResolveExportResult {
+func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier string, exportName string, resolveSet map[exportTraceKey_]struct{}, exportStarSet map[*UnresolvedModule]struct{}) *ResolveExportResult {
 	return this.resolveExport(moduleRequestResolver, exportName)
 }
 
-func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolve_2_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier Optional[string]) *Module {
+func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolve_2_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier string) *Module {
 	if this.resolved_ == nil {
 		var boundNames *TMap[string, *Binding] = tmapCopy_(tc_string, tc_p_Binding, this.getAllResolvedImports(moduleRequestResolver))
-		this.resolved_ = Module_builder().path(this.path_).metadata(this.metadataField).namespace(this.namespace_).boundNames(immutableMapCopyOfT_(tc_string, tc_p_Binding, boundNames)).localNameToLocalExport(tmapEmptyImm_(tc_string, tc_p_Export)).closureNamespace(Optional_ofNullable[string](str_(Iterables_getOnlyElement(iup_Iterable(this.metadataField.googNamespaces()))))).build()
+		this.resolved_ = Module_builder().path(this.path_).metadata(this.metadataField).namespace(this.namespace_).boundNames(immutableMapCopyOfT_(tc_string, tc_p_Binding, boundNames)).localNameToLocalExport(tmapEmptyImm_(tc_string, tc_p_Export)).closureNamespace(str_(Iterables_getOnlyElement(iup_Iterable(this.metadataField.googNamespaces())))).build()
 	}
 	return this.resolved_
 }
@@ -137,7 +137,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveImport(moduleReq
 	} else if importRecord.importName() == Export_NAMESPACE {
 		return ResolveExportResult_of(Binding_from_ModuleMetadata_Node_String_CreatedBy(requested.metadata(), importRecord.nameNode(), importRecord.moduleRequest(), require.createdBy()))
 	} else {
-		var result *ResolveExportResult = requested.resolveExport_5(moduleRequestResolver, Optional_of[string](importRecord.moduleRequest()), Optional_of[string](importRecord.importName()), map[exportTraceKey_]struct{}{}, map[*UnresolvedModule]struct{}{})
+		var result *ResolveExportResult = requested.resolveExport_5(moduleRequestResolver, optstrOf_(importRecord.moduleRequest()), optstrOf_(importRecord.importName()), map[exportTraceKey_]struct{}{}, map[*UnresolvedModule]struct{}{})
 		if !result.found() && !result.hadError() {
 			this.reportInvalidDestructuringRequire(requested, importRecord)
 			return ResolveExportResult_ERROR
@@ -179,7 +179,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) reportInvalidDestructur
 			}
 		}
 	}
-	this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](this.srcFileName), importRecord.importNode().getLineno(), importRecord.importNode().getCharno(), ModuleMapCreator_DOES_NOT_HAVE_EXPORT_WITH_DETAILS, []string{importRecord.importName(), additionalInfo}))
+	this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(optstrOf_(this.srcFileName), importRecord.importNode().getLineno(), importRecord.importNode().getCharno(), ModuleMapCreator_DOES_NOT_HAVE_EXPORT_WITH_DETAILS, []string{importRecord.importName(), additionalInfo}))
 }
 
 type ClosureModuleProcessor_ModuleProcessingCallback struct {
@@ -267,7 +267,7 @@ func (this *ClosureModuleProcessor_ModuleProcessingCallback) maybeInitializeExpo
 }
 
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) markExportsAssignmentInNamespace(exportsNode Node) {
-	this.namespace_.Put(Export_NAMESPACE, Binding_from_Export_Node(Export_builder().exportName(Optional_of[string](Export_NAMESPACE)).exportNode(exportsNode).moduleMetadata(this.metadata_).closureNamespace(Optional_of[string](this.closureNamespace_)).modulePath(this.metadata_.path()).build(), exportsNode))
+	this.namespace_.Put(Export_NAMESPACE, Binding_from_Export_Node(Export_builder().exportName(optstrOf_(Export_NAMESPACE)).exportNode(exportsNode).moduleMetadata(this.metadata_).closureNamespace(optstrOf_(this.closureNamespace_)).modulePath(this.metadata_.path()).build(), exportsNode))
 }
 
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) initializeNamedExportsLiteral(objectLit Node) {
@@ -285,7 +285,7 @@ func (this *ClosureModuleProcessor_ModuleProcessingCallback) addPropertyExport(e
 	} else if this.namespace_.Has(exportedId) {
 		return
 	}
-	this.namespace_.Put(exportedId, Binding_from_Export_Node(Export_builder().exportName(Optional_of[string](exportedId)).exportNode(propNode).moduleMetadata(this.metadata_).closureNamespace(Optional_of[string](this.closureNamespace_)).modulePath(this.metadata_.path()).build(), propNode))
+	this.namespace_.Put(exportedId, Binding_from_Export_Node(Export_builder().exportName(optstrOf_(exportedId)).exportNode(propNode).moduleMetadata(this.metadata_).closureNamespace(optstrOf_(this.closureNamespace_)).modulePath(this.metadata_.path()).build(), propNode))
 }
 
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) maybeInitializeRequire(nameDeclaration Node) {
@@ -295,7 +295,7 @@ func (this *ClosureModuleProcessor_ModuleProcessingCallback) maybeInitializeRequ
 }
 
 // resolveExport: an object that is exactly a ClosureModuleProcessor_UnresolvedGoogModule calls its resolveExport_impl directly (post-flip); others dispatch.
-func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport(p0 ModuleRequestResolver, p1 Optional[string]) *ResolveExportResult {
+func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport(p0 ModuleRequestResolver, p1 string) *ResolveExportResult {
 	if p, _ := this.self_.(*ClosureModuleProcessor_UnresolvedGoogModule); p == this {
 		return this.resolveExport_impl(p0, p1)
 	}
@@ -303,7 +303,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport(p0 Module
 }
 
 // resolveExport_5: an object that is exactly a ClosureModuleProcessor_UnresolvedGoogModule calls its resolveExport_5_impl directly (post-flip); others dispatch.
-func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport_5(p0 ModuleRequestResolver, p1 Optional[string], p2 Optional[string], p3 map[exportTraceKey_]struct{}, p4 map[*UnresolvedModule]struct{}) *ResolveExportResult {
+func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport_5(p0 ModuleRequestResolver, p1 string, p2 string, p3 map[exportTraceKey_]struct{}, p4 map[*UnresolvedModule]struct{}) *ResolveExportResult {
 	if p, _ := this.self_.(*ClosureModuleProcessor_UnresolvedGoogModule); p == this {
 		return this.resolveExport_5_impl(p0, p1, p2, p3, p4)
 	}
@@ -311,7 +311,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport_5(p0 Modu
 }
 
 // resolve_2: an object that is exactly a ClosureModuleProcessor_UnresolvedGoogModule calls its resolve_2_impl directly (post-flip); others dispatch.
-func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolve_2(p0 ModuleRequestResolver, p1 Optional[string]) *Module {
+func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolve_2(p0 ModuleRequestResolver, p1 string) *Module {
 	if p, _ := this.self_.(*ClosureModuleProcessor_UnresolvedGoogModule); p == this {
 		return this.resolve_2_impl(p0, p1)
 	}

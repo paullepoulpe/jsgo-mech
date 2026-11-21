@@ -18,12 +18,12 @@ func new_CoverageInstrumentationCallback(instrumentationData *TMap[string, *File
 	return this
 }
 
-func CoverageInstrumentationCallback_getFileName(traversal *NodeTraversal) Optional[string] {
+func CoverageInstrumentationCallback_getFileName(traversal *NodeTraversal) string {
 	return traversal.getSourceName()
 }
 
 func (this *CoverageInstrumentationCallback) createArrayName(traversal *NodeTraversal) string {
-	return (sstr_(CoverageInstrumentationCallback_ARRAY_NAME_PREFIX) + sstr_(CoverageUtil_createIdentifierFromText(CoverageInstrumentationCallback_getFileName(traversal).get())))
+	return (sstr_(CoverageInstrumentationCallback_ARRAY_NAME_PREFIX) + sstr_(CoverageUtil_createIdentifierFromText(optstrGet_(CoverageInstrumentationCallback_getFileName(traversal)))))
 }
 
 func (this *CoverageInstrumentationCallback) newInstrumentationNode(traversal *NodeTraversal, node Node) Node {
@@ -31,13 +31,13 @@ func (this *CoverageInstrumentationCallback) newInstrumentationNode(traversal *N
 	var arrayName string = this.createArrayName(traversal)
 	var getElemNode Node = IR_getelem(IR_name(arrayName), IR_number(float64((lineNumber - 1))))
 	var exprNode Node = IR_exprResult(IR_assign(getElemNode, IR_trueNode()))
-	var fileName Optional[string] = CoverageInstrumentationCallback_getFileName(traversal)
-	this.instrumentationData.ComputeIfAbsent(fileName.orElse(nullstr_), Function[string, *FileInstrumentationData](func(k string) *FileInstrumentationData {
+	var fileName string = CoverageInstrumentationCallback_getFileName(traversal)
+	this.instrumentationData.ComputeIfAbsent(fileName, Function[string, *FileInstrumentationData](func(k string) *FileInstrumentationData {
 		return new_FileInstrumentationData(k, arrayName)
 	}))
 	func() *FileInstrumentationData {
-		if fileName.isPresent() {
-			return this.instrumentationData.Get(fileName.get())
+		if fileName != nullstr_ {
+			return this.instrumentationData.Get(optstrGet_(fileName))
 		}
 		return nil
 	}().setLineAsInstrumented(lineNumber)
@@ -49,11 +49,11 @@ func (this *CoverageInstrumentationCallback) newArrayDeclarationNode(traversal *
 }
 
 func (this *CoverageInstrumentationCallback) newHeaderNode(traversal *NodeTraversal, srcref Node) Node {
-	var fileName Optional[string] = CoverageInstrumentationCallback_getFileName(traversal)
+	var fileName string = CoverageInstrumentationCallback_getFileName(traversal)
 	var arrayName string = this.createArrayName(traversal)
 	var data *FileInstrumentationData = func() *FileInstrumentationData {
-		if fileName.isPresent() {
-			return this.instrumentationData.Get(fileName.get())
+		if fileName != nullstr_ {
+			return this.instrumentationData.Get(optstrGet_(fileName))
 		}
 		return nil
 	}()
@@ -61,7 +61,7 @@ func (this *CoverageInstrumentationCallback) newHeaderNode(traversal *NodeTraver
 		panic(new_NullPointerException_0())
 	}
 	var objName string = CoverageInstrumentationPass_JS_INSTRUMENTATION_OBJECT_NAME
-	return IR_blockNodeVarargs([]Node{this.newArrayDeclarationNode(traversal), IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("executedLines")), "push"), []Node{IR_name(arrayName)})), IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("instrumentedLines")), "push"), []Node{IR_string(data.getInstrumentedLinesAsHexString())})), IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("fileNames")), "push"), []Node{IR_string(fileName.get())}))}).srcrefTreeIfMissing(srcref)
+	return IR_blockNodeVarargs([]Node{this.newArrayDeclarationNode(traversal), IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("executedLines")), "push"), []Node{IR_name(arrayName)})), IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("instrumentedLines")), "push"), []Node{IR_string(data.getInstrumentedLinesAsHexString())})), IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("fileNames")), "push"), []Node{IR_string(optstrGet_(fileName))}))}).srcrefTreeIfMissing(srcref)
 }
 
 func (this *CoverageInstrumentationCallback) shouldTraverse(nodeTraversal *NodeTraversal, n Node, parent Node) bool {
@@ -70,10 +70,10 @@ func (this *CoverageInstrumentationCallback) shouldTraverse(nodeTraversal *NodeT
 
 func (this *CoverageInstrumentationCallback) visit(traversal *NodeTraversal, node Node, parent Node) {
 	if node.isScript() {
-		var fileName Optional[string] = CoverageInstrumentationCallback_getFileName(traversal)
+		var fileName string = CoverageInstrumentationCallback_getFileName(traversal)
 		if func() *FileInstrumentationData {
-			if fileName.isPresent() {
-				return this.instrumentationData.Get(fileName.get())
+			if fileName != nullstr_ {
+				return this.instrumentationData.Get(optstrGet_(fileName))
 			}
 			return nil
 		}() != nil {

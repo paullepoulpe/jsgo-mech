@@ -144,9 +144,9 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) enterScope(t *NodeTrav
 	var scope *Scope = t.getScope()
 	var root Node = scope.getRootNode()
 	if root.isFunction() {
-		var propName Optional[string] = this.getPrototypePropertyNameFromRValue(n)
-		if propName.isPresent() {
-			*this.symbolStack = append(*this.symbolStack, new_AnalyzePrototypeProperties_NameContext(this.outer_.getNameInfoForName(propName.get(), AnalyzePrototypeProperties_PROPERTY), scope))
+		var propName string = this.getPrototypePropertyNameFromRValue(n)
+		if propName != nullstr_ {
+			*this.symbolStack = append(*this.symbolStack, new_AnalyzePrototypeProperties_NameContext(this.outer_.getNameInfoForName(optstrGet_(propName), AnalyzePrototypeProperties_PROPERTY), scope))
 		} else if this.isGlobalFunctionDeclaration(t, n) {
 			var parent Node = n.getParent()
 			var name string = func() string {
@@ -175,9 +175,9 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) exitScope(t *NodeTrave
 
 func (this *AnalyzePrototypeProperties_ProcessProperties) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	if !this.outer_.rootScopeUsesAreGlobal {
-		var propName Optional[string] = this.processNonFunctionPrototypeAssign(n, parent)
-		if propName.isPresent() {
-			*this.symbolStack = append(*this.symbolStack, new_AnalyzePrototypeProperties_NameContext(this.outer_.getNameInfoForName(propName.get(), AnalyzePrototypeProperties_PROPERTY), nil))
+		var propName string = this.processNonFunctionPrototypeAssign(n, parent)
+		if propName != nullstr_ {
+			*this.symbolStack = append(*this.symbolStack, new_AnalyzePrototypeProperties_NameContext(this.outer_.getNameInfoForName(optstrGet_(propName), AnalyzePrototypeProperties_PROPERTY), nil))
 		}
 	}
 	return true
@@ -206,8 +206,8 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 				return
 			} else {
 				if parent.isAssign() && (n == parent.getFirstChild()) {
-					var rValueName Optional[string] = this.getPrototypePropertyNameFromRValue(n)
-					if rValueName.isPresent() {
+					var rValueName string = this.getPrototypePropertyNameFromRValue(n)
+					if rValueName != nullstr_ {
 						return
 					}
 				}
@@ -215,8 +215,8 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 		}
 		this.addSymbolUse(propName, t.getChunk(), AnalyzePrototypeProperties_PROPERTY)
 	case Token_rhino_OBJECTLIT:
-		var lValueName Optional[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
-		if lValueName.isPresent() && strings.HasSuffix(lValueName.get(), ".prototype") {
+		var lValueName string = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
+		if lValueName != nullstr_ && strings.HasSuffix(optstrGet_(lValueName), ".prototype") {
 			return
 		}
 		fallthrough
@@ -270,7 +270,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 		}
 	default:
 	}
-	if !this.outer_.rootScopeUsesAreGlobal && this.processNonFunctionPrototypeAssign(n, parent).isPresent() {
+	if !this.outer_.rootScopeUsesAreGlobal && this.processNonFunctionPrototypeAssign(n, parent) != nullstr_ {
 		slicePop_(tc_p_AnalyzePrototypeProperties_NameContext, this.symbolStack)
 	}
 }
@@ -289,11 +289,11 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) addSymbolUse(name stri
 	}
 }
 
-func (this *AnalyzePrototypeProperties_ProcessProperties) processNonFunctionPrototypeAssign(n Node, parent Node) Optional[string] {
+func (this *AnalyzePrototypeProperties_ProcessProperties) processNonFunctionPrototypeAssign(n Node, parent Node) string {
 	if this.isAssignRValue(n, parent) && !n.isFunction() {
 		return this.getPrototypePropertyNameFromRValue(n)
 	}
-	return Optional_empty[string]()
+	return nullstr_
 }
 
 func (this *AnalyzePrototypeProperties_ProcessProperties) isGlobalFunctionDeclaration(t *NodeTraversal, n Node) bool {
@@ -307,24 +307,24 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) isAssignRValue(n Node,
 	return (((parent != 0) && parent.isAssign()) && (parent.getFirstChild() != n))
 }
 
-func (this *AnalyzePrototypeProperties_ProcessProperties) getPrototypePropertyNameFromRValue(rValue Node) Optional[string] {
+func (this *AnalyzePrototypeProperties_ProcessProperties) getPrototypePropertyNameFromRValue(rValue Node) string {
 	var lValue Node = NodeUtil_getBestLValue(rValue)
 	if (lValue == 0) || !((NodeUtil_mayBeObjectLitKey(lValue) && !lValue.isQuotedStringKey()) || NodeUtil_isExprAssign(lValue.getGrandparent())) {
-		return Optional_empty[string]()
+		return nullstr_
 	}
-	var lValueName Optional[string] = NodeUtil_getBestLValueName(lValue)
-	if lValueName.isEmpty() {
-		return Optional_empty[string]()
+	var lValueName string = NodeUtil_getBestLValueName(lValue)
+	if lValueName == nullstr_ {
+		return nullstr_
 	}
-	var lastDot int32 = int32(strings.LastIndexByte(lValueName.get(), '.'))
+	var lastDot int32 = int32(strings.LastIndexByte(optstrGet_(lValueName), '.'))
 	if lastDot == -1 {
-		return Optional_empty[string]()
+		return nullstr_
 	}
-	var firstPart string = lValueName.get()[:lastDot]
+	var firstPart string = optstrGet_(lValueName)[:lastDot]
 	if !strings.HasSuffix(firstPart, ".prototype") {
-		return Optional_empty[string]()
+		return nullstr_
 	}
-	return Optional_of[string](lValueName.get()[(lastDot + 1):])
+	return optstrOf_(optstrGet_(lValueName)[(lastDot + 1):])
 }
 
 func (this *AnalyzePrototypeProperties_ProcessProperties) processGlobalFunctionDeclaration(t *NodeTraversal, nameNode Node, v *Var) bool {

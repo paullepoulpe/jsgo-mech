@@ -373,9 +373,9 @@ func (this *ControlFlowAnalysis) handleCatch(node Node) {
 }
 
 func (this *ControlFlowAnalysis) handleBreak(node Node) {
-	var label Optional[string] = Optional_empty[string]()
+	var label string = nullstr_
 	if node.hasChildren() {
-		label = Optional_of[string](node.getFirstChild().getString())
+		label = optstrOf_(node.getFirstChild().getString())
 	}
 	var cur Node
 	var previous Node = 0
@@ -419,9 +419,9 @@ func (this *ControlFlowAnalysis) handleBreak(node Node) {
 }
 
 func (this *ControlFlowAnalysis) handleContinue(node Node) {
-	var label Optional[string] = Optional_empty[string]()
+	var label string = nullstr_
 	if node.hasChildren() {
-		label = Optional_of[string](node.getFirstChild().getString())
+		label = optstrOf_(node.getFirstChild().getString())
 	}
 	var cur Node
 	var previous Node = 0
@@ -635,20 +635,20 @@ func ControlFlowAnalysis_getNextSiblingOfType(first Node, types []Token_rhino) N
 	return 0
 }
 
-func ControlFlowAnalysis_isBreakTarget(target Node, label Optional[string]) bool {
-	return (ControlFlowAnalysis_isBreakStructure(target, label.isPresent()) && ControlFlowAnalysis_matchLabel(target.getParent(), label))
+func ControlFlowAnalysis_isBreakTarget(target Node, label string) bool {
+	return (ControlFlowAnalysis_isBreakStructure(target, label != nullstr_) && ControlFlowAnalysis_matchLabel(target.getParent(), label))
 }
 
-func ControlFlowAnalysis_isContinueTarget(target Node, label Optional[string]) bool {
+func ControlFlowAnalysis_isContinueTarget(target Node, label string) bool {
 	return (NodeUtil_isLoopStructure(target) && ControlFlowAnalysis_matchLabel(target.getParent(), label))
 }
 
-func ControlFlowAnalysis_matchLabel(target Node, label Optional[string]) bool {
-	if label.isEmpty() {
+func ControlFlowAnalysis_matchLabel(target Node, label string) bool {
+	if label == nullstr_ {
 		return true
 	}
 	for target.isLabel() {
-		if target.getFirstChild().getString() == label.get() {
+		if target.getFirstChild().getString() == optstrGet_(label) {
 			return true
 		}
 		target = target.getParent()

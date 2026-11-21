@@ -135,12 +135,12 @@ func (this *SymbolTable) findSymbolForScope(scope *SymbolTable_SymbolScope) *Sym
 	if !rootNode.isFunction() {
 		return nil
 	}
-	var name Optional[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(rootNode))
+	var name string = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(rootNode))
 	return func() *SymbolTable_Symbol {
-		if name.isEmpty() {
+		if name == nullstr_ {
 			return nil
 		}
-		return scope.getParentScope().getQualifiedSlot(name.get())
+		return scope.getParentScope().getQualifiedSlot(optstrGet_(name))
 	}()
 }
 
@@ -180,8 +180,8 @@ func (this *SymbolTable) getSymbolForInstancesOf(fn *FunctionType) *SymbolTable_
 	return this.getSymbolForName(fn.getSource(), pType.getReferenceName())
 }
 
-func (this *SymbolTable) getSymbolForName(source Node, name Optional[string]) *SymbolTable_Symbol {
-	if name.isEmpty() || (this.globalScope == nil) {
+func (this *SymbolTable) getSymbolForName(source Node, name string) *SymbolTable_Symbol {
+	if name == nullstr_ || (this.globalScope == nil) {
 		return nil
 	}
 	var scope *SymbolTable_SymbolScope = func() *SymbolTable_SymbolScope {
@@ -195,11 +195,11 @@ func (this *SymbolTable) getSymbolForName(source Node, name Optional[string]) *S
 	}
 	if scope.isModuleScope() {
 		var moduleNameWithDot string = (sstr_(str_(Iterables_getFirst(iup_Iterable(this.compiler_.getModuleMetadataMap().getModulesByPath().Get(scope.getRootNode().getSourceFileName()).googNamespaces()), nil))) + ".")
-		if strings.HasPrefix(name.get(), moduleNameWithDot) {
-			name = Optional_of[string](name.get()[len(moduleNameWithDot):])
+		if strings.HasPrefix(optstrGet_(name), moduleNameWithDot) {
+			name = optstrOf_(optstrGet_(name)[len(moduleNameWithDot):])
 		}
 	}
-	return scope.getQualifiedSlot(name.get())
+	return scope.getQualifiedSlot(optstrGet_(name))
 }
 
 func (this *SymbolTable) getAllSymbolsForType(type_ *JSType) *TList[*SymbolTable_Symbol] {
@@ -635,7 +635,7 @@ func (this *SymbolTable) needsPropertyScope(sym *SymbolTable_Symbol) bool {
 	if type_ == nil {
 		return false
 	}
-	if type_.getReferenceName().isEmpty() {
+	if type_.getReferenceName() == nullstr_ {
 		return true
 	}
 	if type_.isNominalConstructorOrInterface() || type_.isFunctionPrototypeType() {
@@ -829,7 +829,7 @@ func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes 
 		case ModuleMetadataMap_ModuleType_GOOG_MODULE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE:
 			declaration = moduleScope.getOwnSlot("exports")
 		case ModuleMetadataMap_ModuleType_GOOG_PROVIDE:
-			declaration = this.getSymbolForName(0, Optional_of[string](moduleName))
+			declaration = this.getSymbolForName(0, optstrOf_(moduleName))
 		default:
 		}
 		if declaration != nil {
@@ -849,7 +849,7 @@ func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes 
 			case ModuleMetadataMap_ModuleType_GOOG_MODULE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE:
 				varDeclaration = moduleScope.getOwnSlot(varName)
 			case ModuleMetadataMap_ModuleType_GOOG_PROVIDE:
-				varDeclaration = this.getSymbolForName(0, Optional_of[string]((sstr_(moduleName) + "." + sstr_(varName))))
+				varDeclaration = this.getSymbolForName(0, optstrOf_((sstr_(moduleName) + "." + sstr_(varName))))
 			default:
 			}
 			if varDeclaration != nil {
@@ -1417,9 +1417,9 @@ func (this *SymbolTable_PropertyRefCollector) maybeDefineReference(n Node, propN
 	return false
 }
 
-func (this *SymbolTable_PropertyRefCollector) tryDefineLexicalQualifiedNameRef(name Optional[string], n Node) bool {
-	if name.isPresent() {
-		var lexicalSym *SymbolTable_Symbol = this.outer_.getEnclosingScope(n).getQualifiedSlot(name.get())
+func (this *SymbolTable_PropertyRefCollector) tryDefineLexicalQualifiedNameRef(name string, n Node) bool {
+	if name != nullstr_ {
+		var lexicalSym *SymbolTable_Symbol = this.outer_.getEnclosingScope(n).getQualifiedSlot(optstrGet_(name))
 		if lexicalSym != nil {
 			lexicalSym.defineReferenceAt(n)
 			return true
@@ -1428,9 +1428,9 @@ func (this *SymbolTable_PropertyRefCollector) tryDefineLexicalQualifiedNameRef(n
 	return false
 }
 
-func (this *SymbolTable_PropertyRefCollector) tryRemoveLexicalQualifiedNameRef(name Optional[string], n Node) {
-	if name.isPresent() {
-		var lexicalSym *SymbolTable_Symbol = this.outer_.getEnclosingScope(n).getQualifiedSlot(name.get())
+func (this *SymbolTable_PropertyRefCollector) tryRemoveLexicalQualifiedNameRef(name string, n Node) {
+	if name != nullstr_ {
+		var lexicalSym *SymbolTable_Symbol = this.outer_.getEnclosingScope(n).getQualifiedSlot(optstrGet_(name))
 		if ((lexicalSym != nil) && lexicalSym.isLexicalVariable()) && (lexicalSym.getDeclaration_rStaticTypedRef_rReference().getNode() == n) {
 			this.outer_.removeSymbol(lexicalSym)
 		}
@@ -1473,7 +1473,7 @@ func (this *SymbolTable_PropertyRefCollector) maybeDefineTypedReference(n Node, 
 		}
 		if (propNodeDecl != 0) && (propNodeDecl.isGetProp() || propNodeDecl.isOptChainGetProp()) {
 			var namespace Node = propNodeDecl.getFirstChild()
-			var namespaceSym *SymbolTable_Symbol = this.outer_.getSymbolForName(namespace, Optional_of[string](namespace.getQualifiedName()).filterFn_(func(s string) bool {
+			var namespaceSym *SymbolTable_Symbol = this.outer_.getSymbolForName(namespace, optstrFilter_(optstrOf_(namespace.getQualifiedName()), func(s string) bool {
 				return s != ""
 			}))
 			if (namespaceSym != nil) && (namespaceSym.getPropertyScope() != nil) {
@@ -1488,7 +1488,7 @@ func (this *SymbolTable_PropertyRefCollector) maybeDefineTypedReference(n Node, 
 		if (propNodeDeclScope == nil) || !propNodeDeclScope.isModuleScope() {
 			return false
 		}
-		var symbol *SymbolTable_Symbol = this.outer_.getSymbolForName(propNodeDecl, Optional_of[string](propName))
+		var symbol *SymbolTable_Symbol = this.outer_.getSymbolForName(propNodeDecl, optstrOf_(propName))
 		if (symbol != nil) && (symbol.getDeclarationNode() != n) {
 			symbol.defineReferenceAt(n)
 			return true
@@ -1503,13 +1503,13 @@ func (this *SymbolTable_PropertyRefCollector) visit_impl(t *NodeTraversal, n Nod
 		if owner != nil {
 			var defined bool = this.maybeDefineTypedReference(n, n.getString(), owner)
 			if defined {
-				this.tryRemoveLexicalQualifiedNameRef(Optional_of[string](n.getQualifiedName()).filterFn_(func(s string) bool {
+				this.tryRemoveLexicalQualifiedNameRef(optstrFilter_(optstrOf_(n.getQualifiedName()), func(s string) bool {
 					return s != ""
 				}), n)
 				return
 			}
 		}
-		this.tryDefineLexicalQualifiedNameRef(Optional_of[string](n.getQualifiedName()).filterFn_(func(s string) bool {
+		this.tryDefineLexicalQualifiedNameRef(optstrFilter_(optstrOf_(n.getQualifiedName()), func(s string) bool {
 			return s != ""
 		}), n)
 	} else if n.isStringKey() {

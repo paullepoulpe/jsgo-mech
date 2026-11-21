@@ -53,8 +53,8 @@ func (this *ScriptMetadata) usesName(name string) bool {
 	return has_(this.namesInUse, name)
 }
 
-func (this *ScriptMetadata) getAlias(namespace string) Optional[string] {
-	return Optional_ofNullable[string](mapStr_(this.requireAliases, namespace))
+func (this *ScriptMetadata) getAlias(namespace string) string {
+	return mapStr_(this.requireAliases, namespace)
 }
 
 func (this *ScriptMetadata) addAlias(namespace string, alias string) {
@@ -133,14 +133,14 @@ func (this *ScriptMetadata_FillerCallback) maybeCollectRequirelikeAlias(n Node) 
 	if !this.isRequirelikeCall(requirelikeCall) {
 		return
 	}
-	var alias Optional[string] = Optional_of[string](aliasNode.getOriginalName()).filterFn_(func(s string) bool {
+	var alias string = optstrFilter_(optstrOf_(aliasNode.getOriginalName()), func(s string) bool {
 		return s != ""
 	})
-	if alias.isEmpty() {
-		alias = Optional_of[string](aliasNode.getString())
+	if alias == nullstr_ {
+		alias = optstrOf_(aliasNode.getString())
 	}
 	var namespace string = requirelikeCall.getSecondChild().getString()
-	this.toFill.requireAliases[namespace] = alias.orElse(nullstr_)
+	this.toFill.requireAliases[namespace] = alias
 }
 
 func (this *ScriptMetadata_FillerCallback) isRequirelikeCall(call Node) bool {
