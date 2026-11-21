@@ -681,7 +681,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpileSwi
 			newBody.setIsAddedBlock(true)
 			newBody.setGeneratorSafe(true)
 			body.replaceWith(newBody)
-			detachedCases = append(detachedCases, cast_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase](new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase(this, generatedCase, body)))
+			detachedCases = append(detachedCases, new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase(this, generatedCase, body))
 			caseSection.setGeneratorMarker(false)
 		}
 	}

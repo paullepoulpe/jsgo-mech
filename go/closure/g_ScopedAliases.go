@@ -697,7 +697,7 @@ func (this *ScopedAliases_Traversal) renameNamespaceShadows(t *NodeTraversal) {
 		Preconditions_checkState_boolean_Object_H(false, a1_)
 	}
 	if this.hasNamespaceShadows {
-		var renamer MakeDeclaredNamesUnique_Renamer = MakeDeclaredNamesUnique_Renamer(new_MakeDeclaredNamesUnique_TargettedRenamer(icast_MakeDeclaredNamesUnique_Renamer(new_MakeDeclaredNamesUnique_ContextualRenamer_0().self()), this.forbiddenLocals))
+		var renamer MakeDeclaredNamesUnique_Renamer = MakeDeclaredNamesUnique_Renamer(new_MakeDeclaredNamesUnique_TargettedRenamer(new_MakeDeclaredNamesUnique_ContextualRenamer_0(), this.forbiddenLocals))
 		it_1 := this.forbiddenLocals.each()
 		for it_1.next() {
 			var s string = it_1.v
