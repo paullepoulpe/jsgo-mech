@@ -230,7 +230,5 @@ func (this *FindModuleDependencies_FindGoogProvideOrGoogModule) shouldTraverse(p
 	if this.self_ == any(this) {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
-	return this.self_.(interface {
-		shouldTraverse_impl(*NodeTraversal, Node, Node) bool
-	}).shouldTraverse_impl(p0, p1, p2)
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
 }

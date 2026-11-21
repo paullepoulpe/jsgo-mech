@@ -3,7 +3,14 @@
 package closure
 
 type ScopedName struct {
-	self_ any
+	self_ ScopedName_I
+}
+
+// ScopedName_I holds the methods the dispatchers of ScopedName's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type ScopedName_I interface {
+	getName_impl() string
+	getScopeRoot_impl() Node
 }
 
 func (this *ScopedName) as_ScopedName() *ScopedName { return this }
@@ -61,11 +68,11 @@ func (this *ScopedName) hashCode() int32 {
 }
 
 func (this *ScopedName) getName() string {
-	return this.self_.(interface{ getName_impl() string }).getName_impl()
+	return this.self_.getName_impl()
 }
 
 func (this *ScopedName) getScopeRoot() Node {
-	return this.self_.(interface{ getScopeRoot_impl() Node }).getScopeRoot_impl()
+	return this.self_.getScopeRoot_impl()
 }
 
 type ScopedName_Simple struct {
@@ -112,7 +119,7 @@ func (this *ScopedName_Simple) getName() string {
 	if this.self_ == any(this) {
 		return this.getName_impl()
 	}
-	return this.self_.(interface{ getName_impl() string }).getName_impl()
+	return this.self_.getName_impl()
 }
 
 // getScopeRoot: an object that is exactly a ScopedName_Simple calls its getScopeRoot_impl directly (post-flip); others dispatch.
@@ -120,5 +127,5 @@ func (this *ScopedName_Simple) getScopeRoot() Node {
 	if this.self_ == any(this) {
 		return this.getScopeRoot_impl()
 	}
-	return this.self_.(interface{ getScopeRoot_impl() Node }).getScopeRoot_impl()
+	return this.self_.getScopeRoot_impl()
 }
