@@ -169,8 +169,6 @@ func hash_[T comparable](v T) int32 { return objhash_(obj_(v)) }
 
 func tostr_[T comparable](v T) string { return objstr_(obj_(v)) }
 
-func equalsH_[T handle_](a, b T) bool { return objequals_(a.box_(), b.box_()) }
-
 func hashH_[T handle_](v T) int32 { return objhash_(v.box_()) }
 
 func tostrH_[T handle_](v T) string { return objstr_(v.box_()) }

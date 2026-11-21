@@ -286,10 +286,6 @@ func ImmutableMap_of_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p
 	return immMapOf_(p0, p1, p2, p3, p4, p5)
 }
 
-func ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any) *ImmutableMap {
-	return immMapOf_(p0, p1, p2, p3, p4, p5, p6, p7)
-}
-
 func ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any, p9 any, p10 any, p11 any, p12 any, p13 any, p14 any, p15 any, p16 any, p17 any, p18 any, p19 any) *ImmutableMap {
 	return immMapOf_(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19)
 }

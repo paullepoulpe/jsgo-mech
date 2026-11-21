@@ -121,8 +121,7 @@ type TreeSet struct {
 	items []any
 }
 
-func new_TreeSet() *TreeSet                          { return &TreeSet{} }
-func new_TreeSet_Comparator(c Comparator_e) *TreeSet { return &TreeSet{cmp: c} }
+func new_TreeSet() *TreeSet { return &TreeSet{} }
 func (this *TreeSet) compare(a, b any) int32 {
 	if this.cmp != nil {
 		return this.cmp.compare(a, b)
@@ -728,5 +727,3 @@ func (this *AbstractIterator) peek() any {
 	}
 	return this.next_
 }
-
-func new_TreeMap_Comparator(c Comparator_e) *TreeMap { return &TreeMap{cmp: c} }

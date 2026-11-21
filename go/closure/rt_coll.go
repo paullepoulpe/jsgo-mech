@@ -523,8 +523,6 @@ func new_ArrayDeque() *ArrayDeque {
 	return this
 }
 
-func new_ArrayDeque_int(n int32) *ArrayDeque { return new_ArrayDeque() }
-
 func new_ArrayDeque_Collection(c Collection) *ArrayDeque {
 	this := new_ArrayDeque()
 	this.addAll(c)
@@ -570,9 +568,6 @@ func (this *ArrayDeque) descendingIterator() Iterator {
 	return &sliceIter_{items: &rev}
 }
 
-func SequencedCollection_addFirst(c SequencedCollection, v any) {
-	c.(interface{ add_int_Object(int32, any) }).add_int_Object(0, v)
-}
 func SequencedCollection_addLast(c SequencedCollection, v any) { c.add(v) }
 func SequencedCollection_getFirst(c SequencedCollection) any {
 	it := c.iterator()
@@ -594,15 +589,6 @@ func SequencedCollection_getLast(c SequencedCollection) any {
 		panic(new_NoSuchElementException_0().self())
 	}
 	return s[len(s)-1]
-}
-func SequencedCollection_removeFirst(c SequencedCollection) any {
-	v := SequencedCollection_getFirst(c)
-	if l, ok := c.(interface{ remove(int32) any }); ok {
-		l.remove(0)
-	} else {
-		c.remove_Object(v)
-	}
-	return v
 }
 func SequencedCollection_removeLast(c SequencedCollection) any {
 	v := SequencedCollection_getLast(c)
