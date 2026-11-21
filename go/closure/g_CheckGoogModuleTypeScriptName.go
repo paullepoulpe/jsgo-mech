@@ -45,11 +45,11 @@ func (this *CheckGoogModuleTypeScriptName) checkGoogModuleNamespace(t *NodeTrave
 	if originalNamespace.isEmpty() || sourceName.isEmpty() {
 		return
 	}
-	var google3Index int32 = String_indexOf_String(sourceName.get(), "google3")
+	var google3Index int32 = int32(strings.Index(sourceName.get(), "google3"))
 	if google3Index == -1 {
 		sourceName = Optional_of[string](("google3/" + sstr_(sourceName.get())))
 	} else if google3Index != 0 {
-		sourceName = Optional_of[string](String_substring_int(sourceName.get(), google3Index))
+		sourceName = Optional_of[string](sourceName.get()[google3Index:])
 	}
 	var replacementNamespace string = String_substring(strings.ReplaceAll(sourceName.get(), "/", "."), 0, (String_length(sourceName.get()) - int32(len(".js"))))
 	if !(originalNamespace.get() == replacementNamespace) {
