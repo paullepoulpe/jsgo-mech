@@ -52,7 +52,7 @@ func (this *Denormalize) afterExitScope(t *NodeTraversal, referenceMap Reference
 					assignNode.getParent().replaceWith(IR_var_Node_Node(lhs.detach(), rhs.detach()))
 					var var_ Node = declaration.getNode().getParent()
 					if !var_.isVar() {
-						panic(new_IllegalStateException_String(objstr_(var_.box_())).self())
+						panic(new_IllegalStateException_String(tostr_(var_)).self())
 					}
 					NodeUtil_removeChild(var_, declaration.getNode())
 					changed = true
@@ -104,7 +104,7 @@ func (this *Denormalize) maybeCollapseIntoForStatements(n Node, parent Node) {
 			newInitializer = n
 		} else {
 			if !n.hasOneChild() {
-				panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+				panic(new_IllegalStateException_String(tostr_(n)).self())
 			}
 			newInitializer = n.getFirstChild()
 			newInitializer.detach()

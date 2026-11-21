@@ -212,7 +212,7 @@ func (this *AstFactory) createNewTarget(newTargetType AstFactory_Type) Node {
 
 func (this *AstFactory) createThisForEs6Class(functionNode Node) Node {
 	if !functionNode.isClass() {
-		panic(new_IllegalStateException_String(objstr_(functionNode.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(functionNode)).self())
 	}
 	var result Node = IR_thisNode()
 	this.setJSTypeOrColor(this.getTypeOfThisForEs6Class(functionNode), result)
@@ -252,7 +252,7 @@ func (this *AstFactory) getTypeOfThisForFunctionNode(functionNode Node) *JSType 
 
 func (this *AstFactory) getTypeOfThisForEs6Class(functionNode Node) AstFactory_Type {
 	if !functionNode.isClass() {
-		panic(new_IllegalArgumentException_String(objstr_(functionNode.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(functionNode)).self())
 	}
 	return func() AstFactory_Type {
 		switch this.typeMode {
@@ -712,21 +712,21 @@ func (this *AstFactory) createAnd(left Node, right Node) Node {
 	case AstFactory_TypeMode_JSTYPE:
 		var leftType *JSType = left.getJSType()
 		if leftType == nil {
-			panic(new_NullPointerException_String(objstr_(left.box_())).self())
+			panic(new_NullPointerException_String(tostr_(left)).self())
 		}
 		var rightType *JSType = right.getJSType()
 		if rightType == nil {
-			panic(new_NullPointerException_String(objstr_(right.box_())).self())
+			panic(new_NullPointerException_String(tostr_(right)).self())
 		}
 		result.setJSType(this.registry.createUnionType([]*JSType{leftType, rightType}))
 	case AstFactory_TypeMode_COLOR:
 		var leftColor *Color = left.getColor()
 		if leftColor == nil {
-			panic(new_NullPointerException_String(objstr_(left.box_())).self())
+			panic(new_NullPointerException_String(tostr_(left)).self())
 		}
 		var rightColor *Color = right.getColor()
 		if rightColor == nil {
-			panic(new_NullPointerException_String(objstr_(right.box_())).self())
+			panic(new_NullPointerException_String(tostr_(right)).self())
 		}
 		result.setColor(Color_createUnion(jimmutableSetOf_[*Color](tce_p_Color, leftColor, rightColor)))
 	case AstFactory_TypeMode_NONE:
@@ -740,21 +740,21 @@ func (this *AstFactory) createOr(left Node, right Node) Node {
 	case AstFactory_TypeMode_JSTYPE:
 		var leftType *JSType = left.getJSType()
 		if leftType == nil {
-			panic(new_NullPointerException_String(objstr_(left.box_())).self())
+			panic(new_NullPointerException_String(tostr_(left)).self())
 		}
 		var rightType *JSType = right.getJSType()
 		if rightType == nil {
-			panic(new_NullPointerException_String(objstr_(right.box_())).self())
+			panic(new_NullPointerException_String(tostr_(right)).self())
 		}
 		result.setJSType(this.registry.createUnionType([]*JSType{leftType, rightType}))
 	case AstFactory_TypeMode_COLOR:
 		var leftColor *Color = left.getColor()
 		if leftColor == nil {
-			panic(new_NullPointerException_String(objstr_(left.box_())).self())
+			panic(new_NullPointerException_String(tostr_(left)).self())
 		}
 		var rightColor *Color = right.getColor()
 		if rightColor == nil {
-			panic(new_NullPointerException_String(objstr_(right.box_())).self())
+			panic(new_NullPointerException_String(tostr_(right)).self())
 		}
 		result.setColor(Color_createUnion(jimmutableSetOf_[*Color](tce_p_Color, leftColor, rightColor)))
 	case AstFactory_TypeMode_NONE:
@@ -990,7 +990,7 @@ func (this *AstFactory) createZeroArgArrowFunctionForExpression(expression Node)
 
 func (this *AstFactory) createMemberFunctionDef(name string, function Node) Node {
 	if function.getFirstChild().getString() != "" {
-		panic(new_IllegalArgumentException_String(objstr_(function.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(function)).self())
 	}
 	var result Node = IR_memberFunctionDef(name, function)
 	this.setJSTypeOrColor(AstFactory_type_Node(function), result)

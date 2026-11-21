@@ -106,7 +106,7 @@ func (this *ModuleImportResolver) declareEsModuleImports(module *Module, scope *
 		var modScope *TypedScope = this.nodeToScopeMapper.apply(export.getScopeRoot())
 		if modScope == nil {
 			if ok_, a1_ := (binding.sourceNode().getString() == localName), binding.sourceNode(); !ok_ {
-				panic(new_IllegalStateException_String(objstr_(a1_.box_())).self())
+				panic(new_IllegalStateException_String(tostr_(a1_)).self())
 			}
 			missingNames.put(binding.sourceNode(), export)
 			continue
@@ -193,7 +193,7 @@ func (this *ModuleImportResolver) getScopedNameFromEsBinding(binding *Binding) *
 		case ModuleMetadataMap_ModuleType_ES6_MODULE:
 			var scriptNode Node = originalMetadata.rootNode()
 			if scriptNode != 0 && !scriptNode.isScript() {
-				panic(new_IllegalStateException_String(objstr_(scriptNode.box_())).self())
+				panic(new_IllegalStateException_String(tostr_(scriptNode)).self())
 			}
 			return ScopedName_of(name.orElse(nullstr_), func() Node {
 				if scriptNode != 0 {

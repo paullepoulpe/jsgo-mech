@@ -55,10 +55,10 @@ func (this *LateEs6ToEs3Converter) visit(t *NodeTraversal, n Node, parent Node) 
 			var qName *QualifiedName = QualifiedName_of("$jscomp.createTemplateTagFirstArgWithRaw")
 			if qName.matches(lhs) {
 				if n.getParent() == 0 {
-					panic(new_NullPointerException_String(objstr_(n.box_())).self())
+					panic(new_NullPointerException_String(tostr_(n)).self())
 				}
 				if !n.getParent().isExprResult() {
-					panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+					panic(new_IllegalStateException_String(tostr_(n)).self())
 				}
 				this.templateLitInsertionPoint = n.getParent().getNext()
 			}
