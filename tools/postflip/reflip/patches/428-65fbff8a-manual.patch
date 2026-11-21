@@ -1,0 +1,65 @@
+diff --git a/go/closure/g_HamtPMap.go b/go/closure/g_HamtPMap.go
+index 27405d6e..1e6c4fa6 100644
+--- a/go/closure/g_HamtPMap.go
++++ b/go/closure/g_HamtPMap.go
+@@ -99,7 +99,7 @@ func (this *HamtPMap[K, V]) keys() IterableOf[K] {
+ func (this *HamtPMap[K, V]) get(key K) V {
+ 	return func() V {
+ 		if !this.isEmpty() {
+-			return this.get_2(key, HamtPMap_hash(boxT_(key)))
++			return this.get_2(key, HamtPMap_hashOf_(key))
+ 		}
+ 		return jnull_[V]()
+ 	}()
+@@ -126,14 +126,14 @@ func (this *HamtPMap[K, V]) plus(key K, value V) PMap[K, V] {
+ 	return func() PMap[K, V] {
+ 		if !this.isEmpty() {
+ 			return func() PMap[K, V] {
+-				if v := this.plus_3(key, HamtPMap_hash(boxT_(key)), value); v != nil {
++				if v := this.plus_3(key, HamtPMap_hashOf_(key), value); v != nil {
+ 					return v
+ 				}
+ 				return nil
+ 			}()
+ 		}
+ 		return func() PMap[K, V] {
+-			if v := new_HamtPMap[K, V](key, HamtPMap_hash(boxT_(key)), value, 0, HamtPMap_emptyChildren[K, V]()); v != nil {
++			if v := new_HamtPMap[K, V](key, HamtPMap_hashOf_(key), value, 0, HamtPMap_emptyChildren[K, V]()); v != nil {
+ 				return v
+ 			}
+ 			return nil
+@@ -191,7 +191,7 @@ func (this *HamtPMap[K, V]) minus(key K) PMap[K, V] {
+ 	return func() PMap[K, V] {
+ 		if !this.isEmpty() {
+ 			return func() PMap[K, V] {
+-				if v := this.minus_3(key, HamtPMap_hash(boxT_(key)), nil); v != nil {
++				if v := this.minus_3(key, HamtPMap_hashOf_(key), nil); v != nil {
+ 					return v
+ 				}
+ 				return nil
+@@ -423,6 +423,13 @@ func HamtPMap_hash(key any) int32 {
+ 	return Integer_reverse(Object_hashCode(key))
+ }
+ 
++// HamtPMap_hashOf_ is hash(key) for a key of the map's type, without boxing it: the hash code
++// is taken from the value as it is (post-flip manual step: a String key was boxed for its
++// hashCode at every get, plus and minus).
++func HamtPMap_hashOf_[K any](key K) int32 {
++	return Integer_reverse(hashCodeT_(key))
++}
++
+ func HamtPMap_bucket(hash int32) int32 {
+ 	return int32(uint32(hash) >> 28)
+ }
+@@ -563,9 +570,9 @@ func (this *HamtPMap[K, V]) assertCorrectStructure() *HamtPMap[K, V] {
+ 	if this.isEmpty() {
+ 		return this
+ 	}
+-	var hash int32 = HamtPMap_hash(boxT_(this.key_))
++	var hash int32 = HamtPMap_hashOf_(this.key_)
+ 	for i := int32(0); i < int32(len(this.children_)); i++ {
+-		var childHash int32 = HamtPMap_hash(boxT_(this.children_[i].key_))
++		var childHash int32 = HamtPMap_hashOf_(this.children_[i].key_)
+ 		if HamtPMap_compareUnsigned(childHash, hash) < 0 {
+ 			panic(new_AssertionError_Object(strobj_(("Invalid map has decreasing hash " + objstr_(boxT_(this.children_[i].key_)) + "(" + sstr_(Integer_toHexString(childHash)) + ") beneath " + objstr_(boxT_(this.key_)) + "(" + sstr_(Integer_toHexString(hash)) + ": " + this.toString()))))
+ 		}
