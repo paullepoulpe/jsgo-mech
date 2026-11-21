@@ -34,10 +34,11 @@ func (this *NodeTraversal) init_NodeTraversal(builder *NodeTraversal_Builder) {
 	this.scopeCallback = func() NodeTraversal_ScopedCallback {
 		if func() bool {
 			v_ := any(this.callback)
-			if !is_[NodeTraversal_ScopedCallback](v_) {
+			p, ok := v_.(NodeTraversal_ScopedCallback)
+			if !ok {
 				return false
 			}
-			scopedCallback = icast_NodeTraversal_ScopedCallback(v_)
+			scopedCallback = p
 			return true
 		}() {
 			return scopedCallback
@@ -630,7 +631,7 @@ func (this *NodeTraversal) getNodeRootFromScopeObj(root any) Node {
 	return func() Node {
 		if func() bool {
 			v_ := root
-			if !is_[Node](v_) {
+			if _, ok := v_.(Node); !ok {
 				return false
 			}
 			node = Node_of_(v_)
@@ -676,7 +677,7 @@ func (this *NodeTraversal) getAbstractScope_1(rootDepth int32) *AbstractScope {
 	_ = node
 	if func() bool {
 		v_ := o
-		if !is_[Node](v_) {
+		if _, ok := v_.(Node); !ok {
 			return false
 		}
 		node = Node_of_(v_)
@@ -1155,7 +1156,7 @@ func (this *NodeTraversal_AbstractCfgCallback) getControlFlowGraph(compiler *Abs
 	_ = cfgRoot
 	if func() bool {
 		v_ := o
-		if !is_[Node](v_) {
+		if _, ok := v_.(Node); !ok {
 			return false
 		}
 		cfgRoot = Node_of_(v_)
@@ -1561,10 +1562,11 @@ func (this *NodeTraversal_1TraverseScopeRootsCallback) enterScope(t *NodeTravers
 	_ = scopedCallback
 	if this.insideScopeNode && func() bool {
 		v_ := any(this.cap_cb)
-		if !is_[NodeTraversal_ScopedCallback](v_) {
+		p, ok := v_.(NodeTraversal_ScopedCallback)
+		if !ok {
 			return false
 		}
-		scopedCallback = icast_NodeTraversal_ScopedCallback(v_)
+		scopedCallback = p
 		return true
 	}() {
 		scopedCallback.enterScope(t)
@@ -1576,10 +1578,11 @@ func (this *NodeTraversal_1TraverseScopeRootsCallback) exitScope(t *NodeTraversa
 	_ = scopedCallback
 	if this.insideScopeNode && func() bool {
 		v_ := any(this.cap_cb)
-		if !is_[NodeTraversal_ScopedCallback](v_) {
+		p, ok := v_.(NodeTraversal_ScopedCallback)
+		if !ok {
 			return false
 		}
-		scopedCallback = icast_NodeTraversal_ScopedCallback(v_)
+		scopedCallback = p
 		return true
 	}() {
 		scopedCallback.exitScope(t)
