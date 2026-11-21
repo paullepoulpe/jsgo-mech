@@ -142,7 +142,7 @@ func (this *TypeInference) inferParameters(entryFlowScope FlowScope) FlowScope {
 }
 
 func (this *TypeInference) updateDestructuringParameter(pattern Node, inferredType *JSType, entryFlowScope FlowScope) FlowScope {
-	entryFlowScope = this.traverseDestructuringPatternHelper(pattern, entryFlowScope, inferredType, &TypeInference_TypeDeclaringCallback_fn{func(scope FlowScope, lvalue Node, type_ *JSType) FlowScope {
+	entryFlowScope = this.traverseDestructuringPatternHelper(pattern, entryFlowScope, inferredType, func(scope FlowScope, lvalue Node, type_ *JSType) FlowScope {
 		var var_ *TypedVar = this.containerScope.getVar_String_rTypedVar(lvalue.getString())
 		Preconditions_checkNotNull_T(var_)
 		if var_.isTypeInferred() {
@@ -154,7 +154,7 @@ func (this *TypeInference) updateDestructuringParameter(pattern Node, inferredTy
 		}
 		return scope
 		panic("unreachable")
-	}})
+	})
 	return entryFlowScope
 }
 
@@ -799,7 +799,7 @@ func (this *TypeInference) traverseDeclarationChild(n Node, scope FlowScope) Flo
 }
 
 func (this *TypeInference) traverseDestructuringPattern(pattern Node, scope FlowScope, patternType *JSType, assignmentType *TypeInference_AssignmentType) FlowScope {
-	return this.traverseDestructuringPatternHelper(pattern, scope, patternType, &TypeInference_TypeDeclaringCallback_fn{func(flowScope FlowScope, targetNode Node, targetType *JSType) FlowScope {
+	return this.traverseDestructuringPatternHelper(pattern, scope, patternType, func(flowScope FlowScope, targetNode Node, targetType *JSType) FlowScope {
 		targetType = func() *JSType {
 			if targetType != nil {
 				return targetType
@@ -808,10 +808,10 @@ func (this *TypeInference) traverseDestructuringPattern(pattern Node, scope Flow
 		}()
 		return this.updateScopeForAssignment(flowScope, targetNode, targetType, assignmentType)
 		panic("unreachable")
-	}})
+	})
 }
 
-func (this *TypeInference) traverseDestructuringPatternHelper(pattern Node, scope FlowScope, patternType *JSType, declarer TypeInference_TypeDeclaringCallback) FlowScope {
+func (this *TypeInference) traverseDestructuringPatternHelper(pattern Node, scope FlowScope, patternType *JSType, declarer func(FlowScope, Node, *JSType) FlowScope) FlowScope {
 	Preconditions_checkArgument_boolean_Object_H(pattern.isDestructuringPattern(), pattern)
 	Preconditions_checkNotNull_T(patternType)
 	it_1 := DestructuredTarget_createAllNonEmptyTargetsInPattern(this.registry, patternType, pattern).each()
@@ -838,7 +838,7 @@ func (this *TypeInference) traverseDestructuringPatternHelper(pattern Node, scop
 			if target.hasDefaultValue() {
 				this.traverse(target.getDefaultValue(), scope)
 			}
-			scope = declarer.declareTypeInScope(scope, targetNode, target.inferType())
+			scope = declarer(scope, targetNode, target.inferType())
 		}
 	}
 	pattern.setJSType(patternType)
