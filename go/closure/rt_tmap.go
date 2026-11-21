@@ -42,6 +42,12 @@ type tmapExt_[K comparable, V any] struct {
 	// Of an immutable set: its hash code, once computed (tsetHash_; Guava computes it once).
 	hash   int32
 	hashed bool
+	// Of a sorted map or set (a TreeMap, a TreeSet in a typed declaration: rt_tsorted.go): its
+	// order. The keys are kept in that order and found by binary search; dead, idx, hs and slots
+	// are not used.
+	sort *tsort_[K]
+	// Of an immutable map: its key set as typed code sees it, once that is needed (keySetImm).
+	keySet *TSet[K]
 }
 
 func (m *TMap[K, V]) ext() *tmapExt_[K, V] {
@@ -75,6 +81,42 @@ func (m *TMap[K, V]) first() int {
 
 func newTMap_[K comparable, V any](kc *tconv_[K], vc *tconv_[V]) *TMap[K, V] {
 	return &TMap[K, V]{kc: kc, vc: vc}
+}
+
+// newTMapN_ is new LinkedHashMap<>(n): the capacity is not used (j2go).
+func newTMapN_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], n int32) *TMap[K, V] {
+	return &TMap[K, V]{kc: kc, vc: vc}
+}
+
+// tmapCopy_ is new LinkedHashMap<>(from) of another typed map of the same types (j2go).
+func tmapCopy_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from *TMap[K, V]) *TMap[K, V] {
+	m := &TMap[K, V]{kc: kc, vc: vc}
+	m.putAllT(from)
+	return m
+}
+
+// putAllT is putAll of another typed map of the same types (j2go).
+func (m *TMap[K, V]) putAllT(o *TMap[K, V]) {
+	if m.imm {
+		throwUOE_()
+	}
+	for i, k := range o.keys {
+		if !o.isDead(i) {
+			m.Put(k, o.vals[i])
+		}
+	}
+}
+
+// erasedMap_ is a map of the translated program as an erased Map, whether its declaration is a
+// typed map or not (for handwritten runtime code that calls generated code).
+func erasedMap_(m any) Map {
+	switch x := m.(type) {
+	case Map:
+		return x
+	case interface{ asMap() Map }:
+		return x.asMap()
+	}
+	return nil
 }
 
 // tmapFrom_ is new LinkedHashMap<>(from) (or an ImmutableMap, imm) as a typed map.
@@ -117,6 +159,9 @@ func (m *TMap[K, V]) find(k K) int32 {
 			}
 			return -1
 		}
+		if m.x.sort != nil {
+			return m.findSorted(k)
+		}
 		for i, x := range m.keys {
 			if x == k && !m.isDead(i) {
 				return int32(i)
@@ -145,6 +190,9 @@ func (m *TMap[K, V]) hashOf(k K) int32 {
 // the same hash code and is the same object, or equals it (k.equals(key), as HashMap.getNode).
 func (m *TMap[K, V]) findH(k K) int32 {
 	x := m.x
+	if x != nil && x.sort != nil {
+		return m.findSorted(k)
+	}
 	if x == nil || len(x.hs) == 0 {
 		return -1
 	}
@@ -244,6 +292,9 @@ func (m *TMap[K, V]) Put(k K, v V) V {
 	if m.imm {
 		throwUOE_()
 	}
+	if m.x != nil && m.x.sort != nil {
+		return m.putSorted(k, v)
+	}
 	if i := m.find(k); i >= 0 {
 		old := m.vals[i]
 		m.vals[i] = v
@@ -290,6 +341,9 @@ func (m *TMap[K, V]) reindex() {
 }
 
 func (m *TMap[K, V]) PutIfAbsent(k K, v V) V {
+	if m.imm {
+		throwUOE_()
+	}
 	if i := m.find(k); i >= 0 {
 		if old := m.vals[i]; !m.vc.isNull(old) {
 			return old
@@ -315,6 +369,10 @@ func (m *TMap[K, V]) removeAt(i int32) V {
 	var zk K
 	var zv V
 	x := m.ext()
+	if x.sort != nil {
+		m.removeSorted(int(i))
+		return old
+	}
 	if x.idx != nil {
 		delete(x.idx, m.keys[i])
 	}
@@ -379,6 +437,9 @@ func (m *TMap[K, V]) Clear() {
 
 // computeIfAbsent is Map.computeIfAbsent with an erased function.
 func (m *TMap[K, V]) computeIfAbsent(k K, f Function_e) V {
+	if m.imm {
+		throwUOE_()
+	}
 	if i := m.find(k); i >= 0 && !m.vc.isNull(m.vals[i]) {
 		return m.vals[i]
 	}
@@ -408,7 +469,12 @@ func (m *TMap[K, V]) computeIfAbsent_f(k K, f func(any) any) V {
 
 // ComputeIfAbsent is Map.computeIfAbsent with a typed function (tools/postflip/tnames): the
 // value of k if it has one that is not null; else f(k), stored unless it is null.
+// An immutable map throws also where nothing would change, as the erased one does (it is the
+// translator's typed computeIfAbsent of rule "function types": step 402 of the fifth flip).
 func (m *TMap[K, V]) ComputeIfAbsent(k K, f func(K) V) V {
+	if m.imm {
+		throwUOE_()
+	}
 	if i := m.find(k); i >= 0 && !m.vc.isNull(m.vals[i]) {
 		return m.vals[i]
 	}
@@ -443,6 +509,99 @@ func (e *tmapEach_[K, V]) next() bool {
 	return false
 }
 
+// tmapEntries_ is the cursor of a for-each loop over the entries of a typed map as objects
+// (j2go: a loop whose entry variable is used as a Map.Entry).
+type tmapEntries_[K comparable, V any] struct {
+	m *TMap[K, V]
+	i int
+}
+
+// eachEntry is the cursor of a for-each loop over entrySet().
+func (m *TMap[K, V]) eachEntry() tmapEntries_[K, V] { return tmapEntries_[K, V]{m: m, i: m.first()} }
+
+func (e *tmapEntries_[K, V]) next() bool {
+	m := e.m
+	for e.i < len(m.keys) {
+		e.i++
+		if !m.isDead(e.i - 1) {
+			return true
+		}
+	}
+	return false
+}
+
+// entry is the entry the cursor is at: an object of its own, as each entry of the Java map is.
+func (e *tmapEntries_[K, V]) entry() *TEntry[K, V] {
+	i := e.i - 1
+	return &TEntry[K, V]{m: e.m, i: int32(i), k: e.m.keys[i], v: e.m.vals[i]}
+}
+
+// TEntry is an entry of a typed map (Map.Entry<K, V>) in a for-each loop over its entries. It
+// reads and writes the value of its mapping while the map has it; after the mapping's removal
+// it keeps the last value, as the entry of the erased map does.
+type TEntry[K comparable, V any] struct {
+	m *TMap[K, V]
+	i int32
+	k K
+	v V
+}
+
+// pos is the position of the entry's mapping in the map, or -1 if the map has it no more.
+func (e *TEntry[K, V]) pos() int32 {
+	m := e.m
+	if i := int(e.i); i < len(m.keys) && m.keys[i] == e.k && !m.isDead(i) {
+		return e.i
+	}
+	return m.find(e.k)
+}
+
+func (e *TEntry[K, V]) getKey() K { return e.k }
+
+func (e *TEntry[K, V]) getValue() V {
+	if i := e.pos(); i >= 0 {
+		e.v = e.m.vals[i]
+	}
+	return e.v
+}
+
+func (e *TEntry[K, V]) setValue(v V) V {
+	if e.m.imm {
+		throwUOE_()
+	}
+	old := e.getValue()
+	e.v = v
+	if i := e.pos(); i >= 0 {
+		e.m.vals[i] = v
+	}
+	return old
+}
+
+// asEntry is the entry as an erased Map.Entry (nil for null).
+func (e *TEntry[K, V]) asEntry() Map_Entry {
+	if e == nil {
+		return nil
+	}
+	return &tentryView_[K, V]{e: e}
+}
+
+// tentryView_ is a TEntry seen as an erased Map.Entry.
+type tentryView_[K comparable, V any] struct{ e *TEntry[K, V] }
+
+func (v *tentryView_[K, V]) self() any     { return v }
+func (v *tentryView_[K, V]) getKey() any   { return v.e.m.kc.box(v.e.k) }
+func (v *tentryView_[K, V]) getValue() any { return v.e.m.vc.box(v.e.getValue()) }
+func (v *tentryView_[K, V]) setValue(x any) any {
+	return v.e.m.vc.box(v.e.setValue(v.e.m.vc.unbox(x)))
+}
+func (v *tentryView_[K, V]) equals(o any) bool {
+	x, ok := o.(Map_Entry)
+	return ok && x != nil && objequals_(v.getKey(), x.getKey()) && objequals_(v.getValue(), x.getValue())
+}
+func (v *tentryView_[K, V]) hashCode() int32 { return objhash_(v.getKey()) ^ objhash_(v.getValue()) }
+func (v *tentryView_[K, V]) toString() string {
+	return objstr_(v.getKey()) + "=" + objstr_(v.getValue())
+}
+
 // ---- sets
 
 type TSet[K comparable] struct {
@@ -453,6 +612,35 @@ var tunit_ = &tconv_[struct{}]{box: func(struct{}) any { return nil }, unbox: fu
 
 func newTSet_[K comparable](kc *tconv_[K]) *TSet[K] {
 	return &TSet[K]{TMap: TMap[K, struct{}]{kc: kc, vc: tunit_}}
+}
+
+// newTSetN_ is new LinkedHashSet<>(n): the capacity is not used (j2go).
+func newTSetN_[K comparable](kc *tconv_[K], n int32) *TSet[K] { return newTSet_(kc) }
+
+// tsetCopy_ is new LinkedHashSet<>(from) of another typed set of the same element type (j2go).
+func tsetCopy_[K comparable](kc *tconv_[K], from *TSet[K]) *TSet[K] {
+	s := newTSet_(kc)
+	for i, k := range from.keys {
+		if !from.isDead(i) {
+			s.Add(k)
+		}
+	}
+	return s
+}
+
+// iterator is the set's Iterator (of boxed elements, with remove), as its view's (j2go).
+func (s *TSet[K]) iterator() Iterator { return s.cursor() }
+
+// asSet_ is a set of the translated program as an erased Set, whether its declaration is a
+// typed set or not (for handwritten runtime code that calls generated code).
+func asSet_(s any) Set {
+	switch x := s.(type) {
+	case Set:
+		return x
+	case interface{ asSet() Set }:
+		return x.asSet()
+	}
+	return nil
 }
 
 // tsetFrom_ is new LinkedHashSet<>(from) (or an ImmutableSet, imm) as a typed set.
@@ -556,6 +744,9 @@ func (m *TMap[K, V]) asMap() Map {
 		return m.asImm()
 	}
 	x := m.ext()
+	if x.sort != nil {
+		return m.sortedView()
+	}
 	if x.view == nil {
 		x.view = &tmapView_[K, V]{m: m}
 	}
@@ -570,6 +761,9 @@ func (s *TSet[K]) asSet() Set {
 		return s.asImm()
 	}
 	x := s.ext()
+	if x.sort != nil {
+		return s.sortedView()
+	}
 	if x.sview == nil {
 		x.sview = &tsetView_[K]{m: &s.TMap, s: s}
 	}
@@ -577,6 +771,11 @@ func (s *TSet[K]) asSet() Set {
 }
 
 type tmapView_[K comparable, V any] struct{ m *TMap[K, V] }
+
+// goName_ makes getClass() of the views java.util.LinkedHashMap and LinkedHashSet, the classes
+// of the Java objects.
+func (v *tmapView_[K, V]) goName_() string { return "LinkedHashMap" }
+func (v *tsetView_[K]) goName_() string    { return "LinkedHashSet" }
 
 // boxedKV_ is the keys and values of the map, boxed, in the order its entry set's iterator
 // gives them (from the first live position, skipping removed ones), without the iterator and
@@ -930,6 +1129,9 @@ var (
 
 // addAllT is addAll from another typed set.
 func (s *TSet[K]) AddAll(o *TSet[K]) bool {
+	if s.imm {
+		throwUOE_()
+	}
 	changed := false
 	for i, k := range o.keys {
 		if !o.isDead(i) && s.Add(k) {

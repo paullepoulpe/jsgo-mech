@@ -249,7 +249,7 @@ func (this *AbstractVar) getScope_impl() StaticScope {
 	return icast_StaticScope(this.getScope_rAbstractScope().self())
 }
 
-var AbstractVar_DECLARATION_TYPES *JTSet[Token_rhino]
+var AbstractVar_DECLARATION_TYPES *TSet[Token_rhino]
 
 var AbstractVar_clinit_done bool
 

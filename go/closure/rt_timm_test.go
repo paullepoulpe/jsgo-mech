@@ -73,7 +73,7 @@ func TestTypedImmutables(t *testing.T) {
 	mb := immutableMapBuilder_(timmStr_, timmStr_)
 	mb.put("a", "1").put("b", "2").put("a", "3")
 	guavaThrew_(t, "IllegalArgumentException", func() { mb.build() })
-	guavaStr_(t, mb.buildKeepingLast().asMap(), "{b=2, a=3}")
+	guavaStr_(t, mb.buildKeepingLast().asMap(), "{a=3, b=2}")
 	guavaStr_(t, ImmutableMap_copyOf(m.asMap()), "{k=v, j=w}")
 	if ImmutableMap_copyOf(m.asMap()) != m.asImm() {
 		t.Error("ImmutableMap.copyOf of the twin")

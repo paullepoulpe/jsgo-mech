@@ -33,15 +33,15 @@ func GatherGetterAndSetterProperties_update(compiler *AbstractCompiler, externs 
 	compiler.setAccessorSummary(accessorSummary)
 }
 
-func GatherGetterAndSetterProperties_gather(compiler *AbstractCompiler, root Node) *JTMap[string, AccessorSummary_PropertyAccessKind] {
+func GatherGetterAndSetterProperties_gather(compiler *AbstractCompiler, root Node) *TMap[string, AccessorSummary_PropertyAccessKind] {
 	var gatherCallback *GatherGetterAndSetterProperties_GatherCallback = new_GatherGetterAndSetterProperties_GatherCallback()
 	NodeTraversal_traverse(compiler, root, GatherGetterAndSetterProperties_GatherCallback_as_NodeTraversal_Callback(gatherCallback))
-	return immutableMapCopyOfT_(jtc_string, jtc_p_AccessorSummary_PropertyAccessKind, gatherCallback.properties)
+	return immutableMapCopyOfT_(tc_string, tc_p_AccessorSummary_PropertyAccessKind, gatherCallback.properties)
 }
 
 type GatherGetterAndSetterProperties_GatherCallback struct {
 	NodeTraversal_AbstractPostOrderCallback
-	properties *JTMap[string, AccessorSummary_PropertyAccessKind]
+	properties *TMap[string, AccessorSummary_PropertyAccessKind]
 }
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -52,7 +52,7 @@ func (this *GatherGetterAndSetterProperties_GatherCallback) up_NodeTraversal_Abs
 }
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) finit_GatherGetterAndSetterProperties_GatherCallback() {
-	this.properties = jnewTMap_(jtc_string, jtc_p_AccessorSummary_PropertyAccessKind)
+	this.properties = newTMap_(tc_string, tc_p_AccessorSummary_PropertyAccessKind)
 }
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) init_GatherGetterAndSetterProperties_GatherCallback() {

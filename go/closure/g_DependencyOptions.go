@@ -4,10 +4,10 @@ package closure
 
 type DependencyOptions struct {
 	mode_        DependencyOptions_DependencyMode
-	entryPoints_ *JTList[*ModuleIdentifier]
+	entryPoints_ *TList[*ModuleIdentifier]
 }
 
-func (this *DependencyOptions) init_DependencyOptions(mode DependencyOptions_DependencyMode, entryPoints *JTList[*ModuleIdentifier]) {
+func (this *DependencyOptions) init_DependencyOptions(mode DependencyOptions_DependencyMode, entryPoints *TList[*ModuleIdentifier]) {
 	if mode == 0 {
 		panic(new_NullPointerException_String("mode"))
 	}
@@ -18,7 +18,7 @@ func (this *DependencyOptions) init_DependencyOptions(mode DependencyOptions_Dep
 	this.entryPoints_ = entryPoints
 }
 
-func new_DependencyOptions(mode DependencyOptions_DependencyMode, entryPoints *JTList[*ModuleIdentifier]) *DependencyOptions {
+func new_DependencyOptions(mode DependencyOptions_DependencyMode, entryPoints *TList[*ModuleIdentifier]) *DependencyOptions {
 	this := &DependencyOptions{}
 	this.init_DependencyOptions(mode, entryPoints)
 	return this
@@ -28,7 +28,7 @@ func (this *DependencyOptions) getMode() DependencyOptions_DependencyMode {
 	return this.mode()
 }
 
-func (this *DependencyOptions) getEntryPoints() *JTList[*ModuleIdentifier] {
+func (this *DependencyOptions) getEntryPoints() *TList[*ModuleIdentifier] {
 	return this.entryPoints()
 }
 
@@ -49,29 +49,29 @@ func (this *DependencyOptions) shouldDropMoochers() bool {
 }
 
 func DependencyOptions_none() *DependencyOptions {
-	return new_DependencyOptions(DependencyOptions_DependencyMode_NONE, jtlistEmptyImm_(jtc_p_ModuleIdentifier))
+	return new_DependencyOptions(DependencyOptions_DependencyMode_NONE, tlistEmptyImm_(tc_p_ModuleIdentifier))
 }
 
 func DependencyOptions_sortOnly() *DependencyOptions {
-	return new_DependencyOptions(DependencyOptions_DependencyMode_SORT_ONLY, jtlistEmptyImm_(jtc_p_ModuleIdentifier))
+	return new_DependencyOptions(DependencyOptions_DependencyMode_SORT_ONLY, tlistEmptyImm_(tc_p_ModuleIdentifier))
 }
 
 func DependencyOptions_pruneLegacyForEntryPoints(entryPoints IterableOf[*ModuleIdentifier]) *DependencyOptions {
-	return new_DependencyOptions(DependencyOptions_DependencyMode_PRUNE_LEGACY, jimmutableListCopyOf_(jtc_p_ModuleIdentifier, entryPoints))
+	return new_DependencyOptions(DependencyOptions_DependencyMode_PRUNE_LEGACY, immutableListCopyOf_(tc_p_ModuleIdentifier, entryPoints))
 }
 
 func DependencyOptions_pruneAllowNoEntryPoints(entryPoints IterableOf[*ModuleIdentifier]) *DependencyOptions {
-	return new_DependencyOptions(DependencyOptions_DependencyMode_PRUNE_ALLOW_NO_ENTRY_POINTS, jimmutableListCopyOf_(jtc_p_ModuleIdentifier, entryPoints))
+	return new_DependencyOptions(DependencyOptions_DependencyMode_PRUNE_ALLOW_NO_ENTRY_POINTS, immutableListCopyOf_(tc_p_ModuleIdentifier, entryPoints))
 }
 
 func DependencyOptions_pruneForEntryPoints(entryPoints IterableOf[*ModuleIdentifier]) *DependencyOptions {
 	if Iterables_isEmpty(entryPoints) {
 		panic(new_IllegalStateException_String(objstr_("DependencyMode.PRUNE requires at least one entry point")))
 	}
-	return new_DependencyOptions(DependencyOptions_DependencyMode_PRUNE, jimmutableListCopyOf_(jtc_p_ModuleIdentifier, entryPoints))
+	return new_DependencyOptions(DependencyOptions_DependencyMode_PRUNE, immutableListCopyOf_(tc_p_ModuleIdentifier, entryPoints))
 }
 
-func DependencyOptions_fromFlags(dependencyModeFlag DependencyOptions_DependencyMode, entryPointFlag ListOf[string], closureEntryPointFlag *JTList[string], commonJsEntryModuleFlag Optional[string], manageClosureDependenciesFlag bool, onlyClosureDependenciesFlag bool) *Outcome_base[*DependencyOptions] {
+func DependencyOptions_fromFlags(dependencyModeFlag DependencyOptions_DependencyMode, entryPointFlag ListOf[string], closureEntryPointFlag *TList[string], commonJsEntryModuleFlag Optional[string], manageClosureDependenciesFlag bool, onlyClosureDependenciesFlag bool) *Outcome_base[*DependencyOptions] {
 	var hasEntryPoint bool = ((commonJsEntryModuleFlag.isPresent() || !entryPointFlag.isEmpty()) || !closureEntryPointFlag.isEmpty())
 	if !hasEntryPoint && onlyClosureDependenciesFlag {
 		return Outcome_base_err[*DependencyOptions](new_FlagUsageException("--only_closure_dependencies requires --entry_point.").up_Throwable())
@@ -109,7 +109,7 @@ func DependencyOptions_fromFlags(dependencyModeFlag DependencyOptions_Dependency
 	} else {
 		return Outcome_base_ok_Object[*DependencyOptions](nil)
 	}
-	var entryPointsBuilder *TListBuilder[*ModuleIdentifier] = newTListBuilder_(jtc_p_ModuleIdentifier)
+	var entryPointsBuilder *ImmutableList_Builder[*ModuleIdentifier] = immutableListBuilder_(tc_p_ModuleIdentifier)
 	if commonJsEntryModuleFlag.isPresent() {
 		entryPointsBuilder.add(ModuleIdentifier_forFile(commonJsEntryModuleFlag.get()))
 	}
@@ -143,7 +143,7 @@ func (this *DependencyOptions) mode() DependencyOptions_DependencyMode {
 	return this.mode_
 }
 
-func (this *DependencyOptions) entryPoints() *JTList[*ModuleIdentifier] {
+func (this *DependencyOptions) entryPoints() *TList[*ModuleIdentifier] {
 	return this.entryPoints_
 }
 

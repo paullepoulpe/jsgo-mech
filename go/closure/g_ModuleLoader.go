@@ -6,7 +6,7 @@ import "strings"
 
 type ModuleLoader struct {
 	errorHandler    ErrorHandler
-	moduleRootPaths *JTList[string]
+	moduleRootPaths *TList[string]
 	pathResolver    ModuleLoader_PathResolver
 	pathEscaper     ModuleLoader_PathEscaper
 	moduleResolver  *ModuleResolver
@@ -32,7 +32,7 @@ func (this *ModuleLoader) init_ModuleLoader(builder *ModuleLoader_Builder) {
 	if builder.inputs == nil {
 		panic(new_NullPointerException_0())
 	}
-	var modulePaths *JTSet[string] = this.resolvePaths(builder.inputs)
+	var modulePaths *TSet[string] = this.resolvePaths(builder.inputs)
 	this.moduleResolver = builder.factory.create(modulePaths.asImm(), this.moduleRootPaths.asImm(), this.errorHandler, this.pathEscaper)
 }
 
@@ -46,7 +46,7 @@ func ModuleLoader_builder() *ModuleLoader_Builder {
 	return new_ModuleLoader_Builder()
 }
 
-func (this *ModuleLoader) getPackageJsonMainEntries() *JTMap[string, string] {
+func (this *ModuleLoader) getPackageJsonMainEntries() *TMap[string, string] {
 	return this.moduleResolver.getPackageJsonMainEntries()
 }
 
@@ -70,7 +70,7 @@ func ModuleLoader_isPathIdentifier(name string) bool {
 	return JString_contains_s(name, ModuleLoader_MODULE_SLASH)
 }
 
-func (this *ModuleLoader) createRootPaths(roots IterableOf[string]) *JTList[string] {
+func (this *ModuleLoader) createRootPaths(roots IterableOf[string]) *TList[string] {
 	var result ImmutableSortedSet_BuilderOf[string] = new_ImmutableSortedSet_Builder(func() Comparator[any] {
 		f_ := ModuleLoader_BEST_MATCH_PATH_ORDERING
 		if f_ == nil {
@@ -87,11 +87,11 @@ func (this *ModuleLoader) createRootPaths(roots IterableOf[string]) *JTList[stri
 			return strobj_(n)
 		}())
 	}
-	return jtlistImm_(jtc_string, result.build().asList())
+	return tlistImm_(tc_string, result.build().asList())
 }
 
-func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo_]) *JTSet[string] {
-	var sortedModulePaths *JTList[string] = jnewTList_(jtc_string)
+func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo_]) *TSet[string] {
+	var sortedModulePaths *TList[string] = newTList_(tc_string)
 	for input := range elemsBy_(inputs, icast_DependencyInfo_) {
 		var p string = this.pathEscaper.escape(this.pathResolver.apply(input.getName()))
 		var n string = ModuleLoader_normalize(p, Iterable(this.moduleRootPaths.asList()))
@@ -113,7 +113,7 @@ func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo_]) *JTSe
 	if dupeModulePaths.size() != dupeModulePaths.elementSet().size() {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Duplicate module paths after resolving: %s", []any{dupeModulePaths})))
 	}
-	return jimmutableSetCopyOf_(jtc_string, Collection(dupeModulePaths.elementSet()))
+	return immutableSetCopyOf_(tc_string, Collection(dupeModulePaths.elementSet()))
 }
 
 func ModuleLoader_normalize(path string, moduleRootPaths IterableOf[string]) string {

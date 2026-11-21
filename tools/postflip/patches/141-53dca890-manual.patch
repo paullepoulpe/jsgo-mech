@@ -1,0 +1,83 @@
+diff --git a/go/closure/g_Node.go b/go/closure/g_Node.go
+index 3f2b45b8..82424290 100644
+--- a/go/closure/g_Node.go
++++ b/go/closure/g_Node.go
+@@ -1207,7 +1207,7 @@ func (this Node) toString_4(sb *StringBuilder, printSource bool, printAnnotation
+ 	}
+ 	if printType && (this.ps_().jstypeOrColor != nil) {
+ 		sb.append(" : ")
+-		sb.append(Object_toString(this.ps_().jstypeOrColor))
++		sb.append(Object_toString(this.jstypeOrColorObj_()))
+ 	}
+ }
+ 
+@@ -1269,7 +1269,7 @@ func (this Node) toJson(sb Appendable) {
+ 	}
+ 	if this.ps_().jstypeOrColor != nil {
+ 		sb.append_char(',')
+-		sb.append_CharSequence(strobj_(Node_createJsonPair("typeString", String_replace_s(Object_toString(this.ps_().jstypeOrColor), "\"", "\\\""))))
++		sb.append_CharSequence(strobj_(Node_createJsonPair("typeString", String_replace_s(Object_toString(this.jstypeOrColorObj_()), "\"", "\\\""))))
+ 	}
+ 	if this.ns_().first != 0 {
+ 		sb.append_char(',')
+@@ -1741,7 +1741,7 @@ func (this Node) isEquivalentTo_5(node Node, recursion Node_RecursionMode, typeC
+ 	if ((Token_rhino(this.ns_().token) != Token_rhino(node.ns_().token)) || (this.getChildCount() != node.getChildCount())) || (Node_payloadClass(this.payload_get_()) != Node_payloadClass(node.payload_get_())) {
+ 		return false
+ 	}
+-	if (typeConfig == Node_TypeComparison_COMPARE) && !Objects_equals(this.ps_().jstypeOrColor, node.ps_().jstypeOrColor) {
++	if (typeConfig == Node_TypeComparison_COMPARE) && !Objects_equals(this.jstypeOrColorObj_(), node.jstypeOrColorObj_()) {
+ 		return false
+ 	}
+ 	if (jsDocConfig == Node_JsDocComparison_COMPARE) && !JSDocInfo_areEquivalent(this.getJSDocInfo(), node.getJSDocInfo()) {
+@@ -2196,21 +2196,19 @@ func (this Node) srcrefTreeIfMissing(other Node) Node {
+ }
+ 
+ func (this Node) getJSType() *JSType {
+-	var jSType *JSType
+-	_ = jSType
+-	return func() *JSType {
+-		if func() bool {
+-			v_ := this.ps_().jstypeOrColor
+-			if !is_JSType(v_) {
+-				return false
+-			}
+-			jSType = to_JSType(v_)
+-			return true
+-		}() {
+-			return jSType
+-		}
+-		return nil
+-	}()
++	t, _ := this.ps_().jstypeOrColor.(*JSType)
++	return t
++}
++
++// jstypeOrColorObj_ is the Object that Java's jstypeOrColor holds. A JSType is kept there as its
++// *JSType part (post-flip manual step), so that getJSType is one comparison of the type word
++// instead of two assertions to an anonymous interface; where the field is read as an Object
++// (printed, compared with equals), it is the most derived object, as in Java.
++func (this Node) jstypeOrColorObj_() any {
++	if t, ok := this.ps_().jstypeOrColor.(*JSType); ok {
++		return t.self()
++	}
++	return this.ps_().jstypeOrColor
+ }
+ 
+ func (this Node) getJSTypeRequired() *JSType {
+@@ -2218,10 +2216,14 @@ func (this Node) getJSTypeRequired() *JSType {
+ }
+ 
+ func (this Node) setJSType(x *JSType) Node {
+-	if !((this.ps_().jstypeOrColor == nil) || is_JSType(this.ps_().jstypeOrColor)) {
++	if !((this.ps_().jstypeOrColor == nil) || is_[*JSType](this.ps_().jstypeOrColor)) {
+ 		Preconditions_checkState_boolean_Object(false, this.box_())
+ 	}
+-	this.ps_().jstypeOrColor = x.self()
++	if x == nil {
++		this.ps_().jstypeOrColor = nil
++	} else {
++		this.ps_().jstypeOrColor = x
++	}
+ 	return this
+ }
+ 

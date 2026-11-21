@@ -3,8 +3,8 @@
 package closure
 
 type SimpleBiMap[K comparable, V comparable] struct {
-	forward  *JTMap[K, V]
-	backward *JTMap[V, K]
+	forward  *TMap[K, V]
+	backward *TMap[V, K]
 }
 
 func (this *SimpleBiMap[K, V]) isa_SimpleBiMap_() {}
@@ -15,8 +15,8 @@ func is_SimpleBiMap(v any) bool {
 }
 
 func (this *SimpleBiMap[K, V]) finit_SimpleBiMap() {
-	this.forward = jnewTMap_(tceT_[K](), tcT_[V]())
-	this.backward = jnewTMap_(tceT_[V](), tcT_[K]())
+	this.forward = newTMap_(tchT_[K](), tcT_[V]())
+	this.backward = newTMap_(tchT_[V](), tcT_[K]())
 }
 
 func (this *SimpleBiMap[K, V]) init_SimpleBiMap() {
@@ -42,35 +42,35 @@ func SimpleBiMap_copyOf[K comparable, V comparable](map_ MapOf[K, V]) *SimpleBiM
 }
 
 func (this *SimpleBiMap[K, V]) put(key K, value V) V {
-	var hadKey bool = this.forward.containsKey(key)
-	var oldValue V = this.forward.get(key)
+	var hadKey bool = this.forward.Has(key)
+	var oldValue V = this.forward.Get(key)
 	if hadKey && Objects_equals(boxT_(oldValue), boxT_(value)) {
 		return oldValue
 	}
-	if ok_, a1_ := !this.backward.containsKey(value), boxT_(value); !ok_ {
+	if ok_, a1_ := !this.backward.Has(value), boxT_(value); !ok_ {
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("value already present: %s", []any{a1_})))
 	}
-	this.forward.put(key, value)
+	this.forward.Put(key, value)
 	if hadKey {
-		this.backward.clear()
+		this.backward.Clear()
 		it_1 := this.forward.eachEntry()
 		for it_1.next() {
 			var e *TEntry[K, V] = it_1.entry()
-			this.backward.put(e.getValue(), e.getKey())
+			this.backward.Put(e.getValue(), e.getKey())
 		}
 	} else {
-		this.backward.put(value, key)
+		this.backward.Put(value, key)
 	}
 	return oldValue
 }
 
 func (this *SimpleBiMap[K, V]) get(key K) V {
-	return this.forward.get(key)
+	return this.forward.Get(key)
 }
 
 func (this *SimpleBiMap[K, V]) clear() {
-	this.forward.clear()
-	this.backward.clear()
+	this.forward.Clear()
+	this.backward.Clear()
 }
 
 func (this *SimpleBiMap[K, V]) keySet() SetOf[K] {

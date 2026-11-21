@@ -6,18 +6,18 @@ import "strings"
 
 type CheckConformance struct {
 	compiler_       *AbstractCompiler
-	categories      *JTList[*CheckConformance_Category]
-	mergedBehaviors *JTMap[*Requirement, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
-	ruleToBehavior  *JTMap[CheckConformance_Rule, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
+	categories      *TList[*CheckConformance_Category]
+	mergedBehaviors *TMap[*Requirement, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
+	ruleToBehavior  *TMap[CheckConformance_Rule, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
 }
 
 func (this *CheckConformance) finit_CheckConformance() {
-	this.mergedBehaviors = jnewTMap_(tce_p_Requirement, jtc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
-	this.ruleToBehavior = jnewTMap_(tce_CheckConformance_Rule, jtc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
+	this.mergedBehaviors = newTMap_(tch_p_Requirement, tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
+	this.ruleToBehavior = newTMap_(tch_CheckConformance_Rule, tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
 }
 
 func (this *CheckConformance) init_CheckConformance_AbstractCompiler(compiler *AbstractCompiler) {
-	this.init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler, jtlistEmptyImm_(jtc_p_ConformanceConfig), 0)
+	this.init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler, tlistEmptyImm_(tc_p_ConformanceConfig), 0)
 }
 
 func new_CheckConformance_AbstractCompiler(compiler *AbstractCompiler) *CheckConformance {
@@ -26,13 +26,13 @@ func new_CheckConformance_AbstractCompiler(compiler *AbstractCompiler) *CheckCon
 	return this
 }
 
-func (this *CheckConformance) init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler *AbstractCompiler, configs *JTList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) {
+func (this *CheckConformance) init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler *AbstractCompiler, configs *TList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) {
 	this.finit_CheckConformance()
 	this.compiler_ = compiler
 	this.categories = this.initRules(compiler, configs, reportingMode)
 }
 
-func new_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler *AbstractCompiler, configs *JTList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) *CheckConformance {
+func new_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler *AbstractCompiler, configs *TList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) *CheckConformance {
 	this := &CheckConformance{}
 	this.init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler, configs, reportingMode)
 	return this
@@ -58,7 +58,7 @@ func (this *CheckConformance) visit(t *NodeTraversal, n Node, parent Node) {
 		if category.precondition.shouldCheck(n) {
 			for r := int32((category.rules.size() - 1)); r >= 0; r-- {
 				var rule CheckConformance_Rule = category.rules.get(r)
-				var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = this.ruleToBehavior.getOrDefault(rule, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED)
+				var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = this.ruleToBehavior.GetOr(rule, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED)
 				if behavior == 0 {
 					panic(new_NullPointerException_0())
 				}
@@ -68,15 +68,15 @@ func (this *CheckConformance) visit(t *NodeTraversal, n Node, parent Node) {
 	}
 }
 
-func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs *JTList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) *JTList[*CheckConformance_Category] {
+func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs *TList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) *TList[*CheckConformance_Category] {
 	var builder *SimpleSetMultimap[CheckConformance_Precondition, CheckConformance_Rule] = SimpleSetMultimap_createInsertionOrdered[CheckConformance_Precondition, CheckConformance_Rule]()
 	var isLibraryLevelReportingMode bool = ((reportingMode != 0) && eqR_(reportingMode, CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG))
 	if isLibraryLevelReportingMode {
 		if !CheckConformance_validateBehaviorSettingOfConfigs(compiler, configs, reportingMode) {
-			return jtlistEmptyImm_(jtc_p_CheckConformance_Category)
+			return tlistEmptyImm_(tc_p_CheckConformance_Category)
 		}
 	}
-	var mergedRequirements *JTList[*Requirement] = this.mergeRequirements(compiler, configs, isLibraryLevelReportingMode)
+	var mergedRequirements *TList[*Requirement] = this.mergeRequirements(compiler, configs, isLibraryLevelReportingMode)
 	it_1 := mergedRequirements.each()
 	for it_1.next() {
 		var requirement *Requirement = it_1.v
@@ -84,27 +84,27 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs *JTL
 		var rule CheckConformance_Rule = CheckConformance_initRule(compiler, requirement)
 		if rule != nil {
 			builder.put(rule.getPrecondition(), rule)
-			if isLibraryLevelReportingMode && this.mergedBehaviors.containsKey(requirement) {
-				behavior = this.mergedBehaviors.get(requirement)
+			if isLibraryLevelReportingMode && this.mergedBehaviors.Has(requirement) {
+				behavior = this.mergedBehaviors.Get(requirement)
 				if behavior == 0 {
 					panic(new_NullPointerException_String("The mergeBehaviors method inserted a null behavior in the mergedBehaviors map"))
 				}
 			}
-			this.ruleToBehavior.put(rule, behavior)
+			this.ruleToBehavior.Put(rule, behavior)
 		}
 	}
-	var result *TListBuilder[*CheckConformance_Category] = newTListBuilder_(jtc_p_CheckConformance_Category)
+	var result *ImmutableList_Builder[*CheckConformance_Category] = immutableListBuilder_(tc_p_CheckConformance_Category)
 	for e := range elemsBy_(builder.asMap().entrySet(), icast_Map_Entry) {
-		result.add(new_CheckConformance_Category(icast_CheckConformance_Precondition(e.getKey()), jimmutableListCopyOf_(jtc_CheckConformance_Rule, icast_Collection(e.getValue()))))
+		result.add(new_CheckConformance_Category(icast_CheckConformance_Precondition(e.getKey()), immutableListCopyOf_(tc_CheckConformance_Rule, icast_Collection(e.getValue()))))
 	}
 	return result.build()
 }
 
-func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompiler, configs *JTList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) bool {
+func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompiler, configs *TList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) bool {
 	if !eqR_(reportingMode, CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG) {
 		panic(new_IllegalStateException_0())
 	}
-	var baseRequirementBehaviors *JTMap[string, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = jnewTMap_(jtc_string, jtc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
+	var baseRequirementBehaviors *TMap[string, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = newTMap_(tc_string, tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
 	it_1 := configs.each()
 	for it_1.next() {
 		var config *ConformanceConfig = it_1.v
@@ -114,7 +114,7 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 		var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior()
 		for requirement := range elemsAs_[*Requirement](config.getRequirementList()) {
 			if requirement.hasRuleId() {
-				baseRequirementBehaviors.put(requirement.getRuleId(), behavior)
+				baseRequirementBehaviors.Put(requirement.getRuleId(), behavior)
 			}
 		}
 	}
@@ -130,8 +130,8 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 			if requirement.hasExtends() {
 				var extendingBehavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior()
 				var baseRuleId string = requirement.getExtends()
-				if baseRequirementBehaviors.containsKey(baseRuleId) {
-					var baseBehavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = baseRequirementBehaviors.get(baseRuleId)
+				if baseRequirementBehaviors.Has(baseRuleId) {
+					var baseBehavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = baseRequirementBehaviors.Get(baseRuleId)
 					if !equalsId_(baseBehavior, extendingBehavior) {
 						CheckConformance_reportInvalidRequirement(compiler, requirement, "extending rule's config may not specify a different value of 'library_level_non_allowlisted_conformance_violations_behavior' than the base rule's config. Skipping all conformance checks.")
 						return false
@@ -143,9 +143,9 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 	return true
 }
 
-func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, configs *JTList[*ConformanceConfig], isLibraryLevelConformanceReportingMode bool) *JTList[*Requirement] {
-	var rootRequirements *JTMap[*Requirement_Builder, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = jnewTMap_(tce_p_Requirement_Builder, jtc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
-	var extendable *JTMap[string, *Requirement_Builder] = jnewTMap_(jtc_string, jtc_p_Requirement_Builder)
+func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, configs *TList[*ConformanceConfig], isLibraryLevelConformanceReportingMode bool) *TList[*Requirement] {
+	var rootRequirements *TMap[*Requirement_Builder, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = newTMap_(tch_p_Requirement_Builder, tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
+	var extendable *TMap[string, *Requirement_Builder] = newTMap_(tc_string, tc_p_Requirement_Builder)
 	it_1 := configs.each()
 	for it_1.next() {
 		var config *ConformanceConfig = it_1.v
@@ -155,15 +155,15 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 				if !CheckConformance_validateExtendableRequirement(compiler, requirement, extendable) {
 					continue
 				}
-				extendable.put(requirement.getRuleId(), builder)
+				extendable.Put(requirement.getRuleId(), builder)
 			}
 			var hasBehavior bool = config.hasLibraryLevelNonAllowlistedConformanceViolationsBehavior()
 			var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior()
 			if !requirement.hasExtends() {
 				if !isLibraryLevelConformanceReportingMode {
-					rootRequirements.put(builder, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED)
+					rootRequirements.Put(builder, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED)
 				} else {
-					rootRequirements.put(builder, func() ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior {
+					rootRequirements.Put(builder, func() ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior {
 						if hasBehavior {
 							return behavior
 						}
@@ -182,18 +182,18 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 		var config *ConformanceConfig = it_5.v
 		for requirement := range elemsAs_[*Requirement](config.getRequirementList()) {
 			if requirement.hasExtends() {
-				var extendableRequirement *Requirement_Builder = extendable.get(requirement.getExtends())
+				var extendableRequirement *Requirement_Builder = extendable.Get(requirement.getExtends())
 				if !CheckConformance_validateExtendingRequirement(compiler, requirement, extendableRequirement) {
 					continue
 				}
 				if config.hasLibraryLevelNonAllowlistedConformanceViolationsBehavior() {
-					rootRequirements.put(extendableRequirement, config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior())
+					rootRequirements.Put(extendableRequirement, config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior())
 				}
 				CheckConformance_mergeExtendingRequirementIntoExtended(extendableRequirement, requirement)
 			}
 		}
 	}
-	var cleanedUpRootRequirements *JTList[*Requirement] = jnewTListN_(jtc_p_Requirement, rootRequirements.size())
+	var cleanedUpRootRequirements *TList[*Requirement] = newTListN_(tc_p_Requirement, rootRequirements.Len())
 	it_9 := rootRequirements.eachEntry()
 	for it_9.next() {
 		var entry *TEntry[*Requirement_Builder, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = it_9.entry()
@@ -202,7 +202,7 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 		CheckConformance_removeDuplicates(builder)
 		var requirement *Requirement = cast_[*Requirement](builder.build())
 		if (isLibraryLevelConformanceReportingMode && (behavior != 0)) && (behavior != ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED) {
-			this.mergedBehaviors.put(requirement, behavior)
+			this.mergedBehaviors.Put(requirement, behavior)
 		}
 		cleanedUpRootRequirements.add(requirement)
 	}
@@ -219,7 +219,7 @@ func CheckConformance_mergeExtendingRequirementIntoExtended(extendedRequirement 
 	}
 }
 
-func CheckConformance_validateExtendableRequirement(compiler *AbstractCompiler, requirement *Requirement, extendable *JTMap[string, *Requirement_Builder]) bool {
+func CheckConformance_validateExtendableRequirement(compiler *AbstractCompiler, requirement *Requirement, extendable *TMap[string, *Requirement_Builder]) bool {
 	if !requirement.hasRuleId() {
 		panic(new_IllegalStateException_String(objstr_("Extendable requirement must have a rule_id")))
 	}
@@ -227,7 +227,7 @@ func CheckConformance_validateExtendableRequirement(compiler *AbstractCompiler, 
 		CheckConformance_reportInvalidRequirement(compiler, requirement, "empty rule_id")
 		return false
 	}
-	if extendable.containsKey(requirement.getRuleId()) {
+	if extendable.Has(requirement.getRuleId()) {
 		CheckConformance_reportInvalidRequirement(compiler, requirement, ("two requirements with the same rule_id: " + sstr_(requirement.getRuleId())))
 		return false
 	}
@@ -243,7 +243,7 @@ func CheckConformance_validateExtendingRequirement(compiler *AbstractCompiler, e
 		return false
 	}
 	for field := range elemsAs_[*Descriptors_FieldDescriptor](extendingRequirement.getAllFields().keySet()) {
-		if !CheckConformance_EXTENDABLE_FIELDS.contains(field.getName()) {
+		if !CheckConformance_EXTENDABLE_FIELDS.Has(field.getName()) {
 			CheckConformance_reportInvalidRequirement(compiler, extendingRequirement, ("extending rules allow only " + objstr_(CheckConformance_EXTENDABLE_FIELDS.asSet())))
 		}
 	}
@@ -254,17 +254,17 @@ func CheckConformance_validateExtendingRequirement(compiler *AbstractCompiler, e
 }
 
 func CheckConformance_removeDuplicates(requirement *Requirement_Builder) {
-	var list1 *JTSet[string] = jimmutableSetCopyOf_(jtc_string, Collection(requirement.getWhitelistList()))
+	var list1 *TSet[string] = immutableSetCopyOf_(tc_string, Collection(requirement.getWhitelistList()))
 	requirement.clearWhitelist().addAllWhitelist(Iterable(list1.asSet()))
-	var allowlist *JTSet[string] = jimmutableSetCopyOf_(jtc_string, Collection(requirement.getAllowlistList()))
+	var allowlist *TSet[string] = immutableSetCopyOf_(tc_string, Collection(requirement.getAllowlistList()))
 	requirement.clearAllowlist().addAllAllowlist(Iterable(allowlist.asSet()))
-	var list2 *JTSet[string] = jimmutableSetCopyOf_(jtc_string, Collection(requirement.getWhitelistRegexpList()))
+	var list2 *TSet[string] = immutableSetCopyOf_(tc_string, Collection(requirement.getWhitelistRegexpList()))
 	requirement.clearWhitelistRegexp().addAllWhitelistRegexp(Iterable(list2.asSet()))
-	var allowlistRegexp *JTSet[string] = jimmutableSetCopyOf_(jtc_string, Collection(requirement.getAllowlistRegexpList()))
+	var allowlistRegexp *TSet[string] = immutableSetCopyOf_(tc_string, Collection(requirement.getAllowlistRegexpList()))
 	requirement.clearAllowlistRegexp().addAllAllowlistRegexp(Iterable(allowlistRegexp.asSet()))
-	var list3 *JTSet[string] = jimmutableSetCopyOf_(jtc_string, Collection(requirement.getOnlyApplyToList()))
+	var list3 *TSet[string] = immutableSetCopyOf_(tc_string, Collection(requirement.getOnlyApplyToList()))
 	requirement.clearOnlyApplyTo().addAllOnlyApplyTo(Iterable(list3.asSet()))
-	var list4 *JTSet[string] = jimmutableSetCopyOf_(jtc_string, Collection(requirement.getOnlyApplyToRegexpList()))
+	var list4 *TSet[string] = immutableSetCopyOf_(tc_string, Collection(requirement.getOnlyApplyToRegexpList()))
 	requirement.clearOnlyApplyToRegexp().addAllOnlyApplyToRegexp(Iterable(list4.asSet()))
 }
 
@@ -316,7 +316,7 @@ var CheckConformance_CONFORMANCE_ERROR *DiagnosticType
 var CheckConformance_CONFORMANCE_VIOLATION *DiagnosticType
 var CheckConformance_CONFORMANCE_POSSIBLE_VIOLATION *DiagnosticType
 var CheckConformance_INVALID_REQUIREMENT_SPEC *DiagnosticType
-var CheckConformance_EXTENDABLE_FIELDS *JTSet[string]
+var CheckConformance_EXTENDABLE_FIELDS *TSet[string]
 
 var CheckConformance_clinit_done bool
 
@@ -329,7 +329,7 @@ func CheckConformance_clinit() {
 	CheckConformance_CONFORMANCE_VIOLATION = DiagnosticType_warning("JSC_CONFORMANCE_VIOLATION", "Violation: {0}{1}{2}")
 	CheckConformance_CONFORMANCE_POSSIBLE_VIOLATION = DiagnosticType_warning("JSC_CONFORMANCE_POSSIBLE_VIOLATION", "Possible violation: {0}{1}{2}")
 	CheckConformance_INVALID_REQUIREMENT_SPEC = DiagnosticType_error("JSC_INVALID_REQUIREMENT_SPEC", "Invalid requirement. Reason: {0}\nRequirement spec:\n{1}")
-	CheckConformance_EXTENDABLE_FIELDS = jimmutableSetOf_[string](jtc_string, "config_file", "error_message", "extends", "only_apply_to", "only_apply_to_regexp", "whitelist", "whitelist_regexp", "allowlist", "allowlist_regexp", "value")
+	CheckConformance_EXTENDABLE_FIELDS = immutableSetOf_[string](tc_string, "config_file", "error_message", "extends", "only_apply_to", "only_apply_to_regexp", "whitelist", "whitelist_regexp", "allowlist", "allowlist_regexp", "value")
 
 }
 
@@ -388,15 +388,15 @@ func lambda_CheckConformance_Precondition_clinit_1_(n Node) bool {
 
 type CheckConformance_Category struct {
 	precondition CheckConformance_Precondition
-	rules        *JTList[CheckConformance_Rule]
+	rules        *TList[CheckConformance_Rule]
 }
 
-func (this *CheckConformance_Category) init_CheckConformance_Category(precondition CheckConformance_Precondition, rules *JTList[CheckConformance_Rule]) {
+func (this *CheckConformance_Category) init_CheckConformance_Category(precondition CheckConformance_Precondition, rules *TList[CheckConformance_Rule]) {
 	this.precondition = precondition
 	this.rules = rules
 }
 
-func new_CheckConformance_Category(precondition CheckConformance_Precondition, rules *JTList[CheckConformance_Rule]) *CheckConformance_Category {
+func new_CheckConformance_Category(precondition CheckConformance_Precondition, rules *TList[CheckConformance_Rule]) *CheckConformance_Category {
 	this := &CheckConformance_Category{}
 	this.init_CheckConformance_Category(precondition, rules)
 	return this

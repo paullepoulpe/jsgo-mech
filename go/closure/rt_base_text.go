@@ -277,10 +277,8 @@ func (this *Splitter) splitToList(seq any) List { return listOf_(this.splitAll_(
 // splitToListT_ is splitToList for a typed declaration (j2go rule "typed collections"): the
 // parts as they are, in a list that cannot be changed, as Guava's
 // (Collections.unmodifiableList of a list that nothing else has).
-func splitToListT_(c *jtconv_[string], sp *Splitter, seq any) *JTList[string] {
-	l := &JTList[string]{c: c, items: sp.splitStrs_(csString_(seq)), twin: unmodMark_}
-	l.view.l = l
-	return l
+func splitToListT_(c *tconv_[string], sp *Splitter, seq any) *TList[string] {
+	return &TList[string]{c: c, items: sp.splitStrs_(csString_(seq)), imm: true, unmod: true}
 }
 
 // ---- Joiner

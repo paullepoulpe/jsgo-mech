@@ -7,8 +7,8 @@ type SourceMapConsumerV3 struct {
 	sourcesContent       []string
 	names_               []string
 	mappings             *SourceMapConsumerV3_Mappings
-	reverseSourceMapping *JTMap[string, Map]
-	extensions           *JTMap[string, any]
+	reverseSourceMapping *TMap[string, Map]
+	extensions           *TMap[string, any]
 	file                 Optional[string]
 	sourceRoot           Optional[string]
 	lineCount            int32
@@ -18,7 +18,7 @@ func (this *SourceMapConsumerV3) finit_SourceMapConsumerV3() {
 	this.file = Optional_empty[string]()
 	this.mappings = nil
 	this.sourceRoot = Optional_empty[string]()
-	this.extensions = jnewTMap_(jtc_string, tc_Object)
+	this.extensions = newTMap_(tc_string, tc_Object)
 }
 
 func (this *SourceMapConsumerV3) init_SourceMapConsumerV3() {
@@ -152,7 +152,7 @@ func (this *SourceMapConsumerV3) getReverseMapping(originalFile string, line int
 	if this.reverseSourceMapping == nil {
 		this.createReverseMapping()
 	}
-	var sourceLineToCollectionMap MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] = this.reverseSourceMapping.get(originalFile)
+	var sourceLineToCollectionMap MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] = this.reverseSourceMapping.Get(originalFile)
 	if sourceLineToCollectionMap == nil {
 		return Collection(Collections_emptyList())
 	} else {
@@ -169,7 +169,7 @@ func (this *SourceMapConsumerV3) getSourceRoot() Optional[string] {
 	return this.sourceRoot
 }
 
-func (this *SourceMapConsumerV3) getExtensions() *JTMap[string, any] {
+func (this *SourceMapConsumerV3) getExtensions() *TMap[string, any] {
 	return this.extensions
 }
 
@@ -220,7 +220,7 @@ func (this *SourceMapConsumerV3) getOriginalMappingForEntry(index int32, precisi
 }
 
 func (this *SourceMapConsumerV3) createReverseMapping() {
-	this.reverseSourceMapping = jnewTMap_(jtc_string, tc_Map)
+	this.reverseSourceMapping = newTMap_(tc_string, tc_Map)
 	for targetLine := int32(0); targetLine < this.mappings.getParsedLineCount(); targetLine++ {
 		var start int32 = this.mappings.getLineStart(targetLine)
 		var end int32 = this.mappings.getLineStart((targetLine + 1))
@@ -229,7 +229,7 @@ func (this *SourceMapConsumerV3) createReverseMapping() {
 			var sourceLine int32 = this.mappings.getSourceLine(i)
 			if (sourceFileId != SourceMapConsumerV3_UNMAPPED) && (sourceLine != SourceMapConsumerV3_UNMAPPED) {
 				var originalFile string = this.sources[sourceFileId]
-				var lineToCollectionMap MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] = this.reverseSourceMapping.computeIfAbsent(originalFile, Function[string, Map](func(k string) Map {
+				var lineToCollectionMap MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] = this.reverseSourceMapping.ComputeIfAbsent(originalFile, Function[string, Map](func(k string) Map {
 					return Map(new_LinkedHashMap())
 				}))
 				if !lineToCollectionMap.containsKey(int32(sourceLine)) {

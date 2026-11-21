@@ -4,15 +4,15 @@ package closure
 
 type ConvertChunksToESModules struct {
 	compiler_              *AbstractCompiler
-	crossChunkExports      *JTMap[*JSChunk, Set]
-	crossChunkImports      *JTMap[*JSChunk, Map]
-	dynamicImportCallbacks *JTList[Node]
+	crossChunkExports      *TMap[*JSChunk, Set]
+	crossChunkImports      *TMap[*JSChunk, Map]
+	dynamicImportCallbacks *TList[Node]
 }
 
 func (this *ConvertChunksToESModules) finit_ConvertChunksToESModules() {
-	this.crossChunkExports = jnewTMap_(jtc_p_JSChunk, tc_Set)
-	this.crossChunkImports = jnewTMap_(jtc_p_JSChunk, tc_Map)
-	this.dynamicImportCallbacks = jnewTList_(jtc_Node)
+	this.crossChunkExports = newTMap_(tc_p_JSChunk, tc_Set)
+	this.crossChunkImports = newTMap_(tc_p_JSChunk, tc_Map)
+	this.dynamicImportCallbacks = newTList_(tc_Node)
 }
 
 func (this *ConvertChunksToESModules) init_ConvertChunksToESModules(compiler *AbstractCompiler) {
@@ -29,8 +29,8 @@ func new_ConvertChunksToESModules(compiler *AbstractCompiler) *ConvertChunksToES
 func (this *ConvertChunksToESModules) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_ConvertChunksToESModules_FindCrossChunkReferences(this)))
 	for chunk := range elemsAs_[*JSChunk](this.compiler_.getChunkGraph().getAllChunks()) {
-		if (!this.crossChunkExports.containsKey(chunk) && !this.crossChunkImports.containsKey(chunk)) && !chunk.getInputs().isEmpty() {
-			this.crossChunkExports.put(chunk, Set(new_LinkedHashSet()))
+		if (!this.crossChunkExports.Has(chunk) && !this.crossChunkImports.Has(chunk)) && !chunk.getInputs().isEmpty() {
+			this.crossChunkExports.Put(chunk, Set(new_LinkedHashSet()))
 		}
 	}
 	this.convertChunkSourcesToModules()
@@ -96,7 +96,7 @@ func (this *ConvertChunksToESModules) addExportStatements() {
 			exportSpec.putIntProp(Node_IS_SHORTHAND_PROPERTY, 1)
 			exportSpecs.addChildToBack(exportSpec)
 		}
-		var importsByChunk MapOf[*JSChunk, SetOf[string]] = this.crossChunkImports.get(jsModuleExports.getKey())
+		var importsByChunk MapOf[*JSChunk, SetOf[string]] = this.crossChunkImports.Get(jsModuleExports.getKey())
 		if (exportSpecs.hasChildren() || (importsByChunk == nil)) || importsByChunk.isEmpty() {
 			var export Node = IR_export(exportSpecs).srcrefTree(moduleBody)
 			moduleBody.addChildToBack(export)
@@ -113,7 +113,7 @@ func (this *ConvertChunksToESModules) addImportStatements() {
 	it_1 := this.crossChunkImports.eachEntry()
 	for it_1.next() {
 		var chunkImportsEntry *TEntry[*JSChunk, Map] = it_1.entry()
-		var importStatements *JTList[Node] = jnewTList_(jtc_Node)
+		var importStatements *TList[Node] = newTList_(tc_Node)
 		var importingChunk *JSChunk = chunkImportsEntry.getKey()
 		var firstInput *CompilerInput = importingChunk.getFirst()
 		var moduleBody Node = firstInput.getAstRoot(this.compiler_).getFirstChild()
@@ -255,11 +255,11 @@ func (this *ConvertChunksToESModules) visitName(t *NodeTraversal, nameNode Node,
 		if NodeUtil_isLhsOfAssign(nameNode) {
 			t.report(nameNode, ConvertChunksToESModules_ASSIGNMENT_TO_IMPORT, []string{nameNode.getString(), ConvertChunksToESModules_getChunkName(referencingChunk), ConvertChunksToESModules_getChunkName(definingChunk)})
 		}
-		var namesToExport SetOf[string] = this.crossChunkExports.computeIfAbsent(definingChunk, Function[*JSChunk, Set](func(k *JSChunk) Set {
+		var namesToExport SetOf[string] = this.crossChunkExports.ComputeIfAbsent(definingChunk, Function[*JSChunk, Set](func(k *JSChunk) Set {
 			return Set(new_LinkedHashSet())
 		}))
 		Collection_add_s(namesToExport, name)
-		var namesToImportByChunk MapOf[*JSChunk, SetOf[string]] = this.crossChunkImports.computeIfAbsent(referencingChunk, Function[*JSChunk, Map](func(k *JSChunk) Map {
+		var namesToImportByChunk MapOf[*JSChunk, SetOf[string]] = this.crossChunkImports.ComputeIfAbsent(referencingChunk, Function[*JSChunk, Map](func(k *JSChunk) Map {
 			return Map(new_LinkedHashMap())
 		}))
 		if importType == ConvertChunksToESModules_ImportType_STATIC {
@@ -406,10 +406,10 @@ func (this *ConvertChunksToESModules_FindCrossChunkReferences) visitScript(t *No
 		panic(new_IllegalStateException_0())
 	}
 	var chunk *JSChunk = t.getChunk()
-	var chunkDependencies *JTList[*JSChunk] = chunk.getDependencies()
-	this.outer_.crossChunkExports.putIfAbsent(chunk, Set(new_LinkedHashSet()))
+	var chunkDependencies *TList[*JSChunk] = chunk.getDependencies()
+	this.outer_.crossChunkExports.PutIfAbsent(chunk, Set(new_LinkedHashSet()))
 	if !chunkDependencies.isEmpty() {
-		var namesToImportByChunk MapOf[*JSChunk, SetOf[string]] = this.outer_.crossChunkImports.computeIfAbsent(chunk, Function[*JSChunk, Map](func(k *JSChunk) Map {
+		var namesToImportByChunk MapOf[*JSChunk, SetOf[string]] = this.outer_.crossChunkImports.ComputeIfAbsent(chunk, Function[*JSChunk, Map](func(k *JSChunk) Map {
 			return Map(new_LinkedHashMap())
 		}))
 		it_1 := chunkDependencies.each()

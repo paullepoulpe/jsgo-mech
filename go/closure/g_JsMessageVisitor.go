@@ -8,9 +8,9 @@ type JsMessageVisitor struct {
 	NodeTraversal_AbstractPostOrderCallback
 	idGenerator_    JsMessage_IdGenerator
 	compiler_       *AbstractCompiler
-	messageNames    *JTMap[string, *JsMessageVisitor_MessageLocation]
-	unnamedMessages *JTMap[*Var, *JsMessage]
-	googMsgNodes    *JTSet[Node]
+	messageNames    *TMap[string, *JsMessageVisitor_MessageLocation]
+	unnamedMessages *TMap[*Var, *JsMessage]
+	googMsgNodes    *TSet[Node]
 }
 
 func (this *JsMessageVisitor) as_JsMessageVisitor() *JsMessageVisitor { return this }
@@ -30,9 +30,9 @@ func (this *JsMessageVisitor) up_NodeTraversal_AbstractPostOrderCallback() *Node
 }
 
 func (this *JsMessageVisitor) finit_JsMessageVisitor() {
-	this.messageNames = jnewTMap_(jtc_string, tc_p_JsMessageVisitor_MessageLocation)
-	this.unnamedMessages = jnewTMap_(tce_p_Var, jtc_p_JsMessage)
-	this.googMsgNodes = jnewTSet_(jtc_Node)
+	this.messageNames = newTMap_(tc_string, tc_p_JsMessageVisitor_MessageLocation)
+	this.unnamedMessages = newTMap_(tch_p_Var, tc_p_JsMessage)
+	this.googMsgNodes = newTSet_(tc_Node)
 }
 
 func (this *JsMessageVisitor) init_JsMessageVisitor(compiler *AbstractCompiler, idGenerator JsMessage_IdGenerator) {
@@ -117,7 +117,7 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 		return
 	}
 	if msgNodeIsACall {
-		this.googMsgNodes.remove(msgNode)
+		this.googMsgNodes.Delete(msgNode)
 	} else {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, JsMessageVisitor_MESSAGE_NOT_INITIALIZED_CORRECTLY, []string{}))
 		return
@@ -172,7 +172,7 @@ func (this *JsMessageVisitor) isDeclareIcuTemplateCallee(calleeNode Node) bool {
 }
 
 func (this *JsMessageVisitor) buildJsMessage(input JsMessageVisitor_InputForBuildJsMsg) *JsMessage {
-	var messageParts *JTList[JsMessage_Part] = input.getMessageParts()
+	var messageParts *TList[JsMessage_Part] = input.getMessageParts()
 	var messageKeyFromLhs string = input.getMessageKeyFromLhs()
 	var externalMessageId Optional[string] = JsMessageVisitor_getExternalMessageId(messageKeyFromLhs)
 	var isAnonymous bool
@@ -255,7 +255,7 @@ func (this *JsMessageVisitor) collectGetMsgCall(traversal *NodeTraversal, call N
 	}
 	var callee Node = call.getFirstChild()
 	if callee.matchesQualifiedName(JsMessageVisitor_MSG_FUNCTION_QNAME) || this.isDeclareIcuTemplateCallee(callee) {
-		this.googMsgNodes.add(call)
+		this.googMsgNodes.Add(call)
 	} else if callee.matchesQualifiedName(JsMessageVisitor_MSG_FALLBACK_FUNCTION_NAME) {
 		this.visitFallbackFunctionCall(traversal, call)
 	}
@@ -263,13 +263,13 @@ func (this *JsMessageVisitor) collectGetMsgCall(traversal *NodeTraversal, call N
 
 func (this *JsMessageVisitor) trackNormalMessage(message *JsMessage, msgName string, msgNode Node) {
 	var location *JsMessageVisitor_MessageLocation = new_JsMessageVisitor_MessageLocation(message, msgNode)
-	this.messageNames.put(msgName, location)
+	this.messageNames.Put(msgName, location)
 }
 
 func (this *JsMessageVisitor) trackUnnamedMessage(t *NodeTraversal, message *JsMessage, msgNameInScope string) {
 	var var_ *Var = t.getScope().getVar_String_rVar(msgNameInScope)
 	if var_ != nil {
-		this.unnamedMessages.put(var_, message)
+		this.unnamedMessages.Put(var_, message)
 	}
 }
 
@@ -295,13 +295,13 @@ func JsMessageVisitor_isLegalMessageVarAlias(msgNode Node) bool {
 func (this *JsMessageVisitor) getTrackedUnnamedMessage(t *NodeTraversal, msgNameInScope string) *JsMessage {
 	var var_ *Var = t.getScope().getVar_String_rVar(msgNameInScope)
 	if var_ != nil {
-		return this.unnamedMessages.get(var_)
+		return this.unnamedMessages.Get(var_)
 	}
 	return nil
 }
 
 func (this *JsMessageVisitor) getTrackedNormalMessage(msgName string) *JsMessage {
-	var location *JsMessageVisitor_MessageLocation = this.messageNames.get(msgName)
+	var location *JsMessageVisitor_MessageLocation = this.messageNames.Get(msgName)
 	return func() *JsMessage {
 		if location == nil {
 			return nil
@@ -311,8 +311,8 @@ func (this *JsMessageVisitor) getTrackedNormalMessage(msgName string) *JsMessage
 }
 
 func (this *JsMessageVisitor) checkIfMessageDuplicated(msgName string, msgNode Node) {
-	if this.messageNames.containsKey(msgName) {
-		var location *JsMessageVisitor_MessageLocation = this.messageNames.get(msgName)
+	if this.messageNames.Has(msgName) {
+		var location *JsMessageVisitor_MessageLocation = this.messageNames.Get(msgName)
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(msgNode, JsMessageVisitor_MESSAGE_DUPLICATE_KEY, []string{msgName, location.messageNode_.getSourceFileName(), Integer_toString(location.messageNode_.getLineno())}))
 	}
 }
@@ -393,7 +393,7 @@ func (this *JsMessageVisitor) extractJsMessageDefinition(msgNode Node, jsDocInfo
 		return Outcome_base_err[JsMessageDefinition](placeholderObjectLiteralMapOutcome.error())
 	}
 	var placeholderObjectLiteralMap JsMessageVisitor_ObjectLiteralMap = placeholderObjectLiteralMapOutcome.get()
-	var placeholderNamesFromText *JTSet[string] = googGetMsgParsedText.getPlaceholderNames()
+	var placeholderNamesFromText *TSet[string] = googGetMsgParsedText.getPlaceholderNames()
 	var requiredKeysChecked *Outcome_base[any] = placeholderObjectLiteralMap.checkForRequiredKeys(placeholderNamesFromText, Function[string, *JsMessageVisitor_MalformedException](func(placeholderName string) *JsMessageVisitor_MalformedException {
 		return new_JsMessageVisitor_MalformedException(("Unrecognized message placeholder referenced: " + sstr_(placeholderName)), msgTextNode)
 	}))
@@ -406,7 +406,7 @@ func (this *JsMessageVisitor) extractJsMessageDefinition(msgNode Node, jsDocInfo
 	if unexpectedKeysChecked.isErr() {
 		return Outcome_base_err[JsMessageDefinition](unexpectedKeysChecked.error())
 	}
-	var placeholderValuesMap *JTMap[string, Node] = placeholderObjectLiteralMap.extractAsValueMap()
+	var placeholderValuesMap *TMap[string, Node] = placeholderObjectLiteralMap.extractAsValueMap()
 	var jsMessageOptionsOutcome *Outcome_base[JsMessageVisitor_JsMessageOptions] = this.extractJsMessageOptions(optionsBagArgument)
 	if jsMessageOptionsOutcome.isErr() {
 		return Outcome_base_err[JsMessageDefinition](jsMessageOptionsOutcome.error())
@@ -506,7 +506,7 @@ func (this *JsMessageVisitor) extractJsMessageOptions(optionsBag Node) *Outcome_
 	if placeholderExamplesMapOutcome.isErr() {
 		return Outcome_base_err[JsMessageVisitor_JsMessageOptions](placeholderExamplesMapOutcome.error())
 	}
-	var placeholderExamplesMap *JTMap[string, string] = tmapImm_(jtc_string, jtc_string, placeholderExamplesMapOutcome.get())
+	var placeholderExamplesMap *TMap[string, string] = tmapImm_(tc_string, tc_string, placeholderExamplesMapOutcome.get())
 	var originalCodeValueNode Node = objectLiteralMap.getValueNode("original_code")
 	var originalCodeObjectLiteralMapOutcome *Outcome_base[JsMessageVisitor_ObjectLiteralMap] = JsMessageVisitor_extractObjectLiteralMap(originalCodeValueNode)
 	if originalCodeObjectLiteralMapOutcome.isErr() {
@@ -517,7 +517,7 @@ func (this *JsMessageVisitor) extractJsMessageOptions(optionsBag Node) *Outcome_
 	if placeholderOriginalCodeMapOutcome.isErr() {
 		return Outcome_base_err[JsMessageVisitor_JsMessageOptions](placeholderOriginalCodeMapOutcome.error())
 	}
-	var placeholderOriginalCodeMap *JTMap[string, string] = tmapImm_(jtc_string, jtc_string, placeholderOriginalCodeMapOutcome.get())
+	var placeholderOriginalCodeMap *TMap[string, string] = tmapImm_(tc_string, tc_string, placeholderOriginalCodeMapOutcome.get())
 	var result JsMessageVisitor_JsMessageOptions = JsMessageVisitor_JsMessageOptions(new_JsMessageVisitor_5(this, isEscapeLessThan, isUnescapeHtmlEntities, placeholderExamplesMap, placeholderOriginalCodeMap, exampleObjectLiteralMap, originalCodeObjectLiteralMap))
 	return Outcome_base_ok_Object[JsMessageVisitor_JsMessageOptions](result)
 }
@@ -575,7 +575,7 @@ func (this *JsMessageVisitor) extractIcuTemplateOptions(optionsBag Node) *Outcom
 	if placeholderExamplesMapOutcome.isErr() {
 		return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](placeholderExamplesMapOutcome.error())
 	}
-	var placeholderExamplesMap *JTMap[string, string] = tmapImm_(jtc_string, jtc_string, placeholderExamplesMapOutcome.get())
+	var placeholderExamplesMap *TMap[string, string] = tmapImm_(tc_string, tc_string, placeholderExamplesMapOutcome.get())
 	var originalCodeValueNode Node = objectLiteralMap.getValueNode("original_code")
 	var originalCodeObjectLiteralMapOutcome *Outcome_base[JsMessageVisitor_ObjectLiteralMap] = JsMessageVisitor_extractObjectLiteralMap(originalCodeValueNode)
 	if originalCodeObjectLiteralMapOutcome.isErr() {
@@ -586,8 +586,8 @@ func (this *JsMessageVisitor) extractIcuTemplateOptions(optionsBag Node) *Outcom
 	if placeholderOriginalCodeMapOutcome.isErr() {
 		return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](placeholderOriginalCodeMapOutcome.error())
 	}
-	var placeholderOriginalCodeMap *JTMap[string, string] = tmapImm_(jtc_string, jtc_string, placeholderOriginalCodeMapOutcome.get())
-	var placeholderNames *JTSet[string] = newTSetBuilder_(jtc_string).addAll(Iterable(placeholderExamplesMap.asImm().keySet())).addAll(Iterable(placeholderOriginalCodeMap.asImm().keySet())).build()
+	var placeholderOriginalCodeMap *TMap[string, string] = tmapImm_(tc_string, tc_string, placeholderOriginalCodeMapOutcome.get())
+	var placeholderNames *TSet[string] = immutableSetBuilder_(tc_string).addAll(Iterable(placeholderExamplesMap.asImm().keySet())).addAll(Iterable(placeholderOriginalCodeMap.asImm().keySet())).build()
 	it_1 := placeholderNames.each()
 	for it_1.next() {
 		var placeholderName string = it_1.v
@@ -616,12 +616,12 @@ func JsMessageVisitor_extractBooleanStringKeyValue(stringKeyNode Node) *Outcome_
 
 func JsMessageVisitor_extractObjectLiteralMap(objLit Node) *Outcome_base[JsMessageVisitor_ObjectLiteralMap] {
 	if objLit == 0 {
-		return Outcome_base_ok_Object[JsMessageVisitor_ObjectLiteralMap](JsMessageVisitor_ObjectLiteralMap(new_JsMessageVisitor_ObjectLiteralMapImpl(jtmapEmptyImm_(jtc_string, jtc_Node))))
+		return Outcome_base_ok_Object[JsMessageVisitor_ObjectLiteralMap](JsMessageVisitor_ObjectLiteralMap(new_JsMessageVisitor_ObjectLiteralMapImpl(tmapEmptyImm_(tc_string, tc_Node))))
 	}
 	if !objLit.isObjectLit() {
 		return Outcome_base_err[JsMessageVisitor_ObjectLiteralMap](new_JsMessageVisitor_MalformedException("object literal expected", objLit).up_Throwable())
 	}
-	var stringToStringKeyMap *JTMap[string, Node] = jnewTMap_(jtc_string, jtc_Node)
+	var stringToStringKeyMap *TMap[string, Node] = newTMap_(tc_string, tc_Node)
 	{
 		var stringKey Node = objLit.getFirstChild()
 		for ; stringKey != 0; stringKey = stringKey.getNext() {
@@ -629,10 +629,10 @@ func JsMessageVisitor_extractObjectLiteralMap(objLit Node) *Outcome_base[JsMessa
 				return Outcome_base_err[JsMessageVisitor_ObjectLiteralMap](new_JsMessageVisitor_MalformedException("string key expected", stringKey).up_Throwable())
 			}
 			var key string = stringKey.getString()
-			if stringToStringKeyMap.containsKey(key) {
+			if stringToStringKeyMap.Has(key) {
 				return Outcome_base_err[JsMessageVisitor_ObjectLiteralMap](new_JsMessageVisitor_MalformedException(("duplicate string key: " + sstr_(key)), stringKey).up_Throwable())
 			}
-			stringToStringKeyMap.put(stringKey.getString(), stringKey)
+			stringToStringKeyMap.Put(stringKey.getString(), stringKey)
 		}
 	}
 	return Outcome_base_ok_Object[JsMessageVisitor_ObjectLiteralMap](JsMessageVisitor_ObjectLiteralMap(new_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap)))
@@ -649,8 +649,8 @@ func JsMessageVisitor_parseJsMessageTextIntoParts(originalMsgText string) *Outco
 
 func JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText string) *Outcome_base[JsMessageVisitor_GoogGetMsgParsedText] {
 	var msgText string = originalMsgText
-	var partsBuilder *TListBuilder[JsMessage_Part] = newTListBuilder_(jtc_JsMessage_Part)
-	var placeholderNamesBuilder *TSetBuilder[string] = newTSetBuilder_(jtc_string)
+	var partsBuilder *ImmutableList_Builder[JsMessage_Part] = immutableListBuilder_(tc_JsMessage_Part)
+	var placeholderNamesBuilder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	for {
 		var phBegin int32 = int32(strings.Index(msgText, JsMessage_PH_JS_PREFIX))
 		if phBegin < 0 {
@@ -678,8 +678,8 @@ func JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText string) *Outco
 			}
 		}
 	}
-	var placeholderNames *JTSet[string] = placeholderNamesBuilder.build()
-	var parts *JTList[JsMessage_Part] = partsBuilder.build()
+	var placeholderNames *TSet[string] = placeholderNamesBuilder.build()
+	var parts *TList[JsMessage_Part] = partsBuilder.build()
 	var parsedText JsMessageVisitor_GoogGetMsgParsedText = JsMessageVisitor_GoogGetMsgParsedText(new_JsMessageVisitor_7(originalMsgText, placeholderNames, parts))
 	return Outcome_base_ok_Object[JsMessageVisitor_GoogGetMsgParsedText](parsedText)
 }
@@ -774,7 +774,7 @@ const JsMessageVisitor_ICU_MSG_FUNCTION_NAME string = "declareIcuTemplate"
 const JsMessageVisitor_ICU_MSG_FUNCTION_QNAME string = "goog.i18n.messages.declareIcuTemplate"
 const JsMessageVisitor_MSG_FALLBACK_FUNCTION_NAME string = "goog.getMsgWithFallback"
 
-var JsMessageVisitor_FUNCTIONS_USED_IN_MESSAGE_EXTRACTION *JTList[string]
+var JsMessageVisitor_FUNCTIONS_USED_IN_MESSAGE_EXTRACTION *TList[string]
 
 const JsMessageVisitor_MSG_EXTERNAL_PREFIX string = "MSG_EXTERNAL_"
 
@@ -793,8 +793,8 @@ const JsMessageVisitor_MSG_PREFIX string = "MSG_"
 var JsMessageVisitor_SCOPED_ALIASES_PREFIX_PATTERN *Pattern
 var JsMessageVisitor_MSG_UNNAMED_PATTERN *Pattern
 var JsMessageVisitor_ICU_PLACEHOLDER_RE *Pattern
-var JsMessageVisitor_MESSAGE_OPTION_NAMES *JTSet[string]
-var JsMessageVisitor_ICU_TEMPLATE_OPTION_NAMES *JTSet[string]
+var JsMessageVisitor_MESSAGE_OPTION_NAMES *TSet[string]
+var JsMessageVisitor_ICU_TEMPLATE_OPTION_NAMES *TSet[string]
 
 var JsMessageVisitor_clinit_done bool
 
@@ -803,7 +803,7 @@ func JsMessageVisitor_clinit() {
 		return
 	}
 	JsMessageVisitor_clinit_done = true
-	JsMessageVisitor_FUNCTIONS_USED_IN_MESSAGE_EXTRACTION = jimmutableListOf_[string](jtc_string, JsMessageVisitor_MSG_FUNCTION_NAME, JsMessageVisitor_ICU_MSG_FUNCTION_NAME)
+	JsMessageVisitor_FUNCTIONS_USED_IN_MESSAGE_EXTRACTION = immutableListOf_[string](tc_string, JsMessageVisitor_MSG_FUNCTION_NAME, JsMessageVisitor_ICU_MSG_FUNCTION_NAME)
 	JsMessageVisitor_MESSAGE_HAS_NO_DESCRIPTION = DiagnosticType_warning("JSC_MSG_HAS_NO_DESCRIPTION", "Message {0} has no description. Add @desc JsDoc tag.")
 	JsMessageVisitor_MESSAGE_HAS_NO_TEXT = DiagnosticType_warning("JSC_MSG_HAS_NO_TEXT", "Message value of {0} is just an empty string. Empty messages are forbidden.")
 	JsMessageVisitor_MESSAGE_TREE_MALFORMED = DiagnosticType_error("JSC_MSG_TREE_MALFORMED", "Message parse tree malformed. {0}")
@@ -816,8 +816,8 @@ func JsMessageVisitor_clinit() {
 	JsMessageVisitor_SCOPED_ALIASES_PREFIX_PATTERN = Pattern_compile(("\\$jscomp\\$scope\\$" + sstr_(JavaRegex_NON_SPACE) + "+\\$MSG_"))
 	JsMessageVisitor_MSG_UNNAMED_PATTERN = Pattern_compile(("MSG_UNNAMED" + sstr_(JavaRegex_DOT) + "*"))
 	JsMessageVisitor_ICU_PLACEHOLDER_RE = Pattern_compile("\\{([A-Z_0-9]+)\\}")
-	JsMessageVisitor_MESSAGE_OPTION_NAMES = jimmutableSetOf_[string](jtc_string, "html", "unescapeHtmlEntities", "example", "original_code")
-	JsMessageVisitor_ICU_TEMPLATE_OPTION_NAMES = jimmutableSetOf_[string](jtc_string, "description", "meaning", "alternate_message_id", "example", "original_code")
+	JsMessageVisitor_MESSAGE_OPTION_NAMES = immutableSetOf_[string](tc_string, "html", "unescapeHtmlEntities", "example", "original_code")
+	JsMessageVisitor_ICU_TEMPLATE_OPTION_NAMES = immutableSetOf_[string](tc_string, "description", "meaning", "alternate_message_id", "example", "original_code")
 
 }
 
@@ -825,9 +825,9 @@ type JsMessageVisitor_InputForBuildJsMsg interface {
 	getMessageKeyFromLhs() string
 	getSourceName() string
 	getMessageText() string
-	getMessageParts() *JTList[JsMessage_Part]
-	getPlaceholderExampleMap() *JTMap[string, string]
-	getPlaceholderOriginalCodeMap() *JTMap[string, string]
+	getMessageParts() *TList[JsMessage_Part]
+	getPlaceholderExampleMap() *TMap[string, string]
+	getPlaceholderOriginalCodeMap() *TMap[string, string]
 	getDescription() Optional[string]
 	getMeaning() Optional[string]
 	getAlternateMessageId() Optional[string]
@@ -852,15 +852,15 @@ func new_JsMessageVisitor_IcuMessageTemplateString(template string) *JsMessageVi
 	return this
 }
 
-func (this *JsMessageVisitor_IcuMessageTemplateString) extractParts(placholderNamesToExtract *JTSet[string]) *JsMessageVisitor_ExtractedIcuTemplateParts {
-	var extractedPlaceholderNames *TSetBuilder[string] = newTSetBuilder_(jtc_string)
-	var partsBuilder *TListBuilder[JsMessage_Part] = newTListBuilder_(jtc_JsMessage_Part)
+func (this *JsMessageVisitor_IcuMessageTemplateString) extractParts(placholderNamesToExtract *TSet[string]) *JsMessageVisitor_ExtractedIcuTemplateParts {
+	var extractedPlaceholderNames *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
+	var partsBuilder *ImmutableList_Builder[JsMessage_Part] = immutableListBuilder_(tc_JsMessage_Part)
 	var matcher *Matcher_re2j = JsMessageVisitor_ICU_PLACEHOLDER_RE.matcher_s(this.template)
 	var remainingTemplateStartIndex int32 = 0
 	templateU16 := utf16Of_(this.template)
 	for matcher.find() {
 		var placeholderName string = matcher.group(1)
-		if placholderNamesToExtract.contains(placeholderName) {
+		if placholderNamesToExtract.Has(placeholderName) {
 			extractedPlaceholderNames.add(placeholderName)
 			var nonPlaceholderPrefix string = templateU16.substring(remainingTemplateStartIndex, matcher.start())
 			remainingTemplateStartIndex = matcher.end()
@@ -876,16 +876,16 @@ func (this *JsMessageVisitor_IcuMessageTemplateString) extractParts(placholderNa
 }
 
 type JsMessageVisitor_ExtractedIcuTemplateParts struct {
-	extractedPlaceholderNames *JTSet[string]
-	extractedParts            *JTList[JsMessage_Part]
+	extractedPlaceholderNames *TSet[string]
+	extractedParts            *TList[JsMessage_Part]
 }
 
-func (this *JsMessageVisitor_ExtractedIcuTemplateParts) init_JsMessageVisitor_ExtractedIcuTemplateParts(extractedPlaceholderNames *JTSet[string], extractedParts *JTList[JsMessage_Part]) {
+func (this *JsMessageVisitor_ExtractedIcuTemplateParts) init_JsMessageVisitor_ExtractedIcuTemplateParts(extractedPlaceholderNames *TSet[string], extractedParts *TList[JsMessage_Part]) {
 	this.extractedPlaceholderNames = extractedPlaceholderNames
 	this.extractedParts = extractedParts
 }
 
-func new_JsMessageVisitor_ExtractedIcuTemplateParts(extractedPlaceholderNames *JTSet[string], extractedParts *JTList[JsMessage_Part]) *JsMessageVisitor_ExtractedIcuTemplateParts {
+func new_JsMessageVisitor_ExtractedIcuTemplateParts(extractedPlaceholderNames *TSet[string], extractedParts *TList[JsMessage_Part]) *JsMessageVisitor_ExtractedIcuTemplateParts {
 	this := &JsMessageVisitor_ExtractedIcuTemplateParts{}
 	this.init_JsMessageVisitor_ExtractedIcuTemplateParts(extractedPlaceholderNames, extractedParts)
 	return this
@@ -894,34 +894,34 @@ func new_JsMessageVisitor_ExtractedIcuTemplateParts(extractedPlaceholderNames *J
 type JsMessageVisitor_JsMessageOptions interface {
 	isEscapeLessThan() bool
 	isUnescapeHtmlEntities() bool
-	getPlaceholderExampleMap() *JTMap[string, string]
-	getPlaceholderOriginalCodeMap() *JTMap[string, string]
-	checkForUnknownPlaceholders(*JTSet[string]) *Outcome_base[any]
+	getPlaceholderExampleMap() *TMap[string, string]
+	getPlaceholderOriginalCodeMap() *TMap[string, string]
+	checkForUnknownPlaceholders(*TSet[string]) *Outcome_base[any]
 }
 
 type JsMessageVisitor_IcuTemplateOptions interface {
 	getDescription() string
 	getMeaning() Optional[string]
 	getAlternateMessageId() Optional[string]
-	getPlaceholderExampleMap() *JTMap[string, string]
-	getPlaceholderOriginalCodeMap() *JTMap[string, string]
-	checkForUnknownPlaceholders(*JTSet[string]) *Outcome_base[any]
-	getPlaceholderNames() *JTSet[string]
+	getPlaceholderExampleMap() *TMap[string, string]
+	getPlaceholderOriginalCodeMap() *TMap[string, string]
+	checkForUnknownPlaceholders(*TSet[string]) *Outcome_base[any]
+	getPlaceholderNames() *TSet[string]
 }
 
 type JsMessageVisitor_ObjectLiteralMap interface {
 	getBooleanValueOrFalse(string) *Outcome_base[any]
-	extractAsValueMap() *JTMap[string, Node]
+	extractAsValueMap() *TMap[string, Node]
 	extractAsStringToStringMap() *Outcome_base[*ErasedImmutableMap]
 	getValueNode(string) Node
-	checkForUnexpectedKeys(*JTSet[string], Function[string, string]) *Outcome_base[any]
-	checkForRequiredKeys(*JTSet[string], Function[string, *JsMessageVisitor_MalformedException]) *Outcome_base[any]
+	checkForUnexpectedKeys(*TSet[string], Function[string, string]) *Outcome_base[any]
+	checkForRequiredKeys(*TSet[string], Function[string, *JsMessageVisitor_MalformedException]) *Outcome_base[any]
 }
 
 type JsMessageVisitor_ObjectLiteralMapImpl struct {
-	stringToStringKeyMap *JTMap[string, Node]
-	valueMap             *JTMap[string, Node]
-	stringMap            *JTMap[string, string]
+	stringToStringKeyMap *TMap[string, Node]
+	valueMap             *TMap[string, Node]
+	stringMap            *TMap[string, string]
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) finit_JsMessageVisitor_ObjectLiteralMapImpl() {
@@ -929,19 +929,19 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) finit_JsMessageVisitor_Object
 	this.stringMap = nil
 }
 
-func (this *JsMessageVisitor_ObjectLiteralMapImpl) init_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap *JTMap[string, Node]) {
+func (this *JsMessageVisitor_ObjectLiteralMapImpl) init_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap *TMap[string, Node]) {
 	this.finit_JsMessageVisitor_ObjectLiteralMapImpl()
 	this.stringToStringKeyMap = stringToStringKeyMap
 }
 
-func new_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap *JTMap[string, Node]) *JsMessageVisitor_ObjectLiteralMapImpl {
+func new_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap *TMap[string, Node]) *JsMessageVisitor_ObjectLiteralMapImpl {
 	this := &JsMessageVisitor_ObjectLiteralMapImpl{}
 	this.init_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap)
 	return this
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) getValueNode(key string) Node {
-	var stringKeyNode Node = this.stringToStringKeyMap.get(key)
+	var stringKeyNode Node = this.stringToStringKeyMap.Get(key)
 	return func() Node {
 		if stringKeyNode == 0 {
 			return 0
@@ -951,13 +951,13 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) getValueNode(key string) Node
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) getBooleanValueOrFalse(key string) *Outcome_base[any] {
-	var stringKeyNode Node = this.stringToStringKeyMap.get(key)
+	var stringKeyNode Node = this.stringToStringKeyMap.Get(key)
 	return JsMessageVisitor_extractBooleanStringKeyValue(stringKeyNode)
 }
 
-func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsValueMap() *JTMap[string, Node] {
+func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsValueMap() *TMap[string, Node] {
 	if this.valueMap == nil {
-		var builder *TMapBuilder[string, Node] = newTMapBuilder_(jtc_string, jtc_Node)
+		var builder *ImmutableMap_Builder[string, Node] = immutableMapBuilder_(tc_string, tc_Node)
 		it_1 := this.stringToStringKeyMap.eachEntry()
 		for it_1.next() {
 			var entry *TEntry[string, Node] = it_1.entry()
@@ -970,7 +970,7 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsValueMap() *JTMap[st
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsStringToStringMap() *Outcome_base[*ErasedImmutableMap] {
 	if this.stringMap == nil {
-		var builder *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
+		var builder *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 		it_1 := this.stringToStringKeyMap.eachEntry()
 		for it_1.next() {
 			var entry *TEntry[string, Node] = it_1.entry()
@@ -985,22 +985,22 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsStringToStringMap() 
 	return Outcome_base_ok_Object[*ErasedImmutableMap](this.stringMap.asImm())
 }
 
-func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForUnexpectedKeys(expectedKeys *JTSet[string], createErrorMessage Function[string, string]) *Outcome_base[any] {
-	it_1 := this.stringToStringKeyMap.eachKey()
+func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForUnexpectedKeys(expectedKeys *TSet[string], createErrorMessage Function[string, string]) *Outcome_base[any] {
+	it_1 := this.stringToStringKeyMap.each()
 	for it_1.next() {
-		var key string = it_1.v
-		if !expectedKeys.contains(key) {
-			return Outcome_base_err[any](new_JsMessageVisitor_MalformedException(createErrorMessage.apply(key), this.stringToStringKeyMap.get(key)).up_Throwable())
+		var key string = it_1.k
+		if !expectedKeys.Has(key) {
+			return Outcome_base_err[any](new_JsMessageVisitor_MalformedException(createErrorMessage.apply(key), this.stringToStringKeyMap.Get(key)).up_Throwable())
 		}
 	}
 	return Outcome_base_ok_0()
 }
 
-func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForRequiredKeys(requiredKeys *JTSet[string], createException Function[string, *JsMessageVisitor_MalformedException]) *Outcome_base[any] {
+func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForRequiredKeys(requiredKeys *TSet[string], createException Function[string, *JsMessageVisitor_MalformedException]) *Outcome_base[any] {
 	it_1 := requiredKeys.each()
 	for it_1.next() {
 		var requiredKey string = it_1.v
-		if !this.stringToStringKeyMap.containsKey(requiredKey) {
+		if !this.stringToStringKeyMap.Has(requiredKey) {
 			return Outcome_base_err[any](createException.apply(requiredKey).up_Throwable())
 		}
 	}
@@ -1009,8 +1009,8 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForRequiredKeys(required
 
 type JsMessageVisitor_GoogGetMsgParsedText interface {
 	getText() string
-	getPlaceholderNames() *JTSet[string]
-	getParts() *JTList[JsMessage_Part]
+	getPlaceholderNames() *TSet[string]
+	getParts() *TList[JsMessage_Part]
 }
 
 type JsMessageVisitor_MalformedException struct {
@@ -1100,15 +1100,15 @@ func (this *JsMessageVisitor_1) getMessageText() string {
 	return this.cap_googGetMsgParsedText.getText()
 }
 
-func (this *JsMessageVisitor_1) getMessageParts() *JTList[JsMessage_Part] {
+func (this *JsMessageVisitor_1) getMessageParts() *TList[JsMessage_Part] {
 	return this.cap_googGetMsgParsedText.getParts()
 }
 
-func (this *JsMessageVisitor_1) getPlaceholderExampleMap_rImmutableMap() *JTMap[string, string] {
+func (this *JsMessageVisitor_1) getPlaceholderExampleMap_rImmutableMap() *TMap[string, string] {
 	return this.cap_jsMessageOptions.getPlaceholderExampleMap()
 }
 
-func (this *JsMessageVisitor_1) getPlaceholderOriginalCodeMap_rImmutableMap() *JTMap[string, string] {
+func (this *JsMessageVisitor_1) getPlaceholderOriginalCodeMap_rImmutableMap() *TMap[string, string] {
 	return this.cap_jsMessageOptions.getPlaceholderOriginalCodeMap()
 }
 
@@ -1124,18 +1124,18 @@ func (this *JsMessageVisitor_1) getAlternateMessageId() Optional[string] {
 	return this.cap_alternateMessageId
 }
 
-func (this *JsMessageVisitor_1) getPlaceholderExampleMap() *JTMap[string, string] {
+func (this *JsMessageVisitor_1) getPlaceholderExampleMap() *TMap[string, string] {
 	return this.getPlaceholderExampleMap_rImmutableMap()
 }
 
-func (this *JsMessageVisitor_1) getPlaceholderOriginalCodeMap() *JTMap[string, string] {
+func (this *JsMessageVisitor_1) getPlaceholderOriginalCodeMap() *TMap[string, string] {
 	return this.getPlaceholderOriginalCodeMap_rImmutableMap()
 }
 
 type JsMessageVisitor_2 struct {
 	outer_                   *JsMessageVisitor
 	cap_jsExtractedMessage   *JsMessage
-	cap_placeholderValuesMap *JTMap[string, Node]
+	cap_placeholderValuesMap *TMap[string, Node]
 	cap_jsMessageOptions     JsMessageVisitor_JsMessageOptions
 	cap_msgNode              Node
 	cap_msgTextNode          Node
@@ -1146,7 +1146,7 @@ func (this *JsMessageVisitor_2) init_JsMessageVisitor_2() {
 
 }
 
-func new_JsMessageVisitor_2(outer_ *JsMessageVisitor, cap_jsExtractedMessage *JsMessage, cap_msgNode Node, cap_msgTextNode Node, cap_valuesObjLit Node, cap_placeholderValuesMap *JTMap[string, Node], cap_jsMessageOptions JsMessageVisitor_JsMessageOptions) *JsMessageVisitor_2 {
+func new_JsMessageVisitor_2(outer_ *JsMessageVisitor, cap_jsExtractedMessage *JsMessage, cap_msgNode Node, cap_msgTextNode Node, cap_valuesObjLit Node, cap_placeholderValuesMap *TMap[string, Node], cap_jsMessageOptions JsMessageVisitor_JsMessageOptions) *JsMessageVisitor_2 {
 	this := &JsMessageVisitor_2{}
 	this.outer_ = outer_
 	this.cap_jsExtractedMessage = cap_jsExtractedMessage
@@ -1175,7 +1175,7 @@ func (this *JsMessageVisitor_2) getPlaceholderValuesNode() Node {
 	return this.cap_valuesObjLit
 }
 
-func (this *JsMessageVisitor_2) getPlaceholderValueMap() *JTMap[string, Node] {
+func (this *JsMessageVisitor_2) getPlaceholderValueMap() *TMap[string, Node] {
 	return this.cap_placeholderValuesMap
 }
 
@@ -1224,15 +1224,15 @@ func (this *JsMessageVisitor_3) getMessageText() string {
 	return this.cap_icuMessageTemplateString.template
 }
 
-func (this *JsMessageVisitor_3) getMessageParts() *JTList[JsMessage_Part] {
+func (this *JsMessageVisitor_3) getMessageParts() *TList[JsMessage_Part] {
 	return this.cap_extractedIcuTemplateParts.extractedParts
 }
 
-func (this *JsMessageVisitor_3) getPlaceholderExampleMap_rImmutableMap() *JTMap[string, string] {
+func (this *JsMessageVisitor_3) getPlaceholderExampleMap_rImmutableMap() *TMap[string, string] {
 	return this.cap_icuTemplateOptions.getPlaceholderExampleMap()
 }
 
-func (this *JsMessageVisitor_3) getPlaceholderOriginalCodeMap_rImmutableMap() *JTMap[string, string] {
+func (this *JsMessageVisitor_3) getPlaceholderOriginalCodeMap_rImmutableMap() *TMap[string, string] {
 	return this.cap_icuTemplateOptions.getPlaceholderOriginalCodeMap()
 }
 
@@ -1248,11 +1248,11 @@ func (this *JsMessageVisitor_3) getAlternateMessageId() Optional[string] {
 	return this.cap_icuTemplateOptions.getAlternateMessageId()
 }
 
-func (this *JsMessageVisitor_3) getPlaceholderExampleMap() *JTMap[string, string] {
+func (this *JsMessageVisitor_3) getPlaceholderExampleMap() *TMap[string, string] {
 	return this.getPlaceholderExampleMap_rImmutableMap()
 }
 
-func (this *JsMessageVisitor_3) getPlaceholderOriginalCodeMap() *JTMap[string, string] {
+func (this *JsMessageVisitor_3) getPlaceholderOriginalCodeMap() *TMap[string, string] {
 	return this.getPlaceholderOriginalCodeMap_rImmutableMap()
 }
 
@@ -1291,8 +1291,8 @@ func (this *JsMessageVisitor_4) getTemplateTextNode() Node {
 
 type JsMessageVisitor_5 struct {
 	outer_                           *JsMessageVisitor
-	cap_placeholderExamplesMap       *JTMap[string, string]
-	cap_placeholderOriginalCodeMap   *JTMap[string, string]
+	cap_placeholderExamplesMap       *TMap[string, string]
+	cap_placeholderOriginalCodeMap   *TMap[string, string]
 	cap_exampleObjectLiteralMap      JsMessageVisitor_ObjectLiteralMap
 	cap_originalCodeObjectLiteralMap JsMessageVisitor_ObjectLiteralMap
 	cap_isEscapeLessThan             bool
@@ -1303,7 +1303,7 @@ func (this *JsMessageVisitor_5) init_JsMessageVisitor_5() {
 
 }
 
-func new_JsMessageVisitor_5(outer_ *JsMessageVisitor, cap_isEscapeLessThan bool, cap_isUnescapeHtmlEntities bool, cap_placeholderExamplesMap *JTMap[string, string], cap_placeholderOriginalCodeMap *JTMap[string, string], cap_exampleObjectLiteralMap JsMessageVisitor_ObjectLiteralMap, cap_originalCodeObjectLiteralMap JsMessageVisitor_ObjectLiteralMap) *JsMessageVisitor_5 {
+func new_JsMessageVisitor_5(outer_ *JsMessageVisitor, cap_isEscapeLessThan bool, cap_isUnescapeHtmlEntities bool, cap_placeholderExamplesMap *TMap[string, string], cap_placeholderOriginalCodeMap *TMap[string, string], cap_exampleObjectLiteralMap JsMessageVisitor_ObjectLiteralMap, cap_originalCodeObjectLiteralMap JsMessageVisitor_ObjectLiteralMap) *JsMessageVisitor_5 {
 	this := &JsMessageVisitor_5{}
 	this.outer_ = outer_
 	this.cap_isEscapeLessThan = cap_isEscapeLessThan
@@ -1324,15 +1324,15 @@ func (this *JsMessageVisitor_5) isUnescapeHtmlEntities() bool {
 	return this.cap_isUnescapeHtmlEntities
 }
 
-func (this *JsMessageVisitor_5) getPlaceholderExampleMap() *JTMap[string, string] {
+func (this *JsMessageVisitor_5) getPlaceholderExampleMap() *TMap[string, string] {
 	return this.cap_placeholderExamplesMap
 }
 
-func (this *JsMessageVisitor_5) getPlaceholderOriginalCodeMap() *JTMap[string, string] {
+func (this *JsMessageVisitor_5) getPlaceholderOriginalCodeMap() *TMap[string, string] {
 	return this.cap_placeholderOriginalCodeMap
 }
 
-func (this *JsMessageVisitor_5) checkForUnknownPlaceholders(knownPlaceholders *JTSet[string]) *Outcome_base[any] {
+func (this *JsMessageVisitor_5) checkForUnknownPlaceholders(knownPlaceholders *TSet[string]) *Outcome_base[any] {
 	var exampleChecked *Outcome_base[any] = this.cap_exampleObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, Function[string, string](func(unknownName string) string {
 		return ("Unknown placeholder: " + sstr_(unknownName))
 	}))
@@ -1347,9 +1347,9 @@ func (this *JsMessageVisitor_5) checkForUnknownPlaceholders(knownPlaceholders *J
 type JsMessageVisitor_6 struct {
 	outer_                           *JsMessageVisitor
 	cap_description                  string
-	cap_placeholderExamplesMap       *JTMap[string, string]
-	cap_placeholderOriginalCodeMap   *JTMap[string, string]
-	cap_placeholderNames             *JTSet[string]
+	cap_placeholderExamplesMap       *TMap[string, string]
+	cap_placeholderOriginalCodeMap   *TMap[string, string]
+	cap_placeholderNames             *TSet[string]
 	cap_exampleObjectLiteralMap      JsMessageVisitor_ObjectLiteralMap
 	cap_originalCodeObjectLiteralMap JsMessageVisitor_ObjectLiteralMap
 	cap_meaning                      Optional[string]
@@ -1360,7 +1360,7 @@ func (this *JsMessageVisitor_6) init_JsMessageVisitor_6() {
 
 }
 
-func new_JsMessageVisitor_6(outer_ *JsMessageVisitor, cap_description string, cap_meaning Optional[string], cap_alternateMessageId Optional[string], cap_placeholderExamplesMap *JTMap[string, string], cap_placeholderOriginalCodeMap *JTMap[string, string], cap_placeholderNames *JTSet[string], cap_exampleObjectLiteralMap JsMessageVisitor_ObjectLiteralMap, cap_originalCodeObjectLiteralMap JsMessageVisitor_ObjectLiteralMap) *JsMessageVisitor_6 {
+func new_JsMessageVisitor_6(outer_ *JsMessageVisitor, cap_description string, cap_meaning Optional[string], cap_alternateMessageId Optional[string], cap_placeholderExamplesMap *TMap[string, string], cap_placeholderOriginalCodeMap *TMap[string, string], cap_placeholderNames *TSet[string], cap_exampleObjectLiteralMap JsMessageVisitor_ObjectLiteralMap, cap_originalCodeObjectLiteralMap JsMessageVisitor_ObjectLiteralMap) *JsMessageVisitor_6 {
 	this := &JsMessageVisitor_6{}
 	this.outer_ = outer_
 	this.cap_description = cap_description
@@ -1387,19 +1387,19 @@ func (this *JsMessageVisitor_6) getAlternateMessageId() Optional[string] {
 	return this.cap_alternateMessageId
 }
 
-func (this *JsMessageVisitor_6) getPlaceholderExampleMap() *JTMap[string, string] {
+func (this *JsMessageVisitor_6) getPlaceholderExampleMap() *TMap[string, string] {
 	return this.cap_placeholderExamplesMap
 }
 
-func (this *JsMessageVisitor_6) getPlaceholderOriginalCodeMap() *JTMap[string, string] {
+func (this *JsMessageVisitor_6) getPlaceholderOriginalCodeMap() *TMap[string, string] {
 	return this.cap_placeholderOriginalCodeMap
 }
 
-func (this *JsMessageVisitor_6) getPlaceholderNames() *JTSet[string] {
+func (this *JsMessageVisitor_6) getPlaceholderNames() *TSet[string] {
 	return this.cap_placeholderNames
 }
 
-func (this *JsMessageVisitor_6) checkForUnknownPlaceholders(knownPlaceholders *JTSet[string]) *Outcome_base[any] {
+func (this *JsMessageVisitor_6) checkForUnknownPlaceholders(knownPlaceholders *TSet[string]) *Outcome_base[any] {
 	var exampleChecked *Outcome_base[any] = this.cap_exampleObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, Function[string, string](func(unknownName string) string {
 		return ("Unknown placeholder: " + sstr_(unknownName))
 	}))
@@ -1413,15 +1413,15 @@ func (this *JsMessageVisitor_6) checkForUnknownPlaceholders(knownPlaceholders *J
 
 type JsMessageVisitor_7 struct {
 	cap_originalMsgText  string
-	cap_placeholderNames *JTSet[string]
-	cap_parts            *JTList[JsMessage_Part]
+	cap_placeholderNames *TSet[string]
+	cap_parts            *TList[JsMessage_Part]
 }
 
 func (this *JsMessageVisitor_7) init_JsMessageVisitor_7() {
 
 }
 
-func new_JsMessageVisitor_7(cap_originalMsgText string, cap_placeholderNames *JTSet[string], cap_parts *JTList[JsMessage_Part]) *JsMessageVisitor_7 {
+func new_JsMessageVisitor_7(cap_originalMsgText string, cap_placeholderNames *TSet[string], cap_parts *TList[JsMessage_Part]) *JsMessageVisitor_7 {
 	this := &JsMessageVisitor_7{}
 	this.cap_originalMsgText = cap_originalMsgText
 	this.cap_placeholderNames = cap_placeholderNames
@@ -1434,11 +1434,11 @@ func (this *JsMessageVisitor_7) getText() string {
 	return this.cap_originalMsgText
 }
 
-func (this *JsMessageVisitor_7) getPlaceholderNames() *JTSet[string] {
+func (this *JsMessageVisitor_7) getPlaceholderNames() *TSet[string] {
 	return this.cap_placeholderNames
 }
 
-func (this *JsMessageVisitor_7) getParts() *JTList[JsMessage_Part] {
+func (this *JsMessageVisitor_7) getParts() *TList[JsMessage_Part] {
 	return this.cap_parts
 }
 

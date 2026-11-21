@@ -79,11 +79,11 @@ type SyntacticScopeCreator_ScopeScanner struct {
 	compiler_                     *AbstractCompiler
 	redeclarationHandler          SyntacticScopeCreator_RedeclarationHandler
 	inputId                       *InputId
-	changeRootSet                 *JTSet[Node]
+	changeRootSet                 *TSet[Node]
 	treatProvidesAsRedeclarations bool
 }
 
-func (this *SyntacticScopeCreator_ScopeScanner) init_SyntacticScopeCreator_ScopeScanner(compiler *AbstractCompiler, redeclarationHandler SyntacticScopeCreator_RedeclarationHandler, scope *Scope, changeRootSet *JTSet[Node], treatProvidesAsRedeclarations bool) {
+func (this *SyntacticScopeCreator_ScopeScanner) init_SyntacticScopeCreator_ScopeScanner(compiler *AbstractCompiler, redeclarationHandler SyntacticScopeCreator_RedeclarationHandler, scope *Scope, changeRootSet *TSet[Node], treatProvidesAsRedeclarations bool) {
 	this.compiler_ = compiler
 	this.redeclarationHandler = redeclarationHandler
 	this.scope_ = scope
@@ -94,7 +94,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) init_SyntacticScopeCreator_Scope
 	this.treatProvidesAsRedeclarations = treatProvidesAsRedeclarations
 }
 
-func new_SyntacticScopeCreator_ScopeScanner(compiler *AbstractCompiler, redeclarationHandler SyntacticScopeCreator_RedeclarationHandler, scope *Scope, changeRootSet *JTSet[Node], treatProvidesAsRedeclarations bool) *SyntacticScopeCreator_ScopeScanner {
+func new_SyntacticScopeCreator_ScopeScanner(compiler *AbstractCompiler, redeclarationHandler SyntacticScopeCreator_RedeclarationHandler, scope *Scope, changeRootSet *TSet[Node], treatProvidesAsRedeclarations bool) *SyntacticScopeCreator_ScopeScanner {
 	this := &SyntacticScopeCreator_ScopeScanner{}
 	this.init_SyntacticScopeCreator_ScopeScanner(compiler, redeclarationHandler, scope, changeRootSet, treatProvidesAsRedeclarations)
 	return this
@@ -207,7 +207,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) scanVars(n Node, hoistScope *Sco
 		this.scanVars(block, hoistScope, blockScope)
 		return
 	case tokOrd1_SCRIPT:
-		if (this.changeRootSet != nil) && !this.changeRootSet.contains(n) {
+		if (this.changeRootSet != nil) && !this.changeRootSet.Has(n) {
 			return
 		}
 		this.inputId = n.getInputId()
