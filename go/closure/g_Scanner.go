@@ -17,7 +17,7 @@ type Scanner_parser struct {
 
 func (this *Scanner_parser) zero_Scanner_parser() {
 	this.contents = nullstr_
-	this.contentsU16 = utf16Of_(this.contents)
+	this.contentsU16 = utf16Kept_(this.contents)
 }
 
 func (this *Scanner_parser) finit_Scanner_parser() {
@@ -31,7 +31,7 @@ func (this *Scanner_parser) init_Scanner_parser(errorReporter *ErrorReporter_uti
 	this.source = file
 	this.lineNumberScanner = new_LineNumberScanner(this.source)
 	this.contents = file.contents
-	this.contentsU16 = utf16Of_(this.contents)
+	this.contentsU16 = file.contentsU16
 	this.contentsLength = file.contentsU16.length()
 	this.index_ = offset
 	this.typeParameterLevel = 0
