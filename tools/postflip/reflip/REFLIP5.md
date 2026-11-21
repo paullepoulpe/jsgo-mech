@@ -1,8 +1,9 @@
 # The fifth flip (2026-11-21): the in-bounds list on main's translator with rule "function types"
 
-STATUS: the list replays unattended from the base to a gated tree (four MATCH). Coverage against the
-fourth flip: the census is better or equal in every row but two (explained); typed variants of
-functional APIs that the census does not count are OPEN (table below). See "Where this stands".
+STATUS: the list replays unattended from the base to a gated tree (four MATCH). The open items of
+the first part (typed variants of functional APIs, the data-flow queue's comparator, two census
+rows) are closed in "Second part" at the end, which has the final replay, gate and census; the
+sections between describe the first part as it stood (tip aa141ba3).
 
 What this is: main at 024a9c5f flipped (the translator with rule "function types" on, the Java
 tree through prep 20) and the in-bounds step list of the fourth flip (steps.txt of
@@ -258,3 +259,177 @@ Not done:
   per step (the two .replay.log files) and git grep counts at the steps named.
 - Nothing on main was changed. REFLIP4.md's first paragraph (which prep steps its base has) is as
   it was.
+
+## Second part (2026-11-21): the open items closed
+
+This section supersedes "Coverage that the census does not count (OPEN)", the two WORSE census
+rows, and the first two "Other open items" above; those are left as they were written. What was
+built is in toolfix.sh 33-36 (each with its rule and proof obligation), two new steps (559, 560),
+two runtime patches (reflip5-ciat-rt.patch, reflip5-pqt-rt.patch) and two regenerated ones (125,
+485). Final state:
+
+    bash tools/postflip/reflip/replay5.sh replay5d   (a fresh worktree, one unattended run from the base 4b50a363)
+    REPLAY DONE: 272 commits (270 + steps 559, 560), no patch regenerated on the way,
+    tip 2abbf4e4, go/ tree 4e3d4ae6b2cd5eaa8bdae5fc5b3de436c2194746   (worktree $B/wt/replay5d)
+    tree worktree $B/wt/tree5d (branch flip5-tree-d); $B/gate.sh tree5d flip5d, log $B/logs/gate-flip5d.log:
+
+      GATE FAILED flip5d       (the header: the j2go self-test line, as for every post-flip tree)
+      tests before: 83
+      lstat closure/g_*.go: no such file or directory
+      removed 0 declarations in 0 rounds
+      ok  	jsgomech/closure	2.876s
+      checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+      bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+      downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+      advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+      tests after: 83
+
+Before it, the steps from 403 on were replayed in a scratch worktree on the first part's commits
+and that tree was gated too (four MATCH, log $B/logs/gate-flip5s.log); the final tree differs
+from it by patch 125's dead function alone. No time or allocation was measured.
+
+### 1. Typed variants of functional APIs (toolfix 33, 34)
+
+One reader, rw.TypedFn (rw/typedfn.go, written by toolfix 33 into the tool versions from step 472
+on), gives tfnapi, tcmp and tgeneric the typed function of an argument at an erased functional
+place, in the three forms: the adapter literal `&X_tfn_T{f}` (as the tools read it before, so
+the tools work on both translations); the translator's literal at the erased type, which is
+retyped (a parameter `p any` whose every use is the operand of the unboxing K(p) of the wanted
+type T takes T; `var v T = K(p_)` at the head of the body makes the parameter v; a result is
+typed when every return gives the boxing of a value of the wanted type, nil for a pointer or
+interface, or a parameterless literal's call whose returns qualify); and the converting closure
+`func() X[any] { f_ := E; ..; return func(p0 any) R { return f_(K(p0)) } }()`, which is E when
+E cannot be null (a literal, a function or method name, or a call of a function all of whose
+returns are such: rt_fn.go's Comparator combinators). Proof obligation: K(box(x)) == x and
+unbox(B(e)) == e for the type's own conversion; K and B qualify when they are the unbox and box
+functions of the package's `tconv_[T]{box, unbox}` literals for that type (all of them must
+agree), which is what every typed collection of T is made with, or the unboxing rw.ConvFor
+names. For tgeneric, with a plain cast_[T] around the call, a return may give the T itself.
+
+native (toolfix 34): `m.ComputeIfAbsent(k, f)` of a typed map, which is what the translator's
+typed computeIfAbsent is from step 402 on, is the map operation `mapComputeIfAbsentT_(vc, m, k,
+f)` (the same function of the map's contents, independent of order). The runtime function is
+needed at step 403, so it is the new patch reflip5-ciat-rt.patch there and patch 485 is
+regenerated without it. The tool applies the rule only when the runtime has the function.
+
+Counts in the final trees (git grep over g_*.go; fourth flip | fifth flip before | now):
+
+| | fourth | fifth before | now | |
+|---|---|---|---|---|
+| mapComputeIfAbsentT_ (Go maps given a computeIfAbsent) | 20 | 0 | 20 | native at step 403: 142 maps become Go maps (91 classes), as the fourth flip (121, 77 before) |
+| forEachT_ | 8 | 0 | 8 | tfnapi at 486: 2 lists, 6 maps |
+| mergeT_ / computeT_ | 3 / 2 | 0 / 0 | 3 / 2 | tfnapi at 486 |
+| typed sorts (sortSliceF_ 9, sortSlicePF_ 2, sortTListF_ 8, sortArrF_ 5) | 23 | 12 | 24 | tcmp at 472 (6) and 481 (8 natural, 5 arrays, 5 chains). One more than the fourth flip (sortTListF_ 7 -> 8). Left: 5 comparators that are no literal and no never-null chain (3 are package variables; the fourth flip left 3 package variables, 1 combinator over Objects and 1 other), 2 natural sorts of Objects |
+| Compiler_runInCompilerThreadT_ | 6 | 0 | 6 | tgeneric at 488 |
+| ComputeIfAbsentObj | 6 | 0 | 0 | the translator emits the final form: the six lambdas are typed func(K) V literals given to ComputeIfAbsent, with no boxed result (ColorSerializer, LinkedDirectedGraph, LinkedUndirectedGraph, ModuleMapCreator, OptimizeCalls, PreprocessorSymbolTable) |
+| .ComputeIfAbsent( | 27 | 53 | 33 | = 27 + the 6 above |
+| fntypes parameters | 11 | 0 | 0 | 10 of the 11 have their function type from the translator (steps.txt, note at 482); 1 NOT recovered: CmdLineParser_Option.flag's setter is Consumer[any] (fourth flip: func(bool)). fntypes reads parameters of plain func types only; not extended |
+| erased calls left: Map_forEach / Iterable_forEach / Map_merge / Map_compute | 3 / 4 / 0 / 0 | 9 / 7 / 3 / 2 | 3 / 5 / 0 / 0 | Iterable_forEach 5: tfnapi's own "an erased collection" (one is ImmutableList_as_Iterable(vars.asImm()), a helper form the tool does not read) |
+| erased calls left: List_sort / runInCompilerThread | 4 / 13 | 12 / 19 | 4 / 13 | |
+
+fntypes' "10 groups used other than by calling it or passing it to the group" are the parameter
+f of the translator runtime's constructors X_of_(f) (rt_fn.go), no program parameter.
+
+### 2. The data-flow work queue's comparator (toolfix 35, step 559)
+
+What the two trees do per comparison of the heap (read from the code; nothing was timed). Fourth
+flip: PriorityQueue.siftUp/siftDown see an *intKeyCmp_ and call its compare on the concrete
+type, which calls the key function nodePriority_ twice (a type switch to the one node class and
+getPriority on it). Fifth flip before: the heap calls the erased comparator, which is the
+translator's converting closure `func(p0, p1 any) int32 { return f_(junboxT_[T](p0),
+junboxT_[T](p1)) }` (two generic assertions to an interface type), then the comparingInt closure
+(one more for reversed), which calls the method expression (DiGraphNode).getPriority twice
+through the interface. So it was worse: about four more calls and two interface assertions per
+comparison.
+
+Recovered with a rule, not a patch of generated code (tcmp, toolfix 35; step 559):
+
+    new_PriorityQueue(func() Comparator[any] { f_ := E; if f_ == nil { return nil }
+        return func(p0 any, p1 any) int32 { return f_(K(p0), K(p1)) } }())
+      ->  newPriorityQueueT_(E, K)
+
+2 queues (DataFlowAnalysis_UniqueQueue with junboxT_[T]; ControlFlowAnalysis's worklist with
+icast_). The runtime function (rt_pqt.go, reflip5-pqt-rt.patch) makes the same PriorityQueue
+with the same erased comparator, and keeps K(x) beside each element once computed; the heap
+moves compare those with E. Proof obligation: K is a pure cast (the same value or the same
+exception for the same interface value, no effect; a list of names: cast_, junboxT_, str_,
+to_X, icast_X, gcast_X, X_of_, with signature func(any) T, the same for both arguments), so a
+repeated K(x) can be skipped; K(x) is first evaluated at the same call as before, and E is
+called with the same pairs in the same order (TestPriorityQueueTyped compares both queues over
+random operations, an element of the wrong type included); a kept value is used only for the
+identical interface value, so nothing inherited from ArrayList can make it stale; a null E
+gives the natural-order queue as the null closure did. A comparison is now the comparingInt
+closure and two getPriority calls through the method expression. The fourth flip's direct call
+on the concrete node class (manual 419's nodePriority_) is not reproduced: that is a
+devirtualisation of a method expression, which no rule here does.
+
+### 3. The two census rows (toolfix 36, step 560)
+
+isanames (a new tool, written by toolfix 36) names the marker interface `interface{ isa_X_() }`
+of an instanceof test of a generic class X_isa (declared where X's marker method is) and deletes
+an is_X helper of a marker that nothing calls; tswitch reads an else-if link that is a
+disjunction of instanceof tests of the chain's value as a case with several types. Step 560: 6
+anonymous marker interfaces named (4 classes), LogsGson.write's chain becomes one type switch
+(`case SimpleListMultimap_isa, SimpleSetMultimap_isa, SimpleBiMap_isa:`), the 4 helpers go.
+vdispatch -rest (558) was not extended: it names the `as_X` interfaces of casts, and these are
+instanceof tests.
+
+### 4. The previous record's unverified items
+
+- Iterables_filter_f (step 125): dead on this flip (no g_*.go at any commit of the replay, no
+  other runtime, no tool source names it). Patch 125 regenerated without it.
+- mapComputeIfAbsent_f, mapComputeIfAbsentObj_f (125): no generated code calls them at any
+  commit either, but native, funcparams and colls write them for a computeIfAbsent_f call, and
+  rt_nulllist_test.go tests the first: kept. Map_computeIfAbsent_f: 6 calls. updateAndGet_f: 1.
+- funcObj_ (252): 12 users (the func-object aliases of the program's own functional interfaces).
+
+### 5. The translator's next stage (typed collection interfaces)
+
+Nothing done for it. What is robust to both forms: rw.TypedFn answers for adapter literals and
+for the function-type forms; native's ComputeIfAbsent rule and tcmp's PriorityQueue rule apply
+only when the runtime has their functions; isanames and the tswitch link find nothing when the
+translator writes no marker tests.
+
+### Census: fourth flip (inb-selfgen 6525013f) | fifth flip before (aa141ba3) | now (2abbf4e4)
+
+tools/postflip/census.py; outputs $B/runs/census_flip4_selfgen_final.txt, census_flip5_final.txt,
+census_flip5_part2_final.txt. Rows that differ between any two:
+
+| row | fourth | before | now | against the fourth |
+|---|---|---|---|---|
+| Java collections (erased): constructors | 120 | 114 | 112 | better |
+| typed TList/TMap/TSet constructors | 448 | 464 | 450 | newTMap_ 174 / 191 / 177, newTList_ 126 / 125 / 125, newTSet_ 135 all; map[ type mentions 530 / 495 / 530. Which sites make the 2 more than the fourth flip was not looked at |
+| Guava immutable collections / builders | 155 | 149 | 149 | better |
+| anonymous interface assertions .(interface{ | 0 | 6 | 0 | equal |
+| interface casts icast_X( | 207 | 176 | 164 | better |
+| class casts to_X( / cast_[T]( | 769 | 728 | 699 | better |
+| instanceof is_X( | 71 | 78 | 71 | equal |
+| type assertions x.(T) | 2,118 | 2,110 | 2,110 | better |
+| type switches | 27 | 26 | 27 | equal |
+| boxing to any | 1,182 | 1,017 | 999 | better |
+| unboxing from any | 256 | 235 | 224 | better |
+| lambda objects &X_fn{func | 45 | 37 | 37 | better |
+| lambda adapter literals (all adapter values) | 587 | 39 | 39 | better |
+| throw as panic( | 3,528 | 3,518 | 3,518 | |
+| Java equals/hashCode protocol | 77 | 76 | 76 | better |
+| String_* UTF-16 helpers | 122 | 121 | 121 | better |
+| threads/executors emulation | 56 | 53 | 53 | better |
+| fields/params declared any (approx) | 680 | 629 | 571 | better |
+| ... Object slots only | 526 | 479 | 425 | better |
+
+Equal in all three: native slices 100, native maps made 0, foreach_ 105, explicit iterators 125,
+streams 0, self_ dispatch 0, Optional 73, catch_/recover 54, defer 84, StringBuilder 5, enum
+objects 1 / 1, Preconditions_ 6, reflect 5, unsafe 1 (the census counts g_*.go; rt_pqt.go uses
+unsafe for the identity of two interface values). Generated lines 262,788 / 261,915 / 261,791;
+runtime lines without tests 43,105 / 42,925 / 43,064; runtime Test functions 78 / 82 / 83.
+
+### Not done, not verified
+
+- No time or allocation was measured, for the queue (item 2) or anything else.
+- fntypes: the CmdLineParser flag setter (1 parameter) stays Consumer[any].
+- The fourth flip's nodePriority_ (getPriority on the concrete node class) has no counterpart.
+- tfnapi does not read a list given through the translator's upcast helper
+  (ImmutableList_as_Iterable(l.asImm())): 1 forEach.
+- The two typed constructors more than the fourth flip were not traced to their sites.
+- Worktrees: $B/wt/tree5a (the first pass's failed tree) and its cache were removed; replay5
+  (its log is cited above) and replay5x (uncommitted experiments of the first part) were left.
