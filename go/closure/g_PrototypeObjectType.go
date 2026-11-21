@@ -196,15 +196,11 @@ func (this *PrototypeObjectType) appendTo_impl(sb *TypeStringBuilder) {
 			if current.isNativeObjectType() || (properties.size() > PrototypeObjectType_MAX_PRETTY_PRINTED_PROPERTIES) {
 				break
 			}
-			it_2 := foreach_(current.getOwnPropertyNames())
-			for it_2.next() {
-				var stringKey string = str_(it_2.v)
+			for stringKey := range elemsBy_(current.getOwnPropertyNames(), str_) {
 				var key *Property_StringKey = new_Property_StringKey(stringKey)
 				properties.add(new_PrototypeObjectType_PropertyForPrettyPrinting(Property_StringKey_as_Property_Key(key), current.getPropertyTypeKey(Property_StringKey_as_Property_Key(key))))
 			}
-			it_4 := foreach_(current.getOwnPropertyKnownSymbols())
-			for it_4.next() {
-				var symbolKey *KnownSymbolType = cast_[*KnownSymbolType](it_4.v)
+			for symbolKey := range elemsAs_[*KnownSymbolType](current.getOwnPropertyKnownSymbols()) {
 				var key *Property_SymbolKey = new_Property_SymbolKey(symbolKey)
 				properties.add(new_PrototypeObjectType_PropertyForPrettyPrinting(Property_SymbolKey_as_Property_Key(key), current.getPropertyTypeKey(Property_SymbolKey_as_Property_Key(key))))
 			}
@@ -324,9 +320,7 @@ func (this *PrototypeObjectType) resolveInternal_impl(reporter ErrorReporter_rhi
 	if implicitPrototype != nil {
 		this.implicitPrototypeFallback = to_ObjectType(implicitPrototype.resolve(reporter).self())
 	}
-	it_1 := foreach_(this.properties.values())
-	for it_1.next() {
-		var prop *Property = cast_[*Property](it_1.v)
+	for prop := range elemsAs_[*Property](this.properties.values()) {
 		prop.setType(JSType_safeResolve(prop.getType(), reporter))
 	}
 	return this.up_JSType()
@@ -350,9 +344,7 @@ func (this *PrototypeObjectType) matchConstraint_impl(constraint *JSType) {
 }
 
 func (this *PrototypeObjectType) matchRecordTypeConstraint(constraintObj *ObjectType) {
-	it_1 := foreach_(constraintObj.getOwnPropertyNames())
-	for it_1.next() {
-		var prop string = str_(it_1.v)
+	for prop := range elemsBy_(constraintObj.getOwnPropertyNames(), str_) {
 		var propType *JSType = constraintObj.getPropertyType(prop)
 		if !this.isPropertyTypeDeclared(prop) {
 			var typeToInfer *JSType = propType

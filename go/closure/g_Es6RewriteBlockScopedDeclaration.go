@@ -355,9 +355,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) updateNames
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) createWrapperFunctions() *JTSet[Node] {
 	var wrapperFunctions *JTSet[Node] = jnewTSet_(jtc_Node)
-	it_1 := foreach_(this.nodesRequiringLoopObjectsClosureMap.keySet())
-	for it_1.next() {
-		var functionOrObjectLit Node = Node_of_(it_1.v)
+	for functionOrObjectLit := range elemsBy_(this.nodesRequiringLoopObjectsClosureMap.keySet(), Node_of_) {
 		if functionOrObjectLit.isObjectLit() {
 			var enclosingFunction Node = NodeUtil_getEnclosingFunction(functionOrObjectLit)
 			var scopeBody Node = func() Node {
@@ -387,9 +385,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) createWrapp
 		var parameterNames []Node = make([]Node, objects.size())
 		var objectNamesForCall []Node = make([]Node, objects.size())
 		var loopObjectIndex int32 = 0
-		it_4 := foreach_(objects)
-		for it_4.next() {
-			var object *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject = cast_[*Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject](it_4.v)
+		for object := range elemsAs_[*Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject](objects) {
 			parameterNames[loopObjectIndex] = this.createUniqueParameterNameToUseWithinLoop(functionOrObjectLit, object)
 			objectNamesForCall[loopObjectIndex] = this.createLoopObjectNameNode(object)
 			loopObjectIndex++
@@ -450,9 +446,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) changeLoopL
 	for it_1.next() {
 		var var_ *Var = it_1.v
 		var newPropertyName string = this.getLoopObjPropName(var_)
-		it_3 := foreach_(this.referenceMap.get(var_))
-		for it_3.next() {
-			var reference Node = Node_of_(it_3.v)
+		for reference := range elemsBy_(this.referenceMap.get(var_), Node_of_) {
 			if loopNode.isForOf() {
 				panic(new_IllegalStateException_String(objstr_(loopNode.box_())).self())
 			}

@@ -402,14 +402,10 @@ func (this *ObjectType) getOwnPropertyKeys() *JTSet[Property_Key] {
 	var ownPropertyNames SetOf[string] = this.getOwnPropertyNames()
 	var ownSymbols SetOf[*KnownSymbolType] = this.getOwnPropertyKnownSymbols()
 	var ownPropertyKeys *TSetBuilder[Property_Key] = newTSetBuilder_(tce_Property_Key)
-	it_1 := foreach_(ownPropertyNames)
-	for it_1.next() {
-		var propertyName string = str_(it_1.v)
+	for propertyName := range elemsBy_(ownPropertyNames, str_) {
 		ownPropertyKeys.add(Property_Key(new_Property_StringKey(propertyName)))
 	}
-	it_3 := foreach_(ownSymbols)
-	for it_3.next() {
-		var symbol *KnownSymbolType = cast_[*KnownSymbolType](it_3.v)
+	for symbol := range elemsAs_[*KnownSymbolType](ownSymbols) {
 		ownPropertyKeys.add(Property_Key(new_Property_SymbolKey(symbol)))
 	}
 	return ownPropertyKeys.build()
@@ -525,9 +521,7 @@ func (this *ObjectType) isUnknownType_impl() bool {
 		var implicitProto *ObjectType = this.getImplicitPrototype()
 		if (implicitProto == nil) || implicitProto.isNativeObjectType() {
 			this.unknown = false
-			it_1 := foreach_(this.getCtorExtendedInterfaces())
-			for it_1.next() {
-				var interfaceType *ObjectType = to_ObjectType(it_1.v)
+			for interfaceType := range elemsBy_(this.getCtorExtendedInterfaces(), to_ObjectType) {
 				if interfaceType.isUnknownType() {
 					this.unknown = true
 					break
@@ -587,9 +581,7 @@ func (this *ObjectType) getCtorExtendedInterfaces_impl() IterableOf[*ObjectType]
 
 func (this *ObjectType) getPropertyTypeMap_impl() *JTMap[string, *JSType] {
 	var propTypeMap *TMapBuilder[string, *JSType] = newTMapBuilder_(jtc_string, jtc_p_JSType)
-	it_1 := foreach_(obj_(this.getPropertyNames()))
-	for it_1.next() {
-		var name string = str_(it_1.v)
+	for name := range elemsBy_(obj_(this.getPropertyNames()), str_) {
 		propTypeMap.put(name, this.getPropertyType(name))
 	}
 	return propTypeMap.buildOrThrow()

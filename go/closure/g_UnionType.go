@@ -470,9 +470,7 @@ func UnionType_Builder_isSubtype(rightType *JSType, leftType *JSType) bool {
 }
 
 func (this *UnionType_Builder) addAlternatesCollection(c CollectionOf[*JSType]) *UnionType_Builder {
-	it_1 := foreach_(c)
-	for it_1.next() {
-		var type_ *JSType = to_JSType(it_1.v)
+	for type_ := range elemsBy_(c, to_JSType) {
 		this.addAlternate(type_)
 	}
 	return this

@@ -50,15 +50,13 @@ func VariableMap_load(filename string) *Outcome_base[*VariableMap] {
 
 func (this *VariableMap) toBytes() []int8 {
 	var writer strBuilder_
-	it_1 := foreach_(obj_(ImmutableSortedSet_copyOf_Comparator_Collection(func() Comparator[any] {
+	for entry := range elemsBy_(obj_(ImmutableSortedSet_copyOf_Comparator_Collection(func() Comparator[any] {
 		f_ := Map_Entry_comparingByKey()
 		if f_ == nil {
 			return nil
 		}
 		return func(p0 any, p1 any) int32 { return f_(icast_Map_Entry(p0), icast_Map_Entry(p1)) }
-	}(), Collection(this.map__.asMap().entrySet()))))
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	}(), Collection(this.map__.asMap().entrySet()))), icast_Map_Entry) {
 		writer.append(VariableMap_escape(str_(entry.getKey())))
 		writer.append_char(VariableMap_SEPARATOR)
 		writer.append(VariableMap_escape(str_(entry.getValue())))

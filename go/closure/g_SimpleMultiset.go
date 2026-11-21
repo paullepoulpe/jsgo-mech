@@ -79,9 +79,8 @@ func (this *SimpleMultiset[E]) add_2(element E, occurrences int32) int32 {
 }
 
 func (this *SimpleMultiset[E]) addAll(elements IterableOf[E]) {
-	it_1 := foreach_(elements)
-	for it_1.next() {
-		var element E = junboxT_[E](it_1.v)
+	for el_1 := range elems_(elements) {
+		var element E = junboxT_[E](el_1)
 		this.add_2(element, 1)
 	}
 }
@@ -112,9 +111,8 @@ func (this *SimpleMultiset[E]) remove(element E) bool {
 
 func (this *SimpleMultiset[E]) removeAll(elements IterableOf[E]) bool {
 	var changed bool = false
-	it_1 := foreach_(elements)
-	for it_1.next() {
-		var element E = junboxT_[E](it_1.v)
+	for el_1 := range elems_(elements) {
+		var element E = junboxT_[E](el_1)
 		var oldCount int32 = this.count(element)
 		if oldCount > 0 {
 			this.setCount(element, oldCount, 0)
@@ -160,9 +158,7 @@ func (this *SimpleMultiset[E]) isEmpty() bool {
 
 func (this *SimpleMultiset[E]) asList() ImmutableListOf[E] {
 	var list *TListBuilder[E] = newTListBuilder_(tcT_[E]())
-	it_1 := foreach_(this.counts.entrySet())
-	for it_1.next() {
-		var e Map_Entry = icast_Map_Entry(it_1.v)
+	for e := range elemsBy_(this.counts.entrySet(), icast_Map_Entry) {
 		for i := int32(0); i < unbox_[int32](e.getValue()); i++ {
 			list.add(junboxT_[E](e.getKey()))
 		}
@@ -184,9 +180,7 @@ func (this *SimpleMultiset[E]) hashCode() int32 {
 
 func (this *SimpleMultiset[E]) toString() string {
 	var parts *JTList[string] = jnewTList_(jtc_string)
-	it_1 := foreach_(this.counts.entrySet())
-	for it_1.next() {
-		var e Map_Entry = icast_Map_Entry(it_1.v)
+	for e := range elemsBy_(this.counts.entrySet(), icast_Map_Entry) {
 		var element string = objstr_(e.getKey())
 		parts.add(func() string {
 			if unbox_[int32](e.getValue()) == 1 {

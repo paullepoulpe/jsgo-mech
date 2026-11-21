@@ -48,9 +48,7 @@ func (this *SortedDependencies[InputT]) getStrongDependenciesOf(rootInputs ListO
 	for !worklist.isEmpty() {
 		var input InputT = worklist.pop()
 		if includedInputs.add(input) {
-			it_2 := foreach_(obj_(input.getRequiredSymbols()))
-			for it_2.next() {
-				var symbolName string = str_(it_2.v)
+			for symbolName := range elemsBy_(obj_(input.getRequiredSymbols()), str_) {
 				var importedSymbolName InputT = this.exportingInputBySymbolName.get(symbolName)
 				if !jisnull_(importedSymbolName) {
 					worklist.add(importedSymbolName)
@@ -59,14 +57,13 @@ func (this *SortedDependencies[InputT]) getStrongDependenciesOf(rootInputs ListO
 		}
 	}
 	var builder *TListBuilder[InputT] = newTListBuilder_(tcT_[InputT]())
-	it_4 := foreach_(func() List {
+	for el_4 := range elems_(func() List {
 		if sorted {
 			return this.importOrderedInputs.asList()
 		}
 		return this.userOrderedInputs.asList()
-	}())
-	for it_4.next() {
-		var input InputT = junboxT_[InputT](it_4.v)
+	}()) {
+		var input InputT = junboxT_[InputT](el_4)
 		if includedInputs.contains(input) {
 			builder.add(input)
 		}
@@ -106,9 +103,7 @@ func (this *SortedDependencies[InputT]) getSortedWeakDependenciesOf(rootInputs L
 		if !isStrong && !weakInputs.add(input) {
 			continue
 		}
-		it_2 := foreach_(edges)
-		for it_2.next() {
-			var symbolName string = str_(it_2.v)
+		for symbolName := range elemsBy_(edges, str_) {
 			var importedSymbolName InputT = this.exportingInputBySymbolName.get(symbolName)
 			if (!jisnull_(importedSymbolName) && !strongInputs.contains(importedSymbolName)) && !weakInputs.contains(importedSymbolName) {
 				worklist.add(importedSymbolName)
@@ -142,9 +137,8 @@ func (this *SortedDependencies[InputT]) orderInput(input InputT) {
 		return
 	}
 	this.completedInputs.add(input)
-	it_1 := foreach_(this.importedInputByImportingInput.get(input))
-	for it_1.next() {
-		var importedInput InputT = junboxT_[InputT](it_1.v)
+	for el_1 := range elems_(this.importedInputByImportingInput.get(input)) {
+		var importedInput InputT = junboxT_[InputT](el_1)
 		this.orderInput(importedInput)
 	}
 	this.importOrderedInputs.add(input)
@@ -159,18 +153,14 @@ func (this *SortedDependencies[InputT]) processInputs() {
 		if firstProvide.isEmpty() || (((provides.size() == 1) && strings.HasPrefix(firstProvide.get(), "module$")) && !userOrderedInput.isEs6Module()) {
 			this.nonExportingInputs.put(ModuleNames_fileToModuleName(userOrderedInput.getName()), userOrderedInput)
 		}
-		it_3 := foreach_(obj_(userOrderedInput.getProvides()))
-		for it_3.next() {
-			var providedSymbolName string = str_(it_3.v)
+		for providedSymbolName := range elemsBy_(obj_(userOrderedInput.getProvides()), str_) {
 			this.exportingInputBySymbolName.put(providedSymbolName, userOrderedInput)
 		}
 	}
 	it_5 := this.userOrderedInputs.each()
 	for it_5.next() {
 		var userOrderedInput InputT = it_5.v
-		it_7 := foreach_(obj_(userOrderedInput.getRequiredSymbols()))
-		for it_7.next() {
-			var symbolName string = str_(it_7.v)
+		for symbolName := range elemsBy_(obj_(userOrderedInput.getRequiredSymbols()), str_) {
 			var importedInput InputT = this.exportingInputBySymbolName.get(symbolName)
 			if !jisnull_(importedInput) {
 				this.importedInputByImportingInput.put(userOrderedInput, importedInput)

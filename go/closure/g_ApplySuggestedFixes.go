@@ -17,9 +17,7 @@ func new_ApplySuggestedFixes() *ApplySuggestedFixes {
 
 func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableOf[*SuggestedFix]) *Outcome_base[any] {
 	var filenames *JTSet[string] = jnewTSet_(jtc_string)
-	it_1 := foreach_(fixes)
-	for it_1.next() {
-		var fix *SuggestedFix = cast_[*SuggestedFix](it_1.v)
+	for fix := range elemsAs_[*SuggestedFix](fixes) {
 		filenames.asSet().addAll(Collection(fix.getReplacements().keySet()))
 	}
 	var filenameToCodeMap *JTMap[string, string] = jnewTMap_(jtc_string, jtc_string)
@@ -72,9 +70,7 @@ func ApplySuggestedFixes_allHaveAlternativeCount(fixChoices IterableOf[*Suggeste
 
 func ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices IterableOf[*SuggestedFix], choiceIndex int32, fileNameToCodeMap *JTMap[string, string]) *JTMap[string, string] {
 	var chosenFixesBuilder *TListBuilder[*SuggestedFix] = newTListBuilder_(jtc_p_SuggestedFix)
-	it_1 := foreach_(fixChoices)
-	for it_1.next() {
-		var choices *SuggestedFix = cast_[*SuggestedFix](it_1.v)
+	for choices := range elemsAs_[*SuggestedFix](fixChoices) {
 		chosenFixesBuilder.add(choices.getAlternatives().get(choiceIndex))
 	}
 	var chosenFixes *JTList[*SuggestedFix] = chosenFixesBuilder.build()
@@ -83,15 +79,11 @@ func ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices IterableOf[*S
 
 func ApplySuggestedFixes_applySuggestedFixesToCode(fixes IterableOf[*SuggestedFix], filenameToCodeMap *JTMap[string, string]) *JTMap[string, string] {
 	var map_ *ApplySuggestedFixes_ReplacementMap = new_ApplySuggestedFixes_ReplacementMap()
-	it_1 := foreach_(fixes)
-	for it_1.next() {
-		var fix *SuggestedFix = cast_[*SuggestedFix](it_1.v)
+	for fix := range elemsAs_[*SuggestedFix](fixes) {
 		map_.putIfNoOverlap(fix)
 	}
 	var newCodeMap *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
-	it_3 := foreach_(map_.entrySet())
-	for it_3.next() {
-		var entry Map_Entry = icast_Map_Entry(it_3.v)
+	for entry := range elemsBy_(map_.entrySet(), icast_Map_Entry) {
 		var filename string = str_(entry.getKey())
 		if !filenameToCodeMap.containsKey(filename) {
 			panic(new_IllegalArgumentException_String(("filenameToCodeMap missing code for file: " + sstr_(filename))).self())
@@ -110,9 +102,7 @@ func ApplySuggestedFixes_applyCodeReplacements(replacements CollectionOf[*CodeRe
 	}
 	var sb *StringBuilder = new_StringBuilder()
 	var lastIndex int32 = 0
-	it_1 := foreach_(obj_(sortedReplacements))
-	for it_1.next() {
-		var replacement *CodeReplacement = cast_[*CodeReplacement](it_1.v)
+	for replacement := range elemsAs_[*CodeReplacement](obj_(sortedReplacements)) {
 		Appendable_append_s_int_int(sb, code, lastIndex, replacement.getStartPosition())
 		sb.append(replacement.getNewContent())
 		lastIndex = replacement.getEndPosition()
