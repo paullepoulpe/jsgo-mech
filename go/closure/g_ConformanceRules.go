@@ -26,14 +26,12 @@ func ConformanceRules_createTsAllowlist() *ConformanceRules_AllowList {
 				if p, ok := ex_.(Throwable_as); ok {
 					var t *Throwable = p.as_Throwable()
 					panic(new_AssertionError_Object(t.self()).self())
-					return
 				}
 				panic(r_)
 			}
 		}()
 		ret_1 = ConformanceRules_AllowList_create(ImmutableList_as_List(ImmutableList_of()), ImmutableList_as_List(ImmutableList_of_Object_Object(".*\\.closure\\.js", ".*\\.tsx\\.cl\\.js"))).get()
 		return 1
-		return 0
 	}()
 	if code_1 == 1 {
 		return ret_1
@@ -57,7 +55,6 @@ func ConformanceRules_buildPattern(reqPatterns ListOf[string]) *Outcome_base[*Pa
 						ret_3 = Outcome_base_err[*Pattern](new_CheckConformance_InvalidRequirementSpec_String_Throwable("invalid regex pattern", e.up_Throwable()).up_Throwable())
 						code_ = 1
 						return
-						return
 					}
 					panic(r_)
 				}
@@ -76,7 +73,6 @@ func ConformanceRules_buildPattern(reqPatterns ListOf[string]) *Outcome_base[*Pa
 				ex_ := catch_(r_)
 				if e, ok2 := ex_.(*PatternSyntaxException); ok2 {
 					panic(new_RuntimeException_String_Throwable("bad joined regexp", e.up_Throwable()).self())
-					return
 				}
 				panic(r_)
 			}
@@ -428,7 +424,6 @@ func ConformanceRules_AbstractRule_getTypeMatchingStrategy(requirement *Requirem
 		default:
 			panic(new_IllegalStateException_String("Unknown TypeMatchingStrategy").self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -667,7 +662,6 @@ func (this *ConformanceRules_AbstractTypeRestrictionRule) union(typeNames ListOf
 	} else {
 		return registry.createUnionTypeList(types)
 	}
-	panic("unreachable")
 }
 
 func (this *ConformanceRules_AbstractTypeRestrictionRule) isAssertionCall(n Node) bool {
@@ -990,7 +984,6 @@ var lambda_ConformanceRules_BannedName_clinit_1_ = &CheckConformance_Preconditio
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }}
 
@@ -1056,7 +1049,6 @@ func (this *ConformanceRules_BannedProperty) initBannedProperty(compiler *Abstra
 		default:
 			panic(new_AssertionError_Object(obj_(requirement.getType())).self())
 		}
-		panic("unreachable")
 	}()
 	this.registry = compiler.getTypeRegistry()
 	var builder *SimpleSetMultimap[string, *JSType] = SimpleSetMultimap_create[string, *JSType]()
@@ -1166,12 +1158,10 @@ func (this *ConformanceRules_BannedProperty) extractType(n Node) *JSType {
 				default:
 					panic(new_AssertionError_0().self())
 				}
-				panic("unreachable")
 			}()
 		default:
 			return nil
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1199,7 +1189,6 @@ func (this *ConformanceRules_BannedProperty) extractName(n Node) Optional[string
 		default:
 			return Optional_empty[string]()
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1261,7 +1250,6 @@ func (this ConformanceRules_BannedProperty_RequirementPrecondition) shouldCheck(
 			default:
 				return false
 			}
-			panic("unreachable")
 		}()
 	case ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_WRITE:
 		return NodeUtil_isLValue(n)
@@ -2517,7 +2505,6 @@ func (this *ConformanceRules_BanNullDeref) checkConformance_impl(t *NodeTraversa
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 	return func() *ConformanceRules_ConformanceResult {
 		if violation {

@@ -181,7 +181,6 @@ func (this *ConvertToTypedInterface_RemoveNonDeclarations) shouldTraverse(t *Nod
 			NodeUtil_deleteNode(n, t.getCompiler())
 			return false
 		}
-		fallthrough
 	case Token_rhino_COMPUTED_PROP:
 		if ClassUtil_isComputedMemberInsideClassWithName(n) {
 			return true
@@ -239,7 +238,6 @@ func (this *ConvertToTypedInterface_RemoveNonDeclarations) shouldTraverse(t *Nod
 		}
 		return true
 	}
-	panic("unreachable")
 }
 
 func (this *ConvertToTypedInterface_RemoveNonDeclarations) visit(t *NodeTraversal, n Node, parent Node) {
@@ -591,7 +589,6 @@ func ConvertToTypedInterface_SimplifyDeclarations_clinit() {
 			return ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_UNTYPED_JSDOC_DECLARATION
 		}
 		return ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_TYPED_JSDOC_DECLARATION
-		panic("unreachable")
 	}))
 
 }

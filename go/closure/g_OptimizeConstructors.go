@@ -132,7 +132,6 @@ func OptimizeConstructors_isAssigningReference(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -161,7 +160,6 @@ func (this *OptimizeConstructors) getClassDefinitionOrFunction(n Node) Node {
 	} else {
 		return 0
 	}
-	panic("unreachable")
 }
 
 func (this *OptimizeConstructors) unwrap(expr Node) Node {
@@ -182,7 +180,6 @@ func OptimizeConstructors_isDefinitionClassLiteralOrFunction(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 

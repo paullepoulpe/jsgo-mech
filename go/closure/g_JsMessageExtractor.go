@@ -40,7 +40,6 @@ func (this *JsMessageExtractor) extractMessagesIterable(inputs IterableOf[*Sourc
 	compiler.runInCompilerThread(Callable[any](func() any {
 		compiler.parseInputs()
 		return nil
-		panic("unreachable")
 	}))
 	var extractCompilerPass *JsMessageExtractor_ExtractMessagesVisitor = new_JsMessageExtractor_ExtractMessagesVisitor(this, compiler.up_AbstractCompiler())
 	if compiler.getErrors().isEmpty() {
