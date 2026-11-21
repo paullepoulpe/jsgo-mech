@@ -117,7 +117,9 @@ func Tracer_clearTracingStatisticsTestingOnly() {
 }
 
 func (this *Tracer) stop_1(silenceThreshold int32) int64 {
-	Preconditions_checkState((Thread_currentThread() == this.startThread))
+	if Thread_currentThread() != this.startThread {
+		panic(new_IllegalStateException_0().self())
+	}
 	var trace *Tracer_ThreadTrace = Tracer_getThreadTrace()
 	if !trace.isInitialized() {
 		return 0
@@ -438,7 +440,9 @@ func (this *Tracer_ThreadTrace) isInitialized() bool {
 func (this *Tracer_ThreadTrace) startEvent(t *Tracer) {
 	this.events.add(new_Tracer_Event(true, t))
 	var notAlreadyOutstanding bool = this.outstandingEvents.add(t)
-	Preconditions_checkState(notAlreadyOutstanding)
+	if !notAlreadyOutstanding {
+		panic(new_IllegalStateException_0().self())
+	}
 }
 
 func (this *Tracer_ThreadTrace) endEvent(t *Tracer, silenceThreshold int32) {
@@ -459,13 +463,17 @@ func (this *Tracer_ThreadTrace) endEvent(t *Tracer, silenceThreshold int32) {
 		for i := int32(0); i < this.events.size(); i++ {
 			var e *Tracer_Event = this.events.get(i)
 			if e.tracer == t {
-				Preconditions_checkState(e.isStart)
+				if !e.isStart {
+					panic(new_IllegalStateException_0().self())
+				}
 				this.events.removeAt(i)
 				removed = true
 				break
 			}
 		}
-		Preconditions_checkState((removed || this.isEventsTruncated))
+		if !removed && !this.isEventsTruncated {
+			panic(new_IllegalStateException_0().self())
+		}
 	} else {
 		this.events.add(new_Tracer_Event(false, t))
 	}

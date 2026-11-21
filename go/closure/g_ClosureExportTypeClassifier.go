@@ -40,8 +40,8 @@ func (this *ClosureExportTypeClassifier) addGoogModuleExports() {
 }
 
 func ClosureExportTypeClassifier_forEachTopLevelStatement(moduleRoot Node, callback Consumer[Node]) {
-	if !(moduleRoot.isScript() && moduleRoot.getFirstChild().isModuleBody()) {
-		Preconditions_checkArgument_boolean_Object_H(false, moduleRoot)
+	if !moduleRoot.isScript() || !moduleRoot.getFirstChild().isModuleBody() {
+		panic(new_IllegalArgumentException_String(objstr_(moduleRoot.box_())).self())
 	}
 	var body Node = moduleRoot.getFirstChild()
 	{

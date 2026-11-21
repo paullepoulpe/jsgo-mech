@@ -102,7 +102,9 @@ func StripCode_toListWithCollapsedVersions(s string) *JTList[string] {
 }
 
 func (this *StripCode) process_2(externs Node, root Node) {
-	Preconditions_checkState(this.compiler_.getLifeCycleStage().isNormalized())
+	if !this.compiler_.getLifeCycleStage().isNormalized() {
+		panic(new_IllegalStateException_0().self())
+	}
 	_ = func() (code_ int) {
 		var decisionsLog *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(this), "decisions.log", []string{})
 		defer closeResource_(decisionsLog.self())
@@ -240,7 +242,7 @@ func (this *StripCode_Strip) removeVarDeclarationsByNameOrRvalue(t *NodeTraversa
 				continue
 			}
 			if !nameNode.isName() {
-				Preconditions_checkState_boolean_Object_H(false, nameNode)
+				panic(new_IllegalStateException_String(objstr_(nameNode.box_())).self())
 			}
 			var name string = nameNode.getString()
 			var lastDollarSign int32 = String_lastIndexOf(name, 36)
@@ -395,7 +397,7 @@ func (this *StripCode_Strip) maybeEliminateAssignmentByLvalueName(t *NodeTravers
 
 func (this *StripCode_Strip) maybeEliminateExpressionByName(n Node) {
 	if !n.isExprResult() {
-		Preconditions_checkArgument_boolean_Object_H(false, n)
+		panic(new_IllegalArgumentException_String(objstr_(n.box_())).self())
 	}
 	var parent Node = n.getParent()
 	if parent == 0 {

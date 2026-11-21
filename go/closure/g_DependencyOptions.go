@@ -61,7 +61,9 @@ func DependencyOptions_pruneAllowNoEntryPoints(entryPoints IterableT[*ModuleIden
 }
 
 func DependencyOptions_pruneForEntryPoints(entryPoints IterableT[*ModuleIdentifier]) *DependencyOptions {
-	Preconditions_checkState_boolean_Object(!Iterables_isEmpty(Iterable_un_(entryPoints)), "DependencyMode.PRUNE requires at least one entry point")
+	if Iterables_isEmpty(Iterable_un_(entryPoints)) {
+		panic(new_IllegalStateException_String(objstr_("DependencyMode.PRUNE requires at least one entry point")).self())
+	}
 	return new_DependencyOptions(DependencyOptions_DependencyMode_PRUNE, jimmutableListCopyOf_(jtc_p_ModuleIdentifier, Iterable_un_(entryPoints)))
 }
 

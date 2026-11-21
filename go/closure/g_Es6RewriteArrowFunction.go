@@ -34,7 +34,10 @@ func (this *Es6RewriteArrowFunction) shouldTraverse(t *NodeTraversal, n Node, pa
 			this.contextStack.push(this.contextForFunction(n, t.getInput()))
 		}
 	case tokOrd1_SUPER:
-		var context *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = Preconditions_checkNotNull_T(this.contextStack.peek())
+		var context *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = this.contextStack.peek()
+		if context == nil {
+			panic(new_NullPointerException_0().self())
+		}
 		if (context.isConstructor_ && parent.isCall()) && (parent.getFirstChild() == n) {
 			context.lastSuperStatement = this.getEnclosingStatement(parent, context.scopeBody)
 		}
@@ -45,7 +48,10 @@ func (this *Es6RewriteArrowFunction) shouldTraverse(t *NodeTraversal, n Node, pa
 
 func (this *Es6RewriteArrowFunction) getEnclosingStatement(n Node, block Node) Node {
 	for Preconditions_checkNotNull_T(n.getParent()) != block {
-		n = Preconditions_checkNotNull_T(NodeUtil_getEnclosingStatement(n.getParent()))
+		n = NodeUtil_getEnclosingStatement(n.getParent())
+		if n == 0 {
+			panic(new_NullPointerException_0().self())
+		}
 	}
 	return n
 }
@@ -53,7 +59,10 @@ func (this *Es6RewriteArrowFunction) getEnclosingStatement(n Node, block Node) N
 func (this *Es6RewriteArrowFunction) visit(t *NodeTraversal, n Node, parent Node) {
 	var context *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = this.contextStack.peek()
 	if n.isArrowFunction() {
-		this.visitArrowFunction(t, n, Preconditions_checkNotNull_T(context))
+		if context == nil {
+			panic(new_NullPointerException_0().self())
+		}
+		this.visitArrowFunction(t, n, context)
 	} else if (context != nil) && (context.scopeBody == n) {
 		this.contextStack.pop()
 		context.addVarDeclarations(this.compiler_, this.astFactory_, t.getCurrentScript())
@@ -63,7 +72,9 @@ func (this *Es6RewriteArrowFunction) visit(t *NodeTraversal, n Node, parent Node
 func (this *Es6RewriteArrowFunction) visitArrowFunction(t *NodeTraversal, n Node, context *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext) {
 	n.setIsArrowFunction(false)
 	var body Node = n.getLastChild()
-	Preconditions_checkState_boolean_Object(body.isBlock(), "Arrow function body must be a block after normalization")
+	if !body.isBlock() {
+		panic(new_IllegalStateException_String(objstr_("Arrow function body must be a block after normalization")).self())
+	}
 	var updater *ThisAndArgumentsReferenceUpdater = new_ThisAndArgumentsReferenceUpdater(this.compiler_, context, this.astFactory_)
 	NodeTraversal_traverse(this.compiler_, body, ThisAndArgumentsReferenceUpdater_as_NodeTraversal_Callback(updater))
 	t.reportCodeChange()

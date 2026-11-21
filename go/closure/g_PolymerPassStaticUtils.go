@@ -40,7 +40,9 @@ func PolymerPassStaticUtils_matches(n Node, name string) bool {
 }
 
 func PolymerPassStaticUtils_switchDollarSignPropsToBrackets(def Node, compiler *AbstractCompiler) {
-	Preconditions_checkState((def.isObjectLit() || def.isClassMembers()))
+	if !def.isObjectLit() && !def.isClassMembers() {
+		panic(new_IllegalStateException_0().self())
+	}
 	{
 		var keyNode Node = def.getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
@@ -53,7 +55,9 @@ func PolymerPassStaticUtils_switchDollarSignPropsToBrackets(def Node, compiler *
 }
 
 func PolymerPassStaticUtils_quoteListenerAndHostAttributeKeys(objLit Node, compiler *AbstractCompiler) {
-	Preconditions_checkState(objLit.isObjectLit())
+	if !objLit.isObjectLit() {
+		panic(new_IllegalStateException_0().self())
+	}
 	{
 		var keyNode Node = objLit.getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
@@ -77,7 +81,9 @@ func PolymerPassStaticUtils_quoteListenerAndHostAttributeKeys(objLit Node, compi
 }
 
 func PolymerPassStaticUtils_protectObserverAndPropertyFunctionKeys(behaviorObjLit Node) {
-	Preconditions_checkState(behaviorObjLit.isObjectLit())
+	if !behaviorObjLit.isObjectLit() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var methodsToProtect *JTSet[string] = jnewTSet_(jtc_string)
 	methodsToProtect.asSetT().addAll(Collection(PolymerPassStaticUtils_addObserverMethodsToProtect(behaviorObjLit).asSet()))
 	methodsToProtect.asSetT().addAll(Collection(PolymerPassStaticUtils_addPropertyMethodsToProtect(behaviorObjLit).asSet()))
@@ -195,7 +201,9 @@ func PolymerPassStaticUtils_extractProperties(descriptor Node, defType PolymerCl
 }
 
 func PolymerPassStaticUtils_collectConstructorPropertyJsDoc(node Node, map_ *JTMap[string, *JSDocInfo]) {
-	Preconditions_checkNotNull_T(node)
+	if node == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	{
 		var child Node = node.getFirstChild()
 		for ; child != 0; child = child.getNext() {

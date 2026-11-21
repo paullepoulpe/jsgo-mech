@@ -27,15 +27,21 @@ func new_LowestCommonAncestorFinder[N comparable, E comparable](graph *DiGraph[N
 }
 
 func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetT[N]) SetT[N] {
-	Preconditions_checkArgument_boolean_Object((roots.size() <= 31), "Too many roots.")
-	Preconditions_checkState(this.searchColoring.isEmpty())
+	if roots.size() > 31 {
+		panic(new_IllegalArgumentException_String(objstr_("Too many roots.")).self())
+	}
+	if !this.searchColoring.isEmpty() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var allColor *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(((int32(1) << (uint32(roots.size()) & 31)) - 1))
 	var bitForRoot int32 = 1
 	it_1 := jeachOf_(roots)
 	for it_1.next() {
 		var root N = it_1.v
 		var rootNode DiGraph_DiGraphNode[N, E] = this.graph.getNode_Object_rDiGraphNode(root)
-		Preconditions_checkNotNull_Object_String_Object_T(rootNode, "Root not present in graph: %s", boxT_(root))
+		if v_, a1_ := rootNode, boxT_(root); v_ == nil {
+			panic(new_NullPointerException_String(Strings_lenientFormat("Root not present in graph: %s", []any{a1_})).self())
+		}
 		var color *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(bitForRoot)
 		Map_merge(Map_un_(this.searchColoring.asMapT()), rootNode, obj_(color), BiFunction[any, any, any](func(p0 any, p1 any) any {
 			return obj_(cast_[*LowestCommonAncestorFinder_Color](p0).mix(cast_[*LowestCommonAncestorFinder_Color](p1)))
@@ -68,7 +74,9 @@ func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetT[N]) SetT[N] {
 }
 
 func (this *LowestCommonAncestorFinder[N, E]) paintAncestors(root DiGraph_DiGraphNode[N, E], color *LowestCommonAncestorFinder_Color) {
-	Preconditions_checkState(this.searchQueue.isEmpty())
+	if !this.searchQueue.isEmpty() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.searchQueue.add(root)
 	for !this.searchQueue.isEmpty() {
 		var curr DiGraph_DiGraphNode[N, E] = this.searchQueue.pop()
@@ -117,7 +125,9 @@ func new_LowestCommonAncestorFinder_Color(bitset int32) *LowestCommonAncestorFin
 
 func LowestCommonAncestorFinder_Color_create(bitset int32) *LowestCommonAncestorFinder_Color {
 	if bitset < 0 {
-		Preconditions_checkArgument((bitset == -1))
+		if bitset != -1 {
+			panic(new_IllegalArgumentException_0().self())
+		}
 		return LowestCommonAncestorFinder_Color_NOT_LOWEST
 	} else if bitset < int32(len(LowestCommonAncestorFinder_Color_COMMON_COLOR_CACHE)) {
 		return LowestCommonAncestorFinder_Color_COMMON_COLOR_CACHE[bitset]
@@ -166,7 +176,11 @@ func LowestCommonAncestorFinder_Color_clinit() {
 			}
 		}()
 	}
-	LowestCommonAncestorFinder_Color_BLANK = Preconditions_checkNotNull_T(LowestCommonAncestorFinder_Color_COMMON_COLOR_CACHE[0])
+	nn_ := LowestCommonAncestorFinder_Color_COMMON_COLOR_CACHE[0]
+	if nn_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	LowestCommonAncestorFinder_Color_BLANK = nn_
 	LowestCommonAncestorFinder_Color_NOT_LOWEST = new_LowestCommonAncestorFinder_Color(-1)
 
 }

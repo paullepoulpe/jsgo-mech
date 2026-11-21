@@ -27,14 +27,20 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[MapT[st
 	var mapping *JTMap[string, *InstrumentationPoint] = jnewTMap_(jtc_string, jtc_p_InstrumentationPoint)
 	var linesOfFile *JTList[string] = splitToListT_(jtc_string, Splitter_on('\n').omitEmptyStrings(), strobj_(mappingFileContent))
 	if ok_, a1_ := (linesOfFile.size() >= 3), linesOfFile.asListT(); !ok_ {
-		Preconditions_checkState_boolean_String_Object(false, "Malformed report %s", a1_)
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Malformed report %s", []any{a1_})).self())
 	}
 	var fileNamesLine string = String_trim(linesOfFile.get(0))
 	var functionNamesLine string = String_trim(linesOfFile.get(1))
 	var typesLine string = String_trim(linesOfFile.get(2))
-	Preconditions_checkState(String_startsWith(fileNamesLine, "FileNames:"))
-	Preconditions_checkState(String_startsWith(functionNamesLine, "FunctionNames:"))
-	Preconditions_checkState(String_startsWith(typesLine, "Types:"))
+	if !String_startsWith(fileNamesLine, "FileNames:") {
+		panic(new_IllegalStateException_0().self())
+	}
+	if !String_startsWith(functionNamesLine, "FunctionNames:") {
+		panic(new_IllegalStateException_0().self())
+	}
+	if !String_startsWith(typesLine, "Types:") {
+		panic(new_IllegalStateException_0().self())
+	}
 	var fileNamesAsJsonArray string = String_substring_int(fileNamesLine, (String_indexOf_String(fileNamesLine, ":") + 1))
 	var functionNamesAsJsonArray string = String_substring_int(functionNamesLine, (String_indexOf_String(functionNamesLine, ":") + 1))
 	var typesAsJsonArray string = String_substring_int(typesLine, (String_indexOf_String(typesLine, ":") + 1))

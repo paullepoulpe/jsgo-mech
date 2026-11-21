@@ -84,7 +84,7 @@ func (this *TypedScope) typed_impl() *TypedScope {
 
 func (this *TypedScope) validateCompletelyBuilt() {
 	if ok_, a1_, a2_ := this.reservedNames.isEmpty(), this, this.reservedNames.asSetT(); !ok_ {
-		Preconditions_checkState_boolean_String_Object_Object(false, "Expected %s to have no reserved names, found: %s. This probably indicates a bug in TypedScopeCreator where it is failing to declare a variable.", a1_, a2_)
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected %s to have no reserved names, found: %s. This probably indicates a bug in TypedScopeCreator where it is failing to declare a variable.", []any{a1_, a2_})).self())
 	}
 	this.reservedNames = jtsetEmptyImm_(jtc_string)
 }
@@ -132,7 +132,9 @@ func (this *TypedScope) getTypeOfThis() *JSType {
 }
 
 func (this *TypedScope) declare(name string, nameNode Node, type_ *JSType, input *CompilerInput, inferred bool) *TypedVar {
-	Preconditions_checkState(!String_isEmpty(name))
+	if String_isEmpty(name) {
+		panic(new_IllegalStateException_0().self())
+	}
 	if !this.reservedNames.isEmpty() {
 		this.reservedNames.remove(name)
 	}
@@ -254,7 +256,10 @@ func (this *TypedScope) getTopmostScopeOfEventualDeclaration_impl(name string) S
 }
 
 func (this *TypedScope) contains(other *TypedScope) bool {
-	var s *TypedScope = Preconditions_checkNotNull_T(other)
+	if other == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	var s *TypedScope = other
 	for s != nil {
 		if s == this {
 			return true
@@ -277,8 +282,12 @@ func (this *TypedScope) getParentScope_rAbstractScope_rTypedScope() *TypedScope 
 }
 
 func (this *TypedScope) undeclare(var_ *TypedVar) {
-	Preconditions_checkState((var_.getScope_rAbstractScope_rTypedScope() == this))
-	Preconditions_checkState(this.vars.get(var_.getName()).equals(obj_(var_)))
+	if var_.getScope_rAbstractScope_rTypedScope() != this {
+		panic(new_IllegalStateException_0().self())
+	}
+	if !this.vars.get(var_.getName()).equals(obj_(var_)) {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.undeclareInteral(var_)
 }
 
@@ -288,7 +297,7 @@ func (this *TypedScope) undeclareInteral(var_ *TypedVar) {
 
 func (this *TypedScope) declareInternal(name string, var_ *TypedVar) {
 	if ok_, a1_ := (this.hasOwnSlot(name) || this.canDeclare(name)), var_.getNode(); !ok_ {
-		Preconditions_checkState_boolean_String_Object_H(false, "Illegal shadow: %s", a1_)
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Illegal shadow: %s", []any{a1_.box_()})).self())
 	}
 	var emptySentinel *JTMap[string, *TypedVar] = jtmapEmptyImm_(jtc_string, jtc_p_TypedVar)
 	if this.vars == emptySentinel {
@@ -429,19 +438,21 @@ func (this *TypedScope) getClosestContainerScope_rTypedScope() *TypedScope {
 	if scope.isFunctionBlockScope() {
 		scope = scope.getParent_rTypedScope()
 		if scope.isBlockScope() {
-			Preconditions_checkState_boolean_Object(false, scope)
+			panic(new_IllegalStateException_String(objstr_(scope)).self())
 		}
 	}
 	return scope
 }
 
 func (this *TypedScope) checkChildScope(parent *TypedScope) {
-	Preconditions_checkNotNull_T(parent)
-	if !NodeUtil_createsScope(this.rootNode_) {
-		Preconditions_checkArgument_boolean_Object_H(false, this.rootNode_)
+	if parent == nil {
+		panic(new_NullPointerException_0().self())
 	}
-	if !(this.rootNode_ != parent.getRootNode()) {
-		Preconditions_checkArgument_boolean_String_Object_H(false, "rootNode should not be the parent's root node: %s", this.rootNode_)
+	if !NodeUtil_createsScope(this.rootNode_) {
+		panic(new_IllegalArgumentException_String(objstr_(this.rootNode_.box_())).self())
+	}
+	if this.rootNode_ == parent.getRootNode() {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("rootNode should not be the parent's root node: %s", []any{this.rootNode_.box_()})).self())
 	}
 }
 
@@ -458,7 +469,9 @@ func (this *TypedScope) getCommonParent(other *TypedScope) *TypedScope {
 			right = right.getParent_rTypedScope()
 		}
 	}
-	Preconditions_checkState(((left != nil) && (left == right)))
+	if left == nil || left != right {
+		panic(new_IllegalStateException_0().self())
+	}
 	return left
 }
 

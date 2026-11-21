@@ -93,7 +93,9 @@ func (this *PassListBuilder) assertAllOneTimePasses() {
 	it_1 := this.passes.each()
 	for it_1.next() {
 		var pass *PassFactory = it_1.v
-		Preconditions_checkState(!pass.isRunInFixedPointLoop())
+		if pass.isRunInFixedPointLoop() {
+			panic(new_IllegalStateException_0().self())
+		}
 	}
 }
 
@@ -101,7 +103,9 @@ func (this *PassListBuilder) assertAllLoopablePasses() {
 	it_1 := this.passes.each()
 	for it_1.next() {
 		var pass *PassFactory = it_1.v
-		Preconditions_checkState(pass.isRunInFixedPointLoop())
+		if !pass.isRunInFixedPointLoop() {
+			panic(new_IllegalStateException_0().self())
+		}
 	}
 }
 
@@ -109,8 +113,8 @@ func (this *PassListBuilder) assertPassOrder(pass1 *PassFactory, pass2 *PassFact
 	var pass1Index int32 = this.passes.asListT().indexOf(obj_(pass1))
 	var pass2Index int32 = this.passes.asListT().indexOf(obj_(pass2))
 	if (pass1Index != -1) && (pass2Index != -1) {
-		if !(pass1Index < pass2Index) {
-			Preconditions_checkState_boolean_Object(false, msg)
+		if pass1Index >= pass2Index {
+			panic(new_IllegalStateException_String(objstr_(msg)).self())
 		}
 	}
 }

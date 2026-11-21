@@ -10,7 +10,10 @@ type OptimizeParameters struct {
 }
 
 func (this *OptimizeParameters) init_OptimizeParameters(compiler *AbstractCompiler) {
-	this.compiler_ = Preconditions_checkNotNull_T(compiler)
+	if compiler == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.compiler_ = compiler
 	this.astAnalyzer = compiler.getAstAnalyzer()
 }
 
@@ -21,7 +24,9 @@ func new_OptimizeParameters(compiler *AbstractCompiler) *OptimizeParameters {
 }
 
 func (this *OptimizeParameters) process_2(externs Node, root Node) {
-	Preconditions_checkState((this.compiler_.getLifeCycleStage() == AbstractCompiler_LifeCycleStage_NORMALIZED))
+	if this.compiler_.getLifeCycleStage() != AbstractCompiler_LifeCycleStage_NORMALIZED {
+		panic(new_IllegalStateException_0().self())
+	}
 	OptimizeCalls_builder().setCompiler(this.compiler_).setConsiderExterns(false).addPass(OptimizeCalls_CallGraphCompilerPass(this)).build().process_2(externs, root)
 }
 
@@ -149,7 +154,10 @@ func (this *OptimizeParameters) analyzeCandidate(refKind string, key string, ref
 }
 
 func (this *OptimizeParameters) convertTaggedTemplateLiteralToNormalCall(ttlNode Node) {
-	var callee Node = Preconditions_checkNotNull_T(ttlNode.getFirstChild())
+	var callee Node = ttlNode.getFirstChild()
+	if callee == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	var templateLiteral Node = callee.getNext()
 	var firstArg Node = IR_arraylit([]Node{}).srcref(templateLiteral)
 	callee.detach()
@@ -528,7 +536,9 @@ func (this *OptimizeParameters) optimizeFunctionDefinition(parameters *JTList[*O
 			var value Node = IR_arraylit([]Node{}).srcref(maybeRest)
 			for i := int32(restIndex); i < parameters.size(); i++ {
 				var parameter *OptimizeParameters_Parameter = parameters.get(i)
-				Preconditions_checkState(parameter.shouldRemove())
+				if !parameter.shouldRemove() {
+					panic(new_IllegalStateException_0().self())
+				}
 				value.addChildToBack(parameters.get(i).getArg())
 			}
 			maybeRest.detach()
@@ -544,7 +554,9 @@ func (this *OptimizeParameters) optimizeFunctionDefinition(parameters *JTList[*O
 			if formalParam != 0 {
 				formalParam.detach()
 				if formalParam.isDefaultValue() {
-					Preconditions_checkState(!parameter.mayBeUndefined)
+					if parameter.mayBeUndefined {
+						panic(new_IllegalStateException_0().self())
+					}
 					formalParam = formalParam.removeFirstChild()
 				}
 			}
@@ -575,14 +587,22 @@ func (this *OptimizeParameters) optimizeCallSite(parameters *JTList[*OptimizePar
 }
 
 func (this *OptimizeParameters) addRestVariableToFunction(function Node, lhs Node, value Node) {
-	Preconditions_checkState((lhs.getParent() == 0))
+	if lhs.getParent() != 0 {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.addVariableDeclarationToFunction(function, lhs, value)
 }
 
 func (this *OptimizeParameters) addVariableDeclarationToFunction(function Node, lhs Node, value Node) {
-	Preconditions_checkState_boolean_Object((value.getParent() == 0), "Value must be detached")
-	Preconditions_checkState_boolean_Object((lhs != 0), "formal parameter being declared must not be null")
-	Preconditions_checkState_boolean_Object((lhs.getParent() == 0), "formal parameter being declared must be detached")
+	if value.getParent() != 0 {
+		panic(new_IllegalStateException_String(objstr_("Value must be detached")).self())
+	}
+	if lhs == 0 {
+		panic(new_IllegalStateException_String(objstr_("formal parameter being declared must not be null")).self())
+	}
+	if lhs.getParent() != 0 {
+		panic(new_IllegalStateException_String(objstr_("formal parameter being declared must be detached")).self())
+	}
 	var stmts *JTList[Node] = jnewTList_(jtc_Node)
 	if lhs.isDestructuringPattern() {
 		this.rewriteDestructuringPattern(lhs, value, stmts)
@@ -643,7 +663,9 @@ func (this *OptimizeParameters) eliminateParamsAfter(fnNode Node, formal Node) {
 		var stmts *JTList[Node] = jnewTList_(jtc_Node)
 		formal.detach()
 		if formal.isRest() {
-			Preconditions_checkState((formal.getNext() == 0))
+			if formal.getNext() != 0 {
+				panic(new_IllegalStateException_0().self())
+			}
 			var lhs Node = formal.removeFirstChild()
 			var value Node = IR_arraylit([]Node{}).srcref(formal)
 			this.addVariableDeclarationToFunction(fnNode, lhs, value)
@@ -663,11 +685,15 @@ func (this *OptimizeParameters) eliminateParamsAfter(fnNode Node, formal Node) {
 }
 
 func (this *OptimizeParameters) rewriteDestructuringPattern(destructuringPattern Node, value Node, stmts *JTList[Node]) {
-	Preconditions_checkState(destructuringPattern.isDestructuringPattern())
-	Preconditions_checkState_boolean_Object(!destructuringPattern.hasParent(), "Formal parameter must be detached for rewriting")
+	if !destructuringPattern.isDestructuringPattern() {
+		panic(new_IllegalStateException_0().self())
+	}
+	if destructuringPattern.hasParent() {
+		panic(new_IllegalStateException_String(objstr_("Formal parameter must be detached for rewriting")).self())
+	}
 	NodeUtil_visitLhsNodesInDestructuringPattern(destructuringPattern, Consumer[Node](func(name Node) {
 		if !name.isName() {
-			Preconditions_checkState_boolean_String_Object_H(false, "lhs in destructuring declaration should be a simple name. (%s)", name)
+			panic(new_IllegalStateException_String(Strings_lenientFormat("lhs in destructuring declaration should be a simple name. (%s)", []any{name.box_()})).self())
 		}
 		var newName Node = IR_name(name.getString()).srcref(name)
 		var newVar Node = IR_var_Node(newName).srcref(name)
@@ -708,7 +734,9 @@ func new_OptimizeParameters_UnusedParameterOptimizer(outer_ *OptimizeParameters)
 
 func (this *OptimizeParameters_UnusedParameterOptimizer) tryEliminateUnusedArgs(refs ListT[Node]) {
 	var fns *SimpleListMultimap[Node, Node] = OptimizeCalls_ReferenceMap_getFunctionNodes(refs)
-	Preconditions_checkState(!fns.isEmpty())
+	if fns.isEmpty() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var maxFormalsCount int32 = 0
 	var lowestUsedRest int32 = int32(2147483647)
 	var used *BitSet = new_BitSet()
@@ -860,7 +888,9 @@ func (this *OptimizeParameters_UnusedParameterOptimizer) removeUnusedFunctionPar
 	if param != 0 {
 		this.removeUnusedFunctionParameters(unremovable, param.getNext(), (index + 1))
 		if !unremovable.get(index) {
-			Preconditions_checkState(param.isName())
+			if !param.isName() {
+				panic(new_IllegalStateException_0().self())
+			}
 			this.outer_.compiler_.reportChangeToEnclosingScope(param)
 			param.detach()
 		}
@@ -881,7 +911,9 @@ func (this *OptimizeParameters_UnusedParameterOptimizer) applyChanges() {
 	it_3 := this.toReplaceWithZero.each()
 	for it_3.next() {
 		var n Node = it_3.v
-		Preconditions_checkState((!n.isNumber() || (n.getDouble() != 0.0)))
+		if n.isNumber() && n.getDouble() == 0.0 {
+			panic(new_IllegalStateException_0().self())
+		}
 		if OptimizeParameters_alreadyRemoved(n) {
 			continue
 		}

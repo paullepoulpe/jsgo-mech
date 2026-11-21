@@ -125,7 +125,9 @@ func TranspilationPasses_processTranspile(compiler *AbstractCompiler, combinedRo
 	{
 		var singleRoot Node = combinedRoot.getFirstChild()
 		for ; singleRoot != 0; singleRoot = singleRoot.getNext() {
-			Preconditions_checkState(singleRoot.isScript())
+			if !singleRoot.isScript() {
+				panic(new_IllegalStateException_0().self())
+			}
 			if TranspilationPasses_doesScriptHaveAnyOfTheseFeatures(singleRoot, featuresToRunFor) {
 				for _, callback := range callbacks {
 					NodeTraversal_traverse(compiler, singleRoot, callback)
