@@ -3,8 +3,14 @@
 package closure
 
 type ErrorReporter_util struct {
-	self_         any
+	self_         ErrorReporter_util_as
 	hadErrorField bool
+}
+
+// ErrorReporter_util_as is implemented by ErrorReporter_util and the classes that extend it: a cast to ErrorReporter_util asserts to it
+// (post-flip).
+type ErrorReporter_util_as interface {
+	as_ErrorReporter_util() *ErrorReporter_util
 }
 
 func (this *ErrorReporter_util) as_ErrorReporter_util() *ErrorReporter_util { return this }

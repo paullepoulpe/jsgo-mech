@@ -543,7 +543,6 @@ func (this *PolyfillUsageFinder_Traverser) init_PolyfillUsageFinder_Traverser(co
 func new_PolyfillUsageFinder_Traverser(outer_ *PolyfillUsageFinder, compiler *AbstractCompiler, polyfillConsumer Consumer[*PolyfillUsageFinder_PolyfillUsage], includeGuardedUsages PolyfillUsageFinder_Guard) *PolyfillUsageFinder_Traverser {
 	this := &PolyfillUsageFinder_Traverser{}
 	this.self_ = this
-	this.vt_GuardedCallback_ = this
 	this.outer_ = outer_
 	this.init_PolyfillUsageFinder_Traverser(compiler, polyfillConsumer, includeGuardedUsages)
 	return this

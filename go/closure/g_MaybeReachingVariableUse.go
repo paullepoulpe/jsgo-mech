@@ -24,7 +24,6 @@ func (this *MaybeReachingVariableUse) init_MaybeReachingVariableUse(cfg *Control
 func new_MaybeReachingVariableUse(cfg *ControlFlowGraph[Node], escaped map[varKey_]struct{}, allVarsInFn *TMap[string, *Var]) *MaybeReachingVariableUse {
 	this := &MaybeReachingVariableUse{}
 	this.self_ = this
-	this.vt_DataFlowAnalysis_ = this
 	this.init_MaybeReachingVariableUse(cfg, escaped, allVarsInFn)
 	return this
 }
