@@ -716,7 +716,7 @@ type CommandLineRunner_Flags struct {
 	chunkWrapper                       ListOf[string]
 	chunkOutputPathPrefix              string
 	createSourceMap                    string
-	sourceMapFormat                    *SourceMap_Format
+	sourceMapFormat                    SourceMap_Format
 	sourceMapLocationMapping           ListOf[string]
 	sourceMapInputs                    ListOf[string]
 	parseInlineSourceMaps_             any
@@ -1092,9 +1092,9 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}), Consumer[string](func(v string) {
 		this.createSourceMap = v
 	}))
-	CmdLineParser_Option_enumValue[*SourceMap_Format](this.parser.option("--source_map_format").hidden_1(true).usage("The source map format to produce. Options are V3 and DEFAULT, which are equivalent."), SourceMap_Format_values(), Supplier[*SourceMap_Format](func() *SourceMap_Format {
+	CmdLineParser_Option_enumValue[SourceMap_Format](this.parser.option("--source_map_format").hidden_1(true).usage("The source map format to produce. Options are V3 and DEFAULT, which are equivalent."), SourceMap_Format_values(), Supplier[SourceMap_Format](func() SourceMap_Format {
 		return this.sourceMapFormat
-	}), Consumer[*SourceMap_Format](func(v *SourceMap_Format) {
+	}), Consumer[SourceMap_Format](func(v SourceMap_Format) {
 		this.sourceMapFormat = v
 	}))
 	this.parser.option("--source_map_location_mapping").usage("Source map location mapping separated by a '|' (i.e. filesystem-path|webserver-path)").stringList(Supplier[List](func() List {
