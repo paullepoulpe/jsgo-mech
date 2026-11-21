@@ -323,8 +323,8 @@ func NodeUtil_getStringNumberValue(rawJsString string) any {
 			if String_isEmpty(digits) {
 				return float64(nan_)
 			}
-			for i := int32(0); i < String_length(digits); i++ {
-				if !NodeUtil_isValidDigit(String_charAt(digits, i), radix) {
+			for _, u_ := range stringUnits_(digits) {
+				if !NodeUtil_isValidDigit(u_, radix) {
 					return float64(nan_)
 				}
 			}
@@ -347,8 +347,7 @@ func NodeUtil_getStringNumberValue(rawJsString string) any {
 	if s == "-Infinity" {
 		return float64(neginf_)
 	}
-	for i := int32(0); i < String_length(s); i++ {
-		var c uint16 = String_charAt(s, i)
+	for _, c := range stringUnits_(s) {
 		if ((((((48 <= int32(c)) && (int32(c) <= 57)) || (c == '.')) || (c == 'e')) || (c == 'E')) || (c == '+')) || (c == '-') {
 			continue
 		}

@@ -44,8 +44,8 @@ func GatherModuleMetadata_isValidModuleId(id string) bool {
 		if String_isEmpty(segment) {
 			return false
 		}
-		for i := int32(0); i < String_length(segment); i++ {
-			if !Identifiers_isIdentifierPart(String_charAt(segment, i)) {
+		for _, u_ := range stringUnits_(segment) {
+			if !Identifiers_isIdentifierPart(u_) {
 				return false
 			}
 		}
