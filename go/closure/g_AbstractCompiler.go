@@ -560,7 +560,10 @@ func (this AbstractCompiler_ConfigContext) name() string {
 }
 
 func (this AbstractCompiler_ConfigContext) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this AbstractCompiler_ConfigContext) toString() string {
@@ -630,7 +633,10 @@ func (this AbstractCompiler_LifeCycleStage) name() string {
 }
 
 func (this AbstractCompiler_LifeCycleStage) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this AbstractCompiler_LifeCycleStage) toString() string {
