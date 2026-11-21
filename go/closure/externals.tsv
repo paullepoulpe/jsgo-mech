@@ -1,0 +1,1106 @@
+func AccessorSummaryEntryProto_newBuilder	static com.google.javascript.jscomp.AccessorSummaryEntryProto.newBuilder() *AccessorSummaryEntryProto_Builder
+func AccessorSummaryProto_newBuilder	static com.google.javascript.jscomp.AccessorSummaryProto.newBuilder() *AccessorSummaryProto_Builder
+func Arrays_asList	static java.util.Arrays.asList([]any) List
+func Arrays_binarySearch	static java.util.Arrays.binarySearch([]int32, int32) int32
+func Arrays_copyOf	static java.util.Arrays.copyOf([]int32, int32) []int32
+func Arrays_copyOfRange	static java.util.Arrays.copyOfRange([]int8, int32, int32) []int8
+func Arrays_copyOf_ObjectArr_int	static java.util.Arrays.copyOf([]any, int32) []any
+func Arrays_equals	static java.util.Arrays.equals([]int32, []int32) bool
+func Arrays_fill	static java.util.Arrays.fill([]int32, int32)
+func Arrays_fill_intArr_int_int_int	static java.util.Arrays.fill([]int32, int32, int32, int32)
+func Arrays_setAll	static java.util.Arrays.setAll([]any, IntFunction[any])
+func Arrays_sort	static java.util.Arrays.sort([]any)
+func Arrays_sort_ObjectArr_Comparator	static java.util.Arrays.sort([]any, Comparator[any])
+func Arrays_sort_byteArr	static java.util.Arrays.sort([]int8)
+func Arrays_sort_intArr	static java.util.Arrays.sort([]int32)
+func Arrays_sort_longArr	static java.util.Arrays.sort([]int64)
+func Arrays_toString	static java.util.Arrays.toString([]uint16) string
+func Ascii_equalsIgnoreCase	static com.google.common.base.Ascii.equalsIgnoreCase(any, any) bool
+func Ascii_isUpperCase	static com.google.common.base.Ascii.isUpperCase(uint16) bool
+func Ascii_toLowerCase	static com.google.common.base.Ascii.toLowerCase(string) string
+func Ascii_toLowerCase_char	static com.google.common.base.Ascii.toLowerCase(uint16) uint16
+func Ascii_toUpperCase	static com.google.common.base.Ascii.toUpperCase(string) string
+func Ascii_toUpperCase_char	static com.google.common.base.Ascii.toUpperCase(uint16) uint16
+func AstNode_newBuilder	static com.google.javascript.jscomp.serialization.AstNode.newBuilder() *AstNode_Builder
+func AstNode_parseFrom	static com.google.javascript.jscomp.serialization.AstNode.parseFrom(*CodedInputStream, *ExtensionRegistryLite) *AstNode
+func BigInteger_valueOf	static java.math.BigInteger.valueOf(int64) *BigInteger
+func Boolean_booleanValue	receiver-first java.lang.Boolean.booleanValue(any) bool
+func Boolean_valueOf	static java.lang.Boolean.valueOf(bool) any
+func ByteString_copyFrom	static com.google.protobuf.ByteString.copyFrom([]int8) *ByteString
+func ByteString_newOutput	static com.google.protobuf.ByteString.newOutput(int32) *ByteString_Output
+func Byte_toUnsignedInt	static java.lang.Byte.toUnsignedInt(int8) int32
+func CacheBuilder_from	static com.google.common.cache.CacheBuilder.from(string) *CacheBuilder
+func CacheLoader_from	static com.google.common.cache.CacheLoader.from(Function_base[any, any]) *CacheLoader
+func CharMatcher_anyOf	static com.google.common.base.CharMatcher.anyOf(any) *CharMatcher
+func CharMatcher_inRange	static com.google.common.base.CharMatcher.inRange(uint16, uint16) *CharMatcher
+func CharMatcher_is	static com.google.common.base.CharMatcher.is(uint16) *CharMatcher
+func CharMatcher_isNot	static com.google.common.base.CharMatcher.isNot(uint16) *CharMatcher
+func CharMatcher_javaLetterOrDigit	static com.google.common.base.CharMatcher.javaLetterOrDigit() *CharMatcher
+func CharMatcher_whitespace	static com.google.common.base.CharMatcher.whitespace() *CharMatcher
+func CharSequence_charAt	receiver-first java.lang.CharSequence.charAt(any, int32) uint16
+func CharSequence_length	receiver-first java.lang.CharSequence.length(any) int32
+func Character_charValue	receiver-first java.lang.Character.charValue(any) uint16
+func Character_digit	static java.lang.Character.digit(uint16, int32) int32
+func Character_getType	static java.lang.Character.getType(int32) int32
+func Character_getType_char	static java.lang.Character.getType(uint16) int32
+func Character_isDigit	static java.lang.Character.isDigit(uint16) bool
+func Character_isHighSurrogate	static java.lang.Character.isHighSurrogate(uint16) bool
+func Character_isISOControl	static java.lang.Character.isISOControl(uint16) bool
+func Character_isIdentifierIgnorable	static java.lang.Character.isIdentifierIgnorable(uint16) bool
+func Character_isJavaIdentifierPart	static java.lang.Character.isJavaIdentifierPart(uint16) bool
+func Character_isJavaIdentifierStart	static java.lang.Character.isJavaIdentifierStart(uint16) bool
+func Character_isLetter	static java.lang.Character.isLetter(uint16) bool
+func Character_isLetterOrDigit	static java.lang.Character.isLetterOrDigit(uint16) bool
+func Character_isLowSurrogate	static java.lang.Character.isLowSurrogate(uint16) bool
+func Character_isSpaceChar	static java.lang.Character.isSpaceChar(uint16) bool
+func Character_isSupplementaryCodePoint	static java.lang.Character.isSupplementaryCodePoint(int32) bool
+func Character_isSurrogate	static java.lang.Character.isSurrogate(uint16) bool
+func Character_isUpperCase	static java.lang.Character.isUpperCase(uint16) bool
+func Character_isWhitespace	static java.lang.Character.isWhitespace(int32) bool
+func Character_toChars	static java.lang.Character.toChars(int32) []uint16
+func Character_toString	static java.lang.Character.toString(uint16) string
+func Character_toUpperCase	static java.lang.Character.toUpperCase(uint16) uint16
+func Chars_asList	static com.google.common.primitives.Chars.asList([]uint16) List
+func Chars_toArray	static com.google.common.primitives.Chars.toArray(Collection) []uint16
+func ChunkProto_newBuilder	static com.google.javascript.jscomp.ChunkProto.newBuilder() *ChunkProto_Builder
+func CodedInputStream_newInstance	static com.google.protobuf.CodedInputStream.newInstance([]int8) *CodedInputStream
+func CodedOutputStream_computeUInt32SizeNoTag	static com.google.protobuf.CodedOutputStream.computeUInt32SizeNoTag(int32) int32
+func CodedOutputStream_newInstance	static com.google.protobuf.CodedOutputStream.newInstance([]int8) *CodedOutputStream
+func Collections_emptyIterator	static java.util.Collections.emptyIterator() Iterator
+func Collections_emptyList	static java.util.Collections.emptyList() List
+func Collections_fill	static java.util.Collections.fill(List, any)
+func Collections_nCopies	static java.util.Collections.nCopies(int32, any) List
+func Collections_reverse	static java.util.Collections.reverse(List)
+func Collections_shuffle	static java.util.Collections.shuffle(List, *Random)
+func Collections_singletonList	static java.util.Collections.singletonList(any) List
+func Collections_sort	static java.util.Collections.sort(List)
+func Collections_sort_List_Comparator	static java.util.Collections.sort(List, Comparator[any])
+func Collections_unmodifiableList	static java.util.Collections.unmodifiableList(List) List
+func Collections_unmodifiableMap	static java.util.Collections.unmodifiableMap(Map) Map
+func Collections_unmodifiableSortedSet	static java.util.Collections.unmodifiableSortedSet(SortedSet) SortedSet
+func Comparator_comparing	static java.util.Comparator.comparing(Function[T, U]) Comparator[T]
+func Comparator_comparingInt	static java.util.Comparator.comparingInt(ToIntFunction[T]) Comparator[T]
+func Comparator_comparingLong	static java.util.Comparator.comparingLong(ToLongFunction[T]) Comparator[T]
+func Comparator_comparing_Function_Comparator	static java.util.Comparator.comparing(Function[T, U], Comparator[U]) Comparator[T]
+func Comparator_naturalOrder	static java.util.Comparator.naturalOrder() Comparator[T]
+func ComparisonChain_start	static com.google.common.collect.ComparisonChain.start() *ComparisonChain
+func ConformanceConfig_newBuilder	static com.google.javascript.jscomp.ConformanceConfig.newBuilder() *ConformanceConfig_Builder
+func Double_compare	static java.lang.Double.compare(float64, float64) int32
+func Double_doubleToLongBits	static java.lang.Double.doubleToLongBits(float64) int64
+func Double_doubleToRawLongBits	static java.lang.Double.doubleToRawLongBits(float64) int64
+func Double_doubleValue	receiver-first java.lang.Double.doubleValue(any) float64
+func Double_intValue	receiver-first java.lang.Double.intValue(any) int32
+func Double_isFinite	static java.lang.Double.isFinite(float64) bool
+func Double_isInfinite	static java.lang.Double.isInfinite(float64) bool
+func Double_isInfinite_0	receiver-first java.lang.Double.isInfinite(any) bool
+func Double_isNaN	static java.lang.Double.isNaN(float64) bool
+func Double_isNaN_0	receiver-first java.lang.Double.isNaN(any) bool
+func Double_longBitsToDouble	static java.lang.Double.longBitsToDouble(int64) float64
+func Double_longValue	receiver-first java.lang.Double.longValue(any) int64
+func Double_parseDouble	static java.lang.Double.parseDouble(string) float64
+func Double_toString	static java.lang.Double.toString(float64) string
+func Double_valueOf	static java.lang.Double.valueOf(float64) any
+func Doubles_tryParse	static com.google.common.primitives.Doubles.tryParse(string) any
+func EnumSet_allOf	static java.util.EnumSet.allOf(*Class) *EnumSet
+func EnumSet_copyOf	static java.util.EnumSet.copyOf(Collection) *EnumSet
+func EnumSet_noneOf	static java.util.EnumSet.noneOf(*Class) *EnumSet
+func EnumSet_of	static java.util.EnumSet.of(*Enum) *EnumSet
+func EnumSet_of_Enum_EnumArr	static java.util.EnumSet.of(*Enum, []*Enum) *EnumSet
+func Executors_newSingleThreadExecutor	static java.util.concurrent.Executors.newSingleThreadExecutor(ThreadFactory) ExecutorService
+func ExtensionRegistry_getEmptyRegistry	static com.google.protobuf.ExtensionRegistry.getEmptyRegistry() *ExtensionRegistry
+func ExternsSummary_newBuilder	static com.google.javascript.jscomp.serialization.ExternsSummary.newBuilder() *ExternsSummary_Builder
+func FeatureProto_values	static com.google.javascript.jscomp.FeatureProto.values() []*FeatureProto
+func FileProfile_newBuilder	static com.google.javascript.jscomp.instrumentation.reporter.proto.FileProfile.newBuilder() *FileProfile_Builder
+func Functions_identity	static com.google.common.base.Functions.identity() Function_base[E, E]
+func Futures_allAsList	static com.google.common.util.concurrent.Futures.allAsList(Iterable) ListenableFuture
+func Hashing_farmHashFingerprint64	static com.google.common.hash.Hashing.farmHashFingerprint64() HashFunction
+func Hashing_murmur3_128	static com.google.common.hash.Hashing.murmur3_128() HashFunction
+func ImmutableList_builder	static com.google.common.collect.ImmutableList.builder() *ImmutableList_Builder
+func ImmutableList_copyOf	static com.google.common.collect.ImmutableList.copyOf(Collection) *ImmutableList
+func ImmutableList_copyOf_Iterable	static com.google.common.collect.ImmutableList.copyOf(Iterable) *ImmutableList
+func ImmutableList_of	static com.google.common.collect.ImmutableList.of() *ImmutableList
+func ImmutableList_of_Object	static com.google.common.collect.ImmutableList.of(any) *ImmutableList
+func ImmutableList_of_Object_Object	static com.google.common.collect.ImmutableList.of(any, any) *ImmutableList
+func ImmutableList_sortedCopyOf	static com.google.common.collect.ImmutableList.sortedCopyOf(Comparator[any], Iterable) *ImmutableList
+func ImmutableList_sortedCopyOf_Iterable	static com.google.common.collect.ImmutableList.sortedCopyOf(Iterable) *ImmutableList
+func ImmutableMap_builder	static com.google.common.collect.ImmutableMap.builder() *ImmutableMap_Builder
+func ImmutableMap_of	static com.google.common.collect.ImmutableMap.of() *ImmutableMap
+func ImmutableMap_of_Object_Object	static com.google.common.collect.ImmutableMap.of(any, any) *ImmutableMap
+func ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object	static com.google.common.collect.ImmutableMap.of(any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any) *ImmutableMap
+func ImmutableSet_builder	static com.google.common.collect.ImmutableSet.builder() *ImmutableSet_Builder
+func ImmutableSet_copyOf_ObjectArr	static com.google.common.collect.ImmutableSet.copyOf([]any) *ImmutableSet
+func ImmutableSet_of_Object	static com.google.common.collect.ImmutableSet.of(any) *ImmutableSet
+func ImmutableSortedMap_copyOf	static com.google.common.collect.ImmutableSortedMap.copyOf(Map) *ImmutableSortedMap
+func ImmutableSortedMap_naturalOrder	static com.google.common.collect.ImmutableSortedMap.naturalOrder() *ImmutableSortedMap_Builder
+func ImmutableSortedSet_copyOf	static com.google.common.collect.ImmutableSortedSet.copyOf(Collection) *ImmutableSortedSet
+func ImmutableSortedSet_copyOfSorted	static com.google.common.collect.ImmutableSortedSet.copyOfSorted(SortedSet) *ImmutableSortedSet
+func ImmutableSortedSet_copyOf_Comparator_Collection	static com.google.common.collect.ImmutableSortedSet.copyOf(Comparator[any], Collection) *ImmutableSortedSet
+func ImmutableSortedSet_naturalOrder	static com.google.common.collect.ImmutableSortedSet.naturalOrder() *ImmutableSortedSet_Builder
+func ImmutableSortedSet_of	static com.google.common.collect.ImmutableSortedSet.of() *ImmutableSortedSet
+func InstrumentationPointStats_newBuilder	static com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStats.newBuilder() *InstrumentationPointStats_Builder
+func InstrumentationPoint_Type_valueOf	static com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint.Type.valueOf(string) *InstrumentationPoint_Type
+func InstrumentationPoint_newBuilder	static com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint.newBuilder() *InstrumentationPoint_Builder
+func Integer_bitCount	static java.lang.Integer.bitCount(int32) int32
+func Integer_compare	static java.lang.Integer.compare(int32, int32) int32
+func Integer_intValue	receiver-first java.lang.Integer.intValue(any) int32
+func Integer_lowestOneBit	static java.lang.Integer.lowestOneBit(int32) int32
+func Integer_numberOfLeadingZeros	static java.lang.Integer.numberOfLeadingZeros(int32) int32
+func Integer_numberOfTrailingZeros	static java.lang.Integer.numberOfTrailingZeros(int32) int32
+func Integer_parseInt	static java.lang.Integer.parseInt(string, int32) int32
+func Integer_parseInt_CharSequence_int_int_int	static java.lang.Integer.parseInt(any, int32, int32, int32) int32
+func Integer_reverse	static java.lang.Integer.reverse(int32) int32
+func Integer_toHexString	static java.lang.Integer.toHexString(int32) string
+func Integer_toString	static java.lang.Integer.toString(int32) string
+func Integer_toString_int_int	static java.lang.Integer.toString(int32, int32) string
+func Integer_toUnsignedLong	static java.lang.Integer.toUnsignedLong(int32) int64
+func Integer_valueOf	static java.lang.Integer.valueOf(int32) any
+func Interners_newWeakInterner	static com.google.common.collect.Interners.newWeakInterner() Interner
+func Ints_tryParse	static com.google.common.primitives.Ints.tryParse(string) any
+func Io_base64Decode	static com.google.javascript.jscomp.base.Io.base64Decode(string) []int8
+func Io_base64Encode	static com.google.javascript.jscomp.base.Io.base64Encode([]int8) string
+func Io_exists	static com.google.javascript.jscomp.base.Io.exists(string) bool
+func Io_gunzip	static com.google.javascript.jscomp.base.Io.gunzip([]int8) *Outcome_base[[]int8]
+func Io_gzip	static com.google.javascript.jscomp.base.Io.gzip([]int8) []int8
+func Io_inflate	static com.google.javascript.jscomp.base.Io.inflate([]int8) *Outcome_base[[]int8]
+func Io_isDirectory	static com.google.javascript.jscomp.base.Io.isDirectory(string) bool
+func Io_lastModified	static com.google.javascript.jscomp.base.Io.lastModified(string) int64
+func Io_listFiles	static com.google.javascript.jscomp.base.Io.listFiles(string) List
+func Io_mkdirs	static com.google.javascript.jscomp.base.Io.mkdirs(string)
+func Io_openFile	static com.google.javascript.jscomp.base.Io.openFile(string, bool) *Outcome_base[*Io_Sink]
+func Io_readBytes	static com.google.javascript.jscomp.base.Io.readBytes(string) *Outcome_base[[]int8]
+func Io_readResource	static com.google.javascript.jscomp.base.Io.readResource(string) Optional[[]int8]
+func Io_stackTraceText	static com.google.javascript.jscomp.base.Io.stackTraceText(*Throwable) string
+func Io_stderr	static com.google.javascript.jscomp.base.Io.stderr() *Io_Sink
+func Io_stdin	static com.google.javascript.jscomp.base.Io.stdin() *Io_Input
+func Io_stdout	static com.google.javascript.jscomp.base.Io.stdout() *Io_Sink
+func Io_utf8Bytes	static com.google.javascript.jscomp.base.Io.utf8Bytes(string) []int8
+func Io_utf8String	static com.google.javascript.jscomp.base.Io.utf8String([]int8) string
+func Io_utf8StringStrict	static com.google.javascript.jscomp.base.Io.utf8StringStrict([]int8) Optional[string]
+func Io_workingDirectory	static com.google.javascript.jscomp.base.Io.workingDirectory() string
+func Io_writeBytes	static com.google.javascript.jscomp.base.Io.writeBytes(string, []int8) *Outcome_base[any]
+func Iterable_forEach	receiver-first java.lang.Iterable.forEach(Iterable, Consumer[any])
+func Iterables_addAll	static com.google.common.collect.Iterables.addAll(Collection, Iterable) bool
+func Iterables_concat	static com.google.common.collect.Iterables.concat(Iterable, Iterable) Iterable
+func Iterables_concat_Iterable	static com.google.common.collect.Iterables.concat(Iterable) Iterable
+func Iterables_concat_Iterable_Iterable_Iterable	static com.google.common.collect.Iterables.concat(Iterable, Iterable, Iterable) Iterable
+func Iterables_contains	static com.google.common.collect.Iterables.contains(Iterable, any) bool
+func Iterables_filter	static com.google.common.collect.Iterables.filter(Iterable, Predicate_base[any]) Iterable
+func Iterables_get	static com.google.common.collect.Iterables.get(Iterable, int32) any
+func Iterables_getFirst	static com.google.common.collect.Iterables.getFirst(Iterable, any) any
+func Iterables_getLast	static com.google.common.collect.Iterables.getLast(Iterable) any
+func Iterables_getOnlyElement	static com.google.common.collect.Iterables.getOnlyElement(Iterable) any
+func Iterables_indexOf	static com.google.common.collect.Iterables.indexOf(Iterable, Predicate_base[any]) int32
+func Iterables_isEmpty	static com.google.common.collect.Iterables.isEmpty(Iterable) bool
+func Iterables_size	static com.google.common.collect.Iterables.size(Iterable) int32
+func Iterables_skip	static com.google.common.collect.Iterables.skip(Iterable, int32) Iterable
+func Iterables_transform	static com.google.common.collect.Iterables.transform(Iterable, Function_base[any, any]) Iterable
+func Iterables_unmodifiableIterable	static com.google.common.collect.Iterables.unmodifiableIterable(Iterable) Iterable
+func Iterator_remove	receiver-first java.util.Iterator.remove(Iterator)
+func Iterators_filter	static com.google.common.collect.Iterators.filter(Iterator, Predicate_base[any]) *UnmodifiableIterator
+func Iterators_peekingIterator	static com.google.common.collect.Iterators.peekingIterator(Iterator) PeekingIterator
+func JSCompilerStateProto_newBuilder	static com.google.javascript.jscomp.JSCompilerStateProto.newBuilder() *JSCompilerStateProto_Builder
+func JSCompilerStateProto_parseFrom	static com.google.javascript.jscomp.JSCompilerStateProto.parseFrom(*CodedInputStream) *JSCompilerStateProto
+func Joiner_on	static com.google.common.base.Joiner.on(string) *Joiner
+func Joiner_on_char	static com.google.common.base.Joiner.on(uint16) *Joiner
+func Json_parse	static com.google.javascript.jscomp.base.Json.parse(string) *Outcome_base[*SimpleJsonValue]
+func LazyAst_newBuilder	static com.google.javascript.jscomp.serialization.LazyAst.newBuilder() *LazyAst_Builder
+func Level_parse	static java.util.logging.Level.parse(string) *Level
+func List_sort	receiver-first java.util.List.sort(List, Comparator[any])
+func Lists_charactersOf	static com.google.common.collect.Lists.charactersOf(string) *ImmutableList
+func Lists_newArrayList	static com.google.common.collect.Lists.newArrayList(Iterator) *ArrayList
+func Lists_reverse	static com.google.common.collect.Lists.reverse(List) List
+func Lists_transform	static com.google.common.collect.Lists.transform(List, Function_base[any, any]) List
+func Logger_getLogger	static java.util.logging.Logger.getLogger(string) *Logger
+func Long_bitCount	static java.lang.Long.bitCount(int64) int32
+func Long_numberOfTrailingZeros	static java.lang.Long.numberOfTrailingZeros(int64) int32
+func Long_parseLong	static java.lang.Long.parseLong(string, int32) int64
+func Long_toHexString	static java.lang.Long.toHexString(int64) string
+func Long_toString	static java.lang.Long.toString(int64) string
+func Long_toString_long_int	static java.lang.Long.toString(int64, int32) string
+func Longs_tryParse	static com.google.common.primitives.Longs.tryParse(string) any
+func ManagementFactory_getCompilationMXBean	static java.lang.management.ManagementFactory.getCompilationMXBean() CompilationMXBean
+func ManagementFactory_getGarbageCollectorMXBeans	static java.lang.management.ManagementFactory.getGarbageCollectorMXBeans() List
+func ManagementFactory_getMemoryMXBean	static java.lang.management.ManagementFactory.getMemoryMXBean() MemoryMXBean
+func ManagementFactory_getMemoryPoolMXBeans	static java.lang.management.ManagementFactory.getMemoryPoolMXBeans() List
+func Map_Entry_comparingByKey	static java.util.Map.Entry.comparingByKey() Comparator[Map_Entry]
+func Map_compute	receiver-first java.util.Map.compute(Map, any, BiFunction[any, any, any]) any
+func Map_computeIfAbsent	receiver-first java.util.Map.computeIfAbsent(Map, any, Function[any, any]) any
+func Map_forEach	receiver-first java.util.Map.forEach(Map, BiConsumer[any, any])
+func Map_getOrDefault	receiver-first java.util.Map.getOrDefault(Map, any, any) any
+func Map_merge	receiver-first java.util.Map.merge(Map, any, any, BiFunction[any, any, any]) any
+func Map_putIfAbsent	receiver-first java.util.Map.putIfAbsent(Map, any, any) any
+func Map_replace	receiver-first java.util.Map.replace(Map, any, any, any) bool
+func Map_replaceAll	receiver-first java.util.Map.replaceAll(Map, BiFunction[any, any, any])
+func Mapping_OriginalMapping_getDefaultInstance	static com.google.debugging.sourcemap.proto.Mapping.OriginalMapping.getDefaultInstance() *Mapping_OriginalMapping
+func Mapping_OriginalMapping_newBuilder	static com.google.debugging.sourcemap.proto.Mapping.OriginalMapping.newBuilder() *Mapping_OriginalMapping_Builder
+func Maps_immutableEnumMap	static com.google.common.collect.Maps.immutableEnumMap(Map) *ImmutableMap
+func Math_abs	static java.lang.Math.abs(float64) float64
+func Math_abs_int	static java.lang.Math.abs(int32) int32
+func Math_cbrt	static java.lang.Math.cbrt(float64) float64
+func Math_ceil	static java.lang.Math.ceil(float64) float64
+func Math_floor	static java.lang.Math.floor(float64) float64
+func Math_max	static java.lang.Math.max(int32, int32) int32
+func Math_max_double_double	static java.lang.Math.max(float64, float64) float64
+func Math_max_long_long	static java.lang.Math.max(int64, int64) int64
+func Math_min	static java.lang.Math.min(int32, int32) int32
+func Math_min_double_double	static java.lang.Math.min(float64, float64) float64
+func Math_min_long_long	static java.lang.Math.min(int64, int64) int64
+func Math_pow	static java.lang.Math.pow(float64, float64) float64
+func Math_round	static java.lang.Math.round(float64) int64
+func Math_signum	static java.lang.Math.signum(float64) float64
+func Math_toIntExact	static java.lang.Math.toIntExact(int64) int32
+func MessageFormat_format	static java.text.MessageFormat.format(string, []any) string
+func MoreExecutors_listeningDecorator	static com.google.common.util.concurrent.MoreExecutors.listeningDecorator(ExecutorService) ListeningExecutorService
+func MoreObjects_firstNonNull	static com.google.common.base.MoreObjects.firstNonNull(any, any) any
+func MoreObjects_toStringHelper	static com.google.common.base.MoreObjects.toStringHelper(any) *MoreObjects_ToStringHelper
+func MoreObjects_toStringHelper_Class	static com.google.common.base.MoreObjects.toStringHelper(*Class) *MoreObjects_ToStringHelper
+func NodeProperty_forNumber	static com.google.javascript.jscomp.serialization.NodeProperty.forNumber(int32) *NodeProperty
+func NodeProperty_values	static com.google.javascript.jscomp.serialization.NodeProperty.values() []*NodeProperty
+func Number_doubleValue	receiver-first java.lang.Number.doubleValue(any) float64
+func Number_longValue	receiver-first java.lang.Number.longValue(any) int64
+func ObjectTypeProto_newBuilder	static com.google.javascript.jscomp.serialization.ObjectTypeProto.newBuilder() *ObjectTypeProto_Builder
+func Object_clone	receiver-first java.lang.Object.clone(any) any
+func Object_equals	receiver-first java.lang.Object.equals(any, any) bool
+func Object_getClass	receiver-first java.lang.Object.getClass(any) *Class
+func Object_hashCode	receiver-first java.lang.Object.hashCode(any) int32
+func Object_toString	receiver-first java.lang.Object.toString(any) string
+func Objects_equals	static java.util.Objects.equals(any, any) bool
+func Objects_hash	static java.util.Objects.hash([]any) int32
+func Objects_hashCode	static java.util.Objects.hashCode(any) int32
+func Objects_requireNonNull	static java.util.Objects.requireNonNull(any, string) any
+func Objects_requireNonNull_Object	static java.util.Objects.requireNonNull(any) any
+func OptimizationJsdoc_getDefaultInstance	static com.google.javascript.jscomp.serialization.OptimizationJsdoc.getDefaultInstance() *OptimizationJsdoc
+func OptimizationJsdoc_newBuilder	static com.google.javascript.jscomp.serialization.OptimizationJsdoc.newBuilder() *OptimizationJsdoc_Builder
+func Optional_base_absent	static com.google.common.base.Optional.absent() *Optional_base
+func Optional_base_fromNullable	static com.google.common.base.Optional.fromNullable(any) *Optional_base
+func Optional_base_of	static com.google.common.base.Optional.of(any) *Optional_base
+func Optional_empty	static java.util.Optional.empty() Optional[T]
+func Optional_of	static java.util.Optional.of(T) Optional[T]
+func Optional_ofNullable	static java.util.Optional.ofNullable(T) Optional[T]
+func Ordering_natural	static com.google.common.collect.Ordering.natural() *Ordering
+func Pattern_compile	static com.google.re2j.Pattern.compile(string) *Pattern
+func Pattern_compile_String_int	static com.google.re2j.Pattern.compile(string, int32) *Pattern
+func Pattern_matches	static com.google.re2j.Pattern.matches(string, any) bool
+func Pattern_quote	static com.google.re2j.Pattern.quote(string) string
+func Preconditions_checkArgument	static com.google.common.base.Preconditions.checkArgument(bool)
+func Preconditions_checkArgument_boolean_Object	static com.google.common.base.Preconditions.checkArgument(bool, any)
+func Preconditions_checkArgument_boolean_String_Object	static com.google.common.base.Preconditions.checkArgument(bool, string, any)
+func Preconditions_checkArgument_boolean_String_Object_Object	static com.google.common.base.Preconditions.checkArgument(bool, string, any, any)
+func Preconditions_checkArgument_boolean_String_Object_Object_Object	static com.google.common.base.Preconditions.checkArgument(bool, string, any, any, any)
+func Preconditions_checkArgument_boolean_String_int	static com.google.common.base.Preconditions.checkArgument(bool, string, int32)
+func Preconditions_checkArgument_boolean_String_int_int	static com.google.common.base.Preconditions.checkArgument(bool, string, int32, int32)
+func Preconditions_checkNotNull	static com.google.common.base.Preconditions.checkNotNull(any) any
+func Preconditions_checkNotNull_Object_Object	static com.google.common.base.Preconditions.checkNotNull(any, any) any
+func Preconditions_checkNotNull_Object_String_Object	static com.google.common.base.Preconditions.checkNotNull(any, string, any) any
+func Preconditions_checkNotNull_Object_String_Object_Object	static com.google.common.base.Preconditions.checkNotNull(any, string, any, any) any
+func Preconditions_checkState	static com.google.common.base.Preconditions.checkState(bool)
+func Preconditions_checkState_boolean_Object	static com.google.common.base.Preconditions.checkState(bool, any)
+func Preconditions_checkState_boolean_String_Object	static com.google.common.base.Preconditions.checkState(bool, string, any)
+func Preconditions_checkState_boolean_String_ObjectArr	static com.google.common.base.Preconditions.checkState(bool, string, []any)
+func Preconditions_checkState_boolean_String_Object_Object	static com.google.common.base.Preconditions.checkState(bool, string, any, any)
+func Preconditions_checkState_boolean_String_Object_Object_Object	static com.google.common.base.Preconditions.checkState(bool, string, any, any, any)
+func Preconditions_checkState_boolean_String_Object_Object_Object_Object	static com.google.common.base.Preconditions.checkState(bool, string, any, any, any, any)
+func Preconditions_checkState_boolean_String_Object_int	static com.google.common.base.Preconditions.checkState(bool, string, any, int32)
+func Preconditions_checkState_boolean_String_int	static com.google.common.base.Preconditions.checkState(bool, string, int32)
+func Preconditions_checkState_boolean_String_int_Object	static com.google.common.base.Preconditions.checkState(bool, string, int32, any)
+func Preconditions_checkState_boolean_String_int_int	static com.google.common.base.Preconditions.checkState(bool, string, int32, int32)
+func Predicates_alwaysTrue	static com.google.common.base.Predicates.alwaysTrue() Predicate_base[T]
+func Predicates_equalTo	static com.google.common.base.Predicates.equalTo(T) Predicate_base[T]
+func Range_closed	static com.google.common.collect.Range.closed(any, any) *Range
+func ReportProfile_newBuilder	static com.google.javascript.jscomp.instrumentation.reporter.proto.ReportProfile.newBuilder() *ReportProfile_Builder
+func ResourceBundle_getBundle	static java.util.ResourceBundle.getBundle(string) *ResourceBundle
+func Runtime_getRuntime	static java.lang.Runtime.getRuntime() *Runtime
+func SAXParserFactory_newInstance	static javax.xml.parsers.SAXParserFactory.newInstance() *SAXParserFactory
+func SequencedCollection_addLast	receiver-first java.util.SequencedCollection.addLast(SequencedCollection, any)
+func SequencedCollection_getFirst	receiver-first java.util.SequencedCollection.getFirst(SequencedCollection) any
+func SequencedCollection_getLast	receiver-first java.util.SequencedCollection.getLast(SequencedCollection) any
+func SequencedCollection_removeLast	receiver-first java.util.SequencedCollection.removeLast(SequencedCollection) any
+func Sets_difference	static com.google.common.collect.Sets.difference(Set, Set) *Sets_SetView
+func Sets_immutableEnumSet	static com.google.common.collect.Sets.immutableEnumSet(*Enum, []*Enum) *ImmutableSet
+func Sets_intersection	static com.google.common.collect.Sets.intersection(Set, Set) *Sets_SetView
+func Sets_newIdentityHashSet	static com.google.common.collect.Sets.newIdentityHashSet() Set
+func Sets_union	static com.google.common.collect.Sets.union(Set, Set) *Sets_SetView
+func SourceFilePool_newBuilder	static com.google.javascript.jscomp.serialization.SourceFilePool.newBuilder() *SourceFilePool_Builder
+func SourceFileProto_FileOnDisk_newBuilder	static com.google.javascript.jscomp.serialization.SourceFileProto.FileOnDisk.newBuilder() *SourceFileProto_FileOnDisk_Builder
+func SourceFileProto_ZipEntryOnDisk_newBuilder	static com.google.javascript.jscomp.serialization.SourceFileProto.ZipEntryOnDisk.newBuilder() *SourceFileProto_ZipEntryOnDisk_Builder
+func SourceFileProto_newBuilder	static com.google.javascript.jscomp.serialization.SourceFileProto.newBuilder() *SourceFileProto_Builder
+func Splitter_on	static com.google.common.base.Splitter.on(uint16) *Splitter
+func Splitter_on_String	static com.google.common.base.Splitter.on(string) *Splitter
+func StringPoolProto_newBuilder	static com.google.javascript.jscomp.serialization.StringPoolProto.newBuilder() *StringPoolProto_Builder
+func String_charAt	receiver-first java.lang.String.charAt(string, int32) uint16
+func String_codePointAt	receiver-first java.lang.String.codePointAt(string, int32) int32
+func String_codePointCount	receiver-first java.lang.String.codePointCount(string, int32, int32) int32
+func String_compareTo	receiver-first java.lang.String.compareTo(string, string) int32
+func String_concat	receiver-first java.lang.String.concat(string, string) string
+func String_endsWith	receiver-first java.lang.String.endsWith(string, string) bool
+func String_equalsIgnoreCase	receiver-first java.lang.String.equalsIgnoreCase(string, string) bool
+func String_format	static java.lang.String.format(string, []any) string
+func String_hashCode	receiver-first java.lang.String.hashCode(string) int32
+func String_indexOf	receiver-first java.lang.String.indexOf(string, int32) int32
+func String_indexOf_String	receiver-first java.lang.String.indexOf(string, string) int32
+func String_indexOf_String_int	receiver-first java.lang.String.indexOf(string, string, int32) int32
+func String_indexOf_int_int	receiver-first java.lang.String.indexOf(string, int32, int32) int32
+func String_isEmpty	receiver-first java.lang.String.isEmpty(string) bool
+func String_join	static java.lang.String.join(any, Iterable) string
+func String_join_CharSequence_CharSequenceArr	static java.lang.String.join(any, []any) string
+func String_lastIndexOf	receiver-first java.lang.String.lastIndexOf(string, int32) int32
+func String_lastIndexOf_String	receiver-first java.lang.String.lastIndexOf(string, string) int32
+func String_lastIndexOf_String_int	receiver-first java.lang.String.lastIndexOf(string, string, int32) int32
+func String_lastIndexOf_int_int	receiver-first java.lang.String.lastIndexOf(string, int32, int32) int32
+func String_length	receiver-first java.lang.String.length(string) int32
+func String_regionMatches	receiver-first java.lang.String.regionMatches(string, bool, int32, string, int32, int32) bool
+func String_regionMatches_int_String_int_int	receiver-first java.lang.String.regionMatches(string, int32, string, int32, int32) bool
+func String_repeat	receiver-first java.lang.String.repeat(string, int32) string
+func String_replace_char_char	receiver-first java.lang.String.replace(string, uint16, uint16) string
+func String_startsWith	receiver-first java.lang.String.startsWith(string, string) bool
+func String_startsWith_String_int	receiver-first java.lang.String.startsWith(string, string, int32) bool
+func String_substring	receiver-first java.lang.String.substring(string, int32, int32) string
+func String_substring_int	receiver-first java.lang.String.substring(string, int32) string
+func String_toCharArray	receiver-first java.lang.String.toCharArray(string) []uint16
+func String_toLowerCase	receiver-first java.lang.String.toLowerCase(string, *Locale) string
+func String_toString	receiver-first java.lang.String.toString(string) string
+func String_toUpperCase	receiver-first java.lang.String.toUpperCase(string, *Locale) string
+func String_trim	receiver-first java.lang.String.trim(string) string
+func String_valueOf	static java.lang.String.valueOf(int32) string
+func String_valueOf_Object	static java.lang.String.valueOf(any) string
+func String_valueOf_boolean	static java.lang.String.valueOf(bool) string
+func String_valueOf_char	static java.lang.String.valueOf(uint16) string
+func String_valueOf_charArr_int_int	static java.lang.String.valueOf([]uint16, int32, int32) string
+func String_valueOf_double	static java.lang.String.valueOf(float64) string
+func String_valueOf_long	static java.lang.String.valueOf(int64) string
+func Strings_isNullOrEmpty	static com.google.common.base.Strings.isNullOrEmpty(string) bool
+func Strings_lenientFormat	static com.google.common.base.Strings.lenientFormat(string, []any) string
+func Strings_padEnd	static com.google.common.base.Strings.padEnd(string, int32, uint16) string
+func Strings_padStart	static com.google.common.base.Strings.padStart(string, int32, uint16) string
+func SubtypingEdge_newBuilder	static com.google.javascript.jscomp.serialization.SubtypingEdge.newBuilder() *SubtypingEdge_Builder
+func Suppliers_memoize	static com.google.common.base.Suppliers.memoize(Supplier_base[T]) Supplier_base[T]
+func System_arraycopy	static java.lang.System.arraycopy(any, int32, any, int32, int32)
+func System_currentTimeMillis	static java.lang.System.currentTimeMillis() int64
+func System_exit	static java.lang.System.exit(int32)
+func System_identityHashCode	static java.lang.System.identityHashCode(any) int32
+func System_lineSeparator	static java.lang.System.lineSeparator() string
+func TemplateStringValue_newBuilder	static com.google.javascript.jscomp.serialization.TemplateStringValue.newBuilder() *TemplateStringValue_Builder
+func TextFormat_merge	static com.google.protobuf.TextFormat.merge(any, Message_Builder)
+func TextFormat_printer	static com.google.protobuf.TextFormat.printer() *TextFormat_Printer
+func Thread_currentThread	static java.lang.Thread.currentThread() *Thread
+func Thread_interrupted	static java.lang.Thread.interrupted() bool
+func Throwables_throwIfUnchecked	static com.google.common.base.Throwables.throwIfUnchecked(*Throwable)
+func TreeRangeSet_create	static com.google.common.collect.TreeRangeSet.create() *TreeRangeSet
+func TypePool_getDefaultInstance	static com.google.javascript.jscomp.serialization.TypePool.getDefaultInstance() *TypePool
+func TypePool_newBuilder	static com.google.javascript.jscomp.serialization.TypePool.newBuilder() *TypePool_Builder
+func TypeProto_newBuilder	static com.google.javascript.jscomp.serialization.TypeProto.newBuilder() *TypeProto_Builder
+func TypedAst_List_newBuilder	static com.google.javascript.jscomp.serialization.TypedAst.List.newBuilder() *TypedAst_List_Builder
+func TypedAst_newBuilder	static com.google.javascript.jscomp.serialization.TypedAst.newBuilder() *TypedAst_Builder
+func UnionTypeProto_newBuilder	static com.google.javascript.jscomp.serialization.UnionTypeProto.newBuilder() *UnionTypeProto_Builder
+func UniqueIdProto_newBuilder	static com.google.javascript.jscomp.UniqueIdProto.newBuilder() *UniqueIdProto_Builder
+func VariableMapEntryProto_newBuilder	static com.google.javascript.jscomp.VariableMapEntryProto.newBuilder() *VariableMapEntryProto_Builder
+func WireFormat_getTagFieldNumber	static com.google.protobuf.WireFormat.getTagFieldNumber(int32) int32
+func WireFormat_getTagWireType	static com.google.protobuf.WireFormat.getTagWireType(int32) int32
+func new_ArithmeticException_String	constructor java.lang.ArithmeticException.<init>(string) *ArithmeticException
+func new_ArrayDeque	constructor java.util.ArrayDeque.<init>() *ArrayDeque
+func new_ArrayIndexOutOfBoundsException_int	constructor java.lang.ArrayIndexOutOfBoundsException.<init>(int32) *ArrayIndexOutOfBoundsException
+func new_ArrayList_0	constructor java.util.ArrayList.<init>() *ArrayList
+func new_ArrayList_Collection	constructor java.util.ArrayList.<init>(Collection) *ArrayList
+func new_AssertionError_0	constructor java.lang.AssertionError.<init>() *AssertionError
+func new_AssertionError_Object	constructor java.lang.AssertionError.<init>(any) *AssertionError
+func new_AtomicIntegerArray	constructor java.util.concurrent.atomic.AtomicIntegerArray.<init>(int32) *AtomicIntegerArray
+func new_BigInteger	constructor java.math.BigInteger.<init>(string, int32) *BigInteger
+func new_BigInteger_String	constructor java.math.BigInteger.<init>(string) *BigInteger
+func new_BigInteger_byteArr	constructor java.math.BigInteger.<init>([]int8) *BigInteger
+func new_BitSet	constructor java.util.BitSet.<init>() *BitSet
+func new_BitSet_int	constructor java.util.BitSet.<init>(int32) *BitSet
+func new_ByteArrayInputStream	constructor java.io.ByteArrayInputStream.<init>([]int8) *ByteArrayInputStream
+func new_ClassCastException_String	constructor java.lang.ClassCastException.<init>(string) *ClassCastException
+func new_ConcurrentHashMap	constructor java.util.concurrent.ConcurrentHashMap.<init>() *ConcurrentHashMap
+func new_ConcurrentHashMap_int	constructor java.util.concurrent.ConcurrentHashMap.<init>(int32) *ConcurrentHashMap
+func new_CopyOnWriteArrayList	constructor java.util.concurrent.CopyOnWriteArrayList.<init>() *CopyOnWriteArrayList
+func new_EnumMap	constructor java.util.EnumMap.<init>(*Class) *EnumMap
+func new_Error_String	constructor java.lang.Error.<init>(string) *Error
+func new_IOException_String	constructor java.io.IOException.<init>(string) *IOException
+func new_IOException_Throwable	constructor java.io.IOException.<init>(*Throwable) *IOException
+func new_IdentityHashMap	constructor java.util.IdentityHashMap.<init>() *IdentityHashMap
+func new_IllegalArgumentException_0	constructor java.lang.IllegalArgumentException.<init>() *IllegalArgumentException
+func new_IllegalArgumentException_String	constructor java.lang.IllegalArgumentException.<init>(string) *IllegalArgumentException
+func new_IllegalArgumentException_String_Throwable	constructor java.lang.IllegalArgumentException.<init>(string, *Throwable) *IllegalArgumentException
+func new_IllegalStateException_0	constructor java.lang.IllegalStateException.<init>() *IllegalStateException
+func new_IllegalStateException_String	constructor java.lang.IllegalStateException.<init>(string) *IllegalStateException
+func new_IllegalStateException_String_Throwable	constructor java.lang.IllegalStateException.<init>(string, *Throwable) *IllegalStateException
+func new_IllegalStateException_Throwable	constructor java.lang.IllegalStateException.<init>(*Throwable) *IllegalStateException
+func new_ImmutableMap_Builder	constructor com.google.common.collect.ImmutableMap.Builder.<init>() *ImmutableMap_Builder
+func new_ImmutableSortedSet_Builder	constructor com.google.common.collect.ImmutableSortedSet.Builder.<init>(Comparator[any]) *ImmutableSortedSet_Builder
+func new_IndexOutOfBoundsException_0	constructor java.lang.IndexOutOfBoundsException.<init>() *IndexOutOfBoundsException
+func new_IndexOutOfBoundsException_String	constructor java.lang.IndexOutOfBoundsException.<init>(string) *IndexOutOfBoundsException
+func new_InputSource	constructor org.xml.sax.InputSource.<init>(*InputStream) *InputSource
+func new_InputSource_Reader	constructor org.xml.sax.InputSource.<init>(*Reader) *InputSource
+func new_InterruptedException_0	constructor java.lang.InterruptedException.<init>() *InterruptedException
+func new_InvalidProtocolBufferException_String	constructor com.google.protobuf.InvalidProtocolBufferException.<init>(string) *InvalidProtocolBufferException
+func new_LinkedBlockingQueue	constructor java.util.concurrent.LinkedBlockingQueue.<init>() *LinkedBlockingQueue
+func new_LinkedHashMap	constructor java.util.LinkedHashMap.<init>() *LinkedHashMap
+func new_LinkedHashSet_Collection	constructor java.util.LinkedHashSet.<init>(Collection) *LinkedHashSet
+func new_LinkedList	constructor java.util.LinkedList.<init>() *LinkedList
+func new_MemoryUsage	constructor java.lang.management.MemoryUsage.<init>(int64, int64, int64, int64) *MemoryUsage
+func new_NoSuchElementException_0	constructor java.util.NoSuchElementException.<init>() *NoSuchElementException
+func new_NullPointerException_0	constructor java.lang.NullPointerException.<init>() *NullPointerException
+func new_NullPointerException_String	constructor java.lang.NullPointerException.<init>(string) *NullPointerException
+func new_ParseException	constructor java.text.ParseException.<init>(string, int32) *ParseException
+func new_PercentEscaper	constructor com.google.common.net.PercentEscaper.<init>(string, bool) *PercentEscaper
+func new_PriorityQueue	constructor java.util.PriorityQueue.<init>(Comparator[any]) *PriorityQueue
+func new_PriorityQueue_int_Comparator	constructor java.util.PriorityQueue.<init>(int32, Comparator[any]) *PriorityQueue
+func new_RuntimeException_String	constructor java.lang.RuntimeException.<init>(string) *RuntimeException
+func new_RuntimeException_String_Throwable	constructor java.lang.RuntimeException.<init>(string, *Throwable) *RuntimeException
+func new_RuntimeException_Throwable	constructor java.lang.RuntimeException.<init>(*Throwable) *RuntimeException
+func new_String	constructor java.lang.String.<init>([]uint16) string
+func new_StringBuilder	constructor java.lang.StringBuilder.<init>() *StringBuilder
+func new_StringBuilder_String	constructor java.lang.StringBuilder.<init>(string) *StringBuilder
+func new_StringBuilder_int	constructor java.lang.StringBuilder.<init>(int32) *StringBuilder
+func new_StringReader	constructor java.io.StringReader.<init>(string) *StringReader
+func new_StringTokenizer	constructor java.util.StringTokenizer.<init>(string, string) *StringTokenizer
+func new_String_charArr_int_int	constructor java.lang.String.<init>([]uint16, int32, int32) string
+func new_String_intArr_int_int	constructor java.lang.String.<init>([]int32, int32, int32) string
+func new_ThreadLocal	constructor java.lang.ThreadLocal.<init>() *ThreadLocal
+func new_ThreadPoolExecutor_int_int_long_TimeUnit_BlockingQueue_ThreadFactory	constructor java.util.concurrent.ThreadPoolExecutor.<init>(int32, int32, int64, *TimeUnit, BlockingQueue, ThreadFactory) *ThreadPoolExecutor
+func new_Thread_ThreadGroup_Runnable_String_long	constructor java.lang.Thread.<init>(*ThreadGroup, Runnable, string, int64) *Thread
+func new_Throwable_0	constructor java.lang.Throwable.<init>() *Throwable
+func new_Throwable_String	constructor java.lang.Throwable.<init>(string) *Throwable
+func new_TreeMap	constructor java.util.TreeMap.<init>() *TreeMap
+func new_UnsupportedOperationException_0	constructor java.lang.UnsupportedOperationException.<init>() *UnsupportedOperationException
+func new_UnsupportedOperationException_String	constructor java.lang.UnsupportedOperationException.<init>(string) *UnsupportedOperationException
+method AbstractIterator.endOfData	method com.google.common.collect.AbstractIterator.endOfData() any
+method AbstractStringBuilder.setCharAt	method java.lang.AbstractStringBuilder.setCharAt(int32, uint16)
+method AbstractStringBuilder.setLength	method java.lang.AbstractStringBuilder.setLength(int32)
+method AbstractStringBuilder.substring	method java.lang.AbstractStringBuilder.substring(int32, int32) string
+method AbstractStringBuilder.substring_int	method java.lang.AbstractStringBuilder.substring(int32) string
+method AccessorSummaryEntryProtoOrBuilder.getKind	method com.google.javascript.jscomp.AccessorSummaryEntryProtoOrBuilder.getKind() *PropertyAccessKindProto
+method AccessorSummaryEntryProtoOrBuilder.getName	method com.google.javascript.jscomp.AccessorSummaryEntryProtoOrBuilder.getName() string
+method AccessorSummaryEntryProto_Builder.setKind	method com.google.javascript.jscomp.AccessorSummaryEntryProto.Builder.setKind(*PropertyAccessKindProto) *AccessorSummaryEntryProto_Builder
+method AccessorSummaryEntryProto_Builder.setName	method com.google.javascript.jscomp.AccessorSummaryEntryProto.Builder.setName(string) *AccessorSummaryEntryProto_Builder
+method AccessorSummaryProtoOrBuilder.getAccessorsList	method com.google.javascript.jscomp.AccessorSummaryProtoOrBuilder.getAccessorsList() List
+method AccessorSummaryProtoOrBuilder.getAssumeAlwaysGetterAndSetter	method com.google.javascript.jscomp.AccessorSummaryProtoOrBuilder.getAssumeAlwaysGetterAndSetter() bool
+method AccessorSummaryProto_Builder.addAccessors	method com.google.javascript.jscomp.AccessorSummaryProto.Builder.addAccessors(*AccessorSummaryEntryProto) *AccessorSummaryProto_Builder
+method AccessorSummaryProto_Builder.setAssumeAlwaysGetterAndSetter	method com.google.javascript.jscomp.AccessorSummaryProto.Builder.setAssumeAlwaysGetterAndSetter(bool) *AccessorSummaryProto_Builder
+method Appendable.append_CharSequence	method java.lang.Appendable.append(any) Appendable
+method Appendable.append_CharSequence_int_int	method java.lang.Appendable.append(any, int32, int32) Appendable
+method Appendable.append_char	method java.lang.Appendable.append(uint16) Appendable
+method AstNodeOrBuilder.getBooleanProperties	method com.google.javascript.jscomp.serialization.AstNodeOrBuilder.getBooleanProperties() int64
+method AstNodeOrBuilder.getChild	method com.google.javascript.jscomp.serialization.AstNodeOrBuilder.getChild(int32) *AstNode
+method AstNodeOrBuilder.getChildCount	method com.google.javascript.jscomp.serialization.AstNodeOrBuilder.getChildCount() int32
+method AstNodeOrBuilder.getDoubleValue	method com.google.javascript.jscomp.serialization.AstNodeOrBuilder.getDoubleValue() float64
+method AstNodeOrBuilder.getJsdoc	method com.google.javascript.jscomp.serialization.AstNodeOrBuilder.getJsdoc() *OptimizationJsdoc
+method AstNodeOrBuilder.getKind	method com.google.javascript.jscomp.serialization.AstNodeOrBuilder.getKind() *NodeKind
+method AstNodeOrBuilder.getOriginalNamePointer	method com.google.javascript.jscomp.serialization.AstNodeOrBuilder.getOriginalNamePointer() int32
+method AstNodeOrBuilder.getRelativeColumn	method com.google.javascript.jscomp.serialization.AstNodeOrBuilder.getRelativeColumn() int32
+method AstNodeOrBuilder.getRelativeLine	method com.google.javascript.jscomp.serialization.AstNodeOrBuilder.getRelativeLine() int32
+method AstNodeOrBuilder.getSourceFile	method com.google.javascript.jscomp.serialization.AstNodeOrBuilder.getSourceFile() int32
+method AstNodeOrBuilder.getStringValuePointer	method com.google.javascript.jscomp.serialization.AstNodeOrBuilder.getStringValuePointer() int32
+method AstNodeOrBuilder.getTemplateStringValue	method com.google.javascript.jscomp.serialization.AstNodeOrBuilder.getTemplateStringValue() *TemplateStringValue
+method AstNodeOrBuilder.getType	method com.google.javascript.jscomp.serialization.AstNodeOrBuilder.getType() int32
+method AstNodeOrBuilder.hasType	method com.google.javascript.jscomp.serialization.AstNodeOrBuilder.hasType() bool
+method AstNode_Builder.addChild	method com.google.javascript.jscomp.serialization.AstNode.Builder.addChild(*AstNode) *AstNode_Builder
+method AstNode_Builder.setBooleanProperties	method com.google.javascript.jscomp.serialization.AstNode.Builder.setBooleanProperties(int64) *AstNode_Builder
+method AstNode_Builder.setDoubleValue	method com.google.javascript.jscomp.serialization.AstNode.Builder.setDoubleValue(float64) *AstNode_Builder
+method AstNode_Builder.setJsdoc	method com.google.javascript.jscomp.serialization.AstNode.Builder.setJsdoc(*OptimizationJsdoc) *AstNode_Builder
+method AstNode_Builder.setKind	method com.google.javascript.jscomp.serialization.AstNode.Builder.setKind(*NodeKind) *AstNode_Builder
+method AstNode_Builder.setOriginalNamePointer	method com.google.javascript.jscomp.serialization.AstNode.Builder.setOriginalNamePointer(int32) *AstNode_Builder
+method AstNode_Builder.setRelativeColumn	method com.google.javascript.jscomp.serialization.AstNode.Builder.setRelativeColumn(int32) *AstNode_Builder
+method AstNode_Builder.setRelativeLine	method com.google.javascript.jscomp.serialization.AstNode.Builder.setRelativeLine(int32) *AstNode_Builder
+method AstNode_Builder.setSourceFile	method com.google.javascript.jscomp.serialization.AstNode.Builder.setSourceFile(int32) *AstNode_Builder
+method AstNode_Builder.setStringValuePointer	method com.google.javascript.jscomp.serialization.AstNode.Builder.setStringValuePointer(int32) *AstNode_Builder
+method AstNode_Builder.setTemplateStringValue	method com.google.javascript.jscomp.serialization.AstNode.Builder.setTemplateStringValue(*TemplateStringValue) *AstNode_Builder
+method AstNode_Builder.setType	method com.google.javascript.jscomp.serialization.AstNode.Builder.setType(int32) *AstNode_Builder
+method AtomicIntegerArray.get	method java.util.concurrent.atomic.AtomicIntegerArray.get(int32) int32
+method AtomicIntegerArray.updateAndGet	method java.util.concurrent.atomic.AtomicIntegerArray.updateAndGet(int32, IntUnaryOperator) int32
+method Attributes.getValue	method org.xml.sax.Attributes.getValue(string) string
+method BiConsumer.accept	method java.util.function.BiConsumer.accept(K, V)
+method BiFunction.apply	method java.util.function.BiFunction.apply(V, V) V
+method BiPredicate.test	method java.util.function.BiPredicate.test(V, V) bool
+method BigInteger.add	method java.math.BigInteger.add(*BigInteger) *BigInteger
+method BigInteger.and	method java.math.BigInteger.and(*BigInteger) *BigInteger
+method BigInteger.divide	method java.math.BigInteger.divide(*BigInteger) *BigInteger
+method BigInteger.divideAndRemainder	method java.math.BigInteger.divideAndRemainder(*BigInteger) []*BigInteger
+method BigInteger.intValueExact	method java.math.BigInteger.intValueExact() int32
+method BigInteger.multiply	method java.math.BigInteger.multiply(*BigInteger) *BigInteger
+method BigInteger.negate	method java.math.BigInteger.negate() *BigInteger
+method BigInteger.not	method java.math.BigInteger.not() *BigInteger
+method BigInteger.or	method java.math.BigInteger.or(*BigInteger) *BigInteger
+method BigInteger.pow	method java.math.BigInteger.pow(int32) *BigInteger
+method BigInteger.remainder	method java.math.BigInteger.remainder(*BigInteger) *BigInteger
+method BigInteger.shiftLeft	method java.math.BigInteger.shiftLeft(int32) *BigInteger
+method BigInteger.signum	method java.math.BigInteger.signum() int32
+method BigInteger.subtract	method java.math.BigInteger.subtract(*BigInteger) *BigInteger
+method BigInteger.toByteArray	method java.math.BigInteger.toByteArray() []int8
+method BigInteger.toString_int	method java.math.BigInteger.toString(int32) string
+method BigInteger.xor	method java.math.BigInteger.xor(*BigInteger) *BigInteger
+method BitSet.and	method java.util.BitSet.and(*BitSet)
+method BitSet.andNot	method java.util.BitSet.andNot(*BitSet)
+method BitSet.cardinality	method java.util.BitSet.cardinality() int32
+method BitSet.flip	method java.util.BitSet.flip(int32, int32)
+method BitSet.get	method java.util.BitSet.get(int32) bool
+method BitSet.intersects	method java.util.BitSet.intersects(*BitSet) bool
+method BitSet.isEmpty	method java.util.BitSet.isEmpty() bool
+method BitSet.length	method java.util.BitSet.length() int32
+method BitSet.nextSetBit	method java.util.BitSet.nextSetBit(int32) int32
+method BitSet.or	method java.util.BitSet.or(*BitSet)
+method BitSet.previousSetBit	method java.util.BitSet.previousSetBit(int32) int32
+method BitSet.set	method java.util.BitSet.set(int32)
+method BitSet.set_int_boolean	method java.util.BitSet.set(int32, bool)
+method BitSet.set_int_int	method java.util.BitSet.set(int32, int32)
+method BitSet.set_int_int_boolean	method java.util.BitSet.set(int32, int32, bool)
+method BitSet.size	method java.util.BitSet.size() int32
+method BitSet.toByteArray	method java.util.BitSet.toByteArray() []int8
+method BooleanSupplier.getAsBoolean	method java.util.function.BooleanSupplier.getAsBoolean() bool
+method ByteString.byteAt	method com.google.protobuf.ByteString.byteAt(int32) int8
+method ByteString.newCodedInput	method com.google.protobuf.ByteString.newCodedInput() *CodedInputStream
+method ByteString.size	method com.google.protobuf.ByteString.size() int32
+method ByteString_Output.toByteString	method com.google.protobuf.ByteString.Output.toByteString() *ByteString
+method CacheBuilder.build	method com.google.common.cache.CacheBuilder.build(*CacheLoader) LoadingCache
+method Callable.call	method java.util.concurrent.Callable.call() any
+method CaseFormat.to	method com.google.common.base.CaseFormat.to(*CaseFormat, string) string
+method CharMatcher.collapseFrom	method com.google.common.base.CharMatcher.collapseFrom(any, uint16) string
+method CharMatcher.lastIndexIn	method com.google.common.base.CharMatcher.lastIndexIn(any) int32
+method CharMatcher.matchesAllOf	method com.google.common.base.CharMatcher.matchesAllOf(any) bool
+method CharMatcher.or	method com.google.common.base.CharMatcher.or(*CharMatcher) *CharMatcher
+method CharMatcher.trimFrom	method com.google.common.base.CharMatcher.trimFrom(any) string
+method CharSequence.charAt	method java.lang.CharSequence.charAt(int32) uint16
+method CharSequence.length	method java.lang.CharSequence.length() int32
+method ChunkProtoOrBuilder.getDependenciesList	method com.google.javascript.jscomp.ChunkProtoOrBuilder.getDependenciesList() List
+method ChunkProtoOrBuilder.getInputIdsList	method com.google.javascript.jscomp.ChunkProtoOrBuilder.getInputIdsList() List
+method ChunkProtoOrBuilder.getName	method com.google.javascript.jscomp.ChunkProtoOrBuilder.getName() string
+method ChunkProto_Builder.addDependencies	method com.google.javascript.jscomp.ChunkProto.Builder.addDependencies(int32) *ChunkProto_Builder
+method ChunkProto_Builder.addInputIds	method com.google.javascript.jscomp.ChunkProto.Builder.addInputIds(string) *ChunkProto_Builder
+method ChunkProto_Builder.setName	method com.google.javascript.jscomp.ChunkProto.Builder.setName(string) *ChunkProto_Builder
+method Class.getName	method java.lang.Class.getName() string
+method Class.getSimpleName	method java.lang.Class.getSimpleName() string
+method CodedInputStream.getTotalBytesRead	method com.google.protobuf.CodedInputStream.getTotalBytesRead() int32
+method CodedInputStream.isAtEnd	method com.google.protobuf.CodedInputStream.isAtEnd() bool
+method CodedInputStream.popLimit	method com.google.protobuf.CodedInputStream.popLimit(int32)
+method CodedInputStream.pushLimit	method com.google.protobuf.CodedInputStream.pushLimit(int32) int32
+method CodedInputStream.readMessage	method com.google.protobuf.CodedInputStream.readMessage(MessageLite_Builder, *ExtensionRegistryLite)
+method CodedInputStream.readRawVarint32	method com.google.protobuf.CodedInputStream.readRawVarint32() int32
+method CodedInputStream.readTag	method com.google.protobuf.CodedInputStream.readTag() int32
+method CodedInputStream.resetSizeCounter	method com.google.protobuf.CodedInputStream.resetSizeCounter()
+method CodedInputStream.setRecursionLimit	method com.google.protobuf.CodedInputStream.setRecursionLimit(int32) int32
+method CodedOutputStream.flush	method com.google.protobuf.CodedOutputStream.flush()
+method CodedOutputStream.writeRawBytes	method com.google.protobuf.CodedOutputStream.writeRawBytes([]int8)
+method CodedOutputStream.writeUInt32NoTag	method com.google.protobuf.CodedOutputStream.writeUInt32NoTag(int32)
+method Collection.add	method java.util.Collection.add(any) bool
+method Collection.addAll	method java.util.Collection.addAll(Collection) bool
+method Collection.clear	method java.util.Collection.clear()
+method Collection.contains	method java.util.Collection.contains(any) bool
+method Collection.containsAll	method java.util.Collection.containsAll(Collection) bool
+method Collection.isEmpty	method java.util.Collection.isEmpty() bool
+method Collection.removeAll	method java.util.Collection.removeAll(Collection) bool
+method Collection.remove_Object	method java.util.Collection.remove(any) bool
+method Collection.size	method java.util.Collection.size() int32
+method Collection.toArray	method java.util.Collection.toArray([]any) []any
+method Collection.toArray_0	method java.util.Collection.toArray() []any
+method Comparable.compareTo	method java.lang.Comparable.compareTo(any) int32
+method Comparator.compare	method java.util.Comparator.compare(*RenameVars_Assignment, *RenameVars_Assignment) int32
+method Comparator.reversed	method java.util.Comparator.reversed() Comparator[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]]
+method Comparator.thenComparing	method java.util.Comparator.thenComparing(Function[GraphvizGraph_GraphvizEdge, any]) Comparator[GraphvizGraph_GraphvizEdge]
+method Comparator.thenComparingInt	method java.util.Comparator.thenComparingInt(ToIntFunction[Node]) Comparator[Node]
+method Comparator.thenComparingLong	method java.util.Comparator.thenComparingLong(ToLongFunction[Map_EntryT[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics]]) Comparator[Map_EntryT[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics]]
+method Comparator.thenComparing_Comparator	method java.util.Comparator.thenComparing(Comparator[string]) Comparator[string]
+method ComparisonChain.compare	method com.google.common.collect.ComparisonChain.compare(any, any) *ComparisonChain
+method ComparisonChain.compare_int_int	method com.google.common.collect.ComparisonChain.compare(int32, int32) *ComparisonChain
+method ComparisonChain.result	method com.google.common.collect.ComparisonChain.result() int32
+method CompilationMXBean.getName	method java.lang.management.CompilationMXBean.getName() string
+method CompilationMXBean.getTotalCompilationTime	method java.lang.management.CompilationMXBean.getTotalCompilationTime() int64
+method ConformanceConfigOrBuilder.getLibraryLevelNonAllowlistedConformanceViolationsBehavior	method com.google.javascript.jscomp.ConformanceConfigOrBuilder.getLibraryLevelNonAllowlistedConformanceViolationsBehavior() *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior
+method ConformanceConfigOrBuilder.getRequirementList	method com.google.javascript.jscomp.ConformanceConfigOrBuilder.getRequirementList() List
+method ConformanceConfigOrBuilder.hasLibraryLevelNonAllowlistedConformanceViolationsBehavior	method com.google.javascript.jscomp.ConformanceConfigOrBuilder.hasLibraryLevelNonAllowlistedConformanceViolationsBehavior() bool
+method ConformanceConfig_Builder.addRequirement	method com.google.javascript.jscomp.ConformanceConfig.Builder.addRequirement(*Requirement) *ConformanceConfig_Builder
+method Consumer.accept	method java.util.function.Consumer.accept(Node)
+method Deque.descendingIterator	method java.util.Deque.descendingIterator() Iterator
+method Deque.pop	method java.util.Deque.pop() any
+method Deque.push	method java.util.Deque.push(any)
+method Descriptors_GenericDescriptor.getName	method com.google.protobuf.Descriptors.GenericDescriptor.getName() string
+method Enum.name	method java.lang.Enum.name() string
+method Enum.ordinal	method java.lang.Enum.ordinal() int32
+method Enumeration.hasMoreElements	method java.util.Enumeration.hasMoreElements() bool
+method Escaper.asFunction	method com.google.common.escape.Escaper.asFunction() Function_base[string, string]
+method Escaper.escape	method com.google.common.escape.Escaper.escape(string) string
+method ExecutorService.shutdown	method java.util.concurrent.ExecutorService.shutdown()
+method ExecutorService.submit	method java.util.concurrent.ExecutorService.submit(Callable[any]) Future
+method ExternsSummaryOrBuilder.getPropNamePtrList	method com.google.javascript.jscomp.serialization.ExternsSummaryOrBuilder.getPropNamePtrList() List
+method ExternsSummary_Builder.addPropNamePtr	method com.google.javascript.jscomp.serialization.ExternsSummary.Builder.addPropNamePtr(int32) *ExternsSummary_Builder
+method FileProfileOrBuilder.getFileName	method com.google.javascript.jscomp.instrumentation.reporter.proto.FileProfileOrBuilder.getFileName() string
+method FileProfileOrBuilder.getInstrumentationPointsStatsList	method com.google.javascript.jscomp.instrumentation.reporter.proto.FileProfileOrBuilder.getInstrumentationPointsStatsList() List
+method FileProfile_Builder.addAllInstrumentationPointsStats	method com.google.javascript.jscomp.instrumentation.reporter.proto.FileProfile.Builder.addAllInstrumentationPointsStats(Iterable) *FileProfile_Builder
+method FileProfile_Builder.setFileName	method com.google.javascript.jscomp.instrumentation.reporter.proto.FileProfile.Builder.setFileName(string) *FileProfile_Builder
+method Function.apply	method java.util.function.Function.apply(any) any
+method Future.get	method java.util.concurrent.Future.get() any
+method Future.get_long_TimeUnit	method java.util.concurrent.Future.get(int64, *TimeUnit) any
+method GarbageCollectorMXBean.getCollectionCount	method java.lang.management.GarbageCollectorMXBean.getCollectionCount() int64
+method GarbageCollectorMXBean.getCollectionTime	method java.lang.management.GarbageCollectorMXBean.getCollectionTime() int64
+method HashCode.asInt	method com.google.common.hash.HashCode.asInt() int32
+method HashCode.asLong	method com.google.common.hash.HashCode.asLong() int64
+method HashFunction.newHasher	method com.google.common.hash.HashFunction.newHasher() Hasher
+method Hasher.hash	method com.google.common.hash.Hasher.hash() *HashCode
+method ImmutableCollection.asList	method com.google.common.collect.ImmutableCollection.asList() *ImmutableList
+method ImmutableCollection_Builder.add	method com.google.common.collect.ImmutableCollection.Builder.add(any) *ImmutableCollection_Builder
+method ImmutableCollection_Builder.addAll	method com.google.common.collect.ImmutableCollection.Builder.addAll(Iterable) *ImmutableCollection_Builder
+method ImmutableCollection_Builder.add_ObjectArr	method com.google.common.collect.ImmutableCollection.Builder.add([]any) *ImmutableCollection_Builder
+method ImmutableCollection_Builder.build	method com.google.common.collect.ImmutableCollection.Builder.build() *ImmutableCollection
+method ImmutableList.reverse	method com.google.common.collect.ImmutableList.reverse() *ImmutableList
+method ImmutableMap_Builder.buildOrThrow	method com.google.common.collect.ImmutableMap.Builder.buildOrThrow() *ImmutableMap
+method ImmutableMap_Builder.put	method com.google.common.collect.ImmutableMap.Builder.put(any, any) *ImmutableMap_Builder
+method ImmutableMap_Builder.putAll	method com.google.common.collect.ImmutableMap.Builder.putAll(Map) *ImmutableMap_Builder
+method InstrumentationPointOrBuilder.getFileName	method com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointOrBuilder.getFileName() string
+method InstrumentationPointOrBuilder.getFunctionName	method com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointOrBuilder.getFunctionName() string
+method InstrumentationPointOrBuilder.getLineNumber	method com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointOrBuilder.getLineNumber() int32
+method InstrumentationPointOrBuilder.getType	method com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointOrBuilder.getType() *InstrumentationPoint_Type
+method InstrumentationPointStatsOrBuilder.getPoint	method com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStatsOrBuilder.getPoint() *InstrumentationPoint
+method InstrumentationPointStatsOrBuilder.getPointPresence	method com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStatsOrBuilder.getPointPresence() *InstrumentationPointStats_Presence
+method InstrumentationPointStatsOrBuilder.getTimesExecuted	method com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStatsOrBuilder.getTimesExecuted() int64
+method InstrumentationPointStats_Builder.setPoint	method com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStats.Builder.setPoint(*InstrumentationPoint) *InstrumentationPointStats_Builder
+method InstrumentationPointStats_Builder.setPointPresence	method com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStats.Builder.setPointPresence(*InstrumentationPointStats_Presence) *InstrumentationPointStats_Builder
+method InstrumentationPointStats_Builder.setTimesExecuted	method com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStats.Builder.setTimesExecuted(int64) *InstrumentationPointStats_Builder
+method InstrumentationPoint_Builder.setColumnNumber	method com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint.Builder.setColumnNumber(int32) *InstrumentationPoint_Builder
+method InstrumentationPoint_Builder.setFileName	method com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint.Builder.setFileName(string) *InstrumentationPoint_Builder
+method InstrumentationPoint_Builder.setFunctionName	method com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint.Builder.setFunctionName(string) *InstrumentationPoint_Builder
+method InstrumentationPoint_Builder.setLineNumber	method com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint.Builder.setLineNumber(int32) *InstrumentationPoint_Builder
+method InstrumentationPoint_Builder.setType	method com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint.Builder.setType(*InstrumentationPoint_Type) *InstrumentationPoint_Builder
+method Internal_EnumLite.getNumber	method com.google.protobuf.Internal.EnumLite.getNumber() int32
+method Interner.intern	method com.google.common.collect.Interner.intern(any) any
+method Io_Input.readBytes	method com.google.javascript.jscomp.base.Io.Input.readBytes() *Outcome_base[[]int8]
+method Io_Sink.close	method com.google.javascript.jscomp.base.Io.Sink.close() *Outcome_base[any]
+method Io_Sink.write	method com.google.javascript.jscomp.base.Io.Sink.write([]int8)
+method Iterator.hasNext	method java.util.Iterator.hasNext() bool
+method Iterator.next	method java.util.Iterator.next() any
+method JSCompilerStateProtoOrBuilder.getAccessorSummary	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.getAccessorSummary() *AccessorSummaryProto
+method JSCompilerStateProtoOrBuilder.getAllowableFeaturesList	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.getAllowableFeaturesList() List
+method JSCompilerStateProtoOrBuilder.getChunks	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.getChunks(int32) *ChunkProto
+method JSCompilerStateProtoOrBuilder.getChunksList	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.getChunksList() List
+method JSCompilerStateProtoOrBuilder.getCssNamesList	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.getCssNamesList() List
+method JSCompilerStateProtoOrBuilder.getExportedNamesList	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.getExportedNamesList() List
+method JSCompilerStateProtoOrBuilder.getExternsList	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.getExternsList() List
+method JSCompilerStateProtoOrBuilder.getHasCssNames	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.getHasCssNames() bool
+method JSCompilerStateProtoOrBuilder.getHasInstrumentationMapping	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.getHasInstrumentationMapping() bool
+method JSCompilerStateProtoOrBuilder.getHasRegExpGlobalReferences	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.getHasRegExpGlobalReferences() bool
+method JSCompilerStateProtoOrBuilder.getHasStringMap	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.getHasStringMap() bool
+method JSCompilerStateProtoOrBuilder.getIdGeneratorCurrentId	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.getIdGeneratorCurrentId() int32
+method JSCompilerStateProtoOrBuilder.getIdGeneratorMap	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.getIdGeneratorMap() string
+method JSCompilerStateProtoOrBuilder.getInjectedLibrariesList	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.getInjectedLibrariesList() List
+method JSCompilerStateProtoOrBuilder.getInstrumentationMappingList	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.getInstrumentationMappingList() List
+method JSCompilerStateProtoOrBuilder.getLastInjectedLibraryIndexInFirstScript	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.getLastInjectedLibraryIndexInFirstScript() int32
+method JSCompilerStateProtoOrBuilder.getLifeCycleStage	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.getLifeCycleStage() *LifeCycleStageProto
+method JSCompilerStateProtoOrBuilder.getMergedPrecompiledLibraries	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.getMergedPrecompiledLibraries() bool
+method JSCompilerStateProtoOrBuilder.getRunJ2ClPasses	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.getRunJ2ClPasses() bool
+method JSCompilerStateProtoOrBuilder.getStringMapList	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.getStringMapList() List
+method JSCompilerStateProtoOrBuilder.getTranspiledFiles	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.getTranspiledFiles() bool
+method JSCompilerStateProtoOrBuilder.getTypeCheckingHasRun	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.getTypeCheckingHasRun() bool
+method JSCompilerStateProtoOrBuilder.getUniqueIdSupplierList	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.getUniqueIdSupplierList() List
+method JSCompilerStateProtoOrBuilder.getUniqueNameId	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.getUniqueNameId() int32
+method JSCompilerStateProtoOrBuilder.hasAccessorSummary	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.hasAccessorSummary() bool
+method JSCompilerStateProtoOrBuilder.hasIdGeneratorMap	method com.google.javascript.jscomp.JSCompilerStateProtoOrBuilder.hasIdGeneratorMap() bool
+method JSCompilerStateProto_Builder.addAllCssNames	method com.google.javascript.jscomp.JSCompilerStateProto.Builder.addAllCssNames(Iterable) *JSCompilerStateProto_Builder
+method JSCompilerStateProto_Builder.addAllExportedNames	method com.google.javascript.jscomp.JSCompilerStateProto.Builder.addAllExportedNames(Iterable) *JSCompilerStateProto_Builder
+method JSCompilerStateProto_Builder.addAllInjectedLibraries	method com.google.javascript.jscomp.JSCompilerStateProto.Builder.addAllInjectedLibraries(Iterable) *JSCompilerStateProto_Builder
+method JSCompilerStateProto_Builder.addAllInstrumentationMapping	method com.google.javascript.jscomp.JSCompilerStateProto.Builder.addAllInstrumentationMapping(Iterable) *JSCompilerStateProto_Builder
+method JSCompilerStateProto_Builder.addAllStringMap	method com.google.javascript.jscomp.JSCompilerStateProto.Builder.addAllStringMap(Iterable) *JSCompilerStateProto_Builder
+method JSCompilerStateProto_Builder.addAllUniqueIdSupplier	method com.google.javascript.jscomp.JSCompilerStateProto.Builder.addAllUniqueIdSupplier(Iterable) *JSCompilerStateProto_Builder
+method JSCompilerStateProto_Builder.addAllowableFeatures	method com.google.javascript.jscomp.JSCompilerStateProto.Builder.addAllowableFeatures(*FeatureProto) *JSCompilerStateProto_Builder
+method JSCompilerStateProto_Builder.addChunks	method com.google.javascript.jscomp.JSCompilerStateProto.Builder.addChunks(*ChunkProto) *JSCompilerStateProto_Builder
+method JSCompilerStateProto_Builder.addExterns	method com.google.javascript.jscomp.JSCompilerStateProto.Builder.addExterns(string) *JSCompilerStateProto_Builder
+method JSCompilerStateProto_Builder.setAccessorSummary	method com.google.javascript.jscomp.JSCompilerStateProto.Builder.setAccessorSummary(*AccessorSummaryProto) *JSCompilerStateProto_Builder
+method JSCompilerStateProto_Builder.setHasCssNames	method com.google.javascript.jscomp.JSCompilerStateProto.Builder.setHasCssNames(bool) *JSCompilerStateProto_Builder
+method JSCompilerStateProto_Builder.setHasInstrumentationMapping	method com.google.javascript.jscomp.JSCompilerStateProto.Builder.setHasInstrumentationMapping(bool) *JSCompilerStateProto_Builder
+method JSCompilerStateProto_Builder.setHasRegExpGlobalReferences	method com.google.javascript.jscomp.JSCompilerStateProto.Builder.setHasRegExpGlobalReferences(bool) *JSCompilerStateProto_Builder
+method JSCompilerStateProto_Builder.setHasStringMap	method com.google.javascript.jscomp.JSCompilerStateProto.Builder.setHasStringMap(bool) *JSCompilerStateProto_Builder
+method JSCompilerStateProto_Builder.setIdGeneratorCurrentId	method com.google.javascript.jscomp.JSCompilerStateProto.Builder.setIdGeneratorCurrentId(int32) *JSCompilerStateProto_Builder
+method JSCompilerStateProto_Builder.setIdGeneratorMap	method com.google.javascript.jscomp.JSCompilerStateProto.Builder.setIdGeneratorMap(string) *JSCompilerStateProto_Builder
+method JSCompilerStateProto_Builder.setLastInjectedLibraryIndexInFirstScript	method com.google.javascript.jscomp.JSCompilerStateProto.Builder.setLastInjectedLibraryIndexInFirstScript(int32) *JSCompilerStateProto_Builder
+method JSCompilerStateProto_Builder.setLifeCycleStage	method com.google.javascript.jscomp.JSCompilerStateProto.Builder.setLifeCycleStage(*LifeCycleStageProto) *JSCompilerStateProto_Builder
+method JSCompilerStateProto_Builder.setMergedPrecompiledLibraries	method com.google.javascript.jscomp.JSCompilerStateProto.Builder.setMergedPrecompiledLibraries(bool) *JSCompilerStateProto_Builder
+method JSCompilerStateProto_Builder.setRunJ2ClPasses	method com.google.javascript.jscomp.JSCompilerStateProto.Builder.setRunJ2ClPasses(bool) *JSCompilerStateProto_Builder
+method JSCompilerStateProto_Builder.setTranspiledFiles	method com.google.javascript.jscomp.JSCompilerStateProto.Builder.setTranspiledFiles(bool) *JSCompilerStateProto_Builder
+method JSCompilerStateProto_Builder.setTypeCheckingHasRun	method com.google.javascript.jscomp.JSCompilerStateProto.Builder.setTypeCheckingHasRun(bool) *JSCompilerStateProto_Builder
+method JSCompilerStateProto_Builder.setUniqueNameId	method com.google.javascript.jscomp.JSCompilerStateProto.Builder.setUniqueNameId(int32) *JSCompilerStateProto_Builder
+method Joiner.appendTo	method com.google.common.base.Joiner.appendTo(*StringBuilder, Iterable) *StringBuilder
+method Joiner.join	method com.google.common.base.Joiner.join(Iterable) string
+method Joiner.join_ObjectArr	method com.google.common.base.Joiner.join([]any) string
+method Joiner.join_Object_Object_ObjectArr	method com.google.common.base.Joiner.join(any, any, []any) string
+method LazyAstOrBuilder.getScript	method com.google.javascript.jscomp.serialization.LazyAstOrBuilder.getScript() *ByteString
+method LazyAstOrBuilder.getSourceFile	method com.google.javascript.jscomp.serialization.LazyAstOrBuilder.getSourceFile() int32
+method LazyAstOrBuilder.getSourceMappingUrl	method com.google.javascript.jscomp.serialization.LazyAstOrBuilder.getSourceMappingUrl() string
+method LazyAst_Builder.setScript	method com.google.javascript.jscomp.serialization.LazyAst.Builder.setScript(*ByteString) *LazyAst_Builder
+method LazyAst_Builder.setSourceFile	method com.google.javascript.jscomp.serialization.LazyAst.Builder.setSourceFile(int32) *LazyAst_Builder
+method LazyAst_Builder.setSourceMappingUrl	method com.google.javascript.jscomp.serialization.LazyAst.Builder.setSourceMappingUrl(string) *LazyAst_Builder
+method Level.getName	method java.util.logging.Level.getName() string
+method List.add_int_Object	method java.util.List.add(int32, any)
+method List.get	method java.util.List.get(int32) any
+method List.indexOf	method java.util.List.indexOf(any) int32
+method List.lastIndexOf	method java.util.List.lastIndexOf(any) int32
+method List.listIterator	method java.util.List.listIterator(int32) ListIterator
+method List.set	method java.util.List.set(int32, any) any
+method List.subList	method java.util.List.subList(int32, int32) List
+method LoadingCache.getUnchecked	method com.google.common.cache.LoadingCache.getUnchecked(any) any
+method Logger.fine	method java.util.logging.Logger.fine(string)
+method Logger.finest	method java.util.logging.Logger.finest(string)
+method Logger.info	method java.util.logging.Logger.info(string)
+method Logger.isLoggable	method java.util.logging.Logger.isLoggable(*Level) bool
+method Logger.log	method java.util.logging.Logger.log(*Level, string, *Throwable)
+method Logger.log_Level_String	method java.util.logging.Logger.log(*Level, string)
+method Logger.log_Level_String_Object	method java.util.logging.Logger.log(*Level, string, any)
+method Logger.setLevel	method java.util.logging.Logger.setLevel(*Level)
+method Logger.severe	method java.util.logging.Logger.severe(string)
+method Logger.warning	method java.util.logging.Logger.warning(string)
+method Map.clear	method java.util.Map.clear()
+method Map.containsKey	method java.util.Map.containsKey(any) bool
+method Map.containsValue	method java.util.Map.containsValue(any) bool
+method Map.entrySet	method java.util.Map.entrySet() Set
+method Map.get	method java.util.Map.get(any) any
+method Map.isEmpty	method java.util.Map.isEmpty() bool
+method Map.keySet	method java.util.Map.keySet() Set
+method Map.put	method java.util.Map.put(any, any) any
+method Map.putAll	method java.util.Map.putAll(Map)
+method Map.remove	method java.util.Map.remove(any) any
+method Map.size	method java.util.Map.size() int32
+method Map.values	method java.util.Map.values() Collection
+method Map_Entry.getKey	method java.util.Map.Entry.getKey() any
+method Map_Entry.getValue	method java.util.Map.Entry.getValue() any
+method Map_Entry.setValue	method java.util.Map.Entry.setValue(any) any
+method Mapping_OriginalMappingOrBuilder.getColumnPosition	method com.google.debugging.sourcemap.proto.Mapping.OriginalMappingOrBuilder.getColumnPosition() int32
+method Mapping_OriginalMappingOrBuilder.getIdentifier	method com.google.debugging.sourcemap.proto.Mapping.OriginalMappingOrBuilder.getIdentifier() string
+method Mapping_OriginalMappingOrBuilder.getLineNumber	method com.google.debugging.sourcemap.proto.Mapping.OriginalMappingOrBuilder.getLineNumber() int32
+method Mapping_OriginalMappingOrBuilder.getOriginalFile	method com.google.debugging.sourcemap.proto.Mapping.OriginalMappingOrBuilder.getOriginalFile() string
+method Mapping_OriginalMappingOrBuilder.hasIdentifier	method com.google.debugging.sourcemap.proto.Mapping.OriginalMappingOrBuilder.hasIdentifier() bool
+method Mapping_OriginalMapping_Builder.setColumnPosition	method com.google.debugging.sourcemap.proto.Mapping.OriginalMapping.Builder.setColumnPosition(int32) *Mapping_OriginalMapping_Builder
+method Mapping_OriginalMapping_Builder.setIdentifier	method com.google.debugging.sourcemap.proto.Mapping.OriginalMapping.Builder.setIdentifier(string) *Mapping_OriginalMapping_Builder
+method Mapping_OriginalMapping_Builder.setLineNumber	method com.google.debugging.sourcemap.proto.Mapping.OriginalMapping.Builder.setLineNumber(int32) *Mapping_OriginalMapping_Builder
+method Mapping_OriginalMapping_Builder.setOriginalFile	method com.google.debugging.sourcemap.proto.Mapping.OriginalMapping.Builder.setOriginalFile(string) *Mapping_OriginalMapping_Builder
+method Mapping_OriginalMapping_Builder.setPrecision	method com.google.debugging.sourcemap.proto.Mapping.OriginalMapping.Builder.setPrecision(*Mapping_OriginalMapping_Precision) *Mapping_OriginalMapping_Builder
+method Matcher_re2j.end	method com.google.re2j.Matcher.end() int32
+method Matcher_re2j.find	method com.google.re2j.Matcher.find() bool
+method Matcher_re2j.group	method com.google.re2j.Matcher.group(int32) string
+method Matcher_re2j.group_String	method com.google.re2j.Matcher.group(string) string
+method Matcher_re2j.lookingAt	method com.google.re2j.Matcher.lookingAt() bool
+method Matcher_re2j.matches	method com.google.re2j.Matcher.matches() bool
+method Matcher_re2j.replaceAll	method com.google.re2j.Matcher.replaceAll(string) string
+method Matcher_re2j.replaceFirst	method com.google.re2j.Matcher.replaceFirst(string) string
+method Matcher_re2j.reset	method com.google.re2j.Matcher.reset(any) *Matcher_re2j
+method Matcher_re2j.start	method com.google.re2j.Matcher.start() int32
+method MemoryMXBean.getHeapMemoryUsage	method java.lang.management.MemoryMXBean.getHeapMemoryUsage() *MemoryUsage
+method MemoryMXBean.getNonHeapMemoryUsage	method java.lang.management.MemoryMXBean.getNonHeapMemoryUsage() *MemoryUsage
+method MemoryManagerMXBean.getName	method java.lang.management.MemoryManagerMXBean.getName() string
+method MemoryPoolMXBean.getName	method java.lang.management.MemoryPoolMXBean.getName() string
+method MemoryPoolMXBean.getPeakUsage	method java.lang.management.MemoryPoolMXBean.getPeakUsage() *MemoryUsage
+method MemoryPoolMXBean.getUsage	method java.lang.management.MemoryPoolMXBean.getUsage() *MemoryUsage
+method MemoryUsage.getMax	method java.lang.management.MemoryUsage.getMax() int64
+method MemoryUsage.getUsed	method java.lang.management.MemoryUsage.getUsed() int64
+method MessageLite.getSerializedSize	method com.google.protobuf.MessageLite.getSerializedSize() int32
+method MessageLite.toBuilder	method com.google.protobuf.MessageLite.toBuilder() MessageLite_Builder
+method MessageLite.toByteArray	method com.google.protobuf.MessageLite.toByteArray() []int8
+method MessageLite.toByteString	method com.google.protobuf.MessageLite.toByteString() *ByteString
+method MessageLite.writeTo	method com.google.protobuf.MessageLite.writeTo(*CodedOutputStream)
+method MessageLite_Builder.build	method com.google.protobuf.MessageLite.Builder.build() MessageLite
+method MessageLite_Builder.clear	method com.google.protobuf.MessageLite.Builder.clear() MessageLite_Builder
+method MessageOrBuilder.getAllFields	method com.google.protobuf.MessageOrBuilder.getAllFields() Map
+method MoreObjects_ToStringHelper.add	method com.google.common.base.MoreObjects.ToStringHelper.add(string, any) *MoreObjects_ToStringHelper
+method MoreObjects_ToStringHelper.add_String_boolean	method com.google.common.base.MoreObjects.ToStringHelper.add(string, bool) *MoreObjects_ToStringHelper
+method MoreObjects_ToStringHelper.add_String_int	method com.google.common.base.MoreObjects.ToStringHelper.add(string, int32) *MoreObjects_ToStringHelper
+method MoreObjects_ToStringHelper.omitNullValues	method com.google.common.base.MoreObjects.ToStringHelper.omitNullValues() *MoreObjects_ToStringHelper
+method NavigableSet.descendingSet	method java.util.NavigableSet.descendingSet() NavigableSet
+method NavigableSet.tailSet	method java.util.NavigableSet.tailSet(any, bool) NavigableSet
+method Number.doubleValue	method java.lang.Number.doubleValue() float64
+method Number.intValue	method java.lang.Number.intValue() int32
+method ObjectInputStream.defaultReadObject	method java.io.ObjectInputStream.defaultReadObject()
+method ObjectTypeProtoOrBuilder.getClosureAssert	method com.google.javascript.jscomp.serialization.ObjectTypeProtoOrBuilder.getClosureAssert() bool
+method ObjectTypeProtoOrBuilder.getInstanceTypeList	method com.google.javascript.jscomp.serialization.ObjectTypeProtoOrBuilder.getInstanceTypeList() List
+method ObjectTypeProtoOrBuilder.getIsInvalidating	method com.google.javascript.jscomp.serialization.ObjectTypeProtoOrBuilder.getIsInvalidating() bool
+method ObjectTypeProtoOrBuilder.getMarkedConstructor	method com.google.javascript.jscomp.serialization.ObjectTypeProtoOrBuilder.getMarkedConstructor() bool
+method ObjectTypeProtoOrBuilder.getOwnProperty	method com.google.javascript.jscomp.serialization.ObjectTypeProtoOrBuilder.getOwnProperty(int32) int32
+method ObjectTypeProtoOrBuilder.getOwnPropertyCount	method com.google.javascript.jscomp.serialization.ObjectTypeProtoOrBuilder.getOwnPropertyCount() int32
+method ObjectTypeProtoOrBuilder.getPropertiesKeepOriginalName	method com.google.javascript.jscomp.serialization.ObjectTypeProtoOrBuilder.getPropertiesKeepOriginalName() bool
+method ObjectTypeProtoOrBuilder.getPrototypeList	method com.google.javascript.jscomp.serialization.ObjectTypeProtoOrBuilder.getPrototypeList() List
+method ObjectTypeProtoOrBuilder.getUuid	method com.google.javascript.jscomp.serialization.ObjectTypeProtoOrBuilder.getUuid() *ByteString
+method ObjectTypeProto_Builder.addAllInstanceType	method com.google.javascript.jscomp.serialization.ObjectTypeProto.Builder.addAllInstanceType(Iterable) *ObjectTypeProto_Builder
+method ObjectTypeProto_Builder.addAllOwnProperty	method com.google.javascript.jscomp.serialization.ObjectTypeProto.Builder.addAllOwnProperty(Iterable) *ObjectTypeProto_Builder
+method ObjectTypeProto_Builder.addAllPrototype	method com.google.javascript.jscomp.serialization.ObjectTypeProto.Builder.addAllPrototype(Iterable) *ObjectTypeProto_Builder
+method ObjectTypeProto_Builder.setClosureAssert	method com.google.javascript.jscomp.serialization.ObjectTypeProto.Builder.setClosureAssert(bool) *ObjectTypeProto_Builder
+method ObjectTypeProto_Builder.setIsInvalidating	method com.google.javascript.jscomp.serialization.ObjectTypeProto.Builder.setIsInvalidating(bool) *ObjectTypeProto_Builder
+method ObjectTypeProto_Builder.setMarkedConstructor	method com.google.javascript.jscomp.serialization.ObjectTypeProto.Builder.setMarkedConstructor(bool) *ObjectTypeProto_Builder
+method ObjectTypeProto_Builder.setPropertiesKeepOriginalName	method com.google.javascript.jscomp.serialization.ObjectTypeProto.Builder.setPropertiesKeepOriginalName(bool) *ObjectTypeProto_Builder
+method ObjectTypeProto_Builder.setUuid	method com.google.javascript.jscomp.serialization.ObjectTypeProto.Builder.setUuid(*ByteString) *ObjectTypeProto_Builder
+method OptimizationJsdocOrBuilder.getAlternateMessageIdPointer	method com.google.javascript.jscomp.serialization.OptimizationJsdocOrBuilder.getAlternateMessageIdPointer() int32
+method OptimizationJsdocOrBuilder.getClosureUnawareModePointer	method com.google.javascript.jscomp.serialization.OptimizationJsdocOrBuilder.getClosureUnawareModePointer() int32
+method OptimizationJsdocOrBuilder.getDescriptionPointer	method com.google.javascript.jscomp.serialization.OptimizationJsdocOrBuilder.getDescriptionPointer() int32
+method OptimizationJsdocOrBuilder.getKindCount	method com.google.javascript.jscomp.serialization.OptimizationJsdocOrBuilder.getKindCount() int32
+method OptimizationJsdocOrBuilder.getKindList	method com.google.javascript.jscomp.serialization.OptimizationJsdocOrBuilder.getKindList() List
+method OptimizationJsdocOrBuilder.getLicenseTextPointer	method com.google.javascript.jscomp.serialization.OptimizationJsdocOrBuilder.getLicenseTextPointer() int32
+method OptimizationJsdocOrBuilder.getMeaningPointer	method com.google.javascript.jscomp.serialization.OptimizationJsdocOrBuilder.getMeaningPointer() int32
+method OptimizationJsdoc_Builder.addKind	method com.google.javascript.jscomp.serialization.OptimizationJsdoc.Builder.addKind(*JsdocTag) *OptimizationJsdoc_Builder
+method OptimizationJsdoc_Builder.setAlternateMessageIdPointer	method com.google.javascript.jscomp.serialization.OptimizationJsdoc.Builder.setAlternateMessageIdPointer(int32) *OptimizationJsdoc_Builder
+method OptimizationJsdoc_Builder.setClosureUnawareModePointer	method com.google.javascript.jscomp.serialization.OptimizationJsdoc.Builder.setClosureUnawareModePointer(int32) *OptimizationJsdoc_Builder
+method OptimizationJsdoc_Builder.setDescriptionPointer	method com.google.javascript.jscomp.serialization.OptimizationJsdoc.Builder.setDescriptionPointer(int32) *OptimizationJsdoc_Builder
+method OptimizationJsdoc_Builder.setLicenseTextPointer	method com.google.javascript.jscomp.serialization.OptimizationJsdoc.Builder.setLicenseTextPointer(int32) *OptimizationJsdoc_Builder
+method OptimizationJsdoc_Builder.setMeaningPointer	method com.google.javascript.jscomp.serialization.OptimizationJsdoc.Builder.setMeaningPointer(int32) *OptimizationJsdoc_Builder
+method Optional.filter	method java.util.Optional.filter(Predicate[string]) Optional[string]
+method Optional.get	method java.util.Optional.get() string
+method Optional.ifPresent	method java.util.Optional.ifPresent(Consumer[*ImmutableSet_Builder])
+method Optional.isEmpty	method java.util.Optional.isEmpty() bool
+method Optional.isPresent	method java.util.Optional.isPresent() bool
+method Optional.orElse	method java.util.Optional.orElse(string) string
+method Optional.orElseThrow	method java.util.Optional.orElseThrow() string
+method Optional_base.get	method com.google.common.base.Optional.get() any
+method Optional_base.isPresent	method com.google.common.base.Optional.isPresent() bool
+method Optional_base.or	method com.google.common.base.Optional.or(any) any
+method Optional_base.orNull	method com.google.common.base.Optional.orNull() any
+method Optional_base.or_Optional	method com.google.common.base.Optional.or(*Optional_base) *Optional_base
+method Optional_base.transform	method com.google.common.base.Optional.transform(Function_base[any, any]) *Optional_base
+method Ordering.nullsFirst	method com.google.common.collect.Ordering.nullsFirst() *Ordering
+method Ordering.reverse	method com.google.common.collect.Ordering.reverse() *Ordering
+method Ordering.sortedCopy	method com.google.common.collect.Ordering.sortedCopy(Iterable) List
+method OutputStream.write	method java.io.OutputStream.write(int32)
+method Pattern.matcher	method com.google.re2j.Pattern.matcher(any) *Matcher_re2j
+method Pattern.pattern	method com.google.re2j.Pattern.pattern() string
+method Pattern.split	method com.google.re2j.Pattern.split(string) []string
+method Pattern.split_String_int	method com.google.re2j.Pattern.split(string, int32) []string
+method PeekingIterator.peek	method com.google.common.collect.PeekingIterator.peek() any
+method Predicate.test	method java.util.function.Predicate.test(*CmdLineParser_Option) bool
+method Predicate_base.apply	method com.google.common.base.Predicate.apply(Node) bool
+method PrimitiveSink.putBytes	method com.google.common.hash.PrimitiveSink.putBytes([]int8) PrimitiveSink
+method PrimitiveSink.putInt	method com.google.common.hash.PrimitiveSink.putInt(int32) PrimitiveSink
+method PrimitiveSink.putLong	method com.google.common.hash.PrimitiveSink.putLong(int64) PrimitiveSink
+method PrimitiveSink.putUnencodedChars	method com.google.common.hash.PrimitiveSink.putUnencodedChars(any) PrimitiveSink
+method Queue.peek	method java.util.Queue.peek() any
+method Queue.poll	method java.util.Queue.poll() any
+method Queue.remove_0	method java.util.Queue.remove() any
+method RangeSet.add	method com.google.common.collect.RangeSet.add(*Range)
+method RangeSet.contains	method com.google.common.collect.RangeSet.contains(any) bool
+method RangeSet.isEmpty	method com.google.common.collect.RangeSet.isEmpty() bool
+method ReportProfileOrBuilder.getFileProfileList	method com.google.javascript.jscomp.instrumentation.reporter.proto.ReportProfileOrBuilder.getFileProfileList() List
+method ReportProfile_Builder.addAllFileProfile	method com.google.javascript.jscomp.instrumentation.reporter.proto.ReportProfile.Builder.addAllFileProfile(Iterable) *ReportProfile_Builder
+method RequirementOrBuilder.getAllowExtendingValue	method com.google.javascript.jscomp.RequirementOrBuilder.getAllowExtendingValue() bool
+method RequirementOrBuilder.getAllowlistCount	method com.google.javascript.jscomp.RequirementOrBuilder.getAllowlistCount() int32
+method RequirementOrBuilder.getAllowlistEntryList	method com.google.javascript.jscomp.RequirementOrBuilder.getAllowlistEntryList() List
+method RequirementOrBuilder.getAllowlistList	method com.google.javascript.jscomp.RequirementOrBuilder.getAllowlistList() List
+method RequirementOrBuilder.getAllowlistRegexpCount	method com.google.javascript.jscomp.RequirementOrBuilder.getAllowlistRegexpCount() int32
+method RequirementOrBuilder.getAllowlistRegexpList	method com.google.javascript.jscomp.RequirementOrBuilder.getAllowlistRegexpList() List
+method RequirementOrBuilder.getConfigFileCount	method com.google.javascript.jscomp.RequirementOrBuilder.getConfigFileCount() int32
+method RequirementOrBuilder.getConfigFileList	method com.google.javascript.jscomp.RequirementOrBuilder.getConfigFileList() List
+method RequirementOrBuilder.getErrorMessage	method com.google.javascript.jscomp.RequirementOrBuilder.getErrorMessage() string
+method RequirementOrBuilder.getExtends	method com.google.javascript.jscomp.RequirementOrBuilder.getExtends() string
+method RequirementOrBuilder.getJavaClass	method com.google.javascript.jscomp.RequirementOrBuilder.getJavaClass() string
+method RequirementOrBuilder.getOnlyApplyToCount	method com.google.javascript.jscomp.RequirementOrBuilder.getOnlyApplyToCount() int32
+method RequirementOrBuilder.getOnlyApplyToList	method com.google.javascript.jscomp.RequirementOrBuilder.getOnlyApplyToList() List
+method RequirementOrBuilder.getOnlyApplyToRegexpCount	method com.google.javascript.jscomp.RequirementOrBuilder.getOnlyApplyToRegexpCount() int32
+method RequirementOrBuilder.getOnlyApplyToRegexpList	method com.google.javascript.jscomp.RequirementOrBuilder.getOnlyApplyToRegexpList() List
+method RequirementOrBuilder.getReportLooseTypeViolations	method com.google.javascript.jscomp.RequirementOrBuilder.getReportLooseTypeViolations() bool
+method RequirementOrBuilder.getRuleId	method com.google.javascript.jscomp.RequirementOrBuilder.getRuleId() string
+method RequirementOrBuilder.getSeverity	method com.google.javascript.jscomp.RequirementOrBuilder.getSeverity() *Requirement_Severity
+method RequirementOrBuilder.getType	method com.google.javascript.jscomp.RequirementOrBuilder.getType() *Requirement_Type
+method RequirementOrBuilder.getTypeMatchingStrategy	method com.google.javascript.jscomp.RequirementOrBuilder.getTypeMatchingStrategy() *Requirement_TypeMatchingStrategy
+method RequirementOrBuilder.getValueCount	method com.google.javascript.jscomp.RequirementOrBuilder.getValueCount() int32
+method RequirementOrBuilder.getValueList	method com.google.javascript.jscomp.RequirementOrBuilder.getValueList() List
+method RequirementOrBuilder.getWhitelistCount	method com.google.javascript.jscomp.RequirementOrBuilder.getWhitelistCount() int32
+method RequirementOrBuilder.getWhitelistEntryList	method com.google.javascript.jscomp.RequirementOrBuilder.getWhitelistEntryList() List
+method RequirementOrBuilder.getWhitelistList	method com.google.javascript.jscomp.RequirementOrBuilder.getWhitelistList() List
+method RequirementOrBuilder.getWhitelistRegexpCount	method com.google.javascript.jscomp.RequirementOrBuilder.getWhitelistRegexpCount() int32
+method RequirementOrBuilder.getWhitelistRegexpList	method com.google.javascript.jscomp.RequirementOrBuilder.getWhitelistRegexpList() List
+method RequirementOrBuilder.hasErrorMessage	method com.google.javascript.jscomp.RequirementOrBuilder.hasErrorMessage() bool
+method RequirementOrBuilder.hasExtends	method com.google.javascript.jscomp.RequirementOrBuilder.hasExtends() bool
+method RequirementOrBuilder.hasJavaClass	method com.google.javascript.jscomp.RequirementOrBuilder.hasJavaClass() bool
+method RequirementOrBuilder.hasRuleId	method com.google.javascript.jscomp.RequirementOrBuilder.hasRuleId() bool
+method RequirementScopeEntryOrBuilder.getPrefixList	method com.google.javascript.jscomp.RequirementScopeEntryOrBuilder.getPrefixList() List
+method RequirementScopeEntryOrBuilder.getRegexpList	method com.google.javascript.jscomp.RequirementScopeEntryOrBuilder.getRegexpList() List
+method Requirement_Builder.addAllAllowlist	method com.google.javascript.jscomp.Requirement.Builder.addAllAllowlist(Iterable) *Requirement_Builder
+method Requirement_Builder.addAllAllowlistEntry	method com.google.javascript.jscomp.Requirement.Builder.addAllAllowlistEntry(Iterable) *Requirement_Builder
+method Requirement_Builder.addAllAllowlistRegexp	method com.google.javascript.jscomp.Requirement.Builder.addAllAllowlistRegexp(Iterable) *Requirement_Builder
+method Requirement_Builder.addAllConfigFile	method com.google.javascript.jscomp.Requirement.Builder.addAllConfigFile(Iterable) *Requirement_Builder
+method Requirement_Builder.addAllOnlyApplyTo	method com.google.javascript.jscomp.Requirement.Builder.addAllOnlyApplyTo(Iterable) *Requirement_Builder
+method Requirement_Builder.addAllOnlyApplyToRegexp	method com.google.javascript.jscomp.Requirement.Builder.addAllOnlyApplyToRegexp(Iterable) *Requirement_Builder
+method Requirement_Builder.addAllValue	method com.google.javascript.jscomp.Requirement.Builder.addAllValue(Iterable) *Requirement_Builder
+method Requirement_Builder.addAllWhitelist	method com.google.javascript.jscomp.Requirement.Builder.addAllWhitelist(Iterable) *Requirement_Builder
+method Requirement_Builder.addAllWhitelistEntry	method com.google.javascript.jscomp.Requirement.Builder.addAllWhitelistEntry(Iterable) *Requirement_Builder
+method Requirement_Builder.addAllWhitelistRegexp	method com.google.javascript.jscomp.Requirement.Builder.addAllWhitelistRegexp(Iterable) *Requirement_Builder
+method Requirement_Builder.clearAllowlist	method com.google.javascript.jscomp.Requirement.Builder.clearAllowlist() *Requirement_Builder
+method Requirement_Builder.clearAllowlistEntry	method com.google.javascript.jscomp.Requirement.Builder.clearAllowlistEntry() *Requirement_Builder
+method Requirement_Builder.clearAllowlistRegexp	method com.google.javascript.jscomp.Requirement.Builder.clearAllowlistRegexp() *Requirement_Builder
+method Requirement_Builder.clearOnlyApplyTo	method com.google.javascript.jscomp.Requirement.Builder.clearOnlyApplyTo() *Requirement_Builder
+method Requirement_Builder.clearOnlyApplyToRegexp	method com.google.javascript.jscomp.Requirement.Builder.clearOnlyApplyToRegexp() *Requirement_Builder
+method Requirement_Builder.clearWhitelist	method com.google.javascript.jscomp.Requirement.Builder.clearWhitelist() *Requirement_Builder
+method Requirement_Builder.clearWhitelistEntry	method com.google.javascript.jscomp.Requirement.Builder.clearWhitelistEntry() *Requirement_Builder
+method Requirement_Builder.clearWhitelistRegexp	method com.google.javascript.jscomp.Requirement.Builder.clearWhitelistRegexp() *Requirement_Builder
+method Requirement_Builder.setErrorMessage	method com.google.javascript.jscomp.Requirement.Builder.setErrorMessage(string) *Requirement_Builder
+method Requirement_Builder.setSeverity	method com.google.javascript.jscomp.Requirement.Builder.setSeverity(*Requirement_Severity) *Requirement_Builder
+method ResourceBundle.getString	method java.util.ResourceBundle.getString(string) string
+method Runnable.run	method java.lang.Runnable.run()
+method Runtime.freeMemory	method java.lang.Runtime.freeMemory() int64
+method Runtime.totalMemory	method java.lang.Runtime.totalMemory() int64
+method SAXParser.getXMLReader	method javax.xml.parsers.SAXParser.getXMLReader() XMLReader
+method SAXParserFactory.newSAXParser	method javax.xml.parsers.SAXParserFactory.newSAXParser() *SAXParser
+method SAXParserFactory.setFeature	method javax.xml.parsers.SAXParserFactory.setFeature(string, bool)
+method SAXParserFactory.setValidating	method javax.xml.parsers.SAXParserFactory.setValidating(bool)
+method SAXParserFactory.setXIncludeAware	method javax.xml.parsers.SAXParserFactory.setXIncludeAware(bool)
+method Sets_SetView.immutableCopy	method com.google.common.collect.Sets.SetView.immutableCopy() *ImmutableSet
+method SourceFilePoolOrBuilder.getSourceFileList	method com.google.javascript.jscomp.serialization.SourceFilePoolOrBuilder.getSourceFileList() List
+method SourceFilePool_Builder.addAllSourceFile	method com.google.javascript.jscomp.serialization.SourceFilePool.Builder.addAllSourceFile(Iterable) *SourceFilePool_Builder
+method SourceFileProtoOrBuilder.getFileOnDisk	method com.google.javascript.jscomp.serialization.SourceFileProtoOrBuilder.getFileOnDisk() *SourceFileProto_FileOnDisk
+method SourceFileProtoOrBuilder.getFilename	method com.google.javascript.jscomp.serialization.SourceFileProtoOrBuilder.getFilename() string
+method SourceFileProtoOrBuilder.getIsClosureUnawareCode	method com.google.javascript.jscomp.serialization.SourceFileProtoOrBuilder.getIsClosureUnawareCode() bool
+method SourceFileProtoOrBuilder.getLoaderCase	method com.google.javascript.jscomp.serialization.SourceFileProtoOrBuilder.getLoaderCase() *SourceFileProto_LoaderCase
+method SourceFileProtoOrBuilder.getNumBytesPlusOne	method com.google.javascript.jscomp.serialization.SourceFileProtoOrBuilder.getNumBytesPlusOne() int32
+method SourceFileProtoOrBuilder.getNumLinesPlusOne	method com.google.javascript.jscomp.serialization.SourceFileProtoOrBuilder.getNumLinesPlusOne() int32
+method SourceFileProtoOrBuilder.getPreloadedContents	method com.google.javascript.jscomp.serialization.SourceFileProtoOrBuilder.getPreloadedContents() string
+method SourceFileProtoOrBuilder.getSourceKind	method com.google.javascript.jscomp.serialization.SourceFileProtoOrBuilder.getSourceKind() *SourceFileProto_SourceKind
+method SourceFileProtoOrBuilder.getZipEntry	method com.google.javascript.jscomp.serialization.SourceFileProtoOrBuilder.getZipEntry() *SourceFileProto_ZipEntryOnDisk
+method SourceFileProto_Builder.setFileOnDisk	method com.google.javascript.jscomp.serialization.SourceFileProto.Builder.setFileOnDisk(*SourceFileProto_FileOnDisk_Builder) *SourceFileProto_Builder
+method SourceFileProto_Builder.setFilename	method com.google.javascript.jscomp.serialization.SourceFileProto.Builder.setFilename(string) *SourceFileProto_Builder
+method SourceFileProto_Builder.setIsClosureUnawareCode	method com.google.javascript.jscomp.serialization.SourceFileProto.Builder.setIsClosureUnawareCode(bool) *SourceFileProto_Builder
+method SourceFileProto_Builder.setNumBytesPlusOne	method com.google.javascript.jscomp.serialization.SourceFileProto.Builder.setNumBytesPlusOne(int32) *SourceFileProto_Builder
+method SourceFileProto_Builder.setNumLinesPlusOne	method com.google.javascript.jscomp.serialization.SourceFileProto.Builder.setNumLinesPlusOne(int32) *SourceFileProto_Builder
+method SourceFileProto_Builder.setPreloadedContents	method com.google.javascript.jscomp.serialization.SourceFileProto.Builder.setPreloadedContents(string) *SourceFileProto_Builder
+method SourceFileProto_Builder.setSourceKind	method com.google.javascript.jscomp.serialization.SourceFileProto.Builder.setSourceKind(*SourceFileProto_SourceKind) *SourceFileProto_Builder
+method SourceFileProto_Builder.setStubFile	method com.google.javascript.jscomp.serialization.SourceFileProto.Builder.setStubFile(bool) *SourceFileProto_Builder
+method SourceFileProto_Builder.setZipEntry	method com.google.javascript.jscomp.serialization.SourceFileProto.Builder.setZipEntry(*SourceFileProto_ZipEntryOnDisk) *SourceFileProto_Builder
+method SourceFileProto_FileOnDiskOrBuilder.getActualPath	method com.google.javascript.jscomp.serialization.SourceFileProto.FileOnDiskOrBuilder.getActualPath() string
+method SourceFileProto_FileOnDiskOrBuilder.getCharset	method com.google.javascript.jscomp.serialization.SourceFileProto.FileOnDiskOrBuilder.getCharset() string
+method SourceFileProto_FileOnDisk_Builder.setActualPath	method com.google.javascript.jscomp.serialization.SourceFileProto.FileOnDisk.Builder.setActualPath(string) *SourceFileProto_FileOnDisk_Builder
+method SourceFileProto_FileOnDisk_Builder.setCharset	method com.google.javascript.jscomp.serialization.SourceFileProto.FileOnDisk.Builder.setCharset(string) *SourceFileProto_FileOnDisk_Builder
+method SourceFileProto_ZipEntryOnDiskOrBuilder.getCharset	method com.google.javascript.jscomp.serialization.SourceFileProto.ZipEntryOnDiskOrBuilder.getCharset() string
+method SourceFileProto_ZipEntryOnDiskOrBuilder.getEntryName	method com.google.javascript.jscomp.serialization.SourceFileProto.ZipEntryOnDiskOrBuilder.getEntryName() string
+method SourceFileProto_ZipEntryOnDiskOrBuilder.getZipPath	method com.google.javascript.jscomp.serialization.SourceFileProto.ZipEntryOnDiskOrBuilder.getZipPath() string
+method SourceFileProto_ZipEntryOnDisk_Builder.setCharset	method com.google.javascript.jscomp.serialization.SourceFileProto.ZipEntryOnDisk.Builder.setCharset(string) *SourceFileProto_ZipEntryOnDisk_Builder
+method SourceFileProto_ZipEntryOnDisk_Builder.setEntryName	method com.google.javascript.jscomp.serialization.SourceFileProto.ZipEntryOnDisk.Builder.setEntryName(string) *SourceFileProto_ZipEntryOnDisk_Builder
+method SourceFileProto_ZipEntryOnDisk_Builder.setZipPath	method com.google.javascript.jscomp.serialization.SourceFileProto.ZipEntryOnDisk.Builder.setZipPath(string) *SourceFileProto_ZipEntryOnDisk_Builder
+method Splitter.limit	method com.google.common.base.Splitter.limit(int32) *Splitter
+method Splitter.omitEmptyStrings	method com.google.common.base.Splitter.omitEmptyStrings() *Splitter
+method Splitter.split	method com.google.common.base.Splitter.split(any) Iterable
+method Splitter.trimResults	method com.google.common.base.Splitter.trimResults() *Splitter
+method StandardSystemProperty.value	method com.google.common.base.StandardSystemProperty.value() string
+method StringBuilder.append	method java.lang.StringBuilder.append(string) *StringBuilder
+method StringBuilder.append_Object	method java.lang.StringBuilder.append(any) *StringBuilder
+method StringBuilder.append_charArr	method java.lang.StringBuilder.append([]uint16) *StringBuilder
+method StringBuilder.append_double	method java.lang.StringBuilder.append(float64) *StringBuilder
+method StringBuilder.append_int	method java.lang.StringBuilder.append(int32) *StringBuilder
+method StringBuilder.append_long	method java.lang.StringBuilder.append(int64) *StringBuilder
+method StringBuilder.delete	method java.lang.StringBuilder.delete(int32, int32) *StringBuilder
+method StringBuilder.deleteCharAt	method java.lang.StringBuilder.deleteCharAt(int32) *StringBuilder
+method StringBuilder.indexOf	method java.lang.StringBuilder.indexOf(string) int32
+method StringBuilder.insert	method java.lang.StringBuilder.insert(int32, uint16) *StringBuilder
+method StringBuilder.insert_int_String	method java.lang.StringBuilder.insert(int32, string) *StringBuilder
+method StringBuilder.repeat	method java.lang.StringBuilder.repeat(any, int32) *StringBuilder
+method StringBuilder.repeat_int_int	method java.lang.StringBuilder.repeat(int32, int32) *StringBuilder
+method StringPoolProtoOrBuilder.getMaxLength	method com.google.javascript.jscomp.serialization.StringPoolProtoOrBuilder.getMaxLength() int32
+method StringPoolProtoOrBuilder.getStringsList	method com.google.javascript.jscomp.serialization.StringPoolProtoOrBuilder.getStringsList() List
+method StringPoolProto_Builder.addStrings	method com.google.javascript.jscomp.serialization.StringPoolProto.Builder.addStrings(*ByteString) *StringPoolProto_Builder
+method StringPoolProto_Builder.setMaxLength	method com.google.javascript.jscomp.serialization.StringPoolProto.Builder.setMaxLength(int32) *StringPoolProto_Builder
+method StringTokenizer.hasMoreTokens	method java.util.StringTokenizer.hasMoreTokens() bool
+method StringTokenizer.nextToken	method java.util.StringTokenizer.nextToken() string
+method SubtypingEdgeOrBuilder.getSubtype	method com.google.javascript.jscomp.serialization.SubtypingEdgeOrBuilder.getSubtype() int32
+method SubtypingEdgeOrBuilder.getSupertype	method com.google.javascript.jscomp.serialization.SubtypingEdgeOrBuilder.getSupertype() int32
+method SubtypingEdge_Builder.setSubtype	method com.google.javascript.jscomp.serialization.SubtypingEdge.Builder.setSubtype(int32) *SubtypingEdge_Builder
+method SubtypingEdge_Builder.setSupertype	method com.google.javascript.jscomp.serialization.SubtypingEdge.Builder.setSupertype(int32) *SubtypingEdge_Builder
+method Supplier.get	method java.util.function.Supplier.get() ListT[*SourceFile_jscomp]
+method TDeque.add	method j2go.rt.TDeque.add(AnalyzePrototypeProperties_Symbol) bool
+method TDeque.clear	method j2go.rt.TDeque.clear()
+method TDeque.isEmpty	method j2go.rt.TDeque.isEmpty() bool
+method TDeque.peek	method j2go.rt.TDeque.peek() *SourceMapGeneratorV3_Mapping
+method TDeque.peekLast	method j2go.rt.TDeque.peekLast() *Es6RewriteDestructuring_PatternNestingLevel
+method TDeque.poll	method j2go.rt.TDeque.poll() Node
+method TDeque.pop	method j2go.rt.TDeque.pop() *SourceMapGeneratorV3_Mapping
+method TDeque.push	method j2go.rt.TDeque.push(*SourceMapGeneratorV3_Mapping)
+method TDeque.size	method j2go.rt.TDeque.size() int32
+method TEntry.getKey	method j2go.rt.TEntry.getKey() string
+method TEntry.getValue	method j2go.rt.TEntry.getValue() any
+method TEntry.setValue	method j2go.rt.TEntry.setValue(Node) Node
+method TList.add	method j2go.rt.TList.add(*SourceMapGeneratorV3_Mapping) bool
+method TList.clear	method j2go.rt.TList.clear()
+method TList.get	method j2go.rt.TList.get(int32) string
+method TList.insert	method j2go.rt.TList.insert(int32, string)
+method TList.isEmpty	method j2go.rt.TList.isEmpty() bool
+method TList.removeAt	method j2go.rt.TList.removeAt(int32) string
+method TList.set	method j2go.rt.TList.set(int32, string) string
+method TList.size	method j2go.rt.TList.size() int32
+method TListBuilder.add	method j2go.rt.TListBuilder.add(*SourceMapSection) *TListBuilder[*SourceMapSection]
+method TListBuilder.addAll	method j2go.rt.TListBuilder.addAll(IterableT[string]) *TListBuilder[string]
+method TListBuilder.build	method j2go.rt.TListBuilder.build() *TList[*SourceMapSection]
+method TMap.clear	method j2go.rt.TMap.clear()
+method TMap.computeIfAbsent	method j2go.rt.TMap.computeIfAbsent(string, Function[string, MapT[any, CollectionT[*Mapping_OriginalMapping]]]) MapT[any, CollectionT[*Mapping_OriginalMapping]]
+method TMap.containsKey	method j2go.rt.TMap.containsKey(string) bool
+method TMap.get	method j2go.rt.TMap.get(string) MapT[any, CollectionT[*Mapping_OriginalMapping]]
+method TMap.getOrDefault	method j2go.rt.TMap.getOrDefault(string, *AccessorSummary_PropertyAccessKind) *AccessorSummary_PropertyAccessKind
+method TMap.isEmpty	method j2go.rt.TMap.isEmpty() bool
+method TMap.put	method j2go.rt.TMap.put(string, string) string
+method TMap.putIfAbsent	method j2go.rt.TMap.putIfAbsent(string, Node) Node
+method TMap.remove	method j2go.rt.TMap.remove(string) any
+method TMap.size	method j2go.rt.TMap.size() int32
+method TMapBuilder.buildKeepingLast	method j2go.rt.TMapBuilder.buildKeepingLast() *TMap[string, string]
+method TMapBuilder.buildOrThrow	method j2go.rt.TMapBuilder.buildOrThrow() *TMap[string, *SourceMapInput]
+method TMapBuilder.put	method j2go.rt.TMapBuilder.put(string, *SourceMapInput) *TMapBuilder[string, *SourceMapInput]
+method TMapBuilder.putAll	method j2go.rt.TMapBuilder.putAll(MapT[string, *SourceMapInput]) *TMapBuilder[string, *SourceMapInput]
+method TSet.add	method j2go.rt.TSet.add(string) bool
+method TSet.clear	method j2go.rt.TSet.clear()
+method TSet.contains	method j2go.rt.TSet.contains(string) bool
+method TSet.isEmpty	method j2go.rt.TSet.isEmpty() bool
+method TSet.remove	method j2go.rt.TSet.remove(Node) bool
+method TSet.size	method j2go.rt.TSet.size() int32
+method TSetBuilder.add	method j2go.rt.TSetBuilder.add(SortingErrorManager_ErrorReportGenerator) *TSetBuilder[SortingErrorManager_ErrorReportGenerator]
+method TSetBuilder.addAll	method j2go.rt.TSetBuilder.addAll(IterableT[SortingErrorManager_ErrorReportGenerator]) *TSetBuilder[SortingErrorManager_ErrorReportGenerator]
+method TSetBuilder.build	method j2go.rt.TSetBuilder.build() *TSet[SortingErrorManager_ErrorReportGenerator]
+method TemplateStringValueOrBuilder.getCookedStringPointer	method com.google.javascript.jscomp.serialization.TemplateStringValueOrBuilder.getCookedStringPointer() int32
+method TemplateStringValueOrBuilder.getRawStringPointer	method com.google.javascript.jscomp.serialization.TemplateStringValueOrBuilder.getRawStringPointer() int32
+method TemplateStringValue_Builder.setCookedStringPointer	method com.google.javascript.jscomp.serialization.TemplateStringValue.Builder.setCookedStringPointer(int32) *TemplateStringValue_Builder
+method TemplateStringValue_Builder.setRawStringPointer	method com.google.javascript.jscomp.serialization.TemplateStringValue.Builder.setRawStringPointer(int32) *TemplateStringValue_Builder
+method TextFormat_Printer.printToString	method com.google.protobuf.TextFormat.Printer.printToString(MessageOrBuilder) string
+method Thread.setDaemon	method java.lang.Thread.setDaemon(bool)
+method ThreadLocal.get	method java.lang.ThreadLocal.get() any
+method ThreadLocal.remove	method java.lang.ThreadLocal.remove()
+method ThreadLocal.set	method java.lang.ThreadLocal.set(any)
+method Throwable.getCause	method java.lang.Throwable.getCause() *Throwable
+method Throwable.getMessage	method java.lang.Throwable.getMessage() string
+method TypePoolOrBuilder.getDebugInfo	method com.google.javascript.jscomp.serialization.TypePoolOrBuilder.getDebugInfo() *TypePool_DebugInfo
+method TypePoolOrBuilder.getDisambiguationEdgesList	method com.google.javascript.jscomp.serialization.TypePoolOrBuilder.getDisambiguationEdgesList() List
+method TypePoolOrBuilder.getType	method com.google.javascript.jscomp.serialization.TypePoolOrBuilder.getType(int32) *TypeProto
+method TypePoolOrBuilder.getTypeCount	method com.google.javascript.jscomp.serialization.TypePoolOrBuilder.getTypeCount() int32
+method TypePoolOrBuilder.getTypeList	method com.google.javascript.jscomp.serialization.TypePoolOrBuilder.getTypeList() List
+method TypePoolOrBuilder.hasDebugInfo	method com.google.javascript.jscomp.serialization.TypePoolOrBuilder.hasDebugInfo() bool
+method TypePool_Builder.addDisambiguationEdges	method com.google.javascript.jscomp.serialization.TypePool.Builder.addDisambiguationEdges(*SubtypingEdge_Builder) *TypePool_Builder
+method TypePool_Builder.addDisambiguationEdgesBuilder	method com.google.javascript.jscomp.serialization.TypePool.Builder.addDisambiguationEdgesBuilder() *SubtypingEdge_Builder
+method TypePool_Builder.addType	method com.google.javascript.jscomp.serialization.TypePool.Builder.addType(*TypeProto) *TypePool_Builder
+method TypePool_Builder.getDebugInfoBuilder	method com.google.javascript.jscomp.serialization.TypePool.Builder.getDebugInfoBuilder() *TypePool_DebugInfo_Builder
+method TypePool_DebugInfoOrBuilder.getMismatchList	method com.google.javascript.jscomp.serialization.TypePool.DebugInfoOrBuilder.getMismatchList() List
+method TypePool_DebugInfo_Builder.addMismatchBuilder	method com.google.javascript.jscomp.serialization.TypePool.DebugInfo.Builder.addMismatchBuilder() *TypePool_DebugInfo_Mismatch_Builder
+method TypePool_DebugInfo_MismatchOrBuilder.getInvolvedColorList	method com.google.javascript.jscomp.serialization.TypePool.DebugInfo.MismatchOrBuilder.getInvolvedColorList() List
+method TypePool_DebugInfo_MismatchOrBuilder.getSourceRef	method com.google.javascript.jscomp.serialization.TypePool.DebugInfo.MismatchOrBuilder.getSourceRef() string
+method TypePool_DebugInfo_Mismatch_Builder.addAllInvolvedColor	method com.google.javascript.jscomp.serialization.TypePool.DebugInfo.Mismatch.Builder.addAllInvolvedColor(Iterable) *TypePool_DebugInfo_Mismatch_Builder
+method TypePool_DebugInfo_Mismatch_Builder.setSourceRef	method com.google.javascript.jscomp.serialization.TypePool.DebugInfo.Mismatch.Builder.setSourceRef(string) *TypePool_DebugInfo_Mismatch_Builder
+method TypeProtoOrBuilder.getKindCase	method com.google.javascript.jscomp.serialization.TypeProtoOrBuilder.getKindCase() *TypeProto_KindCase
+method TypeProtoOrBuilder.getObject	method com.google.javascript.jscomp.serialization.TypeProtoOrBuilder.getObject() *ObjectTypeProto
+method TypeProtoOrBuilder.getUnion	method com.google.javascript.jscomp.serialization.TypeProtoOrBuilder.getUnion() *UnionTypeProto
+method TypeProtoOrBuilder.hasObject	method com.google.javascript.jscomp.serialization.TypeProtoOrBuilder.hasObject() bool
+method TypeProtoOrBuilder.hasUnion	method com.google.javascript.jscomp.serialization.TypeProtoOrBuilder.hasUnion() bool
+method TypeProto_Builder.getObjectBuilder	method com.google.javascript.jscomp.serialization.TypeProto.Builder.getObjectBuilder() *ObjectTypeProto_Builder
+method TypeProto_Builder.getUnionBuilder	method com.google.javascript.jscomp.serialization.TypeProto.Builder.getUnionBuilder() *UnionTypeProto_Builder
+method TypeProto_Builder.setObject	method com.google.javascript.jscomp.serialization.TypeProto.Builder.setObject(*ObjectTypeProto) *TypeProto_Builder
+method TypeProto_Builder.setUnion	method com.google.javascript.jscomp.serialization.TypeProto.Builder.setUnion(*UnionTypeProto) *TypeProto_Builder
+method TypedAstOrBuilder.getCodeAstList	method com.google.javascript.jscomp.serialization.TypedAstOrBuilder.getCodeAstList() List
+method TypedAstOrBuilder.getExternAstList	method com.google.javascript.jscomp.serialization.TypedAstOrBuilder.getExternAstList() List
+method TypedAstOrBuilder.getExternsSummary	method com.google.javascript.jscomp.serialization.TypedAstOrBuilder.getExternsSummary() *ExternsSummary
+method TypedAstOrBuilder.getRuntimeLibraryToInjectList	method com.google.javascript.jscomp.serialization.TypedAstOrBuilder.getRuntimeLibraryToInjectList() List
+method TypedAstOrBuilder.getSourceFilePool	method com.google.javascript.jscomp.serialization.TypedAstOrBuilder.getSourceFilePool() *SourceFilePool
+method TypedAstOrBuilder.getStringPool	method com.google.javascript.jscomp.serialization.TypedAstOrBuilder.getStringPool() *StringPoolProto
+method TypedAstOrBuilder.getTypePool	method com.google.javascript.jscomp.serialization.TypedAstOrBuilder.getTypePool() *TypePool
+method TypedAst_Builder.addAllRuntimeLibraryToInject	method com.google.javascript.jscomp.serialization.TypedAst.Builder.addAllRuntimeLibraryToInject(Iterable) *TypedAst_Builder
+method TypedAst_Builder.addCodeAst	method com.google.javascript.jscomp.serialization.TypedAst.Builder.addCodeAst(*LazyAst) *TypedAst_Builder
+method TypedAst_Builder.addExternAst	method com.google.javascript.jscomp.serialization.TypedAst.Builder.addExternAst(*LazyAst) *TypedAst_Builder
+method TypedAst_Builder.setExternsSummary	method com.google.javascript.jscomp.serialization.TypedAst.Builder.setExternsSummary(*ExternsSummary_Builder) *TypedAst_Builder
+method TypedAst_Builder.setSourceFilePool	method com.google.javascript.jscomp.serialization.TypedAst.Builder.setSourceFilePool(*SourceFilePool) *TypedAst_Builder
+method TypedAst_Builder.setStringPool	method com.google.javascript.jscomp.serialization.TypedAst.Builder.setStringPool(*StringPoolProto) *TypedAst_Builder
+method TypedAst_Builder.setTypePool	method com.google.javascript.jscomp.serialization.TypedAst.Builder.setTypePool(*TypePool) *TypedAst_Builder
+method TypedAst_List_Builder.addTypedAsts	method com.google.javascript.jscomp.serialization.TypedAst.List.Builder.addTypedAsts(*TypedAst) *TypedAst_List_Builder
+method UnionTypeProtoOrBuilder.getUnionMemberCount	method com.google.javascript.jscomp.serialization.UnionTypeProtoOrBuilder.getUnionMemberCount() int32
+method UnionTypeProtoOrBuilder.getUnionMemberList	method com.google.javascript.jscomp.serialization.UnionTypeProtoOrBuilder.getUnionMemberList() List
+method UnionTypeProto_Builder.addAllUnionMember	method com.google.javascript.jscomp.serialization.UnionTypeProto.Builder.addAllUnionMember(Iterable) *UnionTypeProto_Builder
+method UniqueIdProtoOrBuilder.getCounter	method com.google.javascript.jscomp.UniqueIdProtoOrBuilder.getCounter() int32
+method UniqueIdProtoOrBuilder.getHash	method com.google.javascript.jscomp.UniqueIdProtoOrBuilder.getHash() int32
+method UniqueIdProto_Builder.setCounter	method com.google.javascript.jscomp.UniqueIdProto.Builder.setCounter(int32) *UniqueIdProto_Builder
+method UniqueIdProto_Builder.setHash	method com.google.javascript.jscomp.UniqueIdProto.Builder.setHash(int32) *UniqueIdProto_Builder
+method VariableMapEntryProtoOrBuilder.getNewName	method com.google.javascript.jscomp.VariableMapEntryProtoOrBuilder.getNewName() string
+method VariableMapEntryProtoOrBuilder.getOriginalName	method com.google.javascript.jscomp.VariableMapEntryProtoOrBuilder.getOriginalName() string
+method VariableMapEntryProto_Builder.setNewName	method com.google.javascript.jscomp.VariableMapEntryProto.Builder.setNewName(string) *VariableMapEntryProto_Builder
+method VariableMapEntryProto_Builder.setOriginalName	method com.google.javascript.jscomp.VariableMapEntryProto.Builder.setOriginalName(string) *VariableMapEntryProto_Builder
+method XMLReader.parse	method org.xml.sax.XMLReader.parse(*InputSource)
+method XMLReader.setContentHandler	method org.xml.sax.XMLReader.setContentHandler(ContentHandler)
+method XMLReader.setEntityResolver	method org.xml.sax.XMLReader.setEntityResolver(EntityResolver)
