@@ -4,8 +4,9 @@ Branches `main-libgen-b3` (worktree `/mnt/data/ubuntu/jm/wt/agZ`; sections 0 to 
 `main-libgen-b4` (worktree `/mnt/data/ubuntu/jm/wt/agZ2`; section 4), on top of `main-libgen-b2`
 c8a3f9d5 (LIBGEN-STUDY.md sections 7 and 8: rules "function types" and "typed library
 interfaces", kind `iter`). This file is the handover: a successor continues from it alone.
-**The current state, what is left and the traps are in section 4** (4.6 replaces 3.6; sections
-0 to 3 are the record of the stage before, kept as written).
+**The current state, what is left and the traps are in section 5** (stage b5, branch
+`main-libgen-b5`, worktree `/mnt/data/ubuntu/jm/wt/agZ3`; 5.7 replaces 4.6; sections 0 to 4 are
+the records of the stages before, kept as written).
 Scratch files of this stage: `/mnt/data/tmp/claude-1000/-home-ubuntu-work/9db246f3-01a3-48c8-9bf5-1c94d1ed78d6/scratchpad/b3/`
 (`tr.sh` translate + build, `trto.sh <dir>` translate into a scratch directory that has the
 runtime copied in -- the translator reads `rt_*.go` of its output directory, so a directory
@@ -744,3 +745,535 @@ edited while it ran), `b4_rd` (f060be6f), `b4_final` (f170a5e8).
 - `Preconditions_checkNotNull_T(x)` on typed collections and `x.asListT()` arguments of the
   reading library methods replace `x.asList()`: `trips` / `tviews` find fewer round trips.
 - `casts`, `icasts`, `castfold`: fewer sites (counts in 4.2), same text.
+
+## 5. Record of stage b5 (branch `main-libgen-b5`, worktree `/mnt/data/ubuntu/jm/wt/agZ3`, 2026-11-21)
+
+On top of `main-libgen-b4` 4f24b46f. Scratch files: `/mnt/data/tmp/claude-1000/-home-ubuntu-work/9db246f3-01a3-48c8-9bf5-1c94d1ed78d6/scratchpad/b5/`
+(`jc.sh` rebuild the translator; `tx.sh [VAR=val ..]` translate into `go/closure`; `gb.sh` go
+build; `st.sh` self-test with the first difference; `pipe.sh <label>` build + runtime tests +
+self-test + gate + CHECKS profile under one hold of the lock; `off.sh` / `offall.sh` the gates
+with switches off; `sttr.sh <dir>` translate the tree and the self-test programs into a scratch
+directory without building; `dead.py`, `move.py` the off-mode-only functions; `checks.sh`,
+`pool.sh`, `pdiff.py` as in b4; reports `map0` (start) .. `map3` (final), gate logs).
+
+**Every heavy command of this stage ran under `flock /mnt/data/ubuntu/jm/heavy.lock`** (the
+host is shared with another agent's replays; one compile of the package takes about 10 GB). The
+other agent holds the lock for whole replays (up to an hour), which is what bounded this
+stage's turnaround.
+
+**How far: 4.6 item 1 (class-typed declarations, piece `cls`), more typed methods (piece
+`meth`) and the split of the off-mode-only runtime functions into a build-tagged file are
+built, gated and committed. A typed `Sets.newIdentityHashSet` (piece `idset`) was built, gated,
+measured as a loss and removed again (5.4). Builders, the classes without a typed family, typed
+`Iterables.filter` and the wide side of the graph family are NOT built** (5.7 says what each
+needs).
+
+### 5.1 Commits
+
+| commit | what | switch (`J2GO_NOLIBGEN=`) |
+|---|---|---|
+| 899d2cfd | pieces `cls`, `meth`, `idset` with their self-tests (`LibGen.classes()`, `methods()`, the 7th refused use) and runtime tests; `rt_lg_erased.go` and the two line counts of `verify.sh` | `cls`, `meth`, `idset` |
+| 2ccac50a | piece `idset` removed again (5.4) | |
+| fb9ccbc4 | self-test: `LibGen.classes()` valid with `cls` off (found by the gate with everything off, 5.8) | |
+| (the commit after) | this section | |
+
+The three pieces are one commit because they were gated as one tree (the lock, see above); a
+first form of `cls` alone was gated before (`GATE OK b5_cls`, log in the scratch directory),
+then changed by what its profile showed (5.2). With `cls,meth,idset` off the generated files
+are byte-identical to the b4 tip's default translation (md5 of `cat g_*.go`:
+`cdf1456c9462563279164d57560c180a`, checked after every change of the translator). Not behind
+a switch: the runtime changes (`LinkedHashMap.typed_`, the kept views of `mapAs`, the new
+methods, `tlistView_.trimToSize`), and the four corrections of stage b4 that 4.1 lists (they
+repair wrong or slow translations of the kinds before: a wrapper given to a String-key helper,
+`instanceof` of the typed interface; putting an error behind a switch was judged pointless, so
+with every switch of stages b4 and b5 off the translator's output differs from the b3 tip's by
+exactly the 274 lines in 107 files that 4.1 describes).
+
+### 5.2 Piece `cls`: class-typed declarations (`J2GO_NOLIBGEN=cls`)
+
+The 133 declarations of 4.2 whose type is a collection class with a typed family. Form (as
+designed in 4.6, README "Piece `cls`"): `Ctx.erase` of a use of a class of `LibGen.CLASSES`
+(`ArrayList`, `LinkedHashSet`, `HashSet`, `LinkedHashMap`, `HashMap`, `ImmutableList`,
+`ImmutableSet`, `ImmutableCollection`, `ImmutableMap`) with type arguments is the typed
+interface of its collection interface (`LibGen.cls`), where the interface's use is typed and
+the typed family can hold the elements (`Ctx.typedArgs`). Everything else follows from the
+existing kinds: typed by place, `fromTypedColl`, `listAs_`. What had to be added:
+
+- `LibGen.rt` (the runtime's signatures) and `LibGen.made` (the type of `new C<>()` and of the
+  results of runtime functions) keep the class: `rtDepth` switches `cls` off while a signature
+  is erased.
+- Methods that only the class has: `LibGen.served` tells them; the receiver becomes the erased
+  object (`cast_[*ImmutableList](lgBox_(x))`, the twin). 3 sites in the tree
+  (`ImmutableList.reverse` 2, `ImmutableCollection.asList` 1). `SequencedCollection.getFirst`
+  on a `LinkedHashSet` (1 site) goes to the runtime's helper as any erased argument.
+- A class of `LibGen.CONCRETE` (mutable): a collection made for a typed place of it is the
+  typed collection's view, no `*ArrayList`. So (a) a wide use (`ArrayList<?>`) is the erased
+  interface `List`, never the class; (b) of the methods such a class declares itself only
+  `LibGen.OWN` (`ArrayList.trimToSize`, which the view has: `rt_lg.go`) is translated, through
+  `cast_[interface{ trimToSize() }](lgBox_(x))`; any other is refused (new refusal, 7th use of
+  `RefusedLib.java`; the tree has none); (c) casts to and `instanceof` of these classes were
+  refused already.
+- An immutable class place entering an L1 declaration: `tlistOfT_` / `tsetOfT_` / `tmapOfT_`
+  (the typed collection whose view the value is; before: `tlistImm_(cast_(lgBox_(x)))`, which
+  made the twin to find the typed collection again). 40 sites.
+- Casts to a class of `CLASSES` cast to the class first, then convert (`ClassCastException`
+  kept).
+- `Ctx.typedArg`: an element whose type is such a class is held at its typed interface (as an
+  interface element, piece `elems`).
+- `Ctx.declType`: no alias `ListOf[..]` for a typed place.
+- **Trap met again (4.6): no Go type may be named while `erase` decides.** `cls` asks
+  `typedArgs`, whose library-generic branch calls `goType`; `LibGen.deciding` makes that branch
+  answer "cannot hold" instead (the first build renamed `Node` to `Node_`). A cache of `cls`
+  keyed by the type's text was wrong too (asked before the collection kinds are registered;
+  two type variables named `E`): there is none now, the translation time is unchanged (10 s).
+
+What the CHECKS profile showed for the first form, and what was done:
+
+- `mapAs_` +759 k, with `setAs_` +164 k and `collectionAs_` +171 k under it: `JSDocInfo`'s
+  parameter maps. They are made by `JSDocInfo.Builder.putPropEntry`, `<K, V> ..
+  getPropWithDefault(prop, LinkedHashMap::new)`: K and V are erased type variables there, so the
+  map is an erased `LinkedHashMap`, and every read at a `LinkedHashMap<String,
+  JSTypeExpression>` place (`getParameterType`, once per lookup) made a wrapper. Fixed in the
+  runtime, generally: **an erased `LinkedHashMap` keeps the wrapper made for it**
+  (`LinkedHashMap.typed_`, an atomic pointer, 8 bytes per map; checked against the map and the
+  conversions, so a copied struct or another instantiation gets its own), and the wrapper keeps
+  its typed key set and values. And in the translator: **a new collection of a mutable class
+  entering an `Object` / erased type variable is made typed by its own type** (8 sites:
+  `TypeMapProperty.clone`, `ArrayList::new` for `Supplier<T>` at `T = List<String>`, ...), so
+  the readers get a native value.
+- `LinkedHashSet<DiGraphNode<N, E>>` (`FixedPointGraphTraversal.workSet`, 146 k sets in CHECKS)
+  is now a typed set made by place: +1.26 M objects against -0.31 M (numbers in 5.5). An
+  element type that is an interface is compared by `equals` / `hashCode`, for which the typed
+  set keeps `teq_`; this is what every L1 set of an interface costs, not new to the piece, but
+  this declaration is hot. Left as it is: the remedy is in `rt_tset.go` (5.5, 5.7).
+- gone as intended: `TList[string].asImm` 257 k -> 11 k, `boxAll_[string]` 298 k -> 65 k (the
+  `DependencyInfo` results; the 1.4 M of 4.3 was measured before piece `readers`, which had
+  taken most of it), `iterableAs_` 602 k -> 424 k.
+
+Two declarations went from L1 to L2: `UnionFind.allEquivalenceClasses` and its implementation
+(`ImmutableList<ImmutableSet<E>>`): the element is now the typed `SetT[E]`, whose type differs
+between the interface's `E` and the class's, so the group "does not have the same typed
+collection type" for `Colls`; the result is `ListT[SetT[E]]`.
+
+### 5.3 Piece `meth`: more typed methods (`J2GO_NOLIBGEN=meth`)
+
+Report first (`J2GO_LIBGEN=1`, new lines "erased methods on a typed receiver"): of 440 calls of
+an erased method of a typed interface on a typed receiver, 371 box nothing and give no element
+(`size`, `isEmpty`, `addAll`, `contains` of a pointer, ...); 69 box an argument (a String, a
+value of a type parameter; a handle's box is not an allocation) or give an element as `Object`.
+Typed (`LibGen.TYPED_METHODS2`): `Collection.add`, `List.set`, `List.remove(int)`, `Map.put`,
+`Map.remove`, `Map.Entry.setValue`: `add_t` 65 calls, `put_t` 30, `remove_t` 7, `set_t` 1,
+`setValue_t` 1 in the generated code. 27 remain: calls whose result enters an `Object` (the
+erased method on purpose, 3.4) and `contains` / `containsKey` / `remove(Object)` / `indexOf`
+with a value of a type parameter (their parameter is `Object` in Java; a typed variant would be
+a second method per interface that applies only when the argument has the element type: not
+built). A String element goes to `add_t` now, not to the helper `Collection_add_s`.
+Runtime: 9 methods on the typed interfaces, 31 lines of implementations on the wrappers and
+views.
+
+### 5.4 The remaining conversions of 4.3; piece `idset`, built and removed
+
+- `Sets.newIdentityHashSet()` (0.18 M `setAs_` wrappers in `TemplateTypeReplacer`): **built as
+  piece `idset`, gated (commit 899d2cfd, `GATE OK b5_meth`), measured, removed** (the commit
+  after). Form: for a set of a class or interface of the program `newTSet_(tc_X)`, the typed
+  set that compares with Go's `==` (an entry of `Ctx.TYPED_MAKERS`, the conversion chosen in
+  `ExprEmitter.immutableOf`); `TemplateTypeReplacer.seenTypes` became an L1 declaration. The
+  profile: the wrapper went (`setAs_` -0.18 M, `new_LinkedHashSet` / `htable_.insertPlain`
+  -0.42 M), but the typed set allocated more than the erased one: `TSet[*JSType].add0` +0.65 M
+  (the key slice, each growth step, and the index, a Go map, above 8 elements), `delAt` +0.19 M
+  (the deletion marks; the replacer adds and removes a type per visit), `newTSet_` +0.17 M:
+  **+0.4 M objects and +32 MB in all**. The erased set with its one wrapper is the cheaper
+  form for this use, so the piece went. What would make it a gain: a typed set whose index is
+  not a Go map (the erased `htable_`'s open addressing at the element type).
+- `Iterables.filter` (0.39 M `iterableAs_`): **not built**. A typed result needs a typed
+  filtering Iterable and its iterator in the runtime (about 30 lines) for one allocation of the
+  four the call makes; judged against "minimal runtime".
+- the graph classes' `getNodes` (0.3 M `collectionAs_`): variance, 3.4; not touched.
+
+### 5.5 Counts
+
+Declarations of a collection type (3,867), by form (`forms.sh`, `map0` -> `map3`):
+
+| state | b4 tip | b5 |
+|---|---:|---:|
+| L1 concrete typed collection | 3,067 | 3,065 |
+| L2 typed interface | 558 | 670 |
+| L3 erased | 242 | 132 |
+
+The 132: class-typed that keep the class 19 (`ImmutableMap` with a key that has type arguments
+or is `Object` 11, `ImmutableList<String[]>` 1, an erased type variable 4, `ArrayList<LocalClass>`
+1, `ImmutableSet<ImmutableSet<String>>` 1, `ImmutableList<? extends JSType>` 1) and 2
+`ArrayList<?>` (now the erased interface `List`); a class without a typed family 56 (4.2);
+builders 17; `TreeMap` 4 (`TreeMap<Property<?>, Object>`: the key has type arguments, and the
+class has methods of `NavigableMap`; not in `CLASSES`); interface-typed 36 (`List<? extends X>`
+21, and the 15 of piece `wide`).
+
+`baseline.sh` (`g_[A-Z]*.go`), b4 tip -> b5: `cast_[` 723 -> 675, `icast_X(` 195 -> 202,
+`str_(` 140 -> 127, `Node_of_(` 91 -> 79, `obj_(` 555 -> 481, `strobj_(` 390 -> 379, `boxT_(`
+101 -> 90, erased views `.asList()` etc. 572 -> 539, `foreach_(` 169 -> 121, `XOf[` alias uses
+282 -> 185.
+
+Conversions left (`J2GO_LIBGEN=1`): `iterableAs_` 70 -> 56, `iteratorAs_` 7 -> 4,
+`collectionAs_` 36 -> 30, `listAs_` 76 -> 78, `setAs_` 36 -> 40, `mapAs_` 28 -> 48,
+`map_EntryAs_` 12 (the map and list sites that grew are reads of an `Object` or of a
+type-variable result at a class-typed place, which were `cast_[*LinkedHashMap]` before; whether
+one allocates is decided at run time, 5.2). The counts of "places left erased" are not
+comparable with 4.2: `cls` asks `erase` for the interface of every class use.
+Erased constructors left in the generated code: 30 sites (b4: 37).
+
+Runtime lines (verify.sh): 20,241 -> 20,361 in all; **of the default build 20,066 -> 20,117**
+(b4's 20,241 had the 175 lines of `rt_fn_erased.go` in it), off-mode extras (build-tagged
+files) 175 -> 244 (5.6). `rt_lg.go` 687 -> 824: the typed methods 45 lines, `tlistOfT_` and its
+like 27, the kept wrapper of a `LinkedHashMap` and its views 38, comments. Test lines 4,396 ->
+4,524 (`TestLgCls`, `TestLgMapWrapperKept`, `TestLgMeth`).
+
+Allocation (CHECKS of the 18% subset, one run each, state sha256 1cb35c70ccb88501 in every run):
+
+| tree (binary in `scratchpad/b5/`) | alloc_objects | alloc_space | objects without the protobuf pool functions |
+|---|---:|---:|---:|
+| b4 tip (`../b4/mech_del`) | 363.0 M | 18.35 GB | 331.2 M |
+| + cls, first form (`mech_cls`) | 362.9 M | 18.31 GB | 331.1 M |
+| + cls with the kept wrapper and typed-by-own-type, meth, idset (`mech_b5_meth`) | 361.3 M | 18.22 GB | 330.8 M |
+| the same without idset (`mech_b5_fin`, final) | 358.3 M | 17.98 GB | 330.2 M |
+
+Against the start of the rule's collection stages (b2 tip, 340.7 M): 340.7 M -> 330.2 M (-3.1%);
+this stage 331.2 M -> 330.2 M (-0.3%). By function, b4 tip -> final (`pdiff.py` of two `-top
+-nodefraction=0` listings): `strobj_` -1.27 M (Strings given to `add_t` / `put_t` at their
+type), `TList[string].asImm` -0.25 M and `boxAll_[string]` -0.24 M (the `DependencyInfo`
+results), `iterableAs_` -0.17 M; against them the graph work set as a typed set +1.26 M (`TSet.add0` and
+`delAt` 0.51 M, `teq_.add` 0.37 M, `teq_.index` 0.24 M, `newTSet_` 0.15 M) for -0.31 M of
+`htable_.insertPlain` / `new_LinkedHashSet` (5.2), and the wrappers of `JSDocInfo`'s maps +0.5 M (`mapAs_` 0.17 M: the wrapper and its
+atomic box, once per map; the typed key set and values 0.33 M, once per wrapper; before `cls`
+these reads were casts without an object, in the first form of `cls` they were 1.09 M).
+**So piece `cls` by itself raises the object count: +0.5 M at `JSDocInfo`'s maps and +0.95 M at
+the graph work set, against -0.5 M of twins and -0.2 M of conversions (about +0.8 M, +0.25%);
+piece `meth` (-1.2 M boxes of Strings) is the gain of the stage, and the two together are
+331.2 M -> 330.2 M.** Both raises are properties of the runtime, not of the rule's form: an
+erased map made at type variables needs one wrapper, and the typed set compares elements of an
+interface type through `teq_` (a slice of hash codes, a slice of chains and a Go map per set),
+which allocates about 8 objects per small set where the erased `htable_` allocates 2. `teq_`
+already cost 0.88 M objects in the b4 tip (`teq_.add`, the L1 sets and maps of interface
+elements); a `teq_` with one allocation and open addressing would repay both. Not done (5.7).
+
+### 5.6 The runtime's size: the default build and the off-mode extras
+
+The requirement "minimal runtime" is about what the default translation needs. The erased
+forms that only a translation with a switch off names must stay as long as the switches do
+(every piece behind its switch), but they are not the default build's runtime. **Proposal,
+done for the part that is mechanical:**
+
+1. Off-mode-only code lives in build-tagged files, as `rt_fn_erased.go` (tag `j2go_nofntypes`)
+   does for rule "function types": **`go/closure/rt_lg_erased.go`, tag `j2go_nolibgen`**.
+   `tools/prune/verify.sh` and `tools/j2go/selftest/run.sh` pass `-tags j2go_nolibgen` whenever
+   `J2GO_NOLIBGEN` is set (any value), next to `j2go_nofntypes` for `J2GO_NOFNTYPES=1`. (The
+   older debugging switches `J2GO_COLLS_NO*` and `J2GO_ERASED=1` name erased factories too; a
+   translation with one of them is built with the tag by hand. Not gated in this stage.)
+2. What goes there is found, not judged: the top-level runtime functions that the default
+   translation of the tree, the default translation of the self-test, the runtime outside
+   their own declarations and the unit tests do not name, while the translation with every
+   switch off does (`scratchpad/b5/sttr.sh` translates both without building;
+   `dead.py <tree> <selftest>` lists the unnamed functions of each; `move.py` moves the
+   difference with the comments above each function). 15 functions, 43 lines were moved:
+   `ImmutableList_of` with 5 to 11 arguments, `ImmutableList_copyOf_ObjectArr`, the
+   varargs `ImmutableSet_of`, `Collections_unmodifiableCollection` / `Set`,
+   `Maps_newLinkedHashMapWithExpectedSize`, `Sets_newLinkedHashSetWithExpectedSize`,
+   `new_ArrayList_int`, `to_ArrayList`.
+   (`new_TreeSet` is off-mode-only too but has a unit test, and stayed.)
+3. `verify.sh` prints both numbers: `runtime lines of the default build: N  off-mode extras
+   (build-tagged files): M` (files whose first line is `//go:build j2go...`; `rt_fn.go`, tagged
+   `!j2go_nofntypes`, is the default build's). The old line `runtime lines:` (the sum) stays,
+   because `gate.sh` and the earlier records use it.
+4. **Not done, and what it needs:** the function-level search does not see methods, so the
+   erased *methods* and types that only off-mode code reaches (methods of `*ArrayList` that
+   only erased call sites use, the wrappers' erased paths) are still in the default build. A
+   tool that knows reachability is needed (`deadcode` is not installed on this host and
+   installing it was not permitted, 4.5). With it: run it on `cmd/mech` built from the default
+   translation and from the all-off translation (and each with the self-test's `cmd/t`), move
+   what only the second reaches. Methods can move to a tagged file like functions, as long as
+   no interface of the default build needs them (the erased interfaces of `g_zstubs.go` only
+   have the methods some call names, so the compiler says so).
+
+Numbers (verify.sh of the final tree): see 5.8.
+
+### 5.7 Left to do, in the order I would take it
+
+1. (Done in this stage: every switch gated off alone, 5.8. `scratchpad/b5/offall.sh [switch
+   ...]` repeats it, about 6 minutes a switch when the lock is free; run it again after any
+   change of the translator or of the self-test programs.)
+2. **Builders (17 erased).** Not built. By reason: the sorted immutables' builders 9
+   (`ImmutableSortedSet.Builder` 5, `ImmutableSortedMap.Builder` 4: no typed family, item 3); a
+   type argument the typed family cannot hold 3 (`Object` key, `String[]`, a key with type
+   arguments: stay); 5 that `Colls` leaves erased although the typed builder could hold the
+   elements: `builder::add` / `builder::put` as a method reference 3
+   (`InvocationTemplateTypeMatcher.copyMatchedTypes`, `ColorPool.Builder.build`,
+   `JSTypeExpression.getAllTypeNodes`), a lambda's parameter 1 (`DefaultPassConfig`), "reaches a
+   place of type void" 1 (`JSTypeExpression.getAllTypeNames`: the builder's `add` is the body of
+   a lambda).
+   A builder has no interface to be typed "by place" through: its typed form is the concrete
+   `*TListBuilder[X]`, which needs the proof of `Colls` that every use is `add` / `addAll` /
+   `put` / `putAll` / `build`. So these 5 are work in `Colls` (a method reference to `add` as
+   a supported use; a lambda's parameter as a declaration of the rule), not in `LibGen`.
+3. **Classes without a typed family (56).** What each needs:
+   - `EnumSet` 16 (`FeatureSet`, `ExpressionDecomposer`, `Node`): an entry of `CLASSES` (to
+     `Set`) and typed makers for `EnumSet.noneOf` / `of` / `copyOf` / `allOf` / `complementOf`
+     and `clone()`: a typed set sorted by ordinal (`rt_tsorted.go` has the sorted mode; the
+     comparator by ordinal and the five factories are new, about 40 runtime lines). Without
+     the makers every `EnumSet` entering a typed place would be wrapped.
+   - `ImmutableSortedSet` 15 (+ 5 builders) and `ImmutableSortedMap` 4 (+ 4 builders): entries
+     of `CLASSES`; the typed sorted immutable exists (`tsetImmNew_` of an `icSorted_` twin), but
+     `copyOf` / `of` / `naturalOrder().build()` / `orderedBy(..)` are not typed makers, and
+     `first()` / `headSet()` / `descendingSet()` would be calls on the twin.
+   - `ConcurrentMap` / `ConcurrentHashMap` 8: the runtime's `ConcurrentHashMap` is a
+     `LinkedHashMap` without a lock, so `MapT` with a typed map made by place would behave the
+     same; `ConcurrentMap` is an interface and needs to be a class of `CLASSES` that is an
+     interface, or a kind of its own. Not done because nothing here tests concurrent use.
+   - `Deque` / `Queue` / `PriorityQueue` 7: a kind `deque` (`DequeT[T]` with typed `peek` /
+     `poll` / `pop` / `push`): the size of kind `list`. `PriorityQueue` has no typed family.
+   - `IdentityHashMap` 2, `EnumMap` 1, `RangeSet` 1, `SortedSet` 1, `ProtocolStringList` 1
+     (protobuf lists), `Map.Entry<?, ?>` 1: singles; stay.
+4. **`teq_` (`rt_tset.go`): the typed sets and maps whose elements are compared by `equals`**
+   allocate a slice of hash codes, a slice of chains and a Go map (above 8 elements) per
+   collection, growing each: 1.25 M `teq_.add` + 0.45 M `teq_.index` objects in CHECKS, of which
+   the graph work set that piece `cls` typed is 0.6 M. One allocation for both slices and open
+   addressing (as the erased `htable_` has) would make the typed set as cheap as the erased
+   one; it would also make piece `idset` (5.4) a gain.
+5. **Typed variants of the `Object`-parameter methods** (`contains`, `containsKey`,
+   `remove(Object)`, `indexOf`: 15 sites that box a value of a type parameter), `Iterables.filter`
+   (5.4), reading library methods of piece `readers` as the profile shows them.
+6. **The wide side of the graph family** (3.4), the protobuf lists: not touched.
+7. **Off-mode methods out of the default build** (5.6 item 4).
+
+Traps met in this stage (in addition to 4.6): `pkill -f <script>` from a shell whose own command
+line contains the script's name kills that shell; the other agent holds the heavy lock for
+whole replays, so queue work as one script that takes the lock once (`pipe.sh`), and keep the
+tree untouched while a queued script waits (it reads `.cache/j2go`, the runtime files and the
+self-test programs when it gets the lock, not when it was started); `dead.py` reads the
+build-tagged files too (it lists `rt_fn_erased.go`'s functions as off-mode-only: leave them out);
+a class place under `elems` off must hold the erased interface for a class of `CONCRETE`
+(`Ctx.typedArg`); the report counts of "places left erased" count calls of `erase`, not places; a self-test program must also be
+valid with its piece off: with `cls` off rule "typed collections" types `ArrayList<String> al =
+new ArrayList<>()`, and a read of the same object through a type variable (`<T> T prop(k)`, an
+unchecked cast that `unchecked-casts.txt` lets pass) into a declaration of the class casts the
+typed list's view to `*ArrayList` and fails, an old limit of that rule which `cls` removes; the
+program makes such objects where only the type variable is declared (`propOr(k,
+ArrayList::new)`).
+
+### 5.8 Gate lines
+
+Final tree (the code of 2ccac50a with the self-test program of the commit after it; the generated
+files are byte-identical to those gated as `b5_fin`), default translation, `$B/gate.sh agZ3
+b5_final` under the lock, run after the sixteen runs below (log
+`/mnt/data/ubuntu/jm/logs/gate-b5_final.log`, copy in `scratchpad/b5/`): `GATE OK b5_final`
+
+```
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.916s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20361  test lines: 4524
+runtime lines of the default build: 20117  off-mode extras (build-tagged files): 244
+```
+
+Earlier gates of this stage, GATE OK each: `b5_fin` (2ccac50a, before the self-test program
+changed; the CHECKS profile of 5.5 is of its binary), `b5_cls` (first form of `cls`, not committed by itself), `b5_meth` (899d2cfd; its first run
+failed to compile: the runtime's wrapper called `List.remove`, which the erased interface of
+that translation does not have, because no call names it; the wrappers now call the erased
+object through the interface of the one method).
+
+Switches off (`scratchpad/b5/offall.sh`: translate with the switch, build with `-tags
+j2go_nolibgen`, `tools/prune/verify.sh`, each under the lock; logs `scratchpad/b5/verify-<switch>.log`):
+
+All sixteen runs are of one tree: the code of 2ccac50a with the self-test program of the commit
+after it (the first run with everything off failed its self-test: `LibGen.classes()` read a
+list that rule "typed collections" had typed back through a type variable into a declaration
+of the class, which only works with `cls` on; the program was changed, 5.7 traps, and the suite
+started again). **Every switch of the three stages was gated off alone this time, and
+everything off; all passed on the first run of the fixed tree.** After the last run the default
+translation was made again and compared: identical (md5 of `cat g_*.go`).
+
+```
+switches: J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.928s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20361  test lines: 4524
+runtime lines of the default build: 20117  off-mode extras (build-tagged files): 244
+switches: J2GO_NOLIBGEN=cls
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.984s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20361  test lines: 4524
+runtime lines of the default build: 20117  off-mode extras (build-tagged files): 244
+switches: J2GO_NOLIBGEN=meth
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.902s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20361  test lines: 4524
+runtime lines of the default build: 20117  off-mode extras (build-tagged files): 244
+switches: J2GO_NOLIBGEN=iter
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	2.116s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20361  test lines: 4524
+runtime lines of the default build: 20117  off-mode extras (build-tagged files): 244
+switches: J2GO_NOLIBGEN=coll
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.997s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20361  test lines: 4524
+runtime lines of the default build: 20117  off-mode extras (build-tagged files): 244
+switches: J2GO_NOLIBGEN=list
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.952s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20361  test lines: 4524
+runtime lines of the default build: 20117  off-mode extras (build-tagged files): 244
+switches: J2GO_NOLIBGEN=makers
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.973s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20361  test lines: 4524
+runtime lines of the default build: 20117  off-mode extras (build-tagged files): 244
+switches: J2GO_NOLIBGEN=views
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.964s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20361  test lines: 4524
+runtime lines of the default build: 20117  off-mode extras (build-tagged files): 244
+switches: J2GO_NOLIBGEN=place
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.919s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20361  test lines: 4524
+runtime lines of the default build: 20117  off-mode extras (build-tagged files): 244
+switches: J2GO_NOLIBGEN=cov
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.943s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20361  test lines: 4524
+runtime lines of the default build: 20117  off-mode extras (build-tagged files): 244
+switches: J2GO_NOLIBGEN=map
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.951s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20361  test lines: 4524
+runtime lines of the default build: 20117  off-mode extras (build-tagged files): 244
+switches: J2GO_NOLIBGEN=elems
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.991s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20361  test lines: 4524
+runtime lines of the default build: 20117  off-mode extras (build-tagged files): 244
+switches: J2GO_NOLIBGEN=nncoll
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.971s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20361  test lines: 4524
+runtime lines of the default build: 20117  off-mode extras (build-tagged files): 244
+switches: J2GO_NOLIBGEN=readers
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.938s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20361  test lines: 4524
+runtime lines of the default build: 20117  off-mode extras (build-tagged files): 244
+switches: J2GO_NOLIBGEN=set
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.953s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20361  test lines: 4524
+runtime lines of the default build: 20117  off-mode extras (build-tagged files): 244
+switches: J2GO_NOLIBGEN=wide
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.948s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20361  test lines: 4524
+runtime lines of the default build: 20117  off-mode extras (build-tagged files): 244
+```
+
+Not gated: combinations of switches other than "all"; the older switches `J2GO_COLLS_NO*` and
+`J2GO_ERASED=1` (5.6).
+
+### 5.9 Fifth flip: additions to 3.8 and 4.8
+
+- Places that were `*ImmutableList` / `*ArrayList` / `*LinkedHashMap` / `*ImmutableMap` /
+  `*ImmutableSet` (aliases `ImmutableListOf[X]`, `ArrayListOf[X]`, ...: 97 fewer alias uses) are
+  `ListT[X]` / `MapT[K, V]` / `SetT[X]` / `CollectionT[X]`: `colls`, `gmaps`, `immbuild` (104) and
+  every step that looks for a declaration of an immutable class by its Go type find fewer.
+  Results of record and AutoValue accessors and of interface methods (`DependencyInfo`,
+  `JSChunk`, `CompilerInput`) are among them.
+- New runtime names: `tlistOfT_` / `tsetOfT_` / `tmapOfT_` (40 sites, where `tlistImm_(tc,
+  cast_[*ImmutableList](..))` was), `add_t` / `put_t` / `remove_t` / `set_t` / `setValue_t` on the
+  typed interfaces, their wrappers and the views; `LinkedHashMap.typed_`; `mapAs.ks` / `vs`;
+  `tlistView_.trimToSize`. `unify` (402) and the view patches touch `rt_lg.go` next to them.
+- `Collection_add_s` is called less (a String goes to `add_t` on a typed receiver): `strkeys`
+  (123, 180) see fewer sites.
+- `rt_lg_erased.go` (tag `j2go_nolibgen`) is not part of the default build: a step that edits
+  runtime functions by name must not expect `ImmutableList_of_Object_...` (5 to 11 arguments),
+  `to_ArrayList`, `new_ArrayList_int` there.
