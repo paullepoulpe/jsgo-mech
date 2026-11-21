@@ -263,11 +263,6 @@ type SimpleSetMultimap_1InsertionOrderedValuesIterator[K comparable, V comparabl
 func (this *SimpleSetMultimap_1InsertionOrderedValuesIterator[K, V]) isa_SimpleSetMultimap_1InsertionOrderedValuesIterator_() {
 }
 
-func is_SimpleSetMultimap_1InsertionOrderedValuesIterator(v any) bool {
-	_, ok := v.(interface{ isa_SimpleSetMultimap_1InsertionOrderedValuesIterator_() })
-	return ok
-}
-
 func (this *SimpleSetMultimap_1InsertionOrderedValuesIterator[K, V]) finit_SimpleSetMultimap_1InsertionOrderedValuesIterator() {
 	this.entries = this.outer_.entryOrder.iterator_t()
 	this.last = nil
@@ -309,11 +304,6 @@ type SimpleSetMultimap_1[K comparable, V comparable] struct {
 }
 
 func (this *SimpleSetMultimap_1[K, V]) isa_SimpleSetMultimap_1_() {}
-
-func is_SimpleSetMultimap_1(v any) bool {
-	_, ok := v.(interface{ isa_SimpleSetMultimap_1_() })
-	return ok
-}
 
 func (this *SimpleSetMultimap_1[K, V]) up_AbstractCollection() *AbstractCollection {
 	if this == nil {

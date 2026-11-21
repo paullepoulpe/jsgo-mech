@@ -9,21 +9,6 @@ type ErrorReporter_util struct {
 
 func (this *ErrorReporter_util) as_ErrorReporter_util() *ErrorReporter_util { return this }
 
-func to_ErrorReporter_util(v any) *ErrorReporter_util {
-	switch p := v.(type) {
-	case *ParserRunner_Es6ErrorReporter:
-		return p.as_ErrorReporter_util()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_ErrorReporter_util() *ErrorReporter_util }).as_ErrorReporter_util()
-}
-
-func is_ErrorReporter_util(v any) bool {
-	_, ok := v.(interface{ as_ErrorReporter_util() *ErrorReporter_util })
-	return ok
-}
-
 func (this *ErrorReporter_util) self() any {
 	if this == nil {
 		return nil

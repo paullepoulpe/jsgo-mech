@@ -16,11 +16,6 @@ type UndiGraph_vt_[N comparable, E comparable] interface {
 
 func (this *UndiGraph[N, E]) isa_UndiGraph_() {}
 
-func is_UndiGraph(v any) bool {
-	_, ok := v.(interface{ isa_UndiGraph_() })
-	return ok
-}
-
 func (this *UndiGraph[N, E]) as_UndiGraph() *UndiGraph[N, E] { return this }
 
 func (this *UndiGraph[N, E]) as_UndiGraph_() any { return this }

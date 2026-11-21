@@ -52,27 +52,6 @@ func (this *ConvertTypesToColors_RemoveTypes) as_ConvertTypesToColors_RemoveType
 	return this
 }
 
-func to_ConvertTypesToColors_RemoveTypes(v any) *ConvertTypesToColors_RemoveTypes {
-	switch p := v.(type) {
-	case *ConvertTypesToColors_RemoveTypes:
-		return p
-	case *ConvertTypesToColors_RemoveTypesAndApplyColors:
-		return p.as_ConvertTypesToColors_RemoveTypes()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_ConvertTypesToColors_RemoveTypes() *ConvertTypesToColors_RemoveTypes
-	}).as_ConvertTypesToColors_RemoveTypes()
-}
-
-func is_ConvertTypesToColors_RemoveTypes(v any) bool {
-	_, ok := v.(interface {
-		as_ConvertTypesToColors_RemoveTypes() *ConvertTypesToColors_RemoveTypes
-	})
-	return ok
-}
-
 func (this *ConvertTypesToColors_RemoveTypes) self() any {
 	if this == nil {
 		return nil

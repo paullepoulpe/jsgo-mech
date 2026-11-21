@@ -45,18 +45,6 @@ type CodeConsumer_I interface {
 
 func (this *CodeConsumer) as_CodeConsumer() *CodeConsumer { return this }
 
-func to_CodeConsumer(v any) *CodeConsumer {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_CodeConsumer() *CodeConsumer }).as_CodeConsumer()
-}
-
-func is_CodeConsumer(v any) bool {
-	_, ok := v.(interface{ as_CodeConsumer() *CodeConsumer })
-	return ok
-}
-
 func (this *CodeConsumer) self() any {
 	if this == nil {
 		return nil

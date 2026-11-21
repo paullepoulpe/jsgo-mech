@@ -1508,6 +1508,12 @@ type RemoveUnusedCode_Removable_I interface {
 	removeInternal_impl(*AbstractCompiler)
 }
 
+// RemoveUnusedCode_Removable_as is implemented by RemoveUnusedCode_Removable and the classes that extend it: a cast to RemoveUnusedCode_Removable asserts to it
+// (post-flip).
+type RemoveUnusedCode_Removable_as interface {
+	as_RemoveUnusedCode_Removable() *RemoveUnusedCode_Removable
+}
+
 func (this *RemoveUnusedCode_Removable) as_RemoveUnusedCode_Removable() *RemoveUnusedCode_Removable {
 	return this
 }
@@ -1516,16 +1522,7 @@ func to_RemoveUnusedCode_Removable(v any) *RemoveUnusedCode_Removable {
 	if v == nil {
 		return nil
 	}
-	return v.(interface {
-		as_RemoveUnusedCode_Removable() *RemoveUnusedCode_Removable
-	}).as_RemoveUnusedCode_Removable()
-}
-
-func is_RemoveUnusedCode_Removable(v any) bool {
-	_, ok := v.(interface {
-		as_RemoveUnusedCode_Removable() *RemoveUnusedCode_Removable
-	})
-	return ok
+	return v.(RemoveUnusedCode_Removable_as).as_RemoveUnusedCode_Removable()
 }
 
 func (this *RemoveUnusedCode_Removable) self() any {
@@ -2939,29 +2936,6 @@ type RemoveUnusedCode_PolyfillInfo_I interface {
 
 func (this *RemoveUnusedCode_PolyfillInfo) as_RemoveUnusedCode_PolyfillInfo() *RemoveUnusedCode_PolyfillInfo {
 	return this
-}
-
-func to_RemoveUnusedCode_PolyfillInfo(v any) *RemoveUnusedCode_PolyfillInfo {
-	switch p := v.(type) {
-	case *RemoveUnusedCode_GlobalPolyfillInfo:
-		return p.as_RemoveUnusedCode_PolyfillInfo()
-	case *RemoveUnusedCode_PrototypePropertyPolyfillInfo:
-		return p.as_RemoveUnusedCode_PolyfillInfo()
-	case *RemoveUnusedCode_StaticPropertyPolyfillInfo:
-		return p.as_RemoveUnusedCode_PolyfillInfo()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_RemoveUnusedCode_PolyfillInfo() *RemoveUnusedCode_PolyfillInfo
-	}).as_RemoveUnusedCode_PolyfillInfo()
-}
-
-func is_RemoveUnusedCode_PolyfillInfo(v any) bool {
-	_, ok := v.(interface {
-		as_RemoveUnusedCode_PolyfillInfo() *RemoveUnusedCode_PolyfillInfo
-	})
-	return ok
 }
 
 func (this *RemoveUnusedCode_PolyfillInfo) self() any {
