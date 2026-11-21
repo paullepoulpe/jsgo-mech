@@ -303,7 +303,7 @@ func Math_toIntExact(l int64) int32 {
 func Objects_equals(a, b any) bool { return objequals_(a, b) }
 func Objects_hashCode(a any) int32 { return objhash_(a) }
 
-func Objects_hash(vs []any) int32 {
+func Objects_hash(vs ...any) int32 {
 	if vs == nil {
 		return 0
 	}

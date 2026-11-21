@@ -67,7 +67,7 @@ func (this *JsDocInfoParser) addParserWarning_2(msg Msg, messageArg string) {
 }
 
 func (this *JsDocInfoParser) addParserWarning_4(msg Msg, messageArg Optional[string], lineno int32, charno int32) {
-	this.errorReporter.warning(msg.format_1([]any{strobj_(messageArg.orElse(nullstr_))}), this.getSourceName(), lineno, charno)
+	this.errorReporter.warning(msg.format_1(strobj_(messageArg.orElse(nullstr_))), this.getSourceName(), lineno, charno)
 }
 
 func (this *JsDocInfoParser) addParserWarning(msg Msg) {
@@ -83,7 +83,7 @@ func (this *JsDocInfoParser) addTypeWarning_2(msg Msg, messageArg string) {
 }
 
 func (this *JsDocInfoParser) addTypeWarning_4(msg Msg, messageArg Optional[string], lineno int32, charno int32) {
-	this.errorReporter.warning(("Bad type annotation. " + sstr_(msg.format_1([]any{strobj_(messageArg.orElse(nullstr_))})) + sstr_(JsDocInfoParser_BAD_TYPE_WIKI_LINK)), this.getSourceName(), lineno, charno)
+	this.errorReporter.warning(("Bad type annotation. " + sstr_(msg.format_1(strobj_(messageArg.orElse(nullstr_)))) + sstr_(JsDocInfoParser_BAD_TYPE_WIKI_LINK)), this.getSourceName(), lineno, charno)
 }
 
 func (this *JsDocInfoParser) addTypeWarning(msg Msg) {

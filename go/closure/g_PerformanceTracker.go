@@ -425,7 +425,7 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 		output.println(JSCompStrings_lines([]string{"", "Input AST Manifest:", "token,count"}))
 		var manifestLines []string = []string{}
 		for e := range elemsBy_(this.astManifest.entrySet(), icast_Map_Entry) {
-			manifestLines = append(manifestLines, String_format("%s,%d", []any{e.getKey(), e.getValue()}))
+			manifestLines = append(manifestLines, String_format("%s,%d", e.getKey(), e.getValue()))
 		}
 		Collections_sort(sliceView_(tc_string, manifestLines))
 		for _, line := range manifestLines {

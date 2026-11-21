@@ -215,7 +215,7 @@ func (this *SuggestedFix_Builder) insertBefore(nodeToInsertBefore Node, content 
 func (this *SuggestedFix_Builder) insertBeforeString(nodeToInsertBefore Node, content string, sortKey string) *SuggestedFix_Builder {
 	var startPosition int32 = SuggestedFix_getStartPositionForNodeConsideringComments(nodeToInsertBefore)
 	if nodeToInsertBefore.getSourceFileName() == "" {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("No source file name for node: %s", []any{nodeToInsertBefore.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("No source file name for node: %s", nodeToInsertBefore.box_())))
 	}
 	this.replacements.put(nodeToInsertBefore.getSourceFileName(), CodeReplacement_create_int_int_String_String(startPosition, 0, content, sortKey))
 	return this
@@ -390,7 +390,7 @@ func (this *SuggestedFix_Builder) addOrReplaceJsDoc(n Node, newJsDoc string) *Su
 func (this *SuggestedFix_Builder) changeJsDocType(n Node, compiler *AbstractCompiler, type_ string) *SuggestedFix_Builder {
 	var typeNode Node = JsDocInfoParser_parseTypeString(type_)
 	if typeNode == 0 {
-		panic(new_NullPointerException_String(Strings_lenientFormat("Invalid type: %s", []any{type_})))
+		panic(new_NullPointerException_String(Strings_lenientFormat("Invalid type: %s", type_)))
 	}
 	var typeExpr *JSTypeExpression = new_JSTypeExpression(typeNode, "jsflume")
 	var newJsType *JSType = typeExpr.evaluate(nil, compiler.getTypeRegistry())
@@ -405,7 +405,7 @@ func (this *SuggestedFix_Builder) changeJsDocType(n Node, compiler *AbstractComp
 func (this *SuggestedFix_Builder) replaceTypePattern(n Node, type_ string, pattern *Pattern) {
 	var info *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
 	if info == nil {
-		panic(new_NullPointerException_String(Strings_lenientFormat("Node %s does not have JS Doc associated with it.", []any{n.box_()})))
+		panic(new_NullPointerException_String(Strings_lenientFormat("Node %s does not have JS Doc associated with it.", n.box_())))
 	}
 	var originalComment Optional[string] = info.getOriginalCommentString()
 	var originalPosition int32 = info.getOriginalCommentPosition()

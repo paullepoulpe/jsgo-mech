@@ -48,7 +48,7 @@ func (this *SimpleBiMap[K, V]) put(key K, value V) V {
 		return oldValue
 	}
 	if ok_, a1_ := !this.backward.Has(value), boxT_(value); !ok_ {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("value already present: %s", []any{a1_})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("value already present: %s", a1_)))
 	}
 	this.forward.Put(key, value)
 	if hadKey {

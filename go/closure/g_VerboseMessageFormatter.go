@@ -43,7 +43,7 @@ func (this *VerboseMessageFormatter) format(message *JSError) string {
 	if sourceRegion != nil {
 		lineSource = Optional_of[string](sourceRegion.getSourceExcerpt())
 	}
-	return String_format("%s at %s line %s %s", []any{strobj_(description), func() any {
+	return String_format("%s at %s line %s %s", strobj_(description), func() any {
 		if sourceName.orElse("") == "" {
 			return strobj_("(unknown source)")
 		}
@@ -58,7 +58,7 @@ func (this *VerboseMessageFormatter) format(message *JSError) string {
 			return strobj_((":\n\n" + sstr_(lineSource.get())))
 		}
 		return strobj_(".")
-	}()})
+	}())
 }
 
 // formatError: an object that is exactly a VerboseMessageFormatter calls its formatError_impl directly (post-flip); others dispatch.
