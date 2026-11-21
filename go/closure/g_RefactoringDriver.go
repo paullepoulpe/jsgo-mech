@@ -22,7 +22,7 @@ func (this *RefactoringDriver) drive_2(scanner *Scanner_refactoring, includeFile
 	var callback *JsFlumeCallback = new_JsFlumeCallback(scanner, includeFilePattern)
 	NodeTraversal_traverse(this.compiler_.up_AbstractCompiler(), this.rootNode_, JsFlumeCallback_as_NodeTraversal_Callback(callback))
 	var fixes *[]*SuggestedFix = callback.getFixes()
-	sliceAddAll_(tc_p_SuggestedFix, fixes, Collection(scanner.processAllMatches(Collection(slicePtrView_(tc_p_Match, callback.getMatches()))).asList()))
+	sliceAddList_(fixes, scanner.processAllMatches(Collection(slicePtrView_(tc_p_Match, callback.getMatches()))))
 	return fixes
 }
 
