@@ -7,7 +7,7 @@ type PrototypeObjectType struct {
 	properties                *PropertyMap
 	implicitPrototypeFallback *ObjectType
 	ownerFunction             *FunctionType
-	className                 Optional[string]
+	className                 string
 	templateParamCount        int32
 	nativeType                bool
 	anonymousType             bool
@@ -70,7 +70,7 @@ func (this *PrototypeObjectType) init_PrototypeObjectType(builder *PrototypeObje
 		this.setImplicitPrototype(this.registry.getNativeObjectType(JSTypeNative_OBJECT_TYPE))
 	}
 	if this.anonymousType {
-		if !this.className.isEmpty() {
+		if this.className != nullstr_ {
 			panic(new_IllegalStateException_0())
 		}
 	}
@@ -165,9 +165,9 @@ func (this *PrototypeObjectType) appendTo_impl(sb *TypeStringBuilder) {
 	if this.hasReferenceName() {
 		sb.append(func() string {
 			if sb.isForAnnotations() {
-				return this.getNormalizedReferenceName().orElseThrow()
+				return optstrGet_(this.getNormalizedReferenceName())
 			}
-			return this.getReferenceName().orElseThrow()
+			return optstrGet_(this.getReferenceName())
 		}())
 		return
 	}
@@ -266,13 +266,13 @@ func (this *PrototypeObjectType) getTemplateParamCount_impl() int32 {
 	return this.templateParamCount
 }
 
-func (this *PrototypeObjectType) getReferenceName_impl() Optional[string] {
-	if this.className.isPresent() {
+func (this *PrototypeObjectType) getReferenceName_impl() string {
+	if this.className != nullstr_ {
 		return this.className
 	} else if this.ownerFunction != nil {
-		return Optional_of[string]((sstr_(this.ownerFunction.getReferenceName().orElse("null")) + ".prototype"))
+		return optstrOf_((sstr_(optstrOr_(this.ownerFunction.getReferenceName(), "null")) + ".prototype"))
 	} else {
-		return Optional_empty[string]()
+		return nullstr_
 	}
 }
 
@@ -354,7 +354,7 @@ func (this *PrototypeObjectType) matchRecordTypeConstraint(constraintObj *Object
 
 func (this *PrototypeObjectType) recursionUnsafeHashCode_impl() int32 {
 	if this.isStructuralType() {
-		return Objects_hash(this.className.box_(), obj_(this.properties))
+		return Objects_hash(optstrBox_(this.className), obj_(this.properties))
 	} else {
 		return System_identityHashCode(this.self())
 	}
@@ -412,7 +412,7 @@ type PrototypeObjectType_Builder struct {
 	registry           *JSTypeRegistry
 	implicitPrototype  *ObjectType
 	templateTypeMap    *TemplateTypeMap
-	className          Optional[string]
+	className          string
 	templateParamCount int32
 	nativeType         bool
 	anonymousType      bool
@@ -422,7 +422,7 @@ type PrototypeObjectType_Builder struct {
 // object (self_); every class of the hierarchy implements them (post-flip).
 type PrototypeObjectType_Builder_I interface {
 	build_impl() *PrototypeObjectType
-	setName_impl(Optional[string]) *PrototypeObjectType_Builder
+	setName_impl(string) *PrototypeObjectType_Builder
 }
 
 func (this *PrototypeObjectType_Builder) as_PrototypeObjectType_Builder() *PrototypeObjectType_Builder {
@@ -437,7 +437,7 @@ func (this *PrototypeObjectType_Builder) self() any {
 }
 
 func (this *PrototypeObjectType_Builder) finit_PrototypeObjectType_Builder() {
-	this.className = Optional_empty[string]()
+	this.className = nullstr_
 }
 
 func (this *PrototypeObjectType_Builder) init_PrototypeObjectType_Builder(registry *JSTypeRegistry) {
@@ -453,7 +453,7 @@ func new_PrototypeObjectType_Builder(registry *JSTypeRegistry) *PrototypeObjectT
 	return this
 }
 
-func (this *PrototypeObjectType_Builder) setName_impl(x Optional[string]) *PrototypeObjectType_Builder {
+func (this *PrototypeObjectType_Builder) setName_impl(x string) *PrototypeObjectType_Builder {
 	this.className = x
 	return this.castThis()
 }
@@ -491,7 +491,7 @@ func (this *PrototypeObjectType_Builder) build_impl() *PrototypeObjectType {
 	return new_PrototypeObjectType(this)
 }
 
-func (this *PrototypeObjectType_Builder) setName(p0 Optional[string]) *PrototypeObjectType_Builder {
+func (this *PrototypeObjectType_Builder) setName(p0 string) *PrototypeObjectType_Builder {
 	return this.self_.setName_impl(p0)
 }
 
@@ -662,7 +662,7 @@ func (this *PrototypeObjectType) getTemplateParamCount() int32 {
 }
 
 // getReferenceName: an object that is exactly a PrototypeObjectType calls its getReferenceName_impl directly (post-flip); others dispatch.
-func (this *PrototypeObjectType) getReferenceName() Optional[string] {
+func (this *PrototypeObjectType) getReferenceName() string {
 	if p, _ := this.self_.(*PrototypeObjectType); p == this {
 		return this.getReferenceName_impl()
 	}

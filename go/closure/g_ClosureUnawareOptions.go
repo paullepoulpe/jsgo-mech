@@ -97,8 +97,8 @@ func (this *ClosureUnawareOptions) copyDebugOptions() {
 	this.shadowOptions.setInputDelimiter(this.original_.getInputDelimiter())
 	this.shadowOptions.setUseOriginalNamesInOutput(this.original_.getUseOriginalNamesInOutput())
 	this.shadowOptions.setDebugLogFilter(this.original_.getDebugLogFilter())
-	var debugLogDirectory Optional[string] = this.original_.getDebugLogDirectory()
-	if debugLogDirectory.isPresent() {
-		this.shadowOptions.setDebugLogDirectory(Optional_of[string](FilePaths_resolve(debugLogDirectory.get(), "./TranspileAndOptimizeClosureUnaware")))
+	var debugLogDirectory string = this.original_.getDebugLogDirectory()
+	if debugLogDirectory != nullstr_ {
+		this.shadowOptions.setDebugLogDirectory(optstrOf_(FilePaths_resolve(optstrGet_(debugLogDirectory), "./TranspileAndOptimizeClosureUnaware")))
 	}
 }

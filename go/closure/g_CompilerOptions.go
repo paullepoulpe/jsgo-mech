@@ -84,21 +84,21 @@ type CompilerOptions struct {
 	inlineFunctionsLevel                         CompilerOptions_Reach
 	zoneInputPattern                             *Pattern
 	es6ModuleTranspilation                       CompilerOptions_Es6ModuleTranspilation
-	typedAstOutputFile                           Optional[string]
-	renamePrefix                                 Optional[string]
-	renamePrefixNamespace                        Optional[string]
-	syntheticBlockStartMarker                    Optional[string]
-	syntheticBlockEndMarker                      Optional[string]
-	locale                                       Optional[string]
-	j2clMinifierPruningManifest                  Optional[string]
-	debugLogDirectory                            Optional[string]
-	debugLogFilter                               Optional[string]
-	tracerOutput                                 Optional[string]
-	externExportsPath                            Optional[string]
-	sourceMapOutputPath                          Optional[string]
-	outputCharset                                Optional[string]
-	dynamicImportAlias                           Optional[string]
-	enableZonesDefineName                        Optional[string]
+	typedAstOutputFile                           string
+	renamePrefix                                 string
+	renamePrefixNamespace                        string
+	syntheticBlockStartMarker                    string
+	syntheticBlockEndMarker                      string
+	locale                                       string
+	j2clMinifierPruningManifest                  string
+	debugLogDirectory                            string
+	debugLogFilter                               string
+	tracerOutput                                 string
+	externExportsPath                            string
+	sourceMapOutputPath                          string
+	outputCharset                                string
+	dynamicImportAlias                           string
+	enableZonesDefineName                        string
 	numParallelThreads                           int32
 	maxFunctionSizeAfterInlining                 int32
 	optimizationLoopMaxIterations                int32
@@ -225,7 +225,7 @@ func (this *CompilerOptions) finit_CompilerOptions() {
 	this.experimentalOutputFeatureSet = Optional_base_absent()
 	this.languageOutIsDefaultStrict = Optional_base_absent()
 	this.instrumentForCoverageOnly = false
-	this.typedAstOutputFile = Optional_empty[string]()
+	this.typedAstOutputFile = nullstr_
 	this.mergedPrecompiledLibraries = false
 	this.inferConsts = true
 	this.preserveDetailedSourceInfo = false
@@ -237,15 +237,15 @@ func (this *CompilerOptions) finit_CompilerOptions() {
 	this.messageBundle = nil
 	this.numParallelThreads = 1
 	this.useSizeHeuristicToStopOptimizationLoop = true
-	this.renamePrefix = Optional_empty[string]()
-	this.renamePrefixNamespace = Optional_empty[string]()
+	this.renamePrefix = nullstr_
+	this.renamePrefixNamespace = nullstr_
 	this.renamePrefixNamespaceAssumeCrossChunkNames = false
 	this.optimizeLocalAccessForGlobalSymbolNamespace = CompilerOptions_OptimizeLocalAccess_DISABLED
-	this.syntheticBlockStartMarker = Optional_empty[string]()
-	this.syntheticBlockEndMarker = Optional_empty[string]()
-	this.locale = Optional_empty[string]()
+	this.syntheticBlockStartMarker = nullstr_
+	this.syntheticBlockEndMarker = nullstr_
+	this.locale = nullstr_
 	this.j2clMinifierEnabled = true
-	this.j2clMinifierPruningManifest = Optional_empty[string]()
+	this.j2clMinifierPruningManifest = nullstr_
 	this.removeJ2clAsserts = true
 	this.replaceIdGenerators = true
 	this.processCommonJSModules = false
@@ -259,21 +259,21 @@ func (this *CompilerOptions) finit_CompilerOptions() {
 	this.runtimeLibraryMode = RuntimeJsLibManager_RuntimeLibraryMode_INJECT
 	this.assumeForwardDeclaredForMissingTypesField = false
 	this.inputDelimiter = "// Input %num%"
-	this.debugLogDirectory = Optional_empty[string]()
-	this.debugLogFilter = Optional_empty[string]()
+	this.debugLogDirectory = nullstr_
+	this.debugLogFilter = nullstr_
 	this.stateCompressionWrapper = nil
 	this.stateDecompressionWrapper = nil
 	this.filesToPrintAfterEachPassRegexList = tlistEmptyImm_(tc_string)
 	this.chunksToPrintAfterEachPassRegexList = tlistEmptyImm_(tc_string)
 	this.qnameUsesToPrintAfterEachPassList = tlistEmptyImm_(tc_string)
-	this.tracerOutput = Optional_empty[string]()
+	this.tracerOutput = nullstr_
 	this.warningsGuard = ComposeWarningsGuard_createFromGuards([]*WarningsGuard{})
 	this.summaryDetailLevel = 1
 	this.lineLengthThreshold = CompilerOptions_DEFAULT_LINE_LENGTH_THRESHOLD
 	this.useOriginalNamesInOutput = false
-	this.externExportsPath = Optional_empty[string]()
+	this.externExportsPath = nullstr_
 	this.extraReportGenerators = &[]SortingErrorManager_ErrorReportGenerator{}
-	this.sourceMapOutputPath = Optional_empty[string]()
+	this.sourceMapOutputPath = nullstr_
 	this.shouldAlwaysGatherSourceMapInfo_ = false
 	this.sourceMapDetailLevel = SourceMap_DetailLevel_ALL
 	this.sourceMapFormat = SourceMap_Format_DEFAULT
@@ -282,7 +282,7 @@ func (this *CompilerOptions) finit_CompilerOptions() {
 	this.resolveSourceMapAnnotations = true
 	this.sourceMapLocationMappings = tlistEmptyImm_(tc_SourceMap_LocationMapping)
 	this.sourceMapIncludeSourcesContent = false
-	this.outputCharset = Optional_empty[string]()
+	this.outputCharset = nullstr_
 	this.assumeGettersArePure_ = true
 	this.assumePropertiesAreStaticallyAnalyzable = true
 	this.assumeStaticInheritanceIsNotUsed = true
@@ -295,9 +295,9 @@ func (this *CompilerOptions) finit_CompilerOptions() {
 	this.rewriteModulesBeforeTypechecking = false
 	this.enableModuleRewriting = true
 	this.allowDynamicImport = false
-	this.dynamicImportAlias = Optional_empty[string]()
+	this.dynamicImportAlias = nullstr_
 	this.unknownDefinesToIgnore = tlistEmptyImm_(tc_string)
-	this.enableZonesDefineName = Optional_empty[string]()
+	this.enableZonesDefineName = nullstr_
 	this.zoneInputPattern = nil
 	this.es6ModuleTranspilation = CompilerOptions_Es6ModuleTranspilation_COMPILE
 }
@@ -356,7 +356,7 @@ func (this *CompilerOptions) init_CompilerOptions() {
 	this.labelRenaming = false
 	this.generatePseudoNames = false
 	this.preferStableNames = false
-	this.renamePrefix = Optional_empty[string]()
+	this.renamePrefix = nullstr_
 	this.collapsePropertiesLevel = CompilerOptions_PropertyCollapseLevel_NONE
 	this.collapseObjectLiterals = false
 	this.devirtualizeMethods = false
@@ -364,9 +364,9 @@ func (this *CompilerOptions) init_CompilerOptions() {
 	this.ambiguateProperties = false
 	this.exportTestFunctions = false
 	this.nameGenerator = NameGenerator(new_DefaultNameGenerator_0())
-	this.syntheticBlockStartMarker = Optional_empty[string]()
-	this.syntheticBlockEndMarker = Optional_empty[string]()
-	this.locale = Optional_empty[string]()
+	this.syntheticBlockStartMarker = nullstr_
+	this.syntheticBlockEndMarker = nullstr_
+	this.locale = nullstr_
 	this.doLateLocalizationField = false
 	this.markAsCompiled = false
 	this.closurePass = false
@@ -434,12 +434,12 @@ func (this *CompilerOptions) shouldRunCrossChunkMethodMotion() bool {
 	return this.crossChunkMethodMotion
 }
 
-func (this *CompilerOptions) getSourceMapOutputPath() Optional[string] {
+func (this *CompilerOptions) getSourceMapOutputPath() string {
 	return this.sourceMapOutputPath
 }
 
 func (this *CompilerOptions) shouldGatherSourceMapInfo() bool {
-	return (this.shouldAlwaysGatherSourceMapInfo_ || this.sourceMapOutputPath.orElse("") != "")
+	return (this.shouldAlwaysGatherSourceMapInfo_ || optstrOr_(this.sourceMapOutputPath, "") != "")
 }
 
 func (this *CompilerOptions) setAlwaysGatherSourceMapInfo(shouldAlwaysGatherSourceMapInfo bool) {
@@ -467,11 +467,11 @@ func (this *CompilerOptions) getInstrumentForCoverageOnly() bool {
 	return this.instrumentForCoverageOnly
 }
 
-func (this *CompilerOptions) setTypedAstOutputFile(file Optional[string]) {
+func (this *CompilerOptions) setTypedAstOutputFile(file string) {
 	this.typedAstOutputFile = file
 }
 
-func (this *CompilerOptions) getTypedAstOutputFile() Optional[string] {
+func (this *CompilerOptions) getTypedAstOutputFile() string {
 	return this.typedAstOutputFile
 }
 
@@ -667,11 +667,11 @@ func (this *CompilerOptions) setTracerMode(mode CompilerOptions_TracerMode) {
 	this.tracer = mode
 }
 
-func (this *CompilerOptions) getTracerOutput() Optional[string] {
+func (this *CompilerOptions) getTracerOutput() string {
 	return this.tracerOutput
 }
 
-func (this *CompilerOptions) setTracerOutput(out Optional[string]) {
+func (this *CompilerOptions) setTracerOutput(out string) {
 	this.tracerOutput = out
 }
 
@@ -688,7 +688,7 @@ func (this *CompilerOptions) setProtectHiddenSideEffects(enable bool) {
 }
 
 func (this *CompilerOptions) shouldProtectHiddenSideEffects() bool {
-	return (this.protectHiddenSideEffects && (!this.checksOnly || this.getTypedAstOutputFile().isPresent()))
+	return (this.protectHiddenSideEffects && (!this.checksOnly || this.getTypedAstOutputFile() != nullstr_))
 }
 
 func (this *CompilerOptions) setAssumeGettersArePure(x bool) {
@@ -775,16 +775,16 @@ func (this *CompilerOptions) shouldAllowDynamicImport() bool {
 	return this.allowDynamicImport
 }
 
-func (this *CompilerOptions) getDynamicImportAlias() Optional[string] {
+func (this *CompilerOptions) getDynamicImportAlias() string {
 	return this.dynamicImportAlias
 }
 
-func (this *CompilerOptions) setDynamicImportAlias(value Optional[string]) {
+func (this *CompilerOptions) setDynamicImportAlias(value string) {
 	this.dynamicImportAlias = value
 }
 
 func (this *CompilerOptions) shouldAliasDynamicImport() bool {
-	return this.dynamicImportAlias.isPresent()
+	return this.dynamicImportAlias != nullstr_
 }
 
 func (this *CompilerOptions) isRemoveUnusedClassProperties() bool {
@@ -1139,10 +1139,10 @@ func (this *CompilerOptions) isJ2clMinifierEnabled() bool {
 }
 
 func (this *CompilerOptions) setJ2clMinifierPruningManifest(j2clMinifierPruningManifest string) {
-	this.j2clMinifierPruningManifest = Optional_of[string](j2clMinifierPruningManifest)
+	this.j2clMinifierPruningManifest = optstrOf_(j2clMinifierPruningManifest)
 }
 
-func (this *CompilerOptions) getJ2clMinifierPruningManifest() Optional[string] {
+func (this *CompilerOptions) getJ2clMinifierPruningManifest() string {
 	return this.j2clMinifierPruningManifest
 }
 
@@ -1178,11 +1178,11 @@ func (this *CompilerOptions) getExtraAnnotationNames() *TSet[string] {
 	return this.extraAnnotationNames
 }
 
-func (this *CompilerOptions) setOutputCharset(charset Optional[string]) {
+func (this *CompilerOptions) setOutputCharset(charset string) {
 	this.outputCharset = charset
 }
 
-func (this *CompilerOptions) getOutputCharset() Optional[string] {
+func (this *CompilerOptions) getOutputCharset() string {
 	return this.outputCharset
 }
 
@@ -1502,7 +1502,7 @@ func (this *CompilerOptions) setAssumeGlobalScopeIsIsolated(assumeGlobalScopeIsI
 }
 
 func (this *CompilerOptions) shouldTreatGlobalScopeAsIsolated() bool {
-	return (this.assumeGlobalScopeIsIsolated || this.renamePrefixNamespace.isPresent())
+	return (this.assumeGlobalScopeIsIsolated || this.renamePrefixNamespace != nullstr_)
 }
 
 func (this *CompilerOptions) setInlineLocalVariables(inlineLocalVariables bool) {
@@ -1704,19 +1704,19 @@ func (this *CompilerOptions) isPropertyRenamingOnlyCompilationMode() bool {
 	return this.propertyRenamingOnlyCompilationMode
 }
 
-func (this *CompilerOptions) setRenamePrefix(renamePrefix Optional[string]) {
+func (this *CompilerOptions) setRenamePrefix(renamePrefix string) {
 	this.renamePrefix = renamePrefix
 }
 
-func (this *CompilerOptions) getRenamePrefix() Optional[string] {
+func (this *CompilerOptions) getRenamePrefix() string {
 	return this.renamePrefix
 }
 
-func (this *CompilerOptions) getRenamePrefixNamespace() Optional[string] {
+func (this *CompilerOptions) getRenamePrefixNamespace() string {
 	return this.renamePrefixNamespace
 }
 
-func (this *CompilerOptions) setRenamePrefixNamespace(renamePrefixNamespace Optional[string]) {
+func (this *CompilerOptions) setRenamePrefixNamespace(renamePrefixNamespace string) {
 	this.renamePrefixNamespace = renamePrefixNamespace
 }
 
@@ -1794,26 +1794,26 @@ func (this *CompilerOptions) shouldExportTestFunctions() bool {
 }
 
 func (this *CompilerOptions) setSyntheticBlockStartMarker(syntheticBlockStartMarker string) {
-	this.syntheticBlockStartMarker = Optional_of[string](syntheticBlockStartMarker)
+	this.syntheticBlockStartMarker = optstrOf_(syntheticBlockStartMarker)
 }
 
 func (this *CompilerOptions) setSyntheticBlockEndMarker(syntheticBlockEndMarker string) {
-	this.syntheticBlockEndMarker = Optional_of[string](syntheticBlockEndMarker)
+	this.syntheticBlockEndMarker = optstrOf_(syntheticBlockEndMarker)
 }
 
-func (this *CompilerOptions) getSyntheticBlockStartMarker() Optional[string] {
+func (this *CompilerOptions) getSyntheticBlockStartMarker() string {
 	return this.syntheticBlockStartMarker
 }
 
-func (this *CompilerOptions) getSyntheticBlockEndMarker() Optional[string] {
+func (this *CompilerOptions) getSyntheticBlockEndMarker() string {
 	return this.syntheticBlockEndMarker
 }
 
 func (this *CompilerOptions) setLocale(locale string) {
-	this.locale = Optional_of[string](locale)
+	this.locale = optstrOf_(locale)
 }
 
-func (this *CompilerOptions) getLocale() Optional[string] {
+func (this *CompilerOptions) getLocale() string {
 	return this.locale
 }
 
@@ -1930,11 +1930,11 @@ func (this *CompilerOptions) setDefineReplacements(defineReplacements *TMap[stri
 	this.defineReplacements.asMap().putAll(defineReplacements.asMap())
 }
 
-func (this *CompilerOptions) getEnableZonesDefineName() Optional[string] {
+func (this *CompilerOptions) getEnableZonesDefineName() string {
 	return this.enableZonesDefineName
 }
 
-func (this *CompilerOptions) setEnableZonesDefineName(enableZonesDefineName Optional[string]) {
+func (this *CompilerOptions) setEnableZonesDefineName(enableZonesDefineName string) {
 	this.enableZonesDefineName = enableZonesDefineName
 }
 
@@ -2018,24 +2018,24 @@ func (this *CompilerOptions) getInputDelimiter() string {
 	return this.inputDelimiter
 }
 
-func (this *CompilerOptions) setDebugLogDirectory(dir Optional[string]) {
+func (this *CompilerOptions) setDebugLogDirectory(dir string) {
 	this.debugLogDirectory = dir
 }
 
-func (this *CompilerOptions) getDebugLogDirectory() Optional[string] {
+func (this *CompilerOptions) getDebugLogDirectory() string {
 	return this.debugLogDirectory
 }
 
-func (this *CompilerOptions) setDebugLogFilter(filter Optional[string]) {
+func (this *CompilerOptions) setDebugLogFilter(filter string) {
 	this.debugLogFilter = filter
 }
 
-func (this *CompilerOptions) getDebugLogFilter() Optional[string] {
+func (this *CompilerOptions) getDebugLogFilter() string {
 	return this.debugLogFilter
 }
 
 func (this *CompilerOptions) shouldSerializeExtraDebugInfo() bool {
-	return (this.serializeExtraDebugInfo || this.getDebugLogDirectory().isPresent())
+	return (this.serializeExtraDebugInfo || this.getDebugLogDirectory() != nullstr_)
 }
 
 func (this *CompilerOptions) setSerializeExtraDebugInfo(serializeExtraDebugInfo bool) {
@@ -2097,15 +2097,15 @@ func (this *CompilerOptions) getUseOriginalNamesInOutput() bool {
 	return this.useOriginalNamesInOutput
 }
 
-func (this *CompilerOptions) setExternExportsPath(externExportsPath Optional[string]) {
+func (this *CompilerOptions) setExternExportsPath(externExportsPath string) {
 	this.externExportsPath = externExportsPath
 }
 
-func (this *CompilerOptions) getExternExportsPath() Optional[string] {
+func (this *CompilerOptions) getExternExportsPath() string {
 	return this.externExportsPath
 }
 
-func (this *CompilerOptions) setSourceMapOutputPath(sourceMapOutputPath Optional[string]) {
+func (this *CompilerOptions) setSourceMapOutputPath(sourceMapOutputPath string) {
 	this.sourceMapOutputPath = sourceMapOutputPath
 }
 
@@ -2380,23 +2380,23 @@ func (this *CompilerOptions) getStrictMessageReplacement() bool {
 
 func (this *CompilerOptions) toString() string {
 	return tostrR_(MoreObjects_toStringHelper(this).omitNullValues().add("aliasStringsMode", obj_(this.getAliasStringsMode())).add_String_boolean("ambiguateProperties", this.ambiguateProperties).add_String_boolean("angularPass", this.angularPass).add_String_boolean("assumeGettersArePure", this.assumeGettersArePure_).add_String_boolean("assumePropertiesAreStaticallyAnalyzable", this.assumePropertiesAreStaticallyAnalyzable).add_String_boolean("assumeStrictThis", this.assumeStrictThis()).add("browserResolverPrefixReplacements", this.browserResolverPrefixReplacements.asMap()).add_String_boolean("checkDeterminism", this.getCheckDeterminism()).add_String_boolean("checkSuspiciousCode", this.checkSuspiciousCode).add_String_boolean("checkSymbols", this.checkSymbols).add_String_boolean("checkTypes", this.checkTypes).add_String_boolean("checksOnly", this.checksOnly).add("chunksToPrintAfterEachPassRegexList", this.chunksToPrintAfterEachPassRegexList.asList()).add_String_boolean("closurePass", this.closurePass).add_String_boolean("coalesceVariableNames", this.coalesceVariableNames).add("codingConvention", this.getCodingConvention()).add_String_boolean("collapseAnonymousFunctions", this.collapseAnonymousFunctions).add_String_boolean("collapseObjectLiterals", this.collapseObjectLiterals).add("collapseProperties", obj_(this.collapsePropertiesLevel)).add_String_boolean("collapseVariableDeclarations", this.collapseVariableDeclarations).add_String_boolean("colorizeErrorOutput", this.shouldColorizeErrorOutput()).add_String_boolean("computeFunctionSideEffects", this.computeFunctionSideEffects).add("conformanceConfigs", this.getConformanceConfigs().asList()).add("conformanceRemoveRegexFromPath", obj_(this.conformanceRemoveRegexFromPath)).add("conformanceReportingMode", obj_(this.conformanceReportingMode)).add_String_boolean("continueAfterErrors", this.canContinueAfterErrors()).add_String_boolean("convertToDottedProperties", this.convertToDottedProperties).add_String_boolean("crossChunkCodeMotion", this.crossChunkCodeMotion).add_String_boolean("crossChunkCodeMotionNoStubMethods", this.crossChunkCodeMotionNoStubMethods).add_String_boolean("crossChunkMethodMotion", this.crossChunkMethodMotion).add("cssRenamingMap", this.cssRenamingMap).add("cssRenamingSkiplist", this.cssRenamingSkiplist.asSet()).add("customPasses", obj_(this.customPasses)).add_String_boolean("deadAssignmentElimination", this.deadAssignmentElimination).add("debugLogDirectory", func() any {
-		if this.debugLogDirectory.isPresent() {
-			return strobj_(this.debugLogDirectory.get())
+		if this.debugLogDirectory != nullstr_ {
+			return strobj_(optstrGet_(this.debugLogDirectory))
 		}
 		return nil
 	}()).add("defineReplacements", this.getDefineReplacements().asMap()).add("dependencyOptions", obj_(this.getDependencyOptions())).add("devMode", obj_(this.devMode)).add_String_boolean("devirtualizeMethods", this.devirtualizeMethods).add_String_boolean("disambiguateProperties", this.disambiguateProperties_).add("emitUseStrict", obj_(this.emitUseStrict)).add_String_boolean("enableModuleRewriting", this.enableModuleRewriting).add("environment", obj_(this.getEnvironment())).add("errorFormat", this.errorFormat.self()).add("errorHandler", this.errorHandler).add("es6ModuleTranspilation", obj_(this.es6ModuleTranspilation)).add("es6SubclassTranspilation", obj_(this.es6SubclassTranspilation)).add_String_boolean("exportLocalPropertyDefinitions", this.exportLocalPropertyDefinitions).add_String_boolean("exportTestFunctions", this.exportTestFunctions).add("externExportsPath", func() any {
-		if this.externExportsPath.isPresent() {
-			return strobj_(this.externExportsPath.get())
+		if this.externExportsPath != nullstr_ {
+			return strobj_(optstrGet_(this.externExportsPath))
 		}
 		return nil
 	}()).add("extraAnnotationNames", this.extraAnnotationNames.asSet()).add("extractPrototypeMemberDeclarations", obj_(this.extractPrototypeMemberDeclarations)).add("filesToPrintAfterEachPassRegexList", this.filesToPrintAfterEachPassRegexList.asList()).add_String_boolean("flowSensitiveInlineVariables", this.flowSensitiveInlineVariables).add_String_boolean("foldConstants", this.foldConstants).add("forceLibraryInjection", this.forceLibraryInjection.asList()).add_String_boolean("gatherCssNames", this.gatherCssNames).add_String_boolean("generateExports", this.generateExports).add_String_boolean("generatePseudoNames", this.generatePseudoNames).add_String_boolean("generateTypedExterns", this.shouldGenerateTypedExterns()).add("idGenerators", this.idGenerators.asMap()).add("idGeneratorsMapSerialized", strobj_(this.idGeneratorsMapSerialized)).add("incrementalCheckMode", obj_(this.incrementalCheckMode)).add_String_boolean("inferConsts", this.inferConsts).add_String_boolean("inferTypes", this.inferTypes).add_String_boolean("inlineConstantVars", this.inlineConstantVars).add("inlineFunctionsLevel", obj_(this.inlineFunctionsLevel)).add_String_boolean("inlineGetters", this.inlineGetters).add_String_boolean("inlineLocalVariables", this.inlineLocalVariables).add_String_boolean("inlineProperties", this.inlineProperties).add_String_boolean("inlineVariables", this.inlineVariables).add("inputDelimiter", strobj_(this.inputDelimiter)).add("inputPropertyMap", obj_(this.inputPropertyMap)).add("inputSourceMaps", this.inputSourceMaps.asMap()).add("inputVariableMap", obj_(this.inputVariableMap)).add_String_boolean("instrumentForCoverageOnly", this.instrumentForCoverageOnly).add("instrumentForCoverageOption", strobj_(tostrR_(this.instrumentForCoverageOption))).add_String_boolean("isolatePolyfills", this.isolatePolyfills).add_String_boolean("j2clMinifierEnabled", this.j2clMinifierEnabled).add("j2clMinifierPruningManifest", func() any {
-		if this.j2clMinifierPruningManifest.isPresent() {
-			return strobj_(this.j2clMinifierPruningManifest.get())
+		if this.j2clMinifierPruningManifest != nullstr_ {
+			return strobj_(optstrGet_(this.j2clMinifierPruningManifest))
 		}
 		return nil
 	}()).add("j2clPassMode", obj_(this.j2clPassMode)).add_String_boolean("labelRenaming", this.labelRenaming).add("languageIn", obj_(this.getLanguageIn())).add("languageOutIsDefaultStrict", obj_(this.languageOutIsDefaultStrict)).add_String_boolean("lineBreak", this.lineBreak).add_String_int("lineLengthThreshold", this.lineLengthThreshold).add("locale", func() any {
-		if this.locale.isPresent() {
-			return strobj_(this.locale.get())
+		if this.locale != nullstr_ {
+			return strobj_(optstrGet_(this.locale))
 		}
 		return nil
 	}()).add_String_boolean("markAsCompiled", this.markAsCompiled).add_String_int("maxFunctionSizeAfterInlining", this.maxFunctionSizeAfterInlining).add("messageBundle", this.messageBundle).add("moduleRoots", this.moduleRoots.asList()).add("nameGenerator", func() any {
@@ -2405,33 +2405,33 @@ func (this *CompilerOptions) toString() string {
 		}
 		return strobj_(Object_getClass(this.nameGenerator).getName())
 	}()).add_String_int("numParallelThreads", this.numParallelThreads).add_String_boolean("optimizeCalls", this.optimizeCalls).add_String_boolean("optimizeESClassConstructors", this.optimizeESClassConstructors).add("optimizeLocalAccessForGlobalSymbolNamespace", obj_(this.optimizeLocalAccessForGlobalSymbolNamespace)).add("outputCharset", func() any {
-		if this.outputCharset.isPresent() {
-			return strobj_(this.outputCharset.get())
+		if this.outputCharset != nullstr_ {
+			return strobj_(optstrGet_(this.outputCharset))
 		}
 		return nil
 	}()).add("outputFeatureSet", obj_(this.outputFeatureSet)).add("outputJs", obj_(this.outputJs)).add_String_boolean("outputJsStringUsage", this.outputJsStringUsage).add_String_boolean("parentChunkCanSeeSymbolsDeclaredInChildren", this.parentChunkCanSeeSymbolsDeclaredInChildren).add("parseJsDocDocumentation", obj_(this.isParseJsDocDocumentation())).add("pathEscaper", this.pathEscaper.self()).add_String_boolean("polymerPass", this.polymerPass).add_String_boolean("preferSingleQuotes", this.preferSingleQuotes).add_String_boolean("preferStableNames", this.preferStableNames).add_String_boolean("preserveDetailedSourceInfo", this.preservesDetailedSourceInfo()).add_String_boolean("preserveGoogProvidesAndRequires", this.preserveClosurePrimitives).add_String_boolean("preserveNonJSDocComments", this.getPreserveNonJSDocComments()).add_String_boolean("preserveTypeAnnotations", this.preserveTypeAnnotations).add_String_boolean("prettyPrint", this.prettyPrint).add_String_boolean("printConfig", this.printConfig_).add_String_boolean("printInputDelimiter", this.printInputDelimiter).add_String_boolean("printSourceAfterEachPass", this.printSourceAfterEachPass).add_String_boolean("processCommonJSModules", this.processCommonJSModules).add("productionInstrumentationArrayName", strobj_(this.productionInstrumentationArrayName)).add("propertiesThatMustDisambiguate", this.propertiesThatMustDisambiguate.asSet()).add("propertyRenaming", obj_(this.propertyRenaming)).add_String_boolean("propertyRenamingOnlyCompilationMode", this.propertyRenamingOnlyCompilationMode).add_String_boolean("protectHiddenSideEffects", this.protectHiddenSideEffects).add("qnameUsesToPrintAfterEachPassRegexList", this.qnameUsesToPrintAfterEachPassList.asList()).add_String_boolean("quoteKeywordProperties", this.quoteKeywordProperties).add_String_boolean("removeAbstractMethods", this.removeAbstractMethods).add_String_boolean("removeClosureAsserts", this.removeClosureAsserts).add_String_boolean("removeJ2clAsserts", this.removeJ2clAsserts).add_String_boolean("removeUnusedClassProperties", this.removeUnusedClassProperties).add_String_boolean("removeUnusedLocalVars", this.removeUnusedLocalVars).add_String_boolean("removeUnusedPrototypeProperties", this.removeUnusedPrototypeProperties_).add_String_boolean("removeUnusedVars", this.removeUnusedVars).add("renamePrefix", func() any {
-		if this.renamePrefix.isPresent() {
-			return strobj_(this.renamePrefix.get())
+		if this.renamePrefix != nullstr_ {
+			return strobj_(optstrGet_(this.renamePrefix))
 		}
 		return nil
 	}()).add("renamePrefixNamespace", func() any {
-		if this.renamePrefixNamespace.isPresent() {
-			return strobj_(this.renamePrefixNamespace.get())
+		if this.renamePrefixNamespace != nullstr_ {
+			return strobj_(optstrGet_(this.renamePrefixNamespace))
 		}
 		return nil
 	}()).add_String_boolean("renamePrefixNamespaceAssumeCrossChunkNames", this.renamePrefixNamespaceAssumeCrossChunkNames).add_String_boolean("replaceIdGenerators", this.replaceIdGenerators).add_String_boolean("replaceMessagesWithChromeI18n", this.replaceMessagesWithChromeI18n).add("replaceStringsFunctionDescriptions", this.replaceStringsFunctionDescriptions.asList()).add("replaceStringsPlaceholderToken", strobj_(this.replaceStringsPlaceholderToken)).add_String_boolean("reserveRawExports", this.reserveRawExports).add_String_boolean("rewriteFunctionExpressions", this.rewriteFunctionExpressions).add_String_boolean("rewriteGlobalDeclarationsForTryCatchWrapping", this.rewriteGlobalDeclarationsForTryCatchWrapping).add_String_boolean("rewriteModulesBeforeTypechecking", this.rewriteModulesBeforeTypechecking).add_String_boolean("rewritePolyfills", this.rewritePolyfills).add("runtimeLibraryMode", obj_(this.runtimeLibraryMode)).add_String_boolean("skipNonTranspilationPasses", this.skipNonTranspilationPasses).add_String_boolean("smartNameRemoval", this.smartNameRemoval).add("sourceMapDetailLevel", this.sourceMapDetailLevel.self()).add("sourceMapFormat", this.sourceMapFormat.self()).add("sourceMapLocationMappings", this.sourceMapLocationMappings.asList()).add("sourceMapOutputPath", func() any {
-		if this.sourceMapOutputPath.isPresent() {
-			return strobj_(this.sourceMapOutputPath.get())
+		if this.sourceMapOutputPath != nullstr_ {
+			return strobj_(optstrGet_(this.sourceMapOutputPath))
 		}
 		return nil
 	}()).add_String_boolean("strictMessageReplacement", this.strictMessageReplacement).add("stripNamePrefixes", this.stripNamePrefixes.asSet()).add("stripNameSuffixes", this.stripNameSuffixes.asSet()).add("stripTypes", this.stripTypes.asSet()).add_String_int("summaryDetailLevel", this.summaryDetailLevel).add("syntheticBlockEndMarker", func() any {
-		if this.syntheticBlockEndMarker.isPresent() {
-			return strobj_(this.syntheticBlockEndMarker.get())
+		if this.syntheticBlockEndMarker != nullstr_ {
+			return strobj_(optstrGet_(this.syntheticBlockEndMarker))
 		}
 		return nil
 	}()).add("syntheticBlockStartMarker", func() any {
-		if this.syntheticBlockStartMarker.isPresent() {
-			return strobj_(this.syntheticBlockStartMarker.get())
+		if this.syntheticBlockStartMarker != nullstr_ {
+			return strobj_(optstrGet_(this.syntheticBlockStartMarker))
 		}
 		return nil
 	}()).add("tcProjectId", strobj_(this.tcProjectId)).add("tracer", obj_(this.tracer)).add_String_boolean("trustedStrings", this.trustedStrings).add("tweakProcessing", obj_(this.getTweakProcessing())).add("unusedImportsToRemove", this.unusedImportsToRemove.asSet()).add_String_boolean("useTypesForLocalOptimization", this.useTypesForLocalOptimization_).add("variableRenaming", obj_(this.variableRenaming)).add("warningsGuard", this.getWarningsGuard().self()).add_String_boolean("wrapGoogModulesForWhitespaceOnly", this.wrapGoogModulesForWhitespaceOnly))
@@ -3304,12 +3304,12 @@ func (this CompilerOptions_InstrumentOption) self() any {
 	return this
 }
 
-func CompilerOptions_InstrumentOption_fromString(value Optional[string]) CompilerOptions_InstrumentOption {
-	if value.isEmpty() {
+func CompilerOptions_InstrumentOption_fromString(value string) CompilerOptions_InstrumentOption {
+	if value == nullstr_ {
 		return 0
 	}
 	return func() CompilerOptions_InstrumentOption {
-		switch value.get() {
+		switch optstrGet_(value) {
 		case "NONE":
 			return CompilerOptions_InstrumentOption_NONE
 		case "LINE":
@@ -3605,11 +3605,11 @@ func CompilerOptions_LanguageMode_validCommandLineNames() []string {
 	return names
 }
 
-func CompilerOptions_LanguageMode_fromString(value Optional[string]) CompilerOptions_LanguageMode {
-	if value.isEmpty() {
+func CompilerOptions_LanguageMode_fromString(value string) CompilerOptions_LanguageMode {
+	if value == nullstr_ {
 		return 0
 	}
-	var canonicalizedName string = CompilerOptions_LEADING_ES_PATTERN.matcher_s(Ascii_toUpperCase(strings.Trim(value.get(), javaSpace_))).replaceFirst("ECMASCRIPT")
+	var canonicalizedName string = CompilerOptions_LEADING_ES_PATTERN.matcher_s(Ascii_toUpperCase(strings.Trim(optstrGet_(value), javaSpace_))).replaceFirst("ECMASCRIPT")
 	if (canonicalizedName == "ECMASCRIPT6") || (canonicalizedName == "ECMASCRIPT6_STRICT") {
 		return CompilerOptions_LanguageMode_ECMASCRIPT_2015
 	}

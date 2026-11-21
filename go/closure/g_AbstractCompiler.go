@@ -315,7 +315,7 @@ func (this *AbstractCompiler) hasHaltingErrors() bool {
 	return this.self_.(*Compiler).hasHaltingErrors_impl()
 }
 
-func (this *AbstractCompiler) getSourceFileByName(p0 Optional[string]) *SourceFile_jscomp {
+func (this *AbstractCompiler) getSourceFileByName(p0 string) *SourceFile_jscomp {
 	return this.self_.(*Compiler).getSourceFileByName_impl(p0)
 }
 
@@ -323,23 +323,23 @@ func (this *AbstractCompiler) addInputSourceMap(p0 string, p1 *SourceMapInput) {
 	this.self_.(*Compiler).addInputSourceMap_impl(p0, p1)
 }
 
-func (this *AbstractCompiler) getBase64SourceMapContents(p0 Optional[string]) Optional[string] {
+func (this *AbstractCompiler) getBase64SourceMapContents(p0 string) string {
 	return this.self_.(*Compiler).getBase64SourceMapContents_impl(p0)
 }
 
-func (this *AbstractCompiler) getSourceMapping_Optional_int_int(p0 Optional[string], p1 int32, p2 int32) *Mapping_OriginalMapping {
+func (this *AbstractCompiler) getSourceMapping_Optional_int_int(p0 string, p1 int32, p2 int32) *Mapping_OriginalMapping {
 	return this.self_.(*Compiler).getSourceMapping_Optional_int_int_impl(p0, p1, p2)
 }
 
-func (this *AbstractCompiler) getSourceLine(p0 Optional[string], p1 int32) Optional[string] {
+func (this *AbstractCompiler) getSourceLine(p0 string, p1 int32) string {
 	return this.self_.(*Compiler).getSourceLine_impl(p0, p1)
 }
 
-func (this *AbstractCompiler) getSourceLines(p0 Optional[string], p1 int32, p2 int32) Region {
+func (this *AbstractCompiler) getSourceLines(p0 string, p1 int32, p2 int32) Region {
 	return this.self_.(*Compiler).getSourceLines_impl(p0, p1, p2)
 }
 
-func (this *AbstractCompiler) getSourceRegion(p0 Optional[string], p1 int32) Region {
+func (this *AbstractCompiler) getSourceRegion(p0 string, p1 int32) Region {
 	return this.self_.(*Compiler).getSourceRegion_impl(p0, p1)
 }
 
@@ -479,7 +479,7 @@ func (this *AbstractCompiler) addComments(p0 string, p1 *TList[*Comment]) {
 	this.self_.(*Compiler).addComments_impl(p0, p1)
 }
 
-func (this *AbstractCompiler) getComments(p0 Optional[string]) List {
+func (this *AbstractCompiler) getComments(p0 string) List {
 	return this.self_.(*Compiler).getComments_impl(p0)
 }
 
@@ -487,7 +487,7 @@ func (this *AbstractCompiler) getModuleLoader() *ModuleLoader {
 	return this.self_.(*Compiler).getModuleLoader_impl()
 }
 
-func (this *AbstractCompiler) getModuleTypeByName(p0 Optional[string]) CompilerInput_ModuleType {
+func (this *AbstractCompiler) getModuleTypeByName(p0 string) CompilerInput_ModuleType {
 	return this.self_.(*Compiler).getModuleTypeByName_impl(p0)
 }
 

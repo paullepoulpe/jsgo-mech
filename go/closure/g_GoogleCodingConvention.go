@@ -69,8 +69,8 @@ func GoogleCodingConvention_isConstantKey(name string, start int32, end int32) b
 	return true
 }
 
-func (this *GoogleCodingConvention) isValidEnumKey_impl(key Optional[string]) bool {
-	return GoogleCodingConvention_ENUM_KEY_PATTERN.matcher_s(key.get()).matches()
+func (this *GoogleCodingConvention) isValidEnumKey_impl(key string) bool {
+	return GoogleCodingConvention_ENUM_KEY_PATTERN.matcher_s(optstrGet_(key)).matches()
 }
 
 func (this *GoogleCodingConvention) isOptionalParameter_impl(parameter Node) bool {
@@ -90,7 +90,7 @@ func (this *GoogleCodingConvention) isClassFactoryCall_impl(callNode Node) bool 
 	return (this.CodingConventions_Proxy.isClassFactoryCall_impl(callNode) || (callTarget.isName() && (callTarget.toString() == "Polymer")))
 }
 
-func (this *GoogleCodingConvention) getPackageName_impl(source StaticSourceFile) Optional[string] {
+func (this *GoogleCodingConvention) getPackageName_impl(source StaticSourceFile) string {
 	var name string = source.getName()
 	var genfilesMatcher *Matcher_re2j = GoogleCodingConvention_GENFILES_DIR.matcher_s(name)
 	if genfilesMatcher.find() {
@@ -98,14 +98,14 @@ func (this *GoogleCodingConvention) getPackageName_impl(source StaticSourceFile)
 	}
 	var m *Matcher_re2j = GoogleCodingConvention_PACKAGE_WITH_TEST_DIR.matcher_s(name)
 	if m.find() {
-		return Optional_ofNullable[string](m.group(1))
+		return m.group(1)
 	} else {
 		var lastSlash int32 = int32(strings.LastIndexByte(name, '/'))
-		return func() Optional[string] {
+		return func() string {
 			if lastSlash == -1 {
-				return Optional_of[string]("")
+				return ""
 			}
-			return Optional_of[string](name[:lastSlash])
+			return optstrOf_(name[:lastSlash])
 		}()
 	}
 }
@@ -148,7 +148,7 @@ func (this *GoogleCodingConvention) isConstantKey(p0 string) bool {
 }
 
 // isValidEnumKey: an object that is exactly a GoogleCodingConvention calls its isValidEnumKey_impl directly (post-flip); others dispatch.
-func (this *GoogleCodingConvention) isValidEnumKey(p0 Optional[string]) bool {
+func (this *GoogleCodingConvention) isValidEnumKey(p0 string) bool {
 	if p, _ := this.self_.(*GoogleCodingConvention); p == this {
 		return this.isValidEnumKey_impl(p0)
 	}
@@ -188,7 +188,7 @@ func (this *GoogleCodingConvention) isClassFactoryCall(p0 Node) bool {
 }
 
 // getPackageName: an object that is exactly a GoogleCodingConvention calls its getPackageName_impl directly (post-flip); others dispatch.
-func (this *GoogleCodingConvention) getPackageName(p0 StaticSourceFile) Optional[string] {
+func (this *GoogleCodingConvention) getPackageName(p0 StaticSourceFile) string {
 	if p, _ := this.self_.(*GoogleCodingConvention); p == this {
 		return this.getPackageName_impl(p0)
 	}

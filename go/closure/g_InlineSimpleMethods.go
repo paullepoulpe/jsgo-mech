@@ -161,13 +161,13 @@ func (this *InlineSimpleMethods) addSignature(name string, function Node) {
 	this.methodDefinitions.put(name, function)
 }
 
-func InlineSimpleMethods_getPropName(getPropElem Node) Optional[string] {
+func InlineSimpleMethods_getPropName(getPropElem Node) string {
 	if getPropElem.isGetProp() {
-		return Optional_of[string](getPropElem.getString())
+		return optstrOf_(getPropElem.getString())
 	} else if getPropElem.getSecondChild().isStringLit() {
-		return Optional_of[string](getPropElem.getSecondChild().getString())
+		return optstrOf_(getPropElem.getSecondChild().getString())
 	} else {
-		return Optional_empty[string]()
+		return nullstr_
 	}
 }
 
@@ -260,15 +260,15 @@ func new_InlineSimpleMethods_GatherSignatures(outer_ *InlineSimpleMethods) *Inli
 func (this *InlineSimpleMethods_GatherSignatures) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	switch n.getToken() {
 	case Token_rhino_GETPROP, Token_rhino_GETELEM:
-		var name Optional[string] = InlineSimpleMethods_getPropName(n)
-		if name.isEmpty() {
+		var name string = InlineSimpleMethods_getPropName(n)
+		if name == nullstr_ {
 			return
 		}
-		if name.get() == "prototype" {
+		if optstrGet_(name) == "prototype" {
 			this.processPrototypeParent(parent)
 		} else {
 			if parent.isAssign() && n.isFirstChildOf(parent) {
-				this.outer_.addPossibleSignature(name.get(), n.getNext())
+				this.outer_.addPossibleSignature(optstrGet_(name), n.getNext())
 			}
 		}
 	case Token_rhino_OBJECTLIT, Token_rhino_CLASS_MEMBERS:
@@ -298,10 +298,10 @@ func (this *InlineSimpleMethods_GatherSignatures) processPrototypeParent(n Node)
 	switch n.ns_().token {
 	case tokOrd1_GETPROP, tokOrd1_GETELEM:
 		var grandparent Node = n.getGrandparent()
-		var name Optional[string] = InlineSimpleMethods_getPropName(n)
-		if name.isPresent() && grandparent.isAssign() {
+		var name string = InlineSimpleMethods_getPropName(n)
+		if name != nullstr_ && grandparent.isAssign() {
 			var assignee Node = grandparent.getSecondChild()
-			this.outer_.addPossibleSignature(name.get(), assignee)
+			this.outer_.addPossibleSignature(optstrGet_(name), assignee)
 		}
 	default:
 	}

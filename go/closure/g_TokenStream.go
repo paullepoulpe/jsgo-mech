@@ -21,7 +21,7 @@ func TokenStream_isKeyword(name string) bool {
 	sU16 := utf16Of_(s)
 complete_:
 	for range 1 {
-		var X Optional[string] = Optional_empty[string]()
+		var X string = nullstr_
 		var c int32
 	partial_:
 		switch sU16.length() {
@@ -81,7 +81,7 @@ complete_:
 		case 4:
 			switch byteAt_(s, 0) {
 			case 'b':
-				X = Optional_of[string]("byte")
+				X = "byte"
 				id = true
 				break partial_
 			case 'c':
@@ -113,15 +113,15 @@ complete_:
 				}
 				break partial_
 			case 'g':
-				X = Optional_of[string]("goto")
+				X = "goto"
 				id = true
 				break partial_
 			case 'l':
-				X = Optional_of[string]("long")
+				X = "long"
 				id = true
 				break partial_
 			case 'n':
-				X = Optional_of[string]("null")
+				X = "null"
 				id = true
 				break partial_
 			case 't':
@@ -139,11 +139,11 @@ complete_:
 				}
 				break partial_
 			case 'v':
-				X = Optional_of[string]("void")
+				X = "void"
 				id = true
 				break partial_
 			case 'w':
-				X = Optional_of[string]("with")
+				X = "with"
 				id = true
 				break partial_
 			}
@@ -151,51 +151,51 @@ complete_:
 		case 5:
 			switch sU16.charAt(2) {
 			case 'a':
-				X = Optional_of[string]("class")
+				X = "class"
 				id = true
 				break partial_
 			case 'e':
-				X = Optional_of[string]("break")
+				X = "break"
 				id = true
 				break partial_
 			case 'i':
-				X = Optional_of[string]("while")
+				X = "while"
 				id = true
 				break partial_
 			case 'l':
-				X = Optional_of[string]("false")
+				X = "false"
 				id = true
 				break partial_
 			case 'n':
 				c = int32(sU16.charAt(0))
 				if c == 99 {
-					X = Optional_of[string]("const")
+					X = "const"
 					id = true
 				} else if c == 102 {
-					X = Optional_of[string]("final")
+					X = "final"
 					id = true
 				}
 				break partial_
 			case 'o':
 				c = int32(sU16.charAt(0))
 				if c == 102 {
-					X = Optional_of[string]("float")
+					X = "float"
 					id = true
 				} else if c == 115 {
-					X = Optional_of[string]("short")
+					X = "short"
 					id = true
 				}
 				break partial_
 			case 'p':
-				X = Optional_of[string]("super")
+				X = "super"
 				id = true
 				break partial_
 			case 'r':
-				X = Optional_of[string]("throw")
+				X = "throw"
 				id = true
 				break partial_
 			case 't':
-				X = Optional_of[string]("catch")
+				X = "catch"
 				id = true
 				break partial_
 			}
@@ -203,49 +203,49 @@ complete_:
 		case 6:
 			switch sU16.charAt(1) {
 			case 'a':
-				X = Optional_of[string]("native")
+				X = "native"
 				id = true
 				break partial_
 			case 'e':
 				c = int32(sU16.charAt(0))
 				if c == 100 {
-					X = Optional_of[string]("delete")
+					X = "delete"
 					id = true
 				} else if c == 114 {
-					X = Optional_of[string]("return")
+					X = "return"
 					id = true
 				}
 				break partial_
 			case 'h':
-				X = Optional_of[string]("throws")
+				X = "throws"
 				id = true
 				break partial_
 			case 'm':
-				X = Optional_of[string]("import")
+				X = "import"
 				id = true
 				break partial_
 			case 'o':
-				X = Optional_of[string]("double")
+				X = "double"
 				id = true
 				break partial_
 			case 't':
-				X = Optional_of[string]("static")
+				X = "static"
 				id = true
 				break partial_
 			case 'u':
-				X = Optional_of[string]("public")
+				X = "public"
 				id = true
 				break partial_
 			case 'w':
-				X = Optional_of[string]("switch")
+				X = "switch"
 				id = true
 				break partial_
 			case 'x':
-				X = Optional_of[string]("export")
+				X = "export"
 				id = true
 				break partial_
 			case 'y':
-				X = Optional_of[string]("typeof")
+				X = "typeof"
 				id = true
 				break partial_
 			}
@@ -253,27 +253,27 @@ complete_:
 		case 7:
 			switch sU16.charAt(1) {
 			case 'a':
-				X = Optional_of[string]("package")
+				X = "package"
 				id = true
 				break partial_
 			case 'e':
-				X = Optional_of[string]("default")
+				X = "default"
 				id = true
 				break partial_
 			case 'i':
-				X = Optional_of[string]("finally")
+				X = "finally"
 				id = true
 				break partial_
 			case 'o':
-				X = Optional_of[string]("boolean")
+				X = "boolean"
 				id = true
 				break partial_
 			case 'r':
-				X = Optional_of[string]("private")
+				X = "private"
 				id = true
 				break partial_
 			case 'x':
-				X = Optional_of[string]("extends")
+				X = "extends"
 				id = true
 				break partial_
 			}
@@ -281,23 +281,23 @@ complete_:
 		case 8:
 			switch byteAt_(s, 0) {
 			case 'a':
-				X = Optional_of[string]("abstract")
+				X = "abstract"
 				id = true
 				break partial_
 			case 'c':
-				X = Optional_of[string]("continue")
+				X = "continue"
 				id = true
 				break partial_
 			case 'd':
-				X = Optional_of[string]("debugger")
+				X = "debugger"
 				id = true
 				break partial_
 			case 'f':
-				X = Optional_of[string]("function")
+				X = "function"
 				id = true
 				break partial_
 			case 'v':
-				X = Optional_of[string]("volatile")
+				X = "volatile"
 				id = true
 				break partial_
 			}
@@ -305,32 +305,32 @@ complete_:
 		case 9:
 			c = int32(sU16.charAt(0))
 			if c == 105 {
-				X = Optional_of[string]("interface")
+				X = "interface"
 				id = true
 			} else if c == 112 {
-				X = Optional_of[string]("protected")
+				X = "protected"
 				id = true
 			} else if c == 116 {
-				X = Optional_of[string]("transient")
+				X = "transient"
 				id = true
 			}
 			break partial_
 		case 10:
 			c = int32(sU16.charAt(1))
 			if c == 109 {
-				X = Optional_of[string]("implements")
+				X = "implements"
 				id = true
 			} else if c == 110 {
-				X = Optional_of[string]("instanceof")
+				X = "instanceof"
 				id = true
 			}
 			break partial_
 		case 12:
-			X = Optional_of[string]("synchronized")
+			X = "synchronized"
 			id = true
 			break partial_
 		}
-		if (X.isPresent() && (X.get() != s)) && !(X.get() == s) {
+		if (X != nullstr_ && (optstrGet_(X) != s)) && !(optstrGet_(X) == s) {
 			return false
 		}
 	}

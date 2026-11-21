@@ -120,11 +120,11 @@ func (this *ChangeVerifier) getNameForNode(n Node) string {
 		case tokOrd1_SCRIPT:
 			return ("SCRIPT: " + sstr_(sourceName))
 		case tokOrd1_FUNCTION:
-			var fnName Optional[string] = NodeUtil_getNearestFunctionName(n)
-			if fnName.isEmpty() {
-				fnName = Optional_of[string](("anonymous@" + istr_(int64(n.getLineno())) + ":" + istr_(int64(n.getCharno()))))
+			var fnName string = NodeUtil_getNearestFunctionName(n)
+			if fnName == nullstr_ {
+				fnName = optstrOf_(("anonymous@" + istr_(int64(n.getLineno())) + ":" + istr_(int64(n.getCharno()))))
 			}
-			return ("FUNCTION: " + sstr_(fnName.orElse("null")) + " in " + sstr_(sourceName))
+			return ("FUNCTION: " + sstr_(optstrOr_(fnName, "null")) + " in " + sstr_(sourceName))
 		default:
 			panic(new_IllegalStateException_String("unexpected Node type"))
 		}
