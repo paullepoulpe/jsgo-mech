@@ -410,7 +410,7 @@ func (this *TypedAstDeserializer_DeserializedAst) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && objequalsDyn_(this.getFilesystem_, obj_(o.getFilesystem_)) && objequalsBy_(this.getColorRegistry_, obj_(o.getColorRegistry_), (Optional_baseOf[*ColorRegistry]).equals) && Objects_equals(this.getExternProperties_.asSet(), o.getExternProperties_.asSet()) && Objects_equals(this.getRuntimeLibraries_.asSet(), o.getRuntimeLibraries_.asSet())
+	return true && objequalsDyn_(this.getFilesystem_, o.getFilesystem_) && objequalsBy_(this.getColorRegistry_, obj_(o.getColorRegistry_), (Optional_baseOf[*ColorRegistry]).equals) && Objects_equals(this.getExternProperties_.asSet(), o.getExternProperties_.asSet()) && Objects_equals(this.getRuntimeLibraries_.asSet(), o.getRuntimeLibraries_.asSet())
 }
 
 func (this *TypedAstDeserializer_DeserializedAst) hashCode() int32 {
