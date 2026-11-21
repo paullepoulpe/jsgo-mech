@@ -174,6 +174,14 @@ func ClosureBundler_appendSourceUrl(out Appendable, mode *ClosureBundler_EscapeM
 
 type ClosureBundler_EvalMode struct {
 	Enum
+	selfI_ ClosureBundler_EvalMode_I
+}
+
+// ClosureBundler_EvalMode_I holds the methods the dispatchers of enum ClosureBundler_EvalMode call on its
+// constant (selfI_, set with self_); every constant of the enum implements them (post-flip).
+type ClosureBundler_EvalMode_I interface {
+	appendGoogModule_impl(string, Appendable, Optional[string])
+	appendTraditional_impl(string, Appendable, Optional[string])
 }
 
 func (this *ClosureBundler_EvalMode) as_ClosureBundler_EvalMode() *ClosureBundler_EvalMode {
@@ -220,15 +228,11 @@ func (this *ClosureBundler_EvalMode) init_ClosureBundler_EvalMode(name_ string, 
 }
 
 func (this *ClosureBundler_EvalMode) appendTraditional(p0 string, p1 Appendable, p2 Optional[string]) {
-	this.self_.(interface {
-		appendTraditional_impl(string, Appendable, Optional[string])
-	}).appendTraditional_impl(p0, p1, p2)
+	this.selfI_.appendTraditional_impl(p0, p1, p2)
 }
 
 func (this *ClosureBundler_EvalMode) appendGoogModule(p0 string, p1 Appendable, p2 Optional[string]) {
-	this.self_.(interface {
-		appendGoogModule_impl(string, Appendable, Optional[string])
-	}).appendGoogModule_impl(p0, p1, p2)
+	this.selfI_.appendGoogModule_impl(p0, p1, p2)
 }
 
 func ClosureBundler_EvalMode_values() []*ClosureBundler_EvalMode {
@@ -264,6 +268,13 @@ func ClosureBundler_EvalMode_clinit() {
 
 type ClosureBundler_EscapeMode struct {
 	Enum
+	selfI_ ClosureBundler_EscapeMode_I
+}
+
+// ClosureBundler_EscapeMode_I holds the methods the dispatchers of enum ClosureBundler_EscapeMode call on its
+// constant (selfI_, set with self_); every constant of the enum implements them (post-flip).
+type ClosureBundler_EscapeMode_I interface {
+	append_impl(string, Appendable)
 }
 
 func (this *ClosureBundler_EscapeMode) as_ClosureBundler_EscapeMode() *ClosureBundler_EscapeMode {
@@ -310,7 +321,7 @@ func (this *ClosureBundler_EscapeMode) init_ClosureBundler_EscapeMode(name_ stri
 }
 
 func (this *ClosureBundler_EscapeMode) append(p0 string, p1 Appendable) {
-	this.self_.(interface{ append_impl(string, Appendable) }).append_impl(p0, p1)
+	this.selfI_.append_impl(p0, p1)
 }
 
 func ClosureBundler_EscapeMode_values() []*ClosureBundler_EscapeMode {
@@ -369,6 +380,7 @@ func (this *ClosureBundler_EvalMode_1) init_ClosureBundler_EvalMode_1(name_ stri
 func new_ClosureBundler_EvalMode_1(name_ string, ordinal_ int32) *ClosureBundler_EvalMode_1 {
 	this := &ClosureBundler_EvalMode_1{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ClosureBundler_EvalMode_1(name_, ordinal_)
 	return this
 }
@@ -439,6 +451,7 @@ func (this *ClosureBundler_EvalMode_2) init_ClosureBundler_EvalMode_2(name_ stri
 func new_ClosureBundler_EvalMode_2(name_ string, ordinal_ int32) *ClosureBundler_EvalMode_2 {
 	this := &ClosureBundler_EvalMode_2{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ClosureBundler_EvalMode_2(name_, ordinal_)
 	return this
 }
@@ -507,6 +520,7 @@ func (this *ClosureBundler_EscapeMode_1) init_ClosureBundler_EscapeMode_1(name_ 
 func new_ClosureBundler_EscapeMode_1(name_ string, ordinal_ int32) *ClosureBundler_EscapeMode_1 {
 	this := &ClosureBundler_EscapeMode_1{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ClosureBundler_EscapeMode_1(name_, ordinal_)
 	return this
 }
@@ -567,6 +581,7 @@ func (this *ClosureBundler_EscapeMode_2) init_ClosureBundler_EscapeMode_2(name_ 
 func new_ClosureBundler_EscapeMode_2(name_ string, ordinal_ int32) *ClosureBundler_EscapeMode_2 {
 	this := &ClosureBundler_EscapeMode_2{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ClosureBundler_EscapeMode_2(name_, ordinal_)
 	return this
 }
@@ -608,9 +623,7 @@ func (this *ClosureBundler_EvalMode_1) appendTraditional(p0 string, p1 Appendabl
 		this.appendTraditional_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		appendTraditional_impl(string, Appendable, Optional[string])
-	}).appendTraditional_impl(p0, p1, p2)
+	this.selfI_.appendTraditional_impl(p0, p1, p2)
 }
 
 // appendGoogModule: an object that is exactly a ClosureBundler_EvalMode_1 calls its appendGoogModule_impl directly (post-flip); others dispatch.
@@ -619,9 +632,7 @@ func (this *ClosureBundler_EvalMode_1) appendGoogModule(p0 string, p1 Appendable
 		this.appendGoogModule_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		appendGoogModule_impl(string, Appendable, Optional[string])
-	}).appendGoogModule_impl(p0, p1, p2)
+	this.selfI_.appendGoogModule_impl(p0, p1, p2)
 }
 
 // appendTraditional: an object that is exactly a ClosureBundler_EvalMode_2 calls its appendTraditional_impl directly (post-flip); others dispatch.
@@ -630,9 +641,7 @@ func (this *ClosureBundler_EvalMode_2) appendTraditional(p0 string, p1 Appendabl
 		this.appendTraditional_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		appendTraditional_impl(string, Appendable, Optional[string])
-	}).appendTraditional_impl(p0, p1, p2)
+	this.selfI_.appendTraditional_impl(p0, p1, p2)
 }
 
 // appendGoogModule: an object that is exactly a ClosureBundler_EvalMode_2 calls its appendGoogModule_impl directly (post-flip); others dispatch.
@@ -641,9 +650,7 @@ func (this *ClosureBundler_EvalMode_2) appendGoogModule(p0 string, p1 Appendable
 		this.appendGoogModule_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		appendGoogModule_impl(string, Appendable, Optional[string])
-	}).appendGoogModule_impl(p0, p1, p2)
+	this.selfI_.appendGoogModule_impl(p0, p1, p2)
 }
 
 // append: an object that is exactly a ClosureBundler_EscapeMode_1 calls its append_impl directly (post-flip); others dispatch.
@@ -652,7 +659,7 @@ func (this *ClosureBundler_EscapeMode_1) append(p0 string, p1 Appendable) {
 		this.append_impl(p0, p1)
 		return
 	}
-	this.self_.(interface{ append_impl(string, Appendable) }).append_impl(p0, p1)
+	this.selfI_.append_impl(p0, p1)
 }
 
 // append: an object that is exactly a ClosureBundler_EscapeMode_2 calls its append_impl directly (post-flip); others dispatch.
@@ -661,5 +668,5 @@ func (this *ClosureBundler_EscapeMode_2) append(p0 string, p1 Appendable) {
 		this.append_impl(p0, p1)
 		return
 	}
-	this.self_.(interface{ append_impl(string, Appendable) }).append_impl(p0, p1)
+	this.selfI_.append_impl(p0, p1)
 }
