@@ -39,7 +39,7 @@ func (this *AbstractMessageFormatter) getSource() SourceExcerptProvider {
 }
 
 func AbstractMessageFormatter_termSupportsColor(term string) bool {
-	return AbstractMessageFormatter_SUPPORTED_COLOR_TERMINALS.contains(term)
+	return AbstractMessageFormatter_SUPPORTED_COLOR_TERMINALS.Has(term)
 }
 
 func (this *AbstractMessageFormatter) getLevelName(level CheckLevel) string {
@@ -77,7 +77,7 @@ func (this *AbstractMessageFormatter) formatWarning(p0 *JSError) string {
 	return this.self_.formatWarning_impl(p0)
 }
 
-var AbstractMessageFormatter_SUPPORTED_COLOR_TERMINALS *JTSet[string]
+var AbstractMessageFormatter_SUPPORTED_COLOR_TERMINALS *TSet[string]
 
 var AbstractMessageFormatter_clinit_done bool
 
@@ -86,7 +86,7 @@ func AbstractMessageFormatter_clinit() {
 		return
 	}
 	AbstractMessageFormatter_clinit_done = true
-	AbstractMessageFormatter_SUPPORTED_COLOR_TERMINALS = jimmutableSetOf_[string](jtc_string, "xterm", "xterm-color", "xterm-256color", "screen-bce")
+	AbstractMessageFormatter_SUPPORTED_COLOR_TERMINALS = immutableSetOf_[string](tc_string, "xterm", "xterm-color", "xterm-256color", "screen-bce")
 
 }
 

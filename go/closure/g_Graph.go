@@ -86,7 +86,7 @@ func (this *Graph[N, E]) clearEdgeAnnotations() {
 
 func (this *Graph[N, E]) pushNodeAnnotations() {
 	if this.nodeAnnotationStack == nil {
-		this.nodeAnnotationStack = newTDeque_(jtc_p_Graph_GraphAnnotationState)
+		this.nodeAnnotationStack = newTDeque_(tc_p_Graph_GraphAnnotationState)
 	}
 	Graph_pushAnnotations(this.nodeAnnotationStack, this.getNodes())
 }
@@ -100,7 +100,7 @@ func (this *Graph[N, E]) popNodeAnnotations() {
 
 func (this *Graph[N, E]) pushEdgeAnnotations() {
 	if this.edgeAnnotationStack == nil {
-		this.edgeAnnotationStack = newTDeque_(jtc_p_Graph_GraphAnnotationState)
+		this.edgeAnnotationStack = newTDeque_(tc_p_Graph_GraphAnnotationState)
 	}
 	Graph_pushAnnotations(this.edgeAnnotationStack, Collection(this.getEdges()))
 }
@@ -231,13 +231,13 @@ type Graph_GraphEdge[N comparable, E comparable] interface {
 
 type Graph_SimpleSubGraph[N comparable, E comparable] struct {
 	graph  *Graph[N, E]
-	nodes_ *JTList[GraphNode[N, E]]
+	nodes_ *TList[GraphNode[N, E]]
 }
 
 func (this *Graph_SimpleSubGraph[N, E]) isa_Graph_SimpleSubGraph_() {}
 
 func (this *Graph_SimpleSubGraph[N, E]) finit_Graph_SimpleSubGraph() {
-	this.nodes_ = jnewTList_(tc_GraphNode_N__E_[N, E]())
+	this.nodes_ = newTList_(tc_GraphNode_N__E_[N, E]())
 }
 
 func (this *Graph_SimpleSubGraph[N, E]) init_Graph_SimpleSubGraph(graph *Graph[N, E]) {

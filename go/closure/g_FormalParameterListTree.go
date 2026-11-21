@@ -4,8 +4,8 @@ package closure
 
 type FormalParameterListTree struct {
 	ParseTree
-	parameters        *JTList[*ParseTree]
-	commaPositions    *JTList[*SourcePosition_util]
+	parameters        *TList[*ParseTree]
+	commaPositions    *TList[*SourcePosition_util]
 	hasTrailingComma_ bool
 }
 
@@ -16,7 +16,7 @@ func (this *FormalParameterListTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *FormalParameterListTree) init_FormalParameterListTree(location *SourceRange, parameters *JTList[*ParseTree], hasTrailingComma bool, commaPositions *JTList[*SourcePosition_util]) {
+func (this *FormalParameterListTree) init_FormalParameterListTree(location *SourceRange, parameters *TList[*ParseTree], hasTrailingComma bool, commaPositions *TList[*SourcePosition_util]) {
 	this.ParseTree.init_ParseTree(ParseTreeType_FORMAL_PARAMETER_LIST, location)
 	var numParams int32 = parameters.size()
 	var numCommas int32 = commaPositions.size()
@@ -28,7 +28,7 @@ func (this *FormalParameterListTree) init_FormalParameterListTree(location *Sour
 	this.commaPositions = commaPositions
 }
 
-func new_FormalParameterListTree(location *SourceRange, parameters *JTList[*ParseTree], hasTrailingComma bool, commaPositions *JTList[*SourcePosition_util]) *FormalParameterListTree {
+func new_FormalParameterListTree(location *SourceRange, parameters *TList[*ParseTree], hasTrailingComma bool, commaPositions *TList[*SourcePosition_util]) *FormalParameterListTree {
 	this := &FormalParameterListTree{}
 	this.self_ = this
 	this.init_FormalParameterListTree(location, parameters, hasTrailingComma, commaPositions)

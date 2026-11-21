@@ -3,11 +3,11 @@
 package closure
 
 type JSTypeColorIdHasher struct {
-	standardColorObjectIds *JTMap[*ObjectType, *ColorId]
+	standardColorObjectIds *TMap[*ObjectType, *ColorId]
 }
 
 func (this *JSTypeColorIdHasher) init_JSTypeColorIdHasher(registry *JSTypeRegistry) {
-	var standardColorObjectIdsBuilder *TMapBuilder[*ObjectType, *ColorId] = newTMapBuilder_(tce_p_ObjectType, jtc_p_ColorId)
+	var standardColorObjectIdsBuilder *ImmutableMap_Builder[*ObjectType, *ColorId] = immutableMapBuilder_(tch_p_ObjectType, tc_p_ColorId)
 	it_1 := JSTypeColorIdHasher_NATIVE_TYPE_TO_ID.eachEntry()
 	for it_1.next() {
 		var e *TEntry[JSTypeNative, *ColorId] = it_1.entry()
@@ -26,7 +26,7 @@ func (this *JSTypeColorIdHasher) hashObjectType(type_ *ObjectType) *ColorId {
 	if !((((((type_ != nil) && !type_.isEnumElementType()) && !type_.isNoResolvedType()) && !type_.isTemplatizedType()) && !type_.isUnknownType()) && !type_.isTemplateType()) {
 		panic(new_IllegalStateException_String(objstr_(type_)))
 	}
-	var boxId *ColorId = this.standardColorObjectIds.get(type_)
+	var boxId *ColorId = this.standardColorObjectIds.Get(type_)
 	if boxId != nil {
 		return boxId
 	}
@@ -83,7 +83,7 @@ func JSTypeColorIdHasher_putUtf8(hasher Hasher, s string) {
 }
 
 var JSTypeColorIdHasher_FARM_64 HashFunction
-var JSTypeColorIdHasher_NATIVE_TYPE_TO_ID *JTMap[JSTypeNative, *ColorId]
+var JSTypeColorIdHasher_NATIVE_TYPE_TO_ID *TMap[JSTypeNative, *ColorId]
 
 var JSTypeColorIdHasher_clinit_done bool
 
@@ -93,7 +93,7 @@ func JSTypeColorIdHasher_clinit() {
 	}
 	JSTypeColorIdHasher_clinit_done = true
 	JSTypeColorIdHasher_FARM_64 = Hashing_farmHashFingerprint64()
-	JSTypeColorIdHasher_NATIVE_TYPE_TO_ID = newTMapBuilder_(tc_p_JSTypeNative, jtc_p_ColorId).put(JSTypeNative_ARGUMENTS_TYPE, StandardColors_ARGUMENTS_ID).put(JSTypeNative_ARRAY_TYPE, StandardColors_ARRAY_ID).put(JSTypeNative_READONLY_ARRAY_TYPE, StandardColors_READONLY_ARRAY_ID).put(JSTypeNative_ASYNC_ITERATOR_ITERABLE_TYPE, StandardColors_ASYNC_ITERATOR_ITERABLE_ID).put(JSTypeNative_GENERATOR_TYPE, StandardColors_GENERATOR_ID).put(JSTypeNative_I_TEMPLATE_ARRAY_TYPE, StandardColors_I_TEMPLATE_ARRAY_ID).put(JSTypeNative_ITERATOR_TYPE, StandardColors_ITERATOR_ID).put(JSTypeNative_PROMISE_TYPE, StandardColors_PROMISE_ID).put(JSTypeNative_BIGINT_OBJECT_TYPE, StandardColors_BIGINT_OBJECT_ID).put(JSTypeNative_BOOLEAN_OBJECT_TYPE, StandardColors_BOOLEAN_OBJECT_ID).put(JSTypeNative_NUMBER_OBJECT_TYPE, StandardColors_NUMBER_OBJECT_ID).put(JSTypeNative_STRING_OBJECT_TYPE, StandardColors_STRING_OBJECT_ID).put(JSTypeNative_SYMBOL_OBJECT_TYPE, StandardColors_SYMBOL_OBJECT_ID).buildOrThrow()
+	JSTypeColorIdHasher_NATIVE_TYPE_TO_ID = immutableMapBuilder_(tc_p_JSTypeNative, tc_p_ColorId).put(JSTypeNative_ARGUMENTS_TYPE, StandardColors_ARGUMENTS_ID).put(JSTypeNative_ARRAY_TYPE, StandardColors_ARRAY_ID).put(JSTypeNative_READONLY_ARRAY_TYPE, StandardColors_READONLY_ARRAY_ID).put(JSTypeNative_ASYNC_ITERATOR_ITERABLE_TYPE, StandardColors_ASYNC_ITERATOR_ITERABLE_ID).put(JSTypeNative_GENERATOR_TYPE, StandardColors_GENERATOR_ID).put(JSTypeNative_I_TEMPLATE_ARRAY_TYPE, StandardColors_I_TEMPLATE_ARRAY_ID).put(JSTypeNative_ITERATOR_TYPE, StandardColors_ITERATOR_ID).put(JSTypeNative_PROMISE_TYPE, StandardColors_PROMISE_ID).put(JSTypeNative_BIGINT_OBJECT_TYPE, StandardColors_BIGINT_OBJECT_ID).put(JSTypeNative_BOOLEAN_OBJECT_TYPE, StandardColors_BOOLEAN_OBJECT_ID).put(JSTypeNative_NUMBER_OBJECT_TYPE, StandardColors_NUMBER_OBJECT_ID).put(JSTypeNative_STRING_OBJECT_TYPE, StandardColors_STRING_OBJECT_ID).put(JSTypeNative_SYMBOL_OBJECT_TYPE, StandardColors_SYMBOL_OBJECT_ID).buildOrThrow()
 
 }
 

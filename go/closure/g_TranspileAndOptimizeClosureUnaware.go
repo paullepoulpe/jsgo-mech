@@ -66,7 +66,7 @@ func (this *TranspileAndOptimizeClosureUnaware) setScriptFeaturesets(inputs Coll
 }
 
 func (this *TranspileAndOptimizeClosureUnaware) createInjectRuntimeLibrariesPass(shadowAsts CollectionOf[*TranspileAndOptimizeClosureUnaware_ShadowAst]) *PassFactory {
-	var callSites *TListBuilder[*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite] = newTListBuilder_(jtc_p_InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite)
+	var callSites *ImmutableList_Builder[*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite] = immutableListBuilder_(tc_p_InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite)
 	for shadowAst := range elemsAs_[*TranspileAndOptimizeClosureUnaware_ShadowAst](shadowAsts) {
 		var closureUnawareFunction Node = NodeUtil_findPreorder(shadowAst.script(), Predicate_base[Node](func(p0 Node) bool { return p0.isFunction() }), Predicate_base[Node](func(childToVisit Node) bool {
 			return true

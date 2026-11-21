@@ -4,14 +4,14 @@ package closure
 
 type LowestCommonAncestorFinder[N comparable, E comparable] struct {
 	graph          *DiGraph[N, E]
-	searchColoring *JTMap[DiGraph_DiGraphNode[N, E], *LowestCommonAncestorFinder_Color]
+	searchColoring *TMap[DiGraph_DiGraphNode[N, E], *LowestCommonAncestorFinder_Color]
 	searchQueue    *TDeque[DiGraph_DiGraphNode[N, E]]
 }
 
 func (this *LowestCommonAncestorFinder[N, E]) isa_LowestCommonAncestorFinder_() {}
 
 func (this *LowestCommonAncestorFinder[N, E]) finit_LowestCommonAncestorFinder() {
-	this.searchColoring = jnewTMap_(tce_DiGraph_DiGraphNode_N__E_[N, E](), jtc_p_LowestCommonAncestorFinder_Color)
+	this.searchColoring = newTMap_(tch_DiGraph_DiGraphNode_N__E_[N, E](), tc_p_LowestCommonAncestorFinder_Color)
 	this.searchQueue = newTDeque_(tc_DiGraph_DiGraphNode_N__E_[N, E]())
 }
 
@@ -30,7 +30,7 @@ func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetOf[N]) ImmutableS
 	if roots.size() > 31 {
 		panic(new_IllegalArgumentException_String(objstr_("Too many roots.")))
 	}
-	if !this.searchColoring.isEmpty() {
+	if !this.searchColoring.IsEmpty() {
 		panic(new_IllegalStateException_0())
 	}
 	var allColor *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(((int32(1) << (uint32(roots.size()) & 31)) - 1))
@@ -57,7 +57,7 @@ func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetOf[N]) ImmutableS
 			this.paintAncestors(node, LowestCommonAncestorFinder_Color_NOT_LOWEST)
 		}
 	}))
-	var results *TSetBuilder[N] = newTSetBuilder_(tceT_[N]())
+	var results *ImmutableSet_Builder[N] = immutableSetBuilder_(tchT_[N]())
 	Map_forEach(this.searchColoring.asMap(), BiConsumer[any, any](func(node_ any, color_ any) {
 		var node DiGraph_DiGraphNode[N, E] = cast_[DiGraph_DiGraphNode[N, E]](node_)
 		_ = node
@@ -67,7 +67,7 @@ func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetOf[N]) ImmutableS
 			results.add(node.getValue())
 		}
 	}))
-	this.searchColoring.clear()
+	this.searchColoring.Clear()
 	this.searchQueue.clear()
 	return results.build().asImm()
 }
@@ -85,10 +85,10 @@ func (this *LowestCommonAncestorFinder[N, E]) paintAncestors(root DiGraph_DiGrap
 			if equalsId_(parent, root) {
 				continue
 			}
-			var oldColor *LowestCommonAncestorFinder_Color = this.searchColoring.getOrDefault(parent, LowestCommonAncestorFinder_Color_BLANK)
+			var oldColor *LowestCommonAncestorFinder_Color = this.searchColoring.GetOr(parent, LowestCommonAncestorFinder_Color_BLANK)
 			if !oldColor.contains(color) {
 				this.searchQueue.add(parent)
-				this.searchColoring.put(parent, oldColor.mix(color))
+				this.searchColoring.Put(parent, oldColor.mix(color))
 			}
 		}
 	}

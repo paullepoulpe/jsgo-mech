@@ -32,9 +32,9 @@ func new_InvocationTemplateTypeMatcher(registry *JSTypeRegistry, calleeType *Fun
 	return this
 }
 
-func (this *InvocationTemplateTypeMatcher) match() *JTMap[*TemplateType, *JSType] {
+func (this *InvocationTemplateTypeMatcher) match() *TMap[*TemplateType, *JSType] {
 	if this.calleeType.getTemplateTypeMap().isEmpty() {
-		return jtmapEmptyImm_(tce_p_TemplateType, jtc_p_JSType)
+		return tmapEmptyImm_(tch_p_TemplateType, tc_p_JSType)
 	}
 	var target Node = this.invocation.getFirstChild()
 	if NodeUtil_isNormalGet(target) {
@@ -115,7 +115,7 @@ func (this *InvocationTemplateTypeMatcher) matchTemplateTypesRecursive(paramType
 		}
 		var argObjectType *JSType = argType.restrictByNotNullOrUndefined().collapseUnion()
 		var paramTypeMap *TemplateTypeMap = paramType.getTemplateTypeMap()
-		var keys *JTList[*TemplateType] = paramTypeMap.getTemplateKeys()
+		var keys *TList[*TemplateType] = paramTypeMap.getTemplateKeys()
 		var argTypeMap *TemplateTypeMap = argObjectType.getTemplateTypeMap()
 		for index := int32((keys.size() - keyCount)); index < keys.size(); index++ {
 			var key *TemplateType = keys.get(index)
@@ -159,10 +159,10 @@ func (this *InvocationTemplateTypeMatcher) recordTemplateMatch(template *Templat
 	this.matchedTypes.merge(template, match, BiFunction[*JSType, *JSType, *JSType](func(p0 *JSType, p1 *JSType) *JSType { return p0.getLeastSupertype(p1) }))
 }
 
-func (this *InvocationTemplateTypeMatcher) copyMatchedTypes() *JTMap[*TemplateType, *JSType] {
+func (this *InvocationTemplateTypeMatcher) copyMatchedTypes() *TMap[*TemplateType, *JSType] {
 	var builder *ImmutableMap_Builder[*TemplateType, *JSType] = immutableMapBuilder_(tc_p_TemplateType, tc_p_JSType)
 	this.matchedTypes.forEach(BiConsumer[*TemplateType, *JSType](func(p0 *TemplateType, p1 *JSType) { builder.put(p0, p1) }))
-	return tmapImm_(tce_p_TemplateType, jtc_p_JSType, builder.buildOrThrowErased())
+	return tmapImm_(tch_p_TemplateType, tc_p_JSType, builder.buildOrThrowErased())
 }
 
 func (this *InvocationTemplateTypeMatcher) getTypeOrUnknown(n Node) *JSType {

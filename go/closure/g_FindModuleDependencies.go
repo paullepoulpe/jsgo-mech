@@ -8,7 +8,7 @@ type FindModuleDependencies struct {
 	compiler_               *AbstractCompiler
 	moduleType_             CompilerInput_ModuleType
 	dynamicImportScope      *Scope
-	inputPathByWebpackId    *JTMap[string, string]
+	inputPathByWebpackId    *TMap[string, string]
 	supportsEs6Modules      bool
 	supportsCommonJsModules bool
 }
@@ -18,7 +18,7 @@ func (this *FindModuleDependencies) finit_FindModuleDependencies() {
 	this.dynamicImportScope = nil
 }
 
-func (this *FindModuleDependencies) init_FindModuleDependencies(compiler *AbstractCompiler, supportsEs6Modules bool, supportsCommonJsModules bool, inputPathByWebpackId *JTMap[string, string]) {
+func (this *FindModuleDependencies) init_FindModuleDependencies(compiler *AbstractCompiler, supportsEs6Modules bool, supportsCommonJsModules bool, inputPathByWebpackId *TMap[string, string]) {
 	this.finit_FindModuleDependencies()
 	this.compiler_ = compiler
 	this.supportsEs6Modules = supportsEs6Modules
@@ -26,7 +26,7 @@ func (this *FindModuleDependencies) init_FindModuleDependencies(compiler *Abstra
 	this.inputPathByWebpackId = inputPathByWebpackId
 }
 
-func new_FindModuleDependencies(compiler *AbstractCompiler, supportsEs6Modules bool, supportsCommonJsModules bool, inputPathByWebpackId *JTMap[string, string]) *FindModuleDependencies {
+func new_FindModuleDependencies(compiler *AbstractCompiler, supportsEs6Modules bool, supportsCommonJsModules bool, inputPathByWebpackId *TMap[string, string]) *FindModuleDependencies {
 	this := &FindModuleDependencies{}
 	this.init_FindModuleDependencies(compiler, supportsEs6Modules, supportsCommonJsModules, inputPathByWebpackId)
 	return this

@@ -30,9 +30,9 @@ func (this *TemplatizedType) up_JSType() *JSType {
 	return &this.JSType
 }
 
-func (this *TemplatizedType) init_TemplatizedType(registry *JSTypeRegistry, objectType *ObjectType, templateTypes *JTList[*JSType]) {
+func (this *TemplatizedType) init_TemplatizedType(registry *JSTypeRegistry, objectType *ObjectType, templateTypes *TList[*JSType]) {
 	this.ProxyObjectType.init_ProxyObjectType_JSTypeRegistry_JSType_TemplateTypeMap(registry, objectType.up_JSType(), objectType.getTemplateTypeMap().copyFilledWithValues(templateTypes))
-	var builder *TListBuilder[*JSType] = newTListBuilder_(jtc_p_JSType)
+	var builder *ImmutableList_Builder[*JSType] = immutableListBuilder_(tc_p_JSType)
 	var maybeIsSpecializedOnlyWithUnknown bool = true
 	it_1 := objectType.getTypeParameters().each()
 	for it_1.next() {
@@ -49,7 +49,7 @@ func (this *TemplatizedType) init_TemplatizedType(registry *JSTypeRegistry, obje
 	registry.getResolver().resolveIfClosed(this.up_JSType(), TemplatizedType_TYPE_CLASS_FIELD)
 }
 
-func new_TemplatizedType(registry *JSTypeRegistry, objectType *ObjectType, templateTypes *JTList[*JSType]) *TemplatizedType {
+func new_TemplatizedType(registry *JSTypeRegistry, objectType *ObjectType, templateTypes *TList[*JSType]) *TemplatizedType {
 	this := &TemplatizedType{}
 	this.self_ = this
 	this.init_TemplatizedType(registry, objectType, templateTypes)
@@ -61,17 +61,17 @@ func (this *TemplatizedType) getTypeClass_impl() JSTypeClass {
 }
 
 func (this *TemplatizedType) getCtorImplementedInterfaces_impl() IterableOf[*ObjectType] {
-	var resolvedImplementedInterfaces *JTSet[*ObjectType] = jnewTSet_(tce_p_ObjectType)
+	var resolvedImplementedInterfaces *TSet[*ObjectType] = newTSet_(tch_p_ObjectType)
 	for obj := range elemsBy_(this.getReferencedObjTypeInternal().getCtorImplementedInterfaces(), to_ObjectType) {
-		resolvedImplementedInterfaces.add(obj.visit(TemplateTypeReplacer_as_Visitor(this.replacer)).(JSType_as).as_JSType().toObjectType())
+		resolvedImplementedInterfaces.Add(obj.visit(TemplateTypeReplacer_as_Visitor(this.replacer)).(JSType_as).as_JSType().toObjectType())
 	}
 	return Iterable(resolvedImplementedInterfaces.asSet())
 }
 
 func (this *TemplatizedType) getCtorExtendedInterfaces_impl() IterableOf[*ObjectType] {
-	var resolvedExtendedInterfaces *JTSet[*ObjectType] = jnewTSet_(tce_p_ObjectType)
+	var resolvedExtendedInterfaces *TSet[*ObjectType] = newTSet_(tch_p_ObjectType)
 	for obj := range elemsBy_(this.getReferencedObjTypeInternal().getCtorExtendedInterfaces(), to_ObjectType) {
-		resolvedExtendedInterfaces.add(obj.visit(TemplateTypeReplacer_as_Visitor(this.replacer)).(JSType_as).as_JSType().toObjectType())
+		resolvedExtendedInterfaces.Add(obj.visit(TemplateTypeReplacer_as_Visitor(this.replacer)).(JSType_as).as_JSType().toObjectType())
 	}
 	return Iterable(resolvedExtendedInterfaces.asSet())
 }
@@ -103,8 +103,8 @@ func (this *TemplatizedType) toMaybeTemplatizedType_impl() *TemplatizedType {
 	return this
 }
 
-func (this *TemplatizedType) getTemplateTypes_impl() *JTList[*JSType] {
-	return jtlistImm_(jtc_p_JSType, this.templateTypes)
+func (this *TemplatizedType) getTemplateTypes_impl() *TList[*JSType] {
+	return tlistImm_(tc_p_JSType, this.templateTypes)
 }
 
 func (this *TemplatizedType) getPropertyTypeKey_impl(propertyName Property_Key) *JSType {
@@ -162,7 +162,7 @@ func (this *TemplatizedType) resolveInternal_impl(reporter ErrorReporter_rhino) 
 	var baseTypeBefore *JSType = this.getReferencedType().up_JSType()
 	this.ProxyObjectType.resolveInternal_impl(reporter)
 	var rebuild bool = (baseTypeBefore != this.getReferencedType().up_JSType())
-	var builder *TListBuilder[*JSType] = newTListBuilder_(jtc_p_JSType)
+	var builder *ImmutableList_Builder[*JSType] = immutableListBuilder_(tc_p_JSType)
 	for _, el := range immElems_(this.templateTypes) {
 		type_ := to_JSType(el)
 		var resolved *JSType = type_.resolve(reporter)
@@ -255,7 +255,7 @@ func (this *TemplatizedType) toMaybeTemplatizedType() *TemplatizedType {
 }
 
 // getTemplateTypes: an object that is exactly a TemplatizedType calls its getTemplateTypes_impl directly (post-flip); others dispatch.
-func (this *TemplatizedType) getTemplateTypes() *JTList[*JSType] {
+func (this *TemplatizedType) getTemplateTypes() *TList[*JSType] {
 	if p, _ := this.self_.(*TemplatizedType); p == this {
 		return this.getTemplateTypes_impl()
 	}

@@ -3,12 +3,12 @@
 package closure
 
 type SerializationOptions struct {
-	runtimeLibraries_ *JTList[string]
+	runtimeLibraries_ *TList[string]
 	includeDebugInfo_ bool
 	runValidation_    bool
 }
 
-func (this *SerializationOptions) init_SerializationOptions(includeDebugInfo bool, runValidation bool, runtimeLibraries *JTList[string]) {
+func (this *SerializationOptions) init_SerializationOptions(includeDebugInfo bool, runValidation bool, runtimeLibraries *TList[string]) {
 	if runtimeLibraries.asList() == nil {
 		panic(new_NullPointerException_String("runtimeLibraries"))
 	}
@@ -17,14 +17,14 @@ func (this *SerializationOptions) init_SerializationOptions(includeDebugInfo boo
 	this.runtimeLibraries_ = runtimeLibraries
 }
 
-func new_SerializationOptions(includeDebugInfo bool, runValidation bool, runtimeLibraries *JTList[string]) *SerializationOptions {
+func new_SerializationOptions(includeDebugInfo bool, runValidation bool, runtimeLibraries *TList[string]) *SerializationOptions {
 	this := &SerializationOptions{}
 	this.init_SerializationOptions(includeDebugInfo, runValidation, runtimeLibraries)
 	return this
 }
 
 func SerializationOptions_builder() *SerializationOptions_Builder {
-	return new_SerializationOptions_Builder().setRunValidation(false).setIncludeDebugInfo(false).setRuntimeLibraries(jtlistEmptyImm_(jtc_string))
+	return new_SerializationOptions_Builder().setRunValidation(false).setIncludeDebugInfo(false).setRuntimeLibraries(tlistEmptyImm_(tc_string))
 }
 
 func (this *SerializationOptions) includeDebugInfo() bool {
@@ -35,7 +35,7 @@ func (this *SerializationOptions) runValidation() bool {
 	return this.runValidation_
 }
 
-func (this *SerializationOptions) runtimeLibraries() *JTList[string] {
+func (this *SerializationOptions) runtimeLibraries() *TList[string] {
 	return this.runtimeLibraries_
 }
 
@@ -60,7 +60,7 @@ func (this *SerializationOptions) toString() string {
 }
 
 type SerializationOptions_Builder struct {
-	runtimeLibraries_ *JTList[string]
+	runtimeLibraries_ *TList[string]
 	includeDebugInfo_ bool
 	runValidation_    bool
 	set0              int8
@@ -88,7 +88,7 @@ func (this *SerializationOptions_Builder) setRunValidation(runValidation bool) *
 	return this
 }
 
-func (this *SerializationOptions_Builder) setRuntimeLibraries(runtimeLibraries *JTList[string]) *SerializationOptions_Builder {
+func (this *SerializationOptions_Builder) setRuntimeLibraries(runtimeLibraries *TList[string]) *SerializationOptions_Builder {
 	if runtimeLibraries == nil {
 		panic(new_NullPointerException_String("Null runtimeLibraries"))
 	}

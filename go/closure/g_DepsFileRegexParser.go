@@ -6,7 +6,7 @@ type DepsFileRegexParser struct {
 	JsFileLineParser
 	depMatcher     *Matcher_re2j
 	depArgsMatch   *Matcher_re2j
-	depInfos       *JTList[DependencyInfo_]
+	depInfos       *TList[DependencyInfo_]
 	pathTranslator Function_base[string, string]
 }
 
@@ -54,8 +54,8 @@ func (this *DepsFileRegexParser) parseFile(filePath string) *Outcome_base[List] 
 	return Outcome_base_ok_Object[List](this.parseFile_2(filePath, fileContents.get()).asList())
 }
 
-func (this *DepsFileRegexParser) parseFile_2(filePath string, fileContents string) *JTList[DependencyInfo_] {
-	this.depInfos = jnewTList_(tc_DependencyInfo_)
+func (this *DepsFileRegexParser) parseFile_2(filePath string, fileContents string) *TList[DependencyInfo_] {
+	this.depInfos = newTList_(tc_DependencyInfo_)
 	if DepsFileRegexParser_logger.isLoggable(Level_FINE) {
 		DepsFileRegexParser_logger.fine(("Parsing Dep: " + sstr_(filePath)))
 	}
@@ -107,8 +107,8 @@ func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base[any] 
 	return Outcome_base_ok_Object[any](bool(((!this.shortcutMode || hasDependencies) || CharMatcher_whitespace().matchesAllOf_s(line))))
 }
 
-func DepsFileRegexParser_requiresParsedFromDeps(symbols ListOf[string]) *JTList[*DependencyInfo_Require] {
-	var result *TListBuilder[*DependencyInfo_Require] = newTListBuilder_(jtc_p_DependencyInfo_Require)
+func DepsFileRegexParser_requiresParsedFromDeps(symbols ListOf[string]) *TList[*DependencyInfo_Require] {
+	var result *ImmutableList_Builder[*DependencyInfo_Require] = immutableListBuilder_(tc_p_DependencyInfo_Require)
 	for symbol := range elemsBy_(symbols, str_) {
 		result.add(DependencyInfo_Require_parsedFromDeps(symbol))
 	}

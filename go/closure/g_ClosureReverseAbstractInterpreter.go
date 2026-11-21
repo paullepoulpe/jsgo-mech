@@ -6,7 +6,7 @@ type ClosureReverseAbstractInterpreter struct {
 	ChainableReverseAbstractInterpreter
 	restrictToObjectVisitor    Visitor
 	restrictToNotObjectVisitor Visitor
-	restricters                *JTMap[string, Function_base[*ClosureReverseAbstractInterpreter_TypeRestriction, *JSType]]
+	restricters                *TMap[string, Function_base[*ClosureReverseAbstractInterpreter_TypeRestriction, *JSType]]
 }
 
 func (this *ClosureReverseAbstractInterpreter) up_ChainableReverseAbstractInterpreter() *ChainableReverseAbstractInterpreter {
@@ -24,7 +24,7 @@ func (this *ClosureReverseAbstractInterpreter) finit_ClosureReverseAbstractInter
 func (this *ClosureReverseAbstractInterpreter) init_ClosureReverseAbstractInterpreter(typeRegistry *JSTypeRegistry) {
 	this.ChainableReverseAbstractInterpreter.init_ChainableReverseAbstractInterpreter(typeRegistry)
 	this.finit_ClosureReverseAbstractInterpreter()
-	this.restricters = immutableMapOf1_[string, Function_base[*ClosureReverseAbstractInterpreter_TypeRestriction, *JSType]](jtc_string, tc_Function_base_p_ClosureReverseAbstractInterpreter_TypeRestriction__p_JSType_, "isObject", Function_base[*ClosureReverseAbstractInterpreter_TypeRestriction, *JSType](func(p *ClosureReverseAbstractInterpreter_TypeRestriction) *JSType {
+	this.restricters = immutableMapOf1_[string, Function_base[*ClosureReverseAbstractInterpreter_TypeRestriction, *JSType]](tc_string, tc_Function_base_p_ClosureReverseAbstractInterpreter_TypeRestriction__p_JSType_, "isObject", Function_base[*ClosureReverseAbstractInterpreter_TypeRestriction, *JSType](func(p *ClosureReverseAbstractInterpreter_TypeRestriction) *JSType {
 		if p.type__ == nil {
 			return func() *JSType {
 				if p.outcome {
@@ -58,7 +58,7 @@ func (this *ClosureReverseAbstractInterpreter) getPreciserScopeKnowingConditionO
 			var paramType *JSType = this.getTypeIfRefinable(param, blindScope)
 			var receiver Node = callee.getFirstChild()
 			if receiver.isName() && ("goog" == receiver.getString()) {
-				var restricter Function_base[*ClosureReverseAbstractInterpreter_TypeRestriction, *JSType] = this.restricters.get(callee.getString())
+				var restricter Function_base[*ClosureReverseAbstractInterpreter_TypeRestriction, *JSType] = this.restricters.Get(callee.getString())
 				if restricter != nil {
 					return this.restrictParameter(param, paramType, blindScope, restricter, outcome.isTruthy())
 				}

@@ -5,8 +5,8 @@ package closure
 type GraphvizGraph interface {
 	getName() string
 	isDirected() bool
-	getGraphvizNodes() *JTList[GraphvizGraph_GraphvizNode]
-	getGraphvizEdges() *JTList[GraphvizGraph_GraphvizEdge]
+	getGraphvizNodes() *TList[GraphvizGraph_GraphvizNode]
+	getGraphvizEdges() *TList[GraphvizGraph_GraphvizEdge]
 }
 
 type GraphvizGraph_GraphvizNode interface {

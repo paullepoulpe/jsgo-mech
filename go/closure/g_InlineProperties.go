@@ -5,11 +5,11 @@ package closure
 type InlineProperties struct {
 	compiler_ *AbstractCompiler
 	registry  *ColorRegistry
-	props     *JTMap[string, *InlineProperties_PropertyInfo]
+	props     *TMap[string, *InlineProperties_PropertyInfo]
 }
 
 func (this *InlineProperties) finit_InlineProperties() {
-	this.props = jnewTMap_(jtc_string, tc_p_InlineProperties_PropertyInfo)
+	this.props = newTMap_(tc_string, tc_p_InlineProperties_PropertyInfo)
 }
 
 func (this *InlineProperties) init_InlineProperties(compiler *AbstractCompiler) {
@@ -29,7 +29,7 @@ func (this *InlineProperties) invalidateExternProperties() {
 	it_1 := this.compiler_.getExternProperties().each()
 	for it_1.next() {
 		var name string = it_1.v
-		this.props.put(name, InlineProperties_INVALIDATED)
+		this.props.Put(name, InlineProperties_INVALIDATED)
 	}
 }
 
@@ -155,9 +155,9 @@ func (this *InlineProperties_GatherCandidates) maybeRecordCandidateClassFieldDef
 	if n.isStaticMember() {
 		c = this.outer_.getColor(classNode)
 	} else {
-		var possibleInstances *JTSet[*Color] = this.outer_.getColor(classNode).getInstanceColors()
+		var possibleInstances *TSet[*Color] = this.outer_.getColor(classNode).getInstanceColors()
 		c = func() *Color {
-			if possibleInstances.isEmpty() {
+			if possibleInstances.IsEmpty() {
 				return StandardColors_UNKNOWN
 			}
 			return Color_createUnion(possibleInstances)
@@ -191,15 +191,15 @@ func (this *InlineProperties_GatherCandidates) maybeRecordCandidateGetpropDefini
 }
 
 func (this *InlineProperties_GatherCandidates) invalidateProperty(propName string) {
-	this.outer_.props.put(propName, InlineProperties_INVALIDATED)
+	this.outer_.props.Put(propName, InlineProperties_INVALIDATED)
 }
 
 func (this *InlineProperties_GatherCandidates) maybeStoreCandidateValue(color *Color, propName string, value Node) bool {
 	if value == 0 {
 		panic(new_NullPointerException_0())
 	}
-	if ((!this.outer_.props.containsKey(propName) && !color.isInvalidating()) && NodeUtil_isImmutableValue(value)) && NodeUtil_isExecutedExactlyOnce(value) {
-		this.outer_.props.put(propName, new_InlineProperties_PropertyInfo(color, value))
+	if ((!this.outer_.props.Has(propName) && !color.isInvalidating()) && NodeUtil_isImmutableValue(value)) && NodeUtil_isExecutedExactlyOnce(value) {
+		this.outer_.props.Put(propName, new_InlineProperties_PropertyInfo(color, value))
 		return true
 	}
 	return false
@@ -216,7 +216,7 @@ func (this *InlineProperties_GatherCandidates) inConstructor(t *NodeTraversal) b
 type InlineProperties_ReplaceCandidates struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_                     *InlineProperties
-	hasInSupertypesListSeenSet *JTSet[*Color]
+	hasInSupertypesListSeenSet *TSet[*Color]
 }
 
 func (this *InlineProperties_ReplaceCandidates) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -227,7 +227,7 @@ func (this *InlineProperties_ReplaceCandidates) up_NodeTraversal_AbstractPostOrd
 }
 
 func (this *InlineProperties_ReplaceCandidates) finit_InlineProperties_ReplaceCandidates() {
-	this.hasInSupertypesListSeenSet = jnewTSet_(tce_p_Color)
+	this.hasInSupertypesListSeenSet = newTSet_(tch_p_Color)
 }
 
 func (this *InlineProperties_ReplaceCandidates) init_InlineProperties_ReplaceCandidates() {
@@ -247,7 +247,7 @@ func (this *InlineProperties_ReplaceCandidates) visit_impl(t *NodeTraversal, n N
 	if n.isGetProp() && !NodeUtil_isLValue(n) {
 		var target Node = n.getFirstChild()
 		var propName string = n.getString()
-		var info *InlineProperties_PropertyInfo = this.outer_.props.get(propName)
+		var info *InlineProperties_PropertyInfo = this.outer_.props.Get(propName)
 		if ((info != nil) && (info != InlineProperties_INVALIDATED)) && this.isMatchingType(target, info.color_) {
 			var replacement Node = info.value_.cloneTree()
 			if this.outer_.compiler_.getAstAnalyzer().mayHaveSideEffects(n.getFirstChild()) {
@@ -273,9 +273,9 @@ func (this *InlineProperties_ReplaceCandidates) isMatchingType(n Node, src *Colo
 
 func (this *InlineProperties_ReplaceCandidates) hasInSupertypesList(subCtor *Color, superCtor *Color) (ret_1 bool) {
 	defer func() {
-		this.hasInSupertypesListSeenSet.remove(subCtor)
+		this.hasInSupertypesListSeenSet.Delete(subCtor)
 	}()
-	if !this.hasInSupertypesListSeenSet.add(subCtor) {
+	if !this.hasInSupertypesListSeenSet.Add(subCtor) {
 		return false
 	}
 	if (subCtor == nil) || (superCtor == nil) {
