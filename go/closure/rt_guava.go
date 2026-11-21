@@ -65,8 +65,6 @@ func comparatorOf_(v any) Comparator_e {
 		return x.cmp
 	case *TreeMap:
 		return x.cmp
-	case *EnumMap:
-		return x.cmp
 	case *ImmutableCollection:
 		return x.cmp
 	case *ImmutableMap:
