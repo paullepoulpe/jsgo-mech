@@ -163,7 +163,7 @@ func (this *NodeIterators_LocalVarMotion) advanceLookAhead(atStart bool) {
 	}
 	var nextNode Node = Node_of_(this.iterator_.next())
 	var nextParent Node = this.iterator_.currentParent()
-	var type_ *Token_rhino = nextNode.getToken()
+	var type_ Token_rhino = nextNode.getToken()
 	if this.valueHasSideEffects {
 		var readsState bool = false
 		if (nextNode.isName() && !(this.varName_ == nextNode.getString())) || (((nextNode.isGetProp() || nextNode.isGetElem()) || nextNode.isOptChainGetProp()) || nextNode.isOptChainGetElem()) {

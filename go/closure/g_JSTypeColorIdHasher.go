@@ -10,7 +10,7 @@ func (this *JSTypeColorIdHasher) init_JSTypeColorIdHasher(registry *JSTypeRegist
 	var standardColorObjectIdsBuilder *TMapBuilder[*ObjectType, *ColorId] = newTMapBuilder_(tce_p_ObjectType, jtc_p_ColorId)
 	it_1 := JSTypeColorIdHasher_NATIVE_TYPE_TO_ID.eachEntry()
 	for it_1.next() {
-		var e *TEntry[*JSTypeNative, *ColorId] = it_1.entry()
+		var e *TEntry[JSTypeNative, *ColorId] = it_1.entry()
 		standardColorObjectIdsBuilder.put(registry.getNativeObjectType(e.getKey()), e.getValue())
 	}
 	this.standardColorObjectIds = standardColorObjectIdsBuilder.buildOrThrow()
@@ -85,7 +85,7 @@ func JSTypeColorIdHasher_putUtf8(hasher Hasher, s string) {
 }
 
 var JSTypeColorIdHasher_FARM_64 HashFunction
-var JSTypeColorIdHasher_NATIVE_TYPE_TO_ID *JTMap[*JSTypeNative, *ColorId]
+var JSTypeColorIdHasher_NATIVE_TYPE_TO_ID *JTMap[JSTypeNative, *ColorId]
 
 var JSTypeColorIdHasher_clinit_done bool
 

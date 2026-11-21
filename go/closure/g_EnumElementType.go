@@ -40,7 +40,7 @@ func new_EnumElementType(registry *JSTypeRegistry, elementType *JSType, name Opt
 	return this
 }
 
-func (this *EnumElementType) getTypeClass_impl() *JSTypeClass {
+func (this *EnumElementType) getTypeClass_impl() JSTypeClass {
 	return EnumElementType_TYPE_CLASS
 }
 
@@ -48,7 +48,7 @@ func (this *EnumElementType) getEnumType() *EnumType {
 	return this.enumType
 }
 
-func (this *EnumElementType) getPropertyKind_2_impl(propertyName Property_Key, autobox bool) *JSType_HasPropertyKind {
+func (this *EnumElementType) getPropertyKind_2_impl(propertyName Property_Key, autobox bool) JSType_HasPropertyKind {
 	return this.primitiveType.getPropertyKind_2(propertyName, autobox)
 }
 
@@ -89,7 +89,7 @@ func (this *EnumElementType) isObject_impl() bool {
 	return this.primitiveType.isObject()
 }
 
-func (this *EnumElementType) testForEquality_impl(that *JSType) *Tri {
+func (this *EnumElementType) testForEquality_impl(that *JSType) Tri {
 	return this.primitiveType.testForEquality(that)
 }
 
@@ -177,7 +177,7 @@ func (this *EnumElementType) resolveInternal_impl(reporter ErrorReporter_rhino) 
 	return this.up_JSType()
 }
 
-var EnumElementType_TYPE_CLASS *JSTypeClass
+var EnumElementType_TYPE_CLASS JSTypeClass
 
 var EnumElementType_clinit_done bool
 
@@ -191,7 +191,7 @@ func EnumElementType_clinit() {
 }
 
 // getTypeClass: an object that is exactly a EnumElementType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *EnumElementType) getTypeClass() *JSTypeClass {
+func (this *EnumElementType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
@@ -199,7 +199,7 @@ func (this *EnumElementType) getTypeClass() *JSTypeClass {
 }
 
 // getPropertyKind_2: an object that is exactly a EnumElementType calls its getPropertyKind_2_impl directly (post-flip); others dispatch.
-func (this *EnumElementType) getPropertyKind_2(p0 Property_Key, p1 bool) *JSType_HasPropertyKind {
+func (this *EnumElementType) getPropertyKind_2(p0 Property_Key, p1 bool) JSType_HasPropertyKind {
 	if this.self_ == any(this) {
 		return this.getPropertyKind_2_impl(p0, p1)
 	}
@@ -271,7 +271,7 @@ func (this *EnumElementType) isObject() bool {
 }
 
 // testForEquality: an object that is exactly a EnumElementType calls its testForEquality_impl directly (post-flip); others dispatch.
-func (this *EnumElementType) testForEquality(p0 *JSType) *Tri {
+func (this *EnumElementType) testForEquality(p0 *JSType) Tri {
 	if this.self_ == any(this) {
 		return this.testForEquality_impl(p0)
 	}

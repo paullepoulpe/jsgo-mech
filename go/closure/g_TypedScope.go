@@ -8,7 +8,7 @@ type TypedScope struct {
 	module_       *Module
 	reservedNames *JTSet[string]
 	vars          MapOf[string, *TypedVar]
-	implicitVars  MapOf[*AbstractScope_ImplicitVar, *TypedVar]
+	implicitVars  MapOf[AbstractScope_ImplicitVar, *TypedVar]
 	depth         int32
 	isBottomField bool
 }
@@ -141,20 +141,20 @@ func (this *TypedScope) declare(name string, nameNode Node, type_ *JSType, input
 	return var_
 }
 
-func (this *TypedScope) makeImplicitVar_ImplicitVar_rTypedVar(var_ *AbstractScope_ImplicitVar) *TypedVar {
+func (this *TypedScope) makeImplicitVar_ImplicitVar_rTypedVar(var_ AbstractScope_ImplicitVar) *TypedVar {
 	if this.isGlobal() {
 		return nil
 	} else if eqR_(var_, AbstractScope_ImplicitVar_EXPORTS) {
 		return nil
 	}
-	return new_TypedVar(false, var_.nameField, 0, this.getImplicitVarType(var_), this, -1, nil)
+	return new_TypedVar(false, AbstractScope_ImplicitVar_nameField_[var_-1], 0, this.getImplicitVarType(var_), this, -1, nil)
 }
 
-func (this *TypedScope) hasOwnImplicitSlot_impl(name *AbstractScope_ImplicitVar) bool {
-	return (((name != nil) && !eqR_(name, AbstractScope_ImplicitVar_EXPORTS)) && name.isMadeByScope(this.up_AbstractScope()))
+func (this *TypedScope) hasOwnImplicitSlot_impl(name AbstractScope_ImplicitVar) bool {
+	return (((name != 0) && !eqR_(name, AbstractScope_ImplicitVar_EXPORTS)) && name.isMadeByScope(this.up_AbstractScope()))
 }
 
-func (this *TypedScope) getImplicitVarType(var_ *AbstractScope_ImplicitVar) *JSType {
+func (this *TypedScope) getImplicitVarType(var_ AbstractScope_ImplicitVar) *JSType {
 	switch var_ {
 	case AbstractScope_ImplicitVar_ARGUMENTS:
 		var globalArgs *TypedVar = this.getGlobalScope_rTypedScope().getVar_String_rTypedVar(Var_ARGUMENTS)
@@ -319,16 +319,16 @@ func (this *TypedScope) hasSlot_impl(name string) bool {
 	return false
 }
 
-func (this *TypedScope) getOwnImplicitSlot(name *AbstractScope_ImplicitVar) *TypedVar {
+func (this *TypedScope) getOwnImplicitSlot(name AbstractScope_ImplicitVar) *TypedVar {
 	if !this.hasOwnImplicitSlot(name) {
 		return nil
 	}
-	var emptySentinel *JTMap[*AbstractScope_ImplicitVar, *TypedVar] = jtmapEmptyImm_(tc_p_AbstractScope_ImplicitVar, jtc_p_TypedVar)
+	var emptySentinel *JTMap[AbstractScope_ImplicitVar, *TypedVar] = jtmapEmptyImm_(tc_p_AbstractScope_ImplicitVar, jtc_p_TypedVar)
 	if any(this.implicitVars) == any(emptySentinel.asMap()) {
 		this.implicitVars = Map(new_EnumMap(classOf_("com.google.javascript.jscomp.AbstractScope.ImplicitVar")))
 	}
 	return cast_[*TypedVar](Map_computeIfAbsent(this.implicitVars, obj_(name), Function[any, any](func(p0 any) any {
-		return obj_(this.makeImplicitVar_ImplicitVar_rTypedVar(cast_[*AbstractScope_ImplicitVar](p0)))
+		return obj_(this.makeImplicitVar_ImplicitVar_rTypedVar(cast_[AbstractScope_ImplicitVar](p0)))
 	})))
 }
 
@@ -482,7 +482,7 @@ func (this *TypedScope) getParent_impl() *AbstractScope {
 	return this.getParent_rTypedScope().up_AbstractScope()
 }
 
-func (this *TypedScope) makeImplicitVar_ImplicitVar_impl(p0 *AbstractScope_ImplicitVar) *AbstractVar {
+func (this *TypedScope) makeImplicitVar_ImplicitVar_impl(p0 AbstractScope_ImplicitVar) *AbstractVar {
 	return this.makeImplicitVar_ImplicitVar_rTypedVar(p0).up_AbstractVar()
 }
 
@@ -555,7 +555,7 @@ func (this *TypedScope) getDepth() int32 {
 }
 
 // hasOwnImplicitSlot: an object that is exactly a TypedScope calls its hasOwnImplicitSlot_impl directly (post-flip); others dispatch.
-func (this *TypedScope) hasOwnImplicitSlot(p0 *AbstractScope_ImplicitVar) bool {
+func (this *TypedScope) hasOwnImplicitSlot(p0 AbstractScope_ImplicitVar) bool {
 	if this.self_ == any(this) {
 		return this.hasOwnImplicitSlot_impl(p0)
 	}
@@ -644,7 +644,7 @@ func (this *TypedScope) getParent() *AbstractScope {
 }
 
 // makeImplicitVar_ImplicitVar: an object that is exactly a TypedScope calls its makeImplicitVar_ImplicitVar_impl directly (post-flip); others dispatch.
-func (this *TypedScope) makeImplicitVar_ImplicitVar(p0 *AbstractScope_ImplicitVar) *AbstractVar {
+func (this *TypedScope) makeImplicitVar_ImplicitVar(p0 AbstractScope_ImplicitVar) *AbstractVar {
 	if this.self_ == any(this) {
 		return this.makeImplicitVar_ImplicitVar_impl(p0)
 	}

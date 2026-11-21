@@ -33,7 +33,7 @@ func new_VerifyingErrorManager(delegate ErrorManager, expectedDiagnostics *JTLis
 	return this
 }
 
-func (this *VerifyingErrorManager) report_2_impl(level *CheckLevel, error_ *JSError) {
+func (this *VerifyingErrorManager) report_2_impl(level CheckLevel, error_ *JSError) {
 	var formattedError string = this.formatErrorForMatching(level, error_)
 	var matchedPattern *Pattern = nil
 	var iterator IteratorOf[*Pattern] = this.unmatchedExpectations.iterator()
@@ -71,7 +71,7 @@ func (this *VerifyingErrorManager) reportMissingExpectations() {
 	this.unmatchedExpectations.clear()
 }
 
-func (this *VerifyingErrorManager) formatErrorForMatching(level *CheckLevel, error_ *JSError) string {
+func (this *VerifyingErrorManager) formatErrorForMatching(level CheckLevel, error_ *JSError) string {
 	return func() string {
 		if level == CheckLevel_ERROR {
 			return this.formatter.formatError(error_)
@@ -81,7 +81,7 @@ func (this *VerifyingErrorManager) formatErrorForMatching(level *CheckLevel, err
 }
 
 // report_2: an object that is exactly a VerifyingErrorManager calls its report_2_impl directly (post-flip); others dispatch.
-func (this *VerifyingErrorManager) report_2(p0 *CheckLevel, p1 *JSError) {
+func (this *VerifyingErrorManager) report_2(p0 CheckLevel, p1 *JSError) {
 	if this.self_ == any(this) {
 		this.report_2_impl(p0, p1)
 		return
