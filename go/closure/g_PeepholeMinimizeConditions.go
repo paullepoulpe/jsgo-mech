@@ -453,7 +453,7 @@ func (this *PeepholeMinimizeConditions) tryMinimizeIf(n Node) Node {
 		var elseAssign Node = PeepholeMinimizeConditions_getBlockExpression(elseBranch).getFirstChild()
 		var name1 Node = var_.getFirstChild()
 		var maybeName2 Node = elseAssign.getFirstChild()
-		if (name1.hasChildren() && maybeName2.isName()) && (name1.getString() == maybeName2.getString()) {
+		if (name1.hasChildren() && maybeName2.isName()) && (name1.getStringId_() == maybeName2.getStringId_()) {
 			if !name1.hasOneChild() {
 				panic(new_IllegalStateException_0())
 			}
@@ -472,7 +472,7 @@ func (this *PeepholeMinimizeConditions) tryMinimizeIf(n Node) Node {
 		var thenAssign Node = PeepholeMinimizeConditions_getBlockExpression(thenBranch).getFirstChild()
 		var maybeName1 Node = thenAssign.getFirstChild()
 		var name2 Node = var_.getFirstChild()
-		if (name2.hasChildren() && maybeName1.isName()) && (maybeName1.getString() == name2.getString()) {
+		if (name2.hasChildren() && maybeName1.isName()) && (maybeName1.getStringId_() == name2.getStringId_()) {
 			var thenExpr Node = thenAssign.getLastChild().detach()
 			if !name2.hasOneChild() {
 				panic(new_IllegalStateException_0())

@@ -161,12 +161,12 @@ func (this *ProcessCommonJSModules) getImportedModuleName_3(t *NodeTraversal, n 
 }
 
 func ProcessCommonJSModules_isCommonJsExport(t *NodeTraversal, export Node, resolutionMode ModuleLoader_ResolutionMode) bool {
-	if export.matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))) || (((export.isGetElem() && export.getFirstChild().matchesQualifiedName(ProcessCommonJSModules_MODULE)) && export.getSecondChild().isStringLit()) && (export.getSecondChild().getString() == ProcessCommonJSModules_EXPORTS)) {
+	if export.matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))) || (((export.isGetElem() && export.getFirstChild().matchesQualifiedName(ProcessCommonJSModules_MODULE)) && export.getSecondChild().isStringLit()) && (export.getSecondChild().getStringIs_(sid_exports))) {
 		var v *Var = t.getScope().getVar_String_rVar(ProcessCommonJSModules_MODULE)
 		if (v == nil) || v.isExtern() {
 			return true
 		}
-	} else if export.isName() && (ProcessCommonJSModules_EXPORTS == export.getString()) {
+	} else if export.isName() && (export.getStringIs_(sid_exports)) {
 		var v *Var = t.getScope().getVar_String_rVar(export.getString())
 		if (v == nil) || v.isGlobal() {
 			return true
@@ -204,7 +204,7 @@ func ProcessCommonJSModules_isWebpackRequireEnsureCallback(fnc Node) bool {
 		return false
 	}
 	var callParentTarget Node = callParent.getFirstFirstChild().getFirstChild()
-	if callParentTarget.matchesQualifiedName((sstr_(ProcessCommonJSModules_WEBPACK_REQUIRE) + ".e")) && (callParent.getFirstChild().getString() == "then") {
+	if callParentTarget.matchesQualifiedName((sstr_(ProcessCommonJSModules_WEBPACK_REQUIRE) + ".e")) && (callParent.getFirstChild().getStringIs_(sid_then)) {
 		return true
 	} else if (ProcessCommonJSModules_PROMISE_ALL.matches(callParentTarget) && (callParentTarget.getNext() != 0)) && callParentTarget.getNext().isArrayLit() {
 		var allElementsAreDynamicImports bool = false
@@ -251,7 +251,7 @@ func (this *ProcessCommonJSModules) removeIIFEWrapper(root Node) bool {
 	var fnc Node
 	if call.getFirstChild().isFunction() {
 		fnc = n.getFirstFirstChild()
-	} else if (call.getFirstChild().isGetProp() && call.getFirstFirstChild().isFunction()) && (call.getFirstChild().getString() == "call") {
+	} else if (call.getFirstChild().isGetProp() && call.getFirstFirstChild().isFunction()) && (call.getFirstChild().getStringIs_(sid_call)) {
 		fnc = call.getFirstFirstChild()
 		if !((call.getSecondChild() != 0) && (call.getSecondChild().isThis() || call.getSecondChild().matchesQualifiedName(ProcessCommonJSModules_EXPORTS))) {
 			return false
@@ -303,7 +303,7 @@ func (this *ProcessCommonJSModules) removeWebpackModuleShim(root Node) {
 	var paramNumber int32 = 0
 	for param != 0 {
 		paramNumber++
-		if param.isName() && (param.getString() == ProcessCommonJSModules_MODULE) {
+		if param.isName() && (param.getStringIs_(sid_module)) {
 			moduleParam = param
 			break
 		}
@@ -500,7 +500,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) visit(t *NodeTraversal
 	if n.isCall() && ProcessCommonJSModules_REQUIRE_ENSURE.matches(n.getFirstChild()) {
 		this.visitRequireEnsureCall(t, n)
 	}
-	if n.matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))) || (((n.isGetElem() && n.getFirstChild().matchesQualifiedName(ProcessCommonJSModules_MODULE)) && n.getSecondChild().isStringLit()) && (n.getSecondChild().getString() == ProcessCommonJSModules_EXPORTS)) {
+	if n.matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))) || (((n.isGetElem() && n.getFirstChild().matchesQualifiedName(ProcessCommonJSModules_MODULE)) && n.getSecondChild().isStringLit()) && (n.getSecondChild().getStringIs_(sid_exports))) {
 		if this.outer_.isCommonJsExport(t, n) {
 			this.moduleExports.add(new_ProcessCommonJSModules_ExportInfo(n, t.getScope()))
 			var umdTestAncestor *ProcessCommonJSModules_FindImportsAndExports_UmdTestInfo = this.getOutermostUmdTest(parent)
@@ -520,7 +520,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) visit(t *NodeTraversal
 			}
 		}
 	}
-	if n.isName() && (ProcessCommonJSModules_EXPORTS == n.getString()) {
+	if n.isName() && (n.getStringIs_(sid_exports)) {
 		var v *Var = t.getScope().getVar_String_rVar(ProcessCommonJSModules_EXPORTS)
 		if (v == nil) || v.isGlobal() {
 			var qNameRoot Node = this.outer_.getBaseQualifiedNameNode(n)
@@ -580,7 +580,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) visitRequireEnsureCall
 		}
 	}
 	var callback Node = dependencies.getNext()
-	if !(((callback.isFunction() && callback.getSecondChild().hasOneChild()) && callback.getSecondChild().getFirstChild().isName()) && ("require" == callback.getSecondChild().getFirstChild().getString())) {
+	if !(((callback.isFunction() && callback.getSecondChild().hasOneChild()) && callback.getSecondChild().getFirstChild().isName()) && (callback.getSecondChild().getFirstChild().getStringIs_(sid_require))) {
 		this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(callback, ProcessCommonJSModules_UNKNOWN_REQUIRE_ENSURE, []string{"The second argument must be a function whose first argument is named \"require\"."}))
 		return
 	}
@@ -630,7 +630,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) initializeModule() boo
 				exportsToRemove = append(exportsToRemove, export)
 				this.outer_.compiler_.reportChangeToEnclosingScope(assign)
 			}
-		} else if ((((export.node_.getParent().isGetElem() && export.node_.getNext().isStringLit()) && (export.node_.getNext().getString() == ProcessCommonJSModules_EXPORT_PROPERTY_NAME)) && export.node_.getGrandparent().isAssign()) && (export.node_.getParent().getPrevious() != 0)) && export.node_.getParent().getPrevious().matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))) {
+		} else if ((((export.node_.getParent().isGetElem() && export.node_.getNext().isStringLit()) && (export.node_.getNext().getStringIs_(sid_default))) && export.node_.getGrandparent().isAssign()) && (export.node_.getParent().getPrevious() != 0)) && export.node_.getParent().getPrevious().matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))) {
 			var parent Node = export.node_.getParent()
 			var grandparent Node = parent.getParent()
 			var prop Node = export.node_.getNext()
@@ -951,7 +951,7 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 				this.visit(t, var_.getFirstChild(), var_)
 			}
 		}
-		if (n.getFirstChild().hasChildren() && n.getFirstFirstChild().isName()) && (n.getFirstChild().getString() == n.getFirstFirstChild().getString()) {
+		if (n.getFirstChild().hasChildren() && n.getFirstFirstChild().isName()) && (n.getFirstChild().getStringId_() == n.getFirstFirstChild().getStringId_()) {
 			n.detach()
 			t.reportCodeChange()
 			return
@@ -976,7 +976,7 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 					this.maybeUpdateName(t, n, nameDeclaration)
 				}
 			}
-		} else if (this.allowFullRewrite && (n.getString() == ProcessCommonJSModules_MODULE)) && !((n.getParent().isGetProp() || n.getParent().isGetElem()) || n.getParent().isTypeOf()) {
+		} else if (this.allowFullRewrite && (n.getStringIs_(sid_module))) && !((n.getParent().isGetProp() || n.getParent().isGetElem()) || n.getParent().isTypeOf()) {
 			var objectLit Node = IR_objectlit([]Node{}).srcref(n)
 			n.replaceWith(objectLit)
 			t.reportCodeChange_1(objectLit)
@@ -987,14 +987,14 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 			if (v == nil) || v.isExtern() {
 				n.replaceWith(IR_string(t.getInput().getPath().toString()).srcref(n))
 			}
-		} else if ((this.allowFullRewrite && n.getFirstChild().isName()) && (n.getFirstChild().getString() == ProcessCommonJSModules_MODULE)) && !n.matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))) {
+		} else if ((this.allowFullRewrite && n.getFirstChild().isName()) && (n.getFirstChild().getStringIs_(sid_module))) && !n.matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))) {
 			var v *Var = t.getScope().getVar_String_rVar(ProcessCommonJSModules_MODULE)
 			if (v == nil) || v.isExtern() {
 				n.getFirstChild().replaceWith(IR_objectlit([]Node{}).srcref(n.getFirstChild()))
 			}
 		}
 	case tokOrd1_TYPEOF:
-		if (this.allowFullRewrite && n.getFirstChild().isName()) && ((n.getFirstChild().getString() == ProcessCommonJSModules_MODULE) || (n.getFirstChild().getString() == ProcessCommonJSModules_EXPORTS)) {
+		if (this.allowFullRewrite && n.getFirstChild().isName()) && ((n.getFirstChild().getStringIs_(sid_module)) || (n.getFirstChild().getStringIs_(sid_exports))) {
 			var v *Var = t.getScope().getVar_String_rVar(n.getFirstChild().getString())
 			if (v == nil) || v.isExtern() {
 				n.replaceWith(IR_string("object"))
@@ -1624,7 +1624,7 @@ func new_ProcessCommonJSModules_FindImportsAndExports_1(outer_ *ProcessCommonJSM
 func (this *ProcessCommonJSModules_FindImportsAndExports_1) visit(node Node) {
 	switch node.ns_().token {
 	case tokOrd1_NAME:
-		if (node.getString() == ProcessCommonJSModules_MODULE) || (node.getString() == "define") {
+		if (node.getStringIs_(sid_module)) || (node.getStringIs_(sid_define)) {
 			break
 		}
 		return
@@ -1634,7 +1634,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports_1) visit(node Node) {
 		}
 		return
 	case tokOrd1_STRINGLIT:
-		if node.getParent().isIn() && (node.getString() == "amd") {
+		if node.getParent().isIn() && (node.getStringIs_(sid_amd)) {
 			break
 		}
 		return

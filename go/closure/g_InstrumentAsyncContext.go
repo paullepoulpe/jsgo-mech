@@ -388,7 +388,7 @@ func (this *InstrumentAsyncContext_ArgumentsRenamer) shouldTraverse(t *NodeTrave
 }
 
 func (this *InstrumentAsyncContext_ArgumentsRenamer) visit(t *NodeTraversal, n Node, parent Node) {
-	if n.isName() && (n.getString() == "arguments") {
+	if n.isName() && (n.getStringIs_(sid_arguments)) {
 		if this.argumentsName.isEmpty() {
 			this.argumentsName = Optional_of[string](("$jscomp$arguments$" + sstr_(this.outer_.uniqueIdSupplier.getUniqueId(t.getInput()))))
 		}

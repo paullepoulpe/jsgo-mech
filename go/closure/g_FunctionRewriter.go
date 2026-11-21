@@ -306,7 +306,7 @@ func (this *FunctionRewriter_IdentityReducer) isIdentityFunction(functionNode No
 		return false
 	}
 	var value Node = this.maybeGetSingleReturnRValue(functionNode)
-	return (((value != 0) && value.isName()) && (value.getString() == paramNode.getString()))
+	return (((value != 0) && value.isName()) && (value.getStringId_() == paramNode.getStringId_()))
 }
 
 const FunctionRewriter_IdentityReducer_FACTORY_METHOD_NAME string = "JSCompiler_identityFn"
@@ -487,7 +487,7 @@ func (this *FunctionRewriter_SetterReducer) getSetPropertyName(functionNode Node
 	var lhs Node = assign.getFirstChild()
 	if lhs.isGetProp() && lhs.getFirstChild().isThis() {
 		var rhs Node = assign.getLastChild()
-		if rhs.isName() && (rhs.getString() == paramNode.getString()) {
+		if rhs.isName() && (rhs.getStringId_() == paramNode.getStringId_()) {
 			return IR_string(lhs.getString()).clonePropsFrom(lhs).srcref(lhs)
 		}
 	}
