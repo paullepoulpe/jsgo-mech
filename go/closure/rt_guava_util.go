@@ -276,7 +276,7 @@ func Iterables_getOnlyElement(p0 Iterable) any {
 
 // ---- Lists
 
-func Lists_charactersOf(p0 string) *ImmutableList {
+func Lists_charactersOf(p0 string) *ErasedImmutableList {
 	cs := String_toCharArray(p0)
 	out := make([]any, len(cs))
 	for i, c := range cs {
@@ -328,7 +328,7 @@ func (this *Sets_SetView) size() int32 {
 	return n
 }
 
-func (this *Sets_SetView) immutableCopy() *ImmutableSet { return immSet_(this.toArray_0()) }
+func (this *Sets_SetView) immutableCopy() *ErasedImmutableSet { return immSet_(this.toArray_0()) }
 
 func Sets_union(p0 Set, p1 Set) *Sets_SetView {
 	v := newSetView_(
@@ -362,7 +362,7 @@ func Sets_difference(p0 Set, p1 Set) *Sets_SetView {
 }
 
 // Sets.immutableEnumSet: iterates in the constants' declaration order.
-func Sets_immutableEnumSet(p0 *Enum, p1 []*Enum) *ImmutableSet {
+func Sets_immutableEnumSet(p0 *Enum, p1 []*Enum) *ErasedImmutableSet {
 	items := make([]any, 0, len(p1)+1)
 	items = append(items, p0.self())
 	for _, e := range p1 {
