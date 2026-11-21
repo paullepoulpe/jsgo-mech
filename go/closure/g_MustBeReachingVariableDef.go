@@ -256,8 +256,8 @@ func (this *MustBeReachingVariableDef) getDef(name string, useNode Node) *MustBe
 		panic(new_IllegalArgumentException_0())
 	}
 	var n GraphNode[Node, ControlFlowGraph_Branch] = cast_[GraphNode[Node, ControlFlowGraph_Branch]](this.getCfg().getNode_Object_rDiGraphNode_rLinkedDiGraphNode(useNode).self())
-	var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(n)))
-	return state.getIn().(*MustBeReachingVariableDef_MustDef).reachingDef.Get(this.allVarsInFn.Get(name))
+	var state *DataFlowAnalysis_LinearFlowState[*MustBeReachingVariableDef_MustDef] = cast_[*DataFlowAnalysis_LinearFlowState[*MustBeReachingVariableDef_MustDef]](Annotatable_getAnnotation(Annotatable(n)))
+	return state.getIn().reachingDef.Get(this.allVarsInFn.Get(name))
 }
 
 func (this *MustBeReachingVariableDef) getDefNode(name string, useNode Node) Node {

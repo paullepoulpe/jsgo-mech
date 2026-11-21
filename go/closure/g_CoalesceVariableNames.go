@@ -202,14 +202,14 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
 		if cfg.isImplicitReturn(cfgNode) {
 			continue
 		}
-		var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(cfgNode)))
-		var livein *LiveVariablesAnalysis_LiveVariableLattice = cast_[*LiveVariablesAnalysis_LiveVariableLattice](state.getIn())
+		var state *DataFlowAnalysis_LinearFlowState[*LiveVariablesAnalysis_LiveVariableLattice] = cast_[*DataFlowAnalysis_LinearFlowState[*LiveVariablesAnalysis_LiveVariableLattice]](Annotatable_getAnnotation(Annotatable(cfgNode)))
+		var livein *LiveVariablesAnalysis_LiveVariableLattice = state.getIn()
 		for i := int32(livein.nextSetBit(0)); i >= 0; i = livein.nextSetBit((i + 1)) {
 			for j := int32(livein.nextSetBit(i)); j >= 0; j = livein.nextSetBit((j + 1)) {
 				interferenceBitSet[i].set(j)
 			}
 		}
-		var liveout *LiveVariablesAnalysis_LiveVariableLattice = cast_[*LiveVariablesAnalysis_LiveVariableLattice](state.getOut())
+		var liveout *LiveVariablesAnalysis_LiveVariableLattice = state.getOut()
 		for i := int32(liveout.nextSetBit(0)); i >= 0; i = liveout.nextSetBit((i + 1)) {
 			for j := int32(liveout.nextSetBit(i)); j >= 0; j = liveout.nextSetBit((j + 1)) {
 				interferenceBitSet[i].set(j)
@@ -343,16 +343,16 @@ func (this *CoalesceVariableNames) isUninitializedLetNameInLoopBodyAndLive(nameN
 		panic(new_NullPointerException_0())
 	}
 	var cfgNode DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](nn_.self())
-	var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(cfgNode)))
+	var state *DataFlowAnalysis_LinearFlowState[*LiveVariablesAnalysis_LiveVariableLattice] = cast_[*DataFlowAnalysis_LinearFlowState[*LiveVariablesAnalysis_LiveVariableLattice]](Annotatable_getAnnotation(Annotatable(cfgNode)))
 	if state == nil {
 		panic(new_NullPointerException_0())
 	}
 	var varIndex int32 = this.liveness.getVarIndex(originalVar.getName())
-	return ((varIndex >= 0) && state.getOut().(*LiveVariablesAnalysis_LiveVariableLattice).isLive(varIndex))
+	return ((varIndex >= 0) && state.getOut().isLive(varIndex))
 }
 
 type CoalesceVariableNames_LiveRangeChecker struct {
-	state            *DataFlowAnalysis_LinearFlowState[any]
+	state            *DataFlowAnalysis_LinearFlowState[*LiveVariablesAnalysis_LiveVariableLattice]
 	orderedVariables []*Var
 	isAssignToList   *[]any
 	isReadFromList   *[]any
@@ -364,14 +364,14 @@ func (this *CoalesceVariableNames_LiveRangeChecker) finit_CoalesceVariableNames_
 	this.isReadFromList = &[]any{}
 }
 
-func (this *CoalesceVariableNames_LiveRangeChecker) init_CoalesceVariableNames_LiveRangeChecker(root Node, orderedVariables []*Var, state *DataFlowAnalysis_LinearFlowState[any]) {
+func (this *CoalesceVariableNames_LiveRangeChecker) init_CoalesceVariableNames_LiveRangeChecker(root Node, orderedVariables []*Var, state *DataFlowAnalysis_LinearFlowState[*LiveVariablesAnalysis_LiveVariableLattice]) {
 	this.finit_CoalesceVariableNames_LiveRangeChecker()
 	this.root = root
 	this.orderedVariables = orderedVariables
 	this.state = state
 }
 
-func new_CoalesceVariableNames_LiveRangeChecker(root Node, orderedVariables []*Var, state *DataFlowAnalysis_LinearFlowState[any]) *CoalesceVariableNames_LiveRangeChecker {
+func new_CoalesceVariableNames_LiveRangeChecker(root Node, orderedVariables []*Var, state *DataFlowAnalysis_LinearFlowState[*LiveVariablesAnalysis_LiveVariableLattice]) *CoalesceVariableNames_LiveRangeChecker {
 	this := &CoalesceVariableNames_LiveRangeChecker{}
 	this.init_CoalesceVariableNames_LiveRangeChecker(root, orderedVariables, state)
 	return this
@@ -404,7 +404,7 @@ func (this *CoalesceVariableNames_LiveRangeChecker) visit(n Node, parent Node) {
 	}
 	if len(*this.isAssignToList) != 0 {
 		for iVar := int32(0); iVar < int32(len(this.orderedVariables)); iVar++ {
-			var varOutLive bool = this.state.getOut().(*LiveVariablesAnalysis_LiveVariableLattice).isLive(iVar)
+			var varOutLive bool = this.state.getOut().isLive(iVar)
 			if varOutLive || CoalesceVariableNames_LiveRangeChecker_isReadFrom(this.orderedVariables[iVar], n) {
 				*this.isReadFromList = append(*this.isReadFromList, int32(iVar))
 			}
