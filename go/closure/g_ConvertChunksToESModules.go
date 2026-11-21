@@ -59,7 +59,7 @@ func (this *ConvertChunksToESModules) convertChunkSourcesToModules() {
 			if firstInput == nil {
 				firstInput = input
 				scriptFeatures = scriptFeatures.union(FeatureSet_ES2015_MODULES)
-				astRoot.setFeatureSet(obj_(scriptFeatures))
+				astRoot.setFeatureSet(scriptFeatures)
 				var moduleBody Node = new_Node_Token(Token_rhino_MODULE_BODY)
 				moduleBody.srcref(astRoot)
 				moduleBody.addChildrenToFront(astRoot.removeChildren())
@@ -69,7 +69,7 @@ func (this *ConvertChunksToESModules) convertChunkSourcesToModules() {
 				var firstInputAstRoot Node = firstInput.getAstRoot(this.compiler_)
 				var firstInputScriptFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(firstInputAstRoot)
 				var combinedFeatureSet *FeatureSet = firstInputScriptFeatures.union(NodeUtil_getFeatureSetOfScript(astRoot))
-				astRoot.setFeatureSet(obj_(combinedFeatureSet))
+				astRoot.setFeatureSet(combinedFeatureSet)
 				var moduleBody Node = firstInputAstRoot.getFirstChild()
 				Preconditions_checkState(((moduleBody != 0) && moduleBody.isModuleBody()))
 				moduleBody.addChildrenToBack(astRoot.removeChildren())
