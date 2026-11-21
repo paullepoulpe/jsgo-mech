@@ -1718,7 +1718,37 @@ abstract class ExprEmitter extends Base {
   }
 
   /** Calls with a direct Go spelling. */
+  /**
+   * Rule "typed library interfaces", piece `readers` (J2GO_NOLIBGEN=readers is the translation
+   * without it): an argument of a library method that only reads it (LibGen.READERS: from which
+   * argument on) and that is a variable or field holding a typed list, set or map is given as the
+   * typed collection's view (asListT ..), which is part of it. As any other erased argument it
+   * is what erased code knows the collection as, and for an immutable collection that is its
+   * twin, made with every element boxed for this one read.
+   */
+  List<Arg> lgReaders(ExecutableElement e, List<Arg> as) {
+    if (!LibGen.on("readers") || cx.isSource(cx.ownerOf(e))) return as;
+    ExecutableElement r = cx.root(e);
+    Integer from = LibGen.READERS.get(cx.ownerOf(r).getQualifiedName() + "." + r.getSimpleName());
+    if (from == null) return as;
+    List<Arg> out = null;
+    for (int i = from; i < as.size(); i++) {
+      Arg a = as.get(i);
+      if (a.tree == null || !(strip(a.tree) instanceof IdentifierTree) && !(strip(a.tree) instanceof MemberSelectTree) || a.type == null) continue;
+      TypeMirror at = cx.erase(a.type);
+      Ctx.CollKind k = cx.typedColl(at);
+      if (k == null || k.builds != null || k == cx.entryKind) continue;
+      String view = k.name.equals("list") ? ".asListT()" : k.name.equals("set") ? ".asSetT()" : k.name.equals("map") ? ".asMapT()" : null;
+      if (view == null) continue;
+      if (out == null) out = new ArrayList<>(as);
+      out.set(i, new Arg(atomOrParen(expr(a.tree)) + view, cx.types.erasure(cx.typedView(at))));
+      cx.lg.note("typed collections given to a reading library method as their view", String.valueOf(r));
+    }
+    return out == null ? as : out;
+  }
+
   CallResult special(ExecutableElement e, Recv recv, List<Arg> as) {
+    as = lgReaders(e, as);
     TypeElement owner = cx.ownerOf(e);
     String qn = owner.getQualifiedName() + "#" + e.getSimpleName();
     if (recv != null && as.size() == 1 && cx.kind(as.get(0).type) == Ctx.K.STR && cx.kind(recv.type) == Ctx.K.STR) {

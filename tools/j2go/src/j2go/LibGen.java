@@ -75,6 +75,26 @@ final class LibGen {
     return ms == null || ms.contains(r.getSimpleName() + "/" + r.getParameters().size());
   }
 
+  /**
+   * Library methods (of the root declaration) that only read some of their arguments: they
+   * neither keep them, return them nor test their class. The value: the index of the first such
+   * argument. (Piece `readers`, ExprEmitter.lgReaders.) Preconditions' checks format their
+   * message arguments when they fail, and return only their first argument.
+   */
+  static final Map<String, Integer> READERS = Map.ofEntries(
+      Map.entry("com.google.common.collect.Iterables.getLast", 0),
+      Map.entry("com.google.common.collect.Iterables.getFirst", 0),
+      Map.entry("com.google.common.collect.Iterables.getOnlyElement", 0),
+      Map.entry("com.google.common.collect.Iterables.isEmpty", 0),
+      Map.entry("com.google.common.collect.Iterables.size", 0),
+      Map.entry("com.google.common.base.Preconditions.checkArgument", 1),
+      Map.entry("com.google.common.base.Preconditions.checkState", 1),
+      Map.entry("com.google.common.base.Preconditions.checkNotNull", 1),
+      Map.entry("java.util.Collection.addAll", 0),
+      Map.entry("java.util.Collection.containsAll", 0),
+      Map.entry("java.util.Collection.removeAll", 0),
+      Map.entry("java.util.Map.putAll", 0));
+
   static final Set<String> OFF = new HashSet<>();
 
   static {

@@ -342,6 +342,12 @@ type Map_EntryT[K any, V any] interface { Map_Entry; getKey_t() K; getValue_t() 
   check of the collection itself (`Preconditions_checkNotNull_T(x)`: a pointer test). As an
   `Object` it was the collection's erased view, which for an immutable collection is its twin,
   made and boxed for the check alone.
+- Piece `readers`: a variable or field holding a typed list, set or map that is an argument of
+  a library method which only reads it (`LibGen.READERS`, a list of 12: `Iterables.getLast`,
+  the message arguments of `Preconditions.checkArgument` / `checkState`, `Collection.addAll` /
+  `containsAll` / `removeAll`, `Map.putAll` ...) is given as the collection's view
+  (`x.asListT()`), which is part of it; as any other erased argument an immutable typed
+  collection is its twin, made with every element boxed for that one read.
 
 Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is written):
 
@@ -362,7 +368,7 @@ Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is wr
 `tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (6); the self-test
 fails unless the translator refuses exactly those and writes nothing.
 
-Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll`
+Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers`
 (`all`: every one).
 
 **`java.util.Optional` is a value.** The runtime's `Optional[T]` (`rt_base.go`) is a generic
