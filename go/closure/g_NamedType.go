@@ -532,7 +532,7 @@ func (this *NamedType) getTypeClass() *JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
-	return this.self_.(interface{ getTypeClass_impl() *JSTypeClass }).getTypeClass_impl()
+	return this.self_.getTypeClass_impl()
 }
 
 // getTemplateTypes: an object that is exactly a NamedType calls its getTemplateTypes_impl directly (post-flip); others dispatch.
@@ -567,7 +567,7 @@ func (this *NamedType) appendTo(p0 *TypeStringBuilder) {
 		this.appendTo_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendTo_impl(*TypeStringBuilder) }).appendTo_impl(p0)
+	this.self_.appendTo_impl(p0)
 }
 
 // toMaybeNamedType: an object that is exactly a NamedType calls its toMaybeNamedType_impl directly (post-flip); others dispatch.
@@ -575,7 +575,7 @@ func (this *NamedType) toMaybeNamedType() *NamedType {
 	if this.self_ == any(this) {
 		return this.toMaybeNamedType_impl()
 	}
-	return this.self_.(interface{ toMaybeNamedType_impl() *NamedType }).toMaybeNamedType_impl()
+	return this.self_.toMaybeNamedType_impl()
 }
 
 // isNominalType: an object that is exactly a NamedType calls its isNominalType_impl directly (post-flip); others dispatch.
@@ -583,7 +583,7 @@ func (this *NamedType) isNominalType() bool {
 	if this.self_ == any(this) {
 		return this.isNominalType_impl()
 	}
-	return this.self_.(interface{ isNominalType_impl() bool }).isNominalType_impl()
+	return this.self_.isNominalType_impl()
 }
 
 // recursionUnsafeHashCode: an object that is exactly a NamedType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
@@ -591,7 +591,7 @@ func (this *NamedType) recursionUnsafeHashCode() int32 {
 	if this.self_ == any(this) {
 		return this.recursionUnsafeHashCode_impl()
 	}
-	return this.self_.(interface{ recursionUnsafeHashCode_impl() int32 }).recursionUnsafeHashCode_impl()
+	return this.self_.recursionUnsafeHashCode_impl()
 }
 
 // resolveInternal: an object that is exactly a NamedType calls its resolveInternal_impl directly (post-flip); others dispatch.
@@ -599,9 +599,7 @@ func (this *NamedType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
 	if this.self_ == any(this) {
 		return this.resolveInternal_impl(p0)
 	}
-	return this.self_.(interface {
-		resolveInternal_impl(ErrorReporter_rhino) *JSType
-	}).resolveInternal_impl(p0)
+	return this.self_.resolveInternal_impl(p0)
 }
 
 // setValidator: an object that is exactly a NamedType calls its setValidator_impl directly (post-flip); others dispatch.
@@ -609,9 +607,7 @@ func (this *NamedType) setValidator(p0 Predicate_base[*JSType]) bool {
 	if this.self_ == any(this) {
 		return this.setValidator_impl(p0)
 	}
-	return this.self_.(interface {
-		setValidator_impl(Predicate_base[*JSType]) bool
-	}).setValidator_impl(p0)
+	return this.self_.setValidator_impl(p0)
 }
 
 // isObject: an object that is exactly a NamedType calls its isObject_impl directly (post-flip); others dispatch.
@@ -619,7 +615,7 @@ func (this *NamedType) isObject() bool {
 	if this.self_ == any(this) {
 		return this.isObject_impl()
 	}
-	return this.self_.(interface{ isObject_impl() bool }).isObject_impl()
+	return this.self_.isObject_impl()
 }
 
 // visitUntyped: an object that is exactly a NamedType calls its visitUntyped_impl directly (post-flip); others dispatch.
@@ -627,5 +623,5 @@ func (this *NamedType) visitUntyped(p0 Visitor) any {
 	if this.self_ == any(this) {
 		return this.visitUntyped_impl(p0)
 	}
-	return this.self_.(interface{ visitUntyped_impl(Visitor) any }).visitUntyped_impl(p0)
+	return this.self_.visitUntyped_impl(p0)
 }

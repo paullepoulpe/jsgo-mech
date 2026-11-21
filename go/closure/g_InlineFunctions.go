@@ -1349,9 +1349,7 @@ func (this *InlineFunctions_FindCandidateFunctions) visit(p0 *NodeTraversal, p1 
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a InlineFunctions_CallVisitor calls its visit_impl directly (post-flip); others dispatch.
@@ -1360,9 +1358,7 @@ func (this *InlineFunctions_CallVisitor) visit(p0 *NodeTraversal, p1 Node, p2 No
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a InlineFunctions_FindCandidatesReferences calls its visit_impl directly (post-flip); others dispatch.
@@ -1371,7 +1367,5 @@ func (this *InlineFunctions_FindCandidatesReferences) visit(p0 *NodeTraversal, p
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
