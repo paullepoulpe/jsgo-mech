@@ -4,11 +4,11 @@ package closure
 
 type CheckEs6Modules struct {
 	compiler_        *AbstractCompiler
-	importSpecifiers *TMap[string, Node]
+	importSpecifiers map[string]Node
 }
 
 func (this *CheckEs6Modules) finit_CheckEs6Modules() {
-	this.importSpecifiers = newTMap_(tc_string, tc_Node)
+	this.importSpecifiers = map[string]Node{}
 }
 
 func (this *CheckEs6Modules) init_CheckEs6Modules(compiler *AbstractCompiler) {
@@ -24,7 +24,7 @@ func new_CheckEs6Modules(compiler *AbstractCompiler) *CheckEs6Modules {
 
 func (this *CheckEs6Modules) visit(t *NodeTraversal, n Node, parent Node) {
 	if n.isModuleBody() {
-		this.importSpecifiers.Clear()
+		clear(this.importSpecifiers)
 	}
 }
 
@@ -49,7 +49,7 @@ func (this *CheckEs6Modules) shouldTraverse(t *NodeTraversal, n Node, parent Nod
 
 func (this *CheckEs6Modules) visitImport(t *NodeTraversal, importNode Node) {
 	var specifier string = importNode.getLastChild().getString()
-	var duplicateImport Node = this.importSpecifiers.PutIfAbsent(specifier, importNode)
+	var duplicateImport Node = mapPutIfAbsent_(tc_Node, this.importSpecifiers, specifier, importNode)
 	if duplicateImport != 0 {
 		t.report(importNode, CheckEs6Modules_DUPLICATE_IMPORT, []string{specifier, ("" + istr_(int64(duplicateImport.getLineno()))), ("" + istr_(int64(duplicateImport.getCharno())))})
 	}

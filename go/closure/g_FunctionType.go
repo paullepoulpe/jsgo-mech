@@ -928,11 +928,11 @@ func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap *TMap[s
 	}
 }
 
-func (this *FunctionType) checkExtendsLoop() *TList[*FunctionType] {
-	return this.checkExtendsLoop_2(newTSet_(tch_p_FunctionType), newTList_(tc_p_FunctionType))
+func (this *FunctionType) checkExtendsLoop() *[]*FunctionType {
+	return this.checkExtendsLoop_2(newTSet_(tch_p_FunctionType), &[]*FunctionType{})
 }
 
-func (this *FunctionType) checkExtendsLoop_2(cache *TSet[*FunctionType], path *TList[*FunctionType]) *TList[*FunctionType] {
+func (this *FunctionType) checkExtendsLoop_2(cache *TSet[*FunctionType], path *[]*FunctionType) *[]*FunctionType {
 	var iterable *TList[*ObjectType] = this.getExtendedInterfaces()
 	if iterable != nil {
 		it_1 := iterable.each()
@@ -943,20 +943,20 @@ func (this *FunctionType) checkExtendsLoop_2(cache *TSet[*FunctionType], path *T
 				continue
 			}
 			if cache.Has(superConstructor) {
-				path.add(superConstructor)
-				for !(path.get(0).self() == superConstructor.self()) {
-					path.removeAt(0)
+				*path = append(*path, superConstructor)
+				for !(sliceAt_(*path, 0).self() == superConstructor.self()) {
+					sliceRemoveAt_(path, 0)
 				}
 				return path
 			}
 			cache.Add(superConstructor)
-			path.add(superConstructor)
-			var result *TList[*FunctionType] = superConstructor.checkExtendsLoop_2(cache, path)
+			*path = append(*path, superConstructor)
+			var result *[]*FunctionType = superConstructor.checkExtendsLoop_2(cache, path)
 			if result != nil {
 				return result
 			}
 			cache.Delete(superConstructor)
-			path.removeAt((path.size() - 1))
+			sliceRemoveAt_(path, (int32(len(*path)) - 1))
 		}
 	}
 	return nil

@@ -82,9 +82,7 @@ func (this *SourceMapConsumerV3) parseMetaMap(sourceMapObject *SourceMapObject, 
 		return Outcome_base_err[any](new_SourceMapParseException("Invalid map format").up_Throwable())
 	}
 	var generator *SourceMapGeneratorV3 = new_SourceMapGeneratorV3()
-	it_2 := sourceMapObject.getSections().each()
-	for it_2.next() {
-		var section *SourceMapSection = it_2.v
+	for _, section := range *sourceMapObject.getSections() {
 		var mapSectionContents Optional[string] = Optional_of[string](section.getSectionValue())
 		if section.getSectionType() == SourceMapSection_SectionType_URL {
 			mapSectionContents = sectionSupplier.getSourceMap(section.getSectionValue())

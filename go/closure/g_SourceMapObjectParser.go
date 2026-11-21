@@ -61,7 +61,7 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base[*SourceMapObject
 		if sections.isErr() {
 			return Outcome_base_err[*SourceMapObject](sections.error())
 		}
-		builder.setSections(tlistImm_(tc_p_SourceMapSection, sections.get()))
+		builder.setSections(slicePtrImm_(tc_p_SourceMapSection, sections.get()))
 	}
 	var sources *Outcome_base[[]string] = SourceMapObjectParser_getJavaStringArray(sourceMapRoot, "sources")
 	if sources.isErr() {
@@ -157,7 +157,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 			if sections.isErr() {
 				return Outcome_base_err[any](sections.error())
 			}
-			builder.setSections(tlistImm_(tc_p_SourceMapSection, sections.get()))
+			builder.setSections(slicePtrImm_(tc_p_SourceMapSection, sections.get()))
 		case "sources":
 			var sources *Outcome_base[[]string] = SourceMapObjectParser_readStringArray(lexer)
 			if sources.isErr() {
@@ -318,7 +318,7 @@ func SourceMapObjectParser_readStringArray(lexer *SourceMapJsonLexer) *Outcome_b
 		lexer.pos += 4
 		return Outcome_base_ok_Object[[]string](nil)
 	}
-	var list *TList[string] = newTList_(tc_string)
+	var list []string = []string{}
 	var begun *Outcome_base[any] = lexer.beginArray()
 	if begun.isErr() {
 		return Outcome_base_err[[]string](begun.error())
@@ -328,7 +328,7 @@ func SourceMapObjectParser_readStringArray(lexer *SourceMapJsonLexer) *Outcome_b
 		if item.isErr() {
 			return Outcome_base_err[[]string](item.error())
 		}
-		list.add(item.get())
+		list = append(list, item.get())
 		var comma *Outcome_base[any] = lexer.checkComma()
 		if comma.isErr() {
 			return Outcome_base_err[[]string](comma.error())
@@ -338,5 +338,5 @@ func SourceMapObjectParser_readStringArray(lexer *SourceMapJsonLexer) *Outcome_b
 	if ended.isErr() {
 		return Outcome_base_err[[]string](ended.error())
 	}
-	return Outcome_base_ok_Object[[]string](arrmap_(list.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }))
+	return Outcome_base_ok_Object[[]string](arrmap_(sliceView_(tc_string, list).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }))
 }

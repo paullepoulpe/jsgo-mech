@@ -21,12 +21,12 @@ func (this *WebpackModuleResolver) up_ModuleResolver() *ModuleResolver {
 	return &this.ModuleResolver
 }
 
-func (this *WebpackModuleResolver) init_WebpackModuleResolver(modulePaths *TSet[string], moduleRootPaths *TList[string], modulesById *TMap[string, string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) {
+func (this *WebpackModuleResolver) init_WebpackModuleResolver(modulePaths *TSet[string], moduleRootPaths *[]string, modulesById *TMap[string, string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) {
 	this.NodeModuleResolver.init_NodeModuleResolver(modulePaths, moduleRootPaths, nil, errorHandler, pathEscaper)
 	this.modulesById = immutableMapCopyOfT_(tc_string, tc_string, modulesById)
 }
 
-func new_WebpackModuleResolver(modulePaths *TSet[string], moduleRootPaths *TList[string], modulesById *TMap[string, string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *WebpackModuleResolver {
+func new_WebpackModuleResolver(modulePaths *TSet[string], moduleRootPaths *[]string, modulesById *TMap[string, string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *WebpackModuleResolver {
 	this := &WebpackModuleResolver{}
 	this.self_ = this
 	this.init_WebpackModuleResolver(modulePaths, moduleRootPaths, modulesById, errorHandler, pathEscaper)
@@ -63,7 +63,7 @@ func new_WebpackModuleResolver_Factory(lookupMap *TMap[string, string]) *Webpack
 	return this
 }
 
-func (this *WebpackModuleResolver_Factory) create(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *ModuleResolver {
+func (this *WebpackModuleResolver_Factory) create(modulePaths *ImmutableSet[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *ModuleResolver {
 	var normalizedPathsById *TMap[string, string] = newTMap_(tc_string, tc_string)
 	it_1 := this.lookupMap.eachEntry()
 	for it_1.next() {
@@ -74,7 +74,7 @@ func (this *WebpackModuleResolver_Factory) create(modulePaths ImmutableSetOf[str
 		}
 		normalizedPathsById.Put(moduleEntry.getKey(), canonicalizedPath)
 	}
-	return new_WebpackModuleResolver(tsetImm_(tc_string, modulePaths), tlistImm_(tc_string, moduleRootPaths), normalizedPathsById, errorHandler, pathEscaper).up_ModuleResolver()
+	return new_WebpackModuleResolver(tsetImm_(tc_string, modulePaths.asImm()), slicePtrImm_(tc_string, moduleRootPaths), normalizedPathsById, errorHandler, pathEscaper).up_ModuleResolver()
 }
 
 // resolveJsModule: an object that is exactly a WebpackModuleResolver calls its resolveJsModule_impl directly (post-flip); others dispatch.

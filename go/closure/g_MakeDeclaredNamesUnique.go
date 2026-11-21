@@ -299,7 +299,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) createUndeclaredVa
 
 type MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo struct {
 	outer_                   *MakeDeclaredNamesUnique_ContextualRenameInverter
-	referenceNodes           *TList[Node]
+	referenceNodes           *[]Node
 	potentialShadowVariables *TSet[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]
 	currentName              string
 	preferredName            string
@@ -311,7 +311,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) zero_
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) finit_MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo() {
-	this.referenceNodes = newTList_(tc_Node)
+	this.referenceNodes = &[]Node{}
 	this.potentialShadowVariables = newTSet_(tch_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo)
 }
 
@@ -334,19 +334,19 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) addPo
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) attemptRename() string {
-	var disallowedNames *TSet[string] = newTSet_(tc_string)
-	disallowedNames.Add(MakeDeclaredNamesUnique_ARGUMENTS)
+	var disallowedNames map[string]struct{} = map[string]struct{}{}
+	disallowedNames[MakeDeclaredNamesUnique_ARGUMENTS] = struct{}{}
 	it_1 := this.potentialShadowVariables.each()
 	for it_1.next() {
 		var potentialShadowVariable MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = it_1.v
 		var potentialShadowName string = potentialShadowVariable.getName()
-		disallowedNames.Add(potentialShadowName)
+		disallowedNames[potentialShadowName] = struct{}{}
 	}
 	var newName string = this.preferredName
-	if disallowedNames.Has(this.preferredName) {
+	if has_(disallowedNames, this.preferredName) {
 		var baseName string = (sstr_(this.preferredName) + sstr_(MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR))
 		var i int32 = 0
-		for do_4 := true; do_4; do_4 = disallowedNames.Has(newName) {
+		for do_4 := true; do_4; do_4 = has_(disallowedNames, newName) {
 			newName = (sstr_(baseName) + istr_(int64(i)))
 			i++
 		}
@@ -354,9 +354,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) attem
 	if newName == this.currentName {
 		return this.currentName
 	}
-	it_5 := this.referenceNodes.each()
-	for it_5.next() {
-		var referenceNode Node = it_5.v
+	for referenceNode := range sliceAll_(this.referenceNodes) {
 		referenceNode.setString(newName)
 		this.outer_.compiler_.reportChangeToEnclosingScope(referenceNode)
 		var parent Node = referenceNode.getParent()
@@ -406,7 +404,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInf
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo) addReferenceNode(nameNode Node) {
 	if this.renamingInfo != nil {
-		this.renamingInfo.referenceNodes.add(nameNode)
+		*this.renamingInfo.referenceNodes = append(*this.renamingInfo.referenceNodes, nameNode)
 	}
 }
 
