@@ -991,7 +991,7 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 		if nameDeclaration != nil {
 			if NodeUtil_isLhsByDestructuring(n) {
 				this.maybeUpdateName(t, n, nameDeclaration)
-			} else if (nameDeclaration.getNode() != 0) && (equals_(nameDeclaration.getNode().getInputId(), n.getInputId())) {
+			} else if (nameDeclaration.getNode() != 0) && (objequalsBy_(nameDeclaration.getNode().getInputId(), obj_(n.getInputId()), (*InputId).equals)) {
 				var enclosingDeclaration Node = NodeUtil_getEnclosingNode(n, Predicate_base[Node](func(node Node) bool {
 					return (node == nameDeclaration.getNameNode())
 				}))
@@ -1361,7 +1361,7 @@ func (this *ProcessCommonJSModules_RewriteModule) updateNameReference(t *NodeTra
 }
 
 func (this *ProcessCommonJSModules_RewriteModule) getExportedName(t *NodeTraversal, n Node, var_ *Var) Optional[string] {
-	if (var_ == nil) || !(equals_(var_.getNode().getInputId(), n.getInputId())) {
+	if (var_ == nil) || !(objequalsBy_(var_.getNode().getInputId(), obj_(n.getInputId()), (*InputId).equals)) {
 		return Optional_of[string](n.getQualifiedName()).filter(Predicate[string](func(s string) bool {
 			return s != ""
 		}))
@@ -1523,7 +1523,7 @@ func (this *ProcessCommonJSModules_RewriteModule) fixTypeNode(t *NodeTraversal, 
 					return ""
 				}()
 				var typeDeclaration *Var = t.getScope().getVar_String_rVar(baseName)
-				if ((typeDeclaration != nil) && (typeDeclaration.getNode() != 0)) && (equals_(typeDeclaration.getNode().getInputId(), typeNode.getInputId())) {
+				if ((typeDeclaration != nil) && (typeDeclaration.getNode() != 0)) && (objequalsBy_(typeDeclaration.getNode().getInputId(), obj_(typeNode.getInputId()), (*InputId).equals)) {
 					var importedModuleName Optional[string] = this.getModuleImportName(t, typeDeclaration.getNode())
 					if importedModuleName.isPresent() {
 						typeNode.setString((sstr_(importedModuleName.get()) + sstr_(suffix)))

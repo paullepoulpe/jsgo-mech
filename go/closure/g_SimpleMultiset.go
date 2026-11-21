@@ -175,11 +175,11 @@ func (this *SimpleMultiset[E]) iterator() IteratorOf[E] {
 }
 
 func (this *SimpleMultiset[E]) equals(o any) bool {
-	return (is_SimpleMultiset(o) && equalsRR_(this.counts, icast_SimpleCollection(o).untypedMap()))
+	return (is_SimpleMultiset(o) && equalsDyn_(this.counts, obj_(icast_SimpleCollection(o).untypedMap())))
 }
 
 func (this *SimpleMultiset[E]) hashCode() int32 {
-	return hashR_(this.counts)
+	return hashDyn_(this.counts)
 }
 
 func (this *SimpleMultiset[E]) toString() string {
