@@ -741,7 +741,7 @@ func (this *ScopedAliases_Traversal) visit_impl(t *NodeTraversal, n Node, parent
 	if type_ == Token_rhino_NAME {
 		var name string = n.getString()
 		var lexicalVar *Var = t.getScope().getVar_String_rVar(name)
-		if (lexicalVar != nil) && lexicalVar.equals(obj_(this.aliases_.get(name))) {
+		if (lexicalVar != nil) && lexicalVar.equals_ScopedName(this.aliases_.get(name).up_ScopedName()) {
 			aliasVar = lexicalVar
 			if this.outer_.compiler_.getOptions().preservesDetailedSourceInfo() && n.isName() {
 				n.setOriginalName(name)
