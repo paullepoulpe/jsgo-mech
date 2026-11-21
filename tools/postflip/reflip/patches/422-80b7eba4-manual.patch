@@ -1,8 +1,8 @@
 diff --git a/go/closure/g_CoalesceVariableNames.go b/go/closure/g_CoalesceVariableNames.go
-index 6f188d1c5..40fab2514 100644
+index d939030c5..22b1d746f 100644
 --- a/go/closure/g_CoalesceVariableNames.go
 +++ b/go/closure/g_CoalesceVariableNames.go
-@@ -202,14 +202,14 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
+@@ -203,14 +203,14 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
  		if cfg.isImplicitReturn(cfgNode) {
  			continue
  		}
@@ -20,7 +20,7 @@ index 6f188d1c5..40fab2514 100644
  		for i := int32(liveout.nextSetBit(0)); i >= 0; i = liveout.nextSetBit((i + 1)) {
  			for j := int32(liveout.nextSetBit(i)); j >= 0; j = liveout.nextSetBit((j + 1)) {
  				interferenceBitSet[i].set(j)
-@@ -343,16 +343,16 @@ func (this *CoalesceVariableNames) isUninitializedLetNameInLoopBodyAndLive(nameN
+@@ -344,16 +344,16 @@ func (this *CoalesceVariableNames) isUninitializedLetNameInLoopBodyAndLive(nameN
  		panic(new_NullPointerException_0())
  	}
  	var cfgNode DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](nn_.self())
@@ -40,7 +40,7 @@ index 6f188d1c5..40fab2514 100644
  	orderedVariables []*Var
  	isAssignToList   *[]any
  	isReadFromList   *[]any
-@@ -364,14 +364,14 @@ func (this *CoalesceVariableNames_LiveRangeChecker) finit_CoalesceVariableNames_
+@@ -365,14 +365,14 @@ func (this *CoalesceVariableNames_LiveRangeChecker) finit_CoalesceVariableNames_
  	this.isReadFromList = &[]any{}
  }
  
@@ -57,7 +57,7 @@ index 6f188d1c5..40fab2514 100644
  	this := &CoalesceVariableNames_LiveRangeChecker{}
  	this.init_CoalesceVariableNames_LiveRangeChecker(root, orderedVariables, state)
  	return this
-@@ -404,7 +404,7 @@ func (this *CoalesceVariableNames_LiveRangeChecker) visit(n Node, parent Node) {
+@@ -405,7 +405,7 @@ func (this *CoalesceVariableNames_LiveRangeChecker) visit(n Node, parent Node) {
  	}
  	if len(*this.isAssignToList) != 0 {
  		for iVar := int32(0); iVar < int32(len(this.orderedVariables)); iVar++ {
@@ -67,7 +67,7 @@ index 6f188d1c5..40fab2514 100644
  				*this.isReadFromList = append(*this.isReadFromList, int32(iVar))
  			}
 diff --git a/go/closure/g_DataFlowAnalysis.go b/go/closure/g_DataFlowAnalysis.go
-index c4df11c7f..3024fcca1 100644
+index 9ef6ff724..93470b060 100644
 --- a/go/closure/g_DataFlowAnalysis.go
 +++ b/go/closure/g_DataFlowAnalysis.go
 @@ -81,7 +81,7 @@ func (this *DataFlowAnalysis[N, L]) analyze() {
@@ -79,7 +79,7 @@ index c4df11c7f..3024fcca1 100644
  		var stepCount int32 = curState.stepCount
  		curState.stepCount++
  		if stepCount > DataFlowAnalysis_MAX_STEPS_PER_NODE {
-@@ -107,10 +107,18 @@ func (this *DataFlowAnalysis[N, L]) analyze() {
+@@ -107,11 +107,19 @@ func (this *DataFlowAnalysis[N, L]) analyze() {
  	}
  }
  
@@ -93,13 +93,14 @@ index c4df11c7f..3024fcca1 100644
 +
  func (this *DataFlowAnalysis[N, L]) initialize() {
  	this.workQueue.clear()
- 	for node := range elemsAs_[DiGraph_DiGraphNode[N, ControlFlowGraph_Branch]](this.cfg.getNodes()) {
+ 	for el_1 := range elemsT_(this.cfg.getNodes_rCollectionOf_DiGraphNode_rCollectionOf_LinkedDiGraphNode()) {
+ 		var node DiGraph_DiGraphNode[N, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[N, ControlFlowGraph_Branch]](el_1.self())
 -		node.setAnnotation(Annotation_graph(new_DataFlowAnalysis_LinearFlowState(boxT_(this.createInitialEstimateLattice()), boxT_(this.createInitialEstimateLattice()))))
 +		node.setAnnotation(Annotation_graph(new_DataFlowAnalysis_LinearFlowState(this.createInitialEstimateLattice(), this.createInitialEstimateLattice())))
  		if node != this.cfg.getImplicitReturn() {
  			this.workQueue.add(node)
  		}
-@@ -123,74 +131,75 @@ func (this *DataFlowAnalysis[N, L]) initialize() {
+@@ -125,74 +133,75 @@ func (this *DataFlowAnalysis[N, L]) initialize() {
  }
  
  func (this *DataFlowAnalysis[N, L]) flow(node DiGraph_DiGraphNode[N, ControlFlowGraph_Branch]) bool {
@@ -204,19 +205,19 @@ index c4df11c7f..3024fcca1 100644
  }
  
 diff --git a/go/closure/g_DeadAssignmentsElimination.go b/go/closure/g_DeadAssignmentsElimination.go
-index 81c188992..3262ea9d7 100644
+index 971cda4c9..abc89ddc2 100644
 --- a/go/closure/g_DeadAssignmentsElimination.go
 +++ b/go/closure/g_DeadAssignmentsElimination.go
-@@ -105,7 +105,7 @@ func (this *DeadAssignmentsElimination) tryRemoveDeadAssignments(t *NodeTraversa
- 	var nodes IterableOf[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]] = Iterable(cfg.getNodes())
+@@ -106,7 +106,7 @@ func (this *DeadAssignmentsElimination) tryRemoveDeadAssignments(t *NodeTraversa
  L_2:
- 	for cfgNode := range elemsAs_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](nodes) {
+ 	for el_1 := range elemsT_(nodes) {
+ 		var cfgNode DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](el_1.self())
 -		var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(cfgNode)))
 +		var state *DataFlowAnalysis_LinearFlowState[*LiveVariablesAnalysis_LiveVariableLattice] = cast_[*DataFlowAnalysis_LinearFlowState[*LiveVariablesAnalysis_LiveVariableLattice]](Annotatable_getAnnotation(Annotatable(cfgNode)))
  		var n Node = cfgNode.getValue()
  		if n == 0 {
  			continue
-@@ -130,11 +130,11 @@ L_2:
+@@ -131,11 +131,11 @@ L_2:
  	}
  }
  
@@ -230,7 +231,7 @@ index 81c188992..3262ea9d7 100644
  	var parent Node = n.getParent()
  	var isDeclarationNode bool = NodeUtil_isNameDeclaration(parent)
  	if ((NodeUtil_isAssignmentOp(n) || n.isInc()) || n.isDec()) || isDeclarationNode {
-@@ -180,10 +180,10 @@ func (this *DeadAssignmentsElimination) tryRemoveAssignment_5(t *NodeTraversal,
+@@ -181,10 +181,10 @@ func (this *DeadAssignmentsElimination) tryRemoveAssignment_5(t *NodeTraversal,
  			return
  		}
  		var index int32 = this.liveness.getVarIndex(var_.getName())
@@ -244,7 +245,7 @@ index 81c188992..3262ea9d7 100644
  		}
  		if n.isAssign() {
 diff --git a/go/closure/g_LinkedDirectedGraph.go b/go/closure/g_LinkedDirectedGraph.go
-index 84a2e959c..e7d186c79 100644
+index a9fbf1a97..f38659ee6 100644
 --- a/go/closure/g_LinkedDirectedGraph.go
 +++ b/go/closure/g_LinkedDirectedGraph.go
 @@ -83,8 +83,8 @@ func LinkedDirectedGraph_create[N comparable, E comparable]() *LinkedDirectedGra
@@ -266,25 +267,25 @@ index 84a2e959c..e7d186c79 100644
 -	var dest *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(destValue))
 +	var src *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.nodeOrFail_(srcValue)
 +	var dest *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.nodeOrFail_(destValue)
- 	for edge := range elemsAs_[DiGraph_DiGraphEdge[N, E]](this.getEdgesInDirection(srcValue, destValue)) {
- 		src.getOutEdges().remove_Object(edge)
- 		dest.getInEdges().remove_Object(edge)
-@@ -139,12 +139,12 @@ func (this *LinkedDirectedGraph[N, E]) getNode_Object_rDiGraphNode_rLinkedDiGrap
+ 	for el_1 := range this.getEdgesInDirection_Object_Object_rListOf_LinkedDiGraphEdge(srcValue, destValue).All() {
+ 		var edge DiGraph_DiGraphEdge[N, E] = cast_[DiGraph_DiGraphEdge[N, E]](el_1.self())
+ 		src.getOutEdges_rListOf_LinkedDiGraphEdge().remove_Object(edge)
+@@ -140,12 +140,12 @@ func (this *LinkedDirectedGraph[N, E]) getNode_Object_rDiGraphNode_rLinkedDiGrap
  }
  
- func (this *LinkedDirectedGraph[N, E]) getInEdges_impl(nodeValue N) ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] {
+ func (this *LinkedDirectedGraph[N, E]) getInEdges_Object_rListOf_LinkedDiGraphEdge(nodeValue N) ListT[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] {
 -	var node *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(nodeValue))
 +	var node *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.nodeOrFail_(nodeValue)
- 	return Collections_unmodifiableList(node.getInEdges())
+ 	return node.getInEdges_rListOf_LinkedDiGraphEdge()
  }
  
- func (this *LinkedDirectedGraph[N, E]) getOutEdges_impl(nodeValue N) ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] {
+ func (this *LinkedDirectedGraph[N, E]) getOutEdges_Object_rListOf_LinkedDiGraphEdge(nodeValue N) ListT[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] {
 -	var node *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(nodeValue))
 +	var node *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.nodeOrFail_(nodeValue)
- 	return Collections_unmodifiableList(node.getOutEdges())
+ 	return node.getOutEdges_rListOf_LinkedDiGraphEdge()
  }
  
-@@ -159,6 +159,17 @@ func (this *LinkedDirectedGraph[N, E]) createNode_Object_rDiGraphNode_rLinkedDiG
+@@ -160,6 +160,17 @@ func (this *LinkedDirectedGraph[N, E]) createNode_Object_rDiGraphNode_rLinkedDiG
  	}))
  }
  
@@ -299,10 +300,10 @@ index 84a2e959c..e7d186c79 100644
 +	return n
 +}
 +
- func (this *LinkedDirectedGraph[N, E]) getEdges_2_impl(n1 N, n2 N) ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] {
- 	var forwardEdges ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] = this.getEdgesInDirection(n1, n2)
- 	var backwardEdges ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] = this.getEdgesInDirection(n2, n1)
-@@ -178,8 +189,8 @@ func (this *LinkedDirectedGraph[N, E]) getEdges_impl() ListOf[*LinkedDirectedGra
+ func (this *LinkedDirectedGraph[N, E]) getEdges_Object_Object_rListOf_DiGraphEdge_rListOf_LinkedDiGraphEdge(n1 N, n2 N) *TList[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] {
+ 	var forwardEdges *TList[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] = this.getEdgesInDirection_Object_Object_rListOf_LinkedDiGraphEdge(n1, n2)
+ 	var backwardEdges *TList[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] = this.getEdgesInDirection_Object_Object_rListOf_LinkedDiGraphEdge(n2, n1)
+@@ -179,8 +190,8 @@ func (this *LinkedDirectedGraph[N, E]) getEdges_rListOf_DiGraphEdge_rListOf_Link
  }
  
  func (this *LinkedDirectedGraph[N, E]) getFirstEdge_impl(n1 N, n2 N) Graph_GraphEdge[N, E] {
@@ -310,20 +311,20 @@ index 84a2e959c..e7d186c79 100644
 -	var dNode2 *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(n2))
 +	var dNode1 *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.nodeOrFail_(n1)
 +	var dNode2 *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.nodeOrFail_(n2)
- 	it_1 := foreach_(dNode1.getOutEdges())
+ 	it_1 := jeachOf_(dNode1.getOutEdges_rListOf_LinkedDiGraphEdge())
  	for it_1.next() {
- 		var outEdge DiGraph_DiGraphEdge[N, E] = cast_[DiGraph_DiGraphEdge[N, E]](it_1.v)
-@@ -198,8 +209,8 @@ func (this *LinkedDirectedGraph[N, E]) getFirstEdge_impl(n1 N, n2 N) Graph_Graph
+ 		var outEdge DiGraph_DiGraphEdge[N, E] = cast_[DiGraph_DiGraphEdge[N, E]](it_1.v.self())
+@@ -199,8 +210,8 @@ func (this *LinkedDirectedGraph[N, E]) getFirstEdge_impl(n1 N, n2 N) Graph_Graph
  }
  
- func (this *LinkedDirectedGraph[N, E]) getEdgesInDirection_impl(n1 N, n2 N) ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] {
+ func (this *LinkedDirectedGraph[N, E]) getEdgesInDirection_Object_Object_rListOf_LinkedDiGraphEdge(n1 N, n2 N) *TList[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] {
 -	var dNode1 *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(n1))
 -	var dNode2 *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(n2))
 +	var dNode1 *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.nodeOrFail_(n1)
 +	var dNode2 *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.nodeOrFail_(n2)
  	var edges *TList[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] = newTList_(tc_p_LinkedDirectedGraph_LinkedDiGraphEdge_N__E_[N, E]())
- 	for el_1 := range elems_(dNode1.getOutEdges()) {
- 		var outEdge *LinkedDirectedGraph_LinkedDiGraphEdge[N, E] = to_LinkedDirectedGraph_LinkedDiGraphEdge[N, E](el_1)
+ 	for outEdge := range elemsT_(dNode1.getOutEdges_rListOf_LinkedDiGraphEdge()) {
+ 		if outEdge.getDestination_rLinkedDiGraphNode() == dNode2 {
 @@ -244,8 +255,8 @@ func (this *LinkedDirectedGraph[N, E]) isConnectedInDirectionLinkedDiGraphNode(s
  }
  
@@ -335,16 +336,16 @@ index 84a2e959c..e7d186c79 100644
  	return this.isConnectedInDirectionLinkedDiGraphNode(dNode1, edgeMatcher, dNode2)
  }
  
-@@ -326,7 +337,7 @@ func (this *LinkedDirectedGraph[N, E]) getNeighborNodes_impl(value N) ListOf[Gra
+@@ -327,7 +338,7 @@ func (this *LinkedDirectedGraph[N, E]) getNeighborNodes_impl(value N) ListT[Grap
  }
  
  func (this *LinkedDirectedGraph[N, E]) getNodeDegree_impl(value N) int32 {
 -	var node *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(value))
 +	var node *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.nodeOrFail_(value)
- 	return (node.getInEdges().size() + node.getOutEdges().size())
+ 	return (node.getInEdges_rListOf_LinkedDiGraphEdge().size() + node.getOutEdges_rListOf_LinkedDiGraphEdge().size())
  }
  
-@@ -364,9 +375,16 @@ func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) as_LinkedDirectedGraph_
+@@ -405,9 +416,16 @@ func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) as_LinkedDirectedGraph_
  	return this
  }
  
@@ -362,7 +363,7 @@ index 84a2e959c..e7d186c79 100644
  	}
  	return v.(interface{ as_LinkedDirectedGraph_LinkedDiGraphNode_() any }).as_LinkedDirectedGraph_LinkedDiGraphNode_().(*LinkedDirectedGraph_LinkedDiGraphNode[N, E])
  }
-@@ -540,9 +558,15 @@ func (this *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]) as_LinkedDirectedGraph_
+@@ -589,9 +607,15 @@ func (this *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]) as_LinkedDirectedGraph_
  	return this
  }
  
@@ -380,7 +381,7 @@ index 84a2e959c..e7d186c79 100644
  	return v.(interface{ as_LinkedDirectedGraph_LinkedDiGraphEdge_() any }).as_LinkedDirectedGraph_LinkedDiGraphEdge_().(*LinkedDirectedGraph_LinkedDiGraphEdge[N, E])
  }
 diff --git a/go/closure/g_MaybeReachingVariableUse.go b/go/closure/g_MaybeReachingVariableUse.go
-index eb6135b5b..7a79d534d 100644
+index 7e55cc40f..ba298aedc 100644
 --- a/go/closure/g_MaybeReachingVariableUse.go
 +++ b/go/closure/g_MaybeReachingVariableUse.go
 @@ -198,8 +198,8 @@ func (this *MaybeReachingVariableUse) getUses(name string, defNode Node) Iterabl
@@ -395,7 +396,7 @@ index eb6135b5b..7a79d534d 100644
  
  type MaybeReachingVariableUse_ReachingUses struct {
 diff --git a/go/closure/g_MustBeReachingVariableDef.go b/go/closure/g_MustBeReachingVariableDef.go
-index bf0548fbb..ce06fa07b 100644
+index 7bde315a7..b850c40a3 100644
 --- a/go/closure/g_MustBeReachingVariableDef.go
 +++ b/go/closure/g_MustBeReachingVariableDef.go
 @@ -256,8 +256,8 @@ func (this *MustBeReachingVariableDef) getDef(name string, useNode Node) *MustBe
@@ -410,10 +411,10 @@ index bf0548fbb..ce06fa07b 100644
  
  func (this *MustBeReachingVariableDef) getDefNode(name string, useNode Node) Node {
 diff --git a/go/closure/g_TypeInferencePass.go b/go/closure/g_TypeInferencePass.go
-index 8edcf3f0f..bc90a6f1c 100644
+index 1dcf430c9..7aeb6e8a6 100644
 --- a/go/closure/g_TypeInferencePass.go
 +++ b/go/closure/g_TypeInferencePass.go
-@@ -95,7 +95,7 @@ func (this *TypeInferencePass) inferScope(n Node, scope *TypedScope) {
+@@ -98,7 +98,7 @@ func (this *TypeInferencePass) inferScope(n Node, scope *TypedScope) {
  			if node == cfg.getImplicitReturn() {
  				continue
  			}

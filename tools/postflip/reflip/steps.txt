@@ -422,6 +422,8 @@ c3a614a7 run t castfold && f
 # 201. postflip step: anyconv, interface values are not converted to Object again
 4b7f688a run t anyconv -all && f
 # 202. postflip step: ranges, a collection's first element is read without an iterator object
+#=6 4e23efbd adapted (sixth flip): toolfix 37 (ranges reads the translator's typed for-each cursor jeachOf_(X) and the typed iterator `var it IteratorT[T] = C.iterator_t()`) with the runtime function elemsT_ (rt_lg_iter.go, patch reflip6-elemst-rt.patch): COUNTS202
+4e23efbd patch reflip6-elemst-rt.patch
 4e23efbd run t ranges -loops && f
 # 205. postflip step: castfold's typed checkNotNull calls are inline Go checks (tools/postflip/nnchecks, 76 calls)
 0a56a759 run t nnchecks && f
@@ -928,7 +930,8 @@ ad8c897b patch 492-ad8c897b-rt.patch
 # 494. postflip (runtime, re-flip): test of removing through a typed set's iterator across the compactions it causes
 62aa65b3 patch 494-62aa65b3-rt.patch
 # 495. postflip (runtime, re-flip): subList of a typed list's erased view boxes its range, not the whole list
-75f0351d patch 495-75f0351d-rt.patch
+#=6 75f0351d dropped (sixth flip): its one hunk rewrites tlistView_.subList to box only the range; the translator's runtime has more than the equivalent since piece `list` of rule "typed library interfaces": jtlistView_.subList (rt_jtlist.go at the base) is a typed list on the same storage, nothing boxed, and this flip's 402 runtime patch carries that to tlistView_.subList (listOf_( in rt_tlist.go before the step: 0)
+#- 75f0351d patch 495-75f0351d-rt.patch
 # 496. postflip (runtime, re-flip): a protobuf builder's build() gives the message the builder's storage (copied only if the builder changes afterwards), with a test
 265af42f patch 496-265af42f-rt.patch
 # 497. postflip (runtime, re-flip): protobuf fields are stored typed, in one struct per message written by tools/protogen, instead of boxed in a []any

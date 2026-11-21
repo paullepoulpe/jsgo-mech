@@ -2510,3 +2510,97 @@ func main() {
 }
 E36b
 fi
+# 37. (sixth flip) ranges: the translator's rule "typed library interfaces" writes a for-each loop over a place of a typed
+#    library interface (IterableT[T], CollectionT[T], ListT[T], SetT[T]: 501 loops in the flip, where the fifth flip had
+#    foreach_(c) and a cast of the element in the loop's first statement) with the typed cursor of rt_lg.go,
+#    `it := jeachOf_(X); for it.next() { var x T = it.v .. }` (eachOf_ before reflip/rename.sh), and an explicit iterator of
+#    such a place as `var it IteratorT[T] = C.iterator_t()` read with it.next_t(). The tool read foreach_ and C.iterator() only.
+#    (a) jeachOf_(X) is a cursor source of its own kind: with -loops the loop is `for x := range elemsT_(X)`. elemsT_
+#    (rt_lg_iter.go, this flip's patch reflip6-elemst-rt.patch at step 202) makes the same cursor jeachOf_(X) when the loop
+#    starts and yields its elements, so the walk is the cursor's by construction; x is the first statement's variable when that
+#    is `var x T = it.v` with T the cursor's element type (the tool's own rule for typed cursors), and the tool's conditions on
+#    the cursor's other uses and on bodies that return are unchanged (-index leaves this kind: it has no index form).
+#    (b) `var it IteratorT[T] = C.iterator_t()` used only for the loop's hasNext and one next_t() (or next()) in the first
+#    statement is the tool's iterator loop: `for x := range elemsT_(C)` when the statement is `var x T = it.next_t()`. That is
+#    the tool's existing claim for elems_ at the typed interface: the cursor of jeachOf_ reads a typed collection of the runtime
+#    in place exactly as its iterator does, reads a wrapped erased collection with foreach_ (the same claim one level down) and
+#    calls C.iterator_t() for anything else.
+reflip_edit tools/postflip/ranges/main.go reflip37 <<'E37'
+		case "foreach_":
+			return id, &source{kind: "erased", x: c.Args[0]}
+=====
+		case "foreach_":
+			return id, &source{kind: "erased", x: c.Args[0]}
+		case "jeachOf_": // reflip37: the translator's typed for-each cursor over an IterableT[T]
+			if el := typeArgs(typeOf(as.Rhs[0])); len(el) == 1 {
+				return id, &source{kind: "typed", x: c.Args[0], elem: el[0]}
+			}
+			return nil, nil
+-----
+		case "erased":
+			c := rw.Render(stripAny(src.x))
+			seq = "elems_(" + c + ")"
+=====
+		case "typed": // reflip37
+			seq = "elemsT_(" + rw.Render(src.x) + ")"
+		case "erased":
+			c := rw.Render(stripAny(src.x))
+			seq = "elems_(" + c + ")"
+-----
+	if named(typeOf(id)) != "Iterator" && !isIteratorAlias(rw.Info.Defs[id]) {
+		return nil, nil
+	}
+=====
+	if named(typeOf(id)) == "IteratorT" { // reflip37: an iterator of a typed library interface
+		if recv, m := method(val); recv != nil && m == "iterator_t" {
+			return id, recv
+		}
+		return nil, nil
+	}
+	if named(typeOf(id)) != "Iterator" && !isIteratorAlias(rw.Info.Defs[id]) {
+		return nil, nil
+	}
+-----
+		if recv, m := method(call); recv != nil && m == "next" && objOf(recv) == it {
+			nextCall, r = call, typeOf(call)
+=====
+		if recv, m := method(call); recv != nil && (m == "next" || m == "next_t") && objOf(recv) == it {
+			nextCall, r = call, typeOf(call)
+			reflip37typed = m == "next_t"
+-----
+	if seq == "" {
+=====
+	if seq == "" && reflip37typed {
+		seq = "elemsT_(" + rw.Render(c) + ")"
+		done["iterator over a typed Iterable"]++
+	}
+	if seq == "" {
+-----
+	var nextCall ast.Expr
+	var fText string
+=====
+	var nextCall ast.Expr
+	reflip37typed := false
+	var fText string
+E37
+# 38. (sixth flip) trips: the tool refuses to run when the runtime lacks one of the functions it names. Its list has the helpers
+#    it writes (tlistSlice_ .. sliceSkip_: needed) and the erased functions whose calls it reads in a round trip (sliceImm_ ..
+#    Iterables_skip). One of the second kind, ImmutableList_copyOf_ObjectArr, is not in main's default runtime any more (rule
+#    "typed library interfaces", piece cls: no generated code calls it; 0 mentions in g_*.go before step 512). A function the
+#    runtime does not have is called nowhere in a package that type-checks, so the round trips through it have no subject and
+#    every other pattern is as it was: the tool says so and goes on. A missing helper it writes still stops it.
+reflip_edit tools/postflip/trips/main.go reflip38 <<'E38'
+		if !rw.HasFunc(h) {
+			fmt.Fprintf(os.Stderr, "trips: the runtime has no %s: nothing done\n", h)
+			os.Exit(1)
+		}
+=====
+		if !rw.HasFunc(h) {
+			if h == "ImmutableList_copyOf_ObjectArr" { // reflip38: a function read in a pattern, not written
+				fmt.Fprintf(os.Stderr, "trips: the runtime has no %s: the round trips through it have no subject\n", h)
+				continue
+			}
+			fmt.Fprintf(os.Stderr, "trips: the runtime has no %s: nothing done\n", h)
+			os.Exit(1)
+		}
+E38
