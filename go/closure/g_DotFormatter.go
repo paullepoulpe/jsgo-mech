@@ -187,7 +187,7 @@ func (this *DotFormatter) key(n Node) int32 {
 			Appendable_append_s(this.builder, type_.toString())
 		}
 		if (this.printAnnotations && (this.cfg != nil)) && this.cfg.hasNode(n) {
-			var annotation any = Annotatable_getAnnotation(icast_Annotatable(this.cfg.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(n).self()))
+			var annotation any = Annotatable_getAnnotation(iup_Annotatable(this.cfg.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(n)))
 			if annotation != nil {
 				Appendable_append_s(this.builder, "\\n")
 				Appendable_append_s(this.builder, Object_toString(annotation))
