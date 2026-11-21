@@ -723,3 +723,40 @@ bfbfa030 run t selftype && f
 # 477. postflip step (re-flip): deadtfn, 41 lambda adapter types that no code names any more are deleted (tool cf61b99f)
 41bd143c run t deadtfn && f
 #: deadtfn: 41 lambda adapter types no code names deleted with their 41 methods (32 X_tfn_.., 9 X_fn); left 165 adapter types named by code (Comparator_fn kept: rt_cmp_test.go names it)
+# 478. postflip (runtime, re-flip): immCursorT_[T], the explicit iterator over a typed immutable list
+832baf5b patch 478-832baf5b-rt.patch
+# 479. postflip step (re-flip): tviews, 27 loops, 5 get(k) and 15 cursors read typed immutable collections instead of their erased twins; 80 casts go (tool 53e47ae7, runtime 832baf5b)
+dcb42e76 run t tviews && f
+#: tviews: 19 entrySet loops (range M.keys, M.vals[i]), 7 keySet loops, 1 values loop, 5 get(k) -> M.Get(k), 15 cursor slots immCursorT_ (14 immCursorOf_ -> immCursorTOf_, 21 next() reads typed); left none
+# 480. postflip (runtime, re-flip): sortTListF_, sortArrF_ and compareStrNat_, the typed sorts of a typed list and an array and strings' natural order
+efd82f06 patch 480-efd82f06-rt.patch
+# 481. postflip step (re-flip): tcmp, 13 natural-order sorts of typed lists and arrays are typed sorts; deadbridge, 1 dead bridge (tool 4bc85f06, runtime efd82f06)
+af12fcda run t tcmp && t deadbridge && f
+#: tcmp: 8 natural-order sorts of typed lists (6 strings compareStrNat_, 2 compareToT_), 5 Arrays.sort of typed arrays -> sortArrF_; left 9 combinators, 3 package variables, 1 other comparator, 2 natural sorts of Objects, 2 not slice views; deadbridge: 1 bridge (+1 forwarder) deleted; left 22 (6 generic functions, 4 assigned to interfaces, 3 interface arguments, 3 element conversions used, 3 bridges named, 2 interface-returning methods, 1 conversion)
+# 482. postflip step (re-flip): fntypes, 11 func-typed parameters in 8 groups take the type their 33 functions cast the erased argument to; deadbridge, 2 more dead bridges (tool e1d08abd)
+bf31fa79 run t fntypes && t deadbridge && f
+#: fntypes: 8 groups, 11 parameters typed (JSTypeIterations 6 -> func(*JSType), NodeUtil.getCount, FlowSensitiveInlineVariables 2 -> func(Node) bool, ReportUntranspilableFeatures -> func(*RegExpTree) bool, CmdLineParser flag setter -> func(bool)); 9 literals, 20 package functions, 4 bridge method values -> mT_, 8 params renamed; left (groups) 17 other values, 6 used otherwise, 2 interface methods, 2 never given a function, 1 non-box argument, 1 boxed read without conversion; deadbridge: 2 bridges (+2 forwarders); left 20
+# 483. postflip (runtime, re-flip): buildT_ on every protobuf builder, build() with its message class
+d25606db patch 483-d25606db-rt.patch
+# 484. postflip step (re-flip): pbbuild, 37 casts of a protobuf builder's build() are buildT_() (tool bc6d5d8f, runtime d25606db)
+c8aa053b run t pbbuild && f
+#: pbbuild: 37 casts of a protobuf builder's build() -> buildT_(); left 1 build() given to an erased collection uncast
+# 485. postflip (runtime, re-flip): typed variants of the runtime's functional APIs and Comparator combinators
+ffe13e81 patch 485-ffe13e81-rt.patch
+# 486. postflip step (re-flip): tfnapi, 32 adapters given to the runtime's functional APIs are typed calls; tcmp, 8 sorts with Comparator combinator chains are typed sorts; deadtfn, 25 adapter types go (tool d445a0b8, runtime ffe13e81)
+f9d61144 run t tfnapi && t tcmp && t deadtfn && f
+#: tfnapi: 20 mapComputeIfAbsentT_, 7 forEachT_, 3 mergeT_, 2 computeT_; left 5 computeIfAbsent of erased maps, 1 type-parameter map, 7 forEach of erased collections/maps; tcmp: 8 combinator sorts typed; left 1 combinator over Objects, 3 package variables, 1 other comparator, 2 natural sorts of Objects, 2 not slice views; deadtfn: 25 adapter types deleted, 140 stay
+# 487. postflip (runtime, re-flip): typed forms of Iterables.getOnlyElement / getFirst / getLast and Compiler.runInCompilerThread
+45d25830 patch 487-45d25830-rt.patch
+# 488. postflip step (re-flip): tgeneric, 25 Iterables.getOnlyElement / getFirst / getLast of typed collections and 6 runInCompilerThread calls are typed (tool 38b7e1d0, runtime 45d25830)
+78fc86ad run t tgeneric && f
+#: tgeneric: 12 getOnlyElement, 5 getFirst, 8 getLast of typed lists/sets/slice views, 6 runInCompilerThread -> typed forms; left 17 calls on erased collections, 10 runInCompilerThread with erased callables (result unused)
+# 489. postflip (runtime, re-flip): the methods of a non-null Optional<String> written as a string
+d00b98f3 patch 489-d00b98f3-rt.patch
+# 490. postflip step (re-flip): optstr, Optional<String> is a string with nullstr_ for the empty Optional: 1,378 type spellings and 3,430 calls (tool 20d40522, runtime d00b98f3)
+39f1014c run t optstr && f
+#: optstr: proved no Optional<String> is null: 177 fields (171 assigned before the object can be reached, 3 where it escapes but no code it can reach reads the field (call graph), 2 where it escapes only into a field of its own, 1 erased map kept), 1 package variable, 2 enum field arrays, 18 locals without a value (17 definitely assigned, 1 try temp), 355 locals with a value, 391 parameters, 11 func-typed slots, 1 cast of an Object; rewrote 1,378 type spellings, 428 empty, 99 ofNullable, 913 of (251 literals), 382 isPresent, 240 isEmpty, 880 get/orElseThrow, 303 orElse (113 of nullstr_), 102 filterFn_, 46 equals, 15 hashCode, 20 box_, 1 optOf_, 1 runtime Optional; left 1 type spelling (MakeDeclaredNamesUnique's declarations map keeps Optional objects: its toString prints them)
+# 491. postflip (runtime, re-flip): optstrBox_ of the empty Optional is one object
+ca2a6157 patch 491-ca2a6157-rt.patch
+# 492. postflip (runtime, re-flip): optstrGet_ inlines, its failure is a call of its own
+ad8c897b patch 492-ad8c897b-rt.patch
