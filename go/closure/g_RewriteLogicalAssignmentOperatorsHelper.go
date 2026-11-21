@@ -42,7 +42,7 @@ func (this *RewriteLogicalAssignmentOperatorsHelper) visitLogicalAssignmentOpera
 		replacement = this.handleLHSName(logicalAssignment, left, right)
 	} else {
 		if !left.isGetProp() && !left.isGetElem() {
-			panic(new_IllegalStateException_String(tostr_(left)).self())
+			panic(new_IllegalStateException_String(tostr_(left)))
 		}
 		replacement = this.handleLHSPropertyReference(t, logicalAssignment, left, right, enclosingStatement)
 	}
@@ -73,7 +73,7 @@ func (this *RewriteLogicalAssignmentOperatorsHelper) handleLHSPropertyReference(
 		newLHS = this.astFactory_.createGetProp(assignTemp, propertyName, AstFactory_type_Node(left)).srcref(left)
 	} else {
 		if !left.isGetElem() {
-			panic(new_IllegalStateException_String(tostr_(left)).self())
+			panic(new_IllegalStateException_String(tostr_(left)))
 		}
 		var tempIndexVarName string = (sstr_(RewriteLogicalAssignmentOperatorsHelper_TEMP_INDEX_VAR_NAME_PREFIX) + sstr_(uniqueId))
 		var indexExprNode Node = left.getLastChild().detach()

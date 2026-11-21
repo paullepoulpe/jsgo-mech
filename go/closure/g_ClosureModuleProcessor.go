@@ -19,7 +19,7 @@ func new_ClosureModuleProcessor(compiler *AbstractCompiler) *ClosureModuleProces
 func ClosureModuleProcessor_mayBeAccidentalDefaultExport(importName string, exports *JTMap[string, *Binding]) bool {
 	var defaultExport Node = exports.get(Export_NAMESPACE).originatingExport().exportNode()
 	if !defaultExport.matchesName("exports") || !defaultExport.getParent().isAssign() {
-		panic(new_IllegalStateException_String(tostr_(defaultExport)).self())
+		panic(new_IllegalStateException_String(tostr_(defaultExport)))
 	}
 	var exportedValue Node = defaultExport.getNext()
 	if !exportedValue.isObjectLit() {
@@ -38,10 +38,10 @@ func ClosureModuleProcessor_mayBeAccidentalDefaultExport(importName string, expo
 
 func (this *ClosureModuleProcessor) process(metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, script Node) *UnresolvedModule {
 	if !script.isScript() && !script.isCall() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected module root %s", []any{script.box_()})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected module root %s", []any{script.box_()})))
 	}
 	if !script.isCall() && path == nil {
-		panic(new_IllegalArgumentException_String(objstr_("Non goog.loadModules must have a path")).self())
+		panic(new_IllegalArgumentException_String(objstr_("Non goog.loadModules must have a path")))
 	}
 	var moduleProcessingCallback *ClosureModuleProcessor_ModuleProcessingCallback = new_ClosureModuleProcessor_ModuleProcessingCallback(metadata)
 	NodeTraversal_traverse(this.compiler_, script, ClosureModuleProcessor_ModuleProcessingCallback_as_NodeTraversal_Callback(moduleProcessingCallback))
@@ -159,11 +159,11 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) metadata_impl() *Module
 }
 
 func (this *ClosureModuleProcessor_UnresolvedGoogModule) getExportedNames_impl(moduleRequestResolver ModuleRequestResolver) *JTSet[string] {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *ClosureModuleProcessor_UnresolvedGoogModule) getExportedNames_2_impl(moduleRequestResolver ModuleRequestResolver, visited *JTSet[*UnresolvedModule]) *JTSet[string] {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *ClosureModuleProcessor_UnresolvedGoogModule) reset_impl() {

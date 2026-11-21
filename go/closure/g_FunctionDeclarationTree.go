@@ -30,15 +30,15 @@ func (this *FunctionDeclarationTree) init_FunctionDeclarationTree(builder *Funct
 	this.isGenerator = builder.isGenerator
 	this.isOptional_ = builder.isOptional_
 	if builder.kind_ == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.kind_ = builder.kind_
 	if builder.formalParameterList == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.formalParameterList = builder.formalParameterList
 	if builder.functionBody == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.functionBody = builder.functionBody
 	this.isAsync = builder.isAsync

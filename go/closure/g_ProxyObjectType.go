@@ -70,7 +70,7 @@ func new_ProxyObjectType_JSTypeRegistry_JSType(registry *JSTypeRegistry, referen
 func (this *ProxyObjectType) init_ProxyObjectType_JSTypeRegistry_JSType_TemplateTypeMap(registry *JSTypeRegistry, referencedType *JSType, templateTypeMap *TemplateTypeMap) {
 	this.ObjectType.init_ObjectType_JSTypeRegistry_TemplateTypeMap(registry, templateTypeMap)
 	if referencedType == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.setReferencedType(referencedType)
 	registry.getResolver().resolveIfClosed(this.up_JSType(), ProxyObjectType_TYPE_CLASS)
@@ -110,7 +110,7 @@ func (this *ProxyObjectType) getReferencedObjTypeInternal() *ObjectType {
 
 func (this *ProxyObjectType) setReferencedType(referencedType *JSType) {
 	if referencedType == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.referencedType = referencedType
 	var objectType *ObjectType

@@ -65,16 +65,16 @@ func (this *ModuleImportResolver) getScopedNameForClosureNamespace(moduleId stri
 		var moduleBody Node = module.metadata().rootNode().getFirstChild()
 		return ScopedName_of(Export_NAMESPACE, moduleBody)
 	case ModuleMetadataMap_ModuleType_COMMON_JS:
-		panic(new_IllegalStateException_String("Type checking CommonJs modules not yet supported").self())
+		panic(new_IllegalStateException_String("Type checking CommonJs modules not yet supported"))
 	case ModuleMetadataMap_ModuleType_SCRIPT:
-		panic(new_IllegalStateException_String("Cannot import a name from a SCRIPT").self())
+		panic(new_IllegalStateException_String("Cannot import a name from a SCRIPT"))
 	}
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 func (this *ModuleImportResolver) getGoogModuleScopeRoot(module *Module) Node {
 	if ok_, a1_ := module.metadata().isGoogModule(), module.metadata(); !ok_ {
-		panic(new_IllegalArgumentException_String(objstr_(a1_)).self())
+		panic(new_IllegalArgumentException_String(objstr_(a1_)))
 	}
 	var scriptNode Node = module.metadata().rootNode()
 	if (scriptNode.isScript() && scriptNode.hasOneChild()) && scriptNode.getOnlyChild().isModuleBody() {
@@ -88,10 +88,10 @@ func (this *ModuleImportResolver) getGoogModuleScopeRoot(module *Module) Node {
 
 func (this *ModuleImportResolver) declareEsModuleImports(module *Module, scope *TypedScope, moduleInput *CompilerInput) *JTMap[Node, *ScopedName] {
 	if !module.metadata().isEs6Module() {
-		panic(new_IllegalArgumentException_String(objstr_(module)).self())
+		panic(new_IllegalArgumentException_String(objstr_(module)))
 	}
 	if !scope.isModuleScope() {
-		panic(new_IllegalArgumentException_String(objstr_(scope)).self())
+		panic(new_IllegalArgumentException_String(objstr_(scope)))
 	}
 	var missingNames *TMapBuilder[Node, *ScopedName] = newTMapBuilder_(jtc_Node, jtc_p_ScopedName)
 	it_1 := module.boundNames().eachEntry()
@@ -106,7 +106,7 @@ func (this *ModuleImportResolver) declareEsModuleImports(module *Module, scope *
 		var modScope *TypedScope = this.nodeToScopeMapper.apply(export.getScopeRoot())
 		if modScope == nil {
 			if ok_, a1_ := (binding.sourceNode().getString() == localName), binding.sourceNode(); !ok_ {
-				panic(new_IllegalStateException_String(tostr_(a1_)).self())
+				panic(new_IllegalStateException_String(tostr_(a1_)))
 			}
 			missingNames.put(binding.sourceNode(), export)
 			continue
@@ -127,10 +127,10 @@ func (this *ModuleImportResolver) declareEsModuleImports(module *Module, scope *
 
 func (this *ModuleImportResolver) updateEsModuleNamespaceType(namespace *ObjectType, module *Module, scope *TypedScope) {
 	if !module.metadata().isEs6Module() {
-		panic(new_IllegalArgumentException_String(objstr_(module)).self())
+		panic(new_IllegalArgumentException_String(objstr_(module)))
 	}
 	if !scope.isModuleScope() {
-		panic(new_IllegalArgumentException_String(objstr_(scope)).self())
+		panic(new_IllegalArgumentException_String(objstr_(scope)))
 	}
 	it_1 := module.namespace().eachEntry()
 	for it_1.next() {
@@ -193,7 +193,7 @@ func (this *ModuleImportResolver) getScopedNameFromEsBinding(binding *Binding) *
 		case ModuleMetadataMap_ModuleType_ES6_MODULE:
 			var scriptNode Node = originalMetadata.rootNode()
 			if scriptNode != 0 && !scriptNode.isScript() {
-				panic(new_IllegalStateException_String(tostr_(scriptNode)).self())
+				panic(new_IllegalStateException_String(tostr_(scriptNode)))
 			}
 			return ScopedName_of(name.orElse(nullstr_), func() Node {
 				if scriptNode != 0 {
@@ -213,7 +213,7 @@ func (this *ModuleImportResolver) getScopedNameFromEsBinding(binding *Binding) *
 		case ModuleMetadataMap_ModuleType_SCRIPT:
 			return ScopedName_of(name.orElse(""), 0)
 		case ModuleMetadataMap_ModuleType_COMMON_JS:
-			panic(new_IllegalStateException_String("Typechecking CommonJS modules is not supported").self())
+			panic(new_IllegalStateException_String("Typechecking CommonJS modules is not supported"))
 		}
 		panic("unreachable")
 	}()
@@ -228,11 +228,11 @@ func ModuleImportResolver_getModuleFromScopeRoot(moduleMap *ModuleMap, inputProv
 		var scriptNode Node = moduleBody.getParent()
 		var input *CompilerInput = inputProvider.getInput(scriptNode.getInputId())
 		if input == nil {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		var module *Module = moduleMap.getModule(input.getPath())
 		if !module.metadata().isEs6Module() {
-			panic(new_IllegalStateException_String(objstr_("Typechecking of non-goog- and non-es-modules not supported")).self())
+			panic(new_IllegalStateException_String(objstr_("Typechecking of non-goog- and non-es-modules not supported")))
 		}
 		return module
 	}

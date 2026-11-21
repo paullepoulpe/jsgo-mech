@@ -31,13 +31,13 @@ func new_DeadAssignmentsElimination(compiler *AbstractCompiler) *DeadAssignments
 
 func (this *DeadAssignmentsElimination) process_2(externs Node, root Node) {
 	if externs == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if root == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if !this.compiler_.getLifeCycleStage().isNormalized() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(this))
 }
@@ -68,10 +68,10 @@ func (this *DeadAssignmentsElimination) exitScopeWithCfg_impl(t *NodeTraversal) 
 
 func (this *DeadAssignmentsElimination) eliminateDeadAssignments(t *NodeTraversal) {
 	if !t.inFunctionBlockScope() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if this.functionStack.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !this.compiler_.hasScopeChanged(t.getScopeRoot().getParent()) {
 		return
@@ -164,7 +164,7 @@ func (this *DeadAssignmentsElimination) tryRemoveAssignment_5(t *NodeTraversal, 
 		var name string = lhs.getString()
 		var scope *Scope = t.getScope()
 		if !scope.isFunctionBlockScope() && !scope.isBlockScope() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		if !allVarsInFn.containsKey(name) {
 			return
@@ -209,7 +209,7 @@ func (this *DeadAssignmentsElimination) tryRemoveAssignment_5(t *NodeTraversal, 
 			IR_exprResult(rhs).insertAfter(parent)
 			rhs.getParent().srcref(rhs)
 		} else {
-			panic(new_IllegalStateException_String("Unknown statement").self())
+			panic(new_IllegalStateException_String("Unknown statement"))
 		}
 		this.compiler_.reportChangeToEnclosingScope(parent)
 		return
@@ -277,7 +277,7 @@ func (this *DeadAssignmentsElimination) isVariableReadBeforeKill(n Node, variabl
 	if n.isName() && (variable == n.getString()) {
 		if NodeUtil_isNameDeclOrSimpleAssignLhs(n, n.getParent()) {
 			if ok_, a1_ := n.getParent().isAssign(), n.getParent(); !ok_ {
-				panic(new_IllegalStateException_String(tostr_(a1_)).self())
+				panic(new_IllegalStateException_String(tostr_(a1_)))
 			}
 			var rhs Node = n.getNext()
 			var state DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(rhs, variable)

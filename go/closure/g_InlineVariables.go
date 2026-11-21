@@ -152,7 +152,7 @@ func (this *InlineVariables_VarExpert) init_InlineVariables_VarExpert() {
 }
 
 func (this *InlineVariables_VarExpert) reanalyzeAfterAliasedVar_impl(aliasedVar *Var, aliasedVarAnalysis *InlineVariables_InlineVarAnalysis) *InlineVariables_InlineVarAnalysis {
-	panic(new_UnsupportedOperationException_String("not waiting for an aliased variable").self())
+	panic(new_UnsupportedOperationException_String("not waiting for an aliased variable"))
 }
 
 func (this *InlineVariables_VarExpert) analyze() *InlineVariables_InlineVarAnalysis {
@@ -214,7 +214,7 @@ func (this *InlineVariables_InlineVarAnalysis) shouldWaitForAliasedVar_impl() bo
 }
 
 func (this *InlineVariables_InlineVarAnalysis) getAliasedVar_impl() *Var {
-	panic(new_UnsupportedOperationException_String("no aliased Var").self())
+	panic(new_UnsupportedOperationException_String("no aliased Var"))
 }
 
 func (this *InlineVariables_InlineVarAnalysis) isSafeToInlineAliases_impl() bool {
@@ -222,7 +222,7 @@ func (this *InlineVariables_InlineVarAnalysis) isSafeToInlineAliases_impl() bool
 }
 
 func (this *InlineVariables_InlineVarAnalysis) performInline_impl() {
-	panic(new_UnsupportedOperationException_String("cannot inline").self())
+	panic(new_UnsupportedOperationException_String("cannot inline"))
 }
 
 func (this *InlineVariables_InlineVarAnalysis) isSafeToInlineAliases() bool {
@@ -347,7 +347,7 @@ func (this *InlineVariables_InliningBehavior) createVarExpert(v *Var, referenceI
 
 func (this *InlineVariables_InliningBehavior) isSafeUseOfArguments(argumentsNode Node) bool {
 	if !argumentsNode.matchesName("arguments") {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	return (this.isTargetOfPropertyRead(argumentsNode) || this.isSecondArgumentToDotApplyMethod(argumentsNode))
 }
@@ -376,16 +376,16 @@ func (this *InlineVariables_InliningBehavior) isSecondArgumentToDotApplyMethod(n
 func (this *InlineVariables_InliningBehavior) inline(decl *Reference, init_ *Reference, ref *Reference) {
 	var value Node = init_.getAssignedValue()
 	if value == 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var isFunctionDeclaration bool = NodeUtil_isFunctionDeclaration(value)
 	if isFunctionDeclaration {
 		var funcName Node = value.getFirstChild()
 		if funcName == 0 {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		if !funcName.isName() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		funcName.setString("")
 		this.outer_.compiler_.reportChangeToChangeScope(value)
@@ -395,7 +395,7 @@ func (this *InlineVariables_InliningBehavior) inline(decl *Reference, init_ *Ref
 	if decl != init_ {
 		var expressRoot Node = init_.getGrandparent()
 		if !expressRoot.isExprResult() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		NodeUtil_removeChild(expressRoot.getParent(), expressRoot)
 	}
@@ -423,7 +423,7 @@ func (this *InlineVariables_InliningBehavior) inlineWellDefinedVariable(v *Var, 
 func (this *InlineVariables_InliningBehavior) removeDeclaration(decl *Reference) {
 	var varNode Node = decl.getParent()
 	if !NodeUtil_isNameDeclaration(varNode) {
-		panic(new_IllegalStateException_String(tostr_(varNode)).self())
+		panic(new_IllegalStateException_String(tostr_(varNode)))
 	}
 	var grandparent Node = decl.getGrandparent()
 	this.outer_.compiler_.reportChangeToEnclosingScope(decl.getNode())
@@ -451,7 +451,7 @@ func (this *InlineVariables_InliningBehavior) canInline(declaration *Reference, 
 		return false
 	}
 	if initValue == 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if (initValue.isGetProp() && reference.getParent().isCall()) && (reference.getParent().getFirstChild() == reference.getNode()) {
 		return false
@@ -485,11 +485,11 @@ func (this *InlineVariables_InliningBehavior) canMoveModerately(initialization *
 		it = NodeIterators_LocalVarMotion_as_Iterator(NodeIterators_LocalVarMotion_forVar(this.outer_.compiler_, initialization.getNode(), initialization.getParent(), initialization.getGrandparent()))
 	} else if initialization.getParent().isAssign() {
 		if !initialization.getGrandparent().isExprResult() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		it = NodeIterators_LocalVarMotion_as_Iterator(NodeIterators_LocalVarMotion_forAssign(this.outer_.compiler_, initialization.getNode(), initialization.getParent(), initialization.getGrandparent(), initialization.getGrandparent().getParent()))
 	} else {
-		panic(new_IllegalStateException_String(("Unexpected initialization parent\n" + sstr_(initialization.getParent().toStringTree()))).self())
+		panic(new_IllegalStateException_String(("Unexpected initialization parent\n" + sstr_(initialization.getParent().toStringTree()))))
 	}
 	var targetName Node = reference.getNode()
 	var steps int32 = 0
@@ -520,7 +520,7 @@ func (this *InlineVariables_InliningBehavior) isValidInitialization(initializati
 	} else {
 		var parent Node = initialization.getParent()
 		if !parent.isAssign() || parent.getFirstChild() != initialization.getNode() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	}
 	return true
@@ -561,7 +561,7 @@ func new_InlineVariables_InliningBehavior_AliasInlineRetryHandler(outer_ *Inline
 func (this *InlineVariables_InliningBehavior_AliasInlineRetryHandler) handleAliasedVarCompletion(aliasedVar *Var, aliasedVarAnalyis *InlineVariables_InlineVarAnalysis) {
 	var newAnalysis *InlineVariables_InlineVarAnalysis = this.expert.reanalyzeAfterAliasedVar(aliasedVar, aliasedVarAnalyis)
 	if newAnalysis.shouldWaitForAliasedVar() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("expert for %s asked to wait a second time", []any{this.v})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("expert for %s asked to wait a second time", []any{this.v})))
 	}
 	if newAnalysis.shouldInline() {
 		newAnalysis.performInline()
@@ -923,7 +923,7 @@ func (this *InlineVariables_InliningBehavior_VarIsAliasAnalysis) getAliasedVar_i
 }
 
 func (this *InlineVariables_InliningBehavior_VarIsAliasAnalysis) isSafeToInlineAliases_impl() bool {
-	panic(new_UnsupportedOperationException_String("analysis is incomplete").self())
+	panic(new_UnsupportedOperationException_String("analysis is incomplete"))
 }
 
 type InlineVariables_InliningBehavior_VarExpertInitData struct {
@@ -988,7 +988,7 @@ func (this *InlineVariables_InitiallyUnknown[T]) isKnownNotToBe(other T) bool {
 
 func (this *InlineVariables_InitiallyUnknown[T]) setKnownValueOnce(value T) T {
 	if this.isKnownField {
-		panic(new_IllegalStateException_String(objstr_("already known")).self())
+		panic(new_IllegalStateException_String(objstr_("already known")))
 	}
 	this.value_ = value
 	this.isKnownField = true
@@ -997,7 +997,7 @@ func (this *InlineVariables_InitiallyUnknown[T]) setKnownValueOnce(value T) T {
 
 func (this *InlineVariables_InitiallyUnknown[T]) getKnownValue() T {
 	if !this.isKnownField {
-		panic(new_IllegalStateException_String(objstr_("not yet known")).self())
+		panic(new_IllegalStateException_String(objstr_("not yet known")))
 	}
 	return this.value_
 }

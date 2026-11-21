@@ -57,7 +57,7 @@ func (this *Es6RewriteSpreadExpressions) visitArrayLitOrCallWithSpread(t *NodeTr
 		this.visitCallContainingSpread(t, spreadParent)
 	} else {
 		if !spreadParent.isNew() {
-			panic(new_IllegalArgumentException_String(tostr_(spreadParent)).self())
+			panic(new_IllegalArgumentException_String(tostr_(spreadParent)))
 		}
 		this.visitNewWithSpread(spreadParent)
 	}
@@ -65,7 +65,7 @@ func (this *Es6RewriteSpreadExpressions) visitArrayLitOrCallWithSpread(t *NodeTr
 
 func (this *Es6RewriteSpreadExpressions) extractSpreadGroups(spreadParent Node) *JTList[Node] {
 	if !((spreadParent.isCall() || spreadParent.isArrayLit()) || spreadParent.isNew()) {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var groups *JTList[Node] = jnewTList_(jtc_Node)
 	var currGroup Node = 0
@@ -103,7 +103,7 @@ func (this *Es6RewriteSpreadExpressions) extractSpreadGroups(spreadParent Node) 
 
 func (this *Es6RewriteSpreadExpressions) visitArrayLitContainingSpread(spreadParent Node) {
 	if !spreadParent.isArrayLit() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var groups *JTList[Node] = this.extractSpreadGroups(spreadParent)
 	var baseArrayLit Node
@@ -126,11 +126,11 @@ func (this *Es6RewriteSpreadExpressions) visitArrayLitContainingSpread(spreadPar
 
 func (this *Es6RewriteSpreadExpressions) visitCallContainingSpread(t *NodeTraversal, spreadParent Node) {
 	if !spreadParent.isCall() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var callee Node = spreadParent.getFirstChild()
 	if callee.isSuper() {
-		panic(new_IllegalStateException_String(objstr_("Cannot spread into super calls")).self())
+		panic(new_IllegalStateException_String(objstr_("Cannot spread into super calls")))
 	}
 	var calleeMayHaveSideEffects bool = this.compiler_.getAstAnalyzer().mayHaveSideEffects(callee)
 	callee.detach()
@@ -143,7 +143,7 @@ func (this *Es6RewriteSpreadExpressions) visitCallContainingSpread(t *NodeTraver
 	} else {
 		var groups *JTList[Node] = this.extractSpreadGroups(spreadParent)
 		if groups.isEmpty() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		if groups.size() == 1 {
 			joinedGroups = groups.removeAt(0)
@@ -189,7 +189,7 @@ func (this *Es6RewriteSpreadExpressions) isSpreadOfArguments(n Node) bool {
 
 func (this *Es6RewriteSpreadExpressions) visitNewWithSpread(spreadParent Node) {
 	if !spreadParent.isNew() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var callee Node = spreadParent.removeFirstChild()
 	var groups *JTList[Node] = this.extractSpreadGroups(spreadParent)

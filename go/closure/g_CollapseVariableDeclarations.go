@@ -16,7 +16,7 @@ func (this *CollapseVariableDeclarations) finit_CollapseVariableDeclarations() {
 func (this *CollapseVariableDeclarations) init_CollapseVariableDeclarations(compiler *AbstractCompiler) {
 	this.finit_CollapseVariableDeclarations()
 	if compiler.getLifeCycleStage().isNormalized() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.compiler_ = compiler
 }
