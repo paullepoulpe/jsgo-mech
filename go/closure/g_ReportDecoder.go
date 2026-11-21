@@ -52,7 +52,7 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[Map] {
 	if typesAsStringList.isErr() {
 		return Outcome_base_err[Map](typesAsStringList.error())
 	}
-	var types *JTList[*InstrumentationPoint_Type] = jnewTList_(tc_p_InstrumentationPoint_Type)
+	var types *JTList[InstrumentationPoint_Type] = jnewTList_(tc_p_InstrumentationPoint_Type)
 	it_1 := foreach_(typesAsStringList.get())
 	for it_1.next() {
 		var typeAsString string = str_(it_1.v)
@@ -114,7 +114,7 @@ func ReportDecoder_createProfileOfStaticallyUsedCode(mapping *JTMap[string, *Ins
 	it_2 := mapping.eachEntry()
 	for it_2.next() {
 		var entry *TEntry[string, *InstrumentationPoint] = it_2.entry()
-		instrumentationPoints.add(cast_[*InstrumentationPointStats](InstrumentationPointStats_newBuilder().setPoint(entry.getValue()).setTimesExecuted(0).setPointPresence(func() *InstrumentationPointStats_Presence {
+		instrumentationPoints.add(cast_[*InstrumentationPointStats](InstrumentationPointStats_newBuilder().setPoint(entry.getValue()).setTimesExecuted(0).setPointPresence(func() InstrumentationPointStats_Presence {
 			if encodedPoints.contains(entry.getKey()) {
 				return InstrumentationPointStats_Presence_PRESENT
 			}
@@ -126,7 +126,7 @@ func ReportDecoder_createProfileOfStaticallyUsedCode(mapping *JTMap[string, *Ins
 
 func ReportDecoder_mergeProfiles(profiles *JTList[*ReportProfile]) *ReportProfile {
 	var frequencies *JTMap[*InstrumentationPoint, any] = jnewTMap_(tce_p_InstrumentationPoint, tc_Long)
-	var presences *JTMap[*InstrumentationPoint, *InstrumentationPointStats_Presence] = jnewTMap_(tce_p_InstrumentationPoint, jtc_p_InstrumentationPointStats_Presence)
+	var presences *JTMap[*InstrumentationPoint, InstrumentationPointStats_Presence] = jnewTMap_(tce_p_InstrumentationPoint, jtc_p_InstrumentationPointStats_Presence)
 	it_1 := profiles.each()
 	for it_1.next() {
 		var profile *ReportProfile = it_1.v
@@ -149,10 +149,10 @@ func ReportDecoder_mergeProfiles(profiles *JTList[*ReportProfile]) *ReportProfil
 				Map_compute(presences.asMap(), obj_(pointStats.getPoint()), BiFunction[any, any, any](func(p_ any, existing_ any) any {
 					var p *InstrumentationPoint = cast_[*InstrumentationPoint](p_)
 					_ = p
-					var existing *InstrumentationPointStats_Presence = cast_[*InstrumentationPointStats_Presence](existing_)
+					var existing InstrumentationPointStats_Presence = cast_[InstrumentationPointStats_Presence](existing_)
 					_ = existing
 					return func() any {
-						if ((pointStats.getPointPresence() == InstrumentationPointStats_Presence_PRESENT) || (existing == InstrumentationPointStats_Presence_PRESENCE_UNKNOWN)) || (existing == nil) {
+						if ((pointStats.getPointPresence() == InstrumentationPointStats_Presence_PRESENT) || (existing == InstrumentationPointStats_Presence_PRESENCE_UNKNOWN)) || (existing == 0) {
 							return obj_(pointStats.getPointPresence())
 						}
 						return obj_(existing)
