@@ -22,14 +22,14 @@ func new_SerializeTypedAstPass(compiler *AbstractCompiler, astConsumer Consumer[
 
 func SerializeTypedAstPass_createFromConsumer(c *AbstractCompiler, out Consumer[[]int8], serializationOptions *SerializationOptions) *SerializeTypedAstPass {
 	var toBytes Consumer[*TypedAst] = Consumer[*TypedAst](func(ast *TypedAst) {
-		out.accept(cast_[*TypedAst_List](TypedAst_List_newBuilder().addTypedAsts(ast).build()).toByteArray())
+		out.accept(TypedAst_List_newBuilder().addTypedAsts(ast).build().(*TypedAst_List).toByteArray())
 	})
 	return new_SerializeTypedAstPass(c, toBytes, serializationOptions)
 }
 
 func SerializeTypedAstPass_createFromPath(compiler *AbstractCompiler, outputPath string, serializationOptions *SerializationOptions) *SerializeTypedAstPass {
 	var toPath Consumer[*TypedAst] = Consumer[*TypedAst](func(ast *TypedAst) {
-		var written *Outcome_base[any] = Io_writeBytes(outputPath, Io_gzip(cast_[*TypedAst_List](TypedAst_List_newBuilder().addTypedAsts(ast).build()).toByteArray()))
+		var written *Outcome_base[any] = Io_writeBytes(outputPath, Io_gzip(TypedAst_List_newBuilder().addTypedAsts(ast).build().(*TypedAst_List).toByteArray()))
 		if written.isErr() {
 			panic(new_IllegalArgumentException_String_Throwable("Cannot create TypedAst output file", written.error()))
 		}

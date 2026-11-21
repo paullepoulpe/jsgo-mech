@@ -260,7 +260,7 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) visit_impl(
 				continue
 			}
 			var instance *ExtractPrototypeMemberDeclarations_ExtractionInstance = new_ExtractPrototypeMemberDeclarations_ExtractionInstance(this.outer_, prototypeMember, n)
-			cur = cast_[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration](Iterables_getLast(Iterable(instance.declarations.asList()))).node_
+			cur = Iterables_getLast(Iterable(instance.declarations.asList())).(*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration).node_
 			if instance.isFavorable() {
 				this.instancesByChunk.computeIfAbsent(t.getChunk(), Function[*JSChunk, *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo](func(k *JSChunk) *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo {
 					return new_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo()

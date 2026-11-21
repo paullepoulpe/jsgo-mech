@@ -1326,7 +1326,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) moveDeclarationIntoH
 	if !varNode.isVar() {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected declaration %s", []any{varNode.box_()})))
 	}
-	var newRoot Node = cast_[*CompilerInput](commonAncestor.getInputs().get(0)).getAstRoot(this.outer_.compiler_)
+	var newRoot Node = commonAncestor.getInputs().get(0).(*CompilerInput).getAstRoot(this.outer_.compiler_)
 	if initializer == 0 {
 		newRoot.addChildToFront(varNode.detach())
 	} else {

@@ -123,7 +123,7 @@ func (this *CodingConventions_Proxy) isExported_2_impl(name string, local bool) 
 }
 
 func (this *CodingConventions_Proxy) isExported(name string) bool {
-	return CodingConvention_isExported_default(icast_CodingConvention(this.self()), name)
+	return CodingConvention_isExported_default(this.self().(CodingConvention), name)
 }
 
 func (this *CodingConventions_Proxy) getPackageName_impl(source StaticSourceFile) Optional[string] {
@@ -319,7 +319,7 @@ func (this *CodingConventions_Proxy) getPackageName(p0 StaticSourceFile) Optiona
 }
 
 func (this *CodingConventions_Proxy) blockRenamingForProperty(p0 string) bool {
-	return CodingConvention_blockRenamingForProperty_default(icast_CodingConvention(this.self()), p0)
+	return CodingConvention_blockRenamingForProperty_default(this.self().(CodingConvention), p0)
 }
 
 type CodingConventions_DefaultCodingConvention struct {

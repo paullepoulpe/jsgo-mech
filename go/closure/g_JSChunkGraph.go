@@ -126,7 +126,7 @@ func JSChunkGraph_makeWeakChunk(chunksInDepOrder ListOf[*JSChunk]) ListOf[*JSChu
 		for chunk := range elemsAs_[*JSChunk](chunksInDepOrder) {
 			weakChunk.addDependency(chunk)
 		}
-		chunksInDepOrder = icast_List(new_ArrayList_Collection(Collection(chunksInDepOrder)).self())
+		chunksInDepOrder = new_ArrayList_Collection(Collection(chunksInDepOrder)).self().(List)
 		chunksInDepOrder.add(obj_(weakChunk))
 	}
 	return chunksInDepOrder
@@ -160,7 +160,7 @@ func (this *JSChunkGraph) initSubtreeSize() []int32 {
 }
 
 func (this *JSChunkGraph) getAllInputs() IterableOf[*CompilerInput] {
-	return Iterables_concat_Iterable(Iterables_transform(Iterable(Arrays_asList(arrmap_(this.chunks, func(v_ *JSChunk) any { return obj_(v_) }))), Function_base[any, any](func(p0 any) any { return obj_(cast_[*JSChunk](p0).getInputs()) })))
+	return Iterables_concat_Iterable(Iterables_transform(Iterable(Arrays_asList(arrmap_(this.chunks, func(v_ *JSChunk) any { return obj_(v_) }))), Function_base[any, any](func(p0 any) any { return obj_(p0.(*JSChunk).getInputs()) })))
 }
 
 func (this *JSChunkGraph) getInputCount() int32 {
