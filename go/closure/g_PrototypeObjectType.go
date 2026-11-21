@@ -29,11 +29,6 @@ func to_PrototypeObjectType(v any) *PrototypeObjectType {
 	return v.(PrototypeObjectType_as).as_PrototypeObjectType()
 }
 
-func is_PrototypeObjectType(v any) bool {
-	_, ok := v.(PrototypeObjectType_as)
-	return ok
-}
-
 func (this *PrototypeObjectType) self() any {
 	if this == nil {
 		return nil
