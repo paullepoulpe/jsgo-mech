@@ -56,7 +56,7 @@ func DotFormatter_toDot_Node_ControlFlowGraph(n Node, inCFG *ControlFlowGraph[No
 }
 
 func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
-	var builder *StringBuilder = new_StringBuilder()
+	var builder strBuilder_
 	builder.append(func() string {
 		if graph.isDirected() {
 			return "digraph"
@@ -114,7 +114,7 @@ func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 		builder.append(";\n")
 	}
 	builder.append("}\n")
-	return tostrR_(builder)
+	return builder.toString()
 }
 
 func DotFormatter_appendDot(n Node, inCFG *ControlFlowGraph[Node], builder Appendable) {

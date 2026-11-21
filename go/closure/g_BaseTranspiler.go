@@ -32,12 +32,12 @@ func (this *BaseTranspiler) transpile(path string, code string) *TranspileResult
 }
 
 func (this *BaseTranspiler) runtime() string {
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	if !String_isEmpty(this.runtimeLibraryName) {
 		sb.append(this.compilerSupplier.runtime(this.runtimeLibraryName))
 	}
 	sb.append(this.compilerSupplier.runtime("modules"))
-	return tostrR_(sb)
+	return sb.toString()
 }
 
 func BaseTranspiler_to_FeatureSet_String(featureSet *FeatureSet, runtime string) *BaseTranspiler {
