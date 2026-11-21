@@ -3069,43 +3069,43 @@ func Node_clinit() {
 	Node_ES6_MODULE = Node_Prop_ES6_MODULE
 	Node_NUMBER_PAYLOAD_UNSET = any(float64(0.0))
 	Node_BIGINT_PAYLOAD_UNSET = BigInteger_ZERO
-	Node_PROP_MAP_FOR_EQUALITY = new_ImmutableMap_Builder().put(obj_(Node_Prop_ARROW_FN), func() Function[any, any] {
+	Node_PROP_MAP_FOR_EQUALITY = immutableMapBuilder_(tc_p_Node_Prop, tc_Function_any__any_).put(Node_Prop_ARROW_FN, func() Function[any, any] {
 		f_ := Function[Node, any](func(p0 Node) any { return any(bool(p0.isArrowFunction())) })
 		if f_ == nil {
 			return nil
 		}
 		return func(p0 any) any { return f_(Node_of_(p0)) }
-	}().box_()).put(obj_(Node_Prop_ASYNC_FN), func() Function[any, any] {
+	}()).put(Node_Prop_ASYNC_FN, func() Function[any, any] {
 		f_ := Function[Node, any](func(p0 Node) any { return any(bool(p0.isAsyncFunction())) })
 		if f_ == nil {
 			return nil
 		}
 		return func(p0 any) any { return f_(Node_of_(p0)) }
-	}().box_()).put(obj_(Node_Prop_GENERATOR_FN), func() Function[any, any] {
+	}()).put(Node_Prop_GENERATOR_FN, func() Function[any, any] {
 		f_ := Function[Node, any](func(p0 Node) any { return any(bool(p0.isGeneratorFunction())) })
 		if f_ == nil {
 			return nil
 		}
 		return func(p0 any) any { return f_(Node_of_(p0)) }
-	}().box_()).put(obj_(Node_Prop_START_OF_OPT_CHAIN), func() Function[any, any] {
+	}()).put(Node_Prop_START_OF_OPT_CHAIN, func() Function[any, any] {
 		f_ := Function[Node, any](func(p0 Node) any { return any(bool(p0.isOptionalChainStart())) })
 		if f_ == nil {
 			return nil
 		}
 		return func(p0 any) any { return f_(Node_of_(p0)) }
-	}().box_()).put(obj_(Node_Prop_STATIC_MEMBER), func() Function[any, any] {
+	}()).put(Node_Prop_STATIC_MEMBER, func() Function[any, any] {
 		f_ := Function[Node, any](func(p0 Node) any { return any(bool(p0.isStaticMember())) })
 		if f_ == nil {
 			return nil
 		}
 		return func(p0 any) any { return f_(Node_of_(p0)) }
-	}().box_()).put(obj_(Node_Prop_YIELD_ALL), func() Function[any, any] {
+	}()).put(Node_Prop_YIELD_ALL, func() Function[any, any] {
 		f_ := Function[Node, any](func(p0 Node) any { return any(bool(p0.isYieldAll())) })
 		if f_ == nil {
 			return nil
 		}
 		return func(p0 any) any { return f_(Node_of_(p0)) }
-	}().box_()).put(obj_(Node_Prop_EXPORT_DEFAULT), func() Function[any, any] {
+	}()).put(Node_Prop_EXPORT_DEFAULT, func() Function[any, any] {
 		f_ := Function[Node, any](func(n Node) any {
 			return int32(n.getIntProp(Node_Prop_EXPORT_DEFAULT))
 		})
@@ -3113,7 +3113,7 @@ func Node_clinit() {
 			return nil
 		}
 		return func(p0 any) any { return f_(Node_of_(p0)) }
-	}().box_()).put(obj_(Node_Prop_EXPORT_ALL_FROM), func() Function[any, any] {
+	}()).put(Node_Prop_EXPORT_ALL_FROM, func() Function[any, any] {
 		f_ := Function[Node, any](func(n Node) any {
 			return int32(n.getIntProp(Node_Prop_EXPORT_ALL_FROM))
 		})
@@ -3121,7 +3121,7 @@ func Node_clinit() {
 			return nil
 		}
 		return func(p0 any) any { return f_(Node_of_(p0)) }
-	}().box_()).put(obj_(Node_Prop_INCRDECR), func() Function[any, any] {
+	}()).put(Node_Prop_INCRDECR, func() Function[any, any] {
 		f_ := Function[Node, any](func(n Node) any {
 			return int32(n.getIntProp(Node_Prop_INCRDECR))
 		})
@@ -3129,7 +3129,7 @@ func Node_clinit() {
 			return nil
 		}
 		return func(p0 any) any { return f_(Node_of_(p0)) }
-	}().box_()).put(obj_(Node_Prop_QUOTED), func() Function[any, any] {
+	}()).put(Node_Prop_QUOTED, func() Function[any, any] {
 		f_ := Function[Node, any](func(n Node) any {
 			return int32(n.getIntProp(Node_Prop_QUOTED))
 		})
@@ -3137,7 +3137,7 @@ func Node_clinit() {
 			return nil
 		}
 		return func(p0 any) any { return f_(Node_of_(p0)) }
-	}().box_()).put(obj_(Node_Prop_FREE_CALL), func() Function[any, any] {
+	}()).put(Node_Prop_FREE_CALL, func() Function[any, any] {
 		f_ := Function[Node, any](func(n Node) any {
 			return bool(n.getBooleanProp(Node_Prop_FREE_CALL))
 		})
@@ -3145,7 +3145,7 @@ func Node_clinit() {
 			return nil
 		}
 		return func(p0 any) any { return f_(Node_of_(p0)) }
-	}().box_()).put(obj_(Node_Prop_DIRECT_EVAL), func() Function[any, any] {
+	}()).put(Node_Prop_DIRECT_EVAL, func() Function[any, any] {
 		f_ := Function[Node, any](func(n Node) any {
 			return bool(n.getBooleanProp(Node_Prop_DIRECT_EVAL))
 		})
@@ -3153,7 +3153,7 @@ func Node_clinit() {
 			return nil
 		}
 		return func(p0 any) any { return f_(Node_of_(p0)) }
-	}().box_()).put(obj_(Node_Prop_COMPUTED_PROP_METHOD), func() Function[any, any] {
+	}()).put(Node_Prop_COMPUTED_PROP_METHOD, func() Function[any, any] {
 		f_ := Function[Node, any](func(n Node) any {
 			return bool(n.getBooleanProp(Node_Prop_COMPUTED_PROP_METHOD))
 		})
@@ -3161,7 +3161,7 @@ func Node_clinit() {
 			return nil
 		}
 		return func(p0 any) any { return f_(Node_of_(p0)) }
-	}().box_()).put(obj_(Node_Prop_COMPUTED_PROP_GETTER), func() Function[any, any] {
+	}()).put(Node_Prop_COMPUTED_PROP_GETTER, func() Function[any, any] {
 		f_ := Function[Node, any](func(n Node) any {
 			return bool(n.getBooleanProp(Node_Prop_COMPUTED_PROP_GETTER))
 		})
@@ -3169,7 +3169,7 @@ func Node_clinit() {
 			return nil
 		}
 		return func(p0 any) any { return f_(Node_of_(p0)) }
-	}().box_()).put(obj_(Node_Prop_COMPUTED_PROP_SETTER), func() Function[any, any] {
+	}()).put(Node_Prop_COMPUTED_PROP_SETTER, func() Function[any, any] {
 		f_ := Function[Node, any](func(n Node) any {
 			return bool(n.getBooleanProp(Node_Prop_COMPUTED_PROP_SETTER))
 		})
@@ -3177,7 +3177,7 @@ func Node_clinit() {
 			return nil
 		}
 		return func(p0 any) any { return f_(Node_of_(p0)) }
-	}().box_()).buildOrThrow()
+	}()).buildOrThrowErased()
 	Node_propMapForEqualityKeys = EnumSet_copyOf(Collection(Node_PROP_MAP_FOR_EQUALITY.keySet()))
 
 }
