@@ -5206,3 +5206,45 @@ func init() {
 		Node(0),
 	)
 }
+
+func icast_AdjacencyGraph_Var_any(v any) AdjacencyGraph[*Var, any] {
+	if v == nil {
+		return nil
+	}
+	return v.(AdjacencyGraph[*Var, any])
+}
+
+func icast_DiGraph_DiGraphEdge_ColorGraphNode_any(v any) DiGraph_DiGraphEdge[*ColorGraphNode, any] {
+	if v == nil {
+		return nil
+	}
+	return v.(DiGraph_DiGraphEdge[*ColorGraphNode, any])
+}
+
+func icast_DiGraph_DiGraphEdge_Node_ControlFlowGraph_Branch(v any) DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch] {
+	if v == nil {
+		return nil
+	}
+	return v.(DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch])
+}
+
+func icast_DiGraph_DiGraphNode_ColorGraphNode_any(v any) DiGraph_DiGraphNode[*ColorGraphNode, any] {
+	if v == nil {
+		return nil
+	}
+	return v.(DiGraph_DiGraphNode[*ColorGraphNode, any])
+}
+
+func icast_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch(v any) DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] {
+	if v == nil {
+		return nil
+	}
+	return v.(DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch])
+}
+
+func icast_GraphNode_Node_ControlFlowGraph_Branch(v any) GraphNode[Node, ControlFlowGraph_Branch] {
+	if v == nil {
+		return nil
+	}
+	return v.(GraphNode[Node, ControlFlowGraph_Branch])
+}

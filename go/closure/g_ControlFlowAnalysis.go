@@ -64,7 +64,7 @@ func (this *ControlFlowAnalysis) computeCfg(root Node) {
 	var entry DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = this.cfg.getEntry()
 	this.prioritizeFromEntryNode(entry)
 	if this.shouldTraverseFunctions {
-		for candidate := range elemsAs_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](this.cfg.getNodes()) {
+		for candidate := range elemsBy_(this.cfg.getNodes(), icast_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch) {
 			var value Node = candidate.getValue()
 			if (value != 0) && value.isFunction() {
 				this.prioritizeFromEntryNode(candidate)
@@ -72,7 +72,7 @@ func (this *ControlFlowAnalysis) computeCfg(root Node) {
 		}
 	}
 	this.astPosition = nil
-	for candidate := range elemsAs_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](this.cfg.getNodes()) {
+	for candidate := range elemsBy_(this.cfg.getNodes(), icast_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch) {
 		if !candidate.hasPriority() {
 			this.priorityCounter++
 			candidate.setPriority(this.priorityCounter)
@@ -89,12 +89,12 @@ func (this *ControlFlowAnalysis) prioritizeFromEntryNode(entry DiGraph_DiGraphNo
 			return nil
 		}
 		return func(p0 any, p1 any) int32 {
-			return f_(cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](p0), cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](p1))
+			return f_(icast_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch(p0), icast_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch(p1))
 		}
 	}())
 	worklist.add(entry)
 	for !worklist.isEmpty() {
-		var current DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](worklist.remove_0())
+		var current DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = icast_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch(worklist.remove_0())
 		if current.hasPriority() {
 			continue
 		}

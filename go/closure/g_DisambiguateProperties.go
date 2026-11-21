@@ -60,7 +60,7 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 	}
 	this.logForDiagnostics("graph", Supplier_base[any](func() any {
 		var result []*DisambiguateProperties_TypeNodeJson = []*DisambiguateProperties_TypeNodeJson{}
-		for n := range elemsAs_[DiGraph_DiGraphNode[*ColorGraphNode, any]](graph.getNodes()) {
+		for n := range elemsBy_(graph.getNodes(), icast_DiGraph_DiGraphNode_ColorGraphNode_any) {
 			result = append(result, new_DisambiguateProperties_TypeNodeJson(n))
 		}
 		List_sort(sliceView_(tc_p_DisambiguateProperties_TypeNodeJson, result), func() Comparator[any] {
@@ -377,7 +377,7 @@ func (this *DisambiguateProperties_TypeNodeJson) init_DisambiguateProperties_Typ
 	this.colorId = t.getColor().getId().toString()
 	this.invalidating = t.getColor().isInvalidating()
 	var edgesBuilder ImmutableSortedSet_BuilderOf[*DisambiguateProperties_TypeEdgeJson] = ImmutableSortedSet_naturalOrder()
-	for e := range elemsAs_[DiGraph_DiGraphEdge[*ColorGraphNode, any]](n.getOutEdges()) {
+	for e := range elemsBy_(n.getOutEdges(), icast_DiGraph_DiGraphEdge_ColorGraphNode_any) {
 		edgesBuilder.add(new_DisambiguateProperties_TypeEdgeJson(e))
 	}
 	this.edges = edgesBuilder.build()
