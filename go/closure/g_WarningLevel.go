@@ -18,13 +18,13 @@ func (this WarningLevel) enum_() *Enum {
 	return &WarningLevel_enum_[this-1]
 }
 
-func (this WarningLevel) name() string { return WarningLevel_enum_[this-1].name_ }
+func (this WarningLevel) name() string { return this.enum_().name_ }
 
-func (this WarningLevel) ordinal() int32 { return WarningLevel_enum_[this-1].ordinal_ }
+func (this WarningLevel) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this WarningLevel) toString() string { return WarningLevel_enum_[this-1].name_ }
+func (this WarningLevel) toString() string { return this.enum_().name_ }
 
-func (this WarningLevel) compareTo(o any) int32 { return WarningLevel_enum_[this-1].compareTo(o) }
+func (this WarningLevel) compareTo(o any) int32 { return this.enum_().compareTo(o) }
 
 func (this WarningLevel) self() any {
 	if this == 0 {

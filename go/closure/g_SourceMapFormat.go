@@ -17,13 +17,13 @@ func (this SourceMapFormat) enum_() *Enum {
 	return &SourceMapFormat_enum_[this-1]
 }
 
-func (this SourceMapFormat) name() string { return SourceMapFormat_enum_[this-1].name_ }
+func (this SourceMapFormat) name() string { return this.enum_().name_ }
 
-func (this SourceMapFormat) ordinal() int32 { return SourceMapFormat_enum_[this-1].ordinal_ }
+func (this SourceMapFormat) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this SourceMapFormat) toString() string { return SourceMapFormat_enum_[this-1].name_ }
+func (this SourceMapFormat) toString() string { return this.enum_().name_ }
 
-func (this SourceMapFormat) compareTo(o any) int32 { return SourceMapFormat_enum_[this-1].compareTo(o) }
+func (this SourceMapFormat) compareTo(o any) int32 { return this.enum_().compareTo(o) }
 
 func (this SourceMapFormat) self() any {
 	if this == 0 {

@@ -4509,14 +4509,14 @@ func (this NodeUtil_ValueType) enum_() *Enum {
 	return &NodeUtil_ValueType_enum_[this-1]
 }
 
-func (this NodeUtil_ValueType) name() string { return NodeUtil_ValueType_enum_[this-1].name_ }
+func (this NodeUtil_ValueType) name() string { return this.enum_().name_ }
 
-func (this NodeUtil_ValueType) ordinal() int32 { return NodeUtil_ValueType_enum_[this-1].ordinal_ }
+func (this NodeUtil_ValueType) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this NodeUtil_ValueType) toString() string { return NodeUtil_ValueType_enum_[this-1].name_ }
+func (this NodeUtil_ValueType) toString() string { return this.enum_().name_ }
 
 func (this NodeUtil_ValueType) compareTo(o any) int32 {
-	return NodeUtil_ValueType_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this NodeUtil_ValueType) self() any {

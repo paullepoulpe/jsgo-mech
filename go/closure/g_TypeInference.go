@@ -1988,19 +1988,19 @@ func (this TypeInference_AssignmentType) enum_() *Enum {
 }
 
 func (this TypeInference_AssignmentType) name() string {
-	return TypeInference_AssignmentType_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this TypeInference_AssignmentType) ordinal() int32 {
-	return TypeInference_AssignmentType_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this TypeInference_AssignmentType) toString() string {
-	return TypeInference_AssignmentType_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this TypeInference_AssignmentType) compareTo(o any) int32 {
-	return TypeInference_AssignmentType_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this TypeInference_AssignmentType) self() any {
@@ -2058,19 +2058,19 @@ func (this TypeInference_BigIntPresence) enum_() *Enum {
 }
 
 func (this TypeInference_BigIntPresence) name() string {
-	return TypeInference_BigIntPresence_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this TypeInference_BigIntPresence) ordinal() int32 {
-	return TypeInference_BigIntPresence_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this TypeInference_BigIntPresence) toString() string {
-	return TypeInference_BigIntPresence_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this TypeInference_BigIntPresence) compareTo(o any) int32 {
-	return TypeInference_BigIntPresence_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this TypeInference_BigIntPresence) self() any {
