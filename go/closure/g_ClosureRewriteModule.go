@@ -101,8 +101,8 @@ func (this *ClosureRewriteModule) process_2(externs Node, root Node) {
 	}
 	NodeTraversal_traverseRoots(this.compiler_, NodeTraversal_Callback(new_ClosureRewriteModule_ScriptUpdater(this, scriptDescriptions)), externs, root)
 	this.declareSyntheticExterns()
-	Iterable_forEach(Iterable(this.googModuleGetCalls.asList()), Consumer[any](func(p0 any) { this.updateGoogModuleGetCall(Node_of_(p0)) }))
-	Iterable_forEach(Iterable(this.googRequireDynamicCalls.asList()), Consumer[any](func(p0 any) { this.updateGoogRequireDynamicCall(Node_of_(p0)) }))
+	this.googModuleGetCalls.forEachT_(func(p0 Node) { this.updateGoogModuleGetCall(p0) })
+	this.googRequireDynamicCalls.forEachT_(func(p0 Node) { this.updateGoogRequireDynamicCall(p0) })
 }
 
 func (this *ClosureRewriteModule) declareSyntheticExterns() {

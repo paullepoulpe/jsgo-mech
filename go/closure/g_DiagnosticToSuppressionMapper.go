@@ -41,7 +41,7 @@ func (this *DiagnosticToSuppressionMapper) createSuppressionMap() ImmutableSorte
 		}
 		var group *DiagnosticGroup = entry.getValue()
 		for diagnosticType := range group.getTypes().All() {
-			Map_merge(diagnosticToSuppression.asMap(), obj_(diagnosticType), strobj_(suppression), BiFunction[any, any, any](func(p0 any, p1 any) any { return strobj_(this.preferMoreTargetedGroup(str_(p0), str_(p1))) }))
+			diagnosticToSuppression.mergeT_(diagnosticType, suppression, func(p0 string, p1 string) string { return this.preferMoreTargetedGroup(p0, p1) })
 		}
 	}
 	var result ImmutableSortedMap_BuilderOf[string, string] = ImmutableSortedMap_naturalOrder()

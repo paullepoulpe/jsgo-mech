@@ -134,28 +134,22 @@ func ReportDecoder_mergeProfiles(profiles []*ReportProfile) *ReportProfile {
 	for _, profile := range profiles {
 		for fileProfile := range elemsAs_[*FileProfile](profile.getFileProfileList()) {
 			for pointStats := range elemsAs_[*InstrumentationPointStats](fileProfile.getInstrumentationPointsStatsList()) {
-				Map_compute(frequencies.asMap(), obj_(pointStats.getPoint()), BiFunction[any, any, any](func(p_ any, existing any) any {
-					var p *InstrumentationPoint = cast_[*InstrumentationPoint](p_)
-					_ = p
+				frequencies.computeT_(pointStats.getPoint(), func(p *InstrumentationPoint, existing any) any {
 					return int64((func() int64 {
 						if existing == nil {
 							return 0
 						}
 						return unbox_[int64](existing)
 					}() + pointStats.getTimesExecuted()))
-				}))
-				Map_compute(presences.asMap(), obj_(pointStats.getPoint()), BiFunction[any, any, any](func(p_ any, existing_ any) any {
-					var p *InstrumentationPoint = cast_[*InstrumentationPoint](p_)
-					_ = p
-					var existing InstrumentationPointStats_Presence = cast_[InstrumentationPointStats_Presence](existing_)
-					_ = existing
-					return func() any {
+				})
+				presences.computeT_(pointStats.getPoint(), func(p *InstrumentationPoint, existing InstrumentationPointStats_Presence) InstrumentationPointStats_Presence {
+					return func() InstrumentationPointStats_Presence {
 						if ((pointStats.getPointPresence() == InstrumentationPointStats_Presence_PRESENT) || (existing == InstrumentationPointStats_Presence_PRESENCE_UNKNOWN)) || (existing == 0) {
-							return obj_(pointStats.getPointPresence())
+							return pointStats.getPointPresence()
 						}
-						return obj_(existing)
+						return existing
 					}()
-				}))
+				})
 			}
 		}
 	}
