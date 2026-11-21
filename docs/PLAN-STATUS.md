@@ -110,6 +110,21 @@ were native Go maps, typed forEach / merge / compute, 11 typed sorts, the data-f
 direct comparator. Two census rows are worse (instanceof helpers 71 to 78, anonymous interface
 assertions 0 to 6: instanceof of the now-generic Simple* classes).
 
+Second part of the fifth flip (overlay a634273a, tree flip5-tree-d 2abbf4e4, 272 commits,
+unattended, gated): one shared reader of the old and new lambda forms (tool fix 33) brings back
+the typed rewrites (native Go maps through computeIfAbsent 0 to 20, typed forEach 8, merge and
+compute 3 and 2, typed sorts 12 to 24), a typed priority queue for the two worklists (step 559),
+and names for the instanceof marker interfaces (step 560). No census row is worse than the
+fourth flip's except typed constructors (450 against 448). In time it is level with the first
+part (subset, three alternating rounds: 98.9 / 98.6 / 98.8 s against 99.8 / 98.1 / 98.1 s).
+
+Where the full benchmark's CHECKS time is (profile of the in-bounds tree, 291 s): the compiler's
+own thread is busy for about 268 s of it; the collector's background work is 61 s of CPU, of
+which 44 s runs on otherwise idle cores. So the wall time is the main thread's: about 25 s of
+allocation, 27 s of Go map lookups (maps keyed by node handle 11 s, a set of CompilerInput in
+dependency sorting 6 s, the node type handle table 4 s), and the rest translated code with no
+function above 2%. Java's whole stage takes 214 s.
+
 Translator, not yet flipped (branches main-libgen-b2, -b3, -b4; each gated on, all off, and the
 newer switches off one by one): rule "typed library interfaces", kinds iter, coll, list, set,
 map/entry. Erased collection declarations 816 to 242 (133 class-typed ones are the next piece);
