@@ -498,7 +498,7 @@ func (this *TypeCheck) checkGetterOrSetterType(child Node, classType *FunctionTy
 		if child.isGetterDef() {
 			return this.determineGetterType(methodType)
 		}
-		return Iterables_getOnlyElement(Iterable(methodType.getParameters().asList())).(*FunctionType_Parameter).getJSType()
+		return methodType.getParameters().getOnlyElementT_().getJSType()
 	}()
 	var officialPropertyType *JSType = func() *JSType {
 		if child.isStaticMember() {
