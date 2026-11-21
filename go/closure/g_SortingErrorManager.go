@@ -243,17 +243,8 @@ func (this *SortingErrorManager_ErrorWithLevel) hashCode() int32 {
 }
 
 func (this *SortingErrorManager_ErrorWithLevel) equals(obj any) bool {
-	var e *SortingErrorManager_ErrorWithLevel
-	_ = e
-	if !(func() bool {
-		v_ := obj
-		p, ok := v_.(*SortingErrorManager_ErrorWithLevel)
-		if !ok {
-			return false
-		}
-		e = p
-		return true
-	}()) {
+	e, ok := obj.(*SortingErrorManager_ErrorWithLevel)
+	if !(ok) {
 		return false
 	}
 	return (((((this.level_ == e.level_) && (this.error_.description() == e.error_.description())) && Object_equals(this.error_.sourceName().box_(), e.error_.sourceName().box_())) && (this.error_.getLineNumber() == e.error_.getLineNumber())) && (this.error_.charno() == e.error_.charno()))

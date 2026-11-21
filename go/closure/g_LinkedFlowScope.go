@@ -201,17 +201,8 @@ func LinkedFlowScope_getCommonParentDeclarationScope(left *LinkedFlowScope, righ
 }
 
 func (this *LinkedFlowScope) equals(other any) bool {
-	var that *LinkedFlowScope
-	_ = that
-	if !(func() bool {
-		v_ := other
-		p, ok := v_.(*LinkedFlowScope)
-		if !ok {
-			return false
-		}
-		that = p
-		return true
-	}()) {
+	that, ok := other.(*LinkedFlowScope)
+	if !(ok) {
 		return false
 	}
 	return ((this.functionScope == that.functionScope) && this.scopes.equivalent(that.scopes, BiPredicate[*LinkedFlowScope_OverlayScope, *LinkedFlowScope_OverlayScope](func(p0 *LinkedFlowScope_OverlayScope, p1 *LinkedFlowScope_OverlayScope) bool {
