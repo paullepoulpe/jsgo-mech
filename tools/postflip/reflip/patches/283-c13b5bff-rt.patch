@@ -1,8 +1,8 @@
 diff --git a/go/closure/rt_base.go b/go/closure/rt_base.go
-index 169d05bbcb66f7da7ca8261ed9d0e5f41bd940d1..b1fd79bd 100644
+index 26321b5bf..46407c108 100644
 --- a/go/closure/rt_base.go
 +++ b/go/closure/rt_base.go
-@@ -475,39 +475,60 @@ func (this *MoreObjects_ToStringHelper) toString() string {
+@@ -476,39 +476,60 @@ func (this *MoreObjects_ToStringHelper) toString() string {
  
  // ---- com.google.common.base.Optional_base
  
@@ -25,19 +25,19 @@ index 169d05bbcb66f7da7ca8261ed9d0e5f41bd940d1..b1fd79bd 100644
 +// optBaseNil_ is a null Guava Optional; optBaseNull_ reports whether o is null (post-flip tool
 +// optional -guava wrote them for nil and == nil).
 +var optBaseNil_ Optional_base
-+
+ 
+-func Optional_base_absent() *Optional_base { return optionalAbsent_ }
 +func optBaseNull_(o Optional_base) bool { return !o.set }
-+
+ 
+-func Optional_base_fromNullable(v any) *Optional_base {
 +func (this Optional_base) nn_() {
 +	if !this.set {
 +		panic(new_NullPointerException_0())
 +	}
 +}
- 
--func Optional_base_absent() *Optional_base { return optionalAbsent_ }
++
 +func Optional_base_absent() Optional_base { return Optional_base{set: true} }
- 
--func Optional_base_fromNullable(v any) *Optional_base {
++
 +func Optional_base_fromNullable(v any) Optional_base {
  	if v == nil {
 -		return optionalAbsent_
@@ -75,7 +75,7 @@ index 169d05bbcb66f7da7ca8261ed9d0e5f41bd940d1..b1fd79bd 100644
  	if def == nil {
  		nullFail_("use Optional.orNull() instead of Optional.or(null)")
  	}
-@@ -517,11 +538,12 @@ func (this *Optional_base) or(def any) any {
+@@ -518,11 +539,12 @@ func (this *Optional_base) or(def any) any {
  	return def
  }
  
@@ -92,22 +92,8 @@ index 169d05bbcb66f7da7ca8261ed9d0e5f41bd940d1..b1fd79bd 100644
  	}
  	if this.present {
  		return this
-@@ -530,7 +552,8 @@ func (this *Optional_base) or_Optional(o *Optional_base) *Optional_base {
- }
- 
- // transform_f is transform of a lambda, as a Go func value (post-flip step funcparams).
--func (this *Optional_base) transform_f(f func(any) any) *Optional_base {
-+func (this Optional_base) transform_f(f func(any) any) Optional_base {
-+	this.nn_()
- 	if !this.present {
- 		return this
- 	}
-@@ -538,12 +561,13 @@ func (this *Optional_base) transform_f(f func(any) any) *Optional_base {
- 	if r == nil {
- 		nullFail_("the Function_e passed to Optional.transform() must not return null.")
- 	}
--	return &Optional_base{true, r}
-+	return Optional_base{r, true, true}
+@@ -530,9 +552,10 @@ func (this *Optional_base) or_Optional(o *Optional_base) *Optional_base {
+ 	return o
  }
  
 -func (this *Optional_base) transform(f Function_base_e) *Optional_base {
@@ -119,9 +105,9 @@ index 169d05bbcb66f7da7ca8261ed9d0e5f41bd940d1..b1fd79bd 100644
  	}
  	if !this.present {
  		return this
-@@ -552,12 +576,13 @@ func (this *Optional_base) transform(f Function_base) *Optional_base {
+@@ -541,12 +564,13 @@ func (this *Optional_base) transform(f Function_base_e) *Optional_base {
  	if r == nil {
- 		nullFail_("the Function_e passed to Optional.transform() must not return null.")
+ 		nullFail_("the Function passed to Optional.transform() must not return null.")
  	}
 -	return &Optional_base{true, r}
 +	return Optional_base{r, true, true}
@@ -137,7 +123,7 @@ index 169d05bbcb66f7da7ca8261ed9d0e5f41bd940d1..b1fd79bd 100644
  		return false
  	}
  	if !this.present || !x.present {
-@@ -566,14 +591,16 @@ func (this *Optional_base) equals(o any) bool {
+@@ -555,14 +579,16 @@ func (this *Optional_base) equals(o any) bool {
  	return objequals_(this.value, x.value)
  }
  

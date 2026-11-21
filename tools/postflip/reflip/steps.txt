@@ -425,6 +425,7 @@ cc8beb35 run t sbuild && f
 #= c4aefc67 noop: go/cmd/mech/default.pgo is already gone before the flip (main 08cadb62)
 c4aefc67 run rm -f go/cmd/mech/default.pgo
 # 210. postflip (runtime): TTreeSet and TTreeMap, TreeSet and TreeMap with unboxed elements (rt_ttree.go)
+#=5 36bf093d adapted (fifth flip): fnpatch.py; the two comparators the patch makes from a Go func are made with Comparator_of_ and reversed with cmpReversed_ (the translator runtime has neither cmpFunc_ nor Comparator_reversed); the test compares the comparator it gave with fnSame_ (a func is not comparable with ==)
 36bf093d patch 210-36bf093d-rt.patch
 # 212. postflip (runtime): LinkedIdentityHashMap's methods on a typed map; a deque's copy as a reversed typed list
 912801fe patch 212-912801fe-rt.patch
@@ -508,6 +509,7 @@ b763d080 run t exceptions && f
 # 273. postflip step: throws re-run, 40 exhaustive enum switches throw NullPointerException for null, as Java's switch does
 27203603 run t throws
 # 276. postflip (runtime): _f variants taking a lambda as a Go func: Suppliers.memoize, CacheLoader.from, Comparator.comparing(f, c), Arrays.setAll, Optional.ifPresent, Guava Optional.transform, AtomicIntegerArray.updateAndGet
+#=5 357d678f adapted (fifth flip): regenerated with AtomicIntegerArray.updateAndGet_f alone (IntUnaryOperator is outside rule "function types": 1 &IntUnaryOperator_fn{ literal in the tree). The other _f variants (Optional_base.transform_f, Optional.ifPresent_f, Suppliers_memoize_f, Comparator_comparing_Function_Comparator_f, Arrays_setAll_f, CacheLoader_from_f) are dropped: the functions they are the func form of take a Go func from the translator (Supplier_base_e, Function_e, Comparator_e, IntFunction_e, Consumer_e), and the tree before this step has 0 adapter literals &X_fn{ of those interfaces (72 literals in all, counted by git grep at the commit before: 64 of 12 interfaces of the program or outside the rule, Iterable 4, Runnable 2, ThreadFactory 1, IntUnaryOperator 1)
 357d678f patch 276-357d678f-rt.patch
 # 277. postflip step: funcparams re-run, 14 lambdas given to the runtime are Go func values (the new _f variants)
 04529358 run t funcparams
@@ -521,9 +523,11 @@ aeeee0e2 run t exceptions && f
 c13b5bff run t optional -guava && git checkout -q HEAD -- go/closure/rt_base.go
 c13b5bff run sed -i 's/^type Optional_baseOf\[T0 any\] = \*Optional_base$/type Optional_baseOf[T0 any] = Optional_base/' go/closure/g_0aliases.go
 c13b5bff run sed -i -E 's/\*Optional_base\b([^_]|$)/Optional_base\1/g' go/closure/g_*.go && f
+#=5 c13b5bff adapted (fifth flip): fnpatch.py; regenerated without Optional_base.transform_f (dropped with 276: transform takes a Go func, Function_base_e)
 c13b5bff patch 283-c13b5bff-rt.patch
 # 284. postflip (runtime): Comparator.thenComparingInt, comparingLong, thenComparingLong and Map.replaceAll taking a lambda as a Go func value
-b25ac187 patch 284-b25ac187-rt.patch
+#=5 b25ac187 dropped (fifth flip): the four _f variants (Comparator_comparingLong_f, Comparator_thenComparingLong_f, Comparator_thenComparingInt_f, Map_replaceAll_f) are the func forms of functions that take a Go func from the translator (Comparator_comparingLong[T], Comparator[T].thenComparingLong, .thenComparingInt in rt_fn.go; Map_replaceAll(m, BiFunction_e)); 0 adapter literals of ToLongFunction, ToIntFunction or BiFunction in the tree before the step (see 276), so step 285 funcparams, a no-op since the second flip, has nothing to send to them
+#- b25ac187 patch 284-b25ac187-rt.patch
 # 285. postflip step: funcparams re-run, 11 package-level lambdas given to comparators and Map.replaceAll are Go functions
 #= 1875bf24 noop: the tool runs and changes nothing (funcparams: no package-level lambda left that fits; j2go writes typed adapters)
 1875bf24 run t funcparams && t funcparams && f
@@ -586,8 +590,11 @@ b15515e1 patch 328-b15515e1-rt.patch
 # 330. postflip (runtime): a typed container unboxes an immutable typed collection from its twin
 #=4 f6a421b0 adapted (fourth flip): a runtime test patch added before the next tool that loads the tests (tnames, in colls/run.sh): TestConvObjectCalls as fixed on main (60a9e130) does not name the erased ImmutableList type, which step 323 renamed and j2go's typed immutables took (first made by hand in the rehearsal tree as 289a33a9, pass 1)
 f6a421b0 patch 330-f6a421b0-rt.patch
-f6a421b0 patch reflip4-289a33a9-tests-rt.patch
+#=5 f6a421b0 dropped (fifth flip): the test patch reflip4-289a33a9-tests-rt.patch is main's own change 60a9e130 (TestConvObjectCalls does not name the erased ImmutableList type), which the flip base has: a 3-way merge of the patch is empty
+#- f6a421b0 patch reflip4-289a33a9-tests-rt.patch
 # 336. postflip step: Guava immutables and builders carry their element types, re-run on postflip5 (colls/run.sh with the imm kinds)
+#=5 f7492025 adapted (fifth flip): toolfix 28 (a function type as an element: boxed by box_(), unboxed by fnUnbox_[F], its conversion object has isnull) and a runtime patch added before the run: tconv_ has isnull, and isNull asks it when it is set (a Go func cannot be compared through any(v) == any(null)). The subject: Node.PROP_MAP_FOR_EQUALITY, an ImmutableMap<Prop, Function<Node, Object>>, becomes a typed immutable map here; on the fourth flip its values were erased adapter objects
+f7492025 patch reflip5-fnconv-rt.patch
 f7492025 run bash tools/postflip/colls/run.sh
 # 338. postflip step: second pass of the collections pipeline after the typed immutables (colls map, native on typed immutables, nilmaps)
 72b0f693 run bash tools/postflip/colls/run.sh

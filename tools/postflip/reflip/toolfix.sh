@@ -883,3 +883,47 @@ if [[ -f $eg ]] && ! grep -q 'reflip27' $eg && grep -q 'reflip23' $eg; then
 	if b, isBasic := ba.t.(*types.Basic); isBasic && b.Kind() != types.String {
 E27
 fi
+# 28. (fifth flip) rw.ConvFor, colls, native: an element type that is one of the translator's function types (rule "function types":
+#    a named Go func type with a box_ method, Function[any, any], Supplier[Node]). rw.ConvFor took such a type for a handle type,
+#    because the stubs also declare a function Function_of_ (the conversion from a plain func; for a handle type X, X_of_ unboxes),
+#    and wrote the unboxing Function_of_(v) of an `any`, which does not compile (first met at step 336: Node.PROP_MAP_FOR_EQUALITY,
+#    an ImmutableMap<Prop, Function<Node, Object>>). A function's box is v.box_() and its unboxing is the runtime's fnUnbox_[F](v)
+#    (rt_fn.go), as the translator writes it. A conversion object the tools declare for such a type gets isnull (a Go func compares
+#    with nil only; tconv_.isNull's any(v) == any(c.null) would panic), as the translator's own conversions have it; the runtime
+#    side is reflip5-fnconv-rt.patch.
+reflip_edit tools/postflip/rw/rw.go reflip28 <<'E28'
+		} else if HasMethod(u, "box_") && HasFunc(name+"_of_") {
+=====
+		} else if _, isFn := u.Underlying().(*types.Signature); isFn && HasMethod(u, "box_") && HasFunc("fnUnbox_") { // reflip28: a function type
+			ts := types.TypeString(t, types.RelativeTo(Pkg))
+			return Conv{func(e string) string { return e + ".box_()" }, func(e string) string { return "fnUnbox_[" + ts + "](" + e + ")" }, func(string) bool { return false }, true}
+		} else if HasMethod(u, "box_") && HasFunc(name+"_of_") {
+E28
+reflip_edit tools/postflip/colls/main.go reflip28 <<'E28'
+		if isString(t) {
+			extra = ", null: nullstr_"
+		}
+		if hash {
+=====
+		if isString(t) {
+			extra = ", null: nullstr_"
+		}
+		if _, isFn := t.Underlying().(*types.Signature); isFn { // reflip28: a function type is compared with nil only
+			extra = fmt.Sprintf(", isnull: func(v %s) bool { return v == nil }", text)
+		}
+		if hash {
+E28
+reflip_edit tools/postflip/native/main.go reflip28 <<'E28'
+		if isString(c.elem) {
+			null = ", null: nullstr_"
+		}
+		immConvs[n] = fmt.Sprintf(
+=====
+		if isString(c.elem) {
+			null = ", null: nullstr_"
+		}
+		if _, isFn := c.elem.Underlying().(*types.Signature); isFn { // reflip28: a function type is compared with nil only
+			null = fmt.Sprintf(", isnull: func(v %s) bool { return v == nil }", c.elemText)
+		}
+		immConvs[n] = fmt.Sprintf(
+E28

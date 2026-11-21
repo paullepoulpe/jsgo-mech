@@ -1,5 +1,5 @@
 diff --git a/go/closure/rt_base_more.go b/go/closure/rt_base_more.go
-index 8a88f184a513124259f719ae7c5a6cb690c15d05..54ed5043 100644
+index 8a88f184a..4caa8ebce 100644
 --- a/go/closure/rt_base_more.go
 +++ b/go/closure/rt_base_more.go
 @@ -117,6 +117,6 @@ func Collections_shuffle(l List, rnd *Random) {
@@ -11,10 +11,10 @@ index 8a88f184a513124259f719ae7c5a6cb690c15d05..54ed5043 100644
  	return ImmutableList_sortedCopyOf(nil, elements)
  }
 diff --git a/go/closure/rt_coll.go b/go/closure/rt_coll.go
-index fb4d3eb58fbc7547ea12fd9ff09b537cd4971c1e..e2919a35 100644
+index 1c99945c4..82716d373 100644
 --- a/go/closure/rt_coll.go
 +++ b/go/closure/rt_coll.go
-@@ -1872,7 +1872,7 @@ func Map_get_s(m any, k string) any {
+@@ -1729,7 +1729,7 @@ func Map_get_s(m any, k string) any {
  		if h := hashMapOf_(m); h != nil {
  			return h.get_s(k)
  		}
@@ -23,7 +23,7 @@ index fb4d3eb58fbc7547ea12fd9ff09b537cd4971c1e..e2919a35 100644
  			return im.get_s(k)
  		}
  		if x, ok := m.(interface{ get_s(string) any }); ok {
-@@ -1893,7 +1893,7 @@ func Map_containsKey_s(m any, k string) bool {
+@@ -1750,7 +1750,7 @@ func Map_containsKey_s(m any, k string) bool {
  		if h := hashMapOf_(m); h != nil {
  			return h.t.findStr(k) >= 0
  		}
@@ -33,7 +33,7 @@ index fb4d3eb58fbc7547ea12fd9ff09b537cd4971c1e..e2919a35 100644
  		}
  		if x, ok := m.(interface{ containsKey_s(string) bool }); ok {
 diff --git a/go/closure/rt_conv_test.go b/go/closure/rt_conv_test.go
-index ab043629415b262c3f08b19d901451aed76a8f45..00d95902 100644
+index f3d82a276..05e18c2f9 100644
 --- a/go/closure/rt_conv_test.go
 +++ b/go/closure/rt_conv_test.go
 @@ -13,7 +13,7 @@ func msgOf_(f func()) (s string) {
@@ -46,10 +46,10 @@ index ab043629415b262c3f08b19d901451aed76a8f45..00d95902 100644
  	for i, v := range []any{jt, il, nullstr_, n.box_(), nil} {
  		if canon_(v) != nil {
 diff --git a/go/closure/rt_guava.go b/go/closure/rt_guava.go
-index a58d866b9196d909bdd93d787cd4b96ad1276c09..ccec3e17 100644
+index 521a074ce..46386b0fc 100644
 --- a/go/closure/rt_guava.go
 +++ b/go/closure/rt_guava.go
-@@ -67,7 +67,7 @@ func comparatorOf_(v any) Comparator {
+@@ -67,7 +67,7 @@ func comparatorOf_(v any) Comparator_e {
  		return x.cmp
  	case *ImmutableCollection:
  		return x.cmp
@@ -243,7 +243,7 @@ index a58d866b9196d909bdd93d787cd4b96ad1276c09..ccec3e17 100644
  	s := copySlice_(p1)
  	checkNoNulls_(s)
  	sortSlice_(s, p0)
-@@ -521,31 +521,31 @@ func ImmutableList_sortedCopyOf(p0 Comparator, p1 Iterable) *ImmutableList {
+@@ -521,31 +521,31 @@ func ImmutableList_sortedCopyOf(p0 Comparator_e, p1 Iterable) *ImmutableList {
  
  // ---- ImmutableSet
  
@@ -359,7 +359,7 @@ index a58d866b9196d909bdd93d787cd4b96ad1276c09..ccec3e17 100644
  }
  
 diff --git a/go/closure/rt_guava_map.go b/go/closure/rt_guava_map.go
-index ae8085f7775a528a13ba1d85b68a561240c8ce1d..80630693 100644
+index 4be736ce7..5a30f13e3 100644
 --- a/go/closure/rt_guava_map.go
 +++ b/go/closure/rt_guava_map.go
 @@ -12,13 +12,13 @@ const (
@@ -371,7 +371,7 @@ index ae8085f7775a528a13ba1d85b68a561240c8ce1d..80630693 100644
  	kind     int8
  	keys     []any
  	vals     []any
- 	idx      *htable_   // key -> position (nil for sorted maps and until first lookup)
+ 	idx      *htable_     // key -> position (nil for sorted maps and until first lookup)
  	cmp      Comparator_e // sorted map (nil: natural ordering)
 -	inv      *ImmutableMap
 +	inv      *ErasedImmutableMap
@@ -401,7 +401,7 @@ index ae8085f7775a528a13ba1d85b68a561240c8ce1d..80630693 100644
  	if len(keys) == 0 && kind == emptyImmMap_.kind && cmp == nil {
  		return emptyImmMap_
  	}
-@@ -62,7 +62,7 @@ func immMap_(kind int8, keys, vals []any, cmp Comparator, keepLast bool) *Immuta
+@@ -62,7 +62,7 @@ func immMap_(kind int8, keys, vals []any, cmp Comparator_e, keepLast bool) *Immu
  			throwNPE_("null value in entry: " + objstr_(keys[i]) + "=null")
  		}
  	}
@@ -410,7 +410,7 @@ index ae8085f7775a528a13ba1d85b68a561240c8ce1d..80630693 100644
  	if kind == imSorted_ {
  		c := cmpOrNatural_(cmp)
  		order := make([]int, len(keys))
-@@ -110,12 +110,12 @@ func immMap_(kind int8, keys, vals []any, cmp Comparator, keepLast bool) *Immuta
+@@ -110,12 +110,12 @@ func immMap_(kind int8, keys, vals []any, cmp Comparator_e, keepLast bool) *Immu
  			}
  			vt.add(v)
  		}
@@ -671,7 +671,7 @@ index ae8085f7775a528a13ba1d85b68a561240c8ce1d..80630693 100644
  	vals *ImmutableCollection
 diff --git a/go/closure/rt_guava_names.go b/go/closure/rt_guava_names.go
 new file mode 100644
-index 00000000..69f82c11
+index 000000000..69f82c112
 --- /dev/null
 +++ b/go/closure/rt_guava_names.go
 @@ -0,0 +1,12 @@
@@ -688,7 +688,7 @@ index 00000000..69f82c11
 +type ImmutableSet_Builder = ErasedImmutableSet_Builder
 +type ImmutableMap_Builder = ErasedImmutableMap_Builder
 diff --git a/go/closure/rt_guava_test.go b/go/closure/rt_guava_test.go
-index ae03730786436021d0502d0cd06ab4daf30895d5..6d646ba6 100644
+index 50b914727..22eb05c39 100644
 --- a/go/closure/rt_guava_test.go
 +++ b/go/closure/rt_guava_test.go
 @@ -48,7 +48,7 @@ func TestGuavaImmutableMap(t *testing.T) {
@@ -701,7 +701,7 @@ index ae03730786436021d0502d0cd06ab4daf30895d5..6d646ba6 100644
  	}
  	guavaEq_(t, m.entrySet().contains(&immEntry_{"a", int32(2)}), true)
 diff --git a/go/closure/rt_guava_util.go b/go/closure/rt_guava_util.go
-index b07a12c7e8bd4998df0bd358763aa86c6346b409..9c271d24 100644
+index 84178d6cc..d061f0fa7 100644
 --- a/go/closure/rt_guava_util.go
 +++ b/go/closure/rt_guava_util.go
 @@ -276,7 +276,7 @@ func Iterables_getOnlyElement(p0 Iterable) any {
@@ -732,7 +732,7 @@ index b07a12c7e8bd4998df0bd358763aa86c6346b409..9c271d24 100644
  	items = append(items, p0.self())
  	for _, e := range p1 {
 diff --git a/go/closure/rt_jtimm.go b/go/closure/rt_jtimm.go
-index 523da349a5552a9acb1d723c6c4f0419e8248289..15fd29fa 100644
+index 8033c9e6e..d4e09188e 100644
 --- a/go/closure/rt_jtimm.go
 +++ b/go/closure/rt_jtimm.go
 @@ -34,8 +34,8 @@ var unmodMark_ = &ImmutableCollection{}
@@ -746,7 +746,7 @@ index 523da349a5552a9acb1d723c6c4f0419e8248289..15fd29fa 100644
  }
  
  // immPendingMap_ is shared by the immutable typed maps that have neither yet.
-@@ -132,7 +132,7 @@ func jtlistImm_[T any](c *jtconv_[T], ic *ImmutableCollection) *JTList[T] {
+@@ -137,7 +137,7 @@ func jtlistImm_[T any](c *jtconv_[T], ic *ImmutableCollection) *JTList[T] {
  
  func tlistImmNew_[T any](c *jtconv_[T], ic *ImmutableCollection) *JTList[T] {
  	if ic.kind != icList_ {
@@ -755,7 +755,7 @@ index 523da349a5552a9acb1d723c6c4f0419e8248289..15fd29fa 100644
  	}
  	if len(ic.items) == 0 {
  		return jtlistEmptyImm_(c)
-@@ -165,7 +165,7 @@ func (l *JTList[T]) asImm() *ImmutableCollection {
+@@ -170,7 +170,7 @@ func (l *JTList[T]) asImm() *ImmutableCollection {
  		t.jtyped_ = l
  		l.twin = t
  	} else if l.twin == nil || l.twin == unmodMark_ {
@@ -764,7 +764,7 @@ index 523da349a5552a9acb1d723c6c4f0419e8248289..15fd29fa 100644
  	}
  	return l.twin
  }
-@@ -239,7 +239,7 @@ func tsetImm_[K comparable](c *jtconv_[K], ic *ImmutableCollection) *JTSet[K] {
+@@ -244,7 +244,7 @@ func tsetImm_[K comparable](c *jtconv_[K], ic *ImmutableCollection) *JTSet[K] {
  
  func tsetImmNew_[K comparable](c *jtconv_[K], ic *ImmutableCollection) *JTSet[K] {
  	if ic.kind == icList_ {
@@ -773,7 +773,7 @@ index 523da349a5552a9acb1d723c6c4f0419e8248289..15fd29fa 100644
  	}
  	if ic == emptyImmSet_ {
  		return jtsetEmptyImm_(c)
-@@ -296,7 +296,7 @@ func (s *JTSet[K]) asImm() *ImmutableCollection {
+@@ -301,7 +301,7 @@ func (s *JTSet[K]) asImm() *ImmutableCollection {
  		t.jtyped_ = s
  		s.twin = t
  	} else if s.twin == nil || s.twin == sortedMark_ {
@@ -782,7 +782,7 @@ index 523da349a5552a9acb1d723c6c4f0419e8248289..15fd29fa 100644
  	}
  	return s.twin
  }
-@@ -389,7 +389,7 @@ func immutableMapOf5_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], k1 K,
+@@ -394,7 +394,7 @@ func immutableMapOf5_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], k1 K,
  
  // tmapImm_ is an ImmutableMap that erased code made, entering a typed declaration (see
  // jtlistImm_).
@@ -791,7 +791,7 @@ index 523da349a5552a9acb1d723c6c4f0419e8248289..15fd29fa 100644
  	if im == nil {
  		return nil
  	}
-@@ -399,7 +399,7 @@ func tmapImm_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], im *Immutable
+@@ -404,7 +404,7 @@ func tmapImm_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], im *Immutable
  	return tmapImmNew_(kc, vc, im)
  }
  
@@ -800,7 +800,7 @@ index 523da349a5552a9acb1d723c6c4f0419e8248289..15fd29fa 100644
  	if im == emptyImmMap_ {
  		return jtmapEmptyImm_(kc, vc)
  	}
-@@ -426,17 +426,17 @@ func tmapImmNew_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], im *Immuta
+@@ -431,17 +431,17 @@ func tmapImmNew_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], im *Immuta
  }
  
  // asImm is an immutable map as erased code sees it: its twin, the runtime's ImmutableMap.
@@ -821,7 +821,7 @@ index 523da349a5552a9acb1d723c6c4f0419e8248289..15fd29fa 100644
  		t.jtyped_ = m
  		if s, ok := x.keys.(*JTSet[K]); ok {
  			// its key set is the one that typed code has
-@@ -459,7 +459,7 @@ func (m *JTMap[K, V]) info() *timmMap_ {
+@@ -464,7 +464,7 @@ func (m *JTMap[K, V]) info() *timmMap_ {
  // typed set, the same object as the key set that erased code gets from the map's twin.
  func (m *JTMap[K, V]) keySetImm() *JTSet[K] {
  	if m.imm == nil || m.imm == sortedMapMark_ {
@@ -830,7 +830,7 @@ index 523da349a5552a9acb1d723c6c4f0419e8248289..15fd29fa 100644
  	}
  	x := m.info()
  	if s, ok := x.keys.(*JTSet[K]); ok {
-@@ -601,7 +601,7 @@ func immutableMapCopyOfT_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], m
+@@ -606,7 +606,7 @@ func immutableMapCopyOfT_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], m
  // ImmutableMap (not a sorted one) is itself.
  func jimmutableMapCopyOf_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], from Map) *JTMap[K, V] {
  	switch x := from.(type) {
@@ -839,7 +839,7 @@ index 523da349a5552a9acb1d723c6c4f0419e8248289..15fd29fa 100644
  		if x.kind != imSorted_ {
  			return tmapImm_(kc, vc, x)
  		}
-@@ -776,7 +776,7 @@ func (b *TMapBuilder[K, V]) putAll(from Map) *TMapBuilder[K, V] {
+@@ -781,7 +781,7 @@ func (b *TMapBuilder[K, V]) putAll(from Map) *TMapBuilder[K, V] {
  	switch x := from.(type) {
  	case *jtmapView_[K, V]:
  		t = x.m
@@ -849,7 +849,7 @@ index 523da349a5552a9acb1d723c6c4f0419e8248289..15fd29fa 100644
  	}
  	if t != nil {
 diff --git a/go/closure/rt_tlist.go b/go/closure/rt_tlist.go
-index 1dacdc6b40b1271457046d7a9767bed2d1fee63c..9bc46d4b 100644
+index 1dacdc6b4..9bc46d4b0 100644
 --- a/go/closure/rt_tlist.go
 +++ b/go/closure/rt_tlist.go
 @@ -69,7 +69,7 @@ func immSlot_(from any) *immTyped_ {

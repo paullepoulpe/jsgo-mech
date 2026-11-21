@@ -1,6 +1,6 @@
 diff --git a/go/closure/rt_ttree.go b/go/closure/rt_ttree.go
 new file mode 100644
-index 00000000..64308d16
+index 00000000..a29c84af
 --- /dev/null
 +++ b/go/closure/rt_ttree.go
 @@ -0,0 +1,437 @@
@@ -172,7 +172,7 @@ index 00000000..64308d16
 +
 +// descendingSet and tailSet are copies, as TreeSet's are.
 +func (v *ttreeSetView_[K]) descendingSet() NavigableSet {
-+	out := &TreeSet{cmp: Comparator_reversed(&cmpFunc_{func(a, b any) int32 { return v.s.cmp(v.s.kc.unbox(a), v.s.kc.unbox(b)) }})}
++	out := &TreeSet{cmp: cmpReversed_(Comparator_of_(func(a, b any) int32 { return v.s.cmp(v.s.kc.unbox(a), v.s.kc.unbox(b)) }))}
 +	for i := len(v.s.items) - 1; i >= 0; i-- {
 +		out.items = append(out.items, v.s.kc.box(v.s.items[i]))
 +	}
@@ -443,7 +443,7 @@ index 00000000..64308d16
 +)
 diff --git a/go/closure/rt_ttree_test.go b/go/closure/rt_ttree_test.go
 new file mode 100644
-index 00000000..b0a18414
+index 00000000..8a87a197
 --- /dev/null
 +++ b/go/closure/rt_ttree_test.go
 @@ -0,0 +1,138 @@
@@ -468,7 +468,7 @@ index 00000000..b0a18414
 +	for i := range items {
 +		items[i] = &ttreeItem_{int32(i % 7)}
 +	}
-+	cmp := &cmpFunc_{func(a, b any) int32 { return b.(*ttreeItem_).n - a.(*ttreeItem_).n }}
++	cmp := Comparator_of_(func(a, b any) int32 { return b.(*ttreeItem_).n - a.(*ttreeItem_).n })
 +	same := func(round int, want, got []any) {
 +		t.Helper()
 +		if len(want) != len(got) {
@@ -513,7 +513,7 @@ index 00000000..b0a18414
 +		if s.toString() != collToString_(ts.asSet()) || s.hashCode() != setHash_(ts.asSet()) || !s.equals(ts.asSet()) {
 +			t.Fatalf("round %d: erased face differs", round)
 +		}
-+		if comparatorOf_(tc.asSet()) != Comparator_e(cmp) || comparatorOf_(ts.asSet()) != nil {
++		if !fnSame_(comparatorOf_(tc.asSet()), Comparator_e(cmp)) || comparatorOf_(ts.asSet()) != nil {
 +			t.Fatalf("round %d: comparator()", round)
 +		}
 +	}
