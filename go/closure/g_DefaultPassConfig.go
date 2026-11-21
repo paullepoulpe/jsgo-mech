@@ -1460,14 +1460,14 @@ func new_DefaultPassConfig_3(outer_ *DefaultPassConfig, cap_compiler *AbstractCo
 }
 
 func (this *DefaultPassConfig_3) process_2(externs Node, jsRoot Node) {
-	var cssNames Optional[*ImmutableSet_Builder] = func() Optional[*ImmutableSet_Builder] {
+	var cssNames Optional[*ErasedImmutableSet_Builder] = func() Optional[*ErasedImmutableSet_Builder] {
 		if this.outer_.options_.shouldGatherCssNames() {
-			return Optional_of[*ImmutableSet_Builder](ImmutableSet_builder())
+			return Optional_of[*ErasedImmutableSet_Builder](ImmutableSet_builder())
 		}
-		return Optional_empty[*ImmutableSet_Builder]()
+		return Optional_empty[*ErasedImmutableSet_Builder]()
 	}()
 	var pass *ReplaceCssNames = new_ReplaceCssNames(this.cap_compiler, this.outer_.options_.getCssRenamingMap(), func(cssName string) {
-		cssNames.ifPresent(Consumer[*ImmutableSet_Builder](func(builder *ImmutableSet_Builder) {
+		cssNames.ifPresent(Consumer[*ErasedImmutableSet_Builder](func(builder *ErasedImmutableSet_Builder) {
 			builder.add(strobj_(cssName))
 		}))
 	}, this.outer_.options_.getCssRenamingSkiplist())

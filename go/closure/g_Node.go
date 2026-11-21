@@ -3028,7 +3028,7 @@ var Node_BIGINT_PAYLOAD_UNSET *BigInteger
 const Node_CHARNO_BITS int32 = 12
 const Node_MAX_COLUMN_NUMBER int32 = 4095
 
-var Node_PROP_MAP_FOR_EQUALITY *ImmutableMap
+var Node_PROP_MAP_FOR_EQUALITY *ErasedImmutableMap
 var Node_propMapForEqualityKeys *EnumSet
 
 var Node_clinit_done bool
