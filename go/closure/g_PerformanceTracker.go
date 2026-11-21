@@ -409,7 +409,7 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 	var sortedPassSummary *JTList[Map_Entry] = jtlistFrom_(tc_Map_Entry, Collection(this.passSummary.asImm().entrySet()))
 	List_sort(sortedPassSummary.asList(), func() Comparator[any] {
 		f_ := Comparator_comparingLong[Map_Entry](ToLongFunction[Map_Entry](func(e Map_Entry) int64 {
-			return cast_[*PerformanceTracker_Stats](e.getValue()).runtime_
+			return e.getValue().(*PerformanceTracker_Stats).runtime_
 		}))
 		if f_ == nil {
 			return nil

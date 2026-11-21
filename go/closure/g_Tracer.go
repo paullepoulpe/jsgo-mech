@@ -124,7 +124,7 @@ func (this *Tracer) stop_1(silenceThreshold int32) int64 {
 	this.stopTimeMs = Tracer_clock()
 	if this.extraTracingValues != nil {
 		for i := int32(0); i < int32(len(this.extraTracingValues)); i++ {
-			var value int64 = icast_Tracer_TracingStatistic(Tracer_extraTracingStatistics.get(i)).stop(this.startThread)
+			var value int64 = Tracer_extraTracingStatistics.get(i).(Tracer_TracingStatistic).stop(this.startThread)
 			this.extraTracingValues[i] = (value - this.extraTracingValues[i])
 		}
 	}
@@ -385,7 +385,7 @@ func (this *Tracer_Event) toString(prevEventTime int64, indent string, digitsCol
 			for i := int32(0); i < int32(len(this.tracer.extraTracingValues)); i++ {
 				delta = this.tracer.extraTracingValues[i]
 				sb.append(String_format("%4d", []any{int64(delta)}))
-				sb.append(icast_Tracer_TracingStatistic(Tracer_extraTracingStatistics.get(i)).getUnits())
+				sb.append(Tracer_extraTracingStatistics.get(i).(Tracer_TracingStatistic).getUnits())
 				sb.append(";  ")
 			}
 		}
@@ -495,7 +495,7 @@ func (this *Tracer_ThreadTrace) endEvent(t *Tracer, silenceThreshold int32) {
 			var overlapLength int32 = Math_min(int32(len(stat.extraInfo)), int32(len(t.extraTracingValues)))
 			for i := int32(0); i < overlapLength; i++ {
 				stat.extraInfo[i] = int32((int64(stat.extraInfo[i]) + t.extraTracingValues[i]))
-				var map_ *Tracer_AtomicTracerStatMap = icast_Tracer_TracingStatistic(Tracer_extraTracingStatistics.get(i)).getTracingStat()
+				var map_ *Tracer_AtomicTracerStatMap = Tracer_extraTracingStatistics.get(i).(Tracer_TracingStatistic).getTracingStat()
 				if map_ != nil {
 					map_.incrementBy(t.type__.get(), t.extraTracingValues[i])
 				}
@@ -570,7 +570,7 @@ func (this *Tracer_ThreadTrace) toString() string {
 			if stat.extraInfo != nil {
 				for i := int32(0); i < int32(len(stat.extraInfo)); i++ {
 					sb.append("; ")
-					sb.append_int(stat.extraInfo[i]).append_char(' ').append(icast_Tracer_TracingStatistic(Tracer_extraTracingStatistics.get(i)).getUnits())
+					sb.append_int(stat.extraInfo[i]).append_char(' ').append(Tracer_extraTracingStatistics.get(i).(Tracer_TracingStatistic).getUnits())
 				}
 			}
 			sb.append(")\n")

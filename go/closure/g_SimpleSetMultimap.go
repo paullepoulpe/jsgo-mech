@@ -195,7 +195,7 @@ func (this *SimpleSetMultimap[K, V]) isEmpty() bool {
 }
 
 func (this *SimpleSetMultimap[K, V]) equals(o any) bool {
-	return (is_SimpleSetMultimap(o) && equalsDyn_(this.map__, icast_SimpleCollection(o).untypedMap()))
+	return (is_SimpleSetMultimap(o) && equalsDyn_(this.map__, o.(SimpleCollection).untypedMap()))
 }
 
 func (this *SimpleSetMultimap[K, V]) hashCode() int32 {

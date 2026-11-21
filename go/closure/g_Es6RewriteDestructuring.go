@@ -88,7 +88,7 @@ func (this *Es6RewriteDestructuring) visit(t *NodeTraversal, n Node, parent Node
 	switch n.ns_().token {
 	case tokOrd1_ARRAY_PATTERN, tokOrd1_OBJECT_PATTERN:
 		this.visitPattern(t, n)
-		if n == cast_[*Es6RewriteDestructuring_PatternNestingLevel](SequencedCollection_getLast(SequencedCollection(this.patternNestingStack.asDeque()))).pattern {
+		if n == SequencedCollection_getLast(SequencedCollection(this.patternNestingStack.asDeque())).(*Es6RewriteDestructuring_PatternNestingLevel).pattern {
 			SequencedCollection_removeLast(SequencedCollection(this.patternNestingStack.asDeque()))
 		}
 	default:
