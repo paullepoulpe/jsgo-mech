@@ -84,8 +84,12 @@ func (this *Es6ConvertSuper) visitSuper(node Node, parent Node) {
 }
 
 func (this *Es6ConvertSuper) visitSuperCall(node Node, parent Node, enclosingMemberDef Node) {
-	Preconditions_checkState_boolean_Object_H(parent.isCall(), parent)
-	Preconditions_checkState_boolean_Object_H(node.isSuper(), node)
+	if !parent.isCall() {
+		Preconditions_checkState_boolean_Object_H(false, parent)
+	}
+	if !node.isSuper() {
+		Preconditions_checkState_boolean_Object_H(false, node)
+	}
 	var clazz Node = NodeUtil_getEnclosingClass(node)
 	var superName Node = clazz.getSecondChild()
 	if !superName.isQualifiedName() {
@@ -105,8 +109,12 @@ func (this *Es6ConvertSuper) visitSuperCall(node Node, parent Node, enclosingMem
 }
 
 func (this *Es6ConvertSuper) visitSuperPropertyCall(node Node, parent Node, enclosingMemberDef Node) {
-	Preconditions_checkState_boolean_Object_H((parent.isGetProp() || parent.isGetElem()), parent)
-	Preconditions_checkState_boolean_Object_H(node.isSuper(), node)
+	if !(parent.isGetProp() || parent.isGetElem()) {
+		Preconditions_checkState_boolean_Object_H(false, parent)
+	}
+	if !node.isSuper() {
+		Preconditions_checkState_boolean_Object_H(false, node)
+	}
 	var grandparent Node = parent.getParent()
 	Preconditions_checkState(grandparent.isCall())
 	var clazz Node = NodeUtil_getEnclosingClass(node)
@@ -142,8 +150,12 @@ func (this *Es6ConvertSuper) visitSuperPropertyCall(node Node, parent Node, encl
 }
 
 func (this *Es6ConvertSuper) visitSuperPropertyAccess(node Node, parent Node, enclosingMemberDef Node) {
-	Preconditions_checkState_boolean_Object_H((parent.isGetProp() || parent.isGetElem()), parent)
-	Preconditions_checkState_boolean_Object_H(node.isSuper(), node)
+	if !(parent.isGetProp() || parent.isGetElem()) {
+		Preconditions_checkState_boolean_Object_H(false, parent)
+	}
+	if !node.isSuper() {
+		Preconditions_checkState_boolean_Object_H(false, node)
+	}
 	var grandparent Node = parent.getParent()
 	if NodeUtil_isLValue(parent) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(parent, TranspilationUtil_CANNOT_CONVERT_YET, []string{"assigning to a super property"}))

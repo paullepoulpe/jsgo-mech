@@ -1380,7 +1380,9 @@ func (this *ConformanceRules_BannedStringRegex) checkConformance_impl(traversal 
 				return ConformanceRules_ConformanceResult_VIOLATION
 			}
 		} else {
-			Preconditions_checkState_boolean_String_Object(ConformanceRules_isTaggedTemplateLitString(node), "Found untagged template literal with invalid (uncookable) escape sequence: %s", node.getRawString())
+			if ok_, a1_ := ConformanceRules_isTaggedTemplateLitString(node), node.getRawString(); !ok_ {
+				Preconditions_checkState_boolean_String_Object(false, "Found untagged template literal with invalid (uncookable) escape sequence: %s", a1_)
+			}
 			var rawString string = node.getRawString()
 			if this.stringPattern.matcher_s(rawString).matches() {
 				return ConformanceRules_ConformanceResult_VIOLATION

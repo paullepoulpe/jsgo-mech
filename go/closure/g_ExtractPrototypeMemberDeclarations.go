@@ -321,7 +321,9 @@ func (this *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration) zero_
 }
 
 func (this *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration) init_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration(lhs Node, node Node) {
-	Preconditions_checkState_boolean_Object_H(NodeUtil_isExprAssign(node), node)
+	if !NodeUtil_isExprAssign(node) {
+		Preconditions_checkState_boolean_Object_H(false, node)
+	}
 	this.lhs = lhs
 	this.memberName = NodeUtil_getPrototypePropertyName(lhs)
 	this.node_ = node

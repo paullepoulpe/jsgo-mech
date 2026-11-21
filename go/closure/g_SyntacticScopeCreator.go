@@ -119,7 +119,9 @@ func (this *SyntacticScopeCreator_ScopeScanner) populate() {
 		}
 		return
 	case tokOrd1_ROOT, tokOrd1_SCRIPT:
-		Preconditions_checkState_boolean_Object(this.scope_.isGlobal(), this.scope_)
+		if !this.scope_.isGlobal() {
+			Preconditions_checkState_boolean_Object(false, this.scope_)
+		}
 		this.scanVars(n, this.scope_, this.scope_)
 		return
 	case tokOrd1_MODULE_BODY:
@@ -191,7 +193,9 @@ func (this *SyntacticScopeCreator_ScopeScanner) scanVars(n Node, hoistScope *Sco
 		this.declareVar(blockScope, n.getFirstChild())
 		return
 	case tokOrd1_CATCH:
-		Preconditions_checkState_boolean_Object_H(n.hasTwoChildren(), n)
+		if !n.hasTwoChildren() {
+			Preconditions_checkState_boolean_Object_H(false, n)
+		}
 		if blockScope != nil {
 			this.declareLHS(blockScope, n)
 		}
@@ -249,7 +253,9 @@ func (this *SyntacticScopeCreator_ScopeScanner) scanVars(n Node, hoistScope *Sco
 }
 
 func (this *SyntacticScopeCreator_ScopeScanner) declareVar(s *Scope, n Node) {
-	Preconditions_checkState_boolean_String_Object_H((n.isName() || n.isImportStar()), "Invalid node for declareVar: %s", n)
+	if !(n.isName() || n.isImportStar()) {
+		Preconditions_checkState_boolean_String_Object_H(false, "Invalid node for declareVar: %s", n)
+	}
 	var name string = n.getString()
 	var v *Var = s.getOwnSlot_String_rAbstractVar_rVar(name)
 	if v != nil {
