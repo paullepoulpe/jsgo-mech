@@ -279,11 +279,11 @@ func ConformanceRules_AllowList_createFromEntry(allowlistEntry *RequirementScope
 func (this *ConformanceRules_AllowList) matches(path string) bool {
 	var tsPath Optional[string] = func() Optional[string] {
 		if strings.HasSuffix(path, ".closure.js") {
-			return Optional_of[string]((sstr_(String_substring(path, 0, (String_length(path)-int32(len(".closure.js"))))) + ".ts"))
+			return Optional_of[string]((sstr_(path[:len(path)-len(".closure.js")]) + ".ts"))
 		}
 		return func() Optional[string] {
 			if strings.HasSuffix(path, ".tsx.cl.js") {
-				return Optional_of[string](String_substring(path, 0, (String_length(path) - int32(len(".cl.js")))))
+				return Optional_of[string](path[:len(path)-len(".cl.js")])
 			}
 			return Optional_empty[string]()
 		}()
