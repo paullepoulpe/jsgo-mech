@@ -16,15 +16,19 @@ type UndiGraph_vt_[N comparable, E comparable] interface {
 
 func (this *UndiGraph[N, E]) isa_UndiGraph_() {}
 
-func (this *UndiGraph[N, E]) as_UndiGraph() *UndiGraph[N, E] { return this }
+// UndiGraph_as is implemented by UndiGraph and the classes that extend it: a cast to UndiGraph asserts to it
+// (post-flip).
+type UndiGraph_as[N comparable, E comparable] interface {
+	as_UndiGraph() *UndiGraph[N, E]
+}
 
-func (this *UndiGraph[N, E]) as_UndiGraph_() any { return this }
+func (this *UndiGraph[N, E]) as_UndiGraph() *UndiGraph[N, E] { return this }
 
 func to_UndiGraph[N comparable, E comparable](v any) *UndiGraph[N, E] {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_UndiGraph_() any }).as_UndiGraph_().(*UndiGraph[N, E])
+	return v.(UndiGraph_as[N, E]).as_UndiGraph()
 }
 
 func (this *UndiGraph[N, E]) self() any {

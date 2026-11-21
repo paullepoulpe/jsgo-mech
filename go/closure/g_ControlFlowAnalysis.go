@@ -810,7 +810,6 @@ func new_ControlFlowAnalysis_AstControlFlowGraph(entry Node, edgeAnnotations boo
 	this.self_ = this
 	this.vt_ControlFlowGraph_ = this
 	this.vt_DiGraph_ = this
-	this.vt_Graph_ = this
 	this.init_ControlFlowAnalysis_AstControlFlowGraph(entry, edgeAnnotations)
 	return this
 }

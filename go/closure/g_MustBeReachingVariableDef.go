@@ -26,7 +26,6 @@ func (this *MustBeReachingVariableDef) init_MustBeReachingVariableDef(cfg *Contr
 func new_MustBeReachingVariableDef(cfg *ControlFlowGraph[Node], compiler *AbstractCompiler, escaped map[varKey_]struct{}, allVarsInFn *TMap[string, *Var]) *MustBeReachingVariableDef {
 	this := &MustBeReachingVariableDef{}
 	this.self_ = this
-	this.vt_DataFlowAnalysis_ = this
 	this.init_MustBeReachingVariableDef(cfg, compiler, escaped, allVarsInFn)
 	return this
 }

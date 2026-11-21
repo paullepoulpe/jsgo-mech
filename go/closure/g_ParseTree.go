@@ -3,7 +3,7 @@
 package closure
 
 type ParseTree struct {
-	self_     any
+	self_     ParseTree_as
 	type__    ParseTreeType
 	location_ SourceRange
 }
