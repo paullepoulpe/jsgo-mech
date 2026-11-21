@@ -154,7 +154,7 @@ func CmdLineParser_wrapLines(line string, maxLength int32) []string {
 }
 
 func (this *CmdLineParser) parseArgumentCollection(args CollectionOf[string]) *Outcome_base[any] {
-	return this.parseArgument(arrmap_(args.toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }))
+	return this.parseArgument(arrmap_(args.toArray(arrmap_(newstrarr_(0), strobj_)), str_))
 }
 
 func (this *CmdLineParser) parseArgument(args []string) *Outcome_base[any] {
@@ -220,7 +220,7 @@ func (this *CmdLineParser) expandAtFiles(args []string) *Outcome_base[[]string] 
 			result = append(result, arg)
 		}
 	}
-	return Outcome_base_ok_Object[[]string](arrmap_(sliceView_(tc_string, result).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }))
+	return Outcome_base_ok_Object[[]string](arrmap_(sliceView_(tc_string, result).toArray(arrmap_(newstrarr_(0), strobj_)), str_))
 }
 
 func (this *CmdLineParser) findOptionOfKeyValuePair(name string) *CmdLineParser_Option {

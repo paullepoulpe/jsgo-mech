@@ -9,7 +9,7 @@ type DiagnosticGroup struct {
 
 func (this *DiagnosticGroup) init_DiagnosticGroup_Optional_DiagnosticTypeArr(name Optional[string], types []*DiagnosticType) {
 	this.name_ = name
-	this.types = immutableSetCopyOf_(tch_p_DiagnosticType, Collection(Arrays_asList(arrmap_(types, func(v_ *DiagnosticType) any { return obj_(v_) }))))
+	this.types = immutableSetCopyOf_(tch_p_DiagnosticType, Collection(Arrays_asList(arrmap_(types, obj_[*DiagnosticType]))))
 }
 
 func new_DiagnosticGroup_Optional_DiagnosticTypeArr(name Optional[string], types []*DiagnosticType) *DiagnosticGroup {
@@ -41,11 +41,11 @@ func DiagnosticGroup_createFromGroups_Optional_DiagnosticGroupArr(name Optional[
 	for _, group := range groups {
 		set.addAll(Iterable(group.types.asSet()))
 	}
-	return new_DiagnosticGroup_Optional_DiagnosticTypeArr(name, arrmap_(set.build().asImm().toArray(arrmap_(make([]*DiagnosticType, 0), func(v_ *DiagnosticType) any { return obj_(v_) })), func(v_ any) *DiagnosticType { return cast_[*DiagnosticType](v_) }))
+	return new_DiagnosticGroup_Optional_DiagnosticTypeArr(name, arrmap_(set.build().asImm().toArray(arrmap_(make([]*DiagnosticType, 0), obj_[*DiagnosticType])), cast_[*DiagnosticType]))
 }
 
 func DiagnosticGroup_forType(type_ *DiagnosticType) *DiagnosticGroup {
-	DiagnosticGroup_singletons.ComputeIfAbsent(type_, Function[*DiagnosticType, *DiagnosticGroup](func(p0 *DiagnosticType) *DiagnosticGroup { return DiagnosticGroup_createFromType(p0) }))
+	DiagnosticGroup_singletons.ComputeIfAbsent(type_, Function[*DiagnosticType, *DiagnosticGroup](DiagnosticGroup_createFromType))
 	return DiagnosticGroup_singletons.Get(type_)
 }
 

@@ -3038,7 +3038,7 @@ func (this *ConformanceRules_BannedEnhance) getPrecondition_impl() CheckConforma
 }
 
 // lambda_ConformanceRules_BannedEnhance_getPrecondition_impl_1_ is a lambda of ConformanceRules_BannedEnhance_getPrecondition_impl that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_BannedEnhance_getPrecondition_impl_1_ = &CheckConformance_Precondition_fn{func(p0 Node) bool { return p0.isScript() }}
+var lambda_ConformanceRules_BannedEnhance_getPrecondition_impl_1_ = &CheckConformance_Precondition_fn{(Node).isScript}
 
 type ConformanceRules_BannedModsRegex struct {
 	ConformanceRules_AbstractRule
@@ -3110,7 +3110,7 @@ func (this *ConformanceRules_BannedModsRegex) getPrecondition_impl() CheckConfor
 }
 
 // lambda_ConformanceRules_BannedModsRegex_getPrecondition_impl_1_ is a lambda of ConformanceRules_BannedModsRegex_getPrecondition_impl that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_BannedModsRegex_getPrecondition_impl_1_ = &CheckConformance_Precondition_fn{func(p0 Node) bool { return p0.isScript() }}
+var lambda_ConformanceRules_BannedModsRegex_getPrecondition_impl_1_ = &CheckConformance_Precondition_fn{(Node).isScript}
 
 type ConformanceRules_BanCreateElement struct {
 	ConformanceRules_AbstractRule

@@ -62,9 +62,7 @@ func (this *CheckMissingReturn) enterScopeWithCfg_impl(t *NodeTraversal) {
 	}
 	var test *CheckPathsBetweenNodes[Node, ControlFlowGraph_Branch] = new_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate[Node, ControlFlowGraph_Branch](cfg.up_DiGraph(), cfg.getEntry(), cfg.getImplicitReturn(), Predicate_base[Node](func(input Node) bool {
 		return ((input != 0) && input.isReturn())
-	}), Predicate_base[DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch]](func(p0 DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch]) bool {
-		return CheckMissingReturn_goesThroughTrueCondition(p0)
-	}))
+	}), Predicate_base[DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch]](CheckMissingReturn_goesThroughTrueCondition))
 	if !test.allPathsSatisfyPredicate() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(t.getScopeRoot(), CheckMissingReturn_MISSING_RETURN_STATEMENT, []string{returnType.toString()}))
 	}

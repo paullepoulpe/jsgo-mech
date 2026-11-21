@@ -4,11 +4,9 @@ package closure
 
 // Element conversions of the typed lists.
 
-var tc_Node = &tconv_[Node]{box: func(v Node) any { return v.box_() }, unbox: func(v any) Node { return Node_of_(v) }}
-var tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase = &tconv_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase]{box: func(v *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase) any { return obj_(v) }, unbox: func(v any) *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase {
-	return cast_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase](v)
-}}
-var tc_p_PolyfillUsageFinder_PolyfillUsage = &tconv_[*PolyfillUsageFinder_PolyfillUsage]{box: func(v *PolyfillUsageFinder_PolyfillUsage) any { return obj_(v) }, unbox: func(v any) *PolyfillUsageFinder_PolyfillUsage { return cast_[*PolyfillUsageFinder_PolyfillUsage](v) }}
-var tc_string = &tconv_[string]{box: func(v string) any { return strobj_(v) }, unbox: func(v any) string { return str_(v) }, null: nullstr_}
-var tc_p_CompilerInput = &tconv_[*CompilerInput]{box: func(v *CompilerInput) any { return obj_(v) }, unbox: func(v any) *CompilerInput { return cast_[*CompilerInput](v) }}
+var tc_Node = &tconv_[Node]{box: (Node).box_, unbox: Node_of_}
+var tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase = &tconv_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase]{box: obj_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase], unbox: cast_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase]}
+var tc_p_PolyfillUsageFinder_PolyfillUsage = &tconv_[*PolyfillUsageFinder_PolyfillUsage]{box: obj_[*PolyfillUsageFinder_PolyfillUsage], unbox: cast_[*PolyfillUsageFinder_PolyfillUsage]}
+var tc_string = &tconv_[string]{box: strobj_, unbox: str_, null: nullstr_}
+var tc_p_CompilerInput = &tconv_[*CompilerInput]{box: obj_[*CompilerInput], unbox: cast_[*CompilerInput]}
 var tcv_p_TList_p_JSChunk_ = tlistConv_[*JSChunk]()

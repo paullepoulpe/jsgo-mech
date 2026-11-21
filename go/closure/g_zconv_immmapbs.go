@@ -4,6 +4,6 @@ package closure
 
 // Element conversions of the typed immmapbs.
 
-var tc_Function_any__any_ = &tconv_[Function[any, any]]{box: func(v Function[any, any]) any { return v.box_() }, unbox: func(v any) Function[any, any] { return fnUnbox_[Function[any, any]](v) }, isnull: func(v Function[any, any]) bool { return v == nil }}
-var tc_p_Node_Prop = &tconv_[*Node_Prop]{box: func(v *Node_Prop) any { return obj_(v) }, unbox: func(v any) *Node_Prop { return cast_[*Node_Prop](v) }}
-var tc_p_TemplateType = &tconv_[*TemplateType]{box: func(v *TemplateType) any { return obj_(v) }, unbox: func(v any) *TemplateType { return cast_[*TemplateType](v) }}
+var tc_Function_any__any_ = &tconv_[Function[any, any]]{box: (Function[any, any]).box_, unbox: fnUnbox_[Function[any, any]], isnull: func(v Function[any, any]) bool { return v == nil }}
+var tc_p_Node_Prop = &tconv_[*Node_Prop]{box: obj_[*Node_Prop], unbox: cast_[*Node_Prop]}
+var tc_p_TemplateType = &tconv_[*TemplateType]{box: obj_[*TemplateType], unbox: cast_[*TemplateType]}

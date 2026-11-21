@@ -818,8 +818,8 @@ func new_ControlFlowAnalysis_AstControlFlowGraph(entry Node, edgeAnnotations boo
 func (this *ControlFlowAnalysis_AstControlFlowGraph) getOptionalNodeComparator_impl(isForward bool) Comparator[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]] {
 	return func() Comparator[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]] {
 		if isForward {
-			return Comparator_comparingInt[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](ToIntFunction[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](func(p0 DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]) int32 { return p0.getPriority() }))
+			return Comparator_comparingInt[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](ToIntFunction[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]]((DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]).getPriority))
 		}
-		return Comparator_comparingInt[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](ToIntFunction[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](func(p0 DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]) int32 { return p0.getPriority() })).reversed()
+		return Comparator_comparingInt[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](ToIntFunction[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]]((DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]).getPriority)).reversed()
 	}()
 }

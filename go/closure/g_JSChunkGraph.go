@@ -30,7 +30,7 @@ func new_JSChunkGraph(chunks []*JSChunk, chunksByDepth *TList[*TList[*JSChunk]])
 }
 
 func JSChunkGraph_createFromArray(chunksInDepOrder []*JSChunk) *Outcome_base[*JSChunkGraph] {
-	return JSChunkGraph_create(Arrays_asList(arrmap_(chunksInDepOrder, func(v_ *JSChunk) any { return obj_(v_) })))
+	return JSChunkGraph_create(Arrays_asList(arrmap_(chunksInDepOrder, obj_[*JSChunk])))
 }
 
 func JSChunkGraph_create(chunksInDepOrder ListOf[*JSChunk]) *Outcome_base[*JSChunkGraph] {
@@ -158,7 +158,7 @@ func (this *JSChunkGraph) initSubtreeSize() []int32 {
 }
 
 func (this *JSChunkGraph) getAllInputs() IterableOf[*CompilerInput] {
-	return Iterables_concat_Iterable(Iterables_transform(Iterable(Arrays_asList(arrmap_(this.chunks, func(v_ *JSChunk) any { return obj_(v_) }))), Function_base[any, any](func(p0 any) any { return obj_(p0.(*JSChunk).getInputs()) })))
+	return Iterables_concat_Iterable(Iterables_transform(Iterable(Arrays_asList(arrmap_(this.chunks, obj_[*JSChunk]))), Function_base[any, any](func(p0 any) any { return obj_(p0.(*JSChunk).getInputs()) })))
 }
 
 func (this *JSChunkGraph) getInputCount() int32 {
@@ -170,7 +170,7 @@ func (this *JSChunkGraph) getInputCount() int32 {
 }
 
 func (this *JSChunkGraph) getAllChunks() IterableOf[*JSChunk] {
-	return Iterable(Arrays_asList(arrmap_(this.chunks, func(v_ *JSChunk) any { return obj_(v_) })))
+	return Iterable(Arrays_asList(arrmap_(this.chunks, obj_[*JSChunk])))
 }
 
 func (this *JSChunkGraph) getIntegralChunkArrayForSerialization() []*JSChunk {
@@ -298,7 +298,7 @@ func (this *JSChunkGraph) getTransitiveDepsDeepestFirst(m *JSChunk) ListOf[*JSCh
 }
 
 func (this *JSChunkGraph) getTransitiveDeps(m *JSChunk) SetOf[*JSChunk] {
-	return this.dependencyMap.computeIfAbsent(m, Function[*JSChunk, Set](func(p0 *JSChunk) Set { return p0.getAllDependencies() }))
+	return this.dependencyMap.computeIfAbsent(m, Function[*JSChunk, Set]((*JSChunk).getAllDependencies))
 }
 
 func JSChunkGraph_moveMarkedWeakSources(weakChunk *JSChunk, inputs IterableOf[*CompilerInput]) {
