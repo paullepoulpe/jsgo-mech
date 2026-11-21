@@ -548,7 +548,7 @@ func SourceFile_jscomp_builder() *SourceFile_Builder {
 }
 
 func (this *SourceFile_jscomp) getProto() *SourceFileProto {
-	return cast_[*SourceFileProto](this.loader.toProtoLocationBuilder(this.getName()).setFilename(this.getName()).setSourceKind(SourceFile_jscomp_sourceKindToProto(this.getKind())).setIsClosureUnawareCode(this.isClosureUnawareCodeField).setNumLinesPlusOne((this.numLines + 1)).setNumBytesPlusOne((this.numBytes + 1)).build())
+	return this.loader.toProtoLocationBuilder(this.getName()).setFilename(this.getName()).setSourceKind(SourceFile_jscomp_sourceKindToProto(this.getKind())).setIsClosureUnawareCode(this.isClosureUnawareCodeField).setNumLinesPlusOne((this.numLines + 1)).setNumBytesPlusOne((this.numBytes + 1)).buildT_()
 }
 
 func SourceFile_jscomp_sourceKindToProto(sourceKind StaticSourceFile_SourceKind) SourceFileProto_SourceKind {
@@ -933,12 +933,12 @@ func (this *SourceFile_CodeLoader_AtZip) loadUncachedText_impl() *Outcome_base[s
 }
 
 func (this *SourceFile_CodeLoader_AtZip) toProtoLocationBuilder_impl(fileName string) *SourceFileProto_Builder {
-	return SourceFileProto_newBuilder().setFilename(fileName).setZipEntry(cast_[*SourceFileProto_ZipEntryOnDisk](SourceFileProto_ZipEntryOnDisk_newBuilder().setEntryName(this.entryName).setZipPath(this.zipName).setCharset(func() string {
+	return SourceFileProto_newBuilder().setFilename(fileName).setZipEntry(SourceFileProto_ZipEntryOnDisk_newBuilder().setEntryName(this.entryName).setZipPath(this.zipName).setCharset(func() string {
 		if this.serializableCharset == Charsets_UTF_8 {
 			return ""
 		}
 		return this.serializableCharset
-	}()).build()))
+	}()).buildT_())
 }
 
 const SourceFile_CodeLoader_AtZip_serialVersionUID int64 = 1

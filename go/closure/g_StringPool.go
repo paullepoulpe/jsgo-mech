@@ -51,7 +51,7 @@ func (this *StringPool) toProto() *StringPoolProto {
 	for i := int32(1); i < strings.size(); i++ {
 		builder.addStrings(Wtf8_encodeToWtf8(strings.get(i)))
 	}
-	return cast_[*StringPoolProto](builder.build())
+	return builder.buildT_()
 }
 
 func StringPool_builder() *StringPool_Builder {
