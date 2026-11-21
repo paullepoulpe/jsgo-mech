@@ -125,21 +125,6 @@ func (this *PruningAnalysis_Result) bottleneckBlame() *TMap[string, any] {
 	return this.bottleneckBlame_
 }
 
-func (this *PruningAnalysis_Result) equals(p0 any) bool {
-	o, ok := p0.(*PruningAnalysis_Result)
-	if !ok || o == nil {
-		return false
-	}
-	return true && Objects_equals(this.entryPointDependencyCount_.asMap(), o.entryPointDependencyCount_.asMap()) && Objects_equals(this.bottleneckBlame_.asMap(), o.bottleneckBlame_.asMap())
-}
-
-func (this *PruningAnalysis_Result) hashCode() int32 {
-	var h int32
-	h = h*31 + objhashDyn_(this.entryPointDependencyCount_.asMap())
-	h = h*31 + objhashDyn_(this.bottleneckBlame_.asMap())
-	return h
-}
-
 func (this *PruningAnalysis_Result) toString() string {
 	return "Result[" + "entryPointDependencyCount=" + objstr_(this.entryPointDependencyCount_.asMap()) + ", bottleneckBlame=" + objstr_(this.bottleneckBlame_.asMap()) + "]"
 }
