@@ -187,14 +187,14 @@ func (this *LinkedDirectedGraph[N, E]) getFirstEdge_impl(n1 N, n2 N) Graph_Graph
 	it_1 := foreach_(dNode1.getOutEdges())
 	for it_1.next() {
 		var outEdge DiGraph_DiGraphEdge[N, E] = cast_[DiGraph_DiGraphEdge[N, E]](it_1.v)
-		if any(outEdge.getDestination()) == dNode2.self() {
+		if outEdge.getDestination() == dNode2.self() {
 			return Graph_GraphEdge[N, E](outEdge)
 		}
 	}
 	it_3 := foreach_(dNode2.getOutEdges())
 	for it_3.next() {
 		var outEdge DiGraph_DiGraphEdge[N, E] = cast_[DiGraph_DiGraphEdge[N, E]](it_3.v)
-		if any(outEdge.getDestination()) == dNode1.self() {
+		if outEdge.getDestination() == dNode1.self() {
 			return Graph_GraphEdge[N, E](outEdge)
 		}
 	}
@@ -232,7 +232,7 @@ func (this *LinkedDirectedGraph[N, E]) isConnectedInDirectionLinkedDiGraphNode(s
 		it_1 := foreach_(outEdges)
 		for it_1.next() {
 			var outEdge DiGraph_DiGraphEdge[N, E] = cast_[DiGraph_DiGraphEdge[N, E]](it_1.v)
-			if (any(outEdge.getDestination()) == dest.self()) && edgeFilter.apply(outEdge.getValue()) {
+			if (outEdge.getDestination() == dest.self()) && edgeFilter.apply(outEdge.getValue()) {
 				return true
 			}
 		}
@@ -240,7 +240,7 @@ func (this *LinkedDirectedGraph[N, E]) isConnectedInDirectionLinkedDiGraphNode(s
 		it_3 := foreach_(inEdges)
 		for it_3.next() {
 			var inEdge DiGraph_DiGraphEdge[N, E] = cast_[DiGraph_DiGraphEdge[N, E]](it_3.v)
-			if (any(inEdge.getSource()) == source.self()) && edgeFilter.apply(inEdge.getValue()) {
+			if (inEdge.getSource() == source.self()) && edgeFilter.apply(inEdge.getValue()) {
 				return true
 			}
 		}
