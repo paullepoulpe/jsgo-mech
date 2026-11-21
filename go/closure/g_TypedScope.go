@@ -334,9 +334,9 @@ func (this *TypedScope) getOwnImplicitSlot(name AbstractScope_ImplicitVar) *Type
 	if this.implicitVars == emptySentinel.asMap() {
 		this.implicitVars = Map(new_EnumMap(classOf_("com.google.javascript.jscomp.AbstractScope.ImplicitVar")))
 	}
-	return cast_[*TypedVar](Map_computeIfAbsent(this.implicitVars, obj_(name), Function[any, any](func(p0 any) any {
+	return cast_[*TypedVar](Map_computeIfAbsent_f(this.implicitVars, obj_(name), func(p0 any) any {
 		return obj_(this.makeImplicitVar_ImplicitVar_rTypedVar(cast_[AbstractScope_ImplicitVar](p0)))
-	})))
+	}))
 }
 
 func (this *TypedScope) getOwnSlot_String_rAbstractVar_rTypedVar(name string) *TypedVar {

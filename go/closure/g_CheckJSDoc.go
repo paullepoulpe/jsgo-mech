@@ -57,9 +57,9 @@ func (this *CheckJSDoc) checkJsDocInBlockComments(fileName Optional[string]) {
 
 func (this *CheckJSDoc) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isScript() {
-		this.checkJsDocInBlockComments(Optional_of[string](n.getSourceFileName()).filter(Predicate[string](func(s string) bool {
+		this.checkJsDocInBlockComments(Optional_of[string](n.getSourceFileName()).filterFn_(func(s string) bool {
 			return s != ""
-		})))
+		}))
 	}
 	var info *JSDocInfo = n.getJSDocInfo()
 	this.validateTypeAnnotations(n, info)
