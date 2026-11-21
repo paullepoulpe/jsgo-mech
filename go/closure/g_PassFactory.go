@@ -154,13 +154,13 @@ func (this *PassFactory_PreconditionResult) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.success_ == o.success_ && Objects_equals(this.message_.box_(), o.message_.box_())
+	return true && this.success_ == o.success_ && optEqualsNull_(this.message_, o.message_)
 }
 
 func (this *PassFactory_PreconditionResult) hashCode() int32 {
 	var h int32
 	h = h*31 + boolhash_(this.success_)
-	h = h*31 + Objects_hashCode(this.message_.box_())
+	h = h*31 + optHash_(this.message_)
 	return h
 }
 

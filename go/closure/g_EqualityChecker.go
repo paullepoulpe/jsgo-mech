@@ -92,7 +92,7 @@ func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool 
 		return false
 	}
 	if left.isNoResolvedType() && right.isNoResolvedType() {
-		return Object_equals(left.toObjectType().getReferenceName().box_(), right.toObjectType().getReferenceName().box_())
+		return optEquals_(left.toObjectType().getReferenceName(), right.toObjectType().getReferenceName())
 	}
 	var leftUnknown bool = left.isUnknownType()
 	var rightUnknown bool = right.isUnknownType()

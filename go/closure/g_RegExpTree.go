@@ -1538,7 +1538,7 @@ func (this *RegExpTree_UnicodePropertyEscape) appendDebugInfo_impl(sb *strBuilde
 
 func (this *RegExpTree_UnicodePropertyEscape) equals_impl(o any) bool {
 	unicodePropertyEscape, ok := o.(*RegExpTree_UnicodePropertyEscape)
-	return (((ok && (this.negated == unicodePropertyEscape.negated)) && Object_equals(this.propertyName_.box_(), unicodePropertyEscape.propertyName_.box_())) && (this.propertyValue == unicodePropertyEscape.propertyValue))
+	return (((ok && (this.negated == unicodePropertyEscape.negated)) && optEquals_(this.propertyName_, unicodePropertyEscape.propertyName_)) && (this.propertyValue == unicodePropertyEscape.propertyValue))
 }
 
 func (this *RegExpTree_UnicodePropertyEscape) hashCode_impl() int32 {
