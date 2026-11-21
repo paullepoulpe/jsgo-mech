@@ -12,24 +12,24 @@ package closure
 // lihmComputeIfAbsent_ is LinkedIdentityHashMap.computeIfAbsent: the value if non-null, else
 // fn(key), stored even when null.
 func lihmComputeIfAbsent_[K comparable, V any](m *TMap[K, V], k K, fn func(any) any) V {
-	if old := m.Get(k); !m.vc.isNull(old) {
+	if old := m.get(k); !m.vc.isNull(old) {
 		return old
 	}
 	v := m.vc.unbox(fn(m.kc.box(k)))
-	m.Put(k, v)
+	m.put(k, v)
 	return v
 }
 
 // lihmMerge_ is LinkedIdentityHashMap.merge: value when the key reads as null, else
 // fn(old, value); stored either way.
 func lihmMerge_[K comparable, V any](m *TMap[K, V], k K, value V, fn func(any, any) any) V {
-	old := m.Get(k)
+	old := m.get(k)
 	if m.vc.isNull(old) {
-		m.Put(k, value)
+		m.put(k, value)
 		return value
 	}
 	v := m.vc.unbox(fn(m.vc.box(old), m.vc.box(value)))
-	m.Put(k, v)
+	m.put(k, v)
 	return v
 }
 
