@@ -49,8 +49,8 @@ func PropertiesParser_parse(source string) *JTMap[string, string] {
 }
 
 func PropertiesParser_trimLeft(str string) string {
-	for i := int32(0); i < String_length(str); i++ {
-		if String_charAt(str, i) != ' ' {
+	for i, u_ := range stringUnits_(str) {
+		if u_ != ' ' {
 			return String_substring_int(str, i)
 		}
 	}
@@ -58,8 +58,8 @@ func PropertiesParser_trimLeft(str string) string {
 }
 
 func PropertiesParser_findDelimiter(line string) int32 {
-	for i := int32(0); i < String_length(line); i++ {
-		switch String_charAt(line, i) {
+	for i, u_ := range stringUnits_(line) {
+		switch u_ {
 		case ':', '=':
 			return i
 		default:
