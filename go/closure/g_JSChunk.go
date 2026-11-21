@@ -128,13 +128,13 @@ func (this *JSChunk) getSortedDependencyNames() []string {
 func (this *JSChunk) getAllDependencies() SetOf[*JSChunk] {
 	var allDeps *TSet[*JSChunk] = newTSet_(tc_p_JSChunk)
 	allDeps.asSet().addAll(Collection(this.deps.asList()))
-	var stack *TDeque[*JSChunk] = tdequeFrom_(tc_p_JSChunk, Collection(this.deps.asList()))
+	var stack *TList[*JSChunk] = tlistFromRev_(tc_p_JSChunk, Collection(this.deps.asList()))
 	for !stack.isEmpty() {
-		var chunk *JSChunk = stack.pop()
+		var chunk *JSChunk = stack.pop_()
 		var chunkDeps *TList[*JSChunk] = chunk.deps
 		for dep := range chunkDeps.All() {
 			if allDeps.Add(dep) {
-				stack.push(dep)
+				stack.push_(dep)
 			}
 		}
 	}

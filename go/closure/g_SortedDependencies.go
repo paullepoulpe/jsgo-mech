@@ -44,9 +44,9 @@ func new_SortedDependencies[InputT interface {
 
 func (this *SortedDependencies[InputT]) getStrongDependenciesOf(rootInputs ListOf[InputT], sorted bool) ImmutableListOf[InputT] {
 	var includedInputs *TSet[InputT] = newTSet_(tchT_[InputT]())
-	var worklist *TDeque[InputT] = tdequeFrom_(tcT_[InputT](), Collection(rootInputs))
+	var worklist *TList[InputT] = tlistFrom_(tcT_[InputT](), Collection(rootInputs))
 	for !worklist.isEmpty() {
-		var input InputT = worklist.pop()
+		var input InputT = worklist.popFirst_()
 		if includedInputs.Add(input) {
 			for _, el := range immElems_(input.getRequiredSymbols()) {
 				symbolName := str_(el)
@@ -91,9 +91,9 @@ func (this *SortedDependencies[InputT]) getSortedStrongDependenciesOf(roots List
 func (this *SortedDependencies[InputT]) getSortedWeakDependenciesOf(rootInputs ListOf[InputT]) ImmutableListOf[InputT] {
 	var strongInputs *TSet[InputT] = tsetFrom_(tchT_[InputT](), Collection(this.getSortedStrongDependenciesOf(rootInputs).asList()), false)
 	var weakInputs *TSet[InputT] = newTSet_(tchT_[InputT]())
-	var worklist *TDeque[InputT] = tdequeFrom_(tcT_[InputT](), Collection(strongInputs.asSet()))
+	var worklist *TList[InputT] = tlistFrom_(tcT_[InputT](), Collection(strongInputs.asSet()))
 	for !worklist.isEmpty() {
-		var input InputT = worklist.pop()
+		var input InputT = worklist.popFirst_()
 		var isStrong bool = strongInputs.Has(input)
 		var edges IterableOf[string] = func() Iterable {
 			if isStrong {
