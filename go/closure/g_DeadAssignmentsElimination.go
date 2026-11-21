@@ -105,7 +105,7 @@ func (this *DeadAssignmentsElimination) tryRemoveDeadAssignments(t *NodeTraversa
 	var nodes IterableOf[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]] = Iterable(cfg.getNodes())
 L_2:
 	for cfgNode := range elemsAs_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](nodes) {
-		var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(cfgNode)))
+		var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(cfgNode)))
 		var n Node = cfgNode.getValue()
 		if n == 0 {
 			continue
@@ -130,11 +130,11 @@ L_2:
 	}
 }
 
-func (this *DeadAssignmentsElimination) tryRemoveAssignment(t *NodeTraversal, n Node, state *DataFlowAnalysis_LinearFlowState, allVarsInFn *JTMap[string, *Var]) {
+func (this *DeadAssignmentsElimination) tryRemoveAssignment(t *NodeTraversal, n Node, state *DataFlowAnalysis_LinearFlowState[any], allVarsInFn *JTMap[string, *Var]) {
 	this.tryRemoveAssignment_5(t, n, n, state, allVarsInFn)
 }
 
-func (this *DeadAssignmentsElimination) tryRemoveAssignment_5(t *NodeTraversal, n Node, exprRoot Node, state *DataFlowAnalysis_LinearFlowState, allVarsInFn *JTMap[string, *Var]) {
+func (this *DeadAssignmentsElimination) tryRemoveAssignment_5(t *NodeTraversal, n Node, exprRoot Node, state *DataFlowAnalysis_LinearFlowState[any], allVarsInFn *JTMap[string, *Var]) {
 	var parent Node = n.getParent()
 	var isDeclarationNode bool = NodeUtil_isNameDeclaration(parent)
 	if ((NodeUtil_isAssignmentOp(n) || n.isInc()) || n.isDec()) || isDeclarationNode {
