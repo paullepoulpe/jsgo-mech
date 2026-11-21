@@ -9,10 +9,9 @@ type SimpleBiMap[K comparable, V comparable] struct {
 
 func (this *SimpleBiMap[K, V]) isa_SimpleBiMap_() {}
 
-func is_SimpleBiMap(v any) bool {
-	_, ok := v.(interface{ isa_SimpleBiMap_() })
-	return ok
-}
+// SimpleBiMap_isa is implemented by SimpleBiMap, at any type arguments, and by the classes that extend it:
+// `instanceof SimpleBiMap` asserts to it (post-flip).
+type SimpleBiMap_isa interface{ isa_SimpleBiMap_() }
 
 func (this *SimpleBiMap[K, V]) finit_SimpleBiMap() {
 	this.forward = newTMap_(tchT_[K](), tcT_[V]())

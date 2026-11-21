@@ -9,10 +9,9 @@ type SimpleListMultimap[K comparable, V comparable] struct {
 
 func (this *SimpleListMultimap[K, V]) isa_SimpleListMultimap_() {}
 
-func is_SimpleListMultimap(v any) bool {
-	_, ok := v.(interface{ isa_SimpleListMultimap_() })
-	return ok
-}
+// SimpleListMultimap_isa is implemented by SimpleListMultimap, at any type arguments, and by the classes that extend it:
+// `instanceof SimpleListMultimap` asserts to it (post-flip).
+type SimpleListMultimap_isa interface{ isa_SimpleListMultimap_() }
 
 func (this *SimpleListMultimap[K, V]) finit_SimpleListMultimap() {
 	this.map__ = newTMap_(tchT_[K](), tc_List)

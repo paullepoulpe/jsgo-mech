@@ -10,10 +10,9 @@ type SimpleMultiset[E comparable] struct {
 
 func (this *SimpleMultiset[E]) isa_SimpleMultiset_() {}
 
-func is_SimpleMultiset(v any) bool {
-	_, ok := v.(interface{ isa_SimpleMultiset_() })
-	return ok
-}
+// SimpleMultiset_isa is implemented by SimpleMultiset, at any type arguments, and by the classes that extend it:
+// `instanceof SimpleMultiset` asserts to it (post-flip).
+type SimpleMultiset_isa interface{ isa_SimpleMultiset_() }
 
 func (this *SimpleMultiset[E]) finit_SimpleMultiset() {
 	this.totalCount = 0
@@ -171,7 +170,7 @@ func (this *SimpleMultiset[E]) iterator() IteratorOf[E] {
 }
 
 func (this *SimpleMultiset[E]) equals(o any) bool {
-	_, ok := o.(interface{ isa_SimpleMultiset_() })
+	_, ok := o.(SimpleMultiset_isa)
 	return (ok && equalsDyn_(this.counts, o.(SimpleCollection).untypedMap()))
 }
 
