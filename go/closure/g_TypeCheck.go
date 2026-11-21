@@ -564,7 +564,7 @@ func (this *TypeCheck) checkCanAssignToNameGetpropOrGetelem(t *NodeTraversal, no
 		var pname string = lvalue.getString()
 		if object.isGetProp() {
 			var jsType *JSType = this.getJSType(object.getFirstChild())
-			if jsType.isInterface() && (object.getString() == "prototype") {
+			if jsType.isInterface() && (object.getStringIs_(sid_prototype)) {
 				this.visitInterfacePropertyAssignment(object, lvalue)
 			}
 		}
@@ -634,7 +634,7 @@ func (this *TypeCheck) checkPropCreation(lvalue Node) {
 }
 
 func (this *TypeCheck) checkPropertyInheritanceOnAssignment(assign Node, object Node, property Property_Key, info *JSDocInfo, propertyType *JSType) {
-	if object.isGetProp() && (object.getString() == "prototype") {
+	if object.isGetProp() && (object.getStringIs_(sid_prototype)) {
 		var preObject Node = object.getFirstChild()
 		var ctorType *FunctionType = this.getJSType(preObject).toMaybeFunctionType()
 		if (ctorType == nil) || !ctorType.hasInstanceType() {
@@ -950,7 +950,7 @@ func (this *TypeCheck) reportInvalidInterfaceMemberDeclaration(interfaceNode Nod
 
 func (this *TypeCheck) visitName(t *NodeTraversal, n Node, parent Node) bool {
 	var isFunctionName bool = (n.getParent().isFunction() && n.isFirstChildOf(parent))
-	if isFunctionName && n.getString() == "" {
+	if isFunctionName && n.getStringIs_(sidx_) {
 		return false
 	}
 	var reportIfMissingType bool = true

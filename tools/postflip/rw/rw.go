@@ -18,7 +18,7 @@ import (
 
 var (
 	Fset    = token.NewFileSet()
-	Info    = &types.Info{Types: map[ast.Expr]types.TypeAndValue{}, Defs: map[*ast.Ident]types.Object{}, Uses: map[*ast.Ident]types.Object{}, Selections: map[*ast.SelectorExpr]*types.Selection{}, Instances: map[*ast.Ident]types.Instance{}}
+	Info    = &types.Info{Types: map[ast.Expr]types.TypeAndValue{}, Defs: map[*ast.Ident]types.Object{}, Uses: map[*ast.Ident]types.Object{}, Selections: map[*ast.SelectorExpr]*types.Selection{}}
 	Parent  = map[ast.Node]ast.Node{}
 	Src     = map[*token.File][]byte{}
 	Rewrite = map[ast.Node]func() string{}

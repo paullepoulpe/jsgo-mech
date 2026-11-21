@@ -989,7 +989,7 @@ func (this *AstFactory) createZeroArgArrowFunctionForExpression(expression Node)
 }
 
 func (this *AstFactory) createMemberFunctionDef(name string, function Node) Node {
-	if function.getFirstChild().getString() != "" {
+	if !function.getFirstChild().getStringIs_(sidx_) {
 		panic(new_IllegalArgumentException_String(tostr_(function)))
 	}
 	var result Node = IR_memberFunctionDef(name, function)

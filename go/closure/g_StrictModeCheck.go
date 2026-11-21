@@ -72,9 +72,9 @@ func StrictModeCheck_isDeclaration(n Node) bool {
 
 func (this *StrictModeCheck) checkAssignment(n Node) {
 	if n.getFirstChild().isName() {
-		if "arguments" == n.getFirstChild().getString() {
+		if n.getFirstChild().getStringIs_(sid_arguments) {
 			this.report(n, StrictModeCheck_ARGUMENTS_ASSIGNMENT, []string{})
-		} else if "eval" == n.getFirstChild().getString() {
+		} else if n.getFirstChild().getStringIs_(sid_eval) {
 			this.report(n, StrictModeCheck_EVAL_ASSIGNMENT, []string{})
 		}
 	}
@@ -202,9 +202,9 @@ func (this *StrictModeCheck_NonExternChecks) visit_impl(t *NodeTraversal, n Node
 }
 
 func (this *StrictModeCheck_NonExternChecks) checkDeclaration(n Node) {
-	if "eval" == n.getString() {
+	if n.getStringIs_(sid_eval) {
 		this.outer_.report(n, StrictModeCheck_EVAL_DECLARATION, []string{})
-	} else if "arguments" == n.getString() {
+	} else if n.getStringIs_(sid_arguments) {
 		this.outer_.report(n, StrictModeCheck_ARGUMENTS_DECLARATION, []string{})
 	}
 }
@@ -213,11 +213,11 @@ func (this *StrictModeCheck_NonExternChecks) checkGetProp(n Node) {
 	var target Node = n.getFirstChild()
 	var name string = n.getString()
 	if name == "callee" {
-		if target.isName() && (target.getString() == "arguments") {
+		if target.isName() && (target.getStringIs_(sid_arguments)) {
 			this.outer_.report(n, StrictModeCheck_ARGUMENTS_CALLEE_FORBIDDEN, []string{})
 		}
 	} else if name == "caller" {
-		if target.isName() && (target.getString() == "arguments") {
+		if target.isName() && (target.getStringIs_(sid_arguments)) {
 			this.outer_.report(n, StrictModeCheck_ARGUMENTS_CALLER_FORBIDDEN, []string{})
 		} else if StrictModeCheck_isFunctionType(target) {
 			this.outer_.report(n, StrictModeCheck_FUNCTION_CALLER_FORBIDDEN, []string{})
