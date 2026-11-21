@@ -10,12 +10,12 @@ type PolymerBehaviorExtractor struct {
 	moduleMetadataMap     *ModuleMetadataMap
 	moduleMap             *ModuleMap
 	resolveMemoized       *SimpleTable[string, *ModuleMetadataMap_ModuleMetadata, *PolymerBehaviorExtractor_ResolveBehaviorNameResult]
-	globalResolveMemoized *TMap[string, *PolymerBehaviorExtractor_ResolveBehaviorNameResult]
+	globalResolveMemoized map[string]*PolymerBehaviorExtractor_ResolveBehaviorNameResult
 }
 
 func (this *PolymerBehaviorExtractor) finit_PolymerBehaviorExtractor() {
 	this.resolveMemoized = SimpleTable_create[string, *ModuleMetadataMap_ModuleMetadata, *PolymerBehaviorExtractor_ResolveBehaviorNameResult]()
-	this.globalResolveMemoized = newTMap_(tc_string, tc_p_PolymerBehaviorExtractor_ResolveBehaviorNameResult)
+	this.globalResolveMemoized = map[string]*PolymerBehaviorExtractor_ResolveBehaviorNameResult{}
 }
 
 func (this *PolymerBehaviorExtractor) init_PolymerBehaviorExtractor(compiler *AbstractCompiler, globalNames *GlobalNamespace, moduleMetadataMap *ModuleMetadataMap, moduleMap *ModuleMap) {
@@ -92,7 +92,7 @@ func (this *PolymerBehaviorExtractor) resolveBehaviorName(name Optional[string],
 		if moduleMetadata != nil {
 			return this.resolveMemoized.get(name.get(), moduleMetadata)
 		}
-		return this.globalResolveMemoized.Get(name.get())
+		return this.globalResolveMemoized[name.get()]
 	}()
 	if memoized == nil {
 		memoized = this.resolveBehaviorNameInternal(name.get(), moduleMetadata)
@@ -102,7 +102,7 @@ func (this *PolymerBehaviorExtractor) resolveBehaviorName(name Optional[string],
 		if moduleMetadata != nil {
 			this.resolveMemoized.put(name.get(), moduleMetadata, memoized)
 		} else {
-			this.globalResolveMemoized.Put(name.get(), memoized)
+			this.globalResolveMemoized[name.get()] = memoized
 		}
 	}
 	return memoized
@@ -400,7 +400,7 @@ type PolymerBehaviorExtractor_BehaviorDefinition struct {
 	functionsToCopy          *TList[*PolymerPass_MemberDefinition]
 	nonPropertyMembersToCopy *TList[*PolymerPass_MemberDefinition]
 	features_                *FeatureSet
-	lazyModuleLocalNames     *TSet[string]
+	lazyModuleLocalNames     map[string]struct{}
 	behaviorModule           Node
 	isGlobalDeclaration      bool
 }
@@ -420,14 +420,14 @@ func new_PolymerBehaviorExtractor_BehaviorDefinition(props *TList[*PolymerPass_M
 	return this
 }
 
-func (this *PolymerBehaviorExtractor_BehaviorDefinition) getModuleLocalNames(compiler *AbstractCompiler) *TSet[string] {
+func (this *PolymerBehaviorExtractor_BehaviorDefinition) getModuleLocalNames(compiler *AbstractCompiler) map[string]struct{} {
 	if this.lazyModuleLocalNames == nil {
 		this.lazyModuleLocalNames = this.accumulateModuleLocalVars(compiler)
 	}
 	return this.lazyModuleLocalNames
 }
 
-func (this *PolymerBehaviorExtractor_BehaviorDefinition) accumulateModuleLocalVars(compiler *AbstractCompiler) *TSet[string] {
+func (this *PolymerBehaviorExtractor_BehaviorDefinition) accumulateModuleLocalVars(compiler *AbstractCompiler) map[string]struct{} {
 	var scopeCreator *SyntacticScopeCreator = new_SyntacticScopeCreator_AbstractCompiler(compiler)
 	var globalScope *Scope = Scope_createGlobalScope(this.behaviorModule.getParent())
 	return NodeUtil_getAllVarNamesDeclaredInModule(this.behaviorModule, compiler, SyntacticScopeCreator_as_ScopeCreator(scopeCreator), globalScope)

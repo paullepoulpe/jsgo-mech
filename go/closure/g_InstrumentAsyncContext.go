@@ -10,17 +10,17 @@ type InstrumentAsyncContext struct {
 	astFactory_           *AstFactory
 	uniqueIdSupplier      *UniqueIdSupplier
 	tryFunctionStack      *TDeque[Node]
-	needsInstrumentation  *TMap[Node, *InstrumentAsyncContext_FunctionContext]
-	alreadyInstrumented   *TSet[Node]
-	hasSuper              *TSet[Node]
+	needsInstrumentation  map[Node]*InstrumentAsyncContext_FunctionContext
+	alreadyInstrumented   map[Node]struct{}
+	hasSuper              map[Node]struct{}
 	shouldInstrumentAwait bool
 }
 
 func (this *InstrumentAsyncContext) finit_InstrumentAsyncContext() {
 	this.tryFunctionStack = newTDeque_(tc_Node)
-	this.needsInstrumentation = newTMap_(tc_Node, tc_p_InstrumentAsyncContext_FunctionContext)
-	this.alreadyInstrumented = newTSet_(tc_Node)
-	this.hasSuper = newTSet_(tc_Node)
+	this.needsInstrumentation = map[Node]*InstrumentAsyncContext_FunctionContext{}
+	this.alreadyInstrumented = map[Node]struct{}{}
+	this.hasSuper = map[Node]struct{}{}
 }
 
 func (this *InstrumentAsyncContext) init_InstrumentAsyncContext(compiler *AbstractCompiler, shouldInstrumentAwait bool) {
@@ -63,23 +63,23 @@ func (this *InstrumentAsyncContext) isReentrance(n Node) bool {
 
 func (this *InstrumentAsyncContext) visit(t *NodeTraversal, n Node, parent Node) {
 	if n.isName() && strings.HasPrefix(n.getString(), InstrumentAsyncContext_FACTORY) {
-		this.alreadyInstrumented.Add(t.getEnclosingFunction())
+		this.alreadyInstrumented[t.getEnclosingFunction()] = struct{}{}
 	} else if n.isSuper() {
-		this.hasSuper.Add(t.getEnclosingFunction())
+		this.hasSuper[t.getEnclosingFunction()] = struct{}{}
 	} else if this.isReentrance(n) {
 		this.instrumentReentrance(t, n, parent)
 	} else if equalsId_(n, this.tryFunctionStack.peek()) {
 		this.tryFunctionStack.pop()
-		if this.alreadyInstrumented.Has(n) {
+		if has_(this.alreadyInstrumented, n) {
 			return
 		}
 		var context *InstrumentAsyncContext_FunctionContext = func() *InstrumentAsyncContext_FunctionContext {
 			if n.isGeneratorFunction() {
-				return this.needsInstrumentation.ComputeIfAbsent(n, Function[Node, *InstrumentAsyncContext_FunctionContext](func(unused Node) *InstrumentAsyncContext_FunctionContext {
+				return mapComputeIfAbsentT_(tc_p_InstrumentAsyncContext_FunctionContext, this.needsInstrumentation, n, func(unused Node) *InstrumentAsyncContext_FunctionContext {
 					return this.createNewFunctionContext(t.getInput())
-				}))
+				})
 			}
-			return this.needsInstrumentation.Get(n)
+			return this.needsInstrumentation[n]
 		}()
 		if context == nil {
 			return
@@ -105,18 +105,18 @@ func (this *InstrumentAsyncContext) instrumentReentrance(t *NodeTraversal, n Nod
 	var enclosingFunction Node = t.getEnclosingFunction()
 	if enclosingFunction == 0 {
 		return
-	} else if this.alreadyInstrumented.Has(enclosingFunction) {
+	} else if has_(this.alreadyInstrumented, enclosingFunction) {
 		return
 	} else if parent.isFunction() {
 		return
 	} else if parent.isReturn() && (enclosingTry == 0) {
 		return
 	}
-	var functionContext *InstrumentAsyncContext_FunctionContext = this.needsInstrumentation.ComputeIfAbsent(enclosingFunction, Function[Node, *InstrumentAsyncContext_FunctionContext](func(unused Node) *InstrumentAsyncContext_FunctionContext {
+	var functionContext *InstrumentAsyncContext_FunctionContext = mapComputeIfAbsentT_(tc_p_InstrumentAsyncContext_FunctionContext, this.needsInstrumentation, enclosingFunction, func(unused Node) *InstrumentAsyncContext_FunctionContext {
 		return this.createNewFunctionContext(t.getInput())
-	}))
+	})
 	if enclosingTry != 0 {
-		this.needsInstrumentation.Put(enclosingTry, functionContext)
+		this.needsInstrumentation[enclosingTry] = functionContext
 	}
 	if n.isForAwaitOf() {
 		this.instrumentForAwaitOf(t, n, parent, functionContext)
@@ -171,7 +171,7 @@ func (this *InstrumentAsyncContext) instrumentGeneratorFunction(t *NodeTraversal
 	if !f.getLastChild().hasChildren() {
 		return
 	}
-	if this.hasSuper.Has(f) {
+	if has_(this.hasSuper, f) {
 		this.instrumentGeneratorMethod(t, f, functionContext)
 		return
 	}

@@ -8,7 +8,7 @@ type ReplaceStrings struct {
 	NodeTraversal_AbstractPostOrderCallback
 	placeholderToken string
 	compiler_        *AbstractCompiler
-	functions        *TMap[string, *ReplaceStrings_Config]
+	functions        map[string]*ReplaceStrings_Config
 	nameGenerator    *DefaultNameGenerator
 	results          *TMap[string, *ReplaceStrings_Result]
 }
@@ -25,7 +25,7 @@ func (this *ReplaceStrings) zero_ReplaceStrings() {
 }
 
 func (this *ReplaceStrings) finit_ReplaceStrings() {
-	this.functions = newTMap_(tc_string, tc_p_ReplaceStrings_Config)
+	this.functions = map[string]*ReplaceStrings_Config{}
 	this.results = newTMap_(tc_string, tc_p_ReplaceStrings_Result)
 }
 
@@ -96,10 +96,10 @@ func (this *ReplaceStrings) visit_impl(t *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *ReplaceStrings) findMatching(name string, callsiteSourceFileName string) *ReplaceStrings_Config {
-	var config *ReplaceStrings_Config = this.functions.Get(name)
+	var config *ReplaceStrings_Config = this.functions[name]
 	if config == nil {
 		name = strings.ReplaceAll(name, "$", ".")
-		config = this.functions.Get(name)
+		config = this.functions[name]
 	}
 	if config != nil {
 		it_1 := config.excludedFilenameSuffixes.each()
@@ -122,9 +122,8 @@ func (this *ReplaceStrings) doSubstitutions(t *NodeTraversal, config *ReplaceStr
 		panic(new_IllegalStateException_0())
 	}
 	if !config.isReplaceAll() {
-		it_1 := config.parameters.each()
-		for it_1.next() {
-			var parameter int32 = unbox_[int32](it_1.v)
+		for it_1 := range sliceAll_(config.parameters) {
+			var parameter int32 = unbox_[int32](it_1)
 			var arg Node = n.getChildAtIndex(parameter)
 			if arg != 0 {
 				this.replaceExpression(t, arg)
@@ -245,7 +244,7 @@ func (this *ReplaceStrings) parseConfigurationList(functionsToInspect *TList[str
 		var function string = it_1.v
 		var config *ReplaceStrings_Config = this.parseConfiguration(function)
 		if config != nil {
-			this.functions.Put(config.name_, config)
+			this.functions[config.name_] = config
 		}
 	}
 }
@@ -264,7 +263,7 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 	var name string = function[:first]
 	var params string = cutBytes_(function, (first + 1), last)
 	var paramCount int32 = 0
-	var replacementParameters *TList[any] = newTList_(tc_Integer)
+	var replacementParameters *[]any = &[]any{}
 	var parts *TList[string] = splitToListT_(tc_string, Splitter_on(','), strobj_(params))
 	it_1 := parts.each()
 	for it_1.next() {
@@ -274,19 +273,19 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 			if paramCount != 1 || parts.size() != 1 {
 				panic(new_IllegalStateException_0())
 			}
-			replacementParameters.add(int32(ReplaceStrings_Config_REPLACE_ALL_VALUE))
+			*replacementParameters = append(*replacementParameters, int32(ReplaceStrings_Config_REPLACE_ALL_VALUE))
 		} else if param == ReplaceStrings_REPLACE_ONE_MARKER {
-			if replacementParameters.asList().contains(int32(ReplaceStrings_Config_REPLACE_ALL_VALUE)) {
+			if sliceViewP_(tc_any, replacementParameters).contains(int32(ReplaceStrings_Config_REPLACE_ALL_VALUE)) {
 				panic(new_IllegalStateException_0())
 			}
-			replacementParameters.add(int32(paramCount))
+			*replacementParameters = append(*replacementParameters, int32(paramCount))
 		} else {
 			if param != "" {
 				panic(new_IllegalStateException_String(Strings_lenientFormat("Unknown marker (%s)", []any{param})))
 			}
 		}
 	}
-	if replacementParameters.isEmpty() {
+	if len(*replacementParameters) == 0 {
 		panic(new_IllegalStateException_0())
 	}
 	return new_ReplaceStrings_Config(name, replacementParameters, func() *TSet[string] {
@@ -332,7 +331,7 @@ func ReplaceStrings_clinit() {
 
 type ReplaceStrings_Config struct {
 	name_                    string
-	parameters               *TList[any]
+	parameters               *[]any
 	excludedFilenameSuffixes *TSet[string]
 }
 
@@ -340,13 +339,13 @@ func (this *ReplaceStrings_Config) zero_ReplaceStrings_Config() {
 	this.name_ = nullstr_
 }
 
-func (this *ReplaceStrings_Config) init_ReplaceStrings_Config(name string, replacementParameters *TList[any], excludedFilenameSuffixes *TSet[string]) {
+func (this *ReplaceStrings_Config) init_ReplaceStrings_Config(name string, replacementParameters *[]any, excludedFilenameSuffixes *TSet[string]) {
 	this.name_ = name
 	this.parameters = replacementParameters
 	this.excludedFilenameSuffixes = excludedFilenameSuffixes
 }
 
-func new_ReplaceStrings_Config(name string, replacementParameters *TList[any], excludedFilenameSuffixes *TSet[string]) *ReplaceStrings_Config {
+func new_ReplaceStrings_Config(name string, replacementParameters *[]any, excludedFilenameSuffixes *TSet[string]) *ReplaceStrings_Config {
 	this := &ReplaceStrings_Config{}
 	this.zero_ReplaceStrings_Config()
 	this.init_ReplaceStrings_Config(name, replacementParameters, excludedFilenameSuffixes)
@@ -354,7 +353,7 @@ func new_ReplaceStrings_Config(name string, replacementParameters *TList[any], e
 }
 
 func (this *ReplaceStrings_Config) isReplaceAll() bool {
-	return ((this.parameters.size() == 1) && this.parameters.asList().contains(int32(ReplaceStrings_Config_REPLACE_ALL_VALUE)))
+	return ((int32(len(*this.parameters)) == 1) && sliceViewP_(tc_any, this.parameters).contains(int32(ReplaceStrings_Config_REPLACE_ALL_VALUE)))
 }
 
 const ReplaceStrings_Config_REPLACE_ALL_VALUE int32 = 0

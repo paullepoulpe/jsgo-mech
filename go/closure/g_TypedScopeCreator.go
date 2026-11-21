@@ -15,13 +15,13 @@ type TypedScopeCreator struct {
 	moduleImportResolver         *ModuleImportResolver
 	memoized                     *TMap[Node, *TypedScope]
 	reservedNamesForScope        *SimpleListMultimap[Node, string]
-	functionsWithNonEmptyReturns *TSet[Node]
+	functionsWithNonEmptyReturns map[Node]struct{}
 	escapedVarNames              *TSet[*ScopedName]
 	assignedVarNames             *SimpleMultiset[*ScopedName]
 	unknownType                  *ObjectType
-	weakImports                  *TList[*TypedScopeCreator_WeakModuleImport]
-	unresolvedNodes              *TList[Node]
-	undeclaredNamesForClosure    *TSet[Node]
+	weakImports                  *[]*TypedScopeCreator_WeakModuleImport
+	unresolvedNodes              *[]Node
+	undeclaredNamesForClosure    map[Node]struct{}
 	providedNamesFromCall        *SimpleSetMultimap[Node, *ProcessClosureProvidesAndRequires_ProvidedName]
 	stage                        TypedScopeCreator_Stage
 	processClosurePrimitives     bool
@@ -194,17 +194,17 @@ func (this *TypedScopeCreator) markGoogModuleExportsAsConst(moduleBody Node) {
 			}
 			var lhs Node = statement.getFirstFirstChild()
 			if lhs.matchesName("exports") {
-				this.undeclaredNamesForClosure.Add(lhs)
+				this.undeclaredNamesForClosure[lhs] = struct{}{}
 				if NodeUtil_isNamedExportsLiteral(lhs.getNext()) {
 					{
 						var key Node = lhs.getNext().getFirstChild()
 						for ; key != 0; key = key.getNext() {
-							this.undeclaredNamesForClosure.Add(key)
+							this.undeclaredNamesForClosure[key] = struct{}{}
 						}
 					}
 				}
 			} else if lhs.isGetProp() && lhs.getFirstChild().matchesName("exports") {
-				this.undeclaredNamesForClosure.Add(lhs)
+				this.undeclaredNamesForClosure[lhs] = struct{}{}
 			}
 		}
 	}
@@ -226,7 +226,7 @@ func (this *TypedScopeCreator) gatherAllProvides(root Node) {
 		if name.getCandidateDefinition() != 0 {
 			var firstDefinitionNode Node = name.getCandidateDefinition()
 			if NodeUtil_isExprAssign(firstDefinitionNode) && firstDefinitionNode.getFirstFirstChild().isName() {
-				this.undeclaredNamesForClosure.Add(firstDefinitionNode.getFirstFirstChild())
+				this.undeclaredNamesForClosure[firstDefinitionNode.getFirstFirstChild()] = struct{}{}
 			}
 		} else if ((name.getFirstProvideCall() != 0) && NodeUtil_isExprCall(name.getFirstProvideCall())) && !name.isFromLegacyModule() {
 			this.providedNamesFromCall.put(name.getFirstProvideCall(), name)
@@ -291,22 +291,18 @@ func TypedScopeCreator_declareNativeType(scope *TypedScope, name string, t *JSTy
 func (this *TypedScopeCreator) setDeferredType(node Node, type_ *JSType) {
 	node.setJSType(type_)
 	if !type_.isResolved() {
-		this.unresolvedNodes.add(node)
+		*this.unresolvedNodes = append(*this.unresolvedNodes, node)
 	}
 }
 
 func (this *TypedScopeCreator) resolveWeakImportsPreResolution() {
-	it_1 := this.weakImports.each()
-	for it_1.next() {
-		var weakImport *TypedScopeCreator_WeakModuleImport = it_1.v
+	for weakImport := range sliceAll_(this.weakImports) {
 		weakImport.resolve()
 	}
 }
 
 func (this *TypedScopeCreator) finishAndFreeze() {
-	it_1 := this.unresolvedNodes.each()
-	for it_1.next() {
-		var node Node = it_1.v
+	for node := range sliceAll_(this.unresolvedNodes) {
 		var resolved *JSType = node.getJSType().resolve(this.typeParsingErrorReporter)
 		node.setJSType(resolved)
 	}
@@ -322,12 +318,12 @@ func (this *TypedScopeCreator) finishAndFreeze() {
 
 func (this *TypedScopeCreator) clearCommonState() {
 	this.reservedNamesForScope = SimpleListMultimap_create[Node, string]()
-	this.functionsWithNonEmptyReturns = newTSet_(tc_Node)
+	this.functionsWithNonEmptyReturns = map[Node]struct{}{}
 	this.escapedVarNames = newTSet_(tch_p_ScopedName)
 	this.assignedVarNames = SimpleMultiset_create[*ScopedName]()
-	this.weakImports = newTList_(tc_p_TypedScopeCreator_WeakModuleImport)
-	this.unresolvedNodes = newTList_(tc_Node)
-	this.undeclaredNamesForClosure = newTSet_(tc_Node)
+	this.weakImports = &[]*TypedScopeCreator_WeakModuleImport{}
+	this.unresolvedNodes = &[]Node{}
+	this.undeclaredNamesForClosure = map[Node]struct{}{}
 	this.providedNamesFromCall = SimpleSetMultimap_createInsertionOrdered[Node, *ProcessClosureProvidesAndRequires_ProvidedName]()
 }
 
@@ -682,7 +678,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) initializeModuleScope(module
 		it_2 := unresolvedImports.eachEntry()
 		for it_2.next() {
 			var entry *TEntry[Node, *ScopedName] = it_2.entry()
-			this.outer_.weakImports.add(new_TypedScopeCreator_WeakModuleImport(this.outer_, entry.getKey(), entry.getValue(), this.currentScope))
+			*this.outer_.weakImports = append(*this.outer_.weakImports, new_TypedScopeCreator_WeakModuleImport(this.outer_, entry.getKey(), entry.getValue(), this.currentScope))
 		}
 	default:
 		panic(new_IllegalStateException_String(String_format("Unexpected module type %s in module %s", []any{obj_(moduleType), obj_(this.getModule())})))
@@ -1166,7 +1162,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineModuleImport(localName
 			return
 		}
 	}
-	this.outer_.weakImports.add(new_TypedScopeCreator_WeakModuleImport(this.outer_, localNameNode, exportedName, scopeToDeclareIn))
+	*this.outer_.weakImports = append(*this.outer_.weakImports, new_TypedScopeCreator_WeakModuleImport(this.outer_, localNameNode, exportedName, scopeToDeclareIn))
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) shouldUseFunctionLiteralType(type_ *FunctionType, info *JSDocInfo, lValue Node) bool {
@@ -1285,9 +1281,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) isGoogModuleGetProperty(exte
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) getCtorForGoogModuleGet(extendsNode Node) *JSType {
 	var call Node = extendsNode
-	var properties *TList[string] = newTList_(tc_string)
+	var properties []string = []string{}
 	for !call.isCall() {
-		properties.insert(0, call.getString())
+		sliceInsert_(&properties, 0, call.getString())
 		call = call.getFirstChild()
 	}
 	var extendsCall *ScopedName = this.outer_.moduleImportResolver.getClosureNamespaceTypeFromCall(call)
@@ -1295,8 +1291,8 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getCtorForGoogModuleGet(exte
 		return nil
 	}
 	var moduleScope *TypedScope = this.outer_.memoized.Get(extendsCall.getScopeRoot())
-	properties.insert(0, extendsCall.getName())
-	var superclassName *QualifiedName = QualifiedName_of(Joiner_on_char('.').join(Iterable(properties.asList())))
+	sliceInsert_(&properties, 0, extendsCall.getName())
+	var superclassName *QualifiedName = QualifiedName_of(Joiner_on_char('.').join(Iterable(sliceView_(tc_string, properties))))
 	return moduleScope.lookupQualifiedName(superclassName)
 }
 
@@ -1398,7 +1394,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) createFunctionTypeFromNodes(
 		}
 		return nil
 	}()
-	if this.outer_.functionsWithNonEmptyReturns.Has(fnRoot) {
+	if has_(this.outer_.functionsWithNonEmptyReturns, fnRoot) {
 		contents.recordNonEmptyReturn()
 	}
 	var bestTypeName Optional[string] = this.getBestTypeName(lvalueNode, name)
@@ -1693,10 +1689,10 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) isGoogModuleExports(lValue N
 	if (this.getModule() == nil) || (lValue == 0) {
 		return false
 	}
-	if this.outer_.undeclaredNamesForClosure.Has(lValue) {
+	if has_(this.outer_.undeclaredNamesForClosure, lValue) {
 		return true
 	}
-	return ((((lValue.isStringKey() && lValue.getParent().isObjectLit()) && lValue.getGrandparent().isAssign()) && lValue.getParent().getPrevious().matchesName("exports")) && this.outer_.undeclaredNamesForClosure.Has(lValue.getParent().getPrevious()))
+	return ((((lValue.isStringKey() && lValue.getParent().isObjectLit()) && lValue.getGrandparent().isAssign()) && lValue.getParent().getPrevious().matchesName("exports")) && has_(this.outer_.undeclaredNamesForClosure, lValue.getParent().getPrevious()))
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) getDefinitionNode(qname *QualifiedName, scope *TypedScope) Node {
@@ -2230,7 +2226,7 @@ func (this *TypedScopeCreator_NormalScopeBuilder) visitPostorder_impl(t *NodeTra
 			this.maybeDeclareQualifiedName(t, n.getJSDocInfo(), firstChild, n, firstChild.getNext())
 		} else if firstChild.isGetElem() && firstChild.getFirstChild().isQualifiedName() {
 			this.maybeDeclareGetElem(n.getJSDocInfo(), firstChild, firstChild.getNext())
-		} else if this.outer_.undeclaredNamesForClosure.Has(firstChild) {
+		} else if has_(this.outer_.undeclaredNamesForClosure, firstChild) {
 			this.defineAssignAsIfVarDeclaration(n)
 		}
 	case tokOrd1_CATCH:
@@ -2656,7 +2652,7 @@ func (this *TypedScopeCreator_FirstOrderFunctionAnalyzer) visit_impl(t *NodeTrav
 	}
 	var containerScope *Scope = cast_[*Scope](t.getClosestContainerScope().self())
 	if (n.isReturn() && n.hasChildren()) || NodeUtil_isBlocklessArrowFunctionResult(n) {
-		this.outer_.functionsWithNonEmptyReturns.Add(containerScope.getRootNode())
+		this.outer_.functionsWithNonEmptyReturns[containerScope.getRootNode()] = struct{}{}
 	}
 	if (n.isName() && NodeUtil_isLValue(n)) && !NodeUtil_isBleedingFunctionName(n) {
 		var name string = n.getString()

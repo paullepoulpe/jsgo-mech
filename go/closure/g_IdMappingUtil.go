@@ -54,11 +54,11 @@ func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) *TMap[string
 	var resultMap *TMap[string, *SimpleBiMap[string, string]] = newTMap_(tc_string, tc_p_SimpleBiMap_string__string_)
 	var mr *IdMappingUtil_MappingReader = new_IdMappingUtil_MappingReader(idMappings)
 	var currentSectionMap *SimpleBiMap[string, string] = nil
-	var sectionNames *TSet[string] = newTSet_(tc_string)
+	var sectionNames map[string]struct{} = map[string]struct{}{}
 	for mr.next() {
 		if mr.isSection() {
 			var sectionName Optional[string] = mr.getSection()
-			if !sectionNames.Add(sectionName.orElse(nullstr_)) {
+			if !setAdd_(sectionNames, sectionName.orElse(nullstr_)) {
 				panic(new_IllegalArgumentException_String(("Cannot parse id map: Duplicate section " + sstr_(sectionName.orElse("null")) + "\n lineIndex: " + istr_(int64(int32(mr.getLineIndex()))))))
 			}
 			currentSectionMap = SimpleBiMap_create[string, string]()
@@ -83,7 +83,7 @@ func IdMappingUtil_parseSerializedIdMappings(idMappings string) *TMap[string, *S
 const IdMappingUtil_NEW_LINE uint16 = '\n'
 
 type IdMappingUtil_MappingReader struct {
-	lines          *TList[string]
+	lines          *[]string
 	currentSection Optional[string]
 	currentKey     Optional[string]
 	currentValue   Optional[string]
@@ -114,10 +114,10 @@ func (this *IdMappingUtil_MappingReader) next() bool {
 	var line string
 	var lineU16 utf16_
 	for {
-		if this.nextLine == this.lines.size() {
+		if this.nextLine == int32(len(*this.lines)) {
 			break
 		}
-		line = this.lines.get(this.nextLine)
+		line = sliceAt_(*this.lines, this.nextLine)
 		lineU16 = utf16Of_(line)
 		this.nextLine++
 		this.lineIndex++

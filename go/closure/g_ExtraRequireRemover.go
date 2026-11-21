@@ -7,12 +7,12 @@ import "strings"
 type ExtraRequireRemover struct {
 	compiler_ *AbstractCompiler
 	requires  *TMap[string, Node]
-	usages    *TSet[string]
+	usages    map[string]struct{}
 }
 
 func (this *ExtraRequireRemover) finit_ExtraRequireRemover() {
 	this.requires = newTMap_(tc_string, tc_Node)
-	this.usages = newTSet_(tc_string)
+	this.usages = map[string]struct{}{}
 }
 
 func (this *ExtraRequireRemover) init_ExtraRequireRemover(compiler *AbstractCompiler) {
@@ -76,7 +76,7 @@ func (this *ExtraRequireRemover) visit(t *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *ExtraRequireRemover) reset() {
-	this.usages.Clear()
+	clear(this.usages)
 	this.requires.Clear()
 }
 
@@ -91,7 +91,7 @@ func (this *ExtraRequireRemover) removeExtraRequiresInScript() {
 }
 
 func (this *ExtraRequireRemover) removeExtraRequire(call Node, require string) {
-	if this.usages.Has(require) {
+	if has_(this.usages, require) {
 		return
 	}
 	var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(call)
@@ -171,15 +171,15 @@ func (this *ExtraRequireRemover) visitCallNode(call Node, parent Node) {
 	}
 	var callee Node = call.getFirstChild()
 	if ExtraRequireRemover_GOOG_MODULE_GET.matches(callee) && call.getSecondChild().isStringLit() {
-		this.usages.Add(call.getSecondChild().getString())
+		this.usages[call.getSecondChild().getString()] = struct{}{}
 	}
 }
 
 func (this *ExtraRequireRemover) addUsagesOfAllPrefixes(qualifiedName *QualifiedName) {
-	this.usages.Add(qualifiedName.join().orElse(nullstr_))
+	this.usages[qualifiedName.join().orElse(nullstr_)] = struct{}{}
 	for !qualifiedName.isSimple() {
 		qualifiedName = qualifiedName.getOwner()
-		this.usages.Add(qualifiedName.join().orElse(nullstr_))
+		this.usages[qualifiedName.join().orElse(nullstr_)] = struct{}{}
 	}
 }
 

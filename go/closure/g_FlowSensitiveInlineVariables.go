@@ -50,7 +50,7 @@ func (this *FlowSensitiveInlineVariables) enterScope(t *NodeTraversal) {
 	}
 	var scopeCreator *SyntacticScopeCreator = cast_[*SyntacticScopeCreator](t.getScopeCreator())
 	this.cfg = ControlFlowAnalysis_builder().setCompiler(this.compiler_).setCfgRoot(functionScopeRoot).setIncludeEdgeAnnotations(true).computeCfg()
-	var escaped *TSet[*Var] = newTSet_(tch_p_Var)
+	var escaped map[varKey_]struct{} = map[varKey_]struct{}{}
 	var scope *Scope = t.getScope()
 	var allVarsDeclaredInFunction *NodeUtil_AllVarsDeclaredInFunction = NodeUtil_getAllVarsDeclaredInFunction(this.compiler_, SyntacticScopeCreator_as_ScopeCreator(scopeCreator), scope.getParent_rScope())
 	var allVarsInFn *TMap[string, *Var] = allVarsDeclaredInFunction.getAllVariables()
@@ -176,7 +176,7 @@ func FlowSensitiveInlineVariables_checkPreExpressions(n Node, expressionRoot Nod
 
 type FlowSensitiveInlineVariables_SideEffectPredicate struct {
 	outer_       *FlowSensitiveInlineVariables
-	namesToCheck *TSet[string]
+	namesToCheck map[string]struct{}
 }
 
 func (this *FlowSensitiveInlineVariables_SideEffectPredicate) init_FlowSensitiveInlineVariables_SideEffectPredicate_0() {
@@ -190,11 +190,11 @@ func new_FlowSensitiveInlineVariables_SideEffectPredicate_0(outer_ *FlowSensitiv
 	return this
 }
 
-func (this *FlowSensitiveInlineVariables_SideEffectPredicate) init_FlowSensitiveInlineVariables_SideEffectPredicate_Set(names *TSet[string]) {
+func (this *FlowSensitiveInlineVariables_SideEffectPredicate) init_FlowSensitiveInlineVariables_SideEffectPredicate_Set(names map[string]struct{}) {
 	this.namesToCheck = names
 }
 
-func new_FlowSensitiveInlineVariables_SideEffectPredicate_Set(outer_ *FlowSensitiveInlineVariables, names *TSet[string]) *FlowSensitiveInlineVariables_SideEffectPredicate {
+func new_FlowSensitiveInlineVariables_SideEffectPredicate_Set(outer_ *FlowSensitiveInlineVariables, names map[string]struct{}) *FlowSensitiveInlineVariables_SideEffectPredicate {
 	this := &FlowSensitiveInlineVariables_SideEffectPredicate{}
 	this.outer_ = outer_
 	this.init_FlowSensitiveInlineVariables_SideEffectPredicate_Set(names)
@@ -205,7 +205,7 @@ func (this *FlowSensitiveInlineVariables_SideEffectPredicate) apply(n Node) bool
 	if n == 0 {
 		return false
 	}
-	if (((this.namesToCheck != nil) && n.isName()) && this.namesToCheck.Has(n.getString())) && NodeUtil_isLValue(n) {
+	if (((this.namesToCheck != nil) && n.isName()) && has_(this.namesToCheck, n.getString())) && NodeUtil_isLValue(n) {
 		return !FlowSensitiveInlineVariables_isTopLevelAssignTarget(n)
 	}
 	var astAnalyzer *AstAnalyzer = this.outer_.compiler_.getAstAnalyzer()
@@ -373,12 +373,12 @@ func (this *FlowSensitiveInlineVariables_Candidate) canInline(scope *Scope) bool
 	if this.def.isAssign() && !NodeUtil_isExprAssign(this.def.getParent()) {
 		return false
 	}
-	var namesToCheck *TSet[string] = newTSet_(tc_string)
+	var namesToCheck map[string]struct{} = map[string]struct{}{}
 	if this.defMetadata.depends != nil {
 		it_1 := this.defMetadata.depends.each()
 		for it_1.next() {
 			var var_ *Var = it_1.v
-			namesToCheck.Add(var_.getName())
+			namesToCheck[var_.getName()] = struct{}{}
 		}
 	}
 	var sideEffectPredicateWithNames *FlowSensitiveInlineVariables_SideEffectPredicate = new_FlowSensitiveInlineVariables_SideEffectPredicate_Set(this.outer_, namesToCheck)

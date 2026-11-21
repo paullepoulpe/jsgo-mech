@@ -6,7 +6,7 @@ type CheckExtraRequires struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_        *AbstractCompiler
 	requires         *TMap[string, Node]
-	usages           *TSet[string]
+	usages           map[string]struct{}
 	requiresToRemove *TSet[string]
 }
 
@@ -19,7 +19,7 @@ func (this *CheckExtraRequires) up_NodeTraversal_AbstractPostOrderCallback() *No
 
 func (this *CheckExtraRequires) finit_CheckExtraRequires() {
 	this.requires = newTMap_(tc_string, tc_Node)
-	this.usages = newTSet_(tc_string)
+	this.usages = map[string]struct{}{}
 }
 
 func (this *CheckExtraRequires) init_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove *TSet[string]) {
@@ -88,7 +88,7 @@ func (this *CheckExtraRequires) visit_impl(t *NodeTraversal, n Node, parent Node
 }
 
 func (this *CheckExtraRequires) reset() {
-	this.usages.Clear()
+	clear(this.usages)
 	this.requires.Clear()
 }
 
@@ -98,7 +98,7 @@ func (this *CheckExtraRequires) visitScriptNode() {
 		var entry *TEntry[string, Node] = it_1.entry()
 		var require string = entry.getKey()
 		var call Node = entry.getValue()
-		if !this.usages.Has(require) && ((this.requiresToRemove == nil) || this.requiresToRemove.Has(require)) {
+		if !has_(this.usages, require) && ((this.requiresToRemove == nil) || this.requiresToRemove.Has(require)) {
 			this.reportExtraRequireWarning(call, require)
 		}
 	}
@@ -175,15 +175,15 @@ func (this *CheckExtraRequires) visitCallNode(call Node, parent Node) {
 	}
 	var callee Node = call.getFirstChild()
 	if CheckExtraRequires_GOOG_MODULE_GET.matches(callee) && call.getSecondChild().isStringLit() {
-		this.usages.Add(call.getSecondChild().getString())
+		this.usages[call.getSecondChild().getString()] = struct{}{}
 	}
 }
 
 func (this *CheckExtraRequires) addUsagesOfAllPrefixes(qualifiedName *QualifiedName) {
-	this.usages.Add(qualifiedName.join().orElse(nullstr_))
+	this.usages[qualifiedName.join().orElse(nullstr_)] = struct{}{}
 	for !qualifiedName.isSimple() {
 		qualifiedName = qualifiedName.getOwner()
-		this.usages.Add(qualifiedName.join().orElse(nullstr_))
+		this.usages[qualifiedName.join().orElse(nullstr_)] = struct{}{}
 	}
 }
 

@@ -6,11 +6,11 @@ import "strings"
 
 type ErrorToFixMapper struct {
 	compiler_             *AbstractCompiler
-	metadataForEachScript *TMap[Node, *ScriptMetadata]
+	metadataForEachScript map[Node]*ScriptMetadata
 }
 
 func (this *ErrorToFixMapper) finit_ErrorToFixMapper() {
-	this.metadataForEachScript = newTMap_(tc_Node, tc_p_ScriptMetadata)
+	this.metadataForEachScript = map[Node]*ScriptMetadata{}
 }
 
 func (this *ErrorToFixMapper) init_ErrorToFixMapper(compiler *AbstractCompiler) {
@@ -104,29 +104,25 @@ func (this *ErrorToFixMapper) getFixForRedeclaration(error_ *JSError) *Suggested
 	if parent.hasOneChild() {
 		return fix.replace(parent, assign, this.compiler_).build()
 	}
-	var childrenOfAddedVarStatement *TList[Node] = newTList_(tc_Node)
+	var childrenOfAddedVarStatement []Node = []Node{}
 	{
 		var n Node = parent.getFirstChild()
 		for ; n != 0; n = n.getNext() {
 			if n == name {
 				break
 			}
-			childrenOfAddedVarStatement.add(n)
+			childrenOfAddedVarStatement = append(childrenOfAddedVarStatement, n)
 		}
 	}
-	if !childrenOfAddedVarStatement.isEmpty() {
+	if len(childrenOfAddedVarStatement) != 0 {
 		var var_ Node = new_Node_Token(parent.getToken())
-		it_2 := childrenOfAddedVarStatement.each()
-		for it_2.next() {
-			var n Node = it_2.v
+		for _, n := range childrenOfAddedVarStatement {
 			var_.addChildToBack(n.cloneTree())
 		}
 		fix.insertBefore_4(parent, var_, this.compiler_, "1")
 	}
 	if name.getNext() != 0 {
-		it_4 := childrenOfAddedVarStatement.each()
-		for it_4.next() {
-			var n Node = it_4.v
+		for _, n := range childrenOfAddedVarStatement {
 			fix.delete(n)
 		}
 		fix.delete(name)
@@ -328,9 +324,9 @@ func (this *ErrorToFixMapper) getMetadataForScript(script Node) *ScriptMetadata 
 	if !script.isScript() {
 		panic(new_IllegalArgumentException_0())
 	}
-	return this.metadataForEachScript.ComputeIfAbsent(script, Function[Node, *ScriptMetadata](func(s Node) *ScriptMetadata {
+	return mapComputeIfAbsentT_(tc_p_ScriptMetadata, this.metadataForEachScript, script, func(s Node) *ScriptMetadata {
 		return ScriptMetadata_create(s, this.compiler_)
-	}))
+	})
 }
 
 var ErrorToFixMapper_DID_YOU_MEAN *Pattern

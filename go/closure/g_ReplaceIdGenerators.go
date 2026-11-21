@@ -4,8 +4,8 @@ package closure
 
 type ReplaceIdGenerators struct {
 	compiler_                     *AbstractCompiler
-	nameGenerators                *TMap[string, ReplaceIdGenerators_NameSupplier]
-	consistNameMap                *TMap[string, Map]
+	nameGenerators                map[string]ReplaceIdGenerators_NameSupplier
+	consistNameMap                *TMap[string, *TMap[string, string]]
 	idGeneratorMaps               *TMap[string, Map]
 	previousMap                   *TMap[string, *SimpleBiMap[string, string]]
 	xidHashFunction               Xid_HashFunction
@@ -18,9 +18,9 @@ func (this *ReplaceIdGenerators) init_ReplaceIdGenerators(compiler *AbstractComp
 	this.templateLiteralsAreTranspiled = templateLiteralsAreTranspiled
 	this.generatePseudoNames = generatePseudoNames
 	this.xidHashFunction = xidHashFunction
-	this.nameGenerators = newTMap_(tc_string, tc_ReplaceIdGenerators_NameSupplier)
+	this.nameGenerators = map[string]ReplaceIdGenerators_NameSupplier{}
 	this.idGeneratorMaps = newTMap_(tc_string, tc_Map)
-	this.consistNameMap = newTMap_(tc_string, tc_Map)
+	this.consistNameMap = newTMap_(tc_string, tcv_p_TMap_string__string_)
 	var previousMap *TMap[string, *SimpleBiMap[string, string]] = IdMappingUtil_parseSerializedIdMappings(previousMapSerialized)
 	this.previousMap = previousMap
 	if idGens != nil {
@@ -43,15 +43,15 @@ func (this *ReplaceIdGenerators) init_ReplaceIdGenerators(compiler *AbstractComp
 			}() {
 				switch renamingToken {
 				case RenamingToken_DISABLE:
-					this.nameGenerators.Put(name, nil)
+					this.nameGenerators[name] = nil
 					continue L_2
 				case RenamingToken_INCONSISTENT:
-					this.nameGenerators.Put(name, this.createNameSupplier(ReplaceIdGenerators_RenameStrategy_INCONSISTENT, previousMap.Get(name)))
+					this.nameGenerators[name] = this.createNameSupplier(ReplaceIdGenerators_RenameStrategy_INCONSISTENT, previousMap.Get(name))
 				case RenamingToken_STABLE:
-					this.nameGenerators.Put(name, this.createNameSupplier(ReplaceIdGenerators_RenameStrategy_STABLE, previousMap.Get(name)))
+					this.nameGenerators[name] = this.createNameSupplier(ReplaceIdGenerators_RenameStrategy_STABLE, previousMap.Get(name))
 				}
 			} else {
-				this.nameGenerators.Put(name, ReplaceIdGenerators_createNameSupplierRenamingMap(ReplaceIdGenerators_RenameStrategy_MAPPED, map_))
+				this.nameGenerators[name] = ReplaceIdGenerators_createNameSupplierRenamingMap(ReplaceIdGenerators_RenameStrategy_MAPPED, map_)
 			}
 			this.idGeneratorMaps.Put(name, Map(new_LinkedHashMap()))
 		}
@@ -91,7 +91,7 @@ func ReplaceIdGenerators_createNameSupplierRenamingMap(renameStrategy ReplaceIdG
 
 func (this *ReplaceIdGenerators) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_ReplaceIdGenerators_GatherGenerators(this)))
-	if !this.nameGenerators.IsEmpty() {
+	if len(this.nameGenerators) != 0 {
 		NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_ReplaceIdGenerators_ReplaceGenerators(this)))
 	}
 }
@@ -392,42 +392,42 @@ func (this *ReplaceIdGenerators_GatherGenerators) visit_impl(unused *NodeTravers
 			return
 		}
 	}
-	if name.isPresent() && this.outer_.nameGenerators.Has(name.get()) {
+	if name.isPresent() && has_(this.outer_.nameGenerators, name.get()) {
 		return
 	}
 	if doc.isConsistentIdGenerator() {
-		this.outer_.consistNameMap.Put(name.orElse(nullstr_), Map(new_LinkedHashMap()))
-		this.outer_.nameGenerators.Put(name.orElse(nullstr_), this.outer_.createNameSupplier(ReplaceIdGenerators_RenameStrategy_CONSISTENT, func() *SimpleBiMap[string, string] {
+		this.outer_.consistNameMap.Put(name.orElse(nullstr_), newTMap_(tc_string, tc_string))
+		this.outer_.nameGenerators[name.orElse(nullstr_)] = this.outer_.createNameSupplier(ReplaceIdGenerators_RenameStrategy_CONSISTENT, func() *SimpleBiMap[string, string] {
 			if name.isPresent() {
 				return this.outer_.previousMap.Get(name.get())
 			}
 			return nil
-		}()))
+		}())
 	} else if doc.isStableIdGenerator() {
-		this.outer_.nameGenerators.Put(name.orElse(nullstr_), this.outer_.createNameSupplier(ReplaceIdGenerators_RenameStrategy_STABLE, func() *SimpleBiMap[string, string] {
+		this.outer_.nameGenerators[name.orElse(nullstr_)] = this.outer_.createNameSupplier(ReplaceIdGenerators_RenameStrategy_STABLE, func() *SimpleBiMap[string, string] {
 			if name.isPresent() {
 				return this.outer_.previousMap.Get(name.get())
 			}
 			return nil
-		}()))
+		}())
 	} else if doc.isXidGenerator() {
-		this.outer_.nameGenerators.Put(name.orElse(nullstr_), this.outer_.createNameSupplier(ReplaceIdGenerators_RenameStrategy_XID, func() *SimpleBiMap[string, string] {
+		this.outer_.nameGenerators[name.orElse(nullstr_)] = this.outer_.createNameSupplier(ReplaceIdGenerators_RenameStrategy_XID, func() *SimpleBiMap[string, string] {
 			if name.isPresent() {
 				return this.outer_.previousMap.Get(name.get())
 			}
 			return nil
-		}()))
+		}())
 	} else if doc.isIdGenerator() {
-		this.outer_.nameGenerators.Put(name.orElse(nullstr_), this.outer_.createNameSupplier(ReplaceIdGenerators_RenameStrategy_INCONSISTENT, func() *SimpleBiMap[string, string] {
+		this.outer_.nameGenerators[name.orElse(nullstr_)] = this.outer_.createNameSupplier(ReplaceIdGenerators_RenameStrategy_INCONSISTENT, func() *SimpleBiMap[string, string] {
 			if name.isPresent() {
 				return this.outer_.previousMap.Get(name.get())
 			}
 			return nil
-		}()))
+		}())
 	} else if doc.isMappedIdGenerator() {
 		var supplier ReplaceIdGenerators_NameSupplier = func() ReplaceIdGenerators_NameSupplier {
 			if name.isPresent() {
-				return this.outer_.nameGenerators.Get(name.get())
+				return this.outer_.nameGenerators[name.get()]
 			}
 			return nil
 		}()
@@ -471,7 +471,7 @@ func (this *ReplaceIdGenerators_ReplaceGenerators) visit_impl(t *NodeTraversal, 
 	}
 	var qname Node = NodeUtil_getCallTargetResolvingIndirectCalls(n)
 	var callName string = qname.getQualifiedName()
-	var nameGenerator ReplaceIdGenerators_NameSupplier = this.outer_.nameGenerators.Get(callName)
+	var nameGenerator ReplaceIdGenerators_NameSupplier = this.outer_.nameGenerators[callName]
 	if nameGenerator == nil {
 		return
 	}
@@ -638,16 +638,16 @@ func (this *ReplaceIdGenerators_ReplaceGenerators) getObfuscatedName(id Node, ca
 	}()
 	var instanceId string = ReplaceIdGenerators_getIdForGeneratorNode((nameGenerator.getRenameStrategy() != ReplaceIdGenerators_RenameStrategy_INCONSISTENT), id, name)
 	if nameGenerator.getRenameStrategy() == ReplaceIdGenerators_RenameStrategy_CONSISTENT {
-		var entry MapOf[string, string] = func() Map {
+		var entry *TMap[string, string] = func() *TMap[string, string] {
 			if callName.isPresent() {
 				return this.outer_.consistNameMap.Get(callName.get())
 			}
 			return nil
 		}()
-		rename = Optional_ofNullable[string](str_(Map_get_s(entry, instanceId)))
+		rename = Optional_ofNullable[string](entry.Get(instanceId))
 		if rename.isEmpty() {
 			rename = nameGenerator.getName(instanceId, name)
-			Map_put_s(entry, instanceId, strobj_(rename.orElse(nullstr_)))
+			entry.Put(instanceId, rename.orElse(nullstr_))
 		}
 	} else {
 		rename = nameGenerator.getName(instanceId, name)
