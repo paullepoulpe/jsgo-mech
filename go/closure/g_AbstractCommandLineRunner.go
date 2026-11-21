@@ -35,25 +35,6 @@ func (this *AbstractCommandLineRunner) as_AbstractCommandLineRunner() *AbstractC
 	return this
 }
 
-func to_AbstractCommandLineRunner(v any) *AbstractCommandLineRunner {
-	switch p := v.(type) {
-	case *CommandLineRunner:
-		return p.as_AbstractCommandLineRunner()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_AbstractCommandLineRunner() *AbstractCommandLineRunner
-	}).as_AbstractCommandLineRunner()
-}
-
-func is_AbstractCommandLineRunner(v any) bool {
-	_, ok := v.(interface {
-		as_AbstractCommandLineRunner() *AbstractCommandLineRunner
-	})
-	return ok
-}
-
 func (this *AbstractCommandLineRunner) self() any {
 	if this == nil {
 		return nil

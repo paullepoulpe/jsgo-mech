@@ -20,18 +20,19 @@ type RegExpTree_I interface {
 	simplify_impl(string) *RegExpTree
 }
 
+// RegExpTree_as is implemented by RegExpTree and the classes that extend it: a cast to RegExpTree asserts to it
+// (post-flip).
+type RegExpTree_as interface {
+	as_RegExpTree() *RegExpTree
+}
+
 func (this *RegExpTree) as_RegExpTree() *RegExpTree { return this }
 
 func to_RegExpTree(v any) *RegExpTree {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_RegExpTree() *RegExpTree }).as_RegExpTree()
-}
-
-func is_RegExpTree(v any) bool {
-	_, ok := v.(interface{ as_RegExpTree() *RegExpTree })
-	return ok
+	return v.(RegExpTree_as).as_RegExpTree()
 }
 
 func (this *RegExpTree) self() any {
@@ -314,22 +315,6 @@ type RegExpTree_RegExpTreeAtom struct {
 
 func (this *RegExpTree_RegExpTreeAtom) as_RegExpTree_RegExpTreeAtom() *RegExpTree_RegExpTreeAtom {
 	return this
-}
-
-func to_RegExpTree_RegExpTreeAtom(v any) *RegExpTree_RegExpTreeAtom {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_RegExpTree_RegExpTreeAtom() *RegExpTree_RegExpTreeAtom
-	}).as_RegExpTree_RegExpTreeAtom()
-}
-
-func is_RegExpTree_RegExpTreeAtom(v any) bool {
-	_, ok := v.(interface {
-		as_RegExpTree_RegExpTreeAtom() *RegExpTree_RegExpTreeAtom
-	})
-	return ok
 }
 
 func (this *RegExpTree_RegExpTreeAtom) self() any {

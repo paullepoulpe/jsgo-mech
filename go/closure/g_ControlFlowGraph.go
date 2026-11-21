@@ -15,11 +15,6 @@ type ControlFlowGraph_vt_[N comparable] interface {
 
 func (this *ControlFlowGraph[N]) isa_ControlFlowGraph_() {}
 
-func is_ControlFlowGraph(v any) bool {
-	_, ok := v.(interface{ isa_ControlFlowGraph_() })
-	return ok
-}
-
 func (this *ControlFlowGraph[N]) as_ControlFlowGraph() *ControlFlowGraph[N] { return this }
 
 func (this *ControlFlowGraph[N]) as_ControlFlowGraph_() any { return this }
@@ -219,22 +214,6 @@ type ControlFlowGraph_AbstractCfgNodeTraversalCallback_I interface {
 
 func (this *ControlFlowGraph_AbstractCfgNodeTraversalCallback) as_ControlFlowGraph_AbstractCfgNodeTraversalCallback() *ControlFlowGraph_AbstractCfgNodeTraversalCallback {
 	return this
-}
-
-func to_ControlFlowGraph_AbstractCfgNodeTraversalCallback(v any) *ControlFlowGraph_AbstractCfgNodeTraversalCallback {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_ControlFlowGraph_AbstractCfgNodeTraversalCallback() *ControlFlowGraph_AbstractCfgNodeTraversalCallback
-	}).as_ControlFlowGraph_AbstractCfgNodeTraversalCallback()
-}
-
-func is_ControlFlowGraph_AbstractCfgNodeTraversalCallback(v any) bool {
-	_, ok := v.(interface {
-		as_ControlFlowGraph_AbstractCfgNodeTraversalCallback() *ControlFlowGraph_AbstractCfgNodeTraversalCallback
-	})
-	return ok
 }
 
 func (this *ControlFlowGraph_AbstractCfgNodeTraversalCallback) self() any {

@@ -9,17 +9,23 @@ type ObjectType struct {
 	unknown bool
 }
 
+// ObjectType_as is implemented by ObjectType and the classes that extend it: a cast to ObjectType asserts to it
+// (post-flip).
+type ObjectType_as interface {
+	as_ObjectType() *ObjectType
+}
+
 func (this *ObjectType) as_ObjectType() *ObjectType { return this }
 
 func to_ObjectType(v any) *ObjectType {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ObjectType() *ObjectType }).as_ObjectType()
+	return v.(ObjectType_as).as_ObjectType()
 }
 
 func is_ObjectType(v any) bool {
-	_, ok := v.(interface{ as_ObjectType() *ObjectType })
+	_, ok := v.(ObjectType_as)
 	return ok
 }
 

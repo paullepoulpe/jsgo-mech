@@ -121,13 +121,6 @@ func icast_ErrorManager(v any) ErrorManager {
 	return v.(ErrorManager)
 }
 
-func icast_ExecutorService(v any) ExecutorService {
-	if v == nil {
-		return nil
-	}
-	return v.(ExecutorService)
-}
-
 func icast_GarbageCollectorMXBean(v any) GarbageCollectorMXBean {
 	if v == nil {
 		return nil
@@ -282,13 +275,6 @@ func icast_Property_Key(v any) Property_Key {
 	return v.(Property_Key)
 }
 
-func icast_ProtocolStringList(v any) ProtocolStringList {
-	if v == nil {
-		return nil
-	}
-	return v.(ProtocolStringList)
-}
-
 func icast_RemoveUnusedCode_VarInfo(v any) RemoveUnusedCode_VarInfo {
 	if v == nil {
 		return nil
@@ -357,13 +343,6 @@ func icast_SortingErrorManager_ErrorReportGenerator(v any) SortingErrorManager_E
 		return nil
 	}
 	return v.(SortingErrorManager_ErrorReportGenerator)
-}
-
-func icast_SourceFileMapping(v any) SourceFileMapping {
-	if v == nil {
-		return nil
-	}
-	return v.(SourceFileMapping)
 }
 
 func icast_SourceMap_LocationMapping(v any) SourceMap_LocationMapping {
