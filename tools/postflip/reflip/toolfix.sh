@@ -971,6 +971,8 @@ E30
 #    forwarder runs the func value x and nothing else: it has the edges of the call x(..), at x's own type; and the method value
 #    x.m is the value x, which is listed where it was made. Sound for the same closed world as before (a func value runs only
 #    where a callee has func type); forwarders are recognised by their body, a single call of the receiver with the parameters.
+#    (Only the call graph of step 553's tool, 48db3634, has the code this is for: objCallEdges.)
+if [[ -f tools/postflip/optstr/cha.go ]] && grep -q 'objCallEdges(x, fn)' tools/postflip/optstr/cha.go; then
 reflip_edit tools/postflip/optstr/cha.go reflip31 <<'E31'
 				fd := funcDecls[fn.Origin()]
 				if fd == nil || fd.Body == nil {
@@ -1146,3 +1148,4 @@ func instLitOf_(lit *ast.FuncLit, tps []*types.TypeParam, m map[*types.TypeParam
 	return il
 }
 E31
+fi

@@ -971,6 +971,7 @@ a106f72e patch 554b-a106f72e-rt.patch
 # 555. postflip step (in-bounds line): valplain (tool 3018d7ba, step commit 2a41395d on inb-stepper): an immutable class without equals and hashCode whose identity nothing observes is a struct used by value (lead of that branch: 20 classes, SourcePosition, SourceRange and 18 others)
 2a41395d run t valplain && f
 # 556. postflip (runtime, in-bounds line): a typed map or set is its own erased view, as lists are since 554b: asMap/asSet make neither a view nor the side structure (branch inb-mapview c5b33687; CPU neutral, CHECKS peak memory -3% on the 18% subset)
+#=5 c5b33687 patch regenerated (fifth flip): one conflict in rt_tsorted.go (descendingSet: the patch reads the map through v.tm(); the next line is this flip 402 text with cmpReversed_ / Comparator_of_)
 c5b33687 patch 556-c5b33687-rt.patch
 # 557. postflip step (in-bounds line): eqhash re-run at the end of the list: the hash and equality functions of the typed key conversions that step 402 writes are decided from their static types (rewritten: 66, left: 55; branch inb-eqhash2 c6da7700)
 c6da7700 run bash tools/postflip/eqhash/run.sh

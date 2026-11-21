@@ -1,5 +1,5 @@
 diff --git a/go/closure/rt_timm.go b/go/closure/rt_timm.go
-index d3b3ac77..202e97ec 100644
+index d3b3ac77d..202e97eca 100644
 --- a/go/closure/rt_timm.go
 +++ b/go/closure/rt_timm.go
 @@ -253,11 +253,11 @@ func immutableSetCopyOf_[K comparable](kc *tconv_[K], from Iterable) *ImmutableS
@@ -38,7 +38,7 @@ index d3b3ac77..202e97ec 100644
  		}
  		return tmapMake_(kc, vc, keys, vals, false)
 diff --git a/go/closure/rt_timm_test.go b/go/closure/rt_timm_test.go
-index 05396b42..e2daf120 100644
+index 05396b42c..e2daf1203 100644
 --- a/go/closure/rt_timm_test.go
 +++ b/go/closure/rt_timm_test.go
 @@ -259,9 +259,6 @@ func TestTypedRoundTrips(t *testing.T) {
@@ -52,7 +52,7 @@ index 05396b42..e2daf120 100644
  	}
  	imm := mk(true, "a")
 diff --git a/go/closure/rt_tmap.go b/go/closure/rt_tmap.go
-index 963c97c9..335a56f7 100644
+index e919eb899..36c276e0c 100644
 --- a/go/closure/rt_tmap.go
 +++ b/go/closure/rt_tmap.go
 @@ -30,8 +30,6 @@ type tmapExt_[K comparable, V any] struct {
@@ -64,7 +64,7 @@ index 963c97c9..335a56f7 100644
  	// Keys compared by equals (kc.hash != nil): each key's hash code, beside keys, and once the
  	// map has more than tsmall_ entries an open-addressed index of them (hindex_'s layout:
  	// the mixed hash in the high 32 bits, 1 + the position in the low ones, 0 for free).
-@@ -749,14 +747,10 @@ func (m *TMap[K, V]) asMap() Map {
+@@ -759,14 +757,10 @@ func (m *TMap[K, V]) asMap() Map {
  	if m.imm {
  		return m.asImm()
  	}
@@ -81,7 +81,7 @@ index 963c97c9..335a56f7 100644
  }
  
  func (s *TSet[K]) asSet() Set {
-@@ -766,17 +760,17 @@ func (s *TSet[K]) asSet() Set {
+@@ -776,17 +770,17 @@ func (s *TSet[K]) asSet() Set {
  	if s.imm {
  		return s.asImm()
  	}
@@ -106,7 +106,7 @@ index 963c97c9..335a56f7 100644
  
  // goName_ makes getClass() of the views java.util.LinkedHashMap and LinkedHashSet, the classes
  // of the Java objects.
-@@ -787,7 +781,7 @@ func (v *tsetView_[K]) goName_() string    { return "LinkedHashSet" }
+@@ -797,7 +791,7 @@ func (v *tsetView_[K]) goName_() string    { return "LinkedHashSet" }
  // gives them (from the first live position, skipping removed ones), without the iterator and
  // an entry object per element (mapKV_: ImmutableMap.copyOf of a typed map's view).
  func (v *tmapView_[K, V]) boxedKV_() (keys, vals []any) {
@@ -115,7 +115,7 @@ index 963c97c9..335a56f7 100644
  	for i := m.first(); i < len(m.keys); i++ {
  		if !m.isDead(i) {
  			keys = append(keys, m.kc.box(m.keys[i]))
-@@ -798,31 +792,31 @@ func (v *tmapView_[K, V]) boxedKV_() (keys, vals []any) {
+@@ -808,31 +802,31 @@ func (v *tmapView_[K, V]) boxedKV_() (keys, vals []any) {
  }
  
  func (v *tmapView_[K, V]) self() any     { return v }
@@ -158,7 +158,7 @@ index 963c97c9..335a56f7 100644
  }
  func (v *tmapView_[K, V]) putAll(o Map) {
  	for it := o.entrySet().iterator(); it.hasNext(); {
-@@ -831,19 +825,19 @@ func (v *tmapView_[K, V]) putAll(o Map) {
+@@ -841,19 +835,19 @@ func (v *tmapView_[K, V]) putAll(o Map) {
  	}
  }
  func (v *tmapView_[K, V]) remove(k any) any {
@@ -185,7 +185,7 @@ index 963c97c9..335a56f7 100644
  func (v *tmapView_[K, V]) equals(o any) bool  { return mapEquals_(v, o) }
  func (v *tmapView_[K, V]) hashCode() int32    { return mapHash_(v) }
  func (v *tmapView_[K, V]) toString() string   { return mapToString_(v) }
-@@ -1101,17 +1095,18 @@ func (v *tentriesView_[K, V]) equals(o any) bool             { return setEquals_
+@@ -1111,17 +1105,18 @@ func (v *tentriesView_[K, V]) equals(o any) bool             { return setEquals_
  func (v *tentriesView_[K, V]) hashCode() int32               { return setHash_(v) }
  func (v *tentriesView_[K, V]) toString() string              { return collToString_(v) }
  
@@ -213,7 +213,7 @@ index 963c97c9..335a56f7 100644
  func (v *tsetView_[K]) iterator() Iterator             { return v.keys().iterator() }
  func (v *tsetView_[K]) toArray_0() []any               { return v.keys().toArray_0() }
  func (v *tsetView_[K]) toArray(a []any) []any          { return v.keys().toArray(a) }
-@@ -1123,14 +1118,14 @@ func (v *tsetView_[K]) equals(o any) bool              { return setEquals_(v, o)
+@@ -1133,14 +1128,14 @@ func (v *tsetView_[K]) equals(o any) bool              { return setEquals_(v, o)
  func (v *tsetView_[K]) hashCode() int32                { return setHash_(v) }
  func (v *tsetView_[K]) toString() string               { return collToString_(v) }
  func (v *tsetView_[K]) add(x any) bool {
@@ -233,7 +233,7 @@ index 963c97c9..335a56f7 100644
  }
  func (v *tsetView_[K]) addAll(c Collection) bool {
 diff --git a/go/closure/rt_tnested.go b/go/closure/rt_tnested.go
-index 6a45d0ee..62588daa 100644
+index 6a45d0eef..62588daac 100644
 --- a/go/closure/rt_tnested.go
 +++ b/go/closure/rt_tnested.go
 @@ -38,7 +38,7 @@ func tmapOf_[K comparable, V any](v any) *TMap[K, V] {
@@ -255,7 +255,7 @@ index 6a45d0ee..62588daa 100644
  
  // tlistConv_ is the conversion of typed lists as elements of a typed container.
 diff --git a/go/closure/rt_tsorted.go b/go/closure/rt_tsorted.go
-index 9e56c9a3..8c2c2e3f 100644
+index 848573111..e8b092d2e 100644
 --- a/go/closure/rt_tsorted.go
 +++ b/go/closure/rt_tsorted.go
 @@ -112,7 +112,7 @@ func (s *TSet[K]) asSorted() NavigableSet {
@@ -293,9 +293,9 @@ index 9e56c9a3..8c2c2e3f 100644
  func (v *tsortedSetView_[K]) descendingSet() NavigableSet {
 -	m := v.m
 +	m := v.tm()
- 	out := &TreeSet{cmp: Comparator_reversed(&cmpFunc_{func(a, b any) int32 {
+ 	out := &TreeSet{cmp: cmpReversed_(Comparator_of_(func(a, b any) int32 {
  		return m.x.sort.cmp(m.kc.unbox(a), m.kc.unbox(b))
- 	}})}
+ 	}))}
 @@ -157,7 +157,7 @@ func (v *tsortedSetView_[K]) descendingSet() NavigableSet {
  }
  
@@ -350,7 +350,7 @@ index 9e56c9a3..8c2c2e3f 100644
  var (
  	_ NavigableSet = (*tsortedSetView_[string])(nil)
 diff --git a/go/closure/rt_tstep.go b/go/closure/rt_tstep.go
-index a131428a..be00afe8 100644
+index a131428a2..be00afe8f 100644
 --- a/go/closure/rt_tstep.go
 +++ b/go/closure/rt_tstep.go
 @@ -33,5 +33,5 @@ func (v *tkeysView_[K, V]) step_(i int) (any, int)    { return tmapStep_(v.m, i,
@@ -361,7 +361,7 @@ index a131428a..be00afe8 100644
 +	return tmapStep_(v.tm(), i, keyOut_[K, struct{}])
  }
 diff --git a/go/closure/rt_tstep_test.go b/go/closure/rt_tstep_test.go
-index 64390d4d..0d50296a 100644
+index 64390d4d0..0d50296a1 100644
 --- a/go/closure/rt_tstep_test.go
 +++ b/go/closure/rt_tstep_test.go
 @@ -139,3 +139,28 @@ func TestTypedListViewIsTheList(t *testing.T) {
