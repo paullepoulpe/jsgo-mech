@@ -153,7 +153,7 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 				var keySucc int32 = this.key(succ.getValue())
 				toNode = Optional_of[string](DotFormatter_formatNodeName(int32(keySucc)))
 			}
-			edgeList[i] = (sstr_(DotFormatter_formatNodeName(int32(keyParent))) + sstr_(DotFormatter_ARROW) + sstr_(toNode.orElse("null")) + " [label=\"" + objstr_(obj_(edge.getValue())) + "\", fontcolor=\"red\", weight=0.01, color=\"red\"];\n")
+			edgeList[i] = (sstr_(DotFormatter_formatNodeName(int32(keyParent))) + sstr_(DotFormatter_ARROW) + sstr_(toNode.orElse("null")) + " [label=\"" + tostr_(edge.getValue()) + "\", fontcolor=\"red\", weight=0.01, color=\"red\"];\n")
 		}
 		func() {
 			arr_3 := edgeList
