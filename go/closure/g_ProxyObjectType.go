@@ -11,7 +11,14 @@ type ProxyObjectType struct {
 func (this *ProxyObjectType) as_ProxyObjectType() *ProxyObjectType { return this }
 
 func to_ProxyObjectType(v any) *ProxyObjectType {
-	if v == nil {
+	switch p := v.(type) {
+	case *NamedType:
+		return p.as_ProxyObjectType()
+	case *TemplateType:
+		return p.as_ProxyObjectType()
+	case *TemplatizedType:
+		return p.as_ProxyObjectType()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_ProxyObjectType() *ProxyObjectType }).as_ProxyObjectType()

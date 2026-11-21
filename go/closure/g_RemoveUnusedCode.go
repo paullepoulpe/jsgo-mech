@@ -2856,7 +2856,14 @@ func (this *RemoveUnusedCode_PolyfillInfo) as_RemoveUnusedCode_PolyfillInfo() *R
 }
 
 func to_RemoveUnusedCode_PolyfillInfo(v any) *RemoveUnusedCode_PolyfillInfo {
-	if v == nil {
+	switch p := v.(type) {
+	case *RemoveUnusedCode_GlobalPolyfillInfo:
+		return p.as_RemoveUnusedCode_PolyfillInfo()
+	case *RemoveUnusedCode_PrototypePropertyPolyfillInfo:
+		return p.as_RemoveUnusedCode_PolyfillInfo()
+	case *RemoveUnusedCode_StaticPropertyPolyfillInfo:
+		return p.as_RemoveUnusedCode_PolyfillInfo()
+	case nil:
 		return nil
 	}
 	return v.(interface {
