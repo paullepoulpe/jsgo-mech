@@ -357,13 +357,7 @@ func (this *DataFlowAnalysis_UniqueQueue[T]) init_DataFlowAnalysis_UniqueQueue(p
 		if priority == nil {
 			return Queue(new_ArrayDeque())
 		}
-		return Queue(new_PriorityQueue(func() Comparator[any] {
-			f_ := priority
-			if f_ == nil {
-				return nil
-			}
-			return func(p0 any, p1 any) int32 { return f_(junboxT_[T](p0), junboxT_[T](p1)) }
-		}()))
+		return Queue(newPriorityQueueT_(priority, junboxT_[T]))
 	}()
 }
 

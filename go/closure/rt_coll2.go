@@ -259,6 +259,9 @@ func (this *TreeSet) tailSet(from any, inclusive bool) NavigableSet {
 type PriorityQueue struct {
 	ArrayList
 	cmp Comparator_e
+	// typed: set by newPriorityQueueT_ (rt_pqt.go): the typed comparator cmp is the converting
+	// closure of, and the elements unboxed for it. The heap moves are then typed's.
+	typed pqTyped_
 }
 
 func new_PriorityQueue(c Comparator_e) *PriorityQueue {
@@ -279,6 +282,10 @@ func (this *PriorityQueue) order() Comparator_e {
 }
 
 func (this *PriorityQueue) siftUp(k int, x any) {
+	if this.typed != nil {
+		this.typed.siftUp(this.items, k, x)
+		return
+	}
 	c, es := this.order(), this.items
 	for k > 0 {
 		parent := (k - 1) >> 1
@@ -293,6 +300,10 @@ func (this *PriorityQueue) siftUp(k int, x any) {
 }
 
 func (this *PriorityQueue) siftDown(k int, x any) {
+	if this.typed != nil {
+		this.typed.siftDown(this.items, k, x)
+		return
+	}
 	c, es := this.order(), this.items
 	n := len(es)
 	half := n >> 1
