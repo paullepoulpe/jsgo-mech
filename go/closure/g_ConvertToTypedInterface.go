@@ -628,3 +628,12 @@ func ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_clinit() {
 	registerEnum_("com.google.javascript.jscomp.ijs.ConvertToTypedInterface.SimplifyDeclarations.TypingLevel", enumValues_(ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_values_))
 
 }
+
+// processConstWithRhs: an object that is exactly a ConvertToTypedInterface_PropagateConstJsdoc calls its processConstWithRhs_impl directly (post-flip); others dispatch.
+func (this *ConvertToTypedInterface_PropagateConstJsdoc) processConstWithRhs(p0 *NodeTraversal, p1 Node) {
+	if this.self_ == any(this) {
+		this.processConstWithRhs_impl(p0, p1)
+		return
+	}
+	this.self_.(*ConvertToTypedInterface_PropagateConstJsdoc).processConstWithRhs_impl(p0, p1)
+}

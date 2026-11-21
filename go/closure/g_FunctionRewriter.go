@@ -519,3 +519,83 @@ func (this *FunctionRewriter_SetterReducer) getSetPropertyName(functionNode Node
 
 const FunctionRewriter_SetterReducer_FACTORY_METHOD_NAME string = "JSCompiler_set"
 const FunctionRewriter_SetterReducer_HELPER_SOURCE string = "function JSCompiler_set(JSCompiler_set_name) {  return function(JSCompiler_set_value) {this[JSCompiler_set_name] = JSCompiler_set_value}}"
+
+// getHelperSource: an object that is exactly a FunctionRewriter_EmptyFunctionReducer calls its getHelperSource_impl directly (post-flip); others dispatch.
+func (this *FunctionRewriter_EmptyFunctionReducer) getHelperSource() string {
+	if this.self_ == any(this) {
+		return this.getHelperSource_impl()
+	}
+	return this.self_.(interface{ getHelperSource_impl() string }).getHelperSource_impl()
+}
+
+// reduce: an object that is exactly a FunctionRewriter_EmptyFunctionReducer calls its reduce_impl directly (post-flip); others dispatch.
+func (this *FunctionRewriter_EmptyFunctionReducer) reduce(p0 Node) Node {
+	if this.self_ == any(this) {
+		return this.reduce_impl(p0)
+	}
+	return this.self_.(interface{ reduce_impl(Node) Node }).reduce_impl(p0)
+}
+
+// getHelperSource: an object that is exactly a FunctionRewriter_IdentityReducer calls its getHelperSource_impl directly (post-flip); others dispatch.
+func (this *FunctionRewriter_IdentityReducer) getHelperSource() string {
+	if this.self_ == any(this) {
+		return this.getHelperSource_impl()
+	}
+	return this.self_.(interface{ getHelperSource_impl() string }).getHelperSource_impl()
+}
+
+// reduce: an object that is exactly a FunctionRewriter_IdentityReducer calls its reduce_impl directly (post-flip); others dispatch.
+func (this *FunctionRewriter_IdentityReducer) reduce(p0 Node) Node {
+	if this.self_ == any(this) {
+		return this.reduce_impl(p0)
+	}
+	return this.self_.(interface{ reduce_impl(Node) Node }).reduce_impl(p0)
+}
+
+// getHelperSource: an object that is exactly a FunctionRewriter_ReturnConstantReducer calls its getHelperSource_impl directly (post-flip); others dispatch.
+func (this *FunctionRewriter_ReturnConstantReducer) getHelperSource() string {
+	if this.self_ == any(this) {
+		return this.getHelperSource_impl()
+	}
+	return this.self_.(interface{ getHelperSource_impl() string }).getHelperSource_impl()
+}
+
+// reduce: an object that is exactly a FunctionRewriter_ReturnConstantReducer calls its reduce_impl directly (post-flip); others dispatch.
+func (this *FunctionRewriter_ReturnConstantReducer) reduce(p0 Node) Node {
+	if this.self_ == any(this) {
+		return this.reduce_impl(p0)
+	}
+	return this.self_.(interface{ reduce_impl(Node) Node }).reduce_impl(p0)
+}
+
+// getHelperSource: an object that is exactly a FunctionRewriter_GetterReducer calls its getHelperSource_impl directly (post-flip); others dispatch.
+func (this *FunctionRewriter_GetterReducer) getHelperSource() string {
+	if this.self_ == any(this) {
+		return this.getHelperSource_impl()
+	}
+	return this.self_.(interface{ getHelperSource_impl() string }).getHelperSource_impl()
+}
+
+// reduce: an object that is exactly a FunctionRewriter_GetterReducer calls its reduce_impl directly (post-flip); others dispatch.
+func (this *FunctionRewriter_GetterReducer) reduce(p0 Node) Node {
+	if this.self_ == any(this) {
+		return this.reduce_impl(p0)
+	}
+	return this.self_.(interface{ reduce_impl(Node) Node }).reduce_impl(p0)
+}
+
+// getHelperSource: an object that is exactly a FunctionRewriter_SetterReducer calls its getHelperSource_impl directly (post-flip); others dispatch.
+func (this *FunctionRewriter_SetterReducer) getHelperSource() string {
+	if this.self_ == any(this) {
+		return this.getHelperSource_impl()
+	}
+	return this.self_.(interface{ getHelperSource_impl() string }).getHelperSource_impl()
+}
+
+// reduce: an object that is exactly a FunctionRewriter_SetterReducer calls its reduce_impl directly (post-flip); others dispatch.
+func (this *FunctionRewriter_SetterReducer) reduce(p0 Node) Node {
+	if this.self_ == any(this) {
+		return this.reduce_impl(p0)
+	}
+	return this.self_.(interface{ reduce_impl(Node) Node }).reduce_impl(p0)
+}

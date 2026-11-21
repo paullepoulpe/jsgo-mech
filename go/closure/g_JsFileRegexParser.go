@@ -311,3 +311,21 @@ func JsFileRegexParser_ModuleType_clinit() {
 	registerEnum_("com.google.javascript.jscomp.deps.JsFileRegexParser.ModuleType", enumValues_(JsFileRegexParser_ModuleType_values_))
 
 }
+
+// parseJsDocCommentLine: an object that is exactly a JsFileRegexParser calls its parseJsDocCommentLine_impl directly (post-flip); others dispatch.
+func (this *JsFileRegexParser) parseJsDocCommentLine(p0 string) bool {
+	if this.self_ == any(this) {
+		return this.parseJsDocCommentLine_impl(p0)
+	}
+	return this.self_.(interface{ parseJsDocCommentLine_impl(string) bool }).parseJsDocCommentLine_impl(p0)
+}
+
+// parseLine: an object that is exactly a JsFileRegexParser calls its parseLine_impl directly (post-flip); others dispatch.
+func (this *JsFileRegexParser) parseLine(p0 string) *Outcome_base[any] {
+	if this.self_ == any(this) {
+		return this.parseLine_impl(p0)
+	}
+	return this.self_.(interface {
+		parseLine_impl(string) *Outcome_base[any]
+	}).parseLine_impl(p0)
+}

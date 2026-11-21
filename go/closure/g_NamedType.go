@@ -526,3 +526,106 @@ func (this *NamedType_Builder) setRestrictByNull(restrictByNull bool) *NamedType
 func (this *NamedType_Builder) build() *NamedType {
 	return new_NamedType(this)
 }
+
+// getTypeClass: an object that is exactly a NamedType calls its getTypeClass_impl directly (post-flip); others dispatch.
+func (this *NamedType) getTypeClass() *JSTypeClass {
+	if this.self_ == any(this) {
+		return this.getTypeClass_impl()
+	}
+	return this.self_.(interface{ getTypeClass_impl() *JSTypeClass }).getTypeClass_impl()
+}
+
+// getTemplateTypes: an object that is exactly a NamedType calls its getTemplateTypes_impl directly (post-flip); others dispatch.
+func (this *NamedType) getTemplateTypes() *JTList[*JSType] {
+	if this.self_ == any(this) {
+		return this.getTemplateTypes_impl()
+	}
+	return this.self_.(interface{ getTemplateTypes_impl() *JTList[*JSType] }).getTemplateTypes_impl()
+}
+
+// defineProperty: an object that is exactly a NamedType calls its defineProperty_impl directly (post-flip); others dispatch.
+func (this *NamedType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p3 Node) bool {
+	if this.self_ == any(this) {
+		return this.defineProperty_impl(p0, p1, p2, p3)
+	}
+	return this.self_.(interface {
+		defineProperty_impl(Property_Key, *JSType, bool, Node) bool
+	}).defineProperty_impl(p0, p1, p2, p3)
+}
+
+// getReferenceName: an object that is exactly a NamedType calls its getReferenceName_impl directly (post-flip); others dispatch.
+func (this *NamedType) getReferenceName() Optional[string] {
+	if this.self_ == any(this) {
+		return this.getReferenceName_impl()
+	}
+	return this.self_.(interface{ getReferenceName_impl() Optional[string] }).getReferenceName_impl()
+}
+
+// appendTo: an object that is exactly a NamedType calls its appendTo_impl directly (post-flip); others dispatch.
+func (this *NamedType) appendTo(p0 *TypeStringBuilder) {
+	if this.self_ == any(this) {
+		this.appendTo_impl(p0)
+		return
+	}
+	this.self_.(interface{ appendTo_impl(*TypeStringBuilder) }).appendTo_impl(p0)
+}
+
+// toMaybeNamedType: an object that is exactly a NamedType calls its toMaybeNamedType_impl directly (post-flip); others dispatch.
+func (this *NamedType) toMaybeNamedType() *NamedType {
+	if this.self_ == any(this) {
+		return this.toMaybeNamedType_impl()
+	}
+	return this.self_.(interface{ toMaybeNamedType_impl() *NamedType }).toMaybeNamedType_impl()
+}
+
+// isNominalType: an object that is exactly a NamedType calls its isNominalType_impl directly (post-flip); others dispatch.
+func (this *NamedType) isNominalType() bool {
+	if this.self_ == any(this) {
+		return this.isNominalType_impl()
+	}
+	return this.self_.(interface{ isNominalType_impl() bool }).isNominalType_impl()
+}
+
+// recursionUnsafeHashCode: an object that is exactly a NamedType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
+func (this *NamedType) recursionUnsafeHashCode() int32 {
+	if this.self_ == any(this) {
+		return this.recursionUnsafeHashCode_impl()
+	}
+	return this.self_.(interface{ recursionUnsafeHashCode_impl() int32 }).recursionUnsafeHashCode_impl()
+}
+
+// resolveInternal: an object that is exactly a NamedType calls its resolveInternal_impl directly (post-flip); others dispatch.
+func (this *NamedType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
+	if this.self_ == any(this) {
+		return this.resolveInternal_impl(p0)
+	}
+	return this.self_.(interface {
+		resolveInternal_impl(ErrorReporter_rhino) *JSType
+	}).resolveInternal_impl(p0)
+}
+
+// setValidator: an object that is exactly a NamedType calls its setValidator_impl directly (post-flip); others dispatch.
+func (this *NamedType) setValidator(p0 Predicate_base[*JSType]) bool {
+	if this.self_ == any(this) {
+		return this.setValidator_impl(p0)
+	}
+	return this.self_.(interface {
+		setValidator_impl(Predicate_base[*JSType]) bool
+	}).setValidator_impl(p0)
+}
+
+// isObject: an object that is exactly a NamedType calls its isObject_impl directly (post-flip); others dispatch.
+func (this *NamedType) isObject() bool {
+	if this.self_ == any(this) {
+		return this.isObject_impl()
+	}
+	return this.self_.(interface{ isObject_impl() bool }).isObject_impl()
+}
+
+// visitUntyped: an object that is exactly a NamedType calls its visitUntyped_impl directly (post-flip); others dispatch.
+func (this *NamedType) visitUntyped(p0 Visitor) any {
+	if this.self_ == any(this) {
+		return this.visitUntyped_impl(p0)
+	}
+	return this.self_.(interface{ visitUntyped_impl(Visitor) any }).visitUntyped_impl(p0)
+}
