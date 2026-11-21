@@ -284,7 +284,7 @@ func (this *UnionType) appendTo_impl(sb *TypeStringBuilder) {
 	for alt := range this.alternates.All() {
 		*names = append(*names, sb.cloneWithConfig().appendJSType(alt).build())
 	}
-	Collections_sort(sliceViewP_(tc_string, names))
+	sortSlicePF_(names, compareStrNat_)
 	sb.appendAll(Iterable(slicePtrView_(tc_string, names)), "|")
 	sb.append(")")
 }

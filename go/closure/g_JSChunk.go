@@ -121,7 +121,7 @@ func (this *JSChunk) getSortedDependencyNames() []string {
 	for chunk := range this.getDependencies().All() {
 		names = append(names, chunk.getName())
 	}
-	Collections_sort(sliceView_(tc_string, names))
+	sortSliceF_(names, compareStrNat_)
 	return names
 }
 
