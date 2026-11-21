@@ -422,7 +422,8 @@ func (this *Source_Lazy) init_Source_Lazy() {
 }
 
 func (this *Source_Lazy) equals(other any) bool {
-	return (is_Source_Lazy(other) && Objects_equals(this.get(), to_Source_Lazy(other).get()))
+	_, ok := other.(Source_Lazy_as)
+	return (ok && Objects_equals(this.get(), to_Source_Lazy(other).get()))
 }
 
 func (this *Source_Lazy) hashCode() int32 {
