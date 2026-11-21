@@ -2,26 +2,32 @@ package closure
 
 // Protocol buffers runtime: the generic half of the protobuf-java API.
 //
-// Every generated message (rt_proto_gen.go, written by tools/protogen) is a
-// thin typed wrapper around pbData_: a descriptor plus one `any` slot per
-// field. Encoding, decoding, text format, equality and builders are all
-// implemented here once, driven by the descriptor tables.
+// Every generated message (rt_proto_gen.go, written by tools/protogen) and its builder are one
+// allocation: the header pbData_ followed by a struct x_ with one typed Go field per proto field
+// (the same struct type in the message and in its builder, at the same offset). The generated
+// accessors read and write those fields directly; encoding, decoding, text format, equality and
+// the builder operations that are not worth generating are implemented here once, driven by the
+// descriptor tables, which give the offset of every field in the allocation.
 //
-// Slot contents, by field kind (nil always means "not set"):
+// Field storage, by field kind:
 //
 //	int32, sint32, uint32, fixed32, sfixed32, enum   int32 (enum: its number)
 //	int64, sint64, uint64, fixed64, sfixed64         int64
 //	float, double, bool, string                      float32, float64, bool, string
-//	bytes                                            *ByteString
-//	message                                          the message (*Foo); in a builder possibly *Foo_Builder
-//	repeated                                         *pbRep_ holding the above
+//	bytes                                            *ByteString (nil reads as the empty one)
+//	message                                          *Foo; in a builder the pointer may be to a
+//	                                                 *Foo_Builder (see pbData_.isBuilder_)
+//	repeated                                         a slice of the above
 //
-// A field without explicit presence (proto3 scalars) is stored as nil when it
-// has its default value, so "slot is nil" is the single presence test.
+// Presence: a repeated field is set when it has elements, a message field when its pointer is
+// not nil, a field with explicit presence (optional, oneof member, proto2) when its bit in the
+// struct's pbHas_ words is set, and any other field when it is not zero. A field that is not set
+// always holds its zero value.
 
 import (
 	"bytes"
 	"math"
+	"slices"
 	"sort"
 	"unicode/utf8"
 	"unsafe"
@@ -56,6 +62,26 @@ const (
 // pbWire_ is the wire type of each kind.
 var pbWire_ = [...]int{0, 1, 5, 0, 0, 0, 1, 5, 0, 2, 3, 2, 2, 0, 0, 5, 1, 0, 0}
 
+// pbCls_ is the Go type a kind is stored as.
+type pbCls_ uint8
+
+const (
+	pbCI32_   pbCls_ = iota + 1 // int32
+	pbCI64_                     // int64
+	pbCBool_                    // bool
+	pbCF32_                     // float32
+	pbCF64_                     // float64
+	pbCStr_                     // string
+	pbCBytes_                   // *ByteString
+	pbCMsg_                     // pointer to a message (or, in a builder, to a builder)
+)
+
+var pbClsOf_ = [...]pbCls_{0, pbCF64_, pbCF32_, pbCI64_, pbCI64_, pbCI32_, pbCI64_, pbCI32_, pbCBool_, pbCStr_, 0,
+	pbCMsg_, pbCBytes_, pbCI32_, pbCI32_, pbCI32_, pbCI64_, pbCI32_, pbCI64_}
+
+// pbElemSize_ is the size of one stored value of each class.
+var pbElemSize_ = [...]uintptr{0, 4, 8, 1, 4, 8, unsafe.Sizeof(""), unsafe.Sizeof(uintptr(0)), unsafe.Sizeof(uintptr(0))}
+
 type pbField_ struct {
 	name   string  // proto field name
 	num    int32   // field number
@@ -65,30 +91,45 @@ type pbField_ struct {
 	pres   bool    // has explicit presence (a hasFoo accessor)
 	utf8   bool    // string that must be valid UTF-8 when parsed
 	oneof  int32   // 1-based index of the containing oneof, 0 if none
-	def    any     // explicit default value, in slot representation
+	def    any     // explicit default value, boxed
 	tname  string  // full name of the message or enum type
+	off    uintptr // offset of the field in the struct x_ (after init_: in the allocation)
+	hb     int32   // 1-based number of the presence bit in x_.pbHas_, 0 if none
 
-	idx   int
-	owner *pbDesc_
-	md    *pbDesc_
-	ed    *pbEnumDesc_
-	zero  any
-	fd    *Descriptors_FieldDescriptor
+	idx     int
+	owner   *pbDesc_
+	md      *pbDesc_
+	ed      *pbEnumDesc_
+	zero    any
+	fd      *Descriptors_FieldDescriptor
+	cls     pbCls_
+	esz     uintptr // size of one stored value
+	hOff    uintptr // offset in the allocation of the pbHas_ word of the presence bit
+	hMask   uint32  // the presence bit in that word, 0 if none
+	tagSize int     // size of the tag on the wire
 }
 
 type pbDesc_ struct {
 	name   string // full proto name
 	fields []*pbField_
 	oneofs []string
-	newM   func() any
-	newB   func() any
+	newM   func() *pbData_               // a new message (the header of the allocation)
+	newB   func() *pbData_               // a new builder
+	asM    func(p unsafe.Pointer) any    // the allocation p as the message type
+	asB    func(p unsafe.Pointer) any    // the allocation p as the builder type
+	cp     func(dst, src unsafe.Pointer) // copies the struct x_ between two allocations (messages or builders)
+	xoff   uintptr                       // offset of x_ in the allocation
+	hoff   uintptr                       // offset of pbHas_ in x_
 
 	ready  bool
 	sorted []*pbField_
 	dense  []*pbField_
 	byNum  map[int32]*pbField_
 	byName map[string]*pbField_
-	def    any
+	reps   []*pbField_   // the repeated fields
+	msgs   []*pbField_   // the singular message fields
+	oneofF [][]*pbField_ // the members of each oneof
+	def    *pbData_
 	gd     *Descriptors_Descriptor
 }
 
@@ -129,6 +170,7 @@ func (d *pbDesc_) init_() {
 	}
 	d.ready = true
 	d.byName = make(map[string]*pbField_, len(d.fields))
+	d.oneofF = make([][]*pbField_, len(d.oneofs))
 	max := int32(0)
 	for i, f := range d.fields {
 		f.idx = i
@@ -136,6 +178,28 @@ func (d *pbDesc_) init_() {
 		d.byName[f.name] = f
 		if f.num > max {
 			max = f.num
+		}
+		f.cls = pbClsOf_[f.kind]
+		if f.cls == 0 {
+			panic("protobuf: unsupported field kind")
+		}
+		f.esz = pbElemSize_[f.cls]
+		f.off += d.xoff
+		f.tagSize = pbVarintSize_(uint64(f.num) << 3)
+		if f.hb != 0 {
+			f.hOff = d.xoff + d.hoff + uintptr((f.hb-1)>>5)*4
+			f.hMask = 1 << uint((f.hb-1)&31)
+		}
+		if f.pres != (!f.rep && (f.hb != 0 || f.kind == pbMessage_)) || f.oneof != 0 && !f.pres {
+			panic("protobuf: presence bit of " + d.name + "." + f.name)
+		}
+		if f.oneof != 0 {
+			d.oneofF[f.oneof-1] = append(d.oneofF[f.oneof-1], f)
+		}
+		if f.rep {
+			d.reps = append(d.reps, f)
+		} else if f.kind == pbMessage_ {
+			d.msgs = append(d.msgs, f)
 		}
 		switch f.kind {
 		case pbMessage_:
@@ -205,35 +269,24 @@ type pbB_ interface {
 	pbb_() *AbstractMessageLite_Builder
 }
 
-func (d *pbDesc_) newMsg_() *AbstractMessageLite {
-	m := d.newMsgBare_()
-	m.v_ = make([]any, len(d.fields))
-	return m
-}
-
-// newMsgBare_ is a new message without field storage (pbBuild_ gives it the builder's).
-func (d *pbDesc_) newMsgBare_() *AbstractMessageLite {
+func (d *pbDesc_) newMsg_() *pbData_ {
 	d.init_()
-	me := d.newM()
-	m := me.(pbM_).pbm_()
+	m := d.newM()
 	m.d_ = d
-	m.me_ = me
 	return m
 }
 
-func (d *pbDesc_) newBuilder_() *AbstractMessageLite_Builder {
+func (d *pbDesc_) newBuilder_() *pbData_ {
 	d.init_()
-	me := d.newB()
-	b := me.(pbB_).pbb_()
+	b := d.newB()
 	b.d_ = d
-	b.me_ = me
-	b.v_ = make([]any, len(d.fields))
+	b.size_ = pbBuilder_
 	return b
 }
 
-func (d *pbDesc_) default_() any {
+func (d *pbDesc_) default_() *pbData_ {
 	if d.def == nil {
-		d.def = d.newMsg_().me_
+		d.def = d.newMsg_()
 	}
 	return d.def
 }
@@ -248,42 +301,87 @@ func (e *pbEnumDesc_) nameOf_(n int32) (string, bool) {
 
 // ---------------------------------------------------------------- field storage
 
-type pbRep_ struct {
-	a []any
-}
-
+// pbData_ is the header of every message and builder; the struct of the fields follows it in
+// the same allocation, so a *pbData_ is also the address of the message or builder.
 type pbData_ struct {
 	d_   *pbDesc_
-	v_   []any
-	unk_ []byte // unknown fields, as they appear on the wire
-	me_  any    // the concrete message or builder
-	// shared_ (a builder's): v_ and its repeated-field slices are also those of a message that
-	// build() made (pbBuild_ hands them over when no nested builder is among them); the builder
-	// takes its own copy before it changes anything (own_).
-	shared_ bool
+	unk_ *[]byte // unknown fields, as they appear on the wire; the slice is never changed, only replaced
+	// size_ of a message: its serialized size + 1, 0 while unknown. Of a builder: pbBuilder_, or
+	// pbShared_ when its repeated fields' slices are also those of a message (build() and
+	// toBuilder() copy the struct of the fields, not the slices in it); the builder then copies
+	// them before it changes a repeated field (own_).
+	size_ int32
+	hash_ int32
 }
 
-// own_ gives a builder its own storage again after build() handed it to a message.
-func (this *pbData_) own_() {
-	if !this.shared_ {
+const (
+	pbBuilder_ int32 = -1
+	pbShared_  int32 = -2
+)
+
+// The message and builder base types are the header alone, so x_ is at one offset in both.
+const _ = -uint(unsafe.Sizeof(GeneratedMessage_ExtendableMessage{}) - unsafe.Sizeof(pbData_{}))
+const _ = -uint(unsafe.Sizeof(GeneratedMessage_ExtendableBuilder{}) - unsafe.Sizeof(pbData_{}))
+
+// pbSlice_ is the layout of a slice.
+type pbSlice_ struct {
+	p    unsafe.Pointer
+	n, c int
+}
+
+func (this *pbData_) isBuilder_() bool { return this.size_ < 0 }
+
+// me_ is the concrete message or builder.
+func (this *pbData_) me_() any { return pbAny_(unsafe.Pointer(this)) }
+
+// pbAny_ is the message or builder at p as its concrete type.
+func pbAny_(p unsafe.Pointer) any {
+	d := (*pbData_)(p)
+	if d.isBuilder_() {
+		return d.d_.asB(p)
+	}
+	return d.d_.asM(p)
+}
+
+// fp_ is the address of the storage of field f.
+func (this *pbData_) fp_(f *pbField_) unsafe.Pointer { return unsafe.Add(unsafe.Pointer(this), f.off) }
+
+func (this *pbData_) hasWord_(f *pbField_) *uint32 {
+	return (*uint32)(unsafe.Add(unsafe.Pointer(this), f.hOff))
+}
+
+func (this *pbData_) unkBytes_() []byte {
+	if this.unk_ == nil {
+		return nil
+	}
+	return *this.unk_
+}
+
+func (this *pbData_) setUnk_(b []byte) {
+	if len(b) == 0 {
+		this.unk_ = nil
 		return
 	}
-	v := make([]any, len(this.v_))
-	for i, x := range this.v_ {
-		if r, ok := x.(*pbRep_); ok {
-			if len(r.a) == 0 {
-				continue
-			}
-			c := make([]any, len(r.a))
-			copy(c, r.a)
-			v[i] = &pbRep_{c}
-		} else {
-			v[i] = x
-		}
+	this.unk_ = &b
+}
+
+func (this *pbData_) addUnk_(b []byte) {
+	u := this.unkBytes_()
+	this.setUnk_(append(u[:len(u):len(u)], b...))
+}
+
+// own_ gives a builder its own repeated-field slices again after build() or toBuilder() shared them.
+func (this *pbData_) own_() {
+	if this.size_ == pbShared_ {
+		this.ownSlow_()
 	}
-	this.v_ = v
-	this.unk_ = this.unk_[:len(this.unk_):len(this.unk_)]
-	this.shared_ = false
+}
+
+func (this *pbData_) ownSlow_() {
+	for _, f := range this.d_.reps {
+		this.repOp_(f, pbOpClone_, 0, nil)
+	}
+	this.size_ = pbBuilder_
 }
 
 // pbDataOf_ returns the storage of a message or builder.
@@ -300,31 +398,20 @@ func pbDataOf_(v any) *pbData_ {
 	panic(new_IllegalArgumentException_String("not a protocol message: " + goTypeName_(v)).self())
 }
 
+// ptrOf_ is the message or builder v as a value of message field f.
+func (f *pbField_) ptrOf_(v any) unsafe.Pointer {
+	d := pbDataOf_(v)
+	if d.d_ != f.md {
+		panic(new_ClassCastException_String(goTypeName_(v) + " is not a " + f.md.name).self())
+	}
+	return unsafe.Pointer(d)
+}
+
 func pbNPE_() {
 	panic(new_NullPointerException_0().self())
 }
 
-func pbIsZero_(v any) bool {
-	switch x := v.(type) {
-	case int32:
-		return x == 0
-	case int64:
-		return x == 0
-	case bool:
-		return !x
-	case string:
-		return x == ""
-	case float64:
-		return math.Float64bits(x) == 0
-	case float32:
-		return math.Float32bits(x) == 0
-	case *ByteString:
-		return len(x.b_) == 0
-	}
-	return false
-}
-
-// built_ is the message in a slot that may hold a builder.
+// pbBuilt_ is the message in a value that may be a builder.
 func pbBuilt_(v any) any {
 	if b, ok := v.(pbB_); ok {
 		return b.pbb_().pbBuild_()
@@ -332,167 +419,489 @@ func pbBuilt_(v any) any {
 	return v
 }
 
-func (this *pbData_) get_(i int) any {
-	v := this.v_[i]
-	if v == nil {
-		return this.d_.fields[i].zero
+// pbBuiltP_ is the message at p, which may be a builder.
+func pbBuiltP_(p unsafe.Pointer) unsafe.Pointer {
+	if d := (*pbData_)(p); d.isBuilder_() {
+		return unsafe.Pointer(d.build_())
 	}
-	return v
+	return p
 }
 
-func (this *pbData_) gI32_(i int) int32 {
-	if v := this.v_[i]; v != nil {
-		return v.(int32)
+// hasF_ says whether field f is set (a repeated field: has elements).
+func (this *pbData_) hasF_(f *pbField_) bool {
+	p := this.fp_(f)
+	if f.rep {
+		return (*pbSlice_)(p).n != 0
 	}
-	return this.d_.fields[i].zero.(int32)
-}
-
-func (this *pbData_) gI64_(i int) int64 {
-	if v := this.v_[i]; v != nil {
-		return v.(int64)
+	if f.hMask != 0 {
+		return *this.hasWord_(f)&f.hMask != 0
 	}
-	return this.d_.fields[i].zero.(int64)
-}
-
-func (this *pbData_) gF64_(i int) float64 { return this.get_(i).(float64) }
-func (this *pbData_) gBool_(i int) bool   { return this.get_(i).(bool) }
-func (this *pbData_) gStr_(i int) string  { return this.get_(i).(string) }
-
-func (this *pbData_) gBytes_(i int) *ByteString { return this.get_(i).(*ByteString) }
-
-// gMsg_ is the value of a singular message field: never nil.
-func (this *pbData_) gMsg_(i int) any {
-	v := this.v_[i]
-	if v == nil {
-		return this.d_.fields[i].md.default_()
+	switch f.cls {
+	case pbCI32_, pbCF32_:
+		return *(*uint32)(p) != 0
+	case pbCI64_, pbCF64_:
+		return *(*uint64)(p) != 0
+	case pbCBool_:
+		return *(*bool)(p)
+	case pbCStr_:
+		return *(*string)(p) != ""
+	case pbCBytes_:
+		b := *(**ByteString)(p)
+		return b != nil && len(b.b_) != 0
 	}
-	return pbBuilt_(v)
+	return *(*unsafe.Pointer)(p) != nil
 }
 
-func (this *pbData_) has_(i int) bool { return this.v_[i] != nil }
-
-func (this *pbData_) rep_(i int) []any {
-	if v := this.v_[i]; v != nil {
-		return v.(*pbRep_).a
-	}
-	return nil
-}
-
-func (this *pbData_) cnt_(i int) int32 { return int32(len(this.rep_(i))) }
-
-func (this *pbData_) at_(i int, idx int32) any {
-	a := this.rep_(i)
-	if idx < 0 || int(idx) >= len(a) {
-		panic(new_IndexOutOfBoundsException_String("Index: " + istr_(int64(idx)) + ", Size: " + istr_(int64(len(a)))).self())
-	}
-	return pbBuilt_(a[idx])
-}
-
-func (this *pbData_) isBuilder_() bool {
-	_, ok := this.me_.(pbB_)
-	return ok
-}
-
-// list_ is getFooList(): the elements in their boxed Java representation.
-func (this *pbData_) list_(i int) List {
-	a := this.rep_(i)
-	if this.isBuilder_() {
-		c := make([]any, len(a))
-		for j, v := range a {
-			c[j] = pbBuilt_(v)
+// pbBox_ is the stored value at p (a singular field or an element of a repeated one) boxed.
+func pbBox_(f *pbField_, p unsafe.Pointer) any {
+	switch f.cls {
+	case pbCI32_:
+		return *(*int32)(p)
+	case pbCI64_:
+		return *(*int64)(p)
+	case pbCBool_:
+		return *(*bool)(p)
+	case pbCF32_:
+		return *(*float32)(p)
+	case pbCF64_:
+		return *(*float64)(p)
+	case pbCStr_:
+		return *(*string)(p)
+	case pbCBytes_:
+		if b := *(**ByteString)(p); b != nil {
+			return b
 		}
-		a = c
+		return ByteString_EMPTY
+	}
+	return pbAny_(*(*unsafe.Pointer)(p))
+}
+
+// slot_ is the boxed value of singular field f (a message field: the message or the builder
+// stored), nil when the field is not set.
+func (this *pbData_) slot_(f *pbField_) any {
+	if !this.hasF_(f) {
+		return nil
+	}
+	return pbBox_(f, this.fp_(f))
+}
+
+// elems_ is the boxed elements of repeated field f.
+func (this *pbData_) elems_(f *pbField_) []any {
+	s := (*pbSlice_)(this.fp_(f))
+	if s.n == 0 {
+		return nil
+	}
+	a := make([]any, s.n)
+	for i := range a {
+		a[i] = pbBox_(f, unsafe.Add(s.p, uintptr(i)*f.esz))
+	}
+	return a
+}
+
+// get_ is the boxed value of singular non-message field f, its default when not set.
+func (this *pbData_) get_(i int) any {
+	f := this.d_.fields[i]
+	if v := this.slot_(f); v != nil {
+		return v
+	}
+	return f.zero
+}
+
+// gMsgP_ is the value of a singular message field: never nil.
+func (this *pbData_) gMsgP_(i int) unsafe.Pointer {
+	f := this.d_.fields[i]
+	if p := *(*unsafe.Pointer)(this.fp_(f)); p != nil {
+		return pbBuiltP_(p)
+	}
+	return unsafe.Pointer(f.md.default_())
+}
+
+func (this *pbData_) gMsg_(i int) any { return pbAny_(this.gMsgP_(i)) }
+
+func (this *pbData_) has_(i int) bool { return this.hasF_(this.d_.fields[i]) }
+
+func (this *pbData_) cnt_(i int) int32 {
+	return int32((*pbSlice_)(this.fp_(this.d_.fields[i])).n)
+}
+
+func pbIndexError_(idx int32, n int) {
+	panic(new_IndexOutOfBoundsException_String("Index: " + istr_(int64(idx)) + ", Size: " + istr_(int64(n))).self())
+}
+
+// pbAt_ is getFoo(int) of a repeated field.
+func pbAt_[T any](a []T, idx int32) T {
+	if idx < 0 || int(idx) >= len(a) {
+		pbIndexError_(idx, len(a))
+	}
+	return a[idx]
+}
+
+// pbListOf_ is getFooList(): the elements in their boxed Java representation.
+func pbListOf_[T any](a []T) List {
+	c := make([]any, len(a))
+	for i, v := range a {
+		c[i] = v
+	}
+	return listOf_(c)
+}
+
+// atMsgP_ is getFoo(int) of a repeated message field of a builder, where an element may be a builder.
+func (this *pbData_) atMsgP_(i int, idx int32) unsafe.Pointer {
+	a := *(*[]unsafe.Pointer)(this.fp_(this.d_.fields[i]))
+	return pbBuiltP_(pbAt_(a, idx))
+}
+
+// at_ is the boxed element idx of a repeated field.
+func (this *pbData_) at_(i int, idx int32) any {
+	f := this.d_.fields[i]
+	s := (*pbSlice_)(this.fp_(f))
+	if idx < 0 || int(idx) >= s.n {
+		pbIndexError_(idx, s.n)
+	}
+	return pbBuilt_(pbBox_(f, unsafe.Add(s.p, uintptr(idx)*f.esz)))
+}
+
+// list_ is getFooList() of a builder's repeated message field.
+func (this *pbData_) list_(i int) List {
+	a := this.elems_(this.d_.fields[i])
+	for j, v := range a {
+		a[j] = pbBuilt_(v)
 	}
 	return listOf_(a[:len(a):len(a)])
 }
 
 // enumList_ is getFooList() of a repeated enum field.
 func (this *pbData_) enumList_(i int, conv func(int32) any) List {
-	a := this.rep_(i)
+	a := *(*[]int32)(this.fp_(this.d_.fields[i]))
 	c := make([]any, len(a))
 	for j, v := range a {
-		c[j] = conv(v.(int32))
+		c[j] = conv(v)
 	}
 	return listOf_(c)
 }
 
 // case_ is the field number of the member of a oneof that is set, or 0.
 func (this *pbData_) case_(oneof int32) int32 {
-	for _, f := range this.d_.fields {
-		if f.oneof == oneof && this.v_[f.idx] != nil {
+	for _, f := range this.d_.oneofF[oneof-1] {
+		if this.hasF_(f) {
 			return f.num
 		}
 	}
 	return 0
 }
 
-func (this *pbData_) clearOneof_(oneof int32, except int) {
-	this.own_()
-	for _, f := range this.d_.fields {
-		if f.oneof == oneof && f.idx != except {
-			this.v_[f.idx] = nil
+// clrF_ makes field f not set.
+func (this *pbData_) clrF_(f *pbField_) {
+	p := this.fp_(f)
+	if f.rep {
+		*(*pbSlice_)(p) = pbSlice_{}
+		return
+	}
+	if f.hMask != 0 {
+		*this.hasWord_(f) &^= f.hMask
+	}
+	switch f.cls {
+	case pbCI32_, pbCF32_:
+		*(*uint32)(p) = 0
+	case pbCI64_, pbCF64_:
+		*(*uint64)(p) = 0
+	case pbCBool_:
+		*(*bool)(p) = false
+	case pbCStr_:
+		*(*string)(p) = ""
+	case pbCBytes_:
+		*(**ByteString)(p) = nil
+	default:
+		*(*unsafe.Pointer)(p) = nil
+	}
+}
+
+func (this *pbData_) clearOneof_(oneof int32, except *pbField_) {
+	for _, f := range this.d_.oneofF[oneof-1] {
+		if f != except {
+			this.clrF_(f)
 		}
 	}
 }
 
-// put_ stores a singular value with the presence rules of its field.
-func (this *pbData_) put_(f *pbField_, v any) {
-	this.own_()
+// mark_ records that singular field f is being set: the other members of its oneof are cleared
+// and its presence bit is set.
+func (this *pbData_) mark_(f *pbField_) {
 	if f.oneof != 0 {
-		this.clearOneof_(f.oneof, f.idx)
-	} else if !f.pres && pbIsZero_(v) {
+		this.clearOneof_(f.oneof, f)
+	}
+	if f.hMask != 0 {
+		*this.hasWord_(f) |= f.hMask
+	}
+}
+
+// The st*_ functions store one value of field f: the value of a singular field (with the
+// presence rules of the field), one more element of a repeated one.
+
+func (this *pbData_) stI32_(f *pbField_, v int32) {
+	p := (*int32)(this.fp_(f))
+	if f.rep {
+		this.own_()
+		s := (*[]int32)(unsafe.Pointer(p))
+		*s = append(*s, v)
+		return
+	}
+	this.mark_(f)
+	*p = v
+}
+
+func (this *pbData_) stI64_(f *pbField_, v int64) {
+	p := (*int64)(this.fp_(f))
+	if f.rep {
+		this.own_()
+		s := (*[]int64)(unsafe.Pointer(p))
+		*s = append(*s, v)
+		return
+	}
+	this.mark_(f)
+	*p = v
+}
+
+func (this *pbData_) stBool_(f *pbField_, v bool) {
+	p := (*bool)(this.fp_(f))
+	if f.rep {
+		this.own_()
+		s := (*[]bool)(unsafe.Pointer(p))
+		*s = append(*s, v)
+		return
+	}
+	this.mark_(f)
+	*p = v
+}
+
+func (this *pbData_) stF32_(f *pbField_, v float32) {
+	p := (*float32)(this.fp_(f))
+	if f.rep {
+		this.own_()
+		s := (*[]float32)(unsafe.Pointer(p))
+		*s = append(*s, v)
+		return
+	}
+	this.mark_(f)
+	*p = v
+}
+
+func (this *pbData_) stF64_(f *pbField_, v float64) {
+	p := (*float64)(this.fp_(f))
+	if f.rep {
+		this.own_()
+		s := (*[]float64)(unsafe.Pointer(p))
+		*s = append(*s, v)
+		return
+	}
+	this.mark_(f)
+	*p = v
+}
+
+func (this *pbData_) stStr_(f *pbField_, v string) {
+	p := (*string)(this.fp_(f))
+	if f.rep {
+		this.own_()
+		s := (*[]string)(unsafe.Pointer(p))
+		*s = append(*s, v)
+		return
+	}
+	this.mark_(f)
+	*p = v
+}
+
+func (this *pbData_) stBytes_(f *pbField_, v *ByteString) {
+	p := (**ByteString)(this.fp_(f))
+	if f.rep {
+		this.own_()
+		s := (*[]*ByteString)(unsafe.Pointer(p))
+		*s = append(*s, v)
+		return
+	}
+	this.mark_(f)
+	if f.hMask == 0 && len(v.b_) == 0 {
 		v = nil
 	}
-	this.v_[f.idx] = v
+	*p = v
 }
 
-func (this *pbData_) append_(f *pbField_, v any) {
-	this.own_()
-	r, _ := this.v_[f.idx].(*pbRep_)
-	if r == nil {
-		r = &pbRep_{}
-		this.v_[f.idx] = r
+// stMsg_ stores a message (or, in a builder, a builder) of the field's type.
+func (this *pbData_) stMsg_(f *pbField_, v unsafe.Pointer) {
+	p := (*unsafe.Pointer)(this.fp_(f))
+	if f.rep {
+		this.own_()
+		s := (*[]unsafe.Pointer)(unsafe.Pointer(p))
+		*s = append(*s, v)
+		return
 	}
-	r.a = append(r.a, v)
+	this.mark_(f)
+	*p = v
 }
 
-// copyInto_ copies the fields into fresh storage; nested builders are built
-// when the target is a message.
-func (this *pbData_) copyInto_(to *pbData_, build bool) {
-	for i, v := range this.v_ {
-		switch x := v.(type) {
-		case nil:
-		case *pbRep_:
-			if len(x.a) == 0 {
-				continue
-			}
-			c := make([]any, len(x.a))
-			copy(c, x.a)
-			if build {
-				for j, e := range c {
-					c[j] = pbBuilt_(e)
-				}
-			}
-			to.v_[i] = &pbRep_{c}
-		case pbB_:
-			if build {
-				to.v_[i] = x.pbb_().pbBuild_()
-			} else {
-				to.v_[i] = v
-			}
-		default:
-			to.v_[i] = v
+// put_ stores a boxed value as st*_ do.
+func (this *pbData_) put_(f *pbField_, v any) {
+	switch f.cls {
+	case pbCI32_:
+		this.stI32_(f, v.(int32))
+	case pbCI64_:
+		this.stI64_(f, v.(int64))
+	case pbCBool_:
+		this.stBool_(f, v.(bool))
+	case pbCF32_:
+		this.stF32_(f, v.(float32))
+	case pbCF64_:
+		this.stF64_(f, v.(float64))
+	case pbCStr_:
+		this.stStr_(f, v.(string))
+	case pbCBytes_:
+		this.stBytes_(f, v.(*ByteString))
+	default:
+		this.stMsg_(f, f.ptrOf_(v))
+	}
+}
+
+// Operations on a repeated field's slice.
+const (
+	pbOpSet_    = iota // element idx = v
+	pbOpInsert_        // v inserted at idx
+	pbOpDelete_        // element idx removed
+	pbOpClone_         // a slice of its own
+)
+
+func pbRepOp_[T any](s *[]T, op int, idx int, v T) {
+	switch op {
+	case pbOpSet_:
+		(*s)[idx] = v
+	case pbOpInsert_:
+		*s = slices.Insert(*s, idx, v)
+	case pbOpDelete_:
+		*s = slices.Delete(*s, idx, idx+1)
+	case pbOpClone_:
+		if len(*s) == 0 {
+			*s = nil
+		} else {
+			c := make([]T, len(*s))
+			copy(c, *s)
+			*s = c
 		}
 	}
-	to.unk_ = this.unk_[:len(this.unk_):len(this.unk_)]
+}
+
+func pbUnbox_[T any](v any) T {
+	if v == nil {
+		var zero T
+		return zero
+	}
+	return v.(T)
+}
+
+// repOp_ applies an operation to the slice of repeated field f; v is the boxed element, if the
+// operation takes one.
+func (this *pbData_) repOp_(f *pbField_, op int, idx int, v any) {
+	p := this.fp_(f)
+	switch f.cls {
+	case pbCI32_:
+		pbRepOp_((*[]int32)(p), op, idx, pbUnbox_[int32](v))
+	case pbCI64_:
+		pbRepOp_((*[]int64)(p), op, idx, pbUnbox_[int64](v))
+	case pbCBool_:
+		pbRepOp_((*[]bool)(p), op, idx, pbUnbox_[bool](v))
+	case pbCF32_:
+		pbRepOp_((*[]float32)(p), op, idx, pbUnbox_[float32](v))
+	case pbCF64_:
+		pbRepOp_((*[]float64)(p), op, idx, pbUnbox_[float64](v))
+	case pbCStr_:
+		pbRepOp_((*[]string)(p), op, idx, pbUnbox_[string](v))
+	case pbCBytes_:
+		pbRepOp_((*[]*ByteString)(p), op, idx, pbUnbox_[*ByteString](v))
+	default:
+		var e unsafe.Pointer
+		if v != nil {
+			e = f.ptrOf_(v)
+		}
+		pbRepOp_((*[]unsafe.Pointer)(p), op, idx, e)
+	}
+}
+
+// build_ is the message of a builder. It copies the struct of the fields; the repeated fields'
+// slices stay shared with the builder (which copies them before its next change of a repeated
+// field, own_), except where an element is a builder, which is built for the message.
+func (this *pbData_) build_() *pbData_ {
+	d := this.d_
+	m := d.newM()
+	m.d_ = d
+	d.cp(unsafe.Pointer(m), unsafe.Pointer(this))
+	m.unk_ = this.unk_
+	shared := false
+	for _, f := range d.reps {
+		s := (*pbSlice_)(m.fp_(f))
+		if s.n == 0 {
+			if s.p != nil {
+				*s = pbSlice_{}
+			}
+			continue
+		}
+		if f.cls == pbCMsg_ {
+			ap := (*[]unsafe.Pointer)(unsafe.Pointer(s))
+			a := *ap
+			nested := false
+			for _, e := range a {
+				if (*pbData_)(e).isBuilder_() {
+					nested = true
+					break
+				}
+			}
+			if nested {
+				c := make([]unsafe.Pointer, len(a))
+				for i, e := range a {
+					c[i] = pbBuiltP_(e)
+				}
+				*ap = c
+				continue
+			}
+		}
+		shared = true
+	}
+	for _, f := range d.msgs {
+		pp := (*unsafe.Pointer)(m.fp_(f))
+		if e := *pp; e != nil && (*pbData_)(e).isBuilder_() {
+			*pp = unsafe.Pointer((*pbData_)(e).build_())
+		}
+	}
+	if shared {
+		this.size_ = pbShared_
+	}
+	return m
+}
+
+// toBuilder_ is a builder with the fields of a message.
+func (this *pbData_) toBuilder_() *pbData_ {
+	d := this.d_
+	b := d.newBuilder_()
+	d.cp(unsafe.Pointer(b), unsafe.Pointer(this))
+	b.unk_ = this.unk_
+	if len(d.reps) > 0 {
+		b.size_ = pbShared_
+	}
+	return b
+}
+
+// clone_ is a message with the fields of this message in slices of its own, for merging into.
+func (this *pbData_) clone_() *pbData_ {
+	d := this.d_
+	m := d.newMsg_()
+	d.cp(unsafe.Pointer(m), unsafe.Pointer(this))
+	m.unk_ = this.unk_
+	for _, f := range d.reps {
+		m.repOp_(f, pbOpClone_, 0, nil)
+	}
+	return m
 }
 
 // ---------------------------------------------------------------- messages
 
 type AbstractMessageLite struct {
 	pbData_
-	size_ int32 // serialized size + 1, 0 while unknown
-	hash_ int32
 }
 
 type AbstractMessage struct {
@@ -510,20 +919,18 @@ type GeneratedMessage_ExtendableMessage struct {
 func (this *AbstractMessageLite) pbm_() *AbstractMessageLite { return this }
 
 func (this *AbstractMessageLite) toBuilder() MessageLite_Builder {
-	b := this.d_.newBuilder_()
-	this.copyInto_(&b.pbData_, false)
-	return b.me_.(MessageLite_Builder)
+	return this.toBuilder_().me_().(MessageLite_Builder)
 }
 
 func (this *AbstractMessageLite) bytes_() []byte {
-	return pbAppendMsg_(make([]byte, 0, pbSizeOf_(this)), this)
+	return pbAppendMsg_(make([]byte, 0, pbSizeOf_(&this.pbData_)), &this.pbData_)
 }
 
 func (this *AbstractMessageLite) toByteString() *ByteString { return &ByteString{b_: this.bytes_()} }
 
 func (this *AbstractMessageLite) toByteArray() []int8 { return pbI8_(this.bytes_()) }
 
-func (this *AbstractMessageLite) getSerializedSize() int32 { return int32(pbSizeOf_(this)) }
+func (this *AbstractMessageLite) getSerializedSize() int32 { return int32(pbSizeOf_(&this.pbData_)) }
 
 func (this *AbstractMessageLite) writeTo(p0 *CodedOutputStream) { p0.put_(this.bytes_()) }
 
@@ -571,43 +978,18 @@ type GeneratedMessage_ExtendableBuilder struct {
 func (this *AbstractMessageLite_Builder) pbb_() *AbstractMessageLite_Builder { return this }
 
 func (this *AbstractMessageLite_Builder) pbBuild_() any {
-	// With no builder among the fields (a nested builder must stay the builder's, and be built
-	// for the message), the message takes the builder's storage as it is: no copy of the fields
-	// and of every repeated field. The builder copies before its next change (own_).
-	for _, v := range this.v_ {
-		switch x := v.(type) {
-		case pbB_:
-			return this.pbBuildCopy_()
-		case *pbRep_:
-			for _, e := range x.a {
-				if _, ok := e.(pbB_); ok {
-					return this.pbBuildCopy_()
-				}
-			}
-		}
-	}
-	m := this.d_.newMsgBare_()
-	m.v_ = this.v_
-	m.unk_ = this.unk_[:len(this.unk_):len(this.unk_)]
-	this.shared_ = true
-	return m.me_
-}
-
-func (this *AbstractMessageLite_Builder) pbBuildCopy_() any {
-	m := this.d_.newMsg_()
-	this.copyInto_(&m.pbData_, true)
-	return m.me_
+	m := this.build_()
+	return m.d_.asM(unsafe.Pointer(m))
 }
 
 func (this *AbstractMessageLite_Builder) build() MessageLite { return this.pbBuild_().(MessageLite) }
 
 func (this *AbstractMessageLite_Builder) clear() MessageLite_Builder {
-	this.own_()
-	for i := range this.v_ {
-		this.v_[i] = nil
-	}
+	d := this.d_
+	d.cp(unsafe.Pointer(&this.pbData_), unsafe.Pointer(d.default_()))
 	this.unk_ = nil
-	return this.me_.(MessageLite_Builder)
+	this.size_ = pbBuilder_
+	return this.me_().(MessageLite_Builder)
 }
 
 func (this *AbstractMessageLite_Builder) toString() string {
@@ -630,14 +1012,19 @@ func (this *AbstractMessageLite_Builder) set_(i int, v any) {
 	this.put_(this.d_.fields[i], v)
 }
 
-func (this *AbstractMessageLite_Builder) clr_(i int) {
-	this.own_()
-	this.v_[i] = nil
+// setMsg_ is setFoo(Foo) of a singular message field.
+func (this *AbstractMessageLite_Builder) setMsg_(i int, m unsafe.Pointer) {
+	if m == nil {
+		pbNPE_()
+	}
+	this.stMsg_(this.d_.fields[i], m)
 }
+
+func (this *AbstractMessageLite_Builder) clr_(i int) { this.clrF_(this.d_.fields[i]) }
 
 func (this *AbstractMessageLite_Builder) add_(i int, v any) {
 	this.checkValue_(v)
-	this.append_(this.d_.fields[i], v)
+	this.put_(this.d_.fields[i], v)
 }
 
 func (this *AbstractMessageLite_Builder) addAll_(i int, it Iterable, conv func(any) any) {
@@ -650,42 +1037,40 @@ func (this *AbstractMessageLite_Builder) addAll_(i int, it Iterable, conv func(a
 			v = conv(v)
 		}
 		this.checkValue_(v)
-		this.append_(f, v)
+		this.put_(f, v)
 	}
 }
 
 // bld_ is getFooBuilder() for a singular message field.
 func (this *AbstractMessageLite_Builder) bld_(i int) any {
-	this.own_()
 	f := this.d_.fields[i]
-	switch x := this.v_[i].(type) {
-	case nil:
-		b := f.md.newBuilder_()
-		this.put_(f, b.me_)
-		return b.me_
-	case pbB_:
-		return x
-	default:
-		b := x.(pbM_).pbm_().toBuilder()
-		this.v_[i] = b
-		return b
+	pp := (*unsafe.Pointer)(this.fp_(f))
+	e := (*pbData_)(*pp)
+	switch {
+	case e == nil:
+		e = f.md.newBuilder_()
+		this.stMsg_(f, unsafe.Pointer(e))
+	case !e.isBuilder_():
+		e = e.toBuilder_()
+		*pp = unsafe.Pointer(e)
 	}
+	return e.me_()
 }
 
 // addBld_ is addFooBuilder().
 func (this *AbstractMessageLite_Builder) addBld_(i int) any {
 	f := this.d_.fields[i]
-	b := f.md.newBuilder_().me_
-	this.append_(f, b)
-	return b
+	b := f.md.newBuilder_()
+	this.stMsg_(f, unsafe.Pointer(b))
+	return b.me_()
 }
 
 // ---------------------------------------------------------------- static entry points used by generated code
 
 func pbParseCoded_(d *pbDesc_, in *CodedInputStream) any {
 	m := d.newMsg_()
-	in.mergeInto_(&m.pbData_)
-	return m.me_
+	in.mergeInto_(m)
+	return m.me_()
 }
 
 // ---------------------------------------------------------------- wire format: sizes and writing
@@ -715,53 +1100,67 @@ func pbAppendFixed64_(b []byte, v uint64) []byte {
 	return append(b, byte(v), byte(v>>8), byte(v>>16), byte(v>>24), byte(v>>32), byte(v>>40), byte(v>>48), byte(v>>56))
 }
 
-func pbSizeOf_(m *AbstractMessageLite) int {
-	if m.size_ != 0 {
+func pbSizeOf_(m *pbData_) int {
+	if m.size_ > 0 {
 		return int(m.size_ - 1)
 	}
 	n := 0
 	for _, f := range m.d_.sorted {
-		if v := m.v_[f.idx]; v != nil {
-			n += pbFieldSize_(f, v)
+		p := m.fp_(f)
+		if !f.rep {
+			if m.hasF_(f) {
+				n += f.tagSize + pbValueSize_(f, p)
+			}
+			continue
+		}
+		s := (*pbSlice_)(p)
+		if s.n == 0 {
+			continue
+		}
+		e := pbElemsSize_(f, s)
+		if f.packed {
+			n += f.tagSize + pbVarintSize_(uint64(e)) + e
+		} else {
+			n += e + f.tagSize*s.n
 		}
 	}
-	n += len(m.unk_)
-	m.size_ = int32(n + 1)
+	n += len(m.unkBytes_())
+	if m.size_ == 0 {
+		m.size_ = int32(n + 1)
+	}
 	return n
 }
 
-func pbFieldSize_(f *pbField_, v any) int {
-	tag := pbVarintSize_(uint64(f.num) << 3)
-	if !f.rep {
-		return tag + pbValueSize_(f.kind, v)
-	}
-	a := v.(*pbRep_).a
-	if len(a) == 0 {
-		return 0
-	}
+// pbElemsSize_ is the size of the elements of a repeated field, without tags.
+func pbElemsSize_(f *pbField_, s *pbSlice_) int {
 	n := 0
-	for _, e := range a {
-		n += pbValueSize_(f.kind, e)
+	for i := 0; i < s.n; i++ {
+		n += pbValueSize_(f, unsafe.Add(s.p, uintptr(i)*f.esz))
 	}
-	if f.packed {
-		return tag + pbVarintSize_(uint64(n)) + n
-	}
-	return n + tag*len(a)
+	return n
 }
 
-func pbValueSize_(k pbKind_, v any) int {
-	switch k {
+func pbBytesAt_(p unsafe.Pointer) []byte {
+	if b := *(**ByteString)(p); b != nil {
+		return b.b_
+	}
+	return nil
+}
+
+// pbValueSize_ is the size on the wire of the stored value at p.
+func pbValueSize_(f *pbField_, p unsafe.Pointer) int {
+	switch f.kind {
 	case pbInt32_, pbEnum_:
-		return pbVarintSize_(uint64(int64(v.(int32))))
+		return pbVarintSize_(uint64(int64(*(*int32)(p))))
 	case pbUint32_:
-		return pbVarintSize_(uint64(uint32(v.(int32))))
+		return pbVarintSize_(uint64(*(*uint32)(p)))
 	case pbSint32_:
-		x := v.(int32)
+		x := *(*int32)(p)
 		return pbVarintSize_(uint64(uint32(x<<1) ^ uint32(x>>31)))
 	case pbInt64_, pbUint64_:
-		return pbVarintSize_(uint64(v.(int64)))
+		return pbVarintSize_(*(*uint64)(p))
 	case pbSint64_:
-		x := v.(int64)
+		x := *(*int64)(p)
 		return pbVarintSize_(uint64(x<<1) ^ uint64(x>>63))
 	case pbBool_:
 		return 1
@@ -770,13 +1169,13 @@ func pbValueSize_(k pbKind_, v any) int {
 	case pbFixed64_, pbSfixed64_, pbDouble_:
 		return 8
 	case pbString_:
-		n := len(v.(string))
+		n := len(*(*string)(p))
 		return pbVarintSize_(uint64(n)) + n
 	case pbBytes_:
-		n := len(v.(*ByteString).b_)
+		n := len(pbBytesAt_(p))
 		return pbVarintSize_(uint64(n)) + n
 	case pbMessage_:
-		n := pbSizeOf_(v.(pbM_).pbm_())
+		n := pbSizeOf_((*pbData_)(*(*unsafe.Pointer)(p)))
 		return pbVarintSize_(uint64(n)) + n
 	}
 	panic("protobuf: unsupported field kind")
@@ -785,83 +1184,77 @@ func pbValueSize_(k pbKind_, v any) int {
 // pbGoNaN_ is the bit pattern of Go's math.NaN(), which differs from Java's.
 var pbGoNaN_ = math.Float64bits(math.NaN())
 
-func pbAppendMsg_(b []byte, m *AbstractMessageLite) []byte {
+func pbAppendMsg_(b []byte, m *pbData_) []byte {
 	for _, f := range m.d_.sorted {
-		v := m.v_[f.idx]
-		if v == nil {
-			continue
-		}
+		p := m.fp_(f)
 		tag := uint64(f.num)<<3 | uint64(pbWire_[f.kind])
 		if !f.rep {
-			b = pbAppendVarint_(b, tag)
-			b = pbAppendValue_(b, f.kind, v)
+			if m.hasF_(f) {
+				b = pbAppendVarint_(b, tag)
+				b = pbAppendValue_(b, f, p)
+			}
 			continue
 		}
-		a := v.(*pbRep_).a
-		if len(a) == 0 {
+		s := (*pbSlice_)(p)
+		if s.n == 0 {
 			continue
 		}
 		if f.packed {
-			n := 0
-			for _, e := range a {
-				n += pbValueSize_(f.kind, e)
-			}
 			b = pbAppendVarint_(b, uint64(f.num)<<3|2)
-			b = pbAppendVarint_(b, uint64(n))
-			for _, e := range a {
-				b = pbAppendValue_(b, f.kind, e)
+			b = pbAppendVarint_(b, uint64(pbElemsSize_(f, s)))
+			for i := 0; i < s.n; i++ {
+				b = pbAppendValue_(b, f, unsafe.Add(s.p, uintptr(i)*f.esz))
 			}
 			continue
 		}
-		for _, e := range a {
+		for i := 0; i < s.n; i++ {
 			b = pbAppendVarint_(b, tag)
-			b = pbAppendValue_(b, f.kind, e)
+			b = pbAppendValue_(b, f, unsafe.Add(s.p, uintptr(i)*f.esz))
 		}
 	}
-	return append(b, m.unk_...)
+	return append(b, m.unkBytes_()...)
 }
 
-func pbAppendValue_(b []byte, k pbKind_, v any) []byte {
-	switch k {
+// pbAppendValue_ writes the stored value at p.
+func pbAppendValue_(b []byte, f *pbField_, p unsafe.Pointer) []byte {
+	switch f.kind {
 	case pbInt32_, pbEnum_:
-		return pbAppendVarint_(b, uint64(int64(v.(int32))))
+		return pbAppendVarint_(b, uint64(int64(*(*int32)(p))))
 	case pbUint32_:
-		return pbAppendVarint_(b, uint64(uint32(v.(int32))))
+		return pbAppendVarint_(b, uint64(*(*uint32)(p)))
 	case pbSint32_:
-		x := v.(int32)
+		x := *(*int32)(p)
 		return pbAppendVarint_(b, uint64(uint32(x<<1)^uint32(x>>31)))
 	case pbInt64_, pbUint64_:
-		return pbAppendVarint_(b, uint64(v.(int64)))
+		return pbAppendVarint_(b, *(*uint64)(p))
 	case pbSint64_:
-		x := v.(int64)
+		x := *(*int64)(p)
 		return pbAppendVarint_(b, uint64(x<<1)^uint64(x>>63))
 	case pbBool_:
-		if v.(bool) {
+		if *(*bool)(p) {
 			return append(b, 1)
 		}
 		return append(b, 0)
-	case pbFixed32_, pbSfixed32_:
-		return pbAppendFixed32_(b, uint32(v.(int32)))
-	case pbFloat_:
-		return pbAppendFixed32_(b, math.Float32bits(v.(float32)))
+	case pbFixed32_, pbSfixed32_, pbFloat_:
+		return pbAppendFixed32_(b, *(*uint32)(p))
 	case pbFixed64_, pbSfixed64_:
-		return pbAppendFixed64_(b, uint64(v.(int64)))
+		return pbAppendFixed64_(b, *(*uint64)(p))
 	case pbDouble_:
-		bits := math.Float64bits(v.(float64))
+		bits := *(*uint64)(p)
 		if bits == pbGoNaN_ {
 			bits = 0x7ff8000000000000 // Double.NaN
 		}
 		return pbAppendFixed64_(b, bits)
 	case pbString_:
-		s := v.(string)
+		s := *(*string)(p)
 		b = pbAppendVarint_(b, uint64(len(s)))
 		return append(b, s...)
 	case pbBytes_:
-		s := v.(*ByteString).b_
+		s := pbBytesAt_(p)
 		b = pbAppendVarint_(b, uint64(len(s)))
 		return append(b, s...)
 	case pbMessage_:
-		m := v.(pbM_).pbm_()
+		m := (*pbData_)(*(*unsafe.Pointer)(p))
 		b = pbAppendVarint_(b, uint64(pbSizeOf_(m)))
 		return pbAppendMsg_(b, m)
 	}
@@ -961,7 +1354,6 @@ type pbParser_ struct {
 }
 
 func (p *pbParser_) merge_(d *pbData_, data []byte, depth int32) {
-	d.own_()
 	desc := d.d_
 	unknown := false
 	for pos := 0; pos < len(data); {
@@ -994,50 +1386,49 @@ func (p *pbParser_) merge_(d *pbData_, data []byte, depth int32) {
 			break
 		}
 		pos = pbSkip_(data, pos, wt, num)
-		d.unk_ = append(d.unk_, data[start:pos]...)
+		d.addUnk_(data[start:pos])
 		unknown = true
 	}
 	if unknown {
-		d.unk_ = pbSortUnknown_(d.unk_)
+		d.setUnk_(pbSortUnknown_(d.unkBytes_()))
 	}
 }
 
 // readField_ reads one value of field f (whose wire type has been checked).
 func (p *pbParser_) readField_(d *pbData_, f *pbField_, data []byte, pos int, depth int32) int {
-	var v any
 	switch f.kind {
 	case pbInt32_, pbUint32_:
 		var x uint64
 		x, pos = pbVarint_(data, pos)
-		v = int32(x)
+		d.stI32_(f, int32(x))
 	case pbEnum_:
 		var x uint64
 		x, pos = pbVarint_(data, pos)
 		if f.ed.closed {
 			if _, ok := f.ed.byNum[int32(x)]; !ok {
-				d.unk_ = pbAppendVarint_(d.unk_, uint64(f.num)<<3)
-				d.unk_ = pbSortUnknown_(pbAppendVarint_(d.unk_, uint64(int64(int32(x)))))
+				d.addUnk_(pbAppendVarint_(pbAppendVarint_(nil, uint64(f.num)<<3), uint64(int64(int32(x)))))
+				d.setUnk_(pbSortUnknown_(d.unkBytes_()))
 				return pos
 			}
 		}
-		v = int32(x)
+		d.stI32_(f, int32(x))
 	case pbSint32_:
 		var x uint64
 		x, pos = pbVarint_(data, pos)
 		u := uint32(x)
-		v = int32(u>>1) ^ -int32(u&1)
+		d.stI32_(f, int32(u>>1)^-int32(u&1))
 	case pbInt64_, pbUint64_:
 		var x uint64
 		x, pos = pbVarint_(data, pos)
-		v = int64(x)
+		d.stI64_(f, int64(x))
 	case pbSint64_:
 		var x uint64
 		x, pos = pbVarint_(data, pos)
-		v = int64(x>>1) ^ -int64(x&1)
+		d.stI64_(f, int64(x>>1)^-int64(x&1))
 	case pbBool_:
 		var x uint64
 		x, pos = pbVarint_(data, pos)
-		v = x != 0
+		d.stBool_(f, x != 0)
 	case pbFixed32_, pbSfixed32_, pbFloat_:
 		if pos+4 > len(data) {
 			pbFail_(pbErrTruncated_)
@@ -1045,9 +1436,9 @@ func (p *pbParser_) readField_(d *pbData_, f *pbField_, data []byte, pos int, de
 		x := uint32(data[pos]) | uint32(data[pos+1])<<8 | uint32(data[pos+2])<<16 | uint32(data[pos+3])<<24
 		pos += 4
 		if f.kind == pbFloat_ {
-			v = math.Float32frombits(x)
+			d.stF32_(f, math.Float32frombits(x))
 		} else {
-			v = int32(x)
+			d.stI32_(f, int32(x))
 		}
 	case pbFixed64_, pbSfixed64_, pbDouble_:
 		if pos+8 > len(data) {
@@ -1057,9 +1448,9 @@ func (p *pbParser_) readField_(d *pbData_, f *pbField_, data []byte, pos int, de
 			uint64(data[pos+4])<<32 | uint64(data[pos+5])<<40 | uint64(data[pos+6])<<48 | uint64(data[pos+7])<<56
 		pos += 8
 		if f.kind == pbDouble_ {
-			v = math.Float64frombits(x)
+			d.stF64_(f, math.Float64frombits(x))
 		} else {
-			v = int64(x)
+			d.stI64_(f, int64(x))
 		}
 	case pbString_:
 		var n int
@@ -1069,18 +1460,18 @@ func (p *pbParser_) readField_(d *pbData_, f *pbField_, data []byte, pos int, de
 		if f.utf8 && !utf8.ValidString(s) {
 			pbFail_(pbErrUtf8_)
 		}
-		v = s
+		d.stStr_(f, s)
 	case pbBytes_:
 		var n int
 		n, pos = pbLen_(data, pos)
 		b := data[pos : pos+n : pos+n]
 		pos += n
 		if n == 0 {
-			v = ByteString_EMPTY
+			d.stBytes_(f, ByteString_EMPTY)
 		} else if p.alias {
-			v = &ByteString{b_: b}
+			d.stBytes_(f, &ByteString{b_: b})
 		} else {
-			v = &ByteString{b_: append([]byte(nil), b...)}
+			d.stBytes_(f, &ByteString{b_: append([]byte(nil), b...)})
 		}
 	case pbMessage_:
 		var n int
@@ -1091,29 +1482,21 @@ func (p *pbParser_) readField_(d *pbData_, f *pbField_, data []byte, pos int, de
 			pbFail_(pbErrRecursion_)
 		}
 		if !f.rep {
-			switch x := d.v_[f.idx].(type) {
-			case nil:
-			case pbB_:
-				p.merge_(&x.pbb_().pbData_, sub, depth+1)
-				return pos
-			default:
-				m := f.md.newMsg_()
-				pbDataOf_(x).copyInto_(&m.pbData_, true)
-				p.merge_(&m.pbData_, sub, depth+1)
-				d.v_[f.idx] = m.me_
+			pp := (*unsafe.Pointer)(d.fp_(f))
+			if x := (*pbData_)(*pp); x != nil {
+				if !x.isBuilder_() {
+					x = x.clone_()
+					*pp = unsafe.Pointer(x)
+				}
+				p.merge_(x, sub, depth+1)
 				return pos
 			}
 		}
 		m := f.md.newMsg_()
-		p.merge_(&m.pbData_, sub, depth+1)
-		v = m.me_
+		p.merge_(m, sub, depth+1)
+		d.stMsg_(f, unsafe.Pointer(m))
 	default:
 		panic("protobuf: unsupported field kind")
-	}
-	if f.rep {
-		d.append_(f, v)
-	} else {
-		d.put_(f, v)
 	}
 	return pos
 }
@@ -1159,68 +1542,76 @@ func pbEqual_(a, b *pbData_) bool {
 	if a == b {
 		return true
 	}
-	if a.d_ != b.d_ || !bytes.Equal(a.unk_, b.unk_) {
+	if a.d_ != b.d_ || !bytes.Equal(a.unkBytes_(), b.unkBytes_()) {
 		return false
 	}
-	for i, x := range a.v_ {
-		if !pbValueEqual_(x, b.v_[i]) {
+	for _, f := range a.d_.fields {
+		p, q := a.fp_(f), b.fp_(f)
+		if !f.rep {
+			if a.hasF_(f) != b.hasF_(f) || !pbValueEqual_(f, p, q) {
+				return false
+			}
+			continue
+		}
+		s, t := (*pbSlice_)(p), (*pbSlice_)(q)
+		if s.n != t.n {
 			return false
+		}
+		for i := 0; i < s.n; i++ {
+			if !pbValueEqual_(f, unsafe.Add(s.p, uintptr(i)*f.esz), unsafe.Add(t.p, uintptr(i)*f.esz)) {
+				return false
+			}
 		}
 	}
 	return true
 }
 
-func pbValueEqual_(x, y any) bool {
-	if r, ok := x.(*pbRep_); ok && len(r.a) == 0 {
-		x = nil
+// pbValueEqual_ compares the stored values at p and q.
+func pbValueEqual_(f *pbField_, p, q unsafe.Pointer) bool {
+	switch f.cls {
+	case pbCI32_:
+		return *(*int32)(p) == *(*int32)(q)
+	case pbCI64_:
+		return *(*int64)(p) == *(*int64)(q)
+	case pbCBool_:
+		return *(*bool)(p) == *(*bool)(q)
+	case pbCF32_:
+		x, y := *(*float32)(p), *(*float32)(q)
+		return math.Float32bits(x) == math.Float32bits(y) || x != x && y != y
+	case pbCF64_:
+		x, y := *(*float64)(p), *(*float64)(q)
+		return math.Float64bits(x) == math.Float64bits(y) || x != x && y != y
+	case pbCStr_:
+		return *(*string)(p) == *(*string)(q)
+	case pbCBytes_:
+		return bytes.Equal(pbBytesAt_(p), pbBytesAt_(q))
 	}
-	if r, ok := y.(*pbRep_); ok && len(r.a) == 0 {
-		y = nil
-	}
+	x, y := (*pbData_)(*(*unsafe.Pointer)(p)), (*pbData_)(*(*unsafe.Pointer)(q))
 	if x == nil || y == nil {
-		return x == nil && y == nil
+		return x == y
 	}
-	switch p := x.(type) {
-	case *pbRep_:
-		q := y.(*pbRep_)
-		if len(p.a) != len(q.a) {
-			return false
-		}
-		for i := range p.a {
-			if !pbValueEqual_(p.a[i], q.a[i]) {
-				return false
-			}
-		}
-		return true
-	case float64:
-		q := y.(float64)
-		return math.Float64bits(p) == math.Float64bits(q) || p != p && q != q
-	case float32:
-		q := y.(float32)
-		return math.Float32bits(p) == math.Float32bits(q) || p != p && q != q
-	case *ByteString:
-		return bytes.Equal(p.b_, y.(*ByteString).b_)
-	case pbM_, pbB_:
-		return pbEqual_(pbDataOf_(x), pbDataOf_(y))
-	}
-	return x == y
+	return pbEqual_(x, y)
 }
 
 func pbHash_(d *pbData_) int32 {
 	h := int32(41)
 	h = 19*h + String_hashCode(d.d_.name)
 	for _, f := range d.d_.sorted {
-		v := d.v_[f.idx]
-		if r, ok := v.(*pbRep_); ok && len(r.a) == 0 {
-			v = nil
-		}
-		if v == nil {
+		if !d.hasF_(f) {
 			continue
 		}
 		h = 37*h + f.num
-		h = 53*h + pbValueHash_(v)
+		if f.rep {
+			e := int32(1)
+			for _, v := range d.elems_(f) {
+				e = 31*e + pbValueHash_(v)
+			}
+			h = 53*h + e
+		} else {
+			h = 53*h + pbValueHash_(d.slot_(f))
+		}
 	}
-	for _, c := range d.unk_ {
+	for _, c := range d.unkBytes_() {
 		h = 29*h + int32(c)
 	}
 	return h
@@ -1228,12 +1619,6 @@ func pbHash_(d *pbData_) int32 {
 
 func pbValueHash_(v any) int32 {
 	switch x := v.(type) {
-	case *pbRep_:
-		h := int32(1)
-		for _, e := range x.a {
-			h = 31*h + pbValueHash_(e)
-		}
-		return h
 	case float32:
 		if x != x {
 			return 0x7fc00000
@@ -1338,12 +1723,11 @@ func pbGetField_(d *pbData_, fd *Descriptors_FieldDescriptor) any {
 		panic(new_IllegalArgumentException_String("FieldDescriptor does not match message type.").self())
 	}
 	if f.rep {
-		a := d.rep_(f.idx)
-		out := make([]any, len(a))
-		for i, e := range a {
+		out := d.elems_(f)
+		for i, e := range out {
 			out[i] = pbReflect_(f, e)
 		}
-		return listOf_(out)
+		return listOf_(out[:len(out):len(out)])
 	}
 	if f.kind == pbMessage_ {
 		return d.gMsg_(f.idx)
@@ -1355,11 +1739,7 @@ func pbGetField_(d *pbData_, fd *Descriptors_FieldDescriptor) any {
 func pbAllFields_(d *pbData_) Map {
 	m := new_TreeMap()
 	for _, f := range d.d_.sorted {
-		v := d.v_[f.idx]
-		if v == nil {
-			continue
-		}
-		if f.rep && len(v.(*pbRep_).a) == 0 {
+		if !d.hasF_(f) {
 			continue
 		}
 		m.put(f.descriptor_(), pbGetField_(d, f.descriptor_()))
@@ -1729,8 +2109,8 @@ func (this *AbstractMessage_Builder) getAllFields() Map { return pbAllFields_(&t
 func pbParse_(d *pbDesc_, data []byte, alias bool) any {
 	m := d.newMsg_()
 	p := pbParser_{limit: 100, alias: alias}
-	p.merge_(&m.pbData_, data, 0)
-	return m.me_
+	p.merge_(m, data, 0)
+	return m.me_()
 }
 
 func (this *pbData_) gStrBytes_(i int) *ByteString {
@@ -1739,101 +2119,107 @@ func (this *pbData_) gStrBytes_(i int) *ByteString {
 
 // mergeData_ is Message.Builder.mergeFrom(Message) on storage.
 func (this *pbData_) mergeData_(o *pbData_) {
-	this.own_()
 	if this.d_ != o.d_ {
 		panic(new_IllegalArgumentException_String("mergeFrom(Message) can only merge messages of the same type.").self())
 	}
-	for i, v := range o.v_ {
-		if v == nil {
+	for _, f := range o.d_.fields {
+		if !o.hasF_(f) {
 			continue
 		}
-		f := this.d_.fields[i]
 		switch {
 		case f.rep:
-			for _, e := range v.(*pbRep_).a {
-				this.append_(f, pbBuilt_(e))
+			for _, e := range o.elems_(f) {
+				this.put_(f, pbBuilt_(e))
 			}
 		case f.kind == pbMessage_:
-			this.mergeMsgField_(f, pbBuilt_(v))
+			this.mergeMsgField_(f, pbBuiltP_(*(*unsafe.Pointer)(o.fp_(f))))
 		default:
-			this.put_(f, v)
+			this.put_(f, o.slot_(f))
 		}
 	}
-	if len(o.unk_) > 0 {
-		this.unk_ = pbSortUnknown_(append(this.unk_[:len(this.unk_):len(this.unk_)], o.unk_...))
+	if u := o.unkBytes_(); len(u) > 0 {
+		t := this.unkBytes_()
+		this.setUnk_(pbSortUnknown_(append(t[:len(t):len(t)], u...)))
 	}
 }
 
-func (this *AbstractMessageLite_Builder) clrOneof_(oneof int32) { this.clearOneof_(oneof, -1) }
+func (this *AbstractMessageLite_Builder) clrOneof_(oneof int32) { this.clearOneof_(oneof, nil) }
+
+// checkIndex_ checks an index into repeated field f, which may be the length too if extra is 1.
+func (this *AbstractMessageLite_Builder) checkIndex_(f *pbField_, idx int32, extra int) {
+	if n := (*pbSlice_)(this.fp_(f)).n; idx < 0 || int(idx) >= n+extra {
+		pbIndexError_(idx, n)
+	}
+}
 
 func (this *AbstractMessageLite_Builder) setAt_(i int, idx int32, v any) {
+	f := this.d_.fields[i]
 	this.own_()
 	this.checkValue_(v)
-	this.checkIndex_(i, idx, 0)[idx] = v
+	this.checkIndex_(f, idx, 0)
+	this.repOp_(f, pbOpSet_, int(idx), v)
 }
 
 func (this *AbstractMessageLite_Builder) addAt_(i int, idx int32, v any) {
+	f := this.d_.fields[i]
 	this.own_()
 	this.checkValue_(v)
-	this.checkIndex_(i, idx, 1)
-	this.append_(this.d_.fields[i], nil)
-	a := this.rep_(i)
-	copy(a[idx+1:], a[idx:])
-	a[idx] = v
+	this.checkIndex_(f, idx, 1)
+	this.repOp_(f, pbOpInsert_, int(idx), v)
 }
 
 func (this *AbstractMessageLite_Builder) rm_(i int, idx int32) {
+	f := this.d_.fields[i]
 	this.own_()
-	a := this.checkIndex_(i, idx, 0)
-	r := this.v_[i].(*pbRep_)
-	r.a = append(a[:idx], a[idx+1:]...)
+	this.checkIndex_(f, idx, 0)
+	this.repOp_(f, pbOpDelete_, int(idx), nil)
 }
 
 // mergeMsg_ is mergeFoo(Foo) for a singular message field.
 func (this *AbstractMessageLite_Builder) mergeMsg_(i int, m any) {
-	this.own_()
 	if m == nil {
 		pbNPE_()
 	}
 	f := this.d_.fields[i]
-	if this.v_[i] == nil && f.oneof != 0 {
-		this.clearOneof_(f.oneof, i)
-	}
-	this.mergeMsgField_(f, m)
+	this.mergeMsgField_(f, f.ptrOf_(m))
 }
 
 // bldAt_ is getFooBuilder(int) for a repeated message field.
 func (this *AbstractMessageLite_Builder) bldAt_(i int, idx int32) any {
+	f := this.d_.fields[i]
 	this.own_()
-	a := this.checkIndex_(i, idx, 0)
-	if _, ok := a[idx].(pbB_); !ok {
-		a[idx] = a[idx].(pbM_).pbm_().toBuilder()
+	this.checkIndex_(f, idx, 0)
+	a := *(*[]unsafe.Pointer)(this.fp_(f))
+	e := (*pbData_)(a[idx])
+	if !e.isBuilder_() {
+		e = e.toBuilder_()
+		a[idx] = unsafe.Pointer(e)
 	}
-	return a[idx]
+	return e.me_()
 }
 
 // addBldAt_ is addFooBuilder(int).
 func (this *AbstractMessageLite_Builder) addBldAt_(i int, idx int32) any {
-	b := this.d_.fields[i].md.newBuilder_().me_
+	b := this.d_.fields[i].md.newBuilder_().me_()
 	this.addAt_(i, idx, b)
 	return b
 }
 
 // bldList_ is getFooBuilderList().
 func (this *AbstractMessageLite_Builder) bldList_(i int) List {
-	this.own_()
-	a := this.rep_(i)
+	n := int(this.cnt_(i))
+	a := make([]any, n)
 	for j := range a {
-		this.bldAt_(i, int32(j))
+		a[j] = this.bldAt_(i, int32(j))
 	}
-	return listOf_(append([]any(nil), a...))
+	return listOf_(a)
 }
 
 func pbBuilderFrom_(d *pbDesc_, proto any) any {
 	if proto == nil {
 		pbNPE_()
 	}
-	return proto.(pbM_).pbm_().toBuilder()
+	return proto.(pbM_).pbm_().toBuilder_().me_()
 }
 
 func (d *pbDesc_) descriptor_() *Descriptors_Descriptor {
@@ -1858,24 +2244,18 @@ func ByteString_copyFromUtf8(p0 string) *ByteString {
 
 func (this *ByteString) toStringUtf8() string { return string(this.b_) }
 
-func (this *pbData_) mergeMsgField_(f *pbField_, m any) {
-	switch x := this.v_[f.idx].(type) {
-	case nil:
-		this.put_(f, m)
-	case pbB_:
-		x.pbb_().mergeData_(pbDataOf_(m))
+// mergeMsgField_ merges message m into singular message field f.
+func (this *pbData_) mergeMsgField_(f *pbField_, m unsafe.Pointer) {
+	pp := (*unsafe.Pointer)(this.fp_(f))
+	x := (*pbData_)(*pp)
+	switch {
+	case x == nil:
+		this.stMsg_(f, m)
+	case x.isBuilder_():
+		x.mergeData_((*pbData_)(m))
 	default:
-		n := f.md.newMsg_()
-		pbDataOf_(x).copyInto_(&n.pbData_, true)
-		n.mergeData_(pbDataOf_(m))
-		this.put_(f, n.me_)
+		n := x.clone_()
+		n.mergeData_((*pbData_)(m))
+		*pp = unsafe.Pointer(n)
 	}
-}
-
-func (this *AbstractMessageLite_Builder) checkIndex_(i int, idx int32, extra int) []any {
-	a := this.rep_(i)
-	if idx < 0 || int(idx) >= len(a)+extra {
-		panic(new_IndexOutOfBoundsException_String("Index: " + istr_(int64(idx)) + ", Size: " + istr_(int64(len(a)))).self())
-	}
-	return a
 }

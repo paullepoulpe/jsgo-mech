@@ -1,0 +1,49 @@
+diff --git a/go/closure/rt_native.go b/go/closure/rt_native.go
+index 718a1414..f13e784a 100644
+--- a/go/closure/rt_native.go
++++ b/go/closure/rt_native.go
+@@ -670,6 +670,44 @@ func sortSliceF_[T any](s []T, cmp func(a, b T) int32) {
+ 	copy(s, tmp)
+ }
+ 
++// sortTListF_ is List.sort(c) / Collections.sort(list, c) of l.asList() with a typed comparator
++// cmp (tools/postflip/tcmp): the items of a mutable list are sorted as sortSliceF_ sorts them,
++// the comparisons List_sort made on the view's boxes, written back once the sort has returned.
++// An immutable list, and a nil one, go through List_sort as before (an immutable list's twin
++// is sorted in a copy and the first write back throws UnsupportedOperationException), with cmp
++// over the unboxed elements.
++func sortTListF_[T any](l *TList[T], cmp func(a, b T) int32) {
++	if l == nil || l.imm {
++		var c Comparator
++		if l != nil {
++			c = &cmpFunc_{func(a, b any) int32 { return cmp(l.c.unbox(a), l.c.unbox(b)) }}
++		}
++		List_sort(l.asList(), c)
++		return
++	}
++	sortSliceF_(l.items, cmp)
++}
++
++// sortArrF_ is Arrays.sort(a) / Arrays.sort(a, c) of a typed array with a typed comparator cmp
++// (tools/postflip/tcmp), as the translation sorts one: a boxed copy sorted with List_sort's
++// sort.SliceStable (the same comparisons in the same order), written back once the sort has
++// returned; a nil array is left as it is, as the boxed copy of nil was.
++func sortArrF_[T any](a []T, cmp func(a, b T) int32) {
++	tmp := append([]T(nil), a...)
++	sort.SliceStable(tmp, func(i, j int) bool { return cmp(tmp[i], tmp[j]) < 0 })
++	copy(a, tmp)
++}
++
++// compareStrNat_ is the natural order of strings (String.compareTo) as a sort of a typed list
++// of strings calls it (tools/postflip/tcmp): a null element throws NullPointerException, as the
++// JDK's sort does when it calls compareTo on or with null.
++func compareStrNat_(a, b string) int32 {
++	if a == nullstr_ || b == nullstr_ {
++		panic(new_NullPointerException_0().self())
++	}
++	return String_compareTo(a, b)
++}
++
+ // sortSlicePF_ is sortSliceF_ of the list p points to (sliceViewP_).
+ func sortSlicePF_[T any](p *[]T, cmp func(a, b T) int32) {
+ 	if p == nil {
