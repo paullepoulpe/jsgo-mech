@@ -91,7 +91,7 @@ func (this *NullType) visitUntyped_impl(visitor Visitor) any {
 
 // getTypeClass: an object that is exactly a NullType calls its getTypeClass_impl directly (post-flip); others dispatch.
 func (this *NullType) getTypeClass() JSTypeClass {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NullType); p == this {
 		return this.getTypeClass_impl()
 	}
 	return this.self_.getTypeClass_impl()
@@ -99,7 +99,7 @@ func (this *NullType) getTypeClass() JSTypeClass {
 
 // isNullType: an object that is exactly a NullType calls its isNullType_impl directly (post-flip); others dispatch.
 func (this *NullType) isNullType() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NullType); p == this {
 		return this.isNullType_impl()
 	}
 	return this.self_.isNullType_impl()
@@ -107,7 +107,7 @@ func (this *NullType) isNullType() bool {
 
 // isNullable: an object that is exactly a NullType calls its isNullable_impl directly (post-flip); others dispatch.
 func (this *NullType) isNullable() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NullType); p == this {
 		return this.isNullable_impl()
 	}
 	return this.self_.isNullable_impl()
@@ -115,7 +115,7 @@ func (this *NullType) isNullable() bool {
 
 // matchesNumberContext: an object that is exactly a NullType calls its matchesNumberContext_impl directly (post-flip); others dispatch.
 func (this *NullType) matchesNumberContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NullType); p == this {
 		return this.matchesNumberContext_impl()
 	}
 	return this.self_.matchesNumberContext_impl()
@@ -123,7 +123,7 @@ func (this *NullType) matchesNumberContext() bool {
 
 // matchesObjectContext: an object that is exactly a NullType calls its matchesObjectContext_impl directly (post-flip); others dispatch.
 func (this *NullType) matchesObjectContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NullType); p == this {
 		return this.matchesObjectContext_impl()
 	}
 	return this.self_.matchesObjectContext_impl()
@@ -131,7 +131,7 @@ func (this *NullType) matchesObjectContext() bool {
 
 // matchesStringContext: an object that is exactly a NullType calls its matchesStringContext_impl directly (post-flip); others dispatch.
 func (this *NullType) matchesStringContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NullType); p == this {
 		return this.matchesStringContext_impl()
 	}
 	return this.self_.matchesStringContext_impl()
@@ -139,7 +139,7 @@ func (this *NullType) matchesStringContext() bool {
 
 // restrictByNotNullOrUndefined: an object that is exactly a NullType calls its restrictByNotNullOrUndefined_impl directly (post-flip); others dispatch.
 func (this *NullType) restrictByNotNullOrUndefined() *JSType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NullType); p == this {
 		return this.restrictByNotNullOrUndefined_impl()
 	}
 	return this.self_.restrictByNotNullOrUndefined_impl()
@@ -147,7 +147,7 @@ func (this *NullType) restrictByNotNullOrUndefined() *JSType {
 
 // restrictByNotNull: an object that is exactly a NullType calls its restrictByNotNull_impl directly (post-flip); others dispatch.
 func (this *NullType) restrictByNotNull() *JSType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NullType); p == this {
 		return this.restrictByNotNull_impl()
 	}
 	return this.self_.restrictByNotNull_impl()
@@ -155,7 +155,7 @@ func (this *NullType) restrictByNotNull() *JSType {
 
 // testForEquality: an object that is exactly a NullType calls its testForEquality_impl directly (post-flip); others dispatch.
 func (this *NullType) testForEquality(p0 *JSType) Tri {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NullType); p == this {
 		return this.testForEquality_impl(p0)
 	}
 	return this.self_.testForEquality_impl(p0)
@@ -163,7 +163,7 @@ func (this *NullType) testForEquality(p0 *JSType) Tri {
 
 // getDisplayName: an object that is exactly a NullType calls its getDisplayName_impl directly (post-flip); others dispatch.
 func (this *NullType) getDisplayName() Optional[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NullType); p == this {
 		return this.getDisplayName_impl()
 	}
 	return this.self_.getDisplayName_impl()
@@ -171,7 +171,7 @@ func (this *NullType) getDisplayName() Optional[string] {
 
 // getPossibleToBooleanOutcomes: an object that is exactly a NullType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
 func (this *NullType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NullType); p == this {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}
 	return this.self_.getPossibleToBooleanOutcomes_impl()
@@ -179,7 +179,7 @@ func (this *NullType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 
 // visitUntyped: an object that is exactly a NullType calls its visitUntyped_impl directly (post-flip); others dispatch.
 func (this *NullType) visitUntyped(p0 Visitor) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NullType); p == this {
 		return this.visitUntyped_impl(p0)
 	}
 	return this.self_.visitUntyped_impl(p0)

@@ -3200,7 +3200,7 @@ func (this *RemoveUnusedCode_VanillaForNameDeclaration) getLocalAssignedValue_im
 
 // removeInternal: an object that is exactly a RemoveUnusedCode_UnusedReadReference calls its removeInternal_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_UnusedReadReference) removeInternal(p0 *AbstractCompiler) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_UnusedReadReference); p == this {
 		this.removeInternal_impl(p0)
 		return
 	}
@@ -3209,7 +3209,7 @@ func (this *RemoveUnusedCode_UnusedReadReference) removeInternal(p0 *AbstractCom
 
 // removeInternal: an object that is exactly a RemoveUnusedCode_InstanceofName calls its removeInternal_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_InstanceofName) removeInternal(p0 *AbstractCompiler) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_InstanceofName); p == this {
 		this.removeInternal_impl(p0)
 		return
 	}
@@ -3218,7 +3218,7 @@ func (this *RemoveUnusedCode_InstanceofName) removeInternal(p0 *AbstractCompiler
 
 // preventsRemovalOfVariableWithNonLocalValueOrPrototype: an object that is exactly a RemoveUnusedCode_InstanceofName calls its preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_InstanceofName) preventsRemovalOfVariableWithNonLocalValueOrPrototype() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_InstanceofName); p == this {
 		return this.preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl()
 	}
 	return this.self_.preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl()
@@ -3226,7 +3226,7 @@ func (this *RemoveUnusedCode_InstanceofName) preventsRemovalOfVariableWithNonLoc
 
 // removeInternal: an object that is exactly a RemoveUnusedCode_WeakUsageCall calls its removeInternal_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_WeakUsageCall) removeInternal(p0 *AbstractCompiler) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_WeakUsageCall); p == this {
 		this.removeInternal_impl(p0)
 		return
 	}
@@ -3235,7 +3235,7 @@ func (this *RemoveUnusedCode_WeakUsageCall) removeInternal(p0 *AbstractCompiler)
 
 // removeInternal: an object that is exactly a RemoveUnusedCode_IncOrDecOp calls its removeInternal_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_IncOrDecOp) removeInternal(p0 *AbstractCompiler) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_IncOrDecOp); p == this {
 		this.removeInternal_impl(p0)
 		return
 	}
@@ -3244,7 +3244,7 @@ func (this *RemoveUnusedCode_IncOrDecOp) removeInternal(p0 *AbstractCompiler) {
 
 // isVariableAssignment: an object that is exactly a RemoveUnusedCode_IndirectAssign calls its isVariableAssignment_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_IndirectAssign) isVariableAssignment() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_IndirectAssign); p == this {
 		return this.isVariableAssignment_impl()
 	}
 	return this.self_.isVariableAssignment_impl()
@@ -3252,7 +3252,7 @@ func (this *RemoveUnusedCode_IndirectAssign) isVariableAssignment() bool {
 
 // isThisDotPropertyReference: an object that is exactly a RemoveUnusedCode_IndirectAssign calls its isThisDotPropertyReference_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_IndirectAssign) isThisDotPropertyReference() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_IndirectAssign); p == this {
 		return this.isThisDotPropertyReference_impl()
 	}
 	return this.self_.isThisDotPropertyReference_impl()
@@ -3260,7 +3260,7 @@ func (this *RemoveUnusedCode_IndirectAssign) isThisDotPropertyReference() bool {
 
 // isNamedProperty: an object that is exactly a RemoveUnusedCode_IndirectAssign calls its isNamedProperty_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_IndirectAssign) isNamedProperty() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_IndirectAssign); p == this {
 		return this.isNamedProperty_impl()
 	}
 	return this.self_.isNamedProperty_impl()
@@ -3268,7 +3268,7 @@ func (this *RemoveUnusedCode_IndirectAssign) isNamedProperty() bool {
 
 // preventsRemovalOfVariableWithNonLocalValueOrPrototype: an object that is exactly a RemoveUnusedCode_IndirectAssign calls its preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_IndirectAssign) preventsRemovalOfVariableWithNonLocalValueOrPrototype() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_IndirectAssign); p == this {
 		return this.preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl()
 	}
 	return this.self_.preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl()
@@ -3276,7 +3276,7 @@ func (this *RemoveUnusedCode_IndirectAssign) preventsRemovalOfVariableWithNonLoc
 
 // isNamedPropertyAssignment: an object that is exactly a RemoveUnusedCode_IndirectAssign calls its isNamedPropertyAssignment_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_IndirectAssign) isNamedPropertyAssignment() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_IndirectAssign); p == this {
 		return this.isNamedPropertyAssignment_impl()
 	}
 	return this.self_.isNamedPropertyAssignment_impl()
@@ -3284,7 +3284,7 @@ func (this *RemoveUnusedCode_IndirectAssign) isNamedPropertyAssignment() bool {
 
 // getPropertyName: an object that is exactly a RemoveUnusedCode_IndirectAssign calls its getPropertyName_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_IndirectAssign) getPropertyName() string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_IndirectAssign); p == this {
 		return this.getPropertyName_impl()
 	}
 	return this.self_.getPropertyName_impl()
@@ -3292,7 +3292,7 @@ func (this *RemoveUnusedCode_IndirectAssign) getPropertyName() string {
 
 // removeInternal: an object that is exactly a RemoveUnusedCode_IndirectAssign calls its removeInternal_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_IndirectAssign) removeInternal(p0 *AbstractCompiler) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_IndirectAssign); p == this {
 		this.removeInternal_impl(p0)
 		return
 	}
@@ -3301,7 +3301,7 @@ func (this *RemoveUnusedCode_IndirectAssign) removeInternal(p0 *AbstractCompiler
 
 // removeInternal: an object that is exactly a RemoveUnusedCode_Polyfill calls its removeInternal_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_Polyfill) removeInternal(p0 *AbstractCompiler) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_Polyfill); p == this {
 		this.removeInternal_impl(p0)
 		return
 	}
@@ -3310,7 +3310,7 @@ func (this *RemoveUnusedCode_Polyfill) removeInternal(p0 *AbstractCompiler) {
 
 // removeInternal: an object that is exactly a RemoveUnusedCode_ClassDeclaration calls its removeInternal_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_ClassDeclaration) removeInternal(p0 *AbstractCompiler) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_ClassDeclaration); p == this {
 		this.removeInternal_impl(p0)
 		return
 	}
@@ -3319,7 +3319,7 @@ func (this *RemoveUnusedCode_ClassDeclaration) removeInternal(p0 *AbstractCompil
 
 // isVariableAssignment: an object that is exactly a RemoveUnusedCode_ClassDeclaration calls its isVariableAssignment_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_ClassDeclaration) isVariableAssignment() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_ClassDeclaration); p == this {
 		return this.isVariableAssignment_impl()
 	}
 	return this.self_.isVariableAssignment_impl()
@@ -3327,7 +3327,7 @@ func (this *RemoveUnusedCode_ClassDeclaration) isVariableAssignment() bool {
 
 // isAssignedValueLocal: an object that is exactly a RemoveUnusedCode_ClassDeclaration calls its isAssignedValueLocal_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_ClassDeclaration) isAssignedValueLocal() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_ClassDeclaration); p == this {
 		return this.isAssignedValueLocal_impl()
 	}
 	return this.self_.isAssignedValueLocal_impl()
@@ -3335,7 +3335,7 @@ func (this *RemoveUnusedCode_ClassDeclaration) isAssignedValueLocal() bool {
 
 // getLocalAssignedValue: an object that is exactly a RemoveUnusedCode_ClassDeclaration calls its getLocalAssignedValue_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_ClassDeclaration) getLocalAssignedValue() Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_ClassDeclaration); p == this {
 		return this.getLocalAssignedValue_impl()
 	}
 	return this.self_.getLocalAssignedValue_impl()
@@ -3343,7 +3343,7 @@ func (this *RemoveUnusedCode_ClassDeclaration) getLocalAssignedValue() Node {
 
 // removeInternal: an object that is exactly a RemoveUnusedCode_NamedClassExpression calls its removeInternal_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_NamedClassExpression) removeInternal(p0 *AbstractCompiler) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_NamedClassExpression); p == this {
 		this.removeInternal_impl(p0)
 		return
 	}
@@ -3352,7 +3352,7 @@ func (this *RemoveUnusedCode_NamedClassExpression) removeInternal(p0 *AbstractCo
 
 // isStaticProperty: an object that is exactly a RemoveUnusedCode_ClassOrPrototypeNamedProperty calls its isStaticProperty_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_ClassOrPrototypeNamedProperty) isStaticProperty() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_ClassOrPrototypeNamedProperty); p == this {
 		return this.isStaticProperty_impl()
 	}
 	return this.self_.isStaticProperty_impl()
@@ -3360,7 +3360,7 @@ func (this *RemoveUnusedCode_ClassOrPrototypeNamedProperty) isStaticProperty() b
 
 // isClassOrPrototypeNamedProperty: an object that is exactly a RemoveUnusedCode_ClassOrPrototypeNamedProperty calls its isClassOrPrototypeNamedProperty_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_ClassOrPrototypeNamedProperty) isClassOrPrototypeNamedProperty() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_ClassOrPrototypeNamedProperty); p == this {
 		return this.isClassOrPrototypeNamedProperty_impl()
 	}
 	return this.self_.isClassOrPrototypeNamedProperty_impl()
@@ -3368,7 +3368,7 @@ func (this *RemoveUnusedCode_ClassOrPrototypeNamedProperty) isClassOrPrototypeNa
 
 // removeInternal: an object that is exactly a RemoveUnusedCode_ClassOrPrototypeNamedProperty calls its removeInternal_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_ClassOrPrototypeNamedProperty) removeInternal(p0 *AbstractCompiler) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_ClassOrPrototypeNamedProperty); p == this {
 		this.removeInternal_impl(p0)
 		return
 	}
@@ -3377,7 +3377,7 @@ func (this *RemoveUnusedCode_ClassOrPrototypeNamedProperty) removeInternal(p0 *A
 
 // isObjectDefinePropertiesDefinition: an object that is exactly a RemoveUnusedCode_ObjectDefinePropertiesDefinition calls its isObjectDefinePropertiesDefinition_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_ObjectDefinePropertiesDefinition) isObjectDefinePropertiesDefinition() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_ObjectDefinePropertiesDefinition); p == this {
 		return this.isObjectDefinePropertiesDefinition_impl()
 	}
 	return this.self_.isObjectDefinePropertiesDefinition_impl()
@@ -3385,7 +3385,7 @@ func (this *RemoveUnusedCode_ObjectDefinePropertiesDefinition) isObjectDefinePro
 
 // removeInternal: an object that is exactly a RemoveUnusedCode_ObjectDefinePropertiesDefinition calls its removeInternal_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_ObjectDefinePropertiesDefinition) removeInternal(p0 *AbstractCompiler) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_ObjectDefinePropertiesDefinition); p == this {
 		this.removeInternal_impl(p0)
 		return
 	}
@@ -3394,7 +3394,7 @@ func (this *RemoveUnusedCode_ObjectDefinePropertiesDefinition) removeInternal(p0
 
 // removeInternal: an object that is exactly a RemoveUnusedCode_FunctionDeclaration calls its removeInternal_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_FunctionDeclaration) removeInternal(p0 *AbstractCompiler) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_FunctionDeclaration); p == this {
 		this.removeInternal_impl(p0)
 		return
 	}
@@ -3403,7 +3403,7 @@ func (this *RemoveUnusedCode_FunctionDeclaration) removeInternal(p0 *AbstractCom
 
 // isVariableAssignment: an object that is exactly a RemoveUnusedCode_FunctionDeclaration calls its isVariableAssignment_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_FunctionDeclaration) isVariableAssignment() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_FunctionDeclaration); p == this {
 		return this.isVariableAssignment_impl()
 	}
 	return this.self_.isVariableAssignment_impl()
@@ -3411,7 +3411,7 @@ func (this *RemoveUnusedCode_FunctionDeclaration) isVariableAssignment() bool {
 
 // isAssignedValueLocal: an object that is exactly a RemoveUnusedCode_FunctionDeclaration calls its isAssignedValueLocal_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_FunctionDeclaration) isAssignedValueLocal() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_FunctionDeclaration); p == this {
 		return this.isAssignedValueLocal_impl()
 	}
 	return this.self_.isAssignedValueLocal_impl()
@@ -3419,7 +3419,7 @@ func (this *RemoveUnusedCode_FunctionDeclaration) isAssignedValueLocal() bool {
 
 // getLocalAssignedValue: an object that is exactly a RemoveUnusedCode_FunctionDeclaration calls its getLocalAssignedValue_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_FunctionDeclaration) getLocalAssignedValue() Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_FunctionDeclaration); p == this {
 		return this.getLocalAssignedValue_impl()
 	}
 	return this.self_.getLocalAssignedValue_impl()
@@ -3427,7 +3427,7 @@ func (this *RemoveUnusedCode_FunctionDeclaration) getLocalAssignedValue() Node {
 
 // removeInternal: an object that is exactly a RemoveUnusedCode_NameDeclarationStatement calls its removeInternal_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_NameDeclarationStatement) removeInternal(p0 *AbstractCompiler) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_NameDeclarationStatement); p == this {
 		this.removeInternal_impl(p0)
 		return
 	}
@@ -3436,7 +3436,7 @@ func (this *RemoveUnusedCode_NameDeclarationStatement) removeInternal(p0 *Abstra
 
 // isVariableAssignment: an object that is exactly a RemoveUnusedCode_NameDeclarationStatement calls its isVariableAssignment_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_NameDeclarationStatement) isVariableAssignment() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_NameDeclarationStatement); p == this {
 		return this.isVariableAssignment_impl()
 	}
 	return this.self_.isVariableAssignment_impl()
@@ -3444,7 +3444,7 @@ func (this *RemoveUnusedCode_NameDeclarationStatement) isVariableAssignment() bo
 
 // isAssignedValueLocal: an object that is exactly a RemoveUnusedCode_NameDeclarationStatement calls its isAssignedValueLocal_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_NameDeclarationStatement) isAssignedValueLocal() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_NameDeclarationStatement); p == this {
 		return this.isAssignedValueLocal_impl()
 	}
 	return this.self_.isAssignedValueLocal_impl()
@@ -3452,7 +3452,7 @@ func (this *RemoveUnusedCode_NameDeclarationStatement) isAssignedValueLocal() bo
 
 // getLocalAssignedValue: an object that is exactly a RemoveUnusedCode_NameDeclarationStatement calls its getLocalAssignedValue_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_NameDeclarationStatement) getLocalAssignedValue() Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_NameDeclarationStatement); p == this {
 		return this.getLocalAssignedValue_impl()
 	}
 	return this.self_.getLocalAssignedValue_impl()
@@ -3460,7 +3460,7 @@ func (this *RemoveUnusedCode_NameDeclarationStatement) getLocalAssignedValue() N
 
 // isVariableAssignment: an object that is exactly a RemoveUnusedCode_Assign calls its isVariableAssignment_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_Assign) isVariableAssignment() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_Assign); p == this {
 		return this.isVariableAssignment_impl()
 	}
 	return this.self_.isVariableAssignment_impl()
@@ -3468,7 +3468,7 @@ func (this *RemoveUnusedCode_Assign) isVariableAssignment() bool {
 
 // isAssignedValueLocal: an object that is exactly a RemoveUnusedCode_Assign calls its isAssignedValueLocal_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_Assign) isAssignedValueLocal() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_Assign); p == this {
 		return this.isAssignedValueLocal_impl()
 	}
 	return this.self_.isAssignedValueLocal_impl()
@@ -3476,7 +3476,7 @@ func (this *RemoveUnusedCode_Assign) isAssignedValueLocal() bool {
 
 // getLocalAssignedValue: an object that is exactly a RemoveUnusedCode_Assign calls its getLocalAssignedValue_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_Assign) getLocalAssignedValue() Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_Assign); p == this {
 		return this.getLocalAssignedValue_impl()
 	}
 	return this.self_.getLocalAssignedValue_impl()
@@ -3484,7 +3484,7 @@ func (this *RemoveUnusedCode_Assign) getLocalAssignedValue() Node {
 
 // preventsRemovalOfVariableWithNonLocalValueOrPrototype: an object that is exactly a RemoveUnusedCode_Assign calls its preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_Assign) preventsRemovalOfVariableWithNonLocalValueOrPrototype() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_Assign); p == this {
 		return this.preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl()
 	}
 	return this.self_.preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl()
@@ -3492,7 +3492,7 @@ func (this *RemoveUnusedCode_Assign) preventsRemovalOfVariableWithNonLocalValueO
 
 // isNamedPropertyAssignment: an object that is exactly a RemoveUnusedCode_Assign calls its isNamedPropertyAssignment_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_Assign) isNamedPropertyAssignment() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_Assign); p == this {
 		return this.isNamedPropertyAssignment_impl()
 	}
 	return this.self_.isNamedPropertyAssignment_impl()
@@ -3500,7 +3500,7 @@ func (this *RemoveUnusedCode_Assign) isNamedPropertyAssignment() bool {
 
 // isStaticProperty: an object that is exactly a RemoveUnusedCode_Assign calls its isStaticProperty_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_Assign) isStaticProperty() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_Assign); p == this {
 		return this.isStaticProperty_impl()
 	}
 	return this.self_.isStaticProperty_impl()
@@ -3508,7 +3508,7 @@ func (this *RemoveUnusedCode_Assign) isStaticProperty() bool {
 
 // removeInternal: an object that is exactly a RemoveUnusedCode_Assign calls its removeInternal_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_Assign) removeInternal(p0 *AbstractCompiler) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_Assign); p == this {
 		this.removeInternal_impl(p0)
 		return
 	}
@@ -3517,7 +3517,7 @@ func (this *RemoveUnusedCode_Assign) removeInternal(p0 *AbstractCompiler) {
 
 // removeInternal: an object that is exactly a RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign calls its removeInternal_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign) removeInternal(p0 *AbstractCompiler) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign); p == this {
 		this.removeInternal_impl(p0)
 		return
 	}
@@ -3526,7 +3526,7 @@ func (this *RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign) removeIntern
 
 // isPrototypeProperty: an object that is exactly a RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign calls its isPrototypeProperty_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign) isPrototypeProperty() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign); p == this {
 		return this.isPrototypeProperty_impl()
 	}
 	return this.self_.isPrototypeProperty_impl()
@@ -3534,7 +3534,7 @@ func (this *RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign) isPrototypeP
 
 // removeInternal: an object that is exactly a RemoveUnusedCode_ClassSetupCall calls its removeInternal_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_ClassSetupCall) removeInternal(p0 *AbstractCompiler) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_ClassSetupCall); p == this {
 		this.removeInternal_impl(p0)
 		return
 	}
@@ -3543,7 +3543,7 @@ func (this *RemoveUnusedCode_ClassSetupCall) removeInternal(p0 *AbstractCompiler
 
 // preventsRemovalOfVariableWithNonLocalValueOrPrototype: an object that is exactly a RemoveUnusedCode_ClassSetupCall calls its preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_ClassSetupCall) preventsRemovalOfVariableWithNonLocalValueOrPrototype() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_ClassSetupCall); p == this {
 		return this.preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl()
 	}
 	return this.self_.preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl()
@@ -3551,7 +3551,7 @@ func (this *RemoveUnusedCode_ClassSetupCall) preventsRemovalOfVariableWithNonLoc
 
 // considerPossibleReferenceInternal: an object that is exactly a RemoveUnusedCode_GlobalPolyfillInfo calls its considerPossibleReferenceInternal_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_GlobalPolyfillInfo) considerPossibleReferenceInternal(p0 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_GlobalPolyfillInfo); p == this {
 		this.considerPossibleReferenceInternal_impl(p0)
 		return
 	}
@@ -3560,7 +3560,7 @@ func (this *RemoveUnusedCode_GlobalPolyfillInfo) considerPossibleReferenceIntern
 
 // getName: an object that is exactly a RemoveUnusedCode_StaticPropertyPolyfillInfo calls its getName_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_StaticPropertyPolyfillInfo) getName() string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_StaticPropertyPolyfillInfo); p == this {
 		return this.getName_impl()
 	}
 	return this.self_.getName_impl()
@@ -3568,7 +3568,7 @@ func (this *RemoveUnusedCode_StaticPropertyPolyfillInfo) getName() string {
 
 // considerPossibleReferenceInternal: an object that is exactly a RemoveUnusedCode_StaticPropertyPolyfillInfo calls its considerPossibleReferenceInternal_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_StaticPropertyPolyfillInfo) considerPossibleReferenceInternal(p0 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_StaticPropertyPolyfillInfo); p == this {
 		this.considerPossibleReferenceInternal_impl(p0)
 		return
 	}
@@ -3577,7 +3577,7 @@ func (this *RemoveUnusedCode_StaticPropertyPolyfillInfo) considerPossibleReferen
 
 // getName: an object that is exactly a RemoveUnusedCode_PrototypePropertyPolyfillInfo calls its getName_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_PrototypePropertyPolyfillInfo) getName() string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_PrototypePropertyPolyfillInfo); p == this {
 		return this.getName_impl()
 	}
 	return this.self_.getName_impl()
@@ -3585,7 +3585,7 @@ func (this *RemoveUnusedCode_PrototypePropertyPolyfillInfo) getName() string {
 
 // considerPossibleReferenceInternal: an object that is exactly a RemoveUnusedCode_PrototypePropertyPolyfillInfo calls its considerPossibleReferenceInternal_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_PrototypePropertyPolyfillInfo) considerPossibleReferenceInternal(p0 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_PrototypePropertyPolyfillInfo); p == this {
 		this.considerPossibleReferenceInternal_impl(p0)
 		return
 	}
@@ -3594,7 +3594,7 @@ func (this *RemoveUnusedCode_PrototypePropertyPolyfillInfo) considerPossibleRefe
 
 // removeInternal: an object that is exactly a RemoveUnusedCode_VanillaForNameDeclaration calls its removeInternal_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_VanillaForNameDeclaration) removeInternal(p0 *AbstractCompiler) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_VanillaForNameDeclaration); p == this {
 		this.removeInternal_impl(p0)
 		return
 	}
@@ -3603,7 +3603,7 @@ func (this *RemoveUnusedCode_VanillaForNameDeclaration) removeInternal(p0 *Abstr
 
 // isVariableAssignment: an object that is exactly a RemoveUnusedCode_VanillaForNameDeclaration calls its isVariableAssignment_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_VanillaForNameDeclaration) isVariableAssignment() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_VanillaForNameDeclaration); p == this {
 		return this.isVariableAssignment_impl()
 	}
 	return this.self_.isVariableAssignment_impl()
@@ -3611,7 +3611,7 @@ func (this *RemoveUnusedCode_VanillaForNameDeclaration) isVariableAssignment() b
 
 // isAssignedValueLocal: an object that is exactly a RemoveUnusedCode_VanillaForNameDeclaration calls its isAssignedValueLocal_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_VanillaForNameDeclaration) isAssignedValueLocal() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_VanillaForNameDeclaration); p == this {
 		return this.isAssignedValueLocal_impl()
 	}
 	return this.self_.isAssignedValueLocal_impl()
@@ -3619,7 +3619,7 @@ func (this *RemoveUnusedCode_VanillaForNameDeclaration) isAssignedValueLocal() b
 
 // getLocalAssignedValue: an object that is exactly a RemoveUnusedCode_VanillaForNameDeclaration calls its getLocalAssignedValue_impl directly (post-flip); others dispatch.
 func (this *RemoveUnusedCode_VanillaForNameDeclaration) getLocalAssignedValue() Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemoveUnusedCode_VanillaForNameDeclaration); p == this {
 		return this.getLocalAssignedValue_impl()
 	}
 	return this.self_.getLocalAssignedValue_impl()

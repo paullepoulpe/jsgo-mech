@@ -186,7 +186,7 @@ func ScriptMetadata_FillerCallback_clinit() {
 
 // visit: an object that is exactly a ScriptMetadata_FillerCallback calls its visit_impl directly (post-flip); others dispatch.
 func (this *ScriptMetadata_FillerCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ScriptMetadata_FillerCallback); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

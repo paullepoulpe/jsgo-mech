@@ -400,7 +400,7 @@ func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) joinOnComma(commas *JT
 
 // visit: an object that is exactly a RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssignmentsCallback calls its visit_impl directly (post-flip); others dispatch.
 func (this *RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssignmentsCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssignmentsCallback); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -409,7 +409,7 @@ func (this *RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssi
 
 // visit: an object that is exactly a RescopeGlobalSymbols_FindCrossChunkNamesCallback calls its visit_impl directly (post-flip); others dispatch.
 func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RescopeGlobalSymbols_FindCrossChunkNamesCallback); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -418,7 +418,7 @@ func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) visit(p0 *NodeTrav
 
 // visit: an object that is exactly a RescopeGlobalSymbols_FindNamesReferencingThis calls its visit_impl directly (post-flip); others dispatch.
 func (this *RescopeGlobalSymbols_FindNamesReferencingThis) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RescopeGlobalSymbols_FindNamesReferencingThis); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -427,7 +427,7 @@ func (this *RescopeGlobalSymbols_FindNamesReferencingThis) visit(p0 *NodeTravers
 
 // visit: an object that is exactly a RescopeGlobalSymbols_RemoveGlobalVarCallback calls its visit_impl directly (post-flip); others dispatch.
 func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RescopeGlobalSymbols_RemoveGlobalVarCallback); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

@@ -86,7 +86,7 @@ const DiagnosticGroupWarningsGuard_serialVersionUID int64 = 1
 
 // level: an object that is exactly a DiagnosticGroupWarningsGuard calls its level_impl directly (post-flip); others dispatch.
 func (this *DiagnosticGroupWarningsGuard) level(p0 *JSError) CheckLevel {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*DiagnosticGroupWarningsGuard); p == this {
 		return this.level_impl(p0)
 	}
 	return this.self_.level_impl(p0)
@@ -94,7 +94,7 @@ func (this *DiagnosticGroupWarningsGuard) level(p0 *JSError) CheckLevel {
 
 // mustRunChecks: an object that is exactly a DiagnosticGroupWarningsGuard calls its mustRunChecks_impl directly (post-flip); others dispatch.
 func (this *DiagnosticGroupWarningsGuard) mustRunChecks(p0 *DiagnosticGroup) Tri {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*DiagnosticGroupWarningsGuard); p == this {
 		return this.mustRunChecks_impl(p0)
 	}
 	return this.self_.mustRunChecks_impl(p0)

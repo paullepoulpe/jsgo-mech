@@ -243,7 +243,7 @@ func (this *ImplicitNullabilityCheck_1) visit(node Node) {
 
 // visit: an object that is exactly a ImplicitNullabilityCheck calls its visit_impl directly (post-flip); others dispatch.
 func (this *ImplicitNullabilityCheck) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ImplicitNullabilityCheck); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
