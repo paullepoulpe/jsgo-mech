@@ -518,7 +518,7 @@ func (this *Compiler) checkFirstChunk(chunks ListOf[*JSChunk]) {
 }
 
 func Compiler_joinPathParts(pathParts []string) string {
-	return Compiler_pathJoiner.join_ObjectArr(arrmap_(pathParts, func(v_ string) any { return strobj_(v_) }))
+	return Compiler_pathJoiner.join_ObjectArr(arrmap_(pathParts, strobj_))
 }
 
 func (this *Compiler) fillEmptyChunks(chunks IterableOf[*JSChunk]) {
@@ -3219,8 +3219,8 @@ func Compiler_resolveSibling(fromPath string, toPath string) string {
 	if strings.HasPrefix(toPath, "/") {
 		return toPath
 	}
-	var fromPathParts *TList[string] = tlistFrom_(tc_string, Collection(Arrays_asList(arrmap_(Compiler_SLASH_PATTERN.split(fromPath), func(v_ string) any { return strobj_(v_) }))))
-	var toPathParts []string = sliceFrom_(tc_string, Collection(Arrays_asList(arrmap_(Compiler_SLASH_PATTERN.split(toPath), func(v_ string) any { return strobj_(v_) }))))
+	var fromPathParts *TList[string] = tlistFrom_(tc_string, Collection(Arrays_asList(arrmap_(Compiler_SLASH_PATTERN.split(fromPath), strobj_))))
+	var toPathParts []string = sliceFrom_(tc_string, Collection(Arrays_asList(arrmap_(Compiler_SLASH_PATTERN.split(toPath), strobj_))))
 	if !fromPathParts.isEmpty() {
 		fromPathParts.removeAt((fromPathParts.size() - 1))
 	}

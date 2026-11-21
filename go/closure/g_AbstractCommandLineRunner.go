@@ -172,7 +172,7 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 		this.addAllowlistWarningsGuard(options, FilePaths_clean(this.config.warningsAllowFile))
 	}
 	if !this.config.hideWarningsFor.isEmpty() {
-		options.addWarningsGuard(new_ShowByPathWarningsGuard_StringArr_ShowType(arrmap_(this.config.hideWarningsFor.toArray(arrmap_([]string{}, func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }), ShowByPathWarningsGuard_ShowType_EXCLUDE).up_WarningsGuard())
+		options.addWarningsGuard(new_ShowByPathWarningsGuard_StringArr_ShowType(arrmap_(this.config.hideWarningsFor.toArray(arrmap_([]string{}, strobj_)), str_), ShowByPathWarningsGuard_ShowType_EXCLUDE).up_WarningsGuard())
 	}
 	var define *TList[string] = tlistCopy_(tc_string, this.config.define)
 	if this.config.browserFeaturesetYear != 0 {

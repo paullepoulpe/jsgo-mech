@@ -432,7 +432,7 @@ func (this *SuggestedFix_Builder) insertArguments(n Node, position int32, args [
 	} else {
 		startPosition = SuggestedFix_getStartPositionForNodeConsideringComments(argument)
 	}
-	var newContent string = Joiner_on(", ").join_ObjectArr(arrmap_(args, func(v_ string) any { return strobj_(v_) }))
+	var newContent string = Joiner_on(", ").join_ObjectArr(arrmap_(args, strobj_))
 	if argument != 0 {
 		newContent += ", "
 	} else if i > 0 {

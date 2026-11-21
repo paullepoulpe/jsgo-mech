@@ -4,4 +4,4 @@ package closure
 
 // Element conversions of the typed immlistbs.
 
-var tc_p_ColorPool_ShardView = &tconv_[*ColorPool_ShardView]{box: func(v *ColorPool_ShardView) any { return obj_(v) }, unbox: func(v any) *ColorPool_ShardView { return cast_[*ColorPool_ShardView](v) }}
+var tc_p_ColorPool_ShardView = &tconv_[*ColorPool_ShardView]{box: obj_[*ColorPool_ShardView], unbox: cast_[*ColorPool_ShardView]}
