@@ -8,6 +8,7 @@ package closure
 import (
 	"bytes"
 	"math"
+	"math/bits"
 	"os"
 	"path/filepath"
 	"strings"
@@ -315,5 +316,25 @@ func TestProtoBuildLast(t *testing.T) {
 	// A builder with nothing set is the default message.
 	if e := AstNode_newBuilder().buildLastT_(); !e.equals(AstNode_getDefaultInstance()) || len(e.pbm_().bytes_()) != 0 {
 		t.Fatal("empty builder")
+	}
+}
+
+// TestProtoVarintSize: the size computed for a varint is the number of bytes written for it,
+// at every length boundary.
+func TestProtoVarintSize(t *testing.T) {
+	vals := []uint64{0, 1}
+	for s := uint(1); s < 64; s++ {
+		vals = append(vals, 1<<s-1, 1<<s, 1<<s+1)
+	}
+	neg := int64(math.MinInt32)
+	vals = append(vals, math.MaxUint64, uint64(neg))
+	for _, v := range vals {
+		b := pbAppendVarint_(nil, v)
+		if len(b) != pbVarintSize_(v) || len(b) != (bits.Len64(v|1)+6)/7 {
+			t.Fatalf("varint %#x: %d bytes written, size %d", v, len(b), pbVarintSize_(v))
+		}
+		if got, n := pbVarint_(b, 0); got != v || n != len(b) {
+			t.Fatalf("varint %#x reads back as %#x", v, got)
+		}
 	}
 }
