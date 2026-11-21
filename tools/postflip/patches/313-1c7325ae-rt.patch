@@ -1,0 +1,64 @@
+diff --git a/go/closure/rt_nulllist_test.go b/go/closure/rt_nulllist_test.go
+new file mode 100644
+index 00000000..dc3956e0
+--- /dev/null
++++ b/go/closure/rt_nulllist_test.go
+@@ -0,0 +1,58 @@
++package closure
++
++import "testing"
++
++// threwNPE reports whether f throws Java's NullPointerException (directly or as the Go
++// runtime's nil dereference, which catch_ maps to it).
++func threwNPE(f func()) (npe bool) {
++	defer func() {
++		if r := recover(); r != nil {
++			_, npe = catch_(r).(*NullPointerException)
++		}
++	}()
++	f()
++	return false
++}
++
++// TestNullListForEach: a for-each over a null list throws NullPointerException in Java and
++// for a typed list; a list that is a pointer to a slice keeps that (its nil pointer), but a
++// nil []T reads as an empty list, so tools/postflip/native makes a list a plain slice only
++// when it can never be null.
++func TestNullListForEach(t *testing.T) {
++	var l *TList[string]
++	if !threwNPE(func() {
++		for range l.All() {
++		}
++	}) {
++		t.Error("for-each over a null typed list should throw NullPointerException")
++	}
++	var p *[]string
++	if !threwNPE(func() {
++		for range *p {
++		}
++	}) {
++		t.Error("range over a null pointer to a slice should throw NullPointerException")
++	}
++	if !threwNPE(func() {
++		for range sliceAll_(p) {
++		}
++	}) {
++		t.Error("sliceAll_ over a null pointer to a slice should throw NullPointerException")
++	}
++	if !threwNPE(func() { sliceCursor_(p) }) {
++		t.Error("an iterator over a null pointer to a slice should throw NullPointerException")
++	}
++	if sliceViewP_(tc_string, p) != nil || slicePtrView_(tc_string, p) != nil {
++		t.Error("the view of a null list should be null")
++	}
++	// The difference a plain slice cannot represent: nil runs no step and throws nothing.
++	var s []string
++	steps := 0
++	if threwNPE(func() {
++		for range s {
++			steps++
++		}
++	}) || steps != 0 {
++		t.Error("a nil slice should read as empty")
++	}
++}
