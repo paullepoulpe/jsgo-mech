@@ -580,19 +580,19 @@ func (this SubtypeChecker_PropertyOptionality) enum_() *Enum {
 }
 
 func (this SubtypeChecker_PropertyOptionality) name() string {
-	return SubtypeChecker_PropertyOptionality_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this SubtypeChecker_PropertyOptionality) ordinal() int32 {
-	return SubtypeChecker_PropertyOptionality_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this SubtypeChecker_PropertyOptionality) toString() string {
-	return SubtypeChecker_PropertyOptionality_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this SubtypeChecker_PropertyOptionality) compareTo(o any) int32 {
-	return SubtypeChecker_PropertyOptionality_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this SubtypeChecker_PropertyOptionality) self() any {
@@ -653,18 +653,18 @@ func (this SubtypeChecker_Variance) enum_() *Enum {
 	return &SubtypeChecker_Variance_enum_[this-1]
 }
 
-func (this SubtypeChecker_Variance) name() string { return SubtypeChecker_Variance_enum_[this-1].name_ }
+func (this SubtypeChecker_Variance) name() string { return this.enum_().name_ }
 
 func (this SubtypeChecker_Variance) ordinal() int32 {
-	return SubtypeChecker_Variance_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this SubtypeChecker_Variance) toString() string {
-	return SubtypeChecker_Variance_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this SubtypeChecker_Variance) compareTo(o any) int32 {
-	return SubtypeChecker_Variance_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this SubtypeChecker_Variance) self() any {

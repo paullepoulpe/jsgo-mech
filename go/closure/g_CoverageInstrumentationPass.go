@@ -118,19 +118,19 @@ func (this CoverageInstrumentationPass_CoverageReach) enum_() *Enum {
 }
 
 func (this CoverageInstrumentationPass_CoverageReach) name() string {
-	return CoverageInstrumentationPass_CoverageReach_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CoverageInstrumentationPass_CoverageReach) ordinal() int32 {
-	return CoverageInstrumentationPass_CoverageReach_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CoverageInstrumentationPass_CoverageReach) toString() string {
-	return CoverageInstrumentationPass_CoverageReach_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CoverageInstrumentationPass_CoverageReach) compareTo(o any) int32 {
-	return CoverageInstrumentationPass_CoverageReach_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CoverageInstrumentationPass_CoverageReach) self() any {
