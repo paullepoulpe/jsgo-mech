@@ -39,14 +39,14 @@ func (this *ProcessClosurePrimitives) process_2(externs Node, root Node) {
 }
 
 func (this *ProcessClosurePrimitives) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_CALL:
+	switch n.ns_().token {
+	case tokOrd1_CALL:
 		{
 			this.checkGoogFunctions(t, n)
 			this.maybeProcessClassBaseCall(n)
 			this.checkPropertyRenameCall(n)
 		}
-	case Token_rhino_FUNCTION, Token_rhino_CLASS:
+	case tokOrd1_FUNCTION, tokOrd1_CLASS:
 		if !t.inGlobalHoistScope() || n.isFromExterns() {
 			return
 		}
@@ -63,7 +63,7 @@ func (this *ProcessClosurePrimitives) visit_impl(t *NodeTraversal, n Node, paren
 				return ProcessClosurePrimitives_FUNCTION_NAMESPACE_ERROR
 			}(), []string{name, pn.toString()}))
 		}
-	case Token_rhino_EXPR_RESULT:
+	case tokOrd1_EXPR_RESULT:
 		if !n.getFirstChild().isAssign() || !n.getFirstFirstChild().isQualifiedName() {
 			break
 		}
@@ -71,7 +71,7 @@ func (this *ProcessClosurePrimitives) visit_impl(t *NodeTraversal, n Node, paren
 		this.checkPossibleGoogProvideInit(Optional_of[string](lhs).filter(Predicate[string](func(s string) bool {
 			return !String_isEmpty(s)
 		})), n.getFirstChild().getJSDocInfo(), n)
-	case Token_rhino_VAR, Token_rhino_CONST, Token_rhino_LET:
+	case tokOrd1_VAR, tokOrd1_CONST, tokOrd1_LET:
 		if !n.getFirstChild().isName() {
 			break
 		}
@@ -98,7 +98,7 @@ func (this *ProcessClosurePrimitives) checkPossibleGoogProvideInit(namespace Opt
 		return
 	}
 	var n Node = expr.getRoot()
-	if n.getToken() == Token_rhino_BANG {
+	if n.ns_().token == tokOrd1_BANG {
 		n = n.getFirstChild()
 	}
 	if (n.isStringLit() && !n.hasChildren()) && (n.getString() == "Object") {

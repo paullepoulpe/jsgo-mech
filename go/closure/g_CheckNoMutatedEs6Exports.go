@@ -47,13 +47,13 @@ func (this *CheckNoMutatedEs6Exports) visit(t *NodeTraversal, n Node, parent Nod
 
 func (this *CheckNoMutatedEs6Exports) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_SCRIPT:
+		switch n.ns_().token {
+		case tokOrd1_SCRIPT:
 			return n.getBooleanProp(Node_ES6_MODULE)
-		case Token_rhino_EXPORT:
+		case tokOrd1_EXPORT:
 			this.visitExport(n)
 			return true
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			this.visitName(t, n)
 			return true
 		default:

@@ -225,9 +225,9 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 		{
 			var propNode Node = n.getFirstChild()
 			for ; propNode != 0; propNode = propNode.getNext() {
-				switch propNode.getToken() {
-				case Token_rhino_COMPUTED_PROP, Token_rhino_ITER_REST, Token_rhino_OBJECT_REST, Token_rhino_ITER_SPREAD, Token_rhino_OBJECT_SPREAD:
-				case Token_rhino_STRING_KEY, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_MEMBER_FUNCTION_DEF:
+				switch propNode.ns_().token {
+				case tokOrd1_COMPUTED_PROP, tokOrd1_ITER_REST, tokOrd1_OBJECT_REST, tokOrd1_ITER_SPREAD, tokOrd1_OBJECT_SPREAD:
+				case tokOrd1_STRING_KEY, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_MEMBER_FUNCTION_DEF:
 					if !propNode.isQuotedStringKey() {
 						this.addSymbolUse(propNode.getString(), t.getChunk(), AnalyzePrototypeProperties_PROPERTY)
 					}
@@ -349,8 +349,8 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) processGlobalFunctionD
 func (this *AnalyzePrototypeProperties_ProcessProperties) handlePossibleAssignmentToPrototype(t *NodeTraversal, ref Node) bool {
 	var root Node = NodeUtil_getRootOfQualifiedName(ref)
 	var n Node = ref.getParent()
-	switch n.getToken() {
-	case Token_rhino_GETPROP:
+	switch n.ns_().token {
+	case tokOrd1_GETPROP:
 		var parent Node = n.getParent()
 		var grandParent Node = parent.getParent()
 		if NodeUtil_isExprAssign(grandParent) && NodeUtil_isNameDeclOrSimpleAssignLhs(n, parent) {
@@ -358,7 +358,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) handlePossibleAssignme
 			this.outer_.getNameInfoForName(n.getString(), AnalyzePrototypeProperties_PROPERTY).getDeclarations().add(AnalyzePrototypeProperties_Symbol(prop))
 			return true
 		}
-	case Token_rhino_ASSIGN:
+	case tokOrd1_ASSIGN:
 		var map_ Node = n.getSecondChild()
 		if map_.isObjectLit() {
 			{

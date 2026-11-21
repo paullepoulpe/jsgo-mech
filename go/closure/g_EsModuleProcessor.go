@@ -30,8 +30,8 @@ func (this *EsModuleProcessor) process(metadata *ModuleMetadataMap_ModuleMetadat
 
 func (this *EsModuleProcessor) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_ROOT, Token_rhino_SCRIPT, Token_rhino_MODULE_BODY, Token_rhino_EXPORT, Token_rhino_IMPORT:
+		switch n.ns_().token {
+		case tokOrd1_ROOT, tokOrd1_SCRIPT, tokOrd1_MODULE_BODY, tokOrd1_EXPORT, tokOrd1_IMPORT:
 			return true
 		default:
 			return false
@@ -41,10 +41,10 @@ func (this *EsModuleProcessor) shouldTraverse(t *NodeTraversal, n Node, parent N
 }
 
 func (this *EsModuleProcessor) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_EXPORT:
+	switch n.ns_().token {
+	case tokOrd1_EXPORT:
 		this.visitExport(t, n)
-	case Token_rhino_IMPORT:
+	case tokOrd1_IMPORT:
 		this.visitImport(t, n)
 	default:
 	}

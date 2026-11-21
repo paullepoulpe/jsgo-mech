@@ -111,18 +111,18 @@ func OptimizeConstructors_isAssigningReference(n Node) bool {
 	var parent Node = n.getParent()
 	var gparent Node = parent.getParent()
 	return func() bool {
-		switch parent.getToken() {
-		case Token_rhino_LET, Token_rhino_CONST, Token_rhino_VAR:
+		switch parent.ns_().token {
+		case tokOrd1_LET, tokOrd1_CONST, tokOrd1_VAR:
 			return n.hasChildren()
-		case Token_rhino_STRING_KEY:
+		case tokOrd1_STRING_KEY:
 			return gparent.isObjectPattern()
-		case Token_rhino_COMPUTED_PROP:
+		case tokOrd1_COMPUTED_PROP:
 			return ((parent.getLastChild() == n) && gparent.isObjectPattern())
-		case Token_rhino_ARRAY_PATTERN, Token_rhino_DEFAULT_VALUE, Token_rhino_PARAM_LIST, Token_rhino_OBJECT_REST, Token_rhino_ITER_REST, Token_rhino_INC, Token_rhino_DEC:
+		case tokOrd1_ARRAY_PATTERN, tokOrd1_DEFAULT_VALUE, tokOrd1_PARAM_LIST, tokOrd1_OBJECT_REST, tokOrd1_ITER_REST, tokOrd1_INC, tokOrd1_DEC:
 			return true
-		case Token_rhino_FUNCTION, Token_rhino_CLASS, Token_rhino_CATCH:
+		case tokOrd1_FUNCTION, tokOrd1_CLASS, tokOrd1_CATCH:
 			return (parent.getFirstChild() == n)
-		case Token_rhino_ASSIGN, Token_rhino_ASSIGN_BITOR, Token_rhino_ASSIGN_BITXOR, Token_rhino_ASSIGN_BITAND, Token_rhino_ASSIGN_LSH, Token_rhino_ASSIGN_RSH, Token_rhino_ASSIGN_URSH, Token_rhino_ASSIGN_ADD, Token_rhino_ASSIGN_SUB, Token_rhino_ASSIGN_MUL, Token_rhino_ASSIGN_DIV, Token_rhino_ASSIGN_MOD, Token_rhino_ASSIGN_EXPONENT:
+		case tokOrd1_ASSIGN, tokOrd1_ASSIGN_BITOR, tokOrd1_ASSIGN_BITXOR, tokOrd1_ASSIGN_BITAND, tokOrd1_ASSIGN_LSH, tokOrd1_ASSIGN_RSH, tokOrd1_ASSIGN_URSH, tokOrd1_ASSIGN_ADD, tokOrd1_ASSIGN_SUB, tokOrd1_ASSIGN_MUL, tokOrd1_ASSIGN_DIV, tokOrd1_ASSIGN_MOD, tokOrd1_ASSIGN_EXPONENT:
 			return (parent.getFirstChild() == n)
 		default:
 			return false
@@ -168,10 +168,10 @@ func (this *OptimizeConstructors) unwrap(expr Node) Node {
 
 func OptimizeConstructors_isDefinitionClassLiteralOrFunction(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_FUNCTION:
+		switch n.ns_().token {
+		case tokOrd1_FUNCTION:
 			return true
-		case Token_rhino_CLASS:
+		case tokOrd1_CLASS:
 			var constructorMemberFunctionDef Node = NodeUtil_getEs6ClassConstructorMemberFunctionDef(n)
 			return (constructorMemberFunctionDef != 0)
 		default:

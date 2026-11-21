@@ -101,8 +101,8 @@ func new_SyntacticScopeCreator_ScopeScanner(compiler *AbstractCompiler, redeclar
 func (this *SyntacticScopeCreator_ScopeScanner) populate() {
 	var n Node = this.scope_.getRootNode()
 	this.inputId = NodeUtil_getInputId(n)
-	switch n.getToken() {
-	case Token_rhino_FUNCTION:
+	switch n.ns_().token {
+	case tokOrd1_FUNCTION:
 		var fnNameNode Node = n.getFirstChild()
 		var args Node = fnNameNode.getNext()
 		Preconditions_checkState(args.isParamList())
@@ -112,30 +112,30 @@ func (this *SyntacticScopeCreator_ScopeScanner) populate() {
 			this.declareVar(this.scope_, fnNameNode)
 		}
 		return
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		var classNameNode Node = n.getFirstChild()
 		if !classNameNode.isEmpty() && NodeUtil_isClassExpression(n) {
 			this.declareVar(this.scope_, classNameNode)
 		}
 		return
-	case Token_rhino_ROOT, Token_rhino_SCRIPT:
+	case tokOrd1_ROOT, tokOrd1_SCRIPT:
 		Preconditions_checkState_boolean_Object(this.scope_.isGlobal(), this.scope_)
 		this.scanVars(n, this.scope_, this.scope_)
 		return
-	case Token_rhino_MODULE_BODY:
+	case tokOrd1_MODULE_BODY:
 		this.scanVars(n, this.scope_, this.scope_)
 		return
-	case Token_rhino_FOR, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_FOR_IN, Token_rhino_SWITCH_BODY:
+	case tokOrd1_FOR, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_FOR_IN, tokOrd1_SWITCH_BODY:
 		this.scanVars(n, nil, this.scope_)
 		return
-	case Token_rhino_BLOCK:
+	case tokOrd1_BLOCK:
 		if NodeUtil_isFunctionBlock(n) || NodeUtil_isClassStaticBlock(n) {
 			this.scanVars(n, this.scope_, this.scope_)
 		} else {
 			this.scanVars(n, nil, this.scope_)
 		}
 		return
-	case Token_rhino_COMPUTED_FIELD_DEF, Token_rhino_MEMBER_FIELD_DEF:
+	case tokOrd1_COMPUTED_FIELD_DEF, tokOrd1_MEMBER_FIELD_DEF:
 		return
 	default:
 		panic(new_RuntimeException_String(("Illegal scope root: " + tostrH_(n))).self())
@@ -153,24 +153,24 @@ func (this *SyntacticScopeCreator_ScopeScanner) declareLHS(s *Scope, n Node) {
 }
 
 func (this *SyntacticScopeCreator_ScopeScanner) scanVars(n Node, hoistScope *Scope, blockScope *Scope) {
-	switch n.getToken() {
-	case Token_rhino_VAR:
+	switch n.ns_().token {
+	case tokOrd1_VAR:
 		if hoistScope != nil {
 			this.declareLHS(hoistScope, n)
 		}
 		return
-	case Token_rhino_LET, Token_rhino_CONST:
+	case tokOrd1_LET, tokOrd1_CONST:
 		if blockScope != nil {
 			this.declareLHS(blockScope, n)
 		}
 		return
-	case Token_rhino_IMPORT:
+	case tokOrd1_IMPORT:
 		this.declareLHS(hoistScope, n)
 		return
-	case Token_rhino_EXPORT:
+	case tokOrd1_EXPORT:
 		this.scanVars(n.getFirstChild(), hoistScope, blockScope)
 		return
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		if NodeUtil_isFunctionExpression(n) || (blockScope == nil) {
 			return
 		}
@@ -180,7 +180,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) scanVars(n Node, hoistScope *Sco
 		}
 		this.declareVar(blockScope, n.getFirstChild())
 		return
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		if NodeUtil_isClassExpression(n) || (blockScope == nil) {
 			return
 		}
@@ -190,7 +190,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) scanVars(n Node, hoistScope *Sco
 		}
 		this.declareVar(blockScope, n.getFirstChild())
 		return
-	case Token_rhino_CATCH:
+	case tokOrd1_CATCH:
 		Preconditions_checkState_boolean_Object_H(n.hasTwoChildren(), n)
 		if blockScope != nil {
 			this.declareLHS(blockScope, n)
@@ -198,12 +198,12 @@ func (this *SyntacticScopeCreator_ScopeScanner) scanVars(n Node, hoistScope *Sco
 		var block Node = n.getSecondChild()
 		this.scanVars(block, hoistScope, blockScope)
 		return
-	case Token_rhino_SCRIPT:
+	case tokOrd1_SCRIPT:
 		if (this.changeRootSet != nil) && !this.changeRootSet.contains(n) {
 			return
 		}
 		this.inputId = n.getInputId()
-	case Token_rhino_MODULE_BODY:
+	case tokOrd1_MODULE_BODY:
 		if hoistScope.isGlobal() {
 			var expr Node = n.getFirstChild()
 			if (expr != 0) && SyntacticScopeCreator_ScopeScanner_isLegacyGoogModule(expr) {
@@ -211,7 +211,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) scanVars(n Node, hoistScope *Sco
 			}
 			return
 		}
-	case Token_rhino_EXPR_RESULT:
+	case tokOrd1_EXPR_RESULT:
 		if !n.getParent().isScript() {
 			break
 		}

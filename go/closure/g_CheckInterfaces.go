@@ -35,14 +35,14 @@ func CheckInterfaces_isInterface(jsDoc *JSDocInfo) bool {
 }
 
 func (this *CheckInterfaces) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_FUNCTION:
+	switch n.ns_().token {
+	case tokOrd1_FUNCTION:
 		var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
 		if CheckInterfaces_isInterface(jsdoc) {
 			CheckInterfaces_checkInterfaceConstructorArgs(t, n)
 			CheckInterfaces_checkConstructorBlock(t, n)
 		}
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
 		if CheckInterfaces_isInterface(jsdoc) {
 			if (n.getSecondChild() != 0) && n.getSecondChild().isName() {

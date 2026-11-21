@@ -158,13 +158,13 @@ func (this *PotentialDeclaration) simplifyEnumValues(compiler *AbstractCompiler)
 
 func (this *PotentialDeclaration) isDefiniteDeclaration_impl(compiler *AbstractCompiler) bool {
 	var parent Node = this.getLhs().getParent()
-	switch parent.getToken() {
-	case Token_rhino_DEFAULT_VALUE:
+	switch parent.ns_().token {
+	case tokOrd1_DEFAULT_VALUE:
 		if !parent.getParent().isStringKey() {
 			return false
 		}
 		fallthrough
-	case Token_rhino_COMPUTED_PROP, Token_rhino_STRING_KEY:
+	case tokOrd1_COMPUTED_PROP, tokOrd1_STRING_KEY:
 		if NodeUtil_isLhsByDestructuring(this.getLhs()) {
 			var rootTarget Node = NodeUtil_getRootTarget(this.getLhs())
 			Preconditions_checkState(rootTarget.getParent().isDestructuringLhs())
@@ -173,7 +173,7 @@ func (this *PotentialDeclaration) isDefiniteDeclaration_impl(compiler *AbstractC
 			}
 		}
 		return false
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST, Token_rhino_CLASS, Token_rhino_FUNCTION:
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST, tokOrd1_CLASS, tokOrd1_FUNCTION:
 		return true
 	default:
 		return ((PotentialDeclaration_isExportLhs(this.getLhs()) || ((this.getJsDoc() != nil) && this.getJsDoc().containsDeclaration())) || ((this.getRhs() != 0) && PotentialDeclaration_isTypedRhs(this.getRhs())))
@@ -216,14 +216,14 @@ func PotentialDeclaration_isAliasDeclaration(lhs Node, rhs Node) bool {
 }
 
 func PotentialDeclaration_isQualifiedAliasExpression(n Node) bool {
-	switch n.getToken() {
-	case Token_rhino_NAME:
+	switch n.ns_().token {
+	case tokOrd1_NAME:
 		return !String_isEmpty(n.getString())
-	case Token_rhino_THIS, Token_rhino_SUPER:
+	case tokOrd1_THIS, tokOrd1_SUPER:
 		return true
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		return PotentialDeclaration_isQualifiedAliasExpression(n.getFirstChild())
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		if PotentialDeclaration_GOOG_MODULE_GET.matches(n.getFirstChild()) {
 			return true
 		}
@@ -506,13 +506,13 @@ func (this *PotentialDeclaration_DefineDeclaration) simplify_impl(compiler *Abst
 
 func PotentialDeclaration_DefineDeclaration_from(callNode Node) *PotentialDeclaration_DefineDeclaration {
 	return func() *PotentialDeclaration_DefineDeclaration {
-		switch callNode.getParent().getToken() {
-		case Token_rhino_EXPR_RESULT:
+		switch callNode.getParent().ns_().token {
+		case tokOrd1_EXPR_RESULT:
 			return new_PotentialDeclaration_DefineDeclaration(callNode.getSecondChild().getString(), callNode, callNode.getLastChild())
-		case Token_rhino_ASSIGN:
+		case tokOrd1_ASSIGN:
 			var previous Node = callNode.getPrevious()
 			return new_PotentialDeclaration_DefineDeclaration(previous.getQualifiedName(), previous, callNode.getLastChild())
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			var parent Node = callNode.getParent()
 			return new_PotentialDeclaration_DefineDeclaration(parent.getString(), parent, callNode.getLastChild())
 		default:
