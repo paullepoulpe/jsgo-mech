@@ -204,7 +204,7 @@ func (this *TemplatizedType) getCtorImplementedInterfaces() Iterable {
 	if this.self_ == any(this) {
 		return this.getCtorImplementedInterfaces_impl()
 	}
-	return this.self_.(interface{ getCtorImplementedInterfaces_impl() Iterable }).getCtorImplementedInterfaces_impl()
+	return this.self_.getCtorImplementedInterfaces_impl()
 }
 
 // getCtorExtendedInterfaces: an object that is exactly a TemplatizedType calls its getCtorExtendedInterfaces_impl directly (post-flip); others dispatch.
@@ -212,7 +212,7 @@ func (this *TemplatizedType) getCtorExtendedInterfaces() Iterable {
 	if this.self_ == any(this) {
 		return this.getCtorExtendedInterfaces_impl()
 	}
-	return this.self_.(interface{ getCtorExtendedInterfaces_impl() Iterable }).getCtorExtendedInterfaces_impl()
+	return this.self_.getCtorExtendedInterfaces_impl()
 }
 
 // appendTo: an object that is exactly a TemplatizedType calls its appendTo_impl directly (post-flip); others dispatch.
@@ -261,7 +261,7 @@ func (this *TemplatizedType) getTemplateTypes() *JTList[*JSType] {
 	if this.self_ == any(this) {
 		return this.getTemplateTypes_impl()
 	}
-	return this.self_.(interface{ getTemplateTypes_impl() *JTList[*JSType] }).getTemplateTypes_impl()
+	return this.self_.getTemplateTypes_impl()
 }
 
 // getPropertyTypeKey: an object that is exactly a TemplatizedType calls its getPropertyTypeKey_impl directly (post-flip); others dispatch.
@@ -269,7 +269,7 @@ func (this *TemplatizedType) getPropertyTypeKey(p0 Property_Key) *JSType {
 	if this.self_ == any(this) {
 		return this.getPropertyTypeKey_impl(p0)
 	}
-	return this.self_.(interface{ getPropertyTypeKey_impl(Property_Key) *JSType }).getPropertyTypeKey_impl(p0)
+	return this.self_.getPropertyTypeKey_impl(p0)
 }
 
 // getTemplateTypeMap: an object that is exactly a TemplatizedType calls its getTemplateTypeMap_impl directly (post-flip); others dispatch.
