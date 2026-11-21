@@ -52,34 +52,21 @@ import (
 var stats = map[string]int{}
 
 // load parses and type-checks the package, tolerating type errors, into rw's globals.
-func load(dir string) []types.Error { return loadWith(dir, nil) }
-
-// loadWith is load with the files of mem (by path) in place of those on disk, and its extra
-// files added.
-func loadWith(dir string, mem map[string][]byte) []types.Error {
+func load(dir string) []types.Error {
 	rw.Fset = token.NewFileSet()
-	rw.Info = &types.Info{Types: map[ast.Expr]types.TypeAndValue{}, Defs: map[*ast.Ident]types.Object{}, Uses: map[*ast.Ident]types.Object{}, Selections: map[*ast.SelectorExpr]*types.Selection{}, Instances: map[*ast.Ident]types.Instance{}, Implicits: map[ast.Node]types.Object{}}
+	rw.Info = &types.Info{Types: map[ast.Expr]types.TypeAndValue{}, Defs: map[*ast.Ident]types.Object{}, Uses: map[*ast.Ident]types.Object{}, Selections: map[*ast.SelectorExpr]*types.Selection{}, Instances: map[*ast.Ident]types.Instance{}}
 	rw.Parent = map[ast.Node]ast.Node{}
 	rw.Src = map[*token.File][]byte{}
 	rw.Rewrite = map[ast.Node]func() string{}
 	rw.Files = nil
 	rw.UsesOf = map[types.Object][]*ast.Ident{}
 	names, _ := filepath.Glob(filepath.Join(dir, "*.go"))
-	for n := range mem {
-		if _, err := os.Stat(n); err != nil {
-			names = append(names, n)
-		}
-	}
 	sort.Strings(names)
 	for _, n := range names {
 		if strings.HasSuffix(n, "_test.go") {
 			continue
 		}
-		b, ok := mem[n]
-		var err error
-		if !ok {
-			b, err = os.ReadFile(n)
-		}
+		b, err := os.ReadFile(n)
 		if err != nil {
 			panic(err)
 		}
@@ -954,10 +941,6 @@ func filterFn(call *ast.CallExpr) bool {
 }
 
 func main() {
-	if len(os.Args) > 2 && os.Args[1] == "-classes" {
-		classesMain(os.Args[2:])
-		return
-	}
 	report := len(os.Args) > 2 && os.Args[1] == "-n"
 	dir := os.Args[len(os.Args)-1]
 	load(dir)

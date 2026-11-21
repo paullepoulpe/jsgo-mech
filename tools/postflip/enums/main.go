@@ -50,9 +50,7 @@
 // the Token value itself: Token_rhino_ord1_(t) is uint8(t) and Token_rhino_byOrd1_[b] is
 // Token_rhino(b).
 //
-// Enums whose constants have bodies are first made ordinary enums by the -bodies phase (bodies.go).
-//
-// usage: enums [-n] [-survey] [-bodies] <dir of package closure>
+// usage: enums [-n] [-survey] <dir of package closure>
 package main
 
 import (
@@ -330,10 +328,6 @@ func isNilIdent(x ast.Expr) bool {
 
 // check sets e.why when the enum cannot be converted.
 func check(enums []*enumInfo) {
-	if runtimeMode {
-		checkRuntime(enums)
-		return
-	}
 	for _, e := range enums {
 		switch {
 		case !isGen(e.obj.Pos()):
@@ -463,16 +457,9 @@ func check(enums []*enumInfo) {
 			}
 		}
 	}
-	checkValues()
-}
-
-// checkValues sets e.why when a value of type *T is used in a way the rewrite does not know.
-func checkValues() {
+	// values of type *T
 	for _, f := range rw.Files {
 		gen := isGen(f.Pos())
-		if runtimeMode && !gen {
-			continue // the runtime declares these enums and is rewritten with them
-		}
 		ast.Inspect(f, func(n ast.Node) bool {
 			x, ok := n.(ast.Expr)
 			if !ok {
@@ -533,51 +520,6 @@ func checkValues() {
 	}
 }
 
-// runtimeMode (-runtime): convert the uses in generated code of the enums the handwritten runtime
-// declares, which the runtime change made with this step declares as integer types.
-var runtimeMode bool
-
-// checkRuntime: an enum of the runtime is converted in generated code when every use there is
-// one the rewrite knows: its type as *T, its constants as values, its values as in checkValues.
-func checkRuntime(enums []*enumInfo) {
-	for _, e := range enums {
-		if isGen(e.obj.Pos()) {
-			e.why = "declared in generated code (run without -runtime)"
-			continue
-		}
-		for _, id := range rw.UsesOf[e.obj] {
-			if !isGen(id.Pos()) {
-				continue
-			}
-			if _, ok := rw.Parent[id].(*ast.StarExpr); !ok {
-				e.why = fmt.Sprintf("generated code uses the type as %T", rw.Parent[id])
-			}
-		}
-	}
-	checkValues()
-	for _, f := range rw.Files {
-		if !isGen(f.Pos()) {
-			continue
-		}
-		ast.Inspect(f, func(n ast.Node) bool {
-			switch x := n.(type) {
-			case *ast.UnaryExpr:
-				if e := ptrEnum(x.X); x.Op == token.AND && e != nil {
-					e.why = "address of a constant"
-				}
-			case *ast.SelectorExpr:
-				// a field of the enum's struct other than its Enum record
-				if e := ptrEnum(x.X); e != nil {
-					if s := rw.Info.Selections[x]; s != nil && s.Kind() == types.FieldVal && len(s.Index()) == 1 && x.Sel.Name != "Enum" {
-						e.why = "generated code reads field " + x.Sel.Name
-					}
-				}
-			}
-			return true
-		})
-	}
-}
-
 func argIndex(call *ast.CallExpr, x ast.Expr) int {
 	for i, a := range call.Args {
 		if rw.Unparen(a) == x {
@@ -590,8 +532,6 @@ func argIndex(call *ast.CallExpr, x ast.Expr) int {
 func main() {
 	surv := flag.Bool("survey", false, "print how enum values are used")
 	dry := flag.Bool("n", false, "list the enums and why some are left; change nothing")
-	flag.BoolVar(&runtimeMode, "runtime", false, "convert generated code's uses of the enums declared in the handwritten runtime (which a runtime change makes integer types in the same commit)")
-	bod := flag.Bool("bodies", false, "only fold the constant classes of enums whose constants have bodies into the enum (bodies.go); run the tool again without it to convert")
 	flag.Parse()
 	rw.Load(flag.Arg(0))
 	enums := findEnums()
@@ -600,10 +540,6 @@ func main() {
 	}
 	if *surv {
 		survey(enums)
-		return
-	}
-	if *bod {
-		bodies(enums)
 		return
 	}
 	check(enums)
@@ -634,12 +570,6 @@ func main() {
 		if e.why != "" {
 			delete(byNamed, n)
 		}
-	}
-	if runtimeMode {
-		st := rewriteUses(nil)
-		fmt.Fprintf(os.Stderr, "enums -runtime: the uses in generated code of %d of %d runtime enums become integer uses; %s; files changed: %d\n",
-			len(conv), len(enums), st.String(), rw.Save())
-		return
 	}
 	st := rewrite(conv)
 	fmt.Fprintf(os.Stderr, "enums: %d of %d become integer types (%d constants, %d field tables); %s; files changed: %d\n",
