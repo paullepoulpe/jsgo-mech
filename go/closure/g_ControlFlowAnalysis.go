@@ -113,38 +113,38 @@ func (this *ControlFlowAnalysis) shouldTraverse(nodeTraversal *NodeTraversal, n 
 }
 
 func (this *ControlFlowAnalysis) shouldTraverseIntoChildren(n Node, parent Node) bool {
-	switch n.getToken() {
-	case Token_rhino_FUNCTION:
+	switch n.ns_().token {
+	case tokOrd1_FUNCTION:
 		if this.shouldTraverseFunctions || (n == this.cfg.getEntry().getValue()) {
 			this.exceptionHandler.push(n)
 			return true
 		}
 		return false
-	case Token_rhino_TRY:
+	case tokOrd1_TRY:
 		this.exceptionHandler.push(n)
 		return true
 	default:
 	}
 	if parent != 0 {
-		switch parent.getToken() {
-		case Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
+		switch parent.ns_().token {
+		case tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 			var shouldTraverseForChild bool = (n == parent.getLastChild())
 			if !shouldTraverseForChild {
 				this.astPosition.put(n, int32(this.astPositionCounter))
 				this.astPositionCounter++
 			}
 			return shouldTraverseForChild
-		case Token_rhino_DO:
+		case tokOrd1_DO:
 			return (n != parent.getSecondChild())
-		case Token_rhino_IF, Token_rhino_WHILE, Token_rhino_WITH, Token_rhino_SWITCH, Token_rhino_CASE, Token_rhino_CATCH, Token_rhino_LABEL:
+		case tokOrd1_IF, tokOrd1_WHILE, tokOrd1_WITH, tokOrd1_SWITCH, tokOrd1_CASE, tokOrd1_CATCH, tokOrd1_LABEL:
 			return (n != parent.getFirstChild())
-		case Token_rhino_FUNCTION:
+		case tokOrd1_FUNCTION:
 			return (n == parent.getLastChild())
-		case Token_rhino_CLASS:
+		case tokOrd1_CLASS:
 			return (this.shouldTraverseFunctions && (n == parent.getLastChild()))
-		case Token_rhino_COMPUTED_PROP, Token_rhino_CONTINUE, Token_rhino_BREAK, Token_rhino_EXPR_RESULT, Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST, Token_rhino_EXPORT, Token_rhino_IMPORT, Token_rhino_RETURN, Token_rhino_THROW, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_FIELD_DEF:
+		case tokOrd1_COMPUTED_PROP, tokOrd1_CONTINUE, tokOrd1_BREAK, tokOrd1_EXPR_RESULT, tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST, tokOrd1_EXPORT, tokOrd1_IMPORT, tokOrd1_RETURN, tokOrd1_THROW, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_COMPUTED_FIELD_DEF:
 			return false
-		case Token_rhino_TRY:
+		case tokOrd1_TRY:
 			if (!NodeUtil_hasFinally(parent) && (n == NodeUtil_getCatchBlock(parent))) || NodeUtil_isTryFinallyNode(parent, n) {
 				Preconditions_checkState((this.exceptionHandler.peek() == parent))
 				this.exceptionHandler.pop()
@@ -159,44 +159,44 @@ func (this *ControlFlowAnalysis) shouldTraverseIntoChildren(n Node, parent Node)
 }
 
 func (this *ControlFlowAnalysis) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_IF:
+	switch n.ns_().token {
+	case tokOrd1_IF:
 		this.handleIf(n)
-	case Token_rhino_WHILE:
+	case tokOrd1_WHILE:
 		this.handleWhile(n)
-	case Token_rhino_DO:
+	case tokOrd1_DO:
 		this.handleDo(n)
-	case Token_rhino_FOR:
+	case tokOrd1_FOR:
 		this.handleFor(n)
-	case Token_rhino_FOR_OF, Token_rhino_FOR_IN, Token_rhino_FOR_AWAIT_OF:
+	case tokOrd1_FOR_OF, tokOrd1_FOR_IN, tokOrd1_FOR_AWAIT_OF:
 		this.handleEnhancedFor(n)
-	case Token_rhino_SWITCH:
+	case tokOrd1_SWITCH:
 		this.handleSwitch(n)
-	case Token_rhino_CASE:
+	case tokOrd1_CASE:
 		this.handleCase(n)
-	case Token_rhino_DEFAULT_CASE:
+	case tokOrd1_DEFAULT_CASE:
 		this.handleDefault(n)
-	case Token_rhino_BLOCK, Token_rhino_ROOT, Token_rhino_SCRIPT, Token_rhino_MODULE_BODY:
+	case tokOrd1_BLOCK, tokOrd1_ROOT, tokOrd1_SCRIPT, tokOrd1_MODULE_BODY:
 		this.handleStmtList(n)
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		this.handleFunction(n)
-	case Token_rhino_EXPR_RESULT:
+	case tokOrd1_EXPR_RESULT:
 		this.handleExpr(n)
-	case Token_rhino_THROW:
+	case tokOrd1_THROW:
 		this.handleThrow(n)
-	case Token_rhino_TRY:
+	case tokOrd1_TRY:
 		this.handleTry(n)
-	case Token_rhino_CATCH:
+	case tokOrd1_CATCH:
 		this.handleCatch(n)
-	case Token_rhino_BREAK:
+	case tokOrd1_BREAK:
 		this.handleBreak(n)
-	case Token_rhino_CONTINUE:
+	case tokOrd1_CONTINUE:
 		this.handleContinue(n)
-	case Token_rhino_RETURN:
+	case tokOrd1_RETURN:
 		this.handleReturn(n)
-	case Token_rhino_WITH:
+	case tokOrd1_WITH:
 		this.handleWith(n)
-	case Token_rhino_SWITCH_BODY, Token_rhino_LABEL, Token_rhino_CLASS_MEMBERS, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_FIELD_DEF:
+	case tokOrd1_SWITCH_BODY, tokOrd1_LABEL, tokOrd1_CLASS_MEMBERS, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_COMPUTED_FIELD_DEF:
 	default:
 		this.handleStmt(n)
 	}
@@ -321,9 +321,9 @@ func (this *ControlFlowAnalysis) handleStmtList(node Node) {
 		this.createEdge(node, ControlFlowGraph_Branch_UNCOND, ControlFlowAnalysis_computeFollowNode_Node_ControlFlowAnalysis(node, this))
 	}
 	if parent != 0 {
-		switch parent.getToken() {
-		case Token_rhino_DEFAULT_CASE, Token_rhino_CASE, Token_rhino_TRY:
-		case Token_rhino_ROOT:
+		switch parent.ns_().token {
+		case tokOrd1_DEFAULT_CASE, tokOrd1_CASE, tokOrd1_TRY:
+		case tokOrd1_ROOT:
 			if node.isRoot() && (node.getNext() != 0) {
 				this.createEdge(node, ControlFlowGraph_Branch_UNCOND, node.getNext())
 			}
@@ -486,10 +486,10 @@ func ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNod
 	if ((parent == 0) || parent.isFunction()) || ((cfa != nil) && (node == cfa.root)) {
 		return 0
 	}
-	switch parent.getToken() {
-	case Token_rhino_IF:
+	switch parent.ns_().token {
+	case tokOrd1_IF:
 		return ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNode, parent, cfa)
-	case Token_rhino_CASE, Token_rhino_DEFAULT_CASE:
+	case tokOrd1_CASE, tokOrd1_DEFAULT_CASE:
 		if parent.getNext() != 0 {
 			if parent.getNext().isCase() {
 				return parent.getNext().getSecondChild()
@@ -501,11 +501,11 @@ func ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNod
 		} else {
 			return ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNode, parent, cfa)
 		}
-	case Token_rhino_FOR:
+	case tokOrd1_FOR:
 		return parent.getSecondChild().getNext()
-	case Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_WHILE, Token_rhino_DO:
+	case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_WHILE, tokOrd1_DO:
 		return parent
-	case Token_rhino_TRY:
+	case tokOrd1_TRY:
 		if parent.getFirstChild() == node {
 			if NodeUtil_hasFinally(parent) {
 				return ControlFlowAnalysis_computeFallThrough(parent.getLastChild())
@@ -545,12 +545,12 @@ func ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNod
 
 func ControlFlowAnalysis_computeFallThrough(n Node) Node {
 	return func() Node {
-		switch n.getToken() {
-		case Token_rhino_DO, Token_rhino_FOR:
+		switch n.ns_().token {
+		case tokOrd1_DO, tokOrd1_FOR:
 			return ControlFlowAnalysis_computeFallThrough(n.getFirstChild())
-		case Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
+		case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 			return n.getSecondChild()
-		case Token_rhino_LABEL:
+		case tokOrd1_LABEL:
 			return ControlFlowAnalysis_computeFallThrough(n.getLastChild())
 		default:
 			return n
@@ -649,10 +649,10 @@ func ControlFlowAnalysis_matchLabel(target Node, label Optional[string]) bool {
 }
 
 func ControlFlowAnalysis_mayThrowException(n Node) bool {
-	switch n.getToken() {
-	case Token_rhino_CALL, Token_rhino_OPTCHAIN_CALL, Token_rhino_TAGGED_TEMPLATELIT, Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_GETELEM, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_THROW, Token_rhino_NEW, Token_rhino_ASSIGN, Token_rhino_INC, Token_rhino_DEC, Token_rhino_INSTANCEOF, Token_rhino_IN, Token_rhino_YIELD, Token_rhino_AWAIT:
+	switch n.ns_().token {
+	case tokOrd1_CALL, tokOrd1_OPTCHAIN_CALL, tokOrd1_TAGGED_TEMPLATELIT, tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_GETELEM, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_THROW, tokOrd1_NEW, tokOrd1_ASSIGN, tokOrd1_INC, tokOrd1_DEC, tokOrd1_INSTANCEOF, tokOrd1_IN, tokOrd1_YIELD, tokOrd1_AWAIT:
 		return true
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		return false
 	default:
 	}
@@ -669,10 +669,10 @@ func ControlFlowAnalysis_mayThrowException(n Node) bool {
 
 func ControlFlowAnalysis_isBreakStructure(n Node, labeled bool) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_DO, Token_rhino_WHILE, Token_rhino_SWITCH:
+		switch n.ns_().token {
+		case tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_DO, tokOrd1_WHILE, tokOrd1_SWITCH:
 			return true
-		case Token_rhino_BLOCK, Token_rhino_IF, Token_rhino_TRY, Token_rhino_BREAK:
+		case tokOrd1_BLOCK, tokOrd1_IF, tokOrd1_TRY, tokOrd1_BREAK:
 			return labeled
 		default:
 			return false

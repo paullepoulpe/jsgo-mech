@@ -38,20 +38,20 @@ func (this *RewriteJsonToModule) process_2(externs Node, root Node) {
 }
 
 func (this *RewriteJsonToModule) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_SCRIPT:
+	switch n.ns_().token {
+	case tokOrd1_SCRIPT:
 		if !n.hasOneChild() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, RewriteJsonToModule_JSON_UNEXPECTED_TOKEN, []string{}))
 		} else {
 			this.visitScript(t, n)
 		}
 		return
-	case Token_rhino_OBJECTLIT, Token_rhino_ARRAYLIT, Token_rhino_NUMBER, Token_rhino_TRUE, Token_rhino_FALSE, Token_rhino_NULL, Token_rhino_STRINGLIT:
-	case Token_rhino_STRING_KEY:
+	case tokOrd1_OBJECTLIT, tokOrd1_ARRAYLIT, tokOrd1_NUMBER, tokOrd1_TRUE, tokOrd1_FALSE, tokOrd1_NULL, tokOrd1_STRINGLIT:
+	case tokOrd1_STRING_KEY:
 		if !n.isQuotedStringKey() || !n.hasOneChild() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, RewriteJsonToModule_JSON_UNEXPECTED_TOKEN, []string{}))
 		}
-	case Token_rhino_EXPR_RESULT:
+	case tokOrd1_EXPR_RESULT:
 		if !parent.isScript() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, RewriteJsonToModule_JSON_UNEXPECTED_TOKEN, []string{}))
 		}

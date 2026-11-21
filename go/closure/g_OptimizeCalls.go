@@ -64,18 +64,18 @@ func OptimizeCalls_mayBeOptimizableName(compiler *AbstractCompiler, name string)
 
 func OptimizeCalls_isAllowedReference(n Node) bool {
 	var parent Node = n.getParent()
-	switch parent.getToken() {
-	case Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
+	switch parent.ns_().token {
+	case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 		return (parent.getSecondChild() == n)
-	case Token_rhino_INSTANCEOF, Token_rhino_TYPEOF, Token_rhino_IN:
+	case tokOrd1_INSTANCEOF, tokOrd1_TYPEOF, tokOrd1_IN:
 		return true
-	case Token_rhino_GETELEM, Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_OPTCHAIN_GETELEM:
+	case tokOrd1_GETELEM, tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OPTCHAIN_GETELEM:
 		var grandparent Node = parent.getParent()
 		if ((n == parent.getFirstChild()) && (grandparent != 0)) && ((grandparent.isCall() || grandparent.isOptChainCall()) || grandparent.isTaggedTemplateLit()) {
 			return false
 		}
 		return true
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		if n.isFirstChildOf(parent) {
 			return false
 		} else {
@@ -214,17 +214,17 @@ func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) 
 		return jtlistEmptyImm_(jtc_Node)
 	}
 	var fns *TListBuilder[Node] = newTListBuilder_(jtc_Node)
-	switch parent.getToken() {
-	case Token_rhino_CLASS:
+	switch parent.ns_().token {
+	case tokOrd1_CLASS:
 		if definitionSite.isFirstChildOf(parent) {
 			var constructorFnDef Node = NodeUtil_getEs6ClassConstructorMemberFunctionDef(parent)
 			if constructorFnDef != 0 {
 				fns.add(constructorFnDef.getOnlyChild())
 			}
 		}
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		fns.add(parent)
-	case Token_rhino_CLASS_MEMBERS:
+	case tokOrd1_CLASS_MEMBERS:
 		if definitionSite.isMemberFunctionDef() {
 			fns.add(definitionSite.getLastChild())
 		} else {
@@ -234,16 +234,16 @@ func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) 
 				OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns, value)
 			}
 		}
-	case Token_rhino_OBJECTLIT:
+	case tokOrd1_OBJECTLIT:
 		Preconditions_checkArgument_boolean_Object_H((definitionSite.isStringKey() || definitionSite.isMemberFunctionDef()), definitionSite)
 		OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns, definitionSite.getLastChild())
-	case Token_rhino_ASSIGN:
+	case tokOrd1_ASSIGN:
 		var target Node = parent.getFirstChild()
 		var value Node = parent.getLastChild()
 		if definitionSite == target {
 			OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns, value)
 		}
-	case Token_rhino_CONST, Token_rhino_LET, Token_rhino_VAR:
+	case tokOrd1_CONST, tokOrd1_LET, tokOrd1_VAR:
 		if definitionSite.isName() && definitionSite.hasChildren() {
 			OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns, definitionSite.getFirstChild())
 		}
@@ -253,23 +253,23 @@ func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) 
 }
 
 func OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns *TListBuilder[Node], n Node) {
-	switch n.getToken() {
-	case Token_rhino_CLASS:
+	switch n.ns_().token {
+	case tokOrd1_CLASS:
 		{
 			var constructorFnDef Node = NodeUtil_getEs6ClassConstructorMemberFunctionDef(n)
 			if constructorFnDef != 0 {
 				fns.add(constructorFnDef.getOnlyChild())
 			}
 		}
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		fns.add(n)
-	case Token_rhino_HOOK:
+	case tokOrd1_HOOK:
 		OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns, n.getSecondChild())
 		OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns, n.getLastChild())
-	case Token_rhino_OR, Token_rhino_AND, Token_rhino_COALESCE:
+	case tokOrd1_OR, tokOrd1_AND, tokOrd1_COALESCE:
 		OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns, n.getFirstChild())
 		OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns, n.getLastChild())
-	case Token_rhino_CAST, Token_rhino_COMMA:
+	case tokOrd1_CAST, tokOrd1_COMMA:
 		OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns, n.getLastChild())
 	default:
 	}
@@ -359,12 +359,12 @@ func new_OptimizeCalls_ReferenceMapBuildingCallback(outer_ *OptimizeCalls, refer
 }
 
 func (this *OptimizeCalls_ReferenceMapBuildingCallback) visit(t *NodeTraversal, n Node, unused Node) {
-	switch n.getToken() {
-	case Token_rhino_NAME:
+	switch n.ns_().token {
+	case tokOrd1_NAME:
 		this.maybeAddNameReference(n.getString(), n)
-	case Token_rhino_OPTCHAIN_GETPROP, Token_rhino_GETPROP:
+	case tokOrd1_OPTCHAIN_GETPROP, tokOrd1_GETPROP:
 		this.maybeAddPropReference(n.getString(), n)
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		var fnName Node = n.getFirstChild()
 		if this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(fnName) {
 			var propName Node = NodeUtil_getArgumentForCallOrNew(n, 0)
@@ -372,13 +372,13 @@ func (this *OptimizeCalls_ReferenceMapBuildingCallback) visit(t *NodeTraversal, 
 				this.maybeAddPropReference(propName.getString(), n)
 			}
 		}
-	case Token_rhino_STRING_KEY, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF:
+	case tokOrd1_STRING_KEY, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_FIELD_DEF:
 		if !n.isQuotedStringKey() {
 			this.maybeAddPropReference(n.getString(), n)
 		}
-	case Token_rhino_SUPER:
+	case tokOrd1_SUPER:
 		this.visitSuper(n)
-	case Token_rhino_COMPUTED_PROP, Token_rhino_COMPUTED_FIELD_DEF, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_GETELEM, Token_rhino_OBJECT_REST, Token_rhino_OBJECT_SPREAD:
+	case tokOrd1_COMPUTED_PROP, tokOrd1_COMPUTED_FIELD_DEF, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_GETELEM, tokOrd1_OBJECT_REST, tokOrd1_OBJECT_SPREAD:
 	default:
 	}
 }

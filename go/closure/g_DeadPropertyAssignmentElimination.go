@@ -254,8 +254,8 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 
 func DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal_isConditionalExpression(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_AND, Token_rhino_OR, Token_rhino_HOOK, Token_rhino_COALESCE, Token_rhino_OPTCHAIN_CALL, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_OPTCHAIN_GETPROP:
+		switch n.ns_().token {
+		case tokOrd1_AND, tokOrd1_OR, tokOrd1_HOOK, tokOrd1_COALESCE, tokOrd1_OPTCHAIN_CALL, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_OPTCHAIN_GETPROP:
 			return true
 		default:
 			return false
@@ -293,8 +293,8 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 
 func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) visitNode(n Node, parent Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_GETPROP:
+		switch n.ns_().token {
+		case tokOrd1_GETPROP:
 			if n.isGetProp() && Collection_contains_s(this.skiplistedPropNames, n.getString()) {
 				this.markAllPropsRead()
 				return true
@@ -310,17 +310,17 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 				}
 			}
 			return true
-		case Token_rhino_THIS, Token_rhino_NAME:
+		case tokOrd1_THIS, tokOrd1_NAME:
 			var nameProp *DeadPropertyAssignmentElimination_Property = Preconditions_checkNotNull_T(this.getOrCreateProperty(n))
 			nameProp.markLastWriteRead()
 			if !parent.isGetProp() {
 				nameProp.markChildrenRead()
 			}
 			return true
-		case Token_rhino_THROW, Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_ITER_SPREAD, Token_rhino_ARRAY_PATTERN, Token_rhino_SWITCH:
+		case tokOrd1_THROW, tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_ITER_SPREAD, tokOrd1_ARRAY_PATTERN, tokOrd1_SWITCH:
 			this.markAllPropsRead()
 			return false
-		case Token_rhino_OBJECT_PATTERN:
+		case tokOrd1_OBJECT_PATTERN:
 			{
 				var child Node = n.getFirstChild()
 				for ; child != 0; child = child.getNext() {
@@ -338,7 +338,7 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 				}
 			}
 			return true
-		case Token_rhino_BLOCK:
+		case tokOrd1_BLOCK:
 			this.visitBlock(n)
 			return true
 		default:

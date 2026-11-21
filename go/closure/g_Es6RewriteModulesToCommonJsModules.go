@@ -159,14 +159,14 @@ func new_Es6RewriteModulesToCommonJsModules_Rewriter(compiler *AbstractCompiler,
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_IMPORT:
+	switch n.ns_().token {
+	case tokOrd1_IMPORT:
 		this.visitImport(t.getInput().getPath(), n)
-	case Token_rhino_EXPORT:
+	case tokOrd1_EXPORT:
 		this.visitExport(t, n, parent)
-	case Token_rhino_SCRIPT:
+	case tokOrd1_SCRIPT:
 		this.visitScript(t, n)
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		this.maybeRenameImportedValue(t, n)
 	default:
 	}

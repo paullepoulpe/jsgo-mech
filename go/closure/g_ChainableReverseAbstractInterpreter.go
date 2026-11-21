@@ -75,8 +75,8 @@ func (this *ChainableReverseAbstractInterpreter) nextPreciserScopeKnowingConditi
 }
 
 func (this *ChainableReverseAbstractInterpreter) getTypeIfRefinable(node Node, scope FlowScope) *JSType {
-	switch node.getToken() {
-	case Token_rhino_NAME:
+	switch node.ns_().token {
+	case tokOrd1_NAME:
 		var nameVar StaticTypedSlot = scope.getSlot_String_rStaticTypedSlot(node.getString())
 		if nameVar != nil {
 			var nameVarType *JSType = nameVar.getType()
@@ -86,7 +86,7 @@ func (this *ChainableReverseAbstractInterpreter) getTypeIfRefinable(node Node, s
 			return nameVarType
 		}
 		return nil
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		var qualifiedName string = node.getQualifiedName()
 		if String_isEmpty(qualifiedName) {
 			return nil
@@ -110,10 +110,10 @@ func (this *ChainableReverseAbstractInterpreter) getTypeIfRefinable(node Node, s
 
 func (this *ChainableReverseAbstractInterpreter) declareNameInScope(scope FlowScope, node Node, type_ *JSType) FlowScope {
 	return func() FlowScope {
-		switch node.getToken() {
-		case Token_rhino_NAME:
+		switch node.ns_().token {
+		case tokOrd1_NAME:
 			return scope.inferSlotType_String_JSType(node.getString(), type_)
-		case Token_rhino_GETPROP:
+		case tokOrd1_GETPROP:
 			var qualifiedName string = node.getQualifiedName()
 			Preconditions_checkState(!String_isEmpty(qualifiedName))
 			var origType *JSType = node.getJSType()
@@ -124,7 +124,7 @@ func (this *ChainableReverseAbstractInterpreter) declareNameInScope(scope FlowSc
 				return origType
 			}()
 			return scope.inferQualifiedSlot_Node_String_JSType_JSType_boolean(node, qualifiedName, origType, type_, false)
-		case Token_rhino_THIS:
+		case tokOrd1_THIS:
 			return scope
 		default:
 			panic(new_IllegalArgumentException_String(("Node cannot be refined. \n" + sstr_(node.toStringTree()))).self())
