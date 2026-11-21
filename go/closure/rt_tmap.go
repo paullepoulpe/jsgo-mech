@@ -542,6 +542,20 @@ func (s *TSet[K]) asSet() Set {
 
 type tmapView_[K comparable, V any] struct{ m *TMap[K, V] }
 
+// boxedKV_ is the keys and values of the map, boxed, in the order its entry set's iterator
+// gives them (from the first live position, skipping removed ones), without the iterator and
+// an entry object per element (mapKV_: ImmutableMap.copyOf of a typed map's view).
+func (v *tmapView_[K, V]) boxedKV_() (keys, vals []any) {
+	m := v.m
+	for i := m.first(); i < len(m.keys); i++ {
+		if !m.isDead(i) {
+			keys = append(keys, m.kc.box(m.keys[i]))
+			vals = append(vals, m.vc.box(m.vals[i]))
+		}
+	}
+	return keys, vals
+}
+
 func (v *tmapView_[K, V]) self() any     { return v }
 func (v *tmapView_[K, V]) size() int32   { return v.m.live }
 func (v *tmapView_[K, V]) isEmpty() bool { return v.m.live == 0 }

@@ -258,6 +258,9 @@ func mapKV_(m Map) (keys, vals []any) {
 	if im, ok := m.(*ImmutableMap); ok {
 		return append([]any(nil), im.keys...), append([]any(nil), im.vals...)
 	}
+	if tv, ok := m.(interface{ boxedKV_() ([]any, []any) }); ok {
+		return tv.boxedKV_()
+	}
 	for it := m.entrySet().iterator(); it.hasNext(); {
 		e := it.next().(Map_Entry)
 		keys = append(keys, e.getKey())
