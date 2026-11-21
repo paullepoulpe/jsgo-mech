@@ -346,12 +346,17 @@ func tries() {
 			if !ok {
 				return true
 			}
-			lit, ok := rw.Parent[rw.Parent[d]].(*ast.FuncLit)
-			if !ok {
-				note("left: catch defer not in a function literal", d)
+			var body *ast.BlockStmt
+			lit, _ := rw.Parent[rw.Parent[d]].(*ast.FuncLit)
+			if lit != nil {
+				body = lit.Body
+			} else if fd, ok := rw.Parent[rw.Parent[d]].(*ast.FuncDecl); ok {
+				body = fd.Body // a try that ends its function (tools/postflip/tryfn)
+			} else {
+				note("left: catch defer not in a function", d)
 				return true
 			}
-			analyse(lit, d, is)
+			analyse(lit, body, d, is)
 			return true
 		})
 	}
@@ -360,11 +365,13 @@ func tries() {
 // implicit are the exceptions catch_ makes of Go runtime panics, which any code can raise.
 var implicit = []string{"NullPointerException", "ArrayIndexOutOfBoundsException", "ClassCastException", "ArithmeticException", "RuntimeException"}
 
-func analyse(lit *ast.FuncLit, d *ast.DeferStmt, is *ast.IfStmt) {
-	// The try block: the statements of the literal after its defers.
+// analyse reads the catch clauses of the try whose catch defer d is a statement of fn: the
+// body of the try's function literal, or of the function the try ends (lit is nil then).
+func analyse(lit *ast.FuncLit, fn *ast.BlockStmt, d *ast.DeferStmt, is *ast.IfStmt) {
+	// The try block: the statements of the function after the catch defer.
 	var body []ast.Stmt
 	idx := -1
-	for i, s := range lit.Body.List {
+	for i, s := range fn.List {
 		if s == ast.Stmt(d) {
 			idx = i
 		}
@@ -374,12 +381,12 @@ func analyse(lit *ast.FuncLit, d *ast.DeferStmt, is *ast.IfStmt) {
 		return
 	}
 	finally := false
-	for _, s := range lit.Body.List[:idx] {
+	for _, s := range fn.List[:idx] {
 		if _, ok := s.(*ast.DeferStmt); ok {
 			finally = true
 		}
 	}
-	body = lit.Body.List[idx+1:]
+	body = fn.List[idx+1:]
 	set := throwsOf(body)
 	clauses := is.Body.List[1 : len(is.Body.List)-1]
 	live := 0
@@ -436,12 +443,50 @@ func analyse(lit *ast.FuncLit, d *ast.DeferStmt, is *ast.IfStmt) {
 	// No clause is left: the try statement only runs its block.
 	rw.Rewrite[d] = func() string { return rw.Del }
 	note("try emulation without catch clauses: defer deleted", d)
+	if lit == nil {
+		// The function the try ended named its result for the catch clauses (tryfn); with
+		// none left, the name is not used.
+		if fd, ok := rw.Parent[fn].(*ast.FuncDecl); ok && !finally {
+			unnameResult(fd, d)
+		}
+		return
+	}
 	if finally {
+		return
+	}
+	// func() { <block> }() (tools/postflip/tryfn) -> { <block> }
+	call, _ := rw.Parent[lit].(*ast.CallExpr)
+	if es, ok := rw.Up(rw.Parent[lit]).(*ast.ExprStmt); ok && call != nil && lit.Type.Results == nil {
+		returns := 0
+		for _, s := range body {
+			ast.Inspect(s, func(n ast.Node) bool {
+				switch n.(type) {
+				case *ast.FuncLit:
+					return false
+				case *ast.ReturnStmt:
+					returns++
+				}
+				return true
+			})
+		}
+		if returns != 0 {
+			return
+		}
+		note("try emulation without catch clauses: a block", lit)
+		rw.Rewrite[es] = func() string {
+			var out []string
+			for _, s := range body {
+				out = append(out, rw.Render(s))
+			}
+			if !declares(body) {
+				return strings.Join(out, "\n") // no name of the block to scope
+			}
+			return "{\n" + strings.Join(out, "\n") + "\n}"
+		}
 		return
 	}
 	// _ = func() (code_ int) { <block>; return 0 }() -> { <block> }
 	as, ok := rw.Up(rw.Parent[lit]).(*ast.AssignStmt)
-	call, _ := rw.Parent[lit].(*ast.CallExpr)
 	if !ok || call == nil || len(as.Lhs) != 1 || rw.Text(as.Lhs[0]) != "_" || len(body) == 0 || rw.Text(body[len(body)-1]) != "return 0" {
 		return
 	}
@@ -468,6 +513,57 @@ func analyse(lit *ast.FuncLit, d *ast.DeferStmt, is *ast.IfStmt) {
 		}
 		return "{\n" + strings.Join(out, "\n") + "\n}"
 	}
+}
+
+// declares reports whether a statement of l declares a name in the block.
+func declares(l []ast.Stmt) bool {
+	for _, s := range l {
+		switch x := s.(type) {
+		case *ast.DeclStmt:
+			return true
+		case *ast.AssignStmt:
+			if x.Tok == token.DEFINE {
+				return true
+			}
+		case *ast.LabeledStmt:
+			return true
+		}
+	}
+	return false
+}
+
+// unnameResult writes fd's single result ret_N, named by tryfn, without its name when only the
+// deleted catch defer d used it.
+func unnameResult(fd *ast.FuncDecl, d *ast.DeferStmt) {
+	r := fd.Type.Results
+	if r == nil || len(r.List) != 1 || len(r.List[0].Names) != 1 || !strings.HasPrefix(r.List[0].Names[0].Name, "ret_") {
+		return
+	}
+	for _, u := range rw.UsesOf[rw.Info.Defs[r.List[0].Names[0]]] {
+		if !contains(d, u) {
+			return
+		}
+	}
+	ast.Inspect(fd.Body, func(n ast.Node) bool {
+		if b, ok := n.(*ast.ReturnStmt); ok && len(b.Results) == 0 && !inLiteral(b, fd) {
+			r = nil
+		}
+		return r != nil
+	})
+	if r == nil {
+		return // a naked return reads the named result
+	}
+	t := r.List[0].Type
+	rw.Rewrite[r] = func() string { return rw.Render(t) }
+}
+
+func inLiteral(n ast.Node, fd *ast.FuncDecl) bool {
+	for p := rw.Parent[n]; p != nil && p != ast.Node(fd); p = rw.Parent[p] {
+		if _, ok := p.(*ast.FuncLit); ok {
+			return true
+		}
+	}
+	return false
 }
 
 func usesName(l []ast.Stmt, name string) bool {
@@ -512,6 +608,9 @@ func (s *exset) union(o *exset, from *node) bool {
 		changed = true
 	}
 	for c, w := range o.classes {
+		if from != nil && from.noChecked && checked(c) {
+			continue // Java: toString, hashCode and equals throw no checked exception
+		}
 		if s.add(c, w) {
 			if s.via == nil {
 				s.via = map[string]*node{}
@@ -592,11 +691,52 @@ func subclassesOf(t string) []string {
 
 // node is a function of the call graph: a declaration or a literal.
 type node struct {
-	name    string
-	body    *ast.BlockStmt
-	throws  exset
-	calls   []*node
-	callers []*node
+	name      string
+	body      *ast.BlockStmt
+	throws    exset
+	calls     []*node
+	callers   []*node
+	noChecked bool // a Java override of Object.toString, hashCode or equals
+}
+
+// checked reports whether class c is a checked exception: neither a RuntimeException nor an
+// Error.
+func checked(c string) bool {
+	return !subclass(c, "RuntimeException") && !subclass(c, "Error")
+}
+
+// objectMethod reports whether fd translates an override of Object.toString(),
+// Object.hashCode() or Object.equals(Object) (or is the _impl a dispatcher of one calls).
+// Java does not let these declare a checked exception, so none leaves them: Java's compiler
+// rejects a checked exception that a method neither catches nor declares, and every function
+// of the package translates a Java method (the runtime, a JDK one) or a lambda of its body.
+func objectMethod(fd *ast.FuncDecl) bool {
+	if fd.Recv == nil {
+		return false
+	}
+	sig := rw.Info.Defs[fd.Name].(*types.Func).Type().(*types.Signature)
+	name := strings.TrimSuffix(fd.Name.Name, "_impl")
+	basic := func(t types.Type, k types.BasicKind) bool {
+		b, ok := t.(*types.Basic)
+		return ok && b.Kind() == k
+	}
+	if sig.Results().Len() != 1 {
+		return false
+	}
+	r := sig.Results().At(0).Type()
+	switch name {
+	case "toString":
+		return sig.Params().Len() == 0 && basic(r, types.String)
+	case "hashCode":
+		return sig.Params().Len() == 0 && basic(r, types.Int32)
+	case "equals":
+		if sig.Params().Len() != 1 || !basic(r, types.Bool) {
+			return false
+		}
+		it, ok := sig.Params().At(0).Type().Underlying().(*types.Interface)
+		return ok && it.Empty()
+	}
+	return false
 }
 
 var (
@@ -643,7 +783,7 @@ func buildGraph() {
 			}
 			o := rw.Info.Defs[fd.Name].(*types.Func)
 			funcDecl[o] = fd
-			nodes[fd] = &node{name: fd.Name.Name, body: fd.Body}
+			nodes[fd] = &node{name: fd.Name.Name, body: fd.Body, noChecked: objectMethod(fd)}
 		}
 		ast.Inspect(f, func(n ast.Node) bool {
 			if fl, ok := n.(*ast.FuncLit); ok {
