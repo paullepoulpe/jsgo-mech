@@ -168,7 +168,7 @@ func (this *NamedType) recursionUnsafeHashCode_impl() int32 {
 func (this *NamedType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSType {
 	var resolvedTypeArgs *JTList[*JSType] = jtlistImm_(jtc_p_JSType, JSTypeIterations_mapTypesImmutableList(Function[*JSType, *JSType](func(t *JSType) *JSType {
 		return t.resolve(reporter)
-	}), this.templateTypes.asImm()))
+	}), sliceImm_(tc_p_JSType, this.templateTypes.asImm())))
 	if eqR_(this.resolutionKind, NamedType_ResolutionKind_NONE) {
 		return this.ProxyObjectType.resolveInternal_impl(reporter)
 	}
