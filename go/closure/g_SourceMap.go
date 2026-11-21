@@ -304,6 +304,7 @@ func (this *SourceMap_LocationMapping_fn) map_(p0 Optional[string]) Optional[str
 type SourceMap_PrefixLocationMapping struct {
 	prefix_      string
 	replacement_ string
+	hashMemo_    int32 // hashCode, once computed, when it is not 0 (post-flip step hashmemo)
 }
 
 func (this *SourceMap_PrefixLocationMapping) zero_SourceMap_PrefixLocationMapping() {
@@ -343,6 +344,16 @@ func (this *SourceMap_PrefixLocationMapping) equals(other any) bool {
 }
 
 func (this *SourceMap_PrefixLocationMapping) hashCode() int32 {
+	if h := this.hashMemo_; h != 0 {
+		return h
+	}
+	h := this.hashCodeOnce_()
+	this.hashMemo_ = h
+	return h
+}
+
+// hashCodeOnce_ computes hashCode: a function of data that is final in the object (post-flip step hashmemo).
+func (this *SourceMap_PrefixLocationMapping) hashCodeOnce_() int32 {
 	return hashOf_(objhashStr_(this.prefix_), objhashStr_(this.replacement_))
 }
 
