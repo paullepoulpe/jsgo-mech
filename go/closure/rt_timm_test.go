@@ -152,8 +152,8 @@ func TestTypedRoundTrips(t *testing.T) {
 			t.Error("tlistImmCopy_ of a mutable list")
 		}
 		if lv := newTList_(timmStr_); len(xs) == 0 {
-			if tlistImmCopy_(timmStr_, lv); lv.view != nil {
-				t.Error("tlistImmCopy_ made the list's view")
+			if tlistImmCopy_(timmStr_, lv); lv.twin != nil {
+				t.Error("tlistImmCopy_ made the list's twin")
 			}
 		}
 	}

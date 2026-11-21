@@ -113,9 +113,7 @@ func (d *TDeque[T]) asDeque() Deque {
 		return nil
 	}
 	if d.dview == nil {
-		v := &tdequeFace_[T]{d: d}
-		v.l = &d.TList
-		d.dview = v
+		d.dview = &tdequeFace_[T]{tlistView_: (*tlistView_[T])(&d.TList), d: d}
 	}
 	return d.dview
 }
@@ -123,7 +121,7 @@ func (d *TDeque[T]) asDeque() Deque {
 // tdequeFace_ is a TDeque seen as an erased Deque: the list view of its items, and the
 // operations at its ends as ArrayDeque in rt_coll.go has them.
 type tdequeFace_[T any] struct {
-	tlistView_[T]
+	*tlistView_[T]
 	d *TDeque[T]
 }
 
