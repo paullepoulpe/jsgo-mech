@@ -79,9 +79,9 @@ func (this *HamtPMap[K, V]) values() IterableOf[V] {
 		return Iterable(Collections_emptyList())
 	}
 	return &Iterable_fn{func() Iterator {
-		return icast_Iterator(obj_(new_HamtPMap_Iter[K, V, V](this, Function_base[*HamtPMap[K, V], V](func(map_ *HamtPMap[K, V]) V {
+		return iup_Iterator(new_HamtPMap_Iter[K, V, V](this, Function_base[*HamtPMap[K, V], V](func(map_ *HamtPMap[K, V]) V {
 			return map_.value_
-		}))))
+		})))
 	}}
 }
 
@@ -90,9 +90,9 @@ func (this *HamtPMap[K, V]) keys() IterableOf[K] {
 		return Iterable(Collections_emptyList())
 	}
 	return &Iterable_fn{func() Iterator {
-		return icast_Iterator(obj_(new_HamtPMap_Iter[K, V, K](this, Function_base[*HamtPMap[K, V], K](func(map_ *HamtPMap[K, V]) K {
+		return iup_Iterator(new_HamtPMap_Iter[K, V, K](this, Function_base[*HamtPMap[K, V], K](func(map_ *HamtPMap[K, V]) K {
 			return map_.key_
-		}))))
+		})))
 	}}
 }
 

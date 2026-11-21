@@ -169,7 +169,7 @@ func (this *SimpleSetMultimap[K, V]) keySet() SetOf[K] {
 }
 
 func (this *SimpleSetMultimap[K, V]) values() CollectionOf[V] {
-	return icast_Collection(obj_(new_SimpleSetMultimap_1[K, V](this)))
+	return iup_Collection(new_SimpleSetMultimap_1[K, V](this))
 }
 
 func (this *SimpleSetMultimap[K, V]) asMap() MapOf[K, SetOf[V]] {
@@ -314,7 +314,7 @@ func new_SimpleSetMultimap_1[K comparable, V comparable](outer_ *SimpleSetMultim
 func (this *SimpleSetMultimap_1[K, V]) iterator() IteratorOf[V] {
 	return func() Iterator {
 		if this.outer_.entryOrder != nil {
-			return icast_Iterator(obj_(new_SimpleSetMultimap_1InsertionOrderedValuesIterator[K, V](this.outer_)))
+			return iup_Iterator(new_SimpleSetMultimap_1InsertionOrderedValuesIterator[K, V](this.outer_))
 		}
 		return Iterables_unmodifiableIterable(Iterables_concat_Iterable(Iterable(this.outer_.map__.values()))).iterator()
 	}()

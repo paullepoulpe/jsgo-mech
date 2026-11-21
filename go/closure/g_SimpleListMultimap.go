@@ -124,7 +124,7 @@ func (this *SimpleListMultimap[K, V]) keySet() SetOf[K] {
 }
 
 func (this *SimpleListMultimap[K, V]) values() CollectionOf[V] {
-	return icast_Collection(obj_(new_SimpleListMultimap_1[K, V](this)))
+	return iup_Collection(new_SimpleListMultimap_1[K, V](this))
 }
 
 func (this *SimpleListMultimap[K, V]) asMap() MapOf[K, ListOf[V]] {
