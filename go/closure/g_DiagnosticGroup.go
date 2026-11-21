@@ -3,13 +3,13 @@
 package closure
 
 type DiagnosticGroup struct {
-	types *JTSet[*DiagnosticType]
+	types *TSet[*DiagnosticType]
 	name_ Optional[string]
 }
 
 func (this *DiagnosticGroup) init_DiagnosticGroup_Optional_DiagnosticTypeArr(name Optional[string], types []*DiagnosticType) {
 	this.name_ = name
-	this.types = jimmutableSetCopyOf_(tce_p_DiagnosticType, Collection(Arrays_asList(arrmap_(types, func(v_ *DiagnosticType) any { return obj_(v_) }))))
+	this.types = immutableSetCopyOf_(tch_p_DiagnosticType, Collection(Arrays_asList(arrmap_(types, func(v_ *DiagnosticType) any { return obj_(v_) }))))
 }
 
 func new_DiagnosticGroup_Optional_DiagnosticTypeArr(name Optional[string], types []*DiagnosticType) *DiagnosticGroup {
@@ -37,7 +37,7 @@ func DiagnosticGroup_createFromGroups_DiagnosticGroupArr(groups []*DiagnosticGro
 }
 
 func DiagnosticGroup_createFromGroups_Optional_DiagnosticGroupArr(name Optional[string], groups []*DiagnosticGroup) *DiagnosticGroup {
-	var set *TSetBuilder[*DiagnosticType] = newTSetBuilder_(tce_p_DiagnosticType)
+	var set *ImmutableSet_Builder[*DiagnosticType] = immutableSetBuilder_(tch_p_DiagnosticType)
 	for _, group := range groups {
 		set.addAll(Iterable(group.types.asSet()))
 	}
@@ -45,8 +45,8 @@ func DiagnosticGroup_createFromGroups_Optional_DiagnosticGroupArr(name Optional[
 }
 
 func DiagnosticGroup_forType(type_ *DiagnosticType) *DiagnosticGroup {
-	DiagnosticGroup_singletons.computeIfAbsent(type_, Function[*DiagnosticType, *DiagnosticGroup](func(p0 *DiagnosticType) *DiagnosticGroup { return DiagnosticGroup_createFromType(p0) }))
-	return DiagnosticGroup_singletons.get(type_)
+	DiagnosticGroup_singletons.ComputeIfAbsent(type_, Function[*DiagnosticType, *DiagnosticGroup](func(p0 *DiagnosticType) *DiagnosticGroup { return DiagnosticGroup_createFromType(p0) }))
+	return DiagnosticGroup_singletons.Get(type_)
 }
 
 func (this *DiagnosticGroup) matches(error_ *JSError) bool {
@@ -54,10 +54,10 @@ func (this *DiagnosticGroup) matches(error_ *JSError) bool {
 }
 
 func (this *DiagnosticGroup) matchesDiagnosticType(type_ *DiagnosticType) bool {
-	return this.types.contains(type_)
+	return this.types.Has(type_)
 }
 
-func (this *DiagnosticGroup) getTypes() *JTSet[*DiagnosticType] {
+func (this *DiagnosticGroup) getTypes() *TSet[*DiagnosticType] {
 	return this.types
 }
 
@@ -76,7 +76,7 @@ func (this *DiagnosticGroup) toString() string {
 
 const DiagnosticGroup_serialVersionUID int64 = 1
 
-var DiagnosticGroup_singletons *JTMap[*DiagnosticType, *DiagnosticGroup]
+var DiagnosticGroup_singletons *TMap[*DiagnosticType, *DiagnosticGroup]
 
 var DiagnosticGroup_clinit_done bool
 
@@ -85,6 +85,6 @@ func DiagnosticGroup_clinit() {
 		return
 	}
 	DiagnosticGroup_clinit_done = true
-	DiagnosticGroup_singletons = jnewTMap_(tce_p_DiagnosticType, jtc_p_DiagnosticGroup)
+	DiagnosticGroup_singletons = newTMap_(tch_p_DiagnosticType, tc_p_DiagnosticGroup)
 
 }

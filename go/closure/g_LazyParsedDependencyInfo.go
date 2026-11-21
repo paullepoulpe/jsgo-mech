@@ -6,7 +6,7 @@ type LazyParsedDependencyInfo struct {
 	delegate   DependencyInfo_
 	ast        *CompilerInput
 	compiler_  *AbstractCompiler
-	loadFlags_ *JTMap[string, string]
+	loadFlags_ *TMap[string, string]
 }
 
 func (this *LazyParsedDependencyInfo) init_LazyParsedDependencyInfo(delegate DependencyInfo_, ast *CompilerInput, compiler *AbstractCompiler) {
@@ -40,22 +40,22 @@ func (this *LazyParsedDependencyInfo) isGoogModule() bool {
 
 func (this *LazyParsedDependencyInfo) getLoadFlags() ImmutableMapOf[string, string] {
 	if this.loadFlags_ == nil {
-		var loadFlagsBuilder *JTMap[string, string] = newTSortedMap_(jtc_string, jtc_string)
+		var loadFlagsBuilder *TMap[string, string] = newTSortedMap_(tc_string, tc_string)
 		var hadSourceInMemory bool = this.ast.getSourceFile().hasSourceInMemory()
 		loadFlagsBuilder.asMap().putAll(ImmutableMap_as_Map(this.delegate.getLoadFlags()))
 		var features *FeatureSet = this.ast.getFeatures(this.compiler_)
 		if features.has(FeatureSet_Feature_MODULES) {
-			var previousModule Optional[string] = Optional_ofNullable[string](loadFlagsBuilder.get("module"))
+			var previousModule Optional[string] = Optional_ofNullable[string](loadFlagsBuilder.Get("module"))
 			if previousModule.isPresent() && !(previousModule.get() == "es6") {
 				this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](this.getName()), -1, -1, ModuleLoader_MODULE_CONFLICT, []string{this.getName()}))
 			}
-			loadFlagsBuilder.put("module", "es6")
+			loadFlagsBuilder.Put("module", "es6")
 		}
 		var version string = features.version()
 		if !(version == "es3") {
-			loadFlagsBuilder.put("lang", version)
+			loadFlagsBuilder.Put("lang", version)
 		}
-		this.loadFlags_ = immutableMapCopyOfT_(jtc_string, jtc_string, loadFlagsBuilder)
+		this.loadFlags_ = immutableMapCopyOfT_(tc_string, tc_string, loadFlagsBuilder)
 		if !hadSourceInMemory {
 			this.ast.getSourceFile().clearCachedSource()
 		}

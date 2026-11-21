@@ -7,7 +7,7 @@ type StringPool struct {
 	maxLength int32
 }
 
-func (this *StringPool) init_StringPool(maxLength int32, pool *JTList[string]) {
+func (this *StringPool) init_StringPool(maxLength int32, pool *TList[string]) {
 	this.maxLength = maxLength
 	this.pool = new_RhinoStringPool_LazyInternedStringList(pool)
 	if pool.get(0) != "" {
@@ -15,7 +15,7 @@ func (this *StringPool) init_StringPool(maxLength int32, pool *JTList[string]) {
 	}
 }
 
-func new_StringPool(maxLength int32, pool *JTList[string]) *StringPool {
+func new_StringPool(maxLength int32, pool *TList[string]) *StringPool {
 	this := &StringPool{}
 	this.init_StringPool(maxLength, pool)
 	return this
@@ -23,7 +23,7 @@ func new_StringPool(maxLength int32, pool *JTList[string]) *StringPool {
 
 func StringPool_fromProto(proto *StringPoolProto) *StringPool {
 	var decoder *Wtf8_Decoder = Wtf8_decoder(proto.getMaxLength())
-	var pool *JTList[string] = jnewTList_(jtc_string)
+	var pool *TList[string] = newTList_(tc_string)
 	pool.add("")
 	var stringsList ListOf[*ByteString] = proto.getStringsList()
 	for i := int32(0); i < stringsList.size(); i++ {
@@ -47,7 +47,7 @@ func (this *StringPool) getInternedStrings() *RhinoStringPool_LazyInternedString
 
 func (this *StringPool) toProto() *StringPoolProto {
 	var builder *StringPoolProto_Builder = StringPoolProto_newBuilder().setMaxLength(this.maxLength)
-	var strings *JTList[string] = this.pool.asList()
+	var strings *TList[string] = this.pool.asList()
 	for i := int32(1); i < strings.size(); i++ {
 		builder.addStrings(Wtf8_encodeToWtf8(strings.get(i)))
 	}
@@ -72,13 +72,13 @@ func StringPool_clinit() {
 }
 
 type StringPool_Builder struct {
-	pool      *JTMap[string, any]
+	pool      *TMap[string, any]
 	maxLength int32
 }
 
 func (this *StringPool_Builder) finit_StringPool_Builder() {
 	this.maxLength = 0
-	this.pool = jnewTMap_(jtc_string, tc_Integer)
+	this.pool = newTMap_(tc_string, tc_Integer)
 }
 
 func (this *StringPool_Builder) init_StringPool_Builder() {
@@ -97,8 +97,8 @@ func (this *StringPool_Builder) put(string_ string) int32 {
 	if string_U16.length() > this.maxLength {
 		this.maxLength = string_U16.length()
 	}
-	return unbox_[int32](this.pool.computeIfAbsent(string_, Function[string, any](func(unused string) any {
-		return int32(this.pool.size())
+	return unbox_[int32](this.pool.ComputeIfAbsent(string_, Function[string, any](func(unused string) any {
+		return int32(this.pool.Len())
 	})))
 }
 
@@ -108,5 +108,5 @@ func (this *StringPool_Builder) putAnd(string_ string) *StringPool_Builder {
 }
 
 func (this *StringPool_Builder) build() *StringPool {
-	return new_StringPool(this.maxLength, jtlistFrom_(jtc_string, Collection(this.pool.asMap().keySet())))
+	return new_StringPool(this.maxLength, tlistFrom_(tc_string, Collection(this.pool.asMap().keySet())))
 }

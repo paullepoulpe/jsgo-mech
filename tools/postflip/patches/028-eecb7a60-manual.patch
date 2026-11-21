@@ -1,0 +1,239 @@
+diff --git a/go/closure/g_RemoveUnusedCode.go b/go/closure/g_RemoveUnusedCode.go
+index 57fb8129..1410be3a 100644
+--- a/go/closure/g_RemoveUnusedCode.go
++++ b/go/closure/g_RemoveUnusedCode.go
+@@ -135,9 +135,14 @@ func (this *RemoveUnusedCode) traverseNode(n Node, scope *Scope) {
+ 				var functionDeclaration *RemoveUnusedCode_FunctionDeclaration = new_RemoveUnusedCode_RemovableBuilder(this).addContinuation(new_RemoveUnusedCode_Continuation(this, n, scope)).buildFunctionDeclaration(n)
+ 				varInfo.addRemovable(functionDeclaration.up_RemoveUnusedCode_Removable())
+ 				if parent.isExport() {
+-					varInfo.setIsExplicitlyNotRemovable(&Supplier_fn{func() any {
+-						return strobj_("exported class")
+-					}})
++					varInfo.setIsExplicitlyNotRemovable(func() Supplier {
++						if !logsOn_(this.unremovableLog) {
++							return noReason_
++						}
++						return &Supplier_fn{func() any {
++							return strobj_("exported class")
++						}}
++					}())
+ 				}
+ 			} else {
+ 				this.traverseFunction(n, scope)
+@@ -184,9 +189,14 @@ func (this *RemoveUnusedCode) traverseNode(n Node, scope *Scope) {
+ 		if !parent.isParamList() {
+ 			Preconditions_checkState(!NodeUtil_isNameDeclaration(parent))
+ 			Preconditions_checkState(!((parent.isFunction() || parent.isClass()) && (parent.getFirstChild() == n)))
+-			this.traverseNameNode(n, scope).setIsExplicitlyNotRemovable(&Supplier_fn{func() any {
+-				return strobj_(String_format("reference found: %s", []any{strobj_(n.getLocation())}))
+-			}})
++			this.traverseNameNode(n, scope).setIsExplicitlyNotRemovable(func() Supplier {
++				if !logsOn_(this.unremovableLog) {
++					return noReason_
++				}
++				return &Supplier_fn{func() any {
++					return strobj_(String_format("reference found: %s", []any{strobj_(n.getLocation())}))
++				}}
++			}())
+ 		}
+ 	case Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP:
+ 		this.traverseNormalOrOptChainGetProp(n, scope)
+@@ -507,9 +517,14 @@ func (this *RemoveUnusedCode) traverseCatch(catchNode Node, scope *Scope) {
+ 	var block Node = exceptionNameNode.getNext()
+ 	if exceptionNameNode.isName() {
+ 		var exceptionVarInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(exceptionNameNode, scope)
+-		exceptionVarInfo.setIsExplicitlyNotRemovable(&Supplier_fn{func() any {
+-			return strobj_("catch variable")
+-		}})
++		exceptionVarInfo.setIsExplicitlyNotRemovable(func() Supplier {
++			if !logsOn_(this.unremovableLog) {
++				return noReason_
++			}
++			return &Supplier_fn{func() any {
++				return strobj_("catch variable")
++			}}
++		}())
+ 	} else {
+ 		this.traverseNode(exceptionNameNode, scope)
+ 	}
+@@ -523,9 +538,14 @@ func (this *RemoveUnusedCode) traverseEnhancedFor(enhancedFor Node, scope *Scope
+ 	var body Node = collection.getNext()
+ 	if iterationTarget.isName() {
+ 		var varInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(iterationTarget, forScope)
+-		varInfo.setIsExplicitlyNotRemovable(&Supplier_fn{func() any {
+-			return strobj_("for-of or for-in loop variable")
+-		}})
++		varInfo.setIsExplicitlyNotRemovable(func() Supplier {
++			if !logsOn_(this.unremovableLog) {
++				return noReason_
++			}
++			return &Supplier_fn{func() any {
++				return strobj_("for-of or for-in loop variable")
++			}}
++		}())
+ 	} else if NodeUtil_isNameDeclaration(iterationTarget) {
+ 		var declNode Node = iterationTarget.getOnlyChild()
+ 		if declNode.isDestructuringLhs() {
+@@ -534,9 +554,14 @@ func (this *RemoveUnusedCode) traverseEnhancedFor(enhancedFor Node, scope *Scope
+ 			Preconditions_checkState(declNode.isName())
+ 			Preconditions_checkState(!declNode.hasChildren())
+ 			var varInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(declNode, forScope)
+-			varInfo.setIsExplicitlyNotRemovable(&Supplier_fn{func() any {
+-				return strobj_("for-of or for-in loop variable")
+-			}})
++			varInfo.setIsExplicitlyNotRemovable(func() Supplier {
++				if !logsOn_(this.unremovableLog) {
++					return noReason_
++				}
++				return &Supplier_fn{func() any {
++					return strobj_("for-of or for-in loop variable")
++				}}
++			}())
+ 		}
+ 	} else {
+ 		this.traverseNode(iterationTarget, forScope)
+@@ -574,9 +599,14 @@ func (this *RemoveUnusedCode) traverseVanillaForNameDeclarations(nameDeclaration
+ 				if valueNode == 0 {
+ 					varInfo.addRemovable(new_RemoveUnusedCode_RemovableBuilder(this).buildVanillaForNameDeclaration(nameNode).up_RemoveUnusedCode_Removable())
+ 				} else if this.mayHaveSideEffects(valueNode) {
+-					varInfo.setIsExplicitlyNotRemovable(&Supplier_fn{func() any {
+-						return strobj_("for-loop variable initialization has side-effects")
+-					}})
++					varInfo.setIsExplicitlyNotRemovable(func() Supplier {
++						if !logsOn_(this.unremovableLog) {
++							return noReason_
++						}
++						return &Supplier_fn{func() any {
++							return strobj_("for-loop variable initialization has side-effects")
++						}}
++					}())
+ 					this.traverseNode(valueNode, scope)
+ 				} else {
+ 					var vanillaForNameDeclaration *RemoveUnusedCode_VanillaForNameDeclaration = new_RemoveUnusedCode_RemovableBuilder(this).addContinuation(new_RemoveUnusedCode_Continuation(this, valueNode, scope)).buildVanillaForNameDeclaration(nameNode)
+@@ -788,21 +818,36 @@ func (this *RemoveUnusedCode) traverseClassDeclaration(classNode Node, scope *Sc
+ 	var classScope *Scope = this.scopeCreator.createScope(classNode, scope)
+ 	var varInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(classNameNode, scope)
+ 	if classNode.getParent().isExport() {
+-		varInfo.setIsExplicitlyNotRemovable(&Supplier_fn{func() any {
+-			return strobj_("exported class")
+-		}})
++		varInfo.setIsExplicitlyNotRemovable(func() Supplier {
++			if !logsOn_(this.unremovableLog) {
++				return noReason_
++			}
++			return &Supplier_fn{func() any {
++				return strobj_("exported class")
++			}}
++		}())
+ 		this.traverseNode(baseClassExpression, scope)
+ 		this.traverseChildren(classBodyNode, classScope)
+ 	} else if this.mayHaveSideEffects(baseClassExpression) {
+-		varInfo.setIsExplicitlyNotRemovable(&Supplier_fn{func() any {
+-			return strobj_("base class expression has side-effects")
+-		}})
++		varInfo.setIsExplicitlyNotRemovable(func() Supplier {
++			if !logsOn_(this.unremovableLog) {
++				return noReason_
++			}
++			return &Supplier_fn{func() any {
++				return strobj_("base class expression has side-effects")
++			}}
++		}())
+ 		this.traverseNode(baseClassExpression, scope)
+ 		this.traverseClassMembers(classBodyNode, classScope)
+ 	} else if this.mayHaveSideEffects(classBodyNode) {
+-		varInfo.setIsExplicitlyNotRemovable(&Supplier_fn{func() any {
+-			return strobj_("class body has side-effects")
+-		}})
++		varInfo.setIsExplicitlyNotRemovable(func() Supplier {
++			if !logsOn_(this.unremovableLog) {
++				return noReason_
++			}
++			return &Supplier_fn{func() any {
++				return strobj_("class body has side-effects")
++			}}
++		}())
+ 		this.traverseNode(baseClassExpression, scope)
+ 		this.traverseClassMembers(classBodyNode, classScope)
+ 	} else {
+@@ -1019,9 +1064,14 @@ func (this *RemoveUnusedCode) traverseVar(var_ *Var) RemoveUnusedCode_VarInfo {
+ 				if lValue == 0 {
+ 					continue
+ 				}
+-				this.getVarInfo(this.getVarForNameNode(lValue, functionScope)).setIsExplicitlyNotRemovable(&Supplier_fn{func() any {
+-					return strobj_("parameter in function using arguments")
+-				}})
++				this.getVarInfo(this.getVarForNameNode(lValue, functionScope)).setIsExplicitlyNotRemovable(func() Supplier {
++					if !logsOn_(this.unremovableLog) {
++						return noReason_
++					}
++					return &Supplier_fn{func() any {
++						return strobj_("parameter in function using arguments")
++					}}
++				}())
+ 			}
+ 		}
+ 		return this.canonicalUnremovableVarInfo
+@@ -1072,13 +1122,23 @@ func (this *RemoveUnusedCode) getVarInfo(var_ *Var) RemoveUnusedCode_VarInfo {
+ 				varInfo.setHasNonLocalOrNonLiteralValue()
+ 			}
+ 			if !this.removeGlobals_ && isGlobal {
+-				varInfo.setIsExplicitlyNotRemovable(&Supplier_fn{func() any {
+-					return strobj_("not removing globals")
+-				}})
++				varInfo.setIsExplicitlyNotRemovable(func() Supplier {
++					if !logsOn_(this.unremovableLog) {
++						return noReason_
++					}
++					return &Supplier_fn{func() any {
++						return strobj_("not removing globals")
++					}}
++				}())
+ 			} else if !this.removeLocalVars_ && !isGlobal {
+-				varInfo.setIsExplicitlyNotRemovable(&Supplier_fn{func() any {
+-					return strobj_("not removing locals")
+-				}})
++				varInfo.setIsExplicitlyNotRemovable(func() Supplier {
++					if !logsOn_(this.unremovableLog) {
++						return noReason_
++					}
++					return &Supplier_fn{func() any {
++						return strobj_("not removing locals")
++					}}
++				}())
+ 			}
+ 			this.varInfoMap.put(var_, varInfo)
+ 		}
+@@ -2735,9 +2795,14 @@ func (this *RemoveUnusedCode_RealVarInfo) addRemovable(removable *RemoveUnusedCo
+ 		this.requiresLocalLiteralValueForRemoval = true
+ 	}
+ 	if this.hasNonLocalOrNonLiteralValue && this.requiresLocalLiteralValueForRemoval {
+-		this.setIsExplicitlyNotRemovable(&Supplier_fn{func() any {
+-			return strobj_("hasNonLocalOrNonLiteralValue && requiresLocalLiteralValueForRemoval")
+-		}})
++		this.setIsExplicitlyNotRemovable(func() Supplier {
++			if !logsOn_(this.outer_.unremovableLog) {
++				return noReason_
++			}
++			return &Supplier_fn{func() any {
++				return strobj_("hasNonLocalOrNonLiteralValue && requiresLocalLiteralValueForRemoval")
++			}}
++		}())
+ 	}
+ 	if this.isEntirelyRemovable {
+ 		this.removables = append(this.removables, removable)
+@@ -3473,3 +3538,14 @@ func (this *RemoveUnusedCode_VanillaForNameDeclaration) getLocalAssignedValue()
+ 	}
+ 	return this.self_.(interface{ getLocalAssignedValue_impl() Node }).getLocalAssignedValue_impl()
+ }
++
++// logsOn_ reports whether log records anything; the reasons a variable is not removable are
++// built only for a log that does (post-flip manual step: building one allocated a closure and a
++// Supplier per reference).
++func logsOn_(log *LogFile) bool {
++	_, off := log.self_.(*NoOpLogFile)
++	return !off
++}
++
++// noReason_ is the reason passed when the log records nothing; it is never asked for.
++var noReason_ Supplier = &Supplier_fn{func() any { return nullstr_ }}

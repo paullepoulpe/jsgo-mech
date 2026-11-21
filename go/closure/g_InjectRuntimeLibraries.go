@@ -4,15 +4,15 @@ package closure
 
 type InjectRuntimeLibraries struct {
 	runtimeLibs            *RuntimeJsLibManager
-	forceInjectedLibraries *JTSet[string]
+	forceInjectedLibraries *TSet[string]
 }
 
-func (this *InjectRuntimeLibraries) init_InjectRuntimeLibraries(compiler *AbstractCompiler, forceInjectedLibraries *JTSet[string]) {
+func (this *InjectRuntimeLibraries) init_InjectRuntimeLibraries(compiler *AbstractCompiler, forceInjectedLibraries *TSet[string]) {
 	this.runtimeLibs = compiler.getRuntimeJsLibManager()
 	this.forceInjectedLibraries = forceInjectedLibraries
 }
 
-func new_InjectRuntimeLibraries(compiler *AbstractCompiler, forceInjectedLibraries *JTSet[string]) *InjectRuntimeLibraries {
+func new_InjectRuntimeLibraries(compiler *AbstractCompiler, forceInjectedLibraries *TSet[string]) *InjectRuntimeLibraries {
 	this := &InjectRuntimeLibraries{}
 	this.init_InjectRuntimeLibraries(compiler, forceInjectedLibraries)
 	return this

@@ -3,11 +3,11 @@
 package closure
 
 type CollectFileOverviewVisibility struct {
-	builder *TMapBuilder[StaticSourceFile, JSDocInfo_Visibility]
+	builder *ImmutableMap_Builder[StaticSourceFile, JSDocInfo_Visibility]
 }
 
 func (this *CollectFileOverviewVisibility) finit_CollectFileOverviewVisibility() {
-	this.builder = newTMapBuilder_(tce_StaticSourceFile, tc_p_JSDocInfo_Visibility)
+	this.builder = immutableMapBuilder_(tch_StaticSourceFile, tc_p_JSDocInfo_Visibility)
 }
 
 func (this *CollectFileOverviewVisibility) init_CollectFileOverviewVisibility(compiler *AbstractCompiler) {
@@ -44,6 +44,6 @@ func (this *CollectFileOverviewVisibility) visit(scriptNode Node) {
 	this.builder.put(scriptNode.getStaticSourceFile(), v)
 }
 
-func (this *CollectFileOverviewVisibility) getFileOverviewVisibilityMap() *JTMap[StaticSourceFile, JSDocInfo_Visibility] {
+func (this *CollectFileOverviewVisibility) getFileOverviewVisibilityMap() *TMap[StaticSourceFile, JSDocInfo_Visibility] {
 	return this.builder.buildOrThrow()
 }

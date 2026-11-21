@@ -22,7 +22,7 @@ func JsFileFullParser_parse(code string, filename string, reporter func(bool, st
 	var options *CompilerOptions = new_CompilerOptions()
 	options.setChecksOnly(true)
 	compiler.init(ImmutableList_as_List(ImmutableList_of()), ImmutableList_as_List(ImmutableList_of_Object(obj_(source))), options)
-	var config *Config = ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(Config_LanguageMode_ES_NEXT, Config_JsDocParsing_INCLUDE_DESCRIPTIONS_NO_WHITESPACE, Config_RunMode_STOP_AFTER_ERROR, jtsetEmptyImm_(jtc_string), true, Config_StrictMode_SLOPPY)
+	var config *Config = ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(Config_LanguageMode_ES_NEXT, Config_JsDocParsing_INCLUDE_DESCRIPTIONS_NO_WHITESPACE, Config_RunMode_STOP_AFTER_ERROR, tsetEmptyImm_(tc_string), true, Config_StrictMode_SLOPPY)
 	var info *JsFileFullParser_FileInfo = new_JsFileFullParser_FileInfo()
 	var parsed *ParserRunner_ParseResult = ParserRunner_parse(SourceFile_jscomp_as_StaticSourceFile(source), code, config, JsFileFullParser_DelegatingReporter_as_ErrorReporter_rhino(errorReporter))
 	if errorReporter.seenError {
@@ -37,7 +37,7 @@ func JsFileFullParser_parse(code string, filename string, reporter func(bool, st
 	var gatherModuleMetadata *GatherModuleMetadata = new_GatherModuleMetadata(compiler.up_AbstractCompiler(), false, ModuleLoader_ResolutionMode_BROWSER)
 	gatherModuleMetadata.process_2(new_Node_Token(Token_rhino_ROOT), parsed.ast)
 	compiler.generateReport()
-	if compiler.getModuleMetadataMap().getModulesByPath().size() != 1 {
+	if compiler.getModuleMetadataMap().getModulesByPath().Len() != 1 {
 		return info
 	}
 	var module *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Iterables_getOnlyElement(Iterable(compiler.getModuleMetadataMap().getModulesByPath().asImm().values())))
@@ -84,9 +84,9 @@ func JsFileFullParser_recordModuleMetadata(info *JsFileFullParser_FileInfo, modu
 
 type JsFileFullParser_FileInfo struct {
 	moduleType_       JsFileFullParser_FileInfo_ModuleType
-	importedModules   *JTSet[string]
-	dynamicRequires   *JTSet[string]
-	readToggles_      *JTSet[string]
+	importedModules   *TSet[string]
+	dynamicRequires   *TSet[string]
+	readToggles_      *TSet[string]
 	provides          *SimpleMultiset[string]
 	requires          *SimpleMultiset[string]
 	typeRequires      *SimpleMultiset[string]
@@ -103,9 +103,9 @@ func (this *JsFileFullParser_FileInfo) finit_JsFileFullParser_FileInfo() {
 	this.testonly = false
 	this.moduleType_ = JsFileFullParser_FileInfo_ModuleType_UNKNOWN
 	this.isLegacyNamespace = false
-	this.importedModules = jnewTSet_(jtc_string)
-	this.dynamicRequires = jnewTSet_(jtc_string)
-	this.readToggles_ = jnewTSet_(jtc_string)
+	this.importedModules = newTSet_(tc_string)
+	this.dynamicRequires = newTSet_(tc_string)
+	this.readToggles_ = newTSet_(tc_string)
 	this.provides = SimpleMultiset_createSorted[string]()
 	this.requires = SimpleMultiset_createSorted[string]()
 	this.typeRequires = SimpleMultiset_createSorted[string]()

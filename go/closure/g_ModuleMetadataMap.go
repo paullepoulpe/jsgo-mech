@@ -3,37 +3,37 @@
 package closure
 
 type ModuleMetadataMap struct {
-	modulesByPath          *JTMap[string, *ModuleMetadataMap_ModuleMetadata]
-	modulesByGoogNamespace *JTMap[string, *ModuleMetadataMap_ModuleMetadata]
-	moduleMetadata_        *JTSet[*ModuleMetadataMap_ModuleMetadata]
+	modulesByPath          *TMap[string, *ModuleMetadataMap_ModuleMetadata]
+	modulesByGoogNamespace *TMap[string, *ModuleMetadataMap_ModuleMetadata]
+	moduleMetadata_        *TSet[*ModuleMetadataMap_ModuleMetadata]
 }
 
-func (this *ModuleMetadataMap) init_ModuleMetadataMap(modulesByPath *JTMap[string, *ModuleMetadataMap_ModuleMetadata], modulesByGoogNamespace *JTMap[string, *ModuleMetadataMap_ModuleMetadata]) {
-	this.modulesByPath = immutableMapCopyOfT_(jtc_string, jtc_p_ModuleMetadataMap_ModuleMetadata, modulesByPath)
-	this.modulesByGoogNamespace = immutableMapCopyOfT_(jtc_string, jtc_p_ModuleMetadataMap_ModuleMetadata, modulesByGoogNamespace)
-	this.moduleMetadata_ = newTSetBuilder_(tce_p_ModuleMetadataMap_ModuleMetadata).addAll(Iterable(modulesByPath.asMap().values())).addAll(Iterable(modulesByGoogNamespace.asMap().values())).build()
+func (this *ModuleMetadataMap) init_ModuleMetadataMap(modulesByPath *TMap[string, *ModuleMetadataMap_ModuleMetadata], modulesByGoogNamespace *TMap[string, *ModuleMetadataMap_ModuleMetadata]) {
+	this.modulesByPath = immutableMapCopyOfT_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata, modulesByPath)
+	this.modulesByGoogNamespace = immutableMapCopyOfT_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata, modulesByGoogNamespace)
+	this.moduleMetadata_ = immutableSetBuilder_(tch_p_ModuleMetadataMap_ModuleMetadata).addAll(Iterable(modulesByPath.asMap().values())).addAll(Iterable(modulesByGoogNamespace.asMap().values())).build()
 }
 
-func new_ModuleMetadataMap(modulesByPath *JTMap[string, *ModuleMetadataMap_ModuleMetadata], modulesByGoogNamespace *JTMap[string, *ModuleMetadataMap_ModuleMetadata]) *ModuleMetadataMap {
+func new_ModuleMetadataMap(modulesByPath *TMap[string, *ModuleMetadataMap_ModuleMetadata], modulesByGoogNamespace *TMap[string, *ModuleMetadataMap_ModuleMetadata]) *ModuleMetadataMap {
 	this := &ModuleMetadataMap{}
 	this.init_ModuleMetadataMap(modulesByPath, modulesByGoogNamespace)
 	return this
 }
 
-func (this *ModuleMetadataMap) getModulesByPath() *JTMap[string, *ModuleMetadataMap_ModuleMetadata] {
+func (this *ModuleMetadataMap) getModulesByPath() *TMap[string, *ModuleMetadataMap_ModuleMetadata] {
 	return this.modulesByPath
 }
 
-func (this *ModuleMetadataMap) getModulesByGoogNamespace() *JTMap[string, *ModuleMetadataMap_ModuleMetadata] {
+func (this *ModuleMetadataMap) getModulesByGoogNamespace() *TMap[string, *ModuleMetadataMap_ModuleMetadata] {
 	return this.modulesByGoogNamespace
 }
 
-func (this *ModuleMetadataMap) getAllModuleMetadata() *JTSet[*ModuleMetadataMap_ModuleMetadata] {
+func (this *ModuleMetadataMap) getAllModuleMetadata() *TSet[*ModuleMetadataMap_ModuleMetadata] {
 	return this.moduleMetadata_
 }
 
 func ModuleMetadataMap_emptyForTesting() *ModuleMetadataMap {
-	return new_ModuleMetadataMap(jtmapEmptyImm_(jtc_string, jtc_p_ModuleMetadataMap_ModuleMetadata), jtmapEmptyImm_(jtc_string, jtc_p_ModuleMetadataMap_ModuleMetadata))
+	return new_ModuleMetadataMap(tmapEmptyImm_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata), tmapEmptyImm_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata))
 }
 
 type ModuleMetadataMap_ModuleType uint8
@@ -145,7 +145,7 @@ type ModuleMetadataMap_ModuleMetadata struct {
 	maybeRequiredGoogNamespaces_       *SimpleMultiset[string]
 	weaklyRequiredGoogNamespaces_      *SimpleMultiset[string]
 	es6ImportSpecifiers_               *SimpleMultiset[string]
-	nestedModules_                     *JTList[*ModuleMetadataMap_ModuleMetadata]
+	nestedModules_                     *TList[*ModuleMetadataMap_ModuleMetadata]
 	readToggles_                       *SimpleMultiset[string]
 	path_                              *ModuleLoader_ModulePath
 	rootNode_                          Node
@@ -153,7 +153,7 @@ type ModuleMetadataMap_ModuleMetadata struct {
 	isTestOnly_                        bool
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata) init_ModuleMetadataMap_ModuleMetadata(moduleType ModuleMetadataMap_ModuleType, rootNode Node, usesClosure bool, isTestOnly bool, googNamespaces *SimpleMultiset[string], stronglyRequiredGoogNamespaces *SimpleMultiset[string], dynamicallyRequiredGoogNamespaces *SimpleMultiset[string], maybeRequiredGoogNamespaces *SimpleMultiset[string], weaklyRequiredGoogNamespaces *SimpleMultiset[string], es6ImportSpecifiers *SimpleMultiset[string], nestedModules *JTList[*ModuleMetadataMap_ModuleMetadata], readToggles *SimpleMultiset[string], path *ModuleLoader_ModulePath) {
+func (this *ModuleMetadataMap_ModuleMetadata) init_ModuleMetadataMap_ModuleMetadata(moduleType ModuleMetadataMap_ModuleType, rootNode Node, usesClosure bool, isTestOnly bool, googNamespaces *SimpleMultiset[string], stronglyRequiredGoogNamespaces *SimpleMultiset[string], dynamicallyRequiredGoogNamespaces *SimpleMultiset[string], maybeRequiredGoogNamespaces *SimpleMultiset[string], weaklyRequiredGoogNamespaces *SimpleMultiset[string], es6ImportSpecifiers *SimpleMultiset[string], nestedModules *TList[*ModuleMetadataMap_ModuleMetadata], readToggles *SimpleMultiset[string], path *ModuleLoader_ModulePath) {
 	if moduleType == 0 {
 		panic(new_NullPointerException_String("moduleType"))
 	}
@@ -196,7 +196,7 @@ func (this *ModuleMetadataMap_ModuleMetadata) init_ModuleMetadataMap_ModuleMetad
 	this.path_ = path
 }
 
-func new_ModuleMetadataMap_ModuleMetadata(moduleType ModuleMetadataMap_ModuleType, rootNode Node, usesClosure bool, isTestOnly bool, googNamespaces *SimpleMultiset[string], stronglyRequiredGoogNamespaces *SimpleMultiset[string], dynamicallyRequiredGoogNamespaces *SimpleMultiset[string], maybeRequiredGoogNamespaces *SimpleMultiset[string], weaklyRequiredGoogNamespaces *SimpleMultiset[string], es6ImportSpecifiers *SimpleMultiset[string], nestedModules *JTList[*ModuleMetadataMap_ModuleMetadata], readToggles *SimpleMultiset[string], path *ModuleLoader_ModulePath) *ModuleMetadataMap_ModuleMetadata {
+func new_ModuleMetadataMap_ModuleMetadata(moduleType ModuleMetadataMap_ModuleType, rootNode Node, usesClosure bool, isTestOnly bool, googNamespaces *SimpleMultiset[string], stronglyRequiredGoogNamespaces *SimpleMultiset[string], dynamicallyRequiredGoogNamespaces *SimpleMultiset[string], maybeRequiredGoogNamespaces *SimpleMultiset[string], weaklyRequiredGoogNamespaces *SimpleMultiset[string], es6ImportSpecifiers *SimpleMultiset[string], nestedModules *TList[*ModuleMetadataMap_ModuleMetadata], readToggles *SimpleMultiset[string], path *ModuleLoader_ModulePath) *ModuleMetadataMap_ModuleMetadata {
 	this := &ModuleMetadataMap_ModuleMetadata{}
 	this.init_ModuleMetadataMap_ModuleMetadata(moduleType, rootNode, usesClosure, isTestOnly, googNamespaces, stronglyRequiredGoogNamespaces, dynamicallyRequiredGoogNamespaces, maybeRequiredGoogNamespaces, weaklyRequiredGoogNamespaces, es6ImportSpecifiers, nestedModules, readToggles, path)
 	return this
@@ -302,7 +302,7 @@ func (this *ModuleMetadataMap_ModuleMetadata) es6ImportSpecifiers() *SimpleMulti
 	return this.es6ImportSpecifiers_
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata) nestedModules() *JTList[*ModuleMetadataMap_ModuleMetadata] {
+func (this *ModuleMetadataMap_ModuleMetadata) nestedModules() *TList[*ModuleMetadataMap_ModuleMetadata] {
 	return this.nestedModules_
 }
 
@@ -328,8 +328,8 @@ type ModuleMetadataMap_ModuleMetadata_Builder struct {
 	weaklyRequiredGoogNamespaces_                 *SimpleMultiset[string]
 	es6ImportSpecifiersBuilderField               *SimpleMultiset[string]
 	es6ImportSpecifiers_                          *SimpleMultiset[string]
-	nestedModulesBuilderField                     *TListBuilder[*ModuleMetadataMap_ModuleMetadata]
-	nestedModules_                                *JTList[*ModuleMetadataMap_ModuleMetadata]
+	nestedModulesBuilderField                     *ImmutableList_Builder[*ModuleMetadataMap_ModuleMetadata]
+	nestedModules_                                *TList[*ModuleMetadataMap_ModuleMetadata]
 	readTogglesBuilderField                       *SimpleMultiset[string]
 	readToggles_                                  *SimpleMultiset[string]
 	pathField                                     *ModuleLoader_ModulePath
@@ -383,7 +383,7 @@ func (this *ModuleMetadataMap_ModuleMetadata_Builder) build() *ModuleMetadataMap
 	if this.nestedModulesBuilderField != nil {
 		this.nestedModules_ = this.nestedModulesBuilderField.build()
 	} else if this.nestedModules_ == nil {
-		this.nestedModules_ = jtlistEmptyImm_(jtc_p_ModuleMetadataMap_ModuleMetadata)
+		this.nestedModules_ = tlistEmptyImm_(tc_p_ModuleMetadataMap_ModuleMetadata)
 	}
 	if this.readTogglesBuilderField != nil {
 		this.readToggles_ = this.readTogglesBuilderField.immutableCopy()
@@ -453,9 +453,9 @@ func (this *ModuleMetadataMap_ModuleMetadata_Builder) es6ImportSpecifiersBuilder
 	return this.es6ImportSpecifiersBuilderField
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata_Builder) nestedModulesBuilder() *TListBuilder[*ModuleMetadataMap_ModuleMetadata] {
+func (this *ModuleMetadataMap_ModuleMetadata_Builder) nestedModulesBuilder() *ImmutableList_Builder[*ModuleMetadataMap_ModuleMetadata] {
 	if this.nestedModulesBuilderField == nil {
-		this.nestedModulesBuilderField = newTListBuilder_(jtc_p_ModuleMetadataMap_ModuleMetadata)
+		this.nestedModulesBuilderField = immutableListBuilder_(tc_p_ModuleMetadataMap_ModuleMetadata)
 	}
 	return this.nestedModulesBuilderField
 }

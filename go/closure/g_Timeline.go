@@ -3,16 +3,16 @@
 package closure
 
 type Timeline[T comparable] struct {
-	eventsByTime  *JTMap[*Timeline_Time, *Timeline_Event[any]]
-	eventsByValue *JTMap[T, *Timeline_Event[any]]
+	eventsByTime  *TMap[*Timeline_Time, *Timeline_Event[any]]
+	eventsByValue *TMap[T, *Timeline_Event[any]]
 	headEvent     *Timeline_Event[any]
 }
 
 func (this *Timeline[T]) isa_Timeline_() {}
 
 func (this *Timeline[T]) finit_Timeline() {
-	this.eventsByTime = jnewTMap_(tce_p_Timeline_Time, tc_p_Timeline_Event)
-	this.eventsByValue = jnewTMap_(tceT_[T](), tc_p_Timeline_Event)
+	this.eventsByTime = newTMap_(tch_p_Timeline_Time, tc_p_Timeline_Event)
+	this.eventsByValue = newTMap_(tchT_[T](), tc_p_Timeline_Event)
 	this.headEvent = new_Timeline_Event[any](new_Timeline_Time("-beginning-"))
 }
 
@@ -31,7 +31,7 @@ func (this *Timeline[T]) add(value T) {
 }
 
 func (this *Timeline[T]) remove(value T) {
-	var event *Timeline_Event[any] = this.eventsByValue.remove(value)
+	var event *Timeline_Event[any] = this.eventsByValue.Delete(value)
 	if event != nil {
 		if event.nextEvent != nil {
 			event.nextEvent.previousEvent = event.previousEvent
@@ -49,8 +49,8 @@ func (this *Timeline[T]) mark(timeName string) {
 }
 
 func (this *Timeline[T]) getSince(timeName string) ListOf[T] {
-	var values *JTList[T] = jnewTList_(tcT_[T]())
-	var firstEvent *Timeline_Event[any] = this.eventsByTime.get(new_Timeline_Time(timeName))
+	var values *TList[T] = newTList_(tcT_[T]())
+	var firstEvent *Timeline_Event[any] = this.eventsByTime.Get(new_Timeline_Time(timeName))
 	if firstEvent == nil {
 		return nil
 	}

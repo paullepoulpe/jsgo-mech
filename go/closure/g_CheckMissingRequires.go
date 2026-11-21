@@ -4,8 +4,8 @@ package closure
 
 type CheckMissingRequires struct {
 	NodeTraversal_AbstractModuleCallback
-	templateParamNames    *JTSet[string]
-	moduleByNamespace     *JTMap[string, *ModuleMetadataMap_ModuleMetadata]
+	templateParamNames    *TSet[string]
+	moduleByNamespace     *TMap[string, *ModuleMetadataMap_ModuleMetadata]
 	controlFlowScopeDepth int32
 }
 
@@ -17,7 +17,7 @@ func (this *CheckMissingRequires) up_NodeTraversal_AbstractModuleCallback() *Nod
 }
 
 func (this *CheckMissingRequires) finit_CheckMissingRequires() {
-	this.templateParamNames = jnewTSet_(jtc_string)
+	this.templateParamNames = newTSet_(tc_string)
 	this.controlFlowScopeDepth = 0
 }
 
@@ -79,7 +79,7 @@ func (this *CheckMissingRequires) visit_4_impl(t *NodeTraversal, n Node, current
 		this.controlFlowScopeDepth--
 	}
 	if (currentModule != nil) && (n == currentModule.rootNode()) {
-		this.templateParamNames.clear()
+		this.templateParamNames.Clear()
 	}
 }
 
@@ -160,7 +160,7 @@ func (this *CheckMissingRequires) visitMaybeGoogModuleGet(t *NodeTraversal, goog
 		return
 	}
 	var importedNamespace string = googModuleGet.getSecondChild().getString()
-	var requiredFile *ModuleMetadataMap_ModuleMetadata = this.moduleByNamespace.get(importedNamespace)
+	var requiredFile *ModuleMetadataMap_ModuleMetadata = this.moduleByNamespace.Get(importedNamespace)
 	if requiredFile == nil {
 		return
 	}
@@ -196,13 +196,13 @@ func (this *CheckMissingRequires) visitMaybeDeclaration(t *NodeTraversal, n Node
 		if require.property().isEmpty() {
 			return
 		}
-		var requiredFile *ModuleMetadataMap_ModuleMetadata = this.moduleByNamespace.get(require.namespace())
+		var requiredFile *ModuleMetadataMap_ModuleMetadata = this.moduleByNamespace.Get(require.namespace())
 		if (requiredFile == nil) || !requiredFile.hasLegacyGoogNamespaces() {
 			return
 		}
 		var reference string = (sstr_(require.namespace()) + "." + sstr_(require.property().get()))
 		if !currentFile.googNamespaces().contains(reference) {
-			var alternateFile *ModuleMetadataMap_ModuleMetadata = this.moduleByNamespace.get(reference)
+			var alternateFile *ModuleMetadataMap_ModuleMetadata = this.moduleByNamespace.Get(reference)
 			if (alternateFile != nil) && (alternateFile != requiredFile) {
 				var toReport *DiagnosticType = func() *DiagnosticType {
 					if require.isStrongRequire() {
@@ -223,7 +223,7 @@ func (this *CheckMissingRequires) isTypeScriptSource(n Node) bool {
 func (this *CheckMissingRequires) visitQualifiedName(t *NodeTraversal, n Node, currentFile *ModuleMetadataMap_ModuleMetadata, qualifiedName *QualifiedName, referenceStrength CheckMissingRequires_Strength) {
 	var rootName string = qualifiedName.getRoot()
 	if qualifiedName.isSimple() {
-		if this.templateParamNames.contains(rootName) {
+		if this.templateParamNames.Has(rootName) {
 			return
 		}
 	}
@@ -272,7 +272,7 @@ func (this *CheckMissingRequires) checkMissingRequireThroughShortNameInGoogScope
 				var joined Optional[string] = subName.join()
 				var imported *ModuleMetadataMap_ModuleMetadata = func() *ModuleMetadataMap_ModuleMetadata {
 					if joined.isPresent() {
-						return this.moduleByNamespace.get(joined.get())
+						return this.moduleByNamespace.Get(joined.get())
 					}
 					return nil
 				}()
@@ -292,7 +292,7 @@ func (this *CheckMissingRequires) checkMissingRequireThroughShortNameInGoogScope
 		return
 	}
 	var importedNamespace string = initialValue.getSecondChild().getString()
-	var originalImport *ModuleMetadataMap_ModuleMetadata = this.moduleByNamespace.get(importedNamespace)
+	var originalImport *ModuleMetadataMap_ModuleMetadata = this.moduleByNamespace.Get(importedNamespace)
 	if (originalImport != nil) && !originalImport.hasLegacyGoogNamespaces() {
 		return
 	}
@@ -311,7 +311,7 @@ func (this *CheckMissingRequires) checkMissingRequireThroughShortNameInModule(t 
 	if require == nil {
 		return
 	}
-	var originalRequiredFile *ModuleMetadataMap_ModuleMetadata = this.moduleByNamespace.get(require.namespace())
+	var originalRequiredFile *ModuleMetadataMap_ModuleMetadata = this.moduleByNamespace.Get(require.namespace())
 	if (originalRequiredFile == nil) || !originalRequiredFile.hasLegacyGoogNamespaces() {
 		return
 	}
@@ -330,7 +330,7 @@ func (this *CheckMissingRequires) checkNormalizedShortNameImport(t *NodeTraversa
 			}
 			var requiredFile *ModuleMetadataMap_ModuleMetadata = func() *ModuleMetadataMap_ModuleMetadata {
 				if namespace.isPresent() {
-					return this.moduleByNamespace.get(namespace.get())
+					return this.moduleByNamespace.Get(namespace.get())
 				}
 				return nil
 			}()
@@ -388,7 +388,7 @@ func (this *CheckMissingRequires) checkMissingRequireThroughFullyQualifiedName(t
 			}
 			var requiredFile *ModuleMetadataMap_ModuleMetadata = func() *ModuleMetadataMap_ModuleMetadata {
 				if namespace.isPresent() {
-					return this.moduleByNamespace.get(namespace.get())
+					return this.moduleByNamespace.Get(namespace.get())
 				}
 				return nil
 			}()

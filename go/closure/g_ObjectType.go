@@ -83,8 +83,8 @@ func (this *ObjectType) getTypeOfThis_impl() *JSType {
 	return nil
 }
 
-func (this *ObjectType) getTemplateTypes_impl() *JTList[*JSType] {
-	return jtlistEmptyImm_(jtc_p_JSType)
+func (this *ObjectType) getTemplateTypes_impl() *TList[*JSType] {
+	return tlistEmptyImm_(tc_p_JSType)
 }
 
 func (this *ObjectType) getJSDocInfo_impl() *JSDocInfo {
@@ -399,10 +399,10 @@ func (this *ObjectType) getOwnPropertyNames_impl() SetOf[string] {
 	return this.getPropertyMap().getOwnPropertyNames()
 }
 
-func (this *ObjectType) getOwnPropertyKeys() *JTSet[Property_Key] {
+func (this *ObjectType) getOwnPropertyKeys() *TSet[Property_Key] {
 	var ownPropertyNames SetOf[string] = this.getOwnPropertyNames()
 	var ownSymbols SetOf[*KnownSymbolType] = this.getOwnPropertyKnownSymbols()
-	var ownPropertyKeys *TSetBuilder[Property_Key] = newTSetBuilder_(tce_Property_Key)
+	var ownPropertyKeys *ImmutableSet_Builder[Property_Key] = immutableSetBuilder_(tch_Property_Key)
 	for propertyName := range elemsBy_(ownPropertyNames, str_) {
 		ownPropertyKeys.add(Property_Key(new_Property_StringKey(propertyName)))
 	}
@@ -580,8 +580,8 @@ func (this *ObjectType) getCtorExtendedInterfaces_impl() IterableOf[*ObjectType]
 	return ImmutableSet_as_Iterable(ImmutableSet_of())
 }
 
-func (this *ObjectType) getPropertyTypeMap_impl() *JTMap[string, *JSType] {
-	var propTypeMap *TMapBuilder[string, *JSType] = newTMapBuilder_(jtc_string, jtc_p_JSType)
+func (this *ObjectType) getPropertyTypeMap_impl() *TMap[string, *JSType] {
+	var propTypeMap *ImmutableMap_Builder[string, *JSType] = immutableMapBuilder_(tc_string, tc_p_JSType)
 	for _, el := range immElems_(this.getPropertyNames()) {
 		name := str_(el)
 		propTypeMap.put(name, this.getPropertyType(name))
@@ -645,7 +645,7 @@ func (this *ObjectType) hasCachedValues() bool {
 	return this.self_.hasCachedValues_impl()
 }
 
-func (this *ObjectType) getPropertyTypeMap() *JTMap[string, *JSType] {
+func (this *ObjectType) getPropertyTypeMap() *TMap[string, *JSType] {
 	return this.self_.getPropertyTypeMap_impl()
 }
 
@@ -657,7 +657,7 @@ func (this *ObjectType) getCtorExtendedInterfaces() Iterable {
 	return this.self_.getCtorExtendedInterfaces_impl()
 }
 
-func (this *ObjectType) getTemplateTypes() *JTList[*JSType] {
+func (this *ObjectType) getTemplateTypes() *TList[*JSType] {
 	return this.self_.getTemplateTypes_impl()
 }
 

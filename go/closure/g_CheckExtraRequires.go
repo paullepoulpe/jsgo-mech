@@ -5,9 +5,9 @@ package closure
 type CheckExtraRequires struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_        *AbstractCompiler
-	requires         *JTMap[string, Node]
-	usages           *JTSet[string]
-	requiresToRemove *JTSet[string]
+	requires         *TMap[string, Node]
+	usages           *TSet[string]
+	requiresToRemove *TSet[string]
 }
 
 func (this *CheckExtraRequires) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -18,18 +18,18 @@ func (this *CheckExtraRequires) up_NodeTraversal_AbstractPostOrderCallback() *No
 }
 
 func (this *CheckExtraRequires) finit_CheckExtraRequires() {
-	this.requires = jnewTMap_(jtc_string, jtc_Node)
-	this.usages = jnewTSet_(jtc_string)
+	this.requires = newTMap_(tc_string, tc_Node)
+	this.usages = newTSet_(tc_string)
 }
 
-func (this *CheckExtraRequires) init_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove *JTSet[string]) {
+func (this *CheckExtraRequires) init_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove *TSet[string]) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.finit_CheckExtraRequires()
 	this.compiler_ = compiler
 	this.requiresToRemove = requiresToRemove
 }
 
-func new_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove *JTSet[string]) *CheckExtraRequires {
+func new_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove *TSet[string]) *CheckExtraRequires {
 	this := &CheckExtraRequires{}
 	this.self_ = this
 	this.init_CheckExtraRequires(compiler, requiresToRemove)
@@ -88,8 +88,8 @@ func (this *CheckExtraRequires) visit_impl(t *NodeTraversal, n Node, parent Node
 }
 
 func (this *CheckExtraRequires) reset() {
-	this.usages.clear()
-	this.requires.clear()
+	this.usages.Clear()
+	this.requires.Clear()
 }
 
 func (this *CheckExtraRequires) visitScriptNode() {
@@ -98,25 +98,25 @@ func (this *CheckExtraRequires) visitScriptNode() {
 		var entry *TEntry[string, Node] = it_1.entry()
 		var require string = entry.getKey()
 		var call Node = entry.getValue()
-		if !this.usages.contains(require) && ((this.requiresToRemove == nil) || this.requiresToRemove.contains(require)) {
+		if !this.usages.Has(require) && ((this.requiresToRemove == nil) || this.requiresToRemove.Has(require)) {
 			this.reportExtraRequireWarning(call, require)
 		}
 	}
 }
 
 func (this *CheckExtraRequires) reportExtraRequireWarning(call Node, require string) {
-	if CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES.contains(require) {
+	if CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES.Has(require) {
 		return
 	}
 	var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(call)
-	if (jsDoc != nil) && jsDoc.getSuppressions().contains("extraRequire") {
+	if (jsDoc != nil) && jsDoc.getSuppressions().Has("extraRequire") {
 		return
 	}
 	this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, CheckExtraRequires_EXTRA_REQUIRE_WARNING, []string{require}))
 }
 
 func (this *CheckExtraRequires) visitRequire(localName string, node Node) {
-	this.requires.putIfAbsent(localName, node)
+	this.requires.PutIfAbsent(localName, node)
 }
 
 func (this *CheckExtraRequires) visitImportNode(importNode Node) {
@@ -175,15 +175,15 @@ func (this *CheckExtraRequires) visitCallNode(call Node, parent Node) {
 	}
 	var callee Node = call.getFirstChild()
 	if CheckExtraRequires_GOOG_MODULE_GET.matches(callee) && call.getSecondChild().isStringLit() {
-		this.usages.add(call.getSecondChild().getString())
+		this.usages.Add(call.getSecondChild().getString())
 	}
 }
 
 func (this *CheckExtraRequires) addUsagesOfAllPrefixes(qualifiedName *QualifiedName) {
-	this.usages.add(qualifiedName.join().orElse(nullstr_))
+	this.usages.Add(qualifiedName.join().orElse(nullstr_))
 	for !qualifiedName.isSimple() {
 		qualifiedName = qualifiedName.getOwner()
-		this.usages.add(qualifiedName.join().orElse(nullstr_))
+		this.usages.Add(qualifiedName.join().orElse(nullstr_))
 	}
 }
 
@@ -209,7 +209,7 @@ func (this *CheckExtraRequires) maybeAddJsDocUsages(n Node) {
 }
 
 var CheckExtraRequires_EXTRA_REQUIRE_WARNING *DiagnosticType
-var CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES *JTSet[string]
+var CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES *TSet[string]
 var CheckExtraRequires_GOOG_MODULE_GET *QualifiedName
 
 var CheckExtraRequires_clinit_done bool
@@ -220,7 +220,7 @@ func CheckExtraRequires_clinit() {
 	}
 	CheckExtraRequires_clinit_done = true
 	CheckExtraRequires_EXTRA_REQUIRE_WARNING = DiagnosticType_disabled("JSC_EXTRA_REQUIRE_WARNING", "extra require: ''{0}'' is never referenced in this file")
-	CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES = jimmutableSetOf_[string](jtc_string, "goog.testing.asserts", "goog.testing.jsunit")
+	CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES = immutableSetOf_[string](tc_string, "goog.testing.asserts", "goog.testing.jsunit")
 	CheckExtraRequires_GOOG_MODULE_GET = QualifiedName_of("goog.module.get")
 
 }

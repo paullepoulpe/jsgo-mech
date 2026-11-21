@@ -4,14 +4,14 @@ package closure
 
 type LinkedIdentityHashMap[K comparable, V comparable] struct {
 	innerMap       IdentityHashMapOf[K, *LinkedIdentityHashMap_Entry[K, V]]
-	iterationOrder *JTList[*LinkedIdentityHashMap_Entry[K, V]]
+	iterationOrder *TList[*LinkedIdentityHashMap_Entry[K, V]]
 }
 
 func (this *LinkedIdentityHashMap[K, V]) isa_LinkedIdentityHashMap_() {}
 
 func (this *LinkedIdentityHashMap[K, V]) finit_LinkedIdentityHashMap() {
 	this.innerMap = new_IdentityHashMap()
-	this.iterationOrder = jnewTList_(tc_p_LinkedIdentityHashMap_Entry_K__V_[K, V]())
+	this.iterationOrder = newTList_(tc_p_LinkedIdentityHashMap_Entry_K__V_[K, V]())
 }
 
 func (this *LinkedIdentityHashMap[K, V]) init_LinkedIdentityHashMap() {
