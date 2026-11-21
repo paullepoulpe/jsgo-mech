@@ -92,7 +92,5 @@ func (this *GoogBindToArrow) processMatch_Match(p0 *Match) *JTList[*SuggestedFix
 	if this.self_ == any(this) {
 		return this.processMatch_Match_impl(p0)
 	}
-	return this.self_.(interface {
-		processMatch_Match_impl(*Match) *JTList[*SuggestedFix]
-	}).processMatch_Match_impl(p0)
+	return this.self_.processMatch_Match_impl(p0)
 }
