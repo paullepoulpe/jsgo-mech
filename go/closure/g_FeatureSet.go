@@ -67,7 +67,7 @@ func (this *FeatureSet) versionForDebugging() string {
 }
 
 func (this *FeatureSet) without_2(featureToRemove FeatureSet_Feature, moreFeaturesToRemove []FeatureSet_Feature) *FeatureSet {
-	return new_FeatureSet(FeatureSet_difference(this.features_, EnumSet_as_Set(EnumSet_of_Enum_EnumArr(featureToRemove.enum_(), arrmap_(moreFeaturesToRemove, func(v_ FeatureSet_Feature) *Enum { return v_.enum_() })))))
+	return new_FeatureSet(FeatureSet_difference(this.features_, EnumSet_as_Set(EnumSet_of_Enum_EnumArr(featureToRemove.enum_(), arrmap_(moreFeaturesToRemove, (FeatureSet_Feature).enum_)))))
 }
 
 func (this *FeatureSet) without(other *FeatureSet) *FeatureSet {
@@ -143,7 +143,7 @@ func (this *FeatureSet) with(feature FeatureSet_Feature) *FeatureSet {
 }
 
 func (this *FeatureSet) withFeatureVarargs(newFeatures []FeatureSet_Feature) *FeatureSet {
-	return new_FeatureSet(FeatureSet_union(this.features_, ImmutableSet_as_Set(ImmutableSet_copyOf_ObjectArr(arrmap_(newFeatures, func(v_ FeatureSet_Feature) any { return obj_(v_) })))))
+	return new_FeatureSet(FeatureSet_union(this.features_, ImmutableSet_as_Set(ImmutableSet_copyOf_ObjectArr(arrmap_(newFeatures, obj_[FeatureSet_Feature])))))
 }
 
 func (this *FeatureSet) withSet(newFeatures SetOf[FeatureSet_Feature]) *FeatureSet {

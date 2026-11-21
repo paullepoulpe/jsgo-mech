@@ -82,7 +82,7 @@ func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 	}
 	func() {
 		arr_2 := nodeNames
-		tmp_3 := arrmap_(arr_2, func(v_ string) any { return strobj_(v_) })
+		tmp_3 := arrmap_(arr_2, strobj_)
 		Arrays_sort(tmp_3)
 		for i_ := range tmp_3 {
 			arr_2[i_] = str_(tmp_3[i_])
@@ -95,7 +95,7 @@ func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 	}
 	var edges *TList[GraphvizGraph_GraphvizEdge] = graph.getGraphvizEdges()
 	List_sort(edges.asList(), func() Comparator[any] {
-		f_ := Comparator_comparing[GraphvizGraph_GraphvizEdge, string](Function[GraphvizGraph_GraphvizEdge, string](func(p0 GraphvizGraph_GraphvizEdge) string { return p0.getNode1Id() })).thenComparing(Function[GraphvizGraph_GraphvizEdge, any](func(p0 GraphvizGraph_GraphvizEdge) any { return strobj_(p0.getNode2Id()) }))
+		f_ := Comparator_comparing[GraphvizGraph_GraphvizEdge, string](Function[GraphvizGraph_GraphvizEdge, string]((GraphvizGraph_GraphvizEdge).getNode1Id)).thenComparing(Function[GraphvizGraph_GraphvizEdge, any](func(p0 GraphvizGraph_GraphvizEdge) any { return strobj_(p0.getNode2Id()) }))
 		if f_ == nil {
 			return nil
 		}
@@ -155,7 +155,7 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 		}
 		func() {
 			arr_3 := edgeList
-			tmp_4 := arrmap_(arr_3, func(v_ string) any { return strobj_(v_) })
+			tmp_4 := arrmap_(arr_3, strobj_)
 			Arrays_sort(tmp_4)
 			for i_ := range tmp_4 {
 				arr_3[i_] = str_(tmp_4[i_])

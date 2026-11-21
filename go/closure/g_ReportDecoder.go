@@ -196,7 +196,7 @@ func ReportDecoder_createReportProfile(instrumentationPoints *TList[*Instrumenta
 		fileProfiles.add(cast_[*FileProfile](FileProfile_newBuilder().setFileName(entry.getKey()).addAllInstrumentationPointsStats(Iterable(entry.getValue())).build()))
 	}
 	List_sort(fileProfiles.asList(), func() Comparator[any] {
-		f_ := Comparator_comparing[*FileProfile, string](Function[*FileProfile, string](func(p0 *FileProfile) string { return p0.getFileName() }))
+		f_ := Comparator_comparing[*FileProfile, string](Function[*FileProfile, string]((*FileProfile).getFileName))
 		if f_ == nil {
 			return nil
 		}

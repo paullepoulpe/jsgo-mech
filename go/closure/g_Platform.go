@@ -32,5 +32,5 @@ func Platform_totalMemory() int64 {
 }
 
 func Platform_formatMessage(message string, arguments []string) string {
-	return MessageFormat_format(message, arrmap_(arguments, func(v_ string) any { return strobj_(v_) }))
+	return MessageFormat_format(message, arrmap_(arguments, strobj_))
 }
