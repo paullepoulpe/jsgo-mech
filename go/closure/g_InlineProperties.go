@@ -271,39 +271,27 @@ func (this *InlineProperties_ReplaceCandidates) isMatchingType(n Node, src *Colo
 	return this.hasInSupertypesList(dest, src)
 }
 
-func (this *InlineProperties_ReplaceCandidates) hasInSupertypesList(subCtor *Color, superCtor *Color) bool {
-	var ret_1 bool
-	code_1 := func() (code_ int) {
-		defer func() {
-			this.hasInSupertypesListSeenSet.remove(subCtor)
-		}()
-		if !this.hasInSupertypesListSeenSet.add(subCtor) {
-			ret_1 = false
-			return 1
-		}
-		if (subCtor == nil) || (superCtor == nil) {
-			ret_1 = false
-			return 1
-		}
-		if subCtor.equals_Color(superCtor) {
-			ret_1 = true
-			return 1
-		}
-		it_2 := foreach_(this.outer_.registry.getDisambiguationSupertypes(subCtor))
-		for it_2.next() {
-			var immediateSupertype *Color = cast_[*Color](it_2.v)
-			if !immediateSupertype.isUnion() && this.hasInSupertypesList(immediateSupertype, superCtor) {
-				ret_1 = true
-				return 1
-			}
-		}
-		ret_1 = false
-		return 1
+func (this *InlineProperties_ReplaceCandidates) hasInSupertypesList(subCtor *Color, superCtor *Color) (ret_1 bool) {
+	defer func() {
+		this.hasInSupertypesListSeenSet.remove(subCtor)
 	}()
-	if code_1 == 1 {
-		return ret_1
+	if !this.hasInSupertypesListSeenSet.add(subCtor) {
+		return false
 	}
-	panic("unreachable")
+	if (subCtor == nil) || (superCtor == nil) {
+		return false
+	}
+	if subCtor.equals_Color(superCtor) {
+		return true
+	}
+	it_2 := foreach_(this.outer_.registry.getDisambiguationSupertypes(subCtor))
+	for it_2.next() {
+		var immediateSupertype *Color = cast_[*Color](it_2.v)
+		if !immediateSupertype.isUnion() && this.hasInSupertypesList(immediateSupertype, superCtor) {
+			return true
+		}
+	}
+	return false
 }
 
 // visit: an object that is exactly a InlineProperties_GatherCandidates calls its visit_impl directly (post-flip); others dispatch.
