@@ -131,7 +131,7 @@ type FunctionDeclarationTree_Builder struct {
 	name_               *IdentifierToken
 	formalParameterList *FormalParameterListTree
 	functionBody        *ParseTree
-	location_           *SourceRange
+	location_           SourceRange
 	isClassMember       bool
 	isStatic            bool
 	isGenerator         bool
@@ -201,7 +201,7 @@ func (this *FunctionDeclarationTree_Builder) setAsync(isAsync bool) *FunctionDec
 	return this
 }
 
-func (this *FunctionDeclarationTree_Builder) build(location *SourceRange) *FunctionDeclarationTree {
+func (this *FunctionDeclarationTree_Builder) build(location SourceRange) *FunctionDeclarationTree {
 	this.location_ = location
 	return new_FunctionDeclarationTree(this)
 }

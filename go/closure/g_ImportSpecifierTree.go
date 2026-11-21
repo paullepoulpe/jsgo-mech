@@ -15,13 +15,13 @@ func (this *ImportSpecifierTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ImportSpecifierTree) init_ImportSpecifierTree(location *SourceRange, importedName *IdentifierToken, destinationName *IdentifierToken) {
+func (this *ImportSpecifierTree) init_ImportSpecifierTree(location SourceRange, importedName *IdentifierToken, destinationName *IdentifierToken) {
 	this.ParseTree.init_ParseTree(ParseTreeType_IMPORT_SPECIFIER, location)
 	this.importedName = importedName
 	this.destinationName = destinationName
 }
 
-func new_ImportSpecifierTree(location *SourceRange, importedName *IdentifierToken, destinationName *IdentifierToken) *ImportSpecifierTree {
+func new_ImportSpecifierTree(location SourceRange, importedName *IdentifierToken, destinationName *IdentifierToken) *ImportSpecifierTree {
 	this := &ImportSpecifierTree{}
 	this.self_ = this
 	this.init_ImportSpecifierTree(location, importedName, destinationName)

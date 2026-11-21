@@ -14,12 +14,12 @@ func (this *ObjectPatternTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ObjectPatternTree) init_ObjectPatternTree(location *SourceRange, fields *TList[*ParseTree]) {
+func (this *ObjectPatternTree) init_ObjectPatternTree(location SourceRange, fields *TList[*ParseTree]) {
 	this.ParseTree.init_ParseTree(ParseTreeType_OBJECT_PATTERN, location)
 	this.fields = fields
 }
 
-func new_ObjectPatternTree(location *SourceRange, fields *TList[*ParseTree]) *ObjectPatternTree {
+func new_ObjectPatternTree(location SourceRange, fields *TList[*ParseTree]) *ObjectPatternTree {
 	this := &ObjectPatternTree{}
 	this.self_ = this
 	this.init_ObjectPatternTree(location, fields)

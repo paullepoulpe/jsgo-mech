@@ -14,12 +14,12 @@ func (this *ThrowStatementTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ThrowStatementTree) init_ThrowStatementTree(location *SourceRange, value *ParseTree) {
+func (this *ThrowStatementTree) init_ThrowStatementTree(location SourceRange, value *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_THROW_STATEMENT, location)
 	this.value_ = value
 }
 
-func new_ThrowStatementTree(location *SourceRange, value *ParseTree) *ThrowStatementTree {
+func new_ThrowStatementTree(location SourceRange, value *ParseTree) *ThrowStatementTree {
 	this := &ThrowStatementTree{}
 	this.self_ = this
 	this.init_ThrowStatementTree(location, value)

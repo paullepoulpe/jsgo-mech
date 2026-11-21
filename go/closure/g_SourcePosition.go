@@ -16,21 +16,24 @@ func (this *SourcePosition_util) init_SourcePosition_util(source *SourceFile_par
 	this.column_ = column
 }
 
-func new_SourcePosition_util(source *SourceFile_parser, offset int32, line int32, column int32) *SourcePosition_util {
-	this := &SourcePosition_util{}
+func new_SourcePosition_util(source *SourceFile_parser, offset int32, line int32, column int32) SourcePosition_util {
+	this := SourcePosition_util{}
 	this.init_SourcePosition_util(source, offset, line, column)
 	return this
 }
 
-func (this *SourcePosition_util) getOffset() int32 {
+// ref_ is a pointer to a copy of the value, for the places that hold a nullable SourcePosition_util (post-flip).
+func (this SourcePosition_util) ref_() *SourcePosition_util { return &this }
+
+func (this SourcePosition_util) getOffset() int32 {
 	return this.offset
 }
 
-func (this *SourcePosition_util) toString() string {
+func (this SourcePosition_util) toString() string {
 	return (sstr_(this.shortSourceName()) + "(" + istr_(int64(int32((this.line_ + 1)))) + ", " + istr_(int64(int32((this.column_ + 1)))) + ")")
 }
 
-func (this *SourcePosition_util) shortSourceName() string {
+func (this SourcePosition_util) shortSourceName() string {
 	if this.source == nil {
 		return ""
 	}

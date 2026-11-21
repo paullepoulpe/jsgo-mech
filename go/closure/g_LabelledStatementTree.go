@@ -15,13 +15,13 @@ func (this *LabelledStatementTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *LabelledStatementTree) init_LabelledStatementTree(location *SourceRange, name *IdentifierToken, statement *ParseTree) {
+func (this *LabelledStatementTree) init_LabelledStatementTree(location SourceRange, name *IdentifierToken, statement *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_LABELLED_STATEMENT, location)
 	this.name_ = name
 	this.statement = statement
 }
 
-func new_LabelledStatementTree(location *SourceRange, name *IdentifierToken, statement *ParseTree) *LabelledStatementTree {
+func new_LabelledStatementTree(location SourceRange, name *IdentifierToken, statement *ParseTree) *LabelledStatementTree {
 	this := &LabelledStatementTree{}
 	this.self_ = this
 	this.init_LabelledStatementTree(location, name, statement)

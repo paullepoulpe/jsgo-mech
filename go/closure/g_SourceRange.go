@@ -3,21 +3,24 @@
 package closure
 
 type SourceRange struct {
-	start_ *SourcePosition_util
-	end_   *SourcePosition_util
+	start_ SourcePosition_util
+	end_   SourcePosition_util
 }
 
-func (this *SourceRange) init_SourceRange(start *SourcePosition_util, end *SourcePosition_util) {
+func (this *SourceRange) init_SourceRange(start SourcePosition_util, end SourcePosition_util) {
 	this.start_ = start
 	this.end_ = end
 }
 
-func new_SourceRange(start *SourcePosition_util, end *SourcePosition_util) *SourceRange {
-	this := &SourceRange{}
+func new_SourceRange(start SourcePosition_util, end SourcePosition_util) SourceRange {
+	this := SourceRange{}
 	this.init_SourceRange(start, end)
 	return this
 }
 
-func (this *SourceRange) toString() string {
-	return String_format("<%s - %s>", obj_(this.start_), obj_(this.end_))
+// ref_ is a pointer to a copy of the value, for the places that hold a nullable SourceRange (post-flip).
+func (this SourceRange) ref_() *SourceRange { return &this }
+
+func (this SourceRange) toString() string {
+	return String_format("<%s - %s>", obj_(this.start_.ref_()), obj_(this.end_.ref_()))
 }
