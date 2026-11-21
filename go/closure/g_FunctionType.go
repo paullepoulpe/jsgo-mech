@@ -1065,7 +1065,12 @@ func (this FunctionType_Kind) enum_() *Enum {
 
 func (this FunctionType_Kind) name() string { return this.enum_().name_ }
 
-func (this FunctionType_Kind) ordinal() int32 { return this.enum_().ordinal_ }
+func (this FunctionType_Kind) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
 
 func (this FunctionType_Kind) toString() string { return this.enum_().name_ }
 
@@ -1132,7 +1137,10 @@ func (this FunctionType_PropAccess) enum_() *Enum {
 func (this FunctionType_PropAccess) name() string { return this.enum_().name_ }
 
 func (this FunctionType_PropAccess) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this FunctionType_PropAccess) toString() string {
@@ -1203,7 +1211,10 @@ func (this FunctionType_ConstructorAmbiguity) name() string {
 }
 
 func (this FunctionType_ConstructorAmbiguity) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this FunctionType_ConstructorAmbiguity) toString() string {

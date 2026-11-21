@@ -109,7 +109,10 @@ func (this CodingConvention_SubclassType) name() string {
 }
 
 func (this CodingConvention_SubclassType) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CodingConvention_SubclassType) toString() string {
@@ -312,7 +315,10 @@ func (this CodingConvention_AssertionFunctionSpec_AssertionKind) name() string {
 }
 
 func (this CodingConvention_AssertionFunctionSpec_AssertionKind) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CodingConvention_AssertionFunctionSpec_AssertionKind) toString() string {

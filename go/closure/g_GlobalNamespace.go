@@ -295,7 +295,10 @@ func (this GlobalNamespace_SourceKind) name() string {
 }
 
 func (this GlobalNamespace_SourceKind) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this GlobalNamespace_SourceKind) toString() string {
@@ -1007,7 +1010,10 @@ func (this GlobalNamespace_Inlinability) name() string {
 }
 
 func (this GlobalNamespace_Inlinability) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this GlobalNamespace_Inlinability) toString() string {
@@ -2130,7 +2136,10 @@ func (this GlobalNamespace_Ref_Type) name() string {
 }
 
 func (this GlobalNamespace_Ref_Type) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this GlobalNamespace_Ref_Type) toString() string {
@@ -2220,7 +2229,10 @@ func (this GlobalNamespace_NameProp) name() string {
 }
 
 func (this GlobalNamespace_NameProp) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this GlobalNamespace_NameProp) toString() string {
