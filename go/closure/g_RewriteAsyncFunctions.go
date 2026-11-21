@@ -4,7 +4,7 @@ package closure
 
 type RewriteAsyncFunctions struct {
 	namespace_   StaticScope
-	contextStack *TDeque[*RewriteAsyncFunctions_LexicalContext]
+	contextStack *[]*RewriteAsyncFunctions_LexicalContext
 	compiler_    *AbstractCompiler
 	astFactory_  *AstFactory
 }
@@ -22,7 +22,7 @@ func (this *RewriteAsyncFunctions) init_RewriteAsyncFunctions(compiler *Abstract
 		panic(new_NullPointerException_0())
 	}
 	this.namespace_ = namespace
-	this.contextStack = newTDeque_(tc_p_RewriteAsyncFunctions_LexicalContext)
+	this.contextStack = &[]*RewriteAsyncFunctions_LexicalContext{}
 }
 
 func new_RewriteAsyncFunctions(compiler *AbstractCompiler, astFactory *AstFactory, namespace StaticScope) *RewriteAsyncFunctions {
@@ -44,26 +44,26 @@ func (this *RewriteAsyncFunctions) process_2(externs Node, root Node) {
 
 func (this *RewriteAsyncFunctions) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	if parent == 0 {
-		if !this.contextStack.isEmpty() {
+		if len(*this.contextStack) != 0 {
 			panic(new_IllegalStateException_0())
 		}
 		var uniqueId string = this.compiler_.getUniqueIdSupplier().getUniqueId(t.getInput())
-		this.contextStack.push(new_RewriteAsyncFunctions_RootContext(this, n, uniqueId).up_RewriteAsyncFunctions_LexicalContext())
+		*this.contextStack = append(*this.contextStack, new_RewriteAsyncFunctions_RootContext(this, n, uniqueId).up_RewriteAsyncFunctions_LexicalContext())
 	} else {
-		var parentContext *RewriteAsyncFunctions_LexicalContext = this.contextStack.peek()
+		var parentContext *RewriteAsyncFunctions_LexicalContext = slicePeekTop_(tc_p_RewriteAsyncFunctions_LexicalContext, *this.contextStack)
 		var nodeContext *RewriteAsyncFunctions_LexicalContext = parentContext.getContextForNode(t, n)
 		if nodeContext != parentContext {
-			this.contextStack.push(nodeContext)
+			*this.contextStack = append(*this.contextStack, nodeContext)
 		}
 	}
 	return true
 }
 
 func (this *RewriteAsyncFunctions) visit(t *NodeTraversal, n Node, parent Node) {
-	var context *RewriteAsyncFunctions_LexicalContext = this.contextStack.peek()
+	var context *RewriteAsyncFunctions_LexicalContext = slicePeekTop_(tc_p_RewriteAsyncFunctions_LexicalContext, *this.contextStack)
 	context.visit(t, n)
 	if context.getContextRootNode() == n {
-		this.contextStack.pop()
+		slicePop_(tc_p_RewriteAsyncFunctions_LexicalContext, this.contextStack)
 	}
 }
 

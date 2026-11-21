@@ -46,7 +46,7 @@ func CodePrinter_toSource(root Node, outputFormat CodePrinter_Format, options *C
 
 type CodePrinter_MappedCodePrinter struct {
 	CodeConsumer
-	mappings                    *TDeque[*SourceMap_Mapping]
+	mappings                    *[]*SourceMap_Mapping
 	allMappings                 *[]*SourceMap_Mapping
 	completeMappings            *[]*SourceMap_Mapping
 	sourceMapDetailLevel        SourceMap_DetailLevel
@@ -98,9 +98,9 @@ func (this *CodePrinter_MappedCodePrinter) init_CodePrinter_MappedCodePrinter(li
 	}()
 	this.createSrcMap = createSrcMap
 	this.sourceMapDetailLevel = sourceMapDetailLevel
-	this.mappings = func() *TDeque[*SourceMap_Mapping] {
+	this.mappings = func() *[]*SourceMap_Mapping {
 		if createSrcMap {
-			return newTDeque_(tc_p_SourceMap_Mapping)
+			return &[]*SourceMap_Mapping{}
 		}
 		return nil
 	}()
@@ -146,14 +146,14 @@ func (this *CodePrinter_MappedCodePrinter) startSourceMapping_impl(node Node) {
 		var mapping *SourceMap_Mapping = new_SourceMap_Mapping()
 		mapping.node_ = node
 		mapping.start_ = new_FilePosition(line, index)
-		this.mappings.push(mapping)
+		*this.mappings = append(*this.mappings, mapping)
 		*this.allMappings = append(*this.allMappings, mapping)
 	}
 }
 
 func (this *CodePrinter_MappedCodePrinter) endSourceMapping_impl(node Node) {
-	if (this.createSrcMap && !this.mappings.isEmpty()) && (this.mappings.peek().node_ == node) {
-		var mapping *SourceMap_Mapping = this.mappings.pop()
+	if (this.createSrcMap && len(*this.mappings) != 0) && (slicePeekTop_(tc_p_SourceMap_Mapping, *this.mappings).node_ == node) {
+		var mapping *SourceMap_Mapping = slicePop_(tc_p_SourceMap_Mapping, this.mappings)
 		var line int32 = this.getCurrentLineIndex()
 		var index int32 = this.getCurrentCharIndex()
 		if line < 0 {
