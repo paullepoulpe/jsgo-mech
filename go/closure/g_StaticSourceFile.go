@@ -71,10 +71,6 @@ func (this StaticSourceFile_SourceKind) toString() string {
 	return this.enum_().name_
 }
 
-func (this StaticSourceFile_SourceKind) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this StaticSourceFile_SourceKind) self() any {
 	if this == 0 {
 		return nil

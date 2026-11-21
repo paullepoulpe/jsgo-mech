@@ -114,10 +114,6 @@ func (this ContainsUpperBoundSuperTypeVisitor_Result) toString() string {
 	return this.enum_().name_
 }
 
-func (this ContainsUpperBoundSuperTypeVisitor_Result) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this ContainsUpperBoundSuperTypeVisitor_Result) self() any {
 	if this == 0 {
 		return nil

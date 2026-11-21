@@ -180,10 +180,6 @@ func (this PhaseOptimizer_State) ordinal() int32 {
 
 func (this PhaseOptimizer_State) toString() string { return this.enum_().name_ }
 
-func (this PhaseOptimizer_State) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this PhaseOptimizer_State) self() any {
 	if this == 0 {
 		return nil

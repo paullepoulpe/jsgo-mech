@@ -154,10 +154,6 @@ func (this JsFileFullParser_FileInfo_ModuleType) toString() string {
 	return this.enum_().name_
 }
 
-func (this JsFileFullParser_FileInfo_ModuleType) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this JsFileFullParser_FileInfo_ModuleType) self() any {
 	if this == 0 {
 		return nil

@@ -537,10 +537,6 @@ func (this CheckMissingRequires_Strength) toString() string {
 	return this.enum_().name_
 }
 
-func (this CheckMissingRequires_Strength) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this CheckMissingRequires_Strength) self() any {
 	if this == 0 {
 		return nil

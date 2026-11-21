@@ -224,10 +224,6 @@ func (this SimpleJsonValue_Kind) ordinal() int32 {
 
 func (this SimpleJsonValue_Kind) toString() string { return this.enum_().name_ }
 
-func (this SimpleJsonValue_Kind) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this SimpleJsonValue_Kind) self() any {
 	if this == 0 {
 		return nil

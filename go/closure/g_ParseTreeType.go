@@ -108,8 +108,6 @@ func (this ParseTreeType) ordinal() int32 {
 
 func (this ParseTreeType) toString() string { return this.enum_().name_ }
 
-func (this ParseTreeType) compareTo(o any) int32 { return this.enum_().compareTo(o) }
-
 func (this ParseTreeType) self() any {
 	if this == 0 {
 		return nil
