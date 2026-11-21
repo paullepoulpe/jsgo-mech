@@ -646,9 +646,7 @@ func ConformanceRules_AbstractTypeRestrictionRule_isBottom(n Node) bool {
 func (this *ConformanceRules_AbstractTypeRestrictionRule) union(typeNames ListOf[string]) *JSType {
 	var registry *JSTypeRegistry = this.compiler_.getTypeRegistry()
 	var types *JTList[*JSType] = jnewTList_(jtc_p_JSType)
-	it_1 := foreach_(typeNames)
-	for it_1.next() {
-		var typeName string = str_(it_1.v)
+	for typeName := range elemsBy_(typeNames, str_) {
 		var type_ *JSType = registry.getGlobalType(typeName)
 		if type_ == nil {
 			type_ = registry.resolveViaClosureNamespace(typeName)
@@ -920,9 +918,7 @@ func (this *ConformanceRules_BannedName) initBannedName(compiler *AbstractCompil
 	this.requirementType = requirement.getType()
 	var qualifiedBuilder *TListBuilder[Node] = newTListBuilder_(jtc_Node)
 	var shortBuilder *TSetBuilder[string] = newTSetBuilder_(jtc_string)
-	it_1 := foreach_(ProtocolStringList(requirement.getValueList()))
-	for it_1.next() {
-		var name string = str_(it_1.v)
+	for name := range elemsBy_(ProtocolStringList(requirement.getValueList()), str_) {
 		var qualifiedName Node = NodeUtil_newQName_AbstractCompiler_String(compiler, name)
 		qualifiedBuilder.add(qualifiedName)
 		shortBuilder.add(qualifiedName.getString())
@@ -2849,9 +2845,7 @@ func ConformanceRules_BanUnresolvedType_getNonConformingPart(type_ *JSType) Opti
 	}
 	if type_.isUnionType() {
 		var nonConformingParts *JTList[string] = nil
-		it_1 := foreach_(type_.getUnionMembers())
-		for it_1.next() {
-			var part *JSType = to_JSType(it_1.v)
+		for part := range elemsBy_(type_.getUnionMembers(), to_JSType) {
 			var nonConformingPart Optional[string] = ConformanceRules_BanUnresolvedType_getNonConformingPart(part)
 			if nonConformingPart.isPresent() {
 				nonConformingParts = func() *JTList[string] {
@@ -3203,9 +3197,7 @@ func (this *ConformanceRules_BanCreateElement) initBanCreateElement(compiler *Ab
 		return Outcome_base_err[any](superInited.error())
 	}
 	this.bannedTags = jnewTSet_(jtc_string)
-	it_1 := foreach_(ProtocolStringList(requirement.getValueList()))
-	for it_1.next() {
-		var value string = str_(it_1.v)
+	for value := range elemsBy_(ProtocolStringList(requirement.getValueList()), str_) {
 		this.bannedTags.add(Ascii_toLowerCase(value))
 	}
 	if this.bannedTags.isEmpty() {
@@ -3475,9 +3467,7 @@ func new_ConformanceRules_SecuritySensitiveAttributes_Supplier(globalNamespaceSu
 
 func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs CollectionOf[string], globalNamespaceSupplier Supplier[*GlobalNamespace]) {
 	var bannedAtrrsBuilder *TSetBuilder[string] = newTSetBuilder_(jtc_string)
-	it_1 := foreach_(bannedAtrrs)
-	for it_1.next() {
-		var s string = str_(it_1.v)
+	for s := range elemsBy_(bannedAtrrs, str_) {
 		bannedAtrrsBuilder.add(String_toLowerCase(s, Locale_ROOT))
 	}
 	this.bannedAtrrs = bannedAtrrsBuilder.build()
@@ -3917,9 +3907,7 @@ func (this *ConformanceRules_BanExecCommand) initBanExecCommand(compiler *Abstra
 		return Outcome_base_err[any](superInited.error())
 	}
 	var bannedAttrsBuilder *TListBuilder[string] = newTListBuilder_(jtc_string)
-	it_1 := foreach_(ProtocolStringList(requirement.getValueList()))
-	for it_1.next() {
-		var v string = str_(it_1.v)
+	for v := range elemsBy_(ProtocolStringList(requirement.getValueList()), str_) {
 		bannedAttrsBuilder.add(String_toLowerCase(v, Locale_ROOT))
 	}
 	this.bannedAttrs = bannedAttrsBuilder.build()

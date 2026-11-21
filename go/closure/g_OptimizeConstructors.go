@@ -35,9 +35,7 @@ func (this *OptimizeConstructors) process_2(externs Node, root Node) {
 }
 
 func (this *OptimizeConstructors) process_3(externs Node, root Node, refMap *OptimizeCalls_ReferenceMap) {
-	it_1 := foreach_(refMap.getNameReferences())
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(refMap.getNameReferences(), icast_Map_Entry) {
 		this.addConstructorsToBeRemoved(str_(entry.getKey()), to_ArrayList(entry.getValue()))
 	}
 	it_3 := this.removableConstructors.each()
