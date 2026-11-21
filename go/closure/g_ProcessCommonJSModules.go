@@ -1486,15 +1486,15 @@ func (this *ProcessCommonJSModules_RewriteModule) fixTypeNode(t *NodeTraversal, 
 	if typeNode.isStringLit() {
 		var name string = typeNode.getString()
 		if ModuleLoader_isPathIdentifier(name) {
-			var lastSlash int32 = String_lastIndexOf(name, 47)
-			var endIndex int32 = String_indexOf_int_int(name, 46, lastSlash)
+			var lastSlash int32 = int32(strings.LastIndexByte(name, '/'))
+			var endIndex int32 = indexByteFrom_(name, '.', lastSlash)
 			var localTypeName Optional[string] = Optional_empty[string]()
 			if endIndex == -1 {
-				endIndex = String_length(name)
+				endIndex = int32(len(name))
 			} else {
-				localTypeName = Optional_of[string](String_substring_int(name, endIndex))
+				localTypeName = Optional_of[string](name[endIndex:])
 			}
-			var moduleName string = String_substring(name, 0, endIndex)
+			var moduleName string = name[:endIndex]
 			var globalModuleName string = this.outer_.getImportedModuleName_3(t, typeNode, moduleName)
 			var baseImportProperty Optional[string] = this.outer_.getBasePropertyImport(Optional_of[string](globalModuleName))
 			typeNode.setString(func() string {
@@ -1506,15 +1506,15 @@ func (this *ProcessCommonJSModules_RewriteModule) fixTypeNode(t *NodeTraversal, 
 		} else {
 			var wasRewritten bool = false
 			var endIndex int32 = -1
-			for endIndex < String_length(name) {
-				endIndex = String_indexOf_int_int(name, 46, (endIndex + 1))
+			for endIndex < int32(len(name)) {
+				endIndex = indexByteFrom_(name, '.', (endIndex + 1))
 				if endIndex == -1 {
-					endIndex = String_length(name)
+					endIndex = int32(len(name))
 				}
-				var baseName string = String_substring(name, 0, endIndex)
+				var baseName string = name[:endIndex]
 				var suffix string = func() string {
-					if endIndex < String_length(name) {
-						return String_substring_int(name, endIndex)
+					if endIndex < int32(len(name)) {
+						return name[endIndex:]
 					}
 					return ""
 				}()
@@ -1538,17 +1538,17 @@ func (this *ProcessCommonJSModules_RewriteModule) fixTypeNode(t *NodeTraversal, 
 				}
 			}
 			if !wasRewritten && this.allowFullRewrite {
-				endIndex = String_indexOf(name, 46)
+				endIndex = int32(strings.IndexByte(name, '.'))
 				if endIndex == -1 {
-					endIndex = String_length(name)
+					endIndex = int32(len(name))
 				}
-				var baseName string = String_substring(name, 0, endIndex)
+				var baseName string = name[:endIndex]
 				var typeDeclaration *Var = t.getScope().getVar_String_rVar(baseName)
 				if (typeDeclaration != nil) && typeDeclaration.isGlobal() {
 					var moduleName Optional[string] = ProcessCommonJSModules_getModuleName(t.getInput())
 					var newName string = (sstr_(baseName) + "$$" + sstr_(moduleName.orElse("null")))
-					if endIndex < String_length(name) {
-						newName += sstr_(String_substring_int(name, endIndex))
+					if endIndex < int32(len(name)) {
+						newName += sstr_(name[endIndex:])
 					}
 					typeNode.setString(newName)
 					typeNode.setOriginalName(name)

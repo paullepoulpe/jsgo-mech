@@ -1941,7 +1941,7 @@ func new_JSDocInfo_TrimmedStringPosition() *JSDocInfo_TrimmedStringPosition {
 func (this *JSDocInfo_TrimmedStringPosition) setItem_impl(item_ any) {
 	var item string = str_(item_)
 	_ = item
-	if String_charAt(item, 0) == ' ' || String_charAt(item, (String_length(item)-1)) == ' ' {
+	if byteAt_(item, 0) == ' ' || byteAt_(item, (int32(len(item))-1)) == ' ' {
 		panic(new_IllegalArgumentException_String(objstr_("String has leading or trailing whitespace")))
 	}
 	this.JSDocInfo_StringPosition.setItem_impl(strobj_(item))
