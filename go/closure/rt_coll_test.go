@@ -362,3 +362,80 @@ func TestForeachLikeIterator(t *testing.T) {
 	}()
 	foreach_(nil)
 }
+
+// TestTMapHashedKeysAgainstModel drives a typed map whose keys compare by equals/hashCode
+// (*tkey_, many sharing a hash code, and null) and the model with the same random puts,
+// removals (directly and through an iterator of the view), clears and lookups, and compares
+// contents and order throughout, past the index threshold and through compaction.
+func TestTMapHashedKeysAgainstModel(t *testing.T) {
+	kc := &tconv_[*tkey_]{box: func(v *tkey_) any { return obj_(v) }, unbox: func(v any) *tkey_ { return cast_[*tkey_](v) },
+		hash: func(v *tkey_) int32 { return objhash_(obj_(v)) }, eq: func(a, b *tkey_) bool { return objequals_(obj_(a), obj_(b)) }}
+	vc := &tconv_[int32]{box: func(v int32) any { return v }, unbox: func(v any) int32 { return v.(int32) }}
+	for seed := int64(1); seed <= 40; seed++ {
+		rnd := rand.New(rand.NewSource(seed))
+		span := []int{3, 12, 40, 200}[seed%4]
+		key := func() *tkey_ {
+			n := rnd.Intn(span)
+			if n == 0 && rnd.Intn(2) == 0 {
+				return nil
+			}
+			return &tkey_{int32(n)}
+		}
+		m, ref := newTMap_(kc, vc), &refMap_{}
+		check := func(what string) {
+			t.Helper()
+			var ks, vs []any
+			for e := m.each(); e.next(); {
+				ks, vs = append(ks, obj_(e.k)), append(vs, e.v)
+			}
+			if int(m.size()) != len(ref.keys) || !sameSlice_(ks, ref.keys) || !sameSlice_(vs, ref.vals) {
+				t.Fatalf("seed %d after %s: got %v=%v, want %v=%v", seed, what, ks, vs, ref.keys, ref.vals)
+			}
+		}
+		for step := 0; step < 800; step++ {
+			k := key()
+			switch op := rnd.Intn(20); {
+			case op < 9:
+				v := int32(step)
+				got := m.put(k, v)
+				want := ref.put(obj_(k), v)
+				if want == nil {
+					want = int32(0)
+				}
+				if got != want {
+					t.Fatalf("seed %d: put returned %v, want %v", seed, got, want)
+				}
+			case op < 13:
+				got := m.remove(k)
+				want := int32(0)
+				if i := ref.find(obj_(k)); i >= 0 {
+					want = ref.vals[i].(int32)
+					ref.removeAt(i)
+				}
+				if got != want {
+					t.Fatalf("seed %d: remove returned %v, want %v", seed, got, want)
+				}
+			case op < 14:
+				// Remove through an iterator of the erased view.
+				for it := m.asMap().keySet().iterator(); it.hasNext(); {
+					if x := it.next(); objequals_(x, obj_(k)) {
+						Iterator_remove(it)
+						ref.removeAt(ref.find(obj_(k)))
+						break
+					}
+				}
+			case op < 19:
+				has := m.containsKey(k)
+				if want := ref.find(obj_(k)) >= 0; has != want || m.asMap().containsKey(obj_(k)) != want {
+					t.Fatalf("seed %d: containsKey(%v) = %v, want %v", seed, k, has, want)
+				}
+			default:
+				if rnd.Intn(8) == 0 {
+					m.clear()
+					ref.keys, ref.vals = nil, nil
+				}
+			}
+			check("step")
+		}
+	}
+}
