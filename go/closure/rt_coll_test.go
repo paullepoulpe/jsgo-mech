@@ -450,6 +450,7 @@ func TestNodeKeyIsPlain(t *testing.T) {
 		t.Fatal("Node implements hashed_; htable_.findNode would not call its equals")
 	}
 }
+
 // TestTreeMapStringKeys drives a naturally ordered TreeMap with string keys through puts,
 // removals and clears, and checks that search_s (which reads skeys) agrees with search.
 func TestTreeMapStringKeys(t *testing.T) {
