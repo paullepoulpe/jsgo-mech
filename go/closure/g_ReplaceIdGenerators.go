@@ -294,7 +294,7 @@ func new_ReplaceIdGenerators_StableNameSupplier() *ReplaceIdGenerators_StableNam
 }
 
 func (this *ReplaceIdGenerators_StableNameSupplier) getName(id string, name string) Optional[string] {
-	return Optional_of[string](Base64_base64EncodeInt(String_hashCode(name)))
+	return Optional_of[string](Base64_base64EncodeInt(utf16Hash_(name)))
 }
 
 func (this *ReplaceIdGenerators_StableNameSupplier) getRenameStrategy() ReplaceIdGenerators_RenameStrategy {
