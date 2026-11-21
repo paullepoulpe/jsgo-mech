@@ -882,10 +882,10 @@ func (this *IRFactory) normalizeRegex(token *LiteralToken) string {
 	if cur == -1 {
 		return String_substring(value, 1, lastSlash)
 	}
-	var result *StringBuilder = new_StringBuilder()
+	var result strBuilder_
 	var start int32 = 1
 	for cur != -1 {
-		Appendable_append_s_int_int(result, value, start, cur)
+		Appendable_append_s_int_int(appendable_(&result), value, start, cur)
 		cur++
 		var c uint16 = String_charAt(value, cur)
 		switch c {
@@ -898,7 +898,7 @@ func (this *IRFactory) normalizeRegex(token *LiteralToken) string {
 		start = (cur + 1)
 		cur = String_indexOf_int_int(value, 92, start)
 	}
-	Appendable_append_s_int_int(result, value, start, lastSlash)
+	Appendable_append_s_int_int(appendable_(&result), value, start, lastSlash)
 	return result.toString()
 }
 
@@ -922,9 +922,9 @@ func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool
 			return String_substring(value, 1, (String_length(value) - 1))
 		}()
 	}
-	var result *StringBuilder = new_StringBuilder()
+	var result strBuilder_
 	for cur != -1 {
-		Appendable_append_s_int_int(result, value, start, cur)
+		Appendable_append_s_int_int(appendable_(&result), value, start, cur)
 		cur += 1
 		var c uint16 = String_charAt(value, cur)
 		switch c {
@@ -995,7 +995,7 @@ func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool
 		start = (cur + 1)
 		cur = String_indexOf_int_int(value, 92, start)
 	}
-	Appendable_append_s_int_int(result, value, start, func() int32 {
+	Appendable_append_s_int_int(appendable_(&result), value, start, func() int32 {
 		if templateLiteral {
 			return String_length(value)
 		}
