@@ -421,7 +421,7 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 		for e := range elemsBy_(this.astManifest.entrySet(), icast_Map_Entry) {
 			manifestLines = append(manifestLines, String_format("%s,%d", e.getKey(), e.getValue()))
 		}
-		Collections_sort(sliceView_(tc_string, manifestLines))
+		sortSliceF_(manifestLines, compareStrNat_)
 		for _, line := range manifestLines {
 			output.println(line)
 		}

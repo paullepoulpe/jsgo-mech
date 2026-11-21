@@ -148,21 +148,15 @@ func new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator[N comparabl
 
 func (this *GraphColoring_GreedyGraphColoring[N, E]) color_impl() int32 {
 	var worklist *TList[GraphNode[N, E]] = tlistFrom_(tc_GraphNode_N__E_[N, E](), this.graph.getNodes())
-	Collections_sort_List_Comparator(worklist.asList(), func() Comparator[any] {
-		f_ := Comparator_comparing_Function_Comparator[GraphNode[N, E], N](Function[GraphNode[N, E], N]((GraphNode[N, E]).getValue), Comparator[N](func(leftProperty N, rightProperty N) int32 {
-			var result int32 = (this.graph.getWeight(rightProperty) - this.graph.getWeight(leftProperty))
-			return func() int32 {
-				if (result == 0) && (this.tieBreaker != nil) {
-					return this.tieBreaker.compare(leftProperty, rightProperty)
-				}
-				return result
-			}()
-		}))
-		if f_ == nil {
-			return nil
-		}
-		return func(p0 any, p1 any) int32 { return f_(gcast_GraphNode_N_E[N, E](p0), gcast_GraphNode_N_E[N, E](p1)) }
-	}())
+	sortTListF_(worklist, Comparator_comparing_Function_Comparator[GraphNode[N, E], N](Function[GraphNode[N, E], N]((GraphNode[N, E]).getValue), Comparator[N](func(leftProperty N, rightProperty N) int32 {
+		var result int32 = (this.graph.getWeight(rightProperty) - this.graph.getWeight(leftProperty))
+		return func() int32 {
+			if (result == 0) && (this.tieBreaker != nil) {
+				return this.tieBreaker.compare(leftProperty, rightProperty)
+			}
+			return result
+		}()
+	})))
 	var count int32 = 0
 	for do_2 := true; do_2; do_2 = !worklist.isEmpty() {
 		var color *GraphColoring_Color = new_GraphColoring_Color(count)

@@ -170,19 +170,11 @@ func ReportDecoder_mergeProfiles(profiles []*ReportProfile) *ReportProfile {
 
 func ReportDecoder_createReportProfile(instrumentationPoints *TList[*InstrumentationPointStats]) *ReportProfile {
 	var sortedPoints *TList[*InstrumentationPointStats] = tlistCopy_(tc_p_InstrumentationPointStats, instrumentationPoints)
-	List_sort(sortedPoints.asList(), func() Comparator[any] {
-		f_ := Comparator_comparing[*InstrumentationPointStats, string](Function[*InstrumentationPointStats, string](func(pointStats *InstrumentationPointStats) string {
-			return pointStats.getPoint().getFileName()
-		})).thenComparingInt(ToIntFunction[*InstrumentationPointStats](func(pointStats *InstrumentationPointStats) int32 {
-			return pointStats.getPoint().getLineNumber()
-		}))
-		if f_ == nil {
-			return nil
-		}
-		return func(p0 any, p1 any) int32 {
-			return f_(cast_[*InstrumentationPointStats](p0), cast_[*InstrumentationPointStats](p1))
-		}
-	}())
+	sortTListF_(sortedPoints, Comparator_comparing[*InstrumentationPointStats, string](Function[*InstrumentationPointStats, string](func(pointStats *InstrumentationPointStats) string {
+		return pointStats.getPoint().getFileName()
+	})).thenComparingInt(ToIntFunction[*InstrumentationPointStats](func(pointStats *InstrumentationPointStats) int32 {
+		return pointStats.getPoint().getLineNumber()
+	})))
 	var pointsByFileName *TMap[string, List] = newTMap_(tc_string, tc_List)
 	for pointStats := range sortedPoints.All() {
 		pointsByFileName.ComputeIfAbsent(pointStats.getPoint().getFileName(), Function[string, List](func(k string) List {
@@ -195,13 +187,7 @@ func ReportDecoder_createReportProfile(instrumentationPoints *TList[*Instrumenta
 		var entry *TEntry[string, List] = it_3.entry()
 		fileProfiles.add(cast_[*FileProfile](FileProfile_newBuilder().setFileName(entry.getKey()).addAllInstrumentationPointsStats(Iterable(entry.getValue())).build()))
 	}
-	List_sort(fileProfiles.asList(), func() Comparator[any] {
-		f_ := Comparator_comparing[*FileProfile, string](Function[*FileProfile, string]((*FileProfile).getFileName))
-		if f_ == nil {
-			return nil
-		}
-		return func(p0 any, p1 any) int32 { return f_(cast_[*FileProfile](p0), cast_[*FileProfile](p1)) }
-	}())
+	sortTListF_(fileProfiles, Comparator_comparing[*FileProfile, string](Function[*FileProfile, string]((*FileProfile).getFileName)))
 	return cast_[*ReportProfile](ReportProfile_newBuilder().addAllFileProfile(Iterable(fileProfiles.asList())).build())
 }
 
