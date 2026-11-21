@@ -25,9 +25,8 @@ func (this *CachingTranspiler) transpile(path string, code string) *TranspileRes
 		defer func() {
 			if r_ := recover(); r_ != nil {
 				ex_ := catch_(r_)
-				if is_UncheckedExecutionException(ex_) {
-					var e *UncheckedExecutionException = to_UncheckedExecutionException(ex_)
-					if is_[*TranspilationException](e.getCause().self()) {
+				if e, ok := ex_.(*UncheckedExecutionException); ok {
+					if _, ok2 := e.getCause().self().(*TranspilationException); ok2 {
 						panic(obj_(new_TranspilationException_Exception(e.up_Exception())))
 					} else {
 						panic(e.self())
@@ -78,10 +77,11 @@ func (this *CachingTranspiler_Key) equals(other any) bool {
 	_ = key
 	return ((func() bool {
 		v_ := other
-		if !is_[*CachingTranspiler_Key](v_) {
+		p, ok := v_.(*CachingTranspiler_Key)
+		if !ok {
 			return false
 		}
-		key = cast_[*CachingTranspiler_Key](v_)
+		key = p
 		return true
 	}() && (key.path_ == this.path_)) && (key.code_ == this.code_))
 }

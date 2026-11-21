@@ -52,10 +52,11 @@ func (this *CheckMissingSemicolon) checkSemicolon(t *NodeTraversal, n Node) {
 	_ = sourceFile
 	if func() bool {
 		v_ := any(staticSourceFile)
-		if !is_[*SourceFile_jscomp](v_) {
+		p, ok := v_.(*SourceFile_jscomp)
+		if !ok {
 			return false
 		}
-		sourceFile = cast_[*SourceFile_jscomp](v_)
+		sourceFile = p
 		return true
 	}() {
 		var codeRes *Outcome_base[string] = sourceFile.readCode()

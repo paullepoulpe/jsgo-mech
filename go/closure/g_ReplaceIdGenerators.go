@@ -34,10 +34,11 @@ func (this *ReplaceIdGenerators) init_ReplaceIdGenerators(compiler *AbstractComp
 			_ = renamingToken
 			if func() bool {
 				v_ := any(map_)
-				if !is_[RenamingToken](v_) {
+				p, ok := v_.(RenamingToken)
+				if !ok {
 					return false
 				}
-				renamingToken = cast_[RenamingToken](v_)
+				renamingToken = p
 				return true
 			}() {
 				switch renamingToken {
