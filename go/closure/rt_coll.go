@@ -9,6 +9,7 @@ package closure
 import (
 	"sort"
 	"strings"
+	"unsafe"
 )
 
 // ---- iteration helpers
@@ -515,7 +516,14 @@ func (this *CopyOnWriteArrayList) iterator() Iterator {
 
 // ---- ArrayDeque
 
-type ArrayDeque struct{ ArrayList }
+type ArrayDeque struct {
+	ArrayList
+	// buf is the array that items is a suffix of, with free room in front of items so that
+	// push (insert at the head) writes one slot instead of moving every element. Every other
+	// operation is ArrayList's on items; push finds out from the pointers whether items still
+	// lies in buf (an append may have moved it) and rebuilds buf when not.
+	buf []any
+}
 
 func new_ArrayDeque() *ArrayDeque {
 	this := &ArrayDeque{}
@@ -561,7 +569,30 @@ func (this *ArrayDeque) pop() any {
 	return this.poll()
 }
 func (this *ArrayDeque) remove_0() any { return this.pop() }
-func (this *ArrayDeque) push(v any)    { this.add_int_Object(0, v) }
+func (this *ArrayDeque) push(v any) {
+	n := len(this.items)
+	if n > 0 && cap(this.buf) > 0 {
+		base := uintptr(unsafe.Pointer(unsafe.SliceData(this.buf)))
+		start := uintptr(unsafe.Pointer(&this.items[0]))
+		size := unsafe.Sizeof(v)
+		if start > base && (start-base)%size == 0 {
+			if off := int((start - base) / size); off < cap(this.buf) && off+cap(this.items) == cap(this.buf) {
+				// items is buf[off:]: room in front.
+				this.buf[off-1] = v
+				this.items = this.buf[off-1 : off+n]
+				return
+			}
+		}
+	}
+	// Rebuild with as much room in front as there are elements (at least 4).
+	room := max(n, 4)
+	nb := make([]any, room+n, room+2*n+4)
+	copy(nb[room:], this.items)
+	clear(this.items)
+	nb[room-1] = v
+	this.buf = nb[:cap(nb)]
+	this.items = nb[room-1 : room+n]
+}
 func (this *ArrayDeque) descendingIterator() Iterator {
 	rev := make([]any, len(this.items))
 	for i, v := range this.items {
