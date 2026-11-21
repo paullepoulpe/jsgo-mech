@@ -134,12 +134,12 @@ func (this *AbstractCommandLineRunner) getDiagnosticGroups() *DiagnosticGroups {
 	return this.compiler_.getDiagnosticGroups()
 }
 
-func AbstractCommandLineRunner_setWarningGuardOptions(options *CompilerOptions, warningGuards *JTList[*AbstractCommandLineRunner_FlagEntry], diagnosticGroups *DiagnosticGroups) *Outcome_base[any] {
+func AbstractCommandLineRunner_setWarningGuardOptions(options *CompilerOptions, warningGuards *JTList[*AbstractCommandLineRunner_FlagEntry[any]], diagnosticGroups *DiagnosticGroups) *Outcome_base[any] {
 	if warningGuards != nil {
 		var groupNames *JTSet[string] = DiagnosticGroups_getRegisteredGroups().keySetImm()
 		it_1 := warningGuards.each()
 		for it_1.next() {
-			var entry *AbstractCommandLineRunner_FlagEntry = it_1.v
+			var entry *AbstractCommandLineRunner_FlagEntry[any] = it_1.v
 			if "*" == entry.value_ {
 				it_3 := groupNames.each()
 				for it_3.next() {
@@ -439,15 +439,15 @@ func (this *AbstractCommandLineRunner) parseJsonFilesFromInputStream() *Outcome_
 	return Outcome_base_ok_Object[List](jsonFiles.asList())
 }
 
-func (this *AbstractCommandLineRunner) createInputs(files *JTList[*AbstractCommandLineRunner_FlagEntry], allowStdIn bool, jsChunkSpecs *JTList[*AbstractCommandLineRunner_JsChunkSpec]) *Outcome_base[List] {
+func (this *AbstractCommandLineRunner) createInputs(files *JTList[*AbstractCommandLineRunner_FlagEntry[any]], allowStdIn bool, jsChunkSpecs *JTList[*AbstractCommandLineRunner_JsChunkSpec]) *Outcome_base[List] {
 	return this.createInputs_4(files, nil, allowStdIn, jsChunkSpecs)
 }
 
-func (this *AbstractCommandLineRunner) createInputsList(files *JTList[*AbstractCommandLineRunner_FlagEntry], jsonFiles ListOf[*AbstractCommandLineRunner_JsonFileSpec], jsChunkSpecs *JTList[*AbstractCommandLineRunner_JsChunkSpec]) *Outcome_base[List] {
+func (this *AbstractCommandLineRunner) createInputsList(files *JTList[*AbstractCommandLineRunner_FlagEntry[any]], jsonFiles ListOf[*AbstractCommandLineRunner_JsonFileSpec], jsChunkSpecs *JTList[*AbstractCommandLineRunner_JsChunkSpec]) *Outcome_base[List] {
 	return this.createInputs_4(files, jsonFiles, false, jsChunkSpecs)
 }
 
-func (this *AbstractCommandLineRunner) createInputs_4(files *JTList[*AbstractCommandLineRunner_FlagEntry], jsonFiles ListOf[*AbstractCommandLineRunner_JsonFileSpec], allowStdIn bool, jsChunkSpecs *JTList[*AbstractCommandLineRunner_JsChunkSpec]) *Outcome_base[List] {
+func (this *AbstractCommandLineRunner) createInputs_4(files *JTList[*AbstractCommandLineRunner_FlagEntry[any]], jsonFiles ListOf[*AbstractCommandLineRunner_JsonFileSpec], allowStdIn bool, jsChunkSpecs *JTList[*AbstractCommandLineRunner_JsChunkSpec]) *Outcome_base[List] {
 	var inputs *JTList[*SourceFile_jscomp] = jnewTListN_(jtc_p_SourceFile_jscomp, files.size())
 	var usingStdin bool = false
 	var jsChunkIndex int32 = 0
@@ -459,7 +459,7 @@ func (this *AbstractCommandLineRunner) createInputs_4(files *JTList[*AbstractCom
 		return jsChunkSpec.getNumInputs()
 	}()
 	for i := int32(0); i < files.size(); i++ {
-		var file *AbstractCommandLineRunner_FlagEntry = files.get(i)
+		var file *AbstractCommandLineRunner_FlagEntry[any] = files.get(i)
 		var filename string = file.value_
 		if cast_[AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_JS_ZIP {
 			if this.config.typedAstListInputFilename.isPresent() {
@@ -536,21 +536,21 @@ func (this *AbstractCommandLineRunner) createInputs_4(files *JTList[*AbstractCom
 	return Outcome_base_ok_Object[List](inputs.asList())
 }
 
-func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files *JTList[*AbstractCommandLineRunner_FlagEntry], moduleRoots ListOf[string], hasChunkSpecs bool) *Outcome_base[*ImmutableList] {
+func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files *JTList[*AbstractCommandLineRunner_FlagEntry[any]], moduleRoots ListOf[string], hasChunkSpecs bool) *Outcome_base[*ImmutableList] {
 	var errors *TListBuilder[*JSError] = newTListBuilder_(jtc_p_JSError)
 	var relativeToAbsoluteName *JTMap[string, string] = jnewTMap_(jtc_string, jtc_string)
 	it_1 := files.each()
 	for it_1.next() {
-		var file *AbstractCommandLineRunner_FlagEntry = it_1.v
+		var file *AbstractCommandLineRunner_FlagEntry[any] = it_1.v
 		if (cast_[AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_JS) || (cast_[AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_WEAKDEP) {
 			var absoluteName string = file.value_
 			var relativeName string = this.getModuleRootRelativeName(absoluteName, moduleRoots)
 			relativeToAbsoluteName.put(relativeName, absoluteName)
 		}
 	}
-	var iterator IteratorOf[*AbstractCommandLineRunner_FlagEntry] = files.iterator()
+	var iterator IteratorOf[*AbstractCommandLineRunner_FlagEntry[any]] = files.iterator()
 	for iterator.hasNext() {
-		var file *AbstractCommandLineRunner_FlagEntry = cast_[*AbstractCommandLineRunner_FlagEntry](iterator.next())
+		var file *AbstractCommandLineRunner_FlagEntry[any] = cast_[*AbstractCommandLineRunner_FlagEntry[any]](iterator.next())
 		if cast_[AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_IJS {
 			if hasChunkSpecs {
 				return Outcome_base_err[*ImmutableList](new_FlagUsageException("--ijs is incompatible with --chunk or --module.").up_Throwable())
@@ -582,7 +582,7 @@ func (this *AbstractCommandLineRunner) getModuleRootRelativeName(filename string
 	return filename
 }
 
-func (this *AbstractCommandLineRunner) createSourceInputs(jsChunkSpecs *JTList[*AbstractCommandLineRunner_JsChunkSpec], files *JTList[*AbstractCommandLineRunner_FlagEntry], jsonFiles ListOf[*AbstractCommandLineRunner_JsonFileSpec], moduleRoots ListOf[string]) *Outcome_base[List] {
+func (this *AbstractCommandLineRunner) createSourceInputs(jsChunkSpecs *JTList[*AbstractCommandLineRunner_JsChunkSpec], files *JTList[*AbstractCommandLineRunner_FlagEntry[any]], jsonFiles ListOf[*AbstractCommandLineRunner_JsonFileSpec], moduleRoots ListOf[string]) *Outcome_base[List] {
 	if this.isInTestMode() {
 		return Outcome_base_ok_Object[List](func() List {
 			if this.inputsSupplierForTesting != nil {
@@ -592,7 +592,7 @@ func (this *AbstractCommandLineRunner) createSourceInputs(jsChunkSpecs *JTList[*
 		}())
 	}
 	if (files.isEmpty() && (jsonFiles == nil)) && this.config.defaultToStdin {
-		files = jimmutableListOf_[*AbstractCommandLineRunner_FlagEntry](jtc_p_AbstractCommandLineRunner_FlagEntry, new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), "-"))
+		files = jimmutableListOf_[*AbstractCommandLineRunner_FlagEntry[any]](jtc_p_AbstractCommandLineRunner_FlagEntry, new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), "-"))
 	}
 	var ijsErrors *Outcome_base[*ImmutableList] = this.deduplicateIjsFiles(files, moduleRoots, !jsChunkSpecs.isEmpty())
 	if ijsErrors.isErr() {
@@ -618,7 +618,7 @@ func (this *AbstractCommandLineRunner) createSourceInputs(jsChunkSpecs *JTList[*
 }
 
 func (this *AbstractCommandLineRunner) createExternInputs(files *JTList[string]) *Outcome_base[List] {
-	var externFiles *JTList[*AbstractCommandLineRunner_FlagEntry] = jnewTList_(jtc_p_AbstractCommandLineRunner_FlagEntry)
+	var externFiles *JTList[*AbstractCommandLineRunner_FlagEntry[any]] = jnewTList_(jtc_p_AbstractCommandLineRunner_FlagEntry)
 	it_1 := files.each()
 	for it_1.next() {
 		var file string = it_1.v
@@ -2183,7 +2183,7 @@ type AbstractCommandLineRunner_CommandLineConfig struct {
 	jscompDevMode                    CompilerOptions_DevMode
 	loggingLevel                     string
 	externs                          *JTList[string]
-	mixedJsSources                   *JTList[*AbstractCommandLineRunner_FlagEntry]
+	mixedJsSources                   *JTList[*AbstractCommandLineRunner_FlagEntry[any]]
 	jsOutputFile                     string
 	chunk_                           *JTList[string]
 	sourceMapInputFiles              *JTMap[string, string]
@@ -2204,7 +2204,7 @@ type AbstractCommandLineRunner_CommandLineConfig struct {
 	sourceMapDetailLevel             SourceMap_DetailLevel
 	sourceMapFormat                  SourceMap_Format
 	sourceMapLocationMappings        *JTList[SourceMap_LocationMapping]
-	warningGuards                    *JTList[*AbstractCommandLineRunner_FlagEntry]
+	warningGuards                    *JTList[*AbstractCommandLineRunner_FlagEntry[any]]
 	define                           *JTList[string]
 	tweakProcessing                  CompilerOptions_TweakProcessing
 	charset                          string
@@ -2364,7 +2364,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setExterns(externs List
 	return this
 }
 
-func (this *AbstractCommandLineRunner_CommandLineConfig) setMixedJsSources(mixedJsSources ListOf[*AbstractCommandLineRunner_FlagEntry]) *AbstractCommandLineRunner_CommandLineConfig {
+func (this *AbstractCommandLineRunner_CommandLineConfig) setMixedJsSources(mixedJsSources ListOf[*AbstractCommandLineRunner_FlagEntry[any]]) *AbstractCommandLineRunner_CommandLineConfig {
 	this.mixedJsSources.clear()
 	this.mixedJsSources.asList().addAll(Collection(mixedJsSources))
 	return this
@@ -2590,7 +2590,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setApplyInputSourceMaps
 	return this
 }
 
-func (this *AbstractCommandLineRunner_CommandLineConfig) setWarningGuards(warningGuards *JTList[*AbstractCommandLineRunner_FlagEntry]) *AbstractCommandLineRunner_CommandLineConfig {
+func (this *AbstractCommandLineRunner_CommandLineConfig) setWarningGuards(warningGuards *JTList[*AbstractCommandLineRunner_FlagEntry[any]]) *AbstractCommandLineRunner_CommandLineConfig {
 	this.warningGuards.clear()
 	this.warningGuards.asList().addAll(Collection(warningGuards.asList()))
 	return this
@@ -2993,47 +2993,47 @@ func AbstractCommandLineRunner_JsSourceType_clinit() {
 
 }
 
-type AbstractCommandLineRunner_FlagEntry struct {
-	flag_  any
+type AbstractCommandLineRunner_FlagEntry[T comparable] struct {
+	flag_  T
 	value_ string
 }
 
-func (this *AbstractCommandLineRunner_FlagEntry) zero_AbstractCommandLineRunner_FlagEntry() {
+func (this *AbstractCommandLineRunner_FlagEntry[T]) zero_AbstractCommandLineRunner_FlagEntry() {
 	this.value_ = nullstr_
 }
 
-func (this *AbstractCommandLineRunner_FlagEntry) init_AbstractCommandLineRunner_FlagEntry(flag any, value string) {
+func (this *AbstractCommandLineRunner_FlagEntry[T]) init_AbstractCommandLineRunner_FlagEntry(flag T, value string) {
 	this.flag_ = flag
 	this.value_ = value
 }
 
-func new_AbstractCommandLineRunner_FlagEntry(flag any, value string) *AbstractCommandLineRunner_FlagEntry {
-	this := &AbstractCommandLineRunner_FlagEntry{}
+func new_AbstractCommandLineRunner_FlagEntry[T comparable](flag T, value string) *AbstractCommandLineRunner_FlagEntry[T] {
+	this := &AbstractCommandLineRunner_FlagEntry[T]{flag_: null_[T]()}
 	this.zero_AbstractCommandLineRunner_FlagEntry()
 	this.init_AbstractCommandLineRunner_FlagEntry(flag, value)
 	return this
 }
 
-func (this *AbstractCommandLineRunner_FlagEntry) equals(o any) bool {
-	if that, ok := o.(*AbstractCommandLineRunner_FlagEntry); ok {
-		return (Object_equals(that.flag_, this.flag_) && (that.value_ == this.value_))
+func (this *AbstractCommandLineRunner_FlagEntry[T]) equals(o any) bool {
+	if that, ok := o.(*AbstractCommandLineRunner_FlagEntry[any]); ok {
+		return (Object_equals(that.flag_, boxNull_(this.flag_)) && (that.value_ == this.value_))
 	}
 	return false
 }
 
-func (this *AbstractCommandLineRunner_FlagEntry) hashCode() int32 {
-	return (Object_hashCode(this.flag_) + utf16Hash_(this.value_))
+func (this *AbstractCommandLineRunner_FlagEntry[T]) hashCode() int32 {
+	return (Object_hashCode(boxNull_(this.flag_)) + utf16Hash_(this.value_))
 }
 
-func (this *AbstractCommandLineRunner_FlagEntry) toString() string {
-	return (objstr_(this.flag_) + "=" + sstr_(this.value_))
+func (this *AbstractCommandLineRunner_FlagEntry[T]) toString() string {
+	return (objstr_(boxNull_(this.flag_)) + "=" + sstr_(this.value_))
 }
 
-func (this *AbstractCommandLineRunner_FlagEntry) getFlag() any {
+func (this *AbstractCommandLineRunner_FlagEntry[T]) getFlag() T {
 	return this.flag_
 }
 
-func (this *AbstractCommandLineRunner_FlagEntry) getValue() string {
+func (this *AbstractCommandLineRunner_FlagEntry[T]) getValue() string {
 	return this.value_
 }
 

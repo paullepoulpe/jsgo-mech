@@ -167,8 +167,8 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 	}
 	this.flags.flagFiles = new_ArrayList_0()
 	tokens = CommandLineRunner_processArgs(arrmap_(tokens.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }))
-	var previousGuardLevels *JTList[*AbstractCommandLineRunner_FlagEntry] = tlistCopy_(jtc_p_AbstractCommandLineRunner_FlagEntry, this.flags.guardLevels)
-	var previousMixedJsSources *JTList[*AbstractCommandLineRunner_FlagEntry] = tlistCopy_(jtc_p_AbstractCommandLineRunner_FlagEntry, this.flags.mixedJsSources)
+	var previousGuardLevels *JTList[*AbstractCommandLineRunner_FlagEntry[any]] = tlistCopy_(jtc_p_AbstractCommandLineRunner_FlagEntry, this.flags.guardLevels)
+	var previousMixedJsSources *JTList[*AbstractCommandLineRunner_FlagEntry[any]] = tlistCopy_(jtc_p_AbstractCommandLineRunner_FlagEntry, this.flags.mixedJsSources)
 	this.flags.guardLevels.clear()
 	this.flags.mixedJsSources.clear()
 	var parsed *Outcome_base[any] = this.flags.parse(tokens)
@@ -229,7 +229,7 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 		var e *CmdLineException = cast_[*CmdLineException](flagInputsRead.error().self())
 		this.reportError(e.getMessage())
 	}
-	var mixedSources ListOf[*AbstractCommandLineRunner_FlagEntry] = flagInputs.mixedSources
+	var mixedSources ListOf[*AbstractCommandLineRunner_FlagEntry[any]] = flagInputs.mixedSources
 	var mappings ListOf[SourceMap_LocationMapping] = flagInputs.mappings
 	var sourceMapInputs *JTMap[string, string] = flagInputs.sourceMapInputs
 	var parseInlineSourceMaps bool = flagInputs.parseInlineSourceMaps_
@@ -696,8 +696,8 @@ func CommandLineRunner_clinit() {
 }
 
 type CommandLineRunner_Flags struct {
-	guardLevels                        *JTList[*AbstractCommandLineRunner_FlagEntry]
-	mixedJsSources                     *JTList[*AbstractCommandLineRunner_FlagEntry]
+	guardLevels                        *JTList[*AbstractCommandLineRunner_FlagEntry[any]]
+	mixedJsSources                     *JTList[*AbstractCommandLineRunner_FlagEntry[any]]
 	browserFeaturesetYear              any
 	jscompDevMode                      CompilerOptions_DevMode
 	loggingLevel                       string
@@ -1565,11 +1565,11 @@ func CommandLineRunner_Flags_printShortUsageAfterErrors(ps *Output) {
 }
 
 func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[List] {
-	var mixedSources *JTList[*AbstractCommandLineRunner_FlagEntry] = jnewTList_(jtc_p_AbstractCommandLineRunner_FlagEntry)
+	var mixedSources *JTList[*AbstractCommandLineRunner_FlagEntry[any]] = jnewTList_(jtc_p_AbstractCommandLineRunner_FlagEntry)
 	var excludes *JTSet[string] = jnewTSet_(jtc_string)
 	it_1 := this.mixedJsSources.each()
 	for it_1.next() {
-		var source *AbstractCommandLineRunner_FlagEntry = it_1.v
+		var source *AbstractCommandLineRunner_FlagEntry[any] = it_1.v
 		if strings.HasSuffix(source.getValue(), ".zip") {
 			mixedSources.add(source)
 		} else if strings.HasPrefix(source.getValue(), "!") {
@@ -1644,7 +1644,7 @@ func (this *CommandLineRunner_Flags) getPackageJsonEntryNames() *JTList[string] 
 	return splitToListT_(jtc_string, Splitter_on(','), strobj_(this.packageJsonEntryNames.get()))
 }
 
-func CommandLineRunner_Flags_addMultiFlagValue(values *TList[string], value Optional[string], flag any, entries ListOf[*AbstractCommandLineRunner_FlagEntry]) *TList[string] {
+func CommandLineRunner_Flags_addMultiFlagValue(values *TList[string], value Optional[string], flag any, entries ListOf[*AbstractCommandLineRunner_FlagEntry[any]]) *TList[string] {
 	var normalizedValue Optional[string] = value
 	if ((value.isPresent() && (len(value.get()) != 0)) && ((String_substring(value.get(), 0, 1) == "'") || (String_substring(value.get(), 0, 1) == "\""))) && (String_substring_int(value.get(), (String_length(value.get())-1)) == String_substring(value.get(), 0, 1)) {
 		normalizedValue = Optional_of[string](String_substring(value.get(), 1, (String_length(value.get()) - 1)))
@@ -1763,7 +1763,7 @@ func CommandLineRunner_FormattingOption_clinit() {
 }
 
 type CommandLineRunner_FlagInputs struct {
-	mixedSources           ListOf[*AbstractCommandLineRunner_FlagEntry]
+	mixedSources           ListOf[*AbstractCommandLineRunner_FlagEntry[any]]
 	mappings               ListOf[SourceMap_LocationMapping]
 	sourceMapInputs        *JTMap[string, string]
 	parseInlineSourceMaps_ bool
