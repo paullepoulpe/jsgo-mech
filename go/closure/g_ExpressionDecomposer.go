@@ -159,9 +159,7 @@ func (this *ExpressionDecomposer) rewriteAllContainingOptionalChains(subExpressi
 			}
 		}
 	}
-	it_2 := eachRevOf_(&rewriters)
-	for it_2.next() {
-		var rewriter *OptionalChainRewriter = it_2.v
+	for rewriter := range sliceAllRev_(&rewriters) {
 		rewriter.rewrite()
 	}
 }
