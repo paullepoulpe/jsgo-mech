@@ -79,3 +79,22 @@ func TestTypedImmutables(t *testing.T) {
 		t.Error("ImmutableMap.copyOf of the twin")
 	}
 }
+
+func TestTypedImmutableEqHash(t *testing.T) {
+	a := immutableListOf_(timmStr_, "x", "y")
+	b := immutableListOf_(timmStr_, "x", "y")
+	if !tlistEq_(a, b, true) || tlistHash_(a, true) != a.asImm().hashCode() || tlistEq_(a, nil, true) || !tlistEq_[string](nil, nil, true) {
+		t.Error("list equals/hashCode")
+	}
+	guavaThrew_(t, "NullPointerException", func() { tlistEq_(nil, b, false) })
+	s := immutableSetOf_(timmStr_, "p", "q")
+	s2 := immutableSetOf_(timmStr_, "q", "p")
+	if !tsetEq_(s, s2, false) || tsetHash_(s, false) != s.asImm().hashCode() {
+		t.Error("set equals/hashCode")
+	}
+	m := immutableMapOf_(timmStr_, timmStr_, []string{"k"}, []string{"v"})
+	m2 := immutableMapOf_(timmStr_, timmStr_, []string{"k"}, []string{"w"})
+	if tmapEq_(m, m2, true) || tmapHash_(m, true) != m.asImm().hashCode() {
+		t.Error("map equals/hashCode")
+	}
+}
