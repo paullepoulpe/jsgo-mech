@@ -84,6 +84,5 @@ func LineNumberScanner_isLineTerminator(ch uint16) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }

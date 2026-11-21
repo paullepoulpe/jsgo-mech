@@ -88,7 +88,6 @@ func (this *SourceMapConsumerV3) parseMetaMap(sourceMapObject *SourceMapObject, 
 					ret_1 = Outcome_base_err[any](new_SourceMapParseException(("IO exception: " + objstr_(ex.self()))).up_Throwable())
 					code_ = 1
 					return
-					return
 				}
 				panic(r_)
 			}
@@ -119,7 +118,6 @@ func (this *SourceMapConsumerV3) parseMetaMap(sourceMapObject *SourceMapObject, 
 		generator.appendTo(StringBuilder_as_Appendable(sb), sourceMapObject.getFile())
 		ret_1 = this.parse(tostrR_(sb))
 		return 1
-		return 0
 	}()
 	if code_1 == 1 {
 		return ret_1
@@ -188,7 +186,6 @@ func (this *SourceMapConsumerV3) getReverseMapping(originalFile string, line int
 			return mappings
 		}
 	}
-	panic("unreachable")
 }
 
 func (this *SourceMapConsumerV3) getSourceRoot() Optional[string] {
@@ -218,7 +215,6 @@ func (this *SourceMapConsumerV3) search(target int32, start int32, end int32) in
 			}
 		}
 	}
-	panic("unreachable")
 }
 
 func (this *SourceMapConsumerV3) getPreviousMapping(lineNumber int32) *Mapping_OriginalMapping {
@@ -244,7 +240,6 @@ func (this *SourceMapConsumerV3) getOriginalMappingForEntry(index int32, precisi
 		}
 		return cast_[*Mapping_OriginalMapping](x.build())
 	}
-	panic("unreachable")
 }
 
 func (this *SourceMapConsumerV3) createReverseMapping() {
@@ -443,7 +438,6 @@ func (this *SourceMapConsumerV3_MappingBuilder) setEntry(entriesCount int32, val
 	} else {
 		return this.setEntryNormal(entriesCount, vals, entryValues, previousCol, previousSrcId, previousSrcLine, previousSrcColumn, previousNameId)
 	}
-	panic("unreachable")
 }
 
 func (this *SourceMapConsumerV3_MappingBuilder) setEntryCompact(entriesCount int32, vals []int32, entryValues int32, previousCol int32, previousSrcId int32, previousSrcLine int32, previousSrcColumn int32, previousNameId int32) *Outcome_base[any] {

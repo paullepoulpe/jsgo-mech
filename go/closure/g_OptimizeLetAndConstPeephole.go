@@ -36,7 +36,6 @@ func (this *OptimizeLetAndConstPeephole) optimizeSubtree_impl(subtree Node) Node
 		default:
 			return subtree
 		}
-		panic("unreachable")
 	}()
 }
 

@@ -19,7 +19,6 @@ func TranspilationPasses_addEs6ModulePass(passes *PassListBuilder, preprocessorT
 	passes.maybeAdd(PassFactory_builder().setName("es6RewriteModule").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		preprocessorTableFactory.maybeInitialize(compiler)
 		return CompilerPass(new_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_PreprocessorSymbolTable_TypedScope_ChunkOutputType(compiler, compiler.getModuleMetadataMap(), compiler.getModuleMap(), preprocessorTableFactory.getInstanceOrNull(), compiler.getTopScope(), compiler.getOptions().getChunkOutputType()))
-		panic("unreachable")
 	})).build())
 }
 
@@ -253,7 +252,6 @@ func TranspilationPasses_clinit() {
 			peepholeTranspilations.add(new_RewriteNewDotTarget(compiler).up_AbstractPeepholeTranspilation())
 		}
 		return PeepholeTranspilationsPass_as_CompilerPass(PeepholeTranspilationsPass_create(compiler, peepholeTranspilations))
-		panic("unreachable")
 	})).build()
 	TranspilationPasses_es6RewriteModuleToCjs = PassFactory_builder().setName("es6RewriteModuleToCjs").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass {
 		return CompilerPass(new_Es6RewriteModulesToCommonJsModules(p0))
