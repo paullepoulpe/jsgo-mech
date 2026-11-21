@@ -53,7 +53,7 @@ func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetOf[N]) ImmutableS
 		_ = node
 		var color *LowestCommonAncestorFinder_Color = cast_[*LowestCommonAncestorFinder_Color](color_)
 		_ = color
-		if color.equals(obj_(allColor)) {
+		if color.equals_LowestCommonAncestorFinder_Color(allColor) {
 			this.paintAncestors(node, LowestCommonAncestorFinder_Color_NOT_LOWEST)
 		}
 	}))
@@ -63,7 +63,7 @@ func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetOf[N]) ImmutableS
 		_ = node
 		var color *LowestCommonAncestorFinder_Color = cast_[*LowestCommonAncestorFinder_Color](color_)
 		_ = color
-		if color.equals(obj_(allColor)) {
+		if color.equals_LowestCommonAncestorFinder_Color(allColor) {
 			results.add(node.getValue())
 		}
 	}))
@@ -144,7 +144,12 @@ func (this *LowestCommonAncestorFinder_Color) contains(other *LowestCommonAncest
 }
 
 func (this *LowestCommonAncestorFinder_Color) equals(other any) bool {
-	return (this.bitset == cast_[*LowestCommonAncestorFinder_Color](other).bitset)
+	return this.equals_LowestCommonAncestorFinder_Color(cast_[*LowestCommonAncestorFinder_Color](other))
+}
+
+// equals_LowestCommonAncestorFinder_Color is equals of a LowestCommonAncestorFinder_Color (post-flip step eqtyped).
+func (this *LowestCommonAncestorFinder_Color) equals_LowestCommonAncestorFinder_Color(other *LowestCommonAncestorFinder_Color) bool {
+	return (this.bitset == other.bitset)
 }
 
 func (this *LowestCommonAncestorFinder_Color) hashCode() int32 {

@@ -186,7 +186,7 @@ func InferJSDocInfo_dereferenced(type_ *JSType) *ObjectType {
 }
 
 func InferJSDocInfo_shouldAttachJSDocToNominalTypeOrShape(type_ *ObjectType, aliasedType *JSType) bool {
-	return (((type_ != nil) && (type_.getJSDocInfo() == nil)) && !type_.equals(aliasedType.self()))
+	return (((type_ != nil) && (type_.getJSDocInfo() == nil)) && !type_.equals_JSType(aliasedType))
 }
 
 func InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(objType *ObjectType, docInfo *JSDocInfo, qName Optional[string]) {

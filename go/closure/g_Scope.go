@@ -135,7 +135,7 @@ func (this *Scope) undeclare(var_ *Var) {
 	if var_.getScope_rAbstractScope_rScope() != this {
 		panic(new_IllegalStateException_0().self())
 	}
-	if !cast_[*Var](Map_get_s(this.vars, var_.getName())).equals(obj_(var_)) {
+	if !cast_[*Var](Map_get_s(this.vars, var_.getName())).equals_ScopedName(var_.up_ScopedName()) {
 		panic(new_IllegalStateException_0().self())
 	}
 	this.undeclareInteral(var_)
