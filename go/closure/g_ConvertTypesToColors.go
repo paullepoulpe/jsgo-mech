@@ -22,7 +22,9 @@ func (this *ConvertTypesToColors) process_2(externs Node, root Node) {
 	if this.compiler_.getLifeCycleStage().hasColorAndSimplifiedJSDoc() {
 		return
 	}
-	Preconditions_checkState_boolean_Object(!this.compiler_.getLifeCycleStage().isNormalized(), "Not expected to run after normalization")
+	if this.compiler_.getLifeCycleStage().isNormalized() {
+		panic(new_IllegalStateException_String(objstr_("Not expected to run after normalization")).self())
+	}
 	var externsAndJsRoot Node = root.getParent()
 	if !this.compiler_.hasTypeCheckingRun() {
 		NodeTraversal_traverse(this.compiler_, externsAndJsRoot, new_ConvertTypesToColors_RemoveTypes())

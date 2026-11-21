@@ -55,7 +55,9 @@ func (this *ConvertChunksToESModules) convertChunkSourcesToModules() {
 			var input *CompilerInput = cast_[*CompilerInput](it_3.v)
 			var astRoot Node = input.getAstRoot(this.compiler_)
 			var scriptFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(astRoot)
-			Preconditions_checkState(!scriptFeatures.containsFeatureSet(FeatureSet_ES2015_MODULES))
+			if scriptFeatures.containsFeatureSet(FeatureSet_ES2015_MODULES) {
+				panic(new_IllegalStateException_0().self())
+			}
 			if firstInput == nil {
 				firstInput = input
 				scriptFeatures = scriptFeatures.union(FeatureSet_ES2015_MODULES)
@@ -71,7 +73,9 @@ func (this *ConvertChunksToESModules) convertChunkSourcesToModules() {
 				var combinedFeatureSet *FeatureSet = firstInputScriptFeatures.union(NodeUtil_getFeatureSetOfScript(astRoot))
 				astRoot.setFeatureSet(combinedFeatureSet)
 				var moduleBody Node = firstInputAstRoot.getFirstChild()
-				Preconditions_checkState(((moduleBody != 0) && moduleBody.isModuleBody()))
+				if moduleBody == 0 || !moduleBody.isModuleBody() {
+					panic(new_IllegalStateException_0().self())
+				}
 				moduleBody.addChildrenToBack(astRoot.removeChildren())
 				this.compiler_.reportChangeToEnclosingScope(firstInputAstRoot)
 				this.compiler_.reportChangeToChangeScope(astRoot)
@@ -86,7 +90,9 @@ func (this *ConvertChunksToESModules) addExportStatements() {
 		var jsModuleExports *TEntry[*JSChunk, Set] = it_1.entry()
 		var firstInput *CompilerInput = jsModuleExports.getKey().getFirst()
 		var moduleBody Node = firstInput.getAstRoot(this.compiler_).getFirstChild()
-		Preconditions_checkState(((moduleBody != 0) && moduleBody.isModuleBody()))
+		if moduleBody == 0 || !moduleBody.isModuleBody() {
+			panic(new_IllegalStateException_0().self())
+		}
 		var exportSpecs Node = new_Node_Token(Token_rhino_EXPORT_SPECS)
 		it_3 := foreach_(jsModuleExports.getValue())
 		for it_3.next() {
@@ -118,7 +124,9 @@ func (this *ConvertChunksToESModules) addImportStatements() {
 		var importingChunk *JSChunk = chunkImportsEntry.getKey()
 		var firstInput *CompilerInput = importingChunk.getFirst()
 		var moduleBody Node = firstInput.getAstRoot(this.compiler_).getFirstChild()
-		Preconditions_checkState(((moduleBody != 0) && moduleBody.isModuleBody()))
+		if moduleBody == 0 || !moduleBody.isModuleBody() {
+			panic(new_IllegalStateException_0().self())
+		}
 		it_3 := foreach_(chunkImportsEntry.getValue().entrySet())
 		for it_3.next() {
 			var importsByChunk Map_Entry = icast_Map_Entry(it_3.v)
@@ -161,7 +169,9 @@ func (this *ConvertChunksToESModules) addImportStatements() {
 }
 
 func ConvertChunksToESModules_getDynamicImportCallbackModuleNamespace(compiler *AbstractCompiler, call Node) Node {
-	Preconditions_checkState(call.isCall())
+	if !call.isCall() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var callbackFn Node = NodeUtil_getArgumentForCallOrNew(call, 0)
 	if ((callbackFn == 0) || !callbackFn.isFunction()) || NodeUtil_getFunctionParameters(callbackFn).hasChildren() {
 		compiler.report(JSError_make_Node_DiagnosticType_StringArr(call, ConvertChunksToESModules_UNRECOGNIZED_DYNAMIC_IMPORT_CALLBACK, []string{" Unable to find valid callback function."}))
@@ -182,7 +192,9 @@ func (this *ConvertChunksToESModules) rewriteDynamicImportCallbacks() {
 	it_1 := this.dynamicImportCallbacks.each()
 	for it_1.next() {
 		var dynamicImportCallback Node = it_1.v
-		Preconditions_checkState(dynamicImportCallback.isCall())
+		if !dynamicImportCallback.isCall() {
+			panic(new_IllegalStateException_0().self())
+		}
 		var moduleNamespace Node = ConvertChunksToESModules_getDynamicImportCallbackModuleNamespace(this.compiler_, dynamicImportCallback)
 		if moduleNamespace == 0 {
 			continue
@@ -212,7 +224,9 @@ func ConvertChunksToESModules_isDynamicImportCallback(call Node) bool {
 }
 
 func (this *ConvertChunksToESModules) visitCallAndTraverse(t *NodeTraversal, call Node) bool {
-	Preconditions_checkState(call.isCall())
+	if !call.isCall() {
+		panic(new_IllegalStateException_0().self())
+	}
 	if !ConvertChunksToESModules_isDynamicImportCallback(call) {
 		return true
 	}
@@ -230,7 +244,9 @@ func (this *ConvertChunksToESModules) visitCallAndTraverse(t *NodeTraversal, cal
 }
 
 func (this *ConvertChunksToESModules) visitName(t *NodeTraversal, nameNode Node, importType ConvertChunksToESModules_ImportType) bool {
-	Preconditions_checkState(nameNode.isName())
+	if !nameNode.isName() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var name string = nameNode.getString()
 	if String_isEmpty(name) {
 		return false
@@ -397,7 +413,9 @@ func (this *ConvertChunksToESModules_FindCrossChunkReferences) shouldTraverse_im
 }
 
 func (this *ConvertChunksToESModules_FindCrossChunkReferences) visitScript(t *NodeTraversal, script Node) {
-	Preconditions_checkState(script.isScript())
+	if !script.isScript() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var chunk *JSChunk = t.getChunk()
 	var chunkDependencies *JTList[*JSChunk] = chunk.getDependencies()
 	this.outer_.crossChunkExports.putIfAbsent(chunk, Set(new_LinkedHashSet()))

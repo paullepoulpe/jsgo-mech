@@ -26,13 +26,17 @@ func new_EqualityChecker() *EqualityChecker {
 
 func (this *EqualityChecker) setEqMethod(x EqualityChecker_EqMethod) *EqualityChecker {
 	this.checkHasNotRun()
-	Preconditions_checkState((this.eqMethod == 0))
+	if this.eqMethod != 0 {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.eqMethod = x
 	return this
 }
 
 func (this *EqualityChecker) checkHasNotRun() {
-	Preconditions_checkState(!this.hasRun)
+	if this.hasRun {
+		panic(new_IllegalStateException_0().self())
+	}
 }
 
 func (this *EqualityChecker) check(left *JSType, right *JSType) bool {
@@ -148,7 +152,9 @@ func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool 
 	if left.isNominalType() && right.isNominalType() {
 		var leftUnwrapped *ObjectType = EqualityChecker_unwrapNominalTypeProxies(left.toObjectType())
 		var rightUnwrapped *ObjectType = EqualityChecker_unwrapNominalTypeProxies(right.toObjectType())
-		Preconditions_checkState((leftUnwrapped.isNominalType() && rightUnwrapped.isNominalType()))
+		if !leftUnwrapped.isNominalType() || !rightUnwrapped.isNominalType() {
+			panic(new_IllegalStateException_0().self())
+		}
 		if left.isResolved() && right.isResolved() {
 			return (leftUnwrapped == rightUnwrapped)
 		} else {

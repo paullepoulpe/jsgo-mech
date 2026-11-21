@@ -169,7 +169,9 @@ func (this *PeepholeFoldConstants) tryConvertToNumber(n Node) {
 }
 
 func (this *PeepholeFoldConstants) tryFoldTypeof(originalTypeofNode Node) Node {
-	Preconditions_checkArgument(originalTypeofNode.isTypeOf())
+	if !originalTypeofNode.isTypeOf() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var argumentNode Node = originalTypeofNode.getFirstChild()
 	if (argumentNode == 0) || !NodeUtil_isLiteralValue(argumentNode, true) {
 		return originalTypeofNode
@@ -206,7 +208,7 @@ func (this *PeepholeFoldConstants) tryFoldTypeof(originalTypeofNode Node) Node {
 
 func (this *PeepholeFoldConstants) tryFoldUnaryOperator(n Node) Node {
 	if !n.hasOneChild() {
-		Preconditions_checkState_boolean_Object_H(false, n)
+		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
 	}
 	var left Node = n.getFirstChild()
 	var parent Node = n.getParent()
@@ -287,7 +289,9 @@ func (this *PeepholeFoldConstants) isReasonableDoubleValue(x any) bool {
 }
 
 func (this *PeepholeFoldConstants) tryFoldInstanceof(n Node, left Node, right Node) Node {
-	Preconditions_checkArgument(n.isInstanceOf())
+	if !n.isInstanceOf() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if NodeUtil_isLiteralValue(left, true) && !this.mayHaveSideEffects(right) {
 		var replacementNode Node = 0
 		if NodeUtil_isImmutableValue(left) {
@@ -310,7 +314,9 @@ func (this *PeepholeFoldConstants) tryFoldInstanceof(n Node, left Node, right No
 }
 
 func (this *PeepholeFoldConstants) tryFoldAssign(n Node, left Node, right Node) Node {
-	Preconditions_checkArgument(n.isAssign())
+	if !n.isAssign() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if !this.late {
 		return n
 	}
@@ -731,11 +737,15 @@ func (this *PeepholeFoldConstants) maybeReplaceBinaryOpWithNumericResult(result 
 
 func (this *PeepholeFoldConstants) tryFoldLeftChildOp(n Node, left Node, right Node) Node {
 	var opType Token_rhino = n.getToken()
-	Preconditions_checkState((NodeUtil_isAssociative(opType) && NodeUtil_isCommutative(opType)))
+	if !NodeUtil_isAssociative(opType) || !NodeUtil_isCommutative(opType) {
+		panic(new_IllegalStateException_0().self())
+	}
 	var rightValObj any = this.getSideEffectFreeNumberValue(right)
 	var rightBigInt *BigInteger = this.getSideEffectFreeBigIntValue(right)
 	if ((rightValObj != nil) || (rightBigInt != nil)) && (left.getToken() == opType) {
-		Preconditions_checkState(left.hasTwoChildren())
+		if !left.hasTwoChildren() {
+			panic(new_IllegalStateException_0().self())
+		}
 		var ll Node = left.getFirstChild()
 		var lr Node = ll.getNext()
 		var valueToCombine Node = ll
@@ -878,7 +888,9 @@ func (this *PeepholeFoldConstants) isRestrictedOctalEscape(prefixRaw string, suf
 }
 
 func (this *PeepholeFoldConstants) tryFoldAdd(node Node, left Node, right Node) Node {
-	Preconditions_checkArgument(node.isAdd())
+	if !node.isAdd() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if NodeUtil_mayBeString_Node_boolean(node, this.shouldUseTypes) {
 		if left.isTemplateLit() && right.isTemplateLit() {
 			return this.foldAddTemplateLiterals(node, left, right)
@@ -910,7 +922,9 @@ func (this *PeepholeFoldConstants) tryFoldAdd(node Node, left Node, right Node) 
 
 func (this *PeepholeFoldConstants) foldTemplateLiteralAndConstant(oldNode Node, left Node, rightStr string) Node {
 	var lastLeft Node = left.getLastChild()
-	Preconditions_checkState(lastLeft.isTemplateLitString())
+	if !lastLeft.isTemplateLitString() {
+		panic(new_IllegalStateException_0().self())
+	}
 	if this.isRestrictedOctalEscape(lastLeft.getRawString(), rightStr) {
 		return oldNode
 	}
@@ -923,7 +937,9 @@ func (this *PeepholeFoldConstants) foldTemplateLiteralAndConstant(oldNode Node, 
 
 func (this *PeepholeFoldConstants) foldConstantAndTemplateLiteral(oldNode Node, leftStr string, right Node) Node {
 	var firstRight Node = right.getFirstChild()
-	Preconditions_checkState(firstRight.isTemplateLitString())
+	if !firstRight.isTemplateLitString() {
+		panic(new_IllegalStateException_0().self())
+	}
 	if this.isRestrictedOctalEscape(leftStr, firstRight.getRawString()) {
 		return oldNode
 	}
@@ -1272,7 +1288,9 @@ func PeepholeFoldConstants_evaluateComparison(peepholeOptimization *AbstractPeep
 }
 
 func (this *PeepholeFoldConstants) tryFoldCtorCall(n Node) Node {
-	Preconditions_checkArgument(n.isNew())
+	if !n.isNew() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if PeepholeFoldConstants_inForcedStringContext(n) {
 		return this.tryFoldInForcedStringContext(n)
 	}
@@ -1280,7 +1298,9 @@ func (this *PeepholeFoldConstants) tryFoldCtorCall(n Node) Node {
 }
 
 func (this *PeepholeFoldConstants) tryFoldUselessObjectDotDefinePropertiesCall(n Node) Node {
-	Preconditions_checkArgument((n.isCall() || n.isOptChainCall()))
+	if !n.isCall() && !n.isOptChainCall() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if NodeUtil_isObjectDefinePropertiesDefinition(n) {
 		var srcObj Node = n.getLastChild()
 		if srcObj.isObjectLit() && !srcObj.hasChildren() {
@@ -1301,7 +1321,9 @@ func PeepholeFoldConstants_inForcedStringContext(n Node) bool {
 }
 
 func (this *PeepholeFoldConstants) tryFoldInForcedStringContext(n Node) Node {
-	Preconditions_checkArgument(n.isNew())
+	if !n.isNew() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var objectType Node = n.getFirstChild()
 	if !objectType.isName() {
 		return n
@@ -1328,7 +1350,9 @@ func (this *PeepholeFoldConstants) tryFoldInForcedStringContext(n Node) Node {
 }
 
 func (this *PeepholeFoldConstants) tryFoldGetElem(n Node, left Node, right Node) Node {
-	Preconditions_checkArgument((n.isGetElem() || n.isOptChainGetElem()))
+	if !n.isGetElem() && !n.isOptChainGetElem() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if left.isObjectLit() {
 		if right.isStringLit() {
 			return this.tryFoldObjectPropAccess(n, left, right.getString())
@@ -1342,7 +1366,9 @@ func (this *PeepholeFoldConstants) tryFoldGetElem(n Node, left Node, right Node)
 }
 
 func (this *PeepholeFoldConstants) tryFoldGetProp(n Node) Node {
-	Preconditions_checkArgument((n.isGetProp() || n.isOptChainGetProp()))
+	if !n.isGetProp() && !n.isOptChainGetProp() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var left Node = n.getFirstChild()
 	var name string = n.getString()
 	if left.isObjectLit() {
@@ -1372,7 +1398,9 @@ func (this *PeepholeFoldConstants) tryFoldGetProp(n Node) Node {
 		default:
 			return n
 		}
-		Preconditions_checkState((knownLength != -1))
+		if knownLength == -1 {
+			panic(new_IllegalStateException_0().self())
+		}
 		var lengthNode Node = IR_number(float64(knownLength))
 		this.reportChangeToEnclosingScope(n)
 		n.replaceWith(lengthNode)
@@ -1432,7 +1460,9 @@ func (this *PeepholeFoldConstants) tryFoldArrayAccess(n Node, left Node, right N
 }
 
 func (this *PeepholeFoldConstants) tryFoldSpread(spread Node) Node {
-	Preconditions_checkState(spread.isSpread())
+	if !spread.isSpread() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var parent Node = spread.getParent()
 	var child Node = spread.getOnlyChild()
 	if child.isArrayLit() && PeepholeFoldConstants_isSafeToFlattenArrayLitSpread(child) {
@@ -1486,7 +1516,9 @@ func (this *PeepholeFoldConstants) tryFoldStringArrayAccess(n Node, left Node, r
 		this.report(PeepholeFoldConstants_INVALID_GETELEM_INDEX_ERROR, right)
 		return n
 	}
-	Preconditions_checkState(left.isStringLit())
+	if !left.isStringLit() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var value string = left.getString()
 	if (intIndex < 0) || (intIndex >= String_length(value)) {
 		var undefined Node = NodeUtil_newUndefinedNode(left)
@@ -1508,12 +1540,16 @@ func (this *PeepholeFoldConstants) tryFoldStringArrayAccess(n Node, left Node, r
 }
 
 func (this *PeepholeFoldConstants) tryFoldObjectPropAccess(n Node, left Node, name string) Node {
-	Preconditions_checkArgument(NodeUtil_isNormalOrOptChainGet(n))
+	if !NodeUtil_isNormalOrOptChainGet(n) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if !left.isObjectLit() {
 		return n
 	}
 	if NodeUtil_isLValue(n) {
-		Preconditions_checkState(!NodeUtil_isOptChainNode(n))
+		if NodeUtil_isOptChainNode(n) {
+			panic(new_IllegalStateException_0().self())
+		}
 		return n
 	}
 	var key Node = 0

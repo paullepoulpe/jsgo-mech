@@ -67,7 +67,9 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn Func
 	if this.serializationMode.includeDebugInfo() {
 		func() Function[*Color, Set] {
 			f_ := getMismatchSourceRefsFn
-			Preconditions_checkNotNull(f_.box_())
+			if f_ == nil {
+				panic(new_NullPointerException_0().self())
+			}
 			return f_
 		}()
 		var debugInfoBuilder *TypePool_DebugInfo_Builder = typePoolBuilder.getDebugInfoBuilder()

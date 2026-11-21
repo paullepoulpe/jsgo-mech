@@ -18,11 +18,13 @@ func new_DestructuringGlobalNameExtractor() *DestructuringGlobalNameExtractor {
 func DestructuringGlobalNameExtractor_reassignDestructringLvalue(stringKey Node, newName Node, newNodes *JTSet[GlobalNamespace_AstChange], ref *GlobalNamespace_Ref, compiler *AbstractCompiler) {
 	var pattern Node = stringKey.getParent()
 	var assignmentType Node = pattern.getParent()
-	if !(assignmentType.isAssign() || assignmentType.isDestructuringLhs()) {
-		Preconditions_checkState_boolean_Object_H(false, assignmentType)
+	if !assignmentType.isAssign() && !assignmentType.isDestructuringLhs() {
+		panic(new_IllegalStateException_String(objstr_(assignmentType.box_())).self())
 	}
 	var originalRvalue Node = pattern.getNext()
-	Preconditions_checkState(originalRvalue.isQualifiedName())
+	if !originalRvalue.isQualifiedName() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var lvalueToReassign Node = func() Node {
 		if stringKey.getOnlyChild().isDefaultValue() {
 			return stringKey.getOnlyChild().getFirstChild()
@@ -76,7 +78,7 @@ func DestructuringGlobalNameExtractor_addAfter(originalLvalue Node, newLvalue No
 		return parent
 	}()
 	if !NodeUtil_isNameDeclaration(declaration) {
-		Preconditions_checkState_boolean_Object_H(false, declaration)
+		panic(new_IllegalStateException_String(objstr_(declaration.box_())).self())
 	}
 	if NodeUtil_isStatementParent(declaration.getParent()) {
 		var newDeclaration Node = new_Node_Token(declaration.getToken()).srcref(declaration)
@@ -93,7 +95,9 @@ func DestructuringGlobalNameExtractor_replaceDestructuringAssignment(pattern Nod
 		var newAssign Node = IR_assign(newLvalue, newRvalue).srcref(parent)
 		parent.replaceWith(newAssign)
 	} else if newLvalue.isName() {
-		Preconditions_checkState(parent.isDestructuringLhs())
+		if !parent.isDestructuringLhs() {
+			panic(new_IllegalStateException_0().self())
+		}
 		parent.replaceWith(newLvalue)
 		newLvalue.addChildToBack(newRvalue)
 	} else {

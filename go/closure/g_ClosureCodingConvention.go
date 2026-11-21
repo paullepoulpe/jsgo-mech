@@ -171,7 +171,9 @@ func (this *ClosureCodingConvention) applySingletonGetter_impl(classType *Nomina
 }
 
 func (this *ClosureCodingConvention) isPropertyTestFunction_impl(call Node) bool {
-	Preconditions_checkArgument(call.isCall())
+	if !call.isCall() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var target Node = call.getFirstChild()
 	if target.isGetProp() {
 		var src Node = target.getFirstChild()
@@ -196,7 +198,7 @@ func (this *ClosureCodingConvention) isFunctionCallThatAlwaysThrows_impl(n Node)
 
 func (this *ClosureCodingConvention) getObjectLiteralCast_impl(callNode Node) *CodingConvention_ObjectLiteralCast {
 	if !callNode.isCall() {
-		Preconditions_checkArgument_boolean_String_Object_H(false, "Expected call node but found %s", callNode)
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected call node but found %s", []any{callNode.box_()})).self())
 	}
 	var proxyCast *CodingConvention_ObjectLiteralCast = this.CodingConventions_Proxy.getObjectLiteralCast_impl(callNode)
 	if proxyCast != nil {

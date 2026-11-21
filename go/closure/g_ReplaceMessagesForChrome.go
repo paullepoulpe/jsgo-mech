@@ -69,7 +69,11 @@ func (this *ReplaceMessagesForChrome) getNewValueNode(message *JsMessage, defini
 		it_1 := foreach_(placeholderNames)
 		for it_1.next() {
 			var name string = str_(it_1.v)
-			var value Node = Preconditions_checkNotNull_T(placeholderValueMap.get(name)).cloneTree()
+			nn_ := placeholderValueMap.get(name)
+			if nn_ == 0 {
+				panic(new_NullPointerException_0().self())
+			}
+			var value Node = nn_.cloneTree()
 			placeholderValueArray.addChildToBack(value)
 		}
 		if isHtml {

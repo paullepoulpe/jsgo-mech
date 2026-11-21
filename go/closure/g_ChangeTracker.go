@@ -44,7 +44,9 @@ func (this *ChangeTracker) reportChangeToEnclosingScope(n Node) {
 }
 
 func (this *ChangeTracker) reportChangeToChangeScope(changeScopeRoot Node) {
-	Preconditions_checkState((changeScopeRoot.isScript() || changeScopeRoot.isFunction()))
+	if !changeScopeRoot.isScript() && !changeScopeRoot.isFunction() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.recordChange(changeScopeRoot)
 	this.notifyChangeHandlers()
 }
@@ -62,7 +64,9 @@ func (this *ChangeTracker) markNewScopesChanged(node Node) {
 }
 
 func (this *ChangeTracker) reportFunctionDeleted(n Node) {
-	Preconditions_checkState(n.isFunction())
+	if !n.isFunction() {
+		panic(new_IllegalStateException_0().self())
+	}
 	n.setDeleted(true)
 	this.changeTimeline.remove(n)
 }

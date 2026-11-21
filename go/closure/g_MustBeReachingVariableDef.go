@@ -111,7 +111,7 @@ func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, outp
 						}(), c.getFirstChild(), output)
 					} else {
 						if !c.isDestructuringLhs() {
-							Preconditions_checkState_boolean_Object_H(false, c)
+							panic(new_IllegalStateException_String(objstr_(c.box_())).self())
 						}
 						this.computeMustDef(c.getSecondChild(), cfgNode, output, conditional)
 						this.computeMustDef(c.getFirstChild(), cfgNode, output, conditional)
@@ -256,7 +256,9 @@ func (this *MustBeReachingVariableDef) computeDependence(def *MustBeReachingVari
 }
 
 func (this *MustBeReachingVariableDef) getDef(name string, useNode Node) *MustBeReachingVariableDef_Definition {
-	Preconditions_checkArgument(this.getCfg().hasNode(useNode))
+	if !this.getCfg().hasNode(useNode) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var n GraphNode[Node, ControlFlowGraph_Branch] = cast_[GraphNode[Node, ControlFlowGraph_Branch]](this.getCfg().getNode_Object_rDiGraphNode_rLinkedDiGraphNode(useNode).self())
 	var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(n)))
 	return cast_[*MustBeReachingVariableDef_MustDef](state.getIn()).reachingDef.get(this.allVarsInFn.get(name))

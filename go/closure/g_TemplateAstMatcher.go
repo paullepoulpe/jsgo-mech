@@ -27,12 +27,19 @@ func (this *TemplateAstMatcher) finit_TemplateAstMatcher() {
 func (this *TemplateAstMatcher) init_TemplateAstMatcher(compiler *AbstractCompiler, templateFunctionNode Node, typeMatchingStrategy TypeMatchingStrategy) {
 	this.finit_TemplateAstMatcher()
 	if !templateFunctionNode.isFunction() {
-		Preconditions_checkState_boolean_String_Object_H(false, "Template node must be a function node. Received: %s", templateFunctionNode)
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Template node must be a function node. Received: %s", []any{templateFunctionNode.box_()})).self())
 	}
 	this.topScope = compiler.getTopScope()
-	this.typeRegistry = Preconditions_checkNotNull_T(compiler.getTypeRegistry())
+	nn_ := compiler.getTypeRegistry()
+	if nn_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.typeRegistry = nn_
 	this.templateStart = this.initTemplate(templateFunctionNode)
-	this.typeMatchingStrategy = Preconditions_checkNotNull_T(typeMatchingStrategy)
+	if typeMatchingStrategy == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	this.typeMatchingStrategy = typeMatchingStrategy
 }
 
 func new_TemplateAstMatcher(compiler *AbstractCompiler, templateFunctionNode Node, typeMatchingStrategy TypeMatchingStrategy) *TemplateAstMatcher {
@@ -97,16 +104,22 @@ func (this *TemplateAstMatcher) prepTemplatePlaceholders(fn Node) {
 	var templateParametersNode Node = fn.getSecondChild()
 	var info *JSDocInfo = NodeUtil_getBestJSDocInfo(fn)
 	if templateParametersNode.hasChildren() {
-		Preconditions_checkNotNull_Object_String_Object_T(info, "Missing JSDoc declaration for template function %s", fnName)
+		if info == nil {
+			panic(new_NullPointerException_String(Strings_lenientFormat("Missing JSDoc declaration for template function %s", []any{fnName})).self())
+		}
 	}
 	{
 		var paramNode Node = templateParametersNode.getFirstChild()
 		for ; paramNode != 0; paramNode = paramNode.getNext() {
 			var name string = paramNode.getString()
 			var expression *JSTypeExpression = info.getParameterType(Optional_of[string](name))
-			Preconditions_checkNotNull_Object_String_Object_Object_T(expression, "Missing JSDoc for parameter %s of template function %s", name, fnName)
+			if expression == nil {
+				panic(new_NullPointerException_String(Strings_lenientFormat("Missing JSDoc for parameter %s of template function %s", []any{name, fnName})).self())
+			}
 			var type_ *JSType = this.typeRegistry.evaluateTypeExpression(expression, TypedScope_as_StaticTypedScope(this.topScope))
-			Preconditions_checkNotNull_T(type_)
+			if type_ == nil {
+				panic(new_NullPointerException_0().self())
+			}
 			params.add(name)
 			paramTypes.put(name, type_)
 		}
@@ -151,8 +164,12 @@ func (this *TemplateAstMatcher) isTemplateParameterStringLiteralNode(n Node) boo
 }
 
 func (this *TemplateAstMatcher) createTemplateParameterNode(index int32, type_ *JSType, isStringLiteral bool) Node {
-	Preconditions_checkState((index >= 0))
-	Preconditions_checkNotNull_T(type_)
+	if index < 0 {
+		panic(new_IllegalStateException_0().self())
+	}
+	if type_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var n Node = Node_newNumber(float64(index))
 	if isStringLiteral {
 		n.setToken(TemplateAstMatcher_TEMPLATE_STRING_LITERAL)
@@ -168,7 +185,9 @@ func (this *TemplateAstMatcher) isTemplateLocalNameNode(n Node) bool {
 }
 
 func (this *TemplateAstMatcher) createTemplateLocalNameNode(index int32) Node {
-	Preconditions_checkState((index >= 0))
+	if index < 0 {
+		panic(new_IllegalStateException_0().self())
+	}
 	var n Node = Node_newNumber(float64(index))
 	n.setToken(TemplateAstMatcher_TEMPLATE_LOCAL_NAME)
 	return n
@@ -232,7 +251,9 @@ func (this *TemplateAstMatcher) matchesNode(template Node, ast Node) bool {
 			return ast.isEquivalentTo(previousMatch)
 		}
 		var templateType *JSType = template.getJSType()
-		Preconditions_checkNotNull_Object_Object_T(templateType, "null template parameter type.")
+		if templateType == nil {
+			panic(new_NullPointerException_String("null template parameter type.").self())
+		}
 		if this.isUnresolvedType(templateType) {
 			return false
 		}
