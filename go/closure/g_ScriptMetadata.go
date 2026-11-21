@@ -133,9 +133,9 @@ func (this *ScriptMetadata_FillerCallback) maybeCollectRequirelikeAlias(n Node) 
 	if !this.isRequirelikeCall(requirelikeCall) {
 		return
 	}
-	var alias Optional[string] = Optional_of[string](aliasNode.getOriginalName()).filter(Predicate[string](func(s string) bool {
+	var alias Optional[string] = Optional_of[string](aliasNode.getOriginalName()).filterFn_(func(s string) bool {
 		return s != ""
-	}))
+	})
 	if alias.isEmpty() {
 		alias = Optional_of[string](aliasNode.getString())
 	}

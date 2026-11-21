@@ -168,7 +168,7 @@ func (this *TypedAstDeserializer) initLazyAstDeserializer(lazyAst *LazyAst, file
 		return
 	}
 	if file.isWeak() {
-		Map_computeIfAbsent(Map(this.typedAstFilesystem), obj_(file), Function[any, any](func(p0 any) any {
+		Map_computeIfAbsent_f(Map(this.typedAstFilesystem), obj_(file), func(p0 any) any {
 			return func() Supplier[any] {
 				f_ := TypedAstDeserializer_createStubWeakScriptNode(cast_[*SourceFile_jscomp](p0))
 				if f_ == nil {
@@ -176,14 +176,14 @@ func (this *TypedAstDeserializer) initLazyAstDeserializer(lazyAst *LazyAst, file
 				}
 				return func() any { return f_().box_() }
 			}().box_()
-		}))
+		})
 		return
 	}
 	var deserializer *ScriptNodeDeserializer = new_ScriptNodeDeserializer(lazyAst, stringShard, colorShard, fileShard)
 	if this.syntheticExterns == file {
 		*this.syntheticExternsDeserializers = append(*this.syntheticExternsDeserializers, deserializer)
 	} else {
-		Map_computeIfAbsent(Map(this.typedAstFilesystem), obj_(file), Function[any, any](func(f_ any) any {
+		Map_computeIfAbsent_f(Map(this.typedAstFilesystem), obj_(file), func(f_ any) any {
 			var f *SourceFile_jscomp = cast_[*SourceFile_jscomp](f_)
 			_ = f
 			return func() Supplier[any] {
@@ -193,7 +193,7 @@ func (this *TypedAstDeserializer) initLazyAstDeserializer(lazyAst *LazyAst, file
 				}
 				return func() any { return f_().box_() }
 			}().box_()
-		}))
+		})
 	}
 	TypedAstDeserializer_addInputSourceMap(deserializer, compiler, resolveSourceMapAnnotations, parseInlineSourceMaps)
 }

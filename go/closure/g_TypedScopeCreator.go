@@ -740,9 +740,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) shouldTraverse(t *NodeTraver
 		if this.inputId == nil {
 			panic(new_NullPointerException_0())
 		}
-		this.sourceName_ = Optional_of[string](NodeUtil_getSourceName(n)).filter(Predicate[string](func(s string) bool {
+		this.sourceName_ = Optional_of[string](NodeUtil_getSourceName(n)).filterFn_(func(s string) bool {
 			return s != ""
-		}))
+		})
 	}
 	if (parent == 0) || this.inCurrentScope(t) {
 		this.visitPreorder(t, n, parent)
@@ -1127,9 +1127,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineModuleImport(localName
 	if importedModuleObject == nil {
 		var fallbackType *JSType = func() *JSType {
 			if this.outer_.compiler_.getOptions().assumeForwardDeclaredForMissingTypes() {
-				return this.outer_.typeRegistry.createNamedType(TypedScope_as_StaticTypedScope(this.currentScope), localNameNode.getString(), Optional_of[string](localNameNode.getSourceFileName()).filter(Predicate[string](func(s string) bool {
+				return this.outer_.typeRegistry.createNamedType(TypedScope_as_StaticTypedScope(this.currentScope), localNameNode.getString(), Optional_of[string](localNameNode.getSourceFileName()).filterFn_(func(s string) bool {
 					return s != ""
-				})), localNameNode.getLineno(), localNameNode.getCharno()).up_JSType()
+				}), localNameNode.getLineno(), localNameNode.getCharno()).up_JSType()
 			}
 			return this.outer_.unknownType.up_JSType()
 		}()
@@ -1241,9 +1241,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) findSuperClassFromNodes(exte
 				}()
 			}
 			if ctorType == nil {
-				return ObjectType_cast(this.outer_.typeRegistry.getType_5(TypedScope_as_StaticTypedScope(this.currentScope), superclass, Optional_of[string](extendsNode.getSourceFileName()).filter(Predicate[string](func(s string) bool {
+				return ObjectType_cast(this.outer_.typeRegistry.getType_5(TypedScope_as_StaticTypedScope(this.currentScope), superclass, Optional_of[string](extendsNode.getSourceFileName()).filterFn_(func(s string) bool {
 					return s != ""
-				})), extendsNode.getLineno(), extendsNode.getCharno()))
+				}), extendsNode.getLineno(), extendsNode.getCharno()))
 			}
 		} else if this.isGoogModuleGetProperty(extendsNode) {
 			ctorType = this.getCtorForGoogModuleGet(extendsNode)
@@ -1592,14 +1592,14 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getDeclaredType(info *JSDocI
 			if (rValue != 0) && rValue.isObjectLit() {
 				return rValue.getJSType()
 			} else {
-				return this.createEnumTypeFromNodes(rValue, Optional_of[string](lValue.getQualifiedName()).filter(Predicate[string](func(s string) bool {
+				return this.createEnumTypeFromNodes(rValue, Optional_of[string](lValue.getQualifiedName()).filterFn_(func(s string) bool {
 					return s != ""
-				})), lValue, info).up_JSType()
+				}), lValue, info).up_JSType()
 			}
 		} else if info.isConstructorOrInterface() {
-			var fnType *FunctionType = this.createFunctionTypeFromNodes(rValue, Optional_of[string](lValue.getQualifiedName()).filter(Predicate[string](func(s string) bool {
+			var fnType *FunctionType = this.createFunctionTypeFromNodes(rValue, Optional_of[string](lValue.getQualifiedName()).filterFn_(func(s string) bool {
 				return s != ""
-			})), info, lValue)
+			}), info, lValue)
 			if (rValue == 0) && !lValue.isFromExterns() {
 				this.outer_.report(JSError_make_Node_DiagnosticType_StringArr(lValue, func() *DiagnosticType {
 					if fnType.isConstructor() {
@@ -1633,9 +1633,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getDeclaredType(info *JSDocI
 	}
 	if (info != nil) && FunctionTypeBuilder_isFunctionTypeDeclaration(info) {
 		var fnName string = lValue.getQualifiedName()
-		return this.createFunctionTypeFromNodes(0, Optional_of[string](fnName).filter(Predicate[string](func(s string) bool {
+		return this.createFunctionTypeFromNodes(0, Optional_of[string](fnName).filterFn_(func(s string) bool {
 			return s != ""
-		})), info, lValue).up_JSType()
+		}), info, lValue).up_JSType()
 	}
 	if this.isValidTypedefDeclaration(lValue, info) {
 		return this.outer_.getNativeType(JSTypeNative_NO_TYPE)
@@ -1644,9 +1644,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getDeclaredType(info *JSDocI
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) declareAliasTypeIfRvalueIsAliasable(lValue Node, rValue *QualifiedName, rValueType *JSType, rValueLookupScope *TypedScope) {
-	this.declareAliasTypeIfRvalueIsAliasable_6(Optional_of[string](lValue.getQualifiedName()).filter(Predicate[string](func(s string) bool {
+	this.declareAliasTypeIfRvalueIsAliasable_6(Optional_of[string](lValue.getQualifiedName()).filterFn_(func(s string) bool {
 		return s != ""
-	})), lValue, rValue, rValueType, rValueLookupScope, this.currentScope)
+	}), lValue, rValue, rValueType, rValueLookupScope, this.currentScope)
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) declareAliasTypeIfRvalueIsAliasable_6(lValueName Optional[string], actualLvalueNode Node, rValue *QualifiedName, rValueType *JSType, rValueLookupScope *TypedScope, aliasDeclarationScope *TypedScope) {
@@ -2080,9 +2080,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder_SlotDefiner) readVariableName
 			panic(new_IllegalArgumentException_0())
 		}
 	}
-	this.variableName = Optional_of[string](this.declarationNode.getQualifiedName()).filter(Predicate[string](func(s string) bool {
+	this.variableName = Optional_of[string](this.declarationNode.getQualifiedName()).filterFn_(func(s string) bool {
 		return s != ""
-	}))
+	})
 	return this
 }
 
@@ -2365,9 +2365,9 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareTemplatesInFunctionBo
 	var voidType *JSType = this.outer_.getNativeType(JSTypeNative_VOID_TYPE)
 	for name := range templateNames.All() {
 		if !this.currentScope.canDeclare(name) {
-			this.outer_.validator.expectUndeclaredVariable(Optional_of[string](NodeUtil_getSourceName(functionNode)).filter(Predicate[string](func(s string) bool {
+			this.outer_.validator.expectUndeclaredVariable(Optional_of[string](NodeUtil_getSourceName(functionNode)).filterFn_(func(s string) bool {
 				return s != ""
-			})), input, functionNode, functionNode.getParent(), this.currentScope.getVar_String_rTypedVar(name), name, voidType)
+			}), input, functionNode, functionNode.getParent(), this.currentScope.getVar_String_rTypedVar(name), name, voidType)
 		}
 		this.currentScope.declare(name, functionNode, voidType, input, false)
 	}
